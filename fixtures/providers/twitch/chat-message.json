@@ -1,0 +1,23 @@
+{
+  "subscription": {
+    "id": "sub-chat-1",
+    "status": "enabled",
+    "type": "channel.chat.message",
+    "version": "1",
+    "condition": { "broadcaster_user_id": "9001", "user_id": "8001" },
+    "transport": { "method": "webhook", "callback": "https://example.invalid/twitch" },
+    "created_at": "2026-08-16T12:00:00Z"
+  },
+  "event": {
+    "broadcaster_user_id": "9001",
+    "broadcaster_user_login": "channel",
+    "broadcaster_user_name": "Channel",
+    "chatter_user_id": "viewer-123",
+    "chatter_user_login": "alice",
+    "chatter_user_name": "Alice\u0000   The   Great",
+    "message_id": "chat-provider-message-1",
+    "message": { "text": "!vote A", "fragments": [{ "type": "text", "text": "!vote A" }] },
+    "color": "#00FF00",
+    "badges": []
+  }
+}
