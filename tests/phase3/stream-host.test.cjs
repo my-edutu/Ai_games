@@ -77,7 +77,28 @@ test('broadcast controller restores a coherent public frame from the latest snap
   assert.equal(controller.publicFrame().scene === 'normal' || controller.publicFrame().scene === 'danger' || controller.publicFrame().scene === 'milestone', true);
 });
 
-test('stream host self-test validates assets, snapshots and authority isolation', () => {
+test('presentation accepts a new run at tick zero and clears run-scoped replay', () => {
+  const run = SnakeRuntime.create({ width: 8, height: 8, targetLength: 4, intermissionTicks: 1 }, 'presentation-restart');
+  const controller = new BroadcastController({ replayCapacity: 64 });
+  const firstToken = buildRenderSnapshot(run.state).runToken;
+  controller.accept(buildRenderSnapshot(run.state));
+
+  run.state.food = run.state.snake.body[0] + 1;
+  run.step();
+  controller.accept(buildRenderSnapshot(run.state));
+  assert.equal(controller.publicFrame().scene, 'result');
+  run.step();
+  controller.accept(buildRenderSnapshot(run.state));
+  run.step();
+  const restarted = buildRenderSnapshot(run.state);
+  assert.notEqual(restarted.runToken, firstToken);
+  assert.equal(restarted.tick, 0);
+  assert.deepEqual(controller.accept(restarted), { accepted: true, reason: 'ok' });
+  assert.equal(controller.publicFrame().tick, 0);
+  assert.equal(controller.publicFrame().replayAvailable, 1);
+});
+
+test('stream host self-test validates assets, snapshots, restart and authority isolation', () => {
   const result = spawnSync(process.execPath, ['scripts/serve-snake-stream.cjs', '--self-test'], {
     cwd: path.resolve(__dirname, '../..'),
     encoding: 'utf8',
@@ -91,6 +112,7 @@ test('stream host self-test validates assets, snapshots and authority isolation'
   assert.equal(report.browserAssets, true);
   assert.equal(report.snapshotPrivacySafe, true);
   assert.equal(report.recoveryVerified, true);
+  assert.equal(report.restartObserved, true);
 });
 
 test('browser source is dependency-free, bounded and contains accessibility controls', () => {
