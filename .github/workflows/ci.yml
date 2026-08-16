@@ -51,13 +51,19 @@ jobs:
             echo 'Forbidden ambient nondeterminism found in authoritative code.'
             exit 1
           fi
-      - name: Generate Phase 5 chaos evidence
+      - name: Generate Snake Phase 5 chaos evidence
         shell: bash
         run: |
           set -euo pipefail
           mkdir -p artifacts/phase5
           npm run snake:phase5:chaos -- phase5-ci > artifacts/phase5/chaos-summary.json
-      - name: Generate Phase 6 release validation evidence
+      - name: Generate Maze Phase 5 chaos evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/maze-phase5
+          npm run maze:phase5:chaos -- maze-phase5-ci > artifacts/maze-phase5/chaos-summary.json
+      - name: Generate Snake Phase 6 release validation evidence
         shell: bash
         env:
           CANDIDATE_SOURCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
@@ -85,7 +91,7 @@ jobs:
           path: artifacts/maze-phase3
           if-no-files-found: error
           retention-days: 30
-      - name: Upload Phase 5 operations evidence
+      - name: Upload Snake Phase 5 operations evidence
         if: always()
         uses: actions/upload-artifact@v7
         with:
@@ -93,7 +99,15 @@ jobs:
           path: artifacts/phase5
           if-no-files-found: error
           retention-days: 30
-      - name: Upload Phase 6 release validation evidence
+      - name: Upload Maze Phase 5 operations evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: ai-maze-escape-phase5-operations
+          path: artifacts/maze-phase5
+          if-no-files-found: error
+          retention-days: 30
+      - name: Upload Snake Phase 6 release validation evidence
         if: always()
         uses: actions/upload-artifact@v7
         with:
