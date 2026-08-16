@@ -25,8 +25,8 @@ const STREAM_CONFIG = Object.freeze({
   noProgressTicks: 750,
 });
 
-function createSession(seed = 'stream-reference-seed') {
-  const runtime = SnakeRuntime.create(STREAM_CONFIG, seed);
+function createSession(seed = 'stream-reference-seed', config = STREAM_CONFIG) {
+  const runtime = SnakeRuntime.create(config, seed);
   const experience = new BroadcastExperience({
     replayCapacity: 360,
     bestLength: 0,
@@ -61,29 +61,57 @@ function isSnapshotPrivacySafe(snapshot, seed) {
     && !serialized.includes('nodeExpansions');
 }
 
+function verifyRunRestart() {
+  const probe = createSession('phase3-restart-probe', {
+    width: 8,
+    height: 8,
+    targetLength: 4,
+    initialLength: 3,
+    intermissionTicks: 1,
+    profile: 'open',
+    hazardCount: 0,
+    hazardPeriod: 8,
+    hazardActiveTicks: 8,
+    specialFoodEvery: 4,
+    specialFoodLifetime: 30,
+    noProgressTicks: 80,
+  });
+  const first = buildRenderSnapshot(probe.runtime.state);
+  probe.runtime.state.food = probe.runtime.state.snake.body[0] + 1;
+  advance(probe);
+  const resultFrame = probe.experience.frame();
+  if (resultFrame.scene !== 'result' || resultFrame.snapshot?.result?.reason !== 'victory') return false;
+  advance(probe);
+  if (probe.experience.frame().scene !== 'intermission') return false;
+  advance(probe);
+  const restarted = buildRenderSnapshot(probe.runtime.state);
+  const publicFrame = probe.experience.frame();
+  return restarted.runToken !== first.runToken
+    && restarted.tick === 0
+    && publicFrame.tick === 0
+    && publicFrame.replayAvailable === 1
+    && publicFrame.scene === 'normal';
+}
+
 function selfTest() {
   const seed = 'phase3-self-test';
   const first = createSession(seed);
   const second = createSession(seed);
   let recoveryVerified = false;
-  let restartObserved = false;
-  let previousRunToken = buildRenderSnapshot(first.runtime.state).runToken;
 
   for (let index = 0; index < 900; index++) {
     const acceptance = advance(first);
     second.runtime.step();
     if (!acceptance.accepted) throw new Error(`presentation rejected current snapshot: ${acceptance.reason}`);
 
-    const snapshot = buildRenderSnapshot(first.runtime.state);
     if (index === 120) {
       first.experience.failRenderer('synthetic internal renderer fault');
       if (first.experience.frame().scene !== 'recovery') throw new Error('recovery scene missing');
       recoveryVerified = first.experience.rebuildFromLatest().recovered;
     }
-    if (snapshot.runToken !== previousRunToken) restartObserved = true;
-    previousRunToken = snapshot.runToken;
   }
 
+  const restartObserved = verifyRunRestart();
   const authorityStable = checksum(first.runtime.state) === checksum(second.runtime.state);
   const snapshot = buildRenderSnapshot(first.runtime.state);
   const browserAssets = assetPaths().every(file => fs.existsSync(file) && fs.statSync(file).size > 128);
@@ -91,7 +119,7 @@ function selfTest() {
   const boundedSource = source.includes('MAX_PARTICLES = 240') && !source.includes('innerHTML =');
   const publicFrame = first.experience.frame();
   const report = {
-    ok: authorityStable && browserAssets && boundedSource && isSnapshotPrivacySafe(snapshot, seed) && recoveryVerified,
+    ok: authorityStable && browserAssets && boundedSource && isSnapshotPrivacySafe(snapshot, seed) && recoveryVerified && restartObserved,
     authorityStable,
     browserAssets,
     boundedSource,
