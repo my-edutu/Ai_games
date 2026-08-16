@@ -1,0 +1,28 @@
+{
+  "kind": "youtube#liveChatMessage",
+  "etag": "etag-gift-event-1",
+  "id": "yt-gift-event-1",
+  "snippet": {
+    "type": "giftEvent",
+    "liveChatId": "live-chat-1",
+    "authorChannelId": "UCviewer-jewel-gift-1",
+    "publishedAt": "2026-08-16T12:06:00Z",
+    "hasDisplayContent": true,
+    "displayMessage": "Sent a live gift",
+    "giftDetails": {
+      "giftId": "gift-rose",
+      "giftName": "Rose",
+      "giftCount": 3,
+      "giftValueMicros": "7500000",
+      "currency": "USD"
+    }
+  },
+  "authorDetails": {
+    "channelId": "UCviewer-jewel-gift-1",
+    "displayName": "Jade",
+    "isVerified": false,
+    "isChatOwner": false,
+    "isChatSponsor": false,
+    "isChatModerator": false
+  }
+}
