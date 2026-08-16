@@ -1,0 +1,4 @@
+import type{RenderSnapshot,PublicScene}from './snapshot';
+export interface HudModel{goal:number;length:number;progress:number;occupancyPct:number;phase:string;intent:string;danger:boolean;result?:string;recordSlot:string;audienceSlot:string}
+export function deriveScene(s:RenderSnapshot):PublicScene{if(s.lifecycle==='result')return'result';if(s.lifecycle==='intermission')return'intermission';if(s.ai.mode==='escape-hazard'||s.ai.mode==='fallback-survival')return'danger';if(s.progressionBand==='major'||s.progressionBand==='conquest')return'milestone';return'normal'}
+export function buildHud(s:RenderSnapshot):HudModel{return{goal:s.goal,length:s.length,progress:Math.min(1,s.length/s.goal),occupancyPct:s.occupancy/(s.width*s.height),phase:deriveScene(s),intent:s.ai.intent||s.ai.mode,danger:deriveScene(s)==='danger',result:s.result?.reason,recordSlot:'BEST —',audienceSlot:'AUDIENCE —'}}
