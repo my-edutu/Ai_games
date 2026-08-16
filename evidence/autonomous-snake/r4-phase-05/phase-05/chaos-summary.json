@@ -1,0 +1,23 @@
+{
+  "seed": "phase5-ci",
+  "totalTicks": 30,
+  "autonomousTicksDuringProviderOutage": 5,
+  "interactionsDisabledDuringOutage": true,
+  "invariantFailures": 0,
+  "duplicateEventIds": 0,
+  "eventSequenceContiguous": true,
+  "eventCount": 103,
+  "snapshotCount": 4,
+  "recoveryStatus": "restored",
+  "rejectedRecoveryEvidence": 1,
+  "leaseGeneration": 2,
+  "outputProtectionStatus": "unsafe",
+  "crashBreakerState": "open",
+  "supervisorLevel": "unsafe",
+  "commandDedupeEntries": 30,
+  "finalChecksum": "cce0465f",
+  "sourceArtifact": {
+    "id": 9269385817,
+    "digest": "sha256:1007c478bc533afa094e610545a6b6c9c7c31eaa5a4a661411227bd58810df79"
+  }
+}
