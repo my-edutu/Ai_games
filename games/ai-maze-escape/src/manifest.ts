@@ -1,0 +1,1 @@
+export const mazeManifest=Object.freeze({id:'ai-maze-escape',schemaVersion:1,rulesVersion:'1.0.0',generatorVersion:'1.0.0',snapshotVersion:1,randomStreams:['world-generation','dependencies','hazards','threat-policy','agent-policy','event-director','audience-tiebreaks','cosmetic-variation']as const});

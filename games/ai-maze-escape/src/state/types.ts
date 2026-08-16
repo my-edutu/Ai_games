@@ -1,0 +1,11 @@
+import type{GameLifecycle,MazeConfig,MazeIntentMode,MazeRunResult}from '../../../../packages/game-contracts/src/index';
+export interface MazeDoor{id:string;a:number;b:number;requiredKeyId:string;open:boolean;critical:boolean;temporaryUntilTick:number|null}
+export interface MazeKey{id:string;cell:number;collected:boolean}
+export interface MazeThreat{id:string;cell:number;route:number[];routeIndex:number;direction:1|-1;lastSeenTick:number|null;active:boolean}
+export interface MazeWorld{schemaVersion:1;width:number;height:number;passages:number[];start:number;exit:number;doors:MazeDoor[];keys:MazeKey[];traps:number[];clues:number[];checkpoints:number[];threats:MazeThreat[];blockedCells:number[];profile:string}
+export interface MazeFeatures{profile:string;cells:number;edges:number;loops:number;deadEnds:number;branchCells:number;shortestSolutionLength:number;chambers:number}
+export interface MazeGenerationDiagnostics{attempts:number;fallbackUsed:boolean;failedReasons:string[]}
+export interface GeneratedMaze{world:MazeWorld;features:MazeFeatures;diagnostics:MazeGenerationDiagnostics}
+export interface MazeAiState{mode:MazeIntentMode;confidence:number;explanation:string;decisions:number;fallbackCount:number;replans:number;nodeExpansions:number;recentCells:number[];plannedPath:number[];targetCell:number|null}
+export interface MazeState{schemaVersion:1;runId:string;seed:string;tick:number;lifecycle:GameLifecycle;config:MazeConfig;world:MazeWorld;features:MazeFeatures;explorer:{cell:number;health:number;inventory:string[];steps:number;route:number[]};visibleCells:number[];discoveredCells:number[];meaningfulEventTick:number;ai:MazeAiState;result?:MazeRunResult;intermissionRemaining:number}
+export interface MazeEvent{seq:number;tick:number;type:string;data?:Record<string,unknown>}
