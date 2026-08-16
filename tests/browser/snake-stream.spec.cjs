@@ -31,6 +31,7 @@ test('desktop broadcast source is readable, animated and privacy-safe', async ({
   await expect(page.locator('#game')).toBeVisible();
   await expect(page.locator('#caption')).not.toHaveText('');
   await expect(page.locator('#integrity')).toHaveText('INTEGRITY: VERIFIED');
+  await expect(page.locator('.controls')).toBeHidden();
 
   const snapshot = await page.evaluate(async () => (await fetch('/snapshot', { cache: 'no-store' })).json());
   const serialized = JSON.stringify(snapshot);
@@ -87,6 +88,7 @@ test('phone-size landscape retains goal, progress, gameplay and captions', async
   await expect(page.locator('#primary')).toContainText('LENGTH');
   await expect(page.locator('#game')).toBeVisible();
   await expect(page.locator('#caption')).toBeVisible();
+  await expect(page.locator('.controls')).toBeHidden();
 
   const measurements = await page.evaluate(() => {
     const canvas = document.getElementById('game').getBoundingClientRect();
@@ -116,18 +118,20 @@ test('reduced-motion, muted and clean-feed controls preserve the game view', asy
   const failures = recordConsoleFailures(page);
   await page.emulateMedia({ reducedMotion: 'reduce', colorScheme: 'dark' });
   await page.setViewportSize({ width: 1280, height: 720 });
-  await page.goto('/', { waitUntil: 'domcontentloaded' });
+  await page.goto('/?controls=1', { waitUntil: 'domcontentloaded' });
   await expect(page.locator('#primary')).toContainText('LENGTH');
 
   const reduced = page.locator('[data-control="reduced-motion"]');
   const muted = page.locator('[data-control="muted"]');
   const clean = page.locator('[data-control="clean-feed"]');
+  await expect(page.locator('.controls')).toBeVisible();
   await expect(reduced).toHaveAttribute('aria-pressed', 'true');
   await expect(muted).toHaveAttribute('aria-pressed', 'true');
-  await clean.click({ force: true });
+  await clean.click();
   await expect(clean).toHaveAttribute('aria-pressed', 'true');
   await expect(page.locator('#broadcast')).toHaveClass(/clean-feed/);
   await expect(page.locator('#game')).toBeVisible();
+  await expect(page.locator('.controls')).toBeHidden();
 
   await page.screenshot({ path: path.join(artifactDir, 'clean-feed-1280x720.png'), fullPage: true });
   expect(failures).toEqual([]);
