@@ -29,6 +29,7 @@ export class BroadcastController {
   private bestLength: number;
   private cleanFeed: boolean;
   private recoveries = 0;
+  private currentRunToken = '';
 
   constructor(private readonly options: BroadcastControllerOptions) {
     this.replay = new ReplayBuffer(options.replayCapacity);
@@ -37,8 +38,14 @@ export class BroadcastController {
   }
 
   accept(snapshot: RenderSnapshot): SnapshotAcceptance {
+    const isNewRun = this.currentRunToken !== '' && snapshot.runToken !== this.currentRunToken;
     const result = this.host.accept(snapshot);
     if (!result.accepted || result.reason === 'duplicate') return result;
+    if (isNewRun) {
+      this.registry.clear();
+      this.replay.clear();
+    }
+    this.currentRunToken = snapshot.runToken;
     this.registry.apply(snapshot);
     this.bestLength = Math.max(this.bestLength, snapshot.length);
     this.replay.push({
@@ -113,6 +120,7 @@ export class BroadcastController {
       recoveries: this.recoveries,
       bestLength: this.bestLength,
       cleanFeed: this.cleanFeed,
+      currentRunToken: this.currentRunToken,
     };
   }
 
