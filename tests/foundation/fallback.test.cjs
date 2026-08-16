@@ -1,0 +1,4 @@
+const test=require('node:test');const assert=require('node:assert/strict');
+const {parseSnakeConfig}=require('../../dist/games/autonomous-snake/src/config/schema.js');const {createInitialState}=require('../../dist/games/autonomous-snake/src/index.js');const {chooseFallbackAction}=require('../../dist/games/autonomous-snake/src/ai/fallback.js');const {isLegalAction}=require('../../dist/games/autonomous-snake/src/rules/step.js');
+test('fallback only returns validated actions',()=>{for(let i=0;i<50;i++){const s=createInitialState(parseSnakeConfig({width:10,height:10,targetLength:30}),`seed-${i}`,'r');const a=chooseFallbackAction(s);assert.equal(isLegalAction(s,a),true)}});
+test('fallback prefers adjacent food when safe',()=>{const s=createInitialState(parseSnakeConfig({width:8,height:8,targetLength:20}),'food','r');s.food=s.snake.body[0]+1;assert.equal(chooseFallbackAction(s).direction,'right')});
