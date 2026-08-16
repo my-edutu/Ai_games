@@ -1,4 +1,4 @@
-import type{ReleaseManifest}from './manifest';import{isDigest}from './hashes';
+import type{ReleaseManifest}from './manifest';import{isEvidenceDigest}from './hashes';
 export interface RequirementDefinition{id:string;phase:number;level:'MUST'|'SHOULD'|'MAY';owner:string}
 export type EvidenceStatus='pass'|'blocked'|'waived';
 export interface RequirementEvidence{requirementId:string;status:EvidenceStatus;sourceSha:string;releaseChecksum:string;digest:string;collectedAtMs:number;expiresAtMs?:number;owner:string;findingSeverity?:'P0'|'P1'|'P2'|'P3';acceptedBy?:string;waiverReason?:string}
@@ -8,7 +8,7 @@ function unique(values:string[]){return[...new Set(values)].sort()}
 function acceptable(evidence:RequirementEvidence,context:TraceabilityContext):boolean{
   if(evidence.sourceSha!==context.release.candidateSourceSha||evidence.releaseChecksum!==context.release.checksum)return false;
   if(evidence.expiresAtMs!==undefined&&evidence.expiresAtMs<context.nowMs)return false;
-  if(!isDigest(evidence.digest)||!evidence.owner||!Number.isFinite(evidence.collectedAtMs))return false;
+  if(!isEvidenceDigest(evidence.digest)||!evidence.owner||!Number.isFinite(evidence.collectedAtMs))return false;
   if(evidence.status==='pass')return true;
   return evidence.status==='waived'&&evidence.findingSeverity==='P2'&&Boolean(evidence.acceptedBy)&&Boolean(evidence.waiverReason);
 }
@@ -21,7 +21,7 @@ export function assessTraceability(requirements:RequirementDefinition[],evidence
     const matches=evidence.filter(item=>item.requirementId===requirement.id);if(matches.length>1)duplicates.push(requirement.id);
     for(const item of matches){
       if(item.sourceSha!==context.release.candidateSourceSha)wrongSource.push(requirement.id);if(item.releaseChecksum!==context.release.checksum)wrongRelease.push(requirement.id);if(item.expiresAtMs!==undefined&&item.expiresAtMs<context.nowMs)stale.push(requirement.id);
-      if(!isDigest(item.digest)||!item.owner||!Number.isFinite(item.collectedAtMs))invalidEvidence.push(requirement.id);if(item.status==='blocked')blockedEvidence.push(requirement.id);
+      if(!isEvidenceDigest(item.digest)||!item.owner||!Number.isFinite(item.collectedAtMs))invalidEvidence.push(requirement.id);if(item.status==='blocked')blockedEvidence.push(requirement.id);
       if(item.status==='waived'){
         if(item.findingSeverity==='P0'||item.findingSeverity==='P1'||!item.acceptedBy||!item.waiverReason)prohibitedWaivers.push(requirement.id);else if(item.findingSeverity==='P2')acceptedWaivers.push(requirement.id);else invalidEvidence.push(requirement.id);
       }
