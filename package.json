@@ -1,0 +1,10 @@
+{
+  "name": "ai-games",
+  "private": true,
+  "scripts": {
+    "clean": "rm -rf dist",
+    "build": "tsc -p tsconfig.json",
+    "test": "npm run build && node --test tests/foundation/*.test.cjs",
+    "snake:headless": "npm run build && node scripts/run-snake-headless.cjs"
+  }
+}
