@@ -1,6 +1,6 @@
 import { checksum } from '../../replay/src/index';
 import type { AuditEntry, CompatibilityKey, SnapshotRecord, StoredEvent } from '../../ops-contracts/src/index';
-import { InMemoryDurableStore, type AppendResult, type DurableStoreOptions } from './index';
+import { InMemoryDurableStore, type AppendResult, type DurableStore, type DurableStoreOptions } from './index';
 
 declare const require: (id: string) => unknown;
 declare const process: { pid: number };
@@ -30,14 +30,15 @@ const path = require('node:path') as PathBoundary;
 function storeError(code:string,message:string,cause?:unknown):Error{const error=new Error(message);Object.assign(error,{code,cause});return error}
 function safeName(value:string){return checksum(value).slice(0,32)}
 function appendDurable(file:string,line:string){fs.mkdirSync(path.dirname(file),{recursive:true});const fd=fs.openSync(file,'a',0o600);try{fs.writeSync(fd,line);fs.fsyncSync(fd)}finally{fs.closeSync(fd)}}
-function writeAtomic(file:string,value:unknown){fs.mkdirSync(path.dirname(file),{recursive:true});const temp=`${file}.${process.pid}.tmp`;fs.writeFileSync(temp,JSON.stringify(value),'utf8');const fd=fs.openSync(temp,'r');try{fs.fsyncSync(fd)}finally{fs.closeSync(fd)}fs.renameSync(temp,file);const dir=fs.openSync(path.dirname(file),'r');try{fs.fsyncSync(dir)}finally{fs.closeSync(dir)}}
+function writeTextAtomic(file:string,value:string){fs.mkdirSync(path.dirname(file),{recursive:true});const temp=`${file}.${process.pid}.tmp`;fs.writeFileSync(temp,value,'utf8');const fd=fs.openSync(temp,'r');try{fs.fsyncSync(fd)}finally{fs.closeSync(fd)}fs.renameSync(temp,file);const dir=fs.openSync(path.dirname(file),'r');try{fs.fsyncSync(dir)}finally{fs.closeSync(dir)}}
+function writeAtomic(file:string,value:unknown){writeTextAtomic(file,JSON.stringify(value))}
 function readJsonLines<T>(file:string):T[]{const text=fs.readFileSync(file,'utf8');const result:T[]=[];for(const line of text.split('\n')){if(!line.trim())continue;try{result.push(JSON.parse(line)as T)}catch(error){throw storeError('CORRUPT_STORE',`invalid JSON evidence in ${path.basename(file)}`,error)}}return result}
 
-export class FileDurableStore{
-  private readonly memory:InMemoryDurableStore;private readonly snapshotCapacity:number;
+export class FileDurableStore implements DurableStore{
+  private readonly memory:InMemoryDurableStore;private readonly eventCapacity:number;private readonly snapshotCapacity:number;private readonly auditCapacity:number;
   private readonly eventsDir:string;private readonly snapshotsDir:string;private readonly auditFile:string;
   constructor(public readonly root:string,options:DurableStoreOptions={}){
-    if(!root)throw new RangeError('root');this.snapshotCapacity=options.snapshotCapacity??8;this.memory=new InMemoryDurableStore(options);
+    if(!root)throw new RangeError('root');this.eventCapacity=options.eventCapacity??100000;this.snapshotCapacity=options.snapshotCapacity??8;this.auditCapacity=options.auditCapacity??10000;this.memory=new InMemoryDurableStore(options);
     this.eventsDir=path.join(root,'events');this.snapshotsDir=path.join(root,'snapshots');this.auditFile=path.join(root,'audits.jsonl');
     fs.mkdirSync(this.eventsDir,{recursive:true});fs.mkdirSync(this.snapshotsDir,{recursive:true});this.load();
   }
@@ -45,7 +46,7 @@ export class FileDurableStore{
     const existing=this.memory.events(event.streamId).find(item=>item.eventId===event.eventId);
     if(existing)return this.memory.appendEvent(event);
     const{checksum:supplied,...base}=event;if(checksum(base)!==supplied)throw storeError('EVENT_CONFLICT','event checksum is invalid');
-    const stream=this.memory.events(event.streamId),expected=stream.length?stream[stream.length-1].seq+1:0;if(event.seq!==expected)throw storeError('SEQUENCE_GAP',`expected ${expected}, received ${event.seq}`);
+    const stream=this.memory.events(event.streamId),expected=stream.length?stream[stream.length-1].seq+1:0;if(event.seq!==expected)throw storeError('SEQUENCE_GAP',`expected ${expected}, received ${event.seq}`);if(stream.length>=this.eventCapacity)throw storeError('CAPACITY_EXCEEDED',`stream ${event.streamId} reached its bounded segment capacity`);
     try{appendDurable(path.join(this.eventsDir,`${safeName(event.streamId)}.jsonl`),`${JSON.stringify(event)}\n`)}catch(error){throw storeError('DURABILITY_WRITE_FAILED','event fsync failed',error)}
     return this.memory.appendEvent(event);
   }
@@ -60,7 +61,9 @@ export class FileDurableStore{
   appendAudit(entry:AuditEntry):AppendResult<AuditEntry>{
     const existing=this.memory.audits().find(item=>item.id===entry.id);if(existing)return this.memory.appendAudit(entry);
     try{appendDurable(this.auditFile,`${JSON.stringify(entry)}\n`)}catch(error){throw storeError('DURABILITY_WRITE_FAILED','audit fsync failed',error)}
-    return this.memory.appendAudit(entry);
+    const result=this.memory.appendAudit(entry);
+    if(this.memory.audits().length>=this.auditCapacity){try{writeTextAtomic(this.auditFile,`${this.memory.audits().map(item=>JSON.stringify(item)).join('\n')}\n`)}catch(error){throw storeError('DURABILITY_WRITE_FAILED','audit compaction failed',error)}}
+    return result;
   }
   audits(){return this.memory.audits()}
   stats(){return this.memory.stats()}
