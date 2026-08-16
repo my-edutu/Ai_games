@@ -1,0 +1,22 @@
+{
+  "kind": "youtube#liveChatMessage",
+  "etag": "etag-sponsor-1",
+  "id": "yt-sponsor-1",
+  "snippet": {
+    "type": "newSponsorEvent",
+    "liveChatId": "live-chat-1",
+    "authorChannelId": "UCviewer-member-1",
+    "publishedAt": "2026-08-16T12:03:00Z",
+    "hasDisplayContent": true,
+    "displayMessage": "New member",
+    "newSponsorDetails": { "memberLevelName": "Impact Member", "isUpgrade": false }
+  },
+  "authorDetails": {
+    "channelId": "UCviewer-member-1",
+    "displayName": "Grace",
+    "isVerified": false,
+    "isChatOwner": false,
+    "isChatSponsor": true,
+    "isChatModerator": false
+  }
+}
