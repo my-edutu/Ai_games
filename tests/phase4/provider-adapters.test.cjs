@@ -22,6 +22,41 @@ const {
 const fixtureRoot = path.resolve(__dirname, '../../fixtures/providers');
 const NOW = Date.parse('2026-08-16T12:08:00Z');
 const TWITCH_SECRET = 'twitch-fixture-secret-at-least-ten';
+const EXPECTED_AUDIENCE_KEYS = [
+  'channelRef',
+  'displayName',
+  'entitlementBand',
+  'entitlementWeight',
+  'fixedToken',
+  'idempotencyKey',
+  'kind',
+  'occurredAtMs',
+  'provider',
+  'providerEventId',
+  'rawDigest',
+  'receivedAtMs',
+  'reversalOf',
+  'schemaVersion',
+  'viewerRef',
+];
+const SENSITIVE_PROVIDER_KEYS = new Set([
+  'amountMicros',
+  'amountDisplayString',
+  'currency',
+  'bits',
+  'tier',
+  'cumulative_total',
+  'giftMembershipsCount',
+  'giftValueMicros',
+  'authorChannelId',
+  'channelId',
+  'user_id',
+  'chatter_user_id',
+  'rawBody',
+  'accessToken',
+  'refreshToken',
+  'email',
+]);
 
 function fixture(provider, name) {
   return JSON.parse(fs.readFileSync(path.join(fixtureRoot, provider, name), 'utf8'));
@@ -56,13 +91,24 @@ function twitchHeaders(rawBody, overrides = {}) {
   };
 }
 
-function assertPrivacy(input, forbidden) {
+function collectKeys(value, keys = new Set()) {
+  if (!value || typeof value !== 'object') return keys;
+  for (const [key, child] of Object.entries(value)) {
+    keys.add(key);
+    collectKeys(child, keys);
+  }
+  return keys;
+}
+
+function assertPrivacy(input, highEntropyForbiddenValues) {
+  assert.deepEqual(Object.keys(input).sort(), EXPECTED_AUDIENCE_KEYS);
+  const keys = collectKeys(input);
+  for (const key of SENSITIVE_PROVIDER_KEYS) assert.equal(keys.has(key), false, `leaked provider key ${key}`);
+
   const serialized = JSON.stringify(input);
-  for (const value of forbidden) assert.equal(serialized.includes(String(value)), false, `leaked ${value}`);
-  assert.equal(serialized.includes('amountMicros'), false);
-  assert.equal(serialized.includes('currency'), false);
-  assert.equal(serialized.includes('bits'), false);
-  assert.equal(serialized.includes('rawBody'), false);
+  for (const value of highEntropyForbiddenValues) {
+    assert.equal(serialized.includes(String(value)), false, `leaked provider value ${value}`);
+  }
   assert.match(input.viewerRef || 'anonymous', /^(aud_[0-9a-f]{24}|anonymous)$/);
   assert.match(input.rawDigest, /^[0-9a-f]{64}$/);
   assert.match(input.idempotencyKey, /^aud_[0-9a-f]{32}$/);
@@ -104,9 +150,9 @@ test('Twitch verification rejects forged, expired, future and malformed envelope
 test('Twitch chat, cheer, subscription and gift fixtures normalize to provider-neutral bounded inputs', () => {
   const cases = [
     ['chat-message.json', 'vote', 'A', 'none', 1, ['viewer-123', 'chat-provider-message-1']],
-    ['cheer.json', 'support', 'B', 'supporter', 2, ['viewer-456', '250']],
-    ['subscription.json', 'membership', null, 'premium', 2, ['viewer-789', '2000']],
-    ['subscription-gift.json', 'gift', null, 'gift', 3, ['viewer-gifter', 'cumulative_total']],
+    ['cheer.json', 'support', 'B', 'supporter', 2, ['viewer-456']],
+    ['subscription.json', 'membership', null, 'premium', 2, ['viewer-789']],
+    ['subscription-gift.json', 'gift', null, 'gift', 3, ['viewer-gifter']],
   ];
 
   for (const [name, kind, token, band, weight, forbidden] of cases) {
@@ -145,11 +191,11 @@ test('Twitch normalization sanitizes display names and derives stable scoped vie
 test('YouTube official live chat message families normalize without payment or channel identity leakage', () => {
   const cases = [
     ['text-message.json', 'vote', 'A', 'none', 1, ['UCviewer-text-1', '<script>']],
-    ['super-chat.json', 'support', 'C', 'premium', 3, ['UCviewer-support-1', '5000000', '$5.00', 'USD']],
+    ['super-chat.json', 'support', 'C', 'premium', 3, ['UCviewer-support-1', '$5.00']],
     ['new-sponsor.json', 'membership', null, 'premium', 2, ['UCviewer-member-1', 'Impact Member']],
-    ['membership-gifting.json', 'gift', null, 'gift', 3, ['UCviewer-gifter-1', 'giftMembershipsCount']],
+    ['membership-gifting.json', 'gift', null, 'gift', 3, ['UCviewer-gifter-1']],
     ['gift-membership-received.json', 'membership', null, 'gift', 2, ['UCviewer-recipient-1', 'UCviewer-gifter-1']],
-    ['gift-event.json', 'gift', null, 'gift', 3, ['UCviewer-jewel-gift-1', '7500000', 'USD']],
+    ['gift-event.json', 'gift', null, 'gift', 3, ['UCviewer-jewel-gift-1', 'gift-rose']],
   ];
 
   for (const [name, kind, token, band, weight, forbidden] of cases) {
