@@ -1,0 +1,2 @@
+export interface ReplayFrame{tick:number;scene:string;checksum:string;[k:string]:unknown}
+export class ReplayBuffer{private frames:ReplayFrame[]=[];constructor(private capacity:number){if(!Number.isInteger(capacity)||capacity<1)throw new RangeError('capacity')}push(f:ReplayFrame){this.frames.push({...f});if(this.frames.length>this.capacity)this.frames.splice(0,this.frames.length-this.capacity)}size(){return this.frames.length}windowAround(tick:number,count:number){return this.frames.filter(x=>x.tick<=tick).slice(-count).map(x=>({...x}))}clear(){this.frames=[]}}
