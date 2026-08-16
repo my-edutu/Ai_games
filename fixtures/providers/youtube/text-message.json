@@ -1,0 +1,24 @@
+{
+  "kind": "youtube#liveChatMessage",
+  "etag": "etag-text-1",
+  "id": "yt-text-1",
+  "snippet": {
+    "type": "textMessageEvent",
+    "liveChatId": "live-chat-1",
+    "authorChannelId": "UCviewer-text-1",
+    "publishedAt": "2026-08-16T12:01:00Z",
+    "hasDisplayContent": true,
+    "displayMessage": "!vote A",
+    "textMessageDetails": { "messageText": "!vote A" }
+  },
+  "authorDetails": {
+    "channelId": "UCviewer-text-1",
+    "channelUrl": "https://youtube.example.invalid/channel/UCviewer-text-1",
+    "displayName": "Eve<script>alert(1)</script>",
+    "profileImageUrl": "https://youtube.example.invalid/avatar.png",
+    "isVerified": false,
+    "isChatOwner": false,
+    "isChatSponsor": false,
+    "isChatModerator": false
+  }
+}

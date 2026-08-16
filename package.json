@@ -1,6 +1,6 @@
 {
   "name": "ai-games",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "private": true,
   "engines": {
     "node": ">=22.0.0"
@@ -8,8 +8,9 @@
   "scripts": {
     "clean": "rm -rf dist",
     "build": "tsc -p tsconfig.json",
-    "test": "npm run build && node --test tests/foundation/*.test.cjs tests/phase2/*.test.cjs tests/phase3/*.test.cjs",
+    "test": "npm run build && node --test tests/foundation/*.test.cjs tests/phase2/*.test.cjs tests/phase3/*.test.cjs tests/phase4/*.test.cjs",
     "test:phase3": "npm run build && node --test tests/phase3/*.test.cjs",
+    "test:phase4": "npm run build && node --test tests/phase4/*.test.cjs",
     "test:browser": "playwright test",
     "snake:headless": "npm run build && node scripts/run-snake-headless.cjs",
     "snake:stream": "npm run build && node scripts/serve-snake-stream.cjs",
