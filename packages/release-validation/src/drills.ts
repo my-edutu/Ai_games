@@ -1,7 +1,7 @@
 import{isDigest}from '../../release-governance/src/hashes';
 export const MANDATORY_DRILLS=['provider-outage','moderation-outage','entitlement-outage','audit-outage','disable-interactions','disable-public-text','simulation-failure','renderer-failure','audio-failure','gateway-failure','persistence-failure','black-output','frozen-output','wrong-scene','silent-output','verified-restore','older-snapshot-fallback','divergence-quarantine','credential-rotation','credential-revocation','config-rollback','content-rollback','deployment-rollback','safe-intermission','emergency-halt','alert-escalation']as const;
 export type MandatoryDrillId=typeof MANDATORY_DRILLS[number];
-export interface DrillRecord{id:string;candidateChecksum:string;environment:'ci'|'staging'|'production-equivalent'|'production';source:'synthetic'|'ci'|'external-signed';owner:string;witness:string;runbook:string;startedAtMs:number;endedAtMs:number;status:'pass'|'fail'|'blocked';evidenceDigest:string;automatedActionsVerified:boolean;outputVerified:boolean}
+export interface DrillRecord{id:string;candidateChecksum:string;environment:'ci'|'staging'|'production-equivalent'|'production';source:'synthetic'|'ci'|'external-signed';owner:string;witness:string;runbook:string;startedAtMs:number;endedAtMs:number;status:'pass'|'fail'|'blocked';evidenceDigest:string;automatedActionsVerified:boolean;outputVerified:boolean;observations?:Record<string,unknown>}
 export interface DrillContext{expectedCandidateChecksum:string}
 export interface DrillAssessment{implementationStatus:'pass'|'blocked';productionStatus:'pass'|'blocked';completed:number;missing:string[];duplicates:string[];implementationBlockers:string[];productionBlockers:string[]}
 function unique(values:string[]){return[...new Set(values)].sort()}
