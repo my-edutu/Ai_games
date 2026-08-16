@@ -1,10 +1,33 @@
-import * as fs from 'node:fs';
-import * as path from 'node:path';
 import { checksum } from '../../replay/src/index';
 import type { AuditEntry, CompatibilityKey, SnapshotRecord, StoredEvent } from '../../ops-contracts/src/index';
 import { InMemoryDurableStore, type AppendResult, type DurableStoreOptions } from './index';
 
-function storeError(code:string,message:string,cause?:unknown):Error{const error=new Error(message,{cause});Object.assign(error,{code});return error}
+declare const require: (id: string) => unknown;
+declare const process: { pid: number };
+
+interface FileSystemBoundary {
+  mkdirSync(path: string, options: { recursive: boolean }): void;
+  openSync(path: string, flags: string, mode?: number): number;
+  writeSync(fd: number, value: string): number;
+  fsyncSync(fd: number): void;
+  closeSync(fd: number): void;
+  writeFileSync(path: string, value: string, encoding: 'utf8'): void;
+  renameSync(oldPath: string, newPath: string): void;
+  readFileSync(path: string, encoding: 'utf8'): string;
+  readdirSync(path: string): string[];
+  existsSync(path: string): boolean;
+}
+
+interface PathBoundary {
+  join(...parts: string[]): string;
+  dirname(value: string): string;
+  basename(value: string): string;
+}
+
+const fs = require('node:fs') as FileSystemBoundary;
+const path = require('node:path') as PathBoundary;
+
+function storeError(code:string,message:string,cause?:unknown):Error{const error=new Error(message);Object.assign(error,{code,cause});return error}
 function safeName(value:string){return checksum(value).slice(0,32)}
 function appendDurable(file:string,line:string){fs.mkdirSync(path.dirname(file),{recursive:true});const fd=fs.openSync(file,'a',0o600);try{fs.writeSync(fd,line);fs.fsyncSync(fd)}finally{fs.closeSync(fd)}}
 function writeAtomic(file:string,value:unknown){fs.mkdirSync(path.dirname(file),{recursive:true});const temp=`${file}.${process.pid}.tmp`;fs.writeFileSync(temp,JSON.stringify(value),'utf8');const fd=fs.openSync(temp,'r');try{fs.fsyncSync(fd)}finally{fs.closeSync(fd)}fs.renameSync(temp,file);const dir=fs.openSync(path.dirname(file),'r');try{fs.fsyncSync(dir)}finally{fs.closeSync(dir)}}
@@ -43,8 +66,8 @@ export class FileDurableStore{
   stats(){return this.memory.stats()}
   private load(){
     try{
-      for(const name of fs.readdirSync(this.eventsDir).filter(name=>name.endsWith('.jsonl')).sort())for(const event of readJsonLines<StoredEvent>(path.join(this.eventsDir,name)))this.memory.appendEvent(event);
-      for(const name of fs.readdirSync(this.snapshotsDir).filter(name=>name.endsWith('.json')).sort()){
+      for(const name of fs.readdirSync(this.eventsDir).filter((name:string)=>name.endsWith('.jsonl')).sort())for(const event of readJsonLines<StoredEvent>(path.join(this.eventsDir,name)))this.memory.appendEvent(event);
+      for(const name of fs.readdirSync(this.snapshotsDir).filter((name:string)=>name.endsWith('.json')).sort()){
         let records:SnapshotRecord[];try{records=JSON.parse(fs.readFileSync(path.join(this.snapshotsDir,name),'utf8'))as SnapshotRecord[]}catch(error){throw storeError('CORRUPT_STORE',`invalid snapshot index ${name}`,error)}
         if(!Array.isArray(records))throw storeError('CORRUPT_STORE',`snapshot index ${name} is not an array`);for(const record of [...records].reverse())this.memory.putSnapshot(record);
       }
