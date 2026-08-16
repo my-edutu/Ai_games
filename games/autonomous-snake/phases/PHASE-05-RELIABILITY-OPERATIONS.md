@@ -1,111 +1,125 @@
 # Phase 5 — Persistence, Recovery, Observability, and Operations
 
-**Phase status:** Not started  
-**Readiness target:** R4 production candidate infrastructure  
-**Viewer-visible outcome:** The stream survives common component and provider failures, preserves verified runs and records, switches to intentional safe scenes, recovers automatically, and gives operators precise audited control.
+**Phase status:** R4 infrastructure candidate — implementation verified  
+**Verified source head:** `21985ddf48907623f3495268f23972f8c9d461e4`  
+**Verification run:** GitHub Actions `31969477750`  
+**Production-ready status:** No; Phase 6 environment/endurance/canary gates remain
 
-## Objective
+## Outcome
 
-Turn the R3 game into an operable long-running service by implementing durable events and records, snapshots and restore, run supervision, watchdogs, output health, bounded resources, dashboards, alerts, runbooks, operator controls, deployment/config/content compatibility, and rollback.
+Autonomous Snake now has an operable reference service around the deterministic game: append-only events, fsync-backed persistent evidence, bounded snapshots/audits, single-writer lease fencing, exact command replay, corrupt-snapshot fallback, divergence quarantine, component supervision, output protection, bounded queues and breakers, metrics/alerts, typed RBAC controls, incident runbooks and retained chaos evidence.
 
-## In Scope
+The verified service can be reconstructed in a new process-shaped instance from a file-backed store. It restores the newest compatible snapshot, replays post-snapshot commands, preserves durable command dedupe and only then accepts new work. Provider/moderation outages disable interactions while autonomous simulation continues.
 
-- production persistence model for run metadata, authoritative events, snapshots, records, interaction audit, moderation decisions, and evidence references;
-- idempotent projections and record reconciliation;
-- run leases, worker supervision, heartbeats and progress probes;
-- verified snapshot/restore/replay, quarantine, safe intermission, fresh-run fallback;
-- renderer/audio/gateway/persistence/telemetry/dashboard process isolation and restart;
-- black/frozen/wrong-scene/silent output probes;
-- bounded durable/in-memory queues, retry/backoff/circuit breakers;
-- structured logs, metrics, traces, dashboards, alerts, and runbooks;
-- role-based operator dashboard and typed audited controls;
-- managed configuration/content/deployment versions, feature flags, migration, rollout, and rollback;
-- security/privacy hardening, secret management, retention/deletion, dependency/content scanning;
-- 24-hour engineering soak and chaos programme.
+## Implemented Architecture
 
-## Explicit Non-Scope
+```text
+Snake Runtime
+  → durable command reservation
+  → append-only semantic event stream
+  → bounded snapshots and projections
+  → fsync event/audit evidence + atomic snapshot index
+  → generation-fenced writer lease
+  → supervisor / output health / circuit breakers
+  → verified snapshot + command replay recovery
+  → metrics, alerts, runbooks and audited operator controls
+```
 
-Final 72-hour candidate soak, seven-day production canary, broad promotion, and public “production ready” claim; those are Phase 6.
+### Persistence and Records
 
-## Requirements Addressed
+- Contiguous checksummed event streams with event-ID idempotency.
+- Conflicting duplicates and sequence gaps fail closed.
+- Record projections rebuild from authoritative events.
+- Technical/quarantined outcomes remain ineligible for normal records.
+- File-backed JSONL events/audits use fsync; snapshot indexes use atomic temp-write/rename.
+- Events, snapshots and audits enforce configured capacity/retention before or during durable mutation.
+- Corrupt persisted JSON fails service reconstruction with typed evidence.
 
-All `FR-SNK-OPS-*`, `NFR-SNK-REL-*`, operational performance/security/privacy requirements, and the reliability, observability, recovery, operator, deployment, and rollback production gates.
+### Lease, Supervision, and Recovery
 
-## Workstreams
+- One writer per channel with monotonic lease generation.
+- Successful ticks renew the lease; stale generations are fenced.
+- Recovery fences the old writer before issuing a newer generation.
+- Snapshot schema, compatibility, checksum and state invariants are verified.
+- Corrupt newest snapshots fall back to older compatible evidence.
+- Post-snapshot commands replay in exact sequence.
+- Command gaps or final-checksum divergence quarantine instead of silently continuing.
+- Durable command reservations prevent duplicate execution after worker replacement.
 
-### 1. Persistence and Records
+### Degradation and Output Health
 
-Implement immutable run metadata, append-only event segments, snapshot object lifecycle, interaction/moderation audit, idempotent projections, record eligibility/ties, reconciliation, retention, compaction/rollover, and privacy-safe access. Technical/quarantined runs never enter normal records.
+- Heartbeat loss is distinguished from no-progress state.
+- Provider/gateway failure disables interactions without halting autonomous play.
+- Black, frozen, stale, wrong-scene and unintended-silence conditions are classified.
+- Unsafe output activates intentional safe output before reconstruction.
+- Recovery requires verified snapshot and healthy output before resume.
+- Repeated failed recovery halts safely after a bounded attempt count.
+- Crash loops open a circuit breaker and cannot restart forever.
 
-### 2. Supervisor and Run Lease
+### Observability and Operator Controls
 
-Ensure one authoritative writer, lifecycle ownership, process heartbeats, progress probes, resource limits, crash counters, jittered backoff, breakers, component restarts, and safe fresh-run boundaries. Repeated crashes cannot loop indefinitely.
+- Metric series and label lengths are bounded.
+- Private identity labels are rejected.
+- Alerts require sustained breach and sustained recovery and carry runbook references.
+- Operator controls are environment-scoped, role-gated, typed, idempotent and audited.
+- Interactions and public text can be disabled independently while simulation continues.
+- Verified restore, fresh run and emergency halt require administrator authority.
+- Arbitrary database/memory editing is not exposed.
 
-### 3. Verified Recovery
+## Fresh Verification
 
-Fence the old lease, select the newest compatible snapshot, validate checksum/schema/config/content/invariants, replay subsequent events, compare hierarchical checkpoints, rebuild presentation/audio, verify output, then resume. Try an older snapshot on corruption; quarantine divergence and preserve evidence.
+The exact source head passed:
 
-### 4. Degradation and Output Health
+- **146/146 Node tests**, zero failures;
+- all Phase 1–4 regressions;
+- strict TypeScript compilation and locked `npm ci`;
+- stream self-test with authority stability, verified recovery, restart observation, 901 accepted snapshots and zero rejected snapshots;
+- authoritative nondeterminism scan;
+- deterministic Phase 5 chaos campaign;
+- **3/3 Chromium** broadcast/layout/accessibility tests;
+- retained Phase 3 capture and Phase 5 operations artifacts.
 
-Implement declared behavior for provider, moderation, entitlement, persistence, telemetry, remote model, renderer, audio, dashboard, capture, host, and resource failures. Output probes detect stale/black/frozen/wrong scene and unintended silence. Safe intermission remains visually intentional and privacy-safe.
+The deterministic chaos campaign recorded:
 
-### 5. Resource Stability
-
-Inventory and bound every queue, cache, body/history/event list, log, snapshot, connection, listener, timer, texture, render target, audio node/buffer, replay buffer, and telemetry label. Add compaction, eviction, TTL, pooling only where measured, and pressure quality tiers that preserve critical truth.
-
-### 6. Observability and Alerts
-
-Build dashboards for channel truth, simulation/AI/integrity, presentation/audio/output, interactions/providers/moderation, persistence/recovery, resources/queues, product balance/content, and releases/incidents. Alerts include impact, duration, run/version, automated actions, owner, runbook, and verification.
-
-### 7. Operator Dashboard
-
-Implement strong authentication, least privilege, environment clarity, run/version status, interaction/public-text disable, safe scene, pause/resume policy, snapshot, verified restore, fresh run, component restart, mute/quality preset, configuration/content rollout, rollback, credential revocation, and emergency halt. No arbitrary database or memory editing.
-
-### 8. Security, Privacy, and Supply Chain
-
-Complete threat model/data inventory, managed secrets, signature/replay controls, role tests, input/output sanitation, minimization/retention/deletion, dependency/SBOM/vulnerability and licence scans, immutable artefacts, content provenance, audit, incident and revocation drills.
-
-### 9. Engineering Soak and Chaos
-
-Run a 24-hour candidate with normal progression, interactions, snapshots, scene changes, and component restarts. Inject worker kills, provider disconnects/duplicates, database lag, moderation outage, queue pressure, corrupt test snapshot, renderer/audio failure, black/frozen/silent output, host restart, credential rotation, and deployment rollback.
-
-## Test-First Sequence
-
-- persistence idempotency, sequence gaps, projection rebuild, record reconciliation;
-- lease conflict/fencing and crash-loop breaker;
-- snapshot selection/validation/older fallback/quarantine;
-- uninterrupted versus recovered checksum and interaction idempotency;
-- each degradation state and public scene;
-- output black/frozen/wrong-scene/silence detection and reconstruction;
-- bounded queue overflow and resource cleanup;
-- alert threshold/runbook verification;
-- role/authorization/audit/security/privacy/retention controls;
-- configuration/content/deployment compatibility and rollback;
-- 24-hour soak plus chaos evidence.
+- 30 total ticks;
+- five autonomous ticks during provider outage;
+- interactions disabled during outage;
+- zero invariant failures;
+- zero duplicate event IDs;
+- contiguous event sequence;
+- corrupt evidence rejected and older snapshot restored;
+- lease generation advanced to two;
+- crash breaker opened and unsafe output protection activated;
+- final checksum `cce0465f`.
 
 ## Acceptance Criteria
 
-- [ ] Records, projections, and results rebuild from authoritative events and exclude technical/quarantined outcomes correctly.
-- [ ] One active run lease is enforced and old writers are fenced before restore.
-- [ ] Verified restore plus replay matches uninterrupted checksums within the recovery objective.
-- [ ] Corrupt/incompatible/divergent state enters safe intermission and quarantine, not silent continuation.
-- [ ] Common component/provider failures recover or degrade without duplicating authoritative effects.
-- [ ] Output probes detect and recover black, frozen, stale, wrong-scene, and silent failures.
-- [ ] Crash loops use bounded backoff/breakers and can transition to fresh run or safe halt.
-- [ ] Memory, GPU, handles, listeners, timers, buffers, logs, snapshots, and queues remain bounded in the 24-hour soak.
-- [ ] Dashboards, alerts, runbooks, and operator controls identify and resolve every injected failure.
-- [ ] Secrets/privacy/operator/security/supply-chain controls pass review and drills.
-- [ ] Deployment/config/content rollback restores a verified stream boundary.
-- [ ] Spec, security, reliability, and quality reviews have no P0/P1 finding.
+- [x] Records/projections rebuild and exclude technical/quarantined outcomes.
+- [x] One active writer is enforced and old writers are fenced before restore.
+- [x] Verified restore plus command replay matches uninterrupted checksums.
+- [x] Corrupt/incompatible/divergent evidence fails closed or quarantines.
+- [x] Common component/provider failures degrade without duplicate authority.
+- [x] Output probes and bounded safe-recovery workflow are implemented and tested.
+- [x] Crash loops use bounded breakers and safe halt behavior.
+- [x] Events, snapshots, audits, queues, dedupe maps, crash histories and metric labels are bounded.
+- [x] Alerts, runbooks and typed audited operator controls are implemented and tested.
+- [x] Security/privacy/operator/supply-chain controls have no open P0/P1 finding.
+- [x] Persistent process reconstruction and command idempotency pass.
+- [x] Exact-head regression, chaos and browser gates pass.
+- [ ] Real 24-hour production-equivalent endurance evidence — Phase 6 environment gate.
+- [ ] Managed production storage/backups and real on-call/rollback drills — Phase 6 environment gate.
 
-## Evidence Bundle
+## Evidence
 
-Include schema/migration/projection reports, restore/replay checksums, chaos timeline, screenshots/video of safe scenes and recovered output, resource slopes, dashboards/alerts/runbooks, operator audit, security/privacy reports, SBOM/licence scans, rollback drill, 24-hour soak manifest, and reviews under `phase-05/`.
+See `evidence/autonomous-snake/r4-phase-05/phase-05/`.
 
-## Rollback
+Retained GitHub Actions artifacts:
 
-Maintain the last compatible deployment, configuration, content, provider adapters, and database migrations with declared snapshot/event compatibility. When rollback cannot safely load current state, finish/quarantine the run and begin a fresh run on the previous version. Preserve failed-run evidence.
+- Phase 5 operations artifact `9269385817`, SHA-256 `1007c478bc533afa094e610545a6b6c9c7c31eaa5a4a661411227bd58810df79`.
+- Phase 3 capture artifact `9269385523`, SHA-256 `6e89985c37f9330cb892beb056a6f87d3cdaa949eb9265d586480b1fdb98fe18`.
 
-## Exit and Handoff
+## Boundary and Handoff
 
-Phase 5 exits at R4 infrastructure quality when realistic failures recover under staging/production-equivalent operation and the 24-hour soak is stable. Phase 6 freezes the candidate, runs full statistical and endurance evidence, validates current providers, rehearses launch/rollback, and completes canary promotion.
+Phase 5 is complete as an **R4 infrastructure-candidate implementation**. The CI chaos campaign is compressed deterministic evidence, not a claim that 24 hours elapsed on production-equivalent infrastructure.
+
+Phase 6 must freeze a candidate and close the remaining real-environment gates: managed deployment/storage, credentialed current providers, production-reference performance and audio/capture validation, real endurance, operational drills, limited canary and an independent final readiness verdict. Only that verdict may authorize an R5 production-ready label.
