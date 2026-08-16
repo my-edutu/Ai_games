@@ -1,0 +1,25 @@
+{
+  "kind": "youtube#liveChatMessage",
+  "etag": "etag-membership-gifting-1",
+  "id": "yt-membership-gifting-1",
+  "snippet": {
+    "type": "membershipGiftingEvent",
+    "liveChatId": "live-chat-1",
+    "authorChannelId": "UCviewer-gifter-1",
+    "publishedAt": "2026-08-16T12:04:00Z",
+    "hasDisplayContent": true,
+    "displayMessage": "Gifted 5 memberships",
+    "membershipGiftingDetails": {
+      "giftMembershipsCount": 5,
+      "giftMembershipsLevelName": "Impact Member"
+    }
+  },
+  "authorDetails": {
+    "channelId": "UCviewer-gifter-1",
+    "displayName": "Helen",
+    "isVerified": false,
+    "isChatOwner": false,
+    "isChatSponsor": true,
+    "isChatModerator": false
+  }
+}
