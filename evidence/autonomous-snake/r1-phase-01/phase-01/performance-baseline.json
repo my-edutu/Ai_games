@@ -1,0 +1,20 @@
+{
+  "environment": "sandbox reference runtime",
+  "node": "22.16.0",
+  "typescript": "5.8.3",
+  "fullTestSuite": {
+    "passed": 24,
+    "failed": 0,
+    "elapsedSeconds": 4.78,
+    "maxRssKb": 158764
+  },
+  "headlessBaseline": {
+    "runs": 100,
+    "totalTicks": 100000,
+    "elapsedSeconds": 27.34,
+    "maxRssKb": 93716,
+    "approxTicksPerSecond": 3657.64,
+    "invariantFailures": 0
+  },
+  "interpretation": "Measurement baseline only. No production performance threshold is claimed at R1."
+}
