@@ -38,6 +38,7 @@ export interface RenderPortal {
 export interface RenderSnapshot {
   version: 1;
   runToken: string;
+  revision: number;
   tick: number;
   movementStep: number;
   width: number;
@@ -92,6 +93,14 @@ function uniquePortals(state: SnakeState): RenderPortal[] {
   return portals.sort((a, b) => a.entry - b.entry || a.exit - b.exit);
 }
 
+function presentationRevision(state: SnakeState): number {
+  const stride = 2048;
+  if (state.lifecycle === 'running') return state.movementStep * stride;
+  if (state.lifecycle === 'result') return state.movementStep * stride + 1;
+  const elapsed = Math.max(0, Math.min(1024, state.config.intermissionTicks - state.intermissionRemaining));
+  return state.movementStep * stride + 2 + elapsed;
+}
+
 export function buildRenderSnapshot(state: SnakeState): Readonly<RenderSnapshot> {
   const snake = state.snake.body.map((cell, index, body) => ({
     id: `snake-${index}`,
@@ -116,6 +125,7 @@ export function buildRenderSnapshot(state: SnakeState): Readonly<RenderSnapshot>
   const publicState: Omit<RenderSnapshot, 'checksum'> = {
     version: 1,
     runToken: checksum({ runId: state.runId, schemaVersion: state.schemaVersion }),
+    revision: presentationRevision(state),
     tick: state.tick,
     movementStep: state.movementStep,
     width: state.config.width,
