@@ -4,7 +4,7 @@ const assert=require('node:assert/strict');
 const {CanaryController}=require('../../dist/packages/canary-control/src/index.js');
 const DAY=24*3600000,candidate='candidate';
 function controller(){return new CanaryController({candidateChecksum:candidate,requiredDurationMs:7*DAY,maxSampleGapMs:DAY+1,maxErrorRate:.02,minUptimeRatio:.999,maxBadOutputSeconds:30,maxMemorySlopeMbPerHour:5,minSamples:8});}
-function sample(day,overrides={}){return{candidateChecksum:candidate,atMs:day*DAY,errorRate:.001,uptimeRatio:.9999,badOutputSeconds:0,memorySlopeMbPerHour:1,replayDivergences:0,duplicateEffects:0,privateExposures:0,unauthorizedControls:0,unsafeModerationFailures:0,crashLoops:0,restoreFailures:0,recordCorruptions:0,platformPolicyBreaches:0,evidenceDigest:`sha256:${(10000000+day).toString(16)}`,...overrides};}
+function sample(day,overrides={}){return{candidateChecksum:candidate,atMs:day*DAY,errorRate:.001,uptimeRatio:.9999,badOutputSeconds:0,memorySlopeMbPerHour:1,replayDivergences:0,duplicateEffects:0,privateExposures:0,unauthorizedControls:0,unsafeModerationFailures:0,crashLoops:0,restoreFailures:0,recordCorruptions:0,platformPolicyBreaches:0,evidenceDigest:`sha256:${(10000000+day).toString(16).padStart(8,'0')}`,...overrides};}
 function cleanWeek(c){c.start({startedAtMs:0,environment:'production',source:'external-signed',realElapsed:true,attestationDigest:'sha256:deadbeef'});for(let day=0;day<=7;day++)c.ingest(sample(day));return c;}
 
 test('canary policy and incident history are immutable snapshots',()=>{
