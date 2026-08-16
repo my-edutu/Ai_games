@@ -18,11 +18,12 @@ export class PresentationHost {
       this.rejectedSnapshots++;
       return { accepted: false, reason: 'unsupported-version' };
     }
-    if (this.latest && snapshot.tick < this.latest.tick) {
+    const sameRun = this.latest?.runToken === snapshot.runToken;
+    if (this.latest && sameRun && snapshot.tick < this.latest.tick) {
       this.rejectedSnapshots++;
       return { accepted: false, reason: 'stale' };
     }
-    if (this.latest && snapshot.tick === this.latest.tick) {
+    if (this.latest && sameRun && snapshot.tick === this.latest.tick) {
       if (snapshot.checksum === this.latest.checksum) return { accepted: true, reason: 'duplicate' };
       this.rejectedSnapshots++;
       return { accepted: false, reason: 'divergent-same-tick' };
@@ -65,6 +66,7 @@ export class PresentationHost {
       failed: this.failed,
       reason: this.failureReason,
       tick: this.latest?.tick ?? -1,
+      runToken: this.latest?.runToken ?? '',
       acceptedSnapshots: this.acceptedSnapshots,
       rejectedSnapshots: this.rejectedSnapshots,
     };
