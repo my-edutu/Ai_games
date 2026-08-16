@@ -51,6 +51,8 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: autonomous-snake-phase3-capture
-          path: artifacts/phase3
+          path: |
+            artifacts/phase3
+            package-lock.json
           if-no-files-found: warn
           retention-days: 30
