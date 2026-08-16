@@ -6,11 +6,11 @@ export interface RunLease {
   generation: number;
   token: string;
   expiresAtMs: number;
-  status: 'active' | 'fenced' | 'released';
+  state: 'active' | 'fenced' | 'released';
 }
 
 export type AcquireResult =
-  | ({ status: 'acquired' } & RunLease)
+  | { status: 'acquired'; lease: RunLease; token: string; generation: number; expiresAtMs: number }
   | { status: 'conflict'; current: RunLease };
 
 export class RunLeaseStore {
@@ -20,37 +20,37 @@ export class RunLeaseStore {
   acquire(channelId: string, ownerId: string, ttlMs: number, nowMs: number): AcquireResult {
     this.validate(channelId, ownerId, ttlMs, nowMs);
     const current = this.leases.get(channelId);
-    if (current && current.status === 'active' && current.expiresAtMs > nowMs) {
+    if (current && current.state === 'active' && current.expiresAtMs > nowMs) {
       return { status: 'conflict', current: structuredClone(current) };
     }
-    if (current) current.status = 'fenced';
+    if (current) current.state = 'fenced';
     const generation = (this.generations.get(channelId) ?? 0) + 1;
     this.generations.set(channelId, generation);
     const token = `lease_${checksum({ channelId, ownerId, generation, acquiredAtMs: nowMs }).slice(0, 24)}`;
-    const lease: RunLease = { channelId, ownerId, generation, token, expiresAtMs: nowMs + ttlMs, status: 'active' };
+    const lease: RunLease = { channelId, ownerId, generation, token, expiresAtMs: nowMs + ttlMs, state: 'active' };
     this.leases.set(channelId, lease);
-    return { status: 'acquired', ...structuredClone(lease) };
+    return { status: 'acquired', lease: structuredClone(lease), token, generation, expiresAtMs: lease.expiresAtMs };
   }
 
   renew(channelId: string, token: string, ttlMs: number, nowMs: number): { status: 'renewed' | 'fenced'; lease?: RunLease } {
     if (!Number.isInteger(ttlMs) || ttlMs < 1 || !Number.isFinite(nowMs)) throw new RangeError('lease timing');
     const current = this.leases.get(channelId);
-    if (!current || current.token !== token || current.status !== 'active' || current.expiresAtMs <= nowMs) return { status: 'fenced' };
+    if (!current || current.token !== token || current.state !== 'active' || current.expiresAtMs <= nowMs) return { status: 'fenced' };
     current.expiresAtMs = nowMs + ttlMs;
     return { status: 'renewed', lease: structuredClone(current) };
   }
 
   release(channelId: string, token: string): { status: 'released' | 'fenced' } {
     const current = this.leases.get(channelId);
-    if (!current || current.token !== token || current.status !== 'active') return { status: 'fenced' };
-    current.status = 'released';
+    if (!current || current.token !== token || current.state !== 'active') return { status: 'fenced' };
+    current.state = 'released';
     return { status: 'released' };
   }
 
   fence(channelId: string, reason = 'recovery'): RunLease | undefined {
     const current = this.leases.get(channelId);
     if (!current) return undefined;
-    current.status = 'fenced';
+    current.state = 'fenced';
     current.expiresAtMs = 0;
     void reason;
     return structuredClone(current);
@@ -58,7 +58,7 @@ export class RunLeaseStore {
 
   assertWriter(channelId: string, token: string, nowMs: number): RunLease {
     const current = this.leases.get(channelId);
-    if (!current || current.token !== token || current.status !== 'active' || current.expiresAtMs <= nowMs) {
+    if (!current || current.token !== token || current.state !== 'active' || current.expiresAtMs <= nowMs) {
       const error = new Error('writer lease is fenced');
       Object.assign(error, { code: 'LEASE_FENCED' });
       throw error;
