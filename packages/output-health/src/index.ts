@@ -22,11 +22,13 @@ export interface OperationalHealthSample {
   memorySlopeMbPerHour: number;
 }
 
-export interface OperationalHealthResult extends HealthResult {
-  reasons: Array<HealthResult['reasons'][number] | 'queue-pressure' | 'memory-slope'>;
+export type OperationalHealthReason = HealthResult['reasons'][number] | 'queue-pressure' | 'memory-slope';
+
+export type OperationalHealthResult = Omit<HealthResult, 'reasons'> & {
+  reasons: OperationalHealthReason[];
   publicCopy: string;
   operations: Array<'reduce-quality' | 'rebuild-renderer' | 'activate-safe-scene' | 'verify-output'>;
-}
+};
 
 export class OperationalOutputHealth {
   private readonly base: OutputHealthMonitor;
@@ -38,14 +40,15 @@ export class OperationalOutputHealth {
 
   check(sample: OperationalHealthSample): OperationalHealthResult {
     if (!Number.isFinite(sample.queueUtilization) || sample.queueUtilization < 0 || sample.queueUtilization > 1) throw new RangeError('queueUtilization');
+    if (!Number.isFinite(sample.memorySlopeMbPerHour)) throw new RangeError('memorySlopeMbPerHour');
     const core = this.base.check(sample);
-    const reasons: OperationalHealthResult['reasons'] = [...core.reasons];
+    const reasons: OperationalHealthReason[] = [...core.reasons];
     const operations: OperationalHealthResult['operations'] = [];
     if (sample.queueUtilization >= this.limits.queueWarnRatio) { reasons.push('queue-pressure'); operations.push('reduce-quality'); }
     if (sample.memorySlopeMbPerHour >= this.limits.memorySlopeWarnMbPerHour) { reasons.push('memory-slope'); if (!operations.includes('reduce-quality')) operations.push('reduce-quality'); }
     if (core.action === 'rebuild') operations.push('rebuild-renderer','verify-output');
     if (core.action === 'safe-slate') operations.push('activate-safe-scene','rebuild-renderer','verify-output');
-    const status = core.status === 'unsafe' ? 'unsafe' : reasons.length ? 'degraded' : 'healthy';
+    const status: HealthResult['status'] = core.status === 'unsafe' ? 'unsafe' : reasons.length ? 'degraded' : 'healthy';
     return {
       status,
       reasons,
@@ -67,7 +70,7 @@ export class OutputRecoveryWorkflow {
   constructor(private readonly options:{maxAttempts:number}){
     if(!Number.isInteger(options.maxAttempts)||options.maxAttempts<1)throw new RangeError('maxAttempts');
   }
-  begin(result:Pick<HealthResult,'status'|'reasons'|'action'>):RecoveryWorkflowSnapshot{
+  begin(result:{status:HealthResult['status']; reasons:ReadonlyArray<string>; action:HealthResult['action']}):RecoveryWorkflowSnapshot{
     this.reasons=[...result.reasons];this.attempts=0;
     this.current=result.status==='unsafe'?'safe-scene':result.status==='degraded'?'rebuilding':'resumed';
     return this.snapshot();
@@ -75,8 +78,7 @@ export class OutputRecoveryWorkflow {
   advance(signal:RecoveryAdvance):RecoveryWorkflowSnapshot{
     if(this.current==='halted'||this.current==='resumed')return this.snapshot();
     if(this.current==='safe-scene'){
-      if(signal.componentRestarted)this.current='rebuilding';
-      else this.current='restarting';
+      this.current=signal.componentRestarted?'rebuilding':'restarting';
       return this.snapshot();
     }
     if(this.current==='restarting'){
