@@ -67,6 +67,8 @@ export class FixedWindowRateLimiter {
   private pruneToWindow(window: number): void {
     for (const [key, bucket] of this.viewerBuckets) if (bucket.window !== window) this.viewerBuckets.delete(key);
     for (const [key, bucket] of this.channelBuckets) if (bucket.window !== window) this.channelBuckets.delete(key);
-    if (this.globalBucket.window !== window) this.globalBucket = { window, count: 0 };
+    // Pruning must not create rate-limit state. A global bucket becomes active only
+    // after a successfully admitted input increments it in consume().
+    if (this.globalBucket.window !== window) this.globalBucket = { window: -1, count: 0 };
   }
 }
