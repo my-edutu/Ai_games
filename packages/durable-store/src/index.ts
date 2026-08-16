@@ -20,6 +20,17 @@ export interface AppendResult<T> {
   value: Readonly<T>;
 }
 
+export interface DurableStore {
+  appendEvent(event: StoredEvent): AppendResult<StoredEvent>;
+  events(streamId: string): StoredEvent[];
+  putSnapshot(record: SnapshotRecord): Readonly<SnapshotRecord>;
+  snapshots(streamId: string): SnapshotRecord[];
+  compatibleSnapshots(streamId: string, compatibility: CompatibilityKey): SnapshotRecord[];
+  appendAudit(entry: AuditEntry): AppendResult<AuditEntry>;
+  audits(): AuditEntry[];
+  stats(): { streams: number; events: number; snapshots: number; auditEntries: number };
+}
+
 function clone<T>(value: T): T {
   return structuredClone(value);
 }
@@ -76,7 +87,7 @@ export function rebuildRunProjection(gameId: string, runId: string, events: Read
   };
 }
 
-export class InMemoryDurableStore {
+export class InMemoryDurableStore implements DurableStore {
   private readonly eventCapacity: number;
   private readonly snapshotCapacity: number;
   private readonly auditCapacity: number;
