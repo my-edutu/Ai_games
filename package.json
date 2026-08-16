@@ -13,7 +13,8 @@
     "test:browser": "playwright test",
     "snake:headless": "npm run build && node scripts/run-snake-headless.cjs",
     "snake:stream": "npm run build && node scripts/serve-snake-stream.cjs",
-    "snake:stream:self-test": "npm run build && node scripts/serve-snake-stream.cjs --self-test"
+    "snake:stream:self-test": "npm run build && node scripts/serve-snake-stream.cjs --self-test",
+    "snake:phase5:chaos": "npm run build && node scripts/run-phase5-chaos.cjs"
   },
   "devDependencies": {"@playwright/test":"1.55.0","typescript":"5.8.3"}
 }
