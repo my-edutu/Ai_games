@@ -37,6 +37,7 @@ export interface RenderPortal {
 
 export interface RenderSnapshot {
   version: 1;
+  runToken: string;
   tick: number;
   movementStep: number;
   width: number;
@@ -105,7 +106,6 @@ export function buildRenderSnapshot(state: SnakeState): Readonly<RenderSnapshot>
       active: isHazardActiveAt(state, cell, state.tick),
       phase: state.tick % state.config.hazardPeriod,
     }));
-  const capacity = Math.max(1, state.boardFeatures.playableCells);
   const dangerLevel: 0 | 1 | 2 =
     state.ai.mode === 'escape-hazard' || state.ai.mode === 'fallback-survival'
       ? 2
@@ -115,6 +115,7 @@ export function buildRenderSnapshot(state: SnakeState): Readonly<RenderSnapshot>
 
   const publicState: Omit<RenderSnapshot, 'checksum'> = {
     version: 1,
+    runToken: checksum({ runId: state.runId, schemaVersion: state.schemaVersion }),
     tick: state.tick,
     movementStep: state.movementStep,
     width: state.config.width,
