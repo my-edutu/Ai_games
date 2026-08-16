@@ -1,0 +1,22 @@
+{
+  "releaseId": "r1-phase-01",
+  "branch": "agent/snake-phase-1",
+  "runtime": "Node.js 22.16.0 / TypeScript 5.8.3",
+  "verification": {
+    "tests": {"passed": 21, "failed": 0},
+    "propertyCorpus": {"seeds": 100, "stepsPerSeed": 250},
+    "headlessCorpus": {"runs": 100, "maxTicksPerRun": 1000, "totalTicks": 100000, "invariantFailures": 0, "deterministicRerunMatch": true},
+    "forbiddenAuthorityScan": true
+  },
+  "performance": {
+    "testSuiteElapsedSeconds": 4.87,
+    "testSuiteMaxRssKb": 158960,
+    "headless100kTicksElapsedSeconds": 27.34,
+    "headlessMaxRssKb": 93716
+  },
+  "knownLimits": [
+    "The Phase 1 fallback policy is intentionally minimal and all 100 runs on the 20x20 target-length-100 corpus reached the configured 1000-tick technical cap rather than a game terminal.",
+    "Vitest/fast-check could not be installed in the isolated runtime; R1 verification uses TypeScript plus Node's built-in test runner and deterministic property loops. Phase 2 should port the same behavioral corpus to the planned test stack when dependency installation is available.",
+    "No renderer, provider adapter, persistence service, audience interaction, long soak, or production deployment is part of R1."
+  ]
+}
