@@ -44,6 +44,12 @@ jobs:
             echo 'Forbidden ambient nondeterminism found in authoritative code.'
             exit 1
           fi
+      - name: Generate Phase 5 chaos evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/phase5
+          npm run snake:phase5:chaos -- phase5-ci > artifacts/phase5/chaos-summary.json
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
       - name: Browser capture and layout verification
@@ -54,5 +60,13 @@ jobs:
         with:
           name: autonomous-snake-phase3-capture
           path: artifacts/phase3
+          if-no-files-found: error
+          retention-days: 30
+      - name: Upload Phase 5 operations evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: autonomous-snake-phase5-operations
+          path: artifacts/phase5
           if-no-files-found: error
           retention-days: 30

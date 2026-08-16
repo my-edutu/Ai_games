@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "phase": 5,
+  "target": "R4-infrastructure-candidate",
+  "verdict": "PASS",
+  "openP0": 0,
+  "openP1": 0,
+  "criteria": {
+    "appendOnlyRebuildAndRecordExclusion": "pass",
+    "singleWriterLeaseAndFencing": "pass",
+    "verifiedSnapshotReplayRecovery": "pass",
+    "corruptEvidenceFallbackAndQuarantine": "pass",
+    "componentAndProviderDegradation": "pass",
+    "outputFaultProtectionAndRecoveryWorkflow": "pass",
+    "boundedCrashLoopBreaker": "pass",
+    "boundedQueuesSnapshotsEventsAuditsAndLabels": "pass",
+    "runbooksAlertsAndTypedOperatorControls": "pass",
+    "securityPrivacyAndSupplyChainReview": "pass",
+    "persistentProcessReconstruction": "pass",
+    "deterministicChaosCampaign": "pass",
+    "fullRegressionAndBrowserCapture": "pass"
+  },
+  "deferredToPhase6": [
+    "real 24-hour production-equivalent endurance run",
+    "managed production storage and backup validation",
+    "credentialed live provider verification",
+    "production-reference encoder/GPU and calibrated audio validation",
+    "real on-call and rollback drills"
+  ],
+  "productionReady": false,
+  "nextPhase": "Phase 6 — frozen release validation, endurance, canary and launch governance"
+}

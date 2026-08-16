@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 1,
+  "game": "autonomous-snake",
+  "phase": 5,
+  "readiness": "R4-infrastructure-candidate",
+  "verifiedSourceHead": "21985ddf48907623f3495268f23972f8c9d461e4",
+  "verification": {
+    "workflow": "Autonomous Games CI",
+    "runId": 31969477750,
+    "jobId": 95219531081,
+    "runner": "ubuntu-24.04",
+    "node": "22.16.0",
+    "packageVersion": "0.5.0",
+    "nodeTests": {"passed": 146, "failed": 0, "durationMs": 5430.707351},
+    "browserTests": {"passed": 3, "failed": 0, "durationSeconds": 7.2},
+    "streamSelfTest": {
+      "authorityStable": true,
+      "snapshotPrivacySafe": true,
+      "recoveryVerified": true,
+      "restartObserved": true,
+      "acceptedSnapshots": 901,
+      "rejectedSnapshots": 0,
+      "finalTick": 900
+    },
+    "authoritativeNondeterminismScan": true,
+    "chaosArtifactGenerated": true
+  },
+  "artifacts": [
+    {
+      "id": 9269385817,
+      "name": "autonomous-snake-phase5-operations",
+      "bytes": 531,
+      "digest": "sha256:1007c478bc533afa094e610545a6b6c9c7c31eaa5a4a661411227bd58810df79",
+      "expiresAt": "2026-09-15T20:05:29Z"
+    },
+    {
+      "id": 9269385523,
+      "name": "autonomous-snake-phase3-capture",
+      "bytes": 781883,
+      "digest": "sha256:6e89985c37f9330cb892beb056a6f87d3cdaa949eb9265d586480b1fdb98fe18",
+      "expiresAt": "2026-09-15T20:05:27Z"
+    }
+  ],
+  "knownBoundaries": [
+    "The deterministic CI chaos campaign is compressed and is not a real 24-hour staging soak.",
+    "Managed production storage, hosts, encoder, secrets and credentialed provider paths require the Phase 6 environment.",
+    "This evidence does not authorize an R5 production-ready claim."
+  ]
+}
