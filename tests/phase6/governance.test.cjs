@@ -1,3 +1,4 @@
+'use strict';
 const test=require('node:test');
 const assert=require('node:assert/strict');
 const {createReleaseManifest,verifyReleaseManifest,detectMaterialChanges,assessTraceability}=require('../../dist/packages/release-governance/src/index.js');
@@ -21,7 +22,7 @@ test('release manifest is canonical, deeply immutable and checksum-verifiable',(
   assert.equal(verifyReleaseManifest(a).valid,true);
   assert.equal(Object.isFrozen(a),true);
   assert.equal(Object.isFrozen(a.versions),true);
-  assert.throws(()=>{a.versions.game='changed'});
+  assert.throws(()=>{a.versions.game='changed'},TypeError);
   const tampered=JSON.parse(JSON.stringify(a));tampered.versions.game='changed';
   assert.equal(verifyReleaseManifest(tampered).valid,false);
   assert.ok(verifyReleaseManifest(tampered).issues.includes('checksum-mismatch'));
@@ -53,8 +54,8 @@ test('traceability requires one current passing evidence item for every MUST req
     {id:'FR-SNK-NICE',phase:3,level:'SHOULD',owner:'presentation'}
   ];
   const evidence=[
-    {requirementId:'FR-SNK-DET-001',status:'pass',sourceSha:release.candidateSourceSha,releaseChecksum:release.checksum,digest:'sha256:det',collectedAtMs:900,owner:'simulation'},
-    {requirementId:'FR-SNK-OPS-RECOVERY',status:'pass',sourceSha:release.candidateSourceSha,releaseChecksum:release.checksum,digest:'sha256:ops',collectedAtMs:950,owner:'operations'}
+    {requirementId:'FR-SNK-DET-001',status:'pass',sourceSha:release.candidateSourceSha,releaseChecksum:release.checksum,digest:'sha256:deadbeef',collectedAtMs:900,owner:'simulation'},
+    {requirementId:'FR-SNK-OPS-RECOVERY',status:'pass',sourceSha:release.candidateSourceSha,releaseChecksum:release.checksum,digest:'sha256:cafebabe',collectedAtMs:950,owner:'operations'}
   ];
   const result=assessTraceability(requirements,evidence,{release,nowMs:1000});
   assert.equal(result.status,'complete');
@@ -65,9 +66,9 @@ test('traceability blocks missing, stale, duplicate, wrong-source and prohibited
   const release=manifest();
   const requirements=[{id:'MUST-1',phase:6,level:'MUST',owner:'release'},{id:'MUST-2',phase:6,level:'MUST',owner:'security'}];
   const evidence=[
-    {requirementId:'MUST-1',status:'pass',sourceSha:'old',releaseChecksum:release.checksum,digest:'sha256:a',collectedAtMs:1,expiresAtMs:10,owner:'release'},
-    {requirementId:'MUST-1',status:'pass',sourceSha:release.candidateSourceSha,releaseChecksum:release.checksum,digest:'sha256:b',collectedAtMs:2,owner:'release'},
-    {requirementId:'MUST-2',status:'waived',sourceSha:release.candidateSourceSha,releaseChecksum:release.checksum,digest:'sha256:c',collectedAtMs:3,owner:'security',findingSeverity:'P1',acceptedBy:'lead'}
+    {requirementId:'MUST-1',status:'pass',sourceSha:'old',releaseChecksum:release.checksum,digest:'sha256:aaaaaaaa',collectedAtMs:1,expiresAtMs:10,owner:'release'},
+    {requirementId:'MUST-1',status:'pass',sourceSha:release.candidateSourceSha,releaseChecksum:release.checksum,digest:'sha256:bbbbbbbb',collectedAtMs:2,owner:'release'},
+    {requirementId:'MUST-2',status:'waived',sourceSha:release.candidateSourceSha,releaseChecksum:release.checksum,digest:'sha256:cccccccc',collectedAtMs:3,owner:'security',findingSeverity:'P1',acceptedBy:'lead'}
   ];
   const result=assessTraceability(requirements,evidence,{release,nowMs:100});
   assert.equal(result.status,'blocked');
@@ -79,7 +80,7 @@ test('traceability blocks missing, stale, duplicate, wrong-source and prohibited
 
 test('accepted P2 waiver is explicit but does not hide evidence metadata',()=>{
   const release=manifest();
-  const result=assessTraceability([{id:'MUST-P2',phase:6,level:'MUST',owner:'release'}],[{requirementId:'MUST-P2',status:'waived',sourceSha:release.candidateSourceSha,releaseChecksum:release.checksum,digest:'sha256:p2',collectedAtMs:100,owner:'release',findingSeverity:'P2',acceptedBy:'release-owner',waiverReason:'Documented external limitation'}],{release,nowMs:101});
+  const result=assessTraceability([{id:'MUST-P2',phase:6,level:'MUST',owner:'release'}],[{requirementId:'MUST-P2',status:'waived',sourceSha:release.candidateSourceSha,releaseChecksum:release.checksum,digest:'sha256:feedface',collectedAtMs:100,owner:'release',findingSeverity:'P2',acceptedBy:'release-owner',waiverReason:'Documented external limitation'}],{release,nowMs:101});
   assert.equal(result.status,'complete');
   assert.deepEqual(result.acceptedWaivers,['MUST-P2']);
 });
