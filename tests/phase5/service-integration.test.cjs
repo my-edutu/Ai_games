@@ -27,6 +27,34 @@ test('runtime commands are exactly-once by idempotency key',()=>{
   assert.equal(s.store.events('channel').length,count);
 });
 
+test('durable command reservations prevent duplicate application after worker replacement',()=>{
+  const store=new InMemoryDurableStore({eventCapacity:5000}),leases=new RunLeaseStore();
+  const a=service({store,leases,workerId:'a'});a.start(0);a.tick('same',10);
+  const b=service({store,leases,workerId:'b'});b.start(1001);
+  const before=checksum(b.runtime.state),count=store.events('channel').length;
+  assert.equal(b.tick('same',1002).status,'duplicate');
+  assert.equal(checksum(b.runtime.state),before);
+  assert.equal(store.events('channel').length,count);
+});
+
+test('successful ticks renew the active writer lease',()=>{
+  const s=service();s.start(0);
+  assert.equal(s.tick('first',500).status,'applied');
+  assert.equal(s.tick('after-original-expiry',1200).status,'applied');
+  assert.ok(s.leases.current('channel').expiresAtMs>1200);
+});
+
+test('durable event timestamps use the service clock rather than simulation ticks',()=>{
+  const s=service();s.start(123);
+  const initialized=s.store.events('channel');
+  assert.ok(initialized.length>0);
+  assert.ok(initialized.every(event=>event.createdAtMs===123));
+  s.tick('clocked',456);
+  const later=s.store.events('channel').filter(event=>event.seq>=initialized.length);
+  assert.ok(later.length>0);
+  assert.ok(later.every(event=>event.createdAtMs===456));
+});
+
 test('expired writer is fenced after a newer service acquires the channel lease',()=>{
   const store=new InMemoryDurableStore({eventCapacity:5000}),leases=new RunLeaseStore();
   const a=service({store,leases,workerId:'a'});a.start(0);
