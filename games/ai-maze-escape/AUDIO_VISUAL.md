@@ -17,31 +17,18 @@ Discovery animates from unknown to visible to remembered state. The route trail 
 
 ## HUD
 
-Persistent hierarchy:
+Persistent hierarchy: level/depth and escape objective; known-map/discovery progress; current target and AI intent; time/health/threat danger; streak/record; next audience window. Context cards cover key/door dependency, clue update, hypothesis revision, threat alert, vote, milestone, result, provider degradation, and verified recovery. Debug solver information remains operator-only.
 
-1. level/depth and escape objective;
-2. known-map/discovery progress;
-3. current target and AI intent;
-4. time/health/threat danger;
-5. streak/record;
-6. next audience window.
+## VFX and Audio
 
-Context cards cover key/door dependency, clue update, hypothesis revision, threat alert, vote, milestone, result, provider degradation, and verified recovery. Debug solver information remains operator-only.
-
-## VFX
-
-Use restrained reveal waves, route pulses, key/door mechanisms, trap telegraphs, threat vision/hearing cones where rules permit, dust/ambient particles, exit beacon, and decisive chase/failure effects. Feedback follows anticipation-impact-recovery and semantic priority. Audience effects share one incoming/application/expiry language and never mask threat or exit state.
-
-## Audio
+Use restrained reveal waves, route pulses, key/door mechanisms, trap telegraphs, threat vision/hearing cones where rules permit, dust/ambient particles, exit beacon, and decisive chase/failure effects. Feedback follows anticipation-impact-recovery and semantic priority.
 
 The soundscape combines spatial ambience, explorer movement, map discovery, mechanical locks, clue tones, hazard telegraphs, and directional-but-redundant threat cues. Music states: intermission, exploration, uncertainty, insight, threat, chase, near-exit, escape, failure, and recovery. Hysteresis and quiet periods prevent constant tension.
 
 Priority protects terminal/integrity, immediate threat/trap, exit/key dependency, milestone/record, audience effect, movement, and ambience. Critical directional cues have visual/caption alternatives. Raw chat text-to-speech is prohibited.
 
-## Accessibility and Performance
+## Accessibility, Performance, and Evidence
 
 Provide color-safe patterns/icons, caption-safe zones, reduced motion/flash, muted-audio comprehension, scalable type, localization-safe cards, and no essential reliance on spatial sound. Cap fog shaders, lights, route segments, particles, threat overlays, floating text, replay length, voices, and texture/audio memory. Quality tiers remove ambient detail before map truth or danger.
 
-## Evidence
-
-Representative recordings/captures must include small/large mazes, dense known maps, fog, locks/keys, chase, vote, exit, failure, route replay, mobile/low bitrate, color-safe, muted, reduced motion, renderer/audio restart, and safe recovery. Assets require licence/provenance/version/fallback, and long-soak resources must remain bounded.
+Representative evidence includes small/large mazes, dense maps, fog, locks/keys, chase, vote, exit, failure, route replay, mobile/low bitrate, color-safe, muted, reduced motion, renderer/audio restart, and safe recovery. Assets require licence/provenance/version/fallback, and soak resources must remain bounded.
