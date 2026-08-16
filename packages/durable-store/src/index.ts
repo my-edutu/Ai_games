@@ -170,3 +170,4 @@ export class InMemoryDurableStore {
 }
 
 export * from '../../ops-contracts/src/index';
+export * from './file-store';
