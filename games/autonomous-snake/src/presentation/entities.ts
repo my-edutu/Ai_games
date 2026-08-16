@@ -45,13 +45,7 @@ function flatten(snapshot: RenderSnapshot): VisualEntity[] {
   }
 
   for (const cell of snapshot.obstacles) {
-    entities.push({
-      id: `obstacle-${cell}`,
-      kind: 'obstacle',
-      cell,
-      previousCell: cell,
-      updatedAtTick: snapshot.tick,
-    });
+    entities.push({ id: `obstacle-${cell}`, kind: 'obstacle', cell, previousCell: cell, updatedAtTick: snapshot.tick });
   }
 
   for (const hazard of snapshot.hazards) {
@@ -91,8 +85,10 @@ function flatten(snapshot: RenderSnapshot): VisualEntity[] {
 export class EntityRegistry {
   private readonly entities = new Map<string, VisualEntity>();
   private lastTick = -1;
+  private lastRunToken = '';
 
   apply(snapshot: RenderSnapshot): EntityDelta {
+    if (this.lastRunToken && snapshot.runToken !== this.lastRunToken) this.clear();
     if (snapshot.tick < this.lastTick) throw new RangeError('stale entity snapshot');
     const incoming = new Map(flatten(snapshot).map(entity => [entity.id, entity]));
     const created: VisualEntity[] = [];
@@ -107,10 +103,7 @@ export class EntityRegistry {
         created.push(clone(stored));
         continue;
       }
-      const stored: VisualEntity = {
-        ...next,
-        previousCell: previous.cell,
-      };
+      const stored: VisualEntity = { ...next, previousCell: previous.cell };
       this.entities.set(id, stored);
       updated.push(clone(stored));
     }
@@ -122,6 +115,7 @@ export class EntityRegistry {
     }
 
     this.lastTick = snapshot.tick;
+    this.lastRunToken = snapshot.runToken;
     return { created, updated, removed };
   }
 
@@ -150,5 +144,6 @@ export class EntityRegistry {
   clear(): void {
     this.entities.clear();
     this.lastTick = -1;
+    this.lastRunToken = '';
   }
 }
