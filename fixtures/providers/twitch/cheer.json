@@ -1,0 +1,22 @@
+{
+  "subscription": {
+    "id": "sub-cheer-1",
+    "status": "enabled",
+    "type": "channel.cheer",
+    "version": "1",
+    "condition": { "broadcaster_user_id": "9001" },
+    "transport": { "method": "webhook", "callback": "https://example.invalid/twitch" },
+    "created_at": "2026-08-16T12:00:00Z"
+  },
+  "event": {
+    "is_anonymous": false,
+    "user_id": "viewer-456",
+    "user_login": "bob",
+    "user_name": "Bob",
+    "broadcaster_user_id": "9001",
+    "broadcaster_user_login": "channel",
+    "broadcaster_user_name": "Channel",
+    "message": "!vote B",
+    "bits": 250
+  }
+}
