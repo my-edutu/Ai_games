@@ -14,6 +14,7 @@ const audienceCopy = document.getElementById('audience-copy');
 const integrity = document.getElementById('integrity');
 const sceneTitle = document.getElementById('scene-title');
 const sceneCopy = document.getElementById('scene-copy');
+const operatorControlsEnabled = new URLSearchParams(window.location.search).get('controls') === '1';
 
 let frame;
 let previousFrame;
@@ -27,6 +28,8 @@ let particles = [];
 let audioContext;
 let lastFoodCount = -1;
 let lastScene = '';
+
+if (operatorControlsEnabled) broadcast.classList.add('show-controls');
 
 function resizeCanvas() {
   const bounds = canvas.getBoundingClientRect();
@@ -346,7 +349,7 @@ function draw(timestamp) {
 
   if (previousFrame?.snapshot && snapshot.foodsCollected > previousFrame.snapshot.foodsCollected && snapshot.snake[0]) {
     const head = cellPosition(snapshot.snake[0].cell, snapshot.width);
-    spawnParticles(head.x + .5, head.y + .5, snapshot.foodKind === 'bonus' ? '#ffd166' : '#6fffd2', 18);
+    spawnParticles(head.x + .5, head.y + .5, snapshot.food?.kind === 'bonus' ? '#ffd166' : '#6fffd2', 18);
   }
   updateParticles(context, Math.min(3, Math.max(.25, (timestamp - (draw.lastTime || timestamp)) / 16.67)), cell, cell, originX, originY);
   draw.lastTime = timestamp;
