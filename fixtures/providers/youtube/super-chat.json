@@ -1,0 +1,28 @@
+{
+  "kind": "youtube#liveChatMessage",
+  "etag": "etag-superchat-1",
+  "id": "yt-superchat-1",
+  "snippet": {
+    "type": "superChatEvent",
+    "liveChatId": "live-chat-1",
+    "authorChannelId": "UCviewer-support-1",
+    "publishedAt": "2026-08-16T12:02:00Z",
+    "hasDisplayContent": true,
+    "displayMessage": "!vote C",
+    "superChatDetails": {
+      "amountMicros": "5000000",
+      "currency": "USD",
+      "amountDisplayString": "$5.00",
+      "userComment": "!vote C",
+      "tier": 3
+    }
+  },
+  "authorDetails": {
+    "channelId": "UCviewer-support-1",
+    "displayName": "Frank",
+    "isVerified": false,
+    "isChatOwner": false,
+    "isChatSponsor": true,
+    "isChatModerator": false
+  }
+}
