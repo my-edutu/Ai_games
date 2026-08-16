@@ -15,7 +15,7 @@ permissions:
 jobs:
   test:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -42,3 +42,15 @@ jobs:
             echo 'Forbidden ambient nondeterminism found in authoritative code.'
             exit 1
           fi
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Browser capture and layout verification
+        run: npm run test:browser
+      - name: Upload Phase 3 capture evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: autonomous-snake-phase3-capture
+          path: artifacts/phase3
+          if-no-files-found: warn
+          retention-days: 30
