@@ -1,0 +1,12 @@
+{
+  "runs": 100,
+  "totalTicks": 22879,
+  "invariantFailures": 0,
+  "terminals": {"stagnation": 31, "victory": 69},
+  "profiles": {"open": 20, "corridors": 20, "rings": 20, "chambers": 20, "portals": 20},
+  "modes": ["follow-tail", "preserve-space", "replan", "seek-food"],
+  "fallbacks": 0,
+  "replans": 50,
+  "dramaticPatterns": ["hazard-navigation", "long-survival", "near-conquest", "replan-recovery", "topology-adaptation", "victory"],
+  "deterministicRerun": true
+}
