@@ -1,0 +1,29 @@
+{
+  "releaseId": "r2-phase-02",
+  "branch": "agent/snake-phase-2",
+  "runtime": "Node.js 22.16.0 / TypeScript 5.8.3",
+  "verification": {
+    "tests": {"passed": 40, "failed": 0},
+    "phase1RegressionTestsRetained": 24,
+    "profiles": ["open", "corridors", "rings", "chambers", "portals"],
+    "campaignRuns": 100,
+    "campaignTicks": 22879,
+    "campaignInvariantFailures": 0,
+    "deterministicCampaignRerun": true,
+    "campaignTerminals": {"victory": 69, "stagnation": 31, "technical": 0},
+    "dramaticPatterns": 6,
+    "fallbackStorms": 0,
+    "forbiddenAuthorityScan": true
+  },
+  "performance": {
+    "fullSuiteElapsedSeconds": 8.31,
+    "fullSuiteMaxRssKb": 161796,
+    "maxBoard": {"width": 64, "height": 64, "decisions": 100, "elapsedSeconds": 0.61, "maxRssKb": 69864}
+  },
+  "knownLimits": [
+    "R2 is a headless/gameplay quality gate, not broadcast or production readiness.",
+    "Cycle-fill intent is present for compatible high-occupancy states, but a dedicated Hamiltonian cycle constructor is deferred to later R2 optimization if larger-board campaigns show need.",
+    "The sandbox cannot install the planned Vitest/fast-check dependencies; the same deterministic behavioral corpus uses Node's built-in runner and must be ported without weakening when dependency installation is available.",
+    "Final art/audio/HUD, provider integrations, gifts, durable production persistence, operator dashboard, long soak and public launch remain later phases."
+  ]
+}

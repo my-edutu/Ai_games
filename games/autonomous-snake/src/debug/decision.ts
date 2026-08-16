@@ -1,0 +1,2 @@
+import type{SnakeState}from '../state/types';import{chooseProductionAction}from '../ai/production';
+export function inspectDecision(state:SnakeState){const d=chooseProductionAction(state);return{profile:state.config.profile,tick:state.tick,head:state.snake.body[0],food:state.food,mode:d.intent.mode,confidence:d.intent.confidence,explanation:d.intent.explanation,nodeExpansions:d.intent.nodeExpansions,candidates:d.candidates.map(c=>({...c}))}}

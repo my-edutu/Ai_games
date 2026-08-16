@@ -1,0 +1,2 @@
+import type{NamedRng}from '../../../../packages/seeded-rng/src/index';import type{SnakeState}from '../state/types';import{spawnFood}from './food';
+export function spawnObjective(state:SnakeState,rng:NamedRng,forceStandard=false){state.food=spawnFood(state,rng);const bonus=!forceStandard&&state.foodsCollected>0&&state.foodsCollected%state.config.specialFoodEvery===0;state.foodKind=bonus?'bonus':'standard';state.foodExpiresAt=bonus?state.tick+state.config.specialFoodLifetime:null;return state.food}

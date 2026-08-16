@@ -4,7 +4,7 @@
   "scripts": {
     "clean": "rm -rf dist",
     "build": "tsc -p tsconfig.json",
-    "test": "npm run build && node --test tests/foundation/*.test.cjs",
+    "test": "npm run build && node --test tests/foundation/*.test.cjs tests/phase2/*.test.cjs",
     "snake:headless": "npm run build && node scripts/run-snake-headless.cjs"
   }
 }
