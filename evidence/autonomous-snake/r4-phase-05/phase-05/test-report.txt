@@ -1,0 +1,48 @@
+Autonomous Snake Phase 5 verification report
+=============================================
+
+Verified source head: 21985ddf48907623f3495268f23972f8c9d461e4
+GitHub Actions run: 31969477750
+Job: 95219531081
+Environment: Ubuntu 24.04, Node.js 22.16.0, npm 10.9.2
+
+Locked installation
+-------------------
+npm ci --no-audit --no-fund: PASS
+
+Strict build and Node suite
+---------------------------
+TypeScript strict compilation: PASS
+Tests: 146
+Passed: 146
+Failed: 0
+Cancelled: 0
+Skipped: 0
+Duration: 5430.707351 ms
+
+Coverage included
+-----------------
+Phase 1 deterministic simulation, RNG, rules, snapshot and replay regressions.
+Phase 2 production AI, topology, objective, hazard and campaign regressions.
+Phase 3 immutable presentation, stream host, audio/VFX, output health and restart regressions.
+Phase 4 provider adapters, authentication, privacy, moderation, votes, effects and pressure regressions.
+Phase 5 append-only persistence, file durability, disk bounds, projections, lease fencing, command idempotency, process reconstruction, verified recovery, quarantine, supervisor, circuit breaker, output protection, observability, RBAC, service integration and deterministic chaos.
+
+Additional gates
+----------------
+Stream host self-test: PASS
+- authority stable: true
+- recovery verified: true
+- restart observed: true
+- accepted render snapshots: 901
+- rejected render snapshots: 0
+
+Authoritative ambient nondeterminism scan: PASS
+Phase 5 chaos artifact generation: PASS
+Chromium browser tests: 3 passed / 0 failed in 7.2 seconds
+Phase 3 capture artifact upload: PASS
+Phase 5 operations artifact upload: PASS
+
+Evidence boundary
+-----------------
+This report proves the deterministic CI campaign and implementation contracts on the identified source head. It does not claim a real 24-hour production-equivalent soak, credentialed live-provider operation, production-reference GPU/encoder measurement, or a public canary.
