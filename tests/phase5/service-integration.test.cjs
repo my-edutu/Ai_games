@@ -30,9 +30,9 @@ test('runtime commands are exactly-once by idempotency key',()=>{
 test('durable command reservations prevent duplicate application after worker replacement',()=>{
   const store=new InMemoryDurableStore({eventCapacity:5000}),leases=new RunLeaseStore();
   const a=service({store,leases,workerId:'a'});a.start(0);a.tick('same',10);
-  const b=service({store,leases,workerId:'b'});b.start(1001);
+  const b=service({store,leases,workerId:'b'});b.start(1011);
   const before=checksum(b.runtime.state),count=store.events('channel').length;
-  assert.equal(b.tick('same',1002).status,'duplicate');
+  assert.equal(b.tick('same',1012).status,'duplicate');
   assert.equal(checksum(b.runtime.state),before);
   assert.equal(store.events('channel').length,count);
 });
