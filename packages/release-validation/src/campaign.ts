@@ -1,6 +1,7 @@
 import type{BoardProfile}from '../../game-contracts/src/index';
 import{checksum}from '../../replay/src/index';
 import{SnakeRuntime}from '../../../games/autonomous-snake/src/runtime/run';
+import{applyStagnationTerminal}from '../../../games/autonomous-snake/src/rules/step';
 import{enqueueInfluence}from '../../../games/autonomous-snake/src/influence/apply';
 import{generateEffectCandidates}from '../../../games/autonomous-snake/src/influence/candidates';
 import type{SnakeEffectId,InfluenceCommand}from '../../../games/autonomous-snake/src/influence/types';
@@ -29,11 +30,15 @@ function runScenario(options:FinalCampaignOptions,id:ScenarioCampaignReport['id'
     const profile=options.profiles[i%options.profiles.length],runtime=SnakeRuntime.create({width:options.width,height:options.height,targetLength:options.targetLength,profile,hazardCount:options.hazardCount,noProgressTicks:Math.min(240,options.maxTicks-1)},`${options.seed}:${id}:${i}`);ensureCounter(profileCounts,profile);let steps=0,attempt=0;
     while(!runtime.state.result&&steps<options.maxTicks){
       if(id==='maximum-bounded-pressure'&&runtime.state.tick%12===0){const command=pressureCommand(runtime,i,attempt++);if(command){const result=enqueueInfluence(runtime.state,command);runtime.state=result.state;if(result.status==='queued')queued++;else if(result.status==='duplicate')duplicateApplications++;else rejected++;maxQueuedAtOnce=Math.max(maxQueuedAtOnce,runtime.state.influence.queued.length)}}
-      runtime.step();steps++;for(const mode of [runtime.state.ai.mode])modes.add(mode);
+      runtime.step();steps++;modes.add(runtime.state.ai.mode);
       const body=runtime.state.snake.body;if(new Set(body).size!==body.length)invariantFailures++;if(runtime.state.food!==null&&(body.includes(runtime.state.food)||runtime.state.obstacles.includes(runtime.state.food)||runtime.state.hazards.includes(runtime.state.food)))invariantFailures++;
     }
+    // The campaign's declared maximum is an authoritative run boundary, not an
+    // infrastructure timeout. Resolve a still-healthy run through the existing
+    // checksummed stagnation terminal so every sample has a legitimate outcome.
+    if(!runtime.state.result){const terminal=applyStagnationTerminal(runtime.state);runtime.state=terminal.state;}
     const results=Object.values(runtime.state.influence.applied);applied+=results.filter(result=>result.status==='applied').length;rejected+=results.filter(result=>result.status==='rejected').length;const ids=results.map(result=>result.idempotencyKey);duplicateApplications+=ids.length-new Set(ids).size;
-    const terminal=runtime.state.result?.reason??'tick-cap';if(runtime.state.result)ensureCounter(outcomes,terminal);else technicalOutcomes++;
+    const terminal=runtime.state.result?.reason??'technical-abort';if(runtime.state.result)ensureCounter(outcomes,terminal);else technicalOutcomes++;
     ensureCounter(recordCategories,runtime.state.influence.recordCategory);ticks.push(steps);lengths.push(runtime.state.snake.body.length);totalTicks+=steps;fallbacks+=runtime.state.ai.fallbackCount;replans+=runtime.state.ai.replans;runChecksums.push(checksum(runtime.state));
     if(results.some(result=>['victory','death','record'].includes(result.effectId as string)))prohibitedTerminalEffects++;
   }
