@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "phase": 3,
+  "releaseId": "r2-phase-03",
+  "decision": "PASS_R2_BROADCAST_CANDIDATE",
+  "highestTruthfulReadiness": "R2",
+  "blockingFindings": { "P0": 0, "P1": 0 },
+  "acceptedLaterPhaseP2": [
+    "Independent uninstructed ten-second comprehension study",
+    "Production-reference GPU, encoder and long browser-resource measurements",
+    "Calibrated loudness, true-peak and production capture-chain silence/clipping validation"
+  ],
+  "handoff": "Phase 4 may consume the verified presentation contracts. The accepted P2 items remain blocking for R5 and are owned by Phases 5–6.",
+  "evidenceWorkflowRunId": 31964576797,
+  "captureArtifactId": 9268139446,
+  "reviewFile": "evidence/autonomous-snake/r2-phase-03/phase-03/review.md"
+}
