@@ -18,13 +18,15 @@ jobs:
     timeout-minutes: 20
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: '22.16.0'
-      - name: Install toolchain
-        run: npm install --no-audit --no-fund
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - name: Install locked toolchain
+        run: npm ci --no-audit --no-fund
       - name: Build and test
         run: npm test
       - name: Stream host self-test
@@ -48,11 +50,9 @@ jobs:
         run: npm run test:browser
       - name: Upload Phase 3 capture evidence
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: autonomous-snake-phase3-capture
-          path: |
-            artifacts/phase3
-            package-lock.json
-          if-no-files-found: warn
+          path: artifacts/phase3
+          if-no-files-found: error
           retention-days: 30
