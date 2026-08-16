@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "workflowRunId": 31964576797,
+  "artifact": {
+    "id": 9268139446,
+    "name": "autonomous-snake-phase3-capture",
+    "sizeBytes": 788100,
+    "sha256": "8e91757c7dae91bc5f99310c668e1aace89be4be413f1ceceae25859f1d27dfb"
+  },
+  "captures": [
+    {
+      "file": "desktop-1920x1080.png",
+      "viewport": "1920x1080",
+      "sha256": "151337bbb179e972c1a44d87637009a6dfc6dcfa32d8a99a21668f297b98027b",
+      "reviewed": true,
+      "observations": [
+        "Goal and length hierarchy are prominent.",
+        "Board, snake head, objective, portals and hazard symbols are visually distinct.",
+        "AI intent, record and integrity status are legible.",
+        "No operator controls appear in the public source."
+      ]
+    },
+    {
+      "file": "phone-640x360.png",
+      "viewport": "640x360",
+      "sha256": "d34ef497c31382aaecae8ba41ea2e592fd0bd0cf5fab1388ab6be5e8f6b476e4",
+      "reviewed": true,
+      "observations": [
+        "Goal, progress and record remain visible.",
+        "Gameplay canvas remains larger than 580×150 CSS pixels.",
+        "Caption strip remains visible and at least 30 CSS pixels high.",
+        "No horizontal overflow or public operator controls are present."
+      ]
+    },
+    {
+      "file": "clean-feed-1280x720.png",
+      "viewport": "1280x720",
+      "sha256": "58ac1bdca41979b31cea1ded64c53a7de1d7197f22178dc2fbf0ec5c8b4cc15d",
+      "reviewed": true,
+      "observations": [
+        "Only gameplay is rendered.",
+        "HUD, captions, audience footer and operator controls are hidden.",
+        "The board expands to the full source area."
+      ]
+    }
+  ],
+  "metrics": {
+    "desktopMetricsSha256": "454bf6f52baad643896cd26d4074b049502ed755bf5ea6815491603dc59c5b13",
+    "phoneMetricsSha256": "5ad304f5c4cad620fa4d080c437213e931f4bc68fdfd67fc4a23c8ee96c2b387",
+    "playwrightReportSha256": "410c95e4b02a6ba13a9f49d4b8b7c5115e47aa131a78064df2e809baaf7fc197"
+  }
+}
