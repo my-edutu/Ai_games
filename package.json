@@ -1,10 +1,22 @@
 {
   "name": "ai-games",
+  "version": "0.3.0",
   "private": true,
+  "engines": {
+    "node": ">=22.0.0"
+  },
   "scripts": {
     "clean": "rm -rf dist",
     "build": "tsc -p tsconfig.json",
-    "test": "npm run build && node --test tests/foundation/*.test.cjs tests/phase2/*.test.cjs",
-    "snake:headless": "npm run build && node scripts/run-snake-headless.cjs"
+    "test": "npm run build && node --test tests/foundation/*.test.cjs tests/phase2/*.test.cjs tests/phase3/*.test.cjs",
+    "test:phase3": "npm run build && node --test tests/phase3/*.test.cjs",
+    "test:browser": "playwright test",
+    "snake:headless": "npm run build && node scripts/run-snake-headless.cjs",
+    "snake:stream": "npm run build && node scripts/serve-snake-stream.cjs",
+    "snake:stream:self-test": "npm run build && node scripts/serve-snake-stream.cjs --self-test"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.55.0",
+    "typescript": "5.8.3"
   }
 }

@@ -1,0 +1,58 @@
+name: Autonomous Games CI
+
+on:
+  push:
+    branches:
+      - main
+      - 'agent/**'
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '22.16.0'
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - name: Install locked toolchain
+        run: npm ci --no-audit --no-fund
+      - name: Build and test
+        run: npm test
+      - name: Stream host self-test
+        run: npm run snake:stream:self-test
+      - name: Authoritative nondeterminism scan
+        shell: bash
+        run: |
+          set -euo pipefail
+          if grep -R -n -E 'Math\.random|Date\.now|new Date\(|setTimeout\(|setInterval\(' \
+            games/autonomous-snake/src/rules \
+            games/autonomous-snake/src/runtime \
+            games/autonomous-snake/src/ai \
+            games/autonomous-snake/src/generation \
+            games/autonomous-snake/src/state; then
+            echo 'Forbidden ambient nondeterminism found in authoritative code.'
+            exit 1
+          fi
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Browser capture and layout verification
+        run: npm run test:browser
+      - name: Upload Phase 3 capture evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: autonomous-snake-phase3-capture
+          path: artifacts/phase3
+          if-no-files-found: error
+          retention-days: 30

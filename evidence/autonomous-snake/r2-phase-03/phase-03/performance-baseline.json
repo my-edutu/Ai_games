@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 1,
+  "releaseId": "r2-phase-03",
+  "environment": {
+    "runner": "GitHub-hosted ubuntu-24.04",
+    "node": "22.16.0",
+    "chromium": "140.0.7339.16",
+    "viewportDeviceScaleFactor": 1
+  },
+  "testSuite": {
+    "tests": 56,
+    "passed": 56,
+    "failed": 0,
+    "durationMs": 3996.321655
+  },
+  "streamSelfTest": {
+    "simulationSteps": 900,
+    "acceptedSnapshots": 901,
+    "rejectedSnapshots": 0,
+    "registryEntitiesAtEnd": 73,
+    "replayFramesAtEnd": 360,
+    "verifiedRecoveries": 1,
+    "authorityStable": true
+  },
+  "browserDesktop": {
+    "viewport": { "width": 1920, "height": 1080 },
+    "canvasCss": { "x": 47, "y": 178.75, "width": 1826, "height": 677.15625 },
+    "primaryHudCssHeight": 39.359375,
+    "measuredAnimationFrames": 23,
+    "measurementElapsedMs": 1002.000000000003,
+    "averageFps": 22.9540918163672,
+    "maxFrameGapMs": 50.10000000000002,
+    "note": "Headless Chromium on a shared CI runner is CPU constrained. The Phase 3 browser gate requires continuous non-frozen animation, at least 17 average FPS, at least 18 frames per measured second and no frame gap of 250 ms or more. Production-reference render budgets remain a later gate."
+  },
+  "browserPhone": {
+    "viewport": { "width": 640, "height": 360 },
+    "canvasCss": { "width": 614, "height": 238 },
+    "primaryHudCssHeight": 21.765625,
+    "captionCssHeight": 34,
+    "horizontalOverflow": false
+  },
+  "boundedResources": {
+    "maxParticles": 240,
+    "maxActiveVfxDefault": 32,
+    "maxAudioVoicesDefault": 8,
+    "replayCapacityReference": 360,
+    "snapshotPollingIntervalMs": 125,
+    "canvasDevicePixelRatioCap": 2
+  },
+  "notMeasuredInPhase3": [
+    "Production GPU frame time and texture memory",
+    "OBS or encoder end-to-end frame delivery",
+    "Calibrated loudness and true-peak output",
+    "Long-duration browser memory slope",
+    "Production-reference low-bitrate encoder artifacts"
+  ]
+}

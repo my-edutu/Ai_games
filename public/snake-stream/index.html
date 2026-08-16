@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="dark">
+  <title>Autonomous Snake Live</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <main id="broadcast" data-scene="maintenance" aria-live="polite">
+    <header id="hud" class="hud" aria-label="Game progress">
+      <div class="brand-block">
+        <span class="eyebrow">AUTONOMOUS INTELLIGENCE</span>
+        <strong id="primary">PREPARING RUN</strong>
+      </div>
+      <div class="metric-block">
+        <span id="secondary">VERIFIED SIMULATION</span>
+        <span id="record">BEST —</span>
+      </div>
+      <div class="intent-block">
+        <span class="eyebrow">AI INTENT</span>
+        <span id="intent">Initializing deterministic strategy</span>
+      </div>
+    </header>
+
+    <section class="stage" aria-label="Autonomous Snake game board">
+      <canvas id="game" width="1920" height="1080" aria-label="Autonomous Snake gameplay visualization"></canvas>
+      <div id="scene-card" class="scene-card" role="status">
+        <strong id="scene-title">PREPARING AUTONOMOUS RUN</strong>
+        <span id="scene-copy">A verified game view will appear automatically.</span>
+      </div>
+    </section>
+
+    <section id="captions" class="captions" aria-label="Sound and gameplay captions">
+      <span id="caption">Simulation starting</span>
+    </section>
+
+    <footer id="audience" class="audience">
+      <span id="audience-copy">AUDIENCE INTERACTIONS — PHASE 4</span>
+      <span id="integrity">INTEGRITY: VERIFIED</span>
+    </footer>
+
+    <nav class="controls" aria-label="Accessibility and output controls">
+      <button type="button" data-control="reduced-motion" aria-pressed="false">Reduced motion</button>
+      <button type="button" data-control="muted" aria-pressed="false">Mute audio</button>
+      <button type="button" data-control="clean-feed" aria-pressed="false">Clean feed</button>
+    </nav>
+  </main>
+  <script src="/app.js" defer></script>
+</body>
+</html>

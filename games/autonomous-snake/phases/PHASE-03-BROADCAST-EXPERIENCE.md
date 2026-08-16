@@ -1,105 +1,143 @@
 # Phase 3 — Premium Broadcast Experience
 
-**Phase status:** Not started  
-**Readiness target:** R2 complete streamed vertical slice  
-**Viewer-visible outcome:** A full Snake run is visually premium, sonically coherent, immediately understandable on mobile, accessible, automatically framed, resolved with replay and records, and restarted without operator input.
+**Phase status:** Implementation complete; R2 broadcast candidate verified  
+**Completed candidate:** `r2-phase-03`  
+**Verified implementation head:** `c55cd0f57544270a0ee0736dcdabb08185d4de7d`  
+**CI evidence:** GitHub Actions run `31964576797` — success  
+**Viewer-visible outcome:** A full autonomous Snake run is rendered through a premium, accessible browser source, communicates goal/progress/danger/intent/result, recovers its view from the latest verified snapshot, and restarts without operator action.
 
 ## Objective
 
-Implement the stream-facing player, render adapter, HUD, cameras, VFX, adaptive audio, captions, scenes, replay buffer, clean feed, and output health using the Phase 2 semantic contracts. The presentation must improve comprehension without mutating or duplicating authoritative rules.
+Implement the stream-facing player, render adapter, HUD, camera, VFX, semantic audio, captions, scenes, replay buffer, clean feed, and output-health supervision using the Phase 2 semantic contracts. Presentation improves comprehension without mutating or duplicating authoritative rules.
 
-## In Scope
+## Delivered
 
-- PixiJS or approved 2D presentation application and browser-source build;
-- stable render-snapshot entity registry and interpolation;
-- theme/asset system with licensed initial assets;
-- full board/snake/food/hazard/portal/modifier rendering;
-- HUD for length, occupancy, milestone, record, mode, intent, status, and future audience slot;
-- countdown, normal, danger, milestone, result, replay, intermission, provider-degraded, recovery, maintenance, clean-feed, and emergency scenes;
-- bounded camera, animations, particles, transitions, quality tiers;
-- semantic audio engine integration, music states, SFX priority, mix, captions;
-- reduced-motion, reduced-flash, color-safe, muted-audio, localization-safe variants;
-- output freshness/black/frozen/wrong-scene/silence probes;
-- full automatic run-to-result-to-restart broadcast loop.
+### Presentation Contract and Authority Isolation
 
-## Explicit Non-Scope
+- versioned, deeply frozen, checksummed and privacy-safe `RenderSnapshot`;
+- hashed public run token and deterministic monotonic presentation revision;
+- duplicate, stale, unsupported and divergent-snapshot handling;
+- twin-runtime checksum proof that different presentation schedules do not alter authority;
+- complete reconstruction from the latest accepted snapshot;
+- public state excludes seed, raw run ID, provider/user/payment data, state-hash history, planner internals, stack traces and internal failure text.
 
-Live YouTube/Twitch events, paid entitlements, final operator dashboard, production database, production canary, and R5 launch.
+### Visual Entities, HUD and Scenes
 
-## Requirements Addressed
+- deterministic entity registry for snake, objectives, obstacles, hazards and portals;
+- stable create/update/remove lifecycle and bounded interpolation;
+- desktop/phone responsive safe-zone layout;
+- prominent length/goal, percentage/profile, record, AI intent, caption/status and integrity hierarchy;
+- normal, danger, milestone, result, intermission, recovery, maintenance and clean-feed behavior;
+- explicit result labels for victory, wall, obstacle, hazard, self-collision and stagnation;
+- operator controls hidden from public capture and exposed only through `?controls=1`.
 
-All `FR-SNK-UX-*`, presentation portions of product requirements, `NFR-SNK-PERF-002`, `NFR-SNK-ACC-001`, public privacy requirements, and the broadcast/audio/accessibility production gates.
+### Canvas Browser Source
 
-## Workstreams
+- dependency-free Node HTTP host and Canvas 2D browser source;
+- board, snake head/body/tail, standard/bonus objective, obstacle, pulsing hazard and portal rendering;
+- semantic shape differences so color is not the sole carrier of meaning;
+- device-pixel-ratio cap, bounded particles and no unsafe HTML injection;
+- `/snapshot`, `/replay` and `/health` endpoints;
+- Content Security Policy, no-store live state, referrer restriction and MIME hardening.
 
-### 1. Presentation Host and Render Adapter
+### Camera, VFX, Audio and Replay
 
-Consume versioned immutable snapshots, create/update/remove entities by stable visual ID, interpolate between authoritative steps, reject stale/incompatible snapshots, restore a complete scene from current state, and isolate renderer errors from simulation.
+- bounded overview, danger, milestone, result and recovery camera modes;
+- semantic VFX priority, dedupe, duration, active-count and reduced-mode controls;
+- semantic audio buses, priority, cooldown, voice stealing, music-state dwell and caption alternatives;
+- generated Web Audio cues with no shipped third-party media asset;
+- bounded defensive replay ring buffer;
+- result → intermission → new-run presentation verification.
 
-### 2. Board and Entity Rendering
+### Accessibility and Degradation
 
-Implement themeable grid, playable mask, head/body/tail hierarchy, food/special-food identity, obstacles, hazard telegraphs, portals, timed effects, and occupancy visualization. Preserve semantic color/shape roles across themes and quality tiers.
+- phone-size landscape capture and layout checks;
+- reduced-motion and reduced-flash scheduler behavior;
+- muted-audio mode that retains captions and visible meaning;
+- clean feed that removes all overlays and controls;
+- stale, black, frozen, wrong-scene and unintended-silence fault classification;
+- deterministic rebuild and safe-slate behavior;
+- no public technical error details.
 
-### 3. HUD and Scene State Machine
+## Explicit Non-Scope Retained
 
-Build the ten-second hierarchy and all lifecycle scenes. Reserve caption/safe zones, bound public text, support clean feed, and separate operator diagnostics. Public recovery copy must distinguish technical restore from game loss.
+Live YouTube/Twitch events, gifts and paid entitlements, final operator dashboard, production database, OBS/capture-card supervision, calibrated production audio, 24/72-hour soak, production canary, and R5 launch remain later phases.
 
-### 4. Camera, Animation, and VFX
+## Verification
 
-Implement stable overview/framing, bounded head emphasis, milestone/result/replay modes, anticipation-impact-recovery envelopes, density/priority/cooldown, reduced variants, and cleanup on restart/restore. Presentation slow motion remains non-authoritative.
+### Automated Model and Integration Tests
 
-### 5. Audio
+- `56` passed, `0` failed;
+- full Phase 1 and Phase 2 regressions retained;
+- total test duration on the reference CI runner: `3996.321655 ms`.
 
-Integrate semantic cues, adaptive music states, buses, voice limits, dedupe, ducking, spatial rules where useful, loudness/true-peak targets, intended silence, captions/visual alternatives, missing-asset fallback, and audio context/process recovery.
+### Autonomous Stream Self-Test
 
-### 6. Replay and Result
+- twin runtime authority remained identical through `900` steps;
+- `901` snapshots accepted, `0` rejected;
+- renderer recovery verified;
+- complete victory → result → intermission → tick-zero new-run path verified;
+- final registry size `73`, replay size bounded at `360`;
+- privacy and asset checks passed.
 
-Maintain a bounded render/event ring buffer. At terminal result, focus the decisive authoritative cause, show score/progress/record/integrity, play a short optional replay, preview next run, and restart within the approved intermission band.
+### Actual Chromium Capture
 
-### 7. Accessibility and Capture Validation
+- `3/3` Playwright tests passed in `7.3 s`;
+- desktop public source: `1920×1080`;
+- phone-size landscape source: `640×360`;
+- reduced-motion/muted/clean-feed source: `1280×720`;
+- no console or page errors;
+- no horizontal overflow;
+- public operator controls absent;
+- capture artifact `9268139446`, SHA-256 `8e91757c7dae91bc5f99310c668e1aace89be4be413f1ceceae25859f1d27dfb`.
 
-Test full resolution, phone-size landscape viewing, low bitrate, bright/dark themes, color-vision variants, grayscale, reduced motion/flash, captions, muted audio, localization expansion, and peak event density using the actual capture/encoding chain.
+### Reference CI Animation Measurement
 
-### 8. Output Health and Quality Degradation
+At 1920×1080 in constrained headless Chromium:
 
-Detect stale snapshots, renderer heartbeat loss, black/frozen/wrong scene, missing critical HUD, audio underrun/silence/clipping, aspect/resolution mismatch, and resource pressure. Switch to safe slate, restart component, rebuild from snapshot, verify, then return.
+- `23` animation frames over `1002 ms`;
+- `22.9541` average FPS;
+- `50.1 ms` maximum measured frame gap;
+- continuous-animation/frozen-output gate passed.
 
-## Test-First Sequence
+This is a CI baseline, not a production GPU or encoder budget.
 
-- render-snapshot schema/version/stale handling;
-- entity lifecycle and interpolation independent of authority;
-- HUD scene contracts and missing-field fallbacks;
-- mobile/crop/contrast/color/caption layout fixtures;
-- camera bounds, target loss, rapid event hysteresis;
-- VFX priority/dedupe/cleanup/quality tiers;
-- audio cue priority, music hysteresis, voice stealing, loudness, missing asset;
-- result/replay/restart and restore reconstruction;
-- public-data exposure and unsafe-text tests;
-- renderer/audio/output failure injection;
-- frame/GPU/memory/listener/texture/audio-resource soak.
+## Acceptance Criteria and Gate Decisions
 
-## Acceptance Criteria
+- [x] Full runs resolve and restart through the public stream application without manual action.
+- [x] Presentation cannot change authoritative checksums under different frame schedules or component recovery.
+- [x] Goal, head, objective, hazard, progress and result remain readable in tested desktop and phone captures.
+- [x] Reduced-motion, reduced-flash, captions, muted-audio and clean-feed modes preserve critical meaning.
+- [x] Result output uses the exact authoritative cause and distinguishes technical recovery from game loss.
+- [x] Renderer/output faults activate recovery or safe output and reconstruct from the latest verified snapshot.
+- [x] Particles, VFX, voices, captions, replay, text, DPR and public UI state are explicitly bounded.
+- [x] No unlicensed or placeholder audiovisual asset is shipped.
+- [x] Specification and engineering reviews contain no open P0/P1 finding.
+- [ ] Independent uninstructed ten-second human comprehension study — accepted P2, required again during Phase 6 canary validation.
+- [ ] Production-reference GPU/encoder frame budget and long browser-resource slope — accepted P2, required during Phase 5 soak and Phase 6 candidate validation.
+- [ ] Calibrated loudness, true peak and capture-chain silence/clipping validation — accepted P2, required during Phase 5–6 production-chain work.
 
-- [ ] Uninstructed reviewers identify goal, progress, danger, and phase within ten seconds at representative phone size.
-- [ ] Full runs complete and restart through the public stream application without manual action.
-- [ ] Presentation cannot change authoritative checksums under different frame schedules or component restarts.
-- [ ] Goal/head/food/hazard/result remain readable at peak approved VFX and HUD density.
-- [ ] Reduced-motion, reduced-flash, color-safe, captions, and muted-audio modes preserve meaning.
-- [ ] Target frame and audio budgets pass on reference hardware and capture chain.
-- [ ] No clipping, unintended sustained silence, missing critical cue, or unlicensed/placeholder asset remains.
-- [ ] Result/replay shows the exact authoritative cause and distinguishes technical quarantine.
-- [ ] Renderer/audio/output failures activate safe output and recover from the latest snapshot within target.
-- [ ] All visual/audio resources and public UI state remain bounded during the phase soak.
-- [ ] Spec and quality reviews have no P0/P1 finding.
+Unchecked items are not silently waived as production-ready evidence. They are non-blocking for the R2 broadcast-candidate handoff because they depend on the production capture environment and real audience validation created in later phases; they remain blocking for R5.
 
 ## Evidence Bundle
 
-Include representative videos/screenshots, comprehension results, accessibility captures, visual regression, loudness reports, asset/licence manifest, frame/GPU/memory profiles, output-failure recordings, result/replay examples, capture configuration, and reviews under `phase-03/`.
+Evidence is stored under `evidence/autonomous-snake/r2-phase-03/phase-03/`:
+
+- `manifest.json`;
+- `test-report.txt`;
+- `stream-self-test.json`;
+- `capture-manifest.json`;
+- `performance-baseline.json`;
+- `accessibility-review.md`;
+- `asset-licence-manifest.json`;
+- `review.md`.
+
+The actual screenshots, metrics and Playwright report are retained in GitHub Actions artifact `9268139446`.
 
 ## Rollback
 
-Presentation/audio releases are versioned separately from the compatible game module. A failed candidate can revert assets/overlay/presentation while the simulation remains running. If snapshot/render contract compatibility changes, switch to safe slate and deploy the last compatible set before restoring public output.
+The presentation release is versioned separately as `snake-broadcast-v1`. A failed presentation candidate can revert browser assets and presentation modules while the authoritative simulation continues. An incompatible render contract switches public output to a safe scene before the last compatible presentation is restored.
 
 ## Exit and Handoff
 
-Phase 3 exits when the complete autonomous game is watchable at R2 quality without audience input. Phase 4 adds the normalized audience loop to existing contextual HUD, semantic effects, and event-director budgets.
+Phase 3 exits at **R2 broadcast candidate**. Phase 4 consumes the immutable snapshot, semantic event, HUD, VFX, audio and recovery contracts to add a provider-neutral audience gateway, bounded effect catalogue, deterministic votes, Chat vs AI pressure rounds, moderation, idempotency and auditable interaction consequences.

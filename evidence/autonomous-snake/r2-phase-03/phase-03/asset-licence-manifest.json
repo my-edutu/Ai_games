@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "releaseId": "r2-phase-03",
+  "shippedThirdPartyAssets": [],
+  "runtimeGeneratedPresentation": [
+    {
+      "component": "board, snake, food, hazards, portals and VFX",
+      "implementation": "Canvas 2D primitives and gradients in public/snake-stream/app.js",
+      "externalAsset": false
+    },
+    {
+      "component": "HUD and scene styling",
+      "implementation": "repository-owned HTML and CSS in public/snake-stream",
+      "externalAsset": false
+    },
+    {
+      "component": "semantic audio",
+      "implementation": "Web Audio oscillator synthesis and caption alternatives",
+      "externalAsset": false
+    }
+  ],
+  "developmentDependencies": [
+    {
+      "name": "typescript",
+      "version": "5.8.3",
+      "licence": "Apache-2.0",
+      "shippedToBrowser": false
+    },
+    {
+      "name": "@playwright/test",
+      "version": "1.55.0",
+      "licence": "Apache-2.0",
+      "shippedToBrowser": false
+    }
+  ],
+  "fontPolicy": "Only the operating system UI font stack is referenced; no font files are bundled.",
+  "reviewResult": "No placeholder, unlicensed or externally hosted visual/audio asset is shipped by the Phase 3 candidate."
+}

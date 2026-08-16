@@ -1,78 +1,66 @@
-# Autonomous Snake — Survival Intelligence
+# Autonomous Snake
 
-**Status:** Approved documentation; implementation not started  
-**Slug:** `autonomous-snake`  
-**Primary record:** Maximum verified length / board occupancy  
-**Stream premise:** An autonomous snake tries to consume the board without trapping itself while the environment and audience steadily increase the pressure.
+Autonomous Snake is the catalogue reference implementation: a deterministic self-playing Snake simulation designed for long-running livestream entertainment, escalating progression, clear spectator comprehension, safe audience influence, replayability, and automatic recovery.
 
-## Viewer Hook
+## Current Readiness
 
-A viewer should understand the stream immediately: the snake gets longer, space becomes scarcer, the next food or hazard matters, and one wrong route can end a record run. The permanent headline is:
+| Phase | Readiness | Status |
+|---|---|---|
+| Phase 1 — Deterministic Headless Foundation | R1 | Completed and merged |
+| Phase 2 — Survival AI, Progression and Procedural Content | R2 gameplay | Completed and merged |
+| Phase 3 — Premium Broadcast Experience | R2 broadcast candidate | Completed on PR #5; verified evidence recorded |
+| Phase 4 — Audience Interaction and Chat vs AI | R3 target | Next implementation phase |
+| Phase 5 — Persistence, Recovery, Observability and Operations | R4 target | Not started |
+| Phase 6 — Production Validation, Canary and Launch | R5 target | Not started |
 
-> **HOW MUCH OF THE BOARD CAN THE AI CONQUER?**
+**Production-ready status is not yet claimed.** R5 requires provider validation, production persistence and operations, a full engineering soak, production-reference audiovisual measurements, a 72-hour frozen-candidate soak, operational drills, a real seven-day canary, and an independent production-readiness verdict.
 
-## Core Run
+## Product Promise
 
-1. Generate a deterministic board, food rules, theme, and challenge profile.
-2. The AI plans a safe route to food while preserving future movement space.
-3. Eating increases length, score, occupancy, speed pressure, and milestone difficulty.
-4. Hazards, obstacles, special food, environmental phases, and eligible audience effects create strategic change.
-5. The AI wins a configured conquest objective, loses through a rule-based collision/trap/starvation condition, or enters a new endless cycle.
-6. The result, decisive replay, record, and audience contribution appear.
-7. A new seed starts automatically.
+The game continuously starts, plays, progresses, wins or loses legitimately, resolves the result, enters an intentional intermission, and starts another deterministic run. Later audience features may influence bounded events but cannot buy a guaranteed victory, death, record, or unavoidable immediate collision.
 
-## Distinctive Identity
+## Implemented Reference Stack
 
-Snake is the catalogue’s reference game: one protagonist, one immediately legible goal, deterministic grid rules, rich pathfinding, satisfying occupancy progress, and the simplest full proof of the shared platform. It should feel elegant and intelligent rather than noisy or arcade-random.
+```text
+Seeded authoritative simulation
+  → Layered autonomous survival AI
+  → Validated procedural boards, hazards, portals and objectives
+  → Immutable privacy-safe render snapshots
+  → Scene/HUD/entity/camera/VFX/audio/replay presentation
+  → Accessible Canvas browser source
+  → Output-health detection and verified view recovery
+```
 
-## Audience Interaction
+## Phase 3 Verification Snapshot
 
-Eligible examples include:
-
-- vote for the next board modifier;
-- reveal one safe-route hint to the AI;
-- spawn bounded bonus food;
-- add a disclosed obstacle at a validated safe location;
-- temporary fog, speed, shield, magnet, or hazard modifier;
-- choose the next visual theme or challenge lane;
-- Chat vs AI complication round.
-
-No event may place an unavoidable collision, guarantee survival, select a terminal outcome, or mutate the snake outside the validated influence catalogue.
+- 56/56 Node model and integration tests pass.
+- 3/3 Chromium browser-source tests pass.
+- Twin runtimes remain checksum-identical while presentation runs independently.
+- Renderer recovery and full result/intermission/restart presentation are verified.
+- Desktop 1920×1080, phone-size 640×360, and clean-feed 1280×720 captures are retained in GitHub Actions artifact `9268139446`.
+- Public state contains no seed, raw run ID, provider/user/payment data, internal AI search details, stack traces, or operator diagnostics.
+- No third-party visual/audio media asset is shipped by the Phase 3 candidate.
 
 ## Documentation
 
-- [Product Requirements](./PRD.md)
-- [Game Design](./GAME_DESIGN.md)
-- [Autonomous AI](./AI_SYSTEM.md)
-- [Viewer Interaction](./VIEWER_INTERACTION.md)
-- [Audio and Visual Direction](./AUDIO_VISUAL.md)
-- [Technical Architecture](./TECHNICAL_ARCHITECTURE.md)
-- [Testing Strategy](./TESTING_STRATEGY.md)
-- [Production Readiness](./PRODUCTION_READINESS.md)
-- [Implementation Phases](./phases/)
+- `PRD.md` — product requirements and success model
+- `GAME_DESIGN.md` — rules, progression and spectator experience
+- `AI_SYSTEM.md` — autonomous strategy and failure behavior
+- `VIEWER_INTERACTION.md` — bounded audience influence policy
+- `AUDIO_VISUAL.md` — visual, audio and accessibility direction
+- `TECHNICAL_ARCHITECTURE.md` — authoritative interfaces and boundaries
+- `TESTING_STRATEGY.md` — deterministic, statistical and operational testing
+- `PRODUCTION_READINESS.md` — R1–R5 evidence gates
+- `phases/` — exact implementation phases and handoffs
 
-## Target Package Boundaries
+## Local Commands
 
-```text
-games/autonomous-snake/
-├── src/rules
-├── src/ai
-├── src/generation
-├── src/presentation
-├── src/config
-├── src/testing
-└── docs represented by this directory
+```bash
+npm ci
+npm test
+npm run snake:stream:self-test
+npm run snake:stream
+npm run test:browser
 ```
 
-Shared simulation, audience, event-director, presentation, audio, analytics, persistence, recovery, and operator capabilities remain under `packages/` and `apps/`.
-
-## Readiness Path
-
-- Phase 1: deterministic headless Snake
-- Phase 2: survival-grade autonomous AI and progression
-- Phase 3: premium broadcast presentation and audio
-- Phase 4: safe audience interaction and Chat vs AI
-- Phase 5: persistence, records, recovery, and operator controls
-- Phase 6: statistical balancing, soak, canary, and production launch
-
-A phase is complete only when its evidence bundle passes both specification and quality review.
+The public browser source is served at the configured host root. Operator accessibility/output controls are intentionally hidden from stream capture and are exposed only by adding `?controls=1` locally.

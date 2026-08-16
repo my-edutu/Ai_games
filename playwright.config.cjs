@@ -1,0 +1,31 @@
+'use strict';
+
+const { defineConfig } = require('@playwright/test');
+
+module.exports = defineConfig({
+  testDir: './tests/browser',
+  timeout: 45_000,
+  expect: { timeout: 10_000 },
+  fullyParallel: false,
+  workers: 1,
+  retries: 1,
+  reporter: [
+    ['line'],
+    ['json', { outputFile: 'artifacts/phase3/playwright-report.json' }],
+  ],
+  use: {
+    baseURL: 'http://127.0.0.1:4173',
+    colorScheme: 'dark',
+    locale: 'en-US',
+    screenshot: 'only-on-failure',
+    trace: 'retain-on-failure',
+  },
+  webServer: {
+    command: 'npm run snake:stream -- --port=4173',
+    url: 'http://127.0.0.1:4173/health',
+    reuseExistingServer: false,
+    timeout: 60_000,
+    stdout: 'pipe',
+    stderr: 'pipe',
+  },
+});

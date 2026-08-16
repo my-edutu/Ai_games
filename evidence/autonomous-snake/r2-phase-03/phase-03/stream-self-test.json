@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 1,
+  "command": "npm run snake:stream:self-test",
+  "workflowRunId": 31964576797,
+  "ok": true,
+  "authorityStable": true,
+  "browserAssets": true,
+  "boundedSource": true,
+  "snapshotPrivacySafe": true,
+  "recoveryVerified": true,
+  "restartObserved": true,
+  "finalTick": 900,
+  "finalRunToken": "ee37fbd5",
+  "finalAuthorityChecksum": "401a8c23",
+  "activeVfx": 1,
+  "audioVoices": 0,
+  "presentation": {
+    "controller": {
+      "failed": false,
+      "reason": "",
+      "tick": 900,
+      "revision": 1843200,
+      "runToken": "ee37fbd5",
+      "acceptedSnapshots": 901,
+      "rejectedSnapshots": 0,
+      "registrySize": 73,
+      "replaySize": 360,
+      "recoveries": 1,
+      "bestLength": 63,
+      "cleanFeed": false,
+      "currentRunToken": "ee37fbd5"
+    },
+    "audio": {
+      "queued": 0,
+      "groupsTracked": 4,
+      "musicState": "calm",
+      "lastMusicChangeTick": 133
+    },
+    "health": {
+      "status": "healthy",
+      "reasons": [],
+      "action": "none"
+    },
+    "activeVfx": 1
+  }
+}

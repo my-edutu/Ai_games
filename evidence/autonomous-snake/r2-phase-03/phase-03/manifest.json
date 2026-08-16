@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 1,
+  "releaseId": "r2-phase-03",
+  "gameId": "autonomous-snake",
+  "phase": 3,
+  "readinessLevel": "R2-broadcast-candidate",
+  "verifiedImplementationHead": "c55cd0f57544270a0ee0736dcdabb08185d4de7d",
+  "pullRequest": 5,
+  "workflow": {
+    "name": "Autonomous Games CI",
+    "runId": 31964576797,
+    "jobId": 95207653114,
+    "mergeRefUnderTest": "4ae8f7a5e97abbe87863d45468077ea21df074fd",
+    "conclusion": "success",
+    "runner": "ubuntu-24.04",
+    "node": "22.16.0",
+    "npm": "10.9.2",
+    "typescript": "5.8.3",
+    "playwright": "1.55.0",
+    "chromium": "140.0.7339.16"
+  },
+  "verification": {
+    "nodeTests": { "passed": 56, "failed": 0, "durationMs": 3996.321655 },
+    "browserTests": { "passed": 3, "failed": 0, "durationSeconds": 7.3 },
+    "streamSelfTest": true,
+    "authorityStableAcrossTwinRuntime": true,
+    "presentationRestartObserved": true,
+    "rendererRecoveryVerified": true,
+    "snapshotPrivacySafe": true,
+    "authoritativeNondeterminismScan": true,
+    "lockedDependencyInstall": true
+  },
+  "captureArtifact": {
+    "artifactId": 9268139446,
+    "name": "autonomous-snake-phase3-capture",
+    "sizeBytes": 788100,
+    "sha256": "8e91757c7dae91bc5f99310c668e1aace89be4be413f1ceceae25859f1d27dfb",
+    "retentionDays": 30
+  },
+  "scopeBoundaries": [
+    "No YouTube or Twitch provider integration is claimed in Phase 3.",
+    "No production database, operator dashboard, long-duration production soak, public canary, or R5 readiness is claimed.",
+    "Audio validation covers semantic scheduling, captions, voice bounds, generated Web Audio cues, and failure behavior; calibrated loudness and true-peak measurement on a production capture chain remains a later production gate.",
+    "Visual comprehension was verified through deterministic hierarchy, responsive layout assertions, actual Chromium captures, and model tests; an independent uninstructed human comprehension study is not claimed."
+  ]
+}

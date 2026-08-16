@@ -1,0 +1,76 @@
+Autonomous Snake Phase 3 — Verified Test Report
+================================================
+
+Repository: my-edutu/Ai_games
+Branch: agent/snake-phase-3
+Pull request: #5
+Verified implementation head: c55cd0f57544270a0ee0736dcdabb08185d4de7d
+GitHub Actions run: 31964576797
+GitHub Actions job: 95207653114
+Conclusion: SUCCESS
+
+Environment
+-----------
+Runner: GitHub-hosted Ubuntu 24.04
+Node.js: 22.16.0
+npm: 10.9.2
+TypeScript: 5.8.3
+Playwright: 1.55.0
+Chromium: 140.0.7339.16
+Install: npm ci --no-audit --no-fund using committed package-lock.json
+
+Model and integration suite
+---------------------------
+Command: npm test
+Result: 56 passed, 0 failed, 0 cancelled, 0 skipped
+Duration: 3996.321655 ms
+Coverage groups:
+- Phase 1 deterministic authority and replay regressions: retained
+- Phase 2 AI, topology, hazard, portal, progression and campaign regressions: retained
+- Immutable public render snapshots and privacy boundaries
+- Presentation ordering, stale/divergent rejection and autonomous run restart
+- Stable entity lifecycle and bounded registry
+- HUD hierarchy, scenes and responsive safe zones
+- VFX priority, dedupe, reduced modes and expiry
+- Audio priority, voice stealing, cooldown, captions and mute behavior
+- Camera bounds and reduced-motion behavior
+- Bounded defensive replay buffer
+- Output health classification and verified reconstruction
+- Stream-host privacy, restart, recovery and authority-isolation self-test
+
+Stream host self-test
+---------------------
+Command: npm run snake:stream:self-test
+Result: PASS
+- twin-runtime authority checksums matched after 900 simulation steps
+- 901 presentation snapshots accepted and 0 rejected
+- renderer recovery completed from latest verified snapshot
+- a complete victory → result → intermission → new run loop was observed
+- browser assets were present and bounded
+- public snapshot contained no seed, run ID, recent state hashes or AI node-expansion details
+
+Authoritative nondeterminism scan
+---------------------------------
+Result: PASS
+Scanned authoritative rules, runtime, AI, generation and state code for ambient random, wall-clock and timer APIs. No Math.random, Date.now/new Date, setTimeout or setInterval use was found in authority.
+
+Browser and capture suite
+-------------------------
+Command: npm run test:browser
+Result: 3 passed, 0 failed in 7.3 seconds
+- 1920×1080 public broadcast source
+- 640×360 phone-size landscape source
+- reduced-motion, muted-audio and clean-feed operator variants
+Assertions covered console/page errors, privacy, goal/progress visibility, canvas sizing, no horizontal overflow, captions, integrity status, continuous animation, hidden public controls and clean-feed behavior.
+
+Artifact
+--------
+Name: autonomous-snake-phase3-capture
+Artifact ID: 9268139446
+Size: 788100 bytes
+SHA-256: 8e91757c7dae91bc5f99310c668e1aace89be4be413f1ceceae25859f1d27dfb
+Files uploaded: 6
+
+Verdict
+-------
+PASS for the Phase 3 R2 broadcast candidate scope. This report does not constitute R3 audience/provider readiness, R4 operational readiness or R5 production readiness.
