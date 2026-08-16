@@ -6,7 +6,7 @@ const path = require('node:path');
 const { checksum } = require('../dist/packages/replay/src/index.js');
 const { SnakeRuntime } = require('../dist/games/autonomous-snake/src/runtime/run.js');
 const { buildRenderSnapshot } = require('../dist/games/autonomous-snake/src/presentation/snapshot.js');
-const { BroadcastController } = require('../dist/games/autonomous-snake/src/presentation/controller.js');
+const { BroadcastExperience } = require('../dist/games/autonomous-snake/src/presentation/experience.js');
 
 const ROOT = path.resolve(__dirname, '..');
 const PUBLIC_ROOT = path.join(ROOT, 'public', 'snake-stream');
@@ -27,9 +27,25 @@ const STREAM_CONFIG = Object.freeze({
 
 function createSession(seed = 'stream-reference-seed') {
   const runtime = SnakeRuntime.create(STREAM_CONFIG, seed);
-  const controller = new BroadcastController({ replayCapacity: 360, bestLength: 0 });
-  controller.accept(buildRenderSnapshot(runtime.state));
-  return { runtime, controller };
+  const experience = new BroadcastExperience({
+    replayCapacity: 360,
+    bestLength: 0,
+    maxActiveVfx: 32,
+    maxAudioVoices: 8,
+    muted: false,
+  });
+  let eventCursor = 0;
+  experience.accept(buildRenderSnapshot(runtime.state), runtime.events.slice(eventCursor));
+  eventCursor = runtime.events.length;
+  return { runtime, experience, getEventCursor: () => eventCursor, setEventCursor: value => { eventCursor = value; } };
+}
+
+function advance(session) {
+  session.runtime.step();
+  const cursor = session.getEventCursor();
+  const events = session.runtime.events.slice(cursor);
+  session.setEventCursor(session.runtime.events.length);
+  return session.experience.accept(buildRenderSnapshot(session.runtime.state), events);
 }
 
 function assetPaths() {
@@ -54,16 +70,15 @@ function selfTest() {
   let previousRunToken = buildRenderSnapshot(first.runtime.state).runToken;
 
   for (let index = 0; index < 900; index++) {
-    first.runtime.step();
+    const acceptance = advance(first);
     second.runtime.step();
-    const snapshot = buildRenderSnapshot(first.runtime.state);
-    const acceptance = first.controller.accept(snapshot);
     if (!acceptance.accepted) throw new Error(`presentation rejected current snapshot: ${acceptance.reason}`);
 
+    const snapshot = buildRenderSnapshot(first.runtime.state);
     if (index === 120) {
-      first.controller.failRenderer('synthetic internal renderer fault');
-      if (first.controller.publicFrame().scene !== 'recovery') throw new Error('recovery scene missing');
-      recoveryVerified = first.controller.rebuildFromLatest().recovered;
+      first.experience.failRenderer('synthetic internal renderer fault');
+      if (first.experience.frame().scene !== 'recovery') throw new Error('recovery scene missing');
+      recoveryVerified = first.experience.rebuildFromLatest().recovered;
     }
     if (snapshot.runToken !== previousRunToken) restartObserved = true;
     previousRunToken = snapshot.runToken;
@@ -74,6 +89,7 @@ function selfTest() {
   const browserAssets = assetPaths().every(file => fs.existsSync(file) && fs.statSync(file).size > 128);
   const source = browserAssets ? fs.readFileSync(path.join(PUBLIC_ROOT, 'app.js'), 'utf8') : '';
   const boundedSource = source.includes('MAX_PARTICLES = 240') && !source.includes('innerHTML =');
+  const publicFrame = first.experience.frame();
   const report = {
     ok: authorityStable && browserAssets && boundedSource && isSnapshotPrivacySafe(snapshot, seed) && recoveryVerified,
     authorityStable,
@@ -85,7 +101,9 @@ function selfTest() {
     finalTick: first.runtime.state.tick,
     finalRunToken: snapshot.runToken,
     finalAuthorityChecksum: snapshot.authorityChecksum,
-    presentation: first.controller.diagnostic(),
+    activeVfx: publicFrame.vfx.length,
+    audioVoices: publicFrame.audio.voices.length,
+    presentation: first.experience.diagnostic(),
   };
   process.stdout.write(`${JSON.stringify(report)}\n`);
   process.exitCode = report.ok ? 0 : 1;
@@ -137,13 +155,12 @@ function serve() {
   let simulationFault = false;
   const interval = setInterval(() => {
     try {
-      session.runtime.step();
-      session.controller.accept(buildRenderSnapshot(session.runtime.state));
+      advance(session);
       lastStepAt = Date.now();
       simulationFault = false;
     } catch {
       simulationFault = true;
-      session.controller.failRenderer('public-safe simulation view unavailable');
+      session.experience.failRenderer('public-safe simulation view unavailable');
     }
   }, 125);
   interval.unref();
@@ -151,18 +168,18 @@ function serve() {
   const server = http.createServer((request, response) => {
     const requestUrl = new URL(request.url || '/', 'http://local.invalid');
     if (requestUrl.pathname === '/snapshot') {
-      sendJson(response, 200, session.controller.publicFrame());
+      sendJson(response, 200, session.experience.frame(1920, 1080));
       return;
     }
     if (requestUrl.pathname === '/replay') {
-      sendJson(response, 200, { frames: session.controller.replayWindow(90) });
+      sendJson(response, 200, { frames: session.experience.replayWindow(90) });
       return;
     }
     if (requestUrl.pathname === '/health') {
       sendJson(response, simulationFault ? 503 : 200, {
         status: simulationFault ? 'degraded' : 'healthy',
         lastStepAgeMs: Math.max(0, Date.now() - lastStepAt),
-        scene: session.controller.publicFrame().scene,
+        scene: session.experience.frame().scene,
       });
       return;
     }
