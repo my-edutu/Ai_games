@@ -71,6 +71,14 @@ jobs:
           set -euo pipefail
           mkdir -p artifacts/phase6
           npm run snake:phase6:validate > artifacts/phase6/release-validation.json
+      - name: Generate Maze Phase 6 release validation evidence
+        shell: bash
+        env:
+          CANDIDATE_SOURCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/maze-phase6
+          npm run maze:phase6:validate > artifacts/maze-phase6/release-validation.json
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
       - name: Browser capture and layout verification
@@ -113,5 +121,13 @@ jobs:
         with:
           name: autonomous-snake-phase6-validation
           path: artifacts/phase6
+          if-no-files-found: error
+          retention-days: 30
+      - name: Upload Maze Phase 6 release validation evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: ai-maze-escape-phase6-validation
+          path: artifacts/maze-phase6
           if-no-files-found: error
           retention-days: 30
