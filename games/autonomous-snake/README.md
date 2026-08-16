@@ -1,45 +1,90 @@
 # Autonomous Snake
 
-Autonomous Snake is the catalogue reference implementation: a deterministic self-playing Snake simulation designed for long-running livestream entertainment, escalating progression, clear spectator comprehension, safe audience influence, replayability, and automatic recovery.
+Autonomous Snake is the catalogue reference implementation: a deterministic self-playing Snake game designed for long-running livestream entertainment, escalating progression, clear mobile spectator comprehension, bounded audience influence, exact replay, durable recovery and evidence-gated release operations.
 
 ## Current Readiness
 
-| Phase | Readiness | Status |
+| Phase | Target | Software status |
 |---|---|---|
 | Phase 1 — Deterministic Headless Foundation | R1 | Completed and merged |
 | Phase 2 — Survival AI, Progression and Procedural Content | R2 gameplay | Completed and merged |
-| Phase 3 — Premium Broadcast Experience | R2 broadcast candidate | Completed on PR #5; verified evidence recorded |
-| Phase 4 — Audience Interaction and Chat vs AI | R3 target | Next implementation phase |
-| Phase 5 — Persistence, Recovery, Observability and Operations | R4 target | Not started |
-| Phase 6 — Production Validation, Canary and Launch | R5 target | Not started |
+| Phase 3 — Premium Broadcast Experience | R2 broadcast | Completed and merged |
+| Phase 4 — Audience Interaction and Chat vs AI | R3 interaction | Completed and merged |
+| Phase 5 — Persistence, Recovery, Observability and Operations | R4 infrastructure | Completed and merged |
+| Phase 6 — Production Validation, Canary and Launch Governance | R5 machinery | Software implementation complete; external launch evidence blocked |
 
-**Production-ready status is not yet claimed.** R5 requires provider validation, production persistence and operations, a full engineering soak, production-reference audiovisual measurements, a 72-hour frozen-candidate soak, operational drills, a real seven-day canary, and an independent production-readiness verdict.
+**Highest truthful readiness:** R4  
+**R5 readiness verdict:** BLOCKED  
+**Production ready:** No
+
+All game/platform software phases are implemented. The remaining work is a real production evidence programme: production-reference capacity/audiovisual validation, credentialed YouTube and Twitch verification, external safety attestations, witnessed drills, a real 72-hour endurance run, a real seven-day canary and an independent exact-candidate review.
 
 ## Product Promise
 
-The game continuously starts, plays, progresses, wins or loses legitimately, resolves the result, enters an intentional intermission, and starts another deterministic run. Later audience features may influence bounded events but cannot buy a guaranteed victory, death, record, or unavoidable immediate collision.
+The game continuously:
+
+```text
+creates a deterministic run
+  → generates a validated board/objective
+  → observes and plans
+  → moves autonomously
+  → eats, grows and changes strategic mode
+  → resolves legitimate victory, collision or bounded stagnation
+  → presents result/replay/intermission
+  → restarts on a new deterministic seed
+  → repeats indefinitely
+```
+
+Audience interactions may influence bounded events. They cannot buy a guaranteed victory, death, record, final result, or unavoidable immediate collision.
 
 ## Implemented Reference Stack
 
 ```text
 Seeded authoritative simulation
-  → Layered autonomous survival AI
-  → Validated procedural boards, hazards, portals and objectives
-  → Immutable privacy-safe render snapshots
-  → Scene/HUD/entity/camera/VFX/audio/replay presentation
-  → Accessible Canvas browser source
-  → Output-health detection and verified view recovery
+  → layered autonomous survival AI
+  → validated procedural boards, hazards, portals and objectives
+  → bounded Event Director and influence reducer
+  → normalized provider gateway, moderation, votes and Chat vs AI
+  → immutable privacy-safe render snapshots
+  → HUD, scenes, camera, VFX, audio, captions and replay
+  → append-only durable authority and projections
+  → single-writer leases, verified restore and quarantine
+  → supervisor, output health, breakers, metrics and typed RBAC
+  → frozen release manifest, traceability, campaigns and canary control
+  → independent R5 readiness assessor
 ```
 
-## Phase 3 Verification Snapshot
+## Verification Snapshot
 
-- 56/56 Node model and integration tests pass.
-- 3/3 Chromium browser-source tests pass.
-- Twin runtimes remain checksum-identical while presentation runs independently.
-- Renderer recovery and full result/intermission/restart presentation are verified.
-- Desktop 1920×1080, phone-size 640×360, and clean-feed 1280×720 captures are retained in GitHub Actions artifact `9268139446`.
-- Public state contains no seed, raw run ID, provider/user/payment data, internal AI search details, stack traces, or operator diagnostics.
-- No third-party visual/audio media asset is shipped by the Phase 3 candidate.
+Exact Phase 6 implementation head `5e412685684fc2f6bbfc2e2d29ec969988f8108d` passed:
+
+- **180 / 180 Node tests**;
+- **3 / 3 Chromium tests**;
+- full Phase 1–5 regression suite;
+- stream self-test and autonomous restart/recovery;
+- authoritative nondeterminism scan;
+- final 50-run baseline/maximum-pressure campaign;
+- zero campaign invariant failures;
+- zero duplicate authoritative applications;
+- 967 maximum-pressure effects applied without duplicate or prohibited terminal effect;
+- 26 / 26 synthetic operational drills at implementation level;
+- CI-reference capacity budgets;
+- exact-source release bundle generation and artifact retention.
+
+The Phase 6 validator returns `BLOCKED / R4`, proving that synthetic/fixture evidence cannot accidentally promote the game to R5.
+
+## Local Commands
+
+```bash
+npm ci
+npm test
+npm run snake:headless
+npm run snake:stream:self-test
+npm run snake:stream
+npm run test:browser
+npm run snake:phase5:chaos
+CANDIDATE_SOURCE_SHA=<40-character-commit-sha> npm run snake:phase6:validate
+```
 
 ## Documentation
 
@@ -51,16 +96,17 @@ Seeded authoritative simulation
 - `TECHNICAL_ARCHITECTURE.md` — authoritative interfaces and boundaries
 - `TESTING_STRATEGY.md` — deterministic, statistical and operational testing
 - `PRODUCTION_READINESS.md` — R1–R5 evidence gates
-- `phases/` — exact implementation phases and handoffs
+- `phases/` — phase specifications and current status
+- `../../docs/operations/autonomous-snake-r5-evidence-intake.md` — external R5 programme
+- `../../docs/operations/autonomous-snake-handoff.md` — production handoff
+- `../../evidence/autonomous-snake/` — phase evidence bundles
 
-## Local Commands
+## Promotion Rule
 
-```bash
-npm ci
-npm test
-npm run snake:stream:self-test
-npm run snake:stream
-npm run test:browser
+Merged code and green CI do not equal production readiness. Change the game’s status to `production ready` only when the exact frozen deployed candidate has completed all external gates and the independent Phase 6 assessor returns:
+
+```text
+verdict = PASS
+highestTruthfulReadiness = R5
+productionReady = true
 ```
-
-The public browser source is served at the configured host root. Operator accessibility/output controls are intentionally hidden from stream capture and are exposed only by adding `?controls=1` locally.

@@ -1,0 +1,72 @@
+Autonomous Snake Phase 6 exact-head verification
+================================================
+
+Candidate source head: 5e412685684fc2f6bbfc2e2d29ec969988f8108d
+GitHub Actions workflow: Autonomous Games CI
+Run: 31970933379
+Job: 95223176692
+Environment: Ubuntu 24.04, Node.js 22.16.0
+Package version: 0.6.0
+
+Locked installation and strict build
+------------------------------------
+npm ci --no-audit --no-fund: PASS
+TypeScript strict compilation: PASS
+
+Node test suite
+---------------
+Tests: 180
+Passed: 180
+Failed: 0
+
+Coverage retained
+-----------------
+Phase 1: deterministic state, rules, RNG, snapshot, replay and headless lifecycle.
+Phase 2: production AI, topology, objectives, hazards, portals, progression and campaigns.
+Phase 3: immutable presentation, browser source, HUD, camera, VFX/audio, output health and restart.
+Phase 4: provider adapters, authentication, privacy, moderation, dedupe, votes, effects and Chat vs AI.
+Phase 5: durable store, fsync file adapter, process reconstruction, lease fencing, recovery, quarantine, supervisor, output protection, metrics, RBAC and chaos.
+Phase 6: frozen manifest, material-change invalidation, MUST traceability, final campaigns, capacity/endurance semantics, provider/safety attestations, 26 operational drills, seven-day canary guardrails, independent readiness assessment and truthful validation bundle.
+
+Additional CI gates
+-------------------
+Stream host self-test: PASS
+Authoritative ambient-nondeterminism scan: PASS
+Phase 5 chaos artifact generation: PASS
+Phase 6 release-validation artifact generation: PASS
+Chromium broadcast/layout/accessibility tests: 3 passed / 0 failed
+Phase 3 capture artifact upload: PASS
+Phase 5 operations artifact upload: PASS
+Phase 6 release-validation artifact upload: PASS
+
+Software-validation outcome
+---------------------------
+Status: PASS
+Release checksum: 349db08f
+Campaign checksum: 1bdae050
+Bundle checksum: 8afc70ba
+MUST traceability: 6 / 6 satisfied
+Campaign invariant failures: 0
+Campaign duplicate authoritative applications: 0
+Synthetic operational drills: 26 / 26 implementation PASS
+CI-reference capacity budgets: PASS
+
+Launch-readiness outcome
+------------------------
+Verdict: BLOCKED
+Highest truthful readiness: R4
+Production ready: false
+Failures: 0
+
+Blocking evidence classes:
+- production-reference capacity;
+- credentialed YouTube and Twitch provider validation;
+- production-equivalent external safety/audiovisual/asset attestations;
+- witnessed production-equivalent drills;
+- real 72-hour production endurance;
+- real seven-day production canary;
+- independent final review.
+
+Evidence boundary
+-----------------
+This successful workflow proves the implementation and its truthful gating behavior. It does not prove elapsed production time, live credentials, production-reference hardware, an actual limited audience canary, or an independent external verdict.

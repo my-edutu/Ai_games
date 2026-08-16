@@ -1,0 +1,100 @@
+{
+  "schemaVersion": 1,
+  "candidateSourceSha": "5e412685684fc2f6bbfc2e2d29ec969988f8108d",
+  "seed": "phase6-candidate",
+  "releaseChecksum": "349db08f",
+  "campaignChecksum": "1bdae050",
+  "bundleChecksum": "8afc70ba",
+  "softwareValidation": "pass",
+  "traceability": {
+    "status": "complete",
+    "required": 6,
+    "satisfied": 6,
+    "missing": [],
+    "duplicates": [],
+    "stale": [],
+    "wrongSource": [],
+    "wrongRelease": [],
+    "invalidEvidence": [],
+    "blockedEvidence": [],
+    "prohibitedWaivers": []
+  },
+  "campaign": {
+    "totalRuns": 50,
+    "profiles": ["chambers", "corridors", "open", "portals", "rings"],
+    "totalInvariantFailures": 0,
+    "totalDuplicateApplications": 0,
+    "deterministicRerunReady": true,
+    "noAudience": {
+      "runs": 25,
+      "ticks": 10308,
+      "victories": 5,
+      "stagnations": 20,
+      "technicalOutcomes": 0,
+      "fallbacks": 0,
+      "replans": 23,
+      "campaignChecksum": "1043af7c"
+    },
+    "maximumBoundedPressure": {
+      "runs": 25,
+      "ticks": 12458,
+      "victories": 0,
+      "stagnations": 24,
+      "wallCollisions": 1,
+      "technicalOutcomes": 0,
+      "influenceQueued": 967,
+      "influenceApplied": 967,
+      "duplicateApplications": 0,
+      "prohibitedTerminalEffects": 0,
+      "maxQueuedAtOnce": 1,
+      "campaignChecksum": "d0fc7b9f"
+    }
+  },
+  "capacity": {
+    "ciPerformancePass": true,
+    "productionReferenceSatisfied": false,
+    "tickP99Ms": 6,
+    "aiP99Ms": 3,
+    "renderP99Ms": 10,
+    "snapshotP99Ms": 14,
+    "restoreP99Ms": 34,
+    "queueMaxRatio": 0.4,
+    "memorySlopeMbPerHour": 2
+  },
+  "drills": {
+    "implementationStatus": "pass",
+    "productionStatus": "blocked",
+    "completed": 26,
+    "missing": [],
+    "implementationBlockers": []
+  },
+  "readiness": {
+    "verdict": "BLOCKED",
+    "highestTruthfulReadiness": "R4",
+    "productionReady": false,
+    "failures": [],
+    "gateStatus": {
+      "manifest": "pass",
+      "traceability": "pass",
+      "campaign": "pass",
+      "capacity": "blocked",
+      "endurance": "blocked",
+      "providers": "blocked",
+      "safety": "blocked",
+      "drills": "blocked",
+      "canary": "blocked",
+      "review": "blocked",
+      "findings": "pass"
+    }
+  },
+  "externalEvidenceRequired": [
+    "production-reference-capacity",
+    "credentialed-youtube-provider",
+    "credentialed-twitch-provider",
+    "production-equivalent-safety-attestations",
+    "externally-witnessed-operational-drills",
+    "72-hour-production-endurance",
+    "seven-day-production-canary",
+    "independent-review"
+  ]
+}
