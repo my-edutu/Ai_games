@@ -29,8 +29,10 @@ jobs:
         run: npm ci --no-audit --no-fund
       - name: Build and test
         run: npm test
-      - name: Stream host self-test
+      - name: Snake stream host self-test
         run: npm run snake:stream:self-test
+      - name: Maze stream host self-test
+        run: npm run maze:stream:self-test
       - name: Authoritative nondeterminism scan
         shell: bash
         run: |
@@ -40,7 +42,12 @@ jobs:
             games/autonomous-snake/src/runtime \
             games/autonomous-snake/src/ai \
             games/autonomous-snake/src/generation \
-            games/autonomous-snake/src/state; then
+            games/autonomous-snake/src/state \
+            games/ai-maze-escape/src/rules \
+            games/ai-maze-escape/src/runtime \
+            games/ai-maze-escape/src/ai \
+            games/ai-maze-escape/src/generation \
+            games/ai-maze-escape/src/state; then
             echo 'Forbidden ambient nondeterminism found in authoritative code.'
             exit 1
           fi
@@ -62,12 +69,20 @@ jobs:
         run: npx playwright install --with-deps chromium
       - name: Browser capture and layout verification
         run: npm run test:browser
-      - name: Upload Phase 3 capture evidence
+      - name: Upload Snake Phase 3 capture evidence
         if: always()
         uses: actions/upload-artifact@v7
         with:
           name: autonomous-snake-phase3-capture
           path: artifacts/phase3
+          if-no-files-found: error
+          retention-days: 30
+      - name: Upload Maze Phase 3 capture evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: ai-maze-escape-phase3-capture
+          path: artifacts/maze-phase3
           if-no-files-found: error
           retention-days: 30
       - name: Upload Phase 5 operations evidence
