@@ -1,0 +1,21 @@
+{
+  "subscription": {
+    "id": "sub-subscribe-1",
+    "status": "enabled",
+    "type": "channel.subscribe",
+    "version": "1",
+    "condition": { "broadcaster_user_id": "9001" },
+    "transport": { "method": "webhook", "callback": "https://example.invalid/twitch" },
+    "created_at": "2026-08-16T12:00:00Z"
+  },
+  "event": {
+    "user_id": "viewer-789",
+    "user_login": "carol",
+    "user_name": "Carol",
+    "broadcaster_user_id": "9001",
+    "broadcaster_user_login": "channel",
+    "broadcaster_user_name": "Channel",
+    "tier": "2000",
+    "is_gift": false
+  }
+}
