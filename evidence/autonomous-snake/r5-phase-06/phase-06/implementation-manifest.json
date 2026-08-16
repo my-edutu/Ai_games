@@ -1,0 +1,76 @@
+{
+  "schemaVersion": 1,
+  "game": "autonomous-snake",
+  "phase": 6,
+  "candidateSourceHead": "5e412685684fc2f6bbfc2e2d29ec969988f8108d",
+  "releaseChecksum": "349db08f",
+  "campaignChecksum": "1bdae050",
+  "bundleChecksum": "8afc70ba",
+  "verification": {
+    "workflow": "Autonomous Games CI",
+    "runId": 31970933379,
+    "jobId": 95223176692,
+    "runner": "ubuntu-24.04",
+    "node": "22.16.0",
+    "packageVersion": "0.6.0",
+    "nodeTests": {"passed": 180, "failed": 0},
+    "browserTests": {"passed": 3, "failed": 0},
+    "strictTypeScript": true,
+    "lockedInstall": true,
+    "streamSelfTest": true,
+    "authoritativeNondeterminismScan": true,
+    "phase5ChaosGenerated": true,
+    "phase6ValidationGenerated": true
+  },
+  "softwareValidation": {
+    "status": "pass",
+    "externalEvidenceSatisfied": false,
+    "traceabilityRequired": 6,
+    "traceabilitySatisfied": 6,
+    "campaignInvariantFailures": 0,
+    "campaignDuplicateApplications": 0,
+    "syntheticDrillsCompleted": 26,
+    "syntheticDrillImplementationStatus": "pass",
+    "ciCapacityPerformancePass": true,
+    "productionReferenceCapacitySatisfied": false
+  },
+  "readiness": {
+    "verdict": "BLOCKED",
+    "highestTruthfulReadiness": "R4",
+    "productionReady": false,
+    "failures": [],
+    "externalEvidenceRequired": [
+      "production-reference-capacity",
+      "credentialed-youtube-provider",
+      "credentialed-twitch-provider",
+      "production-equivalent-safety-attestations",
+      "externally-witnessed-operational-drills",
+      "72-hour-production-endurance",
+      "seven-day-production-canary",
+      "independent-review"
+    ]
+  },
+  "artifacts": [
+    {
+      "id": 9269784976,
+      "name": "autonomous-snake-phase6-validation",
+      "bytes": 9735,
+      "digest": "sha256:af1ba7d100044a4a86b3452ce1ac5566760d612ee1c2d7a20087ef2bfb781937",
+      "expiresAt": "2026-09-15T20:36:34Z"
+    },
+    {
+      "id": 9269784723,
+      "name": "autonomous-snake-phase5-operations",
+      "bytes": 531,
+      "digest": "sha256:2f3a01a55475479e55fc1012b4f94b3244e09d0964da5b062b7a053c8d76d612",
+      "expiresAt": "2026-09-15T20:36:33Z"
+    },
+    {
+      "id": 9269784422,
+      "name": "autonomous-snake-phase3-capture",
+      "bytes": 786733,
+      "digest": "sha256:537a793f5cb99013460de9231c0fe3b1c022dafbdbbb730c5f9fbe10278f526f",
+      "expiresAt": "2026-09-15T20:36:31Z"
+    }
+  ]
+}
