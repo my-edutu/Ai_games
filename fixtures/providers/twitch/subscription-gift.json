@@ -1,0 +1,23 @@
+{
+  "subscription": {
+    "id": "sub-gift-1",
+    "status": "enabled",
+    "type": "channel.subscription.gift",
+    "version": "1",
+    "condition": { "broadcaster_user_id": "9001" },
+    "transport": { "method": "webhook", "callback": "https://example.invalid/twitch" },
+    "created_at": "2026-08-16T12:00:00Z"
+  },
+  "event": {
+    "user_id": "viewer-gifter",
+    "user_login": "dave",
+    "user_name": "Dave",
+    "broadcaster_user_id": "9001",
+    "broadcaster_user_login": "channel",
+    "broadcaster_user_name": "Channel",
+    "total": 5,
+    "tier": "1000",
+    "cumulative_total": 20,
+    "is_anonymous": false
+  }
+}
