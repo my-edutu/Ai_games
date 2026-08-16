@@ -1,0 +1,45 @@
+name: Autonomous Games CI
+
+on:
+  push:
+    branches:
+      - main
+      - 'agent/**'
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+          cache: npm
+      - name: Install toolchain
+        run: npm install --no-audit --no-fund
+      - name: Build and test
+        run: npm test
+      - name: Stream host self-test
+        run: npm run snake:stream:self-test
+      - name: Authoritative nondeterminism scan
+        shell: bash
+        run: |
+          set -euo pipefail
+          if grep -R -n -E 'Math\.random|Date\.now|new Date\(|setTimeout\(|setInterval\(' \
+            games/autonomous-snake/src/rules \
+            games/autonomous-snake/src/runtime \
+            games/autonomous-snake/src/ai \
+            games/autonomous-snake/src/generation \
+            games/autonomous-snake/src/state; then
+            echo 'Forbidden ambient nondeterminism found in authoritative code.'
+            exit 1
+          fi
