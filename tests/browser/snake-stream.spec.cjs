@@ -22,7 +22,7 @@ test.beforeAll(() => {
 test('desktop broadcast source is readable, animated and privacy-safe', async ({ page }) => {
   const failures = recordConsoleFailures(page);
   await page.setViewportSize({ width: 1920, height: 1080 });
-  await page.goto('/', { waitUntil: 'networkidle' });
+  await page.goto('/', { waitUntil: 'domcontentloaded' });
   await expect(page.locator('#primary')).toContainText('LENGTH');
   await expect(page.locator('#game')).toBeVisible();
   await expect(page.locator('#caption')).not.toHaveText('');
@@ -66,7 +66,7 @@ test('desktop broadcast source is readable, animated and privacy-safe', async ({
 test('phone-size landscape retains goal, progress, gameplay and captions', async ({ page }) => {
   const failures = recordConsoleFailures(page);
   await page.setViewportSize({ width: 640, height: 360 });
-  await page.goto('/', { waitUntil: 'networkidle' });
+  await page.goto('/', { waitUntil: 'domcontentloaded' });
   await expect(page.locator('#primary')).toContainText('LENGTH');
   await expect(page.locator('#game')).toBeVisible();
   await expect(page.locator('#caption')).toBeVisible();
@@ -98,7 +98,7 @@ test('reduced-motion, muted and clean-feed controls preserve the game view', asy
   const failures = recordConsoleFailures(page);
   await page.emulateMedia({ reducedMotion: 'reduce', colorScheme: 'dark' });
   await page.setViewportSize({ width: 1280, height: 720 });
-  await page.goto('/', { waitUntil: 'networkidle' });
+  await page.goto('/', { waitUntil: 'domcontentloaded' });
   await expect(page.locator('#primary')).toContainText('LENGTH');
 
   const reduced = page.locator('[data-control="reduced-motion"]');
