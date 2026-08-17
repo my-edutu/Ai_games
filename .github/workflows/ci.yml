@@ -40,52 +40,30 @@ jobs:
         run: |
           set -euo pipefail
           if grep -R -n -E 'Math\.random|Date\.now|new Date\(|setTimeout\(|setInterval\(' \
-            games/autonomous-snake/src/rules \
-            games/autonomous-snake/src/runtime \
-            games/autonomous-snake/src/ai \
-            games/autonomous-snake/src/generation \
-            games/autonomous-snake/src/state \
-            games/ai-maze-escape/src/rules \
-            games/ai-maze-escape/src/runtime \
-            games/ai-maze-escape/src/ai \
-            games/ai-maze-escape/src/generation \
-            games/ai-maze-escape/src/state \
-            games/ai-zombie-survival/src/rules \
-            games/ai-zombie-survival/src/runtime \
-            games/ai-zombie-survival/src/ai \
-            games/ai-zombie-survival/src/generation \
-            games/ai-zombie-survival/src/state; then
+            games/autonomous-snake/src/rules games/autonomous-snake/src/runtime games/autonomous-snake/src/ai games/autonomous-snake/src/generation games/autonomous-snake/src/state \
+            games/ai-maze-escape/src/rules games/ai-maze-escape/src/runtime games/ai-maze-escape/src/ai games/ai-maze-escape/src/generation games/ai-maze-escape/src/state \
+            games/ai-zombie-survival/src/rules games/ai-zombie-survival/src/runtime games/ai-zombie-survival/src/ai games/ai-zombie-survival/src/generation games/ai-zombie-survival/src/state; then
             echo 'Forbidden ambient nondeterminism found in authoritative code.'
             exit 1
           fi
       - name: Generate Snake Phase 5 chaos evidence
-        shell: bash
-        run: |
-          set -euo pipefail
-          mkdir -p artifacts/phase5
-          npm run snake:phase5:chaos -- phase5-ci > artifacts/phase5/chaos-summary.json
+        run: mkdir -p artifacts/phase5 && npm run snake:phase5:chaos -- phase5-ci > artifacts/phase5/chaos-summary.json
       - name: Generate Maze Phase 5 chaos evidence
-        shell: bash
-        run: |
-          set -euo pipefail
-          mkdir -p artifacts/maze-phase5
-          npm run maze:phase5:chaos -- maze-phase5-ci > artifacts/maze-phase5/chaos-summary.json
+        run: mkdir -p artifacts/maze-phase5 && npm run maze:phase5:chaos -- maze-phase5-ci > artifacts/maze-phase5/chaos-summary.json
+      - name: Generate Zombie Phase 5 chaos evidence
+        run: mkdir -p artifacts/zombie-phase5 && npm run zombie:phase5:chaos > artifacts/zombie-phase5/chaos-summary.json
       - name: Generate Snake Phase 6 release validation evidence
-        shell: bash
         env:
           CANDIDATE_SOURCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
-        run: |
-          set -euo pipefail
-          mkdir -p artifacts/phase6
-          npm run snake:phase6:validate > artifacts/phase6/release-validation.json
+        run: mkdir -p artifacts/phase6 && npm run snake:phase6:validate > artifacts/phase6/release-validation.json
       - name: Generate Maze Phase 6 release validation evidence
-        shell: bash
         env:
           CANDIDATE_SOURCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
-        run: |
-          set -euo pipefail
-          mkdir -p artifacts/maze-phase6
-          npm run maze:phase6:validate > artifacts/maze-phase6/release-validation.json
+        run: mkdir -p artifacts/maze-phase6 && npm run maze:phase6:validate > artifacts/maze-phase6/release-validation.json
+      - name: Generate Zombie Phase 6 release validation evidence
+        env:
+          CANDIDATE_SOURCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: mkdir -p artifacts/zombie-phase6 && npm run zombie:phase6:validate > artifacts/zombie-phase6/release-validation.json
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
       - name: Browser capture and layout verification
@@ -130,6 +108,14 @@ jobs:
           path: artifacts/maze-phase5
           if-no-files-found: error
           retention-days: 30
+      - name: Upload Zombie Phase 5 operations evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: ai-zombie-survival-phase5-operations
+          path: artifacts/zombie-phase5
+          if-no-files-found: error
+          retention-days: 30
       - name: Upload Snake Phase 6 release validation evidence
         if: always()
         uses: actions/upload-artifact@v7
@@ -144,5 +130,13 @@ jobs:
         with:
           name: ai-maze-escape-phase6-validation
           path: artifacts/maze-phase6
+          if-no-files-found: error
+          retention-days: 30
+      - name: Upload Zombie Phase 6 release validation evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: ai-zombie-survival-phase6-validation
+          path: artifacts/zombie-phase6
           if-no-files-found: error
           retention-days: 30
