@@ -1,0 +1,11 @@
+import type{TrafficInfluenceRecord,TrafficState}from '../state/types';
+export type TrafficInfluenceEffectId='green-wave-ns'|'green-wave-ew'|'transit-priority'|'challenge-surge'|'incident-relief'|'night-theme';
+export type TrafficInfluenceSource='free-vote'|'paid-eligible'|'operator-test';
+export type TrafficModerationStatus='approved'|'rejected'|'pending';
+export interface NormalizedTrafficInfluenceInput{schemaVersion:1;id:string;effectId:TrafficInfluenceEffectId;viewerRef:string;source:TrafficInfluenceSource;authenticated:boolean;moderation:TrafficModerationStatus;receivedTick:number;scheduledTick?:number;expiresAtTick?:number;payload?:Record<string,unknown>}
+export interface TrafficInfluenceQueueResult{status:'queued'|'duplicate'|'rejected';reason:string;commandId?:string;effectId?:TrafficInfluenceEffectId}
+export interface TrafficInfluenceApplicationResult{state:TrafficState;events:Array<{tick:number;type:string;data:Record<string,string|number|boolean|null>}>;applied:number;expired:number;rejected:number}
+export interface TrafficInfluenceReversalInput{schemaVersion:1;id:string;targetCommandId:string;authenticated:boolean;moderation:TrafficModerationStatus;tick:number}
+export interface TrafficInfluenceReversalResult{status:'reversed'|'duplicate'|'missing'|'rejected'|'refused-irreversible'|'refused-superseded';reason?:string;record?:TrafficInfluenceRecord}
+export interface TrafficVoteBallot{id:string;option:TrafficInfluenceEffectId;weight:number;eligible:boolean}
+export interface TrafficVoteResult{winner:TrafficInfluenceEffectId|null;totals:Partial<Record<TrafficInfluenceEffectId,number>>;tie:boolean;tiedOptions:TrafficInfluenceEffectId[];eligibleBallots:number}

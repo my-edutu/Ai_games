@@ -1,5 +1,7 @@
 import type{GameLifecycle,TrafficConfig,TrafficRunResult}from '../../../../packages/game-contracts/src/index';
-export type TrafficAxis='ns'|'ew';export type TrafficDirection='north'|'east'|'south'|'west';export type VehicleKind='car'|'bus'|'emergency';
+export type TrafficAxis='ns'|'ew';
+export type TrafficDirection='north'|'east'|'south'|'west';
+export type VehicleKind='car'|'bus'|'emergency';
 export interface TrafficSignal{axis:TrafficAxis;changedAtTick:number;decisionCount:number;reason:string}
 export interface TrafficIntersection{id:string;x:number;y:number;incoming:string[];outgoing:string[];signal:TrafficSignal}
 export interface TrafficLane{id:string;from:string;to:string;axis:TrafficAxis;direction:TrafficDirection;length:number;roadClass:'local'|'arterial'|'ring';baseCost:number;blockedUntilTick:number}
@@ -10,8 +12,8 @@ export type TrafficWave='calm'|'rush'|'surge'|'incident'|'recovery';
 export interface TrafficAiState{mode:'fixed-cycle'|'adaptive'|'fallback';goal:string;intent:string;reason:string;confidence:'low'|'medium'|'high';decisions:number;routeExpansions:number;fallbackCount:number;lastDecisionTick:number}
 export interface TrafficMetrics{spawned:number;completedTrips:number;droppedDemand:number;collisions:number;totalWaitTicks:number;totalTravelTicks:number;maxActive:number;maxQueue:number;gridlockTicks:number;mobilityScore:number;meaningfulEvents:number;peakGridlockTicks:number;busesCompleted:number;emergencyCompleted:number}
 export interface TrafficIncident{id:string;laneId:string;startedTick:number;clearsAtTick:number;reason:'collision-cleanup'|'roadworks'|'signal-fault';active:boolean}
-export interface TrafficAudienceCommand{id:string;effectId:string;viewerRef:string;source:string;scheduledTick:number;expiresAtTick:number;payload:Record<string,unknown>}
-export interface TrafficInfluenceRecord{id:string;effectId:string;tick:number;status:'queued'|'applied'|'rejected'|'expired'|'reversed';applicationCount:number;reason?:string;targetCommandId?:string}
-export interface TrafficAudienceState{enabled:boolean;providerStatus:'healthy'|'degraded'|'offline';queued:TrafficAudienceCommand[];applied:Record<string,TrafficInfluenceRecord>;seenIds:string[];cooldowns:Record<string,number>;rateWindows:Record<string,{startTick:number;count:number}>;axisBias:TrafficAxis|null;axisBiasUntilTick:number;transitPriorityUntilTick:number;challengeMultiplierPermille:number;challengeUntilTick:number;themeId:'neon'|'night'|'day';recordCategory:'standard'|'audience-influenced'}
+export interface TrafficAudienceCommand{id:string;effectId:string;viewerRef:string;source:string;receivedTick:number;scheduledTick:number;expiresAtTick:number;payload:Record<string,unknown>}
+export interface TrafficInfluenceRecord{id:string;effectId:string;tick:number;status:'queued'|'applied'|'rejected'|'expired'|'reversed'|'refused';applicationCount:number;source?:string;reason?:string;targetCommandId?:string}
+export interface TrafficAudienceState{enabled:boolean;providerStatus:'healthy'|'degraded'|'offline';queued:TrafficAudienceCommand[];applied:Record<string,TrafficInfluenceRecord>;seenIds:string[];cooldowns:Record<string,number>;rateWindows:Record<string,{startTick:number;count:number}>;axisBias:TrafficAxis|null;axisBiasUntilTick:number;transitPriorityUntilTick:number;challengeMultiplierPermille:number;challengeUntilTick:number;themeId:'neon'|'night'|'day';themeUntilTick:number;recordCategory:'standard'|'audience-influenced'}
 export interface TrafficEvent{seq:number;tick:number;type:string;data:Record<string,string|number|boolean|null>}
 export interface TrafficState{schemaVersion:1;deterministicVersion:string;runId:string;seed:string;runIndex:number;tick:number;lifecycle:GameLifecycle;config:TrafficConfig;city:TrafficCity;vehicles:TrafficVehicle[];pendingDemand:PendingDemand[];nextVehicleId:number;nextDemandId:number;wave:TrafficWave;ai:TrafficAiState;incidents:TrafficIncident[];audience:TrafficAudienceState;metrics:TrafficMetrics;result?:TrafficRunResult;intermissionRemaining:number;meaningfulEventTick:number}
