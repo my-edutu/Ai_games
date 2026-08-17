@@ -10,7 +10,9 @@ Game 12 now has an append-only operational authority around the deterministic co
 
 The Ant Colony channel service reconstructs exact authority from the newest compatible snapshot plus every contiguous post-snapshot command. Corrupt newest evidence is rejected and an older compatible snapshot is used when available. Sequence gaps, command rejection, incompatible evidence, and final-checksum divergence quarantine the run instead of silently continuing. Audience influence reservations survive worker replacement and apply exactly once.
 
-Operational health distinguishes healthy, degraded, and unsafe states across simulation progress, snapshot freshness, frame movement, luma, scene identity, audio, queue pressure, memory slope, and crash loops. Unsafe output triggers an intentional safe scene, bounded component restart, verified restore, and halt after repeated failed verification. Provider or moderation loss disables unsafe interaction while autonomous simulation continues; persistence loss blocks mutation before reservation.
+Command idempotency is not limited to the bounded in-memory hot cache. The durable store maintains an O(1) command-reservation index, rejects conflicting command-ID reuse before file append, and rebuilds the index from the append-only journal after process reconstruction. Therefore, an old retry remains a duplicate even after its hot-cache entry has been evicted.
+
+Operational health distinguishes healthy, degraded, and unsafe states across simulation progress, snapshot freshness, frame movement, luma, scene identity, audio, queue pressure, memory slope, and crash loops. Unsafe output triggers an intentional safe scene, bounded component restart, verified restore, and halt after repeated failed verification. Provider or moderation loss disables unsafe interaction while autonomous simulation continues. Persistence loss disables authoritative progress, protects public output, rejects commands before reservation, and rejects snapshot writes.
 
 ## Acceptance evidence
 
@@ -19,6 +21,9 @@ Operational health distinguishes healthy, degraded, and unsafe states across sim
 - [x] Replay divergence and command gaps quarantine fail closed.
 - [x] Old writers are fenced before replacement authority resumes.
 - [x] Audience commands are durably reserved and applied at most once.
+- [x] Old command retries remain idempotent after hot-cache eviction and file-store reconstruction.
+- [x] Conflicting command-ID reuse is rejected before disk append.
+- [x] Persistence loss disables authoritative progress, protects output, and blocks snapshots before write.
 - [x] Operator controls are typed, role-gated, environment-scoped, idempotent, and auditable.
 - [x] Black, frozen, wrong-scene, silent, queue, memory, and crash-loop faults are detected.
 - [x] Safe scene and verified output recovery are bounded and intentional.

@@ -40,7 +40,7 @@ Provider-neutral normalization removes raw identity and payment metadata from ga
 
 ### Phase 5 — reliability and operations
 
-Commands are durably reserved before mutation. Snapshots and events are checksummed and bounded. Single-writer leases renew and fence stale workers. Startup recovery restores the newest compatible snapshot, replays contiguous commands, skips corrupt newest evidence, and quarantines divergence. Audience influence remains exactly once after replacement. Operator controls are role-gated and audited. Health distinguishes stale, frozen, black, wrong-scene, silent, queue, memory, and crash-loop faults. Safe scene, bounded restart, verified restore, and safe halt protect viewers and authority. Deterministic chaos verifies recovery, fencing, dedupe, output protection, and resource bounds.
+Commands are durably reserved before mutation. Snapshots and events are checksummed and bounded. Single-writer leases renew and fence stale workers. Startup recovery restores the newest compatible snapshot, replays contiguous commands, skips corrupt newest evidence, and quarantines divergence. Audience influence remains exactly once after replacement. The final review strengthened long-run idempotency: durable command IDs are indexed independently of the bounded hot cache, the index is rebuilt from file-backed journal evidence after process reconstruction, and conflicting reuse is rejected before disk append. Persistence loss now disables authoritative progress, protects public output, rejects new command reservation, and blocks snapshot writes. Operator controls are role-gated and audited. Health distinguishes stale, frozen, black, wrong-scene, silent, queue, memory, and crash-loop faults. Safe scene, bounded restart, verified restore, and safe halt protect viewers and authority. Deterministic chaos verifies recovery, fencing, dedupe, output protection, and resource bounds.
 
 **Disposition:** PASS.
 
@@ -55,6 +55,8 @@ The release manifest requires a full candidate SHA and binds software evidence, 
 The runtime keeps a clean dependency direction: shared deterministic primitives and contracts feed game-owned state/rules/runtime; presentation, provider input, operations, and release assessment sit outside authority. This prevents the most dangerous failure mode in autonomous livestream games: UI, network, operator, or provider code silently mutating gameplay truth.
 
 The service layer currently uses a generic `DurableStore`, which is correct for testability and permits file-backed or production adapters. The release candidate must select and validate a production-grade store before R5. The Ant service intentionally mirrors proven operational patterns used elsewhere in the monorepo while retaining game-private state and rules, avoiding cross-game private imports.
+
+The durable-store contract now exposes a command-reservation lookup with O(1) in-memory access. File reconstruction rebuilds that index from journal events, and the file adapter validates reuse before writing. This avoids both unbounded full-stream scans and exactly-once gaps after hot-cache eviction.
 
 **Open architectural P2:** production deployment wiring, multi-region storage semantics, secret management, and provider credential rotation require environment-specific implementation evidence. These are visible blockers, not hidden assumptions.
 
@@ -94,7 +96,7 @@ Raw provider payloads, display metadata, viewer identity, entitlement secrets, i
 
 ## Reliability and performance critique
 
-All authoritative collections are capped. Snapshots, events, audit, dedupe, replay, VFX, audio voices, metrics, alerts, component registry, crash history, influence queues, applied IDs, and reversal IDs are bounded. Recovery is checksum-verified and does not invent game losses. CI-reference performance is within declared budgets.
+All authoritative collections are capped. Snapshots, events, audit, hot dedupe, replay, VFX, audio voices, metrics, alerts, component registry, crash history, influence queues, applied IDs, and reversal IDs are bounded. Long-run idempotency does not depend on retaining every command in the hot cache because durable command reservations are separately indexed. Recovery is checksum-verified and does not invent game losses. CI-reference performance is within declared budgets.
 
 **Open external blockers:** production-reference hardware capacity, real 72-hour endurance, queue/load tests with live provider adapters, renderer/capture endurance, memory and handle slopes, and a seven-day canary.
 
@@ -107,13 +109,15 @@ All authoritative collections are capped. Snapshots, events, audit, dedupe, repl
 | ANT-P1-002 | P1 | Black/frozen/wrong output could mislead viewers | Closed by output health, safe scene, verified restore, and browser/chaos checks |
 | ANT-P1-003 | P1 | Provider/audit/persistence failure could mutate without durable proof | Closed by dependency gates and reservation-before-mutation |
 | ANT-P1-004 | P1 | Audience spending could purchase terminal outcomes | Closed by effect contracts, candidate safety, caps, and prohibited-terminal campaign checks |
+| ANT-P1-005 | P1 | An old command ID could be reapplied after hot-cache eviction | Closed by durable command-ID index, bounded hot-cache fallback, reconstruction tests, and pre-write conflict rejection |
+| ANT-P1-006 | P1 | Persistence outage could still report active authority or permit snapshot attempts | Closed by persistence-gated simulation status, protected output, command rejection, and snapshot fail-closed tests |
 | ANT-P2-001 | P2 | Procedural art and audio need final professional polish | Open, non-blocking for R4; external audiovisual review required for R5 |
 | ANT-P2-002 | P2 | Real audience pacing and retention are not represented by CI | Open; measure during canary and tune without changing integrity contracts |
 | ANT-P2-003 | P2 | Production provider, storage, secret, and deployment wiring requires environment evidence | Open external blocker |
 
 ## Final decision
 
-**Software phases 1–6:** Complete, subject to exact-candidate CI remaining green after the final documentation/release commit.  
+**Software phases 1–6:** Complete, subject to exact-candidate CI remaining green after the final review-remediation commit.  
 **Open software P0/P1:** Zero accepted.  
 **Release verdict:** `BLOCKED` at R4 by genuine external evidence.  
 **Production ready:** No—not until all listed R5 gates pass for the exact release-manifest checksum.  
