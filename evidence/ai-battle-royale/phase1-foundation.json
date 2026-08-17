@@ -1,0 +1,15 @@
+{
+  "gameId": "ai-battle-royale",
+  "phase": 1,
+  "date": "2026-08-17",
+  "target": "R1",
+  "commands": [
+    { "command": "tsc -p tsconfig.json", "passed": true },
+    { "command": "node --test tests/foundation/battle-foundation.test.cjs", "passed": true, "tests": 5, "failures": 0 },
+    { "command": "authoritative nondeterminism grep", "passed": true }
+  ],
+  "seedCampaign": { "seeds": 100, "invalidArenas": 0, "invariantFailures": 0 },
+  "replay": { "sameSeedMatch": true, "snapshotRestoreMatch": true },
+  "review": { "p0Open": 0, "p1Open": 0, "fixed": ["authoritative configuration aliasing"] },
+  "verdict": "PASS_R1_CANDIDATE"
+}
