@@ -1,0 +1,2 @@
+'use strict';
+const{runTrafficCampaign}=require('../dist/games/ai-city-traffic/src/index.js');const seed=process.argv[2]||'traffic-campaign-reference';const report=runTrafficCampaign({runsPerProfile:8,profiles:['grid','arterial','ring','mixed'],baseSeed:seed,maxTicks:1600});process.stdout.write(`${JSON.stringify(report)}\n`);process.exitCode=report.technicalOutcomes===0&&report.invariantFailures===0&&report.patterns.length>=3?0:1;

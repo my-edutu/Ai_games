@@ -1,0 +1,4 @@
+import type{TrafficState,TrafficWave}from '../state/types';
+export function currentTrafficWave(tick:number,runTicks:number):TrafficWave{const progress=Math.max(0,Math.min(1000,Math.floor(tick*1000/Math.max(1,runTicks))));if(progress<150)return'calm';if(progress<400)return'rush';if(progress<600)return'surge';if(progress<820)return'incident';return'recovery'}
+export function trafficDemandInterval(state:TrafficState){const wavePermille:Record<TrafficWave,number>={calm:1400,rush:850,surge:550,incident:700,recovery:1050},difficultyPermille=Math.max(550,1250-state.config.difficulty*70),audience=state.audience.challengeUntilTick>state.tick?state.audience.challengeMultiplierPermille:1000;return Math.max(1,Math.floor(state.config.spawnEveryTicks*wavePermille[state.wave]*difficultyPermille*1000/(1_000_000*audience)))}
+export function shouldSpawnTrafficDemand(state:TrafficState){return state.tick%trafficDemandInterval(state)===0}

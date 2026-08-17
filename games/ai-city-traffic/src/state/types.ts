@@ -8,7 +8,7 @@ export interface TrafficVehicle{id:string;kind:VehicleKind;origin:string;destina
 export interface PendingDemand{id:string;origin:string;destination:string;kind:VehicleKind;createdTick:number;attempts:number}
 export type TrafficWave='calm'|'rush'|'surge'|'incident'|'recovery';
 export interface TrafficAiState{mode:'fixed-cycle'|'adaptive'|'fallback';goal:string;intent:string;reason:string;confidence:'low'|'medium'|'high';decisions:number;routeExpansions:number;fallbackCount:number;lastDecisionTick:number}
-export interface TrafficMetrics{spawned:number;completedTrips:number;droppedDemand:number;collisions:number;totalWaitTicks:number;totalTravelTicks:number;maxActive:number;maxQueue:number;gridlockTicks:number;mobilityScore:number;meaningfulEvents:number}
+export interface TrafficMetrics{spawned:number;completedTrips:number;droppedDemand:number;collisions:number;totalWaitTicks:number;totalTravelTicks:number;maxActive:number;maxQueue:number;gridlockTicks:number;mobilityScore:number;meaningfulEvents:number;peakGridlockTicks:number;busesCompleted:number;emergencyCompleted:number}
 export interface TrafficIncident{id:string;laneId:string;startedTick:number;clearsAtTick:number;reason:'collision-cleanup'|'roadworks'|'signal-fault';active:boolean}
 export interface TrafficAudienceCommand{id:string;effectId:string;viewerRef:string;source:string;scheduledTick:number;expiresAtTick:number;payload:Record<string,unknown>}
 export interface TrafficInfluenceRecord{id:string;effectId:string;tick:number;status:'queued'|'applied'|'rejected'|'expired'|'reversed';applicationCount:number;reason?:string;targetCommandId?:string}
