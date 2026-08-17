@@ -1,27 +1,23 @@
-# AI Maze Escape Phase 3 Evidence
+# AI Maze Escape Phase 3 Reviewed Evidence
 
-## Candidate
+## Candidate and workflow
 
-- source head: `b10d8797d206dcac58c37f41a238e454ae9e3ffb`
-- workflow: `31975352336`
-- environment: GitHub-hosted Ubuntu 24.04, Node.js 22.16.0, Chromium 140
-- status: `PASS`
+- Reviewed runtime source: `cd77b7a59cbcf01074825777426c413b34d122be`
+- Workflow: `31998030132`
+- Node tests: 251 / 251 passed
+- Chromium tests: 8 / 8 catalogue checks passed, including five Maze checks
+- Maze stream self-test: passed
+- Authority isolation and privacy-safe snapshot checks: passed
 
-## Evidence
+## Visual evidence
 
-- 6/6 focused presentation tests passed locally;
-- stream self-test proved authority isolation, browser assets, bounded source, public-state privacy, recovery and restart;
-- 3/3 Maze Playwright tests passed in CI;
-- desktop, phone landscape and clean-feed screenshots were retained;
-- full repository regression and nondeterminism checks remained green.
+Artifact `9277539661` (`ai-maze-escape-phase3-capture`), 749,810 bytes, SHA-256 `6d63ad83c3c2174f2482440db79df1a1b3b8b5676b003d3fd5a2335817872143`.
 
-## Artifact
+Reviewed frames:
 
-- name: `ai-maze-escape-phase3-capture`
-- ID: `9270916299`
-- SHA-256: `525cebe808ae30164617849ee7db39dfa2053f17712cf08e2a08317255f423b1`
-- retention expiry: 2026-09-15
+- desktop: focused discovered-map camera, objective/progress/intent/integrity/captions readable;
+- phone landscape: gameplay and critical HUD retain meaning without overflow;
+- clean feed: essential game truth remains with reduced decoration;
+- reduced motion/high contrast/muted controls preserve comprehension.
 
-## Boundary
-
-This evidence proves the R2 broadcast implementation. It does not prove live audience providers, payment entitlement operation, multi-hour production reliability or R5 launch readiness.
+The uploaded artifact is retained CI evidence for this workflow. Frozen release manifests use exact-source candidate-bound logical evidence contracts so later source changes cannot reuse this capture as current candidate proof.

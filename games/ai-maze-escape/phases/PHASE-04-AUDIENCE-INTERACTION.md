@@ -1,56 +1,28 @@
 # Phase 4 — Audience Influence and Chat vs AI
 
-**Target:** R3 interaction beta  
-**Software status:** Complete and repository-CI verified  
-**Verified implementation head:** `8ee8cffe4c8319439b56ea24276fc7d8039e6c7b`  
-**Verification workflow:** GitHub Actions `31976132434`
+**Target:** R3 interaction candidate  
+**Software status:** Complete
 
-## Outcome
+## Delivered
 
-AI Maze Escape now accepts deterministic, bounded audience influence without surrendering game authority. Every effect is chosen from a server-generated opaque candidate, is checked against solver validity and minimum response distance, is queued once, applied at a fixed tick, recorded append-only and separated from baseline records.
+- provider-neutral YouTube/Twitch normalized input and authentication boundaries;
+- privacy-safe viewer references, sanitization, moderation, sanctions, entitlement caps, rate limits, queue bounds and idempotency;
+- deterministic vote windows and tie-breaking;
+- ten bounded Maze influence classes: reveal, hint, door, fog, threat, obstacle/shortcut, resource/clue and next-profile choices;
+- prevalidated candidate IDs and solution-preservation checks;
+- exactly-once durable scheduling, deterministic expiry and append-only reversal;
+- Chat vs AI pressure caps, cooldowns and visible acknowledgements;
+- complete no-audience autonomous mode and provider-outage degradation.
 
-## Effects
+## Acceptance evidence
 
-- reveal a frontier;
-- show a directional hint;
-- open an eligible door;
-- trigger a temporary fog pulse;
-- pause/pulse an active threat;
-- add a safe non-critical obstacle;
-- add a route resource/checkpoint;
-- choose the next maze profile.
+- [x] Every effect preserves a valid solution and declared response opportunity.
+- [x] No event relocates the hidden exit, guarantees escape/capture, or buys a record/result.
+- [x] Duplicate authoritative application is zero across retry, reconnect, restore and reversal.
+- [x] Votes are deterministic, capped, moderated, replayable and visible.
+- [x] Provider/moderation/entitlement/audit outages fail closed for paid-eligible effects.
+- [x] Rejected commands never enter durable replay evidence.
+- [x] Maximum bounded pressure remains within AI, fairness, sensory and performance limits.
+- [x] The game remains complete with interactions disabled.
 
-## Safety and Integrity
-
-- arbitrary coordinates, provider text and raw payment payloads never enter authority;
-- candidate previews must retain a valid inventory-aware solution;
-- duplicate delivery is idempotent across retry and snapshot restore;
-- expired, terminal-state and invalid commands fail without gameplay mutation;
-- reversals are append-only and cannot erase already learned truth;
-- irreversible effects explicitly refuse reversal rather than falsifying history;
-- fixed vote tokens, one vote per viewer, capped entitlement weighting and named RNG tie-breaks are enforced;
-- Chat vs AI rounds obey lifecycle, overlap, cooldown and pressure caps;
-- no-audience gameplay remains complete;
-- maximum bounded pressure cannot buy an escape, death, record or technical outcome.
-
-## Verification
-
-- 7/7 focused Phase 4 tests passed locally;
-- combined Maze regression through Phase 4: 30/30 passed;
-- maximum-pressure rerun was byte-deterministic;
-- duplicate authoritative applications: 0;
-- the exact candidate passed the full repository workflow, both stream self-tests, nondeterminism scan and 6/6 browser checks.
-
-## Acceptance
-
-- [x] Every effect preserves solver validity and declared response distance.
-- [x] Provider retries and snapshots cannot duplicate application.
-- [x] Vote, entitlement and Chat vs AI state remain bounded and deterministic.
-- [x] Reversals and operator/audience history are append-only.
-- [x] Baseline and audience-influenced records remain distinct.
-- [x] Provider absence does not interrupt autonomous Maze gameplay.
-- [x] Full regression and browser capture remain green.
-
-## Exit
-
-Phase 4 is complete. Phase 5 owns durable authority, cross-process recovery, writer fencing, observability, output protection, operator controls and chaos evidence.
+R3 software interaction candidate is complete. Credentialed production-provider evidence remains an R5 external gate.
