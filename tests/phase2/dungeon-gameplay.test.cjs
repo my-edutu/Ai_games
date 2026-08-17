@@ -1,19 +1,148 @@
 'use strict';
-const test=require('node:test');const assert=require('node:assert/strict');
+const test=require('node:test');
+const assert=require('node:assert/strict');
 const{DungeonRuntime}=require('../../dist/games/ai-dungeon-endless-adventure/src/runtime/run.js');
 const{buildDungeonObservation}=require('../../dist/games/ai-dungeon-endless-adventure/src/ai/observation.js');
 const{chooseDungeonAction,planDungeonAction}=require('../../dist/games/ai-dungeon-endless-adventure/src/ai/policy.js');
 const{spawnFloorEncounters,RELICS,applyRelic}=require('../../dist/games/ai-dungeon-endless-adventure/src/content/catalogue.js');
 const{NamedRng}=require('../../dist/packages/seeded-rng/src/index.js');
 const base={schemaVersion:1,width:31,height:21,roomAttempts:24,roomMinSize:3,roomMaxSize:7,loopChancePermille:180,chapterLength:5,maxTicksPerFloor:1800,intermissionTicks:2,maxEnemies:18,maxRelics:6,maxEvents:96,noProgressTicks:600};
-test('observation exposes visible enemies and hides enemies outside Astra vision',()=>{const runtime=new DungeonRuntime(base,'vision-seed','vision-run');const walkable=runtime.state.floor.tiles.map((v,i)=>v===1?i:-1).filter(i=>i>=0);runtime.state.hero.vision=3;runtime.state.enemies=[{id:'near',kind:'mireling',cell:walkable.find(c=>Math.abs(c%base.width-runtime.state.hero.cell%base.width)+Math.abs(Math.floor(c/base.width)-Math.floor(runtime.state.hero.cell/base.width))===2),hp:4,maxHp:4,attack:1,armour:0,cooldown:0,telegraph:null,phase:1,alive:true},{id:'far',kind:'ember-seer',cell:runtime.state.floor.gate,hp:6,maxHp:6,attack:2,armour:0,cooldown:0,telegraph:null,phase:1,alive:true}];const observation=buildDungeonObservation(runtime.state);assert.ok(observation.visibleEnemies.some(e=>e.id==='near'));assert.ok(!observation.visibleEnemies.some(e=>e.id==='far'));assert.ok(!JSON.stringify(observation).includes('ember-seer'))});
-test('policy is deterministic legal bounded and attacks an adjacent threat',()=>{const a=new DungeonRuntime(base,'policy-seed','policy-run');const neighbour=a.state.floor.tiles.map((v,i)=>v===1?i:-1).find(cell=>cell>=0&&Math.abs(cell%base.width-a.state.hero.cell%base.width)+Math.abs(Math.floor(cell/base.width)-Math.floor(a.state.hero.cell/base.width))===1);a.state.enemies=[{id:'enemy-1',kind:'mireling',cell:neighbour,hp:4,maxHp:4,attack:1,armour:0,cooldown:0,telegraph:null,phase:1,alive:true}];const action1=chooseDungeonAction(a.state);const action2=chooseDungeonAction(JSON.parse(JSON.stringify(a.state)));assert.deepEqual(action1,action2);assert.equal(action1.kind,'melee');assert.equal(action1.targetId,'enemy-1');assert.ok(a.state.ai.nodeExpansions<=512)});
-test('encounter population is deterministic bounded diverse and chapter floors contain a boss',()=>{const runtime=new DungeonRuntime(base,'encounter-seed','encounter-run');const a=spawnFloorEncounters(runtime.state.floor,5,base,NamedRng.fromSeed('encounters'));const b=spawnFloorEncounters(runtime.state.floor,5,base,NamedRng.fromSeed('encounters'));assert.deepEqual(a,b);assert.ok(a.length<=base.maxEnemies);assert.ok(a.some(e=>e.kind==='chapter-boss'));assert.ok(new Set(a.map(e=>e.kind)).size>=2);assert.equal(new Set(a.map(e=>e.cell)).size,a.length)});
-test('melee damage is causal, armour bounded, enemy death grants auditable rewards and opens guardian gate',()=>{const runtime=new DungeonRuntime(base,'combat-seed','combat-run');const neighbour=runtime.state.floor.tiles.map((v,i)=>v===1?i:-1).find(cell=>cell>=0&&Math.abs(cell%base.width-runtime.state.hero.cell%base.width)+Math.abs(Math.floor(cell/base.width)-Math.floor(runtime.state.hero.cell/base.width))===1);runtime.state.enemies=[{id:'guardian',kind:'bone-warden',cell:neighbour,hp:2,maxHp:2,attack:1,armour:1,cooldown:0,telegraph:null,phase:1,alive:true}];runtime.state.floorProgress.guardianDefeated=false;const beforeGold=runtime.state.hero.gold;const events=runtime.step({kind:'melee',targetId:'guardian'});assert.equal(runtime.state.enemies[0].alive,false);assert.ok(runtime.state.hero.gold>beforeGold);assert.equal(runtime.state.floorProgress.guardianDefeated,true);assert.ok(events.some(e=>e.type==='enemy.defeated'))});
-test('relic application is capped unique and uses explicit stacking rules',()=>{const runtime=new DungeonRuntime(base,'relic-seed','relic-run');const baseAttack=runtime.state.hero.attack;assert.equal(applyRelic(runtime.state,'ember-edge'),true);assert.equal(runtime.state.hero.attack,baseAttack+2);assert.equal(applyRelic(runtime.state,'ember-edge'),false);for(const id of Object.keys(RELICS).filter(id=>id!=='ember-edge'))applyRelic(runtime.state,id);assert.ok(runtime.state.hero.relics.length<=base.maxRelics);assert.equal(new Set(runtime.state.hero.relics).size,runtime.state.hero.relics.length)});
-test('autonomous zero-audience campaign makes progress and remains deterministic across several seeds',()=>{for(const seed of['campaign-a','campaign-b','campaign-c']){const a=new DungeonRuntime(base,seed,`run-${seed}`),b=new DungeonRuntime(base,seed,`run-${seed}`);for(let tick=0;tick<6000&&a.state.floorNumber<3&&a.state.lifecycle!=='run-result';tick++){a.step();b.step()}assert.equal(a.checksum(),b.checksum());assert.ok(a.state.floorNumber>=2,`${seed} failed to clear a floor`);assert.ok(a.state.ai.decisions>0);assert.ok(a.state.ai.fallbackCount<50,`${seed} exceeded the fallback budget`);assert.ok(a.state.enemies.length<=base.maxEnemies)}});
-test('chapter boss uses deterministic telegraph phases and major relic choice is resolved before next floor',()=>{const runtime=new DungeonRuntime(base,'boss-seed','boss-run');runtime.state.floorNumber=5;runtime.state.chapter=1;runtime.state.enemies=spawnFloorEncounters(runtime.state.floor,5,base,runtime.rng);const boss=runtime.state.enemies.find(e=>e.kind==='chapter-boss');assert.ok(boss);runtime.state.hero.cell=boss.cell-1;runtime.state.floor.tiles[runtime.state.hero.cell]=1;boss.hp=1;runtime.state.floorProgress.sigilCollected=true;runtime.state.floorProgress.gateUnlocked=true;runtime.state.floorProgress.guardianDefeated=false;runtime.step({kind:'melee',targetId:boss.id});assert.equal(boss.alive,false);runtime.state.hero.cell=runtime.state.floor.gate;runtime.step({kind:'descend'});assert.equal(runtime.state.lifecycle,'chapter-result');assert.equal(runtime.state.rewardChoices.length,3);runtime.step();assert.equal(runtime.state.hero.relics.length,1);for(let i=0;i<base.intermissionTicks+1;i++)runtime.step();assert.equal(runtime.state.floorNumber,6)});
-test('policy proposal is pure and runtime applies bounded public AI metadata through its decision boundary',()=>{const runtime=new DungeonRuntime(base,'pure-policy','pure-run');const before=JSON.stringify(runtime.state);chooseDungeonAction(runtime.state);assert.equal(JSON.stringify(runtime.state),before);runtime.step();assert.equal(runtime.state.ai.decisions,1);assert.ok(runtime.state.ai.nodeExpansions<=512)});
-test('authoritative state never gains hidden runtime handles across normal and result steps',()=>{const runtime=new DungeonRuntime(base,'schema-clean','schema-run');runtime.step();assert.equal(Object.prototype.hasOwnProperty.call(runtime.state,'_rng'),false);runtime.state.lifecycle='floor-result';runtime.state.intermissionRemaining=2;runtime.step({kind:'wait'});assert.equal(Object.prototype.hasOwnProperty.call(runtime.state,'_rng'),false)});
-test('objective knowledge persists after Astra moves outside current vision',()=>{const runtime=new DungeonRuntime(base,'memory-seed','memory-run');runtime.state.ai.knownCells=[runtime.state.hero.cell,runtime.state.floor.sigil,runtime.state.floor.gate];runtime.state.hero.vision=1;assert.notEqual(runtime.state.hero.cell,runtime.state.floor.sigil);const observation=buildDungeonObservation(runtime.state);assert.equal(observation.known.sigil,true);assert.equal(observation.known.gate,true)});
-test('frontier planning chooses a reachable frontier instead of a nearer disconnected visible pocket',()=>{const runtime=new DungeonRuntime(base,'phase2-4','frontier-regression');runtime.step();runtime.step();runtime.step();const proposal=planDungeonAction(runtime.state);assert.equal(proposal.ai.fallbackDelta,0);assert.equal(proposal.ai.goal,'Explore the unknown');assert.equal(proposal.action.kind,'move')});
+
+test('observation exposes visible enemies and hides enemies outside Astra vision',()=>{
+  const runtime=new DungeonRuntime(base,'vision-seed','vision-run');
+  const walkable=runtime.state.floor.tiles.map((v,i)=>v===1?i:-1).filter(i=>i>=0);
+  runtime.state.hero.vision=3;
+  runtime.state.enemies=[
+    {id:'near',kind:'mireling',cell:walkable.find(c=>Math.abs(c%base.width-runtime.state.hero.cell%base.width)+Math.abs(Math.floor(c/base.width)-Math.floor(runtime.state.hero.cell/base.width))===2),hp:4,maxHp:4,attack:1,armour:0,cooldown:0,telegraph:null,phase:1,alive:true},
+    {id:'far',kind:'ember-seer',cell:runtime.state.floor.gate,hp:6,maxHp:6,attack:2,armour:0,cooldown:0,telegraph:null,phase:1,alive:true}
+  ];
+  const observation=buildDungeonObservation(runtime.state);
+  assert.ok(observation.visibleEnemies.some(e=>e.id==='near'));
+  assert.ok(!observation.visibleEnemies.some(e=>e.id==='far'));
+  assert.ok(!JSON.stringify(observation).includes('ember-seer'));
+});
+
+test('policy is deterministic legal bounded and attacks an adjacent threat',()=>{
+  const a=new DungeonRuntime(base,'policy-seed','policy-run');
+  const neighbour=a.state.floor.tiles.map((v,i)=>v===1?i:-1).find(cell=>cell>=0&&Math.abs(cell%base.width-a.state.hero.cell%base.width)+Math.abs(Math.floor(cell/base.width)-Math.floor(a.state.hero.cell/base.width))===1);
+  a.state.enemies=[{id:'enemy-1',kind:'mireling',cell:neighbour,hp:4,maxHp:4,attack:1,armour:0,cooldown:0,telegraph:null,phase:1,alive:true}];
+  const action1=chooseDungeonAction(a.state);
+  const action2=chooseDungeonAction(JSON.parse(JSON.stringify(a.state)));
+  assert.deepEqual(action1,action2);
+  assert.equal(action1.kind,'melee');
+  assert.equal(action1.targetId,'enemy-1');
+  assert.ok(a.state.ai.nodeExpansions<=512);
+});
+
+test('encounter population is deterministic bounded diverse and chapter floors contain a boss',()=>{
+  const runtime=new DungeonRuntime(base,'encounter-seed','encounter-run');
+  const a=spawnFloorEncounters(runtime.state.floor,5,base,NamedRng.fromSeed('encounters'));
+  const b=spawnFloorEncounters(runtime.state.floor,5,base,NamedRng.fromSeed('encounters'));
+  assert.deepEqual(a,b);
+  assert.ok(a.length<=base.maxEnemies);
+  assert.ok(a.some(e=>e.kind==='chapter-boss'));
+  assert.ok(new Set(a.map(e=>e.kind)).size>=2);
+  assert.equal(new Set(a.map(e=>e.cell)).size,a.length);
+});
+
+test('melee damage is causal, armour bounded, enemy death grants auditable rewards and opens guardian gate',()=>{
+  const runtime=new DungeonRuntime(base,'combat-seed','combat-run');
+  const neighbour=runtime.state.floor.tiles.map((v,i)=>v===1?i:-1).find(cell=>cell>=0&&Math.abs(cell%base.width-runtime.state.hero.cell%base.width)+Math.abs(Math.floor(cell/base.width)-Math.floor(runtime.state.hero.cell/base.width))===1);
+  runtime.state.enemies=[{id:'guardian',kind:'bone-warden',cell:neighbour,hp:2,maxHp:2,attack:1,armour:1,cooldown:0,telegraph:null,phase:1,alive:true}];
+  runtime.state.floorProgress.guardianDefeated=false;
+  const beforeGold=runtime.state.hero.gold;
+  const events=runtime.step({kind:'melee',targetId:'guardian'});
+  assert.equal(runtime.state.enemies[0].alive,false);
+  assert.ok(runtime.state.hero.gold>beforeGold);
+  assert.equal(runtime.state.floorProgress.guardianDefeated,true);
+  assert.ok(events.some(e=>e.type==='enemy.defeated'));
+});
+
+test('relic application is capped unique and uses explicit stacking rules',()=>{
+  const runtime=new DungeonRuntime(base,'relic-seed','relic-run');
+  const baseAttack=runtime.state.hero.attack;
+  assert.equal(applyRelic(runtime.state,'ember-edge'),true);
+  assert.equal(runtime.state.hero.attack,baseAttack+2);
+  assert.equal(applyRelic(runtime.state,'ember-edge'),false);
+  for(const id of Object.keys(RELICS).filter(id=>id!=='ember-edge'))applyRelic(runtime.state,id);
+  assert.ok(runtime.state.hero.relics.length<=base.maxRelics);
+  assert.equal(new Set(runtime.state.hero.relics).size,runtime.state.hero.relics.length);
+});
+
+test('autonomous zero-audience campaign makes progress and remains deterministic across several seeds',()=>{
+  for(const seed of ['campaign-a','campaign-b','campaign-c']){
+    const a=new DungeonRuntime(base,seed,`run-${seed}`);const b=new DungeonRuntime(base,seed,`run-${seed}`);
+    for(let tick=0;tick<6000&&a.state.floorNumber<3&&a.state.lifecycle!=='run-result';tick++){a.step();b.step();}
+    assert.equal(a.checksum(),b.checksum());
+    assert.ok(a.state.floorNumber>=2,`${seed} failed to clear a floor`);
+    assert.ok(a.state.ai.decisions>0);
+    assert.ok(a.state.ai.fallbackCount<50,`${seed} exceeded the fallback budget`);
+    assert.ok(a.state.enemies.length<=base.maxEnemies);
+  }
+});
+
+test('chapter boss uses deterministic telegraph phases and major relic choice is resolved before next floor',()=>{
+  const runtime=new DungeonRuntime(base,'boss-seed','boss-run');
+  runtime.state.floorNumber=5;runtime.state.chapter=1;
+  runtime.state.enemies=spawnFloorEncounters(runtime.state.floor,5,base,runtime.rng);
+  const boss=runtime.state.enemies.find(e=>e.kind==='chapter-boss');assert.ok(boss);
+  runtime.state.hero.cell=boss.cell-1;runtime.state.floor.tiles[runtime.state.hero.cell]=1;
+  boss.hp=1;runtime.state.floorProgress.sigilCollected=true;runtime.state.floorProgress.gateUnlocked=true;runtime.state.floorProgress.guardianDefeated=false;
+  runtime.step({kind:'melee',targetId:boss.id});
+  assert.equal(boss.alive,false);
+  runtime.state.hero.cell=runtime.state.floor.gate;
+  runtime.step({kind:'descend'});
+  assert.equal(runtime.state.lifecycle,'chapter-result');
+  assert.equal(runtime.state.rewardChoices.length,3);
+  runtime.step();
+  assert.equal(runtime.state.hero.relics.length,1);
+  for(let i=0;i<base.intermissionTicks+1;i++)runtime.step();
+  assert.equal(runtime.state.floorNumber,6);
+});
+
+test('policy proposal is pure and runtime applies bounded public AI metadata through its decision boundary',()=>{
+  const runtime=new DungeonRuntime(base,'pure-policy','pure-run');
+  const before=JSON.stringify(runtime.state);
+  chooseDungeonAction(runtime.state);
+  assert.equal(JSON.stringify(runtime.state),before);
+  runtime.step();
+  assert.equal(runtime.state.ai.decisions,1);
+  assert.ok(runtime.state.ai.nodeExpansions<=512);
+});
+
+test('authoritative state never gains hidden runtime handles across normal and result steps',()=>{
+  const runtime=new DungeonRuntime(base,'schema-clean','schema-run');
+  runtime.step();
+  assert.equal(Object.prototype.hasOwnProperty.call(runtime.state,'_rng'),false);
+  runtime.state.lifecycle='floor-result';runtime.state.intermissionRemaining=2;
+  runtime.step({kind:'wait'});
+  assert.equal(Object.prototype.hasOwnProperty.call(runtime.state,'_rng'),false);
+});
+
+test('objective knowledge persists after Astra moves outside current vision',()=>{
+  const runtime=new DungeonRuntime(base,'memory-seed','memory-run');
+  runtime.state.ai.knownCells=[runtime.state.hero.cell,runtime.state.floor.sigil,runtime.state.floor.gate];
+  runtime.state.hero.vision=1;
+  assert.notEqual(runtime.state.hero.cell,runtime.state.floor.sigil);
+  const observation=buildDungeonObservation(runtime.state);
+  assert.equal(observation.known.sigil,true);
+  assert.equal(observation.known.gate,true);
+});
+
+test('frontier planning chooses a reachable frontier instead of a nearer disconnected visible pocket',()=>{
+  const runtime=new DungeonRuntime(base,'phase2-4','frontier-regression');
+  runtime.step();runtime.step();runtime.step();
+  const proposal=planDungeonAction(runtime.state);
+  assert.equal(proposal.ai.fallbackDelta,0);
+  assert.equal(proposal.ai.goal,runtime.state.floorProgress.sigilCollected?'Locate the descent gate':'Explore the unknown');
+  assert.equal(proposal.action.kind,'move');
+});
+
+test('post-sigil frontier intent explains that Astra is locating the descent gate',()=>{
+  const runtime=new DungeonRuntime(base,'gate-intent','gate-intent-run');
+  runtime.state.floorProgress.sigilCollected=true;
+  runtime.state.floorProgress.gateUnlocked=true;
+  runtime.state.ai.knownCells=[runtime.state.hero.cell];
+  const proposal=planDungeonAction(runtime.state);
+  assert.equal(proposal.ai.goal,'Locate the descent gate');
+});

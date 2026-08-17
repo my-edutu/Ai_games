@@ -1,0 +1,10 @@
+'use strict';
+const MAX_PARTICLES=180,MAX_FLOATERS=12,MAX_AUDIO_VOICES=12,MIN_CAMERA_CELLS_X=15,MIN_CAMERA_CELLS_Y=9;
+const AUDIO_COOLDOWNS=Object.freeze({step:280,combat:90,'hero-damaged':240,'enemy-defeated':180,reward:520,milestone:900,'boss-telegraph':650,'result-failure':2200,'integrity-warning':1800,ambient:1200});
+const AMBIENCE_STATES=Object.freeze({calm:{low:62,high:93,gain:.010},exploration:{low:55,high:82,gain:.014},danger:{low:46,high:69,gain:.024},boss:{low:34,high:51,gain:.032},reward:{low:98,high:147,gain:.015},result:{low:41,high:61,gain:.010},recovery:{low:72,high:108,gain:.008}});
+const canvas=document.getElementById('game'),ctx=canvas.getContext('2d',{alpha:false,desynchronized:true}),caption=document.getElementById('caption'),connection=document.getElementById('connection'),summary=document.getElementById('sr-summary');
+const audioToggle=document.getElementById('audio-toggle'),motionToggle=document.getElementById('motion-toggle'),cleanToggle=document.getElementById('clean-toggle');
+const mediaReduced=matchMedia('(prefers-reduced-motion: reduce)'),initialParams=new URLSearchParams(location.search);
+let frame=null,lastFrame=null,lastPoll=0,lastCueIds=new Set(),lastAudioCueAt=new Map(),audioContext=null,audioMaster=null,ambience=null,audioEnabled=initialParams.get('muted')==='0',manualReduced=initialParams.get('reducedMotion')==='1',cleanFeed=initialParams.get('cleanFeed')==='1',particles=[],floaters=[],shake={x:0,y:0,power:0},camera={x:null,y:null,runToken:null},requestInFlight=false,connectionFailures=0;
+const palette={background:'#090b14',panel:'rgba(17,20,38,.86)',panelEdge:'rgba(173,164,255,.18)',floor:'#202744',floorSeen:'#171c33',wall:'#0e1122',grid:'rgba(181,176,255,.06)',hero:'#f6e8a4',heroCore:'#9ff7ff',danger:'#ff7285',warning:'#ffbf69',safe:'#7ff0c4',violet:'#aa9cff',text:'#f7f4ff',muted:'#a8a5bd',gold:'#ffd36f'};
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),lerp=(a,b,t)=>a+(b-a)*t;

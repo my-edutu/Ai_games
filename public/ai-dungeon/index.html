@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#090b14">
+  <title>AI Dungeon: Endless Adventure</title>
+  <link rel="stylesheet" href="/dungeon/styles.css">
+</head>
+<body>
+  <main id="app" aria-label="AI Dungeon autonomous livestream game">
+    <canvas id="game" data-testid="dungeon-canvas" role="img" aria-label="Astra exploring an autonomous endless dungeon"></canvas>
+    <section id="connection" class="connection" aria-live="polite">Entering the dungeon…</section>
+    <section id="caption" data-testid="captions" class="caption" aria-live="polite" aria-atomic="true"></section>
+    <section id="sr-summary" class="sr-only" aria-live="polite"></section>
+    <div class="controls" data-testid="controls" aria-label="Stream display controls">
+      <button id="audio-toggle" type="button" aria-pressed="false">Enable sound</button>
+      <button id="motion-toggle" type="button" aria-pressed="false">Reduce motion</button>
+      <button id="clean-toggle" type="button" aria-pressed="false">Clean feed</button>
+    </div>
+  </main>
+  <script src="/dungeon/app-core.js" defer></script>
+  <script src="/dungeon/app-art.js" defer></script>
+  <script src="/dungeon/app-audio.js" defer></script>
+  <script src="/dungeon/app-scene.js" defer></script>
+  <script src="/dungeon/app-main.js" defer></script>
+</body>
+</html>

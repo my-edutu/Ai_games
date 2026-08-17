@@ -6,17 +6,19 @@ A deterministic autonomous tactical roguelite for continuous livestream viewing.
 
 - Phase 1 — deterministic headless foundation: complete and reviewed.
 - Phase 2 — autonomous RPG, combat, economy and progression: complete and reviewed.
-- Phases 3–6: implementation planned on `feat/game-09-ai-dungeon`.
-- Highest truthful readiness: R2.
+- Phase 3 — premium broadcast UI, vector characters, VFX and adaptive audio: complete and reviewed.
+- Phases 4–6: implementation planned on `feat/game-09-ai-dungeon`.
+- Highest truthful readiness: R3.
 - Production ready: no.
 
-## Phase 1–2 commands
+## Phase 1–3 commands
 
 ```bash
 npm run build
-node --test tests/foundation/dungeon-foundation.test.cjs tests/phase2/dungeon-gameplay.test.cjs
-node scripts/run-dungeon-headless.cjs dungeon-demo 2000
+node --test tests/foundation/dungeon-foundation.test.cjs tests/phase2/dungeon-gameplay.test.cjs tests/phase3/dungeon-broadcast.test.cjs
 node scripts/run-dungeon-phase2-campaign.cjs 50 12000
+node scripts/serve-dungeon-stream.cjs --self-test
+node scripts/serve-dungeon-stream.cjs --port=4189
 ```
 
-Authority uses fixed logical steps, named random streams, canonical checksums and verified snapshots. Astra's decision policy is pure, bounded, privacy-safe and independent of providers. Rendering, audio and audience systems cannot mutate gameplay truth.
+Open `http://127.0.0.1:4189/dungeon` as an OBS browser source. Authority uses fixed logical steps, named random streams, canonical checksums and verified snapshots. Astra’s decision policy is pure and bounded. Rendering, audio and providers cannot mutate gameplay truth.
