@@ -1,0 +1,7 @@
+requirement_id,phase,implementation,test,evidence_commit,status
+FR-TRF-DET-001,1,games/ai-city-traffic/src/runtime/run.ts,tests/foundation/traffic-foundation.test.cjs,e826985a31173e51b01ed6fda09bb7eea890cd53,pass
+FR-TRF-AI-001,2,games/ai-city-traffic/src/ai/controller.ts,tests/phase2/traffic-ai-content.test.cjs,415c8317ee6fed9aac6fa9ca2ecb2da94a7ce43d,pass
+FR-TRF-UX-001,3,games/ai-city-traffic/src/presentation/snapshot.ts,tests/phase3/traffic-broadcast.test.cjs,670b1765ecd2859c3cf35d21e55231c128b4b429,pass
+FR-TRF-INT-001,4,games/ai-city-traffic/src/influence/controller.ts,tests/phase4/traffic-audience.test.cjs,941eedfaf3705747ecf20a4b76f60d7bc3a70732,pass
+FR-TRF-OPS-001,5,games/ai-city-traffic/src/persistence/snapshot.ts,tests/phase5/traffic-recovery-operations.test.cjs,4d5c6351043061461781d2ef0fa791d92eb15641,pass
+FR-TRF-REL-001,6,games/ai-city-traffic/src/release/validation.ts,tests/phase6/traffic-validation.test.cjs,candidate-bound-ci-sha,pass

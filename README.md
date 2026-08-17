@@ -1,6 +1,6 @@
 # AI Games — Autonomous Livestream Game Platform
 
-This monorepo builds a catalogue of autonomous games for uninterrupted YouTube and Twitch entertainment on one shared deterministic simulation, audience-interaction, broadcast, durability, operations and release-governance platform.
+This monorepo builds autonomous games for uninterrupted YouTube and Twitch entertainment on one shared deterministic simulation, audience-interaction, broadcast, durability, operations, and release-governance platform.
 
 ## Catalogue
 
@@ -26,7 +26,7 @@ Seeded authoritative simulation
   → bounded event director and audience gateway
   → stream HUD, camera, VFX, audio, captions and replay
   → append-only commands, events, snapshots, records and audit
-  → writer leases, recovery, supervisor, output health and controls
+  → verified recovery, supervisor, output health and controls
   → release freeze, traceability, endurance, canary and readiness assessor
 ```
 
@@ -36,23 +36,24 @@ Seeded authoritative simulation
 |---|---:|---:|---|---|
 | Autonomous Snake | 6 / 6 | R4 evidence-gated candidate | R4 | External R5 evidence blocked |
 | AI Maze Escape | 6 / 6 | **88 / 100** | R4 | External R5 evidence blocked |
-| Games 3–12 | Documentation/specification packages | Not scored | Pre-implementation | Not production ready |
+| AI City Traffic Experiment | 6 / 6 | **88 / 100** | R4 | External R5 evidence blocked |
+| Games 3–10 and 12 | Documentation/specification packages | Not scored | Pre-implementation | Not production ready |
 
 No game is labelled R5 merely because code merged or CI passed. Production readiness requires exact-candidate primary evidence, real elapsed operation, current credentialed providers, external review, independently witnessed drills, and a guarded canary.
 
-## AI Maze Escape review snapshot
+## AI City Traffic Experiment review snapshot
 
-Game 2 implements deterministic generation and oracle validation, partial-observation belief and planning, keys/doors/traps/threats, responsive broadcast UI, safe audience influence, durable commands/events/snapshots/audit, verified restore and quarantine, operations/chaos, release governance, and an evidence-based readiness assessor.
+Game 11 implements deterministic connected city generation, collision-free lane-cell authority, adaptive signals, congestion-aware routing, demand waves, incidents, causal gridlock/cycle outcomes, premium responsive broadcast UI, semantic audio, bounded audience policy influence, verified snapshots and restore, typed quarantine, health actions, chaos and soak validation, CI evidence generation, and a fail-closed release assessor.
 
-The reviewed runtime candidate passed 251 / 251 Node tests and 8 / 8 catalogue Chromium tests. Internal architecture, gameplay, UI, interaction, durability and release-governance review closed all load-bearing software findings. Its score remains 88 / 100 because the final 12 points require real production evidence.
+Its software score is 88 / 100. The final 12 points are reserved for production-reference capacity, real 72-hour endurance, current credentialed YouTube and Twitch tests, external safety attestations, independently witnessed production drills, a real seven-day canary, and independent exact-candidate review.
 
 ## Documentation contract
 
-Every game has product requirements, game design, autonomous AI, viewer interaction, audiovisual direction, technical architecture, testing strategy, production-readiness gates, and six executable implementation phases. Reusable specialist skills live under `skills/`; shared architecture and standards live under `docs/`; reproducible phase evidence lives under `evidence/`.
+Every implemented game has product requirements, game design, autonomous AI, viewer interaction, audiovisual direction, technical architecture, testing strategy, production-readiness gates, and six executable implementation phases. Reusable specialist skills live under `skills/`; shared architecture and standards live under `docs/`; reproducible phase evidence lives under `evidence/`.
 
 ## Safe audience influence
 
-Paid or free audience input cannot guarantee victory, death, capture, escape, a record, or an unavoidable terminal outcome. All interactions share authentication, moderation, eligibility, rate, cap, conflict, expiry, reversal, idempotency, audit, privacy, and emergency-disable boundaries.
+Paid or free audience input cannot guarantee victory, death, capture, escape, a record, gridlock, or an unavoidable terminal outcome. All interactions share authentication, moderation, eligibility, rate, cap, conflict, expiry, reversal, idempotency, audit, privacy, and emergency-disable boundaries.
 
 ## Operations handoffs
 
@@ -70,5 +71,14 @@ Paid or free audience input cannot guarantee victory, death, capture, escape, a 
 - `docs/operations/ai-maze-escape-r5-evidence-intake.md`
 - `docs/operations/ai-maze-escape-rollback-matrix.md`
 - `docs/operations/ai-maze-escape-handoff.md`
+
+### AI City Traffic Experiment
+
+- `docs/reviews/AI_CITY_TRAFFIC_FINAL_REVIEW.md`
+- `docs/operations/ai-city-traffic-runbook.md`
+- `docs/operations/ai-city-traffic-r5-evidence-intake.md`
+- `docs/operations/ai-city-traffic-rollback-matrix.md`
+- `docs/operations/ai-city-traffic-handoff.md`
+- `docs/releases/ai-city-traffic-production-candidate.md`
 
 Promotion to `production ready` is permitted only when the frozen deployed candidate’s final assessor returns `PASS`, `R5`, and `productionReady: true` with zero open P0/P1 findings.
