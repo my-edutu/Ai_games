@@ -24,7 +24,7 @@
     </header>
 
     <main class="broadcast-grid">
-      <section class="arena-panel" aria-label="Autonomous survivor refuge">
+      <section class="arena-panel" style="grid-column:1;grid-row:1" aria-label="Autonomous survivor refuge">
         <canvas id="zombie-canvas" data-testid="zombie-canvas" aria-label="Live tactical refuge map"></canvas>
         <div class="arena-vignette" aria-hidden="true"></div>
         <div class="arena-status">
@@ -37,7 +37,7 @@
         </div>
       </section>
 
-      <aside class="hud" id="hud" data-testid="hud" aria-label="Survival status">
+      <aside class="hud" style="grid-column:2;grid-row:1 / 3" id="hud" data-testid="hud" aria-label="Survival status">
         <section class="hero-metrics">
           <article><span>BASE INTEGRITY</span><strong data-testid="base-integrity" id="base-integrity">100%</strong><div class="meter"><i id="base-fill"></i></div></article>
           <article><span>SURVIVORS</span><strong data-testid="survivors" id="survivors">4 / 4</strong><div class="survivor-dots" id="survivor-dots"></div></article>
@@ -60,7 +60,7 @@
         </section>
       </aside>
 
-      <div class="captions" data-testid="captions" id="captions" role="status" aria-live="polite">
+      <div class="captions" style="grid-column:1;grid-row:2" data-testid="captions" id="captions" role="status" aria-live="polite">
         <span>Broadcast link established. Autonomous play continues.</span>
       </div>
     </main>
