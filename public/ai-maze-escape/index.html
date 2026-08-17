@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
+  <meta name="color-scheme" content="dark">
+  <title>AI Maze Escape — Autonomous Broadcast</title>
+  <link rel="stylesheet" href="/maze/styles.css">
+</head>
+<body data-reduced-motion="false" data-high-contrast="false">
+  <main id="broadcast" aria-label="AI Maze Escape autonomous livestream">
+    <section id="stage" aria-label="Maze game view">
+      <div id="status-strip">
+        <span class="live-dot" aria-hidden="true"></span>
+        <span>AUTONOMOUS RUN</span>
+        <span id="integrity">INTEGRITY: VERIFIED</span>
+        <span id="profile">PROFILE: —</span>
+      </div>
+      <canvas id="maze" data-testid="maze-canvas" aria-label="Discovered maze, explorer, hazards and route"></canvas>
+      <div id="scene-card" hidden>
+        <strong id="scene-title">RECOVERING VIEW</strong>
+        <span id="scene-message">Restoring the latest verified public snapshot.</span>
+      </div>
+    </section>
+    <aside id="hud" data-testid="hud" aria-label="Run information">
+      <header>
+        <span class="eyebrow">GAME 02</span>
+        <h1>AI MAZE<br>ESCAPE</h1>
+        <p data-testid="objective" id="objective">Escape before time runs out.</p>
+      </header>
+      <section class="metric-block">
+        <div class="metric-row"><span>DISCOVERY</span><strong data-testid="progress" id="progress">0%</strong></div>
+        <div class="progress-track"><span id="progress-fill"></span></div>
+        <div class="metric-grid">
+          <div><span>STEP</span><strong id="steps">0</strong></div>
+          <div><span>TICK</span><strong data-testid="tick" id="tick">0</strong></div>
+          <div><span>TIME</span><strong id="time">—</strong></div>
+          <div><span>KEYS</span><strong id="keys">0</strong></div>
+        </div>
+      </section>
+      <section class="intent-card">
+        <span class="eyebrow">AI INTENT</span>
+        <strong data-testid="ai-intent" id="intent-mode">INITIALIZING</strong>
+        <p id="intent-copy">Building a belief map from visible passages.</p>
+        <div class="confidence"><span id="confidence-fill"></span></div>
+      </section>
+      <section class="inventory-card">
+        <span class="eyebrow">INVENTORY</span>
+        <div id="inventory" aria-live="polite">No keys collected</div>
+      </section>
+      <footer>PARTIAL OBSERVATION • NO ORACLE ACCESS</footer>
+    </aside>
+    <section id="captions" data-testid="captions" aria-live="polite" aria-atomic="true">
+      <span class="caption-label">LIVE CAPTION</span>
+      <p id="caption">The explorer is mapping the nearest frontier.</p>
+    </section>
+  </main>
+  <script src="/maze/app.js" defer></script>
+</body>
+</html>

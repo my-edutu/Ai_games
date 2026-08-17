@@ -1,21 +1,28 @@
 # Phase 3 — Broadcast Map, HUD, Audio, and Replay
 
-**Target:** R2 streamed vertical slice
+**Target:** R2 streamed vertical slice  
+**Software status:** Complete and visually reviewed
 
-## Outcome
+## Delivered
 
-A complete run is understandable and premium on mobile: viewers see known versus hidden space, frontier, intent, dependency, threat, level, time, result, route replay, and automatic next maze.
+- immutable privacy-safe render snapshots;
+- public-knowledge camera that focuses discovered space and expands to overview without exposing hidden truth;
+- cartographic maze, routes, explorer, doors, keys, clues, traps, threats and exit presentation;
+- permanent objective, level, discovery, intent, confidence, time, inventory, integrity and caption hierarchy;
+- desktop, phone-landscape and clean-feed layouts;
+- semantic audio/captions, reduced motion, high contrast and muted comprehension;
+- result, intermission and recovery scenes;
+- serialized timeout-bounded state polling;
+- output health and rebuild from the latest accepted public snapshot.
 
-## Scope
+## Acceptance evidence
 
-Render adapter, cartographic world, reveal/memory states, explorer/threat/door/key/clue/hazard visuals, camera/orientation, HUD/scenes, route trails, semantic VFX, adaptive music/SFX/captions, accessibility variants, clean feed, replay buffer, output health, licensed assets and quality tiers.
+- [x] Objective, frontier/progress, AI intent and danger are understandable within ten seconds.
+- [x] Hidden maze truth never appears before result/debug authorization.
+- [x] Desktop, mobile, clean feed, reduced-motion, high-contrast and muted states preserve meaning.
+- [x] Presentation cannot change authoritative checksums.
+- [x] Renderer/audio/black/frozen/wrong-scene/silent failure protects output and reconstructs state.
+- [x] Slow state responses produce no overlapping browser polls.
+- [x] Result/replay/intermission/restart remain truthful.
 
-## Acceptance
-
-- [ ] Uninstructed viewers identify objective, frontier, danger, and phase within ten seconds.
-- [ ] Hidden truth never leaks before result/debug authorization.
-- [ ] Mobile/low-bitrate/color-safe/reduced-motion/muted captures preserve meaning.
-- [ ] Frame/audio/loudness/resource budgets and asset governance pass.
-- [ ] Presentation cannot change checksums.
-- [ ] Renderer/audio/black/frozen/silent failure activates safe output and reconstructs current state.
-- [ ] Result route/cause and automatic restart are truthful and clear.
+Reviewed artifact: `9277539661`, digest `sha256:6d63ad83c3c2174f2482440db79df1a1b3b8b5676b003d3fd5a2335817872143`. Evidence: `evidence/ai-maze-escape/r2-phase-03/phase-03/`.

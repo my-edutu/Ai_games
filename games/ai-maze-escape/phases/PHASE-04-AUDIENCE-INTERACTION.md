@@ -1,21 +1,28 @@
 # Phase 4 — Audience Influence and Chat vs AI
 
-**Target:** R3 interaction candidate
+**Target:** R3 interaction candidate  
+**Software status:** Complete
 
-## Outcome
+## Delivered
 
-Viewers choose bounded hints, reveals, doors, fog, threats, obstacles, resources, and next-maze profiles; the maze stays solvable and the AI visibly adapts.
+- provider-neutral YouTube/Twitch normalized input and authentication boundaries;
+- privacy-safe viewer references, sanitization, moderation, sanctions, entitlement caps, rate limits, queue bounds and idempotency;
+- deterministic vote windows and tie-breaking;
+- ten bounded Maze influence classes: reveal, hint, door, fog, threat, obstacle/shortcut, resource/clue and next-profile choices;
+- prevalidated candidate IDs and solution-preservation checks;
+- exactly-once durable scheduling, deterministic expiry and append-only reversal;
+- Chat vs AI pressure caps, cooldowns and visible acknowledgements;
+- complete no-audience autonomous mode and provider-outage degradation.
 
-## Scope
+## Acceptance evidence
 
-Gateway/provider fixtures, identity/entitlement/moderation/rate/idempotency/audit, effect catalogue and candidate validation, Event Director, votes/ties/windows, Chat vs AI pressure, HUD/audio/VFX acknowledgements, reversal/outage/overflow, no-audience and pressure campaigns.
+- [x] Every effect preserves a valid solution and declared response opportunity.
+- [x] No event relocates the hidden exit, guarantees escape/capture, or buys a record/result.
+- [x] Duplicate authoritative application is zero across retry, reconnect, restore and reversal.
+- [x] Votes are deterministic, capped, moderated, replayable and visible.
+- [x] Provider/moderation/entitlement/audit outages fail closed for paid-eligible effects.
+- [x] Rejected commands never enter durable replay evidence.
+- [x] Maximum bounded pressure remains within AI, fairness, sensory and performance limits.
+- [x] The game remains complete with interactions disabled.
 
-## Acceptance
-
-- [ ] Every effect preserves a valid solution and declared response window.
-- [ ] No event guarantees escape/capture or secretly relocates the exit.
-- [ ] Duplicate authoritative application is zero across retry/reconnect/crash/restore/reversal.
-- [ ] Votes are deterministic, moderated, capped, replayable, and visibly consequential.
-- [ ] Provider/moderation/entitlement/audit outages degrade safely.
-- [ ] Maximum pressure remains within AI, balance, sensory and performance budgets.
-- [ ] The game remains complete with interactions disabled.
+R3 software interaction candidate is complete. Credentialed production-provider evidence remains an R5 external gate.

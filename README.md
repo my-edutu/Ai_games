@@ -1,8 +1,8 @@
 # AI Games — Autonomous Livestream Game Platform
 
-This monorepo contains a 12-game autonomous livestream catalogue built on a shared deterministic simulation, audience-interaction, broadcast, durability and release-governance platform.
+This monorepo builds a catalogue of autonomous games for uninterrupted YouTube and Twitch entertainment on one shared deterministic simulation, audience-interaction, broadcast, durability, operations and release-governance platform.
 
-## Portfolio
+## Catalogue
 
 1. Autonomous Snake
 2. AI Maze Escape
@@ -17,74 +17,58 @@ This monorepo contains a 12-game autonomous livestream catalogue built on a shar
 11. AI City Traffic Experiment
 12. AI Ant Colony / Ecosystem
 
-## Platform Thesis
-
-Each title is designed for continuous autonomous play, repeatable legitimate loss/win cycles, spectator clarity, escalating stakes, persistent records, procedural variation, and safe audience interaction through votes, gifts/items, bounded interventions and audited operator controls.
+## Shared platform
 
 ```text
-Authoritative Simulation
-  → Autonomous AI
-  → Procedural Content and Progression
-  → Semantic Events and Event Director
-  → Audience Gateway, Moderation and Chat vs AI
-  → Stream HUD, Camera, VFX, Audio and Replay
-  → Append-Only Events, Snapshots, Records and Analytics
-  → Lease Fencing, Recovery Watchdog and Operator Controls
-  → Release Freeze, Traceability, Canary and R5 Assessment
+Seeded authoritative simulation
+  → autonomous AI and procedural content
+  → deterministic rules, physics and progression
+  → bounded event director and audience gateway
+  → stream HUD, camera, VFX, audio, captions and replay
+  → append-only commands, events, snapshots, records and audit
+  → writer leases, recovery, supervisor, output health and controls
+  → release freeze, traceability, endurance, canary and readiness assessor
 ```
 
-## Current Execution State
+## Implementation status
 
-The catalogue documentation foundation is merged. Autonomous Snake is the reference implementation and its complete software stack will be reused by later games only after its release evidence reaches the appropriate gate.
+| Game | Software phases | Score | Highest truthful readiness | Production status |
+|---|---:|---:|---|---|
+| Autonomous Snake | 6 / 6 | R4 evidence-gated candidate | R4 | External R5 evidence blocked |
+| AI Maze Escape | 6 / 6 | **88 / 100** | R4 | External R5 evidence blocked |
+| Games 3–12 | Documentation/specification packages | Not scored | Pre-implementation | Not production ready |
 
-| Autonomous Snake phase | Software status |
-|---|---|
-| Phase 1 — Deterministic Headless Foundation | Completed and merged |
-| Phase 2 — Survival AI and Procedural Content | Completed and merged |
-| Phase 3 — Premium Broadcast Experience | Completed and merged |
-| Phase 4 — Audience Interaction and Chat vs AI | Completed and merged |
-| Phase 5 — Persistence, Recovery and Operations | Completed and merged |
-| Phase 6 — Production Validation and Launch Governance | Software complete; external R5 evidence blocked |
+No game is labelled R5 merely because code merged or CI passed. Production readiness requires exact-candidate primary evidence, real elapsed operation, current credentialed providers, external review, independently witnessed drills, and a guarded canary.
 
-### Autonomous Snake Readiness
+## AI Maze Escape review snapshot
 
-- Phase 1–6 software implementation: **complete**
-- Exact Phase 6 software validation: **pass**
-- Highest truthful readiness: **R4**
-- R5 verdict: **blocked**
-- Production ready: **no**
+Game 2 implements deterministic generation and oracle validation, partial-observation belief and planning, keys/doors/traps/threats, responsive broadcast UI, safe audience influence, durable commands/events/snapshots/audit, verified restore and quarantine, operations/chaos, release governance, and an evidence-based readiness assessor.
 
-The exact Phase 6 candidate passed 180 Node tests, three Chromium tests, final deterministic baseline/pressure campaigns, all synthetic drill implementations, stream/recovery checks and release-governance tests. The validator intentionally blocks R5 until production-reference capacity, credentialed current providers, external safety attestations, witnessed drills, a real 72-hour endurance run, a real seven-day canary and an independent exact-candidate review exist.
+The reviewed runtime candidate passed 251 / 251 Node tests and 8 / 8 catalogue Chromium tests. Internal architecture, gameplay, UI, interaction, durability and release-governance review closed all load-bearing software findings. Its score remains 88 / 100 because the final 12 points require real production evidence.
 
-**No game is currently labelled production ready.** A merged branch, green CI, fixture provider or synthetic elapsed timestamp cannot substitute for R5 primary evidence.
+## Documentation contract
 
-## Documentation Structure
+Every game has product requirements, game design, autonomous AI, viewer interaction, audiovisual direction, technical architecture, testing strategy, production-readiness gates, and six executable implementation phases. Reusable specialist skills live under `skills/`; shared architecture and standards live under `docs/`; reproducible phase evidence lives under `evidence/`.
 
-Each game has:
+## Safe audience influence
 
-- product requirements;
-- game design;
-- autonomous AI system;
-- viewer-interaction model;
-- audiovisual direction;
-- technical architecture;
-- testing strategy;
-- production-readiness gates;
-- six implementation phases.
+Paid or free audience input cannot guarantee victory, death, capture, escape, a record, or an unavoidable terminal outcome. All interactions share authentication, moderation, eligibility, rate, cap, conflict, expiry, reversal, idempotency, audit, privacy, and emergency-disable boundaries.
 
-Reusable specialist skills live under `skills/`. Shared platform contracts, safety standards and operations documentation live under `docs/`. Phase evidence lives under `evidence/`.
+## Operations handoffs
 
-## Safe Audience Influence
+### Autonomous Snake
 
-Paid or free audience input may never guarantee victory, death, a record, a final result, or an unavoidable immediate collision. All interactions use the same authentication, moderation, eligibility, cooldown, cap, conflict, expiry, reversal, idempotency, audit, privacy and emergency-disable boundaries.
+- `docs/operations/autonomous-snake-runbook.md`
+- `docs/operations/autonomous-snake-r5-evidence-intake.md`
+- `docs/operations/autonomous-snake-rollback-matrix.md`
+- `docs/operations/autonomous-snake-handoff.md`
 
-## Autonomous Snake Release Handoff
+### AI Maze Escape
 
-- R5 evidence intake: `docs/operations/autonomous-snake-r5-evidence-intake.md`
-- Operations handoff: `docs/operations/autonomous-snake-handoff.md`
-- Incident runbook: `docs/operations/autonomous-snake-runbook.md`
-- Rollback matrix: `docs/operations/autonomous-snake-rollback-matrix.md`
-- Provider validation sources: `docs/operations/provider-validation-sources.md`
-- Phase 6 evidence: `evidence/autonomous-snake/r5-phase-06/phase-06/`
+- `docs/reviews/AI_MAZE_ESCAPE_FINAL_REVIEW.md`
+- `docs/operations/ai-maze-escape-runbook.md`
+- `docs/operations/ai-maze-escape-r5-evidence-intake.md`
+- `docs/operations/ai-maze-escape-rollback-matrix.md`
+- `docs/operations/ai-maze-escape-handoff.md`
 
-Promotion to `production ready` is permitted only when the frozen deployed candidate’s readiness assessor returns `PASS / R5` with zero open P0/P1 findings.
+Promotion to `production ready` is permitted only when the frozen deployed candidate’s final assessor returns `PASS`, `R5`, and `productionReady: true` with zero open P0/P1 findings.

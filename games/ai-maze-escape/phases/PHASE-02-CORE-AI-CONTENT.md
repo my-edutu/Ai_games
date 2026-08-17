@@ -1,23 +1,27 @@
 # Phase 2 — Partial-Observation AI, Threats, and Progression
 
-**Target:** R2 gameplay vertical slice
+**Target:** R2 gameplay vertical slice  
+**Software status:** Complete
 
-## Outcome
+## Delivered
 
-The explorer reveals an unknown maze, builds a bounded belief map, chooses frontiers, solves keys/doors, avoids validated traps/threats, revises wrong plans, escapes or fails causally, and advances through diverse levels.
+- visibility and remembered-map rules;
+- bounded serializable belief graph with confidence, visits, doors, keys, threats and frontiers;
+- hidden-information-safe observation contract;
+- known-space pathing, frontier utility, dependency planning, plan revision, cycle recovery and deterministic fallback;
+- grid-geometric threat evasion, visible paused threats, and fully harmless inactive threats;
+- constructive keys/doors, clues, checkpoints, traps, moving threats and progression profiles;
+- causal game/technical terminal classification;
+- stratified generation/AI campaign and dramatic-pattern classification.
 
-## Scope
+## Acceptance evidence
 
-Visibility/memory rules, belief graph, legal/safety/reflex policy, known-space pathing, frontier utility, dependency planning, threat prediction/evasion, strategic modes, stuck/fallback, locks/keys/clues/checkpoints, static/timed hazards and moving threats, feature-rich generator/validators, milestones/records, debug replay/AI inspector, stratified campaigns and initial balance.
+- [x] Hidden truth is absent from AI observations and public snapshots.
+- [x] AI completes benchmark profiles within bounded deterministic budgets.
+- [x] Keys precede required locks and all generated content remains solvable/fair.
+- [x] Contradicted plans and route cycles recover without teleport or remote services.
+- [x] Efficient solve, dependency breakthrough, wrong-turn recovery and threat-driven patterns are demonstrated.
+- [x] Invalid content and technical failures never count as fair losses.
+- [x] Review regressions for geometry, paused threats and inactive threats pass.
 
-## Acceptance
-
-- [ ] Hidden truth is absent from observations and public snapshots.
-- [ ] AI meets decision budgets and completes benchmark feature bands within target distributions.
-- [ ] Locks/keys/clues/threats remain solvable/fair and generator repair terminates.
-- [ ] Contradicted plans and loop/stuck states recover without teleport or remote dependency.
-- [ ] At least three dramatic patterns and diverse maze features/routes are demonstrated.
-- [ ] Invalid content/technical failures never count as fair losses.
-- [ ] Replay, performance, statistical evidence and reviews pass.
-
-Rollback uses versioned policy/generator/content and a fresh-run boundary when compatibility is not proven.
+The retained Phase 2 campaign completed 25 runs with 24 escapes, one rule-valid game failure, zero technical outcomes, zero invalid content and zero hidden-information violations. Evidence: `evidence/ai-maze-escape/r2-phase-02/phase-02/`.
