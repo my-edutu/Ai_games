@@ -1,0 +1,24 @@
+# AI Zombie Survival — Last Light Protocol
+
+Game 10 is an autonomous day/night survival simulation for continuous livestreaming. Four role-specialized survivors prepare a bounded refuge by day, defend it against deterministic escalating hordes by night, and automatically resolve, summarize, and restart each run.
+
+## Primary progress
+
+The stream’s primary progress unit is **Day**. Base integrity, survivors alive, horde remaining, resources, current strategy, and the next phase are secondary explanatory signals.
+
+## Architecture
+
+`ZombieRuntime` is the only gameplay authority. It advances at a fixed 10 Hz logical tick, uses named seeded random streams, emits append-only semantic events, produces immutable public snapshots, and restores only from verified versioned snapshots. Provider, browser, audio, persistence and operator integrations never mutate game state directly.
+
+## Phase status
+
+| Phase | Target | Status |
+|---|---|---|
+| 1 — Deterministic Foundation | R1 | In implementation |
+| 2 — AI, Hordes, Economy, Progression | R2 gameplay | Planned |
+| 3 — Broadcast Experience | R2 streamed | Planned |
+| 4 — Audience Interaction | R3 | Planned |
+| 5 — Reliability and Operations | R4 | Planned |
+| 6 — Production Validation | R5 candidate | Planned |
+
+The game is not production ready until the exact-candidate assessor returns `PASS / R5 / 100 / productionReady=true` with genuine provider, external review, real 72-hour endurance, witnessed drill and seven-day canary evidence.

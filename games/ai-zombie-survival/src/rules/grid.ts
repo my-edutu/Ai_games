@@ -1,0 +1,5 @@
+export function toCell(x:number,y:number,width:number){return y*width+x}
+export function fromCell(cell:number,width:number){return{x:cell%width,y:Math.floor(cell/width)}}
+export function stableNeighbors(cell:number,width:number,height:number){const{x,y}=fromCell(cell,width);const out:number[]=[];if(y>0)out.push(toCell(x,y-1,width));if(x<width-1)out.push(toCell(x+1,y,width));if(y<height-1)out.push(toCell(x,y+1,width));if(x>0)out.push(toCell(x-1,y,width));return out}
+export function shortestPathLength(start:number,goals:ReadonlySet<number>,width:number,height:number,blocked:ReadonlySet<number>){if(goals.has(start))return 0;const queue=[start],distance=new Int32Array(width*height);distance.fill(-1);distance[start]=0;for(let index=0;index<queue.length;index++){const cell=queue[index];for(const next of stableNeighbors(cell,width,height)){if(blocked.has(next)||distance[next]>=0)continue;distance[next]=distance[cell]+1;if(goals.has(next))return distance[next];queue.push(next)}}return-1}
+export function reachable(start:number,goal:number,width:number,height:number,blocked:ReadonlySet<number>){return shortestPathLength(start,new Set([goal]),width,height,blocked)>=0}
