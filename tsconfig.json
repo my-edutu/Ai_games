@@ -10,5 +10,5 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true
   },
-  "include": ["types/**/*.d.ts", "packages/**/*.ts", "games/autonomous-snake/src/**/*.ts", "games/ai-maze-escape/src/**/*.ts", "services/**/*.ts"]
+  "include": ["types/**/*.d.ts", "packages/**/*.ts", "games/autonomous-snake/src/**/*.ts", "games/ai-maze-escape/src/**/*.ts", "games/ai-escape-room/src/**/*.ts", "services/**/*.ts"]
 }

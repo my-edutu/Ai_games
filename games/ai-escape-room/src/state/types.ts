@@ -1,4 +1,4 @@
-import type { EscapeAction, EscapeRoomConfig, EscapeTheme } from '../../../../packages/game-contracts/src/index';
+import type { EscapeAction, EscapeRoomConfig, EscapeRunResult, EscapeTheme, GameLifecycle } from '../../../../packages/game-contracts/src/index';
 
 export type EscapePuzzleKind=
   |'sequence-lock'
@@ -117,4 +117,73 @@ export interface GeneratedEscapeRoom{
   definition:EscapeRoomDefinition;
   diagnostics:EscapeGenerationDiagnostics;
   config:EscapeRoomConfig;
+}
+
+export interface EscapeObjectState{
+  visible:boolean;
+  inspected:boolean;
+  carried:boolean;
+  solved:boolean;
+  labelVariant:number;
+}
+
+export interface EscapeDiscoveredFact{
+  factId:string;
+  value:string;
+  puzzleId:string;
+  sourceObjectId:string;
+  discoveredTick:number;
+}
+
+export interface EscapeHazardState{
+  id:string;
+  phase:'idle'|'telegraph'|'active';
+  phaseTick:number;
+  suppressedUntilTick:number;
+}
+
+export interface EscapeEvent{
+  schemaVersion:1;
+  seq:number;
+  tick:number;
+  type:string;
+  payload:Record<string,unknown>;
+}
+
+export interface EscapeState{
+  schemaVersion:1;
+  runId:string;
+  roomId:string;
+  roomIndex:number;
+  rootSeed:string;
+  roomSeed:string;
+  config:EscapeRoomConfig;
+  lifecycle:GameLifecycle;
+  tick:number;
+  intermissionRemaining:number;
+  room:EscapeRoomDefinition;
+  objectStates:Record<string,EscapeObjectState>;
+  visibleObjectIds:string[];
+  inventory:string[];
+  combinedItems:string[];
+  discoveredFacts:Record<string,EscapeDiscoveredFact>;
+  solvedPuzzleIds:string[];
+  hazardStates:Record<string,EscapeHazardState>;
+  hintsRemaining:number;
+  score:number;
+  streak:number;
+  lastProgressTick:number;
+  actionHistory:string[];
+  acceptedCommandIds:string[];
+  eventSeq:number;
+  commandSeq:number;
+  result:EscapeRunResult|null;
+}
+
+export interface EscapeStepResult{
+  accepted:boolean;
+  reason:'accepted'|'illegal-action'|'not-running';
+  state:EscapeState;
+  events:EscapeEvent[];
+  action?:EscapeAction;
 }

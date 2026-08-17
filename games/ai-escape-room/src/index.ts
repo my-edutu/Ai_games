@@ -5,3 +5,8 @@ export * from './generation/generator';
 export * from './generation/solver';
 export * from './generation/validator';
 export * from './manifest';
+export * from './rules/actions';
+export * from './rules/step';
+export * from './runtime/run';
+export * from './persistence/snapshot';
+export * from './testing/headless';
