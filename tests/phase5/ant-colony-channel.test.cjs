@@ -131,7 +131,27 @@ test('audience influence is durably reserved and applies exactly once', () => {
   );
 });
 
-test('optional outages preserve autonomous play while persistence fails before mutation', () => {
+test('durable command history preserves idempotency after the memory dedupe window evicts an entry', () => {
+  const store = new InMemoryDurableStore();
+  const leases = new RunLeaseStore();
+  const service = new AntColonyChannelService(options(store, leases, 'worker-a', {
+    commandDedupeCapacity: 2,
+    snapshotEveryCommands: 100,
+  }));
+  service.start(0);
+  service.tick('old-command', 10);
+  service.tick('new-command-1', 20);
+  service.tick('new-command-2', 30);
+  assert.equal(service.status().commandDedupeEntries, 2);
+
+  const before = checksum(service.runtime.state);
+  const duplicate = service.tick('old-command', 40);
+  assert.equal(duplicate.status, 'duplicate');
+  assert.equal(checksum(service.runtime.state), before);
+  assert.equal(service.status().commandSeq, 3);
+});
+
+test('optional outages preserve autonomous play while persistence fails closed and protects output', () => {
   const store = new InMemoryDurableStore();
   const leases = new RunLeaseStore();
   const service = new AntColonyChannelService(options(store, leases));
@@ -145,8 +165,11 @@ test('optional outages preserve autonomous play while persistence fails before m
   assert.ok(service.runtime.state.tick > beforeTick);
 
   service.setDependencyHealth({ persistence: false });
+  assert.equal(service.status().simulationEnabled, false);
+  assert.equal(service.status().publicOutputProtected, true);
   const before = checksum(service.runtime.state);
   assert.throws(() => service.tick('blocked', 20), error => error.code === 'PERSISTENCE_UNAVAILABLE');
+  assert.throws(() => service.captureSnapshot(21), error => error.code === 'PERSISTENCE_UNAVAILABLE');
   assert.equal(checksum(service.runtime.state), before);
 });
 
