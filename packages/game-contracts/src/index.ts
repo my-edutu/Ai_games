@@ -10,3 +10,7 @@ export type MazeIntentMode='oracle-test'|'exploring'|'returning-key'|'unlocking-
 export interface MazeConfig{schemaVersion:1;width:number;height:number;profile:MazeProfile;level:number;intermissionTicks:number;maxTicks:number;visibilityRadius:number;loopChancePermille:number;keyCount:number;trapCount:number;threatCount:number;memoryTtl:number;noProgressTicks:number;repairAttempts:number}
 export interface MazeAction{kind:'move'|'wait'|'interact';direction?:Direction;targetCell?:number}
 export interface MazeRunResult{kind:'game'|'technical';reason:'escape'|'trap-death'|'capture'|'timer-expired'|'stagnation'|'operator-abort'|'integrity-quarantine';tick:number;steps:number;discoveryPermille:number;routeLength:number;finalChecksum?:string}
+
+export type TrafficCityProfile='grid'|'arterial'|'ring'|'mixed';
+export interface TrafficConfig{schemaVersion:1;width:number;height:number;profile:TrafficCityProfile;laneLength:number;tickRate:number;maxVehicles:number;spawnEveryTicks:number;pendingDemandCap:number;runTicks:number;intermissionTicks:number;maxGridlockTicks:number;signalMinGreenTicks:number;signalMaxGreenTicks:number;decisionIntervalTicks:number;rerouteWaitTicks:number;incidentEveryTicks:number;incidentDurationTicks:number;difficulty:number}
+export interface TrafficRunResult{kind:'game'|'technical';reason:'cycle-complete'|'gridlock'|'operator-abort'|'integrity-quarantine';tick:number;mobilityScore:number;completedTrips:number;averageDelayTicks:number;finalChecksum?:string}
