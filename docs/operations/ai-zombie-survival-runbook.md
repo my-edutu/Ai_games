@@ -7,7 +7,7 @@ Keep the autonomous simulation authoritative and recoverable while protecting th
 1. Protect output with the safe scene when the renderer/capture is black, frozen, stale, or divergent.
 2. Disable audience interactions when provider, moderation, entitlement, or audit health is uncertain. The autonomous game continues.
 3. Fence the old writer before any restore. Never run two authoritative writers for one channel.
-4. Restore the newest compatible, checksum-valid `zombie-v3` snapshot and replay contiguous durable commands. Skip corrupt snapshots; quarantine gaps or checksum divergence.
+4. Restore the newest compatible, checksum-valid `zombie-v4` snapshot and replay contiguous durable commands. Skip corrupt snapshots; quarantine gaps or checksum divergence.
 5. Verify authoritative checksum, then verify renderer/capture output before resuming the live scene.
 6. If verification repeatedly fails, keep the safe scene and emergency-halt the simulation rather than inventing game truth.
 
