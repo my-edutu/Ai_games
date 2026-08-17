@@ -1,5 +1,7 @@
 'use strict';
 const MAX_TRAIL=240;
+const MAX_AUDIO_DEDUPE=64;
+const MAX_AUDIO_NODES=6;
 const canvas=document.getElementById('zombie-canvas');
 const context=canvas.getContext('2d',{alpha:false});
 const body=document.body;
@@ -15,23 +17,99 @@ let trail=[];
 let connectionFailures=0;
 const resourceLabels={materials:'MAT',ammo:'AMMO',medicine:'MED',food:'FOOD',power:'PWR'};
 const resourceGlyphs={materials:'M',ammo:'A',medicine:'+',food:'F',power:'P'};
+const AudioContextClass=window.AudioContext||window.webkitAudioContext;
+const audioProfiles=Object.freeze({
+  'run-start':{frequency:330,duration:.16,type:'sine',gain:.14},
+  'horde-start':{frequency:110,duration:.38,type:'sawtooth',gain:.22},
+  'preparation-start':{frequency:392,duration:.18,type:'sine',gain:.13},
+  dawn:{frequency:523,duration:.28,type:'triangle',gain:.18},
+  breach:{frequency:82,duration:.5,type:'square',gain:.25},
+  'core-hit':{frequency:70,duration:.42,type:'sawtooth',gain:.25},
+  'survivor-hit':{frequency:155,duration:.16,type:'square',gain:.16},
+  'survivor-lost':{frequency:98,duration:.62,type:'triangle',gain:.24},
+  'zombie-down':{frequency:220,duration:.1,type:'triangle',gain:.09},
+  'defense-built':{frequency:466,duration:.2,type:'triangle',gain:.14},
+  'defense-repaired':{frequency:415,duration:.14,type:'sine',gain:.11},
+  'resource-found':{frequency:587,duration:.1,type:'sine',gain:.08},
+  'resource-delivered':{frequency:659,duration:.12,type:'sine',gain:.1},
+  healed:{frequency:698,duration:.2,type:'triangle',gain:.13},
+  starvation:{frequency:123,duration:.5,type:'sawtooth',gain:.21},
+  'run-result':{frequency:196,duration:.7,type:'triangle',gain:.24},
+  intermission:{frequency:294,duration:.2,type:'sine',gain:.1},
+  restart:{frequency:440,duration:.24,type:'triangle',gain:.15},
+});
+let audioContext=null;
+let audioPlayed=0;
+const audioDedupe=new Map();
+const activeAudioNodes=new Map();
 
 function element(id){return document.getElementById(id)}
 function setText(id,value){const node=element(id);if(node)node.textContent=String(value)}
 function percent(value,max=1000){return `${Math.max(0,Math.min(100,Math.round(value*100/max)))}%`}
 function setPressed(id,pressed){const button=element(id);if(button)button.setAttribute('aria-pressed',String(pressed))}
+function publishAudioState(){window.__ZOMBIE_AUDIO_STATE__=Object.freeze({muted,activeNodes:activeAudioNodes.size,dedupeSize:audioDedupe.size,contextState:audioContext?audioContext.state:AudioContextClass?'not-started':'unsupported',played:audioPlayed})}
+function ensureAudioContext(){
+  if(muted||!AudioContextClass)return null;
+  if(!audioContext){try{audioContext=new AudioContextClass({latencyHint:'interactive'})}catch(error){audioContext=null;publishAudioState();return null}}
+  return audioContext;
+}
+function trimAudioDedupe(){while(audioDedupe.size>MAX_AUDIO_DEDUPE){const oldest=audioDedupe.keys().next().value;audioDedupe.delete(oldest)}}
+function stopAudioNode(id){
+  const entry=activeAudioNodes.get(id);if(!entry)return;
+  activeAudioNodes.delete(id);
+  try{entry.gain.gain.cancelScheduledValues(entry.context.currentTime);entry.gain.gain.setValueAtTime(0,entry.context.currentTime);entry.oscillator.stop()}catch(error){}
+  try{entry.oscillator.disconnect();entry.gain.disconnect()}catch(error){}
+}
+function stopAllAudio(){for(const id of[...activeAudioNodes.keys()])stopAudioNode(id);publishAudioState()}
+function reserveAudioSlot(priority){
+  if(activeAudioNodes.size<MAX_AUDIO_NODES)return true;
+  const weakest=[...activeAudioNodes.entries()].sort((a,b)=>a[1].priority-b[1].priority||a[1].started-b[1].started)[0];
+  if(!weakest||priority<=weakest[1].priority)return false;
+  stopAudioNode(weakest[0]);return true;
+}
+function playAudioVoice(voice){
+  const profile=audioProfiles[voice&&voice.key];if(!profile||muted)return;
+  const contextValue=ensureAudioContext();if(!contextValue||contextValue.state!=='running')return;
+  const dedupeKey=`${voice.key}:${Number(voice.tick)||0}`;if(audioDedupe.has(dedupeKey))return;
+  if(!reserveAudioSlot(Number(voice.priority)||0))return;
+  audioDedupe.set(dedupeKey,true);trimAudioDedupe();
+  let oscillator,gain;
+  try{
+    oscillator=contextValue.createOscillator();gain=contextValue.createGain();
+    const now=contextValue.currentTime,duration=Math.max(.05,Math.min(.8,profile.duration)),targetGain=Math.max(.01,Math.min(.26,profile.gain*Math.max(.35,Math.min(1,Number(voice.gain)||1))));
+    oscillator.type=profile.type;oscillator.frequency.setValueAtTime(profile.frequency,now);gain.gain.setValueAtTime(0,now);gain.gain.linearRampToValueAtTime(targetGain,now+.012);gain.gain.exponentialRampToValueAtTime(.0001,now+duration);
+    oscillator.connect(gain);gain.connect(contextValue.destination);
+    const nodeId=`${dedupeKey}:${audioPlayed}`;const entry={oscillator,gain,context:contextValue,priority:Number(voice.priority)||0,started:performance.now()};activeAudioNodes.set(nodeId,entry);
+    oscillator.onended=()=>{activeAudioNodes.delete(nodeId);try{oscillator.disconnect();gain.disconnect()}catch(error){}publishAudioState()};
+    oscillator.start(now);oscillator.stop(now+duration+.02);audioPlayed++;publishAudioState();
+  }catch(error){if(oscillator)try{oscillator.disconnect()}catch(ignore){}if(gain)try{gain.disconnect()}catch(ignore){}publishAudioState()}
+}
+function playAudioFrame(audioFrame){
+  if(muted){stopAllAudio();return}
+  const voices=audioFrame&&Array.isArray(audioFrame.voices)?audioFrame.voices:[];
+  for(const voice of voices.slice(0,MAX_AUDIO_NODES))playAudioVoice(voice);
+  publishAudioState();
+}
+async function unlockAudio(){
+  if(muted)return;
+  const contextValue=ensureAudioContext();if(!contextValue)return;
+  try{if(contextValue.state==='suspended')await contextValue.resume();if(frame)playAudioFrame(frame.audio)}catch(error){}
+  publishAudioState();
+}
 function applyPreferences(){
   body.dataset.reducedMotion=String(reducedMotion);
   body.dataset.highContrast=String(highContrast);
   body.dataset.cleanFeed=String(cleanFeed);
   body.dataset.muted=String(muted);
-  setPressed('toggle-motion',reducedMotion);setPressed('toggle-contrast',highContrast);setPressed('toggle-mute',muted);setPressed('toggle-clean',cleanFeed);
+  setPressed('toggle-motion',reducedMotion);setPressed('toggle-contrast',highContrast);setPressed('toggle-mute',muted);setPressed('toggle-clean',cleanFeed);publishAudioState();
 }
 function toggle(id,read,write){const button=element(id);if(button)button.addEventListener('click',()=>{write(!read());applyPreferences()})}
 toggle('toggle-motion',()=>reducedMotion,value=>{reducedMotion=value});
 toggle('toggle-contrast',()=>highContrast,value=>{highContrast=value});
-toggle('toggle-mute',()=>muted,value=>{muted=value});
+toggle('toggle-mute',()=>muted,value=>{muted=value;if(muted)stopAllAudio();else void unlockAudio()});
 toggle('toggle-clean',()=>cleanFeed,value=>{cleanFeed=value});
+body.addEventListener('pointerdown',()=>{void unlockAudio()},{passive:true});
+body.addEventListener('keydown',()=>{void unlockAudio()});
 applyPreferences();
 
 function updateResources(snapshot){
@@ -66,7 +144,7 @@ function updateDom(publicFrame){
   window.__ZOMBIE_PUBLIC_STATE__=snapshot;
   setText('objective',snapshot.objective);setText('tick',snapshot.tick);setText('day',`${snapshot.day} / ${snapshot.evacuationDay}`);setText('phase',snapshot.phase.toUpperCase());setText('phase-clock',phaseClock(snapshot));setText('horde',`${snapshot.horde.remaining} REMAIN`);setText('base-integrity',percent(snapshot.baseIntegrity));setText('survivors',`${snapshot.survivorsAlive} / ${snapshot.survivors.length}`);setText('strategy',snapshot.strategy.replace('-', ' ').toUpperCase());setText('ai-intent',snapshot.primaryIntent);setText('weather',snapshot.weather.toUpperCase());setText('danger-value',percent(snapshot.dangerPermille));setText('run-status',snapshot.result?`${snapshot.result.outcome.toUpperCase()} — DAY ${snapshot.result.day}`:snapshot.phase==='horde'?'DEFENDING THE REFUGE':'PREPARING DEFENSES');
   element('base-fill').style.width=percent(snapshot.baseIntegrity);element('danger-fill').style.width=percent(snapshot.dangerPermille);
-  updateResources(snapshot);updateSquad(snapshot);updateSurvivorDots(snapshot);updateCaptions(publicFrame.captions||[]);
+  updateResources(snapshot);updateSquad(snapshot);updateSurvivorDots(snapshot);updateCaptions(publicFrame.captions||[]);playAudioFrame(publicFrame.audio);
   const connection=element('connection-state');connection.classList.toggle('degraded',publicFrame.failed||connectionFailures>0);connection.lastChild.textContent=publicFrame.failed?' RECOVERY SCENE':' LIVE AUTHORITY';
   if(snapshot.tick!==lastTick){for(const survivor of snapshot.survivors.filter(item=>item.status==='active'))trail.push({cell:survivor.cell,role:survivor.role,tick:snapshot.tick});if(trail.length>MAX_TRAIL)trail=trail.slice(-MAX_TRAIL);lastTick=snapshot.tick}
 }
@@ -110,4 +188,4 @@ function draw(){
 }
 
 window.addEventListener('resize',()=>{canvas.width=0});
-window.setInterval(poll,250);poll();requestAnimationFrame(draw);
+window.setInterval(poll,250);poll();requestAnimationFrame(draw);publishAudioState();
