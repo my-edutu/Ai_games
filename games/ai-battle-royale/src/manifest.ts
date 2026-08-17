@@ -1,8 +1,8 @@
 export const battleRoyaleManifest = Object.freeze({
   gameId: 'ai-battle-royale',
-  gameVersion: '0.1.0-r1',
+  gameVersion: '0.2.0-r2-gameplay',
   stateSchemaVersion: 1,
-  deterministicVersion: 'battle-r1-v1',
+  deterministicVersion: 'battle-r2-v1',
   presentationVersion: 'battle-presentation-unimplemented',
-  capabilities: ['headless', 'snapshot', 'replay-foundation', 'procedural-arena'] as const,
+  capabilities: ['headless', 'snapshot', 'replay', 'autonomous-ai', 'procedural-arena', 'combat', 'zone-progression', 'campaign'] as const,
 });

@@ -12,19 +12,14 @@ const CALLSIGNS = [
   'Iris', 'Javelin', 'Knight', 'Lyric', 'Mirage', 'Nexus', 'Oracle', 'Pyre',
   'Rook', 'Shard', 'Tempest', 'Unit', 'Valor', 'Wisp', 'Xeno', 'Yarrow',
 ];
-
 const ARCHETYPES: BattleArchetype[] = ['vanguard', 'ranger', 'scavenger', 'tactician'];
 
 function archetypeStats(archetype: BattleArchetype, config: BattleConfig): { health: number; shield: number; weapon: BattleWeapon; ammo: number; medkits: number } {
   switch (archetype) {
-    case 'vanguard':
-      return { health: config.startingHealth + 20, shield: config.startingShield, weapon: 'scattergun', ammo: 18, medkits: 1 };
-    case 'ranger':
-      return { health: config.startingHealth - 10, shield: config.startingShield, weapon: 'marksman', ammo: 16, medkits: 1 };
-    case 'scavenger':
-      return { health: config.startingHealth, shield: config.startingShield, weapon: 'sidearm', ammo: 28, medkits: 2 };
-    case 'tactician':
-      return { health: config.startingHealth + 5, shield: config.startingShield + 20, weapon: 'carbine', ammo: 22, medkits: 1 };
+    case 'vanguard': return { health: config.startingHealth + 40, shield: config.startingShield + 20, weapon: 'scattergun', ammo: 22, medkits: 1 };
+    case 'ranger': return { health: config.startingHealth - 5, shield: config.startingShield + 5, weapon: 'marksman', ammo: 18, medkits: 1 };
+    case 'scavenger': return { health: config.startingHealth, shield: config.startingShield, weapon: 'sidearm', ammo: 28, medkits: 2 };
+    case 'tactician': return { health: config.startingHealth + 5, shield: config.startingShield + 10, weapon: 'carbine', ammo: 20, medkits: 1 };
   }
 }
 
@@ -69,8 +64,8 @@ export function createInitialBattleState(config: BattleConfig, seed: string, run
   const centerCell = Math.floor(ownedConfig.height / 2) * ownedConfig.width + Math.floor(ownedConfig.width / 2);
   const state: BattleState = {
     schemaVersion: 1,
-    gameVersion: '0.1.0-r1',
-    deterministicVersion: 'battle-r1-v1',
+    gameVersion: '0.2.0-r2-gameplay',
+    deterministicVersion: 'battle-r2-v1',
     runId,
     seed,
     tick: 0,
@@ -78,38 +73,15 @@ export function createInitialBattleState(config: BattleConfig, seed: string, run
     config: ownedConfig,
     arena,
     combatants,
-    zone: {
-      centerCell,
-      radius: Math.max(4, Math.floor(Math.min(ownedConfig.width, ownedConfig.height) / 2) - 2),
-      phase: 0,
-      nextShrinkTick: ownedConfig.zoneFirstShrinkTick,
-      damage: ownedConfig.zoneDamage,
-      holdsApplied: 0,
-    },
-    events: [{
-      sequence: 1,
-      tick: 0,
-      type: 'match-created',
-      detail: `${ownedConfig.combatantCount} contenders deployed`,
-      importance: 3,
-    }],
+    zone: { centerCell, radius: Math.max(4, Math.floor(Math.min(ownedConfig.width, ownedConfig.height) / 2) - 2), phase: 0, nextShrinkTick: ownedConfig.zoneFirstShrinkTick, damage: ownedConfig.zoneDamage, holdsApplied: 0 },
+    events: [{ sequence: 1, tick: 0, type: 'match-created', detail: `${ownedConfig.combatantCount} contenders deployed`, importance: 3 }],
     eventSequence: 1,
     rng: rng.snapshot(),
     lastEliminationTick: 0,
     lastMeaningfulTick: 0,
     result: null,
     intermissionRemaining: 0,
-    influence: {
-      enabled: true,
-      providerStatus: 'online',
-      processedInputIds: [],
-      currentWindow: null,
-      scheduled: [],
-      audit: [],
-      radarUntilTick: 0,
-      theme: 'ember',
-      windowSequence: 0,
-    },
+    influence: { enabled: true, providerStatus: 'online', processedInputIds: [], currentWindow: null, scheduled: [], audit: [], radarUntilTick: 0, theme: 'ember', windowSequence: 0 },
     checksum: '',
   };
   state.checksum = battleChecksum(state);

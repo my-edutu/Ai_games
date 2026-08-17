@@ -1,20 +1,9 @@
 import type { BattleArena } from '../state/types';
 
-export function cellX(cell: number, width: number): number {
-  return cell % width;
-}
-
-export function cellY(cell: number, width: number): number {
-  return Math.floor(cell / width);
-}
-
-export function toCell(x: number, y: number, width: number): number {
-  return y * width + x;
-}
-
-export function isCellInBounds(cell: number, width: number, height: number): boolean {
-  return Number.isInteger(cell) && cell >= 0 && cell < width * height;
-}
+export function cellX(cell: number, width: number): number { return cell % width; }
+export function cellY(cell: number, width: number): number { return Math.floor(cell / width); }
+export function toCell(x: number, y: number, width: number): number { return y * width + x; }
+export function isCellInBounds(cell: number, width: number, height: number): boolean { return Number.isInteger(cell) && cell >= 0 && cell < width * height; }
 
 export function orderedNeighbours(cell: number, width: number, height: number): number[] {
   const x = cellX(cell, width);
@@ -34,10 +23,7 @@ export function reachableWalkableCells(arena: Pick<BattleArena, 'width' | 'heigh
   const visited = new Set<number>(queue);
   for (let cursor = 0; cursor < queue.length; cursor += 1) {
     for (const neighbour of orderedNeighbours(queue[cursor], arena.width, arena.height)) {
-      if (!blocked.has(neighbour) && !visited.has(neighbour)) {
-        visited.add(neighbour);
-        queue.push(neighbour);
-      }
+      if (!blocked.has(neighbour) && !visited.has(neighbour)) { visited.add(neighbour); queue.push(neighbour); }
     }
   }
   return visited;
@@ -45,4 +31,14 @@ export function reachableWalkableCells(arena: Pick<BattleArena, 'width' | 'heigh
 
 export function manhattanDistance(first: number, second: number, width: number): number {
   return Math.abs(cellX(first, width) - cellX(second, width)) + Math.abs(cellY(first, width) - cellY(second, width));
+}
+
+export function squaredDistance(first: number, second: number, width: number): number {
+  const dx = cellX(first, width) - cellX(second, width);
+  const dy = cellY(first, width) - cellY(second, width);
+  return dx * dx + dy * dy;
+}
+
+export function isInsideZone(cell: number, zone: { centerCell: number; radius: number }, width: number): boolean {
+  return squaredDistance(cell, zone.centerCell, width) <= zone.radius * zone.radius;
 }

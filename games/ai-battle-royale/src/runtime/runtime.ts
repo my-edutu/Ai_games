@@ -1,27 +1,13 @@
 import { NamedRng } from '../../../../packages/seeded-rng/src/index';
 import { validateBattleConfig } from '../config/index';
 import { battleChecksum } from '../rules/checksum';
+import { stepBattleState } from '../rules/step';
 import { assertBattleInvariants } from '../rules/invariants';
 import { createInitialBattleState } from '../state/create';
 import type { BattleConfig, BattleRuntimeSnapshot, BattleState } from '../state/types';
 
 function clone<T>(value: T): T {
   return JSON.parse(JSON.stringify(value)) as T;
-}
-
-function pushBoundedFoundationEvent(state: BattleState): void {
-  if (state.tick % 20 !== 0) return;
-  state.eventSequence += 1;
-  state.events.push({
-    sequence: state.eventSequence,
-    tick: state.tick,
-    type: 'foundation-tick',
-    detail: 'Authoritative foundation heartbeat',
-    importance: 1,
-  });
-  if (state.events.length > state.config.maxRecentEvents) {
-    state.events.splice(0, state.events.length - state.config.maxRecentEvents);
-  }
 }
 
 export class BattleRoyaleRuntime {
@@ -40,13 +26,23 @@ export class BattleRoyaleRuntime {
   }
 
   public step(): BattleState {
-    if (this.state.lifecycle !== 'running') return this.state;
-    this.state.tick += 1;
-    pushBoundedFoundationEvent(this.state);
-    this.state.rng = this.rng.snapshot();
-    const issues = assertBattleInvariants(this.state);
-    if (issues.length > 0) throw new Error(`battle invariant failure:${issues.join('|')}`);
-    this.state.checksum = battleChecksum(this.state);
+    return stepBattleState(this.state, this.rng);
+  }
+
+  public runToResult(maxSteps: number = this.state.config.maxTicks + 2): BattleState {
+    if (!Number.isInteger(maxSteps) || maxSteps < 1) throw new RangeError('maxSteps must be a positive integer');
+    let steps = 0;
+    while (!this.state.result && steps < maxSteps) {
+      this.step();
+      steps += 1;
+    }
+    if (!this.state.result) throw new Error(`battle did not reach a result within ${maxSteps} steps`);
+    return this.state;
+  }
+
+  public restart(seed: string, runId: string): BattleState {
+    this.rng = NamedRng.fromSeed(seed);
+    this.state = createInitialBattleState(this.state.config, seed, runId, this.rng);
     return this.state;
   }
 
@@ -57,13 +53,7 @@ export class BattleRoyaleRuntime {
   public snapshot(): BattleRuntimeSnapshot {
     this.state.rng = this.rng.snapshot();
     this.state.checksum = battleChecksum(this.state);
-    return clone({
-      gameId: 'ai-battle-royale',
-      stateSchemaVersion: 1,
-      deterministicVersion: this.state.deterministicVersion,
-      stateChecksum: this.state.checksum,
-      state: this.state,
-    });
+    return clone({ gameId: 'ai-battle-royale', stateSchemaVersion: 1, deterministicVersion: this.state.deterministicVersion, stateChecksum: this.state.checksum, state: this.state });
   }
 
   public static restore(snapshot: BattleRuntimeSnapshot): BattleRoyaleRuntime {
