@@ -1,0 +1,14 @@
+'use strict';
+const test=require('node:test');const assert=require('node:assert/strict');
+const{assessDungeonReadiness,validateDungeonCandidate,buildDungeonReleaseManifest}=require('../../dist/games/ai-dungeon-endless-adventure/src/release/index.js');
+const sha='1234567890abcdef1234567890abcdef12345678';
+function internal(overrides={}){return{candidateSha:sha,configHash:'cafebabe',contentVersion:'dungeon-content-v1',testsPassed:true,browserPassed:true,phase5ChaosPassed:true,securityReviewPassed:true,rollbackDrillPassed:true,zeroP0P1:true,determinismPassed:true,resourceBoundsPassed:true,providerDegradationPassed:true,...overrides}}
+function external(overrides={}){return{credentialedProviders:false,productionReferenceCapacity:false,independentExactCandidateReview:false,witnessedRecoveryDrill:false,real72HourEndurance:false,guardedSevenDayCanary:false,...overrides}}
+
+test('manifest rejects non-exact candidate identity and missing internal evidence',()=>{assert.throws(()=>buildDungeonReleaseManifest({...internal(),candidateSha:'abc'}),/candidate/i);assert.throws(()=>buildDungeonReleaseManifest({...internal(),testsPassed:false}),/internal/i)});
+
+test('complete internal software evidence passes R4 while production readiness remains truthfully blocked',()=>{const manifest=buildDungeonReleaseManifest(internal());const verdict=assessDungeonReadiness(manifest,external());assert.equal(verdict.softwareVerdict,'PASS');assert.equal(verdict.highestReadiness,'R4');assert.equal(verdict.productionReady,false);assert.equal(verdict.r5Verdict,'BLOCKED');assert.ok(verdict.blockers.includes('real-72-hour-endurance'));assert.ok(verdict.blockers.includes('guarded-seven-day-canary'))});
+
+test('R5 requires every genuine external evidence class for the exact candidate',()=>{const manifest=buildDungeonReleaseManifest(internal());const almost=assessDungeonReadiness(manifest,external({credentialedProviders:true,productionReferenceCapacity:true,independentExactCandidateReview:true,witnessedRecoveryDrill:true,real72HourEndurance:true}));assert.equal(almost.productionReady,false);const complete=assessDungeonReadiness(manifest,external({credentialedProviders:true,productionReferenceCapacity:true,independentExactCandidateReview:true,witnessedRecoveryDrill:true,real72HourEndurance:true,guardedSevenDayCanary:true}));assert.equal(complete.productionReady,true);assert.equal(complete.highestReadiness,'R5');assert.equal(complete.r5Verdict,'PASS')});
+
+test('candidate validator proves deterministic baseline pressure restore interaction and bounded chaos evidence',()=>{const report=validateDungeonCandidate('release-validation-seed');assert.equal(report.status,'pass',JSON.stringify(report));assert.equal(report.deterministicReplay,true);assert.equal(report.restoreEquivalent,true);assert.equal(report.zeroAudienceProgress,true);assert.equal(report.interactionBounded,true);assert.equal(report.chaos.status,'pass');assert.match(report.checksum,/^[0-9a-f]{8}$/)});
