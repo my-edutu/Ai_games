@@ -7,7 +7,7 @@ import type { EscapeEvent, EscapeState, EscapeStepResult } from '../state/types'
 import { applyEscapeAction } from '../rules/step';
 import { listLegalEscapeActions, escapeActionKey } from '../rules/actions';
 import { createEscapeObservation, type EscapeAffordance } from '../ai/observation';
-import { createEmptyEscapeBelief, updateEscapeBelief, type EscapeBelief } from '../ai/belief';
+import { createEmptyEscapeBelief, publicEscapeBelief, updateEscapeBelief, type EscapeBelief } from '../ai/belief';
 import { planEscapeAction } from '../ai/planner';
 import { detectEscapePathology, type EscapeDecisionHistoryEntry } from '../ai/stuck';
 import { stepEscapeHazards } from '../hazards/step';
@@ -154,6 +154,10 @@ export class EscapeRuntime{
   applyAction(action:EscapeAction){return this.step(action);}
   restart(){this.restartNextRoom();return structuredClone(this.state);}
   drainEvents(){const events=structuredClone(this.bufferedEvents);this.bufferedEvents=[];return events;}
+  presentationSignals(){
+    const fallback={goal:this.belief.currentGoal??'survey-room',observation:'Scanning the visible room',intent:'Searching for the next verified clue',confidenceBand:'low' as const,fallback:true,planChangeReason:'initial-observation'};
+    return{ai:structuredClone(this.lastDecision?.publicIntent??fallback),belief:publicEscapeBelief(this.belief),pathologyCount:this.pathologyCount,plannerExpansions:this.lastDecision?.expansions??0};
+  }
   signals(){return{tick:this.state.tick,lifecycle:this.state.lifecycle,roomId:this.state.roomId,progressPermille:Math.floor(this.state.solvedPuzzleIds.length*1000/this.state.room.puzzles.length),eventBacklog:this.bufferedEvents.length,result:this.state.result?.reason??null,lastDecisionExpansions:this.lastDecision?.expansions??0,pathologyCount:this.pathologyCount,activeHazardCount:Object.values(this.state.hazardStates).filter(item=>item.phase==='active').length};}
   snapshotMaterial():EscapeRuntimeMaterial{return{schemaVersion:1,rootSeed:this.rootSeed,baseConfig:structuredClone(this.baseConfig),policy:this.policy,state:structuredClone(this.state),rng:this.rng.snapshot(),oracleActions:structuredClone(this.oracleActions),oracleIndex:this.oracleIndex,bufferedEvents:structuredClone(this.bufferedEvents),belief:structuredClone(this.belief),decisionHistory:structuredClone(this.decisionHistory),lastDecision:structuredClone(this.lastDecision),pathologyCount:this.pathologyCount};}
 }

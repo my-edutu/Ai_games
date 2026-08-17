@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="color-scheme" content="dark">
+  <title>AI Escape Room — The Cipher Vault</title>
+  <link rel="stylesheet" href="/escape-room/styles.css">
+  <script src="/escape-room/app.js" defer></script>
+</head>
+<body data-reduced-motion="false" data-high-contrast="false" data-clean-feed="false" data-muted="false">
+  <div class="shell" id="shell">
+    <header class="mission-card" data-testid="hud">
+      <div class="brand-lockup"><span class="brand-mark" aria-hidden="true">◇</span><div><p class="eyebrow">AUTONOMOUS INTELLIGENCE</p><h1>THE CIPHER VAULT</h1></div></div>
+      <div class="mission-copy"><p class="eyebrow">CURRENT OBJECTIVE</p><p class="objective" data-testid="objective">Unlock every mechanism and escape the room</p></div>
+      <div class="header-metrics" aria-label="Run status">
+        <div><span>ROOM</span><strong data-testid="room">01</strong></div><div><span>STAGE</span><strong data-testid="stage">0/0</strong></div><div><span>TICK</span><strong data-testid="tick">0</strong></div>
+      </div>
+    </header>
+
+    <main class="broadcast-grid">
+      <section class="vault-stage" aria-label="Escape room simulation">
+        <canvas data-testid="escape-canvas" aria-label="Animated escape room showing the AI, clues, mechanisms and hazards"></canvas>
+        <div class="stage-vignette" aria-hidden="true"></div>
+        <div class="danger-ribbon" data-testid="danger"><span class="danger-glyph">!</span><span>HAZARD WINDOW</span></div>
+        <div class="progress-dock" data-testid="progress">
+          <div class="progress-copy"><span>VAULT CLEARANCE</span><strong id="progress-label">0%</strong></div>
+          <div class="progress-track" role="progressbar" aria-label="Puzzle completion" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="progress-fill"></span></div>
+          <div class="timer"><span>TIME BUFFER</span><strong id="timer-value">—</strong></div>
+        </div>
+      </section>
+
+      <aside class="intel-rail" data-testid="intel-rail">
+        <section class="intel-card intent-card">
+          <div class="card-heading"><span class="pulse-dot" aria-hidden="true"></span><span>AI INTENT</span><span class="confidence" id="confidence">LOW</span></div>
+          <p class="intent" data-testid="ai-intent" id="ai-intent">Scanning the visible room</p>
+          <p class="observation" id="ai-observation">Searching for the next verified clue</p>
+          <div class="reason-row"><span>GOAL</span><strong id="ai-goal">SURVEY ROOM</strong></div>
+        </section>
+        <section class="intel-card inventory-card">
+          <div class="card-heading"><span>INVENTORY</span><span id="inventory-count">0 / 16</span></div>
+          <div class="inventory-grid" id="inventory" aria-live="polite"></div>
+        </section>
+        <section class="intel-card mechanism-card">
+          <div class="card-heading"><span>MECHANISMS</span><span id="mechanism-count">0 / 0</span></div>
+          <div class="mechanism-list" id="mechanisms"></div>
+        </section>
+        <section class="intel-card status-card">
+          <div class="card-heading"><span>SYSTEM STATUS</span><span class="status-pill" id="health">HEALTHY</span></div>
+          <div class="status-grid"><div><span>SCORE</span><strong id="score">0</strong></div><div><span>STREAK</span><strong id="streak">0</strong></div><div><span>THEME</span><strong id="theme">CIPHER</strong></div><div><span>DIFFICULTY</span><strong id="difficulty">1</strong></div></div>
+        </section>
+      </aside>
+    </main>
+
+    <footer class="caption-bar" data-testid="captions" aria-live="polite">
+      <span class="caption-icon" aria-hidden="true">⌁</span><span class="caption-label">LIVE EVENT</span><strong id="caption-text">The AI is entering the vault.</strong><span class="connection" id="connection">LIVE</span>
+    </footer>
+    <div class="safe-scene" id="safe-scene" role="status"><span class="safe-symbol">◇</span><h2>Verified checkpoint view</h2><p>The simulation continues while the broadcast source restores.</p></div>
+  </div>
+</body>
+</html>

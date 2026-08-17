@@ -19,7 +19,9 @@
     "test:maze:phase6": "npm run build && node --test tests/phase6/maze-*.test.cjs",
     "test:escape:phase1": "npm run build && node --test tests/escape-room/phase1-*.test.cjs",
     "test:escape:phase2": "npm run build && node --test tests/escape-room/phase2-*.test.cjs",
+    "test:escape:phase3": "npm run build && node --test tests/escape-room/phase3-*.test.cjs",
     "test:browser": "playwright test",
+    "test:browser:escape-room": "playwright test tests/browser/escape-room-stream.spec.cjs",
     "snake:headless": "npm run build && node scripts/run-snake-headless.cjs",
     "snake:stream": "npm run build && node scripts/serve-snake-stream.cjs",
     "snake:stream:self-test": "npm run build && node scripts/serve-snake-stream.cjs --self-test",
@@ -32,7 +34,9 @@
     "maze:phase5:chaos": "npm run build && node scripts/run-maze-phase5-chaos.cjs",
     "maze:phase6:validate": "npm run build && node scripts/run-maze-phase6-validation.cjs",
     "escape-room:headless": "npm run build && node scripts/run-escape-room-headless.cjs",
-    "escape-room:campaign": "npm run build && node scripts/run-escape-room-campaign.cjs"
+    "escape-room:campaign": "npm run build && node scripts/run-escape-room-campaign.cjs",
+    "escape-room:stream": "npm run build && node scripts/serve-escape-room-stream.cjs",
+    "escape-room:stream:self-test": "npm run build && node scripts/serve-escape-room-stream.cjs --self-test"
   },
   "devDependencies": {"@playwright/test": "1.55.0", "typescript": "5.8.3"}
 }

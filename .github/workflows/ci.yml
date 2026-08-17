@@ -33,6 +33,8 @@ jobs:
         run: npm run snake:stream:self-test
       - name: Maze stream host self-test
         run: npm run maze:stream:self-test
+      - name: Escape Room stream host self-test
+        run: npm run escape-room:stream:self-test
       - name: Authoritative nondeterminism scan
         shell: bash
         run: |
@@ -47,7 +49,14 @@ jobs:
             games/ai-maze-escape/src/runtime \
             games/ai-maze-escape/src/ai \
             games/ai-maze-escape/src/generation \
-            games/ai-maze-escape/src/state; then
+            games/ai-maze-escape/src/state \
+            games/ai-escape-room/src/rules \
+            games/ai-escape-room/src/runtime \
+            games/ai-escape-room/src/ai \
+            games/ai-escape-room/src/generation \
+            games/ai-escape-room/src/hazards \
+            games/ai-escape-room/src/content \
+            games/ai-escape-room/src/state; then
             echo 'Forbidden ambient nondeterminism found in authoritative code.'
             exit 1
           fi
@@ -97,6 +106,14 @@ jobs:
         with:
           name: ai-maze-escape-phase3-capture
           path: artifacts/maze-phase3
+          if-no-files-found: error
+          retention-days: 30
+      - name: Upload Escape Room Phase 3 capture evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: ai-escape-room-phase3-capture
+          path: artifacts/escape-room-phase3
           if-no-files-found: error
           retention-days: 30
       - name: Upload Snake Phase 5 operations evidence
