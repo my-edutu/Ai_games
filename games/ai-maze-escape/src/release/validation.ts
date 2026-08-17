@@ -9,6 +9,8 @@ import{runMazePhase5Chaos}from '../operations/chaos';
 import{MazeRuntime}from '../runtime/run';
 import{runMazeCampaign}from '../testing/campaign';
 
+export{MANDATORY_DRILLS};
+
 const DAY=24*60*60*1000;
 const PROFILES=['tree','loops','chambers','layers','hunter']as const;
 const REQUIRED_PROVIDERS:string[]=['youtube','twitch'];
@@ -44,8 +46,9 @@ export function createMazeReleaseManifest(candidateSourceSha:string):Readonly<Re
     owners:{release:'release-owner',onCall:'on-call-owner',security:'security-owner',product:'product-owner'},
     rollback:{sourceSha:PHASE5_ROLLBACK_SHA,deploymentArtifact:`source@${PHASE5_ROLLBACK_SHA}`,configHash:'checksum:6d617a35',contentHash:'checksum:6d617a34',freshRunBoundary:true},
     artifacts:[
-      {name:'maze-phase3-capture',kind:'browser-capture',digest:'sha256:525cebe808ae30164617849ee7db39dfa2053f17712cf08e2a08317255f423b1'},
-      {name:'maze-phase5-chaos',kind:'operations-evidence',digest:'sha256:88885324'},
+      {name:'maze-phase3-broadcast-contract',kind:'software-evidence',digest:evidenceDigest({candidateSourceSha,phase:3,contract:'broadcast-capture'})},
+      {name:'maze-phase5-operations-contract',kind:'software-evidence',digest:evidenceDigest({candidateSourceSha,phase:5,contract:'durable-chaos'})},
+      {name:'maze-phase6-validation-contract',kind:'software-evidence',digest:evidenceDigest({candidateSourceSha,phase:6,contract:'release-validation'})},
     ],
   });
 }
