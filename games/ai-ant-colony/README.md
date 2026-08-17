@@ -4,11 +4,11 @@ AI Ant Colony is Game 12 in the autonomous livestream catalogue. A deterministic
 
 ## Product promise
 
-Viewers can understand the colony’s condition within ten seconds while discovering deeper stories in individual ant roles, pheromone trails, resource pressure, brood growth, tunnel expansion, weather and ecosystem crises. The runtime remains autonomous when audience providers, audio, rendering or optional services are unavailable.
+Viewers can understand the colony’s condition within ten seconds while discovering deeper stories in ant roles, pheromone trails, resource pressure, brood growth, tunnel expansion, weather and ecosystem crises. The runtime remains autonomous when audience providers, audio, rendering, or optional services are unavailable.
 
 ## Architecture
 
-The game follows the proven Autonomous Snake boundaries without importing Snake’s private code:
+The game follows the proven autonomous-game boundaries without importing another game’s private code:
 
 ```text
 seeded fixed-step authority
@@ -17,23 +17,24 @@ seeded fixed-step authority
   -> semantic events and checksums
   -> immutable stream snapshots
   -> provider-neutral audience gateway
-  -> durable evidence, recovery and release governance
+  -> durable commands, leases, recovery and audit
+  -> exact-candidate release governance
 ```
 
-All gameplay randomness uses named seeded streams. Presentation cannot mutate gameplay. Normalized external commands are validated, moderated, rate-limited, idempotent, scheduled and audited before authority can apply them.
+All gameplay randomness uses named seeded streams. Presentation cannot mutate gameplay. Normalized external commands are validated, moderated, rate-limited, idempotent, scheduled, and durably reserved before authority can apply them.
 
 ## Phase status
 
-| Phase | Scope | Status |
+| Phase | Scope | Software status |
 |---|---|---|
-| 1 | Deterministic foundation, invariants, snapshot/replay and headless corpus | Implemented |
-| 2 | Swarm intelligence, pheromones, brood, predators, weather and progression | Implemented |
-| 3 | Premium accessible broadcast experience | Implemented |
-| 4 | Bounded audience interaction | Implementation candidate under exact-head CI |
-| 5 | Reliability and operations | Pending implementation |
-| 6 | Release validation and launch governance | Pending implementation |
+| 1 | Deterministic foundation, invariants, snapshot/replay and headless corpus | Complete |
+| 2 | Swarm intelligence, pheromones, brood, predators, weather and progression | Complete |
+| 3 | Premium accessible broadcast experience | Complete |
+| 4 | Bounded audience interaction | Complete |
+| 5 | Persistent authority, recovery, operations and chaos | Complete |
+| 6 | Release validation, scoring and launch governance | Complete |
 
-No software phase is a substitute for genuine production-reference provider, capacity, audiovisual, endurance, drill, canary or independent-review evidence.
+The exact candidate defaults to readiness `BLOCKED` at R4. Software completion is not a substitute for genuine production-reference provider, capacity, audiovisual, security, endurance, drill, canary, and independent-review evidence. R5 is awarded only when those external gates pass for the same release-manifest checksum.
 
 ## Local commands
 
@@ -42,7 +43,20 @@ npm run test:ant:phase1
 npm run test:ant:phase2
 npm run test:ant:phase3
 npm run test:ant:phase4
+npm run test:ant:phase5
+npm run test:ant:phase6
 npm run ant:headless -- 100 1000
 npm run ant:campaign -- 50 1200
 npm run ant:stream
+npm run ant:stream:self-test
+npm run ant:phase5:chaos -- ant-candidate
+CANDIDATE_SOURCE_SHA=<40-char-sha> npm run ant:phase6:validate
 ```
+
+## Operations and review
+
+- `docs/operations/ai-ant-colony-runbook.md`
+- `docs/operations/ai-ant-colony-handoff.md`
+- `docs/operations/ai-ant-colony-rollback.md`
+- `docs/operations/ai-ant-colony-evidence-intake.md`
+- `docs/reviews/AI_ANT_COLONY_FINAL_REVIEW.md`

@@ -22,6 +22,7 @@
     "test:ant:phase3": "npm run build && node --test tests/foundation/ant-colony-*.test.cjs tests/phase2/ant-colony-*.test.cjs tests/phase3/ant-colony-*.test.cjs",
     "test:ant:phase4": "npm run build && node --test tests/foundation/ant-colony-*.test.cjs tests/phase2/ant-colony-*.test.cjs tests/phase3/ant-colony-*.test.cjs tests/phase4/ant-colony-*.test.cjs",
     "test:ant:phase5": "npm run build && node --test tests/foundation/ant-colony-*.test.cjs tests/phase2/ant-colony-*.test.cjs tests/phase3/ant-colony-*.test.cjs tests/phase4/ant-colony-*.test.cjs tests/phase5/ant-colony-*.test.cjs",
+    "test:ant:phase6": "npm run build && node --test tests/foundation/ant-colony-*.test.cjs tests/phase2/ant-colony-*.test.cjs tests/phase3/ant-colony-*.test.cjs tests/phase4/ant-colony-*.test.cjs tests/phase5/ant-colony-*.test.cjs tests/phase6/ant-colony-*.test.cjs",
     "test:browser": "playwright test",
     "snake:headless": "npm run build && node scripts/run-snake-headless.cjs",
     "snake:stream": "npm run build && node scripts/serve-snake-stream.cjs",
@@ -38,7 +39,8 @@
     "ant:campaign": "npm run build && node scripts/run-ant-colony-campaign.cjs",
     "ant:stream": "npm run build && node scripts/serve-ant-colony-stream.cjs",
     "ant:stream:self-test": "npm run build && node scripts/serve-ant-colony-stream.cjs --self-test",
-    "ant:phase5:chaos": "npm run build && node scripts/run-ant-colony-phase5-chaos.cjs"
+    "ant:phase5:chaos": "npm run build && node scripts/run-ant-colony-phase5-chaos.cjs",
+    "ant:phase6:validate": "npm run build && node scripts/run-ant-colony-phase6-validation.cjs"
   },
   "devDependencies": {"@playwright/test": "1.55.0", "typescript": "5.8.3"}
 }
