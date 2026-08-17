@@ -1,0 +1,1 @@
+'use strict';const{runDungeonPhase5Chaos}=require('../dist/games/ai-dungeon-endless-adventure/src/operations/index.js');const seed=process.argv[2]||'dungeon-phase5-chaos';process.stdout.write(`${JSON.stringify(runDungeonPhase5Chaos(seed))}\n`);
