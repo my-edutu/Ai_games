@@ -1,0 +1,137 @@
+import{checksum}from'../../../../packages/replay/src/index';
+import type{ResourceKind,SurvivorAction,SurvivorRole,ZombieEntity,ZombieLifecycle,ZombieRunResult,ZombieState,ZombieStrategy,ZombieWeather}from'../state/types';
+
+export interface ZombiePublicSurvivor{
+  id:string;role:SurvivorRole;cell:number;health:number;stamina:number;status:'active'|'down'|'dead';
+  action:SurvivorAction;targetCell:number|null;carrying:{kind:ResourceKind;amount:number}|null;
+  intent:string;confidence:number;
+}
+export interface ZombiePublicEntity{id:string;kind:ZombieEntity['kind'];cell:number;health:number;maxHealth:number}
+export interface ZombiePublicDefense{id:string;gateId:string;cell:number;integrity:number;maxIntegrity:number;level:number}
+export interface ZombiePublicResourceSite{id:string;kind:ResourceKind;cell:number;stock:number}
+export interface ZombieRenderSnapshot{
+  version:1;
+  runToken:string;
+  revision:number;
+  tick:number;
+  phase:ZombieLifecycle;
+  phaseTick:number;
+  phaseRemaining:number;
+  phaseProgressPermille:number;
+  day:number;
+  evacuationDay:number;
+  objective:string;
+  width:number;
+  height:number;
+  baseCells:ReadonlyArray<number>;
+  blockedCells:ReadonlyArray<number>;
+  coreCell:number;
+  resourceSites:ReadonlyArray<ZombiePublicResourceSite>;
+  survivors:ReadonlyArray<ZombiePublicSurvivor>;
+  zombies:ReadonlyArray<ZombiePublicEntity>;
+  defenses:ReadonlyArray<ZombiePublicDefense>;
+  resources:Readonly<Record<ResourceKind,number>>;
+  weather:ZombieWeather;
+  strategy:ZombieStrategy;
+  horde:Readonly<{total:number;spawned:number;defeated:number;escaped:number;active:number;remaining:number;composition:Readonly<{walker:number;runner:number;brute:number}>}>;
+  survivorsAlive:number;
+  baseIntegrity:number;
+  coreIntegrity:number;
+  dangerPermille:number;
+  primaryIntent:string;
+  stats:Readonly<ZombieState['stats']>;
+  result:Readonly<ZombieRunResult>|null;
+  publicChecksum:string;
+}
+
+type SnapshotMaterial=Omit<ZombieRenderSnapshot,'publicChecksum'>|ZombieRenderSnapshot;
+
+function deepFreeze<T>(value:T):T{
+  if(value&&typeof value==='object'&&!Object.isFrozen(value)){
+    const record=value as unknown as Record<string,unknown>;
+    for(const child of Object.values(record))deepFreeze(child);
+    Object.freeze(value);
+  }
+  return value;
+}
+
+function phaseDuration(state:ZombieState){
+  if(state.lifecycle==='preparation')return state.config.dayTicks;
+  if(state.lifecycle==='horde')return state.config.nightTicks;
+  if(state.lifecycle==='result'||state.lifecycle==='intermission')return state.config.resultTicks;
+  return 1;
+}
+
+function phaseRemaining(state:ZombieState,duration:number){
+  if(state.lifecycle==='result'||state.lifecycle==='intermission')return Math.max(0,state.intermissionRemaining);
+  return Math.max(0,duration-state.phaseTick);
+}
+
+function danger(state:ZombieState){
+  const breached=state.defenses.filter(defense=>defense.integrity===0).length;
+  const hordePressure=state.config.maxZombies===0?0:Math.floor(state.zombies.length*500/state.config.maxZombies);
+  const corePressure=Math.floor((state.config.coreMaxIntegrity-state.coreIntegrity)*350/state.config.coreMaxIntegrity);
+  const breachPressure=Math.floor(breached*150/Math.max(1,state.defenses.length));
+  return Math.max(0,Math.min(1000,hordePressure+corePressure+breachPressure));
+}
+
+function materialOf(snapshot:SnapshotMaterial){
+  const{publicChecksum:_checksum,...material}=snapshot as ZombieRenderSnapshot;
+  return material;
+}
+
+export function buildZombieRenderSnapshot(state:ZombieState):ZombieRenderSnapshot{
+  const duration=phaseDuration(state),remaining=phaseRemaining(state,duration);
+  const survivors=state.survivors.map(survivor=>({
+    id:survivor.id,role:survivor.role,cell:survivor.cell,health:survivor.health,stamina:survivor.stamina,status:survivor.status,
+    action:survivor.action,targetCell:survivor.targetCell,carrying:survivor.carrying?{...survivor.carrying}:null,
+    intent:survivor.intent.slice(0,96),confidence:survivor.confidence,
+  }));
+  const zombies=state.zombies.filter(zombie=>zombie.status==='active').map(zombie=>({id:zombie.id,kind:zombie.kind,cell:zombie.cell,health:zombie.health,maxHealth:zombie.maxHealth}));
+  const defenses=state.defenses.map(defense=>({id:defense.id,gateId:defense.gateId,cell:defense.cell,integrity:defense.integrity,maxIntegrity:defense.maxIntegrity,level:defense.level}));
+  const alive=survivors.filter(survivor=>survivor.status!=='dead').length;
+  const hordeRemaining=Math.max(0,state.horde.totalForNight-state.horde.defeated-state.horde.escaped);
+  const primary=survivors.find(survivor=>survivor.status==='active'&&survivor.intent)?.intent??'Awaiting the next verified objective.';
+  const material:Omit<ZombieRenderSnapshot,'publicChecksum'>={
+    version:1,
+    runToken:checksum({runId:state.runId}),
+    revision:state.tick,
+    tick:state.tick,
+    phase:state.lifecycle,
+    phaseTick:state.phaseTick,
+    phaseRemaining:remaining,
+    phaseProgressPermille:Math.max(0,Math.min(1000,Math.floor((duration-remaining)*1000/duration))),
+    day:state.day,
+    evacuationDay:state.config.maxDays,
+    objective:`Survive to evacuation on Day ${state.config.maxDays}`,
+    width:state.world.width,
+    height:state.world.height,
+    baseCells:[...state.world.baseCells],
+    blockedCells:[...state.world.blockedCells],
+    coreCell:state.world.coreCell,
+    resourceSites:state.world.resourceSites.map(site=>({id:site.id,kind:site.kind,cell:site.cell,stock:site.stock})),
+    survivors,
+    zombies,
+    defenses,
+    resources:{...state.resources},
+    weather:state.weather,
+    strategy:state.strategy,
+    horde:{total:state.horde.totalForNight,spawned:state.horde.spawned,defeated:state.horde.defeated,escaped:state.horde.escaped,active:zombies.length,remaining:hordeRemaining,composition:{...state.horde.composition}},
+    survivorsAlive:alive,
+    baseIntegrity:state.baseIntegrity,
+    coreIntegrity:state.coreIntegrity,
+    dangerPermille:danger(state),
+    primaryIntent:primary,
+    stats:{...state.stats},
+    result:state.result?{...state.result}:null,
+  };
+  return deepFreeze({...material,publicChecksum:checksum(material)});
+}
+
+export function verifyZombieRenderSnapshot(snapshot:ZombieRenderSnapshot){
+  return snapshot.version===1&&snapshot.publicChecksum===checksum(materialOf(snapshot));
+}
+
+export function cloneZombieRenderSnapshot(snapshot:ZombieRenderSnapshot){
+  return deepFreeze(structuredClone(snapshot));
+}
