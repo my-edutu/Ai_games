@@ -18,6 +18,7 @@
     "test:maze:phase5": "npm run build && node --test tests/phase5/maze-*.test.cjs",
     "test:maze:phase6": "npm run build && node --test tests/phase6/maze-*.test.cjs",
     "test:ant:phase1": "npm run build && node --test tests/foundation/ant-colony-*.test.cjs",
+    "test:ant:phase2": "npm run build && node --test tests/foundation/ant-colony-*.test.cjs tests/phase2/ant-colony-*.test.cjs",
     "test:browser": "playwright test",
     "snake:headless": "npm run build && node scripts/run-snake-headless.cjs",
     "snake:stream": "npm run build && node scripts/serve-snake-stream.cjs",
@@ -30,7 +31,8 @@
     "maze:stream:self-test": "npm run build && node scripts/serve-maze-stream.cjs --self-test",
     "maze:phase5:chaos": "npm run build && node scripts/run-maze-phase5-chaos.cjs",
     "maze:phase6:validate": "npm run build && node scripts/run-maze-phase6-validation.cjs",
-    "ant:headless": "npm run build && node scripts/run-ant-colony-headless.cjs"
+    "ant:headless": "npm run build && node scripts/run-ant-colony-headless.cjs",
+    "ant:campaign": "npm run build && node scripts/run-ant-colony-campaign.cjs"
   },
   "devDependencies": {"@playwright/test": "1.55.0", "typescript": "5.8.3"}
 }
