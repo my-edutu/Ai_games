@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#11110f">
+  <title>AI Ant Colony — Autonomous Ecosystem</title>
+  <link rel="stylesheet" href="/ant/styles.css">
+</head>
+<body data-reduced-motion="false" data-high-contrast="false" data-clean-feed="false">
+  <main id="broadcast" aria-label="AI Ant Colony autonomous livestream">
+    <aside id="primary-hud" data-testid="hud" aria-label="Colony status">
+      <div class="brand-lockup">
+        <div class="brand-mark" aria-hidden="true"><span></span><span></span><span></span></div>
+        <div><p class="eyebrow">Autonomous ecosystem</p><h1>AI Ant Colony</h1></div>
+      </div>
+      <section class="goal-panel" aria-labelledby="goal-title">
+        <div class="panel-heading"><span>Primary objective</span><span id="progress-percent">0%</span></div>
+        <h2 id="goal-title" data-testid="objective">Reach ecological ascension</h2>
+        <div class="progress-track" role="progressbar" aria-label="Colony ascension progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="progress-fill"></span></div>
+        <div class="goal-row"><strong id="population">0 / 0 ants</strong><span id="progress-band">Founding</span></div>
+      </section>
+      <section class="metric-grid" aria-label="Colony resources">
+        <article><span class="metric-icon food" aria-hidden="true"></span><small>Food</small><strong id="food-store">0</strong></article>
+        <article><span class="metric-icon brood" aria-hidden="true"></span><small>Brood</small><strong id="brood-count">0</strong></article>
+        <article><span class="metric-icon tunnel" aria-hidden="true"></span><small>Tunnels</small><strong id="tunnels-dug">0</strong></article>
+        <article><span class="metric-icon queen" aria-hidden="true"></span><small>Queen</small><strong id="queen-health">100%</strong></article>
+      </section>
+      <section class="threat-panel" aria-label="Threat status">
+        <div class="panel-heading"><span>Colony threat</span><strong id="threat-value">0</strong></div>
+        <div class="threat-track"><span id="threat-fill"></span></div>
+        <p id="threat-copy">Perimeter calm</p>
+      </section>
+      <footer class="hud-footer"><span id="day-season">Day 1 · Spring</span><span data-testid="tick" id="tick">Tick 0</span></footer>
+    </aside>
+
+    <section id="world-stage" aria-label="Living ant colony cross section">
+      <canvas id="colony-canvas" data-testid="ant-canvas" aria-label="Animated ant colony simulation"></canvas>
+      <div id="world-topbar">
+        <span id="weather-pill"><span class="weather-symbol" aria-hidden="true"></span><span id="weather">Clear</span></span>
+        <span id="scene-pill">LIVE COLONY</span>
+      </div>
+      <div id="headline-card" aria-live="polite"><span id="headline-kicker">COLONY DIRECTIVE</span><strong id="headline">Build a thriving ant civilization</strong></div>
+      <div id="recovery-card" role="status" aria-live="assertive"><strong>Verified recovery</strong><span>Rebuilding the public view from the latest trusted colony state.</span></div>
+      <div id="result-card" role="status" aria-live="polite"><span id="result-label">COLONY RESULT</span><strong id="result-title"></strong><p id="result-summary"></p></div>
+    </section>
+
+    <aside id="narrative" data-testid="narrative" aria-label="Colony intelligence and event story">
+      <section class="strategy-card">
+        <p class="eyebrow">Collective intelligence</p>
+        <div class="strategy-title"><span id="strategy-symbol" aria-hidden="true"></span><h2 id="strategy" data-testid="ai-intent">Foraging</h2></div>
+        <p id="strategy-reason">Founding workers are establishing safe reserves.</p>
+      </section>
+      <section class="intent-card">
+        <div class="panel-heading"><span>Live ant intentions</span><span id="active-ants">0 active</span></div>
+        <ol id="intent-list"></ol>
+      </section>
+      <section class="event-card">
+        <div class="panel-heading"><span>Colony chronicle</span><span class="live-dot">LIVE</span></div>
+        <ol id="event-list"></ol>
+      </section>
+      <section class="audience-card">
+        <div><span class="audience-orbit" aria-hidden="true"></span><div><small>Audience influence</small><strong id="audience-status">AI autonomous</strong></div></div>
+        <p>Viewer choices stay bounded and cannot guarantee survival or extinction.</p>
+      </section>
+    </aside>
+
+    <div id="caption-bar" data-testid="captions" role="status" aria-live="polite"><span class="caption-label">COLONY FEED</span><p id="caption">Strategy: establishing the first food trail.</p></div>
+
+    <section id="operator-panel" aria-label="Operator controls">
+      <label>Operator token<input id="operator-token" type="password" autocomplete="off" spellcheck="false"></label>
+      <button type="button" data-command="pause">Pause</button>
+      <button type="button" data-command="resume">Resume</button>
+      <button type="button" data-command="restart">New colony</button>
+      <button type="button" id="toggle-mute">Mute audio</button>
+      <button type="button" id="toggle-contrast">High contrast</button>
+      <button type="button" id="toggle-motion">Reduce motion</button>
+      <output id="operator-status">Operator controls ready</output>
+    </section>
+  </main>
+  <script src="/ant/app.js" defer></script>
+</body>
+</html>

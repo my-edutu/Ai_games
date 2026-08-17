@@ -46,11 +46,14 @@ export class FileDurableStore implements DurableStore{
     const existing=this.memory.events(event.streamId).find(item=>item.eventId===event.eventId);
     if(existing)return this.memory.appendEvent(event);
     const{checksum:supplied,...base}=event;if(checksum(base)!==supplied)throw storeError('EVENT_CONFLICT','event checksum is invalid');
+    const commandId=event.type==='runtime-command'&&typeof event.payload.commandId==='string'?event.payload.commandId:'';
+    if(commandId&&this.memory.runtimeCommand(event.streamId,commandId))throw storeError('EVENT_CONFLICT',`runtime command ${commandId} is already durably reserved`);
     const stream=this.memory.events(event.streamId),expected=stream.length?stream[stream.length-1].seq+1:0;if(event.seq!==expected)throw storeError('SEQUENCE_GAP',`expected ${expected}, received ${event.seq}`);if(stream.length>=this.eventCapacity)throw storeError('CAPACITY_EXCEEDED',`stream ${event.streamId} reached its bounded segment capacity`);
     try{appendDurable(path.join(this.eventsDir,`${safeName(event.streamId)}.jsonl`),`${JSON.stringify(event)}\n`)}catch(error){throw storeError('DURABILITY_WRITE_FAILED','event fsync failed',error)}
     return this.memory.appendEvent(event);
   }
   events(streamId:string){return this.memory.events(streamId)}
+  runtimeCommand(streamId:string,commandId:string){return this.memory.runtimeCommand(streamId,commandId)}
   putSnapshot(record:SnapshotRecord){
     const current=this.memory.snapshots(record.streamId).filter(item=>item.id!==record.id);current.push(structuredClone(record));current.sort((a,b)=>b.createdAtMs-a.createdAtMs||b.commandSeq-a.commandSeq||a.id.localeCompare(b.id));while(current.length>this.snapshotCapacity)current.pop();
     try{writeAtomic(path.join(this.snapshotsDir,`${safeName(record.streamId)}.json`),current)}catch(error){throw storeError('DURABILITY_WRITE_FAILED','snapshot atomic write failed',error)}
