@@ -5,6 +5,7 @@ const assert = require('node:assert/strict');
 const { MazeRuntime } = require('../../dist/games/ai-maze-escape/src/runtime/run.js');
 const { createMazeObservation } = require('../../dist/games/ai-maze-escape/src/ai/observation.js');
 const { chooseMazeAction } = require('../../dist/games/ai-maze-escape/src/ai/policy.js');
+const { stepMazeThreats } = require('../../dist/games/ai-maze-escape/src/threats/step.js');
 
 function beliefCell(cell, neighbors) {
   return {
@@ -92,4 +93,27 @@ test('a paused threat remains visible and avoidable while it is still collidable
   const observation = createMazeObservation(state);
   assert.equal(observation.threats.length, 1);
   assert.equal(observation.threats[0].cell, visibleThreatCell);
+});
+
+test('an inactive threat cannot capture the explorer or create danger telemetry', () => {
+  const runtime = MazeRuntime.create({ width: 9, height: 7, profile: 'hunter', visibilityRadius: 2, threatCount: 1 }, 'review-inactive-threat');
+  const state = structuredClone(runtime.state);
+  state.world.threats = [{
+    id: 'inactive-threat',
+    cell: state.explorer.cell,
+    route: [state.explorer.cell],
+    routeIndex: 0,
+    direction: 1,
+    lastSeenTick: state.tick,
+    active: false,
+    pausedUntilTick: 0,
+  }];
+  const beforeEncounters = state.stats.threatEncounters;
+
+  const result = stepMazeThreats(state);
+
+  assert.equal(result.captured, false);
+  assert.equal(result.encounters, 0);
+  assert.equal(result.state.stats.threatEncounters, beforeEncounters);
+  assert.equal(result.events.some(event => event.type === 'threat-near'), false);
 });
