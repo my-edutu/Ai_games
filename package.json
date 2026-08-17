@@ -20,6 +20,7 @@
     "test:ant:phase1": "npm run build && node --test tests/foundation/ant-colony-*.test.cjs",
     "test:ant:phase2": "npm run build && node --test tests/foundation/ant-colony-*.test.cjs tests/phase2/ant-colony-*.test.cjs",
     "test:ant:phase3": "npm run build && node --test tests/foundation/ant-colony-*.test.cjs tests/phase2/ant-colony-*.test.cjs tests/phase3/ant-colony-*.test.cjs",
+    "test:ant:phase4": "npm run build && node --test tests/foundation/ant-colony-*.test.cjs tests/phase2/ant-colony-*.test.cjs tests/phase3/ant-colony-*.test.cjs tests/phase4/ant-colony-*.test.cjs",
     "test:browser": "playwright test",
     "snake:headless": "npm run build && node scripts/run-snake-headless.cjs",
     "snake:stream": "npm run build && node scripts/serve-snake-stream.cjs",
