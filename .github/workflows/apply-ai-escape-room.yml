@@ -13,49 +13,28 @@ jobs:
     if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
     timeout-minutes: 30
-
     steps:
       - name: Check out isolated feature branch
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Reconstruct checksum-pinned reviewed source bundle
+      - name: Restore checksum-pinned reviewed changes
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          : > /tmp/escape-changes.b64
-          for sha in \
-            79db2de92b6024648d1725c10ba045ac7373c464 \
-            8e232b09837c59c76f6026ec7f59932ba829c455 \
-            2c64155bd0d1d8a210a7db1be45cca136ea29d90 \
-            3fabf9c498409583c3b1953cd161b054077a04f4 \
-            b39576972ffda900e76803c7417eaafffe727b9f \
-            cb7ff203c086f6a2f1e67b99041b058df529b89c \
-            9373826de8120996c7da6cf814b61a1455f06fcf \
-            0f9597b14845c37805bcce5b22364fac5a2c431f \
-            f8b931549332af1a675ad90b68caab6605b563db \
-            bc9cdfc2f6e2f3a869b77c5ed8f94fbb85bfbb27 \
-            ca2057ee4438007046369285a063dfaa03ea079a \
-            f6b4a55528f99cb4783bb2567c00e5a144bcf4dd
-          do
-            curl --fail --silent --show-error \
-              -H 'Accept: application/vnd.github+json' \
-              -H "Authorization: Bearer ${GH_TOKEN}" \
-              "https://api.github.com/repos/${GITHUB_REPOSITORY}/git/blobs/${sha}" \
-              | jq -r '.content' \
-              | tr -d '\n' \
-              | base64 --decode >> /tmp/escape-changes.b64
-          done
+          curl --fail --silent --show-error \
+            -H 'Accept: application/vnd.github+json' \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/git/blobs/87032b6d79e2b2d35a898298a0a8fb09edf49b10" \
+            | jq -r '.content' | tr -d '\n' | base64 --decode > /tmp/escape-candidate.tar.gz
+          test "$(wc -c < /tmp/escape-candidate.tar.gz)" -eq 41535
+          echo '0bff6f11ef283c1bb06e39170a5ae7dc4298b75dcd84340585a12c5e14d1b1eb  /tmp/escape-candidate.tar.gz' | sha256sum -c -
+          tar -xzf /tmp/escape-candidate.tar.gz -C .
 
-          test "$(wc -c < /tmp/escape-changes.b64)" -eq 89410
-          base64 --decode /tmp/escape-changes.b64 > /tmp/escape-changes.tar.gz
-          echo '80518dd2c9683ec85bd56a0c433444a12cd658d1d2ecd7d3b437c5522f37e876  /tmp/escape-changes.tar.gz' | sha256sum -c -
-          tar -xzf /tmp/escape-changes.tar.gz -C .
-
-      - name: Create exact candidate commit without retaining bootstrap workflow
+      - name: Create exact candidate commit
         id: candidate
         shell: bash
         run: |
@@ -63,6 +42,7 @@ jobs:
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git rm .github/workflows/apply-ai-escape-room.yml
+          rm -f .github/workflows/export-source.yml
           git add -A
           git diff --cached --check
           git commit -m 'feat(escape-room): complete phases 4-6 production candidate'
@@ -71,7 +51,7 @@ jobs:
       - name: Install pinned dependencies
         run: npm ci
 
-      - name: Verify exact candidate
+      - name: Verify exact Escape Room candidate
         shell: bash
         env:
           CANDIDATE_SOURCE_SHA: ${{ steps.candidate.outputs.sha }}
@@ -80,13 +60,17 @@ jobs:
           npm run clean
           npm run build
           node --test tests/escape-room/*.test.cjs
-          npm run escape-room:headless
-          npm run escape-room:campaign
-          npm run escape-room:stream:self-test
-          npm run escape-room:phase5:chaos
-          npm run escape-room:phase6:validate
+          node scripts/run-escape-room-headless.cjs
+          node scripts/run-escape-room-campaign.cjs
+          node scripts/serve-escape-room-stream.cjs --self-test
+          node scripts/run-escape-room-phase5-chaos.cjs
+          node scripts/run-escape-room-phase6-validation.cjs
           if grep -RInE 'Math\.random|Date\.now|new Date\(' games/ai-escape-room/src --include='*.ts'; then
             echo 'Authoritative nondeterminism detected.' >&2
+            exit 1
+          fi
+          if grep -RInE '\b(TBD|TODO|FIXME)\b|implement later|optimize later|handle appropriately' games/ai-escape-room docs/operations/ai-escape-room* evidence/ai-escape-room services/escape-room-channel; then
+            echo 'Release placeholder detected.' >&2
             exit 1
           fi
 
@@ -94,5 +78,4 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          git status --short
           git push origin HEAD:agent/ai-escape-room-all-phases
