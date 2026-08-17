@@ -10,6 +10,6 @@ export interface MazeConfig{schemaVersion:1;width:number;height:number;profile:M
 export interface MazeAction{kind:'move'|'wait'|'interact';direction?:Direction;targetCell?:number}
 export interface MazeRunResult{kind:'game'|'technical';reason:'escape'|'trap-death'|'capture'|'timer-expired'|'stagnation'|'operator-abort'|'integrity-quarantine';tick:number;steps:number;discoveryPermille:number;routeLength:number;finalChecksum?:string}
 export type DungeonLifecycle='running'|'floor-result'|'chapter-result'|'run-result'|'intermission'|'quarantined';
-export type DungeonAction={kind:'move';direction:Direction}|{kind:'melee';targetId?:string}|{kind:'ranged';targetId?:string}|{kind:'guard'}|{kind:'heal'}|{kind:'interact'}|{kind:'descend'}|{kind:'wait'};
+export type DungeonAction={kind:'move';direction:Direction}|{kind:'melee';targetId?:string}|{kind:'ranged';targetId?:string}|{kind:'guard'}|{kind:'heal'}|{kind:'interact'}|{kind:'descend'}|{kind:'wait'}|{kind:'choose-relic';relicId:string};
 export interface DungeonConfig{schemaVersion:1;width:number;height:number;roomAttempts:number;roomMinSize:number;roomMaxSize:number;loopChancePermille:number;chapterLength:number;maxTicksPerFloor:number;intermissionTicks:number;maxEnemies:number;maxRelics:number;maxEvents:number;noProgressTicks:number}
 export interface DungeonRunResult{kind:'game'|'technical';reason:'hero-fallen'|'retired'|'timer-expired'|'stagnation'|'operator-abort'|'integrity-quarantine';tick:number;floor:number;score:number;bossesDefeated:number;finalChecksum?:string}
