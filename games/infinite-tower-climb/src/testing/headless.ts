@@ -1,0 +1,3 @@
+import{checksum}from'../../../../packages/replay/src/index';import type{TowerConfig}from'../config/schema';import{TowerRuntime,type TowerRuntimeOptions}from'../runtime/run';
+export interface TowerHeadlessOptions{config?:Partial<TowerConfig>;seed:string;maxSteps?:number;runtime?:TowerRuntimeOptions}
+export function runTowerHeadless(options:TowerHeadlessOptions){const runtime=TowerRuntime.create(options.config??{},options.seed,options.runtime),max=options.maxSteps??2000;let steps=0;while(steps<max&&runtime.state.lifecycle==='running'){runtime.step();steps++}return{steps,state:runtime.state,events:runtime.events,checksum:checksum({state:runtime.state,events:runtime.events})}}
