@@ -33,6 +33,8 @@ jobs:
         run: npm run snake:stream:self-test
       - name: Maze stream host self-test
         run: npm run maze:stream:self-test
+      - name: Tower stream host self-test
+        run: npm run tower:stream:self-test
       - name: Authoritative nondeterminism scan
         shell: bash
         run: |
@@ -47,7 +49,16 @@ jobs:
             games/ai-maze-escape/src/runtime \
             games/ai-maze-escape/src/ai \
             games/ai-maze-escape/src/generation \
-            games/ai-maze-escape/src/state; then
+            games/ai-maze-escape/src/state \
+            games/infinite-tower-climb/src/rules \
+            games/infinite-tower-climb/src/runtime \
+            games/infinite-tower-climb/src/ai \
+            games/infinite-tower-climb/src/generation \
+            games/infinite-tower-climb/src/state \
+            games/infinite-tower-climb/src/physics \
+            games/infinite-tower-climb/src/combat \
+            games/infinite-tower-climb/src/progression \
+            games/infinite-tower-climb/src/influence; then
             echo 'Forbidden ambient nondeterminism found in authoritative code.'
             exit 1
           fi
@@ -63,6 +74,12 @@ jobs:
           set -euo pipefail
           mkdir -p artifacts/maze-phase5
           npm run maze:phase5:chaos -- maze-phase5-ci > artifacts/maze-phase5/chaos-summary.json
+      - name: Generate Tower Phase 5 chaos evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/tower-phase5
+          npm run tower:phase5:chaos -- tower-phase5-ci > artifacts/tower-phase5/chaos-summary.json
       - name: Generate Snake Phase 6 release validation evidence
         shell: bash
         env:
@@ -79,6 +96,14 @@ jobs:
           set -euo pipefail
           mkdir -p artifacts/maze-phase6
           npm run maze:phase6:validate > artifacts/maze-phase6/release-validation.json
+      - name: Generate Tower Phase 6 release validation evidence
+        shell: bash
+        env:
+          CANDIDATE_SOURCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/tower-phase6
+          npm run tower:phase6:validate > artifacts/tower-phase6/release-validation.json
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
       - name: Browser capture and layout verification
@@ -99,6 +124,14 @@ jobs:
           path: artifacts/maze-phase3
           if-no-files-found: error
           retention-days: 30
+      - name: Upload Tower Phase 3 capture evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: infinite-tower-climb-phase3-capture
+          path: artifacts/tower-phase3
+          if-no-files-found: error
+          retention-days: 30
       - name: Upload Snake Phase 5 operations evidence
         if: always()
         uses: actions/upload-artifact@v7
@@ -115,6 +148,14 @@ jobs:
           path: artifacts/maze-phase5
           if-no-files-found: error
           retention-days: 30
+      - name: Upload Tower Phase 5 operations evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: infinite-tower-climb-phase5-operations
+          path: artifacts/tower-phase5
+          if-no-files-found: error
+          retention-days: 30
       - name: Upload Snake Phase 6 release validation evidence
         if: always()
         uses: actions/upload-artifact@v7
@@ -129,5 +170,13 @@ jobs:
         with:
           name: ai-maze-escape-phase6-validation
           path: artifacts/maze-phase6
+          if-no-files-found: error
+          retention-days: 30
+      - name: Upload Tower Phase 6 release validation evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: infinite-tower-climb-phase6-validation
+          path: artifacts/tower-phase6
           if-no-files-found: error
           retention-days: 30
