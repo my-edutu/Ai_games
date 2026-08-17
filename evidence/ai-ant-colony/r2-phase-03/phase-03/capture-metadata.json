@@ -1,0 +1,60 @@
+{
+  "results": [
+    {
+      "name": "desktop",
+      "tick": 13,
+      "scene": "colony",
+      "seed": null,
+      "runId": null,
+      "audience": {"enabled": false, "emergencyDisabled": false, "pendingEffects": 0, "activeEffectCount": 0},
+      "scroll": 1920,
+      "viewport": 1920,
+      "canvas": {"x": 403.1875, "y": 0, "width": 1190.421875, "height": 999},
+      "hudVisible": true,
+      "dataset": {"reducedMotion": "false", "highContrast": "false", "cleanFeed": "false"},
+      "bytes": 301317,
+      "sha256": "e2f2d73d95737562e5ca68792b5dfa3845b9a6d33a0175fe773df8f3df678d37",
+      "lumaExtrema": [9, 239],
+      "lumaVariance": 975.14,
+      "errors": []
+    },
+    {
+      "name": "phone",
+      "tick": 45,
+      "scene": "colony",
+      "seed": null,
+      "runId": null,
+      "audience": {"enabled": false, "emergencyDisabled": false, "pendingEffects": 0, "activeEffectCount": 0},
+      "scroll": 640,
+      "viewport": 640,
+      "canvas": {"x": 160, "y": 0, "width": 480, "height": 312},
+      "hudVisible": true,
+      "dataset": {"reducedMotion": "false", "highContrast": "false", "cleanFeed": "false"},
+      "bytes": 85895,
+      "sha256": "e9444c7048c50e4f63294af5461481ade7dfe540bf99ef69a32a6ff67047c91f",
+      "lumaExtrema": [9, 239],
+      "lumaVariance": 1462.65,
+      "errors": []
+    },
+    {
+      "name": "clean",
+      "tick": 54,
+      "scene": "colony",
+      "seed": null,
+      "runId": null,
+      "audience": {"enabled": false, "emergencyDisabled": false, "pendingEffects": 0, "activeEffectCount": 0},
+      "scroll": 1280,
+      "viewport": 1280,
+      "canvas": {"x": 0, "y": 0, "width": 1280, "height": 720},
+      "hudVisible": false,
+      "dataset": {"reducedMotion": "true", "highContrast": "true", "cleanFeed": "true"},
+      "bytes": 78281,
+      "sha256": "d0ccda7262ede183c3db50304edc7a34b394e2f44b47ce17eac57f01a20552a6",
+      "lumaExtrema": [8, 255],
+      "lumaVariance": 928.55,
+      "errors": []
+    }
+  ],
+  "browserErrors": [],
+  "frameCadence": {"frames": 119, "p50GapMs": 16.699999999999818, "p95GapMs": 16.700000000000273, "p99GapMs": 16.800000000000182, "maxGapMs": 33.399999999999636, "averageFps": 59.50297514875743}
+}
