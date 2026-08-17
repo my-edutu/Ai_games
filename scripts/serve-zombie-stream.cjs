@@ -8,12 +8,13 @@ const assets={
   '/zombie/':{file:'index.html',type:'text/html; charset=utf-8'},
   '/zombie/index.html':{file:'index.html',type:'text/html; charset=utf-8'},
   '/zombie/styles.css':{file:'styles.css',type:'text/css; charset=utf-8'},
+  '/zombie/layout.css':{file:'layout.css',type:'text/css; charset=utf-8'},
   '/zombie/app.js':{file:'app.js',type:'application/javascript; charset=utf-8'},
 };
 const streamConfig={width:32,height:20,dayTicks:80,nightTicks:120,resultTicks:18,maxDays:4,maxZombies:96,survivorDecisionInterval:2,zombieSpawnInterval:4,waveBaseSize:12,waveGrowthPerDay:6,eventRetention:2000};
 
 function assetStatus(){
-  const files=['index.html','styles.css','app.js'].map(name=>path.join(publicRoot,name));
+  const files=['index.html','styles.css','layout.css','app.js'].map(name=>path.join(publicRoot,name));
   const browserAssets=files.every(file=>fs.existsSync(file)&&fs.statSync(file).size>128);
   const totalBytes=browserAssets?files.reduce((sum,file)=>sum+fs.statSync(file).size,0):0;
   return{browserAssets,totalBytes,boundedSource:browserAssets&&totalBytes<320*1024};
