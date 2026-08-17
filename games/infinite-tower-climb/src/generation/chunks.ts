@@ -1,6 +1,6 @@
 import{checksum}from'../../../../packages/replay/src/index';import{NamedRng}from'../../../../packages/seeded-rng/src/index';
 import type{TowerConfig,TowerTheme}from'../config/schema';import{TOWER_THEMES}from'../config/schema';import type{TowerChunk,TowerHazard,TowerPlatform}from'../state/types';
-function themeFor(floor:number,rng:NamedRng):TowerTheme{return TOWER_THEMES[(floor+rng.nextInt(`tower:theme:${floor}`,TOWER_THEMES.length))%TOWER_THEMES.length]}
+function themeFor(floor:number):TowerTheme{return TOWER_THEMES[floor%TOWER_THEMES.length]}
 export function generateTowerChunk(config:TowerConfig,seed:string,floor:number,rng=NamedRng.fromSeed(`${seed}:floor:${floor}`)):TowerChunk{
   if(!Number.isInteger(floor)||floor<0)throw new RangeError('floor');
   const baseY=floor*config.chunkHeight,groundHeight=12000,stepHeight=Math.floor((config.chunkHeight-60000)/6);
@@ -17,7 +17,8 @@ export function generateTowerChunk(config:TowerConfig,seed:string,floor:number,r
   const capY=baseY+config.chunkHeight-28000;
   platforms.push({id:`f${floor}:cap`,kind:'oneway',x:Math.floor(config.worldWidth*.24),y:capY,width:Math.floor(config.worldWidth*.52),height:12000});
   const hazards:TowerHazard[]=[];
-  const hazardCount=Math.min(config.maxHazardsPerChunk,floor===0?1:2+(floor%3));
+  const relativeFloor=Math.max(0,floor-config.launchFloor);
+  const hazardCount=Math.min(config.maxHazardsPerChunk,1+Math.min(2,Math.floor(relativeFloor/3)));
   for(let i=0;i<hazardCount;i++){
     const slot=1+rng.nextInt(`tower:hazard-slot:${floor}:${i}`,5),kindIndex=(floor+i)%5;
     const kinds:TowerHazard['kind'][]=['spikes','heat','crusher','lightning','void-pulse'];
@@ -25,7 +26,7 @@ export function generateTowerChunk(config:TowerConfig,seed:string,floor:number,r
   }
   const spawn={x:42000,y:baseY+groundHeight+config.playerHalfHeight};
   const checkpoint={x:Math.floor(config.worldWidth/2),y:capY+12000+config.playerHalfHeight};
-  const base={id:`tower:${seed}:floor:${floor}`,floor,theme:themeFor(floor,rng),baseY,height:config.chunkHeight,spawn,exitY:baseY+config.chunkHeight-8000,platforms,hazards,checkpoint,guardian:floor>0&&floor%10===0};
+  const base={id:`tower:${seed}:floor:${floor}`,floor,theme:themeFor(floor),baseY,height:config.chunkHeight,spawn,exitY:baseY+config.chunkHeight-8000,platforms,hazards,checkpoint,guardian:floor>0&&floor%config.guardianInterval===0};
   return{...base,checksum:checksum(base)};
 }
 export function platformAtTick(platform:TowerPlatform,tick:number):TowerPlatform{
