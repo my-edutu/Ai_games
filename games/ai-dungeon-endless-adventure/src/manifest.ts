@@ -1,0 +1,1 @@
+export const AI_DUNGEON_MANIFEST={gameId:'ai-dungeon-endless-adventure',displayName:'AI Dungeon: Endless Adventure',schemaVersion:1,deterministicVersion:'dungeon-rules-v1',generatorVersion:'dungeon-generator-v1',contentVersion:'dungeon-content-v1',fixedStepHz:10}as const;

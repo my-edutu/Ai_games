@@ -1,0 +1,6 @@
+import type{DungeonConfig}from '../../../packages/game-contracts/src/index';
+import{NamedRng}from '../../../packages/seeded-rng/src/index';
+import{parseDungeonConfig}from './config/schema';
+import{generateDungeonFloor}from './generation/dungeon';
+import type{DungeonState}from './state/types';
+export function createInitialDungeonState(configInput:DungeonConfig,seed:string,runId:string,rng:NamedRng=NamedRng.fromSeed(seed)):DungeonState{const config=parseDungeonConfig(configInput);const floor=generateDungeonFloor(config,1,rng);return{schemaVersion:1,runId,seed,tick:0,floorTick:0,floorNumber:1,chapter:1,lifecycle:'running',config,floor,hero:{id:'hero-astra',name:'Astra',cell:floor.entrance,facing:'right',hp:20,maxHp:20,energy:6,maxEnergy:6,attack:4,armour:1,gold:0,potions:1,shield:0,score:0,relics:[]},enemies:[],floorProgress:{sigilCollected:false,gateUnlocked:false,chestOpened:false,shrineUsed:false,guardianDefeated:true},ai:{goal:'Find the floor sigil',intent:'Surveying the entrance',confidencePermille:700,planReason:'New floor',decisions:0,fallbackCount:0,replans:0,stuckCount:0,lastCells:[],knownCells:[floor.entrance]},eventHistory:[],intermissionRemaining:0,meaningfulEventTick:0,bossesDefeated:0,result:null}}

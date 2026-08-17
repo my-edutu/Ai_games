@@ -1,0 +1,11 @@
+import type{Direction,DungeonConfig,DungeonLifecycle,DungeonRunResult}from '../../../../packages/game-contracts/src/index';
+export type DungeonTile=0|1;
+export interface DungeonRoom{id:number;x:number;y:number;width:number;height:number;center:number}
+export interface DungeonFloor{version:1;width:number;height:number;floorNumber:number;tiles:DungeonTile[];rooms:DungeonRoom[];entrance:number;sigil:number;gate:number;shrine:number;chest:number;bossCell:number;repairCount:number;fallbackUsed:boolean;features:{walkable:number;mandatoryRouteLength:number;branchRooms:number;loopCount:number}}
+export interface DungeonHero{id:'hero-astra';name:'Astra';cell:number;facing:Direction;hp:number;maxHp:number;energy:number;maxEnergy:number;attack:number;armour:number;gold:number;potions:number;shield:number;score:number;relics:string[]}
+export type DungeonEnemyKind='mireling'|'bone-warden'|'ember-seer'|'void-hound'|'reliquary-mimic'|'chapter-boss';
+export interface DungeonEnemy{id:string;kind:DungeonEnemyKind;cell:number;hp:number;maxHp:number;attack:number;armour:number;cooldown:number;telegraph:null|'melee'|'ranged'|'leap'|'boss';phase:number;alive:boolean}
+export interface DungeonEvent{sequence:number;tick:number;type:string;entityId?:string;cell?:number;value?:number;message?:string}
+export interface DungeonFloorProgress{sigilCollected:boolean;gateUnlocked:boolean;chestOpened:boolean;shrineUsed:boolean;guardianDefeated:boolean}
+export interface DungeonAiState{goal:string;intent:string;confidencePermille:number;planReason:string;decisions:number;fallbackCount:number;replans:number;stuckCount:number;lastCells:number[];knownCells:number[]}
+export interface DungeonState{schemaVersion:1;runId:string;seed:string;tick:number;floorTick:number;floorNumber:number;chapter:number;lifecycle:DungeonLifecycle;config:DungeonConfig;floor:DungeonFloor;hero:DungeonHero;enemies:DungeonEnemy[];floorProgress:DungeonFloorProgress;ai:DungeonAiState;eventHistory:DungeonEvent[];intermissionRemaining:number;meaningfulEventTick:number;bossesDefeated:number;result:DungeonRunResult|null}
