@@ -1,0 +1,12 @@
+import type{NamedRng}from'../../../../packages/seeded-rng/src/index';
+import type{CivilizationCharacter,CivilizationCharacters,CharacterRole,PortraitRecipe}from'../state/types';
+const names=['Amina','Kato','Nia','Tariq','Zuri','Amari','Sefu','Lina','Marek','Elara','Tomas','Ilyra','Bako','Mina','Orin','Sana','Jabari','Rhea','Dayo','Lyra'];
+const traits=['cautious','bold','merciful','scholarly','pragmatic','charismatic','patient','ambitious','frugal','steadfast','diplomatic','inventive'];
+const aspirations=['feed-the-realm','build-a-legacy','master-the-rivers','secure-the-border','unite-the-neighbours','advance-learning'];
+const silhouettes:PortraitRecipe['silhouette'][]=['round','angular','tall','broad'];const emblems:PortraitRecipe['emblem'][]=['sun','river','oak','mountain','star','crown'];const patterns:PortraitRecipe['pattern'][]=['plain','chevron','quartered','ring'];
+function pick<T>(rng:NamedRng,stream:string,items:readonly T[]){return items[rng.nextInt(stream,items.length)]}
+function character(rng:NamedRng,id:string,role:CharacterRole,index:number):CivilizationCharacter{
+  const chosen:string[]=[];for(let i=0;i<3;i++){let t=pick(rng,`kingdom-cast-v1:${id}:trait:${i}`,traits);let guard=0;while(chosen.includes(t)&&guard++<traits.length)t=traits[(traits.indexOf(t)+1)%traits.length];chosen.push(t)}
+  return{id,name:pick(rng,`kingdom-cast-v1:${id}:name`,names),role,age:role==='heir'?18+rng.nextInt(`kingdom-cast-v1:${id}:age`,12):28+rng.nextInt(`kingdom-cast-v1:${id}:age`,24),health:75+rng.nextInt(`kingdom-cast-v1:${id}:health`,26),legitimacy:role==='rival'?50+rng.nextInt(`rival-cast-v1:${id}:legitimacy`,41):60+rng.nextInt(`kingdom-cast-v1:${id}:legitimacy`,41),traits:chosen,aspiration:pick(rng,`kingdom-cast-v1:${id}:aspiration`,aspirations),expression:'calm',portrait:{silhouette:pick(rng,`kingdom-cast-v1:${id}:silhouette`,silhouettes),emblem:pick(rng,`kingdom-cast-v1:${id}:emblem`,emblems),pattern:pick(rng,`kingdom-cast-v1:${id}:pattern`,patterns),palette:rng.nextInt(`kingdom-cast-v1:${id}:palette`,8)},relationship:role==='rival'?0:55+rng.nextInt(`kingdom-cast-v1:${id}:relationship`,31),stance:index%2?'measured':'hopeful'};
+}
+export function createFoundingCast(rng:NamedRng):CivilizationCharacters{return{ruler:character(rng,'ruler-1','ruler',0),heir:character(rng,'heir-1','heir',1),councillors:Array.from({length:4},(_,i)=>character(rng,`councillor-${i+1}`,'councillor',i)),rivals:Array.from({length:3},(_,i)=>character(rng,`rival-leader-${i+1}`,'rival',i))}}
