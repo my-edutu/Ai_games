@@ -1,1 +1,14 @@
-export const zombieManifest=Object.freeze({gameId:'ai-zombie-survival',title:'AI Zombie Survival — Last Light Protocol',gameVersion:'0.1.0',stateSchemaVersion:1,configSchemaVersion:1,generatorVersion:'zombie-world-v1',deterministicVersion:'zombie-v1',tickRate:10,runtimeExport:'ZombieRuntime',primaryProgress:'day',supportsAudienceInfluence:true,supportsHeadless:true});
+export const zombieManifest=Object.freeze({
+  gameId:'ai-zombie-survival',
+  title:'AI Zombie Survival — Last Light Protocol',
+  gameVersion:'0.2.0',
+  stateSchemaVersion:1,
+  configSchemaVersion:1,
+  generatorVersion:'zombie-world-v1',
+  deterministicVersion:'zombie-v2',
+  tickRate:10,
+  runtimeExport:'ZombieRuntime',
+  primaryProgress:'day',
+  supportsAudienceInfluence:true,
+  supportsHeadless:true,
+});

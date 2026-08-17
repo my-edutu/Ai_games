@@ -47,7 +47,12 @@ jobs:
             games/ai-maze-escape/src/runtime \
             games/ai-maze-escape/src/ai \
             games/ai-maze-escape/src/generation \
-            games/ai-maze-escape/src/state; then
+            games/ai-maze-escape/src/state \
+            games/ai-zombie-survival/src/rules \
+            games/ai-zombie-survival/src/runtime \
+            games/ai-zombie-survival/src/ai \
+            games/ai-zombie-survival/src/generation \
+            games/ai-zombie-survival/src/state; then
             echo 'Forbidden ambient nondeterminism found in authoritative code.'
             exit 1
           fi

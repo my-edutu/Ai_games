@@ -1,10 +1,12 @@
 import type{ZombieConfig}from'../config/schema';
+
 export type ZombieLifecycle='preparation'|'horde'|'result'|'intermission'|'quarantine';
 export type ResourceKind='materials'|'ammo'|'medicine'|'food'|'power';
 export type SurvivorRole='scout'|'builder'|'medic'|'guard';
 export type ZombieWeather='clear'|'rain'|'fog'|'heat';
 export type ZombieStrategy='fortify'|'stockpile'|'balanced'|'rescue'|'last-stand';
-export type SurvivorAction='idle'|'scavenge'|'deliver'|'repair'|'heal'|'rest'|'guard'|'attack'|'retreat'|'reposition';
+export type SurvivorAction='idle'|'scavenge'|'deliver'|'build'|'repair'|'heal'|'rest'|'guard'|'attack'|'retreat'|'reposition';
+
 export interface ZombieGate{id:string;cell:number;side:'north'|'east'|'south'|'west'}
 export interface ZombieResourceSite{id:string;kind:ResourceKind;cell:number;stock:number}
 export interface ZombieWorld{schemaVersion:1;width:number;height:number;baseCells:number[];coreCell:number;gates:ZombieGate[];resourceSites:ZombieResourceSite[];blockedCells:number[]}
