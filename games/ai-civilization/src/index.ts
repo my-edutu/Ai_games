@@ -1,0 +1,9 @@
+import{NamedRng}from'../../../packages/seeded-rng/src/index';
+import type{CivilizationConfig}from'./config/schema';
+import{generateWorld}from'./generation/world';import{createFoundingCast}from'./characters/cast';import type{CivilizationState}from'./state/types';
+export function createInitialCivilizationState(config:CivilizationConfig,seed:string,runId:string,rng:NamedRng=NamedRng.fromSeed(seed)):CivilizationState{
+  const world=generateWorld(config,rng);world.tiles[world.capitalIndex].building={id:'building-camp-1',type:'camp',level:1,builtAtTick:0};
+  const pop=config.initialPopulation;const children=Math.floor(pop*0.2),elders=Math.floor(pop*0.1),workers=pop-children-elders;
+  return{schemaVersion:1,runId,seed,tick:0,day:1,season:0,year:1,lifecycle:'running',config,world,resources:{food:config.initialFood,wood:config.initialWood,stone:config.initialStone,gold:config.initialGold,knowledge:config.initialKnowledge,influence:config.initialInfluence},population:{total:pop,children,workers,elders,housing:32,health:82,morale:74,starvationDays:0},characters:createFoundingCast(rng),policies:{rationingDays:0,civicFocus:'survival'},stability:72,defence:8,ai:{goal:'Secure the founding season',actionKey:'reserve',pressure:'none',confidence:'medium',fallbackUsed:false,decisions:0,planChanges:0,lastPlanChangeReason:'initial-plan'},progression:{tier:'camp',renown:0,nextTierRenown:50,greatWorkId:null,greatWorkProgress:0,lastMeaningfulTick:0,zeroStabilitySince:null},diplomacy:Array.from({length:config.maxRivals},(_,i)=>({id:(['rival-1','rival-2','rival-3'] as const)[i],status:'neutral' as const,reputation:0,tension:10+i*5,strength:30+i*8})),crisis:null,influence:{queued:[],appliedIds:[],cooldowns:{}},chronicle:{highlights:[{tick:0,kind:'founding',copyKey:'chronicle.founding',importance:3}],reigns:[]},intermissionRemaining:0};
+}
+export*from'./state/types';export*from'./config/schema';export*from'./manifest';
