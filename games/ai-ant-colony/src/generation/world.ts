@@ -1,0 +1,29 @@
+import{NamedRng}from '../../../../packages/seeded-rng/src/index';
+import type{AntColonyConfig}from '../config/schema';
+import type{AntColonyState,AntRole,AntState,AntWorldState,BroodState,TileCode}from '../state/types';
+function index(width:number,x:number,y:number){return y*width+x}
+function roleFor(i:number):AntRole{if(i%11===0)return'soldier';if(i%7===0)return'scout';if(i%5===0)return'nurse';if(i%3===0)return'digger';return'worker'}
+export function generateAntWorld(config:AntColonyConfig,rng:NamedRng):AntWorldState{
+  const cells=config.width*config.height,tiles=new Array<TileCode>(cells).fill(0),food=new Array<number>(cells).fill(0),moisture=new Array<number>(cells).fill(80),discovered=new Array<number>(cells).fill(0);
+  const home=new Array<number>(cells).fill(0),foodPheromone=new Array<number>(cells).fill(0),alarm=new Array<number>(cells).fill(0),excavation=new Array<number>(cells).fill(0);
+  for(let y=0;y<=config.surfaceRow;y++)for(let x=0;x<config.width;x++){tiles[y*config.width+x]=2;moisture[y*config.width+x]=config.profile==='savanna'?35:100}
+  const center=Math.floor(config.width/2),nestY=config.surfaceRow+4,entrance=config.surfaceRow*config.width+center,nestCenter=nestY*config.width+center;
+  for(let y=config.surfaceRow;y<=nestY;y++){const cell=y*config.width+center;tiles[cell]=y===config.surfaceRow?2:1;discovered[cell]=1;home[cell]=Math.max(80,255-(nestY-y)*25)}
+  for(let y=nestY-1;y<=nestY+1;y++)for(let x=center-3;x<=center+3;x++){const cell=y*config.width+x;tiles[cell]=3;discovered[cell]=1;home[cell]=Math.max(home[cell]!,220-Math.abs(x-center)*18)}
+  for(const direction of[-1,1])for(let step=1;step<=5;step++){const x=center+direction*step,y=nestY+2,cell=y*config.width+x;tiles[cell]=step===5?3:1;discovered[cell]=1;home[cell]=Math.max(100,210-step*18)}
+  const protectedCells=new Set<number>();for(let y=config.surfaceRow;y<=nestY+2;y++)for(let x=center-4;x<=center+4;x++)if(x>=0&&x<config.width)protectedCells.add(y*config.width+x);
+  const rockCount=Math.floor(cells/45);for(let i=0;i<rockCount;i++){const x=1+rng.nextInt('world-rock-x',config.width-2),y=config.surfaceRow+2+rng.nextInt('world-rock-y',config.height-config.surfaceRow-3),cell=y*config.width+x;if(!protectedCells.has(cell)&&tiles[cell]===0)tiles[cell]=4}
+  const waterCount=Math.max(1,Math.floor(config.width/18));for(let i=0;i<waterCount;i++){const x=2+rng.nextInt('world-water-x',config.width-4),y=config.surfaceRow+6+rng.nextInt('world-water-y',Math.max(1,config.height-config.surfaceRow-7)),cell=y*config.width+x;if(!protectedCells.has(cell)&&tiles[cell]===0){tiles[cell]=5;moisture[cell]=255}}
+  const used=new Set<number>([center]);for(let i=0;i<config.foodPatchCount;i++){let x=1+rng.nextInt('world-food-x',config.width-2);for(let guard=0;guard<config.width&&used.has(x);guard++)x=1+((x+3)%Math.max(2,config.width-2));used.add(x);const cell=config.surfaceRow*config.width+x;food[cell]=25+rng.nextInt('world-food-amount',36);discovered[cell]=Math.abs(x-center)<=5?1:0;foodPheromone[cell]=discovered[cell]?80:0}
+  return{tiles,food,moisture,discovered,pheromones:{home,food:foodPheromone,alarm,excavation},entrance,nestCenter};
+}
+export function createInitialAnts(config:AntColonyConfig,world:AntWorldState,rng:NamedRng):AntState[]{
+  const center=world.nestCenter%config.width,nestY=Math.floor(world.nestCenter/config.width),cells:number[]=[];for(let y=nestY-1;y<=nestY+1;y++)for(let x=center-3;x<=center+3;x++)if(world.tiles[y*config.width+x]===3)cells.push(y*config.width+x);
+  const ants:AntState[]=[];for(let i=0;i<config.initialWorkers;i++){const cell=cells[i%cells.length]!,role=roleFor(i+1);ants.push({id:i+1,role,x:cell%config.width,y:Math.floor(cell/config.width),health:100,energy:80+rng.nextInt('colony-ant-energy',21),carryingFood:0,task:role==='nurse'?'nurse':role==='digger'?'dig':role==='soldier'?'guard':role==='scout'?'explore':'forage',goalCell:null,intent:'Awaiting colony signal',confidence:60,stuckTicks:0,lastCell:cell,ageTicks:rng.nextInt('colony-ant-age',100),bias:rng.nextInt('colony-ant-bias',4)})}
+  return ants;
+}
+export function createInitialBrood():BroodState[]{return[1,2,3,4].map(id=>({id,stage:'egg' as const,ageTicks:(id-1)*3,health:100}))}
+export function createInitialColonyState(config:AntColonyConfig,seed:string,runId:string,rng:NamedRng,runIndex=0):AntColonyState{
+  const world=generateAntWorld(config,rng),ants=createInitialAnts(config,world,rng),brood=createInitialBrood();
+  return{schemaVersion:1,deterministicVersion:'ant-colony-v1',runId,runIndex,seed,tick:0,lifecycle:'active',config,world,queen:{health:config.queenHealth,eggsLaid:brood.length,lastEggTick:0},ants,brood,predators:[],colony:{foodStore:config.initialFood,waterStore:config.initialWater,tunnelsDug:0,foodDelivered:0,predatorsDefeated:0,antsBorn:0,antsLost:0,eggsLaid:brood.length,strategy:'foraging',strategyReason:'Founding workers need stable reserves',progressBand:'founding',threat:0,meaningfulEventTick:0},influence:{enabled:true,emergencyDisabled:false,scheduled:[],appliedIds:[],cooldowns:{},activeModifiers:{}},day:1,season:'spring',weather:'clear',intermissionRemaining:0,nextAntId:ants.length+1,nextBroodId:brood.length+1,nextPredatorId:1};
+}
