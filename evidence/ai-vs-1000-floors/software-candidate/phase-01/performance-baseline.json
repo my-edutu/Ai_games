@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "phase": 1,
+  "referenceEnvironment": {
+    "node": "22.16.0",
+    "typescript": "5.8.3",
+    "workspace": "container CPU; exact host SKU unavailable"
+  },
+  "sourceLines": 647,
+  "fullRunCorpus": {
+    "runs": 3,
+    "ticks": 24938,
+    "elapsedMs": 4766.629,
+    "ticksPerSecond": 5231.8
+  },
+  "targetOwnership": {
+    "phase2AcceleratedTicksPerSecond": 10000,
+    "phase2TickP99Ms": 8,
+    "phase2PlannerP99Ms": 5,
+    "phase2GenerationP99Ms": 20
+  },
+  "decision": "baseline accepted for R1; profile and optimize dominant costs in Phase 2 without changing deterministic semantics"
+}

@@ -1,0 +1,78 @@
+{
+  "schemaVersion": 1,
+  "gameId": "ai-vs-1000-floors",
+  "phase": 1,
+  "readiness": "R1",
+  "verdict": "PASS",
+  "commands": [
+    "rm -rf dist",
+    "npm run build",
+    "node --test tests/foundation/floors-foundation.test.cjs",
+    "node scripts/run-floors-headless.cjs --seed=phase1-evidence --runs=3 --maxTicks=30000",
+    "authoritative nondeterminism grep scan"
+  ],
+  "tests": {
+    "passed": 16,
+    "failed": 0,
+    "cancelled": 0,
+    "skipped": 0,
+    "durationMs": 7023.010307
+  },
+  "generatorCorpus": {
+    "cases": 128,
+    "invalid": 0,
+    "maxRepairCount": 1
+  },
+  "headless": {
+    "schemaVersion": 1,
+    "gameId": "ai-vs-1000-floors",
+    "deterministicVersion": "floors-r1-v1",
+    "runs": [
+      {
+        "seed": "phase1-evidence-0",
+        "ticks": 8382,
+        "highestFloor": 1000,
+        "floorsCleared": 1000,
+        "reason": "victory",
+        "kind": "game",
+        "score": 601660,
+        "checksum": "646acb84"
+      },
+      {
+        "seed": "phase1-evidence-1",
+        "ticks": 8253,
+        "highestFloor": 1000,
+        "floorsCleared": 1000,
+        "reason": "victory",
+        "kind": "game",
+        "score": 601510,
+        "checksum": "ea47fd8e"
+      },
+      {
+        "seed": "phase1-evidence-2",
+        "ticks": 8303,
+        "highestFloor": 1000,
+        "floorsCleared": 1000,
+        "reason": "victory",
+        "kind": "game",
+        "score": 601580,
+        "checksum": "550d77bf"
+      }
+    ],
+    "totalTicks": 24938,
+    "outcomes": {
+      "victory": 3
+    },
+    "invariantFailures": 0,
+    "replayFailures": 0,
+    "generatorInvalid": 0,
+    "corpusChecksum": "59098746",
+    "elapsedMs": 4766.629,
+    "ticksPerSecond": 5231.8
+  },
+  "nondeterminismScan": {
+    "forbiddenMatches": 0
+  },
+  "openP0": 0,
+  "openP1": 0
+}
