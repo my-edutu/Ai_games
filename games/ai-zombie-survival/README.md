@@ -15,12 +15,12 @@ The stream’s primary progress unit is **Day**. Base integrity, survivors alive
 | Phase | Target | Status |
 |---|---|---|
 | 1 — Deterministic Foundation | R1 | Complete — exact candidate `bd195967e2177ae9e7c57c7f70ad871e25f39177` |
-| 2 — AI, Hordes, Economy, Progression | R2 gameplay | Next |
-| 3 — Broadcast Experience | R2 streamed | Planned |
+| 2 — AI, Hordes, Economy, Progression | R2 gameplay | Complete — exact candidate `54aa4790ec6c7db364b615dbcf8f6c818e59bd91` |
+| 3 — Broadcast Experience | R2 streamed | In implementation |
 | 4 — Audience Interaction | R3 | Planned |
 | 5 — Reliability and Operations | R4 | Planned |
 | 6 — Production Validation | R5 candidate | Planned |
 
-Phase 1 passed 266 catalogue-wide Node tests, 8 Chromium browser regressions, a 100-seed zero-divergence Zombie corpus, exact snapshot/replay integrity checks, and the authoritative nondeterminism scan.
+Phase 2 passed 281 catalogue-wide Node tests, 8 Chromium browser regressions, Zombie-inclusive authoritative nondeterminism scanning, deterministic AI/horde/economy/progression campaigns, construction and stuck-recovery regressions, and a fresh `zombie-v2` replay boundary.
 
 The game is not production ready until the exact-candidate assessor returns `PASS / R5 / 100 / productionReady=true` with genuine provider, external review, real 72-hour endurance, witnessed drill and seven-day canary evidence.

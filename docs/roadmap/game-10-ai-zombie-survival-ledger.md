@@ -6,9 +6,9 @@
 
 | Phase | Target | Status | Exit evidence |
 |---|---|---|---|
-| 1. Deterministic Foundation | R1 | Complete | Exact source `bd195967…`; 266 Node + 8 browser tests; 100-seed zero divergence; reviews/evidence retained |
-| 2. AI, Hordes, Economy, Progression | R2 gameplay | Next | Agent/horde/economy tests, campaigns, balance and dramatic-pattern evidence |
-| 3. Broadcast Experience | R2 streamed | Not started | Stream self-test, Node presentation tests, Chromium captures, accessibility/output review |
+| 1. Deterministic Foundation | R1 | Complete | Exact source `bd195967…`; 266 Node + 8 browser tests; 100-seed zero divergence |
+| 2. AI, Hordes, Economy, Progression | R2 gameplay | Complete | Exact source `54aa4790…`; 281 Node + 8 browser tests; v2 replay boundary; P1 review fixes closed |
+| 3. Broadcast Experience | R2 streamed | In progress | Immutable public snapshot, scene/audio/layout contracts, stream self-test, Chromium captures |
 | 4. Audience Interaction | R3 | Not started | Safety/idempotency/vote/reversal/outage tests and pressure campaigns |
 | 5. Reliability and Operations | R4 | Not started | Restore/fencing/RBAC/supervisor tests, chaos artifact, runbook and rollback drills |
 | 6. Production Validation | R5 candidate | Not started | Exact-source validator, traceability, capacity, drill/canary contracts and assessor |
