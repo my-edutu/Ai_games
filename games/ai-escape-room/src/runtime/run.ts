@@ -6,6 +6,10 @@ import { solveEscapeRoom } from '../generation/solver';
 import type { EscapeEvent, EscapeState, EscapeStepResult } from '../state/types';
 import { applyEscapeAction } from '../rules/step';
 import { listLegalEscapeActions, escapeActionKey } from '../rules/actions';
+import { createEscapeObservation, type EscapeAffordance } from '../ai/observation';
+import { createEmptyEscapeBelief, updateEscapeBelief, type EscapeBelief } from '../ai/belief';
+import { planEscapeAction } from '../ai/planner';
+import { detectEscapePathology, type EscapeDecisionHistoryEntry } from '../ai/stuck';
 
 export type EscapePolicy='manual'|'oracle-test'|'autonomous';
 export interface EscapeRuntimeCreateOptions{config:EscapeRoomConfig;seed:string;runId:string;roomIndex?:number;policy?:EscapePolicy;}
@@ -18,6 +22,8 @@ export interface EscapeRuntimeMaterial{
   oracleActions:EscapeAction[];
   oracleIndex:number;
   bufferedEvents:EscapeEvent[];
+  belief:EscapeBelief;
+  decisionHistory:EscapeDecisionHistoryEntry[];
 }
 
 function initialObjectStates(room:EscapeState['room']){
@@ -47,8 +53,10 @@ export class EscapeRuntime{
   private rng:NamedRng;
   private oracleActions:EscapeAction[];
   private oracleIndex:number;
-  private constructor(public state:EscapeState,private readonly rootSeed:string,private readonly policy:EscapePolicy,rng:NamedRng,oracleActions:EscapeAction[],oracleIndex:number,events:EscapeEvent[]){
-    this.rng=rng;this.oracleActions=oracleActions;this.oracleIndex=oracleIndex;this.bufferedEvents=events;
+  private belief:EscapeBelief;
+  private decisionHistory:EscapeDecisionHistoryEntry[];
+  private constructor(public state:EscapeState,private readonly rootSeed:string,private readonly policy:EscapePolicy,rng:NamedRng,oracleActions:EscapeAction[],oracleIndex:number,events:EscapeEvent[],belief:EscapeBelief,decisionHistory:EscapeDecisionHistoryEntry[]){
+    this.rng=rng;this.oracleActions=oracleActions;this.oracleIndex=oracleIndex;this.bufferedEvents=events;this.belief=belief;this.decisionHistory=decisionHistory;
   }
   static create(options:EscapeRuntimeCreateOptions){
     const roomIndex=options.roomIndex??1;
@@ -57,12 +65,12 @@ export class EscapeRuntime{
     const state=createInitialEscapeState(options.config,options.seed,options.runId,rng,roomIndex);
     const policy=options.policy??'manual';
     const oracleActions=policy==='oracle-test'?(solveEscapeRoom(state.room)?.actions??[]):[];
-    const runtime=new EscapeRuntime(state,options.seed,policy,rng,oracleActions,0,[]);
+    const runtime=new EscapeRuntime(state,options.seed,policy,rng,oracleActions,0,[],createEmptyEscapeBelief(),[]);
     runtime.bufferedEvents.push(lifecycleEvent(runtime.state,'room-started',{roomId:state.roomId,roomIndex,seed:roomSeed}));
     return runtime;
   }
   static restore(material:EscapeRuntimeMaterial){
-    return new EscapeRuntime(structuredClone(material.state),material.rootSeed,material.policy,NamedRng.restore(material.rng),structuredClone(material.oracleActions),material.oracleIndex,structuredClone(material.bufferedEvents));
+    return new EscapeRuntime(structuredClone(material.state),material.rootSeed,material.policy,NamedRng.restore(material.rng),structuredClone(material.oracleActions),material.oracleIndex,structuredClone(material.bufferedEvents),structuredClone(material.belief??createEmptyEscapeBelief()),structuredClone(material.decisionHistory??[]));
   }
   private nextOracleAction():EscapeAction{
     const legal=listLegalEscapeActions(this.state);
@@ -80,7 +88,7 @@ export class EscapeRuntime{
     const streak=this.state.streak;const score=this.state.score;
     this.state=createInitialEscapeState(this.state.config,this.rootSeed,this.state.runId,this.rng,nextIndex);
     this.state.streak=streak;this.state.score=score;
-    this.oracleActions=this.policy==='oracle-test'?(solveEscapeRoom(this.state.room)?.actions??[]):[];this.oracleIndex=0;
+    this.oracleActions=this.policy==='oracle-test'?(solveEscapeRoom(this.state.room)?.actions??[]):[];this.oracleIndex=0;this.belief=createEmptyEscapeBelief();this.decisionHistory=[];
     this.bufferedEvents.push(lifecycleEvent(this.state,'room-started',{roomId:this.state.roomId,roomIndex:nextIndex,seed:roomSeed}));
   }
   step(action?:EscapeAction):EscapeStepResult{
@@ -95,9 +103,23 @@ export class EscapeRuntime{
       return{accepted:true,reason:'accepted',state:structuredClone(this.state),events:[]};
     }
     this.state=structuredClone(this.state);this.state.tick+=1;
-    const selected=action??(this.policy==='oracle-test'?this.nextOracleAction():{kind:'wait'});
+    let selected=action;
+    if(!selected&&this.policy==='oracle-test')selected=this.nextOracleAction();
+    if(!selected&&this.policy==='autonomous'){
+      const observation=createEscapeObservation(this.state);
+      this.belief=updateEscapeBelief(this.belief,observation,{maxFacts:this.state.config.factHistoryLimit,maxHypotheses:Math.min(64,this.state.config.factHistoryLimit),maxHistory:64});
+      const pathology=detectEscapePathology(this.state,this.decisionHistory);
+      const decision=planEscapeAction(observation,this.belief,{maxExpansions:64});
+      selected=decision.action;
+      if(pathology?.kind==='repeated-action'){
+        const alternatives=observation.affordances.filter((item):item is Extract<EscapeAffordance,{kind:'inspect'}>=>item.kind==='inspect'&&escapeActionKey(item)!==escapeActionKey(selected!));
+        if(alternatives.length)selected=[...alternatives].sort((a,b)=>a.targetId.localeCompare(b.targetId))[0];
+      }
+    }
+    selected??={kind:'wait'};
     let result=applyEscapeAction(this.state,selected,this.rng);
     this.state=result.state;this.bufferedEvents.push(...result.events);
+    if(this.policy==='autonomous'){this.decisionHistory=[...this.decisionHistory,{tick:this.state.tick,actionKey:escapeActionKey(selected),progressPermille:Math.floor(this.state.solvedPuzzleIds.length*1000/this.state.room.puzzles.length)}].slice(-64);}
     if(!this.state.result&&this.state.tick>=this.state.config.maxTicks){
       const terminal:EscapeRunResult={kind:'game',reason:'timer-expired',tick:this.state.tick,roomIndex:this.state.roomIndex,score:this.state.score,solvedPuzzles:this.state.solvedPuzzleIds.length};
       this.state.result=terminal;this.state.lifecycle='result';const event=lifecycleEvent(this.state,'result',{...terminal});this.bufferedEvents.push(event);result={...result,state:structuredClone(this.state),events:[...result.events,event]};
@@ -111,5 +133,5 @@ export class EscapeRuntime{
   restart(){this.restartNextRoom();return structuredClone(this.state);}
   drainEvents(){const events=structuredClone(this.bufferedEvents);this.bufferedEvents=[];return events;}
   signals(){return{tick:this.state.tick,lifecycle:this.state.lifecycle,roomId:this.state.roomId,progressPermille:Math.floor(this.state.solvedPuzzleIds.length*1000/this.state.room.puzzles.length),eventBacklog:this.bufferedEvents.length,result:this.state.result?.reason??null};}
-  snapshotMaterial():EscapeRuntimeMaterial{return{schemaVersion:1,rootSeed:this.rootSeed,policy:this.policy,state:structuredClone(this.state),rng:this.rng.snapshot(),oracleActions:structuredClone(this.oracleActions),oracleIndex:this.oracleIndex,bufferedEvents:structuredClone(this.bufferedEvents)};}
+  snapshotMaterial():EscapeRuntimeMaterial{return{schemaVersion:1,rootSeed:this.rootSeed,policy:this.policy,state:structuredClone(this.state),rng:this.rng.snapshot(),oracleActions:structuredClone(this.oracleActions),oracleIndex:this.oracleIndex,bufferedEvents:structuredClone(this.bufferedEvents),belief:structuredClone(this.belief),decisionHistory:structuredClone(this.decisionHistory)};}
 }

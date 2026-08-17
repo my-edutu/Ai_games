@@ -10,3 +10,8 @@ export * from './rules/step';
 export * from './runtime/run';
 export * from './persistence/snapshot';
 export * from './testing/headless';
+export * from './ai/observation';
+export * from './ai/belief';
+export * from './ai/planner';
+export * from './ai/policy';
+export * from './ai/stuck';
