@@ -6,7 +6,7 @@ function vote(overrides={}){return ant.normalizeAntProviderVote({provider:'youtu
 
 test('provider normalization tokenizes identity and drops display metadata',()=>{const a=vote(),b=vote({eventId:'evt-002'});assert.match(a.viewerToken,/^viewer_[a-f0-9]{24}$/);assert.equal(a.viewerToken,b.viewerToken);assert.equal('displayName'in a,false);assert.equal(JSON.stringify(a).includes('Never Persist This'),false);assert.equal(a.idempotencyKey,'youtube:evt-001')});
 
-test('gateway accepts one valid input and rejects duplicate delivery',()=>{const gateway=new ant.AntAudienceGateway();const input=vote();assert.deepEqual(gateway.accept(input).status,'accepted');assert.deepEqual(gateway.accept(input),{status:'rejected',reason:'duplicate'});assert.equal(gateway.snapshot().seenCount,2)});
+test('gateway accepts one valid input and rejects duplicate delivery',()=>{const gateway=new ant.AntAudienceGateway();const input=vote();assert.equal(gateway.accept(input).status,'accepted');assert.deepEqual(gateway.accept(input),{status:'rejected',reason:'duplicate'});assert.equal(gateway.snapshot().seenCount,1)});
 
 test('gateway fails closed on authentication, moderation, region and entitlement errors',()=>{for(const[overrides,reason]of[[{authenticated:false},'authentication'],[{moderation:'unavailable'},'moderation-unavailable'],[{moderation:'reject'},'moderation-reject'],[{regionAllowed:false},'region'],[{entitlementWeight:4},'entitlement-weight']]){const gateway=new ant.AntAudienceGateway();assert.equal(gateway.accept(vote({...overrides,eventId:`evt-${reason}`})).reason,reason)}});
 
