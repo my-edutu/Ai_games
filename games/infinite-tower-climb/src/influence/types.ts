@@ -1,0 +1,13 @@
+import type{TowerTheme}from'../config/schema';import type{TowerPlatform,TowerHazard}from'../state/types';
+export type TowerInfluenceEffectId='route-reveal'|'shield'|'stamina'|'wind-pressure'|'enemy-pressure'|'treasure-detour'|'temporary-platform'|'remove-optional-obstacle'|'guardian-modifier'|'next-theme';
+export interface TowerInfluenceCandidate{id:string;effectId:TowerInfluenceEffectId;label:string;pressure:number;durationTicks:number;reversible:boolean;payload:Record<string,unknown>}
+export interface TowerInfluenceCommand{id:string;effectId:TowerInfluenceEffectId;candidateId:string;label:string;pressure:number;durationTicks:number;reversible:boolean;payload:Record<string,unknown>;scheduledTick:number;expiresAtTick:number;source:string}
+export type TowerInfluenceStatus='queued'|'applied'|'expired'|'rejected'|'reversed';
+export interface TowerInfluenceRecord{id:string;effectId:TowerInfluenceEffectId;status:TowerInfluenceStatus;applicationCount:number;scheduledTick:number;appliedTick?:number;expiresAtTick:number;source:string;payload:Record<string,unknown>;reversible:boolean;reversalId?:string;reason?:string;terminalMutation:false}
+export interface TowerInfluenceModifiers{windUntilTick:number;windDirection:-1|0|1;guardianHealthBonus:number;guardianModifierUntilFloor:number;nextTheme?:TowerTheme}
+export interface TowerInfluenceState{queued:TowerInfluenceCommand[];applied:Record<string,TowerInfluenceRecord>;reversalIds:Record<string,string>;pressure:number;routeRevealUntilTick:number;cooldownUntil:Partial<Record<TowerInfluenceEffectId,number>>;modifiers:TowerInfluenceModifiers}
+export interface TemporaryPlatformPayload{floor:number;platform:TowerPlatform}
+export interface RemoveObstaclePayload{floor:number;hazard:TowerHazard}
+export interface TowerVoteBallot{id:string;viewerRef:string;token:string;weight:number;atTick:number}
+export interface TowerVoteWindow{id:string;opensAtTick:number;closesAtTick:number;tokens:string[];ballots:Record<string,TowerVoteBallot>;eventIds:Record<string,string>;resolved?:{winner:string;tallies:Record<string,number>;resolvedAtTick:number}}
+export function createInitialTowerInfluenceState():TowerInfluenceState{return{queued:[],applied:{},reversalIds:{},pressure:0,routeRevealUntilTick:0,cooldownUntil:{},modifiers:{windUntilTick:0,windDirection:0,guardianHealthBonus:0,guardianModifierUntilFloor:0}}}

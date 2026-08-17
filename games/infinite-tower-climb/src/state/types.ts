@@ -1,3 +1,4 @@
+import type{TowerInfluenceState}from'../influence/types';
 import type{TowerConfig,TowerTheme}from'../config/schema';
 export type TowerLifecycle='running'|'result'|'intermission';
 export type PlatformKind='solid'|'oneway'|'moving';
@@ -22,7 +23,7 @@ export interface TowerBuild{upgradeIds:string[];families:UpgradeFamily[];attackD
 export interface TowerUpgradeOffer{id:string;family:UpgradeFamily;name:string;description:string;modifiers:Partial<Omit<TowerBuild,'upgradeIds'|'families'>>;maxHealthBonus?:number;shieldCharges?:number}
 export interface TowerStats{floorsCleared:number;maxHeight:number;jumps:number;dashes:number;falls:number;hazardHits:number;invalidActions:number;restarts:number;checkpoints:number;technicalOutcomes:number;enemiesDefeated:number;guardiansDefeated:number;damageDealt:number;damageTaken:number;pickupsCollected:number;upgradesApplied:number;stuckRecoveries:number;projectilesFired:number}
 export interface TowerAiState{mode:string;intent:string;confidence:number;fallbackCount:number;decisions:number;recentHeights:number[];targetPlatformId?:string;lastInvalidation?:string;nodeExpansions:number}
-export interface TowerState{schemaVersion:1;runId:string;seed:string;config:TowerConfig;tick:number;lifecycle:TowerLifecycle;intermissionRemaining:number;floor:number;height:number;meaningfulEventTick:number;chunks:TowerChunk[];player:TowerPlayer;enemies:TowerEnemy[];projectiles:TowerProjectile[];pickups:TowerPickup[];build:TowerBuild;pendingUpgradeOffers:TowerUpgradeOffer[];lastUpgradeId?:string;stats:TowerStats;ai:TowerAiState;result?:TowerResult}
+export interface TowerState{schemaVersion:1;runId:string;seed:string;config:TowerConfig;tick:number;lifecycle:TowerLifecycle;intermissionRemaining:number;floor:number;height:number;meaningfulEventTick:number;chunks:TowerChunk[];player:TowerPlayer;enemies:TowerEnemy[];projectiles:TowerProjectile[];pickups:TowerPickup[];build:TowerBuild;pendingUpgradeOffers:TowerUpgradeOffer[];lastUpgradeId?:string;influence:TowerInfluenceState;stats:TowerStats;ai:TowerAiState;result?:TowerResult}
 export interface TowerEvent{seq:number;tick:number;type:string;data?:Record<string,unknown>}
 export interface PhysicsContact{kind:'land'|'head'|'wall'|'hazard';entityId:string;normal:Vec2}
 export interface PhysicsStepResult{state:TowerState;contacts:PhysicsContact[];integrityFailure?:string}

@@ -8,6 +8,7 @@ export function stepTowerPhysics(input:TowerState,action:TowerAction):{state:Tow
   if(p.invulnerableTicks>0)p.invulnerableTicks--;if(p.dashCooldown>0)p.dashCooldown--;p.stamina=Math.min(p.maxStamina,p.stamina+1);
   const nowPlatforms=platforms(state,state.tick),nextPlatforms=platforms(state,state.tick+1);
   if(p.grounded&&p.groundedPlatformId){const a=nowPlatforms.find(x=>x.id===p.groundedPlatformId),b=nextPlatforms.find(x=>x.id===p.groundedPlatformId);if(a&&b){p.position.x+=b.x-a.x;p.position.y+=b.y-a.y}}
+  if(!p.grounded&&state.influence.modifiers.windUntilTick>state.tick)p.velocity.x=clamp(p.velocity.x+state.influence.modifiers.windDirection*260,-c.dashSpeed,c.dashSpeed);
   if(action.move!==0){p.facing=action.move;const control=p.grounded?1000:state.build.airControlPermille;p.velocity.x=clamp(p.velocity.x+Math.round(action.move*c.moveAcceleration*control/1000),-c.maxRunSpeed,c.maxRunSpeed)}
   else if(p.grounded){const f=Math.min(Math.abs(p.velocity.x),c.groundFriction);p.velocity.x-=Math.sign(p.velocity.x)*f}
   if(action.jump&&(p.grounded||p.jumpCharges>0)){if(!p.grounded)p.jumpCharges--;p.velocity.y=c.jumpImpulse;p.grounded=false;p.groundedPlatformId=undefined;p.state='airborne';state.stats.jumps++}
