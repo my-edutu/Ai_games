@@ -24,6 +24,17 @@ test('conflicting duplicate event IDs fail closed',()=>{
   assert.throws(()=>store.appendEvent(conflict),e=>e.code==='EVENT_CONFLICT');
 });
 
+test('runtime command reservations are indexed by durable command ID and conflicting reuse fails closed',()=>{
+  const store=new InMemoryDurableStore();
+  const original=event(0,'runtime-command',{commandId:'command-1',commandSeq:1,kind:'step'});
+  store.appendEvent(original);
+  assert.equal(store.runtimeCommand('channel-1','command-1').eventId,'event-0');
+  assert.equal(store.runtimeCommand('channel-1','missing'),undefined);
+  const conflict=event(1,'runtime-command',{commandId:'command-1',commandSeq:2,kind:'step'});
+  assert.throws(()=>store.appendEvent(conflict),e=>e.code==='EVENT_CONFLICT');
+  assert.equal(store.events('channel-1').length,1);
+});
+
 test('snapshots are newest-first, compatibility-filtered and bounded',()=>{
   const store=new InMemoryDurableStore({snapshotCapacity:2});
   for(let i=0;i<3;i++)store.putSnapshot({schemaVersion:1,id:`s${i}`,streamId:'channel-1',runId:'run-1',eventSeq:i,commandSeq:i,createdAtMs:100+i,compatibility:{gameVersion:'1',deterministicVersion:'1',configHash:'a',contentHash:'b'},envelope:{i},checksum:`c${i}`});

@@ -346,6 +346,9 @@ export class AntColonyChannelService {
 
   captureSnapshot(nowMs: number): AntRecoveryCheckpoint {
     this.requireStarted();
+    if (!this.dependencies.persistence) {
+      throw operationalError('PERSISTENCE_UNAVAILABLE', 'snapshot cannot be durably written');
+    }
     const record = createAntRecoveryCheckpoint(this.runtime, {
       streamId: this.options.channelId,
       id: `snapshot-${this.commandSeq}-${nowMs}`,
@@ -421,8 +424,11 @@ export class AntColonyChannelService {
       started: this.started,
       leaseGeneration: this.lease?.generation ?? 0,
       interactionsEnabled: control.interactionsEnabled && this.interactionDependenciesHealthy(),
-      simulationEnabled: this.started && control.simulationEnabled,
-      publicOutputProtected: control.safeScene || !this.dependencies.renderer || !this.dependencies.capture,
+      simulationEnabled: this.started && control.simulationEnabled && this.dependencies.persistence,
+      publicOutputProtected: control.safeScene
+        || !this.dependencies.persistence
+        || !this.dependencies.renderer
+        || !this.dependencies.capture,
       commandSeq: this.commandSeq,
       commandDedupeEntries: this.decisions.size,
       queuedInfluence: this.runtime.state.influence.scheduled.length,
@@ -449,6 +455,13 @@ export class AntColonyChannelService {
     const existing = this.decisions.get(commandId);
     if (existing) {
       return { status: 'duplicate' as const, checksum: existing.checksum || checksum(this.runtime.state) };
+    }
+    const durable = this.store.runtimeCommand(this.options.channelId, commandId);
+    if (durable) {
+      const stateChecksum = checksum(this.runtime.state);
+      this.decisions.set(commandId, { status: 'applied', checksum: stateChecksum });
+      this.boundDecisions();
+      return { status: 'duplicate' as const, checksum: stateChecksum };
     }
 
     let preparedInfluenceState: typeof this.runtime.state | undefined;
