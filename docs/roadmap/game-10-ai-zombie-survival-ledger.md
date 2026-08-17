@@ -6,8 +6,8 @@
 
 | Phase | Target | Status | Exit evidence |
 |---|---|---|---|
-| 1. Deterministic Foundation | R1 | In progress | Build, foundation tests, replay/snapshot/invariant corpus, headless evidence |
-| 2. AI, Hordes, Economy, Progression | R2 gameplay | Not started | Agent/horde/economy tests, campaigns, balance and dramatic-pattern evidence |
+| 1. Deterministic Foundation | R1 | Complete | Exact source `bd195967…`; 266 Node + 8 browser tests; 100-seed zero divergence; reviews/evidence retained |
+| 2. AI, Hordes, Economy, Progression | R2 gameplay | Next | Agent/horde/economy tests, campaigns, balance and dramatic-pattern evidence |
 | 3. Broadcast Experience | R2 streamed | Not started | Stream self-test, Node presentation tests, Chromium captures, accessibility/output review |
 | 4. Audience Interaction | R3 | Not started | Safety/idempotency/vote/reversal/outage tests and pressure campaigns |
 | 5. Reliability and Operations | R4 | Not started | Restore/fencing/RBAC/supervisor tests, chaos artifact, runbook and rollback drills |
