@@ -70,6 +70,12 @@ jobs:
           set -euo pipefail
           mkdir -p artifacts/maze-phase5
           npm run maze:phase5:chaos -- maze-phase5-ci > artifacts/maze-phase5/chaos-summary.json
+      - name: Generate Ant Colony Phase 5 chaos evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/ant-phase5
+          npm run ant:phase5:chaos -- ant-phase5-ci > artifacts/ant-phase5/chaos-summary.json
       - name: Generate Snake Phase 6 release validation evidence
         shell: bash
         env:
@@ -128,6 +134,14 @@ jobs:
         with:
           name: ai-maze-escape-phase5-operations
           path: artifacts/maze-phase5
+          if-no-files-found: error
+          retention-days: 30
+      - name: Upload Ant Colony Phase 5 operations evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: ai-ant-colony-phase5-operations
+          path: artifacts/ant-phase5
           if-no-files-found: error
           retention-days: 30
       - name: Upload Snake Phase 6 release validation evidence
