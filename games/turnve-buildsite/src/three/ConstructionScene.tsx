@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef } from 'react';
 import * as THREE from 'three';
 import { scenario } from '../simulation/scenario';
 import { useSimulationStore } from '../state/store';
+import { SiteLife } from './SiteLife';
 
 function isBlocked(x: number, z: number) {
   const building = x > 5 && x < 16 && z > -4 && z < 5;
@@ -168,6 +169,7 @@ function SiteEnvironment() {
         const color = state.status === 'resolved' ? '#51c985' : state.status === 'reported' ? '#f0bd2c' : '#ff6b45';
         return <mesh key={hazard.id} position={hazard.position} rotation={[Math.PI / 2, 0, 0]} onClick={(event) => { event.stopPropagation(); const store = useSimulationStore.getState(); if (state.status === 'unseen') store.dispatch({ type: 'DISCOVER_HAZARD', hazardId: hazard.id }); else if (!state.evidenceCaptured) store.dispatch({ type: 'CAPTURE_EVIDENCE', hazardId: hazard.id }); else if (state.status === 'observed') store.dispatch({ type: 'REPORT_HAZARD', hazardId: hazard.id }); }}><torusGeometry args={[0.75, 0.08, 10, 30]} /><meshStandardMaterial color={color} emissive={color} emissiveIntensity={0.45} /></mesh>;
       })}
+      <SiteLife />
       <Crane />
       <Truck />
       <Rain />
