@@ -1,0 +1,17 @@
+import{NamedRng}from'../../../../packages/seeded-rng/src/index';import type{TowerBuild,TowerState,TowerUpgradeOffer}from'../state/types';
+export function createInitialTowerBuild():TowerBuild{return{upgradeIds:[],families:[],attackDamage:1,attackReachBonus:0,airControlPermille:1000,dashCost:20,dashCooldownReduction:0,scoreMultiplierPermille:1000,pickupRadius:0}}
+const CATALOGUE:readonly TowerUpgradeOffer[]=[
+{id:'air-control',family:'mobility',name:'Vector Fins',description:'Sharper airborne steering.',modifiers:{airControlPermille:180}},
+{id:'dash-cycle',family:'mobility',name:'Flux Dash',description:'Lower dash cost and cooldown.',modifiers:{dashCost:-4,dashCooldownReduction:4}},
+{id:'reinforced-core',family:'survival',name:'Reinforced Core',description:'Increase maximum health.',modifiers:{},maxHealthBonus:1},
+{id:'phase-shield',family:'survival',name:'Phase Shield',description:'Absorb one declared hit.',modifiers:{},shieldCharges:1},
+{id:'edge-blade',family:'offense',name:'Edge Blade',description:'Increase melee damage and reach.',modifiers:{attackDamage:1,attackReachBonus:9000}},
+{id:'pulse-shot',family:'offense',name:'Pulse Shot',description:'Unlock a bounded active projectile.',modifiers:{}},
+{id:'pickup-field',family:'utility',name:'Pickup Field',description:'Collect nearby resources safely.',modifiers:{pickupRadius:18000}},
+{id:'stamina-loop',family:'utility',name:'Stamina Loop',description:'Reduce dash resource cost.',modifiers:{dashCost:-3}},
+{id:'glass-crown',family:'risk',name:'Glass Crown',description:'Higher score with no hidden rescue.',modifiers:{scoreMultiplierPermille:250}},
+{id:'record-oath',family:'risk',name:'Record Oath',description:'Higher score and longer reach.',modifiers:{scoreMultiplierPermille:150,attackReachBonus:5000}}
+];
+export function offerTowerUpgrades(state:TowerState,rng:NamedRng,floor=state.floor){const eligible=CATALOGUE.filter(x=>!state.build.upgradeIds.includes(x.id)),pool=[...eligible],offers:TowerUpgradeOffer[]=[];while(pool.length&&offers.length<3){const index=rng.nextInt(`tower:upgrade:${floor}:${offers.length}:${state.build.upgradeIds.join('|')}`,pool.length);offers.push(structuredClone(pool.splice(index,1)[0]))}return offers}
+export function applyTowerUpgrade(input:TowerState,offer:TowerUpgradeOffer){const state=structuredClone(input);if(state.build.upgradeIds.includes(offer.id))return{state,applied:false,reason:'already-applied' as const};if(state.pendingUpgradeOffers.length&&!state.pendingUpgradeOffers.some(x=>x.id===offer.id))return{state,applied:false,reason:'not-offered' as const};state.build.upgradeIds.push(offer.id);state.build.families.push(offer.family);for(const[key,value]of Object.entries(offer.modifiers)as[ keyof Omit<TowerBuild,'upgradeIds'|'families'>,number][])state.build[key]+=value;if(offer.maxHealthBonus){state.player.maxHealth+=offer.maxHealthBonus;state.player.health+=offer.maxHealthBonus}if(offer.shieldCharges)state.player.shieldCharges+=offer.shieldCharges;state.pendingUpgradeOffers=[];state.lastUpgradeId=offer.id;state.stats.upgradesApplied++;state.meaningfulEventTick=state.tick;return{state,applied:true,reason:'applied' as const}}
+export function chooseTowerUpgrade(state:TowerState){const priorities=['survival','mobility','offense','utility','risk'];return[...state.pendingUpgradeOffers].sort((a,b)=>priorities.indexOf(a.family)-priorities.indexOf(b.family)||a.id.localeCompare(b.id))[0]}

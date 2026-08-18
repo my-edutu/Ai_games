@@ -1,0 +1,1 @@
+export function detectTowerStuck(recentHeights:number[],minimum=32,tolerance=4000){if(recentHeights.length<minimum)return false;const values=recentHeights.slice(-minimum);return Math.max(...values)-Math.min(...values)<=tolerance}
