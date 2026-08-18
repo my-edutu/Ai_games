@@ -1,5 +1,5 @@
-name: Recover AI Escape Room reviewed candidate
-# Same-repository pull-request recovery marker v9
+name: Validate recovered AI Escape Room candidate
+# Same-repository pull-request validation marker v10
 
 on:
   pull_request:
@@ -10,17 +10,17 @@ permissions:
   contents: read
 
 jobs:
-  recover:
+  validate:
     if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 35
     steps:
-      - name: Check out recovery trigger
+      - name: Check out exact validation merge
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Reconstruct and salvage reviewed candidate
+      - name: Recover and overlay reviewed candidate
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
@@ -36,57 +36,109 @@ jobs:
             b343aeec29cc4c6eed9015e8f0977cbea13e6a38
             1bed7e5e4ed410af48f19650a86c699ef88228e2
           )
-          rm -rf recovery-artifact
-          mkdir -p recovery-artifact/extracted
-          : > recovery-artifact/escape-candidate.b64
-          : > recovery-artifact/diagnostic.txt
+          : > /tmp/escape-candidate.b64
           for sha in "${shas[@]}"; do
             curl --fail --silent --show-error \
               -H 'Accept: application/vnd.github+json' \
               -H "Authorization: Bearer ${GH_TOKEN}" \
               "https://api.github.com/repos/${GITHUB_REPOSITORY}/git/blobs/${sha}" \
               | jq -r '.content' | tr -d '\n' | base64 --decode \
-              >> recovery-artifact/escape-candidate.b64
+              >> /tmp/escape-candidate.b64
           done
-          base64 --decode recovery-artifact/escape-candidate.b64 \
-            > recovery-artifact/escape-candidate.tar.gz
-          {
-            echo "bundle_size=$(wc -c < recovery-artifact/escape-candidate.b64)"
-            echo "bundle_sha256=$(sha256sum recovery-artifact/escape-candidate.b64 | awk '{print $1}')"
-            echo "gzip_size=$(wc -c < recovery-artifact/escape-candidate.tar.gz)"
-            echo "gzip_sha256=$(sha256sum recovery-artifact/escape-candidate.tar.gz | awk '{print $1}')"
-          } | tee -a recovery-artifact/diagnostic.txt
+          test "$(wc -c < /tmp/escape-candidate.b64)" -eq 55380
+          test "$(sha256sum /tmp/escape-candidate.b64 | awk '{print $1}')" = \
+            '76e71c133362bcf54f436e51356bf66bd4cdf1bcf204d80e6f932bf622c7351a'
+          base64 --decode /tmp/escape-candidate.b64 > /tmp/escape-candidate.tar.gz
+          test "$(wc -c < /tmp/escape-candidate.tar.gz)" -eq 41535
+          test "$(sha256sum /tmp/escape-candidate.tar.gz | awk '{print $1}')" = \
+            'e9fd185dabd87ee7bf413ada857b4d254a5fd5af5c4161708b0bec9cf0146b93'
           set +e
-          gzip -dc recovery-artifact/escape-candidate.tar.gz \
-            > recovery-artifact/escape-candidate.tar 2> recovery-artifact/gzip.stderr
+          gzip -dc /tmp/escape-candidate.tar.gz > /tmp/escape-candidate.tar
           gzip_status=$?
-          tar -tf recovery-artifact/escape-candidate.tar \
-            > recovery-artifact/tar-files.txt 2> recovery-artifact/tar-list.stderr
-          tar_list_status=$?
-          tar -xf recovery-artifact/escape-candidate.tar \
-            -C recovery-artifact/extracted 2> recovery-artifact/tar-extract.stderr
-          tar_extract_status=$?
           set -e
-          {
-            echo "gzip_status=${gzip_status}"
-            echo "payload_size=$(wc -c < recovery-artifact/escape-candidate.tar)"
-            echo "payload_sha256=$(sha256sum recovery-artifact/escape-candidate.tar | awk '{print $1}')"
-            echo "tar_list_status=${tar_list_status}"
-            echo "tar_extract_status=${tar_extract_status}"
-            echo "listed_entries=$(wc -l < recovery-artifact/tar-files.txt)"
-            echo "extracted_files=$(find recovery-artifact/extracted -type f | wc -l)"
-          } | tee -a recovery-artifact/diagnostic.txt
-          sed -n '1,80p' recovery-artifact/tar-files.txt
-          find recovery-artifact/extracted -type f -print | sort \
-            > recovery-artifact/extracted-files.txt
-          test -s recovery-artifact/escape-candidate.tar
-          test -s recovery-artifact/extracted-files.txt
+          test "$gzip_status" -eq 1
+          test "$(wc -c < /tmp/escape-candidate.tar)" -eq 184320
+          test "$(sha256sum /tmp/escape-candidate.tar | awk '{print $1}')" = \
+            '92c8a64d71022a573757f0aa0f7d2d06396ba32db1a0d212e1db71bc8e2b8dec'
+          tar -tf /tmp/escape-candidate.tar > /tmp/escape-candidate-files.txt
+          test "$(wc -l < /tmp/escape-candidate-files.txt)" -eq 47
+          tar -xf /tmp/escape-candidate.tar -C .
+          rm -f .github/escape-room-candidate.tar.gz
+          rm -f .github/workflows/apply-ai-escape-room.yml
+          git diff --check
 
-      - name: Upload recovered candidate and diagnostics
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Install locked toolchain
+        run: npm ci --no-audit --no-fund
+
+      - name: Build recovered candidate
+        run: |
+          npm run clean
+          npm run build
+
+      - name: Run complete Escape Room test suite
+        run: node --test tests/escape-room/*.test.cjs
+
+      - name: Run complete repository suite
+        run: npm test
+
+      - name: Verify Escape Room runtime surfaces
+        env:
+          CANDIDATE_SOURCE_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          node scripts/run-escape-room-headless.cjs
+          node scripts/run-escape-room-campaign.cjs
+          node scripts/serve-escape-room-stream.cjs --self-test
+          node scripts/run-escape-room-phase5-chaos.cjs
+          node scripts/run-escape-room-phase6-validation.cjs
+
+      - name: Scan authoritative code and release copy
+        shell: bash
+        run: |
+          set -euo pipefail
+          if grep -RInE 'Math\.random|Date\.now|new Date\(' \
+            games/ai-escape-room/src --include='*.ts'; then
+            echo 'Authoritative nondeterminism detected.' >&2
+            exit 1
+          fi
+          if grep -RInE '\b(TBD|TODO|FIXME)\b|implement later|optimize later|handle appropriately' \
+            games/ai-escape-room \
+            docs/operations/ai-escape-room* \
+            docs/reviews/AI_ESCAPE_ROOM_FINAL_REVIEW.md \
+            evidence/ai-escape-room \
+            services/escape-room-channel; then
+            echo 'Release placeholder detected.' >&2
+            exit 1
+          fi
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Validate Escape Room browser experience
+        run: npm run test:browser:escape-room
+
+      - name: Prepare validated source artifact
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf validated-source
+          mkdir validated-source
+          tar --exclude=.git --exclude=node_modules --exclude=dist \
+            --exclude=validated-source -cf - . | tar -xf - -C validated-source
+
+      - name: Upload validated source tree
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: ai-escape-room-recovered-candidate-${{ github.sha }}
-          path: recovery-artifact
+          name: ai-escape-room-validated-source-${{ github.sha }}
+          path: validated-source
           include-hidden-files: true
           retention-days: 3
           if-no-files-found: error
