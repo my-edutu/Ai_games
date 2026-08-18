@@ -4,7 +4,7 @@ import type { TowerPolicyMode } from '../../../games/infinite-tower-climb/src/in
 import type { TowerInfluenceCommand } from '../../../games/infinite-tower-climb/src/influence/types';
 import { TowerRuntime } from '../../../games/infinite-tower-climb/src/runtime/run';
 import { createStoredEvent, type DurableStore } from '../../../packages/durable-store/src/index';
-import type { AuditEntry, CompatibilityKey, SnapshotRecord, StoredEvent } from '../../../packages/ops-contracts/src/index';
+import type { AuditEntry, CompatibilityKey, SnapshotRecord } from '../../../packages/ops-contracts/src/index';
 import { RunLeaseStore, type RunLease } from '../../../packages/operations-core/src/lease';
 import { OperatorControlPlane, type ControlCommand } from '../../../packages/operator-control/src/index';
 import { checksum } from '../../../packages/replay/src/index';
@@ -301,9 +301,9 @@ export class TowerChannelService {
     return {
       started: this.started,
       leaseGeneration: this.lease?.generation ?? 0,
-      interactionsEnabled: control.interactionsEnabled && this.interactionDependenciesHealthy(),
-      simulationEnabled: this.started && control.simulationEnabled,
-      publicOutputProtected: control.safeScene || !this.dependencies.renderer || !this.dependencies.capture,
+      interactionsEnabled: control.interactionsEnabled && this.interactionDependenciesHealthy() && this.dependencies.persistence,
+      simulationEnabled: this.started && control.simulationEnabled && this.dependencies.persistence,
+      publicOutputProtected: control.safeScene || !this.dependencies.persistence || !this.dependencies.renderer || !this.dependencies.capture,
       commandSeq: this.commandSeq,
       commandDedupeEntries: this.decisions.size,
       queuedInfluence: this.runtime.state.influence.queued.length,
@@ -318,8 +318,14 @@ export class TowerChannelService {
   private applyCommand(commandId: string, nowMs: number, command: { kind: 'step' } | { kind: 'restart'; seed: string } | { kind: 'influence'; command: TowerInfluenceCommand }) {
     this.requireStarted();
     if (!commandId || !Number.isFinite(nowMs)) throw new RangeError('runtime command');
-    const duplicate = this.decisions.get(commandId);
-    if (duplicate) return { status: 'duplicate' as const, commandId, commandSeq: duplicate.commandSeq, checksum: duplicate.checksum };
+    const cached = this.decisions.get(commandId);
+    if (cached?.checksum) return { status: 'duplicate' as const, commandId, commandSeq: cached.commandSeq, checksum: cached.checksum };
+    const durableDuplicate = this.resolveDurableDecision(commandId);
+    if (durableDuplicate) {
+      this.decisions.set(commandId, durableDuplicate);
+      this.boundDecisions();
+      return { status: 'duplicate' as const, commandId, commandSeq: durableDuplicate.commandSeq, checksum: durableDuplicate.checksum };
+    }
     if (!this.dependencies.persistence) throw operationalError('PERSISTENCE_UNAVAILABLE', 'authoritative command persistence is unavailable');
     if (command.kind === 'influence') {
       if (!this.interactionDependenciesHealthy()) throw operationalError('INTERACTION_UNAVAILABLE', 'audience interaction dependencies are unavailable');
@@ -352,6 +358,34 @@ export class TowerChannelService {
     const latest = this.store.snapshots(this.options.channelId)[0];
     if (!latest || this.commandSeq - latest.commandSeq >= this.options.snapshotEveryCommands) this.captureSnapshot(nowMs);
     return { status: 'applied' as const, commandId, commandSeq: nextCommandSeq, checksum: resultChecksum };
+  }
+
+  private resolveDurableDecision(commandId: string): { status: 'applied'; checksum: string; commandSeq: number } | undefined {
+    const event = this.store.runtimeCommand(this.options.channelId, commandId);
+    if (!event) return undefined;
+    const commandSeq = Number(event.payload.commandSeq);
+    if (!Number.isInteger(commandSeq) || commandSeq < 1) throw operationalError('CORRUPT_STORE', `runtime command ${commandId} has an invalid sequence`);
+    const storedChecksum = String(event.payload.resultChecksum ?? '');
+    if (storedChecksum) return { status: 'applied', checksum: storedChecksum, commandSeq };
+
+    const replay = TowerRuntime.create(this.options.config, this.options.seed, { policy: this.options.policy });
+    replay.drainEvents();
+    const commands = this.commandsFromStore()
+      .filter(item => item.seq <= commandSeq)
+      .sort((a, b) => a.seq - b.seq || a.id.localeCompare(b.id));
+    let expected = 1;
+    for (const item of commands) {
+      if (item.seq !== expected) throw operationalError('CORRUPT_STORE', `runtime command sequence gap before ${commandId}`);
+      if (item.kind === 'step') replay.step();
+      else if (item.kind === 'restart') replay.restart(item.seed);
+      else {
+        const queued = replay.queueInfluence(item.command);
+        if (queued.status !== 'queued' && queued.status !== 'duplicate') throw operationalError('CORRUPT_STORE', `runtime command ${item.id} cannot be replayed`);
+      }
+      if (item.seq === commandSeq) return { status: 'applied', checksum: checksum(replay.state), commandSeq };
+      expected += 1;
+    }
+    throw operationalError('CORRUPT_STORE', `runtime command ${commandId} is indexed but missing from replay evidence`);
   }
 
   private appendRuntimeCommand(command: TowerRuntimeCommand, nowMs: number): void {
