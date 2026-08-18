@@ -1,6 +1,6 @@
 name: Apply AI Escape Room reviewed candidate
 # Completion review trigger: 2026-08-18
-# Same-repository pull-request execution marker v4
+# Same-repository pull-request execution marker v5
 
 on:
   push:
@@ -30,51 +30,14 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          shas=(
-            d20d5d2c7a87c1a0d56a8eccfe5108998a28a1b9
-            a88533beffb4df8b9d41652777b737358e6cf485
-            508d51328d6ee5ed1b2f68b2c70513b8eea4c2af
-            cb13ab7315d4e5fab450c62af749453838d57c6e
-            3cec1a6694103e032a6a133cf198a07718b57dd7
-            bdc895296f7ac707a794ae2f9764f0c1e34d0232
-            b343aeec29cc4c6eed9015e8f0977cbea13e6a38
-            1bed7e5e4ed410af48f19650a86c699ef88228e2
-          )
-          expected=(
-            b8904636840933a7ba3c4d70f64740844fdfbbf9b53274c08eb56ee145fc4e75
-            8773d915c4ae4abf86e83fc746d1e17797a68eebdc1c90a518d5ccb9e82e4f73
-            ae58e71da9b269bcdd9daf287e80ecdb4d27bb1fecfec2f945cfcd3d91c2c503
-            794cce528218edd12544e28fb55b8f33d108152dd57265cddf3212c2c3d46f17
-            8d36354ee9dca5c06df34f5dfb5e604feab94a829975a019e4594c46c8e42e0c
-            3e72febe3559b0c57306193268fe08df39cc9cd355874aec18e60196a5e43e90
-            51b41b318f85b70cec6f20d16f7f64ddf8a888edbebdce9ff6e7c9c80c7c0cd5
-            7f3a38fa20aefaae7c36352e494eb1b9190352b314b49ee93c95fe49ab1fff25
-          )
-          : > /tmp/escape-candidate.b64
-          for i in "${!shas[@]}"; do
-            curl --fail --silent --show-error \
-              -H 'Accept: application/vnd.github+json' \
-              -H "Authorization: Bearer ${GH_TOKEN}" \
-              "https://api.github.com/repos/${GITHUB_REPOSITORY}/git/blobs/${shas[$i]}" \
-              | jq -r '.content' | tr -d '\n' | base64 --decode > "/tmp/chunk-${i}"
-            actual="$(sha256sum "/tmp/chunk-${i}" | awk '{print $1}')"
-            echo "chunk ${i}: ${actual}"
-            test "$actual" = "${expected[$i]}"
-            cat "/tmp/chunk-${i}" >> /tmp/escape-candidate.b64
-          done
-          bundle_size="$(wc -c < /tmp/escape-candidate.b64)"
-          bundle_actual="$(sha256sum /tmp/escape-candidate.b64 | awk '{print $1}')"
-          echo "bundle size: ${bundle_size}"
-          echo "bundle sha256: ${bundle_actual}"
-          base64 --decode /tmp/escape-candidate.b64 > /tmp/escape-candidate.tar.gz
-          tar_size="$(wc -c < /tmp/escape-candidate.tar.gz)"
-          tar_actual="$(sha256sum /tmp/escape-candidate.tar.gz | awk '{print $1}')"
-          echo "tar size: ${tar_size}"
-          echo "tar sha256: ${tar_actual}"
-          test "$bundle_size" -eq 55380
-          test "$bundle_actual" = '76e71c133362bcf54f436e51356bf66bd4cdf1bcf204d80e6f932bf622c7351a'
-          test "$tar_size" -eq 41535
-          test "$tar_actual" = 'e9fd185dabd87ee7bf413ada857b4d254a5fd5af5c4161708b0bec9cf0146b93'
+          curl --fail --silent --show-error \
+            -H 'Accept: application/vnd.github+json' \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/git/blobs/87032b6d79e2b2d35a898298a0a8fb09edf49b10" \
+            | jq -r '.content' | tr -d '\n' | base64 --decode > /tmp/escape-candidate.tar.gz
+          test "$(wc -c < /tmp/escape-candidate.tar.gz)" -eq 41535
+          echo '0bff6f11ef283c1bb06e39170a5ae7dc4298b75dcd84340585a12c5e14d1b1eb  /tmp/escape-candidate.tar.gz' | sha256sum -c -
+          gzip -t /tmp/escape-candidate.tar.gz
           tar -xzf /tmp/escape-candidate.tar.gz -C .
 
       - name: Create exact candidate commit
