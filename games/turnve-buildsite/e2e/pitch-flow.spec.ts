@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test';
 
 const ppe = ['Hard hat', 'High-visibility vest', 'Safety boots', 'Safety glasses'];
 
-test('guided pitch flow reaches the readiness report and resets', async ({ page }) => {
+test('guided pitch flow reaches an evidence-backed readiness report and resets', async ({ page }) => {
   await page.goto('/?demo=true');
   await expect(page.getByText('TURNVE BUILDSITE')).toBeVisible();
   await page.getByRole('button', { name: 'Skip fly-through' }).click();
@@ -20,19 +20,36 @@ test('guided pitch flow reaches the readiness report and resets', async ({ page 
   await expect(page.getByRole('heading', { name: /Maya Okafor/ })).toBeVisible();
   await page.getByRole('button', { name: 'Begin guided site walk' }).click();
   await expect(page.getByText('Inspect the site and record evidence.')).toBeVisible();
+  await expect(page.getByText('GUIDED SITE COACH')).toBeVisible();
 
   await page.getByRole('button', { name: /Site Tablet/ }).click();
   await expect(page.getByRole('dialog', { name: 'Turnve Site Tablet' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'The Concrete Pour Decision' })).toBeVisible();
+  await page.getByRole('button', { name: 'Site Map' }).click();
+  await expect(page.getByRole('heading', { name: 'Live site map' })).toBeVisible();
   await page.getByRole('button', { name: 'Drawings' }).click();
   await page.getByRole('button', { name: 'Record revision discrepancy' }).click();
   await expect(page.getByText(/Revision mismatch recorded/)).toBeVisible();
   await page.getByLabel('Close tablet').click();
 
   await page.keyboard.press('Shift+P');
-  await expect(page.getByRole('dialog', { name: 'Pitch presenter controls' })).toBeVisible();
-  await page.getByRole('button', { name: 'Apply recommended sequence' }).click();
-  await page.getByRole('button', { name: 'Open final report' }).click();
+  const presenter = page.getByRole('dialog', { name: 'Pitch presenter controls' });
+  await expect(presenter).toBeVisible();
+  await page.getByRole('button', { name: 'Jump to artifact moment' }).click();
+  await presenter.getByRole('button', { name: '×' }).click();
+
+  await page.getByRole('button', { name: 'Open Artifacts' }).click();
+  await page.getByRole('button', { name: 'Artifacts' }).click();
+  const assist = page.getByRole('button', { name: 'Use collected evidence' }).first();
+  await assist.click();
+  await expect(page.locator('.artifact-card textarea').first()).not.toHaveValue('');
+  await page.getByLabel('Close tablet').click();
+
+  await page.keyboard.press('Shift+P');
+  await expect(presenter).toBeVisible();
+  await page.getByRole('button', { name: 'Open evidence-backed report' }).click();
   await expect(page.getByRole('heading', { name: 'Intern Readiness Report' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'What this run proves' })).toBeVisible();
 
   await page.keyboard.press('Escape');
   await page.getByRole('button', { name: 'New simulation' }).click();
