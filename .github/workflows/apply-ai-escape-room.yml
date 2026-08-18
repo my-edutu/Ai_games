@@ -1,6 +1,6 @@
 name: Apply AI Escape Room reviewed candidate
 # Completion review trigger: 2026-08-18
-# Same-repository pull-request execution marker
+# Same-repository pull-request execution marker v2
 
 on:
   push:
@@ -45,7 +45,7 @@ jobs:
             8773d915c4ae4abf86e83fc746d1e17797a68eebdc1c90a518d5ccb9e82e4f73
             ae58e71da9b269bcdd9daf287e80ecdb4d27bb1fecfec2f945cfcd3d91c2c503
             794cce528218edd12544e28fb55b8f33d108152dd57265cddf3212c2c3d46f17
-            47479594890e96838a631eaa9aef4861deae29b6dae2d791e96fcd4e9f9d2cd3
+            8d36354ee9dca5c06df34f5dfb5e604feab94a829975a019e4594c46c8e42e0c
             3e72febe3559b0c57306193268fe08df39cc9cd355874aec18e60196a5e43e90
             51b41b318f85b70cec6f20d16f7f64ddf8a888edbebdce9ff6e7c9c80c7c0cd5
             7f3a38fa20aefaae7c36352e494eb1b9190352b314b49ee93c95fe49ab1fff25
