@@ -47,6 +47,24 @@ describe('Turnve BuildSite simulation engine', () => {
     expect(state.audit.at(-1)?.title).toBe('Checklist verification rejected');
   });
 
+  it('builds evidence-assisted artifact drafts from learner actions without auto-submitting them', () => {
+    let state = dispatchMany([
+      { type: 'DISCOVER_HAZARD', hazardId: 'water-cable' },
+      { type: 'CAPTURE_EVIDENCE', hazardId: 'water-cable' },
+      { type: 'REPORT_HAZARD', hazardId: 'water-cable' },
+      { type: 'COMPARE_DRAWINGS' },
+      { type: 'TRIGGER_CRISIS' },
+      { type: 'RECOMMEND_HOLD' },
+      { type: 'REQUEST_INSPECTION' },
+      { type: 'UPDATE_SUPPLIER' },
+    ]);
+    state = reduceSimulation(state, { type: 'PREFILL_ARTIFACT', artifact: 'supervisor-update' });
+    expect(state.artifactDrafts['supervisor-update'].risk).toMatch(/inspection|drawing|approval/i);
+    expect(state.artifactDrafts['supervisor-update'].action).toMatch(/hold|supplier|inspection/i);
+    expect(state.artifactSubmitted['supervisor-update']).toBe(false);
+    expect(state.audit.at(-1)?.title).toBe('Evidence-assisted draft prepared');
+  });
+
   it('keeps readiness labels on the approved bands', () => {
     expect(readinessLevel(39)).toBe('Requires Foundation Training');
     expect(readinessLevel(40)).toBe('Developing Intern');
