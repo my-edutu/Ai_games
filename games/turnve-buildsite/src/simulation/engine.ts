@@ -66,6 +66,73 @@ export function evaluateArtifact(type: ArtifactType, fields: Record<string, stri
 }
 function allArtifactsSubmitted(state: SimulationState) { return artifactTypes.every((type) => state.artifactSubmitted[type]); }
 
+export function buildSuggestedArtifactDraft(type: ArtifactType, state: SimulationState): Record<string, string> {
+  const discovered = scenario.hazards.filter((hazard) => state.hazards[hazard.id]?.status !== 'unseen');
+  const reported = discovered.filter((hazard) => ['reported', 'resolved'].includes(state.hazards[hazard.id]?.status));
+  const evidence = discovered.filter((hazard) => state.hazards[hazard.id]?.evidenceCaptured);
+  const firstHazard = discovered[0];
+  const hazardSummary = discovered.length ? discovered.map((hazard) => hazard.label).join('; ') : 'No site hazards recorded yet';
+  const evidenceSummary = evidence.length ? evidence.map((hazard) => `photo:${hazard.id}`).join(', ') : 'No photo evidence captured yet';
+  const actionSummary = [
+    state.holdRecommended && 'temporary hold recommended',
+    state.inspectionRequested && 'consultant inspection requested',
+    state.inspectionSigned && 'consultant inspection completed',
+    state.supplierUpdated && 'concrete supplier updated',
+    state.materialsProtected && 'weather-sensitive materials protected',
+  ].filter(Boolean).join('; ') || 'Investigation in progress; no escalation action recorded yet';
+  const blockers = [
+    !state.inspectionSigned && 'consultant inspection/approval not yet complete',
+    !state.latestDrawingConfirmed && 'latest drawing revision not yet confirmed',
+    state.weather === 'rain' && 'active rain affecting the pour window',
+  ].filter(Boolean).join('; ') || 'No unresolved approval blocker recorded';
+
+  if (type === 'safety-observation') {
+    return {
+      observation: firstHazard ? `${firstHazard.label}: ${firstHazard.description}` : 'No safety observation selected yet. Inspect the site and capture evidence before final submission.',
+      location: firstHazard?.location ?? 'Site location not yet recorded',
+      riskLevel: firstHazard?.risk ? firstHazard.risk[0].toUpperCase() + firstHazard.risk.slice(1) : 'Pending classification',
+      immediateAction: state.holdRecommended ? `Affected activity placed on temporary hold; ${actionSummary}.` : `Observation recorded. ${actionSummary}.`,
+      personNotified: reported.length ? 'Ibrahim Bello — HSE Officer; Maya Okafor — Assistant Site Manager' : 'Notification still required: HSE Officer / Assistant Site Manager',
+      evidence: evidenceSummary,
+      followUp: state.holdRecommended ? 'Supervisor/HSE to confirm corrective action before the affected activity resumes.' : 'Escalate the observation, record corrective action, and verify close-out before work continues.',
+    };
+  }
+
+  if (type === 'rfi') {
+    return {
+      drawingReference: 'Ground-floor structural slab — Revision 02 compared with Revision 03 (latest consultant issue)',
+      discrepancy: state.drawingCompared ? 'Revision 03 changes the reinforcement detail around the service opening compared with Revision 02 available in the foreman folder.' : 'Drawing comparison is still required before this RFI is complete.',
+      question: 'Please confirm the approved reinforcement arrangement at the service opening and whether any installed work requires correction before the concrete pour proceeds.',
+      impact: `Potential quality/rework and programme impact if the outdated detail is used. Current blockers: ${blockers}.`,
+      requiredResponseTime: 'Before pre-pour approval and before authorization of the concrete pour.',
+      attachments: `Revision 02; Revision 03; ${evidenceSummary}.`,
+    };
+  }
+
+  if (type === 'site-diary') {
+    return {
+      time: `${formatSimulatedTime(state.simulatedMinute)} simulated site time`,
+      work: `Pre-pour readiness inspections and document-control checks. Issues observed: ${hazardSummary}.`,
+      labour: 'Slab preparation crew, site foreman, HSE team and concrete delivery team observed in the work area.',
+      weather: state.weather === 'rain' ? 'Rain active during pressure event.' : state.weather === 'cloudy' ? 'Cloud cover increasing; rain risk reviewed.' : 'Clear at current recorded time.',
+      deliveries: state.truck === 'waiting' ? 'Concrete truck arrived early and is waiting.' : state.truck === 'released' ? 'Concrete truck released following the decision.' : 'Concrete delivery remains scheduled.',
+      delays: state.truck === 'waiting' ? `Pour readiness delay recorded; current scenario cost exposure ₦${state.budgetExposure.toLocaleString()}.` : 'No concrete waiting delay recorded at this point.',
+      safety: reported.length ? `Reported/controlled observations: ${reported.map((hazard) => hazard.label).join('; ')}.` : `Observed issues pending formal report: ${hazardSummary}.`,
+      quality: `${state.drawingCompared ? 'Revision 02/03 discrepancy recorded.' : 'Drawing review pending.'} ${state.inspectionSigned ? 'Consultant pre-pour inspection completed.' : 'Consultant sign-off remains outstanding.'}`,
+      instructions: state.holdRecommended ? 'Recommended temporary hold and escalated the pour decision to authorized site leadership.' : 'Continue assigned inspection and documentation tasks; intern has no authority to authorize the structural pour.',
+      outstanding: blockers,
+    };
+  }
+
+  return {
+    situation: `Concrete pour readiness under review. Truck status: ${state.truck}. Weather: ${state.weather}. ${state.inspectionSigned ? 'Consultant inspection is complete.' : 'Consultant inspection remains outstanding.'}`,
+    risk: `${blockers}. ${state.drawingCompared ? 'Revision 02/03 drawing discrepancy has been identified.' : 'Drawing revision still needs verification.'}`,
+    action: `Actions taken: ${actionSummary}. Evidence captured: ${evidence.length}/${discovered.length || 0} observed issue(s).`,
+    decision: state.inspectionSigned && state.holdRecommended ? 'Authorized site leadership to confirm the revised pour timing and final go/no-go decision; intern recommends proceeding only under approved instruction.' : 'Supervisor/consultant support required to resolve approval blockers; intern recommends maintaining the hold on affected work.',
+    nextUpdate: `Next status update at ${formatSimulatedTime(state.simulatedMinute + 15)} or immediately after any approval/status change.`,
+  };
+}
+
 export function reduceSimulation(previous: SimulationState, action: SimulationAction): SimulationState {
   if (action.type === 'RESET') return createInitialState(previous.mode);
   const state = structuredClone(previous) as SimulationState;
@@ -117,6 +184,13 @@ export function reduceSimulation(previous: SimulationState, action: SimulationAc
       if (state.stage === 'crisis' && state.holdRecommended && state.inspectionSigned) { state.stage = 'artifacts'; audit(state, 'decision', 'Crisis handed back to authorized team', 'You documented the safe hold, completed inspection path, and handed the pour decision back to authorized site leadership.'); }
       break;
     case 'SET_ARTIFACT_FIELD': state.artifactDrafts[action.artifact][action.field] = action.value; break;
+    case 'PREFILL_ARTIFACT': {
+      const suggested = buildSuggestedArtifactDraft(action.artifact, state);
+      const current = state.artifactDrafts[action.artifact];
+      state.artifactDrafts[action.artifact] = Object.fromEntries(artifactDefinitions[action.artifact].fields.map((field) => [field.key, current[field.key]?.trim() ? current[field.key] : suggested[field.key] ?? '']));
+      audit(state, 'artifact', 'Evidence-assisted draft prepared', `${artifactDefinitions[action.artifact].title} was prefilled from collected evidence and recorded actions. Learner review is still required before submission.`);
+      break;
+    }
     case 'SUBMIT_ARTIFACT': { const score = evaluateArtifact(action.artifact, state.artifactDrafts[action.artifact], state); state.artifactScores[action.artifact] = score; state.artifactSubmitted[action.artifact] = true; adjustMetric(state, 'documentation', (score - 50) / 12); adjustMetric(state, 'professionalConduct', score >= 70 ? 2 : -1); audit(state, 'artifact', `${artifactDefinitions[action.artifact].title} submitted`, `Artifact evaluation score: ${score}/100.`, ['Documentation adjusted from artifact quality']); if (allArtifactsSubmitted(state)) state.stage = 'report'; break; }
     case 'USE_HINT': state.hintsUsed += 1; if (state.mode === 'assessment') adjustMetric(state, 'professionalConduct', -1); break;
     case 'TICK': state.simulatedMinute += action.minutes ?? 1; if (state.truck === 'waiting' && state.simulatedMinute % 15 === 0) state.budgetExposure += 75; if (state.stage === 'pre-pour' && state.simulatedMinute >= 120) { state.stage = 'crisis'; state.truck = 'waiting'; state.weather = 'cloudy'; state.budgetExposure += 250; audit(state, 'consequence', 'Pressure event started', 'Concrete arrived early while inspection approval remained unresolved.'); } break;
