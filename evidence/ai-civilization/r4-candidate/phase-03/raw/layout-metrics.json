@@ -1,0 +1,23 @@
+{
+  "desktop": {
+    "viewport": {"width": 1920, "height": 1080},
+    "scrollWidth": 1920,
+    "clientWidth": 1920,
+    "scrollHeight": 1080,
+    "clientHeight": 1080,
+    "horizontalOverflowPx": 0,
+    "eventRailBottomPx": 1018.89,
+    "captionsBottomPx": 1067.14,
+    "goalFontPx": 36,
+    "rulerFontPx": 21.6
+  },
+  "mobile": {
+    "viewport": {"width": 390, "height": 844},
+    "scrollWidth": 390,
+    "clientWidth": 390,
+    "horizontalOverflowPx": 0,
+    "mapRightPx": 363.4,
+    "pageHeightPx": 2426
+  },
+  "method": "Actual Phase 3 HTML, CSS, JavaScript, and a real sanitized render snapshot were rendered with Chromium through Playwright page.set_content because direct localhost navigation is denied by the execution environment's browser administrator policy. The Node stream self-test separately exercised the real HTTP routes."
+}

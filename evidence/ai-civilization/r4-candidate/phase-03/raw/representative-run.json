@@ -1,0 +1,14 @@
+{
+  "seed": "phase3-review",
+  "days": 1500,
+  "outcome": "era-timeout",
+  "tier": "city",
+  "renown": 982,
+  "population": 124,
+  "stability": 100,
+  "integrityFailures": 0,
+  "successions": 1,
+  "greatWorks": 2,
+  "crises": 49,
+  "checksum": "6e31831e"
+}

@@ -1,0 +1,6 @@
+{
+  "pass": true,
+  "routes": {"health": 200, "state": 200, "events": 200, "stream": 200, "index": 200},
+  "privacySafe": true,
+  "schema": "civilization-render-v1"
+}

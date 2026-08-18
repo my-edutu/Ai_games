@@ -1,0 +1,40 @@
+{
+  "gameId": "ai-civilization",
+  "phase": 3,
+  "phaseName": "Premium Broadcast Experience",
+  "baselineHeadSha": "35d0ec4843cd5bfe8bfedffcb7359f6ef98fab2a",
+  "gameVersion": "0.3.0-broadcast",
+  "deterministicVersion": "civilization-r2-v1",
+  "presentationVersion": "civilization-broadcast-v1",
+  "status": "pass-after-p1-remediation",
+  "verification": {
+    "foundationThroughPhase3Tests": {"passed": 31, "failed": 0},
+    "streamSelfTest": "raw/stream-self-test.json",
+    "layoutMetrics": "raw/layout-metrics.json",
+    "representativeRun": "raw/representative-run.json",
+    "viewportGates": {
+      "desktop1920x1080": "pass",
+      "mobile390x844": "pass",
+      "horizontalOverflowPx": 0,
+      "minimumGoalTextPx": 36,
+      "minimumRulerTextPx": 21.6
+    },
+    "privacy": "pass",
+    "immutability": "pass",
+    "audioUnavailableChecksumNeutral": "pass",
+    "externalAssetDependencies": 0
+  },
+  "review": {
+    "specification": "pass",
+    "viewerExperience": "pass-after-fix",
+    "accessibility": "pass-after-fix",
+    "openP0": 0,
+    "openP1": 0
+  },
+  "environmentNote": "Direct localhost navigation by the installed Chromium is blocked by browser administrator policy. Actual HTTP routes were self-tested through Node and exact-source layout was rendered with Chromium through Playwright page.set_content.",
+  "r5Gate": {
+    "productionReady": false,
+    "status": "BLOCKED",
+    "reason": "No exact-candidate 72-hour production soak, seven-day guarded canary, witnessed operational drills, or independent production sign-off exists."
+  }
+}
