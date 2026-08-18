@@ -1,6 +1,6 @@
 name: Apply AI Escape Room reviewed candidate
 # Completion review trigger: 2026-08-18
-# Same-repository pull-request execution marker v5
+# Same-repository pull-request execution marker v6
 
 on:
   push:
@@ -26,15 +26,9 @@ jobs:
 
       - name: Restore checksum-pinned reviewed changes
         shell: bash
-        env:
-          GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          curl --fail --silent --show-error \
-            -H 'Accept: application/vnd.github+json' \
-            -H "Authorization: Bearer ${GH_TOKEN}" \
-            "https://api.github.com/repos/${GITHUB_REPOSITORY}/git/blobs/87032b6d79e2b2d35a898298a0a8fb09edf49b10" \
-            | jq -r '.content' | tr -d '\n' | base64 --decode > /tmp/escape-candidate.tar.gz
+          cp .github/escape-room-candidate.tar.gz /tmp/escape-candidate.tar.gz
           test "$(wc -c < /tmp/escape-candidate.tar.gz)" -eq 41535
           echo '0bff6f11ef283c1bb06e39170a5ae7dc4298b75dcd84340585a12c5e14d1b1eb  /tmp/escape-candidate.tar.gz' | sha256sum -c -
           gzip -t /tmp/escape-candidate.tar.gz
@@ -48,6 +42,7 @@ jobs:
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git rm .github/workflows/apply-ai-escape-room.yml
+          git rm .github/escape-room-candidate.tar.gz
           rm -f .github/workflows/export-source.yml
           git add -A
           git diff --cached --check
