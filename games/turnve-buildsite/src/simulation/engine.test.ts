@@ -39,10 +39,12 @@ describe('Turnve BuildSite simulation engine', () => {
     expect(state.budgetExposure).toBeGreaterThanOrEqual(5000);
   });
 
-  it('penalizes unsupported checklist verification', () => {
+  it('rejects and penalizes unsupported checklist verification', () => {
     const initial = createInitialState();
     const state = reduceSimulation(initial, { type: 'SET_CHECKLIST', itemId: 'consultant-inspection', value: true });
+    expect(state.checklist['consultant-inspection']).toBe(false);
     expect(state.metrics.documentation).toBeLessThan(initial.metrics.documentation);
+    expect(state.audit.at(-1)?.title).toBe('Checklist verification rejected');
   });
 
   it('keeps readiness labels on the approved bands', () => {
