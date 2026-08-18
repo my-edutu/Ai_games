@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>AI Battle Royale — Autonomous Arena</title>
+  <link rel="stylesheet" href="/battle/styles.css">
+</head>
+<body data-reduced-motion="false" data-reduced-flash="false" data-high-contrast="false" data-scene="battle">
+  <main class="broadcast" aria-label="AI Battle Royale autonomous livestream">
+    <aside class="hud" data-testid="hud" aria-label="Primary match status">
+      <p class="eyebrow">AUTONOMOUS ARENA</p>
+      <h1>AI BATTLE<br>ROYALE</h1>
+      <section class="survivor-card" aria-live="polite">
+        <span class="label">MATCH OBJECTIVE</span>
+        <strong data-testid="objective">Loading survivors…</strong>
+        <div class="progress-track" aria-hidden="true"><span id="match-progress"></span></div>
+      </section>
+      <dl class="metrics">
+        <div><dt>Zone</dt><dd id="zone-phase">Phase 0</dd></div>
+        <div><dt>Next close</dt><dd id="zone-timer">—</dd></div>
+        <div><dt>Tick</dt><dd data-testid="tick">Tick 0</dd></div>
+        <div><dt>Arena</dt><dd id="arena-status">Online</dd></div>
+      </dl>
+      <section class="focus-card">
+        <span class="label">AI FOCUS</span>
+        <strong id="focus-name">Deploying contenders</strong>
+        <p data-testid="ai-intent">Reading tactical intent…</p>
+        <div class="resource-bars" aria-label="Focused contender health and shield">
+          <span id="health-bar"></span><span id="shield-bar"></span>
+        </div>
+      </section>
+      <section class="vote-card" id="vote-card" hidden>
+        <span class="label">AUDIENCE DECISION</span>
+        <strong id="vote-title">Vote open</strong>
+        <p id="vote-options"></p>
+      </section>
+    </aside>
+
+    <section class="arena-shell" aria-label="Authoritative tactical arena">
+      <canvas data-testid="battle-canvas" aria-label="Top-down autonomous battle arena"></canvas>
+      <div class="scene-banner" id="scene-banner" role="status"></div>
+      <div class="legend" aria-label="Archetype shape legend">
+        <span>⬢ Vanguard</span><span>▲ Ranger</span><span>◆ Scavenger</span><span>□ Tactician</span>
+      </div>
+    </section>
+
+    <aside class="narrative" data-testid="narrative" aria-label="Battle narrative">
+      <section>
+        <p class="eyebrow">LIVE RANKING</p>
+        <ol id="leaderboard"></ol>
+      </section>
+      <section>
+        <p class="eyebrow">DECISIVE EVENTS</p>
+        <ul id="kill-feed"></ul>
+      </section>
+      <section class="fairness-note">
+        <p class="eyebrow">FAIR PLAY</p>
+        <p>Every contender follows the same legal action system. Audience influence is global, bounded and cannot select a winner.</p>
+      </section>
+    </aside>
+
+    <section class="captions" data-testid="captions" aria-live="polite" aria-atomic="true">
+      <span class="caption-mark">CC</span><p id="caption-text">The arena is preparing a deterministic match.</p>
+    </section>
+  </main>
+
+  <section id="operator-panel" class="operator-panel" hidden aria-label="Private operator controls">
+    <strong>Operator</strong>
+    <button type="button" data-command="pause">Pause</button>
+    <button type="button" data-command="resume">Resume</button>
+    <button type="button" data-command="restart">New match</button>
+    <button type="button" id="mute-control">Audio muted</button>
+    <span id="operator-status">Controls are private</span>
+  </section>
+
+  <script src="/battle/app.js" defer></script>
+</body>
+</html>
