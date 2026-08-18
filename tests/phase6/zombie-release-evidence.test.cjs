@@ -6,7 +6,7 @@ const path=require('node:path');
 function release(){return require('../../dist/games/ai-zombie-survival/src/release/validation.js')}
 const SHA_A='cccccccccccccccccccccccccccccccccccccccc';
 const SHA_B='dddddddddddddddddddddddddddddddddddddddd';
-const VERIFIED_INTEGRATED_ROLLBACK_SHA='74fadf884025abf127e949b7ab8a8d673d19fee7';
+const VERIFIED_INTEGRATED_ROLLBACK_SHA='9bdd3dad50f350e626aa2d8849d5b106482bf961';
 
 test('Zombie release manifest artifacts are exact-candidate-bound and use the verified integrated rollback source',()=>{
   const{createZombieReleaseManifest}=release();
