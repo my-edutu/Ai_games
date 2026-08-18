@@ -39,7 +39,7 @@ export function App() {
 
   const showHint = () => { state.dispatch({ type: 'USE_HINT' }); setHint(getTariHint(useSimulationStore.getState())); };
   const start = (mode: 'guided' | 'assessment') => state.dispatch({ type: 'START', mode });
-  const paused = tabletOpen || presenterOpen || state.stage === 'ppe' || state.stage === 'briefing' || state.stage === 'report';
+  const paused = tabletOpen || presenterOpen || state.stage === 'intro' || state.stage === 'ppe' || state.stage === 'briefing' || state.stage === 'report';
 
   return (
     <main className="app-shell">
