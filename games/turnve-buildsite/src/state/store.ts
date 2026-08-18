@@ -28,7 +28,7 @@ function persist(state: SimulationState) {
   try {
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
   } catch {
-    // Local persistence is optional; simulation remains usable if storage is blocked.
+    // Storage failure must not block the simulation.
   }
 }
 
@@ -36,9 +36,10 @@ export const useSimulationStore = create<SimulationStore>((set) => ({
   ...persistedInitialState(),
   nearbyHazard: null,
   dispatch: (action) => set((current) => {
-    const next = reduceSimulation(current, action);
+    const { dispatch: _dispatch, setNearbyHazard: _setNearbyHazard, nearbyHazard, ...serializableState } = current;
+    const next = reduceSimulation(serializableState, action);
     persist(next);
-    return next;
+    return { ...next, nearbyHazard: action.type === 'RESET' ? null : nearbyHazard };
   }),
   setNearbyHazard: (hazardId) => set({ nearbyHazard: hazardId }),
 }));

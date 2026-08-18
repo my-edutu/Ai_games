@@ -1,0 +1,57 @@
+name: Turnve BuildSite CI
+
+on:
+  push:
+    branches:
+      - 'feat/turnve-buildsite'
+    paths:
+      - 'games/turnve-buildsite/**'
+      - '.github/workflows/turnve-buildsite.yml'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'games/turnve-buildsite/**'
+      - '.github/workflows/turnve-buildsite.yml'
+      - 'docs/superpowers/specs/2026-08-18-turnve-buildsite-design.md'
+      - 'docs/superpowers/plans/2026-08-18-turnve-buildsite.md'
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: games/turnve-buildsite
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '22.16.0'
+      - name: Install BuildSite dependencies
+        run: npm install --no-audit --no-fund
+      - name: Unit and integration tests
+        run: npm test
+      - name: Production build
+        run: npm run build
+      - name: Preview smoke test
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm run preview -- --host 127.0.0.1 > /tmp/turnve-buildsite-preview.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill $SERVER_PID 2>/dev/null || true' EXIT
+          for attempt in {1..20}; do
+            if curl --fail --silent http://127.0.0.1:4175/?demo=true > /tmp/turnve-buildsite.html; then
+              grep -q 'Turnve BuildSite' /tmp/turnve-buildsite.html
+              exit 0
+            fi
+            sleep 1
+          done
+          cat /tmp/turnve-buildsite-preview.log
+          exit 1
