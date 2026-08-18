@@ -1,0 +1,29 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#070912"><title>Infinite Tower Climb</title><link rel="stylesheet" href="/tower/styles.css"></head>
+<body><main id="app" data-testid="tower-app">
+  <section class="shell" data-testid="shell">
+    <header class="top" data-testid="hud">
+      <div class="brand"><span class="brand-mark" aria-hidden="true">▲</span><div><p class="eyebrow">AUTONOMOUS ASCENT</p><h1>INFINITE TOWER</h1></div></div>
+      <div class="primary-metrics">
+        <article><span>FLOOR</span><strong data-testid="floor">0</strong></article>
+        <article><span>HEIGHT</span><strong data-testid="height">0m</strong></article>
+        <article><span>NEXT GUARDIAN</span><strong data-testid="guardian">10</strong></article>
+      </div>
+      <div class="status-chip" data-testid="scene">ASCENDING</div>
+    </header>
+    <section class="arena-wrap">
+      <canvas id="tower-canvas" data-testid="tower-canvas" aria-label="Infinite Tower Climb autonomous game view"></canvas>
+      <div class="danger-vignette" aria-hidden="true"></div>
+      <div class="checkpoint-pill"><span>RUN</span><b data-testid="run-token">—</b></div>
+    </section>
+    <aside class="side" data-testid="side-panel">
+      <section class="panel vital-panel"><div class="panel-head"><span>CLIMBER STATUS</span><b data-testid="tick">0</b></div><div class="bar-row"><label>INTEGRITY</label><div class="bar"><i id="health-bar"></i></div><output data-testid="health">5/5</output></div><div class="bar-row"><label>STAMINA</label><div class="bar stamina"><i id="stamina-bar"></i></div><output data-testid="stamina">100</output></div><div class="shield-row"><span>SHIELDS</span><b data-testid="shields">0</b></div></section>
+      <section class="panel intent-panel"><div class="panel-head"><span>AI INTENT</span><b id="confidence">100%</b></div><h2 data-testid="ai-intent">ASSESSING ROUTE</h2><p id="intent-mode">BOOT</p></section>
+      <section class="panel build-panel"><div class="panel-head"><span>ACTIVE BUILD</span><b data-testid="score">0</b></div><div class="tags" id="build-tags"><em>BASE KIT</em></div></section>
+      <section class="panel progress-panel"><div class="panel-head"><span>FLOOR PROGRESS</span><b data-testid="progress">0%</b></div><div class="vertical-progress"><i id="floor-progress"></i><span></span></div><p id="theme-name">FOUNDRY SECTOR</p></section>
+    </aside>
+    <footer class="caption" data-testid="captions" aria-live="polite"><span class="caption-icon">●</span><p id="caption-text">The climber is entering the tower.</p><div class="provider-state" id="provider-state">AUTONOMOUS CORE ONLINE</div></footer>
+    <section class="choice-card" id="choice-card" hidden><p>BUILD DECISION</p><h2 id="choice-title">Upgrade available</h2><div id="choice-options"></div></section>
+    <section class="result-card" id="result-card" hidden><p>RUN COMPLETE</p><h2 id="result-title">ASCENT ENDED</h2><strong id="result-height">0m</strong><span>Automatic restart armed</span></section>
+    <section class="recovery-card" id="recovery-card" hidden><div class="spinner"></div><p>RESTORING VERIFIED VIEW</p><span>No game result has been recorded.</span></section>
+  </section>
+</main><script src="/tower/app.js" defer></script></body></html>

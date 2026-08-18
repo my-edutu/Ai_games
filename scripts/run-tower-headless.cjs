@@ -1,0 +1,1 @@
+'use strict';const{runTowerHeadless}=require('../dist/games/infinite-tower-climb/src/testing/headless.js');const seed=process.argv[2]||'tower-cli';process.stdout.write(`${JSON.stringify(runTowerHeadless({seed,maxSteps:2000,runtime:{policy:'autonomous'}}))}\n`);
