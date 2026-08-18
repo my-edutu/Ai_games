@@ -12,7 +12,7 @@ export{MANDATORY_DRILLS};
 const DAY=24*60*60*1000;
 const REQUIRED_PROVIDERS:string[]=['youtube','twitch'];
 const REQUIRED_SAFETY:string[]=['security','privacy','moderation','accessibility','audiovisual','assets','supply-chain'];
-const VERIFIED_INTEGRATED_ROLLBACK_SHA='74fadf884025abf127e949b7ab8a8d673d19fee7';
+const VERIFIED_INTEGRATED_ROLLBACK_SHA='9bdd3dad50f350e626aa2d8849d5b106482bf961';
 const BASE_CONFIG={width:24,height:16,dayTicks:80,nightTicks:80,resultTicks:2,maxDays:5,maxZombies:48,survivorDecisionInterval:1,waveBaseSize:5,waveGrowthPerDay:1};
 
 export interface ZombieIntegritySummary{hiddenInformationViolations:number;replayDivergences:number;duplicateEffects:number;unauthorizedControls:number;privateExposures:number;openP0:number;openP1:number}
