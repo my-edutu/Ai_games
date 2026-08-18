@@ -1,11 +1,7 @@
-name: Diagnose AI Escape Room canonical candidate
-# Completion review integrity diagnostic: 2026-08-18
-# Same-repository pull-request execution marker v8
+name: Recover AI Escape Room reviewed candidate
+# Same-repository pull-request recovery marker v9
 
 on:
-  push:
-    branches:
-      - agent/ai-escape-room-all-phases
   pull_request:
     branches:
       - agent/ai-escape-room-all-phases
@@ -14,34 +10,83 @@ permissions:
   contents: read
 
 jobs:
-  diagnose:
+  recover:
     if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     steps:
-      - name: Check out canonical candidate transport
+      - name: Check out recovery trigger
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Validate compressed and decompressed layers
+      - name: Reconstruct and salvage reviewed candidate
         shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          transport=.github/escape-room-candidate.tar.gz
-          test -f "$transport"
-          compressed_size="$(wc -c < "$transport")"
-          compressed_sha="$(sha256sum "$transport" | awk '{print $1}')"
-          echo "compressed size: ${compressed_size}"
-          echo "compressed sha256: ${compressed_sha}"
-          gzip -t "$transport"
-          gzip -dc "$transport" > /tmp/escape-candidate.tar
-          payload_size="$(wc -c < /tmp/escape-candidate.tar)"
-          payload_sha="$(sha256sum /tmp/escape-candidate.tar | awk '{print $1}')"
-          echo "payload size: ${payload_size}"
-          echo "payload sha256: ${payload_sha}"
-          tar -tf /tmp/escape-candidate.tar > /tmp/escape-candidate-files.txt
-          echo "payload entries: $(wc -l < /tmp/escape-candidate-files.txt)"
-          sed -n '1,20p' /tmp/escape-candidate-files.txt
-          test "$compressed_size" -eq 7515
-          test "$payload_size" -gt 0
+          shas=(
+            d20d5d2c7a87c1a0d56a8eccfe5108998a28a1b9
+            a88533beffb4df8b9d41652777b737358e6cf485
+            508d51328d6ee5ed1b2f68b2c70513b8eea4c2af
+            cb13ab7315d4e5fab450c62af749453838d57c6e
+            3cec1a6694103e032a6a133cf198a07718b57dd7
+            bdc895296f7ac707a794ae2f9764f0c1e34d0232
+            b343aeec29cc4c6eed9015e8f0977cbea13e6a38
+            1bed7e5e4ed410af48f19650a86c699ef88228e2
+          )
+          rm -rf recovery-artifact
+          mkdir -p recovery-artifact/extracted
+          : > recovery-artifact/escape-candidate.b64
+          : > recovery-artifact/diagnostic.txt
+          for sha in "${shas[@]}"; do
+            curl --fail --silent --show-error \
+              -H 'Accept: application/vnd.github+json' \
+              -H "Authorization: Bearer ${GH_TOKEN}" \
+              "https://api.github.com/repos/${GITHUB_REPOSITORY}/git/blobs/${sha}" \
+              | jq -r '.content' | tr -d '\n' | base64 --decode \
+              >> recovery-artifact/escape-candidate.b64
+          done
+          base64 --decode recovery-artifact/escape-candidate.b64 \
+            > recovery-artifact/escape-candidate.tar.gz
+          {
+            echo "bundle_size=$(wc -c < recovery-artifact/escape-candidate.b64)"
+            echo "bundle_sha256=$(sha256sum recovery-artifact/escape-candidate.b64 | awk '{print $1}')"
+            echo "gzip_size=$(wc -c < recovery-artifact/escape-candidate.tar.gz)"
+            echo "gzip_sha256=$(sha256sum recovery-artifact/escape-candidate.tar.gz | awk '{print $1}')"
+          } | tee -a recovery-artifact/diagnostic.txt
+          set +e
+          gzip -dc recovery-artifact/escape-candidate.tar.gz \
+            > recovery-artifact/escape-candidate.tar 2> recovery-artifact/gzip.stderr
+          gzip_status=$?
+          tar -tf recovery-artifact/escape-candidate.tar \
+            > recovery-artifact/tar-files.txt 2> recovery-artifact/tar-list.stderr
+          tar_list_status=$?
+          tar -xf recovery-artifact/escape-candidate.tar \
+            -C recovery-artifact/extracted 2> recovery-artifact/tar-extract.stderr
+          tar_extract_status=$?
+          set -e
+          {
+            echo "gzip_status=${gzip_status}"
+            echo "payload_size=$(wc -c < recovery-artifact/escape-candidate.tar)"
+            echo "payload_sha256=$(sha256sum recovery-artifact/escape-candidate.tar | awk '{print $1}')"
+            echo "tar_list_status=${tar_list_status}"
+            echo "tar_extract_status=${tar_extract_status}"
+            echo "listed_entries=$(wc -l < recovery-artifact/tar-files.txt)"
+            echo "extracted_files=$(find recovery-artifact/extracted -type f | wc -l)"
+          } | tee -a recovery-artifact/diagnostic.txt
+          sed -n '1,80p' recovery-artifact/tar-files.txt
+          find recovery-artifact/extracted -type f -print | sort \
+            > recovery-artifact/extracted-files.txt
+          test -s recovery-artifact/escape-candidate.tar
+          test -s recovery-artifact/extracted-files.txt
+
+      - name: Upload recovered candidate and diagnostics
+        uses: actions/upload-artifact@v4
+        with:
+          name: ai-escape-room-recovered-candidate-${{ github.sha }}
+          path: recovery-artifact
+          include-hidden-files: true
+          retention-days: 3
+          if-no-files-found: error
