@@ -34,7 +34,10 @@
     "maze:phase6:validate": "npm run build && node scripts/run-maze-phase6-validation.cjs",
     "civilization:headless": "npm run build && node scripts/run-civilization-headless.cjs",
     "test:civilization:phase2": "npm run build && node --test tests/foundation/civilization-*.test.cjs tests/phase2/civilization-*.test.cjs",
-    "civilization:campaign": "npm run build && node scripts/run-civilization-campaign.cjs"
+    "civilization:campaign": "npm run build && node scripts/run-civilization-campaign.cjs",
+    "test:civilization:phase3": "npm run build && node --test tests/foundation/civilization-*.test.cjs tests/phase2/civilization-*.test.cjs tests/phase3/civilization-*.test.cjs",
+    "civilization:stream": "npm run build && node scripts/serve-civilization-stream.cjs",
+    "civilization:stream:self-test": "npm run build && node scripts/serve-civilization-stream.cjs --self-test"
   },
   "devDependencies": {
     "@playwright/test": "1.55.0",

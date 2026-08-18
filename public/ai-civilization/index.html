@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="color-scheme" content="dark">
+  <title>AI Civilization — Tiny Kingdom</title>
+  <link rel="stylesheet" href="/ai-civilization/styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#simulation">Skip to simulation</a>
+  <div class="ambient" aria-hidden="true"></div>
+  <header class="topbar">
+    <div class="brand-block">
+      <span class="eyebrow">AUTONOMOUS KINGDOM SIMULATION</span>
+      <h1>AI Civilization</h1>
+      <p id="subtitle">Establishing the realm…</p>
+    </div>
+    <div class="status-strip" aria-label="Simulation status">
+      <span id="connection" class="connection" data-state="connecting">CONNECTING</span>
+      <span id="era-clock">Year — · Day —</span>
+      <span id="tier-chip">Camp</span>
+    </div>
+    <nav class="controls" aria-label="Broadcast accessibility controls">
+      <button id="audio-toggle" type="button" aria-pressed="true">Audio on</button>
+      <button id="motion-toggle" type="button" aria-pressed="false">Reduce motion</button>
+      <button id="contrast-toggle" type="button" aria-pressed="false">High contrast</button>
+      <button id="text-toggle" type="button" aria-pressed="false">Larger text</button>
+    </nav>
+  </header>
+
+  <main id="simulation" tabindex="-1">
+    <section class="command-card" aria-labelledby="goal-heading">
+      <div>
+        <span class="eyebrow" id="goal-heading">CURRENT AI PLAN</span>
+        <h2 id="goal">Reading the kingdom…</h2>
+        <p id="decree">The ruler is choosing a lawful action.</p>
+      </div>
+      <div id="danger" class="danger" data-level="stable" role="status">
+        <span class="danger-label">STABLE</span>
+        <strong id="danger-cause">Realm stable</strong>
+        <span id="danger-instruction">No immediate threat</span>
+      </div>
+    </section>
+
+    <section class="world-panel" aria-labelledby="world-heading">
+      <div class="section-heading">
+        <div><span class="eyebrow">LIVE WORLD</span><h2 id="world-heading">The Tiny Kingdom</h2></div>
+        <div class="progress-copy"><span id="renown">0 renown</span><span id="next-tier">Next tier —</span></div>
+      </div>
+      <div class="progress-track" aria-label="Legendary kingdom progress"><span id="progress-fill"></span></div>
+      <div id="kingdom-map" class="kingdom-map" role="img" aria-label="Loading kingdom map"></div>
+      <div class="map-legend" aria-label="Map legend">
+        <span><i class="legend-dot player"></i>Kingdom</span><span><i class="legend-dot rival"></i>Rival</span><span><i class="legend-dot crisis"></i>Threat</span><span><i class="legend-dot capital"></i>Capital</span>
+      </div>
+    </section>
+
+    <aside class="realm-panel" aria-label="Kingdom scorecard">
+      <section id="ruler-card" class="character-card ruler-card" aria-labelledby="ruler-heading">
+        <div id="ruler-portrait" class="portrait" aria-hidden="true"></div>
+        <div><span class="eyebrow" id="ruler-heading">RULER</span><h2 id="ruler-name">—</h2><p id="ruler-intent">—</p><div id="ruler-traits" class="traits"></div></div>
+      </section>
+      <section class="score-grid" aria-label="Realm vital signs">
+        <article><span>Population</span><strong id="population">—</strong><small id="housing">— housing</small></article>
+        <article><span>Stability</span><strong id="stability">—</strong><small>out of 100</small></article>
+        <article><span>Defence</span><strong id="defence">—</strong><small>out of 100</small></article>
+        <article><span>Great Works</span><strong id="great-works">—</strong><small id="great-work-progress">No active work</small></article>
+      </section>
+      <section aria-labelledby="resources-heading"><div class="section-heading compact"><h2 id="resources-heading">Resources</h2></div><div id="resources" class="resources"></div></section>
+      <section aria-labelledby="dynasty-heading"><div class="section-heading compact"><h2 id="dynasty-heading">Dynasty & Council</h2></div><div id="court" class="court"></div></section>
+      <section aria-labelledby="rivals-heading"><div class="section-heading compact"><h2 id="rivals-heading">Rival Realms</h2></div><div id="rivals" class="rivals"></div></section>
+    </aside>
+
+    <section class="story-panel" aria-labelledby="story-heading">
+      <div class="section-heading"><div><span class="eyebrow">WHY THE REALM CHANGED</span><h2 id="story-heading">Kingdom Chronicle</h2></div><span id="audience-state" class="audience-state">Audience offline</span></div>
+      <ol id="event-rail" class="event-rail"></ol>
+      <div id="recovery-slate" class="recovery-slate" hidden><strong>Reconnecting to the kingdom</strong><span>The autonomous simulation continues safely on the host.</span></div>
+    </section>
+  </main>
+
+  <footer>
+    <p id="summary">AI Civilization is loading.</p>
+    <p id="captions" class="captions" aria-live="polite" aria-atomic="true">Live captions ready.</p>
+  </footer>
+  <script src="/ai-civilization/app.js" defer></script>
+</body>
+</html>
