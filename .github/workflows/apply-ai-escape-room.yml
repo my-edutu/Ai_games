@@ -5,6 +5,9 @@ on:
   push:
     branches:
       - agent/ai-escape-room-all-phases
+  pull_request:
+    branches:
+      - agent/ai-escape-room-all-phases
 
 permissions:
   contents: write
