@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#071019">
+  <title>AI Battle Royale — Autonomous Arena</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <main id="app" class="app-shell" data-ready="false" aria-busy="true">
+    <header class="topbar">
+      <div class="brand-block">
+        <span class="eyebrow">AUTONOMOUS ARENA // LIVE</span>
+        <h1>AI Battle Royale</h1>
+      </div>
+      <div class="primary-metrics" aria-label="Match status">
+        <section class="metric-card survivors-card">
+          <span class="metric-label">Survivors</span>
+          <strong id="survivors" class="metric-value">--</strong>
+          <span id="survivor-total" class="metric-detail">of --</span>
+        </section>
+        <section class="metric-card zone-card">
+          <span class="metric-label">Zone</span>
+          <strong id="zone-phase" class="metric-value">--</strong>
+          <span id="zone-timer" class="metric-detail">syncing</span>
+        </section>
+      </div>
+      <div class="stream-tools">
+        <span id="connection" class="connection-pill" role="status">Connecting</span>
+        <button id="audio-toggle" class="audio-toggle" type="button" aria-pressed="false">Enable sound</button>
+      </div>
+    </header>
+
+    <section class="arena-layout">
+      <div class="arena-stage">
+        <canvas id="arena" width="1280" height="720" aria-label="Top-down autonomous battle arena"></canvas>
+        <div class="arena-vignette" aria-hidden="true"></div>
+        <div id="scene-banner" class="scene-banner" hidden></div>
+        <div id="caption" class="caption-bar" role="status" aria-live="polite">Synchronizing autonomous contenders…</div>
+      </div>
+
+      <aside class="side-rail" aria-label="Battle intelligence">
+        <section id="focus-card" class="panel focus-panel">
+          <div class="panel-heading"><span>Focus contender</span><span id="focus-archetype" class="tag">--</span></div>
+          <div class="focus-identity">
+            <span id="focus-shape" class="shape-badge" aria-hidden="true"></span>
+            <div><h2 id="focus-name">Awaiting signal</h2><p id="focus-intent">Analyzing the arena</p></div>
+          </div>
+          <div class="bar-row"><span>Health</span><div class="bar"><i id="focus-health"></i></div><b id="focus-health-text">--</b></div>
+          <div class="bar-row"><span>Shield</span><div class="bar shield"><i id="focus-shield"></i></div><b id="focus-shield-text">--</b></div>
+          <dl class="focus-stats"><div><dt>Weapon</dt><dd id="focus-weapon">--</dd></div><div><dt>Elims</dt><dd id="focus-elims">--</dd></div><div><dt>Confidence</dt><dd id="focus-confidence">--</dd></div></dl>
+        </section>
+
+        <section id="leaderboard-panel" class="panel leaderboard-panel">
+          <div class="panel-heading"><span>Live ranking</span><span>Top 6</span></div>
+          <ol id="leaderboard" class="leaderboard"></ol>
+        </section>
+
+        <section id="kill-feed-panel" class="panel feed-panel">
+          <div class="panel-heading"><span>Elimination feed</span><span id="match-tick">T--</span></div>
+          <ul id="kill-feed" class="event-list"></ul>
+        </section>
+
+        <section id="vote-panel" class="panel vote-panel" hidden>
+          <div class="panel-heading"><span>Global audience vote</span><span id="vote-timer">--</span></div>
+          <p id="vote-status">No active decision.</p>
+          <div id="vote-options" class="vote-options"></div>
+          <small>Global, capped and non-targetable. Audience influence cannot select a winner.</small>
+        </section>
+      </aside>
+    </section>
+
+    <footer class="footer-strip">
+      <span><i class="legend-shape hexagon"></i> Vanguard</span>
+      <span><i class="legend-shape triangle"></i> Ranger</span>
+      <span><i class="legend-shape diamond"></i> Scavenger</span>
+      <span><i class="legend-shape square"></i> Tactician</span>
+      <span class="footer-note">Deterministic simulation • fixed-step authority • disclosed global influence</span>
+    </footer>
+  </main>
+  <script src="./app.js" defer></script>
+</body>
+</html>
