@@ -290,7 +290,7 @@ export function createBattleRenderSnapshot(
     schemaVersion: 1,
     presentationVersion: 'battle-presentation-v1',
     revision: state.tick * 10_000 + state.eventSequence * 10 + lifecycleRevision(state),
-    runToken: fnv1aHex(stableStringify({ game: 'ai-battle-royale', run: state.runId })),
+    runToken: fnv1aHex(stableStringify({ game: 'ai-battle-royale', run: state.runId, seed: state.seed })),
     tick: state.tick,
     lifecycle: state.lifecycle,
     scene,
