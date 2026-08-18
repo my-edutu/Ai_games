@@ -8,6 +8,25 @@ test('guided pitch flow reaches the readiness report and resets', async ({ page 
   await page.getByRole('button', { name: 'Skip fly-through' }).click();
 
   await expect(page.getByRole('heading', { name: 'Site induction: select your PPE' })).toBeVisible();
+  const firstPpe = page.getByRole('button', { name: /Hard hat/i });
+  const hitTest = await firstPpe.evaluate((element) => {
+    const rect = element.getBoundingClientRect();
+    const x = rect.left + rect.width / 2;
+    const y = rect.top + rect.height / 2;
+    return {
+      backdropCount: document.querySelectorAll('.modal-backdrop').length,
+      center: { x, y },
+      stack: document.elementsFromPoint(x, y).slice(0, 8).map((node) => ({
+        tag: node.tagName,
+        className: typeof node.className === 'string' ? node.className : '',
+        text: (node.textContent ?? '').trim().slice(0, 80),
+      })),
+    };
+  });
+  console.log(`PPE_HIT_TEST ${JSON.stringify(hitTest)}`);
+  expect(hitTest.backdropCount).toBe(1);
+  expect(hitTest.stack[0]?.tag).toBe('BUTTON');
+
   for (const item of ppe) await page.getByRole('button', { name: new RegExp(item, 'i') }).click();
   await page.getByRole('button', { name: 'Present PPE to security' }).click();
 
