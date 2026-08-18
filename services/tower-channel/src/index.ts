@@ -389,32 +389,36 @@ export class TowerChannelService {
   }
 
   private appendRuntimeCommand(command: TowerRuntimeCommand, nowMs: number): void {
+    const seq = this.nextStoreSeq;
     const event = createStoredEvent({
       streamId: this.options.channelId,
       runId: this.runtime.state.runId,
       eventId: `command:${command.id}`,
-      seq: this.nextStoreSeq++,
+      seq,
       tick: this.runtime.state.tick,
       type: 'runtime-command',
       payload: { commandId: command.id, commandSeq: command.seq, command: structuredClone(command), resultChecksum: '' },
       createdAtMs: nowMs,
     });
     this.store.appendEvent(event);
+    this.nextStoreSeq = seq + 1;
   }
 
   private persistSemanticEvents(events: ReadonlyArray<{ seq: number; tick: number; type: string; data?: Record<string, unknown> }>, nowMs: number): void {
     for (const event of events) {
+      const seq = this.nextStoreSeq;
       const stored = createStoredEvent({
         streamId: this.options.channelId,
         runId: this.runtime.state.runId,
-        eventId: `semantic:${this.nextStoreSeq}:${event.seq}:${event.type}`,
-        seq: this.nextStoreSeq++,
+        eventId: `semantic:${seq}:${event.seq}:${event.type}`,
+        seq,
         tick: event.tick,
         type: event.type,
         payload: structuredClone(event.data ?? {}),
         createdAtMs: nowMs,
       });
       this.store.appendEvent(stored);
+      this.nextStoreSeq = seq + 1;
     }
   }
 
