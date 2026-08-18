@@ -1,0 +1,11 @@
+{
+  "baseline_ndcg_at_5": 0.8581062610202095,
+  "baseline_precision_at_5": 0.6733333333333333,
+  "decision": "GO_FOR_CONTROLLED_DEPLOYMENT",
+  "learned_ndcg_at_5": 0.9666666666666667,
+  "learned_precision_at_5": 0.74,
+  "p0_count": 0,
+  "p1_count": 0,
+  "pilot_type": "deterministic_representative_synthetic",
+  "queries": 30
+}
