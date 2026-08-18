@@ -1,5 +1,6 @@
 name: Diagnose AI Escape Room canonical candidate
 # Completion review integrity diagnostic: 2026-08-18
+# Same-repository pull-request execution marker v8
 
 on:
   push:
