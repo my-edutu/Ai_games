@@ -7,7 +7,8 @@ export interface CivilizationConfig{
   legendaryStability:number;initialPopulation:number;initialFood:number;
   initialWood:number;initialStone:number;initialGold:number;initialKnowledge:number;
   initialInfluence:number;crisisCooldownDays:number;noProgressDays:number;
-  maxBuildings:number;maxRivals:number;
+  maxBuildings:number;maxRivals:number;economyHistoryCap:number;reignHistoryCap:number;
+  birthSeasonCap:number;migrationSeasonCap:number;influenceQueueCap:number;influenceAppliedCap:number;
 }
 const defaults:CivilizationConfig={
   width:12,height:8,maxWidth:16,maxHeight:10,seasonDays:30,yearDays:120,
@@ -16,6 +17,8 @@ const defaults:CivilizationConfig={
   legendaryStability:55,initialPopulation:24,initialFood:180,initialWood:90,
   initialStone:55,initialGold:45,initialKnowledge:0,initialInfluence:20,
   crisisCooldownDays:45,noProgressDays:720,maxBuildings:96,maxRivals:3,
+  economyHistoryCap:30,reignHistoryCap:12,birthSeasonCap:4,migrationSeasonCap:3,
+  influenceQueueCap:64,influenceAppliedCap:256,
 };
 function int(name:string,value:number,min:number,max:number){if(!Number.isInteger(value)||value<min||value>max)throw new RangeError(name);return value}
 export function parseCivilizationConfig(input:Partial<CivilizationConfig>):CivilizationConfig{
@@ -34,6 +37,9 @@ export function parseCivilizationConfig(input:Partial<CivilizationConfig>):Civil
   for(const k of ['initialFood','initialWood','initialStone','initialGold','initialKnowledge','initialInfluence'] as const)c[k]=int(k,c[k],0,c.storageCap);
   c.crisisCooldownDays=int('crisisCooldownDays',c.crisisCooldownDays,1,10000);c.noProgressDays=int('noProgressDays',c.noProgressDays,30,1_000_000);
   c.maxBuildings=int('maxBuildings',c.maxBuildings,8,c.width*c.height);c.maxRivals=int('maxRivals',c.maxRivals,1,3);
+  c.economyHistoryCap=int('economyHistoryCap',c.economyHistoryCap,4,120);c.reignHistoryCap=int('reignHistoryCap',c.reignHistoryCap,2,24);
+  c.birthSeasonCap=int('birthSeasonCap',c.birthSeasonCap,0,20);c.migrationSeasonCap=int('migrationSeasonCap',c.migrationSeasonCap,0,20);
+  c.influenceQueueCap=int('influenceQueueCap',c.influenceQueueCap,8,256);c.influenceAppliedCap=int('influenceAppliedCap',c.influenceAppliedCap,32,2048);
   return Object.freeze({...c});
 }
 export const civilizationConfigDefaults=Object.freeze({...defaults});
