@@ -12,6 +12,7 @@
 - Deterministic baseline and maximum bounded audience-pressure campaigns with byte-equivalent rerun checks.
 - Integrity gates for technical outcomes, hidden-information violations, replay divergence, duplicate effects, unauthorized controls, and private exposure.
 - Phase 5 chaos/recovery evidence as a software prerequisite.
+- Verified rollback parent `9bdd3dad50f350e626aa2d8849d5b106482bf961`, proven by the complete five-game Actions run 636 before being embedded in the release manifest.
 - Capacity budgets with an explicit production-reference provenance requirement.
 - Real-duration endurance contract requiring at least 72 real elapsed hours; accelerated or synthetic duration cannot satisfy it.
 - Credentialed production-equivalent YouTube and Twitch provider evidence contracts.
@@ -29,7 +30,7 @@
 - `npm run test:zombie:phase6`
 - `CANDIDATE_SOURCE_SHA=<40-char-sha> npm run zombie:phase6:validate`
 
-The suite explicitly proves that synthetic fixtures, CI-only drills, accelerated timestamps, provider stubs, self-review, and synthetic canary samples cannot promote the candidate above R4.
+The suite explicitly proves that synthetic fixtures, CI-only drills, accelerated timestamps, provider stubs, self-review, and synthetic canary samples cannot promote the candidate above R4. It also requires the manifest rollback source and deployment artifact to match the exact verified integration parent.
 
 ## External R5 blockers software must not fabricate
 
@@ -46,7 +47,7 @@ The suite explicitly proves that synthetic fixtures, CI-only drills, accelerated
 | Severity | Finding | Resolution |
 |---|---|---|
 | P1 | Prior wording could be read as a Phase 6 implementation claim without current-head proof. | Software completion is tied to the active PR checks and candidate-bound artifact; R5 remains a separate external decision. |
-| P1 | The prior rollback SHA belonged to a divergent historical branch. | The merge base is current `main`; the exact validated PR head and its Phase 5 artifact define the current software rollback evidence. |
+| P1 | Earlier rollback SHAs belonged to divergent or pre-rebase candidates. | A red regression required the fully verified five-game parent `9bdd3dad50f350e626aa2d8849d5b106482bf961`; the manifest now emits that reachable rollback source and matching deployment artifact. |
 | P0 | None found. | — |
 
 ## Exit decision
