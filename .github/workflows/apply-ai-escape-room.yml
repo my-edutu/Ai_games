@@ -1,5 +1,6 @@
 name: Apply AI Escape Room reviewed candidate
 # Completion review trigger: 2026-08-18
+# Same-repository pull-request execution marker v6
 
 on:
   push:
