@@ -61,11 +61,19 @@ jobs:
             test "$actual" = "${expected[$i]}"
             cat "/tmp/chunk-${i}" >> /tmp/escape-candidate.b64
           done
-          test "$(wc -c < /tmp/escape-candidate.b64)" -eq 55380
-          echo '56804e0a239d03ce0e1aaca70a5772d2abf413a8b0efd085011c8460acb37c10  /tmp/escape-candidate.b64' | sha256sum -c -
+          bundle_size="$(wc -c < /tmp/escape-candidate.b64)"
+          bundle_actual="$(sha256sum /tmp/escape-candidate.b64 | awk '{print $1}')"
+          echo "bundle size: ${bundle_size}"
+          echo "bundle sha256: ${bundle_actual}"
           base64 --decode /tmp/escape-candidate.b64 > /tmp/escape-candidate.tar.gz
-          test "$(wc -c < /tmp/escape-candidate.tar.gz)" -eq 41535
-          echo '0bff6f11ef283c1bb06e39170a5ae7dc4298b75dcd84340585a12c5e14d1b1eb  /tmp/escape-candidate.tar.gz' | sha256sum -c -
+          tar_size="$(wc -c < /tmp/escape-candidate.tar.gz)"
+          tar_actual="$(sha256sum /tmp/escape-candidate.tar.gz | awk '{print $1}')"
+          echo "tar size: ${tar_size}"
+          echo "tar sha256: ${tar_actual}"
+          test "$bundle_size" -eq 55380
+          test "$bundle_actual" = '56804e0a239d03ce0e1aaca70a5772d2abf413a8b0efd085011c8460acb37c10'
+          test "$tar_size" -eq 41535
+          test "$tar_actual" = '0bff6f11ef283c1bb06e39170a5ae7dc4298b75dcd84340585a12c5e14d1b1eb'
           tar -xzf /tmp/escape-candidate.tar.gz -C .
 
       - name: Create exact candidate commit
