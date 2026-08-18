@@ -1,0 +1,14 @@
+{
+  "runs": 50,
+  "totalTicks": 21162,
+  "results": {"extinction": 45, "ascension": 5},
+  "strategyCounts": {"foraging": 13264, "expansion": 1000, "defense": 2396, "recovery": 4502, "brood-boom": 0},
+  "patternsObserved": ["brood-emergence", "colony-defense", "excavation-wave", "harvest-chain", "population-milestone", "predator-crisis", "strategic-adaptation", "weather-shift"],
+  "invariantFailures": 0,
+  "illegalActions": 0,
+  "maxPopulation": 64,
+  "maxConfiguredPopulation": 128,
+  "maxPredators": 1,
+  "maxBrood": 5,
+  "finalChecksums": ["c87482da","c0601f2c","de05e03f","03ed9f76","fce6cf17","eb6e59ec","53ee1e50","e34c362f","6c5909c3","ea3819e0","53e3ee51","2b6fe676","e6fa7a88","9fd0ff81","7a6f581b","894bf70f","bf32492a","ac4d7f86","a855e111","d72cdb6b","dc1a43b5","e7535b2d","a173d201","9bfdb8ae","0f840047","1ffff449","538bf2ab","f05fa0e7","381dfcb9","bcc83330","17536aab","ed67d75e","65f0fe6b","4ea596a9","f5ab32fc","030acfac","6a316870","eb08b94f","7d9fb67a","feacd12d","a00be66a","afa9e2d2","ba7cfd18","5a613501","c048f381","956ab54d","b5e03327","9853f9aa","2969476c","d961428f"]
+}

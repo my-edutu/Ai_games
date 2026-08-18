@@ -23,6 +23,7 @@ export interface AppendResult<T> {
 export interface DurableStore {
   appendEvent(event: StoredEvent): AppendResult<StoredEvent>;
   events(streamId: string): StoredEvent[];
+  runtimeCommand(streamId: string, commandId: string): StoredEvent | undefined;
   putSnapshot(record: SnapshotRecord): Readonly<SnapshotRecord>;
   snapshots(streamId: string): SnapshotRecord[];
   compatibleSnapshots(streamId: string, compatibility: CompatibilityKey): SnapshotRecord[];
@@ -93,6 +94,7 @@ export class InMemoryDurableStore implements DurableStore {
   private readonly auditCapacity: number;
   private readonly eventStreams = new Map<string, StoredEvent[]>();
   private readonly eventsById = new Map<string, StoredEvent>();
+  private readonly runtimeCommands = new Map<string, Map<string, StoredEvent>>();
   private readonly snapshotStreams = new Map<string, SnapshotRecord[]>();
   private readonly auditEntries: AuditEntry[] = [];
   private readonly auditsById = new Map<string, AuditEntry>();
@@ -116,6 +118,13 @@ export class InMemoryDurableStore implements DurableStore {
     }
     if (!verifyEvent(event)) throw new StoreError('EVENT_CONFLICT', `event ${event.eventId} checksum is invalid`);
 
+    const commandId = event.type === 'runtime-command' && typeof event.payload.commandId === 'string'
+      ? event.payload.commandId
+      : '';
+    if (commandId && this.runtimeCommands.get(event.streamId)?.has(commandId)) {
+      throw new StoreError('EVENT_CONFLICT', `runtime command ${commandId} is already durably reserved`);
+    }
+
     const stream = this.eventStreams.get(event.streamId) ?? [];
     const expected = stream.length ? stream[stream.length - 1]!.seq + 1 : 0;
     if (event.seq !== expected) throw new StoreError('SEQUENCE_GAP', `expected sequence ${expected}, received ${event.seq}`);
@@ -125,11 +134,22 @@ export class InMemoryDurableStore implements DurableStore {
     stream.push(stored);
     this.eventStreams.set(event.streamId, stream);
     this.eventsById.set(event.eventId, stored);
+    if (commandId) {
+      const commands = this.runtimeCommands.get(event.streamId) ?? new Map<string, StoredEvent>();
+      commands.set(commandId, stored);
+      this.runtimeCommands.set(event.streamId, commands);
+    }
     return { status: 'appended', value: freezeClone(stored) };
   }
 
   events(streamId: string): StoredEvent[] {
     return clone(this.eventStreams.get(streamId) ?? []);
+  }
+
+  runtimeCommand(streamId: string, commandId: string): StoredEvent | undefined {
+    if (!commandId) return undefined;
+    const event = this.runtimeCommands.get(streamId)?.get(commandId);
+    return event ? clone(event) : undefined;
   }
 
   putSnapshot(record: SnapshotRecord): Readonly<SnapshotRecord> {

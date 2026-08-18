@@ -1,0 +1,17 @@
+import type{AntEffectId}from '../state/types';
+export interface AntEffectDefinition{id:AntEffectId;displayName:string;class:'authoritative'|'choice'|'cosmetic';maxMagnitude:number;cooldownTicks:number;durationTicks:number;conflictGroup:string;canGuaranteeTerminal:false;disclosure:string}
+export const ANT_EFFECT_CATALOGUE:ReadonlyArray<Readonly<AntEffectDefinition>> = Object.freeze([
+{id:'nectar-bloom',displayName:'Nectar Bloom',class:'authoritative',maxMagnitude:8,cooldownTicks:90,durationTicks:0,conflictGroup:'resource',canGuaranteeTerminal:false,disclosure:'Adds bounded surface food patches; it never deposits food directly into colony victory reserves.'},
+{id:'gentle-rain',displayName:'Gentle Rain',class:'authoritative',maxMagnitude:5,cooldownTicks:140,durationTicks:80,conflictGroup:'weather-help',canGuaranteeTerminal:false,disclosure:'Raises moisture and water reserves within fixed caps without changing the authoritative season clock.'},
+{id:'scout-surge',displayName:'Scout Surge',class:'authoritative',maxMagnitude:3,cooldownTicks:180,durationTicks:100,conflictGroup:'workforce',canGuaranteeTerminal:false,disclosure:'Adds at most two scouts while preserving a safety margin below the ascension population target.'},
+{id:'tunnel-direction',displayName:'Tunnel Direction',class:'choice',maxMagnitude:5,cooldownTicks:80,durationTicks:90,conflictGroup:'excavation',canGuaranteeTerminal:false,disclosure:'Marks legal soil candidates with excavation pheromone; it does not carve tunnels or bypass collision rules.'},
+{id:'alarm-beacon',displayName:'Alarm Beacon',class:'choice',maxMagnitude:5,cooldownTicks:70,durationTicks:70,conflictGroup:'defense',canGuaranteeTerminal:false,disclosure:'Strengthens a bounded alarm trail so soldiers may respond; it never damages or removes predators.'},
+{id:'shade-canopy',displayName:'Shade Canopy',class:'authoritative',maxMagnitude:4,cooldownTicks:180,durationTicks:120,conflictGroup:'weather-help',canGuaranteeTerminal:false,disclosure:'Temporarily reduces heat metabolism cost within fixed duration and magnitude limits.'},
+{id:'fungus-garden',displayName:'Fungus Garden Pulse',class:'authoritative',maxMagnitude:12,cooldownTicks:180,durationTicks:80,conflictGroup:'resource',canGuaranteeTerminal:false,disclosure:'Adds a small food-store pulse clamped below any value that could immediately complete ascension.'},
+{id:'predator-warning',displayName:'Predator Warning',class:'choice',maxMagnitude:5,cooldownTicks:90,durationTicks:90,conflictGroup:'defense',canGuaranteeTerminal:false,disclosure:'Reinforces visible warning pheromones without injuring predators or changing queen health.'},
+{id:'colony-theme',displayName:'Colony Theme Vote',class:'cosmetic',maxMagnitude:4,cooldownTicks:40,durationTicks:400,conflictGroup:'theme',canGuaranteeTerminal:false,disclosure:'Selects a bounded presentation theme token; it has no effect on gameplay probability or outcomes.'},
+{id:'challenge-pressure',displayName:'Bounded Challenge Pressure',class:'authoritative',maxMagnitude:3,cooldownTicks:240,durationTicks:0,conflictGroup:'challenge',canGuaranteeTerminal:false,disclosure:'May add one distant predator only when queen-health and population safety gates pass; death is never immediate or guaranteed.'},
+]);
+const byId=new Map(ANT_EFFECT_CATALOGUE.map(effect=>[effect.id,effect]));
+export function getAntEffect(id:string):Readonly<AntEffectDefinition>|undefined{return byId.get(id as AntEffectId)}
+export function isAntEffectId(id:string):id is AntEffectId{return byId.has(id as AntEffectId)}
