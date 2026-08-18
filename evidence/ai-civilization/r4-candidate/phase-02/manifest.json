@@ -1,0 +1,41 @@
+{
+  "gameId": "ai-civilization",
+  "phase": 2,
+  "phaseName": "Autonomous Civilization Depth",
+  "baselineHeadSha": "d6975739c50f0010af5c0fbc3182bed489d11bdb",
+  "gameVersion": "0.2.0-r2-depth",
+  "deterministicVersion": "civilization-r2-v1",
+  "readinessAfterPhase": "R2",
+  "testFirstEvidence": {
+    "initialRed": {"tests": 9,"passed": 1,"failed": 8,"reason": "depth interfaces and behavior absent"},
+    "reviewRed": {"tests": 12,"passed": 8,"failed": 4,"findings": ["duplicate succession identities after reign compaction","construction cost classified as upkeep","starvation death delta erased","crisis recovery cost not paid"]},
+    "timingRed": {"tests": 2,"passed": 1,"failed": 1,"finding": "maxTickMs hardcoded to zero"},
+    "finalGreen": {"tests": 24,"passed": 24,"failed": 0}
+  },
+  "verification": {
+    "commands": [
+      "rm -rf dist && tsc -p tsconfig.json && node --test tests/foundation/civilization-*.test.cjs tests/phase2/civilization-*.test.cjs",
+      "node scripts/run-civilization-headless.cjs --seed=phase2-review --days=1500",
+      "node scripts/run-civilization-campaign.cjs --scenario=<scenario> --seeds=<declared> --days=1500",
+      "grep -R -nE 'Math\\.random|Date\\.now|new Date|setTimeout|setInterval' games/ai-civilization/src/{ai,characters,config,generation,persistence,rules,runtime,state,testing}"
+    ],
+    "foundationAndPhase2Tests": 24,
+    "generatedWorldSeeds": 500,
+    "productionRulePropertySteps": 10000,
+    "representativeRun": {"seed": "phase2-review","days": 1500,"outcome": "era-timeout","tier": "city","renown": 984,"population": 124,"stability": 100,"integrityFailures": 0,"successions": 1,"greatWorks": 2,"crises": 49,"checksum": "6a21e743"},
+    "campaignCorpus": {
+      "totalSeeds": 144,
+      "scenarios": {
+        "fallback-policy": {"seeds": 24,"outcomes": {"era-timeout": 24},"strategicGoals": 5,"successions": 24,"greatWorks": 0,"dramaticPatterns": ["crisis-recovery","crisis-warning-and-response","dynastic-succession","population-swing","settlement-tier-advance"],"checksumUnique": 24,"daysPerSecond": 3976,"tickP99Ms": 0.5087760000023991,"maxTickMs": 15.0550430000294},
+        "max-world": {"seeds": 24,"outcomes": {"era-timeout": 24},"strategicGoals": 12,"successions": 24,"greatWorks": 48,"dramaticPatterns": ["crisis-recovery","crisis-warning-and-response","dynastic-succession","great-work-completion","population-swing","settlement-tier-advance"],"checksumUnique": 24,"daysPerSecond": 2944,"tickP99Ms": 0.6682830001227558,"maxTickMs": 14.7551070000045},
+        "no-audience": {"seeds": 24,"outcomes": {"era-timeout": 24},"strategicGoals": 12,"successions": 24,"greatWorks": 46,"dramaticPatterns": ["crisis-recovery","crisis-warning-and-response","dynastic-succession","great-work-completion","population-swing","settlement-tier-advance"],"checksumUnique": 24,"daysPerSecond": 3810,"tickP99Ms": 0.4836889998987317,"maxTickMs": 8.060789000010118},
+        "pathological-seed": {"seeds": 24,"outcomes": {"state-collapse": 24},"strategicGoals": 2,"successions": 0,"greatWorks": 0,"dramaticPatterns": [],"checksumUnique": 24,"daysPerSecond": 2424,"tickP99Ms": 0.9372729999013245,"maxTickMs": 7.859759999904782},
+        "typical-pressure": {"seeds": 48,"outcomes": {"era-timeout": 48},"strategicGoals": 13,"successions": 48,"greatWorks": 49,"dramaticPatterns": ["crisis-recovery","crisis-warning-and-response","dynastic-succession","great-work-completion","population-swing","settlement-tier-advance"],"checksumUnique": 48,"daysPerSecond": 3812,"tickP99Ms": 0.5298870000988245,"maxTickMs": 21.237281000008807}
+      }
+    },
+    "thresholds": {"invalidWorlds": 0,"invalidActions": 0,"integrityFailures": 0,"minimumDaysPerSecond": 2000,"maximumTickP99Ms": 8,"minimumTerminalReasons": 2,"minimumStrategicGoals": 4,"minimumDramaticPatterns": 3},
+    "ambientNondeterminismScan": "clean"
+  },
+  "review": {"specification": "PASS","engineeringGameplay": "PASS after P1 remediation","openP0": 0,"openP1": 0},
+  "r5Gate": {"productionReady": false,"status": "BLOCKED","reason": "R5 requires exact-candidate real-duration production soak, guarded canary, witnessed operational drills, and independent review; none is claimed in Phase 2."}
+}
