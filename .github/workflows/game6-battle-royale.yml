@@ -1,0 +1,161 @@
+name: Game 6 — AI Battle Royale
+
+on:
+  push:
+    branches:
+      - feat/game-6-ai-battle-royale-phases-2-6
+    paths:
+      - 'games/ai-battle-royale/**'
+      - 'tests/foundation/battle-foundation.test.cjs'
+      - 'tests/phase2/battle-core-ai.test.cjs'
+      - 'tests/phase3/battle-*.cjs'
+      - 'tests/phase4/battle-influence.test.cjs'
+      - 'tests/phase5/battle-recovery.test.cjs'
+      - 'tests/phase6/battle-readiness.test.cjs'
+      - 'tests/browser/battle-royale.spec.cjs'
+      - 'scripts/*battle*.cjs'
+      - 'evidence/ai-battle-royale/**'
+      - 'docs/runbooks/ai-battle-royale/**'
+      - 'docs/reviews/game6-final-review.md'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/game6-battle-royale.yml'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'games/ai-battle-royale/**'
+      - 'tests/foundation/battle-foundation.test.cjs'
+      - 'tests/phase2/battle-core-ai.test.cjs'
+      - 'tests/phase3/battle-*.cjs'
+      - 'tests/phase4/battle-influence.test.cjs'
+      - 'tests/phase5/battle-recovery.test.cjs'
+      - 'tests/phase6/battle-readiness.test.cjs'
+      - 'tests/browser/battle-royale.spec.cjs'
+      - 'scripts/*battle*.cjs'
+      - 'evidence/ai-battle-royale/**'
+      - 'docs/runbooks/ai-battle-royale/**'
+      - 'docs/reviews/game6-final-review.md'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/game6-battle-royale.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: game6-battle-royale-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deterministic-software-gate:
+    name: Deterministic software gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout exact candidate
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Build repository
+        run: npm run build
+
+      - name: Run complete repository regression suite
+        run: npm test
+
+      - name: Run Game 6 phase contracts
+        run: |
+          node --test \
+            tests/foundation/battle-foundation.test.cjs \
+            tests/phase2/battle-core-ai.test.cjs \
+            tests/phase3/battle-presentation.test.cjs \
+            tests/phase4/battle-influence.test.cjs \
+            tests/phase5/battle-recovery.test.cjs \
+            tests/phase6/battle-readiness.test.cjs
+
+      - name: Reject nondeterministic authority calls
+        shell: bash
+        run: |
+          set -euo pipefail
+          if grep -R -nE 'Math\.random|Date\.now|crypto\.randomUUID|setTimeout|setInterval' \
+            games/ai-battle-royale/src/ai \
+            games/ai-battle-royale/src/combat \
+            games/ai-battle-royale/src/simulation \
+            games/ai-battle-royale/src/state \
+            games/ai-battle-royale/src/world; then
+            echo 'Nondeterministic or wall-clock API found in authoritative Game 6 paths.' >&2
+            exit 1
+          fi
+
+      - name: Run exact-candidate deterministic campaign
+        env:
+          BATTLE_VALIDATION_RUNS: '80'
+          CANDIDATE_SOURCE_SHA: ${{ github.sha }}
+        run: node scripts/validate-ai-battle-royale.cjs evidence/ai-battle-royale/phase6-validation.json
+
+      - name: Run deterministic recovery chaos campaign
+        run: node scripts/chaos-battle-recovery.cjs evidence/ai-battle-royale/phase5-recovery.json
+
+      - name: Validate patch hygiene
+        run: git diff --check
+
+      - name: Upload exact-candidate software evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: game6-software-evidence-${{ github.sha }}
+          if-no-files-found: error
+          retention-days: 30
+          path: |
+            evidence/ai-battle-royale/phase6-validation.json
+            evidence/ai-battle-royale/phase5-recovery.json
+            evidence/ai-battle-royale/production-evidence-intake.json
+            docs/reviews/game6-final-review.md
+
+  browser-accessibility-gate:
+    name: Browser and accessibility gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout exact candidate
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Build repository
+        run: npm run build
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Verify responsive broadcast shell, controls and accessibility
+        run: npx playwright test tests/browser/battle-royale.spec.cjs --workers=1
+
+      - name: Upload browser diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: game6-browser-diagnostics-${{ github.sha }}
+          if-no-files-found: ignore
+          retention-days: 14
+          path: |
+            playwright-report/
+            test-results/
