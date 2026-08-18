@@ -19,12 +19,12 @@ For each phase:
 
 | Phase | Finding | Severity | Resolution |
 |---|---|---:|---|
-| 3 | Parallel game branches successively occupied Zombie’s browser port: Ant used `4175`, then Infinite Tower entered current `main` on `4176`. | P1 | Zombie now uses dedicated port `4177`; Playwright health, browser URLs, README, and phase contract were updated together. |
+| 3 | Parallel game branches successively occupied Zombie’s browser port: Ant used `4175`, then Infinite Tower entered current `main` on `4176`. | P1 | Zombie now uses dedicated port `4177`; Playwright health, browser URLs, README, and phase contract were updated together. Tower is explicitly started with `--port=4176`. |
 | 3 | Phase contract lacked measurable acceptance criteria and evidence mapping. | P1 | Expanded phase document maps public snapshot, UI, audio, accessibility, recovery, host, and Chromium requirements to tests/artifacts. |
 | 4 | Phase contract did not make privacy, exactly-once, conflict, expiry, and outage guarantees auditable. | P1 | Expanded contract and retained deterministic influence/channel regressions. |
 | 4 | Zombie checks were missing from current-main CI after branch divergence. | P1 | Added Zombie tests, deterministic scan paths, and unified evidence steps without removing Tower/Ant/Maze/Snake gates. |
-| 5 | Historical completion text cited an obsolete SHA/run as if it were current proof. | P1 | Current PR-head CI and retained chaos artifact are the only current completion evidence. |
-| 6 | The release manifest still emitted rollback SHA `f3ee747…` from a divergent historical branch. | P1 | A red regression on `e1b96f5` proved the mismatch; the manifest was first bound to verified integrated parent `74fadf884025abf127e949b7ab8a8d673d19fee7`. The current-main rebase will repeat this exact rollback-binding cycle against its freshly green parent. |
+| 5 | Historical completion text cited an obsolete SHA/run as if it were current proof. | P1 | Exact-head CI and retained chaos artifacts are the only current completion evidence. Fully verified five-game parent `9bdd3dad50f350e626aa2d8849d5b106482bf961` from Actions run 636 is the rollback boundary. |
+| 6 | The release manifest emitted rollback SHAs from earlier divergent or pre-rebase candidates. | P1 | Red regressions first exposed the historical mismatch and then required the rebased green parent. Commit `a1c2969b837c5e42113b400b6f96ee7afadf11e8` required `9bdd3dad50f350e626aa2d8849d5b106482bf961` while production code still emitted the previous value; the implementation now binds the manifest to that verified parent. |
 | 6 | Risk of treating green CI as production launch proof. | P0 prevented | Fail-closed validation remains: software `PASS`, readiness `BLOCKED`, highest truthful level `R4`, `productionReady=false` until external gates are real. |
 
 Any failure discovered by exact-head CI reopens the relevant phase and blocks PR readiness.
