@@ -1,5 +1,0 @@
-/* Keep pointer targets stationary while hovered. Moving interactive geometry can
-   make browser actionability/hit testing race against the backdrop beneath it. */
-button:hover:not(:disabled) {
-  transform: none;
-}
