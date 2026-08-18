@@ -105,6 +105,7 @@ export type SimulationAction =
   | { type: 'ALLOW_POUR' }
   | { type: 'MOVE_TO_ARTIFACTS' }
   | { type: 'SET_ARTIFACT_FIELD'; artifact: ArtifactType; field: string; value: string }
+  | { type: 'PREFILL_ARTIFACT'; artifact: ArtifactType }
   | { type: 'SUBMIT_ARTIFACT'; artifact: ArtifactType }
   | { type: 'USE_HINT' }
   | { type: 'TICK'; minutes?: number }
