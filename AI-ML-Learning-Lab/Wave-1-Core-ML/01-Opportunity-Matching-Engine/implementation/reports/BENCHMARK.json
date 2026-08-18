@@ -1,0 +1,28 @@
+{
+  "baseline": {
+    "map": 0.8872440012313524,
+    "ndcg_at_k": 0.7882455114649618,
+    "precision_at_k": 0.755,
+    "recall_at_k": 0.7365467171717172
+  },
+  "learned": {
+    "map": 0.9979166666666667,
+    "ndcg_at_k": 0.9992795095553196,
+    "precision_at_k": 0.85,
+    "recall_at_k": 0.8436598124098125
+  },
+  "metadata": {
+    "feature_names": [
+      "skill_overlap",
+      "preferred_skill_overlap",
+      "interest_overlap",
+      "type_preference",
+      "location_preference",
+      "education_margin",
+      "experience_margin"
+    ],
+    "model_version": "gbdt-v1",
+    "trained_at": "2026-08-18T23:04:44.469886+00:00",
+    "training_rows": 2880
+  }
+}
