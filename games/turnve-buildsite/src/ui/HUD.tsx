@@ -12,10 +12,20 @@ function objective(stage: string) {
   return 'Prepare for your first day on site.';
 }
 
+function nextWorkArea(stage: string) {
+  if (stage === 'site-walk') return 'Emergency route → slab access → pour zone';
+  if (stage === 'document-review') return 'Site Tablet → Drawings';
+  if (stage === 'pre-pour') return 'Site Tablet → Inspections';
+  if (stage === 'crisis') return 'Coordinate stakeholders before handoff';
+  if (stage === 'artifacts') return 'Site Tablet → Artifacts';
+  return 'Follow your current assignment';
+}
+
 export function HUD({ onOpenTablet, onHint }: { onOpenTablet: () => void; onHint: () => void }) {
   const state = useSimulationStore();
   const progress = taskProgress(state);
   const hazard = state.nearbyHazard ? scenario.hazards.find((item) => item.id === state.nearbyHazard) : null;
+  const showCoach = state.mode === 'guided' && ['site-walk', 'document-review', 'pre-pour'].includes(state.stage);
   return (
     <div className="hud" aria-live="polite">
       <section className="hud-card objective-card">
@@ -31,7 +41,8 @@ export function HUD({ onOpenTablet, onHint }: { onOpenTablet: () => void; onHint
         <div><span>Budget awareness</span><b>{state.metrics.costAwareness}</b></div>
         <div><span>Supervisor trust</span><b>{state.stakeholders['site-manager'].trust}</b></div>
       </section>
-      {hazard && <div className="interaction-prompt"><span>Nearby: {hazard.label}</span><kbd>E</kbd><span>inspect / capture / report</span></div>}
+      {showCoach && <section className="hud-card guidance-card"><span className="eyebrow">GUIDED SITE COACH</span><b>{nextWorkArea(state.stage)}</b><div className="control-strip"><span><kbd>WASD</kbd> move</span><span><kbd>Mouse</kbd> look</span><span><kbd>E</kbd> inspect</span><span><kbd>Tab</kbd> tablet</span></div><small>Click the 3D site only when you want first-person mouse look. Press Esc to release.</small></section>}
+      {hazard && <div className="interaction-prompt"><span>Nearby: {hazard.label}</span><kbd>E</kbd><span>{state.hazards[hazard.id].status === 'unseen' ? 'inspect' : !state.hazards[hazard.id].evidenceCaptured ? 'capture evidence' : state.hazards[hazard.id].status === 'observed' ? 'report' : 'review'}</span></div>}
       <div className="hud-actions"><button onClick={onOpenTablet}>Site Tablet <kbd>Tab</kbd></button><button onClick={onHint}>TARI Hint</button></div>
     </div>
   );
