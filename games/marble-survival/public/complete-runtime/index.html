@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#080b18">
+  <title>Marble Survival Tournament</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#arena">Skip to arena</a>
+  <main class="broadcast-shell" data-clean="false">
+    <header class="topbar" aria-label="Tournament status">
+      <div class="brand-lockup">
+        <span class="eyebrow">Game 7 · Autonomous livestream</span>
+        <h1>Marble Survival Tournament</h1>
+      </div>
+      <div class="status-cluster">
+        <span id="connection" class="status-pill" role="status">Connecting</span>
+        <button id="sound-toggle" class="utility-button" type="button" aria-pressed="false">Sound off</button>
+      </div>
+    </header>
+
+    <section class="stage-grid">
+      <aside class="panel round-panel" aria-label="Round information">
+        <span class="panel-label">Current round</span>
+        <strong id="round-name">Loading tournament…</strong>
+        <div class="round-progress" aria-label="Round progress">
+          <span id="round-index">—</span>
+          <div class="progress-track"><span id="progress-fill"></span></div>
+        </div>
+        <dl class="metric-grid">
+          <div><dt>Tick</dt><dd id="tick-value">0</dd></div>
+          <div><dt>Survivors</dt><dd id="survivor-value">32</dd></div>
+          <div><dt>Camera</dt><dd id="camera-value">Establish</dd></div>
+          <div><dt>Feed</dt><dd id="feed-value">Live</dd></div>
+        </dl>
+      </aside>
+
+      <section id="arena" class="arena-card" aria-label="Live marble arena">
+        <canvas id="arena-canvas" width="1200" height="720" aria-label="Animated marble tournament arena"></canvas>
+        <div id="champion-card" class="champion-card" hidden aria-live="polite">
+          <span>Champion</span>
+          <strong id="champion-name"></strong>
+        </div>
+        <div class="legend" aria-label="Marble identity patterns">
+          <span><i class="pattern rings"></i>Navigator</span>
+          <span><i class="pattern stripes"></i>Sprinter</span>
+          <span><i class="pattern dots"></i>Bruiser</span>
+          <span><i class="pattern chevrons"></i>Survivor</span>
+        </div>
+      </section>
+
+      <aside class="panel leaderboard-panel" aria-label="Leaderboard">
+        <div class="panel-heading">
+          <span class="panel-label">Live ranking</span>
+          <span class="live-dot">LIVE</span>
+        </div>
+        <ol id="leaderboard" class="leaderboard"></ol>
+      </aside>
+    </section>
+
+    <section class="lower-grid">
+      <section class="panel influence-panel" aria-labelledby="influence-title">
+        <div class="panel-heading">
+          <div>
+            <span class="panel-label">Audience influence</span>
+            <h2 id="influence-title">Vote on the wind</h2>
+          </div>
+          <span id="vote-status" role="status">One bounded vote per cooldown</span>
+        </div>
+        <div class="vote-grid" role="group" aria-label="Wind direction vote">
+          <button type="button" data-family="wind-vote" data-option="north">North</button>
+          <button type="button" data-family="wind-vote" data-option="south">South</button>
+          <button type="button" data-family="wind-vote" data-option="east">East</button>
+          <button type="button" data-family="wind-vote" data-option="west">West</button>
+        </div>
+      </section>
+
+      <section class="panel event-panel" aria-labelledby="event-title">
+        <div class="panel-heading">
+          <div>
+            <span class="panel-label">Tournament pulse</span>
+            <h2 id="event-title">Recent events</h2>
+          </div>
+        </div>
+        <ul id="event-list" class="event-list" aria-live="polite"></ul>
+      </section>
+    </section>
+
+    <footer>
+      <span>Deterministic authority · fixed viewer effects · replay verified</span>
+      <span id="checksum">Checksum pending</span>
+    </footer>
+  </main>
+  <script src="/app.js" defer></script>
+</body>
+</html>
