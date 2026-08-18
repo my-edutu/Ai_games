@@ -1,0 +1,43 @@
+{
+  "gameId": "ai-zombie-survival",
+  "phase": 1,
+  "readinessLevel": "R1",
+  "verdict": "PASS",
+  "sourceSha": "bd195967e2177ae9e7c57c7f70ad871e25f39177",
+  "workflow": {
+    "name": "Autonomous Games CI",
+    "runId": 32035008182,
+    "jobId": 95403260814,
+    "conclusion": "success",
+    "nodeVersion": "22.16.0",
+    "typescriptVersion": "5.8.3"
+  },
+  "tests": {
+    "catalogueNode": {"passed": 266, "failed": 0, "skipped": 0},
+    "zombieFocused": {"passed": 13, "failed": 0},
+    "browserRegression": {"passed": 8, "failed": 0}
+  },
+  "determinism": {
+    "campaignSeeds": 100,
+    "divergences": 0,
+    "worldFixtureSeeds": 32,
+    "ambientNondeterminismScan": "pass",
+    "cosmeticStreamIsolation": "pass"
+  },
+  "performance": {
+    "sampleTicks": 20000,
+    "p50Ms": 0.023,
+    "p95Ms": 0.026,
+    "p99Ms": 0.050,
+    "worstMs": 3.506,
+    "retainedEvents": 68,
+    "eventRetentionLimit": 2000
+  },
+  "reviews": {
+    "specification": "PASS",
+    "quality": "PASS",
+    "openP0": 0,
+    "openP1": 0
+  },
+  "externalEvidenceRequired": false
+}
