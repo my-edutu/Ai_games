@@ -9,7 +9,8 @@ module.exports = defineConfig({
   webServer:[
     {command:'node scripts/serve-snake-stream.cjs',url:'http://127.0.0.1:4173/health',timeout:60000,reuseExistingServer:false,stdout:'pipe',stderr:'pipe'},
     {command:'node scripts/serve-maze-stream.cjs',url:'http://127.0.0.1:4174/maze/health',timeout:60000,reuseExistingServer:false,stdout:'pipe',stderr:'pipe'},
-    {command:'node scripts/serve-ant-colony-stream.cjs',url:'http://127.0.0.1:4175/ant/health',timeout:60000,reuseExistingServer:false,stdout:'pipe',stderr:'pipe'}
+    {command:'node scripts/serve-ant-colony-stream.cjs',url:'http://127.0.0.1:4175/ant/health',timeout:60000,reuseExistingServer:false,stdout:'pipe',stderr:'pipe'},
+    {command:'node scripts/serve-battle-royale-stream.cjs',url:'http://127.0.0.1:4176/battle/health',timeout:60000,reuseExistingServer:false,stdout:'pipe',stderr:'pipe'}
   ],
   reporter:[['list']]
 });
