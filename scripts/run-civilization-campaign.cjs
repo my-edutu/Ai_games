@@ -1,0 +1,11 @@
+'use strict';
+const {runCivilizationCampaign}=require('../dist/games/ai-civilization/src/testing/campaign.js');
+const args=Object.fromEntries(process.argv.slice(2).map(v=>v.replace(/^--/,'').split('=')));
+const seeds=Number(args.seeds||64),maxDays=Number(args.days||1500),scenario=args.scenario||'typical-pressure';
+if(!Number.isInteger(seeds)||seeds<=0)throw new RangeError('seeds');
+if(!Number.isInteger(maxDays)||maxDays<=0)throw new RangeError('days');
+const started=process.hrtime.bigint();
+const now=()=>Number(process.hrtime.bigint())/1e6;
+const summary=runCivilizationCampaign({seeds,maxDays,scenario},now);
+const measuredWallMs=Number(process.hrtime.bigint()-started)/1e6;
+process.stdout.write(JSON.stringify({...summary,measuredWallMs,daysPerSecond:Math.round((summary.duration.max*seeds)/(measuredWallMs/1000))},null,2)+'\n');
