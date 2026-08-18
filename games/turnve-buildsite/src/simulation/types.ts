@@ -103,6 +103,7 @@ export type SimulationAction =
   | { type: 'ASK_QS_COST' }
   | { type: 'PROTECT_MATERIALS' }
   | { type: 'ALLOW_POUR' }
+  | { type: 'MOVE_TO_ARTIFACTS' }
   | { type: 'SET_ARTIFACT_FIELD'; artifact: ArtifactType; field: string; value: string }
   | { type: 'SUBMIT_ARTIFACT'; artifact: ArtifactType }
   | { type: 'USE_HINT' }
