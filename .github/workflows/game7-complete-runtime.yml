@@ -1,0 +1,86 @@
+name: Game 7 — Marble Survival candidate
+
+on:
+  push:
+    branches:
+      - feat/game-7-marble-survival
+    paths:
+      - 'games/marble-survival/**'
+      - '.github/workflows/game7-complete-runtime.yml'
+  pull_request:
+    paths:
+      - 'games/marble-survival/**'
+      - '.github/workflows/game7-complete-runtime.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: game7-marble-survival-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  repository-baseline:
+    name: Repository build baseline
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci
+      - name: Build repository
+        run: npm run build
+
+  game7-candidate:
+    name: Determinism, operations, and release boundary
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Syntax checks
+        run: |
+          node --check games/marble-survival/complete/game7.cjs
+          node --check games/marble-survival/scripts/serve-complete-runtime.cjs
+          node --check games/marble-survival/scripts/verify-complete-runtime.cjs
+          node --check games/marble-survival/public/complete-runtime/app.js
+      - name: Phase 1–6 test gates
+        run: node --test games/marble-survival/tests/complete/game7.test.cjs
+      - name: Campaign corpus, chaos, and release report
+        run: node games/marble-survival/scripts/verify-complete-runtime.cjs
+      - name: Browser-source self-test
+        run: node games/marble-survival/scripts/serve-complete-runtime.cjs --self-test
+      - name: Reject ambient nondeterminism in authority
+        shell: bash
+        run: |
+          if grep -En 'Math\.random|Date\.now|performance\.now|randomUUID' games/marble-survival/complete/game7.cjs; then
+            echo 'Ambient nondeterminism found in Game 7 authority.' >&2
+            exit 1
+          fi
+      - name: Verify browser assets and accessibility hooks
+        shell: bash
+        run: |
+          test -s games/marble-survival/public/complete-runtime/index.html
+          test -s games/marble-survival/public/complete-runtime/styles.css
+          test -s games/marble-survival/public/complete-runtime/app.js
+          grep -q 'prefers-reduced-motion' games/marble-survival/public/complete-runtime/styles.css
+          grep -q 'aria-live' games/marble-survival/public/complete-runtime/index.html
+          grep -q 'pattern' games/marble-survival/public/complete-runtime/index.html
+      - name: Upload release evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: game7-release-report
+          path: games/marble-survival/artifacts/game7-release-report.json
+          if-no-files-found: error
+          retention-days: 30
