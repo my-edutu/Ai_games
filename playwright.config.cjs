@@ -40,7 +40,7 @@ module.exports = defineConfig({
       stderr: 'pipe'
     },
     {
-      command: 'node scripts/serve-tower-stream.cjs',
+      command: 'node scripts/serve-tower-stream.cjs --port=4176',
       url: 'http://127.0.0.1:4176/tower/health',
       timeout: 60_000,
       reuseExistingServer: false,
