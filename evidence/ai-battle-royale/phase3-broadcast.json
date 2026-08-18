@@ -1,0 +1,52 @@
+{
+  "gameId": "ai-battle-royale",
+  "phase": 3,
+  "date": "2026-08-18",
+  "target": "R2-broadcast",
+  "candidateCommit": "4188bb0d1f154628d636b25aea1d3f5cd3d34588",
+  "reconciledMain": "d196fc82b751a5fa1b8d274c35be706cb6e9529c",
+  "ci": {
+    "workflow": "Autonomous Games CI",
+    "runId": 32143018726,
+    "runNumber": 630,
+    "conclusion": "success",
+    "buildAndCatalogueTests": true,
+    "streamSelfTests": true,
+    "authoritativeNondeterminismScan": true,
+    "retainedOperationsAndReleaseGenerators": true,
+    "chromiumBrowserMatrix": true
+  },
+  "broadcastContracts": {
+    "immutablePrivacySafeSnapshot": true,
+    "authoritativeStateUnchangedByPresentation": true,
+    "responsiveLayouts": ["1920x1080", "640x360", "1280x720-clean-feed"],
+    "semanticAudioAndCaptions": true,
+    "reducedMotionReducedFlashHighContrastMute": true,
+    "boundedEffects": { "maxVisualEffects": 48, "maxAudioVoices": 6 },
+    "outputHealthClassification": ["healthy", "stale", "frozen", "black", "silent", "wrong-scene"],
+    "operatorControlsPrivateByDefault": true,
+    "deterministicAutoRestart": true,
+    "runBoundaryLowerRevisionAcceptedInChromium": true
+  },
+  "streamSelfTest": {
+    "command": "node scripts/serve-battle-royale-stream.cjs --self-test",
+    "authorityStable": true,
+    "snapshotPrivacySafe": true,
+    "browserAssets": true,
+    "restartObserved": true,
+    "acceptedSnapshots": 300
+  },
+  "reviews": {
+    "specification": { "p0Open": 0, "p1Open": 0 },
+    "engineeringViewerExperience": {
+      "p0Open": 0,
+      "p1Open": 0,
+      "fixed": [
+        "public run token collision when an external run id was reused with a different seed",
+        "browser revision gate freezing after deterministic auto-restart",
+        "shared Playwright port collision introduced by the concurrent Game 3 merge"
+      ]
+    }
+  },
+  "verdict": "PASS_R2_BROADCAST_CANDIDATE"
+}
