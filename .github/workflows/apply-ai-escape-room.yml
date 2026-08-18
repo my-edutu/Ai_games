@@ -1,6 +1,6 @@
-name: Apply AI Escape Room reviewed candidate
-# Completion review trigger: 2026-08-18
-# Same-repository pull-request execution marker v6
+name: Diagnose AI Escape Room canonical candidate
+# Completion review integrity diagnostic: 2026-08-18
+# Same-repository pull-request execution marker v7
 
 on:
   push:
@@ -11,72 +11,37 @@ on:
       - agent/ai-escape-room-all-phases
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
-  apply:
+  diagnose:
     if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 10
     steps:
-      - name: Check out isolated feature branch
+      - name: Check out canonical candidate transport
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Restore checksum-pinned reviewed changes
+      - name: Validate compressed and decompressed layers
         shell: bash
         run: |
           set -euo pipefail
-          cp .github/escape-room-candidate.tar.gz /tmp/escape-candidate.tar.gz
-          test "$(wc -c < /tmp/escape-candidate.tar.gz)" -eq 41535
-          echo '0bff6f11ef283c1bb06e39170a5ae7dc4298b75dcd84340585a12c5e14d1b1eb  /tmp/escape-candidate.tar.gz' | sha256sum -c -
-          gzip -t /tmp/escape-candidate.tar.gz
-          tar -xzf /tmp/escape-candidate.tar.gz -C .
-
-      - name: Create exact candidate commit
-        id: candidate
-        shell: bash
-        run: |
-          set -euo pipefail
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git rm .github/workflows/apply-ai-escape-room.yml
-          git rm .github/escape-room-candidate.tar.gz
-          rm -f .github/workflows/export-source.yml
-          git add -A
-          git diff --cached --check
-          git commit -m 'feat(escape-room): complete phases 4-6 production candidate'
-          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
-
-      - name: Install pinned dependencies
-        run: npm ci
-
-      - name: Verify exact Escape Room candidate
-        shell: bash
-        env:
-          CANDIDATE_SOURCE_SHA: ${{ steps.candidate.outputs.sha }}
-        run: |
-          set -euo pipefail
-          npm run clean
-          npm run build
-          node --test tests/escape-room/*.test.cjs
-          node scripts/run-escape-room-headless.cjs
-          node scripts/run-escape-room-campaign.cjs
-          node scripts/serve-escape-room-stream.cjs --self-test
-          node scripts/run-escape-room-phase5-chaos.cjs
-          node scripts/run-escape-room-phase6-validation.cjs
-          if grep -RInE 'Math\.random|Date\.now|new Date\(' games/ai-escape-room/src --include='*.ts'; then
-            echo 'Authoritative nondeterminism detected.' >&2
-            exit 1
-          fi
-          if grep -RInE '\b(TBD|TODO|FIXME)\b|implement later|optimize later|handle appropriately' games/ai-escape-room docs/operations/ai-escape-room* evidence/ai-escape-room services/escape-room-channel; then
-            echo 'Release placeholder detected.' >&2
-            exit 1
-          fi
-
-      - name: Push verified candidate
-        shell: bash
-        run: |
-          set -euo pipefail
-          git push origin HEAD:agent/ai-escape-room-all-phases
+          transport=.github/escape-room-candidate.tar.gz
+          test -f "$transport"
+          compressed_size="$(wc -c < "$transport")"
+          compressed_sha="$(sha256sum "$transport" | awk '{print $1}')"
+          echo "compressed size: ${compressed_size}"
+          echo "compressed sha256: ${compressed_sha}"
+          gzip -t "$transport"
+          gzip -dc "$transport" > /tmp/escape-candidate.tar
+          payload_size="$(wc -c < /tmp/escape-candidate.tar)"
+          payload_sha="$(sha256sum /tmp/escape-candidate.tar | awk '{print $1}')"
+          echo "payload size: ${payload_size}"
+          echo "payload sha256: ${payload_sha}"
+          tar -tf /tmp/escape-candidate.tar > /tmp/escape-candidate-files.txt
+          echo "payload entries: $(wc -l < /tmp/escape-candidate-files.txt)"
+          sed -n '1,20p' /tmp/escape-candidate-files.txt
+          test "$compressed_size" -eq 7515
+          test "$payload_size" -gt 0
