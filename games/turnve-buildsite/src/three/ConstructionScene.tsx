@@ -187,7 +187,7 @@ export function ConstructionScene({ paused }: { paused: boolean }) {
         <SiteEnvironment />
         <CinematicRig />
         <PlayerController disabled={paused} />
-        {!paused && <PointerLockControls />}
+        {!paused && <PointerLockControls selector=".scene-shell canvas" />}
       </Canvas>
     </div>
   );
