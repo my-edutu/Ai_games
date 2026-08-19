@@ -58,6 +58,7 @@ export function reduceSkillMentor(state: SkillMentorState, action: SkillMentorAc
         title: step.title,
         actionType: step.actionType,
         quality: clampQuality(action.quality),
+        interaction: action.interaction,
       },
     ];
     const nextIndex = state.stepIndex + 1;
