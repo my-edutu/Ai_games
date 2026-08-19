@@ -33,17 +33,17 @@ export function WeldingInteraction() {
     </mesh>}
 
     {mentor.stepIndex === 0 && <>
-      <WorldPracticeButton position={[-1.05, 1.7, -.45]} testId="welding-ppe-helmet" label="Helmet" done={ppe.has('helmet')} onActivate={() => recordSet('helmet', ppe, setPpe, 4, 'welding-ppe')} />
-      <WorldPracticeButton position={[-.35, 1.72, -.45]} testId="welding-ppe-gloves" label="Gloves" done={ppe.has('gloves')} onActivate={() => recordSet('gloves', ppe, setPpe, 4, 'welding-ppe')} />
-      <WorldPracticeButton position={[.35, 1.72, -.45]} testId="welding-ppe-jacket" label="Coverage" done={ppe.has('jacket')} onActivate={() => recordSet('jacket', ppe, setPpe, 4, 'welding-ppe')} />
-      <WorldPracticeButton position={[1.05, 1.7, -.45]} testId="welding-hot-zone" label="Clear bay" done={ppe.has('zone')} onActivate={() => recordSet('zone', ppe, setPpe, 4, 'welding-ppe')} />
+      <WorldPracticeButton position={[-1.55, 1.62, -.7]} testId="welding-ppe-helmet" label="Helmet" done={ppe.has('helmet')} onActivate={() => recordSet('helmet', ppe, setPpe, 4, 'welding-ppe')} />
+      <WorldPracticeButton position={[-.52, 1.92, -.46]} testId="welding-ppe-gloves" label="Gloves" done={ppe.has('gloves')} onActivate={() => recordSet('gloves', ppe, setPpe, 4, 'welding-ppe')} />
+      <WorldPracticeButton position={[.52, 1.92, -.46]} testId="welding-ppe-jacket" label="Coverage" done={ppe.has('jacket')} onActivate={() => recordSet('jacket', ppe, setPpe, 4, 'welding-ppe')} />
+      <WorldPracticeButton position={[1.55, 1.62, -.7]} testId="welding-hot-zone" label="Clear bay" done={ppe.has('zone')} onActivate={() => recordSet('zone', ppe, setPpe, 4, 'welding-ppe')} />
     </>}
 
     {mentor.stepIndex === 1 && <>
-      <WorldPracticeButton position={[-1.05, 1.45, .45]} testId="welding-holder" label="Holder" done={equipment.has('holder')} onActivate={() => recordSet('holder', equipment, setEquipment, 4, 'inspect-equipment')} />
-      <WorldPracticeButton position={[-.35, 1.42, .45]} testId="welding-lead" label="Lead" done={equipment.has('lead')} onActivate={() => recordSet('lead', equipment, setEquipment, 4, 'inspect-equipment')} />
-      <WorldPracticeButton position={[.35, 1.42, .45]} testId="welding-return" label="Return" done={equipment.has('return')} onActivate={() => recordSet('return', equipment, setEquipment, 4, 'inspect-equipment')} />
-      <WorldPracticeButton position={[1.05, 1.42, .45]} testId="welding-table" label="Table" done={equipment.has('table')} onActivate={() => recordSet('table', equipment, setEquipment, 4, 'inspect-equipment')} />
+      <WorldPracticeButton position={[-1.5, 1.32, .68]} testId="welding-holder" label="Holder" done={equipment.has('holder')} onActivate={() => recordSet('holder', equipment, setEquipment, 4, 'inspect-equipment')} />
+      <WorldPracticeButton position={[-.48, 1.64, .54]} testId="welding-lead" label="Lead" done={equipment.has('lead')} onActivate={() => recordSet('lead', equipment, setEquipment, 4, 'inspect-equipment')} />
+      <WorldPracticeButton position={[.48, 1.64, .54]} testId="welding-return" label="Return" done={equipment.has('return')} onActivate={() => recordSet('return', equipment, setEquipment, 4, 'inspect-equipment')} />
+      <WorldPracticeButton position={[1.5, 1.32, .68]} testId="welding-table" label="Table" done={equipment.has('table')} onActivate={() => recordSet('table', equipment, setEquipment, 4, 'inspect-equipment')} />
     </>}
 
     {mentor.stepIndex === 2 && <WorldDragPractice position={[0, 1.55, 0]} testId="welding-clamp-drag" label="Drag clamp onto coupon" onProgress={setClampProgress} onComplete={(_, progress) => {
