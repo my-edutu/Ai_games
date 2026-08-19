@@ -1,0 +1,18 @@
+{
+  "artifact_sha256": "2ef92015624af6e25818030147d63f7583c4bf765d5bcc7af6db75e55d972089",
+  "dataset_sha256": "1782fabc8f7295e202779ce9d2a11f02060aaeac7c61b129e56e3d9be69f48a3",
+  "evaluation_scope": "held_out_template_groups",
+  "holdout_groups": 6,
+  "macro_f1": 1.0,
+  "model_version": "afmod-char-v1",
+  "multiclass_brier": 0.06306603471257698,
+  "native_speaker_validated": false,
+  "per_language": {"pcm": {"count": 15,"macro_f1": 1.0},"sw": {"count": 15,"macro_f1": 1.0}},
+  "per_language_label_recall": {"pcm:harassment": 1.0,"pcm:safe": 1.0,"pcm:threat": 1.0,"sw:harassment": 1.0,"sw:safe": 1.0,"sw:threat": 1.0},
+  "quality": {"languages": {"pcm": 45,"sw": 45},"native_speaker_validated": false,"rows": 90},
+  "representative_not_real_world": true,
+  "threshold": 0.55,
+  "threshold_source": "validation_template_groups",
+  "train_groups": 6,
+  "validation_groups": 6
+}

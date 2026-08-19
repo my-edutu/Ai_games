@@ -1,0 +1,12 @@
+{
+  "cases": 36,
+  "code_switch_signal_comprehension": 1.0,
+  "decision": "GO_FOR_CONTROLLED_DEPLOYMENT",
+  "human_escalation_comprehension": 1.0,
+  "native_speaker_validated": false,
+  "p0": 0,
+  "p1": 0,
+  "representative_not_real_world": true,
+  "supported_language_route_accuracy": 1.0,
+  "unsupported_scope_comprehension": 1.0
+}
