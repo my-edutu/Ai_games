@@ -90,10 +90,13 @@ export const useSimulationStore = create<SimulationStore>((set) => ({
       weldingPulse: reset ? 0 : weldingPulse,
     };
   }),
-  dispatchWorkAction: (action) => set((current) => ({
-    workActions: reduceWorkAction(current.workActions, action),
-    weldingPulse: action.type === 'WELDING_PASS' ? current.weldingPulse + 1 : current.weldingPulse,
-  })),
+  dispatchWorkAction: (action) => set((current) => {
+    const validWeldingPass = action.type === 'WELDING_PASS' && current.workActions.weldingStep === 'pass';
+    return {
+      workActions: reduceWorkAction(current.workActions, action),
+      weldingPulse: validWeldingPass ? current.weldingPulse + 1 : current.weldingPulse,
+    };
+  }),
   setLearnerName: (name) => set(() => {
     if (typeof window !== 'undefined') {
       try { window.localStorage.setItem(PROFILE_KEY, name); } catch { /* best effort */ }
