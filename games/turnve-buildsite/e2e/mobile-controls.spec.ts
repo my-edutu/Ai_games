@@ -15,6 +15,8 @@ test('touch viewport exposes thumb movement, drag-look and mobile-first work UI'
   const joystick = page.getByLabel('Movement joystick');
   const inspect = page.getByRole('button', { name: 'Inspect nearby issue' });
   const scene = page.getByLabel('3D construction site');
+  await expect(scene.locator('canvas')).toBeVisible();
+  await expect(scene).not.toHaveAttribute('data-render-mode', 'automation-lite');
   await expect(joystick).toBeVisible();
   await expect(inspect).toBeVisible();
   await expect(scene).toHaveAttribute('data-look-control', 'drag');
