@@ -12,22 +12,22 @@ export function Atmosphere({ weather, quality }: { weather: WeatherState; qualit
     gl.toneMapping = THREE.ACESFilmicToneMapping;
     gl.toneMappingExposure = weather === 'rain' ? .88 : weather === 'cloudy' ? 1 : 1.08;
     gl.outputColorSpace = THREE.SRGBColorSpace;
-    gl.shadowMap.enabled = true;
+    gl.shadowMap.enabled = quality !== 'mobile';
     gl.shadowMap.type = THREE.PCFSoftShadowMap;
-  }, [gl, weather]);
+  }, [gl, quality, weather]);
 
   const opacity = weather === 'rain' ? .34 : .26;
   return <>
     <ambientLight intensity={weather === 'rain' ? .16 : .22} color={weather === 'rain' ? '#b9c8cf' : '#c8d7df'} />
-    <ContactShadows
+    {quality !== 'mobile' && <ContactShadows
       position={[0, .025, 0]}
       opacity={opacity}
       scale={54}
-      blur={quality === 'mobile' ? 2.8 : 2.2}
+      blur={2.2}
       far={18}
-      resolution={quality === 'high' ? 1024 : quality === 'balanced' ? 512 : 256}
+      resolution={quality === 'high' ? 1024 : 512}
       frames={quality === 'high' ? Infinity : 1}
       color="#20282d"
-    />
+    />}
   </>;
 }
