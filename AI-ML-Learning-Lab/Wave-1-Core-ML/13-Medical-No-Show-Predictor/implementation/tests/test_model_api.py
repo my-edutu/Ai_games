@@ -2,7 +2,7 @@ from medical_no_show.synthetic import make_dataset
 from medical_no_show.model import train_candidates, predict_risk, select_threshold
 from medical_no_show.evaluation import evaluate_predictions, cohort_report
 from medical_no_show.robustness import should_abstain, audit_feature_contract
-from medical_no_show.api import app
+from medical_no_show.api import create_app
 from fastapi.testclient import TestClient
 
 def test_selected_model_beats_constant_baseline_on_brier():
@@ -23,12 +23,15 @@ def test_sparse_or_stale_inputs_abstain():
 def test_feature_contract_has_no_protected_or_clinical_diagnosis_fields():
     assert audit_feature_contract()==[]
 
-def test_api_returns_supportive_only_and_no_denial():
-    c=TestClient(app)
+def test_api_returns_supportive_only_and_no_denial_with_configured_model():
+    X,y,g=make_dataset(700,seed=13)
+    bundle=train_candidates(X,y,seed=13)
+    c=TestClient(create_app(bundle,"representative-v2"))
     payload={"appointment":{"appointment_id":"a","patient_id":"p","scheduled_at":"2026-08-01T00:00:00Z","appointment_at":"2026-08-20T00:00:00Z","clinic":"general","reminder_opt_in":True,"transport_barrier":True},
-             "history":{"patient_id":"p","events":[]}}
+             "history":{"patient_id":"p","events":[{"at":"2026-07-01T00:00:00Z","outcome":"no_show"}]}}
     r=c.post("/predict",json=payload)
     assert r.status_code==200
     body=r.json()
     assert body["care_access_guardrail"]=="risk_must_not_reduce_access"
     assert "deny_care" not in body["recommended_interventions"]
+    assert body["model_artifact_sha256"]==bundle.artifact_sha256
