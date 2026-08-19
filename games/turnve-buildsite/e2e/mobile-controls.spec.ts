@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test';
 
 const ppe = ['Hard hat', 'High-visibility vest', 'Safety boots', 'Safety glasses'];
 
-test('touch viewport exposes thumb movement and shared scene drag-look', async ({ page }) => {
+test('touch viewport exposes thumb movement, drag-look and mobile-first work UI', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/?demo=true');
   await page.getByLabel('Your name').fill('Amina Yusuf');
@@ -40,4 +40,15 @@ test('touch viewport exposes thumb movement and shared scene drag-look', async (
   await page.mouse.up();
   expect(await page.evaluate(() => document.pointerLockElement)).toBeNull();
   await expect(page.getByText('Inspect the site and record evidence.')).toBeVisible();
+
+  await page.getByRole('button', { name: 'Site Tablet' }).click();
+  const tablet = page.getByRole('dialog', { name: 'Turnve Site Tablet' });
+  await expect(tablet).toBeVisible();
+  await expect(tablet.locator('nav button')).toHaveCount(3);
+  await expect(tablet.getByRole('button', { name: 'Today', exact: true })).toBeVisible();
+  await expect(tablet.getByRole('button', { name: 'Site', exact: true })).toBeVisible();
+  await expect(tablet.getByRole('button', { name: 'Work', exact: true })).toBeVisible();
+  const tabletBox = await tablet.boundingBox();
+  expect(tabletBox).not.toBeNull();
+  expect(tabletBox!.width).toBeGreaterThanOrEqual(380);
 });
