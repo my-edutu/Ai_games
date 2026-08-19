@@ -26,6 +26,7 @@ function Human({ from, to, speed = 0.14, phase = 0, skin = '#7e553f', vest = '#f
   const rightArm = useRef<THREE.Mesh>(null);
   const leftLeg = useRef<THREE.Mesh>(null);
   const rightLeg = useRef<THREE.Mesh>(null);
+  const select = useSimulationStore((state) => state.setSelectedInteractable);
   const start = useMemo(() => new THREE.Vector3(...from), [from]);
   const end = useMemo(() => new THREE.Vector3(...(to ?? from)), [to, from]);
   const moving = to !== undefined && start.distanceTo(end) > 0.2;
@@ -52,13 +53,8 @@ function Human({ from, to, speed = 0.14, phase = 0, skin = '#7e553f', vest = '#f
     if (head.current) head.current.rotation.y = Math.sin(raw * 2.1 + phase) * 0.16;
   });
 
-  const contact = () => {
-    if (!stakeholderId) return;
-    useSimulationStore.getState().dispatch({ type: 'CONTACT_STAKEHOLDER', stakeholderId, topic: `In-person site update during ${useSimulationStore.getState().stage}` });
-  };
-
   return (
-    <group ref={group} onClick={(event) => { if (!stakeholderId) return; event.stopPropagation(); contact(); }}>
+    <group ref={group} onClick={(event) => { if (!stakeholderId) return; event.stopPropagation(); select(`person:${stakeholderId}`); }}>
       <mesh position={[0, 1.08, 0]} castShadow><cylinderGeometry args={[0.21, 0.24, 0.58, 12]} /><meshStandardMaterial color={shirt} /></mesh>
       <mesh position={[0, 1.12, 0.19]} castShadow><boxGeometry args={[0.42, 0.46, 0.035]} /><meshStandardMaterial color={vest} /></mesh>
       <mesh position={[0, 1.19, 0.215]}><boxGeometry args={[0.43, 0.035, 0.04]} /><meshStandardMaterial color="#ece3b9" /></mesh>
