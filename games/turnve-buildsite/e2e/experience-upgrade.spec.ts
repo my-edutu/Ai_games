@@ -10,12 +10,12 @@ test('personalizes the site, supports drag-look, coaches communication and rende
   await page.getByLabel('Your name').fill('chidi okafor');
   await page.getByRole('button', { name: 'Enter BuildSite' }).click();
 
-  await expect(page.getByText(/Chidi Okafor/)).toBeVisible();
+  await expect(page.getByText(/Chidi Okafor/).first()).toBeVisible();
   await page.getByRole('button', { name: 'Skip fly-through' }).click();
   for (const item of ppe) await page.getByRole('button', { name: new RegExp(item, 'i') }).click();
   await page.getByRole('button', { name: 'Present PPE to security' }).click();
 
-  await expect(page.getByText(/Chidi Okafor/)).toBeVisible();
+  await expect(page.locator('.briefing-human .quote')).toContainText('Chidi Okafor');
   await page.getByRole('button', { name: 'Begin guided site walk' }).click();
 
   const scene = page.getByLabel('3D construction site');
