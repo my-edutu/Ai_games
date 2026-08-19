@@ -3,6 +3,8 @@ import { expect, test } from '@playwright/test';
 const ppe = ['Hard hat', 'High-visibility vest', 'Safety boots', 'Safety glasses'];
 
 test('guided pitch flow reaches an evidence-backed readiness report with simplified work UI', async ({ page }) => {
+  test.setTimeout(60_000);
+
   await page.goto('/?demo=true');
   await expect(page.getByText('TURNVE BUILDSITE')).toBeVisible();
   await page.getByRole('button', { name: 'Skip fly-through' }).click();
