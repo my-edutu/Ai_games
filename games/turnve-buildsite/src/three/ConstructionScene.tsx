@@ -184,24 +184,22 @@ function SiteEnvironment({ weather, quality }: { weather: WeatherState; quality:
       {[[-30, 1.2, 0, 0.2, 2.4, 60], [30, 1.2, 0, 0.2, 2.4, 60], [0, 1.2, -30, 60, 2.4, 0.2], [0, 1.2, 30, 60, 2.4, 0.2]].map((v, i) => <mesh key={i} position={[v[0], v[1], v[2]] as [number, number, number]} castShadow><boxGeometry args={[v[3], v[4], v[5]] as [number, number, number]} /><meshStandardMaterial color="#465258" metalness={.52} roughness={.48} /></mesh>)}
       <mesh position={[-21, 1.4, 24]} onClick={choose('site-office')} castShadow><boxGeometry args={[9, 2.8, 0.45]} /><meshStandardMaterial color="#263239" metalness={.22} roughness={.55} /></mesh>
       <mesh position={[-21, 1.4, 23.72]} onClick={choose('site-office')}><boxGeometry args={[6.2, 1.1, 0.12]} /><meshStandardMaterial color="#1559b8" roughness={.5} /></mesh>
-      <mesh position={[-12, 1.5, -11]} castShadow receiveShadow onClick={choose('site-office')}><boxGeometry args={[8, 3, 5]} /><meshStandardMaterial map={cement.color} roughnessMap={cement.roughness} bumpMap={cement.bump} bumpScale={.035} color="#e1ded5" roughness={.86} /></mesh>
-      <mesh position={[-12, 1.85, -8.48]}><boxGeometry args={[2.1, 1.18, .04]} /><meshPhysicalMaterial color="#597d8d" transparent opacity={.65} roughness={.14} /></mesh>
-      <mesh position={[10, 0.28, 0]} receiveShadow onClick={choose('slab')}><boxGeometry args={[15, 0.55, 11]} /><meshStandardMaterial map={concrete.color} roughnessMap={concrete.roughness} bumpMap={concrete.bump} bumpScale={.045} color={wet ? '#777d7b' : '#a6a6a0'} roughness={wet ? .52 : .88} /></mesh>
-      {[-5, 0, 5].flatMap((x) => [-4, 0, 4].map((z) => <mesh key={`${x}-${z}`} position={[10 + x, 2.7, z]} castShadow receiveShadow onClick={choose('slab')}><boxGeometry args={[0.6, 5.4, 0.6]} /><meshStandardMaterial map={concrete.color} roughnessMap={concrete.roughness} bumpMap={concrete.bump} bumpScale={.035} color="#c2c0b9" roughness={.84} /></mesh>))}
-      <mesh position={[-8, 0.45, -4]} castShadow><boxGeometry args={[3.5, 0.9, 1.7]} /><meshStandardMaterial map={timber.color} roughnessMap={timber.roughness} bumpMap={timber.bump} bumpScale={.035} color={hazards['blocked-route'].status === 'resolved' ? '#66846f' : '#b18a63'} roughness={.9} /></mesh>
-      <mesh position={[-12, 0.5, 8]} castShadow onClick={choose('cement-storage')}><boxGeometry args={[4, 1, 3]} /><meshStandardMaterial map={cement.color} roughnessMap={cement.roughness} bumpMap={cement.bump} bumpScale={.025} color={materialsProtected ? '#607d84' : '#d2c3a4'} roughness={.88} /></mesh>
-      <mesh position={[4, 0.025, -8]} rotation={[-Math.PI / 2, 0, 0]}><circleGeometry args={[2.2, 32]} /><meshPhysicalMaterial color="#607980" transparent opacity={wet ? .62 : .3} roughness={wet ? .08 : .3} clearcoat={.7} clearcoatRoughness={.08} depthWrite={false} /></mesh>
-      <mesh position={[4, 0.12, -8]} rotation={[0, 0, Math.PI / 2]} onClick={choose('temporary-cable')}><cylinderGeometry args={[0.08, 0.08, 7, 12]} /><meshStandardMaterial color="#222829" roughness={.64} /></mesh>
-      <mesh position={[12, 1.05, 6]} castShadow><boxGeometry args={[6, 2.1, 0.18]} /><meshStandardMaterial map={timber.color} roughnessMap={timber.roughness} color={hazards['fall-protection'].status === 'resolved' ? '#ddb346' : '#9c5d4c'} roughness={.8} /></mesh>
-      <group position={[17, .17, -2.4]}>
-        {Array.from({ length: 9 }, (_, i) => <mesh key={i} position={[0, Math.floor(i / 5) * .1, -.45 + (i % 5) * .2]} rotation={[0, 0, Math.PI / 2]} castShadow><cylinderGeometry args={[.04,.04,3.2,8]} /><meshStandardMaterial map={rust.color} roughnessMap={rust.roughness} color="#715044" metalness={.46} roughness={.72} /></mesh>)}
-      </group>
+      <mesh position={[-12, 1.5, -11]} castShadow onClick={choose('site-office')}><boxGeometry args={[8, 3, 5]} /><meshStandardMaterial map={cement.color} roughnessMap={cement.roughness} bumpMap={cement.bump} bumpScale={.018} color="#d8d4ca" roughness={.78} /></mesh>
+      <mesh position={[10, 0.28, 0]} receiveShadow onClick={choose('slab')}><boxGeometry args={[15, 0.55, 11]} /><meshStandardMaterial map={concrete.color} roughnessMap={concrete.roughness} bumpMap={concrete.bump} bumpScale={wet ? .012 : .035} color={wet ? '#858985' : '#a09f99'} roughness={wet ? .48 : .88} metalness={wet ? .04 : 0} /></mesh>
+      {[-5, 0, 5].flatMap((x) => [-4, 0, 4].map((z) => <mesh key={`${x}-${z}`} position={[10 + x, 2.7, z]} castShadow onClick={choose('slab')}><boxGeometry args={[0.6, 5.4, 0.6]} /><meshStandardMaterial map={concrete.color} roughnessMap={concrete.roughness} bumpMap={concrete.bump} bumpScale={.024} color="#bbb7ad" roughness={.84} /></mesh>))}
+      {Array.from({ length: quality === 'mobile' ? 7 : 12 }, (_, i) => <mesh key={`rebar-${i}`} position={[5.7 + i * .72, 0.66, -1.8]} onClick={choose('rebar')}><boxGeometry args={[0.065, 0.065, 6]} /><meshStandardMaterial map={rust.color} roughnessMap={rust.roughness} color={i % 3 === 0 ? '#794f3f' : '#634b43'} metalness={.52} roughness={.68} /></mesh>)}
+      <mesh position={[-8, 0.45, -4]} castShadow><boxGeometry args={[3.5, 0.9, 1.7]} /><meshStandardMaterial map={timber.color} roughnessMap={timber.roughness} bumpMap={timber.bump} bumpScale={.025} color={hazards['blocked-route'].status === 'resolved' ? '#557c62' : '#b68b5d'} roughness={.83} /></mesh>
+      <mesh position={[-12, 0.5, 8]} onClick={choose('cement-storage')} castShadow><boxGeometry args={[4, 1, 3]} /><meshStandardMaterial map={cement.color} roughnessMap={cement.roughness} bumpMap={cement.bump} bumpScale={.02} color={materialsProtected ? '#607c83' : '#d0bb92'} roughness={.8} /></mesh>
+      <mesh position={[4, 0.035, -8]} rotation={[-Math.PI / 2, 0, 0]}><circleGeometry args={[2.2, 32]} /><meshPhysicalMaterial color="#607b84" transparent opacity={wet ? .5 : .28} roughness={wet ? .12 : .28} clearcoat={.65} clearcoatRoughness={.1} depthWrite={false} /></mesh>
+      <mesh position={[4, 0.12, -8]} rotation={[0, 0, Math.PI / 2]} onClick={choose('temporary-cable')}><cylinderGeometry args={[0.075, 0.075, 7, 12]} /><meshStandardMaterial color="#202426" roughness={.58} /></mesh>
+      <mesh position={[10, 0.7, -10]} onClick={choose('formwork')} castShadow><boxGeometry args={[7, 1.4, 0.25]} /><meshStandardMaterial map={timber.color} roughnessMap={timber.roughness} bumpMap={timber.bump} bumpScale={.025} color={hazards.formwork.status === 'resolved' ? '#57765d' : '#b98d5c'} roughness={.82} /></mesh>
+      <mesh position={[12, 1.05, 6]} castShadow><boxGeometry args={[6, 2.1, 0.18]} /><meshStandardMaterial color={hazards['fall-protection'].status === 'resolved' ? '#d8af47' : '#925a4c'} metalness={.16} roughness={.65} /></mesh>
       {scenario.hazards.map((hazard) => {
         const state = hazards[hazard.id];
         const visible = mode === 'guided' || state.status !== 'unseen';
         if (!visible) return null;
         const color = state.status === 'resolved' ? '#4ca273' : state.status === 'reported' ? '#e7ad34' : '#e66f42';
-        return <mesh key={hazard.id} position={hazard.position} rotation={[Math.PI / 2, 0, 0]} onClick={choose(`hazard:${hazard.id}`)}><torusGeometry args={[0.75, 0.08, 10, 30]} /><meshStandardMaterial color={color} emissive={color} emissiveIntensity={0.38} /></mesh>;
+        return <mesh key={hazard.id} position={hazard.position} rotation={[Math.PI / 2, 0, 0]} onClick={choose(`hazard:${hazard.id}`)}><torusGeometry args={[0.75, 0.08, 10, 30]} /><meshStandardMaterial color={color} emissive={color} emissiveIntensity={0.35} /></mesh>;
       })}
       <SiteDressing quality={quality} weather={weather} />
       <SiteLife />
@@ -232,8 +230,9 @@ export function ConstructionScene({ paused }: { paused: boolean }) {
     return () => window.removeEventListener('resize', update);
   }, []);
 
-  const dpr: [number, number] = quality === 'mobile' ? [1, 1.25] : quality === 'balanced' ? [1, 1.55] : [1, 1.8];
-  const shadowSize = quality === 'mobile' ? 512 : quality === 'balanced' ? 1024 : 2048;
+  const dpr: [number, number] = quality === 'mobile' ? [1, 1.05] : quality === 'balanced' ? [1, 1.55] : [1, 1.8];
+  const shadowsEnabled = quality !== 'mobile';
+  const shadowSize = quality === 'balanced' ? 1024 : 2048;
 
   return (
     <div
@@ -265,7 +264,7 @@ export function ConstructionScene({ paused }: { paused: boolean }) {
       onPointerCancel={() => { activePointer.current = null; setDragging(false); }}
     >
       <Canvas
-        shadows
+        shadows={shadowsEnabled}
         camera={{ position: [0, 3.5, 24], fov: 68 }}
         dpr={dpr}
         gl={{ antialias: quality !== 'mobile', powerPreference: 'high-performance' }}
@@ -273,7 +272,7 @@ export function ConstructionScene({ paused }: { paused: boolean }) {
         <color attach="background" args={[sky]} />
         <fog attach="fog" args={[sky, weather === 'rain' ? 19 : 27, weather === 'rain' ? 50 : 67]} />
         <hemisphereLight intensity={weather === 'rain' ? .64 : weather === 'cloudy' ? .85 : 1.04} groundColor="#5b574e" color={weather === 'rain' ? '#cbd8dd' : '#e7f1f4'} />
-        <directionalLight position={[8, 15, 10]} intensity={weather === 'rain' ? 1.05 : weather === 'cloudy' ? 1.45 : 2.05} color={weather === 'rain' ? '#d8e1e1' : '#fff0cf'} castShadow shadow-mapSize-width={shadowSize} shadow-mapSize-height={shadowSize} shadow-camera-left={-28} shadow-camera-right={28} shadow-camera-top={28} shadow-camera-bottom={-28} shadow-bias={-.00012} />
+        <directionalLight position={[8, 15, 10]} intensity={weather === 'rain' ? 1.05 : weather === 'cloudy' ? 1.45 : 2.05} color={weather === 'rain' ? '#d8e1e1' : '#fff0cf'} castShadow={shadowsEnabled} shadow-mapSize-width={shadowSize} shadow-mapSize-height={shadowSize} shadow-camera-left={-28} shadow-camera-right={28} shadow-camera-top={28} shadow-camera-bottom={-28} shadow-bias={-.00012} />
         <SkyWeather weather={weather} minute={simulatedMinute} quality={quality} />
         <Atmosphere weather={weather} quality={quality} />
         <SiteEnvironment weather={weather} quality={quality} />
