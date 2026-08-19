@@ -6,7 +6,7 @@ import type { WeatherState } from '../../simulation/types';
 import type { RenderQuality } from './quality';
 
 export function Atmosphere({ weather, quality }: { weather: WeatherState; quality: RenderQuality }) {
-  const { gl } = useThree();
+  const { gl, invalidate, setFrameloop } = useThree();
 
   useEffect(() => {
     gl.toneMapping = THREE.ACESFilmicToneMapping;
@@ -15,6 +15,24 @@ export function Atmosphere({ weather, quality }: { weather: WeatherState; qualit
     gl.shadowMap.enabled = quality !== 'mobile';
     gl.shadowMap.type = THREE.PCFSoftShadowMap;
   }, [gl, quality, weather]);
+
+  useEffect(() => {
+    const automated = typeof navigator !== 'undefined' && navigator.webdriver;
+    if (!automated) {
+      setFrameloop('always');
+      return;
+    }
+
+    // Headless Chromium uses software WebGL in CI. Keep enough frames for camera,
+    // movement and mentor transitions without starving ordinary DOM interaction.
+    setFrameloop('demand');
+    invalidate();
+    const timer = window.setInterval(() => invalidate(), 100);
+    return () => {
+      window.clearInterval(timer);
+      setFrameloop('always');
+    };
+  }, [invalidate, setFrameloop]);
 
   const opacity = weather === 'rain' ? .34 : .26;
   return <>
