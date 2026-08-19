@@ -52,6 +52,7 @@ export type WorkActionState = {
   materialHandlingComplete: boolean;
   weldingStep: WeldingStep;
   weldingScore: number;
+  weldingPassQuality: number | null;
   weldingComplete: boolean;
   practicalEvidence: string[];
 };
@@ -62,9 +63,30 @@ export type WorkAction =
   | { type: 'START_WELDING' }
   | { type: 'WELDING_PPE' }
   | { type: 'WELDING_PREPARE' }
-  | { type: 'WELDING_PASS' }
+  | { type: 'WELDING_PASS'; quality?: number }
   | { type: 'WELDING_INSPECT' }
   | { type: 'RESET_WORK_ACTIONS' };
+
+function clamp100(value: number) {
+  return Math.max(0, Math.min(100, Math.round(value)));
+}
+
+export function scoreWeldingTrace(samples: number[]): number {
+  const clean = samples.filter(Number.isFinite).map((value) => Math.max(0, Math.min(1, value)));
+  if (clean.length < 2) return 0;
+  const start = clean[0];
+  const end = clean[clean.length - 1];
+  const coverage = Math.max(0, end - start);
+  const segments = clean.slice(1).map((value, index) => value - clean[index]);
+  const backwardTravel = segments.reduce((sum, value) => sum + Math.max(0, -value), 0);
+  const meanStep = coverage / Math.max(1, segments.length);
+  const deviation = segments.reduce((sum, value) => sum + Math.abs(value - meanStep), 0) / Math.max(1, segments.length);
+  const coverageQuality = Math.min(1, coverage / 0.9);
+  const monotonicQuality = Math.max(0, 1 - backwardTravel * 3);
+  const consistencyQuality = meanStep <= 0.001 ? 0 : Math.max(0, 1 - (deviation / meanStep) * 2);
+  const samplingQuality = Math.min(1, clean.length / 6);
+  return clamp100(coverageQuality * 40 + monotonicQuality * 30 + consistencyQuality * 25 + samplingQuality * 5);
+}
 
 export function createWorkActionState(): WorkActionState {
   return {
@@ -75,6 +97,7 @@ export function createWorkActionState(): WorkActionState {
     materialHandlingComplete: false,
     weldingStep: 'idle',
     weldingScore: 0,
+    weldingPassQuality: null,
     weldingComplete: false,
     practicalEvidence: [],
   };
@@ -110,31 +133,35 @@ export function reduceWorkAction(previous: WorkActionState, action: WorkAction):
       if (state.weldingStep === 'idle') {
         state.weldingStep = 'ppe';
         state.weldingScore = 0;
+        state.weldingPassQuality = null;
         appendEvidence(state, 'Started supervised welding practice in the designated training bay.');
       }
       break;
     case 'WELDING_PPE':
       if (state.weldingStep !== 'ppe') break;
       state.weldingStep = 'prepare';
-      state.weldingScore = 25;
+      state.weldingScore = 20;
       appendEvidence(state, 'Confirmed welding helmet, gloves, protective clothing and a clear practice bay before starting.');
       break;
     case 'WELDING_PREPARE':
       if (state.weldingStep !== 'prepare') break;
       state.weldingStep = 'pass';
-      state.weldingScore = 50;
+      state.weldingScore = 40;
       appendEvidence(state, 'Secured and checked the training coupon before the simulated practice pass.');
       break;
-    case 'WELDING_PASS':
+    case 'WELDING_PASS': {
       if (state.weldingStep !== 'pass') break;
+      const quality = clamp100(action.quality ?? 100);
+      state.weldingPassQuality = quality;
       state.weldingStep = 'inspect';
-      state.weldingScore = 75;
-      appendEvidence(state, 'Completed the controlled simulated welding pass in the training bay.');
+      state.weldingScore = clamp100(40 + quality * 0.4);
+      appendEvidence(state, `Completed the controlled simulated welding pass with travel-quality score ${quality}/100.`);
       break;
+    }
     case 'WELDING_INSPECT':
       if (state.weldingStep !== 'inspect') break;
       state.weldingStep = 'complete';
-      state.weldingScore = 100;
+      state.weldingScore = clamp100(state.weldingScore + 20);
       state.weldingComplete = true;
       appendEvidence(state, 'Inspected the practice bead and completed the safety-first welding learning sequence.');
       break;
