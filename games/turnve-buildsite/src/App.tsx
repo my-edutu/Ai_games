@@ -10,6 +10,8 @@ import { PPEInduction } from './ui/PPEInduction';
 import { PresenterPanel } from './ui/PresenterPanel';
 import { SiteTablet } from './ui/SiteTablet';
 
+const nonNavigationStages = ['intro', 'ppe', 'briefing', 'artifacts', 'report'];
+
 export function App() {
   const state = useSimulationStore();
   const [tabletOpen, setTabletOpen] = useState(false);
@@ -32,6 +34,11 @@ export function App() {
   }, [state.started, state.stage]);
 
   useEffect(() => {
+    const shouldReleasePointer = tabletOpen || presenterOpen || nonNavigationStages.includes(state.stage);
+    if (shouldReleasePointer && document.pointerLockElement) document.exitPointerLock();
+  }, [tabletOpen, presenterOpen, state.stage]);
+
+  useEffect(() => {
     if (!state.started || tabletOpen || ['intro', 'ppe', 'briefing', 'report'].includes(state.stage)) return;
     const interval = window.setInterval(() => state.dispatch({ type: 'TICK', minutes: 1 }), 2000);
     return () => window.clearInterval(interval);
@@ -39,7 +46,7 @@ export function App() {
 
   const showHint = () => { state.dispatch({ type: 'USE_HINT' }); setHint(getTariHint(useSimulationStore.getState())); };
   const start = (mode: 'guided' | 'assessment') => state.dispatch({ type: 'START', mode });
-  const paused = tabletOpen || presenterOpen || state.stage === 'intro' || state.stage === 'ppe' || state.stage === 'briefing' || state.stage === 'report';
+  const paused = tabletOpen || presenterOpen || nonNavigationStages.includes(state.stage);
 
   return (
     <main className="app-shell">
