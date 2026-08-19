@@ -26,6 +26,7 @@ export function PlayerController({ disabled }: { disabled: boolean }) {
   const keys = useRef(new Set<string>());
   const setNearbyHazard = useSimulationStore((state) => state.setNearbyHazard);
   const setNearbyStakeholder = useSimulationStore((state) => state.setNearbyStakeholder);
+  const setPresenterTeleport = useSimulationStore((state) => state.setPresenterTeleport);
 
   useEffect(() => {
     const down = (event: KeyboardEvent) => {
@@ -44,7 +45,13 @@ export function PlayerController({ disabled }: { disabled: boolean }) {
 
   useFrame((_, delta) => {
     const state = useSimulationStore.getState();
-    if (!state.started || state.stage === 'intro' || disabled) return;
+    if (!state.started || state.stage === 'intro') return;
+
+    if (!disabled && state.presenterTeleport) {
+      camera.position.set(...state.presenterTeleport);
+      setPresenterTeleport(null);
+    }
+    if (disabled) return;
 
     const look = consumeVirtualLook();
     if (look.x !== 0 || look.y !== 0) {
