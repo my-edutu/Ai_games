@@ -10,7 +10,7 @@ export function SkillLessonPanel() {
   const result = mentorState.results[mentorState.activeSkillId];
   const exit = () => dispatch({ type: 'EXIT_SKILL' });
 
-  return <aside className="skill-lesson-panel skill-lesson-gate" role="dialog" aria-modal="false" aria-label="Skill Mentor lesson">
+  return <aside className={`skill-lesson-panel skill-lesson-gate skill-lesson-${mentorState.phase}`} role="dialog" aria-modal="false" aria-label="Skill Mentor lesson">
     <header className="skill-lesson-header">
       <div><span>LIVE SKILL PRACTICE · {skill.trade.toUpperCase()}</span><h2>{skill.title}</h2><p>{skill.mentor} · {skill.mentorRole}</p></div>
       <button aria-label="Exit lesson" onClick={exit}>×</button>
