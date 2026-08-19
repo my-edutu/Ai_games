@@ -8,11 +8,11 @@ export type RenderBudget = {
 
 export function deterministicNoise(seed: number, index: number) {
   let value = (seed ^ Math.imul(index + 1, 0x9e3779b1)) >>> 0;
-  value ^= value >>> 16;
+  value = (value ^ (value >>> 16)) >>> 0;
   value = Math.imul(value, 0x7feb352d) >>> 0;
-  value ^= value >>> 15;
+  value = (value ^ (value >>> 15)) >>> 0;
   value = Math.imul(value, 0x846ca68b) >>> 0;
-  value ^= value >>> 16;
+  value = (value ^ (value >>> 16)) >>> 0;
   return value / 0xffffffff;
 }
 
