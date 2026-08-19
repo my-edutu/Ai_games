@@ -37,8 +37,11 @@ test('guided pitch flow reaches an evidence-backed readiness report and resets',
   await expect(presenter).toBeVisible();
   await page.getByRole('button', { name: 'Jump to artifact moment' }).click();
   await presenter.getByRole('button', { name: '×' }).click();
+  await expect.poll(() => page.evaluate(() => document.pointerLockElement === null)).toBe(true);
 
-  await page.getByRole('button', { name: 'Open Artifacts' }).click();
+  const openArtifacts = page.getByRole('button', { name: 'Open Artifacts' });
+  await expect(openArtifacts).toBeVisible();
+  await openArtifacts.click();
   await expect(page.getByText('Turn evidence into professional records')).toBeVisible();
   const assist = page.getByRole('button', { name: 'Use collected evidence' }).first();
   await assist.click();
