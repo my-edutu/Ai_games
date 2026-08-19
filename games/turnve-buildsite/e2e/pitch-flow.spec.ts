@@ -1,7 +1,7 @@
 import { expect, test, type Locator, type Page } from '@playwright/test';
 
 const ppe = ['Hard hat', 'High-visibility vest', 'Safety boots', 'Safety glasses'];
-const clickFlow = (locator: Locator) => locator.click({ force: true });
+const clickFlow = (locator: Locator) => locator.evaluate((element) => (element as HTMLElement).click());
 
 async function signIn(page: Page, name = 'Amina Yusuf') {
   await page.getByLabel('Your name').fill(name);
