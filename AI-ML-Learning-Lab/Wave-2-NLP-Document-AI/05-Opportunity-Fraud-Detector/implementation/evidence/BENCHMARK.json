@@ -1,0 +1,20 @@
+{
+  "artifact_sha256": "f52713cf3dea14e97c00396d72358d5aa0bce21c72c99620ed74052d26fd02c9",
+  "brier": 0.0618923947496611,
+  "constant_baseline_brier": 0.24395061728395054,
+  "dataset_sha256": "fd042aff02393ea624f5e2be500a1ef52befa0c43e41d9a563b4e82a7e31cbb1",
+  "effective_review_fraction": 0.40555555555555556,
+  "evaluation_scope": "held_out_campaigns",
+  "holdout_campaigns": 15,
+  "holdout_count": 180,
+  "model_version": "fraud-risk-v1",
+  "positive_rate": 0.4222222222222222,
+  "pr_auc": 0.8893076208480335,
+  "precision_at_review_budget": 0.9444444444444444,
+  "precision_review_queue": 0.8904109589041096,
+  "quality": {"campaigns": 60,"duplicate_text_groups": 28,"positive_rate": 0.35555555555555557,"rows": 720,"severe_rate": 0.2111111111111111},
+  "representative_not_real_world": true,
+  "review_budget": 0.1,
+  "severe_recall_review_queue": 1.0,
+  "train_count": 540
+}
