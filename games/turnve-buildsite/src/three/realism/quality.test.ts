@@ -12,6 +12,10 @@ describe('BuildSite realism quality controls', () => {
     expect(selectRenderQuality({ width: 1440, dpr: 1, coarsePointer: false })).toBe('high');
   });
 
+  it('forces browser automation onto the mobile render budget so headless verification remains stable', () => {
+    expect(selectRenderQuality({ width: 1440, dpr: 1, coarsePointer: false, automated: true })).toBe('mobile');
+  });
+
   it('generates deterministic procedural noise for repeatable PBR textures', () => {
     expect(deterministicNoise(1337, 10)).toBe(deterministicNoise(1337, 10));
     expect(deterministicNoise(1337, 10)).not.toBe(deterministicNoise(1337, 11));
