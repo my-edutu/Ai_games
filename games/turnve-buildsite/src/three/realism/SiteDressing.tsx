@@ -1,8 +1,10 @@
-import { useEffect, useMemo } from 'react';
+import { lazy, Suspense, useEffect, useMemo } from 'react';
 import * as THREE from 'three';
 import type { WeatherState } from '../../simulation/types';
 import { createSurfaceTextures, disposeSurfaceTextures } from './materials';
 import type { RenderQuality } from './quality';
+
+const HeroProps = lazy(() => import('./HeroProps').then((module) => ({ default: module.HeroProps })));
 
 function Scaffold({ position }: { position: [number, number, number] }) {
   const uprights = [-1.4, 1.4].flatMap((x) => [-1, 1].map((z) => [x, z] as const));
@@ -114,5 +116,6 @@ export function SiteDressing({ quality, weather }: { quality: RenderQuality; wea
     <mesh position={[-2, .03, -17]} rotation={[-Math.PI / 2, 0, .2]}><torusGeometry args={[2.7, .055, 8, 48]} /><meshStandardMaterial color="#28323a" roughness={.65} /></mesh>
     <mesh position={[-1, .04, -17]} rotation={[-Math.PI / 2, 0, -.5]}><torusGeometry args={[1.9, .045, 8, 42]} /><meshStandardMaterial color="#31556d" roughness={.58} /></mesh>
     <SurfaceDetail weather={weather} quality={quality} />
+    {quality !== 'mobile' && <Suspense fallback={null}><HeroProps /></Suspense>}
   </group>;
 }
