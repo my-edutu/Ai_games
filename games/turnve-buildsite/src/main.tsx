@@ -9,6 +9,7 @@ import './interaction-upgrade.css';
 import './practical-actions.css';
 import './blue-simplified-ui.css';
 import './blue-ui-extras.css';
+import './welding-range.css';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
