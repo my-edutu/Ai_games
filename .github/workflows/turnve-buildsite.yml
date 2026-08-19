@@ -51,7 +51,7 @@ jobs:
           if-no-files-found: error
           retention-days: 7
       - name: Install Chromium
-        run: npx playwright install --with-deps chromium
+        run: npx playwright install chromium
       - name: Guided pitch browser flow
         run: npm run test:e2e
       - name: Preview smoke test
