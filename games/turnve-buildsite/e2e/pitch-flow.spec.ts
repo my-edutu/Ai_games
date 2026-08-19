@@ -54,9 +54,11 @@ test('guided pitch flow reaches an evidence-backed readiness report with simplif
 
   await clickFlow(page.getByRole('button', { name: 'Open Work' }));
   await expect(page.getByText('Professional evidence')).toBeVisible();
-  const assist = page.getByRole('button', { name: 'Use collected evidence' }).first();
+  const openArtifact = page.locator('.artifact-disclosure[open]').first();
+  await expect(openArtifact).toBeVisible();
+  const assist = openArtifact.getByRole('button', { name: 'Use collected evidence' });
   await clickFlow(assist);
-  await expect(page.locator('.artifact-disclosure[open] textarea').first()).not.toHaveValue('');
+  await expect(openArtifact.locator('textarea').first()).not.toHaveValue('');
   await clickFlow(page.getByLabel('Close tablet'));
 
   await page.keyboard.press('Shift+P');
