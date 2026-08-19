@@ -4,6 +4,7 @@ export type RenderBudget = {
   width: number;
   dpr: number;
   coarsePointer: boolean;
+  automated?: boolean;
 };
 
 export function deterministicNoise(seed: number, index: number) {
@@ -16,18 +17,18 @@ export function deterministicNoise(seed: number, index: number) {
   return value / 0xffffffff;
 }
 
-export function selectRenderQuality({ width, dpr, coarsePointer }: RenderBudget): RenderQuality {
-  if (coarsePointer || width <= 820) return 'mobile';
+export function selectRenderQuality({ width, dpr, coarsePointer, automated = false }: RenderBudget): RenderQuality {
+  if (automated || coarsePointer || width <= 820) return 'mobile';
   if (width >= 1280 && dpr <= 1.5) return 'high';
   return 'balanced';
 }
 
 export function detectRenderQuality(): RenderQuality {
   if (typeof window === 'undefined') return 'balanced';
-  if (typeof navigator !== 'undefined' && navigator.webdriver) return 'mobile';
   return selectRenderQuality({
     width: window.innerWidth,
     dpr: window.devicePixelRatio || 1,
     coarsePointer: window.matchMedia?.('(pointer: coarse)').matches ?? false,
+    automated: typeof navigator !== 'undefined' && navigator.webdriver,
   });
 }
