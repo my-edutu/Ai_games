@@ -49,7 +49,8 @@ test('guided pitch flow reaches an evidence-backed readiness report with simplif
   const presenter = page.getByRole('dialog', { name: 'Pitch presenter controls' });
   await expect(presenter).toBeVisible();
   await clickFlow(page.getByRole('button', { name: 'Jump to artifact moment' }));
-  await clickFlow(presenter.getByRole('button', { name: '×' }));
+  await page.keyboard.press('Shift+P');
+  await expect(presenter).toHaveCount(0);
   await expect.poll(() => page.evaluate(() => document.pointerLockElement === null)).toBe(true);
 
   await clickFlow(page.getByRole('button', { name: 'Open Work' }));
