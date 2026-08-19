@@ -21,12 +21,18 @@ test('personalizes the site, supports drag-look, coaches communication and rende
   const scene = page.getByLabel('3D construction site');
   await expect(scene).toHaveAttribute('data-look-control', 'drag');
 
-  // Follow the initial sight line toward the active slab area; this passes visible site staff.
+  // Walk around the west side of the slab, then approach Grace at the visible consultant station.
+  await page.keyboard.down('KeyA');
+  await page.waitForTimeout(2500);
+  await page.keyboard.up('KeyA');
   await page.keyboard.down('KeyW');
-  await page.waitForTimeout(5400);
+  await page.keyboard.down('KeyD');
+  await page.waitForTimeout(3400);
+  await page.keyboard.up('KeyD');
   await page.keyboard.up('KeyW');
   await expect(page.locator('.communication-coach')).toBeVisible({ timeout: 7000 });
   await expect(page.locator('.communication-coach')).toContainText('Chidi');
+  await expect(page.locator('.communication-coach')).toContainText('Grace Adebayo');
   await page.locator('.communication-coach').getByRole('button', { name: 'Not now' }).click();
 
   const box = await scene.boundingBox();
