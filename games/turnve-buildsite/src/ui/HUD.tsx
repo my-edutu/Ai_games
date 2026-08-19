@@ -24,18 +24,29 @@ export function HUD({ onOpenTablet, onHint, soundEnabled, onToggleSound }: { onO
   const state = useSimulationStore();
   const progress = taskProgress(state);
   const hazard = state.nearbyHazard ? scenario.hazards.find((item) => item.id === state.nearbyHazard) : null;
-  const approval = state.inspectionSigned ? 'APPROVED' : 'APPROVAL OPEN';
-  const delivery = state.truck === 'waiting' ? 'TRUCK WAITING' : state.truck === 'arrived' ? 'TRUCK ARRIVED' : state.truck === 'released' ? 'TRUCK RELEASED' : 'DELIVERY SCHEDULED';
   const weather = displayWeather(state.weather, state.simulatedMinute);
+  const alert = state.truck === 'waiting' ? 'Truck waiting' : !state.inspectionSigned && ['pre-pour', 'crisis'].includes(state.stage) ? 'Approval open' : null;
 
   return (
     <div className="hud hud-simple" aria-live="polite">
-      <section className="mission-bar">
-        <div className="mission-objective"><span className="eyebrow">{state.learnerName ? `${state.learnerName.toUpperCase()} · CURRENT JOB` : 'CURRENT JOB'}</span><strong>{objective(state.stage)}</strong><div className="progress-track"><div style={{ width: `${(progress.completed / progress.total) * 100}%` }} /></div></div>
-        <div className="mission-status"><b>{formatSimulatedTime(state.simulatedMinute)}</b><span className={`weather-chip ${weather}`}>{weather.toUpperCase()}</span><span className={state.inspectionSigned ? 'ok' : 'open'}>{approval}</span><span className={state.truck === 'waiting' ? 'warn' : ''}>{delivery}</span></div>
-        <div className="mission-actions"><span className="drag-control-note">Drag to look</span><button onClick={onOpenTablet}>Site Tablet</button><button onClick={onHint}>Ask TARI</button><button aria-pressed={soundEnabled} onClick={onToggleSound}>{soundEnabled ? 'Sound on' : 'Sound off'}</button></div>
+      <section className="mission-bar mission-bar-compact">
+        <div className="mission-objective">
+          <span className="eyebrow">{state.learnerName ? `${state.learnerName.toUpperCase()} · CURRENT JOB` : 'CURRENT JOB'}</span>
+          <strong>{objective(state.stage)}</strong>
+          <div className="progress-track"><div style={{ width: `${(progress.completed / progress.total) * 100}%` }} /></div>
+        </div>
+        <div className="mission-quick-status">
+          <span>{formatSimulatedTime(state.simulatedMinute)}</span>
+          <span className={`weather-chip ${weather}`}>{weather}</span>
+          {alert && <span className="mission-alert">{alert}</span>}
+        </div>
+        <div className="mission-actions mission-actions-compact">
+          <button aria-label="Site Tablet" onClick={onOpenTablet}>Work</button>
+          <button aria-label="Ask TARI" onClick={onHint}>Help</button>
+          <button aria-label={soundEnabled ? 'Turn audio off' : 'Turn audio on'} aria-pressed={soundEnabled} onClick={onToggleSound}>{soundEnabled ? 'Audio on' : 'Audio off'}</button>
+        </div>
       </section>
-      {hazard && <div className="interaction-prompt"><span>Nearby: <b>{hazard.label}</b></span><kbd>E</kbd><span>{state.hazards[hazard.id].status === 'unseen' ? 'inspect' : !state.hazards[hazard.id].evidenceCaptured ? 'capture' : state.hazards[hazard.id].status === 'observed' ? 'report' : 'review'}</span></div>}
+      {hazard && <div className="interaction-prompt"><span><b>{hazard.label}</b></span><kbd>E</kbd><span>{state.hazards[hazard.id].status === 'unseen' ? 'inspect' : !state.hazards[hazard.id].evidenceCaptured ? 'capture' : state.hazards[hazard.id].status === 'observed' ? 'report' : 'review'}</span></div>}
     </div>
   );
 }
