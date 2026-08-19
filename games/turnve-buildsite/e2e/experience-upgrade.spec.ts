@@ -24,7 +24,7 @@ test('personalizes the site, supports drag-look, coaches communication and rende
   // Presenter jump changes only the camera position; the normal proximity engine must surface Grace's coaching.
   await page.keyboard.press('Shift+P');
   let presenter = page.getByRole('dialog', { name: 'Pitch presenter controls' });
-  await presenter.getByRole('button', { name: 'Move near Grace' }).click();
+  await presenter.getByRole('button', { name: 'Jump near Grace' }).click();
   await presenter.locator('header button').click();
   await expect(page.locator('.communication-coach')).toBeVisible({ timeout: 7000 });
   await expect(page.locator('.communication-coach')).toContainText('Chidi');
@@ -43,6 +43,6 @@ test('personalizes the site, supports drag-look, coaches communication and rende
   presenter = page.getByRole('dialog', { name: 'Pitch presenter controls' });
   await presenter.getByRole('button', { name: 'Trigger rain' }).click();
   await presenter.locator('header button').click();
-  await expect(page.getByText('RAIN', { exact: true })).toBeVisible();
+  await expect(page.locator('.weather-chip')).toContainText(/rain/i);
   await expect(scene).toHaveAttribute('data-weather', 'rain');
 });
