@@ -4,6 +4,11 @@ export type WorksiteInteractableId =
   | 'welding-bay'
   | 'crane'
   | 'concrete-truck'
+  | 'forklift'
+  | 'safety-cone'
+  | 'warning-beacon'
+  | 'site-fence'
+  | 'site-ground'
   | 'site-office'
   | 'slab'
   | 'rebar'
@@ -24,6 +29,11 @@ export const interactableCatalog: Record<WorksiteInteractableId, WorksiteObject>
   'welding-bay': { id: 'welding-bay', name: 'Welding Practice Bay', category: 'training', description: 'A controlled training bay for a safety-first simulated welding exercise using a practice coupon.' },
   crane: { id: 'crane', name: 'Tower Crane', category: 'equipment', description: 'Site lifting equipment serving the active construction zone. Interns observe lifting operations but do not operate the crane.' },
   'concrete-truck': { id: 'concrete-truck', name: 'Ready-Mix Concrete Truck', category: 'equipment', description: 'Concrete delivery vehicle. Its arrival timing affects the pour decision, waiting exposure and site coordination.' },
+  forklift: { id: 'forklift', name: 'Site Forklift', category: 'equipment', description: 'Mobile material-handling equipment operating in the logistics area. Keep clear of its travel path and blind spots.' },
+  'safety-cone': { id: 'safety-cone', name: 'Traffic Safety Cone', category: 'safety', description: 'Temporary visual control used to mark access restrictions, routes and work boundaries.' },
+  'warning-beacon': { id: 'warning-beacon', name: 'Site Warning Beacon', category: 'safety', description: 'Flashing temporary warning light drawing attention to an active access or equipment hazard.' },
+  'site-fence': { id: 'site-fence', name: 'Site Perimeter Fence', category: 'safety', description: 'Temporary perimeter control separating the construction worksite from unauthorized access.' },
+  'site-ground': { id: 'site-ground', name: 'Construction Site Access Area', category: 'location', description: 'General site circulation surface connecting work zones, storage, access routes and temporary facilities.' },
   'site-office': { id: 'site-office', name: 'Site Office', category: 'location', description: 'Temporary project office used for briefings, drawing control, coordination and records.' },
   slab: { id: 'slab', name: 'Ground-Floor Slab Pour Zone', category: 'location', description: 'The active reinforced-concrete work area being prepared for the planned pour.' },
   rebar: { id: 'rebar', name: 'Reinforcement Steel', category: 'material', description: 'Reinforcing bars installed within the slab zone. Drawing revision and inspection status matter before concrete placement.' },
