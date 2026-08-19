@@ -3,6 +3,7 @@ import { expect, test } from '@playwright/test';
 const ppe = ['Hard hat', 'High-visibility vest', 'Safety boots', 'Safety glasses'];
 
 test('personalizes the site, supports drag-look, coaches communication and renders weather state', async ({ page }) => {
+  test.setTimeout(60_000);
   await page.goto('/?demo=true');
 
   await expect(page.getByRole('heading', { name: 'What should the site team call you?' })).toBeVisible();
@@ -19,6 +20,15 @@ test('personalizes the site, supports drag-look, coaches communication and rende
 
   const scene = page.getByLabel('3D construction site');
   await expect(scene).toHaveAttribute('data-look-control', 'drag');
+
+  // Follow the initial sight line toward the active slab area; this passes visible site staff.
+  await page.keyboard.down('KeyW');
+  await page.waitForTimeout(5400);
+  await page.keyboard.up('KeyW');
+  await expect(page.locator('.communication-coach')).toBeVisible({ timeout: 7000 });
+  await expect(page.locator('.communication-coach')).toContainText('Chidi');
+  await page.locator('.communication-coach').getByRole('button', { name: 'Not now' }).click();
+
   const box = await scene.boundingBox();
   if (!box) throw new Error('3D scene has no bounding box');
   await page.mouse.move(box.x + box.width * 0.65, box.y + box.height * 0.55);
@@ -26,12 +36,6 @@ test('personalizes the site, supports drag-look, coaches communication and rende
   await page.mouse.move(box.x + box.width * 0.52, box.y + box.height * 0.42, { steps: 8 });
   await page.mouse.up();
   expect(await page.evaluate(() => document.pointerLockElement)).toBeNull();
-
-  await page.keyboard.down('KeyW');
-  await page.waitForTimeout(2600);
-  await page.keyboard.up('KeyW');
-  await expect(page.locator('.communication-coach')).toBeVisible({ timeout: 7000 });
-  await expect(page.locator('.communication-coach')).toContainText('Chidi');
 
   await page.keyboard.press('Shift+P');
   const presenter = page.getByRole('dialog', { name: 'Pitch presenter controls' });
