@@ -22,6 +22,26 @@ export function weatherForMinute(minute: number): WeatherState {
   return 'clear';
 }
 
+export const visibleStakeholderPositions: Partial<Record<StakeholderId, [number, number, number]>> = {
+  'site-manager': [-6, 1.4, -10],
+  hse: [1, 1.4, -6],
+  foreman: [15, 1.4, -2],
+  consultant: [7, 1.4, 8],
+};
+
+export function nearestVisibleStakeholder(x: number, z: number, maxDistance = 4.6): StakeholderId | null {
+  let nearest: StakeholderId | null = null;
+  let nearestDistance = maxDistance;
+  for (const [id, position] of Object.entries(visibleStakeholderPositions) as [StakeholderId, [number, number, number]][]) {
+    const distance = Math.hypot(x - position[0], z - position[2]);
+    if (distance < nearestDistance) {
+      nearest = id;
+      nearestDistance = distance;
+    }
+  }
+  return nearest;
+}
+
 export type CommunicationCue = {
   title: string;
   message: string;
