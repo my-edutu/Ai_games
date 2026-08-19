@@ -25,6 +25,7 @@ function WeldingTracePractice() {
   const act = useSimulationStore((state) => state.dispatchWorkAction);
   const trackRef = useRef<HTMLDivElement>(null);
   const pointerId = useRef<number | null>(null);
+  const mouseActive = useRef(false);
   const samples = useRef<number[]>([]);
   const completed = useRef(false);
   const [progress, setProgress] = useState(0);
@@ -34,20 +35,34 @@ function WeldingTracePractice() {
     if (!rect || rect.width <= 0) return 0;
     return Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
   };
-  const record = (clientX: number) => {
-    const value = positionFromClient(clientX);
-    samples.current.push(value);
-    setProgress(value);
-    return value;
-  };
+
   const completeTrace = () => {
     if (completed.current || samples.current.length < 2) return;
     completed.current = true;
     pointerId.current = null;
+    mouseActive.current = false;
     const quality = scoreWeldingTrace(samples.current);
     act({ type: 'WELDING_PASS', quality });
   };
+
+  const record = (clientX: number) => {
+    if (completed.current) return 1;
+    const value = positionFromClient(clientX);
+    samples.current.push(value);
+    setProgress(value);
+    if (value >= 0.9 && samples.current.length >= 3) completeTrace();
+    return value;
+  };
+
+  const begin = (clientX: number) => {
+    if (completed.current) return;
+    samples.current = [];
+    setProgress(0);
+    record(clientX);
+  };
+
   const finish = (clientX: number) => {
+    if (completed.current) return;
     record(clientX);
     completeTrace();
   };
@@ -63,26 +78,43 @@ function WeldingTracePractice() {
         aria-label="Practice welding pass from start to end"
         onPointerDown={(event) => {
           pointerId.current = event.pointerId;
-          samples.current = [];
           completed.current = false;
-          try { event.currentTarget.setPointerCapture(event.pointerId); } catch { /* mouse emulation may not expose pointer capture */ }
-          record(event.clientX);
+          try { event.currentTarget.setPointerCapture(event.pointerId); } catch { /* pointer capture is optional */ }
+          begin(event.clientX);
         }}
         onPointerMove={(event) => {
           if (completed.current) return;
-          const activePointer = pointerId.current === event.pointerId || event.buttons === 1 || event.pointerType === 'touch';
+          const activePointer = pointerId.current === event.pointerId || (event.buttons & 1) === 1 || event.pointerType === 'touch';
           if (!activePointer) return;
-          const value = record(event.clientX);
-          if (value >= 0.92 && samples.current.length >= 4) completeTrace();
+          if (pointerId.current === null) pointerId.current = event.pointerId;
+          record(event.clientX);
         }}
         onPointerUp={(event) => {
-          if (!completed.current && samples.current.length > 0) finish(event.clientX);
+          if (pointerId.current === event.pointerId && !completed.current) finish(event.clientX);
           pointerId.current = null;
         }}
-        onPointerCancel={() => { pointerId.current = null; samples.current = []; completed.current = false; setProgress(0); }}
+        onPointerCancel={() => { pointerId.current = null; mouseActive.current = false; samples.current = []; completed.current = false; setProgress(0); }}
+        onMouseDown={(event) => {
+          if (completed.current) return;
+          mouseActive.current = true;
+          begin(event.clientX);
+        }}
+        onMouseMove={(event) => {
+          if (completed.current || (!mouseActive.current && (event.buttons & 1) !== 1)) return;
+          mouseActive.current = true;
+          record(event.clientX);
+        }}
+        onMouseUp={(event) => {
+          if (mouseActive.current && !completed.current) finish(event.clientX);
+          mouseActive.current = false;
+        }}
+        onMouseLeave={(event) => {
+          if (mouseActive.current && (event.buttons & 1) === 1 && !completed.current) record(event.clientX);
+        }}
         onKeyDown={(event) => {
           if (event.key === 'Enter' || event.key === ' ') {
             event.preventDefault();
+            completed.current = true;
             act({ type: 'WELDING_PASS', quality: 85 });
           }
         }}
@@ -142,7 +174,7 @@ function BrickActions({ target }: { target: 'source' | 'drop' }) {
       {work.carrying === 'brick' && <div className="carrying-callout">You are carrying one brick. Move to the marked laydown point.</div>}
       {canPick && <button className="primary action-primary" onClick={pick}>Pick up one brick</button>}
       {canPlace && <button className="primary action-primary" onClick={place}>Place carried brick</button>}
-      {target === 'source' && work.carrying && <p className="action-help">Carry the current brick to the yellow laydown ring before picking up another.</p>}
+      {target === 'source' && work.carrying && <p className="action-help">Carry the current brick to the marked laydown point before picking up another.</p>}
       {target === 'drop' && !work.carrying && !work.materialHandlingComplete && <p className="action-help">Go to the brick stack, tap it and pick up a single brick first.</p>}
       {work.materialHandlingComplete && <div className="action-complete">✓ Material-handling practice completed with three safe single-brick transfers.</div>}
     </div>
@@ -193,12 +225,8 @@ export function ObjectActionSheet() {
   const setSelected = useSimulationStore((state) => state.setSelectedInteractable);
   if (!selected) return null;
 
-  if (selected.startsWith('person:')) {
-    return <aside className="object-action-sheet person-sheet"><PersonSheet id={selected.slice(7) as StakeholderId} /></aside>;
-  }
-  if (selected.startsWith('hazard:')) {
-    return <aside className="object-action-sheet hazard-sheet"><HazardSheet id={selected.slice(7)} /></aside>;
-  }
+  if (selected.startsWith('person:')) return <aside className="object-action-sheet person-sheet"><PersonSheet id={selected.slice(7) as StakeholderId} /></aside>;
+  if (selected.startsWith('hazard:')) return <aside className="object-action-sheet hazard-sheet"><HazardSheet id={selected.slice(7)} /></aside>;
 
   const object = interactableCatalog[selected as WorksiteInteractableId];
   if (!object) return null;
