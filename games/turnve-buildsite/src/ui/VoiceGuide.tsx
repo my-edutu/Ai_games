@@ -18,8 +18,9 @@ export function VoiceGuide({ enabled }: { enabled: boolean }) {
       stopVoice();
       setCaption('');
     }
-    return () => setVoiceEnabled(enabled);
   }, [enabled]);
+
+  useEffect(() => () => stopVoice(), []);
 
   useEffect(() => {
     if (!enabled || !started || !learnerName) return;
