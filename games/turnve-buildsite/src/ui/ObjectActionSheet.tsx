@@ -41,7 +41,7 @@ function WeldingTracePractice() {
     return value;
   };
   const completeTrace = () => {
-    if (completed.current) return;
+    if (completed.current || samples.current.length < 2) return;
     completed.current = true;
     pointerId.current = null;
     const quality = scoreWeldingTrace(samples.current);
@@ -65,15 +65,20 @@ function WeldingTracePractice() {
           pointerId.current = event.pointerId;
           samples.current = [];
           completed.current = false;
-          event.currentTarget.setPointerCapture(event.pointerId);
+          try { event.currentTarget.setPointerCapture(event.pointerId); } catch { /* mouse emulation may not expose pointer capture */ }
           record(event.clientX);
         }}
         onPointerMove={(event) => {
-          if (pointerId.current !== event.pointerId || completed.current) return;
+          if (completed.current) return;
+          const activePointer = pointerId.current === event.pointerId || event.buttons === 1 || event.pointerType === 'touch';
+          if (!activePointer) return;
           const value = record(event.clientX);
           if (value >= 0.92 && samples.current.length >= 4) completeTrace();
         }}
-        onPointerUp={(event) => { if (pointerId.current === event.pointerId && !completed.current) finish(event.clientX); }}
+        onPointerUp={(event) => {
+          if (!completed.current && samples.current.length > 0) finish(event.clientX);
+          pointerId.current = null;
+        }}
         onPointerCancel={() => { pointerId.current = null; samples.current = []; completed.current = false; setProgress(0); }}
         onKeyDown={(event) => {
           if (event.key === 'Enter' || event.key === ' ') {
