@@ -1,0 +1,11 @@
+# Release Checklist
+- [x] Event-level output only; no persistent worker score.
+- [x] Temporal leakage test.
+- [x] Protected/proxy serving-feature audit.
+- [x] Calibration benchmark and cohort report.
+- [x] Human review required for adverse use.
+- [x] Appeal/correction path documented and tested.
+- [x] Independent model/data/policy rollback.
+- [x] Representative advisory pilot labelled synthetic.
+- [x] Model/data cards, restricted-use policy, runbook, SLOs, limitations, privacy and ownership.
+- [ ] Genuine real-world shadow/advisory pilot completed before broad production-impact claims.

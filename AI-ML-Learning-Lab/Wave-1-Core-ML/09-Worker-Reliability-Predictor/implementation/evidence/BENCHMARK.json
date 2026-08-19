@@ -1,0 +1,11 @@
+{
+  "brier": 0.1172369577646297,
+  "constant_baseline_brier": 0.11830532544378698,
+  "max_brier_gap": 0.03024207853822919,
+  "max_recall_gap": 0.0,
+  "model_version": "risk-v1",
+  "pr_auc": 0.19408058016381896,
+  "representative_not_real_world": true,
+  "selected_model": "logistic",
+  "threshold": 0.25
+}
