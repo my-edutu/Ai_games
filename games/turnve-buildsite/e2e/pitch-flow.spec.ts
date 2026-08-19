@@ -29,19 +29,19 @@ test('guided pitch flow reaches an evidence-backed readiness report with simplif
   await page.getByRole('button', { name: 'Begin guided site walk' }).click();
   await expect(page.getByText('Inspect the site and record evidence.')).toBeVisible();
   await expect(page.locator('.metric-card')).toHaveCount(0);
-  await expect(page.getByText('GUIDED SITE COACH')).toHaveCount(0);
 
-  await page.getByRole('button', { name: /Site Tablet/ }).click();
+  await page.getByRole('button', { name: 'Site Tablet' }).click();
   const tablet = page.getByRole('dialog', { name: 'Turnve Site Tablet' });
   await expect(tablet).toBeVisible();
-  await expect(tablet.locator('nav button')).toHaveCount(4);
-  for (const area of ['Brief', 'Site', 'People', 'Work']) await expect(tablet.getByRole('button', { name: area, exact: true })).toBeVisible();
+  await expect(tablet.locator('nav button')).toHaveCount(3);
+  for (const area of ['Today', 'Site', 'Work']) await expect(tablet.getByRole('button', { name: area, exact: true })).toBeVisible();
+  await expect(tablet.getByRole('button', { name: 'People', exact: true })).toHaveCount(0);
 
   await tablet.getByRole('button', { name: 'Site', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Site readiness' })).toBeVisible();
   await tablet.getByRole('button', { name: 'Work', exact: true }).click();
   await page.getByRole('button', { name: 'Record revision discrepancy' }).click();
-  await expect(page.getByText(/Revision mismatch recorded/)).toBeVisible();
+  await expect(page.getByText(/Revision mismatch recorded/).first()).toBeVisible();
   await page.getByLabel('Close tablet').click();
 
   await page.keyboard.press('Shift+P');
@@ -51,11 +51,11 @@ test('guided pitch flow reaches an evidence-backed readiness report with simplif
   await presenter.getByRole('button', { name: '×' }).click();
   await expect.poll(() => page.evaluate(() => document.pointerLockElement === null)).toBe(true);
 
-  await page.getByRole('button', { name: 'Open Artifacts' }).click();
-  await expect(page.getByText('Turn evidence into professional records')).toBeVisible();
+  await page.getByRole('button', { name: 'Open Work' }).click();
+  await expect(page.getByText('Professional evidence')).toBeVisible();
   const assist = page.getByRole('button', { name: 'Use collected evidence' }).first();
   await assist.click();
-  await expect(page.locator('.artifact-card textarea').first()).not.toHaveValue('');
+  await expect(page.locator('.artifact-disclosure[open] textarea').first()).not.toHaveValue('');
   await page.getByLabel('Close tablet').click();
 
   await page.keyboard.press('Shift+P');
