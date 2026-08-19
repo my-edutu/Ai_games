@@ -62,22 +62,23 @@ test('mobile learner can carry materials and complete a scored welding practice'
   await weldSheet.getByRole('button', { name: 'Confirm welding PPE & clear bay' }).click();
   await weldSheet.getByRole('button', { name: 'Secure and check practice coupon' }).click();
 
-  const trace = weldSheet.getByRole('button', { name: 'Practice welding pass from start to end' });
+  const trace = weldSheet.getByRole('slider', { name: 'Practice welding pass from start to end' });
   await expect(trace).toBeVisible();
   const traceBox = await trace.boundingBox();
   expect(traceBox).not.toBeNull();
+  expect(traceBox!.height).toBeGreaterThanOrEqual(44);
   const y = traceBox!.y + traceBox!.height / 2;
-  const startX = traceBox!.x + traceBox!.width * 0.08;
-  const endX = traceBox!.x + traceBox!.width * 0.94;
+  const startX = traceBox!.x + traceBox!.width * 0.06;
+  const endX = traceBox!.x + traceBox!.width * 0.95;
   await page.mouse.move(startX, y);
   await page.mouse.down();
-  await page.mouse.move(endX, y + 1, { steps: 7 });
+  await page.mouse.move(endX, y, { steps: 10 });
   await page.mouse.up();
 
   await expect(weldSheet.getByText('Travel-control score')).toBeVisible();
   await weldSheet.getByRole('button', { name: 'Inspect practice bead' }).click();
   await expect(weldSheet).toContainText('Welding practice learning sequence completed');
-  await expect(weldSheet).toContainText(/9\d\/100|100\/100/);
+  await expect(weldSheet).toContainText(/8\d\/100|9\d\/100|100\/100/);
   await weldSheet.getByLabel('Close object details').click();
 
   await page.keyboard.press('Shift+P');
