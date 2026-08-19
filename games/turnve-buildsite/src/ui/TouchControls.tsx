@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { addVirtualLook, normalizeJoystick, resetVirtualInput, setVirtualMove } from '../three/input';
 import { useSimulationStore } from '../state/store';
 
@@ -18,6 +18,16 @@ export function TouchControls({ active }: { active: boolean }) {
   const lookOrigin = useRef({ x: 0, y: 0 });
   const [stick, setStick] = useState({ x: 0, y: 0 });
   const nearbyHazard = useSimulationStore((state) => state.nearbyHazard);
+
+  useEffect(() => {
+    if (!active) {
+      resetVirtualInput();
+      setStick({ x: 0, y: 0 });
+      movePointer.current = null;
+      lookPointer.current = null;
+    }
+    return () => resetVirtualInput();
+  }, [active]);
 
   if (!active) return null;
 
@@ -40,45 +50,17 @@ export function TouchControls({ active }: { active: boolean }) {
 
   return (
     <div className="touch-controls" aria-label="Touch navigation controls">
-      <div
-        ref={joystickRef}
-        className="touch-joystick"
-        aria-label="Movement joystick"
-        onPointerDown={(event) => {
-          movePointer.current = event.pointerId;
-          event.currentTarget.setPointerCapture(event.pointerId);
-          updateMove(event.clientX, event.clientY);
-        }}
-        onPointerMove={(event) => {
-          if (movePointer.current === event.pointerId) updateMove(event.clientX, event.clientY);
-        }}
-        onPointerUp={endMove}
-        onPointerCancel={endMove}
-      >
-        <span className="touch-stick" style={{ transform: `translate(${stick.x}px, ${stick.y}px)` }} />
-        <small>MOVE</small>
+      <div ref={joystickRef} className="touch-joystick" aria-label="Movement joystick"
+        onPointerDown={(event) => { movePointer.current = event.pointerId; event.currentTarget.setPointerCapture(event.pointerId); updateMove(event.clientX, event.clientY); }}
+        onPointerMove={(event) => { if (movePointer.current === event.pointerId) updateMove(event.clientX, event.clientY); }}
+        onPointerUp={endMove} onPointerCancel={endMove}>
+        <span className="touch-stick" style={{ transform: `translate(${stick.x}px, ${stick.y}px)` }} /><small>MOVE</small>
       </div>
-      <div
-        className="touch-look-zone"
-        aria-label="Look around"
-        onPointerDown={(event) => {
-          lookPointer.current = event.pointerId;
-          lookOrigin.current = { x: event.clientX, y: event.clientY };
-          event.currentTarget.setPointerCapture(event.pointerId);
-        }}
-        onPointerMove={(event) => {
-          if (lookPointer.current !== event.pointerId) return;
-          const dx = event.clientX - lookOrigin.current.x;
-          const dy = event.clientY - lookOrigin.current.y;
-          addVirtualLook(dx, dy);
-          lookOrigin.current = { x: event.clientX, y: event.clientY };
-        }}
-        onPointerUp={() => { lookPointer.current = null; }}
-        onPointerCancel={() => { lookPointer.current = null; resetVirtualInput(); }}
-      ><small>DRAG TO LOOK</small></div>
-      <button className="touch-inspect" aria-label="Inspect nearby issue" disabled={!nearbyHazard} onClick={interactWithNearbyIssue}>
-        <span>◎</span>{nearbyHazard ? 'INSPECT' : 'SCAN'}
-      </button>
+      <div className="touch-look-zone" aria-label="Look around"
+        onPointerDown={(event) => { lookPointer.current = event.pointerId; lookOrigin.current = { x: event.clientX, y: event.clientY }; event.currentTarget.setPointerCapture(event.pointerId); }}
+        onPointerMove={(event) => { if (lookPointer.current !== event.pointerId) return; const dx = event.clientX - lookOrigin.current.x; const dy = event.clientY - lookOrigin.current.y; addVirtualLook(dx, dy); lookOrigin.current = { x: event.clientX, y: event.clientY }; }}
+        onPointerUp={() => { lookPointer.current = null; }} onPointerCancel={() => { lookPointer.current = null; resetVirtualInput(); }}><small>DRAG TO LOOK</small></div>
+      <button className="touch-inspect" aria-label="Inspect nearby issue" disabled={!nearbyHazard} onClick={interactWithNearbyIssue}><span>◎</span>{nearbyHazard ? 'INSPECT' : 'SCAN'}</button>
     </div>
   );
 }
