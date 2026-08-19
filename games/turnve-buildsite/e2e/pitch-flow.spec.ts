@@ -39,7 +39,7 @@ test('guided pitch flow reaches an evidence-backed readiness report and resets',
   await presenter.getByRole('button', { name: '×' }).click();
 
   await page.getByRole('button', { name: 'Open Artifacts' }).click();
-  await page.getByRole('button', { name: 'Artifacts' }).click();
+  await expect(page.getByText('Turn evidence into professional records')).toBeVisible();
   const assist = page.getByRole('button', { name: 'Use collected evidence' }).first();
   await assist.click();
   await expect(page.locator('.artifact-card textarea').first()).not.toHaveValue('');
