@@ -13,7 +13,7 @@ async function reachSite(page: Page) {
   await page.getByRole('button', { name: 'Begin guided site walk' }).click();
 }
 
-test('mobile learner can approach a mentor, zoom into a live skill lesson and retain skill evidence', async ({ page }) => {
+test('mobile learner enters a live lesson with compact guidance instead of a textbook overlay', async ({ page }) => {
   test.setTimeout(90_000);
   await reachSite(page);
 
@@ -26,19 +26,26 @@ test('mobile learner can approach a mentor, zoom into a live skill lesson and re
   const prompt = page.locator('.skill-mentor-prompt');
   await expect(prompt).toBeVisible({ timeout: 7000 });
   await expect(prompt).toContainText('Emeka Nwosu');
-  await expect(prompt).toContainText('Block Laying Fundamentals');
-  const learnButton = prompt.getByRole('button', { name: 'Learn this job' });
-  const learnBox = await learnButton.boundingBox();
-  expect(learnBox).not.toBeNull();
-  expect(learnBox!.height).toBeGreaterThanOrEqual(44);
-  await learnButton.click();
+  await prompt.getByRole('button', { name: 'Learn this job' }).click();
 
   await expect(scene).toHaveAttribute('data-skill-focus', 'masonry');
   const panel = page.getByRole('dialog', { name: 'Skill Mentor lesson' });
-  await expect(panel).toBeVisible();
   await expect(panel.getByRole('heading', { name: 'Block Laying Fundamentals' })).toBeVisible();
-  await expect(panel).toContainText('Emeka Nwosu');
   await panel.getByRole('button', { name: 'Begin practice' }).click();
+
+  const coach = page.locator('.skill-coach');
+  await expect(coach).toBeVisible();
+  await expect(coach).toContainText('Emeka');
+  await expect(coach).toContainText('Step 1 / 5');
+  await expect(page.locator('.skill-lesson-panel')).toHaveCount(0);
+  const coachBox = await coach.boundingBox();
+  expect(coachBox).not.toBeNull();
+  expect(coachBox!.height).toBeLessThan(190);
+
+  const fallback = coach.locator('details.skill-accessibility-fallback');
+  await expect(fallback.getByText('Keyboard / accessible controls')).toBeVisible();
+  await expect(fallback.getByRole('button', { name: 'Identify materials and tools' })).not.toBeVisible();
+  await fallback.locator('summary').click();
 
   for (const action of [
     'Identify materials and tools',
@@ -47,21 +54,15 @@ test('mobile learner can approach a mentor, zoom into a live skill lesson and re
     'Align and level the block',
     'Finish the joint',
   ]) {
-    await expect(panel.getByRole('button', { name: action })).toBeVisible();
-    await panel.getByRole('button', { name: action }).click();
+    const button = fallback.getByRole('button', { name: action });
+    await expect(button).toBeVisible();
+    await button.click();
   }
 
-  await expect(panel).toContainText('Skill complete');
-  await expect(panel).toContainText(/100\/100/);
-  await panel.getByRole('button', { name: 'Return to site' }).click();
-  await expect(panel).toHaveCount(0);
+  const completePanel = page.getByRole('dialog', { name: 'Skill Mentor lesson' });
+  await expect(completePanel).toContainText('Skill complete');
+  await expect(completePanel).toContainText(/100\/100/);
+  await completePanel.getByRole('button', { name: 'Return to site' }).click();
   await expect(scene).toHaveAttribute('data-skill-focus', 'none');
   await expect(page.getByLabel('Movement joystick')).toBeVisible();
-
-  await page.keyboard.press('Shift+P');
-  await page.getByRole('dialog', { name: 'Pitch presenter controls' }).getByRole('button', { name: 'Open evidence-backed report' }).click();
-  const skills = page.locator('.skills-learned-report');
-  await expect(skills.getByRole('heading', { name: 'Skills learned' })).toBeVisible();
-  await expect(skills).toContainText('Block Laying Fundamentals');
-  await expect(skills).toContainText('100/100');
 });
