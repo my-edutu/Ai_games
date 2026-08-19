@@ -1,6 +1,8 @@
 import { create } from 'zustand';
 import { createInitialState, reduceSimulation } from '../simulation/engine';
 import type { SimulationAction, SimulationState, StakeholderId } from '../simulation/types';
+import { createSkillMentorState, reduceSkillMentor } from '../skillMentor/engine';
+import type { SkillId, SkillMentorAction, SkillMentorState } from '../skillMentor/types';
 import { createWorkActionState, reduceWorkAction } from '../worksite/workActions';
 import type { WorkAction, WorkActionState } from '../worksite/workActions';
 
@@ -13,15 +15,19 @@ interface SimulationStore extends SimulationState {
   learnerName: string;
   nearbyHazard: string | null;
   nearbyStakeholder: StakeholderId | null;
+  nearbySkillMentor: SkillId | null;
   selectedInteractable: string | null;
   presenterTeleport: PresenterTeleport;
   workActions: WorkActionState;
+  skillMentor: SkillMentorState;
   weldingPulse: number;
   dispatch: (action: SimulationAction) => void;
   dispatchWorkAction: (action: WorkAction) => void;
+  dispatchSkillMentor: (action: SkillMentorAction) => void;
   setLearnerName: (name: string) => void;
   setNearbyHazard: (hazardId: string | null) => void;
   setNearbyStakeholder: (stakeholderId: StakeholderId | null) => void;
+  setNearbySkillMentor: (skillId: SkillId | null) => void;
   setSelectedInteractable: (interactableId: string | null) => void;
   setPresenterTeleport: (position: PresenterTeleport) => void;
 }
@@ -62,25 +68,31 @@ export const useSimulationStore = create<SimulationStore>((set) => ({
   learnerName: persistedLearnerName(),
   nearbyHazard: null,
   nearbyStakeholder: null,
+  nearbySkillMentor: null,
   selectedInteractable: null,
   presenterTeleport: null,
   workActions: createWorkActionState(),
+  skillMentor: createSkillMentorState(),
   weldingPulse: 0,
   dispatch: (action) => set((current) => {
     const {
       dispatch: _dispatch,
       dispatchWorkAction: _dispatchWorkAction,
+      dispatchSkillMentor: _dispatchSkillMentor,
       setLearnerName: _setLearnerName,
       setNearbyHazard: _setNearbyHazard,
       setNearbyStakeholder: _setNearbyStakeholder,
+      setNearbySkillMentor: _setNearbySkillMentor,
       setSelectedInteractable: _setSelectedInteractable,
       setPresenterTeleport: _setPresenterTeleport,
       learnerName,
       nearbyHazard,
       nearbyStakeholder,
+      nearbySkillMentor,
       selectedInteractable,
       presenterTeleport,
       workActions,
+      skillMentor,
       weldingPulse,
       ...serializableState
     } = current;
@@ -92,9 +104,11 @@ export const useSimulationStore = create<SimulationStore>((set) => ({
       learnerName,
       nearbyHazard: reset ? null : nearbyHazard,
       nearbyStakeholder: reset ? null : nearbyStakeholder,
+      nearbySkillMentor: reset ? null : nearbySkillMentor,
       selectedInteractable: reset ? null : selectedInteractable,
       presenterTeleport: reset ? null : presenterTeleport,
       workActions: reset ? createWorkActionState() : workActions,
+      skillMentor: reset ? createSkillMentorState() : skillMentor,
       weldingPulse: reset ? 0 : weldingPulse,
     };
   }),
@@ -105,6 +119,9 @@ export const useSimulationStore = create<SimulationStore>((set) => ({
       weldingPulse: validWeldingPass ? current.weldingPulse + 1 : current.weldingPulse,
     };
   }),
+  dispatchSkillMentor: (action) => set((current) => ({
+    skillMentor: reduceSkillMentor(current.skillMentor, action),
+  })),
   setLearnerName: (name) => set(() => {
     if (typeof window !== 'undefined') {
       try { window.localStorage.setItem(PROFILE_KEY, name); } catch { /* best effort */ }
@@ -113,6 +130,7 @@ export const useSimulationStore = create<SimulationStore>((set) => ({
   }),
   setNearbyHazard: (hazardId) => set({ nearbyHazard: hazardId }),
   setNearbyStakeholder: (stakeholderId) => set({ nearbyStakeholder: stakeholderId }),
+  setNearbySkillMentor: (skillId) => set({ nearbySkillMentor: skillId }),
   setSelectedInteractable: (interactableId) => set({ selectedInteractable: interactableId }),
   setPresenterTeleport: (position) => set({ presenterTeleport: position }),
 }));
