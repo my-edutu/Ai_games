@@ -1,6 +1,8 @@
 import { create } from 'zustand';
 import { createInitialState, reduceSimulation } from '../simulation/engine';
 import type { SimulationAction, SimulationState, StakeholderId } from '../simulation/types';
+import { createWorkActionState, reduceWorkAction } from '../worksite/workActions';
+import type { WorkAction, WorkActionState } from '../worksite/workActions';
 
 const STORAGE_KEY = 'turnve-buildsite-v1';
 const PROFILE_KEY = 'turnve-buildsite-learner-name';
@@ -9,10 +11,15 @@ interface SimulationStore extends SimulationState {
   learnerName: string;
   nearbyHazard: string | null;
   nearbyStakeholder: StakeholderId | null;
+  selectedInteractable: string | null;
+  workActions: WorkActionState;
+  weldingPulse: number;
   dispatch: (action: SimulationAction) => void;
+  dispatchWorkAction: (action: WorkAction) => void;
   setLearnerName: (name: string) => void;
   setNearbyHazard: (hazardId: string | null) => void;
   setNearbyStakeholder: (stakeholderId: StakeholderId | null) => void;
+  setSelectedInteractable: (interactableId: string | null) => void;
 }
 
 function persistedInitialState(): SimulationState {
@@ -51,17 +58,42 @@ export const useSimulationStore = create<SimulationStore>((set) => ({
   learnerName: persistedLearnerName(),
   nearbyHazard: null,
   nearbyStakeholder: null,
+  selectedInteractable: null,
+  workActions: createWorkActionState(),
+  weldingPulse: 0,
   dispatch: (action) => set((current) => {
-    const { dispatch: _dispatch, setLearnerName: _setLearnerName, setNearbyHazard: _setNearbyHazard, setNearbyStakeholder: _setNearbyStakeholder, learnerName, nearbyHazard, nearbyStakeholder, ...serializableState } = current;
+    const {
+      dispatch: _dispatch,
+      dispatchWorkAction: _dispatchWorkAction,
+      setLearnerName: _setLearnerName,
+      setNearbyHazard: _setNearbyHazard,
+      setNearbyStakeholder: _setNearbyStakeholder,
+      setSelectedInteractable: _setSelectedInteractable,
+      learnerName,
+      nearbyHazard,
+      nearbyStakeholder,
+      selectedInteractable,
+      workActions,
+      weldingPulse,
+      ...serializableState
+    } = current;
     const next = reduceSimulation(serializableState, action);
     persist(next);
+    const reset = action.type === 'RESET';
     return {
       ...next,
       learnerName,
-      nearbyHazard: action.type === 'RESET' ? null : nearbyHazard,
-      nearbyStakeholder: action.type === 'RESET' ? null : nearbyStakeholder,
+      nearbyHazard: reset ? null : nearbyHazard,
+      nearbyStakeholder: reset ? null : nearbyStakeholder,
+      selectedInteractable: reset ? null : selectedInteractable,
+      workActions: reset ? createWorkActionState() : workActions,
+      weldingPulse: reset ? 0 : weldingPulse,
     };
   }),
+  dispatchWorkAction: (action) => set((current) => ({
+    workActions: reduceWorkAction(current.workActions, action),
+    weldingPulse: action.type === 'WELDING_PASS' ? current.weldingPulse + 1 : current.weldingPulse,
+  })),
   setLearnerName: (name) => set(() => {
     if (typeof window !== 'undefined') {
       try { window.localStorage.setItem(PROFILE_KEY, name); } catch { /* best effort */ }
@@ -70,4 +102,5 @@ export const useSimulationStore = create<SimulationStore>((set) => ({
   }),
   setNearbyHazard: (hazardId) => set({ nearbyHazard: hazardId }),
   setNearbyStakeholder: (stakeholderId) => set({ nearbyStakeholder: stakeholderId }),
+  setSelectedInteractable: (interactableId) => set({ selectedInteractable: interactableId }),
 }));
