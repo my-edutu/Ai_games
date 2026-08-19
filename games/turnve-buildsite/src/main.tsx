@@ -5,6 +5,7 @@ import './styles.css';
 import './pitch-polish.css';
 import './experience-redesign.css';
 import './input-safety.css';
+import './interaction-upgrade.css';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
