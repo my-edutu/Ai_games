@@ -15,6 +15,7 @@ import { ObjectActionSheet, PracticalStatus } from './ui/ObjectActionSheet';
 import { PPEInduction } from './ui/PPEInduction';
 import { PresenterPanel } from './ui/PresenterPanel';
 import { SiteTablet } from './ui/SiteTablet';
+import { SkillCoach } from './ui/SkillCoach';
 import { SkillLessonPanel } from './ui/SkillLessonPanel';
 import { SkillMentorPrompt } from './ui/SkillMentorPrompt';
 import { TouchControls } from './ui/TouchControls';
@@ -116,7 +117,8 @@ export function App() {
       {navigationActive && !state.selectedInteractable && <SkillMentorPrompt />}
       {navigationActive && <PracticalStatus />}
       {navigationActive && <ObjectActionSheet />}
-      {skillLessonActive && <SkillLessonPanel />}
+      {state.skillMentor.phase === 'practice' && <SkillCoach />}
+      {skillLessonActive && state.skillMentor.phase !== 'practice' && <SkillLessonPanel />}
       {state.stage === 'ppe' && state.started && <PPEInduction />}
       {state.stage === 'briefing' && <Briefing />}
       {state.stage === 'crisis' && !tabletOpen && !skillLessonActive && <CrisisPanel />}
