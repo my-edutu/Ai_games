@@ -85,23 +85,26 @@ function Human({ from, to, speed = 0.14, phase = 0, skin = '#7e553f', vest = '#f
 
 function Forklift() {
   const group = useRef<THREE.Group>(null);
+  const select = useSimulationStore((state) => state.setSelectedInteractable);
   useFrame(({ clock }) => {
     if (!group.current) return;
     const t = (Math.sin(clock.elapsedTime * 0.13) + 1) / 2;
     group.current.position.set(-20 + t * 10, 0, 13);
     group.current.rotation.y = Math.sin(clock.elapsedTime * 0.13) > 0 ? Math.PI / 2 : -Math.PI / 2;
   });
-  return <group ref={group}><mesh position={[0, 0.55, 0]} castShadow><boxGeometry args={[1.3, 0.75, 1.8]} /><meshStandardMaterial color="#d39a28" /></mesh><mesh position={[0, 1.25, 0.2]}><boxGeometry args={[1.05, 0.9, 1.05]} /><meshStandardMaterial color="#374248" /></mesh><mesh position={[0, 0.78, 1.15]}><boxGeometry args={[1.1, 0.08, 1.1]} /><meshStandardMaterial color="#24292d" /></mesh>{[-0.56, 0.56].flatMap((x) => [-0.55, 0.65].map((z) => <mesh key={`${x}-${z}`} position={[x, 0.28, z]} rotation={[0, 0, Math.PI / 2]}><cylinderGeometry args={[0.25, 0.25, 0.18, 12]} /><meshStandardMaterial color="#111" /></mesh>))}</group>;
+  return <group ref={group} onClick={(event) => { event.stopPropagation(); select('forklift'); }}><mesh position={[0, 0.55, 0]} castShadow><boxGeometry args={[1.3, 0.75, 1.8]} /><meshStandardMaterial color="#d39a28" /></mesh><mesh position={[0, 1.25, 0.2]}><boxGeometry args={[1.05, 0.9, 1.05]} /><meshStandardMaterial color="#374248" /></mesh><mesh position={[0, 0.78, 1.15]}><boxGeometry args={[1.1, 0.08, 1.1]} /><meshStandardMaterial color="#24292d" /></mesh>{[-0.56, 0.56].flatMap((x) => [-0.55, 0.65].map((z) => <mesh key={`${x}-${z}`} position={[x, 0.28, z]} rotation={[0, 0, Math.PI / 2]}><cylinderGeometry args={[0.25, 0.25, 0.18, 12]} /><meshStandardMaterial color="#111" /></mesh>))}</group>;
 }
 
 function Cone({ position }: { position: [number, number, number] }) {
-  return <group position={position}><mesh position={[0, 0.25, 0]} castShadow><coneGeometry args={[0.18, 0.5, 12]} /><meshStandardMaterial color="#ef6c2f" /></mesh><mesh position={[0, 0.04, 0]}><boxGeometry args={[0.45, 0.08, 0.45]} /><meshStandardMaterial color="#292f33" /></mesh></group>;
+  const select = useSimulationStore((state) => state.setSelectedInteractable);
+  return <group position={position} onClick={(event) => { event.stopPropagation(); select('safety-cone'); }}><mesh position={[0, 0.25, 0]} castShadow><coneGeometry args={[0.18, 0.5, 12]} /><meshStandardMaterial color="#ef6c2f" /></mesh><mesh position={[0, 0.04, 0]}><boxGeometry args={[0.45, 0.08, 0.45]} /><meshStandardMaterial color="#292f33" /></mesh></group>;
 }
 
 function WarningBeacon({ position, phase = 0 }: { position: [number, number, number]; phase?: number }) {
   const light = useRef<THREE.PointLight>(null);
+  const select = useSimulationStore((state) => state.setSelectedInteractable);
   useFrame(({ clock }) => { if (light.current) light.current.intensity = 0.4 + (Math.sin(clock.elapsedTime * 5 + phase) + 1) * 1.3; });
-  return <group position={position}><mesh position={[0, 0.16, 0]}><cylinderGeometry args={[0.11, 0.14, 0.3, 12]} /><meshStandardMaterial color="#f2862e" emissive="#e45b12" emissiveIntensity={0.5} /></mesh><pointLight ref={light} color="#ff8b35" distance={5} /></group>;
+  return <group position={position} onClick={(event) => { event.stopPropagation(); select('warning-beacon'); }}><mesh position={[0, 0.16, 0]}><cylinderGeometry args={[0.11, 0.14, 0.3, 12]} /><meshStandardMaterial color="#f2862e" emissive="#e45b12" emissiveIntensity={0.5} /></mesh><pointLight ref={light} color="#ff8b35" distance={5} /></group>;
 }
 
 export function SiteLife() {
