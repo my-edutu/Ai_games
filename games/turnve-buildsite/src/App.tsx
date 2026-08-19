@@ -28,7 +28,9 @@ export function App() {
   const [presenterOpen, setPresenterOpen] = useState(false);
   const [hint, setHint] = useState<string | null>(null);
   const [soundEnabled, setSoundEnabled] = useState(false);
-  const isDemo = useMemo(() => new URLSearchParams(window.location.search).get('demo') === 'true', []);
+  const params = useMemo(() => new URLSearchParams(window.location.search), []);
+  const isDemo = params.get('demo') === 'true';
+  const automationLiteRender = Boolean(typeof navigator !== 'undefined' && navigator.webdriver && params.get('render') === 'lite');
   const skillLessonActive = state.skillMentor.phase !== 'idle';
 
   useEffect(() => {
@@ -90,7 +92,20 @@ export function App() {
 
   return (
     <main className={`app-shell ${skillLessonActive ? 'skill-lesson-active' : ''}`}>
-      <ConstructionScene paused={paused} />
+      {automationLiteRender ? (
+        <div
+          className="scene-shell scene-shell-lite"
+          aria-label="3D construction site"
+          data-look-control="drag"
+          data-weather={state.weather}
+          data-skill-focus="none"
+          data-render-quality="mobile"
+          data-render-mode="automation-lite"
+          data-realism="enhanced"
+        >
+          <div className="drag-look-hint" aria-hidden="true">Drag to look · WASD to move · Tap objects to interact</div>
+        </div>
+      ) : <ConstructionScene paused={paused} />}
       <SiteAudio enabled={soundEnabled} active={siteAudioActive} />
       <VoiceGuide enabled={soundEnabled} />
       {!state.started && <section className="landing"><div className="landing-kicker"><span>TURNVE BUILDSITE</span><b>LIVE WORK SIMULATION</b></div><h1>Your First Day on Site</h1><p>Enter a live construction project as a Construction Project Intern. Move through the site, talk to people, learn from skilled workers, perform practical work, manage risk and turn your decisions into professional evidence.</p><div className="landing-proof"><div><b>Move</b><span>explore the live site</span></div><div><b>Talk</b><span>meet the project team</span></div><div><b>Learn</b><span>train with site mentors</span></div><div><b>Prove</b><span>build readiness evidence</span></div></div><div className="landing-actions"><button className="primary" onClick={() => start('guided')}>Start Guided Internship</button><button onClick={() => start('assessment')}>Assessment Mode</button></div><div className="mode-note"><span><b>Guided</b> — voice onboarding, skill mentors, contextual hints and evidence-assisted drafting</span><span><b>Assessment</b> — reduced guidance and independent decisions</span></div><small>Experience the job before your first day.</small></section>}
