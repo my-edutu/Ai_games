@@ -3,6 +3,7 @@ import { useRef } from 'react';
 import * as THREE from 'three';
 import { skillCameraPose } from '../skillMentor/engine';
 import { useSimulationStore } from '../state/store';
+import { TrainingInteractionLayer } from './training/TrainingInteractionLayer';
 
 type CameraSnapshot = {
   position: THREE.Vector3;
@@ -60,5 +61,5 @@ export function SkillFocusRig() {
     }
   });
 
-  return null;
+  return <TrainingInteractionLayer />;
 }
