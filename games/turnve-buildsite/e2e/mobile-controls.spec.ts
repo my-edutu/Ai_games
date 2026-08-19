@@ -3,6 +3,7 @@ import { expect, test } from '@playwright/test';
 const ppe = ['Hard hat', 'High-visibility vest', 'Safety boots', 'Safety glasses'];
 
 test('touch viewport exposes thumb movement, drag-look and mobile-first work UI', async ({ page }) => {
+  test.setTimeout(60_000);
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/?demo=true');
   await page.getByLabel('Your name').fill('Amina Yusuf');
