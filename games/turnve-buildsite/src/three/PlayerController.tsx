@@ -23,11 +23,12 @@ function interactWithNearbyHazard() {
 }
 
 export function PlayerController({ disabled }: { disabled: boolean }) {
-  const { camera } = useThree();
+  const { camera, invalidate } = useThree();
   const keys = useRef(new Set<string>());
   const setNearbyHazard = useSimulationStore((state) => state.setNearbyHazard);
   const setNearbyStakeholder = useSimulationStore((state) => state.setNearbyStakeholder);
   const setNearbySkillMentor = useSimulationStore((state) => state.setNearbySkillMentor);
+  const presenterTeleport = useSimulationStore((state) => state.presenterTeleport);
   const setPresenterTeleport = useSimulationStore((state) => state.setPresenterTeleport);
 
   useEffect(() => {
@@ -45,12 +46,16 @@ export function PlayerController({ disabled }: { disabled: boolean }) {
     };
   }, [disabled]);
 
+  useEffect(() => {
+    if (presenterTeleport) invalidate();
+  }, [invalidate, presenterTeleport]);
+
   useFrame((_, delta) => {
     const state = useSimulationStore.getState();
     if (!state.started || state.stage === 'intro') return;
 
-    if (!disabled && state.presenterTeleport) {
-      camera.position.set(...state.presenterTeleport);
+    if (!disabled && presenterTeleport) {
+      camera.position.set(...presenterTeleport);
       setPresenterTeleport(null);
     }
     if (disabled) return;
