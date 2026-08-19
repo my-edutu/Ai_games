@@ -28,14 +28,6 @@ function PalletStack({ position, count = 2 }: { position: [number, number, numbe
   </group>;
 }
 
-function Wheelbarrow({ position, rotation = 0 }: { position: [number, number, number]; rotation?: number }) {
-  return <group position={position} rotation={[0, rotation, 0]}>
-    <mesh position={[0, .62, 0]} rotation={[0, 0, -.05]} castShadow><boxGeometry args={[1.35, .42, .78]} /><meshStandardMaterial color="#6a7880" metalness={.55} roughness={.42} /></mesh>
-    <mesh position={[.78, .25, 0]} rotation={[Math.PI / 2, 0, 0]} castShadow><cylinderGeometry args={[.25, .25, .16, 14]} /><meshStandardMaterial color="#16191a" roughness={.88} /></mesh>
-    {[-.28, .28].map((z) => <mesh key={z} position={[-1.02, .58, z]} rotation={[0, 0, -.16]}><cylinderGeometry args={[.035, .035, 1.25, 8]} /><meshStandardMaterial color="#4a5357" metalness={.65} /></mesh>)}
-  </group>;
-}
-
 function Generator({ position }: { position: [number, number, number] }) {
   return <group position={position}>
     <mesh position={[0, .55, 0]} castShadow><boxGeometry args={[1.65, 1.05, 1.05]} /><meshStandardMaterial color="#2e3940" metalness={.38} roughness={.48} /></mesh>
@@ -107,7 +99,6 @@ export function SiteDressing({ quality, weather }: { quality: RenderQuality; wea
     {quality !== 'mobile' && <Scaffold position={[-3, 0, -18]} />}
     <PalletStack position={[-17, 0, 14]} count={quality === 'mobile' ? 1 : 3} />
     <PalletStack position={[21, 0, 4]} count={2} />
-    <Wheelbarrow position={[-5, 0, 13]} rotation={-.45} />
     <Generator position={[-22, 0, -9]} />
     <RebarBundle position={[18, 0, -5]} />
     <PipeRack position={[-19, 0, -4]} />
