@@ -1,5 +1,6 @@
 import { scenario } from '../simulation/scenario';
 import type { SimulationStage, StakeholderId } from '../simulation/types';
+import type { SkillDefinition, SkillStep } from '../skillMentor/types';
 import { setConstructionVoiceDucking } from './soundscape';
 
 function firstName(name: string) {
@@ -33,6 +34,18 @@ export function buildStakeholderGreeting(stakeholderId: StakeholderId, learnerNa
     supplier: 'Keep me updated if the delivery timing changes.',
   };
   return `Hello ${name}. I'm ${first}, ${person.role}. ${extra[stakeholderId] ?? ''}`.trim();
+}
+
+export function buildSkillMentorIntro(skill: SkillDefinition, learnerName: string): string {
+  const learner = firstName(learnerName);
+  const mentor = firstName(skill.mentor);
+  return `Hello ${learner}. I'm ${mentor}, your ${skill.trade.toLowerCase()} mentor for this practice. ${skill.intro} ${skill.safetyNote}`;
+}
+
+export function buildSkillStepVoice(skill: SkillDefinition, step: SkillStep, learnerName: string): string {
+  const learner = firstName(learnerName);
+  const mentor = firstName(skill.mentor);
+  return `${learner}, ${mentor} here. ${step.title}. ${step.instruction}`;
 }
 
 export type VoiceCallbacks = {
