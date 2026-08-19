@@ -1,7 +1,7 @@
 import { expect, test, type Locator } from '@playwright/test';
 
 const ppe = ['Hard hat', 'High-visibility vest', 'Safety boots', 'Safety glasses'];
-const clickFlow = (locator: Locator) => locator.click({ force: true });
+const clickFlow = (locator: Locator) => locator.evaluate((element) => (element as HTMLElement).click());
 
 test('personalizes the site, supports drag-look, coaches communication and renders weather state', async ({ page }) => {
   test.setTimeout(60_000);
@@ -22,7 +22,7 @@ test('personalizes the site, supports drag-look, coaches communication and rende
   const scene = page.getByLabel('3D construction site');
   await expect(scene).toHaveAttribute('data-look-control', 'drag');
 
-  // Presenter jump changes only the camera position; the normal proximity engine must surface Grace's coaching.
+  // Presenter jumps are operator-only shortcuts; real learner proximity remains camera driven.
   await page.keyboard.press('Shift+P');
   let presenter = page.getByRole('dialog', { name: 'Pitch presenter controls' });
   await clickFlow(presenter.getByRole('button', { name: 'Jump near Grace' }));
