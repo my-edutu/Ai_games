@@ -1,6 +1,6 @@
 import { Html } from '@react-three/drei';
 import { useFrame, useThree } from '@react-three/fiber';
-import { useEffect, useMemo, useRef } from 'react';
+import { useMemo, useRef } from 'react';
 import * as THREE from 'three';
 import { useSimulationStore } from '../state/store';
 
@@ -44,9 +44,10 @@ function CarriedBrick() {
   const target = useMemo(() => new THREE.Vector3(), []);
   const forward = useMemo(() => new THREE.Vector3(), []);
   const right = useMemo(() => new THREE.Vector3(), []);
-  if (carrying !== 'brick') return null;
   useFrame(() => {
     if (!group.current) return;
+    group.current.visible = carrying === 'brick';
+    if (carrying !== 'brick') return;
     camera.getWorldDirection(forward);
     right.crossVectors(forward, camera.up).normalize();
     target.copy(camera.position).addScaledVector(forward, .72).addScaledVector(right, .27);
@@ -54,13 +55,14 @@ function CarriedBrick() {
     group.current.position.lerp(target, .28);
     group.current.quaternion.copy(camera.quaternion);
   });
-  return <group ref={group}><Brick position={[0, 0, 0]} rotation={[.08, -.12, .06]} /></group>;
+  return <group ref={group} visible={false}><Brick position={[0, 0, 0]} rotation={[.08, -.12, .06]} /></group>;
 }
 
 function WeldingSparks() {
   const pulse = useSimulationStore((state) => state.weldingPulse);
   const points = useRef<THREE.Points>(null);
-  const started = useRef(0);
+  const seenPulse = useRef(0);
+  const age = useRef(99);
   const positions = useMemo(() => {
     const values = new Float32Array(72);
     for (let i = 0; i < 24; i++) {
@@ -70,16 +72,21 @@ function WeldingSparks() {
     }
     return values;
   }, []);
-  useEffect(() => { if (pulse > 0) started.current = performance.now(); }, [pulse]);
-  useFrame(() => {
+  useFrame((_, delta) => {
     if (!points.current) return;
-    const age = (performance.now() - started.current) / 1000;
-    points.current.visible = pulse > 0 && age < 1.05;
-    points.current.scale.setScalar(1 + Math.max(0, age) * 1.8);
+    if (pulse !== seenPulse.current) {
+      seenPulse.current = pulse;
+      age.current = 0;
+    } else {
+      age.current += delta;
+    }
+    const visible = pulse > 0 && age.current < 1.05;
+    points.current.visible = visible;
+    points.current.scale.setScalar(1 + Math.max(0, age.current) * 1.8);
     const material = points.current.material as THREE.PointsMaterial;
-    material.opacity = Math.max(0, 1 - age);
+    material.opacity = visible ? Math.max(0, 1 - age.current) : 0;
   });
-  return <points ref={points} position={[19.4, 1.05, 7.5]} visible={false}><bufferGeometry><bufferAttribute attach="attributes-position" args={[positions, 3]} /></bufferGeometry><pointsMaterial color="#ffd06a" size={.07} transparent opacity={1} /></points>;
+  return <points ref={points} position={[.4, 1.05, -.5]} visible={false}><bufferGeometry><bufferAttribute attach="attributes-position" args={[positions, 3]} /></bufferGeometry><pointsMaterial color="#ffd06a" size={.07} transparent opacity={0} /></points>;
 }
 
 function WeldingBay() {
