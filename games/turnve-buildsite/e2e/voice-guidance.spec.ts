@@ -1,7 +1,7 @@
 import { expect, test, type Locator } from '@playwright/test';
 
 const ppe = ['Hard hat', 'High-visibility vest', 'Safety boots', 'Safety glasses'];
-const clickFlow = (locator: Locator) => locator.click({ force: true });
+const clickFlow = (locator: Locator) => locator.evaluate((element) => (element as HTMLElement).click());
 
 test('voice guide personalizes onboarding and greets nearby site people by learner name', async ({ page }) => {
   await page.addInitScript(() => {
