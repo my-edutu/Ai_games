@@ -41,7 +41,11 @@ function ramp(gain: GainNode, value: number, context: AudioContext, seconds = 0.
 function noiseBuffer(context: AudioContext, seconds = 2) {
   const buffer = context.createBuffer(1, Math.floor(context.sampleRate * seconds), context.sampleRate);
   const data = buffer.getChannelData(0);
-  for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
+  let seed = 0x5f3759df;
+  for (let i = 0; i < data.length; i++) {
+    seed = (Math.imul(1664525, seed) + 1013904223) >>> 0;
+    data[i] = (seed / 0xffffffff) * 2 - 1;
+  }
   return buffer;
 }
 
