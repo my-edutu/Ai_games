@@ -1,0 +1,10 @@
+{
+  "cases": 30,
+  "decision": "GO_FOR_CONTROLLED_DEPLOYMENT",
+  "guarantee_language_accuracy": 1.0,
+  "interval_comprehension": 1.0,
+  "p0": 0,
+  "p1": 0,
+  "representative_not_real_world": true,
+  "scenario_separation_comprehension": 1.0
+}
