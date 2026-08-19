@@ -1,0 +1,11 @@
+{
+  "artifact_sha256": "4b35d0d33058d6eccb5d44cd6c78c344f91c34777350ea4ce5bc32737ad68b12",
+  "constant_baseline_mae": 22.442434221345124,
+  "evidence_grounding_precision": 1.0,
+  "holdout_count": 120,
+  "mae": 4.348029619503204,
+  "model_version": "rubric-calibrator-v1",
+  "representative_not_real_world": true,
+  "spearman": 0.8398050511498057,
+  "train_count": 280
+}

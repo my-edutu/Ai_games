@@ -1,0 +1,10 @@
+{
+  "cases": 30,
+  "critique_rewrite_separation": 1.0,
+  "decision": "GO_FOR_CONTROLLED_DEPLOYMENT",
+  "grounding_precision": 1.0,
+  "p0": 0,
+  "p1": 0,
+  "representative_not_real_world": true,
+  "rewrite_faithfulness": 1.0
+}
