@@ -26,6 +26,7 @@ function WeldingTracePractice() {
   const trackRef = useRef<HTMLDivElement>(null);
   const pointerId = useRef<number | null>(null);
   const samples = useRef<number[]>([]);
+  const completed = useRef(false);
   const [progress, setProgress] = useState(0);
 
   const positionFromClient = (clientX: number) => {
@@ -37,12 +38,18 @@ function WeldingTracePractice() {
     const value = positionFromClient(clientX);
     samples.current.push(value);
     setProgress(value);
+    return value;
+  };
+  const completeTrace = () => {
+    if (completed.current) return;
+    completed.current = true;
+    pointerId.current = null;
+    const quality = scoreWeldingTrace(samples.current);
+    act({ type: 'WELDING_PASS', quality });
   };
   const finish = (clientX: number) => {
     record(clientX);
-    const quality = scoreWeldingTrace(samples.current);
-    pointerId.current = null;
-    act({ type: 'WELDING_PASS', quality });
+    completeTrace();
   };
 
   return (
@@ -57,12 +64,17 @@ function WeldingTracePractice() {
         onPointerDown={(event) => {
           pointerId.current = event.pointerId;
           samples.current = [];
+          completed.current = false;
           event.currentTarget.setPointerCapture(event.pointerId);
           record(event.clientX);
         }}
-        onPointerMove={(event) => { if (pointerId.current === event.pointerId) record(event.clientX); }}
-        onPointerUp={(event) => { if (pointerId.current === event.pointerId) finish(event.clientX); }}
-        onPointerCancel={() => { pointerId.current = null; samples.current = []; setProgress(0); }}
+        onPointerMove={(event) => {
+          if (pointerId.current !== event.pointerId || completed.current) return;
+          const value = record(event.clientX);
+          if (value >= 0.92 && samples.current.length >= 4) completeTrace();
+        }}
+        onPointerUp={(event) => { if (pointerId.current === event.pointerId && !completed.current) finish(event.clientX); }}
+        onPointerCancel={() => { pointerId.current = null; samples.current = []; completed.current = false; setProgress(0); }}
         onKeyDown={(event) => {
           if (event.key === 'Enter' || event.key === ' ') {
             event.preventDefault();
