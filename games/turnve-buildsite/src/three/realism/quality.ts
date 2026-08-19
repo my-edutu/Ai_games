@@ -24,6 +24,7 @@ export function selectRenderQuality({ width, dpr, coarsePointer }: RenderBudget)
 
 export function detectRenderQuality(): RenderQuality {
   if (typeof window === 'undefined') return 'balanced';
+  if (typeof navigator !== 'undefined' && navigator.webdriver) return 'mobile';
   return selectRenderQuality({
     width: window.innerWidth,
     dpr: window.devicePixelRatio || 1,
