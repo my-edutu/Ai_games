@@ -1,11 +1,20 @@
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import { PointerLockControls } from '@react-three/drei';
-import { useMemo, useRef } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import * as THREE from 'three';
+import { weatherForMinute } from '../simulation/experience';
 import { scenario } from '../simulation/scenario';
+import type { WeatherState } from '../simulation/types';
 import { useSimulationStore } from '../state/store';
+import { addVirtualLook } from './input';
 import { PlayerController } from './PlayerController';
 import { SiteLife } from './SiteLife';
+
+function effectiveWeather(stateWeather: WeatherState, minute: number): WeatherState {
+  const timed = weatherForMinute(minute);
+  if (stateWeather === 'rain' || timed === 'rain') return 'rain';
+  if (stateWeather === 'cloudy' || timed === 'cloudy') return 'cloudy';
+  return 'clear';
+}
 
 function CinematicRig() {
   const { camera } = useThree();
@@ -60,12 +69,54 @@ function Truck() {
   );
 }
 
-function Rain() {
-  const weather = useSimulationStore((state) => state.weather);
+function CloudMass({ position, scale, shade, speed }: { position: [number, number, number]; scale: number; shade: string; speed: number }) {
+  const group = useRef<THREE.Group>(null);
+  useFrame((_, delta) => {
+    if (!group.current) return;
+    group.current.position.x += delta * speed;
+    if (group.current.position.x > 34) group.current.position.x = -34;
+  });
+  return (
+    <group ref={group} position={position} scale={scale}>
+      {[[-1.3, 0, 0], [0, .25, 0], [1.25, -.05, .1], [.55, -.18, .55], [-.55, -.15, .45]].map((p, index) => (
+        <mesh key={index} position={p as [number, number, number]}>
+          <sphereGeometry args={[1.45, 14, 10]} />
+          <meshStandardMaterial color={shade} transparent opacity={0.78} roughness={1} />
+        </mesh>
+      ))}
+    </group>
+  );
+}
+
+function SkyWeather({ weather, minute }: { weather: WeatherState; minute: number }) {
+  const cloudShade = weather === 'rain' ? '#626b70' : weather === 'cloudy' ? '#a8afb0' : '#e7ece9';
+  const count = weather === 'rain' ? 8 : weather === 'cloudy' ? 6 : 3;
+  const sunX = -20 + Math.min(1, minute / 90) * 40;
+  const sunY = 15 + Math.sin(Math.min(1, minute / 90) * Math.PI) * 6;
+  return (
+    <>
+      <mesh position={[sunX, sunY, -30]}>
+        <sphereGeometry args={[2.2, 20, 16]} />
+        <meshBasicMaterial color={weather === 'rain' ? '#c8c5b7' : '#f7d676'} transparent opacity={weather === 'rain' ? .22 : .85} />
+      </mesh>
+      {Array.from({ length: count }, (_, i) => (
+        <CloudMass
+          key={i}
+          position={[-28 + i * 10, 12 + (i % 3) * 2.2, -18 + (i % 2) * 11]}
+          scale={1 + (i % 3) * .2}
+          shade={cloudShade}
+          speed={.22 + (i % 4) * .05}
+        />
+      ))}
+    </>
+  );
+}
+
+function Rain({ weather }: { weather: WeatherState }) {
   const points = useRef<THREE.Points>(null);
   const positions = useMemo(() => {
-    const values = new Float32Array(360);
-    for (let i = 0; i < 120; i++) {
+    const values = new Float32Array(540);
+    for (let i = 0; i < 180; i++) {
       values[i * 3] = ((i * 37) % 58) - 29;
       values[i * 3 + 1] = 3 + ((i * 17) % 15);
       values[i * 3 + 2] = ((i * 53) % 58) - 29;
@@ -76,22 +127,23 @@ function Rain() {
     if (weather !== 'rain' || !points.current) return;
     const attr = points.current.geometry.attributes.position as THREE.BufferAttribute;
     for (let i = 0; i < attr.count; i++) {
-      const y = attr.getY(i) - delta * 14;
+      const y = attr.getY(i) - delta * 16;
       attr.setY(i, y < 0 ? 14 + (i % 5) : y);
     }
     attr.needsUpdate = true;
   });
   if (weather !== 'rain') return null;
-  return <points ref={points}><bufferGeometry><bufferAttribute attach="attributes-position" args={[positions, 3]} /></bufferGeometry><pointsMaterial color="#d4e5ea" size={0.09} transparent opacity={0.72} /></points>;
+  return <points ref={points}><bufferGeometry><bufferAttribute attach="attributes-position" args={[positions, 3]} /></bufferGeometry><pointsMaterial color="#d4e5ea" size={0.085} transparent opacity={0.76} /></points>;
 }
 
-function SiteEnvironment() {
+function SiteEnvironment({ weather }: { weather: WeatherState }) {
   const mode = useSimulationStore((state) => state.mode);
   const hazards = useSimulationStore((state) => state.hazards);
   const materialsProtected = useSimulationStore((state) => state.materialsProtected);
+  const ground = weather === 'rain' ? '#666862' : '#8c8980';
   return (
     <>
-      <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow><planeGeometry args={[60, 60]} /><meshStandardMaterial color="#8c8980" roughness={.95} /></mesh>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow><planeGeometry args={[60, 60]} /><meshStandardMaterial color={ground} roughness={weather === 'rain' ? .62 : .95} metalness={weather === 'rain' ? .08 : 0} /></mesh>
       {[[-30, 1.2, 0, 0.2, 2.4, 60], [30, 1.2, 0, 0.2, 2.4, 60], [0, 1.2, -30, 60, 2.4, 0.2], [0, 1.2, 30, 60, 2.4, 0.2]].map((v, i) => <mesh key={i} position={[v[0], v[1], v[2]] as [number, number, number]}><boxGeometry args={[v[3], v[4], v[5]] as [number, number, number]} /><meshStandardMaterial color="#41494d" /></mesh>)}
       <mesh position={[-21, 1.4, 24]}><boxGeometry args={[9, 2.8, 0.45]} /><meshStandardMaterial color="#252a2d" /></mesh>
       <mesh position={[-21, 1.4, 23.72]}><boxGeometry args={[6.2, 1.1, 0.12]} /><meshStandardMaterial color="#e8ad31" /></mesh>
@@ -115,25 +167,57 @@ function SiteEnvironment() {
       <SiteLife />
       <Crane />
       <Truck />
-      <Rain />
+      <Rain weather={weather} />
     </>
   );
 }
 
 export function ConstructionScene({ paused }: { paused: boolean }) {
-  const weather = useSimulationStore((state) => state.weather);
+  const stateWeather = useSimulationStore((state) => state.weather);
+  const simulatedMinute = useSimulationStore((state) => state.simulatedMinute);
+  const [dragging, setDragging] = useState(false);
+  const activePointer = useRef<number | null>(null);
+  const lastPoint = useRef({ x: 0, y: 0 });
+  const weather = effectiveWeather(stateWeather, simulatedMinute);
+  const sky = weather === 'rain' ? '#66747a' : weather === 'cloudy' ? '#929da0' : '#a9c3ce';
+
   return (
-    <div className="scene-shell" aria-label="3D construction site">
+    <div
+      className={`scene-shell ${dragging ? 'dragging' : ''}`}
+      aria-label="3D construction site"
+      data-look-control="drag"
+      data-weather={weather}
+      onPointerDown={(event) => {
+        if (paused || event.button !== 0) return;
+        activePointer.current = event.pointerId;
+        lastPoint.current = { x: event.clientX, y: event.clientY };
+        event.currentTarget.setPointerCapture(event.pointerId);
+        setDragging(true);
+      }}
+      onPointerMove={(event) => {
+        if (activePointer.current !== event.pointerId) return;
+        const dx = event.clientX - lastPoint.current.x;
+        const dy = event.clientY - lastPoint.current.y;
+        addVirtualLook(dx, dy);
+        lastPoint.current = { x: event.clientX, y: event.clientY };
+      }}
+      onPointerUp={(event) => {
+        if (activePointer.current === event.pointerId) activePointer.current = null;
+        setDragging(false);
+      }}
+      onPointerCancel={() => { activePointer.current = null; setDragging(false); }}
+    >
       <Canvas shadows camera={{ position: [0, 3.5, 24], fov: 68 }} dpr={[1, 1.6]}>
-        <color attach="background" args={[weather === 'rain' ? '#66747a' : weather === 'cloudy' ? '#89969a' : '#a7bac0']} />
-        <fog attach="fog" args={[weather === 'rain' ? '#66747a' : '#a7bac0', 30, 62]} />
-        <hemisphereLight intensity={1.12} groundColor="#555149" />
-        <directionalLight position={[8, 15, 10]} intensity={1.72} castShadow shadow-mapSize-width={1024} shadow-mapSize-height={1024} />
-        <SiteEnvironment />
+        <color attach="background" args={[sky]} />
+        <fog attach="fog" args={[sky, weather === 'rain' ? 22 : 30, weather === 'rain' ? 52 : 66]} />
+        <hemisphereLight intensity={weather === 'rain' ? .7 : weather === 'cloudy' ? .92 : 1.18} groundColor="#555149" />
+        <directionalLight position={[8, 15, 10]} intensity={weather === 'rain' ? .9 : weather === 'cloudy' ? 1.25 : 1.8} color={weather === 'rain' ? '#d8e1e1' : '#fff0cf'} castShadow shadow-mapSize-width={1024} shadow-mapSize-height={1024} />
+        <SkyWeather weather={weather} minute={simulatedMinute} />
+        <SiteEnvironment weather={weather} />
         <CinematicRig />
         <PlayerController disabled={paused} />
-        {!paused && <PointerLockControls selector=".scene-shell canvas" />}
       </Canvas>
+      {!paused && <div className="drag-look-hint" aria-hidden="true">Drag to look · WASD to move</div>}
     </div>
   );
 }
