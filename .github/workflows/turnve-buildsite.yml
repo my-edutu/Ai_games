@@ -70,3 +70,33 @@ jobs:
           done
           cat /tmp/turnve-buildsite-preview.log
           exit 1
+
+  publish-live:
+    name: Publish verified live build
+    needs: verify
+    if: github.event_name == 'push' && github.ref == 'refs/heads/feat/turnve-buildsite'
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: write
+    steps:
+      - name: Download exact verified bundle
+        uses: actions/download-artifact@v4
+        with:
+          name: turnve-buildsite-dist
+          path: /tmp/turnve-buildsite-live
+      - name: Publish static live branch
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          cd /tmp/turnve-buildsite-live
+          git init
+          git config user.name 'Turnve BuildSite Publisher'
+          git config user.email 'actions@github.com'
+          git checkout -b turnve-buildsite-live
+          git add -A
+          git commit -m 'deploy: Turnve BuildSite verified live build'
+          git remote add origin "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          git push --force origin turnve-buildsite-live
