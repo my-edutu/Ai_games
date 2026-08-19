@@ -18,11 +18,12 @@ export function WorldPracticeButton({
   onActivate: () => void;
   done?: boolean;
 }) {
-  return <Html center position={position} distanceFactor={10} zIndexRange={[18, 2]}>
+  return <Html center position={position} distanceFactor={10} zIndexRange={[18, 2]} style={{ pointerEvents: 'none' }}>
     <button
       type="button"
       data-testid={testId}
       className={`world-practice-button ${done ? 'done' : ''}`}
+      style={{ pointerEvents: 'auto' }}
       onPointerDown={(event) => event.stopPropagation()}
       onClick={(event) => { event.stopPropagation(); onActivate(); }}
     >{done ? '✓ ' : ''}{label}</button>
@@ -79,10 +80,11 @@ export function WorldDragPractice({
     onComplete(samples.current, lastProgress.current);
   };
 
-  return <Html center position={position} distanceFactor={9} zIndexRange={[20, 3]}>
+  return <Html center position={position} distanceFactor={9} zIndexRange={[20, 3]} style={{ pointerEvents: 'none' }}>
     <div
       data-testid={testId}
       className="world-drag-practice"
+      style={{ pointerEvents: 'auto' }}
       role="application"
       aria-label={label}
       onPointerDown={down}
