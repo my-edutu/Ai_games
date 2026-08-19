@@ -1,0 +1,2 @@
+# Runbook
+Check data freshness, calibration and intervention-policy version. If unsafe output or drift occurs, disable predictions, retain normal care access, and roll back the affected model/data/policy version independently.

@@ -1,7 +1,5 @@
 # 13 — Medical No-Show Predictor
-
 Build a calibrated appointment no-show risk model to support reminders, transport help, scheduling outreach or capacity planning—not denial of care.
 
-**Primary skills:** healthcare-aware classification, temporal features, calibration, fairness, intervention design, privacy.
-
-**Final deliverable:** risk-support service with safe intervention policy, bias review, monitoring and human oversight.
+## Implementation status
+Phases 1–10 are implemented and verified as a controlled-deployment candidate. See `implementation/` and `PHASE_STATUS.md`. Genuine clinical shadow/advisory evidence remains required before broad production claims.

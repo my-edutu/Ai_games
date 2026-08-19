@@ -1,0 +1,2 @@
+# Data Card
+Committed benchmark uses deterministic synthetic appointment/history fixtures. Production health data requires consent/legal basis, minimization, access controls, retention limits and provenance.

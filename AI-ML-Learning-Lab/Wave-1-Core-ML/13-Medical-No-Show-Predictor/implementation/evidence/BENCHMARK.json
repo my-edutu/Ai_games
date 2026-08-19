@@ -1,0 +1,9 @@
+{
+  "brier": 0.17969815147317555,
+  "constant_baseline_brier": 0.18860617283950618,
+  "model_version": "noshow-logistic-v1",
+  "pr_auc": 0.3712813756046328,
+  "representative_not_real_world": true,
+  "selected_model": "logistic",
+  "threshold": 0.6
+}

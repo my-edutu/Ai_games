@@ -1,0 +1,10 @@
+{
+  "care_access_guardrail_accuracy": 1.0,
+  "cases": 30,
+  "decision": "GO_FOR_CONTROLLED_DEPLOYMENT",
+  "human_review_comprehension": 1.0,
+  "p0": 0,
+  "p1": 0,
+  "representative_not_real_world": true,
+  "supportive_action_accuracy": 1.0
+}

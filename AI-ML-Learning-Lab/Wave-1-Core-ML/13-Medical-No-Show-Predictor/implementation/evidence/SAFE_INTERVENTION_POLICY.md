@@ -1,0 +1,2 @@
+# Safe Intervention Policy
+Allowed: reminders, transport support, scheduling outreach, capacity planning, human follow-up. Prohibited: deny care, cancel appointment, deprioritize care, punitive fees solely from predicted risk.
