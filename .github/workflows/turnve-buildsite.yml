@@ -39,6 +39,13 @@ jobs:
         run: npm test
       - name: Production build
         run: npm run build
+      - name: Upload verified preview bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: turnve-buildsite-dist
+          path: games/turnve-buildsite/dist
+          if-no-files-found: error
+          retention-days: 7
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
       - name: Guided pitch browser flow
