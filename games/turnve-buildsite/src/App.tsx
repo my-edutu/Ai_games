@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { getTariHint } from './ai/mentor';
 import { SiteAudio } from './audio/SiteAudio';
 import { setConstructionAudioEnabled, unlockConstructionAudio } from './audio/soundscape';
+import { speakVoice } from './audio/voice';
 import { ConstructionScene } from './three/ConstructionScene';
 import { useSimulationStore } from './state/store';
 import { Briefing } from './ui/Briefing';
@@ -15,6 +16,7 @@ import { PPEInduction } from './ui/PPEInduction';
 import { PresenterPanel } from './ui/PresenterPanel';
 import { SiteTablet } from './ui/SiteTablet';
 import { TouchControls } from './ui/TouchControls';
+import { VoiceGuide } from './ui/VoiceGuide';
 
 const nonNavigationStages = ['intro', 'ppe', 'briefing', 'artifacts', 'report'];
 
@@ -65,6 +67,10 @@ export function App() {
       setSoundEnabled(false);
     } else enableSound();
   };
+  const handleNameEntered = (name: string) => {
+    enableSound();
+    if (!isDemo) speakVoice(`Welcome to Turnve BuildSite, ${name}. Choose Guided Internship or Assessment Mode when you are ready to enter the site.`);
+  };
   const showHint = () => { state.dispatch({ type: 'USE_HINT' }); setHint(getTariHint(useSimulationStore.getState())); };
   const start = (mode: 'guided' | 'assessment') => { enableSound(); state.dispatch({ type: 'START', mode }); };
   const finishIntro = () => { enableSound(); state.dispatch({ type: 'FINISH_INTRO' }); };
@@ -76,8 +82,9 @@ export function App() {
     <main className="app-shell">
       <ConstructionScene paused={paused} />
       <SiteAudio enabled={soundEnabled} active={navigationActive} />
-      {!state.started && <section className="landing"><div className="landing-kicker"><span>TURNVE BUILDSITE</span><b>LIVE WORK SIMULATION</b></div><h1>Your First Day on Site</h1><p>Enter a live construction project as a Construction Project Intern. Inspect real site conditions, review drawings, manage stakeholder pressure, perform practical site activities, create workplace artifacts and see the consequences of your judgment.</p><div className="landing-proof"><div><b>10–15</b><span>minute guided experience</span></div><div><b>10</b><span>competencies assessed</span></div><div><b>4</b><span>professional artifacts</span></div><div><b>Live</b><span>practical actions & consequences</span></div></div><div className="landing-actions"><button className="primary" onClick={() => start('guided')}>Start Guided Internship</button><button onClick={() => start('assessment')}>Assessment Mode</button></div><div className="mode-note"><span><b>Guided</b> — objective markers, TARI hints and evidence-assisted drafting</span><span><b>Assessment</b> — reduced guidance, independent decisions and stricter scoring</span></div><small>Experience the job before your first day.</small></section>}
-      {state.started && state.stage === 'intro' && <div className="cinematic-title"><span>TURNVE BUILDSITE</span><h1>{state.learnerName}, welcome to site.</h1><p>Role: Construction Project Intern · Mission: prepare the slab for a safe, approved and documented concrete pour</p><button onClick={finishIntro}>Skip fly-through</button></div>}
+      <VoiceGuide enabled={soundEnabled} />
+      {!state.started && <section className="landing"><div className="landing-kicker"><span>TURNVE BUILDSITE</span><b>LIVE WORK SIMULATION</b></div><h1>Your First Day on Site</h1><p>Enter a live construction project as a Construction Project Intern. Move through the site, talk to people, perform practical work, manage risk and turn your decisions into professional evidence.</p><div className="landing-proof"><div><b>Move</b><span>explore the live site</span></div><div><b>Talk</b><span>meet the project team</span></div><div><b>Do</b><span>perform practical tasks</span></div><div><b>Prove</b><span>build readiness evidence</span></div></div><div className="landing-actions"><button className="primary" onClick={() => start('guided')}>Start Guided Internship</button><button onClick={() => start('assessment')}>Assessment Mode</button></div><div className="mode-note"><span><b>Guided</b> — voice onboarding, contextual hints and evidence-assisted drafting</span><span><b>Assessment</b> — reduced guidance and independent decisions</span></div><small>Experience the job before your first day.</small></section>}
+      {state.started && state.stage === 'intro' && <div className="cinematic-title"><span>TURNVE BUILDSITE</span><h1>{state.learnerName}, welcome to site.</h1><p>Construction Project Intern · Prepare the slab for a safe, approved and documented concrete pour.</p><button onClick={finishIntro}>Skip fly-through</button></div>}
       {state.started && !['intro', 'ppe', 'briefing', 'report'].includes(state.stage) && <HUD onOpenTablet={openTablet} onHint={showHint} soundEnabled={soundEnabled} onToggleSound={toggleSound} />}
       <TouchControls active={navigationActive} />
       {navigationActive && !state.selectedInteractable && <CommunicationCoach />}
@@ -86,12 +93,12 @@ export function App() {
       {state.stage === 'ppe' && state.started && <PPEInduction />}
       {state.stage === 'briefing' && <Briefing />}
       {state.stage === 'crisis' && !tabletOpen && <CrisisPanel />}
-      {state.stage === 'artifacts' && !tabletOpen && <div className="artifact-banner"><div><b>Crisis stabilized or handed off.</b><span>{state.learnerName}, your work is not finished until the evidence becomes usable project records.</span></div><button className="primary" onClick={openTablet}>Open Artifacts</button></div>}
+      {state.stage === 'artifacts' && !tabletOpen && <div className="artifact-banner"><div><b>Field decision handed off.</b><span>{state.learnerName}, finish the shift by turning your evidence into usable project records.</span></div><button className="primary" onClick={openTablet}>Open Work</button></div>}
       {tabletOpen && <SiteTablet onClose={() => setTabletOpen(false)} />}
       {presenterOpen && <PresenterPanel onClose={() => setPresenterOpen(false)} />}
       {hint && <div className="tari-toast"><div><b>TARI</b><span>Turnve Applied Readiness Intelligence</span></div><p>{state.learnerName ? `${state.learnerName}, ${hint}` : hint}</p><button onClick={() => setHint(null)}>Got it</button></div>}
       {state.stage === 'report' && <FinalReport />}
-      {!state.learnerName && <NameGate />}
+      {!state.learnerName && <NameGate onEnter={handleNameEntered} />}
       {isDemo && <div className="demo-badge">PITCH DEMO · Shift+P</div>}
     </main>
   );
