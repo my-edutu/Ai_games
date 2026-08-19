@@ -52,7 +52,6 @@ export interface AuditEvent {
 }
 
 export interface SimulationState {
-  learnerName: string;
   started: boolean;
   mode: SimulationMode;
   stage: SimulationStage;
@@ -83,7 +82,6 @@ export interface SimulationState {
 }
 
 export type SimulationAction =
-  | { type: 'SET_LEARNER_NAME'; name: string }
   | { type: 'START'; mode?: SimulationMode }
   | { type: 'FINISH_INTRO' }
   | { type: 'TOGGLE_PPE'; item: string }
