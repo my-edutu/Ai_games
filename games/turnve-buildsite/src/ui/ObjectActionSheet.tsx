@@ -23,106 +23,56 @@ const weldingLesson: Partial<Record<WeldingStep, string>> = {
 
 function WeldingTracePractice() {
   const act = useSimulationStore((state) => state.dispatchWorkAction);
-  const trackRef = useRef<HTMLDivElement>(null);
-  const pointerId = useRef<number | null>(null);
-  const mouseActive = useRef(false);
-  const samples = useRef<number[]>([]);
+  const samples = useRef<number[]>([0]);
   const completed = useRef(false);
   const [progress, setProgress] = useState(0);
 
-  const positionFromClient = (clientX: number) => {
-    const rect = trackRef.current?.getBoundingClientRect();
-    if (!rect || rect.width <= 0) return 0;
-    return Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
-  };
-
-  const completeTrace = () => {
-    if (completed.current || samples.current.length < 2) return;
-    completed.current = true;
-    pointerId.current = null;
-    mouseActive.current = false;
-    const quality = scoreWeldingTrace(samples.current);
-    act({ type: 'WELDING_PASS', quality });
-  };
-
-  const record = (clientX: number) => {
-    if (completed.current) return 1;
-    const value = positionFromClient(clientX);
-    samples.current.push(value);
-    setProgress(value);
-    if (value >= 0.9 && samples.current.length >= 3) completeTrace();
-    return value;
-  };
-
-  const begin = (clientX: number) => {
-    if (completed.current) return;
-    samples.current = [];
+  const begin = () => {
+    completed.current = false;
+    samples.current = [0];
     setProgress(0);
-    record(clientX);
   };
 
-  const finish = (clientX: number) => {
+  const record = (nextPercent: number) => {
     if (completed.current) return;
-    record(clientX);
-    completeTrace();
+    const normalized = Math.max(0, Math.min(1, nextPercent / 100));
+    samples.current.push(normalized);
+    setProgress(nextPercent);
+    if (normalized >= 0.9 && samples.current.length >= 3) {
+      completed.current = true;
+      act({ type: 'WELDING_PASS', quality: scoreWeldingTrace(samples.current) });
+    }
   };
 
   return (
-    <div className="weld-practice">
-      <div className="weld-practice-label"><b>Travel-control practice</b><span>one steady swipe</span></div>
-      <div
-        ref={trackRef}
-        className="weld-trace-track"
-        role="button"
-        tabIndex={0}
-        aria-label="Practice welding pass from start to end"
-        onPointerDown={(event) => {
-          pointerId.current = event.pointerId;
-          completed.current = false;
-          try { event.currentTarget.setPointerCapture(event.pointerId); } catch { /* pointer capture is optional */ }
-          begin(event.clientX);
-        }}
-        onPointerMove={(event) => {
-          if (completed.current) return;
-          const activePointer = pointerId.current === event.pointerId || (event.buttons & 1) === 1 || event.pointerType === 'touch';
-          if (!activePointer) return;
-          if (pointerId.current === null) pointerId.current = event.pointerId;
-          record(event.clientX);
-        }}
-        onPointerUp={(event) => {
-          if (pointerId.current === event.pointerId && !completed.current) finish(event.clientX);
-          pointerId.current = null;
-        }}
-        onPointerCancel={() => { pointerId.current = null; mouseActive.current = false; samples.current = []; completed.current = false; setProgress(0); }}
-        onMouseDown={(event) => {
-          if (completed.current) return;
-          mouseActive.current = true;
-          begin(event.clientX);
-        }}
-        onMouseMove={(event) => {
-          if (completed.current || (!mouseActive.current && (event.buttons & 1) !== 1)) return;
-          mouseActive.current = true;
-          record(event.clientX);
-        }}
-        onMouseUp={(event) => {
-          if (mouseActive.current && !completed.current) finish(event.clientX);
-          mouseActive.current = false;
-        }}
-        onMouseLeave={(event) => {
-          if (mouseActive.current && (event.buttons & 1) === 1 && !completed.current) record(event.clientX);
-        }}
-        onKeyDown={(event) => {
-          if (event.key === 'Enter' || event.key === ' ') {
-            event.preventDefault();
-            completed.current = true;
-            act({ type: 'WELDING_PASS', quality: 85 });
-          }
-        }}
-      >
-        <span className="weld-start">START</span><i className="weld-guide" /><span className="weld-end">END</span>
-        <span className="weld-torch" style={{ left: `${progress * 100}%` }}>✦</span>
+    <div className="weld-practice weld-practice-native">
+      <div className="weld-practice-label"><b>Travel-control practice</b><span>{progress}% travel</span></div>
+      <div className="weld-range-wrap">
+        <span className="weld-start">START</span>
+        <input
+          className="weld-trace-range"
+          type="range"
+          min="0"
+          max="100"
+          step="1"
+          value={progress}
+          aria-label="Practice welding pass from start to end"
+          onPointerDown={begin}
+          onTouchStart={begin}
+          onMouseDown={() => { if (progress === 0) begin(); }}
+          onChange={(event) => record(Number(event.currentTarget.value))}
+          onKeyDown={(event) => {
+            if (event.key === 'Enter' || event.key === ' ') {
+              event.preventDefault();
+              completed.current = true;
+              act({ type: 'WELDING_PASS', quality: 85 });
+            }
+          }}
+        />
+        <span className="weld-end">END</span>
       </div>
-      <small>Press near START and drag continuously to END. Backtracking and stopping short reduce the practice score.</small>
+      <div className="weld-progress-meter"><i style={{ width: `${progress}%` }} /></div>
+      <small>Hold the blue control and drag steadily toward END. Backtracking and stopping short reduce the practice score.</small>
     </div>
   );
 }
