@@ -22,15 +22,18 @@ test('personalizes the site, supports drag-look, coaches communication and rende
   const scene = page.getByLabel('3D construction site');
   await expect(scene).toHaveAttribute('data-look-control', 'drag');
 
-  // Presenter jumps are operator-only shortcuts; real learner proximity remains camera driven.
+  // Grace is both a project stakeholder and a skill mentor. One card should support both communication and learning.
   await page.keyboard.press('Shift+P');
   let presenter = page.getByRole('dialog', { name: 'Pitch presenter controls' });
   await clickFlow(presenter.getByRole('button', { name: 'Jump near Grace' }));
-  await clickFlow(presenter.locator('header button'));
-  await expect(page.locator('.communication-coach')).toBeVisible({ timeout: 7000 });
-  await expect(page.locator('.communication-coach')).toContainText('Chidi');
-  await expect(page.locator('.communication-coach')).toContainText('Grace Adebayo');
-  await clickFlow(page.locator('.communication-coach').getByRole('button', { name: 'Not now' }));
+  await page.keyboard.press('Shift+P');
+  const mentorCard = page.locator('.skill-mentor-prompt');
+  await expect(mentorCard).toBeVisible({ timeout: 7000 });
+  await expect(mentorCard).toContainText('Chidi');
+  await expect(mentorCard).toContainText('Grace Adebayo');
+  await expect(mentorCard).toContainText(/inspection|approval/i);
+  await expect(mentorCard.getByRole('button', { name: 'Talk to Grace' })).toBeVisible();
+  await expect(mentorCard.getByRole('button', { name: 'Learn this job' })).toBeVisible();
 
   const box = await scene.boundingBox();
   if (!box) throw new Error('3D scene has no bounding box');
@@ -43,7 +46,7 @@ test('personalizes the site, supports drag-look, coaches communication and rende
   await page.keyboard.press('Shift+P');
   presenter = page.getByRole('dialog', { name: 'Pitch presenter controls' });
   await clickFlow(presenter.getByRole('button', { name: 'Trigger rain' }));
-  await clickFlow(presenter.locator('header button'));
+  await page.keyboard.press('Shift+P');
   await expect(page.locator('.weather-chip')).toContainText(/rain/i);
   await expect(scene).toHaveAttribute('data-weather', 'rain');
 });
