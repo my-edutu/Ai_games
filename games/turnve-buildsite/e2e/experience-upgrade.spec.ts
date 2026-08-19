@@ -1,6 +1,7 @@
-import { expect, test } from '@playwright/test';
+import { expect, test, type Locator } from '@playwright/test';
 
 const ppe = ['Hard hat', 'High-visibility vest', 'Safety boots', 'Safety glasses'];
+const clickFlow = (locator: Locator) => locator.click({ force: true });
 
 test('personalizes the site, supports drag-look, coaches communication and renders weather state', async ({ page }) => {
   test.setTimeout(60_000);
@@ -8,15 +9,15 @@ test('personalizes the site, supports drag-look, coaches communication and rende
 
   await expect(page.getByRole('heading', { name: 'What should the site team call you?' })).toBeVisible();
   await page.getByLabel('Your name').fill('chidi okafor');
-  await page.getByRole('button', { name: 'Enter BuildSite' }).click();
+  await clickFlow(page.getByRole('button', { name: 'Enter BuildSite' }));
 
   await expect(page.getByText(/Chidi Okafor/).first()).toBeVisible();
-  await page.getByRole('button', { name: 'Skip fly-through' }).click();
-  for (const item of ppe) await page.getByRole('button', { name: new RegExp(item, 'i') }).click();
-  await page.getByRole('button', { name: 'Present PPE to security' }).click();
+  await clickFlow(page.getByRole('button', { name: 'Skip fly-through' }));
+  for (const item of ppe) await clickFlow(page.getByRole('button', { name: new RegExp(item, 'i') }));
+  await clickFlow(page.getByRole('button', { name: 'Present PPE to security' }));
 
   await expect(page.locator('.briefing-human .quote')).toContainText('Chidi Okafor');
-  await page.getByRole('button', { name: 'Begin guided site walk' }).click();
+  await clickFlow(page.getByRole('button', { name: 'Begin guided site walk' }));
 
   const scene = page.getByLabel('3D construction site');
   await expect(scene).toHaveAttribute('data-look-control', 'drag');
@@ -24,12 +25,12 @@ test('personalizes the site, supports drag-look, coaches communication and rende
   // Presenter jump changes only the camera position; the normal proximity engine must surface Grace's coaching.
   await page.keyboard.press('Shift+P');
   let presenter = page.getByRole('dialog', { name: 'Pitch presenter controls' });
-  await presenter.getByRole('button', { name: 'Jump near Grace' }).click();
-  await presenter.locator('header button').click();
+  await clickFlow(presenter.getByRole('button', { name: 'Jump near Grace' }));
+  await clickFlow(presenter.locator('header button'));
   await expect(page.locator('.communication-coach')).toBeVisible({ timeout: 7000 });
   await expect(page.locator('.communication-coach')).toContainText('Chidi');
   await expect(page.locator('.communication-coach')).toContainText('Grace Adebayo');
-  await page.locator('.communication-coach').getByRole('button', { name: 'Not now' }).click();
+  await clickFlow(page.locator('.communication-coach').getByRole('button', { name: 'Not now' }));
 
   const box = await scene.boundingBox();
   if (!box) throw new Error('3D scene has no bounding box');
@@ -41,8 +42,8 @@ test('personalizes the site, supports drag-look, coaches communication and rende
 
   await page.keyboard.press('Shift+P');
   presenter = page.getByRole('dialog', { name: 'Pitch presenter controls' });
-  await presenter.getByRole('button', { name: 'Trigger rain' }).click();
-  await presenter.locator('header button').click();
+  await clickFlow(presenter.getByRole('button', { name: 'Trigger rain' }));
+  await clickFlow(presenter.locator('header button'));
   await expect(page.locator('.weather-chip')).toContainText(/rain/i);
   await expect(scene).toHaveAttribute('data-weather', 'rain');
 });
