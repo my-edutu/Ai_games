@@ -1,7 +1,7 @@
 import { expect, test, type Locator, type Page } from '@playwright/test';
 
 const ppe = ['Hard hat', 'High-visibility vest', 'Safety boots', 'Safety glasses'];
-const clickFlow = (locator: Locator) => locator.click({ force: true });
+const clickFlow = (locator: Locator) => locator.evaluate((element) => (element as HTMLElement).click());
 
 async function reachSite(page: Page) {
   await page.setViewportSize({ width: 390, height: 844 });
