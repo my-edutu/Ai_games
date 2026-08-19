@@ -3,6 +3,7 @@ import { useEffect, useRef } from 'react';
 import * as THREE from 'three';
 import { nearestVisibleStakeholder } from '../simulation/experience';
 import { scenario } from '../simulation/scenario';
+import { nearestSkillMentor } from '../skillMentor/engine';
 import { useSimulationStore } from '../state/store';
 import { clampPitch, consumeVirtualLook, getVirtualMove, resetVirtualInput } from './input';
 
@@ -26,6 +27,7 @@ export function PlayerController({ disabled }: { disabled: boolean }) {
   const keys = useRef(new Set<string>());
   const setNearbyHazard = useSimulationStore((state) => state.setNearbyHazard);
   const setNearbyStakeholder = useSimulationStore((state) => state.setNearbyStakeholder);
+  const setNearbySkillMentor = useSimulationStore((state) => state.setNearbySkillMentor);
   const setPresenterTeleport = useSimulationStore((state) => state.setPresenterTeleport);
 
   useEffect(() => {
@@ -96,6 +98,9 @@ export function PlayerController({ disabled }: { disabled: boolean }) {
 
     const nearbyStakeholder = nearestVisibleStakeholder(camera.position.x, camera.position.z);
     if (nearbyStakeholder !== state.nearbyStakeholder) setNearbyStakeholder(nearbyStakeholder);
+
+    const nearbySkillMentor = nearestSkillMentor(camera.position.x, camera.position.z);
+    if (nearbySkillMentor !== state.nearbySkillMentor) setNearbySkillMentor(nearbySkillMentor);
   });
 
   return null;
