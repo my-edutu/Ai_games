@@ -1,13 +1,18 @@
 import { create } from 'zustand';
 import { createInitialState, reduceSimulation } from '../simulation/engine';
-import type { SimulationAction, SimulationState } from '../simulation/types';
+import type { SimulationAction, SimulationState, StakeholderId } from '../simulation/types';
 
 const STORAGE_KEY = 'turnve-buildsite-v1';
+const PROFILE_KEY = 'turnve-buildsite-learner-name';
 
 interface SimulationStore extends SimulationState {
+  learnerName: string;
   nearbyHazard: string | null;
+  nearbyStakeholder: StakeholderId | null;
   dispatch: (action: SimulationAction) => void;
+  setLearnerName: (name: string) => void;
   setNearbyHazard: (hazardId: string | null) => void;
+  setNearbyStakeholder: (stakeholderId: StakeholderId | null) => void;
 }
 
 function persistedInitialState(): SimulationState {
@@ -23,6 +28,15 @@ function persistedInitialState(): SimulationState {
   }
 }
 
+function persistedLearnerName() {
+  if (typeof window === 'undefined') return '';
+  try {
+    return window.localStorage.getItem(PROFILE_KEY) ?? '';
+  } catch {
+    return '';
+  }
+}
+
 function persist(state: SimulationState) {
   if (typeof window === 'undefined') return;
   try {
@@ -34,12 +48,26 @@ function persist(state: SimulationState) {
 
 export const useSimulationStore = create<SimulationStore>((set) => ({
   ...persistedInitialState(),
+  learnerName: persistedLearnerName(),
   nearbyHazard: null,
+  nearbyStakeholder: null,
   dispatch: (action) => set((current) => {
-    const { dispatch: _dispatch, setNearbyHazard: _setNearbyHazard, nearbyHazard, ...serializableState } = current;
+    const { dispatch: _dispatch, setLearnerName: _setLearnerName, setNearbyHazard: _setNearbyHazard, setNearbyStakeholder: _setNearbyStakeholder, learnerName, nearbyHazard, nearbyStakeholder, ...serializableState } = current;
     const next = reduceSimulation(serializableState, action);
     persist(next);
-    return { ...next, nearbyHazard: action.type === 'RESET' ? null : nearbyHazard };
+    return {
+      ...next,
+      learnerName,
+      nearbyHazard: action.type === 'RESET' ? null : nearbyHazard,
+      nearbyStakeholder: action.type === 'RESET' ? null : nearbyStakeholder,
+    };
+  }),
+  setLearnerName: (name) => set(() => {
+    if (typeof window !== 'undefined') {
+      try { window.localStorage.setItem(PROFILE_KEY, name); } catch { /* best effort */ }
+    }
+    return { learnerName: name };
   }),
   setNearbyHazard: (hazardId) => set({ nearbyHazard: hazardId }),
+  setNearbyStakeholder: (stakeholderId) => set({ nearbyStakeholder: stakeholderId }),
 }));
