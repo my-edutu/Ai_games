@@ -2,7 +2,7 @@ import { FormEvent, useState } from 'react';
 import { sanitizeLearnerName } from '../simulation/experience';
 import { useSimulationStore } from '../state/store';
 
-export function NameGate() {
+export function NameGate({ onEnter }: { onEnter?: (name: string) => void }) {
   const savedName = useSimulationStore((state) => state.learnerName);
   const setLearnerName = useSimulationStore((state) => state.setLearnerName);
   const [value, setValue] = useState(savedName);
@@ -12,6 +12,7 @@ export function NameGate() {
     event.preventDefault();
     if (!clean) return;
     setLearnerName(clean);
+    onEnter?.(clean);
   };
 
   return (
@@ -19,7 +20,7 @@ export function NameGate() {
       <form className="name-gate" onSubmit={submit}>
         <span className="eyebrow">TURNVE BUILDSITE · SITE SIGN-IN</span>
         <h1>What should the site team call you?</h1>
-        <p>Your name will appear in briefings, communication coaching, work records and your final readiness report.</p>
+        <p>Your name personalizes greetings, briefings, work records and your final readiness report.</p>
         <label>
           <span>Your name</span>
           <input
