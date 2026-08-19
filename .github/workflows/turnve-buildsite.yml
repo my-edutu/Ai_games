@@ -16,6 +16,10 @@ on:
       - 'docs/superpowers/specs/2026-08-18-turnve-buildsite-design.md'
       - 'docs/superpowers/plans/2026-08-18-turnve-buildsite.md'
 
+concurrency:
+  group: turnve-buildsite-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 
