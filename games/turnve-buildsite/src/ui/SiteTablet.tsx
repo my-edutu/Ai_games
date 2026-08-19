@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { formatSimulatedTime } from '../simulation/engine';
 import { artifactDefinitions, checklistItems, scenario } from '../simulation/scenario';
 import type { ArtifactType } from '../simulation/types';
+import { skillDefinitions } from '../skillMentor/skills';
+import type { SkillId } from '../skillMentor/types';
 import { useSimulationStore } from '../state/store';
 
 const areas = ['Today', 'Site', 'Work'] as const;
@@ -50,6 +52,8 @@ export function SiteTablet({ onClose }: { onClose: () => void }) {
   const dispatch = state.dispatch;
   const blockers = liveBlockers(state);
   const submittedCount = Object.values(state.artifactSubmitted).filter(Boolean).length;
+  const skillIds = Object.keys(skillDefinitions) as SkillId[];
+  const completedSkillCount = skillIds.filter((id) => state.skillMentor.results[id]?.completed).length;
 
   return (
     <div className="tablet-backdrop">
@@ -72,6 +76,10 @@ export function SiteTablet({ onClose }: { onClose: () => void }) {
             </div>
             <section className="simple-task-list"><header><h3>Shift progress</h3><span>{coreTasks(state).filter(([, done]) => done).length}/5</span></header>{coreTasks(state).map(([label, done]) => <div key={label}><i className={done ? 'done' : ''}>{done ? '✓' : ''}</i><span>{label}</span></div>)}</section>
             <section className="blocker-board blocker-board-simple"><header><div><span className="eyebrow dark">BLOCKERS</span><h3>{blockers.length ? `${blockers.length} need attention` : 'Ready for handoff'}</h3></div><span className={blockers.length ? 'readiness-dot blocked' : 'readiness-dot ready'} /></header>{blockers.length ? <ul>{blockers.map((item) => <li key={item}>{item}</li>)}</ul> : <p>No modeled blocker remains. Document and hand the decision to authorized site leadership.</p>}</section>
+            <section className="skill-roster-card">
+              <header><div><span className="eyebrow dark">LEARN ON SITE</span><h3>Skill mentors</h3><p>Close Work, approach a mentor in the live 3D site, then tap <b>Learn this job</b>.</p></div><strong>{completedSkillCount}/4</strong></header>
+              <div className="skill-roster-grid">{skillIds.map((id) => { const skill = skillDefinitions[id]; const result = state.skillMentor.results[id]; return <article key={id} className={result?.completed ? 'complete' : ''}><div className="skill-roster-avatar">{skill.mentor.split(' ').map((part) => part[0]).slice(0,2).join('')}</div><div><b>{skill.title}</b><span>{skill.mentor} · {skill.trade}</span><small>{result?.completed ? `Completed · ${result.score}/100` : 'Available in the site'}</small></div>{result?.completed && <i>✓</i>}</article>; })}</div>
+            </section>
             <div className="tap-people-note"><b>Need someone?</b><span>Close Work and tap a person in the 3D site. They will greet you and show the communication action for their role.</span></div>
             <div className="authority-card"><b>Your authority</b><span>Observe · document · communicate · recommend a hold · request inspection. <strong>You do not authorize the structural pour.</strong></span></div>
           </div>}
