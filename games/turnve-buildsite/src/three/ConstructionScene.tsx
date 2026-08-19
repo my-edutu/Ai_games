@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef } from 'react';
 import * as THREE from 'three';
 import { scenario } from '../simulation/scenario';
 import { useSimulationStore } from '../state/store';
+import { PlayerController as CrossPlatformPlayerController } from './PlayerController';
 import { SiteLife } from './SiteLife';
 
 function isBlocked(x: number, z: number) {
@@ -188,7 +189,8 @@ export function ConstructionScene({ paused }: { paused: boolean }) {
         <directionalLight position={[8, 15, 10]} intensity={1.8} castShadow shadow-mapSize-width={1024} shadow-mapSize-height={1024} />
         <SiteEnvironment />
         <CinematicRig />
-        <PlayerController disabled={paused} />
+        <PlayerController disabled />
+        <CrossPlatformPlayerController disabled={paused} />
         {!paused && <PointerLockControls selector=".scene-shell canvas" />}
       </Canvas>
     </div>
