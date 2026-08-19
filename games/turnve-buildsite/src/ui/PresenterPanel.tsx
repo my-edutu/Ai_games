@@ -31,7 +31,7 @@ export function PresenterPanel({ onClose }: { onClose: () => void }) {
         <button onClick={() => dispatch({ type: 'TRIGGER_RAIN' })}>Trigger rain</button>
         <button onClick={() => { dispatch({ type: 'COMPARE_DRAWINGS' }); dispatch({ type: 'TRIGGER_CRISIS' }); }}>Jump to crisis</button>
         <button onClick={() => dispatch({ type: 'APPLY_RECOMMENDED_SEQUENCE' })}>Apply recommended sequence</button>
-        <button onClick={() => setPresenterTeleport([7, 1.72, 11])}>Move near Grace</button>
+        <button onClick={() => setPresenterTeleport([7, 1.72, 11])}>Jump near Grace</button>
         <button onClick={() => focus('brick-stack')}>Focus brick practice</button>
         <button onClick={() => focus('brick-drop')}>Focus brick laydown</button>
         <button onClick={() => focus('welding-bay')}>Focus welding practice</button>
