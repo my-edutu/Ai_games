@@ -373,6 +373,15 @@ Imported GLBs must be inspected for:
 - transform cleanliness
 - suitability for mobile fallback
 
+Desktop hero-asset targets:
+- prefer no more than about 150k visible triangles per individual hero object
+- prefer 8 or fewer materials per hero object
+- prefer compressed local payloads below roughly 2 MB per hero object unless visual review justifies an exception
+
+Mobile fallback targets:
+- prefer optimized LOD/procedural versions below about 40k visible triangles per hero object
+- lesson-critical interaction anchors must be identical across desktop and mobile representations
+
 Hero assets should lazy-load on balanced/high tiers where possible. Mobile receives either optimized LOD or procedural fallback without losing lesson functionality.
 
 ## 17. UI rules
@@ -423,28 +432,58 @@ Add pure tests for:
 
 ### Browser tests
 
-Full-WebGL stories must prove:
+All four redesigned lessons require real-WebGL acceptance coverage. The release cannot claim completion if any lesson remains button-only or text-only for its core practical step.
 
-1. **Masonry interaction**
+1. **Masonry interaction — real WebGL**
    - approach Emeka
    - begin lesson
-   - interact with tools/workpiece
-   - place/align block
-   - complete lesson with saved score
+   - identify actual tools/materials in scene
+   - spread mortar through a trace interaction
+   - pick/place block
+   - align with level feedback
+   - finish joint
+   - complete lesson with saved action-derived score
 
-2. **Welding interaction**
-   - inspect components
-   - secure coupon
-   - trace seam
-   - receive bead/travel score
+2. **Welding interaction — real WebGL**
+   - inspect actual bay components
+   - secure coupon with in-world clamp interaction
+   - trace seam with torch
+   - render bead during/after trace
+   - receive action-derived travel/bead score
 
-3. **Hero object smoke**
-   - truck renders with expected component markers/scene objects
-   - wheelbarrow renders as multi-part hero object
+3. **Formwork interaction — real WebGL**
+   - approach Daniel
+   - identify structural components in-world
+   - detect weak prop
+   - physically reseat/correct prop
+   - attach/reposition brace
+   - verify readiness and save evidence
 
-4. existing mobile movement/drag and report paths remain green
+4. **Rebar & quality interaction — real WebGL**
+   - approach Grace
+   - open compact latest-detail reference
+   - measure bar spacing in-world
+   - measure cover in-world
+   - mark modeled mismatch
+   - request inspection and save evidence
 
-Long DOM-only flows may continue using the automation-only lightweight scene shell, but interaction-first lesson tests must run against real WebGL.
+5. **Hero object fidelity smoke — real WebGL**
+   - concrete mixer truck exposes stable component identifiers for cab, glazing, wheels, drum, hopper/chute and ladder
+   - wheelbarrow exposes stable component identifiers for tray, frame, axle/wheel, legs and handles
+   - crane exposes mast/jib/counterweight/cab/trolley/hook assembly markers
+   - tests verify components exist in the rendered scene rather than only checking a single parent mesh
+
+6. **Compact UI / occlusion acceptance**
+   - active lesson coach stays within its size budget at desktop and mobile viewports
+   - coach does not overlap the known projected work-target safe region for the tested lesson camera pose
+   - `Why?` expansion is reversible and practice can continue without losing world interaction state
+
+7. **Regression flows**
+   - existing mobile movement/drag remains green
+   - practical brick/welding evidence remains green or is superseded by stronger interaction-first coverage
+   - pitch/report/voice flows remain green
+
+Long DOM-only flows may continue using the automation-only lightweight scene shell, but every interaction-first lesson and every hero-object acceptance story must run against real WebGL.
 
 ## 21. Release gate
 
@@ -453,7 +492,9 @@ The redesign is complete only when:
 - interaction engine unit suite is green
 - existing BuildSite tests remain green
 - production Vite build succeeds
-- new real-WebGL lesson flows pass
+- masonry, welding, formwork and rebar real-WebGL lesson flows pass
+- hero-object fidelity smoke passes for truck, wheelbarrow and crane
+- compact coach occlusion checks pass on desktop and mobile
 - mobile controls remain browser-verified
 - preview smoke passes
 - verified publisher advances `turnve-buildsite-live`
