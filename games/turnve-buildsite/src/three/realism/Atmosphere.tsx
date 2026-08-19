@@ -23,15 +23,11 @@ export function Atmosphere({ weather, quality }: { weather: WeatherState; qualit
       return;
     }
 
-    // Headless Chromium uses software WebGL in CI. Keep enough frames for camera,
-    // movement and mentor transitions without starving ordinary DOM interaction.
+    // Headless Chromium uses software WebGL in CI. Render only when React/R3F
+    // invalidates the scene so functional DOM flows are not starved by idle frames.
     setFrameloop('demand');
     invalidate();
-    const timer = window.setInterval(() => invalidate(), 100);
-    return () => {
-      window.clearInterval(timer);
-      setFrameloop('always');
-    };
+    return () => setFrameloop('always');
   }, [invalidate, setFrameloop]);
 
   const opacity = weather === 'rain' ? .34 : .26;
