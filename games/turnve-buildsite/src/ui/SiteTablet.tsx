@@ -42,8 +42,8 @@ function stageObjective(stage: string) {
 }
 
 export function SiteTablet({ onClose }: { onClose: () => void }) {
-  const [tab, setTab] = useState<Tab>('Today');
   const state = useSimulationStore();
+  const [tab, setTab] = useState<Tab>(state.stage === 'artifacts' ? 'Artifacts' : 'Today');
   const dispatch = state.dispatch;
   const observedHazards = scenario.hazards.filter((hazard) => state.hazards[hazard.id].status !== 'unseen');
   const blockers = liveBlockers(state);
