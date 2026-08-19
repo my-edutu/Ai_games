@@ -1,0 +1,11 @@
+{
+  "artifact_sha256": "4eb1f596fe3286b22824ef35cec0326ab7caf1f2a8d0c9befeaf5e4997ba4a91",
+  "folds": 23,
+  "mae_cash_in": 27.62160010492075,
+  "mae_cash_out": 14.701731552372486,
+  "mae_net": 22.751679469103898,
+  "model_version": "cashflow-seasonal-v1",
+  "net_interval_coverage": 0.8012422360248447,
+  "representative_not_real_world": true,
+  "training_data_hash": "7b65c8cd19dbef0bc0f0705f22bc80da181479e3cf60fdde6f2e1f4726bf255b"
+}
