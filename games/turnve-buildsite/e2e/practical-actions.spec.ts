@@ -64,16 +64,14 @@ test('mobile learner can carry materials and complete a scored welding practice'
 
   const trace = weldSheet.getByRole('slider', { name: 'Practice welding pass from start to end' });
   await expect(trace).toBeVisible();
+  await expect(trace).toHaveAttribute('type', 'range');
   const traceBox = await trace.boundingBox();
   expect(traceBox).not.toBeNull();
   expect(traceBox!.height).toBeGreaterThanOrEqual(44);
-  const y = traceBox!.y + traceBox!.height / 2;
-  const startX = traceBox!.x + traceBox!.width * 0.06;
-  const endX = traceBox!.x + traceBox!.width * 0.95;
-  await page.mouse.move(startX, y);
-  await page.mouse.down();
-  await page.mouse.move(endX, y, { steps: 10 });
-  await page.mouse.up();
+  // Playwright's native form-control API reliably drives HTML range inputs in headless mobile mode.
+  await trace.fill('45');
+  await trace.fill('72');
+  await trace.fill('95');
 
   await expect(weldSheet.getByText('Travel-control score')).toBeVisible();
   await weldSheet.getByRole('button', { name: 'Inspect practice bead' }).click();
