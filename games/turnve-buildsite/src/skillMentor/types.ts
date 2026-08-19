@@ -1,3 +1,5 @@
+import type { SkillInteractionEvidence } from './interactions/types';
+
 export type Vec3 = [number, number, number];
 
 export type SkillId = 'masonry' | 'welding' | 'formwork' | 'rebar-quality';
@@ -56,6 +58,7 @@ export type SkillEvidence = {
   title: string;
   actionType: SkillActionType;
   quality: number;
+  interaction?: SkillInteractionEvidence;
 };
 
 export type SkillResult = {
@@ -77,7 +80,7 @@ export type SkillMentorState = {
 export type SkillMentorAction =
   | { type: 'START_SKILL'; skillId: SkillId }
   | { type: 'BEGIN_PRACTICE' }
-  | { type: 'COMPLETE_STEP'; actionType: SkillActionType; quality?: number }
+  | { type: 'COMPLETE_STEP'; actionType: SkillActionType; quality?: number; interaction?: SkillInteractionEvidence }
   | { type: 'EXIT_SKILL' };
 
 export type SkillCameraPose = {
