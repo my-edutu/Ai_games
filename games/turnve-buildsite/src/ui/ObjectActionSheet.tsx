@@ -1,16 +1,82 @@
+import { useRef, useState } from 'react';
 import { communicationHint } from '../simulation/experience';
 import { scenario } from '../simulation/scenario';
 import type { StakeholderId } from '../simulation/types';
 import { useSimulationStore } from '../state/store';
-import { interactableCatalog } from '../worksite/workActions';
+import { interactableCatalog, scoreWeldingTrace } from '../worksite/workActions';
 import type { WeldingStep, WorksiteInteractableId } from '../worksite/workActions';
 
 const weldingSteps: { id: WeldingStep; label: string }[] = [
   { id: 'ppe', label: 'Safety & PPE check' },
   { id: 'prepare', label: 'Prepare practice coupon' },
-  { id: 'pass', label: 'Simulated practice pass' },
+  { id: 'pass', label: 'Practice travel control' },
   { id: 'inspect', label: 'Inspect practice bead' },
 ];
+
+const weldingLesson: Partial<Record<WeldingStep, string>> = {
+  idle: 'Start with safety. This is a simulated learning bay—not permission to carry out unsupervised live welding.',
+  ppe: 'Before any arc, protect your eyes, face, hands and skin, check the work area and keep combustible material clear.',
+  prepare: 'A stable practice coupon matters. Check that the piece is secure and the work area is ready before making a pass.',
+  pass: 'Practice one steady forward travel. Drag from START to END without stopping short or backtracking; smooth travel produces a stronger score.',
+  inspect: 'After the pass, inspect the practice bead for continuity and consistency. Visible irregularity is feedback for the next supervised attempt.',
+};
+
+function WeldingTracePractice() {
+  const act = useSimulationStore((state) => state.dispatchWorkAction);
+  const trackRef = useRef<HTMLDivElement>(null);
+  const pointerId = useRef<number | null>(null);
+  const samples = useRef<number[]>([]);
+  const [progress, setProgress] = useState(0);
+
+  const positionFromClient = (clientX: number) => {
+    const rect = trackRef.current?.getBoundingClientRect();
+    if (!rect || rect.width <= 0) return 0;
+    return Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+  };
+  const record = (clientX: number) => {
+    const value = positionFromClient(clientX);
+    samples.current.push(value);
+    setProgress(value);
+  };
+  const finish = (clientX: number) => {
+    record(clientX);
+    const quality = scoreWeldingTrace(samples.current);
+    pointerId.current = null;
+    act({ type: 'WELDING_PASS', quality });
+  };
+
+  return (
+    <div className="weld-practice">
+      <div className="weld-practice-label"><b>Travel-control practice</b><span>one steady swipe</span></div>
+      <div
+        ref={trackRef}
+        className="weld-trace-track"
+        role="button"
+        tabIndex={0}
+        aria-label="Practice welding pass from start to end"
+        onPointerDown={(event) => {
+          pointerId.current = event.pointerId;
+          samples.current = [];
+          event.currentTarget.setPointerCapture(event.pointerId);
+          record(event.clientX);
+        }}
+        onPointerMove={(event) => { if (pointerId.current === event.pointerId) record(event.clientX); }}
+        onPointerUp={(event) => { if (pointerId.current === event.pointerId) finish(event.clientX); }}
+        onPointerCancel={() => { pointerId.current = null; samples.current = []; setProgress(0); }}
+        onKeyDown={(event) => {
+          if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            act({ type: 'WELDING_PASS', quality: 85 });
+          }
+        }}
+      >
+        <span className="weld-start">START</span><i className="weld-guide" /><span className="weld-end">END</span>
+        <span className="weld-torch" style={{ left: `${progress * 100}%` }}>✦</span>
+      </div>
+      <small>Press near START and drag continuously to END. Backtracking and stopping short reduce the practice score.</small>
+    </div>
+  );
+}
 
 function WeldingActions() {
   const work = useSimulationStore((state) => state.workActions);
@@ -22,11 +88,9 @@ function WeldingActions() {
       ? ['Confirm welding PPE & clear bay', 'WELDING_PPE'] as const
       : step === 'prepare'
         ? ['Secure and check practice coupon', 'WELDING_PREPARE'] as const
-        : step === 'pass'
-          ? ['Perform simulated practice pass', 'WELDING_PASS'] as const
-          : step === 'inspect'
-            ? ['Inspect practice bead', 'WELDING_INSPECT'] as const
-            : null;
+        : step === 'inspect'
+          ? ['Inspect practice bead', 'WELDING_INSPECT'] as const
+          : null;
   const activeIndex = weldingSteps.findIndex((item) => item.id === step);
 
   return (
@@ -37,9 +101,11 @@ function WeldingActions() {
         const active = item.id === step;
         return <div key={item.id} className={done ? 'done' : active ? 'active' : ''}><i>{done ? '✓' : index + 1}</i><span>{item.label}</span></div>;
       })}</div>
-      {step === 'idle' && <p className="action-safety-note">This is a simulated learning bay. The sequence teaches safe preparation, practice and inspection without authorizing unsupervised live welding.</p>}
+      {weldingLesson[step] && <p className="welding-lesson">{weldingLesson[step]}</p>}
+      {step === 'pass' && <WeldingTracePractice />}
       {button && <button className="primary action-primary" onClick={() => act({ type: button[1] })}>{button[0]}</button>}
-      {work.weldingComplete && <div className="action-complete">✓ Welding practice learning sequence completed.</div>}
+      {work.weldingPassQuality !== null && step !== 'pass' && <div className="pass-quality"><span>Travel-control score</span><b>{work.weldingPassQuality}/100</b></div>}
+      {work.weldingComplete && <div className="action-complete">✓ Welding practice learning sequence completed with a recorded travel-control score.</div>}
     </div>
   );
 }
