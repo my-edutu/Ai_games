@@ -21,7 +21,7 @@ def create_app(bundle=None, data_version="unconfigured", intervention_policy_ver
             raise HTTPException(status_code=503, detail="model artifact not configured")
         as_of=min(datetime.now(timezone.utc), req.appointment.appointment_at)
         features=build_features(req.appointment, req.history, as_of)
-        abstain=should_abstain(features, 1)
+        abstain=should_abstain(features, .2)
         risk=None if abstain else predict_risk(bundle, features)
         actions=[] if abstain else recommend_interventions(risk, req.appointment.transport_barrier)
         forbidden={"cancel_appointment","deny_care","deprioritize_care","reduce_access"}
