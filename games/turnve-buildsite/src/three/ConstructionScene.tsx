@@ -5,6 +5,7 @@ import { weatherForMinute } from '../simulation/experience';
 import { scenario } from '../simulation/scenario';
 import type { WeatherState } from '../simulation/types';
 import { useSimulationStore } from '../state/store';
+import { HeroEquipmentLayer } from './equipment/HeroEquipmentLayer';
 import { addVirtualLook } from './input';
 import { PlayerController } from './PlayerController';
 import { SkillFocusRig } from './SkillFocusRig';
@@ -41,58 +42,6 @@ function CinematicRig() {
     if (t >= 1) dispatch({ type: 'FINISH_INTRO' });
   });
   return null;
-}
-
-function Crane() {
-  const top = useRef<THREE.Group>(null);
-  const trolley = useRef<THREE.Group>(null);
-  const select = useSimulationStore((state) => state.setSelectedInteractable);
-  useFrame(({ clock }, delta) => {
-    if (top.current) top.current.rotation.y += delta * 0.055;
-    if (trolley.current) trolley.current.position.x = 2.1 + Math.sin(clock.elapsedTime * .19) * 2.1;
-  });
-  return (
-    <group position={[18, 0, 15]} onClick={(event) => { event.stopPropagation(); select('crane'); }}>
-      <mesh position={[0, 8, 0]} castShadow><boxGeometry args={[0.72, 16, 0.72]} /><meshStandardMaterial color="#d69a22" metalness={.42} roughness={.48} /></mesh>
-      {Array.from({ length: 7 }, (_, i) => <mesh key={i} position={[0, 2.2 + i * 2, .38]} rotation={[0, 0, Math.PI / 4]}><boxGeometry args={[.06, 1.02, .06]} /><meshStandardMaterial color="#a46f18" metalness={.5} /></mesh>)}
-      <group ref={top} position={[0, 15.5, 0]}>
-        <mesh position={[-3.2, 0, 0]} castShadow><boxGeometry args={[7.6, 0.48, 0.48]} /><meshStandardMaterial color="#d69a22" metalness={.45} roughness={.42} /></mesh>
-        <mesh position={[3.7, 0, 0]} castShadow><boxGeometry args={[7.8, 0.48, 0.48]} /><meshStandardMaterial color="#d69a22" metalness={.45} roughness={.42} /></mesh>
-        <mesh position={[-6.75, .08, 0]}><boxGeometry args={[.55, .65, .65]} /><meshStandardMaterial color="#5d6263" metalness={.7} roughness={.4} /></mesh>
-        <group ref={trolley} position={[2.1, -.3, 0]}>
-          <mesh><boxGeometry args={[.55,.42,.62]} /><meshStandardMaterial color="#555c60" metalness={.72} roughness={.32} /></mesh>
-          <mesh position={[0, -3.15, 0]}><boxGeometry args={[0.055, 6, 0.055]} /><meshStandardMaterial color="#202527" metalness={.72} /></mesh>
-          <mesh position={[0,-6.2,0]} rotation={[0,0,.6]}><torusGeometry args={[.28,.055,8,18,Math.PI*1.6]} /><meshStandardMaterial color="#272d30" metalness={.7} roughness={.35} /></mesh>
-        </group>
-      </group>
-    </group>
-  );
-}
-
-function Truck() {
-  const truck = useSimulationStore((state) => state.truck);
-  const select = useSimulationStore((state) => state.setSelectedInteractable);
-  const group = useRef<THREE.Group>(null);
-  const drum = useRef<THREE.Mesh>(null);
-  useFrame((_, delta) => {
-    if (!group.current) return;
-    const target = truck === 'scheduled' ? 33 : truck === 'released' ? -28 : 18;
-    group.current.position.z = THREE.MathUtils.damp(group.current.position.z, target, 2.5, delta);
-    if (drum.current) drum.current.rotation.z += delta * .34;
-  });
-  return (
-    <group ref={group} position={[-2, 0, 33]} onClick={(event) => { event.stopPropagation(); select('concrete-truck'); }}>
-      <mesh position={[0, .82, -.3]} castShadow><boxGeometry args={[2.55, .42, 5.15]} /><meshStandardMaterial color="#4a5358" metalness={.5} roughness={.42} /></mesh>
-      <mesh position={[0, 1.35, -2.35]} castShadow><boxGeometry args={[2.35, 1.85, 1.85]} /><meshStandardMaterial color="#e2e4e2" roughness={.55} /></mesh>
-      <mesh position={[0, 1.62, -3.31]}><boxGeometry args={[1.72, .72, .04]} /><meshPhysicalMaterial color="#567a8e" transparent opacity={.78} roughness={.12} /></mesh>
-      <mesh ref={drum} position={[0, 1.68, .55]} rotation={[Math.PI / 2, 0, 0]} castShadow><cylinderGeometry args={[.92, 1.18, 2.95, 22]} /><meshStandardMaterial color="#c5c8c5" metalness={.18} roughness={.65} /></mesh>
-      <mesh position={[0, 1.2, 2.08]} rotation={[.38,0,0]}><boxGeometry args={[.65,.13,1.2]} /><meshStandardMaterial color="#aab0ad" metalness={.25} roughness={.55} /></mesh>
-      <mesh position={[0, .95, 2.67]} rotation={[.25,0,0]}><boxGeometry args={[.46,.08,.75]} /><meshStandardMaterial color="#777f7d" metalness={.5} /></mesh>
-      {[-1.02, 1.02].flatMap((x) => [-2.1, 1.55].map((z) => <group key={`${x}-${z}`} position={[x, 0.46, z]} rotation={[0, 0, Math.PI / 2]}><mesh castShadow><cylinderGeometry args={[0.44, 0.44, 0.36, 16]} /><meshStandardMaterial color="#121516" roughness={.94} /></mesh><mesh position={[0,.19,0]}><cylinderGeometry args={[.18,.18,.38,14]} /><meshStandardMaterial color="#72787a" metalness={.72} roughness={.3} /></mesh></group>))}
-      <mesh position={[-1.2,.66,-3.1]}><boxGeometry args={[.08,.26,.22]} /><meshStandardMaterial color="#f34e40" emissive="#8a160f" emissiveIntensity={.3} /></mesh>
-      <mesh position={[1.2,.66,-3.1]}><boxGeometry args={[.08,.26,.22]} /><meshStandardMaterial color="#f34e40" emissive="#8a160f" emissiveIntensity={.3} /></mesh>
-    </group>
-  );
 }
 
 function CloudMass({ position, scale, shade, speed }: { position: [number, number, number]; scale: number; shade: string; speed: number }) {
@@ -204,8 +153,7 @@ function SiteEnvironment({ weather, quality }: { weather: WeatherState; quality:
       <SiteDressing quality={quality} weather={weather} />
       <SiteLife />
       <WorksiteTasks />
-      <Crane />
-      <Truck />
+      <HeroEquipmentLayer />
       <Rain weather={weather} quality={quality} />
     </>
   );
