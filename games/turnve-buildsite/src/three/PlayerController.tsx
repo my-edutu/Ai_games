@@ -2,8 +2,18 @@ import { useFrame, useThree } from '@react-three/fiber';
 import { useEffect, useRef } from 'react';
 import * as THREE from 'three';
 import { scenario } from '../simulation/scenario';
+import type { StakeholderId } from '../simulation/types';
 import { useSimulationStore } from '../state/store';
 import { clampPitch, consumeVirtualLook, getVirtualMove, resetVirtualInput } from './input';
+
+const stakeholderPositions: Partial<Record<StakeholderId, [number, number, number]>> = {
+  'site-manager': [-6, 1.4, -10],
+  hse: [1, 1.4, -6],
+  foreman: [15, 1.4, -2],
+  consultant: [7, 1.4, 8],
+  qs: [-14, 1.4, -10],
+  supplier: [-2, 1.4, 18],
+};
 
 function isBlocked(x: number, z: number) {
   const building = x > 5 && x < 16 && z > -4 && z < 5;
@@ -24,6 +34,7 @@ export function PlayerController({ disabled }: { disabled: boolean }) {
   const { camera } = useThree();
   const keys = useRef(new Set<string>());
   const setNearbyHazard = useSimulationStore((state) => state.setNearbyHazard);
+  const setNearbyStakeholder = useSimulationStore((state) => state.setNearbyStakeholder);
 
   useEffect(() => {
     const down = (event: KeyboardEvent) => {
@@ -74,16 +85,27 @@ export function PlayerController({ disabled }: { disabled: boolean }) {
       if (!isBlocked(next.x, next.z)) camera.position.set(next.x, 1.72, next.z);
     }
 
-    let nearest: string | null = null;
-    let nearestDistance = 3.8;
+    let nearestHazard: string | null = null;
+    let hazardDistance = 3.8;
     for (const hazard of scenario.hazards) {
       const distance = camera.position.distanceTo(new THREE.Vector3(hazard.position[0], 1.4, hazard.position[2]));
-      if (distance < nearestDistance) {
-        nearest = hazard.id;
-        nearestDistance = distance;
+      if (distance < hazardDistance) {
+        nearestHazard = hazard.id;
+        hazardDistance = distance;
       }
     }
-    if (nearest !== state.nearbyHazard) setNearbyHazard(nearest);
+    if (nearestHazard !== state.nearbyHazard) setNearbyHazard(nearestHazard);
+
+    let nearestStakeholder: StakeholderId | null = null;
+    let stakeholderDistance = 4.6;
+    for (const [id, position] of Object.entries(stakeholderPositions) as [StakeholderId, [number, number, number]][]) {
+      const distance = camera.position.distanceTo(new THREE.Vector3(...position));
+      if (distance < stakeholderDistance) {
+        nearestStakeholder = id;
+        stakeholderDistance = distance;
+      }
+    }
+    if (nearestStakeholder !== state.nearbyStakeholder) setNearbyStakeholder(nearestStakeholder);
   });
 
   return null;
