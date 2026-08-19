@@ -29,6 +29,8 @@ type AudioRuntime = {
   layers: SoundscapeLayers;
   sources: AudioScheduledSourceNode[];
   timers: number[];
+  enabled: boolean;
+  voiceDucked: boolean;
 };
 
 let runtime: AudioRuntime | null = null;
@@ -36,6 +38,15 @@ let runtime: AudioRuntime | null = null;
 function ramp(gain: GainNode, value: number, context: AudioContext, seconds = 0.15) {
   gain.gain.cancelScheduledValues(context.currentTime);
   gain.gain.setTargetAtTime(value, context.currentTime, seconds);
+}
+
+function masterLevel(audio: AudioRuntime) {
+  if (!audio.enabled) return 0.0001;
+  return audio.voiceDucked ? 0.28 : 0.85;
+}
+
+function applyMaster(audio: AudioRuntime, seconds = 0.08) {
+  ramp(audio.master, masterLevel(audio), audio.context, seconds);
 }
 
 function noiseBuffer(context: AudioContext, seconds = 2) {
@@ -81,7 +92,8 @@ export async function unlockConstructionAudio() {
   if (typeof window === 'undefined') return false;
   if (runtime) {
     if (runtime.context.state !== 'running') await runtime.context.resume();
-    ramp(runtime.master, 0.85, runtime.context, 0.05);
+    runtime.enabled = true;
+    applyMaster(runtime, 0.05);
     return true;
   }
 
@@ -138,6 +150,8 @@ export async function unlockConstructionAudio() {
     layers: { machinery: false, impacts: false, reversing: false, rain: false },
     sources: [humA, humB, rainSource],
     timers: [],
+    enabled: true,
+    voiceDucked: false,
   };
   runtime.timers.push(window.setInterval(() => runtime && playBeep(runtime), 1050));
   runtime.timers.push(window.setInterval(() => runtime && playImpact(runtime), 2350));
@@ -147,7 +161,14 @@ export async function unlockConstructionAudio() {
 
 export function setConstructionAudioEnabled(enabled: boolean) {
   if (!runtime) return;
-  ramp(runtime.master, enabled ? 0.85 : 0.0001, runtime.context, 0.05);
+  runtime.enabled = enabled;
+  applyMaster(runtime, 0.05);
+}
+
+export function setConstructionVoiceDucking(ducked: boolean) {
+  if (!runtime) return;
+  runtime.voiceDucked = ducked;
+  applyMaster(runtime, 0.08);
 }
 
 export function updateConstructionAudio(layers: SoundscapeLayers) {
