@@ -47,15 +47,18 @@ function WeldingActions() {
 function BrickActions({ target }: { target: 'source' | 'drop' }) {
   const work = useSimulationStore((state) => state.workActions);
   const act = useSimulationStore((state) => state.dispatchWorkAction);
+  const close = useSimulationStore((state) => state.setSelectedInteractable);
   const canPick = target === 'source' && !work.carrying && !work.materialHandlingComplete && work.bricksRemaining > 0;
   const canPlace = target === 'drop' && work.carrying === 'brick' && !work.materialHandlingComplete;
+  const pick = () => { act({ type: 'PICK_BRICK' }); close(null); };
+  const place = () => { act({ type: 'PLACE_BRICK' }); close(null); };
   return (
     <div className="brick-training">
       <div className="action-score"><span>Material handling</span><b>{work.materialHandlingScore}/100</b></div>
       <div className="brick-progress"><span><b>{work.bricksPlaced}</b>/3 delivered</span><div><i style={{ width: `${Math.min(100, (work.bricksPlaced / 3) * 100)}%` }} /></div></div>
       {work.carrying === 'brick' && <div className="carrying-callout">You are carrying one brick. Move to the marked laydown point.</div>}
-      {canPick && <button className="primary action-primary" onClick={() => act({ type: 'PICK_BRICK' })}>Pick up one brick</button>}
-      {canPlace && <button className="primary action-primary" onClick={() => act({ type: 'PLACE_BRICK' })}>Place carried brick</button>}
+      {canPick && <button className="primary action-primary" onClick={pick}>Pick up one brick</button>}
+      {canPlace && <button className="primary action-primary" onClick={place}>Place carried brick</button>}
       {target === 'source' && work.carrying && <p className="action-help">Carry the current brick to the yellow laydown ring before picking up another.</p>}
       {target === 'drop' && !work.carrying && !work.materialHandlingComplete && <p className="action-help">Go to the brick stack, tap it and pick up a single brick first.</p>}
       {work.materialHandlingComplete && <div className="action-complete">✓ Material-handling practice completed with three safe single-brick transfers.</div>}
@@ -129,6 +132,6 @@ export function ObjectActionSheet() {
 
 export function PracticalStatus() {
   const work = useSimulationStore((state) => state.workActions);
-  if (!work.carrying && work.weldingStep === 'idle') return null;
-  return <div className="practical-status" aria-live="polite">{work.carrying === 'brick' ? <><b>Carrying</b><span>1 brick · move to laydown</span></> : work.weldingStep !== 'complete' ? <><b>Welding practice</b><span>{work.weldingScore}% complete</span></> : null}</div>;
+  if (!work.carrying && (work.weldingStep === 'idle' || work.weldingStep === 'complete')) return null;
+  return <div className="practical-status" aria-live="polite">{work.carrying === 'brick' ? <><b>Carrying</b><span>1 brick · move to laydown</span></> : <><b>Welding practice</b><span>{work.weldingScore}% complete</span></>}</div>;
 }
