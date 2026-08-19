@@ -2,6 +2,7 @@ import { useFrame, useThree } from '@react-three/fiber';
 import { useRef } from 'react';
 import * as THREE from 'three';
 import { skillCameraPose } from '../skillMentor/engine';
+import type { SkillId } from '../skillMentor/types';
 import { useSimulationStore } from '../state/store';
 import { TrainingInteractionLayer } from './training/TrainingInteractionLayer';
 
@@ -16,6 +17,7 @@ export function SkillFocusRig() {
   const activeSkillId = useSimulationStore((state) => state.skillMentor.activeSkillId);
   const phase = useSimulationStore((state) => state.skillMentor.phase);
   const snapshot = useRef<CameraSnapshot | null>(null);
+  const practicePoseApplied = useRef<SkillId | null>(null);
   const targetQuaternion = useRef(new THREE.Quaternion());
   const matrix = useRef(new THREE.Matrix4());
 
@@ -31,18 +33,37 @@ export function SkillFocusRig() {
           fov: camera.fov,
         };
       }
+
       const pose = skillCameraPose(activeSkillId);
-      const position = new THREE.Vector3(...pose.position);
       const target = new THREE.Vector3(...pose.target);
-      camera.position.lerp(position, rate);
-      matrix.current.lookAt(camera.position, target, camera.up);
-      targetQuaternion.current.setFromRotationMatrix(matrix.current);
-      camera.quaternion.slerp(targetQuaternion.current, rate);
-      camera.fov = THREE.MathUtils.lerp(camera.fov, pose.fov, rate);
-      camera.updateProjectionMatrix();
+
+      if (phase === 'focus') {
+        practicePoseApplied.current = null;
+        const position = new THREE.Vector3(...pose.position);
+        camera.position.lerp(position, rate);
+        matrix.current.lookAt(camera.position, target, camera.up);
+        targetQuaternion.current.setFromRotationMatrix(matrix.current);
+        camera.quaternion.slerp(targetQuaternion.current, rate);
+        camera.fov = THREE.MathUtils.lerp(camera.fov, pose.fov, rate);
+        camera.updateProjectionMatrix();
+        return;
+      }
+
+      if (phase === 'practice' && practicePoseApplied.current !== activeSkillId) {
+        camera.position.set(...pose.position);
+        camera.lookAt(target);
+        camera.fov = pose.fov;
+        camera.updateProjectionMatrix();
+        practicePoseApplied.current = activeSkillId;
+      }
+
+      // During practice/complete the camera is deliberately released. The learner's
+      // work surface stays stable and small look adjustments are no longer fought by
+      // a cinematic rig that re-aims every frame.
       return;
     }
 
+    practicePoseApplied.current = null;
     if (!snapshot.current) return;
     camera.position.lerp(snapshot.current.position, rate);
     camera.quaternion.slerp(snapshot.current.quaternion, rate);
