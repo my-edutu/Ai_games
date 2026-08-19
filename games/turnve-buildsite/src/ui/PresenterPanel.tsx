@@ -6,7 +6,9 @@ const artifactTypes = Object.keys(artifactDefinitions) as ArtifactType[];
 
 export function PresenterPanel({ onClose }: { onClose: () => void }) {
   const dispatch = useSimulationStore((state) => state.dispatch);
+  const setSelectedInteractable = useSimulationStore((state) => state.setSelectedInteractable);
   const reset = () => { dispatch({ type: 'RESET' }); dispatch({ type: 'START', mode: 'guided' }); };
+  const focus = (id: string) => setSelectedInteractable(id);
   const prepareArtifactMoment = () => {
     dispatch({ type: 'APPLY_RECOMMENDED_SEQUENCE' });
     dispatch({ type: 'MOVE_TO_ARTIFACTS' });
@@ -28,6 +30,9 @@ export function PresenterPanel({ onClose }: { onClose: () => void }) {
         <button onClick={() => dispatch({ type: 'TRIGGER_RAIN' })}>Trigger rain</button>
         <button onClick={() => { dispatch({ type: 'COMPARE_DRAWINGS' }); dispatch({ type: 'TRIGGER_CRISIS' }); }}>Jump to crisis</button>
         <button onClick={() => dispatch({ type: 'APPLY_RECOMMENDED_SEQUENCE' })}>Apply recommended sequence</button>
+        <button onClick={() => focus('brick-stack')}>Focus brick practice</button>
+        <button onClick={() => focus('brick-drop')}>Focus brick laydown</button>
+        <button onClick={() => focus('welding-bay')}>Focus welding practice</button>
         <button onClick={prepareArtifactMoment}>Jump to artifact moment</button>
         <button className="primary" onClick={openEvidenceBackedReport}>Open evidence-backed report</button>
         <button onClick={reset}>Reset pitch demo</button>
