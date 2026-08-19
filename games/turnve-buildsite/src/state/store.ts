@@ -7,11 +7,14 @@ import type { WorkAction, WorkActionState } from '../worksite/workActions';
 const STORAGE_KEY = 'turnve-buildsite-v1';
 const PROFILE_KEY = 'turnve-buildsite-learner-name';
 
+type PresenterTeleport = [number, number, number] | null;
+
 interface SimulationStore extends SimulationState {
   learnerName: string;
   nearbyHazard: string | null;
   nearbyStakeholder: StakeholderId | null;
   selectedInteractable: string | null;
+  presenterTeleport: PresenterTeleport;
   workActions: WorkActionState;
   weldingPulse: number;
   dispatch: (action: SimulationAction) => void;
@@ -20,6 +23,7 @@ interface SimulationStore extends SimulationState {
   setNearbyHazard: (hazardId: string | null) => void;
   setNearbyStakeholder: (stakeholderId: StakeholderId | null) => void;
   setSelectedInteractable: (interactableId: string | null) => void;
+  setPresenterTeleport: (position: PresenterTeleport) => void;
 }
 
 function persistedInitialState(): SimulationState {
@@ -59,6 +63,7 @@ export const useSimulationStore = create<SimulationStore>((set) => ({
   nearbyHazard: null,
   nearbyStakeholder: null,
   selectedInteractable: null,
+  presenterTeleport: null,
   workActions: createWorkActionState(),
   weldingPulse: 0,
   dispatch: (action) => set((current) => {
@@ -69,10 +74,12 @@ export const useSimulationStore = create<SimulationStore>((set) => ({
       setNearbyHazard: _setNearbyHazard,
       setNearbyStakeholder: _setNearbyStakeholder,
       setSelectedInteractable: _setSelectedInteractable,
+      setPresenterTeleport: _setPresenterTeleport,
       learnerName,
       nearbyHazard,
       nearbyStakeholder,
       selectedInteractable,
+      presenterTeleport,
       workActions,
       weldingPulse,
       ...serializableState
@@ -86,6 +93,7 @@ export const useSimulationStore = create<SimulationStore>((set) => ({
       nearbyHazard: reset ? null : nearbyHazard,
       nearbyStakeholder: reset ? null : nearbyStakeholder,
       selectedInteractable: reset ? null : selectedInteractable,
+      presenterTeleport: reset ? null : presenterTeleport,
       workActions: reset ? createWorkActionState() : workActions,
       weldingPulse: reset ? 0 : weldingPulse,
     };
@@ -106,4 +114,5 @@ export const useSimulationStore = create<SimulationStore>((set) => ({
   setNearbyHazard: (hazardId) => set({ nearbyHazard: hazardId }),
   setNearbyStakeholder: (stakeholderId) => set({ nearbyStakeholder: stakeholderId }),
   setSelectedInteractable: (interactableId) => set({ selectedInteractable: interactableId }),
+  setPresenterTeleport: (position) => set({ presenterTeleport: position }),
 }));
