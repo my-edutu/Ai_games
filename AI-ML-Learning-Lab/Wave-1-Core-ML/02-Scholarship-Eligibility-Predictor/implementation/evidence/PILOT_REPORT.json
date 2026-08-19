@@ -1,0 +1,10 @@
+{
+  "case_count": 8,
+  "comprehension_pass_rate": 1.0,
+  "decision": "GO_FOR_CONTROLLED_DEPLOYMENT",
+  "note": "Representative synthetic/hand-authored pilot; not real-world impact evidence.",
+  "p0_findings": 0,
+  "p1_findings": 0,
+  "policy_accuracy": 1.0,
+  "representative_only": true
+}

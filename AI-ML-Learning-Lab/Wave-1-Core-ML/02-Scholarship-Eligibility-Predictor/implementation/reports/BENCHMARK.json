@@ -1,0 +1,40 @@
+{
+  "baseline": {
+    "brier": 0.21118664345714303,
+    "positive_rate": 0.4451476793248945,
+    "pr_auc": 0.5146281718884156,
+    "precision": 0.44075829383886256,
+    "recall": 0.6888888888888889,
+    "roc_auc": 0.7293127936195782,
+    "threshold": 0.5
+  },
+  "dataset_snapshot_hash": "ea2c0e865d5a9202f1702a1cb15930fd81dbd6eb6e4ec800e02eaff4d59e5e96",
+  "fairness_by_region": {
+    "group_column": "region",
+    "groups": {
+      "east": {"brier": 0.15412980068594118,"positive_rate": 0.4588235294117647,"pr_auc": 0.5844298592629424,"precision": 0.3333333333333333,"recall": 0.65,"roc_auc": 0.7269230769230769,"threshold": 0.2700000000000001},
+      "north": {"brier": 0.17345181774154428,"positive_rate": 0.5212765957446809,"pr_auc": 0.43007943713565694,"precision": 0.30612244897959184,"recall": 0.6818181818181818,"roc_auc": 0.6698232323232323,"threshold": 0.2700000000000001},
+      "south": {"brier": 0.17946029204859154,"positive_rate": 0.4727272727272727,"pr_auc": 0.6098348222898183,"precision": 0.5128205128205128,"recall": 0.7547169811320755,"roc_auc": 0.7747641509433962,"threshold": 0.2700000000000001},
+      "west": {"brier": 0.18755308778517138,"positive_rate": 0.5230769230769231,"pr_auc": 0.5591948886033122,"precision": 0.4264705882352941,"recall": 0.725,"roc_auc": 0.6955555555555555,"threshold": 0.2700000000000001}
+    },
+    "max_recall_gap": 0.1047169811320755
+  },
+  "note": "Deterministic representative benchmark; not real-world acceptance evidence.",
+  "predictive_features": ["gpa_4","financial_need_score","leadership_score","community_service_score","essay_score","experience_score"],
+  "representative_only": true,
+  "rows": 1800,
+  "selected": {
+    "brier": 0.175945893514979,
+    "positive_rate": 0.4936708860759494,
+    "pr_auc": 0.5372918788578277,
+    "precision": 0.41452991452991456,
+    "recall": 0.7185185185185186,
+    "roc_auc": 0.7252267016278815,
+    "threshold": 0.2700000000000001
+  },
+  "selected_model": "calibrated_interaction",
+  "selected_threshold": 0.2700000000000001,
+  "test_rows": 474,
+  "train_rows": 915,
+  "validation_rows": 411
+}
