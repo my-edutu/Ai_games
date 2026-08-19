@@ -1,0 +1,8 @@
+{
+  "exact_accuracy": 0.7,
+  "model_version": "semantic-tfidf-v1",
+  "ontology_version": "ont-v1",
+  "representative_not_real_world": true,
+  "semantic_accuracy": 0.8,
+  "unknown_false_positive_rate": 0.0
+}

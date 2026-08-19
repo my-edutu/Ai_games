@@ -1,0 +1,13 @@
+# Release Checklist
+- [x] Observed/inferred/unknown states are explicit.
+- [x] Missing evidence remains unknown.
+- [x] Protected attributes are excluded from user/model contracts.
+- [x] Ontology and role versions are traceable.
+- [x] Semantic matcher has an abstention policy.
+- [x] API returns human-readable explanations and version metadata.
+- [x] Ontology/model rollback is independent.
+- [x] Drift diagnosis distinguishes ontology/profile/model-confidence issues.
+- [x] Model, data and ontology cards exist.
+- [x] Security/privacy, ownership, SLOs, limitations and runbook exist.
+- [x] Representative pilot has zero P0/P1 findings.
+- [ ] Genuine real-user controlled-pilot evidence collected before broad production claims.

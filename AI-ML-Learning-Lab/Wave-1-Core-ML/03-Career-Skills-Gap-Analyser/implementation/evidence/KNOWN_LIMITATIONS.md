@@ -1,0 +1,2 @@
+# Known Limitations
+The semantic matcher is intentionally lightweight and does not understand every occupation or skill phrasing. Resume text is incomplete evidence. Proficiency estimates require explicit evidence and should not be inferred from job title alone. Representative fixtures do not establish labor-market validity or real-world learning impact. Career changers and multilingual profiles require additional validation.

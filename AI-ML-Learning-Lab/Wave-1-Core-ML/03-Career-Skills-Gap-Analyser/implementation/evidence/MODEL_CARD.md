@@ -1,0 +1,2 @@
+# Model Card
+Model: `semantic-tfidf-v1`. Purpose: conservative semantic assistance for mapping skill phrases to a versioned ontology. It is not the source of proficiency claims. Exact/direct evidence remains distinguishable from inferred evidence. Protected demographic attributes are excluded. Unrelated phrases must meet an abstention threshold. Representative benchmark evidence is not real-world impact evidence.
