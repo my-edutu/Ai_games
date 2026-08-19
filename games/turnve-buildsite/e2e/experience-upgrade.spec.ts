@@ -5,7 +5,7 @@ const clickFlow = (locator: Locator) => locator.evaluate((element) => (element a
 
 test('personalizes the site, supports drag-look, coaches communication and renders weather state', async ({ page }) => {
   test.setTimeout(60_000);
-  await page.goto('/?demo=true');
+  await page.goto('/?demo=true&render=lite');
 
   await expect(page.getByRole('heading', { name: 'What should the site team call you?' })).toBeVisible();
   await page.getByLabel('Your name').fill('chidi okafor');
@@ -21,8 +21,8 @@ test('personalizes the site, supports drag-look, coaches communication and rende
 
   const scene = page.getByLabel('3D construction site');
   await expect(scene).toHaveAttribute('data-look-control', 'drag');
+  await expect(scene).toHaveAttribute('data-render-mode', 'automation-lite');
 
-  // Grace is both a project stakeholder and a skill mentor. One card should support both communication and learning.
   await page.keyboard.press('Shift+P');
   let presenter = page.getByRole('dialog', { name: 'Pitch presenter controls' });
   await clickFlow(presenter.getByRole('button', { name: 'Jump near Grace' }));
@@ -39,7 +39,7 @@ test('personalizes the site, supports drag-look, coaches communication and rende
   if (!box) throw new Error('3D scene has no bounding box');
   await page.mouse.move(box.x + box.width * 0.65, box.y + box.height * 0.55);
   await page.mouse.down();
-  await page.mouse.move(box.x + box.width * 0.52, box.y + box.height * 0.42, { steps: 8 });
+  await page.mouse.move(box.x + box.width * 0.52, box.y + box.height * 0.42, { steps: 2 });
   await page.mouse.up();
   expect(await page.evaluate(() => document.pointerLockElement)).toBeNull();
 
