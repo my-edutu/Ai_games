@@ -2,11 +2,17 @@ import { expect, test } from '@playwright/test';
 
 const ppe = ['Hard hat', 'High-visibility vest', 'Safety boots', 'Safety glasses'];
 
+async function signIn(page: import('@playwright/test').Page, name = 'Amina Yusuf') {
+  await page.getByLabel('Your name').fill(name);
+  await page.getByRole('button', { name: 'Enter BuildSite' }).click();
+}
+
 test('guided pitch flow reaches an evidence-backed readiness report with simplified work UI', async ({ page }) => {
   test.setTimeout(60_000);
 
   await page.goto('/?demo=true');
-  await expect(page.getByText('TURNVE BUILDSITE')).toBeVisible();
+  await signIn(page);
+  await expect(page.getByText(/Amina Yusuf/)).toBeVisible();
   await page.getByRole('button', { name: 'Skip fly-through' }).click();
 
   await expect(page.getByRole('heading', { name: 'Site induction: select your PPE' })).toBeVisible();
@@ -19,6 +25,7 @@ test('guided pitch flow reaches an evidence-backed readiness report with simplif
   await page.getByRole('button', { name: 'Present PPE to security' }).click();
 
   await expect(page.getByRole('heading', { name: /Maya Okafor/ })).toBeVisible();
+  await expect(page.getByText(/Amina Yusuf/)).toBeVisible();
   await page.getByRole('button', { name: 'Begin guided site walk' }).click();
   await expect(page.getByText('Inspect the site and record evidence.')).toBeVisible();
   await expect(page.locator('.metric-card')).toHaveCount(0);
