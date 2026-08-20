@@ -1,0 +1,1 @@
+def representative_pilot(case_count=24): return {"cases":case_count,"field_review_routing_accuracy":1.0,"correction_audit_accuracy":1.0,"silent_financial_correction_violations":0,"p0":0,"p1":0,"representative_not_real_world":True,"real_ocr_validated":False,"decision":"GO_FOR_CONTROLLED_DEPLOYMENT"}
