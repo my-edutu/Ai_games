@@ -1,0 +1,11 @@
+{
+  "cases": 24,
+  "correction_audit_accuracy": 1.0,
+  "decision": "GO_FOR_CONTROLLED_DEPLOYMENT",
+  "field_review_routing_accuracy": 1.0,
+  "p0": 0,
+  "p1": 0,
+  "real_ocr_validated": false,
+  "representative_not_real_world": true,
+  "silent_financial_correction_violations": 0
+}

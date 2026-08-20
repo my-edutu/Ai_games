@@ -1,0 +1,14 @@
+{
+  "category_artifact_sha256": "21730b6b6187502e5fc66f3cfbbb65b571e33a6d837574ea7e7165c318d52087",
+  "category_unseen_phrase_accuracy": 1.0,
+  "dataset_sha256": "06257e99e9d2ca39626b93fe517e3814db0a44e7c721a5599b30d488ad1e946a",
+  "evaluation_scope": "held_out_vendor_templates_representative_text_fixtures",
+  "holdout_count": 10,
+  "holdout_vendor_templates": ["Office Mart"],
+  "parser_artifact_sha256": "7a22f16c22659703036fa7134e7334b0b39c61cc3c86c19fb500c99cf85e236b",
+  "real_ocr_validated": false,
+  "representative_not_real_world": true,
+  "review_rate": 0.0,
+  "total_mae": 0.0,
+  "vendor_exact_accuracy": 1.0
+}
