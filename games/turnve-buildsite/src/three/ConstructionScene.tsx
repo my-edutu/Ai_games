@@ -5,6 +5,7 @@ import { weatherForMinute } from '../simulation/experience';
 import { scenario } from '../simulation/scenario';
 import type { WeatherState } from '../simulation/types';
 import { useSimulationStore } from '../state/store';
+import { preStartCinematicPose } from './cinematic';
 import { HeroEquipmentLayer } from './equipment/HeroEquipmentLayer';
 import { addVirtualLook } from './input';
 import { PlayerController } from './PlayerController';
@@ -26,19 +27,44 @@ function effectiveWeather(stateWeather: WeatherState, minute: number): WeatherSt
 
 function CinematicRig() {
   const { camera } = useThree();
-  const startedAt = useRef<number | null>(null);
+  const preStartBeganAt = useRef<number | null>(null);
+  const entryBeganAt = useRef<number | null>(null);
+  const entryFromPosition = useRef(new THREE.Vector3());
+  const entryFromTarget = useRef(new THREE.Vector3());
+  const lastTarget = useRef(new THREE.Vector3(-6, 1.5, 10));
   const started = useSimulationStore((state) => state.started);
   const stage = useSimulationStore((state) => state.stage);
   const dispatch = useSimulationStore((state) => state.dispatch);
+
   useFrame(({ clock }) => {
-    if (!started || stage !== 'intro') { startedAt.current = null; return; }
-    if (startedAt.current === null) startedAt.current = clock.elapsedTime;
-    const elapsed = clock.elapsedTime - startedAt.current;
-    const t = THREE.MathUtils.clamp(elapsed / 7, 0, 1);
+    if (!started) {
+      entryBeganAt.current = null;
+      if (preStartBeganAt.current === null) preStartBeganAt.current = clock.elapsedTime;
+      const pose = preStartCinematicPose(clock.elapsedTime - preStartBeganAt.current);
+      camera.position.set(...pose.position);
+      lastTarget.current.set(...pose.target);
+      camera.lookAt(lastTarget.current);
+      return;
+    }
+
+    preStartBeganAt.current = null;
+    if (stage !== 'intro') {
+      entryBeganAt.current = null;
+      return;
+    }
+
+    if (entryBeganAt.current === null) {
+      entryBeganAt.current = clock.elapsedTime;
+      entryFromPosition.current.copy(camera.position);
+      entryFromTarget.current.copy(lastTarget.current);
+    }
+
+    const elapsed = clock.elapsedTime - entryBeganAt.current;
+    const t = THREE.MathUtils.clamp(elapsed / 2.6, 0, 1);
     const smooth = t * t * (3 - 2 * t);
-    const angle = -0.9 + smooth * 1.65;
-    camera.position.set(Math.sin(angle) * 24, 7 - smooth * 3.5, Math.cos(angle) * 24);
-    camera.lookAt(2, 1.5, 0);
+    camera.position.lerpVectors(entryFromPosition.current, new THREE.Vector3(0, 3.4, 20), smooth);
+    lastTarget.current.lerpVectors(entryFromTarget.current, new THREE.Vector3(3, 1.45, 0), smooth);
+    camera.lookAt(lastTarget.current);
     if (t >= 1) dispatch({ type: 'FINISH_INTRO' });
   });
   return null;
@@ -162,6 +188,8 @@ function SiteEnvironment({ weather, quality }: { weather: WeatherState; quality:
 export function ConstructionScene({ paused }: { paused: boolean }) {
   const stateWeather = useSimulationStore((state) => state.weather);
   const simulatedMinute = useSimulationStore((state) => state.simulatedMinute);
+  const started = useSimulationStore((state) => state.started);
+  const stage = useSimulationStore((state) => state.stage);
   const activeSkillId = useSimulationStore((state) => state.skillMentor.activeSkillId);
   const skillPhase = useSimulationStore((state) => state.skillMentor.phase);
   const [dragging, setDragging] = useState(false);
@@ -171,6 +199,7 @@ export function ConstructionScene({ paused }: { paused: boolean }) {
   const weather = effectiveWeather(stateWeather, simulatedMinute);
   const sky = weather === 'rain' ? '#566770' : weather === 'cloudy' ? '#87979e' : '#9abed0';
   const skillFocus = skillPhase === 'idle' ? 'none' : activeSkillId ?? 'none';
+  const cinematicMode = !started ? 'prestart-loop' : stage === 'intro' ? 'entry-transition' : 'none';
 
   useEffect(() => {
     const update = () => setQuality(detectRenderQuality());
@@ -189,6 +218,7 @@ export function ConstructionScene({ paused }: { paused: boolean }) {
       data-look-control="drag"
       data-weather={weather}
       data-skill-focus={skillFocus}
+      data-cinematic-mode={cinematicMode}
       data-render-quality={quality}
       data-realism="enhanced"
       onPointerDown={(event) => {
