@@ -1,0 +1,2 @@
+# Document Expense Intelligence — Implementation
+Representative document-to-expense engineering pipeline with field confidence, validation/reconciliation, anomaly and duplicate review, immutable corrections, category model, fail-closed API, monitoring, rollback and explicit real-OCR production gate.
