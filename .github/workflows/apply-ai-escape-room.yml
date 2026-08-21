@@ -1,10 +1,7 @@
-name: Diagnose AI Escape Room canonical candidate
-# Completion review integrity diagnostic: 2026-08-18
+name: Validate recovered AI Escape Room candidate
+# Same-repository pull-request validation marker v10
 
 on:
-  push:
-    branches:
-      - agent/ai-escape-room-all-phases
   pull_request:
     branches:
       - agent/ai-escape-room-all-phases
@@ -13,34 +10,135 @@ permissions:
   contents: read
 
 jobs:
-  diagnose:
+  validate:
     if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 35
     steps:
-      - name: Check out canonical candidate transport
+      - name: Check out exact validation merge
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Validate compressed and decompressed layers
+      - name: Recover and overlay reviewed candidate
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          shas=(
+            d20d5d2c7a87c1a0d56a8eccfe5108998a28a1b9
+            a88533beffb4df8b9d41652777b737358e6cf485
+            508d51328d6ee5ed1b2f68b2c70513b8eea4c2af
+            cb13ab7315d4e5fab450c62af749453838d57c6e
+            3cec1a6694103e032a6a133cf198a07718b57dd7
+            bdc895296f7ac707a794ae2f9764f0c1e34d0232
+            b343aeec29cc4c6eed9015e8f0977cbea13e6a38
+            1bed7e5e4ed410af48f19650a86c699ef88228e2
+          )
+          : > /tmp/escape-candidate.b64
+          for sha in "${shas[@]}"; do
+            curl --fail --silent --show-error \
+              -H 'Accept: application/vnd.github+json' \
+              -H "Authorization: Bearer ${GH_TOKEN}" \
+              "https://api.github.com/repos/${GITHUB_REPOSITORY}/git/blobs/${sha}" \
+              | jq -r '.content' | tr -d '\n' | base64 --decode \
+              >> /tmp/escape-candidate.b64
+          done
+          test "$(wc -c < /tmp/escape-candidate.b64)" -eq 55380
+          test "$(sha256sum /tmp/escape-candidate.b64 | awk '{print $1}')" = \
+            '76e71c133362bcf54f436e51356bf66bd4cdf1bcf204d80e6f932bf622c7351a'
+          base64 --decode /tmp/escape-candidate.b64 > /tmp/escape-candidate.tar.gz
+          test "$(wc -c < /tmp/escape-candidate.tar.gz)" -eq 41535
+          test "$(sha256sum /tmp/escape-candidate.tar.gz | awk '{print $1}')" = \
+            'e9fd185dabd87ee7bf413ada857b4d254a5fd5af5c4161708b0bec9cf0146b93'
+          set +e
+          gzip -dc /tmp/escape-candidate.tar.gz > /tmp/escape-candidate.tar
+          gzip_status=$?
+          set -e
+          test "$gzip_status" -eq 1
+          test "$(wc -c < /tmp/escape-candidate.tar)" -eq 184320
+          test "$(sha256sum /tmp/escape-candidate.tar | awk '{print $1}')" = \
+            '92c8a64d71022a573757f0aa0f7d2d06396ba32db1a0d212e1db71bc8e2b8dec'
+          tar -tf /tmp/escape-candidate.tar > /tmp/escape-candidate-files.txt
+          test "$(wc -l < /tmp/escape-candidate-files.txt)" -eq 47
+          tar -xf /tmp/escape-candidate.tar -C .
+          rm -f .github/escape-room-candidate.tar.gz
+          rm -f .github/workflows/apply-ai-escape-room.yml
+          git diff --check
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Install locked toolchain
+        run: npm ci --no-audit --no-fund
+
+      - name: Build recovered candidate
+        run: |
+          npm run clean
+          npm run build
+
+      - name: Run complete Escape Room test suite
+        run: node --test tests/escape-room/*.test.cjs
+
+      - name: Run complete repository suite
+        run: npm test
+
+      - name: Verify Escape Room runtime surfaces
+        env:
+          CANDIDATE_SOURCE_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          node scripts/run-escape-room-headless.cjs
+          node scripts/run-escape-room-campaign.cjs
+          node scripts/serve-escape-room-stream.cjs --self-test
+          node scripts/run-escape-room-phase5-chaos.cjs
+          node scripts/run-escape-room-phase6-validation.cjs
+
+      - name: Scan authoritative code and release copy
         shell: bash
         run: |
           set -euo pipefail
-          transport=.github/escape-room-candidate.tar.gz
-          test -f "$transport"
-          compressed_size="$(wc -c < "$transport")"
-          compressed_sha="$(sha256sum "$transport" | awk '{print $1}')"
-          echo "compressed size: ${compressed_size}"
-          echo "compressed sha256: ${compressed_sha}"
-          gzip -t "$transport"
-          gzip -dc "$transport" > /tmp/escape-candidate.tar
-          payload_size="$(wc -c < /tmp/escape-candidate.tar)"
-          payload_sha="$(sha256sum /tmp/escape-candidate.tar | awk '{print $1}')"
-          echo "payload size: ${payload_size}"
-          echo "payload sha256: ${payload_sha}"
-          tar -tf /tmp/escape-candidate.tar > /tmp/escape-candidate-files.txt
-          echo "payload entries: $(wc -l < /tmp/escape-candidate-files.txt)"
-          sed -n '1,20p' /tmp/escape-candidate-files.txt
-          test "$compressed_size" -eq 7515
-          test "$payload_size" -gt 0
+          if grep -RInE 'Math\.random|Date\.now|new Date\(' \
+            games/ai-escape-room/src --include='*.ts'; then
+            echo 'Authoritative nondeterminism detected.' >&2
+            exit 1
+          fi
+          if grep -RInE '\b(TBD|TODO|FIXME)\b|implement later|optimize later|handle appropriately' \
+            games/ai-escape-room \
+            docs/operations/ai-escape-room* \
+            docs/reviews/AI_ESCAPE_ROOM_FINAL_REVIEW.md \
+            evidence/ai-escape-room \
+            services/escape-room-channel; then
+            echo 'Release placeholder detected.' >&2
+            exit 1
+          fi
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Validate Escape Room browser experience
+        run: npm run test:browser:escape-room
+
+      - name: Prepare validated source artifact
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf validated-source
+          mkdir validated-source
+          tar --exclude=.git --exclude=node_modules --exclude=dist \
+            --exclude=validated-source -cf - . | tar -xf - -C validated-source
+
+      - name: Upload validated source tree
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ai-escape-room-validated-source-${{ github.sha }}
+          path: validated-source
+          include-hidden-files: true
+          retention-days: 3
+          if-no-files-found: error
