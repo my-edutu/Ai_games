@@ -28,6 +28,9 @@ export {
   setBattleInfluenceProviderStatus,
   submitBattleAudienceInput,
 } from './influence/reducer';
+export { createBattleSnapshotEnvelope, restoreBattleSnapshotEnvelope } from './persistence/snapshot';
+export { BattleReplayJournal } from './persistence/replay';
+export { BattleOperationsSupervisor, BattleOutputRecoveryWorkflow, runBattleRoyalePhase5Chaos } from './operations/supervisor';
 export type * from './state/types';
 export type * from './presentation/snapshot';
 export type * from './presentation/layout';
@@ -36,3 +39,6 @@ export type * from './presentation/audio';
 export type * from './presentation/controller';
 export type * from './presentation/health';
 export type * from './influence/gateway';
+export type * from './persistence/snapshot';
+export type * from './persistence/replay';
+export type * from './operations/supervisor';
