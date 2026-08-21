@@ -3,11 +3,14 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const { spawn } = require('node:child_process');
+const fs = require('node:fs');
 const net = require('node:net');
 const path = require('node:path');
 
 const ROOT = path.resolve(__dirname, '..', '..');
 const SCRIPT = path.join(ROOT, 'scripts', 'serve-battle-royale-stream.cjs');
+const APP = path.join(ROOT, 'public', 'ai-battle-royale', 'app.js');
+const HTML = path.join(ROOT, 'public', 'ai-battle-royale', 'index.html');
 
 function reservePort() {
   return new Promise((resolve, reject) => {
@@ -64,4 +67,11 @@ test('Battle Royale stream survives malformed viewport query input', async (t) =
   const healthResponse = await fetch(`http://127.0.0.1:${port}/battle/health`);
   assert.equal(healthResponse.status, 200);
   assert.equal(child.exitCode, null);
+});
+
+test('Battle Royale operator secret is never sourced from the page URL', () => {
+  const app = fs.readFileSync(APP, 'utf8');
+  const html = fs.readFileSync(HTML, 'utf8');
+  assert.equal(app.includes("params.get('operatorToken')"), false);
+  assert.match(html, /id="operator-token"[^>]*type="password"/);
 });
