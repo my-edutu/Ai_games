@@ -2,7 +2,7 @@
 const test=require('node:test');const assert=require('node:assert/strict');
 const {NamedRng}=require('../../dist/packages/seeded-rng/src/index.js');
 const {FloorsRuntime}=require('../../dist/games/ai-vs-1000-floors/src/runtime/run.js');
-const {submitFloorsInfluence,applyScheduledFloorsInfluence,openFloorsVote,submitFloorsVote,resolveFloorsVote}=require('../../dist/games/ai-vs-1000-floors/src/influence/system.js');
+const {submitFloorsInfluence,applyScheduledFloorsInfluence,reverseFloorsInfluence,openFloorsVote,submitFloorsVote,resolveFloorsVote}=require('../../dist/games/ai-vs-1000-floors/src/influence/system.js');
 
 const request=(id,effectId='supply-cache',tick=0)=>({id,effectId,source:'free',receivedAtTick:tick,policyVersion:'floors-influence-v1'});
 
@@ -22,6 +22,11 @@ test('scheduled effects apply at most once and remain bounded',()=>{
   let applied=applyScheduledFloorsInfluence(state,state.tick+2,NamedRng.fromSeed('apply'));state=applied.state;
   assert.equal(applied.applied.length,1);assert.ok(state.player.health<=state.player.maxHealth);assert.ok(state.player.credits<=99);assert.ok(state.influence.pressure>=0&&state.influence.pressure<=5);
   const repeated=applyScheduledFloorsInfluence(state,state.tick+2,NamedRng.fromSeed('apply'));assert.equal(repeated.applied.length,0);assert.ok(state.player.health>=before.health);assert.ok(state.player.credits>=before.credits);
+  assert.equal(reverseFloorsInfluence(state,'cache').status,'already-applied');
+});
+
+test('queued reversal prevents application without pretending applied state was undone',()=>{
+  let state=FloorsRuntime.create({},'reverse').state;state=submitFloorsInfluence(state,request('queued-cache')).state;const reversed=reverseFloorsInfluence(state,'queued-cache');assert.equal(reversed.status,'reversed');const applied=applyScheduledFloorsInfluence(reversed.state,reversed.state.tick+2,NamedRng.fromSeed('reverse'));assert.equal(applied.applied.length,0);assert.equal(Object.prototype.hasOwnProperty.call(applied.state.influence.applied,'queued-cache'),false);
 });
 
 test('paid and free sources share the same eligibility and cannot encode terminal outcomes',()=>{
@@ -32,7 +37,7 @@ test('paid and free sources share the same eligibility and cannot encode termina
   const json=JSON.stringify(paid.state.influence);for(const forbidden of ['winner','victory','defeat','cash','amount','message','displayName'])assert.equal(json.includes(forbidden),false,forbidden);
 });
 
-test('votes use logical ticks, one identity vote, and deterministic tie resolution',()=>{
+test('votes use logical ticks, one identity vote, deterministic ties, and report queue result',()=>{
   let state=FloorsRuntime.create({},'vote').state;
   let opened=openFloorsVote(state,['route-scan','hazard-pulse'],state.tick+10);state=opened.state;
   state=submitFloorsVote(state,opened.vote.id,'viewer-a','route-scan').state;
@@ -40,5 +45,5 @@ test('votes use logical ticks, one identity vote, and deterministic tie resoluti
   assert.equal(submitFloorsVote(state,opened.vote.id,'viewer-a','hazard-pulse').status,'duplicate');
   const a=resolveFloorsVote(state,opened.vote.id,state.tick+10,NamedRng.fromSeed('vote-tie'));
   const b=resolveFloorsVote(state,opened.vote.id,state.tick+10,NamedRng.fromSeed('vote-tie'));
-  assert.equal(a.status,'resolved');assert.equal(a.winner,b.winner);assert.ok(['route-scan','hazard-pulse'].includes(a.winner));
+  assert.equal(a.status,'resolved');assert.equal(a.winner,b.winner);assert.ok(['route-scan','hazard-pulse'].includes(a.winner));assert.ok(['queued','blocked'].includes(a.applicationStatus));
 });
