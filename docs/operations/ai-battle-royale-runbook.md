@@ -18,7 +18,7 @@ The operator watches logical tick progress, render change, expected audio activi
 
 ## Mandatory drill catalogue
 
-The implementation contract and production drill programme use the same identifiers: `database-outage`, `storage-outage`, `restored-object-seam`, `canary-corruption`, `secret-missing`, `provider-unavailable`, `queue-backpressure`, `backup-corruption`, `restore-corruption`, `runtime-failure`, `presentation-failure`, `audio-failure`, `cache-staleness`, `region-loss`, `dependency-timeout`, `high-latency`, `packet-loss`, `disk-pressure`, `memory-pressure`, `cpu-pressure`, `process-restart-storm`, `network-partition`, `write-fencing`, `replay-reconciliation`, `scene-fallback`, and `canary-rollback`.
+The implementation contract and production drill programme use the same identifiers as the shared release validator: `provider-outage`, `moderation-outage`, `entitlement-outage`, `audit-outage`, `disable-interactions`, `disable-public-text`, `simulation-failure`, `renderer-failure`, `audio-failure`, `gateway-failure`, `persistence-failure`, `black-output`, `frozen-output`, `wrong-scene`, `silent-output`, `verified-restore`, `older-snapshot-fallback`, `divergence-quarantine`, `credential-rotation`, `credential-revocation`, `config-rollback`, `content-rollback`, `deployment-rollback`, `safe-intermission`, `emergency-halt`, and `alert-escalation`.
 
 CI may verify the drill mechanisms and runbook mappings, but that is implementation evidence only. Production drill credit requires the exact release candidate, production-reference conditions, timestamps, output evidence, and an independent witness where the release policy requires one. Synthetic or compressed execution cannot satisfy production drill truth.
 
