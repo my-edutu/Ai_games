@@ -51,6 +51,7 @@ export const FLOORS_MODULES:readonly ModuleDefinition[]=[
   {id:'architect-sigil',name:'Architect Sigil',maxStacks:1,effect:'finale-resistance'},
 ] as const;
 
+const WARDEN_FLOORS=[100,200,300,400,500,600,700,800,900,950] as const;
 const WARDEN_NAMES=['Gatekeeper Nox','Forge Regent','Garden Bell','Glass Marshal','Null Custodian','Archive Tempest','Lattice Crown','Reservoir Maw','Engine Prefect','Spine Herald'] as const;
 
 export function sectorForFloor(floor:number):SectorDefinition{
@@ -61,11 +62,11 @@ export function enemyDefinition(id:EnemyKind):EnemyDefinition{return ENEMIES[id]
 export function hazardDefinition(id:HazardKind):HazardDefinition{return HAZARDS[id]}
 export function moduleDefinition(id:string):ModuleDefinition{const found=FLOORS_MODULES.find(module=>module.id===id);if(!found)throw new RangeError('module');return found}
 export function isCheckpointFloor(floor:number):boolean{return Number.isInteger(floor)&&floor>=25&&floor<=1000&&floor%25===0}
-export function isWardenFloor(floor:number):boolean{return Number.isInteger(floor)&&floor>=100&&floor<1000&&floor%100===0}
+export function isWardenFloor(floor:number):boolean{return Number.isInteger(floor)&&WARDEN_FLOORS.includes(floor as typeof WARDEN_FLOORS[number])}
 export function bossDefinition(floor:number):BossDefinition{
   if(floor===1000)return{id:'the-architect',name:'The Architect',floor:1000,kind:'architect',signature:'six-family hazard cycle'};
-  if(!isWardenFloor(floor))throw new RangeError('boss floor');
-  const index=floor/100-1;return{id:`warden-${index+1}`,name:WARDEN_NAMES[index],floor,kind:'warden',signature:FLOORS_SECTORS[index].tone};
+  const index=WARDEN_FLOORS.indexOf(floor as typeof WARDEN_FLOORS[number]);if(index<0)throw new RangeError('boss floor');
+  return{id:`warden-${index+1}`,name:WARDEN_NAMES[index],floor,kind:'warden',signature:sectorForFloor(floor).tone};
 }
 
 export function weightedEnemyKind(floor:number,roll:number):EnemyKind{
