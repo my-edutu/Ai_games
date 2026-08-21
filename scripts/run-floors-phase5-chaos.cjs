@@ -1,7 +1,7 @@
 'use strict';
 const {FloorsRuntime}=require('../dist/games/ai-vs-1000-floors/src/runtime/run.js');
 const {encodeFloorsSnapshot}=require('../dist/games/ai-vs-1000-floors/src/persistence/snapshot.js');
-const {FloorsDurableStore,acquireFloorsLease,restoreFloorsAuthority,assessFloorsHealth,verifyFloorsContinuity}=require('../dist/games/ai-vs-1000-floors/src/operations/system.js');
+const {FloorsDurableStore,acquireFloorsLease,forceAcquireFloorsLease,restoreFloorsAuthority,assessFloorsHealth,verifyFloorsContinuity}=require('../dist/games/ai-vs-1000-floors/src/operations/system.js');
 
 const label=process.argv[2]||'floors-phase5-chaos';
 const scenarios=[];
@@ -17,11 +17,12 @@ for(let i=0;i<4;i++)runtime.step();
 const corrupt=encodeFloorsSnapshot(runtime);corrupt.checksum='00000000';
 const bad=store.storeSnapshotEnvelope(corrupt,runtime.state.tick,lease);
 const restored=restoreFloorsAuthority(store);
-record('corrupt-newest-fallback',restored.status==='restored'&&restored.usedSequence===good.sequence&&restored.rejectedSequences.includes(bad.sequence)&&verifyFloorsContinuity(expected,restored.runtime),{status:restored.status,rejected:restored.rejectedSequences});
+record('corrupt-newest-fallback',restored.status==='restored'&&restored.usedSequence===good.sequence&&restored.rejectedSequences.includes(bad.sequence)&&restored.runtime&&verifyFloorsContinuity(expected,restored.runtime),{status:restored.status,rejected:restored.rejectedSequences});
 
-const oldLease=lease;lease=acquireFloorsLease(store,'worker-b',runtime.state.tick,100);
+const oldLease=lease;let takeoverBlocked=false;try{acquireFloorsLease(store,'worker-b',runtime.state.tick,100)}catch(error){takeoverBlocked=String(error.message).includes('LEASE_HELD')}
+lease=forceAcquireFloorsLease(store,'worker-b',runtime.state.tick,100);
 let staleRejected=false;try{store.append('event',runtime.state.tick,{kind:'stale-writer'},oldLease)}catch(error){staleRejected=String(error.message).includes('STALE_LEASE')}
-record('fenced-stale-writer',staleRejected,{generation:lease.generation});
+record('explicit-failover-fences-stale-writer',takeoverBlocked&&staleRejected,{generation:lease.generation,takeoverBlocked});
 
 const quarantineStore=new FloorsDurableStore();const qLease=acquireFloorsLease(quarantineStore,'worker-q',0,100);const qRuntime=FloorsRuntime.create({},`${label}:quarantine`);const q=encodeFloorsSnapshot(qRuntime);q.checksum='deadbeef';quarantineStore.storeSnapshotEnvelope(q,0,qLease);const quarantined=restoreFloorsAuthority(quarantineStore);record('all-corrupt-quarantine',quarantined.status==='quarantined'&&!quarantined.runtime,{status:quarantined.status});
 
