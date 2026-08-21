@@ -1,0 +1,14 @@
+'use strict';
+const http=require('node:http'),fs=require('node:fs'),path=require('node:path');
+const {FloorsRuntime}=require('../dist/games/ai-vs-1000-floors/src/runtime/run.js');
+const {createFloorsRenderSnapshot}=require('../dist/games/ai-vs-1000-floors/src/presentation/snapshot.js');
+const root=path.resolve(__dirname,'../public/ai-vs-1000-floors');
+const seed=process.env.FLOORS_SEED||'floors-broadcast';
+const runtime=FloorsRuntime.create({},seed);
+let timer=null;
+function publicState(){return createFloorsRenderSnapshot(runtime.state,runtime.peekEvents())}
+function safeFile(urlPath){const name=urlPath==='/'?'index.html':urlPath.replace(/^\/floors\//,'');if(!['index.html','styles.css','app.js'].includes(name))return null;return path.join(root,name)}
+function headers(type){return{'content-type':type,'cache-control':'no-store','x-content-type-options':'nosniff','referrer-policy':'no-referrer','content-security-policy':"default-src 'self'; script-src 'self'; style-src 'self'; connect-src 'self'; img-src 'self' data:; media-src 'none'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'"}}
+function handler(req,res){const u=new URL(req.url,'http://local');if(req.method!=='GET'){res.writeHead(405,headers('text/plain'));return res.end('method not allowed')}if(u.pathname==='/floors/health'){const body=JSON.stringify({ok:true,tick:runtime.state.tick,lifecycle:runtime.state.lifecycle,floor:runtime.state.floor.number});res.writeHead(200,headers('application/json'));return res.end(body)}if(u.pathname==='/floors/state'){const body=JSON.stringify(publicState());res.writeHead(200,headers('application/json'));return res.end(body)}const file=safeFile(u.pathname);if(!file){res.writeHead(404,headers('text/plain'));return res.end('not found')}const ext=path.extname(file),type=ext==='.css'?'text/css; charset=utf-8':ext==='.js'?'application/javascript; charset=utf-8':'text/html; charset=utf-8';res.writeHead(200,headers(type));fs.createReadStream(file).pipe(res)}
+function start(port){timer=setInterval(()=>{for(let i=0;i<2;i++)runtime.step()},250);const server=http.createServer(handler);server.on('close',()=>clearInterval(timer));server.listen(port,()=>process.stdout.write(`floors stream http://127.0.0.1:${port}\n`));return server}
+if(process.argv.includes('--self-test')){for(let i=0;i<80;i++)runtime.step();const view=publicState(),json=JSON.stringify(view);if(!view.gameId||view.floor<1||view.cells.length===0)throw new Error('render-snapshot');for(const word of ['seed','runId','rng','operator','token'])if(json.includes(word))throw new Error(`privacy:${word}`);if(!fs.existsSync(path.join(root,'index.html'))||!fs.existsSync(path.join(root,'styles.css'))||!fs.existsSync(path.join(root,'app.js')))throw new Error('assets');process.stdout.write(JSON.stringify({pass:true,floor:view.floor,tick:view.tick,cells:view.cells.length})+'\n')}else start(Number(process.env.PORT||4176));
