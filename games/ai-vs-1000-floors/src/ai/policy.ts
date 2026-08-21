@@ -6,10 +6,12 @@ import type{FloorsDecision,FloorsState}from'../state/types';
 
 type TargetedMove=FloorsAction&{kind:'move';targetCell:number};
 function isTargetedMove(action:FloorsAction):action is TargetedMove{return action.kind==='move'&&typeof action.targetCell==='number'}
+function moduleStacks(state:FloorsState,id:string):number{return state.player.modules.filter(module=>module===id).length}
+export function productionPlannerBudget(state:FloorsState):number{return Math.min(state.config.maxPlannerExpansions,256+moduleStacks(state,'route-cache')*64)}
 function threat(state:FloorsState,cell:number):number{
   let score=0;
   for(const enemy of state.floor.enemies){const d=manhattan(enemy.cell,cell,state.floor.width);if(d===1)score+=6+enemy.attack;else if(d===2)score+=2}
-  for(const hazard of state.floor.hazards)if(hazard.cell===cell)score+=4;
+  for(const hazard of state.floor.hazards)if(hazard.cell===cell)score+=state.player.modules.includes('hazard-lens')?6:4;
   return score;
 }
 
@@ -31,7 +33,7 @@ export function chooseProductionAction(state:FloorsState):FloorsDecision{
   }
   const target=nearestTarget(state),blocked=new Set(state.floor.enemies.map(e=>e.cell));
   if(target!==state.floor.exit)blocked.delete(target);
-  const route=shortestPath(state.floor,state.player.cell,new Set([target]),blocked,state.config.maxPlannerExpansions);
+  const route=shortestPath(state.floor,state.player.cell,new Set([target]),blocked,productionPlannerBudget(state));
   const next=route.path[1];
   if(route.reached&&next!==undefined){const move=legal.find(a=>isTargetedMove(a)&&a.targetCell===next);if(move&&threat(state,next)<=7)return{action:move,mode:'tactical',confidence:threat(state,next)<=2?'high':'medium',intent:target===state.floor.exit?'Advancing toward the verified exit.':'Closing on the sector guardian.',reason:'threat-aware-route',expansions:route.expansions}}
   const rewardMoves=legal.filter(isTargetedMove).filter(a=>state.floor.rewardCells.includes(a.targetCell)).sort((a,b)=>threat(state,a.targetCell)-threat(state,b.targetCell)||actionKey(a).localeCompare(actionKey(b)));
