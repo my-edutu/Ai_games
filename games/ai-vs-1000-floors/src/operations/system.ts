@@ -14,7 +14,8 @@ export class FloorsDurableStore{
   renew(lease:FloorsLease,nowTick:number,ttlTicks=100):FloorsLease{this.assertLease(lease,nowTick);this.lease={...lease,expiresAtTick:nowTick+ttlTicks};return structuredClone(this.lease)}
   assertLease(lease:FloorsLease,nowTick:number):void{if(!this.lease||lease.owner!==this.lease.owner||lease.generation!==this.lease.generation||this.lease.expiresAtTick<nowTick)throw new Error('STALE_LEASE')}
   append(kind:FloorsJournalEntry['kind'],tick:number,payload:unknown,lease:FloorsLease):FloorsJournalEntry{this.assertLease(lease,tick);const entry={sequence:this.nextSequence++,kind,tick,payloadHash:checksum(payload),leaseGeneration:lease.generation};this.journal.push(entry);if(this.journal.length>4096)this.journal.splice(0,this.journal.length-4096);return structuredClone(entry)}
-  saveRuntime(runtime:FloorsRuntime,lease:FloorsLease):FloorsStoredSnapshot{const envelope=encodeFloorsSnapshot(runtime);const entry=this.append('snapshot',runtime.state.tick,envelope,lease);const stored={sequence:entry.sequence,tick:runtime.state.tick,envelope};this.snapshots.push(stored);if(this.snapshots.length>16)this.snapshots.shift();return structuredClone(stored)}
+  storeSnapshotEnvelope(envelope:FloorsSnapshotEnvelope,tick:number,lease:FloorsLease):FloorsStoredSnapshot{const entry=this.append('snapshot',tick,envelope,lease),stored={sequence:entry.sequence,tick,envelope:structuredClone(envelope)};this.snapshots.push(stored);if(this.snapshots.length>16)this.snapshots.shift();return structuredClone(stored)}
+  saveRuntime(runtime:FloorsRuntime,lease:FloorsLease):FloorsStoredSnapshot{return this.storeSnapshotEnvelope(encodeFloorsSnapshot(runtime),runtime.state.tick,lease)}
   entries():FloorsJournalEntry[]{return structuredClone(this.journal)}
   recentSnapshots():FloorsStoredSnapshot[]{return structuredClone(this.snapshots)}
 }
