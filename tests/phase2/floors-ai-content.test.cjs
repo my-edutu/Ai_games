@@ -1,7 +1,10 @@
 'use strict';
 const test=require('node:test');
 const assert=require('node:assert/strict');
+const {NamedRng}=require('../../dist/packages/seeded-rng/src/index.js');
 const {FloorsRuntime}=require('../../dist/games/ai-vs-1000-floors/src/runtime/run.js');
+const {DEFAULT_FLOORS_CONFIG}=require('../../dist/games/ai-vs-1000-floors/src/config/schema.js');
+const {generateFloor}=require('../../dist/games/ai-vs-1000-floors/src/generation/floor.js');
 const {sectorForFloor,enemyDefinition,hazardDefinition,moduleDefinition,bossDefinition,isCheckpointFloor,isWardenFloor,FLOORS_MODULES}=require('../../dist/games/ai-vs-1000-floors/src/content/catalogue.js');
 const {chooseProductionAction}=require('../../dist/games/ai-vs-1000-floors/src/ai/policy.js');
 const {listLegalActions,actionKey}=require('../../dist/games/ai-vs-1000-floors/src/rules/step.js');
@@ -30,6 +33,21 @@ test('production catalogue exposes bounded enemy hazard module and boss families
   const wardens=Array.from({length:10},(_,i)=>bossDefinition((i+1)*100));
   assert.equal(new Set(wardens.map(x=>x.id)).size,10);
   assert.equal(bossDefinition(1000).id,'the-architect');
+});
+
+test('every required Warden and Architect is placed on the protected mandatory route',()=>{
+  for(const floorNumber of [100,200,300,400,500,600,700,800,900,1000]){
+    for(let seed=0;seed<20;seed++){
+      const floor=generateFloor(DEFAULT_FLOORS_CONFIG,floorNumber,NamedRng.fromSeed(`guardian-${floorNumber}-${seed}`));
+      const expectedKind=floorNumber===1000?'architect':'warden';
+      const guardian=floor.enemies.find(enemy=>enemy.kind===expectedKind);
+      assert.ok(guardian,`${floorNumber}:${seed}:missing-guardian`);
+      assert.ok(floor.mandatoryPath.includes(guardian.cell),`${floorNumber}:${seed}:guardian-off-route`);
+      assert.notEqual(guardian.cell,floor.start,`${floorNumber}:${seed}:guardian-at-start`);
+      assert.notEqual(guardian.cell,floor.exit,`${floorNumber}:${seed}:guardian-at-exit`);
+      assert.equal(floor.walls.includes(guardian.cell),false,`${floorNumber}:${seed}:guardian-in-wall`);
+    }
+  }
 });
 
 test('production policy only returns exact legal actions over an adversarial corpus',()=>{
