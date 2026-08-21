@@ -1,0 +1,105 @@
+:root{
+  --color-bg:#0c0b08;
+  --color-surface:rgba(25,21,15,.9);
+  --color-surface-strong:rgba(14,12,9,.97);
+  --color-text:#fbf4df;
+  --color-muted:#b9af98;
+  --color-progress:#d7b46a;
+  --color-warning:#f0a84e;
+  --color-danger:#e86b5b;
+  --color-focus:#9adfd0;
+  --kingdom-green:#7fa67b;
+  --kingdom-blue:#77a9b7;
+}
+
+body[data-ux-revision="2"]{
+  background:
+    radial-gradient(circle at 48% 16%,rgba(117,85,39,.16),transparent 31%),
+    linear-gradient(180deg,#110f0b 0,#0b0a08 100%);
+  color:var(--color-text);
+}
+
+body[data-ux-revision="2"] .topbar{
+  padding:clamp(12px,1.2vw,20px) clamp(14px,1.6vw,26px);
+  gap:clamp(10px,1vw,18px);
+  background:linear-gradient(180deg,rgba(21,18,13,.97),rgba(13,11,8,.94));
+  border-bottom-color:rgba(215,180,106,.14);
+}
+
+body[data-ux-revision="2"] .brand-block h1{font-size:clamp(25px,2.3vw,40px);letter-spacing:-.035em}
+body[data-ux-revision="2"] .eyebrow{color:var(--color-progress);letter-spacing:.14em}
+body[data-ux-revision="2"] #subtitle{color:var(--color-muted)}
+body[data-ux-revision="2"] .status-strip{gap:7px}
+body[data-ux-revision="2"] .status-strip>span{background:rgba(255,255,255,.025);border-color:rgba(215,180,106,.12)}
+
+body[data-ux-revision="2"] .controls{gap:6px}
+body[data-ux-revision="2"] .controls button{
+  min-height:38px;
+  border-color:rgba(215,180,106,.16);
+  background:rgba(15,13,10,.82);
+  color:var(--color-text);
+}
+body[data-ux-revision="2"] .controls button:hover{border-color:rgba(215,180,106,.46)}
+body[data-ux-revision="2"] .controls button:focus-visible,
+body[data-ux-revision="2"] .skip-link:focus-visible{outline:3px solid var(--color-focus);outline-offset:3px}
+
+body[data-ux-revision="2"] #simulation{
+  grid-template-columns:minmax(0,1.55fr) minmax(250px,.7fr);
+  gap:clamp(10px,1vw,16px);
+  padding:clamp(10px,1.2vw,18px);
+}
+
+body[data-ux-revision="2"] .command-card,
+body[data-ux-revision="2"] .world-panel,
+body[data-ux-revision="2"] .realm-panel,
+body[data-ux-revision="2"] .story-panel{
+  border-color:rgba(215,180,106,.13);
+  background:linear-gradient(145deg,rgba(29,24,17,.92),rgba(14,12,9,.94));
+  box-shadow:0 18px 55px rgba(0,0,0,.25);
+}
+
+body[data-ux-revision="2"] .command-card{padding:clamp(12px,1.25vw,20px);border-radius:16px}
+body[data-ux-revision="2"] .command-card h2{font-size:clamp(21px,1.8vw,31px);margin:.2em 0}
+body[data-ux-revision="2"] .danger{min-width:180px;border-radius:12px;background:rgba(255,255,255,.025)}
+body[data-ux-revision="2"] .danger[data-level="stable"]{border-color:rgba(127,166,123,.28)}
+body[data-ux-revision="2"] .danger[data-level="warning"]{border-color:rgba(240,168,78,.55)}
+body[data-ux-revision="2"] .danger[data-level="danger"]{border-color:rgba(232,107,91,.72);box-shadow:0 0 28px rgba(232,107,91,.08)}
+
+body[data-ux-revision="2"] .world-panel{border-radius:18px;padding:clamp(12px,1.2vw,19px)}
+body[data-ux-revision="2"] .kingdom-map{border-radius:14px;background:#151711;box-shadow:inset 0 0 55px rgba(0,0,0,.18)}
+body[data-ux-revision="2"] .progress-track{background:rgba(255,255,255,.065)}
+body[data-ux-revision="2"] #progress-fill{background:linear-gradient(90deg,var(--kingdom-green),var(--color-progress))}
+body[data-ux-revision="2"] .map-legend{color:var(--color-muted)}
+
+body[data-ux-revision="2"] .realm-panel{border-radius:18px;padding:clamp(11px,1vw,16px);gap:9px}
+body[data-ux-revision="2"] .character-card{border-radius:14px;background:rgba(255,255,255,.02)}
+body[data-ux-revision="2"] .score-grid{gap:6px}
+body[data-ux-revision="2"] .score-grid article{border-radius:11px;background:rgba(255,255,255,.018);padding:9px}
+body[data-ux-revision="2"] .score-grid strong{font-size:clamp(18px,1.35vw,24px)}
+body[data-ux-revision="2"] .resources,
+body[data-ux-revision="2"] .court,
+body[data-ux-revision="2"] .rivals{gap:6px}
+
+body[data-ux-revision="2"] .story-panel{border-radius:18px;padding:clamp(11px,1vw,16px)}
+body[data-ux-revision="2"] .event-rail{gap:6px}
+body[data-ux-revision="2"] .event-rail li{border-radius:10px;background:rgba(255,255,255,.018)}
+body[data-ux-revision="2"] .audience-state{color:var(--kingdom-blue)}
+
+body[data-ux-revision="2"] footer{background:rgba(11,10,8,.97);border-top-color:rgba(215,180,106,.12)}
+body[data-ux-revision="2"] .captions{color:var(--color-text)}
+
+@media(max-width:900px),(max-height:600px){
+  body[data-ux-revision="2"] .topbar{padding:7px 9px}
+  body[data-ux-revision="2"] .brand-block h1{font-size:22px}
+  body[data-ux-revision="2"] .brand-block #subtitle{display:none}
+  body[data-ux-revision="2"] #simulation{grid-template-columns:minmax(0,1fr) 210px;gap:6px;padding:6px}
+  body[data-ux-revision="2"] .command-card{padding:8px}
+  body[data-ux-revision="2"] .command-card h2{font-size:17px}
+  body[data-ux-revision="2"] .realm-panel{padding:7px}
+  body[data-ux-revision="2"] .score-grid article{padding:6px}
+  body[data-ux-revision="2"] .story-panel{display:none}
+}
+
+@media(prefers-reduced-motion:reduce){
+  body[data-ux-revision="2"] *,body[data-ux-revision="2"] *::before,body[data-ux-revision="2"] *::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+}
