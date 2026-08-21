@@ -1,0 +1,81 @@
+:root{
+  --color-bg:#050b12;
+  --color-surface:rgba(8,19,29,.86);
+  --color-surface-strong:rgba(5,11,18,.96);
+  --color-text:#f4fbff;
+  --color-muted:#9bb1c0;
+  --color-progress:#58dfbd;
+  --color-warning:#f0c664;
+  --color-danger:#ef6877;
+  --color-focus:#a5edff;
+  --traffic-blue:#6aa9ef;
+}
+
+body[data-ux-revision="2"]{background:var(--color-bg);color:var(--color-text)}
+body[data-ux-revision="2"] .app{background:linear-gradient(160deg,#07131f 0,#07101a 58%,#04080d 100%)}
+body[data-ux-revision="2"] .brand{top:max(16px,env(safe-area-inset-top));left:clamp(15px,2vw,34px);right:clamp(15px,2vw,34px);gap:10px}
+body[data-ux-revision="2"] .brand-mark{width:42px;height:42px;border-radius:12px;border-color:rgba(88,223,189,.4);color:var(--color-progress);box-shadow:0 0 22px rgba(88,223,189,.1)}
+body[data-ux-revision="2"] .eyebrow{color:var(--color-progress);letter-spacing:.15em}
+body[data-ux-revision="2"] .brand h1{font-size:clamp(16px,1.35vw,22px)}
+body[data-ux-revision="2"] .live-pill{padding:7px 11px;background:rgba(38,8,13,.58);border-color:rgba(239,104,119,.28)}
+body[data-ux-revision="2"] .live-pill span{background:var(--color-danger);box-shadow:0 0 10px rgba(239,104,119,.7)}
+
+body[data-ux-revision="2"] .score-panel{
+  top:88px;left:clamp(15px,2vw,34px);width:min(230px,24vw);padding:14px 16px;
+  border-radius:16px;border-color:rgba(88,223,189,.13);background:var(--color-surface);box-shadow:0 16px 48px rgba(0,0,0,.3)
+}
+body[data-ux-revision="2"] .score-panel>strong{font-size:clamp(32px,3.2vw,50px);margin:2px 0 8px}
+body[data-ux-revision="2"] .record-line{padding-top:8px}
+body[data-ux-revision="2"] .record-line b{color:var(--color-progress)}
+
+body[data-ux-revision="2"] .intent-card{
+  top:88px;right:clamp(15px,2vw,34px);width:min(315px,26vw);padding:14px 16px;
+  border-radius:16px;border-color:rgba(106,169,239,.14);background:var(--color-surface);box-shadow:0 16px 48px rgba(0,0,0,.3)
+}
+body[data-ux-revision="2"] .intent-head{color:var(--color-progress)}
+body[data-ux-revision="2"] .intent-card h2{margin:9px 0 5px;font-size:clamp(17px,1.45vw,23px)}
+body[data-ux-revision="2"] .intent-card p{font-size:12px;color:var(--color-muted)}
+
+body[data-ux-revision="2"] .metrics{
+  left:clamp(15px,2vw,34px);bottom:clamp(60px,7vh,86px);width:min(520px,42vw);gap:7px
+}
+body[data-ux-revision="2"] .metrics article{padding:10px 12px;border-radius:12px;border-color:rgba(144,205,255,.12);background:var(--color-surface);box-shadow:0 12px 34px rgba(0,0,0,.25)}
+body[data-ux-revision="2"] .metrics strong{font-size:19px}
+
+body[data-ux-revision="2"] .incident-card,
+body[data-ux-revision="2"] .audience-card{
+  right:clamp(15px,2vw,34px);width:min(315px,26vw);padding:11px 13px;border-radius:12px;
+  background:var(--color-surface);border-color:rgba(144,205,255,.12);box-shadow:0 12px 34px rgba(0,0,0,.25)
+}
+body[data-ux-revision="2"] .incident-card{bottom:122px}
+body[data-ux-revision="2"] .audience-card{bottom:66px}
+body[data-ux-revision="2"] .incident-card strong,
+body[data-ux-revision="2"] .audience-card strong{font-size:12px}
+
+body[data-ux-revision="2"] footer{left:clamp(15px,2vw,34px);right:clamp(15px,2vw,34px);bottom:16px;font-size:11px}
+body[data-ux-revision="2"] #system-status{color:var(--color-progress)}
+body[data-ux-revision="2"] #recovery-overlay{background:rgba(3,8,13,.92)}
+body[data-ux-revision="2"] .spinner{border-color:rgba(88,223,189,.12);border-top-color:var(--color-progress)}
+body[data-ux-revision="2"] .app[data-danger="critical"] .score-panel{border-color:rgba(239,104,119,.55)}
+body[data-ux-revision="2"] .app[data-danger="critical"] #congestion{color:var(--color-danger)}
+body[data-ux-revision="2"] :focus-visible{outline:3px solid var(--color-focus);outline-offset:3px}
+
+@media(max-width:700px){
+  body[data-ux-revision="2"] .brand{top:10px;left:9px;right:9px}
+  body[data-ux-revision="2"] .brand-mark{width:34px;height:34px}
+  body[data-ux-revision="2"] .score-panel{top:56px;left:9px;width:180px;padding:9px 11px}
+  body[data-ux-revision="2"] .score-panel>strong{font-size:30px}
+  body[data-ux-revision="2"] .intent-card{top:56px;right:9px;left:auto;bottom:auto;width:min(46vw,230px);padding:9px 11px}
+  body[data-ux-revision="2"] .intent-card h2{font-size:14px;margin:5px 0 3px}
+  body[data-ux-revision="2"] .intent-card p{display:none}
+  body[data-ux-revision="2"] .metrics{left:9px;bottom:49px;width:calc(100% - 18px);gap:4px}
+  body[data-ux-revision="2"] .metrics article{padding:7px 5px;text-align:center}
+  body[data-ux-revision="2"] .metrics strong{font-size:15px}
+  body[data-ux-revision="2"] .incident-card,
+  body[data-ux-revision="2"] .audience-card{display:none}
+  body[data-ux-revision="2"] footer{left:9px;right:9px;bottom:8px;font-size:8px}
+}
+
+@media(prefers-reduced-motion:reduce){
+  body[data-ux-revision="2"] *,body[data-ux-revision="2"] *::before,body[data-ux-revision="2"] *::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+}
