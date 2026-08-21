@@ -10,3 +10,7 @@ export type MazeIntentMode='oracle-test'|'exploring'|'returning-key'|'unlocking-
 export interface MazeConfig{schemaVersion:1;width:number;height:number;profile:MazeProfile;level:number;intermissionTicks:number;maxTicks:number;visibilityRadius:number;loopChancePermille:number;keyCount:number;trapCount:number;threatCount:number;memoryTtl:number;noProgressTicks:number;repairAttempts:number}
 export interface MazeAction{kind:'move'|'wait'|'interact';direction?:Direction;targetCell?:number}
 export interface MazeRunResult{kind:'game'|'technical';reason:'escape'|'trap-death'|'capture'|'timer-expired'|'stagnation'|'operator-abort'|'integrity-quarantine';tick:number;steps:number;discoveryPermille:number;routeLength:number;finalChecksum?:string}
+
+export interface FloorsConfig{schemaVersion:1;width:number;height:number;totalFloors:1000;intermissionTicks:number;noProgressTicks:number;maxTicksPerFloor:number;baseEnemyBudget:number;maxEnemyBudget:number;maxPlannerExpansions:number;checkpointInterval:25;sectorSize:100}
+export interface FloorsAction{kind:'move'|'attack'|'guard'|'interact'|'ability'|'wait';direction?:Direction;targetCell?:number;abilityId?:string}
+export interface FloorsRunResult{kind:'game'|'technical';reason:'victory'|'player-defeated'|'floor-timeout'|'stagnation'|'operator-abort'|'integrity-quarantine';tick:number;highestFloor:number;score:number;finalChecksum?:string}

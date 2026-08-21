@@ -31,6 +31,12 @@
     "test:tower:phase4": "npm run build && node --test tests/phase4/tower-*.test.cjs",
     "test:tower:phase5": "npm run build && node --test tests/phase5/tower-*.test.cjs",
     "test:tower:phase6": "npm run build && node --test tests/phase6/tower-*.test.cjs",
+    "test:floors:phase1": "npm run build && node --test tests/foundation/floors-*.test.cjs",
+    "test:floors:phase2": "npm run build && node --test tests/foundation/floors-*.test.cjs tests/phase2/floors-*.test.cjs",
+    "test:floors:phase3": "npm run build && node --test tests/phase3/floors-*.test.cjs",
+    "test:floors:phase4": "npm run build && node --test tests/phase4/floors-*.test.cjs",
+    "test:floors:phase5": "npm run build && node --test tests/phase5/floors-*.test.cjs",
+    "test:floors:phase6": "npm run build && node --test tests/phase6/floors-*.test.cjs",
     "test:browser": "playwright test",
     "snake:headless": "npm run build && node scripts/run-snake-headless.cjs",
     "snake:stream": "npm run build && node scripts/serve-snake-stream.cjs",
@@ -53,7 +59,13 @@
     "tower:stream": "npm run build && node scripts/serve-tower-stream.cjs",
     "tower:stream:self-test": "npm run build && node scripts/serve-tower-stream.cjs --self-test",
     "tower:phase5:chaos": "npm run build && node scripts/run-tower-phase5-chaos.cjs",
-    "tower:phase6:validate": "npm run build && node scripts/run-tower-phase6-validation.cjs"
+    "tower:phase6:validate": "npm run build && node scripts/run-tower-phase6-validation.cjs",
+    "floors:headless": "npm run build && node scripts/run-floors-headless.cjs",
+    "floors:campaign": "npm run build && node scripts/run-floors-campaign.cjs",
+    "floors:stream": "npm run build && node scripts/serve-floors-stream.cjs",
+    "floors:stream:self-test": "npm run build && node scripts/serve-floors-stream.cjs --self-test",
+    "floors:phase5:chaos": "npm run build && node scripts/run-floors-phase5-chaos.cjs",
+    "floors:phase6:validate": "npm run build && node scripts/run-floors-phase6-validation.cjs"
   },
   "devDependencies": {
     "@playwright/test": "1.55.0",

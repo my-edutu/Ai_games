@@ -10,5 +10,5 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true
   },
-  "include": ["types/**/*.d.ts", "packages/**/*.ts", "games/autonomous-snake/src/**/*.ts", "games/ai-maze-escape/src/**/*.ts", "games/ai-ant-colony/src/**/*.ts", "games/infinite-tower-climb/src/**/*.ts", "services/**/*.ts"]
+  "include": ["types/**/*.d.ts", "packages/**/*.ts", "games/autonomous-snake/src/**/*.ts", "games/ai-maze-escape/src/**/*.ts", "games/ai-ant-colony/src/**/*.ts", "games/infinite-tower-climb/src/**/*.ts", "games/ai-vs-1000-floors/src/**/*.ts", "services/**/*.ts"]
 }
