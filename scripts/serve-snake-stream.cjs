@@ -49,7 +49,7 @@ function advance(session) {
 }
 
 function assetPaths() {
-  return ['index.html', 'styles.css', 'app.js'].map(name => path.join(PUBLIC_ROOT, name));
+  return ['index.html', 'styles.css', 'ux-v2.css', 'app.js'].map(name => path.join(PUBLIC_ROOT, name));
 }
 
 function isSnapshotPrivacySafe(snapshot, seed) {
@@ -221,6 +221,7 @@ function serve() {
       '/': 'index.html',
       '/index.html': 'index.html',
       '/styles.css': 'styles.css',
+      '/ux-v2.css': 'ux-v2.css',
       '/app.js': 'app.js',
     };
     const fileName = fileByRoute[requestUrl.pathname];
