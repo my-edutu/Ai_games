@@ -10,7 +10,7 @@ export interface FloorsHealth{status:'healthy'|'degraded'|'breaker';reasons:stri
 
 export class FloorsDurableStore{
   private journal:FloorsJournalEntry[]=[];private snapshots:FloorsStoredSnapshot[]=[];private nextSequence=1;private lease:FloorsLease|null=null;
-  acquire(owner:string,nowTick:number,ttlTicks=100):FloorsLease{if(!owner||ttlTicks<1)throw new RangeError('lease');const generation=(this.lease?.generation??0)+1;this.lease={owner,generation,expiresAtTick:nowTick+ttlTicks};return structuredClone(this.lease)}
+  acquire(owner:string,nowTick:number,ttlTicks=100,force=false):FloorsLease{if(!owner||ttlTicks<1)throw new RangeError('lease');if(this.lease&&this.lease.expiresAtTick>=nowTick&&this.lease.owner!==owner&&!force)throw new Error('LEASE_HELD');const generation=(this.lease?.generation??0)+1;this.lease={owner,generation,expiresAtTick:nowTick+ttlTicks};return structuredClone(this.lease)}
   renew(lease:FloorsLease,nowTick:number,ttlTicks=100):FloorsLease{this.assertLease(lease,nowTick);this.lease={...lease,expiresAtTick:nowTick+ttlTicks};return structuredClone(this.lease)}
   assertLease(lease:FloorsLease,nowTick:number):void{if(!this.lease||lease.owner!==this.lease.owner||lease.generation!==this.lease.generation||this.lease.expiresAtTick<nowTick)throw new Error('STALE_LEASE')}
   append(kind:FloorsJournalEntry['kind'],tick:number,payload:unknown,lease:FloorsLease):FloorsJournalEntry{this.assertLease(lease,tick);const entry={sequence:this.nextSequence++,kind,tick,payloadHash:checksum(payload),leaseGeneration:lease.generation};this.journal.push(entry);if(this.journal.length>4096)this.journal.splice(0,this.journal.length-4096);return structuredClone(entry)}
@@ -20,7 +20,8 @@ export class FloorsDurableStore{
   recentSnapshots():FloorsStoredSnapshot[]{return structuredClone(this.snapshots)}
 }
 
-export function acquireFloorsLease(store:FloorsDurableStore,owner:string,nowTick:number,ttlTicks=100):FloorsLease{return store.acquire(owner,nowTick,ttlTicks)}
+export function acquireFloorsLease(store:FloorsDurableStore,owner:string,nowTick:number,ttlTicks=100):FloorsLease{return store.acquire(owner,nowTick,ttlTicks,false)}
+export function forceAcquireFloorsLease(store:FloorsDurableStore,owner:string,nowTick:number,ttlTicks=100):FloorsLease{return store.acquire(owner,nowTick,ttlTicks,true)}
 
 export function restoreFloorsAuthority(store:FloorsDurableStore):{status:'restored'|'quarantined'|'empty';runtime?:FloorsRuntime;usedSequence?:number;rejectedSequences:number[]}{
   const snapshots=store.recentSnapshots().sort((a,b)=>b.sequence-a.sequence),rejectedSequences:number[]=[];
