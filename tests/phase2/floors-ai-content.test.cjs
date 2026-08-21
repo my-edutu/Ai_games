@@ -10,6 +10,8 @@ const {chooseProductionAction}=require('../../dist/games/ai-vs-1000-floors/src/a
 const {listLegalActions,actionKey}=require('../../dist/games/ai-vs-1000-floors/src/rules/step.js');
 const {runFloorsCampaign}=require('../../dist/games/ai-vs-1000-floors/src/testing/campaign.js');
 
+const WARDEN_FLOORS=[100,200,300,400,500,600,700,800,900,950];
+
 test('ten sectors cover the full 1,000-floor ascent with cadence truth',()=>{
   const ids=new Set();
   for(let floor=1;floor<=1000;floor++) ids.add(sectorForFloor(floor).id);
@@ -20,23 +22,28 @@ test('ten sectors cover the full 1,000-floor ascent with cadence truth',()=>{
   assert.equal(isCheckpointFloor(26),false);
   assert.equal(isWardenFloor(100),true);
   assert.equal(isWardenFloor(900),true);
+  assert.equal(isWardenFloor(950),true);
   assert.equal(isWardenFloor(1000),false);
 });
 
-test('production catalogue exposes bounded enemy hazard module and boss families',()=>{
+test('production catalogue exposes bounded enemy hazard module and all boss families',()=>{
   const enemies=['sentinel','striker','leech','warden','architect'].map(enemyDefinition);
   const hazards=['spike','heat','beam','null','storm','snare'].map(hazardDefinition);
   assert.equal(new Set(enemies.map(x=>x.id)).size,5);
   assert.equal(new Set(hazards.map(x=>x.id)).size,6);
   assert.equal(FLOORS_MODULES.length,12);
   for(const module of FLOORS_MODULES){assert.equal(moduleDefinition(module.id).id,module.id);assert.ok(module.maxStacks>=1&&module.maxStacks<=3)}
-  const wardens=Array.from({length:10},(_,i)=>bossDefinition((i+1)*100));
+  const wardens=WARDEN_FLOORS.map(bossDefinition);
+  assert.equal(wardens.length,10);
   assert.equal(new Set(wardens.map(x=>x.id)).size,10);
+  assert.equal(wardens.every(x=>x.kind==='warden'),true);
+  assert.equal(wardens.at(-1).name,'Spine Herald');
   assert.equal(bossDefinition(1000).id,'the-architect');
+  assert.equal(bossDefinition(1000).kind,'architect');
 });
 
 test('every required Warden and Architect is placed on the protected mandatory route',()=>{
-  for(const floorNumber of [100,200,300,400,500,600,700,800,900,1000]){
+  for(const floorNumber of [...WARDEN_FLOORS,1000]){
     for(let seed=0;seed<20;seed++){
       const floor=generateFloor(DEFAULT_FLOORS_CONFIG,floorNumber,NamedRng.fromSeed(`guardian-${floorNumber}-${seed}`));
       const expectedKind=floorNumber===1000?'architect':'warden';
