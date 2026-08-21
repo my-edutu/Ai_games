@@ -31,6 +31,10 @@
     "test:tower:phase4": "npm run build && node --test tests/phase4/tower-*.test.cjs",
     "test:tower:phase5": "npm run build && node --test tests/phase5/tower-*.test.cjs",
     "test:tower:phase6": "npm run build && node --test tests/phase6/tower-*.test.cjs",
+    "test:battle:phase3": "npm run build && node --test tests/phase3/battle-*.test.cjs",
+    "test:battle:phase4": "npm run build && node --test tests/phase4/battle-*.test.cjs",
+    "test:battle:phase5": "npm run build && node --test tests/phase5/battle-*.test.cjs",
+    "test:battle:phase6": "npm run build && node --test tests/phase6/battle-*.test.cjs",
     "test:browser": "playwright test",
     "snake:headless": "npm run build && node scripts/run-snake-headless.cjs",
     "snake:stream": "npm run build && node scripts/serve-snake-stream.cjs",
@@ -53,7 +57,11 @@
     "tower:stream": "npm run build && node scripts/serve-tower-stream.cjs",
     "tower:stream:self-test": "npm run build && node scripts/serve-tower-stream.cjs --self-test",
     "tower:phase5:chaos": "npm run build && node scripts/run-tower-phase5-chaos.cjs",
-    "tower:phase6:validate": "npm run build && node scripts/run-tower-phase6-validation.cjs"
+    "tower:phase6:validate": "npm run build && node scripts/run-tower-phase6-validation.cjs",
+    "battle:stream": "npm run build && node scripts/serve-battle-royale-stream.cjs",
+    "battle:stream:self-test": "npm run build && node scripts/serve-battle-royale-stream.cjs --self-test",
+    "battle:phase5:chaos": "npm run build && node scripts/run-battle-royale-chaos.cjs",
+    "battle:phase6:validate": "npm run build && node scripts/run-battle-royale-phase6-validation.cjs"
   },
   "devDependencies": {
     "@playwright/test": "1.55.0",

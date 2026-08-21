@@ -1,0 +1,105 @@
+:root{
+  --color-bg:#070809;
+  --color-surface:rgba(16,18,19,.9);
+  --color-surface-strong:rgba(8,9,10,.97);
+  --color-text:#f7f8f8;
+  --color-muted:#a6adb0;
+  --color-progress:#77e0d2;
+  --color-warning:#f6c35b;
+  --color-danger:#f2646f;
+  --color-focus:#a8fff1;
+  --battle-blue:#6bb4ff;
+  --battle-violet:#a678ff;
+}
+
+body[data-ux-revision="2"]{
+  background:radial-gradient(circle at 50% 45%,rgba(59,89,91,.15),transparent 38%),var(--color-bg);
+  color:var(--color-text);
+}
+
+body[data-ux-revision="2"] .broadcast{
+  grid-template-columns:minmax(215px,17vw) minmax(0,1fr) minmax(190px,14vw);
+  grid-template-rows:minmax(0,1fr) clamp(46px,5.5vh,60px);
+  gap:clamp(7px,.8vw,12px);
+  padding:clamp(8px,1vw,14px);
+}
+
+body[data-ux-revision="2"] .hud,
+body[data-ux-revision="2"] .narrative{
+  padding:clamp(12px,1.25vw,20px);
+  border-color:rgba(119,224,210,.13);
+  background:linear-gradient(180deg,rgba(16,19,20,.96),rgba(8,10,11,.98));
+}
+
+body[data-ux-revision="2"] .hud{gap:10px}
+body[data-ux-revision="2"] .eyebrow{color:var(--color-progress);letter-spacing:.14em}
+body[data-ux-revision="2"] h1{font-size:clamp(25px,2.3vw,40px);line-height:.92;letter-spacing:-.045em}
+
+body[data-ux-revision="2"] .survivor-card,
+body[data-ux-revision="2"] .focus-card,
+body[data-ux-revision="2"] .vote-card,
+body[data-ux-revision="2"] .fairness-note{
+  border-radius:13px;
+  border-color:rgba(119,224,210,.11);
+  background:rgba(255,255,255,.018);
+}
+
+body[data-ux-revision="2"] .survivor-card strong{font-size:clamp(18px,1.45vw,25px)}
+body[data-ux-revision="2"] .progress-track{background:rgba(255,255,255,.07)}
+body[data-ux-revision="2"] #match-progress{background:linear-gradient(90deg,var(--battle-blue),var(--color-progress))}
+body[data-ux-revision="2"] .metrics{gap:5px}
+body[data-ux-revision="2"] .metrics div{padding:7px 8px;border-radius:9px;background:rgba(255,255,255,.015)}
+body[data-ux-revision="2"] .metrics dd{font-size:13px}
+body[data-ux-revision="2"] .focus-card p{color:var(--color-muted)}
+body[data-ux-revision="2"] .resource-bars span:first-child{background:var(--color-progress)}
+body[data-ux-revision="2"] .resource-bars span:last-child{background:var(--battle-blue)}
+
+body[data-ux-revision="2"] .arena-shell{
+  border-radius:18px;
+  border-color:rgba(119,224,210,.18);
+  background:#0b0e0e;
+  box-shadow:0 22px 70px rgba(0,0,0,.42);
+}
+body[data-ux-revision="2"] .legend{
+  padding:7px 10px;
+  border-radius:10px;
+  background:rgba(6,8,9,.68);
+  color:var(--color-muted);
+  backdrop-filter:blur(10px);
+}
+body[data-ux-revision="2"] .scene-banner{background:var(--color-surface-strong)}
+body[data-ux-revision="2"][data-scene="danger"] .arena-shell,
+body[data-ux-revision="2"][data-scene="finale"] .arena-shell{border-color:rgba(242,100,111,.7);box-shadow:0 22px 70px rgba(0,0,0,.42),0 0 35px rgba(242,100,111,.09)}
+
+body[data-ux-revision="2"] .narrative{gap:10px}
+body[data-ux-revision="2"] #leaderboard,
+body[data-ux-revision="2"] #kill-feed{gap:5px}
+body[data-ux-revision="2"] #leaderboard li,
+body[data-ux-revision="2"] #kill-feed li{border-radius:8px;background:rgba(255,255,255,.015)}
+body[data-ux-revision="2"] .fairness-note p:last-child{color:var(--color-muted);line-height:1.45}
+
+body[data-ux-revision="2"] .captions{
+  border-radius:11px;
+  border-color:rgba(119,224,210,.12);
+  background:rgba(7,9,10,.95);
+  padding:0 12px;
+}
+body[data-ux-revision="2"] .caption-mark{background:var(--color-progress);color:#06110f}
+
+body[data-ux-revision="2"] .operator-panel button:focus-visible{outline:3px solid var(--color-focus);outline-offset:3px}
+
+@media(max-width:900px),(max-height:520px){
+  body[data-ux-revision="2"] .broadcast{grid-template-columns:minmax(145px,21vw) minmax(0,1fr);grid-template-rows:minmax(0,1fr) 38px;gap:5px;padding:5px}
+  body[data-ux-revision="2"] .hud{padding:7px;gap:5px}
+  body[data-ux-revision="2"] .hud h1{font-size:17px}
+  body[data-ux-revision="2"] .narrative{display:none}
+  body[data-ux-revision="2"] .metrics{grid-template-columns:1fr 1fr}
+  body[data-ux-revision="2"] .metrics div{padding:4px}
+  body[data-ux-revision="2"] .fairness-note{display:none}
+  body[data-ux-revision="2"] .arena-shell{border-radius:10px}
+  body[data-ux-revision="2"] .captions{grid-column:1/-1}
+}
+
+@media(prefers-reduced-motion:reduce){
+  body[data-ux-revision="2"] *,body[data-ux-revision="2"] *::before,body[data-ux-revision="2"] *::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+}

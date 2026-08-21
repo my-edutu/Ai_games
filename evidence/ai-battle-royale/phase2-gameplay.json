@@ -1,0 +1,35 @@
+{
+  "gameId": "ai-battle-royale",
+  "phase": 2,
+  "date": "2026-08-17",
+  "target": "R2-gameplay",
+  "commands": [
+    { "command": "tsc -p tsconfig.json", "passed": true },
+    { "command": "node --test tests/foundation/battle-foundation.test.cjs tests/phase2/battle-core-ai.test.cjs", "passed": true, "tests": 14, "failures": 0 },
+    { "command": "authoritative nondeterminism grep", "passed": true },
+    { "command": "node scripts/run-battle-royale-headless.cjs phase2-release-seed", "passed": true, "tick": 64, "checksum": "10b7c6ca" }
+  ],
+  "campaign": {
+    "runs": 100,
+    "terminalRuns": 100,
+    "integrityFailures": 0,
+    "technicalResults": 0,
+    "maxTicks": 424,
+    "minTicks": 56,
+    "averageTicks": 137,
+    "resultReasons": { "last-standing": 97, "draw": 3 },
+    "archetypeWins": { "vanguard": 16, "ranger": 31, "scavenger": 31, "tactician": 19 },
+    "totalEliminations": 1998,
+    "totalFallbacks": 5765
+  },
+  "guardrails": { "minimumArchetypeWinsPer40": 3, "maximumArchetypeWinsPer40": 17, "allPassed": true },
+  "reviews": {
+    "specification": { "p0Open": 0, "p1Open": 0 },
+    "quality": {
+      "p0Open": 0,
+      "p1Open": 0,
+      "fixed": ["configuration aliasing carried from Phase 1", "archetype dominance/nonviability", "stable-ID focus-fire kill attribution"]
+    }
+  },
+  "verdict": "PASS_R2_GAMEPLAY_CANDIDATE"
+}
