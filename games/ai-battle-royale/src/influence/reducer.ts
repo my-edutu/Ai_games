@@ -8,7 +8,7 @@ import type {
   InfluenceEffectId,
   ScheduledInfluenceEffect,
 } from '../state/types';
-import type { BattleAudienceInput } from './gateway';
+import { isBattleGatewayAcceptedInput, type BattleAudienceInput } from './gateway';
 
 const EFFECTS: readonly InfluenceEffectId[] = ['supply-rain', 'zone-hold', 'medic-mist', 'radar-pulse', 'theme-shift'];
 const THEMES: readonly BattleTheme[] = ['ember', 'neon', 'arctic'];
@@ -53,6 +53,7 @@ export function openBattleVoteWindow(state: BattleState) {
 }
 
 export function submitBattleAudienceInput(state: BattleState, input: BattleAudienceInput) {
+  if (!isBattleGatewayAcceptedInput(input)) return { status: 'rejected' as const, reason: 'gateway-unverified' };
   if (!state.influence.enabled) return rejection(state, input, 'disabled');
   if (state.influence.providerStatus !== 'online') return rejection(state, input, 'provider-unavailable');
   if (state.lifecycle !== 'running') return rejection(state, input, 'lifecycle');
