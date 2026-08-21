@@ -1,16 +1,21 @@
 'use strict';
 const test=require('node:test');const assert=require('node:assert/strict');
 const {FloorsRuntime}=require('../../dist/games/ai-vs-1000-floors/src/runtime/run.js');
+const {encodeFloorsSnapshot}=require('../../dist/games/ai-vs-1000-floors/src/persistence/snapshot.js');
 const {FloorsDurableStore,acquireFloorsLease,restoreFloorsAuthority,assessFloorsHealth,verifyFloorsContinuity}=require('../../dist/games/ai-vs-1000-floors/src/operations/system.js');
 
 test('lease generation fences stale writers and journal sequence is append-only',()=>{
   const store=new FloorsDurableStore();const first=acquireFloorsLease(store,'worker-a',0,50);store.append('command',1,{kind:'tick'},first);const second=acquireFloorsLease(store,'worker-b',2,50);assert.throws(()=>store.append('event',3,{kind:'late'},first),/STALE_LEASE/);const entry=store.append('event',3,{kind:'active'},second);assert.equal(entry.sequence,2);assert.deepEqual(store.entries().map(item=>item.sequence),[1,2]);
 });
 
-test('verified restore selects newest valid snapshot and falls back from corrupt newest',()=>{
-  const store=new FloorsDurableStore();const lease=acquireFloorsLease(store,'worker',0,500);const runtime=FloorsRuntime.create({},'restore');for(let i=0;i<4;i++)runtime.step();const good=store.saveRuntime(runtime,lease);for(let i=0;i<4;i++)runtime.step();const newest=store.saveRuntime(runtime,lease);const snapshots=store.recentSnapshots();snapshots.at(-1).envelope.checksum='00000000';
-  // Store snapshots are intentionally encapsulated; simulate corruption through a second store entry by mutating the serialized envelope before append/save is not exposed.
-  const restored=restoreFloorsAuthority(store);assert.equal(restored.status,'restored');assert.equal(restored.usedSequence,newest.sequence);assert.ok(restored.runtime);assert.equal(verifyFloorsContinuity(runtime,restored.runtime),true);assert.ok(good.sequence<newest.sequence);
+test('verified restore falls back from corrupt newest snapshot to previous compatible state',()=>{
+  const store=new FloorsDurableStore();const lease=acquireFloorsLease(store,'worker',0,500);const runtime=FloorsRuntime.create({},'restore');for(let i=0;i<4;i++)runtime.step();const good=store.saveRuntime(runtime,lease);const expected=FloorsRuntime.restore({state:structuredClone(runtime.state),rng:runtime.rng.snapshot(),events:runtime.peekEvents(),...runtime.restoreMetadata});
+  for(let i=0;i<4;i++)runtime.step();const corrupt=encodeFloorsSnapshot(runtime);corrupt.checksum='00000000';const bad=store.storeSnapshotEnvelope(corrupt,runtime.state.tick,lease);
+  const restored=restoreFloorsAuthority(store);assert.equal(restored.status,'restored');assert.equal(restored.usedSequence,good.sequence);assert.deepEqual(restored.rejectedSequences,[bad.sequence]);assert.ok(restored.runtime);assert.equal(verifyFloorsContinuity(expected,restored.runtime),true);
+});
+
+test('all-corrupt snapshots quarantine instead of silently starting a new authority',()=>{
+  const store=new FloorsDurableStore();const lease=acquireFloorsLease(store,'worker',0,100);const runtime=FloorsRuntime.create({},'quarantine');const corrupt=encodeFloorsSnapshot(runtime);corrupt.checksum='deadbeef';store.storeSnapshotEnvelope(corrupt,0,lease);const restored=restoreFloorsAuthority(store);assert.equal(restored.status,'quarantined');assert.equal(restored.runtime,undefined);
 });
 
 test('health probes distinguish degradation from finite recovery breaker',()=>{
