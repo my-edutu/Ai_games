@@ -82,6 +82,7 @@ const DEFAULTS: BattleGatewayOptions = {
 const TOKEN = /^[A-Za-z0-9_-]{8,64}$/;
 const ID = /^[A-Za-z0-9:_-]{3,96}$/;
 const EFFECTS = new Set<InfluenceEffectId>(['supply-rain', 'zone-hold', 'medic-mist', 'radar-pulse', 'theme-shift']);
+const acceptedGatewayInputs = new WeakSet<object>();
 
 function isEffectId(value: unknown): value is InfluenceEffectId {
   return typeof value === 'string' && EFFECTS.has(value as InfluenceEffectId);
@@ -108,6 +109,10 @@ export function normalizeBattleProviderVote(input: BattleProviderVoteInput): Bat
     optionId: input.optionId,
     entitlementWeight: input.entitlementWeight,
   };
+}
+
+export function isBattleGatewayAcceptedInput(value: BattleAudienceInput): boolean {
+  return acceptedGatewayInputs.has(value);
 }
 
 export class BattleAudienceGateway {
@@ -175,7 +180,9 @@ export class BattleAudienceGateway {
       if (oldest) this.seen.delete(oldest);
     }
 
-    return { status: 'accepted', reason: 'accepted', input: Object.freeze({ ...value }) };
+    const accepted = Object.freeze({ ...value });
+    acceptedGatewayInputs.add(accepted);
+    return { status: 'accepted', reason: 'accepted', input: accepted };
   }
 
   snapshot() {
