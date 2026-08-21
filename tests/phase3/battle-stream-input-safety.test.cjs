@@ -46,7 +46,7 @@ function waitForReady(child, port) {
   });
 }
 
-test('Battle Royale stream survives malformed viewport query input', async (t) => {
+test('Battle Royale stream survives malformed viewport query input', { timeout: 10_000 }, async (t) => {
   const port = await reservePort();
   const child = spawn(process.execPath, [SCRIPT, `--port=${port}`], {
     cwd: ROOT,
@@ -58,13 +58,17 @@ test('Battle Royale stream survives malformed viewport query input', async (t) =
 
   await waitForReady(child, port);
 
-  const stateResponse = await fetch(`http://127.0.0.1:${port}/battle/state?w=not-a-number&h=-5`);
+  const stateResponse = await fetch(`http://127.0.0.1:${port}/battle/state?w=not-a-number&h=-5`, {
+    signal: AbortSignal.timeout(2_000),
+  });
   assert.equal(stateResponse.status, 200);
   const state = await stateResponse.json();
   assert.equal(state.layout.width, 1920);
   assert.equal(state.layout.height, 180);
 
-  const healthResponse = await fetch(`http://127.0.0.1:${port}/battle/health`);
+  const healthResponse = await fetch(`http://127.0.0.1:${port}/battle/health`, {
+    signal: AbortSignal.timeout(2_000),
+  });
   assert.equal(healthResponse.status, 200);
   assert.equal(child.exitCode, null);
 });
