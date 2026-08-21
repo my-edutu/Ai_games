@@ -1,0 +1,108 @@
+:root{
+  --color-bg:#030708;
+  --color-surface:rgba(7,17,18,.9);
+  --color-surface-strong:rgba(3,10,11,.97);
+  --color-text:#effff8;
+  --color-muted:#93aaa3;
+  --color-progress:#79f7bb;
+  --color-warning:#ffd071;
+  --color-danger:#ff6b87;
+  --color-focus:#9cecff;
+  --maze-route:#6ee7ff;
+  --maze-fog:rgba(1,7,8,.82);
+}
+
+#broadcast[data-ux-revision="2"]{
+  grid-template-columns:minmax(0,1fr) clamp(240px,19vw,340px);
+  gap:clamp(8px,1vw,14px);
+  padding:clamp(9px,1.2vw,16px);
+  background:radial-gradient(circle at 42% 38%,rgba(35,99,82,.14),transparent 38%),var(--color-bg);
+}
+
+#broadcast[data-ux-revision="2"] #stage{
+  border-radius:20px;
+  border-color:rgba(121,247,187,.18);
+  background:linear-gradient(145deg,rgba(4,13,14,.99),rgba(2,7,8,.99));
+  box-shadow:0 22px 62px rgba(0,0,0,.42);
+}
+
+#broadcast[data-ux-revision="2"] #status-strip{
+  top:12px;left:12px;right:12px;
+  padding:7px 11px;
+  color:var(--color-muted);
+  background:rgba(2,9,10,.68);
+  border-color:rgba(121,247,187,.13);
+  letter-spacing:.1em;
+}
+
+#broadcast[data-ux-revision="2"] .live-dot{background:var(--color-progress);box-shadow:0 0 12px rgba(121,247,187,.5)}
+
+#broadcast[data-ux-revision="2"] #hud{
+  gap:11px;
+  padding:clamp(14px,1.3vw,20px);
+  border-radius:20px;
+  background:linear-gradient(180deg,rgba(8,20,21,.96),rgba(4,10,11,.98));
+  border-color:rgba(121,247,187,.16);
+}
+
+#broadcast[data-ux-revision="2"] #hud header{padding-bottom:10px}
+#broadcast[data-ux-revision="2"] h1{font-size:clamp(29px,2.5vw,44px);line-height:.94}
+#broadcast[data-ux-revision="2"] #objective{color:#bdd2ca;font-size:12px;margin-top:10px}
+#broadcast[data-ux-revision="2"] .eyebrow{color:var(--color-progress)}
+
+#broadcast[data-ux-revision="2"] .metric-block,
+#broadcast[data-ux-revision="2"] .intent-card,
+#broadcast[data-ux-revision="2"] .inventory-card{
+  padding:12px;
+  border-radius:13px;
+  border-color:rgba(121,247,187,.1);
+  background:rgba(255,255,255,.018);
+}
+
+#broadcast[data-ux-revision="2"] .metric-row strong{color:var(--color-text);font-size:24px}
+#broadcast[data-ux-revision="2"] .progress-track span{background:linear-gradient(90deg,var(--color-progress),var(--maze-route))}
+#broadcast[data-ux-revision="2"] .confidence span{background:var(--maze-route)}
+#broadcast[data-ux-revision="2"] .metric-grid{grid-template-columns:repeat(4,1fr);gap:6px}
+#broadcast[data-ux-revision="2"] .metric-grid div{padding:7px 5px;text-align:center}
+#broadcast[data-ux-revision="2"] .metric-grid strong{font-size:15px}
+#broadcast[data-ux-revision="2"] .intent-card strong{font-size:17px}
+#broadcast[data-ux-revision="2"] .intent-card p{min-height:0;color:#adc2ba}
+
+#broadcast[data-ux-revision="2"] #captions{
+  min-height:50px;
+  padding:9px 14px;
+  border-radius:12px;
+  border-color:rgba(121,247,187,.12);
+  background:rgba(3,10,11,.94);
+}
+#broadcast[data-ux-revision="2"] .caption-label{background:var(--color-progress);color:#03110b}
+#broadcast[data-ux-revision="2"] #caption{font-size:13px}
+
+#broadcast[data-ux-revision="2"] #scene-card{
+  background:var(--color-surface-strong);
+  border-color:rgba(156,236,255,.25);
+  border-radius:17px;
+}
+
+#broadcast[data-ux-revision="2"] :focus-visible{outline:3px solid var(--color-focus);outline-offset:3px}
+
+@media(max-width:900px) and (orientation:landscape){
+  #broadcast[data-ux-revision="2"]{grid-template-columns:minmax(0,1fr) 176px;gap:6px;padding:6px}
+  #broadcast[data-ux-revision="2"] #hud{padding:8px;gap:6px;border-radius:11px}
+  #broadcast[data-ux-revision="2"] h1{font-size:23px}
+  #broadcast[data-ux-revision="2"] #objective{font-size:9px;margin-top:5px}
+  #broadcast[data-ux-revision="2"] .metric-grid{grid-template-columns:repeat(2,1fr)}
+  #broadcast[data-ux-revision="2"] .intent-card p,#broadcast[data-ux-revision="2"] .inventory-card{display:none}
+  #broadcast[data-ux-revision="2"] #stage{border-radius:12px}
+}
+
+@media(max-width:640px) and (orientation:portrait){
+  #broadcast[data-ux-revision="2"]{grid-template-rows:minmax(0,1fr) auto auto}
+  #broadcast[data-ux-revision="2"] #hud{grid-template-columns:1fr 1fr;gap:7px}
+  #broadcast[data-ux-revision="2"] #hud header{grid-column:1/-1}
+  #broadcast[data-ux-revision="2"] .metric-grid{grid-template-columns:repeat(4,1fr)}
+}
+
+@media(prefers-reduced-motion:reduce){
+  #broadcast[data-ux-revision="2"] *,#broadcast[data-ux-revision="2"] *::before,#broadcast[data-ux-revision="2"] *::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+}

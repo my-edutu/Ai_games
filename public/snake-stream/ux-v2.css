@@ -1,0 +1,122 @@
+:root{
+  --color-bg:#04070c;
+  --color-surface:rgba(9,16,25,.86);
+  --color-surface-strong:rgba(5,10,17,.96);
+  --color-text:#f7fff9;
+  --color-muted:#9db1aa;
+  --color-progress:#57f7a5;
+  --color-warning:#ffd166;
+  --color-danger:#ff5f72;
+  --color-focus:#a6f7ff;
+  --snake-board:#07110e;
+  --snake-grid:rgba(103,255,186,.055);
+  --snake-glow:rgba(87,247,165,.16);
+}
+
+#broadcast[data-ux-revision="2"]{
+  padding:clamp(10px,1.5vw,28px);
+  gap:clamp(7px,.85vh,13px);
+  grid-template-rows:minmax(54px,8.5vh) minmax(0,1fr) minmax(40px,5.5vh) minmax(32px,4.5vh);
+  background:
+    radial-gradient(circle at 50% 42%,rgba(27,121,79,.14),transparent 38%),
+    radial-gradient(circle at 15% 8%,rgba(68,136,166,.1),transparent 28%),
+    var(--color-bg);
+}
+
+#broadcast[data-ux-revision="2"]::before{
+  background-image:linear-gradient(var(--snake-grid) 1px,transparent 1px),linear-gradient(90deg,var(--snake-grid) 1px,transparent 1px);
+  background-size:46px 46px;
+  opacity:.72;
+}
+
+#broadcast[data-ux-revision="2"] .hud,
+#broadcast[data-ux-revision="2"] .captions,
+#broadcast[data-ux-revision="2"] .audience{
+  background:var(--color-surface);
+  border-color:rgba(143,199,177,.16);
+  box-shadow:0 18px 55px rgba(0,0,0,.34);
+}
+
+#broadcast[data-ux-revision="2"] .hud{
+  grid-template-columns:minmax(250px,1.35fr) minmax(180px,.7fr) minmax(240px,1fr);
+  padding:clamp(9px,1vw,17px) clamp(14px,1.5vw,25px);
+  border-radius:18px;
+}
+
+#broadcast[data-ux-revision="2"] #primary{
+  color:var(--color-text);
+  font-size:clamp(22px,1.8vw,35px);
+}
+
+#broadcast[data-ux-revision="2"] .eyebrow,
+#broadcast[data-ux-revision="2"] #secondary,
+#broadcast[data-ux-revision="2"] .audience{
+  color:var(--color-muted);
+}
+
+#broadcast[data-ux-revision="2"] #record,
+#broadcast[data-ux-revision="2"] #integrity{
+  color:var(--color-progress);
+}
+
+#broadcast[data-ux-revision="2"] .stage{
+  border-radius:24px;
+  border-color:rgba(108,178,147,.2);
+  background:var(--snake-board);
+  box-shadow:0 24px 70px rgba(0,0,0,.46),0 0 0 1px rgba(87,247,165,.03) inset;
+}
+
+#broadcast[data-ux-revision="2"][data-scene="danger"] .stage{
+  border-color:rgba(255,95,114,.8);
+  box-shadow:0 24px 70px rgba(0,0,0,.46),0 0 42px rgba(255,95,114,.13);
+}
+
+#broadcast[data-ux-revision="2"][data-scene="milestone"] .stage{
+  border-color:rgba(255,209,102,.72);
+  box-shadow:0 24px 70px rgba(0,0,0,.46),0 0 42px rgba(255,209,102,.1);
+}
+
+#broadcast[data-ux-revision="2"] .scene-card{
+  max-width:min(640px,78%);
+  min-width:min(460px,72%);
+  border-radius:20px;
+  background:var(--color-surface-strong);
+  border-color:rgba(255,255,255,.18);
+}
+
+#broadcast[data-ux-revision="2"] .captions{
+  min-height:40px;
+  border-radius:12px;
+  font-size:clamp(14px,1vw,19px);
+  font-weight:650;
+}
+
+#broadcast[data-ux-revision="2"] .audience{
+  min-height:32px;
+  border-radius:10px;
+  font-size:clamp(10px,.7vw,13px);
+  letter-spacing:.055em;
+}
+
+#broadcast[data-ux-revision="2"] .controls button{
+  min-height:40px;
+  border-color:rgba(166,247,255,.22);
+  background:rgba(4,10,14,.96);
+}
+
+#broadcast[data-ux-revision="2"] .controls button:hover{border-color:rgba(166,247,255,.58)}
+#broadcast[data-ux-revision="2"] .controls button:focus-visible{outline:3px solid var(--color-focus);outline-offset:3px}
+#broadcast[data-ux-revision="2"] .controls button[aria-pressed="true"]{background:var(--color-progress);color:#03120a;border-color:transparent}
+
+@media(max-width:900px),(max-height:520px){
+  #broadcast[data-ux-revision="2"]{padding:7px;gap:5px;grid-template-rows:minmax(44px,11vh) minmax(0,1fr) minmax(32px,7vh)}
+  #broadcast[data-ux-revision="2"] .hud{grid-template-columns:1fr auto;padding:7px 10px;border-radius:11px}
+  #broadcast[data-ux-revision="2"] .brand-block .eyebrow{display:none}
+  #broadcast[data-ux-revision="2"] #primary{font-size:clamp(17px,3vw,24px)}
+  #broadcast[data-ux-revision="2"] .stage{border-radius:13px}
+  #broadcast[data-ux-revision="2"] .captions{border-radius:9px;padding:5px 10px}
+}
+
+@media(prefers-reduced-motion:reduce){
+  #broadcast[data-ux-revision="2"] *,#broadcast[data-ux-revision="2"] *::before,#broadcast[data-ux-revision="2"] *::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important}
+}

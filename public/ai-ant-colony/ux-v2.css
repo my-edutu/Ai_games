@@ -1,0 +1,117 @@
+:root{
+  --color-bg:#0a0c09;
+  --color-surface:rgba(18,20,16,.92);
+  --color-surface-strong:rgba(10,12,9,.97);
+  --color-text:#f6f1df;
+  --color-muted:#b0ad9e;
+  --color-progress:#91cf7f;
+  --color-warning:#efbe62;
+  --color-danger:#f07b64;
+  --color-focus:#8be8dc;
+  --colony-earth:#211912;
+  --colony-gold:#e9b55a;
+  --colony-water:#72cbc5;
+}
+
+#broadcast[data-ux-revision="2"]{
+  grid-template-columns:minmax(225px,18vw) minmax(0,1fr) minmax(205px,15vw);
+  grid-template-rows:minmax(0,1fr) clamp(52px,6vh,68px);
+  background:radial-gradient(circle at 50% 12%,rgba(67,88,55,.2),transparent 34%),var(--color-bg);
+}
+
+#broadcast[data-ux-revision="2"] #primary-hud,
+#broadcast[data-ux-revision="2"] #narrative{
+  padding:clamp(14px,1.35vw,22px);
+  background:linear-gradient(180deg,rgba(18,20,16,.97),rgba(10,11,9,.98));
+}
+
+#broadcast[data-ux-revision="2"] #primary-hud{gap:clamp(10px,1.15vh,17px)}
+#broadcast[data-ux-revision="2"] #narrative{gap:clamp(9px,1vh,15px);grid-template-rows:auto minmax(90px,.72fr) minmax(105px,.9fr) auto}
+#broadcast[data-ux-revision="2"] .brand-lockup h1{font-size:clamp(20px,1.4vw,27px)}
+#broadcast[data-ux-revision="2"] .eyebrow{color:var(--colony-gold)}
+
+#broadcast[data-ux-revision="2"] .goal-panel,
+#broadcast[data-ux-revision="2"] .threat-panel,
+#broadcast[data-ux-revision="2"] .strategy-card,
+#broadcast[data-ux-revision="2"] .intent-card,
+#broadcast[data-ux-revision="2"] .event-card,
+#broadcast[data-ux-revision="2"] .audience-card{
+  border-radius:14px;
+  border-color:rgba(240,223,165,.12);
+  background:linear-gradient(145deg,rgba(255,255,255,.026),rgba(255,255,255,.008));
+}
+
+#broadcast[data-ux-revision="2"] .goal-panel,
+#broadcast[data-ux-revision="2"] .threat-panel,
+#broadcast[data-ux-revision="2"] .strategy-card,
+#broadcast[data-ux-revision="2"] .audience-card{padding:clamp(11px,1.1vw,17px)}
+
+#broadcast[data-ux-revision="2"] .goal-panel h2{font-size:clamp(17px,1.2vw,23px);margin:10px 0 13px}
+#broadcast[data-ux-revision="2"] .progress-track span{background:linear-gradient(90deg,var(--color-progress),var(--colony-gold))}
+#broadcast[data-ux-revision="2"] .goal-row span{color:var(--color-progress)}
+#broadcast[data-ux-revision="2"] .threat-panel strong{color:var(--color-danger)}
+#broadcast[data-ux-revision="2"] .threat-track span{background:linear-gradient(90deg,var(--color-warning),var(--color-danger))}
+
+#broadcast[data-ux-revision="2"] .metric-grid{gap:7px}
+#broadcast[data-ux-revision="2"] .metric-grid article{
+  min-height:68px;
+  padding:9px;
+  border-radius:12px;
+  grid-template-columns:22px 1fr;
+}
+#broadcast[data-ux-revision="2"] .metric-grid strong{font-size:clamp(18px,1.2vw,23px)}
+#broadcast[data-ux-revision="2"] .metric-icon{width:19px;height:19px}
+
+#broadcast[data-ux-revision="2"] #world-stage{
+  background:linear-gradient(180deg,#182116 0,#15130f 38%,#0e0b08 100%);
+  box-shadow:inset 0 0 90px rgba(0,0,0,.16);
+}
+#broadcast[data-ux-revision="2"] #world-topbar{inset:14px 16px auto}
+#broadcast[data-ux-revision="2"] #weather-pill,
+#broadcast[data-ux-revision="2"] #scene-pill{
+  padding:7px 10px;
+  background:rgba(11,13,10,.62);
+  border-color:rgba(255,255,255,.1);
+}
+#broadcast[data-ux-revision="2"] #scene-pill{color:var(--color-progress)}
+#broadcast[data-ux-revision="2"] #headline-card{top:clamp(48px,6vh,74px);width:min(620px,68%)}
+#broadcast[data-ux-revision="2"] #headline-card span{color:var(--colony-gold)}
+#broadcast[data-ux-revision="2"] #headline-card strong{font-size:clamp(18px,1.7vw,29px)}
+
+#broadcast[data-ux-revision="2"] .strategy-card{min-height:108px}
+#broadcast[data-ux-revision="2"] .strategy-title h2{font-size:clamp(19px,1.45vw,26px)}
+#broadcast[data-ux-revision="2"] .intent-card,
+#broadcast[data-ux-revision="2"] .event-card{padding:12px}
+#broadcast[data-ux-revision="2"] .intent-card li,
+#broadcast[data-ux-revision="2"] .event-card li{padding:5px 0 5px 8px}
+#broadcast[data-ux-revision="2"] .audience-orbit{border-color:rgba(114,203,197,.5)}
+
+#broadcast[data-ux-revision="2"] #caption-bar{
+  padding:0 clamp(14px,1.5vw,24px);
+  gap:12px;
+  background:rgba(8,10,7,.97);
+}
+#broadcast[data-ux-revision="2"] .caption-label{color:var(--colony-gold)}
+#broadcast[data-ux-revision="2"] #caption{font-size:clamp(13px,.9vw,16px)}
+
+#broadcast[data-ux-revision="2"] #operator-panel button:focus-visible,
+#broadcast[data-ux-revision="2"] #operator-panel input:focus-visible{outline:3px solid var(--color-focus);outline-offset:3px}
+
+@media(max-width:799px),(max-height:449px){
+  #broadcast[data-ux-revision="2"]{grid-template-columns:minmax(138px,22vw) minmax(0,1fr);grid-template-rows:minmax(0,1fr) 42px}
+  #broadcast[data-ux-revision="2"] #primary-hud{padding:8px;gap:6px}
+  #broadcast[data-ux-revision="2"] #narrative{display:none}
+  #broadcast[data-ux-revision="2"] .brand-mark{display:none}
+  #broadcast[data-ux-revision="2"] .brand-lockup h1{font-size:15px}
+  #broadcast[data-ux-revision="2"] .goal-panel{padding:8px}
+  #broadcast[data-ux-revision="2"] .goal-panel h2{font-size:13px;margin:6px 0 8px}
+  #broadcast[data-ux-revision="2"] .metric-grid article{min-height:46px;padding:6px;display:block}
+  #broadcast[data-ux-revision="2"] .metric-icon{display:none}
+  #broadcast[data-ux-revision="2"] .metric-grid strong{font-size:15px}
+  #broadcast[data-ux-revision="2"] .threat-panel{padding:7px}
+  #broadcast[data-ux-revision="2"] #caption-bar{grid-column:1/-1}
+}
+
+@media(prefers-reduced-motion:reduce){
+  #broadcast[data-ux-revision="2"] *,#broadcast[data-ux-revision="2"] *::before,#broadcast[data-ux-revision="2"] *::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+}
