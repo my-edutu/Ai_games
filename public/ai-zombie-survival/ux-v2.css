@@ -1,0 +1,116 @@
+:root{
+  --color-bg:#070a08;
+  --color-surface:rgba(14,18,15,.92);
+  --color-surface-strong:rgba(8,11,9,.97);
+  --color-text:#f2f5ed;
+  --color-muted:#a4aea3;
+  --color-progress:#86c98c;
+  --color-warning:#e4b85d;
+  --color-danger:#e55f5d;
+  --color-focus:#9de7ca;
+  --survival-olive:#627b58;
+  --survival-cold:#6fa8a0;
+}
+
+body[data-ux-revision="2"]{
+  background:radial-gradient(circle at 42% 24%,rgba(71,91,63,.16),transparent 34%),var(--color-bg);
+  color:var(--color-text);
+}
+
+body[data-ux-revision="2"] .app-shell{background:transparent}
+body[data-ux-revision="2"] .topbar{
+  min-height:64px;
+  padding:9px clamp(12px,1.5vw,24px);
+  gap:14px;
+  background:linear-gradient(180deg,rgba(16,20,17,.97),rgba(9,12,10,.95));
+  border-bottom-color:rgba(134,201,140,.12);
+}
+body[data-ux-revision="2"] .brand-lockup strong{font-size:clamp(15px,1.2vw,20px);letter-spacing:.055em}
+body[data-ux-revision="2"] .brand-lockup small{color:var(--color-muted)}
+body[data-ux-revision="2"] .eyebrow{color:var(--color-progress)}
+body[data-ux-revision="2"] .phase-pill{background:rgba(134,201,140,.08);border-color:rgba(134,201,140,.25);color:var(--color-progress)}
+
+body[data-ux-revision="2"] .broadcast-grid{
+  grid-template-columns:minmax(0,1fr) clamp(245px,19vw,330px);
+  gap:clamp(8px,1vw,14px);
+  padding:clamp(8px,1vw,14px);
+}
+body[data-ux-revision="2"] .arena-panel{
+  border-radius:20px;
+  border-color:rgba(134,201,140,.18);
+  background:#0c100d;
+  box-shadow:0 22px 72px rgba(0,0,0,.44);
+}
+body[data-ux-revision="2"] .arena-status{
+  gap:6px;
+  padding:7px;
+  background:rgba(8,11,9,.7);
+  backdrop-filter:blur(10px);
+}
+body[data-ux-revision="2"] .arena-status>div{background:rgba(255,255,255,.02);border-color:rgba(255,255,255,.07)}
+body[data-ux-revision="2"] .danger-meter{background:rgba(8,11,9,.74);border-color:rgba(229,95,93,.14)}
+body[data-ux-revision="2"] .danger-track{background:rgba(255,255,255,.065)}
+body[data-ux-revision="2"] #danger-fill{background:linear-gradient(90deg,var(--color-warning),var(--color-danger))}
+
+body[data-ux-revision="2"] .hud{
+  gap:8px;
+  padding:0;
+  background:transparent;
+}
+body[data-ux-revision="2"] .hero-metrics,
+body[data-ux-revision="2"] .strategy-card,
+body[data-ux-revision="2"] .resource-card,
+body[data-ux-revision="2"] .squad-card,
+body[data-ux-revision="2"] .record-card{
+  border-radius:13px;
+  border-color:rgba(134,201,140,.11);
+  background:linear-gradient(145deg,rgba(18,23,19,.92),rgba(10,13,11,.94));
+  box-shadow:0 12px 34px rgba(0,0,0,.2);
+}
+body[data-ux-revision="2"] .hero-metrics article{padding:10px}
+body[data-ux-revision="2"] .hero-metrics strong{font-size:clamp(19px,1.3vw,24px)}
+body[data-ux-revision="2"] .meter{background:rgba(255,255,255,.07)}
+body[data-ux-revision="2"] .meter i{background:var(--color-progress)}
+body[data-ux-revision="2"] .strategy-card{padding:11px}
+body[data-ux-revision="2"] .strategy-card strong{font-size:clamp(18px,1.4vw,24px)}
+body[data-ux-revision="2"] .strategy-card p{color:var(--color-muted)}
+body[data-ux-revision="2"] .resource-card,
+body[data-ux-revision="2"] .squad-card{padding:10px}
+body[data-ux-revision="2"] .resource-grid{gap:5px}
+body[data-ux-revision="2"] .squad-list{gap:5px}
+body[data-ux-revision="2"] .record-card{padding:9px 11px}
+
+body[data-ux-revision="2"] .captions{
+  border-radius:11px;
+  background:rgba(8,11,9,.94);
+  border-color:rgba(134,201,140,.11);
+  color:var(--color-text);
+}
+body[data-ux-revision="2"] .controls{
+  min-height:46px;
+  padding:6px clamp(10px,1.2vw,18px);
+  gap:6px;
+  background:rgba(8,11,9,.96);
+  border-top-color:rgba(134,201,140,.1);
+}
+body[data-ux-revision="2"] .controls button{min-height:34px;border-color:rgba(134,201,140,.15);background:rgba(255,255,255,.025)}
+body[data-ux-revision="2"] .controls button:focus-visible{outline:3px solid var(--color-focus);outline-offset:3px}
+body[data-ux-revision="2"] .connection-state{color:var(--color-progress)}
+
+@media(max-width:900px),(max-height:520px){
+  body[data-ux-revision="2"] .topbar{min-height:48px;padding:5px 7px}
+  body[data-ux-revision="2"] .brand-lockup small{display:none}
+  body[data-ux-revision="2"] .broadcast-grid{grid-template-columns:minmax(0,1fr) 190px;gap:5px;padding:5px}
+  body[data-ux-revision="2"] .arena-panel{border-radius:11px}
+  body[data-ux-revision="2"] .hud{gap:5px}
+  body[data-ux-revision="2"] .resource-card,
+  body[data-ux-revision="2"] .squad-card{display:none}
+  body[data-ux-revision="2"] .hero-metrics article,
+  body[data-ux-revision="2"] .strategy-card,
+  body[data-ux-revision="2"] .record-card{padding:7px}
+  body[data-ux-revision="2"] .controls{min-height:38px}
+}
+
+@media(prefers-reduced-motion:reduce){
+  body[data-ux-revision="2"] *,body[data-ux-revision="2"] *::before,body[data-ux-revision="2"] *::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+}
