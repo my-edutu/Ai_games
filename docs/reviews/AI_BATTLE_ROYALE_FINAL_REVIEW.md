@@ -6,7 +6,7 @@ This review covers Game 6 from the reconciled Phase 1–2 deterministic foundati
 
 ## Software findings
 
-The broadcast host must serve every asset linked by the Battle Royale page and the browser suite must reject HTTP failures; this closed the fresh `ux-v2.css` P1 found during Phase 3 re-verification. Audience influence is constrained to authenticated/moderated/region-allowed, pseudonymized, rate-limited and deduplicated voting, with one bounded ballot per viewer and only non-terminal global effects. Influence scheduling and ties are deterministic.
+The broadcast host must serve every asset linked by the Battle Royale page and the browser suite must reject HTTP failures; this closed the fresh `ux-v2.css` P1 found during Phase 3 re-verification. Audience influence is constrained to authenticated/moderated/region-allowed, pseudonymized, rate-limited and deduplicated voting, with one bounded ballot per viewer and only non-terminal global effects. Influence scheduling and ties are deterministic. A final Phase 4 audit found that normalized input could previously call the authoritative reducer without passing the gateway; a formal RED regression reproduced the bypass, and the behavioral source now requires non-forgeable in-process gateway provenance before any ballot mutation.
 
 Recovery uses a versioned, checksummed snapshot envelope, fail-closed quarantine, bounded replay journal, independent health probes, an intentional safe scene, verified restore, and a finite breaker rather than infinite restart loops. The Phase 6 validator binds release artifacts to an exact Git SHA, exercises deterministic baseline and audience-pressure campaigns, consumes shared capacity/endurance/provider/safety/drill/canary/review assessors, and treats P0/P1 or integrity failures as hard FAIL.
 
@@ -16,4 +16,4 @@ Repository and CI evidence can establish an R4 software candidate when the final
 
 ## Final-review rule
 
-Any later source change invalidates candidate-bound verification and requires fresh evidence for affected gates. Any new P0/P1, deterministic divergence, duplicate authoritative application, private exposure, unauthorized control, failed restore, or canary guardrail breach reopens the review and blocks promotion. This document is a software review record; it is not an external R5 attestation.
+Any later behavioral source change invalidates candidate-bound verification and requires fresh evidence for affected gates. Any new P0/P1, deterministic divergence, duplicate authoritative application, private exposure, unauthorized control, failed restore, or canary guardrail breach reopens the review and blocks promotion. Evidence-only documentation changes still require the exact-head regression pipeline so the recorded candidate remains reproducible. This document is a software review record; it is not an external R5 attestation.
