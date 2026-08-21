@@ -19,6 +19,15 @@ export { deriveBattleCamera } from './presentation/camera';
 export { deriveBattleAudioCues } from './presentation/audio';
 export { BattlePresentationController } from './presentation/controller';
 export { classifyBattleOutputHealth } from './presentation/health';
+export { BattleAudienceGateway, normalizeBattleProviderVote } from './influence/gateway';
+export {
+  advanceBattleInfluence,
+  openBattleVoteWindow,
+  scheduleBattleInfluenceEffect,
+  setBattleInfluenceEnabled,
+  setBattleInfluenceProviderStatus,
+  submitBattleAudienceInput,
+} from './influence/reducer';
 export type * from './state/types';
 export type * from './presentation/snapshot';
 export type * from './presentation/layout';
@@ -26,3 +35,4 @@ export type * from './presentation/camera';
 export type * from './presentation/audio';
 export type * from './presentation/controller';
 export type * from './presentation/health';
+export type * from './influence/gateway';

@@ -1,5 +1,6 @@
 import { NamedRng } from '../../../../packages/seeded-rng/src/index';
 import { chooseBattleDecision } from '../ai/policy';
+import { advanceBattleInfluence } from '../influence/reducer';
 import type { BattleAction, BattleCombatant, BattleLoot, BattleLootKind, BattleResult, BattleState, BattleWeapon } from '../state/types';
 import { battleChecksum } from './checksum';
 import { resolveCombatBatch } from './combat';
@@ -156,6 +157,7 @@ export function stepBattleState(state: BattleState, rng: NamedRng): BattleState 
   if (state.lifecycle === 'quarantined') return state;
   if (state.lifecycle !== 'running') return advanceFinishedLifecycle(state);
   state.tick += 1;
+  advanceBattleInfluence(state, rng);
   for (const combatant of state.combatants) if (combatant.cooldown > 0) combatant.cooldown -= 1;
   updateZoneSchedule(state);
   const decisions = state.combatants.filter((combatant) => combatant.alive).sort((first, second) => first.id.localeCompare(second.id)).map((combatant) => {
