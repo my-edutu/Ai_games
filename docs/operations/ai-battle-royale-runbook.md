@@ -1,27 +1,29 @@
 # AI Battle Royale Operations Runbook
 
-## Purpose
+## Purpose and authority boundary
 
-This runbook defines the production-safe operating response for Game 6. Simulation truth is authoritative; the browser broadcast, audio, persistence, and audience providers are supervised independently. A presentation or provider outage must never be converted into a game loss, winner, or invented result.
+This runbook defines the production-safe response for Game 6. Simulation truth remains authoritative; browser broadcast, audio, persistence, and audience providers are supervised independently. A presentation outage, provider outage, or recovery event must never be converted into a game loss, winner, or invented result. Unsafe public output moves to an intentional safe scene while authoritative state is fenced and recovered.
 
-## Health model
+## Health and recovery sequence
 
-The operator watches five independent signals: logical tick progress, render change, expected audio activity, persistence freshness, and audience-provider availability. Queue utilization and resource pressure are secondary capacity signals. Provider or moderation loss degrades interactions only. Audio loss degrades to captions and mute. Render, persistence, or simulation no-progress is unsafe and moves public output to the intentional recovery safe scene.
+The operator watches logical tick progress, render change, expected audio activity, persistence freshness, provider availability, queue utilization, and resource pressure. Provider or moderation loss disables interactions only. Audio loss degrades to captions/mute. Render, persistence, or simulation no-progress is unsafe.
 
-## Unsafe-output procedure
+1. Switch public output to the safe scene before restart work; never broadcast a frozen or black gameplay frame as if it were healthy.
+2. Fence new authoritative mutation when simulation or persistence integrity is uncertain. Disable audience interaction when authentication, moderation, entitlement, region, or audit certainty is unavailable.
+3. Restart the smallest failed component. Repeated restart loops are prohibited.
+4. Perform a verified restore from a version-compatible, checksum-valid Battle Royale snapshot envelope. Corrupt or incompatible material is quarantined.
+5. Reconcile the bounded replay journal and verify the restored checksum and invariants before accepting new authoritative work.
+6. Verify presentation health independently, then resume the battle scene only after both authority and output are healthy.
+7. Stop after the finite breaker budget and escalate; do not crash-loop.
 
-1. Move the public broadcast to the safe scene before restart work. Do not leave a frozen or black gameplay frame on air.
-2. Disable audience interaction if provider, moderation, entitlement, or audit certainty is unavailable. Autonomous battle simulation remains complete without viewers.
-3. Restart only the failed component when isolation is possible. Repeated restart loops are prohibited.
-4. Perform a verified restore from a version-compatible, checksum-valid Battle Royale snapshot envelope. Corrupt or incompatible evidence is quarantined; never silently continue from it.
-5. Reconcile bounded replay evidence and confirm the restored checksum before accepting new authoritative work.
-6. Verify output health after restore. Resume the battle scene only after state verification and healthy public output both succeed.
-7. After the finite recovery-attempt budget is exhausted, halt safely and escalate to the incident owner rather than cycling indefinitely.
+## Mandatory drill catalogue
 
-## Evidence and ownership
+The implementation contract and production drill programme use the same identifiers: `database-outage`, `storage-outage`, `restored-object-seam`, `canary-corruption`, `secret-missing`, `provider-unavailable`, `queue-backpressure`, `backup-corruption`, `restore-corruption`, `runtime-failure`, `presentation-failure`, `audio-failure`, `cache-staleness`, `region-loss`, `dependency-timeout`, `high-latency`, `packet-loss`, `disk-pressure`, `memory-pressure`, `cpu-pressure`, `process-restart-storm`, `network-partition`, `write-fencing`, `replay-reconciliation`, `scene-fallback`, and `canary-rollback`.
 
-The on-call operations owner records candidate SHA, snapshot/envelope checksum, replay manifest checksum, failure reason, recovery attempts, and final output state. Security owns credential or moderation incidents; release engineering owns candidate identity and rollback evidence; gameplay engineering owns deterministic integrity. No operator may mark R5 from synthetic CI, fixture providers, compressed chaos, or local self-review evidence.
+CI may verify the drill mechanisms and runbook mappings, but that is implementation evidence only. Production drill credit requires the exact release candidate, production-reference conditions, timestamps, output evidence, and an independent witness where the release policy requires one. Synthetic or compressed execution cannot satisfy production drill truth.
 
-## Rollback
+## Rollback and ownership
 
-Use the Battle Royale rollback matrix for trigger-specific action. A rollback must preserve the last verified snapshot and replay manifest for diagnosis. Any deterministic divergence, duplicate authoritative application, privacy leak, unresolved P0/P1, or failed verified restore is a release failure and blocks promotion until a corrected candidate is freshly validated.
+The on-call owner records candidate SHA, manifest checksum, snapshot/envelope checksum, replay manifest checksum, trigger, recovery attempts, and final output state. Security owns credential/moderation incidents; release engineering owns candidate identity and rollback evidence; gameplay engineering owns deterministic integrity; broadcast owns safe output. A rollback preserves the last verified snapshot and replay evidence. Deterministic divergence, duplicate authoritative application, privacy exposure, unresolved P0/P1, failed verified restore, or a canary guardrail breach blocks promotion and triggers rollback/safe halt according to the rollback matrix.
+
+No operator may mark R5 from CI, fixture providers, simulated endurance, compressed canaries, internal-only review, or self-attestation. R5 requires the external exact-candidate evidence listed in the release intake document.
