@@ -1,0 +1,11 @@
+# Release Checklist
+- [x] Held-out task templates
+- [x] Evidence-spam regression
+- [x] Audit-group isolation
+- [x] Sparse-evidence abstention
+- [x] Contradiction/coherence handling
+- [x] Rubric/model fail-closed compatibility
+- [x] Model/API parity
+- [x] Independent rollback primitives
+- [x] Representative pilot evidence
+- [ ] Real reviewer shadow validation

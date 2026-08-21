@@ -1,0 +1,11 @@
+{
+  "cases": 30,
+  "decision": "GO_FOR_CONTROLLED_DEPLOYMENT",
+  "evidence_grounding_comprehension": 1.0,
+  "human_decision_rights_comprehension": 1.0,
+  "p0": 0,
+  "p1": 0,
+  "real_reviewer_validated": false,
+  "representative_not_real_world": true,
+  "scoring_vs_coaching_comprehension": 1.0
+}

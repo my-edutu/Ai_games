@@ -1,0 +1,14 @@
+{
+  "artifact_sha256": "858ca53977089a39c6f6466eda9f2ce72e55d757518f99a84c924ebdb7120433",
+  "constant_baseline_mae": 7.946929851182937,
+  "deployment_scope": "controlled_only",
+  "held_out_task_templates": 4,
+  "holdout_count": 72,
+  "mae": 3.6617112534045635,
+  "model_version": "sim-evaluator-v1",
+  "real_reviewer_validated": false,
+  "representative_not_real_world": true,
+  "reviewer_pair_mae": 3.07478798333198,
+  "rubric_version": "rubric-v1",
+  "spearman": 0.8900572384076147
+}

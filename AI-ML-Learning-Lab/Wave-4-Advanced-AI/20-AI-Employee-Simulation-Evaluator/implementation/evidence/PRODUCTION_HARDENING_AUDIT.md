@@ -1,0 +1,2 @@
+# Production Hardening Audit
+The final hardening pass blocks repeated generic `Evidence:` text from inflating scores, excludes audit-only groups from scoring, rejects invalid evidence graphs, abstains on sparse submissions, penalizes unexplained cross-artifact contradictions, enforces exact model/rubric compatibility, preserves model/API parity, separates coaching from scoring, and requires human decisions for any consequential outcome. Broad deployment remains blocked pending genuine reviewer shadow validation.
