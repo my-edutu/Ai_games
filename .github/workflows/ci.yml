@@ -37,6 +37,8 @@ jobs:
         run: npm run ant:stream:self-test
       - name: Tower stream host self-test
         run: npm run tower:stream:self-test
+      - name: Floors stream host self-test
+        run: npm run floors:stream:self-test
       - name: Authoritative nondeterminism scan
         shell: bash
         run: |
@@ -65,7 +67,13 @@ jobs:
             games/infinite-tower-climb/src/physics \
             games/infinite-tower-climb/src/combat \
             games/infinite-tower-climb/src/progression \
-            games/infinite-tower-climb/src/influence; then
+            games/infinite-tower-climb/src/influence \
+            games/ai-vs-1000-floors/src/rules \
+            games/ai-vs-1000-floors/src/runtime \
+            games/ai-vs-1000-floors/src/ai \
+            games/ai-vs-1000-floors/src/generation \
+            games/ai-vs-1000-floors/src/influence \
+            games/ai-vs-1000-floors/src/state; then
             echo 'Forbidden ambient nondeterminism found in authoritative code.'
             exit 1
           fi
@@ -93,6 +101,12 @@ jobs:
           set -euo pipefail
           mkdir -p artifacts/tower-phase5
           npm run tower:phase5:chaos -- tower-phase5-ci > artifacts/tower-phase5/chaos-summary.json
+      - name: Generate Floors Phase 5 chaos evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/floors-phase5
+          npm run floors:phase5:chaos -- floors-phase5-ci > artifacts/floors-phase5/chaos-summary.json
       - name: Generate Snake Phase 6 release validation evidence
         shell: bash
         env:
@@ -125,6 +139,14 @@ jobs:
           set -euo pipefail
           mkdir -p artifacts/tower-phase6
           npm run tower:phase6:validate > artifacts/tower-phase6/release-validation.json
+      - name: Generate Floors Phase 6 release validation evidence
+        shell: bash
+        env:
+          CANDIDATE_SOURCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/floors-phase6
+          npm run floors:phase6:validate > artifacts/floors-phase6/release-validation.json
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
       - name: Browser capture and layout verification
@@ -161,6 +183,14 @@ jobs:
           path: artifacts/tower-phase3
           if-no-files-found: error
           retention-days: 30
+      - name: Upload Floors Phase 3 capture evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: ai-vs-1000-floors-phase3-capture
+          path: artifacts/floors-phase3
+          if-no-files-found: error
+          retention-days: 30
       - name: Upload Snake Phase 5 operations evidence
         if: always()
         uses: actions/upload-artifact@v7
@@ -193,6 +223,14 @@ jobs:
           path: artifacts/tower-phase5
           if-no-files-found: error
           retention-days: 30
+      - name: Upload Floors Phase 5 operations evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: ai-vs-1000-floors-phase5-operations
+          path: artifacts/floors-phase5
+          if-no-files-found: error
+          retention-days: 30
       - name: Upload Snake Phase 6 release validation evidence
         if: always()
         uses: actions/upload-artifact@v7
@@ -223,5 +261,13 @@ jobs:
         with:
           name: infinite-tower-climb-phase6-validation
           path: artifacts/tower-phase6
+          if-no-files-found: error
+          retention-days: 30
+      - name: Upload Floors Phase 6 release validation evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: ai-vs-1000-floors-phase6-validation
+          path: artifacts/floors-phase6
           if-no-files-found: error
           retention-days: 30
