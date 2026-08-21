@@ -37,6 +37,8 @@ jobs:
         run: npm run ant:stream:self-test
       - name: Tower stream host self-test
         run: npm run tower:stream:self-test
+      - name: Battle Royale stream host self-test
+        run: npm run battle:stream:self-test
       - name: Authoritative nondeterminism scan
         shell: bash
         run: |
@@ -65,7 +67,14 @@ jobs:
             games/infinite-tower-climb/src/physics \
             games/infinite-tower-climb/src/combat \
             games/infinite-tower-climb/src/progression \
-            games/infinite-tower-climb/src/influence; then
+            games/infinite-tower-climb/src/influence \
+            games/ai-battle-royale/src/rules \
+            games/ai-battle-royale/src/runtime \
+            games/ai-battle-royale/src/ai \
+            games/ai-battle-royale/src/generation \
+            games/ai-battle-royale/src/state \
+            games/ai-battle-royale/src/influence \
+            games/ai-battle-royale/src/persistence; then
             echo 'Forbidden ambient nondeterminism found in authoritative code.'
             exit 1
           fi
@@ -93,6 +102,12 @@ jobs:
           set -euo pipefail
           mkdir -p artifacts/tower-phase5
           npm run tower:phase5:chaos -- tower-phase5-ci > artifacts/tower-phase5/chaos-summary.json
+      - name: Generate Battle Royale Phase 5 chaos evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/battle-phase5
+          npm run battle:phase5:chaos -- battle-phase5-ci > artifacts/battle-phase5/chaos-summary.json
       - name: Generate Snake Phase 6 release validation evidence
         shell: bash
         env:
@@ -125,6 +140,14 @@ jobs:
           set -euo pipefail
           mkdir -p artifacts/tower-phase6
           npm run tower:phase6:validate > artifacts/tower-phase6/release-validation.json
+      - name: Generate Battle Royale Phase 6 release validation evidence
+        shell: bash
+        env:
+          CANDIDATE_SOURCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/battle-phase6
+          npm run battle:phase6:validate > artifacts/battle-phase6/release-validation.json
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
       - name: Browser capture and layout verification
@@ -161,6 +184,14 @@ jobs:
           path: artifacts/tower-phase3
           if-no-files-found: error
           retention-days: 30
+      - name: Upload Battle Royale Phase 3 capture evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: ai-battle-royale-phase3-capture
+          path: artifacts/battle-phase3
+          if-no-files-found: error
+          retention-days: 30
       - name: Upload Snake Phase 5 operations evidence
         if: always()
         uses: actions/upload-artifact@v7
@@ -193,6 +224,14 @@ jobs:
           path: artifacts/tower-phase5
           if-no-files-found: error
           retention-days: 30
+      - name: Upload Battle Royale Phase 5 operations evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: ai-battle-royale-phase5-operations
+          path: artifacts/battle-phase5
+          if-no-files-found: error
+          retention-days: 30
       - name: Upload Snake Phase 6 release validation evidence
         if: always()
         uses: actions/upload-artifact@v7
@@ -223,5 +262,13 @@ jobs:
         with:
           name: infinite-tower-climb-phase6-validation
           path: artifacts/tower-phase6
+          if-no-files-found: error
+          retention-days: 30
+      - name: Upload Battle Royale Phase 6 release validation evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: ai-battle-royale-phase6-validation
+          path: artifacts/battle-phase6
           if-no-files-found: error
           retention-days: 30
