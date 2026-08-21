@@ -2,11 +2,13 @@
 const test=require('node:test');const assert=require('node:assert/strict');
 const {FloorsRuntime}=require('../../dist/games/ai-vs-1000-floors/src/runtime/run.js');
 const {encodeFloorsSnapshot}=require('../../dist/games/ai-vs-1000-floors/src/persistence/snapshot.js');
-const {FloorsDurableStore,acquireFloorsLease,restoreFloorsAuthority,assessFloorsHealth,verifyFloorsContinuity}=require('../../dist/games/ai-vs-1000-floors/src/operations/system.js');
+const {FloorsDurableStore,acquireFloorsLease,forceAcquireFloorsLease,restoreFloorsAuthority,assessFloorsHealth,verifyFloorsContinuity}=require('../../dist/games/ai-vs-1000-floors/src/operations/system.js');
 
-test('lease generation fences stale writers and journal sequence is append-only',()=>{
-  const store=new FloorsDurableStore();const first=acquireFloorsLease(store,'worker-a',0,50);store.append('command',1,{kind:'tick'},first);const second=acquireFloorsLease(store,'worker-b',2,50);assert.throws(()=>store.append('event',3,{kind:'late'},first),/STALE_LEASE/);const entry=store.append('event',3,{kind:'active'},second);assert.equal(entry.sequence,2);assert.deepEqual(store.entries().map(item=>item.sequence),[1,2]);
+test('active lease cannot be stolen; explicit failover fences stale writer',()=>{
+  const store=new FloorsDurableStore();const first=acquireFloorsLease(store,'worker-a',0,50);store.append('command',1,{kind:'tick'},first);assert.throws(()=>acquireFloorsLease(store,'worker-b',2,50),/LEASE_HELD/);const second=forceAcquireFloorsLease(store,'worker-b',2,50);assert.throws(()=>store.append('event',3,{kind:'late'},first),/STALE_LEASE/);const entry=store.append('event',3,{kind:'active'},second);assert.equal(entry.sequence,2);assert.deepEqual(store.entries().map(item=>item.sequence),[1,2]);
 });
+
+test('expired lease may be acquired without forced failover',()=>{const store=new FloorsDurableStore();acquireFloorsLease(store,'worker-a',0,5);const second=acquireFloorsLease(store,'worker-b',6,5);assert.equal(second.owner,'worker-b');assert.equal(second.generation,2)});
 
 test('verified restore falls back from corrupt newest snapshot to previous compatible state',()=>{
   const store=new FloorsDurableStore();const lease=acquireFloorsLease(store,'worker',0,500);const runtime=FloorsRuntime.create({},'restore');for(let i=0;i<4;i++)runtime.step();const good=store.saveRuntime(runtime,lease);const expected=FloorsRuntime.restore({state:structuredClone(runtime.state),rng:runtime.rng.snapshot(),events:runtime.peekEvents(),...runtime.restoreMetadata});
