@@ -3,6 +3,7 @@ import{NamedRng,type RngSnapshot}from '../../../../packages/seeded-rng/src/index
 import{validateFloorsConfig}from'../config/schema';
 import{chooseFallbackAction}from'../ai/fallback';
 import{chooseProductionAction}from'../ai/policy';
+import{applyScheduledFloorsInfluence}from'../influence/system';
 import{applyFloorsAction}from'../rules/step';
 import{createFloorsInitialState}from'../index';
 import type{FloorsDecision,FloorsEvent,FloorsState}from'../state/types';
@@ -22,6 +23,7 @@ export class FloorsRuntime{
   step(action?:FloorsAction):FloorsState{
     if(this.state.lifecycle==='result'){this.state=clone(this.state);this.state.tick++;this.state.lifecycle='intermission';this.state.intermissionRemaining=this.state.config.intermissionTicks;this.emit('intermission-started',{remaining:this.state.intermissionRemaining});return this.state}
     if(this.state.lifecycle==='intermission'){this.state=clone(this.state);this.state.tick++;this.state.intermissionRemaining=Math.max(0,this.state.intermissionRemaining-1);if(this.state.intermissionRemaining===0)this.restart();return this.state}
+    const influence=applyScheduledFloorsInfluence(this.state,this.state.tick,this.rng);this.state=influence.state;for(const item of influence.applied)this.emit('audience-influence-applied',{id:item.id,effectId:item.effectId,pressure:this.state.influence.pressure});
     const decision:FloorsDecision=action?{action,mode:'operator',confidence:'high',intent:'Applying a validated explicit action.',reason:'explicit-action',expansions:0}:this.policy==='wait-test'?{action:{kind:'wait'},mode:'test',confidence:'high',intent:'Waiting for deterministic timeout coverage.',reason:'wait-test',expansions:0}:this.policy==='fallback'?chooseFallbackAction(this.state):chooseProductionAction(this.state);
     const prepared=clone(this.state);const previousGoal=prepared.ai.goal;prepared.ai.mode=decision.mode==='fallback'?'fallback':decision.mode==='recovery'?'recovery':'tactical';prepared.ai.goal=prepared.floor.objective==='reach-exit'?'Reach the tower exit':'Defeat the floor guardian';prepared.ai.intent=decision.intent;prepared.ai.confidence=decision.confidence;prepared.ai.decisions++;prepared.ai.nodeExpansions=decision.expansions;if(decision.mode==='fallback')prepared.ai.fallbackCount++;if(previousGoal!==prepared.ai.goal||prepared.ai.lastPlanChangeReason!==decision.reason)prepared.ai.replans++;prepared.ai.lastPlanChangeReason=decision.reason;
     const result=applyFloorsAction(prepared,decision.action,this.rng);if(!result.accepted){this.emit('action-rejected',{reason:result.reason,action:decision.action});return this.state}this.state=result.state;for(const pending of result.events)this.emit(pending.type,pending.data);return this.state;
