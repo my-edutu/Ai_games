@@ -11,6 +11,8 @@ test('personalizes the site, supports drag-look, coaches communication and rende
   await page.getByLabel('Your name').fill('chidi okafor');
   await clickFlow(page.getByRole('button', { name: 'Enter BuildSite' }));
 
+  await expect(page.getByRole('button', { name: 'Start Guided Internship' })).toBeVisible();
+  await clickFlow(page.getByRole('button', { name: 'Start Guided Internship' }));
   await expect(page.getByText(/Chidi Okafor/).first()).toBeVisible();
   await clickFlow(page.getByRole('button', { name: 'Skip fly-through' }));
   for (const item of ppe) await clickFlow(page.getByRole('button', { name: new RegExp(item, 'i') }));
