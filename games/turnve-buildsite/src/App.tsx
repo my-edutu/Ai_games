@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { getTariHint } from './ai/mentor';
 import { SiteAudio } from './audio/SiteAudio';
 import { setConstructionAudioEnabled, unlockConstructionAudio } from './audio/soundscape';
-import { speakVoice } from './audio/voice';
+import { setVoiceEnabled, speakVoice } from './audio/voice';
 import { ConstructionScene } from './three/ConstructionScene';
 import { useSimulationStore } from './state/store';
 import { Briefing } from './ui/Briefing';
@@ -75,6 +75,7 @@ export function App() {
     } else enableSound();
   };
   const handleNameEntered = (name: string) => {
+    setVoiceEnabled(true);
     enableSound();
     speakVoice(`Welcome to Turnve BuildSite, ${name}. Choose Guided Internship or Assessment Mode when you are ready to enter the site.`);
   };
