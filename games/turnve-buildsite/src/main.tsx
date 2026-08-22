@@ -12,6 +12,7 @@ import './blue-ui-extras.css';
 import './welding-range.css';
 import './skill-mentor.css';
 import './interaction-learning.css';
+import './skill-coach-phases.css';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
