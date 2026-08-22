@@ -90,13 +90,13 @@ export function SkillCoach() {
   const dispatch = useSimulationStore((state) => state.dispatchSkillMentor);
   const [whyOpen, setWhyOpen] = useState(false);
 
+  useEffect(() => setWhyOpen(false), [mentorState.phase, mentorState.activeSkillId, mentorState.stepIndex]);
+
   if (!mentorState.activeSkillId || mentorState.phase === 'idle') return null;
   const skill = skillDefinitions[mentorState.activeSkillId];
   const step = mentorState.phase === 'practice' ? skill.steps[mentorState.stepIndex] : undefined;
   const result = mentorState.results[mentorState.activeSkillId];
   const mentorFirstName = skill.mentor.split(/\s+/)[0] || skill.mentor;
-
-  useEffect(() => setWhyOpen(false), [mentorState.phase, step?.id]);
 
   if (mentorState.phase === 'focus') {
     return <aside className="skill-coach skill-coach-focus" aria-label="Skill Mentor coach" aria-live="polite">
