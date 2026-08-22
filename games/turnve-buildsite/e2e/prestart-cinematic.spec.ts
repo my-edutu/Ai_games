@@ -14,5 +14,6 @@ test('opening site tour loops before start and exits only when the learner start
 
   await page.getByRole('button', { name: 'Start Guided Internship' }).click();
   await expect(scene).toHaveAttribute('data-cinematic-mode', 'entry-transition');
-  await expect(page.getByText(/welcome to site/i)).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Start Guided Internship' })).toHaveCount(0);
+  await expect(scene).not.toHaveAttribute('data-cinematic-mode', 'prestart-loop');
 });
