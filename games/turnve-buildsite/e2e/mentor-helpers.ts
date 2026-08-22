@@ -7,6 +7,8 @@ export async function reachBuildSite(page: Page, viewport = { width: 390, height
   await page.goto('/?demo=true');
   await page.getByLabel('Your name').fill('Amina Yusuf');
   await page.getByRole('button', { name: 'Enter BuildSite' }).click();
+  await expect(page.getByLabel('3D construction site')).toHaveAttribute('data-cinematic-mode', 'prestart-loop');
+  await page.getByRole('button', { name: 'Start Guided Internship' }).click();
   await page.getByRole('button', { name: 'Skip fly-through' }).click();
   for (const item of ppe) await page.getByRole('button', { name: new RegExp(item, 'i') }).click();
   await page.getByRole('button', { name: 'Present PPE to security' }).click();
