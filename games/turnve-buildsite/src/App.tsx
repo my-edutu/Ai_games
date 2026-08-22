@@ -34,10 +34,6 @@ export function App() {
   const skillLessonActive = state.skillMentor.phase !== 'idle';
 
   useEffect(() => {
-    if (isDemo && state.learnerName && !useSimulationStore.getState().started) state.dispatch({ type: 'START', mode: 'guided' });
-  }, [isDemo, state.learnerName]);
-
-  useEffect(() => {
     const key = (event: KeyboardEvent) => {
       if (event.shiftKey && event.code === 'KeyP' && !skillLessonActive) { event.preventDefault(); state.setSelectedInteractable(null); setPresenterOpen((open) => !open); return; }
       if (event.code === 'Tab' && state.started && !skillLessonActive && !['intro', 'ppe', 'briefing', 'report'].includes(state.stage)) { event.preventDefault(); state.setSelectedInteractable(null); setTabletOpen((open) => !open); }
