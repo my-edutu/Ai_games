@@ -8,6 +8,7 @@ async function reachSite(page: Page) {
   await page.goto('/?demo=true');
   await page.getByLabel('Your name').fill('Amina Yusuf');
   await clickFlow(page.getByRole('button', { name: 'Enter BuildSite' }));
+  await clickFlow(page.getByRole('button', { name: 'Start Guided Internship' }));
   await clickFlow(page.getByRole('button', { name: 'Skip fly-through' }));
   for (const item of ppe) await clickFlow(page.getByRole('button', { name: new RegExp(item, 'i') }));
   await clickFlow(page.getByRole('button', { name: 'Present PPE to security' }));
