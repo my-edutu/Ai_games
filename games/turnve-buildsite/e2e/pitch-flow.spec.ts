@@ -6,6 +6,7 @@ const clickFlow = (locator: Locator) => locator.evaluate((element) => (element a
 async function signIn(page: Page, name = 'Amina Yusuf') {
   await page.getByLabel('Your name').fill(name);
   await clickFlow(page.getByRole('button', { name: 'Enter BuildSite' }));
+  await clickFlow(page.getByRole('button', { name: 'Start Guided Internship' }));
 }
 
 test('guided pitch flow reaches an evidence-backed readiness report with simplified work UI', async ({ page }) => {
