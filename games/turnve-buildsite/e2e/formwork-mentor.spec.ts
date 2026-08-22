@@ -23,6 +23,6 @@ test('formwork learner finds and physically corrects the weak support', async ({
   await expect(coach).toContainText('Step 6 / 6');
 
   await page.getByTestId('formwork-final-verify').click();
-  const complete = page.getByRole('dialog', { name: 'Skill Mentor lesson' });
-  await expect(complete).toContainText('Skill complete');
+  await expect(coach).toContainText('Skill complete');
+  await expect(page.locator('.skill-lesson-panel')).toHaveCount(0);
 });
