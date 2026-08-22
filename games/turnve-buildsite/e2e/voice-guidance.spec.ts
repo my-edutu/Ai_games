@@ -38,6 +38,8 @@ test('voice guide personalizes onboarding and greets nearby site people by learn
   await page.getByLabel('Your name').fill('Amina Yusuf');
   await clickFlow(page.getByRole('button', { name: 'Enter BuildSite' }));
   await expect.poll(() => page.evaluate(() => ((window as typeof window & { __spoken?: string[] }).__spoken ?? []).some((line) => line.includes('Amina')))).toBe(true);
+  await expect(page.getByRole('button', { name: 'Start Guided Internship' })).toBeVisible();
+  await clickFlow(page.getByRole('button', { name: 'Start Guided Internship' }));
 
   await clickFlow(page.getByRole('button', { name: 'Skip fly-through' }));
   for (const item of ppe) await clickFlow(page.getByRole('button', { name: new RegExp(item, 'i') }));
