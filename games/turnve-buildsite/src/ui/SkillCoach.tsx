@@ -90,14 +90,46 @@ export function SkillCoach() {
   const dispatch = useSimulationStore((state) => state.dispatchSkillMentor);
   const [whyOpen, setWhyOpen] = useState(false);
 
-  if (!mentorState.activeSkillId || mentorState.phase !== 'practice') return null;
+  if (!mentorState.activeSkillId || mentorState.phase === 'idle') return null;
   const skill = skillDefinitions[mentorState.activeSkillId];
-  const step = skill.steps[mentorState.stepIndex];
+  const step = mentorState.phase === 'practice' ? skill.steps[mentorState.stepIndex] : undefined;
+  const result = mentorState.results[mentorState.activeSkillId];
+  const mentorFirstName = skill.mentor.split(/\s+/)[0] || skill.mentor;
+
+  useEffect(() => setWhyOpen(false), [mentorState.phase, step?.id]);
+
+  if (mentorState.phase === 'focus') {
+    return <aside className="skill-coach skill-coach-focus" aria-label="Skill Mentor coach" aria-live="polite">
+      <div className="skill-coach-topline">
+        <div><b>{mentorFirstName}</b><span>{skill.trade} mentor</span></div>
+        <button aria-label="Exit skill practice" onClick={() => dispatch({ type: 'EXIT_SKILL' })}>×</button>
+      </div>
+      <strong className="skill-coach-title">{skill.title}</strong>
+      <p>{whyOpen ? skill.safetyNote : skill.intro}</p>
+      <div className="skill-coach-actions skill-coach-start-actions">
+        <button className="primary skill-coach-primary" onClick={() => dispatch({ type: 'BEGIN_PRACTICE' })}>Begin practice</button>
+        <button aria-expanded={whyOpen} onClick={() => setWhyOpen((open) => !open)}>{whyOpen ? 'Overview' : 'Why?'}</button>
+      </div>
+    </aside>;
+  }
+
+  if (mentorState.phase === 'complete') {
+    return <aside className="skill-coach skill-coach-complete" aria-label="Skill Mentor coach" aria-live="polite">
+      <div className="skill-coach-topline">
+        <div><b>{mentorFirstName}</b><span>Skill complete</span></div>
+        <button aria-label="Exit skill practice" onClick={() => dispatch({ type: 'EXIT_SKILL' })}>×</button>
+      </div>
+      <div className="skill-coach-complete-line">
+        <div><strong className="skill-coach-title">{skill.title}</strong><small>Interaction evidence saved to this BuildSite run.</small></div>
+        <b>{result?.score ?? 0}<small>/100</small></b>
+      </div>
+      <div className="skill-coach-actions"><button className="primary skill-coach-primary" onClick={() => dispatch({ type: 'EXIT_SKILL' })}>Return to site</button></div>
+    </aside>;
+  }
+
   if (!step) return null;
   const target = interactionTargetForStep(step.id);
-  const mentorFirstName = skill.mentor.split(/\s+/)[0] || skill.mentor;
   const instruction = target?.instruction ?? step.instruction;
-
   const completeFallback = (quality: number) => dispatch({ type: 'COMPLETE_STEP', actionType: step.actionType, quality });
   const repeat = () => speakVoice(buildSkillStepVoice(skill, step, learnerName));
 
