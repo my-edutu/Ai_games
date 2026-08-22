@@ -1,6 +1,7 @@
 import { expect, type Page } from '@playwright/test';
 
 const ppe = ['Hard hat', 'High-visibility vest', 'Safety boots', 'Safety glasses'];
+const clickSetup = (locator: ReturnType<Page['getByRole']>) => locator.evaluate((element) => (element as HTMLElement).click());
 
 export async function reachBuildSite(page: Page, viewport = { width: 390, height: 844 }) {
   await page.setViewportSize(viewport);
@@ -9,7 +10,7 @@ export async function reachBuildSite(page: Page, viewport = { width: 390, height
   await page.getByRole('button', { name: 'Enter BuildSite' }).click();
   await expect(page.getByLabel('3D construction site')).toHaveAttribute('data-cinematic-mode', 'prestart-loop');
   await page.getByRole('button', { name: 'Start Guided Internship' }).click();
-  await page.getByRole('button', { name: 'Skip fly-through' }).click();
+  await clickSetup(page.getByRole('button', { name: 'Skip fly-through' }));
   for (const item of ppe) await page.getByRole('button', { name: new RegExp(item, 'i') }).click();
   await page.getByRole('button', { name: 'Present PPE to security' }).click();
   await page.getByRole('button', { name: 'Begin guided site walk' }).click();
