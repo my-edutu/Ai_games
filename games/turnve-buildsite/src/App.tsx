@@ -76,7 +76,7 @@ export function App() {
   };
   const handleNameEntered = (name: string) => {
     enableSound();
-    if (!isDemo) speakVoice(`Welcome to Turnve BuildSite, ${name}. Choose Guided Internship or Assessment Mode when you are ready to enter the site.`);
+    speakVoice(`Welcome to Turnve BuildSite, ${name}. Choose Guided Internship or Assessment Mode when you are ready to enter the site.`);
   };
   const showHint = () => { state.dispatch({ type: 'USE_HINT' }); setHint(getTariHint(useSimulationStore.getState())); };
   const start = (mode: 'guided' | 'assessment') => { enableSound(); state.dispatch({ type: 'START', mode }); };
