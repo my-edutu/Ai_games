@@ -1,6 +1,8 @@
 import { expect, test } from '@playwright/test';
 import { reachBuildSite } from './mentor-helpers';
 
+test.setTimeout(120_000);
+
 const truck = ['cab','grille','windshield','mirror-left','mirror-right','front-wheel-left','front-wheel-right','rear-dual-left','rear-dual-right','drum','hopper','chute','ladder'];
 const wheelbarrow = ['tray','rim','frame','wheel','axle','leg-left','leg-right','handle-left','handle-right'];
 const crane = ['mast','jib','counter-jib','counterweight','cab','trolley','hook'];
@@ -18,7 +20,6 @@ const expectedIds = [
 ];
 
 test('close-range construction equipment exposes complete component structure', async ({ page }) => {
-  test.setTimeout(120_000);
   await reachBuildSite(page, { width: 1280, height: 820 });
 
   const ids = await page.locator('[data-testid]').evaluateAll((elements) => elements
