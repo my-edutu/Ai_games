@@ -27,6 +27,6 @@ test('rebar learner measures spacing and cover then marks the quality mismatch',
   await expect(coach).toContainText('Step 6 / 6');
   await page.getByTestId('rebar-request-inspection').click();
 
-  const complete = page.getByRole('dialog', { name: 'Skill Mentor lesson' });
-  await expect(complete).toContainText('Skill complete');
+  await expect(coach).toContainText('Skill complete');
+  await expect(page.locator('.skill-lesson-panel')).toHaveCount(0);
 });
