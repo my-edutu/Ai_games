@@ -21,7 +21,7 @@ test('welding learner inspects real bay components and traces the seam', async (
   await expect(coach).toContainText('Step 5 / 5');
 
   await page.getByTestId('welding-bead-inspect').click();
-  const complete = page.getByRole('dialog', { name: 'Skill Mentor lesson' });
-  await expect(complete).toContainText('Skill complete');
-  await expect(complete).toContainText(/\/100/);
+  await expect(coach).toContainText('Skill complete');
+  await expect(coach).toContainText(/\/100/);
+  await expect(page.locator('.skill-lesson-panel')).toHaveCount(0);
 });
