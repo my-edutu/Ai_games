@@ -1,7 +1,7 @@
-import { expect, type Page } from '@playwright/test';
+import { expect, type Locator, type Page } from '@playwright/test';
 
 const ppe = ['Hard hat', 'High-visibility vest', 'Safety boots', 'Safety glasses'];
-const clickSetup = (locator: ReturnType<Page['getByRole']>) => locator.evaluate((element) => (element as HTMLElement).click());
+const clickSetup = (locator: Locator) => locator.evaluate((element) => (element as HTMLElement).click());
 
 export async function reachBuildSite(page: Page, viewport = { width: 390, height: 844 }) {
   await page.setViewportSize(viewport);
