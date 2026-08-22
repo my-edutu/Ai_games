@@ -26,13 +26,12 @@ export async function beginMentorLesson(page: Page, presenterAction: string, men
   await expect(prompt).toContainText(mentorName);
   await prompt.getByRole('button', { name: 'Learn this job' }).click();
 
-  const gate = page.getByRole('dialog', { name: 'Skill Mentor lesson' });
-  await expect(gate.getByRole('heading', { name: skillTitle })).toBeVisible();
-  await gate.getByRole('button', { name: 'Begin practice' }).click();
-
   const coach = page.locator('.skill-coach');
   await expect(coach).toBeVisible();
+  await expect(coach).toContainText(skillTitle);
   await expect(page.locator('.skill-lesson-panel')).toHaveCount(0);
+  await coach.getByRole('button', { name: 'Begin practice' }).click();
+  await expect(coach).toContainText(/Step 1 \/ /);
   await expect(coach.locator('details.skill-accessibility-fallback')).not.toHaveAttribute('open', '');
   return coach;
 }
