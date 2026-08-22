@@ -25,10 +25,10 @@ test('masonry learner performs the job on the live 3D workpiece', async ({ page 
   await expect(coach).toContainText('Step 5 / 5');
 
   await dragAcross(page, 'masonry-joint-trace');
-  const complete = page.getByRole('dialog', { name: 'Skill Mentor lesson' });
-  await expect(complete).toContainText('Skill complete');
-  await expect(complete).toContainText(/\/100/);
-  await complete.getByRole('button', { name: 'Return to site' }).click();
+  await expect(coach).toContainText('Skill complete');
+  await expect(coach).toContainText(/\/100/);
+  await expect(page.locator('.skill-lesson-panel')).toHaveCount(0);
+  await coach.getByRole('button', { name: 'Return to site' }).click();
   await expect(scene).toHaveAttribute('data-skill-focus', 'none');
   await expect(page.getByLabel('Movement joystick')).toBeVisible();
 });
