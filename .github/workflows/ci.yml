@@ -37,6 +37,8 @@ jobs:
         run: npm run ant:stream:self-test
       - name: Tower stream host self-test
         run: npm run tower:stream:self-test
+      - name: Zombie stream host self-test
+        run: npm run zombie:stream:self-test
       - name: Authoritative nondeterminism scan
         shell: bash
         run: |
@@ -65,7 +67,12 @@ jobs:
             games/infinite-tower-climb/src/physics \
             games/infinite-tower-climb/src/combat \
             games/infinite-tower-climb/src/progression \
-            games/infinite-tower-climb/src/influence; then
+            games/infinite-tower-climb/src/influence \
+            games/ai-zombie-survival/src/rules \
+            games/ai-zombie-survival/src/runtime \
+            games/ai-zombie-survival/src/ai \
+            games/ai-zombie-survival/src/generation \
+            games/ai-zombie-survival/src/state; then
             echo 'Forbidden ambient nondeterminism found in authoritative code.'
             exit 1
           fi
@@ -93,6 +100,12 @@ jobs:
           set -euo pipefail
           mkdir -p artifacts/tower-phase5
           npm run tower:phase5:chaos -- tower-phase5-ci > artifacts/tower-phase5/chaos-summary.json
+      - name: Generate Zombie Phase 5 chaos evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/zombie-phase5
+          npm run zombie:phase5:chaos > artifacts/zombie-phase5/chaos-summary.json
       - name: Generate Snake Phase 6 release validation evidence
         shell: bash
         env:
@@ -125,6 +138,14 @@ jobs:
           set -euo pipefail
           mkdir -p artifacts/tower-phase6
           npm run tower:phase6:validate > artifacts/tower-phase6/release-validation.json
+      - name: Generate Zombie Phase 6 release validation evidence
+        shell: bash
+        env:
+          CANDIDATE_SOURCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/zombie-phase6
+          npm run zombie:phase6:validate > artifacts/zombie-phase6/release-validation.json
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
       - name: Browser capture and layout verification
@@ -161,6 +182,14 @@ jobs:
           path: artifacts/tower-phase3
           if-no-files-found: error
           retention-days: 30
+      - name: Upload Zombie Phase 3 capture evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: ai-zombie-survival-phase3-capture
+          path: artifacts/zombie-phase3
+          if-no-files-found: error
+          retention-days: 30
       - name: Upload Snake Phase 5 operations evidence
         if: always()
         uses: actions/upload-artifact@v7
@@ -193,6 +222,14 @@ jobs:
           path: artifacts/tower-phase5
           if-no-files-found: error
           retention-days: 30
+      - name: Upload Zombie Phase 5 operations evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: ai-zombie-survival-phase5-operations
+          path: artifacts/zombie-phase5
+          if-no-files-found: error
+          retention-days: 30
       - name: Upload Snake Phase 6 release validation evidence
         if: always()
         uses: actions/upload-artifact@v7
@@ -223,5 +260,13 @@ jobs:
         with:
           name: infinite-tower-climb-phase6-validation
           path: artifacts/tower-phase6
+          if-no-files-found: error
+          retention-days: 30
+      - name: Upload Zombie Phase 6 release validation evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: ai-zombie-survival-phase6-validation
+          path: artifacts/zombie-phase6
           if-no-files-found: error
           retention-days: 30

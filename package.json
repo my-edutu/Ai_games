@@ -31,6 +31,13 @@
     "test:tower:phase4": "npm run build && node --test tests/phase4/tower-*.test.cjs",
     "test:tower:phase5": "npm run build && node --test tests/phase5/tower-*.test.cjs",
     "test:tower:phase6": "npm run build && node --test tests/phase6/tower-*.test.cjs",
+    "test:zombie:phase1": "npm run build && node --test tests/foundation/zombie-*.test.cjs",
+    "test:zombie:phase2": "npm run build && node --test tests/phase2/zombie-*.test.cjs",
+    "test:zombie:phase3": "npm run build && node --test tests/phase3/zombie-*.test.cjs",
+    "test:zombie:phase4": "npm run build && node --test tests/phase4/zombie-*.test.cjs",
+    "test:zombie:phase5": "npm run build && node --test tests/phase5/zombie-*.test.cjs",
+    "test:zombie:phase6": "npm run build && node --test tests/phase6/zombie-*.test.cjs",
+    "test:zombie:all": "npm run build && node --test tests/foundation/zombie-*.test.cjs tests/phase2/zombie-*.test.cjs tests/phase3/zombie-*.test.cjs tests/phase4/zombie-*.test.cjs tests/phase5/zombie-*.test.cjs tests/phase6/zombie-*.test.cjs",
     "test:browser": "playwright test",
     "snake:headless": "npm run build && node scripts/run-snake-headless.cjs",
     "snake:stream": "npm run build && node scripts/serve-snake-stream.cjs",
@@ -53,7 +60,12 @@
     "tower:stream": "npm run build && node scripts/serve-tower-stream.cjs",
     "tower:stream:self-test": "npm run build && node scripts/serve-tower-stream.cjs --self-test",
     "tower:phase5:chaos": "npm run build && node scripts/run-tower-phase5-chaos.cjs",
-    "tower:phase6:validate": "npm run build && node scripts/run-tower-phase6-validation.cjs"
+    "tower:phase6:validate": "npm run build && node scripts/run-tower-phase6-validation.cjs",
+    "zombie:headless": "npm run build && node scripts/run-zombie-headless.cjs",
+    "zombie:stream": "npm run build && node scripts/serve-zombie-stream.cjs",
+    "zombie:stream:self-test": "npm run build && node scripts/serve-zombie-stream.cjs --self-test",
+    "zombie:phase5:chaos": "npm run build && node -e \"const{runZombiePhase5Chaos}=require('./dist/games/ai-zombie-survival/src/operations/chaos.js');const r=runZombiePhase5Chaos();process.stdout.write(JSON.stringify(r)+'\\n');if(!r.passed)process.exitCode=1\"",
+    "zombie:phase6:validate": "npm run build && node scripts/run-zombie-phase6-validation.cjs"
   },
   "devDependencies": {
     "@playwright/test": "1.55.0",

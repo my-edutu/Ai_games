@@ -1,0 +1,422 @@
+import type{NamedRng}from'../../../../packages/seeded-rng/src/index';
+import{chooseSurvivorDecision,chooseTeamStrategy,type SurvivorDecision}from'../ai/policy';
+import{manhattan,nearestCell,nextStepToward,stableNeighbors}from'./grid';
+import type{SurvivorState,ZombieDefense,ZombieEntity,ZombieEvent,ZombieRunResult,ZombieState,ZombieWeather}from'../state/types';
+
+export interface ZombieStepOutput{state:ZombieState;events:Omit<ZombieEvent,'seq'>[]}
+
+function event(state:ZombieState,type:string,data?:Record<string,unknown>):Omit<ZombieEvent,'seq'>{
+  return{tick:state.tick,type,data};
+}
+
+function clamp(value:number,min:number,max:number){
+  return Math.max(min,Math.min(max,value));
+}
+
+export function assertZombieInvariants(state:ZombieState){
+  const survivorIds=state.survivors.map(s=>s.id);
+  if(new Set(survivorIds).size!==survivorIds.length)throw new Error('duplicate survivor id');
+  const zombieIds=state.zombies.map(z=>z.id);
+  if(new Set(zombieIds).size!==zombieIds.length)throw new Error('duplicate zombie id');
+  const defenseIds=state.defenses.map(d=>d.id);
+  if(new Set(defenseIds).size!==defenseIds.length)throw new Error('duplicate defense id');
+  const maxCell=state.world.width*state.world.height;
+  for(const entity of[...state.survivors,...state.zombies]){
+    if(entity.cell<0||entity.cell>=maxCell)throw new Error('entity outside world');
+  }
+  for(const value of Object.values(state.resources)){
+    if(!Number.isInteger(value)||value<0||value>state.config.maxResourcePerKind)throw new Error('resource bounds');
+  }
+  for(const survivor of state.survivors){
+    if(survivor.health<0||survivor.health>100)throw new Error('survivor health');
+    if(survivor.stamina<0||survivor.stamina>100)throw new Error('survivor stamina');
+    if(!Number.isInteger(survivor.stuckTicks)||survivor.stuckTicks<0)throw new Error('survivor stuck state');
+    if(survivor.carrying&&(survivor.carrying.amount<0||survivor.carrying.amount>state.config.maxCarry))throw new Error('carry bounds');
+  }
+  for(const zombie of state.zombies){
+    if(zombie.health<0||zombie.health>zombie.maxHealth)throw new Error('zombie health');
+    if(zombie.status==='active'&&zombie.health<=0)throw new Error('active dead zombie');
+  }
+  const defenseCap=state.config.wallMaxIntegrity+(state.config.wallMaxLevel-1)*state.config.wallIntegrityPerLevel;
+  for(const defense of state.defenses){
+    if(defense.level<1||defense.level>state.config.wallMaxLevel)throw new Error('defense level');
+    if(defense.maxIntegrity<state.config.wallMaxIntegrity||defense.maxIntegrity>defenseCap)throw new Error('defense max integrity');
+    if(defense.integrity<0||defense.integrity>defense.maxIntegrity)throw new Error('defense integrity');
+  }
+  if(state.baseIntegrity<0||state.baseIntegrity>1000)throw new Error('base integrity');
+  if(state.coreIntegrity<0||state.coreIntegrity>state.config.coreMaxIntegrity)throw new Error('core integrity');
+  if(state.horde.totalForNight<0||state.horde.totalForNight>state.config.maxZombies||state.horde.spawned<0||state.horde.spawned>state.horde.totalForNight)throw new Error('horde bounds');
+  if(Object.values(state.horde.composition).reduce((a,b)=>a+b,0)!==state.horde.spawned)throw new Error('horde composition');
+  if(state.zombies.length>state.config.maxZombies)throw new Error('zombie cap');
+  if(state.result&&state.lifecycle!=='result'&&state.lifecycle!=='intermission')throw new Error('result lifecycle');
+  return true;
+}
+
+function terminal(state:ZombieState,outcome:ZombieRunResult['outcome'],cause:string):ZombieStepOutput{
+  state.lifecycle='result';
+  state.phaseTick=0;
+  state.intermissionRemaining=state.config.resultTicks;
+  state.result={outcome,cause,day:state.day,tick:state.tick,survivors:state.survivors.filter(s=>s.status!=='dead').length,baseIntegrity:state.baseIntegrity};
+  return{state,events:[event(state,'run-result',{outcome,cause,day:state.day})]};
+}
+
+function updateBaseIntegrity(state:ZombieState){
+  const total=state.defenses.reduce((sum,d)=>sum+d.integrity,0);
+  const max=state.defenses.reduce((sum,d)=>sum+d.maxIntegrity,0);
+  state.baseIntegrity=max===0?0:Math.floor(total*1000/max);
+}
+
+function weatherForDay(rng:NamedRng):ZombieWeather{
+  return(['clear','rain','fog','heat']as ZombieWeather[])[rng.nextInt('weather',4)];
+}
+
+function scheduleHorde(state:ZombieState){
+  const total=Math.min(state.config.maxZombies,state.config.waveBaseSize+(state.day-1)*state.config.waveGrowthPerDay);
+  state.horde={totalForNight:total,spawned:0,defeated:0,escaped:0,composition:{walker:0,runner:0,brute:0}};
+  return event(state,'horde-scheduled',{day:state.day,total,forecast:total/state.config.maxZombies<0.34?'low':total/state.config.maxZombies<0.67?'medium':'high'});
+}
+
+function zombieProfile(kind:ZombieEntity['kind']){
+  return kind==='runner'?{health:30,damage:10,period:1}:kind==='brute'?{health:120,damage:24,period:3}:{health:45,damage:14,period:2};
+}
+
+function chooseZombieKind(state:ZombieState,rng:NamedRng):ZombieEntity['kind']{
+  const roll=rng.nextInt('horde:kind',100);
+  const runner=Math.min(35,8+state.day*3);
+  const brute=Math.min(25,Math.max(0,(state.day-2)*3));
+  return roll<brute?'brute':roll<brute+runner?'runner':'walker';
+}
+
+function spawnZombie(state:ZombieState,rng:NamedRng,events:Omit<ZombieEvent,'seq'>[]){
+  if(state.horde.spawned>=state.horde.totalForNight||state.phaseTick%state.config.zombieSpawnInterval!==0)return;
+  const occupied=new Set(state.zombies.filter(z=>z.status==='active').map(z=>z.cell));
+  const start=rng.nextInt('horde:gate',state.world.gates.length);
+  let gate=state.world.gates[start];
+  let cell=-1;
+  for(let offset=0;offset<state.world.gates.length;offset++){
+    const candidate=state.world.gates[(start+offset)%state.world.gates.length];
+    const cells=[candidate.cell,...stableNeighbors(candidate.cell,state.world.width,state.world.height)];
+    const open=cells.find(value=>!occupied.has(value)&&!state.world.blockedCells.includes(value)&&!state.world.baseCells.includes(value));
+    if(open!==undefined){gate=candidate;cell=open;break;}
+  }
+  if(cell<0)return;
+  const kind=chooseZombieKind(state,rng);
+  const profile=zombieProfile(kind);
+  const id=`zombie-${state.day}-${state.horde.spawned+1}`;
+  state.zombies.push({id,kind,cell,health:profile.health,maxHealth:profile.health,status:'active',gateId:gate.id,moveCooldown:0,attackCooldown:0});
+  state.horde.spawned++;
+  state.horde.composition[kind]++;
+  events.push(event(state,'zombie-spawned',{id,kind,gateId:gate.id}));
+}
+
+function moveSurvivor(state:ZombieState,survivor:SurvivorState,target:number){
+  if(target===survivor.cell)return false;
+  const blocked=new Set(state.world.blockedCells);
+  const occupied=new Set(state.survivors.filter(s=>s.status==='active'&&s.id!==survivor.id).map(s=>s.cell));
+  const next=nextStepToward(survivor.cell,new Set([target]),state.world.width,state.world.height,blocked,occupied);
+  if(next!==survivor.cell){
+    survivor.cell=next;
+    survivor.stuckTicks=0;
+    return true;
+  }
+  survivor.stuckTicks=Math.min(state.config.stuckRecoveryTicks*4,survivor.stuckTicks+1);
+  return false;
+}
+
+function applySurvivorDecision(state:ZombieState,decision:SurvivorDecision,events:Omit<ZombieEvent,'seq'>[]){
+  const survivor=state.survivors.find(s=>s.id===decision.survivorId);
+  if(!survivor||survivor.status!=='active')return;
+  survivor.action=decision.action;
+  survivor.targetCell=decision.targetCell;
+  survivor.targetId=decision.targetId;
+  survivor.intent=decision.intent;
+  survivor.confidence=decision.confidence;
+  survivor.decisions++;
+  const staminaCost=decision.action==='rest'||decision.action==='idle'?0:state.weather==='heat'?2:1;
+  survivor.stamina=clamp(survivor.stamina-staminaCost,0,100);
+
+  if(decision.action==='rest'){
+    survivor.stamina=clamp(survivor.stamina+16,0,100);
+    survivor.stuckTicks=0;
+    events.push(event(state,'survivor-rested',{survivorId:survivor.id}));
+    return;
+  }
+
+  if(decision.action==='heal'&&decision.targetId){
+    const target=state.survivors.find(s=>s.id===decision.targetId&&s.status==='active');
+    if(target&&manhattan(survivor.cell,target.cell,state.world.width)<=1&&state.resources.medicine>0&&target.health<100){
+      state.resources.medicine--;
+      const healed=Math.min(25,100-target.health);
+      target.health+=healed;
+      state.stats.healing+=healed;
+      survivor.stuckTicks=0;
+      events.push(event(state,'survivor-healed',{survivorId:survivor.id,targetId:target.id,healed}));
+      return;
+    }
+    if(target&&decision.targetCell!==null)moveSurvivor(state,survivor,decision.targetCell);
+    return;
+  }
+
+  if(decision.action==='build'&&decision.targetId){
+    const defense=state.defenses.find(d=>d.id===decision.targetId);
+    if(defense&&survivor.cell===defense.cell&&state.resources.materials>=state.config.wallBuildCost&&defense.level<state.config.wallMaxLevel){
+      state.resources.materials-=state.config.wallBuildCost;
+      defense.level++;
+      defense.maxIntegrity+=state.config.wallIntegrityPerLevel;
+      defense.integrity=defense.maxIntegrity;
+      state.stats.wallsBuilt++;
+      survivor.stuckTicks=0;
+      updateBaseIntegrity(state);
+      events.push(event(state,'defense-built',{survivorId:survivor.id,defenseId:defense.id,level:defense.level,maxIntegrity:defense.maxIntegrity}));
+      return;
+    }
+    if(defense)moveSurvivor(state,survivor,defense.cell);
+    return;
+  }
+
+  if(decision.action==='repair'&&decision.targetId){
+    const defense=state.defenses.find(d=>d.id===decision.targetId);
+    if(defense&&survivor.cell===defense.cell&&state.resources.materials>=5&&defense.integrity<defense.maxIntegrity){
+      state.resources.materials-=5;
+      const repaired=Math.min(40,defense.maxIntegrity-defense.integrity);
+      defense.integrity+=repaired;
+      state.stats.repairs++;
+      survivor.stuckTicks=0;
+      updateBaseIntegrity(state);
+      events.push(event(state,'defense-repaired',{survivorId:survivor.id,defenseId:defense.id,repaired}));
+      return;
+    }
+    if(defense)moveSurvivor(state,survivor,defense.cell);
+    return;
+  }
+
+  if(decision.action==='attack'&&decision.targetId){
+    const target=state.zombies.find(z=>z.id===decision.targetId&&z.status==='active');
+    if(!target)return;
+    const distance=manhattan(survivor.cell,target.cell,state.world.width);
+    if(distance>state.config.survivorAttackRange)return;
+    if(distance>1&&state.resources.ammo<=0)return;
+    const ranged=state.resources.ammo>0;
+    if(ranged)state.resources.ammo--;
+    const damage=ranged?(survivor.role==='guard'?35:survivor.role==='scout'?28:20):12;
+    target.health=clamp(target.health-damage,0,target.maxHealth);
+    survivor.stuckTicks=0;
+    events.push(event(state,'survivor-attacked',{survivorId:survivor.id,targetId:target.id,damage,ranged}));
+    if(target.health===0){
+      target.status='dead';
+      state.stats.zombiesDefeated++;
+      state.horde.defeated++;
+      events.push(event(state,'zombie-defeated',{targetId:target.id,survivorId:survivor.id}));
+    }
+    return;
+  }
+
+  if(decision.action==='scavenge'&&decision.targetId){
+    const site=state.world.resourceSites.find(s=>s.id===decision.targetId);
+    if(!site)return;
+    if(survivor.cell!==site.cell){moveSurvivor(state,survivor,site.cell);return;}
+    if(!survivor.carrying&&site.stock>0){
+      const amount=Math.min(state.config.resourcePickup,state.config.maxCarry,site.stock);
+      site.stock-=amount;
+      survivor.carrying={kind:site.kind,amount};
+      survivor.stuckTicks=0;
+      state.stats.resourcesCollected+=amount;
+      events.push(event(state,'resource-collected',{survivorId:survivor.id,kind:site.kind,amount}));
+    }
+    return;
+  }
+
+  if(decision.action==='deliver'&&survivor.carrying){
+    if(survivor.cell!==state.world.coreCell){moveSurvivor(state,survivor,state.world.coreCell);return;}
+    const carried=survivor.carrying;
+    const capacity=state.config.maxResourcePerKind-state.resources[carried.kind];
+    const accepted=Math.min(carried.amount,capacity);
+    state.resources[carried.kind]+=accepted;
+    state.stats.resourcesDelivered+=accepted;
+    carried.amount-=accepted;
+    survivor.stuckTicks=0;
+    events.push(event(state,'resource-delivered',{survivorId:survivor.id,kind:carried.kind,amount:accepted}));
+    if(carried.amount<=0)survivor.carrying=null;
+    return;
+  }
+
+  if((decision.action==='guard'||decision.action==='reposition'||decision.action==='retreat')&&decision.targetCell!==null){
+    if(decision.targetCell===survivor.cell){
+      if(decision.action!=='reposition')survivor.stuckTicks=0;
+      return;
+    }
+    moveSurvivor(state,survivor,decision.targetCell);
+  }
+}
+
+function runSurvivorAI(state:ZombieState,events:Omit<ZombieEvent,'seq'>[]){
+  if(state.tick%state.config.survivorDecisionInterval!==0)return;
+  const strategy=chooseTeamStrategy(state);
+  if(strategy!==state.strategy){
+    state.strategy=strategy;
+    events.push(event(state,'team-strategy-changed',{strategy}));
+  }
+  for(const survivor of[...state.survivors].sort((a,b)=>a.id.localeCompare(b.id))){
+    if(survivor.status!=='active')continue;
+    try{
+      applySurvivorDecision(state,chooseSurvivorDecision(state,survivor.id),events);
+    }catch(error){
+      survivor.fallbacks++;
+      state.stats.fallbackActions++;
+      survivor.action='idle';
+      survivor.intent='Fallback: holding a legal position.';
+      events.push(event(state,'survivor-fallback',{survivorId:survivor.id,reason:error instanceof Error?error.message:'policy-error'}));
+    }
+  }
+}
+
+function damageSurvivor(state:ZombieState,zombie:ZombieEntity,survivor:SurvivorState,damage:number,events:Omit<ZombieEvent,'seq'>[]){
+  survivor.health=clamp(survivor.health-damage,0,100);
+  state.stats.damageTaken+=damage;
+  events.push(event(state,'survivor-damaged',{survivorId:survivor.id,zombieId:zombie.id,damage}));
+  if(survivor.health===0){
+    survivor.status='dead';
+    survivor.action='idle';
+    events.push(event(state,'survivor-died',{survivorId:survivor.id,zombieId:zombie.id}));
+  }
+}
+
+function stepZombies(state:ZombieState,events:Omit<ZombieEvent,'seq'>[]){
+  const occupied=new Set(state.zombies.filter(z=>z.status==='active').map(z=>z.cell));
+  const survivorCells=new Set(state.survivors.filter(s=>s.status==='active').map(s=>s.cell));
+  const blocked=new Set(state.world.blockedCells);
+  for(const zombie of[...state.zombies].filter(z=>z.status==='active').sort((a,b)=>a.id.localeCompare(b.id))){
+    const profile=zombieProfile(zombie.kind);
+    zombie.attackCooldown=Math.max(0,zombie.attackCooldown-1);
+    const adjacent=state.survivors.filter(s=>s.status==='active'&&manhattan(zombie.cell,s.cell,state.world.width)<=1).sort((a,b)=>a.id.localeCompare(b.id))[0];
+    if(adjacent&&zombie.attackCooldown===0){
+      damageSurvivor(state,zombie,adjacent,profile.damage,events);
+      zombie.attackCooldown=2;
+      continue;
+    }
+    const defense=state.defenses.find(d=>d.gateId===zombie.gateId)??state.defenses[0];
+    const target=defense.integrity>0?defense.cell:state.world.coreCell;
+    if(manhattan(zombie.cell,target,state.world.width)<=1&&zombie.attackCooldown===0){
+      if(defense.integrity>0){
+        const before=defense.integrity;
+        defense.integrity=clamp(defense.integrity-profile.damage,0,defense.maxIntegrity);
+        events.push(event(state,'defense-damaged',{defenseId:defense.id,zombieId:zombie.id,damage:before-defense.integrity}));
+        if(before>0&&defense.integrity===0){
+          state.stats.breaches++;
+          events.push(event(state,'defense-breached',{defenseId:defense.id}));
+        }
+      }else{
+        const before=state.coreIntegrity;
+        state.coreIntegrity=clamp(state.coreIntegrity-profile.damage,0,state.config.coreMaxIntegrity);
+        events.push(event(state,'core-damaged',{zombieId:zombie.id,damage:before-state.coreIntegrity}));
+      }
+      zombie.attackCooldown=2;
+      continue;
+    }
+    const weatherPenalty=state.weather==='rain'&&zombie.kind!=='brute'?1:0;
+    const period=profile.period+weatherPenalty;
+    if(state.tick%period!==0)continue;
+    occupied.delete(zombie.cell);
+    const step=nextStepToward(zombie.cell,new Set([target]),state.world.width,state.world.height,blocked,new Set([...occupied,...survivorCells]));
+    zombie.cell=step;
+    occupied.add(step);
+  }
+  state.zombies=state.zombies.filter(z=>z.status==='active');
+  updateBaseIntegrity(state);
+}
+
+function dailyUpkeep(state:ZombieState,events:Omit<ZombieEvent,'seq'>[]){
+  const alive=state.survivors.filter(s=>s.status==='active');
+  const foodNeed=alive.length*2;
+  const powerNeed=1;
+  const foodUsed=Math.min(foodNeed,state.resources.food);
+  state.resources.food-=foodUsed;
+  if(foodUsed<foodNeed){
+    state.stats.starvationEvents++;
+    for(const survivor of alive){
+      survivor.health=clamp(survivor.health-state.config.starvationDamage,0,100);
+      if(survivor.health===0)survivor.status='dead';
+    }
+    events.push(event(state,'starvation',{shortfall:foodNeed-foodUsed,damage:state.config.starvationDamage}));
+  }
+  const powerUsed=Math.min(powerNeed,state.resources.power);
+  state.resources.power-=powerUsed;
+  for(const survivor of state.survivors.filter(s=>s.status==='active')){
+    survivor.stamina=clamp(survivor.stamina+(foodUsed===foodNeed?20:6),0,100);
+  }
+  events.push(event(state,'daily-upkeep',{foodNeed,foodUsed,powerNeed,powerUsed}));
+}
+
+function checkLoss(state:ZombieState){
+  return state.coreIntegrity<=0?'command-core-destroyed':state.survivors.every(s=>s.status==='dead')?'all-survivors-lost':null;
+}
+
+export function stepZombieRules(state:ZombieState,rng:NamedRng):ZombieStepOutput{
+  assertZombieInvariants(state);
+  if(state.lifecycle==='quarantine'||state.lifecycle==='result'||state.lifecycle==='intermission')return{state:structuredClone(state),events:[]};
+  const next=structuredClone(state);
+  next.tick++;
+  next.phaseTick++;
+  const events:Omit<ZombieEvent,'seq'>[]=[];
+
+  if(next.lifecycle==='preparation'){
+    runSurvivorAI(next,events);
+    if(next.phaseTick>=next.config.dayTicks){
+      next.lifecycle='horde';
+      next.phaseTick=0;
+      next.meaningfulEventTick=next.tick;
+      events.push(event(next,'phase-changed',{phase:'horde',day:next.day}),scheduleHorde(next));
+    }
+  }else if(next.lifecycle==='horde'){
+    spawnZombie(next,rng,events);
+    runSurvivorAI(next,events);
+    stepZombies(next,events);
+    const loss=checkLoss(next);
+    if(loss){
+      const out=terminal(next,'overrun',loss);
+      out.events.unshift(...events);
+      return out;
+    }
+    if(next.phaseTick>=next.config.nightTicks){
+      next.horde.escaped+=next.zombies.length;
+      if(next.zombies.length)events.push(event(next,'sunrise-dispersed',{remaining:next.zombies.length}));
+      next.zombies=[];
+      next.stats.daysCompleted++;
+      next.stats.hordesSurvived++;
+      dailyUpkeep(next,events);
+      const upkeepLoss=checkLoss(next);
+      if(upkeepLoss){
+        const out=terminal(next,'overrun',upkeepLoss);
+        out.events.unshift(...events);
+        return out;
+      }
+      next.meaningfulEventTick=next.tick;
+      if(next.day>=next.config.maxDays){
+        const out=terminal(next,'evacuated','evacuation-day-reached');
+        out.events.unshift(...events);
+        return out;
+      }
+      next.day++;
+      next.lifecycle='preparation';
+      next.phaseTick=0;
+      next.weather=weatherForDay(rng);
+      next.horde={totalForNight:0,spawned:0,defeated:0,escaped:0,composition:{walker:0,runner:0,brute:0}};
+      events.push(event(next,'dawn',{day:next.day,weather:next.weather}),event(next,'phase-changed',{phase:'preparation',day:next.day}));
+    }
+  }
+
+  if(events.length)next.meaningfulEventTick=next.tick;
+  assertZombieInvariants(next);
+  return{state:next,events};
+}
+
+export function createInitialDefenses(stateLike:{world:ZombieState['world'];config:ZombieState['config']}):ZombieDefense[]{
+  return stateLike.world.gates.map(gate=>({
+    id:`defense-${gate.side}`,
+    gateId:gate.id,
+    cell:nearestCell(gate.cell,stateLike.world.baseCells,stateLike.world.width),
+    integrity:stateLike.config.wallMaxIntegrity,
+    maxIntegrity:stateLike.config.wallMaxIntegrity,
+    level:1,
+  }));
+}
