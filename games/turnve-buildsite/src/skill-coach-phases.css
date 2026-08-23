@@ -1,0 +1,10 @@
+/* Keep every Skill Mentor phase compact so the 3D workpiece remains the primary learning surface. */
+.skill-coach-focus,.skill-coach-complete{max-height:178px;overflow:hidden}
+.skill-coach-title{display:block;min-width:0;color:#fff;font-size:.82rem;line-height:1.15;font-weight:900;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.skill-coach-focus>p{display:-webkit-box;margin:0;overflow:hidden;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-clamp:2;font-size:.69rem;font-weight:650;line-height:1.35;color:#c9dcf0}
+.skill-coach-start-actions{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center}
+.skill-coach-actions .skill-coach-primary{background:#1559b8;border-color:#5d9ce8;color:#fff;text-align:center;font-weight:900}
+.skill-coach-complete-line{display:flex;align-items:center;justify-content:space-between;gap:.7rem;min-width:0}
+.skill-coach-complete-line>div{min-width:0;display:grid;gap:.12rem}.skill-coach-complete-line>div>small{display:block;color:#9fb7d1;font-size:.58rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.skill-coach-complete-line>b{flex:none;display:flex;align-items:baseline;gap:.08rem;color:#8dd8af;font-size:1.55rem;line-height:1}.skill-coach-complete-line>b small{font-size:.55rem;color:#7fa58f}
+@media (min-width:720px){.skill-coach-focus,.skill-coach-complete{max-height:184px}}
