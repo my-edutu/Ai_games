@@ -124,12 +124,17 @@ function createOperatorController(token, historyCap = 256) {
 }
 
 function createRuntime(options = {}) {
-  const { MarbleRuntime, createMarblePresentationSnapshot } = loadAuthorityModule();
+  const {
+    MarbleRuntime,
+    createMarblePresentationSnapshot,
+    chooseMarbleCameraDirective,
+  } = loadAuthorityModule();
   const seed = String(options.seed || process.env.GAME7_SEED || 'broadcast-1');
   const operatorToken = String(options.operatorToken || process.env.GAME7_OPERATOR_TOKEN || 'local-self-test-only');
   const authority = MarbleRuntime.create(options.config || {}, seed);
   const operator = createOperatorController(operatorToken, 256);
   const events = [];
+  let cameraDirective = null;
   const state = {
     paused: false,
     cleanFeed: false,
@@ -149,7 +154,34 @@ function createRuntime(options = {}) {
   }
 
   function currentSnapshot() {
-    return createMarblePresentationSnapshot(authority.state, events);
+    const base = createMarblePresentationSnapshot(authority.state, events);
+    const directive = chooseMarbleCameraDirective({
+      tick: base.tick,
+      lifecycle: base.lifecycle,
+      round: {
+        qualified: base.round.qualified,
+        quota: base.round.quota,
+        remaining: base.round.remaining,
+      },
+      leaderId: base.camera.leaderId,
+      dangerIds: [...base.camera.dangerIds],
+      contestedQualificationIds: [...base.camera.contestedQualificationIds],
+      championId: base.camera.championId,
+      events: base.events.map((event) => ({
+        seq: event.seq,
+        tick: event.tick,
+        type: event.type,
+        data: { ...event.data },
+      })),
+    }, cameraDirective);
+    cameraDirective = Object.freeze({ ...directive, focusIds: Object.freeze([...directive.focusIds]) });
+    return Object.freeze({
+      ...base,
+      camera: Object.freeze({
+        ...base.camera,
+        directive: cameraDirective,
+      }),
+    });
   }
 
   function publicEvents() {
@@ -172,6 +204,7 @@ function createRuntime(options = {}) {
 
   function restart() {
     authority.restart();
+    cameraDirective = null;
     state.authorityRunning = true;
     state.lastStepAt = Date.now();
     drainAuthorityEvents();
@@ -328,6 +361,8 @@ async function selfTest() {
     const snapshotResponse = await fetch(`${base}/api/snapshot`);
     const snapshotText = await snapshotResponse.text();
     if (!snapshotResponse.ok || !snapshotText.includes('"version":1') || snapshotText.includes('self-test')) throw new Error('snapshot authority/sanitization failed');
+    const snapshot = JSON.parse(snapshotText);
+    if (!snapshot.camera?.directive?.mode) throw new Error('camera directive missing');
 
     const health = await (await fetch(`${base}/api/health`)).json();
     if (!['healthy', 'degraded'].includes(health.status)) throw new Error('health endpoint failed');
