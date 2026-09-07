@@ -114,7 +114,7 @@ test('phone-size landscape retains goal, progress, gameplay and captions', async
   expect(failures).toEqual([]);
 });
 
-test('reduced-motion, muted and clean-feed controls preserve the game view', async ({ page }) => {
+test('reduced-motion, muted and clean-feed controls preserve a full-frame game view', async ({ page }) => {
   const failures = recordConsoleFailures(page);
   await page.emulateMedia({ reducedMotion: 'reduce', colorScheme: 'dark' });
   await page.setViewportSize({ width: 1280, height: 720 });
@@ -132,6 +132,24 @@ test('reduced-motion, muted and clean-feed controls preserve the game view', asy
   await expect(page.locator('#broadcast')).toHaveClass(/clean-feed/);
   await expect(page.locator('#game')).toBeVisible();
   await expect(page.locator('.controls')).toBeHidden();
+
+  const cleanFeedLayout = await page.evaluate(() => {
+    const stage = document.querySelector('.stage').getBoundingClientRect();
+    const canvas = document.getElementById('game').getBoundingClientRect();
+    return {
+      stageWidth: stage.width,
+      stageHeight: stage.height,
+      canvasWidth: canvas.width,
+      canvasHeight: canvas.height,
+      viewportWidth: document.documentElement.clientWidth,
+      viewportHeight: document.documentElement.clientHeight,
+    };
+  });
+  expect(cleanFeedLayout.stageWidth).toBeGreaterThan(1200);
+  expect(cleanFeedLayout.stageHeight).toBeGreaterThan(680);
+  expect(cleanFeedLayout.canvasWidth).toBeGreaterThan(1200);
+  expect(cleanFeedLayout.canvasHeight).toBeGreaterThan(680);
+  writeJson('clean-feed-metrics.json', cleanFeedLayout);
 
   await page.screenshot({ path: path.join(artifactDir, 'clean-feed-1280x720.png'), fullPage: true });
   expect(failures).toEqual([]);
