@@ -210,7 +210,7 @@ test('runtime retains initial floor generation draws in its authoritative RNG sn
   const runtime=FloorsRuntime.create(config,'rng-continuity',{runId:'rng-continuity-run'});
   const streams=runtime.rng.snapshot().streams;
   assert.ok(Object.keys(streams).some(name=>name.startsWith('floor-topology')));
-  assert.ok(Object.keys(streams).length>=5;
+  assert.ok(Object.keys(streams).length>=5);
 });
 
 test('a striker two cells away closes distance using the same deterministic path rules',()=>{
