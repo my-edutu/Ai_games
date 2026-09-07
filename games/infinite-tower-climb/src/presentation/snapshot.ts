@@ -1,6 +1,7 @@
 import{checksum}from'../../../../packages/replay/src/index';
 import type{TowerState}from'../state/types';
 import{platformAtTick}from'../generation/chunks';
+import{towerEnvironmentForFloor,type TowerEnvironmentDescriptor}from'./environment';
 
 function deepFreeze<T>(value:T):Readonly<T>{
   if(value&&typeof value==='object'&&!Object.isFrozen(value)){
@@ -18,6 +19,7 @@ export interface TowerRenderSnapshot{
   lifecycle:TowerState['lifecycle'];
   floor:number;
   theme:string;
+  zone:TowerEnvironmentDescriptor;
   worldWidth:number;
   chunkBaseY:number;
   chunkHeight:number;
@@ -29,7 +31,7 @@ export interface TowerRenderSnapshot{
   pickups:Array<{id:string;kind:string;x:number;y:number;value:number}>;
   buildTags:string[];
   upgradeOffers:Array<{id:string;family:string;name:string}>;
-  intent:{mode:string;summary:string;confidencePermille:number;fallback:boolean};
+  intent:{mode:string;summary:string;confidencePermille:number;fallback:boolean;targetPlatformId?:string};
   progress:{height:number;floorProgressPermille:number;nextGuardianFloor:number;recordDelta:number;floorsCleared:number};
   dangerPermille:number;
   result?:{reason:string;kind:string};
@@ -48,7 +50,7 @@ export function createTowerRenderSnapshot(state:TowerState):Readonly<TowerRender
   const base={
     version:1 as const,
     runToken:checksum({runId:state.runId}),revision:state.tick*1000+state.stats.floorsCleared,tick:state.tick,lifecycle:state.lifecycle,
-    floor:state.floor,theme:chunk.theme,worldWidth:state.config.worldWidth,chunkBaseY:chunk.baseY,chunkHeight:chunk.height,
+    floor:state.floor,theme:chunk.theme,zone:towerEnvironmentForFloor(state.floor),worldWidth:state.config.worldWidth,chunkBaseY:chunk.baseY,chunkHeight:chunk.height,
     player:{x:state.player.position.x,y:state.player.position.y,vx:state.player.velocity.x,vy:state.player.velocity.y,halfWidth:state.player.halfWidth,halfHeight:state.player.halfHeight,facing:state.player.facing,health:state.player.health,maxHealth:state.player.maxHealth,stamina:state.player.stamina,maxStamina:state.player.maxStamina,shieldCharges:state.player.shieldCharges,state:state.player.state,score:state.player.score},
     platforms:chunk.platforms.map(p=>platformAtTick(p,state.tick)).map(p=>({id:p.id,kind:p.kind,x:p.x,y:p.y,width:p.width,height:p.height})).sort((a,b)=>a.id.localeCompare(b.id)),
     hazards:chunk.hazards.map(h=>({id:h.id,kind:h.kind,x:h.x,y:h.y,width:h.width,height:h.height,active:activeHazard(h,state.tick)})).sort((a,b)=>a.id.localeCompare(b.id)),
@@ -56,7 +58,7 @@ export function createTowerRenderSnapshot(state:TowerState):Readonly<TowerRender
     projectiles:state.projectiles.filter(p=>p.floor===state.floor&&p.active).map(p=>({id:p.id,owner:p.owner,x:p.position.x,y:p.position.y,vx:p.velocity.x,vy:p.velocity.y})).sort((a,b)=>a.id.localeCompare(b.id)),
     pickups:state.pickups.filter(p=>p.floor===state.floor&&!p.collected).map(p=>({id:p.id,kind:p.kind,x:p.position.x,y:p.position.y,value:p.value})).sort((a,b)=>a.id.localeCompare(b.id)),
     buildTags:[...state.build.upgradeIds].slice(-6),upgradeOffers:state.pendingUpgradeOffers.map(o=>({id:o.id,family:o.family,name:o.name})),
-    intent:{mode:state.ai.mode,summary:state.ai.intent,confidencePermille:Math.round(state.ai.confidence*1000),fallback:state.ai.mode==='recovering'},
+    intent:{mode:state.ai.mode,summary:state.ai.intent,confidencePermille:Math.round(state.ai.confidence*1000),fallback:state.ai.mode==='recovering',targetPlatformId:state.ai.targetPlatformId},
     progress:{height:state.stats.maxHeight,floorProgressPermille:floorProgress,nextGuardianFloor,recordDelta:state.stats.maxHeight-state.config.launchFloor*state.config.chunkHeight,floorsCleared:state.stats.floorsCleared},
     dangerPermille:dangerousProjectile||dangerousHazard?1000:dangerousEnemy?750:state.player.health<=2?650:150,
     result:state.result?{reason:state.result.reason,kind:state.result.kind}:undefined,
