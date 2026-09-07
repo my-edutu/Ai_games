@@ -5,6 +5,7 @@ const assert = require('node:assert/strict');
 const {
   MarbleRuntime,
   applyTournamentRules,
+  stepMarblePhysics,
 } = require('../../dist/games/marble-survival/src/index.js');
 
 function twoMarbleState(seed = 'premium-finish-order') {
@@ -22,6 +23,19 @@ function twoMarbleState(seed = 'premium-finish-order') {
   runtime.state.arena.windZones = [];
   runtime.state.arena.sweepers = [];
   return runtime.state;
+}
+
+function idleActions(state) {
+  return state.marbles
+    .filter((marble) => marble.status === 'active' && marble.roundStatus === 'racing')
+    .map((marble) => ({
+      marbleId: marble.id,
+      steerX: 0,
+      steerY: 0,
+      boostPermille: 1_000,
+      intent: 'holding-line',
+      confidence: 'medium',
+    }));
 }
 
 test('same-tick finishers are ranked by authoritative crossing fraction instead of marble id', () => {
@@ -47,4 +61,36 @@ test('same-tick finishers are ranked by authoritative crossing fraction instead 
     'the marble that crossed earlier within the tick must win the qualifying slot even when it has the larger id',
   );
   assert.equal(result.state.marbles.find((marble) => marble.id === higherId.id).finishRank, 1);
+});
+
+test('moving sweepers transfer their authoritative motion into a stationary marble', () => {
+  const state = twoMarbleState('premium-sweeper-motion');
+  const marble = state.marbles[0];
+  const spectator = state.marbles[1];
+
+  spectator.status = 'eliminated';
+  spectator.roundStatus = 'out';
+  state.activeIds = [marble.id];
+  marble.position = { x: 10_250, y: 8_000 };
+  marble.velocity = { x: 0, y: 0 };
+  state.tick = 0;
+  state.arena.sweepers = [{
+    id: 'momentum-sweeper',
+    kind: 'sweeper',
+    baseX: 9_000,
+    baseY: 7_600,
+    width: 1_200,
+    height: 800,
+    axis: 'x',
+    amplitude: 1_000,
+    periodTicks: 40,
+    phaseTicks: 10,
+    restitutionPermille: 900,
+  }];
+
+  const result = stepMarblePhysics(state, idleActions(state));
+  const resolved = result.state.marbles.find((candidate) => candidate.id === marble.id);
+
+  assert.ok(result.contacts.some((contact) => contact.kind === 'sweeper'), 'the sweeper should make contact');
+  assert.ok(resolved.velocity.x > 0, 'a right-moving sweeper must push a stationary marble to the right');
 });
