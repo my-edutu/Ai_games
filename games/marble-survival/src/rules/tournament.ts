@@ -1,8 +1,23 @@
 import { NamedRng } from '../../../../packages/seeded-rng/src/index';
 import { generateMarbleArena } from '../generation/arena';
-import type { MarbleEvent, MarbleRoundResult, MarbleState, PhysicsContact } from '../state/types';
+import type { MarbleEvent, MarbleRoundResult, MarbleState, PhysicsContact, Vec2 } from '../state/types';
 
 interface RuleOutput { state: MarbleState; events: Omit<MarbleEvent, 'seq'>[] }
+
+export interface FinishCrossing {
+  marbleId: number;
+  numerator: number;
+  denominator: number;
+}
+
+export function compareFinishCrossings(left: FinishCrossing, right: FinishCrossing): number {
+  if (!Number.isSafeInteger(left.numerator) || !Number.isSafeInteger(left.denominator) || left.denominator <= 0) throw new RangeError('left crossing');
+  if (!Number.isSafeInteger(right.numerator) || !Number.isSafeInteger(right.denominator) || right.denominator <= 0) throw new RangeError('right crossing');
+  const leftScaled = left.numerator * right.denominator;
+  const rightScaled = right.numerator * left.denominator;
+  if (!Number.isSafeInteger(leftScaled) || !Number.isSafeInteger(rightScaled)) throw new RangeError('crossing range');
+  return leftScaled - rightScaled || left.marbleId - right.marbleId;
+}
 
 function cloneState(state: MarbleState): MarbleState {
   return {
@@ -29,10 +44,26 @@ function rankActive(state: MarbleState): number[] {
   });
 }
 
+function quarantineTournament(state: MarbleState, reason: string, detail: string): RuleOutput {
+  const next = cloneState(state);
+  next.lifecycle = 'quarantined';
+  next.integrityIssue = { code: 'state-invariant', detail };
+  next.records = { ...next.records, eligible: false };
+  next.result = { kind: 'technical', reason, tournamentTicks: next.tournamentTick, recordCategory: next.records.category };
+  next.meaningfulEventTick = next.tick;
+  return {
+    state: next,
+    events: [{ tick: next.tick, type: 'integrity-quarantined', data: { code: reason, detail } }]
+  };
+}
+
 function resolveRound(state: MarbleState, resolution: MarbleRoundResult['resolution']): RuleOutput {
   const next = cloneState(state);
   const ranking = [...next.qualifiedIds, ...rankActive(next).filter(id => !next.qualifiedIds.includes(id))];
   const qualifierIds = ranking.slice(0, next.currentQuota);
+  if (next.roundIndex === 4 && qualifierIds.length === 0) {
+    return quarantineTournament(next, 'no-valid-champion', 'Championship resolved without a valid competitor.');
+  }
   const eliminatedIds = next.activeIds.filter(id => !qualifierIds.includes(id));
   for (const marble of next.marbles) {
     if (qualifierIds.includes(marble.id)) {
@@ -53,11 +84,16 @@ function resolveRound(state: MarbleState, resolution: MarbleRoundResult['resolut
   };
   next.roundResults.push(roundResult);
   next.qualifiedIds = qualifierIds;
+  next.activeIds = [];
   next.eliminatedIds = [...new Set([...next.eliminatedIds, ...eliminatedIds])].sort((a, b) => a - b);
   next.meaningfulEventTick = next.tick;
   const events: Omit<MarbleEvent, 'seq'>[] = [{ tick: next.tick, type: 'round-resolved', data: { roundIndex: next.roundIndex, qualifierIds, eliminatedIds, resolution } }];
   if (next.roundIndex === 4) {
     const championId = qualifierIds[0];
+    const champion = next.marbles.find(marble => marble.id === championId);
+    if (championId === undefined || !champion || champion.status === 'eliminated') {
+      return quarantineTournament(next, 'invalid-champion', 'Championship attempted to award an invalid competitor.');
+    }
     next.lifecycle = 'tournament-result';
     next.result = { kind: 'champion', championId, tournamentTicks: next.tournamentTick, recordCategory: next.records.category };
     const previousChampionId = next.records.lastChampionId;
@@ -71,10 +107,17 @@ function resolveRound(state: MarbleState, resolution: MarbleRoundResult['resolut
   return { state: next, events };
 }
 
-export function applyTournamentRules(state: MarbleState, contacts: PhysicsContact[]): RuleOutput {
-  let next = cloneState(state);
+export function applyTournamentRules(
+  state: MarbleState,
+  contacts: PhysicsContact[],
+  previousPositions: ReadonlyMap<number, Vec2> = new Map<number, Vec2>()
+): RuleOutput {
+  const next = cloneState(state);
   const events: Omit<MarbleEvent, 'seq'>[] = [];
+  const finishCrossings: FinishCrossing[] = [];
+  const finishBoundary = next.arena.finishY + next.config.marbleRadius;
   const activeMarbles = next.marbles.filter(marble => marble.status === 'active' && marble.roundStatus === 'racing').sort((a, b) => a.id - b.id);
+
   for (const marble of activeMarbles) {
     const oldProgress = marble.progressPermille;
     const totalDistance = next.arena.spawnY - next.arena.finishY;
@@ -85,6 +128,7 @@ export function applyTournamentRules(state: MarbleState, contacts: PhysicsContac
       next.meaningfulEventTick = next.tick;
       events.push({ tick: next.tick, type: 'checkpoint-reached', data: { marbleId: marble.id, checkpointIndex: marble.checkpointIndex } });
     }
+
     const hazard = next.arena.hazards.find(zone => inside(marble.position, zone));
     if (hazard) {
       if (marble.shieldCharges > 0) {
@@ -103,25 +147,51 @@ export function applyTournamentRules(state: MarbleState, contacts: PhysicsContac
         continue;
       }
     }
-    if (marble.position.y <= next.arena.finishY + next.config.marbleRadius && marble.roundStatus === 'racing') {
+
+    if (marble.position.y <= finishBoundary && marble.roundStatus === 'racing') {
+      const previous = previousPositions.get(marble.id) ?? marble.position;
+      const upwardTravel = previous.y - marble.position.y;
+      const numerator = Math.max(0, previous.y - finishBoundary);
+      const denominator = Math.max(1, upwardTravel > 0 ? upwardTravel : 1);
+      finishCrossings.push({ marbleId: marble.id, numerator, denominator });
+    }
+  }
+
+  finishCrossings.sort(compareFinishCrossings);
+  const availableSlots = Math.max(0, next.currentQuota - next.qualifiedIds.length);
+  for (let index = 0; index < finishCrossings.length; index++) {
+    const crossing = finishCrossings[index];
+    const marble = next.marbles.find(candidate => candidate.id === crossing.marbleId)!;
+    next.activeIds = next.activeIds.filter(id => id !== marble.id);
+    next.meaningfulEventTick = next.tick;
+    if (index < availableSlots) {
       marble.roundStatus = 'finished';
       marble.status = 'qualified';
       marble.finishTick = next.tick;
       marble.finishRank = next.qualifiedIds.length + 1;
       marble.progressPermille = 1_000;
       next.qualifiedIds.push(marble.id);
-      next.activeIds = next.activeIds.filter(id => id !== marble.id);
-      next.meaningfulEventTick = next.tick;
-      events.push({ tick: next.tick, type: 'marble-qualified', data: { marbleId: marble.id, finishRank: marble.finishRank } });
+      events.push({ tick: next.tick, type: 'marble-qualified', data: { marbleId: marble.id, finishRank: marble.finishRank, crossingNumerator: crossing.numerator, crossingDenominator: crossing.denominator } });
+    } else {
+      marble.status = 'eliminated';
+      marble.roundStatus = 'out';
+      next.eliminatedIds = [...new Set([...next.eliminatedIds, marble.id])].sort((a, b) => a - b);
+      events.push({ tick: next.tick, type: 'marble-eliminated', data: { marbleId: marble.id, cause: 'qualification-cutoff' } });
     }
   }
+
   for (const contact of contacts) events.push({ tick: next.tick, type: 'physics-contact', data: { kind: contact.kind, marbleId: contact.marbleId, otherMarbleId: contact.otherMarbleId, colliderId: contact.colliderId, impulse: contact.impulse } });
+
+  const remainingPotential = next.qualifiedIds.length + next.activeIds.length;
+  if (remainingPotential === 0) {
+    const quarantined = quarantineTournament(next, 'no-valid-competitor', 'Round ended with no active or qualified competitor.');
+    return { state: quarantined.state, events: [...events, ...quarantined.events] };
+  }
   if (next.qualifiedIds.length >= next.currentQuota) {
     const resolved = resolveRound(next, 'quota');
     return { state: resolved.state, events: [...events, ...resolved.events] };
   }
-  const remainingPotential = next.qualifiedIds.length + next.activeIds.length;
-  if (remainingPotential <= next.currentQuota && remainingPotential > 0) {
+  if (remainingPotential <= next.currentQuota) {
     const resolved = resolveRound(next, 'last-standing');
     return { state: resolved.state, events: [...events, ...resolved.events] };
   }
