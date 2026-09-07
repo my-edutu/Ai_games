@@ -63,3 +63,8 @@ test('movement continuity is presentation-only and reduced motion snaps to autho
   assert.match(scene,/previousSnapshot/);
   assert.match(scene,/reduced\?1:/);
 });
+
+test('integrity and quarantine cues have an implemented browser audio path instead of a silent mapping',()=>{
+  const audio=fs.readFileSync(path.join(__dirname,'../../public/ai-dungeon/app-audio.js'),'utf8');
+  assert.match(audio,/cue\.audio==='integrity-warning'/);
+});
