@@ -70,6 +70,8 @@ test('snapshot rejects corruption and unsupported deterministic versions',()=>{
   assert.throws(()=>restoreCivilizationSnapshot(corrupt),/checksum/);
   const unsupported=JSON.parse(JSON.stringify(snap)); unsupported.deterministicVersion='future';
   assert.throws(()=>restoreCivilizationSnapshot(unsupported),/deterministicVersion/);
+  const legacy=JSON.parse(JSON.stringify(snap)); legacy.deterministicVersion='civilization-r2-v1';
+  assert.throws(()=>restoreCivilizationSnapshot(legacy),/deterministicVersion/);
 });
 
 test('headless runs are deterministic and classify technical outcomes separately',()=>{
