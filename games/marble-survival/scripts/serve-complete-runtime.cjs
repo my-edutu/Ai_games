@@ -3,15 +3,12 @@
 const http = require('node:http');
 const fs = require('node:fs');
 const path = require('node:path');
+const crypto = require('node:crypto');
 const {
-  INFLUENCE_CATALOGUE,
-  runCampaign,
-  createPublicSnapshot,
-  InfluenceQueue,
-  SnapshotRing,
-  classifyHealth,
-  OperatorController,
-} = require('../complete/game7.cjs');
+  MarbleRuntime,
+  createMarblePublicSnapshot,
+  marbleStateChecksum,
+} = require('../../../dist/games/marble-survival/src/index.js');
 
 const STATIC_ROOT = path.resolve(__dirname, '../public/complete-runtime');
 const SECURITY_HEADERS = Object.freeze({
@@ -68,68 +65,119 @@ function safeStaticPath(urlPath) {
   return target.startsWith(STATIC_ROOT) ? target : null;
 }
 
+function tokenMatches(expected, provided) {
+  const left = Buffer.from(String(expected));
+  const right = Buffer.from(String(provided));
+  if (left.length !== right.length) return false;
+  return crypto.timingSafeEqual(left, right);
+}
+
 function createRuntime(options = {}) {
   const seed = String(options.seed || process.env.GAME7_SEED || 'broadcast-1');
   const operatorToken = String(options.operatorToken || process.env.GAME7_OPERATOR_TOKEN || 'local-self-test-only');
-  const campaign = runCampaign(seed);
-  const influence = new InfluenceQueue({ queueCap: 64, cooldownMs: 15_000, globalRateCap: 120, dedupeCap: 512 });
-  const snapshots = new SnapshotRing(12);
-  const operator = new OperatorController(operatorToken, 256);
+  const authority = MarbleRuntime.create(options.config || {}, seed);
+  const tickMs = 1000 / authority.config.tickRate;
+  const maxCatchUpTicks = Number.isInteger(options.maxCatchUpTicks) ? Math.max(1, Math.min(32, options.maxCatchUpTicks)) : 8;
   const events = [];
-  const state = {
-    roundIndex: 0,
-    tick: 0,
-    paused: false,
-    cleanFeed: false,
-    authorityRunning: true,
-    streamConnected: true,
-    startedAt: Date.now(),
-    lastTickAt: Date.now(),
-  };
+  let lastSchedulerMs = Number.isFinite(options.nowMs) ? Number(options.nowMs) : Date.now();
+  let accumulatorMs = 0;
+  let paused = false;
+  let cleanFeed = false;
+  const startedAtMs = lastSchedulerMs;
 
-  function appendEvent(type, detail = {}) {
-    events.push(Object.freeze({ id: `${type}-${state.roundIndex}-${state.tick}-${events.length}`, type, at: Date.now(), ...detail }));
-    if (events.length > 64) events.shift();
-  }
-
-  function currentSnapshot() {
-    const snapshot = createPublicSnapshot(campaign, { roundIndex: state.roundIndex, tick: state.tick });
-    snapshots.write(snapshot);
-    return snapshot;
-  }
-
-  function advance() {
-    if (state.paused) return;
-    state.tick += 1;
-    state.lastTickAt = Date.now();
-    if (state.tick === 1) appendEvent('round-start', { round: campaign.rounds[state.roundIndex].id });
-    if (state.tick % 47 === 0) appendEvent('near-miss');
-    if (state.tick >= 180) {
-      appendEvent(state.roundIndex === campaign.rounds.length - 1 ? 'champion' : 'qualification');
-      state.roundIndex += 1;
-      state.tick = 0;
-      if (state.roundIndex >= campaign.rounds.length) state.roundIndex = 0;
+  function appendAuthorityEvents() {
+    for (const event of authority.drainEvents()) {
+      events.push(Object.freeze({
+        id: `${event.seq}`,
+        seq: event.seq,
+        tick: event.tick,
+        type: event.type,
+        data: event.data ? { ...event.data } : undefined,
+      }));
+      if (events.length > 128) events.shift();
     }
   }
 
-  function health() {
-    const latest = snapshots.latestValid();
-    const tickLag = Math.max(0, Math.floor((Date.now() - state.lastTickAt) / 100));
+  appendAuthorityEvents();
+
+  function advanceDue(nowMs) {
+    if (!Number.isFinite(nowMs)) throw new TypeError('nowMs');
+    if (nowMs < lastSchedulerMs) {
+      lastSchedulerMs = nowMs;
+      accumulatorMs = 0;
+      return 0;
+    }
+    const elapsed = nowMs - lastSchedulerMs;
+    lastSchedulerMs = nowMs;
+    if (paused) {
+      accumulatorMs = 0;
+      return 0;
+    }
+    accumulatorMs += elapsed;
+    const dueTicks = Math.floor((accumulatorMs + tickMs * 1e-9) / tickMs);
+    const ticks = Math.min(maxCatchUpTicks, dueTicks);
+    for (let index = 0; index < ticks; index++) authority.step();
+    accumulatorMs -= ticks * tickMs;
+    if (Math.abs(accumulatorMs) < 1e-9) accumulatorMs = 0;
+    appendAuthorityEvents();
+    return ticks;
+  }
+
+  function currentSnapshot() {
+    return createMarblePublicSnapshot(authority.state);
+  }
+
+  function checksum() {
+    return marbleStateChecksum(authority.state);
+  }
+
+  function health(nowMs = Date.now()) {
+    const debtTicks = Math.max(0, Math.floor(accumulatorMs / tickMs));
+    const quarantined = authority.state.lifecycle === 'quarantined';
     return {
-      ...classifyHealth({
-        authorityRunning: state.authorityRunning,
-        snapshotAvailable: Boolean(latest),
-        tickLag,
-        streamConnected: state.streamConnected,
-      }),
-      tickLag,
-      uptimeSeconds: Math.floor((Date.now() - state.startedAt) / 1000),
-      round: campaign.rounds[state.roundIndex].id,
-      tick: state.tick,
+      status: quarantined ? 'unhealthy' : debtTicks > maxCatchUpTicks ? 'degraded' : 'healthy',
+      authority: quarantined ? 'quarantined' : paused ? 'paused' : 'running',
+      lifecycle: authority.state.lifecycle,
+      tick: authority.state.tick,
+      round: authority.state.roundNumber,
+      schedulerDebtTicks: debtTicks,
+      maxCatchUpTicks,
+      uptimeSeconds: Math.max(0, Math.floor((nowMs - startedAtMs) / 1000)),
+      audienceInfluence: 'degraded',
     };
   }
 
-  return { seed, operatorToken, campaign, influence, snapshots, operator, events, state, appendEvent, currentSnapshot, advance, health };
+  function operator(command, token) {
+    if (!tokenMatches(operatorToken, token)) return { status: 401, ok: false, reason: 'unauthorized' };
+    if (!['pause', 'resume', 'restart', 'clean-feed'].includes(command)) return { status: 400, ok: false, reason: 'invalid-command' };
+    if (command === 'pause') paused = true;
+    if (command === 'resume') {
+      paused = false;
+      accumulatorMs = 0;
+    }
+    if (command === 'restart') {
+      authority.restart();
+      appendAuthorityEvents();
+      accumulatorMs = 0;
+    }
+    if (command === 'clean-feed') cleanFeed = !cleanFeed;
+    return { status: 200, ok: true, command };
+  }
+
+  return {
+    seed,
+    authority,
+    events,
+    tickMs,
+    maxCatchUpTicks,
+    advanceDue,
+    currentSnapshot,
+    checksum,
+    health,
+    operator,
+    get paused() { return paused; },
+    get cleanFeed() { return cleanFeed; },
+  };
 }
 
 function createServer(options = {}) {
@@ -148,44 +196,27 @@ function createServer(options = {}) {
         return json(response, 200, runtime.health());
       }
       if (request.method === 'GET' && url.pathname === '/api/metrics') {
+        const health = runtime.health();
         return text(response, 200, [
           '# TYPE game7_tick gauge',
-          `game7_tick ${runtime.state.tick}`,
+          `game7_tick ${runtime.authority.state.tick}`,
           '# TYPE game7_round gauge',
-          `game7_round ${runtime.state.roundIndex + 1}`,
-          '# TYPE game7_influence_queue gauge',
-          `game7_influence_queue ${runtime.influence.size()}`,
+          `game7_round ${runtime.authority.state.roundNumber}`,
+          '# TYPE game7_scheduler_debt_ticks gauge',
+          `game7_scheduler_debt_ticks ${health.schedulerDebtTicks}`,
         ].join('\n') + '\n', 'text/plain; version=0.0.4; charset=utf-8');
       }
       if (request.method === 'GET' && url.pathname === '/api/catalogue') {
-        return json(response, 200, { catalogue: INFLUENCE_CATALOGUE });
+        return json(response, 200, { catalogue: {}, status: 'temporarily-unavailable' });
       }
       if (request.method === 'POST' && url.pathname === '/api/influence') {
-        const body = await readJson(request);
-        const result = runtime.influence.submit({
-          id: String(body.id || ''),
-          userId: String(body.userId || ''),
-          family: String(body.family || ''),
-          option: String(body.option || ''),
-          at: Number(body.at),
-          eligible: body.eligible !== false,
-        });
-        if (result.accepted) runtime.appendEvent('influence', { family: body.family, option: body.option });
-        return json(response, result.accepted ? 202 : 429, result);
+        await readJson(request);
+        return json(response, 503, { accepted: false, reason: 'authority-scheduler-upgrade' });
       }
       if (request.method === 'POST' && url.pathname === '/api/operator') {
         const body = await readJson(request);
         const token = String(request.headers.authorization || '').replace(/^Bearer\s+/i, '');
-        const result = runtime.operator.execute({ token, command: body.command, actor: body.actor, at: Number(body.at) });
-        if (result.ok) {
-          if (body.command === 'pause') runtime.state.paused = true;
-          if (body.command === 'resume') runtime.state.paused = false;
-          if (body.command === 'restart') {
-            runtime.state.roundIndex = 0;
-            runtime.state.tick = 0;
-          }
-          if (body.command === 'clean-feed') runtime.state.cleanFeed = Boolean(body.enabled);
-        }
+        const result = runtime.operator(String(body.command || ''), token);
         return json(response, result.status, result);
       }
       if (request.method !== 'GET') return json(response, 405, { error: 'method-not-allowed' });
@@ -208,14 +239,15 @@ function createServer(options = {}) {
   };
 
   const server = http.createServer(requestHandler);
-  const timer = setInterval(runtime.advance, options.tickIntervalMs || 100);
+  const schedulerIntervalMs = Number(options.schedulerIntervalMs || 8);
+  const timer = setInterval(() => runtime.advanceDue(Date.now()), schedulerIntervalMs);
   timer.unref();
   server.on('close', () => clearInterval(timer));
   return { server, runtime };
 }
 
 async function selfTest() {
-  const { server } = createServer({ seed: 'self-test', operatorToken: 'test-token', tickIntervalMs: 25 });
+  const { server } = createServer({ seed: 'self-test', operatorToken: 'test-token', schedulerIntervalMs: 4 });
   await new Promise((resolve, reject) => {
     server.once('error', reject);
     server.listen(0, '127.0.0.1', resolve);
@@ -227,31 +259,31 @@ async function selfTest() {
     if (!index.ok || !(await index.text()).includes('Marble Survival Tournament')) throw new Error('index smoke failed');
     const snapshotResponse = await fetch(`${base}/api/snapshot`);
     const snapshotText = await snapshotResponse.text();
-    if (!snapshotResponse.ok || !snapshotText.includes('campaignChecksum') || snapshotText.includes('self-test')) throw new Error('snapshot sanitization failed');
+    if (!snapshotResponse.ok || !snapshotText.includes('"schemaVersion":2') || snapshotText.includes('rootSeed') || snapshotText.includes('tournamentSeed') || snapshotText.includes('self-test')) throw new Error('snapshot sanitization failed');
     const health = await (await fetch(`${base}/api/health`)).json();
     if (!['healthy', 'degraded'].includes(health.status)) throw new Error('health endpoint failed');
     const influence = await fetch(`${base}/api/influence`, {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ id: 'self-test-1', userId: 'viewer-1', family: 'wind-vote', option: 'north', at: 1000 }),
+      body: JSON.stringify({ id: 'self-test-1', family: 'wind-vote', option: 'north' }),
     });
-    if (influence.status !== 202) throw new Error('influence endpoint failed');
+    if (influence.status !== 503) throw new Error('influence degradation boundary failed');
     const denied = await fetch(`${base}/api/operator`, {
       method: 'POST',
       headers: { 'content-type': 'application/json', authorization: 'Bearer wrong' },
-      body: JSON.stringify({ command: 'pause', actor: 'self-test', at: 1 }),
+      body: JSON.stringify({ command: 'pause' }),
     });
     if (denied.status !== 401) throw new Error('operator denial failed');
     const accepted = await fetch(`${base}/api/operator`, {
       method: 'POST',
       headers: { 'content-type': 'application/json', authorization: 'Bearer test-token' },
-      body: JSON.stringify({ command: 'pause', actor: 'self-test', at: 2 }),
+      body: JSON.stringify({ command: 'pause' }),
     });
     if (accepted.status !== 200) throw new Error('operator authentication failed');
   } finally {
     await new Promise((resolve) => server.close(resolve));
   }
-  process.stdout.write('Game 7 complete runtime self-test passed.\n');
+  process.stdout.write('Game 7 authoritative runtime self-test passed.\n');
 }
 
 if (require.main === module) {
