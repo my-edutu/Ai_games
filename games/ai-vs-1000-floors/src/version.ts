@@ -1,0 +1,9 @@
+export const FLOORS_GAME_VERSION='0.1.1-r2' as const;
+export const FLOORS_STATE_SCHEMA_VERSION=1 as const;
+export const FLOORS_DETERMINISTIC_VERSION='floors-r1-v2' as const;
+export const FLOORS_PREVIOUS_DETERMINISTIC_VERSION='floors-r1-v1' as const;
+export type FloorsDeterministicVersion=typeof FLOORS_DETERMINISTIC_VERSION|typeof FLOORS_PREVIOUS_DETERMINISTIC_VERSION;
+export const FLOORS_PRESENTATION_VERSION='floors-presentation-r3' as const;
+export const FLOORS_CONTENT_VERSION='floors-content-v1' as const;
+export const FLOORS_INFLUENCE_VERSION='floors-influence-v1' as const;
+export const FLOORS_SUPPORTED_SNAPSHOT_VERSIONS:readonly FloorsDeterministicVersion[]=[FLOORS_DETERMINISTIC_VERSION,FLOORS_PREVIOUS_DETERMINISTIC_VERSION];
