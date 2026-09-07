@@ -43,6 +43,20 @@ export function validateFloor(floor:GeneratedFloor,config:FloorsConfig):FloorVal
   return{valid:errors.size===0,reachableExit:route.found,safeSpawn,errors:[...errors].sort(),visitedCells:route.visited};
 }
 
+/** Validate a floor after play has begun. Dynamic enemies are allowed to cross generation-only
+ * spawn-safety zones and static hazard/reward cells, but can never leave bounds, occupy walls,
+ * duplicate a live enemy cell, or exceed the configured entity budget. */
+export function validateRuntimeFloor(floor:GeneratedFloor,config:FloorsConfig):FloorValidation{
+  const staticReport=validateFloor({...floor,enemies:[]},config),errors=new Set<FloorValidationError>(staticReport.errors),walls=new Set(floor.walls),enemyCells=new Set<number>();
+  if(floor.enemies.length>config.maxEnemyBudget)errors.add('ENTITY_BUDGET');
+  for(const enemy of floor.enemies){
+    if(!inBounds(enemy.cell,floor)){errors.add('OUT_OF_BOUNDS');continue}
+    if(walls.has(enemy.cell)||enemyCells.has(enemy.cell))errors.add('CELL_OVERLAP');
+    enemyCells.add(enemy.cell);
+  }
+  return{valid:errors.size===0,reachableExit:staticReport.reachableExit,safeSpawn:staticReport.safeSpawn,errors:[...errors].sort(),visitedCells:staticReport.visitedCells};
+}
+
 function stableFreeCells(floor:GeneratedFloor):number[]{
   const protectedCells=new Set([...floor.mandatoryPath]);
   const cells:number[]=[];for(let y=1;y<floor.height-1;y++)for(let x=1;x<floor.width-1;x++){const cell=toCell(x,y,floor.width);if(!protectedCells.has(cell))cells.push(cell)}
