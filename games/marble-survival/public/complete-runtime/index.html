@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#171714">
+  <title>Marble Survival Tournament</title>
+  <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="/ux-v2.css">
+</head>
+<body>
+  <a class="skip-link" href="#arena">Skip to arena</a>
+  <main class="broadcast-shell" data-clean="false" data-quality="balanced" data-ux-revision="3">
+    <header class="topbar" aria-label="Tournament status">
+      <div class="brand-lockup">
+        <span class="eyebrow">Game 7 · Live deterministic tournament</span>
+        <h1>Marble Survival Tournament</h1>
+      </div>
+      <div class="status-cluster">
+        <span id="connection" class="status-pill" role="status">Connecting</span>
+        <label class="quality-control" for="quality-select">
+          <span>Visual quality</span>
+          <select id="quality-select" aria-label="Visual quality preset">
+            <option value="low">Low</option>
+            <option value="balanced" selected>Balanced</option>
+            <option value="high">High</option>
+            <option value="ultra">Ultra</option>
+          </select>
+        </label>
+        <button id="sound-toggle" class="utility-button" type="button" aria-pressed="false">Sound off</button>
+      </div>
+    </header>
+
+    <section class="tournament-strip" aria-label="Tournament essentials">
+      <div class="strip-cell round-cell">
+        <span class="strip-label">Round</span>
+        <strong id="round-name">Loading arena…</strong>
+        <span id="round-index">Round —</span>
+      </div>
+      <div class="strip-cell">
+        <span class="strip-label">Remaining</span>
+        <strong id="remaining-value">—</strong>
+      </div>
+      <div class="strip-cell">
+        <span class="strip-label">Qualified</span>
+        <strong id="qualified-value">—</strong>
+      </div>
+      <div class="strip-cell qualification-cell">
+        <span class="strip-label">Cut line</span>
+        <strong id="qualification-value">Awaiting authority</strong>
+      </div>
+      <div class="strip-cell compact-cell">
+        <span class="strip-label">Tick</span>
+        <strong id="tick-value">0</strong>
+      </div>
+    </section>
+
+    <section class="stage-grid">
+      <section id="arena" class="arena-card" aria-label="Live marble arena">
+        <canvas id="arena-canvas" width="1600" height="900" aria-label="Live authoritative marble tournament arena"></canvas>
+        <div class="arena-topline" aria-hidden="true">
+          <span id="camera-value">Overview</span>
+          <span id="feed-value">AUTHORITY LIVE</span>
+        </div>
+        <div id="champion-card" class="champion-card" hidden aria-live="polite">
+          <span>Champion</span>
+          <strong id="champion-name"></strong>
+          <small>Official result · authority adjudicated</small>
+        </div>
+      </section>
+
+      <aside class="leaderboard-panel" aria-label="Live standings">
+        <div class="panel-heading">
+          <div>
+            <span class="panel-label">Live standings</span>
+            <h2>Race order</h2>
+          </div>
+          <span class="live-dot">LIVE</span>
+        </div>
+        <ol id="leaderboard" class="leaderboard"></ol>
+        <div class="identity-note">Numbers and surface patterns remain visible in every quality preset.</div>
+      </aside>
+    </section>
+
+    <section class="lower-grid">
+      <section class="event-panel" aria-labelledby="event-title">
+        <div class="panel-heading">
+          <div>
+            <span class="panel-label">Race control</span>
+            <h2 id="event-title">Official events</h2>
+          </div>
+        </div>
+        <ul id="event-list" class="event-list" aria-live="polite"></ul>
+      </section>
+
+      <section class="influence-panel" aria-labelledby="influence-title">
+        <span class="panel-label">Audience influence</span>
+        <h2 id="influence-title">Deterministic voting</h2>
+        <p id="influence-status" role="status">Checking authority support…</p>
+      </section>
+    </section>
+
+    <footer>
+      <span>Fixed-step authority · presentation-only quality presets · replay-safe results</span>
+      <span id="system-health">Health pending</span>
+    </footer>
+  </main>
+  <script src="/app.js" defer></script>
+</body>
+</html>

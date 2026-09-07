@@ -1,0 +1,49 @@
+name: Game 7 Premium Marble CI
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'games/marble-survival/**'
+      - 'tests/foundation/marble-*.test.cjs'
+      - 'scripts/run-marble-headless.cjs'
+      - 'tsconfig.json'
+      - '.github/workflows/game7-premium.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  correctness:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '22.16.0'
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - name: Install locked toolchain
+        run: npm ci --no-audit --no-fund
+      - name: Build authoritative runtime
+        run: npm run build
+      - name: Run Marble foundation and premium regressions
+        run: node --test tests/foundation/marble-*.test.cjs
+      - name: Scan Marble authority for ambient nondeterminism
+        shell: bash
+        run: |
+          set -euo pipefail
+          if grep -R -n -E 'Math\.random|Date\.now|new Date\(|setTimeout\(|setInterval\(' \
+            games/marble-survival/src/rules \
+            games/marble-survival/src/runtime \
+            games/marble-survival/src/generation \
+            games/marble-survival/src/state \
+            games/marble-survival/src/physics; then
+            echo 'Forbidden ambient nondeterminism found in Marble authority.'
+            exit 1
+          fi
