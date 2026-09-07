@@ -9,12 +9,23 @@ import type {
   PhysicsStepResult,
   Vec2
 } from '../state/types';
-import { FIXED_SCALE, clampInteger, clampMagnitude, divideRound, dotPermille, integerSqrt, normalizePermille, triangleWave } from './fixed';
+import { FIXED_SCALE, clampInteger, clampMagnitude, divideRound, dotPermille, integerSqrt, normalizePermille } from './fixed';
+import { sweeperTransform } from './moving-collider';
 
 const POSITION_LIMIT = 10_000_000;
 const VELOCITY_PREFILTER_MULTIPLIER = 8;
 
-interface Rectangle { id: string; x: number; y: number; width: number; height: number; kind: 'obstacle' | 'sweeper'; restitutionPermille: number }
+interface Rectangle {
+  id: string;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  kind: 'obstacle' | 'sweeper';
+  restitutionPermille: number;
+  velocityX: number;
+  velocityY: number;
+}
 
 function cloneState(state: MarbleState): MarbleState {
   return {
@@ -39,21 +50,23 @@ function insideRectangle(position: Vec2, rectangle: { x: number; y: number; widt
   return position.x >= rectangle.x && position.x <= rectangle.x + rectangle.width && position.y >= rectangle.y && position.y <= rectangle.y + rectangle.height;
 }
 
-function sweeperRectangle(sweeper: ArenaSweeper, tick: number): Rectangle {
-  const offset = triangleWave(tick, sweeper.periodTicks, sweeper.amplitude, sweeper.phaseTicks);
+function sweeperRectangle(sweeper: ArenaSweeper, tick: number, substepNumerator: number, substepDenominator: number): Rectangle {
+  const transform = sweeperTransform(sweeper, tick, substepNumerator, substepDenominator);
   return {
-    id: sweeper.id,
-    x: sweeper.baseX + (sweeper.axis === 'x' ? offset : 0),
-    y: sweeper.baseY + (sweeper.axis === 'y' ? offset : 0),
-    width: sweeper.width,
-    height: sweeper.height,
+    id: transform.id,
+    x: transform.x,
+    y: transform.y,
+    width: transform.width,
+    height: transform.height,
     kind: 'sweeper',
-    restitutionPermille: sweeper.restitutionPermille
+    restitutionPermille: sweeper.restitutionPermille,
+    velocityX: transform.velocityX,
+    velocityY: transform.velocityY
   };
 }
 
 function blockRectangle(block: ArenaBlock): Rectangle {
-  return { id: block.id, x: block.x, y: block.y, width: block.width, height: block.height, kind: 'obstacle', restitutionPermille: 860 };
+  return { id: block.id, x: block.x, y: block.y, width: block.width, height: block.height, kind: 'obstacle', restitutionPermille: 860, velocityX: 0, velocityY: 0 };
 }
 
 function reflect(velocity: Vec2, normal: Vec2, restitutionPermille: number): { velocity: Vec2; impulse: number } {
@@ -96,9 +109,9 @@ function resolveWorld(marble: MarbleCompetitor, state: MarbleState): PhysicsCont
 function resolveRectangle(marble: MarbleCompetitor, rectangle: Rectangle, radius: number): PhysicsContact | null {
   const closestX = Math.max(rectangle.x, Math.min(marble.position.x, rectangle.x + rectangle.width));
   const closestY = Math.max(rectangle.y, Math.min(marble.position.y, rectangle.y + rectangle.height));
-  let dx = marble.position.x - closestX;
-  let dy = marble.position.y - closestY;
-  let distanceSquared = dx * dx + dy * dy;
+  const dx = marble.position.x - closestX;
+  const dy = marble.position.y - closestY;
+  const distanceSquared = dx * dx + dy * dy;
   if (distanceSquared >= radius * radius) return null;
   let normal: Vec2;
   let penetration: number;
@@ -120,8 +133,10 @@ function resolveRectangle(marble: MarbleCompetitor, rectangle: Rectangle, radius
   }
   marble.position.x += divideRound(normal.x * penetration, FIXED_SCALE);
   marble.position.y += divideRound(normal.y * penetration, FIXED_SCALE);
-  const reflected = reflect(marble.velocity, normal, rectangle.restitutionPermille);
-  marble.velocity = reflected.velocity;
+  const colliderVelocity = { x: rectangle.velocityX, y: rectangle.velocityY };
+  const relativeVelocity = { x: marble.velocity.x - colliderVelocity.x, y: marble.velocity.y - colliderVelocity.y };
+  const reflected = reflect(relativeVelocity, normal, rectangle.restitutionPermille);
+  marble.velocity = { x: reflected.velocity.x + colliderVelocity.x, y: reflected.velocity.y + colliderVelocity.y };
   return {
     key: `${rectangle.kind}:${rectangle.id}:${marble.id}`,
     kind: rectangle.kind,
@@ -230,6 +245,11 @@ function applyForces(marble: MarbleCompetitor, state: MarbleState, action: Marbl
   marble.velocity = clampMagnitude(marble.velocity, limit);
 }
 
+function clampActiveVelocity(marble: MarbleCompetitor, state: MarbleState): void {
+  const limit = Math.min(state.config.maxSpeed, marble.traits.topSpeed);
+  marble.velocity = clampMagnitude(marble.velocity, limit);
+}
+
 export function stepMarblePhysics(state: MarbleState, actions: MarbleAction[]): PhysicsStepResult {
   const initialIssue = validateState(state);
   if (initialIssue) return { state, contacts: [], integrityIssue: initialIssue };
@@ -241,9 +261,9 @@ export function stepMarblePhysics(state: MarbleState, actions: MarbleAction[]): 
   const substeps = Math.max(1, Math.min(next.config.maxSubsteps, Math.ceil(maximumVelocity / Math.max(1, next.config.marbleRadius))));
   const contacts = new Map<string, PhysicsContact>();
   const rectangles = next.arena.obstacles.map(blockRectangle);
-  const sweepers = next.arena.sweepers.map(sweeper => sweeperRectangle(sweeper, next.tick));
 
   for (let substep = 0; substep < substeps; substep++) {
+    const sweepers = next.arena.sweepers.map(sweeper => sweeperRectangle(sweeper, next.tick, substep + 1, substeps));
     for (const marble of active) {
       marble.position.x += divideRound(marble.velocity.x, substeps);
       marble.position.y += divideRound(marble.velocity.y, substeps);
@@ -259,6 +279,7 @@ export function stepMarblePhysics(state: MarbleState, actions: MarbleAction[]): 
         }
       }
     }
+    for (const marble of active) clampActiveVelocity(marble, next);
   }
 
   const contacted = new Set<number>();
