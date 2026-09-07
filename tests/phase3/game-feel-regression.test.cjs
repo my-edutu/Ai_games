@@ -67,6 +67,29 @@ test('tower reduced motion uses the current snapshot exactly',()=>{
   const a=frame(),b=frame(140000);b.snapshot.tick=12;
   assert.equal(fn(tower,'interpolateFrame')(a,b,.1,true).snapshot.player.x,140000);
 });
+test('tower quality presets are ordered bounded and contain no simulation state',()=>{
+  const quality=fn(tower,'qualityProfile'),names=['low','balanced','high','ultra'];
+  const profiles=names.map(name=>quality(name,{deviceMemory:16,hardwareConcurrency:16}));
+  assert.deepEqual(plain(profiles.map(p=>p.name)),names);
+  assert.ok(profiles[0].pixelBudget<profiles[1].pixelBudget&&profiles[1].pixelBudget<profiles[2].pixelBudget&&profiles[2].pixelBudget<=profiles[3].pixelBudget);
+  assert.ok(profiles[0].maxDpr<=1&&profiles[3].pixelBudget<=3840*2160);
+  for(const profile of profiles){for(const forbidden of ['physics','gravity','jump','ai','seed','rng','collision'])assert.equal(Object.keys(profile).some(k=>k.toLowerCase().includes(forbidden)),false,JSON.stringify(profile))}
+});
+test('tower render ratio respects the selected pixel budget on high-DPR and 4K displays',()=>{
+  const profile=fn(tower,'qualityProfile')('ultra',{deviceMemory:16,hardwareConcurrency:16}),ratio=fn(tower,'renderRatio')(profile,3840,2160,3);
+  assert.ok(ratio>0&&ratio<=profile.maxDpr);assert.ok(3840*2160*ratio*ratio<=profile.pixelBudget+1);
+});
+test('tower world layer plan keeps depth on low and bounds decoration on ultra',()=>{
+  const quality=fn(tower,'qualityProfile'),plan=fn(tower,'worldLayerPlan');
+  for(const name of ['low','ultra']){const profile=quality(name,{deviceMemory:16,hardwareConcurrency:16}),layers=plan(profile);assert.deepEqual(plain(layers.map(x=>x.id)),['far','mid','gameplay','foreground']);assert.ok(layers.reduce((sum,x)=>sum+x.budget,0)<=profile.decorativeObjectBudget)}
+});
+test('tower state request is identical across graphics qualities',()=>{
+  const request=fn(tower,'stateRequestPath'),base={width:1920,height:1080,reducedMotion:false,cleanFeed:false,muted:false};
+  const low=request({...base,quality:'low'}),ultra=request({...base,quality:'ultra'});assert.equal(low,ultra);assert.equal(/quality|dpr|pixelBudget/i.test(low),false,low);
+});
+test('tower audio policy is bounded and mute creates zero voices',()=>{
+  const policy=fn(tower,'audioPolicy');assert.equal(policy('ultra',true).maxVoices,0);assert.ok(policy('low',false).maxVoices<=4);assert.ok(policy('ultra',false).maxVoices<=8);
+});
 test('maze route follows real corners rather than diagonal shortcuts',()=>{
   assert.deepEqual(plain(fn(maze,'routeSegments')(board(),[0,1,5,6],new Set([0,1,5,6]))),[[0,1,5,6]]);
 });
