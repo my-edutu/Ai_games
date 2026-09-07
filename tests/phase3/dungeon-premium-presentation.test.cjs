@@ -1,0 +1,45 @@
+'use strict';
+const test=require('node:test');
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const path=require('node:path');
+const{DungeonRuntime}=require('../../dist/games/ai-dungeon-endless-adventure/src/runtime/run.js');
+const{buildDungeonRenderSnapshot}=require('../../dist/games/ai-dungeon-endless-adventure/src/presentation/snapshot.js');
+
+const base={schemaVersion:1,width:31,height:21,roomAttempts:24,roomMinSize:3,roomMaxSize:7,loopChancePermille:180,chapterLength:5,maxTicksPerFloor:1800,intermissionTicks:2,maxEnemies:18,maxRelics:6,maxEvents:96,noProgressTicks:600};
+
+test('spectator snapshot does not reveal an enemy through intervening wall geometry',()=>{
+  const runtime=new DungeonRuntime(base,'spectator-occlusion','spectator-occlusion-run');
+  const width=runtime.state.floor.width;
+  const hero=10*width+10,target=hero+2;
+  runtime.state.floor.tiles.fill(0);
+  runtime.state.floor.tiles[hero]=1;
+  runtime.state.floor.tiles[target]=1;
+  runtime.state.hero.cell=hero;
+  runtime.state.hero.vision=5;
+  runtime.state.ai.knownCells=[hero];
+  runtime.state.enemies=[{id:'spectator-hidden',kind:'mireling',cell:target,hp:5,maxHp:5,attack:1,armour:0,cooldown:0,telegraph:null,phase:1,alive:true}];
+  const snapshot=buildDungeonRenderSnapshot(runtime.state);
+  assert.equal(snapshot.entities.some(enemy=>enemy.id==='spectator-hidden'),false);
+});
+
+test('stream host serves every stylesheet referenced by the Game 9 HTML entrypoint',()=>{
+  const root=path.join(__dirname,'../../');
+  const html=fs.readFileSync(path.join(root,'public/ai-dungeon/index.html'),'utf8');
+  const server=fs.readFileSync(path.join(root,'scripts/serve-dungeon-stream.cjs'),'utf8');
+  assert.match(html,/\/dungeon\/ux-v2\.css/);
+  assert.match(server,/['"]ux-v2\.css['"]/);
+  assert.match(server,/\/dungeon\/ux-v2\.css/);
+});
+
+test('browser presentation declares bounded quality presets without changing authoritative state inputs',()=>{
+  const root=path.join(__dirname,'../../public/ai-dungeon');
+  const core=fs.readFileSync(path.join(root,'app-core.js'),'utf8');
+  const main=fs.readFileSync(path.join(root,'app-main.js'),'utf8');
+  assert.match(core,/QUALITY_PRESETS/);
+  assert.match(core,/\blow\s*:/);
+  assert.match(core,/\bbalanced\s*:/);
+  assert.match(core,/\bhigh\s*:/);
+  assert.match(core,/\bultra\s*:/);
+  assert.match(main,/dataset\.quality/);
+});
