@@ -10,7 +10,7 @@ function title(value){return String(value??'').replace(/-/g,' ').replace(/\b\w/g
 function setConnection(mode,label){const node=byId('connection');node.dataset.state=mode;node.textContent=label;byId('recovery-slate').hidden=mode==='live'}
 function portrait(node,recipe){if(!node||!recipe)return;const pair=palette[recipe.palette%palette.length];node.style.setProperty('--portrait-a',pair[0]);node.style.setProperty('--portrait-b',pair[1]);node.dataset.silhouette=recipe.silhouette;node.title=`${title(recipe.silhouette)} portrait with ${title(recipe.emblem)} emblem`}
 function buildingModel(tile){
-  const model=document.createElement('span');model.className='building-model';model.dataset.type=tile.buildingType;model.dataset.variant=String(tile.visualVariant??0);model.setAttribute('aria-hidden','true');
+  const model=document.createElement('span');model.className='building-model building-miniature';model.dataset.type=tile.buildingType;model.dataset.variant=String(tile.visualVariant??0);model.setAttribute('aria-hidden','true');
   for(const className of['building-shadow','building-base','building-body','building-roof','building-detail']){const part=document.createElement('i');part.className=className;model.appendChild(part)}
   return model;
 }
