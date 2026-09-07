@@ -40,3 +40,21 @@ test('browser runtime does not advance authority while paused and resumes withou
   assert.equal(runtime.currentSnapshot().tick, runtime.authority.state.tick);
   assert.equal(runtime.events.some((event) => event.type === 'near-miss' && event.synthetic === true), false);
 });
+
+test('server attaches one deterministic camera directive to the presentation snapshot', () => {
+  const runtime = createRuntime({ seed: 'server-camera' });
+  const first = runtime.currentSnapshot();
+
+  assert.ok(first.camera.directive, 'presentation snapshot must carry the tested camera directive');
+  assert.equal(first.camera.directive.mode, 'overview');
+  assert.ok(Array.isArray(first.camera.directive.focusIds));
+  assert.equal(first.camera.directive.issuedAtTick, first.tick);
+
+  const repeated = runtime.currentSnapshot();
+  assert.deepEqual(repeated.camera.directive, first.camera.directive, 're-reading the same authority tick must not thrash the shot');
+
+  runtime.advance();
+  const next = runtime.currentSnapshot();
+  assert.ok(['overview', 'cut-line', 'danger', 'finish', 'victory'].includes(next.camera.directive.mode));
+  assert.ok(next.camera.directive.holdUntilTick >= next.camera.directive.issuedAtTick);
+});
