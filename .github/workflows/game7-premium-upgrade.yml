@@ -1,0 +1,47 @@
+name: Game 7 Premium Motorsport Upgrade
+
+on:
+  push:
+    branches:
+      - feat/game7-premium-motorsport-upgrade
+    paths:
+      - 'games/marble-survival/**'
+      - 'tests/foundation/marble-*.test.cjs'
+      - 'package.json'
+      - 'tsconfig.json'
+      - '.github/workflows/game7-premium-upgrade.yml'
+  pull_request:
+    paths:
+      - 'games/marble-survival/**'
+      - 'tests/foundation/marble-*.test.cjs'
+      - 'package.json'
+      - 'tsconfig.json'
+      - '.github/workflows/game7-premium-upgrade.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: game7-premium-upgrade-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  game7-upgrade:
+    name: Build and foundation verification
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci
+      - name: Build repository
+        run: npm run build
+      - name: Run Marble foundation tests
+        run: node --test tests/foundation/marble-*.test.cjs
