@@ -1,268 +1,574 @@
 'use strict';
 
 const shell = document.querySelector('.broadcast-shell');
-const canvas = document.querySelector('#arena-canvas');
-const context = canvas.getContext('2d', { alpha: false });
-const connection = document.querySelector('#connection');
-const roundName = document.querySelector('#round-name');
-const roundIndex = document.querySelector('#round-index');
-const progressFill = document.querySelector('#progress-fill');
-const tickValue = document.querySelector('#tick-value');
-const survivorValue = document.querySelector('#survivor-value');
-const cameraValue = document.querySelector('#camera-value');
-const feedValue = document.querySelector('#feed-value');
-const leaderboard = document.querySelector('#leaderboard');
-const eventList = document.querySelector('#event-list');
-const championCard = document.querySelector('#champion-card');
-const championName = document.querySelector('#champion-name');
-const checksum = document.querySelector('#checksum');
-const voteStatus = document.querySelector('#vote-status');
-const soundToggle = document.querySelector('#sound-toggle');
-const voteButtons = [...document.querySelectorAll('[data-family][data-option]')];
+const canvas = document.getElementById('arena-canvas');
+const ctx = canvas.getContext('2d', { alpha: false });
+const connection = document.getElementById('connection');
+const soundToggle = document.getElementById('sound-toggle');
+const qualitySelect = document.getElementById('quality-select');
+const roundName = document.getElementById('round-name');
+const roundIndex = document.getElementById('round-index');
+const remainingValue = document.getElementById('remaining-value');
+const qualifiedValue = document.getElementById('qualified-value');
+const qualificationValue = document.getElementById('qualification-value');
+const tickValue = document.getElementById('tick-value');
+const cameraValue = document.getElementById('camera-value');
+const feedValue = document.getElementById('feed-value');
+const leaderboard = document.getElementById('leaderboard');
+const eventList = document.getElementById('event-list');
+const influenceStatus = document.getElementById('influence-status');
+const championCard = document.getElementById('champion-card');
+const championName = document.getElementById('champion-name');
+const systemHealth = document.getElementById('system-health');
 
-const parameters = new URLSearchParams(location.search);
-const cleanFeed = parameters.get('clean') === '1' || parameters.get('feed') === 'clean';
-shell.dataset.clean = String(cleanFeed);
-feedValue.textContent = cleanFeed ? 'Clean' : 'Live';
+const QUALITY_PRESETS = Object.freeze({
+  low: Object.freeze({ maxDpr: 1, shadows: false, texture: 0, highlights: false, metalDetail: false }),
+  balanced: Object.freeze({ maxDpr: 1.35, shadows: true, texture: 1, highlights: true, metalDetail: false }),
+  high: Object.freeze({ maxDpr: 1.8, shadows: true, texture: 2, highlights: true, metalDetail: true }),
+  ultra: Object.freeze({ maxDpr: 2.4, shadows: true, texture: 3, highlights: true, metalDetail: true }),
+});
 
-const viewerId = sessionStorage.getItem('game7-viewer-id') || (globalThis.crypto?.randomUUID?.() || `viewer-${Date.now()}`);
-sessionStorage.setItem('game7-viewer-id', viewerId);
+const PALETTE = Object.freeze({
+  aurora: '#78a58f', coral: '#bd725e', cyan: '#5f8f98', gold: '#b7924f',
+  lime: '#8ea45c', magenta: '#a46686', orchid: '#8d74a0', ruby: '#9d4e4e',
+  sky: '#6d91ad', violet: '#756c9e', amber: '#b47642', mint: '#6f9c87',
+});
+
+const ROUND_LABELS = Object.freeze({
+  'seeding-sprint': 'Seeding Sprint',
+  'gate-gauntlet': 'Gate Gauntlet',
+  'hazard-circuit': 'Hazard Circuit',
+  'final-four': 'Final Four',
+  championship: 'Championship',
+});
+
+const IMPORTANT_EVENTS = new Set([
+  'round-started', 'round-live', 'shield-recovery', 'marble-eliminated',
+  'marble-qualified', 'round-resolved', 'tournament-champion', 'intermission-started',
+]);
 
 let snapshot = null;
 let previousSnapshot = null;
-let latestAcceptedTick = -1;
+let snapshotReceivedAt = performance.now();
+let quality = qualitySelect.value in QUALITY_PRESETS ? qualitySelect.value : 'balanced';
 let soundEnabled = false;
 let audioContext = null;
-let seenEvents = new Set();
-let voteLockedUntil = 0;
-let lastFrame = performance.now();
+let lastAudioEventSeq = -1;
+let renderWidth = 1;
+let renderHeight = 1;
+let renderDpr = 1;
+let focusIds = new Set();
+const rotationById = new Map();
+
+const cleanRequested = new URLSearchParams(location.search).get('clean') === '1';
+shell.dataset.clean = cleanRequested ? 'true' : 'false';
+shell.dataset.quality = quality;
+
+function clamp(value, minimum, maximum) {
+  return Math.max(minimum, Math.min(maximum, value));
+}
+
+function lerp(start, end, amount) {
+  return start + (end - start) * amount;
+}
+
+function triangleWave(tick, periodTicks, amplitude, phaseTicks) {
+  const period = Math.max(2, periodTicks);
+  const half = Math.floor(period / 2);
+  const phase = ((tick + phaseTicks) % period + period) % period;
+  const distance = phase <= half ? phase : period - phase;
+  return Math.round(-amplitude + (distance * amplitude * 2) / Math.max(1, half));
+}
 
 function resizeCanvas() {
-  const ratio = Math.min(2, globalThis.devicePixelRatio || 1);
-  const bounds = canvas.getBoundingClientRect();
-  const width = Math.max(320, Math.round(bounds.width * ratio));
-  const height = Math.max(240, Math.round(bounds.height * ratio));
-  if (canvas.width !== width || canvas.height !== height) {
+  const rect = canvas.getBoundingClientRect();
+  if (rect.width <= 0 || rect.height <= 0) return;
+  const preset = QUALITY_PRESETS[quality];
+  const dpr = Math.min(window.devicePixelRatio || 1, preset.maxDpr);
+  const width = Math.max(1, Math.round(rect.width * dpr));
+  const height = Math.max(1, Math.round(rect.height * dpr));
+  if (width !== canvas.width || height !== canvas.height) {
     canvas.width = width;
     canvas.height = height;
   }
+  renderWidth = rect.width;
+  renderHeight = rect.height;
+  renderDpr = dpr;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 }
 
 function arenaTransform(arena) {
-  const padding = 24;
-  const scale = Math.min((canvas.width - padding * 2) / arena.width, (canvas.height - padding * 2) / arena.height);
+  const sideMargin = clamp(renderWidth * .055, 32, 92);
+  const verticalMargin = clamp(renderHeight * .055, 34, 78);
+  const scale = Math.min(
+    (renderWidth - sideMargin * 2) / arena.width,
+    (renderHeight - verticalMargin * 2) / arena.height,
+  );
+  const width = arena.width * scale;
+  const height = arena.height * scale;
   return {
     scale,
-    left: (canvas.width - arena.width * scale) / 2,
-    top: (canvas.height - arena.height * scale) / 2,
+    x: (renderWidth - width) / 2,
+    y: (renderHeight - height) / 2,
+    width,
+    height,
   };
 }
 
-function point(x, y, transform) {
-  return { x: transform.left + x * transform.scale, y: transform.top + y * transform.scale };
+function worldPoint(transform, x, y) {
+  return { x: transform.x + x * transform.scale, y: transform.y + y * transform.scale };
 }
 
-function drawBackground(arena, transform) {
-  const gradient = context.createLinearGradient(0, 0, canvas.width, canvas.height);
-  gradient.addColorStop(0, '#101a3b');
-  gradient.addColorStop(.48, '#081126');
-  gradient.addColorStop(1, '#10132e');
-  context.fillStyle = gradient;
-  context.fillRect(0, 0, canvas.width, canvas.height);
-
-  context.save();
-  context.translate(transform.left, transform.top);
-  context.scale(transform.scale, transform.scale);
-  context.strokeStyle = 'rgba(145, 164, 255, .12)';
-  context.lineWidth = 1 / transform.scale;
-  for (let x = 0; x <= arena.width; x += 60) {
-    context.beginPath();
-    context.moveTo(x, 0);
-    context.lineTo(x, arena.height);
-    context.stroke();
-  }
-  for (let y = 0; y <= arena.height; y += 60) {
-    context.beginPath();
-    context.moveTo(0, y);
-    context.lineTo(arena.width, y);
-    context.stroke();
-  }
-  context.fillStyle = 'rgba(112, 241, 210, .15)';
-  context.fillRect(0, arena.finishY - 7, arena.width, 14);
-  context.strokeStyle = 'rgba(112, 241, 210, .82)';
-  context.setLineDash([20, 12]);
-  context.lineWidth = 3 / transform.scale;
+function roundRect(context, x, y, width, height, radius) {
+  const r = Math.min(radius, width / 2, height / 2);
   context.beginPath();
-  context.moveTo(0, arena.finishY);
-  context.lineTo(arena.width, arena.finishY);
-  context.stroke();
-  context.restore();
+  context.moveTo(x + r, y);
+  context.arcTo(x + width, y, x + width, y + height, r);
+  context.arcTo(x + width, y + height, x, y + height, r);
+  context.arcTo(x, y + height, x, y, r);
+  context.arcTo(x, y, x + width, y, r);
+  context.closePath();
 }
 
-function featureStyle(type) {
-  if (type === 'hazard' || type === 'sweeper') return ['#ff6b86', 'rgba(255, 107, 134, .22)'];
-  if (type === 'boost') return ['#70f1d2', 'rgba(112, 241, 210, .2)'];
-  if (type === 'gate' || type === 'lane-divider') return ['#9a8cff', 'rgba(154, 140, 255, .2)'];
-  return ['#ffd166', 'rgba(255, 209, 102, .2)'];
-}
+function drawBackdrop(preset) {
+  const gradient = ctx.createLinearGradient(0, 0, 0, renderHeight);
+  gradient.addColorStop(0, '#211f1a');
+  gradient.addColorStop(1, '#12120f');
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, renderWidth, renderHeight);
 
-function drawFeatures(arena, transform) {
-  for (const feature of arena.features) {
-    const position = point(feature.x, feature.y, transform);
-    const radius = feature.radius * transform.scale;
-    const [stroke, fill] = featureStyle(feature.type);
-    context.save();
-    context.translate(position.x, position.y);
-    context.fillStyle = fill;
-    context.strokeStyle = stroke;
-    context.lineWidth = Math.max(2, 3 * transform.scale);
-    if (feature.type === 'gate' || feature.type === 'lane-divider') {
-      context.fillRect(-radius * 1.5, -radius * .25, radius * 3, radius * .5);
-      context.strokeRect(-radius * 1.5, -radius * .25, radius * 3, radius * .5);
-    } else if (feature.type === 'sweeper') {
-      context.rotate((snapshot?.tick || 0) * .025);
-      context.fillRect(-radius * 2.4, -radius * .18, radius * 4.8, radius * .36);
-      context.strokeRect(-radius * 2.4, -radius * .18, radius * 4.8, radius * .36);
-    } else {
-      context.beginPath();
-      context.arc(0, 0, radius, 0, Math.PI * 2);
-      context.fill();
-      context.stroke();
-      context.beginPath();
-      context.arc(0, 0, radius * .46, 0, Math.PI * 2);
-      context.stroke();
+  if (preset.texture > 0) {
+    ctx.save();
+    ctx.globalAlpha = preset.texture === 1 ? .06 : .09;
+    ctx.fillStyle = '#f3ead3';
+    const spacing = preset.texture >= 3 ? 26 : 40;
+    for (let y = spacing / 2; y < renderHeight; y += spacing) {
+      for (let x = spacing / 2; x < renderWidth; x += spacing) {
+        ctx.fillRect(x, y, 1, 1);
+      }
     }
-    context.restore();
+    ctx.restore();
   }
 }
 
-function drawPattern(pattern, radius) {
-  context.strokeStyle = 'rgba(4, 9, 22, .72)';
-  context.fillStyle = 'rgba(4, 9, 22, .68)';
-  context.lineWidth = Math.max(1.5, radius * .1);
-  if (pattern === 'rings') {
-    for (const factor of [.35, .65]) {
-      context.beginPath();
-      context.arc(0, 0, radius * factor, 0, Math.PI * 2);
-      context.stroke();
+function drawTrackBase(arena, transform, preset) {
+  ctx.save();
+  if (preset.shadows) {
+    ctx.shadowColor = 'rgba(0, 0, 0, .55)';
+    ctx.shadowBlur = 32;
+    ctx.shadowOffsetY = 18;
+  }
+  roundRect(ctx, transform.x - 14, transform.y - 14, transform.width + 28, transform.height + 28, 18);
+  ctx.fillStyle = '#292824';
+  ctx.fill();
+  ctx.shadowColor = 'transparent';
+
+  const slab = ctx.createLinearGradient(transform.x, transform.y, transform.x + transform.width, transform.y + transform.height);
+  slab.addColorStop(0, '#f2ecdc');
+  slab.addColorStop(.5, '#e4dcc7');
+  slab.addColorStop(1, '#d8cfb7');
+  roundRect(ctx, transform.x, transform.y, transform.width, transform.height, 12);
+  ctx.fillStyle = slab;
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(40, 38, 32, .38)';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  ctx.strokeStyle = 'rgba(78, 73, 62, .14)';
+  ctx.lineWidth = 1;
+  const laneXs = [arena.width / 3, arena.width * 2 / 3];
+  for (const laneX of laneXs) {
+    const start = worldPoint(transform, laneX, 0);
+    const end = worldPoint(transform, laneX, arena.height);
+    ctx.setLineDash([8, 12]);
+    ctx.beginPath();
+    ctx.moveTo(start.x, start.y);
+    ctx.lineTo(end.x, end.y);
+    ctx.stroke();
+  }
+  ctx.setLineDash([]);
+  ctx.restore();
+}
+
+function drawFinishLine(arena, transform) {
+  const y = worldPoint(transform, 0, arena.finishY).y;
+  const cell = clamp(transform.width / 32, 9, 22);
+  const bandHeight = clamp(cell * .9, 8, 18);
+  const count = Math.ceil(transform.width / cell);
+  for (let index = 0; index < count; index += 1) {
+    ctx.fillStyle = index % 2 === 0 ? '#22211d' : '#f6efe0';
+    ctx.fillRect(transform.x + index * cell, y - bandHeight / 2, cell + .5, bandHeight);
+  }
+  ctx.strokeStyle = 'rgba(34, 33, 29, .55)';
+  ctx.lineWidth = 1;
+  ctx.strokeRect(transform.x, y - bandHeight / 2, transform.width, bandHeight);
+}
+
+function drawHazards(arena, transform, preset) {
+  for (const hazard of arena.hazards) {
+    const origin = worldPoint(transform, hazard.x, hazard.y);
+    const width = hazard.width * transform.scale;
+    const height = hazard.height * transform.scale;
+    if (preset.shadows) {
+      ctx.save();
+      ctx.shadowColor = 'rgba(0,0,0,.6)';
+      ctx.shadowBlur = 16;
+      ctx.fillStyle = '#17120f';
+      roundRect(ctx, origin.x, origin.y, width, height, 6);
+      ctx.fill();
+      ctx.restore();
     }
-  } else if (pattern === 'stripes') {
-    for (let x = -radius; x <= radius; x += radius * .42) {
-      context.beginPath();
-      context.moveTo(x - radius, radius);
-      context.lineTo(x + radius, -radius);
-      context.stroke();
+    const pit = ctx.createLinearGradient(origin.x, origin.y, origin.x, origin.y + height);
+    pit.addColorStop(0, '#5b2c26');
+    pit.addColorStop(.25, '#38201d');
+    pit.addColorStop(1, '#11100e');
+    roundRect(ctx, origin.x, origin.y, width, height, 5);
+    ctx.fillStyle = pit;
+    ctx.fill();
+    ctx.strokeStyle = '#b85d51';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+  }
+}
+
+function drawObstacles(arena, transform, preset) {
+  for (const obstacle of arena.obstacles) {
+    const origin = worldPoint(transform, obstacle.x, obstacle.y);
+    const width = obstacle.width * transform.scale;
+    const height = obstacle.height * transform.scale;
+    ctx.save();
+    if (preset.shadows) {
+      ctx.shadowColor = 'rgba(0,0,0,.32)';
+      ctx.shadowBlur = 10;
+      ctx.shadowOffsetY = 5;
     }
-  } else if (pattern === 'dots') {
-    for (const [x, y] of [[-.38, -.25], [.35, -.33], [0, .25], [-.45, .45], [.48, .35]]) {
-      context.beginPath();
-      context.arc(x * radius, y * radius, radius * .09, 0, Math.PI * 2);
-      context.fill();
+    const face = ctx.createLinearGradient(origin.x, origin.y, origin.x, origin.y + height);
+    face.addColorStop(0, '#fff8e9');
+    face.addColorStop(1, '#cfc5ae');
+    roundRect(ctx, origin.x, origin.y, width, height, 5);
+    ctx.fillStyle = face;
+    ctx.fill();
+    ctx.shadowColor = 'transparent';
+    ctx.strokeStyle = 'rgba(58, 54, 46, .45)';
+    ctx.lineWidth = 1.2;
+    ctx.stroke();
+    if (preset.metalDetail) {
+      ctx.fillStyle = 'rgba(45, 42, 36, .35)';
+      ctx.fillRect(origin.x + 4, origin.y + height - 3, Math.max(0, width - 8), 2);
     }
-  } else {
-    context.beginPath();
-    context.moveTo(-radius * .65, -radius * .15);
-    context.lineTo(0, radius * .45);
-    context.lineTo(radius * .65, -radius * .15);
-    context.stroke();
-    context.beginPath();
-    context.moveTo(-radius * .65, -radius * .5);
-    context.lineTo(0, radius * .1);
-    context.lineTo(radius * .65, -radius * .5);
-    context.stroke();
+    ctx.restore();
+  }
+}
+
+function drawBumpers(arena, transform, preset) {
+  for (const bumper of arena.bumpers) {
+    const point = worldPoint(transform, bumper.x, bumper.y);
+    const radius = Math.max(5, bumper.radius * transform.scale);
+    const metal = ctx.createRadialGradient(point.x - radius * .35, point.y - radius * .4, radius * .1, point.x, point.y, radius);
+    metal.addColorStop(0, '#f3efe5');
+    metal.addColorStop(.35, '#b9b5ab');
+    metal.addColorStop(.72, '#5d5b55');
+    metal.addColorStop(1, '#292824');
+    ctx.save();
+    if (preset.shadows) {
+      ctx.shadowColor = 'rgba(0,0,0,.35)';
+      ctx.shadowBlur = 10;
+      ctx.shadowOffsetY = 4;
+    }
+    ctx.beginPath();
+    ctx.arc(point.x, point.y, radius, 0, Math.PI * 2);
+    ctx.fillStyle = metal;
+    ctx.fill();
+    ctx.strokeStyle = '#d5d1c5';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+    ctx.restore();
+  }
+}
+
+function drawSweepers(arena, transform, preset, tick) {
+  for (const sweeper of arena.sweepers) {
+    const offset = triangleWave(tick, sweeper.periodTicks, sweeper.amplitude, sweeper.phaseTicks);
+    const x = sweeper.baseX + (sweeper.axis === 'x' ? offset : 0);
+    const y = sweeper.baseY + (sweeper.axis === 'y' ? offset : 0);
+    const origin = worldPoint(transform, x, y);
+    const width = sweeper.width * transform.scale;
+    const height = sweeper.height * transform.scale;
+    const metal = ctx.createLinearGradient(origin.x, origin.y, origin.x, origin.y + Math.max(height, 8));
+    metal.addColorStop(0, '#d8d4ca');
+    metal.addColorStop(.42, '#8c8a84');
+    metal.addColorStop(.55, '#54534f');
+    metal.addColorStop(1, '#bebbb1');
+    ctx.save();
+    if (preset.shadows) {
+      ctx.shadowColor = 'rgba(0,0,0,.38)';
+      ctx.shadowBlur = 8;
+      ctx.shadowOffsetY = 3;
+    }
+    roundRect(ctx, origin.x, origin.y, width, Math.max(height, 6), 3);
+    ctx.fillStyle = metal;
+    ctx.fill();
+    ctx.strokeStyle = '#302f2c';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+    ctx.restore();
   }
 }
 
 function interpolatedMarbles(now) {
   if (!snapshot) return [];
-  if (!previousSnapshot || previousSnapshot.round.id !== snapshot.round.id) return snapshot.marbles;
-  const elapsed = Math.min(1, Math.max(0, (now - lastFrame) / 600));
-  const previousById = new Map(previousSnapshot.marbles.map((marble) => [marble.id, marble]));
+  const blend = clamp((now - snapshotReceivedAt) / 115, 0, 1);
+  const previousById = new Map((previousSnapshot?.marbles || []).map((marble) => [marble.id, marble]));
   return snapshot.marbles.map((marble) => {
-    const old = previousById.get(marble.id) || marble;
-    return { ...marble, x: old.x + (marble.x - old.x) * elapsed, y: old.y + (marble.y - old.y) * elapsed };
+    const previous = previousById.get(marble.id) || marble;
+    return {
+      ...marble,
+      x: lerp(previous.x, marble.x, blend),
+      y: lerp(previous.y, marble.y, blend),
+    };
   });
 }
 
-function drawMarbles(arena, transform, now) {
-  const marbles = interpolatedMarbles(now);
-  const baseRadius = Math.max(7, Math.min(16, 17 - marbles.length * .15)) * Math.max(.75, transform.scale);
-  for (const marble of marbles) {
-    const position = point(marble.x, marble.y, transform);
-    const radius = baseRadius + (marble.qualified ? 1.5 : 0);
-    context.save();
-    context.translate(position.x, position.y);
-    context.shadowColor = marble.colour;
-    context.shadowBlur = marble.qualified ? radius * 1.3 : radius * .55;
-    context.fillStyle = marble.colour;
-    context.beginPath();
-    context.arc(0, 0, radius, 0, Math.PI * 2);
-    context.fill();
-    context.shadowBlur = 0;
-    context.save();
-    context.beginPath();
-    context.arc(0, 0, radius - 1, 0, Math.PI * 2);
-    context.clip();
-    drawPattern(marble.pattern, radius);
-    context.restore();
-    context.strokeStyle = marble.qualified ? '#ffffff' : 'rgba(255,255,255,.5)';
-    context.lineWidth = marble.qualified ? 2.2 : 1;
-    context.beginPath();
-    context.arc(0, 0, radius, 0, Math.PI * 2);
-    context.stroke();
-    context.restore();
+function drawPattern(marble, radius, angle) {
+  ctx.save();
+  ctx.rotate(angle);
+  ctx.strokeStyle = 'rgba(20, 20, 18, .72)';
+  ctx.fillStyle = 'rgba(20, 20, 18, .72)';
+  ctx.lineWidth = Math.max(1, radius * .12);
+  if (marble.pattern === 'ring') {
+    ctx.beginPath();
+    ctx.arc(0, 0, radius * .58, 0, Math.PI * 2);
+    ctx.stroke();
+  } else if (marble.pattern === 'dots') {
+    for (const [x, y] of [[-.35, -.22], [.26, -.28], [-.05, .33]]) {
+      ctx.beginPath();
+      ctx.arc(radius * x, radius * y, radius * .11, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  } else if (marble.pattern === 'chevron') {
+    ctx.beginPath();
+    ctx.moveTo(-radius * .55, -radius * .12);
+    ctx.lineTo(0, radius * .35);
+    ctx.lineTo(radius * .55, -radius * .12);
+    ctx.stroke();
+  } else if (marble.pattern === 'split') {
+    ctx.fillRect(-radius, -radius * .12, radius * 2, radius * .24);
+  }
+  ctx.restore();
+}
+
+function drawMarble(marble, transform, preset) {
+  const point = worldPoint(transform, marble.x, marble.y);
+  const radius = clamp(transform.scale * 285, 8, 17);
+  const base = PALETTE[marble.palette] || '#87908a';
+  const angle = rotationById.get(marble.id) || 0;
+
+  ctx.save();
+  ctx.translate(point.x, point.y);
+  if (preset.shadows) {
+    ctx.save();
+    ctx.translate(radius * .28, radius * .44);
+    ctx.scale(1.15, .55);
+    ctx.beginPath();
+    ctx.arc(0, 0, radius, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(0,0,0,.28)';
+    ctx.fill();
+    ctx.restore();
+  }
+
+  if (focusIds.has(marble.id) || marble.status === 'threatened' || marble.status === 'recovering') {
+    ctx.beginPath();
+    ctx.arc(0, 0, radius * 1.48, 0, Math.PI * 2);
+    ctx.strokeStyle = marble.status === 'threatened' ? 'rgba(184,93,81,.9)' : marble.status === 'recovering' ? 'rgba(201,167,101,.9)' : 'rgba(240,234,215,.55)';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+  }
+
+  const sphere = ctx.createRadialGradient(-radius * .35, -radius * .42, radius * .12, 0, 0, radius);
+  sphere.addColorStop(0, preset.highlights ? '#fffdf5' : base);
+  sphere.addColorStop(.18, base);
+  sphere.addColorStop(.68, base);
+  sphere.addColorStop(1, '#262521');
+  ctx.beginPath();
+  ctx.arc(0, 0, radius, 0, Math.PI * 2);
+  ctx.fillStyle = sphere;
+  ctx.fill();
+  ctx.strokeStyle = marble.status === 'qualified' || marble.status === 'champion' ? '#d8c38f' : 'rgba(20,20,18,.62)';
+  ctx.lineWidth = marble.status === 'qualified' || marble.status === 'champion' ? 2.2 : 1.25;
+  ctx.stroke();
+
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(0, 0, radius * .94, 0, Math.PI * 2);
+  ctx.clip();
+  drawPattern(marble, radius, angle);
+  ctx.restore();
+
+  ctx.font = `900 ${Math.max(8, radius * .72)}px Inter, system-ui, sans-serif`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.lineWidth = Math.max(2, radius * .18);
+  ctx.strokeStyle = 'rgba(0,0,0,.78)';
+  ctx.strokeText(String(marble.number), 0, .5);
+  ctx.fillStyle = '#fffaf0';
+  ctx.fillText(String(marble.number), 0, .5);
+  ctx.restore();
+}
+
+function updateRotation(next, previous) {
+  const previousById = new Map((previous?.marbles || []).map((marble) => [marble.id, marble]));
+  for (const marble of next.marbles) {
+    const old = previousById.get(marble.id);
+    if (!old) continue;
+    const distance = Math.hypot(marble.x - old.x, marble.y - old.y);
+    const direction = Math.sign(marble.velocityX || 1);
+    const current = rotationById.get(marble.id) || 0;
+    rotationById.set(marble.id, current + direction * distance / 280);
   }
 }
 
-function draw(now) {
+function renderArena(now) {
   resizeCanvas();
-  if (!snapshot) {
-    context.fillStyle = '#080d20';
-    context.fillRect(0, 0, canvas.width, canvas.height);
-    context.fillStyle = '#a7b0cf';
-    context.font = `${Math.max(16, canvas.width / 45)}px system-ui`;
-    context.textAlign = 'center';
-    context.fillText('Waiting for deterministic authority…', canvas.width / 2, canvas.height / 2);
-  } else {
-    const transform = arenaTransform(snapshot.arena);
-    drawBackground(snapshot.arena, transform);
-    drawFeatures(snapshot.arena, transform);
-    drawMarbles(snapshot.arena, transform, now);
-  }
-  requestAnimationFrame(draw);
+  const preset = QUALITY_PRESETS[quality];
+  drawBackdrop(preset);
+  if (!snapshot) return;
+
+  const transform = arenaTransform(snapshot.arena);
+  drawTrackBase(snapshot.arena, transform, preset);
+  drawHazards(snapshot.arena, transform, preset);
+  drawObstacles(snapshot.arena, transform, preset);
+  drawBumpers(snapshot.arena, transform, preset);
+  drawSweepers(snapshot.arena, transform, preset, snapshot.tick);
+  drawFinishLine(snapshot.arena, transform);
+  for (const marble of interpolatedMarbles(now)) drawMarble(marble, transform, preset);
+}
+
+function cameraMode(next) {
+  const contested = next.camera.contestedQualificationIds || [];
+  focusIds = new Set(contested);
+  if (next.camera.championId !== null) return 'Champion';
+  if (next.camera.dangerIds.length > 0) return 'Danger watch';
+  if (contested.length > 1 && next.round.qualified >= Math.max(0, next.round.quota - 2)) return 'Cut-line battle';
+  return 'Overview';
+}
+
+function statusLabel(status) {
+  const labels = {
+    racing: 'Racing',
+    'near-finish': 'Near finish',
+    threatened: 'Threat',
+    recovering: 'Recovering',
+    qualified: 'Qualified',
+    eliminated: 'Out',
+    champion: 'Champion',
+  };
+  return labels[status] || status;
 }
 
 function renderHud(next) {
-  roundName.textContent = next.round.name;
-  roundIndex.textContent = `${next.round.index} / ${next.round.total}`;
-  progressFill.style.width = `${Math.min(100, (next.tick / 180) * 100)}%`;
+  roundName.textContent = ROUND_LABELS[next.arena.archetype] || next.arena.archetype;
+  roundIndex.textContent = `Round ${next.round.number} · ${next.round.index + 1}/5`;
+  remainingValue.textContent = String(next.round.remaining);
+  qualifiedValue.textContent = String(next.round.qualified);
+  qualificationValue.textContent = `${next.round.qualified}/${next.round.quota} locked · ${Math.max(0, next.round.quota - next.round.qualified)} spots open`;
   tickValue.textContent = String(next.tick);
-  survivorValue.textContent = String(next.marbles.length);
-  cameraValue.textContent = next.camera.phase.replaceAll('-', ' ');
-  checksum.textContent = `Checksum ${next.checksum.slice(0, 12)}`;
-  const marbleById = new Map(next.marbles.map((marble) => [marble.id, marble]));
-  leaderboard.replaceChildren(...next.leaderboard.map((entry) => {
+  cameraValue.textContent = cameraMode(next);
+  feedValue.textContent = next.lifecycle === 'quarantined' ? 'AUTHORITY STOPPED' : 'AUTHORITY LIVE';
+
+  leaderboard.replaceChildren(...next.leaderboard.map((entry, index) => {
     const item = document.createElement('li');
-    const marble = marbleById.get(entry.id);
+    item.dataset.status = entry.status;
     const rank = document.createElement('span');
     rank.className = 'rank';
-    rank.textContent = `#${entry.rank}`;
+    rank.textContent = String(index + 1).padStart(2, '0');
+    const number = document.createElement('span');
+    number.className = 'number';
+    number.textContent = String(entry.number);
     const name = document.createElement('span');
     name.className = 'name';
-    name.textContent = marble?.displayName || entry.id;
-    const score = document.createElement('span');
-    score.className = 'score';
-    score.textContent = entry.score.toLocaleString();
-    item.append(rank, name, score);
+    name.textContent = entry.name;
+    const status = document.createElement('span');
+    status.className = 'status';
+    status.textContent = statusLabel(entry.status);
+    item.append(rank, number, name, status);
     return item;
   }));
-  championCard.hidden = !next.champion;
-  championName.textContent = next.champion?.displayName || '';
+
+  const official = next.events.filter((event) => IMPORTANT_EVENTS.has(event.type)).slice(-6).reverse();
+  eventList.replaceChildren(...official.map((event) => {
+    const item = document.createElement('li');
+    item.textContent = describeEvent(event, next);
+    return item;
+  }));
+  if (official.length === 0) {
+    const item = document.createElement('li');
+    item.textContent = 'Authority running · awaiting next official race event.';
+    eventList.replaceChildren(item);
+  }
+
+  const championId = next.camera.championId;
+  if (championId !== null) {
+    const champion = next.marbles.find((marble) => marble.id === championId);
+    championName.textContent = champion ? `#${champion.number} ${champion.name}` : `Marble #${championId + 1}`;
+    championCard.hidden = false;
+  } else {
+    championCard.hidden = true;
+  }
 }
 
-function markConnection(ok, label) {
-  connection.textContent = label;
-  connection.classList.toggle('connected', ok);
+function describeEvent(event, next) {
+  const data = event.data || {};
+  const marble = Number.isInteger(data.marbleId) ? next.marbles.find((candidate) => candidate.id === data.marbleId) : null;
+  const identity = marble ? `#${marble.number} ${marble.name}` : 'Marble';
+  if (event.type === 'marble-qualified') return `${identity} officially qualified in P${data.finishRank}.`;
+  if (event.type === 'marble-eliminated') return `${identity} eliminated · ${String(data.cause || 'hazard')}.`;
+  if (event.type === 'shield-recovery') return `${identity} survived a hazard with shield recovery.`;
+  if (event.type === 'round-started') return `Round ${Number(data.roundIndex || 0) + 1} is live.`;
+  if (event.type === 'round-resolved') return `Round result locked by authority · ${String(data.resolution || 'resolved')}.`;
+  if (event.type === 'tournament-champion') return `Champion result locked: marble #${Number(data.championId) + 1}.`;
+  if (event.type === 'intermission-started') return 'Official result complete · intermission.';
+  return event.type.replaceAll('-', ' ');
+}
+
+function ensureAudio() {
+  if (!audioContext) audioContext = new AudioContext();
+  if (audioContext.state === 'suspended') audioContext.resume();
+}
+
+function tone(frequency, duration, gain = .025, offset = 0) {
+  if (!soundEnabled || !audioContext) return;
+  const oscillator = audioContext.createOscillator();
+  const volume = audioContext.createGain();
+  oscillator.type = 'sine';
+  oscillator.frequency.value = frequency;
+  volume.gain.setValueAtTime(gain, audioContext.currentTime + offset);
+  volume.gain.exponentialRampToValueAtTime(.0001, audioContext.currentTime + offset + duration);
+  oscillator.connect(volume).connect(audioContext.destination);
+  oscillator.start(audioContext.currentTime + offset);
+  oscillator.stop(audioContext.currentTime + offset + duration);
+}
+
+function playNewAudio(events) {
+  if (!soundEnabled) return;
+  for (const event of events) {
+    if (event.seq <= lastAudioEventSeq) continue;
+    lastAudioEventSeq = Math.max(lastAudioEventSeq, event.seq);
+    if (event.type === 'marble-qualified') tone(660, .16, .025);
+    else if (event.type === 'marble-eliminated') tone(180, .22, .028);
+    else if (event.type === 'shield-recovery') { tone(360, .12, .02); tone(520, .16, .02, .08); }
+    else if (event.type === 'tournament-champion') { tone(520, .18, .028); tone(660, .2, .025, .12); tone(820, .3, .024, .24); }
+  }
+}
+
+function acceptSnapshot(next) {
+  if (!next || next.version !== 1 || !next.round || !next.arena || !Array.isArray(next.marbles)) throw new Error('invalid presentation snapshot');
+  if (snapshot && next.tick < snapshot.tick && next.lifecycle !== 'active') return;
+  updateRotation(next, snapshot);
+  previousSnapshot = snapshot;
+  snapshot = next;
+  snapshotReceivedAt = performance.now();
+  renderHud(next);
+  playNewAudio(next.events || []);
 }
 
 async function refreshSnapshot() {
@@ -270,123 +576,61 @@ async function refreshSnapshot() {
     const response = await fetch('/api/snapshot', { cache: 'no-store' });
     if (!response.ok) throw new Error(`snapshot ${response.status}`);
     const next = await response.json();
-    if (!Number.isFinite(next.tick) || !Array.isArray(next.marbles) || !next.arena) throw new Error('invalid snapshot');
-    if (snapshot && next.round.id === snapshot.round.id && next.tick < latestAcceptedTick - 15) return;
-    previousSnapshot = snapshot;
-    snapshot = next;
-    latestAcceptedTick = next.round.id === previousSnapshot?.round.id ? Math.max(latestAcceptedTick, next.tick) : next.tick;
-    lastFrame = performance.now();
-    renderHud(next);
-    markConnection(true, 'Authority live');
+    acceptSnapshot(next);
+    connection.textContent = 'Authority connected';
+    connection.className = 'status-pill connected';
   } catch {
-    markConnection(false, 'Reconnecting');
+    connection.textContent = 'Connection lost';
+    connection.className = 'status-pill error';
   }
 }
 
-function eventLabel(event) {
-  const labels = {
-    'round-start': 'A new elimination round has started.',
-    'near-miss': 'The pack survived a near miss.',
-    qualification: 'The qualification line has closed.',
-    influence: `Audience effect accepted: ${event.option || event.family || 'vote'}.`,
-    champion: 'A new champion has been crowned.',
-  };
-  return labels[event.type] || 'Tournament state updated.';
-}
-
-function playCue(type) {
-  if (!soundEnabled || !audioContext) return;
-  const frequencies = { 'round-start': 330, 'near-miss': 220, qualification: 440, influence: 520, champion: 660 };
-  const oscillator = audioContext.createOscillator();
-  const gain = audioContext.createGain();
-  oscillator.type = type === 'champion' ? 'triangle' : 'sine';
-  oscillator.frequency.value = frequencies[type] || 280;
-  gain.gain.setValueAtTime(.0001, audioContext.currentTime);
-  gain.gain.exponentialRampToValueAtTime(.08, audioContext.currentTime + .015);
-  gain.gain.exponentialRampToValueAtTime(.0001, audioContext.currentTime + .22);
-  oscillator.connect(gain).connect(audioContext.destination);
-  oscillator.start();
-  oscillator.stop(audioContext.currentTime + .24);
-}
-
-async function refreshEvents() {
+async function refreshHealth() {
   try {
-    const response = await fetch('/api/events', { cache: 'no-store' });
-    if (!response.ok) return;
-    const payload = await response.json();
-    const events = Array.isArray(payload.events) ? payload.events.slice(-6) : [];
-    eventList.replaceChildren(...events.slice().reverse().map((event) => {
-      const item = document.createElement('li');
-      item.textContent = eventLabel(event);
-      return item;
-    }));
-    for (const event of events) {
-      if (!seenEvents.has(event.id)) {
-        seenEvents.add(event.id);
-        playCue(event.type);
-      }
-    }
-    if (seenEvents.size > 96) seenEvents = new Set(events.map((event) => event.id));
+    const response = await fetch('/api/health', { cache: 'no-store' });
+    if (!response.ok) throw new Error('health');
+    const health = await response.json();
+    systemHealth.textContent = `${String(health.status).toUpperCase()} · Run ${health.runIndex + 1} · Round ${health.roundNumber}`;
   } catch {
-    // The visual snapshot remains authoritative if the optional event feed is delayed.
+    systemHealth.textContent = 'Health unavailable';
   }
 }
 
-async function submitVote(button) {
-  const now = Date.now();
-  if (now < voteLockedUntil) return;
-  voteButtons.forEach((entry) => { entry.disabled = true; });
-  voteStatus.textContent = 'Submitting bounded vote…';
+async function refreshInfluenceStatus() {
   try {
-    const response = await fetch('/api/influence', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({
-        id: globalThis.crypto?.randomUUID?.() || `${viewerId}-${now}`,
-        userId: viewerId,
-        family: button.dataset.family,
-        option: button.dataset.option,
-        at: now,
-      }),
-    });
+    const response = await fetch('/api/catalogue', { cache: 'no-store' });
     const result = await response.json();
-    if (!response.ok || !result.accepted) throw new Error(result.reason || 'vote rejected');
-    voteLockedUntil = now + 15_000;
-    voteStatus.textContent = `${button.textContent} accepted. Cooldown active.`;
-  } catch (error) {
-    voteStatus.textContent = `Vote not accepted: ${error.message}.`;
-    voteLockedUntil = now + 2_000;
+    influenceStatus.textContent = result.authorityInfluenceEnabled
+      ? 'Viewer voting is routed through deterministic tournament authority.'
+      : 'Voting is temporarily disabled. The server will not fake viewer effects until influence is processed inside deterministic authority.';
+  } catch {
+    influenceStatus.textContent = 'Influence status unavailable.';
   }
 }
 
-function updateVoteLock() {
-  const remaining = voteLockedUntil - Date.now();
-  const locked = remaining > 0;
-  voteButtons.forEach((button) => { button.disabled = locked; });
-  if (locked && !voteStatus.textContent.includes('Submitting')) {
-    voteStatus.textContent = `Next vote in ${Math.ceil(remaining / 1000)}s.`;
-  } else if (!locked) {
-    voteStatus.textContent = 'One bounded vote per cooldown';
-  }
-}
+qualitySelect.addEventListener('change', () => {
+  quality = qualitySelect.value in QUALITY_PRESETS ? qualitySelect.value : 'balanced';
+  shell.dataset.quality = quality;
+  resizeCanvas();
+});
 
-soundToggle.addEventListener('click', async () => {
+soundToggle.addEventListener('click', () => {
   soundEnabled = !soundEnabled;
   soundToggle.setAttribute('aria-pressed', String(soundEnabled));
   soundToggle.textContent = soundEnabled ? 'Sound on' : 'Sound off';
-  if (soundEnabled) {
-    audioContext ||= new AudioContext();
-    await audioContext.resume();
-    playCue('round-start');
-  }
+  if (soundEnabled) ensureAudio();
 });
 
-voteButtons.forEach((button) => button.addEventListener('click', () => submitVote(button)));
-window.addEventListener('resize', resizeCanvas, { passive: true });
+function render(now) {
+  renderArena(now);
+  requestAnimationFrame(render);
+}
 
+window.addEventListener('resize', resizeCanvas, { passive: true });
 refreshSnapshot();
-refreshEvents();
-setInterval(refreshSnapshot, 500);
-setInterval(refreshEvents, 1500);
-setInterval(updateVoteLock, 250);
-requestAnimationFrame(draw);
+refreshHealth();
+refreshInfluenceStatus();
+setInterval(refreshSnapshot, 100);
+setInterval(refreshHealth, 2000);
+setInterval(refreshInfluenceStatus, 15000);
+requestAnimationFrame(render);
