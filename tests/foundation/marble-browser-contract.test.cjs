@@ -68,3 +68,17 @@ test('premium visual direction is ivory/charcoal miniature motorsport rather tha
     assert.equal(styles.includes(legacyNeon), false, `legacy neon palette must be removed: ${legacyNeon}`);
   }
 });
+
+test('browser camera obeys server directive and applies presentation-only smooth viewport framing', () => {
+  includesAll(app, [
+    'next.camera.directive',
+    'cameraViewport',
+    'cameraState',
+    'directive.zoomPermille',
+    "directive.mode === 'cut-line'",
+    "directive.mode === 'victory'",
+    'prefers-reduced-motion',
+  ]);
+  assert.equal(app.includes('function cameraMode(next)'), false, 'browser must not independently re-adjudicate camera priorities');
+  assert.equal(app.includes('chooseMarbleCameraDirective'), false, 'browser must consume, not recalculate, the server camera directive');
+});
