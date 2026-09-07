@@ -23,7 +23,7 @@ function initialState(config: MarbleConfig, rootSeed: string, tournamentSeed: st
   }
   return {
     schemaVersion: 1,
-    determinismVersion: 'marble-physics-v1',
+    determinismVersion: 'marble-physics-v2',
     runId: `marble-${runIndex}-${checksum({ rootSeed, tournamentSeed })}`,
     rootSeed,
     tournamentSeed,
@@ -186,13 +186,18 @@ export class MarbleRuntime {
       return this.state;
     }
 
+    const previousPositions = new Map<number, Vec2>();
+    for (const id of this.state.activeIds) {
+      const marble = this.state.marbles.find(candidate => candidate.id === id);
+      if (marble) previousPositions.set(id, { ...marble.position });
+    }
     const actions = this.state.activeIds.map(id => basicAction(this.state, id));
     const physics = stepMarblePhysics(this.state, actions);
     if (physics.integrityIssue) {
       this.state = physics.state;
       return this.quarantine(physics.integrityIssue.code, physics.integrityIssue.detail);
     }
-    const ruled = applyTournamentRules(physics.state, physics.contacts);
+    const ruled = applyTournamentRules(physics.state, physics.contacts, previousPositions);
     this.state = {
       ...ruled.state,
       tick: ruled.state.tick + 1,
