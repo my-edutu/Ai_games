@@ -48,10 +48,14 @@ function insideRectangle(position: Vec2, rectangle: { x: number; y: number; widt
   return position.x >= rectangle.x && position.x <= rectangle.x + rectangle.width && position.y >= rectangle.y && position.y <= rectangle.y + rectangle.height;
 }
 
+function sweeperVelocity(sweeper: ArenaSweeper, tick: number): number {
+  return triangleWave(tick + 1, sweeper.periodTicks, sweeper.amplitude, sweeper.phaseTicks)
+    - triangleWave(tick, sweeper.periodTicks, sweeper.amplitude, sweeper.phaseTicks);
+}
+
 function sweeperRectangle(sweeper: ArenaSweeper, tick: number, substep: number, substeps: number): Rectangle {
   const startOffset = triangleWave(tick, sweeper.periodTicks, sweeper.amplitude, sweeper.phaseTicks);
-  const endOffset = triangleWave(tick + 1, sweeper.periodTicks, sweeper.amplitude, sweeper.phaseTicks);
-  const delta = endOffset - startOffset;
+  const delta = sweeperVelocity(sweeper, tick);
   const offset = startOffset + divideRound(delta * (substep + 1), substeps);
   return {
     id: sweeper.id,
@@ -266,8 +270,10 @@ export function stepMarblePhysics(state: MarbleState, actions: MarbleAction[]): 
   const actionById = new Map(actions.map(action => [action.marbleId, action]));
   const active = next.marbles.filter(marble => marble.status === 'active' && marble.roundStatus === 'racing').sort((a, b) => a.id - b.id);
   for (const marble of active) applyForces(marble, next, actionById.get(marble.id));
-  const maximumVelocity = active.reduce((maximum, marble) => Math.max(maximum, Math.abs(marble.velocity.x), Math.abs(marble.velocity.y)), 0);
-  const substeps = Math.max(1, Math.min(next.config.maxSubsteps, Math.ceil(maximumVelocity / Math.max(1, next.config.marbleRadius))));
+  const maximumMarbleVelocity = active.reduce((maximum, marble) => Math.max(maximum, Math.abs(marble.velocity.x), Math.abs(marble.velocity.y)), 0);
+  const maximumSweeperVelocity = next.arena.sweepers.reduce((maximum, sweeper) => Math.max(maximum, Math.abs(sweeperVelocity(sweeper, next.tick))), 0);
+  const maximumMotion = Math.max(maximumMarbleVelocity, maximumSweeperVelocity);
+  const substeps = Math.max(1, Math.min(next.config.maxSubsteps, Math.ceil(maximumMotion / Math.max(1, next.config.marbleRadius))));
   const contacts = new Map<string, PhysicsContact>();
   const rectangles = next.arena.obstacles.map(blockRectangle);
 
