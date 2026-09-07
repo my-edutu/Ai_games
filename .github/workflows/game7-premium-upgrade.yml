@@ -28,7 +28,7 @@ concurrency:
 
 jobs:
   game7-upgrade:
-    name: Build and foundation verification
+    name: Build and Game 7 upgrade verification
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -41,7 +41,5 @@ jobs:
           cache: npm
       - name: Install locked dependencies
         run: npm ci
-      - name: Build repository
-        run: npm run build
-      - name: Run Marble foundation tests
-        run: node --test tests/foundation/marble-*.test.cjs
+      - name: Run Marble upgrade tests
+        run: npm run marble:upgrade:test
