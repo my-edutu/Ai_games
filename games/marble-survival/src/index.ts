@@ -10,4 +10,5 @@ export * from './runtime/run';
 export * from './persistence/snapshot';
 export * from './presentation/types';
 export * from './presentation/snapshot';
+export * from './presentation/camera';
 export * from './manifest';
