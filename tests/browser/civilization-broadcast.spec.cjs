@@ -37,6 +37,14 @@ test('1920x1080 broadcast frame is world-first, truthful and exposes inspectable
   await expect(page.locator('#tile-inspector')).toHaveAttribute('data-open','true');
   await expect(page.locator('#tile-inspector')).toContainText(buildingLabel);
   await expect(page.locator('#tile-inspector .inspector-preview .building-miniature')).toBeVisible();
+  const previewBounds=await page.evaluate(()=>{
+    const inspector=document.querySelector('#tile-inspector').getBoundingClientRect();
+    const preview=document.querySelector('#tile-inspector .inspector-preview').getBoundingClientRect();
+    return{width:preview.width,height:preview.height,contained:preview.left>=inspector.left-1&&preview.top>=inspector.top-1&&preview.right<=inspector.right+1&&preview.bottom<=inspector.bottom+1};
+  });
+  expect(previewBounds.width).toBeLessThanOrEqual(100);
+  expect(previewBounds.height).toBeLessThanOrEqual(80);
+  expect(previewBounds.contained).toBe(true);
   await page.screenshot({path:'artifacts/civilization-phase3/selected-building.png'});
 
   const economicTile=page.locator('#kingdom-map .tile:has(.cohort-activity)').first();
