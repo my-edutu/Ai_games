@@ -1,10 +1,16 @@
 'use strict';
 
+const fs = require('node:fs');
+const path = require('node:path');
 const test = require('node:test');
 const assert = require('node:assert/strict');
 
 function game7() {
   return require('../../../../dist/games/marble-survival/src/index.js');
+}
+
+function browserSource(name) {
+  return fs.readFileSync(path.resolve(__dirname, '../../public/complete-runtime', name), 'utf8');
 }
 
 test('public snapshot remains an allowlist with no authority secrets', () => {
@@ -66,4 +72,38 @@ test('replay buffer is bounded and isolated from authority and caller mutation',
   frames[0].snapshot.marbles[0].x = -999999;
   assert.notEqual(replay.frames()[0].snapshot.marbles[0].x, -999999);
   assert.equal(runtime.state.marbles[0].position.x === authorityX || runtime.state.marbles[0].position.x !== -999999, true);
+});
+
+test('public HUD is spectator-first rather than an operator diagnostics dashboard', () => {
+  const html = browserSource('index.html');
+  assert.doesNotMatch(html, /<dt>Tick<\/dt>/);
+  assert.doesNotMatch(html, /<dt>Camera<\/dt>/);
+  assert.doesNotMatch(html, /<dt>Feed<\/dt>/);
+  assert.doesNotMatch(html, /id="checksum"/);
+  assert.match(html, /id="survivor-value"/);
+  assert.match(html, /id="quota-value"/);
+  assert.match(html, /id="cutoff-label"/);
+});
+
+test('browser renderer consumes real arena geometry and never invents rotating sweeper physics', () => {
+  const app = browserSource('app.js');
+  assert.match(app, /arena\.obstacles/);
+  assert.match(app, /arena\.sweepers/);
+  assert.match(app, /arena\.hazards/);
+  assert.doesNotMatch(app, /next\.camera\.phase/);
+  assert.doesNotMatch(app, /entry\.score/);
+  assert.doesNotMatch(app, /context\.rotate\(\(snapshot\?\.tick/);
+  assert.doesNotMatch(app, /for \(let x = 0; x <= arena\.width; x \+= 60\)/);
+});
+
+test('quality presets are presentation-only and cover low through ultra', () => {
+  const app = browserSource('app.js');
+  assert.match(app, /QUALITY_PRESETS/);
+  for (const preset of ['low', 'balanced', 'high', 'ultra']) assert.match(app, new RegExp(`${preset}\\s*:`));
+  assert.doesNotMatch(app, /quality[^\n]{0,80}\/api\/snapshot|\/api\/snapshot[^\n]{0,80}quality/i);
+});
+
+test('reduced motion remains an explicit browser presentation mode', () => {
+  const css = `${browserSource('styles.css')}\n${browserSource('ux-v2.css')}`;
+  assert.match(css, /prefers-reduced-motion\s*:\s*reduce/);
 });
