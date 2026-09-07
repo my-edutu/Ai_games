@@ -1,7 +1,7 @@
 import{checksum}from '../../../../packages/replay/src/index';
 import type{RngSnapshot}from '../../../../packages/seeded-rng/src/index';
 import{validateFloorsConfig}from '../config/schema';
-import{validateFloor}from '../generation/validator';
+import{validateRuntimeFloor}from '../generation/validator';
 import{FloorsRuntime,type FloorsPolicy}from '../runtime/run';
 import type{FloorsEvent,FloorsState}from '../state/types';
 
@@ -28,7 +28,7 @@ export function restoreFloorsRuntime(envelope:FloorsSnapshotEnvelope):FloorsRunt
   const body={version:envelope.version,deterministicVersion:envelope.deterministicVersion,state:envelope.state,rng:envelope.rng,events:envelope.events,runtime:envelope.runtime};
   if(checksum(material(body))!==envelope.checksum)throw new FloorsSnapshotError('CORRUPT','floors snapshot checksum mismatch');
   let config;try{config=validateFloorsConfig(envelope.state.config)}catch{throw new FloorsSnapshotError('INVALID_STATE','invalid floors snapshot configuration')}
-  const report=validateFloor(envelope.state.floor,config);if(!report.valid)throw new FloorsSnapshotError('INVALID_STATE',`invalid floor state: ${report.errors.join(',')}`);
-  if(envelope.state.player.cell<0||envelope.state.player.cell>=config.width*config.height||envelope.state.player.health<0||envelope.state.eventSequence<0)throw new FloorsSnapshotError('INVALID_STATE','invalid floors authoritative state');
+  const report=validateRuntimeFloor(envelope.state.floor,config);if(!report.valid)throw new FloorsSnapshotError('INVALID_STATE',`invalid live floor state: ${report.errors.join(',')}`);
+  if(envelope.state.player.cell<0||envelope.state.player.cell>=config.width*config.height||envelope.state.floor.walls.includes(envelope.state.player.cell)||envelope.state.floor.enemies.some(enemy=>enemy.cell===envelope.state.player.cell)||envelope.state.player.health<0||envelope.state.eventSequence<0)throw new FloorsSnapshotError('INVALID_STATE','invalid floors authoritative state');
   return FloorsRuntime.restore({state:envelope.state,rng:envelope.rng,events:envelope.events,rootSeed:envelope.runtime.rootSeed,runOrdinal:envelope.runtime.runOrdinal,policy:envelope.runtime.policy});
 }
