@@ -6,42 +6,74 @@ const context = canvas.getContext('2d', { alpha: false });
 const connection = document.querySelector('#connection');
 const roundName = document.querySelector('#round-name');
 const roundIndex = document.querySelector('#round-index');
-const progressFill = document.querySelector('#progress-fill');
-const tickValue = document.querySelector('#tick-value');
 const survivorValue = document.querySelector('#survivor-value');
-const cameraValue = document.querySelector('#camera-value');
-const feedValue = document.querySelector('#feed-value');
+const quotaValue = document.querySelector('#quota-value');
+const qualityLabel = document.querySelector('#quality-label');
 const leaderboard = document.querySelector('#leaderboard');
-const eventList = document.querySelector('#event-list');
+const cutoffLabel = document.querySelector('#cutoff-label');
+const cutoffDetail = document.querySelector('#cutoff-detail');
 const championCard = document.querySelector('#champion-card');
 const championName = document.querySelector('#champion-name');
-const checksum = document.querySelector('#checksum');
+const arenaStateLabel = document.querySelector('#arena-state-label');
+const eventMessage = document.querySelector('#event-message');
+const recordCategory = document.querySelector('#record-category');
 const voteStatus = document.querySelector('#vote-status');
 const soundToggle = document.querySelector('#sound-toggle');
-const voteButtons = [...document.querySelectorAll('[data-family][data-option]')];
+
+const QUALITY_PRESETS = Object.freeze({
+  low: Object.freeze({ fps: 30, dpr: 1, shadows: false, specular: false, surfaceDetail: false }),
+  balanced: Object.freeze({ fps: 60, dpr: 1.5, shadows: true, specular: true, surfaceDetail: true }),
+  high: Object.freeze({ fps: 60, dpr: 2, shadows: true, specular: true, surfaceDetail: true }),
+  ultra: Object.freeze({ fps: 60, dpr: 2.5, shadows: true, specular: true, surfaceDetail: true }),
+});
+
+const PALETTES = Object.freeze({
+  aurora: ['#d6f0d7', '#67b890', '#315f53'],
+  coral: ['#ffd2c4', '#df7866', '#743c36'],
+  cyan: ['#d4f4f0', '#68b8b8', '#2e5d65'],
+  gold: ['#fae5a8', '#c99945', '#6d522c'],
+  lime: ['#e3edba', '#a2bc62', '#566638'],
+  magenta: ['#f0c9de', '#ba6b91', '#653b57'],
+  orchid: ['#e4d1e9', '#9b78a8', '#55445e'],
+  ruby: ['#f1c2bd', '#b6534f', '#672f32'],
+  sky: ['#d7e7ef', '#7ba9be', '#405d6b'],
+  violet: ['#ddd2e9', '#8a73a6', '#4c415f'],
+  amber: ['#f4ddb0', '#c88a42', '#714d2d'],
+  mint: ['#d5ebdf', '#79ad91', '#456352'],
+});
 
 const parameters = new URLSearchParams(location.search);
 const cleanFeed = parameters.get('clean') === '1' || parameters.get('feed') === 'clean';
+const requestedQuality = String(parameters.get('quality') || 'balanced').toLowerCase();
+const qualityName = Object.hasOwn(QUALITY_PRESETS, requestedQuality) ? requestedQuality : 'balanced';
+const quality = QUALITY_PRESETS[qualityName];
 shell.dataset.clean = String(cleanFeed);
-feedValue.textContent = cleanFeed ? 'Clean' : 'Live';
-
-const viewerId = sessionStorage.getItem('game7-viewer-id') || (globalThis.crypto?.randomUUID?.() || `viewer-${Date.now()}`);
-sessionStorage.setItem('game7-viewer-id', viewerId);
+shell.dataset.quality = qualityName;
+qualityLabel.textContent = qualityName[0].toUpperCase() + qualityName.slice(1);
 
 let snapshot = null;
 let previousSnapshot = null;
+let snapshotArrivedAt = performance.now();
 let latestAcceptedTick = -1;
 let soundEnabled = false;
 let audioContext = null;
-let seenEvents = new Set();
-let voteLockedUntil = 0;
-let lastFrame = performance.now();
+let activeVoices = 0;
+let latestEvents = [];
+let seenEventIds = new Set();
+let lastCueAt = new Map();
+let lastDrawAt = 0;
+const orientationById = new Map();
+
+function paletteFor(key) {
+  return PALETTES[key] || ['#e8e0ce', '#9c9586', '#4c4942'];
+}
 
 function resizeCanvas() {
-  const ratio = Math.min(2, globalThis.devicePixelRatio || 1);
+  const deviceRatio = globalThis.devicePixelRatio || 1;
+  const ratio = Math.max(1, Math.min(quality.dpr, deviceRatio));
   const bounds = canvas.getBoundingClientRect();
-  const width = Math.max(320, Math.round(bounds.width * ratio));
-  const height = Math.max(240, Math.round(bounds.height * ratio));
+  const width = Math.max(360, Math.round(bounds.width * ratio));
+  const height = Math.max(300, Math.round(bounds.height * ratio));
   if (canvas.width !== width || canvas.height !== height) {
     canvas.width = width;
     canvas.height = height;
@@ -49,12 +81,14 @@ function resizeCanvas() {
 }
 
 function arenaTransform(arena) {
-  const padding = 24;
+  const padding = Math.max(22, Math.min(canvas.width, canvas.height) * .045);
   const scale = Math.min((canvas.width - padding * 2) / arena.width, (canvas.height - padding * 2) / arena.height);
   return {
     scale,
     left: (canvas.width - arena.width * scale) / 2,
     top: (canvas.height - arena.height * scale) / 2,
+    width: arena.width * scale,
+    height: arena.height * scale,
   };
 }
 
@@ -62,121 +96,256 @@ function point(x, y, transform) {
   return { x: transform.left + x * transform.scale, y: transform.top + y * transform.scale };
 }
 
-function drawBackground(arena, transform) {
-  const gradient = context.createLinearGradient(0, 0, canvas.width, canvas.height);
-  gradient.addColorStop(0, '#101a3b');
-  gradient.addColorStop(.48, '#081126');
-  gradient.addColorStop(1, '#10132e');
+function rectGeometry(value, transform) {
+  const position = point(value.x, value.y, transform);
+  return {
+    x: position.x,
+    y: position.y,
+    width: value.width * transform.scale,
+    height: value.height * transform.scale,
+  };
+}
+
+function drawBackdrop() {
+  const gradient = context.createLinearGradient(0, 0, 0, canvas.height);
+  gradient.addColorStop(0, '#2b2924');
+  gradient.addColorStop(.56, '#1e1e1a');
+  gradient.addColorStop(1, '#171714');
   context.fillStyle = gradient;
   context.fillRect(0, 0, canvas.width, canvas.height);
 
-  context.save();
-  context.translate(transform.left, transform.top);
-  context.scale(transform.scale, transform.scale);
-  context.strokeStyle = 'rgba(145, 164, 255, .12)';
-  context.lineWidth = 1 / transform.scale;
-  for (let x = 0; x <= arena.width; x += 60) {
-    context.beginPath();
-    context.moveTo(x, 0);
-    context.lineTo(x, arena.height);
-    context.stroke();
+  if (quality.surfaceDetail) {
+    context.fillStyle = 'rgba(255,255,255,.018)';
+    const step = Math.max(34, Math.round(canvas.width / 32));
+    for (let y = step; y < canvas.height; y += step) context.fillRect(0, y, canvas.width, 1);
   }
-  for (let y = 0; y <= arena.height; y += 60) {
-    context.beginPath();
-    context.moveTo(0, y);
-    context.lineTo(arena.width, y);
-    context.stroke();
-  }
-  context.fillStyle = 'rgba(112, 241, 210, .15)';
-  context.fillRect(0, arena.finishY - 7, arena.width, 14);
-  context.strokeStyle = 'rgba(112, 241, 210, .82)';
-  context.setLineDash([20, 12]);
-  context.lineWidth = 3 / transform.scale;
-  context.beginPath();
-  context.moveTo(0, arena.finishY);
-  context.lineTo(arena.width, arena.finishY);
-  context.stroke();
-  context.restore();
 }
 
-function featureStyle(type) {
-  if (type === 'hazard' || type === 'sweeper') return ['#ff6b86', 'rgba(255, 107, 134, .22)'];
-  if (type === 'boost') return ['#70f1d2', 'rgba(112, 241, 210, .2)'];
-  if (type === 'gate' || type === 'lane-divider') return ['#9a8cff', 'rgba(154, 140, 255, .2)'];
-  return ['#ffd166', 'rgba(255, 209, 102, .2)'];
-}
-
-function drawFeatures(arena, transform) {
-  for (const feature of arena.features) {
-    const position = point(feature.x, feature.y, transform);
-    const radius = feature.radius * transform.scale;
-    const [stroke, fill] = featureStyle(feature.type);
+function drawTrackFoundation(arena, transform) {
+  const depth = Math.max(7, 14 * transform.scale);
+  if (quality.shadows) {
     context.save();
-    context.translate(position.x, position.y);
-    context.fillStyle = fill;
-    context.strokeStyle = stroke;
-    context.lineWidth = Math.max(2, 3 * transform.scale);
-    if (feature.type === 'gate' || feature.type === 'lane-divider') {
-      context.fillRect(-radius * 1.5, -radius * .25, radius * 3, radius * .5);
-      context.strokeRect(-radius * 1.5, -radius * .25, radius * 3, radius * .5);
-    } else if (feature.type === 'sweeper') {
-      context.rotate((snapshot?.tick || 0) * .025);
-      context.fillRect(-radius * 2.4, -radius * .18, radius * 4.8, radius * .36);
-      context.strokeRect(-radius * 2.4, -radius * .18, radius * 4.8, radius * .36);
-    } else {
-      context.beginPath();
-      context.arc(0, 0, radius, 0, Math.PI * 2);
-      context.fill();
-      context.stroke();
-      context.beginPath();
-      context.arc(0, 0, radius * .46, 0, Math.PI * 2);
-      context.stroke();
-    }
+    context.shadowColor = 'rgba(0,0,0,.45)';
+    context.shadowBlur = Math.max(10, 22 * transform.scale);
+    context.shadowOffsetY = depth * .7;
+    context.fillStyle = '#171815';
+    context.fillRect(transform.left, transform.top + depth, transform.width, transform.height);
+    context.restore();
+  } else {
+    context.fillStyle = '#171815';
+    context.fillRect(transform.left, transform.top + depth, transform.width, transform.height);
+  }
+
+  const track = context.createLinearGradient(transform.left, transform.top, transform.left + transform.width, transform.top + transform.height);
+  track.addColorStop(0, '#eee5cf');
+  track.addColorStop(.45, '#ded5bd');
+  track.addColorStop(1, '#cfc5ad');
+  context.fillStyle = track;
+  context.fillRect(transform.left, transform.top, transform.width, transform.height);
+
+  context.strokeStyle = 'rgba(64,61,52,.52)';
+  context.lineWidth = Math.max(1, transform.scale * 18);
+  context.strokeRect(transform.left, transform.top, transform.width, transform.height);
+
+  if (quality.surfaceDetail) {
+    context.strokeStyle = 'rgba(82,78,67,.12)';
+    context.lineWidth = Math.max(1, transform.scale * 6);
+    context.beginPath();
+    context.moveTo(transform.left + transform.width * .5, transform.top + transform.height * .06);
+    context.lineTo(transform.left + transform.width * .5, transform.top + transform.height * .94);
+    context.stroke();
+  }
+}
+
+function drawFinishLine(arena, transform) {
+  const y = point(0, arena.finishY, transform).y;
+  const stripHeight = Math.max(7, arena.marbleRadius * transform.scale * .48);
+  const cells = 18;
+  const cellWidth = transform.width / cells;
+  context.fillStyle = 'rgba(101,185,150,.16)';
+  context.fillRect(transform.left, y - stripHeight * 1.6, transform.width, stripHeight * 3.2);
+  for (let index = 0; index < cells; index++) {
+    context.fillStyle = index % 2 === 0 ? '#2c2d29' : '#f2ead6';
+    context.fillRect(transform.left + cellWidth * index, y - stripHeight / 2, cellWidth + 1, stripHeight);
+  }
+  context.strokeStyle = 'rgba(53,55,50,.72)';
+  context.lineWidth = Math.max(1, transform.scale * 8);
+  context.strokeRect(transform.left, y - stripHeight / 2, transform.width, stripHeight);
+}
+
+function drawHazards(arena, transform) {
+  for (const hazard of arena.hazards) {
+    const rect = rectGeometry(hazard, transform);
+    context.fillStyle = '#29201e';
+    context.fillRect(rect.x, rect.y, rect.width, rect.height);
+    const pit = context.createLinearGradient(rect.x, rect.y, rect.x, rect.y + rect.height);
+    pit.addColorStop(0, '#8c443b');
+    pit.addColorStop(.16, '#54312d');
+    pit.addColorStop(1, '#201b1a');
+    context.fillStyle = pit;
+    context.fillRect(rect.x + 2, rect.y + 2, Math.max(0, rect.width - 4), Math.max(0, rect.height - 4));
+    context.strokeStyle = '#d37660';
+    context.lineWidth = Math.max(2, transform.scale * 22);
+    context.setLineDash([Math.max(5, 140 * transform.scale), Math.max(4, 80 * transform.scale)]);
+    context.strokeRect(rect.x, rect.y, rect.width, rect.height);
+    context.setLineDash([]);
+  }
+}
+
+function drawWindZones(arena, transform) {
+  if (!quality.surfaceDetail) return;
+  for (const zone of arena.windZones) {
+    const rect = rectGeometry(zone, transform);
+    context.save();
+    context.fillStyle = 'rgba(74,122,128,.055)';
+    context.fillRect(rect.x, rect.y, rect.width, rect.height);
+    context.strokeStyle = 'rgba(72,112,116,.24)';
+    context.lineWidth = Math.max(1, transform.scale * 8);
+    context.setLineDash([Math.max(8, transform.scale * 160), Math.max(6, transform.scale * 120)]);
+    context.strokeRect(rect.x, rect.y, rect.width, rect.height);
     context.restore();
   }
 }
 
-function drawPattern(pattern, radius) {
-  context.strokeStyle = 'rgba(4, 9, 22, .72)';
-  context.fillStyle = 'rgba(4, 9, 22, .68)';
-  context.lineWidth = Math.max(1.5, radius * .1);
-  if (pattern === 'rings') {
-    for (const factor of [.35, .65]) {
-      context.beginPath();
-      context.arc(0, 0, radius * factor, 0, Math.PI * 2);
-      context.stroke();
+function drawObstacles(arena, transform) {
+  for (const obstacle of arena.obstacles) {
+    const rect = rectGeometry(obstacle, transform);
+    const depth = Math.max(3, 70 * transform.scale);
+    if (quality.shadows) {
+      context.fillStyle = 'rgba(0,0,0,.24)';
+      context.fillRect(rect.x + depth, rect.y + depth, rect.width, rect.height);
     }
-  } else if (pattern === 'stripes') {
-    for (let x = -radius; x <= radius; x += radius * .42) {
+    context.fillStyle = '#343630';
+    context.fillRect(rect.x, rect.y, rect.width, rect.height);
+    const top = context.createLinearGradient(rect.x, rect.y, rect.x, rect.y + rect.height);
+    top.addColorStop(0, '#55574f');
+    top.addColorStop(.14, '#40423c');
+    top.addColorStop(1, '#2a2b27');
+    context.fillStyle = top;
+    context.fillRect(rect.x + 1, rect.y + 1, Math.max(0, rect.width - 2), Math.max(0, rect.height - 2));
+    context.strokeStyle = 'rgba(232,225,205,.18)';
+    context.lineWidth = Math.max(1, transform.scale * 10);
+    context.strokeRect(rect.x, rect.y, rect.width, rect.height);
+  }
+}
+
+function drawBumpers(arena, transform) {
+  for (const bumper of arena.bumpers) {
+    const p = point(bumper.x, bumper.y, transform);
+    const radius = bumper.radius * transform.scale;
+    if (quality.shadows) {
+      context.fillStyle = 'rgba(0,0,0,.26)';
       context.beginPath();
-      context.moveTo(x - radius, radius);
-      context.lineTo(x + radius, -radius);
-      context.stroke();
-    }
-  } else if (pattern === 'dots') {
-    for (const [x, y] of [[-.38, -.25], [.35, -.33], [0, .25], [-.45, .45], [.48, .35]]) {
-      context.beginPath();
-      context.arc(x * radius, y * radius, radius * .09, 0, Math.PI * 2);
+      context.ellipse(p.x + radius * .15, p.y + radius * .28, radius * 1.05, radius * .72, 0, 0, Math.PI * 2);
       context.fill();
     }
+    const metal = context.createRadialGradient(p.x - radius * .3, p.y - radius * .35, radius * .08, p.x, p.y, radius);
+    metal.addColorStop(0, '#e1ded4');
+    metal.addColorStop(.34, '#aaa99f');
+    metal.addColorStop(.72, '#64665f');
+    metal.addColorStop(1, '#353732');
+    context.fillStyle = metal;
+    context.beginPath();
+    context.arc(p.x, p.y, radius, 0, Math.PI * 2);
+    context.fill();
+    context.strokeStyle = '#2a2c28';
+    context.lineWidth = Math.max(2, radius * .16);
+    context.stroke();
+    context.fillStyle = '#c7a05a';
+    context.beginPath();
+    context.arc(p.x, p.y, Math.max(2, radius * .18), 0, Math.PI * 2);
+    context.fill();
+  }
+}
+
+function drawSweepers(arena, transform) {
+  for (const sweeper of arena.sweepers) {
+    const rect = rectGeometry(sweeper, transform);
+    const depth = Math.max(2, 55 * transform.scale);
+    if (quality.shadows) {
+      context.fillStyle = 'rgba(0,0,0,.3)';
+      context.fillRect(rect.x + depth, rect.y + depth, rect.width, rect.height);
+    }
+    const steel = context.createLinearGradient(rect.x, rect.y, rect.x, rect.y + Math.max(1, rect.height));
+    steel.addColorStop(0, '#d2d1c8');
+    steel.addColorStop(.22, '#9b9c95');
+    steel.addColorStop(.58, '#62645e');
+    steel.addColorStop(1, '#3b3d38');
+    context.fillStyle = steel;
+    context.fillRect(rect.x, rect.y, rect.width, rect.height);
+    context.strokeStyle = '#272925';
+    context.lineWidth = Math.max(1, transform.scale * 14);
+    context.strokeRect(rect.x, rect.y, rect.width, rect.height);
+
+    const boltRadius = Math.max(2, Math.min(rect.height * .28, 90 * transform.scale));
+    for (const x of [rect.x + boltRadius * 1.6, rect.x + rect.width - boltRadius * 1.6]) {
+      context.fillStyle = '#d5aa58';
+      context.beginPath();
+      context.arc(x, rect.y + rect.height / 2, boltRadius, 0, Math.PI * 2);
+      context.fill();
+      context.strokeStyle = '#67532f';
+      context.lineWidth = Math.max(1, boltRadius * .18);
+      context.stroke();
+    }
+  }
+}
+
+function drawPattern(pattern, radius) {
+  context.strokeStyle = 'rgba(25,25,22,.68)';
+  context.fillStyle = 'rgba(25,25,22,.65)';
+  context.lineWidth = Math.max(1.4, radius * .1);
+  if (pattern === 'ring') {
+    context.beginPath();
+    context.arc(0, 0, radius * .57, 0, Math.PI * 2);
+    context.stroke();
+    context.beginPath();
+    context.arc(0, 0, radius * .26, 0, Math.PI * 2);
+    context.stroke();
+  } else if (pattern === 'dots') {
+    for (const [x, y] of [[-.35, -.28], [.34, -.3], [0, .18], [-.42, .38], [.42, .37]]) {
+      context.beginPath();
+      context.arc(x * radius, y * radius, radius * .085, 0, Math.PI * 2);
+      context.fill();
+    }
+  } else if (pattern === 'chevron') {
+    for (const offset of [-.25, .18]) {
+      context.beginPath();
+      context.moveTo(-radius * .68, (offset - .18) * radius);
+      context.lineTo(0, (offset + .34) * radius);
+      context.lineTo(radius * .68, (offset - .18) * radius);
+      context.stroke();
+    }
   } else {
+    context.fillRect(-radius, -radius * .12, radius * 2, radius * .24);
     context.beginPath();
-    context.moveTo(-radius * .65, -radius * .15);
-    context.lineTo(0, radius * .45);
-    context.lineTo(radius * .65, -radius * .15);
-    context.stroke();
-    context.beginPath();
-    context.moveTo(-radius * .65, -radius * .5);
-    context.lineTo(0, radius * .1);
-    context.lineTo(radius * .65, -radius * .5);
-    context.stroke();
+    context.arc(0, 0, radius * .36, Math.PI, 0);
+    context.fill();
+  }
+}
+
+function updateOrientations(next, previous) {
+  const previousById = new Map((previous?.marbles || []).map((marble) => [marble.id, marble]));
+  const radius = Math.max(1, next.arena.marbleRadius || 1);
+  for (const marble of next.marbles) {
+    const old = previousById.get(marble.id);
+    if (!old) {
+      if (!orientationById.has(marble.id)) orientationById.set(marble.id, 0);
+      continue;
+    }
+    const dx = marble.x - old.x;
+    const dy = marble.y - old.y;
+    const distance = Math.hypot(dx, dy);
+    if (distance < .001) continue;
+    const direction = Math.abs(dx) >= Math.abs(dy) ? Math.sign(dx || 1) : -Math.sign(dy || 1);
+    const current = orientationById.get(marble.id) || 0;
+    orientationById.set(marble.id, current + direction * Math.min(Math.PI * 1.5, distance / radius));
   }
 }
 
 function interpolatedMarbles(now) {
   if (!snapshot) return [];
   if (!previousSnapshot || previousSnapshot.round.id !== snapshot.round.id) return snapshot.marbles;
-  const elapsed = Math.min(1, Math.max(0, (now - lastFrame) / 600));
+  const elapsed = Math.min(1, Math.max(0, (now - snapshotArrivedAt) / 120));
   const previousById = new Map(previousSnapshot.marbles.map((marble) => [marble.id, marble]));
   return snapshot.marbles.map((marble) => {
     const old = previousById.get(marble.id) || marble;
@@ -186,78 +355,135 @@ function interpolatedMarbles(now) {
 
 function drawMarbles(arena, transform, now) {
   const marbles = interpolatedMarbles(now);
-  const baseRadius = Math.max(7, Math.min(16, 17 - marbles.length * .15)) * Math.max(.75, transform.scale);
+  const radius = Math.max(3, arena.marbleRadius * transform.scale);
+  const cutoffId = snapshot?.qualificationCutoff?.id;
   for (const marble of marbles) {
-    const position = point(marble.x, marble.y, transform);
-    const radius = baseRadius + (marble.qualified ? 1.5 : 0);
+    const p = point(marble.x, marble.y, transform);
+    const [light, base, dark] = paletteFor(marble.palette);
+    if (quality.shadows) {
+      context.fillStyle = 'rgba(23,23,20,.28)';
+      context.beginPath();
+      context.ellipse(p.x + radius * .15, p.y + radius * .48, radius * .88, radius * .38, 0, 0, Math.PI * 2);
+      context.fill();
+    }
+
     context.save();
-    context.translate(position.x, position.y);
-    context.shadowColor = marble.colour;
-    context.shadowBlur = marble.qualified ? radius * 1.3 : radius * .55;
-    context.fillStyle = marble.colour;
+    context.translate(p.x, p.y);
+    context.rotate(orientationById.get(marble.id) || 0);
+    const body = context.createRadialGradient(-radius * .38, -radius * .42, Math.max(1, radius * .06), 0, 0, radius);
+    body.addColorStop(0, quality.specular ? light : base);
+    body.addColorStop(.24, base);
+    body.addColorStop(.74, base);
+    body.addColorStop(1, dark);
+    context.fillStyle = body;
     context.beginPath();
     context.arc(0, 0, radius, 0, Math.PI * 2);
     context.fill();
-    context.shadowBlur = 0;
     context.save();
     context.beginPath();
-    context.arc(0, 0, radius - 1, 0, Math.PI * 2);
+    context.arc(0, 0, Math.max(1, radius - 1), 0, Math.PI * 2);
     context.clip();
     drawPattern(marble.pattern, radius);
     context.restore();
-    context.strokeStyle = marble.qualified ? '#ffffff' : 'rgba(255,255,255,.5)';
-    context.lineWidth = marble.qualified ? 2.2 : 1;
-    context.beginPath();
-    context.arc(0, 0, radius, 0, Math.PI * 2);
-    context.stroke();
     context.restore();
+
+    context.strokeStyle = marble.qualified || marble.status === 'champion' ? '#65b996' : marble.id === cutoffId ? '#d7a64a' : 'rgba(244,240,229,.5)';
+    context.lineWidth = Math.max(1, radius * (marble.qualified ? .16 : .09));
+    context.beginPath();
+    context.arc(p.x, p.y, radius + Math.max(1, radius * .04), 0, Math.PI * 2);
+    context.stroke();
+
+    if (radius >= 7) {
+      context.fillStyle = '#171714';
+      context.font = `800 ${Math.max(7, radius * .62)}px ui-sans-serif, system-ui`;
+      context.textAlign = 'center';
+      context.textBaseline = 'middle';
+      context.fillText(String(marble.number), p.x, p.y + radius * .02);
+    }
   }
 }
 
 function draw(now) {
+  const frameInterval = 1000 / quality.fps;
+  if (now - lastDrawAt < frameInterval - .5) {
+    requestAnimationFrame(draw);
+    return;
+  }
+  lastDrawAt = now;
   resizeCanvas();
+  drawBackdrop();
   if (!snapshot) {
-    context.fillStyle = '#080d20';
-    context.fillRect(0, 0, canvas.width, canvas.height);
-    context.fillStyle = '#a7b0cf';
-    context.font = `${Math.max(16, canvas.width / 45)}px system-ui`;
+    context.fillStyle = '#d7d0be';
+    context.font = `700 ${Math.max(16, canvas.width / 48)}px ui-sans-serif, system-ui`;
     context.textAlign = 'center';
     context.fillText('Waiting for deterministic authority…', canvas.width / 2, canvas.height / 2);
   } else {
     const transform = arenaTransform(snapshot.arena);
-    drawBackground(snapshot.arena, transform);
-    drawFeatures(snapshot.arena, transform);
+    drawTrackFoundation(snapshot.arena, transform);
+    drawWindZones(snapshot.arena, transform);
+    drawHazards(snapshot.arena, transform);
+    drawObstacles(snapshot.arena, transform);
+    drawBumpers(snapshot.arena, transform);
+    drawSweepers(snapshot.arena, transform);
+    drawFinishLine(snapshot.arena, transform);
     drawMarbles(snapshot.arena, transform, now);
   }
   requestAnimationFrame(draw);
 }
 
+function tokenFor(marble) {
+  const [light, base] = paletteFor(marble?.palette);
+  const token = document.createElement('span');
+  token.className = 'marble-token';
+  token.style.background = `linear-gradient(145deg, ${light}, ${base})`;
+  token.textContent = marble ? String(marble.number) : '—';
+  return token;
+}
+
 function renderHud(next) {
   roundName.textContent = next.round.name;
-  roundIndex.textContent = `${next.round.index} / ${next.round.total}`;
-  progressFill.style.width = `${Math.min(100, (next.tick / 180) * 100)}%`;
-  tickValue.textContent = String(next.tick);
-  survivorValue.textContent = String(next.marbles.length);
-  cameraValue.textContent = next.camera.phase.replaceAll('-', ' ');
-  checksum.textContent = `Checksum ${next.checksum.slice(0, 12)}`;
+  roundIndex.textContent = `Round ${next.round.index} / ${next.round.total}`;
+  survivorValue.textContent = String(next.round.remaining);
+  quotaValue.textContent = String(next.round.quota);
+  recordCategory.textContent = next.recordCategory === 'assisted' ? 'Assisted' : 'Standard';
+  recordCategory.dataset.assisted = String(next.recordCategory === 'assisted');
+
   const marbleById = new Map(next.marbles.map((marble) => [marble.id, marble]));
+  const cutoff = next.qualificationCutoff;
+  const cutoffMarble = cutoff ? marbleById.get(cutoff.id) : null;
+  if (cutoff && cutoffMarble) {
+    cutoffLabel.textContent = `#${cutoff.rank} ${cutoffMarble.displayName}`;
+    cutoffDetail.textContent = `${Math.round(cutoff.progressPermille / 10)}% progress · final qualifying position`;
+  } else {
+    cutoffLabel.textContent = 'Qualification line pending';
+    cutoffDetail.textContent = 'The final qualifying position will appear here.';
+  }
+
   leaderboard.replaceChildren(...next.leaderboard.map((entry) => {
-    const item = document.createElement('li');
     const marble = marbleById.get(entry.id);
-    const rank = document.createElement('span');
-    rank.className = 'rank';
-    rank.textContent = `#${entry.rank}`;
-    const name = document.createElement('span');
-    name.className = 'name';
-    name.textContent = marble?.displayName || entry.id;
-    const score = document.createElement('span');
-    score.className = 'score';
-    score.textContent = entry.score.toLocaleString();
-    item.append(rank, name, score);
+    const item = document.createElement('li');
+    item.dataset.cutoff = String(Boolean(cutoff && cutoff.id === entry.id));
+    item.append(tokenFor(marble));
+    const copy = document.createElement('span');
+    copy.className = 'contender-copy';
+    const name = document.createElement('strong');
+    name.textContent = marble?.displayName || `Marble ${entry.id + 1}`;
+    const detail = document.createElement('span');
+    detail.textContent = marble ? `${marble.archetype} · ${marble.intent.replaceAll('-', ' ')}` : entry.status;
+    copy.append(name, detail);
+    const progress = document.createElement('span');
+    progress.className = 'progress-value';
+    progress.textContent = `${Math.round(entry.progressPermille / 10)}%`;
+    item.append(copy, progress);
     return item;
   }));
+
   championCard.hidden = !next.champion;
   championName.textContent = next.champion?.displayName || '';
+  if (next.run.lifecycle === 'quarantined') arenaStateLabel.textContent = 'Tournament integrity check — starting from verified truth';
+  else if (next.champion) arenaStateLabel.textContent = `Champion confirmed: ${next.champion.displayName}`;
+  else if (next.round.remaining <= Math.max(next.round.quota + 2, 4)) arenaStateLabel.textContent = 'Qualification pressure — every position matters';
+  else arenaStateLabel.textContent = `${next.round.remaining} marbles contesting ${next.round.quota} qualifying places`;
 }
 
 function markConnection(ok, label) {
@@ -270,43 +496,86 @@ async function refreshSnapshot() {
     const response = await fetch('/api/snapshot', { cache: 'no-store' });
     if (!response.ok) throw new Error(`snapshot ${response.status}`);
     const next = await response.json();
-    if (!Number.isFinite(next.tick) || !Array.isArray(next.marbles) || !next.arena) throw new Error('invalid snapshot');
-    if (snapshot && next.round.id === snapshot.round.id && next.tick < latestAcceptedTick - 15) return;
+    if (!Number.isFinite(next.tick) || !Array.isArray(next.marbles) || !next.arena || !Array.isArray(next.arena.obstacles) || !Array.isArray(next.arena.sweepers) || !Array.isArray(next.arena.hazards)) {
+      throw new Error('invalid snapshot');
+    }
+    if (snapshot && next.round.id === snapshot.round.id && next.tick < latestAcceptedTick) return;
+    const old = snapshot;
     previousSnapshot = snapshot;
     snapshot = next;
-    latestAcceptedTick = next.round.id === previousSnapshot?.round.id ? Math.max(latestAcceptedTick, next.tick) : next.tick;
-    lastFrame = performance.now();
+    latestAcceptedTick = next.round.id === old?.round.id ? Math.max(latestAcceptedTick, next.tick) : next.tick;
+    snapshotArrivedAt = performance.now();
+    updateOrientations(next, old);
     renderHud(next);
     markConnection(true, 'Authority live');
   } catch {
     markConnection(false, 'Reconnecting');
+    arenaStateLabel.textContent = snapshot ? 'Reconnecting — tournament continues' : 'Waiting for tournament authority';
   }
 }
 
 function eventLabel(event) {
-  const labels = {
-    'round-start': 'A new elimination round has started.',
-    'near-miss': 'The pack survived a near miss.',
-    qualification: 'The qualification line has closed.',
-    influence: `Audience effect accepted: ${event.option || event.family || 'vote'}.`,
-    champion: 'A new champion has been crowned.',
-  };
-  return labels[event.type] || 'Tournament state updated.';
+  const data = event.data || {};
+  if (event.type === 'round-started') return 'A new elimination round is underway.';
+  if (event.type === 'round-live') return 'The field is live — qualification is open.';
+  if (event.type === 'checkpoint-reached') return `Marble ${Number(data.marbleId) + 1} reached checkpoint ${data.checkpointIndex}.`;
+  if (event.type === 'marble-qualified') return `Marble ${Number(data.marbleId) + 1} secured qualifying place #${data.finishRank}.`;
+  if (event.type === 'marble-eliminated') return `Marble ${Number(data.marbleId) + 1} was eliminated${data.cause ? ` by ${String(data.cause).replaceAll('-', ' ')}` : ''}.`;
+  if (event.type === 'shield-recovery') return `Marble ${Number(data.marbleId) + 1} used a recovery shield and stayed alive.`;
+  if (event.type === 'elimination-boundary-review') return `A simultaneous elimination was resolved by the published progress tie policy.`;
+  if (event.type === 'round-resolved') return 'Qualification is confirmed. The bracket is advancing.';
+  if (event.type === 'tournament-champion') return `Champion confirmed: Marble ${Number(data.championId) + 1}.`;
+  if (event.type === 'integrity-quarantined') return 'Tournament integrity check triggered. No sporting loss was recorded.';
+  if (event.type === 'intermission-started') return 'Result confirmed. The next tournament is being prepared.';
+  if (event.type === 'tournament-restarted') return 'A new seeded tournament has started.';
+  if (event.type === 'physics-contact' && Number(data.impulse || 0) >= 180) return `Heavy physical contact in the pack.`;
+  return null;
 }
 
-function playCue(type) {
-  if (!soundEnabled || !audioContext) return;
-  const frequencies = { 'round-start': 330, 'near-miss': 220, qualification: 440, influence: 520, champion: 660 };
+const CUE_COOLDOWNS = Object.freeze({
+  'physics-contact': 90,
+  'checkpoint-reached': 180,
+  'marble-qualified': 180,
+  'marble-eliminated': 220,
+  'shield-recovery': 220,
+  'round-resolved': 500,
+  'tournament-champion': 1200,
+});
+
+function playCue(event) {
+  if (!soundEnabled || !audioContext || activeVoices >= 6) return;
+  const now = performance.now();
+  const cooldown = CUE_COOLDOWNS[event.type] || 120;
+  if (now - (lastCueAt.get(event.type) || -Infinity) < cooldown) return;
+  const impulse = Number(event.data?.impulse || 0);
+  if (event.type === 'physics-contact' && impulse < 70) return;
+  lastCueAt.set(event.type, now);
+
+  const frequencyByType = {
+    'checkpoint-reached': 360,
+    'marble-qualified': 520,
+    'marble-eliminated': 180,
+    'shield-recovery': 430,
+    'round-resolved': 460,
+    'tournament-champion': 680,
+    'integrity-quarantined': 150,
+    'physics-contact': Math.max(100, 250 - Math.min(130, impulse / 3)),
+  };
+  const frequency = frequencyByType[event.type] || 300;
+  const peak = event.type === 'tournament-champion' ? .07 : event.type === 'physics-contact' ? Math.min(.045, .012 + impulse / 9000) : .04;
+  const duration = event.type === 'tournament-champion' ? .42 : .18;
   const oscillator = audioContext.createOscillator();
   const gain = audioContext.createGain();
-  oscillator.type = type === 'champion' ? 'triangle' : 'sine';
-  oscillator.frequency.value = frequencies[type] || 280;
+  oscillator.type = event.type === 'physics-contact' ? 'triangle' : event.type === 'tournament-champion' ? 'sine' : 'triangle';
+  oscillator.frequency.value = frequency;
   gain.gain.setValueAtTime(.0001, audioContext.currentTime);
-  gain.gain.exponentialRampToValueAtTime(.08, audioContext.currentTime + .015);
-  gain.gain.exponentialRampToValueAtTime(.0001, audioContext.currentTime + .22);
+  gain.gain.exponentialRampToValueAtTime(Math.max(.001, peak), audioContext.currentTime + .012);
+  gain.gain.exponentialRampToValueAtTime(.0001, audioContext.currentTime + duration);
   oscillator.connect(gain).connect(audioContext.destination);
+  activeVoices++;
+  oscillator.onended = () => { activeVoices = Math.max(0, activeVoices - 1); };
   oscillator.start();
-  oscillator.stop(audioContext.currentTime + .24);
+  oscillator.stop(audioContext.currentTime + duration + .02);
 }
 
 async function refreshEvents() {
@@ -314,79 +583,48 @@ async function refreshEvents() {
     const response = await fetch('/api/events', { cache: 'no-store' });
     if (!response.ok) return;
     const payload = await response.json();
-    const events = Array.isArray(payload.events) ? payload.events.slice(-6) : [];
-    eventList.replaceChildren(...events.slice().reverse().map((event) => {
-      const item = document.createElement('li');
-      item.textContent = eventLabel(event);
-      return item;
-    }));
-    for (const event of events) {
-      if (!seenEvents.has(event.id)) {
-        seenEvents.add(event.id);
-        playCue(event.type);
+    latestEvents = Array.isArray(payload.events) ? payload.events.slice(-24) : [];
+    let latestLabel = null;
+    for (const event of latestEvents) {
+      const label = eventLabel(event);
+      if (label) latestLabel = label;
+      if (!seenEventIds.has(event.id)) {
+        seenEventIds.add(event.id);
+        playCue(event);
       }
     }
-    if (seenEvents.size > 96) seenEvents = new Set(events.map((event) => event.id));
+    if (latestLabel) eventMessage.textContent = latestLabel;
+    if (seenEventIds.size > 256) seenEventIds = new Set(latestEvents.map((event) => event.id));
   } catch {
-    // The visual snapshot remains authoritative if the optional event feed is delayed.
+    // Event presentation is optional; snapshot authority remains visible.
   }
 }
 
-async function submitVote(button) {
-  const now = Date.now();
-  if (now < voteLockedUntil) return;
-  voteButtons.forEach((entry) => { entry.disabled = true; });
-  voteStatus.textContent = 'Submitting bounded vote…';
+async function refreshHealth() {
   try {
-    const response = await fetch('/api/influence', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({
-        id: globalThis.crypto?.randomUUID?.() || `${viewerId}-${now}`,
-        userId: viewerId,
-        family: button.dataset.family,
-        option: button.dataset.option,
-        at: now,
-      }),
-    });
-    const result = await response.json();
-    if (!response.ok || !result.accepted) throw new Error(result.reason || 'vote rejected');
-    voteLockedUntil = now + 15_000;
-    voteStatus.textContent = `${button.textContent} accepted. Cooldown active.`;
-  } catch (error) {
-    voteStatus.textContent = `Vote not accepted: ${error.message}.`;
-    voteLockedUntil = now + 2_000;
-  }
-}
-
-function updateVoteLock() {
-  const remaining = voteLockedUntil - Date.now();
-  const locked = remaining > 0;
-  voteButtons.forEach((button) => { button.disabled = locked; });
-  if (locked && !voteStatus.textContent.includes('Submitting')) {
-    voteStatus.textContent = `Next vote in ${Math.ceil(remaining / 1000)}s.`;
-  } else if (!locked) {
-    voteStatus.textContent = 'One bounded vote per cooldown';
+    const response = await fetch('/api/health', { cache: 'no-store' });
+    if (!response.ok) return;
+    const health = await response.json();
+    if (health.audienceInfluence === 'degraded') voteStatus.textContent = 'Temporarily unavailable';
+    if (health.status === 'degraded') markConnection(true, 'Authority live · presentation catching up');
+    if (health.status === 'unhealthy') markConnection(false, 'Integrity recovery');
+  } catch {
+    // Snapshot polling owns public connection status.
   }
 }
 
 soundToggle.addEventListener('click', async () => {
+  if (!audioContext) audioContext = new (globalThis.AudioContext || globalThis.webkitAudioContext)();
+  if (audioContext.state === 'suspended') await audioContext.resume();
   soundEnabled = !soundEnabled;
   soundToggle.setAttribute('aria-pressed', String(soundEnabled));
   soundToggle.textContent = soundEnabled ? 'Sound on' : 'Sound off';
-  if (soundEnabled) {
-    audioContext ||= new AudioContext();
-    await audioContext.resume();
-    playCue('round-start');
-  }
 });
 
-voteButtons.forEach((button) => button.addEventListener('click', () => submitVote(button)));
-window.addEventListener('resize', resizeCanvas, { passive: true });
-
+requestAnimationFrame(draw);
 refreshSnapshot();
 refreshEvents();
-setInterval(refreshSnapshot, 500);
-setInterval(refreshEvents, 1500);
-setInterval(updateVoteLock, 250);
-requestAnimationFrame(draw);
+refreshHealth();
+setInterval(refreshSnapshot, 100);
+setInterval(refreshEvents, 400);
+setInterval(refreshHealth, 2000);
