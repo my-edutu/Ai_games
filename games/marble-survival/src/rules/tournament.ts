@@ -10,6 +10,12 @@ export interface FinishCrossing {
   denominator: number;
 }
 
+interface HazardElimination {
+  marbleId: number;
+  hazardId: string;
+  cause: string;
+}
+
 export function compareFinishCrossings(left: FinishCrossing, right: FinishCrossing): number {
   if (!Number.isSafeInteger(left.numerator) || !Number.isSafeInteger(left.denominator) || left.denominator <= 0) throw new RangeError('left crossing');
   if (!Number.isSafeInteger(right.numerator) || !Number.isSafeInteger(right.denominator) || right.denominator <= 0) throw new RangeError('right crossing');
@@ -115,6 +121,7 @@ export function applyTournamentRules(
   const next = cloneState(state);
   const events: Omit<MarbleEvent, 'seq'>[] = [];
   const finishCrossings: FinishCrossing[] = [];
+  const hazardEliminations: HazardElimination[] = [];
   const finishBoundary = next.arena.finishY + next.config.marbleRadius;
   const activeMarbles = next.marbles.filter(marble => marble.status === 'active' && marble.roundStatus === 'racing').sort((a, b) => a.id - b.id);
 
@@ -143,7 +150,7 @@ export function applyTournamentRules(
         next.activeIds = next.activeIds.filter(id => id !== marble.id);
         next.eliminatedIds = [...new Set([...next.eliminatedIds, marble.id])].sort((a, b) => a - b);
         next.meaningfulEventTick = next.tick;
-        events.push({ tick: next.tick, type: 'marble-eliminated', data: { marbleId: marble.id, cause: hazard.kind, hazardId: hazard.id } });
+        hazardEliminations.push({ marbleId: marble.id, cause: hazard.kind, hazardId: hazard.id });
         continue;
       }
     }
@@ -180,11 +187,38 @@ export function applyTournamentRules(
     }
   }
 
+  let remainingPotential = next.qualifiedIds.length + next.activeIds.length;
+  const reviewedIds = new Set<number>();
+  if (next.roundIndex < 4 && next.qualifiedIds.length < next.currentQuota && remainingPotential < next.currentQuota && hazardEliminations.length > 0) {
+    const slotsNeeded = next.currentQuota - remainingPotential;
+    const boundaryCohort = hazardEliminations
+      .map(entry => next.marbles.find(marble => marble.id === entry.marbleId)!)
+      .sort((left, right) => right.progressPermille - left.progressPermille || left.position.y - right.position.y || left.id - right.id)
+      .slice(0, slotsNeeded);
+    for (const marble of boundaryCohort) {
+      reviewedIds.add(marble.id);
+      marble.status = 'active';
+      marble.roundStatus = 'racing';
+      next.activeIds.push(marble.id);
+      next.activeIds.sort((a, b) => a - b);
+      next.eliminatedIds = next.eliminatedIds.filter(id => id !== marble.id);
+      events.push({ tick: next.tick, type: 'elimination-boundary-review', data: { marbleId: marble.id, progressPermille: marble.progressPermille, policy: 'progress-then-stable-id' } });
+    }
+    remainingPotential = next.qualifiedIds.length + next.activeIds.length;
+  }
+
+  for (const elimination of hazardEliminations) {
+    if (reviewedIds.has(elimination.marbleId)) continue;
+    events.push({ tick: next.tick, type: 'marble-eliminated', data: { marbleId: elimination.marbleId, cause: elimination.cause, hazardId: elimination.hazardId } });
+  }
   for (const contact of contacts) events.push({ tick: next.tick, type: 'physics-contact', data: { kind: contact.kind, marbleId: contact.marbleId, otherMarbleId: contact.otherMarbleId, colliderId: contact.colliderId, impulse: contact.impulse } });
 
-  const remainingPotential = next.qualifiedIds.length + next.activeIds.length;
   if (remainingPotential === 0) {
     const quarantined = quarantineTournament(next, 'no-valid-competitor', 'Round ended with no active or qualified competitor.');
+    return { state: quarantined.state, events: [...events, ...quarantined.events] };
+  }
+  if (remainingPotential < next.currentQuota) {
+    const quarantined = quarantineTournament(next, 'insufficient-qualifiers', 'Round cannot satisfy its declared qualification quota.');
     return { state: quarantined.state, events: [...events, ...quarantined.events] };
   }
   if (next.qualifiedIds.length >= next.currentQuota) {
