@@ -127,3 +127,42 @@ test('fast moving sweepers cannot tunnel through a stationary marble between tic
     'a sweeper whose path crosses the marble during the tick must register contact even when neither endpoint overlaps',
   );
 });
+
+test('shield recovery uses a bounded recovery impulse instead of teleporting the marble', () => {
+  const state = twoMarbleState('premium-shield-recovery');
+  const marble = state.marbles[0];
+  const spectator = state.marbles[1];
+
+  spectator.status = 'eliminated';
+  spectator.roundStatus = 'out';
+  state.activeIds = [marble.id];
+  marble.position = { x: 12_000, y: 7_000 };
+  marble.velocity = { x: 30, y: -140 };
+  marble.shieldCharges = 1;
+  state.tick = 200;
+  state.arena.hazards = [{
+    id: 'shield-pit',
+    kind: 'pit',
+    x: 11_000,
+    y: 6_500,
+    width: 2_000,
+    height: 1_000,
+  }];
+  const before = { ...marble.position };
+
+  const result = applyTournamentRules(state, []);
+  const recovered = result.state.marbles.find((candidate) => candidate.id === marble.id);
+  const recoveryEvent = result.events.find((event) => event.type === 'shield-recovery');
+
+  assert.deepEqual(recovered.position, before, 'shield activation must not teleport the marble out of the hazard');
+  assert.equal(recovered.shieldCharges, 0);
+  assert.equal(recovered.status, 'active');
+  assert.ok(recovered.velocity.y > 0, 'shield recovery should apply a bounded impulse away from the hazard approach direction');
+  assert.ok(recovered.recoveryUntilTick > state.tick, 'recovery should have a short explicit grace window');
+  assert.equal(recoveryEvent?.data?.recoveryUntilTick, recovered.recoveryUntilTick);
+
+  result.state.tick += 1;
+  const graceResult = applyTournamentRules(result.state, []);
+  const duringGrace = graceResult.state.marbles.find((candidate) => candidate.id === marble.id);
+  assert.equal(duringGrace.status, 'active', 'remaining inside the hazard during the recovery grace window must not immediately eliminate the marble');
+});
