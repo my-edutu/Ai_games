@@ -68,3 +68,33 @@ test('integrity and quarantine cues have an implemented browser audio path inste
   const audio=fs.readFileSync(path.join(__dirname,'../../public/ai-dungeon/app-audio.js'),'utf8');
   assert.match(audio,/cue\.audio==='integrity-warning'/);
 });
+
+test('public recent-event feed drops routine movement and wait churn while retaining meaningful events',()=>{
+  const runtime=new DungeonRuntime(base,'recent-feed','recent-feed-run');
+  runtime.state.eventHistory=[
+    {sequence:1,tick:1,type:'hero.moved',message:'Astra advances.'},
+    {sequence:2,tick:2,type:'hero.waited',message:'Astra waits.'},
+    {sequence:3,tick:3,type:'enemy.defeated',message:'Mireling defeated.'}
+  ];
+  const snapshot=buildDungeonRenderSnapshot(runtime.state);
+  assert.deepEqual(snapshot.events.map(event=>event.type),['enemy.defeated']);
+});
+
+test('floating cue policy reserves center-screen text for rare high-priority moments and caps simultaneous labels',()=>{
+  const root=path.join(__dirname,'../../public/ai-dungeon');
+  const core=fs.readFileSync(path.join(root,'app-core.js'),'utf8');
+  const audio=fs.readFileSync(path.join(root,'app-audio.js'),'utf8');
+  assert.match(core,/MIN_FLOATING_PRIORITY\s*=\s*65/);
+  assert.match(core,/MAX_SIMULTANEOUS_FLOATERS\s*=\s*2/);
+  assert.match(audio,/cue\.priority\s*>=\s*MIN_FLOATING_PRIORITY/);
+  assert.match(audio,/floaters\.length\s*<\s*Math\.min\(floaterLimit,MAX_SIMULTANEOUS_FLOATERS\)/);
+});
+
+test('spectator HUD renders one compact contextual audience status instead of hiding active influence state',()=>{
+  const scene=fs.readFileSync(path.join(__dirname,'../../public/ai-dungeon/app-scene.js'),'utf8');
+  assert.match(scene,/function audienceStatusLabel/);
+  assert.match(scene,/snapshot\.audience\.vote/);
+  assert.match(scene,/snapshot\.audience\.route/);
+  assert.match(scene,/snapshot\.audience\.pressure/);
+  assert.match(scene,/AUDIENCE/);
+});
