@@ -4,15 +4,15 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="color-scheme" content="dark">
-  <title>Autonomous Snake Live</title>
+  <title>Autonomous Snake Arena</title>
   <link rel="stylesheet" href="/styles.css">
   <link rel="stylesheet" href="/ux-v2.css">
 </head>
 <body>
-  <main id="broadcast" data-scene="maintenance" data-ux-revision="2" aria-live="polite">
+  <main id="broadcast" data-scene="maintenance" data-ux-revision="3" data-mode="broadcast" data-quality="balanced" aria-live="polite">
     <header id="hud" class="hud" aria-label="Game progress">
       <div class="brand-block">
-        <span class="eyebrow">AUTONOMOUS INTELLIGENCE</span>
+        <span class="eyebrow">AUTONOMOUS ARENA</span>
         <strong id="primary">PREPARING RUN</strong>
       </div>
       <div class="metric-block">
@@ -20,13 +20,21 @@
         <span id="record">BEST —</span>
       </div>
       <div class="intent-block">
-        <span class="eyebrow">AI INTENT</span>
+        <span class="eyebrow">AI DECISION</span>
         <span id="intent">Initializing deterministic strategy</span>
       </div>
     </header>
 
     <section class="stage" aria-label="Autonomous Snake game board">
       <canvas id="game" width="1920" height="1080" aria-label="Autonomous Snake gameplay visualization"></canvas>
+      <div class="arena-meta" aria-label="Arena status">
+        <span id="risk-label" data-level="0">RISK STABLE</span>
+        <span id="quality-label">BALANCED</span>
+      </div>
+      <div class="objective-strip" aria-label="Current objective">
+        <span id="objective-label">LENGTH — / —</span>
+        <span class="objective-track" aria-hidden="true"><i id="objective-progress"></i></span>
+      </div>
       <div id="scene-card" class="scene-card" role="status">
         <strong id="scene-title">PREPARING AUTONOMOUS RUN</strong>
         <span id="scene-copy">A verified game view will appear automatically.</span>
@@ -38,7 +46,7 @@
     </section>
 
     <footer id="audience" class="audience">
-      <span id="audience-copy">AUDIENCE INTERACTIONS — PHASE 4</span>
+      <span id="audience-copy">AUDIENCE INTERACTIONS — BOUNDED</span>
       <span id="integrity">INTEGRITY: VERIFIED</span>
     </footer>
 
@@ -46,8 +54,17 @@
       <button type="button" data-control="reduced-motion" aria-pressed="false">Reduced motion</button>
       <button type="button" data-control="muted" aria-pressed="false">Mute audio</button>
       <button type="button" data-control="clean-feed" aria-pressed="false">Clean feed</button>
+      <label class="quality-control">Quality
+        <select id="quality-select" aria-label="Render quality">
+          <option value="low">Low</option>
+          <option value="balanced" selected>Balanced</option>
+          <option value="high">High</option>
+          <option value="ultra">Ultra</option>
+        </select>
+      </label>
     </nav>
   </main>
+  <script src="/render-policy.js"></script>
   <script src="/app.js" defer></script>
 </body>
 </html>
