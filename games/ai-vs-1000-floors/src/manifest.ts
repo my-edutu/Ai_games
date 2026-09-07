@@ -3,6 +3,6 @@ export const floorsManifest={
   gameVersion:'0.1.0-r1',
   stateSchemaVersion:1,
   deterministicVersion:'floors-r1-v1',
-  presentationVersion:'not-implemented',
-  capabilities:['headless-foundation'] as const,
+  presentationVersion:'floors-presentation-r3',
+  capabilities:['headless-foundation','broadcast-presentation','quality-presets'] as const,
 };
