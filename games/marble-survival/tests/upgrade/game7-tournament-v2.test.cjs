@@ -64,6 +64,33 @@ test('same-tick championship finish is decided by crossing fraction rather than 
   assert.equal(output.state.result?.championId, 1);
 });
 
+test('simultaneous elimination boundary preserves the declared 4 to 2 quota deterministically', () => {
+  const { MarbleRuntime, applyTournamentRules } = game7();
+  const runtime = MarbleRuntime.create({
+    rosterSize: 4,
+    roundQuotas: [3, 2, 2, 2, 1],
+    roundIntroTicks: 0,
+    roundTimeoutTicks: 1000,
+  }, 'elimination-boundary');
+  const state = runtime.state;
+  state.roundIndex = 3;
+  state.roundNumber = 4;
+  state.currentQuota = 2;
+  state.activeIds = [0, 1, 2, 3];
+  state.qualifiedIds = [];
+  state.marbles.forEach((marble, index) => {
+    marble.status = 'active';
+    marble.roundStatus = 'racing';
+    marble.position = { x: index < 3 ? 1000 + index * 1000 : 10000, y: index < 3 ? 9000 - index * 1000 : 10000 };
+  });
+  state.arena.hazards = [{ id: 'cohort-pit', kind: 'pit', x: 0, y: 0, width: 5000, height: state.arena.height }];
+  const output = applyTournamentRules(state, []);
+  assert.equal(output.state.lifecycle, 'round-result');
+  assert.equal(output.state.qualifiedIds.length, 2);
+  assert.ok(output.state.qualifiedIds.includes(3), 'the marble outside the hazard must qualify');
+  assert.ok(output.state.qualifiedIds.includes(2), 'best-progress marble from the simultaneous boundary cohort must win the final slot');
+});
+
 test('championship all-fall cannot stay active or fabricate an eliminated champion', () => {
   const { applyTournamentRules } = game7();
   const state = championshipState('all-fall-final');
