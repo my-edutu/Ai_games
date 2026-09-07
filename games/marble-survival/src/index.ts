@@ -8,4 +8,5 @@ export * from './physics/solver';
 export * from './rules/tournament';
 export * from './runtime/run';
 export * from './persistence/snapshot';
+export * from './presentation/snapshot';
 export * from './manifest';
