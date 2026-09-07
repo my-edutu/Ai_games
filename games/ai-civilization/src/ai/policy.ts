@@ -101,6 +101,19 @@ export function legalCivilizationActions(state:CivilizationState):CivilizationAc
 }
 export const availableActions=legalCivilizationActions;
 function foodRunway(state:CivilizationState){return state.resources.food/Math.max(1,Math.ceil(state.population.total/6))}
+function balancedExpansionAction(state:CivilizationState,legal:CivilizationAction[]){
+  const builds=legal.filter((action):action is Extract<CivilizationAction,{type:'build'}>=>action.type==='build');
+  return builds.slice().sort((a,b)=>{
+    const aDefinition=buildingCatalogue[a.building];
+    const bDefinition=buildingCatalogue[b.building];
+    const aCount=countBuildings(state,a.building);
+    const bCount=countBuildings(state,b.building);
+    const balance=aCount*Math.max(1,bDefinition.maxCount)-bCount*Math.max(1,aDefinition.maxCount);
+    if(balance!==0)return balance;
+    if(aDefinition.renown!==bDefinition.renown)return bDefinition.renown-aDefinition.renown;
+    return a.key.localeCompare(b.key);
+  })[0];
+}
 function intent(state:CivilizationState,action:CivilizationAction,pressure:string,goal:string,fallbackUsed=false):PublicIntent{
   return{
     goal,decree:action.key,pressure,confidence:pressure==='none'?'high':pressure.includes('critical')?'low':'medium',fallbackUsed,
@@ -111,6 +124,7 @@ export function decideCivilizationAction(state:CivilizationState):PolicyDecision
   const legal=legalCivilizationActions(state);
   if(!legal.length)return{action:{key:'reserve',type:'reserve'},intent:intent(state,{key:'reserve',type:'reserve'},'critical:no-legal-action','Preserve authority',true),candidateCount:0,score:-999};
   const days=foodRunway(state);
+  const expansion=balancedExpansionAction(state,legal);
   let preferred:CivilizationAction|undefined;
   let pressure='none',goal='Grow a balanced settlement',score=10;
   if(state.crisis){
@@ -133,10 +147,15 @@ export function decideCivilizationAction(state:CivilizationState):PolicyDecision
     pressure='stone reserve low';goal='Secure masonry';preferred=legal.find(a=>a.key.startsWith('build:quarry:'));score=58;
   }else if(!state.world.tiles.some(t=>t.building?.type==='granary')){
     pressure='storage exposed';goal='Protect the harvest';preferred=legal.find(a=>a.key.startsWith('build:granary:'));score=55;
+    if(!preferred&&expansion){
+      pressure=`settlement progression ${state.progression.renown}/${state.progression.nextTierRenown} renown`;goal='Grow toward the next settlement tier';preferred=expansion;score=54;
+    }
   }else if(tierAtLeast(state.progression.tier,'city')&&state.progression.completedGreatWorks.length<3){
     pressure='legacy opportunity';goal='Begin a Great Work';preferred=legal.find(a=>a.type==='select-great-work');score=52;
   }else if(tierAtLeast(state.progression.tier,'town')&&state.diplomacy.some(r=>r.tension>55)){
     pressure='border tension rising';goal='Stabilize rival relations';preferred=legal.find(a=>a.type==='diplomacy'&&a.mode==='treaty');score=48;
+  }else if(state.progression.renown<state.progression.nextTierRenown&&expansion){
+    pressure=`settlement progression ${state.progression.renown}/${state.progression.nextTierRenown} renown`;goal='Grow toward the next settlement tier';preferred=expansion;score=44;
   }else if(state.resources.gold>=2){
     pressure='none';goal='Advance civic knowledge';preferred=legal.find(a=>a.key==='research');score=40;
   }
