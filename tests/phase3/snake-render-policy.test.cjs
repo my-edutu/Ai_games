@@ -7,6 +7,7 @@ const {
   qualitySettings,
   interpolationPoint,
   foodBurstKey,
+  occupancyRatio,
   decisionSummary,
   inferHeadDirection,
 } = require('../../public/snake-stream/render-policy.js');
@@ -45,6 +46,16 @@ test('food burst keys advance once per authoritative collection, not once per re
   assert.equal(foodBurstKey(previous, next), 'run-a:5');
   assert.equal(foodBurstKey(next, next), null);
   assert.equal(foodBurstKey(previous, { ...next, foodsCollected: 4 }), null);
+});
+
+test('arena occupancy converts authoritative occupied-cell counts into a truthful ratio', () => {
+  const ratio = occupancyRatio(10, 28, 16, 0);
+  assert.ok(ratio > 0.02 && ratio < 0.023);
+  assert.equal(Math.round(ratio * 100), 2);
+
+  const withWalls = occupancyRatio(10, 10, 10, 20);
+  assert.equal(withWalls, 0.125);
+  assert.equal(occupancyRatio(500, 10, 10, 0), 1);
 });
 
 test('AI summaries expose concise facts instead of raw planner diagnostics', () => {
