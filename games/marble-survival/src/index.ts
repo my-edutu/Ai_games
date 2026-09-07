@@ -10,4 +10,6 @@ export * from './rules/tournament';
 export * from './runtime/run';
 export * from './persistence/snapshot';
 export * from './presentation/snapshot';
+export * from './presentation/camera';
+export * from './presentation/replay';
 export * from './manifest';
