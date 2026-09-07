@@ -11,7 +11,23 @@ export interface FloorsRenderSnapshot{
 }
 
 const eventCopy:Record<string,string>={
-  'floor-started':'New floor entered','floor-cleared':'Floor cleared','player-damaged':'Astra took damage','enemy-defeated':'Enemy defeated','reward-collected':'Upgrade resource collected','result':'Run resolved','intermission-started':'Preparing the next ascent','runtime-restarted':'New ascent started'
+  'runtime-initialized':'Tower authority connected',
+  'floor-started':'Astra entered a new floor',
+  'player-moved':'Astra advanced to a neighbouring cell',
+  'player-attacked':'Astra struck a hostile',
+  'enemy-defeated':'Hostile neutralized',
+  'player-guarded':'Astra raised its guard',
+  'player-waited':'Astra held position',
+  'reward-collected':'Upgrade resource secured',
+  'enemy-attacked':'A hostile engaged Astra',
+  'hazard-hit':'Astra triggered a floor hazard',
+  'module-installed':'A new survival module was installed',
+  'floor-cleared':'Floor cleared — ascent continuing',
+  'run-result':'The ascent reached a terminal result',
+  'intermission-started':'Preparing the next ascent',
+  'runtime-restarted':'New ascent started',
+  'audience-influence-applied':'Validated audience influence applied',
+  'action-rejected':'A proposed action was rejected by the rules'
 };
 const clamp=(value:number,min:number,max:number)=>Math.max(min,Math.min(max,value));
 
@@ -28,6 +44,6 @@ export function createFloorsRenderSnapshot(state:FloorsState,recentEvents:Floors
     cells:Array.from({length:total},(_,index)=>({index,wall:wallSet.has(index),exit:index===state.floor.exit,reward:rewardSet.has(index),hazard:hazards.get(index)??null})),
     enemies:state.floor.enemies.slice(0,24).map(enemy=>({id:enemy.id,kind:enemy.kind,cell:enemy.cell,healthPermille:Math.round(clamp(enemy.health/Math.max(1,enemy.maxHealth),0,1)*1000),telegraph:enemy.telegraph})),
     progressPermille:Math.round(clamp((state.floor.number-1)/999,0,1)*1000),highestFloor:state.highestFloor,floorsCleared:state.floorsCleared,score:state.score,danger,
-    events:recentEvents.slice(-8).map(event=>({seq:event.seq,type:event.type,message:eventCopy[event.type]??'The tower state changed'}))
+    events:recentEvents.slice(-8).map(event=>({seq:event.seq,type:event.type,message:eventCopy[event.type]??'Tower state updated'}))
   };
 }

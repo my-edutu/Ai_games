@@ -3,10 +3,11 @@ const fs=require('node:fs');const path=require('node:path');const{test,expect}=r
 const base='http://127.0.0.1:4177',artifacts=path.resolve(__dirname,'../../artifacts/floors-phase3');
 test.beforeAll(()=>fs.mkdirSync(artifacts,{recursive:true}));
 
-test('floors desktop broadcast is animated readable and privacy safe',async({page})=>{
+test('floors desktop broadcast is animated readable scalable and privacy safe',async({page})=>{
   const failures=[];page.on('console',m=>{if(m.type()==='error')failures.push(m.text())});page.on('pageerror',e=>failures.push(e.message));
   await page.setViewportSize({width:1920,height:1080});await page.goto(`${base}/floors`,{waitUntil:'domcontentloaded'});
-  await expect(page.locator('#tower')).toBeVisible();await expect(page.locator('#floor')).toContainText(/Floor \d+ \/ 1000/);await expect(page.locator('#intent')).not.toBeEmpty();
+  await expect(page.locator('#tower')).toBeVisible();await expect(page.locator('#floor')).toContainText(/Floor \d+ \/ 1000/);await expect(page.locator('#intent')).not.toBeEmpty();await expect(page.locator('#sector-name')).not.toBeEmpty();
+  const quality=page.locator('#quality');await expect(quality).toBeVisible();await quality.selectOption('low');await expect(page.locator('#broadcast')).toHaveAttribute('data-quality','low');await quality.selectOption('high');await expect(page.locator('#broadcast')).toHaveAttribute('data-quality','high');
   const first=await page.locator('#floor').textContent();await page.waitForTimeout(900);const state=await page.evaluate(async()=>await(await fetch('/floors/state',{cache:'no-store'})).json());
   expect(state.gameId).toBe('ai-vs-1000-floors');expect(state.cells.length).toBeGreaterThan(0);const text=JSON.stringify(state);for(const forbidden of ['seed','runId','rng','operator','token','queued','applied'])expect(text).not.toContain(forbidden);
   const layout=await page.evaluate(()=>({viewport:document.documentElement.clientWidth,scroll:document.documentElement.scrollWidth,canvas:document.getElementById('tower').getBoundingClientRect().toJSON()}));
