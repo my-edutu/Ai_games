@@ -1,21 +1,7 @@
-import { triangleWave } from '../physics/fixed';
-import type { ArenaSweeper, MarbleCompetitor, MarbleState } from '../state/types';
+import { sweeperTransform } from '../physics/moving-collider';
+import type { MarbleCompetitor, MarbleState } from '../state/types';
 
 const ROUND_NAMES = ['Seeding Sprint', 'Gate Gauntlet', 'Hazard Circuit', 'Final Four', 'Championship'] as const;
-
-function publicSweeper(sweeper: ArenaSweeper, tick: number) {
-  const offset = triangleWave(tick, sweeper.periodTicks, sweeper.amplitude, sweeper.phaseTicks);
-  return {
-    id: sweeper.id,
-    x: sweeper.baseX + (sweeper.axis === 'x' ? offset : 0),
-    y: sweeper.baseY + (sweeper.axis === 'y' ? offset : 0),
-    width: sweeper.width,
-    height: sweeper.height,
-    axis: sweeper.axis,
-    velocityX: 0,
-    velocityY: 0
-  };
-}
 
 function publicMarble(marble: MarbleCompetitor) {
   return {
@@ -67,7 +53,7 @@ export function createMarblePublicSnapshot(state: MarbleState) {
       bumpers: state.arena.bumpers.map(value => ({ ...value })),
       hazards: state.arena.hazards.map(value => ({ ...value })),
       windZones: state.arena.windZones.map(value => ({ ...value })),
-      sweepers: state.arena.sweepers.map(value => publicSweeper(value, state.tick))
+      sweepers: state.arena.sweepers.map(value => sweeperTransform(value, state.tick))
     }),
     marbles: visible.map(publicMarble),
     leaderboard: visible.slice(0, 8).map((marble, index) => Object.freeze({
