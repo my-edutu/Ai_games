@@ -1,5 +1,5 @@
 import{checksum}from'../../../../packages/replay/src/index';
-import{validateFloor}from'../generation/validator';
+import{validateRuntimeFloor}from'../generation/validator';
 import{FloorsRuntime}from'../runtime/run';
 import{actionKey,listLegalActions}from'../rules/step';
 import{chooseProductionAction}from'../ai/policy';
@@ -16,7 +16,7 @@ export function runFloorsCampaign(options:FloorsCampaignOptions):FloorsCampaignR
     for(let tick=0;tick<options.maxTicks&&runtime.state.lifecycle==='running';tick++){
       const decision=chooseProductionAction(runtime.state),legal=listLegalActions(runtime.state);if(!legal.some(action=>actionKey(action)===actionKey(decision.action))){report.invalidActions++;break}report.maxPlannerExpansions=Math.max(report.maxPlannerExpansions,decision.expansions);if(decision.mode==='fallback')report.fallbackDecisions++;
       runtime.step(decision.action);mirror.step(decision.action);
-      if(runtime.state.floor.number!==previousFloor){const validation=validateFloor(runtime.state.floor,runtime.state.config);if(!validation.valid)report.invalidFloors++;previousFloor=runtime.state.floor.number}
+      if(runtime.state.floor.number!==previousFloor){const validation=validateRuntimeFloor(runtime.state.floor,runtime.state.config);if(!validation.valid)report.invalidFloors++;previousFloor=runtime.state.floor.number}
       report.maxFloor=Math.max(report.maxFloor,runtime.state.floor.number);sectors.add(runtime.state.floor.sector);
       if(checksum(runtime.state)!==checksum(mirror.state)){report.replayDivergence++;break}
     }
