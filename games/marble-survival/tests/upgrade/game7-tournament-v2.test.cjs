@@ -29,6 +29,13 @@ function championshipState(seed) {
   return runtime.state;
 }
 
+test('winner-critical upgrade has an explicit marble-physics-v2 snapshot boundary', () => {
+  const { MarbleRuntime, createMarbleSnapshot } = game7();
+  const runtime = MarbleRuntime.create({ rosterSize: 2, roundQuotas: [1, 1, 1, 1, 1] }, 'version-v2');
+  assert.equal(runtime.state.determinismVersion, 'marble-physics-v2');
+  assert.equal(createMarbleSnapshot(runtime).deterministicVersion, 'marble-physics-v2');
+});
+
 test('finish crossing comparison prefers earlier within-tick crossing before stable ID', () => {
   const { compareFinishCrossings } = game7();
   assert.equal(typeof compareFinishCrossings, 'function');
