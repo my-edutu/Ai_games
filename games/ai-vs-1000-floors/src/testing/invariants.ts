@@ -1,4 +1,4 @@
-import{validateFloor}from '../generation/validator';
+import{validateRuntimeFloor}from '../generation/validator';
 import type{FloorsState}from '../state/types';
 
 export function inspectFloorsInvariants(state:FloorsState):string[]{
@@ -14,7 +14,7 @@ export function inspectFloorsInvariants(state:FloorsState):string[]{
   if(new Set(ids).size!==ids.length)failures.push('DUPLICATE_ENEMY_ID');
   if(new Set(cells).size!==cells.length)failures.push('DUPLICATE_ENEMY_CELL');
   if(cells.includes(state.player.cell))failures.push('PLAYER_ENEMY_OVERLAP');
-  const report=validateFloor(state.floor,state.config);if(!report.valid)failures.push(...report.errors.map(error=>`FLOOR_${error}`));
+  const report=validateRuntimeFloor(state.floor,state.config);if(!report.valid)failures.push(...report.errors.map(error=>`FLOOR_${error}`));
   if(state.lifecycle==='result'&&!state.result)failures.push('RESULT_MISSING');
   if(state.lifecycle!=='result'&&state.result)failures.push('RESULT_OUTSIDE_RESULT');
   return[...new Set(failures)].sort();
