@@ -136,3 +136,35 @@ test('reduced-motion, muted and clean-feed controls preserve the game view', asy
   await page.screenshot({ path: path.join(artifactDir, 'clean-feed-1280x720.png'), fullPage: true });
   expect(failures).toEqual([]);
 });
+
+test('spectator and operator outputs preserve readability across low and ultra quality', async ({ page }) => {
+  const failures = recordConsoleFailures(page);
+  await page.setViewportSize({ width: 1600, height: 900 });
+  await page.goto('/?mode=spectator&quality=low', { waitUntil: 'domcontentloaded' });
+  await expect(page.locator('#primary')).toContainText('LENGTH');
+  await expect(page.locator('#broadcast')).toHaveAttribute('data-mode', 'spectator');
+  await expect(page.locator('#broadcast')).toHaveAttribute('data-quality', 'low');
+  await expect(page.locator('#quality-label')).toHaveText('LOW');
+  await expect(page.locator('#audience')).toBeHidden();
+  await expect(page.locator('#game')).toBeVisible();
+  await page.screenshot({ path: path.join(artifactDir, 'spectator-low-1600x900.png'), fullPage: true });
+
+  await page.goto('/?mode=operator&quality=ultra', { waitUntil: 'domcontentloaded' });
+  await expect(page.locator('#primary')).toContainText('LENGTH');
+  await expect(page.locator('#broadcast')).toHaveAttribute('data-mode', 'operator');
+  await expect(page.locator('#broadcast')).toHaveAttribute('data-quality', 'ultra');
+  await expect(page.locator('#quality-label')).toHaveText('ULTRA');
+  await expect(page.locator('.controls')).toBeVisible();
+  await expect(page.locator('#quality-select')).toHaveValue('ultra');
+  await page.locator('#quality-select').selectOption('balanced');
+  await expect(page.locator('#broadcast')).toHaveAttribute('data-quality', 'balanced');
+  await expect(page.locator('#quality-label')).toHaveText('BALANCED');
+
+  const renderPolicy = await page.evaluate(() => ({
+    low: window.SnakeRenderPolicy.qualitySettings('low', 3).simulationRate,
+    ultra: window.SnakeRenderPolicy.qualitySettings('ultra', 3).simulationRate,
+  }));
+  expect(renderPolicy).toEqual({ low: 1, ultra: 1 });
+  await page.screenshot({ path: path.join(artifactDir, 'operator-balanced-1600x900.png'), fullPage: true });
+  expect(failures).toEqual([]);
+});
