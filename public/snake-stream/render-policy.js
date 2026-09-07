@@ -60,6 +60,15 @@
     return `${nextSnapshot.runToken}:${nextSnapshot.foodsCollected}`;
   }
 
+  function occupancyRatio(occupiedCells, width, height, obstacleCount = 0) {
+    const w = Math.max(1, Math.trunc(Number(width) || 1));
+    const h = Math.max(1, Math.trunc(Number(height) || 1));
+    const obstacles = Math.max(0, Math.trunc(Number(obstacleCount) || 0));
+    const capacity = Math.max(1, w * h - obstacles);
+    const occupied = Math.max(0, Number(occupiedCells) || 0);
+    return Math.max(0, Math.min(1, occupied / capacity));
+  }
+
   function clampConfidence(value) {
     return Math.max(0, Math.min(100, Math.round(Number(value) || 0)));
   }
@@ -67,10 +76,15 @@
   function decisionSummary(ai, occupancy = 0) {
     const mode = String(ai?.mode || 'replan');
     const confidence = clampConfidence(ai?.confidence);
-    const occupied = Math.max(0, Math.min(100, Math.round((Number(occupancy) || 0) * 100)));
+    const numericOccupancy = Math.max(0, Number(occupancy) || 0);
+    const occupied = Math.max(0, Math.min(100, Math.round(numericOccupancy * 100)));
     if (mode === 'seek-food') return `Safe food route selected · ${confidence}% confidence`;
     if (mode === 'follow-tail') return `Following tail to reopen safe territory · ${confidence}% confidence`;
-    if (mode === 'preserve-space') return `Preserving escape space · arena ${occupied}% occupied`;
+    if (mode === 'preserve-space') {
+      return numericOccupancy <= 1
+        ? `Preserving escape space · arena ${occupied}% occupied`
+        : `Preserving escape space · ${Math.round(numericOccupancy)} occupied cells`;
+    }
     if (mode === 'cycle-fill') return `High occupancy · maintaining long-horizon board coverage`;
     if (mode === 'escape-hazard') return `Hazard escape route prioritized · ${confidence}% confidence`;
     if (mode === 'fallback-survival') return 'No planned route passed safety checks · deterministic fallback';
@@ -122,6 +136,7 @@
     cellPosition,
     interpolationPoint,
     foodBurstKey,
+    occupancyRatio,
     decisionSummary,
     inferHeadDirection,
   });
