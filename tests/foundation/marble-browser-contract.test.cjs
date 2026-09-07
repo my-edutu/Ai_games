@@ -35,7 +35,7 @@ test('renderer consumes authoritative presentation schema and never uses legacy 
     'QUALITY_PRESETS',
     'next.round.number',
     'next.round.quota',
-    'next.camera.contestedQualificationIds',
+    'next.camera.directive',
     'marble.status',
     'marble.number',
     'marble.pattern',
@@ -74,9 +74,9 @@ test('browser camera obeys server directive and applies presentation-only smooth
     'next.camera.directive',
     'cameraViewport',
     'cameraState',
-    'directive.zoomPermille',
-    "directive.mode === 'cut-line'",
-    "directive.mode === 'victory'",
+    'safeDirective.zoomPermille',
+    "safeDirective.mode === 'cut-line'",
+    "safeDirective.mode === 'victory'",
     'prefers-reduced-motion',
   ]);
   assert.equal(app.includes('function cameraMode(next)'), false, 'browser must not independently re-adjudicate camera priorities');
