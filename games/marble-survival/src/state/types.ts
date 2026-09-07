@@ -45,6 +45,7 @@ export interface MarbleCompetitor {
   finishTick: number | null;
   finishRank: number | null;
   shieldCharges: number;
+  recoveryUntilTick: number;
   intent: MarbleIntent;
   confidence: ConfidenceBand;
   lastDecisionTick: number;

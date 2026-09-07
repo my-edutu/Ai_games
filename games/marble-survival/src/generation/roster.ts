@@ -62,6 +62,7 @@ export function createMarbleRoster(config: MarbleConfig, rng: NamedRng): MarbleC
       finishTick: null,
       finishRank: null,
       shieldCharges: 0,
+      recoveryUntilTick: -1,
       intent: 'holding-line',
       confidence: 'medium',
       lastDecisionTick: -1,

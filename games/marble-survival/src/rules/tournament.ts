@@ -96,13 +96,28 @@ export function applyTournamentRules(state: MarbleState, contacts: PhysicsContac
       events.push({ tick: next.tick, type: 'checkpoint-reached', data: { marbleId: marble.id, checkpointIndex: marble.checkpointIndex } });
     }
     const hazard = next.arena.hazards.find(zone => inside(marble.position, zone));
-    if (hazard) {
+    const recoveryUntilTick = marble.recoveryUntilTick ?? -1;
+    if (hazard && recoveryUntilTick < next.tick) {
       if (marble.shieldCharges > 0) {
         marble.shieldCharges--;
         marble.recoveryCount++;
-        marble.position.y += next.config.marbleRadius * 3;
-        marble.velocity.y = Math.abs(marble.velocity.y);
-        events.push({ tick: next.tick, type: 'shield-recovery', data: { marbleId: marble.id, hazardId: hazard.id } });
+        const recoverySpeed = Math.max(
+          Math.abs(marble.velocity.y),
+          Math.max(1, Math.round(Math.min(next.config.maxSpeed, marble.traits.topSpeed) * 0.75))
+        );
+        marble.velocity.y = recoverySpeed;
+        marble.recoveryUntilTick = next.tick + Math.max(6, Math.ceil(next.config.tickRate / 4));
+        next.meaningfulEventTick = next.tick;
+        events.push({
+          tick: next.tick,
+          type: 'shield-recovery',
+          data: {
+            marbleId: marble.id,
+            hazardId: hazard.id,
+            impulseY: recoverySpeed,
+            recoveryUntilTick: marble.recoveryUntilTick
+          }
+        });
       } else {
         marble.status = 'eliminated';
         marble.roundStatus = 'out';
@@ -183,6 +198,7 @@ export function advanceMarbleRound(state: MarbleState, rng: NamedRng): RuleOutpu
       marble.progressPermille = 0;
       marble.finishTick = null;
       marble.finishRank = null;
+      marble.recoveryUntilTick = -1;
       marble.intent = 'holding-line';
       marble.confidence = 'medium';
       marble.lastProgressTick = next.tick;
