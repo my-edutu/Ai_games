@@ -1,13 +1,19 @@
 import{civilizationManifest}from'../manifest';
 import type{
-  CharacterExpression,CivilizationCharacter,CivilizationEvent,CivilizationState,
+  BuildingType,CharacterExpression,CivilizationCharacter,CivilizationEvent,CivilizationState,
   ResourceKey,RivalStatus,WorldTile
 }from'../state/types';
 
 export type DangerLevel='stable'|'watch'|'high'|'critical';
+export type GroundDetail='none'|'cultivated'|'timber'|'masonry'|'domestic'|'civic';
+export type ActivityKind='settlement'|'farm'|'timber'|'stone'|'market'|'study'|'civic'|'craft'|'defence'|'waterworks'|'domestic';
+export interface RenderActivity{
+  kind:ActivityKind;label:string;resource:ResourceKey|null;density:1|2|3;aggregate:true;
+}
 export interface RenderTile{
   index:number;x:number;y:number;terrain:WorldTile['terrain'];owner:WorldTile['owner'];
-  building:string|null;hazard:string|null;capital:boolean;
+  building:string|null;buildingType:BuildingType|null;visualVariant:0|1|2|3;groundDetail:GroundDetail;
+  activity:RenderActivity|null;hazard:string|null;capital:boolean;
 }
 export interface RenderCharacter{
   name:string;role:string;traits:string[];aspiration:string;expression:CharacterExpression;
@@ -70,6 +76,37 @@ function danger(state:CivilizationState){
   if(state.stability<50)return{score,level,cause:'Low Stability',instruction:`Realm stability is ${state.stability} of 100`};
   return{score,level,cause:'Realm Stable',instruction:'No immediate existential threat'};
 }
+const buildingPresentation:Record<BuildingType,{groundDetail:GroundDetail;activity:Omit<RenderActivity,'aggregate'>}>={
+  camp:{groundDetail:'civic',activity:{kind:'settlement',label:'Aggregate settlement activity',resource:null,density:2}},
+  farm:{groundDetail:'cultivated',activity:{kind:'farm',label:'Aggregate food cultivation',resource:'food',density:3}},
+  lumberyard:{groundDetail:'timber',activity:{kind:'timber',label:'Aggregate timber work',resource:'wood',density:2}},
+  quarry:{groundDetail:'masonry',activity:{kind:'stone',label:'Aggregate stone work',resource:'stone',density:2}},
+  house:{groundDetail:'domestic',activity:{kind:'domestic',label:'Aggregate household activity',resource:null,density:1}},
+  granary:{groundDetail:'cultivated',activity:{kind:'settlement',label:'Aggregate granary food activity',resource:'food',density:1}},
+  market:{groundDetail:'civic',activity:{kind:'market',label:'Aggregate market activity',resource:'gold',density:2}},
+  school:{groundDetail:'civic',activity:{kind:'study',label:'Aggregate study activity',resource:'knowledge',density:2}},
+  barracks:{groundDetail:'civic',activity:{kind:'defence',label:'Aggregate defence activity',resource:null,density:2}},
+  temple:{groundDetail:'civic',activity:{kind:'civic',label:'Aggregate temple activity',resource:'influence',density:2}},
+  aqueduct:{groundDetail:'masonry',activity:{kind:'waterworks',label:'Aggregate waterworks activity',resource:null,density:2}},
+  workshop:{groundDetail:'timber',activity:{kind:'craft',label:'Aggregate workshop activity',resource:null,density:3}},
+  monument:{groundDetail:'civic',activity:{kind:'civic',label:'Aggregate civic monument activity',resource:null,density:1}}
+};
+function visualVariant(tile:WorldTile):0|1|2|3{
+  const key=tile.building?.type??tile.terrain;
+  let hash=(Math.imul(tile.index+1,31)+Math.imul(tile.x+1,17)+Math.imul(tile.y+1,13))>>>0;
+  for(let i=0;i<key.length;i++)hash=Math.imul(hash^key.charCodeAt(i),16777619)>>>0;
+  return(hash&3)as 0|1|2|3;
+}
+function presentationFor(tile:WorldTile){
+  if(!tile.building)return{buildingType:null,visualVariant:visualVariant(tile),groundDetail:'none' as GroundDetail,activity:null};
+  const descriptor=buildingPresentation[tile.building.type];
+  return{
+    buildingType:tile.building.type,
+    visualVariant:visualVariant(tile),
+    groundDetail:descriptor.groundDetail,
+    activity:{...descriptor.activity,aggregate:true as const}
+  };
+}
 const eventCopy:Record<string,(event:CivilizationEvent)=>Omit<RenderEvent,'sequence'|'tick'>>={
   'construction-complete':event=>({kind:'construction',title:'Construction complete',detail:`${label(String(event.data?.building??'building'))} joined the realm`,importance:2}),
   'tier-advanced':event=>({kind:'milestone',title:'Settlement advanced',detail:`The realm became ${label(String(event.data?.to??'a new tier'))}`,importance:3}),
@@ -127,7 +164,7 @@ export function createCivilizationRenderSnapshot(state:CivilizationState,recentE
     danger:dangerState,
     progress:{tier:label(state.progression.tier),renown:state.progression.renown,nextTierRenown:state.progression.nextTierRenown,percent:Math.min(1,state.progression.renown/state.config.legendaryRenown),greatWork:state.progression.greatWorkId?{name:label(state.progression.greatWorkId),progress:state.progression.greatWorkProgress}:null,completedGreatWorks:state.progression.completedGreatWorks.length},
     realm:{resources,population:{total:state.population.total,workers:state.population.workers,housing:state.population.housing,health:state.population.health,morale:state.population.morale,lastDelta:state.population.lastDelta},stability:state.stability,defence:state.defence},
-    world:{width:state.world.width,height:state.world.height,capitalIndex:state.world.capitalIndex,focusTile:focus,tiles:state.world.tiles.slice(0,160).map(tile=>({index:tile.index,x:tile.x,y:tile.y,terrain:tile.terrain,owner:tile.owner,building:tile.building?label(tile.building.type):null,hazard:tile.hazard?label(tile.hazard):null,capital:tile.index===state.world.capitalIndex}))},
+    world:{width:state.world.width,height:state.world.height,capitalIndex:state.world.capitalIndex,focusTile:focus,tiles:state.world.tiles.slice(0,160).map(tile=>({index:tile.index,x:tile.x,y:tile.y,terrain:tile.terrain,owner:tile.owner,building:tile.building?label(tile.building.type):null,...presentationFor(tile),hazard:tile.hazard?label(tile.hazard):null,capital:tile.index===state.world.capitalIndex}))},
     characters:{
       ruler:renderCharacter(state.characters.ruler,'Ruler',state.ai.goal),
       heir:renderCharacter(state.characters.heir,'Heir',state.crisis?'Support crisis response':'Prepare for succession'),
