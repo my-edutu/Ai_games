@@ -29,6 +29,15 @@ function rankActive(state: MarbleState): number[] {
   });
 }
 
+function finishCrossingFraction(marble: MarbleState['marbles'][number], finishPlane: number): number {
+  const withPrevious = marble as MarbleState['marbles'][number] & { previousPosition?: { x: number; y: number } };
+  const previousY = withPrevious.previousPosition?.y ?? marble.position.y - marble.velocity.y;
+  const travel = previousY - marble.position.y;
+  if (previousY <= finishPlane) return 0;
+  if (travel <= 0) return 1;
+  return Math.max(0, Math.min(1, (previousY - finishPlane) / travel));
+}
+
 function resolveRound(state: MarbleState, resolution: MarbleRoundResult['resolution']): RuleOutput {
   const next = cloneState(state);
   const ranking = [...next.qualifiedIds, ...rankActive(next).filter(id => !next.qualifiedIds.includes(id))];
@@ -74,6 +83,7 @@ function resolveRound(state: MarbleState, resolution: MarbleRoundResult['resolut
 export function applyTournamentRules(state: MarbleState, contacts: PhysicsContact[]): RuleOutput {
   let next = cloneState(state);
   const events: Omit<MarbleEvent, 'seq'>[] = [];
+  const finishers: MarbleState['marbles'] = [];
   const activeMarbles = next.marbles.filter(marble => marble.status === 'active' && marble.roundStatus === 'racing').sort((a, b) => a.id - b.id);
   for (const marble of activeMarbles) {
     const oldProgress = marble.progressPermille;
@@ -104,17 +114,33 @@ export function applyTournamentRules(state: MarbleState, contacts: PhysicsContac
       }
     }
     if (marble.position.y <= next.arena.finishY + next.config.marbleRadius && marble.roundStatus === 'racing') {
-      marble.roundStatus = 'finished';
-      marble.status = 'qualified';
-      marble.finishTick = next.tick;
-      marble.finishRank = next.qualifiedIds.length + 1;
-      marble.progressPermille = 1_000;
-      next.qualifiedIds.push(marble.id);
-      next.activeIds = next.activeIds.filter(id => id !== marble.id);
-      next.meaningfulEventTick = next.tick;
-      events.push({ tick: next.tick, type: 'marble-qualified', data: { marbleId: marble.id, finishRank: marble.finishRank } });
+      finishers.push(marble);
     }
   }
+
+  const finishPlane = next.arena.finishY + next.config.marbleRadius;
+  finishers.sort((left, right) => {
+    const fractionDelta = finishCrossingFraction(left, finishPlane) - finishCrossingFraction(right, finishPlane);
+    if (Math.abs(fractionDelta) > Number.EPSILON) return fractionDelta;
+    return left.position.y - right.position.y || left.id - right.id;
+  });
+  const availableSlots = Math.max(0, next.currentQuota - next.qualifiedIds.length);
+  for (const marble of finishers.slice(0, availableSlots)) {
+    marble.roundStatus = 'finished';
+    marble.status = 'qualified';
+    marble.finishTick = next.tick;
+    marble.finishRank = next.qualifiedIds.length + 1;
+    marble.progressPermille = 1_000;
+    next.qualifiedIds.push(marble.id);
+    next.activeIds = next.activeIds.filter(id => id !== marble.id);
+    next.meaningfulEventTick = next.tick;
+    events.push({
+      tick: next.tick,
+      type: 'marble-qualified',
+      data: { marbleId: marble.id, finishRank: marble.finishRank, crossingFraction: finishCrossingFraction(marble, finishPlane) }
+    });
+  }
+
   for (const contact of contacts) events.push({ tick: next.tick, type: 'physics-contact', data: { kind: contact.kind, marbleId: contact.marbleId, otherMarbleId: contact.otherMarbleId, colliderId: contact.colliderId, impulse: contact.impulse } });
   if (next.qualifiedIds.length >= next.currentQuota) {
     const resolved = resolveRound(next, 'quota');
