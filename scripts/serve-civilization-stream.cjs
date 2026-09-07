@@ -12,6 +12,7 @@ const staticFiles={
   '/ai-civilization/index.html':{file:'index.html',type:'text/html; charset=utf-8'},
   '/ai-civilization/styles.css':{file:'styles.css',type:'text/css; charset=utf-8'},
   '/ai-civilization/ux-v2.css':{file:'ux-v2.css',type:'text/css; charset=utf-8'},
+  '/ai-civilization/living-kingdom.css':{file:'living-kingdom.css',type:'text/css; charset=utf-8'},
   '/ai-civilization/app.js':{file:'app.js',type:'text/javascript; charset=utf-8'}
 };
 function safeJson(res,status,value){res.writeHead(status,{'content-type':'application/json; charset=utf-8','cache-control':'no-store','x-content-type-options':'nosniff','referrer-policy':'no-referrer'});res.end(JSON.stringify(value))}
@@ -54,7 +55,7 @@ async function selfTest(){
   const host=createCivilizationStreamServer({seed:'stream-self-test',tickMs:0});await host.start(0);
   const address=host.server.address();const base=`http://127.0.0.1:${address.port}`;
   try{
-    const [health,state,events,stream,index,presentationStyles]=await Promise.all([request(base,'/civilization/health'),request(base,'/civilization/state'),request(base,'/civilization/events'),request(base,'/civilization/stream',{stream:true}),request(base,'/'),request(base,'/ai-civilization/ux-v2.css')]);
+    const [health,state,events,stream,index,presentationStyles]=await Promise.all([request(base,'/civilization/health'),request(base,'/civilization/state'),request(base,'/civilization/events'),request(base,'/civilization/stream',{stream:true}),request(base,'/'),request(base,'/ai-civilization/living-kingdom.css')]);
     const snapshot=JSON.parse(state.body),serialized=state.body;
     const privacySafe=!['rawText','privateId','stack','prompt','chain-of-thought'].some(token=>serialized.includes(token));
     return{pass:[health,state,events,stream,index,presentationStyles].every(r=>r.status===200)&&snapshot.schema==='civilization-render-v1'&&privacySafe,routes:{health:health.status,state:state.status,events:events.status,stream:stream.status,index:index.status,presentationStyles:presentationStyles.status},privacySafe,schema:snapshot.schema};
