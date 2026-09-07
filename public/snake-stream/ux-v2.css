@@ -276,11 +276,33 @@
   display:none;
 }
 
+/* Clean feed must override the premium four-row broadcast grid. Keeping these
+   selectors at equal-or-higher specificity prevents hidden HUD rows from
+   reserving OBS viewport height. */
+#broadcast[data-ux-revision="3"].clean-feed{
+  padding:0;
+  gap:0;
+  grid-template-rows:minmax(0,1fr);
+}
+
+#broadcast[data-ux-revision="3"].clean-feed .stage{
+  min-height:0;
+  border:0;
+  border-radius:0;
+  box-shadow:none;
+}
+
 @media(max-width:900px),(max-height:520px){
   #broadcast[data-ux-revision="3"]{
     padding:6px;
     gap:4px;
     grid-template-rows:minmax(42px,11vh) minmax(0,1fr) minmax(30px,7vh);
+  }
+
+  #broadcast[data-ux-revision="3"].clean-feed{
+    padding:0;
+    gap:0;
+    grid-template-rows:minmax(0,1fr);
   }
 
   #broadcast[data-ux-revision="3"] .hud{
@@ -300,6 +322,10 @@
 
   #broadcast[data-ux-revision="3"] .stage{
     border-radius:12px;
+  }
+
+  #broadcast[data-ux-revision="3"].clean-feed .stage{
+    border-radius:0;
   }
 
   #broadcast[data-ux-revision="3"] .captions{
