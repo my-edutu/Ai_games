@@ -25,7 +25,7 @@ test('browser source contains semantic landmarks, primary hierarchy and accessib
   assert.equal(/https?:\/\//.test(html+css+js),false);
 });
 
-test('stream server self-test exercises health, state, events, SSE and static routes',()=>{
+test('stream server self-test exercises health, state, events, SSE and every referenced static route',()=>{
   const result=spawnSync(process.execPath,['scripts/serve-civilization-stream.cjs','--self-test'],{cwd:root,encoding:'utf8',timeout:20000});
   assert.equal(result.status,0,result.stderr||result.stdout);
   const report=JSON.parse(result.stdout);
@@ -35,5 +35,6 @@ test('stream server self-test exercises health, state, events, SSE and static ro
   assert.equal(report.routes.events,200);
   assert.equal(report.routes.stream,200);
   assert.equal(report.routes.index,200);
+  assert.equal(report.routes.presentationStyles,200);
   assert.equal(report.privacySafe,true);
 });
