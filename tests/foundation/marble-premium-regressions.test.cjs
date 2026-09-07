@@ -94,3 +94,36 @@ test('moving sweepers transfer their authoritative motion into a stationary marb
   assert.ok(result.contacts.some((contact) => contact.kind === 'sweeper'), 'the sweeper should make contact');
   assert.ok(resolved.velocity.x > 0, 'a right-moving sweeper must push a stationary marble to the right');
 });
+
+test('fast moving sweepers cannot tunnel through a stationary marble between tick endpoints', () => {
+  const state = twoMarbleState('premium-sweeper-tunnelling');
+  const marble = state.marbles[0];
+  const spectator = state.marbles[1];
+
+  spectator.status = 'eliminated';
+  spectator.roundStatus = 'out';
+  state.activeIds = [marble.id];
+  marble.position = { x: 10_500, y: 8_000 };
+  marble.velocity = { x: 0, y: 0 };
+  state.tick = 0;
+  state.arena.sweepers = [{
+    id: 'fast-sweeper',
+    kind: 'sweeper',
+    baseX: 9_000,
+    baseY: 7_600,
+    width: 400,
+    height: 800,
+    axis: 'x',
+    amplitude: 3_000,
+    periodTicks: 4,
+    phaseTicks: 1,
+    restitutionPermille: 900,
+  }];
+
+  const result = stepMarblePhysics(state, idleActions(state));
+
+  assert.ok(
+    result.contacts.some((contact) => contact.kind === 'sweeper' && contact.colliderId === 'fast-sweeper'),
+    'a sweeper whose path crosses the marble during the tick must register contact even when neither endpoint overlaps',
+  );
+});
