@@ -4,6 +4,7 @@ export * from './config/schema';
 export * from './generation/roster';
 export * from './generation/arena';
 export * from './physics/fixed';
+export * from './physics/moving-collider';
 export * from './physics/solver';
 export * from './rules/tournament';
 export * from './runtime/run';
