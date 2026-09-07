@@ -39,6 +39,32 @@ test('public render identity never exposes an operator-supplied seed',()=>{
   assert.equal(JSON.stringify(snapshot).includes('operator-secret-seed'),false);
 });
 
+test('render tiles expose deterministic truthful aggregate presentation descriptors without mutating authority',()=>{
+  const runtime=runtimeWithEvents('living-kingdom-descriptors');
+  const [farm,workshop,home]=runtime.state.world.tiles;
+  farm.owner='player';workshop.owner='player';home.owner='player';
+  farm.building={id:'presentation-farm',type:'farm',level:1,builtAtTick:runtime.state.tick};
+  workshop.building={id:'presentation-workshop',type:'workshop',level:1,builtAtTick:runtime.state.tick};
+  home.building={id:'presentation-house',type:'house',level:1,builtAtTick:runtime.state.tick};
+  const events=runtime.peekEvents(200);
+  const before=checksum(runtime.state);
+  const snapshot=createCivilizationRenderSnapshot(runtime.state,events);
+  const repeated=createCivilizationRenderSnapshot(runtime.state,events);
+  assert.equal(snapshot.world.tiles.some(tile=>tile.buildingType==='farm'&&tile.activity?.kind==='farm'),true);
+  assert.equal(snapshot.world.tiles.some(tile=>tile.buildingType==='workshop'&&tile.activity?.kind==='craft'),true);
+  assert.equal(snapshot.world.tiles.some(tile=>tile.buildingType==='house'&&tile.activity?.kind==='domestic'),true);
+  assert.equal(snapshot.world.tiles.every(tile=>Number.isInteger(tile.visualVariant)&&tile.visualVariant>=0&&tile.visualVariant<=3),true);
+  assert.equal(snapshot.world.tiles.every(tile=>['none','cultivated','timber','masonry','domestic','civic'].includes(tile.groundDetail)),true);
+  assert.equal(snapshot.world.tiles.every(tile=>!tile.activity||tile.activity.aggregate===true),true);
+  for(const tile of snapshot.world.tiles){
+    if(!tile.activity)continue;
+    assert.ok(tile.activity.density>=1&&tile.activity.density<=3);
+    assert.equal(/deliver|carry|path|assigned citizen/i.test(tile.activity.label),false,tile.activity.label);
+  }
+  assert.deepEqual(repeated,snapshot);
+  assert.equal(checksum(runtime.state),before);
+});
+
 test('render snapshot exposes the broadcast hierarchy and causal danger without leaking exact rival strength',()=>{
   const runtime=runtimeWithEvents('hierarchy');
   runtime.state.crisis={id:'crisis-demo',kind:'border-raid',conflictGroup:'war',severity:4,phase:'active',remainingDays:5,warnedAtTick:runtime.state.tick-3,recoveryCost:{wood:12,stone:8}};
