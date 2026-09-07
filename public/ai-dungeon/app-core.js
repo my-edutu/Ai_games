@@ -1,5 +1,5 @@
 'use strict';
-const MAX_PARTICLES=180,MAX_FLOATERS=12,MAX_AUDIO_VOICES=12,MIN_CAMERA_CELLS_X=15,MIN_CAMERA_CELLS_Y=9;
+const MAX_PARTICLES=180,MAX_FLOATERS=12,MAX_AUDIO_VOICES=12,MIN_CAMERA_CELLS_X=15,MIN_CAMERA_CELLS_Y=9,MIN_FLOATING_PRIORITY=65,MAX_SIMULTANEOUS_FLOATERS=2;
 const QUALITY_PRESETS=Object.freeze({
   low:Object.freeze({name:'low',maxDpr:1,particleBudget:48,floaterBudget:5,detail:0,lightLayers:0,shadowBlur:0}),
   balanced:Object.freeze({name:'balanced',maxDpr:1.35,particleBudget:96,floaterBudget:8,detail:1,lightLayers:1,shadowBlur:8}),
