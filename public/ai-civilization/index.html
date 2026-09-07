@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="/ai-civilization/styles.css">
   <link rel="stylesheet" href="/ai-civilization/ux-v2.css">
 </head>
-<body data-ux-revision="2">
+<body data-ux-revision="3" data-quality="balanced">
   <a class="skip-link" href="#simulation">Skip to simulation</a>
   <div class="ambient" aria-hidden="true"></div>
   <header class="topbar">
@@ -22,7 +22,8 @@
       <span id="era-clock">Year — · Day —</span>
       <span id="tier-chip">Camp</span>
     </div>
-    <nav class="controls" aria-label="Broadcast accessibility controls">
+    <nav class="controls" aria-label="Broadcast accessibility and presentation controls">
+      <label class="quality-control" for="quality-select"><span>Visuals</span><select id="quality-select" aria-label="Presentation quality"><option value="low">Low</option><option value="balanced" selected>Balanced</option><option value="high">High</option><option value="ultra">Ultra</option></select></label>
       <button id="audio-toggle" type="button" aria-pressed="true">Audio on</button>
       <button id="motion-toggle" type="button" aria-pressed="false">Reduce motion</button>
       <button id="contrast-toggle" type="button" aria-pressed="false">High contrast</button>
@@ -50,9 +51,15 @@
         <div class="progress-copy"><span id="renown">0 renown</span><span id="next-tier">Next tier —</span></div>
       </div>
       <div class="progress-track" aria-label="Legendary kingdom progress"><span id="progress-fill"></span></div>
-      <div id="kingdom-map" class="kingdom-map" role="img" aria-label="Loading kingdom map"></div>
-      <div class="map-legend" aria-label="Map legend">
-        <span><i class="legend-dot player"></i>Kingdom</span><span><i class="legend-dot rival"></i>Rival</span><span><i class="legend-dot crisis"></i>Threat</span><span><i class="legend-dot capital"></i>Capital</span>
+      <div id="kingdom-map" class="kingdom-map" role="grid" aria-label="Loading kingdom map"></div>
+      <div class="world-context">
+        <div>
+          <div class="map-legend" aria-label="Map legend"><span><i class="legend-dot player"></i>Kingdom</span><span><i class="legend-dot rival"></i>Rival</span><span><i class="legend-dot crisis"></i>Threat</span><span><i class="legend-dot capital"></i>Capital</span></div>
+          <p id="representation-note" class="representation-note">Worker figures are aggregate cohort activity derived from real building rules; they are not individual citizens or simulated deliveries.</p>
+        </div>
+        <aside id="tile-inspector" class="tile-inspector" data-open="false" aria-live="polite" aria-label="Selected location">
+          <span class="eyebrow">LOCATION</span><strong>Select a building</strong><p>Inspect real terrain, ownership and aggregate activity without changing the simulation.</p>
+        </aside>
       </div>
     </section>
 
