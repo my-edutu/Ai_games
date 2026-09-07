@@ -25,6 +25,26 @@ test('browser source contains semantic landmarks, primary hierarchy and accessib
   assert.equal(/https?:\/\//.test(html+css+js),false);
 });
 
+test('living kingdom surface uses semantic miniature markup, truthful disclosure and local presentation controls',()=>{
+  const html=read('public/ai-civilization/index.html');
+  const js=read('public/ai-civilization/app.js');
+  assert.match(html,/living-kingdom\.css/);
+  assert.match(html,/data-ux-revision="3"/);
+  for(const token of ['id="quality-select"','id="representation-note"','id="tile-inspector"'])assert.ok(html.includes(token),token);
+  const cssPath=path.join(root,'public/ai-civilization/living-kingdom.css');
+  assert.equal(fs.existsSync(cssPath),true,'living-kingdom.css must exist');
+  const css=fs.readFileSync(cssPath,'utf8');
+  assert.match(js,/building-miniature/);
+  assert.match(js,/dataset\.buildingType/);
+  assert.match(js,/cohort-activity/);
+  assert.match(css,/\.building-miniature\[data-type="farm"\]/);
+  assert.match(css,/\.building-miniature\[data-type="house"\]/);
+  assert.match(css,/\.building-miniature\[data-type="workshop"\]/);
+  assert.match(css,/body\[data-quality="low"\]/);
+  assert.match(css,/body\[data-quality="ultra"\]/);
+  assert.equal(/https?:\/\//.test(html+css+js),false);
+});
+
 test('stream server self-test exercises health, state, events, SSE and every referenced static route',()=>{
   const result=spawnSync(process.execPath,['scripts/serve-civilization-stream.cjs','--self-test'],{cwd:root,encoding:'utf8',timeout:20000});
   assert.equal(result.status,0,result.stderr||result.stdout);
