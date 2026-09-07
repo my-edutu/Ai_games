@@ -37,6 +37,14 @@ test('1920x1080 broadcast frame is world-first, truthful and exposes inspectable
   await expect(page.locator('#tile-inspector')).toHaveAttribute('data-open','true');
   await expect(page.locator('#tile-inspector')).toContainText(buildingLabel);
   await page.screenshot({path:'artifacts/civilization-phase3/selected-building.png'});
+
+  const economicTile=page.locator('#kingdom-map .tile:has(.cohort-activity)').first();
+  await expect(economicTile).toBeVisible();await economicTile.click();
+  await expect(page.locator('#tile-inspector')).toContainText(/aggregate/i);
+  await page.screenshot({path:'artifacts/civilization-phase3/economic-activity.png'});
+
+  await expect.poll(async()=>page.locator('#kingdom-map .building-model').count(),{timeout:15_000}).toBeGreaterThanOrEqual(Math.min(4,Math.max(1,metrics.buildingCount)));
+  await page.screenshot({path:'artifacts/civilization-phase3/demanding-aggregate-scene.png'});
 });
 
 test('presentation quality presets are cosmetic controls with the same rendered kingdom tiles',async({page})=>{
