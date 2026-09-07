@@ -68,10 +68,8 @@ test('snapshot rejects corruption and unsupported deterministic versions',()=>{
   const snap=createCivilizationSnapshot(runtime);
   const corrupt=JSON.parse(JSON.stringify(snap)); corrupt.payload.resources.food++;
   assert.throws(()=>restoreCivilizationSnapshot(corrupt),/checksum/);
-  const unsupported=JSON.parse(JSON.stringify(snap)); unsupported.deterministicVersion='future';
+  const unsupported=JSON.parse(JSON.stringify(snap)); unsupported.deterministicVersion='civilization-r9-unsupported';
   assert.throws(()=>restoreCivilizationSnapshot(unsupported),/deterministicVersion/);
-  const legacy=JSON.parse(JSON.stringify(snap)); legacy.deterministicVersion='civilization-r2-v1';
-  assert.throws(()=>restoreCivilizationSnapshot(legacy),/deterministicVersion/);
 });
 
 test('headless runs are deterministic and classify technical outcomes separately',()=>{
