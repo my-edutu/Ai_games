@@ -11,7 +11,7 @@ export function productionPlannerBudget(state:FloorsState):number{return Math.mi
 function threat(state:FloorsState,cell:number):number{
   let score=0;
   for(const enemy of state.floor.enemies){const d=manhattan(enemy.cell,cell,state.floor.width);if(d===1)score+=6+enemy.attack;else if(d===2)score+=2}
-  for(const hazard of state.floor.hazards)if(hazard.cell===cell)score+=state.player.modules.includes('hazard-lens')?6:4;
+  for(const hazard of state.floor.hazards)if(hazard.cell===cell)score+=state.player.modules.includes('hazard-lens')?2:4;
   return score;
 }
 
@@ -28,18 +28,25 @@ export function chooseProductionAction(state:FloorsState):FloorsDecision{
   if(!legal.length)return chooseFallbackAction(state);
   const attack=legal.filter(a=>a.kind==='attack').sort((a,b)=>actionKey(a).localeCompare(actionKey(b)))[0];
   if(attack)return{action:attack,mode:'tactical',confidence:'high',intent:'Breaking the nearest blocking threat.',reason:'adjacent-hostile',expansions:0};
-  if(state.player.health<=Math.ceil(state.player.maxHealth*.3)){
-    const guard=legal.find(a=>a.kind==='guard');if(guard)return{action:guard,mode:'recovery',confidence:'medium',intent:'Stabilizing before the next advance.',reason:'critical-health',expansions:0};
-  }
+  const criticalHealth=state.player.health<=Math.ceil(state.player.maxHealth*.3);
   const target=nearestTarget(state),blocked=new Set(state.floor.enemies.map(e=>e.cell));
   if(target!==state.floor.exit)blocked.delete(target);
   const route=shortestPath(state.floor,state.player.cell,new Set([target]),blocked,productionPlannerBudget(state));
   const next=route.path[1];
-  if(route.reached&&next!==undefined){const move=legal.find(a=>isTargetedMove(a)&&a.targetCell===next);if(move&&threat(state,next)<=7)return{action:move,mode:'tactical',confidence:threat(state,next)<=2?'high':'medium',intent:target===state.floor.exit?'Advancing toward the verified exit.':'Closing on the sector guardian.',reason:'threat-aware-route',expansions:route.expansions}}
+  if(route.reached&&next!==undefined){
+    const move=legal.find(a=>isTargetedMove(a)&&a.targetCell===next),nextThreat=threat(state,next);
+    if(move&&criticalHealth&&nextThreat===0)return{action:move,mode:'recovery',confidence:'high',intent:'Escaping pressure along a verified safe route.',reason:'critical-health-safe-route',expansions:route.expansions};
+    if(move&&nextThreat<=7)return{action:move,mode:'tactical',confidence:nextThreat<=2?'high':'medium',intent:target===state.floor.exit?'Advancing toward the verified exit.':'Closing on the sector guardian.',reason:'threat-aware-route',expansions:route.expansions};
+  }
+  const safeMoves=legal.filter(isTargetedMove).sort((a,b)=>threat(state,a.targetCell)-threat(state,b.targetCell)||manhattan(a.targetCell,target,state.floor.width)-manhattan(b.targetCell,target,state.floor.width)||actionKey(a).localeCompare(actionKey(b)));
+  if(criticalHealth){
+    const safest=safeMoves[0];
+    if(safest&&threat(state,safest.targetCell)<100)return{action:safest,mode:'recovery',confidence:'medium',intent:'Repositioning to survive the next exchange.',reason:threat(state,safest.targetCell)===0?'critical-health-safe-route':'critical-health-evade',expansions:route.expansions};
+    const guard=legal.find(a=>a.kind==='guard');if(guard)return{action:guard,mode:'recovery',confidence:'medium',intent:'Bracing because no safer movement is available.',reason:'critical-health-no-safe-move',expansions:route.expansions};
+  }
   const rewardMoves=legal.filter(isTargetedMove).filter(a=>state.floor.rewardCells.includes(a.targetCell)).sort((a,b)=>threat(state,a.targetCell)-threat(state,b.targetCell)||actionKey(a).localeCompare(actionKey(b)));
   const reward=rewardMoves[0];
   if(reward&&threat(state,reward.targetCell)<=3)return{action:reward,mode:'tactical',confidence:'medium',intent:'Taking a low-risk upgrade opportunity.',reason:'safe-reward',expansions:route.expansions};
-  const safeMoves=legal.filter(isTargetedMove).sort((a,b)=>threat(state,a.targetCell)-threat(state,b.targetCell)||manhattan(a.targetCell,target,state.floor.width)-manhattan(b.targetCell,target,state.floor.width)||actionKey(a).localeCompare(actionKey(b)));
   const safe=safeMoves[0];
   if(safe)return{action:safe,mode:'tactical',confidence:'medium',intent:'Repositioning to reduce incoming pressure.',reason:'lowest-threat-move',expansions:route.expansions};
   const fallback=chooseFallbackAction(state);return{...fallback,reason:`production-fallback:${fallback.reason}`};
