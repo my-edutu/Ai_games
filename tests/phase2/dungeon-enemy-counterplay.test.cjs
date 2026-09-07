@@ -14,3 +14,15 @@ test('melee cooldown creates an actual recovery interval instead of damaging eve
 test('Void Hound telegraphs a two-cell leap before closing and striking',()=>{const{runtime,hero,target}=encounter('void-hound',2),before=runtime.state.hero.hp;runtime.step({kind:'wait'});assert.equal(runtime.state.hero.hp,before);assert.equal(runtime.state.enemies[0].cell,target);assert.equal(runtime.state.enemies[0].telegraph,'leap');runtime.step({kind:'wait'});assert.ok(runtime.state.hero.hp<before);assert.equal(runtime.state.enemies[0].cell,hero+1);assert.equal(runtime.state.enemies[0].telegraph,null)});
 
 test('Astra braces against a visible committed attack instead of blindly trading into it',()=>{const{runtime}=encounter('bone-warden',1);runtime.state.enemies[0].telegraph='melee';const proposal=planDungeonAction(runtime.state);assert.equal(proposal.action.kind,'guard');assert.equal(proposal.ai.goal,'Survive the committed attack')});
+
+test('ordinary enemies do not pathfind around unseen walls toward Astra without justified perception',()=>{
+  const runtime=new DungeonRuntime(base,'enemy-hidden-pursuit','enemy-hidden-pursuit-run'),width=runtime.state.floor.width,hero=10*width+10,enemy=hero+4;
+  runtime.state.floor.tiles.fill(0);
+  for(const cell of[hero,hero-width,hero-width+1,hero-width+2,hero-width+3,hero-width+4,enemy-width,enemy])runtime.state.floor.tiles[cell]=1;
+  runtime.state.hero.cell=hero;
+  runtime.state.hero.hp=runtime.state.hero.maxHp;
+  runtime.state.enemies=[{id:'unaware-mireling',kind:'mireling',cell:enemy,hp:8,maxHp:8,attack:2,armour:0,cooldown:0,telegraph:null,phase:1,alive:true}];
+  const before=runtime.state.enemies[0].cell;
+  runtime.step({kind:'wait'});
+  assert.equal(runtime.state.enemies[0].cell,before);
+});
