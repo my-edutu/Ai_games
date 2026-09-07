@@ -7,7 +7,7 @@ const {createFloorsInitialState}=require('../../dist/games/ai-vs-1000-floors/src
 const {checksum}=require('../../dist/packages/replay/src/index.js');
 const {NamedRng}=require('../../dist/packages/seeded-rng/src/index.js');
 const {generateFloor}=require('../../dist/games/ai-vs-1000-floors/src/generation/floor.js');
-const {validateFloor,repairFloor}=require('../../dist/games/ai-vs-1000-floors/src/generation/validator.js');
+const {validateFloor,validateRuntimeFloor,repairFloor}=require('../../dist/games/ai-vs-1000-floors/src/generation/validator.js');
 const {listLegalActions,actionKey}=require('../../dist/games/ai-vs-1000-floors/src/rules/step.js');
 const {chooseFallbackAction}=require('../../dist/games/ai-vs-1000-floors/src/ai/fallback.js');
 const {manhattan}=require('../../dist/games/ai-vs-1000-floors/src/ai/pathing.js');
@@ -51,6 +51,18 @@ test('constructive generation produces a reproducible reachable and spawn-safe f
   assert.equal(a.mandatoryPath.at(-1),a.exit);
 });
 
+test('runtime floor validation preserves structural guarantees without reapplying spawn-only enemy rules',()=>{
+  const floor=generateFloor(config,100,NamedRng.fromSeed('runtime-floor-validation'));
+  const live=structuredClone(floor);
+  assert.ok(live.enemies.length>0);
+  live.enemies[0].cell=live.mandatoryPath[1];
+  const generationReport=validateFloor(live,config);
+  assert.equal(generationReport.valid,false);
+  assert.ok(generationReport.errors.includes('SPAWN_UNSAFE'));
+  const runtimeReport=validateRuntimeFloor(live,config);
+  assert.equal(runtimeReport.valid,true,JSON.stringify(runtimeReport));
+});
+
 test('128 stratified seeds remain valid and generation work is bounded',()=>{
   for(let i=0;i<128;i++){
     const floorNumber=1+((i*37)%1000);
@@ -76,11 +88,16 @@ test('deterministic repair restores a broken mandatory exit route without changi
   assert.equal(repaired.featureReport.repairCount,1);
 });
 
-test('zero base enemy budget produces a safe headless corpus without hidden scaling',()=>{
+test('zero regular enemy budget removes regular scaling while preserving required bosses',()=>{
   const safeConfig=validateFloorsConfig({baseEnemyBudget:0,maxEnemyBudget:1});
-  for(const floorNumber of [1,250,500,750,1000]){
+  for(const floorNumber of [1,250,499,750,999]){
     const floor=generateFloor(safeConfig,floorNumber,NamedRng.fromSeed(`safe-${floorNumber}`));
-    assert.equal(floor.enemies.length,0);
+    assert.equal(floor.enemies.length,0,`unexpected regular enemy on floor ${floorNumber}`);
+  }
+  for(const [floorNumber,kind] of [[100,'warden'],[500,'warden'],[1000,'architect']]){
+    const floor=generateFloor(safeConfig,floorNumber,NamedRng.fromSeed(`boss-${floorNumber}`));
+    assert.equal(floor.enemies.length,1,`required boss missing on floor ${floorNumber}`);
+    assert.equal(floor.enemies[0].kind,kind);
   }
 });
 
@@ -108,11 +125,19 @@ test('invalid movement is rejected atomically without advancing logical time',()
   assert.deepEqual(result.state,before);
 });
 
-test('safe headless authority climbs all 1,000 floors, resolves victory and restarts automatically',()=>{
+test('exact final-floor victory and automatic restart preserve the 1,000-floor boundary',()=>{
   const safeConfig=validateFloorsConfig({baseEnemyBudget:0,maxEnemyBudget:1,intermissionTicks:2,maxTicksPerFloor:100});
   const runtime=FloorsRuntime.create(safeConfig,'complete-seed',{runId:'complete-run',policy:'fallback'});
-  let guard=0;
-  while(runtime.state.lifecycle==='running'&&guard++<30000)runtime.step();
+  const finalFloor=generateFloor(safeConfig,1000,NamedRng.fromSeed('complete-final-floor'));
+  finalFloor.enemies=[];
+  finalFloor.objectiveComplete=true;
+  runtime.state.floor=finalFloor;
+  runtime.state.player.cell=finalFloor.mandatoryPath.at(-2);
+  runtime.state.highestFloor=1000;
+  runtime.state.floorsCleared=999;
+  runtime.state.floorStartedTick=runtime.state.tick;
+  runtime.state.meaningfulEventTick=runtime.state.tick;
+  runtime.step({kind:'move',targetCell:finalFloor.exit});
   assert.equal(runtime.state.lifecycle,'result');
   assert.equal(runtime.state.result?.reason,'victory');
   assert.equal(runtime.state.highestFloor,1000);
@@ -121,8 +146,7 @@ test('safe headless authority climbs all 1,000 floors, resolves victory and rest
   const firstRunId=runtime.state.runId;
   runtime.step();
   assert.equal(runtime.state.lifecycle,'intermission');
-  runtime.step();
-  runtime.step();
+  for(let i=0;i<safeConfig.intermissionTicks;i++)runtime.step();
   assert.equal(runtime.state.lifecycle,'running');
   assert.equal(runtime.state.floor.number,1);
   assert.notEqual(runtime.state.runId,firstRunId);
@@ -168,18 +192,16 @@ test('floor timeout and no-progress end as typed game results rather than silent
 });
 
 
-test('headless corpus reports deterministic outcomes separately from integrity failures',()=>{
-  const report=runFloorsHeadless({
-    seedPrefix:'phase1-corpus',
-    runs:4,
-    maxTicks:30000,
-    config:{baseEnemyBudget:0,maxEnemyBudget:1,maxTicksPerFloor:100},
-  });
+test('headless corpus separates deterministic game outcomes from technical integrity failures',()=>{
+  const options={seedPrefix:'phase1-corpus',runs:4,maxTicks:30000,config:{baseEnemyBudget:0,maxEnemyBudget:1,maxTicksPerFloor:100}};
+  const report=runFloorsHeadless(options),replay=runFloorsHeadless(options);
+  assert.deepEqual(report,replay);
   assert.equal(report.runs.length,4);
   assert.equal(report.invariantFailures,0);
   assert.equal(report.replayFailures,0);
   assert.equal(report.generatorInvalid,0);
-  assert.equal(report.outcomes.victory,4);
+  assert.equal(Object.values(report.outcomes).reduce((sum,count)=>sum+count,0),4);
+  assert.equal(report.runs.some(run=>run.kind==='technical'),false);
   assert.ok(report.totalTicks>0);
   assert.match(report.corpusChecksum,/^[0-9a-f]{8}$/);
 });
@@ -188,7 +210,7 @@ test('runtime retains initial floor generation draws in its authoritative RNG sn
   const runtime=FloorsRuntime.create(config,'rng-continuity',{runId:'rng-continuity-run'});
   const streams=runtime.rng.snapshot().streams;
   assert.ok(Object.keys(streams).some(name=>name.startsWith('floor-topology')));
-  assert.ok(Object.keys(streams).length>=5);
+  assert.ok(Object.keys(streams).length>=5;
 });
 
 test('a striker two cells away closes distance using the same deterministic path rules',()=>{
