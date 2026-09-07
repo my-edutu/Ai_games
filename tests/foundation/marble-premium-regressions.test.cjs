@@ -131,14 +131,14 @@ test('fast moving sweepers cannot tunnel through a stationary marble between tic
 test('shield recovery uses a bounded recovery impulse instead of teleporting the marble', () => {
   const state = twoMarbleState('premium-shield-recovery');
   const marble = state.marbles[0];
-  const spectator = state.marbles[1];
+  const safeEntrant = state.marbles[1];
 
-  spectator.status = 'eliminated';
-  spectator.roundStatus = 'out';
-  state.activeIds = [marble.id];
+  state.activeIds = [marble.id, safeEntrant.id];
   marble.position = { x: 12_000, y: 7_000 };
   marble.velocity = { x: 30, y: -140 };
   marble.shieldCharges = 1;
+  safeEntrant.position = { x: 4_000, y: 12_000 };
+  safeEntrant.velocity = { x: 0, y: 0 };
   state.tick = 200;
   state.arena.hazards = [{
     id: 'shield-pit',
