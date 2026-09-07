@@ -33,6 +33,8 @@ jobs:
         run: npm run snake:stream:self-test
       - name: Maze stream host self-test
         run: npm run maze:stream:self-test
+      - name: Civilization stream host self-test
+        run: npm run civilization:stream:self-test
       - name: Authoritative nondeterminism scan
         shell: bash
         run: |
@@ -47,7 +49,12 @@ jobs:
             games/ai-maze-escape/src/runtime \
             games/ai-maze-escape/src/ai \
             games/ai-maze-escape/src/generation \
-            games/ai-maze-escape/src/state; then
+            games/ai-maze-escape/src/state \
+            games/ai-civilization/src/rules \
+            games/ai-civilization/src/runtime \
+            games/ai-civilization/src/ai \
+            games/ai-civilization/src/generation \
+            games/ai-civilization/src/state; then
             echo 'Forbidden ambient nondeterminism found in authoritative code.'
             exit 1
           fi
