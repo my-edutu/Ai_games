@@ -1,7 +1,7 @@
 import type{FloorsConfig,FloorsRunResult}from '../../../../packages/game-contracts/src/index';
 import{checksum}from '../../../../packages/replay/src/index';
 import{validateFloorsConfig}from '../config/schema';
-import{validateFloor}from '../generation/validator';
+import{validateRuntimeFloor}from '../generation/validator';
 import{FloorsRuntime}from '../runtime/run';
 import{inspectFloorsInvariants}from './invariants';
 
@@ -24,7 +24,7 @@ export function runFloorsHeadless(options:FloorsHeadlessOptions):FloorsHeadlessR
     let ticks=0,lastFloor=0;
     while(primary.state.lifecycle==='running'&&ticks<options.maxTicks){
       primary.step();replay.step();ticks++;
-      if(primary.state.floor.number!==lastFloor){lastFloor=primary.state.floor.number;const report=validateFloor(primary.state.floor,config);if(!report.valid)generatorInvalid++}
+      if(primary.state.floor.number!==lastFloor){lastFloor=primary.state.floor.number;const report=validateRuntimeFloor(primary.state.floor,config);if(!report.valid)generatorInvalid++}
       const failures=inspectFloorsInvariants(primary.state);invariantFailures+=failures.length;
       if(checksum(primary.state)!==checksum(replay.state)||checksum(primary.rng.snapshot())!==checksum(replay.rng.snapshot())){replayFailures++;break}
     }
