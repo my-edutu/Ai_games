@@ -20,6 +20,7 @@ const influenceStatus = document.getElementById('influence-status');
 const championCard = document.getElementById('champion-card');
 const championName = document.getElementById('champion-name');
 const systemHealth = document.getElementById('system-health');
+const reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
 
 const QUALITY_PRESETS = Object.freeze({
   low: Object.freeze({ maxDpr: 1, shadows: false, texture: 0, highlights: false, metalDetail: false }),
@@ -42,6 +43,14 @@ const ROUND_LABELS = Object.freeze({
   championship: 'Championship',
 });
 
+const CAMERA_LABELS = Object.freeze({
+  overview: 'Overview',
+  'cut-line': 'Cut-line battle',
+  danger: 'Danger watch',
+  finish: 'Finish camera',
+  victory: 'Champion camera',
+});
+
 const IMPORTANT_EVENTS = new Set([
   'round-started', 'round-live', 'shield-recovery', 'marble-eliminated',
   'marble-qualified', 'round-resolved', 'tournament-champion', 'intermission-started',
@@ -58,6 +67,8 @@ let renderWidth = 1;
 let renderHeight = 1;
 let renderDpr = 1;
 let focusIds = new Set();
+let cameraState = null;
+let cameraArenaId = null;
 const rotationById = new Map();
 
 const cleanRequested = new URLSearchParams(location.search).get('clean') === '1';
@@ -97,19 +108,80 @@ function resizeCanvas() {
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 }
 
-function arenaTransform(arena) {
+function cameraViewport(arena, directive, marbles) {
+  const safeDirective = directive || { mode: 'overview', focusIds: [], zoomPermille: 1000 };
+  let centerX = arena.width / 2;
+  let centerY = arena.height / 2;
+  let zoom = clamp((safeDirective.zoomPermille || 1000) / 1000, 1, 1.78);
+  const byId = new Map(marbles.map((marble) => [marble.id, marble]));
+  const focused = (safeDirective.focusIds || []).map((id) => byId.get(id)).filter(Boolean);
+
+  if (focused.length > 0 && safeDirective.mode !== 'overview') {
+    const minX = Math.min(...focused.map((marble) => marble.x));
+    const maxX = Math.max(...focused.map((marble) => marble.x));
+    const minY = Math.min(...focused.map((marble) => marble.y));
+    const maxY = Math.max(...focused.map((marble) => marble.y));
+    centerX = (minX + maxX) / 2;
+    centerY = (minY + maxY) / 2;
+
+    if (safeDirective.mode === 'cut-line') {
+      const groupWidth = Math.max(arena.width * .12, maxX - minX + arena.width * .18);
+      const groupHeight = Math.max(arena.height * .18, maxY - minY + arena.height * .16);
+      const contextCap = Math.min(arena.width / groupWidth, arena.height / groupHeight, 1.42);
+      zoom = Math.min(zoom, Math.max(1.08, contextCap));
+    }
+
+    if (safeDirective.mode === 'finish') {
+      centerY = (centerY * 2 + arena.finishY) / 3;
+      zoom = Math.min(zoom, 1.54);
+    }
+
+    if (safeDirective.mode === 'victory') {
+      centerY = (centerY + arena.finishY) / 2;
+      zoom = Math.min(zoom, 1.68);
+    }
+  } else {
+    zoom = 1;
+  }
+
+  const halfWorldWidth = arena.width / (2 * zoom);
+  const halfWorldHeight = arena.height / (2 * zoom);
+  centerX = clamp(centerX, halfWorldWidth, arena.width - halfWorldWidth);
+  centerY = clamp(centerY, halfWorldHeight, arena.height - halfWorldHeight);
+  return { centerX, centerY, zoom, mode: safeDirective.mode };
+}
+
+function updateCameraState(arena, directive, marbles) {
+  const target = cameraViewport(arena, directive, marbles);
+  if (!cameraState || cameraArenaId !== arena.id) {
+    cameraArenaId = arena.id;
+    cameraState = { ...target };
+    return cameraState;
+  }
+  const amount = reducedMotionQuery.matches ? 1 : .12;
+  cameraState = {
+    centerX: lerp(cameraState.centerX, target.centerX, amount),
+    centerY: lerp(cameraState.centerY, target.centerY, amount),
+    zoom: lerp(cameraState.zoom, target.zoom, amount),
+    mode: target.mode,
+  };
+  return cameraState;
+}
+
+function arenaTransform(arena, viewport) {
   const sideMargin = clamp(renderWidth * .055, 32, 92);
   const verticalMargin = clamp(renderHeight * .055, 34, 78);
-  const scale = Math.min(
+  const baseScale = Math.min(
     (renderWidth - sideMargin * 2) / arena.width,
     (renderHeight - verticalMargin * 2) / arena.height,
   );
+  const scale = baseScale * viewport.zoom;
   const width = arena.width * scale;
   const height = arena.height * scale;
   return {
     scale,
-    x: (renderWidth - width) / 2,
-    y: (renderHeight - height) / 2,
+    x: renderWidth / 2 - viewport.centerX * scale,
+    y: renderHeight / 2 - viewport.centerY * scale,
     width,
     height,
   };
@@ -433,23 +505,17 @@ function renderArena(now) {
   drawBackdrop(preset);
   if (!snapshot) return;
 
-  const transform = arenaTransform(snapshot.arena);
+  const marbles = interpolatedMarbles(now);
+  const directive = snapshot.camera.directive || { mode: 'overview', focusIds: [], zoomPermille: 1000 };
+  const viewport = updateCameraState(snapshot.arena, directive, marbles);
+  const transform = arenaTransform(snapshot.arena, viewport);
   drawTrackBase(snapshot.arena, transform, preset);
   drawHazards(snapshot.arena, transform, preset);
   drawObstacles(snapshot.arena, transform, preset);
   drawBumpers(snapshot.arena, transform, preset);
   drawSweepers(snapshot.arena, transform, preset, snapshot.tick);
   drawFinishLine(snapshot.arena, transform);
-  for (const marble of interpolatedMarbles(now)) drawMarble(marble, transform, preset);
-}
-
-function cameraMode(next) {
-  const contested = next.camera.contestedQualificationIds || [];
-  focusIds = new Set(contested);
-  if (next.camera.championId !== null) return 'Champion';
-  if (next.camera.dangerIds.length > 0) return 'Danger watch';
-  if (contested.length > 1 && next.round.qualified >= Math.max(0, next.round.quota - 2)) return 'Cut-line battle';
-  return 'Overview';
+  for (const marble of marbles) drawMarble(marble, transform, preset);
 }
 
 function statusLabel(status) {
@@ -466,13 +532,15 @@ function statusLabel(status) {
 }
 
 function renderHud(next) {
+  const directive = next.camera.directive || { mode: 'overview', focusIds: [], zoomPermille: 1000 };
+  focusIds = new Set(directive.focusIds || []);
   roundName.textContent = ROUND_LABELS[next.arena.archetype] || next.arena.archetype;
   roundIndex.textContent = `Round ${next.round.number} · ${next.round.index + 1}/5`;
   remainingValue.textContent = String(next.round.remaining);
   qualifiedValue.textContent = String(next.round.qualified);
   qualificationValue.textContent = `${next.round.qualified}/${next.round.quota} locked · ${Math.max(0, next.round.quota - next.round.qualified)} spots open`;
   tickValue.textContent = String(next.tick);
-  cameraValue.textContent = cameraMode(next);
+  cameraValue.textContent = CAMERA_LABELS[directive.mode] || directive.mode;
   feedValue.textContent = next.lifecycle === 'quarantined' ? 'AUTHORITY STOPPED' : 'AUTHORITY LIVE';
 
   leaderboard.replaceChildren(...next.leaderboard.map((entry, index) => {
@@ -561,10 +629,17 @@ function playNewAudio(events) {
 }
 
 function acceptSnapshot(next) {
-  if (!next || next.version !== 1 || !next.round || !next.arena || !Array.isArray(next.marbles)) throw new Error('invalid presentation snapshot');
+  if (!next || next.version !== 1 || !next.round || !next.arena || !Array.isArray(next.marbles) || !next.camera?.directive) throw new Error('invalid presentation snapshot');
   if (snapshot && next.tick < snapshot.tick && next.lifecycle !== 'active') return;
-  updateRotation(next, snapshot);
-  previousSnapshot = snapshot;
+  const discontinuity = snapshot && (next.tick < snapshot.tick || next.arena.id !== snapshot.arena.id);
+  if (discontinuity) {
+    previousSnapshot = null;
+    cameraState = null;
+    cameraArenaId = null;
+    rotationById.clear();
+  }
+  updateRotation(next, discontinuity ? null : snapshot);
+  previousSnapshot = discontinuity ? null : snapshot;
   snapshot = next;
   snapshotReceivedAt = performance.now();
   renderHud(next);
