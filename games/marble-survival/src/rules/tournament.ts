@@ -1,5 +1,6 @@
 import { NamedRng } from '../../../../packages/seeded-rng/src/index';
 import { generateMarbleArena } from '../generation/arena';
+import { FIXED_SCALE, divideRound, normalizePermille } from '../physics/fixed';
 import type { MarbleEvent, MarbleRoundResult, MarbleState, PhysicsContact, Vec2 } from '../state/types';
 
 interface RuleOutput { state: MarbleState; events: Omit<MarbleEvent, 'seq'>[] }
@@ -48,6 +49,33 @@ function rankActive(state: MarbleState): number[] {
     const right = state.marbles.find(marble => marble.id === rightId)!;
     return right.progressPermille - left.progressPermille || left.position.y - right.position.y || left.id - right.id;
   });
+}
+
+function progressForPosition(state: MarbleState, position: Vec2): number {
+  const totalDistance = state.arena.spawnY - state.arena.finishY;
+  return Math.max(0, Math.min(1_000, Math.round(((state.arena.spawnY - position.y) * 1_000) / totalDistance)));
+}
+
+function checkpointIndexForPosition(state: MarbleState, position: Vec2): number {
+  let index = 0;
+  while (index < state.arena.checkpoints.length && position.y <= state.arena.checkpoints[index].y) index++;
+  return index;
+}
+
+function applyShieldRecovery(state: MarbleState, marble: MarbleState['marbles'][number], hazard: MarbleState['arena']['hazards'][number], previousPosition: Vec2 | undefined): boolean {
+  if (!previousPosition || inside(previousPosition, hazard)) return false;
+  const impactPosition = { ...marble.position };
+  marble.position = { ...previousPosition };
+  const fallback: Vec2 = { x: 0, y: FIXED_SCALE };
+  const direction = normalizePermille({ x: previousPosition.x - impactPosition.x, y: previousPosition.y - impactPosition.y }, fallback);
+  const recoverySpeed = Math.max(1, Math.min(state.config.maxSpeed, Math.floor(state.config.maxSpeed / 2)));
+  marble.velocity = {
+    x: divideRound(direction.x * recoverySpeed, FIXED_SCALE),
+    y: divideRound(direction.y * recoverySpeed, FIXED_SCALE)
+  };
+  marble.progressPermille = progressForPosition(state, marble.position);
+  marble.checkpointIndex = checkpointIndexForPosition(state, marble.position);
+  return true;
 }
 
 function quarantineTournament(state: MarbleState, reason: string, detail: string): RuleOutput {
@@ -127,23 +155,22 @@ export function applyTournamentRules(
 
   for (const marble of activeMarbles) {
     const oldProgress = marble.progressPermille;
-    const totalDistance = next.arena.spawnY - next.arena.finishY;
-    marble.progressPermille = Math.max(0, Math.min(1_000, Math.round(((next.arena.spawnY - marble.position.y) * 1_000) / totalDistance)));
-    if (marble.progressPermille > oldProgress) marble.lastProgressTick = next.tick;
-    while (marble.checkpointIndex < next.arena.checkpoints.length && marble.position.y <= next.arena.checkpoints[marble.checkpointIndex].y) {
-      marble.checkpointIndex++;
-      next.meaningfulEventTick = next.tick;
-      events.push({ tick: next.tick, type: 'checkpoint-reached', data: { marbleId: marble.id, checkpointIndex: marble.checkpointIndex } });
-    }
+    const oldLastProgressTick = marble.lastProgressTick;
+    marble.progressPermille = progressForPosition(next, marble.position);
 
     const hazard = next.arena.hazards.find(zone => inside(marble.position, zone));
     if (hazard) {
       if (marble.shieldCharges > 0) {
         marble.shieldCharges--;
         marble.recoveryCount++;
-        marble.position.y += next.config.marbleRadius * 3;
-        marble.velocity.y = Math.abs(marble.velocity.y);
-        events.push({ tick: next.tick, type: 'shield-recovery', data: { marbleId: marble.id, hazardId: hazard.id } });
+        const restored = applyShieldRecovery(next, marble, hazard, previousPositions.get(marble.id));
+        if (!restored) {
+          const center = { x: hazard.x + Math.floor(hazard.width / 2), y: hazard.y + Math.floor(hazard.height / 2) };
+          const direction = normalizePermille({ x: marble.position.x - center.x, y: marble.position.y - center.y }, { x: 0, y: FIXED_SCALE });
+          const recoverySpeed = Math.max(1, Math.min(next.config.maxSpeed, Math.floor(next.config.maxSpeed / 2)));
+          marble.velocity = { x: divideRound(direction.x * recoverySpeed, FIXED_SCALE), y: divideRound(direction.y * recoverySpeed, FIXED_SCALE) };
+        }
+        events.push({ tick: next.tick, type: 'shield-recovery', data: { marbleId: marble.id, hazardId: hazard.id, restoredPreviousSafePosition: restored } });
       } else {
         marble.status = 'eliminated';
         marble.roundStatus = 'out';
@@ -153,6 +180,16 @@ export function applyTournamentRules(
         hazardEliminations.push({ marbleId: marble.id, cause: hazard.kind, hazardId: hazard.id });
         continue;
       }
+    }
+
+    marble.progressPermille = progressForPosition(next, marble.position);
+    if (marble.progressPermille > oldProgress) marble.lastProgressTick = next.tick;
+    else if (marble.progressPermille <= oldProgress) marble.lastProgressTick = oldLastProgressTick;
+    const previousCheckpointIndex = marble.checkpointIndex;
+    marble.checkpointIndex = checkpointIndexForPosition(next, marble.position);
+    for (let reached = previousCheckpointIndex + 1; reached <= marble.checkpointIndex; reached++) {
+      next.meaningfulEventTick = next.tick;
+      events.push({ tick: next.tick, type: 'checkpoint-reached', data: { marbleId: marble.id, checkpointIndex: reached } });
     }
 
     if (marble.position.y <= finishBoundary && marble.roundStatus === 'racing') {
