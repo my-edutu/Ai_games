@@ -58,3 +58,41 @@ test('server attaches one deterministic camera directive to the presentation sna
   assert.ok(['overview', 'cut-line', 'danger', 'finish', 'victory'].includes(next.camera.directive.mode));
   assert.ok(next.camera.directive.holdUntilTick >= next.camera.directive.issuedAtTick);
 });
+
+test('presentation replay seals only after official champion adjudication and never mutates live authority', () => {
+  const runtime = createRuntime({ seed: 'server-replay', replayFrameCap: 6 });
+
+  for (let index = 0; index < 5; index += 1) {
+    runtime.currentSnapshot();
+    runtime.advance();
+  }
+  assert.equal(runtime.currentReplay().available, false, 'ordinary racing snapshots must not create a replay result');
+
+  const champion = runtime.authority.state.marbles[0];
+  runtime.authority.state.lifecycle = 'tournament-result';
+  runtime.authority.state.result = {
+    kind: 'champion',
+    championId: champion.id,
+    tournamentTicks: runtime.authority.state.tournamentTick,
+    recordCategory: runtime.authority.state.records.category,
+  };
+  champion.status = 'champion';
+  champion.roundStatus = 'finished';
+
+  const authorityBeforeReplayRead = JSON.stringify(runtime.authority.state);
+  const finalSnapshot = runtime.currentSnapshot();
+  const replay = runtime.currentReplay();
+
+  assert.equal(finalSnapshot.camera.championId, champion.id);
+  assert.equal(replay.available, true);
+  assert.equal(replay.championId, champion.id);
+  assert.ok(replay.frames.length >= 2 && replay.frames.length <= 6);
+  assert.equal(replay.frames.at(-1).camera.championId, champion.id, 'sealed replay must end on the official champion snapshot');
+  assert.equal(JSON.stringify(replay).includes('server-replay'), false, 'replay payload must contain presentation data only');
+  assert.equal(JSON.stringify(runtime.authority.state), authorityBeforeReplayRead, 'reading/sealing replay must not mutate authority state');
+
+  const replayBeforeAdvance = JSON.stringify(replay);
+  runtime.advance();
+  assert.equal(runtime.authority.state.lifecycle, 'intermission', 'live authority must continue after champion even when replay is available');
+  assert.equal(JSON.stringify(runtime.currentReplay()), replayBeforeAdvance, 'sealed replay must remain stable while live authority continues');
+});
