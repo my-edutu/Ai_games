@@ -26,9 +26,9 @@ export function generateFloor(config:FloorsConfig,floorNumber:number,rng:NamedRn
   const ordered=shuffled(interior,rng,`floor-walls:${floorNumber}`),sector=sectorForFloor(floorNumber),sectorIndex=Math.ceil(floorNumber/config.sectorSize);
   const wallTarget=Math.min(Math.floor(interior.length*.42),2+sectorIndex+rng.nextInt(`floor-wall-count:${floorNumber}`,3));for(const cell of ordered.slice(0,wallTarget))walls.add(cell);
   const free=shuffled(ordered.slice(wallTarget),rng,`floor-content:${floorNumber}`),enemies:FloorEnemy[]=[],hazards:FloorHazard[]=[],rewardCells:number[]=[];let cursor=0;
-  const bossKind:EnemyKind|undefined=floorNumber===1000?'architect':isWardenFloor(floorNumber)?'warden':undefined;
-  if(bossKind)enemies.push(makeEnemy(guardianCell(route),0,floorNumber,bossKind));
-  const scaledBudget=Math.min(config.maxEnemyBudget,config.baseEnemyBudget+Math.floor((floorNumber-1)/100));
+  const bossKind:EnemyKind|undefined=floorNumber===1000?'architect':isWardenFloor(floorNumber)?'warden':undefined,enemiesEnabled=config.baseEnemyBudget>0;
+  if(bossKind&&enemiesEnabled)enemies.push(makeEnemy(guardianCell(route),0,floorNumber,bossKind));
+  const scaledBudget=enemiesEnabled?Math.min(config.maxEnemyBudget,config.baseEnemyBudget+Math.floor((floorNumber-1)/100)):0;
   for(let i=enemies.length;i<scaledBudget&&cursor<free.length;i++){const kind=weightedEnemyKind(floorNumber,rng.nextInt(`floor-enemy-kind:${floorNumber}:${i}`,1000));enemies.push(makeEnemy(free[cursor++],i,floorNumber,kind))}
   const hazardCount=Math.min(4,Math.floor((floorNumber-1)/100)+(floorNumber%25===0?1:0));
   for(let i=0;i<hazardCount&&cursor<free.length;i++){const kind=sector.hazards[(floorNumber+i)%sector.hazards.length];hazards.push(makeHazard(free[cursor++],i,floorNumber,kind))}
