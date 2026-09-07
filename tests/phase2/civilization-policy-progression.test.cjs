@@ -5,6 +5,8 @@ const {NamedRng}=require('../../dist/packages/seeded-rng/src/index.js');
 const {parseCivilizationConfig}=require('../../dist/games/ai-civilization/src/config/schema.js');
 const {createInitialCivilizationState}=require('../../dist/games/ai-civilization/src/index.js');
 const {decideCivilizationAction,legalCivilizationActions}=require('../../dist/games/ai-civilization/src/ai/policy.js');
+const {CivilizationRuntime}=require('../../dist/games/ai-civilization/src/runtime/run.js');
+const {createCivilizationSnapshot,restoreCivilizationSnapshot}=require('../../dist/games/ai-civilization/src/persistence/snapshot.js');
 
 function makeDeadlockedCamp(){
   const config=parseCivilizationConfig({maxRunDays:5000});
@@ -30,4 +32,15 @@ test('policy escapes the camp progression deadlock when the desired granary is s
   assert.notEqual(decision.action.key,'reserve');
   assert.equal(decision.intent.fallbackUsed,false);
   assert.match(decision.intent.goal,/grow|expand|tier|settlement/i);
+});
+
+test('legacy r2-v1 snapshots remain loadable after the policy version advances',()=>{
+  const runtime=CivilizationRuntime.create({maxRunDays:5000},'legacy-policy-snapshot');
+  for(let i=0;i<8;i++)runtime.step();
+  const snapshot=createCivilizationSnapshot(runtime);
+  snapshot.deterministicVersion='civilization-r2-v1';
+  const restored=restoreCivilizationSnapshot(snapshot);
+  assert.deepEqual(restored.state,runtime.state);
+  assert.deepEqual(restored.rng.snapshot(),runtime.rng.snapshot());
+  assert.equal(restored.getNextEventSequence(),runtime.getNextEventSequence());
 });
