@@ -43,3 +43,23 @@ test('browser presentation declares bounded quality presets without changing aut
   assert.match(core,/\bultra\s*:/);
   assert.match(main,/dataset\.quality/);
 });
+
+test('quality presets bound DPR and cosmetic event budgets while keeping telegraph rendering unconditional',()=>{
+  const root=path.join(__dirname,'../../public/ai-dungeon');
+  const art=fs.readFileSync(path.join(root,'app-art.js'),'utf8');
+  const audio=fs.readFileSync(path.join(root,'app-audio.js'),'utf8');
+  const scene=fs.readFileSync(path.join(root,'app-scene.js'),'utf8');
+  assert.match(art,/quality\.maxDpr/);
+  assert.match(audio,/quality\.particleBudget/);
+  assert.match(audio,/quality\.floaterBudget/);
+  assert.match(scene,/entity\.telegraph/);
+  assert.doesNotMatch(scene,/quality[^\n]{0,120}telegraph/);
+});
+
+test('movement continuity is presentation-only and reduced motion snaps to authoritative cells',()=>{
+  const root=path.join(__dirname,'../../public/ai-dungeon');
+  const scene=fs.readFileSync(path.join(root,'app-scene.js'),'utf8');
+  assert.match(scene,/interpolatedGridPosition/);
+  assert.match(scene,/previousSnapshot/);
+  assert.match(scene,/reduced\?1:/);
+});
