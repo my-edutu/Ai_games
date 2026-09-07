@@ -2,7 +2,7 @@
 const fs=require('node:fs');
 const path=require('node:path');
 const{test,expect}=require('@playwright/test');
-const base='http://127.0.0.1:4189',artifacts=path.resolve(__dirname,'../../artifacts/ai-dungeon/premium/browser');
+const base='http://127.0.0.1:4189',artifacts=path.resolve(__dirname,'../../artifacts/dungeon-phase3');
 test.beforeAll(()=>fs.mkdirSync(artifacts,{recursive:true}));
 
 test('dungeon browser source serves the active UX revision stylesheet',async({page})=>{
