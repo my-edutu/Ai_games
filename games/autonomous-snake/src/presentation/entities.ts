@@ -127,6 +127,16 @@ export class EntityRegistry {
     const fromY = Math.floor(entity.previousCell / width);
     const toX = entity.cell % width;
     const toY = Math.floor(entity.cell / width);
+    const manhattanDistance = Math.abs(toX - fromX) + Math.abs(toY - fromY);
+
+    // A multi-cell move is a discontinuity such as portal travel. The visual layer
+    // must not fabricate a sweep through authoritative cells the Snake never occupied.
+    if (manhattanDistance > 1) {
+      return boundedAlpha < 0.5
+        ? { x: fromX, y: fromY }
+        : { x: toX, y: toY };
+    }
+
     return {
       x: fromX + (toX - fromX) * boundedAlpha,
       y: fromY + (toY - fromY) * boundedAlpha,
