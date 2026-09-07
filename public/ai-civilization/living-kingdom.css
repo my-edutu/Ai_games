@@ -1,0 +1,17 @@
+/* Living Kingdom semantic layer. The heavier material/layout system remains in ux-v2.css for backward-compatible layering. */
+.building-miniature{--function-accent:#d7b46a;isolation:isolate}
+.building-miniature[data-type="farm"]{--function-accent:#8d9d63}
+.building-miniature[data-type="house"]{--function-accent:#b87958}
+.building-miniature[data-type="workshop"]{--function-accent:#8b6747}
+.building-miniature[data-type="lumberyard"]{--function-accent:#755133}
+.building-miniature[data-type="quarry"]{--function-accent:#a89c82}
+.building-miniature[data-type="granary"]{--function-accent:#a17b50}
+.building-miniature[data-type="market"]{--function-accent:#c09061}
+.building-miniature[data-type="school"]{--function-accent:#b5a47f}
+.building-miniature[data-type="barracks"]{--function-accent:#8e8066}
+.building-miniature[data-type="temple"]{--function-accent:#b6906a}
+.building-miniature[data-type="aqueduct"]{--function-accent:#9f987d}
+.building-miniature[data-type="monument"]{--function-accent:#c1b490}
+.building-miniature[data-type="camp"]{--function-accent:#a98255}
+body[data-quality="low"] .building-miniature{filter:drop-shadow(0 3px 2px rgba(0,0,0,.25))}
+body[data-quality="ultra"] .building-miniature{filter:drop-shadow(0 7px 6px rgba(0,0,0,.46)) saturate(1.04)}
