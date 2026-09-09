@@ -1,5 +1,6 @@
 'use strict';
 
+const fs = require('node:fs');
 const path = require('node:path');
 const test = require('node:test');
 const assert = require('node:assert/strict');
@@ -12,6 +13,10 @@ function serverModule() {
   const serverPath = path.resolve(__dirname, '../../scripts/serve-complete-runtime.cjs');
   delete require.cache[require.resolve(serverPath)];
   return require(serverPath);
+}
+
+function browserAsset(name) {
+  return fs.readFileSync(path.resolve(__dirname, `../../public/complete-runtime/${name}`), 'utf8');
 }
 
 test('viewer influence catalogue preserves all six legacy families without pretending unsupported mechanics are live', () => {
@@ -83,4 +88,15 @@ test('live host validates wind votes, enforces viewer cooldown, and publishes on
   const serialized = JSON.stringify(snapshot.influence);
   assert.equal(serialized.includes('host-wind-1'), false, 'public snapshot must not leak request identifiers');
   assert.equal(serialized.includes('viewer-a'), false, 'public snapshot must not leak viewer identity');
+});
+
+test('spectator interface offers only operational wind choices and submits them through the bounded API', () => {
+  const html = browserAsset('index.html');
+  const app = browserAsset('app.js');
+  for (const option of ['north', 'south', 'east', 'west']) {
+    assert.match(html, new RegExp(`data-family=["']wind-vote["'][^>]*data-option=["']${option}["']`));
+  }
+  assert.doesNotMatch(html, /data-family=["'](?:gate-tempo|shield-orb|cheer-pulse|theme-vote|next-arena)["']/);
+  assert.match(app, /\/api\/influence/);
+  assert.match(app, /snapshot\.influence|next\.influence/);
 });
