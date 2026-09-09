@@ -30,9 +30,9 @@ concurrency:
 
 jobs:
   game7-upgrade:
-    name: Authority, broadcast, recovery, and performance
+    name: Authority, broadcast, recovery, browser, and performance
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -77,6 +77,12 @@ jobs:
             echo 'Ambient nondeterminism found in Game 7 authority.' >&2
             exit 1
           fi
+
+      - name: Install Chromium for visual evidence
+        run: npx playwright install --with-deps chromium
+
+      - name: Capture desktop, assisted, mobile, and clean-feed browser evidence
+        run: node games/marble-survival/scripts/capture-premium-runtime.cjs
 
       - name: Measure and enforce authoritative tick budget
         shell: bash
