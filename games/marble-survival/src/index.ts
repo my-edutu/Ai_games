@@ -3,6 +3,7 @@ export * from './state/types';
 export * from './config/schema';
 export * from './generation/roster';
 export * from './generation/arena';
+export * from './influence/catalogue';
 export * from './physics/fixed';
 export * from './physics/moving-collider';
 export * from './physics/solver';
