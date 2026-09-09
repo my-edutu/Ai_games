@@ -45,5 +45,5 @@
     "ant:phase5:chaos": "npm run build && node scripts/run-ant-colony-phase5-chaos.cjs",
     "ant:phase6:validate": "npm run build && node scripts/run-ant-colony-phase6-validation.cjs"
   },
-  "devDependencies": {"@playwright/test": "1.55.0", "typescript": "5.8.3"}
+  "devDependencies": {"@playwright/test": "1.63.0", "typescript": "5.8.3"}
 }
