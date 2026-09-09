@@ -1,3 +1,5 @@
+import type { MarbleScheduledInfluence } from '../influence/catalogue';
+
 export interface Vec2 { x: number; y: number }
 
 export type MarbleArchetype = 'navigator' | 'sprinter' | 'bruiser' | 'survivor';
@@ -249,6 +251,10 @@ export interface MarbleInfluenceState {
   globalWindX: number;
   globalWindY: number;
   effectUntilTick: number;
+  activeFamily: 'wind-vote' | null;
+  activeOption: string | null;
+  pending: MarbleScheduledInfluence[];
+  appliedIds: string[];
 }
 
 export interface MarbleState {
