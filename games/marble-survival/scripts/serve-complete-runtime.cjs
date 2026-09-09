@@ -8,6 +8,8 @@ const {
   MarbleRuntime,
   createMarblePublicSnapshot,
   marbleStateChecksum,
+  selectMarbleCamera,
+  MarbleReplayBuffer,
 } = require('../../../dist/games/marble-survival/src/index.js');
 
 const STATIC_ROOT = path.resolve(__dirname, '../public/complete-runtime');
@@ -20,6 +22,8 @@ const SECURITY_HEADERS = Object.freeze({
   'x-frame-options': 'SAMEORIGIN',
   'permissions-policy': 'camera=(), microphone=(), geolocation=()',
 });
+
+const CAMERA_PRIORITY = Object.freeze({ overview: 0, pack: 1, danger: 2, finish: 3, replay: 4, victory: 5 });
 
 function json(response, status, payload, extraHeaders = {}) {
   response.writeHead(status, {
@@ -72,33 +76,95 @@ function tokenMatches(expected, provided) {
   return crypto.timingSafeEqual(left, right);
 }
 
+function sameTargets(left = [], right = []) {
+  return left.length === right.length && left.every((value, index) => value === right[index]);
+}
+
 function createRuntime(options = {}) {
   const seed = String(options.seed || process.env.GAME7_SEED || 'broadcast-1');
   const operatorToken = String(options.operatorToken || process.env.GAME7_OPERATOR_TOKEN || 'local-self-test-only');
   const authority = MarbleRuntime.create(options.config || {}, seed);
   const tickMs = 1000 / authority.config.tickRate;
   const maxCatchUpTicks = Number.isInteger(options.maxCatchUpTicks) ? Math.max(1, Math.min(32, options.maxCatchUpTicks)) : 8;
+  const replayCapacity = Number.isInteger(options.replayCapacity) ? Math.max(1, Math.min(3_600, options.replayCapacity)) : 180;
+  const replay = new MarbleReplayBuffer(replayCapacity);
   const events = [];
   let lastSchedulerMs = Number.isFinite(options.nowMs) ? Number(options.nowMs) : Date.now();
   let accumulatorMs = 0;
   let paused = false;
   let cleanFeed = false;
+  let cameraDirective = null;
+  let cameraHoldUntilTick = 0;
   const startedAtMs = lastSchedulerMs;
 
-  function appendAuthorityEvents() {
+  function drainAuthorityEvents() {
+    const drained = [];
     for (const event of authority.drainEvents()) {
-      events.push(Object.freeze({
+      const publicEvent = Object.freeze({
         id: `${event.seq}`,
         seq: event.seq,
         tick: event.tick,
         type: event.type,
         data: event.data ? { ...event.data } : undefined,
-      }));
+      });
+      events.push(publicEvent);
+      drained.push(publicEvent);
       if (events.length > 128) events.shift();
     }
+    return drained;
   }
 
-  appendAuthorityEvents();
+  function followHeldCamera(baseSnapshot) {
+    if (!cameraDirective) return null;
+    const primaryId = cameraDirective.targetIds[0];
+    const target = primaryId === undefined ? null : baseSnapshot.marbles.find(marble => marble.id === primaryId);
+    return Object.freeze({
+      ...cameraDirective,
+      targetIds: [...cameraDirective.targetIds],
+      focusX: target?.x ?? Math.round(baseSnapshot.arena.width / 2),
+      focusY: target?.y ?? Math.round(baseSnapshot.arena.height / 2),
+    });
+  }
+
+  function cameraFor(baseSnapshot, recentEvents = events.slice(-24)) {
+    const candidate = selectMarbleCamera(baseSnapshot, recentEvents);
+    if (!cameraDirective) {
+      cameraDirective = candidate;
+      cameraHoldUntilTick = baseSnapshot.tick + candidate.minHoldTicks;
+      return Object.freeze({ ...candidate, targetIds: [...candidate.targetIds] });
+    }
+
+    const currentPriority = CAMERA_PRIORITY[cameraDirective.mode] ?? 0;
+    const candidatePriority = CAMERA_PRIORITY[candidate.mode] ?? 0;
+    const currentTargetsValid = cameraDirective.targetIds.every(id => baseSnapshot.marbles.some(marble => marble.id === id));
+    const sameShot = candidate.mode === cameraDirective.mode && sameTargets(candidate.targetIds, cameraDirective.targetIds);
+    const maySwitch = !currentTargetsValid || baseSnapshot.tick >= cameraHoldUntilTick || candidatePriority > currentPriority;
+
+    if (sameShot || maySwitch) {
+      cameraDirective = candidate;
+      if (!sameShot) cameraHoldUntilTick = baseSnapshot.tick + candidate.minHoldTicks;
+      return Object.freeze({ ...candidate, targetIds: [...candidate.targetIds] });
+    }
+    return followHeldCamera(baseSnapshot);
+  }
+
+  function presentationSnapshot(recentEvents) {
+    const base = createMarblePublicSnapshot(authority.state);
+    const camera = cameraFor(base, recentEvents);
+    return Object.freeze({
+      ...base,
+      camera,
+      replay: Object.freeze({ available: replay.size() > 0, frameCount: replay.size() }),
+    });
+  }
+
+  function captureReplayFrame(tickEvents) {
+    const presented = presentationSnapshot(tickEvents.length > 0 ? tickEvents : events.slice(-24));
+    replay.push(presented, tickEvents);
+  }
+
+  const initialEvents = drainAuthorityEvents();
+  captureReplayFrame(initialEvents);
 
   function advanceDue(nowMs) {
     if (!Number.isFinite(nowMs)) throw new TypeError('nowMs');
@@ -116,15 +182,23 @@ function createRuntime(options = {}) {
     accumulatorMs += elapsed;
     const dueTicks = Math.floor((accumulatorMs + tickMs * 1e-9) / tickMs);
     const ticks = Math.min(maxCatchUpTicks, dueTicks);
-    for (let index = 0; index < ticks; index++) authority.step();
+    for (let index = 0; index < ticks; index++) {
+      authority.step();
+      const tickEvents = drainAuthorityEvents();
+      captureReplayFrame(tickEvents);
+    }
     accumulatorMs -= ticks * tickMs;
     if (Math.abs(accumulatorMs) < 1e-9) accumulatorMs = 0;
-    appendAuthorityEvents();
     return ticks;
   }
 
   function currentSnapshot() {
-    return createMarblePublicSnapshot(authority.state);
+    return presentationSnapshot(events.slice(-24));
+  }
+
+  function replayFrames(limit = 90) {
+    const bounded = Number.isInteger(limit) ? Math.max(1, Math.min(120, limit)) : 90;
+    return replay.frames().slice(-bounded);
   }
 
   function checksum() {
@@ -142,6 +216,7 @@ function createRuntime(options = {}) {
       round: authority.state.roundNumber,
       schedulerDebtTicks: debtTicks,
       maxCatchUpTicks,
+      replayFrames: replay.size(),
       uptimeSeconds: Math.max(0, Math.floor((nowMs - startedAtMs) / 1000)),
       audienceInfluence: 'degraded',
     };
@@ -157,7 +232,11 @@ function createRuntime(options = {}) {
     }
     if (command === 'restart') {
       authority.restart();
-      appendAuthorityEvents();
+      replay.clear();
+      cameraDirective = null;
+      cameraHoldUntilTick = 0;
+      const restartEvents = drainAuthorityEvents();
+      captureReplayFrame(restartEvents);
       accumulatorMs = 0;
     }
     if (command === 'clean-feed') cleanFeed = !cleanFeed;
@@ -172,6 +251,7 @@ function createRuntime(options = {}) {
     maxCatchUpTicks,
     advanceDue,
     currentSnapshot,
+    replayFrames,
     checksum,
     health,
     operator,
@@ -192,6 +272,11 @@ function createServer(options = {}) {
       if (request.method === 'GET' && url.pathname === '/api/events') {
         return json(response, 200, { events: runtime.events.slice(-24) });
       }
+      if (request.method === 'GET' && url.pathname === '/api/replay') {
+        const requested = Number(url.searchParams.get('frames') || 90);
+        const limit = Number.isInteger(requested) ? requested : 90;
+        return json(response, 200, { frames: runtime.replayFrames(limit) });
+      }
       if (request.method === 'GET' && url.pathname === '/api/health') {
         return json(response, 200, runtime.health());
       }
@@ -204,6 +289,8 @@ function createServer(options = {}) {
           `game7_round ${runtime.authority.state.roundNumber}`,
           '# TYPE game7_scheduler_debt_ticks gauge',
           `game7_scheduler_debt_ticks ${health.schedulerDebtTicks}`,
+          '# TYPE game7_replay_frames gauge',
+          `game7_replay_frames ${health.replayFrames}`,
         ].join('\n') + '\n', 'text/plain; version=0.0.4; charset=utf-8');
       }
       if (request.method === 'GET' && url.pathname === '/api/catalogue') {
@@ -247,7 +334,7 @@ function createServer(options = {}) {
 }
 
 async function selfTest() {
-  const { server } = createServer({ seed: 'self-test', operatorToken: 'test-token', schedulerIntervalMs: 4 });
+  const { server } = createServer({ seed: 'self-test', operatorToken: 'test-token', schedulerIntervalMs: 4, replayCapacity: 12 });
   await new Promise((resolve, reject) => {
     server.once('error', reject);
     server.listen(0, '127.0.0.1', resolve);
@@ -259,7 +346,10 @@ async function selfTest() {
     if (!index.ok || !(await index.text()).includes('Marble Survival Tournament')) throw new Error('index smoke failed');
     const snapshotResponse = await fetch(`${base}/api/snapshot`);
     const snapshotText = await snapshotResponse.text();
-    if (!snapshotResponse.ok || !snapshotText.includes('"schemaVersion":2') || snapshotText.includes('rootSeed') || snapshotText.includes('tournamentSeed') || snapshotText.includes('self-test')) throw new Error('snapshot sanitization failed');
+    if (!snapshotResponse.ok || !snapshotText.includes('"schemaVersion":2') || !snapshotText.includes('"camera"') || snapshotText.includes('rootSeed') || snapshotText.includes('tournamentSeed') || snapshotText.includes('self-test')) throw new Error('snapshot sanitization failed');
+    const replayResponse = await fetch(`${base}/api/replay?frames=4`);
+    const replayPayload = await replayResponse.json();
+    if (!replayResponse.ok || !Array.isArray(replayPayload.frames) || replayPayload.frames.length < 1 || replayPayload.frames.length > 4) throw new Error('replay endpoint failed');
     const health = await (await fetch(`${base}/api/health`)).json();
     if (!['healthy', 'degraded'].includes(health.status)) throw new Error('health endpoint failed');
     const influence = await fetch(`${base}/api/influence`, {
