@@ -3,6 +3,19 @@ import { NamedRng } from '../../../../packages/seeded-rng/src/index';
 import { parseMarbleConfig } from '../config/schema';
 import { generateMarbleArena } from '../generation/arena';
 import { createMarbleRoster } from '../generation/roster';
+import {
+  MARBLE_INFLUENCE_CATALOGUE,
+  MARBLE_INFLUENCE_HISTORY_CAP,
+  MARBLE_INFLUENCE_QUEUE_CAP,
+  MARBLE_WIND_DURATION_TICKS,
+  MARBLE_WIND_FORCE,
+  isSafeInfluenceId,
+  isWindOption,
+  type MarbleInfluenceDecision,
+  type MarbleInfluenceRequest,
+  type MarbleScheduledInfluence,
+  type MarbleWindOption,
+} from '../influence/catalogue';
 import { stepMarblePhysics } from '../physics/solver';
 import { advanceMarbleRound, applyTournamentRules } from '../rules/tournament';
 import type {
@@ -52,7 +65,16 @@ function initialState(config: MarbleConfig, rootSeed: string, tournamentSeed: st
       championStreak: 0,
       lastChampionId: null
     },
-    influence: { recordCategory: 'standard', globalWindX: 0, globalWindY: 0, effectUntilTick: -1 },
+    influence: {
+      recordCategory: 'standard',
+      globalWindX: 0,
+      globalWindY: 0,
+      effectUntilTick: -1,
+      activeFamily: null,
+      activeOption: null,
+      pending: [],
+      appliedIds: [],
+    },
     meaningfulEventTick: 0,
     droppedEvents: 0
   };
@@ -79,6 +101,14 @@ function basicAction(state: MarbleState, marbleId: number): MarbleAction {
     intent: finalBand ? 'final-sprint' : stalled ? 'recovering-momentum' : Math.abs(deltaX) > state.config.marbleRadius * 2 ? 'seeking-gap' : 'holding-line',
     confidence: stalled ? 'low' : Math.abs(deltaX) < state.config.marbleRadius ? 'high' : 'medium'
   };
+}
+
+function windVector(option: MarbleWindOption): Vec2 {
+  if (option === 'north') return { x: 0, y: -MARBLE_WIND_FORCE };
+  if (option === 'south') return { x: 0, y: MARBLE_WIND_FORCE };
+  if (option === 'east') return { x: MARBLE_WIND_FORCE, y: 0 };
+  if (option === 'west') return { x: -MARBLE_WIND_FORCE, y: 0 };
+  return { x: 0, y: 0 };
 }
 
 export function marbleStateChecksum(state: MarbleState): string {
@@ -155,6 +185,85 @@ export class MarbleRuntime {
     return this.state;
   }
 
+  scheduleInfluence(input: MarbleInfluenceRequest): MarbleInfluenceDecision {
+    if (!isSafeInfluenceId(input?.id)) return { accepted: false, reason: 'invalid-id' };
+    if (!Object.hasOwn(MARBLE_INFLUENCE_CATALOGUE, input?.family)) return { accepted: false, reason: 'invalid-family' };
+    const family = input.family as keyof typeof MARBLE_INFLUENCE_CATALOGUE;
+    const definition = MARBLE_INFLUENCE_CATALOGUE[family];
+    if (!definition.operational) return { accepted: false, reason: 'temporarily-unavailable' };
+    if (family !== 'wind-vote') return { accepted: false, reason: 'temporarily-unavailable' };
+    if (!isWindOption(input.option)) return { accepted: false, reason: 'invalid-option' };
+    if (this.state.lifecycle !== 'active') return { accepted: false, reason: 'state-ineligible' };
+    if (this.state.influence.pending.some(command => command.id === input.id) || this.state.influence.appliedIds.includes(input.id)) {
+      return { accepted: false, reason: 'duplicate' };
+    }
+    if (this.state.influence.pending.length >= MARBLE_INFLUENCE_QUEUE_CAP) return { accepted: false, reason: 'queue-full' };
+
+    const scheduled: MarbleScheduledInfluence = {
+      id: input.id,
+      family: 'wind-vote',
+      option: input.option,
+      applyTick: this.state.tick,
+      durationTicks: MARBLE_WIND_DURATION_TICKS,
+    };
+    const pending = [...this.state.influence.pending, scheduled]
+      .sort((left, right) => left.applyTick - right.applyTick || left.id.localeCompare(right.id));
+    this.state = {
+      ...this.state,
+      influence: { ...this.state.influence, pending },
+    };
+    this.emit('influence-scheduled', { family: scheduled.family, option: scheduled.option, applyTick: scheduled.applyTick });
+    return {
+      accepted: true,
+      family: scheduled.family,
+      option: scheduled.option,
+      applyTick: scheduled.applyTick,
+      durationTicks: scheduled.durationTicks,
+    };
+  }
+
+  private applyScheduledInfluences(): void {
+    const due = this.state.influence.pending
+      .filter(command => command.applyTick <= this.state.tick)
+      .sort((left, right) => left.applyTick - right.applyTick || left.id.localeCompare(right.id));
+    if (due.length === 0) return;
+
+    const dueIds = new Set(due.map(command => command.id));
+    let influence = {
+      ...this.state.influence,
+      pending: this.state.influence.pending.filter(command => !dueIds.has(command.id)).map(command => ({ ...command })),
+      appliedIds: [...this.state.influence.appliedIds],
+    };
+    let records = { ...this.state.records };
+    const applied: Array<{ command: MarbleScheduledInfluence; effectUntilTick: number }> = [];
+
+    for (const command of due) {
+      const vector = windVector(command.option);
+      const effectUntilTick = this.state.tick + command.durationTicks;
+      influence = {
+        ...influence,
+        globalWindX: vector.x,
+        globalWindY: vector.y,
+        effectUntilTick,
+        activeFamily: 'wind-vote',
+        activeOption: command.option,
+        recordCategory: 'assisted',
+        appliedIds: [...influence.appliedIds, command.id].slice(-MARBLE_INFLUENCE_HISTORY_CAP),
+      };
+      records = { ...records, category: 'assisted' };
+      applied.push({ command, effectUntilTick });
+    }
+
+    this.state = { ...this.state, influence, records };
+    for (const { command, effectUntilTick } of applied) {
+      this.emit('influence-applied', {
+        family: command.family,
+        option: command.option,
+        effectUntilTick,
+      });
+    }
+  }
+
   step(): MarbleState {
     if (this.state.lifecycle === 'quarantined') return this.state;
     if (this.state.lifecycle === 'tournament-result') {
@@ -174,6 +283,9 @@ export class MarbleRuntime {
       this.emitMany(advanced.events);
       return this.state;
     }
+
+    this.applyScheduledInfluences();
+
     if (this.state.roundIntroRemaining > 0) {
       this.state = {
         ...this.state,
