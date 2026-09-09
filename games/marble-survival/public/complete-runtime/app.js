@@ -18,6 +18,7 @@ const arenaStateLabel = document.querySelector('#arena-state-label');
 const eventMessage = document.querySelector('#event-message');
 const recordCategory = document.querySelector('#record-category');
 const voteStatus = document.querySelector('#vote-status');
+const voteButtons = [...document.querySelectorAll('[data-family="wind-vote"][data-option]')];
 const soundToggle = document.querySelector('#sound-toggle');
 
 const QUALITY_PRESETS = Object.freeze({
@@ -45,6 +46,10 @@ shell.dataset.clean = String(cleanFeed);
 shell.dataset.quality = qualityName;
 qualityLabel.textContent = qualityName[0].toUpperCase() + qualityName.slice(1);
 
+const storedViewerId = sessionStorage.getItem('game7-viewer-id');
+const viewerId = storedViewerId || (globalThis.crypto?.randomUUID?.() || `viewer-${Date.now()}`);
+if (!storedViewerId) sessionStorage.setItem('game7-viewer-id', viewerId);
+
 let snapshot = null;
 let previousSnapshot = null;
 let snapshotArrivedAt = performance.now();
@@ -60,8 +65,10 @@ let lastDrawAt = 0;
 let replayFrames = [];
 let replayStartedAt = 0;
 let replayActive = false;
+let voteLockedUntil = 0;
 const orientationById = new Map();
 const REPLAY_FRAME_MS = 55;
+const VOTE_COOLDOWN_MS = 15_000;
 
 function paletteFor(key) {
   return PALETTES[key] || ['#e8e0ce', '#9c9586', '#4c4942'];
@@ -449,6 +456,10 @@ function tokenFor(marble) {
   return token;
 }
 
+function windLabel(option) {
+  return option ? `${option[0].toUpperCase()}${option.slice(1)} wind active · Assisted` : 'Wind vote open';
+}
+
 function renderHud(next) {
   roundName.textContent = next.round.name;
   roundIndex.textContent = `Round ${next.round.index} / ${next.round.total}`;
@@ -456,6 +467,8 @@ function renderHud(next) {
   quotaValue.textContent = String(next.round.quota);
   recordCategory.textContent = next.recordCategory === 'assisted' ? 'Assisted' : 'Standard';
   recordCategory.dataset.assisted = String(next.recordCategory === 'assisted');
+  if (next.influence?.active) voteStatus.textContent = windLabel(next.influence.option);
+  else if (Date.now() >= voteLockedUntil) voteStatus.textContent = 'Wind vote open';
   const marbleById = new Map(next.marbles.map(marble => [marble.id, marble]));
   const cutoff = next.qualificationCutoff;
   const cutoffMarble = cutoff ? marbleById.get(cutoff.id) : null;
@@ -530,6 +543,8 @@ function eventLabel(event) {
   if (event.type === 'marble-eliminated') return `Marble ${Number(data.marbleId) + 1} was eliminated${data.cause ? ` by ${String(data.cause).replaceAll('-', ' ')}` : ''}.`;
   if (event.type === 'shield-recovery') return `Marble ${Number(data.marbleId) + 1} used a recovery shield and stayed alive.`;
   if (event.type === 'elimination-boundary-review') return 'A simultaneous elimination was resolved by the published progress tie policy.';
+  if (event.type === 'influence-scheduled') return `${String(data.option || 'Wind')} wind queued for the next authoritative tick.`;
+  if (event.type === 'influence-applied') return `${String(data.option || 'Wind')} wind is active for every eligible marble. Tournament record category: Assisted.`;
   if (event.type === 'round-resolved') return 'Qualification is confirmed. The bracket is advancing.';
   if (event.type === 'tournament-champion') return `Champion confirmed: Marble ${Number(data.championId) + 1}.`;
   if (event.type === 'integrity-quarantined') return 'Tournament integrity check triggered. No sporting loss was recorded.';
@@ -559,7 +574,7 @@ async function startReplay(eventId) {
 
 const CUE_COOLDOWNS = Object.freeze({
   'physics-contact': 90, 'checkpoint-reached': 180, 'marble-qualified': 180, 'marble-eliminated': 220,
-  'shield-recovery': 220, 'round-resolved': 500, 'tournament-champion': 1200,
+  'shield-recovery': 220, 'round-resolved': 500, 'tournament-champion': 1200, 'influence-applied': 400,
 });
 
 function playCue(event) {
@@ -572,7 +587,7 @@ function playCue(event) {
   lastCueAt.set(event.type, now);
   const frequencyByType = {
     'checkpoint-reached': 360, 'marble-qualified': 520, 'marble-eliminated': 180, 'shield-recovery': 430,
-    'round-resolved': 460, 'tournament-champion': 680, 'integrity-quarantined': 150,
+    'round-resolved': 460, 'tournament-champion': 680, 'integrity-quarantined': 150, 'influence-applied': 390,
     'physics-contact': Math.max(100, 250 - Math.min(130, impulse / 3)),
   };
   const frequency = frequencyByType[event.type] || 300;
@@ -616,18 +631,76 @@ async function refreshEvents() {
   }
 }
 
+function setVoteButtonsDisabled(disabled) {
+  for (const button of voteButtons) button.disabled = disabled;
+}
+
+async function submitVote(button) {
+  if (!button || Date.now() < voteLockedUntil) return;
+  const at = Date.now();
+  const id = globalThis.crypto?.randomUUID?.() || `${viewerId}:${at}`;
+  setVoteButtonsDisabled(true);
+  voteStatus.textContent = 'Submitting bounded wind vote…';
+  try {
+    const response = await fetch('/api/influence', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        id,
+        userId: viewerId,
+        family: 'wind-vote',
+        option: String(button.dataset.option || ''),
+        at,
+      }),
+    });
+    const result = await response.json();
+    if (response.status === 202 && result.accepted) {
+      voteLockedUntil = at + VOTE_COOLDOWN_MS;
+      const label = String(result.option || button.dataset.option || 'wind');
+      voteStatus.textContent = `${label[0].toUpperCase()}${label.slice(1)} wind queued`;
+      setTimeout(() => {
+        if (Date.now() >= voteLockedUntil) {
+          setVoteButtonsDisabled(false);
+          if (!snapshot?.influence?.active) voteStatus.textContent = 'Wind vote open';
+        }
+      }, VOTE_COOLDOWN_MS + 100);
+      return;
+    }
+    const copy = {
+      cooldown: 'Vote cooldown active',
+      duplicate: 'Vote already received',
+      'temporarily-unavailable': 'Wind voting temporarily unavailable',
+      'state-ineligible': 'Voting opens during live race action',
+      'queue-full': 'Wind queue full — try the next window',
+    };
+    voteStatus.textContent = copy[result.reason] || 'Wind vote not accepted';
+  } catch {
+    voteStatus.textContent = 'Wind voting reconnecting';
+  } finally {
+    if (Date.now() >= voteLockedUntil) setVoteButtonsDisabled(false);
+  }
+}
+
 async function refreshHealth() {
   try {
     const response = await fetch('/api/health', { cache: 'no-store' });
     if (!response.ok) return;
     const health = await response.json();
-    if (health.audienceInfluence === 'degraded') voteStatus.textContent = 'Temporarily unavailable';
+    if (health.audienceInfluence === 'degraded') {
+      voteStatus.textContent = 'Temporarily unavailable';
+      setVoteButtonsDisabled(true);
+    } else if (Date.now() >= voteLockedUntil) {
+      setVoteButtonsDisabled(false);
+      if (!snapshot?.influence?.active) voteStatus.textContent = 'Wind vote open';
+    }
     if (health.status === 'degraded') markConnection(true, 'Authority live · presentation catching up');
     if (health.status === 'unhealthy') markConnection(false, 'Integrity recovery');
   } catch {
     // Snapshot polling owns public connection status.
   }
 }
+
+for (const button of voteButtons) button.addEventListener('click', () => submitVote(button));
 
 soundToggle.addEventListener('click', async () => {
   if (!audioContext) audioContext = new (globalThis.AudioContext || globalThis.webkitAudioContext)();
