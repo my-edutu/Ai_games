@@ -35,7 +35,11 @@ function cloneState(state: MarbleState): MarbleState {
     eliminatedIds: [...state.eliminatedIds],
     roundResults: state.roundResults.map(result => ({ ...result, qualifierIds: [...result.qualifierIds], eliminatedIds: [...result.eliminatedIds] })),
     records: { ...state.records },
-    influence: { ...state.influence }
+    influence: {
+      ...state.influence,
+      pending: state.influence.pending.map(command => ({ ...command })),
+      appliedIds: [...state.influence.appliedIds]
+    }
   };
 }
 
@@ -287,6 +291,16 @@ export function advanceMarbleRound(state: MarbleState, rng: NamedRng): RuleOutpu
   next.arena = arena;
   next.activeIds = activeIds;
   next.qualifiedIds = [];
+  next.influence = {
+    ...next.influence,
+    globalWindX: 0,
+    globalWindY: 0,
+    effectUntilTick: -1,
+    activeFamily: null,
+    activeOption: null,
+    pending: [],
+    appliedIds: [...next.influence.appliedIds]
+  };
   for (const marble of next.marbles) {
     if (activeIds.includes(marble.id)) {
       const position = arena.spawnPoints[activeIds.indexOf(marble.id)];
