@@ -37,6 +37,18 @@ test('camera gives decisive finish priority over noisy contact events', () => {
   assert.deepEqual(directive.targetIds, [1]);
 });
 
+test('camera ignores prior-round finish events once a new round has started', () => {
+  const { MarbleRuntime, createMarblePublicSnapshot, selectMarbleCamera } = game7();
+  const runtime = MarbleRuntime.create({ rosterSize: 4, roundQuotas: [2, 1, 1, 1, 1], roundIntroTicks: 0 }, 'camera-round-boundary');
+  const snapshot = createMarblePublicSnapshot(runtime.state);
+  const directive = selectMarbleCamera(snapshot, [
+    { tick: 40, type: 'round-resolved', data: { roundIndex: 0, qualifierIds: [0, 1] } },
+    { tick: 40, type: 'round-started', data: { roundIndex: 1, activeIds: [0, 1], quota: 1 } },
+  ]);
+  assert.notEqual(directive.mode, 'finish');
+  assert.equal(directive.mode, 'overview');
+});
+
 test('camera selects victory only from a confirmed champion result', () => {
   const { MarbleRuntime, createMarblePublicSnapshot, selectMarbleCamera } = game7();
   const runtime = MarbleRuntime.create({ rosterSize: 2, roundQuotas: [1, 1, 1, 1, 1], roundIntroTicks: 0 }, 'camera-victory');
