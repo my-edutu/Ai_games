@@ -73,7 +73,7 @@ async function main() {
 
   try {
     const desktop = await browser.newPage({ viewport: { width: 1920, height: 1080 }, deviceScaleFactor: 1 });
-    await desktop.goto(`${base}/?quality=balanced`, { waitUntil: 'networkidle' });
+    await desktop.goto(`${base}/?quality=balanced`, { waitUntil: 'domcontentloaded' });
     captures.push(await capture(desktop, 'desktop-balanced', 'desktop-balanced.png'));
 
     const eastButton = desktop.locator('[data-family="wind-vote"][data-option="east"]');
@@ -84,12 +84,12 @@ async function main() {
 
     const mobile = await browser.newPage({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 1 });
     await mobile.emulateMedia({ reducedMotion: 'reduce' });
-    await mobile.goto(`${base}/?quality=low`, { waitUntil: 'networkidle' });
+    await mobile.goto(`${base}/?quality=low`, { waitUntil: 'domcontentloaded' });
     captures.push(await capture(mobile, 'phone-low-reduced-motion', 'phone-low-reduced-motion.png'));
     await mobile.close();
 
     const clean = await browser.newPage({ viewport: { width: 1920, height: 1080 }, deviceScaleFactor: 1 });
-    await clean.goto(`${base}/?quality=low&clean=1`, { waitUntil: 'networkidle' });
+    await clean.goto(`${base}/?quality=low&clean=1`, { waitUntil: 'domcontentloaded' });
     captures.push(await capture(clean, 'desktop-clean-low', 'desktop-clean-low.png'));
     await clean.close();
   } finally {
