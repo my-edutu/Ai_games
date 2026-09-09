@@ -60,10 +60,17 @@
           <ol id="leaderboard" class="leaderboard"></ol>
         </section>
 
-        <section class="panel audience-panel" aria-label="Audience influence status">
+        <section class="panel audience-panel" aria-label="Audience influence">
           <span class="panel-label">Audience influence</span>
-          <strong id="vote-status">Temporarily unavailable</strong>
-          <p>Authority-safe voting is being restored. The tournament continues without viewer effects.</p>
+          <strong id="vote-status" role="status">Wind vote open</strong>
+          <p>Choose one bounded field. It applies equally to every active marble and marks the tournament <b>Assisted</b>.</p>
+          <div class="wind-vote-grid" role="group" aria-label="Choose global wind direction">
+            <button type="button" data-family="wind-vote" data-option="north" aria-label="Vote for north wind">↑ <span>North</span></button>
+            <button type="button" data-family="wind-vote" data-option="south" aria-label="Vote for south wind">↓ <span>South</span></button>
+            <button type="button" data-family="wind-vote" data-option="east" aria-label="Vote for east wind">→ <span>East</span></button>
+            <button type="button" data-family="wind-vote" data-option="west" aria-label="Vote for west wind">← <span>West</span></button>
+          </div>
+          <small class="interaction-note">Other legacy influence families stay disabled until their v2 authority mechanics are restored.</small>
         </section>
       </aside>
     </section>
