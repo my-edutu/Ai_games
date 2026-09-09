@@ -12,6 +12,21 @@ function ensureDirectories() {
   fs.mkdirSync(SCREENSHOT_ROOT, { recursive: true });
 }
 
+async function withCaptureHost(seed, callback) {
+  const { server } = createServer({ seed, operatorToken: 'capture-only', schedulerIntervalMs: 4, replayCapacity: 60 });
+  await new Promise((resolve, reject) => {
+    server.once('error', reject);
+    server.listen(0, '127.0.0.1', resolve);
+  });
+  const address = server.address();
+  const base = `http://127.0.0.1:${address.port}`;
+  try {
+    return await callback(base);
+  } finally {
+    await new Promise(resolve => server.close(resolve));
+  }
+}
+
 async function waitForAuthority(page) {
   await page.waitForFunction(() => {
     const value = document.querySelector('#connection')?.textContent || '';
@@ -23,11 +38,16 @@ async function inspectPage(page, label) {
   return page.evaluate((captureLabel) => {
     const canvas = document.querySelector('#arena-canvas');
     const shell = document.querySelector('.broadcast-shell');
+    const topbar = document.querySelector('.topbar');
+    const spectatorRail = document.querySelector('.spectator-rail');
+    const eventRail = document.querySelector('.event-rail');
     const connection = document.querySelector('#connection')?.textContent?.trim() || '';
     const round = document.querySelector('#round-name')?.textContent?.trim() || '';
     const survivors = document.querySelector('#survivor-value')?.textContent?.trim() || '';
     const quota = document.querySelector('#quota-value')?.textContent?.trim() || '';
     const voteStatus = document.querySelector('#vote-status')?.textContent?.trim() || '';
+    const arenaState = document.querySelector('#arena-state-label')?.textContent?.trim() || '';
+    const visible = element => element ? getComputedStyle(element).display !== 'none' : false;
     return {
       label: captureLabel,
       viewport: { width: innerWidth, height: innerHeight },
@@ -39,21 +59,29 @@ async function inspectPage(page, label) {
       canvasPixels: canvas ? { width: canvas.width, height: canvas.height } : null,
       cleanFeed: shell?.dataset.clean === 'true',
       quality: shell?.dataset.quality || null,
+      topbarVisible: visible(topbar),
+      spectatorRailVisible: visible(spectatorRail),
+      eventRailVisible: visible(eventRail),
       connection,
       round,
       survivors,
       quota,
       voteStatus,
+      arenaState,
     };
   }, label);
 }
 
-async function capture(page, label, fileName) {
+async function capture(page, label, fileName, options = {}) {
   await waitForAuthority(page);
-  await page.waitForTimeout(500);
+  await page.waitForTimeout(options.settleMs ?? 1_500);
   const inspection = await inspectPage(page, label);
   if (inspection.horizontalOverflow) throw new Error(`${label} has horizontal overflow`);
   if (!inspection.canvasCss || inspection.canvasCss.width < 240 || inspection.canvasCss.height < 180) throw new Error(`${label} arena canvas is too small`);
+  if (options.forbidReplay && /replay/i.test(inspection.arenaState)) throw new Error(`${label} inherited replay state`);
+  if (options.requireCleanUiHidden && (inspection.topbarVisible || inspection.spectatorRailVisible || inspection.eventRailVisible)) {
+    throw new Error(`${label} clean feed still exposes spectator HUD`);
+  }
   const filePath = path.join(SCREENSHOT_ROOT, fileName);
   await page.screenshot({ path: filePath, fullPage: false });
   return { ...inspection, file: `screenshots/${fileName}` };
@@ -61,40 +89,56 @@ async function capture(page, label, fileName) {
 
 async function main() {
   ensureDirectories();
-  const { server } = createServer({ seed: 'premium-browser-capture', operatorToken: 'capture-only', schedulerIntervalMs: 4, replayCapacity: 60 });
-  await new Promise((resolve, reject) => {
-    server.once('error', reject);
-    server.listen(0, '127.0.0.1', resolve);
-  });
-  const address = server.address();
-  const base = `http://127.0.0.1:${address.port}`;
   const browser = await chromium.launch({ headless: true });
   const captures = [];
 
   try {
-    const desktop = await browser.newPage({ viewport: { width: 1920, height: 1080 }, deviceScaleFactor: 1 });
-    await desktop.goto(`${base}/?quality=balanced`, { waitUntil: 'domcontentloaded' });
-    captures.push(await capture(desktop, 'desktop-balanced', 'desktop-balanced.png'));
+    captures.push(await withCaptureHost('premium-desktop-balanced', async base => {
+      const page = await browser.newPage({ viewport: { width: 1920, height: 1080 }, deviceScaleFactor: 1 });
+      try {
+        await page.goto(`${base}/?quality=balanced`, { waitUntil: 'domcontentloaded' });
+        return await capture(page, 'desktop-balanced', 'desktop-balanced.png', { forbidReplay: true });
+      } finally {
+        await page.close();
+      }
+    }));
 
-    const eastButton = desktop.locator('[data-family="wind-vote"][data-option="east"]');
-    await eastButton.click();
-    await desktop.waitForFunction(() => (document.querySelector('#record-category')?.textContent || '').includes('Assisted'), null, { timeout: 5_000 });
-    captures.push(await capture(desktop, 'desktop-assisted-wind', 'desktop-assisted-wind.png'));
-    await desktop.close();
+    captures.push(await withCaptureHost('premium-desktop-assisted', async base => {
+      const page = await browser.newPage({ viewport: { width: 1920, height: 1080 }, deviceScaleFactor: 1 });
+      try {
+        await page.goto(`${base}/?quality=balanced`, { waitUntil: 'domcontentloaded' });
+        await waitForAuthority(page);
+        await page.waitForTimeout(900);
+        await page.locator('[data-family="wind-vote"][data-option="east"]').click();
+        await page.waitForFunction(() => (document.querySelector('#record-category')?.textContent || '').includes('Assisted'), null, { timeout: 5_000 });
+        return await capture(page, 'desktop-assisted-wind', 'desktop-assisted-wind.png', { settleMs: 450, forbidReplay: true });
+      } finally {
+        await page.close();
+      }
+    }));
 
-    const mobile = await browser.newPage({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 1 });
-    await mobile.emulateMedia({ reducedMotion: 'reduce' });
-    await mobile.goto(`${base}/?quality=low`, { waitUntil: 'domcontentloaded' });
-    captures.push(await capture(mobile, 'phone-low-reduced-motion', 'phone-low-reduced-motion.png'));
-    await mobile.close();
+    captures.push(await withCaptureHost('premium-phone-low', async base => {
+      const page = await browser.newPage({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 1 });
+      try {
+        await page.emulateMedia({ reducedMotion: 'reduce' });
+        await page.goto(`${base}/?quality=low`, { waitUntil: 'domcontentloaded' });
+        return await capture(page, 'phone-low-reduced-motion', 'phone-low-reduced-motion.png', { forbidReplay: true });
+      } finally {
+        await page.close();
+      }
+    }));
 
-    const clean = await browser.newPage({ viewport: { width: 1920, height: 1080 }, deviceScaleFactor: 1 });
-    await clean.goto(`${base}/?quality=low&clean=1`, { waitUntil: 'domcontentloaded' });
-    captures.push(await capture(clean, 'desktop-clean-low', 'desktop-clean-low.png'));
-    await clean.close();
+    captures.push(await withCaptureHost('premium-clean-low', async base => {
+      const page = await browser.newPage({ viewport: { width: 1920, height: 1080 }, deviceScaleFactor: 1 });
+      try {
+        await page.goto(`${base}/?quality=low&clean=1`, { waitUntil: 'domcontentloaded' });
+        return await capture(page, 'desktop-clean-low', 'desktop-clean-low.png', { forbidReplay: true, requireCleanUiHidden: true });
+      } finally {
+        await page.close();
+      }
+    }));
   } finally {
     await browser.close();
-    await new Promise(resolve => server.close(resolve));
   }
 
   const manifest = {
@@ -102,6 +146,7 @@ async function main() {
     game: 'Game 7 — Marble Survival Tournament',
     deterministicVersion: 'marble-physics-v2',
     browser: 'Chromium via Playwright',
+    captureIsolation: 'fresh authority host per scenario',
     captures,
     note: 'These screenshots validate browser layout/render output only. They do not substitute for independent accessibility review, OBS compression review, 72-hour soak, or seven-day canary.',
   };
