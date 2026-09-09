@@ -162,6 +162,41 @@ function drawTrackFoundation(arena, transform) {
   }
 }
 
+function drawPerimeterRails(arena, transform) {
+  const rail = Math.max(4, arena.marbleRadius * transform.scale * .42);
+  const postRadius = Math.max(2, rail * .23);
+  context.save();
+  const steel = context.createLinearGradient(transform.left, 0, transform.left + rail, 0);
+  steel.addColorStop(0, '#242622');
+  steel.addColorStop(.48, '#77796f');
+  steel.addColorStop(.72, '#b6b4a8');
+  steel.addColorStop(1, '#393b36');
+  context.fillStyle = steel;
+  context.fillRect(transform.left, transform.top, rail, transform.height);
+  context.fillRect(transform.left + transform.width - rail, transform.top, rail, transform.height);
+  context.fillRect(transform.left, transform.top, transform.width, rail * .75);
+  context.fillRect(transform.left, transform.top + transform.height - rail, transform.width, rail);
+  context.strokeStyle = 'rgba(244,239,220,.28)';
+  context.lineWidth = Math.max(1, rail * .12);
+  context.strokeRect(transform.left + rail * .16, transform.top + rail * .16, transform.width - rail * .32, transform.height - rail * .32);
+  if (quality.surfaceDetail) {
+    const stepWorld = Math.max(1_600, Math.floor(arena.height / 7));
+    for (let y = stepWorld; y < arena.height; y += stepWorld) {
+      const p = point(0, y, transform);
+      for (const x of [transform.left + rail / 2, transform.left + transform.width - rail / 2]) {
+        context.fillStyle = '#c39a51';
+        context.beginPath();
+        context.arc(x, p.y, postRadius, 0, Math.PI * 2);
+        context.fill();
+        context.strokeStyle = 'rgba(39,40,36,.8)';
+        context.lineWidth = Math.max(1, postRadius * .35);
+        context.stroke();
+      }
+    }
+  }
+  context.restore();
+}
+
 function drawFinishLine(arena, transform) {
   const y = point(0, arena.finishY, transform).y;
   const stripHeight = Math.max(7, arena.marbleRadius * transform.scale * .48);
@@ -212,6 +247,28 @@ function drawWindZones(arena, transform) {
   }
 }
 
+function drawObstacleHardware(rect, transform) {
+  if (rect.width < 8 || rect.height < 5) return;
+  const bevel = Math.max(1, Math.min(rect.height * .18, 32 * transform.scale));
+  context.fillStyle = 'rgba(246,240,222,.12)';
+  context.fillRect(rect.x + bevel, rect.y + bevel * .55, Math.max(0, rect.width - bevel * 2), bevel * .45);
+  context.fillStyle = 'rgba(0,0,0,.28)';
+  context.fillRect(rect.x + bevel, rect.y + rect.height - bevel, Math.max(0, rect.width - bevel * 2), bevel * .55);
+  if (!quality.surfaceDetail) return;
+  const boltRadius = Math.max(1.5, Math.min(4.5, rect.height * .12));
+  const y = rect.y + rect.height / 2;
+  for (const x of [rect.x + rect.width * .14, rect.x + rect.width * .86]) {
+    context.fillStyle = '#c5a15c';
+    context.beginPath();
+    context.arc(x, y, boltRadius, 0, Math.PI * 2);
+    context.fill();
+    context.fillStyle = 'rgba(255,247,220,.55)';
+    context.beginPath();
+    context.arc(x - boltRadius * .28, y - boltRadius * .28, Math.max(.7, boltRadius * .22), 0, Math.PI * 2);
+    context.fill();
+  }
+}
+
 function drawObstacles(arena, transform) {
   for (const obstacle of arena.obstacles) {
     const rect = rectGeometry(obstacle, transform);
@@ -229,6 +286,7 @@ function drawObstacles(arena, transform) {
     context.strokeStyle = 'rgba(232,225,205,.18)';
     context.lineWidth = Math.max(1, transform.scale * 10);
     context.strokeRect(rect.x, rect.y, rect.width, rect.height);
+    drawObstacleHardware(rect, transform);
   }
 }
 
@@ -441,6 +499,7 @@ function draw(now) {
     drawBumpers(view.arena, transform);
     drawSweepers(view.arena, transform);
     drawFinishLine(view.arena, transform);
+    drawPerimeterRails(view.arena, transform);
     drawMarbles(view, transform, now, Boolean(replay));
     if (replay) arenaStateLabel.textContent = 'Replay · confirmed tournament moment';
   }
