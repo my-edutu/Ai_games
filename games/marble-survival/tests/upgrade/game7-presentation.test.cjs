@@ -108,6 +108,14 @@ test('browser renderer consumes real arena geometry and never invents rotating s
   assert.doesNotMatch(app, /for \(let x = 0; x <= arena\.width; x \+= 60\)/);
 });
 
+test('browser renderer gives the physical arena explicit boundary rails and obstacle hardware', () => {
+  const app = browserSource('app.js');
+  assert.match(app, /function drawPerimeterRails\(/);
+  assert.match(app, /function drawObstacleHardware\(/);
+  assert.match(app, /drawPerimeterRails\(view\.arena, transform\)/);
+  assert.match(app, /drawObstacleHardware\(rect, transform\)/);
+});
+
 test('quality presets are presentation-only and cover low through ultra', () => {
   const app = browserSource('app.js');
   assert.match(app, /QUALITY_PRESETS/);
