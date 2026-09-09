@@ -8,6 +8,7 @@ on:
       - 'games/marble-survival/**'
       - 'tests/foundation/marble-*.test.cjs'
       - 'package.json'
+      - 'package-lock.json'
       - 'tsconfig.json'
       - '.github/workflows/game7-premium-upgrade.yml'
   pull_request:
@@ -15,6 +16,7 @@ on:
       - 'games/marble-survival/**'
       - 'tests/foundation/marble-*.test.cjs'
       - 'package.json'
+      - 'package-lock.json'
       - 'tsconfig.json'
       - '.github/workflows/game7-premium-upgrade.yml'
   workflow_dispatch:
@@ -28,18 +30,66 @@ concurrency:
 
 jobs:
   game7-upgrade:
-    name: Build and Game 7 upgrade verification
+    name: Authority, broadcast, recovery, and performance
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
+
       - name: Set up Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: 22
           cache: npm
+
       - name: Install locked dependencies
         run: npm ci
-      - name: Run Marble upgrade tests
+
+      - name: Create evidence directory
+        run: mkdir -p games/marble-survival/artifacts
+
+      - name: Block high-severity production dependency findings
+        run: npm audit --omit=dev --audit-level=high
+
+      - name: Capture full development-tool audit
+        shell: bash
+        run: |
+          npm audit --json > games/marble-survival/artifacts/game7-dev-audit.json || true
+          node -e "const fs=require('node:fs');const report=JSON.parse(fs.readFileSync('games/marble-survival/artifacts/game7-dev-audit.json','utf8'));console.log('dev audit vulnerabilities:', JSON.stringify(report.metadata?.vulnerabilities || {}));"
+
+      - name: Run Marble deterministic and upgrade tests
         run: npm run marble:upgrade:test
+
+      - name: Run authoritative browser-source self-test
+        run: npm run marble:stream:self-test
+
+      - name: Reject ambient nondeterminism in authoritative modules
+        shell: bash
+        run: |
+          if grep -REn 'Math\.random|Date\.now|performance\.now|randomUUID' \
+            games/marble-survival/src/runtime \
+            games/marble-survival/src/physics \
+            games/marble-survival/src/rules \
+            games/marble-survival/src/generation \
+            games/marble-survival/src/influence \
+            games/marble-survival/src/persistence; then
+            echo 'Ambient nondeterminism found in Game 7 authority.' >&2
+            exit 1
+          fi
+
+      - name: Measure and enforce authoritative tick budget
+        shell: bash
+        run: |
+          set -o pipefail
+          node games/marble-survival/scripts/profile-premium-runtime.cjs --enforce \
+            | tee games/marble-survival/artifacts/game7-performance.json
+
+      - name: Upload Game 7 software evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: game7-premium-upgrade-evidence-${{ github.run_number }}
+          path: games/marble-survival/artifacts/
+          if-no-files-found: warn
+          retention-days: 30
