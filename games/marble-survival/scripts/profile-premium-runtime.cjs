@@ -61,7 +61,6 @@ function prepareContactStorm(runtime) {
   runtime.state.arena.sweepers = [];
   runtime.state.arena.obstacles = [];
   runtime.state.arena.bumpers = [];
-  runtime.state.roundTimeoutTicks = 100_000;
 }
 
 function packContactStorm(runtime, tick) {
@@ -70,11 +69,13 @@ function packContactStorm(runtime, tick) {
   const spacing = Math.max(1, Math.floor(radius * 1.55));
   const centerX = Math.floor(runtime.state.arena.width / 2);
   const centerY = Math.floor(runtime.state.arena.height / 2);
+  const left = centerX - Math.floor((7 * spacing) / 2);
+  const top = centerY - Math.floor((3 * spacing) / 2);
   for (let index = 0; index < active.length; index++) {
     const column = index % 8;
     const row = Math.floor(index / 8);
-    active[index].position.x = centerX + (column - 3.5) * spacing;
-    active[index].position.y = centerY + (row - 1.5) * spacing;
+    active[index].position.x = left + column * spacing;
+    active[index].position.y = top + row * spacing;
     active[index].velocity.x = (index % 2 === 0 ? 1 : -1) * Math.floor(runtime.state.config.maxSpeed * .55);
     active[index].velocity.y = ((index + tick) % 3 === 0 ? 1 : -1) * Math.floor(runtime.state.config.maxSpeed * .35);
   }
