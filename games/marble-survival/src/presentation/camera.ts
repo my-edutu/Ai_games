@@ -34,12 +34,24 @@ function directiveFor(snapshot: MarblePublicSnapshot, mode: MarbleCameraMode, ta
   };
 }
 
+function currentRoundEvents(recentEvents: readonly MarblePresentationEvent[]): MarblePresentationEvent[] {
+  let lastRoundStarted = -1;
+  for (let index = recentEvents.length - 1; index >= 0; index--) {
+    if (recentEvents[index].type === 'round-started') {
+      lastRoundStarted = index;
+      break;
+    }
+  }
+  return lastRoundStarted >= 0 ? recentEvents.slice(lastRoundStarted) : [...recentEvents];
+}
+
 export function selectMarbleCamera(
   snapshot: MarblePublicSnapshot,
   recentEvents: readonly MarblePresentationEvent[],
   previous?: MarbleCameraDirective
 ): MarbleCameraDirective {
-  const newestFirst = [...recentEvents].sort((left, right) => right.tick - left.tick);
+  const scopedEvents = currentRoundEvents(recentEvents);
+  const newestFirst = [...scopedEvents].sort((left, right) => right.tick - left.tick);
   const championEvent = newestFirst.find(event => event.type === 'tournament-champion');
   const confirmedChampionId = snapshot.champion?.id ?? numericId(championEvent?.data?.championId);
   if (snapshot.run.lifecycle === 'tournament-result' && confirmedChampionId !== null) {
