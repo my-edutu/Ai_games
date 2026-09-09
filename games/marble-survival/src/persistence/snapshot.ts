@@ -1,6 +1,13 @@
 import { checksum } from '../../../../packages/replay/src/index';
 import { NamedRng, type RngSnapshot } from '../../../../packages/seeded-rng/src/index';
 import { parseMarbleConfig } from '../config/schema';
+import {
+  MARBLE_INFLUENCE_HISTORY_CAP,
+  MARBLE_INFLUENCE_QUEUE_CAP,
+  MARBLE_WIND_DURATION_TICKS,
+  isSafeInfluenceId,
+  isWindOption,
+} from '../influence/catalogue';
 import { MarbleRuntime, marbleStateChecksum } from '../runtime/run';
 import type { MarbleConfig, MarbleEvent, MarbleState } from '../state/types';
 
@@ -30,6 +37,47 @@ export class MarbleSnapshotError extends Error {
   }
 }
 
+function validateInfluence(state: MarbleState): void {
+  const influence = state.influence;
+  if (!influence || !Array.isArray(influence.pending) || !Array.isArray(influence.appliedIds)) {
+    throw new MarbleSnapshotError('state', 'Influence state is malformed.');
+  }
+  if (influence.pending.length > MARBLE_INFLUENCE_QUEUE_CAP) {
+    throw new MarbleSnapshotError('state', 'Pending influence queue exceeds its declared bound.');
+  }
+  if (influence.appliedIds.length > MARBLE_INFLUENCE_HISTORY_CAP) {
+    throw new MarbleSnapshotError('state', 'Influence idempotency history exceeds its declared bound.');
+  }
+  if (!Number.isSafeInteger(influence.effectUntilTick) || influence.effectUntilTick < -1) {
+    throw new MarbleSnapshotError('state', 'Influence expiry tick is invalid.');
+  }
+  if (influence.activeFamily !== null && influence.activeFamily !== 'wind-vote') {
+    throw new MarbleSnapshotError('state', 'Unsupported active influence family.');
+  }
+  if (influence.activeFamily === 'wind-vote' && !isWindOption(influence.activeOption)) {
+    throw new MarbleSnapshotError('state', 'Active wind influence option is invalid.');
+  }
+  if (influence.activeFamily === null && influence.activeOption !== null) {
+    throw new MarbleSnapshotError('state', 'Inactive influence cannot retain an active option.');
+  }
+  if (!Number.isSafeInteger(influence.globalWindX) || !Number.isSafeInteger(influence.globalWindY)) {
+    throw new MarbleSnapshotError('state', 'Global influence vector is invalid.');
+  }
+
+  const seen = new Set<string>();
+  for (const id of influence.appliedIds) {
+    if (!isSafeInfluenceId(id) || seen.has(id)) throw new MarbleSnapshotError('state', 'Influence idempotency history contains an invalid or duplicate identifier.');
+    seen.add(id);
+  }
+  for (const command of influence.pending) {
+    if (!command || !isSafeInfluenceId(command.id) || seen.has(command.id)) throw new MarbleSnapshotError('state', 'Pending influence contains an invalid or duplicate identifier.');
+    if (command.family !== 'wind-vote' || !isWindOption(command.option)) throw new MarbleSnapshotError('state', 'Pending influence contains an unsupported command.');
+    if (!Number.isSafeInteger(command.applyTick) || command.applyTick < 0) throw new MarbleSnapshotError('state', 'Pending influence apply tick is invalid.');
+    if (command.durationTicks !== MARBLE_WIND_DURATION_TICKS) throw new MarbleSnapshotError('state', 'Pending influence duration is incompatible with this deterministic version.');
+    seen.add(command.id);
+  }
+}
+
 function validateState(state: MarbleState): void {
   if (state.schemaVersion !== 1 || state.determinismVersion !== 'marble-physics-v2') throw new MarbleSnapshotError('version', 'Unsupported state version.');
   const identifiers = new Set(state.marbles.map(marble => marble.id));
@@ -43,6 +91,7 @@ function validateState(state: MarbleState): void {
       throw new MarbleSnapshotError('state', `Marble ${marble.id} position is outside deterministic range.`);
     }
   }
+  validateInfluence(state);
 }
 
 function validateEvents(events: MarbleEvent[], nextSequence: number): void {
