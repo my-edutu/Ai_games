@@ -74,6 +74,11 @@ export function selectMarbleCamera(
     if (dangerId !== null) return directiveFor(snapshot, 'danger', [dangerId], 1_075, 60);
   }
 
+  const roundStart = newestFirst.find(event => event.type === 'round-started');
+  if (roundStart && snapshot.tick - roundStart.tick <= 90) {
+    return directiveFor(snapshot, 'overview', [], 1_000, 90);
+  }
+
   if (previous && snapshot.tick < previous.minHoldTicks && previous.targetIds.every(id => snapshot.marbles.some(marble => marble.id === id))) {
     return { ...previous, targetIds: [...previous.targetIds] };
   }
