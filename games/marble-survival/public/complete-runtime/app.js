@@ -21,25 +21,19 @@ const voteStatus = document.querySelector('#vote-status');
 const soundToggle = document.querySelector('#sound-toggle');
 
 const QUALITY_PRESETS = Object.freeze({
-  low: Object.freeze({ fps: 30, dpr: 1, shadows: false, specular: false, surfaceDetail: false }),
-  balanced: Object.freeze({ fps: 60, dpr: 1.5, shadows: true, specular: true, surfaceDetail: true }),
-  high: Object.freeze({ fps: 60, dpr: 2, shadows: true, specular: true, surfaceDetail: true }),
-  ultra: Object.freeze({ fps: 60, dpr: 2.5, shadows: true, specular: true, surfaceDetail: true }),
+  low: Object.freeze({ fps: 30, dpr: 1, shadows: false, specular: false, surfaceDetail: false, replayFrames: 30 }),
+  balanced: Object.freeze({ fps: 60, dpr: 1.5, shadows: true, specular: true, surfaceDetail: true, replayFrames: 54 }),
+  high: Object.freeze({ fps: 60, dpr: 2, shadows: true, specular: true, surfaceDetail: true, replayFrames: 72 }),
+  ultra: Object.freeze({ fps: 60, dpr: 2.5, shadows: true, specular: true, surfaceDetail: true, replayFrames: 90 }),
 });
 
 const PALETTES = Object.freeze({
-  aurora: ['#d6f0d7', '#67b890', '#315f53'],
-  coral: ['#ffd2c4', '#df7866', '#743c36'],
-  cyan: ['#d4f4f0', '#68b8b8', '#2e5d65'],
-  gold: ['#fae5a8', '#c99945', '#6d522c'],
-  lime: ['#e3edba', '#a2bc62', '#566638'],
-  magenta: ['#f0c9de', '#ba6b91', '#653b57'],
-  orchid: ['#e4d1e9', '#9b78a8', '#55445e'],
-  ruby: ['#f1c2bd', '#b6534f', '#672f32'],
-  sky: ['#d7e7ef', '#7ba9be', '#405d6b'],
-  violet: ['#ddd2e9', '#8a73a6', '#4c415f'],
-  amber: ['#f4ddb0', '#c88a42', '#714d2d'],
-  mint: ['#d5ebdf', '#79ad91', '#456352'],
+  aurora: ['#d6f0d7', '#67b890', '#315f53'], coral: ['#ffd2c4', '#df7866', '#743c36'],
+  cyan: ['#d4f4f0', '#68b8b8', '#2e5d65'], gold: ['#fae5a8', '#c99945', '#6d522c'],
+  lime: ['#e3edba', '#a2bc62', '#566638'], magenta: ['#f0c9de', '#ba6b91', '#653b57'],
+  orchid: ['#e4d1e9', '#9b78a8', '#55445e'], ruby: ['#f1c2bd', '#b6534f', '#672f32'],
+  sky: ['#d7e7ef', '#7ba9be', '#405d6b'], violet: ['#ddd2e9', '#8a73a6', '#4c415f'],
+  amber: ['#f4ddb0', '#c88a42', '#714d2d'], mint: ['#d5ebdf', '#79ad91', '#456352'],
 });
 
 const parameters = new URLSearchParams(location.search);
@@ -60,12 +54,21 @@ let audioContext = null;
 let activeVoices = 0;
 let latestEvents = [];
 let seenEventIds = new Set();
+let replayedEventIds = new Set();
 let lastCueAt = new Map();
 let lastDrawAt = 0;
+let replayFrames = [];
+let replayStartedAt = 0;
+let replayActive = false;
 const orientationById = new Map();
+const REPLAY_FRAME_MS = 55;
 
 function paletteFor(key) {
   return PALETTES[key] || ['#e8e0ce', '#9c9586', '#4c4942'];
+}
+
+function clamp(value, minimum, maximum) {
+  return Math.max(minimum, Math.min(maximum, value));
 }
 
 function resizeCanvas() {
@@ -80,16 +83,20 @@ function resizeCanvas() {
   }
 }
 
-function arenaTransform(arena) {
+function arenaTransform(arena, camera) {
   const padding = Math.max(22, Math.min(canvas.width, canvas.height) * .045);
-  const scale = Math.min((canvas.width - padding * 2) / arena.width, (canvas.height - padding * 2) / arena.height);
-  return {
-    scale,
-    left: (canvas.width - arena.width * scale) / 2,
-    top: (canvas.height - arena.height * scale) / 2,
-    width: arena.width * scale,
-    height: arena.height * scale,
-  };
+  const baseScale = Math.min((canvas.width - padding * 2) / arena.width, (canvas.height - padding * 2) / arena.height);
+  const zoom = clamp(Number(camera?.zoomPermille || 1000) / 1000, 1, 1.28);
+  const scale = baseScale * zoom;
+  const width = arena.width * scale;
+  const height = arena.height * scale;
+  const focusX = Number.isFinite(camera?.focusX) ? camera.focusX : arena.width / 2;
+  const focusY = Number.isFinite(camera?.focusY) ? camera.focusY : arena.height / 2;
+  let left = canvas.width / 2 - focusX * scale;
+  let top = canvas.height / 2 - focusY * scale;
+  left = width <= canvas.width - padding * 2 ? (canvas.width - width) / 2 : clamp(left, canvas.width - padding - width, padding);
+  top = height <= canvas.height - padding * 2 ? (canvas.height - height) / 2 : clamp(top, canvas.height - padding - height, padding);
+  return { scale, left, top, width, height };
 }
 
 function point(x, y, transform) {
@@ -98,12 +105,7 @@ function point(x, y, transform) {
 
 function rectGeometry(value, transform) {
   const position = point(value.x, value.y, transform);
-  return {
-    x: position.x,
-    y: position.y,
-    width: value.width * transform.scale,
-    height: value.height * transform.scale,
-  };
+  return { x: position.x, y: position.y, width: value.width * transform.scale, height: value.height * transform.scale };
 }
 
 function drawBackdrop() {
@@ -113,7 +115,6 @@ function drawBackdrop() {
   gradient.addColorStop(1, '#171714');
   context.fillStyle = gradient;
   context.fillRect(0, 0, canvas.width, canvas.height);
-
   if (quality.surfaceDetail) {
     context.fillStyle = 'rgba(255,255,255,.018)';
     const step = Math.max(34, Math.round(canvas.width / 32));
@@ -135,18 +136,15 @@ function drawTrackFoundation(arena, transform) {
     context.fillStyle = '#171815';
     context.fillRect(transform.left, transform.top + depth, transform.width, transform.height);
   }
-
   const track = context.createLinearGradient(transform.left, transform.top, transform.left + transform.width, transform.top + transform.height);
   track.addColorStop(0, '#eee5cf');
   track.addColorStop(.45, '#ded5bd');
   track.addColorStop(1, '#cfc5ad');
   context.fillStyle = track;
   context.fillRect(transform.left, transform.top, transform.width, transform.height);
-
   context.strokeStyle = 'rgba(64,61,52,.52)';
   context.lineWidth = Math.max(1, transform.scale * 18);
   context.strokeRect(transform.left, transform.top, transform.width, transform.height);
-
   if (quality.surfaceDetail) {
     context.strokeStyle = 'rgba(82,78,67,.12)';
     context.lineWidth = Math.max(1, transform.scale * 6);
@@ -215,14 +213,12 @@ function drawObstacles(arena, transform) {
       context.fillStyle = 'rgba(0,0,0,.24)';
       context.fillRect(rect.x + depth, rect.y + depth, rect.width, rect.height);
     }
-    context.fillStyle = '#343630';
-    context.fillRect(rect.x, rect.y, rect.width, rect.height);
     const top = context.createLinearGradient(rect.x, rect.y, rect.x, rect.y + rect.height);
     top.addColorStop(0, '#55574f');
     top.addColorStop(.14, '#40423c');
     top.addColorStop(1, '#2a2b27');
     context.fillStyle = top;
-    context.fillRect(rect.x + 1, rect.y + 1, Math.max(0, rect.width - 2), Math.max(0, rect.height - 2));
+    context.fillRect(rect.x, rect.y, rect.width, rect.height);
     context.strokeStyle = 'rgba(232,225,205,.18)';
     context.lineWidth = Math.max(1, transform.scale * 10);
     context.strokeRect(rect.x, rect.y, rect.width, rect.height);
@@ -276,16 +272,12 @@ function drawSweepers(arena, transform) {
     context.strokeStyle = '#272925';
     context.lineWidth = Math.max(1, transform.scale * 14);
     context.strokeRect(rect.x, rect.y, rect.width, rect.height);
-
     const boltRadius = Math.max(2, Math.min(rect.height * .28, 90 * transform.scale));
     for (const x of [rect.x + boltRadius * 1.6, rect.x + rect.width - boltRadius * 1.6]) {
       context.fillStyle = '#d5aa58';
       context.beginPath();
       context.arc(x, rect.y + rect.height / 2, boltRadius, 0, Math.PI * 2);
       context.fill();
-      context.strokeStyle = '#67532f';
-      context.lineWidth = Math.max(1, boltRadius * .18);
-      context.stroke();
     }
   }
 }
@@ -295,12 +287,11 @@ function drawPattern(pattern, radius) {
   context.fillStyle = 'rgba(25,25,22,.65)';
   context.lineWidth = Math.max(1.4, radius * .1);
   if (pattern === 'ring') {
-    context.beginPath();
-    context.arc(0, 0, radius * .57, 0, Math.PI * 2);
-    context.stroke();
-    context.beginPath();
-    context.arc(0, 0, radius * .26, 0, Math.PI * 2);
-    context.stroke();
+    for (const factor of [.57, .26]) {
+      context.beginPath();
+      context.arc(0, 0, radius * factor, 0, Math.PI * 2);
+      context.stroke();
+    }
   } else if (pattern === 'dots') {
     for (const [x, y] of [[-.35, -.28], [.34, -.3], [0, .18], [-.42, .38], [.42, .37]]) {
       context.beginPath();
@@ -324,7 +315,7 @@ function drawPattern(pattern, radius) {
 }
 
 function updateOrientations(next, previous) {
-  const previousById = new Map((previous?.marbles || []).map((marble) => [marble.id, marble]));
+  const previousById = new Map((previous?.marbles || []).map(marble => [marble.id, marble]));
   const radius = Math.max(1, next.arena.marbleRadius || 1);
   for (const marble of next.marbles) {
     const old = previousById.get(marble.id);
@@ -337,26 +328,43 @@ function updateOrientations(next, previous) {
     const distance = Math.hypot(dx, dy);
     if (distance < .001) continue;
     const direction = Math.abs(dx) >= Math.abs(dy) ? Math.sign(dx || 1) : -Math.sign(dy || 1);
-    const current = orientationById.get(marble.id) || 0;
-    orientationById.set(marble.id, current + direction * Math.min(Math.PI * 1.5, distance / radius));
+    orientationById.set(marble.id, (orientationById.get(marble.id) || 0) + direction * Math.min(Math.PI * 1.5, distance / radius));
   }
 }
 
-function interpolatedMarbles(now) {
-  if (!snapshot) return [];
-  if (!previousSnapshot || previousSnapshot.round.id !== snapshot.round.id) return snapshot.marbles;
+function replayView(now) {
+  if (!replayActive || replayFrames.length === 0) return null;
+  const index = Math.floor((now - replayStartedAt) / REPLAY_FRAME_MS);
+  if (index >= replayFrames.length) {
+    replayActive = false;
+    replayFrames = [];
+    if (snapshot) renderHud(snapshot);
+    return null;
+  }
+  const frame = replayFrames[index];
+  const replaySnapshot = frame?.snapshot;
+  if (!replaySnapshot) return null;
+  return {
+    ...replaySnapshot,
+    camera: Object.freeze({ ...(replaySnapshot.camera || snapshot?.camera || {}), mode: 'replay' }),
+  };
+}
+
+function interpolatedMarbles(now, view, isReplay) {
+  if (!view) return [];
+  if (isReplay || !previousSnapshot || previousSnapshot.round.id !== view.round.id || view !== snapshot) return view.marbles;
   const elapsed = Math.min(1, Math.max(0, (now - snapshotArrivedAt) / 120));
-  const previousById = new Map(previousSnapshot.marbles.map((marble) => [marble.id, marble]));
-  return snapshot.marbles.map((marble) => {
+  const previousById = new Map(previousSnapshot.marbles.map(marble => [marble.id, marble]));
+  return view.marbles.map(marble => {
     const old = previousById.get(marble.id) || marble;
     return { ...marble, x: old.x + (marble.x - old.x) * elapsed, y: old.y + (marble.y - old.y) * elapsed };
   });
 }
 
-function drawMarbles(arena, transform, now) {
-  const marbles = interpolatedMarbles(now);
-  const radius = Math.max(3, arena.marbleRadius * transform.scale);
-  const cutoffId = snapshot?.qualificationCutoff?.id;
+function drawMarbles(view, transform, now, isReplay) {
+  const marbles = interpolatedMarbles(now, view, isReplay);
+  const radius = Math.max(3, view.arena.marbleRadius * transform.scale);
+  const cutoffId = view.qualificationCutoff?.id;
   for (const marble of marbles) {
     const p = point(marble.x, marble.y, transform);
     const [light, base, dark] = paletteFor(marble.palette);
@@ -366,7 +374,6 @@ function drawMarbles(arena, transform, now) {
       context.ellipse(p.x + radius * .15, p.y + radius * .48, radius * .88, radius * .38, 0, 0, Math.PI * 2);
       context.fill();
     }
-
     context.save();
     context.translate(p.x, p.y);
     context.rotate(orientationById.get(marble.id) || 0);
@@ -386,13 +393,11 @@ function drawMarbles(arena, transform, now) {
     drawPattern(marble.pattern, radius);
     context.restore();
     context.restore();
-
     context.strokeStyle = marble.qualified || marble.status === 'champion' ? '#65b996' : marble.id === cutoffId ? '#d7a64a' : 'rgba(244,240,229,.5)';
     context.lineWidth = Math.max(1, radius * (marble.qualified ? .16 : .09));
     context.beginPath();
     context.arc(p.x, p.y, radius + Math.max(1, radius * .04), 0, Math.PI * 2);
     context.stroke();
-
     if (radius >= 7) {
       context.fillStyle = '#171714';
       context.font = `800 ${Math.max(7, radius * .62)}px ui-sans-serif, system-ui`;
@@ -412,21 +417,25 @@ function draw(now) {
   lastDrawAt = now;
   resizeCanvas();
   drawBackdrop();
-  if (!snapshot) {
+  const replay = replayView(now);
+  const view = replay || snapshot;
+  if (!view) {
     context.fillStyle = '#d7d0be';
     context.font = `700 ${Math.max(16, canvas.width / 48)}px ui-sans-serif, system-ui`;
     context.textAlign = 'center';
     context.fillText('Waiting for deterministic authority…', canvas.width / 2, canvas.height / 2);
   } else {
-    const transform = arenaTransform(snapshot.arena);
-    drawTrackFoundation(snapshot.arena, transform);
-    drawWindZones(snapshot.arena, transform);
-    drawHazards(snapshot.arena, transform);
-    drawObstacles(snapshot.arena, transform);
-    drawBumpers(snapshot.arena, transform);
-    drawSweepers(snapshot.arena, transform);
-    drawFinishLine(snapshot.arena, transform);
-    drawMarbles(snapshot.arena, transform, now);
+    const camera = view.camera || snapshot.camera;
+    const transform = arenaTransform(view.arena, camera);
+    drawTrackFoundation(view.arena, transform);
+    drawWindZones(view.arena, transform);
+    drawHazards(view.arena, transform);
+    drawObstacles(view.arena, transform);
+    drawBumpers(view.arena, transform);
+    drawSweepers(view.arena, transform);
+    drawFinishLine(view.arena, transform);
+    drawMarbles(view, transform, now, Boolean(replay));
+    if (replay) arenaStateLabel.textContent = 'Replay · confirmed tournament moment';
   }
   requestAnimationFrame(draw);
 }
@@ -447,8 +456,7 @@ function renderHud(next) {
   quotaValue.textContent = String(next.round.quota);
   recordCategory.textContent = next.recordCategory === 'assisted' ? 'Assisted' : 'Standard';
   recordCategory.dataset.assisted = String(next.recordCategory === 'assisted');
-
-  const marbleById = new Map(next.marbles.map((marble) => [marble.id, marble]));
+  const marbleById = new Map(next.marbles.map(marble => [marble.id, marble]));
   const cutoff = next.qualificationCutoff;
   const cutoffMarble = cutoff ? marbleById.get(cutoff.id) : null;
   if (cutoff && cutoffMarble) {
@@ -458,8 +466,7 @@ function renderHud(next) {
     cutoffLabel.textContent = 'Qualification line pending';
     cutoffDetail.textContent = 'The final qualifying position will appear here.';
   }
-
-  leaderboard.replaceChildren(...next.leaderboard.map((entry) => {
+  leaderboard.replaceChildren(...next.leaderboard.map(entry => {
     const marble = marbleById.get(entry.id);
     const item = document.createElement('li');
     item.dataset.cutoff = String(Boolean(cutoff && cutoff.id === entry.id));
@@ -477,11 +484,13 @@ function renderHud(next) {
     item.append(copy, progress);
     return item;
   }));
-
   championCard.hidden = !next.champion;
   championName.textContent = next.champion?.displayName || '';
-  if (next.run.lifecycle === 'quarantined') arenaStateLabel.textContent = 'Tournament integrity check — starting from verified truth';
+  if (replayActive) arenaStateLabel.textContent = 'Replay · confirmed tournament moment';
+  else if (next.run.lifecycle === 'quarantined') arenaStateLabel.textContent = 'Tournament integrity check — starting from verified truth';
   else if (next.champion) arenaStateLabel.textContent = `Champion confirmed: ${next.champion.displayName}`;
+  else if (next.camera?.mode === 'finish') arenaStateLabel.textContent = 'Finish view · qualification position contested';
+  else if (next.camera?.mode === 'danger') arenaStateLabel.textContent = 'Danger zone · survival under pressure';
   else if (next.round.remaining <= Math.max(next.round.quota + 2, 4)) arenaStateLabel.textContent = 'Qualification pressure — every position matters';
   else arenaStateLabel.textContent = `${next.round.remaining} marbles contesting ${next.round.quota} qualifying places`;
 }
@@ -496,9 +505,7 @@ async function refreshSnapshot() {
     const response = await fetch('/api/snapshot', { cache: 'no-store' });
     if (!response.ok) throw new Error(`snapshot ${response.status}`);
     const next = await response.json();
-    if (!Number.isFinite(next.tick) || !Array.isArray(next.marbles) || !next.arena || !Array.isArray(next.arena.obstacles) || !Array.isArray(next.arena.sweepers) || !Array.isArray(next.arena.hazards)) {
-      throw new Error('invalid snapshot');
-    }
+    if (!Number.isFinite(next.tick) || !Array.isArray(next.marbles) || !next.arena || !next.camera || !Array.isArray(next.arena.obstacles) || !Array.isArray(next.arena.sweepers) || !Array.isArray(next.arena.hazards)) throw new Error('invalid snapshot');
     if (snapshot && next.round.id === snapshot.round.id && next.tick < latestAcceptedTick) return;
     const old = snapshot;
     previousSnapshot = snapshot;
@@ -522,24 +529,37 @@ function eventLabel(event) {
   if (event.type === 'marble-qualified') return `Marble ${Number(data.marbleId) + 1} secured qualifying place #${data.finishRank}.`;
   if (event.type === 'marble-eliminated') return `Marble ${Number(data.marbleId) + 1} was eliminated${data.cause ? ` by ${String(data.cause).replaceAll('-', ' ')}` : ''}.`;
   if (event.type === 'shield-recovery') return `Marble ${Number(data.marbleId) + 1} used a recovery shield and stayed alive.`;
-  if (event.type === 'elimination-boundary-review') return `A simultaneous elimination was resolved by the published progress tie policy.`;
+  if (event.type === 'elimination-boundary-review') return 'A simultaneous elimination was resolved by the published progress tie policy.';
   if (event.type === 'round-resolved') return 'Qualification is confirmed. The bracket is advancing.';
   if (event.type === 'tournament-champion') return `Champion confirmed: Marble ${Number(data.championId) + 1}.`;
   if (event.type === 'integrity-quarantined') return 'Tournament integrity check triggered. No sporting loss was recorded.';
   if (event.type === 'intermission-started') return 'Result confirmed. The next tournament is being prepared.';
   if (event.type === 'tournament-restarted') return 'A new seeded tournament has started.';
-  if (event.type === 'physics-contact' && Number(data.impulse || 0) >= 180) return `Heavy physical contact in the pack.`;
+  if (event.type === 'physics-contact' && Number(data.impulse || 0) >= 180) return 'Heavy physical contact in the pack.';
   return null;
 }
 
+async function startReplay(eventId) {
+  if (replayedEventIds.has(eventId)) return;
+  replayedEventIds.add(eventId);
+  try {
+    const response = await fetch(`/api/replay?frames=${quality.replayFrames}`, { cache: 'no-store' });
+    if (!response.ok) return;
+    const payload = await response.json();
+    const frames = Array.isArray(payload.frames) ? payload.frames.slice(-quality.replayFrames) : [];
+    if (frames.length < 2) return;
+    replayFrames = frames;
+    replayStartedAt = performance.now();
+    replayActive = true;
+    arenaStateLabel.textContent = 'Replay · confirmed tournament moment';
+  } catch {
+    // Replay is presentation-only; live authority remains visible if unavailable.
+  }
+}
+
 const CUE_COOLDOWNS = Object.freeze({
-  'physics-contact': 90,
-  'checkpoint-reached': 180,
-  'marble-qualified': 180,
-  'marble-eliminated': 220,
-  'shield-recovery': 220,
-  'round-resolved': 500,
-  'tournament-champion': 1200,
+  'physics-contact': 90, 'checkpoint-reached': 180, 'marble-qualified': 180, 'marble-eliminated': 220,
+  'shield-recovery': 220, 'round-resolved': 500, 'tournament-champion': 1200,
 });
 
 function playCue(event) {
@@ -550,15 +570,9 @@ function playCue(event) {
   const impulse = Number(event.data?.impulse || 0);
   if (event.type === 'physics-contact' && impulse < 70) return;
   lastCueAt.set(event.type, now);
-
   const frequencyByType = {
-    'checkpoint-reached': 360,
-    'marble-qualified': 520,
-    'marble-eliminated': 180,
-    'shield-recovery': 430,
-    'round-resolved': 460,
-    'tournament-champion': 680,
-    'integrity-quarantined': 150,
+    'checkpoint-reached': 360, 'marble-qualified': 520, 'marble-eliminated': 180, 'shield-recovery': 430,
+    'round-resolved': 460, 'tournament-champion': 680, 'integrity-quarantined': 150,
     'physics-contact': Math.max(100, 250 - Math.min(130, impulse / 3)),
   };
   const frequency = frequencyByType[event.type] || 300;
@@ -566,7 +580,7 @@ function playCue(event) {
   const duration = event.type === 'tournament-champion' ? .42 : .18;
   const oscillator = audioContext.createOscillator();
   const gain = audioContext.createGain();
-  oscillator.type = event.type === 'physics-contact' ? 'triangle' : event.type === 'tournament-champion' ? 'sine' : 'triangle';
+  oscillator.type = 'triangle';
   oscillator.frequency.value = frequency;
   gain.gain.setValueAtTime(.0001, audioContext.currentTime);
   gain.gain.exponentialRampToValueAtTime(Math.max(.001, peak), audioContext.currentTime + .012);
@@ -591,10 +605,12 @@ async function refreshEvents() {
       if (!seenEventIds.has(event.id)) {
         seenEventIds.add(event.id);
         playCue(event);
+        if (event.type === 'round-resolved' || event.type === 'tournament-champion') startReplay(event.id);
       }
     }
     if (latestLabel) eventMessage.textContent = latestLabel;
-    if (seenEventIds.size > 256) seenEventIds = new Set(latestEvents.map((event) => event.id));
+    if (seenEventIds.size > 256) seenEventIds = new Set(latestEvents.map(event => event.id));
+    if (replayedEventIds.size > 128) replayedEventIds = new Set(latestEvents.map(event => event.id));
   } catch {
     // Event presentation is optional; snapshot authority remains visible.
   }
