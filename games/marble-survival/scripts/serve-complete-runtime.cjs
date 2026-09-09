@@ -10,6 +10,7 @@ const {
   marbleStateChecksum,
   selectMarbleCamera,
   MarbleReplayBuffer,
+  MARBLE_INFLUENCE_CATALOGUE,
 } = require('../../../dist/games/marble-survival/src/index.js');
 
 const STATIC_ROOT = path.resolve(__dirname, '../public/complete-runtime');
@@ -24,6 +25,8 @@ const SECURITY_HEADERS = Object.freeze({
 });
 
 const CAMERA_PRIORITY = Object.freeze({ overview: 0, pack: 1, danger: 2, finish: 3, replay: 4, victory: 5 });
+const VIEWER_COOLDOWN_MS = 15_000;
+const HOST_DEDUPE_CAP = 512;
 
 function json(response, status, payload, extraHeaders = {}) {
   response.writeHead(status, {
@@ -76,8 +79,18 @@ function tokenMatches(expected, provided) {
   return crypto.timingSafeEqual(left, right);
 }
 
+function safePublicToken(value) {
+  return typeof value === 'string' && value.length >= 1 && value.length <= 96 && /^[A-Za-z0-9:_-]+$/.test(value);
+}
+
 function sameTargets(left = [], right = []) {
   return left.length === right.length && left.every((value, index) => value === right[index]);
+}
+
+function boundedRemember(map, key, value, cap = HOST_DEDUPE_CAP) {
+  map.delete(key);
+  map.set(key, value);
+  while (map.size > cap) map.delete(map.keys().next().value);
 }
 
 function createRuntime(options = {}) {
@@ -89,6 +102,8 @@ function createRuntime(options = {}) {
   const replayCapacity = Number.isInteger(options.replayCapacity) ? Math.max(1, Math.min(3_600, options.replayCapacity)) : 180;
   const replay = new MarbleReplayBuffer(replayCapacity);
   const events = [];
+  const seenInfluenceIds = new Map();
+  const viewerCooldowns = new Map();
   let lastSchedulerMs = Number.isFinite(options.nowMs) ? Number(options.nowMs) : Date.now();
   let accumulatorMs = 0;
   let paused = false;
@@ -201,6 +216,25 @@ function createRuntime(options = {}) {
     return replay.frames().slice(-bounded);
   }
 
+  function submitInfluence(input = {}) {
+    const id = input.id;
+    const userId = input.userId;
+    const family = input.family;
+    const option = input.option;
+    const at = Number(input.at);
+    if (!safePublicToken(id) || !safePublicToken(userId) || !Number.isFinite(at)) return { accepted: false, reason: 'invalid-request' };
+    if (seenInfluenceIds.has(id)) return { accepted: false, reason: 'duplicate' };
+    const previousAt = viewerCooldowns.get(userId);
+    if (Number.isFinite(previousAt) && at - previousAt < VIEWER_COOLDOWN_MS) return { accepted: false, reason: 'cooldown' };
+
+    const result = authority.scheduleInfluence({ id, family: String(family || ''), option: String(option || '') });
+    if (!result.accepted) return result;
+    boundedRemember(seenInfluenceIds, id, at);
+    boundedRemember(viewerCooldowns, userId, at);
+    drainAuthorityEvents();
+    return result;
+  }
+
   function checksum() {
     return marbleStateChecksum(authority.state);
   }
@@ -218,7 +252,9 @@ function createRuntime(options = {}) {
       maxCatchUpTicks,
       replayFrames: replay.size(),
       uptimeSeconds: Math.max(0, Math.floor((nowMs - startedAtMs) / 1000)),
-      audienceInfluence: 'degraded',
+      audienceInfluence: 'operational',
+      audienceFamiliesOperational: Object.values(MARBLE_INFLUENCE_CATALOGUE).filter(entry => entry.operational).length,
+      audienceFamiliesTotal: Object.keys(MARBLE_INFLUENCE_CATALOGUE).length,
     };
   }
 
@@ -252,12 +288,21 @@ function createRuntime(options = {}) {
     advanceDue,
     currentSnapshot,
     replayFrames,
+    submitInfluence,
     checksum,
     health,
     operator,
     get paused() { return paused; },
     get cleanFeed() { return cleanFeed; },
   };
+}
+
+function influenceHttpStatus(result) {
+  if (result.accepted) return 202;
+  if (result.reason === 'temporarily-unavailable') return 503;
+  if (result.reason === 'duplicate') return 409;
+  if (result.reason === 'cooldown' || result.reason === 'queue-full') return 429;
+  return 400;
 }
 
 function createServer(options = {}) {
@@ -294,11 +339,12 @@ function createServer(options = {}) {
         ].join('\n') + '\n', 'text/plain; version=0.0.4; charset=utf-8');
       }
       if (request.method === 'GET' && url.pathname === '/api/catalogue') {
-        return json(response, 200, { catalogue: {}, status: 'temporarily-unavailable' });
+        return json(response, 200, { catalogue: MARBLE_INFLUENCE_CATALOGUE, status: 'partial' });
       }
       if (request.method === 'POST' && url.pathname === '/api/influence') {
-        await readJson(request);
-        return json(response, 503, { accepted: false, reason: 'authority-scheduler-upgrade' });
+        const body = await readJson(request);
+        const result = runtime.submitInfluence(body);
+        return json(response, influenceHttpStatus(result), result);
       }
       if (request.method === 'POST' && url.pathname === '/api/operator') {
         const body = await readJson(request);
@@ -351,13 +397,15 @@ async function selfTest() {
     const replayPayload = await replayResponse.json();
     if (!replayResponse.ok || !Array.isArray(replayPayload.frames) || replayPayload.frames.length < 1 || replayPayload.frames.length > 4) throw new Error('replay endpoint failed');
     const health = await (await fetch(`${base}/api/health`)).json();
-    if (!['healthy', 'degraded'].includes(health.status)) throw new Error('health endpoint failed');
+    if (!['healthy', 'degraded'].includes(health.status) || health.audienceInfluence !== 'operational') throw new Error('health endpoint failed');
+    const catalogue = await (await fetch(`${base}/api/catalogue`)).json();
+    if (!catalogue.catalogue?.['wind-vote']?.operational || catalogue.catalogue?.['gate-tempo']?.operational !== false) throw new Error('influence catalogue failed');
     const influence = await fetch(`${base}/api/influence`, {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ id: 'self-test-1', family: 'wind-vote', option: 'north' }),
+      body: JSON.stringify({ id: 'self-test-1', userId: 'viewer-1', family: 'wind-vote', option: 'north', at: Date.now() }),
     });
-    if (influence.status !== 503) throw new Error('influence degradation boundary failed');
+    if (influence.status !== 202) throw new Error('wind influence scheduling failed');
     const denied = await fetch(`${base}/api/operator`, {
       method: 'POST',
       headers: { 'content-type': 'application/json', authorization: 'Bearer wrong' },
