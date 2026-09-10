@@ -49,6 +49,13 @@ jobs:
       - name: Create evidence directory
         run: mkdir -p games/marble-survival/artifacts
 
+      - name: Preserve reproducible source revision
+        shell: bash
+        run: |
+          git rev-parse HEAD > games/marble-survival/artifacts/source-revision.txt
+          git archive --format=tar.gz --output=games/marble-survival/artifacts/source-revision.tar.gz HEAD
+          sha256sum games/marble-survival/artifacts/source-revision.tar.gz > games/marble-survival/artifacts/source-revision.sha256
+
       - name: Block high-severity production dependency findings
         run: npm audit --omit=dev --audit-level=high
 
