@@ -1,71 +1,41 @@
 # Marble Survival Tournament — Viewer Interaction
 
-## Current v2 Policy
+## Current operational scope
 
-The premium upgrade preserves the six legacy influence families as an explicit catalogue, but it does **not** pretend all six are implemented.
+Only `wind-vote` is operational. `gate-tempo`, `shield-orb`, `cheer-pulse`, `theme-vote` and `next-arena` remain catalogued but fail closed. North, South, East and West are browser controls; `calm` is a valid authority option without a current button.
 
-| Family | v2 status | Current behavior |
-|---|---|---|
-| `wind-vote` | Operational | Schedules one bounded global wind field for a fixed logical duration; applies equally to active marbles; tournament becomes `Assisted`. |
-| `gate-tempo` | Temporarily unavailable | Fails closed until a real v2 future-gate timing mechanic exists. |
-| `shield-orb` | Temporarily unavailable | Fails closed until a validated v2 neutral collectable mechanic exists. |
-| `cheer-pulse` | Temporarily unavailable | Fails closed until a fairness-reviewed v2 implementation exists. |
-| `theme-vote` | Temporarily unavailable | Fails closed until the premium renderer exposes a bounded presentation-theme contract. |
-| `next-arena` | Temporarily unavailable | Fails closed until the v2 generator exposes validated selectable profiles. |
+Despite the legacy name, the operational behavior is **first eligible bounded wind request**, not an aggregated majority vote. No paid-provider, membership, Twitch or YouTube integration is supplied here.
 
-Only operational choices are rendered as clickable spectator controls. The browser currently exposes North, South, East and West wind. `calm` remains a valid authority option but is not currently presented as a button.
+## HTTP admission
 
-## Wind Request Lifecycle
+`GET /api/snapshot` issues a signed HTTP-only, SameSite=Strict session cookie. The browser submits a request ID, visible run ID, visible one-based round number, `wind-vote` family and an allowlisted option. The server resolves identity from the signed cookie and uses its own monotonic reception clock; client `userId` and `at` fields cannot bypass cooldowns.
 
-The browser submits a bounded request containing:
+POST requests must use JSON and pass same-origin checks. Missing/invalid sessions, malformed requests, stale run/round references, duplicate requests and cooldown conflicts are refused before an authoritative command is admitted. Session-scoped request IDs are normalized before entering authority. A fresh browser session is not proof of a unique person: multi-session bot abuse still requires production identity and ingress controls.
 
-- request ID;
-- session-scoped viewer token;
-- family `wind-vote`;
-- one allowlisted option;
-- submission timestamp for host cooldown enforcement.
+Operator commands require an explicitly configured credential. With no configured credential they are disabled; there is no known default token. The CLI binds to loopback unless `HOST` is explicitly supplied.
 
-The server rejects malformed tokens, duplicates, cooldown violations, invalid choices, unavailable families, ineligible lifecycle state and queue overflow before anything can affect gameplay.
+## Authoritative wind policy
 
-An accepted request is then passed to `MarbleRuntime.scheduleInfluence`. It does not alter velocity directly from the HTTP handler. Authority schedules the command for a logical tick, applies it once, records the request ID in bounded idempotency history, emits `influence-scheduled` / `influence-applied`, and changes the tournament record category to `Assisted`.
+- Force magnitude: 6 fixed velocity units per authoritative tick, applied equally to active marbles.
+- Duration: 180 logical ticks, with an exclusive expiry boundary.
+- One pending or active wind field at a time; a later direction cannot silently overwrite an accepted field.
+- Admission cooldown: 900 logical ticks; maximum 32 accepted wind commands per tournament.
+- Per-session HTTP cooldown: 15 seconds from server reception time, independent of client time.
+- Countdown requests wait for the first racing tick. Non-active states and championship round reject admission.
+- Host dedupe/cooldown storage is bounded to 512 entries; authority history has a finite cap of 4,096, while admission limits the actual per-run command count to 32.
 
-Current v2 wind constants:
+`MarbleRuntime.scheduleInfluence` schedules accepted commands. HTTP handlers do not directly change velocities, scores, eliminations or champions. Application emits semantic events and moves the tournament to the separate `Assisted` record category. Round advancement clears pending/active fields while retaining the run's bounded applied-ID history and cooldown state.
 
-- global force magnitude: 6 fixed velocity units per authority tick;
-- duration: 180 logical ticks;
-- authority pending queue cap: 64;
-- authority applied-ID history cap: 4,096;
-- host request-dedupe cap: 512;
-- host per-viewer cooldown map cap: 512;
-- per-viewer cooldown: 15 seconds at the HTTP participation boundary.
+## Public representation
 
-## Fairness
+Public snapshots expose availability, queued/active status, direction, expiry and logical retry interval. Public events pass through an explicit field/value allowlist. They do not expose session nonces, normalized request IDs, raw chat, provider/payment data or internal integrity diagnostic detail.
 
-Wind is a global declared field. It does not secretly select a favourite marble, grant popularity-based mass/friction/restitution, guarantee qualification, eliminate a named marble, or rewrite a confirmed result.
+The browser disables unavailable choices and distinguishes queued fields, active wind and next-window waiting. Display timing is not authoritative admission timing.
 
-Every gameplay-changing wind application moves records to the separate `Assisted` category. The effect is shown in the public HUD and event rail when active.
+## Recovery compatibility
 
-## Privacy and Moderation Surface
+Pending commands, applied-ID history and logical cooldown are captured in authority state. Snapshot capture and restore use independent object copies and validate JSON checksums, input-policy version, state-set/config consistency, exact declared wind strength and queue/conflict bounds. A valid pending command survives snapshot round trip without double application.
 
-The v2 operational interaction uses fixed choices only. No arbitrary chat text is parsed into gameplay commands.
+The snapshot envelope requires **`wind-policy-v2`** in addition to `marble-physics-v2`. Older envelopes fail with a typed version error. Deployments crossing this boundary start a fresh tournament; no silent migration of pending commands is supported.
 
-Public snapshots expose only:
-
-- whether an influence is active;
-- family;
-- selected direction;
-- authoritative expiry tick.
-
-They do **not** expose viewer token, request ID, provider payload, payment data, raw chat, moderation evidence or operator/audit internals.
-
-## Recovery / Replay
-
-Pending influence commands and applied-ID history are part of authoritative state and snapshot checksums. Restore validates their shape and bounds. A pending command survives valid restore and applies exactly once.
-
-Round advancement clears the active wind field and pending queue, while retaining bounded applied-ID history and the tournament's `Assisted` record category. Replay copies may display the historical active field but cannot reapply it to live authority.
-
-## Provider Boundary
-
-This upgrade does not add YouTube, Twitch, payment or membership provider dependencies. A production provider adapter still belongs outside the game package and must normalize/authenticate/moderate/idempotently deliver eligible requests before using this authority contract.
-
-A credentialed production-provider session remains external production-readiness evidence.
+This proves snapshot primitives, not a deployed durable journal or host crash-recovery service. Credentialed provider adapters, production flood limits, operator audit/roles, complete effect cancellation/reversal and multi-session abuse controls remain separate unfinished work. No purchase or request promises a winner or guaranteed qualification.
