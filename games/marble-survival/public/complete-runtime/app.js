@@ -46,9 +46,7 @@ shell.dataset.clean = String(cleanFeed);
 shell.dataset.quality = qualityName;
 qualityLabel.textContent = qualityName[0].toUpperCase() + qualityName.slice(1);
 
-const storedViewerId = sessionStorage.getItem('game7-viewer-id');
-const viewerId = storedViewerId || (globalThis.crypto?.randomUUID?.() || `viewer-${Date.now()}`);
-if (!storedViewerId) sessionStorage.setItem('game7-viewer-id', viewerId);
+// Participation identity lives in a signed HTTP-only cookie, not browser storage.
 
 let snapshot = null;
 let previousSnapshot = null;
@@ -527,7 +525,9 @@ function renderHud(next) {
   recordCategory.textContent = next.recordCategory === 'assisted' ? 'Assisted' : 'Standard';
   recordCategory.dataset.assisted = String(next.recordCategory === 'assisted');
   if (next.influence?.active) voteStatus.textContent = windLabel(next.influence.option);
+  else if (!next.influence?.available) voteStatus.textContent = next.influence?.queued ? 'Wind queued for race start' : 'Next wind window pending';
   else if (Date.now() >= voteLockedUntil) voteStatus.textContent = 'Wind vote open';
+  setVoteButtonsDisabled(!next.influence?.available || Date.now() < voteLockedUntil);
   const marbleById = new Map(next.marbles.map(marble => [marble.id, marble]));
   const cutoff = next.qualificationCutoff;
   const cutoffMarble = cutoff ? marbleById.get(cutoff.id) : null;
@@ -695,9 +695,9 @@ function setVoteButtonsDisabled(disabled) {
 }
 
 async function submitVote(button) {
-  if (!button || Date.now() < voteLockedUntil) return;
+  if (!button || !snapshot?.influence?.available || Date.now() < voteLockedUntil) return;
   const at = Date.now();
-  const id = globalThis.crypto?.randomUUID?.() || `${viewerId}:${at}`;
+  const id = globalThis.crypto?.randomUUID?.() || `request:${at}`;
   setVoteButtonsDisabled(true);
   voteStatus.textContent = 'Submitting bounded wind vote…';
   try {
@@ -706,10 +706,10 @@ async function submitVote(button) {
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({
         id,
-        userId: viewerId,
+        runId: snapshot.run.id,
+        roundIndex: snapshot.round.index,
         family: 'wind-vote',
         option: String(button.dataset.option || ''),
-        at,
       }),
     });
     const result = await response.json();
@@ -719,8 +719,8 @@ async function submitVote(button) {
       voteStatus.textContent = `${label[0].toUpperCase()}${label.slice(1)} wind queued`;
       setTimeout(() => {
         if (Date.now() >= voteLockedUntil) {
-          setVoteButtonsDisabled(false);
-          if (!snapshot?.influence?.active) voteStatus.textContent = 'Wind vote open';
+          setVoteButtonsDisabled(!snapshot?.influence?.available);
+          if (snapshot?.influence?.available) voteStatus.textContent = 'Wind vote open';
         }
       }, VOTE_COOLDOWN_MS + 100);
       return;
@@ -731,12 +731,17 @@ async function submitVote(button) {
       'temporarily-unavailable': 'Wind voting temporarily unavailable',
       'state-ineligible': 'Voting opens during live race action',
       'queue-full': 'Wind queue full — try the next window',
+      'effect-conflict': 'A wind field already occupies this window',
+      'influence-budget': 'Wind limit reached for this tournament',
+      'stale-run': 'Tournament changed — wait for the new field',
+      'stale-round': 'Round changed — wait for the next window',
+      'session-required': 'Participation session expired — reconnecting',
     };
     voteStatus.textContent = copy[result.reason] || 'Wind vote not accepted';
   } catch {
     voteStatus.textContent = 'Wind voting reconnecting';
   } finally {
-    if (Date.now() >= voteLockedUntil) setVoteButtonsDisabled(false);
+    if (Date.now() >= voteLockedUntil) setVoteButtonsDisabled(!snapshot?.influence?.available);
   }
 }
 
@@ -749,8 +754,8 @@ async function refreshHealth() {
       voteStatus.textContent = 'Temporarily unavailable';
       setVoteButtonsDisabled(true);
     } else if (Date.now() >= voteLockedUntil) {
-      setVoteButtonsDisabled(false);
-      if (!snapshot?.influence?.active) voteStatus.textContent = 'Wind vote open';
+      setVoteButtonsDisabled(!snapshot?.influence?.available);
+      if (snapshot?.influence?.available) voteStatus.textContent = 'Wind vote open';
     }
     if (health.status === 'degraded') markConnection(true, 'Authority live · presentation catching up');
     if (health.status === 'unhealthy') markConnection(false, 'Integrity recovery');

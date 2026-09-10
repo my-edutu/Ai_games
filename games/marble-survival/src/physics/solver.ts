@@ -232,7 +232,7 @@ function applyForces(marble: MarbleCompetitor, state: MarbleState, action: Marbl
       marble.velocity.y += zone.forceY;
     }
   }
-  if (state.influence.effectUntilTick >= state.tick) {
+  if (state.influence.effectUntilTick > state.tick) {
     marble.velocity.x += state.influence.globalWindX;
     marble.velocity.y += state.influence.globalWindY;
   }

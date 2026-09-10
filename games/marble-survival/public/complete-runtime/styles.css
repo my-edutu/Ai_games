@@ -20,7 +20,7 @@
 }
 
 * { box-sizing: border-box; }
-html, body { min-height: 100%; }
+html, body { min-height: 100%; height: 100%; }
 body { margin: 0; color: var(--text); background: linear-gradient(180deg, #1b1a17 0%, #12120f 100%); }
 button { font: inherit; }
 button:focus-visible, a:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
@@ -39,7 +39,10 @@ button:focus-visible, a:focus-visible { outline: 3px solid var(--focus); outline
 
 .broadcast-shell {
   width: min(1900px, 100%);
-  min-height: 100vh;
+  height: 100vh;
+  height: 100dvh;
+  min-height: 0;
+  overflow: hidden;
   margin: 0 auto;
   padding: clamp(10px, 1.2vw, 20px);
   display: grid;
@@ -95,8 +98,8 @@ button:focus-visible, a:focus-visible { outline: 3px solid var(--focus); outline
   background: linear-gradient(145deg, rgba(38, 37, 32, .96), rgba(24, 23, 20, .96));
   box-shadow: var(--shadow);
 }
-.arena-card { position: relative; min-height: 560px; overflow: hidden; border-radius: 18px; background: #20201c; }
-#arena-canvas { display: block; width: 100%; height: 100%; min-height: 560px; }
+.arena-card { position: relative; min-height: 0; overflow: hidden; border-radius: 18px; background: #20201c; }
+#arena-canvas { position: absolute; inset: 0; display: block; width: 100%; height: 100%; min-height: 0; }
 .arena-card::after { content: ""; position: absolute; inset: 0; pointer-events: none; box-shadow: inset 0 0 90px rgba(0, 0, 0, .24); }
 
 .arena-state {
@@ -142,7 +145,8 @@ button:focus-visible, a:focus-visible { outline: 3px solid var(--focus); outline
 .cutoff-panel { border-color: rgba(215, 166, 74, .25); }
 .audience-panel { background: linear-gradient(145deg, rgba(35, 36, 31, .96), rgba(22, 23, 20, .97)); }
 
-.leaderboard { display: grid; gap: 5px; margin: 10px 0 0; padding: 0; list-style: none; overflow: auto; }
+.leaderboard-panel { min-height: 0; display: grid; grid-template-rows: auto minmax(0, 1fr); }
+.leaderboard { min-height: 0; display: grid; gap: 5px; margin: 10px 0 0; padding: 0; list-style: none; overflow: auto; }
 .leaderboard li {
   min-height: 42px;
   display: grid;
@@ -165,13 +169,13 @@ button:focus-visible, a:focus-visible { outline: 3px solid var(--focus); outline
 .event-rail p { margin: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #ded8ca; font-size: .76rem; }
 .record-badge { min-height: 27px; }
 
-.broadcast-shell[data-clean="true"] { width: 100%; padding: 0; gap: 0; }
+.broadcast-shell[data-clean="true"] { width: 100%; padding: 0; gap: 0; grid-template-rows: minmax(0, 1fr); }
 .broadcast-shell[data-clean="true"] .topbar,
 .broadcast-shell[data-clean="true"] .spectator-rail,
 .broadcast-shell[data-clean="true"] .event-rail { display: none; }
-.broadcast-shell[data-clean="true"] .stage-grid { display: block; }
-.broadcast-shell[data-clean="true"] .arena-card { min-height: 100vh; border: 0; border-radius: 0; }
-.broadcast-shell[data-clean="true"] #arena-canvas { min-height: 100vh; }
+.broadcast-shell[data-clean="true"] .stage-grid { display: block; height: 100%; }
+.broadcast-shell[data-clean="true"] .arena-card { height: 100%; min-height: 0; border: 0; border-radius: 0; }
+.broadcast-shell[data-clean="true"] #arena-canvas { min-height: 0; }
 .broadcast-shell[data-clean="true"] .arena-state { display: block; }
 
 @media (max-width: 980px), (max-height: 580px) {
@@ -183,21 +187,24 @@ button:focus-visible, a:focus-visible { outline: 3px solid var(--focus); outline
   .survival-line { grid-column: 1 / -1; justify-self: start; font-size: 11px; }
   .quality-pill { display: none; }
   .stage-grid { grid-template-columns: minmax(0, 1fr) 190px; gap: 6px; }
-  .arena-card, #arena-canvas { min-height: 420px; }
+  .arena-card, #arena-canvas { min-height: 0; }
   .panel { padding: 8px; }
   .audience-panel { display: none; }
   .spectator-rail { grid-template-rows: auto minmax(0, 1fr); }
   .event-rail { min-height: 38px; padding: 5px 9px; }
 }
 
-@media (max-width: 700px) {
+@media (max-width: 700px) and (orientation: portrait) {
+  .broadcast-shell:not([data-clean="true"]) { height: auto; min-height: 100dvh; overflow: visible; }
+  .broadcast-shell:not([data-clean="true"]) .arena-card { height: 48dvh; min-height: 280px; }
+  .broadcast-shell:not([data-clean="true"]) .audience-panel { display: block; }
   .topbar { grid-template-columns: 1fr auto; }
   .round-lockup { grid-column: 1 / -1; grid-row: 2; }
   .status-cluster { grid-column: 2; grid-row: 1; }
   .stage-grid { grid-template-columns: 1fr; }
   .spectator-rail { grid-template-columns: 1fr; grid-template-rows: auto auto; }
   .leaderboard-panel { max-height: 260px; }
-  .arena-card, #arena-canvas { min-height: 360px; }
+  .arena-card, #arena-canvas { min-height: 0; }
   .event-kicker { display: none; }
   .event-rail { grid-template-columns: minmax(0,1fr) auto; }
 }

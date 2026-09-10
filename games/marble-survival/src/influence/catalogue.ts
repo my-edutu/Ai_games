@@ -70,7 +70,7 @@ export interface MarbleInfluenceRequest {
 
 export type MarbleInfluenceDecision =
   | { accepted: true; family: 'wind-vote'; option: MarbleWindOption; applyTick: number; durationTicks: number }
-  | { accepted: false; reason: 'invalid-id' | 'invalid-family' | 'invalid-option' | 'temporarily-unavailable' | 'duplicate' | 'queue-full' | 'state-ineligible' };
+  | { accepted: false; reason: 'invalid-id' | 'invalid-family' | 'invalid-option' | 'temporarily-unavailable' | 'duplicate' | 'queue-full' | 'state-ineligible' | 'effect-conflict' | 'cooldown' | 'influence-budget' };
 
 export const MARBLE_WIND_FORCE = 6;
 export const MARBLE_WIND_DURATION_TICKS = 180;
@@ -84,3 +84,8 @@ export function isSafeInfluenceId(value: unknown): value is string {
 export function isWindOption(value: unknown): value is MarbleWindOption {
   return typeof value === 'string' && MARBLE_INFLUENCE_CATALOGUE['wind-vote'].options.includes(value);
 }
+
+// Admission/expiry policy is versioned separately from the unchanged physics kernel.
+export const MARBLE_INFLUENCE_POLICY_VERSION = 'wind-policy-v2' as const;
+export const MARBLE_WIND_COOLDOWN_TICKS = 900;
+export const MARBLE_WIND_RUN_CAP = 32;

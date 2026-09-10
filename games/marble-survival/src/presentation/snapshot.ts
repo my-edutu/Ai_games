@@ -39,7 +39,7 @@ export function createMarblePublicSnapshot(state: MarbleState) {
   const champion = championId === null ? null : state.marbles.find(marble => marble.id === championId) ?? null;
   const cutoffIndex = Math.max(0, Math.min(visible.length - 1, state.currentQuota - 1));
   const cutoff = visible.length > 0 ? visible[cutoffIndex] : null;
-  const influenceActive = state.influence.activeFamily === 'wind-vote' && state.influence.effectUntilTick >= state.tick;
+  const influenceActive = state.influence.activeFamily === 'wind-vote' && state.influence.effectUntilTick > state.tick;
   return Object.freeze({
     schemaVersion: 2 as const,
     run: Object.freeze({ id: state.runId, index: state.runIndex, lifecycle: state.lifecycle }),
@@ -83,6 +83,9 @@ export function createMarblePublicSnapshot(state: MarbleState) {
     recordCategory: state.records.category,
     influence: Object.freeze({
       active: influenceActive,
+      available: state.lifecycle === 'active' && state.roundIndex < 4 && state.influence.pending.length === 0 && state.tick >= state.influence.nextEligibleTick && state.influence.appliedIds.length < 32,
+      queued: state.influence.pending.length > 0,
+      retryAfterTicks: Math.max(0, state.influence.nextEligibleTick - state.tick),
       family: influenceActive ? 'wind-vote' as const : null,
       option: influenceActive ? state.influence.activeOption : null,
       effectUntilTick: influenceActive ? state.influence.effectUntilTick : null

@@ -4,6 +4,9 @@ const http = require('node:http');
 const fs = require('node:fs');
 const path = require('node:path');
 const crypto = require('node:crypto');
+const { performance } = require('node:perf_hooks');
+const { createHttpSession } = require('./http-session.cjs');
+const { toPublicEvent } = require('./public-events.cjs');
 const {
   MarbleRuntime,
   createMarblePublicSnapshot,
@@ -95,7 +98,8 @@ function boundedRemember(map, key, value, cap = HOST_DEDUPE_CAP) {
 
 function createRuntime(options = {}) {
   const seed = String(options.seed || process.env.GAME7_SEED || 'broadcast-1');
-  const operatorToken = String(options.operatorToken || process.env.GAME7_OPERATOR_TOKEN || 'local-self-test-only');
+  const operatorToken = String(options.operatorToken ?? process.env.GAME7_OPERATOR_TOKEN ?? '');
+  const clock = options.clock || (() => performance.now());
   const authority = MarbleRuntime.create(options.config || {}, seed);
   const tickMs = 1000 / authority.config.tickRate;
   const maxCatchUpTicks = Number.isInteger(options.maxCatchUpTicks) ? Math.max(1, Math.min(32, options.maxCatchUpTicks)) : 8;
@@ -104,7 +108,7 @@ function createRuntime(options = {}) {
   const events = [];
   const seenInfluenceIds = new Map();
   const viewerCooldowns = new Map();
-  let lastSchedulerMs = Number.isFinite(options.nowMs) ? Number(options.nowMs) : Date.now();
+  let lastSchedulerMs = Number.isFinite(options.nowMs) ? Number(options.nowMs) : clock();
   let accumulatorMs = 0;
   let paused = false;
   let cleanFeed = false;
@@ -115,13 +119,8 @@ function createRuntime(options = {}) {
   function drainAuthorityEvents() {
     const drained = [];
     for (const event of authority.drainEvents()) {
-      const publicEvent = Object.freeze({
-        id: `${event.seq}`,
-        seq: event.seq,
-        tick: event.tick,
-        type: event.type,
-        data: event.data ? { ...event.data } : undefined,
-      });
+      const publicEvent = toPublicEvent(event);
+      if (!publicEvent) continue;
       events.push(publicEvent);
       drained.push(publicEvent);
       if (events.length > 128) events.shift();
@@ -217,11 +216,15 @@ function createRuntime(options = {}) {
   }
 
   function submitInfluence(input = {}) {
+    if (!input || typeof input !== 'object' || Array.isArray(input)) return { accepted: false, reason: 'invalid-request' };
+    if (input.runId !== undefined && input.runId !== authority.state.runId) return { accepted: false, reason: 'stale-run' };
+    if (input.roundIndex !== undefined && input.roundIndex !== authority.state.roundNumber) return { accepted: false, reason: 'stale-round' };
+    if (paused) return { accepted: false, reason: 'state-ineligible' };
     const id = input.id;
     const userId = input.userId;
     const family = input.family;
     const option = input.option;
-    const at = Number(input.at);
+    const at = clock();
     if (!safePublicToken(id) || !safePublicToken(userId) || !Number.isFinite(at)) return { accepted: false, reason: 'invalid-request' };
     if (seenInfluenceIds.has(id)) return { accepted: false, reason: 'duplicate' };
     const previousAt = viewerCooldowns.get(userId);
@@ -239,7 +242,7 @@ function createRuntime(options = {}) {
     return marbleStateChecksum(authority.state);
   }
 
-  function health(nowMs = Date.now()) {
+  function health(nowMs = clock()) {
     const debtTicks = Math.max(0, Math.floor(accumulatorMs / tickMs));
     const quarantined = authority.state.lifecycle === 'quarantined';
     return {
@@ -259,6 +262,7 @@ function createRuntime(options = {}) {
   }
 
   function operator(command, token) {
+    if (!operatorToken) return { status: 503, ok: false, reason: 'operator-disabled' };
     if (!tokenMatches(operatorToken, token)) return { status: 401, ok: false, reason: 'unauthorized' };
     if (!['pause', 'resume', 'restart', 'clean-feed'].includes(command)) return { status: 400, ok: false, reason: 'invalid-command' };
     if (command === 'pause') paused = true;
@@ -301,17 +305,23 @@ function influenceHttpStatus(result) {
   if (result.accepted) return 202;
   if (result.reason === 'temporarily-unavailable') return 503;
   if (result.reason === 'duplicate') return 409;
-  if (result.reason === 'cooldown' || result.reason === 'queue-full') return 429;
+  if (result.reason === 'cooldown' || result.reason === 'queue-full' || result.reason === 'effect-conflict' || result.reason === 'influence-budget') return 429;
   return 400;
 }
 
 function createServer(options = {}) {
-  const runtime = createRuntime(options);
+  const clock = options.clock || (() => performance.now());
+  const runtime = createRuntime({ ...options, clock });
+  const sessions = createHttpSession(clock, options.secureCookies === true);
   const requestHandler = async (request, response) => {
-    const origin = `http://${request.headers.host || 'localhost'}`;
-    const url = new URL(request.url || '/', origin);
     try {
+      const url = new URL(request.url || '/', 'http://localhost');
+      if (request.method === 'POST') {
+        if (!sessions.allowOrigin(request)) return json(response, 403, { error: 'origin-denied' });
+        if (!/^application\/json(?:;|$)/i.test(String(request.headers['content-type'] || ''))) return json(response, 415, { error: 'json-required' });
+      }
       if (request.method === 'GET' && url.pathname === '/api/snapshot') {
+        sessions.ensure(request, response);
         return json(response, 200, runtime.currentSnapshot());
       }
       if (request.method === 'GET' && url.pathname === '/api/events') {
@@ -342,12 +352,19 @@ function createServer(options = {}) {
         return json(response, 200, { catalogue: MARBLE_INFLUENCE_CATALOGUE, status: 'partial' });
       }
       if (request.method === 'POST' && url.pathname === '/api/influence') {
+        const identity = sessions.identity(request);
+        if (!identity) return json(response, 401, { accepted: false, reason: 'session-required' });
         const body = await readJson(request);
-        const result = runtime.submitInfluence(body);
+        if (!body || typeof body !== 'object' || Array.isArray(body) || !safePublicToken(body.id) || !safePublicToken(body.runId) || !Number.isInteger(body.roundIndex)) return json(response, 400, { accepted: false, reason: 'invalid-request' });
+        const result = runtime.submitInfluence({
+          id: sessions.commandId(identity, body.id), userId: identity,
+          family: body.family, option: body.option, runId: body.runId, roundIndex: body.roundIndex,
+        });
         return json(response, influenceHttpStatus(result), result);
       }
       if (request.method === 'POST' && url.pathname === '/api/operator') {
         const body = await readJson(request);
+        if (!body || typeof body !== 'object' || Array.isArray(body)) return json(response, 400, { error: 'invalid-request' });
         const token = String(request.headers.authorization || '').replace(/^Bearer\s+/i, '');
         const result = runtime.operator(String(body.command || ''), token);
         return json(response, result.status, result);
@@ -373,8 +390,10 @@ function createServer(options = {}) {
 
   const server = http.createServer(requestHandler);
   const schedulerIntervalMs = Number(options.schedulerIntervalMs || 8);
-  const timer = setInterval(() => runtime.advanceDue(Date.now()), schedulerIntervalMs);
+  const timer = setInterval(() => runtime.advanceDue(clock()), schedulerIntervalMs);
   timer.unref();
+  server.requestTimeout = 10_000;
+  server.headersTimeout = 10_000;
   server.on('close', () => clearInterval(timer));
   return { server, runtime };
 }
@@ -391,7 +410,9 @@ async function selfTest() {
     const index = await fetch(`${base}/`);
     if (!index.ok || !(await index.text()).includes('Marble Survival Tournament')) throw new Error('index smoke failed');
     const snapshotResponse = await fetch(`${base}/api/snapshot`);
+    const cookie = snapshotResponse.headers.get('set-cookie')?.split(';')[0];
     const snapshotText = await snapshotResponse.text();
+    const snapshot = JSON.parse(snapshotText);
     if (!snapshotResponse.ok || !snapshotText.includes('"schemaVersion":2') || !snapshotText.includes('"camera"') || snapshotText.includes('rootSeed') || snapshotText.includes('tournamentSeed') || snapshotText.includes('self-test')) throw new Error('snapshot sanitization failed');
     const replayResponse = await fetch(`${base}/api/replay?frames=4`);
     const replayPayload = await replayResponse.json();
@@ -402,8 +423,8 @@ async function selfTest() {
     if (!catalogue.catalogue?.['wind-vote']?.operational || catalogue.catalogue?.['gate-tempo']?.operational !== false) throw new Error('influence catalogue failed');
     const influence = await fetch(`${base}/api/influence`, {
       method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ id: 'self-test-1', userId: 'viewer-1', family: 'wind-vote', option: 'north', at: Date.now() }),
+      headers: { 'content-type': 'application/json', cookie },
+      body: JSON.stringify({ id: 'self-test-1', family: 'wind-vote', option: 'north', runId: snapshot.run.id, roundIndex: snapshot.round.index }),
     });
     if (influence.status !== 202) throw new Error('wind influence scheduling failed');
     const denied = await fetch(`${base}/api/operator`, {
@@ -433,8 +454,9 @@ if (require.main === module) {
   } else {
     const port = Number(process.env.PORT || 4317);
     const { server } = createServer();
-    server.listen(port, '0.0.0.0', () => {
-      process.stdout.write(`Game 7 browser source listening on http://0.0.0.0:${port}\n`);
+    const host = process.env.HOST || '127.0.0.1';
+    server.listen(port, host, () => {
+      process.stdout.write(`Game 7 browser source listening on http://${host}:${port}\n`);
     });
   }
 }

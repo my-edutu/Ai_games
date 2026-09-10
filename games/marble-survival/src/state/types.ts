@@ -247,6 +247,7 @@ export interface MarbleRecords {
 }
 
 export interface MarbleInfluenceState {
+  nextEligibleTick: number;
   recordCategory: RecordCategory;
   globalWindX: number;
   globalWindY: number;

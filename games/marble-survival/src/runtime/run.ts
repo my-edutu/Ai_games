@@ -9,6 +9,8 @@ import {
   MARBLE_INFLUENCE_QUEUE_CAP,
   MARBLE_WIND_DURATION_TICKS,
   MARBLE_WIND_FORCE,
+  MARBLE_WIND_COOLDOWN_TICKS,
+  MARBLE_WIND_RUN_CAP,
   isSafeInfluenceId,
   isWindOption,
   type MarbleInfluenceDecision,
@@ -66,6 +68,7 @@ function initialState(config: MarbleConfig, rootSeed: string, tournamentSeed: st
       lastChampionId: null
     },
     influence: {
+      nextEligibleTick: 0,
       recordCategory: 'standard',
       globalWindX: 0,
       globalWindY: 0,
@@ -193,24 +196,27 @@ export class MarbleRuntime {
     if (!definition.operational) return { accepted: false, reason: 'temporarily-unavailable' };
     if (family !== 'wind-vote') return { accepted: false, reason: 'temporarily-unavailable' };
     if (!isWindOption(input.option)) return { accepted: false, reason: 'invalid-option' };
-    if (this.state.lifecycle !== 'active') return { accepted: false, reason: 'state-ineligible' };
+    if (this.state.lifecycle !== 'active' || this.state.roundIndex === 4) return { accepted: false, reason: 'state-ineligible' };
     if (this.state.influence.pending.some(command => command.id === input.id) || this.state.influence.appliedIds.includes(input.id)) {
       return { accepted: false, reason: 'duplicate' };
     }
     if (this.state.influence.pending.length >= MARBLE_INFLUENCE_QUEUE_CAP) return { accepted: false, reason: 'queue-full' };
+    if (this.state.influence.pending.length > 0 || this.state.influence.effectUntilTick > this.state.tick) return { accepted: false, reason: 'effect-conflict' };
+    if (this.state.tick < this.state.influence.nextEligibleTick) return { accepted: false, reason: 'cooldown' };
+    if (this.state.influence.appliedIds.length >= MARBLE_WIND_RUN_CAP) return { accepted: false, reason: 'influence-budget' };
 
     const scheduled: MarbleScheduledInfluence = {
       id: input.id,
       family: 'wind-vote',
       option: input.option,
-      applyTick: this.state.tick,
+      applyTick: this.state.tick + this.state.roundIntroRemaining,
       durationTicks: MARBLE_WIND_DURATION_TICKS,
     };
     const pending = [...this.state.influence.pending, scheduled]
       .sort((left, right) => left.applyTick - right.applyTick || left.id.localeCompare(right.id));
     this.state = {
       ...this.state,
-      influence: { ...this.state.influence, pending },
+      influence: { ...this.state.influence, pending, nextEligibleTick: scheduled.applyTick + MARBLE_WIND_COOLDOWN_TICKS },
     };
     this.emit('influence-scheduled', { family: scheduled.family, option: scheduled.option, applyTick: scheduled.applyTick });
     return {
@@ -284,6 +290,10 @@ export class MarbleRuntime {
       return this.state;
     }
 
+    if (this.state.influence.activeFamily !== null && this.state.tick >= this.state.influence.effectUntilTick) {
+      this.state = { ...this.state, influence: { ...this.state.influence, globalWindX: 0, globalWindY: 0, activeFamily: null, activeOption: null, effectUntilTick: -1 } };
+      this.emit('influence-expired', { family: 'wind-vote' });
+    }
     this.applyScheduledInfluences();
 
     if (this.state.roundIntroRemaining > 0) {
