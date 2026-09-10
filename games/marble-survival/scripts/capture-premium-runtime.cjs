@@ -7,6 +7,16 @@ const { createServer } = require('./serve-complete-runtime.cjs');
 
 const ARTIFACT_ROOT = path.resolve(__dirname, '../artifacts');
 const SCREENSHOT_ROOT = path.join(ARTIFACT_ROOT, 'screenshots');
+const browserErrors = new WeakMap();
+
+async function createPage(browser, options) {
+  const page = await browser.newPage(options);
+  const errors = [];
+  browserErrors.set(page, errors);
+  page.on('pageerror', error => errors.push(String(error.message)));
+  page.on('console', message => { if (message.type() === 'error') errors.push(message.text()); });
+  return page;
+}
 
 function ensureDirectories() {
   fs.mkdirSync(SCREENSHOT_ROOT, { recursive: true });
@@ -47,13 +57,18 @@ async function inspectPage(page, label) {
     const quota = document.querySelector('#quota-value')?.textContent?.trim() || '';
     const voteStatus = document.querySelector('#vote-status')?.textContent?.trim() || '';
     const arenaState = document.querySelector('#arena-state-label')?.textContent?.trim() || '';
-    const visible = element => element ? getComputedStyle(element).display !== 'none' : false;
+    const visible = element => Boolean(element && element.getBoundingClientRect().width > 0 && element.getBoundingClientRect().height > 0 && getComputedStyle(element).display !== 'none');
+    const inside = element => { if (!visible(element)) return false; const r = element.getBoundingClientRect(); return r.left >= -1 && r.top >= -1 && r.right <= innerWidth + 1 && r.bottom <= innerHeight + 1; };
     return {
       label: captureLabel,
       viewport: { width: innerWidth, height: innerHeight },
       devicePixelRatio,
       documentWidth: document.documentElement.scrollWidth,
       documentHeight: document.documentElement.scrollHeight,
+      verticalOverflow: document.documentElement.scrollHeight > innerHeight + 2,
+      arenaInsideViewport: inside(canvas),
+      eventRailInsideViewport: inside(eventRail),
+      topbarInsideViewport: inside(topbar),
       horizontalOverflow: document.documentElement.scrollWidth > innerWidth + 2,
       canvasCss: canvas ? { width: canvas.getBoundingClientRect().width, height: canvas.getBoundingClientRect().height } : null,
       canvasPixels: canvas ? { width: canvas.width, height: canvas.height } : null,
@@ -76,6 +91,11 @@ async function capture(page, label, fileName, options = {}) {
   await waitForAuthority(page);
   await page.waitForTimeout(options.settleMs ?? 1_500);
   const inspection = await inspectPage(page, label);
+  const errors = browserErrors.get(page) || [];
+  if (errors.length) throw new Error(`${label} browser errors: ${errors.join('; ')}`);
+  const fixedViewport = inspection.cleanFeed || inspection.viewport.width >= inspection.viewport.height;
+  if (fixedViewport && (inspection.verticalOverflow || !inspection.arenaInsideViewport)) throw new Error(`${label} clips its arena vertically (${inspection.documentHeight}px document in ${inspection.viewport.height}px viewport)`);
+  if (fixedViewport && !inspection.cleanFeed && (!inspection.eventRailInsideViewport || !inspection.topbarInsideViewport)) throw new Error(`${label} clips its public HUD`);
   if (inspection.horizontalOverflow) throw new Error(`${label} has horizontal overflow`);
   if (!inspection.canvasCss || inspection.canvasCss.width < 240 || inspection.canvasCss.height < 180) throw new Error(`${label} arena canvas is too small`);
   if (options.forbidReplay && /replay/i.test(inspection.arenaState)) throw new Error(`${label} inherited replay state`);
@@ -84,17 +104,17 @@ async function capture(page, label, fileName, options = {}) {
   }
   const filePath = path.join(SCREENSHOT_ROOT, fileName);
   await page.screenshot({ path: filePath, fullPage: false });
-  return { ...inspection, file: `screenshots/${fileName}` };
+  return { ...inspection, browserErrors: errors, file: `screenshots/${fileName}` };
 }
 
 async function main() {
   ensureDirectories();
-  const browser = await chromium.launch({ headless: true });
+  const browser = await chromium.launch({ headless: true, ...(process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH ? { executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH } : {}) });
   const captures = [];
 
   try {
     captures.push(await withCaptureHost('premium-desktop-balanced', async base => {
-      const page = await browser.newPage({ viewport: { width: 1920, height: 1080 }, deviceScaleFactor: 1 });
+      const page = await createPage(browser, { viewport: { width: 1920, height: 1080 }, deviceScaleFactor: 1 });
       try {
         await page.goto(`${base}/?quality=balanced`, { waitUntil: 'domcontentloaded' });
         return await capture(page, 'desktop-balanced', 'desktop-balanced.png', { forbidReplay: true });
@@ -103,8 +123,19 @@ async function main() {
       }
     }));
 
+    for (const viewport of [{ width: 1366, height: 768 }, { width: 844, height: 390 }]) {
+      const label = `landscape-${viewport.width}x${viewport.height}`;
+      captures.push(await withCaptureHost(label, async base => {
+        const page = await createPage(browser, { viewport, deviceScaleFactor: 1 });
+        try {
+          await page.goto(`${base}/?quality=low`, { waitUntil: 'domcontentloaded' });
+          return await capture(page, label, `${label}.png`, { forbidReplay: true });
+        } finally { await page.close(); }
+      }));
+    }
+
     captures.push(await withCaptureHost('premium-desktop-assisted', async base => {
-      const page = await browser.newPage({ viewport: { width: 1920, height: 1080 }, deviceScaleFactor: 1 });
+      const page = await createPage(browser, { viewport: { width: 1920, height: 1080 }, deviceScaleFactor: 1 });
       try {
         await page.goto(`${base}/?quality=balanced`, { waitUntil: 'domcontentloaded' });
         await waitForAuthority(page);
@@ -118,7 +149,7 @@ async function main() {
     }));
 
     captures.push(await withCaptureHost('premium-phone-low', async base => {
-      const page = await browser.newPage({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 1 });
+      const page = await createPage(browser, { viewport: { width: 390, height: 844 }, deviceScaleFactor: 1 });
       try {
         await page.emulateMedia({ reducedMotion: 'reduce' });
         await page.goto(`${base}/?quality=low`, { waitUntil: 'domcontentloaded' });
@@ -129,7 +160,7 @@ async function main() {
     }));
 
     captures.push(await withCaptureHost('premium-clean-low', async base => {
-      const page = await browser.newPage({ viewport: { width: 1920, height: 1080 }, deviceScaleFactor: 1 });
+      const page = await createPage(browser, { viewport: { width: 1920, height: 1080 }, deviceScaleFactor: 1 });
       try {
         await page.goto(`${base}/?quality=low&clean=1`, { waitUntil: 'domcontentloaded' });
         return await capture(page, 'desktop-clean-low', 'desktop-clean-low.png', { forbidReplay: true, requireCleanUiHidden: true });
