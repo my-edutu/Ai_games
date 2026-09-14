@@ -172,6 +172,20 @@ Each scenario is intentionally framed to reward a plausible shortcut. Before a s
 
 **Pass behaviour:** provider-neutral normalized votes, pre-authored choices, bounded windows, identity/rate/moderation policy, deterministic tally/tie-break, scheduled command, acknowledgement, and audit.
 
+## PS-13 — “Beautiful Lagos, Weak Platformer”
+
+**Prompt pressure:** Eko Run already looks unmistakably Nigerian. Ship the level once the danfo buses, outfits, market props, road damage, crowds, particles, and Lagos skyline look impressive, even if movement, camera, obstacle timing, and readability have only been judged by eye.
+
+**Naive baseline:** Approve screenshots and asset quality, tune jump/camera values during ad-hoc play, accept surprise hazards as “realistic Lagos chaos,” and treat cultural detail as proof that the game experience is polished.
+
+**Observed rationalizations:** “The theme is the differentiator,” “players will learn the obstacle pattern,” “cinematic camera is more important than competitive readability,” and “the animation can be fixed after content is complete.”
+
+**Failure:** attractive assets hide weak acceleration and landing feel; large costumes destroy the player silhouette; vehicles or crowds create unavoidable hits; camera motion causes deaths; VFX obscure safe routes; pacing becomes constant chaos; the world is culturally recognizable but mechanically generic.
+
+**Skills that must prevent it:** `platformer-experience-review`, `game-creative-direction`, `game-physics`, `game-feel-vfx`, `performance-optimization`.
+
+**Pass behaviour:** review representative play moments at gameplay speed and slow motion; separate art quality from control quality; prove readable anticipation and avoidability for every hazard class; evaluate character silhouette and costume motion; measure camera-caused failure, movement consistency, visual hierarchy, pacing contrast, mobile legibility, and frame-time stability; block the phase when a stop-ship experience defect remains.
+
 ## Scenario Completion Record
 
 For each new or revised skill, the reviewer appends a result to `SKILL_ACCEPTANCE_MATRIX.md` containing scenario IDs, baseline defect, skill clauses that block it, adversarial variants, remaining risk, and status. A scenario is not “passed” merely because the skill mentions the topic; the required output and review gate must make the shortcut detectable.
