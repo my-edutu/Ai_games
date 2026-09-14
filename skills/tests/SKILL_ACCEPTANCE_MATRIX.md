@@ -37,6 +37,7 @@ A skill passes only when every mandatory dimension scores at least `2`, all dime
 | difficulty-failure-balancing | PS-02, PS-08, PS-10 |
 | procedural-generation | PS-04, PS-08, PS-11 |
 | game-economy-rewards | PS-03, PS-08, PS-11 |
+| platformer-experience-review | PS-05, PS-06, PS-13 |
 | game-architecture | PS-01, PS-05, PS-11, PS-12 |
 | autonomous-agent-design | PS-01, PS-08, PS-10 |
 | deterministic-simulation | PS-01, PS-02, PS-04, PS-05, PS-12 |
@@ -115,3 +116,18 @@ Any conflict is load-bearing and returns the skill to `rework`.
 ## Initial Acceptance Ledger
 
 The skill suite begins as `candidate`. As each file is added, its author must map invariants, workflow, outputs, and review gate to the required scenarios. The final catalogue foundation review promotes only skills that meet the matrix and have been applied to at least one concrete game document set.
+
+### platformer-experience-review — 2026-09-14
+
+- Candidate commit: `2e73d5de819375d9168a3ee4ae54556eaa32c784`
+- Reviewer role: catalogue skill author / Eko Run experience gate designer
+- Scenarios exercised: PS-05, PS-06, PS-13 mapped; PS-13 baseline captured before skill authoring
+- Baseline shortcuts reproduced: screenshot/asset approval substituted for movement, camera, fairness, readability, pacing, and performance evidence
+- Adversarial variants: schedule pressure and “theme is the differentiator” engagement pressure are explicitly blocked by the phase gate and mechanics-only test
+- Dimension scores: D01=3, D02=3, D03=3, D04=3, D05=3, D06=3, D07=3, D08=3, D09=2, D10=3, D11=2, D12=2
+- Clauses that prevented each failure: non-negotiable invariants, representative-moment workflow, obstacle-fairness proof, camera-causality test, mechanics-only test, identity test, stop-ship defects
+- Required outputs produced: reusable skill, Eko Run project policy, Eko experience standard, foundation policy test
+- Conflicts with architecture/standards/other skills: none identified in document review; real-build interaction remains to be verified
+- Revisions made: project-specific Lagos identity and costume rules remain in Eko Run docs rather than the reusable skill
+- Remaining non-blocking risk: no playable Eko Run vertical slice exists yet, so real application evidence and runtime regression evidence are not available
+- Status: `candidate`
