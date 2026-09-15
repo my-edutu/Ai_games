@@ -13,7 +13,7 @@ test('survivor intent is expressed as a physical action state', () => {
   let game = createGame({ seed: 7 });
   for (let i = 0; i < 120; i++) game = stepGame(game, 1 / 30);
   const actions = new Set(game.survivors.map((s) => s.action));
-  assert.ok([...actions].some((action) => ['move','scavenge','aim','attack','repair','retreat','heal'].includes(action)));
+  assert.ok([...actions].some((action) => ['move','scavenge','aim','attack','repair','retreat','heal','rescue'].includes(action)));
 });
 
 test('zombie spawn positions are spatially separated', () => {
