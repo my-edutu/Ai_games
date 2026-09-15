@@ -62,6 +62,7 @@ test('Marble WebGL broadcast renders authoritative tournament and captures runti
   await page.goto(base, { waitUntil: 'domcontentloaded' });
   await expect(page.locator('#arena-webgl')).toBeVisible();
   await expect(page.locator('.broadcast-shell')).toHaveAttribute('data-renderer', 'webgl2', { timeout: 20_000 });
+  await expect(page.locator('.broadcast-shell')).toHaveAttribute('data-identity', 'projected', { timeout: 20_000 });
 
   const webgl = await page.evaluate(() => {
     const canvas = document.getElementById('arena-webgl');
@@ -74,7 +75,16 @@ test('Marble WebGL broadcast renders authoritative tournament and captures runti
   expect(box.height).toBeGreaterThan(500);
   const viewportArea = 1920 * 1080;
   const arenaCoverage = (box.width * box.height) / viewportArea;
-  expect(arenaCoverage).toBeGreaterThan(0.72);
+  expect(arenaCoverage).toBeGreaterThan(0.80);
+
+  const soundToggle = page.locator('#sound-toggle');
+  await soundToggle.click();
+  await expect(soundToggle).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.locator('.broadcast-shell')).toHaveAttribute('data-audio', 'semantic');
+  await page.waitForTimeout(250);
+  await soundToggle.click();
+  await expect(soundToggle).toHaveAttribute('aria-pressed', 'false');
+  await expect(page.locator('.broadcast-shell')).toHaveAttribute('data-audio', 'off');
 
   const operator = async command => page.evaluate(async ({ command }) => {
     const response = await fetch('/api/operator', {
