@@ -18,6 +18,18 @@ test('maze camera focuses the discovered public map instead of the full hidden g
   expect(value.view.containsCurrentCell).toBe(true);
 });
 
+test('2.5d renderer keeps the playable world locally framed and inspectable', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 720 });
+  await page.goto(`${base}/maze`, { waitUntil: 'domcontentloaded' });
+  await page.waitForFunction(() => window.__MAZE_RENDER_STATS__ && window.__MAZE_PUBLIC_STATE__);
+  const value = await page.evaluate(() => ({ stats: window.__MAZE_RENDER_STATS__, state: window.__MAZE_PUBLIC_STATE__ }));
+  expect(value.stats.mode).toBe('webgl2');
+  expect(value.stats.cameraDistance).toBeLessThanOrEqual(6.5);
+  expect(value.stats.cells).toBeLessThanOrEqual(35);
+  expect(value.stats.currentCellVisible).toBe(true);
+  expect(value.stats.theme).toBe('lost-facility-ruins');
+});
+
 test('slow state responses never create overlapping browser-source polls', async ({ page }) => {
   let active = 0;
   let maximum = 0;
