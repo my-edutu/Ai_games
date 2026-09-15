@@ -260,7 +260,6 @@ function createRuntime(options = {}) {
     authority.restart();
     cameraDirective = null;
     resetReplay(authority.state.runIndex);
-    state.paused = false;
     state.authorityRunning = true;
     state.lastStepAt = Date.now();
     drainAuthorityEvents();
