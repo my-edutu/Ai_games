@@ -116,7 +116,8 @@ export function stepPlayerKinematic(source: PlayerState, route: RouteState, inte
     player.movementState = "sliding";
     result.slideStarted = true;
   }
-  const canJump = player.movementState === "grounded" || player.movementState === "sliding" || player.coyoteTicksRemaining > 0;
+  const slideBlocksExpansion = player.movementState === "sliding" && !hasStandingClearance(player, route, tick, config);
+  const canJump = !slideBlocksExpansion && (player.movementState === "grounded" || player.movementState === "sliding" || player.coyoteTicksRemaining > 0);
   if (!wasStumbling && player.jumpBufferTicksRemaining > 0 && canJump) {
     player.velocity.y = config.jumpSpeed;
     player.movementState = "rising";
