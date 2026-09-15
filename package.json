@@ -6,7 +6,7 @@
   "scripts": {
     "clean": "rm -rf dist",
     "build": "tsc -p tsconfig.json",
-    "test": "npm run build && node --test tests/foundation/*.test.cjs tests/phase2/*.test.cjs tests/phase3/*.test.cjs tests/phase4/*.test.cjs tests/phase5/*.test.cjs tests/phase6/*.test.cjs",
+    "test": "npm run build && node --test tests/foundation/*.test.cjs tests/phase2/*.test.cjs tests/phase3/*.test.cjs tests/phase4/*.test.cjs tests/phase5/*.test.cjs tests/phase6/*.test.cjs tests/escape-room/*.test.cjs",
     "test:phase3": "npm run build && node --test tests/phase3/*.test.cjs",
     "test:phase4": "npm run build && node --test tests/phase4/*.test.cjs",
     "test:phase5": "npm run build && node --test tests/phase5/*.test.cjs",
@@ -31,7 +31,11 @@
     "test:tower:phase6": "npm run build && node --test tests/phase6/tower-*.test.cjs",
     "test:eko:phase1": "npm run build && node --test tests/foundation/eko-run-*.test.cjs",
     "test:eko:phase2": "npm run build && node --test tests/foundation/eko-run-*.test.cjs tests/phase2/eko-run-*.test.cjs",
+    "test:escape:phase1": "npm run build && node --test tests/escape-room/phase1-*.test.cjs",
+    "test:escape:phase2": "npm run build && node --test tests/escape-room/phase2-*.test.cjs",
+    "test:escape:phase3": "npm run build && node --test tests/escape-room/phase3-*.test.cjs",
     "test:browser": "playwright test",
+    "test:browser:escape-room": "playwright test tests/browser/escape-room-stream.spec.cjs",
     "eko:headless": "npm run build && node scripts/run-eko-run-headless.cjs",
     "snake:headless": "npm run build && node scripts/run-snake-headless.cjs",
     "snake:stream": "npm run build && node scripts/serve-snake-stream.cjs",
@@ -54,7 +58,11 @@
     "tower:stream": "npm run build && node scripts/serve-tower-stream.cjs",
     "tower:stream:self-test": "npm run build && node scripts/serve-tower-stream.cjs --self-test",
     "tower:phase5:chaos": "npm run build && node scripts/run-tower-phase5-chaos.cjs",
-    "tower:phase6:validate": "npm run build && node scripts/run-tower-phase6-validation.cjs"
+    "tower:phase6:validate": "npm run build && node scripts/run-tower-phase6-validation.cjs",
+    "escape-room:headless": "npm run build && node scripts/run-escape-room-headless.cjs",
+    "escape-room:campaign": "npm run build && node scripts/run-escape-room-campaign.cjs",
+    "escape-room:stream": "npm run build && node scripts/serve-escape-room-stream.cjs",
+    "escape-room:stream:self-test": "npm run build && node scripts/serve-escape-room-stream.cjs --self-test"
   },
   "dependencies": { "three": "0.186.0" },
   "devDependencies": { "@playwright/test": "1.55.0", "typescript": "5.8.3" }
