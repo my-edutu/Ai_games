@@ -198,11 +198,12 @@ function buildMazeWorld(snapshot,view){
 }
 
 function drawWallPrism(batch,snapshot,cell,side,color){
-  const p=cellWorld(snapshot,cell.cell),height=1.32+seedUnit(snapshot,cell.cell,7)*.52,thickness=.14;
-  if(side==='north')batch.box(p.x,.12+height/2,p.z-.5,1.08,height,thickness,color);
-  if(side==='south')batch.box(p.x,.12+height/2,p.z+.5,1.08,height,thickness,color);
-  if(side==='west')batch.box(p.x-.5,.12+height/2,p.z,thickness,height,1.08,color);
-  if(side==='east')batch.box(p.x+.5,.12+height/2,p.z,thickness,height,1.08,color);
+  const p=cellWorld(snapshot,cell.cell),cutaway=side==='south'||side==='east',height=cutaway?.50+seedUnit(snapshot,cell.cell,7)*.10:1.18+seedUnit(snapshot,cell.cell,7)*.40,thickness=.14;
+  const wallColor=cutaway?mixColor(color,PALETTE.foundation,.20):color;
+  if(side==='north')batch.box(p.x,.12+height/2,p.z-.5,1.08,height,thickness,wallColor);
+  if(side==='south')batch.box(p.x,.12+height/2,p.z+.5,1.08,height,thickness,wallColor);
+  if(side==='west')batch.box(p.x-.5,.12+height/2,p.z,thickness,height,1.08,wallColor);
+  if(side==='east')batch.box(p.x+.5,.12+height/2,p.z,thickness,height,1.08,wallColor);
 }
 function drawRoomAccent(batch,snapshot,cell,type,material){
   const p=cellWorld(snapshot,cell.cell),roll=presentationSeed(snapshot,cell.cell,73)%4;
@@ -215,7 +216,7 @@ function drawRoomAccent(batch,snapshot,cell,type,material){
   }
 }
 function drawCellArchitecture(batch,world,cell){
-  const {snapshot,known}=world,p=cellWorld(snapshot,cell.cell),type=selectRoomArchetype(cell,snapshot),material=archetypeMaterial(type,snapshot,cell.cell);
+  const {snapshot,known,localIds}=world,p=cellWorld(snapshot,cell.cell),type=selectRoomArchetype(cell,snapshot),material=archetypeMaterial(type,snapshot,cell.cell);
   const confidence=clamp((cell.confidencePermille??1000)/1000,.22,1);
   const floorColor=mixColor(PALETTE.floor,material,.24+confidence*.12);
   batch.box(p.x,-.22,p.z,1.02,.26,1.02,mixColor(PALETTE.foundation,material,.12));
@@ -224,8 +225,10 @@ function drawCellArchitecture(batch,world,cell){
   const dirs=[['north',cell.cell-snapshot.width,row>0],['east',cell.cell+1,col<snapshot.width-1],['south',cell.cell+snapshot.width,row<snapshot.height-1],['west',cell.cell-1,col>0]];
   for(const [side,id,inside] of dirs){
     const connected=inside&&neighbors.has(id);
-    if(!connected)drawWallPrism(batch,snapshot,cell,side,material);
-    else if(!known.has(id))drawFogVolume(batch,snapshot,cell,side);
+    if(!connected){
+      const duplicateBehind=(side==='north'||side==='west')&&inside&&localIds.has(id);
+      if(!duplicateBehind)drawWallPrism(batch,snapshot,cell,side,material);
+    }else if(!known.has(id))drawFogVolume(batch,snapshot,cell,side);
   }
   const prop=presentationSeed(snapshot,cell.cell,41)%5;
   if(type==='pillar-hall'||(cell.neighbors.length>=3&&prop===0)){
@@ -297,6 +300,13 @@ function drawExplorer(batch,snapshot){
   batch.box(p.x,.56,p.z+.16,.26,.37,.13,mixColor(PALETTE.metalDark,PALETTE.rust,.22));
   batch.box(p.x,.88,p.z-.19,.08,.08,.31,PALETTE.torch);
 }
+function drawExplorerFocus(batch,snapshot){
+  const p=cellWorld(snapshot,snapshot.currentCell),danger=clamp((snapshot.dangerPermille??0)/1000,0,1);
+  const outer=mixColor(PALETTE.floor,danger>.55?PALETTE.torch:PALETTE.explorer,.20);
+  const inner=mixColor(PALETTE.floor,danger>.55?PALETTE.emergency:PALETTE.cyan,.29);
+  batch.box(p.x,-.011,p.z,.78,.016,.78,outer);
+  batch.box(p.x,-.001,p.z,.38,.018,.38,inner);
+}
 function drawRouteMarkers(batch,snapshot,localIds){
   const route=snapshot.plannedRoute.filter(cell=>localIds.has(cell)).slice(0,MAX_TRAIL);for(const cell of route){const p=cellWorld(snapshot,cell);batch.box(p.x,.015,p.z,.15,.028,.15,mixColor(PALETTE.route,PALETTE.floor,.16))}
 }
@@ -319,6 +329,7 @@ class MazeWorldRenderer{
   render(snapshot,scene,camera){
     resize();const context=this.gl,view=window.__MAZE_VIEW__??computePublicView(snapshot,camera),world=buildMazeWorld(snapshot,view),batch=new GeometryBatch();
     for(const cell of world.cells){drawCellArchitecture(batch,world,cell);if(cell.trap)drawTrap(batch,cell,snapshot)}
+    drawExplorerFocus(batch,snapshot);
     drawRouteMarkers(batch,snapshot,world.localIds);
     for(const door of snapshot.doors)drawDoor(batch,door,snapshot,world.localIds);
     for(const key of snapshot.keys)if(world.localIds.has(key.cell))drawKey(batch,key,snapshot);
@@ -330,9 +341,10 @@ class MazeWorldRenderer{
     if(!this.initializedCamera){this.cameraTarget=requested.slice();this.initializedCamera=true}else{
       const speed=settings.reducedMotion?1:.095;this.cameraTarget[0]=lerp(this.cameraTarget[0],requested[0],speed);this.cameraTarget[1]=lerp(this.cameraTarget[1],requested[1],speed);this.cameraTarget[2]=lerp(this.cameraTarget[2],requested[2],speed);
     }
-    const zoom=Number(camera?.zoom)||1,distance=scene==='result'||scene==='intermission'?6.15:5.35;
-    const eye=[this.cameraTarget[0]+distance*.54/zoom,3.15+distance*.22/zoom,this.cameraTarget[2]+distance*.67/zoom];
-    const projection=mat4Perspective(Math.PI/3.35,canvas.width/Math.max(1,canvas.height),.07,45),viewMatrix=mat4LookAt(eye,this.cameraTarget,[0,1,0]),viewProjection=mat4Multiply(projection,viewMatrix);
+    const zoom=Number(camera?.zoom)||1,aspect=canvas.width/Math.max(1,canvas.height);
+    const distance=scene==='result'||scene==='intermission'?6.40:(aspect<1.9?6.25:5.95);
+    const eye=[this.cameraTarget[0]+distance*.48/zoom,3.35+distance*.24/zoom,this.cameraTarget[2]+distance*.60/zoom];
+    const projection=mat4Perspective(Math.PI/3.25,aspect,.07,45),viewMatrix=mat4LookAt(eye,this.cameraTarget,[0,1,0]),viewProjection=mat4Multiply(projection,viewMatrix);
     const explorerProjection=projectWorld([current.x,.82,current.z],viewProjection);
 
     context.clearColor(settings.highContrast?0:0.018,settings.highContrast?0:0.038,settings.highContrast?0:0.034,1);context.clear(context.COLOR_BUFFER_BIT|context.DEPTH_BUFFER_BIT);
@@ -340,7 +352,7 @@ class MazeWorldRenderer{
     const stride=10*4;context.enableVertexAttribArray(this.locations.position);context.vertexAttribPointer(this.locations.position,3,context.FLOAT,false,stride,0);context.enableVertexAttribArray(this.locations.normal);context.vertexAttribPointer(this.locations.normal,3,context.FLOAT,false,stride,3*4);context.enableVertexAttribArray(this.locations.color);context.vertexAttribPointer(this.locations.color,4,context.FLOAT,false,stride,6*4);
     context.uniformMatrix4fv(this.locations.viewProjection,false,viewProjection);context.uniform3fv(this.locations.camera,eye);context.uniform3fv(this.locations.explorerLight,[current.x,.88,current.z]);context.uniform3fv(this.locations.fogColor,settings.highContrast?[0,0,0]:[.022,.062,.052]);context.uniform1f(this.locations.danger,scene==='danger'?1:0);
     context.drawArrays(context.TRIANGLES,0,typed.length/10);
-    this.lastStats={mode:'webgl2',theme:world.theme,drawCalls:1,triangles:batch.triangles,vertices:typed.length/10,cells:world.cells.length,cameraDistance:Number(distance.toFixed(3)),currentCellVisible:world.localIds.has(snapshot.currentCell)&&explorerProjection.w>0,roomArchetype:selectRoomArchetype(world.known.get(snapshot.currentCell)??world.cells[0]??{cell:snapshot.currentCell,neighbors:[]},snapshot)};
+    this.lastStats={mode:'webgl2',theme:world.theme,cutawayMode:'camera-facing',focusLight:true,drawCalls:1,triangles:batch.triangles,vertices:typed.length/10,cells:world.cells.length,cameraDistance:Number(distance.toFixed(3)),currentCellVisible:world.localIds.has(snapshot.currentCell)&&explorerProjection.w>0,roomArchetype:selectRoomArchetype(world.known.get(snapshot.currentCell)??world.cells[0]??{cell:snapshot.currentCell,neighbors:[]},snapshot)};
     window.__MAZE_RENDER_STATS__=Object.freeze({...this.lastStats});
   }
 }
