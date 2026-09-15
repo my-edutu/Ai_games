@@ -84,7 +84,8 @@ test('renderer contains biological ants, explicit lod, organic world depth and b
 
 test('organic presentation remains state-derived, deterministic and incapable of changing colony authority',()=>{
   const organic=read('public/ai-ant-colony/organic-presenter.js');
-  assert.match(organic,/snapshot\.world\.tiles/);
+  assert.match(organic,/\}\s*=\s*snapshot\.world/);
+  assert.match(organic,/\btiles\b/);
   assert.match(organic,/snapshot\.colony\.brood/);
   assert.match(organic,/snapshot\.colony\.foodStore/);
   assert.match(organic,/snapshot\.colony\.threat/);
@@ -93,7 +94,7 @@ test('organic presentation remains state-derived, deterministic and incapable of
   assert.doesNotMatch(organic,/runtime\.|state\.|\.step\(|restart\(|Math\.random/);
 });
 
-test('ecosystem director and soundscape are bounded and environment-aware',()=>{
+test('ecosystem director and soundscape are bounded, adaptive and environment-aware',()=>{
   const director=read('public/ai-ant-colony/director.js');
   const sound=read('public/ai-ant-colony/soundscape.js');
   const app=read('public/ai-ant-colony/app.js');
@@ -105,10 +106,13 @@ test('ecosystem director and soundscape are bounded and environment-aware',()=>{
   assert.match(director,/SHOT_COOLDOWN_MS/);
   assert.match(app,/dayProgress/);
   assert.match(app,/seasonProgress/);
-  assert.match(sound,/MAX_AUDIO_VOICES/);
+  assert.match(sound,/MAX_AUDIO_VOICES\s*=\s*6/);
   assert.match(sound,/ambience/i);
   assert.match(sound,/rain/i);
   assert.match(sound,/dig/i);
+  assert.match(sound,/adaptiveMusic/);
+  assert.match(sound,/musicState/);
+  assert.match(sound,/organicSoundscape/);
   assert.doesNotMatch(`${director}\n${sound}`,/Math\.random/);
 });
 
