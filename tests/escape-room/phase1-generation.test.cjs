@@ -68,6 +68,19 @@ test('generated room has stable unique IDs, constructively ordered prerequisites
   });
 });
 
+test('deep rooms use deterministic branch-and-merge dependencies instead of one linear chain', () => {
+  const cfg=config({difficulty:14,puzzleDepth:8,objectCount:30,decoyCount:4,hazardCount:2});
+  const {definition}=generateEscapeRoom(cfg,NamedRng.fromSeed('branch-grammar'));
+  const puzzles=[...definition.puzzles].sort((a,b)=>a.stage-b.stage);
+  assert.deepEqual(puzzles[0].prerequisitePuzzleIds,[]);
+  const root=puzzles[0].id;
+  const firstBranches=puzzles.filter(p=>p.prerequisitePuzzleIds.length===1&&p.prerequisitePuzzleIds[0]===root);
+  assert.ok(firstBranches.length>=2,'expected at least two simultaneously eligible branches after the root');
+  assert.ok(puzzles.some(p=>p.prerequisitePuzzleIds.length>=2),'expected a merge puzzle that requires multiple prior branches');
+  for(const puzzle of puzzles)for(const prereq of puzzle.prerequisitePuzzleIds){const prior=puzzles.find(candidate=>candidate.id===prereq);assert.ok(prior);assert.ok(prior.stage<puzzle.stage);}
+  assert.ok(solveEscapeRoom(definition));
+});
+
 test('mandatory clue families have non-color redundant cues and hazards preserve response windows', () => {
   const cfg = config({theme: 'chromatic-lab', difficulty: 20, puzzleDepth: 12, objectCount: 48, hazardCount: 6});
   const {definition} = generateEscapeRoom(cfg, NamedRng.fromSeed('accessibility-proof'));
