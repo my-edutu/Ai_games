@@ -27,3 +27,15 @@ test('camera source includes hazard and guardian broadcast framing with reduced-
   assert.ok(source.includes('reduced?1'));
   assert.ok(source.includes('impulse:danger'));
 });
+
+test('22-skill art-direction pass gives sectors unique architecture rather than palette swaps',()=>{
+  const js=read('public/infinite-tower-climb/app.js');
+  for(const marker of ['drawThemeArchitecture','drawFoundryMachinery','drawRuinsGrowth','drawStormCoils','drawClockworkGears','drawVoidFractures'])assert.ok(js.includes(marker),`missing theme architecture ${marker}`);
+  assert.ok(js.includes('MILESTONE_FLOORS'),'milestone architecture contract missing');
+});
+
+test('public broadcast hides internal run identity and exposes bounded visual diagnostics',()=>{
+  const js=read('public/infinite-tower-climb/app.js');
+  assert.ok(!js.includes("setText('run-token'"),'internal run token must not be written to the public HUD');
+  for(const marker of ['__TOWER_RENDER_DIAGNOSTICS__','playerVisible','platformsVisible','hazardsVisible','guardiansVisible','frameMsP95'])assert.ok(js.includes(marker),`missing render diagnostic ${marker}`);
+});
