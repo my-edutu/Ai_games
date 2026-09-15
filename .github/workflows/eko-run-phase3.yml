@@ -43,3 +43,15 @@ jobs:
             echo 'Forbidden ambient nondeterminism/provider dependency found in Phase 3 presentation.'
             exit 1
           fi
+      - name: Phase 3 deterministic presentation evidence
+        shell: bash
+        run: |
+          set -o pipefail
+          mkdir -p evidence/eko-run/phase3/runtime
+          node scripts/run-eko-run-phase3-character-evidence.cjs | tee evidence/eko-run/phase3/runtime/character-summary.json
+      - name: Upload Phase 3 evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: eko-run-phase3-evidence
+          path: evidence/eko-run/phase3/runtime
+          if-no-files-found: error
