@@ -1,7 +1,7 @@
 import type { EkoRunConfig } from "../config/default-config";
 import { FIXED_DT_SECONDS } from "../config/version";
 import type { KinematicStepResult, PhysicsContact, PlayerControlIntent, PlayerState, RouteState } from "../state/types";
-import { findVaultObstacle, hasStandingClearance, playerHeight, sampleSupportSurface, separateMovingColliderOverlaps, sweepCeiling, sweepHorizontal } from "./geometry";
+import { findVaultObstacle, hasStandingClearance, playerHeight, resolveCollider, sampleSupportSurface, separateMovingColliderOverlaps, sweepCeiling, sweepHorizontal } from "./geometry";
 
 function quantize(value: number, quantum: number): number { return Math.round(value / quantum) * quantum; }
 function approach(current: number, target: number, amount: number): number {
@@ -13,13 +13,39 @@ function clonePlayer(player: PlayerState): PlayerState {
   return { ...player, position: { ...player.position }, velocity: { ...player.velocity }, vault: player.vault ? { ...player.vault, start: { ...player.vault.start }, end: { ...player.vault.end } } : null };
 }
 function contactKind(kind: "ground" | "slope" | "step" | "moving" | "vault"): PhysicsContact["kind"] { return kind; }
+
+function vaultPathIsClear(player: PlayerState, obstacleId: string, endX: number, endY: number, route: RouteState, tick: number, config: EkoRunConfig): boolean {
+  const height = config.playerStandingHeight;
+  const sorted = [...route.colliders].sort((a, b) => a.id.localeCompare(b.id));
+  for (let step = 1; step <= config.vaultDurationTicks; step += 1) {
+    const t = step / config.vaultDurationTicks;
+    const x = player.position.x + (endX - player.position.x) * t;
+    const baseY = player.position.y + (endY - player.position.y) * t;
+    const y = baseY + 4 * config.vaultArcHeight * t * (1 - t);
+    const minX = x - config.playerHalfWidth + config.collisionSkin;
+    const maxX = x + config.playerHalfWidth - config.collisionSkin;
+    const minY = y + config.collisionSkin;
+    const maxY = y + height - config.collisionSkin;
+    for (const raw of sorted) {
+      if (raw.id === obstacleId) continue;
+      const collider = resolveCollider(raw, tick + step, config);
+      const horizontal = maxX > collider.minX && minX < collider.maxX;
+      const vertical = maxY > collider.minY && minY < collider.maxY;
+      if (horizontal && vertical) return false;
+    }
+  }
+  return true;
+}
+
 function startVault(player: PlayerState, route: RouteState, intent: PlayerControlIntent, tick: number, config: EkoRunConfig): boolean {
   if (!intent.vault || (player.movementState !== "grounded" && player.movementState !== "sliding")) return false;
   const obstacle = findVaultObstacle(player, route, tick, config);
   if (!obstacle) return false;
   const direction = player.facing;
   const endX = direction > 0 ? obstacle.maxX + config.playerHalfWidth + config.collisionSkin + 0.1 : obstacle.minX - config.playerHalfWidth - config.collisionSkin - 0.1;
-  player.vault = { obstacleId: obstacle.id, ticksRemaining: config.vaultDurationTicks, totalTicks: config.vaultDurationTicks, start: { ...player.position }, end: { x: endX, y: route.groundY } };
+  const endY = route.groundY;
+  if (!vaultPathIsClear(player, obstacle.id, endX, endY, route, tick, config)) return false;
+  player.vault = { obstacleId: obstacle.id, ticksRemaining: config.vaultDurationTicks, totalTicks: config.vaultDurationTicks, start: { ...player.position }, end: { x: endX, y: endY } };
   player.movementState = "vaulting";
   player.velocity = { x: 0, y: 0 };
   player.slideTicksRemaining = 0;
