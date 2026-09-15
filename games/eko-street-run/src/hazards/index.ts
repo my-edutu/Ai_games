@@ -140,7 +140,9 @@ export function stepHazards(state: EkoRunState, config: EkoRunConfig): HazardSte
       signals.push({ type: "hazard.warned", data: { hazardId: contract.id, family: contract.family, minResponseTicks: contract.minResponseTicks } });
     }
 
-    if (hazardActiveAtTick(contract, state.tick) && encounter.phase === "warned" && overlapsPlayer(state, contract, x, config)) {
+    const warningAge = encounter.warningTick === null ? -1 : state.tick - encounter.warningTick;
+    const graceSatisfied = warningAge >= contract.minResponseTicks;
+    if (hazardActiveAtTick(contract, state.tick) && encounter.phase === "warned" && graceSatisfied && overlapsPlayer(state, contract, x, config)) {
       encounter.phase = "hit";
       encounter.resolvedTick = state.tick;
       signals.push({ type: "hazard.hit", data: { hazardId: contract.id, family: contract.family, consequence: contract.consequence } });
