@@ -1,0 +1,21 @@
+/* Revision 3 keeps accessibility and broadcast-specific overrides separate from the core visual system. */
+
+.broadcast-shell[data-ux-revision="3"] .leaderboard li[data-status="near-finish"] .status { color: #d9c69b; }
+.broadcast-shell[data-ux-revision="3"] .leaderboard li[data-status="threatened"] .status { color: #d9988e; }
+.broadcast-shell[data-ux-revision="3"] .leaderboard li[data-status="recovering"] .status { color: #d1b477; }
+.broadcast-shell[data-ux-revision="3"] .leaderboard li[data-status="qualified"] .status,
+.broadcast-shell[data-ux-revision="3"] .leaderboard li[data-status="champion"] .status { color: #a9c4a5; }
+
+@media (forced-colors: active) {
+  .broadcast-shell[data-ux-revision="3"] *,
+  .broadcast-shell[data-ux-revision="3"] *::before,
+  .broadcast-shell[data-ux-revision="3"] *::after { forced-color-adjust: auto; }
+  #arena-canvas { outline: 2px solid CanvasText; }
+}
+
+@media (prefers-contrast: more) {
+  .broadcast-shell[data-ux-revision="3"] .leaderboard li,
+  .broadcast-shell[data-ux-revision="3"] .tournament-strip,
+  .broadcast-shell[data-ux-revision="3"] .arena-card,
+  .broadcast-shell[data-ux-revision="3"] .leaderboard-panel { border-color: rgba(255, 250, 240, .5); }
+}
