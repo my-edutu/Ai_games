@@ -20,10 +20,10 @@ function input(overrides = {}) {
   };
 }
 
-test('camera uses overview until competition becomes decision-critical', () => {
+test('camera uses an arena-centred overview until competition becomes decision-critical', () => {
   const directive = chooseMarbleCameraDirective(input());
   assert.equal(directive.mode, 'overview');
-  assert.deepEqual(directive.focusIds, [1]);
+  assert.deepEqual(directive.focusIds, [], 'overview must not pull the whole arena toward one leader');
   assert.ok(directive.holdUntilTick > 100);
 });
 
@@ -86,7 +86,7 @@ test('stale finish and champion history cannot hijack a fresh race camera', () =
   }));
 
   assert.equal(directive.mode, 'overview');
-  assert.deepEqual(directive.focusIds, [3]);
+  assert.deepEqual(directive.focusIds, []);
 });
 
 test('an old same-run finish event expires instead of pinning the camera forever', () => {
@@ -96,4 +96,5 @@ test('an old same-run finish event expires instead of pinning the camera forever
   }));
 
   assert.equal(directive.mode, 'overview');
+  assert.deepEqual(directive.focusIds, []);
 });
