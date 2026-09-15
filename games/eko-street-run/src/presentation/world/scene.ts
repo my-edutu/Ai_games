@@ -3,7 +3,7 @@ import { createPresentationCues } from "./audio";
 import { createCameraPlan, assertViewport } from "./camera";
 import { getMainlandMorningDistrict } from "./mainland-morning";
 import { getQualityProfile } from "./quality";
-import type { MainlandMorningPresentation, MainlandMorningPresentationOptions, WorldNode } from "./types";
+import type { CameraPlan, MainlandMorningPresentation, MainlandMorningPresentationOptions, WorldNode } from "./types";
 
 function deepFreeze<T>(value: T): T {
   if (value && typeof value === "object" && !Object.isFrozen(value)) {
@@ -13,14 +13,19 @@ function deepFreeze<T>(value: T): T {
   return value;
 }
 
-function criticalNodes(snapshot: EkoRunRenderSnapshot): WorldNode[] {
+function criticalNodes(snapshot: EkoRunRenderSnapshot, camera: CameraPlan): WorldNode[] {
   const direction = snapshot.player.facing;
-  const availableRoute = direction > 0
-    ? snapshot.route.finishX - snapshot.player.position.x
-    : snapshot.player.position.x - snapshot.route.minX;
-  const routeWidth = Math.max(7, Math.min(13, Math.max(0, availableRoute) + 0.75));
-  const routeCenter = snapshot.player.position.x + direction * (routeWidth * 0.5 - 0.75);
-  const decisionX = snapshot.player.position.x + direction * 5.5;
+  const behindAllowance = 0.75;
+  const viewMargin = 0.5;
+  const nearEdge = snapshot.player.position.x - direction * behindAllowance;
+  const farEdge = direction > 0
+    ? Math.min(snapshot.route.finishX, camera.visibleWorld.maxX - viewMargin)
+    : Math.max(snapshot.route.minX, camera.visibleWorld.minX + viewMargin);
+  const lower = Math.min(nearEdge, farEdge);
+  const upper = Math.max(nearEdge, farEdge);
+  const routeWidth = Math.max(0.5, upper - lower);
+  const routeCenter = lower + routeWidth * 0.5;
+  const decisionX = snapshot.player.position.x + direction * Math.min(5.5, camera.lookAhead - 0.5);
   return [
     { id: "player-anchor", kind: "player-anchor", role: "player-anchor", x: snapshot.player.position.x, y: snapshot.player.position.y + 0.9, z: 0, width: 0.7, height: 1.8, depth: 0.7, critical: true, ambient: false, detailRank: 0, color: "#ffffff" },
     { id: "safe-route", kind: "route-ribbon", role: "safe-route", x: routeCenter, y: 0.025, z: 0, width: routeWidth, height: 0.05, depth: 1.35, critical: true, ambient: false, detailRank: 0, color: "#efe8d0" },
@@ -46,7 +51,7 @@ export function createMainlandMorningPresentation(
   const district = getMainlandMorningDistrict();
   const camera = createCameraPlan(snapshot, options.viewport);
   const authored = district.worldNodes.filter(node => !node.ambient || node.detailRank <= quality.maxDetailRank);
-  const nodes = [...criticalNodes(snapshot), ...authored];
+  const nodes = [...criticalNodes(snapshot, camera), ...authored];
   const ambientCount = nodes.filter(node => node.ambient).length;
   const decorativeLoad = Math.min(0.45, ambientCount / Math.max(1, nodes.length) * quality.ambientDensity);
   const direction = snapshot.player.facing;
