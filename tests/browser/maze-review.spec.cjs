@@ -33,6 +33,20 @@ test('2.5d renderer keeps the playable world locally framed and inspectable', as
   expect(value.stats.focusLight).toBe(true);
 });
 
+test('maze visual language uses layered ruins and a restrained explorer material', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 720 });
+  await page.goto(`${base}/maze`, { waitUntil: 'domcontentloaded' });
+  await page.waitForFunction(() => window.__MAZE_RENDER_STATS__ && window.__MAZE_RENDER_STATS__.cells >= 6);
+  const stats = await page.evaluate(() => window.__MAZE_RENDER_STATS__);
+  expect(stats.wallConstruction).toBe('layered-ruin-facility');
+  expect(stats.wallLayerCount).toBeGreaterThanOrEqual(3);
+  expect(stats.materialFamilyCount).toBeGreaterThanOrEqual(5);
+  expect(stats.detailPrimitivesPerCell).toBeGreaterThanOrEqual(4);
+  expect(stats.detailPrimitivesPerCell).toBeLessThanOrEqual(14);
+  expect(stats.explorerMaterial).toBe('muted-field-suit');
+  expect(stats.explorerHighlightStrength).toBeLessThanOrEqual(0.72);
+});
+
 test('production polish stays deterministic, bounded and presentation-only', async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 720 });
   await page.goto(`${base}/maze`, { waitUntil: 'domcontentloaded' });
