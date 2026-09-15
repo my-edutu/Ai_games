@@ -46,6 +46,10 @@ function canonicalState(state: EkoRunState): string {
       slopes: state.route.slopes.map(item => ({ ...item })),
       colliders: state.route.colliders.map(item => ({ ...item, motion: item.motion ? { ...item.motion } : undefined })),
     },
+    hazards: state.hazards ? {
+      hazardSchemaVersion: state.hazards.hazardSchemaVersion,
+      encounters: state.hazards.encounters.map(encounter => ({ ...encounter })),
+    } : null,
     resources: { ekoTokens: state.resources.ekoTokens },
     commandWatermarks: sortedWatermarks(state.commandWatermarks),
     randomStreams: {
