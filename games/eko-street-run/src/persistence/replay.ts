@@ -46,12 +46,12 @@ function assertSupported(snapshot: EkoRunSnapshot): void {
 export function restoreSnapshot(snapshot: EkoRunSnapshot): EkoRunState {
   assertSupported(snapshot);
   const candidate = cloneState(snapshot.state);
-  assertStateInvariants(candidate);
   if (candidate.runId !== snapshot.runId || candidate.rootSeed !== snapshot.rootSeed || candidate.tick !== snapshot.tick) {
     throw new IntegrityError("ENVELOPE_MISMATCH", "snapshot envelope does not match state payload");
   }
   const actual = checksumState(candidate);
   if (actual !== snapshot.checksum) throw new IntegrityError("CHECKSUM_MISMATCH", "snapshot checksum mismatch");
+  assertStateInvariants(candidate);
   return candidate;
 }
 
