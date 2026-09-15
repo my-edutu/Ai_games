@@ -3,6 +3,7 @@ import { NamedRng } from '../../../../packages/seeded-rng/src/index';
 import { parseMarbleConfig } from '../config/schema';
 import { generateMarbleArena } from '../generation/arena';
 import { createMarbleRoster } from '../generation/roster';
+import { triangleWave } from '../physics/fixed';
 import { stepMarblePhysics } from '../physics/solver';
 import { advanceMarbleRound, applyTournamentRules } from '../rules/tournament';
 import type {
@@ -62,22 +63,155 @@ function clampSteer(value: number): number {
   return Math.max(-1_000, Math.min(1_000, Math.round(value)));
 }
 
-function basicAction(state: MarbleState, marbleId: number): MarbleAction {
+interface LaneThreat {
+  score: number;
+  sweeper: boolean;
+}
+
+function horizontalOverlap(laneX: number, left: number, right: number, clearance: number): boolean {
+  return laneX + clearance >= left && laneX - clearance <= right;
+}
+
+function aheadDistance(marbleY: number, top: number, height: number): number {
+  return marbleY - (top + height);
+}
+
+function scoreRectThreat(
+  laneX: number,
+  marbleY: number,
+  lookahead: number,
+  clearance: number,
+  rectangle: { x: number; y: number; width: number; height: number },
+  weight: number
+): number {
+  if (!horizontalOverlap(laneX, rectangle.x, rectangle.x + rectangle.width, clearance)) return 0;
+  const distance = aheadDistance(marbleY, rectangle.y, rectangle.height);
+  if (distance < -clearance || distance > lookahead) return 0;
+  const proximity = Math.max(0, lookahead - Math.max(0, distance));
+  return weight + Math.round((proximity * weight) / Math.max(1, lookahead));
+}
+
+function laneThreat(state: MarbleState, marbleId: number, laneX: number): LaneThreat {
   const marble = state.marbles.find(candidate => candidate.id === marbleId)!;
-  const laneIndex = marble.id % state.arena.safeLanes.length;
-  const alternate = (laneIndex + 1) % state.arena.safeLanes.length;
+  const radius = state.config.marbleRadius;
+  const lookahead = radius * (12 + Math.max(4, Math.round(marble.traits.awareness / 10)));
+  const clearance = radius + 120;
+  let score = 0;
+  let sweeperThreat = false;
+
+  for (const sweeper of state.arena.sweepers) {
+    const offset = triangleWave(state.tick, sweeper.periodTicks, sweeper.amplitude, sweeper.phaseTicks);
+    const rectangle = {
+      x: sweeper.baseX + (sweeper.axis === 'x' ? offset : 0),
+      y: sweeper.baseY + (sweeper.axis === 'y' ? offset : 0),
+      width: sweeper.width,
+      height: sweeper.height
+    };
+    const threat = scoreRectThreat(laneX, marble.position.y, lookahead, clearance, rectangle, 3_000);
+    if (threat > 0) {
+      score += threat;
+      sweeperThreat = true;
+    }
+  }
+
+  for (const obstacle of state.arena.obstacles) {
+    score += scoreRectThreat(laneX, marble.position.y, lookahead, clearance, obstacle, 1_800);
+  }
+
+  for (const hazard of state.arena.hazards) {
+    score += scoreRectThreat(laneX, marble.position.y, lookahead, clearance, hazard, 2_500);
+  }
+
+  for (const zone of state.arena.windZones) {
+    const base = marble.archetype === 'navigator' || marble.archetype === 'survivor' ? 320 : 620;
+    score += scoreRectThreat(laneX, marble.position.y, lookahead, clearance, zone, base);
+  }
+
+  return { score, sweeper: sweeperThreat };
+}
+
+function chooseSafestLane(state: MarbleState, marbleId: number): { lane: number; threat: LaneThreat } {
+  const marble = state.marbles.find(candidate => candidate.id === marbleId)!;
+  const lanes = state.arena.safeLanes;
+  const preferredIndex = marble.id % lanes.length;
+  let bestLane = lanes[preferredIndex];
+  let bestThreat = laneThreat(state, marbleId, bestLane);
+
+  for (let offset = 1; offset < lanes.length; offset++) {
+    const candidate = lanes[(preferredIndex + offset) % lanes.length];
+    const threat = laneThreat(state, marbleId, candidate);
+    if (threat.score < bestThreat.score) {
+      bestLane = candidate;
+      bestThreat = threat;
+    }
+  }
+  return { lane: bestLane, threat: bestThreat };
+}
+
+export function chooseMarbleAction(state: MarbleState, marbleId: number): MarbleAction {
+  const marble = state.marbles.find(candidate => candidate.id === marbleId);
+  if (!marble) throw new RangeError('marbleId');
+  if (state.arena.safeLanes.length === 0) throw new Error('arena-safe-lanes');
+
+  const preferredLane = state.arena.safeLanes[marble.id % state.arena.safeLanes.length];
+  const preferredThreat = laneThreat(state, marbleId, preferredLane);
+  const safest = chooseSafestLane(state, marbleId);
   const stalled = state.tick - marble.lastProgressTick >= Math.floor(state.config.noProgressTicks / 2);
-  const targetLane = state.arena.safeLanes[stalled ? alternate : laneIndex];
+  const finalBand = marble.progressPermille >= 800;
+  const riskWindow = marble.progressPermille >= 250 && marble.progressPermille < 800;
+  const highRiskSprinter = marble.archetype === 'sprinter'
+    && marble.traits.riskPermille >= 640
+    && riskWindow
+    && preferredThreat.score === 0
+    && safest.threat.score === 0;
+
+  let targetLane = safest.lane;
+  let intent: MarbleAction['intent'];
+  let boostPermille = 1_000;
+  let confidence: MarbleAction['confidence'] = 'medium';
+
+  if (preferredThreat.sweeper && safest.lane !== preferredLane) {
+    intent = 'avoiding-sweeper';
+    boostPermille = marble.archetype === 'bruiser' ? 980 : 940;
+    confidence = marble.traits.awareness >= 82 ? 'high' : 'medium';
+  } else if (safest.threat.score > 0 && safest.lane !== preferredLane) {
+    intent = 'seeking-gap';
+    boostPermille = 970;
+    confidence = 'medium';
+  } else if (finalBand) {
+    targetLane = safest.lane;
+    intent = 'final-sprint';
+    boostPermille = 1_080;
+    confidence = safest.threat.score === 0 ? 'high' : 'medium';
+  } else if (stalled) {
+    const alternateIndex = (state.arena.safeLanes.indexOf(safest.lane) + 1) % state.arena.safeLanes.length;
+    const alternateLane = state.arena.safeLanes[alternateIndex];
+    const alternateThreat = laneThreat(state, marbleId, alternateLane);
+    if (alternateThreat.score <= safest.threat.score) targetLane = alternateLane;
+    intent = 'recovering-momentum';
+    boostPermille = 1_040;
+    confidence = 'low';
+  } else if (highRiskSprinter) {
+    targetLane = Math.round(state.arena.safeLanes.reduce((sum, lane) => sum + lane, 0) / state.arena.safeLanes.length);
+    intent = 'taking-risk-route';
+    boostPermille = 1_120;
+    confidence = 'medium';
+  } else {
+    targetLane = safest.lane;
+    const delta = targetLane - marble.position.x;
+    intent = Math.abs(delta) > state.config.marbleRadius * 2 ? 'seeking-gap' : 'holding-line';
+    confidence = safest.threat.score === 0 && Math.abs(delta) < state.config.marbleRadius ? 'high' : 'medium';
+  }
+
   const deltaX = targetLane - marble.position.x;
   const steerX = clampSteer(Math.round(deltaX / Math.max(1, state.config.marbleRadius)) * 120);
-  const finalBand = marble.progressPermille >= 800;
   return {
     marbleId,
     steerX,
     steerY: -1_000,
-    boostPermille: finalBand ? 1_080 : stalled ? 1_040 : 1_000,
-    intent: finalBand ? 'final-sprint' : stalled ? 'recovering-momentum' : Math.abs(deltaX) > state.config.marbleRadius * 2 ? 'seeking-gap' : 'holding-line',
-    confidence: stalled ? 'low' : Math.abs(deltaX) < state.config.marbleRadius ? 'high' : 'medium'
+    boostPermille,
+    intent,
+    confidence
   };
 }
 
@@ -186,7 +320,7 @@ export class MarbleRuntime {
       return this.state;
     }
 
-    const actions = this.state.activeIds.map(id => basicAction(this.state, id));
+    const actions = this.state.activeIds.map(id => chooseMarbleAction(this.state, id));
     const physics = stepMarblePhysics(this.state, actions);
     if (physics.integrityIssue) {
       this.state = physics.state;
@@ -250,6 +384,6 @@ export function createInitialMarbleState(config: MarbleConfig, seed: string, run
 }
 
 export function targetVectorForMarble(state: MarbleState, marbleId: number): Vec2 {
-  const action = basicAction(state, marbleId);
+  const action = chooseMarbleAction(state, marbleId);
   return { x: action.steerX, y: action.steerY };
 }
