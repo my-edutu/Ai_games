@@ -265,10 +265,9 @@ export function generateMarbleArena(config: MarbleConfig, roundIndex: number, rn
   const finishY = config.marbleRadius + 700;
   const archetype = ARCHETYPES[roundIndex];
   const laneVariation = (rng.nextInt(`arena-topology-lanes-${roundIndex}`, 7) - 3) * 220;
-  const safeLanes = [
-    Math.round(width / 3 + laneVariation),
-    Math.round((width * 2) / 3 - laneVariation)
-  ];
+  const safeLanes = roundIndex === 4
+    ? [Math.round(width / 4 + laneVariation), Math.round((width * 3) / 4 - laneVariation)]
+    : [Math.round(width / 3 + laneVariation), Math.round((width * 2) / 3 - laneVariation)];
   const content = addRoundContent(config, roundIndex, rng, safeLanes);
   const arena: MarbleArena = {
     schemaVersion: 1,
