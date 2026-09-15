@@ -27,7 +27,7 @@ const OUTFITS: Readonly<Record<OutfitId, CharacterOutfitDefinition>> = Object.fr
     mechanicalModifiers: Object.freeze([]),
     landmarkVisibility,
     decorativeEnvelope: { minX: -0.66, maxX: 0.66, minY: 0, maxY: 2.14 },
-    palette: { primary: "#173C68", secondary: "#F0E2BE", accent: "#D5A43A", trim: "#FFFFFF", skin: "#6F432D", backgroundSafeOutline: "#111827" },
+    palette: { primary: "#173C68", secondary: "#F0E2BE", accent: "#D5A43A", trim: "#FFFFFF", skin: "#6F432D", backgroundSafeOutline: "#F8FAFC" },
     sourcePolicy: "original-design",
   }),
   "igbo-isi-agu-red-cap": freezeOutfit({
@@ -53,7 +53,7 @@ const OUTFITS: Readonly<Record<OutfitId, CharacterOutfitDefinition>> = Object.fr
     mechanicalModifiers: Object.freeze([]),
     landmarkVisibility,
     decorativeEnvelope: { minX: -0.64, maxX: 0.64, minY: 0, maxY: 2.13 },
-    palette: { primary: "#0B625D", secondary: "#E4D2A0", accent: "#B76E3A", trim: "#FFF8E7", skin: "#6F432D", backgroundSafeOutline: "#0F172A" },
+    palette: { primary: "#0B625D", secondary: "#E4D2A0", accent: "#B76E3A", trim: "#FFF8E7", skin: "#6F432D", backgroundSafeOutline: "#F8FAFC" },
     sourcePolicy: "original-design",
   }),
   "lagos-streetwear": freezeOutfit({
