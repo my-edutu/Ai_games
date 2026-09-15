@@ -10,15 +10,34 @@ const COLORS=['amber','cyan','violet','emerald','coral','silver'] as const;
 
 function pick<T>(rng:NamedRng,stream:string,values:readonly T[]):T{return values[rng.nextInt(stream,values.length)]!;}
 function code(rng:NamedRng,stage:number){return `${(stage+rng.nextInt('escape.generation.solution.v1',7))%10}${rng.nextInt('escape.generation.solution.v1',10)}${rng.nextInt('escape.generation.solution.v1',10)}`;}
+function puzzleId(stage:number){return`puzzle-${String(stage).padStart(2,'0')}`;}
+
+function buildPrerequisitePlan(depth:number):string[][]{
+  const plan=Array.from({length:depth},()=>[] as string[]);if(depth<2)return plan;
+  let frontier=[1],stage=2;const lastRegular=depth-1;
+  while(stage<=lastRegular){
+    const remaining=lastRegular-stage+1;
+    if(remaining>=2){
+      const branchA=stage,branchB=stage+1,deps=frontier.map(puzzleId);
+      plan[branchA-1]=[...deps];plan[branchB-1]=[...deps];stage+=2;
+      if(stage<=lastRegular){plan[stage-1]=[puzzleId(branchA),puzzleId(branchB)];frontier=[stage];stage+=1;}
+      else frontier=[branchA,branchB];
+    }else{
+      plan[stage-1]=frontier.map(puzzleId);frontier=[stage];stage+=1;
+    }
+  }
+  plan[depth-1]=frontier.map(puzzleId);return plan;
+}
 
 function buildDefinition(config:EscapeRoomConfig,rng:NamedRng,attempt:number):EscapeRoomDefinition{
   const minimumObjects=config.puzzleDepth*2+1+config.decoyCount;
   if(minimumObjects>config.objectCount)throw new Error('object-budget');
   const objects:EscapeObjectDefinition[]=[];
   const puzzles:EscapePuzzleDefinition[]=[];
+  const prerequisitePlan=buildPrerequisitePlan(config.puzzleDepth);
   for(let index=0;index<config.puzzleDepth;index++){
     const stage=index+1;
-    const puzzleId=`puzzle-${String(stage).padStart(2,'0')}`;
+    const id=puzzleId(stage);
     const kind:EscapePuzzleKind=index===config.puzzleDepth-1?'final-vault':ESCAPE_PUZZLE_KINDS[(index+rng.nextInt('escape.generation.template.v1',ESCAPE_PUZZLE_KINDS.length-1))%(ESCAPE_PUZZLE_KINDS.length-1)]!;
     const clueId=`clue-${String(stage).padStart(2,'0')}`;
     const targetId=index===config.puzzleDepth-1?'final-vault':`target-${String(stage).padStart(2,'0')}`;
@@ -34,7 +53,7 @@ function buildDefinition(config:EscapeRoomConfig,rng:NamedRng,attempt:number):Es
       publicShape:pick(rng,'escape.generation.dressing.v1',SHAPES),
       publicSymbol:pick(rng,'escape.generation.dressing.v1',SYMBOLS),
       publicTextKey:`escape.clue.${kind}.${stage}`,
-      hiddenFact:{factId:`fact-${stage}`,value:solution,puzzleId},
+      hiddenFact:{factId:`fact-${stage}`,value:solution,puzzleId:id},
     });
     objects.push({
       id:targetId,
@@ -48,10 +67,10 @@ function buildDefinition(config:EscapeRoomConfig,rng:NamedRng,attempt:number):Es
       publicTextKey:`escape.target.${kind}`,
     });
     puzzles.push({
-      id:puzzleId,
+      id,
       stage,
       kind,
-      prerequisitePuzzleIds:index===0?[]:[`puzzle-${String(stage-1).padStart(2,'0')}`],
+      prerequisitePuzzleIds:prerequisitePlan[index]!,
       clueIds:[clueId],
       targetObjectId:targetId,
       solution,
@@ -84,7 +103,7 @@ function buildDefinition(config:EscapeRoomConfig,rng:NamedRng,attempt:number):Es
     });
   }
   return{
-    schemaVersion:1,contentVersion:'escape-content-v1',generatorVersion:'escape-generator-v1',
+    schemaVersion:1,contentVersion:'escape-content-v1',generatorVersion:'escape-generator-v2',
     theme:config.theme,difficulty:config.difficulty,maxTicks:config.maxTicks,objects,puzzles,hazards,
     finalPuzzleId:puzzles[puzzles.length-1]!.id,exitObjectId:'exit-door',metadata:{fallback:false,attempt},
   };
@@ -102,7 +121,7 @@ function fallbackDefinition(config:EscapeRoomConfig):EscapeRoomDefinition{
     {id:'fallback-puzzle-1',stage:1,kind:'sequence-lock',prerequisitePuzzleIds:[],clueIds:['fallback-clue-1'],targetObjectId:'fallback-lock-1',solution:'314',requiredItemIds:[],rewardFactId:'fallback-solved-1'},
     {id:'fallback-puzzle-2',stage:2,kind:'final-vault',prerequisitePuzzleIds:['fallback-puzzle-1'],clueIds:['fallback-clue-2'],targetObjectId:'fallback-vault',solution:'271',requiredItemIds:[],rewardFactId:'fallback-solved-2'},
   ];
-  return{schemaVersion:1,contentVersion:'escape-content-v1',generatorVersion:'escape-generator-v1',theme:config.theme,difficulty:config.difficulty,maxTicks:config.maxTicks,objects,puzzles,hazards:[],finalPuzzleId:'fallback-puzzle-2',exitObjectId:'exit-door',metadata:{fallback:true,attempt:config.generationAttempts}};
+  return{schemaVersion:1,contentVersion:'escape-content-v1',generatorVersion:'escape-generator-v2',theme:config.theme,difficulty:config.difficulty,maxTicks:config.maxTicks,objects,puzzles,hazards:[],finalPuzzleId:'fallback-puzzle-2',exitObjectId:'exit-door',metadata:{fallback:true,attempt:config.generationAttempts}};
 }
 
 export function generateEscapeRoom(config:EscapeRoomConfig,rng:NamedRng):GeneratedEscapeRoom{
