@@ -36,6 +36,7 @@ test('broadcast shell is world-first with layered canvases, compact hud, observe
   assert.match(html,/id="terrain-canvas"/);
   assert.match(html,/id="entity-canvas"/);
   assert.match(html,/id="effects-canvas"/);
+  assert.match(html,/organic-presenter\.js/);
   assert.match(html,/id="compact-hud"/);
   assert.match(html,/id="observer-panel"/);
   assert.match(html,/id="toggle-observer"/);
@@ -49,6 +50,7 @@ test('broadcast shell is world-first with layered canvases, compact hud, observe
 test('renderer contains biological ants, explicit lod, organic world depth and bounded excavation transitions',()=>{
   const world=read('public/ai-ant-colony/world-renderer.js');
   const entities=read('public/ai-ant-colony/entity-renderer.js');
+  const organic=read('public/ai-ant-colony/organic-presenter.js');
   const app=read('public/ai-ant-colony/app.js');
   assert.match(entities,/getContext\(['"]webgl2['"]/);
   assert.match(entities,/LOD_NEAR/);
@@ -63,10 +65,32 @@ test('renderer contains biological ants, explicit lod, organic world depth and b
   assert.match(world,/root/i);
   assert.match(world,/chamber/i);
   assert.match(world,/pheromone/i);
+  assert.match(organic,/drawOrganicNetwork/);
+  assert.match(organic,/blobPath/);
+  assert.match(organic,/chamberKind/);
+  assert.match(organic,/drawChamberContents/);
+  assert.match(organic,/drawSurfaceLife/);
+  assert.match(organic,/drawForegroundRoots/);
+  assert.match(organic,/organicPresentation/);
+  assert.match(organic,/MAX_SURFACE_STEMS\s*=\s*64/);
+  assert.match(organic,/MAX_FOREGROUND_ROOTS\s*=\s*16/);
+  assert.match(organic,/MAX_ORGANIC_CONNECTIONS\s*=\s*520/);
+  assert.match(organic,/MAX_ORGANIC_CHAMBERS\s*=\s*72/);
   assert.match(app,/excavationTransitions/);
   assert.match(app,/MAX_EXCAVATION_TRANSITIONS/);
   assert.match(app,/MAX_PARTICLES/);
-  assert.doesNotMatch(`${world}\n${entities}\n${app}`,/Math\.random/);
+  assert.doesNotMatch(`${world}\n${entities}\n${organic}\n${app}`,/Math\.random/);
+});
+
+test('organic presentation remains state-derived, deterministic and incapable of changing colony authority',()=>{
+  const organic=read('public/ai-ant-colony/organic-presenter.js');
+  assert.match(organic,/snapshot\.world\.tiles/);
+  assert.match(organic,/snapshot\.colony\.brood/);
+  assert.match(organic,/snapshot\.colony\.foodStore/);
+  assert.match(organic,/snapshot\.colony\.threat/);
+  assert.match(organic,/snapshot\.ants\.some/);
+  assert.match(organic,/hash01/);
+  assert.doesNotMatch(organic,/runtime\.|state\.|\.step\(|restart\(|Math\.random/);
 });
 
 test('ecosystem director and soundscape are bounded and environment-aware',()=>{
@@ -90,8 +114,9 @@ test('ecosystem director and soundscape are bounded and environment-aware',()=>{
 
 test('stream host serves the rebuilt ecosystem modules and keeps source budgets explicit',()=>{
   const host=read('scripts/serve-ant-colony-stream.cjs');
-  for(const asset of['world-renderer.js','entity-renderer.js','director.js','soundscape.js'])assert.match(host,new RegExp(asset.replace('.','\\.')));
+  for(const asset of['world-renderer.js','organic-presenter.js','entity-renderer.js','director.js','soundscape.js'])assert.match(host,new RegExp(asset.replace('.','\\.')));
   assert.match(host,/MAX_PARTICLES=|MAX_PARTICLES/);
+  assert.match(host,/MAX_ORGANIC_CONNECTIONS/);
   assert.match(host,/webgl2/);
   assert.match(host,/dayProgress/);
 });
