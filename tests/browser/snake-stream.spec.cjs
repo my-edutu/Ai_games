@@ -114,7 +114,7 @@ test('phone-size landscape retains goal, progress, gameplay and captions', async
   expect(failures).toEqual([]);
 });
 
-test('reduced-motion, muted and clean-feed controls preserve the game view', async ({ page }) => {
+test('reduced-motion, muted and clean-feed controls preserve a full-frame game view', async ({ page }) => {
   const failures = recordConsoleFailures(page);
   await page.emulateMedia({ reducedMotion: 'reduce', colorScheme: 'dark' });
   await page.setViewportSize({ width: 1280, height: 720 });
@@ -133,6 +133,56 @@ test('reduced-motion, muted and clean-feed controls preserve the game view', asy
   await expect(page.locator('#game')).toBeVisible();
   await expect(page.locator('.controls')).toBeHidden();
 
+  const cleanFeedLayout = await page.evaluate(() => {
+    const stage = document.querySelector('.stage').getBoundingClientRect();
+    const canvas = document.getElementById('game').getBoundingClientRect();
+    return {
+      stageWidth: stage.width,
+      stageHeight: stage.height,
+      canvasWidth: canvas.width,
+      canvasHeight: canvas.height,
+      viewportWidth: document.documentElement.clientWidth,
+      viewportHeight: document.documentElement.clientHeight,
+    };
+  });
+  expect(cleanFeedLayout.stageWidth).toBeGreaterThan(1200);
+  expect(cleanFeedLayout.stageHeight).toBeGreaterThan(680);
+  expect(cleanFeedLayout.canvasWidth).toBeGreaterThan(1200);
+  expect(cleanFeedLayout.canvasHeight).toBeGreaterThan(680);
+  writeJson('clean-feed-metrics.json', cleanFeedLayout);
+
   await page.screenshot({ path: path.join(artifactDir, 'clean-feed-1280x720.png'), fullPage: true });
+  expect(failures).toEqual([]);
+});
+
+test('spectator and operator outputs preserve readability across low and ultra quality', async ({ page }) => {
+  const failures = recordConsoleFailures(page);
+  await page.setViewportSize({ width: 1600, height: 900 });
+  await page.goto('/?mode=spectator&quality=low', { waitUntil: 'domcontentloaded' });
+  await expect(page.locator('#primary')).toContainText('LENGTH');
+  await expect(page.locator('#broadcast')).toHaveAttribute('data-mode', 'spectator');
+  await expect(page.locator('#broadcast')).toHaveAttribute('data-quality', 'low');
+  await expect(page.locator('#quality-label')).toHaveText('LOW');
+  await expect(page.locator('#audience')).toBeHidden();
+  await expect(page.locator('#game')).toBeVisible();
+  await page.screenshot({ path: path.join(artifactDir, 'spectator-low-1600x900.png'), fullPage: true });
+
+  await page.goto('/?mode=operator&quality=ultra', { waitUntil: 'domcontentloaded' });
+  await expect(page.locator('#primary')).toContainText('LENGTH');
+  await expect(page.locator('#broadcast')).toHaveAttribute('data-mode', 'operator');
+  await expect(page.locator('#broadcast')).toHaveAttribute('data-quality', 'ultra');
+  await expect(page.locator('#quality-label')).toHaveText('ULTRA');
+  await expect(page.locator('.controls')).toBeVisible();
+  await expect(page.locator('#quality-select')).toHaveValue('ultra');
+  await page.locator('#quality-select').selectOption('balanced');
+  await expect(page.locator('#broadcast')).toHaveAttribute('data-quality', 'balanced');
+  await expect(page.locator('#quality-label')).toHaveText('BALANCED');
+
+  const renderPolicy = await page.evaluate(() => ({
+    low: window.SnakeRenderPolicy.qualitySettings('low', 3).simulationRate,
+    ultra: window.SnakeRenderPolicy.qualitySettings('ultra', 3).simulationRate,
+  }));
+  expect(renderPolicy).toEqual({ low: 1, ultra: 1 });
+  await page.screenshot({ path: path.join(artifactDir, 'operator-balanced-1600x900.png'), fullPage: true });
   expect(failures).toEqual([]);
 });
