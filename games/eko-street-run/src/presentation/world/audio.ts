@@ -1,6 +1,8 @@
 import type { SemanticEvent } from "../../state/types";
 import type { PresentationCue } from "./types";
 
+const EVENT_CUE_WINDOW_TICKS = 12;
+
 const EVENT_CUES: Readonly<Record<string, { captionKey: string; visualToken: string; audioToken: string; priority: "critical" | "important" }>> = Object.freeze({
   "checkpoint.reached": { captionKey: "checkpoint_reached", visualToken: "checkpoint-pulse", audioToken: "checkpoint-chime", priority: "important" },
   "run.completed": { captionKey: "run_completed", visualToken: "completion-banner", audioToken: "completion-sting", priority: "important" },
@@ -15,7 +17,9 @@ const EVENT_CUES: Readonly<Record<string, { captionKey: string; visualToken: str
 export function createPresentationCues(events: readonly SemanticEvent[], muted: boolean, tick: number): readonly PresentationCue[] {
   const seen = new Set<number>();
   const cues: PresentationCue[] = [];
+  const oldestAcceptedTick = Math.max(0, tick - EVENT_CUE_WINDOW_TICKS);
   for (const event of [...events].sort((a, b) => a.sequence - b.sequence)) {
+    if (event.tick < oldestAcceptedTick || event.tick > tick) continue;
     if (seen.has(event.sequence)) continue;
     seen.add(event.sequence);
     const definition = EVENT_CUES[event.type];
