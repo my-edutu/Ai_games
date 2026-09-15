@@ -11,6 +11,8 @@ const index = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
 const rendererPath = path.join(root, 'renderer3d.js');
 const renderer = fs.readFileSync(rendererPath, 'utf8');
 const styles = fs.readFileSync(path.join(root, 'visual-3d.css'), 'utf8');
+const identityPath = path.join(root, 'identity-overlay.js');
+const identity = fs.existsSync(identityPath) ? fs.readFileSync(identityPath, 'utf8') : '';
 
 function includesAll(source, fragments) {
   for (const fragment of fragments) assert.ok(source.includes(fragment), `missing required fragment: ${fragment}`);
@@ -82,4 +84,24 @@ test('arena presentation includes constructed depth, moving machinery and broadc
     '.webgl-ready #arena-canvas',
     '[data-clean="true"]',
   ]);
+});
+
+test('WebGL competitor identity is projected from authoritative marble positions', () => {
+  includesAll(index, [
+    'id="arena-identity-overlay"',
+    'identity-overlay.js',
+  ]);
+  includesAll(identity, [
+    "fetch('/api/snapshot'",
+    'cameraFromDirective',
+    'projectToScreen',
+    'marble.number',
+    'snapshot.leaderboard',
+    'snapshot.camera.directive',
+    'status !== \'eliminated\'',
+  ]);
+  for (const forbidden of ['Math.random(', 'forceWinner', 'winnerOverride', 'teleportMarble']) {
+    assert.equal(identity.includes(forbidden), false, `identity layer must remain presentation-only: ${forbidden}`);
+  }
+  execFileSync(process.execPath, ['--check', identityPath], { stdio: 'pipe' });
 });
