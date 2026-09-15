@@ -15,6 +15,7 @@ Project-specific mechanics and decisions belong under `games/` and `docs/`. Skil
 - `difficulty-failure-balancing`
 - `procedural-generation`
 - `game-economy-rewards`
+- `platformer-experience-review`
 
 ### Architecture, AI, Simulation, and Physics
 
@@ -50,10 +51,11 @@ Load every relevant skill before creative or implementation work. Process and ar
 
 1. clarify the game/phase requirement and source documents;
 2. use `game-creative-direction` and `gameplay-progression` for the viewer promise and loops;
-3. use `game-architecture`, `deterministic-simulation`, `autonomous-agent-design`, `game-physics`, and `procedural-generation` as applicable;
-4. use audiovisual, HUD, retention, interaction, economy, moderation, and safety skills;
-5. use performance, reliability, analytics, QA, and production review skills;
-6. record outputs in the game documents and phase evidence bundle.
+3. use `platformer-experience-review` for platformer movement, character, camera, obstacle-readability, fairness, level-rhythm, and whole-experience decisions;
+4. use `game-architecture`, `deterministic-simulation`, `autonomous-agent-design`, `game-physics`, and `procedural-generation` as applicable;
+5. use audiovisual, HUD, retention, interaction, economy, moderation, and safety skills;
+6. use performance, reliability, analytics, QA, and production review skills;
+7. record outputs in the game documents and phase evidence bundle.
 
 A skill cannot waive a higher-precedence platform standard. When two skills expose a trade-off, choose the design that protects game truth, viewer comprehension, fair disclosed influence, recoverability, and measurable readiness.
 

@@ -1,0 +1,11 @@
+export const GAME_VERSION = "0.1.0";
+export const SCHEMA_VERSION = 1;
+export const DETERMINISTIC_VERSION = 1;
+export const CONTENT_VERSION = "foundation-1";
+export const COMMAND_SCHEMA_VERSION = 1;
+export const EVENT_SCHEMA_VERSION = 1;
+export const RENDER_SNAPSHOT_VERSION = 1;
+export const SNAPSHOT_VERSION = 1;
+export const TICK_RATE_HZ = 60;
+export const FIXED_DT_SECONDS = 1 / TICK_RATE_HZ;
+export const CHECKSUM_VERSION = 1;
