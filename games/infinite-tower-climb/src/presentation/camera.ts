@@ -15,7 +15,8 @@ export class TowerCameraDirector{
     const danger=snapshot.dangerPermille>=800&&!reduced?Math.min(1,(snapshot.dangerPermille-700)/300):0;
     const speed=Math.abs(snapshot.player.vy)+Math.abs(snapshot.player.vx),targetZoom=guardian&&guardian.active?0.86:Math.max(.8,Math.min(1.06,1.02-speed/135000));
     if(snapshot.runToken!==this.lastRun){this.lastRun=snapshot.runToken;this.centerY=targetY;this.centerX=targetX;this.zoom=reduced?1:targetZoom}else{
-      const follow=reduced?.14:.2;this.centerY=Math.round(this.centerY+(targetY-this.centerY)*follow);this.centerX=Math.round(this.centerX+(targetX-this.centerX)*follow);this.zoom=reduced?1:this.zoom+(targetZoom-this.zoom)*.12
+      const follow=reduced?.14:.2;
+      this.centerY=Math.round(this.centerY+(targetY-this.centerY)*follow);this.centerX=Math.round(this.centerX+(targetX-this.centerX)*follow);this.zoom=reduced?1:this.zoom+(targetZoom-this.zoom)*.12
     }
     return{centerX:reduced?Math.round(snapshot.worldWidth/2):this.centerX,centerY:this.centerY,zoom:reduced?1:Math.max(.78,Math.min(1.08,this.zoom)),impulse:danger,lookAheadY:targetY-snapshot.player.y};
   }
