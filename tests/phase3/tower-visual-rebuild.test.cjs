@@ -41,3 +41,10 @@ test('public broadcast hides internal run identity and exposes bounded visual di
   assert.ok(html.includes('data-testid="milestone"'),'public HUD should use the slot for a meaningful ascent milestone');
   for(const marker of ['__TOWER_RENDER_DIAGNOSTICS__','playerVisible','platformsVisible','hazardsVisible','guardiansVisible','frameMsP95'])assert.ok(js.includes(marker),`missing render diagnostic ${marker}`);
 });
+
+test('portrait mobile keeps climber vitals and AI intent readable instead of hiding the vital panel',()=>{
+  const css=read('public/infinite-tower-climb/styles.css');
+  assert.ok(css.includes('@media(max-width:760px) and (orientation:portrait)'),'portrait-specific broadcast layout contract missing');
+  assert.ok(css.includes('body:not(.clean-feed) .side .vital-panel{display:block}'),'portrait mode must restore health and stamina');
+  assert.ok(css.includes('body:not(.clean-feed) .side .intent-panel{display:block}'),'portrait mode must retain AI intent');
+});
