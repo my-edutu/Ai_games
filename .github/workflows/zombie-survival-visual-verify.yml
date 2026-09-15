@@ -53,9 +53,20 @@ jobs:
           }
           await page.goto('http://127.0.0.1:4177/web/index.html?evidence=large-horde',{waitUntil:'networkidle'});
           await page.keyboard.press('h');
-          await page.waitForTimeout(300);
+          await page.waitForTimeout(250);
+          if(await page.locator('#hud').evaluate(el=>getComputedStyle(el).display)!=='none') throw new Error('HUD hide control failed');
           await page.screenshot({path:'games/ai-zombie-survival/evidence/runtime/hud-hidden.png'});
-          fs.writeFileSync('games/ai-zombie-survival/evidence/runtime/browser-report.json',JSON.stringify({scenarios,errors},null,2));
+          await page.keyboard.press('h');
+          if(await page.locator('#hud').evaluate(el=>getComputedStyle(el).display)==='none') throw new Error('HUD restore control failed');
+          await page.keyboard.press('r');
+          await page.waitForTimeout(150);
+          await page.setViewportSize({width:1280,height:720});
+          await page.goto('http://127.0.0.1:4177/web/index.html?evidence=day',{waitUntil:'networkidle'});
+          const broadcastCanvas=await page.locator('#game').boundingBox();
+          if(!broadcastCanvas||broadcastCanvas.width!==1280||broadcastCanvas.height!==720) throw new Error('720p responsive canvas failed');
+          await page.screenshot({path:'games/ai-zombie-survival/evidence/runtime/broadcast-720p.png'});
+          const report={scenarios,errors,controls:{hudToggle:true,restart:true},broadcast720p:true};
+          fs.writeFileSync('games/ai-zombie-survival/evidence/runtime/browser-report.json',JSON.stringify(report,null,2));
           if(errors.length) throw new Error(errors.join('\n'));
           await browser.close();
           EOF
