@@ -18,3 +18,5 @@ test('camera director can frame an incoming horde', () => {
   const event = selectCameraEvent(game);
   assert.ok(['horde-overview','defense','near-death'].includes(event.mode));
 });
+
+test('camera director hysteresis avoids low-value rapid cuts',()=>{const game=createGame({seed:82});const previous={mode:'defense',targetId:game.barricades[0].id,score:.7};assert.equal(selectCameraEvent(game,previous).mode,'defense');});

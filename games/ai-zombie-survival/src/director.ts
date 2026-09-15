@@ -1,12 +1,3 @@
-import type { CameraEvent, GameState } from './types.js';
-export function selectCameraEvent(state:GameState):CameraEvent {
-  if (state.status==='overrun') return {mode:'failure',targetId:null,score:1};
-  const critical=[...state.survivors].filter(s=>s.alive).sort((a,b)=>(a.health+100*(1-a.threat))-(b.health+100*(1-b.threat)))[0];
-  if (critical && (critical.health<20 || critical.threat>0.92)) return {mode:'near-death',targetId:critical.id,score:1};
-  const close=state.zombies.filter(z=>z.health>0 && z.distanceToSafeHouse<8).length;
-  if (close>=18 || state.zombies.length>=220) return {mode:'horde-overview',targetId:null,score:0.88};
-  const damaged=state.barricades.find(b=>b.hp<b.maxHp*0.55 && b.hp>0); if (damaged) return {mode:'defense',targetId:damaged.id,score:0.82};
-  const scavenger=state.survivors.find(s=>s.alive && s.action==='scavenge'); if (scavenger) return {mode:'scavenge',targetId:scavenger.id,score:0.7};
-  const fighter=state.survivors.find(s=>s.alive && (s.action==='attack'||s.action==='aim')); if (fighter) return {mode:'survivor-follow',targetId:fighter.id,score:0.66};
-  return {mode:'squad',targetId:null,score:0.5};
-}
+import type{CameraEvent,GameState}from'./types.js';
+export function selectCameraEvent(s:GameState,previous?:CameraEvent):CameraEvent{let c:CameraEvent;if(s.status==='overrun')c={mode:'failure',targetId:null,score:1};else{const critical=[...s.survivors].filter(x=>x.alive).sort((a,b)=>(a.health+100*(1-a.threat))-(b.health+100*(1-b.threat)))[0];if(critical&&(critical.health<20||critical.threat>.92))c={mode:'near-death',targetId:critical.id,score:1};else{const close=s.zombies.filter(z=>z.health>0&&z.distanceToSafeHouse<8).length,damaged=s.barricades.find(b=>b.hp<b.maxHp*.55&&b.hp>0),sc=s.survivors.find(x=>x.alive&&x.action==='scavenge'),f=s.survivors.find(x=>x.alive&&(x.action==='attack'||x.action==='aim'));c=close>=18||s.zombies.length>=220?{mode:'horde-overview',targetId:null,score:.88}:damaged?{mode:'defense',targetId:damaged.id,score:.82}:sc?{mode:'scavenge',targetId:sc.id,score:.7}:f?{mode:'survivor-follow',targetId:f.id,score:.66}:{mode:'squad',targetId:null,score:.5};}}
+if(previous&&previous.mode!=='failure'&&previous.score>=c.score-.08){const valid=!previous.targetId||s.survivors.some(x=>x.id===previous.targetId&&x.alive)||s.barricades.some(x=>x.id===previous.targetId&&x.hp>0);if(valid)return{...previous,score:Math.max(.45,previous.score-.01)};}return c;}
