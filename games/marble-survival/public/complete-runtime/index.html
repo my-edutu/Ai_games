@@ -12,7 +12,7 @@
 </head>
 <body>
   <a class="skip-link" href="#arena">Skip to arena</a>
-  <main class="broadcast-shell" data-clean="false" data-quality="balanced" data-ux-revision="5" data-layout="arena-first">
+  <main class="broadcast-shell" data-clean="false" data-quality="balanced" data-ux-revision="6" data-layout="arena-first">
     <header class="topbar" aria-label="Tournament status">
       <div class="brand-lockup">
         <span class="eyebrow">Game 7 · Live deterministic tournament</span>
@@ -60,6 +60,7 @@
     <section class="stage-grid">
       <section id="arena" class="arena-card" aria-label="Live marble arena">
         <canvas id="arena-webgl" width="1600" height="900" aria-label="Live three-dimensional authoritative marble tournament arena"></canvas>
+        <canvas id="arena-identity-overlay" width="1600" height="900" aria-hidden="true"></canvas>
         <canvas id="arena-canvas" width="1600" height="900" aria-label="Live authoritative marble tournament arena fallback"></canvas>
         <div class="arena-topline" aria-hidden="true">
           <span id="camera-value">Overview</span>
@@ -109,6 +110,7 @@
     </footer>
   </main>
   <script src="/renderer3d.js" defer></script>
+  <script src="/identity-overlay.js" defer></script>
   <script src="/app.js" defer></script>
 </body>
 </html>
