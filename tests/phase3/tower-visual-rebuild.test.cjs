@@ -48,3 +48,8 @@ test('portrait mobile keeps climber vitals and AI intent readable instead of hid
   assert.ok(css.includes('body:not(.clean-feed) .side .vital-panel{display:block}'),'portrait mode must restore health and stamina');
   assert.ok(css.includes('body:not(.clean-feed) .side .intent-panel{display:block}'),'portrait mode must retain AI intent');
 });
+
+test('climber has a minimum broadcast silhouette with contact and motion depth cues',()=>{
+  const js=read('public/infinite-tower-climb/app.js');
+  for(const marker of ['CHARACTER_MIN_HEIGHT_PX=58','drawClimberContactShadow','drawClimberMotionAccent','playerHeightPx'])assert.ok(js.includes(marker),`missing climber presentation contract ${marker}`);
+});
