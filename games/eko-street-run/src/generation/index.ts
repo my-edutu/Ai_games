@@ -168,7 +168,9 @@ export function validateGeneratedDistrict(content: GeneratedDistrictContent): Ge
   return { valid: codes.length === 0, repairCount: content.validation?.repairCount ?? 0, fallbackUsed: content.validation?.fallbackUsed ?? false, codes };
 }
 
-function canonicalFingerprint(content: Omit<GeneratedDistrictContent, "fingerprint" | "validation">): string {
+export function fingerprintGeneratedDistrict(content: Pick<GeneratedDistrictContent,
+  "generatorVersion" | "districtIndex" | "districtId" | "cycle" | "route" | "hazards" | "tokens" | "decisions" | "milestones" | "difficulty"
+>): string {
   const text = JSON.stringify({
     generatorVersion: content.generatorVersion,
     districtIndex: content.districtIndex,
@@ -199,7 +201,7 @@ function knownGoodFallback(seedKey: string, districtId: DistrictId, districtInde
     milestones: milestonesFor(districtId, route),
     difficulty: difficultyFor(`${seedKey}|fallback`, grammar, cycle),
   };
-  const content: GeneratedDistrictContent = { ...base, fingerprint: canonicalFingerprint(base), validation: { valid: true, repairCount, fallbackUsed: true, codes: [] } };
+  const content: GeneratedDistrictContent = { ...base, fingerprint: fingerprintGeneratedDistrict(base), validation: { valid: true, repairCount, fallbackUsed: true, codes: [] } };
   const report = validateGeneratedDistrict(content);
   return { ...content, validation: { ...report, repairCount, fallbackUsed: true } };
 }
@@ -219,7 +221,7 @@ export function repairGeneratedDistrict(input: GeneratedDistrictContent): Genera
     content.decisions = content.decisions.filter(decision => decision.x > route.startX && decision.x < route.finishX);
     content.milestones = milestonesFor(content.districtId, route);
     content.validation = { valid: false, repairCount: attempt, fallbackUsed: false, codes: [] };
-    content.fingerprint = canonicalFingerprint(content);
+    content.fingerprint = fingerprintGeneratedDistrict(content);
     const report = validateGeneratedDistrict(content);
     if (report.valid) return { ...content, validation: { ...report, repairCount: attempt, fallbackUsed: false } };
   }
@@ -246,7 +248,7 @@ export function generateDistrict(rootSeed: string, districtIndex: number, cycle:
     milestones: milestonesFor(districtId, route),
     difficulty: difficultyFor(seedKey, grammar, cycle),
   };
-  const content: GeneratedDistrictContent = { ...base, fingerprint: canonicalFingerprint(base), validation: { valid: false, repairCount: 0, fallbackUsed: false, codes: [] } };
+  const content: GeneratedDistrictContent = { ...base, fingerprint: fingerprintGeneratedDistrict(base), validation: { valid: false, repairCount: 0, fallbackUsed: false, codes: [] } };
   const report = validateGeneratedDistrict(content);
   if (report.valid) return { ...content, validation: report };
   return repairGeneratedDistrict({ ...content, validation: report });
