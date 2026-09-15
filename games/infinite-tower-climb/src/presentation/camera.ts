@@ -13,7 +13,7 @@ export class TowerCameraDirector{
     else if(snapshot.dangerPermille>=800&&hazard){targetY=(snapshot.player.y+hazard.y)/2;targetX=(snapshot.player.x+hazard.x+hazard.width/2)/2}
     targetY=Math.max(minY,Math.min(maxY,targetY));targetX=Math.max(snapshot.worldWidth*.18,Math.min(snapshot.worldWidth*.82,targetX));
     const danger=snapshot.dangerPermille>=800&&!reduced?Math.min(1,(snapshot.dangerPermille-700)/300):0;
-    const speed=Math.abs(snapshot.player.vy)+Math.abs(snapshot.player.vx),targetZoom=guardian?.active?.86:Math.max(.8,Math.min(1.06,1.02-speed/135000));
+    const speed=Math.abs(snapshot.player.vy)+Math.abs(snapshot.player.vx),targetZoom=guardian?.active?.valueOf()?0.86:Math.max(.8,Math.min(1.06,1.02-speed/135000));
     if(snapshot.runToken!==this.lastRun){this.lastRun=snapshot.runToken;this.centerY=targetY;this.centerX=targetX;this.zoom=reduced?1:targetZoom}else{
       const follow=reduced?.14:.2;this.centerY=Math.round(this.centerY+(targetY-this.centerY)*follow);this.centerX=Math.round(this.centerX+(targetX-this.centerX)*follow);this.zoom=reduced?1:this.zoom+(targetZoom-this.zoom)*.12
     }
