@@ -186,6 +186,9 @@ function milestonesFor(districtId: DistrictId, route: RouteState): MilestoneSpec
 export function validateGeneratedDistrict(content: GeneratedDistrictContent): GenerationValidation {
   const codes: string[] = [];
   const { route } = content;
+  if (content.generatorVersion !== PHASE6_GENERATOR_VERSION) codes.push("GENERATOR_VERSION");
+  if (!Number.isInteger(content.districtIndex) || PHASE6_DISTRICT_IDS[content.districtIndex] !== content.districtId) codes.push("DISTRICT_PROVENANCE");
+  if (!Number.isInteger(content.cycle) || content.cycle < 0 || content.cycle > 1_000_000) codes.push("CYCLE_PROVENANCE");
   if (!(route.startX >= route.minX && route.finishX > route.startX && route.finishX <= route.maxX)) codes.push("ROUTE_BOUNDS");
   const backbone = route.groundSegments.some(segment => segment.minX <= route.startX && segment.maxX >= route.finishX && Math.abs(segment.y - route.groundY) <= 1e-9);
   if (!backbone) codes.push("BACKBONE_DISCONNECTED");
@@ -205,21 +208,28 @@ export function validateGeneratedDistrict(content: GeneratedDistrictContent): Ge
 
 function canonicalFingerprint(content: Omit<GeneratedDistrictContent, "fingerprint" | "validation">): string {
   const text = JSON.stringify({
+    generatorVersion: content.generatorVersion,
+    districtIndex: content.districtIndex,
     districtId: content.districtId,
+    cycle: content.cycle,
     route: { id: content.route.id, finishX: content.route.finishX, checkpointXs: content.route.checkpointXs },
     hazards: content.hazards.map(hazard => [hazard.family, hazard.baseX, hazard.phaseOffsetTicks]),
     tokens: content.tokens.map(token => [token.x, token.value]),
     decisions: content.decisions.map(decision => [decision.x, decision.risk, decision.rewardTokens]),
+    milestones: content.milestones.map(milestone => [milestone.x, milestone.band]),
     difficulty: content.difficulty,
   });
   return hash32(text).toString(16).padStart(8, "0");
 }
 
-function knownGoodFallback(seedKey: string, districtId: DistrictId, grammar: DistrictGrammar, cycle: number, repairCount: number): GeneratedDistrictContent {
+function knownGoodFallback(seedKey: string, districtId: DistrictId, districtIndex: number, grammar: DistrictGrammar, cycle: number, repairCount: number): GeneratedDistrictContent {
   const route = routeFor(`${seedKey}|fallback`, districtId, grammar);
   const hazards = hazardsFor(`${seedKey}|fallback`, districtId, { ...grammar, hazardCount: Math.min(4, grammar.hazardCount) }, route);
   const base = {
+    generatorVersion: PHASE6_GENERATOR_VERSION,
+    districtIndex,
     districtId,
+    cycle,
     route,
     hazards,
     tokens: tokensFor(`${seedKey}|fallback`, districtId, { ...grammar, tokenCount: Math.min(4, grammar.tokenCount) }, route),
@@ -255,7 +265,7 @@ export function repairGeneratedDistrict(input: GeneratedDistrictContent): Genera
   }
   const districtIndex = PHASE6_DISTRICT_IDS.indexOf(content.districtId);
   const grammar = GRAMMARS[content.districtId];
-  return knownGoodFallback(`repair-${content.fingerprint}-${districtIndex}`, content.districtId, grammar, 0, PHASE6_MAX_REPAIR_ATTEMPTS);
+  return knownGoodFallback(`repair-${content.fingerprint}-${districtIndex}`, content.districtId, districtIndex, grammar, content.cycle, PHASE6_MAX_REPAIR_ATTEMPTS);
 }
 
 export function generateDistrict(rootSeed: string, districtIndex: number, cycle: number): GeneratedDistrictContent {
@@ -266,7 +276,10 @@ export function generateDistrict(rootSeed: string, districtIndex: number, cycle:
   const seedKey = `${rootSeed}|${districtId}|cycle:${cycle}`;
   const route = routeFor(seedKey, districtId, grammar);
   const base = {
+    generatorVersion: PHASE6_GENERATOR_VERSION,
+    districtIndex,
     districtId,
+    cycle,
     route,
     hazards: hazardsFor(seedKey, districtId, grammar, route),
     tokens: tokensFor(seedKey, districtId, grammar, route),
