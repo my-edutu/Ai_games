@@ -7,7 +7,7 @@ const path = require('node:path');
 
 const STATIC_ROOT = path.resolve(__dirname, '../public/complete-runtime');
 const COMPILED_RUNTIME = path.resolve(__dirname, '../../../dist/games/marble-survival-tournament/src/index.js');
-const THREE_MODULE = path.resolve(__dirname, '../../../node_modules/three/build/three.module.min.js');
+const THREE_MODULE = path.resolve(__dirname, '../../../node_modules/three/build/three.module.js');
 const SECURITY_HEADERS = Object.freeze({
   'content-security-policy': "default-src 'self'; connect-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; media-src 'none'; object-src 'none'; base-uri 'none'; frame-ancestors 'self'",
   'cross-origin-opener-policy': 'same-origin',
