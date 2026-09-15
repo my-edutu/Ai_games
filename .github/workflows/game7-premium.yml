@@ -7,6 +7,7 @@ on:
     paths:
       - 'games/marble-survival/**'
       - 'tests/foundation/marble-*.test.cjs'
+      - 'tests/browser/marble-survival-stream.spec.cjs'
       - 'scripts/run-marble-headless.cjs'
       - 'tsconfig.json'
       - '.github/workflows/game7-premium.yml'
@@ -18,7 +19,7 @@ permissions:
 jobs:
   correctness:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 14
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -34,6 +35,8 @@ jobs:
         run: npm run build
       - name: Run Marble foundation and premium regressions
         run: node --test tests/foundation/marble-*.test.cjs
+      - name: Run authoritative browser server self-test
+        run: node games/marble-survival/scripts/serve-complete-runtime.cjs --self-test
       - name: Scan Marble authority for ambient nondeterminism
         shell: bash
         run: |
@@ -47,3 +50,30 @@ jobs:
             echo 'Forbidden ambient nondeterminism found in Marble authority.'
             exit 1
           fi
+      - name: Install Chromium for visual verification
+        run: npx playwright install --with-deps chromium
+      - name: Start accelerated visual evidence runtime
+        shell: bash
+        run: |
+          node games/marble-survival/scripts/serve-visual-evidence.cjs > /tmp/marble-visual-server.log 2>&1 &
+          echo $! > /tmp/marble-visual-server.pid
+          for attempt in $(seq 1 50); do
+            if curl --fail --silent http://127.0.0.1:4317/api/health >/dev/null; then
+              exit 0
+            fi
+            sleep 0.2
+          done
+          cat /tmp/marble-visual-server.log
+          exit 1
+      - name: Verify WebGL broadcast and capture screenshots
+        run: npx playwright test tests/browser/marble-survival-stream.spec.cjs --workers=1
+      - name: Upload Marble visual evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: marble-visual-rebuild-evidence
+          path: |
+            artifacts/marble-visual-rebuild
+            test-results
+            /tmp/marble-visual-server.log
+          if-no-files-found: warn
