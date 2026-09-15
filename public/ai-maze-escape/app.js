@@ -89,7 +89,9 @@ function computePublicView(snapshot,camera){
   const centerCol=centerCell%snapshot.width,centerRow=Math.floor(centerCell/snapshot.width);
   const startCol=clamp(centerCol-Math.floor(widthCells/2),0,snapshot.width-widthCells);
   const startRow=clamp(centerRow-Math.floor(heightCells/2),0,snapshot.height-heightCells);
-  return{startCol,startRow,widthCells,heightCells,centerCell,mode:camera?.mode??'local'};
+  const currentCol=snapshot.currentCell%snapshot.width,currentRow=Math.floor(snapshot.currentCell/snapshot.width);
+  const containsCurrentCell=currentCol>=startCol&&currentCol<startCol+widthCells&&currentRow>=startRow&&currentRow<startRow+heightCells;
+  return{startCol,startRow,widthCells,heightCells,centerCell,containsCurrentCell,mode:camera?.mode??'local'};
 }
 function inView(snapshot,cell,view){
   const col=cell%snapshot.width,row=Math.floor(cell/snapshot.width);
