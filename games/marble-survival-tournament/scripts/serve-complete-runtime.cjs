@@ -7,7 +7,8 @@ const path = require('node:path');
 
 const STATIC_ROOT = path.resolve(__dirname, '../public/complete-runtime');
 const COMPILED_RUNTIME = path.resolve(__dirname, '../../../dist/games/marble-survival-tournament/src/index.js');
-const THREE_MODULE = path.resolve(__dirname, '../../../node_modules/three/build/three.module.js');
+const THREE_BUILD_ROOT = path.resolve(__dirname, '../../../node_modules/three/build');
+const THREE_MODULE = path.join(THREE_BUILD_ROOT, 'three.module.js');
 const SECURITY_HEADERS = Object.freeze({
   'content-security-policy': "default-src 'self'; connect-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; media-src 'none'; object-src 'none'; base-uri 'none'; frame-ancestors 'self'",
   'cross-origin-opener-policy': 'same-origin',
@@ -102,6 +103,21 @@ function safeStaticPath(urlPath) {
   const normalized = path.posix.normalize(clean).replace(/^\.\.(\/|\\|$)/, '');
   const target = path.resolve(STATIC_ROOT, `.${normalized}`);
   return target.startsWith(STATIC_ROOT) ? target : null;
+}
+
+function safeThreeBuildPath(urlPath) {
+  if (!urlPath.startsWith('/vendor/')) return null;
+  let requested;
+  try {
+    requested = decodeURIComponent(urlPath.slice('/vendor/'.length));
+  } catch {
+    return null;
+  }
+  if (requested === 'three.module.min.js') requested = 'three.module.js';
+  if (!requested || path.extname(requested) !== '.js') return null;
+  const target = path.resolve(THREE_BUILD_ROOT, requested);
+  const rootPrefix = `${THREE_BUILD_ROOT}${path.sep}`;
+  return target.startsWith(rootPrefix) ? target : null;
 }
 
 function constantTimeEqual(left, right) {
@@ -328,8 +344,9 @@ function createServer(options = {}) {
       }
       if (request.method !== 'GET') return json(response, 405, { error: 'method-not-allowed' });
 
-      if (url.pathname === '/vendor/three.module.min.js') {
-        return sendFile(response, THREE_MODULE, 'text/javascript; charset=utf-8', 'public, max-age=31536000, immutable');
+      const threeBuildPath = safeThreeBuildPath(url.pathname);
+      if (threeBuildPath) {
+        return sendFile(response, threeBuildPath, 'text/javascript; charset=utf-8', 'public, max-age=31536000, immutable');
       }
 
       const filePath = safeStaticPath(url.pathname);
