@@ -47,7 +47,8 @@ function checkpointSpawnX(state: EkoRunState): number {
 
 function restartFromCheckpoint(state: EkoRunState, config: EkoRunConfig): void {
   const x = checkpointSpawnX(state);
-  const support = sampleSupportSurface(state.route, x, config.playerHalfWidth, state.tick, config, Number.POSITIVE_INFINITY);
+  const legalSupportCeiling = state.route.groundY + config.maxStepHeight;
+  const support = sampleSupportSurface(state.route, x, config.playerHalfWidth, state.tick, config, legalSupportCeiling);
   state.player = {
     position: { x, y: support?.y ?? state.route.groundY },
     velocity: { x: 0, y: 0 },
