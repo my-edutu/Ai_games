@@ -33,6 +33,34 @@ test('2.5d renderer keeps the playable world locally framed and inspectable', as
   expect(value.stats.focusLight).toBe(true);
 });
 
+test('production polish stays deterministic, bounded and presentation-only', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 720 });
+  await page.goto(`${base}/maze`, { waitUntil: 'domcontentloaded' });
+  await page.waitForFunction(() => window.__MAZE_POLISH_STATS__ && window.__MAZE_PUBLIC_STATE__);
+  const value = await page.evaluate(() => {
+    const overlay = document.getElementById('maze-atmosphere');
+    const maze = document.getElementById('maze');
+    return {
+      stats: window.__MAZE_POLISH_STATS__,
+      overlay: overlay ? getComputedStyle(overlay) : null,
+      mazeFilter: maze ? getComputedStyle(maze).filter : '',
+      publicStateFrozen: Object.isFrozen(window.__MAZE_PUBLIC_STATE__),
+    };
+  });
+  expect(value.stats.profile).toBe('cinematic-balanced');
+  expect(value.stats.authorityTouched).toBe(false);
+  expect(value.stats.randomSource).toBe('deterministic-hash');
+  expect(value.stats.particleCount).toBeGreaterThanOrEqual(24);
+  expect(value.stats.particleCount).toBeLessThanOrEqual(64);
+  expect(value.stats.maxOverlayOpacity).toBeLessThanOrEqual(0.38);
+  expect(value.stats.devicePixelRatioCap).toBeLessThanOrEqual(1.5);
+  expect(value.overlay).not.toBeNull();
+  expect(value.overlay.pointerEvents).toBe('none');
+  expect(value.overlay.position).toBe('absolute');
+  expect(value.mazeFilter).not.toBe('none');
+  expect(value.publicStateFrozen).toBe(true);
+});
+
 test('slow state responses never create overlapping browser-source polls', async ({ page }) => {
   let active = 0;
   let maximum = 0;
