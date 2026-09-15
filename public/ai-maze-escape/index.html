@@ -9,23 +9,24 @@
   <link rel="stylesheet" href="/maze/ux-v2.css">
 </head>
 <body data-reduced-motion="false" data-high-contrast="false">
-  <main id="broadcast" data-ux-revision="2" aria-label="AI Maze Escape autonomous livestream">
-    <section id="stage" aria-label="Maze game view">
+  <main id="broadcast" data-ux-revision="2" data-world-mode="2.5d" aria-label="AI Maze Escape autonomous livestream">
+    <section id="stage" aria-label="2.5D maze world">
+      <div class="world-vignette" aria-hidden="true"></div>
       <div id="status-strip">
         <span class="live-dot" aria-hidden="true"></span>
         <span>AUTONOMOUS RUN</span>
         <span id="integrity">INTEGRITY: VERIFIED</span>
         <span id="profile">PROFILE: —</span>
       </div>
-      <canvas id="maze" data-testid="maze-canvas" aria-label="Discovered maze, explorer, hazards and route"></canvas>
+      <canvas id="maze" data-testid="maze-canvas" aria-label="3D labyrinth, explorer, hazards and route"></canvas>
       <div id="scene-card" hidden>
         <strong id="scene-title">RECOVERING VIEW</strong>
         <span id="scene-message">Restoring the latest verified public snapshot.</span>
       </div>
     </section>
-    <aside id="hud" data-testid="hud" aria-label="Run information">
+    <aside id="hud" data-testid="hud" aria-label="Compact run information">
       <header>
-        <span class="eyebrow">GAME 02</span>
+        <span class="eyebrow">GAME 02 • LOST FACILITY</span>
         <h1>AI MAZE<br>ESCAPE</h1>
         <p data-testid="objective" id="objective">Escape before time runs out.</p>
       </header>
