@@ -55,6 +55,8 @@ test('climber has a minimum broadcast silhouette with contact and motion depth c
 });
 
 test('guardian phases have explicit readable telegraph presentation and diagnostics',()=>{
-  const js=read('public/infinite-tower-climb/app.js');
+  const js=read('public/infinite-tower-climb/guardian-ui.js'),html=read('public/infinite-tower-climb/index.html');
   for(const marker of ['guardianPhaseVisual','drawGuardianAttackLanes','guardianPhase','guardianTelegraphVisible'])assert.ok(js.includes(marker),`missing guardian phase presentation ${marker}`);
+  assert.ok(html.includes('/tower/guardian-ui.js'),'guardian overlay must be loaded by the public view');
+  assert.ok(!js.includes('/tower/state'),'guardian overlay must remain read-only and reuse the public snapshot');
 });
