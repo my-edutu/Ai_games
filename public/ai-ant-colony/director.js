@@ -9,14 +9,14 @@
   const MAX_SOIL_MOTES = 72;
 
   const SHOT_PROFILES = Object.freeze({
-    overview: Object.freeze({ zoom: 1, dwell: 6800, subjectX: 0, subjectY: 0 }),
-    'queen-danger': Object.freeze({ zoom: 2.08, dwell: 5200, subjectX: 0, subjectY: .03 }),
-    combat: Object.freeze({ zoom: 2.05, dwell: 5000, subjectX: .03, subjectY: 0 }),
-    predator: Object.freeze({ zoom: 1.82, dwell: 5400, subjectX: .05, subjectY: -.02 }),
-    excavation: Object.freeze({ zoom: 1.72, dwell: 5600, subjectX: -.03, subjectY: .02 }),
-    milestone: Object.freeze({ zoom: 1.34, dwell: 6200, subjectX: 0, subjectY: .03 }),
-    brood: Object.freeze({ zoom: 1.58, dwell: 5600, subjectX: -.04, subjectY: .02 }),
-    foraging: Object.freeze({ zoom: 1.48, dwell: 5600, subjectX: .06, subjectY: -.06 })
+    overview: Object.freeze({ zoom: 1.16, dwell: 7200, subjectX: 0, subjectY: .015 }),
+    'queen-danger': Object.freeze({ zoom: 2.12, dwell: 5200, subjectX: 0, subjectY: .03 }),
+    combat: Object.freeze({ zoom: 2.1, dwell: 5000, subjectX: .03, subjectY: 0 }),
+    predator: Object.freeze({ zoom: 1.9, dwell: 5400, subjectX: .05, subjectY: -.02 }),
+    excavation: Object.freeze({ zoom: 1.84, dwell: 5600, subjectX: -.03, subjectY: .02 }),
+    milestone: Object.freeze({ zoom: 1.45, dwell: 6400, subjectX: 0, subjectY: .03 }),
+    brood: Object.freeze({ zoom: 1.72, dwell: 5600, subjectX: -.04, subjectY: .02 }),
+    foraging: Object.freeze({ zoom: 1.62, dwell: 5600, subjectX: .06, subjectY: -.06 })
   });
 
   let runToken = '';
@@ -104,7 +104,11 @@
       return shot('foraging', 56, midpoint(carrierPoint, entrance));
     }
 
-    return shot('overview', 10, { x: snapshot.world.width * .5, y: snapshot.world.height * .51 });
+    const entrance = cellPoint(snapshot, snapshot.world.entrance);
+    return shot('overview', 10, {
+      x: snapshot.world.width * .5 + (entrance.x - snapshot.world.width * .5) * .16,
+      y: snapshot.world.surfaceRow + (snapshot.world.height - snapshot.world.surfaceRow) * .39
+    });
   }
 
   function composeShot(snapshot, candidate) {
@@ -162,11 +166,11 @@
     view.y += (target.y - view.y) * ease;
     view.zoom += (clamp(target.zoom, 1, MAX_ZOOM) - view.zoom) * ease;
 
-    const overviewDrift = !reducedMotion && target.kind === 'overview' ? Math.sin(now / 5200) * .055 : 0;
+    const overviewDrift = !reducedMotion && target.kind === 'overview' ? Math.sin(now / 5200) * .045 : 0;
     return {
       x: view.x + overviewDrift,
       y: view.y,
-      zoom: reducedMotion ? Math.min(1.34, view.zoom) : view.zoom,
+      zoom: reducedMotion ? Math.min(1.42, view.zoom) : view.zoom,
       shot: target.kind,
       priority: target.priority
     };
@@ -314,6 +318,7 @@
     if (metrics) {
       metrics.cinematicLayer = true;
       metrics.cinematicShot = camera.shot;
+      metrics.lastShot = camera.shot;
       metrics.cinematicLights = Math.min(MAX_CHAMBER_LIGHTS, snapshot.world.tiles.filter(tile => tile === 3).length);
     }
   }
