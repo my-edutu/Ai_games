@@ -33,3 +33,15 @@ jobs:
         run: node --test tests/phase2/eko-run-*.test.cjs
       - name: Phase 1 regression tests
         run: node --test tests/foundation/eko-run-*.test.cjs
+      - name: Phase 2 deterministic performance evidence
+        run: |
+          set -o pipefail
+          mkdir -p evidence/eko-run/phase2/runtime
+          node scripts/run-eko-run-phase2-headless.cjs | tee evidence/eko-run/phase2/runtime/headless-summary.json
+      - name: Upload Phase 2 evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: eko-run-phase2-evidence
+          path: evidence/eko-run/phase2/runtime/headless-summary.json
+          if-no-files-found: error
