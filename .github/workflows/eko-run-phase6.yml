@@ -67,3 +67,17 @@ jobs:
             echo 'Presentation or ambient nondeterminism leaked into Phase 6 authority.'
             exit 1
           fi
+      - name: Phase 6 deterministic and performance evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          node scripts/run-eko-run-phase6-evidence.cjs | tee phase6-evidence.log
+      - name: Upload Phase 6 evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: eko-run-phase6-evidence-${{ github.sha }}
+          path: |
+            evidence/eko-run/phase6/phase6-evidence.json
+            phase6-evidence.log
+          if-no-files-found: error
+          retention-days: 30
