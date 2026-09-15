@@ -98,17 +98,17 @@ export interface EscapeValidationDiagnostic{
   message:string;
 }
 
-export interface EscapeValidationResult{
+export interface EscapeValidation{
   valid:boolean;
   diagnostics:EscapeValidationDiagnostic[];
-  solutionLength:number|null;
-  featureVector:EscapeFeatureVector|null;
+  solutionLength:number;
+  featureVector:EscapeFeatureVector;
 }
 
 export interface EscapeGenerationDiagnostics{
   attempts:number;
   usedFallback:boolean;
-  fallbackVersion:string|null;
+  fallbackVersion:null|'escape-fallback-v1';
   failures:Array<{attempt:number;codes:EscapeValidationCode[]}>;
 }
 
