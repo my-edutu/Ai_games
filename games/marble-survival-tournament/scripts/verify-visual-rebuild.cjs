@@ -17,6 +17,9 @@ const files = {
 
 for (const [name, file] of Object.entries(files)) assert.equal(fs.existsSync(file), true, `${name} missing: ${file}`);
 
+const threeModule = path.resolve(gameRoot, '../../node_modules/three/build/three.module.js');
+assert.equal(fs.existsSync(threeModule), true, `Three.js ESM build missing: ${threeModule}`);
+
 const html = fs.readFileSync(files.html, 'utf8');
 const webgl = fs.readFileSync(files.webgl, 'utf8');
 const css = fs.readFileSync(files.webglCss, 'utf8');
@@ -39,7 +42,8 @@ assert.match(css, /\.three-ready #arena-webgl/);
 assert.match(css, /data-clean='true'/);
 assert.match(fallback, /getContext\('2d'/);
 assert.match(server, /dist\/games\/marble-survival-tournament\/src\/index\.js/);
-assert.match(server, /node_modules\/three\/build\/three\.module\.min\.js/);
+assert.match(server, /node_modules\/three\/build\/three\.module\.js/);
+assert.match(server, /\/vendor\/three\.module\.min\.js/);
 
 const syntax = spawnSync(process.execPath, ['--check', files.webgl], { encoding: 'utf8' });
 assert.equal(syntax.status, 0, syntax.stderr || syntax.stdout || 'arena3d.js syntax check failed');
@@ -48,6 +52,8 @@ const evidence = {
   renderer: 'three-webgl',
   fallback: 'authoritative-canvas-2d',
   authorityPath: 'dist/games/marble-survival-tournament/src/index.js',
+  threeSource: 'node_modules/three/build/three.module.js',
+  threePublicAlias: '/vendor/three.module.min.js',
   webglCanvas: true,
   physicalMarbleMaterial: true,
   displacementDrivenRolling: true,
