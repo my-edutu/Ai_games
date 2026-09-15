@@ -43,32 +43,29 @@ interface Candidate {
   priority: number;
 }
 
-function eventMarbleId(events: MarbleCameraEvent[], type: string): number | null {
+const EVENT_REACTION_WINDOW_TICKS = 48;
+
+function eventIsFresh(currentTick: number, eventTick: number): boolean {
+  return Number.isInteger(eventTick)
+    && eventTick <= currentTick
+    && currentTick - eventTick <= EVENT_REACTION_WINDOW_TICKS;
+}
+
+function eventMarbleId(events: MarbleCameraEvent[], type: string, currentTick: number): number | null {
   for (let index = events.length - 1; index >= 0; index -= 1) {
     const event = events[index];
-    if (event.type !== type) continue;
+    if (event.type !== type || !eventIsFresh(currentTick, event.tick)) continue;
     const candidate = event.data?.marbleId;
     if (typeof candidate === 'number' && Number.isInteger(candidate)) return candidate;
   }
   return null;
 }
 
-function championFromEvents(events: MarbleCameraEvent[]): number | null {
-  for (let index = events.length - 1; index >= 0; index -= 1) {
-    const event = events[index];
-    if (event.type !== 'tournament-champion') continue;
-    const candidate = event.data?.championId;
-    if (typeof candidate === 'number' && Number.isInteger(candidate)) return candidate;
-  }
-  return null;
-}
-
 function chooseCandidate(input: MarbleCameraInput): Candidate {
-  const championId = input.championId ?? championFromEvents(input.events);
-  if (championId !== null || input.lifecycle === 'tournament-result') {
+  if (input.championId !== null || input.lifecycle === 'tournament-result') {
     return {
       mode: 'victory',
-      focusIds: championId === null ? [] : [championId],
+      focusIds: input.championId === null ? [] : [input.championId],
       reason: 'official-champion',
       holdTicks: 120,
       zoomPermille: 1760,
@@ -76,7 +73,7 @@ function chooseCandidate(input: MarbleCameraInput): Candidate {
     };
   }
 
-  const finisherId = eventMarbleId(input.events, 'marble-qualified');
+  const finisherId = eventMarbleId(input.events, 'marble-qualified', input.tick);
   if (finisherId !== null) {
     return {
       mode: 'finish',
@@ -128,7 +125,7 @@ export function chooseMarbleCameraDirective(
   previous?: MarbleCameraDirective | null
 ): MarbleCameraDirective {
   const candidate = chooseCandidate(input);
-  if (previous && input.tick < previous.holdUntilTick && candidate.priority <= previous.priority) {
+  if (previous && input.tick >= previous.issuedAtTick && input.tick < previous.holdUntilTick && candidate.priority <= previous.priority) {
     return {
       ...previous,
       focusIds: [...previous.focusIds]
