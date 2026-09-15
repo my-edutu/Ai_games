@@ -72,6 +72,35 @@ test('Marble WebGL broadcast renders authoritative tournament and captures runti
   const box = await page.locator('#arena-webgl').boundingBox();
   expect(box.width).toBeGreaterThan(1000);
   expect(box.height).toBeGreaterThan(500);
+  const viewportArea = 1920 * 1080;
+  const arenaCoverage = (box.width * box.height) / viewportArea;
+  expect(arenaCoverage).toBeGreaterThan(0.72);
+
+  const operator = async command => page.evaluate(async ({ command }) => {
+    const response = await fetch('/api/operator', {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        authorization: 'Bearer visual-evidence-only',
+      },
+      body: JSON.stringify({ command, actor: 'visual-evidence-browser', at: 1 }),
+    });
+    if (!response.ok) throw new Error(`operator ${command} ${response.status}`);
+    return response.json();
+  }, { command });
+
+  const snapshot = async () => page.evaluate(async () => {
+    const response = await fetch('/api/snapshot', { cache: 'no-store' });
+    if (!response.ok) throw new Error(`snapshot ${response.status}`);
+    return response.json();
+  });
+
+  // The evidence harness owns only start timing, never tournament rules or outcomes.
+  await operator('pause');
+  await operator('restart');
+  const resetState = await snapshot();
+  expect(resetState.round.index).toBe(0);
+  expect(resetState.lifecycle).toBe('active');
 
   const captured = new Set();
   const archetypes = new Set();
@@ -81,13 +110,38 @@ test('Marble WebGL broadcast renders authoritative tournament and captures runti
     await page.screenshot({ path: path.join(artifacts, `${name}.png`), fullPage: false });
   };
 
-  const snapshot = async () => page.evaluate(async () => {
-    const response = await fetch('/api/snapshot', { cache: 'no-store' });
-    if (!response.ok) throw new Error(`snapshot ${response.status}`);
-    return response.json();
-  });
-
   await capture('01-race-start');
+  await operator('resume');
+
+  const frameDeltas = await page.evaluate(() => new Promise(resolve => {
+    const samples = [];
+    let previous = null;
+    function sample(now) {
+      if (previous !== null) samples.push(now - previous);
+      previous = now;
+      if (samples.length >= 90) resolve(samples);
+      else requestAnimationFrame(sample);
+    }
+    requestAnimationFrame(sample);
+  }));
+  const sortedFrameDeltas = frameDeltas.slice().sort((left, right) => left - right);
+  const percentile = value => sortedFrameDeltas[Math.min(sortedFrameDeltas.length - 1, Math.floor(sortedFrameDeltas.length * value))];
+  const performanceEvidence = {
+    renderer: 'webgl2',
+    viewport: { width: 1920, height: 1080 },
+    arenaCoverage,
+    sampleCount: sortedFrameDeltas.length,
+    frameMs: {
+      p50: percentile(0.50),
+      p95: percentile(0.95),
+      p99: percentile(0.99),
+      max: sortedFrameDeltas.at(-1),
+    },
+  };
+  fs.writeFileSync(path.join(artifacts, 'performance-evidence.json'), JSON.stringify(performanceEvidence, null, 2) + '\n');
+  expect(performanceEvidence.sampleCount).toBeGreaterThanOrEqual(90);
+  expect(performanceEvidence.frameMs.p95).toBeLessThan(100);
+
   const startedAt = Date.now();
   let championSeen = false;
   while (Date.now() - startedAt < 145_000 && !championSeen) {
@@ -95,15 +149,15 @@ test('Marble WebGL broadcast renders authoritative tournament and captures runti
     archetypes.add(state.arena.archetype);
 
     if (state.round.remaining >= 20) await capture('02-large-marble-pack');
-    if (state.arena.sweepers.length > 0) await capture('03-moving-obstacle');
-    if (state.arena.hazards.length > 0) await capture('04-hazard-arena');
+    if (state.lifecycle === 'active' && state.arena.sweepers.length > 0) await capture('03-moving-obstacle');
+    if (state.lifecycle === 'active' && state.arena.hazards.length > 0) await capture('04-hazard-arena');
     if (state.camera.directive.mode === 'danger' || state.marbles.some(m => m.status === 'threatened' || m.status === 'recovering')) {
       await capture('05-near-elimination');
     }
     if (state.events.some(event => event.type === 'marble-eliminated')) await capture('06-actual-elimination');
     if (['hazard-circuit', 'final-four', 'championship'].includes(state.arena.archetype)) await capture('07-themed-arena');
     if (state.round.index >= 3) await capture('08-semifinal-final');
-    if (state.camera.championId !== null || state.events.some(event => event.type === 'tournament-champion')) {
+    if (state.lifecycle === 'tournament-result' && state.camera.championId !== null) {
       championSeen = true;
       await capture('09-tournament-winner');
     }
