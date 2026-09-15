@@ -1,4 +1,4 @@
-export type EkoRunLifecycle = "running" | "completed" | "failed" | "aborted" | "quarantined" | "maintenance";
+export type EkoRunLifecycle = "running" | "intermission" | "completed" | "failed" | "aborted" | "quarantined" | "maintenance";
 export type MovementState = "grounded" | "rising" | "falling" | "sliding" | "vaulting" | "stumbling" | "dead" | "airborne";
 export type AuthoritativeRandomStreamName = "route" | "traffic" | "ai" | "reward" | "audience";
 export type RandomStreamName = AuthoritativeRandomStreamName | "cosmetic";
@@ -149,8 +149,82 @@ export interface PublicHazardSnapshot {
   visualToken: string;
 }
 
+export type DistrictId =
+  | "mainland-morning"
+  | "market-rush"
+  | "danfo-junction"
+  | "rainy-lagos"
+  | "island-night"
+  | "bridge-run";
+
+export type PacingBand = "calm" | "anticipation" | "crisis" | "recovery";
+
+export interface DifficultyProfile {
+  speedPressure: number;
+  routeConstraint: number;
+  verticalPrecision: number;
+  vehicleTiming: number;
+  hazardConcurrency: number;
+  informationPressure: number;
+  recoveryCost: number;
+  optionalRisk: number;
+}
+
+export interface GeneratedToken {
+  id: string;
+  x: number;
+  value: number;
+}
+
+export interface RouteDecision {
+  id: string;
+  x: number;
+  risk: "safe" | "balanced" | "bold";
+  rewardTokens: number;
+}
+
+export interface MilestoneSpec {
+  id: string;
+  x: number;
+  band: PacingBand;
+}
+
+export interface GenerationValidation {
+  valid: boolean;
+  repairCount: number;
+  fallbackUsed: boolean;
+  codes: string[];
+}
+
+export interface GeneratedDistrictContent {
+  districtId: DistrictId;
+  route: RouteState;
+  hazards: HazardContract[];
+  tokens: GeneratedToken[];
+  decisions: RouteDecision[];
+  milestones: MilestoneSpec[];
+  difficulty: DifficultyProfile;
+  validation: GenerationValidation;
+  fingerprint: string;
+}
+
+export interface ProgressionState {
+  districtIndex: number;
+  districtId: DistrictId;
+  cycle: number;
+  districtCompletions: number;
+  totalDistance: number;
+  pacingBand: PacingBand;
+  activeContent: GeneratedDistrictContent;
+}
+
 export interface ResourceState {
   ekoTokens: number;
+  collectedTokenIds?: string[];
+  awardedMilestoneIds?: string[];
+  unlockedCosmetics?: string[];
+  unlockedThemes?: string[];
+  unlockedCelebrations?: string[];
 }
 
 export interface RunRecordState {
@@ -173,6 +247,7 @@ export interface EkoRunState {
   player: PlayerState;
   route: RouteState;
   hazards?: HazardRuntimeState;
+  progression?: ProgressionState;
   resources: ResourceState;
   commandWatermarks: Record<string, number>;
   randomStreams: AuthoritativeRandomSnapshot;
@@ -187,29 +262,31 @@ export interface MoveCommandPayload {
   vault?: boolean;
 }
 
-export interface MoveCommand {
+interface CommandEnvelope {
   schemaVersion: number;
   runId: string;
   targetTick: number;
   priority: number;
   sourceId: string;
   sourceSequence: number;
+}
+
+export interface MoveCommand extends CommandEnvelope {
   type: "move";
   payload: MoveCommandPayload;
 }
 
-export interface RestartCommand {
-  schemaVersion: number;
-  runId: string;
-  targetTick: number;
-  priority: number;
-  sourceId: string;
-  sourceSequence: number;
+export interface RestartCommand extends CommandEnvelope {
   type: "restart";
   payload: Record<string, never>;
 }
 
-export type EkoRunCommand = MoveCommand | RestartCommand;
+export interface AdvanceCommand extends CommandEnvelope {
+  type: "advance";
+  payload: Record<string, never>;
+}
+
+export type EkoRunCommand = MoveCommand | RestartCommand | AdvanceCommand;
 export type ValidatedCommand = EkoRunCommand;
 
 export interface RejectedCommand {
@@ -232,6 +309,11 @@ export type SemanticEventType =
   | "hazard.warned"
   | "hazard.hit"
   | "hazard.resolved"
+  | "token.collected"
+  | "reward.unlocked"
+  | "pacing.changed"
+  | "district.completed"
+  | "district.started"
   | "integrity.failure";
 
 export interface SemanticEvent {
@@ -276,6 +358,24 @@ export interface KinematicStepResult {
   failed: boolean;
 }
 
+export interface PublicProgressionSnapshot {
+  districtIndex: number;
+  districtId: DistrictId;
+  cycle: number;
+  districtCompletions: number;
+  totalDistance: number;
+  pacingBand: PacingBand;
+  difficulty: DifficultyProfile;
+  nextMilestoneX: number | null;
+}
+
+export interface PublicResourceSnapshot {
+  ekoTokens: number;
+  unlockedCosmetics: string[];
+  unlockedThemes: string[];
+  unlockedCelebrations: string[];
+}
+
 export interface EkoRunRenderSnapshot {
   version: number;
   runId: string;
@@ -302,6 +402,8 @@ export interface EkoRunRenderSnapshot {
   hazards: PublicHazardSnapshot[];
   progress: number;
   recentEvents: SemanticEvent[];
+  progression?: PublicProgressionSnapshot;
+  resources?: PublicResourceSnapshot;
 }
 
 export interface EkoRunSnapshot {

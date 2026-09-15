@@ -44,6 +44,12 @@ export function getPhase5HazardContracts(seed: string): HazardContract[] {
   });
 }
 
+export function getHazardContractsForState(state: EkoRunState): HazardContract[] {
+  const source = state.progression?.activeContent.hazards;
+  if (!source) return getPhase5HazardContracts(state.rootSeed);
+  return source.map(contract => ({ ...contract, legalResponses: [...contract.legalResponses], motion: contract.motion ? { ...contract.motion } : undefined }));
+}
+
 export function hazardPositionAtTick(contract: HazardContract, tick: number): number {
   if (!contract.motion) return contract.baseX;
   const period = contract.motion.periodTicks;
@@ -58,8 +64,8 @@ export function hazardActiveAtTick(contract: HazardContract, tick: number): bool
   return local < contract.motion.activeTicks;
 }
 
-export function createHazardRuntimeState(seed: string): HazardRuntimeState {
-  const encounters: HazardEncounter[] = getPhase5HazardContracts(seed).map(contract => ({
+export function createHazardRuntimeStateFromContracts(contracts: readonly HazardContract[]): HazardRuntimeState {
+  const encounters: HazardEncounter[] = contracts.map(contract => ({
     id: contract.id,
     family: contract.family,
     phase: "unseen",
@@ -67,6 +73,10 @@ export function createHazardRuntimeState(seed: string): HazardRuntimeState {
     resolvedTick: null,
   }));
   return { hazardSchemaVersion: PHASE5_HAZARD_SCHEMA_VERSION, encounters };
+}
+
+export function createHazardRuntimeState(seed: string): HazardRuntimeState {
+  return createHazardRuntimeStateFromContracts(getPhase5HazardContracts(seed));
 }
 
 function inWarningZone(state: EkoRunState, contract: HazardContract, x: number): boolean {
@@ -123,7 +133,7 @@ function applyConsequence(state: EkoRunState, contract: HazardContract, config: 
 
 export function stepHazards(state: EkoRunState, config: EkoRunConfig): HazardStepResult {
   if (!state.hazards || state.lifecycle !== "running") return { signals: [], failedReason: null };
-  const contracts = getPhase5HazardContracts(state.rootSeed);
+  const contracts = getHazardContractsForState(state);
   const byId = new Map(contracts.map(contract => [contract.id, contract]));
   const signals: HazardSignal[] = [];
   let failedReason: string | null = null;

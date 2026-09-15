@@ -1,5 +1,5 @@
 import { COMMAND_SCHEMA_VERSION } from "../config/version";
-import type { EkoRunCommand, EkoRunState, MoveCommand, RestartCommand, ValidatedCommand } from "../state/types";
+import type { AdvanceCommand, EkoRunCommand, EkoRunState, MoveCommand, RestartCommand, ValidatedCommand } from "../state/types";
 
 export class ValidationError extends Error {
   readonly code: string;
@@ -32,11 +32,11 @@ function validateMove(command: MoveCommand): MoveCommand {
   };
 }
 
-function validateRestart(command: RestartCommand): RestartCommand {
+function validateEmptyPayload<T extends RestartCommand | AdvanceCommand>(command: T, label: string): T {
   if (command.payload === null || typeof command.payload !== "object" || Array.isArray(command.payload) || Object.keys(command.payload).length !== 0) {
-    throw new ValidationError("INVALID_PAYLOAD", "restart payload must be an empty object");
+    throw new ValidationError("INVALID_PAYLOAD", `${label} payload must be an empty object`);
   }
-  return { ...command, payload: {} };
+  return { ...command, payload: {} } as T;
 }
 
 export function validateCommand(command: EkoRunCommand, state: EkoRunState): ValidatedCommand {
@@ -48,7 +48,8 @@ export function validateCommand(command: EkoRunCommand, state: EkoRunState): Val
   if (typeof command.sourceId !== "string" || command.sourceId.length < 1 || command.sourceId.length > 64) throw new ValidationError("INVALID_SOURCE", "source ID is invalid");
   if (!Number.isInteger(command.sourceSequence) || command.sourceSequence < 0) throw new ValidationError("INVALID_SEQUENCE", "source sequence must be a non-negative integer");
   if (command.type === "move") return validateMove(command);
-  if (command.type === "restart") return validateRestart(command);
+  if (command.type === "restart") return validateEmptyPayload(command, "restart");
+  if (command.type === "advance") return validateEmptyPayload(command, "advance");
   throw new ValidationError("INVALID_TYPE", "unsupported command type");
 }
 
