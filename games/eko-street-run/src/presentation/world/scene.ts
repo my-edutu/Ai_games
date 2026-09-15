@@ -13,6 +13,15 @@ function deepFreeze<T>(value: T): T {
   return value;
 }
 
+function nextProgressMarkerX(snapshot: EkoRunRenderSnapshot, camera: CameraPlan): number {
+  const nextCheckpoint = snapshot.route.checkpointXs.find(checkpointX => checkpointX > snapshot.player.position.x + 1e-6);
+  const milestoneX = nextCheckpoint ?? snapshot.route.finishX;
+  const margin = 0.5;
+  const minimum = camera.visibleWorld.minX + margin;
+  const maximum = camera.visibleWorld.maxX - margin;
+  return Math.min(maximum, Math.max(minimum, milestoneX));
+}
+
 function criticalNodes(snapshot: EkoRunRenderSnapshot, camera: CameraPlan): WorldNode[] {
   const direction = snapshot.player.facing;
   const behindAllowance = 0.75;
@@ -26,11 +35,12 @@ function criticalNodes(snapshot: EkoRunRenderSnapshot, camera: CameraPlan): Worl
   const routeWidth = Math.max(0.5, upper - lower);
   const routeCenter = lower + routeWidth * 0.5;
   const decisionX = snapshot.player.position.x + direction * Math.min(5.5, camera.lookAhead - 0.5);
+  const progressX = nextProgressMarkerX(snapshot, camera);
   return [
     { id: "player-anchor", kind: "player-anchor", role: "player-anchor", x: snapshot.player.position.x, y: snapshot.player.position.y + 0.9, z: 0, width: 0.7, height: 1.8, depth: 0.7, critical: true, ambient: false, detailRank: 0, color: "#ffffff" },
     { id: "safe-route", kind: "route-ribbon", role: "safe-route", x: routeCenter, y: 0.025, z: 0, width: routeWidth, height: 0.05, depth: 1.35, critical: true, ambient: false, detailRank: 0, color: "#efe8d0" },
     { id: "decision-preview", kind: "decision-window", role: "decision-preview", x: decisionX, y: 0.06, z: 0, width: 2.2, height: 0.08, depth: 2.1, critical: true, ambient: false, detailRank: 0, color: "#f7d35b" },
-    { id: "progress-marker", kind: "progress-marker", role: "progress-marker", x: snapshot.route.finishX, y: 1.2, z: 0, width: 0.18, height: 2.4, depth: 0.18, critical: true, ambient: false, detailRank: 0, color: "#37a982" },
+    { id: "progress-marker", kind: "progress-marker", role: "progress-marker", x: progressX, y: 1.2, z: 0, width: 0.18, height: 2.4, depth: 0.18, critical: true, ambient: false, detailRank: 0, color: "#37a982" },
   ];
 }
 
@@ -39,6 +49,12 @@ function identityScore(): number {
   const categories = new Set(district.identitySignals.map(signal => signal.category));
   const core = ["road-geometry", "drainage", "transport", "commerce", "architecture", "pedestrian-motion", "soundscape"];
   return core.filter(category => categories.has(category as never)).length / core.length;
+}
+
+function nodeFullyVisibleX(node: WorldNode | undefined, camera: CameraPlan): boolean {
+  if (!node) return false;
+  const halfWidth = node.width * 0.5;
+  return node.x - halfWidth >= camera.visibleWorld.minX && node.x + halfWidth <= camera.visibleWorld.maxX;
 }
 
 export function createMainlandMorningPresentation(
@@ -57,11 +73,12 @@ export function createMainlandMorningPresentation(
   const direction = snapshot.player.facing;
   const commitmentX = snapshot.player.position.x + direction * camera.lookAhead;
   const decisionSpaceVisible = direction > 0 ? camera.visibleWorld.maxX >= commitmentX : camera.visibleWorld.minX <= commitmentX;
+  const progressNode = nodes.find(node => node.role === "progress-marker");
   const comprehension = {
     playerVisible: camera.visibleWorld.minX <= snapshot.player.position.x && camera.visibleWorld.maxX >= snapshot.player.position.x,
     safeRouteVisible: true,
     decisionSpaceVisible,
-    progressVisible: true,
+    progressVisible: nodeFullyVisibleX(progressNode, camera),
     districtReadable: identityScore() >= 0.8,
     pass: false,
   };
