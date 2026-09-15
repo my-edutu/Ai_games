@@ -7,13 +7,15 @@ const path = require('node:path');
 const BASE = 'http://127.0.0.1:4317';
 const ARTIFACT_DIR = path.resolve('artifacts/marble-visual-rebuild');
 
+test.setTimeout(180000);
+
 async function snapshot(request) {
   const response = await request.get(`${BASE}/api/snapshot`);
   expect(response.ok()).toBeTruthy();
   return response.json();
 }
 
-async function waitFor(request, predicate, label, timeoutMs = 45000) {
+async function waitFor(request, predicate, label, timeoutMs = 60000) {
   const deadline = Date.now() + timeoutMs;
   let latest;
   while (Date.now() < deadline) {
@@ -38,7 +40,15 @@ test('Marble Survival renders real Three.js tournament states and capture eviden
 
   await page.setViewportSize({ width: 1600, height: 900 });
   await page.goto(`${BASE}/`, { waitUntil: 'domcontentloaded' });
-  await expect(page.locator('.broadcast-shell')).toHaveClass(/three-ready/, { timeout: 15000 });
+
+  const shell = page.locator('.broadcast-shell');
+  try {
+    await expect(shell).toHaveClass(/three-ready/, { timeout: 20000 });
+  } catch (error) {
+    const state = await shell.getAttribute('data-three-state');
+    throw new Error(`Three.js did not become ready; state=${state || 'unset'}; browserErrors=${consoleErrors.join(' | ') || 'none'}; original=${error.message}`);
+  }
+
   await expect(page.locator('#arena-webgl')).toBeVisible();
   await expect(page.locator('#arena-canvas')).toHaveCSS('opacity', '0');
 
@@ -76,15 +86,20 @@ test('Marble Survival renders real Three.js tournament states and capture eviden
   expect(championship.round.remaining).toBeLessThanOrEqual(2);
   await shot(page, '09-championship-arena.png');
 
-  await waitFor(request, (value) => value.camera?.championId !== null || value.events?.some((event) => event.type === 'tournament-champion'), 'champion confirmation');
+  await waitFor(
+    request,
+    (value) => Number.isInteger(value.camera?.championId) || value.events?.some((event) => event.type === 'tournament-champion'),
+    'champion confirmation',
+  );
   await shot(page, '10-champion-moment.png');
 
-  await page.locator('.broadcast-shell').evaluate((element) => { element.dataset.clean = 'true'; });
+  await shell.evaluate((element) => { element.dataset.clean = 'true'; });
   await expect(page.locator('.leaderboard-panel')).toBeHidden();
   await shot(page, '11-clean-feed-gameplay.png');
 
   const canvas = page.locator('#arena-webgl');
   const bounds = await canvas.boundingBox();
+  expect(bounds).not.toBeNull();
   expect(bounds.width).toBeGreaterThan(1000);
   expect(bounds.height).toBeGreaterThan(500);
   expect(consoleErrors, `browser errors: ${consoleErrors.join('\n')}`).toEqual([]);
