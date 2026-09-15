@@ -161,7 +161,8 @@ export function stepSimulation(
   for (const rejected of rejectedCommands) emit(next, events, "command.rejected", { reason: rejected.reason, sourceId: rejected.command.sourceId });
 
   const restart = acceptedCommands.find(command => command.type === "restart");
-  if (restart?.type === "restart") {
+  const restartedThisTick = restart?.type === "restart";
+  if (restartedThisTick) {
     restartFromCheckpoint(next, config);
     emit(next, events, "run.restarted", { checkpointIndex: next.player.checkpointIndex, x: next.player.position.x });
   }
@@ -179,6 +180,8 @@ export function stepSimulation(
       next.lifecycle = "failed";
       next.player.movementState = "dead";
       emit(next, events, "run.failed", { reason: "kill-plane", x: next.player.position.x, y: next.player.position.y });
+    } else if (restartedThisTick) {
+      updateProgress(next, events);
     } else {
       const hazardResult = stepHazards(next, config);
       for (const signal of hazardResult.signals) emit(next, events, signal.type, signal.data);
