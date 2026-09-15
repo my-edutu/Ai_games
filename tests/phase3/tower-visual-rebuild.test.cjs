@@ -35,7 +35,9 @@ test('22-skill art-direction pass gives sectors unique architecture rather than 
 });
 
 test('public broadcast hides internal run identity and exposes bounded visual diagnostics',()=>{
-  const js=read('public/infinite-tower-climb/app.js');
+  const js=read('public/infinite-tower-climb/app.js'),html=read('public/infinite-tower-climb/index.html');
   assert.ok(!js.includes("setText('run-token'"),'internal run token must not be written to the public HUD');
+  assert.ok(!html.includes('data-testid="run-token"'),'internal run token must not have a public HUD slot');
+  assert.ok(html.includes('data-testid="milestone"'),'public HUD should use the slot for a meaningful ascent milestone');
   for(const marker of ['__TOWER_RENDER_DIAGNOSTICS__','playerVisible','platformsVisible','hazardsVisible','guardiansVisible','frameMsP95'])assert.ok(js.includes(marker),`missing render diagnostic ${marker}`);
 });
