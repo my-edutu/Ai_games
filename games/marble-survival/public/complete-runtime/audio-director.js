@@ -104,11 +104,20 @@
     filter.frequency.value = 780;
     filter.Q.value = 0.8;
     const volume = audioContext.createGain();
+    const panner = typeof audioContext.createStereoPanner === 'function' ? audioContext.createStereoPanner() : null;
     const now = audioContext.currentTime;
     volume.gain.setValueAtTime(gain, now);
     volume.gain.exponentialRampToValueAtTime(0.0001, now + 0.13);
-    source.connect(filter);
-    connectVoice(filter, volume, pan);
+    source.connect(filter).connect(volume);
+    if (panner) {
+      panner.pan.value = pan;
+      volume.connect(panner).connect(compressor);
+    } else {
+      volume.connect(compressor);
+    }
+    const token = { source, volume, panner };
+    voices.add(token);
+    source.addEventListener('ended', () => voices.delete(token), { once: true });
     source.start(now);
     source.stop(now + 0.14);
   }
@@ -233,6 +242,8 @@
     shell.dataset.audio = enabled ? 'semantic' : 'off';
     if (enabled) {
       ensureGraph();
+      master.gain.cancelScheduledValues(audioContext.currentTime);
+      master.gain.setTargetAtTime(0.58, audioContext.currentTime, 0.035);
       lastEventSeq = -1;
       refresh();
     } else {
