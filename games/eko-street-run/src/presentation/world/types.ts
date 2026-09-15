@@ -77,6 +77,7 @@ export interface CameraPlan {
   readonly position: { readonly x: number; readonly y: number; readonly z: number };
   readonly lookAhead: number;
   readonly fov: number;
+  readonly aspect: number;
   readonly visibleWorld: { readonly minX: number; readonly maxX: number; readonly minY: number; readonly maxY: number };
   readonly safeFrame: SafeAreaInsets;
 }
