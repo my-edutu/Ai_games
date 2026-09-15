@@ -15,12 +15,15 @@ function deepFreeze<T>(value: T): T {
 
 function criticalNodes(snapshot: EkoRunRenderSnapshot): WorldNode[] {
   const direction = snapshot.player.facing;
-  const routeStart = snapshot.player.position.x - 1.5;
-  const routeWidth = Math.max(7, Math.min(13, snapshot.route.finishX - routeStart));
+  const availableRoute = direction > 0
+    ? snapshot.route.finishX - snapshot.player.position.x
+    : snapshot.player.position.x - snapshot.route.minX;
+  const routeWidth = Math.max(7, Math.min(13, Math.max(0, availableRoute) + 0.75));
+  const routeCenter = snapshot.player.position.x + direction * (routeWidth * 0.5 - 0.75);
   const decisionX = snapshot.player.position.x + direction * 5.5;
   return [
     { id: "player-anchor", kind: "player-anchor", role: "player-anchor", x: snapshot.player.position.x, y: snapshot.player.position.y + 0.9, z: 0, width: 0.7, height: 1.8, depth: 0.7, critical: true, ambient: false, detailRank: 0, color: "#ffffff" },
-    { id: "safe-route", kind: "route-ribbon", role: "safe-route", x: routeStart + routeWidth * 0.5, y: 0.025, z: 0, width: routeWidth, height: 0.05, depth: 1.35, critical: true, ambient: false, detailRank: 0, color: "#efe8d0" },
+    { id: "safe-route", kind: "route-ribbon", role: "safe-route", x: routeCenter, y: 0.025, z: 0, width: routeWidth, height: 0.05, depth: 1.35, critical: true, ambient: false, detailRank: 0, color: "#efe8d0" },
     { id: "decision-preview", kind: "decision-window", role: "decision-preview", x: decisionX, y: 0.06, z: 0, width: 2.2, height: 0.08, depth: 2.1, critical: true, ambient: false, detailRank: 0, color: "#f7d35b" },
     { id: "progress-marker", kind: "progress-marker", role: "progress-marker", x: snapshot.route.finishX, y: 1.2, z: 0, width: 0.18, height: 2.4, depth: 0.18, critical: true, ambient: false, detailRank: 0, color: "#37a982" },
   ];
