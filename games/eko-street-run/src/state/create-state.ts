@@ -1,4 +1,4 @@
-import type { EkoRunConfig } from "../config/default-config";
+import { PLAYER_HALF_WIDTH, type EkoRunConfig } from "../config/default-config";
 import { createFoundationRoute } from "../rules/route";
 import { createRandomStreams } from "../runtime/prng";
 import type { EkoRunState, MovementState, PlayerState, RouteState } from "./types";
@@ -63,7 +63,7 @@ export function createInitialState(config: EkoRunConfig): EkoRunState {
     randomStreams: streams.snapshotAuthoritative(),
     record: { maxProgress: 0, completedTick: null },
   };
-  assertStateInvariants(state, config.maxCommandSources);
+  assertStateInvariants(state, config.maxCommandSources, config.playerHalfWidth);
   return state;
 }
 
@@ -109,7 +109,7 @@ function assertRoute(route: RouteState): void {
   }
 }
 
-export function assertStateInvariants(state: EkoRunState, maxCommandSources = 8): void {
+export function assertStateInvariants(state: EkoRunState, maxCommandSources = 8, playerHalfWidth = PLAYER_HALF_WIDTH): void {
   assertFiniteTree(state);
   assertRoute(state.route);
   if (!Number.isInteger(state.tick) || state.tick < 0) throw new InvariantError("INVALID_TICK", "tick must be a non-negative integer");
@@ -130,6 +130,11 @@ export function assertStateInvariants(state: EkoRunState, maxCommandSources = 8)
   }
   if (state.player.position.x < state.route.minX - 1e-6 || state.player.position.x > state.route.maxX + 1e-6) {
     throw new InvariantError("PLAYER_OUT_OF_BOUNDS", "player left authoritative route bounds");
+  }
+  const minimumBodyCenter = state.route.minX + playerHalfWidth;
+  const maximumBodyCenter = state.route.maxX - playerHalfWidth;
+  if (state.player.position.x < minimumBodyCenter - 1e-6 || state.player.position.x > maximumBodyCenter + 1e-6) {
+    throw new InvariantError("PLAYER_BODY_OUT_OF_BOUNDS", "player authoritative body extends outside route bounds");
   }
   if (state.player.position.y < state.route.killPlaneY - 1e-6) throw new InvariantError("PLAYER_BELOW_KILL_PLANE", "player crossed kill plane without failure transition");
   if (state.lifecycle === "failed" && state.player.movementState !== "dead") throw new InvariantError("FAILED_PLAYER_NOT_DEAD", "failed gameplay state must expose dead player state");
