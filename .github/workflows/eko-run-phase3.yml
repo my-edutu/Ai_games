@@ -1,0 +1,57 @@
+name: Eko Run Phase 3 Character
+
+on:
+  push:
+    branches:
+      - main
+      - 'agent/eko-run-phase3'
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  character:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '22.16.0'
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - name: Install locked toolchain
+        run: npm ci --no-audit --no-fund
+      - name: Build
+        run: npm run build
+      - name: Phase 3 character tests
+        run: node --test tests/phase3/eko-run-*.test.cjs
+      - name: Phase 2 regression tests
+        run: node --test tests/phase2/eko-run-*.test.cjs
+      - name: Phase 1 regression tests
+        run: node --test tests/foundation/eko-run-*.test.cjs
+      - name: Presentation nondeterminism and boundary scan
+        shell: bash
+        run: |
+          set -euo pipefail
+          if grep -R -n -E 'Math\.random|Date\.now|new Date\(|setTimeout\(|setInterval\(|youtube|twitch|stripe|paypal' games/eko-street-run/src/presentation/character 2>/dev/null; then
+            echo 'Forbidden ambient nondeterminism/provider dependency found in Phase 3 presentation.'
+            exit 1
+          fi
+      - name: Phase 3 deterministic presentation evidence
+        shell: bash
+        run: |
+          set -o pipefail
+          mkdir -p evidence/eko-run/phase3/runtime
+          node scripts/run-eko-run-phase3-character-evidence.cjs | tee evidence/eko-run/phase3/runtime/character-summary.json
+      - name: Upload Phase 3 evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: eko-run-phase3-evidence
+          path: evidence/eko-run/phase3/runtime
+          if-no-files-found: error
