@@ -37,6 +37,12 @@ jobs:
         run: npm run ant:stream:self-test
       - name: Tower stream host self-test
         run: npm run tower:stream:self-test
+      - name: Marble authority tests
+        run: npm run marble:test
+      - name: Marble stream host self-test
+        run: npm run marble:stream:self-test
+      - name: Marble visual contract verification
+        run: npm run marble:verify
       - name: Authoritative nondeterminism scan
         shell: bash
         run: |
@@ -70,7 +76,12 @@ jobs:
             games/eko-street-run/src/state \
             games/eko-street-run/src/runtime \
             games/eko-street-run/src/physics \
-            games/eko-street-run/src/rules; then
+            games/eko-street-run/src/rules \
+            games/marble-survival-tournament/src/state \
+            games/marble-survival-tournament/src/runtime \
+            games/marble-survival-tournament/src/physics \
+            games/marble-survival-tournament/src/rules \
+            games/marble-survival-tournament/src/generation; then
             echo 'Forbidden ambient nondeterminism found in authoritative code.'
             exit 1
           fi
@@ -134,6 +145,14 @@ jobs:
         run: npx playwright install --with-deps chromium
       - name: Browser capture and layout verification
         run: npm run test:browser
+      - name: Upload Marble visual rebuild evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: marble-survival-visual-rebuild
+          path: artifacts/marble-visual-rebuild
+          if-no-files-found: error
+          retention-days: 30
       - name: Upload Snake Phase 3 capture evidence
         if: always()
         uses: actions/upload-artifact@v7
