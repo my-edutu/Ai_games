@@ -73,3 +73,27 @@ test('minimum shot hold prevents equal/lower priority camera thrashing', () => {
   assert.deepEqual(duringHold.focusIds, first.focusIds);
   assert.equal(duringHold.issuedAtTick, first.issuedAtTick);
 });
+
+test('stale finish and champion history cannot hijack a fresh race camera', () => {
+  const directive = chooseMarbleCameraDirective(input({
+    tick: 42,
+    lifecycle: 'active',
+    leaderId: 3,
+    events: [
+      { seq: 90, tick: 670, type: 'marble-qualified', data: { marbleId: 26, finishRank: 1 } },
+      { seq: 91, tick: 678, type: 'tournament-champion', data: { championId: 26 } },
+    ],
+  }));
+
+  assert.equal(directive.mode, 'overview');
+  assert.deepEqual(directive.focusIds, [3]);
+});
+
+test('an old same-run finish event expires instead of pinning the camera forever', () => {
+  const directive = chooseMarbleCameraDirective(input({
+    tick: 180,
+    events: [{ seq: 20, tick: 100, type: 'marble-qualified', data: { marbleId: 6, finishRank: 1 } }],
+  }));
+
+  assert.equal(directive.mode, 'overview');
+});
