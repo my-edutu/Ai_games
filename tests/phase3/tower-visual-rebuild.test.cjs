@@ -53,3 +53,8 @@ test('climber has a minimum broadcast silhouette with contact and motion depth c
   const js=read('public/infinite-tower-climb/app.js');
   for(const marker of ['CHARACTER_MIN_HEIGHT_PX=58','drawClimberContactShadow','drawClimberMotionAccent','playerHeightPx'])assert.ok(js.includes(marker),`missing climber presentation contract ${marker}`);
 });
+
+test('guardian phases have explicit readable telegraph presentation and diagnostics',()=>{
+  const js=read('public/infinite-tower-climb/app.js');
+  for(const marker of ['guardianPhaseVisual','drawGuardianAttackLanes','guardianPhase','guardianTelegraphVisible'])assert.ok(js.includes(marker),`missing guardian phase presentation ${marker}`);
+});
