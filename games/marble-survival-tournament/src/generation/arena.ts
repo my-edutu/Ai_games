@@ -257,7 +257,7 @@ export function validateMarbleArena(arena: MarbleArena, config: MarbleConfig): A
   return { valid: issues.length === 0, issues, features: arena.features };
 }
 
-export function generateMarbleArena(config: MarbleConfig, roundIndex: number, rng: NamedRng): MarbleArena {
+export function generateMarbleArenaCandidate(config: MarbleConfig, roundIndex: number, rng: NamedRng): MarbleArena {
   if (!Number.isInteger(roundIndex) || roundIndex < 0 || roundIndex > 4) throw new RangeError('roundIndex');
   const width = config.worldWidth;
   const height = config.worldHeight;
@@ -266,10 +266,10 @@ export function generateMarbleArena(config: MarbleConfig, roundIndex: number, rn
   const archetype = ARCHETYPES[roundIndex];
   const laneVariation = (rng.nextInt(`arena-topology-lanes-${roundIndex}`, 7) - 3) * 220;
   const safeLanes = roundIndex === 4
-    ? [Math.round(width / 4 + laneVariation), Math.round((width * 3) / 4 - laneVariation)]
+    ? [Math.round(width / 5 + laneVariation), Math.round((width * 4) / 5 - laneVariation)]
     : [Math.round(width / 3 + laneVariation), Math.round((width * 2) / 3 - laneVariation)];
   const content = addRoundContent(config, roundIndex, rng, safeLanes);
-  const arena: MarbleArena = {
+  return {
     schemaVersion: 1,
     generatorVersion: 'marble-arena-v1',
     id: `arena-${roundIndex}-${rng.nextInt(`arena-topology-id-${roundIndex}`, 1_000_000)}`,
@@ -287,6 +287,10 @@ export function generateMarbleArena(config: MarbleConfig, roundIndex: number, rn
     repairCount: 0,
     fallbackUsed: false
   };
+}
+
+export function generateMarbleArena(config: MarbleConfig, roundIndex: number, rng: NamedRng): MarbleArena {
+  const arena = generateMarbleArenaCandidate(config, roundIndex, rng);
   const report = validateMarbleArena(arena, config);
   return report.valid ? arena : knownGoodFallback(config, roundIndex);
 }
