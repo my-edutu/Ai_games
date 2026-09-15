@@ -9,7 +9,7 @@ test('visual rebuild captures representative authoritative gameplay states',asyn
   const cases=[
     ['normal','normal-climbing.png',s=>s.floor===0],
     ['large','large-vertical-environment.png',s=>s.floor===25],
-    ['hazard','hazard-encounter.png',s=>s.dangerPermille>=800],
+    ['hazard','hazard-encounter.png',s=>s.hazards.some(h=>h.active)],
     ['guardian','guardian-encounter.png',s=>s.enemies.some(e=>e.active&&e.kind==='guardian')],
     ['jump','dramatic-jump-fall.png',s=>Math.abs(s.player.vy)>=9000],
     ['theme','different-environment-theme.png',s=>s.theme==='void'],
