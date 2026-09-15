@@ -18,6 +18,10 @@ export class TowerCameraDirector{
       const follow=reduced ? .14 : .2;
       this.centerY=Math.round(this.centerY+(targetY-this.centerY)*follow);this.centerX=Math.round(this.centerX+(targetX-this.centerX)*follow);this.zoom=reduced?1:this.zoom+(targetZoom-this.zoom)*.12
     }
-    return{centerX:reduced?Math.round(snapshot.worldWidth/2):this.centerX,centerY:this.centerY,zoom:reduced?1:Math.max(.78,Math.min(1.08,this.zoom)),impulse:danger,lookAheadY:targetY-snapshot.player.y};
+    // The public renderer resolves camera Y relative to chunkBaseY before projecting
+    // absolute world-space entity Y. Add the chunk origin here so floor > 0 remains
+    // in the same world-space projection contract as floor 0.
+    const renderCenterY=this.centerY+snapshot.chunkBaseY;
+    return{centerX:reduced?Math.round(snapshot.worldWidth/2):this.centerX,centerY:renderCenterY,zoom:reduced?1:Math.max(.78,Math.min(1.08,this.zoom)),impulse:danger,lookAheadY:targetY-snapshot.player.y};
   }
 }
