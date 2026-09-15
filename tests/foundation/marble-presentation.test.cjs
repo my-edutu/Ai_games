@@ -98,6 +98,22 @@ test('presentation snapshots expose camera interest without creating new authori
   assert.equal(isFreshMarblePresentationSnapshot(null, state.tick, 15), false);
 });
 
+test('live leaderboard cannot be displaced by eliminated marbles from earlier rounds', () => {
+  const state = presentationState();
+  const [leader, second, qualified, eliminated] = state.marbles;
+  leader.progressPermille = 760;
+  second.progressPermille = 720;
+  qualified.finishRank = 1;
+  eliminated.finishRank = 1;
+  eliminated.progressPermille = 1_000;
+
+  const snapshot = createMarblePresentationSnapshot(state, []);
+  assert.equal(snapshot.leaderboard[0].id, qualified.id, 'current-round qualifier should lead live standings');
+  assert.equal(snapshot.leaderboard[1].id, leader.id, 'active leader should follow current-round qualifiers');
+  assert.equal(snapshot.leaderboard[2].id, second.id, 'second active racer should remain visible before eliminated history');
+  assert.equal(snapshot.leaderboard.at(-1).id, eliminated.id, 'eliminated history must stay behind the live field');
+});
+
 test('presentation event history starts after the latest tournament restart boundary', () => {
   const state = presentationState();
   state.tick = 42;
