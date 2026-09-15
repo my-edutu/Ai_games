@@ -123,6 +123,11 @@ function createOperatorController(token, historyCap = 256) {
   };
 }
 
+function clampInteger(value, minimum, maximum, fallback) {
+  if (!Number.isFinite(value)) return fallback;
+  return Math.max(minimum, Math.min(maximum, Math.trunc(value)));
+}
+
 function createRuntime(options = {}) {
   const {
     MarbleRuntime,
@@ -134,6 +139,10 @@ function createRuntime(options = {}) {
   const authority = MarbleRuntime.create(options.config || {}, seed);
   const operator = createOperatorController(operatorToken, 256);
   const events = [];
+  const replayFrameCap = clampInteger(Number(options.replayFrameCap), 2, 240, 90);
+  const replayFrames = [];
+  let replayRunIndex = authority.state.runIndex;
+  let sealedReplay = null;
   let cameraDirective = null;
   const state = {
     paused: false,
@@ -151,6 +160,33 @@ function createRuntime(options = {}) {
     }
     while (events.length > 96) events.shift();
     return drained;
+  }
+
+  function resetReplay(runIndex = authority.state.runIndex) {
+    replayRunIndex = runIndex;
+    replayFrames.length = 0;
+    sealedReplay = null;
+  }
+
+  function recordReplayFrame(snapshot) {
+    if (authority.state.runIndex !== replayRunIndex) resetReplay(authority.state.runIndex);
+    if (sealedReplay) return;
+
+    const previous = replayFrames.at(-1);
+    if (previous && previous.tick === snapshot.tick && previous.lifecycle === snapshot.lifecycle) replayFrames[replayFrames.length - 1] = snapshot;
+    else replayFrames.push(snapshot);
+    while (replayFrames.length > replayFrameCap) replayFrames.shift();
+
+    const championId = snapshot.camera.championId;
+    if (snapshot.lifecycle === 'tournament-result' && Number.isInteger(championId)) {
+      sealedReplay = Object.freeze({
+        available: true,
+        championId,
+        runIndex: authority.state.runIndex,
+        sealedAtTick: snapshot.tick,
+        frames: Object.freeze([...replayFrames]),
+      });
+    }
   }
 
   function currentSnapshot() {
@@ -175,12 +211,25 @@ function createRuntime(options = {}) {
       })),
     }, cameraDirective);
     cameraDirective = Object.freeze({ ...directive, focusIds: Object.freeze([...directive.focusIds]) });
-    return Object.freeze({
+    const snapshot = Object.freeze({
       ...base,
       camera: Object.freeze({
         ...base.camera,
         directive: cameraDirective,
       }),
+    });
+    recordReplayFrame(snapshot);
+    return snapshot;
+  }
+
+  function currentReplay() {
+    if (sealedReplay) return sealedReplay;
+    return Object.freeze({
+      available: false,
+      championId: null,
+      runIndex: authority.state.runIndex,
+      sealedAtTick: null,
+      frames: Object.freeze([]),
     });
   }
 
@@ -205,6 +254,7 @@ function createRuntime(options = {}) {
   function restart() {
     authority.restart();
     cameraDirective = null;
+    resetReplay(authority.state.runIndex);
     state.authorityRunning = true;
     state.lastStepAt = Date.now();
     drainAuthorityEvents();
@@ -239,6 +289,7 @@ function createRuntime(options = {}) {
     events,
     state,
     currentSnapshot,
+    currentReplay,
     publicEvents,
     advance,
     restart,
@@ -252,15 +303,10 @@ function createServer(options = {}) {
     const origin = `http://${request.headers.host || 'localhost'}`;
     const url = new URL(request.url || '/', origin);
     try {
-      if (request.method === 'GET' && url.pathname === '/api/snapshot') {
-        return json(response, 200, runtime.currentSnapshot());
-      }
-      if (request.method === 'GET' && url.pathname === '/api/events') {
-        return json(response, 200, { events: runtime.publicEvents() });
-      }
-      if (request.method === 'GET' && url.pathname === '/api/health') {
-        return json(response, 200, runtime.health());
-      }
+      if (request.method === 'GET' && url.pathname === '/api/snapshot') return json(response, 200, runtime.currentSnapshot());
+      if (request.method === 'GET' && url.pathname === '/api/replay') return json(response, 200, runtime.currentReplay());
+      if (request.method === 'GET' && url.pathname === '/api/events') return json(response, 200, { events: runtime.publicEvents() });
+      if (request.method === 'GET' && url.pathname === '/api/health') return json(response, 200, runtime.health());
       if (request.method === 'GET' && url.pathname === '/api/metrics') {
         return text(response, 200, [
           '# TYPE game7_tick gauge',
@@ -282,11 +328,7 @@ function createServer(options = {}) {
       }
       if (request.method === 'POST' && url.pathname === '/api/influence') {
         await readJson(request);
-        return json(response, 503, {
-          accepted: false,
-          applied: false,
-          reason: 'authority-influence-unavailable',
-        });
+        return json(response, 503, { accepted: false, applied: false, reason: 'authority-influence-unavailable' });
       }
       if (request.method === 'POST' && url.pathname === '/api/operator') {
         const body = await readJson(request);
@@ -347,7 +389,7 @@ function createServer(options = {}) {
 }
 
 async function selfTest() {
-  const { server } = createServer({ seed: 'self-test', operatorToken: 'test-token', tickIntervalMs: 25 });
+  const { server } = createServer({ seed: 'self-test', operatorToken: 'test-token', tickIntervalMs: 25, replayFrameCap: 8 });
   await new Promise((resolve, reject) => {
     server.once('error', reject);
     server.listen(0, '127.0.0.1', resolve);
@@ -363,6 +405,9 @@ async function selfTest() {
     if (!snapshotResponse.ok || !snapshotText.includes('"version":1') || snapshotText.includes('self-test')) throw new Error('snapshot authority/sanitization failed');
     const snapshot = JSON.parse(snapshotText);
     if (!snapshot.camera?.directive?.mode) throw new Error('camera directive missing');
+
+    const replay = await (await fetch(`${base}/api/replay`)).json();
+    if (replay.available !== false || !Array.isArray(replay.frames)) throw new Error('replay endpoint failed');
 
     const health = await (await fetch(`${base}/api/health`)).json();
     if (!['healthy', 'degraded'].includes(health.status)) throw new Error('health endpoint failed');
