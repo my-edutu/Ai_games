@@ -5,7 +5,13 @@ const assert = require('node:assert/strict');
 const path = require('node:path');
 
 const runtimePath = path.resolve(__dirname, '../../../../dist/games/marble-survival-tournament/src/index.js');
-const { NamedRng, parseMarbleConfig, generateMarbleArena, validateMarbleArena } = require(runtimePath);
+const {
+  NamedRng,
+  parseMarbleConfig,
+  generateMarbleArena,
+  generateMarbleArenaCandidate,
+  validateMarbleArena,
+} = require(runtimePath);
 
 function bucket(value, size) {
   return Math.round(value / size);
@@ -43,6 +49,14 @@ function mirroredChampionship(arena) {
   }
   return true;
 }
+
+test('championship candidate exposes validator diagnostics before fallback', () => {
+  assert.equal(typeof generateMarbleArenaCandidate, 'function');
+  const config = parseMarbleConfig();
+  const candidate = generateMarbleArenaCandidate(config, 4, NamedRng.fromSeed('marble-diversity-r4-s0'));
+  const report = validateMarbleArena(candidate, config);
+  assert.equal(report.valid, true, JSON.stringify({ lanes: candidate.safeLanes, obstacles: candidate.obstacles, issues: report.issues }, null, 2));
+});
 
 test('arena generation produces meaningful structural diversity without fallback', () => {
   const config = parseMarbleConfig();
