@@ -1,5 +1,7 @@
 import { CONTENT_VERSION, DETERMINISTIC_VERSION, GAME_VERSION, SCHEMA_VERSION, TICK_RATE_HZ } from "./version";
 
+export const PLAYER_HALF_WIDTH = 0.35;
+
 export interface EkoRunConfig {
   readonly seed: string;
   readonly runId: string;
@@ -84,7 +86,7 @@ export function createDefaultConfig(input: EkoRunConfigInput): EkoRunConfig {
     slideDurationTicks: 24,
     stumbleFallSpeed: 12,
     stumbleDurationTicks: 18,
-    playerHalfWidth: 0.35,
+    playerHalfWidth: PLAYER_HALF_WIDTH,
     playerStandingHeight: 1.8,
     playerSlideHeight: 0.9,
     maxStepHeight: 0.45,
