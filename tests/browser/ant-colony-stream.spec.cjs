@@ -6,6 +6,22 @@ const base='http://127.0.0.1:4175';
 const artifacts=path.resolve(__dirname,'../../artifacts/ant-phase3');
 test.beforeAll(()=>fs.mkdirSync(artifacts,{recursive:true}));
 
+async function advanceTo(page,target,ticks=1500){
+  const response=await page.request.post(`${base}/ant/evidence/advance`,{data:{ticks,until:target}});
+  expect(response.ok()).toBeTruthy();
+  const body=await response.json();
+  expect(body.ok).toBe(true);
+  expect(body.target).toBe(target);
+  expect(body.matched).toBe(true);
+  const wanted=body.snapshot;
+  await page.waitForFunction(({runIndex,tick})=>{
+    const current=window.__ANT_PUBLIC_STATE__;
+    return current&&(current.runIndex>runIndex||(current.runIndex===runIndex&&current.tick>=tick));
+  },{runIndex:wanted.runIndex,tick:wanted.tick},{timeout:5000});
+  await page.waitForTimeout(100);
+  return wanted;
+}
+
 test('ant colony desktop broadcast is animated, readable and privacy safe',async({page})=>{
   const failures=[];
   page.on('console',message=>{if(message.type()==='error')failures.push(message.text())});
@@ -76,23 +92,10 @@ test('render budgets remain bounded and browser frame evidence is recorded',asyn
     const mean=samples.length?samples.reduce((sum,value)=>sum+value,0)/samples.length:null;
     const percentile=q=>sorted.length?sorted[Math.min(sorted.length-1,Math.floor((sorted.length-1)*q))]:null;
     return{
-      capturedAt:new Date().toISOString(),
-      samples:samples.length,
-      meanFrameMs:mean,
-      p50FrameMs:percentile(.5),
-      p95FrameMs:percentile(.95),
-      webgl:Boolean(metrics.webgl),
-      dpr:metrics.dpr,
-      drawCalls:metrics.drawCalls,
-      entityCount:metrics.entityCount,
-      motionHistory:metrics.motionHistory,
-      activeParticles:metrics.activeParticles,
-      organicPresentation:Boolean(metrics.organicPresentation),
-      organicConnections:metrics.organicConnections,
-      organicChambers:metrics.organicChambers,
-      surfaceStems:metrics.surfaceStems,
-      foregroundRoots:metrics.foregroundRoots,
-      lastShot:metrics.lastShot||metrics.cinematicShot||null
+      capturedAt:new Date().toISOString(),samples:samples.length,meanFrameMs:mean,p50FrameMs:percentile(.5),p95FrameMs:percentile(.95),
+      webgl:Boolean(metrics.webgl),dpr:metrics.dpr,drawCalls:metrics.drawCalls,entityCount:metrics.entityCount,motionHistory:metrics.motionHistory,
+      activeParticles:metrics.activeParticles,organicPresentation:Boolean(metrics.organicPresentation),organicConnections:metrics.organicConnections,
+      organicChambers:metrics.organicChambers,surfaceStems:metrics.surfaceStems,foregroundRoots:metrics.foregroundRoots,lastShot:metrics.lastShot||metrics.cinematicShot||null
     };
   });
   expect(evidence.samples).toBeGreaterThan(30);
@@ -107,4 +110,25 @@ test('render budgets remain bounded and browser frame evidence is recorded',asyn
   expect(evidence.surfaceStems).toBe(64);
   expect(evidence.foregroundRoots).toBe(16);
   fs.writeFileSync(path.join(artifacts,'performance.json'),`${JSON.stringify(evidence,null,2)}\n`);
+});
+
+test('authoritative ecosystem states generate scenario-specific visual evidence',async({page})=>{
+  await page.setViewportSize({width:1600,height:900});
+  await page.goto(`${base}/ant?muted=1`,{waitUntil:'domcontentloaded'});
+  await expect(page.locator('[data-testid="ant-canvas"]')).toBeVisible();
+  const manifest=[];
+  const capture=async(target,file,ticks)=>{
+    const snapshot=await advanceTo(page,target,ticks);
+    manifest.push({target,file,runIndex:snapshot.runIndex,tick:snapshot.tick,scene:snapshot.scene,weather:snapshot.environment.weather,season:snapshot.environment.season,brood:snapshot.colony.brood,predators:snapshot.predators.length,fighters:snapshot.ants.filter(ant=>ant.task==='fight').length,carriers:snapshot.ants.filter(ant=>ant.carryingFood>0).length,diggers:snapshot.ants.filter(ant=>ant.task==='dig').length});
+    await page.screenshot({path:path.join(artifacts,file),fullPage:true});
+  };
+  await capture('milestone','milestone.png',1400);
+  await capture('brood','queen-brood.png',900);
+  await capture('foraging','foraging.png',900);
+  await capture('excavation','excavation.png',900);
+  await capture('predator','predator.png',1600);
+  await capture('combat','combat.png',1400);
+  await capture('night','day-night.png',700);
+  await capture('weather','weather-season.png',1800);
+  fs.writeFileSync(path.join(artifacts,'scenario-manifest.json'),`${JSON.stringify(manifest,null,2)}\n`);
 });
