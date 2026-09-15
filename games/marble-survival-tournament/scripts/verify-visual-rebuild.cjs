@@ -42,8 +42,10 @@ assert.match(css, /\.three-ready #arena-webgl/);
 assert.match(css, /data-clean='true'/);
 assert.match(fallback, /getContext\('2d'/);
 assert.match(server, /dist\/games\/marble-survival-tournament\/src\/index\.js/);
-assert.match(server, /node_modules\/three\/build\/three\.module\.js/);
-assert.match(server, /\/vendor\/three\.module\.min\.js/);
+assert.match(server, /node_modules\/three\/build/);
+assert.match(server, /THREE_BUILD_ROOT/);
+assert.match(server, /safeThreeBuildPath/);
+assert.match(server, /three\.module\.min\.js/);
 
 const syntax = spawnSync(process.execPath, ['--check', files.webgl], { encoding: 'utf8' });
 assert.equal(syntax.status, 0, syntax.stderr || syntax.stdout || 'arena3d.js syntax check failed');
@@ -54,6 +56,7 @@ const evidence = {
   authorityPath: 'dist/games/marble-survival-tournament/src/index.js',
   threeSource: 'node_modules/three/build/three.module.js',
   threePublicAlias: '/vendor/three.module.min.js',
+  transitiveThreeBuildRouting: true,
   webglCanvas: true,
   physicalMarbleMaterial: true,
   displacementDrivenRolling: true,
