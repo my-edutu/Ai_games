@@ -1,5 +1,5 @@
 export type EkoRunLifecycle = "running" | "completed" | "failed" | "aborted" | "quarantined" | "maintenance";
-export type MovementState = "grounded" | "airborne";
+export type MovementState = "grounded" | "rising" | "falling" | "sliding" | "vaulting" | "stumbling" | "dead" | "airborne";
 export type AuthoritativeRandomStreamName = "route" | "traffic" | "ai" | "reward" | "audience";
 export type RandomStreamName = AuthoritativeRandomStreamName | "cosmetic";
 
@@ -8,12 +8,61 @@ export interface Vec2 {
   y: number;
 }
 
+export interface VaultState {
+  obstacleId: string;
+  ticksRemaining: number;
+  totalTicks: number;
+  start: Vec2;
+  end: Vec2;
+}
+
 export interface PlayerState {
   position: Vec2;
   velocity: Vec2;
   movementState: MovementState;
+  facing: -1 | 1;
+  coyoteTicksRemaining: number;
+  jumpBufferTicksRemaining: number;
+  jumpCutConsumed: boolean;
+  landingCompressionTicksRemaining: number;
+  slideTicksRemaining: number;
+  stumbleTicksRemaining: number;
+  vault: VaultState | null;
   checkpointIndex: number;
   progress: number;
+}
+
+export interface RouteGroundSegment {
+  id: string;
+  minX: number;
+  maxX: number;
+  y: number;
+}
+
+export interface RouteSlope {
+  id: string;
+  minX: number;
+  maxX: number;
+  startY: number;
+  endY: number;
+}
+
+export type RouteColliderKind = "solid" | "vault" | "moving";
+
+export interface RouteColliderMotion {
+  minOffsetX: number;
+  maxOffsetX: number;
+  periodTicks: number;
+}
+
+export interface RouteColliderRect {
+  id: string;
+  minX: number;
+  maxX: number;
+  minY: number;
+  maxY: number;
+  kind: RouteColliderKind;
+  motion?: RouteColliderMotion;
 }
 
 export interface RouteState {
@@ -25,6 +74,10 @@ export interface RouteState {
   maxX: number;
   checkpointXs: number[];
   finishX: number;
+  killPlaneY: number;
+  groundSegments: RouteGroundSegment[];
+  slopes: RouteSlope[];
+  colliders: RouteColliderRect[];
 }
 
 export interface ResourceState {
@@ -58,9 +111,13 @@ export interface EkoRunState {
 
 export interface MoveCommandPayload {
   axis: number;
+  jumpPressed?: boolean;
+  jumpReleased?: boolean;
+  slide?: boolean;
+  vault?: boolean;
 }
 
-export interface EkoRunCommand {
+export interface MoveCommand {
   schemaVersion: number;
   runId: string;
   targetTick: number;
@@ -71,6 +128,18 @@ export interface EkoRunCommand {
   payload: MoveCommandPayload;
 }
 
+export interface RestartCommand {
+  schemaVersion: number;
+  runId: string;
+  targetTick: number;
+  priority: number;
+  sourceId: string;
+  sourceSequence: number;
+  type: "restart";
+  payload: Record<string, never>;
+}
+
+export type EkoRunCommand = MoveCommand | RestartCommand;
 export type ValidatedCommand = EkoRunCommand;
 
 export interface RejectedCommand {
@@ -78,11 +147,25 @@ export interface RejectedCommand {
   reason: string;
 }
 
+export type SemanticEventType =
+  | "run.started"
+  | "command.rejected"
+  | "checkpoint.reached"
+  | "run.completed"
+  | "run.failed"
+  | "run.restarted"
+  | "player.jumped"
+  | "player.landed"
+  | "player.stumbled"
+  | "player.slid"
+  | "player.vaulted"
+  | "integrity.failure";
+
 export interface SemanticEvent {
   schemaVersion: number;
   sequence: number;
   tick: number;
-  type: "run.started" | "command.rejected" | "checkpoint.reached" | "run.completed" | "integrity.failure";
+  type: SemanticEventType;
   data: Record<string, unknown>;
 }
 
@@ -94,6 +177,32 @@ export interface StepResult {
   checksum: string;
 }
 
+export interface PlayerControlIntent {
+  axis: number;
+  jumpPressed: boolean;
+  jumpReleased: boolean;
+  slide: boolean;
+  vault: boolean;
+}
+
+export type ContactKind = "ground" | "slope" | "step" | "wall" | "ceiling" | "moving" | "vault";
+
+export interface PhysicsContact {
+  colliderId: string;
+  kind: ContactKind;
+}
+
+export interface KinematicStepResult {
+  player: PlayerState;
+  contacts: PhysicsContact[];
+  landed: boolean;
+  jumpStarted: boolean;
+  slideStarted: boolean;
+  vaultStarted: boolean;
+  stumbleStarted: boolean;
+  failed: boolean;
+}
+
 export interface EkoRunRenderSnapshot {
   version: number;
   runId: string;
@@ -103,7 +212,11 @@ export interface EkoRunRenderSnapshot {
     position: Vec2;
     velocity: Vec2;
     movementState: MovementState;
+    facing: -1 | 1;
     checkpointIndex: number;
+    landingCompressionTicksRemaining: number;
+    slideTicksRemaining: number;
+    stumbleTicksRemaining: number;
   };
   route: {
     id: string;

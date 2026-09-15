@@ -1,110 +1,166 @@
-import type { EkoRunConfig } from "../config/default-config";
-import { createDefaultConfig } from "../config/default-config";
+import { createDefaultConfig, type EkoRunConfig } from "../config/default-config";
 import { EVENT_SCHEMA_VERSION } from "../config/version";
-import { integrateFoundationMovement } from "../physics/kinematic";
+import { stepPlayerKinematic } from "../physics/kinematic";
+import { sampleSupportSurface } from "../physics/geometry";
 import { assertStateInvariants, cloneState } from "../state/create-state";
-import type { EkoRunCommand, EkoRunState, RejectedCommand, SemanticEvent, StepResult, ValidatedCommand } from "../state/types";
+import type {
+  EkoRunCommand,
+  EkoRunState,
+  MoveCommand,
+  PlayerControlIntent,
+  RejectedCommand,
+  SemanticEvent,
+  StepResult,
+  ValidatedCommand,
+} from "../state/types";
 import { checksumState } from "./checksum";
-import { compareCommands, validateCommand, ValidationError } from "./commands";
+import { compareCommands, ValidationError, validateCommand } from "./commands";
 
-function emitEvent(state: EkoRunState, events: SemanticEvent[], type: SemanticEvent["type"], data: Record<string, unknown>): void {
+function reject(command: EkoRunCommand, reason: string): RejectedCommand {
+  return { command, reason };
+}
+
+function emit(state: EkoRunState, events: SemanticEvent[], type: SemanticEvent["type"], data: Record<string, unknown>): void {
   events.push({
     schemaVersion: EVENT_SCHEMA_VERSION,
-    sequence: state.nextEventSequence,
+    sequence: state.nextEventSequence++,
     tick: state.tick,
     type,
     data,
   });
-  state.nextEventSequence += 1;
 }
 
-function reject(state: EkoRunState, events: SemanticEvent[], rejected: RejectedCommand[], command: EkoRunCommand, reason: string): void {
-  rejected.push({ command, reason });
-  emitEvent(state, events, "command.rejected", { reason, sourceId: command.sourceId, sourceSequence: command.sourceSequence });
+function intentFrom(command: MoveCommand | undefined): PlayerControlIntent {
+  return {
+    axis: command?.payload.axis ?? 0,
+    jumpPressed: command?.payload.jumpPressed ?? false,
+    jumpReleased: command?.payload.jumpReleased ?? false,
+    slide: command?.payload.slide ?? false,
+    vault: command?.payload.vault ?? false,
+  };
 }
 
-function inferConfig(state: EkoRunState): EkoRunConfig {
-  return createDefaultConfig({ seed: state.rootSeed });
+function checkpointSpawnX(state: EkoRunState): number {
+  if (state.player.checkpointIndex <= 0) return state.route.startX;
+  return state.route.checkpointXs[state.player.checkpointIndex - 1] ?? state.route.startX;
 }
 
-export function stepSimulation(state: EkoRunState, commands: readonly EkoRunCommand[]): StepResult {
-  const next = cloneState(state);
-  assertStateInvariants(next);
-  const config = inferConfig(next);
-  if (config.runId !== next.runId) throw new Error("state run ID does not match deterministic configuration");
+function restartFromCheckpoint(state: EkoRunState, config: EkoRunConfig): void {
+  const x = checkpointSpawnX(state);
+  const support = sampleSupportSurface(state.route, x, config.playerHalfWidth, state.tick, config, Number.POSITIVE_INFINITY);
+  state.player = {
+    position: { x, y: support?.y ?? state.route.groundY },
+    velocity: { x: 0, y: 0 },
+    movementState: "grounded",
+    facing: state.player.facing,
+    coyoteTicksRemaining: config.coyoteTicks,
+    jumpBufferTicksRemaining: 0,
+    jumpCutConsumed: false,
+    landingCompressionTicksRemaining: 0,
+    slideTicksRemaining: 0,
+    stumbleTicksRemaining: 0,
+    vault: null,
+    checkpointIndex: state.player.checkpointIndex,
+    progress: Math.max(0, x - state.route.startX),
+  };
+  state.lifecycle = "running";
+}
 
+function updateProgress(state: EkoRunState, events: SemanticEvent[]): void {
+  state.player.progress = Math.max(0, state.player.position.x - state.route.startX);
+  state.record.maxProgress = Math.max(state.record.maxProgress, state.player.progress);
+  while (state.player.checkpointIndex < state.route.checkpointXs.length) {
+    const checkpointX = state.route.checkpointXs[state.player.checkpointIndex];
+    if (state.player.position.x + 1e-9 < checkpointX) break;
+    state.player.checkpointIndex += 1;
+    emit(state, events, "checkpoint.reached", { checkpointIndex: state.player.checkpointIndex, x: checkpointX });
+  }
+  if (state.player.position.x >= state.route.finishX && state.lifecycle === "running") {
+    state.lifecycle = "completed";
+    state.record.completedTick = state.tick;
+    emit(state, events, "run.completed", { progress: state.player.progress });
+  }
+}
+
+export function stepSimulation(
+  source: EkoRunState,
+  inputCommands: readonly EkoRunCommand[],
+  config: EkoRunConfig = createDefaultConfig({ seed: source.rootSeed }),
+): StepResult {
+  const next = cloneState(source);
+  assertStateInvariants(next, config.maxCommandSources);
   const events: SemanticEvent[] = [];
   const rejectedCommands: RejectedCommand[] = [];
   const candidates: ValidatedCommand[] = [];
 
-  if (next.tick === 0 && next.nextEventSequence === 1) emitEvent(next, events, "run.started", { routeId: next.route.id });
-
-  const limited = commands.slice(0, config.maxCommandsPerTick);
-  for (const raw of limited) {
+  for (const raw of inputCommands.slice(0, config.maxCommandsPerTick)) {
     try {
       candidates.push(validateCommand(raw, next));
     } catch (error) {
-      const reason = error instanceof ValidationError ? error.code : "INVALID_COMMAND";
-      reject(next, events, rejectedCommands, raw, reason);
+      rejectedCommands.push(reject(raw, error instanceof ValidationError ? error.code : "INVALID_COMMAND"));
     }
   }
-  for (const raw of commands.slice(config.maxCommandsPerTick)) reject(next, events, rejectedCommands, raw, "COMMAND_LIMIT");
-
+  for (const raw of inputCommands.slice(config.maxCommandsPerTick)) rejectedCommands.push(reject(raw, "COMMAND_LIMIT"));
   candidates.sort(compareCommands);
+
   const acceptedCommands: ValidatedCommand[] = [];
   for (const command of candidates) {
-    if (next.lifecycle !== "running") {
-      reject(next, events, rejectedCommands, command, "RUN_NOT_ACTIVE");
-      continue;
-    }
     if (command.targetTick < next.tick) {
-      reject(next, events, rejectedCommands, command, "STALE_TICK");
+      rejectedCommands.push(reject(command, "STALE_TICK"));
       continue;
     }
     if (command.targetTick > next.tick) {
-      reject(next, events, rejectedCommands, command, "FUTURE_TICK");
+      rejectedCommands.push(reject(command, "FUTURE_TICK"));
       continue;
     }
     const watermark = next.commandWatermarks[command.sourceId];
     if (watermark !== undefined && command.sourceSequence <= watermark) {
-      reject(next, events, rejectedCommands, command, "DUPLICATE");
+      rejectedCommands.push(reject(command, "DUPLICATE"));
       continue;
     }
     if (watermark === undefined && Object.keys(next.commandWatermarks).length >= config.maxCommandSources) {
-      reject(next, events, rejectedCommands, command, "SOURCE_LIMIT");
+      rejectedCommands.push(reject(command, "SOURCE_LIMIT"));
+      continue;
+    }
+    if (command.type === "restart" && next.lifecycle !== "failed") {
+      rejectedCommands.push(reject(command, "RESTART_NOT_FAILED"));
+      continue;
+    }
+    if (command.type === "move" && next.lifecycle !== "running") {
+      rejectedCommands.push(reject(command, "RUN_NOT_ACTIVE"));
       continue;
     }
     next.commandWatermarks[command.sourceId] = command.sourceSequence;
     acceptedCommands.push(command);
   }
 
+  for (const rejected of rejectedCommands) emit(next, events, "command.rejected", { reason: rejected.reason, sourceId: rejected.command.sourceId });
+
+  const restart = acceptedCommands.find(command => command.type === "restart");
+  if (restart?.type === "restart") {
+    restartFromCheckpoint(next, config);
+    emit(next, events, "run.restarted", { checkpointIndex: next.player.checkpointIndex, x: next.player.position.x });
+  }
+
   if (next.lifecycle === "running") {
-    const axis = acceptedCommands.length > 0 ? acceptedCommands[0].payload.axis : 0;
-    next.player = integrateFoundationMovement(next.player, next.route, axis, config);
-    next.player.progress = Math.min(next.route.finishX, Math.max(0, next.player.position.x));
-    next.record.maxProgress = Math.max(next.record.maxProgress, next.player.progress);
-
-    const nextCheckpointX = next.route.checkpointXs[next.player.checkpointIndex];
-    if (nextCheckpointX !== undefined && next.player.position.x >= nextCheckpointX) {
-      const reachedIndex = next.player.checkpointIndex;
-      next.player.checkpointIndex += 1;
-      emitEvent(next, events, "checkpoint.reached", { checkpointIndex: reachedIndex, x: nextCheckpointX });
-    }
-
-    if (next.player.position.x >= next.route.finishX) {
-      next.lifecycle = "completed";
-      next.record.completedTick = next.tick + 1;
-      emitEvent(next, events, "run.completed", { progress: next.player.progress });
+    const move = acceptedCommands.find(command => command.type === "move") as MoveCommand | undefined;
+    const physics = stepPlayerKinematic(next.player, next.route, intentFrom(move), config, next.tick);
+    next.player = physics.player;
+    if (physics.jumpStarted) emit(next, events, "player.jumped", { x: next.player.position.x, y: next.player.position.y });
+    if (physics.slideStarted) emit(next, events, "player.slid", { x: next.player.position.x });
+    if (physics.vaultStarted) emit(next, events, "player.vaulted", { obstacleId: next.player.vault?.obstacleId ?? null });
+    if (physics.landed) emit(next, events, "player.landed", { y: next.player.position.y, compressedTicks: next.player.landingCompressionTicksRemaining });
+    if (physics.stumbleStarted) emit(next, events, "player.stumbled", { recoveryTicks: next.player.stumbleTicksRemaining });
+    if (physics.failed) {
+      next.lifecycle = "failed";
+      next.player.movementState = "dead";
+      emit(next, events, "run.failed", { reason: "kill-plane", x: next.player.position.x, y: next.player.position.y });
+    } else {
+      updateProgress(next, events);
     }
   }
 
   next.tick += 1;
-  assertStateInvariants(next);
-  return {
-    state: next,
-    events,
-    acceptedCommands,
-    rejectedCommands,
-    checksum: checksumState(next),
-  };
+  assertStateInvariants(next, config.maxCommandSources);
+  return { state: next, events, acceptedCommands, rejectedCommands, checksum: checksumState(next) };
 }

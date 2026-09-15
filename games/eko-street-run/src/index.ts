@@ -6,6 +6,7 @@ export * from "./runtime/prng";
 export * from "./runtime/checksum";
 export * from "./runtime/commands";
 export * from "./runtime/simulation";
+export * from "./physics/geometry";
 export * from "./physics/kinematic";
 export * from "./rules/route";
 export * from "./presentation/snapshot";
