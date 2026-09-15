@@ -88,5 +88,6 @@ export interface CharacterPresentation {
   readonly outfit: CharacterOutfitDefinition;
   readonly frame: CharacterAnimationFrame;
   readonly pose: CharacterPose;
+  readonly facing: -1 | 1;
   readonly reducedMotion: boolean;
 }

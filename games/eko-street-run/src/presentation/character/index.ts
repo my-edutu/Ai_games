@@ -36,6 +36,7 @@ export function createCharacterPresentation(
     outfit,
     frame,
     pose: readonlyPose(pose),
+    facing: snapshot.player.facing,
     reducedMotion: options.reducedMotion === true,
   } satisfies CharacterPresentation;
   return Object.freeze(result);
