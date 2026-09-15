@@ -6,7 +6,8 @@ const fs = require('node:fs');
 const path = require('node:path');
 
 const STATIC_ROOT = path.resolve(__dirname, '../public/complete-runtime');
-const COMPILED_RUNTIME = path.resolve(__dirname, '../../../dist/games/marble-survival/src/index.js');
+const COMPILED_RUNTIME = path.resolve(__dirname, '../../../dist/games/marble-survival-tournament/src/index.js');
+const THREE_MODULE = path.resolve(__dirname, '../../../node_modules/three/build/three.module.min.js');
 const SECURITY_HEADERS = Object.freeze({
   'content-security-policy': "default-src 'self'; connect-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; media-src 'none'; object-src 'none'; base-uri 'none'; frame-ancestors 'self'",
   'cross-origin-opener-policy': 'same-origin',
@@ -31,7 +32,7 @@ function loadAuthorityModule() {
     return require(COMPILED_RUNTIME);
   } catch (error) {
     if (error && error.code === 'MODULE_NOT_FOUND') {
-      const wrapped = new Error('Game 7 compiled authority is missing. Run `npm run build` before starting the browser source.');
+      const wrapped = new Error('Marble Survival compiled authority is missing. Run `npm run build` before starting the browser source.');
       wrapped.cause = error;
       throw wrapped;
     }
@@ -49,9 +50,29 @@ function json(response, status, payload, extraHeaders = {}) {
   response.end(JSON.stringify(payload));
 }
 
-function text(response, status, payload, contentType = 'text/plain; charset=utf-8') {
-  response.writeHead(status, { ...SECURITY_HEADERS, 'cache-control': 'no-store', 'content-type': contentType });
+function text(response, status, payload, contentType = 'text/plain; charset=utf-8', extraHeaders = {}) {
+  response.writeHead(status, {
+    ...SECURITY_HEADERS,
+    ...extraHeaders,
+    'cache-control': 'no-store',
+    'content-type': contentType,
+  });
   response.end(payload);
+}
+
+function sendFile(response, filePath, contentType, cacheControl = 'public, max-age=300') {
+  let data;
+  try {
+    data = fs.readFileSync(filePath);
+  } catch {
+    return json(response, 404, { error: 'not-found' });
+  }
+  response.writeHead(200, {
+    ...SECURITY_HEADERS,
+    'cache-control': cacheControl,
+    'content-type': contentType,
+  });
+  response.end(data);
 }
 
 async function readJson(request, limit = 16 * 1024) {
@@ -307,14 +328,12 @@ function createServer(options = {}) {
       }
       if (request.method !== 'GET') return json(response, 405, { error: 'method-not-allowed' });
 
+      if (url.pathname === '/vendor/three.module.min.js') {
+        return sendFile(response, THREE_MODULE, 'text/javascript; charset=utf-8', 'public, max-age=31536000, immutable');
+      }
+
       const filePath = safeStaticPath(url.pathname);
       if (!filePath) return json(response, 404, { error: 'not-found' });
-      let data;
-      try {
-        data = fs.readFileSync(filePath);
-      } catch {
-        return json(response, 404, { error: 'not-found' });
-      }
       const extension = path.extname(filePath);
       const contentTypes = {
         '.html': 'text/html; charset=utf-8',
@@ -322,14 +341,14 @@ function createServer(options = {}) {
         '.js': 'text/javascript; charset=utf-8',
         '.svg': 'image/svg+xml',
       };
-      response.writeHead(200, {
-        ...SECURITY_HEADERS,
-        'cache-control': extension === '.html' ? 'no-store' : 'public, max-age=300',
-        'content-type': contentTypes[extension] || 'application/octet-stream',
-      });
-      response.end(data);
+      return sendFile(
+        response,
+        filePath,
+        contentTypes[extension] || 'application/octet-stream',
+        extension === '.html' ? 'no-store' : 'public, max-age=300',
+      );
     } catch (error) {
-      json(response, error.status || 500, { error: error.status ? error.message : 'internal-error' });
+      return json(response, error.status || 500, { error: error.status ? error.message : 'internal-error' });
     }
   };
 
@@ -356,7 +375,12 @@ async function selfTest() {
   const base = `http://127.0.0.1:${address.port}`;
   try {
     const index = await fetch(`${base}/`);
-    if (!index.ok || !(await index.text()).includes('Marble Survival Tournament')) throw new Error('index smoke failed');
+    const indexText = await index.text();
+    if (!index.ok || !indexText.includes('Marble Survival Tournament') || !indexText.includes('arena-webgl')) throw new Error('index/3d surface smoke failed');
+
+    const threeResponse = await fetch(`${base}/vendor/three.module.min.js`);
+    const threeText = await threeResponse.text();
+    if (!threeResponse.ok || !threeText.includes('WebGLRenderer')) throw new Error('self-hosted Three.js module failed');
 
     const snapshotResponse = await fetch(`${base}/api/snapshot`);
     const snapshotText = await snapshotResponse.text();
@@ -391,7 +415,7 @@ async function selfTest() {
   } finally {
     await new Promise((resolve) => server.close(resolve));
   }
-  process.stdout.write('Game 7 authoritative browser runtime self-test passed.\n');
+  process.stdout.write('Marble Survival authoritative 3D browser runtime self-test passed.\n');
 }
 
 if (require.main === module) {
@@ -404,7 +428,7 @@ if (require.main === module) {
     const port = Number(process.env.PORT || 4317);
     const { server } = createServer();
     server.listen(port, '0.0.0.0', () => {
-      process.stdout.write(`Game 7 authoritative browser source listening on http://0.0.0.0:${port}\n`);
+      process.stdout.write(`Marble Survival authoritative browser source listening on http://0.0.0.0:${port}\n`);
     });
   }
 }
