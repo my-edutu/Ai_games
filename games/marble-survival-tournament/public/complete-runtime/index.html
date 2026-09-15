@@ -3,17 +3,18 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#171714">
+  <meta name="theme-color" content="#07090d">
   <title>Marble Survival Tournament</title>
   <link rel="stylesheet" href="/styles.css">
   <link rel="stylesheet" href="/ux-v2.css">
+  <link rel="stylesheet" href="/arena3d.css">
 </head>
 <body>
   <a class="skip-link" href="#arena">Skip to arena</a>
-  <main class="broadcast-shell" data-clean="false" data-quality="balanced" data-ux-revision="3">
+  <main class="broadcast-shell" data-clean="false" data-quality="balanced" data-ux-revision="4">
     <header class="topbar" aria-label="Tournament status">
       <div class="brand-lockup">
-        <span class="eyebrow">Game 7 · Live deterministic tournament</span>
+        <span class="eyebrow">Autonomous physics tournament</span>
         <h1>Marble Survival Tournament</h1>
       </div>
       <div class="status-cluster">
@@ -56,8 +57,10 @@
     </section>
 
     <section class="stage-grid">
-      <section id="arena" class="arena-card" aria-label="Live marble arena">
-        <canvas id="arena-canvas" width="1600" height="900" aria-label="Live authoritative marble tournament arena"></canvas>
+      <section id="arena" class="arena-card" aria-label="Live three-dimensional marble survival arena">
+        <canvas id="arena-canvas" width="1600" height="900" aria-label="Fallback authoritative marble tournament arena"></canvas>
+        <canvas id="arena-webgl" width="1600" height="900" aria-label="Three-dimensional Marble Survival Tournament arena"></canvas>
+        <span class="three-fallback-badge" aria-hidden="true">2D safety feed</span>
         <div class="arena-topline" aria-hidden="true">
           <span id="camera-value">Overview</span>
           <span id="feed-value">AUTHORITY LIVE</span>
@@ -78,33 +81,35 @@
           <span class="live-dot">LIVE</span>
         </div>
         <ol id="leaderboard" class="leaderboard"></ol>
-        <div class="identity-note">Numbers and surface patterns remain visible in every quality preset.</div>
+        <div class="identity-note">Patterns and numbers keep competitors recognizable without relying on color alone.</div>
       </aside>
-    </section>
 
-    <section class="lower-grid">
-      <section class="event-panel" aria-labelledby="event-title">
-        <div class="panel-heading">
-          <div>
-            <span class="panel-label">Race control</span>
-            <h2 id="event-title">Official events</h2>
+      <section class="lower-grid" aria-label="Race context">
+        <section class="event-panel" aria-labelledby="event-title">
+          <div class="panel-heading">
+            <div>
+              <span class="panel-label">Race control</span>
+              <h2 id="event-title">Official events</h2>
+            </div>
           </div>
-        </div>
-        <ul id="event-list" class="event-list" aria-live="polite"></ul>
-      </section>
+          <ul id="event-list" class="event-list" aria-live="polite"></ul>
+        </section>
 
-      <section class="influence-panel" aria-labelledby="influence-title">
-        <span class="panel-label">Audience influence</span>
-        <h2 id="influence-title">Deterministic voting</h2>
-        <p id="influence-status" role="status">Checking authority support…</p>
+        <section class="influence-panel" aria-labelledby="influence-title">
+          <span class="panel-label">Audience influence</span>
+          <h2 id="influence-title">Integrity first</h2>
+          <p id="influence-status" role="status">Checking authority support…</p>
+        </section>
       </section>
     </section>
 
     <footer>
-      <span>Fixed-step authority · presentation-only quality presets · replay-safe results</span>
+      <span>Fixed-step authority · Three.js presentation · replay-safe results</span>
       <span id="system-health">Health pending</span>
     </footer>
   </main>
+  <noscript>This broadcast requires JavaScript. Tournament authority continues independently of presentation.</noscript>
   <script src="/app.js" defer></script>
+  <script type="module" src="/arena3d.js"></script>
 </body>
 </html>
