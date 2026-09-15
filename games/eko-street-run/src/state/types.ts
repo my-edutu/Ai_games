@@ -197,7 +197,10 @@ export interface GenerationValidation {
 }
 
 export interface GeneratedDistrictContent {
+  generatorVersion: number;
+  districtIndex: number;
   districtId: DistrictId;
+  cycle: number;
   route: RouteState;
   hazards: HazardContract[];
   tokens: GeneratedToken[];
