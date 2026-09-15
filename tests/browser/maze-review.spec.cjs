@@ -24,10 +24,13 @@ test('2.5d renderer keeps the playable world locally framed and inspectable', as
   await page.waitForFunction(() => window.__MAZE_RENDER_STATS__ && window.__MAZE_PUBLIC_STATE__);
   const value = await page.evaluate(() => ({ stats: window.__MAZE_RENDER_STATS__, state: window.__MAZE_PUBLIC_STATE__ }));
   expect(value.stats.mode).toBe('webgl2');
+  expect(value.stats.cameraDistance).toBeGreaterThanOrEqual(5.9);
   expect(value.stats.cameraDistance).toBeLessThanOrEqual(6.5);
   expect(value.stats.cells).toBeLessThanOrEqual(35);
   expect(value.stats.currentCellVisible).toBe(true);
   expect(value.stats.theme).toBe('lost-facility-ruins');
+  expect(value.stats.cutawayMode).toBe('camera-facing');
+  expect(value.stats.focusLight).toBe(true);
 });
 
 test('slow state responses never create overlapping browser-source polls', async ({ page }) => {
