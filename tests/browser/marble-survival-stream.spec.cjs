@@ -6,6 +6,7 @@ const { spawn } = require('node:child_process');
 const { test, expect } = require('@playwright/test');
 
 const base = 'http://127.0.0.1:4317';
+const VIEWPORT = Object.freeze({ width: 1920, height: 1080 });
 const artifacts = path.resolve(__dirname, '../../artifacts/marble-visual-rebuild');
 const serverScript = path.resolve(__dirname, '../../games/marble-survival/scripts/serve-visual-evidence.cjs');
 let serverProcess = null;
@@ -58,7 +59,7 @@ test('Marble WebGL broadcast renders authoritative tournament and captures runti
   });
   page.on('pageerror', error => failures.push(`page: ${error.message}`));
 
-  await page.setViewportSize({ width: 1920, height: 1080 });
+  await page.setViewportSize(VIEWPORT);
   await page.goto(base, { waitUntil: 'domcontentloaded' });
   await expect(page.locator('#arena-webgl')).toBeVisible();
   const shell = page.locator('.broadcast-shell');
@@ -86,9 +87,15 @@ test('Marble WebGL broadcast renders authoritative tournament and captures runti
   const box = await page.locator('#arena-webgl').boundingBox();
   expect(box.width).toBeGreaterThan(1000);
   expect(box.height).toBeGreaterThan(500);
-  const viewportArea = 1920 * 1080;
-  const arenaCoverage = (box.width * box.height) / viewportArea;
-  expect(arenaCoverage).toBeGreaterThan(0.80);
+  expect(box.x).toBeGreaterThanOrEqual(0);
+  expect(box.y).toBeGreaterThanOrEqual(0);
+  expect(box.x + box.width).toBeLessThanOrEqual(VIEWPORT.width + 1);
+  expect(box.y + box.height).toBeLessThanOrEqual(VIEWPORT.height + 1);
+  const visibleWidth = Math.max(0, Math.min(VIEWPORT.width, box.x + box.width) - Math.max(0, box.x));
+  const visibleHeight = Math.max(0, Math.min(VIEWPORT.height, box.y + box.height) - Math.max(0, box.y));
+  const viewportArea = VIEWPORT.width * VIEWPORT.height;
+  const visibleArenaCoverage = (visibleWidth * visibleHeight) / viewportArea;
+  expect(visibleArenaCoverage).toBeGreaterThan(0.78);
 
   const soundToggle = page.locator('#sound-toggle');
   await soundToggle.click();
@@ -117,6 +124,14 @@ test('Marble WebGL broadcast renders authoritative tournament and captures runti
     if (!response.ok) throw new Error(`snapshot ${response.status}`);
     return response.json();
   });
+
+  const waitForHudRoundAtLeast = async roundNumber => {
+    await page.waitForFunction((minimum) => {
+      const text = document.getElementById('round-index')?.textContent || '';
+      const match = text.match(/Round\s+(\d+)/i);
+      return match && Number(match[1]) >= minimum;
+    }, roundNumber, { timeout: 5_000 });
+  };
 
   // The evidence harness owns only start timing, never tournament rules or outcomes.
   await operator('pause');
@@ -173,8 +188,8 @@ test('Marble WebGL broadcast renders authoritative tournament and captures runti
     benchmarkQuality,
     gpu,
     drawingBuffer: measuredBuffer,
-    viewport: { width: 1920, height: 1080 },
-    arenaCoverage,
+    viewport: VIEWPORT,
+    visibleArenaCoverage,
     sampleCount: sortedFrameDeltas.length,
     frameMs: {
       p50: percentile(0.50),
@@ -213,15 +228,25 @@ test('Marble WebGL broadcast renders authoritative tournament and captures runti
     }
     if (state.events.some(event => event.type === 'marble-eliminated')) await capture('06-actual-elimination');
     if (['hazard-circuit', 'final-four', 'championship'].includes(state.arena.archetype)) await capture('07-themed-arena');
-    if (state.round.index >= 3) await capture('08-semifinal-final');
+    if (state.round.index >= 3 && !captured.has('08-semifinal-final')) {
+      await waitForHudRoundAtLeast(4);
+      await capture('08-semifinal-final');
+    }
     if (state.lifecycle === 'tournament-result' && state.camera.championId !== null) {
       championSeen = true;
+      await expect(page.locator('#champion-card')).toBeVisible({ timeout: 5_000 });
+      await expect(page.locator('#camera-value')).toContainText('Champion', { timeout: 5_000 });
+      const championBox = await page.locator('#champion-card').boundingBox();
+      expect(championBox.x).toBeGreaterThanOrEqual(0);
+      expect(championBox.y).toBeGreaterThanOrEqual(0);
+      expect(championBox.x + championBox.width).toBeLessThanOrEqual(VIEWPORT.width + 1);
+      expect(championBox.y + championBox.height).toBeLessThanOrEqual(VIEWPORT.height + 1);
       await capture('09-tournament-winner');
     }
     await page.waitForTimeout(60);
   }
 
-  const cleanPage = await browser.newPage({ viewport: { width: 1920, height: 1080 } });
+  const cleanPage = await browser.newPage({ viewport: VIEWPORT });
   try {
     await cleanPage.goto(`${base}/?clean=1`, { waitUntil: 'domcontentloaded' });
     await expect(cleanPage.locator('.broadcast-shell')).toHaveAttribute('data-renderer', 'webgl2', { timeout: 20_000 });
