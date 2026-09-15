@@ -56,7 +56,14 @@
     "tower:stream": "npm run build && node scripts/serve-tower-stream.cjs",
     "tower:stream:self-test": "npm run build && node scripts/serve-tower-stream.cjs --self-test",
     "tower:phase5:chaos": "npm run build && node scripts/run-tower-phase5-chaos.cjs",
-    "tower:phase6:validate": "npm run build && node scripts/run-tower-phase6-validation.cjs"
+    "tower:phase6:validate": "npm run build && node scripts/run-tower-phase6-validation.cjs",
+    "marble:test": "npm run build && node --test games/marble-survival-tournament/tests/complete/*.test.cjs",
+    "marble:stream": "npm run build && node games/marble-survival-tournament/scripts/serve-complete-runtime.cjs",
+    "marble:stream:self-test": "npm run build && node games/marble-survival-tournament/scripts/serve-complete-runtime.cjs --self-test",
+    "marble:verify": "npm run build && node games/marble-survival-tournament/scripts/verify-visual-rebuild.cjs"
+  },
+  "dependencies": {
+    "three": "0.186.0"
   },
   "devDependencies": {
     "@playwright/test": "1.55.0",
