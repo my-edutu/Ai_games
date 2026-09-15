@@ -1,9 +1,20 @@
 'use strict';
 (function(){
-  const Renderer=window.EscapeRoom3D;if(!Renderer)return;
-  const shadow=[.008,.009,.01],dust=[.20,.24,.23],amber=[.78,.49,.14],red=[.40,.035,.025];
-  const baseRoom=Renderer.prototype.drawRoom,baseObjects=Renderer.prototype.drawObjects,baseDiagnostics=Renderer.prototype.publishDiagnostics;
-  Renderer.prototype.drawRoom=function(viewProj,time){baseRoom.call(this,viewProj,time);for(let i=0;i<18;i++){const phase=time*.00006+i*2.17,x=Math.sin(phase*1.7+i)*5.0,y=.35+((i*.37+phase)%1)*3.9,z=-5.4+((i*.73)%1)*7.1;this.drawCube(x,y,z,.008,.008,.008,dust,0,.08,viewProj)}const pressure=this.state?.timer?.danger||this.state?.scene==='danger';if(pressure){const pulse=.08+Math.sin(time*.012)*.05;this.drawCube(-5.45,2.55,-1.8,.035,2.0,3.6,red,0,pulse,viewProj);this.drawCube(5.45,2.55,-1.8,.035,2.0,3.6,red,0,pulse,viewProj)}else{this.drawCube(0,4.72,-2.2,1.4,.025,.18,amber,0,.12,viewProj)}};
-  Renderer.prototype.drawObjects=function(viewProj,time){if(this.state){for(const object of this.state.objects){if(object.carried)continue;const p=this.objectWorld.get(object.id);if(!p)continue;const wide=(object.kind==='vault'||object.kind==='exit')?0.6:0.26,depth=object.kind==='tool'?0.34:0.22;this.drawCube(p[0],.012,p[2],wide,.006,depth,shadow,0,0,viewProj)}}baseObjects.call(this,viewProj,time)};
-  Renderer.prototype.publishDiagnostics=function(){baseDiagnostics.call(this);const now=performance.now();this.__diagLast??=now;this.__diagFps??=60;const delta=now-this.__diagLast;if(delta>0)this.__diagFps=this.__diagFps*.9+(1000/delta)*.1;this.__diagLast=now;const d=window.__ESCAPE_RENDER_DIAGNOSTICS__||{};d.fps=Math.round(Math.min(240,this.__diagFps));d.activeLights=1;d.practicalEmissiveSources=6;d.shadowMode='contact-proxy';d.particleCount=18;d.rendererMemoryModel='one shared cube buffer + state-derived transforms';d.materialFamilies=7;window.__ESCAPE_RENDER_DIAGNOSTICS__=d};
+  window.EscapeRoomPolish=Object.freeze({
+    rendererId:'three-physical-room-v2',
+    quality:{
+      high:{pixelRatio:1.25,shadows:true,particles:54},
+      medium:{pixelRatio:1.0,shadows:false,particles:36},
+      low:{pixelRatio:.82,shadows:false,particles:18},
+      lowFpsThreshold:46,criticalFpsThreshold:34,recoverFpsThreshold:57,sampleFrames:72,
+    },
+    camera:{room:[0,3.65,8.9],look:[0,1.55,-2.1],fov:46,near:.08,far:42,inspectDistance:1.65},
+    budgets:{maxDynamicObjects:48,maxHazards:6,maxBursts:8,maxLights:6,maxDrawCalls:190,maxTriangles:150000},
+    themes:{
+      'cipher-vault':{background:0x071015,fog:0x091317,wall:0x172329,floor:0x101718,wood:0x3e2418,metal:0x35434a,accent:0xd5a74c,secondary:0x45bfd0,paper:0xd8cda8,danger:0xe05549},
+      'clockwork-study':{background:0x120c08,fog:0x1a1009,wall:0x35271d,floor:0x21160f,wood:0x5b321d,metal:0x6f5a39,accent:0xe2a844,secondary:0x8eb8a8,paper:0xe2d0a4,danger:0xd7513f},
+      'chromatic-lab':{background:0x071014,fog:0x0b151a,wall:0x243238,floor:0x111a1e,wood:0x2e3540,metal:0x60727b,accent:0xcf6cff,secondary:0x45e0e7,paper:0xe0edf0,danger:0xff5757},
+      'archive-zero':{background:0x090a0b,fog:0x111315,wall:0x25282a,floor:0x161817,wood:0x493523,metal:0x434849,accent:0xd9b56d,secondary:0x7ab7b3,paper:0xcbbf98,danger:0xd75a49},
+    },
+  });
 })();
