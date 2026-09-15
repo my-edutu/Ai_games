@@ -69,8 +69,8 @@ test('output health distinguishes stale, black, frozen and muted output',()=>{
 });
 
 test('browser source is self-hosted, accessible and avoids unsafe DOM injection',()=>{
- const root=path.resolve(__dirname,'../../public/ai-escape-room'),html=fs.readFileSync(path.join(root,'index.html'),'utf8'),css=fs.readFileSync(path.join(root,'styles.css'),'utf8'),js=fs.readFileSync(path.join(root,'app.js'),'utf8'),room=fs.readFileSync(path.join(root,'room3d.js'),'utf8'),bootstrap=fs.readFileSync(path.join(root,'bootstrap.js'),'utf8');
+ const root=path.resolve(__dirname,'../../public/ai-escape-room'),html=fs.readFileSync(path.join(root,'index.html'),'utf8'),css=fs.readFileSync(path.join(root,'styles.css'),'utf8'),js=fs.readFileSync(path.join(root,'app.js'),'utf8'),room=fs.readFileSync(path.join(root,'room3d.js'),'utf8'),polish=fs.readFileSync(path.join(root,'room3d-polish.js'),'utf8'),bootstrap=fs.readFileSync(path.join(root,'bootstrap.js'),'utf8');
  assert.match(html,/data-testid="escape-canvas"/);assert.match(html,/data-testid="objective"/);assert.match(html,/data-testid="ai-intent"/);assert.match(html,/data-testid="captions"/);assert.match(html,/data-testid="room-title-index"/);assert.match(html,/data-testid="room-title-name"/);
- assert.match(css,/prefers-reduced-motion/);assert.match(css,/data-high-contrast/);assert.match(css,/data-clean-feed/);assert.equal(/https?:\/\//.test(html+css+js+room+bootstrap),false);
- assert.equal(js.includes('innerHTML'),false);assert.match(js,/AbortController/);assert.match(js,/MAX_TRAIL\s*=\s*240/);assert.match(js,/setAttribute\(`data-/);assert.match(room,/three-physical-room-v2/);assert.match(room,/THREE\.WebGLRenderer/);assert.match(bootstrap,/three\.module\.min\.js/);
+ assert.match(css,/prefers-reduced-motion/);assert.match(css,/data-high-contrast/);assert.match(css,/data-clean-feed/);assert.equal(/https?:\/\//.test(html+css+js+room+polish+bootstrap),false);
+ assert.equal(js.includes('innerHTML'),false);assert.match(js,/AbortController/);assert.match(js,/MAX_TRAIL\s*=\s*240/);assert.match(js,/setAttribute\(`data-/);assert.match(room,/Polish\.rendererId/);assert.match(room,/THREE\.WebGLRenderer/);assert.match(polish,/rendererId:\s*['"]three-physical-room-v2['"]/);assert.match(bootstrap,/three\.module\.min\.js/);
 });
