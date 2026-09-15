@@ -1,6 +1,6 @@
 import { createDefaultConfig, type EkoRunConfig } from "../config/default-config";
 import { EVENT_SCHEMA_VERSION } from "../config/version";
-import { stepHazards } from "../hazards";
+import { getPhase5HazardContracts, stepHazards } from "../hazards";
 import { stepPlayerKinematic } from "../physics/kinematic";
 import { sampleSupportSurface } from "../physics/geometry";
 import { assertStateInvariants, cloneState } from "../state/create-state";
@@ -46,10 +46,25 @@ function checkpointSpawnX(state: EkoRunState): number {
   return state.route.checkpointXs[state.player.checkpointIndex - 1] ?? state.route.startX;
 }
 
+function resetRestartHazards(state: EkoRunState, spawnX: number): void {
+  if (!state.hazards) return;
+  const byId = new Map(getPhase5HazardContracts(state.rootSeed).map(contract => [contract.id, contract]));
+  for (const encounter of state.hazards.encounters) {
+    const contract = byId.get(encounter.id);
+    if (!contract) continue;
+    const maximumPossibleX = contract.baseX + (contract.motion ? Math.max(contract.motion.minOffsetX, contract.motion.maxOffsetX) : 0);
+    if (maximumPossibleX + 1e-9 < spawnX) continue;
+    encounter.phase = "unseen";
+    encounter.warningTick = null;
+    encounter.resolvedTick = null;
+  }
+}
+
 function restartFromCheckpoint(state: EkoRunState, config: EkoRunConfig): void {
   const x = checkpointSpawnX(state);
   const legalSupportCeiling = state.route.groundY + config.maxStepHeight;
   const support = sampleSupportSurface(state.route, x, config.playerHalfWidth, state.tick, config, legalSupportCeiling);
+  resetRestartHazards(state, x);
   state.player = {
     position: { x, y: support?.y ?? state.route.groundY },
     velocity: { x: 0, y: 0 },
