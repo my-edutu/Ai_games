@@ -115,6 +115,25 @@
   line-height: 1.35;
 }
 
+.broadcast-shell[data-layout="arena-first"] .champion-card {
+  top: auto;
+  bottom: 1rem;
+  width: min(430px, 68%);
+  padding: .9rem 1.15rem;
+  background: rgba(18, 17, 14, .88);
+  backdrop-filter: blur(14px);
+  pointer-events: none;
+}
+
+.broadcast-shell[data-layout="arena-first"] .champion-card strong {
+  margin: .18rem 0 .08rem;
+  font-size: clamp(1.55rem, 3.2vw, 2.65rem);
+}
+
+.stage-grid:has(.champion-card:not([hidden])) .broadcast-lower-overlay {
+  display: none;
+}
+
 .broadcast-shell[data-layout="arena-first"] footer {
   min-height: 22px;
   padding: .3rem .15rem 0;
@@ -182,12 +201,29 @@
   .broadcast-lower-overlay .event-list li:nth-child(n+3) {
     display: none;
   }
+
+  .broadcast-shell[data-layout="arena-first"] .champion-card {
+    bottom: .55rem;
+    width: min(84%, 360px);
+  }
+}
+
+@media (prefers-contrast: more) {
+  .leaderboard-panel.broadcast-overlay,
+  .broadcast-lower-overlay .event-panel,
+  .broadcast-lower-overlay .influence-panel,
+  .broadcast-shell[data-layout="arena-first"] .champion-card {
+    border-color: rgba(255, 255, 255, .62);
+    background: rgba(8, 8, 7, .94);
+    backdrop-filter: none;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .leaderboard-panel.broadcast-overlay,
   .broadcast-lower-overlay .event-panel,
-  .broadcast-lower-overlay .influence-panel {
+  .broadcast-lower-overlay .influence-panel,
+  .broadcast-shell[data-layout="arena-first"] .champion-card {
     backdrop-filter: none;
   }
 }
