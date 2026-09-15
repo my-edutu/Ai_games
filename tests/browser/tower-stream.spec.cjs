@@ -3,3 +3,20 @@ test('tower desktop broadcast is animated readable and privacy safe',async({page
 test('phone landscape retains game progress intent and captions',async({page})=>{await page.setViewportSize({width:844,height:390});await page.goto(`${base}/tower`,{waitUntil:'domcontentloaded'});await expect(page.locator('[data-testid="tower-canvas"]')).toBeVisible();await expect(page.locator('[data-testid="floor"]')).toBeVisible();await expect(page.locator('[data-testid="captions"]')).toBeVisible();const box=await page.locator('[data-testid="tower-canvas"]').boundingBox();expect(box.width).toBeGreaterThan(700);expect(box.height).toBeGreaterThan(250);await page.screenshot({path:path.join(artifacts,'phone-landscape.png'),fullPage:true})});
 test('reduced motion high contrast mute and clean feed preserve the game view',async({page})=>{await page.setViewportSize({width:1280,height:720});await page.goto(`${base}/tower?reducedMotion=1&highContrast=1&muted=1&cleanFeed=1`,{waitUntil:'domcontentloaded'});await expect(page.locator('body')).toHaveAttribute('data-reduced-motion','true');await expect(page.locator('body')).toHaveAttribute('data-high-contrast','true');await expect(page.locator('[data-testid="tower-canvas"]')).toBeVisible();await expect(page.locator('[data-testid="hud"]')).toBeHidden();await page.screenshot({path:path.join(artifacts,'clean-feed.png'),fullPage:true})});
 test('slow state responses never create overlapping polling requests',async({page})=>{let active=0,max=0;await page.route('**/tower/state**',async route=>{active++;max=Math.max(max,active);await new Promise(r=>setTimeout(r,180));await route.continue();active--});await page.goto(`${base}/tower`,{waitUntil:'domcontentloaded'});await page.waitForTimeout(900);expect(max).toBe(1)});
+
+test('visual rebuild captures representative authoritative gameplay states',async({page})=>{
+  test.setTimeout(90000);await page.setViewportSize({width:1600,height:900});
+  const cases=[
+    ['normal','normal-climbing.png',s=>s.floor===0],
+    ['large','large-vertical-environment.png',s=>s.floor===25],
+    ['hazard','hazard-encounter.png',s=>s.dangerPermille>=800],
+    ['guardian','guardian-encounter.png',s=>s.enemies.some(e=>e.active&&e.kind==='guardian')],
+    ['jump','dramatic-jump-fall.png',s=>Math.abs(s.player.vy)>=9000],
+    ['theme','different-environment-theme.png',s=>s.theme==='void'],
+    ['milestone','milestone-checkpoint.png',s=>s.floor===10]
+  ];
+  for(const[scenario,name,predicate]of cases){
+    await page.unrouteAll({behavior:'ignoreErrors'});await page.route('**/tower/state**',route=>{const u=new URL(route.request().url());u.searchParams.set('scenario',scenario);return route.continue({url:u.toString()})});
+    await page.goto(`${base}/tower?cleanFeed=1&muted=1`,{waitUntil:'domcontentloaded'});await page.waitForFunction(()=>window.__TOWER_PUBLIC_STATE__&&window.__TOWER_PUBLIC_STATE__.tick>=0);const state=await page.evaluate(()=>window.__TOWER_PUBLIC_STATE__);expect(predicate(state),`${scenario} evidence predicate`).toBeTruthy();await page.waitForTimeout(180);await page.screenshot({path:path.join(artifacts,name),fullPage:true});
+  }
+});
