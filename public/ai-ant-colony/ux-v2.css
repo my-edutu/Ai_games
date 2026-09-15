@@ -5,4 +5,54 @@
 #broadcast[data-ux-revision="2"] .progress-track span{background:linear-gradient(90deg,var(--color-progress),var(--colony-gold))}
 #broadcast[data-ux-revision="2"] .threat-track span{background:linear-gradient(90deg,var(--color-warning),var(--color-danger))}
 #broadcast[data-ux-revision="2"] #operator-panel button:focus-visible,#broadcast[data-ux-revision="2"] #operator-panel input:focus-visible{outline:3px solid var(--color-focus);outline-offset:3px}
-@media(prefers-reduced-motion:reduce){#broadcast[data-ux-revision="2"] *,#broadcast[data-ux-revision="2"] *::before,#broadcast[data-ux-revision="2"] *::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+
+/* Eko 22-skill visual review polish: preserve world dominance, add cinematic depth, reduce dashboard weight. */
+#cinematic-canvas{position:absolute;inset:0;width:100%;height:100%;display:block;z-index:2;pointer-events:none}
+#terrain-canvas{z-index:1}
+#entity-canvas{z-index:3}
+#effects-canvas{z-index:4}
+#depth-vignette{z-index:5;box-shadow:inset 0 0 185px rgba(0,0,0,.3),inset 0 -85px 120px rgba(3,2,2,.15);background:radial-gradient(circle at 50% 44%,transparent 0,transparent 42%,rgba(2,3,2,.08) 70%,rgba(2,3,2,.2) 100%),linear-gradient(180deg,rgba(255,239,193,.025),transparent 20%,transparent 62%,rgba(0,0,0,.15))}
+#compact-hud{width:min(332px,27vw);background:linear-gradient(145deg,rgba(9,11,8,.72),rgba(7,9,6,.42));border-color:rgba(240,223,165,.1);box-shadow:0 16px 42px rgba(0,0,0,.28)}
+.metric-strip{gap:0;border-top:1px solid rgba(255,255,255,.055);border-bottom:1px solid rgba(255,255,255,.055)}
+.metric-strip article{border:0;border-radius:0;background:transparent;padding:5px 7px}
+.metric-strip article+article{border-left:1px solid rgba(255,255,255,.055)}
+.threat-panel{padding-top:1px}
+#headline-card strong{font-weight:760;text-wrap:balance}
+#weather-pill,#scene-pill{background:rgba(7,9,6,.42);border-color:rgba(255,255,255,.09)}
+#caption-bar{background:linear-gradient(90deg,rgba(7,9,6,.72),rgba(7,9,6,.55));border-color:rgba(255,255,255,.085)}
+.scene-crisis #depth-vignette{background:radial-gradient(circle at 50% 48%,transparent 0,transparent 38%,rgba(92,25,18,.09) 72%,rgba(24,5,4,.26) 100%),linear-gradient(180deg,rgba(112,40,29,.06),transparent 30%,rgba(0,0,0,.16))}
+
+@media(max-width:900px){
+  #compact-hud{width:min(286px,39vw)}
+  #headline-card{width:43vw}
+}
+@media(max-width:660px),(max-height:430px){
+  #compact-hud{left:7px;top:7px;width:min(222px,36vw);padding:7px 8px;gap:4px;border-radius:12px;backdrop-filter:blur(10px)}
+  #compact-hud .brand-lockup{display:none}
+  #compact-hud .goal-panel{display:grid!important;grid-template-columns:1fr;gap:3px}
+  #compact-hud .goal-panel .panel-heading{display:none}
+  #compact-hud .goal-panel h2{display:block;margin:0;font-size:10px;line-height:1.12;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  #compact-hud .progress-track{display:block;height:3px}
+  #compact-hud .goal-row{display:flex;font-size:6px}
+  #compact-hud .goal-row strong{font-size:7px}
+  #compact-hud .goal-row #progress-band{font-size:6px}
+  #compact-hud .metric-strip{display:none}
+  #compact-hud .threat-panel{display:none!important}
+  #compact-hud .hud-footer{font-size:6px;gap:6px}
+  #headline-card{left:auto;right:8px;top:8px;transform:none;width:45vw;text-align:right}
+  #headline-card span{display:none}
+  #headline-card strong{font-size:clamp(11px,2.4vw,15px);line-height:1.05}
+  #world-topbar{top:40px;right:8px;left:auto}
+  #weather-pill{padding:5px 7px}
+  #scene-pill{display:none}
+  #caption-bar{left:8px;right:8px;bottom:7px;transform:none;width:auto;min-height:30px;padding:6px 10px}
+  #caption{font-size:10px}
+  .caption-label{display:none}
+}
+@media(max-width:480px){
+  #compact-hud{width:42vw}
+  #headline-card{width:48vw}
+}
+@media(prefers-reduced-motion:reduce){
+  #broadcast[data-ux-revision="2"] *,#broadcast[data-ux-revision="2"] *::before,#broadcast[data-ux-revision="2"] *::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+}
