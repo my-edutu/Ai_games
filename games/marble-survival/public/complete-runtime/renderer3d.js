@@ -18,6 +18,12 @@
   const WORLD_SCALE = 1 / 1000;
   const MARBLE_RADIUS = 0.28;
   const POLL_INTERVAL_MS = 100;
+  const QUALITY_BUFFER_SCALE = Object.freeze({
+    low: 0.58,
+    balanced: 0.72,
+    high: 0.90,
+    ultra: 1.0,
+  });
   const PALETTE = Object.freeze({
     aurora: [0.34, 0.72, 0.58], coral: [0.86, 0.31, 0.22], cyan: [0.18, 0.68, 0.82], gold: [0.86, 0.64, 0.18],
     lime: [0.52, 0.72, 0.18], magenta: [0.76, 0.24, 0.58], orchid: [0.54, 0.35, 0.72], ruby: [0.76, 0.12, 0.16],
@@ -278,25 +284,29 @@
     return [vector[0] / length, vector[1] / length, vector[2] / length];
   }
 
-  function cross3(a, b) {
-    return [a[1]*b[2]-a[2]*b[1], a[2]*b[0]-a[0]*b[2], a[0]*b[1]-a[1]*b[0]];
+  function subtract3(left, right) {
+    return [left[0] - right[0], left[1] - right[1], left[2] - right[2]];
   }
 
-  function subtract3(a, b) {
-    return [a[0]-b[0], a[1]-b[1], a[2]-b[2]];
+  function cross3(left, right) {
+    return [
+      left[1] * right[2] - left[2] * right[1],
+      left[2] * right[0] - left[0] * right[2],
+      left[0] * right[1] - left[1] * right[0],
+    ];
   }
 
-  function lookAt4(eye, target, up = [0,1,0]) {
-    const z = normalize3(subtract3(eye, target));
-    const x = normalize3(cross3(up, z));
-    const y = cross3(z, x);
+  function lookAt4(eye, target) {
+    const forward = normalize3(subtract3(target, eye));
+    const right = normalize3(cross3(forward, [0,1,0]));
+    const up = cross3(right, forward);
     return new Float32Array([
-      x[0], y[0], z[0], 0,
-      x[1], y[1], z[1], 0,
-      x[2], y[2], z[2], 0,
-      -(x[0]*eye[0] + x[1]*eye[1] + x[2]*eye[2]),
-      -(y[0]*eye[0] + y[1]*eye[1] + y[2]*eye[2]),
-      -(z[0]*eye[0] + z[1]*eye[1] + z[2]*eye[2]),
+      right[0], up[0], -forward[0], 0,
+      right[1], up[1], -forward[1], 0,
+      right[2], up[2], -forward[2], 0,
+      -right[0] * eye[0] - right[1] * eye[1] - right[2] * eye[2],
+      -up[0] * eye[0] - up[1] * eye[1] - up[2] * eye[2],
+      forward[0] * eye[0] + forward[1] * eye[1] + forward[2] * eye[2],
       1,
     ]);
   }
@@ -400,13 +410,15 @@
     if (rect.width <= 1 || rect.height <= 1) return false;
     const quality = document.getElementById('quality-select')?.value || 'balanced';
     const maxDpr = quality === 'low' ? 1 : quality === 'balanced' ? 1.35 : quality === 'high' ? 1.75 : 2;
-    const dpr = Math.min(window.devicePixelRatio || 1, maxDpr);
+    const renderScale = QUALITY_BUFFER_SCALE[quality] ?? QUALITY_BUFFER_SCALE.balanced;
+    const dpr = Math.min(window.devicePixelRatio || 1, maxDpr) * renderScale;
     const width = Math.max(1, Math.round(rect.width * dpr));
     const height = Math.max(1, Math.round(rect.height * dpr));
     if (canvas.width !== width || canvas.height !== height) {
       canvas.width = width;
       canvas.height = height;
     }
+    shell.dataset.renderScale = String(renderScale);
     gl.viewport(0, 0, width, height);
     return true;
   }
