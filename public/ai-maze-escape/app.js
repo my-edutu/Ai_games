@@ -3,6 +3,7 @@
 const MAX_TRAIL=240;
 const POLL_DELAY_MS=180;
 const POLL_TIMEOUT_MS=2500;
+const LOCAL_RENDER_RADIUS=3;
 const canvas=document.getElementById('maze');
 const gl=canvas.getContext('webgl2',{alpha:false,antialias:true,depth:true,stencil:false,premultipliedAlpha:false,preserveDrawingBuffer:true,powerPreference:'high-performance'});
 const elements={
@@ -48,10 +49,10 @@ function mixColor(a,b,t){return[a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t,a[2]+(b[2]
 function hex(value){const v=value.replace('#','');return[parseInt(v.slice(0,2),16)/255,parseInt(v.slice(2,4),16)/255,parseInt(v.slice(4,6),16)/255,1]}
 
 const PALETTE={
-  floor:hex('#18201f'),stone:hex('#3c4038'),stoneDark:hex('#252925'),metal:hex('#39464a'),metalDark:hex('#20292c'),
-  moss:hex('#33443a'),rust:hex('#5b3e31'),lab:hex('#34434b'),torch:hex('#f0a650'),emergency:hex('#d95855'),
-  explorer:hex('#75f0c4'),explorerDark:hex('#163f36'),key:hex('#ffc866'),trap:hex('#e75c70'),exit:hex('#79ffd0'),
-  cyan:hex('#65d5f4'),fog:hex('#07100f'),black:hex('#020504'),route:hex('#dcae62'),threat:hex('#d34755'),
+  floor:hex('#1f2a27'),stone:hex('#4c5046'),stoneDark:hex('#2c332e'),metal:hex('#46575b'),metalDark:hex('#263236'),
+  moss:hex('#3f5647'),rust:hex('#704a39'),lab:hex('#3d535c'),torch:hex('#f2ad58'),emergency:hex('#d95855'),
+  explorer:hex('#85ffd2'),explorerDark:hex('#174b3e'),key:hex('#ffd477'),trap:hex('#ef6477'),exit:hex('#8affda'),
+  cyan:hex('#75def7'),fog:hex('#091613'),black:hex('#020504'),route:hex('#e5bd72'),threat:hex('#dc4e61'),foundation:hex('#111815'),
 };
 
 function presentationSeed(snapshot,cell=0,salt=0){
@@ -98,6 +99,10 @@ function inView(snapshot,cell,view){
   return col>=view.startCol&&col<view.startCol+view.widthCells&&row>=view.startRow&&row<view.startRow+view.heightCells;
 }
 function cellWorld(snapshot,cell){return{x:cell%snapshot.width,z:Math.floor(cell/snapshot.width)}}
+function cellGridDistance(snapshot,a,b){
+  const ac=a%snapshot.width,ar=Math.floor(a/snapshot.width),bc=b%snapshot.width,br=Math.floor(b/snapshot.width);
+  return Math.abs(ac-bc)+Math.abs(ar-br);
+}
 
 function mat4Perspective(fov,aspect,near,far){
   const f=1/Math.tan(fov/2),nf=1/(near-far);
@@ -133,13 +138,13 @@ function createProgram(){
   in vec3 aPosition;in vec3 aNormal;in vec4 aColor;
   uniform mat4 uViewProjection;uniform vec3 uCamera;uniform vec3 uExplorerLight;
   out vec3 vWorld;out vec3 vNormal;out vec4 vColor;out float vLight;
-  void main(){vWorld=aPosition;vNormal=aNormal;vColor=aColor;vec3 lightDir=normalize(vec3(-.35,.9,.45));float sun=max(dot(normalize(aNormal),lightDir),0.0);float local=1.8/(1.0+dot(aPosition-uExplorerLight,aPosition-uExplorerLight)*.16);vLight=.20+sun*.48+local*.42;gl_Position=uViewProjection*vec4(aPosition,1.0);}`;
+  void main(){vWorld=aPosition;vNormal=aNormal;vColor=aColor;vec3 lightDir=normalize(vec3(-.35,.9,.45));float sun=max(dot(normalize(aNormal),lightDir),0.0);float local=2.25/(1.0+dot(aPosition-uExplorerLight,aPosition-uExplorerLight)*.14);vLight=.30+sun*.50+local*.56;gl_Position=uViewProjection*vec4(aPosition,1.0);}`;
   const fragment=`#version 300 es
   precision highp float;
   in vec3 vWorld;in vec3 vNormal;in vec4 vColor;in float vLight;
   uniform vec3 uCamera;uniform vec3 uFogColor;uniform float uDanger;
   out vec4 outColor;
-  void main(){float distanceFog=smoothstep(7.5,22.0,distance(vWorld,uCamera));vec3 lit=vColor.rgb*clamp(vLight,.18,1.35);lit=mix(lit,vec3(.35,.07,.07),uDanger*.10);vec3 finalColor=mix(lit,uFogColor,distanceFog*.72);outColor=vec4(finalColor,vColor.a);}`;
+  void main(){float distanceFog=smoothstep(6.5,16.0,distance(vWorld,uCamera));vec3 lit=vColor.rgb*clamp(vLight,.26,1.45);lit=mix(lit,vec3(.42,.075,.065),uDanger*.12);vec3 finalColor=mix(lit,uFogColor,distanceFog*.50);outColor=vec4(finalColor,vColor.a);}`;
   const program=gl.createProgram();const vs=compileShader(gl.VERTEX_SHADER,vertex),fs=compileShader(gl.FRAGMENT_SHADER,fragment);
   gl.attachShader(program,vs);gl.attachShader(program,fs);gl.linkProgram(program);gl.deleteShader(vs);gl.deleteShader(fs);
   if(!gl.getProgramParameter(program,gl.LINK_STATUS)){const message=gl.getProgramInfoLog(program)||'program link failed';gl.deleteProgram(program);throw new Error(message)}
@@ -186,9 +191,10 @@ function archetypeMaterial(type,snapshot,cell){
 }
 
 function buildMazeWorld(snapshot,view){
-  const visibleCells=snapshot.cells.filter(cell=>inView(snapshot,cell.cell,view));
+  const visibleCells=snapshot.cells.filter(cell=>inView(snapshot,cell.cell,view)&&cellGridDistance(snapshot,cell.cell,snapshot.currentCell)<=LOCAL_RENDER_RADIUS);
   const known=new Map(snapshot.cells.map(cell=>[cell.cell,cell]));
-  return{snapshot,view,cells:visibleCells,known,theme:'lost-facility-ruins'};
+  const localIds=new Set(visibleCells.map(cell=>cell.cell));
+  return{snapshot,view,cells:visibleCells,known,localIds,theme:'lost-facility-ruins'};
 }
 
 function drawWallPrism(batch,snapshot,cell,side,color){
@@ -198,11 +204,22 @@ function drawWallPrism(batch,snapshot,cell,side,color){
   if(side==='west')batch.box(p.x-.5,.12+height/2,p.z,thickness,height,1.08,color);
   if(side==='east')batch.box(p.x+.5,.12+height/2,p.z,thickness,height,1.08,color);
 }
+function drawRoomAccent(batch,snapshot,cell,type,material){
+  const p=cellWorld(snapshot,cell.cell),roll=presentationSeed(snapshot,cell.cell,73)%4;
+  if(type==='torch-gallery'||roll===0){
+    const warm=mixColor(PALETTE.torch,material,.18);
+    batch.box(p.x-.32,.82,p.z-.39,.08,.24,.08,warm);
+    batch.box(p.x+.32,.82,p.z+.39,.08,.24,.08,warm);
+  }else if(type.includes('lab')||type.includes('research')||type.includes('machine')){
+    batch.box(p.x,.76,p.z-.40,.42,.055,.045,mixColor(PALETTE.cyan,material,.12));
+  }
+}
 function drawCellArchitecture(batch,world,cell){
   const {snapshot,known}=world,p=cellWorld(snapshot,cell.cell),type=selectRoomArchetype(cell,snapshot),material=archetypeMaterial(type,snapshot,cell.cell);
   const confidence=clamp((cell.confidencePermille??1000)/1000,.22,1);
   const floorColor=mixColor(PALETTE.floor,material,.24+confidence*.12);
-  batch.box(p.x,-.09,p.z,.96,.18,.96,floorColor);
+  batch.box(p.x,-.22,p.z,1.02,.26,1.02,mixColor(PALETTE.foundation,material,.12));
+  batch.box(p.x,-.055,p.z,.96,.07,.96,floorColor);
   const neighbors=new Set(cell.neighbors),row=Math.floor(cell.cell/snapshot.width),col=cell.cell%snapshot.width;
   const dirs=[['north',cell.cell-snapshot.width,row>0],['east',cell.cell+1,col<snapshot.width-1],['south',cell.cell+snapshot.width,row<snapshot.height-1],['west',cell.cell-1,col>0]];
   for(const [side,id,inside] of dirs){
@@ -216,9 +233,9 @@ function drawCellArchitecture(batch,world,cell){
     batch.box(p.x+.31,.48,p.z+.31,.16,.95,.16,mixColor(material,PALETTE.stoneDark,.28));
   }
   if(type.includes('lab')||type.includes('research')||type.includes('machine')){
-    const rail=mixColor(PALETTE.metalDark,PALETTE.cyan,.14);
+    const rail=mixColor(PALETTE.metalDark,PALETTE.cyan,.18);
     batch.box(p.x-.37,.32,p.z,.08,.52,.62,rail);
-    batch.box(p.x+.37,.18,p.z,.06,.22,.72,mixColor(rail,PALETTE.rust,.35));
+    batch.box(p.x+.37,.18,p.z,.06,.22,.72,mixColor(rail,PALETTE.rust,.30));
   }
   if(type==='root-breach'){
     batch.box(p.x-.28,.12,p.z+.18,.12,.22,.7,PALETTE.moss);
@@ -228,59 +245,60 @@ function drawCellArchitecture(batch,world,cell){
     batch.box(p.x,.24,p.z,.48,.42,.48,mixColor(PALETTE.stone,PALETTE.torch,.08));
     batch.box(p.x,.56,p.z,.18,.16,.18,PALETTE.cyan);
   }
+  drawRoomAccent(batch,snapshot,cell,type,material);
 }
 function drawFogVolume(batch,snapshot,cell,side){
-  const p=cellWorld(snapshot,cell.cell),c=mixColor(PALETTE.fog,PALETTE.black,.35),offset=.78;
+  const p=cellWorld(snapshot,cell.cell),c=mixColor(PALETTE.fog,PALETTE.black,.28),offset=.78;
   if(side==='north')batch.box(p.x,.62,p.z-offset,.92,1.18,.62,c);
   if(side==='south')batch.box(p.x,.62,p.z+offset,.92,1.18,.62,c);
   if(side==='west')batch.box(p.x-offset,.62,p.z,.62,1.18,.92,c);
   if(side==='east')batch.box(p.x+offset,.62,p.z,.62,1.18,.92,c);
 }
-function drawDoor(batch,door,snapshot,known){
-  if(!known.has(door.a)||!known.has(door.b))return;
+function drawDoor(batch,door,snapshot,localIds){
+  if(!localIds.has(door.a)||!localIds.has(door.b))return;
   const a=cellWorld(snapshot,door.a),b=cellWorld(snapshot,door.b),mx=(a.x+b.x)/2,mz=(a.z+b.z)/2,vertical=Math.abs(a.x-b.x)<.1;
-  const color=door.open?mixColor(PALETTE.metal,PALETTE.exit,.28):mixColor(PALETTE.rust,PALETTE.key,.20);
+  const color=door.open?mixColor(PALETTE.metal,PALETTE.exit,.34):mixColor(PALETTE.rust,PALETTE.key,.24);
   if(door.open){
     if(vertical)batch.box(mx+.42,.58,mz,.12,1.04,.46,color);else batch.box(mx,.58,mz+.42,.46,1.04,.12,color);
   }else if(vertical)batch.box(mx,.62,mz,.82,1.10,.16,color);else batch.box(mx,.62,mz,.16,1.10,.82,color);
-  batch.box(mx,1.23,mz,vertical?.98:.20,.16,vertical?.20:.98,mixColor(color,PALETTE.metalDark,.35));
+  batch.box(mx,1.23,mz,vertical?.98:.20,.16,vertical?.20:.98,mixColor(color,PALETTE.metalDark,.30));
 }
 function drawKey(batch,key,snapshot){
-  if(key.collected)return;const p=cellWorld(snapshot,key.cell);
-  batch.box(p.x,.10,p.z,.42,.16,.42,mixColor(PALETTE.stoneDark,PALETTE.key,.10));
-  batch.box(p.x,.46,p.z,.08,.54,.08,PALETTE.key);
-  batch.box(p.x+.13,.65,p.z,.32,.08,.08,PALETTE.key);
-  batch.box(p.x+.12,.35,p.z,.08,.12,.08,PALETTE.key);
+  if(key.collected)return;const p=cellWorld(snapshot,key.cell),bob=settings.reducedMotion?0:Math.sin(animationTime*.005+key.cell)*.035;
+  batch.box(p.x,.10,p.z,.42,.16,.42,mixColor(PALETTE.stoneDark,PALETTE.key,.13));
+  batch.box(p.x,.48+bob,p.z,.09,.56,.09,PALETTE.key);
+  batch.box(p.x+.14,.68+bob,p.z,.34,.09,.09,PALETTE.key);
+  batch.box(p.x+.13,.35+bob,p.z,.09,.13,.09,PALETTE.key);
 }
 function drawTrap(batch,cell,snapshot){
-  const p=cellWorld(snapshot,cell.cell);batch.box(p.x,.02,p.z,.64,.05,.64,mixColor(PALETTE.trap,PALETTE.metalDark,.38));
+  const p=cellWorld(snapshot,cell.cell);batch.box(p.x,.02,p.z,.64,.05,.64,mixColor(PALETTE.trap,PALETTE.metalDark,.32));
   const pulse=settings.reducedMotion?0:Math.sin(animationTime*.006+cell.cell)*.03;
   for(let x=-1;x<=1;x+=1)for(let z=-1;z<=1;z+=1)if((x+z)%2===0)batch.pyramid(p.x+x*.18,.04,p.z+z*.18,.12,.24+pulse,PALETTE.trap);
 }
 function drawExit(batch,snapshot){
   if(snapshot.exitCell===null)return;const p=cellWorld(snapshot,snapshot.exitCell),glow=settings.reducedMotion?0:.06*Math.sin(animationTime*.004);
-  batch.box(p.x-.33,.66,p.z,.18,1.30,.22,mixColor(PALETTE.stone,PALETTE.exit,.18));
-  batch.box(p.x+.33,.66,p.z,.18,1.30,.22,mixColor(PALETTE.stone,PALETTE.exit,.18));
-  batch.box(p.x,1.28,p.z,.84,.18,.22,mixColor(PALETTE.stone,PALETTE.exit,.25));
+  batch.box(p.x-.33,.66,p.z,.18,1.30,.22,mixColor(PALETTE.stone,PALETTE.exit,.20));
+  batch.box(p.x+.33,.66,p.z,.18,1.30,.22,mixColor(PALETTE.stone,PALETTE.exit,.20));
+  batch.box(p.x,1.28,p.z,.84,.18,.22,mixColor(PALETTE.stone,PALETTE.exit,.28));
   batch.box(p.x,.56,p.z,.46+glow,1.02,.08,mixColor(PALETTE.exit,PALETTE.cyan,.28));
 }
 function drawThreat(batch,threat,snapshot){
   const p=cellWorld(snapshot,threat.cell),bob=settings.reducedMotion?0:Math.sin(animationTime*.007+threat.cell)*.05;
-  batch.box(p.x,.38+bob,p.z,.42,.58,.42,PALETTE.threat);batch.box(p.x,.73+bob,p.z,.26,.16,.26,mixColor(PALETTE.threat,PALETTE.black,.2));
+  batch.box(p.x,.42+bob,p.z,.46,.66,.46,PALETTE.threat);batch.box(p.x,.82+bob,p.z,.29,.18,.29,mixColor(PALETTE.threat,PALETTE.black,.16));
 }
 function drawExplorer(batch,snapshot){
   const p=cellWorld(snapshot,snapshot.currentCell),moving=(snapshot.intent?.mode??'').includes('route')||(snapshot.intent?.mode??'').includes('search');
-  const confidence=clamp(snapshot.intent?.confidence??.5,0,1),gait=settings.reducedMotion?0:(moving?Math.sin(animationTime*.012)*.075:Math.sin(animationTime*.004)*.018);
-  const cautious=confidence<.45?.08:0;
-  const body=mixColor(PALETTE.explorer,PALETTE.cyan,.12),dark=PALETTE.explorerDark;
-  batch.box(p.x,.55-cautious,p.z,.30,.48,.22,body);batch.box(p.x,.88-cautious,p.z-.015,.24,.24,.24,mixColor(body,PALETTE.key,.06));
-  batch.box(p.x-.11,.25+gait,p.z,.09,.34,.10,dark);batch.box(p.x+.11,.25-gait,p.z,.09,.34,.10,dark);
-  batch.box(p.x-.22,.54-gait*.55,p.z-.02,.08,.38,.09,body);batch.box(p.x+.22,.54+gait*.55,p.z-.02,.08,.38,.09,body);
-  batch.box(p.x,.50,p.z+.13,.22,.32,.10,mixColor(PALETTE.metalDark,PALETTE.rust,.24));
-  batch.box(p.x,.79,p.z-.16,.07,.07,.25,PALETTE.torch);
+  const confidence=clamp(snapshot.intent?.confidence??.5,0,1),gait=settings.reducedMotion?0:(moving?Math.sin(animationTime*.012)*.085:Math.sin(animationTime*.004)*.02);
+  const cautious=confidence<.45?.075:0;
+  const body=mixColor(PALETTE.explorer,PALETTE.cyan,.10),dark=PALETTE.explorerDark;
+  batch.box(p.x,.62-cautious,p.z,.36,.56,.27,body);batch.box(p.x,.99-cautious,p.z-.015,.29,.29,.29,mixColor(body,PALETTE.key,.05));
+  batch.box(p.x-.13,.27+gait,p.z,.11,.39,.12,dark);batch.box(p.x+.13,.27-gait,p.z,.11,.39,.12,dark);
+  batch.box(p.x-.26,.60-gait*.55,p.z-.02,.095,.44,.11,body);batch.box(p.x+.26,.60+gait*.55,p.z-.02,.095,.44,.11,body);
+  batch.box(p.x,.56,p.z+.16,.26,.37,.13,mixColor(PALETTE.metalDark,PALETTE.rust,.22));
+  batch.box(p.x,.88,p.z-.19,.08,.08,.31,PALETTE.torch);
 }
-function drawRouteMarkers(batch,snapshot,known){
-  const route=snapshot.plannedRoute.filter(cell=>known.has(cell)).slice(0,MAX_TRAIL);for(const cell of route){const p=cellWorld(snapshot,cell);batch.box(p.x,.015,p.z,.13,.028,.13,mixColor(PALETTE.route,PALETTE.floor,.22))}
+function drawRouteMarkers(batch,snapshot,localIds){
+  const route=snapshot.plannedRoute.filter(cell=>localIds.has(cell)).slice(0,MAX_TRAIL);for(const cell of route){const p=cellWorld(snapshot,cell);batch.box(p.x,.015,p.z,.15,.028,.15,mixColor(PALETTE.route,PALETTE.floor,.16))}
 }
 
 function cameraLookAhead(snapshot){
@@ -301,28 +319,28 @@ class MazeWorldRenderer{
   render(snapshot,scene,camera){
     resize();const context=this.gl,view=window.__MAZE_VIEW__??computePublicView(snapshot,camera),world=buildMazeWorld(snapshot,view),batch=new GeometryBatch();
     for(const cell of world.cells){drawCellArchitecture(batch,world,cell);if(cell.trap)drawTrap(batch,cell,snapshot)}
-    drawRouteMarkers(batch,snapshot,world.known);
-    for(const door of snapshot.doors)drawDoor(batch,door,snapshot,world.known);
-    for(const key of snapshot.keys)if(inView(snapshot,key.cell,view))drawKey(batch,key,snapshot);
-    for(const threat of snapshot.threats)if(inView(snapshot,threat.cell,view))drawThreat(batch,threat,snapshot);
-    if(snapshot.exitCell!==null&&inView(snapshot,snapshot.exitCell,view))drawExit(batch,snapshot);
+    drawRouteMarkers(batch,snapshot,world.localIds);
+    for(const door of snapshot.doors)drawDoor(batch,door,snapshot,world.localIds);
+    for(const key of snapshot.keys)if(world.localIds.has(key.cell))drawKey(batch,key,snapshot);
+    for(const threat of snapshot.threats)if(world.localIds.has(threat.cell))drawThreat(batch,threat,snapshot);
+    if(snapshot.exitCell!==null&&world.localIds.has(snapshot.exitCell))drawExit(batch,snapshot);
     drawExplorer(batch,snapshot);
 
-    const current=cellWorld(snapshot,snapshot.currentCell),look=cameraLookAhead(snapshot),requested=[current.x+look.x*.55,.34,current.z+look.z*.55];
+    const current=cellWorld(snapshot,snapshot.currentCell),look=cameraLookAhead(snapshot),requested=[current.x+look.x*.48,.42,current.z+look.z*.48];
     if(!this.initializedCamera){this.cameraTarget=requested.slice();this.initializedCamera=true}else{
-      const speed=settings.reducedMotion?1:.075;this.cameraTarget[0]=lerp(this.cameraTarget[0],requested[0],speed);this.cameraTarget[1]=lerp(this.cameraTarget[1],requested[1],speed);this.cameraTarget[2]=lerp(this.cameraTarget[2],requested[2],speed);
+      const speed=settings.reducedMotion?1:.095;this.cameraTarget[0]=lerp(this.cameraTarget[0],requested[0],speed);this.cameraTarget[1]=lerp(this.cameraTarget[1],requested[1],speed);this.cameraTarget[2]=lerp(this.cameraTarget[2],requested[2],speed);
     }
-    const span=Math.max(view.widthCells,view.heightCells),distance=clamp(span*.78,5.4,11.2),zoom=Number(camera?.zoom)||1;
-    const eye=[this.cameraTarget[0]+distance*.72/zoom,5.9+distance*.38/zoom,this.cameraTarget[2]+distance*.82/zoom];
-    const projection=mat4Perspective(Math.PI/3.3,canvas.width/Math.max(1,canvas.height),.08,60),viewMatrix=mat4LookAt(eye,this.cameraTarget,[0,1,0]),viewProjection=mat4Multiply(projection,viewMatrix);
-    projectWorld([current.x,.8,current.z],viewProjection);
+    const zoom=Number(camera?.zoom)||1,distance=scene==='result'||scene==='intermission'?6.15:5.35;
+    const eye=[this.cameraTarget[0]+distance*.54/zoom,3.15+distance*.22/zoom,this.cameraTarget[2]+distance*.67/zoom];
+    const projection=mat4Perspective(Math.PI/3.35,canvas.width/Math.max(1,canvas.height),.07,45),viewMatrix=mat4LookAt(eye,this.cameraTarget,[0,1,0]),viewProjection=mat4Multiply(projection,viewMatrix);
+    const explorerProjection=projectWorld([current.x,.82,current.z],viewProjection);
 
-    context.clearColor(settings.highContrast?0:0.012,settings.highContrast?0:0.025,settings.highContrast?0:0.024,1);context.clear(context.COLOR_BUFFER_BIT|context.DEPTH_BUFFER_BIT);
+    context.clearColor(settings.highContrast?0:0.018,settings.highContrast?0:0.038,settings.highContrast?0:0.034,1);context.clear(context.COLOR_BUFFER_BIT|context.DEPTH_BUFFER_BIT);
     context.useProgram(this.program);context.bindBuffer(context.ARRAY_BUFFER,this.buffer);const typed=new Float32Array(batch.data);context.bufferData(context.ARRAY_BUFFER,typed,context.DYNAMIC_DRAW);
     const stride=10*4;context.enableVertexAttribArray(this.locations.position);context.vertexAttribPointer(this.locations.position,3,context.FLOAT,false,stride,0);context.enableVertexAttribArray(this.locations.normal);context.vertexAttribPointer(this.locations.normal,3,context.FLOAT,false,stride,3*4);context.enableVertexAttribArray(this.locations.color);context.vertexAttribPointer(this.locations.color,4,context.FLOAT,false,stride,6*4);
-    context.uniformMatrix4fv(this.locations.viewProjection,false,viewProjection);context.uniform3fv(this.locations.camera,eye);context.uniform3fv(this.locations.explorerLight,[current.x,.75,current.z]);context.uniform3fv(this.locations.fogColor,settings.highContrast?[0,0,0]:[.018,.045,.043]);context.uniform1f(this.locations.danger,scene==='danger'?1:0);
+    context.uniformMatrix4fv(this.locations.viewProjection,false,viewProjection);context.uniform3fv(this.locations.camera,eye);context.uniform3fv(this.locations.explorerLight,[current.x,.88,current.z]);context.uniform3fv(this.locations.fogColor,settings.highContrast?[0,0,0]:[.022,.062,.052]);context.uniform1f(this.locations.danger,scene==='danger'?1:0);
     context.drawArrays(context.TRIANGLES,0,typed.length/10);
-    this.lastStats={mode:'webgl2',theme:world.theme,drawCalls:1,triangles:batch.triangles,vertices:typed.length/10,cells:world.cells.length,roomArchetype:selectRoomArchetype(world.known.get(snapshot.currentCell)??world.cells[0]??{cell:snapshot.currentCell,neighbors:[]},snapshot)};
+    this.lastStats={mode:'webgl2',theme:world.theme,drawCalls:1,triangles:batch.triangles,vertices:typed.length/10,cells:world.cells.length,cameraDistance:Number(distance.toFixed(3)),currentCellVisible:world.localIds.has(snapshot.currentCell)&&explorerProjection.w>0,roomArchetype:selectRoomArchetype(world.known.get(snapshot.currentCell)??world.cells[0]??{cell:snapshot.currentCell,neighbors:[]},snapshot)};
     window.__MAZE_RENDER_STATS__=Object.freeze({...this.lastStats});
   }
 }
