@@ -64,3 +64,15 @@ jobs:
             echo 'Three.js leaked into authoritative code.'
             exit 1
           fi
+      - name: Phase 5 evidence
+        shell: bash
+        run: |
+          set -o pipefail
+          mkdir -p evidence/eko-run/phase5/runtime
+          node scripts/run-eko-run-phase5-evidence.cjs | tee evidence/eko-run/phase5/runtime/hazards-traffic-summary.json
+      - name: Upload Phase 5 evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: eko-run-phase5-evidence
+          path: evidence/eko-run/phase5/runtime
+          if-no-files-found: error
