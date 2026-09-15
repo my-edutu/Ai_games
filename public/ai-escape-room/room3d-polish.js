@@ -1,0 +1,20 @@
+'use strict';
+(function(){
+  window.EscapeRoomPolish=Object.freeze({
+    rendererId:'three-physical-room-v2',
+    quality:{
+      high:{pixelRatio:1.25,shadows:true,particles:54},
+      medium:{pixelRatio:1.0,shadows:false,particles:36},
+      low:{pixelRatio:.82,shadows:false,particles:18},
+      lowFpsThreshold:46,criticalFpsThreshold:34,recoverFpsThreshold:57,sampleFrames:72,
+    },
+    camera:{room:[0,3.65,8.9],look:[0,1.55,-2.1],fov:46,near:.08,far:42,inspectDistance:1.65},
+    budgets:{maxDynamicObjects:48,maxHazards:6,maxBursts:8,maxLights:6,maxDrawCalls:190,maxTriangles:150000},
+    themes:{
+      'cipher-vault':{background:0x071015,fog:0x091317,wall:0x172329,floor:0x101718,wood:0x3e2418,metal:0x35434a,accent:0xd5a74c,secondary:0x45bfd0,paper:0xd8cda8,danger:0xe05549},
+      'clockwork-study':{background:0x120c08,fog:0x1a1009,wall:0x35271d,floor:0x21160f,wood:0x5b321d,metal:0x6f5a39,accent:0xe2a844,secondary:0x8eb8a8,paper:0xe2d0a4,danger:0xd7513f},
+      'chromatic-lab':{background:0x071014,fog:0x0b151a,wall:0x243238,floor:0x111a1e,wood:0x2e3540,metal:0x60727b,accent:0xcf6cff,secondary:0x45e0e7,paper:0xe0edf0,danger:0xff5757},
+      'archive-zero':{background:0x090a0b,fog:0x111315,wall:0x25282a,floor:0x161817,wood:0x493523,metal:0x434849,accent:0xd9b56d,secondary:0x7ab7b3,paper:0xcbbf98,danger:0xd75a49},
+    },
+  });
+})();

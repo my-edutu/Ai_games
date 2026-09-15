@@ -37,6 +37,8 @@ jobs:
         run: npm run ant:stream:self-test
       - name: Tower stream host self-test
         run: npm run tower:stream:self-test
+      - name: AI Escape Room stream host self-test
+        run: npm run escape-room:stream:self-test
       - name: Authoritative nondeterminism scan
         shell: bash
         run: |
@@ -70,7 +72,12 @@ jobs:
             games/eko-street-run/src/state \
             games/eko-street-run/src/runtime \
             games/eko-street-run/src/physics \
-            games/eko-street-run/src/rules; then
+            games/eko-street-run/src/rules \
+            games/ai-escape-room/src/rules \
+            games/ai-escape-room/src/runtime \
+            games/ai-escape-room/src/ai \
+            games/ai-escape-room/src/generation \
+            games/ai-escape-room/src/state; then
             echo 'Forbidden ambient nondeterminism found in authoritative code.'
             exit 1
           fi
@@ -164,6 +171,14 @@ jobs:
         with:
           name: infinite-tower-climb-phase3-capture
           path: artifacts/tower-phase3
+          if-no-files-found: error
+          retention-days: 30
+      - name: Upload AI Escape Room Phase 3 capture evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: ai-escape-room-phase3-capture
+          path: artifacts/escape-room-phase3
           if-no-files-found: error
           retention-days: 30
       - name: Upload Snake Phase 5 operations evidence
