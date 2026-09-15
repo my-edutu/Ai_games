@@ -2,18 +2,18 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const eko = require('../../dist/games/eko-street-run/src/index.js');
 
-function snapshot() {
+function snapshot(overrides = {}) {
   const config = eko.createDefaultConfig({ seed: 'phase4-review3' });
   const state = eko.createInitialState(config);
   const base = eko.createRenderSnapshot(state, []);
   return {
     ...base,
-    tick: 360,
+    tick: overrides.tick ?? 360,
     player: {
       ...base.player,
-      position: { x: 15, y: 0 },
-      velocity: { x: 6.2, y: 0 },
-      movementState: 'grounded',
+      position: overrides.position ?? { x: 15, y: 0 },
+      velocity: overrides.velocity ?? { x: 6.2, y: 0 },
+      movementState: overrides.movementState ?? 'grounded',
     },
   };
 }
@@ -47,3 +47,24 @@ for (const viewport of [PORTRAIT, LANDSCAPE]) {
     assert.ok(Math.abs(three.camera.aspect - model.camera.aspect) < 1e-12, 'planned and rendered camera projections must agree');
   });
 }
+
+test('review 3: five-second progress claim is backed by an actually visible progress marker', () => {
+  const model = eko.createMainlandMorningPresentation(snapshot({
+    tick: 60,
+    position: { x: 3, y: 0 },
+    velocity: { x: 4, y: 0 },
+  }), [], {
+    viewport: PORTRAIT,
+    quality: 'low',
+    muted: true,
+    reducedMotion: true,
+  });
+  const progress = model.nodes.find((node) => node.role === 'progress-marker');
+  assert.ok(progress, 'presentation must expose a progress marker');
+  const halfWidth = progress.width * 0.5;
+  const actuallyVisible = progress.x - halfWidth >= model.camera.visibleWorld.minX
+    && progress.x + halfWidth <= model.camera.visibleWorld.maxX;
+  assert.equal(actuallyVisible, true, 'progress marker must be inside the committed camera region');
+  assert.equal(model.comprehension.progressVisible, actuallyVisible, 'comprehension must report measured visibility rather than a hard-coded pass');
+  assert.equal(model.comprehension.pass, true);
+});
