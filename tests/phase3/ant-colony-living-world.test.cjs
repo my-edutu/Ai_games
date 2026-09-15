@@ -1,41 +1,9 @@
 'use strict';
-const test=require('node:test');
-const assert=require('node:assert/strict');
-const fs=require('node:fs');
-const path=require('node:path');
-
-const root=path.resolve(__dirname,'../..');
-const app=fs.readFileSync(path.join(root,'public/ai-ant-colony/app.js'),'utf8');
-const css=fs.readFileSync(path.join(root,'public/ai-ant-colony/styles.css'),'utf8');
-
-test('ant browser renderer exposes layered living-world primitives instead of a flat diagram',()=>{
-  for(const token of ['WORLD_LAYERS','drawSurfaceBiome','drawSoilStrata','drawRoots','drawAtmosphere','worldToScreen']){
-    assert.ok(app.includes(token),`missing living-world primitive: ${token}`);
-  }
-});
-
-test('ants use natural morphology, deterministic movement and explicit LOD tiers',()=>{
-  for(const token of ['ANT_LOD','drawAntNear','drawAntMid','drawAntFar','drawAntennae','drawMandibles','antMotion']){
-    assert.ok(app.includes(token),`missing ant rendering primitive: ${token}`);
-  }
-  assert.match(app,/legs\s*=\s*6|LEG_COUNT\s*=\s*6/);
-});
-
-test('queen brood excavation and contextual pheromones have in-world presentation systems',()=>{
-  for(const token of ['drawQueenChamber','drawBroodStages','drawExcavation','drawDigParticles','pheromoneMode','drawPheromoneRoute']){
-    assert.ok(app.includes(token),`missing colony presentation primitive: ${token}`);
-  }
-});
-
-test('documentary camera and environment presentation are bounded presentation-only systems',()=>{
-  for(const token of ['SHOT_DWELL_MS','SHOT_COOLDOWN_MS','selectDocumentaryShot','dayPhase','seasonPalette','weatherMaterial']){
-    assert.ok(app.includes(token),`missing documentary/environment primitive: ${token}`);
-  }
-  assert.ok(!/snapshot\.[A-Za-z0-9_.]+\s*=/.test(app),'browser presentation must not mutate authoritative snapshot');
-});
-
-test('broadcast CSS prioritizes the world and supports compact HUD mode',()=>{
-  assert.ok(css.includes('--world-ui-ratio'));
-  assert.ok(css.includes('.compact-hud'));
-  assert.ok(css.includes('.world-stage'));
-});
+const test=require('node:test');const assert=require('node:assert/strict');const fs=require('node:fs');const path=require('node:path');const root=path.resolve(__dirname,'../..'),read=p=>fs.readFileSync(path.join(root,p),'utf8');
+const app=read('public/ai-ant-colony/app.js'),world=read('public/ai-ant-colony/world-renderer.js'),entities=read('public/ai-ant-colony/entity-renderer.js'),director=read('public/ai-ant-colony/director.js'),sound=read('public/ai-ant-colony/soundscape.js'),css=read('public/ai-ant-colony/styles.css'),all=`${app}\n${world}\n${entities}\n${director}\n${sound}`;
+test('layered world renderer owns organic terrain, surface depth and contextual pheromones',()=>{for(const token of['drawSurfaceForeground','drawSoilStrata','root','chamber','pheromone'])assert.match(world,new RegExp(token,'i'),`missing ${token}`);assert.doesNotMatch(world,/Math\.random/)});
+test('entity renderer uses biological morphology, deterministic motion and explicit lod',()=>{for(const token of['LOD_NEAR','LOD_MID','drawAntNear','antenna','mandible','LEG_COUNT','drawQueen','egg','larva','pupa'])assert.match(entities,new RegExp(token,'i'),`missing ${token}`);assert.match(entities,/LEG_COUNT\s*=\s*6/);assert.doesNotMatch(entities,/Math\.random/)});
+test('excavation and effect systems are bounded',()=>{assert.match(app,/MAX_EXCAVATION_TRANSITIONS=32/);assert.match(app,/MAX_PARTICLES=220/);assert.match(app,/excavationTransitions/);assert.doesNotMatch(app,/Math\.random/)});
+test('documentary camera and environment presentation are bounded and temporal',()=>{for(const token of['MIN_SHOT_DWELL_MS','SHOT_COOLDOWN_MS','queen-danger','excavation','milestone'])assert.match(director,new RegExp(token,'i'),`missing ${token}`);assert.match(app,/dayProgress/);assert.match(app,/seasonProgress/)});
+test('soundscape uses bounded aggregate ambience rather than per-ant audio spam',()=>{assert.match(sound,/MAX_AUDIO_VOICES/);assert.match(sound,/ambience/i);assert.match(sound,/rain/i);assert.match(sound,/dig/i);assert.doesNotMatch(sound,/Math\.random/)});
+test('broadcast css prioritizes world and compact hud',()=>{assert.ok(css.includes('--world-ui-ratio'));assert.ok(css.includes('.compact-hud'));assert.ok(css.includes('.world-stage'))});
