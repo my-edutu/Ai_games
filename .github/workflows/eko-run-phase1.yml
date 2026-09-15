@@ -1,0 +1,58 @@
+name: Eko Run Phase 1 Evidence
+
+on:
+  push:
+    branches:
+      - main
+      - 'agent/**'
+    paths:
+      - 'games/eko-street-run/**'
+      - 'tests/foundation/eko-run-*.test.cjs'
+      - 'scripts/run-eko-run-headless.cjs'
+      - 'package.json'
+      - 'tsconfig.json'
+      - '.github/workflows/eko-run-phase1.yml'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'games/eko-street-run/**'
+      - 'tests/foundation/eko-run-*.test.cjs'
+      - 'scripts/run-eko-run-headless.cjs'
+      - 'package.json'
+      - 'tsconfig.json'
+      - '.github/workflows/eko-run-phase1.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  phase1-evidence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '22.16.0'
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - name: Install locked toolchain
+        run: npm ci --no-audit --no-fund
+      - name: Focused Eko Phase 1 tests
+        run: npm run test:eko:phase1
+      - name: Generate Eko Phase 1 headless evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/eko-phase1
+          npm run --silent eko:headless -- eko-phase1-ci | tee artifacts/eko-phase1/headless-summary.json
+      - name: Upload Eko Phase 1 evidence
+        uses: actions/upload-artifact@v7
+        with:
+          name: eko-run-phase1-foundation
+          path: artifacts/eko-phase1
+          if-no-files-found: error
+          retention-days: 30
