@@ -1,0 +1,250 @@
+/* Marble Survival 3D broadcast layer. Keeps gameplay dominant and preserves the 2D canvas as a hard fallback. */
+:root {
+  --marble-safe: clamp(12px, 1.6vw, 26px);
+}
+
+html,
+body {
+  min-height: 100%;
+  background: #07090d;
+}
+
+body {
+  margin: 0;
+  overflow-x: hidden;
+}
+
+.broadcast-shell {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  background: #07090d;
+}
+
+.stage-grid {
+  position: relative;
+  display: block !important;
+  width: 100%;
+  min-height: 72vh;
+  margin: 0;
+}
+
+.arena-card {
+  position: relative;
+  width: 100%;
+  min-height: 72vh;
+  overflow: hidden;
+  border-radius: 0;
+  isolation: isolate;
+  background: #080b10;
+}
+
+#arena-canvas,
+#arena-webgl {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  transition: opacity 180ms ease;
+}
+
+#arena-canvas {
+  z-index: 1;
+  opacity: 1;
+}
+
+#arena-webgl {
+  z-index: 2;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.broadcast-shell.three-ready #arena-webgl {
+  opacity: 1;
+}
+
+.broadcast-shell.three-ready #arena-canvas {
+  opacity: 0;
+}
+
+.arena-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(3, 5, 8, .32), transparent 18%, transparent 73%, rgba(3, 5, 8, .45)),
+    radial-gradient(circle at 50% 46%, transparent 48%, rgba(0, 0, 0, .18) 100%);
+}
+
+.topbar,
+.tournament-strip,
+.arena-topline,
+.champion-card,
+.leaderboard-panel,
+.lower-grid,
+footer {
+  position: relative;
+  z-index: 6;
+}
+
+.topbar {
+  margin-bottom: 0 !important;
+  border-radius: 0 !important;
+}
+
+.tournament-strip {
+  margin: 0 !important;
+  border-radius: 0 !important;
+}
+
+.arena-topline {
+  position: absolute !important;
+  top: var(--marble-safe);
+  left: var(--marble-safe);
+  right: var(--marble-safe);
+  display: flex;
+  justify-content: space-between;
+  pointer-events: none;
+}
+
+.leaderboard-panel {
+  position: absolute !important;
+  top: var(--marble-safe);
+  right: var(--marble-safe);
+  width: min(310px, 27vw);
+  max-height: calc(72vh - var(--marble-safe) * 2);
+  overflow: hidden;
+  background: rgba(8, 11, 16, .72) !important;
+  border: 1px solid rgba(255, 255, 255, .1) !important;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, .24);
+}
+
+.leaderboard-panel .identity-note {
+  opacity: .72;
+}
+
+.lower-grid {
+  position: absolute !important;
+  left: var(--marble-safe);
+  right: var(--marble-safe);
+  bottom: var(--marble-safe);
+  display: grid !important;
+  grid-template-columns: minmax(260px, 520px) minmax(220px, 360px) !important;
+  gap: 10px;
+  pointer-events: none;
+}
+
+.lower-grid > * {
+  background: rgba(8, 11, 16, .66) !important;
+  border: 1px solid rgba(255, 255, 255, .08) !important;
+  backdrop-filter: blur(10px);
+}
+
+.event-list {
+  max-height: 126px;
+  overflow: hidden;
+}
+
+.champion-card {
+  position: absolute !important;
+  left: 50%;
+  bottom: 13%;
+  transform: translateX(-50%);
+  min-width: min(560px, 78vw);
+  text-align: center;
+  background: rgba(7, 8, 12, .82) !important;
+  backdrop-filter: blur(16px);
+  box-shadow: 0 30px 90px rgba(0, 0, 0, .45);
+}
+
+.broadcast-shell[data-clean='true'] .topbar,
+.broadcast-shell[data-clean='true'] .tournament-strip,
+.broadcast-shell[data-clean='true'] .leaderboard-panel,
+.broadcast-shell[data-clean='true'] .lower-grid,
+.broadcast-shell[data-clean='true'] footer {
+  display: none !important;
+}
+
+.broadcast-shell[data-clean='true'] .arena-card,
+.broadcast-shell[data-clean='true'] .stage-grid {
+  min-height: 100vh;
+}
+
+.broadcast-shell[data-clean='true'] .arena-topline {
+  opacity: .72;
+}
+
+.three-fallback-badge {
+  position: absolute;
+  left: var(--marble-safe);
+  bottom: var(--marble-safe);
+  z-index: 8;
+  padding: 7px 10px;
+  border-radius: 999px;
+  font: 700 11px/1.1 system-ui, sans-serif;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: #f1eadc;
+  background: rgba(90, 40, 30, .82);
+}
+
+.three-ready .three-fallback-badge {
+  display: none;
+}
+
+@media (max-width: 900px) {
+  .leaderboard-panel {
+    width: min(250px, 38vw);
+  }
+
+  .leaderboard-panel .panel-heading h2,
+  .leaderboard-panel .identity-note {
+    display: none;
+  }
+
+  .lower-grid {
+    grid-template-columns: 1fr !important;
+    right: 42vw;
+  }
+
+  .influence-panel {
+    display: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .arena-card,
+  .stage-grid {
+    min-height: 68vh;
+  }
+
+  .leaderboard-panel {
+    top: auto;
+    bottom: 12px;
+    right: 12px;
+    width: 44vw;
+    max-height: 160px;
+  }
+
+  .lower-grid {
+    left: 12px;
+    right: 49vw;
+    bottom: 12px;
+  }
+
+  .event-panel .panel-heading,
+  .event-list li:nth-child(n+4) {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #arena-canvas,
+  #arena-webgl {
+    transition: none;
+  }
+}
