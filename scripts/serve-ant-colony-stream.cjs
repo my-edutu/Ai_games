@@ -17,6 +17,7 @@ const PUBLIC_ROOT = path.join(ROOT, 'public', 'ai-ant-colony');
 const MAX_PARTICLES=220;
 const ENTITY_CONTEXT='webgl2';
 const MAX_EVIDENCE_ADVANCE_TICKS=10_000;
+const EVIDENCE_TARGETS=new Set(['brood','foraging','excavation','predator','combat','weather','night','milestone']);
 const BROWSER_ASSETS = Object.freeze([
   'index.html','styles.css','ux-v2.css','director.js','organic-presenter.js',
   'world-renderer.js','entity-renderer.js','soundscape.js','app.js'
@@ -54,16 +55,32 @@ function advance(session) {
   return accepted;
 }
 
-function forceAdvance(session,ticks) {
+function evidenceMatches(snapshot,target,baseline) {
+  if(!target)return false;
+  if(target==='brood')return snapshot.colony.brood>=10;
+  if(target==='foraging')return snapshot.ants.some(ant=>ant.carryingFood>0);
+  if(target==='excavation')return snapshot.ants.some(ant=>ant.task==='dig')||snapshot.recentEvents.some(event=>event.type==='tunnel-dug');
+  if(target==='predator')return snapshot.predators.length>0;
+  if(target==='combat')return snapshot.predators.length>0&&snapshot.ants.some(ant=>ant.task==='fight');
+  if(target==='weather')return snapshot.environment.weather!==baseline.environment.weather;
+  if(target==='night')return snapshot.tick>baseline.tick&&(snapshot.environment.dayProgress>=.82||snapshot.environment.dayProgress<.12);
+  if(target==='milestone')return snapshot.goal.band!==baseline.goal.band||snapshot.recentEvents.some(event=>event.type==='milestone');
+  return false;
+}
+
+function forceAdvance(session,ticks,target=null) {
   const wasPaused=session.paused;
+  const baseline=session.controller.recover()||session.current;
   session.paused=false;
-  let accepted=0;
+  let accepted=0,matched=false;
   for(let index=0;index<ticks;index++){
     const result=advance(session);
     if(result.status==='accepted')accepted++;
+    const snapshot=session.controller.recover()||session.current;
+    if(target&&evidenceMatches(snapshot,target,baseline)){matched=true;break;}
   }
   session.paused=wasPaused;
-  return accepted;
+  return {accepted,matched,snapshot:session.controller.recover()||session.current};
 }
 
 function assets() { return BROWSER_ASSETS.map(name => path.join(PUBLIC_ROOT, name)); }
@@ -203,10 +220,11 @@ function serve() {
       try {
         const body=await parseJson(request);
         const ticks=Number(body.ticks);
+        const target=typeof body.until==='string'&&EVIDENCE_TARGETS.has(body.until)?body.until:null;
         if (!Number.isInteger(ticks)||ticks<1||ticks>MAX_EVIDENCE_ADVANCE_TICKS) { sendJson(response,400,{error:'invalid-ticks'}); return; }
-        const accepted=forceAdvance(session,ticks);
-        const snapshot=session.controller.recover()||session.current;
-        sendJson(response,200,{ok:true,accepted,snapshot});
+        if(body.until!=null&&!target){sendJson(response,400,{error:'invalid-evidence-target'});return;}
+        const result=forceAdvance(session,ticks,target);
+        sendJson(response,200,{ok:true,accepted:result.accepted,matched:result.matched,target,snapshot:result.snapshot});
         return;
       } catch(error) {
         sendJson(response,400,{error:error instanceof Error?error.message:'invalid-evidence-request'}); return;
