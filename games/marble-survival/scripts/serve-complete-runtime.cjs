@@ -136,6 +136,7 @@ function createRuntime(options = {}) {
   } = loadAuthorityModule();
   const seed = String(options.seed || process.env.GAME7_SEED || 'broadcast-1');
   const operatorToken = String(options.operatorToken || process.env.GAME7_OPERATOR_TOKEN || 'local-self-test-only');
+  const pauseOnTournamentResult = options.pauseOnTournamentResult === true;
   const authority = MarbleRuntime.create(options.config || {}, seed);
   const operator = createOperatorController(operatorToken, 256);
   const events = [];
@@ -248,6 +249,10 @@ function createRuntime(options = {}) {
       state.authorityRunning = false;
       throw new Error('authority tick regressed without a tournament restart');
     }
+    if (pauseOnTournamentResult && next.lifecycle === 'tournament-result' && next.result?.kind === 'champion') {
+      currentSnapshot();
+      state.paused = true;
+    }
     return next;
   }
 
@@ -255,6 +260,7 @@ function createRuntime(options = {}) {
     authority.restart();
     cameraDirective = null;
     resetReplay(authority.state.runIndex);
+    state.paused = false;
     state.authorityRunning = true;
     state.lastStepAt = Date.now();
     drainAuthorityEvents();
