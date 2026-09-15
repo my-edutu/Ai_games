@@ -1,0 +1,78 @@
+name: Zombie Survival Runtime Verification
+
+on:
+  push:
+    branches:
+      - agent/zombie-survival-2-5d-rebuild
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Unit and integration verification
+        working-directory: games/ai-zombie-survival
+        run: npm test
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Start game server
+        working-directory: games/ai-zombie-survival
+        run: nohup node serve.mjs > /tmp/zombie-server.log 2>&1 &
+      - name: Wait for game
+        run: |
+          for i in {1..30}; do
+            curl -fsS http://127.0.0.1:4177/web/index.html >/dev/null && exit 0
+            sleep 1
+          done
+          cat /tmp/zombie-server.log
+          exit 1
+      - name: Browser smoke and evidence capture
+        run: |
+          mkdir -p games/ai-zombie-survival/evidence/runtime
+          node --input-type=module <<'EOF'
+          import { chromium } from 'playwright';
+          import fs from 'node:fs';
+          const browser=await chromium.launch({headless:true});
+          const page=await browser.newPage({viewport:{width:1920,height:1080}});
+          const errors=[];
+          page.on('pageerror',e=>errors.push(String(e)));
+          page.on('console',m=>{if(m.type()==='error')errors.push(m.text())});
+          const scenarios=['exploration','scavenging','small-encounter','large-horde','barricade-defense','interior','day','night','near-death','failure'];
+          for(const scenario of scenarios){
+            await page.goto(`http://127.0.0.1:4177/web/index.html?evidence=${scenario}`,{waitUntil:'networkidle'});
+            await page.waitForTimeout(900);
+            const canvas=await page.locator('#game').boundingBox();
+            if(!canvas||canvas.width<1200||canvas.height<600) throw new Error(`bad canvas for ${scenario}`);
+            await page.screenshot({path:`games/ai-zombie-survival/evidence/runtime/${scenario}.png`});
+          }
+          await page.goto('http://127.0.0.1:4177/web/index.html?evidence=large-horde',{waitUntil:'networkidle'});
+          await page.keyboard.press('h');
+          await page.waitForTimeout(250);
+          if(await page.locator('#hud').evaluate(el=>getComputedStyle(el).display)!=='none') throw new Error('HUD hide control failed');
+          await page.screenshot({path:'games/ai-zombie-survival/evidence/runtime/hud-hidden.png'});
+          await page.keyboard.press('h');
+          if(await page.locator('#hud').evaluate(el=>getComputedStyle(el).display)==='none') throw new Error('HUD restore control failed');
+          await page.keyboard.press('r');
+          await page.waitForTimeout(150);
+          await page.setViewportSize({width:1280,height:720});
+          await page.goto('http://127.0.0.1:4177/web/index.html?evidence=day',{waitUntil:'networkidle'});
+          const broadcastCanvas=await page.locator('#game').boundingBox();
+          if(!broadcastCanvas||broadcastCanvas.width!==1280||broadcastCanvas.height!==720) throw new Error('720p responsive canvas failed');
+          await page.screenshot({path:'games/ai-zombie-survival/evidence/runtime/broadcast-720p.png'});
+          const report={scenarios,errors,controls:{hudToggle:true,restart:true},broadcast720p:true};
+          fs.writeFileSync('games/ai-zombie-survival/evidence/runtime/browser-report.json',JSON.stringify(report,null,2));
+          if(errors.length) throw new Error(errors.join('\n'));
+          await browser.close();
+          EOF
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: zombie-survival-runtime-evidence
+          path: games/ai-zombie-survival/evidence/runtime
+          if-no-files-found: warn
