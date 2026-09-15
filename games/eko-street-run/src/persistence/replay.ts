@@ -43,12 +43,24 @@ function assertSupported(snapshot: EkoRunSnapshot): void {
   }
 }
 
+function assertEnvelopeMatchesState(snapshot: EkoRunSnapshot, candidate: EkoRunState): void {
+  if (
+    candidate.gameVersion !== snapshot.gameVersion
+    || candidate.schemaVersion !== snapshot.schemaVersion
+    || candidate.deterministicVersion !== snapshot.deterministicVersion
+    || candidate.contentVersion !== snapshot.contentVersion
+    || candidate.runId !== snapshot.runId
+    || candidate.rootSeed !== snapshot.rootSeed
+    || candidate.tick !== snapshot.tick
+  ) {
+    throw new IntegrityError("ENVELOPE_MISMATCH", "snapshot envelope does not match state payload");
+  }
+}
+
 export function restoreSnapshot(snapshot: EkoRunSnapshot): EkoRunState {
   assertSupported(snapshot);
   const candidate = cloneState(snapshot.state);
-  if (candidate.runId !== snapshot.runId || candidate.rootSeed !== snapshot.rootSeed || candidate.tick !== snapshot.tick) {
-    throw new IntegrityError("ENVELOPE_MISMATCH", "snapshot envelope does not match state payload");
-  }
+  assertEnvelopeMatchesState(snapshot, candidate);
   const actual = checksumState(candidate);
   if (actual !== snapshot.checksum) throw new IntegrityError("CHECKSUM_MISMATCH", "snapshot checksum mismatch");
   assertStateInvariants(candidate);
