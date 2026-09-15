@@ -9,6 +9,11 @@ function approach(current: number, target: number, amount: number): number {
   if (current > target) return Math.max(target, current - amount);
   return current;
 }
+function clampPlayerCenterX(value: number, route: RouteState, config: EkoRunConfig): number {
+  const minCenter = route.minX + config.playerHalfWidth;
+  const maxCenter = route.maxX - config.playerHalfWidth;
+  return quantize(Math.max(minCenter, Math.min(maxCenter, value)), config.quantization);
+}
 function clonePlayer(player: PlayerState): PlayerState {
   return { ...player, position: { ...player.position }, velocity: { ...player.velocity }, vault: player.vault ? { ...player.vault, start: { ...player.vault.start }, end: { ...player.vault.end } } : null };
 }
@@ -43,6 +48,9 @@ function startVault(player: PlayerState, route: RouteState, intent: PlayerContro
   if (!obstacle) return false;
   const direction = player.facing;
   const endX = direction > 0 ? obstacle.maxX + config.playerHalfWidth + config.collisionSkin + 0.1 : obstacle.minX - config.playerHalfWidth - config.collisionSkin - 0.1;
+  const minCenter = route.minX + config.playerHalfWidth;
+  const maxCenter = route.maxX - config.playerHalfWidth;
+  if (endX < minCenter || endX > maxCenter) return false;
   const endY = route.groundY;
   if (!vaultPathIsClear(player, obstacle.id, endX, endY, route, tick, config)) return false;
   player.vault = { obstacleId: obstacle.id, ticksRemaining: config.vaultDurationTicks, totalTicks: config.vaultDurationTicks, start: { ...player.position }, end: { x: endX, y: endY } };
@@ -51,7 +59,7 @@ function startVault(player: PlayerState, route: RouteState, intent: PlayerContro
   player.slideTicksRemaining = 0;
   return true;
 }
-function advanceVault(player: PlayerState, config: EkoRunConfig): void {
+function advanceVault(player: PlayerState, route: RouteState, config: EkoRunConfig): void {
   const vault = player.vault;
   if (!vault) return;
   const elapsed = vault.totalTicks - vault.ticksRemaining + 1;
@@ -59,11 +67,11 @@ function advanceVault(player: PlayerState, config: EkoRunConfig): void {
   const x = vault.start.x + (vault.end.x - vault.start.x) * t;
   const baseY = vault.start.y + (vault.end.y - vault.start.y) * t;
   const arc = 4 * config.vaultArcHeight * t * (1 - t);
-  player.position.x = quantize(x, config.quantization);
+  player.position.x = clampPlayerCenterX(x, route, config);
   player.position.y = quantize(baseY + arc, config.quantization);
   vault.ticksRemaining -= 1;
   if (vault.ticksRemaining <= 0) {
-    player.position = { x: quantize(vault.end.x, config.quantization), y: quantize(vault.end.y, config.quantization) };
+    player.position = { x: clampPlayerCenterX(vault.end.x, route, config), y: quantize(vault.end.y, config.quantization) };
     player.vault = null;
     player.movementState = "grounded";
     player.coyoteTicksRemaining = config.coyoteTicks;
@@ -82,7 +90,7 @@ export function stepPlayerKinematic(source: PlayerState, route: RouteState, inte
   if (player.movementState === "dead") return result;
   if (player.landingCompressionTicksRemaining > 0) player.landingCompressionTicksRemaining -= 1;
   if (player.vault && player.movementState === "vaulting") {
-    advanceVault(player, config);
+    advanceVault(player, route, config);
     result.failed = player.position.y <= route.killPlaneY;
     return result;
   }
@@ -95,7 +103,7 @@ export function stepPlayerKinematic(source: PlayerState, route: RouteState, inte
   }
   if (startVault(player, route, intent, tick, config)) {
     result.vaultStarted = true;
-    advanceVault(player, config);
+    advanceVault(player, route, config);
     return result;
   }
   const wasStumbling = player.movementState === "stumbling";
@@ -125,13 +133,13 @@ export function stepPlayerKinematic(source: PlayerState, route: RouteState, inte
   const currentHeight = playerHeight(player, config);
   const separation = separateMovingColliderOverlaps(player.position.x, player.position.y, currentHeight, route, tick, config);
   if (separation.colliderIds.length > 0) {
-    player.position.x = separation.x;
+    player.position.x = clampPlayerCenterX(separation.x, route, config);
     player.velocity.x = 0;
     for (const colliderId of separation.colliderIds) contacts.push({ colliderId, kind: "moving" });
   }
   const desiredX = quantize(player.position.x + player.velocity.x * FIXED_DT_SECONDS, config.quantization);
   const horizontal = sweepHorizontal(player.position.x, desiredX, player.position.y, currentHeight, route, tick, config);
-  player.position.x = quantize(Math.max(route.minX, Math.min(route.maxX, horizontal.x)), config.quantization);
+  player.position.x = clampPlayerCenterX(horizontal.x, route, config);
   if (horizontal.blocked) {
     player.velocity.x = 0;
     if (horizontal.colliderId && horizontal.kind) contacts.push({ colliderId: horizontal.colliderId, kind: horizontal.kind });
@@ -203,7 +211,7 @@ export function stepPlayerKinematic(source: PlayerState, route: RouteState, inte
   if (player.movementState === "grounded") player.coyoteTicksRemaining = config.coyoteTicks;
   else if (player.coyoteTicksRemaining > 0 && !result.jumpStarted) player.coyoteTicksRemaining -= 1;
   if (player.jumpBufferTicksRemaining > 0) player.jumpBufferTicksRemaining -= 1;
-  player.position.x = quantize(player.position.x, config.quantization);
+  player.position.x = clampPlayerCenterX(player.position.x, route, config);
   player.position.y = quantize(player.position.y, config.quantization);
   player.velocity.x = quantize(player.velocity.x, config.quantization);
   player.velocity.y = quantize(player.velocity.y, config.quantization);
