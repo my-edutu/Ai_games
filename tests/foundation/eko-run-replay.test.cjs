@@ -53,7 +53,13 @@ test('corrupted or unsupported snapshots fail typed instead of silently restorin
   const corrupt = structuredClone(envelope);
   corrupt.state.player.position.x = 99;
   assert.throws(() => restoreSnapshot(corrupt), error => error instanceof IntegrityError && error.code === 'CHECKSUM_MISMATCH');
+
   const unsupported = structuredClone(envelope);
   unsupported.snapshotVersion = 99;
   assert.throws(() => restoreSnapshot(unsupported), error => error instanceof IntegrityError && error.code === 'UNSUPPORTED_VERSION');
+
+  const versionMismatch = structuredClone(envelope);
+  versionMismatch.state.schemaVersion += 1;
+  versionMismatch.checksum = checksumState(versionMismatch.state);
+  assert.throws(() => restoreSnapshot(versionMismatch), error => error instanceof IntegrityError && error.code === 'ENVELOPE_MISMATCH');
 });
