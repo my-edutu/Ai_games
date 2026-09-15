@@ -49,14 +49,19 @@ test('advance is replayable authority and progresses deterministic district ladd
 
 test('Bridge Run advances to Mainland Morning and increments cycle', () => {
   let state = phase6('phase6-wrap');
-  state.progression.districtIndex = 5;
-  state.progression.districtId = 'bridge-run';
-  state.progression.cycle = 3;
+  for (let sequence = 1; sequence <= 5; sequence += 1) {
+    state.lifecycle = 'intermission';
+    state = eko.stepSimulation(state, [advanceCommand(state, sequence)]).state;
+  }
+  assert.equal(state.progression.districtIndex, 5);
+  assert.equal(state.progression.districtId, 'bridge-run');
+  assert.equal(state.progression.cycle, 0);
+
   state.lifecycle = 'intermission';
-  const out = eko.stepSimulation(state, [advanceCommand(state, 1)]);
+  const out = eko.stepSimulation(state, [advanceCommand(state, 6)]);
   assert.equal(out.state.progression.districtIndex, 0);
   assert.equal(out.state.progression.districtId, 'mainland-morning');
-  assert.equal(out.state.progression.cycle, 4);
+  assert.equal(out.state.progression.cycle, 1);
 });
 
 test('advance command is rejected outside intermission', () => {
