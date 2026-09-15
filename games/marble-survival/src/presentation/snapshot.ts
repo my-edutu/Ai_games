@@ -59,6 +59,19 @@ function sanitizeEvent(event: MarbleEvent): MarblePresentationEvent | null {
   return { seq: event.seq, tick: event.tick, type: event.type, data };
 }
 
+function eventsForCurrentTournament(state: MarbleState, recentEvents: MarbleEvent[]): MarbleEvent[] {
+  let startIndex = 0;
+  for (let index = recentEvents.length - 1; index >= 0; index -= 1) {
+    if (recentEvents[index].type === 'tournament-restarted') {
+      startIndex = index + 1;
+      break;
+    }
+  }
+  return recentEvents
+    .slice(startIndex)
+    .filter(event => event.tick <= state.tick);
+}
+
 function toPresentationMarble(state: MarbleState, marble: MarbleCompetitor): MarblePresentationCompetitor {
   return {
     id: marble.id,
@@ -110,7 +123,7 @@ export function createMarblePresentationSnapshot(state: MarbleState, recentEvent
   const championId = state.result?.kind === 'champion'
     ? state.result.championId
     : marbles.find(marble => marble.status === 'champion')?.id ?? null;
-  const events = recentEvents
+  const events = eventsForCurrentTournament(state, recentEvents)
     .slice(-24)
     .map(sanitizeEvent)
     .filter((event): event is MarblePresentationEvent => event !== null);
