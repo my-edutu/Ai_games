@@ -28,7 +28,7 @@ export function createThreeMainlandMorningScene(model: MainlandMorningPresentati
   scene.userData = { presentationOnly: true, authorityMutation: false, districtId: model.districtId, tick: model.tick };
   scene.background = new THREE.Color("#c8d9df");
 
-  const camera = new THREE.PerspectiveCamera(model.camera.fov, 16 / 9, 0.1, 80);
+  const camera = new THREE.PerspectiveCamera(model.camera.fov, model.camera.aspect, 0.1, 80);
   camera.name = "eko-game-camera";
   camera.position.set(model.camera.position.x, model.camera.position.y, model.camera.position.z);
   camera.lookAt(model.camera.target.x, model.camera.target.y, model.camera.target.z);
