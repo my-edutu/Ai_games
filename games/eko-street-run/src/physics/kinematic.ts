@@ -6,7 +6,6 @@ import type {
   PlayerControlIntent,
   PlayerState,
   RouteState,
-  Vec2,
 } from "../state/types";
 import { findVaultObstacle, hasStandingClearance, playerHeight, sampleSupportSurface, sweepCeiling, sweepHorizontal } from "./geometry";
 
@@ -245,7 +244,7 @@ export function stepPlayerKinematic(
   }
 
   if (player.movementState === "grounded") player.coyoteTicksRemaining = config.coyoteTicks;
-  else if (player.movementState !== "vaulting" && player.coyoteTicksRemaining > 0 && !result.jumpStarted) player.coyoteTicksRemaining -= 1;
+  else if (player.coyoteTicksRemaining > 0 && !result.jumpStarted) player.coyoteTicksRemaining -= 1;
 
   if (player.jumpBufferTicksRemaining > 0 && !intent.jumpPressed) player.jumpBufferTicksRemaining -= 1;
   else if (player.jumpBufferTicksRemaining > 0 && intent.jumpPressed && !result.jumpStarted) player.jumpBufferTicksRemaining -= 1;
