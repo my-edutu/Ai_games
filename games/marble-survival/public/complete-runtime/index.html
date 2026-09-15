@@ -8,10 +8,11 @@
   <link rel="stylesheet" href="/styles.css">
   <link rel="stylesheet" href="/ux-v2.css">
   <link rel="stylesheet" href="/visual-3d.css">
+  <link rel="stylesheet" href="/spectator-polish.css">
 </head>
 <body>
   <a class="skip-link" href="#arena">Skip to arena</a>
-  <main class="broadcast-shell" data-clean="false" data-quality="balanced" data-ux-revision="4">
+  <main class="broadcast-shell" data-clean="false" data-quality="balanced" data-ux-revision="5" data-layout="arena-first">
     <header class="topbar" aria-label="Tournament status">
       <div class="brand-lockup">
         <span class="eyebrow">Game 7 · Live deterministic tournament</span>
@@ -71,7 +72,7 @@
         </div>
       </section>
 
-      <aside class="leaderboard-panel" aria-label="Live standings">
+      <aside class="leaderboard-panel broadcast-overlay" aria-label="Live standings">
         <div class="panel-heading">
           <div>
             <span class="panel-label">Live standings</span>
@@ -82,23 +83,23 @@
         <ol id="leaderboard" class="leaderboard"></ol>
         <div class="identity-note">Numbers and surface patterns remain visible in every quality preset.</div>
       </aside>
-    </section>
 
-    <section class="lower-grid">
-      <section class="event-panel" aria-labelledby="event-title">
-        <div class="panel-heading">
-          <div>
-            <span class="panel-label">Race control</span>
-            <h2 id="event-title">Official events</h2>
+      <section class="lower-grid broadcast-lower-overlay">
+        <section class="event-panel" aria-labelledby="event-title">
+          <div class="panel-heading">
+            <div>
+              <span class="panel-label">Race control</span>
+              <h2 id="event-title">Official events</h2>
+            </div>
           </div>
-        </div>
-        <ul id="event-list" class="event-list" aria-live="polite"></ul>
-      </section>
+          <ul id="event-list" class="event-list" aria-live="polite"></ul>
+        </section>
 
-      <section class="influence-panel" aria-labelledby="influence-title">
-        <span class="panel-label">Audience influence</span>
-        <h2 id="influence-title">Deterministic voting</h2>
-        <p id="influence-status" role="status">Checking authority support…</p>
+        <section class="influence-panel" aria-labelledby="influence-title">
+          <span class="panel-label">Audience influence</span>
+          <h2 id="influence-title">Deterministic voting</h2>
+          <p id="influence-status" role="status">Checking authority support…</p>
+        </section>
       </section>
     </section>
 
