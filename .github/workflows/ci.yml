@@ -65,7 +65,12 @@ jobs:
             games/infinite-tower-climb/src/physics \
             games/infinite-tower-climb/src/combat \
             games/infinite-tower-climb/src/progression \
-            games/infinite-tower-climb/src/influence; then
+            games/infinite-tower-climb/src/influence \
+            games/eko-street-run/src/config \
+            games/eko-street-run/src/state \
+            games/eko-street-run/src/runtime \
+            games/eko-street-run/src/physics \
+            games/eko-street-run/src/rules; then
             echo 'Forbidden ambient nondeterminism found in authoritative code.'
             exit 1
           fi
