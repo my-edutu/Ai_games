@@ -75,6 +75,41 @@ function verticalOverlap(feetY: number, height: number, collider: ResolvedCollid
   return feetY < collider.maxY - skin && top > collider.minY + skin;
 }
 
+export interface MovingSeparationResult {
+  x: number;
+  colliderIds: string[];
+}
+
+export function separateMovingColliderOverlaps(
+  centerX: number,
+  feetY: number,
+  height: number,
+  route: RouteState,
+  tick: number,
+  config: EkoRunConfig,
+): MovingSeparationResult {
+  let x = centerX;
+  const colliderIds: string[] = [];
+  const movers = route.colliders.filter(collider => collider.kind === "moving" && collider.motion).sort((a, b) => a.id.localeCompare(b.id));
+  for (const raw of movers) {
+    const current = resolveCollider(raw, tick, config);
+    if (!verticalOverlap(feetY, height, current, config.collisionSkin)) continue;
+    if (!horizontalOverlap(x, config.playerHalfWidth, current.minX, current.maxX)) continue;
+    const previous = resolveCollider(raw, tick - 1, config);
+    const currentCenter = (current.minX + current.maxX) * 0.5;
+    const previousCenter = (previous.minX + previous.maxX) * 0.5;
+    const motion = currentCenter - previousCenter;
+    const leftTarget = current.minX - config.playerHalfWidth - config.collisionSkin;
+    const rightTarget = current.maxX + config.playerHalfWidth + config.collisionSkin;
+    if (motion > config.quantization * 0.5) x = rightTarget;
+    else if (motion < -config.quantization * 0.5) x = leftTarget;
+    else x = Math.abs(x - leftTarget) <= Math.abs(rightTarget - x) ? leftTarget : rightTarget;
+    x = quantize(Math.max(route.minX, Math.min(route.maxX, x)), config.quantization);
+    colliderIds.push(current.id);
+  }
+  return { x, colliderIds };
+}
+
 export interface HorizontalSweepResult {
   x: number;
   blocked: boolean;
@@ -99,9 +134,7 @@ export function sweepHorizontal(
     const collider = resolveCollider(raw, tick, config);
     if (!verticalOverlap(feetY, height, collider, config.collisionSkin)) continue;
     const rise = collider.maxY - feetY;
-    if (rise > config.collisionSkin && rise <= config.maxStepHeight + config.collisionSkin && collider.minY <= feetY + config.collisionSkin) {
-      continue;
-    }
+    if (rise > config.collisionSkin && rise <= config.maxStepHeight + config.collisionSkin && collider.minY <= feetY + config.collisionSkin) continue;
     if (movingRight) {
       const oldEdge = oldX + config.playerHalfWidth;
       const newEdge = desiredX + config.playerHalfWidth;
@@ -151,9 +184,7 @@ export function sweepCeiling(
   for (const raw of route.colliders) {
     const collider = resolveCollider(raw, tick, config);
     if (!horizontalOverlap(centerX, config.playerHalfWidth, collider.minX, collider.maxX)) continue;
-    if (oldTop <= collider.minY + config.collisionSkin && desiredTop > collider.minY) {
-      hits.push({ y: collider.minY - height - config.collisionSkin, collider });
-    }
+    if (oldTop <= collider.minY + config.collisionSkin && desiredTop > collider.minY) hits.push({ y: collider.minY - height - config.collisionSkin, collider });
   }
   hits.sort((a, b) => a.y - b.y || a.collider.id.localeCompare(b.collider.id));
   const first = hits[0];
