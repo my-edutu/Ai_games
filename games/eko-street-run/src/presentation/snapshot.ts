@@ -23,7 +23,11 @@ export function createRenderSnapshot(state: EkoRunState, recentEvents: readonly 
       position: { x: state.player.position.x, y: state.player.position.y },
       velocity: { x: state.player.velocity.x, y: state.player.velocity.y },
       movementState: state.player.movementState,
+      facing: state.player.facing,
       checkpointIndex: state.player.checkpointIndex,
+      landingCompressionTicksRemaining: state.player.landingCompressionTicksRemaining,
+      slideTicksRemaining: state.player.slideTicksRemaining,
+      stumbleTicksRemaining: state.player.stumbleTicksRemaining,
     },
     route: {
       id: state.route.id,

@@ -32,6 +32,7 @@
     "test:tower:phase5": "npm run build && node --test tests/phase5/tower-*.test.cjs",
     "test:tower:phase6": "npm run build && node --test tests/phase6/tower-*.test.cjs",
     "test:eko:phase1": "npm run build && node --test tests/foundation/eko-run-*.test.cjs",
+    "test:eko:phase2": "npm run build && node --test tests/foundation/eko-run-*.test.cjs tests/phase2/eko-run-*.test.cjs",
     "test:browser": "playwright test",
     "eko:headless": "npm run build && node scripts/run-eko-run-headless.cjs",
     "snake:headless": "npm run build && node scripts/run-snake-headless.cjs",
