@@ -1,0 +1,35 @@
+name: Eko Run Phase 2 Movement
+
+on:
+  push:
+    branches:
+      - main
+      - 'agent/eko-run-phase2'
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  movement:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '22.16.0'
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - name: Install locked toolchain
+        run: npm ci --no-audit --no-fund
+      - name: Build
+        run: npm run build
+      - name: Phase 2 movement tests
+        run: node --test tests/phase2/eko-run-*.test.cjs
+      - name: Phase 1 regression tests
+        run: node --test tests/foundation/eko-run-*.test.cjs
