@@ -51,7 +51,7 @@ export interface EscapeHazardDefinition{
 export interface EscapeRoomDefinition{
   schemaVersion:1;
   contentVersion:'escape-content-v1';
-  generatorVersion:'escape-generator-v1';
+  generatorVersion:'escape-generator-v1'|'escape-generator-v2';
   theme:EscapeTheme;
   difficulty:number;
   maxTicks:number;
@@ -98,17 +98,17 @@ export interface EscapeValidationDiagnostic{
   message:string;
 }
 
-export interface EscapeValidation{
+export interface EscapeValidationResult{
   valid:boolean;
   diagnostics:EscapeValidationDiagnostic[];
-  solutionLength:number;
-  featureVector:EscapeFeatureVector;
+  solutionLength:number|null;
+  featureVector:EscapeFeatureVector|null;
 }
 
 export interface EscapeGenerationDiagnostics{
   attempts:number;
   usedFallback:boolean;
-  fallbackVersion:null|'escape-fallback-v1';
+  fallbackVersion:string|null;
   failures:Array<{attempt:number;codes:EscapeValidationCode[]}>;
 }
 
