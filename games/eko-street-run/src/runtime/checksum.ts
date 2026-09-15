@@ -58,7 +58,10 @@ function canonicalState(state: EkoRunState): string {
       totalDistance: state.progression.totalDistance,
       pacingBand: state.progression.pacingBand,
       activeContent: {
+        generatorVersion: state.progression.activeContent.generatorVersion,
+        districtIndex: state.progression.activeContent.districtIndex,
         districtId: state.progression.activeContent.districtId,
+        cycle: state.progression.activeContent.cycle,
         hazards: state.progression.activeContent.hazards.map(item => ({ ...item, legalResponses: [...item.legalResponses], motion: item.motion ? { ...item.motion } : undefined })),
         tokens: state.progression.activeContent.tokens.map(item => ({ ...item })),
         decisions: state.progression.activeContent.decisions.map(item => ({ ...item })),
