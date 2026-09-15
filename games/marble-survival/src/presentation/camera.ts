@@ -112,8 +112,11 @@ function chooseCandidate(input: MarbleCameraInput): Candidate {
 
   return {
     mode: 'overview',
-    focusIds: input.leaderId === null ? [] : [input.leaderId],
-    reason: 'race-context',
+    // Overview is intentionally arena-centred. Leader identity is already visible in
+    // the standings/identity layer; using it as a camera target drags the full arena
+    // toward one edge and creates large dead-space in the broadcast frame.
+    focusIds: [],
+    reason: input.leaderId === null ? 'race-context' : 'race-context-with-leader',
     holdTicks: 42,
     zoomPermille: 1000,
     priority: 10
