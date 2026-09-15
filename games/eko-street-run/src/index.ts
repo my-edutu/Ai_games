@@ -9,6 +9,7 @@ export * from "./runtime/simulation";
 export * from "./physics/geometry";
 export * from "./physics/kinematic";
 export * from "./rules/route";
+export * from "./hazards";
 export * from "./presentation/snapshot";
 export * from "./presentation/character";
 export * from "./presentation/world";

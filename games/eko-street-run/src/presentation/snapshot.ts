@@ -1,5 +1,6 @@
 import { RENDER_SNAPSHOT_VERSION } from "../config/version";
-import type { EkoRunRenderSnapshot, EkoRunState, SemanticEvent } from "../state/types";
+import { getPhase5HazardContracts, hazardActiveAtTick, hazardPositionAtTick } from "../hazards";
+import type { EkoRunRenderSnapshot, EkoRunState, PublicHazardSnapshot, SemanticEvent } from "../state/types";
 
 function cloneEvents(events: readonly SemanticEvent[]): SemanticEvent[] {
   return JSON.parse(JSON.stringify(events)) as SemanticEvent[];
@@ -11,6 +12,24 @@ function deepFreeze<T>(value: T): T {
     Object.freeze(value);
   }
   return value;
+}
+
+function publicHazards(state: EkoRunState): PublicHazardSnapshot[] {
+  if (!state.hazards) return [];
+  const byId = new Map(state.hazards.encounters.map(encounter => [encounter.id, encounter]));
+  return getPhase5HazardContracts(state.rootSeed).map(contract => ({
+    id: contract.id,
+    family: contract.family,
+    x: hazardPositionAtTick(contract, state.tick),
+    y: contract.y,
+    width: contract.width,
+    height: contract.height,
+    active: hazardActiveAtTick(contract, state.tick),
+    phase: byId.get(contract.id)?.phase ?? "unseen",
+    legalResponses: [...contract.legalResponses],
+    captionKey: contract.captionKey,
+    visualToken: contract.visualToken,
+  }));
 }
 
 export function createRenderSnapshot(state: EkoRunState, recentEvents: readonly SemanticEvent[] = []): Readonly<EkoRunRenderSnapshot> {
@@ -37,6 +56,7 @@ export function createRenderSnapshot(state: EkoRunState, recentEvents: readonly 
       checkpointXs: [...state.route.checkpointXs],
       finishX: state.route.finishX,
     },
+    hazards: publicHazards(state),
     progress: state.player.progress,
     recentEvents: cloneEvents(recentEvents),
   };

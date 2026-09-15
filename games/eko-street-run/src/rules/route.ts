@@ -3,6 +3,7 @@ import type { RouteState } from "../state/types";
 
 export const FOUNDATION_ROUTE_ID = "foundation-straight-001";
 export const MOVEMENT_GRAYBOX_ROUTE_ID = "movement-graybox-001";
+export const PHASE5_ROUTE_ID = "mainland-hazard-001";
 
 export function createFoundationRoute(): RouteState {
   return {
@@ -55,5 +56,22 @@ export function createMovementGrayboxRoute(): RouteState {
         motion: { minOffsetX: -0.6, maxOffsetX: 0.6, periodTicks: 120 },
       },
     ],
+  };
+}
+
+export function createPhase5Route(): RouteState {
+  return {
+    id: PHASE5_ROUTE_ID,
+    contentVersion: CONTENT_VERSION,
+    groundY: 0,
+    startX: 0,
+    minX: -2,
+    maxX: 126,
+    checkpointXs: [40, 80, 110],
+    finishX: 120,
+    killPlaneY: -6,
+    groundSegments: [{ id: "mainland-hazard-ground", minX: -2, maxX: 126, y: 0 }],
+    slopes: [],
+    colliders: [],
   };
 }

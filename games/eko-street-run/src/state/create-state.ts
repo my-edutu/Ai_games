@@ -1,7 +1,8 @@
 import { PLAYER_HALF_WIDTH, type EkoRunConfig } from "../config/default-config";
-import { createFoundationRoute } from "../rules/route";
+import { createHazardRuntimeState, PHASE5_HAZARD_SCHEMA_VERSION } from "../hazards";
+import { createFoundationRoute, createPhase5Route } from "../rules/route";
 import { createRandomStreams } from "../runtime/prng";
-import type { EkoRunState, MovementState, PlayerState, RouteState } from "./types";
+import type { EkoRunState, HazardEncounterPhase, MovementState, PlayerState, RouteState } from "./types";
 
 export class InvariantError extends Error {
   readonly code: string;
@@ -23,6 +24,7 @@ const MOVEMENT_STATES = new Set<MovementState>([
   "dead",
   "airborne",
 ]);
+const HAZARD_PHASES = new Set<HazardEncounterPhase>(["unseen", "warned", "resolved", "hit"]);
 
 function createInitialPlayer(route: RouteState): PlayerState {
   return {
@@ -42,8 +44,7 @@ function createInitialPlayer(route: RouteState): PlayerState {
   };
 }
 
-export function createInitialState(config: EkoRunConfig): EkoRunState {
-  const route = createFoundationRoute();
+function createStateForRoute(config: EkoRunConfig, route: RouteState, withHazards: boolean): EkoRunState {
   route.killPlaneY = config.killPlaneY;
   const streams = createRandomStreams(config.seed);
   const state: EkoRunState = {
@@ -58,6 +59,7 @@ export function createInitialState(config: EkoRunConfig): EkoRunState {
     lifecycle: "running",
     player: createInitialPlayer(route),
     route,
+    ...(withHazards ? { hazards: createHazardRuntimeState(config.seed) } : {}),
     resources: { ekoTokens: 0 },
     commandWatermarks: {},
     randomStreams: streams.snapshotAuthoritative(),
@@ -65,6 +67,14 @@ export function createInitialState(config: EkoRunConfig): EkoRunState {
   };
   assertStateInvariants(state, config.maxCommandSources, config.playerHalfWidth);
   return state;
+}
+
+export function createInitialState(config: EkoRunConfig): EkoRunState {
+  return createStateForRoute(config, createFoundationRoute(), false);
+}
+
+export function createPhase5State(config: EkoRunConfig): EkoRunState {
+  return createStateForRoute(config, createPhase5Route(), true);
 }
 
 export function cloneState(state: EkoRunState): EkoRunState {
@@ -80,6 +90,10 @@ function assertFiniteTree(state: EkoRunState): void {
 
 function assertTimer(value: number, name: string): void {
   if (!Number.isInteger(value) || value < 0 || value > 10_000) throw new InvariantError("INVALID_TIMER", `${name} must be a bounded non-negative integer`);
+}
+
+function assertOptionalTick(value: number | null, name: string): void {
+  if (value !== null && (!Number.isInteger(value) || value < 0)) throw new InvariantError("INVALID_HAZARD_TICK", `${name} must be null or a non-negative integer`);
 }
 
 function assertRoute(route: RouteState): void {
@@ -109,9 +123,26 @@ function assertRoute(route: RouteState): void {
   }
 }
 
+function assertHazards(state: EkoRunState): void {
+  if (!state.hazards) return;
+  if (state.hazards.hazardSchemaVersion !== PHASE5_HAZARD_SCHEMA_VERSION) throw new InvariantError("INVALID_HAZARD_SCHEMA", "unsupported hazard schema");
+  if (state.hazards.encounters.length > 64) throw new InvariantError("HAZARD_LIMIT", "too many hazard encounters");
+  const ids = new Set<string>();
+  for (const encounter of state.hazards.encounters) {
+    if (!encounter.id || ids.has(encounter.id)) throw new InvariantError("DUPLICATE_HAZARD_ID", "hazard encounter IDs must be unique");
+    ids.add(encounter.id);
+    if (!HAZARD_PHASES.has(encounter.phase)) throw new InvariantError("INVALID_HAZARD_PHASE", "hazard encounter phase is invalid");
+    assertOptionalTick(encounter.warningTick, "warningTick");
+    assertOptionalTick(encounter.resolvedTick, "resolvedTick");
+    if (encounter.phase === "unseen" && encounter.warningTick !== null) throw new InvariantError("INVALID_HAZARD_WARNING", "unseen hazard cannot have warning tick");
+    if ((encounter.phase === "resolved" || encounter.phase === "hit") && encounter.resolvedTick === null) throw new InvariantError("INVALID_HAZARD_RESOLUTION", "resolved hazard requires resolved tick");
+  }
+}
+
 export function assertStateInvariants(state: EkoRunState, maxCommandSources = 8, playerHalfWidth = PLAYER_HALF_WIDTH): void {
   assertFiniteTree(state);
   assertRoute(state.route);
+  assertHazards(state);
   if (!Number.isInteger(state.tick) || state.tick < 0) throw new InvariantError("INVALID_TICK", "tick must be a non-negative integer");
   if (!Number.isInteger(state.nextEventSequence) || state.nextEventSequence < 0) throw new InvariantError("INVALID_EVENT_SEQUENCE", "event sequence is invalid");
   if (!MOVEMENT_STATES.has(state.player.movementState)) throw new InvariantError("INVALID_MOVEMENT_STATE", "movement state is invalid");

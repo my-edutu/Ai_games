@@ -80,6 +80,75 @@ export interface RouteState {
   colliders: RouteColliderRect[];
 }
 
+export type HazardFamily =
+  | "danfo-pull-out"
+  | "molue-crossing"
+  | "pothole"
+  | "open-drain"
+  | "construction-trench"
+  | "flood-puddle"
+  | "handcart"
+  | "rolling-object"
+  | "crowd-compression"
+  | "street-disturbance"
+  | "temporary-block";
+
+export type HazardResponse = "jump" | "slow" | "wait" | "slide" | "vault";
+export type HazardConsequence = "stumble" | "slow" | "fail";
+export type HazardEncounterPhase = "unseen" | "warned" | "resolved" | "hit";
+
+export interface HazardMotion {
+  minOffsetX: number;
+  maxOffsetX: number;
+  periodTicks: number;
+  activeTicks: number;
+}
+
+export interface HazardContract {
+  id: string;
+  family: HazardFamily;
+  baseX: number;
+  y: number;
+  width: number;
+  height: number;
+  warningDistance: number;
+  minResponseTicks: number;
+  legalResponses: HazardResponse[];
+  consequence: HazardConsequence;
+  captionKey: string;
+  visualToken: string;
+  maxHazardSpeed: number;
+  phaseOffsetTicks: number;
+  motion?: HazardMotion;
+}
+
+export interface HazardEncounter {
+  id: string;
+  family: HazardFamily;
+  phase: HazardEncounterPhase;
+  warningTick: number | null;
+  resolvedTick: number | null;
+}
+
+export interface HazardRuntimeState {
+  hazardSchemaVersion: number;
+  encounters: HazardEncounter[];
+}
+
+export interface PublicHazardSnapshot {
+  id: string;
+  family: HazardFamily;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  active: boolean;
+  phase: HazardEncounterPhase;
+  legalResponses: HazardResponse[];
+  captionKey: string;
+  visualToken: string;
+}
+
 export interface ResourceState {
   ekoTokens: number;
 }
@@ -103,6 +172,7 @@ export interface EkoRunState {
   lifecycle: EkoRunLifecycle;
   player: PlayerState;
   route: RouteState;
+  hazards?: HazardRuntimeState;
   resources: ResourceState;
   commandWatermarks: Record<string, number>;
   randomStreams: AuthoritativeRandomSnapshot;
@@ -159,6 +229,9 @@ export type SemanticEventType =
   | "player.stumbled"
   | "player.slid"
   | "player.vaulted"
+  | "hazard.warned"
+  | "hazard.hit"
+  | "hazard.resolved"
   | "integrity.failure";
 
 export interface SemanticEvent {
@@ -226,6 +299,7 @@ export interface EkoRunRenderSnapshot {
     checkpointXs: number[];
     finishX: number;
   };
+  hazards: PublicHazardSnapshot[];
   progress: number;
   recentEvents: SemanticEvent[];
 }

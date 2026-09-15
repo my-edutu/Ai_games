@@ -1,5 +1,6 @@
 import { createDefaultConfig, type EkoRunConfig } from "../config/default-config";
 import { EVENT_SCHEMA_VERSION } from "../config/version";
+import { stepHazards } from "../hazards";
 import { stepPlayerKinematic } from "../physics/kinematic";
 import { sampleSupportSurface } from "../physics/geometry";
 import { assertStateInvariants, cloneState } from "../state/create-state";
@@ -164,7 +165,13 @@ export function stepSimulation(
       next.player.movementState = "dead";
       emit(next, events, "run.failed", { reason: "kill-plane", x: next.player.position.x, y: next.player.position.y });
     } else {
-      updateProgress(next, events);
+      const hazardResult = stepHazards(next, config);
+      for (const signal of hazardResult.signals) emit(next, events, signal.type, signal.data);
+      if (hazardResult.failedReason) {
+        emit(next, events, "run.failed", { reason: hazardResult.failedReason, x: next.player.position.x, y: next.player.position.y });
+      } else {
+        updateProgress(next, events);
+      }
     }
   }
 
