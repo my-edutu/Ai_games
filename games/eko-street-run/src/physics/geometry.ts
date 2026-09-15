@@ -90,21 +90,41 @@ export function separateMovingColliderOverlaps(
 ): MovingSeparationResult {
   let x = centerX;
   const colliderIds: string[] = [];
-  const movers = route.colliders.filter(collider => collider.kind === "moving" && collider.motion).sort((a, b) => a.id.localeCompare(b.id));
+  const movers = route.colliders
+    .filter(collider => collider.kind === "moving" && collider.motion)
+    .sort((a, b) => a.id.localeCompare(b.id));
+  const motionEpsilon = config.quantization * 0.5;
+  const minCenter = route.minX + config.playerHalfWidth;
+  const maxCenter = route.maxX - config.playerHalfWidth;
+
   for (const raw of movers) {
-    const current = resolveCollider(raw, tick, config);
-    if (!verticalOverlap(feetY, height, current, config.collisionSkin)) continue;
-    if (!horizontalOverlap(x, config.playerHalfWidth, current.minX, current.maxX)) continue;
     const previous = resolveCollider(raw, tick - 1, config);
+    const current = resolveCollider(raw, tick, config);
+    const overlapsVertically = verticalOverlap(feetY, height, previous, config.collisionSkin)
+      || verticalOverlap(feetY, height, current, config.collisionSkin);
+    if (!overlapsVertically) continue;
+
     const currentCenter = (current.minX + current.maxX) * 0.5;
     const previousCenter = (previous.minX + previous.maxX) * 0.5;
     const motion = currentCenter - previousCenter;
+    const bodyMin = x - config.playerHalfWidth + config.collisionSkin;
+    const bodyMax = x + config.playerHalfWidth - config.collisionSkin;
+    const currentOverlap = horizontalOverlap(x, config.playerHalfWidth, current.minX, current.maxX);
+    const sweptAcrossRight = motion > motionEpsilon
+      && previous.maxX <= bodyMin
+      && current.minX >= bodyMax;
+    const sweptAcrossLeft = motion < -motionEpsilon
+      && previous.minX >= bodyMax
+      && current.maxX <= bodyMin;
+
+    if (!currentOverlap && !sweptAcrossRight && !sweptAcrossLeft) continue;
+
     const leftTarget = current.minX - config.playerHalfWidth - config.collisionSkin;
     const rightTarget = current.maxX + config.playerHalfWidth + config.collisionSkin;
-    if (motion > config.quantization * 0.5) x = rightTarget;
-    else if (motion < -config.quantization * 0.5) x = leftTarget;
+    if (motion > motionEpsilon) x = rightTarget;
+    else if (motion < -motionEpsilon) x = leftTarget;
     else x = Math.abs(x - leftTarget) <= Math.abs(rightTarget - x) ? leftTarget : rightTarget;
-    x = quantize(Math.max(route.minX, Math.min(route.maxX, x)), config.quantization);
+    x = quantize(Math.max(minCenter, Math.min(maxCenter, x)), config.quantization);
     colliderIds.push(current.id);
   }
   return { x, colliderIds };
