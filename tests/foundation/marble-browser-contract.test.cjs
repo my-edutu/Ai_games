@@ -4,6 +4,7 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
+const { execFileSync } = require('node:child_process');
 
 const root = path.resolve(__dirname, '../../games/marble-survival/public/complete-runtime');
 const index = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
@@ -12,6 +13,8 @@ const styles = fs.readFileSync(path.join(root, 'styles.css'), 'utf8');
 const spectatorStyles = fs.existsSync(path.join(root, 'spectator-polish.css'))
   ? fs.readFileSync(path.join(root, 'spectator-polish.css'), 'utf8')
   : '';
+const audioPath = path.join(root, 'audio-director.js');
+const audioDirector = fs.existsSync(audioPath) ? fs.readFileSync(audioPath, 'utf8') : '';
 
 function includesAll(source, fragments) {
   for (const fragment of fragments) assert.ok(source.includes(fragment), `missing required fragment: ${fragment}`);
@@ -49,6 +52,25 @@ test('arena-first spectator composition uses overlays instead of a permanent das
     'backdrop-filter',
     '@media (max-width: 760px)',
   ]);
+});
+
+test('semantic audio is bounded, event-driven, and presentation-only', () => {
+  includesAll(index, ['audio-director.js']);
+  includesAll(audioDirector, [
+    'MAX_VOICES',
+    'createDynamicsCompressor',
+    "event.type === 'physics-contact'",
+    "event.type === 'marble-qualified'",
+    "event.type === 'marble-eliminated'",
+    "event.type === 'shield-recovery'",
+    "event.type === 'tournament-champion'",
+    'stopImmediatePropagation',
+    "fetch('/api/snapshot'",
+  ]);
+  for (const forbidden of ['forceWinner', 'winnerOverride', 'teleportMarble', '/api/operator']) {
+    assert.equal(audioDirector.includes(forbidden), false, `audio must not affect authority: ${forbidden}`);
+  }
+  execFileSync(process.execPath, ['--check', audioPath], { stdio: 'pipe' });
 });
 
 test('renderer consumes authoritative presentation schema and never uses legacy fake-campaign fields', () => {
