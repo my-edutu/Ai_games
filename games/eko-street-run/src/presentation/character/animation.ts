@@ -23,6 +23,7 @@ const CYCLE_TICKS: Readonly<Record<CharacterAnimation, number>> = Object.freeze(
 
 function assertSnapshot(snapshot: Readonly<EkoRunRenderSnapshot>): void {
   if (!Number.isInteger(snapshot.tick) || snapshot.tick < 0) throw new Error("INVALID_PRESENTATION_SNAPSHOT: tick");
+  if (snapshot.player.facing !== -1 && snapshot.player.facing !== 1) throw new Error("INVALID_PRESENTATION_SNAPSHOT: facing");
   const velocity = snapshot.player.velocity;
   if (!Number.isFinite(velocity.x) || !Number.isFinite(velocity.y)) throw new Error("INVALID_PRESENTATION_SNAPSHOT: velocity");
 }

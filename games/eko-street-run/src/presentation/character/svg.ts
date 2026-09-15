@@ -16,6 +16,7 @@ export function renderCharacterSvg(input: {
   const outfit = getOutfitDefinition(input.outfitId);
   const rawPose = createPoseForAnimation(input.animation, input.phase, { reducedMotion: input.reducedMotion });
   const facing = input.facing ?? 1;
+  if (facing !== -1 && facing !== 1) throw new Error(`INVALID_FACING: ${String(facing)}`);
   const point = (name: keyof typeof rawPose.landmarks) => {
     const source = rawPose.landmarks[name];
     return { x: 80 + Number(px(source.x * facing)), y: 170 - Number(px(source.y)) };
