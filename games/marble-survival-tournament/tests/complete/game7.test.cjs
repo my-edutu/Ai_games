@@ -157,16 +157,20 @@ test('camera: director output is bounded presentation state and never mutates au
 test('presentation: Three.js is primary with an authoritative 2D safety fallback', () => {
   const html = fs.readFileSync(path.join(publicRoot, 'index.html'), 'utf8');
   const three = fs.readFileSync(path.join(publicRoot, 'arena3d.js'), 'utf8');
+  const wind = fs.readFileSync(path.join(publicRoot, 'wind3d.js'), 'utf8');
   const css = fs.readFileSync(path.join(publicRoot, 'arena3d.css'), 'utf8');
   assert.match(html, /id="arena-webgl"/);
   assert.match(html, /id="arena-canvas"/);
+  assert.match(html, /type="module" src="\/wind3d\.js"/);
   assert.match(html, /type="module" src="\/arena3d\.js"/);
   assert.match(three, /from '\/vendor\/three\.module\.min\.js'/);
   assert.match(three, /new THREE\.WebGLRenderer/);
   assert.match(three, /MeshPhysicalMaterial/);
   assert.match(three, /shadowMap/);
   assert.match(three, /prefers-reduced-motion/);
-  assert.match(three, /windZones/);
+  assert.match(wind, /arena\.windZones/);
+  assert.match(wind, /ArrowHelper/);
+  assert.match(wind, /authoritative-wind-telegraphs/);
   assert.match(css, /\.three-ready #arena-webgl/);
   assert.match(css, /data-clean='true'/);
 });
