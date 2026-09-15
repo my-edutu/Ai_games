@@ -9,6 +9,9 @@ const root = path.resolve(__dirname, '../../games/marble-survival/public/complet
 const index = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
 const app = fs.readFileSync(path.join(root, 'app.js'), 'utf8');
 const styles = fs.readFileSync(path.join(root, 'styles.css'), 'utf8');
+const spectatorStyles = fs.existsSync(path.join(root, 'spectator-polish.css'))
+  ? fs.readFileSync(path.join(root, 'spectator-polish.css'), 'utf8')
+  : '';
 
 function includesAll(source, fragments) {
   for (const fragment of fragments) assert.ok(source.includes(fragment), `missing required fragment: ${fragment}`);
@@ -28,6 +31,24 @@ test('broadcast shell prioritizes arena, qualification state, and visual quality
     'id="influence-status"',
   ]);
   assert.equal(index.includes('id="checksum"'), false, 'spectator HUD should not spend prime space on an obsolete campaign checksum');
+});
+
+test('arena-first spectator composition uses overlays instead of a permanent dashboard sidebar', () => {
+  includesAll(index, [
+    'data-layout="arena-first"',
+    'spectator-polish.css',
+    'class="leaderboard-panel broadcast-overlay"',
+    'class="lower-grid broadcast-lower-overlay"',
+  ]);
+  includesAll(spectatorStyles, [
+    '.stage-grid',
+    'position: relative',
+    '.leaderboard-panel.broadcast-overlay',
+    'position: absolute',
+    '.broadcast-lower-overlay',
+    'backdrop-filter',
+    '@media (max-width: 760px)',
+  ]);
 });
 
 test('renderer consumes authoritative presentation schema and never uses legacy fake-campaign fields', () => {
