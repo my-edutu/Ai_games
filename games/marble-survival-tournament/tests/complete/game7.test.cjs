@@ -101,6 +101,24 @@ test('agent: sprinter takes a bounded risk route when no immediate geometry thre
   assert.ok(Math.abs(action.steerX) <= 1_000);
 });
 
+test('presentation: authoritative wind zones are sanitized into the public arena snapshot', () => {
+  const runtime = MarbleRuntime.create({ roundIntroTicks: 0 }, 'marble-wind-presentation');
+  const rng = NamedRng.fromSeed('marble-wind-arena');
+  runtime.state.arena = generateMarbleArena(runtime.config, 2, rng);
+  assert.ok(runtime.state.arena.windZones.length > 0);
+  const snapshot = createMarblePresentationSnapshot(runtime.state, []);
+  assert.equal(snapshot.arena.windZones.length, runtime.state.arena.windZones.length);
+  assert.deepEqual(snapshot.arena.windZones[0], {
+    id: runtime.state.arena.windZones[0].id,
+    x: runtime.state.arena.windZones[0].x,
+    y: runtime.state.arena.windZones[0].y,
+    width: runtime.state.arena.windZones[0].width,
+    height: runtime.state.arena.windZones[0].height,
+    forceX: runtime.state.arena.windZones[0].forceX,
+    forceY: runtime.state.arena.windZones[0].forceY,
+  });
+});
+
 test('authority: presentation snapshot is immutable, sanitized, and bounded', () => {
   const runtime = runTicks('marble-public-snapshot', 180);
   const snapshot = createMarblePresentationSnapshot(runtime.state, runtime.drainEvents());
@@ -148,6 +166,7 @@ test('presentation: Three.js is primary with an authoritative 2D safety fallback
   assert.match(three, /MeshPhysicalMaterial/);
   assert.match(three, /shadowMap/);
   assert.match(three, /prefers-reduced-motion/);
+  assert.match(three, /windZones/);
   assert.match(css, /\.three-ready #arena-webgl/);
   assert.match(css, /data-clean='true'/);
 });
