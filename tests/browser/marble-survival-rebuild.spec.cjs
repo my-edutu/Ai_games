@@ -66,8 +66,14 @@ test('Marble Survival renders real Three.js tournament states and capture eviden
   await page.waitForTimeout(180);
   await shot(page, '03-moving-sweeper.png');
 
-  const hazard = await waitFor(request, (value) => value.arena?.archetype === 'hazard-circuit' && value.arena?.hazards?.length > 0, 'hazard circuit');
+  const hazard = await waitFor(
+    request,
+    (value) => value.arena?.archetype === 'hazard-circuit' && value.arena?.hazards?.length > 0 && value.arena?.windZones?.length > 0,
+    'hazard circuit with authoritative wind',
+  );
   expect(hazard.arena.hazards.length).toBeGreaterThan(0);
+  expect(hazard.arena.windZones.length).toBeGreaterThan(0);
+  await expect.poll(async () => Number(await shell.getAttribute('data-wind-zones') || 0), { timeout: 5000 }).toBeGreaterThan(0);
   await shot(page, '04-hazard-collision-course.png');
 
   await waitFor(request, (value) => (value.camera?.dangerIds?.length || 0) > 0 || value.events?.some((event) => event.type === 'shield-recovery'), 'near elimination or recovery');
