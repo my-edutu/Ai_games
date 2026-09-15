@@ -1,0 +1,66 @@
+name: Eko Run Phase 5 Hazards Traffic
+
+on:
+  push:
+    branches:
+      - agent/eko-run-phase5
+      - agent/eko-run-phase5-closure
+    paths:
+      - 'games/eko-street-run/**'
+      - 'tests/phase5/eko-run-*.test.cjs'
+      - 'tests/phase4/eko-run-*.test.cjs'
+      - 'tests/phase3/eko-run-*.test.cjs'
+      - 'tests/phase2/eko-run-*.test.cjs'
+      - 'tests/foundation/eko-run-*.test.cjs'
+      - 'scripts/run-eko-run-phase5-evidence.cjs'
+      - '.github/workflows/eko-run-phase5.yml'
+      - 'package.json'
+      - 'package-lock.json'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'games/eko-street-run/**'
+      - 'tests/phase5/eko-run-*.test.cjs'
+      - 'scripts/run-eko-run-phase5-evidence.cjs'
+      - '.github/workflows/eko-run-phase5.yml'
+      - 'package.json'
+      - 'package-lock.json'
+
+jobs:
+  hazards-traffic:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22.16.0
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - name: Install locked toolchain
+        run: npm ci --no-audit --no-fund
+      - name: Build
+        run: npm run build
+      - name: Phase 5 hazard and traffic tests
+        run: node --test tests/phase5/eko-run-*.test.cjs
+      - name: Phase 4 regression tests
+        run: node --test tests/phase4/eko-run-*.test.cjs
+      - name: Phase 3 regression tests
+        run: node --test tests/phase3/eko-run-*.test.cjs
+      - name: Phase 2 regression tests
+        run: node --test tests/phase2/eko-run-*.test.cjs
+      - name: Phase 1 regression tests
+        run: node --test tests/foundation/eko-run-*.test.cjs
+      - name: Authority boundary scan
+        shell: bash
+        run: |
+          set -euo pipefail
+          if grep -R -n -E "from ['\"]three['\"]|require\(['\"]three['\"]\)" \
+            games/eko-street-run/src/config \
+            games/eko-street-run/src/state \
+            games/eko-street-run/src/runtime \
+            games/eko-street-run/src/physics \
+            games/eko-street-run/src/rules \
+            games/eko-street-run/src/hazards 2>/dev/null; then
+            echo 'Three.js leaked into authoritative code.'
+            exit 1
+          fi
