@@ -105,6 +105,7 @@ export function stepSimulation(
   candidates.sort(compareCommands);
 
   const acceptedCommands: ValidatedCommand[] = [];
+  let moveAuthorityClaimed = false;
   for (const command of candidates) {
     if (command.targetTick < next.tick) {
       rejectedCommands.push(reject(command, "STALE_TICK"));
@@ -131,6 +132,12 @@ export function stepSimulation(
       rejectedCommands.push(reject(command, "RUN_NOT_ACTIVE"));
       continue;
     }
+    if (command.type === "move" && moveAuthorityClaimed) {
+      next.commandWatermarks[command.sourceId] = command.sourceSequence;
+      rejectedCommands.push(reject(command, "MOVE_CONFLICT"));
+      continue;
+    }
+    if (command.type === "move") moveAuthorityClaimed = true;
     next.commandWatermarks[command.sourceId] = command.sourceSequence;
     acceptedCommands.push(command);
   }
