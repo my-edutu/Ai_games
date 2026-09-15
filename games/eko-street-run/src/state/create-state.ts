@@ -1,4 +1,5 @@
 import { PLAYER_HALF_WIDTH, type EkoRunConfig } from "../config/default-config";
+import { PHASE6_DISTRICT_IDS, PHASE6_GENERATOR_VERSION } from "../generation";
 import { createHazardRuntimeState, createHazardRuntimeStateFromContracts, PHASE5_HAZARD_SCHEMA_VERSION } from "../hazards";
 import { createPhase6Progression, createPhase6Resources, PHASE6_LEDGER_ID_LIMIT, PHASE6_TOKEN_CAP } from "../progression";
 import { createFoundationRoute, createPhase5Route } from "../rules/route";
@@ -187,10 +188,18 @@ function assertPhase6(state: EkoRunState): void {
   if (!Number.isInteger(progression.districtIndex) || progression.districtIndex < 0 || progression.districtIndex > 5) throw new InvariantError("INVALID_DISTRICT_INDEX", "district index is invalid");
   if (!Number.isInteger(progression.cycle) || progression.cycle < 0 || progression.cycle > 1_000_000) throw new InvariantError("INVALID_DISTRICT_CYCLE", "district cycle is invalid");
   if (!Number.isInteger(progression.districtCompletions) || progression.districtCompletions < 0) throw new InvariantError("INVALID_DISTRICT_COMPLETIONS", "district completions are invalid");
-  if (progression.activeContent.districtId !== progression.districtId || progression.activeContent.route.id !== state.route.id) throw new InvariantError("PROGRESSION_ROUTE_MISMATCH", "active generated content must match authoritative route");
-  if (!progression.activeContent.validation.valid) throw new InvariantError("INVALID_GENERATED_CONTENT", "active Phase 6 content must validate");
-  if (progression.activeContent.hazards.length > 16 || progression.activeContent.tokens.length > 16 || progression.activeContent.decisions.length > 8 || progression.activeContent.milestones.length > 8) throw new InvariantError("PHASE6_CONTENT_LIMIT", "generated content exceeds live bounds");
-  for (const value of Object.values(progression.activeContent.difficulty)) if (value < 0 || value > 1) throw new InvariantError("INVALID_DIFFICULTY", "difficulty axes must remain normalized");
+  const content = progression.activeContent;
+  if (
+    PHASE6_DISTRICT_IDS[progression.districtIndex] !== progression.districtId
+    || content.generatorVersion !== PHASE6_GENERATOR_VERSION
+    || content.districtIndex !== progression.districtIndex
+    || content.districtId !== progression.districtId
+    || content.cycle !== progression.cycle
+    || content.route.id !== state.route.id
+  ) throw new InvariantError("PROGRESSION_ROUTE_MISMATCH", "active generated content must match authoritative district, cycle, generator and route");
+  if (!content.validation.valid) throw new InvariantError("INVALID_GENERATED_CONTENT", "active Phase 6 content must validate");
+  if (content.hazards.length > 16 || content.tokens.length > 16 || content.decisions.length > 8 || content.milestones.length > 8) throw new InvariantError("PHASE6_CONTENT_LIMIT", "generated content exceeds live bounds");
+  for (const value of Object.values(content.difficulty)) if (value < 0 || value > 1) throw new InvariantError("INVALID_DIFFICULTY", "difficulty axes must remain normalized");
 }
 
 export function assertStateInvariants(state: EkoRunState, maxCommandSources = 8, playerHalfWidth = PLAYER_HALF_WIDTH): void {
