@@ -15,7 +15,7 @@ export function survivorPose(input:{action:SurvivorAction;health:number;stamina:
 export function zombiePose(input:{action:ZombieAction;variant:number;archetype?:ZombieArchetype}) {
   const archetype=input.archetype??'shambler';
   const base=archetype==='runner'?1.25:archetype==='brute'?.55:.78;
-  const cadence=base+(input.variant%4)*.06;
+  const cadence=base+(input.variant%5)*.06;
   const silhouette=archetype==='brute'?'heavy' as const:archetype==='runner'?'lean' as const:'ragged' as const;
   if(input.action==='pursue'||input.action==='attack')return{stance:'lunge' as const,cadence,hunch:archetype==='runner'?.22:.42,silhouette};
   if(input.action==='stagger')return{stance:'recoil' as const,cadence:.35,hunch:.18,silhouette};
