@@ -1,16 +1,13 @@
 # AI Zombie Survival
 
-Autonomous deterministic 2.5D survival game for long-form livestream play. The authoritative fixed-step simulation drives survivor decisions, zombie hordes, barricades, scavenging, infection, resources, day/night, weather state, camera events, and bounded viewer influence. The browser renderer presents that state as an isometric ruined city rather than as a dashboard.
+Cinematic autonomous 2.5D survival game package.
 
-## Run
+## Runtime
+- `npm test` — build and run authoritative/presentation tests.
+- `npm run serve` — build and serve the browser game.
+- `H` hides/shows the HUD, `R` restarts the deterministic run, `Space` pauses/resumes.
 
-```bash
-npm run test
-npm run serve
-```
+## Architecture
+The fixed-step simulation is authoritative. Rendering, camera, VFX and audio consume authoritative state and may not mutate outcomes. The current rebuild includes physical scavenging/carry/deposit, civilians and rescue escorts, safe-house progression, multiple infected archetypes, modular districts/interiors, day/night/weather, barricade defense and bounded viewer influence.
 
-Open `http://127.0.0.1:4177/web/index.html` in a normal local browser. Controls: **H** toggles HUD, **R** restarts the deterministic run, **Space** pauses presentation/simulation.
-
-## Integrity
-
-Presentation never decides outcomes. Viewer events are bounded and audited. Determinism is covered by tests. The game is isolated under `games/ai-zombie-survival/**` except for its dedicated implementation plan under `docs/superpowers/plans/`.
+See `VISUAL_ACCEPTANCE_REPORT.md` and `PRODUCTION_READINESS.md` for evidence status. Runtime screenshots and browser acceptance must be generated from the actual browser build; concept art is never accepted as runtime evidence.
