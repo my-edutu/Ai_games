@@ -27,13 +27,19 @@ test('browser runtime snapshots are produced from the live MarbleRuntime authori
   );
 });
 
-test('browser runtime does not advance authority while paused and resumes without fabricating round events', () => {
+test('browser runtime does not advance authority while paused and restart preserves the operator hold', () => {
   const runtime = createRuntime({ seed: 'server-pause' });
   const before = runtime.authority.state.tick;
 
   runtime.state.paused = true;
   for (let index = 0; index < 5; index += 1) runtime.advance();
   assert.equal(runtime.authority.state.tick, before);
+
+  runtime.restart();
+  assert.equal(runtime.state.paused, true, 'restart must not silently override an operator pause');
+  const restartedTick = runtime.authority.state.tick;
+  for (let index = 0; index < 5; index += 1) runtime.advance();
+  assert.equal(runtime.authority.state.tick, restartedTick, 'paused restart must remain frozen for deterministic evidence capture');
 
   runtime.state.paused = false;
   for (let index = 0; index < 5; index += 1) runtime.advance();
