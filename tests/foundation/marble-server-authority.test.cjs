@@ -96,3 +96,52 @@ test('presentation replay seals only after official champion adjudication and ne
   assert.equal(runtime.authority.state.lifecycle, 'intermission', 'live authority must continue after champion even when replay is available');
   assert.equal(JSON.stringify(runtime.currentReplay()), replayBeforeAdvance, 'sealed replay must remain stable while live authority continues');
 });
+
+test('evidence-only result latch pauses only after authority officially adjudicates a champion', () => {
+  const runtime = createRuntime({
+    seed: 'server-evidence-result',
+    pauseOnTournamentResult: true,
+    config: {
+      rosterSize: 2,
+      roundQuotas: [1, 1, 1, 1, 1],
+      roundIntroTicks: 0,
+      intermissionTicks: 3,
+    },
+  });
+
+  runtime.authority.state.roundIndex = 4;
+  runtime.authority.state.roundNumber = 5;
+  runtime.authority.state.currentQuota = 1;
+  runtime.authority.state.activeIds = [0, 1];
+  runtime.authority.state.qualifiedIds = [];
+  runtime.authority.state.lifecycle = 'active';
+  runtime.authority.state.result = null;
+  runtime.authority.state.marbles.forEach((marble) => {
+    marble.status = 'active';
+    marble.roundStatus = 'racing';
+    marble.finishRank = null;
+  });
+  runtime.authority.state.marbles[0].position.y = runtime.authority.state.arena.finishY - runtime.authority.state.config.marbleRadius;
+
+  const adjudicated = runtime.advance();
+  assert.equal(adjudicated.lifecycle, 'tournament-result');
+  assert.equal(adjudicated.result?.kind, 'champion');
+  assert.equal(runtime.state.paused, true, 'evidence latch must pause only after the official result exists');
+
+  const championId = adjudicated.result.championId;
+  const snapshot = runtime.currentSnapshot();
+  const replay = runtime.currentReplay();
+  assert.equal(snapshot.camera.championId, championId);
+  assert.equal(snapshot.camera.directive.mode, 'victory');
+  assert.equal(replay.available, true, 'official result should be sealed before evidence is held');
+  assert.equal(replay.championId, championId);
+
+  const heldTick = runtime.authority.state.tick;
+  for (let index = 0; index < 12; index += 1) runtime.advance();
+  assert.equal(runtime.authority.state.tick, heldTick, 'latched evidence result must not advance into intermission');
+  assert.equal(runtime.authority.state.lifecycle, 'tournament-result');
+
+  runtime.state.paused = false;
+  runtime.advance();
+  assert.equal(runtime.authority.state.lifecycle, 'intermission', 'explicit resume restores normal production progression');
+});
