@@ -101,6 +101,8 @@ test('Marble WebGL broadcast renders authoritative tournament and captures runti
   const resetState = await snapshot();
   expect(resetState.round.index).toBe(0);
   expect(resetState.lifecycle).toBe('active');
+  await expect(page.locator('#tick-value')).toHaveText('0', { timeout: 2_000 });
+  await expect(page.locator('#round-name')).toHaveText('Seeding Sprint', { timeout: 2_000 });
 
   const captured = new Set();
   const archetypes = new Set();
