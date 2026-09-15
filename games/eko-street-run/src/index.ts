@@ -10,4 +10,5 @@ export * from "./physics/geometry";
 export * from "./physics/kinematic";
 export * from "./rules/route";
 export * from "./presentation/snapshot";
+export * from "./presentation/character";
 export * from "./persistence/replay";
