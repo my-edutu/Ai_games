@@ -2,12 +2,53 @@
 
 const fs = require('node:fs');
 const path = require('node:path');
+const { spawn } = require('node:child_process');
 const { test, expect } = require('@playwright/test');
 
 const base = 'http://127.0.0.1:4317';
 const artifacts = path.resolve(__dirname, '../../artifacts/marble-visual-rebuild');
+const serverScript = path.resolve(__dirname, '../../games/marble-survival/scripts/serve-visual-evidence.cjs');
+let serverProcess = null;
 
-test.beforeAll(() => fs.mkdirSync(artifacts, { recursive: true }));
+async function waitForServer() {
+  let lastError = null;
+  for (let attempt = 0; attempt < 80; attempt += 1) {
+    try {
+      const response = await fetch(`${base}/api/health`, { cache: 'no-store' });
+      if (response.ok) return;
+    } catch (error) {
+      lastError = error;
+    }
+    await new Promise(resolve => setTimeout(resolve, 100));
+  }
+  throw lastError || new Error('Marble visual evidence server did not become ready');
+}
+
+test.beforeAll(async () => {
+  fs.mkdirSync(artifacts, { recursive: true });
+  serverProcess = spawn(process.execPath, [serverScript], {
+    cwd: path.resolve(__dirname, '../..'),
+    env: { ...process.env, PORT: '4317', GAME7_VISUAL_TICK_MS: '4' },
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+  let startupLog = '';
+  serverProcess.stdout.on('data', chunk => { startupLog += chunk.toString(); });
+  serverProcess.stderr.on('data', chunk => { startupLog += chunk.toString(); });
+  serverProcess.once('exit', code => {
+    if (code && code !== 0) process.stderr.write(`Marble evidence server exited ${code}: ${startupLog}\n`);
+  });
+  await waitForServer();
+});
+
+test.afterAll(async () => {
+  if (!serverProcess || serverProcess.killed) return;
+  serverProcess.kill('SIGTERM');
+  await Promise.race([
+    new Promise(resolve => serverProcess.once('exit', resolve)),
+    new Promise(resolve => setTimeout(resolve, 2_000)),
+  ]);
+  if (!serverProcess.killed) serverProcess.kill('SIGKILL');
+});
 
 test('Marble WebGL broadcast renders authoritative tournament and captures runtime evidence', async ({ page, browser }) => {
   test.setTimeout(180_000);
@@ -34,7 +75,7 @@ test('Marble WebGL broadcast renders authoritative tournament and captures runti
 
   const captured = new Set();
   const archetypes = new Set();
-  const capture = async (name) => {
+  const capture = async name => {
     if (captured.has(name)) return;
     captured.add(name);
     await page.screenshot({ path: path.join(artifacts, `${name}.png`), fullPage: false });
