@@ -1,5 +1,5 @@
 import { PLAYER_HALF_WIDTH, type EkoRunConfig } from "../config/default-config";
-import { PHASE6_DISTRICT_IDS, PHASE6_GENERATOR_VERSION } from "../generation";
+import { fingerprintGeneratedDistrict, PHASE6_DISTRICT_IDS, PHASE6_GENERATOR_VERSION, validateGeneratedDistrict } from "../generation";
 import { createHazardRuntimeState, createHazardRuntimeStateFromContracts, PHASE5_HAZARD_SCHEMA_VERSION } from "../hazards";
 import { createPhase6Progression, createPhase6Resources, PHASE6_LEDGER_ID_LIMIT, PHASE6_TOKEN_CAP } from "../progression";
 import { createFoundationRoute, createPhase5Route } from "../rules/route";
@@ -118,7 +118,10 @@ function assertPhase6(state: EkoRunState): void {
   if (!Number.isInteger(progression.districtCompletions) || progression.districtCompletions < 0) throw new InvariantError("INVALID_DISTRICT_COMPLETIONS", "district completions are invalid");
   const content = progression.activeContent;
   if (PHASE6_DISTRICT_IDS[progression.districtIndex] !== progression.districtId || content.generatorVersion !== PHASE6_GENERATOR_VERSION || content.districtIndex !== progression.districtIndex || content.districtId !== progression.districtId || content.cycle !== progression.cycle || content.route.id !== state.route.id) throw new InvariantError("PROGRESSION_ROUTE_MISMATCH", "active generated content must match authoritative district, cycle, generator and route");
-  if (!content.validation.valid) throw new InvariantError("INVALID_GENERATED_CONTENT", "active Phase 6 content must validate");
+  const actualFingerprint = fingerprintGeneratedDistrict(content);
+  if (actualFingerprint !== content.fingerprint) throw new InvariantError("GENERATED_CONTENT_FINGERPRINT_MISMATCH", "active generated content fingerprint does not match authoritative content");
+  const freshValidation = validateGeneratedDistrict(content);
+  if (!freshValidation.valid || !content.validation.valid) throw new InvariantError("INVALID_GENERATED_CONTENT", `active Phase 6 content failed validation: ${freshValidation.codes.join(",") || "stale-validation"}`);
   if (content.hazards.length > 16 || content.tokens.length > 16 || content.decisions.length > 8 || content.milestones.length > 8) throw new InvariantError("PHASE6_CONTENT_LIMIT", "generated content exceeds live bounds");
   for (const value of Object.values(content.difficulty)) if (value < 0 || value > 1) throw new InvariantError("INVALID_DIFFICULTY", "difficulty axes must remain normalized");
 }
