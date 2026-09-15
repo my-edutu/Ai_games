@@ -18,25 +18,27 @@ test('maze camera focuses the discovered public map instead of the full hidden g
   expect(value.view.containsCurrentCell).toBe(true);
 });
 
-test('2.5d renderer keeps the playable world locally framed and inspectable', async ({ page }) => {
+test('2.5d renderer uses character-forward local cinematic framing', async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 720 });
   await page.goto(`${base}/maze`, { waitUntil: 'domcontentloaded' });
   await page.waitForFunction(() => window.__MAZE_RENDER_STATS__ && window.__MAZE_PUBLIC_STATE__);
   const value = await page.evaluate(() => ({ stats: window.__MAZE_RENDER_STATS__, state: window.__MAZE_PUBLIC_STATE__ }));
   expect(value.stats.mode).toBe('webgl2');
-  expect(value.stats.cameraDistance).toBeGreaterThanOrEqual(5.9);
-  expect(value.stats.cameraDistance).toBeLessThanOrEqual(6.5);
-  expect(value.stats.cells).toBeLessThanOrEqual(35);
+  expect(value.stats.cameraDistance).toBeGreaterThanOrEqual(5.1);
+  expect(value.stats.cameraDistance).toBeLessThanOrEqual(5.65);
+  expect(value.stats.localRenderRadius).toBe(2);
+  expect(value.stats.cells).toBeLessThanOrEqual(20);
   expect(value.stats.currentCellVisible).toBe(true);
   expect(value.stats.theme).toBe('lost-facility-ruins');
   expect(value.stats.cutawayMode).toBe('camera-facing');
   expect(value.stats.focusLight).toBe(true);
+  expect(value.stats.compositionProfile).toBe('character-forward-close');
 });
 
 test('maze visual language uses layered ruins and a restrained explorer material', async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 720 });
   await page.goto(`${base}/maze`, { waitUntil: 'domcontentloaded' });
-  await page.waitForFunction(() => window.__MAZE_RENDER_STATS__ && window.__MAZE_RENDER_STATS__.cells >= 6);
+  await page.waitForFunction(() => window.__MAZE_RENDER_STATS__ && window.__MAZE_RENDER_STATS__.cells >= 5);
   const stats = await page.evaluate(() => window.__MAZE_RENDER_STATS__);
   expect(stats.wallConstruction).toBe('layered-ruin-facility');
   expect(stats.wallLayerCount).toBeGreaterThanOrEqual(3);
@@ -45,6 +47,9 @@ test('maze visual language uses layered ruins and a restrained explorer material
   expect(stats.detailPrimitivesPerCell).toBeLessThanOrEqual(14);
   expect(stats.explorerMaterial).toBe('muted-field-suit');
   expect(stats.explorerHighlightStrength).toBeLessThanOrEqual(0.72);
+  expect(stats.explorerScale).toBeGreaterThanOrEqual(1.2);
+  expect(stats.roomIdentityLayers).toBeGreaterThanOrEqual(3);
+  expect(stats.architecturalSilhouette).toBe('stepped-ruin-arches');
 });
 
 test('production polish stays deterministic, bounded and presentation-only', async ({ page }) => {
