@@ -8,6 +8,7 @@ const { server } = createServer({
   seed: process.env.GAME7_SEED || 'visual-evidence-2026',
   operatorToken: 'visual-evidence-only',
   tickIntervalMs,
+  pauseOnTournamentResult: true,
 });
 
 server.listen(port, '127.0.0.1', () => {
