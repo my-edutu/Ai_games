@@ -8,12 +8,14 @@ export interface EscapePresentationSignals{
   pathologyCount:number;
   plannerExpansions:number;
 }
+export type EscapePhysicalSurface='desk'|'shelf'|'left-wall'|'right-wall'|'back-wall'|'console'|'pedestal'|'floor'|'exit';
+export interface EscapePhysicalPlacement{surface:EscapePhysicalSurface;slot:number;variant:number;stage:number|null;}
 export interface EscapeRenderObject{
-  id:string;kind:string;labelKey:string;shape:string;symbol:string;color:string;inspected:boolean;carried:boolean;solved:boolean;xPermille:number;yPermille:number;mechanismKind:EscapePuzzleKind|null;
+  id:string;kind:string;labelKey:string;shape:string;symbol:string;color:string;inspected:boolean;carried:boolean;solved:boolean;xPermille:number;yPermille:number;mechanismKind:EscapePuzzleKind|null;placement:EscapePhysicalPlacement;
 }
 export interface EscapeRenderEvent{seq:number;tick:number;type:string;label:string;priority:number;}
 export interface EscapeRenderSnapshot{
-  schemaVersion:1;gameId:'ai-escape-room';renderVersion:'escape-render-v1';runToken:string;authorityChecksum:string;roomIndex:number;theme:string;difficulty:number;tick:number;
+  schemaVersion:1;gameId:'ai-escape-room';renderVersion:'escape-render-v2';runToken:string;authorityChecksum:string;roomIndex:number;theme:string;difficulty:number;tick:number;
   scene:'normal'|'danger'|'result'|'intermission'|'recovery';objective:string;
   progress:{solvedPuzzles:number;totalPuzzles:number;permille:number;currentStage:number};
   timer:{remainingTicks:number;danger:boolean};record:{score:number;streak:number};
@@ -38,10 +40,27 @@ function deepFreeze<T>(value:T):T{
   }
   return value;
 }
-function objectCoordinates(index:number,total:number){
-  const columns=Math.max(3,Math.ceil(Math.sqrt(Math.max(1,total)*1.55)));const rows=Math.max(2,Math.ceil(total/columns));
-  const column=index%columns,row=Math.floor(index/columns);
-  return{xPermille:columns===1?500:90+Math.round(column*820/(columns-1)),yPermille:rows===1?500:150+Math.round(row*690/(rows-1))};
+function stableVariant(id:string){let hash=2166136261;for(let index=0;index<id.length;index++){hash^=id.charCodeAt(index);hash=Math.imul(hash,16777619);}return(hash>>>0)%8;}
+function physicalPlacement(kind:string,mechanismKind:EscapePuzzleKind|null,index:number,stage:number|null,id:string):EscapePhysicalPlacement{
+  const variant=stableVariant(id),slot=Math.max(0,Math.min(15,index%16));
+  if(kind==='exit')return{surface:'exit',slot:0,variant,stage};
+  if(mechanismKind==='final-vault'||kind==='vault')return{surface:variant%2===0?'back-wall':'pedestal',slot:0,variant,stage};
+  if(kind==='scale'||mechanismKind==='balance-clue')return{surface:'pedestal',slot:slot%4,variant,stage};
+  if(kind==='switch'||mechanismKind==='switch-network')return{surface:variant%2===0?'right-wall':'console',slot:slot%6,variant,stage};
+  if(kind==='lock'||mechanismKind){return{surface:variant%2===0?'left-wall':'right-wall',slot:slot%8,variant,stage};}
+  if(kind==='tool')return{surface:variant%3===0?'shelf':'desk',slot:slot%8,variant,stage};
+  if(kind==='clue')return{surface:variant%2===0?'desk':'shelf',slot:slot%10,variant,stage};
+  return{surface:variant%2===0?'floor':'shelf',slot:slot%10,variant,stage};
+}
+function presentationCoordinates(placement:EscapePhysicalPlacement){
+  const normalized=(placement.slot%8)/7;
+  if(placement.surface==='left-wall')return{xPermille:120,yPermille:180+Math.round(normalized*560)};
+  if(placement.surface==='right-wall')return{xPermille:880,yPermille:180+Math.round(normalized*560)};
+  if(placement.surface==='back-wall'||placement.surface==='exit')return{xPermille:500,yPermille:180+Math.round(normalized*260)};
+  if(placement.surface==='desk'||placement.surface==='console')return{xPermille:250+Math.round(normalized*500),yPermille:690};
+  if(placement.surface==='pedestal')return{xPermille:350+Math.round(normalized*300),yPermille:520};
+  if(placement.surface==='shelf')return{xPermille:180+Math.round(normalized*640),yPermille:350};
+  return{xPermille:180+Math.round(normalized*640),yPermille:800};
 }
 function sceneFor(state:EscapeState):EscapeRenderSnapshot['scene']{
   if(state.lifecycle==='result')return'result';if(state.lifecycle==='intermission')return'intermission';
@@ -54,10 +73,12 @@ function sanitizeEvents(events:EscapeEvent[]):EscapeRenderEvent[]{
 export function buildEscapeRenderSnapshot(state:EscapeState,signals:EscapePresentationSignals,events:EscapeEvent[]=[]):EscapeRenderSnapshot{
   const visible=state.room.objects.filter(object=>state.objectStates[object.id]?.visible).slice(0,48).sort((a,b)=>a.id.localeCompare(b.id));
   const mechanismKinds=new Map(state.room.puzzles.map(puzzle=>[puzzle.targetObjectId,puzzle.kind] as const));
-  const objects=visible.map((object,index)=>({
-    id:object.id,kind:object.kind,labelKey:object.labelKey,shape:object.publicShape??object.kind,symbol:object.publicSymbol??object.kind,color:object.publicColor??'neutral',
-    inspected:state.objectStates[object.id]!.inspected,carried:state.objectStates[object.id]!.carried,solved:state.objectStates[object.id]!.solved,mechanismKind:mechanismKinds.get(object.id)??null,...objectCoordinates(index,visible.length),
-  }));
+  const stageByObject=new Map<string,number>();for(const puzzle of state.room.puzzles){stageByObject.set(puzzle.targetObjectId,puzzle.stage);for(const clueId of puzzle.clueIds)stageByObject.set(clueId,puzzle.stage);}
+  const objects=visible.map((object,index)=>{
+    const mechanismKind=mechanismKinds.get(object.id)??null,stage=stageByObject.get(object.id)??null,placement=physicalPlacement(object.kind,mechanismKind,index,stage,object.id),coordinates=presentationCoordinates(placement);
+    return{id:object.id,kind:object.kind,labelKey:object.labelKey,shape:object.publicShape??object.kind,symbol:object.publicSymbol??object.kind,color:object.publicColor??'neutral',
+      inspected:state.objectStates[object.id]!.inspected,carried:state.objectStates[object.id]!.carried,solved:state.objectStates[object.id]!.solved,mechanismKind,placement,...coordinates};
+  });
   const currentPuzzle=state.room.puzzles.find(puzzle=>!state.solvedPuzzleIds.includes(puzzle.id)&&puzzle.prerequisitePuzzleIds.every(id=>state.solvedPuzzleIds.includes(id)));
   const focusObjectId=currentPuzzle?.targetObjectId??objects.find(object=>!object.inspected)?.id??null;
   const focus=objects.find(object=>object.id===focusObjectId);
@@ -65,7 +86,7 @@ export function buildEscapeRenderSnapshot(state:EscapeState,signals:EscapePresen
   const progressPermille=Math.floor(state.solvedPuzzleIds.length*1000/Math.max(1,state.room.puzzles.length));
   const remainingTicks=Math.max(0,state.config.maxTicks-state.tick);
   const base:Omit<EscapeRenderSnapshot,'authorityChecksum'>={
-    schemaVersion:1,gameId:'ai-escape-room',renderVersion:'escape-render-v1',runToken:checksum({roomId:state.roomId,roomIndex:state.roomIndex}),roomIndex:state.roomIndex,theme:state.room.theme,difficulty:state.room.difficulty,tick:state.tick,
+    schemaVersion:1,gameId:'ai-escape-room',renderVersion:'escape-render-v2',runToken:checksum({roomId:state.roomId,roomIndex:state.roomIndex}),roomIndex:state.roomIndex,theme:state.room.theme,difficulty:state.room.difficulty,tick:state.tick,
     scene:sceneFor(state),objective:'Unlock every mechanism and escape the room',progress:{solvedPuzzles:state.solvedPuzzleIds.length,totalPuzzles:state.room.puzzles.length,permille:progressPermille,currentStage:Math.min(state.room.puzzles.length,state.solvedPuzzleIds.length+1)},
     timer:{remainingTicks,danger:remainingTicks<=Math.max(30,Math.floor(state.config.maxTicks*0.15))},record:{score:state.score,streak:state.streak},
     ai:{...structuredClone(signals.ai),factCount:signals.belief.factCount,contradictions:signals.belief.contradictions},objects,
