@@ -12,8 +12,7 @@ export interface ProgressionSignal {
 }
 
 function pushUniqueBounded(values: string[], value: string, limit = PHASE6_LEDGER_ID_LIMIT): boolean {
-  if (values.includes(value)) return false;
-  if (values.length >= limit) return false;
+  if (values.includes(value) || values.length >= limit) return false;
   values.push(value);
   return true;
 }
@@ -21,6 +20,7 @@ function pushUniqueBounded(values: string[], value: string, limit = PHASE6_LEDGE
 export function createPhase6Resources(): ResourceState {
   return {
     ekoTokens: 0,
+    earnedTokenTotal: 0,
     collectedTokenIds: [],
     awardedMilestoneIds: [],
     unlockedCosmetics: [],
@@ -31,15 +31,7 @@ export function createPhase6Resources(): ResourceState {
 
 export function createPhase6Progression(rootSeed: string, districtIndex = 0, cycle = 0, districtCompletions = 0, totalDistance = 0): ProgressionState {
   const activeContent = generateDistrict(rootSeed, districtIndex, cycle);
-  return {
-    districtIndex,
-    districtId: activeContent.districtId,
-    cycle,
-    districtCompletions,
-    totalDistance,
-    pacingBand: "calm",
-    activeContent,
-  };
+  return { districtIndex, districtId: activeContent.districtId, cycle, districtCompletions, totalDistance, pacingBand: "calm", activeContent };
 }
 
 function rewardArrays(resources: ResourceState): Required<Pick<ResourceState, "collectedTokenIds" | "awardedMilestoneIds" | "unlockedCosmetics" | "unlockedThemes" | "unlockedCelebrations">> {
@@ -81,9 +73,10 @@ export function stepPhase6Progression(state: EkoRunState): ProgressionSignal[] {
   for (const token of content.tokens) {
     if (arrays.collectedTokenIds.includes(token.id)) continue;
     if (Math.abs(state.player.position.x - token.x) <= 0.6 && state.player.position.y <= state.route.groundY + 2.2) {
-      pushUniqueBounded(arrays.collectedTokenIds, token.id);
+      if (!pushUniqueBounded(arrays.collectedTokenIds, token.id)) continue;
       state.resources.ekoTokens = Math.min(PHASE6_TOKEN_CAP, state.resources.ekoTokens + token.value);
-      signals.push({ type: "token.collected", data: { tokenId: token.id, value: token.value, balance: state.resources.ekoTokens } });
+      state.resources.earnedTokenTotal = Math.min(PHASE6_TOKEN_CAP, (state.resources.earnedTokenTotal ?? 0) + token.value);
+      signals.push({ type: "token.collected", data: { tokenId: token.id, value: token.value, balance: state.resources.ekoTokens, earnedTokenTotal: state.resources.earnedTokenTotal } });
       applyUnlocks(state.resources, signals);
     }
   }
@@ -102,16 +95,7 @@ export function stepPhase6Progression(state: EkoRunState): ProgressionSignal[] {
     state.progression.totalDistance += Math.max(0, state.route.finishX - state.route.startX);
     state.lifecycle = "intermission";
     state.record.completedTick = state.tick;
-    signals.push({
-      type: "district.completed",
-      data: {
-        districtId: state.progression.districtId,
-        districtIndex: state.progression.districtIndex,
-        cycle: state.progression.cycle,
-        districtCompletions: state.progression.districtCompletions,
-        totalDistance: state.progression.totalDistance,
-      },
-    });
+    signals.push({ type: "district.completed", data: { districtId: state.progression.districtId, districtIndex: state.progression.districtIndex, cycle: state.progression.cycle, districtCompletions: state.progression.districtCompletions, totalDistance: state.progression.totalDistance } });
   }
 
   return signals;
@@ -131,18 +115,10 @@ export function advancePhase6District(state: EkoRunState, config: EkoRunConfig):
   arrays.awardedMilestoneIds.splice(0, arrays.awardedMilestoneIds.length);
   state.player = {
     position: { x: state.route.startX, y: state.route.groundY },
-    velocity: { x: 0, y: 0 },
-    movementState: "grounded",
-    facing: 1,
-    coyoteTicksRemaining: config.coyoteTicks,
-    jumpBufferTicksRemaining: 0,
-    jumpCutConsumed: false,
-    landingCompressionTicksRemaining: 0,
-    slideTicksRemaining: 0,
-    stumbleTicksRemaining: 0,
-    vault: null,
-    checkpointIndex: 0,
-    progress: 0,
+    velocity: { x: 0, y: 0 }, movementState: "grounded", facing: 1,
+    coyoteTicksRemaining: config.coyoteTicks, jumpBufferTicksRemaining: 0, jumpCutConsumed: false,
+    landingCompressionTicksRemaining: 0, slideTicksRemaining: 0, stumbleTicksRemaining: 0, vault: null,
+    checkpointIndex: 0, progress: 0,
   };
   state.lifecycle = "running";
   state.record.completedTick = null;
