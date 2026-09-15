@@ -27,13 +27,16 @@
 .broadcast-shell[data-layout="arena-first"] .stage-grid {
   position: relative;
   display: block;
-  min-height: calc(100vh - 142px);
+  height: clamp(620px, calc(100dvh - 174px), 930px);
+  min-height: 0;
 }
 
 .broadcast-shell[data-layout="arena-first"] .arena-card,
 .broadcast-shell[data-layout="arena-first"] #arena-canvas,
 .broadcast-shell[data-layout="arena-first"] #arena-webgl {
-  min-height: calc(100vh - 142px);
+  height: 100%;
+  min-height: 0;
+  max-height: 100%;
 }
 
 #arena-identity-overlay {
@@ -155,6 +158,21 @@
   font-size: .6rem;
 }
 
+.broadcast-shell[data-clean="true"] {
+  height: 100dvh;
+  min-height: 100dvh;
+  overflow: hidden;
+}
+
+.broadcast-shell[data-clean="true"] .stage-grid,
+.broadcast-shell[data-clean="true"] .arena-card,
+.broadcast-shell[data-clean="true"] #arena-canvas,
+.broadcast-shell[data-clean="true"] #arena-webgl {
+  height: 100dvh;
+  min-height: 100dvh;
+  max-height: 100dvh;
+}
+
 .broadcast-shell[data-clean="true"] .leaderboard-panel.broadcast-overlay,
 .broadcast-shell[data-clean="true"] .broadcast-lower-overlay,
 .broadcast-shell[data-clean="true"] #arena-identity-overlay {
@@ -180,11 +198,17 @@
     min-height: 46px;
   }
 
-  .broadcast-shell[data-layout="arena-first"] .stage-grid,
+  .broadcast-shell[data-layout="arena-first"] .stage-grid {
+    height: auto;
+    min-height: 66vh;
+  }
+
   .broadcast-shell[data-layout="arena-first"] .arena-card,
   .broadcast-shell[data-layout="arena-first"] #arena-canvas,
   .broadcast-shell[data-layout="arena-first"] #arena-webgl {
+    height: 66vh;
     min-height: 66vh;
+    max-height: none;
   }
 
   .leaderboard-panel.broadcast-overlay {
@@ -221,6 +245,16 @@
   .broadcast-shell[data-layout="arena-first"] .champion-card {
     bottom: .55rem;
     width: min(84%, 360px);
+  }
+
+  .broadcast-shell[data-clean="true"],
+  .broadcast-shell[data-clean="true"] .stage-grid,
+  .broadcast-shell[data-clean="true"] .arena-card,
+  .broadcast-shell[data-clean="true"] #arena-canvas,
+  .broadcast-shell[data-clean="true"] #arena-webgl {
+    height: 100dvh;
+    min-height: 100dvh;
+    max-height: 100dvh;
   }
 }
 
