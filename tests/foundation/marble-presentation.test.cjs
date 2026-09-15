@@ -97,3 +97,20 @@ test('presentation snapshots expose camera interest without creating new authori
   assert.equal(isFreshMarblePresentationSnapshot(snapshot, state.tick + 16, 15), false);
   assert.equal(isFreshMarblePresentationSnapshot(null, state.tick, 15), false);
 });
+
+test('presentation event history starts after the latest tournament restart boundary', () => {
+  const state = presentationState();
+  state.tick = 42;
+  state.runIndex = 1;
+  const snapshot = createMarblePresentationSnapshot(state, [
+    { seq: 70, tick: 670, type: 'marble-qualified', data: { marbleId: 26, finishRank: 1 } },
+    { seq: 71, tick: 678, type: 'tournament-champion', data: { championId: 26 } },
+    { seq: 72, tick: 0, type: 'tournament-restarted', data: { runIndex: 1 } },
+    { seq: 73, tick: 0, type: 'round-started', data: { roundIndex: 0, quota: 2, arena: state.arena.archetype } },
+    { seq: 74, tick: 20, type: 'round-live', data: { roundIndex: 0 } },
+  ]);
+
+  assert.deepEqual(snapshot.events.map((event) => event.type), ['round-started', 'round-live']);
+  assert.equal(snapshot.events.some((event) => event.type === 'tournament-champion'), false);
+  assert.equal(snapshot.events.some((event) => event.tick > state.tick), false);
+});
