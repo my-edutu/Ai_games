@@ -15,6 +15,7 @@ const {
   marbleStateChecksum,
   createMarblePresentationSnapshot,
   chooseMarbleCameraDirective,
+  chooseMarbleAction,
 } = require(runtimePath);
 
 const publicRoot = path.resolve(__dirname, '../../public/complete-runtime');
@@ -44,6 +45,60 @@ test('authority: all five generated arena archetypes pass safety validation', ()
     assert.equal(report.valid, true, JSON.stringify(report.issues));
     assert.equal(arena.spawnPoints.length, config.rosterSize);
   }
+});
+
+test('agent: upcoming sweeper causes a deterministic move toward the clear lane', () => {
+  const runtime = MarbleRuntime.create({ roundIntroTicks: 0 }, 'marble-agent-sweeper');
+  const state = runtime.state;
+  const marble = state.marbles[0];
+  const [leftLane, rightLane] = state.arena.safeLanes;
+  marble.position = { x: leftLane, y: 9_200 };
+  marble.progressPermille = 420;
+  marble.lastProgressTick = state.tick;
+  state.arena = {
+    ...state.arena,
+    obstacles: [],
+    hazards: [],
+    windZones: [],
+    safeLanes: [leftLane, rightLane],
+    sweepers: [{
+      id: 'test-sweeper',
+      kind: 'sweeper',
+      baseX: leftLane - 700,
+      baseY: 8_000,
+      width: 1_400,
+      height: 220,
+      axis: 'x',
+      amplitude: 0,
+      periodTicks: 240,
+      phaseTicks: 0,
+      restitutionPermille: 900,
+    }],
+  };
+
+  const first = chooseMarbleAction(state, marble.id);
+  const second = chooseMarbleAction(state, marble.id);
+  assert.deepEqual(first, second);
+  assert.equal(first.intent, 'avoiding-sweeper');
+  assert.ok(first.steerX > 0, `expected rightward avoidance, got ${first.steerX}`);
+  assert.ok(first.boostPermille <= 1_000);
+});
+
+test('agent: sprinter takes a bounded risk route when no immediate geometry threatens it', () => {
+  const runtime = MarbleRuntime.create({ roundIntroTicks: 0 }, 'marble-agent-sprinter');
+  const state = runtime.state;
+  const sprinter = state.marbles.find((marble) => marble.archetype === 'sprinter');
+  assert.ok(sprinter);
+  const [leftLane] = state.arena.safeLanes;
+  sprinter.position = { x: leftLane, y: 10_000 };
+  sprinter.progressPermille = 500;
+  sprinter.lastProgressTick = state.tick;
+  state.arena = { ...state.arena, obstacles: [], hazards: [], windZones: [], sweepers: [] };
+
+  const action = chooseMarbleAction(state, sprinter.id);
+  assert.equal(action.intent, 'taking-risk-route');
+  assert.ok(action.boostPermille > 1_000 && action.boostPermille <= 1_200);
+  assert.ok(Math.abs(action.steerX) <= 1_000);
 });
 
 test('authority: presentation snapshot is immutable, sanitized, and bounded', () => {
