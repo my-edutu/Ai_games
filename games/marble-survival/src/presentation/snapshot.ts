@@ -72,6 +72,13 @@ function eventsForCurrentTournament(state: MarbleState, recentEvents: MarbleEven
     .filter(event => event.tick <= state.tick);
 }
 
+function leaderboardTier(status: MarblePresentationStatus): number {
+  if (status === 'champion') return 0;
+  if (status === 'qualified') return 1;
+  if (status === 'eliminated') return 3;
+  return 2;
+}
+
 function toPresentationMarble(state: MarbleState, marble: MarbleCompetitor): MarblePresentationCompetitor {
   return {
     id: marble.id,
@@ -102,10 +109,15 @@ export function createMarblePresentationSnapshot(state: MarbleState, recentEvent
   const leaderboard = marbles
     .slice()
     .sort((left, right) => {
-      const leftFinished = left.finishRank ?? Number.MAX_SAFE_INTEGER;
-      const rightFinished = right.finishRank ?? Number.MAX_SAFE_INTEGER;
-      if (leftFinished !== rightFinished) return leftFinished - rightFinished;
-      return right.progressPermille - left.progressPermille || left.id - right.id;
+      const tierDelta = leaderboardTier(left.status) - leaderboardTier(right.status);
+      if (tierDelta !== 0) return tierDelta;
+      if (left.status === 'qualified' && right.status === 'qualified') {
+        const leftFinished = left.finishRank ?? Number.MAX_SAFE_INTEGER;
+        const rightFinished = right.finishRank ?? Number.MAX_SAFE_INTEGER;
+        if (leftFinished !== rightFinished) return leftFinished - rightFinished;
+      }
+      if (left.status === 'champion' && right.status === 'champion') return left.id - right.id;
+      return right.progressPermille - left.progressPermille || left.y - right.y || left.id - right.id;
     })
     .slice(0, 8)
     .map(marble => ({
