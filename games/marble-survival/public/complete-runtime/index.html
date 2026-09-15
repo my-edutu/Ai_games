@@ -7,10 +7,11 @@
   <title>Marble Survival Tournament</title>
   <link rel="stylesheet" href="/styles.css">
   <link rel="stylesheet" href="/ux-v2.css">
+  <link rel="stylesheet" href="/visual-3d.css">
 </head>
 <body>
   <a class="skip-link" href="#arena">Skip to arena</a>
-  <main class="broadcast-shell" data-clean="false" data-quality="balanced" data-ux-revision="3">
+  <main class="broadcast-shell" data-clean="false" data-quality="balanced" data-ux-revision="4">
     <header class="topbar" aria-label="Tournament status">
       <div class="brand-lockup">
         <span class="eyebrow">Game 7 · Live deterministic tournament</span>
@@ -57,7 +58,8 @@
 
     <section class="stage-grid">
       <section id="arena" class="arena-card" aria-label="Live marble arena">
-        <canvas id="arena-canvas" width="1600" height="900" aria-label="Live authoritative marble tournament arena"></canvas>
+        <canvas id="arena-webgl" width="1600" height="900" aria-label="Live three-dimensional authoritative marble tournament arena"></canvas>
+        <canvas id="arena-canvas" width="1600" height="900" aria-label="Live authoritative marble tournament arena fallback"></canvas>
         <div class="arena-topline" aria-hidden="true">
           <span id="camera-value">Overview</span>
           <span id="feed-value">AUTHORITY LIVE</span>
@@ -101,10 +103,11 @@
     </section>
 
     <footer>
-      <span>Fixed-step authority · presentation-only quality presets · replay-safe results</span>
+      <span>Fixed-step authority · WebGL presentation · replay-safe results</span>
       <span id="system-health">Health pending</span>
     </footer>
   </main>
+  <script src="/renderer3d.js" defer></script>
   <script src="/app.js" defer></script>
 </body>
 </html>
