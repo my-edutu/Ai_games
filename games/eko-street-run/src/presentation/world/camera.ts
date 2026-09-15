@@ -30,6 +30,7 @@ export function createCameraPlan(snapshot: EkoRunRenderSnapshot, viewport: Prese
     position: Object.freeze({ x: snapshot.player.position.x + lead - direction * 0.9, y: snapshot.player.position.y + 4.5, z: 10.5 }),
     lookAhead,
     fov,
+    aspect,
     visibleWorld: Object.freeze({ minX, maxX, minY: snapshot.player.position.y - 1.25, maxY: snapshot.player.position.y + 5.6 }),
     safeFrame: Object.freeze({ ...viewport.safeArea }),
   });
