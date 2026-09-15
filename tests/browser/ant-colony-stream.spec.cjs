@@ -87,23 +87,30 @@ test('render budgets remain bounded and browser frame evidence is recorded',asyn
   await page.waitForTimeout(2400);
   const evidence=await page.evaluate(()=>{
     const metrics=window.__ANT_RENDER_METRICS__||{};
-    const samples=Array.isArray(metrics.frameSamples)?metrics.frameSamples.filter(value=>Number.isFinite(value)&&value>=0):[];
-    const sorted=[...samples].sort((a,b)=>a-b);
-    const mean=samples.length?samples.reduce((sum,value)=>sum+value,0)/samples.length:null;
+    const frameMs=Array.isArray(metrics.frameSamples)?metrics.frameSamples.filter(value=>Number.isFinite(value)&&value>=0):[];
+    const effectFps=Array.isArray(metrics.effectFpsSamples)?metrics.effectFpsSamples.filter(value=>Number.isFinite(value)&&value>=0):[];
+    const sorted=[...frameMs].sort((a,b)=>a-b);
+    const mean=frameMs.length?frameMs.reduce((sum,value)=>sum+value,0)/frameMs.length:null;
+    const meanEffectFps=effectFps.length?effectFps.reduce((sum,value)=>sum+value,0)/effectFps.length:null;
     const percentile=q=>sorted.length?sorted[Math.min(sorted.length-1,Math.floor((sorted.length-1)*q))]:null;
     return{
-      capturedAt:new Date().toISOString(),samples:samples.length,meanFrameMs:mean,p50FrameMs:percentile(.5),p95FrameMs:percentile(.95),
-      webgl:Boolean(metrics.webgl),dpr:metrics.dpr,drawCalls:metrics.drawCalls,entityCount:metrics.entityCount,motionHistory:metrics.motionHistory,
-      activeParticles:metrics.activeParticles,organicPresentation:Boolean(metrics.organicPresentation),organicConnections:metrics.organicConnections,
+      capturedAt:new Date().toISOString(),samples:frameMs.length,meanFrameMs:mean,p50FrameMs:percentile(.5),p95FrameMs:percentile(.95),
+      effectFpsSamples:effectFps.length,meanEffectFps,webgl:Boolean(metrics.webgl),dpr:metrics.dpr,drawCalls:metrics.drawCalls,
+      entityCount:metrics.entityCount,motionHistory:metrics.motionHistory,activeParticles:metrics.activeParticles,overlayParticles:metrics.overlayParticles,
+      excavationTransitions:metrics.excavationTransitions,organicPresentation:Boolean(metrics.organicPresentation),organicConnections:metrics.organicConnections,
       organicChambers:metrics.organicChambers,surfaceStems:metrics.surfaceStems,foregroundRoots:metrics.foregroundRoots,lastShot:metrics.lastShot||metrics.cinematicShot||null
     };
   });
   expect(evidence.samples).toBeGreaterThan(30);
   expect(evidence.meanFrameMs).not.toBeNull();
   expect(evidence.meanFrameMs).toBeLessThan(80);
+  expect(evidence.effectFpsSamples).toBeGreaterThan(30);
+  expect(evidence.meanEffectFps).toBeGreaterThan(10);
   expect(evidence.dpr).toBeLessThanOrEqual(2);
   expect(evidence.motionHistory).toBeLessThanOrEqual(720);
   expect(evidence.activeParticles).toBeLessThanOrEqual(240);
+  expect(evidence.overlayParticles).toBeLessThanOrEqual(220);
+  expect(evidence.excavationTransitions).toBeLessThanOrEqual(32);
   expect(evidence.organicPresentation).toBe(true);
   expect(evidence.organicConnections).toBeLessThanOrEqual(520);
   expect(evidence.organicChambers).toBeLessThanOrEqual(72);
