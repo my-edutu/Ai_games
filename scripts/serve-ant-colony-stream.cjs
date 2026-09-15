@@ -16,16 +16,10 @@ const ROOT = path.resolve(__dirname, '..');
 const PUBLIC_ROOT = path.join(ROOT, 'public', 'ai-ant-colony');
 const MAX_PARTICLES=220;
 const ENTITY_CONTEXT='webgl2';
+const MAX_EVIDENCE_ADVANCE_TICKS=10_000;
 const BROWSER_ASSETS = Object.freeze([
-  'index.html',
-  'styles.css',
-  'ux-v2.css',
-  'director.js',
-  'organic-presenter.js',
-  'world-renderer.js',
-  'entity-renderer.js',
-  'soundscape.js',
-  'app.js'
+  'index.html','styles.css','ux-v2.css','director.js','organic-presenter.js',
+  'world-renderer.js','entity-renderer.js','soundscape.js','app.js'
 ]);
 
 const STREAM_CONFIG = Object.freeze({
@@ -60,9 +54,19 @@ function advance(session) {
   return accepted;
 }
 
-function assets() {
-  return BROWSER_ASSETS.map(name => path.join(PUBLIC_ROOT, name));
+function forceAdvance(session,ticks) {
+  const wasPaused=session.paused;
+  session.paused=false;
+  let accepted=0;
+  for(let index=0;index<ticks;index++){
+    const result=advance(session);
+    if(result.status==='accepted')accepted++;
+  }
+  session.paused=wasPaused;
+  return accepted;
 }
+
+function assets() { return BROWSER_ASSETS.map(name => path.join(PUBLIC_ROOT, name)); }
 
 function privacySafe(snapshot, seed) {
   const value = JSON.stringify(snapshot);
@@ -103,25 +107,15 @@ function selfTest() {
     organic.includes('MAX_ORGANIC_CONNECTIONS') && organic.includes('MAX_ORGANIC_CHAMBERS') &&
     !app.includes('innerHTML') && !organic.includes('Math.random');
   const renderArchitecture = entity.includes(`getContext('${ENTITY_CONTEXT}'`) &&
-    entity.includes('LOD_NEAR') && entity.includes('drawQueen') &&
-    organic.includes('organicPresentation');
-  const temporalProjection = typeof snapshot.environment.dayProgress === 'number' &&
-    typeof snapshot.environment.seasonProgress === 'number';
+    entity.includes('LOD_NEAR') && entity.includes('drawQueen') && organic.includes('organicPresentation');
+  const temporalProjection = typeof snapshot.environment.dayProgress === 'number' && typeof snapshot.environment.seasonProgress === 'number';
   const authorityStable = checksum(first.runtime.state) === checksum(second.runtime.state);
   const report = {
     ok: authorityStable && browserAssets && boundedSource && renderArchitecture && temporalProjection &&
       privacySafe(snapshot,seed) && verifyRestart() && accepted===500,
-    authorityStable,
-    browserAssets,
-    boundedSource,
-    renderArchitecture,
-    temporalProjection,
-    snapshotPrivacySafe:privacySafe(snapshot,seed),
-    restartObserved:verifyRestart(),
-    acceptedSnapshots:accepted,
-    finalTick:first.runtime.state.tick,
-    scene:snapshot.scene,
-    revision:snapshot.revision
+    authorityStable,browserAssets,boundedSource,renderArchitecture,temporalProjection,
+    snapshotPrivacySafe:privacySafe(snapshot,seed),restartObserved:verifyRestart(),acceptedSnapshots:accepted,
+    finalTick:first.runtime.state.tick,scene:snapshot.scene,revision:snapshot.revision
   };
   process.stdout.write(`${JSON.stringify(report)}\n`);
   process.exitCode = report.ok ? 0 : 1;
@@ -136,13 +130,9 @@ function contentType(file) {
 
 function headers(type,length,html=false) {
   return {
-    'content-type':type,
-    'content-length':length,
-    'cache-control':html?'no-store':'public, max-age=300',
+    'content-type':type,'content-length':length,'cache-control':html?'no-store':'public, max-age=300',
     'content-security-policy':"default-src 'self'; script-src 'self'; style-src 'self'; connect-src 'self'; img-src 'self' data:; media-src 'none'; object-src 'none'; base-uri 'none'; frame-ancestors *",
-    'referrer-policy':'no-referrer',
-    'x-content-type-options':'nosniff',
-    'cross-origin-resource-policy':'same-origin'
+    'referrer-policy':'no-referrer','x-content-type-options':'nosniff','cross-origin-resource-policy':'same-origin'
   };
 }
 
@@ -177,6 +167,7 @@ function serve() {
   if (!Number.isInteger(port) || port<1 || port>65535) throw new RangeError('port');
   const session = createSession(process.env.ANT_COLONY_SEED || 'ant-colony-stream-reference');
   const operatorToken = process.env.ANT_OPERATOR_TOKEN || '';
+  const evidenceMode = process.env.ANT_EVIDENCE_MODE === '1';
   const stepMs = Math.max(25,Math.round(1000/STREAM_CONFIG.tickRate));
   let lastStepAt = Date.now();
   let simulationFault = false;
@@ -206,6 +197,20 @@ function serve() {
       const snapshot=session.controller.recover()||session.current;
       sendJson(response,simulationFault?503:200,{status:simulationFault?'degraded':'healthy',lastStepAgeMs:Math.max(0,Date.now()-lastStepAt),scene:snapshot.scene,tick:snapshot.tick,paused:session.paused});
       return;
+    }
+    if (url.pathname === '/ant/evidence/advance' && request.method === 'POST') {
+      if (!evidenceMode) { sendJson(response,404,{error:'not-found'}); return; }
+      try {
+        const body=await parseJson(request);
+        const ticks=Number(body.ticks);
+        if (!Number.isInteger(ticks)||ticks<1||ticks>MAX_EVIDENCE_ADVANCE_TICKS) { sendJson(response,400,{error:'invalid-ticks'}); return; }
+        const accepted=forceAdvance(session,ticks);
+        const snapshot=session.controller.recover()||session.current;
+        sendJson(response,200,{ok:true,accepted,snapshot});
+        return;
+      } catch(error) {
+        sendJson(response,400,{error:error instanceof Error?error.message:'invalid-evidence-request'}); return;
+      }
     }
     if (url.pathname === '/ant/command' && request.method === 'POST') {
       if (!operatorToken) { sendJson(response,503,{error:'operator-token-not-configured'}); return; }
