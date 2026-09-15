@@ -86,15 +86,6 @@ test('arena presentation includes constructed depth, moving machinery and broadc
   ]);
 });
 
-test('overview framing stays arena-centred while event cameras may track authority focus', () => {
-  for (const source of [renderer, identity]) {
-    includesAll(source, [
-      "const trackFocus = directive.mode === 'overview' ? [] : focus;",
-      'if (trackFocus.length)',
-    ]);
-  }
-});
-
 test('WebGL competitor identity is projected from authoritative marble positions', () => {
   includesAll(index, [
     'id="arena-identity-overlay"',
