@@ -1,5 +1,5 @@
 import type{Direction,DungeonAction}from '../../../../packages/game-contracts/src/index';
-import{RELICS}from '../content/catalogue';
+import{RELICS,scoreRelicForState}from '../content/catalogue';
 import{buildDungeonObservation,refreshedDungeonKnowledge}from './observation';
 import type{DungeonState}from '../state/types';
 export interface DungeonDecision{action:DungeonAction;ai:{goal:string;intent:string;confidencePermille:number;planReason:string;knownCells:number[];nodeExpansions:number;replansDelta:number;fallbackDelta:number}}
@@ -12,7 +12,7 @@ function pathToReachableFrontier(state:DungeonState,knownCells:number[],nodeBudg
 function decision(action:DungeonAction,knownCells:number[],goal:string,intent:string,confidencePermille:number,nodeExpansions=0,planReason='Policy selected',replansDelta=0,fallbackDelta=0):DungeonDecision{return{action,ai:{goal,intent,confidencePermille,planReason,knownCells,nodeExpansions,replansDelta,fallbackDelta}}}
 export function planDungeonAction(state:DungeonState):DungeonDecision{
   const knownCells=refreshedDungeonKnowledge(state);
-  if(state.lifecycle==='chapter-result'&&state.rewardChoices.length){const choice=[...state.rewardChoices].sort((a,b)=>(RELICS[b]?.priority??0)-(RELICS[a]?.priority??0)||a.localeCompare(b))[0];return decision({kind:'choose-relic',relicId:choice},knownCells,'Choose a chapter relic',`Choosing ${RELICS[choice]?.name??choice}`,920)}
+  if(state.lifecycle==='chapter-result'&&state.rewardChoices.length){const choice=[...state.rewardChoices].sort((a,b)=>scoreRelicForState(state,b)-scoreRelicForState(state,a)||a.localeCompare(b))[0];return decision({kind:'choose-relic',relicId:choice},knownCells,'Choose a chapter relic',`Choosing ${RELICS[choice]?.name??choice}`,930,0,`Build-aware score ${scoreRelicForState(state,choice)}`)}
   if(state.lifecycle!=='running')return decision({kind:'wait'},knownCells,'Await the next floor','Holding during intermission',990);
   const observation=buildDungeonObservation(state);
   const visible=[...observation.visibleEnemies].sort((a,b)=>distance(a.cell,state.hero.cell,state.floor.width)-distance(b.cell,state.hero.cell,state.floor.width)||a.id.localeCompare(b.id));
