@@ -1,4 +1,4 @@
-import type { EkoRunRenderSnapshot, PublicHazardSnapshot } from "../../state/types";
+import type { EkoRunRenderSnapshot, PublicHazardSnapshot, SemanticEvent } from "../../state/types";
 import { createBroadcastFeedback } from "./feedback";
 import { createBroadcastHud } from "./hud";
 import {
@@ -7,6 +7,15 @@ import {
   type BroadcastPresentation,
   type BroadcastPresentationOptions,
 } from "./types";
+
+const MAX_PUBLIC_HAZARDS = 128;
+const MAX_PUBLIC_RECENT_EVENTS = 256;
+const PUBLIC_EVENT_TYPES = new Set([
+  "run.started", "command.rejected", "checkpoint.reached", "run.completed", "run.failed", "run.restarted",
+  "player.jumped", "player.landed", "player.stumbled", "player.slid", "player.vaulted",
+  "hazard.warned", "hazard.hit", "hazard.resolved", "token.collected", "reward.unlocked",
+  "pacing.changed", "district.completed", "district.started", "integrity.failure",
+]);
 
 function finitePositive(value: number): boolean {
   return Number.isFinite(value) && value > 0;
@@ -24,6 +33,10 @@ function invalidPublicSnapshot(): never {
   throw new Error("PHASE7_INVALID_PUBLIC_SNAPSHOT");
 }
 
+function publicSnapshotBudgetExceeded(): never {
+  throw new Error("PHASE7_PUBLIC_SNAPSHOT_BUDGET_EXCEEDED");
+}
+
 function validHazard(hazard: PublicHazardSnapshot): boolean {
   if (!hazard || typeof hazard.id !== "string" || hazard.id.length === 0) return false;
   if (!Number.isFinite(hazard.x) || !Number.isFinite(hazard.y) || !finitePositive(hazard.width) || !finitePositive(hazard.height)) return false;
@@ -31,6 +44,14 @@ function validHazard(hazard: PublicHazardSnapshot): boolean {
   const actionable = hazard.phase === "warned" || hazard.phase === "hit" || hazard.active;
   if (actionable && hazard.legalResponses.length === 0) return false;
   if (actionable && (typeof hazard.captionKey !== "string" || hazard.captionKey.length === 0 || typeof hazard.visualToken !== "string" || hazard.visualToken.length === 0)) return false;
+  return true;
+}
+
+function validEvent(event: SemanticEvent, snapshotTick: number): boolean {
+  if (!event || !integerNonNegative(event.schemaVersion) || event.schemaVersion === 0) return false;
+  if (!integerNonNegative(event.sequence) || !integerNonNegative(event.tick) || event.tick > snapshotTick) return false;
+  if (!PUBLIC_EVENT_TYPES.has(event.type)) return false;
+  if (!event.data || typeof event.data !== "object" || Array.isArray(event.data)) return false;
   return true;
 }
 
@@ -50,8 +71,10 @@ function validatePublicSnapshot(snapshot: Readonly<EkoRunRenderSnapshot>): void 
   if (progression.nextMilestoneX !== null && !Number.isFinite(progression.nextMilestoneX)) invalidPublicSnapshot();
   if (!integerNonNegative(resources.ekoTokens) || !integerNonNegative(resources.earnedTokenTotal) || resources.earnedTokenTotal < resources.ekoTokens) invalidPublicSnapshot();
   if (!finiteNonNegative(record.maxProgress)) invalidPublicSnapshot();
-  if (!Array.isArray(snapshot.hazards) || snapshot.hazards.some(hazard => !validHazard(hazard))) invalidPublicSnapshot();
-  if (!Array.isArray(snapshot.recentEvents)) invalidPublicSnapshot();
+  if (!Array.isArray(snapshot.hazards) || !Array.isArray(snapshot.recentEvents)) invalidPublicSnapshot();
+  if (snapshot.hazards.length > MAX_PUBLIC_HAZARDS || snapshot.recentEvents.length > MAX_PUBLIC_RECENT_EVENTS) publicSnapshotBudgetExceeded();
+  if (snapshot.hazards.some(hazard => !validHazard(hazard))) invalidPublicSnapshot();
+  if (snapshot.recentEvents.some(event => !validEvent(event, snapshot.tick))) invalidPublicSnapshot();
 }
 
 function validateOptions(options: BroadcastPresentationOptions): void {
