@@ -531,6 +531,14 @@ function statusLabel(status) {
   return labels[status] || status;
 }
 
+function renderSystemHealth(status, next) {
+  if (!next) {
+    systemHealth.textContent = status;
+    return;
+  }
+  systemHealth.textContent = `${status} · Run ${next.runIndex + 1} · Round ${next.round.number}`;
+}
+
 function renderHud(next) {
   const directive = next.camera.directive || { mode: 'overview', focusIds: [], zoomPermille: 1000 };
   focusIds = new Set(directive.focusIds || []);
@@ -542,6 +550,7 @@ function renderHud(next) {
   tickValue.textContent = String(next.tick);
   cameraValue.textContent = CAMERA_LABELS[directive.mode] || directive.mode;
   feedValue.textContent = next.lifecycle === 'quarantined' ? 'AUTHORITY STOPPED' : 'AUTHORITY LIVE';
+  renderSystemHealth(systemHealth.dataset.status || 'CHECKING', next);
 
   leaderboard.replaceChildren(...next.leaderboard.map((entry, index) => {
     const item = document.createElement('li');
@@ -629,9 +638,13 @@ function playNewAudio(events) {
 }
 
 function acceptSnapshot(next) {
-  if (!next || next.version !== 1 || !next.round || !next.arena || !Array.isArray(next.marbles) || !next.camera?.directive) throw new Error('invalid presentation snapshot');
-  if (snapshot && next.tick < snapshot.tick && next.lifecycle !== 'active') return;
-  const discontinuity = snapshot && (next.tick < snapshot.tick || next.arena.id !== snapshot.arena.id);
+  if (!next || next.version !== 1 || !Number.isInteger(next.runIndex) || !next.round || !next.arena || !Array.isArray(next.marbles) || !next.camera?.directive) throw new Error('invalid presentation snapshot');
+  if (snapshot && next.runIndex === snapshot.runIndex && next.tick < snapshot.tick && next.lifecycle !== 'active') return;
+  const discontinuity = snapshot && (
+    next.runIndex !== snapshot.runIndex
+    || next.tick < snapshot.tick
+    || next.arena.id !== snapshot.arena.id
+  );
   if (discontinuity) {
     previousSnapshot = null;
     cameraState = null;
@@ -665,9 +678,12 @@ async function refreshHealth() {
     const response = await fetch('/api/health', { cache: 'no-store' });
     if (!response.ok) throw new Error('health');
     const health = await response.json();
-    systemHealth.textContent = `${String(health.status).toUpperCase()} · Run ${health.runIndex + 1} · Round ${health.roundNumber}`;
+    const status = String(health.status).toUpperCase();
+    systemHealth.dataset.status = status;
+    renderSystemHealth(status, snapshot);
   } catch {
-    systemHealth.textContent = 'Health unavailable';
+    systemHealth.dataset.status = 'UNAVAILABLE';
+    renderSystemHealth('Health unavailable', snapshot);
   }
 }
 
