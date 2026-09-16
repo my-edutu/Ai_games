@@ -8,6 +8,7 @@ on:
     paths:
       - 'games/eko-street-run/**'
       - 'tests/phase7/eko-run-*.test.cjs'
+      - 'tests/browser/eko-run-phase7.spec.cjs'
       - 'tests/phase6/eko-run-*.test.cjs'
       - 'tests/phase5/eko-run-*.test.cjs'
       - 'tests/phase4/eko-run-*.test.cjs'
@@ -23,8 +24,10 @@ on:
     paths:
       - 'games/eko-street-run/**'
       - 'tests/phase7/eko-run-*.test.cjs'
+      - 'tests/browser/eko-run-phase7.spec.cjs'
       - 'scripts/run-eko-run-phase7-evidence.cjs'
       - '.github/workflows/eko-run-phase7.yml'
+      - 'package.json'
 
 jobs:
   broadcast-presentation:
@@ -70,3 +73,16 @@ jobs:
             echo 'Presentation or ambient nondeterminism leaked into Eko Run authority.'
             exit 1
           fi
+      - name: Phase 7 deterministic presentation evidence
+        run: node scripts/run-eko-run-phase7-evidence.cjs
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Phase 7 browser safe-area capture
+        run: npx playwright test tests/browser/eko-run-phase7.spec.cjs
+      - name: Upload Phase 7 evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: eko-run-phase7-evidence
+          path: evidence/eko-run/phase7
+          if-no-files-found: error
+          retention-days: 30
