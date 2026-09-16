@@ -1,7 +1,7 @@
 import type{TowerAction,TowerPlatform,TowerState}from'../state/types';import{chooseTowerUpgrade}from'../progression/builds';import{nextTowerPlatform}from'./graph';import type{TowerObservation}from'./observation';import{detectTowerStuck}from'./stuck';
 export interface TowerIntent{mode:'choosing-upgrade'|'evading-projectile'|'evading-hazard'|'engaging-guardian'|'engaging-enemy'|'recovering'|'aligning'|'jumping'|'air-control'|'waiting';summary:string;confidence:number;fallbackUsed:boolean;targetPlatformId?:string}
 export interface TowerDecision{action:TowerAction;intent:TowerIntent}
-function action(move:TowerAction['move']=0,extra:Partial<TowerAction>={}):TowerAction{return{move,jump:false,dash:false,attack:false,ability:false,...extra}}
+function action(move:TowerAction['move']=0,extra:Partial<TowerAction>={}):TowerAction{return{move,jump:false,wallJump:false,dash:false,attack:false,ability:false,...extra}}
 function moveSign(delta:number):TowerAction['move']{return Math.abs(delta)<4000?0:delta>0?1:-1}
 function currentPlatform(obs:TowerObservation,id?:string){return id?obs.platforms.find(p=>p.id===id):undefined}
 function launchX(current:TowerPlatform,target:TowerPlatform,halfWidth:number){const safeLeft=current.x+halfWidth+6000,safeRight=current.x+current.width-halfWidth-6000,center=target.x+target.width/2;if(target.x<=current.x+current.width&&target.x+target.width>=current.x)return Math.max(safeLeft,Math.min(safeRight,center));return center<current.x?safeLeft:safeRight}
