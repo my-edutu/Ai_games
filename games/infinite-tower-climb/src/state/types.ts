@@ -6,12 +6,14 @@ export type HazardKind='spikes'|'heat'|'crusher'|'lightning'|'void-pulse';
 export type EnemyKind='sentinel'|'shooter'|'guardian';
 export type PickupKind='health'|'stamina'|'shard';
 export type UpgradeFamily='mobility'|'survival'|'offense'|'utility'|'risk';
+export type TowerEncounterRole='pressure'|'blocker'|'crossfire'|'guardian-stage';
 export interface Vec2{x:number;y:number}
 export interface Rect{x:number;y:number;width:number;height:number}
 export interface PlatformMotion{axis:'x'|'y';range:number;speed:number;phase:number}
 export interface TowerPlatform extends Rect{id:string;kind:PlatformKind;motion?:PlatformMotion}
 export interface TowerHazard extends Rect{id:string;kind:HazardKind;activeFromTick:number;activeEvery:number;activeFor:number;damage:number}
-export interface TowerChunk{id:string;floor:number;theme:TowerTheme;baseY:number;height:number;spawn:Vec2;exitY:number;platforms:TowerPlatform[];hazards:TowerHazard[];checkpoint:Vec2;guardian:boolean;checksum:string}
+export interface TowerEncounterSlot{role:TowerEncounterRole;platformId:string}
+export interface TowerChunk{id:string;floor:number;theme:TowerTheme;roomArchetype:string;landmarkName?:string;encounterSlots:TowerEncounterSlot[];baseY:number;height:number;spawn:Vec2;exitY:number;platforms:TowerPlatform[];hazards:TowerHazard[];checkpoint:Vec2;guardian:boolean;checksum:string}
 export interface TowerAction{move:-1|0|1;jump:boolean;dash:boolean;attack:boolean;ability:boolean;upgradeChoice?:string}
 export type TowerResultReason='fall'|'hazard'|'health-depleted'|'timer-expired'|'stagnation'|'integrity-quarantine'|'operator-abort';
 export interface TowerResult{kind:'game'|'technical'|'operator';reason:TowerResultReason;tick:number;floor:number;height:number;checksum:string}
