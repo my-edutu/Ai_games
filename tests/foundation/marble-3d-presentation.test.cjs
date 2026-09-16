@@ -8,6 +8,7 @@ const { execFileSync } = require('node:child_process');
 
 const root = path.resolve(__dirname, '../../games/marble-survival/public/complete-runtime');
 const index = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
+const app = fs.readFileSync(path.join(root, 'app.js'), 'utf8');
 const rendererPath = path.join(root, 'renderer3d.js');
 const renderer = fs.readFileSync(rendererPath, 'utf8');
 const styles = fs.readFileSync(path.join(root, 'visual-3d.css'), 'utf8');
@@ -80,6 +81,19 @@ test('marble cosmetics are shader-driven surface patterns that rotate with the s
     'surface.patternColor',
   ]);
   assert.equal(renderer.includes('pattern: none'), false);
+});
+
+test('evidence surface exposes the exact authority tick and arena rendered by HUD and WebGL', () => {
+  includesAll(renderer, [
+    'shell.dataset.webglTick',
+    'shell.dataset.webglArena',
+    'shell.dataset.webglArchetype',
+  ]);
+  includesAll(app, [
+    'shell.dataset.hudTick',
+    'shell.dataset.hudArena',
+    'shell.dataset.hudArchetype',
+  ]);
 });
 
 test('arena presentation includes constructed depth, moving machinery and broadcast cameras', () => {
