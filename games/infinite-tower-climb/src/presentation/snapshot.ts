@@ -17,6 +17,8 @@ export interface TowerRenderSnapshot{
   lifecycle:TowerState['lifecycle'];
   floor:number;
   theme:string;
+  roomArchetype:string;
+  landmarkName?:string;
   worldWidth:number;
   chunkBaseY:number;
   chunkHeight:number;
@@ -47,7 +49,7 @@ export function createTowerRenderSnapshot(state:TowerState):Readonly<TowerRender
   const base={
     version:1 as const,
     runToken:checksum({runId:state.runId}),revision:state.tick*1000+state.stats.floorsCleared,tick:state.tick,lifecycle:state.lifecycle,
-    floor:state.floor,theme:chunk.theme,worldWidth:state.config.worldWidth,chunkBaseY:chunk.baseY,chunkHeight:chunk.height,
+    floor:state.floor,theme:chunk.theme,roomArchetype:chunk.roomArchetype??'legacy-ascent',landmarkName:chunk.landmarkName,worldWidth:state.config.worldWidth,chunkBaseY:chunk.baseY,chunkHeight:chunk.height,
     player:{x:state.player.position.x,y:state.player.position.y,vx:state.player.velocity.x,vy:state.player.velocity.y,halfWidth:state.player.halfWidth,halfHeight:state.player.halfHeight,facing:state.player.facing,health:state.player.health,maxHealth:state.player.maxHealth,stamina:state.player.stamina,maxStamina:state.player.maxStamina,shieldCharges:state.player.shieldCharges,state:state.player.state,score:state.player.score},
     platforms:chunk.platforms.map(p=>({id:p.id,kind:p.kind,x:p.x,y:p.y,width:p.width,height:p.height})).sort((a,b)=>a.id.localeCompare(b.id)),
     hazards:chunk.hazards.map(h=>({id:h.id,kind:h.kind,x:h.x,y:h.y,width:h.width,height:h.height,active:activeHazard(h,state.tick)})).sort((a,b)=>a.id.localeCompare(b.id)),
