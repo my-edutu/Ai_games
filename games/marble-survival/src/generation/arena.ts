@@ -78,9 +78,13 @@ function addRoundContent(config: MarbleConfig, roundIndex: number, rng: NamedRng
   }
 
   if (roundIndex >= 1) {
-    const rampWidth = Math.min(7_200, Math.max(config.marbleRadius * 8, Math.round(width * 0.32)));
     const rampHeight = Math.min(3_200, Math.max(config.marbleRadius * 8, Math.round(config.worldHeight * 0.18)));
-    const rampX = Math.round((width - rampWidth) / 2);
+    const lanePadding = Math.max(config.marbleRadius * 3, 900);
+    const leftLane = Math.min(...safeLanes);
+    const rightLane = Math.max(...safeLanes);
+    const rampX = Math.max(config.marbleRadius, leftLane - lanePadding);
+    const rampRight = Math.min(width - config.marbleRadius, rightLane + lanePadding);
+    const rampWidth = Math.max(config.marbleRadius * 8, rampRight - rampX);
     const rampY = Math.round(config.worldHeight * 0.55);
     ramps.push({
       id: `factory-ramp-${roundIndex}-0`,
