@@ -44,6 +44,7 @@ export function createRenderSnapshot(state: EkoRunState, recentEvents: readonly 
     route: { id: state.route.id, groundY: state.route.groundY, minX: state.route.minX, maxX: state.route.maxX, checkpointXs: [...state.route.checkpointXs], finishX: state.route.finishX },
     hazards: publicHazards(state),
     progress: state.player.progress,
+    record: { maxProgress: state.record.maxProgress },
     recentEvents: cloneEvents(recentEvents),
     ...(progression ? {
       progression: {

@@ -111,11 +111,12 @@ export interface PublicResourceSnapshot {
   unlockedThemes: string[];
   unlockedCelebrations: string[];
 }
+export interface PublicRecordSnapshot { maxProgress: number; }
 export interface EkoRunRenderSnapshot {
   version: number; runId: string; tick: number; lifecycle: EkoRunLifecycle;
   player: { position: Vec2; velocity: Vec2; movementState: MovementState; facing: -1 | 1; checkpointIndex: number; landingCompressionTicksRemaining: number; slideTicksRemaining: number; stumbleTicksRemaining: number; };
   route: { id: string; groundY: number; minX: number; maxX: number; checkpointXs: number[]; finishX: number; };
-  hazards: PublicHazardSnapshot[]; progress: number; recentEvents: SemanticEvent[];
+  hazards: PublicHazardSnapshot[]; progress: number; record: PublicRecordSnapshot; recentEvents: SemanticEvent[];
   progression?: PublicProgressionSnapshot; resources?: PublicResourceSnapshot;
 }
 export interface EkoRunSnapshot {

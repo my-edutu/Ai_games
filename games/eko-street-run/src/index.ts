@@ -15,4 +15,5 @@ export * from "./progression";
 export * from "./presentation/snapshot";
 export * from "./presentation/character";
 export * from "./presentation/world";
+export * from "./presentation/broadcast";
 export * from "./persistence/replay";
