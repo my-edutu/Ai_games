@@ -1,32 +1,12 @@
 import{checksum}from'../../../../packages/replay/src/index';import{NamedRng}from'../../../../packages/seeded-rng/src/index';
-import type{TowerConfig,TowerTheme}from'../config/schema';import{TOWER_THEMES}from'../config/schema';import type{TowerChunk,TowerHazard,TowerPlatform}from'../state/types';
+import type{TowerConfig,TowerTheme}from'../config/schema';import{TOWER_THEMES}from'../config/schema';import type{TowerChunk,TowerPlatform}from'../state/types';import{buildTowerRoom}from'./room-grammar';
 function themeFor(floor:number):TowerTheme{return TOWER_THEMES[floor%TOWER_THEMES.length]}
 export function generateTowerChunk(config:TowerConfig,seed:string,floor:number,rng=NamedRng.fromSeed(`${seed}:floor:${floor}`)):TowerChunk{
   if(!Number.isInteger(floor)||floor<0)throw new RangeError('floor');
-  const baseY=floor*config.chunkHeight,groundHeight=12000,stepHeight=Math.floor((config.chunkHeight-60000)/6);
-  const platforms:TowerPlatform[]=[{id:`f${floor}:ground`,kind:'solid',x:0,y:baseY,width:config.worldWidth,height:groundHeight}];
-  for(let i=1;i<=6;i++){
-    const side=(i+floor)%2,baseX=side?Math.floor(config.worldWidth*.56):Math.floor(config.worldWidth*.10);
-    const jitter=rng.nextInt(`tower:platform:${floor}:${i}`,30001)-15000;
-    const width=115000+(rng.nextInt(`tower:width:${floor}:${i}`,3)*10000);
-    const kind=i===3&&floor%3===1?'moving':'oneway';
-    const platform:TowerPlatform={id:`f${floor}:p${i}`,kind,x:Math.max(12000,Math.min(config.worldWidth-width-12000,baseX+jitter)),y:baseY+i*stepHeight,width,height:10000};
-    if(kind==='moving')platform.motion={axis:'x',range:35000,speed:2500,phase:rng.nextInt(`tower:motion:${floor}:${i}`,28)};
-    platforms.push(platform);
-  }
-  const capY=baseY+config.chunkHeight-28000;
-  platforms.push({id:`f${floor}:cap`,kind:'oneway',x:Math.floor(config.worldWidth*.24),y:capY,width:Math.floor(config.worldWidth*.52),height:12000});
-  const hazards:TowerHazard[]=[];
-  const relativeFloor=Math.max(0,floor-config.launchFloor);
-  const hazardCount=Math.min(config.maxHazardsPerChunk,1+Math.min(2,Math.floor(relativeFloor/3)));
-  for(let i=0;i<hazardCount;i++){
-    const slot=1+rng.nextInt(`tower:hazard-slot:${floor}:${i}`,5),kindIndex=(floor+i)%5;
-    const kinds:TowerHazard['kind'][]=['spikes','heat','crusher','lightning','void-pulse'];
-    hazards.push({id:`f${floor}:h${i}`,kind:kinds[kindIndex],x:170000+rng.nextInt(`tower:hazard-x:${floor}:${i}`,120000),y:baseY+(slot-1)*stepHeight+groundHeight,width:32000,height:9000,activeFromTick:rng.nextInt(`tower:hazard-phase:${floor}:${i}`,20),activeEvery:40,activeFor:kindIndex===0?40:16,damage:kindIndex===0?1:2});
-  }
+  const baseY=floor*config.chunkHeight,theme=themeFor(floor),room=buildTowerRoom(config,floor,theme,rng),groundHeight=12000,cap=room.platforms[room.platforms.length-1],guardian=floor>0&&floor%config.guardianInterval===0;
   const spawn={x:42000,y:baseY+groundHeight+config.playerHalfHeight};
-  const checkpoint={x:Math.floor(config.worldWidth/2),y:capY+12000+config.playerHalfHeight};
-  const base={id:`tower:${seed}:floor:${floor}`,floor,theme:themeFor(floor),baseY,height:config.chunkHeight,spawn,exitY:baseY+config.chunkHeight-8000,platforms,hazards,checkpoint,guardian:floor>0&&floor%config.guardianInterval===0};
+  const checkpoint={x:cap.x+Math.floor(cap.width/2),y:cap.y+cap.height+config.playerHalfHeight};
+  const base={id:`tower:${seed}:floor:${floor}`,floor,theme,roomArchetype:room.roomArchetype,landmarkName:room.landmarkName,encounterSlots:room.encounterSlots,baseY,height:config.chunkHeight,spawn,exitY:baseY+config.chunkHeight-8000,platforms:room.platforms,hazards:room.hazards,checkpoint,guardian};
   return{...base,checksum:checksum(base)};
 }
 export function platformAtTick(platform:TowerPlatform,tick:number):TowerPlatform{
