@@ -101,6 +101,82 @@ test('agent: sprinter takes a bounded risk route when no immediate geometry thre
   assert.ok(Math.abs(action.steerX) <= 1_000);
 });
 
+test('agent: unavoidable crosswind produces deterministic counter-steer instead of passive drift', () => {
+  const runtime = MarbleRuntime.create({ roundIntroTicks: 0 }, 'marble-agent-crosswind');
+  const state = runtime.state;
+  const navigator = state.marbles.find((marble) => marble.archetype === 'navigator');
+  assert.ok(navigator);
+  const [leftLane, rightLane] = state.arena.safeLanes;
+  navigator.position = { x: leftLane, y: 9_000 };
+  navigator.progressPermille = 500;
+  navigator.lastProgressTick = state.tick;
+  state.arena = {
+    ...state.arena,
+    obstacles: [],
+    hazards: [],
+    sweepers: [],
+    safeLanes: [leftLane, rightLane],
+    windZones: [{
+      id: 'test-crosswind',
+      kind: 'wind',
+      x: 0,
+      y: 8_000,
+      width: state.arena.width,
+      height: 2_000,
+      forceX: 12,
+      forceY: -2,
+    }],
+  };
+
+  const first = chooseMarbleAction(state, navigator.id);
+  const second = chooseMarbleAction(state, navigator.id);
+  assert.deepEqual(first, second);
+  assert.equal(first.intent, 'countering-wind');
+  assert.ok(first.steerX < 0, `expected left counter-steer against positive wind, got ${first.steerX}`);
+  assert.ok(Math.abs(first.steerX) <= 1_000);
+  assert.ok(first.boostPermille <= 1_000);
+});
+
+test('agent: navigator counters unavoidable crosswind more strongly than a sprinter', () => {
+  const runtime = MarbleRuntime.create({ roundIntroTicks: 0 }, 'marble-agent-crosswind-archetypes');
+  const state = runtime.state;
+  const navigator = state.marbles.find((marble) => marble.archetype === 'navigator');
+  const sprinter = state.marbles.find((marble) => marble.archetype === 'sprinter');
+  assert.ok(navigator);
+  assert.ok(sprinter);
+  const lane = state.arena.safeLanes[0];
+  for (const marble of [navigator, sprinter]) {
+    marble.position = { x: lane, y: 9_000 };
+    marble.progressPermille = 500;
+    marble.lastProgressTick = state.tick;
+  }
+  state.arena = {
+    ...state.arena,
+    obstacles: [],
+    hazards: [],
+    sweepers: [],
+    safeLanes: [lane],
+    windZones: [{
+      id: 'test-crosswind-archetypes',
+      kind: 'wind',
+      x: 0,
+      y: 8_000,
+      width: state.arena.width,
+      height: 2_000,
+      forceX: -12,
+      forceY: -2,
+    }],
+  };
+
+  const navigatorAction = chooseMarbleAction(state, navigator.id);
+  const sprinterAction = chooseMarbleAction(state, sprinter.id);
+  assert.equal(navigatorAction.intent, 'countering-wind');
+  assert.equal(sprinterAction.intent, 'countering-wind');
+  assert.ok(navigatorAction.steerX > 0);
+  assert.ok(sprinterAction.steerX > 0);
+  assert.ok(Math.abs(navigatorAction.steerX) > Math.abs(sprinterAction.steerX), `${navigatorAction.steerX} should exceed ${sprinterAction.steerX}`);
+});
+
 test('presentation: authoritative wind zones are sanitized into the public arena snapshot', () => {
   const runtime = MarbleRuntime.create({ roundIntroTicks: 0 }, 'marble-wind-presentation');
   const rng = NamedRng.fromSeed('marble-wind-arena');
