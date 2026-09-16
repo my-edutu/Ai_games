@@ -60,3 +60,8 @@ test('guardian phases have explicit readable telegraph presentation and diagnost
   assert.ok(html.includes('/tower/guardian-ui.js'),'guardian overlay must be loaded by the public view');
   assert.ok(!js.includes('/tower/state'),'guardian overlay must remain read-only and reuse the public snapshot');
 });
+
+test('guardian reads as a boss-scale character rather than a token or turret',()=>{
+  const js=read('public/infinite-tower-climb/app.js');
+  for(const marker of ['GUARDIAN_MIN_HEIGHT_PX=118','drawGuardianMantle','drawGuardianCrown','drawGuardianLimbs','guardianHeightPx'])assert.ok(js.includes(marker),`missing boss silhouette contract ${marker}`);
+});
