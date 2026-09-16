@@ -234,6 +234,9 @@ test('Marble WebGL broadcast renders authoritative tournament and captures runti
     const captures = [];
     if (state.round.remaining >= 20 && !captured.has('02-large-marble-pack')) captures.push('02-large-marble-pack');
     if (state.lifecycle === 'active' && state.arena.sweepers.length > 0 && !captured.has('03-moving-obstacle')) captures.push('03-moving-obstacle');
+    if (state.lifecycle === 'active' && state.arena.ramps.length > 0 && state.marbles.some(m => m.status !== 'eliminated' && Number(m.elevation) >= 120) && !captured.has('04-high-speed-ramp')) {
+      captures.push('04-high-speed-ramp');
+    }
     if (state.lifecycle === 'active' && state.arena.hazards.length > 0 && !captured.has('04-hazard-arena')) captures.push('04-hazard-arena');
     if ((state.camera.directive.mode === 'danger' || state.marbles.some(m => m.status === 'threatened' || m.status === 'recovering')) && !captured.has('05-near-elimination')) {
       captures.push('05-near-elimination');
@@ -277,6 +280,7 @@ test('Marble WebGL broadcast renders authoritative tournament and captures runti
 
   expect(archetypes.size).toBeGreaterThanOrEqual(3);
   expect(captured.has('03-moving-obstacle')).toBe(true);
+  expect(captured.has('04-high-speed-ramp')).toBe(true);
   expect(captured.has('07-themed-arena')).toBe(true);
   expect(captured.has('08-semifinal-final')).toBe(true);
   expect(championSeen).toBe(true);
