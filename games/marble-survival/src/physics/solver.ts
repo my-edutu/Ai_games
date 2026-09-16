@@ -1,9 +1,11 @@
 import type {
   ArenaBlock,
   ArenaBumper,
+  ArenaRamp,
   ArenaSweeper,
   MarbleAction,
   MarbleCompetitor,
+  MarbleConfig,
   MarbleState,
   PhysicsContact,
   PhysicsStepResult,
@@ -46,6 +48,72 @@ function cloneState(state: MarbleState): MarbleState {
 
 function insideRectangle(position: Vec2, rectangle: { x: number; y: number; width: number; height: number }): boolean {
   return position.x >= rectangle.x && position.x <= rectangle.x + rectangle.width && position.y >= rectangle.y && position.y <= rectangle.y + rectangle.height;
+}
+
+function rampElevationAt(ramp: ArenaRamp, position: Vec2): number | null {
+  if (!insideRectangle(position, ramp)) return null;
+  const length = ramp.axis === 'x' ? ramp.width : ramp.height;
+  if (length <= 0) return null;
+  const offset = ramp.axis === 'x' ? position.x - ramp.x : position.y - ramp.y;
+  const clampedOffset = Math.max(0, Math.min(length, offset));
+  return ramp.startElevation + divideRound((ramp.endElevation - ramp.startElevation) * clampedOffset, length);
+}
+
+function supportElevation(state: MarbleState, position: Vec2): number | null {
+  let support: number | null = null;
+  for (const ramp of state.arena.ramps) {
+    const elevation = rampElevationAt(ramp, position);
+    if (elevation === null) continue;
+    support = support === null ? elevation : Math.max(support, elevation);
+  }
+  return support;
+}
+
+function gravityDelta(config: MarbleConfig, substep: number, substeps: number): number {
+  const before = divideRound(config.gravityPerTick * substep, substeps);
+  const after = divideRound(config.gravityPerTick * (substep + 1), substeps);
+  return after - before;
+}
+
+function advanceVertical(
+  marble: MarbleCompetitor,
+  previousSupport: number | null,
+  nextSupport: number | null,
+  config: MarbleConfig,
+  substep: number,
+  substeps: number
+): void {
+  if (marble.grounded) {
+    if (nextSupport !== null) {
+      const previousElevation = marble.elevation;
+      marble.elevation = nextSupport;
+      marble.verticalVelocity = clampInteger((nextSupport - previousElevation) * substeps, -config.maxVerticalSpeed, config.maxVerticalSpeed);
+      marble.grounded = true;
+      return;
+    }
+    if (previousSupport === null || marble.elevation <= 0) {
+      marble.elevation = 0;
+      marble.verticalVelocity = 0;
+      marble.grounded = true;
+      return;
+    }
+    marble.grounded = false;
+  }
+
+  marble.elevation += divideRound(marble.verticalVelocity, substeps);
+  marble.verticalVelocity = clampInteger(
+    marble.verticalVelocity - gravityDelta(config, substep, substeps),
+    -config.maxVerticalSpeed,
+    config.maxVerticalSpeed
+  );
+  const landingElevation = nextSupport ?? 0;
+  if (marble.verticalVelocity <= 0 && marble.elevation <= landingElevation) {
+    marble.elevation = landingElevation;
+    marble.verticalVelocity = 0;
+    marble.grounded = true;
+  } else {
+    marble.elevation = Math.max(0, marble.elevation);
+  }
 }
 
 function sweeperVelocity(sweeper: ArenaSweeper, tick: number): number {
@@ -183,6 +251,7 @@ function resolveBumper(marble: MarbleCompetitor, bumper: ArenaBumper, marbleRadi
 function resolveMarblePair(first: MarbleCompetitor, second: MarbleCompetitor, state: MarbleState): PhysicsContact | null {
   const radius = state.config.marbleRadius;
   const minimum = radius * 2;
+  if (Math.abs(second.elevation - first.elevation) >= minimum) return null;
   const dx = second.position.x - first.position.x;
   const dy = second.position.y - first.position.y;
   const distanceSquared = dx * dx + dy * dy;
@@ -228,8 +297,15 @@ function validateState(state: MarbleState) {
       if (!Number.isSafeInteger(value) || Math.abs(value) > POSITION_LIMIT) return { code: 'numeric-range' as const, detail: `Marble ${marble.id} position exceeds deterministic range.` };
     }
     for (const value of [marble.velocity.x, marble.velocity.y]) {
-      if (!Number.isFinite(value)) return { code: 'numeric-range' as const, detail: `Marble ${marble.id} velocity is not finite.` };
+      if (!Number.isSafeInteger(value)) return { code: 'numeric-range' as const, detail: `Marble ${marble.id} velocity is outside deterministic integer range.` };
     }
+    if (!Number.isSafeInteger(marble.elevation) || marble.elevation < 0 || marble.elevation > POSITION_LIMIT) {
+      return { code: 'numeric-range' as const, detail: `Marble ${marble.id} elevation exceeds deterministic range.` };
+    }
+    if (!Number.isSafeInteger(marble.verticalVelocity) || Math.abs(marble.verticalVelocity) > state.config.maxVerticalSpeed) {
+      return { code: 'numeric-range' as const, detail: `Marble ${marble.id} vertical velocity exceeds deterministic range.` };
+    }
+    if (typeof marble.grounded !== 'boolean') return { code: 'state-invariant' as const, detail: `Marble ${marble.id} grounded flag is invalid.` };
   }
   return undefined;
 }
@@ -270,7 +346,7 @@ export function stepMarblePhysics(state: MarbleState, actions: MarbleAction[]): 
   const actionById = new Map(actions.map(action => [action.marbleId, action]));
   const active = next.marbles.filter(marble => marble.status === 'active' && marble.roundStatus === 'racing').sort((a, b) => a.id - b.id);
   for (const marble of active) applyForces(marble, next, actionById.get(marble.id));
-  const maximumMarbleVelocity = active.reduce((maximum, marble) => Math.max(maximum, Math.abs(marble.velocity.x), Math.abs(marble.velocity.y)), 0);
+  const maximumMarbleVelocity = active.reduce((maximum, marble) => Math.max(maximum, Math.abs(marble.velocity.x), Math.abs(marble.velocity.y), Math.abs(marble.verticalVelocity)), 0);
   const maximumSweeperVelocity = next.arena.sweepers.reduce((maximum, sweeper) => Math.max(maximum, Math.abs(sweeperVelocity(sweeper, next.tick))), 0);
   const maximumMotion = Math.max(maximumMarbleVelocity, maximumSweeperVelocity);
   const substeps = Math.max(1, Math.min(next.config.maxSubsteps, Math.ceil(maximumMotion / Math.max(1, next.config.marbleRadius))));
@@ -280,12 +356,15 @@ export function stepMarblePhysics(state: MarbleState, actions: MarbleAction[]): 
   for (let substep = 0; substep < substeps; substep++) {
     const sweepers = next.arena.sweepers.map(sweeper => sweeperRectangle(sweeper, next.tick, substep, substeps));
     for (const marble of active) {
+      const previousSupport = supportElevation(next, marble.position);
       marble.position.x += divideRound(marble.velocity.x, substeps);
       marble.position.y += divideRound(marble.velocity.y, substeps);
       for (const contact of resolveWorld(marble, next)) addContact(contacts, contact, next.config.maxContactsPerTick);
       for (const rectangle of rectangles) addContact(contacts, resolveRectangle(marble, rectangle, next.config.marbleRadius), next.config.maxContactsPerTick);
       for (const sweeper of sweepers) addContact(contacts, resolveRectangle(marble, sweeper, next.config.marbleRadius), next.config.maxContactsPerTick);
       for (const bumper of next.arena.bumpers) addContact(contacts, resolveBumper(marble, bumper, next.config.marbleRadius), next.config.maxContactsPerTick);
+      const nextSupport = supportElevation(next, marble.position);
+      advanceVertical(marble, previousSupport, nextSupport, next.config, substep, substeps);
     }
     for (let iteration = 0; iteration < next.config.collisionIterations; iteration++) {
       for (let firstIndex = 0; firstIndex < active.length; firstIndex++) {
