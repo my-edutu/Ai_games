@@ -136,16 +136,39 @@ function chooseSafestLane(state: MarbleState, marbleId: number): { lane: number;
   const preferredIndex = marble.id % lanes.length;
   let bestLane = lanes[preferredIndex];
   let bestThreat = laneThreat(state, marbleId, bestLane);
+  let bestDistance = Math.abs(bestLane - marble.position.x);
 
   for (let offset = 1; offset < lanes.length; offset++) {
     const candidate = lanes[(preferredIndex + offset) % lanes.length];
     const threat = laneThreat(state, marbleId, candidate);
-    if (threat.score < bestThreat.score) {
+    const distance = Math.abs(candidate - marble.position.x);
+    if (threat.score < bestThreat.score || (threat.score === bestThreat.score && distance < bestDistance)) {
       bestLane = candidate;
       bestThreat = threat;
+      bestDistance = distance;
     }
   }
   return { lane: bestLane, threat: bestThreat };
+}
+
+function activeUnavoidableCrosswind(state: MarbleState, marbleId: number): number {
+  const marble = state.marbles.find(candidate => candidate.id === marbleId)!;
+  const clearance = state.config.marbleRadius + 120;
+  let forceX = 0;
+  for (const zone of state.arena.windZones) {
+    const verticallyInside = marble.position.y >= zone.y && marble.position.y <= zone.y + zone.height;
+    if (!verticallyInside || zone.forceX === 0) continue;
+    const unavoidable = state.arena.safeLanes.every(lane => horizontalOverlap(lane, zone.x, zone.x + zone.width, clearance));
+    if (unavoidable) forceX += zone.forceX;
+  }
+  return forceX;
+}
+
+function crosswindResponsePermille(marble: MarbleState['marbles'][number]): number {
+  if (marble.archetype === 'navigator') return 1_400;
+  if (marble.archetype === 'survivor') return 1_250;
+  if (marble.archetype === 'bruiser') return 900;
+  return 700;
 }
 
 export function chooseMarbleAction(state: MarbleState, marbleId: number): MarbleAction {
@@ -156,6 +179,7 @@ export function chooseMarbleAction(state: MarbleState, marbleId: number): Marble
   const preferredLane = state.arena.safeLanes[marble.id % state.arena.safeLanes.length];
   const preferredThreat = laneThreat(state, marbleId, preferredLane);
   const safest = chooseSafestLane(state, marbleId);
+  const crosswindX = activeUnavoidableCrosswind(state, marbleId);
   const stalled = state.tick - marble.lastProgressTick >= Math.floor(state.config.noProgressTicks / 2);
   const finalBand = marble.progressPermille >= 800;
   const riskWindow = marble.progressPermille >= 250 && marble.progressPermille < 800;
@@ -173,6 +197,11 @@ export function chooseMarbleAction(state: MarbleState, marbleId: number): Marble
   if (preferredThreat.sweeper && safest.lane !== preferredLane) {
     intent = 'avoiding-sweeper';
     boostPermille = marble.archetype === 'bruiser' ? 980 : 940;
+    confidence = marble.traits.awareness >= 82 ? 'high' : 'medium';
+  } else if (crosswindX !== 0) {
+    targetLane = safest.lane;
+    intent = 'countering-wind';
+    boostPermille = marble.archetype === 'navigator' || marble.archetype === 'survivor' ? 960 : 990;
     confidence = marble.traits.awareness >= 82 ? 'high' : 'medium';
   } else if (safest.threat.score > 0 && safest.lane !== preferredLane) {
     intent = 'seeking-gap';
@@ -204,7 +233,12 @@ export function chooseMarbleAction(state: MarbleState, marbleId: number): Marble
   }
 
   const deltaX = targetLane - marble.position.x;
-  const steerX = clampSteer(Math.round(deltaX / Math.max(1, state.config.marbleRadius)) * 120);
+  const laneSteer = Math.round(deltaX / Math.max(1, state.config.marbleRadius)) * 120;
+  const awarenessFactor = 20 + Math.round(marble.traits.awareness / 4);
+  const counterSteer = intent === 'countering-wind'
+    ? Math.round((-crosswindX * awarenessFactor * crosswindResponsePermille(marble)) / 1_000)
+    : 0;
+  const steerX = clampSteer(laneSteer + counterSteer);
   return {
     marbleId,
     steerX,
