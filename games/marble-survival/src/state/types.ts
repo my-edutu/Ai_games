@@ -138,6 +138,18 @@ export interface ArenaSweeper {
   restitutionPermille: number;
 }
 
+export interface ArenaRamp {
+  id: string;
+  kind: 'ramp';
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  axis: 'x' | 'y';
+  startElevation: number;
+  endElevation: number;
+}
+
 export type RoundArchetype = 'seeding-sprint' | 'gate-gauntlet' | 'hazard-circuit' | 'final-four' | 'championship';
 
 export interface ArenaFeatures {
@@ -152,8 +164,8 @@ export interface ArenaFeatures {
 }
 
 export interface MarbleArena {
-  schemaVersion: 1;
-  generatorVersion: 'marble-arena-v1';
+  schemaVersion: 2;
+  generatorVersion: 'marble-arena-v2';
   id: string;
   roundIndex: number;
   archetype: RoundArchetype;
@@ -169,6 +181,7 @@ export interface MarbleArena {
   hazards: ArenaHazard[];
   windZones: ArenaWindZone[];
   sweepers: ArenaSweeper[];
+  ramps: ArenaRamp[];
   features: ArenaFeatures;
   repairCount: number;
   fallbackUsed: boolean;
