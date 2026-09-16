@@ -20,6 +20,10 @@ function integerNonNegative(value: number): boolean {
   return Number.isInteger(value) && value >= 0;
 }
 
+function invalidPublicSnapshot(): never {
+  throw new Error("PHASE7_INVALID_PUBLIC_SNAPSHOT");
+}
+
 function validHazard(hazard: PublicHazardSnapshot): boolean {
   if (!hazard || typeof hazard.id !== "string" || hazard.id.length === 0) return false;
   if (!Number.isFinite(hazard.x) || !Number.isFinite(hazard.y) || !finitePositive(hazard.width) || !finitePositive(hazard.height)) return false;
@@ -31,23 +35,23 @@ function validHazard(hazard: PublicHazardSnapshot): boolean {
 }
 
 function validatePublicSnapshot(snapshot: Readonly<EkoRunRenderSnapshot>): void {
+  if (!snapshot || typeof snapshot.runId !== "string" || snapshot.runId.length === 0) invalidPublicSnapshot();
+  if (!integerNonNegative(snapshot.tick) || !finiteNonNegative(snapshot.progress)) invalidPublicSnapshot();
+  if (!Number.isFinite(snapshot.player.position.x) || !Number.isFinite(snapshot.player.position.y) || !Number.isFinite(snapshot.player.velocity.x) || !Number.isFinite(snapshot.player.velocity.y)) invalidPublicSnapshot();
+  if (!integerNonNegative(snapshot.player.checkpointIndex)) invalidPublicSnapshot();
+  if (!finiteNonNegative(snapshot.route.finishX - snapshot.route.minX) || !Array.isArray(snapshot.route.checkpointXs) || snapshot.route.checkpointXs.some(value => !Number.isFinite(value))) invalidPublicSnapshot();
+
   const progression = snapshot.progression;
   const resources = snapshot.resources;
   const record = snapshot.record;
-  const invalid = () => { throw new Error("PHASE7_INVALID_PUBLIC_SNAPSHOT"); };
+  if (!progression || !resources || !record) invalidPublicSnapshot();
 
-  if (!snapshot || typeof snapshot.runId !== "string" || snapshot.runId.length === 0) invalid();
-  if (!integerNonNegative(snapshot.tick) || !finiteNonNegative(snapshot.progress)) invalid();
-  if (!Number.isFinite(snapshot.player.position.x) || !Number.isFinite(snapshot.player.position.y) || !Number.isFinite(snapshot.player.velocity.x) || !Number.isFinite(snapshot.player.velocity.y)) invalid();
-  if (!integerNonNegative(snapshot.player.checkpointIndex)) invalid();
-  if (!finiteNonNegative(snapshot.route.finishX - snapshot.route.minX) || !Array.isArray(snapshot.route.checkpointXs) || snapshot.route.checkpointXs.some(value => !Number.isFinite(value))) invalid();
-  if (!progression || !resources || !record) invalid();
-  if (!integerNonNegative(progression.districtIndex) || !integerNonNegative(progression.cycle) || !integerNonNegative(progression.districtCompletions) || !finiteNonNegative(progression.totalDistance)) invalid();
-  if (progression.nextMilestoneX !== null && !Number.isFinite(progression.nextMilestoneX)) invalid();
-  if (!integerNonNegative(resources.ekoTokens) || !integerNonNegative(resources.earnedTokenTotal) || resources.earnedTokenTotal < resources.ekoTokens) invalid();
-  if (!finiteNonNegative(record.maxProgress) || (record.completedTick !== null && !integerNonNegative(record.completedTick))) invalid();
-  if (!Array.isArray(snapshot.hazards) || snapshot.hazards.some(hazard => !validHazard(hazard))) invalid();
-  if (!Array.isArray(snapshot.recentEvents)) invalid();
+  if (!integerNonNegative(progression.districtIndex) || !integerNonNegative(progression.cycle) || !integerNonNegative(progression.districtCompletions) || !finiteNonNegative(progression.totalDistance)) invalidPublicSnapshot();
+  if (progression.nextMilestoneX !== null && !Number.isFinite(progression.nextMilestoneX)) invalidPublicSnapshot();
+  if (!integerNonNegative(resources.ekoTokens) || !integerNonNegative(resources.earnedTokenTotal) || resources.earnedTokenTotal < resources.ekoTokens) invalidPublicSnapshot();
+  if (!finiteNonNegative(record.maxProgress)) invalidPublicSnapshot();
+  if (!Array.isArray(snapshot.hazards) || snapshot.hazards.some(hazard => !validHazard(hazard))) invalidPublicSnapshot();
+  if (!Array.isArray(snapshot.recentEvents)) invalidPublicSnapshot();
 }
 
 function validateOptions(options: BroadcastPresentationOptions): void {
