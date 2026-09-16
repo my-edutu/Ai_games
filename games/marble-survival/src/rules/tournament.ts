@@ -123,7 +123,7 @@ export function applyTournamentRules(state: MarbleState, contacts: PhysicsContac
         marble.roundStatus = 'out';
         next.activeIds = next.activeIds.filter(id => id !== marble.id);
         next.eliminatedIds = [...new Set([...next.eliminatedIds, marble.id])].sort((a, b) => a - b);
-        next.meaningEventTick = next.tick;
+        next.meaningfulEventTick = next.tick;
         events.push({ tick: next.tick, type: 'marble-eliminated', data: { marbleId: marble.id, cause: hazard.kind, hazardId: hazard.id } });
         continue;
       }
