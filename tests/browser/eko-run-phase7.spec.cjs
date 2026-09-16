@@ -48,9 +48,9 @@ async function verifyLayout(page, viewport, accessibility, quality, captureName)
 }
 
 test('Eko Run Phase 7 portrait mobile safe-area and danger hierarchy', async ({ page }) => {
-  await verifyLayout(page, { width: 390, height: 844, safeArea: { top: 28, right: 16, bottom: 28, left: 16 } }, { muted: true, reducedMotion: true, reducedFlash: true }, 'portrait-muted-reduced-low.png');
+  await verifyLayout(page, { width: 390, height: 844, safeArea: { top: 28, right: 16, bottom: 28, left: 16 } }, { muted: true, reducedMotion: true, reducedFlash: true }, 'low', 'portrait-muted-reduced-low.png');
 });
 
 test('Eko Run Phase 7 landscape broadcast safe-area and danger hierarchy', async ({ page }) => {
-  await verifyLayout(page, { width: 1366, height: 768, safeArea: { top: 24, right: 32, bottom: 24, left: 32 } }, { muted: false, reducedMotion: false, reducedFlash: false }, 'landscape-high.png');
+  await verifyLayout(page, { width: 1366, height: 768, safeArea: { top: 24, right: 32, bottom: 24, left: 32 } }, { muted: false, reducedMotion: false, reducedFlash: false }, 'high', 'landscape-high.png');
 });
