@@ -1,0 +1,33 @@
+'use strict';
+(function(){
+  const THREE=window.THREE;if(!THREE)return;
+  const geometries=new Map();
+  const cached=(key,create)=>{if(!geometries.has(key))geometries.set(key,create());return geometries.get(key)};
+  const box=(x=.3,y=.3,z=.12)=>cached(`b:${x}:${y}:${z}`,()=>new THREE.BoxGeometry(x,y,z));
+  const cyl=(r=.1,h=.1,segments=20)=>cached(`c:${r}:${h}:${segments}`,()=>new THREE.CylinderGeometry(r,r,h,segments));
+  const torus=(r=.2,t=.025,segments=24)=>cached(`t:${r}:${t}:${segments}`,()=>new THREE.TorusGeometry(r,t,8,segments));
+  const sphere=(r=.08,segments=16)=>cached(`s:${r}:${segments}`,()=>new THREE.SphereGeometry(r,segments,Math.max(8,segments/2)));
+  const cone=(r=.08,h=.18)=>cached(`n:${r}:${h}`,()=>new THREE.ConeGeometry(r,h,12));
+  const tetra=(r=.09)=>cached(`tet:${r}`,()=>new THREE.TetrahedronGeometry(r,0));
+  const octa=(r=.09)=>cached(`oct:${r}`,()=>new THREE.OctahedronGeometry(r,0));
+  function add(group,geometry,material,position=[0,0,0],rotation=[0,0,0],scale=[1,1,1]){const mesh=new THREE.Mesh(geometry,material);mesh.position.set(...position);mesh.rotation.set(...rotation);mesh.scale.set(...scale);mesh.castShadow=true;mesh.receiveShadow=true;group.add(mesh);return mesh;}
+  function plate(group,ctx,w=.68,h=.54,d=.10){add(group,box(w,h,d),ctx.materials.dark,[0,0,-.035]);add(group,box(w*.92,h*.88,d*.35),ctx.materials.metal,[0,0,.035]);}
+  const activeMat=(object,ctx)=>object.solved?ctx.materials.success:(object.inspected?ctx.materials.accent:ctx.materials.brass);
+
+  function sequenceLock(object,ctx){const g=new THREE.Group();plate(g,ctx,.74,.52,.12);for(let i=0;i<4;i++){const dial=add(g,cyl(.105,.105,24),activeMat(object,ctx),[(i-1.5)*.15,.02,.12],[Math.PI/2,0,0]);dial.rotation.z=(i*.74)+(object.solved?-.4:.1);add(g,torus(.105,.012,20),ctx.materials.cyan,[(i-1.5)*.15,.02,.13],[0,0,0]);}add(g,box(.48,.035,.025),ctx.materials.brass,[0,-.2,.13]);return g;}
+  function symbolCipher(object,ctx){const g=new THREE.Group();plate(g,ctx,.72,.56,.10);const shapes=[octa(.095),tetra(.105),sphere(.09,14)];for(let i=0;i<3;i++){add(g,shapes[i],object.solved?ctx.materials.success:(i===1?ctx.materials.accent:ctx.materials.cyan),[(i-1)*.2,.04,.16],[.35,i*.35,.2]);add(g,torus(.125,.012,20),ctx.materials.brass,[(i-1)*.2,.04,.12]);}return g;}
+  function shapeOrder(object,ctx){const g=new THREE.Group();plate(g,ctx,.74,.58,.10);const shapes=[tetra(.11),box(.16,.16,.16),octa(.115)];for(let i=0;i<3;i++){const y=-.11+i*.115;add(g,shapes[i],object.solved?ctx.materials.success:(i===1?ctx.materials.accent:ctx.materials.brass),[(i-1)*.2,y,.15],[.25,.45*i,.12]);}return g;}
+  function toolDependency(object,ctx){const g=new THREE.Group();plate(g,ctx,.62,.56,.12);add(g,torus(.13,.032,24),activeMat(object,ctx),[0,.03,.15]);add(g,box(.035,.20,.035),ctx.materials.dark,[0,-.12,.16]);add(g,sphere(.045),object.solved?ctx.materials.success:ctx.materials.cyan,[0,.03,.16]);if(object.solved){add(g,box(.05,.05,.26),ctx.materials.brass,[.18,-.03,.24],[0,.3,.2]);add(g,torus(.10,.022,20),ctx.materials.brass,[.18,-.03,.36],[0,Math.PI/2,0]);}return g;}
+  function switchNetwork(object,ctx){const g=new THREE.Group();plate(g,ctx,.78,.60,.10);for(let i=0;i<5;i++){const on=object.solved||((object.xPermille+i)%3===0);const x=(i-2)*.135;add(g,box(.065,.22,.055),ctx.materials.dark,[x,.02,.12]);const lever=add(g,box(.035,.17,.035),on?ctx.materials.success:ctx.materials.danger,[x,.04,.19],[on?-.48:.48,0,0]);add(g,sphere(.045),on?ctx.materials.success:ctx.materials.danger,[x+.0,.11+(on?.025:-.025),.20]);lever.userData.switch=true;}add(g,box(.56,.025,.035),ctx.materials.cyan,[0,-.2,.15]);return g;}
+  function balanceClue(object,ctx){const g=new THREE.Group();add(g,cyl(.16,.10,20),ctx.materials.metal,[0,-.19,0]);add(g,box(.055,.42,.055),ctx.materials.brass,[0,.02,0]);const beam=add(g,box(.66,.045,.055),ctx.materials.brass,[0,.22,0],[0,0,object.solved?0:.10]);for(const x of[-.28,.28]){add(g,cyl(.17,.035,20),object.solved?ctx.materials.success:ctx.materials.metal,[x,.06,.0]);add(g,box(.018,.20,.018),ctx.materials.brass,[x,.15,0]);}beam.userData.balance=true;return g;}
+  function directionPattern(object,ctx){const g=new THREE.Group();plate(g,ctx,.64,.64,.10);add(g,torus(.22,.025,28),ctx.materials.brass,[0,0,.13]);const dirs=[[0,.24,Math.PI],[.24,0,-Math.PI/2],[0,-.24,0],[-.24,0,Math.PI/2]];for(let i=0;i<4;i++){const [x,y,rz]=dirs[i];add(g,cone(.07,.18),object.solved?ctx.materials.success:(i===object.placement.variant%4?ctx.materials.accent:ctx.materials.cyan),[x,y,.18],[Math.PI/2,0,rz]);}add(g,sphere(.06),ctx.materials.dark,[0,0,.19]);return g;}
+  function finalVault(object,ctx){const g=new THREE.Group();add(g,cyl(.54,.18,36),ctx.materials.metal,[0,0,0],[Math.PI/2,0,0]);add(g,torus(.47,.045,36),object.solved?ctx.materials.success:ctx.materials.brass,[0,0,.11]);add(g,torus(.25,.032,28),ctx.materials.brass,[0,0,.14]);const wheel=new THREE.Group();for(let i=0;i<6;i++){const a=i*Math.PI/3;add(wheel,box(.035,.34,.035),object.solved?ctx.materials.success:ctx.materials.brass,[Math.cos(a)*.14,Math.sin(a)*.14,0],[0,0,a]);add(wheel,sphere(.055),ctx.materials.brass,[Math.cos(a)*.31,Math.sin(a)*.31,0]);}wheel.position.z=.17;wheel.rotation.z=object.solved?-.7:0;g.add(wheel);add(g,sphere(.10),object.solved?ctx.materials.success:ctx.materials.accent,[0,0,.20]);return g;}
+  const builders={'sequence-lock':sequenceLock,'symbol-cipher':symbolCipher,'shape-order':shapeOrder,'tool-dependency':toolDependency,'switch-network':switchNetwork,'balance-clue':balanceClue,'direction-pattern':directionPattern,'final-vault':finalVault};
+  window.EscapeMechanisms=Object.freeze({
+    supported:Object.keys(builders),
+    build(kind,object,ctx){const builder=builders[kind];return builder?builder(object,ctx):null;},
+    makeClue(object,ctx){const g=new THREE.Group();const card=add(g,box(.38,.018,.25),ctx.materials.paper,[0,.02,0],[0,.08,.02]);add(g,box(.24,.006,.018),object.inspected?ctx.materials.cyan:ctx.materials.ink,[0,.04,.03]);for(let i=0;i<3;i++)add(g,box(.045,.008,.11),i===object.placement.variant%3?ctx.materials.accent:ctx.materials.brass,[(i-1)*.09,.045,-.025],[0,0,(i-1)*.18]);return g;},
+    makeTool(object,ctx){const g=new THREE.Group();add(g,box(.055,.055,.34),ctx.materials.brass,[0,.07,0],[0,.2,.08]);add(g,torus(.12,.028,20),ctx.materials.brass,[0,.07,.18],[Math.PI/2,0,0]);add(g,box(.16,.045,.045),ctx.materials.metal,[0,.07,-.18]);return g;},
+    makeDecoy(object,ctx){const g=new THREE.Group();const shape=object.placement.variant%3===0?octa(.15):object.placement.variant%3===1?cyl(.13,.26,16):sphere(.14,14);add(g,shape,ctx.materials.stone,[0,.14,0],[.3,.35,.1]);add(g,torus(.18,.012,20),ctx.materials.dark,[0,.015,0],[Math.PI/2,0,0]);return g;},
+  });
+})();

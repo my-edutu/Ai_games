@@ -1,0 +1,76 @@
+const test=require('node:test');
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const path=require('node:path');
+const {checksum}=require('../../dist/packages/replay/src/index.js');
+const {
+ DEFAULT_ESCAPE_ROOM_CONFIG,parseEscapeRoomConfig,EscapeRuntime,
+ buildEscapeRenderSnapshot,computeEscapeLayout,updateEscapeCamera,
+ deriveEscapeAudioCues,EscapePresentationController,classifyEscapeOutputHealth,
+}=require('../../dist/games/ai-escape-room/src/index.js');
+const cfg=()=>parseEscapeRoomConfig({...DEFAULT_ESCAPE_ROOM_CONFIG,puzzleDepth:8,objectCount:36,decoyCount:5,hazardCount:2,maxTicks:1200,noProgressTicks:240});
+const runtime=()=>EscapeRuntime.create({config:cfg(),seed:'phase3-proof',runId:'private-run',policy:'autonomous'});
+
+test('render projection is immutable, bounded and private',()=>{
+ const run=runtime();for(let i=0;i<7;i++)run.step();
+ const hidden=run.state.room.puzzles.find(p=>!run.state.solvedPuzzleIds.includes(p.id))?.solution;
+ const before=checksum(run.state),view=buildEscapeRenderSnapshot(run.state,run.presentationSignals(),run.drainEvents());
+ assert.equal(checksum(run.state),before);assert.ok(Object.isFrozen(view));assert.ok(Object.isFrozen(view.objects));
+ assert.equal(view.renderVersion,'escape-render-v2');assert.ok(view.objects.length<=48);assert.ok(view.events.length<=24);assert.equal(view.runId,undefined);assert.equal(view.seed,undefined);
+ const text=JSON.stringify(view);assert.doesNotMatch(text,/hiddenFact|rootSeed|roomSeed|oracle/i);if(hidden)assert.equal(text.includes(hidden),false);
+ assert.throws(()=>view.objects.push({}));
+});
+
+test('render objects expose safe puzzle types and deterministic physical placement without leaking solutions',()=>{
+ const run=runtime(),view=buildEscapeRenderSnapshot(run.state,run.presentationSignals(),run.drainEvents());
+ const again=buildEscapeRenderSnapshot(run.state,run.presentationSignals(),[]);
+ const targetTypes=new Set(run.state.room.puzzles.map(p=>p.kind));const presented=view.objects.map(object=>object.mechanismKind).filter(Boolean);
+ const surfaces=new Set(['desk','shelf','left-wall','right-wall','back-wall','console','pedestal','floor','exit']);
+ assert.ok(presented.length>0);assert.ok(presented.every(kind=>targetTypes.has(kind)));assert.deepEqual(view.objects.map(object=>object.placement),again.objects.map(object=>object.placement));
+ for(const object of view.objects){assert.ok(object.placement);assert.ok(surfaces.has(object.placement.surface));assert.ok(Number.isInteger(object.placement.slot));assert.ok(Number.isInteger(object.placement.variant));assert.ok(object.placement.slot>=0&&object.placement.slot<16);assert.ok(object.placement.variant>=0&&object.placement.variant<8);}
+ const exit=view.objects.find(object=>object.kind==='exit');assert.equal(exit?.placement.surface,'exit');
+ const finalVault=view.objects.find(object=>object.mechanismKind==='final-vault');if(finalVault)assert.ok(['back-wall','pedestal'].includes(finalVault.placement.surface));
+ for(const puzzle of run.state.room.puzzles)assert.equal(JSON.stringify(view.objects).includes(puzzle.solution),false);
+});
+
+test('public snapshot explains objective, progress, danger and concise AI intent',()=>{
+ const run=runtime();for(let i=0;i<4;i++)run.step();const view=buildEscapeRenderSnapshot(run.state,run.presentationSignals(),run.drainEvents());
+ assert.match(view.objective,/escape/i);assert.ok(view.progress.totalPuzzles>=2);assert.ok(view.timer.remainingTicks>=0);
+ assert.ok(view.ai.intent);assert.ok(['low','medium','high'].includes(view.ai.confidenceBand));
+ assert.doesNotMatch(JSON.stringify(view.ai),/consideredActionKeys|solution|chainOfThought/i);
+});
+
+test('desktop, phone landscape and clean feed remain in safe bounds',()=>{
+ for(const [size,mode] of [[{width:1920,height:1080},{cleanFeed:false,phoneLandscape:false}],[{width:844,height:390},{cleanFeed:false,phoneLandscape:true}],[{width:1280,height:720},{cleanFeed:true,phoneLandscape:false}]]){
+  const layout=computeEscapeLayout(size,mode);for(const rect of Object.values(layout)){assert.ok(rect.x>=0&&rect.y>=0);assert.ok(rect.x+rect.width<=size.width+.001);assert.ok(rect.y+rect.height<=size.height+.001)}
+  assert.ok(layout.stage.width>0&&layout.stage.height>0);if(mode.cleanFeed)assert.equal(layout.sidebar.width,0);
+ }
+});
+
+test('camera and semantic audio are deterministic and cosmetic',()=>{
+ const run=runtime(),before=checksum(run.state),step=run.step(),view=buildEscapeRenderSnapshot(run.state,run.presentationSignals(),step.events);
+ assert.deepEqual(updateEscapeCamera(view,null),updateEscapeCamera(view,null));
+ const cues=deriveEscapeAudioCues(view.events,view,{muted:false,maxVoices:8});assert.ok(cues.length<=8);assert.deepEqual(cues,deriveEscapeAudioCues(view.events,view,{muted:false,maxVoices:8}));
+ assert.deepEqual(deriveEscapeAudioCues(view.events,view,{muted:true,maxVoices:8}),[]);assert.notEqual(checksum(run.state),before);
+});
+
+test('controller rejects stale frames, bounds replay and restores latest valid frame',()=>{
+ const run=runtime(),controller=new EscapePresentationController({replayCapacity:12,maxObjects:48,muted:true});let view=buildEscapeRenderSnapshot(run.state,run.presentationSignals(),run.drainEvents());
+ assert.equal(controller.accept(view).accepted,true);assert.equal(controller.accept(view).accepted,false);
+ for(let i=0;i<20;i++){const step=run.step();view=buildEscapeRenderSnapshot(run.state,run.presentationSignals(),step.events);controller.accept(view)}
+ assert.ok(controller.replayWindow(100).length<=12);controller.failOutput('fault');assert.equal(controller.frame().scene,'recovery');assert.equal(controller.rebuildFromLatest().recovered,true);
+});
+
+test('output health distinguishes stale, black, frozen and muted output',()=>{
+ const base={snapshotAgeMs:40,paintAgeMs:40,audioAgeMs:40,blackFrame:false,frozenFrame:false,muted:false};
+ assert.equal(classifyEscapeOutputHealth(base).level,'healthy');assert.equal(classifyEscapeOutputHealth({...base,snapshotAgeMs:4000}).reason,'stale-snapshot');
+ assert.equal(classifyEscapeOutputHealth({...base,blackFrame:true}).level,'safe-scene');assert.equal(classifyEscapeOutputHealth({...base,frozenFrame:true}).reason,'frozen-output');
+ assert.equal(classifyEscapeOutputHealth({...base,audioAgeMs:9000}).reason,'silent-output');assert.equal(classifyEscapeOutputHealth({...base,audioAgeMs:9000,muted:true}).level,'healthy');
+});
+
+test('browser source is self-hosted, accessible and avoids unsafe DOM injection',()=>{
+ const root=path.resolve(__dirname,'../../public/ai-escape-room'),html=fs.readFileSync(path.join(root,'index.html'),'utf8'),css=fs.readFileSync(path.join(root,'styles.css'),'utf8'),js=fs.readFileSync(path.join(root,'app.js'),'utf8'),room=fs.readFileSync(path.join(root,'room3d.js'),'utf8'),polish=fs.readFileSync(path.join(root,'room3d-polish.js'),'utf8'),bootstrap=fs.readFileSync(path.join(root,'bootstrap.js'),'utf8');
+ assert.match(html,/data-testid="escape-canvas"/);assert.match(html,/data-testid="objective"/);assert.match(html,/data-testid="ai-intent"/);assert.match(html,/data-testid="captions"/);assert.match(html,/data-testid="room-title-index"/);assert.match(html,/data-testid="room-title-name"/);
+ assert.match(css,/prefers-reduced-motion/);assert.match(css,/data-high-contrast/);assert.match(css,/data-clean-feed/);assert.equal(/https?:\/\//.test(html+css+js+room+polish+bootstrap),false);
+ assert.equal(js.includes('innerHTML'),false);assert.match(js,/AbortController/);assert.match(js,/MAX_TRAIL\s*=\s*240/);assert.match(js,/setAttribute\(`data-/);assert.match(room,/Polish\.rendererId/);assert.match(room,/THREE\.WebGLRenderer/);assert.match(polish,/rendererId:\s*['"]three-physical-room-v2['"]/);assert.match(bootstrap,/three\.module\.js/);
+});
