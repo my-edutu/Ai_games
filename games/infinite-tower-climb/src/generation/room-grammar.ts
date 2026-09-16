@@ -39,13 +39,13 @@ export function buildTowerRoom(config:TowerConfig,floor:number,theme:TowerTheme,
     if(moving)platform.motion={axis:roomArchetype==='moving-lift'||roomArchetype==='gravity-rift'?'y':'x',range:roomArchetype==='wind-gap'?42000:30000,speed:2200,phase:rng.nextInt(`tower:room-motion:${floor}:${i}`,31)};
     platforms.push(platform);
   }
-  const capY=baseY+config.chunkHeight-28000;
-  platforms.push({id:`f${floor}:cap`,kind:'oneway',x:Math.floor(config.worldWidth*(landmark?.16:.24)),y:capY,width:Math.floor(config.worldWidth*(landmark?.68:.52)),height:12000});
+  const capY=baseY+config.chunkHeight-28000,capXRatio=landmark?.16:.24,capWidthRatio=landmark?.68:.52;
+  platforms.push({id:`f${floor}:cap`,kind:'oneway',x:Math.floor(config.worldWidth*capXRatio),y:capY,width:Math.floor(config.worldWidth*capWidthRatio),height:12000});
   const relativeFloor=Math.max(0,floor-config.launchFloor),hazardTarget=landmark?Math.min(1,config.maxHazardsPerChunk):Math.min(config.maxHazardsPerChunk,1+Math.min(2,Math.floor(relativeFloor/3))),hazards:TowerHazard[]=[];
   const hazardKinds=HAZARDS[theme];
   for(let i=0;i<hazardTarget;i++){
-    const routeIndex=1+rng.nextInt(`tower:room-hazard-slot:${floor}:${i}`,5),support=platforms[routeIndex],kind=hazardKinds[(floor+i)%hazardKinds.length];
-    const width=Math.min(32000,Math.floor(support.width*.3)),x=clamp(support.x+Math.floor((support.width-width)*(0.25+0.4*rng.nextFloat(`tower:room-hazard-x:${floor}:${i}`))),support.x,support.x+support.width-width);
+    const routeIndex=1+rng.nextInt(`tower:room-hazard-slot:${floor}:${i}`,5),support=platforms[routeIndex],kind=hazardKinds[(floor+i)%hazardKinds.length],fraction=rng.nextInt(`tower:room-hazard-x:${floor}:${i}`,10001)/10000;
+    const width=Math.min(32000,Math.floor(support.width*.3)),x=clamp(support.x+Math.floor((support.width-width)*(0.25+0.4*fraction)),support.x,support.x+support.width-width);
     hazards.push({id:`f${floor}:h${i}`,kind,x,y:support.y+support.height,width,height:9000,activeFromTick:rng.nextInt(`tower:room-hazard-phase:${floor}:${i}`,20),activeEvery:40,activeFor:kind==='spikes'?40:16,damage:kind==='spikes'?1:2});
   }
   const guardian=floor>0&&floor%config.guardianInterval===0,encounterSlots:TowerEncounterSlot[]=guardian
