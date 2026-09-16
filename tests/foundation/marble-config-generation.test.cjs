@@ -57,6 +57,19 @@ test('constructive arenas are deterministic, valid, bounded, and preserve safe l
   }
 });
 
+test('championship generator remains valid without falling back across a bounded seed corpus',()=>{
+  const config=parseMarbleConfig({rosterSize:32});
+  for(let seedIndex=0;seedIndex<64;seedIndex++){
+    const arena=generateMarbleArena(config,4,NamedRng.fromSeed(`championship-corpus-${seedIndex}`));
+    const report=validateMarbleArena(arena,config);
+    assert.equal(report.valid,true,`seed ${seedIndex}: ${JSON.stringify(report.issues)}`);
+    assert.equal(arena.fallbackUsed,false,`seed ${seedIndex} unexpectedly used the safe fallback`);
+    assert.equal(arena.archetype,'championship');
+    assert.ok(arena.obstacles.some(obstacle=>obstacle.id.startsWith('final-left-')));
+    assert.ok(arena.obstacles.some(obstacle=>obstacle.id.startsWith('final-right-')));
+  }
+});
+
 test('arena validator reports typed overlap and budget failures instead of a vague boolean',()=>{
   const config=parseMarbleConfig({rosterSize:4});
   const arena=generateMarbleArena(config,0,NamedRng.fromSeed('invalid-probe'));
