@@ -2,6 +2,7 @@
 const test=require('node:test');
 const assert=require('node:assert/strict');
 const{DungeonRuntime}=require('../../dist/games/ai-dungeon-endless-adventure/src/runtime/run.js');
+const{planDungeonAction}=require('../../dist/games/ai-dungeon-endless-adventure/src/ai/policy.js');
 const{RELICS,relicBuildProfile,spawnFloorEncounters}=require('../../dist/games/ai-dungeon-endless-adventure/src/content/catalogue.js');
 const base={schemaVersion:1,width:31,height:21,roomAttempts:24,roomMinSize:3,roomMaxSize:7,loopChancePermille:180,chapterLength:5,maxTicksPerFloor:1800,intermissionTicks:2,maxEnemies:18,maxRelics:6,maxEvents:96,noProgressTicks:600};
 
@@ -49,4 +50,23 @@ test('chapter boss has a third deterministic desperation phase with ranged press
   const hp=runtime.state.hero.hp;
   runtime.step({kind:'guard'});
   assert.ok(runtime.state.hero.hp<hp||runtime.state.hero.shield<4,'phase-three ranged attack should create authoritative pressure');
+});
+
+test('autonomous policy reacts defensively to a visible boss telegraph before greedily attacking',()=>{
+  const runtime=new DungeonRuntime(base,'boss-policy-seed','boss-policy-run');
+  runtime.state.floorNumber=5;
+  runtime.state.hero.vision=999;
+  runtime.state.enemies=spawnFloorEncounters(runtime.state.floor,5,base,runtime.rng);
+  const boss=runtime.state.enemies.find(enemy=>enemy.kind==='chapter-boss');
+  assert.ok(boss);
+  const candidates=runtime.state.floor.tiles.map((tile,cell)=>tile===1?cell:-1).filter(cell=>cell>=0);
+  const distance=(a,b)=>Math.abs(a%base.width-b%base.width)+Math.abs(Math.floor(a/base.width)-Math.floor(b/base.width));
+  const threatenedCell=candidates.find(cell=>distance(cell,boss.cell)>=1&&distance(cell,boss.cell)<=3);
+  assert.ok(Number.isInteger(threatenedCell));
+  runtime.state.hero.cell=threatenedCell;
+  boss.telegraph='boss';
+  const proposal=planDungeonAction(runtime.state);
+  assert.equal(proposal.action.kind,'guard');
+  assert.equal(proposal.ai.goal,'Survive the boss telegraph');
+  assert.ok(proposal.ai.confidencePermille>=900);
 });
