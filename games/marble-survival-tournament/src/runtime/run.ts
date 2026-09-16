@@ -127,6 +127,20 @@ function laneThreat(state: MarbleState, marbleId: number, laneX: number): LaneTh
     score += scoreRectThreat(laneX, marble.position.y, lookahead, clearance, zone, base);
   }
 
+  const trafficClearance = radius * 2 + 160;
+  for (const other of state.marbles) {
+    if (other.id === marble.id || other.status !== 'active' || other.roundStatus !== 'racing') continue;
+    if (!state.activeIds.includes(other.id)) continue;
+    const distanceAhead = marble.position.y - other.position.y;
+    if (distanceAhead <= 0 || distanceAhead > lookahead) continue;
+    if (Math.abs(other.position.x - laneX) > trafficClearance) continue;
+    const closingSpeed = other.velocity.y - marble.velocity.y;
+    if (closingSpeed <= 0) continue;
+    const base = 900 + marble.traits.awareness * 12;
+    const proximity = lookahead - distanceAhead;
+    score += base + Math.round((proximity * base) / Math.max(1, lookahead));
+  }
+
   return { score, sweeper: sweeperThreat };
 }
 
