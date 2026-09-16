@@ -49,6 +49,7 @@ export interface MarblePresentationArena {
 
 export interface MarblePresentationSnapshot {
   readonly version: 1;
+  readonly runIndex: number;
   readonly tick: number;
   readonly lifecycle: MarbleLifecycle;
   readonly round: Readonly<{
