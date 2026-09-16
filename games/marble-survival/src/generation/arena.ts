@@ -15,6 +15,7 @@ import type {
 } from '../state/types';
 
 const ARCHETYPES: RoundArchetype[] = ['seeding-sprint','gate-gauntlet','hazard-circuit','final-four','championship'];
+const GENERATOR_VERSION = 'marble-arena-v2';
 
 function spawnPoints(config: MarbleConfig, width: number, spawnY: number): Vec2[] {
   const margin = config.marbleRadius + 80;
@@ -92,14 +93,37 @@ function addRoundContent(config: MarbleConfig, roundIndex: number, rng: NamedRng
     hazards.length = 0;
     windZones.length = 0;
     sweepers.length = 0;
-    const mirrorOffset = 3_800;
-    for (let index = 0; index < 3; index++) {
-      const y = 11_000 - index * 3_000;
-      obstacles.push({ id: `final-left-${index}`, kind: 'block', x: width / 2 - mirrorOffset - 1_200, y, width: 1_200, height: 520 });
-      obstacles.push({ id: `final-right-${index}`, kind: 'block', x: width / 2 + mirrorOffset, y, width: 1_200, height: 520 });
+
+    // The championship is a mirrored duel course. Keep both declared safe lanes
+    // physically clear while concentrating machinery in the outside shoulders
+    // and the neutral centre corridor. The v1 layout placed its mirrored blocks
+    // directly across both safe lanes, so every valid final silently fell back.
+    const finalBlockWidth = Math.max(900, Math.round(width * 0.06));
+    const leftBlockX = Math.max(config.marbleRadius, Math.round(width * 0.19) - Math.round(finalBlockWidth / 2));
+    const rightBlockX = Math.min(width - finalBlockWidth - config.marbleRadius, Math.round(width * 0.81) - Math.round(finalBlockWidth / 2));
+    const finalLevels = [11_300, 8_300, 5_300];
+    for (let index = 0; index < finalLevels.length; index++) {
+      const y = finalLevels[index];
+      obstacles.push({ id: `final-left-${index}`, kind: 'block', x: leftBlockX, y, width: finalBlockWidth, height: 560 });
+      obstacles.push({ id: `final-right-${index}`, kind: 'block', x: rightBlockX, y, width: finalBlockWidth, height: 560 });
     }
-    bumpers.push({ id: 'final-bumper-left', kind: 'bumper', x: width / 2 - 1_600, y: 7_600, radius: 480, restitutionPermille: 920 });
-    bumpers.push({ id: 'final-bumper-right', kind: 'bumper', x: width / 2 + 1_600, y: 7_600, radius: 480, restitutionPermille: 920 });
+
+    bumpers.push({ id: 'final-bumper-left', kind: 'bumper', x: Math.round(width * 0.43), y: 7_500, radius: 460, restitutionPermille: 920 });
+    bumpers.push({ id: 'final-bumper-right', kind: 'bumper', x: Math.round(width * 0.57), y: 7_500, radius: 460, restitutionPermille: 920 });
+    hazards.push({ id: 'final-centre-pit', kind: 'pit', x: Math.round(width / 2 - 1_100), y: 5_900, width: 2_200, height: 900 });
+    sweepers.push({
+      id: 'final-centre-sweeper',
+      kind: 'sweeper',
+      baseX: Math.round(width / 2 - 1_300),
+      baseY: 9_600,
+      width: 2_600,
+      height: 180,
+      axis: 'x',
+      amplitude: 1_200,
+      periodTicks: 210,
+      phaseTicks: rng.nextInt('arena-hazards-r4-final-sweeper', 210),
+      restitutionPermille: 940
+    });
   }
   return { obstacles, bumpers, hazards, windZones, sweepers };
 }
@@ -118,7 +142,7 @@ function knownGoodFallback(config: MarbleConfig, roundIndex: number): MarbleAren
   const sweepers: ArenaSweeper[] = [];
   return {
     schemaVersion: 1,
-    generatorVersion: 'marble-arena-v1',
+    generatorVersion: GENERATOR_VERSION,
     id: `arena-fallback-r${roundIndex}`,
     roundIndex,
     archetype,
@@ -185,7 +209,7 @@ export function generateMarbleArena(config: MarbleConfig, roundIndex: number, rn
   const content = addRoundContent(config, roundIndex, rng, safeLanes);
   const arena: MarbleArena = {
     schemaVersion: 1,
-    generatorVersion: 'marble-arena-v1',
+    generatorVersion: GENERATOR_VERSION,
     id: `arena-${roundIndex}-${rng.nextInt(`arena-topology-id-${roundIndex}`, 1_000_000)}`,
     roundIndex,
     archetype,
