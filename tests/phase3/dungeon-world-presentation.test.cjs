@@ -31,6 +31,19 @@ test('world projection exposes isometric depth, biome and physical interactables
   assert.ok(snapshot.world.interactables.some(item=>item.kind==='sigil'));
 });
 
+test('each authored room receives one coherent deterministic archetype',()=>{
+  const runtime=new DungeonRuntime(config,'room-coherence-seed','room-coherence-run');
+  runtime.state.hero.vision=999;
+  runtime.state.ai.knownCells=runtime.state.floor.tiles.map((_,cell)=>cell);
+  const snapshot=buildDungeonRenderSnapshot(runtime.state);
+  for(const room of runtime.state.floor.rooms){
+    const roomCells=[];
+    for(let y=room.y;y<room.y+room.height;y++)for(let x=room.x;x<room.x+room.width;x++)roomCells.push(y*runtime.state.floor.width+x);
+    const archetypes=new Set(snapshot.world.tiles.filter(tile=>tile.walkable&&roomCells.includes(tile.cell)&&!snapshot.cells.find(cell=>cell.cell===tile.cell)?.objective).map(tile=>tile.room));
+    assert.ok(archetypes.size<=1,`room ${room.id} mixed archetypes: ${[...archetypes].join(',')}`);
+  }
+});
+
 test('entity presentation communicates tactical role and animation state',()=>{
   const runtime=new DungeonRuntime(config,'world-entity-seed','world-entity-run');
   runtime.state.hero.vision=999;
