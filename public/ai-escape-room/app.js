@@ -7,7 +7,7 @@ document.body.dataset.cameraMode='room';window.__ESCAPE_TRAIL_BOUND__=MAX_TRAIL;
 const $=id=>document.getElementById(id),canvas=document.querySelector('[data-testid="escape-canvas"]');
 const elements={room:document.querySelector('[data-testid="room"]'),stage:document.querySelector('[data-testid="stage"]'),tick:document.querySelector('[data-testid="tick"]'),objective:document.querySelector('[data-testid="objective"]'),intent:$('ai-intent'),observation:$('ai-observation'),goal:$('ai-goal'),confidence:$('confidence'),progress:$('progress-fill'),progressLabel:$('progress-label'),timer:$('timer-value'),inventory:$('inventory'),inventoryCount:$('inventory-count'),mechanisms:$('mechanisms'),mechanismCount:$('mechanism-count'),score:$('score'),streak:$('streak'),theme:$('theme'),difficulty:$('difficulty'),caption:$('caption-text'),connection:$('connection'),health:$('health'),danger:document.querySelector('[data-testid="danger"]'),dangerCopy:$('danger-copy'),safe:$('safe-scene'),inspect:$('inspect-label'),roomTitleIndex:$('room-title-index'),roomTitleName:$('room-title-name'),milestone:$('milestone-label')};
 const THEME_NAMES={'cipher-vault':'CIPHER VAULT','clockwork-study':'CLOCKWORK STUDY','chromatic-lab':'CHROMATIC LAB','archive-zero':'ARCHIVE ZERO'};
-let publicState=null,inFlight=false,failures=0,lastEventSeq=0,evidenceFrame=false;
+let publicState=null,inFlight=false,failures=0,lastEventSeq=0,evidenceFrame=false,presentationEpoch=0,activePollController=null;
 function text(node,value){if(node)node.textContent=String(value??'—')}
 function human(value){return String(value??'').replace(/^escape\.object\./,'').replace(/[-_.]+/g,' ').replace(/\b\w/g,letter=>letter.toUpperCase())}
 function renderList(container,items,render){while(container.firstChild)container.removeChild(container.firstChild);for(const item of items)container.appendChild(render(item))}
@@ -37,7 +37,27 @@ function update(state){
   const activeHazard=state.hazards.find(hazard=>hazard.phase==='active')||state.hazards.find(hazard=>hazard.phase==='telegraph');text(elements.dangerCopy,activeHazard?`${human(activeHazard.kind).toUpperCase()} · ${activeHazard.phase.toUpperCase()}`:'ROOM HAZARD ACTIVE');
   const latest=state.events.at(-1);text(elements.caption,latest?.label||state.ai.observation);if(latest&&latest.seq>lastEventSeq){lastEventSeq=latest.seq;audio.event(latest)}text(elements.health,state.health.level.toUpperCase());elements.danger.classList.toggle('active',state.scene==='danger');elements.safe.classList.toggle('active',state.scene==='recovery'||state.health.level==='safe-scene');text(elements.connection,evidenceFrame?'REPLAY':'LIVE');failures=0;
 }
-window.__ESCAPE_PRESENT_FRAME__=state=>{evidenceFrame=true;update(state)};
-window.__ESCAPE_RESUME_LIVE__=()=>{evidenceFrame=false};
-async function poll(){if(inFlight||evidenceFrame)return;inFlight=true;const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),1800);try{const params=new URLSearchParams({w:String(innerWidth),h:String(innerHeight),reducedMotion:modes.reducedMotion?'1':'0',cleanFeed:modes.cleanFeed?'1':'0',muted:modes.muted?'1':'0'}),response=await fetch(`/escape-room/state?${params}`,{cache:'no-store',signal:controller.signal});if(!response.ok)throw new Error(`state ${response.status}`);update(await response.json())}catch(error){failures++;text(elements.connection,failures>2?'RESTORING':'RECONNECTING');if(failures>5)elements.safe.classList.add('active');if(failures===1)console.warn('Escape Room state reconnect',error?.message||'network')}finally{clearTimeout(timer);inFlight=false}}
+window.__ESCAPE_PRESENT_FRAME__=state=>{evidenceFrame=true;presentationEpoch++;activePollController?.abort();update(state)};
+window.__ESCAPE_RESUME_LIVE__=()=>{evidenceFrame=false;presentationEpoch++;poll()};
+async function poll(){
+  if(inFlight||evidenceFrame)return;
+  inFlight=true;
+  const requestEpoch=presentationEpoch,controller=new AbortController();activePollController=controller;
+  const timer=setTimeout(()=>controller.abort(),1800);
+  try{
+    const params=new URLSearchParams({w:String(innerWidth),h:String(innerHeight),reducedMotion:modes.reducedMotion?'1':'0',cleanFeed:modes.cleanFeed?'1':'0',muted:modes.muted?'1':'0'}),response=await fetch(`/escape-room/state?${params}`,{cache:'no-store',signal:controller.signal});
+    if(!response.ok)throw new Error(`state ${response.status}`);
+    const liveState=await response.json();
+    if(evidenceFrame||requestEpoch!==presentationEpoch)return;
+    update(liveState);
+  }catch(error){
+    if(!(controller.signal.aborted&&evidenceFrame)){
+      failures++;text(elements.connection,failures>2?'RESTORING':'RECONNECTING');if(failures>5)elements.safe.classList.add('active');if(failures===1)console.warn('Escape Room state reconnect',error?.message||'network');
+    }
+  }finally{
+    if(activePollController===controller)activePollController=null;
+    clearTimeout(timer);inFlight=false;
+    if(!evidenceFrame&&requestEpoch!==presentationEpoch)queueMicrotask(poll);
+  }
+}
 setInterval(poll,180);poll();
