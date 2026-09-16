@@ -41,9 +41,11 @@
     uniform mat3 uNormalMatrix;
     out vec3 vNormal;
     out vec3 vWorldPosition;
+    out vec3 vLocalPosition;
     void main() {
       vec4 world = uModel * vec4(aPosition, 1.0);
       vWorldPosition = world.xyz;
+      vLocalPosition = aPosition;
       vNormal = normalize(uNormalMatrix * aNormal);
       gl_Position = uViewProjection * world;
     }
@@ -53,14 +55,35 @@
     precision highp float;
     in vec3 vNormal;
     in vec3 vWorldPosition;
+    in vec3 vLocalPosition;
     uniform vec3 uColor;
+    uniform vec3 uPatternColor;
     uniform vec3 uLightDirection;
     uniform vec3 uCameraPosition;
     uniform float uRoughness;
     uniform float uMetalness;
     uniform float uEmissive;
     uniform float uOpacity;
+    uniform float uPatternType;
     out vec4 outColor;
+
+    float patternMask(vec3 localPosition) {
+      if (uPatternType < 0.5) return 0.0;
+      vec3 point = normalize(localPosition);
+      if (uPatternType < 1.5) {
+        vec3 cell = abs(sin(point * 15.0));
+        return smoothstep(0.60, 0.88, cell.x * cell.y * cell.z);
+      }
+      if (uPatternType < 2.5) {
+        float stripe = abs(fract((point.x + abs(point.y) * 0.68) * 3.5) - 0.5);
+        return 1.0 - smoothstep(0.10, 0.24, stripe);
+      }
+      if (uPatternType < 3.5) {
+        return 1.0 - smoothstep(0.10, 0.22, abs(point.y));
+      }
+      return smoothstep(-0.04, 0.04, point.x);
+    }
+
     void main() {
       vec3 normal = normalize(vNormal);
       vec3 lightDir = normalize(-uLightDirection);
@@ -71,7 +94,9 @@
       float ambient = mix(0.15, 0.34, horizon);
       float shininess = mix(72.0, 9.0, clamp(uRoughness, 0.0, 1.0));
       float specular = pow(max(dot(normal, halfDir), 0.0), shininess) * mix(0.18, 0.78, uMetalness);
-      vec3 lit = uColor * (ambient + diffuse * 0.76) + vec3(specular) + uColor * uEmissive;
+      float mask = patternMask(vLocalPosition);
+      vec3 surfaceColor = mix(uColor, uPatternColor, mask * 0.78);
+      vec3 lit = surfaceColor * (ambient + diffuse * 0.76) + vec3(specular) + surfaceColor * uEmissive;
       float distanceFog = clamp((length(uCameraPosition - vWorldPosition) - 12.0) / 36.0, 0.0, 0.52);
       vec3 fogColor = vec3(0.025, 0.028, 0.032);
       outColor = vec4(mix(lit, fogColor, distanceFog), uOpacity);
@@ -219,9 +244,49 @@
   function triangleWave(tick, periodTicks, amplitude, phaseTicks) { const period=Math.max(2,periodTicks); const half=Math.floor(period/2); const phase=((tick+phaseTicks)%period+period)%period; const distance=phase<=half?phase:period-phase; return Math.round(-amplitude+distance*amplitude*2/Math.max(1,half)); }
   function deterministicUnit(seed) { let value=seed|0; value^=value<<13; value^=value>>>17; value^=value<<5; return ((value>>>0)%10000)/10000; }
   function toWorld(x, y, arena) { return [(x-arena.width/2)*WORLD_SCALE,0,(y-arena.height/2)*WORLD_SCALE]; }
+  function rampElevationAt(ramp, x, y) {
+    if (x < ramp.x || x > ramp.x + ramp.width || y < ramp.y || y > ramp.y + ramp.height) return null;
+    const length = ramp.axis === 'x' ? ramp.width : ramp.height;
+    if (length <= 0) return null;
+    const offset = ramp.axis === 'x' ? x - ramp.x : y - ramp.y;
+    const progress = clamp(offset / length, 0, 1);
+    return lerp(ramp.startElevation, ramp.endElevation, progress);
+  }
+  function supportElevationAt(arena, x, y) {
+    let support = 0;
+    for (const ramp of arena.ramps || []) {
+      const elevation = rampElevationAt(ramp, x, y);
+      if (elevation !== null) support = Math.max(support, elevation);
+    }
+    return support;
+  }
+  function marblePatternType(pattern) {
+    if (pattern === 'dots') return 1;
+    if (pattern === 'chevron') return 2;
+    if (pattern === 'ring') return 3;
+    if (pattern === 'split') return 4;
+    return 0;
+  }
+  function marblePatternColor(base) {
+    const luminance = base[0] * 0.2126 + base[1] * 0.7152 + base[2] * 0.0722;
+    return luminance > 0.52 ? [0.055,0.06,0.065] : [0.94,0.925,0.86];
+  }
 
   const program = createProgram(VERTEX_SHADER, FRAGMENT_SHADER);
-  const uniforms = Object.freeze({ model: gl.getUniformLocation(program,'uModel'), viewProjection: gl.getUniformLocation(program,'uViewProjection'), normalMatrix: gl.getUniformLocation(program,'uNormalMatrix'), color: gl.getUniformLocation(program,'uColor'), lightDirection: gl.getUniformLocation(program,'uLightDirection'), cameraPosition: gl.getUniformLocation(program,'uCameraPosition'), roughness: gl.getUniformLocation(program,'uRoughness'), metalness: gl.getUniformLocation(program,'uMetalness'), emissive: gl.getUniformLocation(program,'uEmissive'), opacity: gl.getUniformLocation(program,'uOpacity') });
+  const uniforms = Object.freeze({
+    model: gl.getUniformLocation(program,'uModel'),
+    viewProjection: gl.getUniformLocation(program,'uViewProjection'),
+    normalMatrix: gl.getUniformLocation(program,'uNormalMatrix'),
+    color: gl.getUniformLocation(program,'uColor'),
+    patternColor: gl.getUniformLocation(program,'uPatternColor'),
+    patternType: gl.getUniformLocation(program,'uPatternType'),
+    lightDirection: gl.getUniformLocation(program,'uLightDirection'),
+    cameraPosition: gl.getUniformLocation(program,'uCameraPosition'),
+    roughness: gl.getUniformLocation(program,'uRoughness'),
+    metalness: gl.getUniformLocation(program,'uMetalness'),
+    emissive: gl.getUniformLocation(program,'uEmissive'),
+    opacity: gl.getUniformLocation(program,'uOpacity')
+  });
   const sphereMesh=createSphereMesh(), boxMesh=createBoxMesh(), cylinderMesh=createCylinderMesh(), shadowMesh=createCylinderMesh(24);
   const rollingById=new Map(); const effects=[]; let snapshot=null,previousSnapshot=null,snapshotReceivedAt=performance.now(),lastEventSeq=-1,cameraState=null,cameraArenaId=null,pollingStopped=false,requestInFlight=false;
   gl.enable(gl.DEPTH_TEST); gl.enable(gl.CULL_FACE); gl.cullFace(gl.BACK); gl.enable(gl.BLEND); gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
@@ -238,19 +303,25 @@
   }
 
   function cameraFromDirective(currentSnapshot, marbles) {
-    const arena=currentSnapshot.arena; const directive=currentSnapshot.camera.directive||{mode:'overview',focusIds:[],zoomPermille:1000}; const byId=new Map(marbles.map((marble)=>[marble.id,marble])); const focus=(directive.focusIds||[]).map((id)=>byId.get(id)).filter(Boolean);
+    const arena=currentSnapshot.arena;
+    const directive=currentSnapshot.camera.directive||{mode:'overview',focusIds:[],zoomPermille:1000};
+    const byId=new Map(marbles.map((marble)=>[marble.id,marble]));
+    let focus=(directive.focusIds||[]).map((id)=>byId.get(id)).filter(Boolean);
+    const active=marbles.filter((marble)=>marble.status!=='eliminated'&&marble.status!=='qualified');
+    if(!focus.length&&currentSnapshot.round.remaining<=4)focus=active.slice(0,4);
     let target=[0,0.25,0];
     if(focus.length){const averageX=focus.reduce((sum,marble)=>sum+marble.x,0)/focus.length; const averageY=focus.reduce((sum,marble)=>sum+marble.y,0)/focus.length; const averageElevation=focus.reduce((sum,marble)=>sum+(marble.elevation||0),0)/focus.length; const point=toWorld(averageX,averageY,arena); target=[point[0],0.30+averageElevation*WORLD_SCALE,point[2]];}
     const zoom=clamp((directive.zoomPermille||1000)/1000,0.9,1.8); let eye=[0,13.5/zoom,18/zoom];
-    if(directive.mode==='danger')eye=[target[0]+4.8/zoom,7.2/zoom,target[2]+8.5/zoom];
+    if(directive.mode==='overview'&&currentSnapshot.round.remaining<=4)eye=[target[0]+4.4/zoom,7.0/zoom,target[2]+8.4/zoom];
+    if(directive.mode === 'danger')eye=[target[0]+4.8/zoom,7.2/zoom,target[2]+8.5/zoom];
     if(directive.mode==='cut-line')eye=[target[0]+3.2/zoom,8.4/zoom,target[2]+10.5/zoom];
-    if(directive.mode==='finish'){const finish=toWorld(arena.width/2,arena.finishY,arena);target=[lerp(target[0],finish[0],0.55),0.25,lerp(target[2],finish[2],0.55)];eye=[target[0]+5.8/zoom,6.4/zoom,target[2]+7.4/zoom];}
-    if(directive.mode==='victory')eye=[target[0]+3.4/zoom,4.0/zoom,target[2]+5.0/zoom];
+    if(directive.mode === 'finish'){const finish=toWorld(arena.width/2,arena.finishY,arena);target=[lerp(target[0],finish[0],0.55),0.25,lerp(target[2],finish[2],0.55)];eye=[target[0]+5.8/zoom,6.4/zoom,target[2]+7.4/zoom];}
+    if(directive.mode === 'victory')eye=[target[0]+3.4/zoom,4.0/zoom,target[2]+5.0/zoom];
     return {eye,target,mode:directive.mode};
   }
   function smoothedCamera(currentSnapshot,marbles){const next=cameraFromDirective(currentSnapshot,marbles);if(!cameraState||cameraArenaId!==currentSnapshot.arena.id){cameraArenaId=currentSnapshot.arena.id;cameraState=next;return next;}const reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;const amount=reduced?1:0.075;cameraState={eye:lerp3(cameraState.eye,next.eye,amount),target:lerp3(cameraState.target,next.target,amount),mode:next.mode};return cameraState;}
-  function material(color,roughness=0.65,metalness=0.08,emissive=0,opacity=1){return{color,roughness,metalness,emissive,opacity};}
-  function drawMesh(mesh,model,surface,viewProjection,cameraPosition){gl.useProgram(program);gl.uniformMatrix4fv(uniforms.model,false,model);gl.uniformMatrix4fv(uniforms.viewProjection,false,viewProjection);gl.uniformMatrix3fv(uniforms.normalMatrix,false,normalMatrix3(model));gl.uniform3fv(uniforms.color,surface.color);gl.uniform3fv(uniforms.lightDirection,[0.42,-1,0.28]);gl.uniform3fv(uniforms.cameraPosition,cameraPosition);gl.uniform1f(uniforms.roughness,surface.roughness);gl.uniform1f(uniforms.metalness,surface.metalness);gl.uniform1f(uniforms.emissive,surface.emissive);gl.uniform1f(uniforms.opacity,surface.opacity);gl.bindVertexArray(mesh.vao);gl.drawElements(gl.TRIANGLES,mesh.count,gl.UNSIGNED_SHORT,0);gl.bindVertexArray(null);}
+  function material(color,roughness=0.65,metalness=0.08,emissive=0,opacity=1,patternType=0,patternColor=[0.94,0.925,0.86]){return{color,roughness,metalness,emissive,opacity,patternType,patternColor};}
+  function drawMesh(mesh,model,surface,viewProjection,cameraPosition){gl.useProgram(program);gl.uniformMatrix4fv(uniforms.model,false,model);gl.uniformMatrix4fv(uniforms.viewProjection,false,viewProjection);gl.uniformMatrix3fv(uniforms.normalMatrix,false,normalMatrix3(model));gl.uniform3fv(uniforms.color,surface.color);gl.uniform3fv(uniforms.patternColor,surface.patternColor);gl.uniform1f(uniforms.patternType,surface.patternType);gl.uniform3fv(uniforms.lightDirection,[0.42,-1,0.28]);gl.uniform3fv(uniforms.cameraPosition,cameraPosition);gl.uniform1f(uniforms.roughness,surface.roughness);gl.uniform1f(uniforms.metalness,surface.metalness);gl.uniform1f(uniforms.emissive,surface.emissive);gl.uniform1f(uniforms.opacity,surface.opacity);gl.bindVertexArray(mesh.vao);gl.drawElements(gl.TRIANGLES,mesh.count,gl.UNSIGNED_SHORT,0);gl.bindVertexArray(null);}
   function drawBox(center,size,surface,viewProjection,cameraPosition,rotation=[0,0,0]){drawMesh(boxMesh,modelMatrix(center,rotation,[size[0]/2,size[1]/2,size[2]/2]),surface,viewProjection,cameraPosition);}
 
   function drawArenaDeck(arena,theme,viewProjection,cameraPosition){const width=arena.width*WORLD_SCALE,depth=arena.height*WORLD_SCALE;drawBox([0,-0.23,0],[width+0.9,0.42,depth+0.9],material(theme.trim,0.82,0.18),viewProjection,cameraPosition);drawBox([0,-0.015,0],[width,0.08,depth],material(theme.deck,0.73,0.08),viewProjection,cameraPosition);for(let lane=1;lane<4;lane+=1){const x=-width/2+width*lane/4;drawBox([x,0.035,0],[0.025,0.015,depth*0.96],material([0.68,0.69,0.67],0.95,0,0,0.24),viewProjection,cameraPosition);}}
@@ -281,8 +352,8 @@
 
   function drawSweeperMachine(sweeper,arena,theme,tick,viewProjection,cameraPosition){const offset=triangleWave(tick,sweeper.periodTicks,sweeper.amplitude,sweeper.phaseTicks),x=sweeper.baseX+(sweeper.axis==='x'?offset:0),y=sweeper.baseY+(sweeper.axis==='y'?offset:0),origin=toWorld(x,y,arena),width=sweeper.width*WORLD_SCALE,depth=Math.max(0.18,sweeper.height*WORLD_SCALE),center=[origin[0]+width/2,0.36,origin[2]+depth/2],steel=material([0.42,0.45,0.47],0.22,0.88);drawBox(center,[width,0.28,depth],steel,viewProjection,cameraPosition);drawBox([center[0],0.57,center[2]],[width*0.88,0.10,Math.max(0.10,depth*0.56)],material(theme.accent,0.28,0.44,0.10),viewProjection,cameraPosition);const hubRadius=Math.max(0.16,depth*0.8);for(const side of [-1,1]){const hubX=center[0]+side*width/2;drawMesh(cylinderMesh,modelMatrix([hubX,0.36,center[2]],[0,0,Math.PI/2],[hubRadius,0.12,hubRadius]),steel,viewProjection,cameraPosition);drawBox([hubX,0.15,center[2]],[0.18,0.30,0.18],material(theme.trim,0.38,0.76),viewProjection,cameraPosition);}}
   function rollingState(marble,nowSeconds){let state=rollingById.get(marble.id);if(!state){state={x:0,z:0,lastTime:nowSeconds};rollingById.set(marble.id,state);}const dt=clamp(nowSeconds-state.lastTime,0,0.05);state.lastTime=nowSeconds;const vx=marble.velocityX*WORLD_SCALE,vz=marble.velocityY*WORLD_SCALE;state.x+=-vz/MARBLE_RADIUS*dt*60;state.z+=vx/MARBLE_RADIUS*dt*60;return state;}
-  function drawContactShadow(marble,arena,viewProjection,cameraPosition){const point=toWorld(marble.x,marble.y,arena),elevation=(marble.elevation||0)*WORLD_SCALE;drawMesh(shadowMesh,modelMatrix([point[0]+0.05,elevation+0.032,point[2]+0.07],[0,0,0],[MARBLE_RADIUS*1.02,0.008,MARBLE_RADIUS*0.72]),material([0.005,0.006,0.007],1,0,0,0.34),viewProjection,cameraPosition);}
-  function drawMarble(marble,arena,viewProjection,cameraPosition,nowSeconds,focused){if(marble.status==='eliminated')return;const point=toWorld(marble.x,marble.y,arena),rolling=rollingState(marble,nowSeconds),base=PALETTE[marble.palette]||[0.50,0.56,0.54],champion=marble.status==='champion',qualified=marble.status==='qualified',threatened=marble.status==='threatened',metalness=marble.pattern==='split'?0.68:marble.pattern==='ring'?0.48:0.28,roughness=marble.pattern==='dots'?0.42:0.24,scale=champion?1.08:1,elevation=(marble.elevation||0)*WORLD_SCALE;const model=modelMatrix([point[0],elevation+MARBLE_RADIUS+0.05,point[2]],[rolling.x,0,rolling.z],[MARBLE_RADIUS*scale,MARBLE_RADIUS*scale,MARBLE_RADIUS*scale]);drawMesh(sphereMesh,model,material(base,roughness,metalness,champion?0.22:qualified?0.08:0),viewProjection,cameraPosition);if(focused||threatened||marble.status==='recovering'){const haloColor=threatened?[0.95,0.12,0.06]:marble.status==='recovering'?[1.0,0.66,0.12]:[0.40,0.82,1.0];drawMesh(cylinderMesh,modelMatrix([point[0],elevation+0.045,point[2]],[0,0,0],[MARBLE_RADIUS*1.46,0.010,MARBLE_RADIUS*1.46]),material(haloColor,0.5,0.18,0.65,0.48),viewProjection,cameraPosition);}}
+  function drawContactShadow(marble,arena,viewProjection,cameraPosition){const point=toWorld(marble.x,marble.y,arena),support=supportElevationAt(arena,marble.x,marble.y)*WORLD_SCALE;drawMesh(shadowMesh,modelMatrix([point[0]+0.05,support+0.032,point[2]+0.07],[0,0,0],[MARBLE_RADIUS*1.02,0.008,MARBLE_RADIUS*0.72]),material([0.005,0.006,0.007],1,0,0,0.34),viewProjection,cameraPosition);}
+  function drawMarble(marble,arena,viewProjection,cameraPosition,nowSeconds,focused){if(marble.status==='eliminated')return;const point=toWorld(marble.x,marble.y,arena),rolling=rollingState(marble,nowSeconds),base=PALETTE[marble.palette]||[0.50,0.56,0.54],champion=marble.status==='champion',qualified=marble.status==='qualified',threatened=marble.status==='threatened',metalness=marble.pattern==='split'?0.68:marble.pattern==='ring'?0.48:0.28,roughness=marble.pattern==='dots'?0.42:0.24,scale=champion?1.08:1,elevation=(marble.elevation||0)*WORLD_SCALE,patternType=marblePatternType(marble.pattern),patternColor=marblePatternColor(base);const model=modelMatrix([point[0],elevation+MARBLE_RADIUS+0.05,point[2]],[rolling.x,0,rolling.z],[MARBLE_RADIUS*scale,MARBLE_RADIUS*scale,MARBLE_RADIUS*scale]);drawMesh(sphereMesh,model,material(base,roughness,metalness,champion?0.22:qualified?0.08:0,1,patternType,patternColor),viewProjection,cameraPosition);if(focused||threatened||marble.status==='recovering'){const haloColor=threatened?[0.95,0.12,0.06]:marble.status==='recovering'?[1.0,0.66,0.12]:[0.40,0.82,1.0];drawMesh(cylinderMesh,modelMatrix([point[0],elevation+0.045,point[2]],[0,0,0],[MARBLE_RADIUS*1.46,0.010,MARBLE_RADIUS*1.46]),material(haloColor,0.5,0.18,0.65,0.48),viewProjection,cameraPosition);}}
 
   function spawnEffects(next){for(const event of next.events||[]){if(event.seq<=lastEventSeq)continue;lastEventSeq=Math.max(lastEventSeq,event.seq);if(!['marble-eliminated','shield-recovery','marble-qualified','tournament-champion'].includes(event.type))continue;const marbleId=Number(event.data?.marbleId??event.data?.championId),marble=next.marbles.find((candidate)=>candidate.id===marbleId);if(!marble)continue;const point=toWorld(marble.x,marble.y,next.arena),count=event.type==='tournament-champion'?28:event.type==='marble-eliminated'?16:10,color=event.type==='marble-eliminated'?[0.96,0.22,0.08]:event.type==='shield-recovery'?[0.34,0.78,1.0]:[1.0,0.72,0.20],elevation=(marble.elevation||0)*WORLD_SCALE;for(let index=0;index<count;index+=1){const unitA=deterministicUnit(event.seq*4099+index*193),unitB=deterministicUnit(event.seq*8191+index*389),angle=unitA*Math.PI*2,speed=0.7+unitB*1.7;effects.push({position:[point[0],elevation+0.30,point[2]],velocity:[Math.cos(angle)*speed,0.7+unitA*1.6,Math.sin(angle)*speed],color,age:0,lifetime:0.65+unitB*0.75});}}if(effects.length>160)effects.splice(0,effects.length-160);}
   function drawEffects(dt,viewProjection,cameraPosition){const quality=document.getElementById('quality-select')?.value||'balanced',cap=quality==='low'?24:quality==='balanced'?72:140;let drawn=0;for(const effect of effects){effect.age+=dt;if(effect.age>=effect.lifetime)continue;effect.velocity[1]-=2.7*dt;effect.position[0]+=effect.velocity[0]*dt;effect.position[1]+=effect.velocity[1]*dt;effect.position[2]+=effect.velocity[2]*dt;if(drawn<cap){const life=1-effect.age/effect.lifetime,size=0.035+life*0.045;drawMesh(sphereMesh,modelMatrix(effect.position,[0,0,0],[size,size,size]),material(effect.color,0.4,0.15,0.7,life),viewProjection,cameraPosition);drawn+=1;}}for(let index=effects.length-1;index>=0;index-=1)if(effects[index].age>=effects[index].lifetime)effects.splice(index,1);}
