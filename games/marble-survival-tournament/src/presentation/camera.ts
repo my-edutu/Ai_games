@@ -128,7 +128,8 @@ export function chooseMarbleCameraDirective(
   previous?: MarbleCameraDirective | null
 ): MarbleCameraDirective {
   const candidate = chooseCandidate(input);
-  if (previous && input.tick < previous.holdUntilTick && candidate.priority <= previous.priority) {
+  const sameTimeline = previous && previous.issuedAtTick <= input.tick;
+  if (sameTimeline && input.tick < previous.holdUntilTick && candidate.priority <= previous.priority) {
     return {
       ...previous,
       focusIds: [...previous.focusIds]
