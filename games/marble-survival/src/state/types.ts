@@ -40,6 +40,9 @@ export interface MarbleCompetitor {
   roundStatus: MarbleRoundStatus;
   position: Vec2;
   velocity: Vec2;
+  elevation: number;
+  verticalVelocity: number;
+  grounded: boolean;
   checkpointIndex: number;
   progressPermille: number;
   finishTick: number | null;
@@ -67,6 +70,8 @@ export interface MarbleConfig {
   marbleRadius: number;
   maxSpeed: number;
   baseAcceleration: number;
+  gravityPerTick: number;
+  maxVerticalSpeed: number;
   frictionPermille: number;
   worldRestitutionPermille: number;
   marbleRestitutionPermille: number;
@@ -254,7 +259,7 @@ export interface MarbleInfluenceState {
 
 export interface MarbleState {
   schemaVersion: 1;
-  determinismVersion: 'marble-physics-v1';
+  determinismVersion: 'marble-physics-v2';
   runId: string;
   rootSeed: string;
   tournamentSeed: string;
