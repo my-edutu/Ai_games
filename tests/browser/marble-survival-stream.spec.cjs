@@ -201,7 +201,6 @@ test('Marble WebGL broadcast renders authoritative tournament and captures runti
   fs.writeFileSync(path.join(artifacts, 'performance-evidence.json'), JSON.stringify(performanceEvidence, null, 2) + '\n');
   expect(performanceEvidence.sampleCount).toBeGreaterThanOrEqual(90);
   if (softwareRenderer) {
-    // GitHub hosted runners expose software WebGL; verify the explicit degradation tier instead of mislabelling it as GPU evidence.
     expect(performanceEvidence.frameMs.p95).toBeLessThan(140);
   } else {
     expect(performanceEvidence.frameMs.p95).toBeLessThan(100);
@@ -213,6 +212,18 @@ test('Marble WebGL broadcast renders authoritative tournament and captures runti
     await expect(shell).toHaveAttribute('data-render-scale', '0.72', { timeout: 2_000 });
     await page.waitForTimeout(250);
   }
+
+  // Performance sampling is deliberately a separate deterministic tournament. It must never
+  // consume/freeze the tournament whose archetypes and decisive moments are under visual review.
+  await operator('pause');
+  await operator('restart');
+  const visualState = await snapshot();
+  expect(visualState.round.index).toBe(0);
+  expect(visualState.lifecycle).toBe('active');
+  expect(visualState.tick).toBe(0);
+  await expect(page.locator('#tick-value')).toHaveText('0', { timeout: 2_000 });
+  await expect(page.locator('#round-name')).toHaveText('Seeding Sprint', { timeout: 2_000 });
+  await operator('resume');
 
   const startedAt = Date.now();
   let championSeen = false;
