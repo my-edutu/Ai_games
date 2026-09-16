@@ -14,6 +14,7 @@ const PRESENTATION_EVENT_FIELDS: Record<string, readonly string[]> = {
   'shield-recovery': ['marbleId', 'hazardId', 'impulseY', 'recoveryUntilTick'],
   'marble-eliminated': ['marbleId', 'cause', 'hazardId'],
   'marble-qualified': ['marbleId', 'finishRank', 'crossingFraction'],
+  'marble-overtake': ['marbleId', 'passedMarbleId', 'overtakes'],
   'round-resolved': ['roundIndex', 'resolution'],
   'tournament-champion': ['championId', 'tournamentTicks', 'recordCategory'],
   'intermission-started': ['championId']
@@ -82,7 +83,8 @@ function toPresentationMarble(state: MarbleState, marble: MarbleCompetitor): Mar
     progressPermille: marble.progressPermille,
     finishRank: marble.finishRank,
     shieldCharges: marble.shieldCharges,
-    recoveryUntilTick: marble.recoveryUntilTick ?? -1
+    recoveryUntilTick: marble.recoveryUntilTick ?? -1,
+    overtakes: marble.overtakes
   };
 }
 
