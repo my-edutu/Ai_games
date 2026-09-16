@@ -25,6 +25,7 @@ export interface MarblePresentationCompetitor {
   readonly finishRank: number | null;
   readonly shieldCharges: number;
   readonly recoveryUntilTick: number;
+  readonly overtakes: number;
 }
 
 export interface MarblePresentationEvent {
