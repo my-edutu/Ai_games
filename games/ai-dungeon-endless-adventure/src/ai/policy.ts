@@ -14,7 +14,14 @@ export function planDungeonAction(state:DungeonState):DungeonDecision{
   const knownCells=refreshedDungeonKnowledge(state);
   if(state.lifecycle==='chapter-result'&&state.rewardChoices.length){const choice=[...state.rewardChoices].sort((a,b)=>(RELICS[b]?.priority??0)-(RELICS[a]?.priority??0)||a.localeCompare(b))[0];return decision({kind:'choose-relic',relicId:choice},knownCells,'Choose a chapter relic',`Choosing ${RELICS[choice]?.name??choice}`,920)}
   if(state.lifecycle!=='running')return decision({kind:'wait'},knownCells,'Await the next floor','Holding during intermission',990);
-  const observation=buildDungeonObservation(state);const visible=[...observation.visibleEnemies].sort((a,b)=>distance(a.cell,state.hero.cell,state.floor.width)-distance(b.cell,state.hero.cell,state.floor.width)||a.id.localeCompare(b.id));const adjacent=visible.find(enemy=>distance(enemy.cell,state.hero.cell,state.floor.width)===1);if(adjacent)return decision({kind:'melee',targetId:adjacent.id},knownCells,'Survive the encounter',`Striking ${adjacent.kind}`,850);
+  const observation=buildDungeonObservation(state);
+  const visible=[...observation.visibleEnemies].sort((a,b)=>distance(a.cell,state.hero.cell,state.floor.width)-distance(b.cell,state.hero.cell,state.floor.width)||a.id.localeCompare(b.id));
+  const telegraphBoss=visible.find(enemy=>enemy.kind==='chapter-boss'&&enemy.telegraph!==null&&distance(enemy.cell,state.hero.cell,state.floor.width)<=4);
+  if(telegraphBoss){
+    if(state.hero.hp<=Math.floor(state.hero.maxHp*.3)&&state.hero.potions>0)return decision({kind:'heal'},knownCells,'Survive the boss telegraph','Emergency healing before the boss impact',970,0,'Visible boss telegraph');
+    return decision({kind:'guard'},knownCells,'Survive the boss telegraph',`Bracing for phase ${telegraphBoss.phase} impact`,960,0,'Visible boss telegraph');
+  }
+  const adjacent=visible.find(enemy=>distance(enemy.cell,state.hero.cell,state.floor.width)===1);if(adjacent)return decision({kind:'melee',targetId:adjacent.id},knownCells,'Survive the encounter',`Striking ${adjacent.kind}`,850);
   if(state.hero.hp<=Math.floor(state.hero.maxHp*0.4)&&state.hero.potions>0)return decision({kind:'heal'},knownCells,'Recover health','Using a healing potion',900);
   const ranged=visible.find(enemy=>distance(enemy.cell,state.hero.cell,state.floor.width)<=3);if(ranged&&state.hero.energy>=2)return decision({kind:'ranged',targetId:ranged.id},knownCells,'Control the encounter',`Firing at ${ranged.kind}`,760);
   let target:number|undefined;if(state.floorProgress.sigilCollected)target=state.floor.gate;else if(observation.known.sigil)target=state.floor.sigil;else if(observation.known.chest&&!state.floorProgress.chestOpened)target=state.floor.chest;
