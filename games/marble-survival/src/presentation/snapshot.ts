@@ -92,6 +92,9 @@ function toPresentationMarble(state: MarbleState, marble: MarbleCompetitor): Mar
     y: marble.position.y,
     velocityX: marble.velocity.x,
     velocityY: marble.velocity.y,
+    elevation: marble.elevation,
+    verticalVelocity: marble.verticalVelocity,
+    grounded: marble.grounded,
     progressPermille: marble.progressPermille,
     finishRank: marble.finishRank,
     shieldCharges: marble.shieldCharges,
@@ -170,7 +173,8 @@ export function createMarblePresentationSnapshot(state: MarbleState, recentEvent
         amplitude: sweeper.amplitude,
         periodTicks: sweeper.periodTicks,
         phaseTicks: sweeper.phaseTicks
-      }))
+      })),
+      ramps: state.arena.ramps.map(ramp => ({ ...ramp }))
     },
     marbles,
     leaderboard,
