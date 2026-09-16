@@ -1,8 +1,9 @@
 import { createDefaultConfig, type EkoRunConfig } from "../config/default-config";
 import { EVENT_SCHEMA_VERSION } from "../config/version";
-import { getPhase5HazardContracts, stepHazards } from "../hazards";
+import { getHazardContractsForState, stepHazards } from "../hazards";
 import { stepPlayerKinematic } from "../physics/kinematic";
 import { sampleSupportSurface } from "../physics/geometry";
+import { advancePhase6District, stepPhase6Progression } from "../progression";
 import { assertStateInvariants, cloneState } from "../state/create-state";
 import type {
   EkoRunCommand,
@@ -22,13 +23,7 @@ function reject(command: EkoRunCommand, reason: string): RejectedCommand {
 }
 
 function emit(state: EkoRunState, events: SemanticEvent[], type: SemanticEvent["type"], data: Record<string, unknown>): void {
-  events.push({
-    schemaVersion: EVENT_SCHEMA_VERSION,
-    sequence: state.nextEventSequence++,
-    tick: state.tick,
-    type,
-    data,
-  });
+  events.push({ schemaVersion: EVENT_SCHEMA_VERSION, sequence: state.nextEventSequence++, tick: state.tick, type, data });
 }
 
 function intentFrom(command: MoveCommand | undefined): PlayerControlIntent {
@@ -48,7 +43,7 @@ function checkpointSpawnX(state: EkoRunState): number {
 
 function resetRestartHazards(state: EkoRunState, spawnX: number): void {
   if (!state.hazards) return;
-  const byId = new Map(getPhase5HazardContracts(state.rootSeed).map(contract => [contract.id, contract]));
+  const byId = new Map(getHazardContractsForState(state).map(contract => [contract.id, contract]));
   for (const encounter of state.hazards.encounters) {
     const contract = byId.get(encounter.id);
     if (!contract) continue;
@@ -92,7 +87,7 @@ function updateProgress(state: EkoRunState, events: SemanticEvent[]): void {
     state.player.checkpointIndex += 1;
     emit(state, events, "checkpoint.reached", { checkpointIndex: state.player.checkpointIndex, x: checkpointX });
   }
-  if (state.player.position.x >= state.route.finishX && state.lifecycle === "running") {
+  if (!state.progression && state.player.position.x >= state.route.finishX && state.lifecycle === "running") {
     state.lifecycle = "completed";
     state.record.completedTick = state.tick;
     emit(state, events, "run.completed", { progress: state.player.progress });
@@ -122,6 +117,7 @@ export function stepSimulation(
 
   const acceptedCommands: ValidatedCommand[] = [];
   let moveAuthorityClaimed = false;
+  let advanceAuthorityClaimed = false;
   for (const command of candidates) {
     if (command.targetTick < next.tick) {
       rejectedCommands.push(reject(command, "STALE_TICK"));
@@ -144,6 +140,10 @@ export function stepSimulation(
       rejectedCommands.push(reject(command, "RESTART_NOT_FAILED"));
       continue;
     }
+    if (command.type === "advance" && next.lifecycle !== "intermission") {
+      rejectedCommands.push(reject(command, "ADVANCE_NOT_INTERMISSION"));
+      continue;
+    }
     if (command.type === "move" && next.lifecycle !== "running") {
       rejectedCommands.push(reject(command, "RUN_NOT_ACTIVE"));
       continue;
@@ -153,7 +153,13 @@ export function stepSimulation(
       rejectedCommands.push(reject(command, "MOVE_CONFLICT"));
       continue;
     }
+    if (command.type === "advance" && advanceAuthorityClaimed) {
+      next.commandWatermarks[command.sourceId] = command.sourceSequence;
+      rejectedCommands.push(reject(command, "ADVANCE_CONFLICT"));
+      continue;
+    }
     if (command.type === "move") moveAuthorityClaimed = true;
+    if (command.type === "advance") advanceAuthorityClaimed = true;
     next.commandWatermarks[command.sourceId] = command.sourceSequence;
     acceptedCommands.push(command);
   }
@@ -167,28 +173,44 @@ export function stepSimulation(
     emit(next, events, "run.restarted", { checkpointIndex: next.player.checkpointIndex, x: next.player.position.x });
   }
 
+  const advance = acceptedCommands.find(command => command.type === "advance");
+  const advancedThisTick = advance?.type === "advance";
+  if (advancedThisTick) {
+    advancePhase6District(next, config);
+    emit(next, events, "district.started", {
+      districtId: next.progression?.districtId ?? null,
+      districtIndex: next.progression?.districtIndex ?? null,
+      cycle: next.progression?.cycle ?? null,
+    });
+  }
+
   if (next.lifecycle === "running") {
-    const move = acceptedCommands.find(command => command.type === "move") as MoveCommand | undefined;
-    const physics = stepPlayerKinematic(next.player, next.route, intentFrom(move), config, next.tick);
-    next.player = physics.player;
-    if (physics.jumpStarted) emit(next, events, "player.jumped", { x: next.player.position.x, y: next.player.position.y });
-    if (physics.slideStarted) emit(next, events, "player.slid", { x: next.player.position.x });
-    if (physics.vaultStarted) emit(next, events, "player.vaulted", { obstacleId: next.player.vault?.obstacleId ?? null });
-    if (physics.landed) emit(next, events, "player.landed", { y: next.player.position.y, compressedTicks: next.player.landingCompressionTicksRemaining });
-    if (physics.stumbleStarted) emit(next, events, "player.stumbled", { recoveryTicks: next.player.stumbleTicksRemaining });
-    if (physics.failed) {
-      next.lifecycle = "failed";
-      next.player.movementState = "dead";
-      emit(next, events, "run.failed", { reason: "kill-plane", x: next.player.position.x, y: next.player.position.y });
-    } else if (restartedThisTick) {
-      updateProgress(next, events);
+    if (advancedThisTick) {
+      // Start the new district from an untouched deterministic spawn; movement/hazards resume next tick.
     } else {
-      const hazardResult = stepHazards(next, config);
-      for (const signal of hazardResult.signals) emit(next, events, signal.type, signal.data);
-      if (hazardResult.failedReason) {
-        emit(next, events, "run.failed", { reason: hazardResult.failedReason, x: next.player.position.x, y: next.player.position.y });
-      } else {
+      const move = acceptedCommands.find(command => command.type === "move") as MoveCommand | undefined;
+      const physics = stepPlayerKinematic(next.player, next.route, intentFrom(move), config, next.tick);
+      next.player = physics.player;
+      if (physics.jumpStarted) emit(next, events, "player.jumped", { x: next.player.position.x, y: next.player.position.y });
+      if (physics.slideStarted) emit(next, events, "player.slid", { x: next.player.position.x });
+      if (physics.vaultStarted) emit(next, events, "player.vaulted", { obstacleId: next.player.vault?.obstacleId ?? null });
+      if (physics.landed) emit(next, events, "player.landed", { y: next.player.position.y, compressedTicks: next.player.landingCompressionTicksRemaining });
+      if (physics.stumbleStarted) emit(next, events, "player.stumbled", { recoveryTicks: next.player.stumbleTicksRemaining });
+      if (physics.failed) {
+        next.lifecycle = "failed";
+        next.player.movementState = "dead";
+        emit(next, events, "run.failed", { reason: "kill-plane", x: next.player.position.x, y: next.player.position.y });
+      } else if (restartedThisTick) {
         updateProgress(next, events);
+      } else {
+        const hazardResult = stepHazards(next, config);
+        for (const signal of hazardResult.signals) emit(next, events, signal.type, signal.data);
+        if (hazardResult.failedReason) {
+          emit(next, events, "run.failed", { reason: hazardResult.failedReason, x: next.player.position.x, y: next.player.position.y });
+        } else {
+          updateProgress(next, events);
+          for (const signal of stepPhase6Progression(next)) emit(next, events, signal.type, signal.data);
+        }
       }
     }
   }

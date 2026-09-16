@@ -33,32 +33,46 @@ function canonicalState(state: EkoRunState): string {
       progress: state.player.progress,
     },
     route: {
-      id: state.route.id,
-      contentVersion: state.route.contentVersion,
-      groundY: state.route.groundY,
-      startX: state.route.startX,
-      minX: state.route.minX,
-      maxX: state.route.maxX,
-      checkpointXs: [...state.route.checkpointXs],
-      finishX: state.route.finishX,
-      killPlaneY: state.route.killPlaneY,
+      id: state.route.id, contentVersion: state.route.contentVersion, groundY: state.route.groundY,
+      startX: state.route.startX, minX: state.route.minX, maxX: state.route.maxX,
+      checkpointXs: [...state.route.checkpointXs], finishX: state.route.finishX, killPlaneY: state.route.killPlaneY,
       groundSegments: state.route.groundSegments.map(item => ({ ...item })),
       slopes: state.route.slopes.map(item => ({ ...item })),
       colliders: state.route.colliders.map(item => ({ ...item, motion: item.motion ? { ...item.motion } : undefined })),
     },
-    hazards: state.hazards ? {
-      hazardSchemaVersion: state.hazards.hazardSchemaVersion,
-      encounters: state.hazards.encounters.map(encounter => ({ ...encounter })),
-    } : null,
-    resources: { ekoTokens: state.resources.ekoTokens },
-    commandWatermarks: sortedWatermarks(state.commandWatermarks),
-    randomStreams: {
-      route: state.randomStreams.route,
-      traffic: state.randomStreams.traffic,
-      ai: state.randomStreams.ai,
-      reward: state.randomStreams.reward,
-      audience: state.randomStreams.audience,
+    hazards: state.hazards ? { hazardSchemaVersion: state.hazards.hazardSchemaVersion, encounters: state.hazards.encounters.map(encounter => ({ ...encounter })) } : null,
+    progression: state.progression ? {
+      districtIndex: state.progression.districtIndex,
+      districtId: state.progression.districtId,
+      cycle: state.progression.cycle,
+      districtCompletions: state.progression.districtCompletions,
+      totalDistance: state.progression.totalDistance,
+      pacingBand: state.progression.pacingBand,
+      activeContent: {
+        generatorVersion: state.progression.activeContent.generatorVersion,
+        districtIndex: state.progression.activeContent.districtIndex,
+        districtId: state.progression.activeContent.districtId,
+        cycle: state.progression.activeContent.cycle,
+        hazards: state.progression.activeContent.hazards.map(item => ({ ...item, legalResponses: [...item.legalResponses], motion: item.motion ? { ...item.motion } : undefined })),
+        tokens: state.progression.activeContent.tokens.map(item => ({ ...item })),
+        decisions: state.progression.activeContent.decisions.map(item => ({ ...item })),
+        milestones: state.progression.activeContent.milestones.map(item => ({ ...item })),
+        difficulty: { ...state.progression.activeContent.difficulty },
+        validation: { ...state.progression.activeContent.validation, codes: [...state.progression.activeContent.validation.codes] },
+        fingerprint: state.progression.activeContent.fingerprint,
+      },
+    } : undefined,
+    resources: {
+      ekoTokens: state.resources.ekoTokens,
+      earnedTokenTotal: state.resources.earnedTokenTotal,
+      collectedTokenIds: state.resources.collectedTokenIds,
+      awardedMilestoneIds: state.resources.awardedMilestoneIds,
+      unlockedCosmetics: state.resources.unlockedCosmetics,
+      unlockedThemes: state.resources.unlockedThemes,
+      unlockedCelebrations: state.resources.unlockedCelebrations,
     },
+    commandWatermarks: sortedWatermarks(state.commandWatermarks),
+    randomStreams: { route: state.randomStreams.route, traffic: state.randomStreams.traffic, ai: state.randomStreams.ai, reward: state.randomStreams.reward, audience: state.randomStreams.audience },
     record: { maxProgress: state.record.maxProgress, completedTick: state.record.completedTick },
   });
 }
@@ -70,10 +84,8 @@ export function checksumState(state: EkoRunState): string {
   const mask = 0xffffffffffffffffn;
   for (let index = 0; index < text.length; index += 1) {
     const code = text.charCodeAt(index);
-    hash ^= BigInt(code & 0xff);
-    hash = (hash * prime) & mask;
-    hash ^= BigInt((code >>> 8) & 0xff);
-    hash = (hash * prime) & mask;
+    hash ^= BigInt(code & 0xff); hash = (hash * prime) & mask;
+    hash ^= BigInt((code >>> 8) & 0xff); hash = (hash * prime) & mask;
   }
   return hash.toString(16).padStart(16, "0");
 }
