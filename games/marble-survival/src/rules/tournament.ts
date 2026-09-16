@@ -123,7 +123,7 @@ export function applyTournamentRules(state: MarbleState, contacts: PhysicsContac
         marble.roundStatus = 'out';
         next.activeIds = next.activeIds.filter(id => id !== marble.id);
         next.eliminatedIds = [...new Set([...next.eliminatedIds, marble.id])].sort((a, b) => a - b);
-        next.meaningfulEventTick = next.tick;
+        next.meaningEventTick = next.tick;
         events.push({ tick: next.tick, type: 'marble-eliminated', data: { marbleId: marble.id, cause: hazard.kind, hazardId: hazard.id } });
         continue;
       }
@@ -194,6 +194,9 @@ export function advanceMarbleRound(state: MarbleState, rng: NamedRng): RuleOutpu
       marble.roundStatus = 'racing';
       marble.position = { ...position };
       marble.velocity = { x: 0, y: 0 };
+      marble.elevation = 0;
+      marble.verticalVelocity = 0;
+      marble.grounded = true;
       marble.checkpointIndex = 0;
       marble.progressPermille = 0;
       marble.finishTick = null;
