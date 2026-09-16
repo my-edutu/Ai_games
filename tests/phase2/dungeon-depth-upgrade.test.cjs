@@ -3,7 +3,7 @@ const test=require('node:test');
 const assert=require('node:assert/strict');
 const{DungeonRuntime}=require('../../dist/games/ai-dungeon-endless-adventure/src/runtime/run.js');
 const{planDungeonAction}=require('../../dist/games/ai-dungeon-endless-adventure/src/ai/policy.js');
-const{RELICS,relicBuildProfile,spawnFloorEncounters}=require('../../dist/games/ai-dungeon-endless-adventure/src/content/catalogue.js');
+const{RELICS,relicBuildProfile,scoreRelicForState,spawnFloorEncounters}=require('../../dist/games/ai-dungeon-endless-adventure/src/content/catalogue.js');
 const base={schemaVersion:1,width:31,height:21,roomAttempts:24,roomMinSize:3,roomMaxSize:7,loopChancePermille:180,chapterLength:5,maxTicksPerFloor:1800,intermissionTicks:2,maxEnemies:18,maxRelics:6,maxEvents:96,noProgressTicks:600};
 
 test('relic catalogue supports multiple recognizable build families instead of flat stat-only sameness',()=>{
@@ -27,6 +27,26 @@ test('relic build profile is deterministic and exposes dominant build identity',
   assert.equal(a.total,ids.length);
   assert.ok(a.dominant!=='none');
   assert.equal(Object.values(a.families).reduce((sum,value)=>sum+value,0),ids.length);
+});
+
+test('relic scoring responds to current build and survival needs rather than static priority only',()=>{
+  const runtime=new DungeonRuntime(base,'relic-score-seed','relic-score-run');
+  runtime.state.hero.relics=['ward-stone','echo-guard'];
+  runtime.state.hero.hp=Math.max(1,Math.floor(runtime.state.hero.maxHp*.25));
+  const guard=scoreRelicForState(runtime.state,'iron-covenant');
+  const fortune=scoreRelicForState(runtime.state,'gilded-rune');
+  assert.ok(guard>fortune,`expected defensive build pressure ${guard} > fortune ${fortune}`);
+});
+
+test('chapter-result policy uses build-aware relic scoring',()=>{
+  const runtime=new DungeonRuntime(base,'relic-policy-seed','relic-policy-run');
+  runtime.state.lifecycle='chapter-result';
+  runtime.state.hero.relics=['ward-stone','echo-guard'];
+  runtime.state.hero.hp=Math.max(1,Math.floor(runtime.state.hero.maxHp*.25));
+  runtime.state.rewardChoices=['gilded-rune','iron-covenant','swift-sigil'];
+  const proposal=planDungeonAction(runtime.state);
+  assert.equal(proposal.action.kind,'choose-relic');
+  assert.equal(proposal.action.relicId,'iron-covenant');
 });
 
 test('chapter boss has a third deterministic desperation phase with ranged pressure',()=>{
