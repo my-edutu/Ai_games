@@ -245,8 +245,10 @@ test('presentation: Three.js is primary with an authoritative 2D safety fallback
   assert.match(three, /shadowMap/);
   assert.match(three, /prefers-reduced-motion/);
   assert.match(wind, /arena\.windZones/);
-  assert.match(wind, /ArrowHelper/);
   assert.match(wind, /authoritative-wind-telegraphs/);
+  assert.match(wind, /dataset\.windZones/);
+  assert.match(wind, /dataset\.windArrow/);
+  assert.doesNotMatch(wind, /WebGLRenderer\.prototype\.render/);
   assert.match(css, /\.three-ready #arena-webgl/);
   assert.match(css, /data-clean='true'/);
 });
