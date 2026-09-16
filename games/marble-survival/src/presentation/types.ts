@@ -21,6 +21,9 @@ export interface MarblePresentationCompetitor {
   readonly y: number;
   readonly velocityX: number;
   readonly velocityY: number;
+  readonly elevation: number;
+  readonly verticalVelocity: number;
+  readonly grounded: boolean;
   readonly progressPermille: number;
   readonly finishRank: number | null;
   readonly shieldCharges: number;
@@ -44,6 +47,7 @@ export interface MarblePresentationArena {
   readonly obstacles: ReadonlyArray<Readonly<{ id: string; x: number; y: number; width: number; height: number }>>;
   readonly bumpers: ReadonlyArray<Readonly<{ id: string; x: number; y: number; radius: number }>>;
   readonly sweepers: ReadonlyArray<Readonly<{ id: string; baseX: number; baseY: number; width: number; height: number; axis: 'x' | 'y'; amplitude: number; periodTicks: number; phaseTicks: number }>>;
+  readonly ramps: ReadonlyArray<Readonly<{ id: string; kind: 'ramp'; x: number; y: number; width: number; height: number; axis: 'x' | 'y'; startElevation: number; endElevation: number }>>;
 }
 
 export interface MarblePresentationSnapshot {
