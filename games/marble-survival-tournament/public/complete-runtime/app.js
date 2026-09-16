@@ -53,7 +53,7 @@ const CAMERA_LABELS = Object.freeze({
 
 const IMPORTANT_EVENTS = new Set([
   'round-started', 'round-live', 'shield-recovery', 'marble-eliminated',
-  'marble-qualified', 'round-resolved', 'tournament-champion', 'intermission-started',
+  'marble-qualified', 'marble-overtake', 'round-resolved', 'tournament-champion', 'intermission-started',
 ]);
 
 let snapshot = null;
@@ -600,6 +600,11 @@ function describeEvent(event, next) {
   if (event.type === 'marble-qualified') return `${identity} officially qualified in P${data.finishRank}.`;
   if (event.type === 'marble-eliminated') return `${identity} eliminated · ${String(data.cause || 'hazard')}.`;
   if (event.type === 'shield-recovery') return `${identity} survived a hazard with shield recovery.`;
+  if (event.type === 'marble-overtake') {
+    const passed = Number.isInteger(data.passedMarbleId) ? next.marbles.find((candidate) => candidate.id === data.passedMarbleId) : null;
+    const passedIdentity = passed ? `#${passed.number} ${passed.name}` : 'another racer';
+    return `${identity} passed ${passedIdentity} · ${Number(data.overtakes || 0)} total passes.`;
+  }
   if (event.type === 'round-started') return `Round ${Number(data.roundIndex || 0) + 1} is live.`;
   if (event.type === 'round-resolved') return `Round result locked by authority · ${String(data.resolution || 'resolved')}.`;
   if (event.type === 'tournament-champion') return `Champion result locked: marble #${Number(data.championId) + 1}.`;
