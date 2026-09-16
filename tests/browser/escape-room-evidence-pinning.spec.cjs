@@ -22,7 +22,7 @@ test('evidence replay frame stays pinned when a live state request is already in
   const pinned=await page.evaluate(()=>({
     tick:window.__ESCAPE_PUBLIC_STATE__?.tick,
     authorityChecksum:window.__ESCAPE_PUBLIC_STATE__?.authorityChecksum,
-    connection:document.querySelector('[data-testid="connection"]')?.textContent,
+    connection:document.getElementById('connection')?.textContent,
   }));
   expect(pinned.tick).toBe(frame.tick);
   expect(pinned.authorityChecksum).toBe(frame.authorityChecksum);
