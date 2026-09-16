@@ -231,18 +231,26 @@ test('Marble WebGL broadcast renders authoritative tournament and captures runti
     const state = await snapshot();
     archetypes.add(state.arena.archetype);
 
-    if (state.round.remaining >= 20) await capture('02-large-marble-pack');
-    if (state.lifecycle === 'active' && state.arena.sweepers.length > 0) await capture('03-moving-obstacle');
-    if (state.lifecycle === 'active' && state.arena.hazards.length > 0) await capture('04-hazard-arena');
-    if (state.camera.directive.mode === 'danger' || state.marbles.some(m => m.status === 'threatened' || m.status === 'recovering')) {
-      await capture('05-near-elimination');
+    const captures = [];
+    if (state.round.remaining >= 20 && !captured.has('02-large-marble-pack')) captures.push('02-large-marble-pack');
+    if (state.lifecycle === 'active' && state.arena.sweepers.length > 0 && !captured.has('03-moving-obstacle')) captures.push('03-moving-obstacle');
+    if (state.lifecycle === 'active' && state.arena.hazards.length > 0 && !captured.has('04-hazard-arena')) captures.push('04-hazard-arena');
+    if ((state.camera.directive.mode === 'danger' || state.marbles.some(m => m.status === 'threatened' || m.status === 'recovering')) && !captured.has('05-near-elimination')) {
+      captures.push('05-near-elimination');
     }
-    if (state.events.some(event => event.type === 'marble-eliminated')) await capture('06-actual-elimination');
-    if (['hazard-circuit', 'final-four', 'championship'].includes(state.arena.archetype)) await capture('07-themed-arena');
-    if (state.round.index >= 3 && !captured.has('08-semifinal-final')) {
-      await waitForHudRoundAtLeast(4);
-      await capture('08-semifinal-final');
+    if (state.events.some(event => event.type === 'marble-eliminated') && !captured.has('06-actual-elimination')) captures.push('06-actual-elimination');
+    if (['hazard-circuit', 'final-four', 'championship'].includes(state.arena.archetype) && !captured.has('07-themed-arena')) captures.push('07-themed-arena');
+    if (state.round.index >= 3 && !captured.has('08-semifinal-final')) captures.push('08-semifinal-final');
+
+    // A screenshot can take hundreds of milliseconds on software WebGL. Freeze authority while
+    // recording evidence so expensive capture work cannot make Playwright skip entire legal rounds.
+    if (captures.length > 0 && state.lifecycle !== 'tournament-result') {
+      await operator('pause');
+      if (captures.includes('08-semifinal-final')) await waitForHudRoundAtLeast(4);
+      for (const name of captures) await capture(name);
+      await operator('resume');
     }
+
     if (state.lifecycle === 'tournament-result' && state.camera.championId !== null) {
       championSeen = true;
       await expect(page.locator('#champion-card')).toBeVisible({ timeout: 5_000 });
@@ -254,7 +262,7 @@ test('Marble WebGL broadcast renders authoritative tournament and captures runti
       expect(championBox.y + championBox.height).toBeLessThanOrEqual(VIEWPORT.height + 1);
       await capture('09-tournament-winner');
     }
-    await page.waitForTimeout(60);
+    await page.waitForTimeout(30);
   }
 
   const cleanPage = await browser.newPage({ viewport: VIEWPORT });
