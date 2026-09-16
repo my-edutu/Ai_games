@@ -8,12 +8,23 @@ const mapping:Record<string,{cue:string;text:string;priority:number;ttl:number}>
   'game-terminal':{cue:'fall-end',text:'Run ended',priority:10,ttl:90},'technical-terminal':{cue:'safe-tone',text:'Run quarantined',priority:10,ttl:90},
   'stuck-recovery':{cue:'replan',text:'AI changing approach',priority:5,ttl:45},'enemy-telegraph':{cue:'warning',text:'Incoming attack',priority:9,ttl:32}
 };
+function eventSpec(event:TowerEvent){
+  if(event.type==='guardian-telegraph'){
+    const phase=Number(event.data?.phase),pattern=String(event.data?.pattern??'attack');
+    return{cue:'warning',text:`Guardian phase ${Number.isInteger(phase)?phase:'?'}: ${pattern} incoming`,priority:11,ttl:42};
+  }
+  if(event.type==='guardian-attack'){
+    const phase=Number(event.data?.phase),pattern=String(event.data?.pattern??'attack');
+    return{cue:'impact',text:`Guardian phase ${Number.isInteger(phase)?phase:'?'} ${pattern}`,priority:10,ttl:28};
+  }
+  return mapping[event.type];
+}
 export class TowerAudioDirector{
   private voices:TowerAudioVoice[]=[];private captions:TowerCaption[]=[];private tick=0;private readonly maxVoices:number;private muted:boolean;
   constructor(options:{maxVoices?:number;muted?:boolean}={}){this.maxVoices=options.maxVoices??6;this.muted=!!options.muted}
   setMuted(muted:boolean){this.muted=muted}
   consume(events:TowerEvent[],context:{danger?:number;guardian?:boolean;result?:boolean}={}):TowerAudioFrame{
-    for(const event of events){this.tick=Math.max(this.tick,event.tick);const spec=mapping[event.type];if(!spec)continue;const id=`${event.seq}:${event.type}`;this.captions.push({id,text:spec.text,priority:spec.priority,expiresTick:event.tick+spec.ttl});if(!this.muted)this.voices.push({id,cue:spec.cue,priority:spec.priority,expiresTick:event.tick+Math.min(spec.ttl,36)})}
+    for(const event of events){this.tick=Math.max(this.tick,event.tick);const spec=eventSpec(event);if(!spec)continue;const id=`${event.seq}:${event.type}`;this.captions.push({id,text:spec.text,priority:spec.priority,expiresTick:event.tick+spec.ttl});if(!this.muted)this.voices.push({id,cue:spec.cue,priority:spec.priority,expiresTick:event.tick+Math.min(spec.ttl,36)})}
     this.voices=this.voices.filter(v=>v.expiresTick>=this.tick).sort((a,b)=>b.priority-a.priority||a.id.localeCompare(b.id)).slice(0,this.maxVoices);
     this.captions=this.captions.filter(v=>v.expiresTick>=this.tick).sort((a,b)=>b.priority-a.priority||a.id.localeCompare(b.id)).slice(0,8);
     const musicState=context.result?'result':context.guardian?'guardian':(context.danger??0)>=800?'danger':this.tick%200<70?'calm':'ascent';

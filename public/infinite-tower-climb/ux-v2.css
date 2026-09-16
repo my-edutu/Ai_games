@@ -112,6 +112,16 @@
   #app [data-ux-revision="2"] .caption{border-radius:9px}
 }
 
+@media(max-width:760px) and (orientation:portrait){
+  #app [data-ux-revision="2"] body:not(.clean-feed) .side,
+  body:not(.clean-feed) #app [data-ux-revision="2"] .side{
+    left:7px;
+    right:auto;
+    width:calc(100% - 14px);
+    max-width:none;
+  }
+}
+
 @media(prefers-reduced-motion:reduce){
   #app [data-ux-revision="2"] *,#app [data-ux-revision="2"] *::before,#app [data-ux-revision="2"] *::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
 }
