@@ -13,6 +13,17 @@ import { PHASE7_AUDIO_BUSES, PHASE7_MAX_AUDIO_VOICES, PHASE7_MAX_FEEDBACK_CUES }
 import type { PresentationQuality } from "../world/types";
 
 const EVENT_FRESHNESS_TICKS = 12;
+const BUS_VOICE_LIMITS: Readonly<Record<AudioBus, number>> = {
+  master: 0,
+  music: 1,
+  ambience: 1,
+  "movement-foley": 2,
+  "danger-vehicle": 1,
+  "gameplay-impacts": 2,
+  ui: 2,
+  "audience-acknowledgement": 1,
+  "system-emergency": 1,
+};
 
 interface CueTemplate {
   priority: BroadcastPriority;
@@ -54,10 +65,22 @@ function priorityRank(priority: BroadcastPriority): number {
   return priority === "critical" ? 0 : priority === "important" ? 1 : 2;
 }
 
+function semanticRank(cue: BroadcastFeedbackCue): number {
+  if (cue.semanticKey === "integrity.failure" || cue.audioBus === "system-emergency") return 0;
+  if (cue.semanticKey === "run.failed" || cue.semanticKey === "run.completed") return 1;
+  if (cue.semanticKey === "hazard.hit") return 2;
+  if (cue.semanticKey === "hazard.warned" || cue.semanticKey.startsWith("danger:")) return 3;
+  return cue.priority === "critical" ? 4 : cue.priority === "important" ? 10 : 20;
+}
+
+function isFresh(snapshot: Readonly<EkoRunRenderSnapshot>, event: SemanticEvent): boolean {
+  return event.tick <= snapshot.tick && snapshot.tick - event.tick <= EVENT_FRESHNESS_TICKS;
+}
+
 function eventCandidates(snapshot: Readonly<EkoRunRenderSnapshot>): BroadcastFeedbackCue[] {
   const unique = new Map<string, SemanticEvent>();
   for (const event of snapshot.recentEvents) {
-    if (event.tick > snapshot.tick || snapshot.tick - event.tick > EVENT_FRESHNESS_TICKS) continue;
+    if (!isFresh(snapshot, event)) continue;
     const key = `${event.sequence}:${event.type}`;
     if (!unique.has(key)) unique.set(key, event);
   }
@@ -67,8 +90,18 @@ function eventCandidates(snapshot: Readonly<EkoRunRenderSnapshot>): BroadcastFee
   });
 }
 
+function dangerAlreadyRepresented(snapshot: Readonly<EkoRunRenderSnapshot>, danger: BroadcastHudDanger): boolean {
+  if (!danger.hazardId) return false;
+  return snapshot.recentEvents.some(event =>
+    event.type === "hazard.warned" &&
+    isFresh(snapshot, event) &&
+    event.data.hazardId === danger.hazardId,
+  );
+}
+
 function dangerCue(snapshot: Readonly<EkoRunRenderSnapshot>, danger: BroadcastHudDanger): BroadcastFeedbackCue | null {
   if (!danger.visible || !danger.hazardId || !danger.captionKey || !danger.visualToken) return null;
+  if (dangerAlreadyRepresented(snapshot, danger)) return null;
   return {
     id: `danger:${danger.hazardId}`,
     semanticKey: `danger:${danger.family ?? "hazard"}`,
@@ -112,6 +145,22 @@ function applyAccessibility(cue: BroadcastFeedbackCue, accessibility: BroadcastA
   };
 }
 
+function selectVoices(feedback: readonly BroadcastFeedbackCue[], muted: boolean) {
+  if (muted) return [];
+  const counts = new Map<AudioBus, number>();
+  const voices = [];
+  for (const cue of feedback) {
+    if (cue.audioToken === null || cue.audioBus === null) continue;
+    const bus = cue.audioBus;
+    const used = counts.get(bus) ?? 0;
+    if (used >= BUS_VOICE_LIMITS[bus]) continue;
+    counts.set(bus, used + 1);
+    voices.push({ id: `voice:${cue.id}`, token: cue.audioToken, bus, priority: cue.priority });
+    if (voices.length >= PHASE7_MAX_AUDIO_VOICES) break;
+  }
+  return voices;
+}
+
 export function createBroadcastFeedback(
   snapshot: Readonly<EkoRunRenderSnapshot>,
   danger: BroadcastHudDanger,
@@ -124,15 +173,12 @@ export function createBroadcastFeedback(
   if (immediate) candidates.push(immediate);
   if (ambient) candidates.push(ambient);
 
-  candidates.sort((a, b) => priorityRank(a.priority) - priorityRank(b.priority) || b.tick - a.tick || a.id.localeCompare(b.id));
+  candidates.sort((a, b) => priorityRank(a.priority) - priorityRank(b.priority) || semanticRank(a) - semanticRank(b) || b.tick - a.tick || a.id.localeCompare(b.id));
   const feedback = candidates.slice(0, PHASE7_MAX_FEEDBACK_CUES).map(cue => applyAccessibility(cue, accessibility));
   const captions = feedback
     .filter(cue => cue.captionKey.length > 0 && cue.priority !== "ambient")
     .map(cue => ({ id: `caption:${cue.id}`, captionKey: cue.captionKey, priority: cue.priority }));
-  const voices = accessibility.muted ? [] : feedback
-    .filter(cue => cue.audioToken !== null && cue.audioBus !== null)
-    .slice(0, PHASE7_MAX_AUDIO_VOICES)
-    .map(cue => ({ id: `voice:${cue.id}`, token: cue.audioToken as string, bus: cue.audioBus as AudioBus, priority: cue.priority }));
+  const voices = selectVoices(feedback, accessibility.muted);
 
   return {
     feedback,

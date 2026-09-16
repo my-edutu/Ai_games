@@ -20,7 +20,9 @@ function validateOptions(options: BroadcastPresentationOptions): void {
   for (const value of Object.values(viewport.safeArea)) {
     if (!Number.isFinite(value) || value < 0) throw new Error("PHASE7_INVALID_SAFE_AREA");
   }
-  if (viewport.safeArea.left + viewport.safeArea.right >= viewport.width || viewport.safeArea.top + viewport.safeArea.bottom >= viewport.height) {
+  const safeWidth = viewport.width - viewport.safeArea.left - viewport.safeArea.right;
+  const safeHeight = viewport.height - viewport.safeArea.top - viewport.safeArea.bottom;
+  if (safeWidth <= 0 || safeHeight <= 0 || safeWidth / viewport.width < 0.5 || safeHeight / viewport.height < 0.5) {
     throw new Error("PHASE7_INVALID_SAFE_AREA");
   }
   if (quality !== "low" && quality !== "medium" && quality !== "high") throw new Error("PHASE7_INVALID_QUALITY");
