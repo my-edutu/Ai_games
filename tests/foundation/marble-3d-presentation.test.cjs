@@ -69,6 +69,19 @@ test('3d marbles have volumetric lighting, rolling orientation and contact shado
   ]);
 });
 
+test('marble cosmetics are shader-driven surface patterns that rotate with the sphere', () => {
+  includesAll(renderer, [
+    'vLocalPosition',
+    'uPatternType',
+    'uPatternColor',
+    'patternMask',
+    'marblePatternType',
+    'surface.patternType',
+    'surface.patternColor',
+  ]);
+  assert.equal(renderer.includes('pattern: none'), false);
+});
+
 test('arena presentation includes constructed depth, moving machinery and broadcast cameras', () => {
   includesAll(renderer, [
     'drawArenaDeck',
