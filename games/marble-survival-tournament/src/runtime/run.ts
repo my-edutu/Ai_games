@@ -263,6 +263,67 @@ export function chooseMarbleAction(state: MarbleState, marbleId: number): Marble
   };
 }
 
+export interface OvertakeAccountingResult {
+  state: MarbleState;
+  events: Omit<MarbleEvent, 'seq'>[];
+}
+
+export function applyOvertakeAccounting(before: MarbleState, after: MarbleState): OvertakeAccountingResult {
+  const beforeById = new Map(before.marbles.map(marble => [marble.id, marble]));
+  const afterById = new Map(after.marbles.map(marble => [marble.id, marble]));
+  const eligibleIds = before.activeIds
+    .filter(id => after.activeIds.includes(id))
+    .filter(id => {
+      const previous = beforeById.get(id);
+      const current = afterById.get(id);
+      return previous?.status === 'active'
+        && previous.roundStatus === 'racing'
+        && current?.status === 'active'
+        && current.roundStatus === 'racing';
+    })
+    .sort((left, right) => left - right);
+  const events: Omit<MarbleEvent, 'seq'>[] = [];
+
+  for (let firstIndex = 0; firstIndex < eligibleIds.length; firstIndex += 1) {
+    for (let secondIndex = firstIndex + 1; secondIndex < eligibleIds.length; secondIndex += 1) {
+      const firstId = eligibleIds[firstIndex];
+      const secondId = eligibleIds[secondIndex];
+      const firstBefore = beforeById.get(firstId)!;
+      const secondBefore = beforeById.get(secondId)!;
+      const firstAfter = afterById.get(firstId)!;
+      const secondAfter = afterById.get(secondId)!;
+      const beforeDelta = firstBefore.position.y - secondBefore.position.y;
+      const afterDelta = firstAfter.position.y - secondAfter.position.y;
+      let passer = null as typeof firstAfter | null;
+      let passed = null as typeof firstAfter | null;
+
+      if (beforeDelta > 0 && afterDelta < 0) {
+        passer = firstAfter;
+        passed = secondAfter;
+      } else if (beforeDelta < 0 && afterDelta > 0) {
+        passer = secondAfter;
+        passed = firstAfter;
+      }
+      if (!passer || !passed) continue;
+
+      passer.overtakes += 1;
+      if (events.length < 8) {
+        events.push({
+          tick: after.tick,
+          type: 'marble-overtake',
+          data: {
+            marbleId: passer.id,
+            passedMarbleId: passed.id,
+            overtakes: passer.overtakes
+          }
+        });
+      }
+    }
+  }
+
+  return { state: after, events };
+}
+
 export function marbleStateChecksum(state: MarbleState): string {
   return checksum(state);
 }
@@ -374,13 +435,15 @@ export class MarbleRuntime {
       this.state = physics.state;
       return this.quarantine(physics.integrityIssue.code, physics.integrityIssue.detail);
     }
-    const ruled = applyTournamentRules(physics.state, physics.contacts);
+    const overtakes = applyOvertakeAccounting(this.state, physics.state);
+    const ruled = applyTournamentRules(overtakes.state, physics.contacts);
     this.state = {
       ...ruled.state,
       tick: ruled.state.tick + 1,
       tournamentTick: ruled.state.tournamentTick + 1,
       roundTick: ruled.state.roundTick + 1
     };
+    this.emitMany(overtakes.events);
     this.emitMany(ruled.events);
     return this.state;
   }
