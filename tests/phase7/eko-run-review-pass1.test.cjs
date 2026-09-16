@@ -17,7 +17,8 @@ function event(source, sequence, tick, type, data = {}) {
 
 test('review 1: terminal integrity truth survives a newer hazard-warning event storm', () => {
   const s = state('phase7-r1-integrity');
-  const events = [event(s, 1, s.tick - 5, 'integrity.failure', { code: 'TEST_INTEGRITY' })];
+  s.tick = 5;
+  const events = [event(s, 1, 0, 'integrity.failure', { code: 'TEST_INTEGRITY' })];
   for (let i = 0; i < 40; i += 1) events.push(event(s, 2 + i, s.tick, 'hazard.warned', { hazardId: `storm-${i}` }));
   const model = eko.createBroadcastPresentation(eko.createRenderSnapshot(s, events), opts());
   assert.ok(model.feedback.some(cue => cue.semanticKey === 'integrity.failure'), 'integrity failure must never be evicted by tactical danger storm');
