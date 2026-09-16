@@ -6,6 +6,7 @@ export type MarbleIntent =
   | 'holding-line'
   | 'seeking-gap'
   | 'avoiding-sweeper'
+  | 'countering-wind'
   | 'recovering-momentum'
   | 'taking-risk-route'
   | 'defending-lane'
