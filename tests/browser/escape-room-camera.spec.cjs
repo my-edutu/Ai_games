@@ -5,9 +5,10 @@ const base='http://127.0.0.1:4177';
 test('inspect camera keeps a physical mechanism framed inside safe room bounds',async({page})=>{
   await page.setViewportSize({width:1600,height:900});
   await page.goto(`${base}/escape-room?muted=1&evidence=1`,{waitUntil:'domcontentloaded'});
-  await page.waitForFunction(()=>Boolean(window.__ESCAPE_PUBLIC_STATE__&&window.__ESCAPE_INSPECT_OBJECT__));
+  await page.waitForFunction(()=>Boolean(window.__ESCAPE_PUBLIC_STATE__&&window.__ESCAPE_PRESENT_FRAME__&&window.__ESCAPE_INSPECT_OBJECT__));
   const target=await page.evaluate(()=>{
     const state=window.__ESCAPE_PUBLIC_STATE__;
+    window.__ESCAPE_PRESENT_FRAME__(state);
     return state.objects.find(object=>object.mechanismKind&&!object.carried)||state.objects.find(object=>!object.carried);
   });
   expect(target).toBeTruthy();
