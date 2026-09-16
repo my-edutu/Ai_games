@@ -47,7 +47,7 @@ const evidenceCases=[
   ['normal','normal-climbing.png',s=>s.floor===0,d=>d.playerVisible&&d.platformsVisible>0],
   ['large','large-vertical-environment.png',s=>s.floor===25,d=>d.playerVisible&&d.platformsVisible>0],
   ['hazard','hazard-encounter.png',s=>s.hazards.some(h=>h.active),d=>d.playerVisible&&d.hazardsVisible>0],
-  ['guardian','guardian-encounter.png',s=>s.enemies.some(e=>e.active&&e.kind==='guardian'&&e.telegraph),d=>d.playerVisible&&d.guardiansVisible>0&&d.guardianPhase>=1&&d.guardianPhase<=3&&d.guardianTelegraphVisible===true],
+  ['guardian','guardian-encounter.png',s=>s.enemies.some(e=>e.active&&e.kind==='guardian'&&e.telegraph),d=>d.playerVisible&&d.guardiansVisible>0&&d.guardianHeightPx>=118&&d.guardianPhase>=1&&d.guardianPhase<=3&&d.guardianTelegraphVisible===true],
   ['jump','dramatic-jump-fall.png',s=>Math.abs(s.player.vy)>=9000,d=>d.playerVisible&&d.platformsVisible>0],
   ['theme','different-environment-theme.png',s=>s.theme==='void',d=>d.playerVisible&&d.platformsVisible>0],
   ['milestone','milestone-checkpoint.png',s=>s.floor===10,d=>d.playerVisible&&d.platformsVisible>0]
