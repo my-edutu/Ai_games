@@ -4,6 +4,7 @@ import type {
   ArenaBumper,
   ArenaFeatures,
   ArenaHazard,
+  ArenaRamp,
   ArenaSweeper,
   ArenaValidationIssue,
   ArenaValidationReport,
@@ -25,7 +26,7 @@ function spawnPoints(config: MarbleConfig, width: number, spawnY: number): Vec2[
   }));
 }
 
-function featureSummary(archetype: RoundArchetype, obstacles: ArenaBlock[], bumpers: ArenaBumper[], hazards: ArenaHazard[], windZones: ArenaWindZone[], sweepers: ArenaSweeper[]): ArenaFeatures {
+function featureSummary(archetype: RoundArchetype, obstacles: ArenaBlock[], bumpers: ArenaBumper[], hazards: ArenaHazard[], windZones: ArenaWindZone[], sweepers: ArenaSweeper[], ramps: ArenaRamp[]): ArenaFeatures {
   const colliderCount = obstacles.length + bumpers.length + sweepers.length;
   const hazardArea = hazards.reduce((sum, hazard) => sum + hazard.width * hazard.height, 0);
   const windIntensity = windZones.reduce((max, zone) => Math.max(max, Math.abs(zone.forceX) + Math.abs(zone.forceY)), 0);
@@ -38,7 +39,7 @@ function featureSummary(archetype: RoundArchetype, obstacles: ArenaBlock[], bump
     hazardDensityPermille: Math.min(1_000, Math.round(hazardArea / 384_000)),
     windIntensity,
     routeAsymmetryPermille: archetype === 'championship' ? 0 : Math.min(350, obstacles.length * 20 + hazards.length * 15),
-    difficultyScore: base * 20 + sweepers.length * 8 + hazards.length * 7 + windZones.length * 4
+    difficultyScore: base * 20 + sweepers.length * 8 + hazards.length * 7 + windZones.length * 4 + ramps.length * 6
   };
 }
 
@@ -48,6 +49,7 @@ function addRoundContent(config: MarbleConfig, roundIndex: number, rng: NamedRng
   const hazards: ArenaHazard[] = [];
   const windZones: ArenaWindZone[] = [];
   const sweepers: ArenaSweeper[] = [];
+  const ramps: ArenaRamp[] = [];
   const width = config.worldWidth;
   const laneMargin = config.marbleRadius * 2 + 220;
   const sideBlockWidth = Math.max(900, Math.round(width * 0.13));
@@ -76,6 +78,21 @@ function addRoundContent(config: MarbleConfig, roundIndex: number, rng: NamedRng
   }
 
   if (roundIndex >= 1) {
+    const rampWidth = Math.min(7_200, Math.max(config.marbleRadius * 8, Math.round(width * 0.32)));
+    const rampHeight = Math.min(3_200, Math.max(config.marbleRadius * 8, Math.round(config.worldHeight * 0.18)));
+    const rampX = Math.round((width - rampWidth) / 2);
+    const rampY = Math.round(config.worldHeight * 0.55);
+    ramps.push({
+      id: `factory-ramp-${roundIndex}-0`,
+      kind: 'ramp',
+      x: rampX,
+      y: rampY,
+      width: rampWidth,
+      height: rampHeight,
+      axis: 'y',
+      startElevation: Math.max(1_200, config.marbleRadius * 4),
+      endElevation: 0
+    });
     sweepers.push({ id: `sweeper-${roundIndex}-0`, kind: 'sweeper', baseX: width / 2 - 1_800, baseY: 8_000, width: 3_600, height: 180, axis: 'x', amplitude: 2_200, periodTicks: 240, phaseTicks: rng.nextInt(`arena-hazards-r${roundIndex}-s0`, 240), restitutionPermille: 900 });
   }
   if (roundIndex >= 2) {
@@ -92,6 +109,7 @@ function addRoundContent(config: MarbleConfig, roundIndex: number, rng: NamedRng
     hazards.length = 0;
     windZones.length = 0;
     sweepers.length = 0;
+    ramps.length = 0;
     const mirrorOffset = 3_800;
     for (let index = 0; index < 3; index++) {
       const y = 11_000 - index * 3_000;
@@ -101,7 +119,7 @@ function addRoundContent(config: MarbleConfig, roundIndex: number, rng: NamedRng
     bumpers.push({ id: 'final-bumper-left', kind: 'bumper', x: width / 2 - 1_600, y: 7_600, radius: 480, restitutionPermille: 920 });
     bumpers.push({ id: 'final-bumper-right', kind: 'bumper', x: width / 2 + 1_600, y: 7_600, radius: 480, restitutionPermille: 920 });
   }
-  return { obstacles, bumpers, hazards, windZones, sweepers };
+  return { obstacles, bumpers, hazards, windZones, sweepers, ramps };
 }
 
 function knownGoodFallback(config: MarbleConfig, roundIndex: number): MarbleArena {
@@ -116,9 +134,10 @@ function knownGoodFallback(config: MarbleConfig, roundIndex: number): MarbleAren
   const hazards: ArenaHazard[] = [];
   const windZones: ArenaWindZone[] = [];
   const sweepers: ArenaSweeper[] = [];
+  const ramps: ArenaRamp[] = [];
   return {
-    schemaVersion: 1,
-    generatorVersion: 'marble-arena-v1',
+    schemaVersion: 2,
+    generatorVersion: 'marble-arena-v2',
     id: `arena-fallback-r${roundIndex}`,
     roundIndex,
     archetype,
@@ -134,7 +153,8 @@ function knownGoodFallback(config: MarbleConfig, roundIndex: number): MarbleAren
     hazards,
     windZones,
     sweepers,
-    features: featureSummary(archetype, obstacles, bumpers, hazards, windZones, sweepers),
+    ramps,
+    features: featureSummary(archetype, obstacles, bumpers, hazards, windZones, sweepers, ramps),
     repairCount: 2,
     fallbackUsed: true
   };
@@ -160,10 +180,19 @@ export function validateMarbleArena(arena: MarbleArena, config: MarbleConfig): A
   const colliderCount = arena.obstacles.length + arena.bumpers.length + arena.sweepers.length;
   if (colliderCount > config.maxColliders) issues.push({ code: 'collider-budget', detail: `Collider count ${colliderCount} exceeds ${config.maxColliders}.` });
   if (arena.features.expectedContactLoad > config.maxContactsPerTick) issues.push({ code: 'contact-budget', detail: 'Expected contact load exceeds per-tick budget.' });
-  const rectangles = [...arena.obstacles.map(value => ({ id: value.id, x: value.x, y: value.y, width: value.width, height: value.height })), ...arena.hazards];
+  const rectangles = [
+    ...arena.obstacles.map(value => ({ id: value.id, x: value.x, y: value.y, width: value.width, height: value.height })),
+    ...arena.hazards,
+    ...arena.ramps.map(value => ({ id: value.id, x: value.x, y: value.y, width: value.width, height: value.height }))
+  ];
   for (const rectangle of rectangles) {
-    if (rectangle.x < 0 || rectangle.y < 0 || rectangle.x + rectangle.width > arena.width || rectangle.y + rectangle.height > arena.height) {
+    if (rectangle.x < 0 || rectangle.y < 0 || rectangle.width <= 0 || rectangle.height <= 0 || rectangle.x + rectangle.width > arena.width || rectangle.y + rectangle.height > arena.height) {
       issues.push({ code: 'geometry-out-of-bounds', entityId: rectangle.id, detail: 'Rectangle exceeds world bounds.' });
+    }
+  }
+  for (const ramp of arena.ramps) {
+    if (!Number.isSafeInteger(ramp.startElevation) || !Number.isSafeInteger(ramp.endElevation) || ramp.startElevation < 0 || ramp.endElevation < 0 || ramp.startElevation > arena.height || ramp.endElevation > arena.height) {
+      issues.push({ code: 'geometry-out-of-bounds', entityId: ramp.id, detail: 'Ramp elevation exceeds deterministic arena bounds.' });
     }
   }
   const laneClearance = config.marbleRadius * 2 + 100;
@@ -184,8 +213,8 @@ export function generateMarbleArena(config: MarbleConfig, roundIndex: number, rn
   const safeLanes = [Math.round(width / 3), Math.round((width * 2) / 3)];
   const content = addRoundContent(config, roundIndex, rng, safeLanes);
   const arena: MarbleArena = {
-    schemaVersion: 1,
-    generatorVersion: 'marble-arena-v1',
+    schemaVersion: 2,
+    generatorVersion: 'marble-arena-v2',
     id: `arena-${roundIndex}-${rng.nextInt(`arena-topology-id-${roundIndex}`, 1_000_000)}`,
     roundIndex,
     archetype,
@@ -197,7 +226,7 @@ export function generateMarbleArena(config: MarbleConfig, roundIndex: number, rn
     checkpoints: [12_500, 9_500, 6_500, 3_500].map((y, index) => ({ x: safeLanes[index % 2], y })),
     safeLanes,
     ...content,
-    features: featureSummary(archetype, content.obstacles, content.bumpers, content.hazards, content.windZones, content.sweepers),
+    features: featureSummary(archetype, content.obstacles, content.bumpers, content.hazards, content.windZones, content.sweepers, content.ramps),
     repairCount: 0,
     fallbackUsed: false
   };
