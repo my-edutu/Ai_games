@@ -38,7 +38,7 @@ test('physics v2 initializes deterministic vertical state and versioned snapshot
   assert.equal(snapshot.payload.state.determinismVersion, 'marble-physics-v2');
 });
 
-test('gate gauntlet generation contains a bounded authoritative ramp surface', () => {
+test('gate gauntlet generation contains a bounded authoritative ramp surface on every declared race lane', () => {
   const config = parseMarbleConfig({
     rosterSize: 8,
     roundQuotas: [4, 2, 1, 1, 1],
@@ -55,6 +55,15 @@ test('gate gauntlet generation contains a bounded authoritative ramp surface', (
   assert.notEqual(ramp.startElevation, ramp.endElevation);
   assert.ok(ramp.x >= 0 && ramp.x + ramp.width <= arena.width);
   assert.ok(ramp.y >= 0 && ramp.y + ramp.height <= arena.height);
+
+  for (const lane of arena.safeLanes) {
+    const laneClearsRampEdge = lane >= ramp.x + config.marbleRadius && lane <= ramp.x + ramp.width - config.marbleRadius;
+    assert.equal(
+      laneClearsRampEdge,
+      true,
+      `safe lane ${lane} must traverse factory ramp ${ramp.id} with marble-radius clearance`,
+    );
+  }
 });
 
 test('ramp traversal changes authoritative elevation and stays replay deterministic', () => {
