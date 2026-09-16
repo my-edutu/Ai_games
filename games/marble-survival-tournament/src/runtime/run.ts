@@ -185,6 +185,44 @@ function crosswindResponsePermille(marble: MarbleState['marbles'][number]): numb
   return 700;
 }
 
+function defensiveLaneAgainstClosingRacer(state: MarbleState, marbleId: number): number | null {
+  const marble = state.marbles.find(candidate => candidate.id === marbleId)!;
+  if (marble.archetype !== 'bruiser' && marble.archetype !== 'survivor') return null;
+  if (marble.progressPermille < 250 || marble.progressPermille >= 800) return null;
+
+  const lookback = state.config.marbleRadius * (8 + Math.max(2, Math.round(marble.traits.awareness / 15)));
+  let closest: MarbleState['marbles'][number] | null = null;
+  let closestDistance = Number.MAX_SAFE_INTEGER;
+
+  for (const other of state.marbles) {
+    if (other.id === marble.id || other.status !== 'active' || other.roundStatus !== 'racing') continue;
+    if (!state.activeIds.includes(other.id)) continue;
+    const distanceBehind = other.position.y - marble.position.y;
+    if (distanceBehind <= 0 || distanceBehind > lookback) continue;
+    const closingSpeed = marble.velocity.y - other.velocity.y;
+    if (closingSpeed <= 0) continue;
+    if (distanceBehind < closestDistance || (distanceBehind === closestDistance && other.id < (closest?.id ?? Number.MAX_SAFE_INTEGER))) {
+      closest = other;
+      closestDistance = distanceBehind;
+    }
+  }
+
+  if (!closest) return null;
+  let targetLane = state.arena.safeLanes[0];
+  let targetDistance = Math.abs(targetLane - closest.position.x);
+  for (let index = 1; index < state.arena.safeLanes.length; index++) {
+    const candidate = state.arena.safeLanes[index];
+    const distance = Math.abs(candidate - closest.position.x);
+    if (distance < targetDistance || (distance === targetDistance && candidate < targetLane)) {
+      targetLane = candidate;
+      targetDistance = distance;
+    }
+  }
+  if (Math.abs(targetLane - marble.position.x) <= state.config.marbleRadius) return null;
+  if (laneThreat(state, marbleId, targetLane).score > 0) return null;
+  return targetLane;
+}
+
 export function chooseMarbleAction(state: MarbleState, marbleId: number): MarbleAction {
   const marble = state.marbles.find(candidate => candidate.id === marbleId);
   if (!marble) throw new RangeError('marbleId');
@@ -194,6 +232,7 @@ export function chooseMarbleAction(state: MarbleState, marbleId: number): Marble
   const preferredThreat = laneThreat(state, marbleId, preferredLane);
   const safest = chooseSafestLane(state, marbleId);
   const crosswindX = activeUnavoidableCrosswind(state, marbleId);
+  const defensiveLane = defensiveLaneAgainstClosingRacer(state, marbleId);
   const stalled = state.tick - marble.lastProgressTick >= Math.floor(state.config.noProgressTicks / 2);
   const finalBand = marble.progressPermille >= 800;
   const riskWindow = marble.progressPermille >= 250 && marble.progressPermille < 800;
@@ -226,6 +265,11 @@ export function chooseMarbleAction(state: MarbleState, marbleId: number): Marble
     intent = 'final-sprint';
     boostPermille = 1_080;
     confidence = safest.threat.score === 0 ? 'high' : 'medium';
+  } else if (defensiveLane !== null) {
+    targetLane = defensiveLane;
+    intent = 'defending-lane';
+    boostPermille = marble.archetype === 'bruiser' ? 980 : 960;
+    confidence = marble.traits.resiliencePermille >= 900 ? 'high' : 'medium';
   } else if (stalled) {
     const alternateIndex = (state.arena.safeLanes.indexOf(safest.lane) + 1) % state.arena.safeLanes.length;
     const alternateLane = state.arena.safeLanes[alternateIndex];
