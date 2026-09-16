@@ -39,7 +39,7 @@ export function buildTowerRoom(config:TowerConfig,floor:number,theme:TowerTheme,
     if(moving)platform.motion={axis:roomArchetype==='moving-lift'||roomArchetype==='gravity-rift'?'y':'x',range:roomArchetype==='wind-gap'?42000:30000,speed:2200,phase:rng.nextInt(`tower:room-motion:${floor}:${i}`,31)};
     platforms.push(platform);
   }
-  const capY=baseY+config.chunkHeight-28000,capXRatio=landmark?.16:.24,capWidthRatio=landmark?.68:.52;
+  const capY=baseY+config.chunkHeight-28000,capXRatio=landmark ? .16 : .24,capWidthRatio=landmark ? .68 : .52;
   platforms.push({id:`f${floor}:cap`,kind:'oneway',x:Math.floor(config.worldWidth*capXRatio),y:capY,width:Math.floor(config.worldWidth*capWidthRatio),height:12000});
   const relativeFloor=Math.max(0,floor-config.launchFloor),hazardTarget=landmark?Math.min(1,config.maxHazardsPerChunk):Math.min(config.maxHazardsPerChunk,1+Math.min(2,Math.floor(relativeFloor/3))),hazards:TowerHazard[]=[];
   const hazardKinds=HAZARDS[theme];
