@@ -1,7 +1,9 @@
 import type{Direction,DungeonConfig,DungeonLifecycle,DungeonRunResult}from '../../../../packages/game-contracts/src/index';
 export type DungeonTile=0|1;
-export interface DungeonRoom{id:number;x:number;y:number;width:number;height:number;center:number}
-export interface DungeonFloor{version:1;width:number;height:number;floorNumber:number;tiles:DungeonTile[];rooms:DungeonRoom[];entrance:number;sigil:number;gate:number;shrine:number;chest:number;bossCell:number;repairCount:number;fallbackUsed:boolean;features:{walkable:number;mandatoryRouteLength:number;branchRooms:number;loopCount:number}}
+export type DungeonBiome='ashen-catacomb'|'drowned-archive'|'void-observatory';
+export type DungeonRoomRole='entrance'|'combat'|'ambush'|'shrine'|'treasure'|'elite'|'boss-approach';
+export interface DungeonRoom{id:number;x:number;y:number;width:number;height:number;center:number;role:DungeonRoomRole}
+export interface DungeonFloor{version:1;width:number;height:number;floorNumber:number;biome:DungeonBiome;tiles:DungeonTile[];rooms:DungeonRoom[];entrance:number;sigil:number;gate:number;shrine:number;chest:number;bossCell:number;repairCount:number;fallbackUsed:boolean;features:{walkable:number;mandatoryRouteLength:number;branchRooms:number;loopCount:number}}
 export interface DungeonHero{id:'hero-astra';name:'Astra';cell:number;facing:Direction;hp:number;maxHp:number;energy:number;maxEnergy:number;attack:number;armour:number;gold:number;potions:number;shield:number;score:number;relics:string[];vision:number;level:number;xp:number}
 export type DungeonEnemyKind='mireling'|'bone-warden'|'ember-seer'|'void-hound'|'reliquary-mimic'|'chapter-boss';
 export interface DungeonEnemy{id:string;kind:DungeonEnemyKind;cell:number;hp:number;maxHp:number;attack:number;armour:number;cooldown:number;telegraph:null|'melee'|'ranged'|'leap'|'boss';phase:number;alive:boolean}
