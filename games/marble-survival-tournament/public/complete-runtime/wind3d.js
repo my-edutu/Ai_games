@@ -1,169 +1,167 @@
-import * as THREE from '/vendor/three.module.min.js';
+'use strict';
 
 const shell = document.querySelector('.broadcast-shell');
-const WORLD_SCALE = 0.00078;
-const SNAPSHOT_INTERVAL_MS = 250;
-const originalRender = THREE.WebGLRenderer.prototype.render;
+const arenaElement = document.getElementById('arena');
+const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+const SNAPSHOT_INTERVAL_MS = 180;
 
-let snapshot = null;
-let windRoot = null;
-let installedScene = null;
+let overlay = null;
 let currentArenaId = null;
+let currentZonesSignature = '';
+let animationFrame = null;
 let pollTimer = null;
-let lastPulseAt = performance.now();
+let arrows = [];
 
 const clamp = (value, minimum, maximum) => Math.max(minimum, Math.min(maximum, value));
 
-function worldX(arena, x) {
-  return (x - arena.width / 2) * WORLD_SCALE;
-}
-
-function worldZ(arena, y) {
-  return (arena.height / 2 - y) * WORLD_SCALE;
-}
-
-function normalizedY(arena, y) {
-  return clamp(y / Math.max(1, arena.height), 0, 1);
-}
-
-function trackHeight(arena, y, x = arena.width / 2) {
-  const t = normalizedY(arena, y);
-  const lane = clamp((x / Math.max(1, arena.width)) * 2 - 1, -1, 1);
-  switch (arena.archetype) {
-    case 'seeding-sprint':
-      return 0.05 + Math.sin(t * Math.PI * 2) * 0.045;
-    case 'gate-gauntlet':
-      return 0.05 + Math.floor(t * 5) * 0.035 + Math.sin(t * Math.PI * 4) * 0.025;
-    case 'hazard-circuit':
-      return 0.08 + Math.sin(t * Math.PI * 5) * 0.075 + Math.cos(lane * Math.PI) * 0.018;
-    case 'final-four':
-      return 0.08 + Math.sin(t * Math.PI) * 0.32 + Math.sin(t * Math.PI * 6) * 0.025;
-    case 'championship':
-      return 0.06 + Math.sin(t * Math.PI * 3) * 0.095 + t * 0.11;
-    default:
-      return 0.06;
-  }
-}
-
-function disposeGroup(group) {
-  group.traverse((node) => {
-    node.geometry?.dispose?.();
-    if (node.material) {
-      const materials = Array.isArray(node.material) ? node.material : [node.material];
-      for (const material of materials) material.dispose?.();
-    }
+function ensureOverlay() {
+  if (overlay?.isConnected) return overlay;
+  overlay = document.createElement('div');
+  overlay.id = 'authoritative-wind-telegraphs';
+  overlay.setAttribute('aria-hidden', 'true');
+  Object.assign(overlay.style, {
+    position: 'absolute',
+    inset: '0',
+    pointerEvents: 'none',
+    overflow: 'hidden',
+    zIndex: '2',
+    mixBlendMode: 'screen',
   });
+  arenaElement.appendChild(overlay);
+  return overlay;
 }
 
-function clearWindRoot() {
-  if (!windRoot) return;
-  while (windRoot.children.length > 0) {
-    const child = windRoot.children.pop();
-    disposeGroup(child);
-  }
+function zonesSignature(arena) {
+  return JSON.stringify((arena.windZones || []).map((zone) => [
+    zone.id,
+    zone.x,
+    zone.y,
+    zone.width,
+    zone.height,
+    zone.forceX,
+    zone.forceY,
+  ]));
 }
 
-function zoneDirection(zone) {
-  const direction = new THREE.Vector3(zone.forceX, 0, -zone.forceY);
-  return direction.lengthSq() > 0 ? direction.normalize() : new THREE.Vector3(0, 0, -1);
+function zoneAngle(zone) {
+  if (!zone.forceX && !zone.forceY) return -90;
+  return Math.atan2(zone.forceY, zone.forceX) * (180 / Math.PI);
 }
 
-function makeArrow(direction, origin, length, color) {
-  const headLength = Math.min(0.22, Math.max(0.09, length * 0.28));
-  const headWidth = Math.min(0.14, Math.max(0.055, length * 0.16));
-  const arrow = new THREE.ArrowHelper(direction, origin, length, color, headLength, headWidth);
-  arrow.line.material.transparent = true;
-  arrow.line.material.opacity = 0.72;
-  arrow.cone.material.transparent = true;
-  arrow.cone.material.opacity = 0.88;
-  arrow.userData.windArrow = true;
+function zoneStrength(zone) {
+  return clamp(Math.hypot(Number(zone.forceX) || 0, Number(zone.forceY) || 0) / 60, 0.25, 1);
+}
+
+function makeArrow(angle, strength, phase) {
+  const arrow = document.createElement('span');
+  arrow.dataset.windArrow = 'true';
+  arrow.dataset.angle = String(angle);
+  arrow.dataset.phase = String(phase);
+  arrow.dataset.strength = String(strength);
+  arrow.textContent = '➤';
+  Object.assign(arrow.style, {
+    position: 'absolute',
+    left: '0',
+    top: '0',
+    color: 'rgba(220, 251, 255, 0.92)',
+    font: '800 clamp(11px, 1.1vw, 18px)/1 system-ui, sans-serif',
+    textShadow: '0 0 8px rgba(104, 231, 255, 0.8)',
+    transformOrigin: '50% 50%',
+    willChange: 'transform, opacity',
+  });
+  arrows.push(arrow);
   return arrow;
 }
 
-function buildWindZones(arena) {
-  clearWindRoot();
-  const zones = arena.windZones || [];
-  shell.dataset.windZones = String(zones.length);
-  if (zones.length === 0) return;
+function makeZone(arena, zone, zoneIndex) {
+  const zoneElement = document.createElement('div');
+  zoneElement.dataset.windZoneId = String(zone.id);
+  const left = clamp((zone.x / Math.max(1, arena.width)) * 100, 0, 100);
+  const top = clamp((zone.y / Math.max(1, arena.height)) * 100, 0, 100);
+  const width = clamp((zone.width / Math.max(1, arena.width)) * 100, 0.5, 100 - left);
+  const height = clamp((zone.height / Math.max(1, arena.height)) * 100, 0.5, 100 - top);
+  const angle = zoneAngle(zone);
+  const strength = zoneStrength(zone);
 
-  for (const zone of zones) {
-    const group = new THREE.Group();
-    group.userData.windZone = zone.id;
-    const centerX = zone.x + zone.width / 2;
-    const centerY = zone.y + zone.height / 2;
-    const width = Math.max(0.18, zone.width * WORLD_SCALE);
-    const depth = Math.max(0.18, zone.height * WORLD_SCALE);
-    const top = trackHeight(arena, centerY, centerX) + 0.045;
-    group.position.set(worldX(arena, centerX), top, worldZ(arena, centerY));
-
-    const fieldMaterial = new THREE.MeshBasicMaterial({
-      color: 0x77e8ff,
-      transparent: true,
-      opacity: 0.105,
-      depthWrite: false,
-      side: THREE.DoubleSide,
-    });
-    const field = new THREE.Mesh(new THREE.PlaneGeometry(width, depth), fieldMaterial);
-    field.rotation.x = -Math.PI / 2;
-    field.userData.windField = true;
-    group.add(field);
-
-    const edgeMaterial = new THREE.MeshBasicMaterial({ color: 0xbff6ff, transparent: true, opacity: 0.52, depthWrite: false });
-    const edgeThickness = 0.022;
-    const edgeHeight = 0.016;
-    for (const [x, z, edgeWidth, edgeDepth] of [
-      [0, -depth / 2, width, edgeThickness],
-      [0, depth / 2, width, edgeThickness],
-      [-width / 2, 0, edgeThickness, depth],
-      [width / 2, 0, edgeThickness, depth],
-    ]) {
-      const edge = new THREE.Mesh(new THREE.BoxGeometry(edgeWidth, edgeHeight, edgeDepth), edgeMaterial);
-      edge.position.set(x, 0.018, z);
-      group.add(edge);
-    }
-
-    const direction = zoneDirection(zone);
-    const forceMagnitude = Math.max(1, Math.hypot(zone.forceX, zone.forceY));
-    const arrowLength = clamp(0.42 + forceMagnitude * 0.018, 0.46, 0.78);
-    const columns = width > 4 ? 4 : width > 2.2 ? 3 : 2;
-    const rows = depth > 2.2 ? 3 : 2;
-    for (let row = 0; row < rows; row += 1) {
-      for (let column = 0; column < columns; column += 1) {
-        const x = -width * 0.36 + (columns === 1 ? 0 : (width * 0.72 * column) / (columns - 1));
-        const z = -depth * 0.32 + (rows === 1 ? 0 : (depth * 0.64 * row) / (rows - 1));
-        const arrow = makeArrow(direction, new THREE.Vector3(x, 0.10, z), arrowLength, 0xcaf8ff);
-        arrow.userData.phase = row * columns + column;
-        group.add(arrow);
-      }
-    }
-
-    windRoot.add(group);
-  }
-}
-
-function ensureInstalled(scene) {
-  if (installedScene === scene && windRoot) return;
-  if (windRoot && installedScene) installedScene.remove(windRoot);
-  windRoot = new THREE.Group();
-  windRoot.name = 'authoritative-wind-telegraphs';
-  windRoot.renderOrder = 3;
-  installedScene = scene;
-  scene.add(windRoot);
-  currentArenaId = null;
-}
-
-function updatePulse(now) {
-  if (!windRoot || shell.dataset.reducedMotion === 'true') return;
-  const elapsed = Math.min(50, Math.max(0, now - lastPulseAt));
-  lastPulseAt = now;
-  windRoot.traverse((node) => {
-    if (!node.userData.windArrow) return;
-    const phase = node.userData.phase || 0;
-    const pulse = 0.78 + Math.sin(now * 0.004 + phase * 0.9) * 0.12;
-    node.line.material.opacity = pulse;
-    node.cone.material.opacity = Math.min(1, pulse + 0.12);
+  Object.assign(zoneElement.style, {
+    position: 'absolute',
+    left: `${left}%`,
+    top: `${top}%`,
+    width: `${width}%`,
+    height: `${height}%`,
+    minWidth: '38px',
+    minHeight: '34px',
+    border: `1px solid rgba(171, 243, 255, ${0.46 + strength * 0.22})`,
+    borderRadius: '8px',
+    background: `linear-gradient(${angle + 90}deg, rgba(83, 218, 244, ${0.035 + strength * 0.045}), rgba(170, 245, 255, ${0.12 + strength * 0.06}), rgba(83, 218, 244, ${0.035 + strength * 0.045}))`,
+    boxShadow: `inset 0 0 18px rgba(89, 225, 255, ${0.08 + strength * 0.08}), 0 0 12px rgba(76, 211, 241, 0.12)`,
+    overflow: 'hidden',
+    transform: 'perspective(600px) rotateX(5deg)',
   });
-  void elapsed;
+
+  const rows = height > 14 ? 3 : 2;
+  const columns = width > 25 ? 4 : width > 12 ? 3 : 2;
+  let phase = zoneIndex * 7;
+  for (let row = 0; row < rows; row += 1) {
+    for (let column = 0; column < columns; column += 1) {
+      const holder = document.createElement('span');
+      Object.assign(holder.style, {
+        position: 'absolute',
+        left: `${18 + (columns === 1 ? 0 : (64 * column) / (columns - 1))}%`,
+        top: `${20 + (rows === 1 ? 0 : (60 * row) / (rows - 1))}%`,
+        width: '1px',
+        height: '1px',
+      });
+      holder.appendChild(makeArrow(angle, strength, phase++));
+      zoneElement.appendChild(holder);
+    }
+  }
+
+  const label = document.createElement('span');
+  label.textContent = 'CROSSWIND';
+  Object.assign(label.style, {
+    position: 'absolute',
+    left: '8px',
+    bottom: '6px',
+    color: 'rgba(219, 250, 255, 0.8)',
+    font: '700 9px/1 system-ui, sans-serif',
+    letterSpacing: '0.12em',
+    textShadow: '0 0 6px rgba(64, 204, 235, 0.7)',
+  });
+  zoneElement.appendChild(label);
+  return zoneElement;
+}
+
+function buildWindZones(arena) {
+  const root = ensureOverlay();
+  const zones = Array.isArray(arena.windZones) ? arena.windZones : [];
+  arrows = [];
+  root.replaceChildren(...zones.map((zone, index) => makeZone(arena, zone, index)));
+  shell.dataset.windZones = String(zones.length);
+  shell.dataset.windState = zones.length > 0 ? 'active' : 'clear';
+  currentArenaId = arena.id;
+  currentZonesSignature = zonesSignature(arena);
+}
+
+function animateWind(now) {
+  if (!reducedMotion.matches) {
+    for (const arrow of arrows) {
+      const angle = Number(arrow.dataset.angle) || 0;
+      const phase = Number(arrow.dataset.phase) || 0;
+      const strength = Number(arrow.dataset.strength) || 0.5;
+      const travel = (Math.sin(now * 0.0045 + phase * 0.73) * 0.5 + 0.5) * (5 + strength * 7);
+      const opacity = 0.58 + (Math.sin(now * 0.005 + phase) * 0.5 + 0.5) * 0.36;
+      arrow.style.opacity = String(opacity);
+      arrow.style.transform = `translate(-50%, -50%) rotate(${angle}deg) translateX(${travel}px)`;
+    }
+  } else {
+    for (const arrow of arrows) {
+      const angle = Number(arrow.dataset.angle) || 0;
+      arrow.style.opacity = '0.82';
+      arrow.style.transform = `translate(-50%, -50%) rotate(${angle}deg)`;
+    }
+  }
+  animationFrame = requestAnimationFrame(animateWind);
 }
 
 async function refreshWindSnapshot() {
@@ -171,32 +169,30 @@ async function refreshWindSnapshot() {
     const response = await fetch('/api/snapshot', { cache: 'no-store' });
     if (!response.ok) throw new Error(`snapshot ${response.status}`);
     const next = await response.json();
-    if (!next?.arena || !Array.isArray(next.arena.windZones)) return;
-    snapshot = next;
-    if (windRoot && currentArenaId !== next.arena.id) {
-      buildWindZones(next.arena);
-      currentArenaId = next.arena.id;
-    }
-  } catch {
-    // Wind telegraph failure must never affect authoritative play or the base renderer.
+    if (!next?.arena || !Array.isArray(next.arena.windZones)) throw new Error('invalid wind snapshot');
+    const signature = zonesSignature(next.arena);
+    if (currentArenaId !== next.arena.id || currentZonesSignature !== signature) buildWindZones(next.arena);
+    shell.dataset.windSnapshotTick = String(Number.isInteger(next.tick) ? next.tick : 0);
+  } catch (error) {
+    shell.dataset.windState = 'snapshot-error';
+    console.warn('[marble-wind] telegraph snapshot unavailable', error);
   }
 }
 
-THREE.WebGLRenderer.prototype.render = function renderWithWindTelegraphs(scene, camera) {
-  ensureInstalled(scene);
-  if (snapshot && currentArenaId !== snapshot.arena.id) {
-    buildWindZones(snapshot.arena);
-    currentArenaId = snapshot.arena.id;
-  }
-  updatePulse(performance.now());
-  return originalRender.call(this, scene, camera);
-};
+function start() {
+  ensureOverlay();
+  shell.dataset.windZones = '0';
+  shell.dataset.windState = 'loading';
+  refreshWindSnapshot();
+  pollTimer = window.setInterval(refreshWindSnapshot, SNAPSHOT_INTERVAL_MS);
+  animationFrame = requestAnimationFrame(animateWind);
+}
 
-shell.dataset.windZones = '0';
-refreshWindSnapshot();
-pollTimer = window.setInterval(refreshWindSnapshot, SNAPSHOT_INTERVAL_MS);
 window.addEventListener('pagehide', () => {
   if (pollTimer !== null) window.clearInterval(pollTimer);
-  if (windRoot && installedScene) installedScene.remove(windRoot);
-  clearWindRoot();
+  if (animationFrame !== null) cancelAnimationFrame(animationFrame);
+  overlay?.remove();
+  arrows = [];
 }, { once: true });
+
+start();
