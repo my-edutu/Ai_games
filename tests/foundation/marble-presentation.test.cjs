@@ -85,6 +85,36 @@ test('presentation snapshot is immutable, sanitized, and distinguishes spectator
   assert.equal(serialized.includes('rng'), false);
 });
 
+test('presentation exports authoritative ramp geometry and vertical marble state', () => {
+  const runtime = MarbleRuntime.create({
+    rosterSize: 4,
+    roundQuotas: [2, 1, 1, 1, 1],
+    roundIntroTicks: 0,
+  }, 'vertical-presentation');
+  const state = runtime.state;
+  state.arena.ramps = [{
+    id: 'presentation-ramp',
+    kind: 'ramp',
+    x: 7_000,
+    y: 8_000,
+    width: 8_000,
+    height: 3_000,
+    axis: 'y',
+    startElevation: 1_200,
+    endElevation: 0,
+  }];
+  state.marbles[0].elevation = 720;
+  state.marbles[0].verticalVelocity = 96;
+  state.marbles[0].grounded = true;
+
+  const snapshot = createMarblePresentationSnapshot(state, []);
+  assert.equal(snapshot.arena.ramps.length, 1);
+  assert.deepEqual(snapshot.arena.ramps[0], state.arena.ramps[0]);
+  assert.equal(snapshot.marbles[0].elevation, 720);
+  assert.equal(snapshot.marbles[0].verticalVelocity, 96);
+  assert.equal(snapshot.marbles[0].grounded, true);
+});
+
 test('presentation snapshots expose camera interest without creating new authority', () => {
   const state = presentationState();
   const snapshot = createMarblePresentationSnapshot(state, []);
