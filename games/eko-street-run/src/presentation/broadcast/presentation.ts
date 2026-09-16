@@ -1,4 +1,4 @@
-import type { EkoRunRenderSnapshot } from "../../state/types";
+import type { EkoRunRenderSnapshot, PublicHazardSnapshot } from "../../state/types";
 import { createBroadcastFeedback } from "./feedback";
 import { createBroadcastHud } from "./hud";
 import {
@@ -10,6 +10,44 @@ import {
 
 function finitePositive(value: number): boolean {
   return Number.isFinite(value) && value > 0;
+}
+
+function finiteNonNegative(value: number): boolean {
+  return Number.isFinite(value) && value >= 0;
+}
+
+function integerNonNegative(value: number): boolean {
+  return Number.isInteger(value) && value >= 0;
+}
+
+function validHazard(hazard: PublicHazardSnapshot): boolean {
+  if (!hazard || typeof hazard.id !== "string" || hazard.id.length === 0) return false;
+  if (!Number.isFinite(hazard.x) || !Number.isFinite(hazard.y) || !finitePositive(hazard.width) || !finitePositive(hazard.height)) return false;
+  if (!Array.isArray(hazard.legalResponses)) return false;
+  const actionable = hazard.phase === "warned" || hazard.phase === "hit" || hazard.active;
+  if (actionable && hazard.legalResponses.length === 0) return false;
+  if (actionable && (typeof hazard.captionKey !== "string" || hazard.captionKey.length === 0 || typeof hazard.visualToken !== "string" || hazard.visualToken.length === 0)) return false;
+  return true;
+}
+
+function validatePublicSnapshot(snapshot: Readonly<EkoRunRenderSnapshot>): void {
+  const progression = snapshot.progression;
+  const resources = snapshot.resources;
+  const record = snapshot.record;
+  const invalid = () => { throw new Error("PHASE7_INVALID_PUBLIC_SNAPSHOT"); };
+
+  if (!snapshot || typeof snapshot.runId !== "string" || snapshot.runId.length === 0) invalid();
+  if (!integerNonNegative(snapshot.tick) || !finiteNonNegative(snapshot.progress)) invalid();
+  if (!Number.isFinite(snapshot.player.position.x) || !Number.isFinite(snapshot.player.position.y) || !Number.isFinite(snapshot.player.velocity.x) || !Number.isFinite(snapshot.player.velocity.y)) invalid();
+  if (!integerNonNegative(snapshot.player.checkpointIndex)) invalid();
+  if (!finiteNonNegative(snapshot.route.finishX - snapshot.route.minX) || !Array.isArray(snapshot.route.checkpointXs) || snapshot.route.checkpointXs.some(value => !Number.isFinite(value))) invalid();
+  if (!progression || !resources || !record) invalid();
+  if (!integerNonNegative(progression.districtIndex) || !integerNonNegative(progression.cycle) || !integerNonNegative(progression.districtCompletions) || !finiteNonNegative(progression.totalDistance)) invalid();
+  if (progression.nextMilestoneX !== null && !Number.isFinite(progression.nextMilestoneX)) invalid();
+  if (!integerNonNegative(resources.ekoTokens) || !integerNonNegative(resources.earnedTokenTotal) || resources.earnedTokenTotal < resources.ekoTokens) invalid();
+  if (!finiteNonNegative(record.maxProgress) || (record.completedTick !== null && !integerNonNegative(record.completedTick))) invalid();
+  if (!Array.isArray(snapshot.hazards) || snapshot.hazards.some(hazard => !validHazard(hazard))) invalid();
+  if (!Array.isArray(snapshot.recentEvents)) invalid();
 }
 
 function validateOptions(options: BroadcastPresentationOptions): void {
@@ -66,6 +104,7 @@ export function createBroadcastPresentation(
   snapshot: Readonly<EkoRunRenderSnapshot>,
   options: BroadcastPresentationOptions,
 ): Readonly<BroadcastPresentation> {
+  validatePublicSnapshot(snapshot);
   validateOptions(options);
   const hud = createBroadcastHud(snapshot);
   const media = createBroadcastFeedback(snapshot, hud.danger, options.quality, options.accessibility);
