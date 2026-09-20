@@ -1,0 +1,5 @@
+import type{Building}from'./types.js';
+type Mover={x:number;y:number;facing:number};
+function inside(x:number,y:number,b:Building){return Math.abs(x-b.x)<b.w*.48&&Math.abs(y-b.y)<b.h*.48}
+function advance(e:Mover,tx:number,ty:number,step:number){const dx=tx-e.x,dy=ty-e.y,d=Math.hypot(dx,dy)||1;e.facing=Math.atan2(dy,dx);e.x+=dx/d*Math.min(d,step);e.y+=dy/d*Math.min(d,step)}
+export function navigateStep(e:Mover,tx:number,ty:number,speed:number,dt:number,buildings:Building[],allowBuildingId:string|null=null){const origin=buildings.find(b=>inside(e.x,e.y,b))?.id??null,step=speed*dt,blockers=buildings.filter(b=>b.id!==allowBuildingId&&b.id!==origin),dx=tx-e.x,dy=ty-e.y,d=Math.hypot(dx,dy)||1,nx=e.x+dx/d*Math.min(d,step),ny=e.y+dy/d*Math.min(d,step),hit=blockers.find(b=>inside(nx,ny,b));if(!hit){advance(e,tx,ty,step);return}const hash=[...hit.id].reduce((n,c)=>n+c.charCodeAt(0),0),sign=hash%2?1:-1;if(Math.abs(dx)>=Math.abs(dy))advance(e,e.x,hit.y+sign*(hit.h*.55+.35),step);else advance(e,hit.x+sign*(hit.w*.55+.35),e.y,step)}

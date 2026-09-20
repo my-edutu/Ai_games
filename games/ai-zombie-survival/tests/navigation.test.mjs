@@ -1,0 +1,2 @@
+import test from 'node:test';import assert from 'node:assert/strict';import{createGame,navigateStep}from'../dist/index.js';
+test('navigation step routes around unrelated building footprint',()=>{const g=createGame({seed:99,zombieCount:0,survivorCount:1}),b=g.buildings.find(x=>x.kind!=='safehouse'),e={x:b.x-b.w/2-.15,y:b.y,facing:0};for(let i=0;i<20;i++)navigateStep(e,b.x+b.w/2+2,b.y,2.2,1/30,g.buildings,null);assert.equal(Math.abs(e.x-b.x)<b.w*.48&&Math.abs(e.y-b.y)<b.h*.48,false);});
