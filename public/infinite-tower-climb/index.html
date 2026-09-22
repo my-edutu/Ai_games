@@ -13,7 +13,7 @@
     <section class="arena-wrap">
       <canvas id="tower-canvas" data-testid="tower-canvas" aria-label="Infinite Tower Climb autonomous game view"></canvas>
       <div class="danger-vignette" aria-hidden="true"></div>
-      <div class="checkpoint-pill"><span>RUN</span><b data-testid="run-token">—</b></div>
+      <div class="checkpoint-pill"><span>NEXT MILESTONE</span><b data-testid="milestone">F10</b></div>
     </section>
     <aside class="side" data-testid="side-panel">
       <section class="panel vital-panel"><div class="panel-head"><span>CLIMBER STATUS</span><b data-testid="tick">0</b></div><div class="bar-row"><label>INTEGRITY</label><div class="bar"><i id="health-bar"></i></div><output data-testid="health">5/5</output></div><div class="bar-row"><label>STAMINA</label><div class="bar stamina"><i id="stamina-bar"></i></div><output data-testid="stamina">100</output></div><div class="shield-row"><span>SHIELDS</span><b data-testid="shields">0</b></div></section>
@@ -26,4 +26,4 @@
     <section class="result-card" id="result-card" hidden><p>RUN COMPLETE</p><h2 id="result-title">ASCENT ENDED</h2><strong id="result-height">0m</strong><span>Automatic restart armed</span></section>
     <section class="recovery-card" id="recovery-card" hidden><div class="spinner"></div><p>RESTORING VERIFIED VIEW</p><span>No game result has been recorded.</span></section>
   </section>
-</main><script src="/tower/app.js" defer></script></body></html>
+</main><script src="/tower/app.js" defer></script><script src="/tower/guardian-ui.js" defer></script></body></html>
