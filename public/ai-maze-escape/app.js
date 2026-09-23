@@ -1,341 +1,198 @@
 'use strict';
 
-const MAX_TRAIL=240;
-const POLL_DELAY_MS=180;
-const POLL_TIMEOUT_MS=2500;
-const canvas=document.getElementById('maze');
-const context=canvas.getContext('2d',{alpha:false});
-const elements={
-  broadcast:document.getElementById('broadcast'),
-  hud:document.getElementById('hud'),
-  tick:document.getElementById('tick'),
-  steps:document.getElementById('steps'),
-  time:document.getElementById('time'),
-  keys:document.getElementById('keys'),
-  progress:document.getElementById('progress'),
-  progressFill:document.getElementById('progress-fill'),
-  intentMode:document.getElementById('intent-mode'),
-  intentCopy:document.getElementById('intent-copy'),
-  confidence:document.getElementById('confidence-fill'),
-  inventory:document.getElementById('inventory'),
-  caption:document.getElementById('caption'),
-  profile:document.getElementById('profile'),
-  integrity:document.getElementById('integrity'),
-  sceneCard:document.getElementById('scene-card'),
-  sceneTitle:document.getElementById('scene-title'),
-  sceneMessage:document.getElementById('scene-message'),
-};
-const query=new URLSearchParams(location.search);
-const settings={
-  reducedMotion:query.get('reducedMotion')==='1'||matchMedia('(prefers-reduced-motion: reduce)').matches,
-  highContrast:query.get('highContrast')==='1',
-  muted:query.get('muted')==='1',
-  cleanFeed:query.get('cleanFeed')==='1',
-};
-document.body.dataset.reducedMotion=String(settings.reducedMotion);
-document.body.dataset.highContrast=String(settings.highContrast);
-if(settings.cleanFeed)elements.broadcast.classList.add('clean-feed');
-
-let frame=null;
-let lastCaption='The explorer is mapping the nearest frontier.';
-let animationTime=0;
-let pollTimer=0;
-let stopped=false;
-
-function clamp(value,min,max){return Math.max(min,Math.min(max,value))}
-
-function resize(){
-  const ratio=Math.min(devicePixelRatio||1,2);
-  const rect=canvas.getBoundingClientRect();
-  const width=Math.max(1,Math.round(rect.width*ratio));
-  const height=Math.max(1,Math.round(rect.height*ratio));
-  if(canvas.width!==width||canvas.height!==height){canvas.width=width;canvas.height=height}
-}
-
-function computePublicView(snapshot,camera){
-  const cells=snapshot.cells.length?snapshot.cells:[{cell:snapshot.currentCell}];
-  const columns=cells.map(cell=>cell.cell%snapshot.width);
-  const rows=cells.map(cell=>Math.floor(cell.cell/snapshot.width));
-  const minCol=Math.min(...columns),maxCol=Math.max(...columns);
-  const minRow=Math.min(...rows),maxRow=Math.max(...rows);
-  const knownWidth=maxCol-minCol+1,knownHeight=maxRow-minRow+1;
-  const minimumWidth=Math.min(snapshot.width,7),minimumHeight=Math.min(snapshot.height,5);
-  const overview=snapshot.progressPermille>=850||camera?.mode==='overview'||camera?.mode==='result';
-  const widthCells=overview
-    ? clamp(knownWidth+2,minimumWidth,snapshot.width)
-    : clamp(Math.min(knownWidth+2,11),minimumWidth,snapshot.width);
-  const heightCells=overview
-    ? clamp(knownHeight+2,minimumHeight,snapshot.height)
-    : clamp(Math.min(knownHeight+2,8),minimumHeight,snapshot.height);
-  const requestedCenter=Number.isInteger(camera?.centerCell)?camera.centerCell:snapshot.currentCell;
-  const centerCell=cells.some(cell=>cell.cell===requestedCenter)?requestedCenter:snapshot.currentCell;
-  const centerCol=centerCell%snapshot.width,centerRow=Math.floor(centerCell/snapshot.width);
-  const startCol=clamp(centerCol-Math.floor(widthCells/2),0,snapshot.width-widthCells);
-  const startRow=clamp(centerRow-Math.floor(heightCells/2),0,snapshot.height-heightCells);
-  const currentCol=snapshot.currentCell%snapshot.width,currentRow=Math.floor(snapshot.currentCell/snapshot.width);
-  return{
-    startCol,
-    startRow,
-    widthCells,
-    heightCells,
-    centerCell,
-    mode:camera?.mode??'local',
-    containsCurrentCell:currentCol>=startCol&&currentCol<startCol+widthCells&&currentRow>=startRow&&currentRow<startRow+heightCells,
-  };
-}
-
-function inView(snapshot,cell,view){
-  const col=cell%snapshot.width,row=Math.floor(cell/snapshot.width);
-  return col>=view.startCol&&col<view.startCol+view.widthCells&&row>=view.startRow&&row<view.startRow+view.heightCells;
-}
-
-function mapBounds(width,height,ratio,view){
-  const pad=Math.max(20*ratio,Math.min(width,height)*.055);
-  const availableWidth=width-pad*2,availableHeight=height-pad*2;
-  const cellSize=Math.max(1,Math.min(availableWidth/view.widthCells,availableHeight/view.heightCells));
-  const mapWidth=cellSize*view.widthCells,mapHeight=cellSize*view.heightCells;
-  return{x:(width-mapWidth)/2,y:(height-mapHeight)/2,width:mapWidth,height:mapHeight,cellSize};
-}
-
-function cellPoint(snapshot,cell,bounds,view){
-  if(!inView(snapshot,cell,view))return null;
-  const col=cell%snapshot.width,row=Math.floor(cell/snapshot.width);
-  return{
-    x:bounds.x+(col-view.startCol+.5)*bounds.cellSize,
-    y:bounds.y+(row-view.startRow+.5)*bounds.cellSize,
-    w:bounds.cellSize,
-    h:bounds.cellSize,
-  };
-}
-
-function drawGrid(bounds,view,ratio){
-  context.strokeStyle=settings.highContrast?'rgba(255,255,255,.12)':'rgba(92,181,160,.055)';
-  context.lineWidth=Math.max(.5*ratio,1);
-  for(let row=0;row<=view.heightCells;row+=1){
-    const y=bounds.y+row*bounds.cellSize;
-    context.beginPath();context.moveTo(bounds.x,y);context.lineTo(bounds.x+bounds.width,y);context.stroke();
+// Grid movement remains authoritative. Presentation never invents a corridor.
+const MazeView = (() => {
+  const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+  function edge(snapshot, known, a, b) {
+    const first = known.get(a), second = known.get(b);
+    if (!first || !second || first.blocked || second.blocked) return false;
+    const distance = Math.abs(a % snapshot.width - b % snapshot.width) +
+      Math.abs(Math.floor(a / snapshot.width) - Math.floor(b / snapshot.width));
+    return distance === 1 && first.neighbors.includes(b) && second.neighbors.includes(a) &&
+      !(snapshot.doors || []).some(d => !d.open && ((d.a === a && d.b === b) || (d.a === b && d.b === a)));
   }
-  for(let col=0;col<=view.widthCells;col+=1){
-    const x=bounds.x+col*bounds.cellSize;
-    context.beginPath();context.moveTo(x,bounds.y);context.lineTo(x,bounds.y+bounds.height);context.stroke();
-  }
-}
-
-function draw(snapshot,scene,camera){
-  resize();
-  const width=canvas.width,height=canvas.height,ratio=canvas.width/Math.max(1,canvas.clientWidth);
-  const view=window.__MAZE_VIEW__??computePublicView(snapshot,camera);
-  const bounds=mapBounds(width,height,ratio,view);
-  context.fillStyle=settings.highContrast?'#000':'#030809';
-  context.fillRect(0,0,width,height);
-
-  const gradient=context.createRadialGradient(
-    bounds.x+bounds.width*.5,bounds.y+bounds.height*.5,bounds.cellSize,
-    bounds.x+bounds.width*.5,bounds.y+bounds.height*.5,Math.max(bounds.width,bounds.height)*.72,
-  );
-  gradient.addColorStop(0,settings.highContrast?'#070707':'#0a1818');
-  gradient.addColorStop(1,settings.highContrast?'#010101':'#040b0c');
-  context.save();
-  context.shadowBlur=28*ratio;
-  context.shadowColor='rgba(78,255,194,.14)';
-  context.fillStyle=gradient;
-  context.fillRect(bounds.x,bounds.y,bounds.width,bounds.height);
-  context.restore();
-  drawGrid(bounds,view,ratio);
-
-  const drawnCells=snapshot.cells.filter(cell=>inView(snapshot,cell.cell,view));
-  const known=new Map(snapshot.cells.map(cell=>[cell.cell,cell]));
-  const visibleKnown=new Set(drawnCells.map(cell=>cell.cell));
-  const cellWidth=bounds.cellSize,cellHeight=bounds.cellSize;
-
-  for(const cell of drawnCells){
-    const point=cellPoint(snapshot,cell.cell,bounds,view);
-    if(!point)continue;
-    const alpha=cell.visible?1:Math.max(.22,cell.confidencePermille/1600);
-    context.fillStyle=cell.visible
-      ?`rgba(35,108,88,${.46*alpha})`
-      :`rgba(18,49,45,${.34*alpha})`;
-    context.fillRect(point.x-cellWidth*.45,point.y-cellHeight*.45,cellWidth*.9,cellHeight*.9);
-    if(cell.checkpoint){
-      context.strokeStyle='rgba(104,220,255,.82)';
-      context.lineWidth=Math.max(1*ratio,cellWidth*.06);
-      context.strokeRect(point.x-cellWidth*.28,point.y-cellHeight*.28,cellWidth*.56,cellHeight*.56);
+  function routeSegments(snapshot, route, visible) {
+    const known = new Map(snapshot.cells.map(c => [c.cell, c])), segments = [];
+    let segment = [];
+    const flush = () => { if (segment.length > 1) segments.push(segment); segment = []; };
+    for (const cell of route.slice(-240)) {
+      if (!visible.has(cell) || !known.has(cell) || known.get(cell).blocked) { flush(); continue; }
+      if (segment.length && !edge(snapshot, known, segment.at(-1), cell)) flush();
+      segment.push(cell);
     }
-    if(cell.clue){
-      context.fillStyle='#68dcff';
-      context.beginPath();context.arc(point.x,point.y,Math.max(2*ratio,cellWidth*.12),0,Math.PI*2);context.fill();
+    flush(); return segments;
+  }
+  function explorerPosition(previous, current, alpha, reducedMotion = false) {
+    const target = {col: current.currentCell % current.width, row: Math.floor(current.currentCell / current.width)};
+    if (!previous || reducedMotion || previous.runToken !== current.runToken || previous.level !== current.level ||
+        previous.width !== current.width || previous.height !== current.height || current.result ||
+        current.tick <= previous.tick || current.tick - previous.tick > 2 ||
+        !edge(current, new Map(current.cells.map(c => [c.cell, c])), previous.currentCell, current.currentCell)) return target;
+    const t = Number.isFinite(alpha) ? clamp(alpha, 0, 1) : 1;
+    const col = previous.currentCell % current.width, row = Math.floor(previous.currentCell / current.width);
+    return {col: col + (target.col - col) * t, row: row + (target.row - row) * t};
+  }
+  return {routeSegments, explorerPosition};
+})();
+if (typeof module !== 'undefined' && module.exports) module.exports = MazeView;
+
+if (typeof document !== 'undefined') (() => {
+  const canvas = document.getElementById('maze'), ctx = canvas.getContext('2d', {alpha:false});
+  const $ = id => document.getElementById(id), query = new URLSearchParams(location.search);
+  const preference = matchMedia('(prefers-reduced-motion: reduce)');
+  const settings = {reducedMotion: query.get('reducedMotion') === '1' || preference.matches,
+    highContrast: query.get('highContrast') === '1', cleanFeed: query.get('cleanFeed') === '1'};
+  document.body.dataset.reducedMotion = String(settings.reducedMotion);
+  document.body.dataset.highContrast = String(settings.highContrast);
+  $('broadcast').classList.toggle('clean-feed', settings.cleanFeed);
+  const color = {floor:settings.highContrast?'#191919':'#17352f', wall:settings.highContrast?'#fff':'#84baa8',
+    hero:settings.highContrast?'#e5ff72':'#a7ffba', route:'#ffd18a', danger:'#ff7e96', memory:'#17312d'};
+  let current=null, previous=null, received=0, lastAccepted=0, blendMs=180;
+  let stopped=false, timer=0, raf=0, request=null, width=1, height=1, ratio=1;
+  let cached=null, view=null, known=null, travelled=[], planned=[], lastCaption='Mapping the nearest frontier.';
+  function resize(){
+    const rect=canvas.getBoundingClientRect();ratio=Math.min(devicePixelRatio||1,2);
+    width=Math.max(1,rect.width);height=Math.max(1,rect.height);
+    canvas.width=Math.round(width*ratio);canvas.height=Math.round(height*ratio);ctx.setTransform(ratio,0,0,ratio,0,0);cached=null;
+  }
+  function computePublicView(s,camera){
+    const cells=s.cells.length?s.cells:[{cell:s.currentCell}];
+    const cols=cells.map(c=>c.cell%s.width),rows=cells.map(c=>Math.floor(c.cell/s.width));
+    const overview=s.progressPermille>=850||camera?.mode==='overview'||camera?.mode==='result';
+    const localColumns=width<640&&width<height?7:11;
+    const wc=Math.min(s.width,Math.max(Math.min(s.width,7),Math.min(overview?s.width:localColumns,Math.max(...cols)-Math.min(...cols)+3)));
+    const hc=Math.min(s.height,Math.max(Math.min(s.height,5),Math.min(overview?s.height:8,Math.max(...rows)-Math.min(...rows)+3)));
+    let center=cells.some(c=>c.cell===camera?.centerCell)?camera.centerCell:s.currentCell;
+    const start=(cell)=>({col:Math.max(0,Math.min(s.width-wc,cell%s.width-Math.floor(wc/2))),
+      row:Math.max(0,Math.min(s.height-hc,Math.floor(cell/s.width)-Math.floor(hc/2)))});
+    let a=start(center),col=s.currentCell%s.width,row=Math.floor(s.currentCell/s.width);
+    if(col<a.col||col>=a.col+wc||row<a.row||row>=a.row+hc){center=s.currentCell;a=start(center);}
+    return {startCol:a.col,startRow:a.row,widthCells:wc,heightCells:hc,centerCell:center,
+      mode:overview?'overview':camera?.mode||'local',containsCurrentCell:true};
+  }
+  function visible(cell,s){const col=cell%s.width,row=Math.floor(cell/s.width);return col>=view.startCol&&col<view.startCol+view.widthCells&&row>=view.startRow&&row<view.startRow+view.heightCells;}
+  function prepare(s,camera){
+    if(cached===s)return;cached=s;view=computePublicView(s,camera);known=new Map(s.cells.map(c=>[c.cell,c]));
+    const shown=new Set(s.cells.filter(c=>visible(c.cell,s)).map(c=>c.cell));
+    travelled=MazeView.routeSegments(s,s.travelledRoute,shown);planned=MazeView.routeSegments(s,s.plannedRoute,shown);
+    window.__MAZE_VIEW__=view;
+  }
+  function rect(x,y,w,h,fill,r=3){ctx.fillStyle=fill;ctx.beginPath();ctx.roundRect(x,y,Math.max(.1,w),Math.max(.1,h),Math.min(r,w/2,h/2));ctx.fill();}
+  function line(x,y,ex,ey,stroke,size=1){ctx.strokeStyle=stroke;ctx.lineWidth=size;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(ex,ey);ctx.stroke();}
+  function text(value,x,y,fill,size=10,align='center'){ctx.fillStyle=fill;ctx.font=`600 ${size}px ui-monospace,monospace`;ctx.textAlign=align;ctx.fillText(value,x,y);}
+  function draw(now){
+    ctx.fillStyle=settings.highContrast?'#000':'#060f12';ctx.fillRect(0,0,width,height);
+    if(!current){text('CONNECTING TO THE EXPLORER',width/2,height/2,color.hero,12);return;}
+    const s=current.snapshot;prepare(s,current.camera);
+    const top=settings.cleanFeed?12:58,bottom=settings.cleanFeed?12:34,pad=Math.min(28,width*.06);
+    const cell=Math.max(1,Math.min((width-pad*2)/view.widthCells,(height-top-bottom)/view.heightCells));
+    const ox=(width-cell*view.widthCells)/2,oy=top+Math.max(0,(height-top-bottom-cell*view.heightCells)/2);
+    const point=(id)=>({x:ox+(id%s.width-view.startCol+.5)*cell,y:oy+(Math.floor(id/s.width)-view.startRow+.5)*cell});
+    const shown=s.cells.filter(c=>visible(c.cell,s));
+    for(const c of shown){
+      const p=point(c.cell),x=p.x-cell/2,y=p.y-cell/2;
+      rect(x+2,y+2,cell-4,cell-4,c.visible?color.floor:color.memory,Math.min(5,cell*.09));
+      if(c.blocked){line(x+cell*.2,y+cell*.2,x+cell*.8,y+cell*.8,color.danger,3);line(x+cell*.8,y+cell*.2,x+cell*.2,y+cell*.8,color.danger,3);}
+      if(c.checkpoint){ctx.strokeStyle='#89dfff';ctx.lineWidth=2;ctx.strokeRect(p.x-cell*.23,p.y-cell*.23,cell*.46,cell*.46);}
+      if(c.clue)text('?',p.x,p.y+cell*.1,'#89dfff',Math.max(9,cell*.3));
+      if(c.neighbors.some(n=>!known.has(n))){rect(x+cell*.73,y+cell*.18,3,3,'#89dfff',1);}
+      // Extruded wall base, followed by its bright top edge; never hide openings.
+      const col=c.cell%s.width,row=Math.floor(c.cell/s.width),ns=new Set(c.neighbors);
+      const walls=[];
+      if(row===0||!ns.has(c.cell-s.width))walls.push([x,y,x+cell,y]);
+      if(col===s.width-1||!ns.has(c.cell+1))walls.push([x+cell,y,x+cell,y+cell]);
+      if(row===s.height-1||!ns.has(c.cell+s.width))walls.push([x,y+cell,x+cell,y+cell]);
+      if(col===0||!ns.has(c.cell-1))walls.push([x,y,x,y+cell]);
+      ctx.globalAlpha=c.visible?1:.52;
+      for(const [a,b,d,e] of walls){line(a,b+3,d,e+3,'#071716',Math.max(4,cell*.09));line(a,b,d,e,color.wall,Math.max(2,cell*.055));}
+      ctx.globalAlpha=1;
     }
-    const frontier=cell.neighbors.some(neighbor=>!known.has(neighbor));
-    if(frontier){
-      context.fillStyle='rgba(104,220,255,.85)';
-      context.beginPath();context.arc(point.x+cellWidth*.31,point.y-cellHeight*.31,Math.max(1.5*ratio,cellWidth*.055),0,Math.PI*2);context.fill();
+    function route(segments,stroke,dashed){
+      ctx.strokeStyle=stroke;ctx.lineWidth=Math.max(2,cell*.055);ctx.lineJoin='round';ctx.lineCap='round';
+      ctx.setLineDash(dashed?[5,5]:[]);
+      for(const segment of segments){ctx.beginPath();segment.forEach((id,i)=>{const p=point(id);if(i)ctx.lineTo(p.x,p.y);else ctx.moveTo(p.x,p.y);});ctx.stroke();}
+      ctx.setLineDash([]);
     }
-  }
-
-  context.lineCap='round';
-  context.lineJoin='round';
-  context.lineWidth=Math.max(1.2*ratio,cellWidth*.12);
-  context.strokeStyle=settings.highContrast?'#fff':'rgba(126,255,208,.78)';
-  for(const cell of drawnCells){
-    const point=cellPoint(snapshot,cell.cell,bounds,view);
-    if(!point)continue;
-    const neighbors=new Set(cell.neighbors);
-    const row=Math.floor(cell.cell/snapshot.width),col=cell.cell%snapshot.width;
-    const left=cell.cell-1,right=cell.cell+1,up=cell.cell-snapshot.width,down=cell.cell+snapshot.width;
-    const x0=point.x-cellWidth*.5,x1=point.x+cellWidth*.5,y0=point.y-cellHeight*.5,y1=point.y+cellHeight*.5;
-    context.beginPath();
-    if(row===0||!neighbors.has(up)){context.moveTo(x0,y0);context.lineTo(x1,y0)}
-    if(col===snapshot.width-1||!neighbors.has(right)){context.moveTo(x1,y0);context.lineTo(x1,y1)}
-    if(row===snapshot.height-1||!neighbors.has(down)){context.moveTo(x1,y1);context.lineTo(x0,y1)}
-    if(col===0||!neighbors.has(left)){context.moveTo(x0,y1);context.lineTo(x0,y0)}
-    context.stroke();
-  }
-
-  const drawRoute=(route,color,widthScale)=>{
-    const visible=route.filter(cell=>visibleKnown.has(cell)).slice(-MAX_TRAIL);
-    if(visible.length<2)return;
-    context.strokeStyle=color;
-    context.lineWidth=Math.max(1*ratio,cellWidth*widthScale);
-    context.beginPath();
-    visible.forEach((cell,index)=>{
-      const point=cellPoint(snapshot,cell,bounds,view);
-      if(!point)return;
-      if(index===0)context.moveTo(point.x,point.y);else context.lineTo(point.x,point.y);
-    });
-    context.stroke();
-  };
-  drawRoute(snapshot.travelledRoute,'rgba(104,220,255,.38)',.12);
-  drawRoute(snapshot.plannedRoute,'rgba(255,202,107,.82)',.17);
-
-  for(const door of snapshot.doors){
-    const a=cellPoint(snapshot,door.a,bounds,view),b=cellPoint(snapshot,door.b,bounds,view);
-    if(!a||!b)continue;
-    context.strokeStyle=door.open?'rgba(120,255,199,.48)':'#ffca6b';
-    context.lineWidth=Math.max(2*ratio,cellWidth*.28);
-    const midX=(a.x+b.x)/2,midY=(a.y+b.y)/2;
-    context.beginPath();
-    context.moveTo(midX-(b.y-a.y)*.16,midY+(b.x-a.x)*.16);
-    context.lineTo(midX+(b.y-a.y)*.16,midY-(b.x-a.x)*.16);
-    context.stroke();
-  }
-
-  for(const key of snapshot.keys){
-    if(key.collected)continue;
-    const point=cellPoint(snapshot,key.cell,bounds,view);
-    if(!point)continue;
-    context.fillStyle='#ffca6b';context.shadowColor='#ffca6b';context.shadowBlur=12*ratio;
-    context.beginPath();context.arc(point.x,point.y,Math.max(3*ratio,cellWidth*.2),0,Math.PI*2);context.fill();context.shadowBlur=0;
-  }
-
-  for(const cell of drawnCells.filter(item=>item.trap)){
-    const point=cellPoint(snapshot,cell.cell,bounds,view);
-    if(!point)continue;
-    context.strokeStyle='#ff6f91';context.lineWidth=Math.max(1.5*ratio,cellWidth*.12);
-    context.beginPath();context.moveTo(point.x,point.y-cellHeight*.24);context.lineTo(point.x+cellWidth*.22,point.y+cellHeight*.2);context.lineTo(point.x-cellWidth*.22,point.y+cellHeight*.2);context.closePath();context.stroke();
-  }
-
-  if(snapshot.exitCell!==null){
-    const point=cellPoint(snapshot,snapshot.exitCell,bounds,view);
-    if(point){
-      const pulse=settings.reducedMotion?1:1+Math.sin(animationTime*.004)*.08;
-      context.strokeStyle='#78ffc7';context.lineWidth=3*ratio;context.shadowColor='#78ffc7';context.shadowBlur=18*ratio;
-      context.strokeRect(point.x-cellWidth*.3*pulse,point.y-cellHeight*.3*pulse,cellWidth*.6*pulse,cellHeight*.6*pulse);context.shadowBlur=0;
+    route(travelled,'#59a8b9',false);route(planned,color.route,true);
+    for(const door of s.doors){
+      if(!visible(door.a,s)||!visible(door.b,s))continue;
+      const a=point(door.a),b=point(door.b),x=(a.x+b.x)/2,y=(a.y+b.y)/2;
+      const dx=(b.y-a.y)*.22,dy=(b.x-a.x)*.22;
+      if(!door.open){line(x-dx,y+dy,x+dx,y-dy,color.route,Math.max(5,cell*.14));text('×',x,y+4,'#18231d',13);}
     }
+    for(const key of s.keys){
+      if(key.collected||!known.has(key.cell)||!visible(key.cell,s))continue;
+      const p=point(key.cell),r=Math.max(3,cell*.105);
+      ctx.strokeStyle=color.route;ctx.lineWidth=2.5;ctx.beginPath();ctx.arc(p.x-r,p.y-r*.3,r,0,Math.PI*2);ctx.stroke();
+      line(p.x,p.y,p.x+r*1.6,p.y+r*1.6,color.route,3);line(p.x+r,p.y+r,p.x+r*1.6,p.y+r*.35,color.route,2);
+    }
+    for(const c of shown.filter(c=>c.trap)){
+      const p=point(c.cell),r=cell*.25;ctx.strokeStyle=color.danger;ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(p.x,p.y-r);ctx.lineTo(p.x+r,p.y+r*.8);ctx.lineTo(p.x-r,p.y+r*.8);ctx.closePath();ctx.stroke();text('!',p.x,p.y+r*.48,color.danger,Math.max(9,r));
+    }
+    if(s.exitCell!==null&&known.has(s.exitCell)&&visible(s.exitCell,s)){
+      const p=point(s.exitCell),r=cell*.29;ctx.strokeStyle=color.hero;ctx.lineWidth=3;ctx.strokeRect(p.x-r,p.y-r,r*2,r*2);
+      text('↗',p.x,p.y+r*.53,color.hero,Math.max(11,r*1.7));
+    }
+    for(const threat of s.threats){
+      if(!known.has(threat.cell)||!visible(threat.cell,s))continue;
+      const p=point(threat.cell),r=cell*.24;ctx.save();ctx.translate(p.x,p.y);ctx.rotate(Math.PI/4);rect(-r,-r,r*2,r*2,color.danger,3);ctx.restore();
+      line(p.x-r*.45,p.y,p.x+r*.45,p.y,'#241019',3);
+    }
+    const position=MazeView.explorerPosition(previous?.snapshot,s,(now-received)/blendMs,settings.reducedMotion||['result','intermission','recovery'].includes(current.scene));
+    const x=ox+(position.col-view.startCol+.5)*cell,y=oy+(position.row-view.startRow+.5)*cell,r=Math.max(4,cell*.26);
+    rect(x-r-2,y-r+3,r*2+4,r*2+2,'#030909',Math.max(2,r*.4));
+    rect(x-r,y-r,r*2,r*2,color.hero,Math.max(2,r*.35));
+    rect(x-r*.7,y-r*.4,r*1.4,r*.55,'#14302a',2);
+    rect(x-r*.47,y-r*.27,r*.27,r*.18,'#fff',1);rect(x+r*.2,y-r*.27,r*.27,r*.18,'#fff',1);
+    line(x-r*.4,y+r*.55,x+r*.4,y+r*.55,'#315643',2);
+    if(!settings.cleanFeed){
+      text(`${view.mode.toUpperCase()} · DISCOVERED PASSAGES ONLY`,ox,Math.max(48,oy-10),'#a6c7bd',Math.max(8,Math.min(10,width/50)),'left');
+      text('— travelled    - - planned    △ danger',width/2,height-13,'#a6c7bd',Math.max(8,Math.min(10,width/45)));
+    }
+    if(current.scene==='danger'){ctx.strokeStyle=color.danger;ctx.lineWidth=3;ctx.strokeRect(2,2,width-4,height-4);}
   }
-
-  for(const threat of snapshot.threats){
-    const point=cellPoint(snapshot,threat.cell,bounds,view);
-    if(!point)continue;
-    const radius=Math.max(4*ratio,cellWidth*.28);
-    context.fillStyle='#ff6f91';context.shadowColor='#ff6f91';context.shadowBlur=18*ratio;
-    context.beginPath();context.arc(point.x,point.y,radius,0,Math.PI*2);context.fill();context.shadowBlur=0;
+  function update(data){
+    const s=data.snapshot;window.__MAZE_PUBLIC_STATE__=s;prepare(s,data.camera);
+    $('tick').textContent=s.tick;$('steps').textContent=Math.max(0,s.travelledRoute.length-1);
+    $('time').textContent=s.timeRemaining;$('keys').textContent=s.inventory.length;
+    $('progress').textContent=`${Math.floor(s.progressPermille/10)}%`;$('progress-fill').style.width=`${s.progressPermille/10}%`;
+    $('intent-mode').textContent=s.intent.mode.replaceAll('-',' ');$('intent-copy').textContent=s.intent.explanation;
+    $('confidence-fill').style.width=`${Math.max(0,Math.min(100,s.intent.confidence*100))}%`;
+    $('inventory').textContent=s.inventory.length?s.inventory.join(' · '):'No keys collected';
+    $('profile').textContent=`${s.profile.toUpperCase()} · L${s.level}`;$('integrity').textContent='PUBLIC FEED CONNECTED';
+    const caption=data.audio?.captions?.at(-1);if(typeof caption==='string')lastCaption=caption;
+    $('caption').textContent=lastCaption;
+    const scene=data.scene;$('broadcast').dataset.scene=scene;
+    $('scene-card').hidden=!['result','intermission','recovery'].includes(scene);
+    $('scene-title').textContent=scene==='recovery'?'RECOVERING VIEW':scene==='intermission'?'NEXT MAZE':s.result?.reason==='escape'?'ESCAPE COMPLETE':'RUN COMPLETE';
+    $('scene-message').textContent=scene==='recovery'?'Restoring the latest confirmed public state.':scene==='intermission'?'A new challenge is being prepared.':`Outcome: ${s.result?.reason||'complete'}.`;
   }
-
-  const explorer=cellPoint(snapshot,snapshot.currentCell,bounds,view);
-  if(explorer){
-    const radius=Math.max(5*ratio,cellWidth*.32);
-    context.fillStyle=settings.highContrast?'#baff00':'#78ffc7';context.shadowColor=context.fillStyle;context.shadowBlur=22*ratio;
-    context.beginPath();context.arc(explorer.x,explorer.y,radius,0,Math.PI*2);context.fill();context.shadowBlur=0;
-    context.strokeStyle='#04110d';context.lineWidth=2*ratio;
-    context.beginPath();context.moveTo(explorer.x-radius*.35,explorer.y);context.lineTo(explorer.x+radius*.35,explorer.y);context.stroke();
+  async function poll(){
+    if(stopped||request)return;const controller=new AbortController();request=controller;
+    const timeout=setTimeout(()=>controller.abort(),2500);
+    try{
+      const response=await fetch(`/maze/state?w=${innerWidth}&h=${innerHeight}&reducedMotion=${settings.reducedMotion?1:0}&cleanFeed=${settings.cleanFeed?1:0}`,{cache:'no-store',signal:controller.signal});
+      if(!response.ok)throw new Error('state-unavailable');const data=await response.json();if(stopped)return;
+      const s=data?.snapshot;if(!s||!Array.isArray(s.cells)||!Number.isFinite(s.tick))throw new Error('invalid-public-frame');
+      const old=current?.snapshot,now=performance.now();
+      if(old&&old.runToken===s.runToken&&(s.tick<old.tick||s.revision<old.revision)){$('integrity').textContent='WAITING FOR CURRENT VIEW';return;}
+      if(!old||old.runToken!==s.runToken||old.tick!==s.tick||old.revision!==s.revision){
+        previous=old&&now-lastAccepted<500&&old.runToken===s.runToken?current:null;
+        received=now;blendMs=Math.max(100,Math.min(220,now-lastAccepted||180));lastAccepted=now;
+      }
+      current=data;update(data);
+    }catch{
+      if(!stopped){previous=null;$('integrity').textContent='VIEW RECONNECTING';$('scene-card').hidden=false;
+        $('scene-title').textContent='RECONNECTING';$('scene-message').textContent='Showing the last confirmed frame. No new outcome is assumed.';}
+    }finally{clearTimeout(timeout);request=null;if(!stopped)timer=setTimeout(poll,180);}
   }
-
-  context.font=`${Math.max(9*ratio,Math.min(width,height)*.014)}px ui-monospace, SFMono-Regular, Menlo, monospace`;
-  context.fillStyle=settings.highContrast?'#fff':'rgba(126,255,208,.72)';
-  context.textBaseline='top';
-  context.fillText(`${view.mode.toUpperCase()} MAP  •  ${view.widthCells}×${view.heightCells} PUBLIC CELLS`,bounds.x,bounds.y-Math.max(16*ratio,bounds.cellSize*.32));
-
-  if(scene==='danger'){
-    context.fillStyle='rgba(255,73,110,.06)';context.fillRect(0,0,width,height);
-  }
-}
-
-function update(frameValue){
-  frame=frameValue;
-  const snapshot=frameValue.snapshot;
-  if(!snapshot)return;
-  window.__MAZE_PUBLIC_STATE__=snapshot;
-  window.__MAZE_VIEW__=computePublicView(snapshot,frameValue.camera);
-  elements.tick.textContent=String(snapshot.tick);
-  elements.steps.textContent=String(Math.max(0,snapshot.travelledRoute.length-1));
-  elements.time.textContent=String(snapshot.timeRemaining);
-  elements.keys.textContent=String(snapshot.inventory.length);
-  elements.progress.textContent=`${Math.floor(snapshot.progressPermille/10)}%`;
-  elements.progressFill.style.width=`${snapshot.progressPermille/10}%`;
-  elements.intentMode.textContent=snapshot.intent.mode.replaceAll('-',' ');
-  elements.intentCopy.textContent=snapshot.intent.explanation;
-  elements.confidence.style.width=`${Math.round(snapshot.intent.confidence*100)}%`;
-  elements.inventory.textContent=snapshot.inventory.length?snapshot.inventory.join(' • '):'No keys collected';
-  elements.profile.textContent=`PROFILE: ${snapshot.profile.toUpperCase()} • L${snapshot.level}`;
-  elements.integrity.textContent=`INTEGRITY: ${snapshot.authorityChecksum?'VERIFIED':'CHECKING'}`;
-  const captions=frameValue.audio?.captions??[];
-  if(captions.length)lastCaption=captions.at(-1);
-  elements.caption.textContent=lastCaption;
-  const scene=frameValue.scene;
-  if(scene==='result'||scene==='intermission'||scene==='recovery'){
-    elements.sceneCard.hidden=false;
-    elements.sceneTitle.textContent=scene==='result'
-      ?(snapshot.result?.reason==='escape'?'ESCAPE COMPLETE':'RUN COMPLETE')
-      :scene==='intermission'?'NEXT MAZE LOADING':'RECOVERING VIEW';
-    elements.sceneMessage.textContent=scene==='recovery'
-      ?'Restoring the latest verified public snapshot.'
-      :scene==='intermission'
-        ?'A new deterministic challenge is being prepared.'
-        :snapshot.result?.reason==='escape'
-          ?'The explorer found the exit without oracle access.'
-          :`Outcome: ${snapshot.result?.reason??'complete'}.`;
-  }else elements.sceneCard.hidden=true;
-}
-
-async function poll(){
-  if(stopped)return;
-  const controller=new AbortController();
-  const timeout=setTimeout(()=>controller.abort(),POLL_TIMEOUT_MS);
-  try{
-    const response=await fetch(
-      `/maze/state?w=${innerWidth}&h=${innerHeight}&reducedMotion=${settings.reducedMotion?1:0}&cleanFeed=${settings.cleanFeed?1:0}`,
-      {cache:'no-store',signal:controller.signal},
-    );
-    if(!response.ok)throw new Error(`state ${response.status}`);
-    update(await response.json());
-  }catch{
-    elements.integrity.textContent='INTEGRITY: RECOVERING';
-    elements.sceneCard.hidden=false;
-    elements.sceneTitle.textContent='RECOVERING VIEW';
-    elements.sceneMessage.textContent='The public source is reconnecting to verified state.';
-  }finally{
-    clearTimeout(timeout);
-    if(!stopped)pollTimer=setTimeout(poll,POLL_DELAY_MS);
-  }
-}
-
-function animate(now){
-  animationTime=now;
-  if(frame?.snapshot)draw(frame.snapshot,frame.scene,frame.camera);
-  requestAnimationFrame(animate);
-}
-
-addEventListener('resize',resize,{passive:true});
-addEventListener('pagehide',()=>{stopped=true;clearTimeout(pollTimer)},{once:true});
-poll();
-requestAnimationFrame(animate);
+  function animate(now){if(stopped)return;draw(now);raf=requestAnimationFrame(animate);}
+  function stop(){stopped=true;clearTimeout(timer);cancelAnimationFrame(raf);request?.abort();}
+  function start(){if(!stopped)return;stopped=false;previous=null;resize();poll();raf=requestAnimationFrame(animate);}
+  addEventListener('pagehide',stop);addEventListener('pageshow',start);addEventListener('resize',resize,{passive:true});
+  if(typeof ResizeObserver!=='undefined')new ResizeObserver(resize).observe(canvas);
+  document.addEventListener('visibilitychange',()=>{previous=null;});
+  preference.addEventListener('change',event=>{settings.reducedMotion=query.get('reducedMotion')==='1'||event.matches;
+    document.body.dataset.reducedMotion=String(settings.reducedMotion);previous=null;});
+  resize();poll();raf=requestAnimationFrame(animate);
+})();
