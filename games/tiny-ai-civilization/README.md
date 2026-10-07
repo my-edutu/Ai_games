@@ -1,6 +1,6 @@
 # Tiny AI Civilization — Living Valley Gauntlet (Prototype)
 
-This folder contains an independently openable browser build (`index.html`) and an evidence page (`progress.html`). The game currently uses original procedural 3D geometry in WebGL and provides a constrained-browser software-projection fallback. **It is a playable visual/behavioral vertical slice, not a complete AAA game, and it has not beaten Manor Lords.**
+The playable browser build and its evidence ledger live under `public/tiny-kingdom/` as `index.html` and `progress.html`. The game currently uses original procedural 3D geometry in WebGL and provides a constrained-browser software-projection fallback. **It is a playable visual/behavioral vertical slice, not a complete AAA game, and it has not beaten Manor Lords.**
 
 ## Play & inspect
 
@@ -10,8 +10,10 @@ Open `public/tiny-kingdom/index.html` directly in a modern browser or serve `pub
 
 - Original 3D meshes rendered via WebGL; fallback 3D software projection for headless browsers without WebGL.
 - Procedural valley with village cottages, great hall, forest, waterways, roads, wheat fields, and animated villagers.
-- Self-running role-driven agents, resource production/consumption, growth, social/story announcements, and simulation clock.
+- Self-running role-driven agents, resource production/consumption, growth, proximity-based social ties, character needs, trading, role-specific work, and story announcements, and simulation clock.
 - Fixed-step advancement at 30 ticks/second and seed-based initial generation; controls for pause, speeds, and camera.
+
+Run browser regression tests with `npm run test:browser` (requires Playwright browser installation). A local Chromium smoke and 400-hour accelerated simulation were inspected; a CI/browser validation on GitHub has not yet been confirmed.
 
 ## Limitations / reviewer warning
 
