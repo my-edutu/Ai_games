@@ -28,6 +28,21 @@ async function loadReview(){
       append(description,'strong','',item.label);
       append(description,'small','',item.status);
     }
+    const goals=byId('goal-cards');
+    goals.replaceChildren();
+    for(const item of data.gauntletGoals||[]){
+      const card=append(goals,'article','goal-card');
+      card.dataset.status=item.status||'pending';
+      append(card,'span','gate',String(item.status||'pending').replaceAll('-',' ').toUpperCase());
+      append(card,'h3','',item.name);
+      const bar=append(card,'p');
+      append(bar,'b','', 'REFERENCE  ');
+      append(bar,'span','',item.reference);
+      const actual=append(card,'p');
+      append(actual,'b','', 'CURRENT  ');
+      append(actual,'span','',item.current);
+      append(card,'small','', 'EVIDENCE • '+item.evidence);
+    }
     const history=byId('rounds');
     history.replaceChildren();
     for(const entry of rounds){
