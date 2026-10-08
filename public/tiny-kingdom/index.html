@@ -735,7 +735,16 @@ if(!terrainCache||nextTerrainKey!==terrainCacheKey){
 }
 data=terrainCache.slice();
 // A winding stream through the southern side.
-for(let x=-42;x<42;x+=2){let z=20+Math.sin(x*.13)*3;quad([x,terrain(x,z)-.03,z-1.6],[x,terrain(x,z)+.01,z+1.6],[x+2,terrain(x+2,z)+.01,z+1.6],[x+2,terrain(x+2,z)-.03,z-1.6],water)}
+// Sample each cross-section at its own river centre to eliminate jagged joins.
+for(let x=-42;x<42;x+=.8){
+ const nx=Math.min(42,x+.8),z=20+Math.sin(x*.13)*3,nz=20+Math.sin(nx*.13)*3;
+ const banks=[-1.8,-1.38,-.75,0,.75,1.38,1.8];
+ for(let i=0;i<banks.length-1;i++){
+  const a=banks[i],b=banks[i+1],tone=i===0||i===5?rgb(0x719ca0):i===1||i===4?rgb(0x5cabb3):rgb(0x368f9d);
+  const v=(px,pz,off)=>[px,terrain(px,pz+off)+.08,pz+off];
+  quad(v(x,z,a),v(x,z,b),v(nx,nz,b),v(nx,nz,a),tone);
+ }
+}
 path([[-16,-7],[-8,-4],[-4,-4],[-4,3],[6,2],[14,2]],1.5);path([[0,-15],[0,-9],[-4,-4],[-4,3],[0,9],[4,15]],1.3);path([[-13,9],[-7,4],[-4,3],[7,-5],[15,-10]],1.1);
 for(const t of trees){if(Math.hypot(t.x-SCENIC_SITES.sanctuary.x,t.z-SCENIC_SITES.sanctuary.z)>8)tree(t.x,t.z,t.s);}for(const flower of wildflora)wildflower(flower);windmill(-27,-18,state.t);villageFestival();for(const [x,z,k] of city){house(x,z,1,k);cottageDetails(x,z,1,k)}hall(0,-1);cottageDetails(0,-1,1.85,2);
 // The worked spaces have identifiable props and readable boundaries.
