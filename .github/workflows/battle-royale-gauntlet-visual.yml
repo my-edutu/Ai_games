@@ -6,7 +6,7 @@ on:
       - 'gauntlet/battle-royale-*'
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: battle-visual-${{ github.ref }}
@@ -26,6 +26,27 @@ jobs:
         run: npm ci --no-audit --no-fund
       - name: Compile game simulations
         run: npm run build
+      - name: Vendor pinned CC0 humanoid and original license
+        run: |
+          if [ ! -f public/ai-battle-royale/models/quaternius-hero.glb ]; then
+            node scripts/import-battle-cc0-character.cjs
+          else
+            echo "Verified humanoid already in repository"
+          fi
+      - name: Preserve licensed GLB in Gauntlet development branch
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add public/ai-battle-royale/models/
+          if git diff --cached --quiet; then
+            echo "No new assets to commit"
+          else
+            git commit -m "asset(battle): preserve pinned original CC0 skinned humanoid"
+            git fetch origin "$GITHUB_REF_NAME"
+            git rebase "origin/$GITHUB_REF_NAME"
+            git push origin "HEAD:$GITHUB_REF_NAME"
+          fi
+
       - name: Install capture Chromium
         run: npx playwright install --with-deps chromium
       - name: Focused 3D broadcast screenshot and failure review
