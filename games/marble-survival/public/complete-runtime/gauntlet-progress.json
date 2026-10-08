@@ -1,8 +1,8 @@
 {
   "schema": 1,
-  "iteration": "Loop 8 · authoritative spring-launch survival",
+  "iteration": "Loop 9 · official champion 3D ceremony",
   "lastUpdated": "2026-10-08",
-  "criticTarget": "Run the targeted Marble test suite and inspect actual jump-bumper gameplay: marble must visibly rise, retain identity-label alignment, and collide in 3D without ghost hits. Then review blind A/B against the commercial references.",
+  "criticTarget": "Critic must inspect actual running champion screenshot: compare arena spectacle and marble optics against Marble It Up! Ultra; reject if crown eclipses the marble, hides standings, or looks like cardboard.",
   "comparisonStatus": "NOT YET VERIFIED · 3D contacts and spring launches committed; GitHub Actions Chromium screenshots and blind A/B outcome remain pending.",
   "goals": [
     {
@@ -79,9 +79,19 @@
       "name": "Launch spectacle from real gameplay",
       "detail": "Sanitized marble-launched events drive broadcast ticker, shader-model markers, electric particles and spatial audio",
       "status": "implemented"
+    },
+    {
+      "name": "Authority-backed 3D champion ceremony",
+      "detail": "Gold display pedestal, orbiting particles and an airborne crown around the legitimate winning marble",
+      "status": "implemented"
     }
   ],
   "history": [
+    {
+      "title": "Loop 9 — Champion ceremony",
+      "note": "Rendered a golden, quality-scaled 3D orbital crown and victory stand around the official server-appointed champion only at tournament-result/intermission. No client-side winner overrides.",
+      "proof": "Committed source; actual browser screenshot inspection pending"
+    },
     {
       "title": "Loop 7 — Real 3D collisions",
       "note": "Upgraded marble-to-marble contact when heights differ from 2D projected distance to fixed-point volumetric sphere overlap and vertical impulse. Flying marbles no longer collide with low machinery below them. Added deterministic multi-tick physics tests.",
