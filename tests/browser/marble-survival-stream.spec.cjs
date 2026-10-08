@@ -175,6 +175,23 @@ test('Marble WebGL broadcast renders authoritative tournament and captures runti
   // Always capture the normal Balanced presentation before any CI-only fallback benchmark tier.
   await capture('01-race-start');
 
+  // Verify that the critic's file-based A/B tool operates on real captured pixels
+  // and never automatically turns a tie into a product-quality victory.
+  const criticPage = await page.context().newPage();
+  try {
+    await criticPage.goto(`${base}/gauntlet.html`, { waitUntil: 'domcontentloaded' });
+    const realCapture = path.join(artifacts, '01-race-start.png');
+    await criticPage.locator('#ab-candidate').setInputFiles(realCapture);
+    await criticPage.locator('#ab-reference').setInputFiles(realCapture);
+    await criticPage.locator('#ab-start').click();
+    await expect(criticPage.locator('#ab-voting')).toBeVisible();
+    await criticPage.locator('[data-ab-vote="tie"]').click();
+    await expect(criticPage.locator('#ab-result')).toContainText('No winner claimed.');
+    await criticPage.screenshot({ path: path.join(artifacts, '00b-blind-comparison-lab.png'), fullPage: true });
+  } finally {
+    await criticPage.close();
+  }
+
   const qualitySelect = page.locator('#quality-select');
   let benchmarkQuality = 'balanced';
   if (softwareRenderer) {
