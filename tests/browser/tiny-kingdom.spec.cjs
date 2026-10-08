@@ -473,8 +473,8 @@ test('Tiny Kingdom keeps the stone river bridge traversable and the sanctuary ph
   await page.locator('#pause').click();
   const result=await page.evaluate(()=>{
     const game=window.__tinyKingdom,sites=game.getScenicSites();
-    const path=game.route([-6,12],[-6,26]);
-    let safe=Boolean(path&&path.length),previous=[-6,12];
+    const path=game.route([-6,14.2],[-6,26]);
+    let safe=Boolean(path&&path.length),previous=[-6,14.2];
     for(const next of path||[]){
       const steps=Math.max(1,Math.ceil(Math.hypot(next[0]-previous[0],next[1]-previous[1])/.04));
       for(let j=1;j<=steps;j++){
