@@ -107,7 +107,7 @@
 <div class="feed panel"><h2>✦ Stories unfolding</h2><div id="feed"></div></div>
 <div class="hint">DRAG TO ORBIT · SCROLL TO ZOOM<br>EVERY CITIZEN HAS A NAME AND PURPOSE<br><a href="progress.html">VIEW GAUNTLET PROGRESS ↗</a></div>
 <aside class="atlas" aria-label="Interactive kingdom map"><div class="atlas-heading"><span>◈ THE KINGDOM ATLAS</span><b>LIVE</b></div><canvas id="atlas-map" width="460" height="330" aria-label="Map of homes and moving villagers; click to move camera"></canvas><div class="atlas-footer"><span id="atlas-season">✧ SEASONAL LANDSCAPE</span><em>↗ PAN CAMERA</em></div><div class="atlas-legend"><span><i style="background:#ffe29b"></i>Village</span><span><i style="background:#f9fce8"></i>People</span><span><i style="background:#7be5f9"></i>River</span></div></aside><div class="bottom"><button id="pause" class="btn active">Ⅱ Pause</button><span class="divider"></span><button class="btn active" id="speed1">1× Real time</button><button class="btn" id="speed4">4×</button><button class="btn" id="speed16">16×</button><span class="divider"></span><button class="btn" id="focus">◎ Follow villager</button><button class="btn" id="camera">◈ Cinematic</button><button class="btn" id="save">↓ Save world</button><button class="btn" id="restore">↑ Restore world</button><button class="btn" id="restart">↻ New world</button></div><div class="toast" id="toast"></div>
-<div class="world-tour" role="group" aria-label="Explore scenic village camera viewpoints"><small>EXPLORE<br>THE VALLEY</small><button class="tour-btn" data-scenic="valley" aria-pressed="true">✦ Village</button><button class="tour-btn" data-scenic="market" aria-pressed="false">◈ Market</button><button class="tour-btn" data-scenic="mill" aria-pressed="false">✧ Windmill</button><button class="tour-btn" data-scenic="orchard" aria-pressed="false">❀ Orchard</button><button class="tour-btn" data-scenic="river" aria-pressed="false">≈ Riverside</button></div>
+<div class="world-tour" role="group" aria-label="Explore scenic village camera viewpoints"><small>EXPLORE<br>THE VALLEY</small><button class="tour-btn" data-scenic="valley" aria-pressed="true">✦ Village</button><button class="tour-btn" data-scenic="market" aria-pressed="false">◈ Market</button><button class="tour-btn" data-scenic="mill" aria-pressed="false">✧ Windmill</button><button class="tour-btn" data-scenic="orchard" aria-pressed="false">❀ Orchard</button><button class="tour-btn" data-scenic="river" aria-pressed="false">≈ Riverside</button><button class="tour-btn" data-scenic="sanctuary" aria-pressed="false">♜ Sanctuary</button></div>
 <div class="realm-signal" id="realm-signal" role="status" aria-live="off"><i></i><b id="realm-title">A LIVING KINGDOM</b><span id="realm-detail">Every villager shapes the valley</span></div>
 <script>
 (() => {
@@ -410,6 +410,86 @@ function villageFestival(){
  festivalBanner(-8,12,0xd67e76,2);festivalBanner(10,11,0xe3c37c,3);
 }
 
+/* Gauntlet 020: river crossing and hill sanctuary. Entirely local original geometry,
+   deterministic without authoritative RNG, remote textures or asset downloads. */
+const SCENIC_SITES=Object.freeze({
+ bridge:Object.freeze({x:-6,z:18.1,kind:'river crossing'}),
+ sanctuary:Object.freeze({x:29,z:10,kind:'stone sanctuary'})
+});
+function landmarkStone(x,z){const variation=Math.sin(x*4.19+z*.71)*.035;return [.70+variation,.70+variation*.6,.65+variation*.4]}
+function landmarkStair(x,z,width=3){const y=terrain(x,z);for(let n=0;n<4;n++){let zz=z+n*.48;box(x,terrain(x,zz)-.10,zz,width,.20+n*.075,.43,landmarkStone(x,zz))}}
+function riverBridge(){
+ const x=SCENIC_SITES.bridge.x,center=SCENIC_SITES.bridge.z;
+ const yDeck=z=>terrain(x,z)+.35+.32*Math.max(0,1-Math.pow((z-center)/7,2));
+ const stone=rgb(0xb6b4a2),rail=rgb(0x6b5947),rivet=rgb(0xe7d49d);
+ // Sixteen terrain-following stone deck sections form a continuous raised foot crossing.
+ for(let j=0;j<20;j++){
+  const z0=12.5+j*.56,z1=z0+.56,y0=yDeck(z0),y1=yDeck(z1),shade=j%3?rgb(0xb4ad98):rgb(0xc9bfa8);
+  quad([x-2.12,y0,z0],[x-2.12,y1,z1],[x+2.12,y1,z1],[x+2.12,y0,z0],shade);
+  box(x,y0-.24,z0+.28,4.24,.19,.52,stone);
+  // Stone voussoirs and an actual open-water gap beneath the span.
+  if(j%4===0){box(x-2.19,y0-.35,z0+.23,.16,.47,.48,rgb(0x8e8d85));box(x+2.19,y0-.35,z0+.23,.16,.47,.48,rgb(0x8e8d85))}
+ }
+ for(const side of [-1,1]){
+   for(let n=0;n<=7;n++){const zz=12.5+n*1.6,yy=yDeck(zz);box(x+side*2.2,yy,zz,.27,.96,.27,stone);cone(x+side*2.2,yy+.94,zz,.27,.22,rivet,7)}
+   for(let n=0;n<7;n++){const zz=13.3+n*1.6,yy=yDeck(zz);box(x+side*2.2,yy+.43,zz,.13,.15,1.65,rail);box(x+side*2.2,yy+.80,zz,.15,.12,1.65,stone)}
+ }
+ // Bank approach paving, retaining stones, flower and banner columns.
+ for(const z of [10.2,25.8]){const yy=terrain(x,z);box(x,yy-.09,z,4.5,.13,3.4,rgb(0xaba58f));for(let side of [-1,1]){cylinder(x+side*2.5,yy,z,.38,.6,stone,8);cone(x+side*2.5,yy+.55,z,.38,.26,rgb(0xd0bc8f),7)}}
+ for(let j=0;j<9;j++){const zz=12.1+j*1.6;for(const side of [-1,1]){const xx=x+side*(3.2+.4*Math.sin(j));const yy=terrain(xx,zz);ellipsoid(xx,yy+.12,zz,.34,.19,.31,rgb(j%2?0x9b9f8a:0xc7b69a),7)}}
+}
+function pointedGlassWindow(x,y,z,width=0.7,height=1.55){
+ const lead=rgb(0x494f5b),glass=rgb(0x358b9c),glow=rgb(0x9cc7bf),outline=rgb(0xd9c6a2);
+ box(x,y,z,width+.24,height+.18,.12,outline);
+ box(x,y+.11,z+.075,width,height-.3,.065,glass);
+ tri([x-width*.52,y+height-.23,z+.12],[x+width*.52,y+height-.23,z+.12],[x,y+height+.22,z+.12],glow);
+ box(x,y+.10,z+.13,.055,height-.23,.06,lead);
+ for(let n=1;n<4;n++)box(x,y+n*height*.21,z+.13,width,.043,.065,lead);
+}
+function hillsideSanctuary(){
+ const x=SCENIC_SITES.sanctuary.x,z=SCENIC_SITES.sanctuary.z,y=terrain(x,z);
+ const wall=rgb(0xe7d7bc),stone=rgb(0xc4b699),trim=rgb(0x8b806c),roof=rgb(0x796b79),roofLite=rgb(0x9b8890),slate=rgb(0xb7b2a6);
+ // Raised compact sanctuary, nave + timber-framed porch + square western bell tower.
+ box(x,y-.40,z,7.6,.43,10.6,stone);
+ box(x,y,z,6.5,4.4,9.1,wall);
+ for(let side of [-1,1]){
+  const xx=x+side*3.25;
+  for(let k=0;k<4;k++){const zz=z-3.4+k*2.25;box(xx+side*.18,y-.1,zz,.60,3.3,.54,stone);box(xx+side*.22,y+3.0,zz,.66,.25,.66,trim)}
+  // Tall lancet windows, with narrow lead dividers and frames.
+  for(let k=0;k<3;k++){const zz=z-2.25+k*2.3;pointedGlassWindow(xx+side*.09,y+1.15,zz,.52,1.6)}
+ }
+ // Twin pitched roofs with individual staggered slate courses.
+ const h=y+4.36,top=y+6.2;
+ quad([x-3.7,h,z-4.86],[x,top,z-4.86],[x,top,z+4.86],[x-3.7,h,z+4.86],roof);
+ quad([x,top,z-4.86],[x+3.7,h,z-4.86],[x+3.7,h,z+4.86],[x,top,z+4.86],roof);
+ for(let side of [-1,1])for(let row=0;row<9;row++)for(let col=0;col<13;col++){
+  const t=row/9,tt=(row+1)/9,z0=z-4.75+col*.735,z1=z0+.72;
+  const xx=x+side*(3.66-3.66*t),xy=x+side*(3.66-3.66*tt);
+  const a=h+(top-h)*t+.025,b=h+(top-h)*tt+.025;
+  const tint=(row+col)%4===0?roofLite:roof;
+  quad([xx,a,z0],[xy,b,z0],[xy,b,z1],[xx,a,z1],tint);
+ }
+ for(let side of [-1,1])box(x+side*3.62,y+4.15,z,.14,.13,10.1,trim);
+ // Bell tower: framed stone stages, four windows and a tall copper-tinted spire.
+ const tz=z-4.75,ty=y+.15;
+ box(x,ty,tz,3.15,8.0,3.15,stone);
+ for(const h0 of [2.1,4.65,7.15])box(x,ty+h0,tz,3.48,.22,3.48,trim);
+ for(const side of [-1,1]){box(x+side*1.60,ty+5.25,tz,.17,1.45,2.65,wall);box(x,ty+5.35,tz+side*1.62,.83,1.25,.13,rgb(0x435c60))}
+ box(x,ty+6.3,tz+1.72,1.0,1.45,.11,rgb(0x42545a));
+ cone(x,ty+8.15,tz,2.3,3.0,rgb(0x647f7c),12);
+ cylinder(x,ty+11.0,tz,.045,.8,rgb(0xe1ca8d),8);
+ box(x,ty+11.64,tz,.88,.09,.12,rgb(0xe1ca8d));
+ box(x,ty+11.64,tz,.10,.70,.12,rgb(0xe1ca8d));
+ // Doorway, real physical stone steps and courtyard street furniture.
+ const front=z-5.28;
+ box(x,y,front,.95,2.55,.16,rgb(0x644c40));
+ for(let side of [-1,1]){box(x+side*.57,y,front,.16,2.6,.27,stone);ellipsoid(x+side*1.9,y+.45,z-5.8,.55,.48,.54,rgb(0x4f815f),9)}
+ landmarkStair(x,front-1.6,3.1);
+ for(let i=0;i<9;i++){const zz=front-3.2-i*.55;box(x,terrain(x,zz)-.065,zz,3.0,.075,.43,i%2?stone:slate)}
+ return 1;
+}
+function scenicSiteMetrics(){return {count:Object.keys(SCENIC_SITES).length,riverBridge:{...SCENIC_SITES.bridge,walkable:walkable(-6,20)},sanctuary:{...SCENIC_SITES.sanctuary,walkable:walkable(29,10)}}}
+
 function windmill(x,z,time){const y=terrain(x,z),stone=rgb(0xf0d5ac),roof=rgb(0x966347),cloth=rgb(0xf7e7c5);shadow(x+.55,z+.55,2.2,1.4);cylinder(x,y,z,1.48,5.3,stone,12);cone(x,y+5.15,z,2.0,1.9,roof,12);box(x,y+.2,z+1.50,.72,1.65,.12,rgb(0x68483c));for(let j=0;j<3;j++){const yy=y+2.1+j*.90;box(x,yy,z+1.52,.46,.48,.1,rgb(0x406568))}const center=[x,y+4.25,z+1.68],span=2.35,theta=time*.11;for(let i=0;i<4;i++){const a=theta+i*Math.PI/2,c=Math.cos(a),u=Math.sin(a),nx=-u*.33,ny=c*.33;const pa=[center[0]+c*.50,center[1]+u*.50,center[2]+.02],pb=[center[0]+c*span,center[1]+u*span,center[2]+.02];box((pa[0]+pb[0])/2,(pa[1]+pb[1])/2,center[2],.08,.09,.09,rgb(0x916b52));quad([pa[0]+nx,pa[1]+ny,center[2]+.07],[pb[0]+nx,pb[1]+ny,center[2]+.07],[pb[0]-nx,pb[1]-ny,center[2]+.07],[pa[0]-nx,pa[1]-ny,center[2]+.07],cloth)}cylinder(x,y+4.25,z+1.71,.29,.25,rgb(0x654a35),10)}
 const names=['Alina','Rowan','Edric','Mira','Oren','Selene','Bram','Elowen','Tarin','Nora','Finn','Isolde','Lysa','Cador','Maeve','Oswin','Adela','Hugo','Idris','Rhea','Silas','Faye'];const jobs=['farmer','forester','builder','merchant','craftsperson','gatherer'];const colors=[0x8f6653,0x58788c,0x907048,0x65754a,0x8c6b7c,0x8d8c67].map(rgb);let state,people,stories=[],frozen=false,speed=1,follow=false,cinematic=false,timer=0,accumulator=0,selectedCitizen=0;const FIXED_STEP=1/30;
 function renderStories(){const feed=document.getElementById('feed');feed.replaceChildren();for(const e of stories.slice(0,4)){const item=document.createElement('div'),label=document.createElement('span');item.className='feeditem';label.textContent='Day '+e.day+' · Kingdom chronicle';item.append(label,document.createTextNode(e.text));feed.appendChild(item)}}
@@ -425,8 +505,9 @@ function walkable(x,z){
   if(Math.abs(x)<3.55&&Math.abs(z+1)<2.8)return false;
   if(Math.abs(x)<1.95&&Math.abs(z-5)<1.5)return false;
   if(Math.hypot(x+15,z-4)<1.1)return false;
+  if(Math.abs(x-SCENIC_SITES.sanctuary.x)<3.8&&Math.abs(z-SCENIC_SITES.sanctuary.z)<5.35)return false;
   const waterline=20+Math.sin(x*.13)*3;
-  if(Math.abs(z-waterline)<1.7&&Math.abs(x+17)>2.1&&Math.abs(x-10)>2.1)return false;
+  if(Math.abs(z-waterline)<1.7&&Math.abs(x+17)>2.1&&Math.abs(x-10)>2.1&&Math.abs(x-SCENIC_SITES.bridge.x)>1.65)return false;
   return true;
 }
 function navPoint(ix,iz){return [ix*NAV_SPACING,iz*NAV_SPACING]}
@@ -542,7 +623,7 @@ let yaw=.7,pitch=.88,zoom=43,focusPoint=[0,0],dragging=false,lastX,lastY,screenT
 button('pause',()=>{frozen=!frozen;document.getElementById('pause').textContent=frozen?'▶ Resume':'Ⅱ Pause'});for(let v of [1,4,16])button('speed'+v,()=>{speed=v;for(let n of [1,4,16])document.getElementById('speed'+n).classList.toggle('active',n===v)});button('focus',()=>{follow=!follow;document.getElementById('focus').classList.toggle('active',follow)});button('camera',()=>{cinematic=!cinematic;document.getElementById('camera').classList.toggle('active',cinematic)});button('restart',()=>{city.splice(12);start()});
 
 /* Player-controlled cinematic viewpoints; never affects authoritative state. */
-const scenicViews={valley:{focus:[0,0],zoom:43,yaw:.7,pitch:.88},market:{focus:[0,5],zoom:23,yaw:.52,pitch:.56},mill:{focus:[-27,-18],zoom:24,yaw:.66,pitch:.54},orchard:{focus:[-26,9],zoom:25,yaw:1.02,pitch:.63},river:{focus:[5,20],zoom:32,yaw:.84,pitch:.71}};
+const scenicViews={valley:{focus:[0,0],zoom:43,yaw:.7,pitch:.88},market:{focus:[0,5],zoom:23,yaw:.52,pitch:.56},mill:{focus:[-27,-18],zoom:24,yaw:.66,pitch:.54},orchard:{focus:[-26,9],zoom:25,yaw:1.02,pitch:.63},river:{focus:[-6,18.1],zoom:26,yaw:.84,pitch:.64},sanctuary:{focus:[29,10],zoom:27,yaw:.75,pitch:.48}};
 document.querySelectorAll('.tour-btn').forEach(button=>button.addEventListener('click',()=>{
  const next=scenicViews[button.dataset.scenic];if(!next)return;
  follow=false;cinematic=false;focusPoint=next.focus.slice();yaw=next.yaw;pitch=next.pitch;zoom=next.zoom;
@@ -615,13 +696,13 @@ data=terrainCache.slice();
 // A winding stream through the southern side.
 for(let x=-42;x<42;x+=2){let z=20+Math.sin(x*.13)*3;quad([x,terrain(x,z)-.03,z-1.6],[x,terrain(x,z)+.01,z+1.6],[x+2,terrain(x+2,z)+.01,z+1.6],[x+2,terrain(x+2,z)-.03,z-1.6],water)}
 path([[-16,-7],[-8,-4],[-4,-4],[-4,3],[6,2],[14,2]],1.5);path([[0,-15],[0,-9],[-4,-4],[-4,3],[0,9],[4,15]],1.3);path([[-13,9],[-7,4],[-4,3],[7,-5],[15,-10]],1.1);
-for(const t of trees)tree(t.x,t.z,t.s);for(const flower of wildflora)wildflower(flower);windmill(-27,-18,state.t);villageFestival();for(const [x,z,k] of city){house(x,z,1,k);cottageDetails(x,z,1,k)}hall(0,-1);cottageDetails(0,-1,1.85,2);
+for(const t of trees){if(Math.hypot(t.x-SCENIC_SITES.sanctuary.x,t.z-SCENIC_SITES.sanctuary.z)>8)tree(t.x,t.z,t.s);}for(const flower of wildflora)wildflower(flower);windmill(-27,-18,state.t);villageFestival();for(const [x,z,k] of city){house(x,z,1,k);cottageDetails(x,z,1,k)}hall(0,-1);cottageDetails(0,-1,1.85,2);
 // The worked spaces have identifiable props and readable boundaries.
 for(let i=0;i<4;i++)wheat(19+i*1.8,1);fenceLine(16,-2,6);fenceLine(16,4,6);fenceLine(16,-2,4,true);fenceLine(25,-2,4,true);
-market(0,5);well(-15,4);villageGarden(12,11);villageGarden(-17,-3);guildBanner(-2,3);guildBanner(5,-2);lantern(-5,-7,1.7);lantern(6,9,1.45);lantern(2,6,1.7);lantern(-14,6,1.45);for(let i=0;i<7;i++)stoneBoulder(-23+(i*1.8),5+Math.sin(i*3)*1.3,.65+(i%3)*.18);
+riverBridge();hillsideSanctuary();market(0,5);well(-15,4);villageGarden(12,11);villageGarden(-17,-3);guildBanner(-2,3);guildBanner(5,-2);lantern(-5,-7,1.7);lantern(6,9,1.45);lantern(2,6,1.7);lantern(-14,6,1.45);for(let i=0;i<7;i++)stoneBoulder(-23+(i*1.8),5+Math.sin(i*3)*1.3,.65+(i%3)*.18);
 for(let i=0;i<5;i++){let xx=-17+i*1.3,zz=-14+(i%2)*1.4;box(xx,terrain(xx,zz),zz,1,.45,.64,rgb(0x7d5d45))}
 for(const p of people)villager(p);weatherParticles(atmosphere);
 const elevation=Math.sin(pitch)*zoom,rad=Math.cos(pitch)*zoom,eye=[focusPoint[0]+Math.sin(yaw)*rad,elevation,focusPoint[1]+Math.cos(yaw)*rad];let m=mat4multiply(perspective(Math.PI/3.2,w/h,.1,190),lookAt(eye,[focusPoint[0],.25,focusPoint[1]],[0,1,0]));gl.uniformMatrix4fv(uniforms.viewProjection,false,m);gl.uniform3f(uniforms.fogColor,...atmosphere.fog);gl.uniform3f(uniforms.sunTint,...atmosphere.light);gl.uniform3f(uniforms.sunDirection,Math.cos(state.t/24*6.283),.3+atmosphere.daylight*.9,Math.sin(state.t/24*6.283));lastFrameTriangles=data.length/27;gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(data),gl.DYNAMIC_DRAW);gl.drawArrays(gl.TRIANGLES,0,data.length/9);if((frames++%14)===0){updateUI();drawAtlas();updateRealmSignal()}}
-requestAnimationFrame(render);window.__tinyKingdom={getState:()=>JSON.parse(JSON.stringify({state,people:people.map(({name,job,x,z,target})=>({name,job,x,z,target}))})),setSpeed:x=>{speed=x},step,reset:start,renderer:()=>canvas.getContext('webgl')?'webgl':'software',metrics:()=>({citizens:people.length,buildings:city.length+2,day:Math.floor(state.t/24)+1,food:state.food,wood:state.wood,gold:state.gold,relationships:people.filter(p=>p.friend).length}),route:(a,b)=>routeBetween(a[0],a[1],b[0],b[1]),walkable:(p)=>walkable(p[0],p[1]),getNavigation:()=>people.map(p=>({name:p.name,position:[p.x,p.z],target:p.target,remaining:p.path?.length||0,path:p.path,activity:p.activity,hunger:p.hunger,energy:p.energy})),exportSnapshot,restoreSnapshot,saveWorld,restoreWorld,climateAt,skyConditions,getCitizenProfiles:()=>cloneData(people.map(({name,job,trait,friend,bonds,energy,hunger,activity})=>({name,job,trait,friend,bonds,energy,hunger,activity}))),getSelectedCitizen:()=>people[selectedCitizen]?.name,routeCacheMetrics:()=>({entries:routeCache.size,hits:cacheHits,misses:cacheMisses}),getCamera:()=>({yaw,pitch,zoom,focus:focusPoint.slice(),follow,cinematic}),getTerrainHeight:(x,z)=>terrain(x,z),getWildfloraCount:()=>wildflora.length,getFestivalVisualStats:()=>({season:festivalSeason,cacheBuilds:festivalCacheBuilds,vertices:festivalGeometry?.length||0}),renderStats:()=>({terrainRebuilds,terrainCacheKey,terrainCacheTriangles,lastFrameTriangles}),setCamera:o=>{yaw=Number.isFinite(o.yaw)?o.yaw:yaw;pitch=Number.isFinite(o.pitch)?Math.max(.25,Math.min(1.45,o.pitch)):pitch;zoom=Number.isFinite(o.zoom)?Math.max(9,Math.min(85,o.zoom)):zoom;if(Array.isArray(o.focus)&&o.focus.length===2)focusPoint=o.focus.slice(0,2)}};
+requestAnimationFrame(render);window.__tinyKingdom={getState:()=>JSON.parse(JSON.stringify({state,people:people.map(({name,job,x,z,target})=>({name,job,x,z,target}))})),setSpeed:x=>{speed=x},step,reset:start,renderer:()=>canvas.getContext('webgl')?'webgl':'software',metrics:()=>({citizens:people.length,buildings:city.length+2,day:Math.floor(state.t/24)+1,food:state.food,wood:state.wood,gold:state.gold,relationships:people.filter(p=>p.friend).length}),route:(a,b)=>routeBetween(a[0],a[1],b[0],b[1]),walkable:(p)=>walkable(p[0],p[1]),getNavigation:()=>people.map(p=>({name:p.name,position:[p.x,p.z],target:p.target,remaining:p.path?.length||0,path:p.path,activity:p.activity,hunger:p.hunger,energy:p.energy})),exportSnapshot,restoreSnapshot,saveWorld,restoreWorld,climateAt,skyConditions,getCitizenProfiles:()=>cloneData(people.map(({name,job,trait,friend,bonds,energy,hunger,activity})=>({name,job,trait,friend,bonds,energy,hunger,activity}))),getSelectedCitizen:()=>people[selectedCitizen]?.name,routeCacheMetrics:()=>({entries:routeCache.size,hits:cacheHits,misses:cacheMisses}),getCamera:()=>({yaw,pitch,zoom,focus:focusPoint.slice(),follow,cinematic}),getTerrainHeight:(x,z)=>terrain(x,z),getWildfloraCount:()=>wildflora.length,getScenicSites:scenicSiteMetrics,getFestivalVisualStats:()=>({season:festivalSeason,cacheBuilds:festivalCacheBuilds,vertices:festivalGeometry?.length||0}),renderStats:()=>({terrainRebuilds,terrainCacheKey,terrainCacheTriangles,lastFrameTriangles}),setCamera:o=>{yaw=Number.isFinite(o.yaw)?o.yaw:yaw;pitch=Number.isFinite(o.pitch)?Math.max(.25,Math.min(1.45,o.pitch)):pitch;zoom=Number.isFinite(o.zoom)?Math.max(9,Math.min(85,o.zoom)):zoom;if(Array.isArray(o.focus)&&o.focus.length===2)focusPoint=o.focus.slice(0,2)}};
 })();
 </script></body></html>
