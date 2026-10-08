@@ -29,13 +29,14 @@ for(const [biome,floor] of [['foundry',0],['ruins',12],['clockwork',24],['storm'
 }
 test('capture guardian combat shot with visible guardian body',async({page})=>{
   await page.setViewportSize({width:1600,height:900});
-  await page.goto(base+'?seed=42&captureFloor=10',{waitUntil:'domcontentloaded'});
+  await page.goto(base+'?seed=42&captureFloor=10&captureGuardianPhase=telegraph',{waitUntil:'domcontentloaded'});
   await page.waitForFunction(()=>window.__TOWER_VOLUMETRIC_STATE__?.status==='live',null,{timeout:30000});
   const screenshot=await page.screenshot({path:path.join(artifacts,'guardian-encounter-1600x900.png'),fullPage:true});
   assertVisualMinimum(analyzePng(screenshot));
   const state=await page.evaluate(()=>({...window.__TOWER_VOLUMETRIC_STATE__}));
   expect(state.floor).toBeGreaterThanOrEqual(10);
   expect(state.guardianKills).toBeLessThanOrEqual(2);
+  expect(state.intent).toMatch(/DODGE|GUARDIAN/);
 });
 
 test('five biome screen captures have measurably different color palettes',()=>{
@@ -47,3 +48,15 @@ test('five biome screen captures have measurably different color palettes',()=>{
    expect(delta).toBeGreaterThan(3);
  }
 });
+
+for(const [name,floor] of [['stormcaller',20],['titan',30]]){
+  test('capture the '+name+' autonomous boss telegraph in original 3D armor',async({page})=>{
+    await page.setViewportSize({width:1600,height:900});
+    await page.goto(base+'?seed=42&captureFloor='+floor+'&captureGuardianPhase=telegraph',{waitUntil:'domcontentloaded'});
+    await page.waitForFunction(()=>window.__TOWER_VOLUMETRIC_STATE__?.assetStatus==='authored-asset-loaded',null,{timeout:30000});
+    const state=await page.evaluate(()=>({...window.__TOWER_VOLUMETRIC_STATE__}));
+    expect(state.floor).toBeGreaterThanOrEqual(floor);
+    const screenshot=await page.screenshot({path:path.join(artifacts,'guardian-'+name+'-1600x900.png'),fullPage:true});
+    assertVisualMinimum(analyzePng(screenshot));
+  });
+}
