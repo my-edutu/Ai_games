@@ -4,6 +4,7 @@
   const params=new URLSearchParams(location.search);
   const forced2d=params.get('visual')==='2d';
   const quality=params.get('quality')==='low'?'low':'high';
+  const materialsEnabled=params.get('materials')!=='off';
   const cameraPreference=params.get('camera')==='hero'?'hero'
     :params.get('camera')==='tactical'?'tactical':'broadcast';
   function selectCameraMode(snapshot){
@@ -167,7 +168,7 @@
     }
   }
   function requestSurfaceAtlas(){
-    if(surfaceAtlasRequested||typeof Image==='undefined')return;
+    if(!materialsEnabled||surfaceAtlasRequested||typeof Image==='undefined')return;
     surfaceAtlasRequested=true;
     const source=new Image();
     source.onload=()=>{
@@ -186,7 +187,7 @@
     attr=['pos','normal','tint'].map(name=>gl.getAttribLocation(program,name));
     uniform=['center','scale','uYaw','uPitch','uPerspective','uBiomeRow','uAtlasReady','uSurfaceStrength','uSurfaceAtlas'].map(name=>gl.getUniformLocation(program,name));
     staticBuffer=gl.createBuffer();dynamicBuffer=gl.createBuffer();
-    surfaceAtlasTexture=null;status.materialAtlas='fallback';
+    surfaceAtlasTexture=null;status.materialAtlas=materialsEnabled?'fallback':'disabled';
     // Sampler2D must always have a complete texture even while the SVG loads.
     if(typeof gl.createTexture==='function'){
       surfaceAtlasTexture=gl.createTexture();
