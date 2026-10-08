@@ -540,6 +540,9 @@ function renderHud(next) {
   qualifiedValue.textContent = String(next.round.qualified);
   qualificationValue.textContent = `${next.round.qualified}/${next.round.quota} locked · ${Math.max(0, next.round.quota - next.round.qualified)} spots open`;
   tickValue.textContent = String(next.tick);
+  shell.dataset.hudTick = String(next.tick);
+  shell.dataset.hudArena = String(next.arena.id);
+  shell.dataset.hudArchetype = String(next.arena.archetype);
   cameraValue.textContent = CAMERA_LABELS[directive.mode] || directive.mode;
   feedValue.textContent = next.lifecycle === 'quarantined' ? 'AUTHORITY STOPPED' : 'AUTHORITY LIVE';
 
