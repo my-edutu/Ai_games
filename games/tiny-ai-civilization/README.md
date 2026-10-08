@@ -46,6 +46,14 @@ See the new Gauntlet 006 section and actual captured screenshot in `public/tiny-
 - **Browser tests added:** seed-replay snapshots, corrupted-save atomicity, path-cache bounds and invalidation, navigation, and existing simulation tests. GitHub CI conclusion must be checked separately; the tests were not manually run on a GPU.
 - **Critic verdict:** **FAIL against Manor Lords**. Significant art, character rigging, texturing, vegetation, atmospheric rendering, depth/clipping, persistent storage endurance, provider independence, 24/7 uptime and independent fresh-context review are still missing. The worker tunnel remains disconnected.
 
+## Gauntlet 008 — Dynamic seasons and weather as simulated reality
+
+Added deterministic 36-day years with spring/summer/autumn/winter, reproducible daily rain/cloud/snow, and climate-adjusted farming yields. A new seasonal arrival story originates from actual calendar change, not scripted outcome. Original 3D vegetation, wheat and turf change palettes, and procedural bounded 3D weather particles plus moving sun/sky tint respond to world time. The WebGL shader now consumes runtime sun direction and ambient tone; the restricted Chromium environment continued to use a software projection fallback, so final GPU visuals remain unverified.
+
+**Inspected locally:** headless browser screenshots of rainy spring dawn and a winter night at day 28. The 27-day headless probe produced 16 villagers, 19 structures and 13 relationships. Two seeded 30-day runs (with snapshot restore) were byte-identical, and there were no page JavaScript errors. A 400-day local stress attempt timed out; neither performance nor Manor Lords visual parity passed.
+
+**Tests:** added Playwright checks for yearly season boundaries, temperature and crop multiplier, calendar/UI alignment and deterministic multi-season replay. GitHub CI conclusions are tracked separately. Critic result: FAIL; high-fidelity human models, textures, atmospheric art direction, verifiable GPU evidence, night lighting, roof overlap, and sustainable economy still require work.
+
 ## Gauntlet continuation
 
 Primary bar: official *Manor Lords* captured gameplay and screenshots, camera-matched with our game (https://www.hoodedhorse.com/games/manor-lords). Secondary: Foundation for autonomous labor behavior, The Universim for character emergence. Keep original assets; do not copy proprietary models or textures.
