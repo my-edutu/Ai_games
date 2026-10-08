@@ -631,7 +631,14 @@ function render(now) {
   if(!settledCamera || reducedMotion)smoothedLook.copy(target);
   else smoothedLook.lerp(target,Math.min(1,seconds*2));
   const scale=isCompact()?1.25:1;
-  const desired=new THREE.Vector3(smoothedLook.x+8.2*scale,12.2*scale,smoothedLook.z+10.7*scale);
+  // View controls only affect presentation; the autonomous AI never receives camera state.
+  const mode=window.__MAZE_CAMERA_MODE__;
+  const offset=mode==='follow'
+    ?new THREE.Vector3(4.7*scale,7.2*scale,7.5*scale)
+    :mode==='tactical'
+      ?new THREE.Vector3(.001,19.2*scale,5*scale)
+      :new THREE.Vector3(8.2*scale,12.2*scale,10.7*scale);
+  const desired=smoothedLook.clone().add(offset);
   if(!settledCamera || reducedMotion)camera.position.copy(desired);
   else camera.position.lerp(desired,Math.min(1,seconds*2.4));
   settledCamera=true;
