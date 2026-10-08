@@ -189,7 +189,7 @@ test('public-event 3D VFX are bounded, trigger from observed changes and dispose
   const state={
     runToken:'run-1',lifecycle:'exploration',currentCell:0,width:5,
     inventory:[],cells:[{cell:0,clue:false,visible:true}],
-    threats:[],exitCell:null
+    threats:[],exitCell:null,result:null
   };
   const guarded=new Proxy(state,{get(target,key){
     if(key in target)return target[key];
