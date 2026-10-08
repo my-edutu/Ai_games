@@ -316,6 +316,102 @@
       }
     }
   }
+
+  function terrainDetails(b,arena,theme){
+    // Pure, bounded coordinate variation: visual only, no new collision geometry.
+    const width=arena.width,height=arena.height;
+    const blocked=new Set(arena.obstacles);
+    const palette={
+      ember:{soil:[.18,.27,.24],growth:[.29,.44,.30],debris:[.44,.38,.31]},
+      neon:{soil:[.16,.23,.37],growth:[.30,.55,.64],debris:[.38,.41,.56]},
+      arctic:{soil:[.30,.43,.47],growth:[.52,.70,.72],debris:[.55,.60,.64]}
+    }[arena.theme]||{soil:[.18,.27,.24],growth:[.29,.44,.30],debris:[.44,.38,.31]};
+    for(let y=0;y<height;y++)for(let x=0;x<width;x++){
+      const cell=y*width+x;
+      if(blocked.has(cell))continue;
+      const seed=(x*73856093^y*19349663)>>>0;
+      const mark=seed%13;
+      if(mark<=2){
+        const cx=x+.17+((seed>>>3)%60)/100,cz=y+.13+((seed>>>6)%65)/100;
+        b.quad([cx-.19,.018,cz-.10],[cx-.11,.018,cz+.18],[cx+.20,.018,cz+.15],
+          [cx+.17,.018,cz-.12],[0,1,0],palette.soil);
+      }
+      if(mark===3||mark===4){
+        const cx=x+.30,cz=y+.40;
+        b.cone(cx,.11,cz,.15,.02,.22,palette.debris,6);
+        b.cone(cx+.21,.085,cz+.18,.11,.01,.17,theme.wall,5);
+      }
+      if(mark===5||mark===8){
+        // Tiny ankle-high grass or metallic scrub; never deceptive waist-high cover.
+        const cx=x+.32,cz=y+.52;
+        for(let i=0;i<3;i++){
+          const dx=(i-1)*.07,dz=(i%2)*.065;
+          b.limb([cx+dx,.018,cz+dz],[cx+dx*.68,.21+i*.021,cz+dz+.035],.017,palette.growth);
+        }
+      }
+      if(mark===11){
+        b.ring(x+.50,.015,y+.50,.24,.018,palette.debris,14);
+      }
+    }
+    // Traversable centerline treatment: surface markings only, no obstacles.
+    for(let x=0;x<width;x+=3){
+      b.box(x+.55,.018,height/2,.78,.012,.036,palette.debris);
+    }
+  }
+  function fortification(b,cell,width,theme,isCover){
+    const p=pos(cell,width),x=p.x,z=p.z;
+    if(isCover){
+      // Knee-high modular concrete cover, faceted silhouette and caution stripe.
+      b.box(x,.31,z,.79,.62,.80,theme.wall);
+      b.box(x,.62,z,.84,.060,.85,[.23,.30,.35]);
+      b.box(x,.67,z+.25,.68,.055,.055,theme.accent);
+      for(const dx of [-.30,.30]){
+        b.box(x+dx,.34,z+.416,.055,.50,.035,[.085,.14,.18]);
+      }
+    }else{
+      // Tall legitimate obstacle shown as an industrial barricade with a beveled parapet.
+      b.box(x,.65,z,.90,1.30,.90,theme.wall);
+      b.box(x,1.33,z,.97,.090,.98,[.32,.39,.45]);
+      b.box(x,1.44,z,.83,.11,.83,theme.accent);
+      const variant=cell%4;
+      if(variant===0||variant===2){
+        b.box(x-.18,.69,z+.463,.09,.97,.045,[.10,.17,.22]);
+        b.box(x+.18,.69,z+.463,.09,.97,.045,[.10,.17,.22]);
+        b.box(x,.91,z+.488,.42,.10,.035,[.52,.60,.61]);
+      }else{
+        b.box(x,.68,z+.47,.58,.45,.055,[.13,.22,.28]);
+        b.box(x,.69,z+.50,.47,.05,.060,theme.accent);
+      }
+      b.cylinder(x-.33,1.51,z-.34,.070,.13,[.14,.17,.20],6);
+      b.cylinder(x+.33,1.51,z+.34,.070,.13,[.14,.17,.20],6);
+    }
+  }
+  function atmosphericBackdrop(b,arena,theme){
+    // Distant sculptural silhouettes beyond the tactical board boundary.
+    // These are never passed into the game physics or agent observations.
+    const w=arena.width,h=arena.height;
+    const palette=arena.theme==='arctic'
+      ?[[.44,.62,.67],[.30,.51,.60],[.68,.80,.82]]
+      :arena.theme==='neon'
+      ?[[.22,.33,.51],[.19,.27,.45],[.35,.47,.61]]
+      :[[.32,.43,.39],[.23,.35,.34],[.42,.44,.37]];
+    for(let i=0;i<9;i++){
+      const x=i*(w+5)/8-2.5;
+      const z=-2.5-(i%3)*.3;
+      const height=1.4+(i*7%5)*.47;
+      b.cone(x,height*.46,z,.72,.09,height,palette[i%3],7);
+      if(i%2===0)b.cone(x+.42,height*.28,z+.5,.48,.07,height*.6,palette[(i+1)%3],6);
+    }
+    for(let i=0;i<8;i++){
+      const x=i*(w+4)/7-2;
+      const z=h+2.1+(i%3)*.25;
+      b.cone(x,.63,z,.62,.18,1.26,palette[i%3],6);
+    }
+    // Big distant transmission mast anchors the skyline.
+    b.cone(w*.5,1.5,-3.0,.23,.10,3.0,[.19,.27,.30],8);
+    b.cylinder(w*.5,3.10,-3.0,.42,.12,theme.accent,10);
+    b.cone(w*.5,3.55,-3.0,.14,0,.82,[.69,.89,.90],8);
+  }
   function world(b,s){
     const a=s.arena,w=a.width,h=a.height,t=colours[a.theme]||colours.ember;
     b.box(w/2,-.25,h/2,w,.5,h,t.wall);
@@ -326,14 +422,9 @@
       b.quad([x,.012,y],[x,.012,y+1],[x+1,.012,y+1],[x+1,.012,y],[0,1,0],tint);
       if((x*7+y*13)%41===0)b.box(x+.24,.065,y+.32,.11,.12,.13,t.accent);
     }
-    for(const cell of a.obstacles.slice(0,2048)){
-      const p=pos(cell,w);b.box(p.x,.72,p.z,.90,1.44,.90,t.wall);
-      b.box(p.x,1.48,p.z,.96,.08,.96,t.accent);
-    }
-    for(const cell of a.cover.slice(0,2048)){
-      const p=pos(cell,w);b.box(p.x,.32,p.z,.72,.64,.72,t.wall);
-      b.box(p.x,.67,p.z,.76,.07,.76,t.accent);
-    }
+    terrainDetails(b,a,t);
+    for(const cell of a.obstacles.slice(0,2048))fortification(b,cell,w,t,false);
+    for(const cell of a.cover.slice(0,2048))fortification(b,cell,w,t,true);
     for(const item of a.loot.slice(0,100)){
       const p=pos(item.cell,w);b.box(p.x,.09,p.z,.48,.18,.48,t.wall);
       b.box(p.x,.30,p.z,.24,.25,.24,[1,.80,.35]);
@@ -356,6 +447,7 @@
     b.box(-.1,.15,h/2,.2,.3,h+.35,t.wall);
     b.box(w+.1,.15,h/2,.2,.3,h+.35,t.wall);
     worldLandmarks(b,a,t);
+    atmosphericBackdrop(b,a,t);
     combatEffects(b,s,t);
     for(const [x,z] of [[0,0],[w,0],[0,h],[w,h]]){
       b.box(x,1.04,z,.35,2.08,.35,t.wall);
