@@ -350,6 +350,47 @@
   function drawBox(center,size,surface,viewProjection,cameraPosition,rotation=[0,0,0]){drawMesh(boxMesh,modelMatrix(center,rotation,[size[0]/2,size[1]/2,size[2]/2]),surface,viewProjection,cameraPosition);}
 
   function drawArenaDeck(arena,theme,viewProjection,cameraPosition){const width=arena.width*WORLD_SCALE,depth=arena.height*WORLD_SCALE;drawBox([0,-0.23,0],[width+0.9,0.42,depth+0.9],material(theme.trim,0.82,0.18),viewProjection,cameraPosition);drawBox([0,-0.015,0],[width,0.08,depth],material(theme.deck,0.73,0.08),viewProjection,cameraPosition);for(let lane=1;lane<4;lane+=1){const x=-width/2+width*lane/4;drawBox([x,0.035,0],[0.025,0.015,depth*0.96],material([0.68,0.69,0.67],0.95,0,0,0.24),viewProjection,cameraPosition);}}
+  // Broadcast stadium scenery is outside the authoritative collision world.
+  // It cannot create obstacles, alter seeds, move marbles, or decide results.
+  function drawStadiumScenery(arena,theme,viewProjection,cameraPosition,tick) {
+    const width=arena.width*WORLD_SCALE,depth=arena.height*WORLD_SCALE;
+    const quality=document.getElementById('quality-select')?.value||'balanced';
+    const tiers=quality==='low'?2:quality==='balanced'?3:5;
+    const frameMaterial=material(theme.trim,0.54,0.72);
+    const audienceMaterial=material([0.08,0.13,0.21],0.86,0.11);
+    const highlightMaterial=material(theme.accent,0.27,0.45,0.28);
+    for(const side of [-1,1]) {
+      for(let tier=0;tier<tiers;tier+=1) {
+        const rowWidth=0.38,x=side*(width/2+0.78+tier*0.48);
+        const height=0.19+tier*0.27;
+        const rowDepth=depth*0.88;
+        drawBox([x,height/2-0.14,0],[rowWidth,height+0.22,rowDepth],frameMaterial,viewProjection,cameraPosition);
+        drawBox([x,height+0.012,0],[rowWidth*0.95,0.045,rowDepth*0.98],audienceMaterial,viewProjection,cameraPosition);
+        drawBox([x,height+0.048,0],[0.042,0.042,rowDepth*0.96],highlightMaterial,viewProjection,cameraPosition);
+        if(quality==='high'||quality==='ultra') {
+          for(let segment=0;segment<8;segment+=1) {
+            const z=-rowDepth/2+(segment+0.5)*rowDepth/8;
+            const sparkle=(segment+tier)%3===0?theme.accent:theme.rail;
+            drawBox([x,height+0.09,z],[0.14,0.07,0.12],material(sparkle,0.45,0.22,0.16),viewProjection,cameraPosition);
+          }
+        }
+      }
+    }
+    // Low-cost emissive floodlight housings and gantry signage frame the arena.
+    for(const end of [-1,1]) {
+      const z=end*(depth/2+0.85);
+      const blink=0.09+0.07*Math.sin(tick*0.025+end*1.2);
+      drawBox([0,0.14,z],[width*0.96,0.26,0.38],frameMaterial,viewProjection,cameraPosition);
+      drawBox([0,0.30,z],[width*0.88,0.06,0.09],material(theme.accent,0.26,0.4,0.24+blink),viewProjection,cameraPosition);
+      for(const side of [-1,1]) {
+        const x=side*(width/2+0.34);
+        drawBox([x,1.13,z],[0.22,2.28,0.22],frameMaterial,viewProjection,cameraPosition);
+        drawBox([x,2.23,z],[0.45,0.19,0.41],material(theme.rail,0.19,0.79),viewProjection,cameraPosition);
+        drawBox([x,2.10,z-end*0.15],[0.29,0.045,0.14],material([0.78,0.88,1.0],0.12,0.17,0.68),viewProjection,cameraPosition);
+      }
+    }
+  }
+
   function drawGuardRails(arena,theme,viewProjection,cameraPosition){const width=arena.width*WORLD_SCALE,depth=arena.height*WORLD_SCALE,rail=material(theme.rail,0.28,0.84),post=material(theme.trim,0.46,0.62);drawBox([-width/2-0.12,0.42,0],[0.16,0.18,depth+0.5],rail,viewProjection,cameraPosition);drawBox([width/2+0.12,0.42,0],[0.16,0.18,depth+0.5],rail,viewProjection,cameraPosition);for(let z=-depth/2;z<=depth/2;z+=2){drawBox([-width/2-0.12,0.22,z],[0.24,0.55,0.13],post,viewProjection,cameraPosition);drawBox([width/2+0.12,0.22,z],[0.24,0.55,0.13],post,viewProjection,cameraPosition);}}
   function drawFinishGate(arena,theme,viewProjection,cameraPosition){const finish=toWorld(arena.width/2,arena.finishY,arena),halfWidth=arena.width*WORLD_SCALE/2,steel=material(theme.rail,0.32,0.82),accent=material(theme.accent,0.32,0.35,0.18);drawBox([-halfWidth+0.32,1.15,finish[2]],[0.22,2.3,0.22],steel,viewProjection,cameraPosition);drawBox([halfWidth-0.32,1.15,finish[2]],[0.22,2.3,0.22],steel,viewProjection,cameraPosition);drawBox([0,2.22,finish[2]],[arena.width*WORLD_SCALE-0.6,0.22,0.26],steel,viewProjection,cameraPosition);for(let index=0;index<24;index+=1){const cellWidth=arena.width*WORLD_SCALE/24,color=index%2===0?[0.92,0.91,0.86]:[0.055,0.055,0.06];drawBox([-halfWidth+cellWidth*(index+0.5),0.04,finish[2]],[cellWidth,0.04,0.24],material(color,0.84,0),viewProjection,cameraPosition);}drawBox([0,2.21,finish[2]-0.15],[3.6,0.08,0.08],accent,viewProjection,cameraPosition);}
   function drawHazardPit(hazard,arena,theme,viewProjection,cameraPosition){const origin=toWorld(hazard.x,hazard.y,arena),width=hazard.width*WORLD_SCALE,depth=hazard.height*WORLD_SCALE,center=[origin[0]+width/2,-0.005,origin[2]+depth/2];drawBox(center,[width,0.055,depth],material(theme.hazard,0.92,0.02,0.16),viewProjection,cameraPosition);const rim=material(theme.accent,0.44,0.34,0.08);drawBox([center[0],0.07,center[2]-depth/2],[width+0.12,0.12,0.08],rim,viewProjection,cameraPosition);drawBox([center[0],0.07,center[2]+depth/2],[width+0.12,0.12,0.08],rim,viewProjection,cameraPosition);}
@@ -383,7 +424,7 @@
   function spawnEffects(next){for(const event of next.events||[]){if(event.seq<=lastEventSeq)continue;lastEventSeq=Math.max(lastEventSeq,event.seq);if(!['marble-eliminated','shield-recovery','marble-qualified','tournament-champion'].includes(event.type))continue;const marbleId=Number(event.data?.marbleId??event.data?.championId),marble=next.marbles.find((candidate)=>candidate.id===marbleId);if(!marble)continue;const point=toWorld(marble.x,marble.y,next.arena),count=event.type==='tournament-champion'?28:event.type==='marble-eliminated'?16:10,color=event.type==='marble-eliminated'?[0.96,0.22,0.08]:event.type==='shield-recovery'?[0.34,0.78,1.0]:[1.0,0.72,0.20],elevation=(marble.elevation||0)*WORLD_SCALE;for(let index=0;index<count;index+=1){const unitA=deterministicUnit(event.seq*4099+index*193),unitB=deterministicUnit(event.seq*8191+index*389),angle=unitA*Math.PI*2,speed=0.7+unitB*1.7;effects.push({position:[point[0],elevation+0.30,point[2]],velocity:[Math.cos(angle)*speed,0.7+unitA*1.6,Math.sin(angle)*speed],color,age:0,lifetime:0.65+unitB*0.75});}}if(effects.length>160)effects.splice(0,effects.length-160);}
   function drawEffects(dt,viewProjection,cameraPosition){const quality=document.getElementById('quality-select')?.value||'balanced',cap=quality==='low'?24:quality==='balanced'?72:140;let drawn=0;for(const effect of effects){effect.age+=dt;if(effect.age>=effect.lifetime)continue;effect.velocity[1]-=2.7*dt;effect.position[0]+=effect.velocity[0]*dt;effect.position[1]+=effect.velocity[1]*dt;effect.position[2]+=effect.velocity[2]*dt;if(drawn<cap){const life=1-effect.age/effect.lifetime,size=0.035+life*0.045;drawMesh(sphereMesh,modelMatrix(effect.position,[0,0,0],[size,size,size]),material(effect.color,0.4,0.15,0.7,life),viewProjection,cameraPosition);drawn+=1;}}for(let index=effects.length-1;index>=0;index-=1)if(effects[index].age>=effects[index].lifetime)effects.splice(index,1);}
 
-  function drawScene(now,dt){if(!resize()||!snapshot)return;frameDrawCalls=0;frameTriangles=0;const arena=snapshot.arena,theme=THEMES[arena.archetype]||THEMES['seeding-sprint'];gl.clearColor(...theme.clear,1);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);const marbles=interpolatedMarbles(now),camera=smoothedCamera(snapshot,marbles),projection=perspective4(Math.PI*0.245,canvas.width/Math.max(1,canvas.height),0.08,120),view=lookAt4(camera.eye,camera.target),viewProjection=multiply4(projection,view),focusIds=new Set(snapshot.camera.directive?.focusIds||[]);drawArenaDeck(arena,theme,viewProjection,camera.eye);drawGuardRails(arena,theme,viewProjection,camera.eye);for(const ramp of arena.ramps||[])drawRampStructure(ramp,arena,theme,viewProjection,camera.eye);for(const hazard of arena.hazards)drawHazardPit(hazard,arena,theme,viewProjection,camera.eye);for(const obstacle of arena.obstacles)drawObstacle(obstacle,arena,theme,viewProjection,camera.eye);for(const bumper of arena.bumpers)drawBumper(bumper,arena,theme,viewProjection,camera.eye);for(const sweeper of arena.sweepers)drawSweeperMachine(sweeper,arena,theme,snapshot.tick,viewProjection,camera.eye);drawFinishGate(arena,theme,viewProjection,camera.eye);const quality=document.getElementById('quality-select')?.value||'balanced';if(quality!=='low')for(const marble of marbles)if(marble.status!=='eliminated')drawContactShadow(marble,arena,viewProjection,camera.eye);for(const marble of marbles)drawMarble(marble,arena,viewProjection,camera.eye,now/1000,focusIds.has(marble.id));drawEffects(dt,viewProjection,camera.eye);}
+  function drawScene(now,dt){if(!resize()||!snapshot)return;frameDrawCalls=0;frameTriangles=0;const arena=snapshot.arena,theme=THEMES[arena.archetype]||THEMES['seeding-sprint'];gl.clearColor(...theme.clear,1);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);const marbles=interpolatedMarbles(now),camera=smoothedCamera(snapshot,marbles),projection=perspective4(Math.PI*0.245,canvas.width/Math.max(1,canvas.height),0.08,120),view=lookAt4(camera.eye,camera.target),viewProjection=multiply4(projection,view),focusIds=new Set(snapshot.camera.directive?.focusIds||[]);drawArenaDeck(arena,theme,viewProjection,camera.eye);drawStadiumScenery(arena,theme,viewProjection,camera.eye,snapshot.tick);drawGuardRails(arena,theme,viewProjection,camera.eye);for(const ramp of arena.ramps||[])drawRampStructure(ramp,arena,theme,viewProjection,camera.eye);for(const hazard of arena.hazards)drawHazardPit(hazard,arena,theme,viewProjection,camera.eye);for(const obstacle of arena.obstacles)drawObstacle(obstacle,arena,theme,viewProjection,camera.eye);for(const bumper of arena.bumpers)drawBumper(bumper,arena,theme,viewProjection,camera.eye);for(const sweeper of arena.sweepers)drawSweeperMachine(sweeper,arena,theme,snapshot.tick,viewProjection,camera.eye);drawFinishGate(arena,theme,viewProjection,camera.eye);const quality=document.getElementById('quality-select')?.value||'balanced';if(quality!=='low')for(const marble of marbles)if(marble.status!=='eliminated')drawContactShadow(marble,arena,viewProjection,camera.eye);for(const marble of marbles)drawMarble(marble,arena,viewProjection,camera.eye,now/1000,focusIds.has(marble.id));drawEffects(dt,viewProjection,camera.eye);}
   function acceptSnapshot(next){if(!next||next.version!==1||!next.arena||!Array.isArray(next.marbles)||!next.camera?.directive)return;const discontinuity=snapshot&&(next.tick<snapshot.tick||next.arena.id!==snapshot.arena.id);previousSnapshot=discontinuity?null:snapshot;snapshot=next;snapshotReceivedAt=performance.now();if(discontinuity){rollingById.clear();cameraState=null;cameraArenaId=null;effects.length=0;}spawnEffects(next);shell.classList.add('webgl-ready');shell.dataset.renderer='webgl2';}
   async function refreshSnapshot(){if(requestInFlight||pollingStopped||document.hidden)return;requestInFlight=true;try{const response=await fetch('/api/snapshot',{cache:'no-store'});if(!response.ok)throw new Error(`snapshot ${response.status}`);acceptSnapshot(await response.json());}catch{if(!snapshot)shell.classList.remove('webgl-ready');}finally{requestInFlight=false;}}
   let previousFrameAt=performance.now();
