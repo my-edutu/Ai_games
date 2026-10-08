@@ -1,3 +1,5 @@
+// IIFE scope prevents global lexical declarations colliding with the main 2D application.
+(()=>{
 'use strict';
 // Presentation-only interface. This consumes public render snapshots, never the hidden maze.
 const modes=new Set(['cinema','follow','tactical']);
@@ -124,3 +126,5 @@ function updateRendererStatus(now){
   updateRendererStatus(now);
   requestAnimationFrame(loop);
 })(0);
+
+})();
