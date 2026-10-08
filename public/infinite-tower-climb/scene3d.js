@@ -11,6 +11,7 @@ import {buildBiomeLandmarks,animateBiomeLandmarks} from '/tower/landmarks-v5.js'
 import {createTowerEffectsDirector} from '/tower/effects-v6.js';
 import {mountTowerAtmosphere,animateTowerAtmosphere} from '/tower/atmosphere-v8.js';
 import {buildTowerGeology} from '/tower/geology-v9.js';
+import {selectVisibleLedge,applyContactPose} from '/tower/grip-v10.js';
 
 const SCALE = 1 / 1000;
 const palettes=VISUAL_PALETTES;
@@ -373,6 +374,12 @@ export function mountTower3D({host,getFrame,reducedMotion=false,highContrast=fal
     }
     glow.position.set(visualX,visualY+14,36);
     poseTowerCharacter(player,{time:now*.001,state:s.player.state,vx:s.player.vx,vy:s.player.vy,mode:s.intent.mode,reducedMotion});
+    const grip=inspectCharacters?null:selectVisibleLedge(s,{
+      actorX:visualX,actorY:visualY,scale:collisionScale,facing:s.player.facing
+    });
+    const visuallyGripping=applyContactPose(player,grip,{reducedMotion});
+    perf.visibleHandhold=visuallyGripping?grip.platformId:null;
+    perf.armIKActive=visuallyGripping;
     for(const [id,g] of dynamic){
       if(id.startsWith('enemy:')&&g.visible)poseTowerCharacter(g,{time:now*.001+id.length,vx:1800,state:'standing',telegraph:g.userData.telegraph,reducedMotion});
       else if(id.startsWith('pickup:')){g.rotation.y=reducedMotion?0:now*.0016;g.position.y+=reducedMotion?0:Math.sin(now*.002+g.position.x)*dt*.8}
