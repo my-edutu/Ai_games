@@ -11,7 +11,8 @@ const scripts=[
   'public/infinite-tower-climb/character3d.js',
   'public/infinite-tower-climb/environment3d.js',
   'public/infinite-tower-climb/biome-v4.js',
-  'public/infinite-tower-climb/hazards-v4.js'
+  'public/infinite-tower-climb/hazards-v4.js',
+  'public/infinite-tower-climb/landmarks-v5.js'
 ];
 const source=scripts.map(read);
 const publicApp=read('public/infinite-tower-climb/app.js');
@@ -38,6 +39,8 @@ assert(host.includes("'/tower/visual-v4.css'"),'UI assets must be served locally
 assert(visualCss.includes('.world-label')&&visualCss.includes('.arena-wrap'),'World and stage layout must be styled');
 assert(source.some(x=>x.includes('buildPainterlyTowerBackdrop')),'3D environment must use scenic world composition');
 assert(source.some(x=>x.includes('createTowerHazard3D')),'Visually identifiable gameplay hazards required');
+assert(source.some(x=>x.includes('buildBiomeLandmarks')),'Five individually composed biome landmarks must be mounted');
+assert(source.some(x=>x.includes('PerspectiveCamera')),'Perspective depth camera must be active');
 assert(publicApp.includes("params.get('renderer')!=='2d'"),'2D explicit fallback missing');
 assert(publicApp.includes("body.dataset.towerRenderer='2d-fallback'"),'2D automatic fallback missing');
 assert(publicApp.includes('(v-s.chunkBaseY)/1000'),'2D floor coordinates must be relative');
