@@ -271,3 +271,29 @@ test('Tiny Kingdom population has unique names and stable saved relationships af
   expect(evidence.stable).toBe(true);
   expect(evidence.hasSecondGeneration).toBe(true);
 });
+
+test('Tiny Kingdom reuses 3,362 terrain triangles until the seasonal material changes', async ({page}) => {
+  const faults=[];
+  page.on('pageerror',error=>faults.push(error.message));
+  await page.setContent(html);
+  await page.waitForFunction(()=>window.__tinyKingdom?.renderStats().terrainRebuilds>0);
+  await page.locator('#pause').click();
+  const initial=await page.evaluate(()=>window.__tinyKingdom.renderStats());
+  expect(initial.terrainCacheTriangles).toBe(3362);
+  expect(initial.lastFrameTriangles).toBeGreaterThan(initial.terrainCacheTriangles);
+  await page.waitForTimeout(120);
+  const repeated=await page.evaluate(()=>window.__tinyKingdom.renderStats());
+  expect(repeated.terrainRebuilds).toBe(initial.terrainRebuilds);
+  await page.evaluate(()=>{
+    const g=window.__tinyKingdom;
+    for(let i=0;i<9*24*30;i++)g.step(1/30);
+  });
+  await page.waitForFunction(()=>window.__tinyKingdom.renderStats().terrainCacheKey.startsWith('1:'));
+  const summer=await page.evaluate(()=>window.__tinyKingdom.renderStats());
+  expect(summer.terrainRebuilds).toBe(initial.terrainRebuilds+1);
+  expect(summer.terrainCacheTriangles).toBe(3362);
+  await page.evaluate(()=>window.__tinyKingdom.reset());
+  await page.waitForFunction(()=>window.__tinyKingdom.renderStats().terrainCacheKey.startsWith('0:'));
+  expect(await page.evaluate(()=>window.__tinyKingdom.renderStats().terrainRebuilds)).toBe(summer.terrainRebuilds+1);
+  expect(faults).toEqual([]);
+});
