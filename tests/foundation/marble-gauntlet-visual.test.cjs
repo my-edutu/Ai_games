@@ -90,3 +90,67 @@ test('high-contrast accessibility, mobile composition and clean-stream controls 
   ]) assert.ok(styles.includes(marker), 'missing accessibility or visual-design guard: ' + marker);
   assert.ok(!styles.includes('display:none!important} .arena-card'), 'clean view must preserve actual arena canvas');
 });
+
+
+test('actual pit geometry has openings, an inset reactor floor and illuminated safety rims', () => {
+  const html=index;
+  const geo=read('arena-geometry.js');
+  assert.ok(html.includes('src="/arena-geometry.js"'));
+  assert.ok(html.indexOf('src="/arena-geometry.js"') < html.indexOf('src="/renderer3d.js"'));
+  for (const evidence of [
+    'function deckLayout(arena)',
+    "h.kind === 'pit'",
+    'openingArea',
+    'solidArea',
+    'worldArea',
+  ]) assert.ok(geo.includes(evidence), 'missing deterministic cutout layout: ' + evidence);
+  for (const evidence of [
+    'window.MarbleArenaGeometry?.deckLayout(arena)',
+    'const pieces=cutouts?.tiles',
+    'function drawHazardPit',
+    'const warning=material(theme.accent',
+    'shell.dataset.cutoutCount',
+    'shell.dataset.deckTileCount',
+  ]) assert.ok(renderer.includes(evidence), 'missing physical pit evidence: ' + evidence);
+});
+
+test('multi-light marble optics and altitude-dependent shadows are rendered from real state', () => {
+  for(const evidence of [
+    'uniform vec3 uStageAccent',
+    'vec3 reflected = reflect(-viewDir, normal)',
+    'float softbox',
+    'float edgeStrip',
+    'float skyBounce',
+    'const airborne=Math.max(0,(marble.elevation||0)*WORLD_SCALE-support)',
+    'const opacity=0.35/(1+airborne*0.56)',
+  ]) assert.ok(renderer.includes(evidence), 'missing character material evidence: ' + evidence);
+});
+
+test('competitor spotlight and cinema toggles remain accessible read-only spectator actions', () => {
+  for(const evidence of [
+    'id="spotlight-card"',
+    'id="view-toggle"',
+    'id="spotlight-name"',
+    'id="spotlight-progress"',
+    'id="spotlight-close"',
+    'data-view="broadcast"',
+  ]) assert.ok(index.includes(evidence), 'missing inspectable spectator UI: '+evidence);
+  for(const evidence of [
+    'function renderSpotlight(next)',
+    'shell.dataset.view',
+    'selectedSpotlightId',
+    "marble.progressPermille / 10",
+    "Math.hypot(marble.velocityX || 0, marble.velocityY || 0)",
+    "selectedSpotlightId === marbleId ? null : marbleId",
+  ]) assert.ok(app.includes(evidence), 'inspector not driven by real server snapshot: '+evidence);
+  for(const evidence of [
+    '.spotlight-card',
+    '.spotlight-orb',
+    '.inspect-marble',
+    '[data-view="cinematic"]',
+    'pointer-events:auto',
+  ]) assert.ok(styles.includes(evidence), 'missing cinematic inspector styling: '+evidence);
+  for(const forbidden of ['fetch("/api/operator"', "fetch('/api/operator'"]) {
+    assert.equal(app.includes(forbidden),false, 'inspecting must never invoke operator commands');
+  }
+});
