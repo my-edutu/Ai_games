@@ -20,8 +20,11 @@ export function createVolumetricCore(seedInput=0x00a3f914){
     const x=i===0?0:clamp(prev.x+(random()-.5)*11,-13,13);
     const z=i===0?0:clamp(prev.z+(random()-.5)*10,-11,11);
     const y=i===0?0:prev.y+3.05+(random()-.5)*.28;
-    const width=i===0?11:6.8+random()*1.8,depth=i===0?11:6.3+random()*1.8,height=.95;
-    platforms.push({i,x,y,z,baseX:x,baseZ:z,width,depth,height,kind:i>0&&i%7===0?'moving':'solid',
+    const kind=i===0?'solid':i%10===0?'guardian':i%17===0?'crumbling':
+      i%13===0?'narrow':i%11===0?'wind':i%7===0?'moving':i%19===0?'spring':'solid';
+    const width=i===0?11:kind==='narrow'?5.4+random():6.8+random()*1.8;
+    const depth=i===0?11:kind==='narrow'?5.2+random():6.3+random()*1.8,height=.95;
+    platforms.push({i,x,y,z,baseX:x,baseZ:z,width,depth,height,kind,structuralIntegrity:kind==='crumbling'?1:2,
       guardian:i>0&&i%10===0,guardianHealth:i>0&&i%10===0?4:0,
       pickup:i>0&&i%6===0,collected:false});
     highestGenerated=i;
@@ -60,6 +63,10 @@ export function createVolumetricCore(seedInput=0x00a3f914){
     }
     const current=platforms.find(p=>p.i===player.at);
     const guardian=current&&current.guardianHealth>0&&player.grounded?current:null;
+    if(current?.kind==='crumbling'&&player.grounded&&tick%40===0){
+      current.structuralIntegrity--;
+      if(current.structuralIntegrity<=0)emit('crumble','The stones gave way beneath the climber.');
+    }
     const target=guardian||platforms.find(p=>p.i===player.at+1);
     // Predict the landing surface at the DOWNWARD intersection time, not its current position.
     // This makes our decisions sensitive to moving targets rather than blind reactive pursuit.
@@ -78,6 +85,10 @@ export function createVolumetricCore(seedInput=0x00a3f914){
     intent=guardian?'NEUTRALIZE GUARDIAN':target?.kind==='moving'?'PREDICT MOVING LANDING':target?'SECURE NEXT PLATFORM':'SEARCHING FOR ROUTE';
     const desiredX=dist>.15?dx/dist*speed:0,desiredZ=dist>.15?dz/dist*speed:0;
     player.vx+=clamp(desiredX-player.vx,-config.acceleration*dt,config.acceleration*dt);
+    if(current?.kind==='wind'&&!player.grounded){
+      player.vx+=Math.sin(tick*.068+current.i)*2.8*dt;
+      intent='STABILIZE AGAINST CROSSWIND';
+    }
     player.vz+=clamp(desiredZ-player.vz,-config.acceleration*dt,config.acceleration*dt);
     if(guardian){
       mode='GUARDIAN ENGAGED';
@@ -91,7 +102,11 @@ export function createVolumetricCore(seedInput=0x00a3f914){
       const nextDelta=target?landingHeight(target)-(landingHeight(platforms.find(p=>p.i===player.at)||platforms[0])):0;
       const leap=jumpImpulse();
       const reach=speedLimit()*(leap+Math.sqrt(Math.max(0,leap*leap-2*config.gravity*Math.max(0,nextDelta))))/config.gravity;
-      if(input||dist<=reach*.9){player.vy=leap;player.grounded=false;mode='JUMPING';intent='EXECUTE VERTICAL LEAP';}
+      if(input||dist<=reach*.9){
+        player.vy=leap+(current?.kind==='spring'?1.3:0);
+        player.grounded=false;mode='JUMPING';
+        intent=current?.kind==='spring'?'EXPLOIT UPDRAFT':'EXECUTE VERTICAL LEAP';
+      }
       else{intent='POSITION FOR SAFE JUMP';}
     }
     const oldFoot=player.y-config.halfHeight;
@@ -103,7 +118,7 @@ export function createVolumetricCore(seedInput=0x00a3f914){
     if(player.vy<=0){
       for(let i=platforms.length-1;i>=0;i--){
         const p=platforms[i],top=landingHeight(p);
-        if(oldFoot>=top-.08&&newFoot<=top&&Math.abs(player.x-p.x)<p.width/2+.4&&Math.abs(player.z-p.z)<p.depth/2+.4){
+        if(p.structuralIntegrity>0&&oldFoot>=top-.08&&newFoot<=top&&Math.abs(player.x-p.x)<p.width/2+.4&&Math.abs(player.z-p.z)<p.depth/2+.4){
           player.y=top+config.halfHeight;player.vy=0;player.grounded=true;
           if(p.i>player.at){
             const before=player.checkpoint,oldTheme=currentTheme();
@@ -112,6 +127,9 @@ export function createVolumetricCore(seedInput=0x00a3f914){
             if(p.i>0&&p.i%8===0){upgradesTaken++;const chosen=chooseUpgrade(p.i);emit('upgrade','The AI selected '+chosen+' at floor '+p.i+'.',{chosen,build:{...build}});}
             if(p.i%5===0)emit('checkpoint','Checkpoint secured on floor '+p.i+'.',{checkpoint:player.checkpoint});
             if(p.kind==='moving')emit('moving-platform','The AI intercepted a moving platform at floor '+p.i+'.');
+            if(p.kind==='narrow')emit('precision-landing','Narrow ledge secured at floor '+p.i+'.');
+            if(p.kind==='spring')emit('updraft','The climber found a powerful jump pad.');
+            if(p.kind==='crumbling')emit('unstable-ground','Unstable masonry: must move before it collapses.');
             if(currentTheme()!==oldTheme)emit('biome','Entering the '+currentTheme()+' sector.',{theme:currentTheme()});
           }
           if(p.pickup&&!p.collected){p.collected=true;player.health=Math.min(5,player.health+1);score+=100+build.salvage*20;
