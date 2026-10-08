@@ -547,3 +547,31 @@ test('Tiny Kingdom material channels allocate exactly ten floats per vertex with
   expect(b.auth).toBe(before);
   expect(errors).toEqual([]);
 });
+
+test('Tiny Kingdom static architectural meshes are cached across camera updates and rebuilt each season', async ({page}) => {
+  const errors=[];
+  page.on('pageerror',e=>errors.push(e.message));
+  await page.setContent(html);
+  await page.waitForFunction(()=>Boolean(window.__tinyKingdom));
+  await page.waitForFunction(()=>window.__tinyKingdom.renderStats().scenicMeshRebuilds>=1);
+  await page.locator('#pause').click();
+  const first=await page.evaluate(()=>({
+    scene:window.__tinyKingdom.renderStats(),
+    state:JSON.stringify(window.__tinyKingdom.exportSnapshot())
+  }));
+  await page.locator('[data-scenic="market"]').click();
+  await page.waitForTimeout(180);
+  const second=await page.evaluate(()=>({
+    scene:window.__tinyKingdom.renderStats(),
+    state:JSON.stringify(window.__tinyKingdom.exportSnapshot())
+  }));
+  expect(first.scene.scenicMeshTriangles).toBeGreaterThan(10000);
+  expect(second.scene.scenicMeshRebuilds).toBe(first.scene.scenicMeshRebuilds);
+  expect(second.state).toBe(first.state);
+  await page.evaluate(()=>{const game=window.__tinyKingdom;for(let i=0;i<9*24*30;i++)game.step(1/30)});
+  await page.waitForFunction(previous=>window.__tinyKingdom.renderStats().scenicMeshRebuilds>previous,first.scene.scenicMeshRebuilds);
+  const third=await page.evaluate(()=>window.__tinyKingdom.renderStats());
+  expect(third.scenicMeshKey).not.toBe(first.scene.scenicMeshKey);
+  expect(third.scenicMeshRebuilds).toBeGreaterThan(first.scene.scenicMeshRebuilds);
+  expect(errors).toEqual([]);
+});
