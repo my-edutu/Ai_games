@@ -6,6 +6,7 @@ import { drawTacticalMap } from './tactical-map.js';
 import { decorateActor } from './actor-art.js';
 import { decorateSetpieces } from './world-setpieces.js';
 import { clearCamera } from './camera-rig.js';
+import { decorateTacticalWorld } from './world-overlays.js';
 
 const canvas = document.getElementById('scene');
 const hud = document.getElementById('hud');
@@ -447,6 +448,7 @@ function drawObjects(m,t){
       }
     }
   }
+  decorateTacticalWorld(m,game,t,cameraFocusX,cameraFocusZ);
   drawAtmosphere(m,t);
 }
 function rebuildStatic(force=false){

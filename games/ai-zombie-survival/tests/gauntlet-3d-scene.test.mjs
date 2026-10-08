@@ -5,6 +5,7 @@ import { decorateBuilding, decorateWorld } from '../web/scene-art.js';
 import { decorateActor } from '../web/actor-art.js';
 import { decorateSetpieces } from '../web/world-setpieces.js';
 import { clearCamera } from '../web/camera-rig.js';
+import { decorateTacticalWorld } from '../web/world-overlays.js';
 
 class GeometryAudit {
   constructor(){this.calls=0;this.colors=new Set();this.byKind=new Map();}
@@ -106,4 +107,17 @@ test('third-person camera avoids opaque architecture without touching game state
   assert.ok(camera[2]>2,'Camera should preserve character framing and not collapse into target');
   assert.deepEqual(clearCamera(focus,eye,[]),eye,'Open view must preserve intended framing');
   assert.deepEqual(clearCamera(focus,eye,[{...buildings[0],roofVisible:false}]),eye,'Cutaways should not obstruct view');
+});
+
+test('world-space objectives, threatened survivors and rescue signals remain read-only and bounded',()=>{
+  const g=createGame({seed:312,zombieCount:180});
+  g.survivors[0].health=27;g.survivors[0].infection=58;
+  g.barricades[0].hp=g.barricades[0].maxHp*.2;
+  const before=JSON.stringify(g);
+  const m=new GeometryAudit();
+  decorateTacticalWorld(m,g,4,0,0);
+  assert.ok(m.calls>20&&m.calls<600,'markers should be visible yet bounded');
+  assert.ok(m.colors.has('#ff6d78'),'crisis needs a vivid marker');
+  assert.ok(m.colors.has('#ffe397')||m.colors.has('#55ffcf')||m.colors.has('#77d7fc'));
+  assert.equal(JSON.stringify(g),before,'World-space UI is presentation-only');
 });
