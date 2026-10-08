@@ -239,3 +239,23 @@ test('real embedded GLB supplies complete humanoid skeleton and its CC0 license'
   assert.match(manifest,/Quaternius/);
   assert.match(manifest,/wayfinder-rig\.glb/);
 });
+
+test('Quaternius ghost includes a skeletal rig and eight real CC0 animation clips',async()=>{
+  const file=path.join(root,'public','ai-maze-escape','models','hollow-sentinel-ghost.glb');
+  const buffer=await fs.readFile(file);
+  assert.equal(buffer.subarray(0,4).toString('ascii'),'glTF');
+  assert.equal(buffer.readUInt32LE(4),2);
+  assert.equal(buffer.readUInt32LE(8),buffer.length);
+  const jsonSize=buffer.readUInt32LE(12);
+  const model=JSON.parse(buffer.toString('utf8',20,20+jsonSize).trimEnd());
+  assert.ok(model.skins.length>=1);
+  assert.ok(model.nodes.length>=30);
+  const names=model.animations.map(animation=>animation.name);
+  for(const required of ['Flying_Idle','Fast_Flying','HitReact','Death']){
+    assert.ok(names.includes(required),'missing live AI monster clip: '+required);
+  }
+  assert.ok(names.length>=8);
+  const manifest=await fs.readFile(path.join(root,'games','ai-maze-escape','ASSETS.md'),'utf8');
+  assert.match(manifest,/Hollow Sentinel ghost/);
+  assert.match(manifest,/CC0/);
+});
