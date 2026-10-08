@@ -19,6 +19,8 @@
       const renderer=frame?.contentWindow?.BattleArena3D?.status;
       pick('renderer').textContent=renderer?.mode||'Loading';
       pick('framecost').textContent=Number.isFinite(renderer?.p95SubmitMs)&&renderer.frames>0?renderer.p95SubmitMs+' ms':'Pending';
+      pick('fx-active').textContent=Number.isInteger(renderer?.activeEffects)?String(renderer.activeEffects):'—';
+      pick('mesh-rebuilds').textContent=Number.isInteger(renderer?.sceneBuilds)?String(renderer.sceneBuilds):'—';
       list('history',progress.completed,item=>item);
       list('gaps',progress.gaps,item=>item);
       pick('updated').textContent='Updated: '+progress.updated;
