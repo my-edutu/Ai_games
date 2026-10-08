@@ -516,7 +516,7 @@
   function spectatorCloseup(snapshot,area){
     // Second camera pass views the SAME public geometry: no synthetic battles,
     // no hidden outcome changes, no second simulation.
-    if(area.width<720||area.height<450||snapshot.scene==='recovery')return;
+    if(area.width<950||area.height<450||snapshot.scene==='recovery')return;
     const recent=snapshot.recentEvents.slice(-8).reverse()
       .find(event=>event.importance>=3&&(event.targetId||event.actorId));
     const id=recent?.targetId||recent?.actorId||snapshot.focus?.id;
