@@ -12,7 +12,7 @@
   let renderer;
   try { renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false }); }
   catch (error) { console.warn('WebGL unavailable', error); canvas.remove(); return; }
-  const [{createClimber},{createTowerEnvironment},{createTowerEntities}]=await Promise.all([import('/tower/character3d.js'),import('/tower/environment3d.js'),import('/tower/entities3d.js')]);
+  const [{createClimber},{createTowerEnvironment},{createTowerEntities},{loadClimberAsset}]=await Promise.all([import('/tower/character3d.js'),import('/tower/environment3d.js'),import('/tower/entities3d.js'),import('/tower/asset3d.js')]);
   const scene = new THREE.Scene();
   scene.background = new THREE.Color('#10172a');
   scene.fog = new THREE.FogExp2('#10172a', 0.013);
@@ -42,12 +42,17 @@
   let runSignature='';
   const clock = new THREE.Clock();
   const climber=createClimber(THREE); scene.add(climber.root);
+  let importedClimber=null,previousFrameTime=performance.now();
   let lastClimberPosition = null;
   const groundLight=new THREE.PointLight(0xffaa55,30,130,1.8);scene.add(groundLight);
   const themeColors = {foundry:0xffaa55,ice:0x70d8ff,verdant:0x6ae5a4,void:0xaa72ff,storm:0x92c5ff};
   let themeKey = '', frameCount = 0, lastRenderWidth = 0, lastRenderHeight = 0;
   const metrics = {frames:0,frameMs:0,actors:0,renderer:'webgl',status:'starting'};
   window.__TOWER_3D_METRICS__ = metrics;
+  void loadClimberAsset(THREE).then(result=>{
+    metrics.assetStatus=result.status;
+    if(result.replacement){importedClimber=result.replacement;scene.add(importedClimber.root);climber.root.visible=false;}
+  }).catch(error=>{metrics.assetStatus='asset-load-error';metrics.assetError=String(error);});
   let previousChecksum = '', lastState = null, scenePhase='normal';
   const debug=new URLSearchParams(location.search).has('debug3d');
   let diagnostics=null;
@@ -135,6 +140,12 @@
     size();
     const elapsed=clock.getElapsedTime();
     climber.animate(elapsed,document.body.dataset.reducedMotion==='true');
+    if(importedClimber){
+      const time=performance.now();importedClimber.animate((time-previousFrameTime)/1000,climber.pose);
+      importedClimber.root.position.copy(climber.root.position);
+      importedClimber.root.scale.copy(climber.root.scale);
+    }
+    previousFrameTime=performance.now();
     architecture.animate(elapsed,document.body.dataset.reducedMotion==='true');
     if (lastState) {
       const playerX=Number(lastState.player?.x||0)/1000-Number(lastState.worldWidth||0)/2000;
