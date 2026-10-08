@@ -137,6 +137,21 @@
       "independentCritic": "Pending fresh-context visual A/B; subagent service disconnected. Prior browser screenshot used to identify repetitive corridors, obstructed/tiny hero, dull colors and blank background.",
       "largestKnownGap": "Characters are original sculpted procedural models, not studio-authored PBR assets, and quality versus The Talos Principle 2 and Little Nightmares III remains unverified. Latest head has not passed Chromium screenshots or long-run GPU measurements.",
       "visualBarMet": false
+    },
+    {
+      "number": 9,
+      "label": "Material depth, architectural identity and genuine 3D asset tests",
+      "status": "Code committed; browser screenshot, production FPS and blinded reference critique pending",
+      "built": [
+        "Added biome-specific wall sculptures: hanging vines, solar reliefs, enchanted inlays and ritual spikes",
+        "Applied relief bump response to real stone floors, block walls and metallic trims",
+        "Implemented browserless Three.js geometry tests against all five original environment themes, character pivot meshes and atmospheric motion",
+        "Added dedicated GitHub Actions step for geometry/character/atmosphere tests before Chromium capture",
+        "Added hero-first camera framing and near-wall cutaways while preserving autonomous AI authority"
+      ],
+      "independentCritic": "Earlier real screenshot critique identified a tiny obscured hero, repetitive brickwork and near-black terrain. The independent latest-pixel critic has not run. Fresh-context subagents unavailable.",
+      "largestKnownGap": "Reference-level visual and animation quality are still not achieved. Need actual Chromium captures of the latest 3D world, systematic blind A/B inspection, licensed PBR texture authoring and measured extended GPU frame rates.",
+      "visualBarMet": false
     }
   ],
   "milestones": [
@@ -199,6 +214,14 @@
     {
       "label": "Audience theater view with real UI controls",
       "status": "implemented; browser test queued"
+    },
+    {
+      "label": "Distinct biome wall engravings and physically lit stone relief",
+      "status": "implemented; browser screenshots pending"
+    },
+    {
+      "label": "GPU-independent real Three.js artwork and animation smoke tests",
+      "status": "implemented in CI; execution pending"
     }
   ],
   "updatedAt": "2026-10-08",
