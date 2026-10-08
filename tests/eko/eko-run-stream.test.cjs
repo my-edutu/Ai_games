@@ -43,6 +43,11 @@ test('serves actual Three.js rendering, browser HUD and a verifiable Gauntlet pa
     ['/eko/character-craft.js', 'createTayoActor'],
     ['/eko/static-batch.js', 'batchDistrictGeometry'],
     ['/eko/material-craft.js', 'createEkoSurfaceKit'],
+    ['/eko/theme.css', 'city HUD'],
+    ['/eko/world-vibrance.js', 'composeStreetVibrance'],
+    ['/eko/atmosphere.js', 'createCityAtmosphere'],
+    ['/eko/gamefeel.js', 'createEkoGameFeel'],
+    ['/eko/soundscape.js', 'createEkoSoundscape'],
     ['/vendor/three.module.js', 'THREE'], ['/eko/progress', 'Gauntlet progress board'],
     ['/eko/gauntlet.json', 'iterations']
   ]) {
