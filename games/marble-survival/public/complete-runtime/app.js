@@ -12,6 +12,19 @@ const remainingValue = document.getElementById('remaining-value');
 const qualifiedValue = document.getElementById('qualified-value');
 const qualificationValue = document.getElementById('qualification-value');
 const tickValue = document.getElementById('tick-value');
+const qualificationMeter = document.getElementById('qualification-meter');
+const qualificationMeterFill = document.getElementById('qualification-meter-fill');
+const arenaBiomeTitle = document.getElementById('arena-biome-title');
+const arenaBiomeSubtitle = document.getElementById('arena-biome-subtitle');
+const arenaStageNumber = document.getElementById('arena-stage-number');
+const arenaThreat = document.getElementById('arena-threat');
+const BIOME_BROADCAST = Object.freeze({
+  'seeding-sprint': Object.freeze({ title: 'AURORA SPEEDWAY', subtitle: 'Neon horizons. Thirty-two contenders. One survivor.' }),
+  'gate-gauntlet': Object.freeze({ title: 'NEON IRONWORKS', subtitle: 'Industrial sky gates and electric springboards.' }),
+  'hazard-circuit': Object.freeze({ title: 'INFERNO CIRCUIT', subtitle: 'Molten reactors. One mistake changes everything.' }),
+  'final-four': Object.freeze({ title: 'SKYLINE SHOWDOWN', subtitle: 'An orbital arena. Four competitors. No margin.' }),
+  championship: Object.freeze({ title: 'CROWN OF THE COSMOS', subtitle: 'The final race beneath the golden observatory.' }),
+});
 const cameraValue = document.getElementById('camera-value');
 const feedValue = document.getElementById('feed-value');
 const leaderboard = document.getElementById('leaderboard');
@@ -539,6 +552,25 @@ function renderHud(next) {
   remainingValue.textContent = String(next.round.remaining);
   qualifiedValue.textContent = String(next.round.qualified);
   qualificationValue.textContent = `${next.round.qualified}/${next.round.quota} locked · ${Math.max(0, next.round.quota - next.round.qualified)} spots open`;
+  const qualificationPercent = Math.round(Math.min(1, next.round.qualified / Math.max(1, next.round.quota)) * 100);
+  if (qualificationMeter && qualificationMeterFill) {
+    qualificationMeter.setAttribute('aria-valuenow', String(qualificationPercent));
+    qualificationMeterFill.style.width = qualificationPercent + '%';
+  }
+  // Actual authority arena selection owns scene copy and palette selection.
+  const biome = BIOME_BROADCAST[next.arena.archetype] || BIOME_BROADCAST['seeding-sprint'];
+  shell.dataset.biome = next.arena.archetype;
+  if (arenaBiomeTitle) arenaBiomeTitle.textContent = biome.title;
+  if (arenaBiomeSubtitle) arenaBiomeSubtitle.textContent = biome.subtitle;
+  if (arenaStageNumber) arenaStageNumber.textContent = String(next.round.number).padStart(2, '0');
+  if (arenaThreat) {
+    const threatened = next.marbles.filter(marble => marble.status === 'threatened' || marble.status === 'recovering').length;
+    arenaThreat.textContent = next.lifecycle === 'tournament-result'
+      ? 'THE CHAMPION IS CROWNED'
+      : threatened > 0 ? `DANGER / ${threatened} COMPETITOR${threatened === 1 ? '' : 'S'} AT RISK`
+      : next.round.remaining <= 4 ? 'FINAL FOUR / HIGH PRESSURE'
+      : 'RACE CONTROL / LIVE';
+  }
   tickValue.textContent = String(next.tick);
   shell.dataset.hudTick = String(next.tick);
   shell.dataset.hudArena = String(next.arena.id);
