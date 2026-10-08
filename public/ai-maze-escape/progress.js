@@ -77,6 +77,10 @@ async function sampleRuntime(){
       ?'RIGGED • '+model.bones+' BONES'
       :model?.status==='loading'?'LOADING REAL 3D ASSET'
       :model?.status==='fallback'?'PROCEDURAL FALLBACK':'AWAITING GPU';
+    const monster=child?.__MAZE_3D_MONSTER__;
+    byId('ghost-rig').textContent=monster?.status==='loaded'
+      ?'LIVE • '+monster.clips.length+' CLIPS / '+monster.bones+' BONES'
+      :monster?.status==='fallback'?'PROCEDURAL FALLBACK':'WAITING';
     byId('scene-grade').textContent=metrics?.active
       ?String(metrics.cinematicCue||'EXPLORING').toUpperCase()+' • '+String(metrics.qualityMode||'ADAPTIVE').toUpperCase()
       :'TACTICAL VIEW';
