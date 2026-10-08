@@ -50,6 +50,7 @@ async function render(){
     const article=node('article',undefined,'critic-card');
     article.append(node('strong',entry.reviewer+' / '+entry.benchmark+' / '+entry.score+'/10'));
     article.append(node('p','SINGLE BIGGEST GAP: '+entry.biggestGap));
+    if(entry.verdict)article.append(node('p','BLIND A/B: '+(entry.oursWon===null?'TIE':entry.oursWon?'Our game selected':'Reference selected')));
     article.append(node('small',fmt(entry.createdAt)+' · '+(entry.independent?'Independence declared':'Independence unverified')
       +' · '+(entry.blind?'Blind review declared':'NOT blind')));
     area.append(article);

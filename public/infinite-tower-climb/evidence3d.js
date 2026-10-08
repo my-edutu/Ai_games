@@ -51,7 +51,11 @@ export async function addTowerCritique(entry){
     createdAt:now,benchmark:String(entry.benchmark||'Jusant'),reviewer:name,
     blind:entry.blind===true,independent:entry.independent===true,
     score,biggestGap:gap.slice(0,900),nextAction:String(entry.nextAction||'').slice(0,900),
-    snapshotId:String(entry.snapshotId||''),approved:entry.approved===true};
+    snapshotId:String(entry.snapshotId||''),approved:entry.approved===true,
+    verdict:['a','b','tie'].includes(entry.verdict)?entry.verdict:null,
+    oursWon:typeof entry.oursWon==='boolean'?entry.oursWon:null,
+    gameplayChecked:entry.gameplayChecked===true,
+    referenceUrl:String(entry.referenceUrl||'').slice(0,300)};
   await transact('critiques','readwrite',store=>store.put(evidence));
   return evidence;
 }

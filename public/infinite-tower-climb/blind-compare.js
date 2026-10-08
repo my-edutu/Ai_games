@@ -23,7 +23,6 @@ $('ours').addEventListener('change',ready);
 $('benchmark').addEventListener('change',()=>{ready();$('blind-stage').hidden=true;locked=false;});
 $('benchmark-file').addEventListener('change',ready);
 $('begin').addEventListener('click',async()=>{
- if(locked)return;
  const chosen=images.find(x=>x.id===$('ours').value);
  if(!chosen){message('A real WebGL screenshot must be selected.');return;}
  const file=$('benchmark-file').files?.[0],remote=externalURL();
@@ -32,7 +31,9 @@ $('begin').addEventListener('click',async()=>{
  referenceURL=file?makeURL(file):remote;
  const myLeft=Boolean(crypto.getRandomValues(new Uint8Array(1))[0]&1);
  sideA=myLeft?'ours':'benchmark';reference={name:$('benchmark').value,fromFile:Boolean(file)};
- const a=$('frame-a'),b=$('frame-b');a.src=myLeft?oursURL:referenceURL;b.src=myLeft?referenceURL:oursURL;
+ const a=$('frame-a'),b=$('frame-b');
+ a.parentElement.querySelector('span').textContent='FRAME A';b.parentElement.querySelector('span').textContent='FRAME B';
+ a.src=myLeft?oursURL:referenceURL;b.src=myLeft?referenceURL:oursURL;
  for(const el of [a,b]){el.onload=null;el.onerror=null;}
  a.onerror=()=>{message('One image failed to load. The blind round cannot be recorded until both real images are visible.');$('submit').disabled=true;};
  b.onerror=a.onerror;
