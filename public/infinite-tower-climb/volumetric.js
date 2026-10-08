@@ -26,7 +26,8 @@
   let importedClimber=null;
   void loadClimberAsset(THREE).then(result=>{
     window.__TOWER_VOLUMETRIC_STATE__.assetStatus=result.status;
-    if(result.replacement){importedClimber=result.replacement;scene.add(importedClimber.root);climber.root.visible=false;}
+    if(result.replacement){importedClimber=result.replacement;scene.add(importedClimber.root);climber.root.visible=false;
+      window.__TOWER_VOLUMETRIC_STATE__.assetClips=result.replacement.clips;}
   }).catch(error=>{window.__TOWER_VOLUMETRIC_STATE__.assetStatus='load-error';console.warn('Optional climber asset unavailable',error)});
   const world=new THREE.Group();scene.add(world);
   const params=new URLSearchParams(location.search);
