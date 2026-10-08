@@ -310,12 +310,12 @@ export function makeWorldCraft(THREE) {
         fragments++;
       }
     }
-    // Distant sculpted set dressing is outside the entire public maze grid.
-    // This constructs only fictional skyline art; never a true room, path, exit or enemy.
-    const originX=(snapshot.width-1)*grid*.5;
-    const originZ=(snapshot.height-1)*grid*.5;
-    const outerX=snapshot.width*grid*.55+5;
-    const outerZ=snapshot.height*grid*.55+5;
+    // Visible scenic horizon follows the PUBLIC explorer position, not hidden maze
+    // topology. Previous full-map bounds placed scenery too far away to render.
+    // These non-interactive distant ruins are deliberately NOT gameplay passages.
+    const anchor=point(snapshot.currentCell,snapshot.width);
+    const originX=anchor.x,originZ=anchor.z;
+    const outerX=grid*6.35,outerZ=grid*5.9;
     let skyline=0;
     for(let i=0;i<18;i++){
       const angle=(i/18)*Math.PI*2;
@@ -333,6 +333,19 @@ export function makeWorldCraft(THREE) {
           [x,h+.75,z],[.63,1.45,.63]);
       }
       skyline++;
+    }
+    const offsetDist=Math.max(10,grid*4.5);
+    for(let i=0;i<8;i++){
+      // Colossal but distant scenic arches; no physical gameplay collision.
+      const a=Math.PI*.8+(i/7)*Math.PI*1.02;
+      const x=originX+Math.cos(a)*offsetDist;
+      const z=originZ+Math.sin(a)*offsetDist;
+      const height=2.6+noise(i,43,22)*2;
+      queue(g.prism,m.carvedRuin,[x,height*.45,z],[.36,height,.36]);
+      queue(g.slab,m.goldInlay,[x,height+.01,z],[.71,.12,.71]);
+      if(i%2===0){
+        queue(g.spire,m[p.crystal],[x,height+.41,z],[.31,.83,.31]);
+      }
     }
     world.userData.artStats={clusters,beacons,glyphs,fragments,monumentalProps,ambientFlares,skyline,junctions,biome:theme};
   }
