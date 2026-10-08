@@ -220,3 +220,40 @@ body[data-battle-renderer="2d-fallback"] [data-testid="battle-canvas"],
 body[data-battle-renderer="forced-2d"] [data-testid="battle-canvas"]{
   opacity:1;
 }
+
+/* Gauntlet Ultra: locally bundled Three.js with genuine CC0 skinned humans.
+   Default production still uses the battle-tested WebGL2 engine until QA. */
+body[data-ux-revision="3"] .battle-three-canvas{
+  position:absolute;inset:0;z-index:1;
+  width:100%;height:100%;pointer-events:none;
+}
+body[data-battle-renderer="three-ultra"] [data-testid="battle-canvas"],
+body[data-battle-renderer="three-ultra"] .battle-webgl3d,
+body[data-battle-renderer="three-ultra"] .battle-3d-nameplates{
+  opacity:0;visibility:hidden;
+}
+body[data-ux-revision="3"] .battle-three-nameplates{
+  position:absolute;inset:0;z-index:3;
+  pointer-events:none;overflow:hidden;
+}
+body[data-ux-revision="3"] .battle-three-nameplate{
+  position:absolute;transform:translate(-50%,-100%);
+  border:1px solid rgba(92,239,255,.80);
+  border-radius:7px;background:rgba(10,23,54,.89);
+  color:#eaffff;padding:5px 9px;font-weight:950;
+  font-size:10px;letter-spacing:.06em;
+  text-shadow:0 1px 2px rgba(0,0,0,.7);
+  box-shadow:0 6px 12px rgba(1,4,17,.38);
+  white-space:nowrap;
+}
+body[data-ux-revision="3"] .battle-three-nameplate[data-focus="true"]{
+  background:#d7ff73;color:#0b213c;
+  border-color:#fbffd9;text-shadow:none;
+  box-shadow:0 0 17px rgba(200,255,102,.46);
+}
+body.clean-feed .battle-three-nameplates{
+  display:none;
+}
+@media(max-width:900px){
+  body[data-ux-revision="3"] .battle-three-nameplates{display:none}
+}

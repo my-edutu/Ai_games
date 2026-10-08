@@ -218,7 +218,7 @@ function positionCamera(frame){
     yy+2.13,p.z+Math.cos(best.yaw)*distance);
   if(!state.frames)camera.position.copy(eye);
   else camera.position.lerp(eye,.17);
-  tracked.lerp(target,state.frames?.24:1);
+  tracked.lerp(target,state.frames ? .24 : 1);
   camera.lookAt(tracked);
   wideCamera.position.set(a.width*.91,Math.max(a.width,a.height)*1.12,a.height*.93);
   wideCamera.lookAt(a.width/2,0,a.height/2);
@@ -246,7 +246,7 @@ function updateLabels(frame){
   nametagLayer.replaceChildren(...fragments);
 }
 function displayInset(){
-  const w=renderer.domElement.width,h=renderer.domElement.height;
+  const w=stage.clientWidth,h=stage.clientHeight;
   const fw=Math.round(w*.27),fh=Math.round(h*.27),
     fx=Math.round(w*.705),fy=Math.round(h*.65);
   renderer.setScissorTest(true);
