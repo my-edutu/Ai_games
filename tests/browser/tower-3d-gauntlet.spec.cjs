@@ -84,6 +84,20 @@ test('2D fallback projects floor-relative game entities after ascending',async({
   await page.screenshot({path:path.join(artifacts,'gauntlet-2d-higher-floor.png'),fullPage:true});
 });
 
+test('a critic can record the largest remaining visual gap without making a false AAA claim',async({page})=>{
+  await page.goto(base+'/tower/gauntlet');
+  await expect(page.getByRole('heading',{name:'Jusant quality gate'})).toBeVisible();
+  const reference=page.getByRole('link',{name:/INSPECT OFFICIAL JUSANT/});
+  await expect(reference).toHaveAttribute('href','https://dont-nod.com/en/games/jusant/');
+  await page.locator('[name="environment"]').fill('4');
+  await page.locator('#critic-gap').fill('Architectural silhouettes still repeat too obviously; diversify the near, mid, and far layers in comparable reference-camera captures.');
+  await page.getByRole('button',{name:'SAVE LOCAL REVIEW'}).click();
+  await expect(page.locator('#review-state')).toContainText('saved');
+  await page.reload();
+  await expect(page.locator('#critic-gap')).toContainText('Architectural silhouettes');
+  await expect(page.locator('[name="environment"]')).toHaveValue('4');
+});
+
 test('3D module unavailable degrades safely to the existing 2D scene',async({page})=>{
   await page.route('**/tower/scene3d.js',route=>route.fulfill({status:503,body:'Module unavailable'}));
   await page.goto(base+'/tower');
