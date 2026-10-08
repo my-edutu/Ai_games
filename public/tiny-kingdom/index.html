@@ -114,6 +114,28 @@ function house(x,z,scale=1,variant=0){let y=terrain(x,z);let w=(2.4+variant*.42)
 // Both slopes, proper triangular end gables, visible eaves and offset ridge trim.
 quad([xx,y+h,zy],[x,y+ridge,zy],[x,y+ridge,zz],[xx,y+h,zz],col);quad([x,y+ridge,zy],[xr,y+h,zy],[xr,y+h,zz],[x,y+ridge,zz],col);
 tri([xx,y+h,zy],[xr,y+h,zy],[x,y+ridge,zy],rgb(0xd1bf9e));tri([xr,y+h,zz],[xx,y+h,zz],[x,y+ridge,zz],rgb(0xd1bf9e));
+// Gauntlet 017: overlapping individual roof tiles, built as actual 3D geometry.
+// Each row is staggered; subtle raised edges catch directional sunlight. The
+// deterministic pattern depends only on building variant and tile coordinates.
+const roofTileColors=[rgb(0xa96d50),rgb(0xb27c56),rgb(0x825143),rgb(0xc18b61),rgb(0x97634b)];
+for(let slope=0;slope<2;slope++){
+ const edge=slope===0?xx:xr;
+ const roofWidth=x-edge;
+ for(let row=0;row<7;row++){
+  const t0=row/7,t1=(row+1)/7;
+  const outer0=[edge+roofWidth*t0,y+h+(ridge-h)*t0];
+  const outer1=[edge+roofWidth*t1,y+h+(ridge-h)*t1];
+  for(let col=0;col<9;col++){
+   const shift=(row%2)*.5;
+   const v0=Math.max(0,(col+shift)/9),v1=Math.min(1,(col+1+shift)/9);
+   if(v1<=v0)continue;
+   const z0=zy+(zz-zy)*v0,z1=zy+(zz-zy)*v1;
+   const color=roofTileColors[(row*7+col*3+variant*5)%roofTileColors.length];
+   const lift=.022*scale+row*.001*scale;
+   quad([outer0[0],outer0[1]+lift,z0],[outer1[0],outer1[1]+lift,z0],[outer1[0],outer1[1]+lift,z1],[outer0[0],outer0[1]+lift,z1],color);
+  }
+ }
+}
 // Decorative layered roof seams catch light without pretending to be a texture pack.
 for(let i=1;i<=5;i++){let q=i/6;const lx=xx+(x-xx)*q,rx=x+(xr-x)*q,top=y+h+(ridge-h)*q;quad([lx,top+.018,zy],[lx+.025,top+.018,zy],[lx+.025,top+.018,zz],[lx,top+.018,zz],rgb(0x624838));quad([rx,top+.018,zy],[rx+.025,top+.018,zy],[rx+.025,top+.018,zz],[rx,top+.018,zz],rgb(0x634b3c))}
 box(x,y,z-d/2-.045*scale,.66*scale,1.25*scale,.085,rgb(0x76523c));box(x,y+1.03*scale,z-d/2-.084*scale,.07*scale,.055,.07,rgb(0xd5b778));
