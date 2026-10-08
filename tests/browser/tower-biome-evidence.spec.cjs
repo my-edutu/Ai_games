@@ -12,8 +12,10 @@ for(const [biome,floor] of [['foundry',0],['ruins',12],['clockwork',24],['storm'
     await page.setViewportSize({width:1600,height:900});
     await page.goto(base+'?seed=42&captureFloor='+floor,{waitUntil:'domcontentloaded'});
     await page.waitForFunction(()=>window.__TOWER_VOLUMETRIC_STATE__?.status==='live',null,{timeout:30000});
+    await page.waitForFunction(()=>window.__TOWER_VOLUMETRIC_STATE__?.assetStatus==='authored-asset-loaded',null,{timeout:30000});
     const state=await page.evaluate(()=>({...window.__TOWER_VOLUMETRIC_STATE__}));
     expect(state.dimensionality).toBe(3);
+    expect(state.assetClips).toEqual(expect.arrayContaining(['Idle','Running','Jump','Fall','Climb','Punch']));
     expect(state.floor).toBeGreaterThanOrEqual(floor);
     expect(state.biome).toBe(biome);
     expect(state.platforms).toBeGreaterThan(0);
