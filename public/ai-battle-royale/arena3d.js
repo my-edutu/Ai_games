@@ -715,6 +715,73 @@
       b.cylinder(x+.33,1.51,z+.34,.070,.13,[.14,.17,.20],6);
     }
   }
+  function buildObstacleDistrict(b,arena,theme){
+    // Assemble adjoining *already-blocked* cells into a coherent building.
+    // Never create cover over even one legal traversable cell.
+    const w=arena.width,h=arena.height;
+    const occupied=new Set(arena.obstacles);
+    const consumed=new Set();
+    for(const cell of arena.obstacles.slice(0,2048)){
+      if(!Number.isInteger(cell)||cell<0||cell>=w*h||consumed.has(cell))continue;
+      const startX=cell%w,startZ=Math.floor(cell/w);
+      let width=1,height=1;
+      while(width<5&&startX+width<w&&occupied.has(cell+width)&&
+        !consumed.has(cell+width))width++;
+      while(height<4&&startZ+height<h){
+        let rowComplete=true;
+        for(let dx=0;dx<width;dx++){
+          const below=(startZ+height)*w+startX+dx;
+          if(!occupied.has(below)||consumed.has(below)){rowComplete=false;break}
+        }
+        if(!rowComplete)break;
+        height++;
+      }
+      for(let dz=0;dz<height;dz++)
+        for(let dx=0;dx<width;dx++)consumed.add((startZ+dz)*w+startX+dx);
+      if(width===1&&height===1){
+        fortification(b,cell,w,theme,false);
+        continue;
+      }
+      const centerX=startX+width*.5,centerZ=startZ+height*.5;
+      const spanX=width-.10,spanZ=height-.10;
+      const roofHeight=1.28+(cell%3)*.15;
+      const steel=arena.theme==='neon'?[.22,.35,.54]
+        :arena.theme==='arctic'?[.40,.59,.67]:[.41,.40,.34];
+      const roof=arena.theme==='neon'?[.18,.27,.43]
+        :arena.theme==='arctic'?[.52,.72,.79]:[.48,.42,.32];
+      groundShadow(b,centerX,centerZ,Math.min(spanX,spanZ)*.40,.68,theme);
+      b.box(centerX,roofHeight*.5,centerZ,spanX,roofHeight,spanZ,theme.wall);
+      b.box(centerX,roofHeight+.05,centerZ,spanX+.05,.10,spanZ+.05,roof);
+      // One long, contiguous silhouette is more legible than a pile of cubes.
+      for(const side of [-1,1]){
+        const zz=centerZ+side*spanZ*.5;
+        b.box(centerX,roofHeight-.26,zz,spanX*.90,.13,.051,theme.accent);
+        for(let i=0;i<width;i++){
+          const xx=startX+i+.5;
+          b.box(xx,roofHeight*.47,zz+side*.038,.28,.39,.036,steel);
+          b.box(xx,roofHeight*.48,zz+side*.062,.16,.20,.041,[.12,.20,.28]);
+        }
+      }
+      // Roof ventilation and separate skyline-readable utility equipment.
+      for(let i=0;i<Math.min(6,width*height);i++){
+        const xx=startX+.35+((i*3+cell)%Math.max(1,width))*.54;
+        const zz=startZ+.35+((i*5+cell)%Math.max(1,height))*.50;
+        if(xx>startX+spanX-.10||zz>startZ+spanZ-.10)continue;
+        if(i%3===0){
+          b.cylinder(xx,roofHeight+.24,zz,.115,.37,steel,8);
+          b.box(xx,roofHeight+.45,zz,.31,.075,.31,theme.accent);
+        }else{
+          b.box(xx,roofHeight+.16,zz,.21,.19,.31,steel);
+          b.box(xx,roofHeight+.27,zz,.24,.045,.34,roof);
+        }
+      }
+      if(width>=3){
+        b.box(centerX,roofHeight+.36,centerZ,.07,.58,.07,steel);
+        b.cone(centerX,roofHeight+.70,centerZ,.13,.015,.25,theme.accent,8);
+      }
+    }
+  }
+
   function atmosphericBackdrop(b,arena,theme){
     // Distant sculptural silhouettes beyond the tactical board boundary.
     // These are never passed into the game physics or agent observations.
@@ -1007,10 +1074,12 @@
       if((x*7+y*13)%41===0)b.box(x+.24,.065,y+.32,.11,.12,.13,t.accent);
     }
     if(quality!=='low')terrainDetails(b,a,t);
-    for(const cell of a.obstacles.slice(0,2048)){
-      if(quality==='low'){const p=pos(cell,w);b.box(p.x,.72,p.z,.91,1.44,.91,t.wall)}
-      else fortification(b,cell,w,t,false);
-    }
+    if(quality==='low'){
+      for(const cell of a.obstacles.slice(0,2048)){
+        const p=pos(cell,w);
+        b.box(p.x,.72,p.z,.91,1.44,.91,t.wall);
+      }
+    }else buildObstacleDistrict(b,a,t);
     for(const cell of a.cover.slice(0,2048)){
       if(quality==='low'){const p=pos(cell,w);b.box(p.x,.32,p.z,.75,.64,.75,t.wall)}
       else fortification(b,cell,w,t,true);
