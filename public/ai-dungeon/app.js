@@ -7,9 +7,37 @@ import {attachCharacter,updateActor,disposeActorAsset,putEnvironment,stats as as
 const $=id=>document.getElementById(id),canvas=$('world'),reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
 let focusedHeroId='vanguard';
 const renderer=new THREE.WebGLRenderer({canvas,antialias:true,powerPreference:'high-performance',alpha:false});
-renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.6));renderer.shadowMap.enabled=!reduced;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.38;
+renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.6));renderer.info.autoReset=false;renderer.shadowMap.enabled=!reduced;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.38;
 const scene=new THREE.Scene();scene.background=new THREE.Color('#070d18');scene.fog=new THREE.FogExp2('#090f1a',.024);
 const camera=new THREE.PerspectiveCamera(44,1,.1,110);
+// Deferred, optional 3D post-processing: selective emissive bloom adds light without
+// sacrificing the whole scene to fog/black overlays. Direct WebGL remains fallback.
+let composer=null,bloomPass=null,postFXEnabled=!reduced,postFXStatus='loading';
+const fxButton=$('fx-toggle');
+fxButton.setAttribute('aria-pressed',String(postFXEnabled));
+fxButton.addEventListener('click',()=>{
+ postFXEnabled=!postFXEnabled;
+ fxButton.setAttribute('aria-pressed',String(postFXEnabled));
+ fxButton.querySelector('span').textContent=postFXEnabled?'MAGIC GLOW ON':'MAGIC GLOW OFF';
+});
+async function initializePostFX(){
+ try{
+  const [c,r,b,o]=await Promise.all([
+   import('/dungeon/vendor/addons/postprocessing/EffectComposer.js'),
+   import('/dungeon/vendor/addons/postprocessing/RenderPass.js'),
+   import('/dungeon/vendor/addons/postprocessing/UnrealBloomPass.js'),
+   import('/dungeon/vendor/addons/postprocessing/OutputPass.js')
+  ]);
+  const pipeline=new c.EffectComposer(renderer);
+  pipeline.setPixelRatio(renderer.getPixelRatio());
+  pipeline.addPass(new r.RenderPass(scene,camera));
+  bloomPass=new b.UnrealBloomPass(new THREE.Vector2(Math.max(1,canvas.clientWidth),Math.max(1,canvas.clientHeight)),.49,.42,.83);
+  pipeline.addPass(bloomPass);pipeline.addPass(new o.OutputPass());
+  pipeline.setSize(Math.max(1,canvas.clientWidth),Math.max(1,canvas.clientHeight));
+  composer=pipeline;postFXStatus='ready';
+ }catch(error){composer=null;postFXStatus='unavailable';postFXEnabled=false;fxButton.title='Post effects unavailable: using direct 3D rendering';fxButton.setAttribute('aria-pressed','false');fxButton.querySelector('span').textContent='DIRECT 3D';console.warn('[DUNGEON] optional bloom unavailable:',String(error))}
+}
+initializePostFX();
 const ambient=new THREE.HemisphereLight('#7191bf','#111526',1.9);scene.add(ambient);
 const wardenSpot=new THREE.PointLight('#ffbd76',0,9.5,2);scene.add(wardenSpot);
 const moon=new THREE.DirectionalLight('#a6c6ff',2.0);moon.position.set(-7,17,5);moon.castShadow=!reduced;moon.shadow.mapSize.set(1024,1024);moon.shadow.camera.left=-17;moon.shadow.camera.right=17;moon.shadow.camera.top=17;moon.shadow.camera.bottom=-17;scene.add(moon);
@@ -332,7 +360,7 @@ function animate(t){requestAnimationFrame(animate);const time=t/1000,dt=Math.min
  for(let i=particles.length-1;i>=0;i--){const p=particles[i];p.life+=dt;if(p.life>=p.duration){disposeParticle(p);particles.splice(i,1);continue}
   p.mesh.position.x+=p.vx*dt;p.mesh.position.y+=p.vy*dt;p.mesh.position.z+=p.vz*dt;p.mesh.material.opacity=.75*(1-p.life/p.duration);p.mesh.scale.multiplyScalar(1-.35*dt)}
 
- const w=canvas.clientWidth,h=canvas.clientHeight;if(w&&h&&(canvas.width!==Math.round(w*renderer.getPixelRatio())||canvas.height!==Math.round(h*renderer.getPixelRatio()))){renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix()}
+ const w=canvas.clientWidth,h=canvas.clientHeight;if(w&&h&&(canvas.width!==Math.round(w*renderer.getPixelRatio())||canvas.height!==Math.round(h*renderer.getPixelRatio()))){renderer.setSize(w,h,false);composer?.setSize(w,h);camera.aspect=w/h;camera.updateProjectionMatrix()}
  const leader=(actors.get(focusedHeroId)?.u.hp>0?actors.get(focusedHeroId):null)||[...actors.values()].find(a=>a.u.faction==='party'&&a.u.hp>0),target=leader?.at??new THREE.Vector3(0,0,0);
  for(const a of actors.values()){const moving=a.root.position.distanceTo(a.at)>.07;a.root.position.lerp(a.at,reduced?1:.17);const bounce=reduced?0:Math.sin(time*5+a.at.x)*.028;a.body.position.y=bounce;a.leftLeg.rotation.x=moving?Math.sin(time*10)*.35:0;a.rightLeg.rotation.x=-a.leftLeg.rotation.x;a.leftArm.rotation.x=moving?Math.sin(time*10)*.22:0;a.rightArm.rotation.x=-a.leftArm.rotation.x;
   const since=time-(a.actionStarted??time),phase=Math.max(0,Math.min(1,since/.32));
@@ -360,7 +388,10 @@ function animate(t){requestAnimationFrame(animate);const time=t/1000,dt=Math.min
  camera.position.lerp(cam,reduced?1:.065);camera.lookAt(look.x,0,look.z);
  if(shakeStrength>.008&&!reduced){camera.position.x+=Math.sin(time*57)*shakeStrength;camera.position.y+=Math.cos(time*43)*shakeStrength*.5;}
  partyGlow.position.set(target.x,2,target.z);
- renderer.render(scene,camera);combatOverlay.render(state,actors,camera,time);if(state)window.__DUNGEON_RENDER_DIAGNOSTICS__={frame:renderer.info.render.frame,drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,camera:cameraModes[cameraIndex],focusedHeroId,bossFramed:Boolean(bossDistance),activeUnits:[...actors.values()].filter(x=>x.root.visible).length,characterDetails:[...actors.values()].reduce((sum,x)=>sum+(x.detail?.parts||0),0),webgl:true,theme:state.theme,dressing:world.userData.dressing?.metrics??null,atmosphere:world.userData.atmosphere?.metrics??null,overlay:combatOverlay.metrics(),authored3D:assetStats(actors)};
+ renderer.info.reset();
+ try{if(composer&&postFXEnabled){bloomPass.strength=innerWidth<680?.26:.49;composer.render()}else renderer.render(scene,camera)}
+ catch(error){console.warn('[DUNGEON] post effect fault, restoring WebGL:',String(error));composer=null;postFXStatus='fallback';renderer.info.reset();renderer.render(scene,camera)}
+ combatOverlay.render(state,actors,camera,time);if(state)window.__DUNGEON_RENDER_DIAGNOSTICS__={frame:renderer.info.render.frame,drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,camera:cameraModes[cameraIndex],focusedHeroId,postFX:composer&&postFXEnabled?'bloom':'direct',postFXStatus,bossFramed:Boolean(bossDistance),activeUnits:[...actors.values()].filter(x=>x.root.visible).length,characterDetails:[...actors.values()].reduce((sum,x)=>sum+(x.detail?.parts||0),0),webgl:true,theme:state.theme,dressing:world.userData.dressing?.metrics??null,atmosphere:world.userData.atmosphere?.metrics??null,overlay:combatOverlay.metrics(),authored3D:assetStats(actors)};
 }
 async function poll(){try{const r=await fetch('/dungeon/state',{cache:'no-store'});if(!r.ok)throw Error('State '+r.status);const data=await r.json();if(data.tick!==lastTick||data.run!==state?.run){lastTick=data.tick;update(data)}}catch(e){errorAt++;if(errorAt>=3){$('recovery').hidden=false;$('status').textContent='VIEW DEGRADED — RETRYING';console.warn('Dungeon view recovery',String(e))}}finally{setTimeout(poll,190)}}
 $('party').addEventListener('click',e=>{

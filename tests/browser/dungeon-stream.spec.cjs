@@ -126,3 +126,16 @@ test('public stream exposes authentic boss phase and a health/checkpoint monitor
  expect(typeof health.restored).toBe('boolean');
  expect(health.status).toBe('healthy');
 });
+
+test('optional cinematic glow uses locally served Three.js postprocessing and remains reversible',async({page,request})=>{
+ for(const path of ['/dungeon/vendor/addons/postprocessing/EffectComposer.js','/dungeon/vendor/addons/postprocessing/UnrealBloomPass.js','/dungeon/vendor/addons/shaders/LuminosityHighPassShader.js'])
+  expect((await request.get(path)).status()).toBe(200);
+ await page.goto('/dungeon');
+ await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.postFXStatus??'not started'),{timeout:25000}).toBe('ready');
+ await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.postFX),{timeout:15000}).toBe('bloom');
+ await page.locator('#fx-toggle').click();
+ await expect(page.locator('#fx-toggle')).toHaveAttribute('aria-pressed','false');
+ await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.postFX),{timeout:10000}).toBe('direct');
+ await page.locator('#fx-toggle').click();
+ await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.postFX),{timeout:10000}).toBe('bloom');
+});

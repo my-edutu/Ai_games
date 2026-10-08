@@ -56,7 +56,7 @@ function serve(port=Number(process.env.PORT||4181)){
   }
   if(url.pathname.startsWith('/dungeon/vendor/addons/')){
    const suffix=url.pathname.slice('/dungeon/vendor/addons/'.length);
-   if(!/^(loaders|utils)\/[\w-]+\.js$/.test(suffix)){res.writeHead(404);res.end('Not found');return}
+   if(!/^(loaders|utils|postprocessing|shaders)\/[\w-]+\.js$/.test(suffix)){res.writeHead(404);res.end('Not found');return}
    const addon=path.join(ROOT,'node_modules/three/examples/jsm',suffix);
    if(!fs.existsSync(addon)){res.writeHead(404);res.end('Not found');return}
    const source=fs.readFileSync(addon,'utf8').replace(/from ['"]three['"]/g,"from '/dungeon/vendor/three.module.js'");

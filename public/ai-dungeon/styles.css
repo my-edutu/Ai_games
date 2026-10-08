@@ -65,3 +65,10 @@ body[data-biome="ember"] .icon-button{color:#ffe0b0}
 .boss-strip[data-phase=ECLIPSE] .boss-bar i{background:linear-gradient(90deg,#965bff,#f58bfb);box-shadow:0 0 20px #d98cfc}
 .boss-strip[data-warning=true]{outline:2px solid #ffad6b87;outline-offset:2px}
 .camera-label #focus-label{color:#e1eaff;letter-spacing:.7px;font-size:8px}
+
+/* GPU light bloom is optional; rendering falls back to direct physically based 3D. */
+.fx-button{color:#f7c9ff;border-color:#a373d4a8;background:linear-gradient(110deg,#3d2d64,#242744);box-shadow:inset 0 0 20px #e19bff16}
+.fx-button[aria-pressed="true"]{border-color:#aef7ebc2;color:#edddff;box-shadow:0 0 18px #a463ec34,inset 0 0 18px #d9a5ff1f}
+.fx-button[aria-pressed="false"]{opacity:.75;box-shadow:none}
+@media(max-width:1100px){.fx-button span{display:none}}
+@media(max-width:680px){.fx-button{padding:9px 7px;min-height:33px}}
