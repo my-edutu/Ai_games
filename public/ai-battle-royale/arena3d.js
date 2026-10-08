@@ -685,8 +685,66 @@
       }
     }
   }
+  function surroundingTerrain(b,arena,theme){
+    // The map no longer floats as a bare tabletop. This wider world is
+    // decorative and explicitly outside the authoritative playable grid.
+    const w=arena.width,h=arena.height;
+    const land=arena.theme==='arctic'?[.38,.61,.66]
+      :arena.theme==='neon'?[.24,.32,.47]:[.42,.45,.32];
+    const darker=arena.theme==='arctic'?[.27,.43,.51]
+      :arena.theme==='neon'?[.17,.23,.38]:[.31,.36,.27];
+    const ridge=arena.theme==='arctic'?[.73,.88,.93]
+      :arena.theme==='neon'?[.35,.40,.60]:[.58,.51,.34];
+    const padding=quality==='low'?2:5;
+    b.box(w/2,-.78,h/2,w+padding*2,.52,h+padding*2,darker);
+    b.box(w/2,-.52,h/2,w+padding*2,.045,h+padding*2,land);
+    if(quality==='low')return;
+    // Repeatable terrain tiles, with low mounds and out-of-bounds features.
+    for(let z=-padding;z<h+padding;z++){
+      for(let x=-padding;x<w+padding;x++){
+        if(x>=0&&x<w&&z>=0&&z<h)continue;
+        const seed=(Math.imul(x+173,1913)^Math.imul(z+283,7309))>>>0;
+        const variation=(seed%9)*.016;
+        const shade=land.map(c=>Math.max(0,Math.min(1,c+variation-.06)));
+        b.quad([x,-.48,z],[x,-.48,z+1],[x+1,-.48,z+1],[x+1,-.48,z],[0,1,0],shade);
+        if(seed%9===0){
+          const cx=x+.23+((seed>>>9)%40)/100,cz=z+.38;
+          const height=.24+(seed%4)*.13;
+          b.cone(cx,-.45+height*.5,cz,.26,.06,height,ridge,6);
+        }
+        if(seed%17===0){
+          const cx=x+.42,cz=z+.52;
+          const height=.42+(seed%5)*.12;
+          if(arena.theme==='arctic'){
+            b.cone(cx,-.47+height*.5,cz,.30,.04,height,[.82,.96,.98],7);
+          }else if(arena.theme==='neon'){
+            b.box(cx,-.40+height*.5,cz,.36,height,.29,[.29,.44,.61]);
+            b.box(cx,-.38+height,cz,.42,.07,.34,theme.accent);
+          }else{
+            b.cone(cx,-.44+height*.5,cz,.35,.07,height,[.41,.43,.31],7);
+            b.cone(cx,-.35+height,cz,.20,.02,.42,[.51,.63,.31],6);
+          }
+        }
+      }
+    }
+    // Access avenues connect perimeter to the surrounding region.
+    for(const x of [w*.27,w*.70]){
+      const c=arena.theme==='neon'?[.14,.22,.32]:[.30,.36,.32];
+      b.box(x,-.44,-2.5,1.35,.038,5.0,c);
+      b.box(x,-.44,h+2.5,1.35,.038,5.0,c);
+      for(const z of [-4.7,-2.7,h+1.4,h+3.4])
+        b.box(x,-.411,z,.09,.012,.70,[.82,.89,.77]);
+    }
+    // Wall-edge beveled plinth doubles as atmospheric contact shadow.
+    for(const side of [-1,1]){
+      const z=side<0?-.66:h+.66;
+      b.box(w/2,-.28,z,w+.9,.17,.76,theme.wall);
+      b.box(w/2,-.17,z,w+.6,.04,.46,theme.accent);
+    }
+  }
   function worldStatic(b,a){
     const w=a.width,h=a.height,t=colours[a.theme]||colours.ember;
+    surroundingTerrain(b,a,t);
     b.box(w/2,-.25,h/2,w,.5,h,t.wall);
     for(let y=0;y<h;y++)for(let x=0;x<w;x++){
       const variation=(x*17+y*31+x*y*7)%11;
