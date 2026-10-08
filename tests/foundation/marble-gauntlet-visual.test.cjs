@@ -122,7 +122,7 @@ test('multi-light marble optics and altitude-dependent shadows are rendered from
     'float edgeStrip',
     'float skyBounce',
     'const airborne=Math.max(0,(marble.elevation||0)*WORLD_SCALE-support)',
-    'const opacity=0.35/(1+airborne*0.56)',
+    'const opacity=0.38/(1+airborne*0.64)',
   ]) assert.ok(renderer.includes(evidence), 'missing character material evidence: ' + evidence);
 });
 
