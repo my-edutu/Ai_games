@@ -419,3 +419,20 @@ test('Gauntlet 019 character palettes and rig-like animated costume geometry rem
   expect(result.triangles).toBeGreaterThan(1000);
   expect(errors).toEqual([]);
 });
+
+
+test('Gauntlet 018 caches thousands of decorative vertices without changing civil authority', async ({page}) => {
+  const errors=[];page.on('pageerror',e=>errors.push(e.message));
+  await page.setContent(html);
+  await page.waitForFunction(() => window.__tinyKingdom?.getFestivalVisualStats().cacheBuilds>0);
+  await page.locator('#pause').click();
+  const g=await page.evaluate(()=>window.__tinyKingdom.getFestivalVisualStats());
+  expect(g.vertices).toBeGreaterThan(5000);
+  const before=await page.evaluate(()=>JSON.stringify(window.__tinyKingdom.exportSnapshot()));
+  await page.locator('[data-scenic="orchard"]').click();
+  await page.waitForTimeout(100);
+  const after=await page.evaluate(()=>({visual:window.__tinyKingdom.getFestivalVisualStats(),snapshot:JSON.stringify(window.__tinyKingdom.exportSnapshot())}));
+  expect(after.visual.cacheBuilds).toBe(g.cacheBuilds);
+  expect(after.snapshot).toBe(before);
+  expect(errors).toEqual([]);
+});
