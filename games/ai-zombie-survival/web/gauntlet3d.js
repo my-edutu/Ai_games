@@ -163,7 +163,7 @@ const fs = [
   '#version 300 es',
   'precision highp float;',
   'in vec3 vColor; in vec3 vNormal; in vec3 vPosition;',
-  'uniform vec3 uEye; uniform vec3 uFogColor; uniform float uFog; uniform vec3 uLight; uniform float uNight; uniform float uWeatherFlash;',
+  'uniform vec3 uEye; uniform vec3 uFogColor; uniform float uFog; uniform vec3 uLight; uniform float uNight; uniform float uWeatherFlash; uniform float uWetness;',
   'out vec4 fragColor;',
   'void main(){vec3 N=normalize(vNormal);vec3 L=normalize(uLight);',
   'float lambert=max(dot(N,L),0.0);float wrap=max(dot(N,L)*0.65+0.35,0.0);',
@@ -180,6 +180,21 @@ const fs = [
   'color+=vec3(.64,.68,.85)*uWeatherFlash*.31;',
   'float grain=fract(sin(dot(floor(vPosition.xz*2.1+vPosition.y*0.3),vec2(12.9898,78.233)))*43758.5453);',
   'color*=0.972+0.055*grain;',
+  'float horizontal=abs(N.y);',
+  'if(vPosition.y>2.65&&horizontal<0.44){',
+  'float axis=abs(N.x)>0.65?vPosition.z:vPosition.x;',
+  'float row=floor(vPosition.y*1.7);',
+  'float cellX=fract(axis*1.03+mod(row,2.0)*0.5);',
+  'float cellY=fract(vPosition.y*1.7);',
+  'float brick=step(0.045,cellX)*step(0.055,cellY);',
+  'color*=mix(0.91,1.0,brick);',
+  '}',
+  'if(vPosition.y<0.25&&N.y>0.75){',
+  'float road=fract(sin(dot(floor(vPosition.xz*2.6),vec2(32.451,12.911)))*37281.314);',
+  'color*=0.91+road*.18;',
+  'vec3 R=reflect(-L,N);float glint=pow(max(dot(R,V),0.0),22.0);',
+  'color+=vec3(.22,.46,.48)*glint*uWetness*.18;',
+  '}',
   'float distanceToCamera=distance(uEye,vPosition);',
   'float haze=1.0-exp(-pow(distanceToCamera*uFog,2.0));',
   'vec3 graded=pow(clamp(color,0.0,1.0),vec3(0.90));fragColor=vec4(mix(graded,uFogColor,clamp(haze,0.0,0.66)),1.0);}'
@@ -187,7 +202,7 @@ const fs = [
 const program = gl.createProgram();gl.attachShader(program,shader(gl.VERTEX_SHADER,vs));gl.attachShader(program,shader(gl.FRAGMENT_SHADER,fs));gl.linkProgram(program);
 if(!gl.getProgramParameter(program,gl.LINK_STATUS))throw new Error(gl.getProgramInfoLog(program));
 gl.useProgram(program);gl.enable(gl.DEPTH_TEST);gl.depthFunc(gl.LEQUAL);
-const uniforms = Object.fromEntries(['uVP','uEye','uFogColor','uFog','uLight','uNight','uWeatherFlash'].map(k=>[k,gl.getUniformLocation(program,k)]));
+const uniforms = Object.fromEntries(['uVP','uEye','uFogColor','uFog','uLight','uNight','uWeatherFlash','uWetness'].map(k=>[k,gl.getUniformLocation(program,k)]));
 const drawSky=createSkyPass(gl);
 function buffer(){const vao=gl.createVertexArray(),vbo=gl.createBuffer();gl.bindVertexArray(vao);gl.bindBuffer(gl.ARRAY_BUFFER,vbo);const stride=9*4;for(let i=0;i<3;i++){gl.enableVertexAttribArray(i);gl.vertexAttribPointer(i,3,gl.FLOAT,false,stride,i*12);}gl.bindVertexArray(null);return{vao,vbo,count:0};}
 const staticMesh=buffer(),movingMesh=buffer();
@@ -597,6 +612,7 @@ function render(now){
   const lightning=game.weather.kind==='storm'&&Math.sin(game.time.elapsed*.65)>0.965?
     Math.pow(Math.max(0,Math.sin(game.time.elapsed*23)),6):0;
   gl.uniform1f(uniforms.uWeatherFlash,lightning);
+  gl.uniform1f(uniforms.uWetness,(['rain','storm'].includes(game.weather.kind)?Math.max(0,Math.min(1,game.weather.intensity)):.0));
   gl.uniform3fv(uniforms.uFogColor,new Float32Array(sky));
   gl.uniform1f(uniforms.uFog,night?.010:.003+(game.weather.kind==='fog'?.006:0));
   rebuildStatic();
