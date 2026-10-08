@@ -121,3 +121,30 @@ Inspect `artifacts/battle-gauntlet/` and GitHub Actions' `battle-royale-gauntlet
 ## Loop 16 — 3D camera correction
 
 The first 3D viewport used 3D geometry projected with an orthographic isometric camera. To move away from the prior 2.5D impression, the lead agent updated the WebGL2 camera to explicit yaw, pitch and perspective division using real mesh depth. The stable overview and action inset now use different physical viewpoints. Autonomous camera motion is reduced when reduced-motion is requested. This is not proof of a AAA camera: screenshot comparison, occlusion review and GPU frame timing for the exact revision remain mandatory. The focused WebGL2 regression workflow records desktop 3D, exact-state high/low, and baseline comparisons when CI completes.
+
+
+## Gauntlet loops 22–29 — visual production pass
+
+**User criticism:** the renderer had recognizably simple board-like scenery and dull stream interface colors compared with Fortnite-quality visual references. Prior real screenshot was used as the critic's starting evidence (not as a claim of current visual success).
+
+### Implemented changes
+- **22 — Premium broadcast design:** `ux-v3.css` introduces intentionally saturated sapphire/cyan/violet/magenta/lime/amber esports hierarchy. Branded on-air masthead, survivor hero card, separated tactical metrics, contrasting focused fighter, scoreboard/event feeds, captions and camera status. Responsive 16:9, small landscape and OBS clean feed remain supported.
+- **23 — Color/lighting:** brighter original ember/neon/arctic world palettes, stronger ambient/fill/rim color, less gray depth haze and clearer materials in WebGL fragment shading.
+- **24 — World dressing:** added original cybercity skyline with lit windows, arctic ice shelves, ember badlands, road markings, landing pads and perimeter gantries. Geometry is cached; cosmetic only.
+- **25 — Weather:** bounded procedural snowfall, neon rain and cinders derived from biome, with reduced-motion and low-quality controls.
+- **26 — Grounded environments:** expanded biomes into lower 3D terrain surrounding the arena, with scenic hills, connecting roads, cliffs and stage edges, replacing the previously isolated dark tabletop presentation.
+- **27 — Dynamic UI color:** theme-specific accents now follow the currently published biome rather than a generic permanently turquoise UI. High-contrast mode remains explicit.
+- **28 — Directional shadows:** added stable low ground shadows for legitimate barricades and pose-aware characters to improve depth/readability; these are mesh decals, not a true engine shadow-mapping system.
+- **29 — Audio correction:** normalized procedural sound noise into the intended bipolar range; WebAudio no external downloads.
+
+### Safety and benchmark discipline
+No environment dressing, cosmetic shadow, UI display or audio function can change agent actions, damage, map collisions, RNG state, winner selection or authoritative replay. Terrain beyond the map is labeled in code as **out-of-bounds decorative geometry**, not new traversable game space. Assets remain original procedural code-generated meshes, not imports from Fortnite.
+
+**Execution evidence:** all targeted new source files parsed; local source-backed static acceptance contracts for v3 routing, biome weather and terrain expansion passed in an isolated harness. Exact-head GitHub Actions desktop/landscape/clean-feed screenshot suites and broader tests must run before this branch can be considered tested. No independent A/B comparator or 24/7 soak was run.
+
+### Critic's next largest gaps
+1. Actual new screenshot vs Fortnite Chapter 4 UE5 reference: high-poly authored characters, texture detail, lighting and animation remain nowhere close; do not claim wins.
+2. Authoring new scene assets/rigging with original materials/meshes that are not just deterministic primitive geometry.
+3. Validating the active stage and HUD readability on representative 1080p/4K OBS conditions and an automated multi-hour GPU memory/latency soak.
+
+**Rollbacks:** `/battle?visual=2d` for rendering, `/battle?quality=low` for reduced geometry. Avoid merging the draft PR until real browser/production gates are satisfied.
