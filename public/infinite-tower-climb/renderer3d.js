@@ -177,7 +177,7 @@
     ].join('\n');
     requestAnimationFrame(animate);
   };
-  canvas.addEventListener('webglcontextlost', event => { event.preventDefault(); metrics.status='context-lost'; canvas.style.display='none'; original.style.opacity='1'; });
-  canvas.addEventListener('webglcontextrestored', () => { canvas.style.display='block'; original.style.opacity='0'; metrics.status='restored'; });
+  canvas.addEventListener('webglcontextlost', event => { event.preventDefault(); metrics.status='context-lost'; canvas.style.display='none'; original.style.opacity='1';window.__TOWER_3D_ACTIVE__=false; });
+  canvas.addEventListener('webglcontextrestored', () => { canvas.style.display='block'; original.style.opacity='0';window.__TOWER_3D_ACTIVE__=true; metrics.status='restored'; });
   animate();
 })();
