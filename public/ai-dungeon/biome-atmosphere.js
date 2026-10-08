@@ -78,12 +78,41 @@ export function createBiomeAtmosphere(root,map,floor,exit){
   makeInstanced(objects,poolGeo,dark,pools);
   makeInstanced(objects,poolGeo,emissive,innerPools);
  }
+ // A surrounding cavern skyline is part of the 3D set, not an invisible map border.
+ // Tall silhouettes, distinctive glowing crowns and varied depths give every tracking shot a horizon.
+ const distantColumns=[],distantCrowns=[],distantRock=[];
+ for(let i=0;i<52;i++){
+  const angle=i*Math.PI*2/52,range=12.2+pick(i,52,floor)*8.3,x=Math.cos(angle)*range,z=Math.sin(angle)*range;
+  const h=3.5+pick(i,53,floor)*8.4,w=.72+pick(i,54,floor)*1.55;
+  distantColumns.push([x,h/2-.2,z,w,h,w,(i%6)*Math.PI/6]);
+  distantCrowns.push([x,h-.1,z,w*1.2,.18,w*1.2]);
+  if(i%4===0)distantRock.push([x+1.7,.6,z-1.4,1.6,1.1,1.8]);
+ }
+ const horizonGeo=geometry(new THREE.CylinderGeometry(.68,1,1,7));
+ makeInstanced(objects,horizonGeo,dark,distantColumns);
+ makeInstanced(objects,stoneGeo,pale,distantCrowns);
+ makeInstanced(objects,crystalGeo,dark,distantRock);
+ // Local shafts of coloured magical light, kept rare to avoid hiding the party.
+ const shafts=[];
+ const shaftMaterial=register(new THREE.MeshBasicMaterial({color:biome.glow,transparent:true,opacity:.09,depthWrite:false,side:THREE.DoubleSide,blending:THREE.AdditiveBlending}));
+ const shaftGeo=geometry(new THREE.CylinderGeometry(.16,.96,1,18,1,true));
+ const spotlightLocations=[];
+ for(let z=2;z<size-2;z++)for(let x=2;x<size-2;x++){
+  if(safe(x,z)&&walk(x-1,z)&&walk(x+1,z)&&walk(x,z-1)&&walk(x,z+1))spotlightLocations.push([x,z,hash(x,z,floor)]);
+ }
+ spotlightLocations.sort((a,b)=>a[2]-b[2]);
+ for(const [x,z,h] of spotlightLocations.slice(0,4)){
+  const ray=new THREE.Mesh(shaftGeo,shaftMaterial);ray.position.set(x-offset,1.85,z-offset);ray.scale.set(1,3.85,1);
+  ray.rotation.z=((h%9)-4)*.025;objects.add(ray);shafts.push(ray);
+ }
+ 
  // A few monumental handcrafted-feeling landmarks on walkable larger chambers.
  const candidates=[];
  for(let z=3;z<size-3;z++)for(let x=3;x<size-3;x++){
   if(!safe(x,z)||!(walk(x-1,z)&&walk(x+1,z)&&walk(x,z-1)&&walk(x,z+1)))continue;
   candidates.push({x,z,score:hash(x,z,floor)});
  }
+ if(!candidates.length){for(let z=2;z<size-2;z++)for(let x=2;x<size-2;x++)if(safe(x,z)){candidates.push({x,z,score:hash(x,z,floor)})}}
  candidates.sort((a,b)=>a.score-b.score);
  for(const tile of candidates.slice(0,4)){
   const wx=tile.x-offset,wz=tile.z-offset,g=new THREE.Group();g.position.set(wx,0,wz);
@@ -116,8 +145,9 @@ export function createBiomeAtmosphere(root,map,floor,exit){
   particle.instanceMatrix.needsUpdate=true;
   for(const w of floaters){w.halo.rotation.z=time*.25;w.g.children[2].position.y=1.86+Math.sin(time*.9+w.phase)*.07}
   for(let i=0;i<lights.length;i++)lights[i].intensity=1.7+Math.sin(time*2+i)*.35;
+  shaftMaterial.opacity=.085+Math.sin(time*.55)*.017;
  };
- const metrics={biome:biome.name,landmarks:floaters.length,glowSources:lights.length,particles:count,liquidOrRifts:pools.length,crystalClusters:spires.length};
+ const metrics={biome:biome.name,landmarks:floaters.length,glowSources:lights.length,particles:count,liquidOrRifts:pools.length,crystalClusters:spires.length,backgroundStructures:distantColumns.length,lightShafts:shafts.length};
  return{update,metrics,dispose(){
   objects.parent?.remove(objects);
   for(const m of material)m.dispose();for(const t of textures)t.dispose();for(const g of geometries)g.dispose();
