@@ -1,9 +1,9 @@
 {
   "schema": 1,
-  "iteration": "Loop 27 · kinetic 3D environments, live crowd, ground-light accuracy and cinematic presentation",
+  "iteration": "Loop 41 · production-strength skyline, five 3D landmarks, anti-aliased neon glow and stable GPU lifetimes",
   "lastUpdated": "2026-10-08",
-  "criticTarget": "Run actual Chromium desktop/mobile captures at each of five stages. Compare against Marble It Up! Ultra and Marbles on Stream without claiming parity from source tests. Demand strong brightness/saturation, distinctive palettes, a readable cinematic camera, wind/bumper/ramp/pit visual consistency, no detached highlights over holes, stable framerate on Balanced and clean shielded pit outcomes. Reject if screenshot critic and 3D FPS evidence are missing.",
-  "comparisonStatus": "NOT YET VERIFIED · all five procedural WebGL stages gained differentiated 3D machinery, moving crowds, real wind fields, high-density glass racers, softened shadows and camera dynamics; real Chromium shader/gpu measurements and blinded reference votes still outstanding.",
+  "criticTarget": "Reject any 3D shot where the track looks like a giant flat rectangle, artwork/characters are illegible, landmark/stadium silhouette is absent, browser shader throws, stage images are not chromatically distinct, gameplay cards overflow desktop/mobile, or actual frame-budget and commercial screenshot review fails. Require native CI + real Chromium and blind A/B before acceptance.",
+  "comparisonStatus": "NOT YET VERIFIED · Source-level Gauntlet loops 36–41 implemented; 15/15 instrumented WebGL runtime cases and 19/19 visual source checks passed in JS harnesses. Real Chromium shader compilation, screenshots of new architecture, FPS, and blind reference parity remain pending.",
   "goals": [
     {
       "name": "Premium marble character optics",
@@ -199,9 +199,64 @@
       "name": "Prove vivid scene parity against commercial reference with Chromium",
       "detail": "Stricter real-image screenshot pixel thresholds and cross-stage colour-distance check committed; real screenshots/side-by-side blind votes and device FPS remain blocked",
       "status": "in-progress"
+    },
+    {
+      "name": "Recognizable 3D world hero landmarks",
+      "detail": "Five biome-specific original ornamental 3D monuments beyond physical track, with quality-tiered geometry and true moving parallax.",
+      "status": "implemented"
+    },
+    {
+      "name": "Multi-depth distant scene landscape",
+      "detail": "Quality-scaled 3D skyline terrain meshes for all arenas, cached and disposed on stage change.",
+      "status": "implemented"
+    },
+    {
+      "name": "Luminous postprocess with sharp AA edges",
+      "detail": "Safe GPU framebuffer rendering with mild neon glow and FXAA-inspired silhouette smoothing for non-Low tiers.",
+      "status": "implemented"
+    },
+    {
+      "name": "Stage memory safety after long autonomous runs",
+      "detail": "Persistent renderer transition test verifies old GPU buffers and vertex-array handles are released rather than leaking over five arena changes.",
+      "status": "implemented"
+    },
+    {
+      "name": "Pixel-verified silhouette and real native renderer",
+      "detail": "Browser Playwright must prove actual rendered geometry and no GL errors, then blinded art critique and device performance.",
+      "status": "in-progress"
     }
   ],
   "history": [
+    {
+      "title": "Loop 36 — Better camera staging and five monumental 3D landmark icons",
+      "note": "Reframed the default camera lower to show exterior architecture rather than only flat floor; introduced original physically placed giant aurora gyroscope, cyber gateway, molten forge, orbital observatory and championship crown spires.",
+      "proof": "Stage hero identity and geometry exposed in inspection data; actual screenshot / independent reference comparisons pending."
+    },
+    {
+      "title": "Loop 37 — Actual anti-aliased GPU neon compositing",
+      "note": "Added a guarded RGBA8 WebGL2 offscreen colour/depth framebuffer and lightweight thresholded neon bloom plus four-tap FXAA-style edge smoothing, with a no-effects Low tier and failure fallback.",
+      "proof": "15/15 instrumented render tests passed including offscreen texture uploads; true Chromium shader compile and FPS still pending; this is LDR glow, not HDR output."
+    },
+    {
+      "title": "Loop 38 — Distant 3D skylines by biome",
+      "note": "Introduced 1–3 quality-tiered cached and depth-tested landscape mesh bands with different physical silhouettes for all five stages behind heroic landmarks and 3D stadium porticos.",
+      "proof": "15/15 simulated stage-path checks passed; independent real-frame review pending."
+    },
+    {
+      "title": "Loop 39 — Quantitative real frame-based stage authenticity gate",
+      "note": "Extended Chromium screenshot critic so each captured scene checks real authored 3D stadium module count, skyline triangle count, hero landmark identity, GPU glow activation, spotlight and crowd counts, and WebGL error state.",
+      "proof": "Playwright browser gate committed; screenshots and final score not yet verified."
+    },
+    {
+      "title": "Loop 40 — Same-process GPU lifetime test across repeated full tournaments",
+      "note": "15-case renderer smoke executes five live scene stage changes inside one persistent 3D renderer, records buffer and vertex-array disposal and ensures the prior stages' meshes are released and real public champion survives.",
+      "proof": "15/15 mocked-WebGL renderer smoke cases passed with explicit old-buffer disposal checks."
+    },
+    {
+      "title": "Loop 41 — More truthful grounded props and richer distinctive raceways",
+      "note": "Added GPU soft-contact discs to real industrial obstacle/bumper positions only on solid track; five track materials deliberately shifted away from muted grey toward high-chroma stage-specific cyan, violet, ember, sapphire and royal purple.",
+      "proof": "Source committed; instrumented scene smoke cases passed; real Chromium visual contrast and GPU FPS still awaiting current run."
+    },
     {
       "title": "Loop 22 — Premium 3D racer materials and soft shadow rescue",
       "note": "Added real alternate smooth marble meshes by quality tier (up to 50x72 globe segmentation), internal glass vein optics, and a specialised radial translucent contact-shadow shader. Critical mock-render regression uncovered that shadow refactoring had removed drawArchetypeAccents; restored all four archetype characters and validated their live calls.",
