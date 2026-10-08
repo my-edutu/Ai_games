@@ -1,4 +1,5 @@
 import * as THREE from '/maze/vendor/three.module.js';
+import {makeWorldCraft} from '/maze/world-craft.js';
 
 // Public-state-only 3D presentation. This module never reads hidden maze authority.
 const stage = document.getElementById('stage');
@@ -47,6 +48,7 @@ const LABYRINTH_THEMES={
   hunter:{label:'THE WRAITH CITADEL',sky:0x231c2b,fog:0x2b1d27,wall:0xb4a8b0,floor:0x9e98a5,trim:0xf7ba79,moss:0x715a65,sun:0xfcc9a3,rim:0xff839f}
 };
 function setTheme(profile){
+  worldCraft.setTheme(profile);
   const theme=LABYRINTH_THEMES[profile]||LABYRINTH_THEMES.loops;
   scene.background.setHex(theme.sky);
   scene.fog.color.setHex(theme.fog);
@@ -154,7 +156,9 @@ const geometries = {
   column: new THREE.CylinderGeometry(0.16,0.18,2.5,8),
   lantern: new THREE.OctahedronGeometry(.21),
 };
-const reusable = new Set(Object.values(geometries));
+const worldCraft=makeWorldCraft(THREE);
+Object.assign(materials,worldCraft.materials);
+const reusable = new Set([...Object.values(geometries),...Object.values(worldCraft.geometries)]);
 function point(cell, width) {
   return new THREE.Vector3((cell % width)*GRID,0,Math.floor(cell / width)*GRID);
 }
@@ -484,6 +488,11 @@ function rebuild(snapshot) {
       world.add(portalLight);world.userData.torchCount++;
     }
   }
+  // Additional public-cell-only scenery brings the flat geometry to life.
+  worldCraft.populate({
+    world,snapshot,cells:renderCells,queue:queueInstance,
+    put:mesh,point,grid:GRID,glow:addGlow
+  });
   // Characters/threats update on each observed frame, independently from world geometry.
   finishInstances();
   const target=point(snapshot.currentCell,w);
@@ -753,6 +762,7 @@ function init() {
   scene.add(world,dynamic);
   explorer=humanoid(materials.cloak);
   dynamic.add(explorer);
+  worldCraft.addHeroSurroundings({scene,hero:explorer,put:mesh,glow:addGlow});
   lanternLight=new THREE.PointLight(0xffc77d,8,11,2);
   scene.add(lanternLight);
   explorer.traverse(item=>{if(item.isMesh)item.castShadow=true});
