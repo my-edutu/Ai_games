@@ -8,7 +8,7 @@
   original?.parentElement?.insertBefore(canvas, original.nextSibling);
   if (!original || new URLSearchParams(location.search).get('renderer') === '2d') { canvas.remove(); return; }
   let THREE;
-  try { THREE = await import('https://esm.sh/three@0.186.0'); } catch (error) { console.warn('3D renderer unavailable; keeping 2D fallback', error); canvas.remove(); return; }
+  try { THREE = await import('/tower/vendor/three.module.js'); } catch (error) { console.warn('3D renderer unavailable; keeping 2D fallback', error); canvas.remove(); return; }
   let renderer;
   try { renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false }); }
   catch (error) { console.warn('WebGL unavailable', error); canvas.remove(); return; }
