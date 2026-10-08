@@ -191,3 +191,27 @@ test('adaptive GPU budget and autonomous cinematic lighting preserve the 24/7 st
   const advanced=await page.evaluate(()=>window.__MAZE_PUBLIC_STATE__.tick);
   expect(advanced).toBeGreaterThan(initial);
 });
+
+
+test('graphics preset selector preserves user options and real 3D capture exports a PNG',async({page,request})=>{
+  await page.setViewportSize({width:1280,height:720});
+  await page.goto(base+'/maze?quality=balanced&reducedMotion=1',{waitUntil:'domcontentloaded'});
+  const selector=page.locator('#graphics-quality');
+  await expect(selector).toHaveValue('balanced');
+  await selector.selectOption('performance');
+  await page.waitForURL(/quality=performance/);
+  await expect(selector).toHaveValue('performance');
+  expect(new URL(page.url()).searchParams.get('reducedMotion')).toBe('1');
+  await page.waitForFunction(()=>window.__MAZE_PUBLIC_STATE__?.tick>4);
+  const mode=await page.evaluate(()=>Boolean(window.__MAZE_3D_READY__));
+  if(mode){
+    const download=page.waitForEvent('download',{timeout:15000});
+    await page.locator('#capture-scene').click();
+    const result=await download;
+    expect(result.suggestedFilename()).toMatch(/^ai-maze-escape-\d+\.png$/);
+    await expect(page.locator('#capture-scene')).toContainText('SAVED');
+  }else{
+    await expect(page.locator('#capture-scene')).toBeHidden();
+    await expect(page.locator('#maze')).toBeVisible();
+  }
+});
