@@ -263,3 +263,25 @@ body[data-reduced-motion="true"] #broadcast[data-ux-revision="3"] * {scroll-beha
 @media(max-width:640px) and (orientation:portrait){
   #broadcast[data-ux-revision="3"] #theater-toggle{display:none}
 }
+
+/* Real viewport color grading, without changing navigation data or the 2D fallback. */
+#broadcast[data-ux-revision="3"] #maze-3d canvas{
+  filter:saturate(1.2) contrast(1.05) brightness(1.055);
+}
+#broadcast[data-ux-revision="3"][data-maze-biome="chambers"] #maze-3d canvas{
+  filter:saturate(1.26) contrast(1.045) brightness(1.09);
+}
+#broadcast[data-ux-revision="3"][data-maze-biome="layers"] #maze-3d canvas{
+  filter:saturate(1.24) contrast(1.05) brightness(1.06);
+}
+#broadcast[data-ux-revision="3"][data-maze-biome="hunter"] #maze-3d canvas{
+  filter:saturate(1.23) contrast(1.04) brightness(1.07);
+}
+body[data-high-contrast="true"] #broadcast[data-ux-revision="3"] #maze-3d canvas{
+  filter:saturate(1.14) contrast(1.15) brightness(1.12);
+}
+@media(prefers-reduced-transparency:reduce){
+  #broadcast[data-ux-revision="3"] #hud,
+  #broadcast[data-ux-revision="3"] #status-strip,
+  #broadcast[data-ux-revision="3"] #captions{backdrop-filter:none;background:#0a2030}
+}
