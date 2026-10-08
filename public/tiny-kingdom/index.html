@@ -116,12 +116,75 @@
 'use strict';
 const canvas=document.getElementById('world'); let gl=canvas.getContext('webgl',{antialias:true,alpha:false});
 // Accessible no-WebGL preview for constrained machines. Real browsers use the WebGL path.
-if(!gl){const ctx=canvas.getContext('2d');let projection=null,sky=[.4,.55,.52],sunTint=[1,1,1],sunDirection=[-.55,.82,.25],vertices=null;const noop=()=>{};gl={VERTEX_SHADER:1,FRAGMENT_SHADER:2,ARRAY_BUFFER:3,FLOAT:4,DYNAMIC_DRAW:5,COLOR_BUFFER_BIT:6,DEPTH_BUFFER_BIT:7,DEPTH_TEST:8,CULL_FACE:9,BACK:10,TRIANGLES:11,COMPILE_STATUS:12,LINK_STATUS:13,createShader:()=>({}),shaderSource:noop,compileShader:noop,getShaderParameter:()=>true,createProgram:()=>({}),attachShader:noop,linkProgram:noop,getProgramParameter:()=>true,useProgram:noop,getUniformLocation:(_,k)=>k,createBuffer:()=>({}),bindBuffer:noop,getAttribLocation:()=>0,enableVertexAttribArray:noop,vertexAttribPointer:noop,uniformMatrix4fv:(_,__,m)=>{projection=m},uniform3f:(key,r,g,b)=>{if(key==='fogColor')sky=[r,g,b];if(key==='sunTint')sunTint=[r,g,b];if(key==='sunDirection')sunDirection=[r,g,b]},clearColor:(r,g,b)=>{sky=[r,g,b]},clear:()=>{ctx.fillStyle=`rgb(${sky.map(v=>Math.round(v*255)).join(',')})`;ctx.fillRect(0,0,canvas.width,canvas.height)},viewport:noop,enable:noop,cullFace:noop,bufferData:(_,v)=>{vertices=v},drawArrays:()=>{if(!vertices||!projection)return;const polys=[];const m=projection;function convert(i){const x=vertices[i],y=vertices[i+1],z=vertices[i+2],w=m[3]*x+m[7]*y+m[11]*z+m[15];if(w<=.05)return null;return [(m[0]*x+m[4]*y+m[8]*z+m[12])/w,(m[1]*x+m[5]*y+m[9]*z+m[13])/w,w]}for(let i=0;i<vertices.length;i+=30){let a=convert(i),b=convert(i+10),c=convert(i+20);if(!a||!b||!c)continue;let depth=(a[2]+b[2]+c[2])/3;let col=[vertices[i+6],vertices[i+7],vertices[i+8]],dir=Math.hypot(...sunDirection)||1,lit=Math.max(0,(vertices[i+3]*sunDirection[0]+vertices[i+4]*sunDirection[1]+vertices[i+5]*sunDirection[2])/dir);let fog=Math.max(0,Math.min(.82,(depth-24)/105));col=col.map((v,k)=>Math.min(255,Math.round(255*(v*(.46+lit*.56)*sunTint[k]*(1-fog)+sky[k]*fog))));polys.push({a,b,c,depth,fill:`rgb(${col.join(',')})`})}polys.sort((a,b)=>b.depth-a.depth);for(let p of polys){ctx.beginPath();ctx.moveTo((p.a[0]+1)*canvas.width/2,(1-p.a[1])*canvas.height/2);ctx.lineTo((p.b[0]+1)*canvas.width/2,(1-p.b[1])*canvas.height/2);ctx.lineTo((p.c[0]+1)*canvas.width/2,(1-p.c[1])*canvas.height/2);ctx.closePath();ctx.fillStyle=p.fill;ctx.fill()}}};}
-const vs=`attribute vec3 position;attribute vec3 normal;attribute vec3 color;uniform mat4 viewProjection;uniform vec3 sunDirection;uniform vec3 sunTint;varying vec3 vColor;varying float vFog;void main(){vec4 p=viewProjection*vec4(position,1.);gl_Position=p;vec3 n=normalize(normal);vec3 sun=normalize(sunDirection);float lit=max(dot(n,sun),0.);float hemi=.5+.5*n.y;float bounce=max(dot(n,normalize(vec3(-sun.x,.28,-sun.z))),0.);vec3 ambient=mix(vec3(.28,.37,.43),vec3(.55,.51,.41),hemi);vColor=color*(ambient+lit*.67*sunTint+bounce*.11);vFog=clamp((p.w-24.)/105.,0.,.82);}`;
-const fs=`precision mediump float;varying vec3 vColor;varying float vFog;uniform vec3 fogColor;void main(){vec3 linearColor=mix(vColor,fogColor,vFog);vec3 mapped=linearColor/(linearColor+vec3(.34));mapped=pow(max(mapped,vec3(0.)),vec3(.88));gl_FragColor=vec4(mapped,1.);}`;
+if(!gl){const ctx=canvas.getContext('2d');let projection=null,sky=[.4,.55,.52],sunTint=[1,1,1],sunDirection=[-.55,.82,.25],vertices=null;const noop=()=>{};gl={VERTEX_SHADER:1,FRAGMENT_SHADER:2,ARRAY_BUFFER:3,FLOAT:4,DYNAMIC_DRAW:5,COLOR_BUFFER_BIT:6,DEPTH_BUFFER_BIT:7,DEPTH_TEST:8,CULL_FACE:9,BACK:10,TRIANGLES:11,COMPILE_STATUS:12,LINK_STATUS:13,createShader:()=>({}),shaderSource:noop,compileShader:noop,getShaderParameter:()=>true,createProgram:()=>({}),attachShader:noop,linkProgram:noop,getProgramParameter:()=>true,useProgram:noop,getUniformLocation:(_,k)=>k,createBuffer:()=>({}),bindBuffer:noop,getAttribLocation:()=>0,enableVertexAttribArray:noop,vertexAttribPointer:noop,uniformMatrix4fv:(_,__,m)=>{projection=m},uniform1f:noop,uniform3f:(key,r,g,b)=>{if(key==='fogColor')sky=[r,g,b];if(key==='sunTint')sunTint=[r,g,b];if(key==='sunDirection')sunDirection=[r,g,b]},clearColor:(r,g,b)=>{sky=[r,g,b]},clear:()=>{ctx.fillStyle=`rgb(${sky.map(v=>Math.round(v*255)).join(',')})`;ctx.fillRect(0,0,canvas.width,canvas.height)},viewport:noop,enable:noop,cullFace:noop,bufferData:(_,v)=>{vertices=v},drawArrays:()=>{if(!vertices||!projection)return;const polys=[];const m=projection;function convert(i){const x=vertices[i],y=vertices[i+1],z=vertices[i+2],w=m[3]*x+m[7]*y+m[11]*z+m[15];if(w<=.05)return null;return [(m[0]*x+m[4]*y+m[8]*z+m[12])/w,(m[1]*x+m[5]*y+m[9]*z+m[13])/w,w]}for(let i=0;i<vertices.length;i+=30){let a=convert(i),b=convert(i+10),c=convert(i+20);if(!a||!b||!c)continue;let depth=(a[2]+b[2]+c[2])/3;let col=[vertices[i+6],vertices[i+7],vertices[i+8]],dir=Math.hypot(...sunDirection)||1,lit=Math.max(0,(vertices[i+3]*sunDirection[0]+vertices[i+4]*sunDirection[1]+vertices[i+5]*sunDirection[2])/dir);let fog=Math.max(0,Math.min(.82,(depth-24)/105));col=col.map((v,k)=>Math.min(255,Math.round(255*(v*(.46+lit*.56)*sunTint[k]*(1-fog)+sky[k]*fog))));polys.push({a,b,c,depth,fill:`rgb(${col.join(',')})`})}polys.sort((a,b)=>b.depth-a.depth);for(let p of polys){ctx.beginPath();ctx.moveTo((p.a[0]+1)*canvas.width/2,(1-p.a[1])*canvas.height/2);ctx.lineTo((p.b[0]+1)*canvas.width/2,(1-p.b[1])*canvas.height/2);ctx.lineTo((p.c[0]+1)*canvas.width/2,(1-p.c[1])*canvas.height/2);ctx.closePath();ctx.fillStyle=p.fill;ctx.fill()}}};}
+const vs=`attribute vec3 position;attribute vec3 normal;attribute vec3 color;attribute float materialId;
+uniform mat4 viewProjection;uniform vec3 sunDirection;uniform vec3 sunTint;
+varying vec3 vColor;varying vec3 vWorld;varying vec3 vNormal;varying float vFog;varying float vMaterial;
+void main(){
+ vec4 p=viewProjection*vec4(position,1.);gl_Position=p;
+ vec3 n=normalize(normal);vec3 sun=normalize(sunDirection);
+ float lit=max(dot(n,sun),0.);float hemi=.5+.5*n.y;
+ float bounce=max(dot(n,normalize(vec3(-sun.x,.28,-sun.z))),0.);
+ vec3 ambient=mix(vec3(.28,.37,.43),vec3(.55,.51,.41),hemi);
+ vColor=color*(ambient+lit*.67*sunTint+bounce*.11);
+ vWorld=position;vNormal=n;vMaterial=materialId;vFog=clamp((p.w-24.)/105.,0.,.82);
+}`;
+// Gauntlet 023 — world-space GPU materials. Original procedural detail; not full PBR.
+const fs=`precision mediump float;
+varying vec3 vColor;varying vec3 vWorld;varying vec3 vNormal;varying float vFog;varying float vMaterial;
+uniform vec3 fogColor;uniform vec3 sunDirection;uniform float worldTime;
+float hash3(vec3 p){p=fract(p*.1031);p+=dot(p,p.yxz+33.33);return fract((p.x+p.y)*p.z);}
+float noise3(vec3 p){
+ vec3 i=floor(p),f=fract(p);f=f*f*(3.0-2.0*f);
+ float a=hash3(i),b=hash3(i+vec3(1.,0.,0.));
+ float c=hash3(i+vec3(0.,1.,0.)),d=hash3(i+vec3(1.,1.,0.));
+ float e=hash3(i+vec3(0.,0.,1.)),g=hash3(i+vec3(1.,0.,1.));
+ float h=hash3(i+vec3(0.,1.,1.)),j=hash3(i+vec3(1.,1.,1.));
+ return mix(mix(mix(a,b,f.x),mix(c,d,f.x),f.y),mix(mix(e,g,f.x),mix(h,j,f.x),f.y),f.z);
+}
+void main(){
+ vec3 c=vColor;
+ vec3 n=normalize(vNormal);
+ if(vMaterial>0.5&&vMaterial<1.5){
+  float meadow=noise3(vWorld*vec3(.29,1.1,.29));
+  float blades=noise3(vWorld*vec3(5.2,1.4,5.2));
+  c*=mix(.82,1.17,meadow)*mix(.92,1.10,blades);
+  c=mix(c,c*vec3(.83,1.05,.76),smoothstep(.48,.8,meadow)*.2);
+ }else if(vMaterial>1.5&&vMaterial<2.5){
+  float wave1=sin(vWorld.x*3.3+vWorld.z*1.2-worldTime*.73);
+  float wave2=sin(vWorld.z*7.8-vWorld.x*2.4+worldTime*1.05);
+  float crest=smoothstep(.73,.99,wave1*.54+wave2*.25+.39);
+  float shine=pow(max(dot(reflect(normalize(vec3(.2,.96,.13)),normalize(sunDirection)),vec3(0.,1.,0.)),0.),6.);
+  c=mix(c,c*vec3(.65,1.17,1.28),.22+.16*wave2);
+  c+=vec3(.24,.44,.47)*crest*(.25+.25*shine);
+ }else if(vMaterial>2.5&&vMaterial<3.5){
+  c*=.79+.27*noise3(vWorld*5.5)-.12*step(.8,noise3(vWorld*10.));
+ }else if(vMaterial>3.5&&vMaterial<4.5){
+  c*=.75+.38*noise3(vWorld*3.5);
+  c+=vec3(.018,.052,.016)*pow(max(dot(n,normalize(sunDirection)),0.),2.);
+ }else if(vMaterial>4.5&&vMaterial<5.5){
+  vec2 uv=abs(n.y)>.67?vWorld.xz:(abs(n.x)>abs(n.z)?vWorld.zy:vWorld.xy);
+  vec2 brick=uv*vec2(1.2,2.2);brick.x+=floor(brick.y)*.5;
+  vec2 seam=abs(fract(brick)-.5);
+  float mortar=1.-smoothstep(.45,.499,max(seam.x,seam.y));
+  c*=.86+.28*noise3(vWorld*5.);
+  c*=mix(.69,1.,mortar);
+ }else if(vMaterial>5.5&&vMaterial<6.5){
+  float fibers=.5+.5*sin(vWorld.y*45.+noise3(vWorld*2.5)*3.);
+  c*=.90+.16*mix(fibers,noise3(vWorld*7.),.45);
+ }else if(vMaterial>6.5&&vMaterial<7.5){
+  float soot=noise3(vWorld*vec3(2.5,3.2,2.1));
+  c*=.76+.35*soot;
+  c=mix(c,c*vec3(.79,.83,.81),max(0.,soot-.65)*.24);
+ }
+ c=mix(c,fogColor,vFog);
+ vec3 mapped=c/(c+vec3(.34));
+ mapped=pow(max(mapped,vec3(0.)),vec3(.88));
+ gl_FragColor=vec4(mapped,1.);
+}`;
 function shader(type,src){const s=gl.createShader(type);gl.shaderSource(s,src);gl.compileShader(s);if(!gl.getShaderParameter(s,gl.COMPILE_STATUS))throw Error(gl.getShaderInfoLog(s));return s}
 const program=gl.createProgram();gl.attachShader(program,shader(gl.VERTEX_SHADER,vs));gl.attachShader(program,shader(gl.FRAGMENT_SHADER,fs));gl.linkProgram(program);if(!gl.getProgramParameter(program,gl.LINK_STATUS))throw Error(gl.getProgramInfoLog(program));gl.useProgram(program);
-const uniforms={viewProjection:gl.getUniformLocation(program,'viewProjection'),fogColor:gl.getUniformLocation(program,'fogColor'),sunDirection:gl.getUniformLocation(program,'sunDirection'),sunTint:gl.getUniformLocation(program,'sunTint')};const buffer=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,buffer);const stride=40; for(const [name,size,offset] of [['position',3,0],['normal',3,12],['color',3,24],['materialId',1,36]]){let loc=gl.getAttribLocation(program,name);gl.enableVertexAttribArray(loc);gl.vertexAttribPointer(loc,size,gl.FLOAT,false,stride,offset)}
+const uniforms={viewProjection:gl.getUniformLocation(program,'viewProjection'),fogColor:gl.getUniformLocation(program,'fogColor'),sunDirection:gl.getUniformLocation(program,'sunDirection'),sunTint:gl.getUniformLocation(program,'sunTint'),worldTime:gl.getUniformLocation(program,'worldTime')};const buffer=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,buffer);const stride=40; for(const [name,size,offset] of [['position',3,0],['normal',3,12],['color',3,24],['materialId',1,36]]){let loc=gl.getAttribLocation(program,name);gl.enableVertexAttribArray(loc);gl.vertexAttribPointer(loc,size,gl.FLOAT,false,stride,offset)}
 const MATERIAL=Object.freeze({GENERAL:0,GRASS:1,WATER:2,ROAD:3,FOLIAGE:4,STONE:5,WOOD:6,ROOF:7});
 let currentMaterial=MATERIAL.GENERAL;
 function materialScope(id,make){const old=currentMaterial;currentMaterial=id;try{return make()}finally{currentMaterial=old}}
@@ -760,7 +823,7 @@ riverBridge();hillsideSanctuary();market(0,5);well(-15,4);villageGarden(12,11);v
 for(let i=0;i<5;i++){let xx=-17+i*1.3,zz=-14+(i%2)*1.4;box(xx,terrain(xx,zz),zz,1,.45,.64,rgb(0x7d5d45))}
 currentMaterial=MATERIAL.WOOD;
  for(const p of people)villager(p);currentMaterial=MATERIAL.GENERAL;weatherParticles(atmosphere);
-const elevation=Math.sin(pitch)*zoom,rad=Math.cos(pitch)*zoom,eye=[focusPoint[0]+Math.sin(yaw)*rad,elevation,focusPoint[1]+Math.cos(yaw)*rad];let m=mat4multiply(perspective(Math.PI/3.2,w/h,.1,190),lookAt(eye,[focusPoint[0],.25,focusPoint[1]],[0,1,0]));gl.uniformMatrix4fv(uniforms.viewProjection,false,m);gl.uniform3f(uniforms.fogColor,...atmosphere.fog);gl.uniform3f(uniforms.sunTint,...atmosphere.light);gl.uniform3f(uniforms.sunDirection,Math.cos(state.t/24*6.283),.3+atmosphere.daylight*.9,Math.sin(state.t/24*6.283));lastFrameTriangles=data.length/30;gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(data),gl.DYNAMIC_DRAW);gl.drawArrays(gl.TRIANGLES,0,data.length/10);if((frames++%14)===0){updateUI();drawAtlas();updateRealmSignal()}}
-requestAnimationFrame(render);window.__tinyKingdom={getState:()=>JSON.parse(JSON.stringify({state,people:people.map(({name,job,x,z,target})=>({name,job,x,z,target}))})),setSpeed:x=>{speed=x},step,reset:start,renderer:()=>canvas.getContext('webgl')?'webgl':'software',metrics:()=>({citizens:people.length,buildings:city.length+2,day:Math.floor(state.t/24)+1,food:state.food,wood:state.wood,gold:state.gold,relationships:people.filter(p=>p.friend).length}),route:(a,b)=>routeBetween(a[0],a[1],b[0],b[1]),walkable:(p)=>walkable(p[0],p[1]),getNavigation:()=>people.map(p=>({name:p.name,position:[p.x,p.z],target:p.target,remaining:p.path?.length||0,path:p.path,activity:p.activity,hunger:p.hunger,energy:p.energy})),exportSnapshot,restoreSnapshot,saveWorld,restoreWorld,climateAt,skyConditions,getCitizenProfiles:()=>cloneData(people.map(({name,job,trait,friend,bonds,energy,hunger,activity})=>({name,job,trait,friend,bonds,energy,hunger,activity}))),getRigPose:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(citizenRigPose(people[index])):null,getSelectedCitizen:()=>people[selectedCitizen]?.name,routeCacheMetrics:()=>({entries:routeCache.size,hits:cacheHits,misses:cacheMisses}),getCamera:()=>({yaw,pitch,zoom,focus:focusPoint.slice(),follow,cinematic}),getTerrainHeight:(x,z)=>terrain(x,z),getWildfloraCount:()=>wildflora.length,getScenicSites:scenicSiteMetrics,getFestivalVisualStats:()=>({season:festivalSeason,cacheBuilds:festivalCacheBuilds,vertices:festivalGeometry?.length||0}),renderStats:()=>({terrainRebuilds,terrainCacheKey,terrainCacheTriangles,lastFrameTriangles}),setCamera:o=>{yaw=Number.isFinite(o.yaw)?o.yaw:yaw;pitch=Number.isFinite(o.pitch)?Math.max(.25,Math.min(1.45,o.pitch)):pitch;zoom=Number.isFinite(o.zoom)?Math.max(9,Math.min(85,o.zoom)):zoom;if(Array.isArray(o.focus)&&o.focus.length===2)focusPoint=o.focus.slice(0,2)}};
+const elevation=Math.sin(pitch)*zoom,rad=Math.cos(pitch)*zoom,eye=[focusPoint[0]+Math.sin(yaw)*rad,elevation,focusPoint[1]+Math.cos(yaw)*rad];let m=mat4multiply(perspective(Math.PI/3.2,w/h,.1,190),lookAt(eye,[focusPoint[0],.25,focusPoint[1]],[0,1,0]));gl.uniformMatrix4fv(uniforms.viewProjection,false,m);gl.uniform3f(uniforms.fogColor,...atmosphere.fog);gl.uniform3f(uniforms.sunTint,...atmosphere.light);gl.uniform1f(uniforms.worldTime,state.t);gl.uniform3f(uniforms.sunDirection,Math.cos(state.t/24*6.283),.3+atmosphere.daylight*.9,Math.sin(state.t/24*6.283));lastFrameTriangles=data.length/30;gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(data),gl.DYNAMIC_DRAW);gl.drawArrays(gl.TRIANGLES,0,data.length/10);if((frames++%14)===0){updateUI();drawAtlas();updateRealmSignal()}}
+requestAnimationFrame(render);window.__tinyKingdom={getState:()=>JSON.parse(JSON.stringify({state,people:people.map(({name,job,x,z,target})=>({name,job,x,z,target}))})),setSpeed:x=>{speed=x},step,reset:start,renderer:()=>canvas.getContext('webgl')?'webgl':'software',metrics:()=>({citizens:people.length,buildings:city.length+2,day:Math.floor(state.t/24)+1,food:state.food,wood:state.wood,gold:state.gold,relationships:people.filter(p=>p.friend).length}),route:(a,b)=>routeBetween(a[0],a[1],b[0],b[1]),walkable:(p)=>walkable(p[0],p[1]),getNavigation:()=>people.map(p=>({name:p.name,position:[p.x,p.z],target:p.target,remaining:p.path?.length||0,path:p.path,activity:p.activity,hunger:p.hunger,energy:p.energy})),exportSnapshot,restoreSnapshot,saveWorld,restoreWorld,climateAt,skyConditions,getCitizenProfiles:()=>cloneData(people.map(({name,job,trait,friend,bonds,energy,hunger,activity})=>({name,job,trait,friend,bonds,energy,hunger,activity}))),getRigPose:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(citizenRigPose(people[index])):null,getSelectedCitizen:()=>people[selectedCitizen]?.name,routeCacheMetrics:()=>({entries:routeCache.size,hits:cacheHits,misses:cacheMisses}),getCamera:()=>({yaw,pitch,zoom,focus:focusPoint.slice(),follow,cinematic}),getTerrainHeight:(x,z)=>terrain(x,z),getWildfloraCount:()=>wildflora.length,getMaterialSystem:()=>({vertexStride:10,surfaceShaderVersion:'procedural-023',materials:Object.keys(MATERIAL),gpuRenderValidated:false}),getScenicSites:scenicSiteMetrics,getFestivalVisualStats:()=>({season:festivalSeason,cacheBuilds:festivalCacheBuilds,vertices:festivalGeometry?.length||0}),renderStats:()=>({terrainRebuilds,terrainCacheKey,terrainCacheTriangles,lastFrameTriangles}),setCamera:o=>{yaw=Number.isFinite(o.yaw)?o.yaw:yaw;pitch=Number.isFinite(o.pitch)?Math.max(.25,Math.min(1.45,o.pitch)):pitch;zoom=Number.isFinite(o.zoom)?Math.max(9,Math.min(85,o.zoom)):zoom;if(Array.isArray(o.focus)&&o.focus.length===2)focusPoint=o.focus.slice(0,2)}};
 })();
 </script></body></html>
