@@ -146,3 +146,53 @@ test('unmuted original battle soundtrack stays responsive without browser except
   await expect(page.locator('[data-testid="battle-canvas"]')).toBeVisible();
   expect(errors).toEqual([]);
 });
+
+test('v3 broadcast uses vivid esports palette, accurate telemetry and legible desktop UI',async({page})=>{
+  const errors=[];
+  page.on('pageerror',error=>errors.push(error.message));
+  await page.setViewportSize({width:1600,height:900});
+  await page.goto(base+'/battle?muted=1',{waitUntil:'domcontentloaded'});
+  await page.waitForFunction(()=>window.__BATTLE_PUBLIC_STATE__?.tick>=1);
+  await expect(page.locator('body')).toHaveAttribute('data-ux-revision','3');
+  await expect(page.locator('#arena-biome')).not.toBeEmpty();
+  await expect(page.locator('#arena-storm')).toContainText('PHASE');
+  await expect(page.locator('#arena-contenders')).toContainText('/');
+  await expect(page.locator('.brand-streak')).toContainText('LIVE AI SIMULATION');
+  const metrics=await page.evaluate(()=>{
+    const root=getComputedStyle(document.documentElement);
+    const hud=getComputedStyle(document.querySelector('.survivor-card'));
+    const arena=document.querySelector('.arena-shell').getBoundingClientRect();
+    return{color:root.getPropertyValue('--royal-cyan').trim(),
+      gradient:hud.backgroundImage,arenaRatio:arena.width/innerWidth,
+      chips:document.querySelector('#arena-counter').textContent,
+      tick:window.__BATTLE_PUBLIC_STATE__.tick};
+  });
+  expect(metrics.color).toBe('#4ee9ff');
+  expect(metrics.gradient).toContain('gradient');
+  expect(metrics.arenaRatio).toBeGreaterThan(.48);
+  expect(metrics.chips).toBe('TICK '+metrics.tick);
+  expect(errors).toEqual([]);
+  await page.screenshot({path:path.join(captures,'v3-premium-ui-desktop.png'),fullPage:true});
+});
+
+test('v3 layout keeps playing field visible in phone landscape and isolates clean-feed overlays',async({browser})=>{
+  const phone=await browser.newPage({viewport:{width:844,height:390}});
+  const clean=await browser.newPage({viewport:{width:1280,height:720}});
+  try{
+    await phone.goto(base+'/battle?muted=1');
+    await phone.waitForFunction(()=>Boolean(window.__BATTLE_PUBLIC_STATE__));
+    await expect(phone.locator('[data-testid="battle-canvas"]')).toBeVisible();
+    await expect(phone.locator('#arena-biome')).toBeVisible();
+    const width=await phone.locator('.arena-shell').evaluate(node=>node.getBoundingClientRect().width);
+    expect(width).toBeGreaterThan(450);
+    await phone.screenshot({path:path.join(captures,'v3-phone-landscape.png')});
+    await clean.goto(base+'/battle?muted=1&cleanFeed=1');
+    await clean.waitForFunction(()=>Boolean(window.__BATTLE_PUBLIC_STATE__));
+    await expect(clean.locator('.arena-topline')).toBeHidden();
+    await expect(clean.locator('.arena-footer')).toBeHidden();
+    await expect(clean.locator('.hud')).toBeHidden();
+    await clean.screenshot({path:path.join(captures,'v3-clean-feed.png')});
+  }finally{
+    await phone.close();await clean.close();
+  }
+});
