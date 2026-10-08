@@ -6,6 +6,7 @@ import { composeStreetVibrance } from '/eko/world-vibrance.js';
 import { createCityAtmosphere } from '/eko/atmosphere.js';
 import { createEkoGameFeel } from '/eko/gamefeel.js';
 import { createEkoSoundscape } from '/eko/soundscape.js';
+import { createAdaptiveQualityGovernor } from '/eko/adaptive-quality.js';
 
 // Presentation-only renderer. The Node simulation owns all movement, collision and rewards.
 const $ = id => document.getElementById(id);
@@ -30,6 +31,7 @@ const OUTFITS = {
   'hausa-baban-riga-cap': [0x16766b,0xf1dbab,0xd48a45]
 };
 const surfaces=createEkoSurfaceKit(THREE);
+const qualityGovernor=createAdaptiveQualityGovernor({initialRatio:1.15});
 const matCache = new Map();
 const geomCache = new Map();
 const material = (hex, metalness=0, roughness=0.79) => {
@@ -388,7 +390,7 @@ window.__EKO_VISUAL_AUDIT__=()=>{
     character:{type:'original-procedural-joint-rig',joints:actor.articulatedJoints,meshes:actorMeshes,
       outfits:actor.availableOutfits,outfit:worldState.outfit,...projectedVisibility()},
     environment:{district:worldState.district,meshes:worldMeshes,batching:worldState.batching,materials:surfaces.stats(),vibrance:worldState.vibrance,atmosphere:atmosphere.signature},
-    performance:{drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,visualEffects:vfx.stats(),
+    performance:{drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,visualEffects:vfx.stats(),adaptive:qualityGovernor.metrics(),
       pixelRatio:renderer.getPixelRatio(),frameRateReported:ui.fps.textContent,
       renderer:renderer.capabilities.isWebGL2?'WebGL2':'WebGL'},
     simulation:{publicTick:latest?.snapshot.tick??null,lifecycle:latest?.snapshot.lifecycle??null}
@@ -533,7 +535,7 @@ $('outfit').addEventListener('change',ev=>postControl({outfit:ev.target.value}))
 $('quality').addEventListener('click',()=>{
   worldState.quality=worldState.quality==='high'?'low':'high';
   renderer.shadowMap.enabled=worldState.quality==='high';
-  renderer.setPixelRatio(Math.min(devicePixelRatio,worldState.quality==='high'?1.6:1));
+  renderer.setPixelRatio(Math.min(devicePixelRatio,worldState.quality==='high'?qualityGovernor.ratio:1));
   ui.quality.textContent=worldState.quality==='high'?'QUALITY HIGH':'QUALITY LOW';
   if(latest)buildWorld(latest.snapshot);
 });
@@ -549,7 +551,7 @@ setInterval(async()=>{
 function resize(){
   const w=canvas.clientWidth,h=canvas.clientHeight;
   if(!w||!h)return;
-  renderer.setPixelRatio(Math.min(devicePixelRatio,worldState.quality==='high'?1.6:1));
+  renderer.setPixelRatio(Math.min(devicePixelRatio,worldState.quality==='high'?qualityGovernor.ratio:1));
   renderer.setSize(w,h,false);camera.aspect=w/h;camera.fov=w/h<.8?54:48;camera.updateProjectionMatrix();
 }
 new ResizeObserver(resize).observe(canvas);resize();
@@ -598,7 +600,16 @@ function animate(now){
   vfx.update(dt,matchMedia('(prefers-reduced-motion: reduce)').matches,worldState.quality);
   renderer.render(scene,camera);
   frames++;
-  if(now-fpsStamp>1000){ui.fps.textContent=Math.round(frames*1000/(now-fpsStamp))+' FPS';fpsStamp=now;frames=0;}
+  if(now-fpsStamp>1000){
+    const fps=frames*1000/(now-fpsStamp);
+    ui.fps.textContent=Math.round(fps)+' FPS';
+    const qualityState=qualityGovernor.observe(fps,now);
+    if(qualityState.changed && worldState.quality==='high'){
+      renderer.setPixelRatio(Math.min(devicePixelRatio,qualityState.ratio));
+      renderer.setSize(canvas.clientWidth,canvas.clientHeight,false);
+    }
+    fpsStamp=now;frames=0;
+  }
 }
 requestAnimationFrame(animate);
 const stream=new EventSource('/eko/stream');
