@@ -1,0 +1,54 @@
+{
+  "project": "Infinite Tower Climb — 3D Gauntlet",
+  "date": "2026-10-08",
+  "round": 1,
+  "target": "Jusant (DON'T NOD): official screenshots and captured gameplay",
+  "status": "3D vertical slice committed; runtime screenshot and independent A/B review pending",
+  "completionRule": "A separate critic must inspect the rendered game, compare screenshots or gameplay against official Jusant imagery, report the worst gap, and repeat. A functioning renderer alone is not a pass.",
+  "lanes": [
+    {
+      "name": "3D tower environment",
+      "status": "implemented; browser inspection pending",
+      "criterion": "True perspective/depth, readable platforms, rich materials and atmospheric lighting"
+    },
+    {
+      "name": "Fully modeled climber",
+      "status": "procedural articulated rig; inspection pending",
+      "criterion": "Recognizable anatomy, convincing movement, and character silhouette"
+    },
+    {
+      "name": "Hazards, enemies, pickups",
+      "status": "3D snapshot-driven visuals; inspection pending",
+      "criterion": "Every gameplay entity remains legible and consistent with authority"
+    },
+    {
+      "name": "Autonomous gameplay",
+      "status": "existing simulation preserved; CI pending",
+      "criterion": "Fixed-step seeded simulation and replay tests remain green"
+    },
+    {
+      "name": "Capture and A/B review",
+      "status": "not yet independently reviewed",
+      "criterion": "Blind real-output comparison with a separate visual critic"
+    },
+    {
+      "name": "Production quality",
+      "status": "not achieved",
+      "criterion": "Polish, performance, stability, animation and independent visual acceptance"
+    }
+  ],
+  "evidence": [
+    {
+      "name": "3D browser capture",
+      "state": "awaiting Playwright CI artifact"
+    },
+    {
+      "name": "Jusant visual reference inspection",
+      "state": "awaiting independent critic"
+    },
+    {
+      "name": "Performance counters",
+      "state": "exposed at window.__TOWER_3D_DIAGNOSTICS__"
+    }
+  ]
+}
