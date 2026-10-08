@@ -424,7 +424,7 @@ function rebuild(snapshot) {
       if(side.id>=0 && known.has(side.id) && side.id<cell.cell) continue;
       const manhattan=Math.abs(col-activeCol)+Math.abs(row-activeRow);
       const inFront=(side.dx>0||side.dz>0);
-      masonryWall(world,p.x+side.dx,p.z+side.dz,side.kind,cell.cell,manhattan<=2&&inFront);
+      masonryWall(world,p.x+side.dx,p.z+side.dz,side.kind,cell.cell,manhattan<=3&&inFront);
     }
     if(cell.checkpoint) {
       const beacon=mesh(geometries.cylinder,materials.exit,world,[p.x,0.09,p.z],[0.38,0.13,0.38]);
@@ -628,6 +628,12 @@ function render(now) {
     const delta=explorerTarget.clone().sub(explorer.position);
     if(delta.lengthSq()>0.001)explorer.rotation.y=Math.atan2(delta.x,delta.z);
   }
+  if(explorer.userData.beacon){
+    const beacon=explorer.userData.beacon;
+    beacon.material.opacity=reducedMotion?.61:.59+Math.sin(now*.0035)*.12;
+    const pulse=reducedMotion?1:1+Math.sin(now*.0028)*.10;
+    beacon.scale.setScalar(.68*pulse);
+  }
   if(explorer.userData.capeRig){
     const cape=explorer.userData.capeRig;
     cape.rotation.x=reducedMotion?0:.12+Math.sin(now*.004)*.07+(moving?.12:0);
@@ -754,6 +760,7 @@ function render(now) {
       explorerMeshes:explorer.userData.meshCount||0,
       riggedCharacter:window.__MAZE_3D_MODEL__?.status||'procedural',
       rigBones:window.__MAZE_3D_MODEL__?.bones||0,
+      heroAlwaysVisibleBeacon:Boolean(explorer.userData.beacon),
       observedHunterCount:threats.length,
       animatedThreatRig:window.__MAZE_3D_MONSTER__?.status||'procedural',
       ghostAnimationClips:window.__MAZE_3D_MONSTER__?.clips?.length||0,
@@ -917,6 +924,17 @@ function init() {
   explorer.userData.meshCount=heroMeshes;
   explorer.userData.halo=mesh(geometries.torus,materials.aura,explorer,[0,.04,0],[.82,.82,.82]);
   explorer.userData.halo.rotation.x=Math.PI/2;
+  // Always-on depth-independent WAYFINDER beacon keeps the actual protagonist
+  // legible behind complex foreground geometry, without revealing unknown rooms.
+  const playerBeacon=new THREE.Sprite(new THREE.SpriteMaterial({
+    map:glowTexture,color:0x74ffe5,transparent:true,
+    depthTest:false,depthWrite:false,blending:THREE.AdditiveBlending,opacity:.72
+  }));
+  playerBeacon.position.set(0,2.3,0);
+  playerBeacon.scale.set(.68,.68,.68);
+  playerBeacon.renderOrder=999;
+  explorer.userData.halo.add(playerBeacon);
+  explorer.userData.beacon=playerBeacon;
   const resize=()=>{
     const rect=mount.getBoundingClientRect();
     renderer.setSize(Math.max(1,Math.floor(rect.width)),Math.max(1,Math.floor(rect.height)),false);
