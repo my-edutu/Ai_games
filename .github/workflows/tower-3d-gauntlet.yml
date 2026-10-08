@@ -56,7 +56,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          for file in public/infinite-tower-climb/scene3d.js public/infinite-tower-climb/character3d.js public/infinite-tower-climb/environment3d.js; do
+          for file in public/infinite-tower-climb/scene3d.js public/infinite-tower-climb/character3d.js public/infinite-tower-climb/environment3d.js public/infinite-tower-climb/biome-v4.js public/infinite-tower-climb/hazards-v4.js public/infinite-tower-climb/landmarks-v5.js; do
             node --input-type=module --check < "$file"
           done
       - name: Check scene integration and prohibited remote libraries
