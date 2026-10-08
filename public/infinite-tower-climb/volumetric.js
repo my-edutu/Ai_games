@@ -91,7 +91,9 @@
       velocity:{x:player.vx,y:player.vy,z:player.vz},platforms:models.size,next:player.at+1,
       deaths:player.deaths,biome,mode:snapshot.mode,intent:snapshot.intent,guardianKills:snapshot.guardianKills,
       score:snapshot.score,health:player.health,autonomous:!manual,dimensionality:3,
-      highestReached:snapshot.highestReached});
+      highestReached:snapshot.highestReached,
+      latestStory:snapshot.events?.at(-1)?.text||'A new climber enters the tower.',
+      latestStoryType:snapshot.events?.at(-1)?.type||'run-start'});
   }
   function resize(){
     const w=Math.max(1,canvas.clientWidth),h=Math.max(1,canvas.clientHeight);
@@ -122,6 +124,8 @@
       document.getElementById('depth').textContent='Z '+player.z.toFixed(1);
       document.getElementById('biome').textContent=biome.toUpperCase();
       document.getElementById('recoveries').textContent=String(player.deaths);
+      const story=document.getElementById('story-line');
+      if(story&&story.textContent!==details.latestStory)story.textContent=details.latestStory;
       document.getElementById('guardian-kills').textContent=String(details.guardianKills);
       document.getElementById('score').textContent=details.score.toLocaleString();
       document.getElementById('health').textContent=String(details.health)+' / 5';
