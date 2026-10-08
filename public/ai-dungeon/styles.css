@@ -49,3 +49,5 @@ body[data-biome="ember"] .icon-button{color:#ffe0b0}
 @keyframes splash-appear{from{opacity:0;transform:scale(1.05)}to{opacity:1;transform:scale(1)}}
 @media(max-width:680px){.splash-frame{width:88%;padding:22px 15px}.splash-depth{font-size:11px;letter-spacing:3px}.splash-depth strong{font-size:59px}.splash-frame h2{font-size:20px}.floor-splash{backdrop-filter:blur(3px)}}
 @media(prefers-reduced-motion:reduce){body{transition:none}.floor-splash{animation:none}}
+
+.hazard-dot{background:linear-gradient(135deg,#ffbc68,#ff5778);box-shadow:0 0 10px #ff54768c}.hazard-count{color:#ffc08d!important;font-size:9px;letter-spacing:1px;font-weight:900;padding:6px 8px;border:1px solid #ff8a7463;border-radius:7px;background:#592e4f65}

@@ -69,3 +69,21 @@ test('procedural chambers diversify geometry and guarantee a spacious boss court
   assertDungeonState(s);
  }
 });
+
+test('interactive traps are deterministic and can hurt or be disarmed by autonomous heroes',()=>{
+ const game=DungeonRuntime.create('trap-interaction-fixture'),s=game.state;
+ assert.ok(s.traps.length>=2);
+ const vanguard=s.units.find(u=>u.id==='vanguard'),boss=s.units.find(u=>u.kind==='warden');
+ const next=shortestPath(s.map,vanguard,boss)[0];assert.ok(next);
+ const trap=s.traps[0];trap.x=next.x;trap.z=next.z;trap.active=true;
+ const before=vanguard.hp;const t=game.step();
+ assert.ok(vanguard.hp<before,'armed trap must affect a real entering hero');
+ assert.equal(trap.active,false);assert.equal(trap.cooldown,11);
+ assert.ok(t.events.some(e=>e.kind==='trap'));
+ const restore=DungeonRuntime.restore(game.save());assert.deepEqual(restore.publicState(),game.publicState());
+ const other=DungeonRuntime.create('trap-disarm-fixture'),q=other.state,ranger=q.units.find(u=>u.kind==='ranger');
+ const qtrap=q.traps[0];ranger.x=qtrap.x;ranger.z=qtrap.z;q.tick=3;
+ other.step();
+ assert.equal(qtrap.disarmed,true,'ranger must choose to disable a nearby trap');
+ assert.ok(q.events.some(e=>e.kind==='disarm'));
+});

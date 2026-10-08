@@ -89,3 +89,12 @@ test('actual desktop capture contains varied visible colour instead of near-blac
  expect(audit.colouredFraction).toBeGreaterThan(.05);
  expect(audit.meanLuminance).toBeGreaterThan(18);
 });
+
+test('animated dungeon hazards match authoritative state and surface in radar',async({page})=>{
+ await page.goto('/dungeon');
+ await expect.poll(async()=>page.evaluate(()=>window.__DUNGEON_PUBLIC_STATE__?.traps?.length??0),{timeout:15000}).toBeGreaterThan(0);
+ await expect(page.locator('#hazard-count')).not.toBeEmpty();
+ const projection=await page.evaluate(()=>({traps:window.__DUNGEON_PUBLIC_STATE__.traps,rendered:window.__DUNGEON_RENDER_DIAGNOSTICS__?.triangles??0}));
+ expect(projection.traps.every(t=>['arcane','ember'].includes(t.kind))).toBe(true);
+ expect(projection.rendered).toBeGreaterThan(100);
+});

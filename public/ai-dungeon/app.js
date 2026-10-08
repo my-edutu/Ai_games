@@ -53,7 +53,7 @@ function disposeParticle(p){scene.remove(p.mesh);p.mesh.material.dispose()}
 function cue(event,s){
  if(reduced)return;
  pulseFX(event,s);
- const colors={kill:'#ffe3a0',combat:'#e99159',danger:'#ef5864',telegraph:'#ffb77b',healing:'#58ebba',loot:'#66d7e5',floor:'#d7bbff'};
+ const colors={kill:'#ffe3a0',combat:'#e99159',danger:'#ef5864',trap:'#ff646c',disarm:'#74f8be',telegraph:'#ffb77b',healing:'#58ebba',loot:'#66d7e5',floor:'#d7bbff'};
  const color=colors[event.kind];if(!color)return;
  const target=event.kind==='danger'?s.units.find(u=>u.faction==='party'&&u.hp>0):event.kind==='kill'?s.units.find(u=>u.kind==='warden'&&u.hp>0):s.units.find(u=>u.id==='mystic')||s.units[0];
  const x=(target?.x??s.exit.x)-9,z=(target?.z??s.exit.z)-9;
@@ -161,6 +161,18 @@ function buildWorld(s){clearWorld();worldFloor=s.run+'-'+s.floor;lastCutawayKey=
  }
  const shield=new THREE.Mesh(new THREE.SphereGeometry(1.36,24,12,0,Math.PI*2,0,Math.PI/2),new THREE.MeshBasicMaterial({color:theme.accent,wireframe:true,transparent:true,opacity:.12,depthWrite:false,side:THREE.DoubleSide}));shield.position.y=.02;court.add(shield);
  world.add(court);world.userData.court=court;world.userData.courtShield=shield;
+ // Interactive hazard meshes directly reflect authoritative trap state.
+ const hazardMeshes=new Map();
+ for(const t of s.traps||[]){
+  const hazard=new THREE.Group();hazard.position.set(t.x-offset,.018,t.z-offset);
+  const fire=t.kind==='ember',base=new THREE.Mesh(new THREE.CylinderGeometry(.44,.47,.08,12),stoneEdge);base.position.y=.02;hazard.add(base);
+  const ring=new THREE.Mesh(new THREE.TorusGeometry(.36,.048,8,32),fire?dangerGlow:tealGlow);ring.rotation.x=-Math.PI/2;ring.position.y=.077;hazard.add(ring);
+  for(let k=0;k<6;k++){const angle=k*Math.PI/3,r=.30;
+   const mark=make(geo.cube,k%2?gold:fire?dangerGlow:tealGlow,hazard,Math.cos(angle)*r,.10,Math.sin(angle)*r,.09,.028,.055);mark.rotation.y=angle}
+  const charge=make(geo.cone,fire?dangerGlow:tealGlow,hazard,0,.23,0,.11,.25,.11);
+  hazard.userData={charge,ring,active:t.active};world.add(hazard);hazardMeshes.set(t.id,hazard);
+ }
+ world.userData.hazardMeshes=hazardMeshes;
  world.userData.dressing=enrichEnvironment(world,s.map,s.floor);
  world.userData.atmosphere=createBiomeAtmosphere(world,s.map,s.floor,s.exit);
 }
@@ -224,11 +236,12 @@ function drawMinimap(s){
  mini.fillStyle='#45ffe2';mini.shadowBlur=13;mini.shadowColor='#45ffe2';
  mini.beginPath();mini.arc(cx(s.exit.x),cz(s.exit.z),cell*.36,0,Math.PI*2);mini.fill();mini.shadowBlur=0;
  mini.fillStyle=mapPalette.loot;for(const r of s.relics){mini.fillRect(cx(r.x)-2,cz(r.z)-2,4,4)}
+ for(const trap of s.traps||[]){if(trap.disarmed)continue;mini.fillStyle=trap.active?'#ff9a73':'#b48270';const x=cx(trap.x),z=cz(trap.z);mini.fillRect(x-2.5,z-2.5,5,5);mini.fillStyle='#2b1a36';mini.fillRect(x-1,z-1,2,2)}
  for(const u of s.units){if(u.hp<=0)continue;mini.beginPath();mini.fillStyle=u.faction==='party'?mapPalette.hero:mapPalette.enemy;mini.strokeStyle=u.faction==='party'?'#d9fffd':'#ffd2d9';mini.lineWidth=1.2;mini.arc(cx(u.x)+(u.id==='ranger'?2:u.id==='mystic'?-2:0),cz(u.z),u.kind==='warden'?cell*.46:cell*.29,0,Math.PI*2);mini.fill();mini.stroke()}
  mini.strokeStyle='#72d5e860';mini.lineWidth=1;mini.strokeRect(.5,.5,W-1,H-1);
 }
 function notifyDungeon(event){
- if(!['telegraph','floor','kill','defeat','loot'].includes(event.kind))return;
+ if(!['telegraph','floor','kill','defeat','loot','trap','disarm'].includes(event.kind))return;
  if(event.kind==='floor'){const splash=$('floor-splash');clearTimeout(splashTimer);splash.hidden=false;const match=event.text.match(/^FLOOR (\d+) · (.+)$/);$('splash-floor').textContent=match?match[1].padStart(2,'0'):String(state?.floor??'02').padStart(2,'0');$('splash-name').textContent=match?match[2]:state?.theme??'THE NEXT CHAPTER';splashTimer=setTimeout(()=>{splash.hidden=true},reduced?800:2400)}
  const banner=$('alert-flash');clearTimeout(alertTimer);banner.hidden=false;
  banner.textContent=event.kind==='telegraph'?'⚠  '+event.text.toUpperCase():event.kind==='floor'?'✦  '+event.text.toUpperCase():event.kind==='defeat'?'☠  '+event.text.toUpperCase():event.text.toUpperCase();
@@ -237,7 +250,7 @@ function notifyDungeon(event){
 }
 function playEffect(kind){
  if(!ambience)return;const ctx=ambience;if(ctx.state!=='running')return;
- const hz={floor:524,loot:880,kill:340,healing:660,telegraph:195,danger:142}[kind];if(!hz)return;
+ const hz={floor:524,loot:880,kill:340,healing:660,telegraph:195,danger:142,trap:120,disarm:920}[kind];if(!hz)return;
  const now=ctx.currentTime,o=ctx.createOscillator(),g=ctx.createGain();o.type=kind==='danger'?'sawtooth':'sine';o.frequency.setValueAtTime(hz,now);o.frequency.exponentialRampToValueAtTime(hz*.7,now+.19);g.gain.setValueAtTime(.0001,now);g.gain.exponentialRampToValueAtTime(.052,now+.015);g.gain.exponentialRampToValueAtTime(.0001,now+.23);o.connect(g).connect(ctx.destination);o.start(now);o.stop(now+.25);
 }
 $('audio-toggle').addEventListener('click',async()=>{
@@ -275,6 +288,7 @@ function renderDashboard(s){
   const time=document.createElement('small');time.textContent='T+'+String(e.tick).padStart(5,'0')+' · '+e.kind.toUpperCase();li.append(time,document.createTextNode(e.text));return li
  }));
  $('map-cells').textContent=s.map.reduce((n,row)=>n+[...row].filter(ch=>ch==='.').length,0)+' TILES';
+ $('hazard-count').textContent=(s.traps||[]).filter(t=>!t.disarmed).length+' ACTIVE';
  drawMinimap(s);
 }
 
@@ -286,6 +300,7 @@ function update(s){combatOverlay.record(s,timeNow());state=s;received=true;error
  for(const u of s.units){let a=actors.get(u.id);if(!a){a=rig(u);actors.set(u.id,a);a.root.position.set(u.x-9,0,u.z-9)}
   if(a.u.actionTick!==u.actionTick||a.u.action!==u.action){a.actionStarted=timeNow();}a.u=u;a.at.set(u.x-9,0,u.z-9);a.root.visible=u.hp>0;if(a.telegraph)a.telegraph.visible=u.hp>0&&[4,5].includes(s.tick%6);}
  if(world.userData.courtShield)world.userData.courtShield.visible=s.units.some(u=>u.kind==='warden'&&u.hp>0);
+ for(const trap of s.traps||[]){const marker=world.userData.hazardMeshes?.get(trap.id);if(marker){marker.userData.active=trap.active;marker.userData.charge.visible=trap.active;marker.userData.ring.visible=!trap.disarmed;marker.scale.setScalar(trap.disarmed?.67:1)}}
  renderDashboard(s);
  window.__DUNGEON_PUBLIC_STATE__=s;
 }
@@ -312,6 +327,9 @@ function animate(t){requestAnimationFrame(animate);const time=t/1000,dt=Math.min
   if(moving){const delta=a.at.clone().sub(a.root.position);a.root.rotation.y=Math.atan2(-delta.x,-delta.z)}}
  if(world.userData.portal&&!reduced)world.userData.portal.rotation.y=time*.26;
  if(world.userData.court&&!reduced)world.userData.court.rotation.y=Math.sin(time*.3)*.035;
+ if(!reduced&&world.userData.hazardMeshes)for(const trap of world.userData.hazardMeshes.values()){
+  if(trap.userData.active){trap.userData.ring.rotation.z=time*.4;trap.userData.charge.scale.y=.9+Math.sin(time*3+trap.position.x)*.14}
+ }
  if(world.userData.dressing&&!reduced)world.userData.dressing.animate(time);
  if(world.userData.atmosphere&&!reduced)world.userData.atmosphere.update(time);
  cutawayWalls(target);world.userData.dressing?.cutaway(target);
