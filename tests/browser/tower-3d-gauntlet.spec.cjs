@@ -220,7 +220,13 @@ test('visual critics can inspect all four actual 3D character models in the same
   await page.goto(base+'/tower?inspect=characters&cleanFeed=1',{waitUntil:'domcontentloaded'});
   await expect.poll(()=>page.evaluate(()=>window.__TOWER_3D_DIAGNOSTICS__?.inspectionModels),{timeout:30000}).toBe(4);
   await expect.poll(()=>page.evaluate(()=>window.__TOWER_3D_DIAGNOSTICS__?.drawCalls||0),{timeout:30000}).toBeGreaterThan(80);
-  expect(await page.evaluate(()=>window.__TOWER_3D_DIAGNOSTICS__.lens)).toBe('perspective');
+  const inspection=await page.evaluate(()=>window.__TOWER_3D_DIAGNOSTICS__);
+  expect(inspection.inspectionScene).toBe('isolated-production-rigs');
+  expect(inspection.drawCalls).toBeLessThan(850);
+  expect(inspection.triangles).toBeGreaterThan(1000);
+  expect(inspection.entityCount).toBe(0);
+  expect(inspection.renderMode).toBe('webgl-3d');
+  expect(inspection.lens).toBe('perspective');
   await expect(page.locator('[data-testid="hud"]')).toBeHidden();
   await page.screenshot({path:path.join(artifacts,'gauntlet-character-lineup.png'),fullPage:true});
 });
