@@ -184,23 +184,44 @@ function line(route,width,material) {
   const geo = new THREE.BufferGeometry().setFromPoints(pts);
   world.add(new THREE.Line(geo,material));
 }
+let instanceQueues=new Map();
+function queueInstance(geometry,material,position,scale=[1,1,1]){
+  const key=geometry.uuid+'|'+material.uuid;
+  if(!instanceQueues.has(key))instanceQueues.set(key,{geometry,material,matrices:[]});
+  const matrix=new THREE.Matrix4();
+  matrix.compose(
+    new THREE.Vector3(position[0],position[1],position[2]),
+    new THREE.Quaternion(),
+    new THREE.Vector3(scale[0],scale[1],scale[2])
+  );
+  instanceQueues.get(key).matrices.push(matrix);
+}
+function finishInstances(){
+  for(const record of instanceQueues.values()){
+    const batch=new THREE.InstancedMesh(record.geometry,record.material,record.matrices.length);
+    record.matrices.forEach((matrix,i)=>batch.setMatrixAt(i,matrix));
+    batch.instanceMatrix.needsUpdate=true;
+    batch.castShadow=true;
+    batch.receiveShadow=true;
+    batch.frustumCulled=false;
+    world.add(batch);
+  }
+  instanceQueues.clear();
+}
 function masonryWall(parent,x,z,kind,id){
   // Wall spine, carved ledges, fractured stone coursing and end buttress.
-  mesh(geometries['wall'+kind],materials.wall,parent,[x,WALL_HEIGHT*.5,z]);
-  mesh(geometries['trim'+kind],materials.wallTop,parent,[x,WALL_HEIGHT+.03,z]);
-  const base=mesh(geometries.cube,materials.wallTop,parent,[x,.20,z],kind==='NS'?[GRID+.08,.38,.31]:[.31,.38,GRID+.08]);
-  base.castShadow=true;
+  queueInstance(geometries['wall'+kind],materials.wall,[x,WALL_HEIGHT*.5,z]);
+  queueInstance(geometries['trim'+kind],materials.wallTop,[x,WALL_HEIGHT+.03,z]);
+  queueInstance(geometries.cube,materials.wallTop,[x,.20,z],kind==='NS'?[GRID+.08,.38,.31]:[.31,.38,GRID+.08]);
   // Horizontal masonry bands catch real light so the walls have physical depth.
   for(let band=1;band<=3;band++){
-    const course=mesh(geometries.cube,band===2?materials.trim:materials.wallTop,parent,[x,band*.66,z],kind==='NS'?[GRID+.025,.055,.23]:[.23,.055,GRID+.025]);
-    course.castShadow=false;
+    queueInstance(geometries.cube,band===2?materials.trim:materials.wallTop,[x,band*.66,z],kind==='NS'?[GRID+.025,.055,.23]:[.23,.055,GRID+.025]);
   }
   const vertical=kind==='NS';
   for(const side of [-1,1]){
     const ox=vertical?side*(GRID*.5-.12):0,oz=vertical?0:side*(GRID*.5-.12);
-    const pillar=mesh(geometries.column,materials.wallTop,parent,[x+ox,1.31,z+oz],[.78,1,.78]);
-    pillar.castShadow=true;
-    mesh(geometries.cube,materials.trim,parent,[x+ox,2.52,z+oz],[.43,.17,.43]);
+    queueInstance(geometries.column,materials.wallTop,[x+ox,1.31,z+oz],[.78,1,.78]);
+    queueInstance(geometries.cube,materials.trim,[x+ox,2.52,z+oz],[.43,.17,.43]);
   }
   if(id%9===0){
     // Non-structural creeping foliage varies by cell index, never hidden world data.
@@ -257,6 +278,7 @@ function shrineProp(cell,p){
 }
 function rebuild(snapshot) {
   clearWorld();
+  instanceQueues=new Map();
   world.userData.torchCount=0;
   const known = new Set(snapshot.cells.map(cell=>cell.cell));
   const w = snapshot.width;
@@ -268,10 +290,9 @@ function rebuild(snapshot) {
   });
   for (const cell of renderCells) {
     const p=point(cell.cell,w);
-    const tile=mesh(geometries.floor,(cell.cell % 5 === 0)?materials.alternate:materials.floor,world,[p.x,-0.13,p.z]);
-    tile.material=cell.visible?tile.material:materials.dark;
+    queueInstance(geometries.floor,cell.visible?(cell.cell%5===0?materials.alternate:materials.floor):materials.dark,[p.x,-0.13,p.z]);
     if(cell.visible){
-      mesh(geometries.cube,materials.paving,world,[p.x,-.26,p.z],[GRID+.03,.16,GRID+.03]);
+      queueInstance(geometries.cube,materials.paving,[p.x,-.26,p.z],[GRID+.03,.16,GRID+.03]);
       if(cell.cell%3===0) {
         const crack=mesh(geometries.cube,materials.dark,world,[p.x+.26,-.017,p.z-.3],[.55,.013,.018]);
         crack.rotation.y=cell.cell*.43;
@@ -333,6 +354,7 @@ function rebuild(snapshot) {
     world.add(body);
     threats.push(body);
   }
+  finishInstances();
   const target=point(snapshot.currentCell,w);
   // Frame known geography only. Hidden cells never influence composition.
   const nearby=snapshot.cells.filter(c=>{
