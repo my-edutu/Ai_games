@@ -1,8 +1,8 @@
 {
   "schema": 1,
-  "iteration": "Loop 9 · official champion 3D ceremony",
+  "iteration": "Loop 10 · replay integrity and versioned 3D authority",
   "lastUpdated": "2026-10-08",
-  "criticTarget": "Critic must inspect actual running champion screenshot: compare arena spectacle and marble optics against Marble It Up! Ultra; reject if crown eclipses the marble, hides standings, or looks like cardboard.",
+  "criticTarget": "Run Node/TypeScript build and v3 replay checkpoint tests, then inspect actual 3D collisions, jump-bumper spectacle and champion ceremony in Chromium screenshots. Only independent blind reference votes can complete visual acceptance.",
   "comparisonStatus": "NOT YET VERIFIED · 3D contacts and spring launches committed; GitHub Actions Chromium screenshots and blind A/B outcome remain pending.",
   "goals": [
     {
@@ -84,9 +84,19 @@
       "name": "Authority-backed 3D champion ceremony",
       "detail": "Gold display pedestal, orbiting particles and an airborne crown around the legitimate winning marble",
       "status": "implemented"
+    },
+    {
+      "name": "Deterministic physics v3 checkpoints",
+      "detail": "Versioned snapshots and strict rejection of old v2 solver checkpoints prevent silent replay divergence",
+      "status": "implemented"
     }
   ],
   "history": [
+    {
+      "title": "Loop 10 — Replay compatibility and integrity",
+      "note": "Bumped the deterministic authority contract to marble-physics-v3 after modifying collisions. v3 snapshots now roundtrip; legacy v2 checkpoints are explicitly rejected rather than replayed under incompatible physics. Added version boundary regressions.",
+      "proof": "Committed source and regression tests; complete Node CI run pending"
+    },
     {
       "title": "Loop 9 — Champion ceremony",
       "note": "Rendered a golden, quality-scaled 3D orbital crown and victory stand around the official server-appointed champion only at tournament-result/intermission. No client-side winner overrides.",
