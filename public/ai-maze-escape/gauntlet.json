@@ -1,0 +1,53 @@
+{
+  "name": "AI Maze Escape — Gauntlet Loop",
+  "goal": "Autonomous cinematic 3D maze escape with AAA reference-quality environments, characters and gameplay.",
+  "qualityBar": "The Talos Principle 2 (environment and composition); Little Nightmares III (characters and cinematic atmosphere); Labyrinthine (maze systems).",
+  "referencePolicy": "Use licensed/public official gameplay captures for visual A/B. Never declare victory without inspected screenshots and real runtime evidence.",
+  "branch": "agent/maze-3d-gauntlet-loop",
+  "rounds": [
+    {
+      "number": 1,
+      "label": "Existing game audit and first playable 3D scene",
+      "status": "implementation-in-review",
+      "built": [
+        "Public-observation-driven Three.js scene",
+        "Procedural 3D stone floors, walls, rooms, keys, locked doors and exit",
+        "Animated explorer and visible threats",
+        "Camera follows autonomous run",
+        "2D fallback retained",
+        "Live progress page"
+      ],
+      "independentCritic": "Pending: external pixel-level blind A/B, real browser screenshots and endurance evidence",
+      "largestKnownGap": "Procedural 3D characters and environments are not yet comparable to authored AAA assets, lighting, animation and art direction.",
+      "baseline": "R4 software candidate; 88/100 production evidence score according to existing repository documents.",
+      "visualBarMet": false
+    }
+  ],
+  "milestones": [
+    {
+      "label": "Preserve deterministic AI and hidden-information fairness",
+      "status": "implemented previously; regression validation pending"
+    },
+    {
+      "label": "Implement genuine perspective 3D renderer",
+      "status": "implemented; browser validation pending"
+    },
+    {
+      "label": "Upgrade character models and cinematic animations",
+      "status": "prototype only"
+    },
+    {
+      "label": "Art-directed scenes, materials, lighting and audio",
+      "status": "prototype only"
+    },
+    {
+      "label": "Independent visual A/B and functional acceptance",
+      "status": "not started"
+    },
+    {
+      "label": "Production performance and long-run stability",
+      "status": "not started"
+    }
+  ],
+  "updatedAt": "2026-10-08"
+}
