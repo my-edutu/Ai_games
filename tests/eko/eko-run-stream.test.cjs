@@ -40,6 +40,7 @@ after(async () => {
 test('serves actual Three.js rendering, browser HUD and a verifiable Gauntlet page', async () => {
   for (const [resource, expected] of [
     ['/eko/', 'EKO RUN'], ['/eko/app.js', 'WebGLRenderer'],
+    ['/eko/character-craft.js', 'createTayoActor'],
     ['/vendor/three.module.js', 'THREE'], ['/eko/progress', 'Gauntlet progress board'],
     ['/eko/gauntlet.json', 'iterations']
   ]) {
