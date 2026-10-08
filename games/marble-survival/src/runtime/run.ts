@@ -23,7 +23,7 @@ function initialState(config: MarbleConfig, rootSeed: string, tournamentSeed: st
   }
   return {
     schemaVersion: 1,
-    determinismVersion: 'marble-physics-v2',
+    determinismVersion: 'marble-physics-v3',
     runId: `marble-${runIndex}-${checksum({ rootSeed, tournamentSeed })}`,
     rootSeed,
     tournamentSeed,
