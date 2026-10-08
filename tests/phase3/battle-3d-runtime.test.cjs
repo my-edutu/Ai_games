@@ -13,13 +13,13 @@ function harness(search=''){
   const gl={
     VERTEX_SHADER:1,FRAGMENT_SHADER:2,COMPILE_STATUS:3,LINK_STATUS:4,
     DEPTH_TEST:5,LEQUAL:6,CULL_FACE:7,COLOR_BUFFER_BIT:8,DEPTH_BUFFER_BIT:16,
-    ARRAY_BUFFER:20,DYNAMIC_DRAW:21,TRIANGLES:22,FLOAT:23,
+    ARRAY_BUFFER:20,DYNAMIC_DRAW:21,TRIANGLES:22,FLOAT:23,SCISSOR_TEST:24,
     createShader:()=>({}),shaderSource(){},compileShader(){},getShaderParameter:()=>true,
     getShaderInfoLog:()=>'',deleteShader(){},createProgram:()=>({}),attachShader(){},
     linkProgram(){},deleteProgram(){},getProgramParameter:()=>true,
     getAttribLocation:()=>0,getUniformLocation:()=>0,createBuffer:()=>({}),
     enable(){},depthFunc(){},disable(){},clearColor(){},isContextLost:()=>false,
-    viewport(){},useProgram(){},uniform3f(){},uniform2f(){},bindBuffer(){},
+    viewport(){},scissor(){},useProgram(){},uniform3f(){},uniform2f(){},bindBuffer(){},
     bufferData(){},enableVertexAttribArray(){},vertexAttribPointer(){},clear(){},
     drawArrays(_mode,_first,count){drawCalls+=1; assert.ok(count>200)}
   };
@@ -29,7 +29,7 @@ function harness(search=''){
     getContext:()=>gl,remove(){}
   };
   const host={appendChild(){},getBoundingClientRect:()=>({width:1280,height:720})};
-  const document={querySelector:()=>({parentElement:host}),createElement:()=>canvas,body:{dataset:{}}};
+  const document={querySelector:()=>({parentElement:host}),createElement:(tag)=>tag==='canvas'?canvas:{className:'',textContent:'',setAttribute(){}},body:{dataset:{}}};
   const window={devicePixelRatio:1};
   let now=100;
   vm.runInNewContext(source,{
