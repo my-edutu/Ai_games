@@ -49,6 +49,10 @@ try{
   await page.keyboard.press('Space');
   await page.waitForFunction(()=>document.querySelector('#verdict')?.textContent?.includes('PAUSED'),{timeout:5000});
   assert.match(await page.locator('#verdict').textContent(),/PAUSED/);
+  const pauseTick=await page.evaluate(()=>JSON.parse(localStorage.getItem('zombie-gauntlet-live')||'{}').tick);
+  await page.waitForTimeout(850);
+  const pausedTick=await page.evaluate(()=>JSON.parse(localStorage.getItem('zombie-gauntlet-live')||'{}').tick);
+  assert.equal(pausedTick,pauseTick,'pause must stop authoritative simulation ticks');
   report.checks.hudPause=true;
   await page.setViewportSize({width:390,height:844});
   await page.waitForTimeout(250);
@@ -57,6 +61,10 @@ try{
   assert.equal(mobile.height,844);
   await page.screenshot({path:root+'mobile.png'});
   report.checks.mobileResponsive=true;
+  await page.goto('http://127.0.0.1:4177/web/3d.html?scenario=failure&restartMs=750',{waitUntil:'load'});
+  await page.waitForFunction(()=>document.querySelector('#status')?.textContent?.includes('RUN 2'),{timeout:15000});
+  assert.match(await page.locator('#status').textContent(),/RUN 2/);
+  report.checks.unattendedRestart=true;
   await page.goto('http://127.0.0.1:4177/web/progress.html',{waitUntil:'load'});
   await page.frameLocator('iframe').locator('#scene').waitFor();
   await page.waitForTimeout(1100);
