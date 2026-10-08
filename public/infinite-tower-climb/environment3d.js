@@ -216,7 +216,9 @@ export function createTowerEnvironment(THREE,scene) {
     bronze.color.setHex(p.bronze);glow.color.setHex(p.glow);glow.emissive.setHex(p.glow);
     dustMaterial.color.setHex(p.glow);
     for(const [key,group] of Object.entries(biomeDecor))group.visible=key===theme;
-    if(scene.fog)scene.fog.color.setHex(p.fog);scene.background.setHex(p.fog);
+    if(scene.fog?.color)scene.fog.color.setHex(p.fog);
+    if(scene.background?.isColor)scene.background.setHex(p.fog);
+    else scene.background=new THREE.Color(p.fog);
   }
   function animate(time,reduced=false){
     if(!reduced){motes.rotation.y=Math.sin(time*.1)*.025;dustMaterial.opacity=.28+Math.sin(time*.7)*.05;
