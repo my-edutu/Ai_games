@@ -53,6 +53,10 @@ async function sampleRuntime(){
     byId('tick').textContent=String(state.tick);
     byId('discovery').textContent=String(state.discoveryPercent)+'%';
     byId('intent').textContent=String(state.aiIntent).replaceAll('-',' ').toUpperCase();
+    const child=document.querySelector('iframe')?.contentWindow;
+    const metrics=child?.__MAZE_3D_METRICS__;
+    byId('render-mode').textContent=metrics?.active?'3D WEBGL':'2D FALLBACK';
+    byId('render-performance').textContent=metrics?.active?metrics.fps+' FPS / '+metrics.drawCalls:'—';
   }catch{
     byId('health').textContent='RECONNECTING';
   }
