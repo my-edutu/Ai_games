@@ -13,6 +13,9 @@ on:
       - 'public/infinite-tower-climb/**'
       - 'scripts/serve-tower-stream.cjs'
       - 'tests/browser/tower-3d-gauntlet.spec.cjs'
+concurrency:
+  group: tower-3d-gauntlet-latest
+  cancel-in-progress: true
 permissions:
   contents: read
 jobs:
