@@ -1,0 +1,71 @@
+{
+  "project": "Eko Run — 3D Gauntlet",
+  "baseline": "SYBO Subway Surfers City — official gameplay footage; original IP only",
+  "scope": "Interactive 3D vertical slice; not a finished or externally benchmarked game",
+  "updated": "2026-10-08",
+  "runStatus": "Iteration 1: initial procedural 3D client and authoritative stream host committed; independent visual benchmark pending",
+  "iterations": [
+    {
+      "round": 0,
+      "title": "Baseline audit",
+      "status": "documented",
+      "builder": "Inspected phase contracts, deterministic runtime, existing presentation and PRD",
+      "critic": "No playable browser route at baseline; visual A/B impossible",
+      "decision": "Create runnable browser vertical slice"
+    },
+    {
+      "round": 1,
+      "title": "Playable 3D foundation",
+      "status": "implementation-in-review",
+      "builder": "Three.js scene, articulated Tayo, Lagos roadside shopfronts, danfo forms, district palette, HUD, responsive input",
+      "critic": "Procedural block models do not meet Subway Surfers City art quality; screenshot and mobile evaluation not yet witnessed",
+      "decision": "Fix critical renderer issues; add screenshot capture and runtime tests"
+    },
+    {
+      "round": 2,
+      "title": "Visual and control review",
+      "status": "not-started",
+      "builder": "Requires measured actual browser screenshots and video",
+      "critic": "Blind A/B not run; independent critic unavailable in current session",
+      "decision": "Keep goal open; do not claim reference win"
+    }
+  ],
+  "gates": [
+    {
+      "name": "Real 60Hz simulation drives UI",
+      "status": "needs-runtime-verification"
+    },
+    {
+      "name": "3D interactive character and district scene",
+      "status": "needs-visual-review"
+    },
+    {
+      "name": "Six generated district transitions",
+      "status": "needs-endurance-test"
+    },
+    {
+      "name": "Desktop and mobile controls",
+      "status": "needs-playtest"
+    },
+    {
+      "name": "Character rigged assets, custom animations and material polish",
+      "status": "open"
+    },
+    {
+      "name": "Screenshot/video blind A/B against reference",
+      "status": "open"
+    },
+    {
+      "name": "Licensed original production audio and assets",
+      "status": "open"
+    },
+    {
+      "name": "Soak, performance, security, accessibility, and R5",
+      "status": "open"
+    }
+  ],
+  "sources": {
+    "code": "https://github.com/my-edutu/Ai_games/tree/feat/eko-run-3d-gauntlet-slice",
+    "benchmark": "https://www.subwaysurfers.com/"
+  }
+}
