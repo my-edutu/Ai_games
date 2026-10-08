@@ -217,7 +217,9 @@ function render(now) {
 }
 function init() {
   if(stateQuery.get('render')==='2d')return;
-  if(!('WebGLRenderingContext' in window))return;
+  if(!('WebGL2RenderingContext' in window))return;
+  const capabilityProbe=document.createElement('canvas');
+  if(!capabilityProbe.getContext('webgl2'))return;
   const mount=document.createElement('div');
   mount.id='maze-3d';
   mount.setAttribute('role','img');
