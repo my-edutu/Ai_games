@@ -438,7 +438,11 @@ function drawObjects(m,t){
   for(const node of game.loot)if(node.amount>0){m.box(node.x,.25,node.y,.57,.48,.60,node.kind==='medicine'?'#c5c9b4':'#9e8157');m.box(node.x,.50,node.y,.64,.055,.64,'#4d5046');}
   for(const s of game.survivors)human(m,s,false,t);
   for(const c of game.civilians)if(c.state!=='safe'&&c.state!=='dead'){human(m,{...c,alive:true,role:'scout',action:c.state==='escorting'?'move':'idle',id:c.id},false,t);}
-  let rendered=0;for(const z of game.zombies){if(Math.hypot(z.x-cameraFocusX,z.y-cameraFocusZ)>52)continue;if(rendered++>=maxVisibleZombies)break;human(m,z,true,t);}
+  const zombieBudget=Math.min(maxVisibleZombies,fpsSmooth<18?115:fpsSmooth<26?180:260);
+  const nearest=game.zombies.map(z=>({actor:z,dist:(z.x-cameraFocusX)**2+(z.y-cameraFocusZ)**2}))
+    .filter(o=>(o.actor.health>0?o.dist<52*52:o.dist<15*15))
+    .sort((a,b)=>a.dist-b.dist).slice(0,zombieBudget);
+  for(const z of nearest)human(m,z.actor,true,t);
   // Combat feedback is derived only from authoritative events. Transient VFX cannot affect outcomes.
   for(const e of game.events.slice(-18)){
     const age=game.time.elapsed-e.time;if(age<0||age>.42)continue;
