@@ -184,22 +184,24 @@ function humanoid(material) {
   mesh(geometries.cube,materials.cape,hero,[0,1.22,-.49],[.57,.69,.3]);
   mesh(geometries.cube,materials.trim,hero,[0,1.15,-.66],[.39,.11,.06]);
   mesh(geometries.cylinder,materials.trim,hero,[0,1.46,0],[.4,.13,.35]);
-  mesh(geometries.sphere,materials.skin,hero,[0,1.77,.02],[.27,.31,.28]);
-  // Hood and bronze clasp frame the face without requiring an external asset.
-  mesh(geometries.sphere,materials.dark,hero,[0,1.91,-.11],[.36,.36,.38]);
-  mesh(geometries.sphere,materials.skin,hero,[0,1.8,.19],[.225,.235,.11]);
+  const head=new THREE.Group();head.position.set(0,1.68,0);hero.add(head);hero.userData.head=head;
+  mesh(geometries.sphere,materials.skin,head,[0,.09,.02],[.27,.31,.28]);
+  // Separate articulated hood and expression permit independent look-around animation.
+  mesh(geometries.sphere,materials.dark,head,[0,.23,-.11],[.36,.36,.38]);
+  mesh(geometries.sphere,materials.skin,head,[0,.12,.19],[.225,.235,.11]);
   mesh(geometries.cube,materials.trim,hero,[0,1.47,.3],[.14,.15,.1]);
   for(const side of [-1,1]){
     mesh(geometries.sphere,materials.trim,hero,[side*.35,1.43,0],[.2,.13,.25]);
-    const arm=mesh(geometries.cylinder,material,hero,[side*.46,1.07,.05],[.17,.64,.17]);
-    const leg=mesh(geometries.cylinder,materials.dark,hero,[side*.20,.44,0],[.175,.78,.17]);
-    const boot=mesh(geometries.cube,materials.dark,hero,[side*.20,.11,.20],[.37,.23,.57]);
-    const band=mesh(geometries.cylinder,materials.trim,hero,[side*.20,.7,0],[.18,.07,.18]);
+    const shoulder=new THREE.Group();shoulder.position.set(side*.44,1.43,.05);hero.add(shoulder);
+    mesh(geometries.cylinder,material,shoulder,[0,-.36,0],[.17,.64,.17]);
+    mesh(geometries.sphere,materials.skin,shoulder,[0,-.73,.04],[.15,.15,.15]);
+    const hip=new THREE.Group();hip.position.set(side*.2,.83,0);hero.add(hip);
+    mesh(geometries.cylinder,materials.dark,hip,[0,-.35,0],[.175,.78,.17]);
+    mesh(geometries.cube,materials.dark,hip,[0,-.71,.20],[.37,.23,.57]);
+    mesh(geometries.cylinder,materials.trim,hip,[0,-.13,0],[.18,.07,.18]);
     hero.userData.limbs??=[];
-    hero.userData.limbs.push({arm,leg,boot,band,side});
-  }
-  for(const side of [-1,1]){
-    mesh(geometries.sphere,materials.goldLight,hero,[side*.105,1.83,.293],[.047,.053,.015]);
+    hero.userData.limbs.push({arm:shoulder,leg:hip,side});
+    mesh(geometries.sphere,materials.goldLight,head,[side*.105,.15,.293],[.047,.053,.015]);
   }
   // A carried compass-lantern is the visual centre of the hero, not a luminous dot.
   const lantern=new THREE.Group();
@@ -510,10 +512,14 @@ function render(now) {
     cape.rotation.x=reducedMotion?0:.12+Math.sin(now*.004)*.07+(moving?.12:0);
     cape.rotation.z=reducedMotion?0:Math.sin(now*.003)*.05;
   }
+  const spotted=(lastFrame.snapshot.threats.length>0);
+  const strideSpeed=spotted?.013:.009;
   for(const limb of explorer.userData.limbs){
-    limb.leg.rotation.x=reducedMotion?0:(moving?Math.sin(now*.009*limb.side)*.38:0);
-    limb.arm.rotation.x=-limb.leg.rotation.x*.8;
+    limb.leg.rotation.x=reducedMotion?0:(moving?Math.sin(now*strideSpeed*limb.side)*.43:0);
+    limb.arm.rotation.x=-limb.leg.rotation.x*.78+(spotted?-.12:0);
   }
+  if(explorer.userData.head)
+    explorer.userData.head.rotation.y=reducedMotion?0:Math.sin(now*.0019)*(spotted?.19:.32);
   for(const enemy of threats)if(!reducedMotion)enemy.position.y=Math.sin(now*.003+enemy.position.x)*.07;
   if(!reducedMotion){
     explorer.userData.lantern.rotation.z=Math.sin(now*.006)*.09;
@@ -521,7 +527,8 @@ function render(now) {
     for(const enemy of threats)enemy.rotation.y+=seconds*.3;
   }else explorer.position.y=0;
   if(lanternLight) {
-    lanternLight.position.copy(explorer.position).add(new THREE.Vector3(.68,1.02,.28));
+    explorer.updateMatrixWorld(true);
+    explorer.userData.lantern.getWorldPosition(lanternLight.position);
     lanternLight.intensity=reducedMotion?7.5:7.1+Math.sin(now*.016)*.6;
   }
   if(ground) ground.position.set(explorer.position.x,-.46,explorer.position.z);
