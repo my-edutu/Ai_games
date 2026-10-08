@@ -90,6 +90,14 @@ function cutawayWalls(target){
   cachedMatrix.compose(cachedVec,cachedQuat,cachedScale);mesh.setMatrixAt(i,cachedMatrix);
  }
  world.userData.cutawayWalls=cut;
+ let removed=0;
+ for(const group of world.userData.foregroundProps||[]){
+  const x=group.position.x-target.x,z=group.position.z-target.z;
+  const distance=x*dirX+z*dirZ,lateral=Math.abs(x*dirZ-z*dirX);
+  const blocked=distance>0&&distance<length+1&&lateral<2+distance*.17;
+  group.visible=!blocked;if(blocked)removed++;
+ }
+ world.userData.hiddenForegroundProps=removed;
  mesh.instanceMatrix.needsUpdate=true;mesh.computeBoundingSphere();
 }
 const particles=[],MAX_PARTICLES=72;const seenEventIds=new Set();
@@ -134,7 +142,13 @@ const tealGlow=new THREE.MeshStandardMaterial({color:'#53aebc',emissive:'#228a98
 const dangerGlow=new THREE.MeshStandardMaterial({color:'#e67f50',emissive:'#bd4f18',emissiveIntensity:2.3});
 const geo={cube:new THREE.BoxGeometry(1,1,1),sphere:new THREE.SphereGeometry(1,12,8),cylinder:new THREE.CylinderGeometry(1,1,1,10),cone:new THREE.ConeGeometry(1,1,10)};
 const make=(geometry,material,parent,x=0,y=0,z=0,sx=1,sy=1,sz=1)=>{const o=new THREE.Mesh(geometry,material);o.position.set(x,y,z);o.scale.set(sx,sy,sz);o.castShadow=!reduced;o.receiveShadow=true;parent.add(o);return o};
-function column(parent,x,z){make(geo.cylinder,stoneEdge,parent,x,.95,z,.26,1.95,.26);make(geo.cylinder,gold,parent,x,1.93,z,.4,.12,.4);make(geo.cylinder,stoneEdge,parent,x,.12,z,.37,.24,.37)}
+function column(parent,x,z){
+ const group=new THREE.Group();group.position.set(x,0,z);
+ make(geo.cylinder,stoneEdge,group,0,.95,0,.26,1.95,.26);
+ make(geo.cylinder,gold,group,0,1.93,0,.4,.12,.4);
+ make(geo.cylinder,stoneEdge,group,0,.12,0,.37,.24,.37);
+ parent.add(group);parent.userData.foregroundProps?.push(group);return group;
+}
 function disposeActor(a){
  a.ground?.dispose();disposeActorAsset(a);a.detail?.dispose();
  const protectedMaterials=new Set([stone,stoneEdge,floorMat,gold,black,tealGlow,dangerGlow]),seenMat=new Set(),seenGeo=new Set();
@@ -146,7 +160,7 @@ function disposeActor(a){
  scene.remove(a.root);
 }
 function clearWorld(){combatDirector.reset();world.userData.atmosphere?.dispose();world.userData.atmosphere=null;world.userData.dressing?.dispose();world.userData.dressing=null;while(world.children.length){const obj=world.children[0];world.remove(obj);obj.traverse(o=>{if(o.geometry&&!o.userData.sharedAssetGeometry&&!Object.values(geo).includes(o.geometry))o.geometry.dispose();if(o.material&&!o.userData.sharedAssetGeometry&&!Object.values({stone,stoneEdge,floorMat,gold,black,tealGlow,dangerGlow}).includes(o.material)){const mats=Array.isArray(o.material)?o.material:[o.material];for(const m of mats)m.dispose()}})}for(const a of actors.values())disposeActor(a);actors.clear()}
-function buildWorld(s){clearWorld();worldFloor=s.run+'-'+s.floor;world.userData.sceneKey=worldFloor;lastCutawayKey='';
+function buildWorld(s){clearWorld();worldFloor=s.run+'-'+s.floor;world.userData.sceneKey=worldFloor;world.userData.foregroundProps=[];lastCutawayKey='';
  const theme=floorThemes[(s.floor-1)%floorThemes.length];scene.background=new THREE.Color(theme.sky);scene.fog.color.set(theme.fog);moon.color.set(theme.fill);ambient.intensity=1.7;
  const floors=[],walls=[],trim=[];const size=s.map.length,offset=Math.floor(size/2);
  for(let z=0;z<size;z++)for(let x=0;x<size;x++){
@@ -192,7 +206,7 @@ function buildWorld(s){clearWorld();worldFloor=s.run+'-'+s.floor;world.userData.
    make(geo.cube,stoneEdge,arch,.43,.95,0,.16,1.9,.18);
    make(geo.cube,ornament,arch,0,1.88,0,.98,.22,.20);
    make(geo.cube,gold,arch,0,2.02,0,.22,.06,.23);
-   world.add(arch);
+   world.add(arch);world.userData.foregroundProps.push(arch);
  }
 
  // Lit path markers, carved stone columns and modest dynamic lighting budget.
@@ -206,7 +220,7 @@ function buildWorld(s){clearWorld();worldFloor=s.run+'-'+s.floor;world.userData.
   const shrine=new THREE.Group();shrine.position.set(px,.02,pz);
   make(geo.cylinder,stoneEdge,shrine,0,.13,0,.24,.24,.24);
   make(geo.cylinder,gold,shrine,0,.27,0,.20,.045,.20);
-  const gem=make(geo.cone,k%2?tealGlow:dangerGlow,shrine,0,.49,0,.12,.37,.12);gem.rotation.z=.1;world.add(shrine);
+  const gem=make(geo.cone,k%2?tealGlow:dangerGlow,shrine,0,.49,0,.12,.37,.12);gem.rotation.z=.1;world.add(shrine);world.userData.foregroundProps.push(shrine);
  }
 
  const pos=new THREE.Vector3(s.exit.x-offset,.05,s.exit.z-offset);
@@ -413,6 +427,28 @@ function update(s){combatOverlay.record(s,timeNow());state=s;received=true;error
  window.__DUNGEON_PUBLIC_STATE__=s;
 }
 let lastFrameTime=0;
+// Actual 3D subject framing metrics, independent from overlay/card brightness.
+const compositionHead=new THREE.Vector3(),compositionFoot=new THREE.Vector3();
+function inspectComposition(s){
+ if(!s)return {visibleHeroes:0,minHeroPixels:0,activeEnemies:0,subjectOnscreen:false};
+ camera.updateMatrixWorld();
+ const w=Math.max(1,canvas.clientWidth),h=Math.max(1,canvas.clientHeight);
+ let visibleHeroes=0,minHeroPixels=1e9,activeEnemies=0,subjectOnscreen=false;
+ for(const u of s.units){
+  if(u.hp<=0)continue;
+  const a=actors.get(u.id);if(!a||!a.root.visible)continue;
+  compositionFoot.set(a.root.position.x,0,a.root.position.z).project(camera);
+  compositionHead.set(a.root.position.x,1.85*a.root.scale.y,a.root.position.z).project(camera);
+  const within=compositionHead.z>-1&&compositionHead.z<1&&Math.abs(compositionHead.x)<.94&&Math.abs(compositionHead.y)<.90;
+  if(u.faction==='party'&&within){
+   visibleHeroes++;
+   minHeroPixels=Math.min(minHeroPixels,Math.abs(compositionFoot.y-compositionHead.y)*h/2);
+   if(u.id===focusedHeroId)subjectOnscreen=true;
+  }
+  if(u.faction==='enemy'&&within)activeEnemies++;
+ }
+ return {visibleHeroes,minHeroPixels:minHeroPixels===1e9?0:Math.round(minHeroPixels),activeEnemies,subjectOnscreen,viewport:{width:w,height:h}};
+}
 function animate(t){requestAnimationFrame(animate);const time=t/1000,dt=Math.min(.05,Math.max(0,time-lastFrameTime));lastFrameTime=time;
  combatDirector.animate(dt);
  for(let i=effects.length-1;i>=0;i--){const e=effects[i];e.life+=dt;
@@ -442,6 +478,14 @@ function animate(t){requestAnimationFrame(animate);const time=t/1000,dt=Math.min
  }
  if(world.userData.dressing&&!reduced)world.userData.dressing.animate(time);
  if(world.userData.atmosphere&&!reduced)world.userData.atmosphere.update(time);
+ const cameraType=cameraModes[cameraIndex]||'cinematic',offsets=cameraType==='tactical'?[3.5,23.5,4.5]:cameraType==='chase'?[6.1,12.0,7.2]:[9.5,17.2,11.3];
+ const boss=state?.units.find(u=>u.kind==='warden'&&u.hp>0),bossDistance=boss&&state?.units.some(u=>u.faction==='party'&&u.hp>0&&Math.abs(u.x-boss.x)+Math.abs(u.z-boss.z)<=5);
+ const look=new THREE.Vector3(target.x,0,target.z);
+ if(boss&&bossDistance&&cameraType==='cinematic')look.lerp(new THREE.Vector3(boss.x-9,0,boss.z-9),.28);
+ const cam=new THREE.Vector3(look.x+offsets[0],offsets[1],look.z+offsets[2]);
+ camera.position.lerp(cam,reduced?1:.065);camera.lookAt(look.x,0,look.z);
+ // The camera must settle before the cutaway is measured. Previous frames culled
+ // props using stale view angles during cinematic shot switches.
  cutawayWalls(target);world.userData.dressing?.cutaway(target,camera.position);
  if(world.userData.authoredProps?.group){
   const dx=camera.position.x-target.x,dz=camera.position.z-target.z,len=Math.max(.01,Math.hypot(dx,dz)),dirX=dx/len,dirZ=dz/len;
@@ -450,18 +494,13 @@ function animate(t){requestAnimationFrame(animate);const time=t/1000,dt=Math.min
    prop.visible=!(f>0&&f<len+.8&&l<2.8+f*.16);
   }
  }
- const cameraType=cameraModes[cameraIndex]||'cinematic',offsets=cameraType==='tactical'?[3.5,23.5,4.5]:cameraType==='chase'?[6.1,12.0,7.2]:[9.5,17.2,11.3];
- const boss=state?.units.find(u=>u.kind==='warden'&&u.hp>0),bossDistance=boss&&state?.units.some(u=>u.faction==='party'&&u.hp>0&&Math.abs(u.x-boss.x)+Math.abs(u.z-boss.z)<=5);
- const look=new THREE.Vector3(target.x,0,target.z);
- if(boss&&bossDistance&&cameraType==='cinematic')look.lerp(new THREE.Vector3(boss.x-9,0,boss.z-9),.28);
- const cam=new THREE.Vector3(look.x+offsets[0],offsets[1],look.z+offsets[2]);
- camera.position.lerp(cam,reduced?1:.065);camera.lookAt(look.x,0,look.z);
+
  if(shakeStrength>.008&&!reduced){camera.position.x+=Math.sin(time*57)*shakeStrength;camera.position.y+=Math.cos(time*43)*shakeStrength*.5;}
  partyGlow.position.set(target.x,2,target.z);
  renderer.info.reset();
  try{if(composer&&postFXEnabled){bloomPass.strength=innerWidth<680?.16:.30;composer.render()}else renderer.render(scene,camera)}
  catch(error){console.warn('[DUNGEON] post effect fault, restoring WebGL:',String(error));composer=null;postFXStatus='fallback';renderer.info.reset();renderer.render(scene,camera)}
- combatOverlay.render(state,actors,camera,time);if(state)window.__DUNGEON_RENDER_DIAGNOSTICS__={frame:renderer.info.render.frame,drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,camera:cameraModes[cameraIndex],focusedHeroId,autoDirector,cutawayWalls:world.userData.cutawayWalls??0,postFX:composer&&postFXEnabled?'bloom':'direct',postFXStatus,bossFramed:Boolean(bossDistance),activeUnits:[...actors.values()].filter(x=>x.root.visible).length,characterDetails:[...actors.values()].reduce((sum,x)=>sum+(x.detail?.parts||0),0),webgl:true,theme:state.theme,dressing:world.userData.dressing?.metrics??null,atmosphere:world.userData.atmosphere?.metrics??null,overlay:combatOverlay.metrics(),combatStage:combatDirector.stats(),groundedActors:[...actors.values()].filter(x=>Boolean(x.ground)).length,authored3D:assetStats(actors)};
+ combatOverlay.render(state,actors,camera,time);if(state)window.__DUNGEON_RENDER_DIAGNOSTICS__={composition:inspectComposition(state),frame:renderer.info.render.frame,drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,camera:cameraModes[cameraIndex],focusedHeroId,autoDirector,cutawayWalls:world.userData.cutawayWalls??0,hiddenForegroundProps:world.userData.hiddenForegroundProps??0,postFX:composer&&postFXEnabled?'bloom':'direct',postFXStatus,bossFramed:Boolean(bossDistance),activeUnits:[...actors.values()].filter(x=>x.root.visible).length,characterDetails:[...actors.values()].reduce((sum,x)=>sum+(x.detail?.parts||0),0),webgl:true,theme:state.theme,dressing:world.userData.dressing?.metrics??null,atmosphere:world.userData.atmosphere?.metrics??null,overlay:combatOverlay.metrics(),combatStage:combatDirector.stats(),groundedActors:[...actors.values()].filter(x=>Boolean(x.ground)).length,authored3D:assetStats(actors)};
 }
 async function poll(){try{const r=await fetch('/dungeon/state',{cache:'no-store'});if(!r.ok)throw Error('State '+r.status);const data=await r.json();if(data.tick!==lastTick||data.run!==state?.run){lastTick=data.tick;update(data)}}catch(e){errorAt++;if(errorAt>=3){$('recovery').hidden=false;$('status').textContent='VIEW DEGRADED — RETRYING';console.warn('Dungeon view recovery',String(e))}}finally{setTimeout(poll,190)}}
 $('party').addEventListener('click',e=>{

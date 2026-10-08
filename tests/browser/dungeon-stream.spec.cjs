@@ -200,3 +200,24 @@ test('camera and environment expose real sightlines instead of foreground wall s
  expect(data.cutawayWalls).toBeGreaterThanOrEqual(0);
  expect(errors).toEqual([]);
 });
+
+test('camera Gauntlet uses actual projected 3D heroes rather than counting HUD cards',async({page})=>{
+ await page.setViewportSize({width:1440,height:900});
+ await page.goto('/dungeon');
+ await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.composition?.visibleHeroes??0),{timeout:25000}).toBeGreaterThan(0);
+ const c=await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.composition);
+ expect(c.subjectOnscreen).toBe(true);
+ expect(c.minHeroPixels).toBeGreaterThan(12);
+ expect(c.viewport.width).toBeGreaterThan(400);
+ expect(c.viewport.height).toBeGreaterThan(300);
+ expect(c.visibleHeroes).toBeLessThanOrEqual(3);
+ await page.screenshot({path:'artifacts/dungeon-3d-composition-gauntlet.png',fullPage:true});
+});
+test('compact mobile view keeps at least one physically visible 3D protagonist',async({page})=>{
+ await page.setViewportSize({width:390,height:844});
+ await page.goto('/dungeon');
+ await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.composition?.visibleHeroes??0),{timeout:25000}).toBeGreaterThan(0);
+ const c=await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__.composition);
+ expect(c.minHeroPixels).toBeGreaterThan(8);
+ await page.screenshot({path:'artifacts/dungeon-3d-mobile-composition.png',fullPage:true});
+});

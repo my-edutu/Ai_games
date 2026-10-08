@@ -85,6 +85,12 @@ export function enrichEnvironment(world,map,floor){
  const brass=new THREE.MeshStandardMaterial({color:'#efbb76',roughness:.33,metalness:.68});
  const jade=new THREE.MeshStandardMaterial({color:biome.glow,emissive:biome.glow,emissiveIntensity:2.0,roughness:.20,metalness:.08});
  const moss=new THREE.MeshStandardMaterial({color:biome.foliage,roughness:1});
+ // Warm candlelight against cold enchanted stone creates shape and depth;
+ // earlier genuine captures were 98% cyan/blue and read as monotonous.
+ const warmPalette=['#ffb96b','#ff8749','#ffce8e','#ffb3db'];
+ const warmTorch=warmPalette[(floor-1)%4];
+ const flameMaterial=new THREE.MeshStandardMaterial({color:warmTorch,emissive:warmTorch,emissiveIntensity:2.4,roughness:.3,metalness:0});
+ materials.push(flameMaterial);
  const bannerCanvas=document.createElement('canvas');bannerCanvas.width=128;bannerCanvas.height=256;
  const bc=bannerCanvas.getContext('2d'),bannerGrad=bc.createLinearGradient(0,0,0,256);
  bannerGrad.addColorStop(0,'#e9efff');bannerGrad.addColorStop(1,'#9bacc9');bc.fillStyle=bannerGrad;bc.fillRect(0,0,128,256);
@@ -96,7 +102,7 @@ export function enrichEnvironment(world,map,floor){
  const cloth=new THREE.MeshStandardMaterial({map:bannerTexture,color:biome.banner,roughness:.87,side:THREE.DoubleSide});
  materials.push(floorSurface,wallSurface,chrome,brass,jade,moss,cloth);geometries.push(box,blade,ring);
  const floorDetails=[],wallFaces=[],columnCap=[],mossPatches=[],runeInlays=[],rubble=[],brazierBases=[],vases=[];
- const pillars=[],banners=[],statues=[],worldAnchors=[];
+ const pillars=[],banners=[],statues=[],worldAnchors=[],foregroundGroups=[];
  const open=(x,z)=>x>=0&&z>=0&&x<N&&z<N&&map[z][x]==='.';
  for(let z=1;z<N-1;z++)for(let x=1;x<N-1;x++){
   const px=x-O,pz=z-O,h=hash(x,z,floor);
@@ -130,17 +136,17 @@ export function enrichEnvironment(world,map,floor){
   const group=new THREE.Group();group.position.set(x,0,z);group.rotation.y=angle;
   const holder=new THREE.Mesh(new THREE.CylinderGeometry(.10,.13,.36,8),brass);holder.position.y=1.58;group.add(holder);
   const cup=new THREE.Mesh(new THREE.CylinderGeometry(.2,.1,.12,9),chrome);cup.position.y=1.82;group.add(cup);
-  const fire=new THREE.Mesh(new THREE.ConeGeometry(.15,.46,9),jade);fire.position.y=2.04;group.add(fire);
+  const fire=new THREE.Mesh(new THREE.ConeGeometry(.15,.46,9),flameMaterial);fire.position.y=2.04;group.add(fire);
   const inner=new THREE.Mesh(new THREE.ConeGeometry(.065,.26,8),new THREE.MeshBasicMaterial({color:'#fff2c7',transparent:true,opacity:.87,depthWrite:false}));inner.position.y=1.99;group.add(inner);
-  world.add(group);
-  if(flames.length<5){const torchLight=new THREE.PointLight(biome.glow,2.2,6.5,2);torchLight.position.set(x,2.1,z);world.add(torchLight)}
+  world.add(group);foregroundGroups.push(group);
+  if(flames.length<5){const torchLight=new THREE.PointLight(warmTorch,2.3,7.2,2);torchLight.position.set(x,2.1,z);world.add(torchLight)}
   flames.push({fire,inner,phase:(h%37)*.33});return group;
  };
  for(const [x,z,yaw,h] of pillars.slice(0,20)){
   const root=new THREE.Group();root.position.set(x,0,z);root.rotation.y=yaw;
   const pillar=new THREE.Mesh(new THREE.CylinderGeometry(.14,.17,2.12,8),chrome);pillar.position.y=1.1;root.add(pillar);
   for(const y of [.14,1.02,1.99]){const collar=new THREE.Mesh(new THREE.CylinderGeometry(.22,.22,.14,8),brass);collar.position.y=y;root.add(collar)}
-  world.add(root);
+  world.add(root);foregroundGroups.push(root);
   if(h%3===0&&flames.length<12)buildTorch(x,z,yaw,h);
  }
  // Hanging banners are visual storytelling; they do not affect collision or pathing.
@@ -149,17 +155,17 @@ export function enrichEnvironment(world,map,floor){
   const rod=new THREE.Mesh(new THREE.CylinderGeometry(.035,.035,.82,7),brass);rod.rotation.z=Math.PI/2;rod.position.y=2.22;root.add(rod);
   const pennant=new THREE.Mesh(new THREE.PlaneGeometry(.56,1.07),cloth);pennant.position.y=1.55;pennant.position.z=.055;root.add(pennant);
   const emblem=new THREE.Mesh(new THREE.IcosahedronGeometry(.095,0),jade);emblem.position.set(0,1.74,.065);root.add(emblem);
-  world.add(root);
+  world.add(root);foregroundGroups.push(root);
  }
  // Bespoke altar islands and guardian statues provide landmarks; caps prevent resource growth.
  for(const [x,z,h] of worldAnchors.slice(0,5)){
-  buildStatue(world,x,z,chrome,wallSurface,jade,h);
-  const halo=new THREE.Mesh(ring,jade);halo.position.set(x,1.58,z);halo.rotation.x=Math.PI/2;world.add(halo);
+  foregroundGroups.push(buildStatue(world,x,z,chrome,wallSurface,jade,h));
+  const halo=new THREE.Mesh(ring,jade);halo.position.set(x,1.58,z);halo.rotation.x=Math.PI/2;world.add(halo);foregroundGroups.push(halo);
  }
  const pillarsCount=pillars.length,bannersCount=banners.length,ruins=worldAnchors.length;
  const totalDecor=floorDetails.length+wallFaces.length+columnCap.length+mossPatches.length+runeInlays.length+rubble.length+pillarsCount+bannersCount+ruins;
  // Same 3D visibility policy as the base walls: rich wall cladding must not hide the AI.
- let previousCutaway='';
+ let previousCutaway='';const sceneMetrics={clearedForeground:0};
  const matrix=new THREE.Matrix4(),p=new THREE.Vector3(),q=new THREE.Quaternion(),scale=new THREE.Vector3();
  function cutaway(target,camera){
   const dx=camera.x-target.x,dz=camera.z-target.z,len=Math.max(.001,Math.hypot(dx,dz)),dirX=dx/len,dirZ=dz/len;
@@ -171,7 +177,18 @@ export function enrichEnvironment(world,map,floor){
    const h=blocked?.15:f[4];p.set(f[0],blocked?.13:f[1],f[2]);scale.set(f[3],h,f[5]);matrix.compose(p,q,scale);facadeMesh.setMatrixAt(i,matrix);
   }
   facadeMesh.instanceMatrix.needsUpdate=true;
+  // The original P0 screenshot defect was not only the wall mesh:
+  // freestanding banners, massive columns and statues also obscured AI fighters.
+  // They remain present outside the camera-to-subject viewing corridor.
+  let cleared=0;
+  for(const group of foregroundGroups){
+   const x=group.position.x-target.x,z=group.position.z-target.z;
+   const forward=x*dirX+z*dirZ,lateral=Math.abs(x*dirZ-z*dirX);
+   const blocked=forward>.15&&forward<len+1.3&&lateral<2.0+forward*.16;
+   group.visible=!blocked;if(blocked)cleared++;
+  }
+  sceneMetrics.clearedForeground=cleared;
  }
  const animate=time=>{for(const p of flames){const t=time*5+p.phase,scale=1+Math.sin(t)*.13;p.fire.scale.y=scale;p.inner.scale.setScalar(.91+Math.sin(t+1.3)*.14)}};
- return {animate,cutaway,metrics:{biome:floor,decorInstances:totalDecor,torches:flames.length,banners:bannersCount,landmarks:ruins,texturedSurfaces:floorDetails.length+wallFaces.length},dispose:()=>{for(const g of geometries)g.dispose();for(const m of materials)m.dispose();for(const t of textures)t.dispose();for(const f of flames){f.inner.material.dispose()}}};
+ return {animate,cutaway,metrics:Object.assign(sceneMetrics,{biome:floor,decorInstances:totalDecor,torches:flames.length,banners:bannersCount,landmarks:ruins,texturedSurfaces:floorDetails.length+wallFaces.length}),dispose:()=>{for(const g of geometries)g.dispose();for(const m of materials)m.dispose();for(const t of textures)t.dispose();for(const f of flames){f.inner.material.dispose()}}};
 }
