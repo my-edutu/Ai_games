@@ -425,6 +425,7 @@ function updateSnapshot(packet){
   ui.mode.textContent=packet.mode==='ai'?'SWITCH TO PLAYER':'SWITCH TO AI';
   ui.outfit.value=packet.outfit;
   worldState.mode=packet.mode;
+  document.body.classList.toggle('autonomous',packet.mode==='ai');
   if(worldState.district!==(p?.districtId||'mainland-morning') || worldState.finish!==s.route.finishX) {
     buildWorld(s);
     for(const g of hazardMeshes.values())disposeGroup(g);
