@@ -42,6 +42,8 @@
     '#version 300 es',
     'precision highp float;',
     'in vec3 vNormal; in vec3 vTint; in float vDepth; in vec3 vWorld;',
+    'uniform sampler2D uSurfaceAtlas;',
+    'uniform float uBiomeRow; uniform float uAtlasReady; uniform float uSurfaceStrength;',
     'out vec4 result;',
     'float hash21(vec2 p){',
     'return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453123);',
@@ -62,7 +64,13 @@
     'float specPower=mix(14.0,66.0,1.0-roughness);',
     'float specular=pow(max(0.0,dot(n,halfDir)),specPower);',
     'vec3 ambient=vec3(.20,.24,.33);',
-    'vec3 lit=vTint*(ambient+vec3(.53,.51,.43)*diffuse+vec3(.14,.18,.23)*bounce)*surfaceNoise;',
+    'vec3 axisUV=abs(n.x)>abs(n.z)?vWorld.zyx:vWorld.xyz;',
+    'vec2 uv=abs(n.y)>.72?fract(vWorld.xz*.31):fract(axisUV.yz*.72);',
+    'float column=abs(n.y)>.72?0.0:1.0;',
+    'vec2 atlasUV=(vec2(column,uBiomeRow)+uv*.98+.01)/vec2(2.0,3.0);',
+    'vec3 texel=texture(uSurfaceAtlas,atlasUV).rgb;',
+    'vec3 materialColor=mix(vTint,vTint*(texel*.93+.58),uAtlasReady*uSurfaceStrength);',
+    'vec3 lit=materialColor*(ambient+vec3(.53,.51,.43)*diffuse+vec3(.14,.18,.23)*bounce)*surfaceNoise;',
     'lit+=vec3(.18,.23,.31)*specular*(.14+.30*(1.0-roughness));',
     'float rim=pow(1.0-max(0.0,dot(n,viewDir)),2.0);',
     'lit+=vTint*rim*.10;',
@@ -76,10 +84,11 @@
     '}'
   ].join('\n');
   let canvas=null,closeupLabel=null,plateLayer=null,gl=null,program=null,buffer=null,staticBuffer=null,dynamicBuffer=null,attr=null,uniform=null,lastSnapshot=null,disabled=forced2d||!host;
+  let surfaceAtlasImage=null,surfaceAtlasTexture=null,surfaceAtlasRequested=false;
   const reducedMotion=params.get('reducedMotion')==='1'||matchMedia('(prefers-reduced-motion: reduce)').matches;
   const reducedFlash=params.get('reducedFlash')==='1';
   let previousSnapshot=null,startedAt=0,animationId=0,lastPaintTime=0;
-  const status={mode:forced2d?'forced-2d':'initializing',frames:0,triangles:0,contenders:0,p95SubmitMs:0,sceneBuilds:0,quality:quality,activeEffects:0,lastError:null,cameraMode:'tactical'};
+  const status={mode:forced2d?'forced-2d':'initializing',frames:0,triangles:0,contenders:0,p95SubmitMs:0,sceneBuilds:0,quality:quality,activeEffects:0,lastError:null,cameraMode:'tactical',materialAtlas:'fallback'};
   const staticCache={key:null,vertices:0};
   const frameSamples=[];
   const headings=new Map();
@@ -134,18 +143,56 @@
     if(!gl.getShaderParameter(shader,gl.COMPILE_STATUS)){const error=gl.getShaderInfoLog(shader);gl.deleteShader(shader);throw Error(error)}
     return shader;
   }
+  function uploadSurfaceAtlas(){
+    if(!gl||typeof gl.createTexture!=='function'||!surfaceAtlasImage?.complete||
+      surfaceAtlasImage.naturalWidth<1)return;
+    try{
+      if(surfaceAtlasTexture&&typeof gl.deleteTexture==='function')gl.deleteTexture(surfaceAtlasTexture);
+      surfaceAtlasTexture=gl.createTexture();
+      gl.activeTexture(gl.TEXTURE0);
+      gl.bindTexture(gl.TEXTURE_2D,surfaceAtlasTexture);
+      gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL,true);
+      gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR_MIPMAP_LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
+      gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,surfaceAtlasImage);
+      gl.generateMipmap(gl.TEXTURE_2D);
+      gl.bindTexture(gl.TEXTURE_2D,null);
+      status.materialAtlas='ready';
+    }catch(error){
+      surfaceAtlasTexture=null;
+      status.materialAtlas='fallback';
+      status.lastError='Material atlas fallback: '+String(error?.message||error).slice(0,108);
+    }
+  }
+  function requestSurfaceAtlas(){
+    if(surfaceAtlasRequested||typeof Image==='undefined')return;
+    surfaceAtlasRequested=true;
+    const source=new Image();
+    source.onload=()=>{
+      surfaceAtlasImage=source;
+      uploadSurfaceAtlas();
+      if(lastSnapshot&&!disabled&&status.mode==='webgl2')render(lastSnapshot);
+    };
+    source.onerror=()=>{status.materialAtlas='fallback'};
+    source.src='/battle/material-atlas.svg';
+  }
   function initialize(){
     const v=compile(gl.VERTEX_SHADER,vertexSource),f=compile(gl.FRAGMENT_SHADER,fragmentSource);
     program=gl.createProgram();gl.attachShader(program,v);gl.attachShader(program,f);gl.linkProgram(program);
     gl.deleteShader(v);gl.deleteShader(f);
     if(!gl.getProgramParameter(program,gl.LINK_STATUS))throw Error('shader-link');
     attr=['pos','normal','tint'].map(name=>gl.getAttribLocation(program,name));
-    uniform=['center','scale','uYaw','uPitch','uPerspective'].map(name=>gl.getUniformLocation(program,name));
+    uniform=['center','scale','uYaw','uPitch','uPerspective','uBiomeRow','uAtlasReady','uSurfaceStrength','uSurfaceAtlas'].map(name=>gl.getUniformLocation(program,name));
     staticBuffer=gl.createBuffer();dynamicBuffer=gl.createBuffer();
+    surfaceAtlasTexture=null;status.materialAtlas='fallback';
+    uploadSurfaceAtlas();
     staticCache.key=null;staticCache.vertices=0;
     gl.enable(gl.DEPTH_TEST);gl.depthFunc(gl.LEQUAL);
     gl.disable(gl.CULL_FACE);gl.clearColor(0,0,0,0);
     status.mode='webgl2';status.lastError=null;document.body.dataset.battleRenderer='webgl2';
+    requestSurfaceAtlas();
   }
   if(!disabled){
     canvas=document.createElement('canvas');
@@ -1089,8 +1136,10 @@
   let dynamicVertexCount=0;
   function drawScene(){
     bindSceneBuffer(staticBuffer);
+    gl.uniform1f(uniform[7],.70);
     if(staticCache.vertices)gl.drawArrays(gl.TRIANGLES,0,staticCache.vertices);
     bindSceneBuffer(dynamicBuffer);
+    gl.uniform1f(uniform[7],.10);
     if(dynamicVertexCount)gl.drawArrays(gl.TRIANGLES,0,dynamicVertexCount);
   }
 
@@ -1253,6 +1302,13 @@
       const aspect=area.width/area.height;
       const scale=Math.min(1.87/((w*.61+h*.79)*.52+5),1.87*aspect/(w*.79+h*.61+4));
       gl.useProgram(program);
+      gl.uniform1f(uniform[5],a.theme==='neon'?1:a.theme==='arctic'?2:0);
+      gl.uniform1f(uniform[6],surfaceAtlasTexture?1:0);
+      if(surfaceAtlasTexture){
+        gl.activeTexture(gl.TEXTURE0);
+        gl.bindTexture(gl.TEXTURE_2D,surfaceAtlasTexture);
+        gl.uniform1i(uniform[8],0);
+      }
       const mode=selectCameraMode(snapshot);
       const hero=mode==='hero'?chooseSpectatorTarget(snapshot):null;
       const close=snapshot.scene==='final-circle';
