@@ -15,7 +15,7 @@
     '#version 300 es',
     'in vec3 pos; in vec3 normal; in vec3 tint;',
     'uniform vec3 center; uniform vec2 scale;',
-    'out vec3 vNormal; out vec3 vTint; out float vDepth;',
+    'out vec3 vNormal; out vec3 vTint; out float vDepth; out vec3 vWorld;',
     'void main(){',
     'vec3 p=pos-center;',
     'float east=p.x*.79-p.z*.61;',
@@ -23,19 +23,28 @@
     'float up=p.y*.85-along*.52;',
     'float depth=p.y*.52+along*.85;',
     'gl_Position=vec4(east*scale.x,up*scale.y,-depth/80.0,1.0);',
-    'vNormal=normal;vTint=tint;vDepth=depth;',
+    'vNormal=normal;vTint=tint;vDepth=depth;vWorld=pos;',
     '}'
   ].join('\n');
   const fragmentSource=[
     '#version 300 es',
     'precision highp float;',
-    'in vec3 vNormal; in vec3 vTint; in float vDepth;',
+    'in vec3 vNormal; in vec3 vTint; in float vDepth; in vec3 vWorld;',
     'out vec4 result;',
     'void main(){',
-    'float direct=max(dot(normalize(vNormal),normalize(vec3(-.52,.90,.34))),0.0);',
-    'vec3 lit=vTint*(.43+.57*direct)+vec3(.035,.045,.060);',
-    'float haze=clamp(1.0-abs(vDepth)/85.0,.68,1.0);',
-    'result=vec4(mix(vec3(.045,.07,.11),lit,haze),1.0);',
+    'vec3 n=normalize(vNormal);',
+    'float direct=max(dot(n,normalize(vec3(-.52,.90,.34))),0.0);',
+    'float bounce=max(dot(n,normalize(vec3(.38,.54,-.72))),0.0);',
+    'float surfaceNoise=fract(sin(dot(floor(vWorld.xz*6.0),vec2(127.1,311.7)))*43758.5453123);',
+    'float textureGrain=mix(.955,1.045,surfaceNoise);',
+    'float ground=step(.88,n.y);',
+    'float micro=ground*textureGrain+(1.0-ground)*1.0;',
+    'float fill=.54+.43*direct+.10*bounce;',
+    'vec3 lit=vTint*fill*micro+vec3(.043,.054,.067);',
+    'float silhouette=pow(1.0-max(dot(n,normalize(vec3(.2,.8,.5))),0.0),2.0);',
+    'lit+=vec3(.036,.071,.085)*silhouette;',
+    'float haze=clamp(1.0-abs(vDepth)/98.0,.72,1.0);',
+    'result=vec4(mix(vec3(.065,.103,.135),lit,haze),1.0);',
     '}'
   ].join('\n');
   let canvas=null,gl=null,program=null,buffer=null,attr=null,uniform=null,lastSnapshot=null,disabled=forced2d||!host;
@@ -57,7 +66,7 @@
     attr=['pos','normal','tint'].map(name=>gl.getAttribLocation(program,name));
     uniform=['center','scale'].map(name=>gl.getUniformLocation(program,name));
     buffer=gl.createBuffer();gl.enable(gl.DEPTH_TEST);gl.depthFunc(gl.LEQUAL);
-    gl.disable(gl.CULL_FACE);gl.clearColor(.025,.043,.068,1);
+    gl.disable(gl.CULL_FACE);gl.clearColor(.065,.103,.135,1);
     status.mode='webgl2';document.body.dataset.battleRenderer='webgl2';
   }
   if(!disabled){
@@ -365,17 +374,17 @@
       ||snapshot.combatants.find(f=>f.alive);
     if(!focal)return;
     const p=pos(focal.cell,snapshot.arena.width);
-    const frameW=Math.max(1,Math.round(canvas.width*.33));
-    const frameH=Math.max(1,Math.round(canvas.height*.34));
-    const frameX=Math.round(canvas.width*.645);
-    const frameY=Math.round(canvas.height*.055);
+    const frameW=Math.max(1,Math.round(canvas.width*.27));
+    const frameH=Math.max(1,Math.round(canvas.height*.27));
+    const frameX=Math.round(canvas.width*.705);
+    const frameY=Math.round(canvas.height*.65);
     const aspect=frameW/frameH;
-    const zoom=.39;
+    const zoom=.43;
     gl.enable(gl.SCISSOR_TEST);
     try{
       gl.scissor(frameX,frameY,frameW,frameH);
       gl.viewport(frameX,frameY,frameW,frameH);
-      gl.clearColor(.038,.063,.096,1);
+      gl.clearColor(.055,.103,.145,1);
       gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
       gl.uniform3f(uniform[0],p.x,.8,p.z);
       gl.uniform2f(uniform[1],zoom/aspect,zoom);
@@ -383,7 +392,7 @@
     }finally{
       gl.disable(gl.SCISSOR_TEST);
       gl.viewport(0,0,canvas.width,canvas.height);
-      gl.clearColor(.025,.043,.068,1);
+      gl.clearColor(.065,.103,.135,1);
     }
   }
   function paint(snapshot){
@@ -419,7 +428,7 @@
       gl.useProgram(program);
       const close=snapshot.scene==='final-circle';
       const focus=close?pos(snapshot.zone.centerCell,w):{x:w/2,z:h/2};
-      const zoom=close?1.12:1;
+      const zoom=close?1.15:1.10;
       gl.uniform3f(uniform[0],focus.x,0,focus.z);
       gl.uniform2f(uniform[1],scale*zoom/aspect,scale*zoom);
       gl.bindBuffer(gl.ARRAY_BUFFER,buffer);
