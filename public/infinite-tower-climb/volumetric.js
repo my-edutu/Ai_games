@@ -3,11 +3,11 @@
 // Shares original 3D visual assets but NOT the existing 2D simulation authority.
 (async()=>{
   const canvas=document.getElementById('volumetric-canvas'),status=document.getElementById('status');
-  let THREE,createClimber,createTowerEnvironment,createTowerEntities,createTowerVfx,createVolumetricCore;
+  let THREE,createClimber,createTowerEnvironment,createTowerEntities,createTowerVfx,createVolumetricCore,loadClimberAsset;
   try{
-    [THREE,{createClimber},{createTowerEnvironment},{createTowerEntities},{createTowerVfx},{createVolumetricCore}]=await Promise.all([
+    [THREE,{createClimber},{createTowerEnvironment},{createTowerEntities},{createTowerVfx},{createVolumetricCore},{loadClimberAsset}]=await Promise.all([
       import('/tower/vendor/three.module.js'),import('/tower/character3d.js'),import('/tower/environment3d.js'),
-      import('/tower/entities3d.js'),import('/tower/vfx3d.js'),import('/tower/volumetric-core.js')
+      import('/tower/entities3d.js'),import('/tower/vfx3d.js'),import('/tower/volumetric-core.js'),import('/tower/asset3d.js')
     ]);
   }catch(error){status.textContent='3D MODULE LOAD FAILED';console.error(error);return;}
   let renderer;
@@ -22,6 +22,11 @@
   const environment=createTowerEnvironment(THREE,scene);environment.root.scale.set(1.25,1.25,.8);
   const art=createTowerEntities(THREE),climber=createClimber(THREE),vfx=createTowerVfx(THREE,scene);
   scene.add(climber.root);
+  let importedClimber=null;
+  void loadClimberAsset(THREE).then(result=>{
+    window.__TOWER_VOLUMETRIC_STATE__.assetStatus=result.status;
+    if(result.replacement){importedClimber=result.replacement;scene.add(importedClimber.root);climber.root.visible=false;}
+  }).catch(error=>{window.__TOWER_VOLUMETRIC_STATE__.assetStatus='load-error';console.warn('Optional climber asset unavailable',error)});
   const world=new THREE.Group();scene.add(world);
   const sim=createVolumetricCore(),player=sim.player,models=new Map(),guardians=new Map(),rewards=new Map();
   const enemyScene=new THREE.Group(),rewardScene=new THREE.Group();scene.add(enemyScene,rewardScene);
@@ -90,6 +95,8 @@
     let steps=0;
     while(accumulator>=1/60&&steps++<5){fixedStep(1/60);accumulator-=1/60;}
     resize();climber.animate(simTime,reduced);environment.animate(simTime,reduced);
+    if(importedClimber){importedClimber.root.position.copy(climber.root.position);
+      importedClimber.animate(dt,climber.pose);}
     if(!reduced){for(const item of rewards.values()){item.rotation.y+=dt*.9;item.position.y+=Math.sin(simTime*2+item.position.x)*dt*.09;}
       for(const [index,guardian] of guardians){guardian.rotation.y=Math.sin(simTime*.55+index)*.08;}}
     environment.root.position.y=player.y*.95;
