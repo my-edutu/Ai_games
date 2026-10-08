@@ -241,7 +241,49 @@ function buildWorld(snapshot) {
       npc.userData.baseX=x+2.0;
     }
   }
-  // Each district changes spatial character, not merely the sky palette.
+  // Lagos skyline: layered four-to-six-storey mixed-use buildings, roof tanks and balconies.
+  // This is original art grammar, not a recreation of a real address or protected landmark.
+  for(let i=0;i<Math.ceil(length/14);i++){
+    const x=i*14-3;
+    const h=6.4+numberHash(i+81)*4.5;
+    const w=4.3+numberHash(i+64)*2.2;
+    const z=-15.9-numberHash(i+12)*2.0;
+    const concrete=pick([0xb7b0a1,0xc1b19a,0x9cb2aa,0xc7b8a8,0xa8bbc0],i+40);
+    box(terrain,w,h,3.4,x,h/2,z,concrete,false);
+    box(terrain,w+.3,.24,3.65,x,h+.04,z,0x716e6a,false);
+    const floorCount=Math.floor(h/1.55);
+    for(let floor=1;floor<floorCount;floor++){
+      const y=.8+floor*1.50;
+      box(terrain,w*.93,.10,.66,x,y-.48,z+1.86,0xc9c2b4,false);
+      for(let k=-1;k<=1;k++){
+        const wx=x+k*w*.25;
+        box(terrain,w*.15,.69,.045,wx,y,z+1.75,floor%2?0x3b6778:0x38505e,false);
+        box(terrain,w*.17,.09,.12,wx,y+.36,z+1.78,0xe4dfce,false);
+      }
+      box(terrain,w*.91,.065,.08,x,y-.18,z+2.14,0x586f71,false);
+    }
+    if(i%2===0){
+      cylinder(terrain,.33,.34,.87,x+w*.24,h+.52,z,0x266d8e,12);
+      box(terrain,.76,.07,.77,x+w*.24,h+.08,z,0x284b58,false);
+      cylinder(terrain,.04,.04,1.65,x-w*.32,h+.85,z+.70,0x616c71,8);
+    }else{
+      box(terrain,.95,.28,.42,x-w*.24,h+.26,z+.6,0x918e83,false);
+    }
+  }
+  // Pairs of utility lines reinforce a streetscape without creating overhead obstacles.
+  const wires=new THREE.Group();terrain.add(wires);
+  for(const dz of [-5.2,-5.52]){
+    const points=[];
+    for(let x=-5;x<length-5;x+=1.1){
+      const bend=.11*Math.cos((x+5)/12*Math.PI*2);
+      points.push(new THREE.Vector3(x,5.12+bend,dz));
+    }
+    const path=new THREE.BufferGeometry().setFromPoints(points);
+    const line=new THREE.Line(path,new THREE.LineBasicMaterial({color:0x59666b,transparent:true,opacity:.76}));
+    line.userData.disposeGeometryOnRemove=true;
+    wires.add(line);
+  }
+    // Each district changes spatial character, not merely the sky palette.
   if(district==='market-rush'){
     for(let i=0;i<Math.ceil(length/11);i++){
       const x=2+i*11;
