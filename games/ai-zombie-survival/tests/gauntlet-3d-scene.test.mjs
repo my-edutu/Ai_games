@@ -9,6 +9,7 @@ import { decorateTacticalWorld } from '../web/world-overlays.js';
 import { drawEnvironmentVfx } from '../web/environment-vfx.js';
 import { decorateInterior } from '../web/interior-art.js';
 import { actionPose } from '../web/animation-pose.js';
+import { PackedVertices } from '../web/packed-geometry.js';
 
 class GeometryAudit {
   constructor(){this.calls=0;this.colors=new Set();this.byKind=new Map();}
@@ -173,4 +174,26 @@ test('aim, rescue, injured, roaming and running have distinct non-mutating 3D po
   const zombie=actionPose({...z,action:'pursue'},true,1.1);
   assert.ok(zombie.headForward>moving.headForward);
   assert.equal(JSON.stringify(z),original,'cosmetic pose must not mutate AI state');
+});
+
+test('packed typed WebGL geometry preserves triangle topology without intermediate boxed JS arrays',()=>{
+  const packed=new PackedVertices(27);
+  const normal=[0,1,0],color=[.4,.6,.8];
+  const N=20000;
+  for(let i=0;i<N;i++){
+    packed.triangle([i,0,0],[i,1,0],[i,0,1],normal,color);
+  }
+  const vertices=packed.view();
+  assert.ok(vertices instanceof Float32Array);
+  assert.equal(vertices.length,N*27);
+  assert.equal(packed.length,N*27);
+  assert.ok(packed.grows>=1&&packed.grows<40);
+  assert.equal(vertices[0],0);
+  assert.equal(vertices[27*234],234);
+  assert.equal(vertices[27*234+4],1);
+  assert.ok(Math.abs(vertices[8]-.8)<1e-6);
+  assert.equal(vertices.buffer,packed.data.buffer);
+  const next=new PackedVertices(27);
+  next.triangle([0,0,0],[0,2,0],[1,0,0],normal,color);
+  assert.equal(next.view().length,27);
 });
