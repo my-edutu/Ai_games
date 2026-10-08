@@ -52,7 +52,8 @@
   window.__TOWER_3D_METRICS__ = metrics;
   void loadClimberAsset(THREE).then(result=>{
     metrics.assetStatus=result.status;
-    if(result.replacement){importedClimber=result.replacement;scene.add(importedClimber.root);climber.root.visible=false;}
+    if(result.replacement){importedClimber=result.replacement;scene.add(importedClimber.root);climber.root.visible=false;
+      metrics.assetClips=result.replacement.clips;}
   }).catch(error=>{metrics.assetStatus='asset-load-error';metrics.assetError=String(error);});
   const xCoord=(value,width)=>Number(value||0)/1000-Number(width||0)/2000;
   let previousChecksum = '', lastState = null, scenePhase='normal';
