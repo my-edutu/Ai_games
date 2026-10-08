@@ -157,3 +157,28 @@ test('cinematic lighting decisions depend only on public AI observations, never 
   assert.equal(scene.userData.cinematicCue,'success');
   assert.ok(Number.isFinite(camera.fov));
 });
+
+test('24/7 renderer budgets only reduce resolution after sustained slow frames',async()=>{
+  const {createRenderBudget}=await loadModule('render-budget.js');
+  const adaptive=createRenderBudget({dpr:2,mode:'adaptive'});
+  assert.equal(adaptive.mode,'adaptive');
+  const initial=adaptive.ratio;
+  assert.ok(initial<=1.5);
+  for(let i=0;i<3;i++){
+    const result=adaptive.sample(14,9000+i*1000);
+    assert.equal(result.changed,false,'a single slow frame must not cause thrashing');
+  }
+  const reduction=adaptive.sample(14,12000);
+  assert.equal(reduction.changed,true);
+  assert.ok(reduction.ratio<initial);
+  for(let i=0;i<9;i++)adaptive.sample(59,19000+i*1000);
+  const improved=adaptive.sample(59,28000);
+  assert.equal(improved.changed,true);
+  assert.ok(improved.ratio>reduction.ratio);
+  const fixed=createRenderBudget({mode:'cinematic',dpr:2});
+  const fixedRatio=fixed.ratio;
+  for(let i=0;i<40;i++)fixed.sample(5,i*1000);
+  assert.equal(fixed.ratio,fixedRatio,'user quality override is stable');
+  const compact=createRenderBudget({mode:'adaptive',compact:true,dpr:3});
+  assert.ok(compact.ratio<=1.15);
+});
