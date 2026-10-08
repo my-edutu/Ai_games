@@ -58,7 +58,7 @@ export function createTowerCharacter({tint=0x69cedf,guardian=false,kind='climber
   }
   // Dual-layer articulated neck.
   taper(jointRoot,{top:2.4,bottom:3.1,height:3,mat:suit,y:12});
-  attach(jointRoot,new THREE.TorusGeometry(3.5,.65,8,16).type?mesh(new THREE.TorusGeometry(3.5,.65,8,16),bronze):box(4,2,2,bronze),0,12.3,0).rotation.x=Math.PI/2;
+  attach(jointRoot,mesh(new THREE.TorusGeometry(3.5,.65,8,16),bronze),0,12.3,0).rotation.x=Math.PI/2;
 
   const head=new THREE.Group();head.position.y=16;jointRoot.add(head);
   const helmet=attach(head,sphere(7.1,plated),0,1,0);helmet.scale.set(1.02,.97,.94);
