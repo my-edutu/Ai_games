@@ -309,3 +309,42 @@ test('broadcast cinematic elimination card is driven only by a public event and 
     await expect(page.locator('#battle-highlight')).toBeHidden({timeout:4000});
   }finally{await page.close()}
 });
+
+
+test('camera gauntlet contrasts same public match using cinematic hero and tactical map',async({browser,request})=>{
+  const response=await request.get(base+'/battle/state?w=1600&h=900');
+  expect(response.ok()).toBeTruthy();
+  const payload=await response.json();
+  const alive=payload.snapshot.combatants.filter(f=>f.alive);
+  const snapshot={...payload.snapshot,
+    combatants:payload.snapshot.combatants.map((f,i)=>({
+      ...f,alive:i===0||i===1,
+      health:i<=1?Math.max(1,f.health):0
+    })),
+    scene:'final-circle'};
+  const shared=JSON.stringify({...payload,snapshot});
+  const pages=[];
+  try{
+    for(const mode of ['hero','tactical','broadcast']){
+      const page=await browser.newPage({viewport:{width:1600,height:900}});
+      pages.push(page);
+      await page.route('**/battle/state?*',route=>route.fulfill({
+        status:200,contentType:'application/json',body:shared
+      }));
+      await page.goto(base+'/battle?muted=1&camera='+mode);
+      await page.waitForFunction(()=>Boolean(window.__BATTLE_PUBLIC_STATE__&&window.BattleArena3D?.status.frames>0));
+      const state=await page.evaluate(()=>window.__BATTLE_PUBLIC_STATE__);
+      expect(state.runToken).toBe(snapshot.runToken);
+      expect(state.revision).toBe(snapshot.revision);
+      const status=await page.evaluate(()=>window.BattleArena3D.status);
+      if(status.mode==='webgl2'){
+        expect(status.cameraMode).toBe(mode==='broadcast'?'hero':mode);
+        const overlay=await page.locator('.battle-3d-focus').textContent();
+        expect(overlay).toContain(mode==='tactical'?'LIVE ACTION':'TACTICAL OVERVIEW');
+        await page.screenshot({path:path.join(captures,'camera-'+mode+'-same-state.png')});
+      }
+    }
+  }finally{
+    await Promise.all(pages.map(page=>page.close()));
+  }
+});
