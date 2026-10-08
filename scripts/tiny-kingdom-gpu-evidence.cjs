@@ -18,10 +18,19 @@ const path = require('node:path');
     } catch (error) {
       // The shader/program compilation exception previously hid behind a generic
       // waitForFunction timeout. Preserve pageerrors to expose actual root cause.
-      await page.screenshot({path:path.join(out,'bootstrap-failure.png'),fullPage:true}).catch(()=>{});
+      await page.screenshot({path:path.join(out,'bootstrap-failure.png'),fullPage:true,timeout:90000}).catch(()=>{});
       throw Error('Browser bootstrap failed: '+errors.join(' | ')+'; '+String(error.message));
     }
-    await page.waitForTimeout(1400);
+    // In CI, SwiftShader is a software Vulkan/GL implementation and the shader
+    // executes millions of procedural noise instructions per HD screenshot.
+    // Throttle pixel count and scene updates before the first capture.
+    const softwareRendererRenderBudget=await page.evaluate(()=>{
+      const game=window.__tinyKingdom;
+      const tier=game.renderQuality();
+      if(tier.tier!=='hardware-webgl')game.setRenderQuality(.55);
+      return game.renderQuality();
+    });
+    await page.waitForTimeout(1200);
     evidence = await page.evaluate(() => {
       const canvases=[...document.querySelectorAll('canvas')];
       const contexts=canvases.map(c=>{
@@ -57,8 +66,9 @@ const path = require('node:path');
       if(evidence.staticGPUAfterCamera.staticGpuUploads!==evidence.staticGPU.staticGpuUploads)
         throw Error('Moving camera re-uploaded static world');
     }
+    evidence.renderBudget=softwareRendererRenderBudget;
     evidence.errors=errors;
-    await page.screenshot({path:path.join(out,'day1.png'),fullPage:true});
+    await page.screenshot({path:path.join(out,'day1.png'),fullPage:true,timeout:90000});
     // Matched camera framing and a deterministic later-day sample are essential
     // to distinguish lighting/geometry progress from a fortunate opening frame.
     await page.evaluate(() => {
@@ -66,7 +76,7 @@ const path = require('node:path');
       g.setCamera({zoom:14,pitch:0.43,focus:[0,-1]});
     });
     await page.waitForTimeout(300);
-    await page.screenshot({path:path.join(out,'settlement-close.png'),fullPage:true});
+    await page.screenshot({path:path.join(out,'settlement-close.png'),fullPage:true,timeout:90000});
     const replay=await page.evaluate(() => {
       const g=window.__tinyKingdom;
       g.reset();
@@ -74,7 +84,7 @@ const path = require('node:path');
       return {metrics:g.metrics(),snapshot:JSON.stringify(g.exportSnapshot())};
     });
     await page.waitForTimeout(300);
-    await page.screenshot({path:path.join(out,'day11-close.png'),fullPage:true});
+    await page.screenshot({path:path.join(out,'day11-close.png'),fullPage:true,timeout:90000});
     const second=await page.evaluate(() => {
       const g=window.__tinyKingdom;
       g.reset();
@@ -90,7 +100,7 @@ const path = require('node:path');
     ]){
       await page.evaluate(camera=>window.__tinyKingdom.setCamera(camera),shot.camera);
       await page.waitForTimeout(400);
-      await page.screenshot({path:path.join(out,shot.name),fullPage:true});
+      await page.screenshot({path:path.join(out,shot.name),fullPage:true,timeout:90000});
     }
     await page.setViewportSize({width:390,height:844});
     await page.waitForTimeout(300);
@@ -99,7 +109,7 @@ const path = require('node:path');
       scrollWidth:document.documentElement.scrollWidth,
       tourWidth:document.querySelector('.world-tour').getBoundingClientRect().width,
     }));
-    await page.screenshot({path:path.join(out,'mobile-sanctuary.png'),fullPage:true});
+    await page.screenshot({path:path.join(out,'mobile-sanctuary.png'),fullPage:true,timeout:90000});
     if(evidence.mobileViewport.scrollWidth>evidence.mobileViewport.clientWidth+1)
       throw Error('Mobile visual regression: horizontal page overflow');
     evidence.day11=replay.metrics;
