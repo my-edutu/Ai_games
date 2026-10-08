@@ -188,3 +188,20 @@ test('stadium kit scales up at Ultra while respecting one-time body mesh batchin
   assert.equal(ultra.shell.dataset.stadiumStyle,'seeding-sprint');
   assert.equal(ultra.shell.dataset.spotlightVolumes,'16');
 });
+
+test('every stage gets its own monumental 3D skyline, architecture and physics-safe hero landmark',async()=>{
+  const stages=['seeding-sprint','gate-gauntlet','hazard-circuit','final-four','championship'];
+  const styles=new Set();
+  for(const stage of stages){
+    const {shell,counters}=await simulateStage(stage,'balanced',false);
+    assert.equal(shell.dataset.stadiumStyle,stage);
+    assert.equal(shell.dataset.landmarkStyle,stage);
+    assert.equal(shell.dataset.spotlightVolumes,'6');
+    assert.ok(Number(shell.dataset.stadiumModules)>=300,'arena buildings must contain detailed geometry modules');
+    assert.ok(Number(shell.dataset.horizonGeometry)>=300,'far skyline must be a genuine multi-triangle terrain mesh');
+    assert.equal(shell.dataset.postprocess,'neon-glow');
+    assert.equal(counters.pointCloudDraws,1);
+    styles.add(shell.dataset.landmarkStyle);
+  }
+  assert.equal(styles.size,5,'five arena biomes may not become recoloured clones');
+});
