@@ -113,7 +113,7 @@
   window.__TOWER_3D_ACTIVE__ = true;
   original.style.visibility = 'hidden';
   window.__TOWER_3D_RENDER__ = s => {
-    if (!s || s.publicChecksum === previousChecksum) return;
+    if (!s || (s.publicChecksum && s.publicChecksum === previousChecksum)) return;
     previousChecksum = s.publicChecksum; lastState = s; rebuild(s);
   };
   const animate = () => {
@@ -138,7 +138,7 @@
     metrics.frames++; metrics.frameMs=Math.round((performance.now()-frameStart)*100)/100;
     requestAnimationFrame(animate);
   };
-  window.addEventListener('webglcontextlost', event => { if(event.target===canvas) { event.preventDefault(); metrics.status='context-lost'; canvas.style.display='none'; } });
-  window.addEventListener('webglcontextrestored', event => { if(event.target===canvas) { canvas.style.display='block'; metrics.status='restored'; } });
+  canvas.addEventListener('webglcontextlost', event => { event.preventDefault(); metrics.status='context-lost'; canvas.style.display='none'; original.style.visibility='visible'; });
+  canvas.addEventListener('webglcontextrestored', () => { canvas.style.display='block'; original.style.visibility='hidden'; metrics.status='restored'; });
   animate();
 })();
