@@ -1,5 +1,5 @@
 // Real WebGL2 perspective scene. The fixed-step game simulation remains authoritative.
-import { createGame, stepGame, selectCameraEvent, applyEvidenceScenario, isEvidenceScenario, buildAudioPlan } from '../dist/index.js';
+import { createGame, stepGame, selectCameraEvent, applyEvidenceScenario, isEvidenceScenario, buildAudioPlan, validateWorld } from '../dist/index.js';
 
 const canvas = document.getElementById('scene');
 const hud = document.getElementById('hud');
@@ -21,8 +21,48 @@ if (isEvidenceScenario(scenario)) { game = applyEvidenceScenario(game, scenario)
 if(frozen&&['rain','storm'].includes(params.get('weather'))){
   game={...game,weather:{kind:params.get('weather'),intensity:.86}};
 }
+const recoveryKey='edutu-zombie-gauntlet-recovery-v1';
+let resumeStatus='NEW RUN';
+if(!scenario&&!frozen&&params.get('fresh')!=='1'){
+  try{
+    const payload=sessionStorage.getItem(recoveryKey);
+    if(payload&&payload.length<=700000){
+      const saved=JSON.parse(payload),g=saved.game;
+      if(saved.schema===1&&Date.now()-saved.savedAt<24*60*60*1000&&
+        g?.version===3&&g.status==='running'&&
+        Array.isArray(g.survivors)&&g.survivors.length<=40&&
+        Array.isArray(g.zombies)&&g.zombies.length<=500&&
+        validateWorld(g).every(issue=>issue.severity!=='error')){
+          game=g;seed=g.seed;resumeStatus='RECOVERED TICK '+g.tick;
+      }
+    }
+  }catch(e){console.warn('Ignoring invalid zombie recovery snapshot',String(e));}
+}
 let last = performance.now(), accumulator = 0, elapsed = 0, paused = frozen, hudShown = true;
 let completedRuns=0, terminalSince=null;
+let lastSnapshotAt=performance.now();
+function persistGame(){
+  if(scenario||frozen||game.status!=='running')return;
+  try{
+    const body=JSON.stringify({schema:1,savedAt:Date.now(),game});
+    if(body.length<=700000)sessionStorage.setItem(recoveryKey,body);
+  }catch(e){console.warn('Zombie recovery snapshot failed',String(e));}
+}
+window.addEventListener('pagehide',persistGame);
+let recoveryReloads=0;
+canvas.addEventListener('webglcontextlost',event=>{
+  event.preventDefault();persistGame();
+  try{
+    const old=JSON.parse(sessionStorage.getItem('edutu-zombie-context-loss')||'{}');
+    recoveryReloads=Date.now()-old.at<60000?(old.reloads||0)+1:1;
+    sessionStorage.setItem('edutu-zombie-context-loss',JSON.stringify({at:Date.now(),reloads:recoveryReloads}));
+  }catch{recoveryReloads=1;}
+  if(recoveryReloads<=2)setTimeout(()=>location.reload(),500);
+  else{
+    fallback.hidden=false;
+    fallback.textContent='3D device lost repeatedly. Open the original 2.5D experience to continue.';
+  }
+});
 const restartDelayMs=Math.max(500,Math.min(60000,Number(params.get('restartMs'))||12000));
 let orbit = 0.67, range = 27, dragging = false, priorX = 0, cameraX = 0, cameraZ = 0, cameraFocusX = 0, cameraFocusZ = 0;
 let cameraMode = ['hero','overview'].includes(params.get('view'))?params.get('view'):'director', heroIndex=0, director = undefined, fpsSmooth = 30, lastStats = 0, buffersRebuilt = 0, lastGeometryStamp = '';
@@ -409,15 +449,17 @@ function selectFocus(dt){
   directedRange+=(desired-directedRange)*Math.min(1,dt*(reducedMotion?3:1.9));
 }
 function restartRun(){
-  seed=(seed+1)>>>0||1;completedRuns++;game=createGame({seed,zombieCount:params.get('crowd')==='dense'?260:180});
+  seed=(seed+1)>>>0||1;completedRuns++;resumeStatus='NEW RUN';game=createGame({seed,zombieCount:params.get('crowd')==='dense'?260:180});
   audioEventsSeen=0;cameraMode='director';cameraFocusX=0;cameraFocusZ=0;directedRange=27;
   terminalSince=null;accumulator=0;director=undefined;lastGeometryStamp='';
+  try{sessionStorage.removeItem(recoveryKey);}catch{}
 }
 function render(now){
   const cpuStart=performance.now();
   const delta=Math.min(.09,Math.max(0,(now-last)/1000));last=now;if(!paused)elapsed+=delta;
   fpsSmooth=fpsSmooth*.93+(delta?1/delta:30)*.07;
   if(!paused&&game.status==='running'){accumulator+=delta;let limit=0;while(accumulator>=fixed&&limit++<4){game=stepGame(game,fixed);accumulator-=fixed;}}
+  if(!paused&&now-lastSnapshotAt>=6000){lastSnapshotAt=now;persistGame();}
   if(!paused&&!frozen&&game.status!=='running'){
     if(terminalSince===null)terminalSince=now;
     else if(now-terminalSince>=restartDelayMs)restartRun();
@@ -458,7 +500,7 @@ function render(now){
     hud.querySelector('#integrity').textContent=Math.round(game.safeHouse.integrity)+'% BASE';
     hud.querySelector('#goal').textContent=game.objective.label;
     hud.querySelector('#resources').textContent='SUPPLIES  '+Math.floor(game.resources.food)+' FOOD  /  '+Math.floor(game.resources.ammo)+' AMMO';
-    hud.querySelector('#status').textContent=game.status==='running'?'RUN '+(completedRuns+1)+' · AUTONOMOUS LIVE':'RUN '+(completedRuns+1)+' ENDED · RESTART PENDING';
+    hud.querySelector('#status').textContent=game.status==='running'?(resumeStatus==='NEW RUN'?'RUN '+(completedRuns+1)+' · AUTONOMOUS LIVE':resumeStatus):'RUN '+(completedRuns+1)+' ENDED · RESTART PENDING';
     const featured=game.survivors.find(v=>v.id===director?.targetId&&v.alive)||game.survivors.find(v=>v.alive);
     hud.querySelector('#decisionName').textContent=featured?featured.name.toUpperCase()+' / '+featured.role.toUpperCase():'SQUAD LOST';
     hud.querySelector('#decision').textContent=featured?.intent||'The survivors are down. Preparing a new run.';
