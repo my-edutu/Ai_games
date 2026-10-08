@@ -100,13 +100,22 @@ function lightVolume(group,x,y,width,height,color,seed){
 }
 function stoneWeathering(group,width,startY,endY,theme,seed){
   const baseColor=theme==='foundry'?0x8b6759:theme==='ruins'?0x748d81:theme==='storm'?0x7486b2:theme==='clockwork'?0x887554:0x574677;
-  const mat=soft(baseColor,1,.01),scar=soft(0x10151b,.99,0);
+  const mats=[soft(baseColor,1,.01),soft(0x10151b,.99,0)];
+  const counts=[0,0];
+  for(let i=0;i<85;i++)counts[i%5===0?1:0]++;
+  const meshes=counts.map((count,index)=>new THREE.InstancedMesh(new THREE.BoxGeometry(1,1,1),mats[index],count));
+  const cursor=[0,0],dummy=new THREE.Object3D();
   for(let i=0;i<85;i++){
     const x=13+murmur(i*15+seed)*(width-26),y=startY+murmur(i*11+seed)*Math.max(1,endY-startY);
     const size=1+murmur(i*8+seed)*7;
-    const chip=add(group,block(size,.24+murmur(i*5+seed)*.6,.3,i%5?mat:scar),x,y,-43);
-    chip.rotation.z=murmur(i+seed)*.38;
+    dummy.position.set(x,y,-43);
+    dummy.scale.set(size,.24+murmur(i*5+seed)*.6,.3);
+    dummy.rotation.set(0,0,murmur(i+seed)*.38);
+    dummy.updateMatrix();
+    const index=i%5===0?1:0;
+    meshes[index].setMatrixAt(cursor[index]++,dummy.matrix);
   }
+  for(const instance of meshes){instance.instanceMatrix.needsUpdate=true;group.add(instance)}
 }
 /**
  * Enriches the existing 3D tower wall with distinct landmark framing, statues,
