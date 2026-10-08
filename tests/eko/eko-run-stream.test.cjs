@@ -48,6 +48,8 @@ test('serves actual Three.js rendering, browser HUD and a verifiable Gauntlet pa
     ['/eko/atmosphere.js', 'createCityAtmosphere'],
     ['/eko/gamefeel.js', 'createEkoGameFeel'],
     ['/eko/soundscape.js', 'createEkoSoundscape'],
+    ['/eko/adaptive-quality.js', 'createAdaptiveQualityGovernor'],
+    ['/eko/city-crowd.js', 'createCityCrowd'],
     ['/vendor/three.module.js', 'THREE'], ['/eko/progress', 'Gauntlet progress board'],
     ['/eko/gauntlet.json', 'iterations']
   ]) {
@@ -101,4 +103,22 @@ test('health includes observable activity and a bounded connection count', async
   assert.equal(response.status, 'ok');
   assert.ok(Number.isSafeInteger(response.tick));
   assert.ok(response.clients >= 0 && response.clients <= 32);
+});
+
+test('preview reset explicitly restores authoritative route and cannot be triggered cross-origin', async()=>{
+  const before=await(await fetch(ROOT+'/eko/state')).json();
+  const invalid=await fetch(ROOT+'/eko/control',{method:'POST',
+    headers:{'content-type':'application/json'},body:JSON.stringify({resetPreview:'yes'})});
+  assert.equal(invalid.status,400);
+  const hostile=await fetch(ROOT+'/eko/control',{method:'POST',
+    headers:{'content-type':'application/json',origin:'https://malicious.example'},
+    body:JSON.stringify({resetPreview:true})});
+  assert.equal(hostile.status,403);
+  const okay=await fetch(ROOT+'/eko/control',{method:'POST',
+    headers:{'content-type':'application/json'},body:JSON.stringify({resetPreview:true,mode:'ai'})});
+  assert.equal(okay.status,200);
+  const after=await(await fetch(ROOT+'/eko/state')).json();
+  assert.equal(after.mode,'ai');
+  assert.equal(after.snapshot.progression.districtId,'mainland-morning');
+  assert.ok(after.snapshot.tick<=before.snapshot.tick,'dev preview reset should be deterministic');
 });
