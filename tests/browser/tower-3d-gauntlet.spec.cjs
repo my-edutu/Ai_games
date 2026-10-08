@@ -179,6 +179,38 @@ test('v5 HUD displays real character and danger states while cleanFeed remains u
   await expect(page.locator('.hero-identity')).toBeHidden();
   await expect(page.locator('.stage-signal')).toBeHidden();
 });
+test('Visual VIII loads a single polished biome-responsive stylesheet without competing old layers',async({page})=>{
+  await page.setViewportSize({width:1600,height:900});
+  const failures=[];page.on('pageerror',e=>failures.push(e.message));
+  await page.goto(base+'/tower',{waitUntil:'domcontentloaded'});
+  await expect.poll(()=>page.evaluate(()=>document.body.dataset.towerTheme),{timeout:20000}).toMatch(/^(foundry|ruins|storm|clockwork|void)$/);
+  const sheets=await page.locator('link[rel="stylesheet"]').evaluateAll(nodes=>nodes.map(node=>new URL(node.href).pathname));
+  expect(sheets.filter(x=>/visual-v\\d+\\.css/.test(x))).toEqual(['/tower/visual-v8.css']);
+  const colors=await page.evaluate(()=>({
+    accent:getComputedStyle(document.body).getPropertyValue('--tower-accent').trim(),
+    glass:getComputedStyle(document.querySelector('.vital-panel')).backgroundImage,
+    hero:getComputedStyle(document.querySelector('.hero-identity')).display
+  }));
+  expect(colors.accent).toMatch(/^#[0-9a-f]{6}$/i);
+  expect(colors.glass).toContain('gradient');
+  expect(colors.hero).not.toBe('none');
+  expect(failures).toEqual([]);
+  await page.screenshot({path:path.join(artifacts,'gauntlet-visual-v8-immersive.png'),fullPage:true});
+});
+
+test('environmental atmosphere renderer provides bounded real geometry and measured bright lighting',async({page})=>{
+  await page.setViewportSize({width:1600,height:900});
+  await page.goto(base+'/tower?cleanFeed=1',{waitUntil:'domcontentloaded'});
+  await expect.poll(()=>page.evaluate(()=>window.__TOWER_3D_DIAGNOSTICS__?.atmosphere?.dustPoints||0),{timeout:30000}).toBeGreaterThan(70);
+  const d=await page.evaluate(()=>window.__TOWER_3D_DIAGNOSTICS__);
+  expect(d.atmosphere.volumeLights).toBeGreaterThan(0);
+  expect(d.atmosphere.curtains).toBe(4);
+  expect(d.atmosphere.dustPoints).toBeLessThanOrEqual(180);
+  expect(d.lens).toBe('perspective');
+  expect(d.drawCalls).toBeGreaterThan(10);
+  await page.screenshot({path:path.join(artifacts,'gauntlet-v8-atmosphere-cleanfeed.png'),fullPage:true});
+});
+
 test('3D module unavailable degrades safely to the existing 2D scene',async({page})=>{
   await page.route('**/tower/scene3d.js',route=>route.fulfill({status:503,body:'Module unavailable'}));
   await page.goto(base+'/tower');
