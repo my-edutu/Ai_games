@@ -199,6 +199,73 @@ const uniforms={viewProjection:gl.getUniformLocation(program,'viewProjection'),f
 const stride=40,attributes=[['position',3,0],['normal',3,12],['color',3,24],['materialId',1,36]].map(([name,size,offset])=>({loc:gl.getAttribLocation(program,name),size,offset}));
 function bindGeometry(target){gl.bindBuffer(gl.ARRAY_BUFFER,target);for(const {loc,size,offset} of attributes){if(loc<0)continue;gl.enableVertexAttribArray(loc);gl.vertexAttribPointer(loc,size,gl.FLOAT,false,stride,offset)}}
 bindGeometry(buffer);
+
+// Gauntlet 027 — atmospheric sky. A separate full-screen GPU render pass creates
+// moving cloud bands and changing daylight without adding world polygons.
+const skyVertexSource=`attribute vec2 screenPosition;varying vec2 skyUv;
+void main(){skyUv=screenPosition*.5+.5;gl_Position=vec4(screenPosition,1.,1.);}`;
+const skyFragmentSource=`precision mediump float;
+varying vec2 skyUv;
+uniform vec3 horizonColor;
+uniform vec3 zenithColor;
+uniform float skyDaylight;
+uniform float skyCloud;
+uniform float skyTime;
+void main(){
+ float horizon=smoothstep(0.0,.98,skyUv.y);
+ vec3 color=mix(horizonColor,zenithColor,pow(horizon,.67));
+ float layer=smoothstep(.18,.37,skyUv.y)*(1.-smoothstep(.76,1.0,skyUv.y));
+ float wave=sin(skyUv.x*13.5+skyUv.y*6.8-skyTime*.0028)
+    +.40*sin(skyUv.x*29.8-skyUv.y*11.2+skyTime*.0014);
+ float coverage=smoothstep(.08,1.1,wave)*layer*skyCloud;
+ color=mix(color,mix(vec3(.39,.45,.55),vec3(.88,.91,.86),skyDaylight),coverage*.54);
+ float theta=skyTime*.2617993878; // time is measured in simulation hours
+ vec2 sun=vec2(.5+.27*cos(theta),.55+.27*sin(theta));
+ float dist=distance(skyUv,sun*vec2(1.,1.32));
+ float glow=exp(-dist*dist*85.)*smoothstep(.12,.83,skyDaylight);
+ color+=vec3(.36,.24,.11)*glow;
+ float star=fract(sin(dot(floor(skyUv*vec2(212.,117.)),vec2(12.9898,78.233)))*43758.5453);
+ color+=vec3(.23,.31,.43)*step(.997,star)*(1.-skyDaylight)*smoothstep(.52,.75,skyUv.y);
+ gl_FragColor=vec4(clamp(color,vec3(0.),vec3(1.)),1.);
+}`;
+let skyAtmosphereProgram=null,skyAtmosphereBuffer=null,skyAttrib=-1,skyUniforms=null,skyPassCount=0;
+if(gpuAvailable){
+ skyAtmosphereProgram=gl.createProgram();
+ gl.attachShader(skyAtmosphereProgram,shader(gl.VERTEX_SHADER,skyVertexSource));
+ gl.attachShader(skyAtmosphereProgram,shader(gl.FRAGMENT_SHADER,skyFragmentSource));
+ gl.linkProgram(skyAtmosphereProgram);
+ if(!gl.getProgramParameter(skyAtmosphereProgram,gl.LINK_STATUS))throw Error('sky atmosphere: '+gl.getProgramInfoLog(skyAtmosphereProgram));
+ skyAttrib=gl.getAttribLocation(skyAtmosphereProgram,'screenPosition');
+ skyUniforms={
+  horizon:gl.getUniformLocation(skyAtmosphereProgram,'horizonColor'),
+  zenith:gl.getUniformLocation(skyAtmosphereProgram,'zenithColor'),
+  daylight:gl.getUniformLocation(skyAtmosphereProgram,'skyDaylight'),
+  cloud:gl.getUniformLocation(skyAtmosphereProgram,'skyCloud'),
+  time:gl.getUniformLocation(skyAtmosphereProgram,'skyTime')
+ };
+ skyAtmosphereBuffer=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,skyAtmosphereBuffer);
+ gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,3,-1,-1,3]),gl.STATIC_DRAW);
+ gl.useProgram(program);
+}
+function drawAtmosphere(a){
+ if(!gpuAvailable)return;
+ gl.useProgram(skyAtmosphereProgram);
+ gl.disable(gl.DEPTH_TEST);gl.depthMask(false);
+ gl.bindBuffer(gl.ARRAY_BUFFER,skyAtmosphereBuffer);
+ gl.enableVertexAttribArray(skyAttrib);
+ gl.vertexAttribPointer(skyAttrib,2,gl.FLOAT,false,0,0);
+ const h=a.fog;
+ gl.uniform3f(skyUniforms.horizon,h[0]*1.05,h[1]*1.06,h[2]*1.04);
+ gl.uniform3f(skyUniforms.zenith,.047+a.daylight*.14,.082+a.daylight*.29,.17+a.daylight*.49);
+ gl.uniform1f(skyUniforms.daylight,a.daylight);
+ gl.uniform1f(skyUniforms.cloud,.25+a.cloud*1.35);
+ gl.uniform1f(skyUniforms.time,state.t);
+ gl.drawArrays(gl.TRIANGLES,0,3);
+ gl.disableVertexAttribArray(skyAttrib);
+ gl.depthMask(true);gl.enable(gl.DEPTH_TEST);gl.useProgram(program);
+ skyPassCount++;
+}
+
 const MATERIAL=Object.freeze({GENERAL:0,GRASS:1,WATER:2,ROAD:3,FOLIAGE:4,STONE:5,WOOD:6,ROOF:7});
 let currentMaterial=MATERIAL.GENERAL;
 function materialScope(id,make){const old=currentMaterial;currentMaterial=id;try{return make()}finally{currentMaterial=old}}
@@ -844,7 +911,7 @@ function render(now){requestAnimationFrame(render);
  const minFrameMs=(swiftGpu||!gpuAvailable)?1000/12:0;
  if(minFrameMs&&frameGateTime&&now-frameGateTime<minFrameMs){framesSkipped++;return}
  frameGateTime=now;framesDrawn++;
- const dt=Math.min(.18,(now-(timer||now))/1000);timer=now;const atmosphere=skyConditions(state.t);gl.clearColor(...atmosphere.fog,1);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);if(!frozen){accumulator+=dt*speed*1.35;let ticks=0;while(accumulator>=FIXED_STEP&&ticks++<64){step(FIXED_STEP);accumulator-=FIXED_STEP}if(ticks>=64)accumulator=0;}if(follow){const citizen=people[Math.min(selectedCitizen,people.length-1)];focusPoint[0]+=(citizen.x-focusPoint[0])*.03;focusPoint[1]+=(citizen.z-focusPoint[1])*.03}if(cinematic)yaw+=dt*.05;const w=canvas.clientWidth,h=canvas.clientHeight,dpr=Math.min(window.devicePixelRatio||1,1.6)*renderQuality().scale;if(canvas.width!==Math.floor(w*dpr)||canvas.height!==Math.floor(h*dpr)){canvas.width=Math.floor(w*dpr);canvas.height=Math.floor(h*dpr);gl.viewport(0,0,canvas.width,canvas.height)}gl.enable(gl.DEPTH_TEST);gl.enable(gl.CULL_FACE);gl.cullFace(gl.BACK);
+ const dt=Math.min(.18,(now-(timer||now))/1000);timer=now;const atmosphere=skyConditions(state.t);gl.clearColor(...atmosphere.fog,1);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);if(!frozen){accumulator+=dt*speed*1.35;let ticks=0;while(accumulator>=FIXED_STEP&&ticks++<64){step(FIXED_STEP);accumulator-=FIXED_STEP}if(ticks>=64)accumulator=0;}if(follow){const citizen=people[Math.min(selectedCitizen,people.length-1)];focusPoint[0]+=(citizen.x-focusPoint[0])*.03;focusPoint[1]+=(citizen.z-focusPoint[1])*.03}if(cinematic)yaw+=dt*.05;const w=canvas.clientWidth,h=canvas.clientHeight,dpr=Math.min(window.devicePixelRatio||1,1.6)*renderQuality().scale;if(canvas.width!==Math.floor(w*dpr)||canvas.height!==Math.floor(h*dpr)){canvas.width=Math.floor(w*dpr);canvas.height=Math.floor(h*dpr);gl.viewport(0,0,canvas.width,canvas.height)}gl.enable(gl.DEPTH_TEST);gl.enable(gl.CULL_FACE);gl.cullFace(gl.BACK);drawAtmosphere(atmosphere);
 // Cache seasonal ground geometry: camera and citizens cannot change it.
 // Winter snow affects colour; ordinary rain does not.
 const groundClimate=climateAt(state.t);
@@ -902,6 +969,6 @@ currentMaterial=MATERIAL.WOOD;
 const elevation=Math.sin(pitch)*zoom,rad=Math.cos(pitch)*zoom,eye=[focusPoint[0]+Math.sin(yaw)*rad,elevation,focusPoint[1]+Math.cos(yaw)*rad];let m=mat4multiply(perspective(Math.PI/3.2,w/h,.1,190),lookAt(eye,[focusPoint[0],.25,focusPoint[1]],[0,1,0]));gl.uniformMatrix4fv(uniforms.viewProjection,false,m);gl.uniform3f(uniforms.fogColor,...atmosphere.fog);gl.uniform3f(uniforms.sunTint,...atmosphere.light);gl.uniform1f(uniforms.worldTime,state.t);gl.uniform3f(uniforms.sunDirection,Math.cos(state.t/24*6.283),.3+atmosphere.daylight*.9,Math.sin(state.t/24*6.283));lastFrameTriangles=(gpuAvailable?scenicMeshCache.length+data.length:data.length)/30;
 if(gpuAvailable){bindGeometry(staticBuffer);gl.drawArrays(gl.TRIANGLES,0,scenicMeshCache.length/10);}
 bindGeometry(buffer);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(data),gl.DYNAMIC_DRAW);gl.drawArrays(gl.TRIANGLES,0,data.length/10);if((frames++%14)===0){updateUI();drawAtlas();updateRealmSignal()}}
-requestAnimationFrame(render);window.__tinyKingdom={getState:()=>JSON.parse(JSON.stringify({state,people:people.map(({name,job,x,z,target})=>({name,job,x,z,target}))})),setSpeed:x=>{speed=x},step,reset:start,renderer:()=>canvas.getContext('webgl')?'webgl':'software',metrics:()=>({citizens:people.length,buildings:city.length+2,day:Math.floor(state.t/24)+1,food:state.food,wood:state.wood,gold:state.gold,relationships:people.filter(p=>p.friend).length}),route:(a,b)=>routeBetween(a[0],a[1],b[0],b[1]),walkable:(p)=>walkable(p[0],p[1]),getNavigation:()=>people.map(p=>({name:p.name,position:[p.x,p.z],target:p.target,remaining:p.path?.length||0,path:p.path,activity:p.activity,hunger:p.hunger,energy:p.energy})),exportSnapshot,restoreSnapshot,saveWorld,restoreWorld,climateAt,skyConditions,getCitizenProfiles:()=>cloneData(people.map(({name,job,trait,friend,bonds,energy,hunger,activity})=>({name,job,trait,friend,bonds,energy,hunger,activity}))),getRigPose:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(citizenRigPose(people[index])):null,getSelectedCitizen:()=>people[selectedCitizen]?.name,routeCacheMetrics:()=>({entries:routeCache.size,hits:cacheHits,misses:cacheMisses}),getCamera:()=>({yaw,pitch,zoom,focus:focusPoint.slice(),follow,cinematic}),getTerrainHeight:(x,z)=>terrain(x,z),getWildfloraCount:()=>wildflora.length,getMaterialSystem:()=>({vertexStride:10,surfaceShaderVersion:'procedural-023',materials:Object.keys(MATERIAL),gpuRenderValidated:false}),getScenicSites:scenicSiteMetrics,getFestivalVisualStats:()=>({season:festivalSeason,cacheBuilds:festivalCacheBuilds,vertices:festivalGeometry?.length||0}),renderStats:()=>({terrainRebuilds,terrainCacheKey,terrainCacheTriangles,lastFrameTriangles,scenicMeshRebuilds,scenicMeshTriangles,scenicMeshKey,staticGpuUploads,dualBufferGPU:gpuAvailable}),renderQuality,setRenderQuality,setCamera:o=>{yaw=Number.isFinite(o.yaw)?o.yaw:yaw;pitch=Number.isFinite(o.pitch)?Math.max(.25,Math.min(1.45,o.pitch)):pitch;zoom=Number.isFinite(o.zoom)?Math.max(9,Math.min(85,o.zoom)):zoom;if(Array.isArray(o.focus)&&o.focus.length===2)focusPoint=o.focus.slice(0,2)}};
+requestAnimationFrame(render);window.__tinyKingdom={getState:()=>JSON.parse(JSON.stringify({state,people:people.map(({name,job,x,z,target})=>({name,job,x,z,target}))})),setSpeed:x=>{speed=x},step,reset:start,renderer:()=>canvas.getContext('webgl')?'webgl':'software',metrics:()=>({citizens:people.length,buildings:city.length+2,day:Math.floor(state.t/24)+1,food:state.food,wood:state.wood,gold:state.gold,relationships:people.filter(p=>p.friend).length}),route:(a,b)=>routeBetween(a[0],a[1],b[0],b[1]),walkable:(p)=>walkable(p[0],p[1]),getNavigation:()=>people.map(p=>({name:p.name,position:[p.x,p.z],target:p.target,remaining:p.path?.length||0,path:p.path,activity:p.activity,hunger:p.hunger,energy:p.energy})),exportSnapshot,restoreSnapshot,saveWorld,restoreWorld,climateAt,skyConditions,getCitizenProfiles:()=>cloneData(people.map(({name,job,trait,friend,bonds,energy,hunger,activity})=>({name,job,trait,friend,bonds,energy,hunger,activity}))),getRigPose:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(citizenRigPose(people[index])):null,getSelectedCitizen:()=>people[selectedCitizen]?.name,routeCacheMetrics:()=>({entries:routeCache.size,hits:cacheHits,misses:cacheMisses}),getCamera:()=>({yaw,pitch,zoom,focus:focusPoint.slice(),follow,cinematic}),getTerrainHeight:(x,z)=>terrain(x,z),getWildfloraCount:()=>wildflora.length,getMaterialSystem:()=>({vertexStride:10,surfaceShaderVersion:'procedural-023',materials:Object.keys(MATERIAL),gpuRenderValidated:false}),getScenicSites:scenicSiteMetrics,getFestivalVisualStats:()=>({season:festivalSeason,cacheBuilds:festivalCacheBuilds,vertices:festivalGeometry?.length||0}),renderStats:()=>({terrainRebuilds,terrainCacheKey,terrainCacheTriangles,lastFrameTriangles,scenicMeshRebuilds,scenicMeshTriangles,scenicMeshKey,staticGpuUploads,dualBufferGPU:gpuAvailable}),renderQuality,setRenderQuality,skyStats:()=>({enabled:gpuAvailable,passes:skyPassCount,model:'day-night-atmosphere-v1'}),setCamera:o=>{yaw=Number.isFinite(o.yaw)?o.yaw:yaw;pitch=Number.isFinite(o.pitch)?Math.max(.25,Math.min(1.45,o.pitch)):pitch;zoom=Number.isFinite(o.zoom)?Math.max(9,Math.min(85,o.zoom)):zoom;if(Array.isArray(o.focus)&&o.focus.length===2)focusPoint=o.focus.slice(0,2)}};
 })();
 </script></body></html>
