@@ -1,21 +1,26 @@
 {
   "schemaVersion": 1,
   "project": "AI Battle Royale",
-  "iteration": 3,
+  "iteration": 6,
   "updated": "2026-10-08",
-  "verdict": "UNVERIFIED — AAA bar not met",
+  "verdict": "CI VALIDATION PENDING — AAA QUALITY NOT MET",
   "benchmark": "Fortnite Chapter 4 UE5.1 / Apex Legends / PUBG",
   "completed": [
     "Loop 0 — inspected existing 2D Canvas broadcast, deterministic simulation and reference branch.",
     "Loop 1 — added a dependency-free WebGL2 perspective-isometric arena with physically extruded cover, obstacles, structures, zone ring, pickups and armored 3D character silhouettes.",
     "Loop 1 — kept authoritative gameplay unchanged; old 2D mode remains available as a fallback and an exact side-by-side comparison.",
     "Loop 2 — introduced a live progress page and a native 3D browser regression gate (automated evidence still pending).",
-    "Loop 3 — added bounded visual movement interpolation, a steady final-circle camera, combat impact cues and a measured p95 WebGL CPU submission metric."
+    "Loop 3 — added bounded visual movement interpolation, a steady final-circle camera, combat impact cues and a measured p95 WebGL CPU submission metric.",
+    "Loop 4 — added original articulated, visibly equipped 3D characters with modeled helmets, armour, visors, weapons, archetype-specific gear, jointed limbs and cosmetic walking movement.",
+    "Loop 5 — added themed perimeter landmarks, arena warning lights, distinctive scenery and actual semantic-event shooting, elimination and pickup visual signals.",
+    "Loop 6 — added a second, live close-up action camera using the same publicly sanitized match state, with desktop-aware inset framing and responsive HUD placement.",
+    "CI evidence — prior PR revision passed GitHub Actions, including browser screenshots; new loops have focused geometry and A/B capture tests awaiting CI."
   ],
   "gaps": [
-    "P1 remaining action gap — complete rigged animation, animated weapons, cinematics, effects, authored 3D assets and polished animation transitions.",
-    "P0 visual gap — procedural low-poly character silhouettes are not AAA modeled, textured, rigged or animated actors.",
-    "P0 evidence gap — real Chromium screenshots, GPU performance and independent blind comparisons against official Fortnite captures remain unverified.",
-    "P1 operational gap — multi-hour 24/7 GPU soak, context recovery, OBS capture and low-end hardware profiling remain to be demonstrated."
+    "P0 benchmark gap — Epic Fortnite UE5.1 still has vastly superior environment/character detail, materials, volumetric lighting, shadows, animation and cinematic action.",
+    "P0 reviewer gap — new loops need fresh real Chromium and OBS screenshots plus genuinely independent blind A/B reviews; benchmark has not been won.",
+    "P1 art pipeline gap — characters use hand-authored procedural articulated meshes; no imported high-resolution textured skinned models or real skeletal animation system.",
+    "P1 production gap — weapon impact effects, cinematic focus, realistic scene variation and human-scale arena exploration require deeper implementation and visual evaluation.",
+    "P1 operations gap — GPU profiles, 24/7 stream soak and production-reference capacity remain unverified."
   ]
 }
