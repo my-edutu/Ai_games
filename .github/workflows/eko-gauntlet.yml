@@ -45,6 +45,8 @@ jobs:
         run: npm run build
       - name: Host/API integration tests
         run: node --test tests/eko/*.test.cjs
+      - name: Observe eight-seed autonomous Gauntlet campaign
+        run: node scripts/eko-gauntlet-run-soak.cjs
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
       - name: Capture desktop, mobile and Gauntlet page
