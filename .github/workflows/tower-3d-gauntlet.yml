@@ -8,6 +8,7 @@ on:
       - 'tests/browser/tower-3d-gauntlet.spec.cjs'
       - 'tests/browser/tower-volumetric.spec.cjs'
       - 'tests/browser/tower-biome-evidence.spec.cjs'
+      - 'tests/browser/tower-startup-diagnostics.spec.cjs'
       - '.github/workflows/tower-3d-gauntlet.yml'
   pull_request:
     paths:
@@ -34,6 +35,8 @@ jobs:
       - name: Native THREE geometry tests
         run: node --test tests/foundation/tower-3d-art.test.cjs tests/foundation/tower-volumetric-core.test.cjs tests/foundation/tower-authored-asset.test.cjs
       - run: npx playwright install --with-deps chromium
+      - name: WebGL boot smoke (diagnose before expensive captures)
+        run: npx playwright test tests/browser/tower-startup-diagnostics.spec.cjs --workers=1
       - name: Browser evidence — WebGL/AI state/fallback
         run: npx playwright test tests/browser/tower-3d-gauntlet.spec.cjs tests/browser/tower-volumetric.spec.cjs tests/browser/tower-biome-evidence.spec.cjs
       - name: Keep screenshots and browser traces
