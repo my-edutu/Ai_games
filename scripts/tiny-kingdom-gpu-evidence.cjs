@@ -27,6 +27,17 @@ const path = require('node:path');
       });
       return {contexts,metrics:window.__tinyKingdom.metrics(),webglVerified:contexts.some(x=>x.webgl)};
     });
+
+    evidence.materials=await page.evaluate(()=>window.__tinyKingdom.getMaterialSystem());
+    evidence.materialVertexAttribute=await page.evaluate(()=>{
+      const gl=document.getElementById('world').getContext('webgl');
+      if(!gl)return -1;
+      const program=gl.getParameter(gl.CURRENT_PROGRAM);
+      return program?gl.getAttribLocation(program,'materialId'):-1;
+    });
+    if(evidence.webglVerified&&evidence.materialVertexAttribute<0)throw Error('GPU material attribute was optimized away or omitted');
+    if(evidence.materials.vertexStride!==10||evidence.materials.materials.length!==8)
+      throw Error('GPU material layout mismatch');
     evidence.errors=errors;
     await page.screenshot({path:path.join(out,'day1.png'),fullPage:true});
     // Matched camera framing and a deterministic later-day sample are essential
