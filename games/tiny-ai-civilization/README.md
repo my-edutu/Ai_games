@@ -37,6 +37,15 @@ This is not the final game package or a conforming `GameModule` yet. Character m
 
 See the new Gauntlet 006 section and actual captured screenshot in `public/tiny-kingdom/progress.html`. Browser tests now exercise path validity, deterministic replay, and 90-day growth; CI outcome must be confirmed independently.
 
+## Gauntlet 007 — Persistent civilization, navigation performance, directional citizens
+
+- **Saved authoritative world:** `window.__tinyKingdom.exportSnapshot()` returns a schema-tagged, checksummed JSON checkpoint containing the seed/RNG state, complete citizens and relationships, current paths and actions, buildings, resources and chronicles. `restoreSnapshot(snapshot)` validates before mutating state; corrupt saves fail atomically. In-game Save world / Restore world buttons use browser localStorage. Persistent storage behavior across a browser restart has **not** yet been tested in this restricted environment.
+- **Repeatable browser evidence:** Local headless Chromium validated a checkpoint at day 19, replayed four additional simulated days, restored the checkpoint, replayed the same days, and reproduced byte-identical world snapshots. Corruption rejection also left the running world byte-identical. Software Chromium reported no page errors.
+- **Bounded route cache:** Improved short-distance direct routing, binary-heap A*, 1,800-entry maximum cached paths scoped to the building layout revision. A 50-day local run recorded **2,155 path-cache hits / 703 misses**; restoring the world cleared cached routes. At 90 simulated days, a single measured run took approximately six seconds, but this is not a 400-day or production soak success.
+- **3D directional citizen animation:** Procedurally assembled villager meshes and normals now face the actual next waypoint. Walking poses remain basic, not production-rigged characters. Real close-camera capture showed software-projection artifacts (roof/ground occlusion); unverified WebGL quality cannot be inferred from these captures.
+- **Browser tests added:** seed-replay snapshots, corrupted-save atomicity, path-cache bounds and invalidation, navigation, and existing simulation tests. GitHub CI conclusion must be checked separately; the tests were not manually run on a GPU.
+- **Critic verdict:** **FAIL against Manor Lords**. Significant art, character rigging, texturing, vegetation, atmospheric rendering, depth/clipping, persistent storage endurance, provider independence, 24/7 uptime and independent fresh-context review are still missing. The worker tunnel remains disconnected.
+
 ## Gauntlet continuation
 
 Primary bar: official *Manor Lords* captured gameplay and screenshots, camera-matched with our game (https://www.hoodedhorse.com/games/manor-lords). Secondary: Foundation for autonomous labor behavior, The Universim for character emergence. Keep original assets; do not copy proprietary models or textures.
