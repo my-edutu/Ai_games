@@ -74,6 +74,10 @@ test.describe('Eko Run 3D Gauntlet slice', () => {
   });
 
   test('mobile: displays 3D scene and touch controls without horizontal overflow', async ({ page }) => {
+    // Tests share the same long-running authority. The preceding outfit test deliberately
+    // switches to player mode, so restore a deterministic AI precondition explicitly.
+    const reset = await page.request.post(ROOT+'/eko/control',{data:{mode:'ai'}});
+    expect(reset.ok()).toBeTruthy();
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto(ROOT + '/eko/', { waitUntil: 'domcontentloaded' });
     await expect(page.locator('#connection')).toContainText('CONNECTED', { timeout: 20000 });
