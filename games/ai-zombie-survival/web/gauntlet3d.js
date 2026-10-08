@@ -9,6 +9,7 @@ import { clearCamera } from './camera-rig.js';
 import { decorateTacticalWorld } from './world-overlays.js';
 import { drawEnvironmentVfx } from './environment-vfx.js';
 import { decorateInterior } from './interior-art.js';
+import { createSunShadows } from './shadow-pass.js';
 
 const canvas = document.getElementById('scene');
 const hud = document.getElementById('hud');
@@ -169,13 +170,26 @@ const fs = [
   '#version 300 es',
   'precision highp float;',
   'in vec3 vColor; in vec3 vNormal; in vec3 vPosition;',
-  'uniform vec3 uEye; uniform vec3 uFogColor; uniform float uFog; uniform vec3 uLight; uniform float uNight; uniform float uWeatherFlash; uniform float uWetness;',
+  'uniform vec3 uEye; uniform vec3 uFogColor; uniform float uFog; uniform vec3 uLight; uniform float uNight; uniform float uWeatherFlash; uniform float uWetness; uniform mat4 uShadowVP; uniform sampler2D uShadowMap; uniform float uUseShadows;',
   'out vec4 fragColor;',
   'void main(){vec3 N=normalize(vNormal);vec3 L=normalize(uLight);',
   'float lambert=max(dot(N,L),0.0);float wrap=max(dot(N,L)*0.65+0.35,0.0);',
   'float skyBounce=0.10*max(N.y,0.0);float dayAmbient=mix(0.69,0.45,uNight);',
   'vec3 sunlight=mix(vec3(1.09,0.99,0.84),vec3(0.52,0.65,0.93),uNight);',
-  'vec3 color=vColor*(dayAmbient+skyBounce+sunlight*(0.38*wrap+0.24*lambert));',
+  'float shadow=0.0;',
+  'if(uUseShadows>0.5){',
+  'vec4 sh=uShadowVP*vec4(vPosition,1.0);',
+  'vec3 p=sh.xyz/max(0.0001,sh.w)*.5+.5;',
+  'if(p.x>0.0&&p.x<1.0&&p.y>0.0&&p.y<1.0&&p.z>0.0&&p.z<1.0){',
+  'float bias=max(.0025,.014*(1.0-lambert));',
+  'vec2 texel=1.0/vec2(textureSize(uShadowMap,0));',
+  'for(int x=0;x<2;x++)for(int y=0;y<2;y++){',
+  'vec2 offset=(vec2(float(x),float(y))-.5)*texel*2.0;',
+  'shadow+=p.z-bias>texture(uShadowMap,p.xy+offset).r?1.0:0.0;',
+  '}shadow*=.25;}',
+  '}',
+  'float sunExposure=1.0-shadow*.72;',
+  'vec3 color=vColor*(dayAmbient+skyBounce+sunlight*(0.38*wrap+0.24*lambert)*sunExposure);',
   'vec3 V=normalize(uEye-vPosition);vec3 H=normalize(L+V);',
   'float sheen=pow(max(dot(N,H),0.0),24.0)*0.065*(1.0-uNight*0.5);',
   'color+=sunlight*sheen;',
@@ -208,10 +222,14 @@ const fs = [
 const program = gl.createProgram();gl.attachShader(program,shader(gl.VERTEX_SHADER,vs));gl.attachShader(program,shader(gl.FRAGMENT_SHADER,fs));gl.linkProgram(program);
 if(!gl.getProgramParameter(program,gl.LINK_STATUS))throw new Error(gl.getProgramInfoLog(program));
 gl.useProgram(program);gl.enable(gl.DEPTH_TEST);gl.depthFunc(gl.LEQUAL);
-const uniforms = Object.fromEntries(['uVP','uEye','uFogColor','uFog','uLight','uNight','uWeatherFlash','uWetness'].map(k=>[k,gl.getUniformLocation(program,k)]));
+const uniforms = Object.fromEntries(['uVP','uEye','uFogColor','uFog','uLight','uNight','uWeatherFlash','uWetness','uShadowVP','uShadowMap','uUseShadows'].map(k=>[k,gl.getUniformLocation(program,k)]));
 const drawSky=createSkyPass(gl);
 function buffer(){const vao=gl.createVertexArray(),vbo=gl.createBuffer();gl.bindVertexArray(vao);gl.bindBuffer(gl.ARRAY_BUFFER,vbo);const stride=9*4;for(let i=0;i<3;i++){gl.enableVertexAttribArray(i);gl.vertexAttribPointer(i,3,gl.FLOAT,false,stride,i*12);}gl.bindVertexArray(null);return{vao,vbo,count:0};}
 const staticMesh=buffer(),movingMesh=buffer();
+const cinematicShadows=['shadows','cinematic'].includes(params.get('lighting'))||
+  params.get('quality')==='cinematic';
+const sunShadows=cinematicShadows?createSunShadows(gl,{resolution:640}):null;
+let lastShadowMatrix=null,lastShadowStamp=-1,lastShadowX=Infinity,lastShadowZ=Infinity;
 function upload(bufferObj,values){const array=new Float32Array(values);gl.bindBuffer(gl.ARRAY_BUFFER,bufferObj.vbo);gl.bufferData(gl.ARRAY_BUFFER,array,gl.DYNAMIC_DRAW);bufferObj.count=array.length/9;}
 function Mesh(){this.vertices=[];}
 Mesh.prototype.tri=function(a,b,c,n,col){for(const v of [a,b,c])this.vertices.push(...v,...n,...col);};
@@ -671,6 +689,19 @@ function render(now){
     if(meshBuildMs.length>60)meshBuildMs.shift();
     dynamicBuildAt=now+updateMs;dynamicMeshRebuilds++;
     lastDynamicTick=game.tick;lastDynamicFocusX=cameraFocusX;lastDynamicFocusZ=cameraFocusZ;
+  }
+  const useShadows=Boolean(sunShadows?.available);
+  if(useShadows&&(dynamicMeshRebuilds!==lastShadowStamp||
+    Math.hypot(cameraFocusX-lastShadowX,cameraFocusZ-lastShadowZ)>1)){
+      lastShadowMatrix=sunShadows.render([staticMesh,movingMesh],cameraFocusX,cameraFocusZ,w,h);
+      lastShadowStamp=dynamicMeshRebuilds;lastShadowX=cameraFocusX;lastShadowZ=cameraFocusZ;
+  }
+  gl.useProgram(program);
+  gl.uniform1f(uniforms.uUseShadows,useShadows?1:0);
+  if(useShadows&&lastShadowMatrix){
+    gl.uniformMatrix4fv(uniforms.uShadowVP,false,new Float32Array(lastShadowMatrix));
+    gl.activeTexture(gl.TEXTURE2);gl.bindTexture(gl.TEXTURE_2D,sunShadows.texture);
+    gl.uniform1i(uniforms.uShadowMap,2);
   }
   for(const b of [staticMesh,movingMesh]){gl.bindVertexArray(b.vao);gl.drawArrays(gl.TRIANGLES,0,b.count);}
   frameCpuMs.push(performance.now()-cpuStart);

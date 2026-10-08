@@ -60,6 +60,12 @@ try{
   await page.waitForFunction(()=>document.querySelector('#fps')?.textContent?.includes('CPU P95'),{timeout:12000});
   await page.screenshot({path:root+'night-storm.png'});
   report.checks.weatherEvidence=true;
+  await page.goto('http://127.0.0.1:4177/web/3d.html?scenario=day&freeze=1&lighting=shadows',{waitUntil:'load'});
+  await page.waitForFunction(()=>document.querySelector('#fps')?.textContent?.includes('CPU P95'),{timeout:16000});
+  const shadowGL=await page.locator('#scene').evaluate(el=>el.getContext('webgl2').getError());
+  assert.equal(shadowGL,0,'Cinematic directional shadow pass must not trigger WebGL errors');
+  await page.screenshot({path:root+'cinematic-shadows.png'});
+  report.checks.cinematicShadows=true;
   await page.goto('http://127.0.0.1:4177/web/3d.html?scenario=small-encounter&view=hero&freeze=1',{waitUntil:'load'});
   await page.waitForFunction(()=>document.querySelector('#fps')?.textContent?.includes('FPS'),{timeout:12000});
   await page.waitForTimeout(700);
