@@ -1,3 +1,5 @@
+// IIFE scope prevents global lexical declarations colliding with the main 2D application.
+(()=>{
 'use strict';
 // Procedural audio uses only published, idempotent public presentation cues.
 // Audio requires deliberate user activation, or an opt-in ?audio=1 browser source.
@@ -119,3 +121,5 @@ window.addEventListener('pagehide',()=>{
   if(audio)audio.close();
 },{once:true});
 if(soundParams.get('audio')==='1'&&!isMuted)activate();
+
+})();
