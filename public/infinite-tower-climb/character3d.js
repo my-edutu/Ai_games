@@ -34,15 +34,15 @@ function panel(parent,w,h,d,r,mat,x,y,z){
 export function createTowerCharacter({tint=0x69cedf,guardian=false,kind='climber'}={}){
   const root=new THREE.Group();
   const jointRoot=new THREE.Group();root.add(jointRoot);
-  const suit=material(kind==='guardian'?0x333448:0x202b3c,.5,.63);
+  const suit=material(guardian?0x383036:kind==='shooter'?0x4e3038:kind==='sentinel'?0x314b43:0x4f3d36,.24,.86);
   const plated=material(tint,.62,.37);
-  const armor=material(0x6c879b,.48,.39);
-  const seam=material(0x101a29,.32,.82);
-  const bronze=material(guardian?0xf7ac65:0xc2a77e,.66,.31);
-  const boot=material(0x111c2b,.41,.7);
-  const lit=glow(guardian?0xffab64:0x8deeff,2.6);
-  const eye=glow(guardian?0xff6565:0x6deaff,3.1);
-  const metalTrim=material(0xe1edeb,.68,.3);
+  const armor=material(guardian?0xc0a883:kind==='climber'?0xe3d0ae:0xb3b6a6,.24,.56);
+  const seam=material(0x2c292d,.18,.9);
+  const bronze=material(guardian?0xf3ba66:0xd8a667,.55,.34);
+  const boot=material(0x35272c,.22,.73);
+  const lit=glow(guardian?0xf6b16c:kind==='shooter'?0xff786e:kind==='sentinel'?0xa7ebc1:0xffd092,1.55);
+  const eye=glow(guardian?0xff8869:kind==='shooter'?0xff8a81:kind==='sentinel'?0xa9f2d8:0xffe7b1,1.85);
+  const metalTrim=material(0xf4e6cb,.5,.42);
 
   // Anatomical body volume and layered sculpted chest.
   attach(jointRoot,sphere(7.1,suit),0,2,-.1).scale.set(1,.92,.72);
@@ -118,6 +118,79 @@ export function createTowerCharacter({tint=0x69cedf,guardian=false,kind='climber
     panel(foot,4,1,2,.4,lit,0,0,7.9);
     legs.push({hip,knee,foot,sign});
   }
+  // Asymmetric high-resolution identity pass: cloth, functional rope, utility tools,
+  // beveled panels and engraved chest insignia. All are display-only attachments.
+  const fabric=new THREE.MeshStandardMaterial({
+    color:guardian?0x963b50:kind==='shooter'?0x813744:kind==='sentinel'?0x496f63:0xe9a05e,
+    roughness:.94,metalness:0,side:THREE.DoubleSide
+  });
+  const clothSegments=[];
+  function bannerShape(points,materialRef,px,py,pz){
+    const shape=new THREE.Shape();shape.moveTo(points[0][0],points[0][1]);
+    for(let i=1;i<points.length;i++)shape.lineTo(points[i][0],points[i][1]);
+    shape.closePath();
+    const node=attach(jointRoot,new THREE.Mesh(new THREE.ExtrudeGeometry(shape,{
+      depth:.65,bevelEnabled:true,bevelThickness:.12,bevelSize:.2,bevelSegments:1
+    }),materialRef),px,py,pz);
+    clothSegments.push(node);return node;
+  }
+  // Broad directional scarf adds a recognizable warm silhouette in long shots.
+  if(kind==='climber'){
+    const scarf=bannerShape([[-3,0],[11,3],[25,0],[32,-7],[18,-5],[4,-4]],fabric,0,10.5,7);
+    scarf.rotation.z=-.10;
+    panel(jointRoot,16,3,7,1,fabric,0,9.9,0);
+    for(const side of [-1,1]){
+      const shoulderBuckle=panel(jointRoot,3.8,5,2,.6,bronze,side*7,6.8,6.4);
+      shoulderBuckle.rotation.z=side*.18;
+      panel(jointRoot,3,6,3,.7,armor,side*6,-4.9,5.5);
+    }
+    // A curved safety rope and a golden belay carabiner anchor the character in its sport.
+    const points=[new THREE.Vector3(-5,10,7.8),new THREE.Vector3(-7,3,8.2),
+      new THREE.Vector3(2,-2,8.5),new THREE.Vector3(8,-8,8.4)];
+    const cable=new THREE.CatmullRomCurve3(points);
+    attach(jointRoot,new THREE.Mesh(new THREE.TubeGeometry(cable,24,.55,6,false),bronze));
+    const hook=attach(jointRoot,new THREE.Mesh(new THREE.TorusGeometry(3.3,.9,8,18,Math.PI*1.65),metalTrim),9,-10,7.3);
+    hook.rotation.z=.45;
+    panel(jointRoot,9,7,1,1,bronze,0,4.9,7.5);
+    panel(jointRoot,6,4,1,.6,lit,0,4.9,8.2);
+    // Distinct explorer helmet brow; the face remains readable from broadcast distance.
+    const brow=panel(head,15,2.7,5,1,armor,0,6.9,4);
+    brow.rotation.x=.07;
+    for(let side of [-1,1]){
+      const wing=attach(head,new THREE.Mesh(new THREE.ConeGeometry(2.7,8,6),bronze),side*6.6,5,-2.5);
+      wing.rotation.z=side*-.52;
+    }
+  }else if(kind==='sentinel'){
+    // Heavy shoulder pennant, defensive straps and an unmistakable broad shield.
+    bannerShape([[-4,0],[7,0],[6,-21],[1,-29],[-5,-20]],fabric,-10,7,-7);
+    for(const side of [-1,1]){
+      const plate=panel(jointRoot,8,7,11,2,armor,side*11,8,1.5);
+      plate.rotation.z=side*-.23;
+      panel(jointRoot,3,18,3,.6,bronze,side*8,-2.3,6);
+      const thorn=attach(head,new THREE.Mesh(new THREE.ConeGeometry(3,11,7),plated),side*6,8,-1);
+      thorn.rotation.z=side*-.23;
+    }
+    panel(jointRoot,14,5,3,1,bronze,0,7,7);
+  }else if(kind==='shooter'){
+    bannerShape([[-5,0],[7,0],[14,-24],[2,-18],[-7,-30]],fabric,0,1,-9);
+    for(let side of [-1,1]){
+      const fin=panel(pack,3,18,6,1,armor,side*8,6,-3.7);
+      fin.rotation.z=side*-.22;
+      panel(head,3,2,4,.7,eye,side*5,3.2,4);
+    }
+    panel(jointRoot,11,3,2,.7,bronze,0,9.5,5.7);
+  }else if(guardian){
+    const mantle=bannerShape([[-18,7],[18,7],[25,-35],[10,-48],[1,-41],[-10,-50],[-25,-35]],fabric,0,7,-9);
+    mantle.rotation.x=-.17;
+    const crest=attach(head,new THREE.Mesh(new THREE.ConeGeometry(5,17,6),bronze),0,13,-1);
+    crest.rotation.z=.14;
+    for(let side of [-1,1]){
+      const crestWing=attach(head,new THREE.Mesh(new THREE.ConeGeometry(3.2,15,6),armor),side*10,8,-2);
+      crestWing.rotation.z=side*-.32;
+      const medallion=attach(jointRoot,new THREE.Mesh(new THREE.IcosahedronGeometry(3.4,1),lit),side*10,10,8);
+      medallion.rotation.z=side*.2;
+    }
+  }
   // Each enemy type has different original equipment, readable at broadcast distance.
   // These meshes change neither collision dimensions nor combat damage.
   if(kind==='sentinel'){
@@ -155,15 +228,15 @@ export function createTowerCharacter({tint=0x69cedf,guardian=false,kind='climber
       attach(jointRoot,new THREE.Mesh(new THREE.ConeGeometry(4,16,7),bronze),sign*14,5,-4);
     }
   }
-  const light=new THREE.PointLight(guardian?0xff9855:0x4beee5,3.2,50,2);
+  const light=new THREE.PointLight(guardian?0xff9855:kind==='shooter'?0xff8b79:kind==='sentinel'?0xb9ebcb:0xffd7a0,2.5,45,2);
   light.position.set(0,4,7);root.add(light);
-  root.userData={jointRoot,head,pack,arms,legs,kind,guardian,light};
+  root.userData={jointRoot,head,pack,arms,legs,kind,guardian,light,clothSegments};
   return root;
 }
 
 export function poseTowerCharacter(root,{time=0,state='standing',vx=0,vy=0,mode='',telegraph=false,reducedMotion=false}={}){
   if(!root?.userData?.arms)return;
-  const {jointRoot,head,pack,arms,legs,light}=root.userData;
+  const {jointRoot,head,pack,arms,legs,light,clothSegments=[]}=root.userData;
   const dt=reducedMotion?0:time;
   const travel=range(Math.abs(vx)/10000,0,1);
   const sprint=state==='standing'&&travel>.07;
@@ -196,5 +269,8 @@ export function poseTowerCharacter(root,{time=0,state='standing',vx=0,vy=0,mode=
       dash?-.9:airborne?.58:sprint?Math.max(0,-alternate*step)*.95*speed:.06;
     foot.rotation.x=airborne?.24:-.07;
   });
-  if(light)light.intensity=reducedMotion?2:2.8+.32*Math.sin(dt*3.8);
+  for(let i=0;i<clothSegments.length;i++){
+    clothSegments[i].rotation.z=(reducedMotion?0:Math.sin(dt*3.3+i*.8)*.07)+(state==='dashing'?.14:0);
+  }
+  if(light)light.intensity=reducedMotion?2:2.3+.18*Math.sin(dt*3.8);
 }
