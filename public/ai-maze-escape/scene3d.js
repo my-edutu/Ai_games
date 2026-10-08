@@ -102,7 +102,7 @@ function stoneTexture(kind){
   for(let row=0;row<rows;row++)for(let col=-1;col<blocks+1;col++){
     const offset=floor?0:(row%2)*dx*.5;
     const x=col*dx+offset,y=row*dy,grain=seededNoise(col+5,row+13,23);
-    const shade=Math.floor(grain*18)-10,base=floor?[101,112,106]:stone?[100,108,101]:[128,112,86];
+    const shade=Math.floor(grain*26)-15,base=floor?[186,192,176]:stone?[181,188,172]:[194,172,135];
     c.fillStyle='rgb('+base.map(v=>Math.max(0,v+shade)).join(',')+')';
     c.fillRect(x+2,y+2,dx-4,dy-4);
     c.strokeStyle='rgba(13,21,21,.45)';c.lineWidth=3;c.strokeRect(x+1,y+1,dx-2,dy-2);
