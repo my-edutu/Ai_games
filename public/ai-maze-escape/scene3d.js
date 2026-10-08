@@ -241,7 +241,7 @@ function clearWorld() {
       if(object.material && !Object.values(materials).includes(object.material)) object.material.dispose();
     });
   }
-  threats=[];
+  // Threat actors live in the dynamic layer and survive static geometry refreshes.
 }
 function line(route,width,material) {
   if(route.length < 2) return;
@@ -454,16 +454,7 @@ function rebuild(snapshot) {
       world.add(portalLight);world.userData.torchCount++;
     }
   }
-  for(const enemy of snapshot.threats){
-    if(!visible.has(enemy.cell)) continue;
-    const body=monster(),p=point(enemy.cell,w);
-    body.position.copy(p);
-    world.add(body);
-    threats.push(body);
-    const omen=mesh(geometries.torus,materials.hazard,world,[p.x,.03,p.z],[1.04,1.04,1.04]);
-    omen.rotation.x=Math.PI/2;
-    mesh(geometries.cylinder,materials.hazard,world,[p.x,-.04,p.z],[.73,.025,.73]);
-  }
+  // Characters/threats update on each observed frame, independently from world geometry.
   finishInstances();
   const target=point(snapshot.currentCell,w);
   // Frame known geography only. Hidden cells never influence composition.
@@ -481,6 +472,50 @@ function rebuild(snapshot) {
   previousRun=snapshot.runToken;
   previousRevision=snapshot.revision;
 }
+function syncThreats(snapshot,reset){
+  if(reset){
+    for(const enemy of threats) dynamic.remove(enemy);
+    threats.length=0;
+  }
+  const observed=new Set();
+  for(const item of snapshot.threats){
+    observed.add(item.id);
+    let enemy=threats.find(actor=>actor.userData.id===item.id);
+    if(!enemy){
+      enemy=monster();
+      enemy.userData.id=item.id;
+      const ring=mesh(geometries.torus,materials.hazard,enemy,[0,.05,0],[1.0,1.0,1.0]);
+      ring.rotation.x=Math.PI/2;
+      const p=point(item.cell,snapshot.width);
+      enemy.position.copy(p);
+      enemy.userData.target=p.clone();
+      dynamic.add(enemy);
+      threats.push(enemy);
+    }else enemy.userData.target.copy(point(item.cell,snapshot.width));
+  }
+  for(let i=threats.length-1;i>=0;i--){
+    if(!observed.has(threats[i].userData.id)){
+      dynamic.remove(threats[i]);
+      threats.splice(i,1);
+    }
+  }
+}
+function structuralSignature(snapshot){
+  const w=snapshot.width,centerCol=snapshot.currentCell%w,centerRow=Math.floor(snapshot.currentCell/w);
+  const cells=snapshot.cells.filter(cell=>{
+    const col=cell.cell%w,row=Math.floor(cell.cell/w);
+    return Math.abs(col-centerCol)<=6&&Math.abs(row-centerRow)<=5;
+  });
+  return JSON.stringify({
+    run:snapshot.runToken,
+    sector:[Math.floor(centerCol/2),Math.floor(centerRow/2)],
+    cells:cells.map(c=>[c.cell,c.visible,c.blocked,c.trap,c.checkpoint,c.clue,c.neighbors.join(':')]),
+    doors:snapshot.doors.map(d=>[d.id,d.open]),
+    keys:snapshot.keys.map(k=>[k.id,k.collected]),
+    exit:snapshot.exitCell,
+    routeBucket:Math.floor(snapshot.travelledRoute.length/4)
+  });
+}
 function onFrame(event) {
   const packet=event.detail;
   const snapshot=packet&&packet.snapshot;
@@ -489,9 +524,13 @@ function onFrame(event) {
   const runChanged=previousRun!==snapshot.runToken;
   const target=point(snapshot.currentCell,snapshot.width);
   explorerTarget.copy(target);
-  if(runChanged || (previousRevision!==snapshot.revision && performance.now()-lastEnvironmentUpdate>280)) {
+  syncThreats(snapshot,runChanged);
+  const signature=structuralSignature(snapshot);
+  const now=performance.now();
+  if(runChanged||(signature!==lastTopologyKey&&now-lastEnvironmentUpdate>340)){
     rebuild(snapshot);
-    lastEnvironmentUpdate=performance.now();
+    lastTopologyKey=signature;
+    lastEnvironmentUpdate=now;
   }
 }
 function render(now) {
@@ -520,7 +559,13 @@ function render(now) {
   }
   if(explorer.userData.head)
     explorer.userData.head.rotation.y=reducedMotion?0:Math.sin(now*.0019)*(spotted?.19:.32);
-  for(const enemy of threats)if(!reducedMotion)enemy.position.y=Math.sin(now*.003+enemy.position.x)*.07;
+  for(const enemy of threats){
+    if(enemy.userData.target){
+      if(reducedMotion)enemy.position.copy(enemy.userData.target);
+      else enemy.position.lerp(enemy.userData.target,Math.min(1,seconds*6));
+    }
+    if(!reducedMotion)enemy.position.y=Math.sin(now*.003+enemy.position.x)*.07;
+  }
   if(!reducedMotion){
     explorer.userData.lantern.rotation.z=Math.sin(now*.006)*.09;
     explorer.position.y=(moving?Math.abs(Math.sin(now*.008))*.075:Math.sin(now*.002)*.025);
