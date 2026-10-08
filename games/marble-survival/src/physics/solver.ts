@@ -356,7 +356,15 @@ function resolveMarblePair(first: MarbleCompetitor, second: MarbleCompetitor, st
 }
 
 function addContact(store: Map<string, PhysicsContact>, contact: PhysicsContact | null, cap: number): void {
-  if (!contact || store.has(contact.key) || store.size >= cap) return;
+  if (!contact) return;
+  const previous = store.get(contact.key);
+  if (previous) {
+    // A separation overlap can be recorded earlier in a tick than the impact.
+    // Never lose the later authoritative launch event to per-tick deduplication.
+    if ((contact.launchSpeed ?? 0) > (previous.launchSpeed ?? 0)) store.set(contact.key, contact);
+    return;
+  }
+  if (store.size >= cap) return;
   store.set(contact.key, contact);
 }
 
