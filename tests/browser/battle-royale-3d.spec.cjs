@@ -222,3 +222,24 @@ test('Gauntlet critic captures all three art-direction biomes from a clearly lab
     }finally{await page.close()}
   }
 });
+
+
+test('3D nameplates follow published living AI fighters and never overwhelm broadcast',async({page})=>{
+  await page.setViewportSize({width:1600,height:900});
+  await page.goto(base+'/battle?muted=1',{waitUntil:'domcontentloaded'});
+  await page.waitForFunction(()=>Boolean(window.__BATTLE_PUBLIC_STATE__&&window.BattleArena3D));
+  const status=await page.evaluate(()=>({...window.BattleArena3D.status}));
+  if(status.mode==='webgl2'){
+    const layer=page.locator('.battle-3d-nameplates');
+    await expect(layer).toBeVisible();
+    const number=await page.locator('.battle-3d-nameplate').count();
+    expect(number).toBeGreaterThan(0);
+    expect(number).toBeLessThanOrEqual(6);
+    const text=await page.locator('.battle-3d-nameplate').first().textContent();
+    expect(text).toMatch(/HP/);
+    expect(status.lastError).toBeNull();
+    await page.screenshot({path:path.join(captures,'fighter-identity-nameplates.png')});
+  }else{
+    await expect(page.locator('[data-testid="battle-canvas"]')).toBeVisible();
+  }
+});
