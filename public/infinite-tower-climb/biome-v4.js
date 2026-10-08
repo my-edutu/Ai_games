@@ -3,6 +3,7 @@
  * Render-only: it never creates gameplay collisions, routes, or decisions.
  */
 import * as THREE from '/tower/three.module.js';
+import {buildTowerGeology} from '/tower/geology-v9.js';
 export const VISUAL_PALETTES={
   foundry:{stone:0x775344,rim:0xf9ca8b,glow:0xffa350,haze:0x764f49,accent:0xffe0af,shadow:0x453a3a,sky:['#ffe3a9','#eda978','#aa6c68','#5c4854'],moss:0xf6a868},
   ruins:{stone:0x8a8972,rim:0xf4e3b7,glow:0xfecb77,haze:0x66776f,accent:0xffedd1,shadow:0x445e54,sky:['#f8e4b5','#b4d9bb','#81b6a9','#4d817c'],moss:0x65a68a},
@@ -93,6 +94,7 @@ export function buildPainterlyTowerBackdrop({group,snapshot,palette,worldWidth,t
   const y0=snapshot.chunkBaseY/1000,height=snapshot.chunkHeight/1000,mid=y0+height*.5;
   const stone=flat(palette.stone),trim=flat(palette.rim,.4,.35),shadow=flat(palette.shadow,.88,.16);
   const stage=new THREE.Group();stage.name='v4-expedition-scenery';group.add(stage);
+  buildTowerGeology({group:stage,snapshot,quality:'auto'});
   const vista=add(stage,new THREE.Mesh(new THREE.PlaneGeometry(worldWidth+340,height+410),paintScene(theme,snapshot.floor)),worldWidth/2,mid,-165);
   // Independently silhouetted masonry spines near the *edges* instead of a flat full-screen wall grid.
   for(let i=0;i<5;i++){
