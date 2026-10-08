@@ -13,7 +13,7 @@
 </head>
 <body>
   <a class="skip-link" href="#arena">Skip to arena</a>
-  <main class="broadcast-shell" data-clean="false" data-quality="balanced" data-ux-revision="6" data-layout="arena-first" data-biome="seeding-sprint">
+  <main class="broadcast-shell" data-clean="false" data-quality="balanced" data-ux-revision="6" data-layout="arena-first" data-view="broadcast" data-biome="seeding-sprint">
     <header class="topbar" aria-label="Tournament status">
       <div class="brand-lockup">
         <div class="brand-emblem" aria-hidden="true"><span></span></div>
@@ -32,6 +32,7 @@
           </select>
         </label>
         <a class="utility-button" href="/gauntlet.html" aria-label="View live Gauntlet improvement progress">Gauntlet Lab ↗</a>
+        <button id="view-toggle" class="utility-button view-toggle" type="button" aria-pressed="false" aria-keyshortcuts="C" title="Toggle cinematic view (C)">Cinema ◇</button>
         <button id="sound-toggle" class="utility-button" type="button" aria-pressed="false">Sound off</button>
       </div>
     </header>
@@ -78,6 +79,16 @@
           <small>Official result · authority adjudicated</small>
         </div>
       </section>
+
+      <aside class="spotlight-card" id="spotlight-card" aria-label="Selected competitor live dossier" hidden>
+        <div class="spotlight-heading"><span>COMPETITOR DOSSIER</span><button type="button" id="spotlight-close" aria-label="Close competitor dossier">✕</button></div>
+        <div class="spotlight-identity"><span class="spotlight-orb" id="spotlight-orb" aria-hidden="true"><b id="spotlight-number">—</b></span>
+          <div><small id="spotlight-archetype">AUTONOMOUS MARBLE</small><strong id="spotlight-name">No competitor selected</strong><span id="spotlight-status">AWAITING AUTHORITY</span></div>
+        </div>
+        <div class="spotlight-progress" role="progressbar" id="spotlight-progress" aria-label="Selected marble route progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="spotlight-progress-fill"></span></div>
+        <div class="spotlight-stats"><div><span>COURSE</span><strong id="spotlight-percent">0%</strong></div><div><span>ELEVATION</span><strong id="spotlight-elevation">0.0m</strong></div><div><span>SPEED INDEX</span><strong id="spotlight-speed">0</strong></div></div>
+        <p>Live competitor data · camera and race authority unchanged.</p>
+      </aside>
 
       <aside class="leaderboard-panel broadcast-overlay" aria-label="Live standings">
         <div class="panel-heading">
