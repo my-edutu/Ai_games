@@ -136,3 +136,16 @@ body[data-biome="ember"] .icon-button{color:#ffe0b0}
  .map-data{display:block;grid-column:1/-1}
  .team-foot{font-size:9px}
 }
+
+
+.arena.world-only-audit > :not(canvas#world){visibility:hidden!important}
+.arena.world-only-audit::before,.arena.world-only-audit::after{visibility:hidden!important}
+@media(max-width:680px){
+ .boss-strip{top:70px;max-width:calc(100% - 22px);padding:7px 10px 9px;pointer-events:none}
+ .boss-title{margin-top:4px}
+ .boss-title strong{font-size:11px}
+ .boss-bar{margin-top:6px;height:5px}
+ .alert-flash{top:auto;bottom:78px;max-width:calc(100% - 26px);padding:8px 10px;font-size:10px;line-height:1.25;letter-spacing:.45px;pointer-events:none}
+ .arena-lower{bottom:9px}
+ .mission-chip{padding:8px 11px}
+}
