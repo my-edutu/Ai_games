@@ -3,7 +3,7 @@
   "baseline": "SYBO Subway Surfers City — official gameplay footage; original IP only",
   "scope": "Interactive 3D vertical slice; not a finished or externally benchmarked game",
   "updated": "2026-10-08",
-  "runStatus": "Iteration 5 active: real WebGL screenshots at head 54af280 verified the occlusion fix and articulated Tayo; latest art, skyline, batching, autopilot, accessibility and geometry tests committed, but latest CI/screenshots remain queued. Reference-quality gate remains FAIL.",
+  "runStatus": "Iteration 6 in GitHub: original Tayo articulation/outfits, multiple Lagos architectural and material passes, static material-chunk batching, public-snapshot AI pilot and new automated tests are committed. Last visual evidence head 54af280 passed basic browser but failed reference bar; newer 3D captures and performance metrics are still queued.",
   "iterations": [
     {
       "round": 0,
@@ -52,6 +52,14 @@
       "builder": "Detailed painted facades, shop shutters, danfo bus glass/trim, street furniture/drains, stacked balconies and rooftop water tanks, utility wires; added frustum-culled static geometry batching, 14+ pivot Tayo audit, deterministic hazard-aware autopilot, seeded policy tests and reduced persistent UI occlusion.",
       "critic": "No new screenshot or measured draw-call results on current head yet. Procedural art still cannot be called a final skinned/production asset. Static geometry batching needs live WebGL confirmation, and autopilot success/near-miss rates need campaign evidence.",
       "decision": "Inspect new WebGL screenshots and renderer metrics after CI completes, then fix strongest remaining gameplay/art/performance gap. Keep Gauntlet open."
+    },
+    {
+      "round": 6,
+      "title": "Material craft, actor/hazard quality gates",
+      "status": "code committed; CI and visual verification queued",
+      "builder": "Added three reusable original CanvasTexture materials for road, sidewalk and plaster; reduced persistent event banners and autonomous-mode touch clutter; original Tayo rig and outfit pose tests; multi-seed AI policy and batching invariants; improved full Lagos mixed-use skyline and street prop detail.",
+      "critic": "New work has not yet been captured and evaluated on an actual running WebGL scene. CI jobs are queued; do not infer better FPS, game feel or reference quality from the code. The procedural aesthetic still differs considerably from production asset quality.",
+      "decision": "Review latest screenshots and renderer draw-call/FPS diagnostics, correct any runtime regressions, then target more highly authored Tayo/animation and a premium Mainland Morning reference block."
     }
   ],
   "gates": [
@@ -126,5 +134,17 @@
       "artifactId": 11538341657,
       "result": "host and browser CI PASS; unoccluded street and newly articulated Tayo visible, but still basic art and CI 5 FPS"
     }
-  ]
+  ],
+  "experimentalBuild": {
+    "head": "ea2034f9fc37afea212684f8e703bca74063d380",
+    "validation": "pending latest GitHub Actions workflows",
+    "features": [
+      "original procedural articulated Tayo and outfit silhouettes",
+      "detailed Lagos facades, balconies, danfo",
+      "three reusable original surface textures",
+      "frustum-culled static world batching",
+      "deterministic public-snapshot reactive pilot",
+      "mobile/AI HUD readability improvements"
+    ]
+  }
 }
