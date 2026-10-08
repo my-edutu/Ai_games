@@ -129,6 +129,68 @@ export function createTowerEnvironment(THREE,scene) {
     group.forEach((object,i)=>{object.updateMatrix();instanced.setMatrixAt(i,object.matrix);root.remove(object)});
     instanced.instanceMatrix.needsUpdate=true;root.add(instanced);
   }
+  // Each biome changes the architectural silhouette, not merely its color grading.
+  const biomeDecor={};
+  for(const name of ['foundry','ruins','clockwork','storm','void']){
+    const group=new THREE.Group();group.name=name+' environmental set';
+    group.visible=false;root.add(group);biomeDecor[name]=group;
+  }
+  const furnaceMat=new THREE.MeshStandardMaterial({color:0x792b24,metalness:.38,roughness:.65}),
+    furnaceLight=new THREE.MeshStandardMaterial({color:0xff923f,emissive:0xff6120,emissiveIntensity:2}),
+    ivy=new THREE.MeshStandardMaterial({color:0x3e8a65,roughness:.9,side:THREE.DoubleSide}),
+    jade=new THREE.MeshStandardMaterial({color:0x8db8a7,roughness:.75}),
+    stormMetal=new THREE.MeshStandardMaterial({color:0x96b7d8,metalness:.9,roughness:.25}),
+    stormLight=new THREE.MeshStandardMaterial({color:0xc2e4ff,emissive:0x7daaff,emissiveIntensity:2}),
+    voidStone=new THREE.MeshStandardMaterial({color:0x34284c,metalness:.58,roughness:.48}),
+    voidLight=new THREE.MeshStandardMaterial({color:0xb38cff,emissive:0x782eea,emissiveIntensity:1.4});
+  const movingDetails=[];
+  for(let k=-3;k<=3;k++){
+    const y=k*33;
+    for(const side of [-1,1]){
+      const x=side*22;
+      // Foundry: massive vents and molten channels.
+      block(biomeDecor.foundry,x,y,-7,5,8,3,furnaceMat);
+      block(biomeDecor.foundry,x,y+3,-4.9,3.8,2.1,.5,furnaceLight);
+      for(let vent=0;vent<3;vent++){
+        cylinder(biomeDecor.foundry,x+side*1.5+vent*.35,y+4+vent*.5,-6,.4,.6,4,bronze,8);
+      }
+      // Ruins: ivy-covered roots with distinguishable leafy, organic crowns.
+      cylinder(biomeDecor.ruins,x,y,-8,.48,.82,12,ivy,7);
+      for(let leaf=0;leaf<7;leaf++){
+        const a=leaf*2.39996,kx=x+Math.cos(a)*(.8+leaf*.25);
+        const ly=y+leaf*1.6-3,kz=-7+Math.sin(a)*.8;
+        const foliage=new THREE.Mesh(new THREE.IcosahedronGeometry(.6+leaf*.06,0),leaf%2?ivy:jade);
+        foliage.position.set(kx,ly,kz);foliage.scale.set(.8,1.5,.5);
+        biomeDecor.ruins.add(foliage);
+      }
+      // Clockwork: visible spinning industrial mechanisms with toothed rims.
+      const gear=new THREE.Group();
+      gear.position.set(x,y,-6);biomeDecor.clockwork.add(gear);movingDetails.push(gear);
+      const ring=new THREE.Mesh(new THREE.TorusGeometry(3.4,.44,8,32),bronze);gear.add(ring);
+      const inner=new THREE.Mesh(new THREE.TorusGeometry(1.25,.16,8,24),stormMetal);gear.add(inner);
+      for(let tooth=0;tooth<12;tooth++){
+        const a=tooth*Math.PI/6;
+        const mesh=block(gear,Math.cos(a)*3.6,Math.sin(a)*3.6,0,.78,.65,.75,bronze);
+        mesh.rotation.z=a;
+      }
+      for(let spoke=0;spoke<6;spoke++){
+        const a=spoke*Math.PI/3;
+        const spokeMesh=block(gear,Math.cos(a)*1.6,Math.sin(a)*1.6,0,3.2,.24,.29,edgeStone);
+        spokeMesh.rotation.z=a;
+      }
+      // Storm: tall electrified conductor fins.
+      cylinder(biomeDecor.storm,x,y,-7,.25,1.4,10,stormMetal,6);
+      const tip=new THREE.Mesh(new THREE.ConeGeometry(.95,3,6),stormLight);
+      tip.position.set(x,y+6.4,-7);biomeDecor.storm.add(tip);
+      for(let band=0;band<4;band++)block(biomeDecor.storm,x,y-4+band*2.2,-5.8,1.8,.15,.16,stormLight);
+      // Void: suspended, faceted monoliths with inner runes.
+      const stone=new THREE.Mesh(new THREE.OctahedronGeometry(2.6,0),voidStone);
+      stone.scale.set(.72,2.1,.86);stone.position.set(x,y,-7);biomeDecor.void.add(stone);
+      const rune=block(biomeDecor.void,x,y,-4.7,1.0,4.1,.25,voidLight);
+      const orb=new THREE.Mesh(new THREE.SphereGeometry(.42,8,6),voidLight);
+      orb.position.set(x,y+5,-5);biomeDecor.void.add(orb);
+    }
+  }
   // Dust motes are real 3D points distributed throughout the shaft.
   const count=560,verts=new Float32Array(count*3);
   let seed=248201;const rand=()=>{seed=(1664525*seed+1013904223)>>>0;return seed/4294967296};
@@ -153,11 +215,15 @@ export function createTowerEnvironment(THREE,scene) {
     sandstone.color.setHex(p.stone);shadowStone.color.setHex(p.shadow);
     bronze.color.setHex(p.bronze);glow.color.setHex(p.glow);glow.emissive.setHex(p.glow);
     dustMaterial.color.setHex(p.glow);
+    for(const [key,group] of Object.entries(biomeDecor))group.visible=key===theme;
     if(scene.fog)scene.fog.color.setHex(p.fog);scene.background.setHex(p.fog);
   }
   function animate(time,reduced=false){
-    if(!reduced){motes.rotation.y=Math.sin(time*.1)*.025;dustMaterial.opacity=.28+Math.sin(time*.7)*.05;}
+    if(!reduced){motes.rotation.y=Math.sin(time*.1)*.025;dustMaterial.opacity=.28+Math.sin(time*.7)*.05;
+      if(current==='clockwork')movingDetails.forEach((gear,i)=>{gear.rotation.z=time*(i%2?-0.25:0.25)});
+      if(current==='void')biomeDecor.void.position.y=Math.sin(time*.55)*.4;
+    }
   }
   setTheme('foundry');
-  return {root,materials,setTheme,animate,signature:'monumental-vaulted-tower-v2-instanced'};
+  return {root,materials,setTheme,animate,biomeDecor,signature:'monumental-vaulted-tower-v3-art-directed-biomes'};
 }
