@@ -12,6 +12,7 @@ import { decorateInterior } from './interior-art.js';
 import { actionPose } from './animation-pose.js';
 import { PackedVertices } from './packed-geometry.js';
 import { loadCc0Models,drawCc0Model } from './cc0-models.js';
+import { createSpatialFoley } from './audio-foley.js';
 import { createSunShadows } from './shadow-pass.js';
 
 const canvas = document.getElementById('scene');
@@ -101,7 +102,7 @@ const percentile=(values,p=.95)=>{
 };
 const fixed = 1 / 30, maxVisibleZombies = 260;
 
-let audioContext, drone, wind, droneGain, windGain, audioEventsSeen = 0;
+let audioContext, drone, wind, droneGain, windGain, audioEventsSeen = 0, spatialFoley=null;
 function enableAudio() {
   if (audioContext) { audioContext.resume(); return; }
   const AudioCtor = window.AudioContext || window.webkitAudioContext;
@@ -113,7 +114,7 @@ function enableAudio() {
   droneGain=audioContext.createGain();windGain=audioContext.createGain();
   droneGain.gain.value=0.018;windGain.gain.value=0.008;
   drone.connect(droneGain);wind.connect(windGain);droneGain.connect(master);windGain.connect(master);
-  drone.start();wind.start();audioContext.resume();
+  drone.start();wind.start();spatialFoley=createSpatialFoley(audioContext,master);audioContext.resume();
   document.getElementById('sound').textContent='◖ SOUND ACTIVE';
 }
 function audioCue(freq,duration,volume,type='triangle') {
@@ -133,8 +134,10 @@ function updateAudio() {
   droneGain.gain.setTargetAtTime(.01+plan.intensity*.045,at,.4);
   wind.frequency.setTargetAtTime(game.time.phase==='night'?27:38,at,.7);
   windGain.gain.setTargetAtTime(plan.ambience.includes('rain')?.025:.008,at,.6);
+  spatialFoley?.update(game.weather.kind,game.weather.intensity);
   for(const e of game.events.slice(-12)){
     if(e.id<=audioEventsSeen)continue;
+    spatialFoley?.play(e,cameraFocusX,cameraFocusZ);
     if(e.type==='shot')audioCue(160,.08,.025,'square');
     else if(e.type==='barricade-hit')audioCue(67,.18,.018,'sawtooth');
     else if(e.type==='rescue'||e.type==='safehouse-upgrade')audioCue(420,.36,.018);
