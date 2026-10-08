@@ -740,22 +740,51 @@
     if(dynamicVertexCount)gl.drawArrays(gl.TRIANGLES,0,dynamicVertexCount);
   }
 
+  const SPECTATOR_HOLD_MS=1650;
+  let heldSpectator=null;
+  let cameraTracking=null;
+  function chooseSpectatorTarget(snapshot){
+    const now=performance.now();
+    const roster=new Map(snapshot.combatants.map(f=>[f.id,f]));
+    if(snapshot.scene==='result'&&snapshot.result?.kind==='game'&&snapshot.result?.winnerId){
+      const winner=roster.get(snapshot.result.winnerId);
+      if(winner)return winner;
+    }
+    const current=heldSpectator?.runToken===snapshot.runToken
+      ?roster.get(heldSpectator.id):null;
+    if(current?.alive&&now-heldSpectator.selectedAt<SPECTATOR_HOLD_MS)return current;
+    const event=snapshot.recentEvents.slice(-12).reverse().find(e=>
+      (e.type==='elimination'||e.type==='shield-broken'||e.type==='hit')
+      &&Number.isInteger(e.tick)&&e.tick>=snapshot.tick-3&&(e.targetId||e.actorId));
+    const subject=event?(roster.get(event.actorId)||roster.get(event.targetId)):null;
+    const chosen=(subject?.alive?subject:null)
+      ||(snapshot.focus?.alive?roster.get(snapshot.focus.id):null)
+      ||snapshot.combatants.find(f=>f.alive);
+    heldSpectator=chosen?{id:chosen.id,selectedAt:now,runToken:snapshot.runToken}:null;
+    return chosen||null;
+  }
+  function smoothCameraTarget(target,snapshot){
+    if(!target)return target;
+    if(reducedMotion||snapshot.scene==='result'||cameraTracking?.runToken!==snapshot.runToken){
+      cameraTracking={x:target.x,z:target.z,runToken:snapshot.runToken};
+      return target;
+    }
+    const factor=Math.min(1,Math.max(0,.22));
+    cameraTracking.x+=(target.x-cameraTracking.x)*factor;
+    cameraTracking.z+=(target.z-cameraTracking.z)*factor;
+    return {x:cameraTracking.x,z:cameraTracking.z};
+  }
   function spectatorCloseup(snapshot,area){
     // Second camera pass views the SAME public geometry: no synthetic battles,
     // no hidden outcome changes, no second simulation.
     if(area.width<950||area.height<450||snapshot.scene==='recovery')return;
-    const recent=snapshot.recentEvents.slice(-8).reverse()
-      .find(event=>event.importance>=3&&(event.targetId||event.actorId));
-    const id=snapshot.scene==='result'&&snapshot.result?.kind==='game'&&snapshot.result?.winnerId
-      ?snapshot.result.winnerId:(recent?.targetId||recent?.actorId||snapshot.focus?.id);
-    const focal=snapshot.combatants.find(f=>f.id===id&&f.alive)
-      ||snapshot.combatants.find(f=>f.alive);
+    const focal=chooseSpectatorTarget(snapshot);
     if(!focal)return;
     if(closeupLabel){
       const title=snapshot.scene==='result'&&snapshot.result?.winnerId===focal.id?'CHAMPION':'LIVE ACTION';
       closeupLabel.textContent=title+'  //  '+String(focal.name||focal.archetype||'CONTENDER').slice(0,30).toUpperCase();
     }
-    const p=pos(focal.cell,snapshot.arena.width);
+    const p=smoothCameraTarget(pos(focal.cell,snapshot.arena.width),snapshot);
     const frameW=Math.max(1,Math.round(canvas.width*.27));
     const frameH=Math.max(1,Math.round(canvas.height*.27));
     const frameX=Math.round(canvas.width*.705);
