@@ -357,7 +357,34 @@ function drawObjects(m,t){
   for(const s of game.survivors)human(m,s,false,t);
   for(const c of game.civilians)if(c.state!=='safe'&&c.state!=='dead'){human(m,{...c,alive:true,role:'scout',action:c.state==='escorting'?'move':'idle',id:c.id},false,t);}
   let rendered=0;for(const z of game.zombies){if(Math.hypot(z.x-cameraFocusX,z.y-cameraFocusZ)>52)continue;if(rendered++>=maxVisibleZombies)break;human(m,z,true,t);}
-  for(const e of game.events.slice(-18)){const age=game.time.elapsed-e.time;if(age<0||age>.32)continue;if(e.type==='shot')m.ball(e.x,1.56,e.y,.22*(1-age/.32),palette.glow);}
+  // Combat feedback is derived only from authoritative events. Transient VFX cannot affect outcomes.
+  for(const e of game.events.slice(-18)){
+    const age=game.time.elapsed-e.time;if(age<0||age>.42)continue;
+    const life=1-age/.42;
+    if(e.type==='shot'){
+      m.ball(e.x,1.55,e.y,.18*life+.04,'#ffd28b');
+      const target=game.zombies.find(z=>z.id===e.targetId);
+      if(target&&age<.15){
+        const end=[target.x,1.18,target.y],start=[e.x,1.63,e.y];
+        m.bone(start,end,.016*life+.01,'#fce3a3');
+        m.ball(...end,.11*life+.04,'#f9b275');
+      }
+    }else if(e.type==='barricade-hit'||e.type==='kill'){
+      const x=e.x,z=e.y;
+      for(let i=0;i<5;i++){
+        const angle=i*2.399,dist=.15+age*(1.3+i*.17);
+        m.box(x+Math.cos(angle)*dist,.35+(i%3)*.15+age*1.3,z+Math.sin(angle)*dist,
+          .08*life+.025,.11*life+.025,.075*life+.02,e.type==='kill'?'#80483f':'#c19e68');
+      }
+    }else if(e.type==='rescue'||e.type==='safehouse-upgrade'){
+      const radius=.8+age*3.8;
+      for(let i=0;i<12;i++){
+        const a=i*Math.PI/6;
+        const cx=e.x+radius*Math.cos(a),cz=e.y+radius*Math.sin(a);
+        m.box(cx,.13+age*1.1,cz,.08,.06,.34,'#f5d58b',-a);
+      }
+    }
+  }
   drawAtmosphere(m,t);
 }
 function rebuildStatic(force=false){
