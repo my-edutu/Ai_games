@@ -14,7 +14,9 @@ const scripts=[
   'public/infinite-tower-climb/hazards-v4.js',
   'public/infinite-tower-climb/landmarks-v5.js',
   'public/infinite-tower-climb/effects-v6.js',
-  'public/infinite-tower-climb/atmosphere-v8.js'
+  'public/infinite-tower-climb/atmosphere-v8.js',
+  'public/infinite-tower-climb/geology-v9.js',
+  'public/infinite-tower-climb/grip-v10.js'
 ];
 const source=scripts.map(read);
 const publicApp=read('public/infinite-tower-climb/app.js');
@@ -45,6 +47,10 @@ assert(source.some(x=>x.includes('createTowerHazard3D')),'Visually identifiable 
 assert(source.some(x=>x.includes('buildBiomeLandmarks')),'Five individually composed biome landmarks must be mounted');
 assert(source.some(x=>x.includes('mountTowerAtmosphere')),'Bounded cinematic atmosphere must be present');
 assert(source.some(x=>x.includes('createTowerEffectsDirector')),'Gameplay feedback effects director must be mounted');
+assert(source.some(x=>x.includes('selectVisibleLedge')),'Climber handholds must derive from real public platforms');
+assert(source.some(x=>x.includes('solveGrip2D')),'Reach-aware limb solver must be present');
+assert(source.some(x=>x.includes('buildTowerGeology')),'Geology-v9 landmark geometry must be integrated');
+for(const file of scripts){const code=read(file);const imports=[...code.matchAll(/^import\s+[^;]+?from\s+['\"][^'\"]+['\"];?/gm)].map(m=>m[0]);assert.equal(new Set(imports).size,imports.length,'Duplicate ES import in '+file)}
 assert(source.some(x=>x.includes('PerspectiveCamera')),'Perspective depth camera must be active');
 assert(publicApp.includes("params.get('renderer')!=='2d'"),'2D explicit fallback missing');
 assert(publicApp.includes("body.dataset.towerRenderer='2d-fallback'"),'2D automatic fallback missing');
