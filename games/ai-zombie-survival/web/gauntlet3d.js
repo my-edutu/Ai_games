@@ -230,9 +230,34 @@ const cinematicShadows=['shadows','cinematic'].includes(params.get('lighting'))|
   params.get('quality')==='cinematic';
 const sunShadows=cinematicShadows?createSunShadows(gl,{resolution:640}):null;
 let lastShadowMatrix=null,lastShadowStamp=-1,lastShadowX=Infinity,lastShadowZ=Infinity;
-function upload(bufferObj,values){const array=new Float32Array(values);gl.bindBuffer(gl.ARRAY_BUFFER,bufferObj.vbo);gl.bufferData(gl.ARRAY_BUFFER,array,gl.DYNAMIC_DRAW);bufferObj.count=array.length/9;}
-function Mesh(){this.vertices=[];}
-Mesh.prototype.tri=function(a,b,c,n,col){for(const v of [a,b,c])this.vertices.push(...v,...n,...col);};
+function upload(bufferObj,values){
+  // Avoid a full array-of-doubles → Float32Array conversion on every animated frame.
+  const array=values instanceof PackedVertices?values.view():values;
+  gl.bindBuffer(gl.ARRAY_BUFFER,bufferObj.vbo);
+  gl.bufferData(gl.ARRAY_BUFFER,array,gl.DYNAMIC_DRAW);
+  bufferObj.count=array.length/9;
+}
+class PackedVertices{
+  constructor(capacity=32768){this.data=new Float32Array(capacity);this.length=0;}
+  reserve(n){
+    const needed=this.length+n;if(needed<=this.data.length)return;
+    const expanded=new Float32Array(Math.max(needed,Math.ceil(this.data.length*1.75)));
+    expanded.set(this.data);this.data=expanded;
+  }
+  triangle(a,b,c,n,color){
+    this.reserve(27);
+    const dst=this.data;let i=this.length;
+    for(const p of [a,b,c]){
+      dst[i++]=p[0];dst[i++]=p[1];dst[i++]=p[2];
+      dst[i++]=n[0];dst[i++]=n[1];dst[i++]=n[2];
+      dst[i++]=color[0];dst[i++]=color[1];dst[i++]=color[2];
+    }
+    this.length=i;
+  }
+  view(){return this.data.subarray(0,this.length);}
+}
+function Mesh(){this.vertices=new PackedVertices();}
+Mesh.prototype.tri=function(a,b,c,n,col){this.vertices.triangle(a,b,c,n,col);};
 Mesh.prototype.quad=function(a,b,c,d,n,col){this.tri(a,b,c,n,col);this.tri(a,c,d,n,col);};
 Mesh.prototype.box=function(x,y,z,w,h,d,color,yaw=0){
   if(w<=0||h<=0||d<=0)return;
