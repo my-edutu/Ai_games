@@ -27,6 +27,16 @@ This is not the final game package or a conforming `GameModule` yet. Character m
 - Verified deterministic seeded reset, 400 simulated game hours, village growth and friendships in Chromium; in the same run, food became scarce while gold accumulated, exposing an unsolved economy failure.
 - Added browser tests of social connections and economy progression. Real WebGL GPU capture, rigged character models, blind comparison, production harness integration and fresh-context external critic are still pending. Do not confuse procedural face geometry with animated AAA characters.
 
+## Gauntlet 006 — Route-safe autonomous life
+
+**Repository implementation:** Villagers now use seeded, bounded 2D A* route planning with continuous collision checks against the hall, cottages, market, well and river. Market and well placements were corrected to stop overlap with building collision footprints, housing expands west of farmland, and blocked job destinations snap to reachable working positions. On day-boundary transitions the HUD now updates even during accelerated headless simulation.
+
+**Inspected browser evidence (Chromium software rasterizer):** A real 90-day run reached 27 citizens, 20 buildings, 25 recorded friendships, 452.49 food, 17.9 wood, and 633.15 gold. At the checkpoint, no villagers occupied blocked geometry and none reported a missing safe route; browser console had no JavaScript page errors. A repeated 10-day seeded run produced byte-identical metrics and navigation observations. A 400-day stress attempt exceeded the local time budget, so long-horizon performance is a known open issue.
+
+**Remaining critical failures:** primitive low-poly models and stylized/no real material assets, unverified GPU/WebGL rendering quality, weak agriculture/timber economics and missing production-grade world persistence/24-7 reliability. No blind matched-reference victory is claimed. The local fresh-context subagent runner was unavailable; this review is internal and deliberately marked FAIL. Visual reference remains the official Manor Lords gallery.
+
+See the new Gauntlet 006 section and actual captured screenshot in `public/tiny-kingdom/progress.html`. Browser tests now exercise path validity, deterministic replay, and 90-day growth; CI outcome must be confirmed independently.
+
 ## Gauntlet continuation
 
 Primary bar: official *Manor Lords* captured gameplay and screenshots, camera-matched with our game (https://www.hoodedhorse.com/games/manor-lords). Secondary: Foundation for autonomous labor behavior, The Universim for character emergence. Keep original assets; do not copy proprietary models or textures.
