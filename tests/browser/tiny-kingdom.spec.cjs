@@ -213,3 +213,24 @@ test('Tiny Kingdom rendered season matches deterministic weather state', async (
   expect(check.daylight).toBeGreaterThan(0);
   expect(check.atmosphereValid).toBe(true);
 });
+
+
+test('Tiny Kingdom timber market remains solvent across two years', async ({page}) => {
+  const errors=[];page.on('pageerror',e=>errors.push(e.message));
+  await page.setContent(html);
+  await page.waitForFunction(() => Boolean(window.__tinyKingdom));
+  await page.locator('#pause').click();
+  const metrics=await page.evaluate(() => {
+    const g=window.__tinyKingdom;
+    g.reset();
+    for(let i=0;i<70*24*30;i++)g.step(1/30);
+    return g.metrics();
+  });
+  expect(metrics.day).toBe(71);
+  expect(metrics.citizens).toBeGreaterThanOrEqual(20);
+  expect(metrics.buildings).toBeGreaterThanOrEqual(20);
+  expect(metrics.wood).toBeGreaterThan(5);
+  expect(metrics.food).toBeGreaterThan(metrics.citizens*2);
+  expect(metrics.gold).toBeGreaterThan(0);
+  expect(errors).toEqual([]);
+});
