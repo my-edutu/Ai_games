@@ -22,7 +22,7 @@ on:
 permissions:
   contents: read
 concurrency:
-  group: maze-gauntlet-${{ github.ref }}
+  group: maze-gauntlet-${{ github.head_ref || github.ref_name }}
   cancel-in-progress: true
 jobs:
   visual:
@@ -50,6 +50,8 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: ai-maze-escape-gauntlet-visual-captures
-          path: artifacts/maze-phase3/
+          path: |
+            artifacts/maze-phase3/
+            test-results/
           if-no-files-found: warn
           retention-days: 30
