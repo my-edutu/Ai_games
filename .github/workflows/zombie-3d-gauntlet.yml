@@ -1,0 +1,48 @@
+name: Zombie 3D Gauntlet
+on:
+  push:
+    branches: [agent/zombie-survival-3d-gauntlet-2026-10-08]
+  pull_request:
+    paths:
+      - "games/ai-zombie-survival/**"
+      - ".github/workflows/zombie-3d-gauntlet.yml"
+  workflow_dispatch:
+
+jobs:
+  visual-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Install pinned dependencies
+        run: npm ci
+      - name: Build and run deterministic game tests
+        working-directory: games/ai-zombie-survival
+        run: npm test
+      - name: Check 3D renderer module syntax
+        run: node --check games/ai-zombie-survival/web/gauntlet3d.js
+      - name: Install test browser
+        run: npx playwright install --with-deps chromium
+      - name: Start actual browser game
+        run: nohup node games/ai-zombie-survival/serve.mjs > /tmp/zombie-3d-server.log 2>&1 &
+      - name: Wait for WebGL page
+        run: |
+          for i in {1..45}; do
+            if curl -fsS http://127.0.0.1:4177/web/3d.html >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/zombie-3d-server.log
+          exit 1
+      - name: Playwright WebGL2 scenarios, controls, and 3D screenshots
+        run: node games/ai-zombie-survival/tests/gauntlet-browser.mjs
+      - name: Upload actual runtime captures and report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: zombie-3d-gauntlet-evidence
+          path: games/ai-zombie-survival/evidence/3d-runtime
+          if-no-files-found: warn
