@@ -261,6 +261,7 @@ function buildWorld(snapshot) {
   // and skyline from abruptly ending halfway through the perspective view.
   // It never alters the authoritative generated route or collision.
   const horizonLength=Math.max(235,length+120);
+  worldState.horizonLength=horizonLength;
   surfaces.configureRoadLength(horizonLength);
   const road=box(terrain,horizonLength,.25,6.8,horizonLength/2-4,-.18,0,style.ground,false);
   road.receiveShadow=true;
@@ -445,7 +446,7 @@ window.__EKO_VISUAL_AUDIT__=()=>{
   return Object.freeze({
     character:{type:'original-procedural-joint-rig',joints:actor.articulatedJoints,meshes:actorMeshes,
       outfits:actor.availableOutfits,outfit:worldState.outfit,...projectedVisibility()},
-    environment:{district:worldState.district,meshes:worldMeshes,batching:worldState.batching,materials:surfaces.stats(),vibrance:worldState.vibrance,atmosphere:atmosphere.signature},
+    environment:{district:worldState.district,horizonLength:worldState.horizonLength,meshes:worldMeshes,batching:worldState.batching,materials:surfaces.stats(),vibrance:worldState.vibrance,atmosphere:atmosphere.signature},
     performance:{drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,visualEffects:vfx.stats(),crowd:cityCrowd.metrics(),adaptive:qualityGovernor.metrics(),
       pixelRatio:renderer.getPixelRatio(),frameRateReported:ui.fps.textContent,
       renderer:renderer.capabilities.isWebGL2?'WebGL2':'WebGL'},
