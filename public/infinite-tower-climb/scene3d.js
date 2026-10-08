@@ -301,7 +301,7 @@ export function mountTower3D({host,getFrame,reducedMotion=false,heroCamera=false
     glow.position.set(visualX,visualY+14,36);
     poseTowerCharacter(player,{time:now*.001,state:s.player.state,vx:s.player.vx,vy:s.player.vy,mode:s.intent.mode,reducedMotion});
     for(const [id,g] of dynamic){
-      if(id.startsWith('enemy:')&&g.visible)poseTowerCharacter(g,{time:now*.001+id.length,vx:1800,state:'standing',reducedMotion});
+      if(id.startsWith('enemy:')&&g.visible)poseTowerCharacter(g,{time:now*.001+id.length,vx:1800,state:'standing',telegraph:g.userData.telegraph,reducedMotion});
       else if(id.startsWith('pickup:')){g.rotation.y=reducedMotion?0:now*.0016;g.position.y+=reducedMotion?0:Math.sin(now*.002+g.position.x)*dt*.8}
     }
     // Keep observed performance measurable for the independent critic.
