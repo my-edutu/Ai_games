@@ -257,18 +257,22 @@ function buildWorld(snapshot) {
   sun.intensity=district==='island-night'?1.2:2.45;
   const night=district==='island-night';
   const length=Math.max(38,Math.min(180,snapshot.route.finishX+14));
-  surfaces.configureRoadLength(length);
-  const road=box(terrain,length,.25,6.8,length/2-4,-.18,0,style.ground,false);
+  // Decorative continuation past the physical finish line keeps the far road
+  // and skyline from abruptly ending halfway through the perspective view.
+  // It never alters the authoritative generated route or collision.
+  const horizonLength=Math.max(235,length+120);
+  surfaces.configureRoadLength(horizonLength);
+  const road=box(terrain,horizonLength,.25,6.8,horizonLength/2-4,-.18,0,style.ground,false);
   road.receiveShadow=true;
   road.material=surfaces.asphalt;
   // The near-side footpath fills the lower part of the screen with real material,
   // rather than the cyan background visible through a missing world surface.
-  const nearPlaza=box(terrain,length,.25,13,length/2-4,-.16,11.35,0xb3c4b7,false);
+  const nearPlaza=box(terrain,horizonLength,.25,13,horizonLength/2-4,-.16,11.35,0xb3c4b7,false);
   nearPlaza.material=surfaces.sidewalk;
   for(const side of [-1,1]){
-    const sidewalk=box(terrain,length,.25,1.1,length/2-4,.06,side*4.05,0xc6ad91,false);
+    const sidewalk=box(terrain,horizonLength,.25,1.1,horizonLength/2-4,.06,side*4.05,0xc6ad91,false);
     sidewalk.material=surfaces.sidewalk;
-    box(terrain,length,.25,.28,length/2-4,-.17,side*3.42,0x303e42,false);
+    box(terrain,horizonLength,.25,.28,horizonLength/2-4,-.17,side*3.42,0x303e42,false);
   }
   // Route remains mechanically planar. These decals and drain slabs are cosmetic.
   for(let x=0;x<length-5;x+=9.4){
@@ -278,7 +282,7 @@ function buildWorld(snapshot) {
       box(terrain,.09,.10,.56,x+.9,.17,side*4.01,0xc2b8a7,false);
     }
   }
-  for(let x=-3;x<length-5;x+=4.2){
+  for(let x=-3;x<horizonLength-5;x+=4.2){
     box(terrain,1.85,.026,.085,x,.006,-1.05,0xece0bd,false);
     box(terrain,1.85,.026,.085,x,.006,1.04,0xece0bd,false);
   }
@@ -341,6 +345,16 @@ function buildWorld(snapshot) {
     const line=new THREE.Line(path,new THREE.LineBasicMaterial({color:0x59666b,transparent:true,opacity:.76}));
     line.userData.disposeGeometryOnRemove=true;
     wires.add(line);
+  }
+    // Distant skyline strip after the gameplay section: tiny material footprint,
+  // silhouettes kept outside physical running space, and all baked into chunks.
+  for(let x=length+5;x<horizonLength;x+=13){
+    const h=7+numberHash(Math.round(x)*17)*11;
+    const tone=pick([0x8cb6ae,0xc4b7a3,0xb5a5b2,0x9eaaaf],Math.round(x));
+    box(terrain,5.2,h,3.7,x,h/2,-14.4,tone,false);
+    box(terrain,5.55,.24,3.9,x,h+.03,-14.4,0x687880,false);
+    for(let floor=1;floor<=4;floor++)
+      box(terrain,3.2,.16,.07,x,floor*h/5,-12.53,0x527e8d,false);
   }
     // Each district changes spatial character, not merely the sky palette.
   if(district==='market-rush'){
