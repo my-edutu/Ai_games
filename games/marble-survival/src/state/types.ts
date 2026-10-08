@@ -43,6 +43,8 @@ export interface MarbleCompetitor {
   elevation: number;
   verticalVelocity: number;
   grounded: boolean;
+  /** Remember the most recent pit entry to announce a fall exactly once. */
+  pitFallHazardId?: string | null;
   checkpointIndex: number;
   progressPermille: number;
   finishTick: number | null;
