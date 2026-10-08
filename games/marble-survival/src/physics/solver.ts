@@ -251,11 +251,65 @@ function resolveBumper(marble: MarbleCompetitor, bumper: ArenaBumper, marbleRadi
 function resolveMarblePair(first: MarbleCompetitor, second: MarbleCompetitor, state: MarbleState): PhysicsContact | null {
   const radius = state.config.marbleRadius;
   const minimum = radius * 2;
-  if (Math.abs(second.elevation - first.elevation) >= minimum) return null;
+  const heightDelta = second.elevation - first.elevation;
+  if (Math.abs(heightDelta) >= minimum) return null;
   const dx = second.position.x - first.position.x;
   const dy = second.position.y - first.position.y;
-  const distanceSquared = dx * dx + dy * dy;
+  const distanceSquared = dx * dx + dy * dy + heightDelta * heightDelta;
   if (distanceSquared >= minimum * minimum) return null;
+
+  if (heightDelta !== 0) {
+    // Full three-dimensional sphere centres: a marble passing above another
+    // must not collide based on its X/Y shadow alone. All operations remain
+    // integer/fixed-point so the authoritative outcome can be replayed.
+    const distance = integerSqrt(distanceSquared);
+    const normal = distance === 0
+      ? { x: FIXED_SCALE, y: 0, z: 0 }
+      : {
+          x: divideRound(dx * FIXED_SCALE, distance),
+          y: divideRound(dy * FIXED_SCALE, distance),
+          z: divideRound(heightDelta * FIXED_SCALE, distance)
+        };
+    const penetration = minimum - distance;
+    const totalMass = first.traits.massPermille + second.traits.massPermille;
+    const firstMove = divideRound(penetration * second.traits.massPermille, totalMass);
+    const secondMove = penetration - firstMove;
+    first.position.x -= divideRound(normal.x * firstMove, FIXED_SCALE);
+    first.position.y -= divideRound(normal.y * firstMove, FIXED_SCALE);
+    second.position.x += divideRound(normal.x * secondMove, FIXED_SCALE);
+    second.position.y += divideRound(normal.y * secondMove, FIXED_SCALE);
+    const firstFloor = supportElevation(state, first.position) ?? 0;
+    const secondFloor = supportElevation(state, second.position) ?? 0;
+    const firstHeight = Math.max(firstFloor, first.elevation - divideRound(normal.z * firstMove, FIXED_SCALE));
+    const secondHeight = Math.max(secondFloor, second.elevation + divideRound(normal.z * secondMove, FIXED_SCALE));
+    first.grounded = first.grounded && firstHeight === firstFloor;
+    second.grounded = second.grounded && secondHeight === secondFloor;
+    first.elevation = firstHeight;
+    second.elevation = secondHeight;
+
+    const relative = divideRound(
+      (second.velocity.x - first.velocity.x) * normal.x
+        + (second.velocity.y - first.velocity.y) * normal.y
+        + (second.verticalVelocity - first.verticalVelocity) * normal.z,
+      FIXED_SCALE
+    );
+    let impulse = 0;
+    if (relative < 0) {
+      const numerator = -(FIXED_SCALE + state.config.marbleRestitutionPermille) * relative;
+      const firstShare = divideRound(numerator * second.traits.massPermille, FIXED_SCALE * totalMass);
+      const secondShare = divideRound(numerator * first.traits.massPermille, FIXED_SCALE * totalMass);
+      first.velocity.x -= divideRound(normal.x * firstShare, FIXED_SCALE);
+      first.velocity.y -= divideRound(normal.y * firstShare, FIXED_SCALE);
+      second.velocity.x += divideRound(normal.x * secondShare, FIXED_SCALE);
+      second.velocity.y += divideRound(normal.y * secondShare, FIXED_SCALE);
+      first.verticalVelocity = clampInteger(first.verticalVelocity - divideRound(normal.z * firstShare, FIXED_SCALE), -state.config.maxVerticalSpeed, state.config.maxVerticalSpeed);
+      second.verticalVelocity = clampInteger(second.verticalVelocity + divideRound(normal.z * secondShare, FIXED_SCALE), -state.config.maxVerticalSpeed, state.config.maxVerticalSpeed);
+      if (first.grounded && first.verticalVelocity > 0) first.grounded = false;
+      if (second.grounded && second.verticalVelocity > 0) second.grounded = false;
+      impulse = -relative;
+    }
+    return { key: `marble:${first.id}:${second.id}`, kind: 'marble', marbleId: first.id, otherMarbleId: second.id, impulse };
+  }
   const normal = distanceSquared === 0 ? { x: ((first.id + second.id) & 1) === 0 ? FIXED_SCALE : -FIXED_SCALE, y: 0 } : normalizePermille({ x: dx, y: dy });
   const distance = distanceSquared === 0 ? 0 : integerSqrt(distanceSquared);
   const penetration = minimum - distance;
