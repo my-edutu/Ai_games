@@ -66,6 +66,11 @@
     canvas.dataset.testid='battle-3d-canvas';
     canvas.setAttribute('aria-hidden','true');
     host.appendChild(canvas);
+    const closeupLabel=document.createElement('div');
+    closeupLabel.className='battle-3d-focus';
+    closeupLabel.setAttribute('aria-label','Live action closeup');
+    closeupLabel.textContent='● LIVE ACTION // AI SPECTATOR';
+    host.appendChild(closeupLabel);
     canvas.addEventListener('webglcontextlost',event=>{
       event.preventDefault();status.mode='context-lost';canvas.style.display='none';
       document.body.dataset.battleRenderer='2d-fallback';
@@ -348,6 +353,39 @@
       b.box(x,2.16,z,.54,.24,.54,t.accent);
     }
   }
+
+  function spectatorCloseup(snapshot,area,vertices){
+    // Second camera pass views the SAME public geometry: no synthetic battles,
+    // no hidden outcome changes, no second simulation.
+    if(area.width<720||area.height<450||snapshot.scene==='recovery')return;
+    const recent=snapshot.recentEvents.slice(-8).reverse()
+      .find(event=>event.importance>=3&&(event.targetId||event.actorId));
+    const id=recent?.targetId||recent?.actorId||snapshot.focus?.id;
+    const focal=snapshot.combatants.find(f=>f.id===id&&f.alive)
+      ||snapshot.combatants.find(f=>f.alive);
+    if(!focal)return;
+    const p=pos(focal.cell,snapshot.arena.width);
+    const frameW=Math.max(1,Math.round(canvas.width*.33));
+    const frameH=Math.max(1,Math.round(canvas.height*.34));
+    const frameX=Math.round(canvas.width*.645);
+    const frameY=Math.round(canvas.height*.055);
+    const aspect=frameW/frameH;
+    const zoom=.39;
+    gl.enable(gl.SCISSOR_TEST);
+    try{
+      gl.scissor(frameX,frameY,frameW,frameH);
+      gl.viewport(frameX,frameY,frameW,frameH);
+      gl.clearColor(.038,.063,.096,1);
+      gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
+      gl.uniform3f(uniform[0],p.x,.8,p.z);
+      gl.uniform2f(uniform[1],zoom/aspect,zoom);
+      gl.drawArrays(gl.TRIANGLES,0,vertices);
+    }finally{
+      gl.disable(gl.SCISSOR_TEST);
+      gl.viewport(0,0,canvas.width,canvas.height);
+      gl.clearColor(.025,.043,.068,1);
+    }
+  }
   function paint(snapshot){
     const startSubmit=performance.now();
     if(disabled||!gl||gl.isContextLost()||status.mode!=='webgl2')return false;
@@ -392,6 +430,7 @@
       }
       gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
       gl.drawArrays(gl.TRIANGLES,0,data.length/9);
+      spectatorCloseup(snapshot,area,data.length/9);
       status.frames++;status.triangles=data.length/27;
       frameSamples.push(performance.now()-startSubmit);
       if(frameSamples.length>90)frameSamples.shift();
