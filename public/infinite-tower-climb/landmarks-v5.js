@@ -40,7 +40,7 @@ function foundry(group,p,w,h,y0,fx){
     add(group,tube(17.5,17,5,copper,16),x,y+38,-71);
     const rim=add(group,loop(15,2,fire,32),x,y+40,-71);rim.rotation.x=Math.PI/2;
     for(let j=0;j<6;j++){
-      const pipe=add(group,line([x-15,y-30+j*6,-60],[x-33,y-30+j*6,-60],1.4,copper));
+      group.add(line([x-15,y-30+j*6,-60],[x-33,y-30+j*6,-60],1.4,copper));
     }
     const smelter=add(group,tube(25,29,33,copper,12),x,y-49,-58);
     smelter.scale.z=.72;
