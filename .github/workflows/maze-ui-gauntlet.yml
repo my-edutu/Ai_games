@@ -8,6 +8,7 @@ on:
       - 'games/ai-maze-escape/**'
       - 'scripts/serve-maze-stream.cjs'
       - 'tests/browser/maze-*.spec.cjs'
+      - 'tests/browserless/maze-scene-art.test.cjs'
       - '.github/workflows/maze-ui-gauntlet.yml'
   pull_request:
     branches: [main]
@@ -16,6 +17,7 @@ on:
       - 'games/ai-maze-escape/**'
       - 'scripts/serve-maze-stream.cjs'
       - 'tests/browser/maze-*.spec.cjs'
+      - 'tests/browserless/maze-scene-art.test.cjs'
       - '.github/workflows/maze-ui-gauntlet.yml'
 permissions:
   contents: read
