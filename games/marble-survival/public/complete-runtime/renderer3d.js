@@ -1143,6 +1143,97 @@
     });
   }
 
+  function drawStageLandmark(arena,theme,viewProjection,cameraPosition,now){
+    // Each world has a memorable tall, stage-specific landmark that reads in
+    // a screenshot at normal desktop resolution. Located far beyond the end
+    // line: only the 3D art changes, never track topology or race rules.
+    const quality=document.getElementById('quality-select')?.value||'balanced';
+    if(quality==='low')return;
+    const z=-arena.height*WORLD_SCALE/2-7.5;
+    const phase=now*.00017;
+    const steel=material(theme.structure,.25,.84);
+    const dark=material(theme.trim,.30,.74);
+    const luminous=material(theme.secondary,.14,.20,.70);
+    const accent=material(theme.accent,.17,.44,.49);
+    const ring=(cx,cy,cz,r,rotation,mat)=>{
+      drawMesh(torusMesh,modelMatrix([cx,cy,cz],rotation,[r,r,r]),mat,viewProjection,cameraPosition);
+    };
+    const crystal=(x,y,z,r,h,rotation,mat)=>{
+      drawMesh(crystalMesh,modelMatrix([x,y,z],[0,rotation,0],[r,h,r]),
+        mat,viewProjection,cameraPosition);
+    };
+    drawMesh(cylinderMesh,modelMatrix([0,-.7,z],[0,0,0],[4.7,.35,4.7]),
+      dark,viewProjection,cameraPosition);
+    if(arena.archetype==='seeding-sprint'){
+      // Giant aurora launch observatory with a distinct luminous rotating
+      // gyro visible above the stadium side walls.
+      for(const side of [-1,1]){
+        drawBox([side*3.1,3.0,z],[.56,6.0,.76],steel,viewProjection,cameraPosition);
+        drawBox([side*3.1,5.97,z],[1.12,.22,1.12],luminous,viewProjection,cameraPosition);
+      }
+      drawBox([0,6.2,z],[6.4,.34,.58],accent,viewProjection,cameraPosition);
+      ring(0,7.8,z,1.70,[Math.PI/2,phase,phase*.3],luminous);
+      ring(0,7.8,z,1.28,[.37,phase*.71,.18],accent);
+      crystal(0,7.8,z,.46,.81,phase,steel);
+    }else if(arena.archetype==='gate-gauntlet'){
+      // Dimensional gate with inset electromagnetic spokes.
+      for(const side of [-1,1]){
+        drawBox([side*2.4,4.35,z],[.85,8.7,.76],steel,viewProjection,cameraPosition);
+        for(let k=0;k<5;k++){
+          drawBox([side*2.4,.7+k*1.63,z+.55],[.64,.10,.11],
+            k%2?luminous:accent,viewProjection,cameraPosition);
+        }
+      }
+      drawBox([0,8.75,z],[5.45,.52,.89],steel,viewProjection,cameraPosition);
+      ring(0,5.45,z,2.26,[Math.PI/2,0,phase*.3],luminous);
+      ring(0,5.45,z,1.72,[Math.PI/2,.12,phase*.21],accent);
+      if(quality!=='balanced'){
+        for(let i=0;i<8;i++){
+          const a=phase+i*Math.PI/4;
+          crystal(Math.cos(a)*1.65,5.45+Math.sin(a)*1.65,z,.12,.24,a,luminous);
+        }
+      }
+    }else if(arena.archetype==='hazard-circuit'){
+      // Triple forge chimneys and a glowing magma energy crown.
+      for(const k of [-1,0,1]){
+        const x=k*2.15,height=k===0?8.2:6.1;
+        drawMesh(cylinderMesh,modelMatrix([x,height/2,z],[0,0,0],
+          [.62,height/2,.62]),steel,viewProjection,cameraPosition);
+        drawMesh(cylinderMesh,modelMatrix([x,height+.09,z],[0,0,0],
+          [.77,.14,.77]),accent,viewProjection,cameraPosition);
+        drawMesh(sphereMeshLow,modelMatrix([x,height+.65+Math.sin(phase*10+k)*.19,z],
+          [0,0,0],[.43,.43,.43]),luminous,viewProjection,cameraPosition);
+      }
+      ring(0,7.6,z,2.1,[.28,phase,.08],accent);
+      ring(0,7.6,z,1.53,[.61,-phase*.7,.19],luminous);
+    }else if(arena.archetype==='final-four'){
+      // A faceted sapphire orbital observatory in intersecting sky rings.
+      for(let i=0;i<4;i++){
+        const a=i*Math.PI*.5;
+        crystal(Math.cos(a)*2.7,4.2, z+Math.sin(a)*2.7,
+          .41,3.40,phase*.21+i,steel);
+      }
+      ring(0,6.5,z,2.15,[.80,phase,.30],luminous);
+      ring(0,6.5,z,2.45,[.31,-phase*.80,.65],accent);
+      ring(0,6.5,z,1.38,[.14,phase*.52,.40],luminous);
+      crystal(0,6.5,z,.91,1.9,phase,accent);
+    }else{
+      // Championship: tall crown silhouette, gold pillars and floating gem
+      // spires. It stays independent of the official competitor victory dais.
+      for(let i=0;i<7;i++){
+        const a=i*Math.PI*2/7;
+        const x=Math.cos(a)*3.5,zz=z+Math.sin(a)*1.9;
+        drawBox([x,3.05,zz],[.43,6.1,.43],steel,viewProjection,cameraPosition);
+        crystal(x,6.4,zz,.27,.65,a+phase,accent);
+      }
+      ring(0,6.15,z,3.44,[.19,0,0],accent);
+      ring(0,7.05,z,2.90,[.21,phase*.11,.09],luminous);
+      ring(0,8.03,z,2.19,[.13,-phase*.25,.07],accent);
+      crystal(0,8.77,z,.78,1.65,phase,accent);
+    }
+    shell.dataset.landmarkStyle=String(arena.archetype);
+  }
+
   function drawEpicBackdrop(arena,theme,viewProjection,cameraPosition,tick,now){
     const quality=document.getElementById('quality-select')?.value||'balanced';
     const width=arena.width*WORLD_SCALE,depth=arena.height*WORLD_SCALE;
@@ -1788,7 +1879,7 @@
   function spawnEffects(next){for(const event of next.events||[]){if(event.seq<=lastEventSeq)continue;lastEventSeq=Math.max(lastEventSeq,event.seq);if(!['marble-eliminated','shield-recovery','marble-launched','marble-pit-falling','marble-qualified','tournament-champion'].includes(event.type))continue;const marbleId=Number(event.data?.marbleId??event.data?.championId),marble=next.marbles.find((candidate)=>candidate.id===marbleId);if(!marble)continue;const point=toWorld(marble.x,marble.y,next.arena),count=event.type==='tournament-champion'?28:event.type==='marble-eliminated'?16:event.type==='marble-pit-falling'?20:event.type==='marble-launched'?14:10,color=event.type==='marble-eliminated'||event.type==='marble-pit-falling'?[0.96,0.22,0.08]:event.type==='shield-recovery'||event.type==='marble-launched'?[0.34,0.78,1.0]:[1.0,0.72,0.20],elevation=(marble.elevation||0)*WORLD_SCALE;for(let index=0;index<count;index+=1){const unitA=deterministicUnit(event.seq*4099+index*193),unitB=deterministicUnit(event.seq*8191+index*389),angle=unitA*Math.PI*2,speed=0.7+unitB*1.7;effects.push({position:[point[0],elevation+0.30,point[2]],velocity:[Math.cos(angle)*speed,0.7+unitA*1.6,Math.sin(angle)*speed],color,age:0,lifetime:0.65+unitB*0.75});}}if(effects.length>160)effects.splice(0,effects.length-160);}
   function drawEffects(dt,viewProjection,cameraPosition){const quality=document.getElementById('quality-select')?.value||'balanced',cap=quality==='low'?24:quality==='balanced'?72:140;let drawn=0;for(const effect of effects){effect.age+=dt;if(effect.age>=effect.lifetime)continue;effect.velocity[1]-=2.7*dt;effect.position[0]+=effect.velocity[0]*dt;effect.position[1]+=effect.velocity[1]*dt;effect.position[2]+=effect.velocity[2]*dt;if(drawn<cap){const life=1-effect.age/effect.lifetime,size=0.035+life*0.045;drawMesh(sphereMesh,modelMatrix(effect.position,[0,0,0],[size,size,size]),material(effect.color,0.4,0.15,0.7,life),viewProjection,cameraPosition);drawn+=1;}}for(let index=effects.length-1;index>=0;index-=1)if(effects[index].age>=effects[index].lifetime)effects.splice(index,1);}
 
-  function drawScene(now,dt){if(!resize()||!snapshot)return;frameDrawCalls=0;frameTriangles=0;const arena=snapshot.arena,theme=THEMES[arena.archetype]||THEMES['seeding-sprint'];currentFogColor=theme.fog;currentStageAccent=theme.secondary;gl.clearColor(...theme.clear,1);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);drawSkyAtmosphere(theme,now);const marbles=interpolatedMarbles(now),camera=smoothedCamera(snapshot,marbles,dt),projection=perspective4(Math.PI*(shell.dataset.view==='cinematic'?0.270:0.245),canvas.width/Math.max(1,canvas.height),0.08,120),view=lookAt4(camera.eye,camera.target),viewProjection=multiply4(projection,view),focusIds=new Set(snapshot.camera.directive?.focusIds||[]);drawArenaDeck(arena,theme,viewProjection,camera.eye);drawRacewayArt(arena,theme,viewProjection,camera.eye);drawAuthoritativeWindFields(arena,theme,snapshot.tick,viewProjection,camera.eye);drawEpicBackdrop(arena,theme,viewProjection,camera.eye,snapshot.tick,now);drawGrandArchitecture(arena,theme,viewProjection,camera.eye);drawCinematicLightVolumes(arena,theme,viewProjection,camera.eye,now);drawArenaBillboards(arena,theme,viewProjection,camera.eye);drawStadiumScenery(arena,theme,viewProjection,camera.eye,snapshot.tick);drawLivingCrowd(arena,theme,viewProjection,now,snapshot);drawGuardRails(arena,theme,viewProjection,camera.eye);for(const ramp of arena.ramps||[])drawRampStructure(ramp,arena,theme,viewProjection,camera.eye);for(const hazard of arena.hazards)drawHazardPit(hazard,arena,theme,viewProjection,camera.eye,snapshot.tick);for(const obstacle of arena.obstacles)drawObstacle(obstacle,arena,theme,viewProjection,camera.eye);for(const bumper of arena.bumpers)drawBumper(bumper,arena,theme,viewProjection,camera.eye);for(const sweeper of arena.sweepers)drawSweeperMachine(sweeper,arena,theme,snapshot.tick,viewProjection,camera.eye);drawFinishGate(arena,theme,viewProjection,camera.eye,snapshot.tick);const quality=document.getElementById('quality-select')?.value||'balanced';if(quality!=='low')for(const marble of marbles)if(marble.status!=='eliminated')drawContactShadow(marble,arena,viewProjection,camera.eye);drawPitFallBeacons(arena,marbles,theme,viewProjection,camera.eye,now);drawMarbleSpeedTrails(marbles,arena,theme,focusIds,viewProjection,camera.eye,now);for(const marble of marbles)drawMarble(marble,arena,viewProjection,camera.eye,now/1000,focusIds.has(marble.id));drawVictoryCeremony(snapshot,marbles,arena,viewProjection,camera.eye,now);drawEffects(dt,viewProjection,camera.eye);
+  function drawScene(now,dt){if(!resize()||!snapshot)return;frameDrawCalls=0;frameTriangles=0;const arena=snapshot.arena,theme=THEMES[arena.archetype]||THEMES['seeding-sprint'];currentFogColor=theme.fog;currentStageAccent=theme.secondary;gl.clearColor(...theme.clear,1);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);drawSkyAtmosphere(theme,now);const marbles=interpolatedMarbles(now),camera=smoothedCamera(snapshot,marbles,dt),projection=perspective4(Math.PI*(shell.dataset.view==='cinematic'?0.270:0.245),canvas.width/Math.max(1,canvas.height),0.08,120),view=lookAt4(camera.eye,camera.target),viewProjection=multiply4(projection,view),focusIds=new Set(snapshot.camera.directive?.focusIds||[]);drawArenaDeck(arena,theme,viewProjection,camera.eye);drawRacewayArt(arena,theme,viewProjection,camera.eye);drawAuthoritativeWindFields(arena,theme,snapshot.tick,viewProjection,camera.eye);drawEpicBackdrop(arena,theme,viewProjection,camera.eye,snapshot.tick,now);drawStageLandmark(arena,theme,viewProjection,camera.eye,now);drawGrandArchitecture(arena,theme,viewProjection,camera.eye);drawCinematicLightVolumes(arena,theme,viewProjection,camera.eye,now);drawArenaBillboards(arena,theme,viewProjection,camera.eye);drawStadiumScenery(arena,theme,viewProjection,camera.eye,snapshot.tick);drawLivingCrowd(arena,theme,viewProjection,now,snapshot);drawGuardRails(arena,theme,viewProjection,camera.eye);for(const ramp of arena.ramps||[])drawRampStructure(ramp,arena,theme,viewProjection,camera.eye);for(const hazard of arena.hazards)drawHazardPit(hazard,arena,theme,viewProjection,camera.eye,snapshot.tick);for(const obstacle of arena.obstacles)drawObstacle(obstacle,arena,theme,viewProjection,camera.eye);for(const bumper of arena.bumpers)drawBumper(bumper,arena,theme,viewProjection,camera.eye);for(const sweeper of arena.sweepers)drawSweeperMachine(sweeper,arena,theme,snapshot.tick,viewProjection,camera.eye);drawFinishGate(arena,theme,viewProjection,camera.eye,snapshot.tick);const quality=document.getElementById('quality-select')?.value||'balanced';if(quality!=='low')for(const marble of marbles)if(marble.status!=='eliminated')drawContactShadow(marble,arena,viewProjection,camera.eye);drawPitFallBeacons(arena,marbles,theme,viewProjection,camera.eye,now);drawMarbleSpeedTrails(marbles,arena,theme,focusIds,viewProjection,camera.eye,now);for(const marble of marbles)drawMarble(marble,arena,viewProjection,camera.eye,now/1000,focusIds.has(marble.id));drawVictoryCeremony(snapshot,marbles,arena,viewProjection,camera.eye,now);drawEffects(dt,viewProjection,camera.eye);
     // The identity canvas must use exactly the WebGL projection and marble positions:
     // independently smoothed cameras can detach spectator labels from competitors.
     window.marbleRenderFrame={snapshot,marbles,viewProjection,renderedAt:now,arenaId:arena.id};
