@@ -50,5 +50,17 @@
       "name": "Performance counters",
       "state": "exposed at window.__TOWER_3D_DIAGNOSTICS__"
     }
+  ],
+  "history": [
+    {
+      "round": 0,
+      "summary": "Existing autonomous 2D game; deterministic tower simulation, HUD, browser stream and recovery",
+      "verdict": "baseline only, no AAA visual claim"
+    },
+    {
+      "round": 1,
+      "summary": "Procedural 3D tower, rigged climber, biome scene layers, hazards, local Three modules, A/B board and capture tests",
+      "verdict": "commit complete; browser and independent Jusant review pending"
+    }
   ]
 }
