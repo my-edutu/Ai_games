@@ -436,3 +436,31 @@ test('Gauntlet 018 caches thousands of decorative vertices without changing civi
   expect(after.snapshot).toBe(before);
   expect(errors).toEqual([]);
 });
+
+test('Gauntlet 020: elbow and knee poses animate deterministically without persisting render state', async ({page}) => {
+  const errors=[];page.on('pageerror',e=>errors.push(e.message));
+  await page.setContent(html);
+  await page.waitForFunction(()=>Boolean(window.__tinyKingdom?.getRigPose));
+  await page.locator('#pause').click();
+  const result=await page.evaluate(()=>{
+    const g=window.__tinyKingdom;
+    const before=JSON.stringify(g.exportSnapshot());
+    const first=g.getRigPose(0),invalid=g.getRigPose(-1);
+    const unchanged=before===JSON.stringify(g.exportSnapshot());
+    g.step(1/30);
+    const second=g.getRigPose(0);
+    g.reset();const a=JSON.stringify(g.getRigPose(0));
+    g.reset();const b=JSON.stringify(g.getRigPose(0));
+    return {first,second,invalid,unchanged,resetIdentical:a===b,people:g.getCitizenProfiles().length};
+  });
+  expect(result.people).toBe(12);
+  expect(result.first.legs).toHaveLength(2);
+  expect(result.first.arms).toHaveLength(2);
+  expect(result.first.legs[0].knee).toHaveLength(3);
+  expect(result.first.arms[1].elbow).toHaveLength(3);
+  expect(result.first).not.toEqual(result.second);
+  expect(result.invalid).toBeNull();
+  expect(result.unchanged).toBe(true);
+  expect(result.resetIdentical).toBe(true);
+  expect(errors).toEqual([]);
+});
