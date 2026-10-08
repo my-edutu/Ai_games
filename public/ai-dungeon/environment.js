@@ -2,6 +2,7 @@ import * as THREE from '/dungeon/vendor/three.module.js';
 
 // Purely cosmetic, reproducible procedural dressing. This code never touches game authority.
 // All geometry is batched or tightly budgeted so a streaming run can regenerate indefinitely.
+// Decorative biome details.
 const BIOMES=[
  {mortar:'#151b31',stone:'#48566a',edge:'#7486a0',glow:'#47e4d6',banner:'#357ba0',foliage:'#3b7774'},
  {mortar:'#2b1529',stone:'#65515e',edge:'#b98984',glow:'#ff975a',banner:'#af5069',foliage:'#a06a43'},
