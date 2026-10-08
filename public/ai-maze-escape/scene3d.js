@@ -15,6 +15,9 @@ let lanternFlame=null;
 let lanternLight=null;
 let ambientDust=null;
 let ground=null;
+let sunLight=null;
+let rimLight=null;
+let skyLight=null;
 let fpsFrames=0;
 let fpsSince=0;
 let currentFPS=0;
@@ -34,6 +37,29 @@ let lastPosition = null;
 let threats = [];
 let active = false;
 let ready = false;
+const LABYRINTH_THEMES={
+  tree:{label:'THE FORGOTTEN COURTYARD',sky:0x1c2e34,fog:0x1a3034,wall:0xc5bca8,floor:0x9dad95,trim:0xe4b973,moss:0x3e7450,sun:0xf9d2a8,rim:0x7bf0cf},
+  loops:{label:'THE VERDANT LABYRINTH',sky:0x122527,fog:0x122c2d,wall:0xc6d1be,floor:0xb1c1a5,trim:0xd9ac6d,moss:0x427d53,sun:0xffdfae,rim:0x79f9cb},
+  chambers:{label:'THE SUNKEN SANCTUARY',sky:0x302a2a,fog:0x312724,wall:0xd6bfa3,floor:0xc2ab92,trim:0xffd18b,moss:0x65724a,sun:0xffc087,rim:0xa7d5d7},
+  layers:{label:'THE UNDERCRYPT',sky:0x161e37,fog:0x191b32,wall:0xabaed6,floor:0x939bc5,trim:0xf2c9a0,moss:0x3f728b,sun:0xaabcf9,rim:0x8da7ff},
+  hunter:{label:'THE WRAITH CITADEL',sky:0x231c2b,fog:0x2b1d27,wall:0xb4a8b0,floor:0x9e98a5,trim:0xf7ba79,moss:0x715a65,sun:0xfcc9a3,rim:0xff839f}
+};
+function setTheme(profile){
+  const theme=LABYRINTH_THEMES[profile]||LABYRINTH_THEMES.loops;
+  scene.background.setHex(theme.sky);
+  scene.fog.color.setHex(theme.fog);
+  materials.wall.color.setHex(theme.wall);
+  materials.wallTop.color.setHex(theme.wall);
+  materials.floor.color.setHex(theme.floor);
+  materials.alternate.color.setHex(theme.floor);
+  materials.paving.color.setHex(theme.floor);
+  materials.trim.color.setHex(theme.trim);
+  materials.moss.color.setHex(theme.moss);
+  if(sunLight)sunLight.color.setHex(theme.sun);
+  if(rimLight)rimLight.color.setHex(theme.rim);
+  if(skyLight)skyLight.color.setHex(theme.rim);
+  window.__MAZE_3D_THEME__=theme.label;
+}
 function seededNoise(x,y,seed){let n=(Math.imul(x+seed,374761393)+Math.imul(y+seed,668265263))|0;n=Math.imul(n^(n>>>13),1274126177);return ((n^(n>>>16))>>>0)/4294967295}
 function stoneTexture(kind){
   const canvas=document.createElement('canvas');canvas.width=512;canvas.height=512;
@@ -280,6 +306,7 @@ function shrineProp(cell,p){
   }
 }
 function rebuild(snapshot) {
+  if(previousRun!==snapshot.runToken)setTheme(snapshot.profile);
   clearWorld();
   instanceQueues=new Map();
   world.userData.torchCount=0;
@@ -475,7 +502,8 @@ function init() {
   scene.fog=new THREE.FogExp2(0x122227,.017);
   camera=new THREE.PerspectiveCamera(45,1,0.1,160);
   camera.position.set(10,15,19);
-  scene.add(new THREE.HemisphereLight(0xc8ddd4,0x172622,2.1));
+  skyLight=new THREE.HemisphereLight(0xc8ddd4,0x172622,2.1);
+  scene.add(skyLight);
   ground=mesh(new THREE.PlaneGeometry(185,185),materials.void,scene,[0,-.46,0]);
   ground.rotation.x=-Math.PI/2;ground.receiveShadow=true;
   const dustCoordinates=new Float32Array(240*3);
@@ -493,6 +521,7 @@ function init() {
   }));
   scene.add(ambientDust);
   const sun=new THREE.DirectionalLight(0xffe5bd,2.5);
+  sunLight=sun;
   sun.position.set(-7,14,-3);
   sun.castShadow=true;
   sun.shadow.mapSize.set(1024,1024);
@@ -502,6 +531,7 @@ function init() {
   sun.shadow.bias=-.0008;
   scene.add(sun);
   const edge=new THREE.DirectionalLight(0x5affca,1.9);
+  rimLight=edge;
   edge.position.set(10,8,10);
   scene.add(edge);
   scene.add(world,dynamic);
