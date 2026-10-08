@@ -161,3 +161,54 @@ test('Tiny Kingdom path cache is bounded and invalidated by deterministic restor
   expect(result.before.entries).toBeLessThanOrEqual(1800);
   expect(result.after).toEqual({entries:0,hits:0,misses:0});
 });
+
+
+test('Tiny Kingdom calendar rotates spring summer autumn winter with stable weather', async ({page}) => {
+  const errors=[];page.on('pageerror',e=>errors.push(e.message));
+  await page.setContent(html);
+  await page.waitForFunction(() => Boolean(window.__tinyKingdom));
+  await page.locator('#pause').click();
+  const evidence=await page.evaluate(() => {
+    const g=window.__tinyKingdom;
+    const climates=[1,10,19,28,37].map(day=>g.climateAt((day-1)*24+7));
+    const before=g.exportSnapshot();
+    g.reset();
+    return {climates,stable:JSON.stringify(g.climateAt(7))===JSON.stringify(climates[0]),sameState:JSON.stringify(g.exportSnapshot())===JSON.stringify(before)};
+  });
+  expect(evidence.climates.map(c=>c.seasonName)).toEqual(['SPRING','SUMMER','AUTUMN','WINTER','SPRING']);
+  expect(evidence.climates[4].year).toBe(2);
+  expect(evidence.climates[1].yieldMultiplier).toBeGreaterThan(evidence.climates[3].yieldMultiplier);
+  expect(evidence.stable).toBe(true);
+  expect(evidence.sameState).toBe(true);
+  expect(errors).toEqual([]);
+});
+
+test('Tiny Kingdom seasonal climate changes farm productivity but preserves deterministic replay', async ({page}) => {
+  await page.setContent(html);
+  await page.waitForFunction(() => Boolean(window.__tinyKingdom));
+  await page.locator('#pause').click();
+  const evidence=await page.evaluate(() => {
+    const g=window.__tinyKingdom;
+    function run(){g.reset();for(let i=0;i<45*24*30;i++)g.step(1/30);return g.exportSnapshot();}
+    const first=run(),second=run(),c=g.climateAt(first.payload.state.t);
+    return {same:JSON.stringify(first)===JSON.stringify(second),climate:c,food:first.payload.state.food,stories:first.payload.stories};
+  });
+  expect(evidence.same).toBe(true);
+  expect(evidence.food).toBeGreaterThan(0);
+  expect(evidence.climate.seasonName).toBe('SPRING');
+  expect(evidence.stories.every(s=>typeof s.text==='string')).toBe(true);
+});
+
+test('Tiny Kingdom rendered season matches deterministic weather state', async ({page}) => {
+  await page.setContent(html);
+  await page.waitForFunction(() => Boolean(window.__tinyKingdom));
+  const check=await page.evaluate(() => {
+    const g=window.__tinyKingdom,climate=g.climateAt(g.exportSnapshot().payload.state.t);
+    const sky=g.skyConditions(g.exportSnapshot().payload.state.t);
+    const weatherLabel=document.querySelector('#weather').textContent;
+    return {weatherLabel,season:climate.seasonName,daylight:sky.daylight,atmosphereValid:sky.fog.every(Number.isFinite)&&sky.light.every(Number.isFinite)};
+  });
+  expect(check.weatherLabel).toContain(check.season);
+  expect(check.daylight).toBeGreaterThan(0);
+  expect(check.atmosphereValid).toBe(true);
+});
