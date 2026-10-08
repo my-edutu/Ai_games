@@ -27,7 +27,9 @@ test.afterEach(async({page},testInfo)=>{
     snapshotTick:window.__TOWER_PUBLIC_STATE__?.tick
   }))}catch(error){runtime={evaluationError:String(error)}}
   const record={test:testInfo.title,status:testInfo.status,expectedStatus:testInfo.expectedStatus,runtime,events:page.__towerDiagnostics||[]};
-  await testInfo.attach('tower-renderer-failure.json',{body:Buffer.from(JSON.stringify(record,null,2)),contentType:'application/json'});
+  const report=JSON.stringify(record,null,2);
+  fs.writeFileSync(path.join(artifacts,'failure-'+testInfo.testId.replace(/[^a-z0-9_-]/gi,'_').slice(0,100)+'.json'),report);
+  await testInfo.attach('tower-renderer-failure.json',{body:Buffer.from(report),contentType:'application/json'});
   try{await page.screenshot({path:testInfo.outputPath('tower-renderer-failure.png'),fullPage:true,timeout:7000})}catch{}
 });
 
