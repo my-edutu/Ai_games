@@ -1302,36 +1302,45 @@
     cameraTracking.z+=(target.z-cameraTracking.z)*factor;
     return {x:cameraTracking.x,z:cameraTracking.z};
   }
-  let heldCameraAngle=null;
-  function selectClearCameraYaw(snapshot,focus){
-    // Real collision map blocks the shot-selection algorithm, but neither
-    // cinematography nor its hold memory can modify the match authority.
-    const now=performance.now();
-    if(heldCameraAngle?.runToken===snapshot.runToken
-        &&heldCameraAngle.actorId===focus?.id
-        &&now-heldCameraAngle.selectedAt<2200)return heldCameraAngle.yaw;
-    const arena=snapshot.arena,w=arena.width,h=arena.height;
-    const position=pos(focus.cell,w);
-    const blocked=new Set(arena.obstacles);
-    let selected=.85,best=Infinity;
-    for(let angleIndex=0;angleIndex<12;angleIndex++){
-      const yaw=angleIndex*Math.PI/6;
-      const sx=Math.sin(yaw),sz=Math.cos(yaw);
-      let score=0;
-      for(let d=1;d<=7;d++){
-        const x=Math.floor(position.x+sx*d),z=Math.floor(position.z+sz*d);
-        if(x<0||z<0||x>=w||z>=h){score+=.85;continue}
-        const cell=z*w+x;
-        if(blocked.has(cell))score+=(8-d)*2.4;
+  let heldCameraShot=null;
+  function planHeroShot(snapshot,actor){
+    // Camera framing may use published obstacles as read-only hints, but must
+    // not allow a building between the actor and the broadcast camera.
+    const t=performance.now();
+    if(heldCameraShot?.runToken===snapshot.runToken
+        &&heldCameraShot.actorId===actor?.id
+        &&t-heldCameraShot.selectedAt<1550)return heldCameraShot;
+    const {width:w,height:h,obstacles,cover}=snapshot.arena;
+    const blocked=new Set(obstacles),lowCover=new Set(cover);
+    const p=pos(actor.cell,w);
+    let choice={yaw:.85,distance:3.35,score:Infinity};
+    for(const distance of [3.0,3.6,4.3]){
+      for(let k=0;k<16;k++){
+        const yaw=k*Math.PI/8,sin=Math.sin(yaw),cos=Math.cos(yaw);
+        let score=distance*.18;
+        for(let j=1;j<=12;j++){
+          const t=j/12,d=t*distance;
+          const x=Math.floor(p.x+sin*d),z=Math.floor(p.z+cos*d);
+          if(x<0||z<0||x>=w||z>=h){score+=5.5;continue;}
+          const cell=z*w+x;
+          if(blocked.has(cell))score+=25*(1-t*.15);
+          else if(lowCover.has(cell))score+=3;
+        }
+        // Avoid matching actor-inaccessible locations; prioritize shots from
+        // open cells, and preserve a cinematic diagonal when equally clear.
+        const ex=Math.floor(p.x+sin*distance),ez=Math.floor(p.z+cos*distance);
+        if(ex<0||ez<0||ex>=w||ez>=h)score+=14;
+        else if(blocked.has(ez*w+ex))score+=55;
+        score+=Math.abs(Math.atan2(Math.sin(yaw-.85),Math.cos(yaw-.85)))*.19;
+        if(score<choice.score)choice={yaw,distance,score};
       }
-      const angularDelta=Math.abs(Math.atan2(Math.sin(yaw-.85),Math.cos(yaw-.85)));
-      score+=angularDelta*.35;
-      if(score<best){best=score;selected=yaw}
     }
-    heldCameraAngle={yaw:selected,actorId:focus.id,runToken:snapshot.runToken,selectedAt:now};
-    return selected;
+    heldCameraShot={...choice,actorId:actor.id,runToken:snapshot.runToken,selectedAt:t};
+    return heldCameraShot;
   }
-
+  function selectClearCameraYaw(snapshot,actor){
+    return planHeroShot(snapshot,actor).yaw;
+  }
   function physicalCamera(target,yaw,elevation,distance,aspect){
     // Pinhole camera basis, physical FOV and actual near/far depth clipping.
     const horizontal=Math.cos(elevation)*distance;
@@ -1500,8 +1509,9 @@
       const focus=mode==='hero'&&heroView?heroView:tacticalView;
       const zoom=mode==='hero'&&heroView?.30:(winner?1.20:(close?1.15:1.10));
       const lensScale=mode==='hero'&&heroView?zoom:scale*zoom;
-      const yaw=mode==='hero'&&heroView?
-        (selectClearCameraYaw(snapshot,hero)+(reducedMotion?0:Math.sin(performance.now()/16000)*.025)):
+      const heroShot=mode==='hero'&&hero?planHeroShot(snapshot,hero):null;
+      const yaw=heroShot?
+        (heroShot.yaw+(reducedMotion?0:Math.sin(performance.now()/16000)*.016)):
         (.65+(reducedMotion?0:Math.sin(performance.now()/18000)*.035));
       const pitch=mode==='hero'&&heroView?.42:.56;
       gl.uniform3f(uniform[0],focus.x,mode==='hero'?1.0:0,focus.z);
@@ -1510,8 +1520,8 @@
       gl.uniform1f(uniform[3],pitch);
       gl.uniform1f(uniform[4],mode==='hero'?.033:.013);
       const heroPhysical=mode==='hero'&&Boolean(heroView);
-      const camera=heroPhysical?physicalCamera(focus,yaw,.45,
-        snapshot.scene==='final-circle'?6.8:8.5,aspect):null;
+      const camera=heroPhysical?physicalCamera(focus,yaw,.60,
+        heroShot.distance,aspect):null;
       if(camera){
         gl.uniform3f(uniform[9],...camera.eye);
         gl.uniform3f(uniform[10],...camera.forward);
@@ -1522,6 +1532,8 @@
       gl.uniform1f(uniform[14],heroPhysical?1:0);
       status.projection=heroPhysical?'pinhole':'stylized';
       status.cameraMode=mode;
+      status.heroActorId=heroPhysical?hero.id:null;
+      status.heroDistance=heroPhysical?heroShot.distance:null;
       document.body.dataset.battleCamera=mode;
       bindSceneBuffer(dynamicBuffer);
       gl.bufferData(gl.ARRAY_BUFFER,data,gl.DYNAMIC_DRAW);
