@@ -424,3 +424,28 @@ test('transparent WebGL scene reveals biome skies, not a second black 2D canvas 
   const opacity=await page.locator('[data-testid="battle-canvas"]').evaluate(el=>getComputedStyle(el).opacity);
   expect(opacity).toBe('1');
 });
+
+
+test('real WebGL2 shadow map produces original soft dynamic scene shadows and optional rollback',async({browser,request})=>{
+  const source=await request.get(base+'/battle/state?w=1600&h=900');
+  expect(source.ok()).toBeTruthy();
+  const payload=await source.json();
+  const fixture=JSON.stringify(payload);
+  for(const shadows of ['on','off']){
+    const page=await browser.newPage({viewport:{width:1600,height:900}});
+    try{
+      await page.route('**/battle/state?*',route=>route.fulfill({
+        status:200,contentType:'application/json',body:fixture
+      }));
+      await page.goto(base+'/battle?muted=1&camera=tactical&shadows='+shadows,{waitUntil:'domcontentloaded'});
+      await page.waitForFunction(()=>Boolean(window.BattleArena3D?.status.frames>0));
+      const status=await page.evaluate(()=>({...window.BattleArena3D.status}));
+      if(status.mode==='webgl2'){
+        expect(status.shadowMap).toBe(shadows==='off'?'fallback':'ready');
+        if(shadows==='on')expect(status.shadowPasses).toBeGreaterThanOrEqual(1);
+        expect(status.lastError).toBeNull();
+        await page.screenshot({path:path.join(captures,'gauntlet-directional-shadows-'+shadows+'.png')});
+      }
+    }finally{await page.close()}
+  }
+});
