@@ -9,6 +9,7 @@ import { clearCamera } from './camera-rig.js';
 import { decorateTacticalWorld } from './world-overlays.js';
 import { drawEnvironmentVfx } from './environment-vfx.js';
 import { decorateInterior } from './interior-art.js';
+import { actionPose } from './animation-pose.js';
 import { createSunShadows } from './shadow-pass.js';
 
 const canvas = document.getElementById('scene');
@@ -456,8 +457,8 @@ function human(m,entity,infected,time){
     }
     return;
   }
-  const moving=infected?entity.action==='pursue'||entity.action==='wander':entity.action==='move'||entity.action==='retreat'||entity.action==='rescue';
-  const stride=moving?Math.sin(time*(infected?6:8)+(entity.variant||0)*1.1):0;
+  const pose=actionPose(entity,infected,time);
+  const stride=pose.stride;
   const l=(dx,y,dz)=>{const c=Math.cos(yaw),s=Math.sin(yaw);return[x+body*(dx*c+dz*s),y*body,z+body*(-dx*s+dz*c)];};
   const roleColors={leader:'#d7ad72',scout:'#4a98a3',medic:'#cce4d7',defender:'#6078a1',scavenger:'#d39a54',engineer:'#678fcb'};
   const shirt=infected?(entity.archetype==='brute'?'#65614d':entity.archetype==='runner'?'#536852':['#65745e','#555e50','#6b6654'][entity.variant%3]):roleColors[entity.role]||'#779189';
@@ -466,7 +467,7 @@ function human(m,entity,infected,time){
   m.contactShadow(x+.11,z-.08,.46*body,.32*body,infected?'#35483c':'#3d4b41');
   m.box(x,.03,z,.72*body,.045,.45*body,'#26362e',yaw);
   if(distance<12){
-    m.ellipsoid(x,1.48*body,z,.33*body,.46*body,.26*body,shirt);
+    m.ellipsoid(...l(0,1.48+pose.bodyBob-pose.crouch,pose.headForward*.24),.33*body,.46*body,.26*body,shirt);
     m.ellipsoid(...l(-.26,1.76,0),.17*body,.16*body,.21*body,shirt);
     m.ellipsoid(...l(.26,1.76,0),.17*body,.16*body,.21*body,shirt);
   }else part(m,x,z,yaw,0,1.48*body,0,.58*body,.85*body,.38*body,shirt);
@@ -481,7 +482,7 @@ function human(m,entity,infected,time){
     part(m,x,z,yaw,.17*body,1.72*body,.19*body,.14*body,.14*body,.07*body,'#9b735c');
   }
   part(m,x,z,yaw,0,1.03*body,0,.50*body,.25*body,.35*body,trouser);
-  const head=l(0,2.20,0);if(distance<13)m.ellipsoid(...head,.255*body,.294*body,.242*body,skin);else m.ball(...head,.25*body,skin);
+  const head=l(0,2.20+pose.bodyBob-pose.crouch,pose.headForward);if(distance<13)m.ellipsoid(...head,.255*body,.294*body,.242*body,skin);else m.ball(...head,.25*body,skin);
   part(m,x,z,yaw,0,2.42*body,-.02*body,.38*body,.13*body,.38*body,infected?'#455247':'#292f2c');
   if(!infected){
     part(m,x,z,yaw,0,2.55*body,-.03*body,.46*body,.16*body,.50*body,entity.role==='medic'?'#e4dfc2':'#56665b');
@@ -505,9 +506,9 @@ function human(m,entity,infected,time){
     m.bone(l(sign*.19,1.06,0),l(sign*.21,.56,swing),.108*body,trouser);
     m.bone(l(sign*.21,.56,swing),l(sign*.21,.14,swing*1.38),.093*body,trouser);
     part(m,x,z,yaw,sign*.21*body,.11*body,(swing*1.38+.11)*body,.23*body,.16*body,.35*body,'#242b2a');
-    const armForward=infected?(entity.action==='attack'?.36:.13):(entity.action==='attack'||entity.action==='aim'?.36:0);
-    m.bone(l(sign*.36,1.81,0),l(sign*.50,1.45,swing*.5+armForward),.10*body,shirt);
-    m.bone(l(sign*.50,1.45,swing*.5+armForward),l(sign*.48,1.20,swing*.42+armForward+.12),.08*body,skin);
+    const armForward=infected?(entity.action==='attack'?.42:.13):sign<0?pose.leftHandRaise:pose.rightHandRaise;
+    m.bone(l(sign*.36,1.81+pose.bodyBob,pose.headForward*.13),l(sign*.50,1.45+pose.bodyBob,swing*.5+armForward),.10*body,shirt);
+    m.bone(l(sign*.50,1.45+pose.bodyBob,swing*.5+armForward),l(sign*.48,1.20+pose.bodyBob,swing*.42+armForward+.12-pose.weaponRecoil),.08*body,skin);
   }
   if(infected){
     part(m,x,z,yaw,0,1.55*body,.20*body,.18*body,.39*body,.05*body,'#584f44');
