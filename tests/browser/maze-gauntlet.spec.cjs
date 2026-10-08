@@ -26,6 +26,17 @@ test('real 3D maze scene uses only public snapshots with a safe 2D fallback',asy
   expect(value.publicOnly).toBe(true);
   if(value.rendered3d)expect(value.webglCanvas).toBe(1);
   await page.screenshot({path:path.join(artifacts,'gauntlet-3d-first-round.png'),fullPage:true});
+  const webglStats=await page.evaluate(()=>{
+    const result=window.__MAZE_3D_METRICS__;
+    return result?{ready:window.__MAZE_3D_READY__,drawCalls:result.drawCalls,
+      triangles:result.triangles,fps:result.fps,geometryObjects:result.geometryObjects}:null;
+  });
+  if(value.rendered3d){
+    expect(webglStats).toBeTruthy();
+    expect(webglStats.drawCalls).toBeGreaterThan(0);
+    expect(webglStats.triangles).toBeGreaterThan(0);
+  }
+  await page.screenshot({path:path.join(artifacts,'gauntlet-cinematic-v2.png'),fullPage:true});
   expect(pageErrors).toEqual([]);
 });
 
