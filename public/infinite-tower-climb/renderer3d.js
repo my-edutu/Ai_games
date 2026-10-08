@@ -30,6 +30,11 @@
   const accentMat = new THREE.MeshStandardMaterial({ color: 0xffd68a, emissive: 0x8b4c0a, emissiveIntensity: 0.4 });
   const architecture = new THREE.Group(); scene.add(architecture);
   const actors = new THREE.Group(); scene.add(actors);
+  const clock = new THREE.Clock();
+  let climber = null, lastClimberPosition = null;
+  const decoration = new THREE.Group(); scene.add(decoration);
+  const wallMat = new THREE.MeshStandardMaterial({color:0x28364d,metalness:0.2,roughness:0.86});
+  const trimMat = new THREE.MeshStandardMaterial({color:0x7b99ae,metalness:0.72,roughness:0.32});
   const box = new THREE.BoxGeometry(1, 1, 1);
   const sphere = new THREE.SphereGeometry(1, 16, 12);
   function mesh(geometry, material, parent, x, y, z, sx, sy, sz) {
@@ -40,6 +45,10 @@
     const pillar = mesh(box, floorMat, architecture, i * 5, 0, -11, 0.8, 300, 0.9);
     pillar.material = floorMat;
     for (let j = -8; j <= 8; j++) mesh(box, accentMat, architecture, i * 5, j * 12, -10.3, 0.9, 0.16, 0.3);
+  }
+  for (let i = -5; i <= 5; i++) for (let j = -7; j <= 7; j++) {
+    mesh(box, wallMat, decoration, i * 5 + 2.5, j * 12 + 5, -13, 4.7, 10, 0.5);
+    mesh(box, trimMat, decoration, i * 5 + 2.5, j * 12 - 0.3, -12.5, 5, 0.25, 0.6);
   }
   let previousChecksum = '', lastState = null;
   const size = () => {
@@ -66,12 +75,23 @@
     const p = s.player;
     if (p) {
       const px = x(p.x), py = y(p.y);
-      mesh(box, playerMat, actors, px, py, 0.5, 0.65, 1.1, 0.52);
-      mesh(sphere, playerMat, actors, px, py + 0.78, 0.5, 0.38, 0.4, 0.38);
-      mesh(box, accentMat, actors, px, py + 0.15, 0.8, 0.34, 0.16, 0.1);
+      climber = new THREE.Group(); climber.position.set(px,py,0.5); actors.add(climber);
+      mesh(box, playerMat, climber, 0, 0.1, 0, 0.62, 0.9, 0.42);
+      mesh(sphere, playerMat, climber, 0, 0.82, 0, 0.3, 0.34, 0.29);
+      mesh(box, accentMat, climber, 0, 0.18, 0.27, 0.36, 0.12, 0.08);
+      climber.userData.limbs = [];
+      for (const side of [-1,1]) {
+        const arm = new THREE.Group(); arm.position.set(side * 0.43,0.38,0); climber.add(arm);
+        mesh(box,playerMat,arm,side * 0.07,-0.34,0,0.2,0.65,0.23);
+        const leg = new THREE.Group(); leg.position.set(side * 0.18,-0.4,0); climber.add(leg);
+        mesh(box,playerMat,leg,0,-0.39,0,0.24,0.7,0.29);
+        mesh(box,trimMat,leg,0,-0.76,0.14,0.28,0.16,0.46);
+        climber.userData.limbs.push({arm,leg,side});
+      }
+      if (lastClimberPosition) climber.userData.motion = {dx:px-lastClimberPosition.x,dy:py-lastClimberPosition.y};
+      lastClimberPosition={x:px,y:py};
     }
-    camera.position.y = y(s.player?.y) + 5.2;
-    camera.lookAt(0, camera.position.y - 2.5, 0);
+    if (!lastState) camera.position.y = y(s.player?.y) + 5.2;
   }
   // The existing 2D renderer must not write to the same canvas after WebGL takes ownership.
   window.__TOWER_3D_ACTIVE__ = true;
@@ -81,9 +101,19 @@
   };
   const animate = () => {
     size();
+    if (climber && !document.body.dataset.reducedMotion?.includes('true')) {
+      const t = clock.getElapsedTime(), motion = climber.userData.motion || {dx:0,dy:0};
+      const pace = Math.min(1,Math.hypot(motion.dx,motion.dy) * 2);
+      for (const {arm,leg,side} of climber.userData.limbs) {
+        arm.rotation.z = Math.sin(t*8)*0.48*pace*side;
+        leg.rotation.z = -Math.sin(t*8)*0.52*pace*side;
+      }
+      climber.rotation.z = Math.max(-0.15,Math.min(0.15,-motion.dx*0.14));
+    }
     if (lastState) {
       const target = Number(lastState.player?.y || 0) / 1000 - Number(lastState.chunkBaseY || 0) / 1000 + 5.2;
       camera.position.y += (target - camera.position.y) * 0.05;
+      camera.lookAt(0,camera.position.y-2.5,0);
     }
     renderer.render(scene, camera);
     requestAnimationFrame(animate);
