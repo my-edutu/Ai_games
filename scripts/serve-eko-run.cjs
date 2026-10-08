@@ -125,6 +125,7 @@ const FILES = new Map([
   ['/eko/progress.js', ['public/eko-run/progress.js', 'text/javascript; charset=utf-8']],
   ['/eko/gauntlet.json', ['public/eko-run/gauntlet.json', 'application/json; charset=utf-8']],
   ['/vendor/three.module.js', ['node_modules/three/build/three.module.js', 'text/javascript; charset=utf-8']],
+  ['/vendor/three.core.js', ['node_modules/three/build/three.core.js', 'text/javascript; charset=utf-8']],
 ]);
 const server = http.createServer(async (req, res) => {
   const url = new URL(req.url, 'http://localhost');
