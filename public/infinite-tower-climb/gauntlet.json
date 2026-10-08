@@ -1,40 +1,40 @@
 {
   "project": "Infinite Tower Climb — 3D Gauntlet",
   "date": "2026-10-08",
-  "round": 3,
+  "round": 4,
   "target": "Jusant (DON'T NOD): official screenshots and captured gameplay",
-  "status": "Round 1 CI and browser captures PASSED. Round 1 screenshots were inspected and exposed primitive character art, repetitive background and an empty upper-floor 2D fallback. Rounds 2–3 improvements are committed but the new real-output capture and external Jusant visual gate are still pending. Full 3D movement/physics and AAA parity are NOT complete.",
+  "status": "Round 4 builder: rewrote gameplay HUD into immersive full-viewport expedition UI, replaced dark-blue tiled shaft with painterly warm biome landscapes and monumental 3D silhouettes, authored detailed role-specific character accessories and 5 identifiable hazard families. Latest CI/browser screenshots and independent AAA comparison PENDING. User explicitly rejected previous UI/colors.",
   "completionRule": "A separate critic must inspect the rendered game, compare screenshots or gameplay against official Jusant imagery, report the worst gap, and repeat. A functioning renderer alone is not a pass.",
   "lanes": [
     {
-      "name": "Art direction / spatial depth",
-      "status": "Implemented procedural sky vistas, weathered stone textures, giant statues, arches, banners, chains and animated ambient light; fresh screenshots pending",
-      "criterion": "Screenshots and footage should show deliberate composition, material variety and visible depth versus official Jusant"
+      "name": "Visual Edition IV / cinematic HUD",
+      "status": "Implemented full-stage HUD with warm parchment/amber UI hierarchy, floating compact vital cards, world/chapter titles and responsive clean feed. Browser capture pending.",
+      "criterion": "Live game fills view; information occupies little screen; no empty black panel; text readable at 1600x900 and 844x390"
     },
     {
-      "name": "Distinct 3D characters",
-      "status": "Detailed procedural rig and dedicated sentinel, ranged shooter and guardian equipment; adaptive arm/leg animation; close-up QA capture queued",
-      "criterion": "Independent reviewer confirms silhouette distinction, physical credibility, readable anatomy and animation"
+      "name": "Biome colors and scenery",
+      "status": "Implemented five distinct scenic sunrise/cloud/ruin/industrial/void sky palettes with layered mountains, masonry landmarks and sculpted platforms. Browser capture pending.",
+      "criterion": "Readable bright backdrop, clear character contrast, biome visually distinct without relying on a label"
     },
     {
-      "name": "Real 3D mechanics",
-      "status": "NOT DONE: authoritative gameplay still moves in a 2D plane with 3D presentation",
-      "criterion": "Genuine third-axis traversal, physical contact and believable hand-over-hand climbing without weakening seeded replay correctness"
+      "name": "Every major character",
+      "status": "Improved explorer with scarf/rope/armor/harness; sentinel shields/pennants; shooter targeting weapon/fins; guardian crest/mantle, distinct materials and poses.",
+      "criterion": "Actual screenshots show recognizable explorer, sentinel, shooter and guardian silhouettes with coherent equipment and poses"
     },
     {
-      "name": "Runtime reliability",
-      "status": "Round 1 full CI passed; 2D upper-floor projection bug fixed; new regression tests queued",
-      "criterion": "Replay, game simulation and stream self-tests green after changes"
+      "name": "Enemy & environment dangers",
+      "status": "Replaced generic red hazard boxes with dedicated spike, heat, crusher, lightning and void geometry tied to immutable snapshots.",
+      "criterion": "A spectator distinguishes five hazard categories without colors alone"
     },
     {
-      "name": "GPU performance and mobile",
-      "status": "Instanced dust/weathering, reduced pixel ratio preset, frame pacing counters and accessibility mode implemented; CI pending",
-      "criterion": "Responsive mobile screenshots, bounded draw calls, measured frame pacing and stable streaming"
+      "name": "Autonomous authoritative gameplay",
+      "status": "Fixed-step 2D simulation untouched; 3D is presentation-only. Full genuine 3D physical traversal remains undone.",
+      "criterion": "Existing replay/self-test passing, and accurate snapshot-to-scene geometry"
     },
     {
-      "name": "Gauntlet and independent criticism",
-      "status": "Live A/B, cumulative history, structured official-reference scoring, parallel CI critic jobs implemented. Independent human/agent AAA visual verdict NOT RUN",
-      "criterion": "Fresh critic inspects running game and actual Jusant imagery, hands off biggest gap and a verified subsequent capture"
+      "name": "Independent screenshot gate",
+      "status": "Latest visual-v4 Playwright screenshot tests added; real captured frames not yet inspected; Jusant external review NOT DONE.",
+      "criterion": "Inspect screenshot and gameplay, identify largest remaining visual gap, repeat, do not claim AAA parity"
     }
   ],
   "evidence": [
@@ -59,6 +59,11 @@
     {
       "name": "Full 3D game physics",
       "state": "not yet implemented; game has 2D authority with 3D presentation"
+    },
+    {
+      "name": "Visual Edition IV PR #48",
+      "state": "Changes committed: new art, UI, character and hazard modules; latest full CI pending",
+      "url": "https://github.com/my-edutu/Ai_games/pull/48"
     }
   ],
   "history": [
@@ -81,6 +86,11 @@
       "round": 3,
       "summary": "Hero close-up, viewer-side blind A/B, official Jusant link, structured critic form, independent parallel automated CI checks, high-contrast/mobile presets, GPU telemetry and draw-call batching",
       "verdict": "engineering verification pending; independent benchmark rejection/acceptance not yet performed"
+    },
+    {
+      "round": 4,
+      "summary": "Direct user-driven design overhaul: new light and warm 3D scenic backgrounds, full-screen compact expedition HUD, role-specific character sculpted details and five independently modeled danger families.",
+      "verdict": "Code committed. Real browser output and independent reference comparison pending."
     }
   ]
 }
