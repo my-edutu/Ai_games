@@ -4,6 +4,8 @@ import { decorateBuilding, decorateWorld } from './scene-art.js';
 import { createSkyPass } from './sky-pass.js';
 import { drawTacticalMap } from './tactical-map.js';
 import { decorateActor } from './actor-art.js';
+import { decorateSetpieces } from './world-setpieces.js';
+import { clearCamera } from './camera-rig.js';
 
 const canvas = document.getElementById('scene');
 const hud = document.getElementById('hud');
@@ -283,6 +285,7 @@ function constructStatic(){
   // Distinct hospital, residential, industrial and market facades plus the command headquarters.
   for(const building of game.buildings)decorateBuilding(m,building,game);
   decorateWorld(m,game);
+  decorateSetpieces(m);
   // Ruined green belt: trees, weeds, and autumn crowns provide organic contrast to boxy buildings.
   for(let i=0;i<48;i++){
     const x=-54+(i*31)%110,z=-37+(i*19)%80;
@@ -530,8 +533,10 @@ function render(now){
   gl.clearColor(...sky,1);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
   drawSky(game);
   const actualRange=cameraMode==='manual'?range:directedRange;
-  const eye=[cameraFocusX+Math.sin(orbit)*actualRange,actualRange*(cameraMode==='hero'?.48:.51),cameraFocusZ+Math.cos(orbit)*actualRange];
-  const vp=multiply(perspective(Math.PI/3,w/h,.1,230),lookAt(eye,[cameraFocusX,1.5,cameraFocusZ]));
+  const target=[cameraFocusX,1.5,cameraFocusZ];
+  const requestedEye=[cameraFocusX+Math.sin(orbit)*actualRange,actualRange*(cameraMode==='hero'?.48:.51),cameraFocusZ+Math.cos(orbit)*actualRange];
+  const eye=clearCamera(target,requestedEye,game.buildings);
+  const vp=multiply(perspective(Math.PI/3,w/h,.1,230),lookAt(eye,target));
   gl.uniformMatrix4fv(uniforms.uVP,false,new Float32Array(vp));
   gl.uniform3fv(uniforms.uEye,new Float32Array(eye));
   gl.uniform3fv(uniforms.uLight,new Float32Array(night?[.45,.9,.35]:[-.58,1,.48]));

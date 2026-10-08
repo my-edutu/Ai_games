@@ -3,6 +3,8 @@ import assert from 'node:assert/strict';
 import { createGame } from '../dist/index.js';
 import { decorateBuilding, decorateWorld } from '../web/scene-art.js';
 import { decorateActor } from '../web/actor-art.js';
+import { decorateSetpieces } from '../web/world-setpieces.js';
+import { clearCamera } from '../web/camera-rig.js';
 
 class GeometryAudit {
   constructor(){this.calls=0;this.colors=new Set();this.byKind=new Map();}
@@ -86,4 +88,22 @@ test('3D survivor classes and infected variants receive distinctive bounded cosm
     return [...m.colors].sort().join(',');
   });
   assert.equal(new Set(zombieVariants).size,3,'mutant variants require individually readable silhouettes');
+});
+
+test('Gauntlet setpieces supply readable unique city silhouettes within finite visual geometry budget',()=>{
+  const m=new GeometryAudit();decorateSetpieces(m);
+  assert.ok(m.calls>=110&&m.calls<1100,'landmark geometry budget must remain bounded');
+  assert.ok(m.colors.has('#ffc65b')&&m.colors.has('#59e8e0')&&m.colors.has('#fa6a57'),
+    'Landmarks require distinct warning, rescue and medical hues');
+  assert.ok(m.byKind.get('bone')>5,'Industrial skyline should contain three-dimensional latticework');
+});
+
+test('third-person camera avoids opaque architecture without touching game state',()=>{
+  const buildings=[{x:0,y:5,w:5,h:5,floors:4,roofVisible:true,kind:'apartment'}];
+  const focus=[0,1.5,0],eye=[0,7.5,15];
+  const camera=clearCamera(focus,eye,buildings);
+  assert.ok(camera[2]<eye[2],'Camera must shorten against an occluding building');
+  assert.ok(camera[2]>2,'Camera should preserve character framing and not collapse into target');
+  assert.deepEqual(clearCamera(focus,eye,[]),eye,'Open view must preserve intended framing');
+  assert.deepEqual(clearCamera(focus,eye,[{...buildings[0],roofVisible:false}]),eye,'Cutaways should not obstruct view');
 });
