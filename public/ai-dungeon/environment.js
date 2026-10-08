@@ -69,13 +69,31 @@ export function enrichEnvironment(world,map,floor){
  const geometries=[],materials=[],textures=[],flames=[];
  const box=new THREE.BoxGeometry(1,1,1),blade=new THREE.OctahedronGeometry(1,0),ring=new THREE.TorusGeometry(.36,.055,8,24);
  const floorTex=texture(floor,'floor',biome),wallTex=texture(floor,'wall',biome);textures.push(floorTex,wallTex);
- const floorSurface=new THREE.MeshStandardMaterial({map:floorTex,color:'#dce8ff',roughness:.91,metalness:.06});
- const wallSurface=new THREE.MeshStandardMaterial({map:wallTex,color:'#c7d5ff',roughness:.96,metalness:.04});
+ // Generated masonry relief yields real physically based surface response rather than flat colour tiles.
+ const relief=document.createElement('canvas');relief.width=256;relief.height=256;const rc=relief.getContext('2d');
+ const image=rc.createImageData(256,256),pix=image.data;
+ for(let y=0;y<256;y++)for(let x=0;x<256;x++){
+  const row=Math.floor((y+15)/52),brick=(x-((row%2)*27)+14)%66;
+  const grout=((y+15)%52<3)||brick<3||brick>63;
+  const h=((x*11+y*29+floor*43)^(x*y*3))&31,grain=140+Math.floor(h*.85);
+  const depth=grout?40:grain,i=(y*256+x)*4;pix[i]=depth;pix[i+1]=depth;pix[i+2]=depth;pix[i+3]=255;
+ }
+ rc.putImageData(image,0,0);const reliefTex=new THREE.CanvasTexture(relief);reliefTex.wrapS=reliefTex.wrapT=THREE.RepeatWrapping;textures.push(reliefTex);
+ const floorSurface=new THREE.MeshStandardMaterial({map:floorTex,bumpMap:reliefTex,bumpScale:.07,color:'#e4efff',roughness:.84,metalness:.11});
+ const wallSurface=new THREE.MeshStandardMaterial({map:wallTex,bumpMap:reliefTex,bumpScale:.14,color:'#dcecff',roughness:.9,metalness:.07});
  const chrome=new THREE.MeshStandardMaterial({color:biome.edge,roughness:.38,metalness:.72});
  const brass=new THREE.MeshStandardMaterial({color:'#efbb76',roughness:.33,metalness:.68});
  const jade=new THREE.MeshStandardMaterial({color:biome.glow,emissive:biome.glow,emissiveIntensity:2.0,roughness:.20,metalness:.08});
  const moss=new THREE.MeshStandardMaterial({color:biome.foliage,roughness:1});
- const cloth=new THREE.MeshStandardMaterial({color:biome.banner,roughness:.9,side:THREE.DoubleSide});
+ const bannerCanvas=document.createElement('canvas');bannerCanvas.width=128;bannerCanvas.height=256;
+ const bc=bannerCanvas.getContext('2d'),bannerGrad=bc.createLinearGradient(0,0,0,256);
+ bannerGrad.addColorStop(0,'#e9efff');bannerGrad.addColorStop(1,'#9bacc9');bc.fillStyle=bannerGrad;bc.fillRect(0,0,128,256);
+ bc.lineWidth=5;bc.strokeStyle='#2d405e';bc.strokeRect(9,8,110,235);
+ bc.lineWidth=3;bc.strokeStyle='#ffd38a';bc.beginPath();bc.arc(64,94,33,0,Math.PI*2);bc.stroke();
+ bc.fillStyle='#172f50';bc.font='64px Georgia';bc.textAlign='center';bc.fillText(['✦','✧','◆','♜'][(floor-1)%4],64,119);
+ bc.lineWidth=2;bc.strokeStyle='#4d627e';for(let i=0;i<5;i++){bc.beginPath();bc.moveTo(26,166+i*12);bc.lineTo(102,166+i*12);bc.stroke()}
+ const bannerTexture=new THREE.CanvasTexture(bannerCanvas);bannerTexture.colorSpace=THREE.SRGBColorSpace;textures.push(bannerTexture);
+ const cloth=new THREE.MeshStandardMaterial({map:bannerTexture,color:biome.banner,roughness:.87,side:THREE.DoubleSide});
  materials.push(floorSurface,wallSurface,chrome,brass,jade,moss,cloth);geometries.push(box,blade,ring);
  const floorDetails=[],wallFaces=[],columnCap=[],mossPatches=[],runeInlays=[],rubble=[],brazierBases=[],vases=[];
  const pillars=[],banners=[],statues=[],worldAnchors=[];
