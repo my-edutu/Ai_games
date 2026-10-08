@@ -14,7 +14,7 @@ npm run serve
 
 Open:
 
-- **3D viewer**: http://127.0.0.1:4177/web/3d.html
+- **Default 3D viewer**: http://127.0.0.1:4177/ (also at `/web/3d.html`)
 - **3D gauntlet progress page**: http://127.0.0.1:4177/web/progress.html
 - **Original 2.5D viewer**: http://127.0.0.1:4177/web/index.html
 - **Reproducible 3D evidence scene**: http://127.0.0.1:4177/web/3d.html?scenario=large-horde&freeze=1

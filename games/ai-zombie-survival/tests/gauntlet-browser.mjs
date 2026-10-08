@@ -14,6 +14,11 @@ const page=await browser.newPage({viewport:{width:1280,height:720},deviceScaleFa
 page.on('pageerror',err=>report.errors.push('page: '+err.message));
 page.on('console',msg=>{if(msg.type()==='error')report.errors.push('console: '+msg.text());});
 try{
+  // The canonical game entry must open the new 3D build, not silently land in 2.5D.
+  await page.goto('http://127.0.0.1:4177/',{waitUntil:'load'});
+  await page.waitForFunction(()=>document.querySelector('#fps')?.textContent?.includes('CPU P95'),{timeout:18000});
+  assert.ok(await page.locator('#scene').count(),'root must open true WebGL2 3D viewer');
+  report.checks.defaultEntryUses3D=true;
   for(const scenario of ['day','night','large-horde','barricade-defense','interior','near-death','failure']){
     await page.goto('http://127.0.0.1:4177/web/3d.html?scenario='+scenario+'&freeze=1',{waitUntil:'load'});
     await page.waitForFunction(()=>document.querySelector('#fps')?.textContent?.includes('FPS'),{timeout:12000});
