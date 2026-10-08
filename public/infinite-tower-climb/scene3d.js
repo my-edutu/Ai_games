@@ -42,7 +42,7 @@ function createClimber(color=0x4be2ee,scale=1){
   for(const sign of [-1,1]){
     add(rig,ball(3.1,trim),sign*9,8,0);
     const arm=new THREE.Group();arm.position.set(sign*9,8,0);
-    add(arm,limb(arm,suit,2.45,9,0,-5,0),0,0,0);
+    limb(arm,suit,2.45,9,0,-5,0);
     add(arm,box(4,4.5,4,trim),0,-10,0);
     rig.add(arm);arms.push(arm);
     const leg=new THREE.Group();leg.position.set(sign*3.9,-6.5,0);
@@ -136,6 +136,42 @@ export function mountTower3D({host,getFrame,reducedMotion=false}){
       dot.userData.floatPhase=i*1.61;
       backdrop.add(dot);
     }
+    // Visual set dressing changes with the procedural level theme; it is not collision geometry.
+    if(theme==='clockwork'){
+      for(let i=0;i<5;i++){
+        const gear=new THREE.Mesh(new THREE.TorusGeometry(20,3.3,8,12),trim);
+        add(backdrop,gear,55+i*90,coord(s.chunkBaseY)+33+i*65,-43);
+        for(let spoke=0;spoke<8;spoke++){
+          const r=spoke*Math.PI/4;
+          const tooth=box(12,3,5,stone);
+          tooth.rotation.z=r;
+          add(backdrop,tooth,gear.position.x+Math.cos(r)*20,gear.position.y+Math.sin(r)*20,-43);
+        }
+      }
+    }else if(theme==='ruins'){
+      const vines=matte(0x285f4b,.97,.02);
+      for(let i=0;i<18;i++){
+        const x=seeded(i*7+floor)*worldWidth,y=coord(s.chunkBaseY)+seeded(i*13+floor)*coord(s.chunkHeight);
+        const branch=add(backdrop,box(1.4,13+seeded(i)*20,1.2,vines),x,y,-37);
+        branch.rotation.z=(seeded(i*3)-.5)*.8;
+      }
+    }else if(theme==='storm'){
+      for(let i=0;i<13;i++){
+        const crystal=new THREE.Mesh(new THREE.OctahedronGeometry(2.5+seeded(i+floor)*4),emissive(0x8dcfff,1.35));
+        crystal.rotation.z=i*.31;
+        add(backdrop,crystal,seeded(i*17+floor)*worldWidth,coord(s.chunkBaseY)+seeded(i*13)*coord(s.chunkHeight),-34);
+      }
+    }else if(theme==='void'){
+      for(let i=0;i<5;i++){
+        const portal=new THREE.Mesh(new THREE.TorusGeometry(15,2.2,9,42),emissive(0x9c66ff,2));
+        add(backdrop,portal,worldWidth*(.14+i*.18),coord(s.chunkBaseY)+45+i*59,-36);
+      }
+    }else if(theme==='foundry'){
+      for(let i=0;i<7;i++){
+        const vent=add(backdrop,box(26,5,15,trim),worldWidth*(.12+(i%4)*.25),coord(s.chunkBaseY)+33+i*48,-40);
+        add(backdrop,box(21,2.2,17,emissive(0xff8143,1.75)),vent.position.x,vent.position.y+3,-39);
+      }
+    }
     // Actual snapshot geometry, not an invented obstacle course.
     for(const platform of s.platforms){
       const cx=coord(platform.x+platform.width/2),cy=coord(platform.y+platform.height/2),w=coord(platform.width);
@@ -191,11 +227,12 @@ export function mountTower3D({host,getFrame,reducedMotion=false}){
       const id='enemy:'+e.id;allowed.add(id);
       const guardian=e.kind==='guardian';
       const g=upsert(id,e.kind,()=>{
-        const g=createClimber(guardian?0xffb26a:e.kind==='shooter'?0xff668f:0xad8cff,guardian?2.0:.85);
+        const g=createClimber(guardian?0xffb26a:e.kind==='shooter'?0xff668f:0xad8cff,guardian?1.2:.8);
         if(guardian){const crown=add(g,box(17,4,12,emissive(0xffbc52,2.8)),0,26,0);crown.rotation.z=.17}
         return g;
       });
       g.position.set(coord(e.x),coord(e.y),35);
+      g.scale.setScalar(clamp(coord(e.halfHeight)/(24*(guardian?1.2:.8)),.45,2));
       g.visible=e.active;
       g.userData.telegraph=e.telegraph;
     }
@@ -247,7 +284,8 @@ export function mountTower3D({host,getFrame,reducedMotion=false}){
     camera.position.set(cameraX+33+shake,cameraY+18+shake*.6,depth);
     camera.lookAt(cameraX,cameraY,-18);
     player.position.set(coord(s.player.x),coord(s.player.y),36);
-    player.scale.x=s.player.facing===-1?-1:1;
+    const collisionScale=clamp(coord(s.player.halfHeight)/24,.3,1.6);
+    player.scale.set((s.player.facing===-1?-1:1)*collisionScale,collisionScale,collisionScale);
     player.visible=s.player.health>0;
     glow.position.set(coord(s.player.x),coord(s.player.y)+14,36);
     animateRig(player,now*.001,coord(s.player.vx),s.player.state!=='airborne',reducedMotion);
