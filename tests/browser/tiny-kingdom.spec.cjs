@@ -145,3 +145,19 @@ test('Tiny Kingdom renders restored chronicles as text, not HTML', async ({page}
   });
   expect(safe).toBe(true);
 });
+
+test('Tiny Kingdom path cache is bounded and invalidated by deterministic restore', async ({page}) => {
+  await page.setContent(html);
+  await page.waitForFunction(() => Boolean(window.__tinyKingdom));
+  await page.locator('#pause').click();
+  const result=await page.evaluate(() => {
+    const g=window.__tinyKingdom;
+    for(let i=0;i<50*24*30;i++)g.step(1/30);
+    const before=g.routeCacheMetrics(),snapshot=g.exportSnapshot();
+    g.restoreSnapshot(snapshot);
+    return {before,after:g.routeCacheMetrics()};
+  });
+  expect(result.before.hits).toBeGreaterThan(0);
+  expect(result.before.entries).toBeLessThanOrEqual(1800);
+  expect(result.after).toEqual({entries:0,hits:0,misses:0});
+});
