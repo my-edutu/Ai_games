@@ -620,34 +620,60 @@ function renderHud(next) {
   cameraValue.textContent = CAMERA_LABELS[directive.mode] || directive.mode;
   feedValue.textContent = next.lifecycle === 'quarantined' ? 'AUTHORITY STOPPED' : 'AUTHORITY LIVE';
 
-  leaderboard.replaceChildren(...next.leaderboard.map((entry, index) => {
-    const item = document.createElement('li');
-    item.dataset.status = entry.status;
-    const rank = document.createElement('span');
-    rank.className = 'rank';
-    rank.textContent = String(index + 1).padStart(2, '0');
-    const number = document.createElement('span');
-    number.className = 'number';
-    number.textContent = String(entry.number);
-    const name = document.createElement('span');
-    name.className = 'name';
-    name.textContent = entry.name;
-    const status = document.createElement('span');
-    status.className = 'status';
-    status.textContent = statusLabel(entry.status);
-    item.append(rank, number, name, status);
-    // Transparent focusable hit target preserves the four-column race layout.
-    const inspect = document.createElement('button');
-    inspect.type = 'button';
-    inspect.className = 'inspect-marble';
-    inspect.dataset.marbleId = String(entry.id);
-    inspect.setAttribute('aria-label', `Inspect competitor #${entry.number} ${entry.name}`);
-    inspect.setAttribute('aria-pressed', String(selectedSpotlightId === entry.id));
-    item.append(inspect);
-    item.dataset.inspected = String(selectedSpotlightId === entry.id);
+  // The broadcast refreshes ~10x/second. Replacing every <li> on every
+  // snapshot detaches its button mid-click, drops keyboard focus and makes
+  // automated (and human) spectator inspection unusable. Reconcile keyed
+  // nodes instead: stable racers retain one element and one focus target.
+  const byMarbleId=new Map(
+    Array.from(leaderboard.children)
+      .filter(item=>item.dataset.marbleId)
+      .map(item=>[Number(item.dataset.marbleId),item])
+  );
+  const visibleIds=new Set();
+  const wanted=next.leaderboard.map((entry,index)=>{
+    visibleIds.add(entry.id);
+    let item=byMarbleId.get(entry.id);
+    if(!item){
+      item=document.createElement('li');
+      item.dataset.marbleId=String(entry.id);
+      for(const className of ['rank','number','name','status']){
+        const span=document.createElement('span');
+        span.className=className;
+        item.append(span);
+      }
+      const inspect=document.createElement('button');
+      inspect.type='button';
+      inspect.className='inspect-marble';
+      inspect.dataset.marbleId=String(entry.id);
+      inspect.setAttribute('aria-label',`Inspect competitor #${entry.number} ${entry.name}`);
+      item.append(inspect);
+    }
+    item.dataset.status=entry.status;
+    item.dataset.inspected=String(selectedSpotlightId===entry.id);
+    const fields=[
+      ['.rank',String(index+1).padStart(2,'0')],
+      ['.number',String(entry.number)],
+      ['.name',entry.name],
+      ['.status',statusLabel(entry.status)],
+    ];
+    for(const [selector,value] of fields){
+      const span=item.querySelector(selector);
+      if(span.textContent!==value)span.textContent=value;
+    }
+    const inspect=item.querySelector('.inspect-marble');
+    inspect.setAttribute('aria-pressed',String(selectedSpotlightId===entry.id));
     return item;
-  }));
-
+  });
+  for(let index=0;index<wanted.length;index++){
+    const expected=wanted[index];
+    // insertBefore is a no-op when already ordered; no detached click target.
+    if(leaderboard.children[index]!==expected){
+      leaderboard.insertBefore(expected,leaderboard.children[index]||null);
+    }
+  }
+  for(const [id,item] of byMarbleId){
+    if(!visibleIds.has(id))item.remove();
+  }
   renderSpotlight(next);
 
   const official = next.events.filter((event) => IMPORTANT_EVENTS.has(event.type)).slice(-6).reverse();
