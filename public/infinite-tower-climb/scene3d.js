@@ -333,7 +333,7 @@ export function mountTower3D({host,getFrame,reducedMotion=false,highContrast=fal
     if(canvas.width!==Math.floor(w*renderer.getPixelRatio())||canvas.height!==Math.floor(h*renderer.getPixelRatio()))renderer.setSize(w,h,false);
     const aspect=w/h;
     camera.aspect=aspect;
-    camera.fov=inspectCharacters?43:heroCamera?24:(aspect<1.2?47:37);
+    camera.fov=inspectCharacters?43:heroCamera?34:(aspect<1.2?47:37);
     camera.updateProjectionMatrix();
   }
   function fallback3D(error){
@@ -359,14 +359,18 @@ export function mountTower3D({host,getFrame,reducedMotion=false,highContrast=fal
     const rawMs=now-lastAt,dt=clamp(rawMs/1000,0,.1);lastAt=now;resize();
     if(rawMs>0&&Number.isFinite(rawMs)){frameTotalMs+=rawMs;frameSampleCount++;if(rawMs>33.3)slowFrames++;}
     const authoritativeX=coord(s.player.x),authoritativeY=coord(s.player.y);
-    if(visualRun!==s.runToken||visualX===null||visualFloor!==s.floor){visualX=authoritativeX;visualY=authoritativeY;visualRun=s.runToken;visualFloor=s.floor}
+    const cameraNeedsSnap=visualRun!==s.runToken||visualX===null||visualFloor!==s.floor;
+    if(cameraNeedsSnap){visualX=authoritativeX;visualY=authoritativeY;visualRun=s.runToken;visualFloor=s.floor}
     const follow=reducedMotion?1:1-Math.exp(-dt*13);
     visualX+=(authoritativeX-visualX)*follow;visualY+=(authoritativeY-visualY)*follow;
-    const targetX=visualX,targetY=inspectCharacters?visualY+7:heroCamera?visualY+8:coord(data.camera?.centerY??s.player.y);
+    const targetX=visualX,targetY=inspectCharacters?visualY+7:heroCamera?visualY+2:coord(data.camera?.centerY??s.player.y);
     // Smooth tracking affects presentation only, never the simulation.
     const motion=reducedMotion?1:1-Math.exp(-dt*4.2);
-    cameraX+=(clamp(targetX,80,worldWidth-80)-cameraX)*motion;
-    cameraY+=(targetY-cameraY)*motion;
+    // Cinematic close-ups must center the *actual* hero, including at a new
+    // floor/run. The regular camera keeps its world-boundary composition.
+    const desiredX=heroCamera?targetX:clamp(targetX,80,worldWidth-80);
+    if(cameraNeedsSnap){cameraX=desiredX;cameraY=targetY}
+    else{cameraX+=(desiredX-cameraX)*motion;cameraY+=(targetY-cameraY)*motion;}
     const shake=!reducedMotion&&s.dangerPermille>800?Math.sin(now*.037)*1.5:0;
     // Re-anchor directional light targets at the current floor. The old setup kept
     // its shadow frustum near floor zero, making later floors appear flat.
@@ -376,8 +380,8 @@ export function mountTower3D({host,getFrame,reducedMotion=false,highContrast=fal
     rim.position.set(cameraX+87,cameraY+66,-54);
     rim.target.position.set(cameraX,cameraY,0);
     rim.target.updateMatrixWorld();
-    const depth=inspectCharacters?225:heroCamera?134:214;
-    camera.position.set(cameraX+(heroCamera?10:31)+shake,cameraY+(heroCamera?6:16)+shake*.6,depth);
+    const depth=inspectCharacters?225:heroCamera?174:214;
+    camera.position.set(cameraX+(heroCamera?0:31)+shake,cameraY+(heroCamera?0:16)+shake*.6,depth);
     camera.lookAt(cameraX,cameraY,-18);
     player.position.set(visualX,visualY,36);
     const collisionScale=clamp(coord(s.player.halfHeight)/26,.3,1.6);
@@ -413,6 +417,12 @@ export function mountTower3D({host,getFrame,reducedMotion=false,highContrast=fal
     perf.lastFrameTick=s.tick;
     perf.drawCalls=renderer.info.render.calls;
     perf.triangles=renderer.info.render.triangles;
+    if(heroCamera&&player.visible&&(observedFrames===1||observedFrames%60===0)){
+      const bounds=new THREE.Box3().setFromObject(player);
+      const projected=[];
+      for(const x of [bounds.min.x,bounds.max.x])for(const y of [bounds.min.y,bounds.max.y])for(const z of [bounds.min.z,bounds.max.z])projected.push(new THREE.Vector3(x,y,z).project(camera));
+      perf.heroFraming={left:(1-Math.max(...projected.map(v=>v.x)))/2,right:(1-Math.min(...projected.map(v=>v.x)))/2,top:(1-Math.max(...projected.map(v=>v.y)))/2,bottom:(1-Math.min(...projected.map(v=>v.y)))/2};
+    }
     if(observedFrames===1||observedFrames%60===0){perf.frames=observedFrames;perf.drawCalls=renderer.info.render.calls;perf.triangles=renderer.info.render.triangles;perf.heroParts=(()=>{let count=0;player.traverse(o=>{if(o.isMesh)count++});return count})();perf.heroSculpt=player.userData.sculpt||null;perf.renderMode='webgl-3d';perf.state=s.player.state;perf.heroCamera=heroCamera;perf.lens='perspective';perf.inspectCharacters=inspectCharacters;perf.inspectionModels=inspectors.length;perf.biomeLandmarks=landmarks?.world?.children.length||0;perf.atmosphere=atmosphere?.metrics||null;perf.actionFx=actionEffects.metrics();perf.highContrast=highContrast;perf.averageFps=frameTotalMs>0?Math.round(1000*frameSampleCount/frameTotalMs):0;perf.slowFrames=slowFrames;perf.sampledFrames=frameSampleCount;perf.pixelRatio=renderer.getPixelRatio();perf.effects=actionEffects.metrics();}
     }catch(error){fallback3D(error)}
   }
