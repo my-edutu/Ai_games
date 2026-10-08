@@ -1,6 +1,7 @@
 import * as THREE from '/vendor/three.module.js';
 import { createTayoActor } from '/eko/character-craft.js';
 import { batchDistrictGeometry } from '/eko/static-batch.js';
+import { createEkoSurfaceKit } from '/eko/material-craft.js';
 
 // Presentation-only renderer. The Node simulation owns all movement, collision and rewards.
 const $ = id => document.getElementById(id);
@@ -24,6 +25,7 @@ const OUTFITS = {
   'igbo-isi-agu-red-cap': [0x2b2528,0xcba668,0xce364b],
   'hausa-baban-riga-cap': [0x16766b,0xf1dbab,0xd48a45]
 };
+const surfaces=createEkoSurfaceKit(THREE);
 const matCache = new Map();
 const geomCache = new Map();
 const material = (hex, metalness=0, roughness=0.79) => {
@@ -102,7 +104,8 @@ function makeShop(parent,x,z,seed,night=false){
   const front=z<0?1:-1;
   const facade=z+front*depth/2;
   const tone=pick([0xd88e62,0xcab18b,0x9ebdb5,0xc1a0a5,0xe4c79c,0xa5b6c9],seed+15);
-  box(parent,width,height,depth,x,height/2,z,tone);
+  const plaster=box(parent,width,height,depth,x,height/2,z,tone);
+  plaster.material=surfaces.plaster(tone);
   box(parent,width+.18,.27,depth+.1,x,height+.06,z,0x695953);
   box(parent,width*.84,.14,0.38,x,2.30,facade+front*.25,pick([0xf3a947,0x16a5a0,0x9b4877],seed+27));
   box(parent,width*.75,1.16,.05,x,1.20,facade+front*.04,0x354b59);
@@ -201,10 +204,13 @@ function buildWorld(snapshot) {
   sun.intensity=district==='island-night'?1.2:2.45;
   const night=district==='island-night';
   const length=Math.max(38,Math.min(180,snapshot.route.finishX+14));
+  surfaces.configureRoadLength(length);
   const road=box(terrain,length,.25,6.8,length/2-4,-.18,0,style.ground,false);
   road.receiveShadow=true;
+  road.material=surfaces.asphalt;
   for(const side of [-1,1]){
-    box(terrain,length,.25,1.1,length/2-4,.06,side*4.05,0xc6ad91,false);
+    const sidewalk=box(terrain,length,.25,1.1,length/2-4,.06,side*4.05,0xc6ad91,false);
+    sidewalk.material=surfaces.sidewalk;
     box(terrain,length,.25,.28,length/2-4,-.17,side*3.42,0x303e42,false);
   }
   // Route remains mechanically planar. These decals and drain slabs are cosmetic.
@@ -368,7 +374,7 @@ window.__EKO_VISUAL_AUDIT__=()=>{
   return Object.freeze({
     character:{type:'original-procedural-joint-rig',joints:actor.articulatedJoints,meshes:actorMeshes,
       outfits:actor.availableOutfits,outfit:worldState.outfit,...projectedVisibility()},
-    environment:{district:worldState.district,meshes:worldMeshes,batching:worldState.batching},
+    environment:{district:worldState.district,meshes:worldMeshes,batching:worldState.batching,materials:surfaces.stats()},
     performance:{drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,
       pixelRatio:renderer.getPixelRatio(),frameRateReported:ui.fps.textContent,
       renderer:renderer.capabilities.isWebGL2?'WebGL2':'WebGL'},
