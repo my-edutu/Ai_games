@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "AI Battle Royale",
-  "iteration": 28,
+  "iteration": 29,
   "updated": "2026-10-08",
   "verdict": "GAUNTLET NOT ACHIEVED — REAL CHROMIUM REVIEW REQUIRED",
   "benchmark": "Fortnite Chapter 4 UE5.1 / Apex Legends / PUBG",
@@ -36,7 +36,8 @@
     "Loop 25 — added budget-capped, biome-specific snowfall, neon rainfall and drifting cinder weather with reduced-motion and reduced-flash support.",
     "Loop 26 — extended the map into physically contiguous themed out-of-bounds terrain, decorative hills, roads and stage plinths instead of a floating tabletop.",
     "Loop 27 — broadcast brand glows, objective and storm accents now change with the real ember, neon, or arctic biome while preserving legibility and high contrast.",
-    "Loop 28 — added static cover and animated fighter directional ground-contact shadows to anchor 3D characters and architecture into the world."
+    "Loop 28 — added static cover and animated fighter directional ground-contact shadows to anchor 3D characters and architecture into the world.",
+    "Loop 29 — corrected low-amplitude DC-biased procedural gunfire noise into bipolar 24-bit normalized wave samples; improves sound quality without external audio assets or non-deterministic playback."
   ],
   "gaps": [
     "P0 visual inspection — run exact-head Chromium and inspect fresh 1080p desktop, mobile-landscape, high/low GPU, clean-feed and real match screenshots before judging visual quality.",
