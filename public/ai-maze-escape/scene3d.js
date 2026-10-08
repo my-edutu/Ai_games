@@ -16,6 +16,7 @@ let explorerTarget = new THREE.Vector3();
 let lastFrame = null;
 let previousRun = '';
 let previousRevision = -1;
+let lastEnvironmentUpdate = 0;
 let lastTime = 0;
 let lastPosition = null;
 let threats = [];
@@ -171,6 +172,7 @@ function rebuild(snapshot) {
   }
   const target=point(snapshot.currentCell,w);
   if(lastPosition===null || previousRun!==snapshot.runToken) explorer.position.copy(target);
+  lastPosition=target.clone();
   explorerTarget.copy(target);
   previousRun=snapshot.runToken;
   previousRevision=snapshot.revision;
@@ -180,7 +182,13 @@ function onFrame(event) {
   const snapshot=packet&&packet.snapshot;
   if(!snapshot||!ready)return;
   lastFrame=packet;
-  if(previousRun!==snapshot.runToken || previousRevision!==snapshot.revision) rebuild(snapshot);
+  const runChanged=previousRun!==snapshot.runToken;
+  const target=point(snapshot.currentCell,snapshot.width);
+  explorerTarget.copy(target);
+  if(runChanged || (previousRevision!==snapshot.revision && performance.now()-lastEnvironmentUpdate>280)) {
+    rebuild(snapshot);
+    lastEnvironmentUpdate=performance.now();
+  }
 }
 function render(now) {
   if(!active)return;
