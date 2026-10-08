@@ -89,14 +89,34 @@
       vec3 lightDir = normalize(-uLightDirection);
       vec3 viewDir = normalize(uCameraPosition - vWorldPosition);
       vec3 halfDir = normalize(lightDir + viewDir);
+      float facing = max(dot(normal, viewDir), 0.0);
       float diffuse = max(dot(normal, lightDir), 0.0);
       float horizon = clamp(normal.y * 0.5 + 0.5, 0.0, 1.0);
-      float ambient = mix(0.15, 0.34, horizon);
-      float shininess = mix(72.0, 9.0, clamp(uRoughness, 0.0, 1.0));
-      float specular = pow(max(dot(normal, halfDir), 0.0), shininess) * mix(0.18, 0.78, uMetalness);
+      float ambient = mix(0.17, 0.38, horizon);
+      float roughness = clamp(uRoughness, 0.04, 1.0);
+      float metalness = clamp(uMetalness, 0.0, 1.0);
+      float shininess = mix(150.0, 12.0, roughness);
+      float specular = pow(max(dot(normal, halfDir), 0.0), shininess);
       float mask = patternMask(vLocalPosition);
       vec3 surfaceColor = mix(uColor, uPatternColor, mask * 0.78);
-      vec3 lit = surfaceColor * (ambient + diffuse * 0.76) + vec3(specular) + surfaceColor * uEmissive;
+
+      // Material design is presentation-only: the authoritative marble state never changes.
+      float fresnel = pow(1.0 - facing, 4.0);
+      float secondaryKey = pow(max(dot(normal, normalize(vec3(-0.62, 0.68, -0.48))), 0.0), 2.0);
+      if (uPatternType > 0.5) {
+        // Internal glass-like ribbons rotate with the actual sphere mesh, not with the screen.
+        vec3 local = normalize(vLocalPosition);
+        float ribbon = sin(local.x * 19.0 + local.z * 13.0 + sin(local.y * 13.0) * 2.5);
+        float ribbonMask = smoothstep(0.64, 0.92, ribbon) * (1.0 - mask);
+        surfaceColor = mix(surfaceColor, surfaceColor * vec3(0.80, 0.91, 1.12), ribbonMask * 0.20);
+      }
+      vec3 lit = surfaceColor * (ambient + diffuse * 0.83 + secondaryKey * 0.13);
+      float coat = pow(max(dot(normal, halfDir), 0.0), mix(220.0, 36.0, roughness));
+      float rim = fresnel * (1.0 - roughness * 0.52);
+      lit += vec3(specular * mix(0.18, 0.72, metalness));
+      lit += vec3(coat * (uPatternType > 0.5 ? 0.50 : 0.13));
+      lit += mix(surfaceColor, vec3(0.54, 0.76, 1.0), 0.46) * rim * (uPatternType > 0.5 ? 0.36 : 0.09);
+      lit += surfaceColor * uEmissive;
       float distanceFog = clamp((length(uCameraPosition - vWorldPosition) - 12.0) / 36.0, 0.0, 0.52);
       vec3 fogColor = vec3(0.025, 0.028, 0.032);
       outColor = vec4(mix(lit, fogColor, distanceFog), uOpacity);
