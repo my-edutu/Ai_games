@@ -42,7 +42,8 @@
   const reducedMotion=params.get('reducedMotion')==='1'||matchMedia('(prefers-reduced-motion: reduce)').matches;
   const reducedFlash=params.get('reducedFlash')==='1';
   let previousSnapshot=null,startedAt=0,animationId=0,lastPaintTime=0;
-  const status={mode:forced2d?'forced-2d':'initializing',frames:0,triangles:0,contenders:0};
+  const status={mode:forced2d?'forced-2d':'initializing',frames:0,triangles:0,contenders:0,p95SubmitMs:0};
+  const frameSamples=[];
   function compile(type,source){
     const shader=gl.createShader(type);gl.shaderSource(shader,source);gl.compileShader(shader);
     if(!gl.getShaderParameter(shader,gl.COMPILE_STATUS)){const error=gl.getShaderInfoLog(shader);gl.deleteShader(shader);throw Error(error)}
@@ -179,6 +180,7 @@
     }
   }
   function paint(snapshot){
+    const startSubmit=performance.now();
     if(disabled||!gl||gl.isContextLost()||status.mode!=='webgl2')return false;
     if(!snapshot?.arena||!snapshot.zone||!Array.isArray(snapshot.combatants))return false;
     try{
@@ -222,6 +224,10 @@
       gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
       gl.drawArrays(gl.TRIANGLES,0,data.length/9);
       status.frames++;status.triangles=data.length/27;
+      frameSamples.push(performance.now()-startSubmit);
+      if(frameSamples.length>90)frameSamples.shift();
+      const ordered=[...frameSamples].sort((a,b)=>a-b);
+      status.p95SubmitMs=Number(ordered[Math.max(0,Math.ceil(ordered.length*.95)-1)].toFixed(2));
       status.contenders=snapshot.combatants.filter(f=>f.alive).length;
       canvas.dataset.renderer='webgl2';
       canvas.dataset.triangles=String(status.triangles);
