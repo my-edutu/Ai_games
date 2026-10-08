@@ -11,6 +11,7 @@ import { drawEnvironmentVfx } from './environment-vfx.js';
 import { decorateInterior } from './interior-art.js';
 import { actionPose } from './animation-pose.js';
 import { PackedVertices } from './packed-geometry.js';
+import { loadCc0Models,drawCc0Model } from './cc0-models.js';
 import { createSunShadows } from './shadow-pass.js';
 
 const canvas = document.getElementById('scene');
@@ -29,6 +30,11 @@ const params = new URLSearchParams(location.search);
 const scenario = params.get('scenario');
 const frozen = params.get('freeze') === '1';
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const cc0Requested=params.get('models')==='cc0',cc0Status={state:cc0Requested?'loading':'off',data:null};
+if(cc0Requested)loadCc0Models().then(models=>{
+  cc0Status.data=models;
+  cc0Status.state=Object.keys(models).length?'ready':'fallback';
+}).catch(()=>{cc0Status.state='fallback';});
 let seed = Number(params.get('seed') || 2026) >>> 0 || 2026;
 let game = createGame({ seed, zombieCount: params.get('crowd') === 'dense' ? 260 : 180 });
 if (isEvidenceScenario(scenario)) { game = applyEvidenceScenario(game, scenario); if (!frozen) delete game.evidenceScenario; }
@@ -543,7 +549,14 @@ function drawObjects(m,t){
   const nearest=game.zombies.map(z=>({actor:z,dist:(z.x-cameraFocusX)**2+(z.y-cameraFocusZ)**2}))
     .filter(o=>(o.actor.health>0?o.dist<52*52:o.dist<15*15))
     .sort((a,b)=>a.dist-b.dist).slice(0,zombieBudget);
-  for(const z of nearest)human(m,z.actor,true,t);
+  let importedCount=0;
+  for(const z of nearest){
+    const actor=z.actor,model=cc0Status.data?.[actor.archetype];
+    if(cc0Requested&&model&&importedCount<3&&z.dist<13*13&&
+      drawCc0Model(m,model,actor,t,{maxTriangles:900})){
+      importedCount++;
+    }else human(m,actor,true,t);
+  }
   // Combat feedback is derived only from authoritative events. Transient VFX cannot affect outcomes.
   for(const e of game.events.slice(-18)){
     const age=game.time.elapsed-e.time;if(age<0||age>.42)continue;
@@ -813,7 +826,7 @@ function render(now){
     const tris=Math.round((staticMesh.count+movingMesh.count)/3);
     hud.querySelector('#fps').textContent=Math.round(fpsSmooth)+' FPS · '+cpuP95.toFixed(1)+'ms CPU P95 · '+tris.toLocaleString()+' TRIANGLES';
     verdict.textContent='WEBGL2 TRUE 3D • '+(paused?'PAUSED':'SIMULATION LIVE');
-    try{localStorage.setItem('zombie-gauntlet-live',JSON.stringify({time:Date.now(),day:game.time.day,tick:game.tick,alive:living,zombies:infected,fps:Math.round(fpsSmooth),frameCpuP95Ms:Math.round(cpuP95*10)/10,triangles:tris,rendererGpu:isSoftwareGPU?'software':'hardware',dynamicShadows:!!sunShadows?.available,renderScale:qualityScale,dynamicRebuilds:dynamicMeshRebuilds,meshBuildP95Ms:Math.round(percentile(meshBuildMs)*10)/10,phase:game.time.phase,seed,renderer:'WebGL2',status:game.status}));}catch{}
+    try{localStorage.setItem('zombie-gauntlet-live',JSON.stringify({time:Date.now(),day:game.time.day,tick:game.tick,alive:living,zombies:infected,fps:Math.round(fpsSmooth),frameCpuP95Ms:Math.round(cpuP95*10)/10,triangles:tris,rendererGpu:isSoftwareGPU?'software':'hardware',cc0AssetState:cc0Status.state,dynamicShadows:!!sunShadows?.available,renderScale:qualityScale,dynamicRebuilds:dynamicMeshRebuilds,meshBuildP95Ms:Math.round(percentile(meshBuildMs)*10)/10,phase:game.time.phase,seed,renderer:'WebGL2',status:game.status}));}catch{}
   }
   requestAnimationFrame(render);
 }
