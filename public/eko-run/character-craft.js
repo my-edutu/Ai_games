@@ -31,6 +31,20 @@ export function createTayoActor(THREE) {
     mesh.receiveShadow=mesh.castShadow;
     parent.add(mesh);return mesh;
   }
+  function detailInstances(parent,kind,specs,color,name) {
+    const source=geoPool.get(kind);
+    if(!source)throw new Error('EKO_DETAIL_GEOMETRY_NOT_READY:'+kind);
+    const nodes=new THREE.InstancedMesh(source,mat(color),specs.length);
+    nodes.name=name;nodes.castShadow=false;nodes.receiveShadow=false;
+    const marker=new THREE.Object3D();
+    specs.forEach(([x,y,z,sx,sy,sz],i)=>{
+      marker.position.set(x,y,z);marker.scale.set(sx,sy,sz);marker.rotation.set(0,0,0);marker.updateMatrix();
+      nodes.setMatrixAt(i,marker.matrix);
+    });
+    nodes.instanceMatrix.needsUpdate=true;
+    parent.add(nodes);
+    return nodes;
+  }
   const rootShadow=shape(root,'ball',0,.025,0,.45,.035,.29,0x1b2734,'contact-shadow-proxy');
   rootShadow.castShadow=false;
   // Functional landmarks are modeled independently so poses remain legible at 360p.
@@ -50,10 +64,11 @@ export function createTayoActor(THREE) {
   const headPivot=new THREE.Group();headPivot.position.set(.045,2.05,0);torso.add(headPivot);
   const face=shape(headPivot,'ball',.08,.245,0,.255,.305,.259,skins[1],'head');
   const hairBase=shape(headPivot,'ball',0,.46,0,.272,.165,.28,0x191e26,'short natural hair');
-  for(let n=0;n<17;n++){
-    const a=n*2.399, r=.1+.15*Math.sqrt((n+1)/17);
-    shape(headPivot,'ball',r*Math.cos(a),.54+(n%3)*.017,r*Math.sin(a),.075,.065,.075,0x21232c,'hair texture');
-  }
+  const curls=Array.from({length:17},(_,n)=>{
+    const a=n*2.399,r=.1+.15*Math.sqrt((n+1)/17);
+    return [r*Math.cos(a),.54+(n%3)*.017,r*Math.sin(a),.075,.065,.075];
+  });
+  detailInstances(headPivot,'ball',curls,0x21232c,'hair texture · 17 original curls');
   for(const s of [-1,1]){
     shape(headPivot,'ball',.30,.285,s*.115,.026,.052,.046,0xf1eee7,'eye');
     shape(headPivot,'ball',.318,.293,s*.12,.017,.031,.022,0x1a2533,'iris');
@@ -72,7 +87,9 @@ export function createTayoActor(THREE) {
     shape(elbow,'capsule',.02,-.17,0,.115,.18,.118,skins[1],'forearm');
     const wrist=new THREE.Group();wrist.position.set(.03,-.37,0);elbow.add(wrist);
     shape(wrist,'ball',.06,-.042,0,.13,.142,.109,skins[1],'hand');
-    for(let k=0;k<3;k++)shape(wrist,'capsule',.15,-.10,s*(k-1)*.059,.034,.062,.035,skins[1],'finger');
+    detailInstances(wrist,'capsule',
+      Array.from({length:3},(_,k)=>[.15,-.10,s*(k-1)*.059,.034,.062,.035]),
+      skins[1],'three articulated hand fingers');
     shape(shoulder,'capsule',.09,-.13,s*.08,.041,.13,.052,0xf9d178,'sleeve reflective tape');
     shape(elbow,'ball',.08,-.18,s*.03,.046,.035,.052,0xe8c59d,'elbow highlight');
     shape(wrist,'capsule',.035,.065,0,.13,.05,.12,0x28a8af,'fitness wrist cuff');
@@ -184,5 +201,5 @@ export function createTayoActor(THREE) {
     rootShadow.visible=frame.position.y<=.15;
   }
   return Object.freeze({root,pose,setOutfit,meshCount:root.children.length+torso.children.length,
-    articulatedJoints:arms.length*3+legs.length*3+2,availableOutfits:Object.freeze(Object.keys(palette))});
+    articulatedJoints:arms.length*3+legs.length*3+2,instancedDetails:23,availableOutfits:Object.freeze(Object.keys(palette))});
 }
