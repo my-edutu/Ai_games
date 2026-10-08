@@ -118,6 +118,28 @@ export function createTowerCharacter({tint=0x69cedf,guardian=false,kind='climber
     panel(foot,4,1,2,.4,lit,0,0,7.9);
     legs.push({hip,knee,foot,sign});
   }
+  // Each enemy type has different original equipment, readable at broadcast distance.
+  // These meshes change neither collision dimensions nor combat damage.
+  if(kind==='sentinel'){
+    const shield=new THREE.Group();shield.position.set(-12,1,7);jointRoot.add(shield);
+    panel(shield,10,23,4,2,plated,0,0,0);
+    panel(shield,7,18,1.2,1,armor,0,1,2.8);
+    panel(shield,2,14,1,.5,lit,0,1,3.6);
+    for(let s of [-1,1])panel(shield,1.3,18,.8,.4,bronze,s*4.5,0,3.5);
+    panel(jointRoot,5.5,6,3,1,armor,9,9,-2);
+  }
+  if(kind==='shooter'){
+    const cannon=new THREE.Group();cannon.position.set(11,-3,7.5);jointRoot.add(cannon);
+    const barrel=attach(cannon,cyl(3.5,3.2,18,plated,12),0,0,8);barrel.rotation.x=Math.PI/2;
+    panel(cannon,8,8,8,1,armor,0,0,5);
+    panel(cannon,7,2.5,2,1,lit,0,0,17.8);
+    for(let sign of [-1,1]){
+      panel(cannon,2,14,3,.6,seam,sign*5,0,7);
+      attach(cannon,sphere(1.8,eye),sign*5.5,3,15);
+    }
+    taper(jointRoot,{top:.9,bottom:1.1,height:13,mat:bronze,x:-4,y:17,z:-7});
+    attach(jointRoot,sphere(2.1,eye),-4,24,-7);
+  }
   // Distinguishable threat silhouette without altering collision or damage rules.
   if(guardian){
     for(let s of [-1,1]){
@@ -125,6 +147,13 @@ export function createTowerCharacter({tint=0x69cedf,guardian=false,kind='climber
       attach(head,horn,s*5.1,10,.1);horn.rotation.z=s*-.32;
     }
     panel(jointRoot,18,2.6,4,1,bronze,0,11,0);
+    const halo=attach(jointRoot,new THREE.Mesh(new THREE.TorusGeometry(15,2.3,9,32),lit),0,15,-9);
+    halo.rotation.y=.18;
+    for(let sign of [-1,1]){
+      const cape=panel(jointRoot,9,29,2,1,plated,sign*7,-7,-9);
+      cape.rotation.z=sign*.14;
+      attach(jointRoot,new THREE.Mesh(new THREE.ConeGeometry(4,16,7),bronze),sign*14,5,-4);
+    }
   }
   const light=new THREE.PointLight(guardian?0xff9855:0x4beee5,3.2,50,2);
   light.position.set(0,4,7);root.add(light);
@@ -132,7 +161,7 @@ export function createTowerCharacter({tint=0x69cedf,guardian=false,kind='climber
   return root;
 }
 
-export function poseTowerCharacter(root,{time=0,state='standing',vx=0,vy=0,mode='',reducedMotion=false}={}){
+export function poseTowerCharacter(root,{time=0,state='standing',vx=0,vy=0,mode='',telegraph=false,reducedMotion=false}={}){
   if(!root?.userData?.arms)return;
   const {jointRoot,head,pack,arms,legs,light}=root.userData;
   const dt=reducedMotion?0:time;
@@ -156,6 +185,7 @@ export function poseTowerCharacter(root,{time=0,state='standing',vx=0,vy=0,mode=
     shoulder.rotation.z=climbing?sign*.22:dash?sign*.1:sign*(.07+.08*Math.sin(dt*2.2));
     elbow.rotation.x=climbing?-.7+alternate*Math.sin(dt*7)*.17:dash?-.55:
       airborne?-.25:sprint?-.28+alternate*step*.32*speed:-.17;
+    if(telegraph){shoulder.rotation.x=i===1?-1.42:-.4;elbow.rotation.x=i===1?-.82:-.2;}
     hand.rotation.x=climbing?-.3:0;
   });
   legs.forEach(({hip,knee,foot},i)=>{
