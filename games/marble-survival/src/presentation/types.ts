@@ -45,7 +45,7 @@ export interface MarblePresentationArena {
   readonly finishY: number;
   readonly hazards: ReadonlyArray<Readonly<{ id: string; kind: string; x: number; y: number; width: number; height: number }>>;
   readonly obstacles: ReadonlyArray<Readonly<{ id: string; x: number; y: number; width: number; height: number }>>;
-  readonly bumpers: ReadonlyArray<Readonly<{ id: string; x: number; y: number; radius: number }>>;
+  readonly bumpers: ReadonlyArray<Readonly<{ id: string; x: number; y: number; radius: number; launchSpeed?: number }>>;
   readonly sweepers: ReadonlyArray<Readonly<{ id: string; baseX: number; baseY: number; width: number; height: number; axis: 'x' | 'y'; amplitude: number; periodTicks: number; phaseTicks: number }>>;
   readonly ramps: ReadonlyArray<Readonly<{ id: string; kind: 'ramp'; x: number; y: number; width: number; height: number; axis: 'x' | 'y'; startElevation: number; endElevation: number }>>;
 }
