@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "publisher": "Quaternius",
+  "pack": "Universal Base Characters — Standard",
+  "specificSource": "Superhero Male full-body — CC0 humanoid reference skeleton",
+  "license": "CC0-1.0",
+  "licenseFile": "QUATERNIUS-LICENSE.txt",
+  "originalPack": "https://quaternius.com/packs/universalbasecharacters.html",
+  "notes": "A skinned humanoid source asset; loading, animating and replacing the existing procedural presentation requires separate visual QA.",
+  "assets": [
+    {
+      "path": "quaternius-hero.glb",
+      "bytes": 741320,
+      "sha256": "d6f3b64cab629f6ddca9ba063811aeffd3663a8a4e49ade47cd9505dc2bbd70f",
+      "upstream": "https://raw.githubusercontent.com/programasweights/avatar/ddd5fc34a445bcded3cf9836607aaeebc19a5c78/public/assets/character.glb",
+      "gitBlob": "b3fd79533fdb9fcedd077744f7e120920eb6cc97",
+      "license": "CC0-1.0"
+    },
+    {
+      "path": "QUATERNIUS-LICENSE.txt",
+      "bytes": 806,
+      "sha256": "0f4beaf0fe360a7732e58bbe3dbf60a2422367fbea60cb9ea4add968f383268e",
+      "upstream": "https://raw.githubusercontent.com/programasweights/avatar/ddd5fc34a445bcded3cf9836607aaeebc19a5c78/public/assets/QUATERNIUS-LICENSE.txt",
+      "gitBlob": "4b37c2d1fa14dfdc7033394635b31972fa091b77",
+      "license": "CC0-1.0"
+    }
+  ]
+}
