@@ -25,8 +25,11 @@ jobs:
       - name: Build and run deterministic game tests
         working-directory: games/ai-zombie-survival
         run: npm test
-      - name: Check 3D renderer module syntax
-        run: node --check games/ai-zombie-survival/web/gauntlet3d.js
+      - name: Check all 3D renderer modules syntax
+        run: |
+          for file in games/ai-zombie-survival/web/{gauntlet3d,scene-art,actor-art,sky-pass,tactical-map}.js; do
+            node --check "$file"
+          done
       - name: Install test browser
         run: npx playwright install --with-deps chromium
       - name: Start actual browser game
