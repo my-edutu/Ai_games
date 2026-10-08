@@ -29,6 +29,44 @@ function clearGroup(group){
   }
 }
 function seeded(n){const t=Math.sin(n*84.17+19.67)*43758.5453;return t-Math.floor(t)}
+// Small original weathered-masonry canvas textures. Deterministic and bounded (five variants).
+const masonry=new Map();
+function stoneworkMaterial(name,color){
+  if(masonry.has(name))return masonry.get(name);
+  const tile=document.createElement('canvas');tile.width=256;tile.height=256;
+  const pen=tile.getContext('2d'),base=new THREE.Color(color);
+  pen.fillStyle='#'+base.getHexString();pen.fillRect(0,0,256,256);
+  for(let i=0;i<1300;i++){
+    const x=seeded(i*7+name.length*11)*256,y=seeded(i*17+name.length*7)*256;
+    const w=.5+seeded(i*31)*13,h=.4+seeded(i*23)*4,light=seeded(i*43)>.43;
+    pen.fillStyle=light?'rgba(237,234,220,.055)':'rgba(4,11,24,.085)';
+    pen.fillRect(x,y,w,h);
+  }
+  // Hand-drawn fine veins and stone fractures keep the surface from reading as plain blocks.
+  pen.lineWidth=.7;
+  for(let i=0;i<19;i++){
+    let x=seeded(i*13+name.length)*256,y=seeded(i*47+name.length)*256;
+    pen.beginPath();pen.moveTo(x,y);
+    for(let j=0;j<5;j++){
+      x+=-8+seeded(i*29+j*3)*16;y+=3+seeded(i*23+j*11)*16;
+      pen.lineTo(x,y);
+    }
+    pen.strokeStyle=i%3?'rgba(0,0,0,.19)':'rgba(234,241,251,.08)';
+    pen.stroke();
+  }
+  for(let i=0;i<9;i++){
+    const x=seeded(i*9+name.length)*256,y=seeded(i*27+name.length)*256;
+    pen.fillStyle='rgba(3,8,20,.12)';pen.fillRect(x,y,20+seeded(i*9)*35,.7);
+  }
+  const map=new THREE.CanvasTexture(tile);
+  map.wrapS=map.wrapT=THREE.RepeatWrapping;
+  map.repeat.set(2,3);
+  map.colorSpace=THREE.SRGBColorSpace;
+  map.anisotropy=4;
+  const material=new THREE.MeshStandardMaterial({map,roughness:.91,metalness:.06});
+  masonry.set(name,material);return material;
+}
+
 export function mountTower3D({host,getFrame,reducedMotion=false,heroCamera=false}){
   const canvas=document.createElement('canvas');
   canvas.id='tower-3d-canvas';canvas.dataset.testid='tower-3d-canvas';
@@ -62,7 +100,7 @@ export function mountTower3D({host,getFrame,reducedMotion=false,heroCamera=false
     floor=s.floor;theme=s.theme;worldWidth=coord(s.worldWidth);
     const p=palettes[theme]||palettes.foundry;scene.background=new THREE.Color(p.haze);fog.color.setHex(p.haze);
     key.color.setHex(p.accent);rim.color.setHex(p.glow);
-    const stone=matte(p.stone,.92,.04),trim=matte(p.rim,.64,.44),dark=matte(0x131923,.96,.08),light=emissive(p.glow,1.9);
+    const stone=stoneworkMaterial(theme,p.stone),trim=matte(p.rim,.64,.44),dark=matte(0x131923,.96,.08),light=emissive(p.glow,1.9);
     const centerY=coord(s.chunkBaseY+s.chunkHeight*.5);
     // Three nested wall layers create real depth, silhouette and scale.
     add(backdrop,box(worldWidth+130,coord(s.chunkHeight)+270,9,dark),worldWidth/2,centerY,-93);
