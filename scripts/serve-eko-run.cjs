@@ -5,6 +5,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { URL } = require('node:url');
 const game = require('../dist/games/eko-street-run/src/index.js');
+const { createReactivePilot } = require('./eko-ai-pilot.cjs');
 
 const PORT = Number(process.env.EKO_PORT || 4177);
 const HOST = process.env.EKO_HOST || '127.0.0.1';
@@ -20,7 +21,7 @@ let mode = 'ai';
 let outfit = 'lagos-streetwear';
 let sequence = 0;
 let terminalTicks = 0;
-let jumpCooldown = 0;
+const pilot = createReactivePilot();
 let input = { axis: 1, jumpPressed: false, jumpReleased: false, slide: false, vault: false };
 let latest = {};
 let fault = null;
@@ -33,23 +34,7 @@ function command(type, payload) {
     sourceSequence: sequence++, type, payload,
   };
 }
-function aiIntent(snapshot) {
-  const x = snapshot.player.position.x;
-  const obstacles = snapshot.hazards.filter(h => h.phase !== 'resolved' && h.phase !== 'hit' && h.active && h.x > x && h.x < x + 4.6).sort((a, b) => a.x - b.x);
-  const nearest = obstacles[0];
-  const distance = nearest ? nearest.x - x : Infinity;
-  const canAct = state.player.movementState === 'grounded';
-  let jumpPressed = false;
-  let slide = false;
-  let vault = false;
-  if (nearest && distance < 3.1 && distance > 1.0 && canAct && jumpCooldown <= 0) {
-    if (nearest.legalResponses.includes('jump')) jumpPressed = true;
-    else if (nearest.legalResponses.includes('slide')) slide = true;
-    else if (nearest.legalResponses.includes('vault')) vault = true;
-    if (jumpPressed || slide || vault) jumpCooldown = 26;
-  }
-  return { axis: 1, jumpPressed, jumpReleased: false, slide, vault };
-}
+function aiIntent(snapshot) { return pilot.decide(snapshot); }
 function payload() {
   return {
     snapshot: game.createRenderSnapshot(state, events),
@@ -75,7 +60,8 @@ function tick() {
       type = 'move'; value = { ...intent };
       input.jumpPressed = false; input.jumpReleased = false; input.slide = false; input.vault = false;
       terminalTicks = 0;
-      jumpCooldown = Math.max(0, jumpCooldown - 1);
+
+
     } else {
       terminalTicks++;
       if (terminalTicks < 90) {
@@ -85,10 +71,11 @@ function tick() {
       if (state.lifecycle === 'failed') { type = 'restart'; value = {}; }
       else if (state.lifecycle === 'intermission') { type = 'advance'; value = {}; }
       else {
-        state = game.createPhase6State(config); sequence = 0; terminalTicks = 0;
+        state = game.createPhase6State(config); sequence = 0; terminalTicks = 0; pilot.reset();
         broadcast(); return;
       }
       terminalTicks = 0;
+      pilot.reset();
     }
     const result = game.stepSimulation(state, [command(type, value)], config);
     if (result.rejectedCommands.length) throw new Error('AUTHORITATIVE_COMMAND_REJECTED: ' + result.rejectedCommands[0].reason);
@@ -132,7 +119,7 @@ const FILES = new Map([
 const server = http.createServer(async (req, res) => {
   const url = new URL(req.url, 'http://localhost');
   if (req.method === 'GET' && url.pathname === '/eko/health') {
-    return send(res, fault ? 503 : 200, 'application/json', JSON.stringify({ status: fault ? 'quarantined' : 'ok', tick: state.tick, clients: clients.size, mode, district: state.progression?.districtId || null }));
+    return send(res, fault ? 503 : 200, 'application/json', JSON.stringify({ status: fault ? 'quarantined' : 'ok', tick: state.tick, clients: clients.size, mode, pilot: pilot.metrics(), district: state.progression?.districtId || null }));
   }
   if (req.method === 'GET' && url.pathname === '/eko/state') return send(res, 200, 'application/json', JSON.stringify(payload()));
   if (req.method === 'GET' && url.pathname === '/eko/stream') {
@@ -158,6 +145,7 @@ const server = http.createServer(async (req, res) => {
       if (body.mode !== undefined) {
         if (!VALID_MODES.has(body.mode)) throw new Error('INVALID_MODE');
         mode = body.mode;
+        if(mode==='ai')pilot.reset();
       }
       if (body.outfit !== undefined) {
         if (!VALID_OUTFITS.has(body.outfit)) throw new Error('INVALID_OUTFIT');
