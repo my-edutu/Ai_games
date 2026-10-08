@@ -166,7 +166,7 @@ function buildWorld(snapshot) {
   hemi.intensity=style.skyLight;sun.color.setHex(style.warm);
   sun.intensity=district==='island-night'?1.2:2.45;
   const night=district==='island-night';
-  const length=Math.min(140,Math.max(38,snapshot.route.finishX+12));
+  const length=Math.max(38,Math.min(180,snapshot.route.finishX+14));
   const road=box(terrain,length,.25,6.8,length/2-4,-.18,0,style.ground,false);
   road.receiveShadow=true;
   for(const side of [-1,1]){
@@ -357,7 +357,7 @@ function updateHazards(snapshot){
     let g=hazardMeshes.get(h.id);
     if(!g){g=makeHazard(h);hazardMeshes.set(h.id,g);}
     g.position.x=h.x;
-    g.visible=h.active;
+    g.visible=h.active||h.phase==='warned';
     g.userData.marker.position.y=2.65+Math.sin(performance.now()/230)*.13;
   }
   for(const [id,g] of hazardMeshes)if(!present.has(id)){disposeGroup(g);hazardMeshes.delete(id);}
