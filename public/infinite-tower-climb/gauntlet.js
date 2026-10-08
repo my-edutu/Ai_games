@@ -24,5 +24,26 @@ async function ledger(){
 async function live(){
   try{const r=await fetch('/tower/state',{cache:'no-store'});if(r.ok){const d=await r.json();$('floor').textContent=d.snapshot.floor;$('tick').textContent=d.tick}}catch{}
 }
+const form=$('critic-form'),gap=$('critic-gap'),reviewState=$('review-state'),keys=['character','animation','environment','cinematic','readability'];
+function reviewData(){
+  const values={};for(const key of keys){const input=form.elements.namedItem(key);values[key]=Number(input.value)}
+  return{round:Number($('round').textContent)||0,benchmark:'DON’T NOD — Jusant (official gameplay)',scores:values,largestRemainingGap:gap.value.trim(),reviewer:'local browser critique; independent identity not asserted'};
+}
+function formChanged(){for(const key of keys)$('critic-form').querySelector('[data-score="'+key+'"]').textContent=form.elements.namedItem(key).value+'/10'}
+form.addEventListener('input',formChanged);
+form.addEventListener('submit',event=>{
+  event.preventDefault();if(!form.reportValidity())return;
+  const review=reviewData();try{localStorage.setItem('tower-gauntlet-critique-v1',JSON.stringify(review));reviewState.textContent='Review saved in this browser';}catch{reviewState.textContent='Browser storage unavailable; copy the handoff instead'}
+});
+$('copy-critique').addEventListener('click',async()=>{
+  if(!gap.value.trim()){reviewState.textContent='Describe the single biggest gap first';gap.focus();return}
+  const review=JSON.stringify(reviewData(),null,2);
+  try{await navigator.clipboard.writeText(review);reviewState.textContent='Builder handoff copied';}
+  catch{reviewState.textContent='Clipboard unavailable; review remains in the text field'}
+});
+try{const saved=JSON.parse(localStorage.getItem('tower-gauntlet-critique-v1')||'null');
+  if(saved?.scores){for(const key of keys){const value=saved.scores[key];if(Number.isFinite(value)&&value>=0&&value<=10)form.elements.namedItem(key).value=value;}gap.value=saved.largestRemainingGap||'';reviewState.textContent='Previous local review restored';}
+}catch{}
+formChanged();
 ledger();live();setInterval(live,1300);
 })();
