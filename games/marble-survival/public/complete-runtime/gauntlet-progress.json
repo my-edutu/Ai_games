@@ -1,0 +1,56 @@
+{
+  "schema": 1,
+  "iteration": "Loop 2 · instrument and verify",
+  "lastUpdated": "2026-10-08",
+  "criticTarget": "Obtain actual rendered browser screenshots at identical viewports, then compare blindly against Marble It Up! Ultra. No independent visual judgment has been run yet.",
+  "comparisonStatus": "NOT YET VERIFIED · Screenshots, blind A/B verdicts and performance sampling are outstanding.",
+  "goals": [
+    {
+      "name": "Premium marble character optics",
+      "detail": "Shader clearcoat, fresnel edge light and rotating internal glass veins",
+      "status": "implemented"
+    },
+    {
+      "name": "Actual WebGL performance metrics",
+      "detail": "FPS, draw calls and triangle counts sampled from the running renderer",
+      "status": "implemented"
+    },
+    {
+      "name": "Independent blind A/B screenshots",
+      "detail": "Capture matching scenes and collect an independent visual verdict",
+      "status": "blocked"
+    },
+    {
+      "name": "True 3D rigid-body survival physics",
+      "detail": "Vertical gravity, jumping, ramps and obstacle impacts must use authority state",
+      "status": "blocked"
+    },
+    {
+      "name": "Spectator-ready tournament direction",
+      "detail": "Camera cuts, replays, richer procedural arenas and cinematic elimination beats",
+      "status": "in-progress"
+    },
+    {
+      "name": "Long-session stability and production gate",
+      "detail": "Soak tests, accessible UX review, real frame measurements, release evidence",
+      "status": "blocked"
+    }
+  ],
+  "history": [
+    {
+      "title": "Loop 2 — Objective telemetry",
+      "note": "Instrumented actual WebGL draw calls, triangles, FPS and same-origin live progress feed; browser runtime validation still required.",
+      "proof": "Source implementation"
+    },
+    {
+      "title": "Loop 1 — Distinctive character finish",
+      "note": "Upgraded the WebGL marble shader with a clearcoat highlight, edge fresnel, secondary fill light and rolling internal ribbons. No visual-parity claim.",
+      "proof": "Source implementation"
+    },
+    {
+      "title": "Baseline — Existing playable branch",
+      "note": "Found server-authoritative deterministic rounds, WebGL2 arena geometry, marble identity overlay and fallback renderer in PR #38; acceptance report records missing vertical physics.",
+      "proof": "Repository inspection"
+    }
+  ]
+}
