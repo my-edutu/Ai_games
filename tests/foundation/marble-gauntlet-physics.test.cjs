@@ -124,3 +124,54 @@ test('new 3D contact paths preserve independent replay checksums', () => {
     b = y.state;
   }
 });
+
+
+test('procedural later rounds include marked, bounded real vertical jump bumpers', () => {
+  const { NamedRng, generateMarbleArena, parseMarbleConfig } =
+    require('../../dist/games/marble-survival/src/index.js');
+  const config = parseMarbleConfig({
+    rosterSize: 8,
+    roundQuotas: [4, 2, 1, 1, 1],
+  });
+  const arena = generateMarbleArena(config, 2, NamedRng.fromSeed('gauntlet-spring-generation'));
+  const springs = arena.bumpers.filter(bumper => Number.isInteger(bumper.launchSpeed) && bumper.launchSpeed > 0);
+  assert.ok(springs.length > 0, 'later rounds must create at least one jump bumper');
+  assert.ok(springs.every(bumper => bumper.launchSpeed <= config.maxVerticalSpeed));
+});
+
+test('real approach contact launches marble vertically and remains seeded-replay deterministic', () => {
+  const initial = isolatedState('gauntlet-jump-bumper');
+  const marble = initial.marbles[0];
+  marble.position = { x: 11_500, y: 8_000 };
+  marble.velocity = { x: 200, y: 0 };
+  initial.arena.bumpers = [{
+    id: 'test-spring', kind: 'bumper', x: 12_000, y: 8_000,
+    radius: 500, restitutionPermille: 900, launchSpeed: 280,
+  }];
+  const once = stepMarblePhysics(initial, idle(initial));
+  const twin = stepMarblePhysics(structuredClone(initial), idle(initial));
+  assert.equal(once.integrityIssue, undefined);
+  assert.equal(marbleStateChecksum(once.state), marbleStateChecksum(twin.state));
+  assert.ok(once.contacts.some(contact => contact.kind === 'bumper' && contact.impulse > 0));
+  const launched = once.state.marbles[0];
+  assert.equal(launched.grounded, false);
+  assert.ok(launched.elevation > 0, 'the bumper must alter actual authoritative elevation');
+  assert.ok(launched.verticalVelocity > 0, 'the bumper must create authoritative positive vertical velocity');
+  assert.ok(launched.verticalVelocity <= once.state.config.maxVerticalSpeed);
+});
+
+test('bounce bumper never launches with a separating or stationary contact', () => {
+  const initial = isolatedState('gauntlet-bumper-no-phantom');
+  const marble = initial.marbles[0];
+  marble.position = { x: 11_500, y: 8_000 };
+  marble.velocity = { x: -150, y: 0 };
+  initial.arena.bumpers = [{
+    id: 'test-spring', kind: 'bumper', x: 12_000, y: 8_000,
+    radius: 500, restitutionPermille: 900, launchSpeed: 280,
+  }];
+  const result = stepMarblePhysics(initial, idle(initial));
+  assert.equal(result.integrityIssue, undefined);
+  assert.equal(result.state.marbles[0].grounded, true);
+  assert.equal(result.state.marbles[0].verticalVelocity, 0);
+  assert.equal(result.state.marbles[0].elevation, 0);
+});
