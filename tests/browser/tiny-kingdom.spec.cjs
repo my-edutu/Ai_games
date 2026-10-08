@@ -60,5 +60,5 @@ test('Tiny Kingdom grows through actual agent work and records social connection
   expect(metrics.buildings).toBeGreaterThan(14);
   expect(metrics.gold).toBeGreaterThan(42);
   expect(metrics.relationships).toBeGreaterThan(0);
-  expect(metrics.food).toBeGreaterThanOrEqual(0);
+  expect(metrics.food).toBeGreaterThan(metrics.citizens*2);
 });
