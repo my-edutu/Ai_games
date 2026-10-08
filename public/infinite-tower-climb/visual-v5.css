@@ -1,0 +1,36 @@
+/* Round 5 — Expedition art direction. CSS-only: no authority or renderer changes. */
+:root{--expedition-gold:#ffd58b;--expedition-coral:#ff8e74;--expedition-teal:#7ce8d8}
+#app .top{background:linear-gradient(115deg,rgba(23,30,36,.78),rgba(36,27,41,.48))!important;border-color:rgba(255,234,191,.44)!important}
+#app .brand-mark{background:conic-gradient(from 210deg,#ff9778,#ffe2a1,#7de3d5,#ff9778)!important}
+#app .primary-metrics strong{letter-spacing:-.045em}
+#app .panel{background:linear-gradient(135deg,rgba(17,34,40,.80),rgba(50,30,46,.64))!important;border-color:rgba(241,224,188,.38)!important}
+#app .panel-head{border-bottom:1px solid rgba(255,232,200,.2);padding-bottom:8px}
+#app .intent-panel{border-left:3px solid var(--expedition-teal)!important}
+#app .vital-panel{border-left:3px solid var(--expedition-coral)!important}
+#app .progress-panel{border-left:3px solid var(--expedition-gold)!important}
+#app .world-title{background:linear-gradient(120deg,#fff9e8 8%,#ffe0a6 55%,#ffb79c);color:transparent!important;background-clip:text;-webkit-background-clip:text;filter:drop-shadow(0 4px 14px rgba(20,20,25,.35))}
+#app .world-kicker{display:inline-flex!important;align-items:center;gap:9px}
+#app .world-kicker:before{content:"";width:23px;height:2px;background:var(--expedition-gold);box-shadow:0 0 12px var(--expedition-gold)}
+#app .arena-wrap:before{content:"";position:absolute;inset:0;pointer-events:none;z-index:1;background:radial-gradient(ellipse at 50% 46%,transparent 37%,rgba(24,20,34,.18) 85%);mix-blend-mode:multiply}
+#app .caption{border-left:3px solid var(--expedition-gold)!important}
+#app .caption p{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#app .checkpoint-pill{border-left:2px solid var(--expedition-teal)!important}
+#app .status-chip{box-shadow:inset 0 0 20px rgba(255,205,120,.07)}
+@media(max-width:700px){
+ #app .top,#app .shell[data-ux-revision] .top{inset:8px 8px auto!important;padding:5px 8px!important;gap:4px!important}
+ #app .brand,#app .shell[data-ux-revision] .brand{min-width:0!important;flex:1 1 auto!important}
+ #app .brand h1,#app .shell[data-ux-revision] .brand h1{font-size:clamp(11px,3.2vw,17px)!important;white-space:nowrap}
+ #app .primary-metrics{flex:0 0 auto}
+ #app .primary-metrics article,#app .shell[data-ux-revision] .primary-metrics article{min-width:47px!important;padding:2px 6px!important}
+ #app .primary-metrics article:nth-child(2){display:none}
+ #app .world-label{top:80px;left:12px;max-width:calc(100% - 28px)}
+ #app .world-label .world-title{font-size:clamp(25px,8vw,44px)}
+ #app .side,#app .shell[data-ux-revision] .side{top:auto!important;bottom:52px!important;right:9px!important;width:min(174px,43vw)!important;max-height:96px}
+ #app .side .intent-panel{padding:7px 9px!important}
+ #app .intent-panel .panel-head{margin-bottom:4px!important;padding-bottom:4px}
+ #app .intent-panel h2{font-size:12px!important;margin:3px 0!important}
+ #app .caption{grid-template-columns:12px minmax(0,1fr)!important}
+ #app .caption p{font-size:11px!important}
+}
+@media(max-height:450px){#app .world-label{top:70px}#app .world-label .world-title{font-size:24px}#app .side{display:none!important}}
+body.clean-feed #app .arena-wrap:before{display:none}
