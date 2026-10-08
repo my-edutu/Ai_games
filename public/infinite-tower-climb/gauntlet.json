@@ -1,11 +1,16 @@
 {
   "project": "Infinite Tower Climb — 3D Gauntlet",
   "date": "2026-10-08",
-  "round": 9,
+  "round": 11,
   "target": "Jusant (DON'T NOD): official screenshots and captured gameplay",
-  "status": "BLOCKED / NOT READY: Oldest available real screenshot (2026-10-08 06:32 UTC, run 37736794883) still shows repetitive blue grid and primitive figures. Current head CI queued and no new screenshots. A sculpted-geology v9 module was committed and imported by biome-v4.js, but HTTP route update is blocked, so this addition cannot load. Independently, scene3d.js contains two identical createTowerEffectsDirector imports, a fatal ES-module parse error. Do not merge, deploy, or claim the 3D renderer works until both are fixed and browser evidence inspected.",
+  "status": "ACTIVE / NOT YET AT JUSANT BAR: Round 11 focused on the single biggest character-action truth gap: Wayfinder arms previously reached imaginary holds and the snapshot left moving platform positions static. Added constrained analytic two-bone grip IK sourced only from reachable actual public platform edges; moving platform visuals now match physics at each tick; dedicated unit and replay-alignment tests committed. Source parse/route check passed, but latest CI and actual browser capture remain pending. 3D visual presentation still runs on deterministic 2D authoritative movement; this is not full 3D climbing physics.",
   "completionRule": "A separate critic must inspect the rendered game, compare screenshots or gameplay against official Jusant imagery, report the worst gap, and repeat. A functioning renderer alone is not a pass.",
   "lanes": [
+    {
+      "name": "CURRENT FOCUS — Wayfinder believable grip and ledge alignment",
+      "status": "Implemented pure analytic IK against public snapshot geometry; 3D moving ledge positions now follow same platformAtTick solver used in physics. Node and snapshot regression tests added; awaiting CI and gameplay capture.",
+      "criterion": "Visible hero hand should reach an actual close platform edge; never grip empty space; platform visible X/Y must equal authoritative collision surface at snapshot tick."
+    },
     {
       "name": "Vivid premium visual system",
       "status": "Round 8: replaced three conflicting loaded CSS visual passes with one unified Visual VIII; jewel-tone biome accents, readable warm parchment vital/progress cards, improved bright/dark hierarchy and mobile rules. Browser screenshot review pending.",
@@ -113,6 +118,14 @@
     {
       "name": "Round 10 parallel workers",
       "state": "UNAVAILABLE: chat_on_steriod worker service returned NOT_FOUND tunnel-client not seen for 300 seconds; no independent critic executed."
+    },
+    {
+      "name": "Round 11 focused source gate",
+      "state": "PASS: source JS syntax, same-origin module route and unique effect-import count; no live screenshot confirmation"
+    },
+    {
+      "name": "Round 11 real gameplay/CI visual gate",
+      "state": "PENDING: needs actual browser capture and an independent paired frame review"
     }
   ],
   "history": [
@@ -175,6 +188,11 @@
       "round": 10,
       "summary": "Repaired duplicate createTowerEffectsDirector ES import; integrated Round 9 sculpted geology into 3D backdrop; added HTTP route and self-test asset; added regression tests for import uniqueness and geology wiring. Parallel worker service unavailable (tunnel disconnected), so changes were self-reviewed only.",
       "verdict": "Source integration committed; latest CI queued and no current-head screenshot inspected. Jusant benchmark NOT MET."
+    },
+    {
+      "round": 11,
+      "summary": "Focused Wayfinder contact milestone: immutable snapshot-derived reachable ledges, analytical two-bone arm pose in both facing directions, moving ledges updated at each physics tick, protected unit regressions.",
+      "verdict": "Scoped source integrity verified; new simulation/browser tests queued. Authored hero fidelity, true 3D climbing physics and Jusant independent A/B benchmark remain unmet."
     }
   ]
 }
