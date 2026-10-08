@@ -10,3 +10,12 @@ body[data-battle-renderer="webgl2"] .legend{bottom:1.5%;z-index:3}
 body[data-battle-renderer="2d-fallback"] .battle-3d-focus{display:none}
 @media(max-width:950px){.arena-shell .battle-3d-focus{display:none}}
 body[data-reduced-motion="true"] .battle-3d-focus{transition:none}
+
+/* Broadcast-ready live fighter data; all fields are sanitized public snapshot values. */
+.loadout-card{margin-top:14px;padding:13px 15px;border:1px solid rgba(111,226,238,.26);border-radius:12px;background:linear-gradient(125deg,rgba(18,44,56,.81),rgba(9,24,35,.74))}
+.loadout-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px 9px;margin:0}
+.loadout-grid div{min-width:0;border-left:2px solid rgba(112,214,229,.45);padding-left:9px}
+.loadout-grid dt{font-size:10px;letter-spacing:.10em;color:#9bd0da}
+.loadout-grid dd{margin:5px 0 0;font-weight:900;color:#f7fafc;font-size:clamp(12px,1vw,16px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media(max-width:950px){.loadout-card{display:none}}
+body.clean-feed .loadout-card{display:none}
