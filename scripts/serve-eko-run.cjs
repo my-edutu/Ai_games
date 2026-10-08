@@ -149,6 +149,16 @@ const server = http.createServer(async (req, res) => {
     try {
       const body = await readBody(req);
       if (typeof body !== 'object' || !body || Array.isArray(body)) throw new Error('INVALID_CONTROL');
+      // Preview-only reset, explicitly invoked by tests or a local operator. It
+      // starts a new evidence scene, never modifies a scored completed run.
+      if (body.resetPreview !== undefined) {
+        if (body.resetPreview !== true) throw new Error('INVALID_RESET_PREVIEW');
+        state = game.createPhase6State(config);
+        events = []; sequence = 0; terminalTicks = 0; fault = null;
+        input = { axis: 1, jumpPressed: false, jumpReleased: false, slide: false, vault: false };
+        pilot.reset();
+        broadcast();
+      }
       if (body.mode !== undefined) {
         if (!VALID_MODES.has(body.mode)) throw new Error('INVALID_MODE');
         mode = body.mode;
