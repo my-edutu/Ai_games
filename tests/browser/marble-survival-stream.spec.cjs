@@ -199,10 +199,61 @@ test('Marble WebGL broadcast renders authoritative tournament and captures runti
   const captured = new Set();
   const archetypes = new Set();
   const biomeEvidence = new Set();
+  const visualPixelMetrics = {};
+  const measureActualVisualPixels = async () => {
+    // Decode actual Chromium-composited game canvas, never a concept image
+    // and never a source-palette guess. Explicitly distinguish this machine
+    // colour check from a blinded human A/B art critique.
+    const jpeg = await page.locator('#arena-webgl').screenshot({ type: 'jpeg', quality: 60 });
+    return page.evaluate(async encoded => {
+      const image = new Image();
+      image.src = 'data:image/jpeg;base64,' + encoded;
+      await image.decode();
+      const probe = document.createElement('canvas');
+      probe.width = Math.min(640, image.naturalWidth);
+      probe.height = Math.min(400, image.naturalHeight);
+      const ctx = probe.getContext('2d', { willReadFrequently: true });
+      ctx.drawImage(image, 0, 0, probe.width, probe.height);
+      const data = ctx.getImageData(0, 0, probe.width, probe.height).data;
+      let samples = 0, saturationSum = 0, brightnessSum = 0, colorful = 0, dark = 0;
+      for (let y = 0; y < probe.height; y += 9) {
+        for (let x = 0; x < probe.width; x += 9) {
+          const index = (y * probe.width + x) * 4;
+          const r = data[index], g = data[index + 1], b = data[index + 2];
+          const high = Math.max(r, g, b), low = Math.min(r, g, b);
+          const saturation = high ? (high - low) / high : 0;
+          samples++;
+          saturationSum += saturation;
+          brightnessSum += (r * 0.2126 + g * 0.7152 + b * 0.0722);
+          if (saturation >= 0.22 && high >= 74) colorful++;
+          if (high <= 8) dark++;
+        }
+      }
+      return {
+        samples,
+        averageSaturation: Number((saturationSum / samples).toFixed(3)),
+        averageLuminance: Number((brightnessSum / samples).toFixed(1)),
+        colorfulFraction: Number((colorful / samples).toFixed(3)),
+        nearBlackFraction: Number((dark / samples).toFixed(3)),
+        source: 'actual WebGL canvas captured and decoded by Chromium',
+        independentVisualParityVerified: false,
+      };
+    }, jpeg.toString('base64'));
+  };
   const capture = async name => {
     if (captured.has(name)) return;
     captured.add(name);
     await page.screenshot({ path: path.join(artifacts, `${name}.png`), fullPage: false });
+    if (name === '01-race-start' || name.startsWith('11-biome-')) {
+      const metric = await measureActualVisualPixels();
+      visualPixelMetrics[name] = metric;
+      fs.writeFileSync(path.join(artifacts, 'visual-pixel-metrics.json'),JSON.stringify(visualPixelMetrics,null,2));
+      expect(metric.samples).toBeGreaterThan(100);
+      expect(metric.averageLuminance).toBeGreaterThan(16);
+      expect(metric.averageSaturation).toBeGreaterThan(0.05);
+      expect(metric.colorfulFraction).toBeGreaterThan(0.025);
+      expect(metric.nearBlackFraction).toBeLessThan(0.94);
+    }
   };
 
   // Always capture the normal Balanced presentation before any CI-only fallback benchmark tier.
