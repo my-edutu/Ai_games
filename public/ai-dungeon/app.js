@@ -5,6 +5,7 @@ import {createBiomeAtmosphere} from '/dungeon/biome-atmosphere.js';
 import {createCombatOverlay} from '/dungeon/combat-overlay.js';
 import {createCombatDirector} from '/dungeon/combat-director.js';
 import {addContactProjection} from '/dungeon/contact-projection.js';
+import {createLivingWorld} from '/dungeon/living-world.js';
 import {attachCharacter,updateActor,disposeActorAsset,putEnvironment,stats as assetStats} from '/dungeon/model-assets.js';
 const $=id=>document.getElementById(id),canvas=$('world'),reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
 let focusedHeroId='vanguard',autoDirector=true,lastAutoSwitch=0;
@@ -159,7 +160,7 @@ function disposeActor(a){
  });
  scene.remove(a.root);
 }
-function clearWorld(){combatDirector.reset();world.userData.atmosphere?.dispose();world.userData.atmosphere=null;world.userData.dressing?.dispose();world.userData.dressing=null;while(world.children.length){const obj=world.children[0];world.remove(obj);obj.traverse(o=>{if(o.geometry&&!o.userData.sharedAssetGeometry&&!Object.values(geo).includes(o.geometry))o.geometry.dispose();if(o.material&&!o.userData.sharedAssetGeometry&&!Object.values({stone,stoneEdge,floorMat,gold,black,tealGlow,dangerGlow}).includes(o.material)){const mats=Array.isArray(o.material)?o.material:[o.material];for(const m of mats)m.dispose()}})}for(const a of actors.values())disposeActor(a);actors.clear()}
+function clearWorld(){combatDirector.reset();world.userData.livingWorld?.dispose();world.userData.livingWorld=null;world.userData.atmosphere?.dispose();world.userData.atmosphere=null;world.userData.dressing?.dispose();world.userData.dressing=null;while(world.children.length){const obj=world.children[0];world.remove(obj);obj.traverse(o=>{if(o.geometry&&!o.userData.sharedAssetGeometry&&!Object.values(geo).includes(o.geometry))o.geometry.dispose();if(o.material&&!o.userData.sharedAssetGeometry&&!Object.values({stone,stoneEdge,floorMat,gold,black,tealGlow,dangerGlow}).includes(o.material)){const mats=Array.isArray(o.material)?o.material:[o.material];for(const m of mats)m.dispose()}})}for(const a of actors.values())disposeActor(a);actors.clear()}
 function buildWorld(s){clearWorld();worldFloor=s.run+'-'+s.floor;world.userData.sceneKey=worldFloor;world.userData.foregroundProps=[];lastCutawayKey='';
  const theme=floorThemes[(s.floor-1)%floorThemes.length];scene.background=new THREE.Color(theme.sky);scene.fog.color.set(theme.fog);moon.color.set(theme.fill);ambient.intensity=1.7;
  const floors=[],walls=[],trim=[];const size=s.map.length,offset=Math.floor(size/2);
@@ -259,6 +260,7 @@ function buildWorld(s){clearWorld();worldFloor=s.run+'-'+s.floor;world.userData.
  world.userData.hazardMeshes=hazardMeshes;
  world.userData.dressing=enrichEnvironment(world,s.map,s.floor);
  world.userData.atmosphere=createBiomeAtmosphere(world,s.map,s.floor,s.exit);
+ world.userData.livingWorld=createLivingWorld(world,s.map,s.floor);
  world.userData.authoredProps=putEnvironment(world,worldFloor,s.map);
 }
 function rig(u){const colors=palette[u.kind],main=mat(colors[0],.5,.4),light=mat(colors[1],.45,.4),accent=mat(colors[2],.55,.3),enemy=u.faction==='enemy',boss=u.kind==='warden';
@@ -516,6 +518,7 @@ function animate(t){requestAnimationFrame(animate);const time=t/1000,dt=Math.min
  }
  if(world.userData.dressing&&!reduced)world.userData.dressing.animate(time);
  if(world.userData.atmosphere&&!reduced)world.userData.atmosphere.update(time);
+ if(world.userData.livingWorld&&!reduced)world.userData.livingWorld.update(time);
  const cameraType=cameraModes[cameraIndex]||'cinematic',offsets=cameraType==='tactical'?[3.5,23.5,4.5]:cameraType==='chase'?[6.1,12.0,7.2]:[9.5,17.2,11.3];
  const boss=state?.units.find(u=>u.kind==='warden'&&u.hp>0),bossDistance=boss&&state?.units.some(u=>u.faction==='party'&&u.hp>0&&Math.abs(u.x-boss.x)+Math.abs(u.z-boss.z)<=5);
  const look=new THREE.Vector3(target.x,0,target.z);
@@ -538,7 +541,7 @@ function animate(t){requestAnimationFrame(animate);const time=t/1000,dt=Math.min
  renderer.info.reset();
  try{if(composer&&postFXEnabled){bloomPass.strength=innerWidth<680?.16:.30;composer.render()}else renderer.render(scene,camera)}
  catch(error){console.warn('[DUNGEON] post effect fault, restoring WebGL:',String(error));composer=null;postFXStatus='fallback';renderer.info.reset();renderer.render(scene,camera)}
- combatOverlay.render(state,actors,camera,time);if(state)window.__DUNGEON_RENDER_DIAGNOSTICS__={composition:inspectComposition(state),visibility:actualHeroVisibility(state,time),frame:renderer.info.render.frame,drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,camera:cameraModes[cameraIndex],focusedHeroId,autoDirector,cutawayWalls:world.userData.cutawayWalls??0,hiddenForegroundProps:world.userData.hiddenForegroundProps??0,postFX:composer&&postFXEnabled?'bloom':'direct',postFXStatus,bossFramed:Boolean(bossDistance),activeUnits:[...actors.values()].filter(x=>x.root.visible).length,characterDetails:[...actors.values()].reduce((sum,x)=>sum+(x.detail?.parts||0),0),webgl:true,theme:state.theme,dressing:world.userData.dressing?.metrics??null,atmosphere:world.userData.atmosphere?.metrics??null,overlay:combatOverlay.metrics(),combatStage:combatDirector.stats(),groundedActors:[...actors.values()].filter(x=>Boolean(x.ground)).length,authored3D:assetStats(actors)};
+ combatOverlay.render(state,actors,camera,time);if(state)window.__DUNGEON_RENDER_DIAGNOSTICS__={composition:inspectComposition(state),visibility:actualHeroVisibility(state,time),frame:renderer.info.render.frame,drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,camera:cameraModes[cameraIndex],focusedHeroId,autoDirector,cutawayWalls:world.userData.cutawayWalls??0,hiddenForegroundProps:world.userData.hiddenForegroundProps??0,postFX:composer&&postFXEnabled?'bloom':'direct',postFXStatus,bossFramed:Boolean(bossDistance),activeUnits:[...actors.values()].filter(x=>x.root.visible).length,characterDetails:[...actors.values()].reduce((sum,x)=>sum+(x.detail?.parts||0),0),webgl:true,theme:state.theme,dressing:world.userData.dressing?.metrics??null,atmosphere:world.userData.atmosphere?.metrics??null,livingWorld:world.userData.livingWorld?.metrics??null,overlay:combatOverlay.metrics(),combatStage:combatDirector.stats(),groundedActors:[...actors.values()].filter(x=>Boolean(x.ground)).length,authored3D:assetStats(actors)};
 }
 async function poll(){try{const r=await fetch('/dungeon/state',{cache:'no-store'});if(!r.ok)throw Error('State '+r.status);const data=await r.json();if(data.tick!==lastTick||data.run!==state?.run){lastTick=data.tick;update(data)}}catch(e){errorAt++;if(errorAt>=3){$('recovery').hidden=false;$('status').textContent='VIEW DEGRADED — RETRYING';console.warn('Dungeon view recovery',String(e))}}finally{setTimeout(poll,190)}}
 $('party').addEventListener('click',e=>{

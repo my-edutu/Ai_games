@@ -233,3 +233,14 @@ test('real 3D camera-ray visibility gate: gameplay actors are not hidden behind 
  expect(base.hiddenForegroundProps).toBeGreaterThanOrEqual(0);
  expect(base.dressing.clearedForeground).toBeGreaterThanOrEqual(0);
 });
+
+test('all fantasy biomes contain animated living inhabitants rather than static floor tiles',async({page,request})=>{
+ expect((await request.get('/dungeon/living-world.js')).status()).toBe(200);
+ await page.goto('/dungeon');
+ await expect.poll(async()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.livingWorld?.animatedCreatures??0),{timeout:25000}).toBeGreaterThan(2);
+ const life=await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.livingWorld);
+ expect(life.archetype).toMatch(/crypt moths|ember bats|crystal sprites|astral wisps/);
+ expect(life.instancedMotes).toBeGreaterThan(20);
+ expect(life.instancedMotes).toBeLessThanOrEqual(55);
+ await page.screenshot({path:'artifacts/dungeon-living-world-3d.png'});
+});
