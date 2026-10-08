@@ -29,6 +29,8 @@ let fpsSince=0;
 let currentFPS=0;
 let sceneAnimators=[];
 const dynamic = new THREE.Group();
+const routeLayer = new THREE.Group();
+let previousRouteSignature='';
 const world = new THREE.Group();
 let renderer = null;
 let scene = null;
@@ -241,13 +243,13 @@ function clearWorld() {
   }
   // Threat actors live in the dynamic layer and survive static geometry refreshes.
 }
-function line(route,width,material) {
+function line(route,width,material,parent=world) {
   if(route.length < 2) return;
   const pts=route.map(id => {
     const v=point(id,width); v.y=0.19;return v;
   });
   const geo = new THREE.BufferGeometry().setFromPoints(pts);
-  world.add(new THREE.Line(geo,material));
+  parent.add(new THREE.Line(geo,material));
 }
 let instanceQueues=new Map();
 function queueInstance(geometry,material,position,scale=[1,1,1]){
@@ -430,8 +432,7 @@ function rebuild(snapshot) {
     shrineProp(cell,p);
   }
   const visible = new Set(renderCells.map(c=>c.cell));
-  line(snapshot.travelledRoute.filter(id=>visible.has(id)).slice(-120),w,materials.trail);
-  line(snapshot.plannedRoute.filter(id=>visible.has(id)).slice(0,60),w,materials.plan);
+  // Journey and AI plan overlays are rendered in a separate lightweight route layer.
   for(const door of snapshot.doors){
     if(!visible.has(door.a)||!visible.has(door.b)) continue;
     const a=point(door.a,w),b=point(door.b,w),center=a.clone().add(b).multiplyScalar(.5);
@@ -548,25 +549,60 @@ function structuralSignature(snapshot){
     doors:snapshot.doors.map(d=>[d.id,d.open]),
     keys:snapshot.keys.map(k=>[k.id,k.collected]),
     exit:snapshot.exitCell,
-    routeBucket:Math.floor(snapshot.travelledRoute.length/4)
+    knownCount:snapshot.cells.length
   });
+}
+function refreshPublicRoutes(snapshot){
+  const width=snapshot.width,centerCol=snapshot.currentCell%width;
+  const centerRow=Math.floor(snapshot.currentCell/width);
+  const routeSignature=[
+    snapshot.runToken,Math.floor(snapshot.travelledRoute.length/2),
+    snapshot.plannedRoute.join(','),centerCol,centerRow
+  ].join(':');
+  if(routeSignature===previousRouteSignature)return;
+  previousRouteSignature=routeSignature;
+  for(const child of [...routeLayer.children]){
+    routeLayer.remove(child);
+    child.geometry?.dispose();
+  }
+  const close=(cell)=>{
+    const col=cell%width,row=Math.floor(cell/width);
+    return Math.abs(col-centerCol)<=6&&Math.abs(row-centerRow)<=5;
+  };
+  // Only the observer-approved explorer history and planned path are shown.
+  // Unknown map truth is not consulted or drawn.
+  const travelled=snapshot.travelledRoute.filter(close).slice(-90);
+  const planned=snapshot.plannedRoute.filter(close).slice(0,60);
+  line(travelled,width,materials.trail,routeLayer);
+  line(planned,width,materials.plan,routeLayer);
+}
+function restore2DFallback(reason='unavailable'){
+  active=false;ready=false;
+  window.__MAZE_3D_READY__=false;
+  window.__MAZE_3D_METRICS__={active:false,error:reason};
+  document.getElementById('maze-3d')?.remove();
 }
 function onFrame(event) {
   const packet=event.detail;
   const snapshot=packet&&packet.snapshot;
   if(!snapshot||!ready)return;
   lastFrame=packet;
-  cinematics.updatePublicState(snapshot,performance.now());
-  const runChanged=previousRun!==snapshot.runToken;
-  const target=point(snapshot.currentCell,snapshot.width);
-  explorerTarget.copy(target);
-  syncThreats(snapshot,runChanged);
-  const signature=structuralSignature(snapshot);
-  const now=performance.now();
-  if(runChanged||(signature!==lastTopologyKey&&now-lastEnvironmentUpdate>340)){
-    rebuild(snapshot);
-    lastTopologyKey=signature;
-    lastEnvironmentUpdate=now;
+  try {
+    cinematics.updatePublicState(snapshot,performance.now());
+    const runChanged=previousRun!==snapshot.runToken;
+    explorerTarget.copy(point(snapshot.currentCell,snapshot.width));
+    syncThreats(snapshot,runChanged);
+    const signature=structuralSignature(snapshot);
+    const now=performance.now();
+    if(runChanged||(signature!==lastTopologyKey&&now-lastEnvironmentUpdate>340)){
+      rebuild(snapshot);
+      lastTopologyKey=signature;
+      lastEnvironmentUpdate=now;
+    }
+    refreshPublicRoutes(snapshot);
+  } catch(error){
+    // Prevent malformed decorative assets or WebGL incompatibility from halting the AI stream.
+    restore2DFallback('scene-recovery');
   }
 }
 function render(now) {
@@ -667,10 +703,7 @@ function render(now) {
     renderer.render(scene,camera);
   } catch(error) {
     // Never replace a working autonomous broadcast with a black WebGL viewport.
-    active=false;ready=false;
-    window.__MAZE_3D_READY__=false;
-    window.__MAZE_3D_METRICS__={active:false,error:'render-fallback'};
-    document.getElementById('maze-3d')?.remove();
+    restore2DFallback('render-fallback');
     return;
   }
   fpsFrames++;
@@ -794,6 +827,7 @@ function init() {
   edge.position.set(10,8,10);
   scene.add(edge);
   scene.add(world,dynamic);
+  dynamic.add(routeLayer);
   scene.add(atmosphere.group);
   explorer=humanoid(materials.cloak);
   dynamic.add(explorer);
