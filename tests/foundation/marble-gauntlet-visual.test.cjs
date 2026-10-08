@@ -306,3 +306,33 @@ test('clickable spectator leaderboard reconciles stable actual DOM nodes',()=>{
   assert.equal(app.includes('leaderboard.replaceChildren'),false,
     'updating 10 times/second must never recreate every spectator button');
 });
+
+test('postprocess explicitly restores lost offscreen anti-aliasing and protects low-tier FPS',()=>{
+  for(const marker of [
+    'const POST_FRAGMENT_SHADER',
+    'vec3 n=texture(uSceneColor',
+    'float edgeBlend=smoothstep(.065,.30,contrast)*.33',
+    'original=mix(original,(n+so+e+w)*.25,edgeBlend)',
+    'const postFramebuffer=gl.createFramebuffer()',
+    'gl.checkFramebufferStatus(gl.FRAMEBUFFER)===gl.FRAMEBUFFER_COMPLETE',
+    'function beginStagePostprocess()',
+    "if(quality==='low')return false",
+    "function finishStagePostprocess(theme,active)",
+    'gl.bindFramebuffer(gl.FRAMEBUFFER,null)',
+    'shell.dataset.postprocess',
+  ]) assert.ok(renderer.includes(marker),'missing physically rendered, quality-bounded WebGL glow/FXAA: '+marker);
+  assert.equal(renderer.includes('fakeWinner'),false);
+});
+test('five scenery heroes and distant terrain are actual source meshes, never canvas image mockups',()=>{
+  for(const marker of [
+    'function drawStageLandmark(arena,theme',
+    'function prepareDistantHorizon(arena,quality)',
+    'function drawDistantLandscape(arena,theme',
+    'drawDistantLandscape(arena,theme,viewProjection,camera.eye)',
+    'drawStageLandmark(arena,theme,viewProjection,camera.eye,now)',
+    'shell.dataset.horizonGeometry',
+    'shell.dataset.landmarkStyle',
+    "'gate-gauntlet'","'hazard-circuit'","'final-four'",
+    'gl.deleteVertexArray?.(mesh.vao)',
+  ])assert.ok(renderer.includes(marker),'missing camera-visible procedural world: '+marker);
+});
