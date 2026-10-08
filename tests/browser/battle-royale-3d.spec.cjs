@@ -48,7 +48,7 @@ test('Gauntlet progress offers live before/after comparison with honest review s
   await page.goto(base+'/battle/gauntlet');
   await expect(page.locator('h1')).toContainText('AI Battle Royale');
   await expect(page.locator('.versus iframe')).toHaveCount(2);
-  await expect(page.locator('#verdict')).toContainText(/AAA QUALITY NOT MET|UNVERIFIED/i);
+  await expect(page.locator('#verdict')).toContainText(/AAA QUALITY NOT MET|UNVERIFIED|GAUNTLET NOT ACHIEVED/i);
   await expect(page.locator('#history li').first()).toBeVisible();
   await expect(page.locator('#gaps li').first()).toBeVisible();
   await page.screenshot({path:path.join(captures,'progress-desktop.png'),fullPage:true});
