@@ -449,3 +449,27 @@ test('real WebGL2 shadow map produces original soft dynamic scene shadows and op
     }finally{await page.close()}
   }
 });
+
+
+test('Gauntlet image critic measures and enforces cinematic brightness, contrast and color',async({page})=>{
+  const {measureFrame}=require('../../scripts/battle-gauntlet-pixels.cjs');
+  await page.setViewportSize({width:1600,height:900});
+  await page.goto(base+'/battle?muted=1&camera=hero&shadows=on&materials=on');
+  await page.waitForFunction(()=>window.BattleArena3D?.status.frames>0);
+  const status=await page.evaluate(()=>({...window.BattleArena3D.status}));
+  if(status.mode==='webgl2'){
+    await page.waitForFunction(()=>window.BattleArena3D.status.materialAtlas==='ready',
+      null,{timeout:15000});
+    const shot=await page.screenshot({
+      path:path.join(captures,'image-critic-hero.png'),fullPage:true
+    });
+    const metrics=measureFrame(shot);
+    fs.writeFileSync(path.join(captures,'image-critic-hero.json'),
+      JSON.stringify({metricVersion:1,thresholds:{maxDark:.65,minLuminance:.16,minSaturation:.20},
+        metrics,renderer:status},null,2));
+    console.log('[BATTLE IMAGE CRITIC]',JSON.stringify(metrics));
+    expect(metrics.darkFraction).toBeLessThan(.65);
+    expect(metrics.meanLuminance).toBeGreaterThan(.16);
+    expect(metrics.meanSaturation).toBeGreaterThan(.20);
+  }
+});
