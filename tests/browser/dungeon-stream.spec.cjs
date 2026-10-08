@@ -251,8 +251,19 @@ test('stream updates preserve clickable hero cards instead of detaching them eac
  const start=await page.evaluate(()=>{window.__DUNGEON_HERO_DOM_PROBE__=document.querySelector('.hero-card[data-hero-id="ranger"]');return window.__DUNGEON_PUBLIC_STATE__.tick});
  await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_PUBLIC_STATE__?.tick??0),{timeout:15000}).toBeGreaterThan(start+3);
  expect(await page.evaluate(()=>window.__DUNGEON_HERO_DOM_PROBE__?.isConnected&&window.__DUNGEON_HERO_DOM_PROBE__===document.querySelector('.hero-card[data-hero-id="ranger"]'))).toBe(true);
- await page.locator('.hero-card[data-hero-id="ranger"]').click({timeout:5000});
- await expect(page.locator('.hero-card[data-hero-id="ranger"]')).toHaveAttribute('aria-pressed','true');
+ // The probe intentionally tracks the ranger even when the autonomous AI
+ // knocks that hero out. Spectator focus must instead target a living hero.
+ const live=page.locator('.hero-card:not(.down)').first();
+ await expect(live).toBeVisible({timeout:12000});
+ await live.scrollIntoViewIfNeeded();
+ const pointerHit=await live.evaluate(el=>{
+  const rect=el.getBoundingClientRect();
+  const top=document.elementFromPoint(rect.left+rect.width/2,rect.top+rect.height/2);
+  return top===el||el.contains(top);
+ });
+ expect(pointerHit).toBe(true);
+ await live.click({timeout:15000});
+ await expect(live).toHaveAttribute('aria-pressed','true');
 });
 test('mobile gameplay has a dominant 3D stage and legible full-width hero cards',async({page})=>{
  await page.setViewportSize({width:390,height:844});await page.goto('/dungeon');
@@ -273,12 +284,14 @@ test('world-only screenshot audits actual WebGL light, chroma and hero visibilit
  await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.triangles??0),{timeout:25000}).toBeGreaterThan(100);
  // Locator screenshots capture DOM overlays composited above the canvas. Mask
  // them temporarily or the so-called world-only audit is falsely inflated by HUD.
- const mask=await page.addStyleTag({content:'.arena > :not(canvas#world){visibility:hidden!important}.arena::before,.arena::after{visibility:hidden!important}'});
+ // Toggle an existing same-origin CSS rule: inline style tags violate our CSP.
+ // This excludes DOM overlays and the battle canvas from the real WebGL audit.
+ await page.locator('.arena').evaluate(el=>el.classList.add('world-only-audit'));
  let capture;
  try{
   expect(await page.locator('.scene-header').evaluate(el=>getComputedStyle(el).visibility)).toBe('hidden');
   capture=await page.locator('canvas#world').screenshot({path:'artifacts/dungeon-3d-world-only.png'});
- }finally{await mask.evaluate(el=>el.remove())}
+ }finally{await page.locator('.arena').evaluate(el=>el.classList.remove('world-only-audit'))}
  const pixels=await page.evaluate(async encoded=>{
   const image=new Image();image.src='data:image/png;base64,'+encoded;await image.decode();
   const canvas=document.createElement('canvas');canvas.width=160;canvas.height=100;
@@ -291,9 +304,10 @@ test('world-only screenshot audits actual WebGL light, chroma and hero visibilit
   return{sampledPixels:rgba.length/4,litFraction:lit/(rgba.length/4),colouredFraction:coloured/(rgba.length/4),meanLuminance:brightness/(rgba.length/4)};
  },capture.toString('base64'));
  const diagnostics=await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__);
- const evidence={schemaVersion:1,reference:'None; candidate WebGL canvas only',at:new Date().toISOString(),...pixels,triangles:diagnostics.triangles,composition:diagnostics.composition,visibility:diagnostics.visibility,authored3D:diagnostics.authored3D,atmosphere:diagnostics.atmosphere,livingWorld:diagnostics.livingWorld};
+ const evidence={schemaVersion:1,reference:'None; candidate WebGL canvas only',at:new Date().toISOString(),...pixels,triangles:diagnostics.triangles,composition:diagnostics.composition,visibility:diagnostics.visibility,authored3D:diagnostics.authored3D,dressing:diagnostics.dressing,atmosphere:diagnostics.atmosphere,livingWorld:diagnostics.livingWorld};
  fs.writeFileSync('artifacts/dungeon-scene-visual-metrics.json',JSON.stringify(evidence,null,2));
  expect(evidence.composition.visibleHeroes).toBeGreaterThan(0);
+ expect(evidence.dressing?.archWindows??0).toBeGreaterThan(0);
  expect(evidence.litFraction).toBeGreaterThan(.08);
  expect(evidence.meanLuminance).toBeGreaterThan(10);
 });
