@@ -29,6 +29,21 @@ function serve(port=Number(process.env.PORT||4181)){
   if(url.pathname==='/dungeon/evidence/desktop.png')return file(res,path.join(ROOT,'artifacts/dungeon-desktop.png'),'image/png');
   if(url.pathname==='/dungeon/evidence/mobile.png')return file(res,path.join(ROOT,'artifacts/dungeon-mobile.png'),'image/png');
   if(url.pathname==='/dungeon/evidence/visual-metrics.json')return file(res,path.join(ROOT,'artifacts/dungeon-visual-metrics.json'),'application/json; charset=utf-8');
+  if(url.pathname.startsWith('/dungeon/assets/')){
+   const suffix=url.pathname.slice('/dungeon/assets/'.length);
+   if(!/^(player|enemy|environment)\/[\w-]+\.(glb|png)$/.test(suffix)){res.writeHead(404);res.end('Not found');return}
+   return file(res,path.join(PUBLIC,'models',suffix),suffix.endsWith('.glb')?'model/gltf-binary':'image/png');
+  }
+  if(url.pathname.startsWith('/dungeon/vendor/addons/')){
+   const suffix=url.pathname.slice('/dungeon/vendor/addons/'.length);
+   if(!/^(loaders|utils)\/[\w-]+\.js$/.test(suffix)){res.writeHead(404);res.end('Not found');return}
+   const addon=path.join(ROOT,'node_modules/three/examples/jsm',suffix);
+   if(!fs.existsSync(addon)){res.writeHead(404);res.end('Not found');return}
+   const source=fs.readFileSync(addon,'utf8').replace(/from ['"]three['"]/g,"from '/dungeon/vendor/three.module.js'");
+   const body=Buffer.from(source);
+   res.writeHead(200,{'content-type':'text/javascript; charset=utf-8','content-length':body.length,'cache-control':'no-store','x-content-type-options':'nosniff'});
+   res.end(body);return;
+  }
   if(url.pathname==='/dungeon/vendor/three.module.js')return file(res,path.join(ROOT,'node_modules/three/build/three.module.js'),'text/javascript; charset=utf-8');
   if(url.pathname==='/favicon.ico'){res.writeHead(204);res.end();return}
   const name=paths.get(url.pathname);if(!name){res.writeHead(404);res.end('Not found');return}
