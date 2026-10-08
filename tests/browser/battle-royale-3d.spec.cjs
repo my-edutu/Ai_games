@@ -473,3 +473,38 @@ test('Gauntlet image critic measures and enforces cinematic brightness, contrast
     expect(metrics.meanSaturation).toBeGreaterThan(.20);
   }
 });
+
+
+test('ultra-quality uses a truly skinned local CC0 human and original 3D world, without replacing match authority',async({page,request})=>{
+  const model=await request.get(base+'/battle/models/quaternius-hero.glb');
+  expect(model.ok()).toBeTruthy();
+  expect(model.headers()['content-type']).toContain('model/gltf-binary');
+  const bytes=await model.body();
+  expect(bytes.length).toBeGreaterThan(500000);
+  expect(bytes.subarray(0,4).toString('ascii')).toBe('glTF');
+  const rights=await request.get(base+'/battle/models/asset-manifest.json');
+  expect(rights.ok()).toBeTruthy();
+  const manifest=await rights.json();
+  expect(manifest.license).toBe('CC0-1.0');
+  expect(manifest.assets.some(asset=>asset.path==='quaternius-hero.glb')).toBeTruthy();
+  const errors=[];
+  page.on('pageerror',error=>errors.push(error.message));
+  await page.setViewportSize({width:1600,height:900});
+  await page.goto(base+'/battle?muted=1&renderer=three&camera=hero');
+  await page.waitForFunction(()=>window.BattleUltraThree?.mode==='three-ultra',null,{timeout:25000});
+  await page.waitForFunction(()=>window.BattleUltraThree?.frames>=3,null,{timeout:25000});
+  const state=await page.evaluate(()=>({
+    ultra:{...window.BattleUltraThree},
+    sim:window.__BATTLE_PUBLIC_STATE__?.runToken,
+    classic:window.BattleArena3D?.status?.mode,
+    canvas:document.querySelector('.battle-three-canvas')?.getBoundingClientRect().width
+  }));
+  expect(state.ultra.lastError).toBeNull();
+  expect(state.ultra.actors).toBeGreaterThanOrEqual(1);
+  expect(state.ultra.worldRebuilds).toBeGreaterThanOrEqual(1);
+  expect(state.classic).toBe('webgl2');
+  expect(state.sim).toBeTruthy();
+  expect(state.canvas).toBeGreaterThan(1100);
+  expect(errors).toEqual([]);
+  await page.screenshot({path:path.join(captures,'ultra-human-true-skeletal-3d.png'),fullPage:true});
+});
