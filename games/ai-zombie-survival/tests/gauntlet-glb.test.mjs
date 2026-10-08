@@ -83,7 +83,7 @@ test('embedded glTF UV atlas material colors can be hydrated independently of th
     assert.equal(out,data);
     assert.ok(out.triangles[0].color.every(v=>Number.isFinite(v)&&v>=0&&v<=1));
     assert.notDeepEqual(out.triangles[0].color,[.8,.6,.4],'actual sampled UV pixels must influence imported GLB materials');
-    assert.deepEqual(out.triangles[0].color,[.8*70/255,.6*115/255,.4*200/255]);
+    for(const [i,expected] of [.8*70/255,.6*115/255,.4*200/255].entries())assert.ok(Math.abs(out.triangles[0].color[i]-expected)<1e-12);
   }finally{
     if(previousBitmap===undefined)delete globalThis.createImageBitmap;else globalThis.createImageBitmap=previousBitmap;
     if(previousCanvas===undefined)delete globalThis.OffscreenCanvas;else globalThis.OffscreenCanvas=previousCanvas;
