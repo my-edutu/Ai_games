@@ -51,6 +51,7 @@ export function createVolumetricCore(seedInput=0x00a3f914){
     return {stride:'Swift Ascender',grip:'Skyward Grip',salvage:'Salvage Instinct',ward:'Aegis Ward'}[key];
   }
   function registerLanding(p){
+    const newlyReached=p.i>player.at;
   player.y=landingHeight(p)+config.halfHeight;player.vy=0;player.grounded=true;
           if(p.i>player.at){
             const before=player.checkpoint,oldTheme=currentTheme();
@@ -67,7 +68,7 @@ export function createVolumetricCore(seedInput=0x00a3f914){
           if(p.pickup&&!p.collected){p.collected=true;player.health=Math.min(5,player.health+1);score+=100+build.salvage*20;
             emit('recovery-item','Recovered equipment on floor '+p.i+'.',{health:player.health});}
 
-    if(p.kind==='wall-climb'){wallClimbs++;emit('wall-mantle','Climbed a vertical handhold section on floor '+p.i+'.',{stamina:climbing.stamina});}
+    if(p.kind==='wall-climb'&&newlyReached){wallClimbs++;emit('wall-mantle','Climbed a vertical handhold section on floor '+p.i+'.',{stamina:climbing.stamina});}
   }
   function respawn(){
     const target=platforms.find(p=>p.i===player.checkpoint)||platforms[0];

@@ -53,5 +53,6 @@ test('new physics platforms are materially distinct and keep scene size bounded'
  assert.ok(s.snapshot().highestReached>=90);
  assert.ok(s.snapshot().upgradesTaken>=9);
  assert.ok(s.snapshot().wallClimbs>=3,'real vertical handhold sections must be traversed');
+ assert.equal(s.snapshot().wallClimbs,Math.floor(s.snapshot().highestReached/23),'each unique handhold wall must register only once');
  assert.ok(s.snapshot().climbing.stamina>=0&&s.snapshot().climbing.stamina<=100);
 });
