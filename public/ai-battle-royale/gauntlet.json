@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "AI Battle Royale",
-  "iteration": 32,
+  "iteration": 33,
   "updated": "2026-10-08",
   "verdict": "GAUNTLET NOT ACHIEVED — FRESH WEBGL SCREENSHOTS/BLIND CRITIC PENDING",
   "benchmark": "Fortnite Chapter 4 UE5.1 / Apex Legends / PUBG",
@@ -40,7 +40,8 @@
     "Loop 29 — corrected low-amplitude DC-biased procedural gunfire noise into bipolar 24-bit normalized wave samples; improves sound quality without external audio assets or non-deterministic playback.",
     "Loop 30 — replaced decorative exterior flat terrain with tessellated real 3D heightfield geometry and computed normal vectors; all heights outside actual collision board.",
     "Loop 31 — upgraded WebGL fragment surface materials with multiscale grain, specular metal-like highlights, smoother broad terrain coloration and physically inspired lighting.",
-    "Loop 32 — built legible original 3D biome hero landmark complexes: neon towers/skybridge, glacial cathedral and badlands refinery; entirely outside simulation authority."
+    "Loop 32 — built legible original 3D biome hero landmark complexes: neon towers/skybridge, glacial cathedral and badlands refinery; entirely outside simulation authority.",
+    "Loop 33 — added 3D camera-projected, live-public-state fighter identity/health nameplates with archetype accents and focus highlights, 6-person cap and responsive OBS hiding; surfaced renderer fallback diagnostics."
   ],
   "gaps": [
     "P0 — New real WebGL2 Chromium screenshots not yet reviewed; these code changes must not be mistaken for a passed visual bar.",

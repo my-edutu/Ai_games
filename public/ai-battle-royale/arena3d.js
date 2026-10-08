@@ -68,11 +68,11 @@
     'result=vec4(finalColor,1.0);',
     '}'
   ].join('\n');
-  let canvas=null,closeupLabel=null,gl=null,program=null,buffer=null,staticBuffer=null,dynamicBuffer=null,attr=null,uniform=null,lastSnapshot=null,disabled=forced2d||!host;
+  let canvas=null,closeupLabel=null,plateLayer=null,gl=null,program=null,buffer=null,staticBuffer=null,dynamicBuffer=null,attr=null,uniform=null,lastSnapshot=null,disabled=forced2d||!host;
   const reducedMotion=params.get('reducedMotion')==='1'||matchMedia('(prefers-reduced-motion: reduce)').matches;
   const reducedFlash=params.get('reducedFlash')==='1';
   let previousSnapshot=null,startedAt=0,animationId=0,lastPaintTime=0;
-  const status={mode:forced2d?'forced-2d':'initializing',frames:0,triangles:0,contenders:0,p95SubmitMs:0,sceneBuilds:0,quality:quality,activeEffects:0};
+  const status={mode:forced2d?'forced-2d':'initializing',frames:0,triangles:0,contenders:0,p95SubmitMs:0,sceneBuilds:0,quality:quality,activeEffects:0,lastError:null};
   const staticCache={key:null,vertices:0};
   const frameSamples=[];
   const headings=new Map();
@@ -138,7 +138,7 @@
     staticCache.key=null;staticCache.vertices=0;
     gl.enable(gl.DEPTH_TEST);gl.depthFunc(gl.LEQUAL);
     gl.disable(gl.CULL_FACE);gl.clearColor(.10,.17,.30,1);
-    status.mode='webgl2';document.body.dataset.battleRenderer='webgl2';
+    status.mode='webgl2';status.lastError=null;document.body.dataset.battleRenderer='webgl2';
   }
   if(!disabled){
     canvas=document.createElement('canvas');
@@ -146,25 +146,31 @@
     canvas.dataset.testid='battle-3d-canvas';
     canvas.setAttribute('aria-hidden','true');
     host.appendChild(canvas);
+    // Optional overlay: unavailable in headless lightweight contexts, and
+    // never creates a dependency for the real, authoritative 2D fallback.
+    plateLayer=document.createElement('div');
+    plateLayer.className='battle-3d-nameplates';
+    if(typeof plateLayer.appendChild==='function')host.appendChild(plateLayer);
+    else plateLayer=null;
     closeupLabel=document.createElement('div');
     closeupLabel.className='battle-3d-focus';
     closeupLabel.setAttribute('aria-label','Live action closeup');
     closeupLabel.textContent='● LIVE ACTION // AI SPECTATOR';
     host.appendChild(closeupLabel);
     canvas.addEventListener('webglcontextlost',event=>{
-      event.preventDefault();status.mode='context-lost';canvas.style.display='none';
+      event.preventDefault();status.mode='context-lost';status.lastError='WebGL context lost';canvas.style.display='none';
       document.body.dataset.battleRenderer='2d-fallback';
     });
     canvas.addEventListener('webglcontextrestored',()=>{
       try{initialize();canvas.style.display='';if(lastSnapshot)render(lastSnapshot)}
-      catch{status.mode='fallback-2d';disabled=true;canvas.style.display='none'}
+      catch(error){status.mode='fallback-2d';status.lastError=String(error?.message||error).slice(0,180);disabled=true;canvas.style.display='none'}
     });
     try{
       gl=canvas.getContext('webgl2',{antialias:true,alpha:false,powerPreference:'high-performance'});
       if(!gl)throw Error('webgl2-unavailable');
       initialize();
-    }catch{
-      status.mode='fallback-2d';disabled=true;canvas.remove();canvas=null;
+    }catch(error){
+      status.mode='fallback-2d';status.lastError=String(error?.message||error).slice(0,180);disabled=true;canvas.remove();canvas=null;
       document.body.dataset.battleRenderer='2d-fallback';
     }
   }
@@ -1110,6 +1116,39 @@
       gl.clearColor(.10,.17,.30,1);
     }
   }
+  function updateNameplates(snapshot,area,view,scale,zoom,yaw,pitch){
+    // Public AI personalities visible in the *actual* 3D view, not a fake HUD.
+    // Max six, no hidden player state, and no per-frame invented events.
+    if(!plateLayer||quality==='low'||area.width<950)return;
+    const alive=snapshot.combatants.filter(f=>f.alive);
+    const focusId=snapshot.focus?.id;
+    alive.sort((a,b)=>(a.id===focusId?-1000:0)-(b.id===focusId?-1000:0)||
+      (b.eliminations||0)-(a.eliminations||0));
+    const selected=alive.slice(0,6);
+    const cy=Math.cos(yaw),sy=Math.sin(yaw),cp=Math.cos(pitch),sp=Math.sin(pitch);
+    const aspect=area.width/area.height;
+    const nodes=[];
+    for(const f of selected){
+      const p=f.visual||pos(f.cell,snapshot.arena.width);
+      const px=p.x-view.x,pz=p.z-view.z,py=2.35;
+      const east=px*cy-pz*sy,along=px*sy+pz*cy,up=py*cp-along*sp;
+      const depth=py*sp+along*cp;
+      const w=Math.max(.55,1+depth*.013);
+      const nx=east*scale*zoom/aspect/w,ny=up*scale*zoom/w;
+      if(Math.abs(nx)>.94||ny<-.90||ny>.90)continue;
+      const tag=document.createElement('div');
+      tag.className='battle-3d-nameplate';
+      tag.dataset.archetype=f.archetype||'vanguard';
+      tag.dataset.focus=String(f.id===focusId);
+      tag.textContent=String(f.name||f.archetype||'CONTENDER').slice(0,21).toUpperCase()+
+        '  '+Math.max(0,Math.round(f.health||0))+' HP';
+      tag.style.left=(50+nx*50).toFixed(2)+'%';
+      tag.style.top=(50-ny*50).toFixed(2)+'%';
+      nodes.push(tag);
+    }
+    plateLayer.replaceChildren(...nodes);
+  }
+
   function paint(snapshot){
     const startSubmit=performance.now();
     if(disabled||!gl||gl.isContextLost()||status.mode!=='webgl2')return false;
@@ -1160,14 +1199,17 @@
       const zoom=winner?1.20:(close?1.15:1.10);
       gl.uniform3f(uniform[0],focus.x,0,focus.z);
       gl.uniform2f(uniform[1],scale*zoom/aspect,scale*zoom);
-      gl.uniform1f(uniform[2],.65+(reducedMotion?0:Math.sin(performance.now()/18000)*.035));
-      gl.uniform1f(uniform[3],.56);
+      const yaw=.65+(reducedMotion?0:Math.sin(performance.now()/18000)*.035);
+      const pitch=.56;
+      gl.uniform1f(uniform[2],yaw);
+      gl.uniform1f(uniform[3],pitch);
       gl.uniform1f(uniform[4],.013);
       bindSceneBuffer(dynamicBuffer);
       gl.bufferData(gl.ARRAY_BUFFER,data,gl.DYNAMIC_DRAW);
       dynamicVertexCount=data.length/9;
       gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
       drawScene();
+      updateNameplates(presented,area,focus,scale,zoom,yaw,pitch);
       spectatorCloseup(snapshot,area);
       status.frames++;status.triangles=(data.length/9+staticCache.vertices)/3;
       frameSamples.push(performance.now()-startSubmit);
@@ -1180,8 +1222,8 @@
       canvas.dataset.triangles=String(status.triangles);
       canvas.dataset.contenders=String(status.contenders);
       return true;
-    }catch{
-      disabled=true;status.mode='fallback-2d';
+    }catch(error){
+      disabled=true;status.mode='fallback-2d';status.lastError=String(error?.message||error).slice(0,180);
       document.body.dataset.battleRenderer='2d-fallback';
       canvas.style.display='none';return false;
     }

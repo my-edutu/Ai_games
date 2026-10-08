@@ -371,3 +371,31 @@ body[data-ux-revision="3"][data-high-contrast="true"] .arena-shell,
 body[data-ux-revision="3"][data-high-contrast="true"] .survivor-card{
   border-color:#fff;
 }
+
+/* Autonomous AI nameplates project only currently living, published agents. */
+body[data-ux-revision="3"] .battle-3d-nameplates{
+  position:absolute;inset:0;z-index:2;pointer-events:none;
+  overflow:hidden;
+}
+body[data-ux-revision="3"] .battle-3d-nameplate{
+  position:absolute;transform:translate(-50%,-100%);max-width:150px;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  font-size:10px;line-height:1.25;font-weight:950;letter-spacing:.07em;
+  font-variant-numeric:tabular-nums;text-transform:uppercase;
+  padding:5px 8px;border-radius:7px;
+  color:#f0fbff;background:rgba(7,23,53,.83);
+  border:1px solid rgba(119,223,255,.62);
+  box-shadow:0 4px 13px rgba(0,4,23,.46),0 0 8px rgba(78,233,255,.18);
+  text-shadow:0 1px 4px rgba(0,0,0,.70);
+}
+body[data-ux-revision="3"] .battle-3d-nameplate[data-archetype="vanguard"]{border-color:#ff9f78}
+body[data-ux-revision="3"] .battle-3d-nameplate[data-archetype="scavenger"]{border-color:#ffcf77}
+body[data-ux-revision="3"] .battle-3d-nameplate[data-archetype="tactician"]{border-color:#ccff89}
+body[data-ux-revision="3"] .battle-3d-nameplate[data-focus="true"]{
+  color:#0b1d35;background:var(--royal-lime);border-color:#efffc4;
+  box-shadow:0 4px 12px rgba(0,0,0,.35),0 0 14px rgba(206,255,88,.50);
+  text-shadow:none;z-index:3;
+}
+body.clean-feed .battle-3d-nameplates,
+body[data-battle-renderer="2d-fallback"] .battle-3d-nameplates{display:none}
+@media (max-width:949px){body[data-ux-revision="3"] .battle-3d-nameplates{display:none}}

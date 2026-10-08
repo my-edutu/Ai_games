@@ -156,3 +156,7 @@ No environment dressing, cosmetic shadow, UI display or audio function can chang
 - **Loop 32**: original biome hero signatures designed outside the arena: suspended neon entrance/skybridge and twin towers, faceted glacier gateway/cathedral, rusted dual-tower badlands refinery with luminous overhead platform. They are unambiguously scenery; **not** new playable buildings.
 
 **QA still required**: real browser shader compilation, exact-head CI, 1080p screenshot A/B, occlusion and mobile responsiveness, and independent Fortnite Chapter 4 visual comparison. Synthetic JS parsing and stub GPU tests are insufficient to claim production-grade rendered fidelity.
+
+## Gauntlet loop 33 — live 3D identity and diagnostics
+
+The 3D renderer now optionally projects up to six public surviving fighters into small archetype-coded DOM labels that move with the camera and do not disclose hidden simulation information. The focus target gets a highlighted identifier; labels are hidden on small screens, low-quality mode and clean OBS feeds, and cannot change targeting or gameplay. WebGL initialization/render failure messages are available as `BattleArena3D.status.lastError` for QA and safe 2D fallback debugging. No claim of authoritative camera/simulation edits or AAA character-label polish.
