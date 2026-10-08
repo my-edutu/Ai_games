@@ -15,6 +15,7 @@ let lanternFlame=null;
 let lanternLight=null;
 let ambientDust=null;
 let ground=null;
+let skyDome=null;
 let sunLight=null;
 let rimLight=null;
 let skyLight=null;
@@ -91,6 +92,24 @@ function stoneTexture(kind){
   c.putImageData(data,0,0);
   const texture=new THREE.CanvasTexture(canvas);texture.colorSpace=THREE.SRGBColorSpace;texture.wrapS=texture.wrapT=THREE.RepeatWrapping;texture.anisotropy=4;return texture;
 }
+function landscapeTexture(){
+  const canvas=document.createElement('canvas');canvas.width=256;canvas.height=256;
+  const c=canvas.getContext('2d');
+  c.fillStyle='#344541';c.fillRect(0,0,256,256);
+  for(let i=0;i<900;i++){
+    const x=seededNoise(i,3,99)*256,y=seededNoise(i,17,19)*256;
+    const r=.5+seededNoise(i,11,5)*8;
+    c.fillStyle=i%3===0?'rgba(13,25,24,.16)':i%3===1?'rgba(104,120,101,.07)':'rgba(180,170,125,.05)';
+    c.beginPath();c.ellipse(x,y,r,r*.27,seededNoise(i,8,29)*Math.PI,0,Math.PI*2);c.fill();
+  }
+  const tex=new THREE.CanvasTexture(canvas);
+  tex.colorSpace=THREE.SRGBColorSpace;
+  tex.wrapS=tex.wrapT=THREE.RepeatWrapping;
+  tex.repeat.set(22,22);
+  tex.anisotropy=4;
+  return tex;
+}
+const soilTexture=landscapeTexture();
 const wallTexture=stoneTexture('wall');
 const floorTexture=stoneTexture('floor');
 const bronzeTexture=stoneTexture('bronze');
@@ -114,7 +133,7 @@ const materials = {
   moss:new THREE.MeshStandardMaterial({color:0x32614c,roughness:1,side:THREE.DoubleSide}),
   goldLight:new THREE.MeshBasicMaterial({color:0xffdb8c}),
   aura:new THREE.MeshBasicMaterial({color:0x81ffdd,transparent:true,opacity:.38,side:THREE.DoubleSide,depthWrite:false}),
-  void:new THREE.MeshStandardMaterial({color:0x101d1d,roughness:1}),
+  void:new THREE.MeshStandardMaterial({map:soilTexture,color:0x607069,roughness:1}),
   paving:new THREE.MeshStandardMaterial({map:floorTexture,color:0x71877a,roughness:1})
 };
 const geometries = {
@@ -484,6 +503,7 @@ function render(now) {
     lanternLight.intensity=reducedMotion?7.5:7.1+Math.sin(now*.016)*.6;
   }
   if(ground) ground.position.set(explorer.position.x,-.46,explorer.position.z);
+  if(skyDome)skyDome.position.copy(explorer.position);
   if(ambientDust) {
     ambientDust.position.set(explorer.position.x,0,explorer.position.z);
     if(!reducedMotion)ambientDust.rotation.y+=seconds*.003;
@@ -542,6 +562,24 @@ function init() {
   scene=new THREE.Scene();
   scene.background=new THREE.Color(0x101b1f);
   scene.fog=new THREE.FogExp2(0x122227,.017);
+  // An original gradient night sky occupies empty horizon; it carries no undiscovered map geometry.
+  const domeGeometry=new THREE.SphereGeometry(115,36,18);
+  const colorValues=new Float32Array(domeGeometry.attributes.position.count*3);
+  const north=new THREE.Color('#142130'),horizon=new THREE.Color('#314940'),dusk=new THREE.Color('#415047');
+  const skyVertex=new THREE.Color();
+  for(let i=0;i<domeGeometry.attributes.position.count;i++){
+    const y=domeGeometry.attributes.position.getY(i);
+    const t=THREE.MathUtils.clamp((y/115+1)*.5,0,1);
+    if(t>.42)skyVertex.copy(horizon).lerp(north,(t-.42)/.58);
+    else skyVertex.copy(dusk).lerp(horizon,t/.42);
+    colorValues[i*3]=skyVertex.r;colorValues[i*3+1]=skyVertex.g;colorValues[i*3+2]=skyVertex.b;
+  }
+  domeGeometry.setAttribute('color',new THREE.BufferAttribute(colorValues,3));
+  skyDome=new THREE.Mesh(domeGeometry,new THREE.MeshBasicMaterial({
+    vertexColors:true,side:THREE.BackSide,depthWrite:false,fog:false
+  }));
+  skyDome.renderOrder=-20;
+  scene.add(skyDome);
   camera=new THREE.PerspectiveCamera(45,1,0.1,160);
   camera.position.set(10,15,19);
   skyLight=new THREE.HemisphereLight(0xc8ddd4,0x172622,2.1);
