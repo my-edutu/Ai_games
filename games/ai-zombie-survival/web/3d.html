@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#10191b">
+<title>AI Zombie Survival — 3D Gauntlet</title>
+<link rel="stylesheet" href="./gauntlet3d.css">
+</head>
+<body>
+<canvas id="scene" aria-label="Real-time 3D autonomous zombie survival scene. Drag to rotate camera; wheel to zoom."></canvas>
+<div id="fallback" hidden role="alert">This 3D build requires WebGL2. <a href="./index.html">Open the original 2.5D experience</a>.</div>
+<main id="hud" aria-live="off">
+<header class="top">
+  <div class="branding"><div class="eyebrow"><span class="pulse"></span> EDUTU AI GAMES / EXPERIMENTAL 3D</div><h1>DEAD ZONE <span>/ AUTONOMOUS SURVIVAL</span></h1></div>
+  <div class="right"><span id="status">AUTONOMOUS LIVE</span><span id="day">DAY 1 / DAWN</span></div>
+</header>
+<section class="hud-left" aria-label="Survival status">
+  <div class="label">SAFE HOUSE // OUTBREAK 001</div>
+  <div class="metric"><strong id="people">6 SURVIVORS</strong><span>SQUAD</span></div>
+  <div class="metric"><strong id="infected">180 INFECTED</strong><span>THREAT</span></div>
+  <div class="metric"><strong id="integrity">100% BASE</strong><span>DEFENSE</span></div>
+  <div class="divider"></div><div class="label">CURRENT OBJECTIVE</div><p id="goal">Survive the outbreak</p><p id="resources"></p>
+</section>
+<div class="sceneBadge"><span id="verdict">WEBGL2 TRUE 3D</span><span id="fps">RENDERER INITIALIZING</span></div>
+<footer class="bottom">
+  <div class="controls"><button id="togglePause" type="button">⏯ Pause / Resume</button><button id="focus" type="button">◎ Auto Director</button><a href="./progress.html">GAUNTLET PROGRESS ↗</a><a href="./index.html">2.5D VERSION ↗</a></div>
+  <div class="hints">DRAG ORBIT · SCROLL ZOOM · G CAMERA · H HUD · R NEW SEED · SPACE PAUSE</div>
+</footer>
+</main>
+<script type="module" src="./gauntlet3d.js"></script>
+</body>
+</html>
