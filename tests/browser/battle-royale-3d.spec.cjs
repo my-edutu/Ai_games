@@ -86,3 +86,19 @@ test('Gauntlet captures matched-state baseline and 3D candidate without altering
     await candidate.close();
   }
 });
+
+
+test('slow battle-state network replies never cause overlapping broadcast polls',async({page})=>{
+  let pending=0,highWater=0,requests=0;
+  await page.route('**/battle/state?*',async route=>{
+    pending++;requests++;
+    highWater=Math.max(highWater,pending);
+    await new Promise(resolve=>setTimeout(resolve,420));
+    try{await route.continue()}finally{pending--}
+  });
+  await page.goto(base+'/battle?muted=1&visual=2d',{waitUntil:'domcontentloaded'});
+  await page.waitForTimeout(1800);
+  expect(requests).toBeGreaterThanOrEqual(2);
+  expect(highWater).toBe(1);
+  await expect(page.locator('[data-testid="battle-canvas"]')).toBeVisible();
+});
