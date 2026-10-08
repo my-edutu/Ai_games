@@ -15,6 +15,10 @@ const confidence=document.getElementById('confidence-score');
 const runLabel=document.getElementById('run-label');
 const zoneNumber=document.getElementById('zone-number');
 const renderStatus=document.getElementById('render-state');
+const audienceMode=document.getElementById('audience-mode');
+const audiencePressure=document.getElementById('audience-pressure');
+const audienceFill=document.getElementById('audience-pressure-fill');
+const audienceEffect=document.getElementById('audience-effect');
 let currentRun='';
 let lastMessage='';
 const entries=[];
@@ -79,6 +83,15 @@ window.addEventListener('maze:frame',event=>{
     mission.textContent='FIND THE WAY OUT';
     missionStatus.textContent='EXPLORING';
   }
+  const influence=snapshot.audience||{};
+  const pressure=Number.isFinite(influence.pressure)?Math.max(0,Number(influence.pressure)):0;
+  audiencePressure.textContent=String(Math.round(pressure));
+  // Pressure has no fixed published maximum, so the UI shows a bounded illustrative bar.
+  audienceFill.style.width=Math.min(100,pressure)+'%';
+  audienceMode.textContent=influence.recordCategory==='audience-influenced'?'CHAT VS AI':'AUTONOMOUS';
+  const effects=Array.isArray(influence.activeEffects)?influence.activeEffects:[];
+  audienceEffect.textContent=effects.length?'Active: '+effects.map(e=>String(e).replaceAll('-',' ')).join(', ')+'.':
+    (influence.queued>0?'Audience events queued: '+influence.queued+'.':'No active interventions. The explorer makes its own decisions.');
   const captions=event.detail.audio?.captions||[];
   if(captions.length)addJournal(String(captions.at(-1)));
   // No oracle, seed or route truth is consumed or stored by the UX.
