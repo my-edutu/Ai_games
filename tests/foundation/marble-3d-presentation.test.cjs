@@ -127,12 +127,28 @@ test('WebGL competitor identity is projected from authoritative marble positions
     'cameraFromDirective',
     'projectToScreen',
     'marble.number',
-    'snapshot.leaderboard',
-    'snapshot.camera.directive',
+    'activeSnapshot.leaderboard',
+    'activeSnapshot.camera.directive',
+    'projectWithWebglMatrix',
+    'window.marbleRenderFrame',
+    "shell.dataset.identitySource",
+    "shell.dataset.identityTick",
     'status !== \'eliminated\'',
   ]);
   for (const forbidden of ['Math.random(', 'forceWinner', 'winnerOverride', 'teleportMarble']) {
     assert.equal(identity.includes(forbidden), false, `identity layer must remain presentation-only: ${forbidden}`);
   }
   execFileSync(process.execPath, ['--check', identityPath], { stdio: 'pipe' });
+});
+
+test('identity labels use exactly the same WebGL projection and authoritative tick as rendered spheres', () => {
+  includesAll(renderer, ['window.marbleRenderFrame', 'viewProjection', 'shell.dataset.webglTick']);
+  includesAll(identity, [
+    'projectWithWebglMatrix',
+    'frame.viewProjection',
+    'frame.marbles',
+    'frame.snapshot',
+    "shell.dataset.identitySource = synced ? 'webgl-frame' : 'independent-snapshot'",
+  ]);
+  includesAll(app, ['shell.dataset.hudTick', 'shell.dataset.hudArena', 'shell.dataset.hudArchetype']);
 });
