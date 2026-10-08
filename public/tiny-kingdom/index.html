@@ -64,6 +64,41 @@
 /* World color grade: lifts deliberately murky olive palette without changing simulation. */
 #world{filter:brightness(1.22) saturate(1.32) contrast(1.06)}
 @media(max-width:520px){.feed{top:auto;bottom:100px;height:185px;max-height:185px;overflow:auto;padding:10px}.atlas{height:202px}}
+
+/* Gauntlet 018 — high-contrast illuminated village controls, accessible world views. */
+:root{--sunlight:#ffdd91;--lagoon:#64f6db;--story:#fbf0d7;--coral:#ff9d78}
+#world{filter:brightness(1.31) saturate(1.52) contrast(1.08)}
+.brand{border-color:#fff5c586;box-shadow:0 18px 48px #082a3970,inset 0 1px #fff7}
+.name{color:#fffef6;text-shadow:0 3px 22px #061c28c0;font-size:clamp(23px,2.1vw,34px)}
+.overline{color:#adffdf}.subtitle{color:#d8fff1}
+.panel{background:linear-gradient(145deg,rgba(9,55,67,.95),rgba(18,72,73,.92) 45%,rgba(9,45,55,.94));border-color:#9cead371;box-shadow:0 17px 45px #031d2b9a,inset 0 1px #ffffff38}
+.sidebar>.panel:first-child{border-top:3px solid #ffd57f}.sidebar>.panel:nth-child(2){border-top:3px solid #75f5d9}.sidebar>.panel:nth-child(3){border-top:3px solid #8ed6ff}
+.stat{background:linear-gradient(145deg,#2c818787,#173f5f80);border-color:#bcffe050}
+.stat:nth-child(1){background:linear-gradient(145deg,#846534aa,#564c3ba4);border-color:#ffcd809c}.stat:nth-child(3){background:linear-gradient(145deg,#147b75aa,#164c71a4)}
+.stat strong{font-variant-numeric:tabular-nums;font-size:clamp(21px,2vw,27px);color:#fff9e7}
+.resource b{background:#ffe2a52b;color:#fff1c3;font-variant-numeric:tabular-nums}
+.atlas{background:linear-gradient(140deg,#0a5261ed,#124f5bea,#0e3e4be9);border:1px solid #95fff2a3;border-top:3px solid #a3fcff}
+#atlas-map{border-color:#dbfff5b5;background:#267e70}
+.feed{background:linear-gradient(165deg,#135765f0,#0c3945f5);border-color:#ffdd998f;border-top:3px solid #ffbd72}
+.feeditem{padding:12px 8px;border-left:3px solid #ffd17a9c;background:linear-gradient(90deg,#f9d18112,transparent 65%);margin-bottom:5px;border-radius:0 8px 8px 0}
+.feeditem:nth-child(even){border-left-color:#78e9e4}.feeditem span{letter-spacing:.55px;font-size:9px;color:#ffdfa4}
+.pill{background:linear-gradient(130deg,#0c6671ee,#144952ed);border-color:#a2ffeeab;color:#fffdf2}
+.bottom{background:linear-gradient(115deg,#0b5767ee,#063747f9 55%,#145c5cf2);border-color:#a6ffe4b5}
+.btn.active{background:linear-gradient(145deg,#fff1b9,#f5ba65)}
+.vignette{background:linear-gradient(180deg,#071f2822,transparent 23%,transparent 75%,#0929363d),radial-gradient(ellipse at center,transparent 68%,#08202f25)}
+.world-tour{position:fixed;left:50%;top:19px;transform:translateX(-50%);z-index:8;display:flex;align-items:center;gap:5px;padding:8px 10px 8px 14px;background:linear-gradient(100deg,#085766ed,#0d3f4de8);border:1px solid #9cfff4ac;border-radius:17px;box-shadow:0 14px 41px #05293290,inset 0 1px #fff6;backdrop-filter:blur(20px);pointer-events:auto;white-space:nowrap}
+.world-tour small{color:#a9ffe4;font-size:9px;line-height:1.45;letter-spacing:1.25px;font-weight:850;text-transform:uppercase;padding-right:9px;border-right:1px solid #bce6d366}
+.tour-btn{border:1px solid transparent;background:transparent;color:#f3fff4;padding:10px 11px;font:700 11px system-ui;cursor:pointer;border-radius:10px;transition:all .18s ease}
+.tour-btn:hover,.tour-btn:focus-visible{background:#72ffe5;color:#043c4b;transform:translateY(-1px);outline:0}
+.tour-btn[aria-pressed="true"]{background:linear-gradient(125deg,#ffe8a7,#f6ba5b);color:#153b49;box-shadow:0 3px 11px #fdcc875e}
+.realm-signal{position:fixed;left:50%;top:88px;transform:translateX(-50%);z-index:6;background:#0b4552dc;border:1px solid #b7ffe59c;box-shadow:0 11px 33px #082b3894;backdrop-filter:blur(16px);border-radius:0 0 13px 13px;color:#e9fff8;display:flex;gap:14px;align-items:center;padding:7px 16px;font-size:10px;white-space:nowrap;pointer-events:none}
+.realm-signal b{color:#ffe1a2;font-size:10px;letter-spacing:.7px}.realm-signal i{width:6px;height:6px;background:#61ffd9;border-radius:50%;box-shadow:0 0 11px #62ffe5;flex:none}
+.realm-signal[data-condition="warning"] i{background:#ffad82;box-shadow:0 0 11px #ff9b65}.realm-signal[data-condition="warning"] b{color:#ffc29a}
+@media(max-width:1250px){.world-tour small{display:none}.world-tour{top:94px}.realm-signal{top:142px}.atlas{top:171px}.feed{top:455px}}
+@media(max-width:790px){.world-tour{top:74px;padding:4px;gap:1px;border-radius:10px}.tour-btn{font-size:9px;padding:7px 6px}.realm-signal{display:none}.atlas{top:135px}.feed{top:362px}}
+@media(max-width:520px){.top{top:8px}.brand{padding:8px}.world-tour{top:83px;max-width:calc(100vw - 12px)}.tour-btn{font-size:9px;padding:7px 6px}.atlas{top:134px}.feed{top:auto;bottom:105px;height:174px}.sidebar{bottom:105px}}
+@media(prefers-reduced-motion:reduce){.tour-btn{transition:none}.tour-btn:hover{transform:none}}
+
 </style></head><body>
 <canvas id="world" aria-label="Live 3D simulation of a medieval valley with autonomous villagers"></canvas><div class="vignette"></div>
 <div class="top"><div class="brand"><div class="seal">♜</div><div><div class="overline">AI Civilization · World 001</div><div class="name">The Living Valley</div><div class="subtitle">A kingdom that writes its own story</div></div></div><div class="pill"><span class="live"></span><span id="clock">DAY 1 · DAWN</span><span style="color:#dec48b" id="weather">☀ CLEAR SKIES</span></div></div>
@@ -72,6 +107,8 @@
 <div class="feed panel"><h2>✦ Stories unfolding</h2><div id="feed"></div></div>
 <div class="hint">DRAG TO ORBIT · SCROLL TO ZOOM<br>EVERY CITIZEN HAS A NAME AND PURPOSE<br><a href="progress.html">VIEW GAUNTLET PROGRESS ↗</a></div>
 <aside class="atlas" aria-label="Interactive kingdom map"><div class="atlas-heading"><span>◈ THE KINGDOM ATLAS</span><b>LIVE</b></div><canvas id="atlas-map" width="460" height="330" aria-label="Map of homes and moving villagers; click to move camera"></canvas><div class="atlas-footer"><span id="atlas-season">✧ SEASONAL LANDSCAPE</span><em>↗ PAN CAMERA</em></div><div class="atlas-legend"><span><i style="background:#ffe29b"></i>Village</span><span><i style="background:#f9fce8"></i>People</span><span><i style="background:#7be5f9"></i>River</span></div></aside><div class="bottom"><button id="pause" class="btn active">Ⅱ Pause</button><span class="divider"></span><button class="btn active" id="speed1">1× Real time</button><button class="btn" id="speed4">4×</button><button class="btn" id="speed16">16×</button><span class="divider"></span><button class="btn" id="focus">◎ Follow villager</button><button class="btn" id="camera">◈ Cinematic</button><button class="btn" id="save">↓ Save world</button><button class="btn" id="restore">↑ Restore world</button><button class="btn" id="restart">↻ New world</button></div><div class="toast" id="toast"></div>
+<div class="world-tour" role="group" aria-label="Explore scenic village camera viewpoints"><small>EXPLORE<br>THE VALLEY</small><button class="tour-btn" data-scenic="valley" aria-pressed="true">✦ Village</button><button class="tour-btn" data-scenic="market" aria-pressed="false">◈ Market</button><button class="tour-btn" data-scenic="mill" aria-pressed="false">✧ Windmill</button><button class="tour-btn" data-scenic="orchard" aria-pressed="false">❀ Orchard</button><button class="tour-btn" data-scenic="river" aria-pressed="false">≈ Riverside</button></div>
+<div class="realm-signal" id="realm-signal" role="status" aria-live="off"><i></i><b id="realm-title">A LIVING KINGDOM</b><span id="realm-detail">Every villager shapes the valley</span></div>
 <script>
 (() => {
 'use strict';
@@ -383,7 +420,29 @@ function restoreWorld(){try{const stored=localStorage.getItem(SAVE_KEY);if(!stor
 function showToast(message){const node=document.getElementById('toast');node.textContent=message;node.style.opacity='1';clearTimeout(showToast.timer);showToast.timer=setTimeout(()=>node.style.opacity='0',3600)}
 start();const mat4multiply=(a,b)=>{let c=new Float32Array(16);for(let col=0;col<4;col++)for(let row=0;row<4;row++)for(let k=0;k<4;k++)c[col*4+row]+=a[k*4+row]*b[col*4+k];return c};function perspective(fov,aspect,near,far){let f=1/Math.tan(fov/2),m=new Float32Array(16);m[0]=f/aspect;m[5]=f;m[10]=(far+near)/(near-far);m[11]=-1;m[14]=(2*far*near)/(near-far);return m}function lookAt(eye,center,up){let z=eye.map((v,i)=>v-center[i]),zl=Math.hypot(...z);z=z.map(v=>v/zl);let x=[up[1]*z[2]-up[2]*z[1],up[2]*z[0]-up[0]*z[2],up[0]*z[1]-up[1]*z[0]],xl=Math.hypot(...x);x=x.map(v=>v/xl);let y=[z[1]*x[2]-z[2]*x[1],z[2]*x[0]-z[0]*x[2],z[0]*x[1]-z[1]*x[0]];let m=new Float32Array(16);m[0]=x[0];m[1]=y[0];m[2]=z[0];m[4]=x[1];m[5]=y[1];m[6]=z[1];m[8]=x[2];m[9]=y[2];m[10]=z[2];m[12]=-x.reduce((s,v,i)=>s+v*eye[i],0);m[13]=-y.reduce((s,v,i)=>s+v*eye[i],0);m[14]=-z.reduce((s,v,i)=>s+v*eye[i],0);m[15]=1;return m}
 let yaw=.7,pitch=.88,zoom=43,focusPoint=[0,0],dragging=false,lastX,lastY,screenTimer=0,frames=0;canvas.addEventListener('pointerdown',e=>{dragging=true;lastX=e.clientX;lastY=e.clientY;canvas.setPointerCapture(e.pointerId)});canvas.addEventListener('pointerup',()=>dragging=false);canvas.addEventListener('pointermove',e=>{if(!dragging)return;yaw+=(e.clientX-lastX)*.006;pitch=Math.max(.33,Math.min(1.38,pitch+(e.clientY-lastY)*.005));lastX=e.clientX;lastY=e.clientY;cinematic=false});canvas.addEventListener('wheel',e=>{zoom=Math.min(85,Math.max(16,zoom+e.deltaY*.035));e.preventDefault()},{passive:false});function button(id,fn){document.getElementById(id).onclick=fn}
-button('pause',()=>{frozen=!frozen;document.getElementById('pause').textContent=frozen?'▶ Resume':'Ⅱ Pause'});for(let v of [1,4,16])button('speed'+v,()=>{speed=v;for(let n of [1,4,16])document.getElementById('speed'+n).classList.toggle('active',n===v)});button('focus',()=>{follow=!follow;document.getElementById('focus').classList.toggle('active',follow)});button('camera',()=>{cinematic=!cinematic;document.getElementById('camera').classList.toggle('active',cinematic)});button('restart',()=>{city.splice(12);start()});button('cycleCitizen',()=>{selectedCitizen=(selectedCitizen+1)%people.length;updateUI()});button('save',saveWorld);button('restore',restoreWorld);
+button('pause',()=>{frozen=!frozen;document.getElementById('pause').textContent=frozen?'▶ Resume':'Ⅱ Pause'});for(let v of [1,4,16])button('speed'+v,()=>{speed=v;for(let n of [1,4,16])document.getElementById('speed'+n).classList.toggle('active',n===v)});button('focus',()=>{follow=!follow;document.getElementById('focus').classList.toggle('active',follow)});button('camera',()=>{cinematic=!cinematic;document.getElementById('camera').classList.toggle('active',cinematic)});button('restart',()=>{city.splice(12);start()});
+
+/* Player-controlled cinematic viewpoints; never affects authoritative state. */
+const scenicViews={valley:{focus:[0,0],zoom:43,yaw:.7,pitch:.88},market:{focus:[0,5],zoom:23,yaw:.52,pitch:.56},mill:{focus:[-27,-18],zoom:24,yaw:.66,pitch:.54},orchard:{focus:[-26,9],zoom:25,yaw:1.02,pitch:.63},river:{focus:[5,20],zoom:32,yaw:.84,pitch:.71}};
+document.querySelectorAll('.tour-btn').forEach(button=>button.addEventListener('click',()=>{
+ const next=scenicViews[button.dataset.scenic];if(!next)return;
+ follow=false;cinematic=false;focusPoint=next.focus.slice();yaw=next.yaw;pitch=next.pitch;zoom=next.zoom;
+ document.querySelectorAll('.tour-btn').forEach(item=>item.setAttribute('aria-pressed',String(item===button)));
+ document.getElementById('focus').classList.remove('active');
+ document.getElementById('camera').classList.remove('active');
+}));
+function updateRealmSignal(){
+ const container=document.getElementById('realm-signal');if(!container)return;
+ const unsafe=state.food<people.length*3||state.wood<10;
+ const message=state.food<people.length*3?['FOOD RESERVES LOW','Village traders are sourcing new grain']:
+  state.wood<10?['TIMBER SUPPLY LOW','The foresters are gathering resources']:
+  state.happiness<58?['CITIZEN WELLBEING','The settlement needs more stability']:
+  ['THE VALLEY IS THRIVING',people.length+' living citizens · '+state.buildCount+' buildings'];
+ container.dataset.condition=unsafe?'warning':'good';
+ document.getElementById('realm-title').textContent=message[0];
+ document.getElementById('realm-detail').textContent=message[1];
+}
+button('cycleCitizen',()=>{selectedCitizen=(selectedCitizen+1)%people.length;updateUI()});button('save',saveWorld);button('restore',restoreWorld);
 function weatherParticles(atmosphere){
  const weather=atmosphere.climate.weather;
  if(weather!=='rain'&&weather!=='snow')return;
@@ -443,7 +502,7 @@ for(let i=0;i<4;i++)wheat(19+i*1.8,1);fenceLine(16,-2,6);fenceLine(16,4,6);fence
 market(0,5);well(-15,4);villageGarden(12,11);villageGarden(-17,-3);guildBanner(-2,3);guildBanner(5,-2);lantern(-5,-7,1.7);lantern(6,9,1.45);lantern(2,6,1.7);lantern(-14,6,1.45);for(let i=0;i<7;i++)stoneBoulder(-23+(i*1.8),5+Math.sin(i*3)*1.3,.65+(i%3)*.18);
 for(let i=0;i<5;i++){let xx=-17+i*1.3,zz=-14+(i%2)*1.4;box(xx,terrain(xx,zz),zz,1,.45,.64,rgb(0x7d5d45))}
 for(const p of people)villager(p);weatherParticles(atmosphere);
-const elevation=Math.sin(pitch)*zoom,rad=Math.cos(pitch)*zoom,eye=[focusPoint[0]+Math.sin(yaw)*rad,elevation,focusPoint[1]+Math.cos(yaw)*rad];let m=mat4multiply(perspective(Math.PI/3.2,w/h,.1,190),lookAt(eye,[focusPoint[0],.25,focusPoint[1]],[0,1,0]));gl.uniformMatrix4fv(uniforms.viewProjection,false,m);gl.uniform3f(uniforms.fogColor,...atmosphere.fog);gl.uniform3f(uniforms.sunTint,...atmosphere.light);gl.uniform3f(uniforms.sunDirection,Math.cos(state.t/24*6.283),.3+atmosphere.daylight*.9,Math.sin(state.t/24*6.283));lastFrameTriangles=data.length/27;gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(data),gl.DYNAMIC_DRAW);gl.drawArrays(gl.TRIANGLES,0,data.length/9);if((frames++%14)===0){updateUI();drawAtlas()}}
+const elevation=Math.sin(pitch)*zoom,rad=Math.cos(pitch)*zoom,eye=[focusPoint[0]+Math.sin(yaw)*rad,elevation,focusPoint[1]+Math.cos(yaw)*rad];let m=mat4multiply(perspective(Math.PI/3.2,w/h,.1,190),lookAt(eye,[focusPoint[0],.25,focusPoint[1]],[0,1,0]));gl.uniformMatrix4fv(uniforms.viewProjection,false,m);gl.uniform3f(uniforms.fogColor,...atmosphere.fog);gl.uniform3f(uniforms.sunTint,...atmosphere.light);gl.uniform3f(uniforms.sunDirection,Math.cos(state.t/24*6.283),.3+atmosphere.daylight*.9,Math.sin(state.t/24*6.283));lastFrameTriangles=data.length/27;gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(data),gl.DYNAMIC_DRAW);gl.drawArrays(gl.TRIANGLES,0,data.length/9);if((frames++%14)===0){updateUI();drawAtlas();updateRealmSignal()}}
 requestAnimationFrame(render);window.__tinyKingdom={getState:()=>JSON.parse(JSON.stringify({state,people:people.map(({name,job,x,z,target})=>({name,job,x,z,target}))})),setSpeed:x=>{speed=x},step,reset:start,renderer:()=>canvas.getContext('webgl')?'webgl':'software',metrics:()=>({citizens:people.length,buildings:city.length+2,day:Math.floor(state.t/24)+1,food:state.food,wood:state.wood,gold:state.gold,relationships:people.filter(p=>p.friend).length}),route:(a,b)=>routeBetween(a[0],a[1],b[0],b[1]),walkable:(p)=>walkable(p[0],p[1]),getNavigation:()=>people.map(p=>({name:p.name,position:[p.x,p.z],target:p.target,remaining:p.path?.length||0,path:p.path,activity:p.activity,hunger:p.hunger,energy:p.energy})),exportSnapshot,restoreSnapshot,saveWorld,restoreWorld,climateAt,skyConditions,getCitizenProfiles:()=>cloneData(people.map(({name,job,trait,friend,bonds,energy,hunger,activity})=>({name,job,trait,friend,bonds,energy,hunger,activity}))),getSelectedCitizen:()=>people[selectedCitizen]?.name,routeCacheMetrics:()=>({entries:routeCache.size,hits:cacheHits,misses:cacheMisses}),getCamera:()=>({yaw,pitch,zoom,focus:focusPoint.slice(),follow,cinematic}),getTerrainHeight:(x,z)=>terrain(x,z),getWildfloraCount:()=>wildflora.length,renderStats:()=>({terrainRebuilds,terrainCacheKey,terrainCacheTriangles,lastFrameTriangles}),setCamera:o=>{yaw=Number.isFinite(o.yaw)?o.yaw:yaw;pitch=Number.isFinite(o.pitch)?Math.max(.25,Math.min(1.45,o.pitch)):pitch;zoom=Number.isFinite(o.zoom)?Math.max(9,Math.min(85,o.zoom)):zoom;if(Array.isArray(o.focus)&&o.focus.length===2)focusPoint=o.focus.slice(0,2)}};
 })();
 </script></body></html>
