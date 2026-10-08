@@ -68,13 +68,13 @@ export function createTowerSky(THREE,scene){
   }));
   distantDust.frustumCulled=false;shafts.add(distantDust);
   const palette={
-    foundry:[0x0d1725,0x865d58,0x262b3e,0xffbd74,0],
-    ruins:[0x091e1e,0x678e75,0x253a32,0xbcffc8,0],
-    clockwork:[0x171e2b,0x92775b,0x33293a,0xffcc77,0],
-    storm:[0x10172b,0x627798,0x24273d,0x95b8ff,0],
-    void:[0x080b1d,0x504078,0x0f102c,0x9876ff,1]
+    foundry:[0x34445c,0xb48170,0x455267,0xffbd74,0],
+    ruins:[0x294a43,0x89a68b,0x3b574a,0xbcffc8,0],
+    clockwork:[0x34465f,0xb29570,0x49465d,0xffcc77,0],
+    storm:[0x304667,0x8198b8,0x394765,0x95b8ff,0],
+    void:[0x242b50,0x776198,0x303358,0x9876ff,1]
   };
-  let biome='foundry';
+  let biome='';
   function setTheme(theme){
     if(theme===biome)return;
     biome=theme;const c=palette[theme]||palette.foundry;

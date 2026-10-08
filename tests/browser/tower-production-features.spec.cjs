@@ -31,9 +31,15 @@ test('manual mode genuinely moves the physics character and jumps while autonomo
   await page.keyboard.down('KeyD');await page.waitForTimeout(650);await page.keyboard.up('KeyD');
   const moved=await page.evaluate(()=>({...window.__TOWER_VOLUMETRIC_STATE__}));
   expect(moved.x).toBeGreaterThan(p.x+.1);
-  await page.keyboard.down('Space');await page.waitForTimeout(250);await page.keyboard.up('Space');
+  // The movement test may leave the hero over a ledge; reload for a grounded jump.
+  await page.reload({waitUntil:'domcontentloaded'});
+  await page.waitForFunction(()=>window.__TOWER_VOLUMETRIC_STATE__?.status==='live',null,{timeout:30000});
+  const beforeJump=await page.evaluate(()=>({...window.__TOWER_VOLUMETRIC_STATE__}));
+  await page.keyboard.down('Space');
+  try{await page.waitForFunction(y=>window.__TOWER_VOLUMETRIC_STATE__?.y>y+.5,beforeJump.y,{timeout:15000});}
+  finally{await page.keyboard.up('Space');}
   const jump=await page.evaluate(()=>({...window.__TOWER_VOLUMETRIC_STATE__}));
-  expect(jump.y).toBeGreaterThan(moved.y+.5);
+  expect(jump.y).toBeGreaterThan(beforeJump.y+.5);
   expect(jump.autonomous).toBe(false);
 });
 test('real captured WebGL frames are present on the live Gauntlet page',async({page})=>{

@@ -70,6 +70,7 @@ test('cinematic sky changes light shafts, background hues and star density acros
  const make=new Function(src+';return createTowerSky;')();
  const scene=new THREE.Scene(),camera=new THREE.PerspectiveCamera();
  const sky=make(THREE,scene);
+ assert.equal(sky.sky.material.uniforms.top.value.getHex(),0x34445c);
  const colors=[];
  for(const theme of ['foundry','ruins','clockwork','storm','void']){
    sky.setTheme(theme);colors.push(sky.sky.material.uniforms.top.value.getHex());

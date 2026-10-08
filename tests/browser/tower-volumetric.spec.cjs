@@ -5,6 +5,7 @@ const artifacts=path.resolve(__dirname,'../../artifacts/tower-phase3');
 test.use({launchOptions:{args:['--enable-webgl','--use-gl=angle','--use-angle=swiftshader','--enable-unsafe-swiftshader']}});
 test.beforeAll(()=>fs.mkdirSync(artifacts,{recursive:true}));
 test('actual 3-axis autonomous world moves through depth and height',async({page})=>{
+  test.setTimeout(60000);
   const errors=[];
   page.on('pageerror',e=>errors.push(e.message));
   page.on('console',m=>{if(m.type()==='error')errors.push(m.text())});
@@ -16,7 +17,8 @@ test('actual 3-axis autonomous world moves through depth and height',async({page
   expect(first.renderMetrics.drawCalls).toBeGreaterThan(0);
   expect(first.dimensionality).toBe(3);
   expect(first.autonomous).toBe(true);
-  await page.waitForTimeout(5000);
+  // Observe 60 actual simulation ticks, not a fixed wall-clock delay under software WebGL.
+  await page.waitForFunction(tick=>window.__TOWER_VOLUMETRIC_STATE__?.tick>tick+60,first.tick,{timeout:40000});
   const second=await page.evaluate(()=>({...window.__TOWER_VOLUMETRIC_STATE__,renderMetrics:{...window.__TOWER_VOLUMETRIC_RENDER_METRICS__}}));
   expect(second.renderMetrics.frames).toBeGreaterThan(first.renderMetrics.frames);
   expect(second.renderMetrics.gpuGeometries).toBeGreaterThan(0);
