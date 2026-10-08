@@ -140,17 +140,18 @@
   };
   const animate = () => {
     const frameStart=performance.now();
+    const dt=Math.max(0,Math.min(.06,(frameStart-previousFrameTime)/1000));
+    previousFrameTime=frameStart;
     size();
     const elapsed=clock.getElapsedTime();
     climber.animate(elapsed,document.body.dataset.reducedMotion==='true');
     if(importedClimber){
-      const time=performance.now();importedClimber.animate((time-previousFrameTime)/1000,climber.pose);
+      importedClimber.animate(dt,climber.pose);
       importedClimber.root.position.copy(climber.root.position);
       importedClimber.root.scale.copy(climber.root.scale);
     }
-    previousFrameTime=performance.now();
     architecture.animate(elapsed,document.body.dataset.reducedMotion==='true');
-    vfx.update((performance.now()-previousFrameTime)/1000,lastState?{
+    vfx.update(dt,lastState?{
       x:climber.root.position.x,y:climber.root.position.y,z:climber.root.position.z,
       dx:Number(lastState.player?.vx||0)/1000,dy:Number(lastState.player?.vy||0)/1000
     }:null,lastState?.theme,Number(lastState?.dangerPermille||0)/1000,document.body.dataset.reducedMotion==='true');
