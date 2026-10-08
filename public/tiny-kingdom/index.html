@@ -102,7 +102,7 @@ function climateAt(time){
  const yieldMultiplier=([1.08,1.34,1.13,.68][season])*(weather==='rain'?1.17:weather==='snow'?.89:1);
  return {day,year:Math.floor((day-1)/YEAR_DAYS)+1,season,seasonName:SEASONS[season],weather,yieldMultiplier,temperature:[15,26,13,-2][season]+(weather==='clear'?2:weather==='snow'?-4:0)};
 }
-function terrain(x,z){return .13*Math.sin(x*.32)*Math.cos(z*.24)+.7*Math.pow(Math.abs(x)/40,2)+.25*Math.pow(Math.abs(z)/38,2)}
+function terrain(x,z){const d=Math.hypot(x,z),edge=Math.max(0,Math.min(1,(d-24)/18));const upland=edge*edge*(2.8+1.8*Math.sin(x*.18+z*.11)*Math.cos(z*.24));return .13*Math.sin(x*.32)*Math.cos(z*.24)+.7*Math.pow(Math.abs(x)/40,2)+.25*Math.pow(Math.abs(z)/38,2)+upland}
 // Continuous grass vertex colours and normals remove the obvious checkerboard mesh.
 function turfColor(x,z){const moss=Math.sin(x*.17+z*.065)*Math.cos(z*.23)*.045+Math.sin(x*.73-z*.61)*.012;const ridge=Math.max(0,terrain(x,z)-.6)*.033;const season=climateAt(state?.t??7).season;
  const snowy=season===3&&climateAt(state.t).weather==='snow',scale=[1,1.06,.80,.83][season];
