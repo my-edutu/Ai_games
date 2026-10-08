@@ -30,7 +30,7 @@ const material = (hex, metalness=0, roughness=0.79) => {
   if (!matCache.has(key)) matCache.set(key, new THREE.MeshStandardMaterial({color:hex, metalness,roughness}));
   return matCache.get(key);
 };
-function box(parent, w,h,d, x,y,z, color, cast=true) {
+function box(parent, w,h,d, x,y,z, color, cast=false) {
   const key = [w,h,d].join(':');
   if (!geomCache.has(key)) geomCache.set(key, new THREE.BoxGeometry(w,h,d));
   const mesh = new THREE.Mesh(geomCache.get(key), material(color));
@@ -42,13 +42,13 @@ function ball(parent, size, x,y,z, color) {
   const key='sphere-'+size;
   if (!geomCache.has(key)) geomCache.set(key,new THREE.IcosahedronGeometry(size,2));
   const mesh=new THREE.Mesh(geomCache.get(key), material(color));
-  mesh.position.set(x,y,z);mesh.castShadow=true;parent.add(mesh);return mesh;
+  mesh.position.set(x,y,z);mesh.castShadow=false;parent.add(mesh);return mesh;
 }
 function cylinder(parent,rTop,rBottom,height,x,y,z,color,segments=10) {
   const key=[rTop,rBottom,height,segments].join(':');
   if(!geomCache.has(key))geomCache.set(key,new THREE.CylinderGeometry(rTop,rBottom,height,segments));
   const mesh=new THREE.Mesh(geomCache.get(key),material(color));
-  mesh.position.set(x,y,z);mesh.castShadow=true;parent.add(mesh);return mesh;
+  mesh.position.set(x,y,z);mesh.castShadow=false;parent.add(mesh);return mesh;
 }
 function labelSprite(parent,text,x,y,z,{color='#fff2cf',bg='#1d3947',scale=1}={}) {
   const c=document.createElement('canvas');c.width=512;c.height=128;
@@ -84,7 +84,7 @@ const scene=new THREE.Scene();
 const camera=new THREE.PerspectiveCamera(52,1,.15,220);
 const hemi=new THREE.HemisphereLight(0xecfaff,0x647261,1.2);scene.add(hemi);
 const sun=new THREE.DirectionalLight(0xffe0a3,3.1);sun.position.set(-9,17,13);sun.castShadow=true;
-sun.shadow.mapSize.set(1024,1024);sun.shadow.camera.left=-24;sun.shadow.camera.right=24;
+sun.shadow.mapSize.set(768,768);sun.shadow.camera.left=-24;sun.shadow.camera.right=24;
 sun.shadow.camera.top=20;sun.shadow.camera.bottom=-18;sun.shadow.camera.near=0.5;sun.shadow.camera.far=70;scene.add(sun);
 const terrain=new THREE.Group();scene.add(terrain);
 const hazards=new THREE.Group();scene.add(hazards);
@@ -110,7 +110,25 @@ function makeShop(parent,x,z,seed,night=false){
     box(parent,width*.18,.66,.06,wx,height-1.15,facade+front*.045,night?0xffda8a:0x345b66,false);
     box(parent,.07,.72,.10,wx,height-1.15,facade+front*.09,0xe3d7b9,false);
   }
+  // Facade craft: shade/shelter, shutters, drainage, masonry bands and window trim.
   box(parent,width+.34,.16,.65,x,2.37,facade+front*.55,0x335566);
+  const motif=pick([0xf6ba53,0x148c83,0xb64b62,0xe0d8ba],seed+43);
+  for(let k=0;k<7;k++){
+    const a=x-width*.43+k*width*.86/6;
+    box(parent,.08,.65,.20,a,2.17,facade+front*.68,motif,false);
+  }
+  box(parent,width*.80,.13,.07,x,1.80,facade+front*.10,0xc5d1c5,false);
+  box(parent,width*.80,.13,.07,x,.58,facade+front*.11,0xa9b1aa,false);
+  for(let j=0;j<8;j++){
+    const y=.73+j*.13;
+    box(parent,width*.71,.025,.055,x,y,facade+front*.12,j%2?0x68818a:0x536e79,false);
+  }
+  box(parent,width*.10,1.47,.15,x-width*.39,1.27,facade+front*.20,0x817a67,false);
+  box(parent,width*.10,1.47,.15,x+width*.39,1.27,facade+front*.20,0x817a67,false);
+  if(seed%3===0){
+    box(parent,width*.30,.30,.40,x-width*.33,.39,facade+front*.89,0x846a51,false);
+    for(let t=0;t<3;t++)ball(parent,.12,x-width*.4+t*.2,.64,facade+front*.94,t%2?0xeb9b4c:0x3d925e);
+  }
   if(seed%4===0)labelSprite(parent,pick(['JOLLOF STOP','OJA MART','EKO TECH','SUYA SPOT','FRESH MARKET','PHONE HUB'],seed+3),x,2.81,facade+front*.68,{scale:.45,bg:'#154456'});
 }
 function makeBus(parent,x,z,variant=0){
@@ -127,6 +145,18 @@ function makeBus(parent,x,z,variant=0){
       const hub=cylinder(b,.15,.15,.185,wx,.41,side*.81,0xaab3b4,12);hub.rotation.x=Math.PI/2;
     }
   }
+  // Distinctive danfo details: wraparound windscreens, side stripe, rear vents, route board.
+  box(b,.065,.72,1.05,1.45,1.65,0,0x254d62,false);
+  box(b,.065,.045,1.20,1.48,1.20,0,0xe7ddac,false);
+  box(b,.10,.18,1.12,1.43,2.07,0,0x2a3742,false);
+  for(const side of [-1,1]){
+    box(b,2.24,.11,.032,-.04,.89,side*.699,0x1a3a43,false);
+    box(b,.12,.16,.16,1.48,1.58,side*.80,0x171e25,false);
+    box(b,.22,.055,.30,1.50,1.54,side*.96,0x9ca9a7,false);
+    box(b,.075,.49,.036,.42,1.53,side*.73,0xdacb9f,false);
+  }
+  box(b,1.15,.12,.50,-.25,2.20,0,0x5b6672,false);
+  for(let t=0;t<4;t++)box(b,.065,.09,.53,-.78+t*.38,2.25,0,0xced4c8,false);
   box(b,.10,.28,.3,1.40,.78,-.39,0xf6f0bd,false);
   box(b,.10,.28,.3,1.40,.78,.39,0xf6f0bd,false);
   b.userData.bus=true;return b;
@@ -154,7 +184,7 @@ function makeLamp(parent,x,z,night){
   cylinder(parent,.065,.085,5.0,x,2.5,z,0x47515b);
   box(parent,1,.10,.22,x+.44,5.00,z,0x47515b);
   box(parent,.56,.06,.40,x+.90,4.92,z,night?0xffe4a7:0xb7c6c3,false);
-  if(night){
+  if(night && Math.floor((x+5)/20)%3===0){
     const light=new THREE.PointLight(0xffbd78,6,7);
     light.position.set(x+.90,4.70,z);parent.add(light);
   }
@@ -176,6 +206,14 @@ function buildWorld(snapshot) {
     box(terrain,length,.25,1.1,length/2-4,.06,side*4.05,0xc6ad91,false);
     box(terrain,length,.25,.28,length/2-4,-.17,side*3.42,0x303e42,false);
   }
+  // Route remains mechanically planar. These decals and drain slabs are cosmetic.
+  for(let x=0;x<length-5;x+=9.4){
+    for(const side of [-1,1]){
+      box(terrain,1.55,.022,.40,x,-.028,side*3.0,0x283f44,false);
+      box(terrain,1.20,.022,.06,x,-.011,side*3.0,0x687678,false);
+      box(terrain,.09,.10,.56,x+.9,.17,side*4.01,0xc2b8a7,false);
+    }
+  }
   for(let x=-3;x<length-5;x+=4.2){
     box(terrain,1.85,.026,.085,x,.006,-1.05,0xece0bd,false);
     box(terrain,1.85,.026,.085,x,.006,1.04,0xece0bd,false);
@@ -191,6 +229,12 @@ function buildWorld(snapshot) {
     if(i%3===0) makeTree(terrain,x+.4,4.95,i+4);
     if(i%4===0) makeLamp(terrain,x,-4.40,night);
     if(i%4===1) makeBus(terrain,x+1.0,-2.42,i);
+    if(i%5===0){
+      box(terrain,.65,.50,.50,x+.45,.28,4.85,0x4e7365,false);
+      box(terrain,.74,.08,.60,x+.45,.57,4.85,0x254e58,false);
+      cylinder(terrain,.10,.12,1.45,x+1.8,.73,4.40,0x6b6257);
+      ball(terrain,.20,x+1.8,1.56,4.40,0xe7bb65);
+    }
     if(worldState.quality!=='low' && i%3===2) {
       const npc=makePedestrian(ambient,x+2.0,4.55,i+32);
       npc.userData.baseX=x+2.0;
@@ -241,6 +285,8 @@ function buildWorld(snapshot) {
   }
   box(terrain,.24,4.6,.24,snapshot.route.finishX,2.30,-3.02,0xffc857);
   labelSprite(terrain,'FINISH LINE',snapshot.route.finishX,4.48,-3,{scale:1,bg:'#173d4c'});
+  // Limit terrain shadow casters; the actor and reactive dangers retain silhouettes.
+  terrain.traverse(node=>{if(node.isMesh)node.castShadow=false;});
   worldState.district=district;worldState.finish=snapshot.route.finishX;
 }
 // Reusable, bounded, presentation-only rain particles for Lagos showers.
