@@ -348,3 +348,46 @@ test('camera gauntlet contrasts same public match using cinematic hero and tacti
     await Promise.all(pages.map(page=>page.close()));
   }
 });
+
+
+test('original local GPU surface atlas loads and compares against same-state material rollback',async({browser,request})=>{
+  const atlas=await request.get(base+'/battle/material-atlas.svg');
+  expect(atlas.ok()).toBeTruthy();
+  expect(atlas.headers()['content-type']).toContain('image/svg+xml');
+  const surface=await atlas.text();
+  expect(surface).toContain('Original Battle Royale surface atlas');
+  expect(surface).not.toContain('<script');
+  expect(surface).not.toContain('http://');
+
+  const source=await request.get(base+'/battle/state?w=1600&h=900');
+  expect(source.ok()).toBeTruthy();
+  const payload=await source.json(),fixture=JSON.stringify(payload);
+  const pages=[];
+  try{
+    for(const materials of ['on','off']){
+      const page=await browser.newPage({viewport:{width:1600,height:900}});
+      pages.push(page);
+      await page.route('**/battle/state?*',route=>route.fulfill({
+        status:200,contentType:'application/json',body:fixture
+      }));
+      await page.goto(base+'/battle?muted=1&camera=hero&materials='+materials);
+      await page.waitForFunction(()=>window.BattleArena3D?.status.frames>0);
+      const mode=await page.evaluate(()=>window.BattleArena3D.status.mode);
+      if(mode==='webgl2'){
+        if(materials==='on'){
+          await page.waitForFunction(()=>window.BattleArena3D.status.materialAtlas==='ready',
+            {timeout:15000});
+        }
+        const info=await page.evaluate(()=>({...window.BattleArena3D.status}));
+        expect(info.materialAtlas).toBe(materials==='off'?'disabled':'ready');
+        expect(info.cameraMode).toBe('hero');
+        expect(info.lastError).toBeNull();
+        await page.screenshot({path:path.join(captures,'material-'+materials+'-hero.png')});
+      }
+      expect(await page.evaluate(()=>window.__BATTLE_PUBLIC_STATE__.runToken))
+        .toBe(payload.snapshot.runToken);
+    }
+  }finally{
+    await Promise.all(pages.map(page=>page.close()));
+  }
+});
