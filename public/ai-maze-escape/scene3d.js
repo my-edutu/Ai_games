@@ -194,6 +194,7 @@ const geometries = {
 };
 const worldCraft=makeWorldCraft(THREE);
 const characterArt=makeCharacterArt(THREE);
+let ghostFactory=null;
 const atmosphere=createAtmosphere(THREE);
 const cinematics=createCinematicDirector(THREE);
 const moments=createMomentEffects(THREE);
@@ -236,7 +237,7 @@ function addGlow(parent,position,size,color){
   return glow;
 }
 function humanoid(){return characterArt.explorer()}
-function monster(){return characterArt.wraith()}
+function monster(){return ghostFactory?ghostFactory():characterArt.wraith()}
 function clearWorld() {
   for(const entry of [...world.children]) {
     world.remove(entry);
@@ -512,9 +513,13 @@ function rebuild(snapshot) {
   previousRun=snapshot.runToken;
   previousRevision=snapshot.revision;
 }
+function releaseEnemy(enemy){
+  enemy.userData.animator?.stop();
+  dynamic.remove(enemy);
+}
 function syncThreats(snapshot,reset){
   if(reset){
-    for(const enemy of threats) dynamic.remove(enemy);
+    for(const enemy of threats) releaseEnemy(enemy);
     threats.length=0;
   }
   const observed=new Set();
@@ -535,7 +540,7 @@ function syncThreats(snapshot,reset){
   }
   for(let i=threats.length-1;i>=0;i--){
     if(!observed.has(threats[i].userData.id)){
-      dynamic.remove(threats[i]);
+      releaseEnemy(threats[i]);
       threats.splice(i,1);
     }
   }
@@ -656,6 +661,8 @@ function render(now) {
     }
   }
   for(const enemy of threats){
+    const movingThreat=Boolean(enemy.userData.target&&enemy.position.distanceTo(enemy.userData.target)>.07);
+    enemy.userData.animator?.update(seconds,movingThreat);
     if(enemy.userData.target){
       if(reducedMotion)enemy.position.copy(enemy.userData.target);
       else enemy.position.lerp(enemy.userData.target,Math.min(1,seconds*6));
@@ -748,6 +755,8 @@ function render(now) {
       riggedCharacter:window.__MAZE_3D_MODEL__?.status||'procedural',
       rigBones:window.__MAZE_3D_MODEL__?.bones||0,
       observedHunterCount:threats.length,
+      animatedThreatRig:window.__MAZE_3D_MONSTER__?.status||'procedural',
+      ghostAnimationClips:window.__MAZE_3D_MONSTER__?.clips?.length||0,
       atmosphereParticles:320,
       artDetails:world.userData.artStats||null,
       visualTheme:window.__MAZE_3D_THEME__,
@@ -757,6 +766,24 @@ function render(now) {
       qualityMode:renderBudget.mode,
       pixelRatio:renderBudget.ratio,
       webgl2:renderer.capabilities.isWebGL2
+    };
+  }
+}
+async function loadSpectralThreats(){
+  try{
+    const {loadSpectralPrefab}=await import('/maze/spectral-assets.js');
+    if(!active)return;
+    const prefab=await loadSpectralPrefab(THREE);
+    if(!active)return;
+    ghostFactory=prefab.spawn;
+    window.__MAZE_3D_MONSTER__={
+      status:'loaded',source:prefab.source,
+      bones:prefab.boneCount,meshes:prefab.meshCount,clips:prefab.clips
+    };
+    if(lastFrame?.snapshot)syncThreats(lastFrame.snapshot,true);
+  }catch{
+    window.__MAZE_3D_MONSTER__={
+      status:'fallback',source:'Quaternius Ultimate Monsters CC0'
     };
   }
 }
@@ -912,6 +939,7 @@ function init() {
   active=true;
   window.__MAZE_3D_READY__=true;
   void loadRiggedHero();
+  void loadSpectralThreats();
   requestAnimationFrame(render);
 }
 init();
