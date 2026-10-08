@@ -404,6 +404,14 @@ function render(now) {
   settledCamera=true;
   camera.lookAt(smoothedLook.x,.7,smoothedLook.z);
   renderer.render(scene,camera);
+  if(!window.__MAZE_3D_METRICS__ || now-(window.__MAZE_3D_METRICS__.sampleAt||0)>1000){
+    window.__MAZE_3D_METRICS__={
+      active:true,sampleAt:now,drawCalls:renderer.info.render.calls,
+      triangles:renderer.info.render.triangles,
+      geometryObjects:world.children.length,
+      webgl2:renderer.capabilities.isWebGL2
+    };
+  }
 }
 function init() {
   if(stateQuery.get('render')==='2d')return;
