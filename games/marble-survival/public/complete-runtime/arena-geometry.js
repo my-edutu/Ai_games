@@ -45,7 +45,35 @@
     };
   }
 
-  const api = Object.freeze({ deckLayout });
+  // Match all decorative lane/edge markings to the same physically open
+  // topology. Nothing should hover across missing track like a ghost bridge.
+  function solidLineSegments(arena, x, startY=0, endY=arena.height) {
+    if(!Number.isFinite(x)||!Number.isFinite(startY)||!Number.isFinite(endY)
+      ||!arena||!Number.isFinite(arena.width)||!Number.isFinite(arena.height)
+      ||arena.width<=0||arena.height<=0)return [];
+    if(x<0||x>arena.width)return [];
+    const start=clamp(Math.min(startY,endY),0,arena.height);
+    const end=clamp(Math.max(startY,endY),0,arena.height);
+    if(end<=start)return [];
+    const holes=(Array.isArray(arena.hazards)?arena.hazards:[])
+      .filter(h=>h&&h.kind==='pit'
+        && [h.x,h.y,h.width,h.height].every(Number.isFinite)
+        && h.width>0 && h.height>0
+        && x>=h.x && x<=h.x+h.width)
+      .map(h=>({start:clamp(h.y,start,end),end:clamp(h.y+h.height,start,end)}))
+      .filter(h=>h.end>h.start)
+      .sort((a,b)=>a.start-b.start||a.end-b.end);
+    const sections=[];
+    let cursor=start;
+    for(const hole of holes){
+      if(hole.start>cursor)sections.push({start:cursor,end:hole.start});
+      cursor=Math.max(cursor,hole.end);
+    }
+    if(cursor<end)sections.push({start:cursor,end});
+    return sections;
+  }
+
+  const api = Object.freeze({ deckLayout, solidLineSegments });
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   if (root) root.MarbleArenaGeometry = api;
 })(typeof window !== 'undefined' ? window : undefined);
