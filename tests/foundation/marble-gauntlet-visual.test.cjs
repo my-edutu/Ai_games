@@ -154,3 +154,26 @@ test('competitor spotlight and cinema toggles remain accessible read-only specta
     assert.equal(app.includes(forbidden),false, 'inspecting must never invoke operator commands');
   }
 });
+
+
+test('cinematic 3D LED billboard displays only public authority and updates its GPU texture', () => {
+  for(const marker of [
+    'const BILLBOARD_VERTEX_SHADER',
+    'const BILLBOARD_FRAGMENT_SHADER',
+    "const boardTexture=gl.createTexture()",
+    "boardCanvas=document.createElement('canvas')",
+    "gl.texImage2D(gl.TEXTURE_2D",
+    "gl.drawArrays(gl.TRIANGLE_FAN,0,4)",
+    "function updateArenaBillboard(next)",
+    "function drawArenaBillboards(arena,theme",
+    "state.remaining",
+    "state.qualified",
+    "state.quota",
+    "updateArenaBillboard(next)",
+    "shell.dataset.ledArena",
+    "shell.dataset.ledRound",
+  ]) assert.ok(renderer.includes(marker), 'missing 3D broadcast billboard feature: '+marker);
+  for(const forbidden of ['rootSeed', 'tournamentSeed', 'forceWinner', '/api/operator', 'Math.random(']) {
+    assert.equal(renderer.includes(forbidden),false, 'broadcast display must not access private state or command races');
+  }
+});
