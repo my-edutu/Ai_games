@@ -29,7 +29,10 @@ if(!scenario&&!frozen&&params.get('fresh')!=='1'){
     if(payload&&payload.length<=700000){
       const saved=JSON.parse(payload),g=saved.game;
       if(saved.schema===1&&Date.now()-saved.savedAt<24*60*60*1000&&
-        g?.version===3&&g.status==='running'&&
+        g?.version===3&&['running','overrun','evacuated'].includes(g.status)&&
+        Number.isSafeInteger(g.tick)&&g.tick>=0&&Number.isSafeInteger(g.rng)&&
+        Number.isFinite(g.time?.elapsed)&&g.time.elapsed>=0&&
+        Object.values(g.resources||{}).every(Number.isFinite)&&
         Array.isArray(g.survivors)&&g.survivors.length<=40&&
         Array.isArray(g.zombies)&&g.zombies.length<=500&&
         validateWorld(g).every(issue=>issue.severity!=='error')){
@@ -42,7 +45,7 @@ let last = performance.now(), accumulator = 0, elapsed = 0, paused = frozen, hud
 let completedRuns=0, terminalSince=null;
 let lastSnapshotAt=performance.now();
 function persistGame(){
-  if(scenario||frozen||game.status!=='running')return;
+  if(scenario||frozen)return;
   try{
     const body=JSON.stringify({schema:1,savedAt:Date.now(),game});
     if(body.length<=700000)sessionStorage.setItem(recoveryKey,body);
@@ -60,7 +63,7 @@ canvas.addEventListener('webglcontextlost',event=>{
   if(recoveryReloads<=2)setTimeout(()=>location.reload(),500);
   else{
     fallback.hidden=false;
-    fallback.textContent='3D device lost repeatedly. Open the original 2.5D experience to continue.';
+    fallback.innerHTML='<p>3D device lost repeatedly.</p><a href="./index.html">Open the original 2.5D experience</a>';
   }
 });
 const restartDelayMs=Math.max(500,Math.min(60000,Number(params.get('restartMs'))||12000));
@@ -458,7 +461,12 @@ function render(now){
   const cpuStart=performance.now();
   const delta=Math.min(.09,Math.max(0,(now-last)/1000));last=now;if(!paused)elapsed+=delta;
   fpsSmooth=fpsSmooth*.93+(delta?1/delta:30)*.07;
-  if(!paused&&game.status==='running'){accumulator+=delta;let limit=0;while(accumulator>=fixed&&limit++<4){game=stepGame(game,fixed);accumulator-=fixed;}}
+  if(!paused&&game.status==='running'){
+    accumulator+=delta;
+    let limit=0;
+    while(accumulator>=fixed&&limit++<4){game=stepGame(game,fixed);accumulator-=fixed;}
+    if(game.status!=='running')persistGame();
+  }
   if(!paused&&now-lastSnapshotAt>=6000){lastSnapshotAt=now;persistGame();}
   if(!paused&&!frozen&&game.status!=='running'){
     if(terminalSince===null)terminalSince=now;
