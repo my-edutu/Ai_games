@@ -86,7 +86,7 @@
     if(manual)controls.jump=false;
     syncWorld(snapshot);
     climber.root.position.set(player.x,player.y,player.z);
-    climber.setMotion(player.vx*dt,player.vy*dt,manual?'manual':'autonomous');
+    climber.setMotion(player.vx*dt,player.vy*dt,snapshot.mode,player.vz*dt);
     Object.assign(details,{status:'live',tick:snapshot.tick,floor:player.at,x:player.x,y:player.y,z:player.z,
       velocity:{x:player.vx,y:player.vy,z:player.vz},platforms:models.size,next:player.at+1,
       deaths:player.deaths,biome,mode:snapshot.mode,intent:snapshot.intent,guardianKills:snapshot.guardianKills,
@@ -108,6 +108,7 @@
     while(accumulator>=1/60&&steps++<5){fixedStep(1/60);accumulator-=1/60;}
     resize();climber.animate(simTime,reduced);environment.animate(simTime,reduced);
     if(importedClimber){importedClimber.root.position.copy(climber.root.position);
+      importedClimber.root.rotation.y=climber.root.rotation.y;
       importedClimber.animate(dt,climber.pose);}
     if(!reduced){for(const item of rewards.values()){item.rotation.y+=dt*.9;item.position.y+=Math.sin(simTime*2+item.position.x)*dt*.09;}
       for(const [index,guardian] of guardians){guardian.rotation.y=Math.sin(simTime*.55+index)*.08;}}
