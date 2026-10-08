@@ -1,0 +1,259 @@
+/* AI Battle Royale — Loop 35 | arena-first esports theatre.
+ * Real autonomously running world occupies the full frame. All stats are
+ * still the same public authoritative snapshot. ?layout=panels restores v3.
+ */
+body[data-ux-revision="3"].theatre-mode .broadcast{
+  display:block;position:relative;width:100vw;height:100vh;
+  padding:0;margin:0;overflow:hidden;isolation:isolate;
+  background:#071427;
+}
+body[data-ux-revision="3"].theatre-mode .arena-shell{
+  position:absolute;z-index:0;inset:0 0 66px;
+  width:100%;height:auto;min-width:0;min-height:0;
+  border-radius:0;border:0;overflow:hidden;
+  box-shadow:none;
+}
+body[data-ux-revision="3"].theatre-mode .arena-shell:after{
+  background:
+    linear-gradient(90deg,rgba(6,15,36,.31),transparent 26%,transparent 74%,rgba(6,15,36,.31)),
+    linear-gradient(180deg,rgba(7,14,29,.17),transparent 47%,rgba(4,10,23,.35));
+}
+body[data-ux-revision="3"].theatre-mode .hud,
+body[data-ux-revision="3"].theatre-mode .narrative{
+  position:absolute;z-index:4;top:16px;bottom:84px;
+  overflow:hidden;min-height:0;
+  padding:clamp(12px,1.05vw,19px);
+  border-radius:18px;
+  backdrop-filter:blur(19px) saturate(1.3);
+  background:linear-gradient(155deg,rgba(18,37,85,.86),rgba(8,18,46,.82) 60%,rgba(14,24,58,.89));
+  border:1px solid rgba(121,214,255,.40);
+  box-shadow:0 16px 40px rgba(3,11,35,.39),inset 0 1px rgba(255,255,255,.12);
+}
+body[data-ux-revision="3"].theatre-mode .hud{
+  grid-area:unset;left:16px;right:auto;
+  width:clamp(212px,15.2vw,290px);
+  gap:clamp(9px,1.3vh,16px);
+}
+body[data-ux-revision="3"].theatre-mode .narrative{
+  grid-area:unset;left:auto;right:16px;
+  width:clamp(195px,13.7vw,255px);
+  display:flex;flex-direction:column;gap:13px;
+}
+body[data-ux-revision="3"].theatre-mode .hud h1{
+  font-size:clamp(26px,2.3vw,40px);
+}
+body[data-ux-revision="3"].theatre-mode .survivor-card strong{
+  font-size:clamp(20px,1.5vw,29px);
+}
+body[data-ux-revision="3"].theatre-mode .arena-topline{
+  top:18px;left:clamp(248px,17.5vw,328px);
+  padding:10px 14px;
+  background:rgba(8,21,47,.72);
+}
+body[data-ux-revision="3"].theatre-mode .scene-banner{
+  top:18px;left:50%;max-width:33%;padding:11px 14px;
+  font-size:clamp(11px,.82vw,15px);
+}
+body[data-ux-revision="3"].theatre-mode .arena-footer{
+  left:clamp(248px,17.5vw,328px);
+  bottom:14px;
+  padding:10px 14px;
+  background:rgba(8,21,47,.77);
+}
+body[data-ux-revision="3"].theatre-mode .legend{
+  max-width:42%;
+  right:clamp(232px,15.7vw,300px);
+  bottom:14px;
+}
+body[data-ux-revision="3"].theatre-mode .battle-3d-focus{
+  right:clamp(233px,16.3vw,316px);
+  top:clamp(64px,9vh,125px);
+  width:clamp(210px,23%,390px);
+  height:clamp(150px,24%,265px);
+}
+body[data-ux-revision="3"].theatre-mode .captions{
+  position:absolute;z-index:5;
+  bottom:11px;left:16px;right:16px;
+  width:auto;height:53px;
+  display:flex;grid-area:unset;
+  border:1px solid rgba(122,214,255,.50);
+  border-radius:13px;
+  background:linear-gradient(90deg,rgba(14,40,88,.96),rgba(10,28,63,.95),rgba(48,23,78,.95));
+  box-shadow:0 9px 24px rgba(0,7,25,.45);
+}
+body[data-ux-revision="3"].theatre-mode .narrative li{
+  background:rgba(14,36,78,.64);
+  border-color:rgba(122,184,245,.30);
+  font-size:clamp(10px,.77vw,13px);
+}
+body[data-ux-revision="3"].theatre-mode .narrative .fairness-note{margin-top:auto;}
+body[data-ux-revision="3"].theatre-mode .loadout-card{
+  padding:12px;
+  background:rgba(21,52,95,.58);
+}
+body[data-ux-revision="3"].theatre-mode .metrics div{padding:10px;}
+/* Extra low-height streams show the essentials rather than clipping all panels. */
+@media(max-height:750px) and (min-width:951px){
+  body[data-ux-revision="3"].theatre-mode .hud,
+  body[data-ux-revision="3"].theatre-mode .narrative{gap:7px;padding:11px;bottom:71px;}
+  body[data-ux-revision="3"].theatre-mode .arena-shell{bottom:60px;}
+  body[data-ux-revision="3"].theatre-mode .hud h1{font-size:28px}
+  body[data-ux-revision="3"].theatre-mode .survivor-card,
+  body[data-ux-revision="3"].theatre-mode .focus-card{padding:10px}
+  body[data-ux-revision="3"].theatre-mode .metrics{gap:5px}
+  body[data-ux-revision="3"].theatre-mode .metrics div{padding:6px}
+  body[data-ux-revision="3"].theatre-mode .loadout-card{padding:8px}
+  body[data-ux-revision="3"].theatre-mode .captions{height:47px;bottom:7px}
+}
+@media(max-width:1199px){
+  body[data-ux-revision="3"].theatre-mode .hud{
+    width:clamp(170px,18vw,218px);left:9px;top:9px;bottom:67px;
+  }
+  body[data-ux-revision="3"].theatre-mode .narrative{
+    width:clamp(160px,16vw,200px);right:9px;top:9px;bottom:67px;
+  }
+  body[data-ux-revision="3"].theatre-mode .arena-topline{
+    left:clamp(190px,21vw,250px);top:9px;font-size:9px;
+  }
+  body[data-ux-revision="3"].theatre-mode .arena-footer{left:clamp(190px,21vw,250px);bottom:9px}
+  body[data-ux-revision="3"].theatre-mode .legend{right:clamp(175px,17vw,218px);bottom:9px}
+  body[data-ux-revision="3"].theatre-mode .scene-banner{max-width:37%;top:9px}
+  body[data-ux-revision="3"].theatre-mode .battle-3d-focus{display:none}
+  body[data-ux-revision="3"].theatre-mode .captions{left:9px;right:9px;bottom:6px;height:50px}
+}
+@media(max-width:950px),(max-height:520px){
+  body[data-ux-revision="3"].theatre-mode .arena-shell{inset:0 0 46px;}
+  body[data-ux-revision="3"].theatre-mode .hud{
+    top:6px;bottom:54px;left:6px;right:auto;
+    width:clamp(120px,19vw,155px);
+    border-radius:11px;padding:7px;gap:6px;
+    background:rgba(8,25,57,.86);
+  }
+  body[data-ux-revision="3"].theatre-mode .hud h1{font-size:19px}
+  body[data-ux-revision="3"].theatre-mode .brand-streak{font-size:8px}
+  body[data-ux-revision="3"].theatre-mode .narrative{display:none}
+  body[data-ux-revision="3"].theatre-mode .arena-topline{
+    left:clamp(137px,21vw,176px);top:6px;padding:5px 7px;
+  }
+  body[data-ux-revision="3"].theatre-mode .scene-banner{
+    left:auto;right:7px;transform:none;max-width:37%;top:6px;
+    padding:5px 8px;
+  }
+  body[data-ux-revision="3"].theatre-mode .arena-footer{
+    left:clamp(137px,21vw,176px);bottom:6px;padding:5px 7px;
+    font-size:8px;
+  }
+  body[data-ux-revision="3"].theatre-mode .legend,
+  body[data-ux-revision="3"].theatre-mode .battle-3d-focus{display:none}
+  body[data-ux-revision="3"].theatre-mode .captions{
+    left:6px;right:6px;bottom:5px;height:38px;padding:5px 8px;border-radius:9px;
+  }
+  body[data-ux-revision="3"].theatre-mode .captions p{font-size:11px}
+  body[data-ux-revision="3"].theatre-mode .loadout-card{display:none}
+}
+/* Prior UI remains available: /battle?layout=panels. OBS gets only pure scene. */
+body[data-ux-revision="3"].theatre-mode.clean-feed .hud,
+body[data-ux-revision="3"].theatre-mode.clean-feed .narrative,
+body[data-ux-revision="3"].theatre-mode.clean-feed .captions,
+body[data-ux-revision="3"].theatre-mode.clean-feed .arena-topline,
+body[data-ux-revision="3"].theatre-mode.clean-feed .arena-footer{display:none!important}
+body[data-ux-revision="3"].theatre-mode.clean-feed .arena-shell{
+  position:fixed;inset:0;width:100vw;height:100vh;
+  border-radius:0;border:0;box-shadow:none;
+}
+body[data-ux-revision="3"].theatre-mode.clean-feed .arena-shell:after{display:none}
+
+/* Loop 36 — one genuine semantic action at a time; no invented kills. */
+body[data-ux-revision="3"] .battle-highlight{
+  position:absolute;z-index:5;
+  left:50%;bottom:clamp(106px,13vh,156px);
+  transform:translateX(-50%);
+  width:min(490px,42vw);
+  max-width:calc(100% - 38px);
+  display:flex;flex-direction:column;align-items:center;text-align:center;
+  gap:4px;padding:15px 24px;
+  border:1px solid rgba(255,97,172,.68);
+  border-radius:13px;
+  background:linear-gradient(122deg,rgba(53,20,76,.94),rgba(84,26,71,.91),rgba(20,55,91,.93));
+  box-shadow:0 16px 42px rgba(7,2,25,.45),0 0 25px rgba(255,77,162,.18);
+  backdrop-filter:blur(10px);
+  pointer-events:none;
+}
+body[data-ux-revision="3"] .battle-highlight[hidden]{display:none!important}
+body[data-ux-revision="3"] .battle-highlight span{
+  font-size:11px;font-weight:950;color:#ff92cf;letter-spacing:.21em;
+}
+body[data-ux-revision="3"] .battle-highlight strong{
+  font-size:clamp(14px,1.3vw,22px);line-height:1.21;
+  letter-spacing:-.015em;color:#fff;
+}
+body[data-ux-revision="3"] .battle-highlight small{
+  font-weight:850;color:#bad8fb;font-size:10px;letter-spacing:.14em;
+}
+body[data-ux-revision="3"] .battle-highlight[data-type="shield-broken"]{
+  border-color:rgba(78,233,255,.72);
+  background:linear-gradient(122deg,rgba(19,50,89,.93),rgba(30,41,85,.93),rgba(48,28,97,.92));
+}
+body[data-ux-revision="3"] .battle-highlight[data-type="shield-broken"] span{
+  color:var(--royal-cyan);
+}
+body.clean-feed .battle-highlight{display:none!important}
+@media(max-width:950px),(max-height:520px){
+  body[data-ux-revision="3"] .battle-highlight{
+    bottom:54px;width:min(320px,53vw);padding:7px 10px;gap:2px;
+  }
+  body[data-ux-revision="3"] .battle-highlight strong{font-size:12px}
+  body[data-ux-revision="3"] .battle-highlight small{display:none}
+}
+body[data-reduced-motion="true"] .battle-highlight,
+body[data-reduced-flash="true"] .battle-highlight{
+  animation:none!important;transition:none!important;
+}
+
+/* Loop 45: hide the old 2D picture UNDER an active transparent WebGL scene.
+   Otherwise it leaks a flat BLACK sky through alpha, destroying the vivid
+   atmospheric gradients. Fallback is automatic when WebGL context fails. */
+body[data-battle-renderer="webgl2"] [data-testid="battle-canvas"]{
+  opacity:0;
+}
+body[data-battle-renderer="2d-fallback"] [data-testid="battle-canvas"],
+body[data-battle-renderer="forced-2d"] [data-testid="battle-canvas"]{
+  opacity:1;
+}
+
+/* Gauntlet Ultra: locally bundled Three.js with genuine CC0 skinned humans.
+   Default production still uses the battle-tested WebGL2 engine until QA. */
+body[data-ux-revision="3"] .battle-three-canvas{
+  position:absolute;inset:0;z-index:1;
+  width:100%;height:100%;pointer-events:none;
+}
+body[data-battle-renderer="three-ultra"] [data-testid="battle-canvas"],
+body[data-battle-renderer="three-ultra"] .battle-webgl3d,
+body[data-battle-renderer="three-ultra"] .battle-3d-nameplates{
+  opacity:0;visibility:hidden;
+}
+body[data-ux-revision="3"] .battle-three-nameplates{
+  position:absolute;inset:0;z-index:3;
+  pointer-events:none;overflow:hidden;
+}
+body[data-ux-revision="3"] .battle-three-nameplate{
+  position:absolute;transform:translate(-50%,-100%);
+  border:1px solid rgba(92,239,255,.80);
+  border-radius:7px;background:rgba(10,23,54,.89);
+  color:#eaffff;padding:5px 9px;font-weight:950;
+  font-size:10px;letter-spacing:.06em;
+  text-shadow:0 1px 2px rgba(0,0,0,.7);
+  box-shadow:0 6px 12px rgba(1,4,17,.38);
+  white-space:nowrap;
+}
+body[data-ux-revision="3"] .battle-three-nameplate[data-focus="true"]{
+  background:#d7ff73;color:#0b213c;
+  border-color:#fbffd9;text-shadow:none;
+  box-shadow:0 0 17px rgba(200,255,102,.46);
+}
+body.clean-feed .battle-three-nameplates{
+  display:none;
+}
+@media(max-width:900px){
+  body[data-ux-revision="3"] .battle-three-nameplates{display:none}
+}

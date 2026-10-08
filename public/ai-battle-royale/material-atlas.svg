@@ -1,0 +1,92 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="768" height="768" viewBox="0 0 768 768">
+<title>Original Battle Royale surface atlas: Ember, Neon and Arctic</title>
+<defs>
+ <filter id="grain" x="0" y="0" width="100%" height="100%">
+  <feTurbulence type="fractalNoise" baseFrequency=".047" numOctaves="4" seed="11" stitchTiles="stitch"/>
+  <feColorMatrix type="saturate" values=".08"/>
+  <feComponentTransfer><feFuncA type="linear" slope=".23"/></feComponentTransfer>
+ </filter>
+ <filter id="stone" x="0" y="0" width="100%" height="100%">
+  <feTurbulence type="fractalNoise" baseFrequency=".022" numOctaves="3" seed="19" stitchTiles="stitch"/>
+  <feComponentTransfer><feFuncA type="linear" slope=".23"/></feComponentTransfer>
+ </filter>
+ <pattern id="pavement" width="96" height="96" patternUnits="userSpaceOnUse">
+  <path d="M0 0H96V96H0Z" fill="none" stroke="#111e29" stroke-opacity=".18" stroke-width="4"/>
+  <path d="M6 3H89M8 90H93" stroke="#f7e0ad" stroke-opacity=".12" stroke-width="2"/>
+  <path d="M14 24L25 29 30 48 42 52M82 71L64 62 55 79" fill="none" stroke="#0a1818" stroke-opacity=".21" stroke-width="1.5"/>
+  <circle cx="18" cy="12" r="2.1" fill="#18262a" fill-opacity=".34"/>
+  <circle cx="81" cy="84" r="1.7" fill="#2c3533" fill-opacity=".34"/>
+ </pattern>
+ <pattern id="plate" width="96" height="64" patternUnits="userSpaceOnUse">
+  <rect x="2" y="2" width="92" height="60" rx="3" fill="none" stroke="#090d20" stroke-opacity=".72" stroke-width="3"/>
+  <path d="M7 7H91M9 59H88" stroke="#dfecff" stroke-opacity=".18" stroke-width="2"/>
+  <circle cx="11" cy="10" r="3" fill="#101727"/><circle cx="84" cy="10" r="3" fill="#101727"/>
+  <circle cx="11" cy="52" r="3" fill="#101727"/><circle cx="84" cy="52" r="3" fill="#101727"/>
+  <rect x="30" y="14" width="37" height="3" rx="1" fill="#dfedf7" fill-opacity=".17"/>
+ </pattern>
+ <pattern id="ice" width="128" height="128" patternUnits="userSpaceOnUse">
+  <path d="M8 12L39 51 21 92M39 51L83 63 116 45M83 63L99 117M28 111L68 84 92 109" stroke="#4c829e" stroke-opacity=".45" fill="none" stroke-width="2"/>
+  <path d="M16 16L42 50 24 85M45 55L84 65" stroke="#eefbff" stroke-opacity=".34" fill="none" stroke-width="1"/>
+  <circle cx="66" cy="28" r="7" fill="#f8ffff" fill-opacity=".2"/>
+ </pattern>
+ <pattern id="city" width="96" height="96" patternUnits="userSpaceOnUse">
+  <path d="M0 48H96M48 0V96" fill="none" stroke="#0d1c3f" stroke-opacity=".52" stroke-width="5"/>
+  <path d="M3 45H92M45 3V92" fill="none" stroke="#32d8f5" stroke-opacity=".24" stroke-width="2"/>
+  <path d="M8 8L26 8 26 25 40 25M60 65H80V82" stroke="#e66bd7" stroke-opacity=".39" stroke-width="2" fill="none"/>
+  <circle cx="22" cy="22" r="3" fill="#6defff" fill-opacity=".65"/>
+  <circle cx="78" cy="67" r="3" fill="#ef79db" fill-opacity=".50"/>
+ </pattern>
+</defs>
+<!-- Row 0 / Ember: dusty ground and sandstone cladding. -->
+<g>
+ <rect width="384" height="256" fill="#697550"/>
+ <rect width="384" height="256" fill="#938c57" filter="url(#stone)"/>
+ <rect width="384" height="256" fill="url(#pavement)"/>
+ <path d="M-20 151L82 132 173 142 286 103 410 134M14 8L105 64 211 47 292 76 396 44" stroke="#c29a5d" stroke-opacity=".34" stroke-width="10" fill="none"/>
+ <path d="M-4 146L82 128 176 137 286 98 400 131" stroke="#364633" stroke-opacity=".51" stroke-width="3" fill="none"/>
+ <rect width="384" height="256" filter="url(#grain)"/>
+</g>
+<g transform="translate(384 0)">
+ <rect width="384" height="256" fill="#62665b"/>
+ <rect width="384" height="256" fill="#988468" filter="url(#stone)"/>
+ <rect width="384" height="256" fill="url(#plate)"/>
+ <path d="M1 39H382M1 171H382" stroke="#d1a65c" stroke-opacity=".29" stroke-width="6"/>
+ <path d="M24 35V215M211 0V256" stroke="#282c30" stroke-width="5" stroke-opacity=".38"/>
+ <rect width="384" height="256" filter="url(#grain)"/>
+</g>
+<!-- Row 1 / Neon: wet electrified asphalt and illuminated city alloy. -->
+<g transform="translate(0 256)">
+ <rect width="384" height="256" fill="#2b466d"/>
+ <rect width="384" height="256" fill="#7b98c7" filter="url(#stone)"/>
+ <rect width="384" height="256" fill="url(#city)"/>
+ <path d="M0 26Q94 1 190 36T384 24M0 184Q91 163 180 186T384 179" stroke="#8ceeff" stroke-opacity=".16" stroke-width="7" fill="none"/>
+ <path d="M0 81Q66 57 115 88T241 84 384 104" stroke="#c66ada" stroke-opacity=".16" stroke-width="11" fill="none"/>
+ <rect width="384" height="256" filter="url(#grain)"/>
+</g>
+<g transform="translate(384 256)">
+ <rect width="384" height="256" fill="#415882"/>
+ <rect width="384" height="256" fill="#91a3d7" filter="url(#stone)"/>
+ <rect width="384" height="256" fill="url(#plate)"/>
+ <path d="M0 37H384M0 166H384" stroke="#36e9ff" stroke-opacity=".63" stroke-width="3"/>
+ <path d="M0 42H384M0 172H384" stroke="#197aa7" stroke-opacity=".46" stroke-width="6"/>
+ <path d="M46 0V256M238 0V256" stroke="#fb70c3" stroke-opacity=".51" stroke-width="3"/>
+ <rect width="384" height="256" filter="url(#grain)"/>
+</g>
+<!-- Row 2 / Arctic: frost/ice geology and winter concrete panels. -->
+<g transform="translate(0 512)">
+ <rect width="384" height="256" fill="#b3dde8"/>
+ <rect width="384" height="256" fill="#eff8ff" filter="url(#stone)"/>
+ <rect width="384" height="256" fill="url(#ice)"/>
+ <path d="M0 162Q109 146 199 154T384 174" stroke="#f9ffff" stroke-opacity=".34" stroke-width="18" fill="none"/>
+ <path d="M0 204Q95 194 205 207T384 206" stroke="#4a91bc" stroke-opacity=".22" stroke-width="4" fill="none"/>
+ <rect width="384" height="256" filter="url(#grain)"/>
+</g>
+<g transform="translate(384 512)">
+ <rect width="384" height="256" fill="#85b5cc"/>
+ <rect width="384" height="256" fill="#c4dfea" filter="url(#stone)"/>
+ <rect width="384" height="256" fill="url(#plate)"/>
+ <rect width="384" height="256" fill="url(#ice)" opacity=".45"/>
+ <path d="M0 12H384M0 156H384" stroke="#f8ffff" stroke-opacity=".44" stroke-width="6"/>
+ <rect width="384" height="256" filter="url(#grain)"/>
+</g>
+</svg>

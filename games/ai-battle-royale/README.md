@@ -22,3 +22,22 @@ Twenty-four autonomous contenders with visible tactical identities fight for res
 ## Local command contract
 
 The final implementation exposes focused phase tests, a headless runner, accelerated campaign, browser-source self-test, chaos campaign and release validator through root `package.json` scripts.
+
+
+## 3D Gauntlet branch (experimental, not production-ready)
+
+The `gauntlet/battle-royale-3d-broadcast-v1` branch extends the stream source with a **native WebGL2 3D visual adapter** without changing game rules, RNG streams, results or replay. The current procedural humanoid models and environment are *first-pass geometry*, not AAA character art.
+
+```bash
+npm ci
+npm run build
+npm run battle:stream
+```
+
+- **Watch autonomous gameplay:** `http://localhost:4176/battle`
+- **View the live Gauntlet ledger and side-by-side 2D/3D:** `http://localhost:4176/battle/gauntlet`
+- **Force original 2D stream for rollback:** `http://localhost:4176/battle?visual=2d`
+- **Run focused tests:** `npm run test:phase3`
+- **Run real-browser evidence suite:** `npm run test:browser`
+
+See `docs/gauntlet/AI_BATTLE_ROYALE_3D.md` for the reference quality bar, staged objectives, measured gates and the still-open independent critic/visual fidelity work. Browser and external-production evidence remain required.

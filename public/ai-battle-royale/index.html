@@ -7,12 +7,15 @@
   <title>AI Battle Royale — Autonomous Arena</title>
   <link rel="stylesheet" href="/battle/styles.css">
   <link rel="stylesheet" href="/battle/ux-v2.css">
+  <link rel="stylesheet" href="/battle/ux-v3.css">
+  <link rel="stylesheet" href="/battle/ux-v4.css">
 </head>
-<body data-ux-revision="2" data-reduced-motion="false" data-reduced-flash="false" data-high-contrast="false" data-scene="battle">
+<body class="theatre-mode" data-ux-revision="3" data-reduced-motion="false" data-reduced-flash="false" data-high-contrast="false" data-scene="battle">
   <main class="broadcast" aria-label="AI Battle Royale autonomous livestream">
     <aside class="hud" data-testid="hud" aria-label="Primary match status">
-      <p class="eyebrow">AUTONOMOUS ARENA</p>
-      <h1>AI BATTLE<br>ROYALE</h1>
+      <div class="brand-streak"><span class="brand-dot" aria-hidden="true"></span><span>LIVE AI SIMULATION</span><span class="season-tag">SEASON 01</span></div>
+      <p class="eyebrow">AUTONOMOUS ARENA // GAME 06</p>
+      <h1>AI BATTLE<br><span>ROYALE</span></h1>
       <section class="survivor-card" aria-live="polite">
         <span class="label">MATCH OBJECTIVE</span>
         <strong data-testid="objective">Loading survivors…</strong>
@@ -32,6 +35,15 @@
           <span id="health-bar"></span><span id="shield-bar"></span>
         </div>
       </section>
+      <section class="loadout-card" data-testid="contender-loadout" aria-label="Focused contender loadout">
+        <span class="label">FIELD INTELLIGENCE / LIVE</span>
+        <dl class="loadout-grid">
+          <div><dt>WEAPON</dt><dd id="focus-weapon">—</dd></div>
+          <div><dt>AMMO</dt><dd id="focus-ammo">—</dd></div>
+          <div><dt>MEDKITS</dt><dd id="focus-medkits">—</dd></div>
+          <div><dt>AI CONFIDENCE</dt><dd id="focus-confidence">—</dd></div>
+        </dl>
+      </section>
       <section class="vote-card" id="vote-card" hidden>
         <span class="label">AUDIENCE DECISION</span>
         <strong id="vote-title">Vote open</strong>
@@ -40,8 +52,15 @@
     </aside>
 
     <section class="arena-shell" aria-label="Authoritative tactical arena">
-      <canvas data-testid="battle-canvas" aria-label="Top-down autonomous battle arena"></canvas>
+      <canvas data-testid="battle-canvas" aria-label="Autonomous battle arena with an optional 3D presentation"></canvas>
+      <div class="arena-topline" aria-label="Live arena broadcast status"><span class="pulse-dot" aria-hidden="true"></span><strong>ON AIR</strong><span id="arena-biome">ARENA</span><span id="arena-counter">TICK 0</span></div>
       <div class="scene-banner" id="scene-banner" role="status"></div>
+      <div class="battle-highlight" id="battle-highlight" role="status" aria-live="polite" hidden>
+        <span id="battle-highlight-kicker">LIVE EVENT</span>
+        <strong id="battle-highlight-title">Battle action</strong>
+        <small id="battle-highlight-meta">AI GENERATED MOMENT</small>
+      </div>
+      <div class="arena-footer" aria-label="Live battle telemetry"><span>CONTESTANTS <b id="arena-contenders">—</b></span><i class="separator"></i><span>STORM <b id="arena-storm">—</b></span><i class="separator"></i><span id="arena-director">AI CAMERA ACTIVE</span></div>
       <div class="legend" aria-label="Archetype shape legend">
         <span>⬢ Vanguard</span><span>▲ Ranger</span><span>◆ Scavenger</span><span>□ Tactician</span>
       </div>
@@ -77,6 +96,7 @@
     <span id="operator-status">Controls are private</span>
   </section>
 
+  <script src="/battle/arena3d.js" defer></script>
   <script src="/battle/app.js" defer></script>
 </body>
 </html>

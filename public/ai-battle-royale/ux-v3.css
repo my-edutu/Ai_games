@@ -1,0 +1,442 @@
+/* AI Battle Royale — Gauntlet visual direction v3
+ * Editorial esports broadcast, saturated accent hierarchy, accessible typography.
+ * Render-only styling. No operator controls exposed in the public feed.
+ */
+:root{
+  --royal-night:#050a1a;
+  --royal-ink:#0a1230;
+  --royal-cyan:#4ee9ff;
+  --royal-violet:#9b6cff;
+  --royal-magenta:#ff49a7;
+  --royal-lime:#ceff58;
+  --royal-amber:#ffb948;
+  --royal-text:#f7faff;
+  --royal-muted:#9fb7d6;
+}
+body[data-ux-revision="3"]{
+  --accent:var(--royal-amber);
+  --danger:var(--royal-magenta);
+  --shield:var(--royal-cyan);
+  --muted:var(--royal-muted);
+  --panel:rgba(9,22,51,.86);
+  --line:rgba(110,206,255,.23);
+  --color-progress:var(--royal-cyan);
+  --battle-blue:var(--royal-cyan);
+  --color-muted:var(--royal-muted);
+  background:var(--royal-night);
+  color:var(--royal-text);
+}
+body[data-ux-revision="3"] .broadcast{
+  display:grid;
+  grid-template-columns:clamp(230px,17.5vw,316px) minmax(0,1fr) clamp(205px,14.5vw,265px);
+  grid-template-rows:minmax(0,1fr) clamp(58px,6.9vh,76px);
+  grid-template-areas:"hud arena narrative" "caption caption caption";
+  gap:10px;
+  padding:10px;
+  background:
+    radial-gradient(ellipse at 20% 0%,rgba(139,83,255,.31),transparent 36%),
+    radial-gradient(ellipse at 90% 75%,rgba(23,188,255,.23),transparent 38%),
+    linear-gradient(130deg,#081026,#050916 58%,#0c1030);
+}
+body[data-ux-revision="3"] .hud,
+body[data-ux-revision="3"] .narrative{
+  border:1px solid rgba(103,172,255,.33);
+  border-radius:20px;
+  padding:clamp(15px,1.2vw,24px);
+  background:
+    linear-gradient(156deg,rgba(23,38,79,.97),rgba(7,17,43,.98) 49%,rgba(13,25,56,.96)),
+    var(--royal-ink);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.10),0 12px 38px rgba(1,6,19,.42);
+  position:relative;
+  min-width:0;
+}
+body[data-ux-revision="3"] .hud:before,
+body[data-ux-revision="3"] .narrative:before{
+  content:"";position:absolute;inset:0 0 auto;height:4px;
+  background:linear-gradient(90deg,var(--royal-cyan),var(--royal-violet) 48%,var(--royal-magenta));
+  border-radius:20px 20px 0 0;
+  pointer-events:none;
+}
+body[data-ux-revision="3"] .hud{grid-area:hud;display:flex;flex-direction:column;gap:13px;overflow:hidden}
+body[data-ux-revision="3"] .narrative{grid-area:narrative;display:flex;flex-direction:column;gap:17px;overflow:hidden}
+body[data-ux-revision="3"] .hud .eyebrow{font-size:10px;letter-spacing:.18em;color:var(--royal-lime);margin:0}
+body[data-ux-revision="3"] .hud h1{
+  font-size:clamp(30px,2.65vw,47px);
+  line-height:.87;
+  letter-spacing:-.06em;
+  margin:0 0 3px;
+  font-weight:950;
+  color:#fff;
+  text-shadow:0 4px 26px rgba(96,151,255,.25);
+}
+body[data-ux-revision="3"] .hud h1 span{color:var(--royal-cyan)}
+body[data-ux-revision="3"] .brand-streak{
+  display:flex;align-items:center;gap:9px;flex-wrap:wrap;
+  font-size:10px;font-weight:950;letter-spacing:.16em;color:#dfecff;
+}
+body[data-ux-revision="3"] .brand-dot{
+  width:10px;height:10px;background:var(--royal-magenta);
+  border-radius:100%;box-shadow:0 0 14px rgba(255,73,167,.85);
+}
+body[data-ux-revision="3"] .season-tag{
+  margin-left:auto;border:1px solid rgba(206,255,88,.5);
+  border-radius:5px;background:rgba(206,255,88,.10);
+  color:var(--royal-lime);padding:4px 6px;font-size:9px;
+}
+body[data-ux-revision="3"] .survivor-card{
+  border:1px solid rgba(134,234,255,.45);
+  border-radius:16px;padding:17px;
+  background:
+    radial-gradient(circle at 96% 8%,rgba(46,210,250,.25),transparent 56%),
+    linear-gradient(145deg,rgba(22,85,138,.64),rgba(23,35,81,.90));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.13),0 9px 24px rgba(3,15,38,.28);
+}
+body[data-ux-revision="3"] .label{
+  font-size:10px;letter-spacing:.15em;font-weight:900;
+  color:var(--royal-muted);margin-bottom:8px;
+}
+body[data-ux-revision="3"] .survivor-card .label{color:var(--royal-cyan)}
+body[data-ux-revision="3"] .survivor-card strong{
+  display:block;font-size:clamp(22px,1.8vw,34px);line-height:1.08;
+  letter-spacing:-.035em;color:#fff;
+}
+body[data-ux-revision="3"] .progress-track{
+  margin-top:15px;height:9px;background:rgba(6,17,39,.74);
+  border:1px solid rgba(136,222,255,.18);
+}
+body[data-ux-revision="3"] #match-progress{
+  background:linear-gradient(90deg,var(--royal-cyan),var(--royal-violet),var(--royal-magenta));
+  box-shadow:0 0 12px rgba(78,233,255,.6);
+}
+body[data-ux-revision="3"] .metrics{
+  flex:0 0 auto;margin:0;grid-template-columns:1fr 1fr;
+  background:transparent;border:0;gap:8px;
+}
+body[data-ux-revision="3"] .metrics div{
+  padding:12px;border:1px solid rgba(130,180,245,.26);
+  border-radius:12px;background:rgba(13,36,75,.80);
+}
+body[data-ux-revision="3"] .metrics dt{
+  color:var(--royal-muted);font-weight:800;font-size:9px;letter-spacing:.11em;
+}
+body[data-ux-revision="3"] .metrics dd{
+  font-variant-numeric:tabular-nums;font-size:clamp(13px,1vw,17px);
+  color:#f8fbff;font-weight:950;
+}
+body[data-ux-revision="3"] .metrics div:first-child dd{color:var(--royal-lime)}
+body[data-ux-revision="3"] .metrics div:nth-child(2) dd{color:var(--royal-amber)}
+body[data-ux-revision="3"] .focus-card{
+  margin:0;padding:16px;border-radius:15px;
+  border:1px solid rgba(155,108,255,.45);
+  background:
+    radial-gradient(circle at 100% 0%,rgba(155,108,255,.22),transparent 54%),
+    rgba(19,25,66,.89);
+}
+body[data-ux-revision="3"] .focus-card .label{color:#cabaff}
+body[data-ux-revision="3"] .focus-card strong{font-size:clamp(17px,1.35vw,23px);line-height:1.1}
+body[data-ux-revision="3"] .focus-card p{color:#c1d4eb;line-height:1.5;font-size:12px}
+body[data-ux-revision="3"] .resource-bars{height:8px;gap:6px}
+body[data-ux-revision="3"] #health-bar{background:linear-gradient(90deg,#ff6a80,#ff398d);box-shadow:0 0 9px rgba(255,62,133,.45)}
+body[data-ux-revision="3"] #shield-bar{background:linear-gradient(90deg,#49d7ff,#8af2ff);box-shadow:0 0 9px rgba(73,215,255,.45)}
+body[data-ux-revision="3"] .loadout-card{
+  margin:0;border-radius:15px;padding:15px;
+  background:linear-gradient(135deg,rgba(20,57,90,.9),rgba(25,29,75,.88));
+  border:1px solid rgba(78,233,255,.27);
+}
+body[data-ux-revision="3"] .loadout-grid div{border-left-color:var(--royal-violet)}
+body[data-ux-revision="3"] .loadout-grid dt{color:#9fcef8}
+body[data-ux-revision="3"] .loadout-grid dd{color:#fff}
+body[data-ux-revision="3"] .loadout-grid div:nth-child(3) dd{color:var(--royal-lime)}
+body[data-ux-revision="3"] .loadout-grid div:nth-child(4) dd{color:var(--royal-cyan)}
+body[data-ux-revision="3"] .vote-card{
+  margin:0;background:linear-gradient(125deg,rgba(85,31,77,.87),rgba(42,25,78,.84));
+  border-color:var(--royal-magenta);
+}
+body[data-ux-revision="3"] [hidden]{display:none!important}
+body[data-ux-revision="3"] .arena-shell{
+  border:1px solid rgba(104,209,255,.55);
+  border-radius:20px;overflow:hidden;
+  background:#07162a;
+  box-shadow:
+    inset 0 0 0 1px rgba(152,211,255,.11),
+    0 24px 80px rgba(0,4,23,.44),0 0 43px rgba(30,160,255,.13);
+}
+body[data-ux-revision="3"] .arena-shell:after{
+  content:"";position:absolute;inset:0;pointer-events:none;z-index:1;
+  background:linear-gradient(180deg,rgba(10,22,51,.04),transparent 65%,rgba(5,19,48,.24));
+}
+body[data-ux-revision="3"] .arena-topline{
+  position:absolute;z-index:3;top:16px;left:17px;
+  display:flex;align-items:center;gap:9px;
+  padding:8px 11px;border-radius:10px;
+  background:rgba(7,21,45,.80);border:1px solid rgba(90,223,255,.48);
+  backdrop-filter:blur(8px);box-shadow:0 8px 26px rgba(0,0,0,.19);
+  font-size:10px;letter-spacing:.12em;color:#e8f7ff;font-weight:900;
+}
+body[data-ux-revision="3"] .arena-topline .pulse-dot{
+  width:8px;height:8px;border-radius:50%;background:var(--royal-magenta);
+  box-shadow:0 0 12px rgba(255,71,155,.9);
+  flex:0 0 auto;
+}
+body[data-ux-revision="3"] .arena-topline strong{color:var(--royal-cyan)}
+body[data-ux-revision="3"] .scene-banner{
+  top:16px;max-width:50%;padding:10px 16px;
+  border-radius:11px;background:rgba(6,18,45,.85);
+  border:1px solid rgba(187,221,255,.29);
+  box-shadow:0 8px 25px rgba(2,11,33,.33);
+  backdrop-filter:blur(10px);
+  color:#fff;font-size:clamp(11px,.87vw,15px);
+  letter-spacing:.03em;
+}
+body[data-ux-revision="3"] .arena-footer{
+  position:absolute;z-index:3;bottom:15px;left:16px;
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+  padding:9px 12px;
+  border-radius:10px;background:rgba(8,21,47,.82);
+  border:1px solid rgba(135,217,255,.27);
+  backdrop-filter:blur(10px);color:#cbeaff;font-weight:850;
+  letter-spacing:.10em;font-size:10px;
+}
+body[data-ux-revision="3"] .arena-footer b{color:var(--royal-lime);font-variant-numeric:tabular-nums}
+body[data-ux-revision="3"] .arena-footer .separator{width:1px;height:14px;background:rgba(137,201,255,.37)}
+body[data-ux-revision="3"] .legend{
+  bottom:17px;right:15px;display:flex;flex-wrap:wrap;max-width:55%;
+  gap:7px;padding:9px 10px;
+  border-radius:10px;background:rgba(8,21,47,.81);
+  border:1px solid rgba(135,217,255,.28);color:#d8eaff;
+}
+body[data-ux-revision="3"] .legend span:first-child{color:#ffa478}
+body[data-ux-revision="3"] .legend span:nth-child(2){color:#72e9ff}
+body[data-ux-revision="3"] .legend span:nth-child(3){color:#ffdb7d}
+body[data-ux-revision="3"] .legend span:nth-child(4){color:#caff7f}
+body[data-ux-revision="3"] .battle-3d-focus{
+  z-index:3;border:2px solid rgba(78,233,255,.82);border-radius:14px;
+  background:transparent;color:#f5feff;
+  box-shadow:0 10px 35px rgba(2,17,49,.42),0 0 22px rgba(78,233,255,.13);
+}
+body[data-ux-revision="3"] .narrative>.section-heading,
+body[data-ux-revision="3"] .narrative .eyebrow{
+  font-size:10px;letter-spacing:.16em;color:var(--royal-cyan);font-weight:900;
+}
+body[data-ux-revision="3"] .narrative li{
+  grid-template-columns:auto minmax(0,1fr) auto;
+  font-size:12px;padding:11px 9px;border-radius:10px;
+  color:#eef6ff;border:1px solid rgba(106,172,255,.27);
+  background:linear-gradient(105deg,rgba(22,45,91,.84),rgba(16,27,69,.78));
+  min-width:0;
+}
+body[data-ux-revision="3"] #leaderboard li:first-child{
+  border-color:rgba(255,191,70,.66);
+  background:linear-gradient(102deg,rgba(109,61,30,.54),rgba(45,42,91,.60));
+  box-shadow:inset 3px 0 var(--royal-amber);
+}
+body[data-ux-revision="3"] .narrative li span:first-child{color:var(--royal-lime);font-weight:900}
+body[data-ux-revision="3"] .narrative li span:nth-child(2){overflow:hidden;text-overflow:ellipsis}
+body[data-ux-revision="3"] .narrative li span:last-child{color:#bad9ff}
+body[data-ux-revision="3"] #kill-feed li:first-child{border-color:rgba(255,73,167,.50)}
+body[data-ux-revision="3"] .narrative .fairness-note{
+  margin-top:auto;padding:14px;border:1px solid rgba(169,143,255,.24);
+  border-left:3px solid var(--royal-violet);
+  border-radius:11px;background:rgba(33,29,79,.46);
+}
+body[data-ux-revision="3"] .fairness-note .eyebrow{color:#bbadff}
+body[data-ux-revision="3"] .fairness-note p:last-child{line-height:1.52;color:#a9c2df;font-size:11px}
+body[data-ux-revision="3"] .captions{
+  border-radius:14px;border:1px solid rgba(78,233,255,.35);
+  background:linear-gradient(100deg,rgba(19,49,96,.97),rgba(13,26,64,.98) 65%,rgba(53,25,91,.84));
+  box-shadow:inset 0 1px rgba(255,255,255,.07);
+  padding:11px 20px;min-width:0;
+}
+body[data-ux-revision="3"] .captions p{color:#eff9ff;font-size:clamp(13px,1vw,18px);font-weight:650}
+body[data-ux-revision="3"] .caption-mark{
+  padding:7px 10px;border:0;border-radius:7px;
+  color:#091b38;background:var(--royal-cyan);font-weight:950;
+}
+body[data-ux-revision="3"][data-scene="final-circle"] .arena-shell{
+  border-color:rgba(255,73,167,.72);
+  box-shadow:0 22px 70px rgba(0,0,0,.42),0 0 34px rgba(255,73,167,.18);
+}
+body[data-ux-revision="3"][data-scene="result"] .arena-shell{
+  border-color:rgba(206,255,88,.72);box-shadow:0 0 32px rgba(206,255,88,.15);
+}
+body[data-ux-revision="3"][data-scene="result"] .arena-topline strong{color:var(--royal-lime)}
+body[data-ux-revision="3"][data-high-contrast="true"]{
+  --royal-muted:#fff;--line:rgba(255,255,255,.70);
+}
+body[data-ux-revision="3"][data-high-contrast="true"] .arena-topline,
+body[data-ux-revision="3"][data-high-contrast="true"] .arena-footer{
+  border-color:#fff;background:#000;
+}
+body[data-ux-revision="3"].clean-feed .broadcast{padding:0;gap:0;display:block}
+body[data-ux-revision="3"].clean-feed .arena-shell{border:0;border-radius:0;position:fixed;inset:0;width:100vw;height:100vh}
+body[data-ux-revision="3"].clean-feed .arena-topline,
+body[data-ux-revision="3"].clean-feed .arena-footer{display:none!important}
+body[data-ux-revision="3"].clean-feed .arena-shell:after{display:none}
+body[data-ux-revision="3"].clean-feed .battle-3d-focus{display:none}
+@media(max-width:1199px){
+  body[data-ux-revision="3"] .broadcast{
+    grid-template-columns:minmax(178px,20vw) minmax(0,1fr) minmax(160px,17vw);
+  }
+  body[data-ux-revision="3"] .hud,
+  body[data-ux-revision="3"] .narrative{padding:11px;gap:9px;border-radius:13px}
+  body[data-ux-revision="3"] .hud h1{font-size:27px}
+  body[data-ux-revision="3"] .survivor-card,
+  body[data-ux-revision="3"] .focus-card,
+  body[data-ux-revision="3"] .loadout-card{padding:10px}
+  body[data-ux-revision="3"] .metrics div{padding:8px}
+  body[data-ux-revision="3"] .loadout-grid dd{font-size:12px}
+  body[data-ux-revision="3"] .arena-topline{font-size:9px;top:10px;left:10px}
+}
+@media(max-width:900px),(max-height:520px){
+  body[data-ux-revision="3"] .broadcast{
+    grid-template-columns:minmax(138px,19vw) minmax(0,1fr);
+    grid-template-rows:minmax(0,1fr) 43px;
+    grid-template-areas:"hud arena" "caption caption";
+    padding:5px;gap:5px;
+  }
+  body[data-ux-revision="3"] .narrative{display:none}
+  body[data-ux-revision="3"] .hud{padding:8px;gap:7px;overflow:hidden}
+  body[data-ux-revision="3"] .hud h1{font-size:18px}
+  body[data-ux-revision="3"] .brand-streak{font-size:8px}
+  body[data-ux-revision="3"] .season-tag{display:none}
+  body[data-ux-revision="3"] .survivor-card,
+  body[data-ux-revision="3"] .focus-card{padding:8px;border-radius:9px}
+  body[data-ux-revision="3"] .survivor-card strong{font-size:15px}
+  body[data-ux-revision="3"] .metrics div{padding:5px}
+  body[data-ux-revision="3"] .metrics dt{font-size:8px}
+  body[data-ux-revision="3"] .metrics dd{font-size:10px}
+  body[data-ux-revision="3"] .loadout-card{display:none}
+  body[data-ux-revision="3"] .focus-card p{font-size:9px}
+  body[data-ux-revision="3"] .arena-topline{padding:5px 7px;font-size:8px;top:7px;left:7px}
+  body[data-ux-revision="3"] .scene-banner{top:7px;padding:5px 7px;font-size:10px;max-width:48%}
+  body[data-ux-revision="3"] .arena-footer{bottom:7px;left:7px;padding:6px 8px;font-size:8px}
+  body[data-ux-revision="3"] .legend{display:none}
+  body[data-ux-revision="3"] .captions{padding:6px 11px}
+  body[data-ux-revision="3"] .captions p{font-size:11px}
+}
+@media(max-height:720px) and (min-width:901px){
+  body[data-ux-revision="3"] .hud{gap:8px;padding:12px}
+  body[data-ux-revision="3"] .hud h1{font-size:31px}
+  body[data-ux-revision="3"] .survivor-card,
+  body[data-ux-revision="3"] .focus-card{padding:11px}
+  body[data-ux-revision="3"] .metrics div{padding:7px}
+  body[data-ux-revision="3"] .loadout-card{padding:10px}
+}
+
+/* Gauntlet loop 27 — the broadcast evolves with the actual arena biome.
+ * The main cyan, violet and magenta identity remains recognizable in every scene.
+ */
+body[data-ux-revision="3"][data-arena-biome="ember"]{
+  --biome-primary:#ffb348;
+  --biome-secondary:#ff6e65;
+  --biome-glow:rgba(255,163,61,.24);
+}
+body[data-ux-revision="3"][data-arena-biome="neon"]{
+  --biome-primary:#60f7ff;
+  --biome-secondary:#ef62ff;
+  --biome-glow:rgba(106,91,255,.30);
+}
+body[data-ux-revision="3"][data-arena-biome="arctic"]{
+  --biome-primary:#a4ecff;
+  --biome-secondary:#8ae2c0;
+  --biome-glow:rgba(106,198,255,.28);
+}
+body[data-ux-revision="3"] .arena-topline strong,
+body[data-ux-revision="3"] .arena-storm-live{
+  color:var(--biome-primary,var(--royal-cyan));
+}
+body[data-ux-revision="3"] .arena-shell{
+  border-color:var(--biome-primary,var(--royal-cyan));
+  box-shadow:0 24px 80px rgba(0,4,23,.44),0 0 45px var(--biome-glow,rgba(30,160,255,.13));
+}
+body[data-ux-revision="3"] .arena-footer b,
+body[data-ux-revision="3"] .metrics div:first-child dd{
+  color:var(--biome-primary,var(--royal-lime));
+}
+body[data-ux-revision="3"] .survivor-card{
+  border-color:var(--biome-primary,var(--royal-cyan));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.13),0 9px 24px var(--biome-glow,rgba(3,15,38,.28));
+}
+body[data-ux-revision="3"] .brand-dot{
+  background:var(--biome-secondary,var(--royal-magenta));
+  box-shadow:0 0 13px var(--biome-glow,rgba(255,73,167,.65));
+}
+body[data-ux-revision="3"] .battle-3d-focus{
+  border-color:var(--biome-primary,var(--royal-cyan));
+}
+body[data-ux-revision="3"] #match-progress{
+  background:linear-gradient(90deg,var(--biome-primary,var(--royal-cyan)),var(--royal-violet),var(--biome-secondary,var(--royal-magenta)));
+}
+body[data-ux-revision="3"][data-high-contrast="true"] .arena-shell,
+body[data-ux-revision="3"][data-high-contrast="true"] .survivor-card{
+  border-color:#fff;
+}
+
+/* Autonomous AI nameplates project only currently living, published agents. */
+body[data-ux-revision="3"] .battle-3d-nameplates{
+  position:absolute;inset:0;z-index:2;pointer-events:none;
+  overflow:hidden;
+}
+body[data-ux-revision="3"] .battle-3d-nameplate{
+  position:absolute;transform:translate(-50%,-100%);max-width:150px;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  font-size:10px;line-height:1.25;font-weight:950;letter-spacing:.07em;
+  font-variant-numeric:tabular-nums;text-transform:uppercase;
+  padding:5px 8px;border-radius:7px;
+  color:#f0fbff;background:rgba(7,23,53,.83);
+  border:1px solid rgba(119,223,255,.62);
+  box-shadow:0 4px 13px rgba(0,4,23,.46),0 0 8px rgba(78,233,255,.18);
+  text-shadow:0 1px 4px rgba(0,0,0,.70);
+}
+body[data-ux-revision="3"] .battle-3d-nameplate[data-archetype="vanguard"]{border-color:#ff9f78}
+body[data-ux-revision="3"] .battle-3d-nameplate[data-archetype="scavenger"]{border-color:#ffcf77}
+body[data-ux-revision="3"] .battle-3d-nameplate[data-archetype="tactician"]{border-color:#ccff89}
+body[data-ux-revision="3"] .battle-3d-nameplate[data-focus="true"]{
+  color:#0b1d35;background:var(--royal-lime);border-color:#efffc4;
+  box-shadow:0 4px 12px rgba(0,0,0,.35),0 0 14px rgba(206,255,88,.50);
+  text-shadow:none;z-index:3;
+}
+body.clean-feed .battle-3d-nameplates,
+body[data-battle-renderer="2d-fallback"] .battle-3d-nameplates{display:none}
+@media (max-width:949px){body[data-ux-revision="3"] .battle-3d-nameplates{display:none}}
+
+/* Loop 34: daylight and atmospheric skylight actually show through the
+   alpha-composited WebGL2 background. The older 2D scene remains painted. */
+body[data-ux-revision="3"] .arena-shell canvas{
+  background:transparent;
+}
+body[data-ux-revision="3"] .arena-shell{
+  background:
+    radial-gradient(ellipse at 76% 13%,rgba(148,208,255,.24),transparent 40%),
+    linear-gradient(175deg,#1f3a63 0%,#2e4964 49%,#223c57 100%);
+}
+body[data-ux-revision="3"][data-arena-biome="neon"] .arena-shell{
+  background:
+    radial-gradient(ellipse at 75% 10%,rgba(255,83,172,.44),transparent 37%),
+    radial-gradient(ellipse at 9% 38%,rgba(56,237,255,.36),transparent 52%),
+    linear-gradient(160deg,#32477e,#17385c 50%,#101d43 100%);
+}
+body[data-ux-revision="3"][data-arena-biome="arctic"] .arena-shell{
+  background:
+    radial-gradient(ellipse at 81% 5%,rgba(233,249,255,.56),transparent 43%),
+    radial-gradient(ellipse at 10% 25%,rgba(76,226,240,.22),transparent 52%),
+    linear-gradient(160deg,#88c8da,#4b8aa9 55%,#2b688f 100%);
+}
+body[data-ux-revision="3"][data-arena-biome="ember"] .arena-shell{
+  background:
+    radial-gradient(ellipse at 79% 12%,rgba(255,231,130,.50),transparent 36%),
+    radial-gradient(ellipse at 4% 37%,rgba(255,93,91,.32),transparent 48%),
+    linear-gradient(160deg,#dd8d69,#ae6574 52%,#50617d 100%);
+}
+body[data-ux-revision="3"] .arena-shell:before{
+  content:"";position:absolute;inset:0;z-index:0;pointer-events:none;
+  background:
+    linear-gradient(105deg,transparent 0%,rgba(255,255,255,.09) 46%,transparent 63%),
+    radial-gradient(ellipse at 52% 74%,rgba(170,227,255,.12),transparent 53%);
+}
+body[data-ux-revision="3"].clean-feed .arena-shell:before{
+  opacity:.65;
+}
+body[data-ux-revision="3"][data-high-contrast="true"] .arena-shell{
+  background:#142840;
+}
