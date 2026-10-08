@@ -162,7 +162,7 @@ export function createMarblePresentationSnapshot(state: MarbleState, recentEvent
       finishY: state.arena.finishY,
       hazards: state.arena.hazards.map(hazard => ({ ...hazard })),
       obstacles: state.arena.obstacles.map(obstacle => ({ id: obstacle.id, x: obstacle.x, y: obstacle.y, width: obstacle.width, height: obstacle.height })),
-      bumpers: state.arena.bumpers.map(bumper => ({ id: bumper.id, x: bumper.x, y: bumper.y, radius: bumper.radius })),
+      bumpers: state.arena.bumpers.map(bumper => ({ id: bumper.id, x: bumper.x, y: bumper.y, radius: bumper.radius, launchSpeed: bumper.launchSpeed })),
       sweepers: state.arena.sweepers.map(sweeper => ({
         id: sweeper.id,
         baseX: sweeper.baseX,
