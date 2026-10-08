@@ -102,3 +102,18 @@ The browser screenshot suite now captures `world-hud-hidden.png` (actual world w
 - Added Node geometry-contract tests for every role/archetype and budgets. **This is still procedural stylized geometry** and nowhere close to finished rigged cinematic characters, facial performance or animations.
 
 **Gate remains OPEN:** demand real updated CI screenshots, frame CPU p95 and headless/mid-range/mobile reviews, then side-by-side Days Gone Remastered reference comparisons. Do not rename this build “AAA” based on code volume or color saturation alone.
+
+
+## Iterations 08–11 — 3D skyline, filmic events and wounded-world visual feedback
+
+**Loop 08 — skyline & camera (committed):** `web/world-setpieces.js` adds authored 3D setpieces: an industrial water tower, evacuation gate with emergency barricades, hospital helipad, collapsed overpass, destroyed metro access, water plaza, road excavator and large illuminated communications sign. These are different landmarks per district rather than duplicate cube buildings. `web/camera-rig.js` resolves opaque roof obstacles against actual building bounds and prevents hero-follow views from entering walls; unit tests cover both blocked and unobstructed cameras. Art still uses procedural geometry, no real sculpted/photogrammetric assets.
+
+**Loop 09 — lighting & live story (committed):** per-fragment nighttime cyan/amber rescue and medical district practical lighting, deterministic storm flashes and an authoritative event chronicle. It reports actual game events such as rescue, weapon fire, horde alert and safehouse fortification — **never fictionalized scripted NPC actions**.
+
+**Loop 10 — tactical cinema (committed):** world-space mission locator rings, trapped-civilian rescue signals, injured/infected survivor health/infection indicators, pressured barricade meters, actual nearby horde centroid signal; they are all non-colliding cosmetic geometry from the authoritative state. Added keyboard M or on-screen Cinema button to minimize game panels while keeping controls available (especially for OBS/mobile).
+
+**Loop 11 — wounded environment (committed):** `web/environment-vfx.js` adds visually reactive ruined-building smoke, flickering flames, embers, emergency lights and debris from actual nearby breach/horde events; budgets cap effect geometry and distance cull far ruin sites. A Node contract test checks reproducible effect counts and strict game-state nonmutation.
+
+**Independent developer-side verification:** JS syntax checks passed for new `world-setpieces.js`, `environment-vfx.js`, `camera-rig.js` and `world-overlays.js`. Pure geometry mocks rendered **185** deterministic landmark primitives (60 valid distinct color swatches), and **52** bounded world marker primitives without simulation mutation. These are **source-level implementation checks, not real browser render results**.
+
+**Visual stop ship:** Latest GitHub Actions runners remain queued; superseded CI runs have been cancelled by concurrency policy. Latest full Playwright browser gameplay screenshots, daylight color metrics, reference A/B, FPS and 24-hour live-stream soak have *not* passed. Compare the newly captured screenshots with official Days Gone gameplay and insist on another art iteration if they remain crude or unreadable.
