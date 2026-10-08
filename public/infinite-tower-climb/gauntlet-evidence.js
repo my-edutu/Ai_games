@@ -83,6 +83,20 @@ fetch('/tower/gauntlet-findings.json',{cache:'no-store'}).then(r=>r.json()).then
   $('historical-fix').textContent='Attempted correction, NOT screenshot-verified: '+issue.specificFixAttempted;
   $('historical-light').textContent=issue.meanLuminance+' / 255';
   $('historical-dark').textContent=(issue.fractionBelow34*100).toFixed(1)+'%';
+  const cycle=report.latestCriticCycle;
+  if(cycle){
+    const panel=node('section',undefined,'historical-critic');
+    panel.setAttribute('aria-label','Latest evidence-based Gauntlet cycle');
+    panel.append(node('span','CRITIC ROUND 1 · '+cycle.date+' · NO VISUAL PASS','eyebrow'));
+    panel.append(node('h3',cycle.largestIndependentlyVerifiableGap));
+    panel.append(node('p','CI finding: '+cycle.observedLog,'evidence-copy'));
+    panel.append(node('p','Verified correction: '+cycle.change,'evidence-copy'));
+    panel.append(node('p','Independent critic: '+cycle.freshIndependentCritic,'evidence-copy'));
+    const link=node('a','Inspect failed CI evidence ↗');
+    link.href='https://github.com/my-edutu/Ai_games/actions/runs/'+cycle.evidenceWorkflowRun;
+    link.target='_blank';link.rel='noopener';panel.append(link);
+    document.querySelector('.historical-critic')?.insertAdjacentElement('afterend',panel);
+  }
 }).catch(error=>console.warn('Quality report unavailable',error));
 render().catch(error=>{$('evidence-status').textContent='Evidence unavailable: '+error.message});
 setInterval(()=>{if(!document.hidden)void render().catch(()=>{})},12000);
