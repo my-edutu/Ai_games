@@ -1,9 +1,9 @@
 {
   "schema": 1,
-  "iteration": "Loop 21 · real reactor falling physics and 3D contestant identities",
+  "iteration": "Loop 27 · kinetic 3D environments, live crowd, ground-light accuracy and cinematic presentation",
   "lastUpdated": "2026-10-08",
-  "criticTarget": "Inspect real live reactor pit frames across the 3D descent, shields and overflights, plus four competitor archetypes in desktop/mobile views. Confirm actual WebGL2 shader compilation, no ghost shadows over pits, no fake fall announcements, sufficient contrast and FPS. Require blinded comparisons before declaring the commercial Gauntlet achieved.",
-  "comparisonStatus": "NOT YET VERIFIED · v4 physical pit gravity, authority-only fall cues and 3D role silhouettes implemented; Node physics suite, real Chromium screenshots, independent reference voting pending.",
+  "criticTarget": "Run actual Chromium desktop/mobile captures at each of five stages. Compare against Marble It Up! Ultra and Marbles on Stream without claiming parity from source tests. Demand strong brightness/saturation, distinctive palettes, a readable cinematic camera, wind/bumper/ramp/pit visual consistency, no detached highlights over holes, stable framerate on Balanced and clean shielded pit outcomes. Reject if screenshot critic and 3D FPS evidence are missing.",
+  "comparisonStatus": "NOT YET VERIFIED · all five procedural WebGL stages gained differentiated 3D machinery, moving crowds, real wind fields, high-density glass racers, softened shadows and camera dynamics; real Chromium shader/gpu measurements and blinded reference votes still outstanding.",
   "goals": [
     {
       "name": "Premium marble character optics",
@@ -169,9 +169,69 @@
       "name": "Actual Chromium 3D fall and visual critique",
       "detail": "Real browser proof of pit falls, four model silhouettes, colour exposure and clean mobile HUD remains pending",
       "status": "in-progress"
+    },
+    {
+      "name": "Premium glass sphere LOD and feathered GPU shadows",
+      "detail": "Dedicated Low/Balanced/High/Ultra geometry; reflective glass veins; height-aware radial-contact shadow on actual solid deck only",
+      "status": "implemented"
+    },
+    {
+      "name": "Single-draw animated 3D stadium audience",
+      "detail": "Actual gl.POINTS cloud with up to 1,100 stadium spectators; authoritatively reactive cheers; cached per-stage buffers and clear 1-draw telemetry",
+      "status": "implemented"
+    },
+    {
+      "name": "Course-local real wind and intact edge light topology",
+      "detail": "Safe public wind vector projection and 3D streaming fields, while physically separating all neon strips around genuine pits",
+      "status": "implemented"
+    },
+    {
+      "name": "Machine-quality ramp and spring props",
+      "detail": "Layered chromatic factory rails, collision-consistent spring-coil housings, richer track structure and actual round-boundary stage reveal",
+      "status": "implemented"
+    },
+    {
+      "name": "Sport-broadcast camera and continuous motion language",
+      "detail": "Velocity-anchored dynamic perspective and real momentum ribbon trails; preserved exact camera matrix for projected identities",
+      "status": "implemented"
+    },
+    {
+      "name": "Prove vivid scene parity against commercial reference with Chromium",
+      "detail": "Stricter real-image screenshot pixel thresholds and cross-stage colour-distance check committed; real screenshots/side-by-side blind votes and device FPS remain blocked",
+      "status": "in-progress"
     }
   ],
   "history": [
+    {
+      "title": "Loop 22 — Premium 3D racer materials and soft shadow rescue",
+      "note": "Added real alternate smooth marble meshes by quality tier (up to 50x72 globe segmentation), internal glass vein optics, and a specialised radial translucent contact-shadow shader. Critical mock-render regression uncovered that shadow refactoring had removed drawArchetypeAccents; restored all four archetype characters and validated their live calls.",
+      "proof": "Regression detected and repaired before documenting completion. Mock runtime 12/12; native Chromium shader compilation pending."
+    },
+    {
+      "title": "Loop 23 — Living instanced-feel stadium audience in a single GPU call",
+      "note": "Created a dedicated WebGL2 point-cloud crowd shader with quality-aware deterministic bleacher layouts (64/320/660/1100) and responsive cheers driven by actual survivor count and champion state. Crowd upload cached per arena/quality, not per frame.",
+      "proof": "12/12 isolated 3D renderer VM smoke checks including one-draw crowd and champion excitement."
+    },
+    {
+      "title": "Loop 24 — Genuine wind atmosphere and topology-correct lights",
+      "note": "Sanitized public arena snapshots now expose real wind force vectors. Dedicated 3D wind currents and perimeter emitters animate using those forces; track LED paint is split into solidLineSegments that physically avoid all open pits, including overlap clipping and edges.",
+      "proof": "10/10 geometry cases executed in JS harness; new wind-source and 3D render checks included."
+    },
+    {
+      "title": "Loop 25 — Detailed mechanical racing worlds and broadcast reveal",
+      "note": "Rebuilt ramp geometry with metallic track-specific decks, bright side guards and speed trim. Enhanced spring bumpers with stacked torus coils, glass caps and chrome accents. Arena ID changes trigger a brief luminance sweep, with reduced-motion protections. UI announces only actually configured wind currents.",
+      "proof": "Committed procedural geometry and authority-backed UI; real screenshot art direction review pending."
+    },
+    {
+      "title": "Loop 26 — Responsive lens and safe render-budget recovery",
+      "note": "Cinematic mode now uses real velocity-derived look-ahead, lower jib angles and a wider FOV while retaining the server-selected focus and identical WebGL/identity projection. Default Balanced mode can cautiously lower/recover pixel density from measured FPS; High/Ultra stay explicitly selected.",
+      "proof": "Implemented in WebGL source; actual GPU fps threshold behaviour still unverified."
+    },
+    {
+      "title": "Loop 27 — Continuous kinetic trails and demanding screenshot critic",
+      "note": "Replaced separated floating marble trail beads with attached velocity-driven tapered 3D light ribbons, stage-tinted luminous cores and transparent-depth guard. Tightened real Chromium canvas tests: minimum luminance/saturation/colourfulness, dark-pixel ceiling and a cross-stage mean-RGB separation gate.",
+      "proof": "Source committed; 12/12 isolated mocked-WebGL render-path cases passed, browser screenshot capture and independent blind judgments not yet executed."
+    },
     {
       "title": "Loop 19 — Authority-bound falling into actual 3D reactor wells",
       "note": "Pit entrants now lose ground contact, accumulate signed vertical position under gravity and can fall into the actual modelled well before elimination at the reactor floor. Shield intervention at the lip remains immediate; unshielded racers can fly across. Negative pit elevations are strictly valid only over a real pit. New v4 checkpoint version refuses v3 replays.",
