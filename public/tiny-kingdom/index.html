@@ -736,8 +736,9 @@ if(!terrainCache||nextTerrainKey!==terrainCacheKey){
 data=terrainCache.slice();
 // A winding stream through the southern side.
 // Sample each cross-section at its own river centre to eliminate jagged joins.
-for(let x=-42;x<42;x+=.8){
- const nx=Math.min(42,x+.8),z=20+Math.sin(x*.13)*3,nz=20+Math.sin(nx*.13)*3;
+for(let segment=0;segment<105;segment++){
+ const x=-42+segment*.8;
+ const nx=-42+(segment+1)*.8,z=20+Math.sin(x*.13)*3,nz=20+Math.sin(nx*.13)*3;
  const banks=[-1.8,-1.38,-.75,0,.75,1.38,1.8];
  for(let i=0;i<banks.length-1;i++){
   const a=banks[i],b=banks[i+1],tone=i===0||i===5?rgb(0x719ca0):i===1||i===4?rgb(0x5cabb3):rgb(0x368f9d);
