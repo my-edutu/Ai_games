@@ -1,13 +1,14 @@
 import {NamedRng, type RngSnapshot} from '../../../packages/seeded-rng/src/index';
 import {checksum} from '../../../packages/replay/src/index';
 
-export const DUNGEON_VERSION='0.2.0';
+export const DUNGEON_VERSION='0.3.0';
 export const MAP_SIZE=19;
 export type UnitKind='vanguard'|'ranger'|'mystic'|'revenant'|'cultist'|'warden';
 export type Faction='party'|'enemy';
 export interface Unit {id:string;kind:UnitKind;faction:Faction;x:number;z:number;hp:number;maxHp:number;attack:number;cooldown:number;action?:'idle'|'move'|'attack'|'cast'|'hurt';actionTick?:number}
 export interface DungeonEvent {tick:number;kind:string;text:string}
-export interface DungeonState {schemaVersion:1;tick:number;floor:number;run:number;phase:'exploring'|'intermission';intermission:number;theme:string;map:string[];exit:{x:number;z:number};units:Unit[];relics:{x:number;z:number}[];kills:number;gold:number;level:number;intent:string;events:DungeonEvent[]}
+export interface DungeonTrap{id:string;x:number;z:number;kind:'ember'|'arcane';active:boolean;cooldown:number;disarmed:boolean;triggers:number}
+export interface DungeonState {schemaVersion:1;tick:number;floor:number;run:number;phase:'exploring'|'intermission';intermission:number;theme:string;map:string[];exit:{x:number;z:number};units:Unit[];relics:{x:number;z:number}[];traps:DungeonTrap[];kills:number;gold:number;level:number;intent:string;events:DungeonEvent[]}
 export interface DungeonSave {version:string;seed:string;rng:RngSnapshot;state:DungeonState;signature:string}
 const THEMES=['THE SUNKEN CRYPT','THE EMBER CATHEDRAL','THE OBSIDIAN VAULT','THE HOLLOW SANCTUM'];
 const DIRS=[[1,0],[0,1],[-1,0],[0,-1]] as const;
@@ -87,14 +88,22 @@ function createFloor(seed:string,floor:number,rng:NamedRng,run:number,previous?:
  }
  for(const unit of units){unit.action='idle';unit.actionTick=previous?.tick??0}
  const relics=tiles.filter(p=>p.d>3&&!occupied.has(key(p.x,p.z))).slice(0,3).map(p=>({x:p.x,z:p.z}));
- return {schemaVersion:1,tick:previous?.tick??0,floor,run,phase:'exploring',intermission:0,theme:THEMES[(floor-1)%THEMES.length],map:rows,exit,units,relics,kills:previous?.kills??0,gold:previous?.gold??0,level:previous?.level??1,intent:'Mapping the uncharted halls',events:previous?.events??[]};
+ const forbidden=new Set(relics.map(p=>key(p.x,p.z)));
+ const trapTiles=tiles.filter(p=>p.d>5&&dist(p,exit)>3&&!occupied.has(key(p.x,p.z))&&!forbidden.has(key(p.x,p.z)));
+ const traps:DungeonTrap[]=[];
+ for(let i=0;i<Math.min(5,2+Math.floor(floor/3))&&trapTiles.length;i++){
+  const index=rng.nextInt('trap-positions:'+floor+':'+run,trapTiles.length),p=trapTiles.splice(index,1)[0];
+  traps.push({id:'hazard-'+floor+'-'+i,x:p.x,z:p.z,kind:i%2?'arcane':'ember',active:true,cooldown:0,disarmed:false,triggers:0});
+ }
+ return {schemaVersion:1,tick:previous?.tick??0,floor,run,phase:'exploring',intermission:0,theme:THEMES[(floor-1)%THEMES.length],map:rows,exit,units,relics,traps,kills:previous?.kills??0,gold:previous?.gold??0,level:previous?.level??1,intent:'Mapping the uncharted halls',events:previous?.events??[]};
 }
 export function assertDungeonState(s:DungeonState){
  if(s.schemaVersion!==1||s.map.length!==MAP_SIZE||s.map.some(r=>r.length!==MAP_SIZE))throw Error('Invalid dungeon map');
  if(!walkable(s.map,1,1)||!walkable(s.map,s.exit.x,s.exit.z)||shortestPath(s.map,{x:1,z:1},s.exit).length===0)throw Error('Dungeon exit unreachable');
  const ids=new Set<string>();
  for(const u of s.units){if(ids.has(u.id)||!walkable(s.map,u.x,u.z)||!Number.isInteger(u.hp)||u.hp<0||u.hp>u.maxHp)throw Error('Invalid unit '+u.id);ids.add(u.id)}
- if(s.units.length>18||s.relics.length>6||s.events.length>9)throw Error('Bounded state exceeded');
+ if(s.units.length>18||s.relics.length>6||s.traps.length>5||s.events.length>9)throw Error('Bounded state exceeded');
+ for(const trap of s.traps){if(!walkable(s.map,trap.x,trap.z)||trap.cooldown<0||!Number.isInteger(trap.triggers)||trap.triggers<0||trap.triggers>10000)throw Error('Invalid dungeon trap '+trap.id)}
 }
 export class DungeonRuntime {
  public state:DungeonState;
@@ -108,8 +117,13 @@ export class DungeonRuntime {
   if(s.phase==='intermission'){if(--s.intermission<=0){const run=s.run+1;this.state=createFloor(this.seed,1,this.rng,run);push(this.state,'restart','A new expedition enters the dungeon.')}return this.publicState()}
   const party=s.units.filter(u=>u.faction==='party'&&u.hp>0),foes=s.units.filter(u=>u.faction==='enemy'&&u.hp>0),leader=party[0];
   if(!leader){s.phase='intermission';s.intermission=14;push(s,'defeat','The expedition was lost. A new run begins shortly.');return this.publicState()}
+  // Traps cool down on authoritative ticks. Ranger can permanently disarm a nearby hazard.
+  for(const trap of s.traps)if(!trap.disarmed&&!trap.active&&trap.cooldown>0){trap.cooldown--;if(trap.cooldown===0)trap.active=true}
   // Turn-based autonomous tactics. Deterministic unit order and bounded path searches.
   for(const hero of party){
+   if(hero.kind==='ranger'&&s.tick%4===0){const hazard=s.traps.find(t=>t.active&&!t.disarmed&&dist(hero,t)<=2);
+    if(hazard){hazard.active=false;hazard.disarmed=true;hazard.cooldown=0;hero.action='cast';s.intent='Wildshadow disabling a dangerous rune';push(s,'disarm','Wildshadow safely disabled a '+hazard.kind+' trap');continue}
+   }
    const enemies=s.units.filter(u=>u.faction==='enemy'&&u.hp>0).sort((a,b)=>dist(hero,a)-dist(hero,b)||a.id.localeCompare(b.id));
    const target=enemies[0],range=hero.kind==='vanguard'?1:hero.kind==='ranger'?4:3;
    if(hero.kind==='mystic'&&s.tick%6===0){const wounded=party.filter(u=>u.hp>0&&u.hp<u.maxHp*.7).sort((a,b)=>a.hp/a.maxHp-b.hp/b.maxHp)[0];if(wounded){wounded.hp=Math.min(wounded.maxHp,wounded.hp+15+s.level);hero.action='cast';s.intent='Starweaver channels restorative magic';push(s,'healing','Starweaver healed '+wounded.kind);continue}}
@@ -147,6 +161,10 @@ export class DungeonRuntime {
    if(enemy.cooldown>0)enemy.cooldown--;
   }
   for(const hero of s.units.filter(u=>u.faction==='party'&&u.hp>0)){
+   const trap=s.traps.find(t=>t.active&&!t.disarmed&&t.x===hero.x&&t.z===hero.z);
+   if(trap){const damage=8+Math.min(16,s.floor),kind=trap.kind==='ember'?'flame jets':'arcane rune';
+    hero.hp=Math.max(0,hero.hp-damage);hero.action='hurt';trap.active=false;trap.cooldown=11;trap.triggers++;push(s,'trap',kind+' struck '+hero.kind+' for '+damage+' damage');
+   }
    const i=s.relics.findIndex(p=>p.x===hero.x&&p.z===hero.z);
    if(i!==-1){s.relics.splice(i,1);s.gold+=35;hero.hp=Math.min(hero.maxHp,hero.hp+18);push(s,'loot',hero.kind+' discovered a healing relic · +35 gold')}
   }
@@ -161,6 +179,6 @@ export class DungeonRuntime {
  }
  publicState(){
   const s=this.state;
-  return {version:DUNGEON_VERSION,tick:s.tick,run:s.run,floor:s.floor,theme:s.theme,phase:s.phase,intermission:s.intermission,map:s.map,exit:s.exit,units:s.units.map(u=>({...u})),relics:s.relics.map(r=>({...r})),kills:s.kills,gold:s.gold,level:s.level,intent:s.intent,events:s.events.map(e=>({...e})),checksum:checksum({tick:s.tick,run:s.run,floor:s.floor,units:s.units,relics:s.relics,gold:s.gold})};
+  return {version:DUNGEON_VERSION,tick:s.tick,run:s.run,floor:s.floor,theme:s.theme,phase:s.phase,intermission:s.intermission,map:s.map,exit:s.exit,units:s.units.map(u=>({...u})),relics:s.relics.map(r=>({...r})),traps:s.traps.map(t=>({...t})),kills:s.kills,gold:s.gold,level:s.level,intent:s.intent,events:s.events.map(e=>({...e})),checksum:checksum({tick:s.tick,run:s.run,floor:s.floor,units:s.units,relics:s.relics,traps:s.traps,gold:s.gold})};
  }
 }
