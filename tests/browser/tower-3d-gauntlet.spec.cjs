@@ -4,6 +4,30 @@ const {test,expect}=require('@playwright/test');
 const base='http://127.0.0.1:4176';
 const artifacts=path.resolve(__dirname,'../../artifacts/tower-phase3');
 test.beforeAll(()=>fs.mkdirSync(artifacts,{recursive:true}));
+test.afterEach(async({page},testInfo)=>{
+  if(testInfo.status===testInfo.expectedStatus||page.isClosed())return;
+  let state=null;
+  try{
+    state=await page.evaluate(()=>({
+      renderer:document.body.dataset.towerRenderer,
+      scene:document.body.dataset.towerScene,
+      phase:window.__TOWER_3D_DIAGNOSTICS__?.phase??null,
+      diagnostics:window.__TOWER_3D_DIAGNOSTICS__??null,
+      bootError:window.__TOWER_3D_BOOT_ERROR__??null,
+      stateTick:window.__TOWER_PUBLIC_STATE__?.tick??null,
+      canvasCount:document.querySelectorAll('canvas').length
+    }));
+  }catch(error){state={inspectionError:String(error)}}
+  console.error('GAUNTLET_RENDER_FAILURE_EVIDENCE',JSON.stringify({
+    test:testInfo.title,status:testInfo.status,...state
+  }));
+  try{
+    const file=path.join(artifacts,'failure-'+testInfo.title.replace(/[^a-z0-9]+/gi,'-').slice(0,90)+'.png');
+    await page.screenshot({path:file,timeout:6000});
+    await testInfo.attach('failure-screenshot',{path:file,contentType:'image/png'});
+  }catch(error){console.warn('Screenshot unavailable',String(error))}
+});
+
 // On any browser failure, preserve the actual renderer boot/fallback reason,
 // console diagnostics, module loading failures and a screenshot for the next loop.
 // This is evidence collection, not a claim that WebGL rendered successfully.
