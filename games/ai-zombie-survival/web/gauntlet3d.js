@@ -106,6 +106,16 @@ function constructStatic(){
   for(const b of game.buildings){
     const height=b.kind==='safehouse'?4.9:2.7+b.floors*1.25;
     const base=buildingColor(b),damaged=1-b.damage*.30;
+    if(!b.roofVisible&&b.kind!=='safehouse'){
+      // A real cutaway, not a hidden roof over a solid opaque building.
+      m.box(b.x,.18,b.y,b.w,.36,b.h,tint(base,.72));
+      m.box(b.x-b.w*.5,.88,b.y,.24,1.42,b.h,tint(base,.88));
+      m.box(b.x+b.w*.5,.88,b.y,.24,1.42,b.h,tint(base,.88));
+      m.box(b.x,.88,b.y-b.h*.5,b.w,1.42,.24,tint(base,.77));
+      m.box(b.x, .43,b.y+b.h*.3,b.w*.34,.55,.42,'#655d4a');
+      m.box(b.x-b.w*.25,.57,b.y-b.h*.14,.95,.82,1.12,'#555b54');
+      continue;
+    }
     m.box(b.x,height/2,b.y,b.w,height,b.h,tint(base,damaged));
     // Architectural bands, ledges, doors, window grids and rooftop silhouettes.
     m.box(b.x,height+.16,b.y,b.w+.33,.27,b.h+.3,tint(base,.65));
