@@ -209,7 +209,7 @@ function rig(u){const colors=palette[u.kind],main=mat(colors[0],.5,.4),light=mat
 const timeNow=()=>performance.now()/1000;
 // Broadcast command centre: projections never mutate simulation state.
 const minimap=$('minimap'),mini=minimap.getContext('2d',{alpha:false}),mapPalette={wall:'#273653',floor:'#15233e',traced:'#477091',hero:'#5bf9e2',enemy:'#ff6f9c',exit:'#65baff',loot:'#ffd277'};
-let previousEventKey='',alertTimer=null,ambience=null;
+let previousEventKey='',alertTimer=null,ambience=null,splashTimer=null,lastBiome='';
 const classMeta={vanguard:{name:'ASHEN VANGUARD',title:'FRONT-LINE KNIGHT',icon:'⚔'},ranger:{name:'WILDSHADOW',title:'PHANTOM ARCHER',icon:'➶'},mystic:{name:'STARWEAVER',title:'ARCANE HEALER',icon:'✧'}};
 function drawMinimap(s){
  const N=s.map.length,W=minimap.width,H=minimap.height,cell=W/N,margin=0;
@@ -229,6 +229,7 @@ function drawMinimap(s){
 }
 function notifyDungeon(event){
  if(!['telegraph','floor','kill','defeat','loot'].includes(event.kind))return;
+ if(event.kind==='floor'){const splash=$('floor-splash');clearTimeout(splashTimer);splash.hidden=false;const match=event.text.match(/^FLOOR (\\d+) · (.+)$/);$('splash-floor').textContent=match?match[1].padStart(2,'0'):String(state?.floor??'02').padStart(2,'0');$('splash-name').textContent=match?match[2]:state?.theme??'THE NEXT CHAPTER';splashTimer=setTimeout(()=>{splash.hidden=true},reduced?800:2400)}
  const banner=$('alert-flash');clearTimeout(alertTimer);banner.hidden=false;
  banner.textContent=event.kind==='telegraph'?'⚠  '+event.text.toUpperCase():event.kind==='floor'?'✦  '+event.text.toUpperCase():event.kind==='defeat'?'☠  '+event.text.toUpperCase():event.text.toUpperCase();
  banner.dataset.kind=event.kind;
@@ -246,6 +247,7 @@ $('audio-toggle').addEventListener('click',async()=>{
  else{await ambience.resume();button.setAttribute('aria-pressed','true');button.querySelector('span').textContent='AUDIO ON';playEffect('floor')}
 });
 function renderDashboard(s){
+ const biome=['sunken','ember','obsidian','hollow'][(s.floor-1)%4];if(biome!==lastBiome){document.body.dataset.biome=biome;lastBiome=biome;}
  const heroes=s.units.filter(u=>u.faction==='party'),alive=heroes.filter(u=>u.hp>0).length,foes=s.units.filter(u=>u.faction==='enemy'&&u.hp>0);
  const boss=s.units.find(u=>u.kind==='warden'),nearBoss=boss&&boss.hp>0&&heroes.some(h=>h.hp>0&&Math.abs(h.x-boss.x)+Math.abs(h.z-boss.z)<6);
  $('floor').textContent=String(s.floor).padStart(2,'0');$('chapter').textContent=String(s.floor).padStart(2,'0');
