@@ -67,7 +67,7 @@
     'finalColor=clamp(finalColor,vec3(0.0),vec3(1.0));',
     'result=vec4(finalColor,1.0);',
     '}'
-  ].join('\\n');
+  ].join('\n');
   let canvas=null,closeupLabel=null,gl=null,program=null,buffer=null,staticBuffer=null,dynamicBuffer=null,attr=null,uniform=null,lastSnapshot=null,disabled=forced2d||!host;
   const reducedMotion=params.get('reducedMotion')==='1'||matchMedia('(prefers-reduced-motion: reduce)').matches;
   const reducedFlash=params.get('reducedFlash')==='1';
