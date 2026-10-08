@@ -18,6 +18,25 @@ const runLabel=document.getElementById('run-label');
 const zoneNumber=document.getElementById('zone-number');
 const renderStatus=document.getElementById('render-state');
 const theaterToggle=document.getElementById('theater-toggle');
+const qualitySelect=document.getElementById('graphics-quality');
+const captureButton=document.getElementById('capture-scene');
+if(qualitySelect){
+  const requestedQuality=new URLSearchParams(location.search).get('quality')||'adaptive';
+  qualitySelect.value=['adaptive','cinematic','balanced','performance'].includes(requestedQuality)?requestedQuality:'adaptive';
+  qualitySelect.addEventListener('change',()=>{
+    const updated=new URLSearchParams(location.search);
+    updated.set('quality',qualitySelect.value);
+    location.assign(location.pathname+'?'+updated.toString());
+  });
+}
+if(captureButton){
+  captureButton.addEventListener('click',()=>window.dispatchEvent(new Event('maze:capture')));
+  window.addEventListener('maze:captured',()=>{
+    captureButton.textContent='✓ SAVED';
+    setTimeout(()=>{captureButton.textContent='◎ Capture'},1800);
+  });
+}
+
 const broadcast=document.getElementById('broadcast');
 if(theaterToggle){
   theaterToggle.addEventListener('click',()=>{
