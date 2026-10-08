@@ -29,26 +29,31 @@
   // Purely visual; none of these colours can influence the deterministic solver.
   const THEMES = Object.freeze({
     'seeding-sprint': Object.freeze({
+      floorPattern:5.0,
       deck:[0.24,0.37,0.46],trim:[0.035,0.085,0.17],rail:[0.37,0.76,0.94],
       hazard:[0.87,0.15,0.27],accent:[1.0,0.73,0.25],secondary:[0.15,0.82,1.0],
       clear:[0.045,0.10,0.22],fog:[0.08,0.15,0.28],structure:[0.16,0.32,0.54],skyUpper:[0.055,0.22,0.58],skyLower:[0.26,0.70,0.95],
     }),
     'gate-gauntlet': Object.freeze({
+      floorPattern:6.0,
       deck:[0.27,0.27,0.42],trim:[0.065,0.045,0.15],rail:[0.70,0.57,1.0],
       hazard:[0.95,0.19,0.38],accent:[1.0,0.49,0.21],secondary:[0.69,0.40,1.0],
       clear:[0.10,0.045,0.19],fog:[0.19,0.09,0.32],structure:[0.38,0.19,0.52],skyUpper:[0.21,0.09,0.54],skyLower:[0.72,0.28,0.80],
     }),
     'hazard-circuit': Object.freeze({
+      floorPattern:7.0,
       deck:[0.32,0.30,0.33],trim:[0.15,0.065,0.12],rail:[0.94,0.46,0.35],
       hazard:[1.0,0.11,0.13],accent:[1.0,0.34,0.12],secondary:[1.0,0.72,0.19],
       clear:[0.18,0.045,0.065],fog:[0.32,0.08,0.10],structure:[0.49,0.18,0.17],skyUpper:[0.24,0.065,0.20],skyLower:[0.91,0.32,0.26],
     }),
     'final-four': Object.freeze({
+      floorPattern:8.0,
       deck:[0.19,0.33,0.47],trim:[0.025,0.08,0.16],rail:[0.37,0.84,1.0],
       hazard:[0.77,0.09,0.39],accent:[0.34,0.90,1.0],secondary:[0.95,0.36,0.85],
       clear:[0.025,0.075,0.17],fog:[0.07,0.15,0.32],structure:[0.17,0.35,0.58],skyUpper:[0.05,0.20,0.56],skyLower:[0.22,0.70,0.94],
     }),
     championship: Object.freeze({
+      floorPattern:9.0,
       deck:[0.30,0.29,0.36],trim:[0.075,0.065,0.16],rail:[1.0,0.77,0.41],
       hazard:[0.85,0.14,0.20],accent:[1.0,0.77,0.28],secondary:[0.73,0.50,1.0],
       clear:[0.08,0.055,0.15],fog:[0.18,0.10,0.25],structure:[0.40,0.25,0.54],skyUpper:[0.16,0.08,0.38],skyLower:[0.62,0.32,0.61],
@@ -95,13 +100,43 @@
     float patternMask(vec3 localPosition) {
       if (uPatternType < 0.5) return 0.0;
       if (uPatternType > 4.5) {
-        // Faceted racing tiles and illuminated grooves are evaluated in
-        // surface-local coordinates; no network textures or extra draw calls.
-        vec2 tile = (localPosition.xz + vec2(1.0)) * vec2(13.0, 9.0);
-        vec2 cell = fract(tile);
-        float groove = 1.0 - smoothstep(0.0, 0.047, min(min(cell.x,cell.y),min(1.0-cell.x,1.0-cell.y)));
-        float checker = mod(floor(tile.x) + floor(tile.y), 2.0);
-        return clamp(checker * 0.085 + groove * 0.46, 0.0, 0.63);
+        // Stage-specific industrial surfacing. Repeated local coordinates
+        // have subtle inlaid reflective grooves, not a plain grey grid.
+        vec2 t=(localPosition.xz+vec2(1.0))*vec2(12.0,9.0);
+        vec2 f=fract(t);
+        float edge=min(min(f.x,f.y),min(1.0-f.x,1.0-f.y));
+        float etched=1.0-smoothstep(0.012,0.055,edge);
+        if(uPatternType < 5.5){
+          // Aurora: cyan speedway ceramic panels and pinstripes.
+          float inlay=1.0-smoothstep(0.0,0.075,abs(fract(t.x*0.5+t.y*0.19)-0.50));
+          return clamp(etched*0.33+inlay*0.12,0.0,0.56);
+        }
+        if(uPatternType < 6.5){
+          // Gate: mechanical circuit traces and portal grid.
+          vec2 trace=fract((localPosition.xz+vec2(1.0))*vec2(18.0,13.0));
+          float circuit=(1.0-smoothstep(0.02,0.10,abs(trace.x-0.48)))
+                       *step(0.28,trace.y)*step(trace.y,0.78);
+          float corner=(1.0-smoothstep(0.0,0.1,length(trace-vec2(0.48,0.78))));
+          return clamp(etched*0.26+circuit*0.25+corner*0.20,0.0,0.64);
+        }
+        if(uPatternType < 7.5){
+          // Inferno: lava fissures cut across heavy heat-treated plates.
+          float v=sin(t.x*1.8+sin(t.y*0.73)*2.3)*sin(t.y*0.87-t.x*0.29);
+          float crack=1.0-smoothstep(0.015,0.11,abs(v));
+          return clamp(etched*0.20+crack*0.42,0.0,0.69);
+        }
+        if(uPatternType < 8.5){
+          // Final Four: luminous hex-diamond competitive stage.
+          vec2 lattice=abs(fract(vec2(t.x+t.y,t.x-t.y)*0.53)-0.50);
+          float diamond=1.0-smoothstep(0.035,0.13,min(lattice.x,lattice.y));
+          return clamp(etched*0.13+diamond*0.42,0.0,0.70);
+        }
+        // Crown arena: decadent radial geometric gold filigree.
+        float angle=atan(localPosition.z,localPosition.x);
+        float radial=length(localPosition.xz);
+        float rings=1.0-smoothstep(0.02,0.09,abs(fract(radial*14.0)-0.5));
+        float spokes=1.0-smoothstep(0.015,0.08,abs(sin(angle*12.0)));
+        return clamp(etched*0.18+rings*0.28+spokes*0.24,0.0,0.69);
       }
       vec3 point = normalize(localPosition);
       if (uPatternType < 1.5) {
@@ -872,7 +907,7 @@
     drawBox([0,-0.83,0],[width+0.80,0.06,depth+0.80],material(theme.structure,0.39,0.66),viewProjection,cameraPosition);
     const cutouts=window.MarbleArenaGeometry?.deckLayout(arena);
     const pieces=cutouts?.tiles||[{x:0,y:0,width:arena.width,height:arena.height}];
-    const trackSurface=material(theme.deck,0.45,0.28,0,1,5.0,theme.secondary);
+    const trackSurface=material(theme.deck,0.43,0.40,0.015,1,theme.floorPattern,theme.secondary);
     const panelThickness=0.08;
     for(const tile of pieces){
       const x=(tile.x+tile.width/2-arena.width/2)*WORLD_SCALE;
