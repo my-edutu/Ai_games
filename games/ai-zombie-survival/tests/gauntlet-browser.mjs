@@ -26,10 +26,29 @@ try{
     assert.match(info.stats,/CPU P95/);
     assert.match(info.stats,/TRIANGLES/);
     assert.ok(info.width>=1280&&info.height>=720);
+    const map=await page.locator('#miniMap').evaluate(el=>{
+      const c=el.getContext('2d');const data=c.getImageData(0,0,el.width,el.height).data;
+      let painted=0;for(let i=3;i<data.length;i+=4)if(data[i]>0)painted++;
+      return {width:el.width,painted};
+    });
+    assert.ok(map.width>=200&&map.painted>=map.width,'Tactical map must paint real pixels');
     const shot=await page.screenshot({path:root+scenario+'.png',animations:'disabled'});
     assert.ok(shot.length>12000,'screenshot suspiciously small for '+scenario);
     report.scenarios.push({name:scenario,bytes:shot.length,...info});
   }
+  await page.goto('http://127.0.0.1:4177/web/3d.html?scenario=day&freeze=1',{waitUntil:'load'});
+  await page.waitForFunction(()=>document.querySelector('#fps')?.textContent?.includes('CPU P95'),{timeout:12000});
+  const hudStyles=await page.evaluate(()=>{
+    const css=getComputedStyle(document.documentElement);
+    return ['--cyan','--coral','--amber'].map(k=>css.getPropertyValue(k).trim().toLowerCase());
+  });
+  assert.deepEqual(hudStyles,['#42f2e1','#ff647a','#ffc96e']);
+  assert.ok((await page.locator('#cameraLabel').textContent()).length>2);
+  await page.keyboard.press('h');
+  await page.screenshot({path:root+'world-hud-hidden.png'});
+  await page.keyboard.press('h');
+  await page.screenshot({path:root+'vibrant-ui.png'});
+  report.checks.vibrantHudAndMap=true;
   await page.goto('http://127.0.0.1:4177/web/3d.html?scenario=night&weather=storm&freeze=1',{waitUntil:'load'});
   await page.waitForFunction(()=>document.querySelector('#fps')?.textContent?.includes('CPU P95'),{timeout:12000});
   await page.screenshot({path:root+'night-storm.png'});

@@ -1,6 +1,8 @@
 // Real WebGL2 perspective scene. The fixed-step game simulation remains authoritative.
 import { createGame, stepGame, selectCameraEvent, applyEvidenceScenario, isEvidenceScenario, buildAudioPlan, validateWorld } from '../dist/index.js';
 import { decorateBuilding, decorateWorld } from './scene-art.js';
+import { createSkyPass } from './sky-pass.js';
+import { drawTacticalMap } from './tactical-map.js';
 
 const canvas = document.getElementById('scene');
 const hud = document.getElementById('hud');
@@ -174,6 +176,7 @@ const program = gl.createProgram();gl.attachShader(program,shader(gl.VERTEX_SHAD
 if(!gl.getProgramParameter(program,gl.LINK_STATUS))throw new Error(gl.getProgramInfoLog(program));
 gl.useProgram(program);gl.enable(gl.DEPTH_TEST);gl.depthFunc(gl.LEQUAL);
 const uniforms = Object.fromEntries(['uVP','uEye','uFogColor','uFog','uLight','uNight'].map(k=>[k,gl.getUniformLocation(program,k)]));
+const drawSky=createSkyPass(gl);
 function buffer(){const vao=gl.createVertexArray(),vbo=gl.createBuffer();gl.bindVertexArray(vao);gl.bindBuffer(gl.ARRAY_BUFFER,vbo);const stride=9*4;for(let i=0;i<3;i++){gl.enableVertexAttribArray(i);gl.vertexAttribPointer(i,3,gl.FLOAT,false,stride,i*12);}gl.bindVertexArray(null);return{vao,vbo,count:0};}
 const staticMesh=buffer(),movingMesh=buffer();
 function upload(bufferObj,values){const array=new Float32Array(values);gl.bindBuffer(gl.ARRAY_BUFFER,bufferObj.vbo);gl.bufferData(gl.ARRAY_BUFFER,array,gl.DYNAMIC_DRAW);bufferObj.count=array.length/9;}
@@ -523,6 +526,7 @@ function render(now){
   const night=game.time.phase==='night',sunset=game.time.phase==='sunset';
   const sky=night?[.044,.080,.167]:sunset?[.73,.39,.29]:[.58,.76,.83];
   gl.clearColor(...sky,1);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
+  drawSky(game);
   const actualRange=cameraMode==='manual'?range:directedRange;
   const eye=[cameraFocusX+Math.sin(orbit)*actualRange,actualRange*(cameraMode==='hero'?.48:.51),cameraFocusZ+Math.cos(orbit)*actualRange];
   const vp=multiply(perspective(Math.PI/3,w/h,.1,230),lookAt(eye,[cameraFocusX,1.5,cameraFocusZ]));
@@ -538,7 +542,9 @@ function render(now){
   frameCpuMs.push(performance.now()-cpuStart);
   if(frameCpuMs.length>180)frameCpuMs.shift();
   if(now-lastStats>450){
-    lastStats=now;renderSquad();const living=game.survivors.filter(s=>s.alive).length,infected=game.zombies.filter(z=>z.health>0).length;
+    lastStats=now;renderSquad();
+    const spotted=drawTacticalMap(document.getElementById('miniMap'),game,cameraFocusX,cameraFocusZ);
+    hud.querySelector('#mapCount').textContent='TRACKING '+spotted;const living=game.survivors.filter(s=>s.alive).length,infected=game.zombies.filter(z=>z.health>0).length;
     hud.dataset.phase=game.time.phase;
     hud.querySelector('#day').textContent='DAY '+game.time.day+' / '+game.time.phase.toUpperCase();
     hud.querySelector('#weather').textContent=game.weather.kind.toUpperCase()+
