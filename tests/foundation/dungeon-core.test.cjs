@@ -29,3 +29,32 @@ test('public data is bounded and privacy safe under stress',()=>{
  assert.ok(!JSON.stringify(view).includes('release-qa'));
  assert.ok(view.run>=1&&view.floor>=1);
 });
+
+test('boss charges a visible warning before applying area damage',()=>{
+ const game=DungeonRuntime.create('boss-telegraph-fixture');
+ const s=game.state,boss=s.units.find(u=>u.kind==='warden'),hero=s.units.find(u=>u.id==='vanguard');
+ const path=shortestPath(s.map,{x:1,z:1},s.exit);
+ assert.ok(boss&&hero&&path.length>2);
+ const adjacent=path[path.length-2];hero.x=adjacent.x;hero.z=adjacent.z;s.tick=3;
+ game.step();
+ const warning=game.state.events.find(e=>e.kind==='telegraph'&&e.tick===4);
+ assert.ok(warning,'warning must be visible two ticks before the attack');
+ const health=hero.hp;
+ game.step();game.step();
+ const blasts=game.state.events.filter(e=>e.kind==='danger'&&e.text.includes('shockwave'));
+ assert.ok(blasts.length>=1,'the warning must resolve to a real, rule-governed boss attack');
+ assert.ok(hero.hp<health,'the attack must have an observable consequence');
+});
+test('autonomous unit actions are exposed as bounded, public animation semantics',()=>{
+ const game=DungeonRuntime.create('character-motion-probe');
+ let observedMovement=false,observedAttack=false;
+ for(let i=0;i<240;i++){const view=game.step();
+  for(const unit of view.units){
+   if(unit.action==='move')observedMovement=true;
+   if(unit.action==='attack'||unit.action==='cast')observedAttack=true;
+   assert.ok(['idle','move','attack','cast','hurt'].includes(unit.action));
+   assert.equal(unit.actionTick,view.tick);
+  }
+ }
+ assert.equal(observedMovement,true);assert.equal(observedAttack,true);
+});
