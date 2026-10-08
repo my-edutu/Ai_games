@@ -236,6 +236,11 @@
       "round": 14,
       "summary": "Inspected current PR head e705fc0 and latest workflow state: Tower 3D CI queued; broader Autonomous Games CI failed. Added failure-only Playwright capture of page errors, browser console errors/warnings, failed requests, HTTP 4xx/5xx, boot exception stack, renderer fallback reason, snapshot tick and screenshot; persisted reports in existing uploaded artifact directory.",
       "verdict": "Instrumentation committed; no passing Chromium or new-head visual proof yet. Jusant comparison and parity remain unmet."
+    },
+    {
+      "round": 15,
+      "summary": "Source audit found geology-v9.js was still absent from scene3d.js imports and biome buildBackdrop, despite server routing it. Restored actual geometry integration without changing simulation or 2D fallback.",
+      "verdict": "Committed; visual effect not yet confirmed in fresh screenshot; Jusant benchmark unmet."
     }
   ]
 }
