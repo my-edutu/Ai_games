@@ -97,7 +97,15 @@ export function applyTournamentRules(state: MarbleState, contacts: PhysicsContac
     }
     const hazard = next.arena.hazards.find(zone => inside(marble.position, zone));
     const recoveryUntilTick = marble.recoveryUntilTick ?? -1;
-    if (hazard && recoveryUntilTick < next.tick) {
+    // A true pit is an open cavity. Competitors can jump *over* it while
+    // descending racers are eliminated only when their physical centre has
+    // fallen beneath the illuminated rim. Shields still rescue on initial
+    // contact, preserving a readable chance to survive.
+    const isPit = hazard?.kind === 'pit';
+    const pitReachedRim = marble.elevation < 0;
+    const pitFallenBelowSafety = marble.elevation <= -650;
+    const pitActionable = !isPit || (pitReachedRim && (marble.shieldCharges > 0 || pitFallenBelowSafety));
+    if (hazard && pitActionable && recoveryUntilTick < next.tick) {
       if (marble.shieldCharges > 0) {
         marble.shieldCharges--;
         marble.recoveryCount++;
