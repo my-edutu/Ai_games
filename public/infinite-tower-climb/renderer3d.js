@@ -121,7 +121,10 @@
   }
   // The existing 2D renderer must not write to the same canvas after WebGL takes ownership.
   window.__TOWER_3D_ACTIVE__ = true;
-  original.style.visibility = 'hidden';
+  // Keep the legacy canvas accessible to existing broadcast/visibility checks; the 3D canvas covers it.
+  original.style.opacity = '0';
+  document.querySelector('.danger-vignette')?.style.setProperty('z-index','2');
+  document.querySelector('.checkpoint-pill')?.style.setProperty('z-index','3');
   window.__TOWER_3D_RENDER__ = (s,phase='normal') => {
     scenePhase=phase;
     if (!s || (s.publicChecksum && s.publicChecksum === previousChecksum)) return;
@@ -161,7 +164,7 @@
     ].join('\n');
     requestAnimationFrame(animate);
   };
-  canvas.addEventListener('webglcontextlost', event => { event.preventDefault(); metrics.status='context-lost'; canvas.style.display='none'; original.style.visibility='visible'; });
-  canvas.addEventListener('webglcontextrestored', () => { canvas.style.display='block'; original.style.visibility='hidden'; metrics.status='restored'; });
+  canvas.addEventListener('webglcontextlost', event => { event.preventDefault(); metrics.status='context-lost'; canvas.style.display='none'; original.style.opacity='1'; });
+  canvas.addEventListener('webglcontextrestored', () => { canvas.style.display='block'; original.style.opacity='0'; metrics.status='restored'; });
   animate();
 })();
