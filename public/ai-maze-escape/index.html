@@ -7,6 +7,7 @@
   <title>AI Maze Escape — Autonomous Broadcast</title>
   <link rel="stylesheet" href="/maze/styles.css">
   <link rel="stylesheet" href="/maze/ux-v2.css">
+  <link rel="stylesheet" href="/maze/gauntlet.css">
 </head>
 <body data-reduced-motion="false" data-high-contrast="false">
   <main id="broadcast" data-ux-revision="2" aria-label="AI Maze Escape autonomous livestream">
@@ -49,7 +50,7 @@
         <span class="eyebrow">INVENTORY</span>
         <div id="inventory" aria-live="polite">No keys collected</div>
       </section>
-      <footer>PARTIAL OBSERVATION • NO ORACLE ACCESS</footer>
+      <footer>PARTIAL OBSERVATION • NO ORACLE ACCESS<br><a href="/maze/progress" target="_blank" rel="noopener">GAUNTLET PROGRESS ↗</a></footer>
     </aside>
     <section id="captions" data-testid="captions" aria-live="polite" aria-atomic="true">
       <span class="caption-label">LIVE CAPTION</span>
@@ -57,5 +58,6 @@
     </section>
   </main>
   <script src="/maze/app.js" defer></script>
+  <script type="module" src="/maze/scene3d.js"></script>
 </body>
 </html>
