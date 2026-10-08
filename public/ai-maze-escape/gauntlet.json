@@ -120,6 +120,23 @@
       "independentCritic": "Manual prior Chromium screenshot review identified overly repetitive walls, dark colors, weak environmental props and extensive empty terrain; independent critic and latest screenshot remain unavailable.",
       "largestKnownGap": "Assets are still procedural, not studio-authored or rigged. No blind Talos Principle 2/Little Nightmares III visual A/B has been passed. The latest branch must be browser-rendered and assessed for visual density, obstruction and FPS.",
       "visualBarMet": false
+    },
+    {
+      "number": 8,
+      "label": "Sculpted characters, biome-specific monumental ruins, atmosphere and spectator UX",
+      "status": "Committed to draft PR; latest real browser screenshot and endurance checks awaiting CI",
+      "built": [
+        "New character-art.js with original LatheGeometry explorer and wraith models, articulated shoulders/hips, facial features, curved fabric cape, lantern equipment and animated spectral garments",
+        "Biome-specific environment details: towering trees and canopy, sandstone fountains and water basins, illuminated crystal forests and ritual citadel obelisks",
+        "Distant ruin and rock skyline outside the known maze bounds for scenic world depth",
+        "New atmosphere.js with profile-specific ambient particles, light shafts, motion-reduction support and proper resource cleanup",
+        "Brighter corrected stone albedo textures and stronger hero-first camera framing with extended foreground wall cutaways",
+        "Vibrant theater-view control for spectators, with an accessible way back to telemetry HUD",
+        "Browser evidence tests for sculpture mesh counts, art diversity, atmosphere and theater interactions"
+      ],
+      "independentCritic": "Pending fresh-context visual A/B; subagent service disconnected. Prior browser screenshot used to identify repetitive corridors, obstructed/tiny hero, dull colors and blank background.",
+      "largestKnownGap": "Characters are original sculpted procedural models, not studio-authored PBR assets, and quality versus The Talos Principle 2 and Little Nightmares III remains unverified. Latest head has not passed Chromium screenshots or long-run GPU measurements.",
+      "visualBarMet": false
     }
   ],
   "milestones": [
@@ -170,6 +187,18 @@
     {
       "label": "High-chroma broadcast HUD, situation-aware color and measured art props",
       "status": "implemented; accessibility/visual tests queued"
+    },
+    {
+      "label": "Sculpted character model and genuinely animated wraith cloth",
+      "status": "implemented; latest browser critique pending"
+    },
+    {
+      "label": "Five individualized landmark grammars plus particles and skyline vistas",
+      "status": "implemented; latest browser critique pending"
+    },
+    {
+      "label": "Audience theater view with real UI controls",
+      "status": "implemented; browser test queued"
     }
   ],
   "updatedAt": "2026-10-08",
@@ -184,16 +213,16 @@
     {
       "name": "Visual environment quality",
       "reference": "Talos Principle 2 — geometry, material layering and lighting",
-      "current": "Procedural 3D world art director now populates observed space with flora, rock sculpture, waystones, carved masonry, banners, glyphs and biome-specific materials; still below authored reference quality.",
+      "current": "Biome-specific sculptural props, water basins, architectural reliefs, canopy trees, crystals, giant stone skyline, brightness-corrected textured masonry and atmospheric shafts.",
       "status": "below",
-      "evidence": "world-craft.js, scene3d.js; newest CI screenshot artifact pending"
+      "evidence": "world-craft.js, atmosphere.js and corrected scene3d.js albedo; real latest screenshot pending"
     },
     {
       "name": "Fully developed hero and threats",
       "reference": "Little Nightmares III — distinctive modeled and animated characters",
-      "current": "Articulated primitive-based humanoid and hunter; lacks authored meshes/rigs",
+      "current": "Original articulated procedural 3D models now have sculpted garments and monster silhouettes, with modeled faces, lanterns, layered armor and animated cloth; not yet studio-authored.",
       "status": "below",
-      "evidence": "Procedural scene3d.js; no reference-winning captures"
+      "evidence": "character-art.js and scene3d.js model-count assertions; latest browser capture pending"
     },
     {
       "name": "Autonomous decision-making and replay",
@@ -205,9 +234,9 @@
     {
       "name": "Broadcast-ready interface",
       "reference": "Premium game-grade HUD that never obscures action",
-      "current": "Full-bleed broadcast with vivid biome-reactive color grading, status-dependent palette, camera controls, mission hierarchy, AI reasoning and event displays.",
+      "current": "High-chroma biome-responsive HUD with 3D cinematic/follow/tactical cameras, audience signals, danger overlays and accessible theater mode.",
       "status": "awaiting-verification",
-      "evidence": "experience-v4.css and browser screenshot test; latest Chromium screenshot pending"
+      "evidence": "experience-v4.css, experience.js and Playwright UI gate; latest capture pending"
     },
     {
       "name": "Audience participation",
