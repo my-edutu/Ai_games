@@ -1,0 +1,20 @@
+'use strict';
+const test=require('node:test');
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const path=require('node:path');
+test('opt-in city audio keeps silence by default and never changes authoritative state',async()=>{
+  const source=fs.readFileSync(path.resolve(__dirname,'../../public/eko-run/soundscape.js'),'utf8');
+  const {createEkoSoundscape}=await import('data:text/javascript;base64,'+Buffer.from(source).toString('base64'));
+  const audio=createEkoSoundscape();
+  assert.equal(audio.enabled,false);
+  assert.ok(['muted','unsupported'].includes(audio.status));
+  const snapshot={tick:3,player:{position:{x:5,y:0}},resources:{ekoTokens:0}};
+  const before=JSON.stringify(snapshot);
+  audio.theme('market-rush');
+  audio.ingest([{sequence:0,tick:3,type:'token.collected',data:{tokenId:'x'}}],'run-1');
+  audio.ingest([{sequence:0,tick:3,type:'token.collected',data:{tokenId:'x'}}],'run-1');
+  assert.equal(JSON.stringify(snapshot),before);
+  assert.equal(await audio.setEnabled(false),false);
+  audio.dispose();
+});
