@@ -170,6 +170,12 @@
       return;
     }
 
+    if (event.type === 'marble-pit-falling') {
+      tone({frequency:360,duration:0.36,gain:0.021,type:'sawtooth',pan,glideTo:86});
+      tone({frequency:135,duration:0.24,gain:0.015,type:'triangle',offset:0.11,pan,glideTo:60});
+      return;
+    }
+
     if (event.type === 'marble-launched') {
       tone({ frequency: 310, duration: 0.18, gain: 0.018, type: 'sine', pan, glideTo: 820 });
       tone({ frequency: 510, duration: 0.22, gain: 0.014, type: 'triangle', offset: 0.08, pan, glideTo: 1100 });
