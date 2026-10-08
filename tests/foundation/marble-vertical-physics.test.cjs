@@ -6,6 +6,7 @@ const {
   MarbleRuntime,
   NamedRng,
   createMarbleSnapshot,
+  restoreMarbleSnapshot,
   generateMarbleArena,
   marbleStateChecksum,
   parseMarbleConfig,
@@ -127,4 +128,26 @@ test('ramp traversal changes authoritative elevation and stays replay determinis
   assert.ok(peakElevation >= 800, `expected meaningful ramp elevation, got ${peakElevation}`);
   assert.ok(left.marbles[0].elevation >= 0);
   assert.ok(Math.abs(left.marbles[0].verticalVelocity) <= left.config.maxVerticalSpeed);
+});
+test('v3 snapshots restore, while pre-upgrade v2 physics checkpoints fail closed', () => {
+  const runtime = MarbleRuntime.create({
+    rosterSize: 4,
+    roundQuotas: [2, 1, 1, 1, 1],
+    roundIntroTicks: 0,
+  }, 'gauntlet-determinism-version');
+  const current = createMarbleSnapshot(runtime);
+  assert.equal(current.deterministicVersion, 'marble-physics-v3');
+  const restored = restoreMarbleSnapshot(current);
+  assert.equal(restored.state.determinismVersion, 'marble-physics-v3');
+  assert.equal(marbleStateChecksum(restored.state), marbleStateChecksum(runtime.state));
+
+  // The historical v2 collision solver had planar contacts, so replaying its
+  // checkpoint under today's 3D dynamics would silently alter outcomes.
+  // Reject explicitly; a separate version-aware migration is required.
+  const legacy = { ...current, deterministicVersion: 'marble-physics-v2' };
+  assert.throws(
+    () => restoreMarbleSnapshot(legacy),
+    error => error && error.code === 'version',
+    'old physics replays must never be treated as current v3 authority',
+  );
 });
