@@ -12,6 +12,16 @@
 
 To capture browser evidence: `npm run dungeon:visual` (requires Playwright Chromium installation). The stream continues while the web page is closed. Do not expose this reference server publicly without deployment controls.
 
+## Gauntlet Round 5 — real 3D authored character upgrade
+
+The optional **integrity-verified CC0 GLB asset pipeline** now replaces primitive fallback characters with authored, textured, skeletal animated characters: Knight/Vanguard, Archer/Ranger, Mage/Mystic, skeleton opponents and a larger tinted Warden. Authored dungeon pillars and walls are placed as cosmetic landmarks. Missing files preserve a functional procedural character fallback rather than a broken render.
+
+`npm run dungeon:assets` pulls 20 pinned character/environment binaries to an ignored local directory; `npm run dungeon:assets:strict` enforces complete receipt and Git blob SHA matching for screenshot-gate CI. This requires network access the first time; no external requests occur during game rendering.
+
+The spectator view now includes themed cinematic lighting, atmospheric set extensions, HUD palettes by floor, minimap, world-space HP/damage and status overlays, scripted floor-reveal presentation, user-selected camera types, trap devices and opt-in audio cues.
+
+**Pending:** GitHub runner validation and actual screenshot/video inspection of the new authored assets. Even after validation, source models remain stylised low-poly, not Path of Exile 2-level AAA art. See [pinned asset provenance](assets/PROVENANCE.md).
+
 ## Implemented vertical slice
 
 - Seeded 19×19 dungeon with guaranteed navigable routes, farthest reachable exit, limited shortcuts, relics, miniboss and enemies.
