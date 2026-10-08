@@ -106,8 +106,14 @@ function navSnap(x,z,requireSight=false){
   return null;
 }
 const NAV_DIRS=[[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]];
-function clearSegment(a,b){const len=Math.hypot(a[0]-b[0],a[1]-b[1]),steps=Math.max(1,Math.ceil(len/.04));for(let i=1;i<=steps;i++){let t=i/steps;if(!walkable(a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t))return false}return true}
+function clearSegment(a,b){const len=Math.hypot(a[0]-b[0],a[1]-b[1]);if(len<=.04)return walkable(b[0],b[1]);const steps=Math.ceil(len/.04);for(let i=1;i<=steps;i++){let t=i/steps;if(!walkable(a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t))return false}return true}
+// Binary priority queue keeps worst-case A* expansion bounded without repeated full sorts.
+const navCompare=(a,b)=>a.f-b.f||a.g-b.g||a.x-b.x||a.z-b.z;
+function navPush(heap,n){let i=heap.length;heap.push(n);while(i>0){const p=(i-1)>>1;if(navCompare(heap[p],n)<=0)break;heap[i]=heap[p];i=p}heap[i]=n}
+function navPop(heap){const top=heap[0],end=heap.pop();if(heap.length){let i=0;while(i*2+1<heap.length){let c=i*2+1;if(c+1<heap.length&&navCompare(heap[c+1],heap[c])<0)c++;if(navCompare(end,heap[c])<=0)break;heap[i]=heap[c];i=c}heap[i]=end}return top}
 function routeBetween(x,z,tx,tz){
+  // Most trips stay in the same open yard. Do not invoke grid search for clear sight.
+  if(walkable(x,z)&&walkable(tx,tz)&&clearSegment([x,z],[tx,tz]))return [[tx,tz]];
   let start=navSnap(x,z,true),goal=navSnap(tx,tz);
   if(!start||!goal)return null;
   const key=(ix,iz)=>ix+','+iz;
@@ -115,8 +121,7 @@ function routeBetween(x,z,tx,tz){
   const heuristic=(ix,iz)=>Math.hypot(ix-goal[0],iz-goal[1]);
   let frontier=[{x:start[0],z:start[1],g:0,f:heuristic(...start),key:startK}],bestG=new Map([[startK,0]]),parent=new Map(),closed=new Set(),expanded=0;
   while(frontier.length&&expanded++<NAV_BUDGET){
-    frontier.sort((a,b)=>a.f-b.f||a.g-b.g||a.x-b.x||a.z-b.z);
-    const node=frontier.shift();if(closed.has(node.key))continue;closed.add(node.key);
+    const node=navPop(frontier);if(closed.has(node.key))continue;closed.add(node.key);
     if(node.key===goalK){
       let points=[],at=goalK;
       for(let i=0;i<NAV_BUDGET&&at;i++){const [ix,iz]=at.split(',').map(Number);points.push(navPoint(ix,iz));if(at===startK)break;at=parent.get(at)}
@@ -132,7 +137,7 @@ function routeBetween(x,z,tx,tz){
       if(dx&&dz&&(!walkable(...navPoint(node.x+dx,node.z))||!walkable(...navPoint(node.x,node.z+dz))))continue;
       const k=key(nx,nz),cost=node.g+(dx&&dz?Math.SQRT2:1);
       if(closed.has(k)||cost+1e-8>=(bestG.get(k)??Infinity))continue;
-      bestG.set(k,cost);parent.set(k,node.key);frontier.push({x:nx,z:nz,g:cost,f:cost+heuristic(nx,nz),key:k});
+      bestG.set(k,cost);parent.set(k,node.key);navPush(frontier,{x:nx,z:nz,g:cost,f:cost+heuristic(nx,nz),key:k});
     }
   }
   return null;
@@ -143,11 +148,11 @@ function recount(p){if(state.t-state.lastStory<5)return;state.lastStory=state.t;
 function work(p){if(p.energy<30||p.hunger>88){p.energy=Math.min(100,p.energy+6);p.hunger=Math.max(0,p.hunger-9);p.activity='Resting at home';return}p.activity=p.job==='farmer'?'Harvesting grain':p.job==='forester'?'Cutting timber':p.job==='merchant'?'Bartering at market':p.job==='builder'?'Constructing cottages':p.job==='craftsperson'?'Making household goods':'Foraging the hillside';if(p.job==='farmer')state.food+=2.8;if(p.job==='gatherer')state.food+=1.4;if(p.job==='forester')state.wood+=2.1;if(p.job==='merchant'&&state.food>people.length*5){state.food-=1.5;state.gold+=1.2}else if(p.job==='merchant'&&state.food<people.length*3&&state.gold>=2){state.gold-=2;state.food+=5;if(state.t-state.lastStory>5){state.lastStory=state.t;report(`${p.name} imported grain to protect the village food reserve.`)}}if(p.job==='craftsperson'&&state.wood>=.7){state.wood-=.7;state.gold+=.45}if(p.job==='builder'&&state.wood>=28&&city.length<35){state.wood-=28;state.buildCount++;let i=city.length-12,x=-17-Math.floor(i/3)*3.1,z=-14+(i%3)*6.5;if(people.some(v=>Math.hypot(v.x-x,v.z-z)<4)){state.wood+=28;return}city.push([x,z,i%3]);report(`${p.name} finished a new cottage for the growing village.`)}p.energy=Math.max(0,p.energy-3.5);p.hunger=Math.min(100,p.hunger+2);recount(p)}
 function step(dt){state.t+=dt;for(let i=0;i<people.length;i++){const p=people[i],dx=p.target[0]-p.x,dz=p.target[1]-p.z,dist=Math.hypot(dx,dz);p.phase+=dt*2.2;p.workTimer+=dt;p.hunger=Math.min(100,p.hunger+dt*.14);
 const wp=p.path&&p.path.length?p.path[0]:p.target,wx=wp[0]-p.x,wz=wp[1]-p.z,remaining=Math.hypot(wx,wz);
-if(remaining>.24){const move=Math.min(remaining,dt*(.75+i%4*.09));if(clearSegment([p.x,p.z],[p.x+wx/remaining*move,p.z+wz/remaining*move])){p.x+=wx/remaining*move;p.z+=wz/remaining*move;p.energy=Math.max(0,p.energy-dt*.10)}else if(p.workTimer>1){routeCitizen(p);p.workTimer=0}}
+if(remaining>.24){const move=Math.min(remaining,dt*(.75+i%4*.09));const nx=p.x+wx/remaining*move,nz=p.z+wz/remaining*move;if(move<=.04?walkable(nx,nz):clearSegment([p.x,p.z],[nx,nz])){p.x=nx;p.z=nz;p.energy=Math.max(0,p.energy-dt*.10)}else if(p.workTimer>1){routeCitizen(p);p.workTimer=0}}
 else if(p.path&&p.path.length){p.path.shift()}
 else if(p.workTimer>=2.5){work(p);p.workTimer=0;choose(p)}}
 // Relationships are generated only by real proximity between villagers, not invented stories.
-for(let i=0;i<people.length;i++)for(let j=i+1;j<people.length;j++){let a=people[i],b=people[j];if(Math.hypot(a.x-b.x,a.z-b.z)<1.3){const inc=dt*.65;a.bonds[b.name]=(a.bonds[b.name]||0)+inc;b.bonds[a.name]=(b.bonds[a.name]||0)+inc;if(a.bonds[b.name]>3&&!a.friend){a.friend=b.name;if(state.t-state.lastStory>2){report(`${a.name} and ${b.name} became friends after meeting in the village.`);state.lastStory=state.t}}}}
+for(let i=0;i<people.length;i++)for(let j=i+1;j<people.length;j++){let a=people[i],b=people[j];if(Math.abs(a.x-b.x)<1.3&&Math.abs(a.z-b.z)<1.3&&(a.x-b.x)**2+(a.z-b.z)**2<1.69){const inc=dt*.65;a.bonds[b.name]=(a.bonds[b.name]||0)+inc;b.bonds[a.name]=(b.bonds[a.name]||0)+inc;if(a.bonds[b.name]>3&&!a.friend){a.friend=b.name;if(state.t-state.lastStory>2){report(`${a.name} and ${b.name} became friends after meeting in the village.`);state.lastStory=state.t}}}}
 state.food=Math.max(0,state.food-dt*people.length*.016);if(state.food<1)for(const p of people)p.hunger=Math.min(100,p.hunger+dt*.38);
 state.happiness=Math.max(15,Math.min(98,80+(state.food>15?6:-28)-people.reduce((s,p)=>s+p.hunger,0)/people.length*.28+Math.sin(state.t/12)*5));let last=Math.floor((state.t-dt)/24),now=Math.floor(state.t/24);if(now>last){report(`Day ${now+1} begins. The settlement now has ${people.length} citizens and ${state.buildCount} buildings.`);if(now%6===0&&people.length<28&&state.food>60&&state.buildCount>=Math.ceil((people.length+1)/3)){let n=names[people.length%names.length];let citizen={name:n,job:jobs[people.length%jobs.length],trait:'hopeful',x:0,z:0,target:[rand()*12,rand()*12],phase:0,energy:90,hunger:15,friend:null,bonds:{},activity:'Finding a home',workTimer:0};people.push(citizen);if(!walkable(citizen.x,citizen.z)){const spot=navSnap(citizen.x,citizen.z);if(spot)[citizen.x,citizen.z]=navPoint(...spot)}choose(citizen);report(`${n} joined the growing community as its newest citizen.`)}updateUI();}}
 function updateUI(){const day=Math.floor(state.t/24)+1; const time=state.t%24;document.getElementById('clock').textContent=`DAY ${day} · ${time<6?'NIGHT':time<9?'DAWN':time<12?'MORNING':time<17?'AFTERNOON':time<20?'EVENING':'NIGHT'}`;for(let [key,val] of Object.entries({population:people.length,buildings:state.buildCount,happiness:Math.round(state.happiness)+'%',year:String(Math.ceil(day/36)).padStart(2,'0'),food:Math.floor(state.food),wood:Math.floor(state.wood),gold:Math.floor(state.gold),working:people.filter(p=>p.activity.includes("Traveling")||p.activity.includes("Harvest")||p.activity.includes("Cutting")||p.activity.includes("Bartering")||p.activity.includes("Crafting")||p.activity.includes("Foraging")||p.activity.includes("Constructing")).length}))document.getElementById(key).textContent=val;document.getElementById('progress').style.width=Math.min(98,21+people.length*1.4+state.buildCount*.8)+'%';const citizen=people[0];document.getElementById('citizen-name').textContent=citizen.name;document.getElementById('citizen-detail').textContent=`${citizen.trait} ${citizen.job} · ${citizen.activity}`;document.getElementById('citizen-bond').textContent=`Energy ${Math.round(citizen.energy)}% · Hunger ${Math.round(citizen.hunger)}% · ${citizen.friend?'Friend: '+citizen.friend:'Making connections'}`}
