@@ -17,11 +17,14 @@ export function createTowerEntities(THREE){
   const orb=(p,m,x,y,z,w,h,d)=>shape(p,sphereGeo,m,x,y,z,w,h,d);
   function platform(data,px,py,width,height){
     const root=new THREE.Group();root.position.set(px,py,0);
-    const moving=data.kind==='moving',oneway=data.kind==='oneway';
-    const slab=bar(root,oneway?edge:stone,0,0,0,width,Math.max(height,.24),4.5);
+    const moving=data.kind==='moving',oneway=data.kind==='oneway',
+      crumble=data.kind==='crumbling',wind=data.kind==='wind',
+      narrow=data.kind==='narrow',spring=data.kind==='spring',guardian=data.kind==='guardian';
+    const surface=crumble?wood:spring?health:wind?stamina:narrow?edge:oneway?edge:stone;
+    const slab=bar(root,surface,0,0,0,width,Math.max(height,.24),4.5);
     // Underside cantilevers and inset luminous edge give each landing real mass.
     bar(root,wood,0,-Math.max(height,.24)*.5-.24,0,width*.85,.23,3.65);
-    bar(root,moving?violet:metal,0,Math.max(height,.24)*.5+.08,0,width,.16,4.55);
+    bar(root,moving?violet:crumble?danger:spring?gold:wind?stamina:metal,0,Math.max(height,.24)*.5+.08,0,width,.16,4.55);
     for(const side of [-1,1]){
       bar(root,obsidian,side*width*.42,-Math.max(height,.24)*.5-.54,.18,.18,.77,3.2);
       const bolt=orb(root,edge,side*width*.44,Math.max(height,.24)*.5+.13,2.32,.1,.1,.1);
@@ -30,7 +33,41 @@ export function createTowerEntities(THREE){
         orb(root,gold,side*width*.42,2.2,-1.8,.2,.2,.2);
       }
     }
-    root.userData.platform=true;return root;
+    if(crumble){
+      // Offset fault lines provide a clear breakable silhouette, not just recoloring.
+      for(let i=0;i<5;i++){
+        const stripe=bar(root,obsidian,(i-2)*width/6,.49,-.15,Math.max(.1,width*.13),.05,3.8);
+        stripe.rotation.z=Math.sin(i*2.1)*.17;
+      }
+      for(let side of [-1,1])shape(root,spikeGeo,danger,side*width*.44,.6,1.55,.19,.4,.19);
+    }
+    if(wind){
+      for(let i=0;i<4;i++){
+        const vane=bar(root,stamina,(i-1.5)*width*.21,.85,-1.4,.11,.65,1.75);
+        vane.rotation.z=(i%2?1:-1)*.33;
+      }
+      orb(root,stamina,0,.72,1.6,.3,.3,.3);
+    }
+    if(spring){
+      bar(root,obsidian,0,.56,0,width*.55,.25,3.6);
+      for(let i=-2;i<=2;i++){
+        orb(root,gold,i*width*.08,.77,0,.19,.29,.22);
+      }
+      bar(root,health,0,1.08,0,width*.42,.17,3.1);
+    }
+    if(narrow){
+      for(const side of [-1,1]){
+        bar(root,gold,side*width*.45,.75,-1.5,.13,.7,.18);
+        bar(root,gold,side*width*.45,.75,1.5,.13,.7,.18);
+      }
+    }
+    if(guardian){
+      for(const side of [-1,1]){
+        bar(root,obsidian,side*width*.45,1.6,-1.7,.6,2.3,.65);
+        orb(root,eye,side*width*.45,2.85,-1.7,.38,.38,.36);
+      }
+    }
+    root.userData.platform=true;root.userData.kind=data.kind;return root;
   }
   function enemy(data,px,py,rw,rh){
     const root=new THREE.Group();root.position.set(px,py,.6);
