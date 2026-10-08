@@ -1,6 +1,6 @@
 // Deterministic, dependency-free 3-axis climbing physics and autonomous route planner.
 // No rendering, timers, network, Math.random or mutable external state.
-export function createVolumetricCore(seedInput=0x00a3f914){
+export function createVolumetricCore(seedInput=0x00a3f914,saved=null){
   const config=Object.freeze({gravity:24,jump:14.2,speed:9.4,acceleration:45,halfHeight:1.5,maxFall:-27,worldX:18,worldZ:16});
   let seed=seedInput>>>0,tick=0,time=0,highestGenerated=-1,highestReached=0,mode='INIT',guardianKills=0,score=0,intent='ASSESSING ROUTE';
   const build={stride:0,grip:0,ward:0,salvage:0};
@@ -211,11 +211,55 @@ export function createVolumetricCore(seedInput=0x00a3f914){
     while(platforms.length>24&&platforms[0].i<player.at-8)platforms.shift();
     return snapshot();
   }
+  const SAVE_VERSION=1;
+  function exportSave(){
+    return {schemaVersion:SAVE_VERSION,seedState:seed>>>0,initialSeed:seedInput>>>0,tick,time,
+      highestGenerated,highestReached,mode,intent,guardianKills,score,build:{...build},
+      shields,upgradesTaken,wallClimbs,climbing:{...climbing},player:{...player},
+      platforms:platforms.map(p=>({...p})),events:events.slice(-32)};
+  }
+  function importSave(raw){
+    if(raw?.schemaVersion!==SAVE_VERSION||!raw.player||!Array.isArray(raw.platforms)||
+      raw.platforms.length<1||raw.platforms.length>24||!Array.isArray(raw.events)||
+      raw.events.length>32)throw Error('Invalid saved game schema');
+    const values=[raw.tick,raw.time,raw.highestGenerated,raw.highestReached,raw.guardianKills,
+      raw.score,raw.shields,raw.upgradesTaken,raw.wallClimbs,
+      raw.player.x,raw.player.y,raw.player.z,raw.player.vx,raw.player.vy,raw.player.vz,
+      raw.player.at,raw.player.deaths,raw.player.health];
+    for(const p of raw.platforms)values.push(p.i,p.x,p.y,p.z,p.width,p.height,p.depth,
+      p.baseX,p.baseZ,p.guardianHealth,p.guardianClock,p.structuralIntegrity);
+    if(values.some(v=>typeof v!=='number'||!Number.isFinite(v)||Math.abs(v)>1e9)
+      ||!Number.isInteger(raw.seedState)||raw.seedState<0||raw.seedState>4294967295)
+      throw Error('Invalid saved world numbers');
+    for(const key of ['stride','grip','ward','salvage'])
+      if(typeof raw.build?.[key]!=='number'||raw.build[key]<0||raw.build[key]>4)
+        throw Error('Invalid skill '+key);
+    if(typeof raw.climbing?.stamina!=='number'||raw.climbing.stamina<0||
+      raw.climbing.stamina>100||typeof raw.climbing?.progress!=='number'||
+      raw.climbing.progress<0||raw.climbing.progress>1)throw Error('Invalid grip state');
+    if(raw.player.at<0||raw.highestReached<raw.player.at||
+      raw.platforms.some((p,i)=>i>0&&p.i<=raw.platforms[i-1].i))
+      throw Error('Invalid world order');
+    seed=raw.seedState>>>0;tick=raw.tick;time=raw.time;
+    highestGenerated=raw.highestGenerated;highestReached=raw.highestReached;
+    mode=String(raw.mode).slice(0,70);intent=String(raw.intent).slice(0,100);
+    guardianKills=raw.guardianKills;score=raw.score;shields=raw.shields;
+    upgradesTaken=raw.upgradesTaken;wallClimbs=raw.wallClimbs;
+    for(const key of ['stride','grip','ward','salvage'])build[key]=raw.build[key];
+    for(const key of ['x','y','z','vx','vy','vz','at','checkpoint','deaths','health'])
+      player[key]=raw.player[key];
+    player.grounded=Boolean(raw.player.grounded);
+    for(const key of ['active','targetFloor','progress','stamina','fromX','fromY','fromZ'])
+      climbing[key]=key==='active'?Boolean(raw.climbing[key]):Number(raw.climbing[key]||0);
+    platforms.splice(0,platforms.length,...raw.platforms.map(p=>({...p})));
+    events.splice(0,events.length,...raw.events.slice(-32));
+  }
   function snapshot(){
     return {tick,time,mode,intent,theme:currentTheme(),highestReached,highestGenerated,guardianKills,score,
       events:events.slice(-12),build:{...build},shields,upgradesTaken,wallClimbs,
       climbing:{...climbing},
       player:{...player},platforms:platforms.map(p=>({...p})),dimensionality:3};
   }
-  return {step,snapshot,platforms,player,landingHeight,config};
+  if(saved)importSave(saved);
+  return {step,snapshot,platforms,player,landingHeight,config,exportSave};
 }
