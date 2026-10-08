@@ -112,7 +112,7 @@ function stoneworkMaterial(name,color){
   masonry.set(name,material);return material;
 }
 
-export function mountTower3D({host,getFrame,reducedMotion=false,heroCamera=false}){
+export function mountTower3D({host,getFrame,reducedMotion=false,heroCamera=false,quality='auto'}){
   const canvas=document.createElement('canvas');
   canvas.id='tower-3d-canvas';canvas.dataset.testid='tower-3d-canvas';
   canvas.setAttribute('aria-hidden','true');
@@ -121,7 +121,8 @@ export function mountTower3D({host,getFrame,reducedMotion=false,heroCamera=false
   let renderer;
   try{
     renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:false,powerPreference:'high-performance'});
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,1.65));
+    const lowPower=quality==='low'||(quality==='auto'&&window.innerWidth<850);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,lowPower?1:1.65));
     renderer.toneMapping=THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure=1.37;
     renderer.outputColorSpace=THREE.SRGBColorSpace;
@@ -138,6 +139,7 @@ export function mountTower3D({host,getFrame,reducedMotion=false,heroCamera=false
   const dynamic=new Map();
   let floor=-1,theme='',lastChecksum='',latest=null,frame=null,running=true,lastAt=performance.now(),ornament=null;
   let cameraY=35,cameraX=240,worldWidth=480,observedFrames=0,visualX=null,visualY=null,visualRun='',visualFloor=-1;
+  let frameTotalMs=0,slowFrames=0,frameSampleCount=0;
   const perf={frames:0,drawCalls:0,triangles:0,entityCount:0};window.__TOWER_3D_DIAGNOSTICS__=perf;
 
   function buildBackdrop(s){
@@ -328,7 +330,8 @@ export function mountTower3D({host,getFrame,reducedMotion=false,heroCamera=false
     const data=getFrame();if(!data?.snapshot)return;
     const s=data.snapshot;
     if(lastChecksum!==s.publicChecksum)sync(s);
-    const dt=clamp((now-lastAt)/1000,0,.1);lastAt=now;resize();
+    const rawMs=now-lastAt,dt=clamp(rawMs/1000,0,.1);lastAt=now;resize();
+    if(rawMs>0&&Number.isFinite(rawMs)){frameTotalMs+=rawMs;frameSampleCount++;if(rawMs>33.3)slowFrames++;}
     const authoritativeX=coord(s.player.x),authoritativeY=coord(s.player.y);
     if(visualRun!==s.runToken||visualX===null||visualFloor!==s.floor){visualX=authoritativeX;visualY=authoritativeY;visualRun=s.runToken;visualFloor=s.floor}
     const follow=reducedMotion?1:1-Math.exp(-dt*13);
@@ -355,7 +358,7 @@ export function mountTower3D({host,getFrame,reducedMotion=false,heroCamera=false
     // Keep observed performance measurable for the independent critic.
     animateTowerEnvironment(ornament,now*.001,reducedMotion);
     renderer.render(scene,camera);observedFrames++;
-    if(observedFrames%60===0){perf.frames=observedFrames;perf.drawCalls=renderer.info.render.calls;perf.triangles=renderer.info.render.triangles;perf.heroParts=(()=>{let count=0;player.traverse(o=>{if(o.isMesh)count++});return count})();perf.renderMode='webgl-3d';perf.state=s.player.state;perf.heroCamera=heroCamera;}
+    if(observedFrames%60===0){perf.frames=observedFrames;perf.drawCalls=renderer.info.render.calls;perf.triangles=renderer.info.render.triangles;perf.heroParts=(()=>{let count=0;player.traverse(o=>{if(o.isMesh)count++});return count})();perf.renderMode='webgl-3d';perf.state=s.player.state;perf.heroCamera=heroCamera;perf.averageFps=frameTotalMs>0?Math.round(1000*frameSampleCount/frameTotalMs):0;perf.slowFrames=slowFrames;perf.sampledFrames=frameSampleCount;perf.pixelRatio=renderer.getPixelRatio();}
   }
   const onLost=event=>{event.preventDefault();running=false;renderer.dispose();canvas.remove();document.body.dataset.towerRenderer='2d-fallback';window.__TOWER_3D_ACTIVE__=false};
   canvas.addEventListener('webglcontextlost',onLost,{once:true});
