@@ -19,6 +19,28 @@
 | Progress page | Embedded running scene, latest tick, survivor/zombie counts, render FPS, transparent acceptance ledger | Live telemetry browser smoke | CI pending |
 | Safety | WebGL2 fallback link to original 2.5D, no external runtime assets and bounded visible crowds | Fallback and performance review | Partially complete |
 
+## Iteration 02 — visual critic response
+
+Inspected real browser captures from an earlier CI attempt: `day.png`, `night.png`, and `large-horde.png` were valid 1280×720 rendered screenshots, but the environment read as an almost monochrome, foggy overhead miniature rather than the requested cinematic survival scene. An earlier workflow failed on the pause assertion even though gameplay scene captures were produced. This is a **failed visual comparison** against Days Gone Remastered, not a quality win.
+
+Builder response:
+- increased actual geometric visibility with warm materials, clearer sunlit streets, colored shop awnings, tree canopies, safer road markings, and contrasted windows;
+- reduced overbearing distance fog and moved the camera closer to character scale;
+- enriched tactical outfit and infected archetype distinctions;
+- added simplified LOD for distant infected to reduce dynamic geometry pressure;
+- fixed paused HUD feedback to update immediately instead of waiting on a throttled FPS interval.
+
+## Iteration 03 — autonomous broadcast critic response
+
+- Hero-follow camera, horde overview, alternate survivor cycling, orbit and zoom controls.
+- Visible live AI decisions and latest authoritative events.
+- Unattended deterministic restart following an overrun; no invisible script rescues agents or changes the underlying outcome.
+- Opt-in horde ambience and bounded combat event audio.
+- Additional Playwright checks for hero closeups, actual paused tick state and restart continuity.
+- Progress page now includes the iteration trail and live public GitHub Actions status.
+
+**Not independently validated:** the newest 3D screenshots, browser stress results, visual reference A/B, real-world stream capture, and long-duration memory trends. Workflow checks are pending, not accepted as passed.
+
 ## Independent critic pass — known blockers
 
 1. **P0 visual parity**: procedural meshes have no production sculpting, skeletal rigs, facial performance, believable clothing physics, authentic infected silhouettes, PBR textures, photogrammetry or environment dressing at AAA density.
@@ -46,4 +68,4 @@ For each piece: builder patch -> fresh-code spec review -> browser capture -> ha
 3. Improve shadows, material variation, fog, night readability, camera occlusion.
 4. Run GPU frame timing and 30–60 minute stress capture before escalating crowd population.
 
-Status as of 2026-10-08: code pushed for validation; no verified AAA or production readiness claim.
+Status as of 2026-10-08: iterations 01–03 implemented and pushed for validation; visually compared older iteration and rejected it for weak art direction. Latest browser pass not yet independently verified; no AAA or production-readiness claim.
