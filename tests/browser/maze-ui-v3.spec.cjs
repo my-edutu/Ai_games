@@ -93,7 +93,7 @@ test('portrait interface and clean feed keep accessibility and real captions',as
 
 
 test('biome-reactive high-chroma HUD and decorated 3D art are genuinely wired',async({page,request})=>{
-  for(const asset of ['world-craft.js','experience-v4.css']){
+  for(const asset of ['world-craft.js','experience-v4.css','character-art.js','atmosphere.js']){
     const response=await request.get(base+'/maze/'+asset);
     expect(response.ok(),asset).toBe(true);
   }
@@ -125,4 +125,44 @@ test('biome-reactive high-chroma HUD and decorated 3D art are genuinely wired',a
   }
   await page.screenshot({path:path.join(artifacts,'gauntlet-world-art-v7.png'),fullPage:true});
   expect(pageErrors).toEqual([]);
+});
+
+
+test('theater button gives the 3D action more room without changing AI authority',async({page})=>{
+  await page.setViewportSize({width:1440,height:900});
+  await page.goto(base+'/maze',{waitUntil:'domcontentloaded'});
+  await page.waitForFunction(()=>window.__MAZE_PUBLIC_STATE__?.tick>3);
+  const initial=await page.evaluate(()=>window.__MAZE_PUBLIC_STATE__.tick);
+  const button=page.locator('#theater-toggle');
+  await expect(button).toBeVisible();
+  await button.click();
+  await expect(button).toHaveAttribute('aria-pressed','true');
+  await expect(page.locator('#hud')).toBeHidden();
+  await expect(page.locator('#captions')).toBeVisible();
+  await page.screenshot({path:path.join(artifacts,'gauntlet-theater-v8.png'),fullPage:true});
+  await page.waitForTimeout(600);
+  const later=await page.evaluate(()=>window.__MAZE_PUBLIC_STATE__.tick);
+  expect(later).toBeGreaterThan(initial);
+  await button.click();
+  await expect(button).toHaveAttribute('aria-pressed','false');
+  await expect(page.locator('#hud')).toBeVisible();
+});
+
+test('original sculpted characters and biome weather expose a real 3D performance trace',async({page,request})=>{
+  await page.setViewportSize({width:1920,height:1080});
+  await page.goto(base+'/maze',{waitUntil:'domcontentloaded'});
+  await page.waitForFunction(()=>window.__MAZE_PUBLIC_STATE__?.tick>12);
+  const real=await page.evaluate(()=>({
+    render:!!window.__MAZE_3D_READY__,
+    report:window.__MAZE_3D_METRICS__,
+    public:window.__MAZE_PUBLIC_STATE__
+  }));
+  expect(real.public.world).toBeUndefined();
+  expect(real.public.seed).toBeUndefined();
+  if(real.render){
+    expect(real.report?.triangles).toBeGreaterThan(0);
+    expect(real.report?.artDetails?.skyline).toBeGreaterThan(0);
+    expect(real.report?.artDetails?.monumentalProps).toBeGreaterThanOrEqual(0);
+  }
+  await page.screenshot({path:path.join(artifacts,'gauntlet-character-atmosphere-v8.png'),fullPage:true});
 });
