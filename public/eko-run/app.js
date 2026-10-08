@@ -89,6 +89,7 @@ const terrain=new THREE.Group();scene.add(terrain);
 const hazards=new THREE.Group();scene.add(hazards);
 const hero=new THREE.Group();scene.add(hero);
 const ambient=new THREE.Group();scene.add(ambient);
+const weather=new THREE.Group();scene.add(weather);
 const worldState={district:'',finish:0,quality:'high',hazardIds:'',outfit:'',mode:'ai',lastEventTick:-1,frame:null,alive:false};
 let latest=null;
 let lastPacket=0;
@@ -190,6 +191,45 @@ function buildWorld(snapshot) {
       npc.userData.baseX=x+2.0;
     }
   }
+  // Each district changes spatial character, not merely the sky palette.
+  if(district==='market-rush'){
+    for(let i=0;i<Math.ceil(length/11);i++){
+      const x=2+i*11;
+      const stand=new THREE.Group();terrain.add(stand);
+      box(stand,2.7,.12,1.6,x,.83,3.96,0x8a5339);
+      box(stand,3.05,.15,1.95,x,2.75,3.96,i%2?0xffb841:0x149d95);
+      for(const side of [-1,1])for(const dx of [-1.22,1.22])
+        cylinder(stand,.055,.065,2.65,x+dx,1.42,3.96+side*.76,0x605846);
+      for(let fruit=0;fruit<12;fruit++)
+        ball(stand,.14,x+(fruit%6)*.29-.76,1.06,3.65+Math.floor(fruit/6)*.30,fruit%3?0xee9135:0x5d963c);
+    }
+  }
+  if(district==='bridge-run'){
+    box(terrain,length,.12,12,length/2-4,-.36,12,0x467f8c,false);
+    for(const side of [-1,1]){
+      box(terrain,length,.12,.15,length/2-4,1.35,side*3.37,0xc4d1c7);
+      for(let x=-4;x<length-5;x+=2.1)box(terrain,.09,1.7,.12,x,.83,side*3.37,0x86969d);
+    }
+    for(let i=0;i<8;i++){
+      const x=i*19-3;
+      box(terrain,2.3,4.1,2.5,x,2.05,-12,0xb4c4bd);
+    }
+  }
+  if(district==='rainy-lagos'){
+    for(let x=0;x<length-5;x+=6.5){
+      const puddle=box(terrain,2.7,.012,.7,x,.016,1.63,0x70b7bb,false);
+      puddle.material=material(0x63a8af,.48,.18);
+    }
+  }
+  if(district==='island-night'){
+    for(let i=0;i<9;i++){
+      const x=i*12-1;
+      const towerHeight=8+numberHash(i+78)*6;
+      box(terrain,3.2,towerHeight,3,x,towerHeight/2,-12,0x28435b);
+      for(let j=0;j<6;j++)box(terrain,2.1,.17,.04,x,.95+j*1.40,-10.47,0xfbd592,false);
+    }
+  }
+  weather.visible=district==='rainy-lagos';
   for(const x of snapshot.route.checkpointXs){
     box(terrain,.16,3.8,.16,x,1.9,-3.10,0xf4bd45);
     labelSprite(terrain,'CHECKPOINT',x,3.88,-3.15,{scale:.7,bg:'#236b66'});
@@ -198,6 +238,20 @@ function buildWorld(snapshot) {
   labelSprite(terrain,'FINISH LINE',snapshot.route.finishX,4.48,-3,{scale:1,bg:'#173d4c'});
   worldState.district=district;worldState.finish=snapshot.route.finishX;
 }
+// Reusable, bounded, presentation-only rain particles for Lagos showers.
+const RAIN_CAP=150;
+const drops=new Float32Array(RAIN_CAP*3);
+for(let i=0;i<RAIN_CAP;i++){
+  drops[i*3]=numberHash(i+21)*23-6;
+  drops[i*3+1]=numberHash(i+39)*12+1;
+  drops[i*3+2]=numberHash(i+93)*11-5.5;
+}
+const rainGeometry=new THREE.BufferGeometry();
+rainGeometry.setAttribute('position',new THREE.BufferAttribute(drops,3));
+rainGeometry.setDrawRange(0,RAIN_CAP);
+const rain=new THREE.Points(rainGeometry,new THREE.PointsMaterial({color:0xd7f4ff,size:.07,transparent:true,opacity:.65,depthWrite:false}));
+rain.frustumCulled=false;weather.add(rain);
+weather.visible=false;
 const bodyParts={};
 function buildHero(){
   const character=new THREE.Group();hero.add(character);bodyParts.root=character;
@@ -287,6 +341,8 @@ function makeHazard(h){
     danger.castShadow=true;
   }
   const marker=ball(g,.17,0,2.7,0,0xf9d551);marker.scale.set(1.3,1.3,1.3);
+  const cue=h.legalResponses.includes('jump')?'JUMP':h.legalResponses.includes('slide')?'SLIDE':h.legalResponses.includes('vault')?'VAULT':'WAIT';
+  labelSprite(g,cue,0,3.55,0,{scale:.56,bg:'#8c4024',color:'#fff8df'});
   const cylinderMesh=cylinder(g,.42,.42,.025,0,.05,0,0xffd166);cylinderMesh.material=material(0xfbbf44);
   g.userData.marker=marker;
   hazards.add(g);return g;
@@ -429,6 +485,19 @@ function animate(now){
     sun.position.x=player.position.x-8;
     sun.target.position.set(player.position.x,0,0);sun.target.updateMatrixWorld();
     for(const pedestrian of ambient.children)if(pedestrian.userData.baseX!==undefined)pedestrian.position.x=pedestrian.userData.baseX+Math.sin(now/1200+pedestrian.userData.walkOffset)*.30;
+    if(weather.visible){
+      rainGeometry.setDrawRange(0,worldState.quality==='high'?RAIN_CAP:55);
+      for(let i=0;i<RAIN_CAP;i++){
+        const offset=i*3;
+        drops[offset+1]-=dt*14;
+        drops[offset]+=.012;
+        if(drops[offset+1]<0 || drops[offset]<player.position.x-11){
+          drops[offset]=player.position.x+numberHash(i+31+Math.floor(now/1800))*21-9;
+          drops[offset+1]=9+numberHash(i+112)*3;
+        }
+      }
+      rainGeometry.attributes.position.needsUpdate=true;
+    }
   }
   const connected=performance.now()-lastPacket<3500;
   $('connection').textContent=connected?'● CONNECTED':'● RECONNECTING';
