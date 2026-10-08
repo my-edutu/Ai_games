@@ -433,7 +433,7 @@
       const pairCount=size;
       for(let i=0;i<pairCount;i++){
         const z=-depth*0.4+(i+0.5)*depth*0.8/pairCount;
-        const towerSize=1.4+((i*3+arena.round.index)%3)*0.44;
+        const towerSize=1.4+((i*3+arena.archetype.length)%3)*0.44;
         const height=2.2+towerSize;
         if(arena.archetype==='seeding-sprint'){
           // Coastal neon skyline: tapered broadcast towers and electric fins.
