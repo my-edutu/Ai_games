@@ -8,6 +8,7 @@ import { clearCamera } from '../web/camera-rig.js';
 import { decorateTacticalWorld } from '../web/world-overlays.js';
 import { drawEnvironmentVfx } from '../web/environment-vfx.js';
 import { decorateInterior } from '../web/interior-art.js';
+import { actionPose } from '../web/animation-pose.js';
 
 class GeometryAudit {
   constructor(){this.calls=0;this.colors=new Set();this.byKind=new Map();}
@@ -154,4 +155,22 @@ test('scenario interiors have true role-specific furnishing and never modify civ
     signatures.push([...m.colors].sort().join(','));
   }
   assert.ok(new Set(signatures).size>=5,'Hospital, apartment, supermarket and police interiors must read as unique');
+});
+
+test('aim, rescue, injured, roaming and running have distinct non-mutating 3D poses',()=>{
+  const z={role:'scout',action:'move',health:80,archetype:'runner',variant:4};
+  const original=JSON.stringify(z);
+  const moving=actionPose(z,false,1.1);
+  const again=actionPose(z,false,1.1);
+  assert.deepEqual(moving,again,'same simulation time and action must pose identically');
+  assert.ok(Math.abs(moving.stride)>.1,'moving character should show leg movement');
+  const wounded=actionPose({...z,action:'injured',health:8},false,1.1);
+  assert.ok(wounded.crouch>.30,'critical survivor must have readable injury hunch');
+  const medic=actionPose({...z,action:'heal',health:85},false,1.1);
+  assert.ok(medic.leftHandRaise>.4);
+  const recoil=actionPose({...z,action:'attack'},false,1.1);
+  assert.ok(recoil.rightHandRaise>.2&&recoil.weaponRecoil>=0);
+  const zombie=actionPose({...z,action:'pursue'},true,1.1);
+  assert.ok(zombie.headForward>moving.headForward);
+  assert.equal(JSON.stringify(z),original,'cosmetic pose must not mutate AI state');
 });
