@@ -342,3 +342,19 @@ test('Tiny Kingdom vibrant layout remains responsive at phone and desktop widths
   expect(desktop.mapLabel).toMatch(/SPRING|SUMMER|AUTUMN|WINTER/);
   expect(errors).toEqual([]);
 });
+
+test('Tiny Kingdom scenic hills rise without changing world state or seeded replay', async ({page}) => {
+  await page.setContent(html);
+  await page.waitForFunction(() => Boolean(window.__tinyKingdom));
+  await page.locator('#pause').click();
+  const result=await page.evaluate(() => {
+    const g=window.__tinyKingdom, original=JSON.stringify(g.exportSnapshot());
+    const valley=g.getTerrainHeight(0,0), ridge=g.getTerrainHeight(36,35);
+    const meadow=g.getWildfloraCount();
+    const same=g.getTerrainHeight(36,35)===ridge && JSON.stringify(g.exportSnapshot())===original;
+    return {valley,ridge,meadow,same};
+  });
+  expect(result.ridge).toBeGreaterThan(result.valley+2);
+  expect(result.meadow).toBeGreaterThan(100);
+  expect(result.same).toBe(true);
+});
