@@ -165,13 +165,14 @@ function rig(u){const colors=palette[u.kind],main=mat(colors[0],.5,.4),light=mat
  if(boss){telegraph=new THREE.Mesh(new THREE.RingGeometry(1.85,2.03,56),new THREE.MeshBasicMaterial({color:'#ff7049',transparent:true,opacity:.65,side:THREE.DoubleSide,depthWrite:false}));telegraph.rotation.x=-Math.PI/2;telegraph.position.y=.025;telegraph.visible=false;root.add(telegraph);}
  scene.add(root);return {root,body,leftLeg,rightLeg,leftArm,rightArm,telegraph,u,at:new THREE.Vector3(u.x-9,0,u.z-9)};
 }
+const timeNow=()=>performance.now()/1000;
 function update(s){state=s;received=true;errorAt=0;$('recovery').hidden=true;
  for(const e of s.events){const id=s.run+':'+e.tick+':'+e.kind+':'+e.text;if(!seenEventIds.has(id)){seenEventIds.add(id);if(seenEventIds.size>150)seenEventIds.delete(seenEventIds.values().next().value);cue(e,s)}}
  if(worldFloor!==s.run+'-'+s.floor)buildWorld(s);
  const seen=new Set(s.units.map(u=>u.id));
  for(const [id,a] of actors)if(!seen.has(id)){scene.remove(a.root);a.root.traverse(o=>{if(o.geometry&&!Object.values(geo).includes(o.geometry))o.geometry.dispose();if(o.material){const list=Array.isArray(o.material)?o.material:[o.material];for(const m of list)if(![stone,stoneEdge,floorMat,gold,black,tealGlow,dangerGlow].includes(m))m.dispose()}});actors.delete(id)}
  for(const u of s.units){let a=actors.get(u.id);if(!a){a=rig(u);actors.set(u.id,a);a.root.position.set(u.x-9,0,u.z-9)}
-  a.u=u;a.at.set(u.x-9,0,u.z-9);a.root.visible=u.hp>0;if(a.telegraph)a.telegraph.visible=u.hp>0&&[4,5].includes(s.tick%6);}
+  if(a.u.actionTick!==u.actionTick||a.u.action!==u.action){a.actionStarted=timeNow();}a.u=u;a.at.set(u.x-9,0,u.z-9);a.root.visible=u.hp>0;if(a.telegraph)a.telegraph.visible=u.hp>0&&[4,5].includes(s.tick%6);}
  $('floor').textContent=String(s.floor).padStart(2,'0');$('chapter').textContent=String(s.floor).padStart(2,'0');$('theme').textContent=s.theme;$('chapter-name').textContent=s.theme;$('run').textContent=String(s.run).padStart(3,'0');$('kills').textContent=s.kills;$('gold').textContent=s.gold;$('level').textContent=s.level;$('intent').textContent=s.intent;$('reasoning').textContent=s.intent;
  $('status').textContent=s.phase==='intermission'?'EXPEDITION RESET IN PROGRESS':'AI PARTY EXPLORING IN REAL TIME';
  const party=$('party');party.replaceChildren(...s.units.filter(u=>u.faction==='party').map(u=>{const card=document.createElement('div');card.className='hero-card'+(u.hp===0?' down':'');const icon=document.createElement('div');icon.className='hero-icon';icon.textContent=({vanguard:'⚔',ranger:'🏹',mystic:'✧'})[u.kind];const info=document.createElement('div');info.className='hero-info';const h=document.createElement('div');h.className='hero-heading';const name=document.createElement('b');name.textContent=({vanguard:'ASHEN VANGUARD',ranger:'WILDSHADOW',mystic:'STARWEAVER'})[u.kind];const hp=document.createElement('small');hp.textContent=u.hp+'/'+u.maxHp+' HP';h.append(name,hp);const life=document.createElement('div');life.className='life';const bar=document.createElement('i');bar.style.width=100*u.hp/u.maxHp+'%';life.append(bar);info.append(h,life);card.append(icon,info);return card}));
@@ -185,11 +186,18 @@ function animate(t){requestAnimationFrame(animate);const time=t/1000,dt=Math.min
 
  const w=canvas.clientWidth,h=canvas.clientHeight;if(w&&h&&(canvas.width!==Math.round(w*renderer.getPixelRatio())||canvas.height!==Math.round(h*renderer.getPixelRatio()))){renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix()}
  const leader=actors.get('vanguard')||[...actors.values()].find(a=>a.u.faction==='party'&&a.u.hp>0),target=leader?.at??new THREE.Vector3(0,0,0);
- for(const a of actors.values()){const moving=a.root.position.distanceTo(a.at)>.07;a.root.position.lerp(a.at,reduced?1:.17);const bounce=reduced?0:Math.sin(time*5+a.at.x)*.028;a.body.position.y=bounce;a.leftLeg.rotation.x=moving?Math.sin(time*10)*.35:0;a.rightLeg.rotation.x=-a.leftLeg.rotation.x;a.leftArm.rotation.x=moving?Math.sin(time*10)*.22:0;a.rightArm.rotation.x=-a.leftArm.rotation.x;if(moving){const delta=a.at.clone().sub(a.root.position);a.root.rotation.y=Math.atan2(-delta.x,-delta.z)}}
+ for(const a of actors.values()){const moving=a.root.position.distanceTo(a.at)>.07;a.root.position.lerp(a.at,reduced?1:.17);const bounce=reduced?0:Math.sin(time*5+a.at.x)*.028;a.body.position.y=bounce;a.leftLeg.rotation.x=moving?Math.sin(time*10)*.35:0;a.rightLeg.rotation.x=-a.leftLeg.rotation.x;a.leftArm.rotation.x=moving?Math.sin(time*10)*.22:0;a.rightArm.rotation.x=-a.leftArm.rotation.x;
+  const since=time-(a.actionStarted??time),phase=Math.max(0,Math.min(1,since/.32));
+  if(a.u.action==='attack'&&since<.32){a.rightArm.rotation.x=-1.5*Math.sin(phase*Math.PI);a.body.rotation.z=.16*Math.sin(phase*Math.PI)}
+  else if(a.u.action==='cast'&&since<.45){a.rightArm.rotation.x=-1.55*Math.sin(Math.min(1,since/.45)*Math.PI);a.leftArm.rotation.x=-.85;a.body.rotation.z=0}
+  else if(a.u.action==='hurt'&&since<.30){a.body.rotation.z=.16*Math.sin(phase*Math.PI*2);a.body.position.y+=.10*Math.sin(phase*Math.PI)}
+  else a.body.rotation.z*=.65;
+  if(a.telegraph)a.telegraph.material.opacity=.42+.2*Math.sin(time*9);
+  if(moving){const delta=a.at.clone().sub(a.root.position);a.root.rotation.y=Math.atan2(-delta.x,-delta.z)}}
  if(world.userData.portal&&!reduced)world.userData.portal.rotation.y=time*.26;
  cutawayWalls(target);
  const look=new THREE.Vector3(target.x,0,target.z),cam=new THREE.Vector3(target.x+10,16,target.z+12);camera.position.lerp(cam,reduced?1:.055);camera.lookAt(look.x,0,look.z);
- renderer.render(scene,camera);
+ renderer.render(scene,camera);if(state)window.__DUNGEON_RENDER_DIAGNOSTICS__={frame:renderer.info.render.frame,drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,activeUnits:[...actors.values()].filter(x=>x.root.visible).length,webgl:true,theme:state.theme};
 }
 async function poll(){try{const r=await fetch('/dungeon/state',{cache:'no-store'});if(!r.ok)throw Error('State '+r.status);const data=await r.json();if(data.tick!==lastTick||data.run!==state?.run){lastTick=data.tick;update(data)}}catch(e){errorAt++;if(errorAt>=3){$('recovery').hidden=false;$('status').textContent='VIEW DEGRADED — RETRYING';console.warn('Dungeon view recovery',String(e))}}finally{setTimeout(poll,190)}}
 document.body.dataset.reducedMotion=String(reduced);requestAnimationFrame(animate);poll();
