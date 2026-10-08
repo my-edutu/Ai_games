@@ -26,3 +26,17 @@ test('3-axis navigation is deterministic for the same seed and fixed tick sequen
   assert.throws(()=>a.step(.5),RangeError);
   assert.throws(()=>a.step(0),RangeError);
 });
+
+test('mobile platforms move in physical X/Z and AI still clears ten guardians across different seeds',()=>{
+  for(const seed of [1,2,719,248201]){
+    const sim=create(seed);
+    const moving=sim.platforms.find(p=>p.kind==='moving');
+    assert.ok(moving,'expected actual moving platforms');
+    const initial={x:moving.x,z:moving.z};
+    for(let i=0;i<7200;i++)sim.step(1/60);
+    const snap=sim.snapshot();
+    assert.ok(Math.abs(moving.x-initial.x)+Math.abs(moving.z-initial.z)>.1,'moving platform must actually relocate');
+    assert.ok(snap.highestReached>=90,'AI must still complete complex moving route');
+    assert.ok(snap.guardianKills>=10,'boss system must not stall the route');
+  }
+});
