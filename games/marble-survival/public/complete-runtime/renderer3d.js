@@ -1612,43 +1612,87 @@
   function drawArchetypeAccents(marble,arena,viewProjection,cameraPosition,nowSeconds,focused) {
     const quality=document.getElementById('quality-select')?.value||'balanced';
     const emphasis=focused||marble.status==='near-finish'||marble.status==='champion';
-    if(quality==='low'||(quality==='balanced'&&!emphasis))return;
+    // Every visible Balanced competitor gets a silhouette: race readability
+    // should not hinge on whoever the server happened to focus this frame.
+    if(quality==='low'&&!emphasis)return;
     const point=toWorld(marble.x,marble.y,arena);
     const height=(marble.elevation||0)*WORLD_SCALE+MARBLE_RADIUS+0.05;
     const color=PALETTE[marble.palette]||[0.31,0.87,1.0];
-    const metal=material([0.85,0.92,1.0],0.17,0.75,0.22);
-    const neon=material(color,0.13,0.31,0.34);
+    const metal=material([0.89,0.95,1.0],0.13,0.83,0.16);
+    const shadowMetal=material([0.10,0.18,0.31],0.26,0.76);
+    const neon=material(color,0.11,0.37,0.51);
     const phase=nowSeconds*0.47+marble.id*0.62;
+    const px=point[0],pz=point[2];
     if(marble.archetype==='navigator'){
-      // A thin floating compass / instrument ring; halo does not move the ball.
-      drawMesh(torusMesh,modelMatrix([point[0],height+0.44,point[2]],[0.18,phase,0.28],[0.30,0.30,0.30]),neon,viewProjection,cameraPosition);
-      if(quality!=='balanced'){
-        drawMesh(crystalMesh,modelMatrix([point[0],height+0.44,point[2]],[0,phase,0],[0.055,0.12,0.055]),metal,viewProjection,cameraPosition);
+      // ORBIT: orbiting chrome compass with cyan axial instrument bridge.
+      drawMesh(torusMesh,modelMatrix([px,height+0.17,pz],[Math.PI/2,phase*0.24,0.34],
+        [0.38,0.38,0.38]),neon,viewProjection,cameraPosition);
+      if(emphasis||quality==='high'||quality==='ultra'){
+        drawMesh(torusMesh,modelMatrix([px,height+0.17,pz],[0.38,0.45,phase*0.20],
+          [0.32,0.32,0.32]),metal,viewProjection,cameraPosition);
+      }
+      drawMesh(crystalMesh,modelMatrix([px,height+0.46,pz],[0,phase,0],[0.10,0.18,0.10]),
+        neon,viewProjection,cameraPosition);
+      if(quality==='ultra'){
+        for(let i=0;i<4;i++){
+          const a=phase+i*Math.PI*.5;
+          drawMesh(sphereMeshLow,modelMatrix([px+Math.cos(a)*.33,height+.17,pz+Math.sin(a)*.33],
+            [0,0,0],[.042,.042,.042]),metal,viewProjection,cameraPosition);
+        }
       }
     }else if(marble.archetype==='sprinter'){
-      // A pair of neon turbine vanes follow the actual steering direction.
+      // COMET: rearward jetpack nacelles and triangular thrust fins.
       const vx=marble.velocityX||0,vz=marble.velocityY||0;
-      const angle=Math.atan2(vz,vx);
+      const speed=Math.hypot(vx,vz);
+      const angle=speed>20?Math.atan2(vz,vx):phase*0.28;
       for(const side of [-1,1]){
-        const lateral=0.22*side,along=-0.32;
-        const x=point[0]+Math.cos(angle)*along-Math.sin(angle)*lateral;
-        const z=point[2]+Math.sin(angle)*along+Math.cos(angle)*lateral;
-        drawMesh(crystalMesh,modelMatrix([x,height-0.02,z],[0,-angle,0],[0.075,0.22,0.075]),side<0?metal:neon,viewProjection,cameraPosition);
+        const lateral=.23*side,along=-.29;
+        const x=px+Math.cos(angle)*along-Math.sin(angle)*lateral;
+        const z=pz+Math.sin(angle)*along+Math.cos(angle)*lateral;
+        drawMesh(crystalMesh,modelMatrix([x,height-.04,z],[.16,-angle,0],
+          [.095,.23,.095]),side<0?metal:neon,viewProjection,cameraPosition);
+        if(emphasis||quality==='high'||quality==='ultra'){
+          drawMesh(cylinderMesh,modelMatrix([x,height-.13,z],[0,0,0],
+            [.075,.075,.075]),shadowMetal,viewProjection,cameraPosition);
+        }
       }
+      drawMesh(torusMesh,modelMatrix([px-.34*Math.cos(angle),height-.06,pz-.34*Math.sin(angle)],
+        [0,-angle,Math.PI/2],[.17,.17,.17]),neon,viewProjection,cameraPosition);
     }else if(marble.archetype==='bruiser'){
-      // Armoured shoulder caps visually mark heavy, collision-prone contenders.
+      // TITAN: a four-boss chrome chassis with a front impact shield.
       for(const side of [-1,1]){
-        drawMesh(sphereMesh,modelMatrix([point[0]+0.28*side,height-0.05,point[2]],[0,0,0],[0.085,0.085,0.085]),metal,viewProjection,cameraPosition);
+        drawMesh(sphereMeshLow,modelMatrix([px+.28*side,height-.04,pz],[0,0,0],
+          [.135,.125,.13]),metal,viewProjection,cameraPosition);
+      }
+      drawMesh(sphereMeshLow,modelMatrix([px,height+.21,pz],[0,0,0],
+        [.185,.075,.185]),shadowMetal,viewProjection,cameraPosition);
+      drawMesh(sphereMeshLow,modelMatrix([px,height+.25,pz],[0,0,0],
+        [.12,.045,.12]),neon,viewProjection,cameraPosition);
+      if(emphasis||quality==='high'||quality==='ultra'){
+        for(const side of [-1,1])drawMesh(crystalMesh,
+          modelMatrix([px+.24*side,height+.07,pz],[0,0,.22*side],[.09,.15,.09]),
+          neon,viewProjection,cameraPosition);
       }
     }else if(marble.archetype==='survivor'){
-      const shield=material([0.34,0.98,0.83],0.16,0.50,0.33);
-      drawMesh(torusMesh,modelMatrix([point[0],height,point[2]],[0.65,phase*0.2,0.62],[0.37,0.37,0.37]),shield,viewProjection,cameraPosition);
-      if(marble.status==='recovering'&&quality!=='balanced'){
-        drawMesh(torusMesh,modelMatrix([point[0],height,point[2]],[0.12,phase*0.2,0.16],[0.42,0.42,0.42]),neon,viewProjection,cameraPosition);
+      // AEGIS: actual shield inventory changes the visual ring intensity;
+      // rings never imply that a server-depleted shield still exists.
+      const charged=(marble.shieldCharges||0)>0||marble.status==='recovering';
+      const shield=material(charged?[0.30,1.0,0.82]:[0.62,.78,.91],
+        .14,.52,charged?.49:.12);
+      drawMesh(torusMesh,modelMatrix([px,height,pz],[.65,phase*.20,.62],
+        [.41,.41,.41]),shield,viewProjection,cameraPosition);
+      if(charged&&(emphasis||quality!=='balanced')){
+        drawMesh(torusMesh,modelMatrix([px,height,pz],[.12,phase*.20,.16],
+          [.46,.46,.46]),neon,viewProjection,cameraPosition);
+        for(let i=0;i<3;i++){
+          const angle=phase*.33+i*Math.PI*2/3;
+          drawMesh(crystalMesh,modelMatrix([px+Math.cos(angle)*.37,height+.05,
+            pz+Math.sin(angle)*.37],[0,angle,0],[.065,.13,.065]),
+            shield,viewProjection,cameraPosition);
+        }
       }
     }
   }
-
   function drawMarble(marble,arena,viewProjection,cameraPosition,nowSeconds,focused){if(marble.status==='eliminated')return;const point=toWorld(marble.x,marble.y,arena),rolling=rollingState(marble,nowSeconds),base=PALETTE[marble.palette]||[0.50,0.56,0.54],champion=marble.status==='champion',qualified=marble.status==='qualified',threatened=marble.status==='threatened',metalness=marble.pattern==='split'?0.68:marble.pattern==='ring'?0.48:0.28,roughness=marble.pattern==='dots'?0.42:0.24,scale=champion?1.08:1,elevation=(marble.elevation||0)*WORLD_SCALE,patternType=marblePatternType(marble.pattern),patternColor=marblePatternColor(base);const model=modelMatrix([point[0],elevation+MARBLE_RADIUS+0.05,point[2]],[rolling.x,0,rolling.z],[MARBLE_RADIUS*scale,MARBLE_RADIUS*scale,MARBLE_RADIUS*scale]);drawMesh(marbleMeshForQuality(),model,material(base,roughness,metalness,champion?0.22:qualified?0.08:0,1,patternType,patternColor),viewProjection,cameraPosition);if(focused||threatened||marble.status==='recovering'){const haloColor=threatened?[0.95,0.12,0.06]:marble.status==='recovering'?[1.0,0.66,0.12]:[0.40,0.82,1.0];drawMesh(cylinderMesh,modelMatrix([point[0],elevation+0.045,point[2]],[0,0,0],[MARBLE_RADIUS*1.46,0.010,MARBLE_RADIUS*1.46]),material(haloColor,0.5,0.18,0.65,0.48),viewProjection,cameraPosition);}drawArchetypeAccents(marble,arena,viewProjection,cameraPosition,nowSeconds,focused);}
 
   function spawnEffects(next){for(const event of next.events||[]){if(event.seq<=lastEventSeq)continue;lastEventSeq=Math.max(lastEventSeq,event.seq);if(!['marble-eliminated','shield-recovery','marble-launched','marble-pit-falling','marble-qualified','tournament-champion'].includes(event.type))continue;const marbleId=Number(event.data?.marbleId??event.data?.championId),marble=next.marbles.find((candidate)=>candidate.id===marbleId);if(!marble)continue;const point=toWorld(marble.x,marble.y,next.arena),count=event.type==='tournament-champion'?28:event.type==='marble-eliminated'?16:event.type==='marble-pit-falling'?20:event.type==='marble-launched'?14:10,color=event.type==='marble-eliminated'||event.type==='marble-pit-falling'?[0.96,0.22,0.08]:event.type==='shield-recovery'||event.type==='marble-launched'?[0.34,0.78,1.0]:[1.0,0.72,0.20],elevation=(marble.elevation||0)*WORLD_SCALE;for(let index=0;index<count;index+=1){const unitA=deterministicUnit(event.seq*4099+index*193),unitB=deterministicUnit(event.seq*8191+index*389),angle=unitA*Math.PI*2,speed=0.7+unitB*1.7;effects.push({position:[point[0],elevation+0.30,point[2]],velocity:[Math.cos(angle)*speed,0.7+unitA*1.6,Math.sin(angle)*speed],color,age:0,lifetime:0.65+unitB*0.75});}}if(effects.length>160)effects.splice(0,effects.length-160);}
