@@ -256,6 +256,36 @@ for(let side of [-1,1]){box(x+side*.115*size,y+.06*size,z+side*step,.155*size,.4
 cylinder(x,y+1.16*size,z,.12*size,.15*size,skin,8);ellipsoid(x,y+1.43*size,z,.22*size,.29*size,.19*size,skin);ellipsoid(x,y+1.67*size,z-.035*size,.235*size,.115*size,.185*size,hair,8);
 for(let side of [-1,1]){box(x+side*.083*size,y+1.475*size,z+.181*size,.029*size,.034*size,.023*size,rgb(0x342b29));box(x+side*.085*size,y+1.525*size,z+.185*size,.074*size,.025*size,.022*size,hair)}
 box(x,y+1.393*size,z+.191*size,.037*size,.078*size,.061*size,skin);box(x,y+1.335*size,z+.185*size,.08*size,.018*size,.018*size,rgb(0x7d4e45));
+// Gauntlet 019: character-by-character authored visual identity, independent
+// from simulation RNG, so save/replay behaviour remains bit-for-bit stable.
+const outfitTrim=[0xf2cb79,0x82b5b2,0xf0b9a0,0xe1d3a3,0xaac6d1,0xd7a9c8].map(rgb);
+const trim=outfitTrim[idx%outfitTrim.length];
+const mantle=rgb([0x395b51,0x72513c,0x6e3647,0x405879,0x746342,0x4e5a63][idx%6]);
+// Individually tailored collar, stitched front placket and shoulder cape.
+box(x,y+1.055*size,z+.10*size,.33*size,.085*size,.25*size,trim);
+box(x,y+.72*size,z+.166*size,.055*size,.45*size,.024*size,trim);
+box(x,y+.965*size,z-.165*size,.54*size,.19*size,.11*size,mantle);
+for(let button=0;button<3;button++)ellipsoid(x,y+(.82-button*.13)*size,z+.185*size,.023*size,.023*size,.019*size,rgb(0xd9bc84),6);
+// Role-coded embroidery across the front: each character uses its own
+// exact coat palette, even when another villager shares the same profession.
+box(x-.155*size,y+.77*size,z+.174*size,.055*size,.29*size,.016*size,trim);
+box(x+.155*size,y+.77*size,z+.174*size,.055*size,.29*size,.016*size,trim);
+// Distinct hair silhouettes: braid, sidebun, short fringe or swept-back tuft.
+if(idx%4===0){
+ ellipsoid(x+.18*size,y+1.44*size,z-.10*size,.095*size,.17*size,.105*size,hair,7);
+ ellipsoid(x+.19*size,y+1.23*size,z-.12*size,.065*size,.12*size,.075*size,hair,7);
+}else if(idx%4===1){
+ ellipsoid(x-.22*size,y+1.53*size,z-.12*size,.15*size,.14*size,.14*size,hair,7);
+}else if(idx%4===2){
+ box(x,y+1.61*size,z+.13*size,.34*size,.08*size,.11*size,hair);
+}else{
+ ellipsoid(x-.10*size,y+1.69*size,z-.10*size,.17*size,.08*size,.16*size,hair,8);
+}
+// Leather satchel with buckles is unique to odd-index citizens.
+if(idx%2===1){
+ box(x+.255*size,y+.37*size,z-.12*size,.24*size,.28*size,.15*size,rgb(0x805534));
+ box(x+.258*size,y+.58*size,z-.20*size,.055*size,.44*size,.035*size,trim);
+}
 // Jobs are identifiable even without UI: hats, satchels and useful objects.
 if(p.job==='farmer'||p.job==='gatherer'){cylinder(x,y+1.655*size,z,.34*size,.06*size,rgb(0xb89a61),10);cone(x,y+1.66*size,z,.19*size,.19*size,rgb(0xc4a36c),8)}
 if(p.job==='forester'){cone(x,y+1.65*size,z,.255*size,.25*size,rgb(0x526a49),8);box(x+.35*size,y+.48*size,z+.03,.05*size,.52*size,.06*size,rgb(0x826449));box(x+.35*size,y+.83*size,z+.03,.24*size,.14*size,.045*size,rgb(0xa5a6a0))}
