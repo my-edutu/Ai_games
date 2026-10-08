@@ -32,10 +32,20 @@ test.describe('Eko Run 3D Gauntlet slice', () => {
     expect(audit.character.outfits).toHaveLength(4);
     expect(audit.environment.materials.source).toBe('generated-original');
     expect(audit.environment.materials.textures).toBe(3);
+    expect(audit.environment.vibrance.kind).toBe('original-lagos-chromatic');
+    expect(audit.environment.vibrance.features).toBeGreaterThan(500);
+    expect(audit.environment.atmosphere).toBe('single-shader-city-sky');
     expect(audit.environment.batching.sourceMeshes).toBeGreaterThan(250);
     expect(audit.environment.batching.batchedMeshes).toBeLessThan(audit.environment.batching.sourceMeshes*0.55);
     expect(audit.environment.meshes).toBeLessThan(audit.environment.batching.sourceMeshes);
     expect(audit.performance.drawCalls).toBeGreaterThan(0);
+    await expect(page.locator('#route-progress')).toHaveAttribute('aria-valuenow', /\d+/);
+    await expect(page.locator('#route-percent')).toContainText('%');
+    await expect(page.locator('#next-checkpoint')).not.toBeEmpty();
+    expect(await page.evaluate(()=>getComputedStyle(document.querySelector('.score')).borderTopColor))
+      .not.toBe('rgba(0, 0, 0, 0)');
+    expect(await page.evaluate(()=>document.documentElement.dataset.district))
+      .toBe('mainland-morning');
     fs.mkdirSync('artifacts/eko-gauntlet', { recursive: true });
     fs.writeFileSync('artifacts/eko-gauntlet/desktop-metrics.json', JSON.stringify(audit,null,2));
     expect(failures).toEqual([]);
@@ -67,7 +77,7 @@ test.describe('Eko Run 3D Gauntlet slice', () => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto(ROOT + '/eko/', { waitUntil: 'domcontentloaded' });
     await expect(page.locator('#connection')).toContainText('CONNECTED', { timeout: 20000 });
-    await expect(page.locator('[data-control="Space"]')).toBeVisible();
+    await expect(page.locator('[data-control="Space"]')).toBeHidden();
     const widths = await page.evaluate(() => ({
       viewport: innerWidth,
       body: document.body.scrollWidth,
@@ -77,6 +87,7 @@ test.describe('Eko Run 3D Gauntlet slice', () => {
     expect(widths.html).toBeLessThanOrEqual(widths.viewport+1);
     await page.locator('#mode').click();
     await expect(page.locator('#mode')).toContainText('SWITCH TO AI');
+    await expect(page.locator('[data-control="Space"]')).toBeVisible();
     await page.locator('[data-control="Space"]').click();
     const audit=await page.evaluate(()=>window.__EKO_VISUAL_AUDIT__());
     expect(audit.character.inFrame).toBeTruthy();
