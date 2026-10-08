@@ -91,17 +91,30 @@
   "qualityPassed": false,
   "latestCriticCycle": {
     "date": "2026-10-08",
-    "evidenceWorkflowRun": 37798503274,
-    "headAtFailure": "0a511e8fc27a61330d00bc825785c9073d4bd62b",
-    "verdict": "FAIL — NO NEW VISUAL EVIDENCE",
-    "largestIndependentlyVerifiableGap": "Current 3D visual quality is unverified against Jusant because the browser capture gate never ran; native rope test failed first. Historical screenshot remains extremely dark and unreadable.",
-    "ciRootCause": "tests/foundation/tower-volumetric-core.test.cjs asserted y>0 after 150 frames of continuous left input; deterministic replay shows successful rope recovery after 73 ticks, followed by the player intentionally walking off the ledge again, making y negative at frame 150.",
-    "observedLog": "17/18 native tests passed; rope catch/reel test failed on assert.ok(a.snapshot().player.y>0); Chromium setup and screenshot stages skipped; zero latest artifacts.",
-    "reproduction": "Executed current committed deterministic source in isolated JS runtime. After first arrest at manual tick 101, player returns to grounded y=2.055 by 74 replay ticks. Continuing left to 150 ticks moves beyond ledge and y=-1.91. Replay remained exact.",
-    "change": "Commit d67832986634678023a0b97a08ac4f4943cdc143 changes the rope test to assert at 74 ticks, the completed landing point, not after a second deliberate fall. Native tests and browser screenshot workflow are rerunning.",
-    "newWorkflowRun": 37804625605,
-    "benchmarkContrast": "Jusant official images prioritize clearly readable climber, directional light, rock silhouettes, rope and grasp interactions; Only Up! prioritizes readable vertical risk/progression; Chained Together uses distinct obstacle silhouettes. No new game screenshot is available to compare and no benchmark win is claimed.",
-    "freshIndependentCritic": "Unavailable: coding/subagent connector returned NOT_FOUND tunnel-client not seen for 300 seconds. No independent visual review occurred.",
+    "evidenceWorkflowRun": 37804944830,
+    "headAtFailure": "6a84cd77b88ec6c8ea951bae40a0c7af0822e565",
+    "verdict": "FAIL — ACTUAL SCREENSHOTS INSPECTED; ART AND TEST GAPS REMAIN",
+    "largestIndependentlyVerifiableGap": "The real 3D high-altitude biome capture points away from the climber: the void screenshot shows a large repetitive dark facade, the hero is absent, and the HUD incorrectly reads LEVEL 000 / ALTITUDE 0m even though the authoritative simulation is at floor 48, y=155.55. This fails the Jusant visual clarity and truthful progress bar.",
+    "observedLog": "CI 37804944830: WebGL smoke passed; 14/16 browser tests passed, two failed (manual jump not observed after a fixed 250ms wait; autonomous tick count 35 versus expected >67 under software WebGL); all 18 native tests passed. Real 1600x900 desktop, portrait, five biome and guardian screenshots uploaded.",
+    "directImageInspection": "Inspected downloaded screenshots: legacy-overlay 3D desktop is visible but dominated by diagonal facade; climber small. Foundry volumetric frame has legible platforms but repetitive rectangular geometry. Void frame misframed with hero absent and wrong initial HUD despite state floor 48. Self-critique, not independent.",
+    "measuredNewDesktop": {
+      "width": 1600,
+      "height": 900,
+      "meanLuminance": 37.15,
+      "luminanceStdDev": 40.31,
+      "darkFraction": 0.38,
+      "uniqueQuantizedColors": 292
+    },
+    "measuredVoid": {
+      "floor": 48,
+      "playerY": 155.55,
+      "meanLuminance": 26.85,
+      "darkFraction": 0.362
+    },
+    "benchmarkContrast": "Jusant shows visible climber against illuminated sculpted rock, identifiable holds and rope. Only Up! and Chained Together emphasize readable hazard silhouettes and coherent vertical paths. Our repeated facade and unreliable framing are below those references.",
+    "change": "Commit a01b32d97ab5b031c494e4e8cfb851a7000b8e86 snaps first-frame camera to high-altitude player, synchronizes HUD on first render, and adds unit/browser regression tests. New screenshot validation pending.",
+    "newWorkflowRun": "awaiting run for a01b32d",
+    "freshIndependentCritic": "Dedicated coding/subagent connector offline (tunnel-client not seen for 300 seconds); no independent review was performed.",
     "qualityPassed": false
   }
 }
