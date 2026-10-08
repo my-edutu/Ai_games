@@ -43,3 +43,22 @@ test('Tiny Kingdom speed, pause and restart work', async ({page}) => {
   await page.locator('#restart').click();
   expect(await page.evaluate(() => window.__tinyKingdom.getState().people.length)).toBe(12);
 });
+
+
+test('Tiny Kingdom grows through actual agent work and records social connections', async ({page}) => {
+  await page.setContent(html);
+  await page.waitForFunction(() => Boolean(window.__tinyKingdom));
+  await page.locator('#pause').click();
+  const metrics=await page.evaluate(() => {
+    const game=window.__tinyKingdom;
+    game.reset();
+    game.setCamera({zoom:14,pitch:.43,focus:[0,-1]});
+    for(let i=0;i<400*24*30;i++) game.step(1/30);
+    return game.metrics();
+  });
+  expect(metrics.day).toBe(401);
+  expect(metrics.buildings).toBeGreaterThan(14);
+  expect(metrics.gold).toBeGreaterThan(42);
+  expect(metrics.relationships).toBeGreaterThan(0);
+  expect(metrics.food).toBeGreaterThanOrEqual(0);
+});
