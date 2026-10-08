@@ -26,9 +26,9 @@ function directCamera(s){
  $('focus-label').textContent='DIRECTOR FOLLOW · '+(classMeta[select.kind]?.name||select.kind).toUpperCase();
 }
 const renderer=new THREE.WebGLRenderer({canvas,antialias:true,powerPreference:'high-performance',alpha:false});
-renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.6));renderer.info.autoReset=false;renderer.shadowMap.enabled=!reduced;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.38;
+renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.6));renderer.info.autoReset=false;renderer.shadowMap.enabled=!reduced;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.18;
 const scene=new THREE.Scene();scene.background=new THREE.Color('#070d18');scene.fog=new THREE.FogExp2('#090f1a',.024);
-const camera=new THREE.PerspectiveCamera(44,1,.1,110);
+const camera=new THREE.PerspectiveCamera(50,1,.1,110);
 // Deferred, optional 3D post-processing: selective emissive bloom adds light without
 // sacrificing the whole scene to fog/black overlays. Direct WebGL remains fallback.
 let composer=null,bloomPass=null,postFXEnabled=!reduced,postFXStatus='loading';
@@ -50,17 +50,17 @@ async function initializePostFX(){
   const pipeline=new c.EffectComposer(renderer);
   pipeline.setPixelRatio(renderer.getPixelRatio());
   pipeline.addPass(new r.RenderPass(scene,camera));
-  bloomPass=new b.UnrealBloomPass(new THREE.Vector2(Math.max(1,canvas.clientWidth),Math.max(1,canvas.clientHeight)),.49,.42,.83);
+  bloomPass=new b.UnrealBloomPass(new THREE.Vector2(Math.max(1,canvas.clientWidth),Math.max(1,canvas.clientHeight)),.29,.36,.9);
   pipeline.addPass(bloomPass);pipeline.addPass(new o.OutputPass());
   pipeline.setSize(Math.max(1,canvas.clientWidth),Math.max(1,canvas.clientHeight));
   composer=pipeline;postFXStatus='ready';
  }catch(error){composer=null;postFXStatus='unavailable';postFXEnabled=false;fxButton.title='Post effects unavailable: using direct 3D rendering';fxButton.setAttribute('aria-pressed','false');fxButton.querySelector('span').textContent='DIRECT 3D';console.warn('[DUNGEON] optional bloom unavailable:',String(error))}
 }
 initializePostFX();
-const ambient=new THREE.HemisphereLight('#7191bf','#111526',1.9);scene.add(ambient);
+const ambient=new THREE.HemisphereLight('#9da8c8','#533b35',1.85);scene.add(ambient);
 const wardenSpot=new THREE.PointLight('#ffbd76',0,9.5,2);scene.add(wardenSpot);
-const moon=new THREE.DirectionalLight('#a6c6ff',2.0);moon.position.set(-7,17,5);moon.castShadow=!reduced;moon.shadow.mapSize.set(1024,1024);moon.shadow.camera.left=-17;moon.shadow.camera.right=17;moon.shadow.camera.top=17;moon.shadow.camera.bottom=-17;scene.add(moon);
-const partyGlow=new THREE.PointLight('#50e9ff',2.35,7.7,2);partyGlow.position.set(0,2,0);scene.add(partyGlow);
+const moon=new THREE.DirectionalLight('#ffe0b2',1.65);moon.position.set(-7,17,5);moon.castShadow=!reduced;moon.shadow.mapSize.set(1024,1024);moon.shadow.camera.left=-17;moon.shadow.camera.right=17;moon.shadow.camera.top=17;moon.shadow.camera.bottom=-17;scene.add(moon);
+const partyGlow=new THREE.PointLight('#50e9ff',1.65,7.7,2);partyGlow.position.set(0,2,0);scene.add(partyGlow);
 const ground=new THREE.Mesh(new THREE.PlaneGeometry(150,150),new THREE.MeshStandardMaterial({color:'#080e17',roughness:1}));ground.rotation.x=-Math.PI/2;ground.position.y=-.17;scene.add(ground);
 const actors=new Map(),world=new THREE.Group();scene.add(world);
 const combatOverlay=createCombatOverlay($('battle-overlay'));
@@ -73,14 +73,24 @@ const floorThemes=[
 ];let lastCutawayKey='';
 const cachedVec=new THREE.Vector3(),cachedQuat=new THREE.Quaternion(),cachedScale=new THREE.Vector3(),cachedMatrix=new THREE.Matrix4();
 function cutawayWalls(target){
- const key=Math.round(target.x)+':'+Math.round(target.z);if(key===lastCutawayKey)return;lastCutawayKey=key;
+ const dx=camera.position.x-target.x,dz=camera.position.z-target.z,length=Math.max(.001,Math.hypot(dx,dz));
+ const dirX=dx/length,dirZ=dz/length;
+ const key=[Math.round(target.x),Math.round(target.z),Math.round(camera.position.x),Math.round(camera.position.z)].join(':');
+ if(key===lastCutawayKey)return;lastCutawayKey=key;
  const mesh=world.userData.walls,positions=world.userData.wallPositions;if(!mesh||!positions)return;
- for(let i=0;i<positions.length;i++){const p=positions[i];const near=Math.abs(p[0]-target.x)+Math.abs(p[1]-target.z)<=2.8;
-  const inFront=p[0]+p[1]>target.x+target.z-.9;
-  const height=near&&inFront?.36:2.6;
+ let cut=0;
+ for(let i=0;i<positions.length;i++){
+  const p=positions[i],x=p[0]-target.x,z=p[1]-target.z;
+  const forward=x*dirX+z*dirZ,lateral=Math.abs(x*dirZ-z*dirX);
+  // Any foreground masonry intersecting the isometric eye-to-hero corridor
+  // collapses into a low foundation course; distant walls stay full height.
+  const occluding=forward>-.35&&forward<length+1.1&&lateral<2.55+forward*.18;
+  const height=occluding?.18:2.6;if(occluding)cut++;
   cachedVec.set(p[0],height/2-.03,p[1]);cachedScale.set(1.015,height,1.015);
   cachedMatrix.compose(cachedVec,cachedQuat,cachedScale);mesh.setMatrixAt(i,cachedMatrix);
- }mesh.instanceMatrix.needsUpdate=true;mesh.computeBoundingSphere();
+ }
+ world.userData.cutawayWalls=cut;
+ mesh.instanceMatrix.needsUpdate=true;mesh.computeBoundingSphere();
 }
 const particles=[],MAX_PARTICLES=72;const seenEventIds=new Set();
 const effects=[],MAX_EFFECTS=12,ringGeometry=new THREE.RingGeometry(.92,1,56),shockGeometry=new THREE.RingGeometry(2.5,2.7,64);
@@ -219,7 +229,7 @@ function buildWorld(s){clearWorld();worldFloor=s.run+'-'+s.floor;world.userData.
   const spire=make(geo.cone,ink,court,x,.44,z,.19,.88,.19);spire.rotation.z=Math.sin(a)*.10;
   make(geo.sphere,i%2?dangerGlow:tealGlow,court,x,.90,z,.14,.14,.14);
  }
- const shield=new THREE.Mesh(new THREE.SphereGeometry(1.36,24,12,0,Math.PI*2,0,Math.PI/2),new THREE.MeshBasicMaterial({color:theme.accent,wireframe:true,transparent:true,opacity:.12,depthWrite:false,side:THREE.DoubleSide}));shield.position.y=.02;court.add(shield);
+ const shield=new THREE.Mesh(new THREE.TorusGeometry(1.32,.04,8,72),new THREE.MeshBasicMaterial({color:theme.accent,transparent:true,opacity:.24,depthWrite:false,side:THREE.DoubleSide}));shield.rotation.x=-Math.PI/2;shield.position.y=.12;court.add(shield);
  world.add(court);world.userData.court=court;world.userData.courtShield=shield;
  // Interactive hazard meshes directly reflect authoritative trap state.
  const hazardMeshes=new Map();
@@ -314,11 +324,32 @@ function playEffect(kind){
  const hz={floor:524,loot:880,kill:340,healing:660,telegraph:195,danger:142,trap:120,disarm:920}[kind];if(!hz)return;
  const now=ctx.currentTime,o=ctx.createOscillator(),g=ctx.createGain();o.type=kind==='danger'?'sawtooth':'sine';o.frequency.setValueAtTime(hz,now);o.frequency.exponentialRampToValueAtTime(hz*.7,now+.19);g.gain.setValueAtTime(.0001,now);g.gain.exponentialRampToValueAtTime(.052,now+.015);g.gain.exponentialRampToValueAtTime(.0001,now+.23);o.connect(g).connect(ctx.destination);o.start(now);o.stop(now+.25);
 }
+// Browsers without an active audio device must never freeze the video UI.
+const settleAudio=(promise,timeout=1400)=>new Promise((resolve,reject)=>{
+ const timer=setTimeout(()=>reject(new Error('audio device did not respond')),timeout);
+ Promise.resolve(promise).then(v=>{clearTimeout(timer);resolve(v)},e=>{clearTimeout(timer);reject(e)});
+});
 $('audio-toggle').addEventListener('click',async()=>{
- const button=$('audio-toggle');
- if(!ambience){const Audio=window.AudioContext||window.webkitAudioContext;if(!Audio){button.title='Audio unavailable in this browser';return}ambience=new Audio()}
- if(ambience.state==='running'){await ambience.suspend();button.setAttribute('aria-pressed','false');button.querySelector('span').textContent='AUDIO OFF';}
- else{await ambience.resume();button.setAttribute('aria-pressed','true');button.querySelector('span').textContent='AUDIO ON';playEffect('floor')}
+ const button=$('audio-toggle'),label=button.querySelector('span');
+ const setEnabled=enabled=>{button.setAttribute('aria-pressed',String(enabled));label.textContent=enabled?'AUDIO ON':'AUDIO OFF'};
+ if(!ambience){
+  const Audio=window.AudioContext||window.webkitAudioContext;
+  if(!Audio){setEnabled(false);button.title='Audio unavailable in this browser';return}
+  try{ambience=new Audio()}catch(error){setEnabled(false);button.title='Audio output device unavailable';return}
+ }
+ if(ambience.state==='running'){
+  setEnabled(false);
+  try{await settleAudio(ambience.suspend())}catch(error){button.title='Audio device could not be suspended'}
+  return;
+ }
+ try{
+  await settleAudio(ambience.resume());
+  if(ambience.state!=='running')throw Error('Audio output remains suspended');
+  setEnabled(true);button.removeAttribute('title');playEffect('floor');
+ }catch(error){
+  setEnabled(false);button.title='Audio blocked or unavailable in this browser';
+  Promise.resolve(ambience.suspend()).catch(()=>{});
+ }
 });
 function renderDashboard(s){
  const biome=['sunken','ember','obsidian','hollow'][(s.floor-1)%4];if(biome!==lastBiome){document.body.dataset.biome=biome;lastBiome=biome;}
@@ -411,8 +442,15 @@ function animate(t){requestAnimationFrame(animate);const time=t/1000,dt=Math.min
  }
  if(world.userData.dressing&&!reduced)world.userData.dressing.animate(time);
  if(world.userData.atmosphere&&!reduced)world.userData.atmosphere.update(time);
- cutawayWalls(target);world.userData.dressing?.cutaway(target);
- const cameraType=cameraModes[cameraIndex]||'cinematic',offsets=cameraType==='tactical'?[2,20,2]:cameraType==='chase'?[3.8,6.5,5.0]:[6.7,10.5,8.5];
+ cutawayWalls(target);world.userData.dressing?.cutaway(target,camera.position);
+ if(world.userData.authoredProps?.group){
+  const dx=camera.position.x-target.x,dz=camera.position.z-target.z,len=Math.max(.01,Math.hypot(dx,dz)),dirX=dx/len,dirZ=dz/len;
+  for(const prop of world.userData.authoredProps.group.children){
+   const x=prop.position.x-target.x,z=prop.position.z-target.z,f=x*dirX+z*dirZ,l=Math.abs(x*dirZ-z*dirX);
+   prop.visible=!(f>0&&f<len+.8&&l<2.8+f*.16);
+  }
+ }
+ const cameraType=cameraModes[cameraIndex]||'cinematic',offsets=cameraType==='tactical'?[3.5,23.5,4.5]:cameraType==='chase'?[6.1,12.0,7.2]:[9.5,17.2,11.3];
  const boss=state?.units.find(u=>u.kind==='warden'&&u.hp>0),bossDistance=boss&&state?.units.some(u=>u.faction==='party'&&u.hp>0&&Math.abs(u.x-boss.x)+Math.abs(u.z-boss.z)<=5);
  const look=new THREE.Vector3(target.x,0,target.z);
  if(boss&&bossDistance&&cameraType==='cinematic')look.lerp(new THREE.Vector3(boss.x-9,0,boss.z-9),.28);
@@ -421,9 +459,9 @@ function animate(t){requestAnimationFrame(animate);const time=t/1000,dt=Math.min
  if(shakeStrength>.008&&!reduced){camera.position.x+=Math.sin(time*57)*shakeStrength;camera.position.y+=Math.cos(time*43)*shakeStrength*.5;}
  partyGlow.position.set(target.x,2,target.z);
  renderer.info.reset();
- try{if(composer&&postFXEnabled){bloomPass.strength=innerWidth<680?.26:.49;composer.render()}else renderer.render(scene,camera)}
+ try{if(composer&&postFXEnabled){bloomPass.strength=innerWidth<680?.16:.30;composer.render()}else renderer.render(scene,camera)}
  catch(error){console.warn('[DUNGEON] post effect fault, restoring WebGL:',String(error));composer=null;postFXStatus='fallback';renderer.info.reset();renderer.render(scene,camera)}
- combatOverlay.render(state,actors,camera,time);if(state)window.__DUNGEON_RENDER_DIAGNOSTICS__={frame:renderer.info.render.frame,drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,camera:cameraModes[cameraIndex],focusedHeroId,autoDirector,postFX:composer&&postFXEnabled?'bloom':'direct',postFXStatus,bossFramed:Boolean(bossDistance),activeUnits:[...actors.values()].filter(x=>x.root.visible).length,characterDetails:[...actors.values()].reduce((sum,x)=>sum+(x.detail?.parts||0),0),webgl:true,theme:state.theme,dressing:world.userData.dressing?.metrics??null,atmosphere:world.userData.atmosphere?.metrics??null,overlay:combatOverlay.metrics(),combatStage:combatDirector.stats(),groundedActors:[...actors.values()].filter(x=>Boolean(x.ground)).length,authored3D:assetStats(actors)};
+ combatOverlay.render(state,actors,camera,time);if(state)window.__DUNGEON_RENDER_DIAGNOSTICS__={frame:renderer.info.render.frame,drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,camera:cameraModes[cameraIndex],focusedHeroId,autoDirector,cutawayWalls:world.userData.cutawayWalls??0,postFX:composer&&postFXEnabled?'bloom':'direct',postFXStatus,bossFramed:Boolean(bossDistance),activeUnits:[...actors.values()].filter(x=>x.root.visible).length,characterDetails:[...actors.values()].reduce((sum,x)=>sum+(x.detail?.parts||0),0),webgl:true,theme:state.theme,dressing:world.userData.dressing?.metrics??null,atmosphere:world.userData.atmosphere?.metrics??null,overlay:combatOverlay.metrics(),combatStage:combatDirector.stats(),groundedActors:[...actors.values()].filter(x=>Boolean(x.ground)).length,authored3D:assetStats(actors)};
 }
 async function poll(){try{const r=await fetch('/dungeon/state',{cache:'no-store'});if(!r.ok)throw Error('State '+r.status);const data=await r.json();if(data.tick!==lastTick||data.run!==state?.run){lastTick=data.tick;update(data)}}catch(e){errorAt++;if(errorAt>=3){$('recovery').hidden=false;$('status').textContent='VIEW DEGRADED — RETRYING';console.warn('Dungeon view recovery',String(e))}}finally{setTimeout(poll,190)}}
 $('party').addEventListener('click',e=>{

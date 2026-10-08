@@ -161,12 +161,14 @@ export function enrichEnvironment(world,map,floor){
  // Same 3D visibility policy as the base walls: rich wall cladding must not hide the AI.
  let previousCutaway='';
  const matrix=new THREE.Matrix4(),p=new THREE.Vector3(),q=new THREE.Quaternion(),scale=new THREE.Vector3();
- function cutaway(target){
-  const k=Math.round(target.x)+':'+Math.round(target.z);if(previousCutaway===k)return;previousCutaway=k;
+ function cutaway(target,camera){
+  const dx=camera.x-target.x,dz=camera.z-target.z,len=Math.max(.001,Math.hypot(dx,dz)),dirX=dx/len,dirZ=dz/len;
+  const k=[Math.round(target.x),Math.round(target.z),Math.round(camera.x),Math.round(camera.z)].join(':');if(previousCutaway===k)return;previousCutaway=k;
   if(!facadeMesh)return;
-  for(let i=0;i<wallFaces.length;i++){const f=wallFaces[i];
-   const near=Math.abs(f[0]-target.x)+Math.abs(f[2]-target.z)<3.1 && f[0]+f[2]>target.x+target.z-.95;
-   const h=near?.30:f[4];p.set(f[0],near?.19:f[1],f[2]);scale.set(f[3],h,f[5]);matrix.compose(p,q,scale);facadeMesh.setMatrixAt(i,matrix);
+  for(let i=0;i<wallFaces.length;i++){const f=wallFaces[i],x=f[0]-target.x,z=f[2]-target.z;
+   const forward=x*dirX+z*dirZ,lateral=Math.abs(x*dirZ-z*dirX);
+   const blocked=forward>-.35&&forward<len+1.1&&lateral<2.55+forward*.18;
+   const h=blocked?.15:f[4];p.set(f[0],blocked?.13:f[1],f[2]);scale.set(f[3],h,f[5]);matrix.compose(p,q,scale);facadeMesh.setMatrixAt(i,matrix);
   }
   facadeMesh.instanceMatrix.needsUpdate=true;
  }

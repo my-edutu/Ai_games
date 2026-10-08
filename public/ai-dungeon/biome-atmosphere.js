@@ -81,8 +81,10 @@ export function createBiomeAtmosphere(root,map,floor,exit){
  // A surrounding cavern skyline is part of the 3D set, not an invisible map border.
  // Tall silhouettes, distinctive glowing crowns and varied depths give every tracking shot a horizon.
  const distantColumns=[],distantCrowns=[],distantRock=[];
- for(let i=0;i<52;i++){
-  const angle=i*Math.PI*2/52,range=12.2+pick(i,52,floor)*8.3,x=Math.cos(angle)*range,z=Math.sin(angle)*range;
+ for(let i=0;i<34;i++){
+  // The scenic perimeter MUST remain outside all gameplay camera offsets;
+  // older radius-12 skyline columns occluded most real Chromium screenshots.
+  const angle=i*Math.PI*2/34,range=32+pick(i,52,floor)*10,x=Math.cos(angle)*range,z=Math.sin(angle)*range;
   const h=3.5+pick(i,53,floor)*8.4,w=.72+pick(i,54,floor)*1.55;
   distantColumns.push([x,h/2-.2,z,w,h,w,(i%6)*Math.PI/6]);
   distantCrowns.push([x,h-.1,z,w*1.2,.18,w*1.2]);
@@ -94,7 +96,7 @@ export function createBiomeAtmosphere(root,map,floor,exit){
  makeInstanced(objects,crystalGeo,dark,distantRock);
  // Local shafts of coloured magical light, kept rare to avoid hiding the party.
  const shafts=[];
- const shaftMaterial=register(new THREE.MeshBasicMaterial({color:biome.glow,transparent:true,opacity:.09,depthWrite:false,side:THREE.DoubleSide,blending:THREE.AdditiveBlending}));
+ const shaftMaterial=register(new THREE.MeshBasicMaterial({color:biome.glow,transparent:true,opacity:.055,depthWrite:false,side:THREE.DoubleSide,blending:THREE.AdditiveBlending}));
  const shaftGeo=geometry(new THREE.CylinderGeometry(.16,.96,1,18,1,true));
  const spotlightLocations=[];
  for(let z=2;z<size-2;z++)for(let x=2;x<size-2;x++){
@@ -145,7 +147,7 @@ export function createBiomeAtmosphere(root,map,floor,exit){
   particle.instanceMatrix.needsUpdate=true;
   for(const w of floaters){w.halo.rotation.z=time*.25;w.g.children[2].position.y=1.86+Math.sin(time*.9+w.phase)*.07}
   for(let i=0;i<lights.length;i++)lights[i].intensity=1.7+Math.sin(time*2+i)*.35;
-  shaftMaterial.opacity=.085+Math.sin(time*.55)*.017;
+  shaftMaterial.opacity=.05+Math.sin(time*.55)*.012;
  };
  const metrics={biome:biome.name,landmarks:floaters.length,glowSources:lights.length,particles:count,liquidOrRifts:pools.length,crystalClusters:spires.length,backgroundStructures:distantColumns.length,lightShafts:shafts.length};
  return{update,metrics,dispose(){

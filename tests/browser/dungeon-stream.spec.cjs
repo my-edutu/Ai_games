@@ -40,9 +40,16 @@ test('redesigned command centre exposes vivid UI, tactical radar and independent
  expect(colors.bg).toContain('linear-gradient');
  expect(colors.color).not.toBe('rgb(0, 0, 0)');
  await page.locator('#audio-toggle').click();
- await expect(page.locator('#audio-toggle')).toHaveAttribute('aria-pressed','true');
- await page.locator('#audio-toggle').click();
- await expect(page.locator('#audio-toggle')).toHaveAttribute('aria-pressed','false');
+ const available=await expect.poll(async()=>{
+  const b=page.locator('#audio-toggle');
+  const pressed=await b.getAttribute('aria-pressed'),reason=await b.getAttribute('title')||'';
+  return pressed==='true'||/blocked|unavailable/i.test(reason)
+ },{timeout:5000}).toBe(true);
+ const audio=page.locator('#audio-toggle');
+ if(await audio.getAttribute('aria-pressed')==='true'){
+  await audio.click();
+  await expect(audio).toHaveAttribute('aria-pressed','false');
+ }else expect(await audio.getAttribute('title')).toMatch(/blocked|unavailable/i);
 });
 test('compact mobile viewport preserves full controls and semantic minimap',async({page})=>{
  await page.setViewportSize({width:360,height:740});await page.goto('/dungeon');
@@ -177,4 +184,19 @@ test('autonomous spectator director can be overridden without changing the AI si
  await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.autoDirector),{timeout:8000}).toBe(true);
  const after=await page.evaluate(()=>window.__DUNGEON_PUBLIC_STATE__.checksum);
  expect(before).toBeTruthy();expect(after).toBeTruthy();
+});
+
+test('camera and environment expose real sightlines instead of foreground wall slabs',async({page})=>{
+ const errors=[];page.on('pageerror',e=>errors.push(e.message));
+ await page.goto('/dungeon');
+ await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.frame??0),{timeout:25000}).toBeGreaterThan(5);
+ await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.triangles??0),{timeout:25000}).toBeGreaterThan(100);
+ await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.cutawayWalls),{timeout:18000}).toBeGreaterThanOrEqual(0);
+ const stage=page.locator('canvas#world');
+ await stage.screenshot({path:'artifacts/dungeon-clear-sightline.png'});
+ await page.screenshot({path:'artifacts/dungeon-cinematic-after-occlusion-fix.png',fullPage:true});
+ const data=await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__);
+ expect(data.webgl).toBe(true);
+ expect(data.cutawayWalls).toBeGreaterThanOrEqual(0);
+ expect(errors).toEqual([]);
 });

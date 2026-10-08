@@ -16,7 +16,7 @@
 #battle-overlay{position:absolute;inset:0;z-index:2;pointer-events:none;width:100%;height:100%;display:block}
 
 /* Cinematic presentation pass: reduce over-dark grading and let the world glow. */
-#world{filter:saturate(1.42) contrast(1.09) brightness(1.16)}
+#world{filter:saturate(1.22) contrast(1.04) brightness(1.05)}
 .arena:before{box-shadow:inset 0 0 44px #070b2260}
 .vignette{box-shadow:inset 0 0 62px 6px #080d204a}
 .cinema-top{height:135px;background:linear-gradient(#0b14289c,transparent)}
