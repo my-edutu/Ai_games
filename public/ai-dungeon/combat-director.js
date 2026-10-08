@@ -47,6 +47,7 @@ export function createCombatDirector(scene,{reducedMotion=false}={}){
     if(u.kind==='warden'&&u.action==='cast'){burstAt(u,'#ff653f',true);return;}
     if(target)projectile(u,target,u.kind);break;
    }
+   case 'guard':burstAt(u,'#79ffe6');break;
    case 'hurt':burstAt(u,u.faction==='party'?'#ffdf96':'#ff8e85');break;
   }
  }

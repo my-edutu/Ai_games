@@ -52,7 +52,7 @@ test('autonomous unit actions are exposed as bounded, public animation semantics
   for(const unit of view.units){
    if(unit.action==='move')observedMovement=true;
    if(unit.action==='attack'||unit.action==='cast')observedAttack=true;
-   assert.ok(['idle','move','attack','cast','hurt'].includes(unit.action));
+   assert.ok(['idle','move','attack','cast','hurt','guard'].includes(unit.action));
    assert.equal(unit.actionTick,view.tick);
   }
  }
@@ -121,4 +121,20 @@ test('unattended host writes atomic verified checkpoints and resumes the exact e
   fs.writeFileSync(stateFile,JSON.stringify(corrupted));
   assert.throws(()=>createHost('durability-fixture',{stateFile}),/checksum mismatch/);
  }finally{fs.rmSync(dir,{recursive:true,force:true})}
+});
+
+test('autonomous Warden warning causes a tangible defensive response instead of unavoidable damage',()=>{
+ const game=DungeonRuntime.create('defensive-ai-gauntlet'),s=game.state;
+ const boss=s.units.find(u=>u.kind==='warden'),hero=s.units.find(u=>u.id==='vanguard');
+ // Authoritative telegraph was emitted on tick 4; tick 5 is the reaction turn,
+ // and tick 6 is the attack. Both are under actual game rules.
+ hero.x=boss.x;hero.z=boss.z;s.tick=4;
+ const before=hero.hp;
+ const reaction=game.step();
+ assert.ok(hero.action==='guard'||hero.action==='move');
+ assert.ok(reaction.events.some(e=>e.kind==='guard'||e.kind==='evade'));
+ const wasGuarding=hero.guardTick===s.tick+1;
+ game.step();
+ if(wasGuarding)assert.ok(hero.hp>=before-20,'guard absorbs majority of Warden shockwave');
+ assertDungeonState(s);
 });

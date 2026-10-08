@@ -122,7 +122,7 @@ function disposeParticle(p){scene.remove(p.mesh);p.mesh.material.dispose()}
 function cue(event,s){
  if(reduced)return;
  pulseFX(event,s);
- const colors={kill:'#ffe3a0',combat:'#e99159',danger:'#ef5864',phase:'#efb7ff',trap:'#ff646c',disarm:'#74f8be',telegraph:'#ffb77b',healing:'#58ebba',loot:'#66d7e5',floor:'#d7bbff'};
+ const colors={kill:'#ffe3a0',combat:'#e99159',danger:'#ef5864',phase:'#efb7ff',guard:'#72ffdf',evade:'#88b9ff',block:'#92eaff',trap:'#ff646c',disarm:'#74f8be',telegraph:'#ffb77b',healing:'#58ebba',loot:'#66d7e5',floor:'#d7bbff'};
  const color=colors[event.kind];if(!color)return;
  const target=event.kind==='danger'?s.units.find(u=>u.faction==='party'&&u.hp>0):event.kind==='kill'?s.units.find(u=>u.kind==='warden'&&u.hp>0):s.units.find(u=>u.id==='mystic')||s.units[0];
  const x=(target?.x??s.exit.x)-9,z=(target?.z??s.exit.z)-9;
@@ -326,7 +326,7 @@ function drawMinimap(s){
  mini.strokeStyle='#72d5e860';mini.lineWidth=1;mini.strokeRect(.5,.5,W-1,H-1);
 }
 function notifyDungeon(event){
- if(!['telegraph','floor','kill','defeat','loot','trap','disarm','phase'].includes(event.kind))return;
+ if(!['telegraph','floor','kill','defeat','loot','trap','disarm','phase','guard','evade','block'].includes(event.kind))return;
  if(event.kind==='floor'){const splash=$('floor-splash');clearTimeout(splashTimer);splash.hidden=false;const match=event.text.match(/^FLOOR (\d+) · (.+)$/);$('splash-floor').textContent=match?match[1].padStart(2,'0'):String(state?.floor??'02').padStart(2,'0');$('splash-name').textContent=match?match[2]:state?.theme??'THE NEXT CHAPTER';splashTimer=setTimeout(()=>{splash.hidden=true},reduced?800:2400)}
  const banner=$('alert-flash');clearTimeout(alertTimer);banner.hidden=false;
  banner.textContent=event.kind==='telegraph'?'⚠  '+event.text.toUpperCase():event.kind==='floor'?'✦  '+event.text.toUpperCase():event.kind==='defeat'?'☠  '+event.text.toUpperCase():event.text.toUpperCase();
@@ -335,7 +335,7 @@ function notifyDungeon(event){
 }
 function playEffect(kind){
  if(!ambience)return;const ctx=ambience;if(ctx.state!=='running')return;
- const hz={floor:524,loot:880,kill:340,healing:660,telegraph:195,danger:142,trap:120,disarm:920}[kind];if(!hz)return;
+ const hz={floor:524,loot:880,kill:340,healing:660,telegraph:195,danger:142,guard:470,evade:730,block:590,trap:120,disarm:920}[kind];if(!hz)return;
  const now=ctx.currentTime,o=ctx.createOscillator(),g=ctx.createGain();o.type=kind==='danger'?'sawtooth':'sine';o.frequency.setValueAtTime(hz,now);o.frequency.exponentialRampToValueAtTime(hz*.7,now+.19);g.gain.setValueAtTime(.0001,now);g.gain.exponentialRampToValueAtTime(.052,now+.015);g.gain.exponentialRampToValueAtTime(.0001,now+.23);o.connect(g).connect(ctx.destination);o.start(now);o.stop(now+.25);
 }
 // Browsers without an active audio device must never freeze the video UI.
@@ -429,6 +429,39 @@ function update(s){combatOverlay.record(s,timeNow());state=s;received=true;error
 let lastFrameTime=0;
 // Actual 3D subject framing metrics, independent from overlay/card brightness.
 const compositionHead=new THREE.Vector3(),compositionFoot=new THREE.Vector3();
+const raycaster=new THREE.Raycaster(),rayStart=new THREE.Vector3(),rayEnd=new THREE.Vector3(),rayDirection=new THREE.Vector3();
+let lastRayAuditAt=-Infinity,rayAudit={testedHeroes:0,unoccludedHeroes:0,occludedHeroes:0,samples:0};
+function actualHeroVisibility(s,at){
+ if(at-lastRayAuditAt<1.25)return rayAudit;
+ lastRayAuditAt=at;
+ const obstacles=[
+   world.userData.walls,
+   ...(world.userData.foregroundProps||[]),
+   ...(world.userData.dressing?.occluders||[]),
+   ...(world.userData.authoredProps?.group?.children||[])
+ ].filter(o=>o?.visible!==false);
+ let tested=0,clear=0,blocked=0,samples=0;
+ camera.getWorldPosition(rayStart);
+ for(const hero of s.units.filter(u=>u.hp>0&&u.faction==='party')){
+  const actor=actors.get(hero.id);if(!actor||actor.root.visible===false)continue;
+  tested++;
+  // Two ray tests let one partially visible shoulder/upper body count as visible.
+  let good=false;
+  for(const y of [1.85,1.05]){
+   actor.root.getWorldPosition(rayEnd);rayEnd.y+=y*(actor.root.scale.y||1);
+   rayDirection.subVectors(rayEnd,rayStart);const distance=rayDirection.length();
+   if(distance<.25){good=true;break}
+   raycaster.set(rayStart,rayDirection.multiplyScalar(1/distance));raycaster.near=.1;raycaster.far=Math.max(.2,distance-.33);
+   samples++;
+   const hits=raycaster.intersectObjects(obstacles,true);
+   if(!hits.length){good=true;break}
+  }
+  if(good)clear++;else blocked++;
+ }
+ rayAudit={testedHeroes:tested,unoccludedHeroes:clear,occludedHeroes:blocked,samples};
+ return rayAudit;
+}
+
 function inspectComposition(s){
  if(!s)return {visibleHeroes:0,minHeroPixels:0,activeEnemies:0,subjectOnscreen:false};
  camera.updateMatrixWorld();
@@ -465,8 +498,9 @@ function animate(t){requestAnimationFrame(animate);const time=t/1000,dt=Math.min
   const since=time-(a.actionStarted??time),phase=Math.max(0,Math.min(1,since/.32));
   if(a.u.action==='attack'&&since<.32){a.rightArm.rotation.x=-1.5*Math.sin(phase*Math.PI);a.body.rotation.z=.16*Math.sin(phase*Math.PI)}
   else if(a.u.action==='cast'&&since<.45){a.rightArm.rotation.x=-1.55*Math.sin(Math.min(1,since/.45)*Math.PI);a.leftArm.rotation.x=-.85;a.body.rotation.z=0}
+  else if(a.u.action==='guard'&&since<.42){a.rightArm.rotation.x=-.85;a.leftArm.rotation.x=-1.1;a.body.rotation.x=-.16;}
   else if(a.u.action==='hurt'&&since<.30){a.body.rotation.z=.16*Math.sin(phase*Math.PI*2);a.body.position.y+=.10*Math.sin(phase*Math.PI)}
-  else a.body.rotation.z*=.65;
+  else {a.body.rotation.z*=.65;a.body.rotation.x*=.70;}
   if(a.telegraph)a.telegraph.material.opacity=.42+.2*Math.sin(time*9);
   if(!a.authored)a.detail?.update(time,a.u.action||'idle');a.ground?.update(time,a.u.action||'idle',a.u.hp>0);updateActor(a,dt);
   if(moving){const delta=a.at.clone().sub(a.root.position);a.root.rotation.y=Math.atan2(-delta.x,-delta.z)}}
@@ -500,7 +534,7 @@ function animate(t){requestAnimationFrame(animate);const time=t/1000,dt=Math.min
  renderer.info.reset();
  try{if(composer&&postFXEnabled){bloomPass.strength=innerWidth<680?.16:.30;composer.render()}else renderer.render(scene,camera)}
  catch(error){console.warn('[DUNGEON] post effect fault, restoring WebGL:',String(error));composer=null;postFXStatus='fallback';renderer.info.reset();renderer.render(scene,camera)}
- combatOverlay.render(state,actors,camera,time);if(state)window.__DUNGEON_RENDER_DIAGNOSTICS__={composition:inspectComposition(state),frame:renderer.info.render.frame,drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,camera:cameraModes[cameraIndex],focusedHeroId,autoDirector,cutawayWalls:world.userData.cutawayWalls??0,hiddenForegroundProps:world.userData.hiddenForegroundProps??0,postFX:composer&&postFXEnabled?'bloom':'direct',postFXStatus,bossFramed:Boolean(bossDistance),activeUnits:[...actors.values()].filter(x=>x.root.visible).length,characterDetails:[...actors.values()].reduce((sum,x)=>sum+(x.detail?.parts||0),0),webgl:true,theme:state.theme,dressing:world.userData.dressing?.metrics??null,atmosphere:world.userData.atmosphere?.metrics??null,overlay:combatOverlay.metrics(),combatStage:combatDirector.stats(),groundedActors:[...actors.values()].filter(x=>Boolean(x.ground)).length,authored3D:assetStats(actors)};
+ combatOverlay.render(state,actors,camera,time);if(state)window.__DUNGEON_RENDER_DIAGNOSTICS__={composition:inspectComposition(state),visibility:actualHeroVisibility(state,time),frame:renderer.info.render.frame,drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,camera:cameraModes[cameraIndex],focusedHeroId,autoDirector,cutawayWalls:world.userData.cutawayWalls??0,hiddenForegroundProps:world.userData.hiddenForegroundProps??0,postFX:composer&&postFXEnabled?'bloom':'direct',postFXStatus,bossFramed:Boolean(bossDistance),activeUnits:[...actors.values()].filter(x=>x.root.visible).length,characterDetails:[...actors.values()].reduce((sum,x)=>sum+(x.detail?.parts||0),0),webgl:true,theme:state.theme,dressing:world.userData.dressing?.metrics??null,atmosphere:world.userData.atmosphere?.metrics??null,overlay:combatOverlay.metrics(),combatStage:combatDirector.stats(),groundedActors:[...actors.values()].filter(x=>Boolean(x.ground)).length,authored3D:assetStats(actors)};
 }
 async function poll(){try{const r=await fetch('/dungeon/state',{cache:'no-store'});if(!r.ok)throw Error('State '+r.status);const data=await r.json();if(data.tick!==lastTick||data.run!==state?.run){lastTick=data.tick;update(data)}}catch(e){errorAt++;if(errorAt>=3){$('recovery').hidden=false;$('status').textContent='VIEW DEGRADED — RETRYING';console.warn('Dungeon view recovery',String(e))}}finally{setTimeout(poll,190)}}
 $('party').addEventListener('click',e=>{

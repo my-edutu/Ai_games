@@ -221,3 +221,15 @@ test('compact mobile view keeps at least one physically visible 3D protagonist',
  expect(c.minHeroPixels).toBeGreaterThan(8);
  await page.screenshot({path:'artifacts/dungeon-3d-mobile-composition.png',fullPage:true});
 });
+
+test('real 3D camera-ray visibility gate: gameplay actors are not hidden behind art props',async({page})=>{
+ await page.goto('/dungeon');
+ await expect.poll(async()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.visibility?.testedHeroes??0),{timeout:25000}).toBeGreaterThan(0);
+ await expect.poll(async()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.visibility?.unoccludedHeroes??0),{timeout:25000}).toBeGreaterThan(0);
+ const result=await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__.visibility);
+ expect(result.unoccludedHeroes+result.occludedHeroes).toBe(result.testedHeroes);
+ expect(result.samples).toBeGreaterThanOrEqual(result.testedHeroes);
+ const base=await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__);
+ expect(base.hiddenForegroundProps).toBeGreaterThanOrEqual(0);
+ expect(base.dressing.clearedForeground).toBeGreaterThanOrEqual(0);
+});

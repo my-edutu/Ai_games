@@ -18,7 +18,8 @@ const clips={
  move:[/run/i,/walk/i,/move/i],
  attack:[/attack/i,/melee/i,/slash/i,/shoot/i],
  cast:[/cast/i,/spell/i,/magic/i,/attack/i],
- hurt:[/hit/i,/hurt/i,/damage/i,/impact/i]
+ hurt:[/hit/i,/hurt/i,/damage/i,/impact/i],
+ guard:[/block/i,/shield/i,/defend/i,/idle/i]
 };
 const assetUrl=path=>'/dungeon/assets/'+path;
 function load(path){

@@ -5,7 +5,7 @@ export const DUNGEON_VERSION='0.4.0';
 export const MAP_SIZE=19;
 export type UnitKind='vanguard'|'ranger'|'mystic'|'revenant'|'cultist'|'warden';
 export type Faction='party'|'enemy';
-export interface Unit {id:string;kind:UnitKind;faction:Faction;x:number;z:number;hp:number;maxHp:number;attack:number;cooldown:number;action?:'idle'|'move'|'attack'|'cast'|'hurt';actionTick?:number}
+export interface Unit {id:string;kind:UnitKind;faction:Faction;x:number;z:number;hp:number;maxHp:number;attack:number;cooldown:number;action?:'idle'|'move'|'attack'|'cast'|'hurt'|'guard';actionTick?:number;guardTick?:number}
 export interface DungeonEvent {tick:number;kind:string;text:string}
 export interface DungeonTrap{id:string;x:number;z:number;kind:'ember'|'arcane';active:boolean;cooldown:number;disarmed:boolean;triggers:number}
 export interface DungeonState {schemaVersion:1;tick:number;floor:number;run:number;phase:'exploring'|'intermission';intermission:number;theme:string;map:string[];exit:{x:number;z:number};units:Unit[];relics:{x:number;z:number}[];traps:DungeonTrap[];kills:number;gold:number;level:number;intent:string;events:DungeonEvent[]}
@@ -127,6 +127,22 @@ export class DungeonRuntime {
   for(const trap of s.traps)if(!trap.disarmed&&!trap.active&&trap.cooldown>0){trap.cooldown--;if(trap.cooldown===0)trap.active=true}
   // Turn-based autonomous tactics. Deterministic unit order and bounded path searches.
   for(const hero of party){
+   // The Warden's public telegraph is actionable, not an unavoidable effect:
+   // autonomous heroes either leave the marked 3-tile radius or brace in time.
+   const warden=s.units.find(u=>u.kind==='warden'&&u.hp>0);
+   const interval=warden&&wardenPhase(warden)==='ECLIPSE'?4:6;
+   if(warden&&dist(hero,warden)<=3&&s.tick%interval===interval-1){
+    const escapes=DIRS.map(([dx,dz])=>({x:hero.x+dx,z:hero.z+dz}))
+     .filter(p=>walkable(s.map,p.x,p.z)&&dist(p,warden)>dist(hero,warden))
+     .filter(p=>!s.units.some(u=>u.faction==='enemy'&&u.hp>0&&u.x===p.x&&u.z===p.z))
+     .sort((a,b)=>dist(b,warden)-dist(a,warden)||a.z-b.z||a.x-b.x);
+    if(escapes.length&&dist(escapes[0],warden)>3){
+     hero.x=escapes[0].x;hero.z=escapes[0].z;hero.action='move';
+     s.intent='Dodging the Warden shockwave';push(s,'evade',hero.kind+' escaped a marked shockwave');continue;
+    }
+    hero.guardTick=s.tick+1;hero.action='guard';s.intent='Bracing for the Warden shockwave';
+    push(s,'guard',hero.kind+' raised a defensive ward');continue;
+   }
    if(hero.kind==='ranger'&&s.tick%4===0){const hazard=s.traps.find(t=>t.active&&!t.disarmed&&dist(hero,t)<=2);
     if(hazard){hazard.active=false;hazard.disarmed=true;hazard.cooldown=0;hero.action='cast';s.intent='Wildshadow disabling a dangerous rune';push(s,'disarm','Wildshadow safely disabled a '+hazard.kind+' trap');continue}
    }
@@ -163,7 +179,12 @@ export class DungeonRuntime {
    if(enemy.kind==='warden'&&distance<=3&&attackTick===warningTick){push(s,'telegraph','The Warden prepares '+(bossPhase==='ECLIPSE'?'an ECLIPSE NOVA':'an arcane shockwave')+' — evade the marked ground')}
    if(enemy.kind==='warden'&&distance<=3&&attackTick===0){const affected=party.filter(u=>u.hp>0&&dist(enemy,u)<=3);
     const shock=8+Math.min(18,s.floor)+(bossPhase==='ECLIPSE'?6:0);
-    for(const hero of affected){hero.hp=Math.max(0,hero.hp-shock);hero.action='hurt'}enemy.action='cast';
+    for(const hero of affected){
+     const guarded=hero.guardTick===s.tick;
+     const dealt=guarded?Math.max(1,Math.floor(shock*.30)):shock;
+     hero.hp=Math.max(0,hero.hp-dealt);hero.action=guarded?'guard':'hurt';
+     if(guarded)push(s,'block',hero.kind+' shielded '+(shock-dealt)+' damage');
+    }enemy.action='cast';
     if(affected.length)push(s,'danger','The Warden unleashed an arcane shockwave · '+shock+' damage');
    }
    if(enemy.kind==='cultist'&&distance>1&&distance<=3&&s.tick%4===0){const visible=(enemy.x===nearest.x&&Array.from({length:Math.abs(enemy.z-nearest.z)-1},(_,i)=>Math.min(enemy.z,nearest.z)+i+1).every(z=>walkable(s.map,enemy.x,z)))||(enemy.z===nearest.z&&Array.from({length:Math.abs(enemy.x-nearest.x)-1},(_,i)=>Math.min(enemy.x,nearest.x)+i+1).every(x=>walkable(s.map,x,enemy.z)));if(visible){nearest.hp=Math.max(0,nearest.hp-5-Math.min(8,Math.floor(s.floor/2)));nearest.action='hurt';enemy.action='cast';push(s,'danger','Cultist hurled a shadow bolt')}}
