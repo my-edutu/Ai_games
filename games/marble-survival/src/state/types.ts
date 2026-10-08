@@ -276,7 +276,7 @@ export interface MarbleInfluenceState {
 
 export interface MarbleState {
   schemaVersion: 1;
-  determinismVersion: 'marble-physics-v3';
+  determinismVersion: 'marble-physics-v4';
   runId: string;
   rootSeed: string;
   tournamentSeed: string;
