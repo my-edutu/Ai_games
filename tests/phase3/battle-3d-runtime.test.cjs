@@ -53,6 +53,7 @@ test('3D renderer consumes immutable public state and emits real vertex draw com
   const context=harness();
   assert.equal(context.window.BattleArena3D.render(match),true);
   assert.ok(context.draws()>0);
+  assert.equal(context.window.BattleArena3D.status.sceneBuilds,1);
   assert.ok(context.window.BattleArena3D.status.triangles>100);
   assert.equal(context.window.BattleArena3D.status.contenders,1);
   assert.equal(typeof fighter.visual,'undefined');
@@ -61,6 +62,7 @@ test('3D renderer consumes immutable public state and emits real vertex draw com
   const second=Object.freeze({...match,tick:2,combatants:Object.freeze([Object.freeze({...fighter,cell:100})])});
   assert.equal(context.window.BattleArena3D.render(second),true);
   assert.ok(context.window.BattleArena3D.status.p95SubmitMs>=0);
+  assert.equal(context.window.BattleArena3D.status.sceneBuilds,1,'unchanged arena geometry should stay cached');
 });
 
 test('2D-only mode does not create a WebGL renderer',()=>{
@@ -79,4 +81,5 @@ test('WebGL context loss falls back without stopping the battle and can restore'
   context.listeners.webglcontextrestored();
   assert.equal(context.window.BattleArena3D.status.mode,'webgl2');
   assert.equal(context.window.BattleArena3D.render(match),true);
+  assert.ok(context.window.BattleArena3D.status.sceneBuilds>=2,'WebGL restoration must rebuild lost geometry');
 });
