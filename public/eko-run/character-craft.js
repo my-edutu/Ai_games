@@ -32,7 +32,13 @@ export function createTayoActor(THREE) {
   const jacket=shape(torso,'torso',-.025,1.54,0,.38,.52,.43,0xf4b52b,'jacket');
   const shirt=shape(torso,'ball',.24,1.51,0,.14,.42,.31,0xf0ebe0,'shirt');
   const seam=shape(torso,'capsule',.34,1.50,0,.025,.31,.035,0x1a9e98,'jacket front seam');
-  const shoulderLines=[];
+  // Fine silhouette and costume construction, with custom hand-sewn edges.
+  shape(torso,'capsule',.25,1.64,.28,.031,.28,.035,0xfce1ac,'jacket piped seam');
+  shape(torso,'capsule',.25,1.64,-.28,.031,.28,.035,0xfce1ac,'jacket piped back seam');
+  shape(torso,'ball',.26,1.90,0,.10,.035,.31,0x104d59,'shirt collar');
+  shape(torso,'box',.31,1.43,.32,.055,.11,.055,0xe2a946,'zip pull');
+  shape(torso,'capsule',.27,1.21,.29,.055,.065,.045,0xfbd584,'waist patch');
+  shape(torso,'capsule',.27,1.21,-.29,.055,.065,.045,0xfbd584,'waist patch back');
   const hip=shape(torso,'ball',-.02,1.18,0,.31,.23,.29,0x243e58,'hip');
   const neck=shape(torso,'capsule',.04,2.02,0,.14,.09,.14,skins[1],'neck');
   const headPivot=new THREE.Group();headPivot.position.set(.045,2.05,0);torso.add(headPivot);
@@ -61,6 +67,9 @@ export function createTayoActor(THREE) {
     const wrist=new THREE.Group();wrist.position.set(.03,-.37,0);elbow.add(wrist);
     shape(wrist,'ball',.06,-.042,0,.13,.142,.109,skins[1],'hand');
     for(let k=0;k<3;k++)shape(wrist,'capsule',.15,-.10,s*(k-1)*.059,.034,.062,.035,skins[1],'finger');
+    shape(shoulder,'capsule',.09,-.13,s*.08,.041,.13,.052,0xf9d178,'sleeve reflective tape');
+    shape(elbow,'ball',.08,-.18,s*.03,.046,.035,.052,0xe8c59d,'elbow highlight');
+    shape(wrist,'capsule',.035,.065,0,.13,.05,.12,0x28a8af,'fitness wrist cuff');
     arms.push({shoulder,elbow,wrist,s,upper:shoulder.children[0]});
     const thigh=new THREE.Group();thigh.position.set(-.02,1.06,s*.185);torso.add(thigh);thigh.name=(s<0?'left':'right')+'-hip';
     shape(thigh,'capsule',0,-.24,0,.168,.255,.154,0x173c52,'trouser');
@@ -70,6 +79,10 @@ export function createTayoActor(THREE) {
     const ankle=new THREE.Group();ankle.position.set(0,-.45,0);knee.add(ankle);
     shape(ankle,'ball',.12,-.06,0,.29,.105,.19,0xf7f0d9,'running shoe');
     shape(ankle,'capsule',.33,-.075,0,.075,.035,.18,0xf6ca4e,'toe stripe');
+    shape(ankle,'box',.11,-.145,0,.52,.03,.33,0x243f50,'shoe sole');
+    shape(ankle,'box',.36,-.02,.10,.06,.012,.22,0xf3d078,'shoe lace stripe');
+    shape(ankle,'box',.36,-.02,-.10,.06,.012,.22,0xf3d078,'shoe lace stripe');
+    shape(thigh,'capsule',.13,-.33,s*.06,.044,.095,.05,0x4e7087,'trouser cuff stitch');
     legs.push({thigh,knee,ankle,s,pants:thigh.children[0],shin:knee.children[1]});
   }
   // Each cultural costume is a distinct layered silhouette, not a hitbox change.
@@ -80,12 +93,20 @@ export function createTayoActor(THREE) {
     shape(g,'box',-.24,1.65,-.16,.21,.42,.06,0x11a9a1,'strap');
     shape(g,'box',0,2.63,0,.56,.18,.48,0x185868,'urban running cap');
     shape(g,'box',.25,2.57,0,.46,.055,.52,0xf5bc43,'cap brim');
+    shape(g,'box',-.29,1.58,-.13,.11,.27,.29,0x2a6e75,'sport bag side pocket');
+    shape(g,'capsule',.04,2.665,.26,.25,.023,.032,0xe3cc93,'hat stitched front badge');
+    shape(g,'box',-.12,1.75,.31,.46,.09,.04,0xe3b852,'jacket upper yoke trim');
   });
   costume('yoruba-agbada-fila',g=>{
     shape(g,'cone',-.03,1.25,0,.55,.82,.66,0x244f81,'agbada drape');
     shape(g,'box',.38,1.45,0,.045,.65,.22,0xe9d5a6,'agbada central stitch');
     for(const s of [-1,1])shape(g,'box',.31,1.72,s*.18,.045,.15,.05,0xd5ad5a,'embroidery');
     shape(g,'cone',.03,2.62,0,.29,.21,.28,0x1e4877,'fila');
+    for(let i=0;i<6;i++){
+      const y=.71+i*.16;
+      shape(g,'capsule',.35,y,.32,.026,.07,.023,i%2?0xf4cf84:0xb2ddeb,'agbada embroidered thread');
+    }
+    shape(g,'ball',.01,2.83,.01,.16,.05,.16,0xf3d09b,'fila top stitched crown');
   });
   costume('igbo-isi-agu-red-cap',g=>{
     shape(g,'torso',.00,1.55,0,.43,.54,.48,0x332323,'isi agu tunic');
@@ -93,12 +114,21 @@ export function createTayoActor(THREE) {
       shape(g,'ball',.29,1.23+i*.16,s*.26,.05,.055,.048,0xbda16d,'abstract rosette');
     shape(g,'cone',.02,2.63,0,.295,.25,.29,0xb72e3f,'red cap');
     shape(g,'box',.27,1.91,0,.035,.08,.38,0xcfb47a,'neck trim');
+    for(let row=0;row<3;row++)for(const z of [-.30,.30]){
+      shape(g,'ball',.28,1.12+row*.20,z,.07,.048,.045,0xc5a166,'isi agu decorative lion abstract mark');
+    }
+    shape(g,'capsule',.10,2.71,.25,.08,.08,.045,0xedb88c,'red cap insignia');
   });
   costume('hausa-baban-riga-cap',g=>{
     shape(g,'cone',-.03,1.18,0,.51,.98,.62,0x146e66,'baban riga outer robe');
     shape(g,'box',.41,1.56,0,.04,.61,.15,0xe3d19e,'baban riga embroidery');
     for(const s of [-1,1])shape(g,'box',.40,1.73,s*.15,.042,.26,.037,0xcda66b,'embroidered band');
     shape(g,'cone',.05,2.63,0,.29,.21,.28,0xdfcda8,'embroidered cap');
+    for(let col=0;col<3;col++){
+      shape(g,'capsule',.43,1.29+col*.19,.26,.025,.085,.028,0xe5d8ad,'robe front stitched knot');
+      shape(g,'capsule',.43,1.29+col*.19,-.26,.025,.085,.028,0xe5d8ad,'robe back stitched knot');
+    }
+    shape(g,'capsule',.22,2.74,.23,.07,.07,.04,0xf7ce67,'cap crown embroidery');
   });
   const palette={
     'lagos-streetwear':[0xf3bc30,0x193b55,0x16acaa],
