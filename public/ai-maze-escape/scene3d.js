@@ -290,6 +290,10 @@ function masonryWall(parent,x,z,kind,id,cutaway=false){
     queueInstance(geometries.column,materials.wallTop,[x+ox,1.31,z+oz],[.78,1,.78]);
     queueInstance(geometries.cube,materials.trim,[x+ox,2.52,z+oz],[.43,.17,.43]);
   }
+  worldCraft.decorateWall({
+    world:parent,x,z,id,kind,height:WALL_HEIGHT,
+    queue:queueInstance,put:mesh,glow:addGlow
+  });
   if(id%7===0){
     // A carved wall medallion, bezel and faintly emissive rune break up repeated brickwork.
     const along=kind==='NS'?0:.16,across=kind==='NS'?.16:0;
