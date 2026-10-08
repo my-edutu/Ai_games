@@ -680,13 +680,38 @@
   let frameDrawCalls = 0;
   let frameTriangles = 0;
   let sampledFrames = 0;
+  // Runtime-resilience pass: only the default Balanced preset adapts pixel
+  // density; High and Ultra stay under explicit user control.
+  let adaptiveResolution=1,lowFpsStreak=0,recoveryFpsStreak=0;
+  function tuneRenderResolution(fps){
+    const quality=document.getElementById('quality-select')?.value||'balanced';
+    if(quality!=='balanced'){
+      adaptiveResolution=1;lowFpsStreak=0;recoveryFpsStreak=0;return;
+    }
+    if(fps<27){
+      lowFpsStreak++;recoveryFpsStreak=0;
+      if(lowFpsStreak>=2){
+        adaptiveResolution=Math.max(.82,Math.round((adaptiveResolution-.06)*100)/100);
+        lowFpsStreak=0;
+      }
+    }else if(fps>=52){
+      recoveryFpsStreak++;lowFpsStreak=0;
+      if(recoveryFpsStreak>=5){
+        adaptiveResolution=Math.min(1,Math.round((adaptiveResolution+.04)*100)/100);
+        recoveryFpsStreak=0;
+      }
+    }else{
+      lowFpsStreak=0;recoveryFpsStreak=0;
+    }
+    shell.dataset.adaptiveResolution=adaptiveResolution.toFixed(2);
+  }
   let sampleStartedAt = performance.now();
   const rollingById=new Map(); const effects=[]; let snapshot=null,previousSnapshot=null,snapshotReceivedAt=performance.now(),lastEventSeq=-1,cameraState=null,cameraArenaId=null,pollingStopped=false,requestInFlight=false;
   gl.enable(gl.DEPTH_TEST); gl.enable(gl.CULL_FACE); gl.cullFace(gl.BACK); gl.enable(gl.BLEND); gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
   function resize() {
     const rect=canvas.getBoundingClientRect(); if(rect.width<=1||rect.height<=1)return false;
-    const quality=document.getElementById('quality-select')?.value||'balanced'; const maxDpr=quality==='low'?1:quality==='balanced'?1.35:quality==='high'?1.75:2; const renderScale=QUALITY_BUFFER_SCALE[quality]??QUALITY_BUFFER_SCALE.balanced; const dpr=Math.min(window.devicePixelRatio||1,maxDpr)*renderScale;
+    const quality=document.getElementById('quality-select')?.value||'balanced'; const maxDpr=quality==='low'?1:quality==='balanced'?1.35:quality==='high'?1.75:2; const renderScale=(QUALITY_BUFFER_SCALE[quality]??QUALITY_BUFFER_SCALE.balanced)*(quality==='balanced'?adaptiveResolution:1); const dpr=Math.min(window.devicePixelRatio||1,maxDpr)*renderScale;
     const width=Math.max(1,Math.round(rect.width*dpr)),height=Math.max(1,Math.round(rect.height*dpr)); if(canvas.width!==width||canvas.height!==height){canvas.width=width;canvas.height=height;} shell.dataset.renderScale=String(renderScale); gl.viewport(0,0,width,height); return true;
   }
 
@@ -1460,7 +1485,10 @@
         tick: snapshot?.tick ?? null,
         arena: snapshot?.arena?.id ?? null,
         measuredAt: Date.now(),
+        adaptiveResolution: Number(adaptiveResolution.toFixed(2)),
+        effectivePixelScale: Number(shell.dataset.renderScale||'1'),
       });
+      if(!document.hidden&&snapshot)tuneRenderResolution(metrics.fps);
       window.marbleRenderTelemetry=metrics;
       shell.dataset.renderFps=String(metrics.fps);
       shell.dataset.renderDrawCalls=String(metrics.drawCalls);
