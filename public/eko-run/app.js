@@ -172,6 +172,45 @@ function makeBus(parent,x,z,variant=0){
   for(let t=0;t<4;t++)box(b,.065,.09,.53,-.78+t*.38,2.25,0,0xced4c8,false);
   box(b,.10,.28,.3,1.40,.78,-.39,0xf6f0bd,false);
   box(b,.10,.28,.3,1.40,.78,.39,0xf6f0bd,false);
+  // Danfo detail pass: panel curvature cues, rear badge, route placard, mirrors,
+  // railings, tinted glazing, steel rims, wheel arches and a rooftop luggage rack.
+  for(const s of [-1,1]){
+    const side=s*.714;
+    const glazing=box(b,2.22,.47,.045,-.15,1.74,side,0x2a677b,false);
+    glazing.material=material(0x286277,.25,.16);
+    box(b,2.23,.065,.065,-.15,1.98,side+s*.035,0xe5c794,false);
+    box(b,2.35,.066,.06,-.15,1.49,side+s*.038,0xe5c794,false);
+    for(let p=-1;p<3;p++){
+      box(b,.038,.51,.075,-.85+p*.55,1.73,side+s*.055,0xeadfbd,false);
+    }
+    for(const wheelX of [-.80,.85]){
+      const rim=cylinder(b,.235,.235,.19,wheelX,.40,s*.815,0x8f969b,16);rim.rotation.x=Math.PI/2;
+      const disk=cylinder(b,.12,.12,.21,wheelX,.40,s*.90,0xe4dcb5,12);disk.rotation.x=Math.PI/2;
+      for(let m=0;m<6;m++){
+        const theta=m*Math.PI/3;
+        ball(b,.036,wheelX+Math.cos(theta)*.14,.40+Math.sin(theta)*.14,s*.94,0x363c42);
+      }
+      box(b,.63,.10,.14,wheelX,.83,s*.71,0x303641,false);
+    }
+    box(b,.31,.28,.14,1.26,1.35,s*.89,0x223a49,false);
+    box(b,.13,.16,.07,1.40,1.48,s*1.01,0xd9ebe8,false);
+    box(b,1.19,.07,.08,-.36,.96,side+s*.05,0x255062,false);
+    box(b,.13,.96,.08,.45,1.18,side+s*.06,0xe0c78e,false);
+    box(b,.13,.35,.48,.65,.69,side+s*.19,0x46525b,false);
+  }
+  box(b,.19,.24,1.45,1.50,.56,0,0x2e3943,false);
+  box(b,.19,.16,1.26,-1.42,.78,0,0x333e4a,false);
+  box(b,.055,.16,.27,1.54,1.14,-.44,0xffffd2,false);
+  box(b,.055,.16,.27,1.54,1.14,.44,0xffffd2,false);
+  for(let i=0;i<4;i++){
+    const lx=-.93+i*.54;
+    box(b,.04,.20,.08,lx,2.18,-.60,0x525d68,false);
+    box(b,.04,.20,.08,lx,2.18,.60,0x525d68,false);
+  }
+  box(b,2.2,.055,.075,-.18,2.35,-.60,0xd4d9c5,false);
+  box(b,2.2,.055,.075,-.18,2.35,.60,0xd4d9c5,false);
+  box(b,.17,.38,.50,-1.38,1.25,0,0x22485a,false);
+  labelSprite(b,variant%3===0?'EKO DANFO':variant%3===1?'YABA / CMS':'LAGOS EXPRESS',-.30,2.20,.05,{scale:.28,color:'#fff0ae',bg:'#153c53'});
   b.userData.bus=true;return b;
 }
 function makeTree(parent,x,z,seed){
