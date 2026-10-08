@@ -187,6 +187,19 @@
     uniform=['center','scale','uYaw','uPitch','uPerspective','uBiomeRow','uAtlasReady','uSurfaceStrength','uSurfaceAtlas'].map(name=>gl.getUniformLocation(program,name));
     staticBuffer=gl.createBuffer();dynamicBuffer=gl.createBuffer();
     surfaceAtlasTexture=null;status.materialAtlas='fallback';
+    // Sampler2D must always have a complete texture even while the SVG loads.
+    if(typeof gl.createTexture==='function'){
+      surfaceAtlasTexture=gl.createTexture();
+      gl.activeTexture(gl.TEXTURE0);
+      gl.bindTexture(gl.TEXTURE_2D,surfaceAtlasTexture);
+      gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
+      gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,1,1,0,gl.RGBA,gl.UNSIGNED_BYTE,
+        new Uint8Array([255,255,255,255]));
+      gl.bindTexture(gl.TEXTURE_2D,null);
+    }
     uploadSurfaceAtlas();
     staticCache.key=null;staticCache.vertices=0;
     gl.enable(gl.DEPTH_TEST);gl.depthFunc(gl.LEQUAL);
@@ -1303,7 +1316,7 @@
       const scale=Math.min(1.87/((w*.61+h*.79)*.52+5),1.87*aspect/(w*.79+h*.61+4));
       gl.useProgram(program);
       gl.uniform1f(uniform[5],a.theme==='neon'?1:a.theme==='arctic'?2:0);
-      gl.uniform1f(uniform[6],surfaceAtlasTexture?1:0);
+      gl.uniform1f(uniform[6],status.materialAtlas==='ready'?1:0);
       if(surfaceAtlasTexture){
         gl.activeTexture(gl.TEXTURE0);
         gl.bindTexture(gl.TEXTURE_2D,surfaceAtlasTexture);
