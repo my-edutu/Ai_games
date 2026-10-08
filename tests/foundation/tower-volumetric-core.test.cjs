@@ -56,3 +56,29 @@ test('new physics platforms are materially distinct and keep scene size bounded'
  assert.equal(s.snapshot().wallClimbs,Math.floor(s.snapshot().highestReached/23),'each unique handhold wall must register only once');
  assert.ok(s.snapshot().climbing.stamina>=0&&s.snapshot().climbing.stamina<=100);
 });
+
+test('checkpoint save reconstructs identical future authoritative 3D replay',()=>{
+ for(const seed of [1,42,719,248201]){
+   const original=create(seed);
+   for(let i=0;i<2345;i++)original.step(1/60);
+   const packed=JSON.parse(JSON.stringify(original.exportSave()));
+   assert.ok(JSON.stringify(packed).length<22000,'checkpoint must fit mobile localStorage');
+   const resumed=create(seed,packed);
+   assert.deepEqual(resumed.snapshot(),original.snapshot());
+   for(let i=0;i<1200;i++){original.step(1/60);resumed.step(1/60);}
+   assert.deepEqual(resumed.snapshot(),original.snapshot());
+ }
+});
+test('malformed, non-finite and manipulated local game checkpoints are rejected',()=>{
+ const source=create(42);for(let i=0;i<180;i++)source.step(1/60);
+ const original=source.exportSave();
+ for(const input of [
+  {},null,{...original,schemaVersion:999},{...original,platforms:[]},
+  {...original,seedState:-1},{...original,player:{...original.player,y:Infinity}},
+  {...original,build:{...original.build,grip:999}},
+  {...original,platforms:[...original.platforms].reverse()}
+ ]){
+   if(input===null)continue;
+   assert.throws(()=>create(42,input),Error);
+ }
+});
