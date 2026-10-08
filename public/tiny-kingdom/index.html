@@ -132,7 +132,7 @@ void main(){
 // Gauntlet 023 — world-space GPU materials. Original procedural detail; not full PBR.
 const fs=`precision mediump float;
 varying vec3 vColor;varying vec3 vWorld;varying vec3 vNormal;varying float vFog;varying float vMaterial;
-uniform vec3 fogColor;uniform vec3 sunDirection;uniform float worldTime;
+uniform vec3 fogColor;uniform highp vec3 sunDirection;uniform float worldTime;
 float hash3(vec3 p){p=fract(p*.1031);p+=dot(p,p.yxz+33.33);return fract((p.x+p.y)*p.z);}
 float noise3(vec3 p){
  vec3 i=floor(p),f=fract(p);f=f*f*(3.0-2.0*f);
