@@ -71,6 +71,22 @@
       "independentCritic": "Pending Chromium screenshot capture of latest head commit; CI latest queued.",
       "largestKnownGap": "No authored rigged character assets, cinematic animations or blind A/B win against the reference. Need real performance captures, licensed art and independent visual criticism.",
       "visualBarMet": false
+    },
+    {
+      "number": 5,
+      "label": "Character behavior, interactive sound and resilience",
+      "status": "committed; latest visual/performance validation queued",
+      "built": [
+        "Independent articulated shoulders, hips and searching head animation; cape responds to running and direction",
+        "Soft original glow sprites attached to the hero lantern, map shrines and exit/key objects",
+        "Animated keys/exit energy, runtime procedural ambience and event-driven audio cues with explicit opt-in and mute",
+        "Dynamic threatening actors update from observed frames without forcing static geometry reconstruction",
+        "Structural-signature rendering with instanced masonry, cinematic foreground cutaways and moving sunlight shadows",
+        "WebGL render failures now restore the existing original 2D broadcast"
+      ],
+      "independentCritic": "Pending: latest CI Chromium output, measured FPS, fresh-context visual A/B; only earlier screenshots manually reviewed.",
+      "largestKnownGap": "Original procedural characters, authored environment variety and cinematic animation remain visibly below Little Nightmares III and The Talos Principle 2; audio quality also requires real livestream listening review.",
+      "visualBarMet": false
     }
   ],
   "milestones": [
@@ -105,6 +121,14 @@
     {
       "label": "Endurance, performance and R5 production evidence",
       "status": "not complete"
+    },
+    {
+      "label": "Original synthesized soundscape, manual consent and muted route",
+      "status": "implemented; browser tests pending"
+    },
+    {
+      "label": "Real independent screenshot critique after the latest scene changes",
+      "status": "waiting for latest GitHub Actions browser artifact"
     }
   ],
   "updatedAt": "2026-10-08"
