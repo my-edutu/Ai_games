@@ -24,12 +24,12 @@ function add(group,mesh,x,y,z){mesh.position.set(x,y,z);group.add(mesh);return m
 function limb(group,mat,radius,height,x,y,z){const m=new THREE.Mesh(new THREE.CylinderGeometry(radius*.88,radius,height,9),mat);add(group,m,x,y,z);return m}
 function clearGroup(group){
   for(const child of [...group.children]){
-    child.traverse(obj=>{if(obj.isMesh){obj.geometry?.dispose();if(Array.isArray(obj.material))obj.material.forEach(m=>m.dispose());else obj.material?.dispose()}});
+    child.traverse(obj=>{if(obj.isMesh||obj.isPoints){obj.geometry?.dispose();if(Array.isArray(obj.material))obj.material.forEach(m=>m.dispose());else obj.material?.dispose()}});
     group.remove(child);
   }
 }
 function seeded(n){const t=Math.sin(n*84.17+19.67)*43758.5453;return t-Math.floor(t)}
-export function mountTower3D({host,getFrame,reducedMotion=false}){
+export function mountTower3D({host,getFrame,reducedMotion=false,heroCamera=false}){
   const canvas=document.createElement('canvas');
   canvas.id='tower-3d-canvas';canvas.dataset.testid='tower-3d-canvas';
   canvas.setAttribute('aria-hidden','true');
@@ -54,7 +54,7 @@ export function mountTower3D({host,getFrame,reducedMotion=false}){
   const glow=new THREE.PointLight(0x7ff3e7,100,170,2);actors.add(glow);
   const dynamic=new Map();
   let floor=-1,theme='',lastChecksum='',latest=null,frame=null,running=true,lastAt=performance.now();
-  let cameraY=35,cameraX=240,worldWidth=480,observedFrames=0,visualX=null,visualY=null,visualRun='';
+  let cameraY=35,cameraX=240,worldWidth=480,observedFrames=0,visualX=null,visualY=null,visualRun='',visualFloor=-1;
   const perf={frames:0,drawCalls:0,triangles:0,entityCount:0};window.__TOWER_3D_DIAGNOSTICS__=perf;
 
   function buildBackdrop(s){
@@ -232,7 +232,7 @@ export function mountTower3D({host,getFrame,reducedMotion=false}){
   function resize(){
     const w=Math.max(1,host.clientWidth),h=Math.max(1,host.clientHeight);
     if(canvas.width!==Math.floor(w*renderer.getPixelRatio())||canvas.height!==Math.floor(h*renderer.getPixelRatio()))renderer.setSize(w,h,false);
-    const aspect=w/h,span=156;
+    const aspect=w/h,span=heroCamera?65:156;
     camera.left=-span*aspect/2;camera.right=span*aspect/2;
     camera.top=span/2;camera.bottom=-span/2;camera.updateProjectionMatrix();
   }
@@ -244,17 +244,17 @@ export function mountTower3D({host,getFrame,reducedMotion=false}){
     if(lastChecksum!==s.publicChecksum)sync(s);
     const dt=clamp((now-lastAt)/1000,0,.1);lastAt=now;resize();
     const authoritativeX=coord(s.player.x),authoritativeY=coord(s.player.y);
-    if(visualRun!==s.runToken||visualX===null||floor!==s.floor){visualX=authoritativeX;visualY=authoritativeY;visualRun=s.runToken}
+    if(visualRun!==s.runToken||visualX===null||visualFloor!==s.floor){visualX=authoritativeX;visualY=authoritativeY;visualRun=s.runToken;visualFloor=s.floor}
     const follow=reducedMotion?1:1-Math.exp(-dt*13);
     visualX+=(authoritativeX-visualX)*follow;visualY+=(authoritativeY-visualY)*follow;
-    const targetX=visualX,targetY=coord(data.camera?.centerY??s.player.y);
+    const targetX=visualX,targetY=heroCamera?visualY+8:coord(data.camera?.centerY??s.player.y);
     // Smooth tracking affects presentation only, never the simulation.
     const motion=reducedMotion?1:1-Math.exp(-dt*4.2);
     cameraX+=(clamp(targetX,80,worldWidth-80)-cameraX)*motion;
     cameraY+=(targetY-cameraY)*motion;
     const shake=!reducedMotion&&s.dangerPermille>800?Math.sin(now*.037)*1.5:0;
-    const az=worldWidth/2;const depth=258;
-    camera.position.set(cameraX+33+shake,cameraY+18+shake*.6,depth);
+    const depth=heroCamera?148:258;
+    camera.position.set(cameraX+(heroCamera?12:33)+shake,cameraY+(heroCamera?6:18)+shake*.6,depth);
     camera.lookAt(cameraX,cameraY,-18);
     player.position.set(visualX,visualY,36);
     const collisionScale=clamp(coord(s.player.halfHeight)/26,.3,1.6);
@@ -268,7 +268,7 @@ export function mountTower3D({host,getFrame,reducedMotion=false}){
     }
     // Keep observed performance measurable for the independent critic.
     renderer.render(scene,camera);observedFrames++;
-    if(observedFrames%60===0){perf.frames=observedFrames;perf.drawCalls=renderer.info.render.calls;perf.triangles=renderer.info.render.triangles;perf.heroParts=(()=>{let count=0;player.traverse(o=>{if(o.isMesh)count++});return count})();perf.renderMode='webgl-3d';perf.state=s.player.state;}
+    if(observedFrames%60===0){perf.frames=observedFrames;perf.drawCalls=renderer.info.render.calls;perf.triangles=renderer.info.render.triangles;perf.heroParts=(()=>{let count=0;player.traverse(o=>{if(o.isMesh)count++});return count})();perf.renderMode='webgl-3d';perf.state=s.player.state;perf.heroCamera=heroCamera;}
   }
   const onLost=event=>{event.preventDefault();running=false;renderer.dispose();canvas.remove();document.body.dataset.towerRenderer='2d-fallback';window.__TOWER_3D_ACTIVE__=false};
   canvas.addEventListener('webglcontextlost',onLost,{once:true});
