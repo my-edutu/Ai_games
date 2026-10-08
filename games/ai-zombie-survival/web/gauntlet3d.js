@@ -82,8 +82,14 @@ const restartDelayMs=Math.max(500,Math.min(60000,Number(params.get('restartMs'))
 let orbit = 0.67, range = 27, dragging = false, priorX = 0, cameraX = 0, cameraZ = 0, cameraFocusX = 0, cameraFocusZ = 0;
 let cameraMode = ['hero','overview'].includes(params.get('view'))?params.get('view'):'director', heroIndex=0, director = undefined, fpsSmooth = 30, lastStats = 0, buffersRebuilt = 0, lastGeometryStamp = '';
 let directedRange = 21;
-const frameCpuMs=[];
+const frameCpuMs=[],frameWallMs=[],meshBuildMs=[];
 let qualityScale=1, qualityCheckTime=0;
+let dynamicBuildAt=0,lastDynamicTick=-1,lastDynamicFocusX=Infinity,lastDynamicFocusZ=Infinity,dynamicMeshRebuilds=0;
+const percentile=(values,p=.95)=>{
+  if(!values.length)return 0;
+  const sorted=[...values].sort((a,b)=>a-b);
+  return sorted[Math.min(sorted.length-1,Math.floor(sorted.length*p))];
+};
 const fixed = 1 / 30, maxVisibleZombies = 260;
 
 let audioContext, drone, wind, droneGain, windGain, audioEventsSeen = 0;
@@ -362,7 +368,7 @@ function human(m,entity,infected,time){
   const x=entity.x,z=entity.y,yaw=entity.facing||0;
   // Simplified distant infected retain recognizable heads and threats without rebuilding 70+ triangles per limb.
   const distance=Math.hypot(x-cameraFocusX,z-cameraFocusZ);
-  if(infected&&distance>(fpsSmooth<24?16:22)){
+  if(infected&&distance>(cameraMode==='hero'?15:percentile(meshBuildMs,.70)>45?9:13)){
     if(entity.health<=0)return;
     const c=entity.archetype==='brute'?'#747b5f':entity.archetype==='runner'?'#769279':'#87917c';
     m.box(x,1.14*body,z,.57*body,1.55*body,.43*body,c,yaw);
@@ -451,7 +457,8 @@ function drawObjects(m,t){
   for(const node of game.loot)if(node.amount>0){m.box(node.x,.25,node.y,.57,.48,.60,node.kind==='medicine'?'#c5c9b4':'#9e8157');m.box(node.x,.50,node.y,.64,.055,.64,'#4d5046');}
   for(const s of game.survivors)human(m,s,false,t);
   for(const c of game.civilians)if(c.state!=='safe'&&c.state!=='dead'){human(m,{...c,alive:true,role:'scout',action:c.state==='escorting'?'move':'idle',id:c.id},false,t);}
-  const zombieBudget=Math.min(maxVisibleZombies,fpsSmooth<18?115:fpsSmooth<26?180:260);
+  const cost=percentile(meshBuildMs,.70);
+  const zombieBudget=Math.min(maxVisibleZombies,cost>65?105:cost>35?155:260);
   const nearest=game.zombies.map(z=>({actor:z,dist:(z.x-cameraFocusX)**2+(z.y-cameraFocusZ)**2}))
     .filter(o=>(o.actor.health>0?o.dist<52*52:o.dist<15*15))
     .sort((a,b)=>a.dist-b.dist).slice(0,zombieBudget);
@@ -590,14 +597,20 @@ function toggleRoster(){
 }
 function restartRun(){
   seed=(seed+1)>>>0||1;completedRuns++;resumeStatus='NEW RUN';game=createGame({seed,zombieCount:params.get('crowd')==='dense'?260:180});
-  audioEventsSeen=0;cameraMode='director';cameraFocusX=0;cameraFocusZ=0;directedRange=21;
+  audioEventsSeen=0;cameraMode='director';cameraFocusX=0;cameraFocusZ=0;directedRange=21;lastDynamicTick=-1;
   terminalSince=null;accumulator=0;director=undefined;lastGeometryStamp='';
   try{sessionStorage.removeItem(recoveryKey);}catch{}
 }
 function render(now){
   const cpuStart=performance.now();
-  const delta=Math.min(.09,Math.max(0,(now-last)/1000));last=now;if(!paused)elapsed+=delta;
-  fpsSmooth=fpsSmooth*.93+(delta?1/delta:30)*.07;
+  const wallMs=Math.max(0,now-last);
+  const delta=Math.min(.09,wallMs/1000);last=now;if(!paused)elapsed+=delta;
+  if(wallMs>0&&wallMs<500){
+    frameWallMs.push(wallMs);
+    if(frameWallMs.length>100)frameWallMs.shift();
+    const fpsMeasured=1000/Math.max(1,percentile(frameWallMs,.5));
+    fpsSmooth=Math.max(1,Math.min(120,fpsSmooth*.84+fpsMeasured*.16));
+  }
   if(!paused&&game.status==='running'){
     accumulator+=delta;
     let limit=0;
@@ -640,7 +653,20 @@ function render(now){
   gl.uniform3fv(uniforms.uFogColor,new Float32Array(sky));
   gl.uniform1f(uniforms.uFog,night?.010:.003+(game.weather.kind==='fog'?.006:0));
   rebuildStatic();
-  const moving=new Mesh();drawObjects(moving,elapsed);upload(movingMesh,moving.vertices);
+  // Decouple expensive vertex rebuilding from display refresh and reuse frozen scene buffers.
+  // The fixed-step authoritative AI still advances at the same simulation frequency.
+  const focusChanged=Math.hypot(cameraFocusX-lastDynamicFocusX,cameraFocusZ-lastDynamicFocusZ)>.20;
+  const updateMs=Math.max(32,Math.min(120,percentile(meshBuildMs,.70)*1.15));
+  if(movingMesh.count===0||(
+       paused?(game.tick!==lastDynamicTick||focusChanged):now>=dynamicBuildAt
+    )){
+    const started=performance.now();
+    const moving=new Mesh();drawObjects(moving,elapsed);upload(movingMesh,moving.vertices);
+    meshBuildMs.push(performance.now()-started);
+    if(meshBuildMs.length>60)meshBuildMs.shift();
+    dynamicBuildAt=now+updateMs;dynamicMeshRebuilds++;
+    lastDynamicTick=game.tick;lastDynamicFocusX=cameraFocusX;lastDynamicFocusZ=cameraFocusZ;
+  }
   for(const b of [staticMesh,movingMesh]){gl.bindVertexArray(b.vao);gl.drawArrays(gl.TRIANGLES,0,b.count);}
   frameCpuMs.push(performance.now()-cpuStart);
   if(frameCpuMs.length>180)frameCpuMs.shift();
@@ -682,7 +708,7 @@ function render(now){
     const tris=Math.round((staticMesh.count+movingMesh.count)/3);
     hud.querySelector('#fps').textContent=Math.round(fpsSmooth)+' FPS · '+cpuP95.toFixed(1)+'ms CPU P95 · '+tris.toLocaleString()+' TRIANGLES';
     verdict.textContent='WEBGL2 TRUE 3D • '+(paused?'PAUSED':'SIMULATION LIVE');
-    try{localStorage.setItem('zombie-gauntlet-live',JSON.stringify({time:Date.now(),day:game.time.day,tick:game.tick,alive:living,zombies:infected,fps:Math.round(fpsSmooth),frameCpuP95Ms:Math.round(cpuP95*10)/10,triangles:tris,renderScale:qualityScale,phase:game.time.phase,seed,renderer:'WebGL2',status:game.status}));}catch{}
+    try{localStorage.setItem('zombie-gauntlet-live',JSON.stringify({time:Date.now(),day:game.time.day,tick:game.tick,alive:living,zombies:infected,fps:Math.round(fpsSmooth),frameCpuP95Ms:Math.round(cpuP95*10)/10,triangles:tris,renderScale:qualityScale,dynamicRebuilds:dynamicMeshRebuilds,meshBuildP95Ms:Math.round(percentile(meshBuildMs)*10)/10,phase:game.time.phase,seed,renderer:'WebGL2',status:game.status}));}catch{}
   }
   requestAnimationFrame(render);
 }
