@@ -1,4 +1,5 @@
 import * as THREE from '/dungeon/vendor/three.module.js';
+import {addDungeonWindows} from '/dungeon/architecture.js';
 
 // Purely cosmetic, reproducible procedural dressing. This code never touches game authority.
 // All geometry is batched or tightly budgeted so a streaming run can regenerate indefinitely.
@@ -119,7 +120,7 @@ export function enrichEnvironment(world,map,floor){
   const faces=[{dx:1,dz:0,yaw:Math.PI/2},{dx:-1,dz:0,yaw:Math.PI/2},{dx:0,dz:1,yaw:0},{dx:0,dz:-1,yaw:0}];
   for(const face of faces){if(!open(x+face.dx,z+face.dz))continue;
    const ax=px+face.dx*.511,az=pz+face.dz*.511;
-   wallFaces.push([ax,1.22,az,face.dz!==0?.88:.024,2.31,face.dx!==0?.88:.024,0]);
+   wallFaces.push([ax,1.22,az,face.dz!==0?.88:.024,2.31,face.dx!==0?.88:.024,0,face.dx,face.dz]);
    if(h%5===0)columnCap.push([ax,2.42,az,face.dz!==0?.72:.09,.115,face.dx!==0?.72:.09]);
    if(h%21===0){pillars.push([ax,az,face.yaw,h]);}
    if(h%31===0){banners.push([ax,az,face.yaw,h]);}
@@ -163,6 +164,8 @@ export function enrichEnvironment(world,map,floor){
   foregroundGroups.push(buildStatue(world,x,z,chrome,wallSurface,jade,h));
   const halo=new THREE.Mesh(ring,jade);halo.position.set(x,1.58,z);halo.rotation.x=Math.PI/2;world.add(halo);foregroundGroups.push(halo);
  }
+ // Architectural accents share this floor's resource budget and the same camera cutaway.
+ const archWindows=addDungeonWindows(world,wallFaces,floor,biome,materials,geometries,textures,foregroundGroups);
  const pillarsCount=pillars.length,bannersCount=banners.length,ruins=worldAnchors.length;
  const totalDecor=floorDetails.length+wallFaces.length+columnCap.length+mossPatches.length+runeInlays.length+rubble.length+pillarsCount+bannersCount+ruins;
  // Same 3D visibility policy as the base walls: rich wall cladding must not hide the AI.
@@ -191,7 +194,6 @@ export function enrichEnvironment(world,map,floor){
   sceneMetrics.clearedForeground=cleared;
  }
  const animate=time=>{for(const p of flames){const t=time*5+p.phase,scale=1+Math.sin(t)*.13;p.fire.scale.y=scale;p.inner.scale.setScalar(.91+Math.sin(t+1.3)*.14)}};
- return {animate,cutaway,occluders:[facadeMesh,...foregroundGroups].filter(Boolean),metrics:Object.assign(sceneMetrics,{biome:floor,decorInstances:totalDecor,torches:flames.length,banners:bannersCount,landmarks:ruins,texturedSurfaces:floorDetails.length+wallFaces.length}),dispose:()=>{for(const g of geometries)g.dispose();for(const m of materials)m.dispose();for(const t of textures)t.dispose();for(const f of flames){f.inner.material.dispose()}}};
+ return {animate,cutaway,occluders:[facadeMesh,...foregroundGroups].filter(Boolean),metrics:Object.assign(sceneMetrics,{biome:floor,decorInstances:totalDecor+archWindows,archWindows,torches:flames.length,banners:bannersCount,landmarks:ruins,texturedSurfaces:floorDetails.length+wallFaces.length}),dispose:()=>{for(const g of geometries)g.dispose();for(const m of materials)m.dispose();for(const t of textures)t.dispose();for(const f of flames){f.inner.material.dispose()}}};
 }
 
-// Gauntlet cosmetic architecture integration pending.
