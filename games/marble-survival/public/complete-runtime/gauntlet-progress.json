@@ -1,9 +1,9 @@
 {
   "schema": 1,
-  "iteration": "Loop 5 · real output verification + synchronized identity",
+  "iteration": "Loop 6 · blind A/B critic tooling",
   "lastUpdated": "2026-10-08",
-  "criticTarget": "Independent critic: inspect actual CI screenshots for scene framing, legible identities and believable marble optics. Reject until blind A/B screenshots of real gameplay compare favorably to Marble It Up! Ultra and Marbles on Stream.",
-  "comparisonStatus": "NOT YET VERIFIED · Browser workflow queued. Blind reference comparisons and real 3D physics still outstanding.",
+  "criticTarget": "Critic must compare real game screenshots against legitimately obtained commercial reference frames and submit recorded blind verdicts; A/B workstation is not a substitute for independent judgment.",
+  "comparisonStatus": "NOT YET VERIFIED · Manual A/B tooling implemented; no independent reference comparison has been completed.",
   "goals": [
     {
       "name": "Premium marble character optics",
@@ -23,6 +23,11 @@
     {
       "name": "Frame-exact competitor identities",
       "detail": "Project numbers and tags through the exact WebGL frame matrix and authoritative elevation; preserve fallback",
+      "status": "implemented"
+    },
+    {
+      "name": "Blinded screenshot critic console",
+      "detail": "Import actual output and reference locally, randomize A/B, record gap and vote, export anonymized review JSON",
       "status": "implemented"
     },
     {
@@ -57,6 +62,11 @@
     }
   ],
   "history": [
+    {
+      "title": "Loop 6 — Critic's evidence workstation",
+      "note": "Created on-device screenshot A/B review with randomized left/right placement, explicit tie votes and portable review exports. Added browser test using a real capture against itself to verify tie behavior; no visual victory claimed.",
+      "proof": "Source implementation and pending browser CI verification"
+    },
     {
       "title": "Loop 5 — Frame-truth and browser checks",
       "note": "Eliminated independent HUD-label camera drift by using renderer's actual view-projection matrix and interpolated marble locations. Added exact frame/tick assertions plus a triggered browser-evidence CI workflow.",
