@@ -1,9 +1,9 @@
 {
   "schema": 1,
-  "iteration": "Loop 18 · physical 3D arenas, studio-lit marbles, live 3D signage and visual pixel gates",
+  "iteration": "Loop 21 · real reactor falling physics and 3D contestant identities",
   "lastUpdated": "2026-10-08",
-  "criticTarget": "Open the actual Chromium captures for all five stages, the mobile layout, championship and competitor dossier. Compare the visual bar to official Marble It Up! Ultra screenshots. Reject flat-looking geometry, weak lighting, illegible overlays, clipped 3D LED signage, low saturation, or slow FPS. Do not call the Gauntlet achieved without independent blind votes.",
-  "comparisonStatus": "NOT YET VERIFIED · Loops 15–18 source and V8 runtime smoke checks implemented; actual Chromium screenshots and independent Marble It Up! Ultra A/B comparisons still outstanding.",
+  "criticTarget": "Inspect real live reactor pit frames across the 3D descent, shields and overflights, plus four competitor archetypes in desktop/mobile views. Confirm actual WebGL2 shader compilation, no ghost shadows over pits, no fake fall announcements, sufficient contrast and FPS. Require blinded comparisons before declaring the commercial Gauntlet achieved.",
+  "comparisonStatus": "NOT YET VERIFIED · v4 physical pit gravity, authority-only fall cues and 3D role silhouettes implemented; Node physics suite, real Chromium screenshots, independent reference voting pending.",
   "goals": [
     {
       "name": "Premium marble character optics",
@@ -144,9 +144,49 @@
       "name": "Five-stage JS render smoke suite",
       "detail": "Headless JavaScript execution of all five live scene paths and championship via instrumented mock-WebGL; not a real GPU compile",
       "status": "implemented"
+    },
+    {
+      "name": "True physics-driven pit falls",
+      "detail": "Real negative vertical elevation under deterministic gravity into cut-through track wells, with elimination only at rendered reactor floor",
+      "status": "implemented"
+    },
+    {
+      "name": "One-shot authoritative pit danger events",
+      "detail": "Replay-stable marble-pit-falling event used by sanitized ticker, spatial audio and hazard VFX, never by client-side guessed results",
+      "status": "implemented"
+    },
+    {
+      "name": "Four unique competitor archetypes",
+      "detail": "Navigator compass, sprinter fins, bruiser armour, survivor shield ring, higher-chroma base colours and absent ground shadows over pits",
+      "status": "implemented"
+    },
+    {
+      "name": "Deterministic v4 pit checkpoint boundary",
+      "detail": "Mid-fall save/restore and invalid negative-elevation rejection; incompatible historical v3 snapshots fail closed",
+      "status": "implemented"
+    },
+    {
+      "name": "Actual Chromium 3D fall and visual critique",
+      "detail": "Real browser proof of pit falls, four model silhouettes, colour exposure and clean mobile HUD remains pending",
+      "status": "in-progress"
     }
   ],
   "history": [
+    {
+      "title": "Loop 19 — Authority-bound falling into actual 3D reactor wells",
+      "note": "Pit entrants now lose ground contact, accumulate signed vertical position under gravity and can fall into the actual modelled well before elimination at the reactor floor. Shield intervention at the lip remains immediate; unshielded racers can fly across. Negative pit elevations are strictly valid only over a real pit. New v4 checkpoint version refuses v3 replays.",
+      "proof": "6+ new physics tests and version/restore regressions committed; full TypeScript build pending"
+    },
+    {
+      "title": "Loop 20 — One-time fall events and spectator audio",
+      "note": "Each true below-lip fall emits one replay-deterministic marble-pit-falling authority event. Its sanitized public form powers the live race commentary, descending spatial audio and a hazard-coloured particle burst. Airborne overpasses never announce false falls.",
+      "proof": "Source and regression cases committed; full physics and real-browser run pending"
+    },
+    {
+      "title": "Loop 21 — Unique 3D character archetypes and danger cinematography",
+      "note": "Brought the four autonomous racer archetypes beyond generic spheres: navigators have spinning compass halos, sprinters carry speed-aligned twin fins, bruisers gain armour studs and survivors orbit protected rings. Eliminated false marble shadows on missing pit surfaces, added a true-descent reactor beacon and detailed industrial obstacle housings.",
+      "proof": "Actual source committed; 9/9 mocked-WebGL stage tests passed, 9/9 visual source checks passed before final tweaks; real shader/device inspection pending"
+    },
     {
       "title": "Loop 15 — Cut-through track and real hazard depth",
       "note": "Replaced painted fake pit squares with deterministic topological deck openings, deep mechanical hazard wells, warning lighting and 3D wall geometry. Kill zones remain surface-level and the actual solver topology is untouched.",
