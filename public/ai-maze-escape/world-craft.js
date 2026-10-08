@@ -230,7 +230,31 @@ export function makeWorldCraft(THREE) {
         fragments++;
       }
     }
-    world.userData.artStats={clusters,beacons,glyphs,fragments,monumentalProps,ambientFlares,biome:theme};
+    // Distant sculpted set dressing is outside the entire public maze grid.
+    // This constructs only fictional skyline art; never a true room, path, exit or enemy.
+    const originX=(snapshot.width-1)*grid*.5;
+    const originZ=(snapshot.height-1)*grid*.5;
+    const outerX=snapshot.width*grid*.55+5;
+    const outerZ=snapshot.height*grid*.55+5;
+    let skyline=0;
+    for(let i=0;i<18;i++){
+      const angle=(i/18)*Math.PI*2;
+      const x=originX+Math.cos(angle)*outerX;
+      const z=originZ+Math.sin(angle)*outerZ;
+      const shape=noise(i,77,31);
+      const size=1.5+shape*1.9;
+      queue(g.rock,m.weatheredRock,[x,-.62,z],[size*1.4,.7+size*.3,size]);
+      queue(g.rock,m.mossRock,[x+size*.57,-.18,z-size*.19],[size*.66,.49,size*.42]);
+      if(i%3===0){
+        const h=3.1+noise(i,54,23)*3.0;
+        queue(g.prism,m.carvedRuin,[x,h*.48,z],[.6,h,.64]);
+        queue(g.slab,m.goldInlay,[x,h+.03,z],[1.03,.14,1.03]);
+        queue(g.spire,theme==='layers'?m.violet:theme==='hunter'?m.redCrystal:m.carvedRuin,
+          [x,h+.75,z],[.63,1.45,.63]);
+      }
+      skyline++;
+    }
+    world.userData.artStats={clusters,beacons,glyphs,fragments,monumentalProps,ambientFlares,skyline,biome:theme};
   }
   function addHeroSurroundings({scene,hero,put,glow}){
     // Exterior lantern flares respond to the explorer's real position in scene3d;
