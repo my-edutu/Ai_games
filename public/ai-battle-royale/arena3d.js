@@ -9,8 +9,9 @@
     :params.get('camera')==='tactical'?'tactical':'broadcast';
   function selectCameraMode(snapshot){
     if(cameraPreference!=='broadcast')return cameraPreference;
-    const alive=snapshot.combatants.filter(f=>f.alive).length;
-    return alive<=6||snapshot.scene==='final-circle'||snapshot.scene==='result'?'hero':'tactical';
+    if(snapshot.scene==='recovery'||snapshot.scene==='intermission')return 'tactical';
+    if(snapshot.scene==='final-circle'||snapshot.scene==='result')return 'hero';
+    return Math.floor(snapshot.tick/20)%6===5?'tactical':'hero';
   }
   const tactical=document.querySelector('[data-testid="battle-canvas"]');
   const host=tactical?.parentElement;
@@ -65,6 +66,9 @@
     'in vec3 vShadowUV;',
     'uniform sampler2DShadow uShadowMap;uniform float uShadowEnabled;',
     'out vec4 result;',
+    'vec3 filmic(vec3 x){',
+    'return clamp((x*(2.51*x+.03))/(x*(2.43*x+.59)+.14),vec3(0.),vec3(1.));',
+    '}',
     'float hash21(vec2 p){',
     'return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453123);',
     '}',
@@ -108,7 +112,11 @@
     'float luminous=smoothstep(.68,.98,max(vTint.r,max(vTint.g,vTint.b)))*vibrant;',
     'lit+=vTint*luminous*.16;',
     'float haze=clamp(1.0-abs(vDepth)/138.0,.76,1.0);',
-    'vec3 finalColor=mix(vec3(.17,.28,.44),lit,haze);',
+    'vec3 sky=uBiomeRow<.5?vec3(.54,.40,.34):',
+    'uBiomeRow<1.5?vec3(.28,.30,.56):vec3(.49,.67,.80);',
+    'vec3 hdr=lit*1.31+vec3(.019,.027,.037);',
+    'vec3 graded=pow(filmic(hdr),vec3(.91,.93,.96));',
+    'vec3 finalColor=mix(sky,graded,haze);',
     'finalColor=clamp(finalColor,vec3(0.0),vec3(1.0));',
     'result=vec4(finalColor,1.0);',
     '}'
