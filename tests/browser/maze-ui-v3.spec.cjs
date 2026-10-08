@@ -246,3 +246,27 @@ test('real CC0 humanoid GLB and offline loader are streamed with a safe procedur
   }
   expect(errors).toEqual([]);
 });
+
+
+test('real Quaternius animated ghost loads locally with real flying clips',async({page,request})=>{
+  const binary=await request.get(base+'/maze/models/hollow-sentinel-ghost.glb');
+  expect(binary.ok()).toBe(true);
+  const data=await binary.body();
+  expect(data.toString('ascii',0,4)).toBe('glTF');
+  expect(data.length).toBeGreaterThan(200000);
+  const loader=await request.get(base+'/maze/spectral-assets.js');
+  expect(loader.ok()).toBe(true);
+  await page.setViewportSize({width:1440,height:900});
+  await page.goto(base+'/maze',{waitUntil:'domcontentloaded'});
+  await page.waitForFunction(()=>window.__MAZE_PUBLIC_STATE__?.tick>4);
+  if(await page.evaluate(()=>window.__MAZE_3D_READY__)){
+    await page.waitForFunction(()=>['loaded','fallback'].includes(window.__MAZE_3D_MONSTER__?.status),null,{timeout:18000});
+    const ghost=await page.evaluate(()=>window.__MAZE_3D_MONSTER__);
+    expect(ghost.source).toMatch(/Quaternius/);
+    expect(ghost.status).toBe('loaded');
+    expect(ghost.bones).toBeGreaterThan(10);
+    expect(ghost.clips).toContain('idle');
+    expect(ghost.clips).toContain('flying');
+    await page.screenshot({path:path.join(artifacts,'gauntlet-animated-ghost-v12.png'),fullPage:true});
+  }
+});
