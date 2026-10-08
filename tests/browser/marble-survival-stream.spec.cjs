@@ -65,12 +65,40 @@ test('Marble WebGL broadcast renders authoritative tournament and captures runti
   const shell = page.locator('.broadcast-shell');
   await expect(shell).toHaveAttribute('data-renderer', 'webgl2', { timeout: 20_000 });
   await expect(shell).toHaveAttribute('data-identity', 'projected', { timeout: 20_000 });
+  const operator = async command => page.evaluate(async ({ command }) => {
+    const response = await fetch('/api/operator', {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        authorization: 'Bearer visual-evidence-only',
+      },
+      body: JSON.stringify({ command, actor: 'visual-evidence-browser', at: 1 }),
+    });
+    if (!response.ok) throw new Error(`operator ${command} ${response.status}`);
+    return response.json();
+  }, { command });
+  // The self-running test server advances every 4ms. Freeze its *existing*
+  // authority before interacting with live list buttons, then restart to a
+  // known round. Without this the top-ranked element can legitimately change
+  // between pointer-down and pointer-up, masking the real UX defect.
+  await operator('pause');
+  await operator('restart');
+  await expect(page.locator('#tick-value')).toHaveText('0', {timeout:3000});
   await expect(page.locator('#view-toggle')).toBeVisible();
   await expect(page.locator('#leaderboard .inspect-marble').first()).toBeVisible({timeout:15000});
   // UI controls must never mutate the autonomous race or operator authority.
-  await page.locator('#leaderboard .inspect-marble').first().click();
-  await expect(page.locator('#spotlight-card')).toBeVisible();
   const selected = await page.locator('#leaderboard .inspect-marble').first().getAttribute('data-marble-id');
+  await page.locator(`#leaderboard .inspect-marble[data-marble-id="${selected}"]`).click();
+  await expect(page.locator('#spotlight-card')).toBeVisible();
+  await expect(page.locator(`#leaderboard .inspect-marble[data-marble-id="${selected}"]`)).toHaveAttribute('aria-pressed','true');
+  // Hold the clicked DOM node and prove a fresh server poll never swaps it.
+  const nodeStayedAttached=await page.evaluate(async id=>{
+    const button=document.querySelector(`#leaderboard .inspect-marble[data-marble-id="${id}"]`);
+    await new Promise(resolve=>setTimeout(resolve,400));
+    return button?.isConnected===true
+      &&button===document.querySelector(`#leaderboard .inspect-marble[data-marble-id="${id}"]`);
+  },selected);
+  expect(nodeStayedAttached).toBe(true);
   const spotlight = await page.evaluate(async id => {
     const state = await (await fetch('/api/snapshot')).json();
     const marble = state.marbles.find(candidate => candidate.id === Number(id));
@@ -160,18 +188,7 @@ test('Marble WebGL broadcast renders authoritative tournament and captures runti
   await expect(soundToggle).toHaveAttribute('aria-pressed', 'false');
   await expect(shell).toHaveAttribute('data-audio', 'off');
 
-  const operator = async command => page.evaluate(async ({ command }) => {
-    const response = await fetch('/api/operator', {
-      method: 'POST',
-      headers: {
-        'content-type': 'application/json',
-        authorization: 'Bearer visual-evidence-only',
-      },
-      body: JSON.stringify({ command, actor: 'visual-evidence-browser', at: 1 }),
-    });
-    if (!response.ok) throw new Error(`operator ${command} ${response.status}`);
-    return response.json();
-  }, { command });
+
 
   const snapshot = async () => page.evaluate(async () => {
     const response = await fetch('/api/snapshot', { cache: 'no-store' });
