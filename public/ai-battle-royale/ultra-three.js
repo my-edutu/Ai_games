@@ -82,19 +82,108 @@ function getSkeletonBones(root){
   const joints=[];
   root.traverse(node=>{
     if(!node.isBone)return;
-    const name=(node.name||'').toLowerCase().replace(/[^a-z0-9]/g,'');
-    // Asset retains Quaternius CC0 65-bone hierarchy; these are
-    // cosmetic locomotion targets, never collider or combat logic.
-    const side=/left|_l|\.l$|^l(upper|lower|arm|leg)/.test(name)?'left':
-      /right|_r|\.r$|^r(upper|lower|arm|leg)/.test(name)?'right':null;
-    const leg=/thigh|upperleg/.test(name)?'leg':
-      /calf|lowerleg|shin/.test(name)?'shin':
-      /upperarm|shoulder/.test(name)?'arm':
-      /forearm|lowerarm/.test(name)?'forearm':
-      /spine|chest/.test(name)?'torso':null;
-    if(leg)joints.push({bone:node,name,side,leg,rest:node.rotation.clone()});
+    const raw=(node.name||'').toLowerCase();
+    const name=raw.replace(/[^a-z0-9]/g,'');
+    // Quaternius rig uses upperarm_l, lowerarm_r, thigh_l, calf_r.
+    // Derive side from original names, BEFORE stripping underscores.
+    const side=/(?:_l|\.l|left)$/.test(raw)?'left':
+      /(?:_r|\.r|right)$/.test(raw)?'right':null;
+    const role=/^thigh/.test(name)?'leg':
+      /^calf|shin/.test(name)?'shin':
+      /^upperarm/.test(name)?'arm':
+      /^lowerarm|forearm/.test(name)?'forearm':
+      /^spine|pelvis/.test(name)?'torso':
+      /^head$|^neck/.test(name)?'head':null;
+    if(role)joints.push({bone:node,name,side,role,rest:node.rotation.clone()});
   });
   return joints;
+}
+function createWeapon(f){
+  const specs={
+    carbine:{length:.78,barrel:.040,scope:true,stock:.21},
+    marksman:{length:1.05,barrel:.031,scope:true,stock:.25},
+    scattergun:{length:.71,barrel:.075,scope:false,stock:.27},
+    sidearm:{length:.39,barrel:.051,scope:false,stock:.07}
+  };
+  const spec=specs[f.weapon]||specs.carbine;
+  const weapon=new THREE.Group();
+  const dark=new THREE.MeshStandardMaterial({color:0x192332,roughness:.35,metalness:.79});
+  const iron=new THREE.MeshStandardMaterial({color:0x566779,roughness:.35,metalness:.68});
+  const highlight=new THREE.MeshStandardMaterial({
+    color:colors[f.archetype]||0xb7e6ee,metalness:.66,roughness:.25,
+    emissive:colors[f.archetype]||0xb7e6ee,emissiveIntensity:.10
+  });
+  function box(w,h,d,x,y,z,material){
+    const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),material);
+    m.position.set(x,y,z);m.castShadow=true;weapon.add(m);return m;
+  }
+  function cylinder(r,d,x,y,z,material){
+    const m=new THREE.Mesh(new THREE.CylinderGeometry(r,r,d,12),material);
+    m.rotation.x=Math.PI*.5;m.position.set(x,y,z);m.castShadow=true;
+    weapon.add(m);return m;
+  }
+  // Distinct primary receiver, barrel, buttstock, mag and grip.
+  box(.13,.18,spec.length*.59,0,.045,spec.length*.39,dark);
+  cylinder(spec.barrel,spec.length*.57,0,.070,spec.length*.76,iron);
+  box(.11,.14,spec.stock,0,.018,-spec.stock*.42,dark);
+  box(.10,.23,.10,0,-.16,.17,dark);
+  box(.12,.21,.11,0,-.17,.32,iron);
+  box(.17,.062,spec.length*.43,0,.16,spec.length*.37,iron);
+  box(.15,.055,.20,0,.18,spec.length*.28,highlight);
+  if(spec.scope){
+    cylinder(.047,.25,0,.225,.40,dark);
+    cylinder(.057,.045,0,.225,.52,iron);
+  }
+  if(f.weapon==='scattergun'){
+    cylinder(.085,.15,0,.06,spec.length*.96,dark);
+    box(.19,.065,.29,0,-.04,.37,iron);
+  }
+  if(f.weapon==='sidearm')box(.09,.16,.08,0,-.23,.14,dark);
+  weapon.position.set(.19,1.18,.24);
+  weapon.rotation.x=0;
+  const flash=new THREE.Mesh(new THREE.ConeGeometry(.105,.27,8),
+    new THREE.MeshBasicMaterial({color:0xffe26b,transparent:true,opacity:.86,depthWrite:false}));
+  flash.rotation.x=-Math.PI*.50;
+  flash.position.set(0,.06,spec.length+0.23);
+  flash.visible=false;weapon.add(flash);
+  return{weapon,flash};
+}
+function createHeroAccessories(f,holder){
+  const accent=new THREE.Color(colors[f.archetype]||0xb7e6ee);
+  const dark=new THREE.MeshStandardMaterial({color:0x1b2735,metalness:.48,roughness:.58});
+  const suit=new THREE.MeshStandardMaterial({color:accent,metalness:.36,roughness:.39});
+  const glow=new THREE.MeshStandardMaterial({color:accent,emissive:accent,
+    emissiveIntensity:.23,metalness:.42,roughness:.28});
+  function component(g,x,y,z,w,h,d,material){
+    const mesh=new THREE.Mesh(g||new THREE.BoxGeometry(w,h,d),material);
+    mesh.position.set(x,y,z);mesh.castShadow=true;mesh.receiveShadow=true;
+    holder.add(mesh);return mesh;
+  }
+  // Equipment decals and original upper-body armor variation.
+  component(null,0,1.19,-.26,.41,.54,.14,dark);
+  component(null,0,1.27,-.345,.24,.28,.044,suit);
+  for(const side of [-1,1]){
+    component(null,side*.24,1.42,.10,.21,.16,.31,suit);
+    component(null,side*.245,.83,.13,.13,.16,.12,dark);
+    component(null,side*.245,.86,.20,.11,.055,.057,glow);
+    component(null,side*.13,1.44,.205,.055,.36,.09,dark);
+  }
+  component(null,0,1.30,.235,.28,.11,.065,glow);
+  const variant=numberSeed(f.id)%4;
+  if(variant===0){
+    component(new THREE.CylinderGeometry(.03,.04,.21,7),.15,1.94,-.03,0,0,0,glow);
+    component(null,0,1.66,.17,.29,.095,.09,glow);
+  }else if(variant===1){
+    component(null,-.12,1.05,-.37,.11,.35,.10,dark);
+    component(null,.12,1.05,-.37,.11,.35,.10,dark);
+    component(null,0,.97,.26,.24,.105,.057,glow);
+  }else if(variant===2){
+    component(null,.31,1.13,.23,.16,.26,.11,glow);
+    component(null,.08,1.78,.18,.19,.07,.075,dark);
+  }else{
+    component(null,0,1.52,.23,.33,.16,.10,suit);
+    component(null,0,1.53,.29,.16,.045,.03,glow);
+  }
 }
 function ensureActor(f){
   let item=models.get(f.id);
@@ -104,25 +193,13 @@ function ensureActor(f){
   clone.scale.setScalar(unitScale);
   clone.position.y=modelYOffset;
   holder.add(clone);
-  const visual=numberSeed(f.id)%4;
-  if(visual===0){
-    const accent=new THREE.Mesh(new THREE.BoxGeometry(.09,.20,.10),
-      new THREE.MeshStandardMaterial({color:colors[f.archetype]||0xffffff,
-        emissive:colors[f.archetype]||0xffffff,emissiveIntensity:.18}));
-    accent.position.set(.26,1.51,-.02);holder.add(accent);
-  }else if(visual===1){
-    const pack=new THREE.Mesh(new THREE.BoxGeometry(.37,.46,.18),
-      new THREE.MeshStandardMaterial({color:0x1b2c39,roughness:.70}));
-    pack.position.set(0,1.07,-.22);pack.castShadow=true;holder.add(pack);
-  }else if(visual===2){
-    const plate=new THREE.Mesh(new THREE.BoxGeometry(.24,.12,.07),
-      new THREE.MeshStandardMaterial({color:0x58dbea,emissive:0x247ba0,
-        emissiveIntensity:.26}));
-    plate.position.set(0,1.54,.14);holder.add(plate);
-  }
+  createHeroAccessories(f,holder);
+  const firearm=createWeapon(f);
+  holder.add(firearm.weapon);
   assignModelMaterial(clone,f);
   scene.add(holder);
-  item={holder,bones:getSkeletonBones(clone),actor:f,moved:false,prevCell:f.cell};
+  item={holder,bones:getSkeletonBones(clone),weapon:firearm.weapon,muzzle:firearm.flash,
+    actor:f,moved:false,prevCell:f.cell};
   models.set(f.id,item);
   return item;
 }
@@ -130,25 +207,36 @@ function animateSkeleton(model,f,time){
   const running=model.moved&&(/pursuing|seeking|fallback/.test(f.intent||''));
   const moving=model.moved;
   const fighting=f.intent==='attacking',healing=f.intent==='healing';
-  const phase=time*(running?10:7)+numberSeed(f.id)%15;
-  const swing=moving?Math.sin(phase)*(running?.44:.23):0;
+  const phase=time*(running?10:7)+(numberSeed(f.id)%15);
+  const stride=moving?Math.sin(phase)*(running?.48:.29):0;
+  const idle=Math.sin(time*2.4+numberSeed(f.id)%4)*.013;
   for(const joint of model.bones){
-    const {bone,side,leg,rest}=joint;
-    const flip=side==='left'?1:-1;
+    const {bone,side,role,rest}=joint,flip=side==='left'?1:-1;
     let x=rest.x,y=rest.y,z=rest.z;
-    if(leg==='leg')x+=flip*swing*(healing?.25:1);
-    if(leg==='shin')x+=Math.max(0,-flip*swing)*.32;
-    if(leg==='arm')x+=fighting?-.62:healing?-.38:-flip*swing*.64;
-    if(leg==='forearm')x+=fighting?-.39:healing?-.26:Math.max(0,flip*swing)*.16;
-    if(leg==='torso')z+=Math.sin(phase*.46)*.012;
+    if(role==='leg')x+=flip*stride*(healing?.32:1);
+    if(role==='shin')x+=Math.max(0,-flip*stride)*.42;
+    if(role==='arm')x+=fighting?-.62:healing?-.35:-flip*stride*.66;
+    if(role==='forearm')x+=fighting?-.51:healing?-.43:Math.max(0,flip*stride)*.19;
+    if(role==='torso'){z+=idle*.45;y+=Math.sin(time*.62)*.013;}
+    if(role==='head')y+=Math.sin(time*.71+flip)*.016;
     bone.rotation.set(x,y,z);
   }
-  model.holder.position.y=moving?Math.abs(Math.sin(phase))*.03:0;
+  model.holder.position.y=moving?Math.abs(Math.sin(phase))*.038:idle;
+  // Mechanical, intentional gun stance rather than a permanently idle prop.
+  model.weapon.visible=!healing;
+  model.weapon.rotation.x=fighting?-.18:running?.08:0;
+  model.weapon.position.y=1.15+(fighting?.12:idle);
+  model.weapon.position.z=.24+(fighting?.14:.02);
+  // Shoot only if authoritative public events report a legal hit/miss.
+  model.muzzle.visible=!healing&&Boolean(model.fireUntil&&time<model.fireUntil);
 }
 function placeActor(model,f,frame,now){
   const w=frame.snapshot.arena.width,p=positionOf(f,w);
   model.moved=model.prevCell!==f.cell;
   model.prevCell=f.cell;model.actor=f;
+  model.fireUntil=frame.snapshot.recentEvents.some(e=>
+    (e.type==='hit'||e.type==='miss')&&e.actorId===f.id&&e.tick>=frame.snapshot.tick-1)
+    ?now+.12:Math.max(0,model.fireUntil||0);
   model.holder.visible=Boolean(f.alive);
   model.holder.position.x=p.x;model.holder.position.z=p.z;
   if(!f.alive)return;
