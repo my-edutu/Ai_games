@@ -176,6 +176,11 @@ export function createMarblePresentationSnapshot(state: MarbleState, recentEvent
         periodTicks: sweeper.periodTicks,
         phaseTicks: sweeper.phaseTicks
       })),
+      windZones: state.arena.windZones.map(zone => ({
+        id: zone.id, x: zone.x, y: zone.y,
+        width: zone.width, height: zone.height,
+        forceX: zone.forceX, forceY: zone.forceY,
+      })),
       ramps: state.arena.ramps.map(ramp => ({ ...ramp }))
     },
     marbles,
