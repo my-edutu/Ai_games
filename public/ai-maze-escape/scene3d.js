@@ -599,7 +599,12 @@ function render(now) {
       if(reducedMotion)enemy.position.copy(enemy.userData.target);
       else enemy.position.lerp(enemy.userData.target,Math.min(1,seconds*6));
     }
-    if(!reducedMotion)enemy.position.y=Math.sin(now*.003+enemy.position.x)*.07;
+    if(!reducedMotion){
+      enemy.position.y=Math.sin(now*.003+enemy.position.x)*.07;
+      for(const strip of enemy.userData.shrouds||[]){
+        strip.mesh.rotation.z=strip.rest+Math.sin(now*.003+strip.phase)*.13;
+      }
+    }
   }
   if(!reducedMotion){
     explorer.userData.lantern.rotation.z=Math.sin(now*.006)*.09;
