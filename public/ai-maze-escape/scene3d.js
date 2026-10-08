@@ -2,6 +2,7 @@ import * as THREE from '/maze/vendor/three.module.js';
 import {makeWorldCraft} from '/maze/world-craft.js';
 import {makeCharacterArt} from '/maze/character-art.js';
 import {createAtmosphere} from '/maze/atmosphere.js';
+import {createCinematicDirector} from '/maze/cinematic-director.js';
 
 // Public-state-only 3D presentation. This module never reads hidden maze authority.
 const stage = document.getElementById('stage');
@@ -89,6 +90,7 @@ function setTheme(profile){
   const groundPalettes={tree:0x7a8e74,loops:0x6c8c83,chambers:0xbc866a,layers:0x7f80b0,hunter:0x885c76};
   materials.void.color.setHex(groundPalettes[profile]??groundPalettes.loops);
   if(scene?.fog)scene.fog.density=atmosphericPreset.fog;
+  cinematics.setBaseFog(atmosphericPreset.fog);
   paintSkyGradient(profile);
   window.__MAZE_3D_THEME__=theme.label;
 }
@@ -187,6 +189,7 @@ const geometries = {
 const worldCraft=makeWorldCraft(THREE);
 const characterArt=makeCharacterArt(THREE);
 const atmosphere=createAtmosphere(THREE);
+const cinematics=createCinematicDirector(THREE);
 Object.assign(materials,worldCraft.materials);
 const reusable = new Set([...Object.values(geometries),...Object.values(worldCraft.geometries),...Object.values(characterArt.geometries)]);
 function point(cell, width) {
@@ -550,6 +553,7 @@ function onFrame(event) {
   const snapshot=packet&&packet.snapshot;
   if(!snapshot||!ready)return;
   lastFrame=packet;
+  cinematics.updatePublicState(snapshot,performance.now());
   const runChanged=previousRun!==snapshot.runToken;
   const target=point(snapshot.currentCell,snapshot.width);
   explorerTarget.copy(target);
@@ -639,6 +643,7 @@ function render(now) {
     if(!reducedMotion)ambientDust.rotation.y+=seconds*.003;
   }
   atmosphere.update(now,seconds,explorer.position,reducedMotion);
+  cinematics.animate({renderer,scene,camera,lantern:lanternLight,rim:rimLight},seconds,reducedMotion);
   const target=lookTarget.clone().lerp(explorer.position,.78);
   if(!settledCamera || reducedMotion)smoothedLook.copy(target);
   else smoothedLook.lerp(target,Math.min(1,seconds*2));
@@ -677,6 +682,7 @@ function render(now) {
       atmosphereParticles:320,
       artDetails:world.userData.artStats||null,
       visualTheme:window.__MAZE_3D_THEME__,
+      cinematicCue:cinematics.cue,
       webgl2:renderer.capabilities.isWebGL2
     };
   }
