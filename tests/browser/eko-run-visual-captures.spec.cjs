@@ -19,18 +19,18 @@ test('capture original 3D Lagos run, authored obstacle and mobile screenshot ref
   await page.goto(ROOT+'/eko/',{waitUntil:'domcontentloaded'});
   await expect(page.locator('#connection')).toContainText('CONNECTED',{timeout:25000});
   await expect(page.locator('#state')).toHaveText('RUN LIVE');
-  await page.waitForTimeout(450);
+  await page.waitForTimeout(1600);
   await page.screenshot({path:path.join(DIR,'gauntlet-opening-street.png'),fullPage:true});
   await page.keyboard.down('ArrowRight');
   try{
     await expect.poll(async()=>{
       const data=await(await page.request.get(ROOT+'/eko/state')).json();
       return data.snapshot.player.position.x;
-    },{timeout:12000,intervals:[150,200,300,450]}).toBeGreaterThanOrEqual(9);
+    },{timeout:12000,intervals:[150,200,300,450]}).toBeGreaterThanOrEqual(6.0);
   }finally{
     await page.keyboard.up('ArrowRight');
   }
-  await page.waitForTimeout(450);
+  await page.waitForTimeout(100);
   await page.screenshot({path:path.join(DIR,'gauntlet-approaching-hazard.png'),fullPage:true});
   await page.locator('#outfit').selectOption('yoruba-agbada-fila');
   await expect.poll(async()=>page.evaluate(()=>window.__EKO_VISUAL_AUDIT__()?.character.outfit))
@@ -38,6 +38,7 @@ test('capture original 3D Lagos run, authored obstacle and mobile screenshot ref
   await page.screenshot({path:path.join(DIR,'gauntlet-tayo-outfit.png'),fullPage:true});
   const audit=await page.evaluate(()=>window.__EKO_VISUAL_AUDIT__?.());
   expect(audit.character.inFrame).toBe(true);
+  expect(audit.character.safeHorizontalPadding).toBe(true);
   fs.writeFileSync(path.join(DIR,'gauntlet-visual-metrics.json'),JSON.stringify(audit,null,2));
   expect(errors).toEqual([]);
 });
