@@ -82,3 +82,25 @@ The WebGL director now renders a quality-scaled, three-dimensional gold-ring cer
 ## Loop 10 — Deterministic-version boundary
 
 The 3D collision change invalidates the checksums/outcomes of historical v2 replays. The runtime now creates v3 states and v3 snapshots; restore refuses v2 checkpoints with an explicit version error. v3 snapshot roundtrip and stale v2 rejection tests were added. This is safer than silently claiming old races are replay-identical, but any existing persisted v2 operator checkpoint needs a deliberate migration or fresh tournament restart. Validation remains pending a completed CI run.
+
+## Loops 11–14 — Visual rescue against the commercial bar
+
+The reference screenshots demonstrate a specific shortfall in the old game: they show saturated environments, spectacular floating/circular structures, luminous backgrounds, strongly differentiated racing surfaces and legible short HUD information. Our old game had mostly grey rectangular panels and a dark sky; the criticism that it still looked basic was warranted.
+
+**Inspectable reference frames:**
+- The Quantum Astrophysicists Guild (publisher) visual: https://www.qag.io/images/marble-it-up-ultra/MarbleItUpUltraScreenshot4.jpg
+- Gallery/game overview: https://marbleitup.com/
+- Marble It Up! Ultra Steam media: https://store.steampowered.com/app/864060/
+
+These are **quality comparisons**, not source assets to reuse. All new art is rendered from original shaders and procedural geometry.
+
+| Pass | Source-level result | Next harsh critic gate |
+| --- | --- | --- |
+| 11 · Biome identity | Five distinct richly coloured scene palettes, exterior constructed landmarks, arc portals, sky monuments and lane lights | Can you identify the round with all labels hidden? Is there actual depth, colour, spectacle and visual hierarchy? |
+| 12 · HUD visual rescue | Gradient header, 3D logo artwork, responsive colour-changing broadcast overlays, leaderboard treatments, real threat state, qualifying progress | Real 1920×1080 and 390×844 screenshots: text contrast, no horizontal scroll, no obscured leaders, at least 78% arena coverage on desktop |
+| 13 · Atmosphere and materials | GPU sky gradient with clouds/star/haze/sun, 3D coloured fog, fine-checker procedural tiles | Confirm correct GLSL compilation, no flicker, no sterile uniform grey track, and reasonable hardware frame times |
+| 14 · Kinetic spectacle | Angular crystal landmark mesh and stage orbital sculptures, throttled marble velocity streaks | Compare actual marble identity, visual motion, background richness and camera readability against official screenshots |
+
+**Stop/go:** Source inspection and test assertions are **not** a real graphics critic. The 3D screenshots and performance tests have not been independently reviewed in this session. Keep this PR as a draft. Next iteration must prioritize in-browser capture, visual side-by-side critique and eliminating the largest observed weakness—not adding more arbitrary decorations.
+
+**Render-budget rule:** `low` skips procedural sky detail and velocity trails and uses fewer monuments, `balanced` caps scene densities, and `high/ultra` are opt-in. No aesthetic comparison may assume an unavailable GPU. The authority simulation and official outcomes are unchanged by loops 11–14.
