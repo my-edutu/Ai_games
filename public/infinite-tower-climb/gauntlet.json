@@ -3,7 +3,7 @@
   "date": "2026-10-08",
   "round": 5,
   "target": "Jusant (DON'T NOD): official screenshots and captured gameplay",
-  "status": "Round 5 stylesheet now served by HTTP router and checked by asset self-test; screenshots/CI remain unverified. Jusant quality gate not met.",
+  "status": "Round 6: repaired missing landmarks-v5.js HTTP route that prevented 3D module loading; added regression tests for renderer imports and linked stylesheets. CI and real browser screenshots NOT YET VERIFIED; quality gate NOT MET.",
   "completionRule": "A separate critic must inspect the rendered game, compare screenshots or gameplay against official Jusant imagery, report the worst gap, and repeat. A functioning renderer alone is not a pass.",
   "lanes": [
     {
@@ -106,6 +106,11 @@
       "round": 5,
       "summary": "Found and corrected missing HTTP route for visual-v5.css; added stylesheet to server self-test asset inventory.",
       "verdict": "Source-level integration fixed; browser rendering and CI still unverified."
+    },
+    {
+      "round": 6,
+      "summary": "Fixed 3D renderer import chain: scene3d.js references landmarks-v5.js, previously missing from HTTP allowlist. Added node regression tests traversing renderer imports and HTML CSS links.",
+      "verdict": "Fix committed; screenshot and build verification pending."
     }
   ]
 }
