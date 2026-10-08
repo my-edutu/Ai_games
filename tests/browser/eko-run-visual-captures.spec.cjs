@@ -43,6 +43,13 @@ test('capture original 3D Lagos run, authored obstacle and mobile screenshot ref
   expect(audit.character.inFrame).toBe(true);
   expect(audit.character.safeHorizontalPadding).toBe(true);
   fs.writeFileSync(path.join(DIR,'gauntlet-visual-metrics.json'),JSON.stringify(audit,null,2));
+  await page.locator('#camera').click();
+  await expect(page.locator('#camera')).toHaveAttribute('aria-pressed','true');
+  await page.waitForTimeout(3400);
+  await page.screenshot({path:path.join(DIR,'gauntlet-three-quarter-desktop.png'),fullPage:true});
+  const cinematic=await page.evaluate(()=>window.__EKO_VISUAL_AUDIT__?.());
+  expect(cinematic.camera.style).toBe('street-cinema');
+  fs.writeFileSync(path.join(DIR,'gauntlet-three-quarter-desktop-metrics.json'),JSON.stringify(cinematic,null,2));
   expect(errors).toEqual([]);
 });
 test('capture real portrait visual reference without overlaid active AI controls',async({page})=>{
@@ -55,4 +62,10 @@ test('capture real portrait visual reference without overlaid active AI controls
   const audit=await page.evaluate(()=>window.__EKO_VISUAL_AUDIT__?.());
   expect(audit.character.inFrame).toBe(true);
   fs.writeFileSync(path.join(DIR,'gauntlet-mobile-visual-metrics.json'),JSON.stringify(audit,null,2));
+  await page.evaluate(()=>window.__EKO_SET_CAMERA_STYLE__('street-cinema'));
+  await page.waitForTimeout(2900);
+  await page.screenshot({path:path.join(DIR,'gauntlet-three-quarter-portrait.png'),fullPage:true});
+  const cinematic=await page.evaluate(()=>window.__EKO_VISUAL_AUDIT__?.());
+  expect(cinematic.camera.style).toBe('street-cinema');
+  fs.writeFileSync(path.join(DIR,'gauntlet-three-quarter-portrait-metrics.json'),JSON.stringify(cinematic,null,2));
 });
