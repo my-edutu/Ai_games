@@ -322,3 +322,52 @@ body[data-ux-revision="3"].clean-feed .battle-3d-focus{display:none}
   body[data-ux-revision="3"] .metrics div{padding:7px}
   body[data-ux-revision="3"] .loadout-card{padding:10px}
 }
+
+/* Gauntlet loop 27 — the broadcast evolves with the actual arena biome.
+ * The main cyan, violet and magenta identity remains recognizable in every scene.
+ */
+body[data-ux-revision="3"][data-arena-biome="ember"]{
+  --biome-primary:#ffb348;
+  --biome-secondary:#ff6e65;
+  --biome-glow:rgba(255,163,61,.24);
+}
+body[data-ux-revision="3"][data-arena-biome="neon"]{
+  --biome-primary:#60f7ff;
+  --biome-secondary:#ef62ff;
+  --biome-glow:rgba(106,91,255,.30);
+}
+body[data-ux-revision="3"][data-arena-biome="arctic"]{
+  --biome-primary:#a4ecff;
+  --biome-secondary:#8ae2c0;
+  --biome-glow:rgba(106,198,255,.28);
+}
+body[data-ux-revision="3"] .arena-topline strong,
+body[data-ux-revision="3"] .arena-storm-live{
+  color:var(--biome-primary,var(--royal-cyan));
+}
+body[data-ux-revision="3"] .arena-shell{
+  border-color:var(--biome-primary,var(--royal-cyan));
+  box-shadow:0 24px 80px rgba(0,4,23,.44),0 0 45px var(--biome-glow,rgba(30,160,255,.13));
+}
+body[data-ux-revision="3"] .arena-footer b,
+body[data-ux-revision="3"] .metrics div:first-child dd{
+  color:var(--biome-primary,var(--royal-lime));
+}
+body[data-ux-revision="3"] .survivor-card{
+  border-color:var(--biome-primary,var(--royal-cyan));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.13),0 9px 24px var(--biome-glow,rgba(3,15,38,.28));
+}
+body[data-ux-revision="3"] .brand-dot{
+  background:var(--biome-secondary,var(--royal-magenta));
+  box-shadow:0 0 13px var(--biome-glow,rgba(255,73,167,.65));
+}
+body[data-ux-revision="3"] .battle-3d-focus{
+  border-color:var(--biome-primary,var(--royal-cyan));
+}
+body[data-ux-revision="3"] #match-progress{
+  background:linear-gradient(90deg,var(--biome-primary,var(--royal-cyan)),var(--royal-violet),var(--biome-secondary,var(--royal-magenta)));
+}
+body[data-ux-revision="3"][data-high-contrast="true"] .arena-shell,
+body[data-ux-revision="3"][data-high-contrast="true"] .survivor-card{
+  border-color:#fff;
+}
