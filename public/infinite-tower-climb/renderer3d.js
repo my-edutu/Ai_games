@@ -30,9 +30,6 @@
   const accentMat = new THREE.MeshStandardMaterial({ color: 0xffd68a, emissive: 0x8b4c0a, emissiveIntensity: 0.4 });
   const architecture = new THREE.Group(); scene.add(architecture);
   const actors = new THREE.Group(); scene.add(actors);
-  const worldObjects = new Map();
-  let playerRig = null;
-  const reusedPosition = new THREE.Vector3();
   const clock = new THREE.Clock();
   let climber = null, lastClimberPosition = null;
   const decoration = new THREE.Group(); scene.add(decoration);
@@ -45,6 +42,8 @@
   const trimMat = new THREE.MeshStandardMaterial({color:0x7b99ae,metalness:0.72,roughness:0.32});
   const box = new THREE.BoxGeometry(1, 1, 1);
   const sphere = new THREE.SphereGeometry(1, 16, 12);
+  const pickupGeometry = new THREE.OctahedronGeometry(0.28);
+  const inactiveHazardMat = new THREE.MeshStandardMaterial({color:0x542c40,roughness:0.9});
   function mesh(geometry, material, parent, x, y, z, sx, sy, sz) {
     const m = new THREE.Mesh(geometry, material);
     m.position.set(x, y, z); m.scale.set(sx, sy, sz); parent.add(m); return m;
@@ -80,12 +79,12 @@
       m.castShadow = false;
       mesh(box, accentMat, actors, m.position.x, m.position.y + m.scale.y / 2 + 0.06, 0, m.scale.x, 0.1, 4.1);
     }
-    for (const h of s.hazards || []) { const hazard=mesh(box, hazardMat, actors, x(h.x) + h.width / 2000, y(h.y) + h.height / 2000, 0.2, Math.max(0.1, h.width / 1000), Math.max(0.1, h.height / 1000), 3.4); hazard.userData.hazardActive=h.active!==false; if (!hazard.userData.hazardActive) hazard.material=new THREE.MeshStandardMaterial({color:0x542c40,roughness:0.9}); }
+    for (const h of s.hazards || []) { const hazard=mesh(box, hazardMat, actors, x(h.x) + h.width / 2000, y(h.y) + h.height / 2000, 0.2, Math.max(0.1, h.width / 1000), Math.max(0.1, h.height / 1000), 3.4); hazard.userData.hazardActive=h.active!==false; if (!hazard.userData.hazardActive) hazard.material=inactiveHazardMat; }
     for (const e of s.enemies || []) if (e.active) {
       const m = mesh(sphere, enemyMat, actors, x(e.x), y(e.y), 0.5, Math.max(0.35, e.halfWidth / 1000), Math.max(0.35, e.halfHeight / 1000), 0.65);
       mesh(sphere, hazardMat, m, 0, 0.2, 0.85, 0.28, 0.18, 0.15);
     }
-    for (const p of s.pickups || []) { const pickup=mesh(new THREE.OctahedronGeometry(0.28), accentMat, actors, x(p.x), y(p.y), 0.5, 1, 1, 1); pickup.userData.pickup=true; }
+    for (const p of s.pickups || []) { const pickup=mesh(pickupGeometry, accentMat, actors, x(p.x), y(p.y), 0.5, 1, 1, 1); pickup.userData.pickup=true; }
     const p = s.player;
     if (p) {
       const px = x(p.x), py = y(p.y);
