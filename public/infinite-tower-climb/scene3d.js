@@ -8,6 +8,7 @@ import {decorateTowerEnvironment,animateTowerEnvironment} from '/tower/environme
 import {VISUAL_PALETTES,buildPainterlyTowerBackdrop} from '/tower/biome-v4.js';
 import {createTowerHazard3D,updateTowerHazard3D} from '/tower/hazards-v4.js';
 import {buildBiomeLandmarks,animateBiomeLandmarks} from '/tower/landmarks-v5.js';
+import {createTowerEffectsDirector} from '/tower/effects-v6.js';
 
 const SCALE = 1 / 1000;
 const palettes=VISUAL_PALETTES;
@@ -128,6 +129,7 @@ export function mountTower3D({host,getFrame,reducedMotion=false,highContrast=fal
   const camera=new THREE.PerspectiveCamera(37,16/9,.3,1400);
   const backdrop=new THREE.Group(),structures=new THREE.Group(),actors=new THREE.Group(),effects=new THREE.Group();
   scene.add(backdrop,structures,actors,effects);
+  const actionEffects=createTowerEffectsDirector(effects);
   const hemi=new THREE.HemisphereLight(0xffeacf,0x4c5363,2.65);scene.add(hemi);
   const key=new THREE.DirectionalLight(0xffddb0,4.0);key.position.set(-45,120,135);scene.add(key);
   const rim=new THREE.DirectionalLight(0xffc49a,2.0);rim.position.set(80,55,-30);scene.add(rim);
@@ -266,6 +268,7 @@ export function mountTower3D({host,getFrame,reducedMotion=false,highContrast=fal
     if(floor!==s.floor||theme!==s.theme)buildBackdrop(s);
     if(lastChecksum===s.publicChecksum)return;
     lastChecksum=s.publicChecksum;latest=s;
+    actionEffects.ingest(s);
     const allowed=new Set();
     const palette=palettes[s.theme]||palettes.foundry;
     for(const h of s.hazards){
@@ -359,14 +362,15 @@ export function mountTower3D({host,getFrame,reducedMotion=false,highContrast=fal
     // Keep observed performance measurable for the independent critic.
     animateTowerEnvironment(ornament,now*.001,reducedMotion);
     animateBiomeLandmarks(landmarks,now*.001,reducedMotion);
+    const effectFrame=actionEffects.frame(dt,s,visualX,visualY,reducedMotion);
     renderer.render(scene,camera);observedFrames++;
-    if(observedFrames%60===0){perf.frames=observedFrames;perf.drawCalls=renderer.info.render.calls;perf.triangles=renderer.info.render.triangles;perf.heroParts=(()=>{let count=0;player.traverse(o=>{if(o.isMesh)count++});return count})();perf.renderMode='webgl-3d';perf.state=s.player.state;perf.heroCamera=heroCamera;perf.lens='perspective';perf.inspectCharacters=inspectCharacters;perf.inspectionModels=inspectors.length;perf.biomeLandmarks=landmarks?.world?.children.length||0;perf.highContrast=highContrast;perf.averageFps=frameTotalMs>0?Math.round(1000*frameSampleCount/frameTotalMs):0;perf.slowFrames=slowFrames;perf.sampledFrames=frameSampleCount;perf.pixelRatio=renderer.getPixelRatio();}
+    if(observedFrames%60===0){perf.frames=observedFrames;perf.drawCalls=renderer.info.render.calls;perf.triangles=renderer.info.render.triangles;perf.heroParts=(()=>{let count=0;player.traverse(o=>{if(o.isMesh)count++});return count})();perf.renderMode='webgl-3d';perf.state=s.player.state;perf.heroCamera=heroCamera;perf.lens='perspective';perf.inspectCharacters=inspectCharacters;perf.inspectionModels=inspectors.length;perf.biomeLandmarks=landmarks?.world?.children.length||0;perf.actionFx=actionEffects.metrics();perf.highContrast=highContrast;perf.averageFps=frameTotalMs>0?Math.round(1000*frameSampleCount/frameTotalMs):0;perf.slowFrames=slowFrames;perf.sampledFrames=frameSampleCount;perf.pixelRatio=renderer.getPixelRatio();}
   }
-  const onLost=event=>{event.preventDefault();running=false;renderer.dispose();canvas.remove();document.body.dataset.towerRenderer='2d-fallback';window.__TOWER_3D_ACTIVE__=false};
+  const onLost=event=>{event.preventDefault();running=false;actionEffects.dispose();renderer.dispose();canvas.remove();document.body.dataset.towerRenderer='2d-fallback';window.__TOWER_3D_ACTIVE__=false};
   canvas.addEventListener('webglcontextlost',onLost,{once:true});
   window.addEventListener('resize',resize);
   document.body.dataset.towerRenderer='three-dimensional';
   window.__TOWER_3D_ACTIVE__=true;
   resize();requestAnimationFrame(draw);
-  return{destroy(){running=false;window.removeEventListener('resize',resize);renderer.dispose();canvas.remove();window.__TOWER_3D_ACTIVE__=false;document.body.dataset.towerRenderer='2d-fallback'}};
+  return{destroy(){running=false;window.removeEventListener('resize',resize);actionEffects.dispose();renderer.dispose();canvas.remove();window.__TOWER_3D_ACTIVE__=false;document.body.dataset.towerRenderer='2d-fallback'}};
 }
