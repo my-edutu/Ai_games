@@ -22,3 +22,6 @@ main[data-phase="night"]{--cyan:#7bcbff;--amber:#fbd197;--coral:#ff738c}main[dat
 
 /* Broadcast-safe cinema layout for small screens and OBS captures: no lost access to controls. */
 #hud[data-cinema="true"] .hud-left,#hud[data-cinema="true"] .aiStory,#hud[data-cinema="true"] .sceneBadge{display:none}#hud[data-cinema="true"] .directorStrip{bottom:95px;border-color:#73e3d2c4;background:#102838e8}#hud[data-cinema="true"] #cinemaMode{color:#062329;background:linear-gradient(110deg,var(--cyan),#ffe69d);border-color:var(--amber)}#hud[data-cinema="true"] .top{background:linear-gradient(180deg,#051924e5,#05192433);padding-top:12px}#hud[data-cinema="true"] .branding h1{font-size:clamp(20px,2.3vw,31px)}#hud[data-cinema="true"] .brandSymbol{width:39px;height:39px;font-size:17px}#hud[data-cinema="true"] .squadPanel{display:none}@media(max-width:740px){#hud[data-cinema="true"] .directorStrip{bottom:80px}}
+
+/* Unattributed/empty chronicle rows span the full width instead of getting squeezed into timestamp column. */
+.eventItem.waiting{display:block;color:#a3d6d8;letter-spacing:.07em;font-size:9px}.eventItem.waiting .eventText{display:block;white-space:normal;overflow:visible;text-overflow:clip}
