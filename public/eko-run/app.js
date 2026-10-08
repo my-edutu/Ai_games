@@ -13,12 +13,12 @@ const ui = {
   mode: $('mode'), quality: $('quality'), outfit: $('outfit'), signal: $('signal'), fps: $('fps')
 };
 const DISTRICTS = {
-  'mainland-morning': { name:'MAINLAND MORNING', sky:0x92c5cd, fog:0xc4d5ce, ground:0x545e61, warm:0xf7c470, skyLight:1.65 },
-  'market-rush': { name:'MARKET RUSH', sky:0xf1c6a2, fog:0xdfb69a, ground:0x625a54, warm:0xffcc79, skyLight:1.7 },
-  'danfo-junction': { name:'DANFO JUNCTION', sky:0xc0d7df, fog:0xcbd9d9, ground:0x4f5559, warm:0xffd07d, skyLight:1.55 },
-  'rainy-lagos': { name:'RAINY LAGOS', sky:0x627985, fog:0x84949d, ground:0x364652, warm:0xc0d5e7, skyLight:0.85 },
-  'island-night': { name:'ISLAND NIGHT', sky:0x111d36, fog:0x29324c, ground:0x232a39, warm:0xffc78a, skyLight:0.52 },
-  'bridge-run': { name:'BRIDGE RUN', sky:0x91b5bc, fog:0xb6c9c4, ground:0x525e67, warm:0xffd6a5, skyLight:1.4 },
+  'mainland-morning': { name:'MAINLAND MORNING', sky:0x70cce6, fog:0xc1eee7, ground:0x4e6672, warm:0xffd087, skyLight:1.9 },
+  'market-rush': { name:'MARKET RUSH', sky:0xffbb77, fog:0xffd5b1, ground:0x66554f, warm:0xffd090, skyLight:1.92 },
+  'danfo-junction': { name:'DANFO JUNCTION', sky:0x80d8ed, fog:0xd7ead9, ground:0x52545d, warm:0xffc75e, skyLight:1.77 },
+  'rainy-lagos': { name:'RAINY LAGOS', sky:0x667dac, fog:0x91b8c8, ground:0x384d60, warm:0xbddeff, skyLight:1.0 },
+  'island-night': { name:'ISLAND NIGHT', sky:0x18235e, fog:0x314377, ground:0x202945, warm:0xffb77f, skyLight:0.67 },
+  'bridge-run': { name:'BRIDGE RUN', sky:0x77d7da, fog:0xb6ede0, ground:0x556976, warm:0xffe2a6, skyLight:1.65 },
 };
 const OUTFITS = {
   'lagos-streetwear': [0xf7bb2d,0x14394a,0x18b6a5],
@@ -228,12 +228,9 @@ function buildWorld(snapshot) {
   }
   for(let i=0;i<Math.ceil(length/5);i++){
     const x=i*5-5.0;
-    if(i%2===0) {
-      // Important camera-causality fix: shops sit BEHIND the authoritative running lane.
-      // Previously the near-side shop row hid Tayo and even the hazard lane.
-      makeShop(terrain,x+1,-7.05,i+12,night);
-      if(worldState.quality!=='low')makeShop(terrain,x+1,-10.85,i+71,night);
-    }
+    // Previous grey primitive shops visually covered the richer studio art.
+    // Keep their inexpensive far-background silhouette only in lower-end mode.
+    if(i%2===0 && worldState.quality==='low') makeShop(terrain,x+1,-14.1,i+71,night);
     if(i%3===0) makeTree(terrain,x+.4,4.95,i+4);
     if(i%4===0) makeLamp(terrain,x,-4.40,night);
     if(i%4===1) makeBus(terrain,x+1.0,-2.42,i);
