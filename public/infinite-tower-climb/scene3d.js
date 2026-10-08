@@ -5,15 +5,10 @@
 import * as THREE from '/tower/three.module.js';
 import {createTowerCharacter,poseTowerCharacter} from '/tower/character3d.js';
 import {decorateTowerEnvironment,animateTowerEnvironment} from '/tower/environment3d.js';
+import {VISUAL_PALETTES,buildPainterlyTowerBackdrop} from '/tower/biome-v4.js';
 
 const SCALE = 1 / 1000;
-const palettes = {
-  foundry: {stone:0x303e4d, rim:0xca8860, glow:0xffab52, haze:0x131d32, accent:0xffc890},
-  ruins: {stone:0x374e50, rim:0x829c83, glow:0x75edbe, haze:0x12292d, accent:0xb8f7da},
-  storm: {stone:0x303c66, rim:0x7186c8, glow:0x7ab9ff, haze:0x111d42, accent:0xb5d9ff},
-  clockwork: {stone:0x53432f, rim:0xc3a36a, glow:0xffd17c, haze:0x241d1b, accent:0xffe0a6},
-  void: {stone:0x34274f, rim:0x9873c4, glow:0xd08bff, haze:0x171126, accent:0xe7c4ff}
-};
+const palettes=VISUAL_PALETTES;
 const clamp = (n, lo, hi) => Math.min(hi, Math.max(lo, n));
 const coord = n => n * SCALE;
 const matte = (color, roughness=.7, metalness=.2) => new THREE.MeshStandardMaterial({color, roughness, metalness});
@@ -124,18 +119,18 @@ export function mountTower3D({host,getFrame,reducedMotion=false,highContrast=fal
     const lowPower=quality==='low'||(quality==='auto'&&window.innerWidth<850);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,lowPower?1:1.65));
     renderer.toneMapping=THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure=1.37;
+    renderer.toneMappingExposure=1.52;
     renderer.outputColorSpace=THREE.SRGBColorSpace;
   }catch(error){canvas.remove();throw error}
-  const scene=new THREE.Scene(),fog=new THREE.FogExp2(0x131d32,.0025);scene.fog=fog;
+  const scene=new THREE.Scene(),fog=new THREE.FogExp2(0x987c6e,.00075);scene.fog=fog;
   const camera=new THREE.OrthographicCamera(-120,120,80,-80,.1,1200);
   const backdrop=new THREE.Group(),structures=new THREE.Group(),actors=new THREE.Group(),effects=new THREE.Group();
   scene.add(backdrop,structures,actors,effects);
-  const hemi=new THREE.HemisphereLight(0x9ec5ef,0x172030,2.1);scene.add(hemi);
-  const key=new THREE.DirectionalLight(0xffdeb0,3.1);key.position.set(70,120,130);scene.add(key);
-  const rim=new THREE.DirectionalLight(0x6abefe,3.7);rim.position.set(-65,70,-35);scene.add(rim);
-  const player=createTowerCharacter({tint:0x46d4d9});actors.add(player);
-  const glow=new THREE.PointLight(0x7ff3e7,100,170,2);actors.add(glow);
+  const hemi=new THREE.HemisphereLight(0xffeacf,0x4c5363,2.65);scene.add(hemi);
+  const key=new THREE.DirectionalLight(0xffddb0,4.0);key.position.set(-45,120,135);scene.add(key);
+  const rim=new THREE.DirectionalLight(0xffc49a,2.0);rim.position.set(80,55,-30);scene.add(rim);
+  const player=createTowerCharacter({tint:0xf7a65d,kind:'climber'});actors.add(player);
+  const glow=new THREE.PointLight(0xffc273,66,150,2);actors.add(glow);
   const dynamic=new Map();
   let floor=-1,theme='',lastChecksum='',latest=null,frame=null,running=true,lastAt=performance.now(),ornament=null;
   let cameraY=35,cameraX=240,worldWidth=480,observedFrames=0,visualX=null,visualY=null,visualRun='',visualFloor=-1;
@@ -146,40 +141,14 @@ export function mountTower3D({host,getFrame,reducedMotion=false,highContrast=fal
     clearGroup(backdrop);clearGroup(structures);for(const [id,obj] of dynamic){actors.remove(obj);clearGroup(obj);dynamic.delete(id)}
     floor=s.floor;theme=s.theme;worldWidth=coord(s.worldWidth);
     const standard=palettes[theme]||palettes.foundry;
-    const p=highContrast?{...standard,stone:0x28384a,rim:0xe2edf8,glow:0xffdc5a,haze:0x080d17,accent:0xffffff}:standard;
+    const p=highContrast?{...standard,stone:0x59616b,rim:0xffffff,glow:0xffe2a5,haze:0x21212b,accent:0xffffff}:standard;
     scene.background=new THREE.Color(p.haze);fog.color.setHex(p.haze);scene.fog=highContrast?null:fog;
     key.color.setHex(p.accent);rim.color.setHex(p.glow);
     const stone=stoneworkMaterial(theme,p.stone),trim=matte(p.rim,.64,.44),dark=matte(0x131923,.96,.08),light=emissive(p.glow,1.9);
     const centerY=coord(s.chunkBaseY+s.chunkHeight*.5);
-    // Three nested wall layers create real depth, silhouette and scale.
-    add(backdrop,box(worldWidth+130,coord(s.chunkHeight)+270,9,dark),worldWidth/2,centerY,-93);
-    add(backdrop,box(worldWidth+95,coord(s.chunkHeight)+240,7,stone),worldWidth/2,centerY,-80);
-    for(let x=0;x<=worldWidth+1;x+=48){
-      add(backdrop,box(4,coord(s.chunkHeight)+170,18,trim),x,centerY,-62);
-      add(backdrop,box(8,10,24,stone),x,centerY+coord(s.chunkHeight)/2+20,-58);
-    }
-    for(let n=0;n<9;n++){
-      const y=coord(s.chunkBaseY)+n*46;
-      add(backdrop,box(worldWidth+80,4,22,trim),worldWidth/2,y,-63);
-      add(backdrop,box(worldWidth+80,8,15,stone),worldWidth/2,y-6,-71);
-      for(let x=26;x<worldWidth;x+=96){
-        const aperture=new THREE.Mesh(new THREE.TorusGeometry(12,2.5,8,20,Math.PI),trim);
-        add(backdrop,aperture,x,y+20,-51);
-        add(backdrop,new THREE.Mesh(new THREE.PlaneGeometry(19,29),skylineMaterial(theme)),x,y+4,-51);
-        add(backdrop,box(20,1.2,3,trim),x,y+19,-48);
-        add(backdrop,box(1.1,30,3,trim),x-9.5,y+3,-48);
-        add(backdrop,box(1.1,30,3,trim),x+9.5,y+3,-48);
-        add(backdrop,box(26,3,5,stone),x,y+3,-48);
-      }
-    }
-    for(let i=0;i<18;i++){
-      const y=coord(s.chunkBaseY)+i*22;
-      for(const x of [3,worldWidth-3]){
-        const bracket=add(backdrop,box(12,9,35,stone),x,y,-42);
-        bracket.rotation.z=i%2?.08:-.08;
-        add(backdrop,box(4,3,35,trim),x,y+5,-42);
-      }
-    }
+    // The v4 visual pass removes the grid-like wall responsible for the flat blue prototype look.
+    // Monument silhouettes, landscape horizons, open galleries and warm sunlight now define the world.
+    buildPainterlyTowerBackdrop({group:backdrop,snapshot:s,theme,palette:p,worldWidth});
     // Hundreds of particles rendered as ONE draw call instead of one sphere per dust mote.
     const motePositions=[];
     for(let i=0;i<210;i++){
@@ -235,14 +204,24 @@ export function mountTower3D({host,getFrame,reducedMotion=false,highContrast=fal
     for(const platform of s.platforms){
       const cx=coord(platform.x+platform.width/2),cy=coord(platform.y+platform.height/2),w=coord(platform.width);
       const group=new THREE.Group();
-      add(group,box(w,coord(platform.height),36,stone),cx,cy,2);
-      add(group,box(w,2.3,40,trim),cx,cy+coord(platform.height)/2,3);
-      add(group,box(w-3,.9,43,light),cx,cy+coord(platform.height)/2+1.3,3);
+      // Layered 3D traversable ledges with carved stone, contact highlights, and visible supports.
+      add(group,box(w,coord(platform.height)+4,30,stone),cx,cy,5);
+      add(group,box(w+2,3.6,37,trim),cx,cy+coord(platform.height)/2+2,6);
+      add(group,box(w-4,.8,38,light),cx,cy+coord(platform.height)/2+4.2,6.5);
+      add(group,box(w-8,3,38,matte(p.shadow,.95,.16)),cx,cy-5,6);
       for(const d of [-1,1]){
-        add(group,box(5,9,38,trim),cx+d*(w/2-4),cy-7,-2);
+        const x=cx+d*(w/2-5);
+        add(group,box(7,9,38,trim),x,cy-6,5);
+        add(group,new THREE.Mesh(new THREE.CylinderGeometry(4,4,3,8),trim),x,cy+8,7);
+      }
+      if(w>65){
+        for(let bolt=0;bolt<Math.min(6,Math.floor(w/28));bolt++){
+          add(group,ball(1.2,light,8),cx-w/2+15+bolt*24,cy+5,26);
+        }
       }
       if(platform.kind==='moving'){
-        add(group,box(w*.6,2,42,emissive(0x6cbdff,1.7)),cx,cy-6,0);
+        const glyph=add(group,new THREE.Mesh(new THREE.TorusGeometry(7,1.8,8,24),emissive(p.glow,1.3)),cx,cy-7,30);
+        glyph.rotation.y=Math.PI/5;
       }
       structures.add(group);
     }
@@ -286,7 +265,7 @@ export function mountTower3D({host,getFrame,reducedMotion=false,highContrast=fal
       const id='enemy:'+e.id;allowed.add(id);
       const guardian=e.kind==='guardian';
       const g=upsert(id,e.kind,()=>{
-        const g=createTowerCharacter({tint:guardian?0xf2a04f:e.kind==='shooter'?0xf05693:0x9670e9,guardian,kind:e.kind});
+        const g=createTowerCharacter({tint:guardian?0xe8bd78:e.kind==='shooter'?0xed6559:0x689e88,guardian,kind:e.kind});
         if(guardian){const crown=add(g,box(17,4,12,emissive(0xffbc52,2.8)),0,26,0);crown.rotation.z=.17}
         return g;
       });
@@ -322,7 +301,7 @@ export function mountTower3D({host,getFrame,reducedMotion=false,highContrast=fal
   function resize(){
     const w=Math.max(1,host.clientWidth),h=Math.max(1,host.clientHeight);
     if(canvas.width!==Math.floor(w*renderer.getPixelRatio())||canvas.height!==Math.floor(h*renderer.getPixelRatio()))renderer.setSize(w,h,false);
-    const aspect=w/h,span=heroCamera?65:156;
+    const aspect=w/h,span=heroCamera?59:(w<850?138:119);
     camera.left=-span*aspect/2;camera.right=span*aspect/2;
     camera.top=span/2;camera.bottom=-span/2;camera.updateProjectionMatrix();
   }
