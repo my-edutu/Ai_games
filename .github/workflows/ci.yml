@@ -37,6 +37,8 @@ jobs:
         run: npm run ant:stream:self-test
       - name: Tower stream host self-test
         run: npm run tower:stream:self-test
+      - name: Tiny Kingdom OBS source self-test
+        run: npm run tiny:stream:self-test
       - name: Authoritative nondeterminism scan
         shell: bash
         run: |
