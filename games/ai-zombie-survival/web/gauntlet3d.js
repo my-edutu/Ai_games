@@ -18,11 +18,15 @@ const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 let seed = Number(params.get('seed') || 2026) >>> 0 || 2026;
 let game = createGame({ seed, zombieCount: params.get('crowd') === 'dense' ? 260 : 180 });
 if (isEvidenceScenario(scenario)) { game = applyEvidenceScenario(game, scenario); if (!frozen) delete game.evidenceScenario; }
+if(frozen&&['rain','storm'].includes(params.get('weather'))){
+  game={...game,weather:{kind:params.get('weather'),intensity:.86}};
+}
 let last = performance.now(), accumulator = 0, elapsed = 0, paused = frozen, hudShown = true;
 let completedRuns=0, terminalSince=null;
 const restartDelayMs=Math.max(500,Math.min(60000,Number(params.get('restartMs'))||12000));
 let orbit = 0.67, range = 27, dragging = false, priorX = 0, cameraX = 0, cameraZ = 0, cameraFocusX = 0, cameraFocusZ = 0;
 let cameraMode = ['hero','overview'].includes(params.get('view'))?params.get('view'):'director', heroIndex=0, director = undefined, fpsSmooth = 30, lastStats = 0, buffersRebuilt = 0, lastGeometryStamp = '';
+let directedRange = 27;
 const fixed = 1 / 30, maxVisibleZombies = 260;
 
 let audioContext, drone, wind, droneGain, windGain, audioEventsSeen = 0;
@@ -215,6 +219,13 @@ function constructStatic(){
       for(const [dx,dz] of [[-4.5,-3.4],[4.5,-3.4],[-4.5,3.4],[4.5,3.4]])m.box(dx,2.6,dz,.37,5.25,.37,'#495248');
     }
   }
+  if(game.weather.kind==='rain'||game.weather.kind==='storm'){
+    // Evidence-friendly roadway puddles react only to authoritative weather.
+    for(let i=0;i<30;i++){
+      const x=-45+(i*11)%90,z=i%2===0?-8:26,wet=Math.min(1,game.weather.intensity||.4);
+      m.contactShadow(x,z,.48+wet*.68,.24+wet*.32,'#64858a',.123);
+    }
+  }
   // Ruined green belt: trees, weeds, and autumn crowns provide organic contrast to boxy buildings.
   for(let i=0;i<48;i++){
     const x=-54+(i*31)%110,z=-37+(i*19)%80;
@@ -324,6 +335,18 @@ function human(m,entity,infected,time){
     if(entity.carrying>0)part(m,x,z,yaw,-.53*body,1.10*body,.01,.31*body,.44*body,.31*body,'#99835d');
   }
 }
+function drawAtmosphere(m,t){
+  // Fixed-budget cosmetic rain. Render-only; it never alters collision, health or tick outcomes.
+  if(game.weather.kind!=='rain'&&game.weather.kind!=='storm')return;
+  const maxDrops=game.weather.kind==='storm'?94:48;
+  const amount=Math.min(maxDrops,Math.round(maxDrops*Math.max(.25,game.weather.intensity)));
+  for(let i=0;i<amount;i++){
+    const dx=(((i*73)%127)/127-.5)*32,dz=(((i*49+17)%109)/109-.5)*31;
+    const fall=(t*(12+i%4)+(i*29)%127*.13)%15;
+    const x=cameraFocusX+dx,z=cameraFocusZ+dz,y=13.8-fall;
+    m.bone([x,y,z],[x-.22,y-.72,z-.07],.009,game.time.phase==='night'?'#8daebd':'#b0c8d0');
+  }
+}
 function drawObjects(m,t){
   for(const b of game.barricades)if(b.hp>0){const col=b.material==='wood'?'#846448':b.material==='metal'?'#7b8b81':'#626e69';m.box(b.x,.7,b.y,3.0,1.35,.40,col,b.angle);m.box(b.x,1.30,b.y,3.2,.16,.48,'#493f32',b.angle);}
   for(const node of game.loot)if(node.amount>0){m.box(node.x,.25,node.y,.57,.48,.60,node.kind==='medicine'?'#c5c9b4':'#9e8157');m.box(node.x,.50,node.y,.64,.055,.64,'#4d5046');}
@@ -331,9 +354,10 @@ function drawObjects(m,t){
   for(const c of game.civilians)if(c.state!=='safe'&&c.state!=='dead'){human(m,{...c,alive:true,role:'scout',action:c.state==='escorting'?'move':'idle',id:c.id},false,t);}
   let rendered=0;for(const z of game.zombies){if(Math.hypot(z.x-cameraFocusX,z.y-cameraFocusZ)>52)continue;if(rendered++>=maxVisibleZombies)break;human(m,z,true,t);}
   for(const e of game.events.slice(-18)){const age=game.time.elapsed-e.time;if(age<0||age>.32)continue;if(e.type==='shot')m.ball(e.x,1.56,e.y,.22*(1-age/.32),palette.glow);}
+  drawAtmosphere(m,t);
 }
 function rebuildStatic(force=false){
-  const stamp=game.time.phase+'|'+game.safeHouse.level+'|'+game.buildings.map(b=>b.roofVisible?'1':'0').join('')+'|'+game.buildings.map(b=>Math.floor(b.damage*3)).join('');
+  const stamp=game.time.phase+'|'+game.weather.kind+'|'+Math.round(game.weather.intensity*3)+'|'+game.safeHouse.level+'|'+game.buildings.map(b=>b.roofVisible?'1':'0').join('')+'|'+game.buildings.map(b=>Math.floor(b.damage*3)).join('');
   if(force||stamp!==lastGeometryStamp){upload(staticMesh,constructStatic());lastGeometryStamp=stamp;buffersRebuilt++;}
 }
 function selectFocus(dt){
@@ -347,10 +371,15 @@ function selectFocus(dt){
   if(cameraMode==='overview'){focus={x:0,y:0};}
   const a=Math.min(1,dt*(reducedMotion?2:1.75));
   cameraFocusX+=(focus.x-cameraFocusX)*a;cameraFocusZ+=(focus.y-cameraFocusZ)*a;
+  const directorZoom=({rescue:16,interior:17,scavenge:19,'near-death':14,'survivor-follow':20,
+    defense:26,'horde-overview':46,failure:34,squad:27})[director.mode]??27;
+  const desired=cameraMode==='hero'?14:cameraMode==='overview'?57:
+    cameraMode==='director'?directorZoom:range;
+  directedRange+=(desired-directedRange)*Math.min(1,dt*(reducedMotion?3:1.9));
 }
 function restartRun(){
   seed=(seed+1)>>>0||1;completedRuns++;game=createGame({seed,zombieCount:params.get('crowd')==='dense'?260:180});
-  audioEventsSeen=0;cameraMode='director';cameraFocusX=0;cameraFocusZ=0;
+  audioEventsSeen=0;cameraMode='director';cameraFocusX=0;cameraFocusZ=0;directedRange=27;
   terminalSince=null;accumulator=0;director=undefined;lastGeometryStamp='';
 }
 function render(now){
@@ -368,7 +397,7 @@ function render(now){
   const night=game.time.phase==='night',sunset=game.time.phase==='sunset';
   const sky=night?[.042,.065,.105]:sunset?[.44,.30,.24]:[.50,.65,.73];
   gl.clearColor(...sky,1);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
-  const actualRange=cameraMode==='hero'?Math.min(range,15):cameraMode==='overview'?Math.max(range,57):range;
+  const actualRange=cameraMode==='manual'?range:directedRange;
   const eye=[cameraFocusX+Math.sin(orbit)*actualRange,actualRange*(cameraMode==='hero'?.48:.51),cameraFocusZ+Math.cos(orbit)*actualRange];
   const vp=multiply(perspective(Math.PI/3,w/h,.1,230),lookAt(eye,[cameraFocusX,1.5,cameraFocusZ]));
   gl.uniformMatrix4fv(uniforms.uVP,false,new Float32Array(vp));
