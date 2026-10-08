@@ -15,6 +15,9 @@ let lanternFlame=null;
 let lanternLight=null;
 let ambientDust=null;
 let ground=null;
+let fpsFrames=0;
+let fpsSince=0;
+let currentFPS=0;
 const dynamic = new THREE.Group();
 const world = new THREE.Group();
 let renderer = null;
@@ -426,9 +429,11 @@ function render(now) {
   settledCamera=true;
   camera.lookAt(smoothedLook.x,.7,smoothedLook.z);
   renderer.render(scene,camera);
+  fpsFrames++;
+  if(now-fpsSince>=1000){currentFPS=Math.round(fpsFrames*1000/Math.max(1,now-fpsSince));fpsFrames=0;fpsSince=now;}
   if(!window.__MAZE_3D_METRICS__ || now-(window.__MAZE_3D_METRICS__.sampleAt||0)>1000){
     window.__MAZE_3D_METRICS__={
-      active:true,sampleAt:now,drawCalls:renderer.info.render.calls,
+      active:true,sampleAt:now,fps:currentFPS,drawCalls:renderer.info.render.calls,
       triangles:renderer.info.render.triangles,
       geometryObjects:world.children.length,
       webgl2:renderer.capabilities.isWebGL2
