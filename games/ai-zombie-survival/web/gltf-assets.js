@@ -50,11 +50,30 @@ export function parseGlb(bytes,{maxBytes=8_000_000,maxTriangles=90_000}={}){
     const data=new DataView(array),out=[];
     for(let i=0;i<a.count;i++){
       const values=[];
-      for(let j=0;j<size;j++)values.push(data[type.read](off+i*stride+j*type.bytes,true));
+      for(let j=0;j<size;j++){
+        let value=data[type.read](off+i*stride+j*type.bytes,true);
+        if(a.normalized){
+          if(a.componentType===5121)value/=255;
+          else if(a.componentType===5123)value/=65535;
+          else if(a.componentType===5120)value=Math.max(-1,value/127);
+          else if(a.componentType===5122)value=Math.max(-1,value/32767);
+        }
+        values.push(value);
+      }
       out.push(size===1?values[0]:values);
     }
     return out;
   };
+  const imageViews=[];
+  for(const img of (json.images||[]).slice(0,24)){
+    const view=json.bufferViews?.[img.bufferView];
+    if(!view||view.buffer!==0||!['image/png','image/jpeg','image/webp'].includes(img.mimeType)){
+      imageViews.push(null);continue;
+    }
+    const offset=bin.offset+(view.byteOffset||0),len=view.byteLength;
+    if(len<=0||offset<bin.offset||offset+len>bin.offset+bin.size){imageViews.push(null);continue;}
+    imageViews.push({mimeType:img.mimeType,bytes:array.slice(offset,offset+len)});
+  }
   const out=[];
   let count=0;
   const traverse=(nodeId,parent,visited)=>{
@@ -70,10 +89,14 @@ export function parseGlb(bytes,{maxBytes=8_000_000,maxTriangles=90_000}={}){
         if(primitive.extensions?.KHR_draco_mesh_compression||primitive.extensions?.EXT_meshopt_compression)continue;
         const positions=access(primitive.attributes.POSITION);
         const normals=primitive.attributes.NORMAL!==undefined?access(primitive.attributes.NORMAL):null;
+        const uv0=primitive.attributes.TEXCOORD_0!==undefined?access(primitive.attributes.TEXCOORD_0):null;
         const indices=primitive.indices!==undefined?access(primitive.indices):positions.map((_,i)=>i);
         if(indices.length%3!==0||count+indices.length/3>maxTriangles)throw Error('GLB triangle budget');
-        const base=json.materials?.[primitive.material]?.pbrMetallicRoughness?.baseColorFactor||[.8,.8,.8,1];
+        const pbr=json.materials?.[primitive.material]?.pbrMetallicRoughness||{};
+        const base=pbr.baseColorFactor||[.8,.8,.8,1];
         const color=base.slice(0,3).map(v=>Math.max(0,Math.min(1,v)));
+        const texture=json.textures?.[pbr.baseColorTexture?.index];
+        const imageId=texture?.source??null;
         const verts=[];
         for(let i=0;i<indices.length;i+=3){
           const tri=[];
@@ -86,7 +109,10 @@ export function parseGlb(bytes,{maxBytes=8_000_000,maxTriangles=90_000}={}){
           const ab=b.map((v,k)=>v-a[k]),ac=c.map((v,k)=>v-a[k]);
           const face=[ab[1]*ac[2]-ab[2]*ac[1],ab[2]*ac[0]-ab[0]*ac[2],ab[0]*ac[1]-ab[1]*ac[0]];
           const len=Math.hypot(...face)||1;const n=face.map(v=>v/len);
-          verts.push({a,b,c,n,color});
+          const uvs=uv0&&[uv0[indices[i]],uv0[indices[i+1]],uv0[indices[i+2]]];
+          const uv=uvs&&uvs.every(p=>Array.isArray(p)&&p.length>=2)?
+            [(uvs[0][0]+uvs[1][0]+uvs[2][0])/3,(uvs[0][1]+uvs[1][1]+uvs[2][1])/3]:null;
+          verts.push({a,b,c,n,color,uv,imageId});
         }
         count+=indices.length/3;out.push(...verts);
       }
@@ -103,11 +129,42 @@ export function parseGlb(bytes,{maxBytes=8_000_000,maxTriangles=90_000}={}){
     if(!Number.isFinite(p[i]))throw Error('Nonfinite GLB vertex');
     mins[i]=Math.min(mins[i],p[i]);maxes[i]=Math.max(maxes[i],p[i]);
   }
-  return Object.freeze({triangles:out,bounds:{min:mins,max:maxes},sourceTriangleCount:count});
+  return Object.freeze({triangles:out,bounds:{min:mins,max:maxes},sourceTriangleCount:count,embeddedImages:imageViews});
+}
+export async function applyEmbeddedTextureColors(model){
+  if(typeof createImageBitmap!=='function'||typeof OffscreenCanvas!=='function')return model;
+  const used=new Set(model.triangles.filter(t=>t.uv&&t.imageId!==null).map(t=>t.imageId));
+  const pixels=new Map();
+  for(const sourceId of used){
+    const image=model.embeddedImages[sourceId];
+    if(!image||image.bytes.byteLength>4_000_000)continue;
+    try{
+      const bitmap=await createImageBitmap(new Blob([image.bytes],{type:image.mimeType}));
+      if(bitmap.width>2048||bitmap.height>2048||bitmap.width<1||bitmap.height<1){
+        bitmap.close();continue;
+      }
+      const canvas=new OffscreenCanvas(bitmap.width,bitmap.height);
+      const ctx=canvas.getContext('2d',{willReadFrequently:true});
+      ctx.drawImage(bitmap,0,0);bitmap.close();
+      pixels.set(sourceId,{width:canvas.width,height:canvas.height,data:ctx.getImageData(0,0,canvas.width,canvas.height).data});
+    }catch{ /* malformed textures use embedded material color fallback */ }
+  }
+  for(const triangle of model.triangles){
+    const source=pixels.get(triangle.imageId);
+    if(!source||!triangle.uv)continue;
+    const wrap=v=>((v%1)+1)%1;
+    const x=Math.min(source.width-1,Math.floor(wrap(triangle.uv[0])*source.width));
+    const y=Math.min(source.height-1,Math.floor((1-wrap(triangle.uv[1]))*source.height));
+    const offset=(y*source.width+x)*4,alpha=source.data[offset+3]/255;
+    if(alpha<.1)continue;
+    triangle.color=triangle.color.map((v,i)=>Math.min(1,Math.max(0,v*(source.data[offset+i]/255))));
+  }
+  return model;
 }
 export async function fetchGlb(url,{timeoutMs=4500}={}){
   const signal=AbortSignal.timeout(timeoutMs);
   const res=await fetch(url,{mode:'cors',signal,cache:'force-cache',credentials:'omit'});
   if(!res.ok||Number(res.headers.get('content-length'))>8_000_000)throw Error('GLB fetch denied');
-  return parseGlb(await res.arrayBuffer());
+  const model=parseGlb(await res.arrayBuffer());
+  return applyEmbeddedTextureColors(model);
 }
