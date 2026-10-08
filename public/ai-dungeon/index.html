@@ -1,14 +1,41 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="#080b12"><title>AI Dungeon — Endless Adventure</title><link rel="stylesheet" href="/dungeon/styles.css"></head>
-<body><div class="shell" id="dungeon-app">
-<header class="masthead"><div class="brand"><div class="sigil" aria-hidden="true">✦</div><div><span class="overline">THE AUTONOMOUS CHRONICLES</span><h1>ENDLESS <em>DUNGEON</em></h1></div></div><div class="mission"><span class="signal"></span><span id="status" data-testid="status">AWAKENING THE EXPEDITION</span></div><a class="gauntlet-link" href="/dungeon/gauntlet">GAUNTLET LAB ↗</a></header>
-<main class="layout">
-<section class="arena"><canvas id="world" data-testid="dungeon-canvas" aria-label="Live three-dimensional autonomous dungeon expedition"></canvas><div class="light-leak" aria-hidden="true"></div><div class="corner top-left"><span>EXPEDITION // <b id="run">001</b></span><strong id="theme">THE SUNKEN CRYPT</strong></div><div class="corner top-right"><span class="live-dot"></span> LIVE SIMULATION <small>● AUTONOMOUS</small></div><div class="bottom-left"><span>OBJECTIVE</span><strong id="intent" data-testid="intent">Mapping the uncharted halls</strong></div><div class="bottom-right"><span>CAMERA 01</span><strong>CINEMATIC / ISOMETRIC</strong></div><div class="vignette"></div><div class="watermark">EDUTU // AI GAMES</div><div id="recovery" class="recovery" hidden>RESTORING REAL-TIME VIEW — SIMULATION CONTINUES</div></section>
-<aside class="sidebar" aria-label="Dungeon expedition status">
-<div class="chapter"><span>CHAPTER <b id="chapter">I</b></span><div class="chapter-number"><span>FLOOR</span><strong id="floor" data-testid="floor">01</strong></div><p id="chapter-name">THE SUNKEN CRYPT</p><div class="horiz"></div><div class="stats"><div><span>FOES VANQUISHED</span><b id="kills">0</b></div><div><span>RELIC GOLD</span><b id="gold">0</b></div><div><span>PARTY LEVEL</span><b id="level">1</b></div></div></div>
-<div class="panel"><div class="panel-title"><span>THE EXPEDITION</span><span>03 HEROES</span></div><div id="party" data-testid="party" class="party"></div></div>
-<div class="panel encounter"><div class="panel-title"><span>FIELD INTELLIGENCE</span><span class="analysis-icon">✧</span></div><p class="reasoning" id="reasoning">Observing the dungeon...</p><div class="encounter-footer"><span>TACTICAL ENGINE</span><strong>ONLINE</strong></div></div>
-<div class="panel chronicle"><div class="panel-title"><span>CHRONICLE</span><span>RECENT EVENTS</span></div><ol id="events" data-testid="events" aria-live="polite"></ol></div>
-</aside>
-</main><footer class="footer"><span>⚔ AI-DRIVEN COMBAT</span><span>✧ PROCEDURAL DUNGEONS</span><span>♜ AUTONOMOUS HEROES</span><span class="footer-right">NO PLAYER INPUT REQUIRED <i>●</i> 24/7 EXPEDITION</span></footer>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#090e1e"><meta name="description" content="Watch autonomous AI heroes battle their way through a living 3D dungeon."><title>Endless Dungeon — Live Autonomous Adventure</title><link rel="stylesheet" href="/dungeon/styles.css"></head>
+<body><div class="shell" id="dungeon-app" data-visual-revision="4">
+  <header class="masthead">
+    <div class="brand"><div class="sigil" aria-hidden="true"><span>✦</span></div><div><span class="overline">EDUTU GAMES <span class="gold-dot">✦</span> ORIGINAL AI WORLDS</span><h1>ENDLESS <em>DUNGEON</em><span class="edition">/ ADVENTURE</span></h1></div></div>
+    <div class="top-status"><div class="onair"><span class="live-dot"></span> LIVE AUTONOMOUS RUN</div><div class="status-details"><span id="status" data-testid="status">THE EXPEDITION IS AWAKENING</span><strong id="tick">TICK 00000</strong></div></div>
+    <nav class="top-actions" aria-label="Dungeon controls"><button id="audio-toggle" class="icon-button" type="button" aria-label="Enable immersive audio" aria-pressed="false">♫ <span>AUDIO OFF</span></button><a class="gauntlet-link" href="/dungeon/gauntlet">GAUNTLET LAB <b>↗</b></a></nav>
+  </header>
+
+  <main class="layout">
+    <section class="arena" aria-label="Autonomous three-dimensional adventure">
+      <canvas id="world" data-testid="dungeon-canvas" aria-label="Live 3D fantasy dungeon, autonomous heroes and enemies"></canvas>
+      <div class="light-leak" aria-hidden="true"></div>
+      <div class="cinema-top" aria-hidden="true"></div>
+      <div class="cinema-bottom" aria-hidden="true"></div>
+      <div class="scene-header">
+        <div class="floor-flag"><span class="flag-glyph">⌘</span><div><span class="flag-label">EXPEDITION <b id="run">001</b> <i>•</i> CHAPTER <b id="chapter">01</b></span><strong id="theme">THE SUNKEN CRYPT</strong></div></div>
+        <div class="world-info"><span class="world-beacon"></span><b>AI DIRECTOR ONLINE</b><span id="scene-weather">ATMOSPHERIC // 3D</span></div>
+      </div>
+      <div class="boss-strip" id="boss-strip" data-testid="boss-strip" hidden><div class="boss-overline"><span>✦ ENCOUNTER IN PROGRESS</span><span id="boss-phase">GUARDIAN</span></div><div class="boss-title"><span class="boss-icon">♜</span><strong>THE ETERNAL WARDEN</strong><span id="boss-hp">100%</span></div><div class="boss-bar"><i id="boss-bar"></i></div></div>
+      <div class="alert-flash" id="alert-flash" aria-live="polite" hidden></div>
+      <div class="arena-lower"><div class="mission-chip"><span class="mission-symbol">⟡</span><div><small>CURRENT AI INTENT</small><strong id="intent" data-testid="intent">Mapping the uncharted halls</strong></div></div><div class="camera-label"><span>◉ CINEMATIC FOLLOW</span><span>CAM 01 / PROCEDURAL WORLD</span></div></div>
+      <div class="vignette" aria-hidden="true"></div>
+      <div class="watermark">EDUTU / INFINITE WORLDS</div>
+      <div id="recovery" class="recovery" hidden>◈ RECONNECTING TO THE EXPEDITION<br><small>Game state remains autonomous</small></div>
+    </section>
+
+    <aside class="sidebar" aria-label="Adventure command center">
+      <section class="chapter" aria-label="Expedition progress"><div class="chapter-top"><div><small>EXPEDITION DEPTH</small><div class="chapter-number"><strong id="floor" data-testid="floor">01</strong><span>FLOOR <b>↘</b></span></div></div><div class="chapter-emblem">✧</div></div><div class="depth-progress"><div class="depth-line"><span>THIS EXPEDITION</span><b id="floor-status">DESCENDING</b></div><div class="depth-track"><i id="depth-fill"></i></div></div><div class="stats"><div><span>⚔ <small>ELIMINATIONS</small></span><b id="kills">0</b></div><div><span>◆ <small>RELIC GOLD</small></span><b id="gold">0</b></div><div><span>✦ <small>PARTY LEVEL</small></span><b id="level">1</b></div></div></section>
+
+      <section class="panel squad-panel"><div class="panel-title"><div><small>YOUR HEROES</small><strong>THE EXPEDITION</strong></div><span class="counter" id="party-count">3 / 3</span></div><div class="party" id="party" data-testid="party" aria-live="off"></div><div class="team-foot"><span class="linked-dot">●</span><span>AI PARTY / FULLY AUTONOMOUS</span><strong id="party-condition">ACTIVE</strong></div></section>
+
+      <section class="panel map-panel"><div class="panel-title"><div><small>LIVE DUNGEON RADAR</small><strong>TACTICAL MAP</strong></div><span class="map-signal">◉ SCANNING</span></div><div class="map-layout"><div class="map-viewport"><canvas id="minimap" data-testid="dungeon-minimap" width="190" height="190" role="img" aria-label="Map of walls, party location, enemies, exit and relics"></canvas><span class="map-crosshair">+</span></div><div class="map-key"><span><i class="ally-dot"></i> HEROES</span><span><i class="danger-dot"></i> HOSTILES</span><span><i class="portal-dot"></i> PORTAL</span><span><i class="relic-dot"></i> RELICS</span><div class="map-data"><small>KNOWN CELLS</small><strong id="map-cells">—</strong></div></div></div></section>
+
+      <section class="panel encounter"><div class="panel-title"><div><small>TACTICAL ANALYSIS</small><strong>AI COMMAND</strong></div><span class="analysis-icon">✧</span></div><p class="reasoning" id="reasoning">Observing enemy movement and calculating the next step.</p><div class="encounter-footer"><span><span class="pulse-signal">◉</span> DECISION ENGINE</span><strong>ONLINE</strong></div></section>
+    </aside>
+  </main>
+
+  <section class="lower-rail" aria-label="Narrative event timeline"><div class="rail-label"><span class="rail-icon">✦</span><div><small>LIVE STORY</small><strong>CHRONICLE</strong></div></div><ol id="events" data-testid="events" class="event-rail" aria-live="polite"></ol><div class="rail-end">∞ <span>STORY UNFOLDING</span></div></section>
+  <footer class="footer"><span class="brand-foot">EDUTU <b>✦</b> GAMES</span><span>✦ ONE WORLD. ENDLESS ADVENTURES.</span><span class="footer-right"><i>●</i> SELF-PLAYING EXPERIENCE <b> / </b> NO HUMAN INPUT NEEDED</span></footer>
 </div><script type="module" src="/dungeon/app.js"></script></body></html>
