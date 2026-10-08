@@ -1,13 +1,17 @@
 'use strict';
 // Optional real-time 3D presentation. The deterministic game state remains authoritative.
 (async () => {
-  const canvas = document.getElementById('tower-canvas');
-  if (!canvas || new URLSearchParams(location.search).get('renderer') === '2d') return;
+  const original = document.getElementById('tower-canvas');
+  const canvas = document.createElement('canvas');
+  canvas.id = 'tower-3d-canvas';
+  canvas.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;display:block;z-index:1';
+  original?.parentElement?.insertBefore(canvas, original.nextSibling);
+  if (!original || new URLSearchParams(location.search).get('renderer') === '2d') { canvas.remove(); return; }
   let THREE;
-  try { THREE = await import('https://esm.sh/three@0.186.0'); } catch (error) { console.warn('3D renderer unavailable; keeping 2D fallback', error); return; }
+  try { THREE = await import('https://esm.sh/three@0.186.0'); } catch (error) { console.warn('3D renderer unavailable; keeping 2D fallback', error); canvas.remove(); return; }
   let renderer;
   try { renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false }); }
-  catch (error) { console.warn('WebGL unavailable', error); return; }
+  catch (error) { console.warn('WebGL unavailable', error); canvas.remove(); return; }
   const scene = new THREE.Scene();
   scene.background = new THREE.Color('#10172a');
   scene.fog = new THREE.FogExp2('#10172a', 0.013);
