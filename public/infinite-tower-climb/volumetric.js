@@ -91,7 +91,8 @@
     Object.assign(details,{status:'live',tick:snapshot.tick,floor:player.at,x:player.x,y:player.y,z:player.z,
       velocity:{x:player.vx,y:player.vy,z:player.vz},platforms:models.size,next:player.at+1,
       deaths:player.deaths,biome,mode:snapshot.mode,intent:snapshot.intent,guardianKills:snapshot.guardianKills,
-      score:snapshot.score,health:player.health,autonomous:!manual,dimensionality:3,
+      score:snapshot.score,health:player.health,build:snapshot.build,shields:snapshot.shields,
+      upgradesTaken:snapshot.upgradesTaken,autonomous:!manual,dimensionality:3,
       highestReached:snapshot.highestReached,
       latestStory:snapshot.events?.at(-1)?.text||'A new climber enters the tower.',
       latestStoryType:snapshot.events?.at(-1)?.type||'run-start'});
@@ -131,6 +132,11 @@
       document.getElementById('guardian-kills').textContent=String(details.guardianKills);
       document.getElementById('score').textContent=details.score.toLocaleString();
       document.getElementById('health').textContent=String(details.health)+' / 5';
+      document.getElementById('build-stride').textContent=String(details.build?.stride||0);
+      document.getElementById('build-grip').textContent=String(details.build?.grip||0);
+      document.getElementById('build-ward').textContent=String(details.build?.ward||0);
+      document.getElementById('build-salvage').textContent=String(details.build?.salvage||0);
+      document.getElementById('shield-value').textContent=String(details.shields||0);
       status.textContent=(manual?'MANUAL 3D':'AUTONOMOUS 3D AI')+' · '+details.mode+' · '+details.tick+' TICKS';
     }
     requestAnimationFrame(animate);
