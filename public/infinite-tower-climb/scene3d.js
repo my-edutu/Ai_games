@@ -136,8 +136,8 @@ export function mountTower3D({host,getFrame,reducedMotion=false,highContrast=fal
   // Soft, directional shadowing anchors the playable platforms without changing collision.
   renderer.shadowMap.enabled=quality!=='low';
   renderer.shadowMap.type=THREE.PCFSoftShadowMap;
-  const key=new THREE.DirectionalLight(0xffddb0,3.4);key.position.set(-45,120,135);key.castShadow=quality!=='low';key.shadow.mapSize.set(1024,1024);key.shadow.camera.left=-300;key.shadow.camera.right=300;key.shadow.camera.top=300;key.shadow.camera.bottom=-300;key.shadow.camera.near=1;key.shadow.camera.far=650;key.shadow.bias=-.0003;scene.add(key);
-  const rim=new THREE.DirectionalLight(0x9edce2,2.9);rim.position.set(80,55,-30);scene.add(rim);
+  const key=new THREE.DirectionalLight(0xffddb0,3.4);key.position.set(-45,120,135);key.castShadow=quality!=='low';key.shadow.mapSize.set(1024,1024);key.shadow.camera.left=-300;key.shadow.camera.right=300;key.shadow.camera.top=300;key.shadow.camera.bottom=-300;key.shadow.camera.near=1;key.shadow.camera.far=650;key.shadow.bias=-.0003;scene.add(key,key.target);
+  const rim=new THREE.DirectionalLight(0x9edce2,2.9);rim.position.set(80,55,-30);scene.add(rim,rim.target);
   const player=createTowerCharacter({tint:0xf7a65d,kind:'climber'});player.traverse(o=>{if(o.isMesh)o.castShadow=true});actors.add(player);
   // This quality-review turntable reuses exactly the same production character assets.
   // It does not alter game authority or the live snapshot and is opt-in only.
@@ -337,6 +337,14 @@ export function mountTower3D({host,getFrame,reducedMotion=false,highContrast=fal
     cameraX+=(clamp(targetX,80,worldWidth-80)-cameraX)*motion;
     cameraY+=(targetY-cameraY)*motion;
     const shake=!reducedMotion&&s.dangerPermille>800?Math.sin(now*.037)*1.5:0;
+    // Re-anchor directional light targets at the current floor. The old setup kept
+    // its shadow frustum near floor zero, making later floors appear flat.
+    key.position.set(cameraX-72,cameraY+130,155);
+    key.target.position.set(cameraX,cameraY,0);
+    key.target.updateMatrixWorld();
+    rim.position.set(cameraX+87,cameraY+66,-54);
+    rim.target.position.set(cameraX,cameraY,0);
+    rim.target.updateMatrixWorld();
     const depth=inspectCharacters?225:heroCamera?134:214;
     camera.position.set(cameraX+(heroCamera?10:31)+shake,cameraY+(heroCamera?6:16)+shake*.6,depth);
     camera.lookAt(cameraX,cameraY,-18);
