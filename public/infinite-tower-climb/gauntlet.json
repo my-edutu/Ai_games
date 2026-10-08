@@ -1,40 +1,40 @@
 {
   "project": "Infinite Tower Climb — 3D Gauntlet",
   "date": "2026-10-08",
-  "round": 7,
+  "round": 8,
   "target": "Jusant (DON'T NOD): official screenshots and captured gameplay",
-  "status": "Round 7 builder changes committed: cinematic perspective camera, independent kinetic scenery for all five biomes, more expressive high-contrast HUD, character identity and threat overlay, four-role character inspection lineup and bounded snapshot-driven action effects. All seven new/importing modules passed source-level JS syntax and local route inspection. Actual Chromium screenshots, latest CI and external Jusant blind comparison STILL PENDING. Game still has 2D authoritative physics.",
+  "status": "Round 8 implementation committed: full V8 single-file vivid color system with high-contrast parchment vitals; theme-specific cinematic mist/shafts/dust and lighting; motion language for Wayfinder, Sentinel, Shooter and Guardian. Removed duplicate 96-particle FX allocator. 12 source modules/tests parsed and same-origin browser import routes checked. Latest full browser/screenshots and real Jusant A/B critique remain PENDING; 2D authoritative physics is unchanged.",
   "completionRule": "A separate critic must inspect the rendered game, compare screenshots or gameplay against official Jusant imagery, report the worst gap, and repeat. A functioning renderer alone is not a pass.",
   "lanes": [
     {
-      "name": "Cinematic perspective and dynamic environments",
-      "status": "Round 7 built: 3D perspective camera; individual Foundry furnaces, Ruins memory tree/columns, Storm turbines, Clockwork clock/pendulums, Void astral rings/crystals. Screenshot-based fidelity evaluation pending.",
-      "criterion": "Each biome recognizable from geometry alone, distinct landmark frames in actual running capture, no excessive draw calls"
+      "name": "Vivid premium visual system",
+      "status": "Round 8: replaced three conflicting loaded CSS visual passes with one unified Visual VIII; jewel-tone biome accents, readable warm parchment vital/progress cards, improved bright/dark hierarchy and mobile rules. Browser screenshot review pending.",
+      "criterion": "Desktop/mobile browser captures clearly outperform old blue HUD without obstructing live action; WCAG-ish contrast review and two blinded human screenshots"
     },
     {
-      "name": "Premium colorful expedition UI",
-      "status": "Round 7 built: vivid five-biome color tokens, responsive hero identity card, stage encounter banner, anchored vitals and chapter presentation; clean feed still hides decorative HUD.",
-      "criterion": "Readable 1600×900 / 844×390 captures; good color contrast, meaningful hierarchy and unobstructed action"
+      "name": "Living 3D environment",
+      "status": "Round 8: integrated bounded animated colored dust (78 low/180 high), 4 translucent mist curtains, 2–6 angled atmospheric light shafts and biome-specific decorative foliage/machinery/crystals. Screenshot/GPUs pending.",
+      "criterion": "Immersive, distinct biome lighting, convincing depth and no visible repetitive tiles in real browser frames"
     },
     {
-      "name": "All major 3D character roles",
-      "status": "Existing Wayfinder, Sentinel, Shooter and Guardian rigs extended by ?inspect=characters production-model visual reviewer; on-gameplay poses and telegraph animation retained.",
-      "criterion": "Independent view of live production character silhouettes demonstrates sufficient specificity and animation quality"
+      "name": "Character motion and silhouettes",
+      "status": "Round 8: authored separate hero grip/dash/hurt sequences, Sentinel shield posture, Shooter aiming, Guardian windup/braced stance while preserving actual public simulation. Full authored high-resolution character meshes still missing.",
+      "criterion": "Real recorded frames have legible poses, locomotion and role identity vs Jusant reference; avoid mannequin animation"
     },
     {
-      "name": "Action and encounter presentation",
-      "status": "Round 7 built capped 96-particle point-cloud burst director, dash streak and guardian telegraph visual-only FX tied to immutable snapshots.",
-      "criterion": "Hit, dash, jump and boss triggers visually legible without altering deterministic replay"
+      "name": "GPU reliability",
+      "status": "Round 8: consolidated double-instantiated action-effects director into one instance; restored cooler rim/warmer key light, reduced overexposed flat ambient. Browser frame metrics and long-play pending.",
+      "criterion": "No render-context error, bounded WebGL draw calls, no cross-floor memory growth, FPS stable on mobile"
     },
     {
-      "name": "Autonomous runtime, reliability and release",
-      "status": "Unchanged seeded authoritative 2D mechanics; new WebGL modules served locally, source syntax/router inspection passed, latest CI not completed.",
-      "criterion": "Build, stream self-test, all browser captures and fallbacks pass; no authority mutations"
+      "name": "Authoritative game physics",
+      "status": "Still 2D deterministic simulation with a Three.js 3D render/perspective camera; no true 3-axis climbing.",
+      "criterion": "Requires separate authoritative replay-safe 3D movement/handholds/contact validation before full 3D completion"
     },
     {
-      "name": "Independent quality bar vs Jusant",
-      "status": "NOT MET: no completed live screenshot review for the new round and no fresh-context AAA A/B verdict; screenshot CI still queued.",
-      "criterion": "Critic inspects rendered gameplay, compares matched official Jusant footage, finds single largest gap and requests another round"
+      "name": "Jusant independent quality gate",
+      "status": "NOT PASSED: current screenshot artifacts and benchmark comparison remain unavailable or unreviewed; internal source inspection alone not acceptable.",
+      "criterion": "Separate critic inspects actual gameplay video vs real matched Jusant frames and identifies the single largest remaining gap"
     }
   ],
   "evidence": [
@@ -77,6 +77,15 @@
     {
       "name": "Round 7 CI and captured artwork",
       "state": "QUEUED: no green latest-run CI or human visual verdict confirmed",
+      "url": "https://github.com/my-edutu/Ai_games/actions"
+    },
+    {
+      "name": "Round 8 source syntax/import and single-stylesheet verification",
+      "state": "PASS — connector file reads verified 12 JS modules/tests, routes and only /tower/visual-v8.css linked"
+    },
+    {
+      "name": "Round 8 real browser screenshots and independent visual review",
+      "state": "PENDING — no new WebGL screenshot or official Jusant A/B verdict independently inspected",
       "url": "https://github.com/my-edutu/Ai_games/actions"
     }
   ],
@@ -125,6 +134,11 @@
       "round": 7,
       "summary": "Five custom animated landmark worlds and a real-perspective climbing camera; new role lineup inspection, full-screen warm HUD threat cards and snapshot-driven damage, ascent and guardian FX with 96-particle cap.",
       "verdict": "Source parse/router inspection passed; actual browser and official Jusant visual critique not yet complete. 3D authoritative movement not claimed."
+    },
+    {
+      "round": 8,
+      "summary": "Replaced piled-on visual editions with a single vivid, readable theme-aware HUD. Added true 3D environmental mist, volumetric-style light shafts, dense floating dust and scene-specific props, cinematic light balance and individual procedural combat/climbing poses. Removed duplicate active GPU effects system.",
+      "verdict": "JavaScript parser/module routing checks performed; newest CI/Chromium screenshots still pending; AAA art and 3D physics not yet achieved."
     }
   ]
 }
