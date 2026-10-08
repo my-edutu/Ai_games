@@ -7,6 +7,7 @@ import { createCityAtmosphere } from '/eko/atmosphere.js';
 import { createEkoGameFeel } from '/eko/gamefeel.js';
 import { createEkoSoundscape } from '/eko/soundscape.js';
 import { createAdaptiveQualityGovernor } from '/eko/adaptive-quality.js';
+import { createCityCrowd } from '/eko/city-crowd.js';
 
 // Presentation-only renderer. The Node simulation owns all movement, collision and rewards.
 const $ = id => document.getElementById(id);
@@ -90,6 +91,7 @@ try {
   throw error;
 }
 const scene=new THREE.Scene();
+const cityCrowd=createCityCrowd(THREE,scene,{capacity:32});
 const atmosphere=createCityAtmosphere(THREE,scene);
 const vfx=createEkoGameFeel(THREE,scene);
 const audio=createEkoSoundscape();
@@ -295,10 +297,7 @@ function buildWorld(snapshot) {
       cylinder(terrain,.10,.12,1.45,x+1.8,.73,4.40,0x6b6257);
       ball(terrain,.20,x+1.8,1.56,4.40,0xe7bb65);
     }
-    if(worldState.quality!=='low' && i%3===2) {
-      const npc=makePedestrian(ambient,x+2.0,4.55,i+32);
-      npc.userData.baseX=x+2.0;
-    }
+    // Moving background citizens are managed by pooled GPU instancing.
   }
   // Lagos skyline: layered four-to-six-storey mixed-use buildings, roof tanks and balconies.
   // This is original art grammar, not a recreation of a real address or protected landmark.
@@ -391,6 +390,7 @@ function buildWorld(snapshot) {
   // Limit terrain shadow casters; the actor and reactive dangers retain silhouettes.
   terrain.traverse(node=>{if(node.isMesh)node.castShadow=false;});
   worldState.batching=batchDistrictGeometry(THREE,terrain,{chunkMeters:18,mergeSolidColors:true});
+  cityCrowd.layout(district,length);
   worldState.district=district;worldState.finish=snapshot.route.finishX;
 }
 // Reusable, bounded, presentation-only rain particles for Lagos showers.
@@ -429,7 +429,7 @@ window.__EKO_VISUAL_AUDIT__=()=>{
     character:{type:'original-procedural-joint-rig',joints:actor.articulatedJoints,meshes:actorMeshes,
       outfits:actor.availableOutfits,outfit:worldState.outfit,...projectedVisibility()},
     environment:{district:worldState.district,meshes:worldMeshes,batching:worldState.batching,materials:surfaces.stats(),vibrance:worldState.vibrance,atmosphere:atmosphere.signature},
-    performance:{drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,visualEffects:vfx.stats(),adaptive:qualityGovernor.metrics(),
+    performance:{drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,visualEffects:vfx.stats(),crowd:cityCrowd.metrics(),adaptive:qualityGovernor.metrics(),
       pixelRatio:renderer.getPixelRatio(),frameRateReported:ui.fps.textContent,
       renderer:renderer.capabilities.isWebGL2?'WebGL2':'WebGL'},
     simulation:{publicTick:latest?.snapshot.tick??null,lifecycle:latest?.snapshot.lifecycle??null}
@@ -618,7 +618,7 @@ function animate(now){
     camera.lookAt(targetX,1.2,0);
     sun.position.x=player.position.x-8;
     sun.target.position.set(player.position.x,0,0);sun.target.updateMatrixWorld();
-    for(const pedestrian of ambient.children)if(pedestrian.userData.baseX!==undefined)pedestrian.position.x=pedestrian.userData.baseX+Math.sin(now/1200+pedestrian.userData.walkOffset)*.30;
+    cityCrowd.animate(now,worldState.quality);
     if(weather.visible){
       rainGeometry.setDrawRange(0,worldState.quality==='high'?RAIN_CAP:55);
       for(let i=0;i<RAIN_CAP;i++){
