@@ -218,3 +218,7 @@ button:focus-visible,select:focus-visible,.button:focus-visible{outline:3px soli
 }
 @media(max-height:520px){.middle{display:none}}
 @media(prefers-reduced-motion:reduce){#event.pop{animation:none;opacity:1}}
+
+#camera{border-color:rgba(115,254,225,.60);color:#adfff1;background:linear-gradient(145deg,#154f59,#124251)}
+#camera[aria-pressed="true"]{border-color:#ffd276;color:#fff4cd;background:linear-gradient(140deg,#614666,#26566c)}
+@media(max-width:440px){#camera{min-width:77px;padding-inline:6px!important;letter-spacing:0}}
