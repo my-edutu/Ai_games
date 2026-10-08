@@ -99,6 +99,6 @@ test('Gauntlet color batching preserves individual facade colors while collapsin
   assert.equal(palette.count,80*36);
   for(let i=0;i<80;i++){
     const color=new THREE.Color().fromBufferAttribute(palette,i*36);
-    assert.ok(color.distanceTo(values[i])<1e-6,'a facade was recolored during batching');
+    assert.ok(Math.max(Math.abs(color.r-values[i].r),Math.abs(color.g-values[i].g),Math.abs(color.b-values[i].b))<1e-6,'a facade was recolored during batching');
   }
 });
