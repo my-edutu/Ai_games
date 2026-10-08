@@ -276,7 +276,33 @@ test('Marble WebGL broadcast renders authoritative tournament and captures runti
     await page.screenshot({ path: path.join(artifacts, `${name}.png`), fullPage: false });
     if (name === '01-race-start' || name.startsWith('11-biome-')) {
       const metric = await measureActualVisualPixels();
-      visualPixelMetrics[name] = metric;
+      const proof=await page.evaluate(()=>{
+        const shell=document.querySelector('.broadcast-shell');
+        const gl=document.getElementById('arena-webgl')?.getContext('webgl2');
+        return {
+          biome:shell?.dataset.webglArchetype,
+          architecture:shell?.dataset.stadiumStyle,
+          landmark:shell?.dataset.landmarkStyle,
+          stadiumModules:Number(shell?.dataset.stadiumModules||0),
+          horizonTriangles:Number(shell?.dataset.horizonGeometry||0),
+          cinematicSpotlights:Number(shell?.dataset.spotlightVolumes||0),
+          activePostprocess:shell?.dataset.postprocess,
+          stadiumCrowd:Number(shell?.dataset.crowdCount||0),
+          renderer:shell?.dataset.renderer,
+          glError:gl?.getError(),
+          glNoError:gl?.NO_ERROR,
+        };
+      });
+      expect(proof.renderer).toBe('webgl2');
+      expect(proof.architecture).toBe(proof.biome);
+      expect(proof.landmark).toBe(proof.biome);
+      expect(proof.stadiumModules).toBeGreaterThan(300);
+      expect(proof.horizonTriangles).toBeGreaterThan(300);
+      expect(proof.cinematicSpotlights).toBeGreaterThan(0);
+      expect(proof.stadiumCrowd).toBeGreaterThanOrEqual(320);
+      expect(proof.activePostprocess).toBe('neon-glow');
+      expect(proof.glError).toBe(proof.glNoError);
+      visualPixelMetrics[name] = { ...metric, actualWebglProof:proof };
       fs.writeFileSync(path.join(artifacts, 'visual-pixel-metrics.json'),JSON.stringify(visualPixelMetrics,null,2));
       expect(metric.samples).toBeGreaterThan(100);
       expect(metric.averageLuminance).toBeGreaterThan(30);
