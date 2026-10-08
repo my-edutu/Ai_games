@@ -344,3 +344,34 @@ body {
   .spotlight-identity span:not(.spotlight-orb){color:#fff}
   .spotlight-stats span,.spotlight-card p{color:#fff}
 }
+
+/* LOOP 25 — LIVE CINEMATIC STAGE REVEAL
+   Activated from a real round/arena ID change, never a timed fake transition. */
+@keyframes marble-stage-unveil {
+  0% { opacity:0; transform:translateY(-13px) scale(.96);filter:brightness(1.8) }
+  33% {opacity:1;transform:translateY(0) scale(1.02);filter:brightness(1.25)}
+  100%{opacity:1;transform:translateY(0) scale(1);filter:brightness(1)}
+}
+@keyframes marble-stage-beam{
+  0%{opacity:0;transform:translateX(-120%) skewX(-28deg)}
+  32%{opacity:.9}
+  100%{opacity:0;transform:translateX(240%) skewX(-28deg)}
+}
+.broadcast-shell.stage-entering .arena-title-card{
+  animation:marble-stage-unveil 1.1s cubic-bezier(.22,.74,.24,1) both;
+  overflow:hidden;
+}
+.broadcast-shell.stage-entering .arena-title-card:after {
+  content:"";
+  position:absolute;inset:-8px;
+  background:linear-gradient(100deg,transparent 12%,color-mix(in srgb,var(--arena-accent) 46%,transparent) 50%,transparent 84%);
+  pointer-events:none;
+  animation:marble-stage-beam 1.0s ease-in-out both;
+}
+.broadcast-shell[data-wind-strength]:not([data-wind-strength="0"]) .arena-threat-badge {
+  border-color:color-mix(in srgb,var(--arena-accent) 68%,transparent);
+}
+@media(prefers-reduced-motion:reduce){
+  .broadcast-shell.stage-entering .arena-title-card,
+  .broadcast-shell.stage-entering .arena-title-card:after{animation:none!important}
+}
