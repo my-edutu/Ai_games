@@ -51,6 +51,27 @@ const path = require('node:path');
       for(let i=0;i<10*24*30;i++)g.step(1/30);
       return JSON.stringify(g.exportSnapshot());
     });
+    // Inspect both original high-detail civic landmarks at fixed, repeatable cameras.
+    // These are real browser captures, not authored screenshot mockups.
+    evidence.landmarks=await page.evaluate(()=>window.__tinyKingdom.getScenicSites());
+    for(const shot of [
+      {name:'sanctuary-landmark.png',camera:{focus:[29,10],yaw:.75,pitch:.48,zoom:27}},
+      {name:'stone-bridge.png',camera:{focus:[-6,18.1],yaw:.84,pitch:.64,zoom:26}},
+    ]){
+      await page.evaluate(camera=>window.__tinyKingdom.setCamera(camera),shot.camera);
+      await page.waitForTimeout(400);
+      await page.screenshot({path:path.join(out,shot.name),fullPage:true});
+    }
+    await page.setViewportSize({width:390,height:844});
+    await page.waitForTimeout(300);
+    evidence.mobileViewport=await page.evaluate(()=>({
+      clientWidth:document.documentElement.clientWidth,
+      scrollWidth:document.documentElement.scrollWidth,
+      tourWidth:document.querySelector('.world-tour').getBoundingClientRect().width,
+    }));
+    await page.screenshot({path:path.join(out,'mobile-sanctuary.png'),fullPage:true});
+    if(evidence.mobileViewport.scrollWidth>evidence.mobileViewport.clientWidth+1)
+      throw Error('Mobile visual regression: horizontal page overflow');
     evidence.day11=replay.metrics;
     evidence.tenDayReplayIdentical=(replay.snapshot===second);
     if(!evidence.tenDayReplayIdentical)throw Error('10-day replay mismatch');
