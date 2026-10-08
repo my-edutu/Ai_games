@@ -74,7 +74,7 @@ test('Marble WebGL broadcast renders authoritative tournament and captures runti
     return shell?.dataset.identitySource === 'webgl-frame' &&
       shell.dataset.identityTick === shell.dataset.webglTick &&
       shell.dataset.identityTick !== '';
-  }, { timeout: 15_000 });
+  }, undefined, { timeout: 15_000 });
 
   const gauntletPage = await page.context().newPage();
   try {
