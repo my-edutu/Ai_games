@@ -62,7 +62,7 @@ export function buildDistrictLandmarks(THREE,{terrain,district,length,box,cylind
     b(.12,.70,.07,x+.20,y,z,p.roof);
   }
   for(let site=0;site<stations;site++){
-    const x=24+site*68,z=-9.2;
+    const x=34+site*68,z=-7.1; // authored gap between regular shops
     // Signature pavilion with curved archways, pilasters, sunburst frieze and planters.
     b(8.3,3.75,2.35,x,1.88,z,p.primary);
     b(8.75,.24,2.9,x,3.92,z,p.secondary);
