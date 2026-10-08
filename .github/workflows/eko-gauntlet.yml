@@ -49,8 +49,8 @@ jobs:
         run: node scripts/eko-gauntlet-run-soak.cjs
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
-      - name: Capture desktop, mobile and Gauntlet page
-        run: npx playwright test tests/browser/eko-run-gauntlet.spec.cjs
+      - name: Capture real gameplay, full-resolution and portrait visual evidence
+        run: npx playwright test tests/browser/eko-run-gauntlet.spec.cjs tests/browser/eko-run-visual-captures.spec.cjs
       - name: Upload real browser screenshots and traces
         if: always()
         uses: actions/upload-artifact@v4
