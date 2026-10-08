@@ -31,7 +31,7 @@
   const world=new THREE.Group();scene.add(world);
   const params=new URLSearchParams(location.search);
   const captureFloor=Math.min(120,Math.max(0,Number.parseInt(params.get('captureFloor')||'0',10)||0));
-  const seedText=params.get('seed'),seed=seedText&&/^\\d{1,9}$/.test(seedText)?Number(seedText):undefined;
+  const seedText=params.get('seed'),seed=seedText&&/^[0-9]{1,9}$/.test(seedText)?Number(seedText):undefined;
   const sim=createVolumetricCore(seed),player=sim.player,models=new Map(),guardians=new Map(),rewards=new Map();
   const enemyScene=new THREE.Group(),rewardScene=new THREE.Group();scene.add(enemyScene,rewardScene);
   const details={status:'loading',tick:0,floor:0,x:0,y:0,z:0,platforms:0,deaths:0,guardianKills:0,score:0,health:5,autonomous:true,dimensionality:3};
