@@ -117,6 +117,48 @@ function stoneWeathering(group,width,startY,endY,theme,seed){
   }
   for(const instance of meshes){instance.instanceMatrix.needsUpdate=true;group.add(instance)}
 }
+
+// Large-scale biome-specific silhouettes, kept behind all playable geometry.
+// Deterministic placement is derived from floor index; this is scenery only.
+function biomeLandmarks(group,theme,palette,width,y0,height,floor){
+  const distant=new THREE.Group();distant.name='biome-landmarks';group.add(distant);
+  const rock=soft(palette.stone,.98,.02),edge=soft(palette.rim,.77,.12),glow=radiant(palette.glow,.75);
+  const count=theme==='ruins'?7:theme==='storm'?5:theme==='clockwork'?6:theme==='void'?8:5;
+  for(let i=0;i<count;i++){
+    const phase=murmur(floor*13+i*37),x=width*(.08+.84*(i+.35)/count),y=y0+height*(.14+.68*phase);
+    const z=-84-12*(i%3),scale=.7+phase*.8;
+    const root=new THREE.Group();root.position.set(x,y,z);root.scale.setScalar(scale);distant.add(root);
+    if(theme==='ruins'){
+      const column=add(root,pole(4.5,6,54,rock,9),0,0,0);
+      add(root,block(18,4,16,edge),0,28,0);
+      add(root,block(15,5,15,rock),0,-28,0);
+      if(i%2===0){add(root,new THREE.Mesh(new THREE.ConeGeometry(12,19,5),edge),0,40,0);}
+      column.rotation.z=(phase-.5)*.07;
+    }else if(theme==='storm'){
+      const peak=new THREE.Mesh(new THREE.ConeGeometry(23,85,5),rock);peak.scale.z=.55;add(root,peak,0,0,0);
+      const cap=new THREE.Mesh(new THREE.ConeGeometry(11,28,5),edge);cap.scale.z=.55;add(root,cap,0,29,1);
+    }else if(theme==='clockwork'){
+      const ring=new THREE.Mesh(new THREE.TorusGeometry(22,4,8,28),edge);add(root,ring,0,0,0);
+      for(let j=0;j<12;j++){
+        const a=j*Math.PI/6;
+        const tooth=add(root,block(7,12,8,rock),Math.sin(a)*25,Math.cos(a)*25,0);tooth.rotation.z=-a;
+      }
+      add(root,pole(5,5,8,glow),0,0,1).rotation.x=Math.PI/2;
+    }else if(theme==='void'){
+      const crystal=add(root,new THREE.Mesh(new THREE.OctahedronGeometry(21,0),i%3===0?glow:rock),0,0,0);
+      crystal.scale.set(.5,2.1,.65);crystal.rotation.z=phase*.35;
+      add(root,new THREE.Mesh(new THREE.TorusGeometry(22,1.3,6,24),edge),0,0,0).rotation.y=.5;
+    }else{
+      const chimney=add(root,pole(8,11,64,rock,10),0,0,0);
+      add(root,block(23,5,19,edge),0,34,0);
+      add(root,block(15,6,15,edge),0,-32,0);
+      if(i%2===0){add(root,new THREE.Mesh(new THREE.ConeGeometry(10,17,9),glow),0,45,0);}
+      chimney.rotation.z=(phase-.5)*.04;
+    }
+  }
+  return distant;
+}
+
 /**
  * Enriches the existing 3D tower wall with distinct landmark framing, statues,
  * physical chains, banners, ambient light shafts and rock weathering.
@@ -127,6 +169,7 @@ export function decorateTowerEnvironment({group,snapshot,theme,palette,worldWidt
   const stone=soft(palette.stone,.85,.14),trim=soft(palette.rim,.56,.34),light=radiant(palette.glow,1.15);
   const ornament=new THREE.Group();ornament.name='world-ornaments';
   group.add(ornament);
+  biomeLandmarks(ornament,theme,palette,worldWidth,y0,levelHeight,snapshot.floor);
   // Monumental three-dimensional portals frame the playable shafts but never occlude actors.
   const movingCloth=[],softBeams=[];
   for(let i=0;i<3;i++){
