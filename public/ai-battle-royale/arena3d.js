@@ -786,6 +786,41 @@
     }
   }
 
+
+  function biomeWeather(b,s,theme){
+    // Small capped presentation-only particles, not registered in battle physics.
+    if(quality==='low')return;
+    const arena=s.arena;
+    const count=arena.theme==='arctic'?72:arena.theme==='neon'?48:35;
+    const time=reducedMotion?0:performance.now()/1000;
+    const w=arena.width,h=arena.height;
+    for(let i=0;i<count;i++){
+      const seed=(Math.imul(i+1,2654435761)>>>0);
+      const xx=((seed%1000)/1000)*w;
+      const zz=(((seed>>>11)%1000)/1000)*h;
+      const drift=arena.theme==='neon'?.16:arena.theme==='arctic'?.23:.07;
+      const x=((xx+time*drift+i*.031)%w+w)%w;
+      const z=((zz+time*drift*.40)%h+h)%h;
+      const phase=((seed>>>6)%1000)/1000;
+      const y=.65+(((phase*5+time*(arena.theme==='arctic'?.65:1.15))%5)+5)%5;
+      if(arena.theme==='arctic'){
+        // Slow snowflakes, with occasional larger flakes creating layered depth.
+        const r=i%7===0?.060:.029;
+        b.cone(x,y,z,r,r*.35,.10,[.87,.96,1],5);
+        if(i%9===0)b.cone(x+.07,y-.10,z,.024,0,.10,[.58,.82,.96],5);
+      }else if(arena.theme==='neon'){
+        // Wet city atmosphere: vertical light streaks and magenta particulate haze.
+        const c=i%4===0?[1,.40,.80]:[.35,.87,1];
+        const length=i%3===0?.52:.32;
+        b.limb([x,y,z],[x+.07,y-length,z+.04],i%5===0?.022:.010,c);
+      }else if(arena.theme==='ember'){
+        // Cinders and luminous fireflies drift above the battle without flashing.
+        const c=i%4===0?[1,.82,.30]:[.93,.54,.25];
+        b.cone(x,y,z,.029,0,.09,c,5);
+        if(!reducedFlash&&i%11===0)b.cylinder(x,y+.11,z,.026,.13,theme.accent,5);
+      }
+    }
+  }
   function worldDynamic(b,s){
     const a=s.arena,w=a.width,t=colours[a.theme]||colours.ember;
     for(const item of a.loot.slice(0,100)){
@@ -800,6 +835,7 @@
     b.ring(c.x,.056,c.z,Math.max(.25,s.zone.radius),.08,t.accent,128);
     stormWall(b,s,t);
     combatEffects(b,s,t);
+    biomeWeather(b,s,t);
     victorySequence(b,s);
   }
   function bindSceneBuffer(buffer){
