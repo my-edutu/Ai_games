@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "AI Battle Royale",
-  "iteration": 15,
+  "iteration": 16,
   "updated": "2026-10-08",
   "verdict": "UNVERIFIED — AAA QUALITY NOT MET",
   "benchmark": "Fortnite Chapter 4 UE5.1 / Apex Legends / PUBG",
@@ -23,9 +23,11 @@
     "Loop 12 — hardened broadcast polling to prevent overlapping requests when the stream host responds slowly.",
     "Loop 13 — added public-snapshot-driven focused contender weapon, ammo, medkit and confidence display.",
     "Loop 14 — introduced ?quality=low to reduce decorative meshes while preserving authoritative actors and zone cues.",
-    "Loop 15 — added distinct original ember palms, neon crystal pylons and arctic snow conifers to the perimeter; activated a focused browser-capture workflow."
+    "Loop 15 — added distinct original ember palms, neon crystal pylons and arctic snow conifers to the perimeter; activated a focused browser-capture workflow.",
+    "Loop 16 — upgraded the 3D camera to a real perspective-divided yaw/pitch projection with a distinct cinematic angle, restrained autonomous orbit and reduced-motion-safe viewpoint."
   ],
   "gaps": [
+    "P0 recent-capture gate — verify new perspective/terrain graphics in actual Chromium screenshots; current candidate has no independent benchmark win.",
     "P0 benchmark gap — Fortnite UE5 still leads heavily in surface fidelity, complex lighting, realistic animation, rigged geometry and authored world assets.",
     "P0 visual review gap — loops 7–15 require fresh official-reference blind A/B from real Playwright capture; do not claim visual quality has won.",
     "P1 character gap — avatars remain procedurally modeled rather than high-resolution authored and skinned 3D character assets with facial rigs.",
