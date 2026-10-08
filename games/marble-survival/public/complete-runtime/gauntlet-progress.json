@@ -1,9 +1,9 @@
 {
   "schema": 1,
-  "iteration": "Loop 14 · vivid worlds, premium broadcast UI and cinematic sky",
+  "iteration": "Loop 18 · physical 3D arenas, studio-lit marbles, live 3D signage and visual pixel gates",
   "lastUpdated": "2026-10-08",
-  "criticTarget": "Review REAL screenshots at 1920×1080 and 390×844 from Chromium: reject flat-looking environments, unreadable HUD, excessive draw calls, low-contrast marble identities or visually empty skies. Compare matching gameplay against official Marble It Up! Ultra imagery without asserting parity before independent blind votes.",
-  "comparisonStatus": "NOT YET VERIFIED · High-chroma worlds, redesigned spectator UI, atmospheric shader and marble trails committed; browser screenshots and independent A/B reference judgment remain required.",
+  "criticTarget": "Open the actual Chromium captures for all five stages, the mobile layout, championship and competitor dossier. Compare the visual bar to official Marble It Up! Ultra screenshots. Reject flat-looking geometry, weak lighting, illegible overlays, clipped 3D LED signage, low saturation, or slow FPS. Do not call the Gauntlet achieved without independent blind votes.",
+  "comparisonStatus": "NOT YET VERIFIED · Loops 15–18 source and V8 runtime smoke checks implemented; actual Chromium screenshots and independent Marble It Up! Ultra A/B comparisons still outstanding.",
   "goals": [
     {
       "name": "Premium marble character optics",
@@ -114,9 +114,59 @@
       "name": "Visual parity evidence from real browser",
       "detail": "Desktop/mobile screenshots for actual rounds; independent A/B reference judgments, shader validation and device performance metrics outstanding",
       "status": "in-progress"
+    },
+    {
+      "name": "True 3D hazard architecture",
+      "detail": "Pure deterministic deck tessellation creates real pit openings with deep reactor wells, wall geometry and safety lighting; seven geometry tests passed in JS execution",
+      "status": "implemented"
+    },
+    {
+      "name": "Studio-lit marble characters",
+      "detail": "Rolling clearcoat glass gains multiple studio-light reflections, stage-coloured sky bounce and airborne shadow softening",
+      "status": "implemented"
+    },
+    {
+      "name": "Read-only competitor dossiers and cinema mode",
+      "detail": "Keyboard-accessible live marble profile, coloured avatar, actual progress/altitude/momentum and optional uncluttered cinematic spectator layout",
+      "status": "implemented"
+    },
+    {
+      "name": "3D arena LED scoreboards and victory portals",
+      "detail": "Texture-mapped physical stadium signs show real round/remaining/qualified; stage finish gates gain gold and electric 3D orbital geometry",
+      "status": "implemented"
+    },
+    {
+      "name": "Quantitative real-image art direction gate",
+      "detail": "Browser screenshot tests record actual WebGL frame luminance, colour saturation, near-black fraction and stage visuals; GitHub Actions completion pending",
+      "status": "in-progress"
+    },
+    {
+      "name": "Five-stage JS render smoke suite",
+      "detail": "Headless JavaScript execution of all five live scene paths and championship via instrumented mock-WebGL; not a real GPU compile",
+      "status": "implemented"
     }
   ],
   "history": [
+    {
+      "title": "Loop 15 — Cut-through track and real hazard depth",
+      "note": "Replaced painted fake pit squares with deterministic topological deck openings, deep mechanical hazard wells, warning lighting and 3D wall geometry. Kill zones remain surface-level and the actual solver topology is untouched.",
+      "proof": "7/7 pure deck geometry checks executed in JS; five-stage simulated WebGL draw smoke passed."
+    },
+    {
+      "title": "Loop 16 — Marble material and spectator character identity",
+      "note": "Added cinematic glass studio reflections, stage sky highlights and actual elevation-aware shadows. Built accessible click/keyboard read-only competitor dossiers with true names, numbers, patterns, progress and momentum; optional cinema view preserves authority.",
+      "proof": "Source committed; complete desktop/mobile UI interaction verification awaiting Chromium."
+    },
+    {
+      "title": "Loop 17 — Stadium LED scoreboard and 3D victory portals",
+      "note": "Built a Canvas2D-to-WebGL texture pipeline placing official arena name, round, survivors and locked qualifiers on physical in-world display panels. Finish gate now has a large kinetic electric torus and live-lit posts.",
+      "proof": "Five mocked-WebGL stages rendered including live billboard upload; actual shader compile and screenshots outstanding."
+    },
+    {
+      "title": "Loop 18 — Independent scene smoke and colour gate",
+      "note": "Added seven pure-geometry regression cases, Node VM WebGL render smoke tests for all five stages, plus a Playwright screenshot-pixel pipeline that scores actual luminous colour/luminance rather than checking hardcoded palettes.",
+      "proof": "7/7 geometry tests and all five stage simulated render paths executed successfully in V8; Playwright screenshot pixel gates awaiting a real browser job."
+    },
     {
       "title": "Loop 14 — Kinetic character spectacle",
       "note": "Added spotlighted, authoritative velocity-based marble light trails, angular crystal monument geometry and stage-specific orbital sculptural pieces. LOD limits effects at low quality.",
