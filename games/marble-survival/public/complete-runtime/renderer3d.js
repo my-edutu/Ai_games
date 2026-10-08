@@ -93,6 +93,15 @@
 
     float patternMask(vec3 localPosition) {
       if (uPatternType < 0.5) return 0.0;
+      if (uPatternType > 4.5) {
+        // Faceted racing tiles and illuminated grooves are evaluated in
+        // surface-local coordinates; no network textures or extra draw calls.
+        vec2 tile = (localPosition.xz + vec2(1.0)) * vec2(13.0, 9.0);
+        vec2 cell = fract(tile);
+        float groove = 1.0 - smoothstep(0.0, 0.047, min(min(cell.x,cell.y),min(1.0-cell.x,1.0-cell.y)));
+        float checker = mod(floor(tile.x) + floor(tile.y), 2.0);
+        return clamp(checker * 0.085 + groove * 0.46, 0.0, 0.63);
+      }
       vec3 point = normalize(localPosition);
       if (uPatternType < 1.5) {
         vec3 cell = abs(sin(point * 15.0));
@@ -269,7 +278,7 @@
       for(let side=0;side<minorSegments;side++){
         const a=ring*(minorSegments+1)+side;
         const b=(ring+1)*(minorSegments+1)+side;
-        indices.push(a,b,a+1,b,b+1,a+1);
+        indices.push(a,a+1,b,b,a+1,b+1);
       }
     }
     return createMesh(positions,normals,indices);
@@ -411,7 +420,7 @@
   function drawMesh(mesh,model,surface,viewProjection,cameraPosition){gl.useProgram(program);gl.uniformMatrix4fv(uniforms.model,false,model);gl.uniformMatrix4fv(uniforms.viewProjection,false,viewProjection);gl.uniformMatrix3fv(uniforms.normalMatrix,false,normalMatrix3(model));gl.uniform3fv(uniforms.color,surface.color);gl.uniform3fv(uniforms.patternColor,surface.patternColor);gl.uniform1f(uniforms.patternType,surface.patternType);gl.uniform3fv(uniforms.lightDirection,[0.42,-1,0.28]);gl.uniform3fv(uniforms.cameraPosition,cameraPosition);gl.uniform1f(uniforms.roughness,surface.roughness);gl.uniform1f(uniforms.metalness,surface.metalness);gl.uniform1f(uniforms.emissive,surface.emissive);gl.uniform1f(uniforms.opacity,surface.opacity);gl.uniform3fv(uniforms.fogColor,currentFogColor);gl.bindVertexArray(mesh.vao);gl.drawElements(gl.TRIANGLES,mesh.count,gl.UNSIGNED_SHORT,0);frameDrawCalls+=1;frameTriangles+=mesh.count/3;gl.bindVertexArray(null);}
   function drawBox(center,size,surface,viewProjection,cameraPosition,rotation=[0,0,0]){drawMesh(boxMesh,modelMatrix(center,rotation,[size[0]/2,size[1]/2,size[2]/2]),surface,viewProjection,cameraPosition);}
 
-  function drawArenaDeck(arena,theme,viewProjection,cameraPosition){const width=arena.width*WORLD_SCALE,depth=arena.height*WORLD_SCALE;drawBox([0,-0.23,0],[width+0.9,0.42,depth+0.9],material(theme.trim,0.82,0.18),viewProjection,cameraPosition);drawBox([0,-0.015,0],[width,0.08,depth],material(theme.deck,0.73,0.08),viewProjection,cameraPosition);for(let lane=1;lane<4;lane+=1){const x=-width/2+width*lane/4;drawBox([x,0.035,0],[0.025,0.015,depth*0.96],material([0.68,0.69,0.67],0.95,0,0,0.24),viewProjection,cameraPosition);}}
+  function drawArenaDeck(arena,theme,viewProjection,cameraPosition){const width=arena.width*WORLD_SCALE,depth=arena.height*WORLD_SCALE;drawBox([0,-0.23,0],[width+0.9,0.42,depth+0.9],material(theme.trim,0.82,0.18),viewProjection,cameraPosition);drawBox([0,-0.015,0],[width,0.08,depth],material(theme.deck,0.73,0.08,0,1,5.0,theme.secondary),viewProjection,cameraPosition);for(let lane=1;lane<4;lane+=1){const x=-width/2+width*lane/4;drawBox([x,0.035,0],[0.025,0.015,depth*0.96],material([0.68,0.69,0.67],0.95,0,0,0.24),viewProjection,cameraPosition);}}
   // All of these materials and stage structures are strictly *outside*
   // solver topology. Five stages have genuinely different silhouettes and
   // lighting vocabularies, instead of five recoloured grey rectangles.
