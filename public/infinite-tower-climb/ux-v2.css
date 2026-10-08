@@ -115,3 +115,8 @@
 @media(prefers-reduced-motion:reduce){
   #app [data-ux-revision="2"] *,#app [data-ux-revision="2"] *::before,#app [data-ux-revision="2"] *::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
 }
+
+/* Keep critical stream HUD and danger treatment legible above the opaque WebGL layer. */
+#tower-3d-canvas{z-index:0}
+.arena-wrap .danger-vignette{z-index:1}
+.arena-wrap .checkpoint-pill{z-index:2}
