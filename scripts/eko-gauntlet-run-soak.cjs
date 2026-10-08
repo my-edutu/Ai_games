@@ -6,7 +6,7 @@ const engine=require('../dist/games/eko-street-run/src/index.js');
 const {createReactivePilot}=require('./eko-ai-pilot.cjs');
 const seeds=['eko-gauntlet-mainland-v1','eko-campaign-01','eko-campaign-02',
   'eko-campaign-03','eko-campaign-04','eko-campaign-05','eko-campaign-06','eko-campaign-07'];
-const BUDGET_TICKS=1600;
+const BUDGET_TICKS=7200; // two minutes per seed at authoritative 60Hz
 function inspectSeed(seed){
   const config=engine.createDefaultConfig({seed});
   let state=engine.createPhase6State(config),sequence=0,rejected=0,events=0,failures=0,advances=0;
@@ -54,7 +54,9 @@ const report={
   budgetTicksPerSeed:BUDGET_TICKS,seeds:samples.length,
   summary:{
     totalSteps:samples.reduce((n,s)=>n+s.ticks,0),
+    simulatedSeconds:samples.reduce((n,s)=>n+s.ticks,0)/60,
     totalFailures:samples.reduce((n,s)=>n+s.failures,0),
+    survivalSecondsPerSeed:BUDGET_TICKS/60,
     totalDistrictCompletions:samples.reduce((n,s)=>n+s.advances,0),
     totalRejectedCommands:samples.reduce((n,s)=>n+s.rejected,0),
     reachedCheckpointSeeds:samples.filter(s=>s.checkpoints>0).length,
