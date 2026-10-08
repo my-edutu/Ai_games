@@ -35,7 +35,10 @@ export function createVolumetricCore(seedInput=0x00a3f914){
     if(player.health<=2&&build.ward<4){build.ward++;shields+=2;return 'Aegis Ward';}
     const order=['stride','grip','salvage','ward'];
     const key=order[Math.floor(floor/8-1)%order.length];
-    if(build[key]>=4){build.salvage++;return 'Fortune Recovery';}
+    if(build[key]>=4){
+      if(build.salvage<4){build.salvage++;return 'Fortune Recovery';}
+      shields=Math.min(6,shields+1);return 'Veteran Shield';
+    }
     build[key]++;
     if(key==='ward')shields+=2;
     return {stride:'Swift Ascender',grip:'Skyward Grip',salvage:'Salvage Instinct',ward:'Aegis Ward'}[key];
