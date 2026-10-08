@@ -237,7 +237,15 @@ function finishInstances(){
   }
   instanceQueues.clear();
 }
-function masonryWall(parent,x,z,kind,id){
+function masonryWall(parent,x,z,kind,id,cutaway=false){
+  // Lower only foreground walls beside the current hero so the camera never hides the protagonist.
+  if(cutaway){
+    queueInstance(geometries.cube,materials.wallTop,[x,.29,z],
+      kind==='NS'?[GRID+.05,.58,.29]:[.29,.58,GRID+.05]);
+    queueInstance(geometries.cube,materials.trim,[x,.61,z],
+      kind==='NS'?[GRID+.08,.10,.34]:[.34,.10,GRID+.08]);
+    return;
+  }
   // Wall spine, carved ledges, fractured stone coursing and end buttress.
   queueInstance(geometries['wall'+kind],materials.wall,[x,WALL_HEIGHT*.5,z]);
   queueInstance(geometries['trim'+kind],materials.wallTop,[x,WALL_HEIGHT+.03,z]);
@@ -343,7 +351,9 @@ function rebuild(snapshot) {
         continue;
       }
       if(side.id>=0 && known.has(side.id) && side.id<cell.cell) continue;
-      masonryWall(world,p.x+side.dx,p.z+side.dz,side.kind,cell.cell);
+      const manhattan=Math.abs(col-activeCol)+Math.abs(row-activeRow);
+      const inFront=(side.dx>0||side.dz>0);
+      masonryWall(world,p.x+side.dx,p.z+side.dz,side.kind,cell.cell,manhattan<=1&&inFront);
     }
     if(cell.checkpoint) {
       const beacon=mesh(geometries.cylinder,materials.exit,world,[p.x,0.09,p.z],[0.38,0.13,0.38]);
