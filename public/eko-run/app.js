@@ -419,7 +419,9 @@ function projectedVisibility(){
   const heightPx=Math.abs(feet.y-head.y)*renderer.domElement.clientHeight/2;
   const centerPx=(head.x+feet.x)*renderer.domElement.clientWidth/4+renderer.domElement.clientWidth/2;
   return {heightPx:Math.round(heightPx),centerXPx:Math.round(centerPx),
-    inFrame:Math.abs(head.x)<1&&Math.abs(head.y)<1&&Math.abs(feet.x)<1&&Math.abs(feet.y)<1};
+    inFrame:Math.abs(head.x)<1&&Math.abs(head.y)<1&&Math.abs(feet.x)<1&&Math.abs(feet.y)<1,
+    safeHorizontalPadding:centerPx>renderer.domElement.clientWidth*.22
+      && centerPx<renderer.domElement.clientWidth*.82};
 }
 // Diagnostic is limited to public render state; never exposes private authoritative simulation.
 window.__EKO_VISUAL_AUDIT__=()=>{
@@ -604,7 +606,10 @@ function animate(now){
     actor.pose({...player,tick:s.tick},now,reducedMotion);
     atmosphere.update(player.position.x,now,reducedMotion);
     const portrait=camera.aspect<.8;
-    const targetX=player.position.x+(portrait?2.25:3.3);
+    // Portrait quality gate: prior real capture put Tayo at 42px in a 390px
+    // viewport, with most of the playable character clipped off-screen.
+    // Keep roughly 70% of the narrow frame ahead for obstacle decisions.
+    const targetX=player.position.x+(portrait?1.20:3.3);
     const camX=targetX-2.1;
     const camZ=portrait?16.8:12.4;
     const camY=portrait?5.1:4.65;
