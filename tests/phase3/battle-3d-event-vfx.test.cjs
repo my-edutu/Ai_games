@@ -10,7 +10,7 @@ test('combat VFX track new authoritative event sequences and expire instead of l
   assert.match(src,/function activeVisualEvents\(/);
   assert.match(src,/function combatEffects\(/);
   assert.match(src,/visualEffects/);
-  assert.match(src,/effect\.sequence/);
+  assert.match(src,/observedSequences\.has\(event\.sequence\)/);
   assert.match(src,/performance\.now\(\)/);
   assert.match(src,/Math\.min\(1,Math\.max\(0,/);
   assert.match(src,/visualEffects\.length/);
