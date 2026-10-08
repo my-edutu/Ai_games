@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
   "project": "AI Battle Royale",
-  "iteration": 6,
+  "iteration": 15,
   "updated": "2026-10-08",
-  "verdict": "CI VALIDATION PENDING — AAA QUALITY NOT MET",
+  "verdict": "UNVERIFIED — AAA QUALITY NOT MET",
   "benchmark": "Fortnite Chapter 4 UE5.1 / Apex Legends / PUBG",
   "completed": [
     "Loop 0 — inspected existing 2D Canvas broadcast, deterministic simulation and reference branch.",
@@ -14,13 +14,23 @@
     "Loop 4 — added original articulated, visibly equipped 3D characters with modeled helmets, armour, visors, weapons, archetype-specific gear, jointed limbs and cosmetic walking movement.",
     "Loop 5 — added themed perimeter landmarks, arena warning lights, distinctive scenery and actual semantic-event shooting, elimination and pickup visual signals.",
     "Loop 6 — added a second, live close-up action camera using the same publicly sanitized match state, with desktop-aware inset framing and responsive HUD placement.",
-    "CI evidence — prior PR revision passed GitHub Actions, including browser screenshots; new loops have focused geometry and A/B capture tests awaiting CI."
+    "CI evidence — prior PR revision passed GitHub Actions, including browser screenshots; new loops have focused geometry and A/B capture tests awaiting CI.",
+    "Loop 7 — corrected stale CI quality-verdict assertion, improved atmospheric directional surface shading, eased battlefield framing and moved the cinematic inset away from the lower fighting area.",
+    "Loop 8 — added deterministic biome floor details, varied real obstacle/cover fortification depictions and non-colliding atmospheric skyline props.",
+    "Loop 9 — fighters now turn toward observed opponents and actual movement, using bounded cosmetic orientation history cleared every new match.",
+    "Loop 10 — cached static arena meshes in a reusable GPU buffer; only dynamic actors, loot, safe zone and combat cues rebuild each visual tick.",
+    "Loop 11 — added an evidence-safe 3D champion ceremony for true game results only, including winner-directed camera and live AI spectator label.",
+    "Loop 12 — hardened broadcast polling to prevent overlapping requests when the stream host responds slowly.",
+    "Loop 13 — added public-snapshot-driven focused contender weapon, ammo, medkit and confidence display.",
+    "Loop 14 — introduced ?quality=low to reduce decorative meshes while preserving authoritative actors and zone cues.",
+    "Loop 15 — added distinct original ember palms, neon crystal pylons and arctic snow conifers to the perimeter; activated a focused browser-capture workflow."
   ],
   "gaps": [
-    "P0 benchmark gap — Epic Fortnite UE5.1 still has vastly superior environment/character detail, materials, volumetric lighting, shadows, animation and cinematic action.",
-    "P0 reviewer gap — new loops need fresh real Chromium and OBS screenshots plus genuinely independent blind A/B reviews; benchmark has not been won.",
-    "P1 art pipeline gap — characters use hand-authored procedural articulated meshes; no imported high-resolution textured skinned models or real skeletal animation system.",
-    "P1 production gap — weapon impact effects, cinematic focus, realistic scene variation and human-scale arena exploration require deeper implementation and visual evaluation.",
-    "P1 operations gap — GPU profiles, 24/7 stream soak and production-reference capacity remain unverified."
+    "P0 benchmark gap — Fortnite UE5 still leads heavily in surface fidelity, complex lighting, realistic animation, rigged geometry and authored world assets.",
+    "P0 visual review gap — loops 7–15 require fresh official-reference blind A/B from real Playwright capture; do not claim visual quality has won.",
+    "P1 character gap — avatars remain procedurally modeled rather than high-resolution authored and skinned 3D character assets with facial rigs.",
+    "P1 environment gap — no physically based materials, dynamic shadows, nav-mesh-aware 3D landscapes, destructible buildings or weather cycles.",
+    "P1 studio gap — cinematics and VFX are preliminary; authored animations, studio audio and persistent personality arcs remain.",
+    "P1 operations gap — scheduled GPU soak, representative OBS capture, 72-hour endurance, production throughput, deployment and true independent review remain absent."
   ]
 }
