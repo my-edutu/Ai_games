@@ -464,3 +464,60 @@ test('Gauntlet 020: elbow and knee poses animate deterministically without persi
   expect(result.resetIdentical).toBe(true);
   expect(errors).toEqual([]);
 });
+
+test('Tiny Kingdom keeps the stone river bridge traversable and the sanctuary physically solid', async ({page}) => {
+  const faults=[];
+  page.on('pageerror',e=>faults.push(e.message));
+  await page.setContent(html);
+  await page.waitForFunction(() => Boolean(window.__tinyKingdom));
+  await page.locator('#pause').click();
+  const result=await page.evaluate(()=>{
+    const game=window.__tinyKingdom,sites=game.getScenicSites();
+    const path=game.route([-6,12],[-6,26]);
+    let safe=Boolean(path&&path.length),previous=[-6,12];
+    for(const next of path||[]){
+      const steps=Math.max(1,Math.ceil(Math.hypot(next[0]-previous[0],next[1]-previous[1])/.04));
+      for(let j=1;j<=steps;j++){
+        const t=j/steps;
+        if(!game.walkable([previous[0]+(next[0]-previous[0])*t,previous[1]+(next[1]-previous[1])*t]))safe=false;
+      }
+      previous=next;
+    }
+    return {sites,waypoints:path?.length??0,safe};
+  });
+  expect(result.sites.count).toBe(2);
+  expect(result.sites.riverBridge.walkable).toBe(true);
+  expect(result.sites.sanctuary.walkable).toBe(false);
+  expect(result.waypoints).toBeGreaterThan(0);
+  expect(result.safe).toBe(true);
+  expect(faults).toEqual([]);
+});
+
+test('Tiny Kingdom sanctuary camera does not change the authoritative simulation', async ({page}) => {
+  await page.setContent(html);
+  await page.waitForFunction(() => Boolean(window.__tinyKingdom));
+  await page.locator('#pause').click();
+  const original=await page.evaluate(()=>JSON.stringify(window.__tinyKingdom.exportSnapshot()));
+  await page.locator('[data-scenic="sanctuary"]').click();
+  const result=await page.evaluate(()=>({camera:window.__tinyKingdom.getCamera(),snapshot:JSON.stringify(window.__tinyKingdom.exportSnapshot())}));
+  expect(result.camera.focus).toEqual([29,10]);
+  expect(result.camera.zoom).toBeLessThan(30);
+  expect(result.snapshot).toBe(original);
+  await expect(page.locator('[data-scenic="sanctuary"]')).toHaveAttribute('aria-pressed','true');
+});
+
+test('Tiny Kingdom six-view mobile tour stays within viewport', async ({browser}) => {
+  const page=await browser.newPage({viewport:{width:390,height:844}});
+  const faults=[];
+  page.on('pageerror',e=>faults.push(e.message));
+  await page.setContent(html);
+  await page.waitForFunction(()=>Boolean(window.__tinyKingdom));
+  const box=await page.locator('.world-tour').boundingBox();
+  expect(box.x).toBeGreaterThanOrEqual(-1);
+  expect(box.x+box.width).toBeLessThanOrEqual(391);
+  await page.locator('[data-scenic="sanctuary"]').scrollIntoViewIfNeeded();
+  await page.locator('[data-scenic="sanctuary"]').click();
+  expect(await page.evaluate(()=>window.__tinyKingdom.getCamera().focus)).toEqual([29,10]);
+  expect(faults).toEqual([]);
+  await page.close();
+});
