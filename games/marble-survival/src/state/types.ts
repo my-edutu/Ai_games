@@ -229,6 +229,8 @@ export interface PhysicsContact {
   marbleId: number;
   otherMarbleId?: number;
   colliderId?: string;
+  /** Only populated for an actual grounded spring-bumper collision. */
+  launchSpeed?: number;
   impulse: number;
 }
 
