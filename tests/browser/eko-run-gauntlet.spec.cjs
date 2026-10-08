@@ -30,6 +30,8 @@ test.describe('Eko Run 3D Gauntlet slice', () => {
     expect(audit.character.inFrame).toBeTruthy();
     expect(audit.character.heightPx).toBeGreaterThan(65);
     expect(audit.character.outfits).toHaveLength(4);
+    expect(audit.environment.materials.source).toBe('generated-original');
+    expect(audit.environment.materials.textures).toBe(3);
     expect(audit.environment.batching.sourceMeshes).toBeGreaterThan(250);
     expect(audit.environment.batching.batchedMeshes).toBeLessThan(audit.environment.batching.sourceMeshes*0.55);
     expect(audit.environment.meshes).toBeLessThan(audit.environment.batching.sourceMeshes);
