@@ -72,7 +72,8 @@ function addRoundContent(config: MarbleConfig, roundIndex: number, rng: NamedRng
         x: lane + offset,
         y: 11_000 - index * 1_700,
         radius: 360 + (index % 2) * 80,
-        restitutionPermille: 900
+        restitutionPermille: 900,
+        launchSpeed: roundIndex >= 2 && index % 3 === 0 ? Math.min(config.maxVerticalSpeed, 180 + 40 * roundIndex) : undefined
       });
     }
   }
@@ -192,6 +193,11 @@ export function validateMarbleArena(arena: MarbleArena, config: MarbleConfig): A
   for (const rectangle of rectangles) {
     if (rectangle.x < 0 || rectangle.y < 0 || rectangle.width <= 0 || rectangle.height <= 0 || rectangle.x + rectangle.width > arena.width || rectangle.y + rectangle.height > arena.height) {
       issues.push({ code: 'geometry-out-of-bounds', entityId: rectangle.id, detail: 'Rectangle exceeds world bounds.' });
+    }
+  }
+  for (const bumper of arena.bumpers) {
+    if (bumper.launchSpeed !== undefined && (!Number.isSafeInteger(bumper.launchSpeed) || bumper.launchSpeed < 0 || bumper.launchSpeed > config.maxVerticalSpeed)) {
+      issues.push({ code: 'geometry-out-of-bounds', entityId: bumper.id, detail: 'Bumper vertical launch speed exceeds deterministic limits.' });
     }
   }
   for (const ramp of arena.ramps) {
