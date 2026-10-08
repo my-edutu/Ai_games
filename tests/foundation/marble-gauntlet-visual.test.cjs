@@ -185,7 +185,7 @@ test('four character archetypes have unique non-authoritative 3D identities',()=
     assert.ok(renderer.includes("marble.archetype==='"+name+"'"),"missing distinct 3D identity: "+name);
   }
   assert.ok(renderer.includes('drawArchetypeAccents(marble,arena,viewProjection,cameraPosition,nowSeconds,focused)'));
-  assert.ok(renderer.includes("quality==='balanced'&&!emphasis"));
+  assert.ok(renderer.includes("if(quality==='low'&&!emphasis)return"),'Balanced competitors must all retain their visible role silhouettes');
   assert.ok(renderer.includes("quality==='low'"));
 });
 
@@ -277,4 +277,32 @@ test('stage cinematography uses true motion, connected 3D speed ribbons and one 
   }
   assert.ok(app.includes("setTimeout(()=>{"));
   assert.ok(styles.includes("@keyframes marble-stage-unveil"));
+});
+
+test('built 3D arenas have cached genuine 3D architecture with no GPU memory leak',()=>{
+  for(const marker of [
+    'function appendArchitecturalBox(batches,group',
+    'function prepareGrandArchitecture(arena,quality)',
+    "const groups=Array.from({length:3}",
+    'function drawGrandArchitecture(arena,theme',
+    'drawGrandArchitecture(arena,theme,viewProjection,camera.eye)',
+    'gl.deleteVertexArray?.(mesh.vao)',
+    'gl.deleteBuffer?.(buffer)',
+    'shell.dataset.stadiumModules',
+    'shell.dataset.stadiumStyle',
+    'floorPattern:5.0','floorPattern:6.0','floorPattern:7.0',
+    'floorPattern:8.0','floorPattern:9.0',
+  ]) assert.ok(renderer.includes(marker),'missing stage architecture or GPU lifecycle: '+marker);
+  assert.ok(renderer.includes('const trackSurface=material(theme.deck,0.43,0.40,0.015,1,theme.floorPattern'));
+});
+test('clickable spectator leaderboard reconciles stable actual DOM nodes',()=>{
+  for(const marker of [
+    'const byMarbleId=new Map(',
+    'const wanted=next.leaderboard.map((entry,index)=>',
+    'leaderboard.insertBefore(expected,leaderboard.children[index]||null)',
+    'if(!visibleIds.has(id))item.remove();',
+    "inspect.setAttribute('aria-pressed'",
+  ])assert.ok(app.includes(marker),'unstable clickable leaderboard: '+marker);
+  assert.equal(app.includes('leaderboard.replaceChildren'),false,
+    'updating 10 times/second must never recreate every spectator button');
 });
