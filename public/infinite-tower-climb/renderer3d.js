@@ -31,6 +31,8 @@
   architecture.root.scale.set(3,3,1);
   const entities=createTowerEntities(THREE);
   const actors = new THREE.Group(); scene.add(actors);
+  const liveEntities=new Map();
+  let runSignature='';
   const clock = new THREE.Clock();
   const climber=createClimber(THREE); scene.add(climber.root);
   let lastClimberPosition = null;
@@ -40,6 +42,7 @@
   const metrics = {frames:0,frameMs:0,actors:0,renderer:'webgl',status:'starting'};
   window.__TOWER_3D_METRICS__ = metrics;
   let previousChecksum = '', lastState = null;
+  let lastFrameAt=performance.now();
   const size = () => {
     const w = Math.max(1, canvas.clientWidth), h = Math.max(1, canvas.clientHeight);
     if (w === lastRenderWidth && h === lastRenderHeight) return;
@@ -48,25 +51,47 @@
     renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix();
   };
   function rebuild(s) {
-    while (actors.children.length) actors.remove(actors.children[0]);
     const theme = String(s.theme || 'foundry').toLowerCase();
     if (theme !== themeKey) { themeKey=theme; const color=themeColors[theme]||0xffaa55; rim.color.setHex(color); groundLight.color.setHex(color); architecture.setTheme(theme); }
     groundLight.position.set(Number(s.player?.x||0)/1000-Number(s.worldWidth||0)/2000,Number(s.player?.y||0)/1000-Number(s.chunkBaseY||0)/1000+12,9);
     const base = Number(s.chunkBaseY || 0) / 1000;
     const y = value => Number(value || 0) / 1000 - base;
     const x = value => Number(value || 0) / 1000 - Number(s.worldWidth || 0) / 2000;
+    // Stable entity identities prevent creating dozens of scene graphs every simulation tick.
+    const seen=new Set();
+    const place=(key,variant,make,xx,yy)=>{
+      seen.add(key);
+      let entity=liveEntities.get(key);
+      if(!entity||entity.variant!==variant){
+        if(entity)actors.remove(entity.root);
+        const root=make();
+        root.position.x=xx;root.position.y=yy;
+        actors.add(root);
+        entity={root,variant};liveEntities.set(key,entity);
+      }else{entity.root.position.x=xx;entity.root.position.y=yy;}
+      return entity.root;
+    };
     for(const p of s.platforms||[]) {
-      const width=p.width/1000,height=p.height/1000;
-      actors.add(entities.platform(p,x(p.x)+width/2,y(p.y)+height/2,width,height));
+      const width=p.width/1000,height=p.height/1000,xx=x(p.x)+width/2,yy=y(p.y)+height/2;
+      place('platform:'+p.id,[p.kind,width,height].join(':'),()=>entities.platform(p,xx,yy,width,height),xx,yy);
     }
     for(const h of s.hazards||[]) {
-      const width=h.width/1000,height=h.height/1000;
-      actors.add(entities.hazard(h,x(h.x)+width/2,y(h.y)+height/2,width,height));
+      const width=h.width/1000,height=h.height/1000,xx=x(h.x)+width/2,yy=y(h.y)+height/2;
+      place('hazard:'+h.id,[h.kind,h.active,width,height].join(':'),()=>entities.hazard(h,xx,yy,width,height),xx,yy);
     }
-    for(const e of s.enemies||[]) if(e.active)
-      actors.add(entities.enemy(e,x(e.x),y(e.y),e.halfWidth/1000,e.halfHeight/1000));
-    for(const p of s.pickups||[]) actors.add(entities.pickup(p,x(p.x),y(p.y)));
-    for(const p of s.projectiles||[]) actors.add(entities.projectile(p,x(p.x),y(p.y)));
+    for(const e of s.enemies||[]) if(e.active) {
+      const xx=x(e.x),yy=y(e.y),rw=e.halfWidth/1000,rh=e.halfHeight/1000;
+      place('enemy:'+e.id,[e.kind,e.telegraph,rw,rh].join(':'),()=>entities.enemy(e,xx,yy,rw,rh),xx,yy);
+    }
+    for(const p of s.pickups||[]){
+      const xx=x(p.x),yy=y(p.y);
+      place('pickup:'+p.id,p.kind,()=>entities.pickup(p,xx,yy),xx,yy);
+    }
+    for(const p of s.projectiles||[]){
+      const xx=x(p.x),yy=y(p.y);
+      place('projectile:'+p.id,p.owner,()=>entities.projectile(p,xx,yy),xx,yy);
+    }
+    for(const [key,entity] of liveEntities) if(!seen.has(key)) {actors.remove(entity.root);liveEntities.delete(key);}
     const p = s.player;
     if (p) {
       const px = x(p.x), py = y(p.y);
@@ -105,7 +130,12 @@
     }
     if (++frameCount % 2 === 0 && !document.body.dataset.reducedMotion?.includes('true')) { const elapsed=clock.getElapsedTime(); for (const object of actors.children) if (object.userData.pickup) { object.rotation.y=elapsed*1.5; object.position.y+=Math.sin(elapsed*2+object.position.x)*0.001; } }
     renderer.render(scene, camera);
-    metrics.frames++; metrics.frameMs=Math.round((performance.now()-frameStart)*100)/100;
+    const now=performance.now();
+    metrics.frames++; metrics.frameMs=Math.round((now-frameStart)*100)/100;
+    metrics.fps=Math.round(1000/Math.max(1,now-lastFrameAt)); lastFrameAt=now;
+    metrics.drawCalls=renderer.info.render.calls;
+    metrics.triangles=renderer.info.render.triangles;
+    metrics.reusedEntities=liveEntities.size;
     requestAnimationFrame(animate);
   };
   canvas.addEventListener('webglcontextlost', event => { event.preventDefault(); metrics.status='context-lost'; canvas.style.display='none'; original.style.visibility='visible'; });
