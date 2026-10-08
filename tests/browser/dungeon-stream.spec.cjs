@@ -271,7 +271,14 @@ test('world-only screenshot audits actual WebGL light, chroma and hero visibilit
  await page.goto('/dungeon');
  await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.composition?.visibleHeroes??0),{timeout:25000}).toBeGreaterThan(0);
  await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.triangles??0),{timeout:25000}).toBeGreaterThan(100);
- const capture=await page.locator('canvas#world').screenshot({path:'artifacts/dungeon-3d-world-only.png'});
+ // Locator screenshots capture DOM overlays composited above the canvas. Mask
+ // them temporarily or the so-called world-only audit is falsely inflated by HUD.
+ const mask=await page.addStyleTag({content:'.arena > :not(canvas#world){visibility:hidden!important}.arena::before,.arena::after{visibility:hidden!important}'});
+ let capture;
+ try{
+  expect(await page.locator('.scene-header').evaluate(el=>getComputedStyle(el).visibility)).toBe('hidden');
+  capture=await page.locator('canvas#world').screenshot({path:'artifacts/dungeon-3d-world-only.png'});
+ }finally{await mask.evaluate(el=>el.remove())}
  const pixels=await page.evaluate(async encoded=>{
   const image=new Image();image.src='data:image/png;base64,'+encoded;await image.decode();
   const canvas=document.createElement('canvas');canvas.width=160;canvas.height=100;
