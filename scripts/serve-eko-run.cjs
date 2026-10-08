@@ -118,6 +118,7 @@ const FILES = new Map([
   ['/eko/gamefeel.js', ['public/eko-run/gamefeel.js', 'text/javascript; charset=utf-8']],
   ['/eko/soundscape.js', ['public/eko-run/soundscape.js', 'text/javascript; charset=utf-8']],
   ['/eko/adaptive-quality.js', ['public/eko-run/adaptive-quality.js', 'text/javascript; charset=utf-8']],
+  ['/eko/city-crowd.js', ['public/eko-run/city-crowd.js', 'text/javascript; charset=utf-8']],
   ['/eko/progress', ['public/eko-run/progress.html', 'text/html; charset=utf-8']],
   ['/eko/progress.js', ['public/eko-run/progress.js', 'text/javascript; charset=utf-8']],
   ['/eko/gauntlet.json', ['public/eko-run/gauntlet.json', 'application/json; charset=utf-8']],
