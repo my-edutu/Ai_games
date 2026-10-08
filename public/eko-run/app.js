@@ -4,6 +4,7 @@ import { batchDistrictGeometry } from '/eko/static-batch.js';
 import { createEkoSurfaceKit } from '/eko/material-craft.js';
 import { composeStreetVibrance } from '/eko/world-vibrance.js';
 import { createCityAtmosphere } from '/eko/atmosphere.js';
+import { createEkoGameFeel } from '/eko/gamefeel.js';
 
 // Presentation-only renderer. The Node simulation owns all movement, collision and rewards.
 const $ = id => document.getElementById(id);
@@ -87,6 +88,7 @@ try {
 }
 const scene=new THREE.Scene();
 const atmosphere=createCityAtmosphere(THREE,scene);
+const vfx=createEkoGameFeel(THREE,scene);
 const camera=new THREE.PerspectiveCamera(52,1,.15,220);
 const hemi=new THREE.HemisphereLight(0xecfaff,0x647261,1.2);scene.add(hemi);
 const sun=new THREE.DirectionalLight(0xffe0a3,3.1);sun.position.set(-9,17,13);sun.castShadow=true;
@@ -377,7 +379,7 @@ window.__EKO_VISUAL_AUDIT__=()=>{
     character:{type:'original-procedural-joint-rig',joints:actor.articulatedJoints,meshes:actorMeshes,
       outfits:actor.availableOutfits,outfit:worldState.outfit,...projectedVisibility()},
     environment:{district:worldState.district,meshes:worldMeshes,batching:worldState.batching,materials:surfaces.stats(),vibrance:worldState.vibrance,atmosphere:atmosphere.signature},
-    performance:{drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,
+    performance:{drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,visualEffects:vfx.stats(),
       pixelRatio:renderer.getPixelRatio(),frameRateReported:ui.fps.textContent,
       renderer:renderer.capabilities.isWebGL2?'WebGL2':'WebGL'},
     simulation:{publicTick:latest?.snapshot.tick??null,lifecycle:latest?.snapshot.lifecycle??null}
@@ -423,6 +425,7 @@ function updateHazards(snapshot){
 function updateSnapshot(packet){
   if(!packet || !packet.snapshot || (latest&&packet.snapshot.tick<latest.snapshot.tick))return;
   latest=packet;lastPacket=performance.now();
+  vfx.ingest(packet.snapshot.recentEvents,packet.snapshot.player,packet.snapshot.runId);
   const s=packet.snapshot, p=s.progression;
   document.documentElement.dataset.district=p?.districtId||'mainland-morning';
   ui.district.textContent=DISTRICTS[p?.districtId]?.name||'MAINLAND MORNING';
@@ -571,6 +574,7 @@ function animate(now){
   const connected=performance.now()-lastPacket<3500;
   $('connection').textContent=connected?'● CONNECTED':'● RECONNECTING';
   $('connection').classList.toggle('lost',!connected);
+  vfx.update(dt,matchMedia('(prefers-reduced-motion: reduce)').matches,worldState.quality);
   renderer.render(scene,camera);
   frames++;
   if(now-fpsStamp>1000){ui.fps.textContent=Math.round(frames*1000/(now-fpsStamp))+' FPS';fpsStamp=now;frames=0;}
