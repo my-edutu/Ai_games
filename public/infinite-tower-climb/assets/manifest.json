@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "characterModel": null,
+  "characterScale": 1,
+  "animationNames": {
+    "idle": "idle",
+    "run": "run",
+    "climb": "climb",
+    "combat": "attack",
+    "fall": "fall"
+  },
+  "environmentModels": [],
+  "licenseNotices": [],
+  "notes": "Original procedural assets remain active until authored GLB/GLTF models are licensed, supplied and verified."
+}
