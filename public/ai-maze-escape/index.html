@@ -37,6 +37,7 @@
         <button type="button" data-camera-mode="cinema" aria-pressed="true">Cinematic</button>
         <button type="button" data-camera-mode="follow" aria-pressed="false">Follow</button>
         <button type="button" data-camera-mode="tactical" aria-pressed="false">Tactical</button>
+        <button id="capture-scene" type="button" title="Save an actual image of the running maze" aria-label="Save game screenshot">◎ Capture</button>
       </div>
       <div id="scene-card" hidden>
         <strong id="scene-title">RECOVERING VIEW</strong>
@@ -82,7 +83,16 @@
         <ol id="event-feed" aria-live="off"><li>Exploration initialized.</li></ol>
       </section>
       <div id="threat-status" class="threat-status" data-level="low"><span class="threat-indicator">◈</span><span>THREAT STATUS</span><strong id="threat-label">CALM</strong></div>
-      <footer>PARTIAL OBSERVATION • NO ORACLE ACCESS<br><a href="/maze/progress" target="_blank" rel="noopener">GAUNTLET PROGRESS ↗</a></footer>
+      <footer>
+        <div class="graphic-options"><label for="graphics-quality">GRAPHICS QUALITY</label>
+          <select id="graphics-quality" aria-label="Graphics quality">
+            <option value="adaptive">Adaptive</option><option value="cinematic">Cinematic</option>
+            <option value="balanced">Balanced</option><option value="performance">Performance</option>
+          </select>
+        </div>
+        PARTIAL OBSERVATION • NO ORACLE ACCESS<br>
+        <a href="/maze/progress" target="_blank" rel="noopener">GAUNTLET PROGRESS ↗</a>
+      </footer>
     </aside>
     <section id="captions" data-testid="captions" aria-live="polite" aria-atomic="true">
       <span class="caption-label"><span class="caption-pulse">◌</span> ON THE EXPEDITION</span>
