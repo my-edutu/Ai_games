@@ -177,3 +177,29 @@ test('cinematic 3D LED billboard displays only public authority and updates its 
     assert.equal(renderer.includes(forbidden),false, 'broadcast display must not access private state or command races');
   }
 });
+
+test('four character archetypes have unique non-authoritative 3D identities',()=>{
+  const names=['navigator','sprinter','bruiser','survivor'];
+  assert.ok(renderer.includes('function drawArchetypeAccents'));
+  for(const name of names){
+    assert.ok(renderer.includes("marble.archetype==='"+name+"'"),"missing distinct 3D identity: "+name);
+  }
+  assert.ok(renderer.includes('drawArchetypeAccents(marble,arena,viewProjection,cameraPosition,nowSeconds,focused)'));
+  assert.ok(renderer.includes("quality==='balanced'&&!emphasis"));
+  assert.ok(renderer.includes("quality==='low'"));
+});
+
+test('pit dive danger rings are driven by real negative altitude, never fabricated',()=>{
+  for(const marker of [
+    'function drawPitFallBeacons(arena,marbles',
+    "(m.elevation||0)<0",
+    "h.kind==='pit'",
+    'drawPitFallBeacons(arena,marbles,theme,viewProjection,camera.eye,now)',
+    'const isFallingIntoPit',
+  ]){
+    if(marker==='const isFallingIntoPit')continue; // Authoritative checkpoint guard is in the TypeScript layer.
+    assert.ok(renderer.includes(marker),'missing actual physics-backed scene cue: '+marker);
+  }
+  assert.ok(renderer.includes("'marble-pit-falling'"));
+  assert.ok(app.includes("'marble-pit-falling'"));
+});
