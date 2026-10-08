@@ -360,13 +360,13 @@ test('Tiny Kingdom scenic hills rise without changing world state or seeded repl
 });
 
 
-test('Gauntlet 018 camera tour provides five semantic views without affecting authoritative world', async ({page}) => {
+test('Gauntlet 018 camera tour provides six semantic views without affecting authoritative world', async ({page}) => {
   const errors=[];page.on('pageerror', e=>errors.push(e.message));
   await page.setContent(html);
   await page.waitForFunction(()=>Boolean(window.__tinyKingdom));
   await page.locator('#pause').click();
   const before=await page.evaluate(()=>JSON.stringify(window.__tinyKingdom.exportSnapshot()));
-  expect(await page.locator('.tour-btn').count()).toBe(5);
+  expect(await page.locator('.tour-btn').count()).toBe(6);
   for(const [scene,x,z] of [['market',0,5],['mill',-27,-18],['orchard',-26,9],['river',5,20],['valley',0,0]]){
     await page.locator('[data-scenic="'+scene+'"]').click();
     await expect(page.locator('[data-scenic="'+scene+'"]')).toHaveAttribute('aria-pressed','true');
@@ -405,6 +405,7 @@ test('Gauntlet 019 character palettes and rig-like animated costume geometry rem
   await page.locator('#pause').click();
   const result=await page.evaluate(()=>{
     const game=window.__tinyKingdom;
+    game.reset(); // Compare identical seeded initial states, not a progressed live frame.
     const first=JSON.stringify(game.getCitizenProfiles());
     const before=JSON.stringify(game.exportSnapshot());
     game.reset();
@@ -415,7 +416,7 @@ test('Gauntlet 019 character palettes and rig-like animated costume geometry rem
   });
   expect(result.people).toBe(12);
   expect(result.samePeople).toBe(true);
-  // Full snapshot comparison is not meaningful across reset after a live frame.
+  expect(result.sameSnapshot).toBe(true);
   expect(result.triangles).toBeGreaterThan(1000);
   expect(errors).toEqual([]);
 });
