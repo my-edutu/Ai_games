@@ -15,6 +15,12 @@ import { FIXED_SCALE, clampInteger, clampMagnitude, divideRound, dotPermille, in
 
 const POSITION_LIMIT = 10_000_000;
 const VELOCITY_PREFILTER_MULTIPLIER = 8;
+/** Approximate authoritative collision envelopes (millimetre-scale fixed points).
+ * These heights match the physical machine silhouettes in the WebGL arena.
+ * Full top-face/rotating rigid-body collision remains a separate Gauntlet gate. */
+const BLOCK_COLLIDER_TOP = 760;
+const SWEEPER_COLLIDER_TOP = 660;
+const BUMPER_COLLIDER_TOP = 780;
 
 interface Rectangle {
   id: string;
@@ -188,6 +194,10 @@ function resolveWorld(marble: MarbleCompetitor, state: MarbleState): PhysicsCont
 }
 
 function resolveRectangle(marble: MarbleCompetitor, rectangle: Rectangle, radius: number): PhysicsContact | null {
+  // A marble flying completely above the body must not be knocked sideways
+  // by its ground-plane silhouette.
+  const colliderTop = rectangle.kind === 'sweeper' ? SWEEPER_COLLIDER_TOP : BLOCK_COLLIDER_TOP;
+  if (marble.elevation >= colliderTop) return null;
   const closestX = Math.max(rectangle.x, Math.min(marble.position.x, rectangle.x + rectangle.width));
   const closestY = Math.max(rectangle.y, Math.min(marble.position.y, rectangle.y + rectangle.height));
   const dx = marble.position.x - closestX;
@@ -233,6 +243,7 @@ function resolveRectangle(marble: MarbleCompetitor, rectangle: Rectangle, radius
 }
 
 function resolveBumper(marble: MarbleCompetitor, bumper: ArenaBumper, marbleRadius: number): PhysicsContact | null {
+  if (marble.elevation >= BUMPER_COLLIDER_TOP) return null;
   const dx = marble.position.x - bumper.x;
   const dy = marble.position.y - bumper.y;
   const minimum = marbleRadius + bumper.radius;
