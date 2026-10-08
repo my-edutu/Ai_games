@@ -94,6 +94,13 @@ const path = require('node:path');
     // Inspect both original high-detail civic landmarks at fixed, repeatable cameras.
     // These are real browser captures, not authored screenshot mockups.
     evidence.landmarks=await page.evaluate(()=>window.__tinyKingdom.getScenicSites());
+    evidence.cinematicScreenshotsUnobstructed=await page.evaluate(()=>{
+      window.__tinyKingdom.setHudMode('cinema');
+      return getComputedStyle(document.querySelector('.sidebar')).display==='none' &&
+        getComputedStyle(document.querySelector('.atlas')).display==='none' &&
+        window.__tinyKingdom.getHudMode()==='cinema';
+    });
+    if(!evidence.cinematicScreenshotsUnobstructed)throw Error('Cinematic screenshot still obscured by HUD');
     for(const shot of [
       {name:'sanctuary-landmark.png',camera:{focus:[29,10],yaw:.75,pitch:.48,zoom:27}},
       {name:'stone-bridge.png',camera:{focus:[-6,18.1],yaw:.84,pitch:.64,zoom:26}},
@@ -102,6 +109,7 @@ const path = require('node:path');
       await page.waitForTimeout(400);
       await page.screenshot({path:path.join(out,shot.name),fullPage:true,timeout:90000});
     }
+    await page.evaluate(()=>window.__tinyKingdom.setHudMode('full'));
     await page.setViewportSize({width:390,height:844});
     await page.waitForTimeout(300);
     evidence.mobileViewport=await page.evaluate(()=>({
