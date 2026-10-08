@@ -90,3 +90,39 @@ test('portrait interface and clean feed keep accessibility and real captions',as
   await expect(page.locator('#captions')).toBeVisible();
   await expect(page.locator('body')).toHaveAttribute('data-reduced-motion','true');
 });
+
+
+test('biome-reactive high-chroma HUD and decorated 3D art are genuinely wired',async({page,request})=>{
+  for(const asset of ['world-craft.js','experience-v4.css']){
+    const response=await request.get(base+'/maze/'+asset);
+    expect(response.ok(),asset).toBe(true);
+  }
+  await page.setViewportSize({width:1920,height:1080});
+  const pageErrors=[];
+  page.on('pageerror',error=>pageErrors.push(error.message));
+  await page.goto(base+'/maze',{waitUntil:'domcontentloaded'});
+  await page.waitForFunction(()=>window.__MAZE_PUBLIC_STATE__?.tick>=8);
+  const state=await page.evaluate(()=>{
+    const snapshot=window.__MAZE_PUBLIC_STATE__;
+    const hud=document.querySelector('#broadcast');
+    const style=getComputedStyle(hud);
+    return{
+      profile:snapshot.profile,biome:hud.dataset.mazeBiome,
+      themeColor:style.getPropertyValue('--ui-cyan').trim(),
+      fps:window.__MAZE_3D_METRICS__?.fps??0,
+      details:window.__MAZE_3D_METRICS__?.artDetails,
+      is3D:Boolean(window.__MAZE_3D_READY__),
+      hasHero:document.querySelector('#maze-3d canvas')!==null
+    };
+  });
+  expect(state.biome).toBe(state.profile);
+  expect(state.themeColor).toMatch(/^#(?:[0-9a-f]{6})$/i);
+  if(state.is3D){
+    expect(state.hasHero).toBe(true);
+    expect(state.details).toBeTruthy();
+    expect(state.details.biome).toBe(state.profile);
+    expect(state.details.clusters).toBeGreaterThanOrEqual(0);
+  }
+  await page.screenshot({path:path.join(artifacts,'gauntlet-world-art-v7.png'),fullPage:true});
+  expect(pageErrors).toEqual([]);
+});
