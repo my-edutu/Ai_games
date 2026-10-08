@@ -1624,6 +1624,12 @@
       const aspect=area.width/area.height;
       const scale=Math.min(1.87/((w*.61+h*.79)*.52+5),1.87*aspect/(w*.79+h*.61+4));
       gl.useProgram(program);
+      // WebGL2 forbids two active sampler types referencing texture unit 0.
+      // Bind separate units EVEN when soft shadows are disabled/fallback.
+      if(typeof gl.uniform1i==='function'){
+        gl.uniform1i(uniform[8],0);
+        gl.uniform1i(uniform[20],1);
+      }
       gl.uniform1f(uniform[5],a.theme==='neon'?1:a.theme==='arctic'?2:0);
       gl.uniform1f(uniform[6],status.materialAtlas==='ready'?1:0);
       if(surfaceAtlasTexture){
