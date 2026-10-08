@@ -281,7 +281,10 @@ function rebuild(snapshot) {
       {id:col>0?cell.cell-1:-1,dx:-GRID/2,dz:0,kind:'EW'}
     ];
     for(const side of directions) {
-      if(cell.neighbors.includes(side.id)) continue;
+      if(cell.neighbors.includes(side.id)) {
+        if(cell.visible && side.id>cell.cell && known.has(side.id) && cell.cell%7===0) addArch(world,p,{...side,from:cell.cell});
+        continue;
+      }
       if(side.id>=0 && known.has(side.id) && side.id<cell.cell) continue;
       masonryWall(world,p.x+side.dx,p.z+side.dz,side.kind,cell.cell);
     }
