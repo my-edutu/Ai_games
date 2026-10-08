@@ -62,7 +62,11 @@ try{
   report.checks.weatherEvidence=true;
   await page.goto('http://127.0.0.1:4177/web/3d.html?scenario=small-encounter&view=hero&freeze=1',{waitUntil:'load'});
   await page.waitForFunction(()=>document.querySelector('#fps')?.textContent?.includes('FPS'),{timeout:12000});
+  await page.waitForTimeout(700);
   await page.screenshot({path:root+'hero-closeup.png'});
+  await page.keyboard.press('m');
+  await page.screenshot({path:root+'hero-clear-view.png'});
+  await page.keyboard.press('m');
   const aiIntent=await page.locator('#decision').textContent();
   await page.keyboard.press('n');
   await page.keyboard.press('g');

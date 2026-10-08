@@ -134,10 +134,12 @@ function deadTree(m,x,z,height=3.3){
     m.bone([x,height*.63,z],[x+Math.cos(theta)*(1+i*.18),height*(.95+.04*(i%2)),z+Math.sin(theta)*.8],.06,'#615f53');
   }
 }
-export function decorateWorld(m,state){
+export function decorateWorld(m,state,{headquartersCutaway=false}={}){
   const phase=state.time.phase,night=phase==='night',b=state.safeHouse;
   const bx=b.x,bz=b.y;
-  // Iconic quarantine headquarters: this illuminated extraction beacon is visible from every camera mode.
+  // In hero view remove the tall opaque command gantry; rescue HQ remains as a low-level tactical courtyard.
+  if(!headquartersCutaway){
+  // Iconic quarantine headquarters: this illuminated extraction beacon is visible from every wide camera mode.
   m.contactShadow(bx+.7,bz-.4,8.3,6.7,'#405449');
   for(const angle of [0,Math.PI*.5,Math.PI,Math.PI*1.5]){
     const x=bx+Math.cos(angle)*6.7,z=bz+Math.sin(angle)*5.9;
@@ -154,6 +156,7 @@ export function decorateWorld(m,state){
   word(m,'SAFE',bx,8.72,bz+.30,'#fff0aa',1.2);
   m.cylinder(bx,10.55,bz,.20,2.9,'#cce9e2',9);
   m.ball(bx,12.20,bz,.52,night?'#ffb26b':'#ffe2a2');
+  }
   // Distinct staging zones (not colliders) with supply containers and hazard markings.
   for(const [i,[x,z]] of [[-10,-8],[11,-8],[-12,9],[13,10]].entries()){
     post(m,x,z,i%2?'#51d7e7':'#ffad63');

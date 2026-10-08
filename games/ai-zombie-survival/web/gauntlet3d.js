@@ -248,6 +248,19 @@ function constructStatic(){
   for(const b of game.buildings){
     const height=b.kind==='safehouse'?4.9:2.7+b.floors*1.25;
     const base=buildingColor(b),damaged=1-b.damage*.30;
+    if(cameraMode==='hero'&&b.kind==='safehouse'){
+      // Cinematic cutaway while survivors spawn INSIDE the HQ footprint.
+      // The normal solid roof hides every hero closeup; replace it with a readable interior courtyard.
+      m.box(b.x,.11,b.y,b.w,.18,b.h,'#748f8c');
+      const wall='#466573',light='#b5d0c3';
+      m.box(b.x-b.w*.5,.7,b.y,.18,1.35,b.h,wall);
+      m.box(b.x+b.w*.5,.7,b.y,.18,1.35,b.h,wall);
+      m.box(b.x,.70,b.y-b.h*.5,b.w,1.35,.20,wall);
+      m.box(b.x,.14,b.y+b.h*.47,b.w*.84,.05,.33,light);
+      for(const x of [-2,2])m.box(b.x+x,.29,b.y+1.6,1.3,.42,1.0,'#355b64');
+      m.box(b.x,.50,b.y-2.6,3.4,.78,1.05,'#d4ae75');
+      continue;
+    }
     if(!b.roofVisible&&b.kind!=='safehouse'){
       // A real cutaway, not a hidden roof over a solid opaque building.
       m.box(b.x,.18,b.y,b.w,.36,b.h,tint(base,.72));
@@ -309,7 +322,7 @@ function constructStatic(){
   }
   // Distinct hospital, residential, industrial and market facades plus the command headquarters.
   for(const building of game.buildings)decorateBuilding(m,building,game);
-  decorateWorld(m,game);
+  decorateWorld(m,game,{headquartersCutaway:cameraMode==='hero'});
   decorateSetpieces(m);
   // Ruined green belt: trees, weeds, and autumn crowns provide organic contrast to boxy buildings.
   for(let i=0;i<48;i++){
@@ -476,7 +489,7 @@ function drawObjects(m,t){
   drawAtmosphere(m,t);
 }
 function rebuildStatic(force=false){
-  const stamp=game.time.phase+'|'+game.weather.kind+'|'+Math.round(game.weather.intensity*3)+'|'+game.safeHouse.level+'|'+game.buildings.map(b=>b.roofVisible?'1':'0').join('')+'|'+game.buildings.map(b=>Math.floor(b.damage*3)).join('');
+  const stamp=cameraMode==='hero'?'hero|'+game.time.phase+'|': 'world|'+game.time.phase+'|'+game.weather.kind+'|'+Math.round(game.weather.intensity*3)+'|'+game.safeHouse.level+'|'+game.buildings.map(b=>b.roofVisible?'1':'0').join('')+'|'+game.buildings.map(b=>Math.floor(b.damage*3)).join('');
   if(force||stamp!==lastGeometryStamp){upload(staticMesh,constructStatic());lastGeometryStamp=stamp;buffersRebuilt++;}
 }
 function selectFocus(dt){
