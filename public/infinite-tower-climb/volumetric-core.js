@@ -3,6 +3,8 @@
 export function createVolumetricCore(seedInput=0x00a3f914){
   const config=Object.freeze({gravity:24,jump:14.2,speed:9.4,acceleration:45,halfHeight:1.5,maxFall:-27,worldX:18,worldZ:16});
   let seed=seedInput>>>0,tick=0,time=0,highestGenerated=-1,highestReached=0,mode='INIT',guardianKills=0,score=0,intent='ASSESSING ROUTE';
+  const build={stride:0,grip:0,ward:0,salvage:0};
+  let shields=0,upgradesTaken=0;
   const random=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296};
   const clamp=(value,low,high)=>Math.min(high,Math.max(low,value));
   const player={x:0,y:2.05,z:0,vx:0,vy:0,vz:0,grounded:true,at:0,checkpoint:0,deaths:0,health:5};
@@ -27,6 +29,17 @@ export function createVolumetricCore(seedInput=0x00a3f914){
   for(let i=0;i<17;i++)addLanding(i);
   const landingHeight=p=>p.y+p.height/2+.08;
   const currentTheme=()=>['foundry','ruins','clockwork','storm','void'][Math.floor(player.at/12)%5];
+  const speedLimit=()=>config.speed+Math.min(4,build.stride)*.55;
+  const jumpImpulse=()=>config.jump+Math.min(4,build.grip)*.32;
+  function chooseUpgrade(floor){
+    if(player.health<=2&&build.ward<4){build.ward++;shields+=2;return 'Aegis Ward';}
+    const order=['stride','grip','salvage','ward'];
+    const key=order[Math.floor(floor/8-1)%order.length];
+    if(build[key]>=4){build.salvage++;return 'Fortune Recovery';}
+    build[key]++;
+    if(key==='ward')shields+=2;
+    return {stride:'Swift Ascender',grip:'Skyward Grip',salvage:'Salvage Instinct',ward:'Aegis Ward'}[key];
+  }
   function respawn(){
     const target=platforms.find(p=>p.i===player.checkpoint)||platforms[0];
     Object.assign(player,{x:target.x,z:target.z,y:landingHeight(target)+config.halfHeight+.02,
@@ -58,23 +71,24 @@ export function createVolumetricCore(seedInput=0x00a3f914){
     const futureZ=target?.kind==='moving'?clamp(target.baseZ+Math.cos((tick+landingLeadTicks)*.013+target.i*.24)*1.15,-11.5,11.5):target?.z;
     let dx=target?futureX-player.x:0,dz=target?futureZ-player.z:0;
     if(input){dx=Number(Boolean(input.right))-Number(Boolean(input.left));dz=Number(Boolean(input.back))-Number(Boolean(input.forward));}
-    const dist=Math.hypot(dx,dz),speed=dist>.15?config.speed:0;
+    const dist=Math.hypot(dx,dz),speed=dist>.15?speedLimit():0;
     intent=guardian?'NEUTRALIZE GUARDIAN':target?.kind==='moving'?'PREDICT MOVING LANDING':target?'SECURE NEXT PLATFORM':'SEARCHING FOR ROUTE';
     const desiredX=dist>.15?dx/dist*speed:0,desiredZ=dist>.15?dz/dist*speed:0;
     player.vx+=clamp(desiredX-player.vx,-config.acceleration*dt,config.acceleration*dt);
     player.vz+=clamp(desiredZ-player.vz,-config.acceleration*dt,config.acceleration*dt);
     if(guardian){
       mode='GUARDIAN ENGAGED';
-      if(dist<4&&tick%18===0){guardian.guardianHealth--;mode='STRIKING GUARDIAN';score+=50;}
-      if(guardian.guardianHealth>0&&tick%54===0){player.health--;mode='GUARDIAN RETALIATION';}
+      if(dist<4&&tick%18===0){guardian.guardianHealth--;mode='STRIKING GUARDIAN';score+=50+build.salvage*10;}
+      if(guardian.guardianHealth>0&&tick%54===0){if(shields>0)shields--;else player.health--;mode='GUARDIAN RETALIATION';}
       if(guardian.guardianHealth===0){guardianKills++;score+=500;mode='GUARDIAN DEFEATED';
         emit('guardian-defeated','Guardian '+player.at+' defeated. The ascent continues.',{score});}
       if(player.health<=0)respawn();
     }
     if(player.grounded&&!guardian&&((!input&&target)||(input&&input.jump))){
       const nextDelta=target?landingHeight(target)-(landingHeight(platforms.find(p=>p.i===player.at)||platforms[0])):0;
-      const reach=config.speed*(config.jump+Math.sqrt(Math.max(0,config.jump*config.jump-2*config.gravity*Math.max(0,nextDelta))))/config.gravity;
-      if(input||dist<=reach*.9){player.vy=config.jump;player.grounded=false;mode='JUMPING';intent='EXECUTE VERTICAL LEAP';}
+      const leap=jumpImpulse();
+      const reach=speedLimit()*(leap+Math.sqrt(Math.max(0,leap*leap-2*config.gravity*Math.max(0,nextDelta))))/config.gravity;
+      if(input||dist<=reach*.9){player.vy=leap;player.grounded=false;mode='JUMPING';intent='EXECUTE VERTICAL LEAP';}
       else{intent='POSITION FOR SAFE JUMP';}
     }
     const oldFoot=player.y-config.halfHeight;
@@ -91,12 +105,13 @@ export function createVolumetricCore(seedInput=0x00a3f914){
           if(p.i>player.at){
             const before=player.checkpoint,oldTheme=currentTheme();
             player.at=p.i;player.checkpoint=Math.floor(p.i/5)*5;
-            highestReached=Math.max(highestReached,p.i);score+=25;mode='LANDED';
+            highestReached=Math.max(highestReached,p.i);score+=25+build.salvage*5;mode='LANDED';
+            if(p.i>0&&p.i%8===0){upgradesTaken++;const chosen=chooseUpgrade(p.i);emit('upgrade','The AI selected '+chosen+' at floor '+p.i+'.',{chosen,build:{...build}});}
             if(p.i%5===0)emit('checkpoint','Checkpoint secured on floor '+p.i+'.',{checkpoint:player.checkpoint});
             if(p.kind==='moving')emit('moving-platform','The AI intercepted a moving platform at floor '+p.i+'.');
             if(currentTheme()!==oldTheme)emit('biome','Entering the '+currentTheme()+' sector.',{theme:currentTheme()});
           }
-          if(p.pickup&&!p.collected){p.collected=true;player.health=Math.min(5,player.health+1);score+=100;
+          if(p.pickup&&!p.collected){p.collected=true;player.health=Math.min(5,player.health+1);score+=100+build.salvage*20;
             emit('recovery-item','Recovered equipment on floor '+p.i+'.',{health:player.health});}
           break;
         }
@@ -110,7 +125,7 @@ export function createVolumetricCore(seedInput=0x00a3f914){
   }
   function snapshot(){
     return {tick,time,mode,intent,theme:currentTheme(),highestReached,highestGenerated,guardianKills,score,
-      events:events.slice(-12),
+      events:events.slice(-12),build:{...build},shields,upgradesTaken,
       player:{...player},platforms:platforms.map(p=>({...p})),dimensionality:3};
   }
   return {step,snapshot,platforms,player,landingHeight,config};
