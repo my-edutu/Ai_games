@@ -8,6 +8,23 @@ const ambient=new THREE.HemisphereLight('#7191bf','#111526',1.9);scene.add(ambie
 const moon=new THREE.DirectionalLight('#a6c6ff',2.0);moon.position.set(-7,17,5);moon.castShadow=!reduced;moon.shadow.mapSize.set(1024,1024);moon.shadow.camera.left=-17;moon.shadow.camera.right=17;moon.shadow.camera.top=17;moon.shadow.camera.bottom=-17;scene.add(moon);
 const ground=new THREE.Mesh(new THREE.PlaneGeometry(150,150),new THREE.MeshStandardMaterial({color:'#080e17',roughness:1}));ground.rotation.x=-Math.PI/2;ground.position.y=-.17;scene.add(ground);
 const actors=new Map(),world=new THREE.Group();scene.add(world);
+const particles=[],MAX_PARTICLES=72;const seenEventIds=new Set();
+const particleGeo=new THREE.OctahedronGeometry(.07,0);
+function disposeParticle(p){scene.remove(p.mesh);p.mesh.material.dispose()}
+function cue(event,s){
+ if(reduced)return;
+ const colors={kill:'#ffe3a0',combat:'#e99159',danger:'#ef5864',healing:'#58ebba',loot:'#66d7e5',floor:'#d7bbff'};
+ const color=colors[event.kind];if(!color)return;
+ const target=event.kind==='danger'?s.units.find(u=>u.faction==='party'&&u.hp>0):event.kind==='kill'?s.units.find(u=>u.kind==='warden'&&u.hp>0):s.units.find(u=>u.id==='mystic')||s.units[0];
+ const x=(target?.x??s.exit.x)-9,z=(target?.z??s.exit.z)-9;
+ const count=event.kind==='floor'?15:8;
+ for(let i=0;i<count;i++){if(particles.length>=MAX_PARTICLES)disposeParticle(particles.shift());
+  const angle=i*2.399963+event.tick*.25,velocity=.4+(i%4)*.15;
+  const material=new THREE.MeshBasicMaterial({color,transparent:true,opacity:.8,depthWrite:false});
+  const mesh=new THREE.Mesh(particleGeo,material);mesh.position.set(x,1.2+(i%3)*.09,z);mesh.scale.setScalar(.55+(i%3)*.27);scene.add(mesh);
+  particles.push({mesh,life:0,duration:.45+(i%3)*.18,vx:Math.cos(angle)*velocity,vy:.5+(i%5)*.16,vz:Math.sin(angle)*velocity});
+ }
+}
 let state=null,worldFloor='',received=false,lastTick=-1,errorAt=0;
 const palette={vanguard:['#4a87a8','#bed8df','#eab967'],ranger:['#527c58','#bdd19f','#d2b178'],mystic:['#65508f','#c2abf0','#76d8e0'],revenant:['#54656e','#b3c4bd','#dfb76f'],cultist:['#743e4c','#b18a89','#f0636b'],warden:['#483552','#c79a62','#ec7f42']};
 const mat=(color,metalness=.1,roughness=.75)=>new THREE.MeshStandardMaterial({color,metalness,roughness});
@@ -60,6 +77,7 @@ function rig(u){const colors=palette[u.kind],main=mat(colors[0],.5,.4),light=mat
  scene.add(root);return {root,body,leftLeg,rightLeg,leftArm,rightArm,u,at:new THREE.Vector3(u.x-9,0,u.z-9)};
 }
 function update(s){state=s;received=true;errorAt=0;$('recovery').hidden=true;
+ for(const e of s.events){const id=s.run+':'+e.tick+':'+e.kind+':'+e.text;if(!seenEventIds.has(id)){seenEventIds.add(id);if(seenEventIds.size>150)seenEventIds.delete(seenEventIds.values().next().value);cue(e,s)}}
  if(worldFloor!==s.run+'-'+s.floor)buildWorld(s);
  const seen=new Set(s.units.map(u=>u.id));
  for(const [id,a] of actors)if(!seen.has(id)){scene.remove(a.root);a.root.traverse(o=>{if(o.geometry&&!Object.values(geo).includes(o.geometry))o.geometry.dispose();if(o.material){const list=Array.isArray(o.material)?o.material:[o.material];for(const m of list)if(![stone,stoneEdge,floorMat,gold,black,tealGlow,dangerGlow].includes(m))m.dispose()}});actors.delete(id)}
@@ -71,7 +89,11 @@ function update(s){state=s;received=true;errorAt=0;$('recovery').hidden=true;
  const entries=$('events');entries.replaceChildren(...[...s.events].reverse().slice(0,6).map(e=>{const li=document.createElement('li'),meta=document.createElement('small');meta.textContent='TICK '+String(e.tick).padStart(5,'0')+' / '+e.kind.toUpperCase();li.append(meta,document.createTextNode(e.text));return li}));
  window.__DUNGEON_PUBLIC_STATE__=s;
 }
-function animate(t){requestAnimationFrame(animate);const time=t/1000;
+let lastFrameTime=0;
+function animate(t){requestAnimationFrame(animate);const time=t/1000,dt=Math.min(.05,Math.max(0,time-lastFrameTime));lastFrameTime=time;
+ for(let i=particles.length-1;i>=0;i--){const p=particles[i];p.life+=dt;if(p.life>=p.duration){disposeParticle(p);particles.splice(i,1);continue}
+  p.mesh.position.x+=p.vx*dt;p.mesh.position.y+=p.vy*dt;p.mesh.position.z+=p.vz*dt;p.mesh.material.opacity=.75*(1-p.life/p.duration);p.mesh.scale.multiplyScalar(1-.35*dt)}
+
  const w=canvas.clientWidth,h=canvas.clientHeight;if(w&&h&&(canvas.width!==Math.round(w*renderer.getPixelRatio())||canvas.height!==Math.round(h*renderer.getPixelRatio()))){renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix()}
  const leader=actors.get('vanguard')||[...actors.values()].find(a=>a.u.faction==='party'&&a.u.hp>0),target=leader?.at??new THREE.Vector3(0,0,0);
  for(const a of actors.values()){const moving=a.root.position.distanceTo(a.at)>.07;a.root.position.lerp(a.at,reduced?1:.17);const bounce=reduced?0:Math.sin(time*5+a.at.x)*.028;a.body.position.y=bounce;a.leftLeg.rotation.x=moving?Math.sin(time*10)*.35:0;a.rightLeg.rotation.x=-a.leftLeg.rotation.x;a.leftArm.rotation.x=moving?Math.sin(time*10)*.22:0;a.rightArm.rotation.x=-a.leftArm.rotation.x;if(moving){const delta=a.at.clone().sub(a.root.position);a.root.rotation.y=Math.atan2(-delta.x,-delta.z)}}

@@ -116,6 +116,13 @@ export class DungeonRuntime {
   for(const enemy of s.units.filter(u=>u.faction==='enemy'&&u.hp>0)){
    const nearest=party.filter(u=>u.hp>0).sort((a,b)=>dist(a,enemy)-dist(b,enemy)||a.id.localeCompare(b.id))[0];if(!nearest)break;
    const distance=dist(enemy,nearest);
+   // Readable periodic boss shockwave creates real danger without hidden outcome forcing.
+   if(enemy.kind==='warden'&&distance<=3&&s.tick%3===0){const affected=party.filter(u=>u.hp>0&&dist(enemy,u)<=3);
+    const shock=6+Math.min(14,s.floor);
+    for(const hero of affected)hero.hp=Math.max(0,hero.hp-shock);
+    if(affected.length)push(s,'danger','The Warden unleashed an arcane shockwave · '+shock+' damage');
+   }
+   if(enemy.kind==='cultist'&&distance>1&&distance<=3&&s.tick%4===0){nearest.hp=Math.max(0,nearest.hp-5-Math.min(8,Math.floor(s.floor/2)));push(s,'danger','Cultist hurled a shadow bolt')}
    if(distance<=1){if(enemy.cooldown===0){nearest.hp=Math.max(0,nearest.hp-enemy.attack);enemy.cooldown=2;push(s,'danger',enemy.kind+' hit '+nearest.kind+' for '+enemy.attack)}}
    else if(distance<=5&&s.tick%2===0){const route=shortestPath(s.map,enemy,nearest);if(route.length>1){enemy.x=route[0].x;enemy.z=route[0].z}}
    if(enemy.cooldown>0)enemy.cooldown--;

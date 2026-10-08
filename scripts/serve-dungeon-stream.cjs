@@ -25,6 +25,9 @@ function serve(port=Number(process.env.PORT||4181)){
   if(url.pathname==='/dungeon/health')return json(res,host.status(),host.fault?503:200);
   if(url.pathname==='/dungeon/gauntlet/state'){const s=host.game.publicState(),status=host.status();return json(res,{status,game:{floor:s.floor,run:s.run,tick:s.tick,kills:s.kills,gold:s.gold,phase:s.phase,checksum:s.checksum},evidence:'/dungeon/gauntlet-latest.json'})}
   if(url.pathname==='/dungeon/gauntlet-latest.json')return file(res,path.join(PUBLIC,'gauntlet-latest.json'),'application/json; charset=utf-8');
+  if(url.pathname==='/dungeon/gauntlet-history.json')return file(res,path.join(PUBLIC,'gauntlet-history.json'),'application/json; charset=utf-8');
+  if(url.pathname==='/dungeon/evidence/desktop.png')return file(res,path.join(ROOT,'artifacts/dungeon-desktop.png'),'image/png');
+  if(url.pathname==='/dungeon/evidence/mobile.png')return file(res,path.join(ROOT,'artifacts/dungeon-mobile.png'),'image/png');
   if(url.pathname==='/dungeon/vendor/three.module.js')return file(res,path.join(ROOT,'node_modules/three/build/three.module.js'),'text/javascript; charset=utf-8');
   if(url.pathname==='/favicon.ico'){res.writeHead(204);res.end();return}
   const name=paths.get(url.pathname);if(!name){res.writeHead(404);res.end('Not found');return}

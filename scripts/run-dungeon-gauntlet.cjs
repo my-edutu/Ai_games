@@ -21,4 +21,10 @@ for(let i=0;i<seeds;i++){
 const successful=runs.length,metrics={sample_seeds:seeds,ticks_per_seed:ticks,verified_seed_runs:successful,determinism_failures:failures.length,highest_floor_seen:Math.max(1,...runs.map(r=>r.highestFloor)),total_floor_advances:runs.reduce((a,r)=>a+r.floorsAdvanced,0),total_restarts:runs.reduce((a,r)=>a+r.deaths,0),max_seed_elapsed_ms:Math.max(0,...runs.map(r=>r.elapsedMs))};
 const report={schemaVersion:1,generatedAt:new Date().toISOString(),status:failures.length?'FAILED - INTEGRITY GAP':'PASSED - HEADLESS ONLY',reference:'Path of Exile 2 — visual gate NOT ASSESSED',metrics,failures,runs,visualVerdict:'NOT ASSESSED',productionReady:false};
 fs.mkdirSync(path.dirname(out),{recursive:true});fs.writeFileSync(out,JSON.stringify(report,null,2)+'\n');fs.writeFileSync(publicOut,JSON.stringify(report,null,2)+'\n');
+const historyFile=path.resolve(__dirname,'../public/ai-dungeon/gauntlet-history.json');
+let history={rounds:[]};try{history=JSON.parse(fs.readFileSync(historyFile,'utf8'));if(!Array.isArray(history.rounds))throw Error('Invalid history')}catch{history={rounds:[]}}
+const round=(history.rounds.at(-1)?.round||0)+1;
+history.rounds.push({round,at:report.generatedAt,status:report.status,commit:process.env.GITHUB_SHA||'local',sampleSeeds:seeds,highestFloor:metrics.highest_floor_seen,determinismFailures:failures.length,visualVerdict:'NOT ASSESSED'});
+history.rounds=history.rounds.slice(-20);
+fs.writeFileSync(historyFile,JSON.stringify(history,null,2)+'\n');
 process.stdout.write(JSON.stringify({status:report.status,metrics,failures})+'\n');if(failures.length)process.exitCode=1;
