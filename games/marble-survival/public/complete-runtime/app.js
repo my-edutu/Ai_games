@@ -83,6 +83,7 @@ let renderHeight = 1;
 let renderDpr = 1;
 let focusIds = new Set();
 let selectedSpotlightId = null;
+let currentStageIdentity = null;
 let cameraState = null;
 let cameraArenaId = null;
 const rotationById = new Map();
@@ -586,15 +587,30 @@ function renderHud(next) {
   // Actual authority arena selection owns scene copy and palette selection.
   const biome = BIOME_BROADCAST[next.arena.archetype] || BIOME_BROADCAST['seeding-sprint'];
   shell.dataset.biome = next.arena.archetype;
+  if(currentStageIdentity!==next.arena.id){
+    currentStageIdentity=next.arena.id;
+    shell.classList.remove('stage-entering');
+    // Restart the identity wipe exactly once for each official stage change.
+    void shell.offsetWidth;
+    shell.classList.add('stage-entering');
+    const stageId=currentStageIdentity;
+    setTimeout(()=>{
+      if(currentStageIdentity===stageId)shell.classList.remove('stage-entering');
+    },1350);
+  }
   if (arenaBiomeTitle) arenaBiomeTitle.textContent = biome.title;
   if (arenaBiomeSubtitle) arenaBiomeSubtitle.textContent = biome.subtitle;
   if (arenaStageNumber) arenaStageNumber.textContent = String(next.round.number).padStart(2, '0');
   if (arenaThreat) {
     const threatened = next.marbles.filter(marble => marble.status === 'threatened' || marble.status === 'recovering').length;
+    const windStrength = Math.round(Math.max(0,...(next.arena.windZones||[]).map(zone =>
+      Math.hypot(zone.forceX||0,zone.forceY||0))));
+    shell.dataset.windStrength=String(windStrength);
     arenaThreat.textContent = next.lifecycle === 'tournament-result'
       ? 'THE CHAMPION IS CROWNED'
       : threatened > 0 ? `DANGER / ${threatened} COMPETITOR${threatened === 1 ? '' : 'S'} AT RISK`
       : next.round.remaining <= 4 ? 'FINAL FOUR / HIGH PRESSURE'
+      : windStrength>0 ? `WIND CURRENT / FORCE ${windStrength}`
       : 'RACE CONTROL / LIVE';
   }
   tickValue.textContent = String(next.tick);
