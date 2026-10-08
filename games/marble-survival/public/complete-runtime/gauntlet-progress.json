@@ -1,9 +1,9 @@
 {
   "schema": 1,
-  "iteration": "Loop 6 · blind A/B critic tooling",
+  "iteration": "Loop 8 · authoritative spring-launch survival",
   "lastUpdated": "2026-10-08",
-  "criticTarget": "Critic must compare real game screenshots against legitimately obtained commercial reference frames and submit recorded blind verdicts; A/B workstation is not a substitute for independent judgment.",
-  "comparisonStatus": "NOT YET VERIFIED · Manual A/B tooling implemented; no independent reference comparison has been completed.",
+  "criticTarget": "Run the targeted Marble test suite and inspect actual jump-bumper gameplay: marble must visibly rise, retain identity-label alignment, and collide in 3D without ghost hits. Then review blind A/B against the commercial references.",
+  "comparisonStatus": "NOT YET VERIFIED · 3D contacts and spring launches committed; GitHub Actions Chromium screenshots and blind A/B outcome remain pending.",
   "goals": [
     {
       "name": "Premium marble character optics",
@@ -59,9 +59,39 @@
       "name": "Real Chromium screenshot evidence",
       "detail": "GitHub Actions invokes Playwright real WebGL tests, labels/tick parity, screenshots and performance artifacts",
       "status": "in-progress"
+    },
+    {
+      "name": "Volumetric marble-on-marble collisions",
+      "detail": "3-axis fixed-point sphere contact distances, impulse transfer and no phantom projection collisions",
+      "status": "implemented"
+    },
+    {
+      "name": "Airborne collision clearance",
+      "detail": "Skip low physical machinery contacts when marbles pass above actual rendered obstacle height",
+      "status": "implemented"
+    },
+    {
+      "name": "Real springboard gameplay",
+      "detail": "Generated later-round electric jump bumpers launch grounded marbles with deterministic vertical speed",
+      "status": "implemented"
+    },
+    {
+      "name": "Launch spectacle from real gameplay",
+      "detail": "Sanitized marble-launched events drive broadcast ticker, shader-model markers, electric particles and spatial audio",
+      "status": "implemented"
     }
   ],
   "history": [
+    {
+      "title": "Loop 7 — Real 3D collisions",
+      "note": "Upgraded marble-to-marble contact when heights differ from 2D projected distance to fixed-point volumetric sphere overlap and vertical impulse. Flying marbles no longer collide with low machinery below them. Added deterministic multi-tick physics tests.",
+      "proof": "Committed source; automated runtime verification pending"
+    },
+    {
+      "title": "Loop 8 — Reactive 3D launch spectacle",
+      "note": "Added authoritative electric spring bumpers with bounded vertical launch speed. Physics produces sanitized launch events that now power 3D machinery accents, electric VFX, commentator ticker and spatial audio. Added deterministic/no-phantom-event regression cases.",
+      "proof": "Committed source; automated runtime verification pending"
+    },
     {
       "title": "Loop 6 — Critic's evidence workstation",
       "note": "Created on-device screenshot A/B review with randomized left/right placement, explicit tie votes and portable review exports. Added browser test using a real capture against itself to verify tie behavior; no visual victory claimed.",
