@@ -232,6 +232,17 @@ function part(m,x,z,yaw,dx,dy,dz,w,h,d,color){const c=Math.cos(yaw),s=Math.sin(y
 function human(m,entity,infected,time){
   const body=infected?(entity.archetype==='brute'?1.34:entity.archetype==='runner'?.85:1):1;
   const x=entity.x,z=entity.y,yaw=entity.facing||0;
+  // Simplified distant infected retain recognizable heads and threats without rebuilding 70+ triangles per limb.
+  const distance=Math.hypot(x-cameraFocusX,z-cameraFocusZ);
+  if(infected&&distance>22){
+    if(entity.health<=0)return;
+    const c=entity.archetype==='brute'?'#747b5f':entity.archetype==='runner'?'#769279':'#87917c';
+    m.box(x,1.14*body,z,.57*body,1.55*body,.43*body,c,yaw);
+    m.ball(x,2.15*body,z,.24*body,'#9ba688');
+    m.box(x-.19*body,.31*body,z,.15*body,.58*body,.15*body,'#465b4a',yaw);
+    m.box(x+.19*body,.31*body,z,.15*body,.58*body,.15*body,'#435749',yaw);
+    return;
+  }
   const alive=infected?entity.health>0:entity.alive;
   if(!alive){m.box(x,.19,z,1.0,.27,.44,infected?'#3e4840':'#52564c',yaw);return;}
   const moving=infected?entity.action==='pursue'||entity.action==='wander':entity.action==='move'||entity.action==='retreat'||entity.action==='rescue';
@@ -243,9 +254,27 @@ function human(m,entity,infected,time){
   const trouser=infected?'#3a4a42':'#303d40';
   m.box(x,.03,z,.72*body,.045,.45*body,'#26362e',yaw);
   part(m,x,z,yaw,0,1.48*body,0,.58*body,.85*body,.38*body,shirt);
+  // Distinct silhouette: tactical plates and fabric seams for living humans, ragged chest for infected.
+  if(!infected){
+    part(m,x,z,yaw,0,1.56*body,.22*body,.39*body,.61*body,.08*body,'#404a43');
+    part(m,x,z,yaw,-.23*body,1.78*body,.03*body,.13*body,.12*body,.48*body,'#d2c19b');
+    part(m,x,z,yaw,.23*body,1.78*body,.03*body,.13*body,.12*body,.48*body,'#d2c19b');
+    part(m,x,z,yaw,0,1.26*body,.22*body,.58*body,.10*body,.12*body,'#bba16a');
+  }else{
+    part(m,x,z,yaw,-.16*body,1.47*body,.21*body,.16*body,.36*body,.08*body,'#6d493e');
+    part(m,x,z,yaw,.17*body,1.72*body,.19*body,.14*body,.14*body,.07*body,'#9b735c');
+  }
   part(m,x,z,yaw,0,1.03*body,0,.50*body,.25*body,.35*body,trouser);
   const head=l(0,2.20,0);m.ball(...head,.25*body,skin);
   part(m,x,z,yaw,0,2.42*body,-.02*body,.38*body,.13*body,.38*body,infected?'#455247':'#292f2c');
+  if(!infected){
+    part(m,x,z,yaw,0,2.55*body,-.03*body,.46*body,.16*body,.50*body,entity.role==='medic'?'#e4dfc2':'#56665b');
+    part(m,x,z,yaw,0,2.22*body,.235*body,.30*body,.13*body,.04*body,'#2c3e3d');
+    part(m,x,z,yaw,.0,2.45*body,.24*body,.10*body,.10*body,.04*body,'#d7b775');
+  }else{
+    part(m,x,z,yaw,0,2.23*body,.215*body,.34*body,.08*body,.07*body,'#4c5143');
+    if(entity.archetype==='runner')part(m,x,z,yaw,0,2.54*body,-.09*body,.39*body,.15*body,.38*body,'#403a35');
+  }
   for(const sign of [-1,1]){
     const swing=sign*stride*.27*body;
     m.bone(l(sign*.19,1.06,0),l(sign*.21,.56,swing),.108*body,trouser);
@@ -257,10 +286,20 @@ function human(m,entity,infected,time){
   }
   if(infected){
     part(m,x,z,yaw,0,1.55*body,.20*body,.18*body,.39*body,.05*body,'#584f44');
-    if(entity.archetype==='brute')part(m,x,z,yaw,0,1.87*body,0,.85*body,.33*body,.54*body,'#67614e');
+    if(entity.archetype==='brute'){
+      part(m,x,z,yaw,0,1.87*body,0,.85*body,.33*body,.54*body,'#716d51');
+      part(m,x,z,yaw,-.45*body,1.77*body,.06*body,.33*body,.32*body,.48*body,'#555e4f');
+      part(m,x,z,yaw,.45*body,1.77*body,.06*body,.33*body,.32*body,.48*body,'#555e4f');
+    }
+    if(entity.archetype==='runner')part(m,x,z,yaw,0,1.10*body,.22*body,.48*body,.14*body,.12*body,'#b99067');
   }else{
     part(m,x,z,yaw,0,1.46*body,-.31*body,.45*body,.72*body,.25*body,'#343c3c');
-    if(entity.role==='medic')part(m,x,z,yaw,0,1.53*body,.22*body,.10*body,.34*body,.055*body,'#a94946');
+    if(entity.role==='medic'){
+      part(m,x,z,yaw,0,1.53*body,.29*body,.13*body,.35*body,.06*body,'#d46255');
+      part(m,x,z,yaw,0,1.53*body,.30*body,.31*body,.09*body,.06*body,'#d46255');
+    }
+    if(entity.role==='defender')part(m,x,z,yaw,0,1.68*body,.27*body,.37*body,.31*body,.08*body,'#a79575');
+    if(entity.role==='engineer')part(m,x,z,yaw,-.35*body,1.05*body,.03*body,.14*body,.53*body,.15*body,'#d6b77b');
     if(entity.action==='attack'||entity.action==='aim')part(m,x,z,yaw,.31*body,1.39*body,.57*body,.11*body,.13*body,.78*body,'#262d2d');
     if(entity.carrying>0)part(m,x,z,yaw,-.53*body,1.10*body,.01,.31*body,.44*body,.31*body,'#99835d');
   }
