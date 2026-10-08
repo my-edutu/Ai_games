@@ -230,8 +230,14 @@ const uniforms = Object.fromEntries(['uVP','uEye','uFogColor','uFog','uLight','u
 const drawSky=createSkyPass(gl);
 function buffer(){const vao=gl.createVertexArray(),vbo=gl.createBuffer();gl.bindVertexArray(vao);gl.bindBuffer(gl.ARRAY_BUFFER,vbo);const stride=9*4;for(let i=0;i<3;i++){gl.enableVertexAttribArray(i);gl.vertexAttribPointer(i,3,gl.FLOAT,false,stride,i*12);}gl.bindVertexArray(null);return{vao,vbo,count:0};}
 const staticMesh=buffer(),movingMesh=buffer();
-const cinematicShadows=['shadows','cinematic'].includes(params.get('lighting'))||
+const hardwareInfo=gl.getExtension('WEBGL_debug_renderer_info');
+const rendererLabel=String(hardwareInfo?gl.getParameter(hardwareInfo.UNMASKED_RENDERER_WEBGL):gl.getParameter(gl.RENDERER)||'');
+const isSoftwareGPU=/swiftshader|llvmpipe|software|softpipe|swrast/i.test(rendererLabel);
+const explicitlyShadows=['shadows','cinematic'].includes(params.get('lighting'))||
   params.get('quality')==='cinematic';
+const cinematicShadows=explicitlyShadows||(!isSoftwareGPU&&
+  params.get('lighting')!=='off'&&params.get('quality')!=='low'&&
+  (gl.getParameter(gl.MAX_TEXTURE_SIZE)||0)>=4096);
 const sunShadows=cinematicShadows?createSunShadows(gl,{resolution:640}):null;
 let lastShadowMatrix=null,lastShadowStamp=-1,lastShadowX=Infinity,lastShadowZ=Infinity;
 function upload(bufferObj,values){
@@ -807,7 +813,7 @@ function render(now){
     const tris=Math.round((staticMesh.count+movingMesh.count)/3);
     hud.querySelector('#fps').textContent=Math.round(fpsSmooth)+' FPS · '+cpuP95.toFixed(1)+'ms CPU P95 · '+tris.toLocaleString()+' TRIANGLES';
     verdict.textContent='WEBGL2 TRUE 3D • '+(paused?'PAUSED':'SIMULATION LIVE');
-    try{localStorage.setItem('zombie-gauntlet-live',JSON.stringify({time:Date.now(),day:game.time.day,tick:game.tick,alive:living,zombies:infected,fps:Math.round(fpsSmooth),frameCpuP95Ms:Math.round(cpuP95*10)/10,triangles:tris,renderScale:qualityScale,dynamicRebuilds:dynamicMeshRebuilds,meshBuildP95Ms:Math.round(percentile(meshBuildMs)*10)/10,phase:game.time.phase,seed,renderer:'WebGL2',status:game.status}));}catch{}
+    try{localStorage.setItem('zombie-gauntlet-live',JSON.stringify({time:Date.now(),day:game.time.day,tick:game.tick,alive:living,zombies:infected,fps:Math.round(fpsSmooth),frameCpuP95Ms:Math.round(cpuP95*10)/10,triangles:tris,rendererGpu:isSoftwareGPU?'software':'hardware',dynamicShadows:!!sunShadows?.available,renderScale:qualityScale,dynamicRebuilds:dynamicMeshRebuilds,meshBuildP95Ms:Math.round(percentile(meshBuildMs)*10)/10,phase:game.time.phase,seed,renderer:'WebGL2',status:game.status}));}catch{}
   }
   requestAnimationFrame(render);
 }
