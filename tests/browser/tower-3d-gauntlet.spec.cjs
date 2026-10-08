@@ -26,6 +26,10 @@ test('3D tower really starts WebGL, progresses autonomously and produces screens
   const second=await page.evaluate(()=>({tick:window.__TOWER_PUBLIC_STATE__?.tick,metrics:{...window.__TOWER_3D_METRICS__}}));
   expect(second.tick).toBeGreaterThan(first.tick);
   expect(second.metrics.frames).toBeGreaterThan(first.metrics.frames);
+  await page.waitForFunction(()=>window.__TOWER_3D_METRICS__?.heroScreenHeightPct>0,null,{timeout:12000});
+  const composition=await page.evaluate(()=>({...window.__TOWER_3D_METRICS__}));
+  expect(composition.heroVisible,'3D climber must be visible in the game viewport').toBe(true);
+  expect(composition.heroScreenHeightPct,'The climber must be a readable broadcast-scale subject').toBeGreaterThan(8);
   const canvas=page.locator('#tower-3d-canvas');
   const box=await canvas.boundingBox();expect(box.width).toBeGreaterThan(400);expect(box.height).toBeGreaterThan(300);
   const png=await page.screenshot({path:path.join(artifacts,'gauntlet-3d-desktop.png'),fullPage:true});

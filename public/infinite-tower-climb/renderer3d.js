@@ -62,6 +62,7 @@
   let diagnostics=null;
   if(debug){diagnostics=document.createElement('pre');diagnostics.id='tower-3d-debug';diagnostics.style.cssText='position:absolute;bottom:15px;left:15px;z-index:4;color:#bbf7fa;background:rgba(2,8,14,.82);padding:12px;border:1px solid #357280;border-radius:10px;font:12px monospace;pointer-events:none';original.parentElement.append(diagnostics);}
   let lastFrameAt=performance.now();
+  const heroBounding=new THREE.Box3(),headProjection=new THREE.Vector3(),feetProjection=new THREE.Vector3();
   const size = () => {
     const w = Math.max(1, canvas.clientWidth), h = Math.max(1, canvas.clientHeight);
     if (w === lastRenderWidth && h === lastRenderHeight) return;
@@ -178,6 +179,15 @@
     metrics.gpuTextures=renderer.info.memory.textures;
     metrics.triangles=renderer.info.render.triangles;
     metrics.reusedEntities=liveEntities.size;
+    if(metrics.frames%12===0&&lastState?.player){
+      heroBounding.setFromObject(importedClimber?.root||climber.root);
+      const midX=(heroBounding.min.x+heroBounding.max.x)*.5,midZ=(heroBounding.min.z+heroBounding.max.z)*.5;
+      feetProjection.set(midX,heroBounding.min.y,midZ).project(camera);
+      headProjection.set(midX,heroBounding.max.y,midZ).project(camera);
+      metrics.heroScreenHeightPct=Math.round(Math.abs(feetProjection.y-headProjection.y)*50);
+      metrics.heroScreenX=Math.round((feetProjection.x+headProjection.x)*25);
+      metrics.heroVisible=Math.abs(metrics.heroScreenX)<=100&&Math.abs((feetProjection.y+headProjection.y)*.5)<1;
+    }
     metrics.vfxParticles=vfx.count;
     metrics.scene=scenePhase;metrics.cameraDepth=Math.round(camera.position.z);
     metrics.cameraTargetY=lastState?Math.round(Number(lastState.player?.y||0)/1000-Number(lastState.chunkBaseY||0)/1000):0;

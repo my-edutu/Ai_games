@@ -52,14 +52,21 @@ export function createTowerEnvironment(THREE,scene) {
     const m=new THREE.Mesh(cylinderGeometry(rTop,rBottom,h,segments),mat);
     m.position.set(x,y,z);m.receiveShadow=true;parent.add(m);return m;
   }
+  const archGeometry=new Map();
   function arch(parent,x,y,z,width,height,material=sandstone) {
-    // Square base with semicircular crown. Open center reveals deep background.
+    // Cached vaults can be batched into instanced static meshes.
     block(parent,x-width/2+.35,y+height*.35,z,.7,height*.7,1.25,material);
     block(parent,x+width/2-.35,y+height*.35,z,.7,height*.7,1.25,material);
-    const points=[];for(let i=0;i<=14;i++){const a=Math.PI*i/14;points.push(new THREE.Vector3(x+Math.cos(a)*(width/2-.3),y+height*.7+Math.sin(a)*width*.24,z));}
-    const curve=new THREE.CatmullRomCurve3(points);
-    const crown=new THREE.Mesh(new THREE.TubeGeometry(curve,38,.28,6,false),edgeStone);
-    parent.add(crown);return crown;
+    const key=width+':'+height;
+    let geo=archGeometry.get(key);
+    if(!geo){
+      const points=[];
+      for(let i=0;i<=14;i++){const a=Math.PI*i/14;points.push(new THREE.Vector3(Math.cos(a)*(width/2-.3),height*.7+Math.sin(a)*width*.24,0));}
+      geo=new THREE.TubeGeometry(new THREE.CatmullRomCurve3(points),38,.28,6,false);
+      archGeometry.set(key,geo);
+    }
+    const crown=new THREE.Mesh(geo,edgeStone);
+    crown.position.set(x,y,z);crown.receiveShadow=true;parent.add(crown);return crown;
   }
   // The background is built from depth-separated castle layers, not a textured 2D backdrop.
   block(root,0,0,-28,86,290,2,shadowStone);
@@ -191,6 +198,26 @@ export function createTowerEnvironment(THREE,scene) {
       orb.position.set(x,y+5,-5);biomeDecor.void.add(orb);
     }
   }
+  // Batch static biome parts without touching animated nested mechanisms.
+  function instanceStatic(parent){
+    const batches=new Map();
+    for(const obj of [...parent.children]){
+      if(!obj.isMesh)continue;
+      const key=obj.geometry.uuid+':'+obj.material.uuid;
+      if(!batches.has(key))batches.set(key,[]);
+      batches.get(key).push(obj);
+    }
+    for(const meshes of batches.values()){
+      if(meshes.length<3)continue;
+      const instanced=new THREE.InstancedMesh(meshes[0].geometry,meshes[0].material,meshes.length);
+      instanced.name='Instanced biome architecture';instanced.receiveShadow=true;
+      for(let i=0;i<meshes.length;i++){
+        const obj=meshes[i];obj.updateMatrix();instanced.setMatrixAt(i,obj.matrix);parent.remove(obj);
+      }
+      instanced.instanceMatrix.needsUpdate=true;parent.add(instanced);
+    }
+  }
+  Object.values(biomeDecor).forEach(instanceStatic);
   // Dust motes are real 3D points distributed throughout the shaft.
   const count=560,verts=new Float32Array(count*3);
   let seed=248201;const rand=()=>{seed=(1664525*seed+1013904223)>>>0;return seed/4294967296};
@@ -227,5 +254,5 @@ export function createTowerEnvironment(THREE,scene) {
     }
   }
   setTheme('foundry');
-  return {root,materials,setTheme,animate,biomeDecor,signature:'monumental-vaulted-tower-v3-art-directed-biomes'};
+  return {root,materials,setTheme,animate,biomeDecor,signature:'monumental-vaulted-tower-v4-instanced-arches-and-biomes'};
 }

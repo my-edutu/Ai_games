@@ -49,6 +49,8 @@ test('tower architecture contains instanced stonework and distinct official biom
     const scene=new THREE.Scene();scene.fog=new THREE.FogExp2(0x102030,.01);scene.background=new THREE.Color(0);
     const env=loadFactory('environment3d.js','createTowerEnvironment')(THREE,scene);
     assert.ok(env.root.children.some(child=>child.isInstancedMesh));
+    assert.ok(env.root.children.filter(child=>child.isInstancedMesh).length>=4,'decorative arches must reuse geometry');
+    assert.ok(Object.values(env.biomeDecor).some(group=>group.children.some(c=>c.isInstancedMesh)),'biome details should be instanced');
     const colors=[];
     for(const theme of ['foundry','ruins','clockwork','storm','void']){
       env.setTheme(theme);colors.push(env.materials[0].color.getHex());
