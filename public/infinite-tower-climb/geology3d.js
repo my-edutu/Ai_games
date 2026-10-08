@@ -109,7 +109,7 @@ export function createTowerGeology(THREE,scene){
   }
   function update(playerY=0){
     // The world geometry moves as an origin-shifted stream. Keeps GPU distance stable.
-    const center=Math.floor(Number(playerY||0)/53)*53;
+    const center=Math.round(Number(playerY||0)/53)*53;
     group.position.y=center;
   }
   setTheme('foundry');
