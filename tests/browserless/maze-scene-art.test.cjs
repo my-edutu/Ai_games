@@ -97,3 +97,63 @@ test('biome atmosphere updates real particle buffers and disposes its GPU data',
   }
   atmosphere.dispose();
 });
+
+test('publicly observed intersections assemble monumental rotundas with animated fixtures',async()=>{
+  const {makeWorldCraft}=await loadModule('world-craft.js');
+  const art=makeWorldCraft(THREE);
+  art.setTheme('layers');
+  const world=new THREE.Group();
+  const cells=observedCells();
+  cells[12].neighbors=[7,11,13,17]; // known four-way intersection
+  let queued=0;
+  const put=(geometry,material,parent,position,scale)=>{
+    const mesh=new THREE.Mesh(geometry,material);
+    mesh.position.set(...position);
+    if(scale)mesh.scale.set(...scale);
+    parent.add(mesh);
+    return mesh;
+  };
+  art.populate({world,snapshot:{width:5,height:5},cells,
+    queue:()=>queued++,put,point:(id,w)=>new THREE.Vector3((id%w)*2.5,0,Math.floor(id/w)*2.5),
+    grid:2.5,glow(){}});
+  assert.ok(world.userData.artStats.junctions>=1);
+  assert.ok(world.userData.artAnimators.length>=1);
+  assert.ok(queued>100);
+  for(const entry of world.userData.artAnimators){
+    assert.ok(entry.jewel.isMesh&&entry.inner.isMesh);
+  }
+});
+test('cinematic lighting decisions depend only on public AI observations, never oracle state',async()=>{
+  const {createCinematicDirector}=await loadModule('cinematic-director.js');
+  const director=createCinematicDirector(THREE);
+  const real={runToken:'public-safe',lifecycle:'exploration',exitCell:null,threats:[],inventory:[]};
+  const snapshot=new Proxy(real,{get(obj,key){
+    if(key in obj)return obj[key];
+    throw new Error('Hidden authority leak: '+String(key));
+  }});
+  director.updatePublicState(snapshot,0);
+  assert.equal(director.cue,'exploration');
+  real.inventory=['bronze-key'];
+  director.updatePublicState(snapshot,100);
+  assert.equal(director.cue,'clues');
+  real.exitCell=10;
+  director.updatePublicState(snapshot,200);
+  assert.equal(director.cue,'exit');
+  real.threats=[{id:'known-enemy',cell:5}];
+  director.updatePublicState(snapshot,300);
+  assert.equal(director.cue,'pursuit');
+  real.lifecycle='result';
+  real.result={reason:'escape'};
+  director.updatePublicState(snapshot,400);
+  assert.equal(director.cue,'success');
+  const camera=new THREE.PerspectiveCamera(44,1.777,0.1,100);
+  const scene=new THREE.Scene();scene.fog=new THREE.FogExp2(0x123444,.01);
+  const lamp=new THREE.PointLight(),rim=new THREE.DirectionalLight();
+  const renderer={toneMappingExposure:1.8};
+  director.setBaseFog(.012);
+  director.animate({renderer,scene,camera,lantern:lamp,rim},.05,false);
+  assert.ok(renderer.toneMappingExposure>1.8);
+  assert.ok(Number.isFinite(scene.fog.density));
+  assert.equal(scene.userData.cinematicCue,'success');
+  assert.ok(Number.isFinite(camera.fov));
+});
