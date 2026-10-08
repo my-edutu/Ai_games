@@ -81,7 +81,7 @@
       seen.add(key);
       let entity=liveEntities.get(key);
       if(!entity||entity.variant!==variant){
-        if(entity)actors.remove(entity.root);
+        if(entity){actors.remove(entity.root);entities.release(entity.root);}
         const root=make();
         root.position.x=xx;root.position.y=yy;
         actors.add(root);
@@ -109,7 +109,7 @@
       const xx=x(p.x),yy=y(p.y);
       place('projectile:'+p.id,p.owner,()=>entities.projectile(p,xx,yy),xx,yy);
     }
-    for(const [key,entity] of liveEntities) if(!seen.has(key)) {actors.remove(entity.root);liveEntities.delete(key);}
+    for(const [key,entity] of liveEntities) if(!seen.has(key)) {actors.remove(entity.root);entities.release(entity.root);liveEntities.delete(key);}
     const p = s.player;
     if (p) {
       const px = x(p.x), py = y(p.y);
@@ -171,6 +171,8 @@
     metrics.frames++; metrics.frameMs=Math.round((now-frameStart)*100)/100;
     metrics.fps=Math.round(1000/Math.max(1,now-lastFrameAt)); lastFrameAt=now;
     metrics.drawCalls=renderer.info.render.calls;
+    metrics.gpuGeometries=renderer.info.memory.geometries;
+    metrics.gpuTextures=renderer.info.memory.textures;
     metrics.triangles=renderer.info.render.triangles;
     metrics.reusedEntities=liveEntities.size;
     metrics.vfxParticles=vfx.count;
