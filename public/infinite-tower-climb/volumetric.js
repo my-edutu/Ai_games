@@ -179,7 +179,8 @@
     if(renderFrames%6===0)audio.update(details,sim.snapshot().events);
     if(renderFrames%15===0)liveChannel?.postMessage({state:{...details},render:{...renderMetrics},timestamp:Date.now()});
     evidence.maybeCapture(details,renderMetrics);
-    if(details.tick%8===0){
+    // Staged biome screenshots and restored saves must display the real floor on frame one.
+    if(renderFrames===1||details.tick%8===0){
       document.getElementById('floor').textContent=String(player.at).padStart(3,'0');
       document.getElementById('height').textContent=Math.round(Math.max(0,player.y))+'m';
       document.getElementById('intent').textContent=details.intent||'ASSESSING THE TOWER';

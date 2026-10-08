@@ -4,7 +4,7 @@ export function createTowerDirector(THREE,camera) {
   const look=new THREE.Vector3(),target=new THREE.Vector3(),desired=new THREE.Vector3();
   const eye=new THREE.Vector3();
   const RAD=THREE.MathUtils.degToRad;
-  let mode='establishing',biome='',lastFloor=-1,transition=1.5,impact=0,elapsed=0;
+  let mode='establishing',biome='',lastFloor=-1,transition=1.5,impact=0,elapsed=0,initialized=false;
   const smooth=(current,next,rate,dt)=>THREE.MathUtils.damp(current,next,rate,Math.min(.08,dt));
   function update(dt,snapshot,options={}){
     dt=Math.max(0,Math.min(.08,Number(dt)||0));
@@ -35,6 +35,9 @@ export function createTowerDirector(THREE,camera) {
       target.set(p.x+THREE.MathUtils.clamp(p.vx*.15,-2,2),p.y+4.6,p.z+THREE.MathUtils.clamp(p.vz*.15,-2,2));
     }
     const rate=mode==='guardian-encounter'?3.2:2.3;
+    // On initial load or a restored high-floor save, the origin is not the hero.
+    // Snap the very first view to the current player before smoothing later frames.
+    if(!initialized){camera.position.copy(desired);look.copy(target);initialized=true;}
     camera.position.x=smooth(camera.position.x,desired.x,rate,dt);
     camera.position.y=smooth(camera.position.y,desired.y,rate,dt);
     camera.position.z=smooth(camera.position.z,desired.z,rate,dt);

@@ -18,6 +18,7 @@ for(const [biome,floor] of [['foundry',0],['ruins',12],['clockwork',24],['storm'
     expect(state.dimensionality).toBe(3);
     expect(state.assetClips).toEqual(expect.arrayContaining(['Idle','Running','Jump','Fall','Climb','Punch']));
     expect(state.floor).toBeGreaterThanOrEqual(floor);
+    await expect(page.locator('#floor')).toHaveText(String(state.floor).padStart(3,'0'));
     expect(state.biome).toBe(biome);
     expect(state.platforms).toBeGreaterThan(0);
     await page.waitForTimeout(450);
