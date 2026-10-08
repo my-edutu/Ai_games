@@ -356,6 +356,15 @@ function render(now){
     hud.querySelector('#goal').textContent=game.objective.label;
     hud.querySelector('#resources').textContent='SUPPLIES  '+Math.floor(game.resources.food)+' FOOD  /  '+Math.floor(game.resources.ammo)+' AMMO';
     hud.querySelector('#status').textContent=game.status==='running'?'AUTONOMOUS LIVE':'RUN ENDED: '+game.status.toUpperCase();
+    const featured=game.survivors.find(v=>v.id===director?.targetId&&v.alive)||game.survivors.find(v=>v.alive);
+    hud.querySelector('#decisionName').textContent=featured?featured.name.toUpperCase()+' / '+featured.role.toUpperCase():'SQUAD LOST';
+    hud.querySelector('#decision').textContent=featured?.intent||'The survivors are down. Preparing a new run.';
+    const latest=game.events[game.events.length-1];
+    const captions={shot:'Shots fired',kill:'Infected neutralized',rescue:'Civilian brought to safety',loot:'Supplies recovered',heal:'Medical aid administered','barricade-hit':'Barricade under attack','barricade-repair':'Defensive position repaired',horde:'Horde approaching',phase:'Day cycle advanced','safehouse-upgrade':'Safe house fortified'};
+    hud.querySelector('#action').textContent=latest?'LATEST · '+(captions[latest.type]||latest.type.replaceAll('-',' ').toUpperCase()):'LATEST · Surveillance established';
+    const pressure=Math.round(Math.max(0,Math.min(100,game.hordePressure*100)));
+    hud.querySelector('#hordeMeter').style.width=pressure+'%';
+    hud.querySelector('.aiMeter').setAttribute('aria-label','Zombie pressure '+pressure+' percent');
     hud.querySelector('#fps').textContent=Math.round(fpsSmooth)+' FPS · '+Math.round(staticMesh.count/36)+' STATIC BOX EQUIV · '+Math.round(movingMesh.count/36)+' DYNAMIC BOX EQUIV';
     verdict.textContent='WEBGL2 TRUE 3D • '+(paused?'PAUSED':'SIMULATION LIVE');
     try{localStorage.setItem('zombie-gauntlet-live',JSON.stringify({time:Date.now(),day:game.time.day,tick:game.tick,alive:living,zombies:infected,fps:Math.round(fpsSmooth),phase:game.time.phase,seed,renderer:'WebGL2',status:game.status}));}catch{}
