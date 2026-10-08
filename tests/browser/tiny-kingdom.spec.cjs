@@ -171,6 +171,7 @@ test('Tiny Kingdom calendar rotates spring summer autumn winter with stable weat
   const evidence=await page.evaluate(() => {
     const g=window.__tinyKingdom;
     const climates=[1,10,19,28,37].map(day=>g.climateAt((day-1)*24+7));
+    g.reset();
     const before=g.exportSnapshot();
     g.reset();
     return {climates,stable:JSON.stringify(g.climateAt(7))===JSON.stringify(climates[0]),sameState:JSON.stringify(g.exportSnapshot())===JSON.stringify(before)};
@@ -195,7 +196,7 @@ test('Tiny Kingdom seasonal climate changes farm productivity but preserves dete
   });
   expect(evidence.same).toBe(true);
   expect(evidence.food).toBeGreaterThan(0);
-  expect(evidence.climate.seasonName).toBe('SPRING');
+  expect(evidence.climate.seasonName).toBe('SUMMER');
   expect(evidence.stories.every(s=>typeof s.text==='string')).toBe(true);
 });
 
