@@ -47,11 +47,12 @@
     'result=vec4(mix(vec3(.065,.103,.135),lit,haze),1.0);',
     '}'
   ].join('\n');
-  let canvas=null,gl=null,program=null,buffer=null,attr=null,uniform=null,lastSnapshot=null,disabled=forced2d||!host;
+  let canvas=null,gl=null,program=null,buffer=null,staticBuffer=null,dynamicBuffer=null,attr=null,uniform=null,lastSnapshot=null,disabled=forced2d||!host;
   const reducedMotion=params.get('reducedMotion')==='1'||matchMedia('(prefers-reduced-motion: reduce)').matches;
   const reducedFlash=params.get('reducedFlash')==='1';
   let previousSnapshot=null,startedAt=0,animationId=0,lastPaintTime=0;
-  const status={mode:forced2d?'forced-2d':'initializing',frames:0,triangles:0,contenders:0,p95SubmitMs:0};
+  const status={mode:forced2d?'forced-2d':'initializing',frames:0,triangles:0,contenders:0,p95SubmitMs:0,sceneBuilds:0};
+  const staticCache={key:null,vertices:0};
   const frameSamples=[];
   const headings=new Map();
   let headingRunToken='';
@@ -67,7 +68,9 @@
     if(!gl.getProgramParameter(program,gl.LINK_STATUS))throw Error('shader-link');
     attr=['pos','normal','tint'].map(name=>gl.getAttribLocation(program,name));
     uniform=['center','scale'].map(name=>gl.getUniformLocation(program,name));
-    buffer=gl.createBuffer();gl.enable(gl.DEPTH_TEST);gl.depthFunc(gl.LEQUAL);
+    staticBuffer=gl.createBuffer();dynamicBuffer=gl.createBuffer();
+    staticCache.key=null;staticCache.vertices=0;
+    gl.enable(gl.DEPTH_TEST);gl.depthFunc(gl.LEQUAL);
     gl.disable(gl.CULL_FACE);gl.clearColor(.065,.103,.135,1);
     status.mode='webgl2';document.body.dataset.battleRenderer='webgl2';
   }
@@ -450,8 +453,8 @@
     b.cylinder(w*.5,3.10,-3.0,.42,.12,theme.accent,10);
     b.cone(w*.5,3.55,-3.0,.14,0,.82,[.69,.89,.90],8);
   }
-  function world(b,s){
-    const a=s.arena,w=a.width,h=a.height,t=colours[a.theme]||colours.ember;
+  function worldStatic(b,a){
+    const w=a.width,h=a.height,t=colours[a.theme]||colours.ember;
     b.box(w/2,-.25,h/2,w,.5,h,t.wall);
     for(let y=0;y<h;y++)for(let x=0;x<w;x++){
       const variation=(x*17+y*31+x*y*7)%11;
@@ -463,15 +466,28 @@
     terrainDetails(b,a,t);
     for(const cell of a.obstacles.slice(0,2048))fortification(b,cell,w,t,false);
     for(const cell of a.cover.slice(0,2048))fortification(b,cell,w,t,true);
+    b.box(w/2,.15,-.1,w+.35,.3,.2,t.wall);
+    b.box(w/2,.15,h+.1,w+.35,.3,.2,t.wall);
+    b.box(-.1,.15,h/2,.2,.3,h+.35,t.wall);
+    b.box(w+.1,.15,h/2,.2,.3,h+.35,t.wall);
+    worldLandmarks(b,a,t);
+    atmosphericBackdrop(b,a,t);
+    for(const [x,z] of [[0,0],[w,0],[0,h],[w,h]]){
+      b.box(x,1.04,z,.35,2.08,.35,t.wall);
+      b.box(x,2.16,z,.54,.24,.54,t.accent);
+    }
+  }
+  function worldDynamic(b,s){
+    const a=s.arena,w=a.width,t=colours[a.theme]||colours.ember;
     for(const item of a.loot.slice(0,100)){
-      const p=pos(item.cell,w);b.box(p.x,.09,p.z,.48,.18,.48,t.wall);
+      const p=pos(item.cell,w);
+      b.box(p.x,.09,p.z,.48,.18,.48,t.wall);
       b.box(p.x,.30,p.z,.24,.25,.24,[1,.80,.35]);
       b.box(p.x,.51,p.z,.10,.18,.10,[.60,.96,1]);
     }
     for(const f of s.combatants.slice(0,64))contender(b,f,w,t,Boolean(s.focus&&s.focus.id===f.id),s.recentEvents,s.combatants);
     const c=pos(s.zone.centerCell,w);
     b.ring(c.x,.056,c.z,Math.max(.25,s.zone.radius),.08,t.accent,128);
-    // High-priority tactical signals, derived exclusively from published semantic events.
     if(!reducedFlash){
       for(const event of s.recentEvents.slice(-8)){
         if((event.type==='elimination'||event.type==='shield-broken')&&Number.isInteger(event.cell)){
@@ -480,20 +496,24 @@
         }
       }
     }
-    b.box(w/2,.15,-.1,w+.35,.3,.2,t.wall);
-    b.box(w/2,.15,h+.1,w+.35,.3,.2,t.wall);
-    b.box(-.1,.15,h/2,.2,.3,h+.35,t.wall);
-    b.box(w+.1,.15,h/2,.2,.3,h+.35,t.wall);
-    worldLandmarks(b,a,t);
-    atmosphericBackdrop(b,a,t);
     combatEffects(b,s,t);
-    for(const [x,z] of [[0,0],[w,0],[0,h],[w,h]]){
-      b.box(x,1.04,z,.35,2.08,.35,t.wall);
-      b.box(x,2.16,z,.54,.24,.54,t.accent);
+  }
+  function bindSceneBuffer(buffer){
+    gl.bindBuffer(gl.ARRAY_BUFFER,buffer);
+    for(let i=0;i<3;i++){
+      gl.enableVertexAttribArray(attr[i]);
+      gl.vertexAttribPointer(attr[i],3,gl.FLOAT,false,36,i*12);
     }
   }
+  let dynamicVertexCount=0;
+  function drawScene(){
+    bindSceneBuffer(staticBuffer);
+    if(staticCache.vertices)gl.drawArrays(gl.TRIANGLES,0,staticCache.vertices);
+    bindSceneBuffer(dynamicBuffer);
+    if(dynamicVertexCount)gl.drawArrays(gl.TRIANGLES,0,dynamicVertexCount);
+  }
 
-  function spectatorCloseup(snapshot,area,vertices){
+  function spectatorCloseup(snapshot,area){
     // Second camera pass views the SAME public geometry: no synthetic battles,
     // no hidden outcome changes, no second simulation.
     if(area.width<720||area.height<450||snapshot.scene==='recovery')return;
@@ -518,7 +538,7 @@
       gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
       gl.uniform3f(uniform[0],p.x,.8,p.z);
       gl.uniform2f(uniform[1],zoom/aspect,zoom);
-      gl.drawArrays(gl.TRIANGLES,0,vertices);
+      drawScene();
     }finally{
       gl.disable(gl.SCISSOR_TEST);
       gl.viewport(0,0,canvas.width,canvas.height);
@@ -537,6 +557,18 @@
       const height=Math.min(2160,Math.max(1,Math.round(area.height*ratio)));
       if(canvas.width!==width||canvas.height!==height){canvas.width=width;canvas.height=height}
       gl.viewport(0,0,width,height);
+      const a=snapshot.arena;
+      const key=JSON.stringify([a.width,a.height,a.theme,a.obstacles,a.cover]);
+      if(key!==staticCache.key){
+        const staticBuilder=mesh();
+        worldStatic(staticBuilder,a);
+        const fixed=new Float32Array(staticBuilder.v);
+        bindSceneBuffer(staticBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER,fixed,gl.STATIC_DRAW);
+        staticCache.key=key;
+        staticCache.vertices=fixed.length/9;
+        status.sceneBuilds++;
+      }
       const b=mesh();
       const alpha=Math.min(1,Math.max(0,(performance.now()-startedAt)/200));
       const prior=previousSnapshot&&previousSnapshot.runToken===snapshot.runToken
@@ -551,7 +583,7 @@
           return {...f,visual:{x:from.x+(to.x-from.x)*alpha,z:from.z+(to.z-from.z)*alpha}};
         })
       };
-      world(b,presented);
+      worldDynamic(b,presented);
       const data=new Float32Array(b.v),w=snapshot.arena.width,h=snapshot.arena.height;
       const aspect=area.width/area.height;
       const scale=Math.min(1.87/((w*.61+h*.79)*.52+5),1.87*aspect/(w*.79+h*.61+4));
@@ -561,16 +593,13 @@
       const zoom=close?1.15:1.10;
       gl.uniform3f(uniform[0],focus.x,0,focus.z);
       gl.uniform2f(uniform[1],scale*zoom/aspect,scale*zoom);
-      gl.bindBuffer(gl.ARRAY_BUFFER,buffer);
+      bindSceneBuffer(dynamicBuffer);
       gl.bufferData(gl.ARRAY_BUFFER,data,gl.DYNAMIC_DRAW);
-      for(let i=0;i<3;i++){
-        gl.enableVertexAttribArray(attr[i]);
-        gl.vertexAttribPointer(attr[i],3,gl.FLOAT,false,36,i*12);
-      }
+      dynamicVertexCount=data.length/9;
       gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
-      gl.drawArrays(gl.TRIANGLES,0,data.length/9);
-      spectatorCloseup(snapshot,area,data.length/9);
-      status.frames++;status.triangles=data.length/27;
+      drawScene();
+      spectatorCloseup(snapshot,area);
+      status.frames++;status.triangles=(data.length/9+staticCache.vertices)/3;
       frameSamples.push(performance.now()-startSubmit);
       if(frameSamples.length>90)frameSamples.shift();
       const ordered=[...frameSamples].sort((a,b)=>a-b);
