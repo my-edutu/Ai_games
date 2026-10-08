@@ -143,7 +143,7 @@ function clockwork(group,p,w,h,y0,fx){
   }
   fx.lightColor=0xffc17b;
 }
-function void(group,p,w,h,y0,fx){
+function voidRealm(group,p,w,h,y0,fx){
   const obsidian=mat(0x483c78,.43,.49),lilac=mat(0xceb3ed,.22,.52),magic=shine(0xff86e6,2.1);
   const cx=w*.46,cy=y0+h*.52;
   // A fractured celestial astrolabe dominates the background.
@@ -166,7 +166,7 @@ function void(group,p,w,h,y0,fx){
   }
   fx.lightColor=0xeaa2ff;
 }
-const directors={foundry,ruins,storm,clockwork,void};
+const directors={foundry,ruins,storm,clockwork,void:voidRealm};
 export function buildBiomeLandmarks({group,snapshot,palette,worldWidth}){
   const world=new THREE.Group();world.name='landmark-director-v5';world.userData.kinetic=[];group.add(world);
   const floor=snapshot.floor,y0=snapshot.chunkBaseY/1000,h=snapshot.chunkHeight/1000;
