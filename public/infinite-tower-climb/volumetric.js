@@ -29,13 +29,16 @@
     if(result.replacement){importedClimber=result.replacement;scene.add(importedClimber.root);climber.root.visible=false;}
   }).catch(error=>{window.__TOWER_VOLUMETRIC_STATE__.assetStatus='load-error';console.warn('Optional climber asset unavailable',error)});
   const world=new THREE.Group();scene.add(world);
-  const sim=createVolumetricCore(),player=sim.player,models=new Map(),guardians=new Map(),rewards=new Map();
+  const params=new URLSearchParams(location.search);
+  const captureFloor=Math.min(120,Math.max(0,Number.parseInt(params.get('captureFloor')||'0',10)||0));
+  const seedText=params.get('seed'),seed=seedText&&/^\\d{1,9}$/.test(seedText)?Number(seedText):undefined;
+  const sim=createVolumetricCore(seed),player=sim.player,models=new Map(),guardians=new Map(),rewards=new Map();
   const enemyScene=new THREE.Group(),rewardScene=new THREE.Group();scene.add(enemyScene,rewardScene);
   const details={status:'loading',tick:0,floor:0,x:0,y:0,z:0,platforms:0,deaths:0,guardianKills:0,score:0,health:5,autonomous:true,dimensionality:3};
   window.__TOWER_VOLUMETRIC_STATE__=details;
   const controls={left:false,right:false,forward:false,back:false,jump:false};
-  const reduced=new URLSearchParams(location.search).get('reducedMotion')==='1';
-  const manual=new URLSearchParams(location.search).get('manual')==='1';
+  const reduced=params.get('reducedMotion')==='1';
+  const manual=params.get('manual')==='1';
   document.body.dataset.reducedMotion=String(reduced);
   if(manual){
     const mapping={ArrowLeft:'left',KeyA:'left',ArrowRight:'right',KeyD:'right',
@@ -126,6 +129,15 @@
     }
     requestAnimationFrame(animate);
   }
-  camera.position.set(14,13,24);syncWorld(sim.snapshot());
+  // Deterministic evidence camera locations for each biome; does not cheat gameplay.
+  if(captureFloor){
+    let guard=0;
+    while(sim.player.at<captureFloor&&guard++<18000)sim.step(1/60);
+    if(sim.player.at<captureFloor){status.textContent='EVIDENCE STAGE UNREACHABLE';return;}
+  }
+  const opening=sim.snapshot();syncWorld(opening);
+  climber.root.position.set(player.x,player.y,player.z);
+  Object.assign(details,{status:'loading',floor:player.at,tick:opening.tick,stageTarget:captureFloor});
+  camera.position.set(player.x+13,player.y+12,player.z+23);
   requestAnimationFrame(animate);
 })();
