@@ -127,6 +127,20 @@ function buildWorld(s){clearWorld();worldFloor=s.run+'-'+s.floor;lastCutawayKey=
  // Procedural decorative vaulted gate framing the final encounter.
  const gx=pos.x+.9,gz=pos.z;column(world,gx,gz-.8);column(world,gx,gz+.8);
  make(geo.cube,gold,world,gx,2.2,gz,.32,.22,1.9);
+ // Warden court: layered ceremonial dais, spatially legible runes and shield ring.
+ const court=new THREE.Group();court.position.set(pos.x,.03,pos.z);
+ const courtGlow=new THREE.MeshBasicMaterial({color:theme.accent,transparent:true,opacity:.85,depthWrite:false,side:THREE.DoubleSide});
+ const outer=new THREE.Mesh(new THREE.TorusGeometry(1.35,.033,6,72),courtGlow);outer.rotation.x=-Math.PI/2;court.add(outer);
+ const middle=new THREE.Mesh(new THREE.TorusGeometry(1.05,.045,8,68),courtGlow);middle.rotation.x=-Math.PI/2;court.add(middle);
+ const ink=new THREE.MeshStandardMaterial({color:'#1b2850',metalness:.8,roughness:.26});
+ for(let i=0;i<12;i++){const a=i*Math.PI/6,marker=make(geo.cube,i%3===0?gold:tealGlow,court,Math.cos(a)*1.21,.03,Math.sin(a)*1.21,.18,.04,.05);marker.rotation.y=-a}
+ for(let i=0;i<4;i++){const a=i*Math.PI/2+.4,x=Math.cos(a)*1.66,z=Math.sin(a)*1.66;
+  if(x+pos.x>8.6||z+pos.z>8.6||x+pos.x< -8.6||z+pos.z< -8.6)continue;
+  const spire=make(geo.cone,ink,court,x,.44,z,.19,.88,.19);spire.rotation.z=Math.sin(a)*.10;
+  make(geo.sphere,i%2?dangerGlow:tealGlow,court,x,.90,z,.14,.14,.14);
+ }
+ const shield=new THREE.Mesh(new THREE.SphereGeometry(1.36,24,12,0,Math.PI*2,0,Math.PI/2),new THREE.MeshBasicMaterial({color:theme.accent,wireframe:true,transparent:true,opacity:.12,depthWrite:false,side:THREE.DoubleSide}));shield.position.y=.02;court.add(shield);
+ world.add(court);world.userData.court=court;world.userData.courtShield=shield;
  world.userData.dressing=enrichEnvironment(world,s.map,s.floor);
 }
 function rig(u){const colors=palette[u.kind],main=mat(colors[0],.5,.4),light=mat(colors[1],.45,.4),accent=mat(colors[2],.55,.3),enemy=u.faction==='enemy',boss=u.kind==='warden';
@@ -248,6 +262,7 @@ function update(s){state=s;received=true;errorAt=0;$('recovery').hidden=true;
  for(const [id,a] of actors)if(!seen.has(id)){disposeActor(a);actors.delete(id)}
  for(const u of s.units){let a=actors.get(u.id);if(!a){a=rig(u);actors.set(u.id,a);a.root.position.set(u.x-9,0,u.z-9)}
   if(a.u.actionTick!==u.actionTick||a.u.action!==u.action){a.actionStarted=timeNow();}a.u=u;a.at.set(u.x-9,0,u.z-9);a.root.visible=u.hp>0;if(a.telegraph)a.telegraph.visible=u.hp>0&&[4,5].includes(s.tick%6);}
+ if(world.userData.courtShield)world.userData.courtShield.visible=s.units.some(u=>u.kind==='warden'&&u.hp>0);
  renderDashboard(s);
  window.__DUNGEON_PUBLIC_STATE__=s;
 }
@@ -268,6 +283,7 @@ function animate(t){requestAnimationFrame(animate);const time=t/1000,dt=Math.min
   a.detail?.update(time,a.u.action||'idle');
   if(moving){const delta=a.at.clone().sub(a.root.position);a.root.rotation.y=Math.atan2(-delta.x,-delta.z)}}
  if(world.userData.portal&&!reduced)world.userData.portal.rotation.y=time*.26;
+ if(world.userData.court&&!reduced)world.userData.court.rotation.y=Math.sin(time*.3)*.035;
  if(world.userData.dressing&&!reduced)world.userData.dressing.animate(time);
  cutawayWalls(target);
  const cameraType=cameraModes[cameraIndex]||'cinematic',offsets=cameraType==='tactical'?[2,20,2]:cameraType==='chase'?[5.5,8.5,7.5]:[9,14,11];

@@ -58,3 +58,14 @@ test('autonomous unit actions are exposed as bounded, public animation semantics
  }
  assert.equal(observedMovement,true);assert.equal(observedAttack,true);
 });
+
+test('procedural chambers diversify geometry and guarantee a spacious boss courtyard',()=>{
+ for(let i=0;i<40;i++){const game=DungeonRuntime.create('sanctuary-'+i),s=game.state;
+  let openNear=0;
+  for(let dz=-1;dz<=1;dz++)for(let dx=-1;dx<=1;dx++){const x=s.exit.x+dx,z=s.exit.z+dz;if(x>0&&x<MAP_SIZE-1&&z>0&&z<MAP_SIZE-1&&s.map[z][x]==='.')openNear++}
+  assert.ok(openNear>=4,'Warden courtyard must be wider than a corridor');
+  const rooms=s.map.join('\\n').match(/\.\.\./g)||[];
+  assert.ok(rooms.length>=3,'sanctuary rooms should introduce wider floor plans');
+  assertDungeonState(s);
+ }
+});

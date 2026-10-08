@@ -1,7 +1,7 @@
 import {NamedRng, type RngSnapshot} from '../../../packages/seeded-rng/src/index';
 import {checksum} from '../../../packages/replay/src/index';
 
-export const DUNGEON_VERSION='0.1.0';
+export const DUNGEON_VERSION='0.2.0';
 export const MAP_SIZE=19;
 export type UnitKind='vanguard'|'ranger'|'mystic'|'revenant'|'cultist'|'warden';
 export type Faction='party'|'enemy';
@@ -50,9 +50,26 @@ function createFloor(seed:string,floor:number,rng:NamedRng,run:number,previous?:
  for(let z=2;z<MAP_SIZE-2;z++)for(let x=2;x<MAP_SIZE-2;x++)if(map[z][x]==='#'&&rng.nextInt('shortcuts:'+floor+':'+run,100)<11){
   if((map[z-1][x]==='.'&&map[z+1][x]==='.')||(map[z][x-1]==='.'&&map[z][x+1]==='.'))map[z][x]='.';
  }
- const rows=map.map(r=>r.join('')),spawn={x:1,z:1},measure=distances(rows,spawn);
- const tiles=[...measure.entries()].map(([k,d])=>({x:k%MAP_SIZE,z:Math.floor(k/MAP_SIZE),d})).sort((a,b)=>b.d-a.d||a.z-b.z||a.x-b.x);
+ // Open authored-scale sanctuaries into the guaranteed connected maze: variety without retries.
+ const chambers=3+rng.nextInt('chambers:'+floor+':'+run,3);
+ for(let i=0;i<chambers;i++){
+  const x=3+2*rng.nextInt('chamber-x:'+floor+':'+run,7),z=3+2*rng.nextInt('chamber-z:'+floor+':'+run,7);
+  const radius=1+rng.nextInt('chamber-size:'+floor+':'+run,2);
+  for(let dz=-radius;dz<=radius;dz++)for(let dx=-radius;dx<=radius;dx++){
+   if(x+dx>0&&z+dz>0&&x+dx<MAP_SIZE-1&&z+dz<MAP_SIZE-1)map[z+dz][x+dx]='.';
+  }
+ }
+ const spawn={x:1,z:1};
+ let rows=map.map(r=>r.join('')),measure=distances(rows,spawn);
+ let tiles=[...measure.entries()].map(([k,d])=>({x:k%MAP_SIZE,z:Math.floor(k/MAP_SIZE),d})).sort((a,b)=>b.d-a.d||a.z-b.z||a.x-b.x);
  const exit={x:tiles[0].x,z:tiles[0].z};
+ // The Warden always guards a spacious 3–5 tile courtyard instead of a one-tile maze corridor.
+ for(let dz=-2;dz<=2;dz++)for(let dx=-2;dx<=2;dx++){
+  const x=exit.x+dx,z=exit.z+dz;
+  if(x>0&&z>0&&x<MAP_SIZE-1&&z<MAP_SIZE-1)map[z][x]='.';
+ }
+ rows=map.map(r=>r.join(''));measure=distances(rows,spawn);
+ tiles=[...measure.entries()].map(([k,d])=>({x:k%MAP_SIZE,z:Math.floor(k/MAP_SIZE),d})).sort((a,b)=>b.d-a.d||a.z-b.z||a.x-b.x);
  const occupied=new Set([key(spawn.x,spawn.z),key(exit.x,exit.z)]);
  const units:Unit[]=[
   {id:'vanguard',kind:'vanguard',faction:'party',x:1,z:1,hp:previous?.units.find(u=>u.id==='vanguard')?.hp??120,maxHp:120,attack:22,cooldown:0},
