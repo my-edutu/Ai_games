@@ -595,3 +595,28 @@ test('Gauntlet 025 tapered forest boughs render deterministically through season
   expect(after.triangles).toBeGreaterThan(1000);
   expect(errors).toEqual([]);
 });
+
+test('Tiny Kingdom software-GPU render quality is bounded and does not modify simulation authority', async ({page})=>{
+  const faults=[];page.on('pageerror',e=>faults.push(e.message));
+  await page.setContent(html);
+  await page.waitForFunction(()=>Boolean(window.__tinyKingdom));
+  await page.locator('#pause').click();
+  const before=await page.evaluate(()=>JSON.stringify(window.__tinyKingdom.exportSnapshot()));
+  const qa=await page.evaluate(()=>{
+    const g=window.__tinyKingdom;
+    const initial=g.renderQuality();
+    const low=g.setRenderQuality(.55);
+    const hi=g.setRenderQuality(1.0);
+    let rejects=false;
+    try{g.setRenderQuality(.01)}catch(e){rejects=/render scale/i.test(e.message)}
+    return {initial,low,hi,rejects,auth:JSON.stringify(g.exportSnapshot())};
+  });
+  expect(qa.initial.tier).toMatch(/canvas2d|software-webgl|hardware-webgl/);
+  expect(qa.initial.targetFps).toBe(qa.initial.tier==='hardware-webgl'?60:12);
+  expect(qa.initial.scale).toBeLessThanOrEqual(1);
+  expect(qa.low.scale).toBeCloseTo(.55);
+  expect(qa.hi.scale).toBeCloseTo(1);
+  expect(qa.rejects).toBe(true);
+  expect(qa.auth).toEqual(before);
+  expect(faults).toEqual([]);
+});
