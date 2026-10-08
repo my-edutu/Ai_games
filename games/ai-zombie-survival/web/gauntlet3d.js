@@ -17,7 +17,7 @@ const frozen = params.get('freeze') === '1';
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 let seed = Number(params.get('seed') || 2026) >>> 0 || 2026;
 let game = createGame({ seed, zombieCount: params.get('crowd') === 'dense' ? 260 : 180 });
-if (isEvidenceScenario(scenario)) game = applyEvidenceScenario(game, scenario);
+if (isEvidenceScenario(scenario)) { game = applyEvidenceScenario(game, scenario); if (!frozen) delete game.evidenceScenario; }
 let last = performance.now(), accumulator = 0, elapsed = 0, paused = frozen, hudShown = true;
 let orbit = 0.82, range = 43, dragging = false, priorX = 0, cameraX = 0, cameraZ = 0, cameraFocusX = 0, cameraFocusZ = 0;
 let cameraMode = 'director', director = undefined, fpsSmooth = 30, lastStats = 0, buffersRebuilt = 0, lastGeometryStamp = '';
