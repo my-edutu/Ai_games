@@ -2,6 +2,7 @@ import * as THREE from '/vendor/three.module.js';
 import { createTayoActor } from '/eko/character-craft.js';
 import { batchDistrictGeometry } from '/eko/static-batch.js';
 import { createEkoSurfaceKit } from '/eko/material-craft.js';
+import { composeStreetVibrance } from '/eko/world-vibrance.js';
 
 // Presentation-only renderer. The Node simulation owns all movement, collision and rewards.
 const $ = id => document.getElementById(id);
@@ -334,6 +335,7 @@ function buildWorld(snapshot) {
   }
   box(terrain,.24,4.6,.24,snapshot.route.finishX,2.30,-3.02,0xffc857);
   labelSprite(terrain,'FINISH LINE',snapshot.route.finishX,4.48,-3,{scale:1,bg:'#173d4c'});
+  worldState.vibrance=composeStreetVibrance(THREE,{terrain,box,ball,cylinder,labelSprite,material,district,length,quality:worldState.quality});
   // Limit terrain shadow casters; the actor and reactive dangers retain silhouettes.
   terrain.traverse(node=>{if(node.isMesh)node.castShadow=false;});
   worldState.batching=batchDistrictGeometry(THREE,terrain,{chunkMeters:18});
@@ -374,7 +376,7 @@ window.__EKO_VISUAL_AUDIT__=()=>{
   return Object.freeze({
     character:{type:'original-procedural-joint-rig',joints:actor.articulatedJoints,meshes:actorMeshes,
       outfits:actor.availableOutfits,outfit:worldState.outfit,...projectedVisibility()},
-    environment:{district:worldState.district,meshes:worldMeshes,batching:worldState.batching,materials:surfaces.stats()},
+    environment:{district:worldState.district,meshes:worldMeshes,batching:worldState.batching,materials:surfaces.stats(),vibrance:worldState.vibrance},
     performance:{drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,
       pixelRatio:renderer.getPixelRatio(),frameRateReported:ui.fps.textContent,
       renderer:renderer.capabilities.isWebGL2?'WebGL2':'WebGL'},
@@ -422,8 +424,25 @@ function updateSnapshot(packet){
   if(!packet || !packet.snapshot || (latest&&packet.snapshot.tick<latest.snapshot.tick))return;
   latest=packet;lastPacket=performance.now();
   const s=packet.snapshot, p=s.progression;
+  document.documentElement.dataset.district=p?.districtId||'mainland-morning';
   ui.district.textContent=DISTRICTS[p?.districtId]?.name||'MAINLAND MORNING';
   ui.distance.textContent=String(Math.round((p?.totalDistance||0)+s.progress)).padStart(4,'0')+' M';
+  const segmentLength=Math.max(1,s.route.finishX);
+  const progressPercent=Math.min(100,Math.max(0,Math.round(100*s.progress/segmentLength)));
+  $('route-percent').textContent=progressPercent+'%';
+  $('route-fill').style.width=progressPercent+'%';
+  $('route-progress').setAttribute('aria-valuenow',String(progressPercent));
+  const nextCheckpoint=s.route.checkpointXs.find(x=>x>s.player.position.x+.05);
+  $('next-checkpoint').textContent=nextCheckpoint===undefined?'FINISH IN SIGHT':'CHECKPOINT · '+Math.max(0,Math.round(nextCheckpoint-s.player.position.x))+' M';
+  const approaching=s.hazards.filter(h=>h.active&&h.phase!=='resolved'&&h.phase!=='hit'&&h.x>=s.player.position.x).sort((a,b)=>a.x-b.x)[0];
+  if(approaching&&approaching.x-s.player.position.x<8){
+    const danger=approaching.family.replaceAll('-',' ').toUpperCase();
+    $('threat').textContent=danger+' · '+Math.ceil(approaching.x-s.player.position.x)+' M';
+    $('threat').style.color='#ffb58b';
+  }else{
+    $('threat').textContent='PATH CLEAR';$('threat').style.color='#9affca';
+  }
+
   ui.tokens.textContent=String(s.resources?.ekoTokens||0).padStart(2,'0');
   ui.cycle.textContent='CYCLE '+String((p?.cycle||0)+1).padStart(2,'0');
   ui.state.textContent=s.lifecycle==='running'?'RUN LIVE':s.lifecycle.toUpperCase();
