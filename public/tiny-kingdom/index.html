@@ -351,10 +351,10 @@ function orchardTrees(){
  for(let row=0;row<3;row++)for(let col=0;col<3;col++){
   const x=-28+col*2.9,z=6+row*3.2,y=terrain(x,z);
   cylinder(x,y,z,.15,1.45,soil,8);
-  const leaves=rgb(row%2?0x519c5e:0x69a757);
+  const season=climateAt(state.t).season,leaves=rgb(season===3?0xc4d7ca:season===2?0xd0a455:row%2?0x519c5e:0x69a757);
   ellipsoid(x,y+2.0,z,1.07,.83,.91,leaves,9);
-  ellipsoid(x+.55,y+1.75,z-.24,.60,.60,.58,rgb(0x7bb65a),8);
-  for(let i=0;i<5;i++){const a=i*2.39996+col*.5,fx=x+Math.sin(a)*.64,fz=z+Math.cos(a)*.55;
+  ellipsoid(x+.55,y+1.75,z-.24,.60,.60,.58,rgb(climateAt(state.t).season===3?0xe4e7db:climateAt(state.t).season===2?0xd2a963:0x7bb65a),8);
+  for(let i=0;i<(season===3?0:5);i++){const a=i*2.39996+col*.5,fx=x+Math.sin(a)*.64,fz=z+Math.cos(a)*.55;
    ellipsoid(fx,y+1.82+.19*Math.cos(a),fz,.13,.13,.13,flowers[(i+row)%3],6);
   }
  }
@@ -391,15 +391,21 @@ function villageFlowerBeds(){
   const ang=patch*.78,x=11.0+Math.cos(ang)*3.1,z=13+Math.sin(ang)*3.2,y=terrain(x,z);
   cylinder(x,y,z,.37,.29,rgb(0xc7a784),10);
   ellipsoid(x,y+.36,z,.52,.28,.5,greens[patch%3],7);
-  for(let i=0;i<4;i++){const a=i*1.57+patch,x2=x+Math.cos(a)*.32,z2=z+Math.sin(a)*.3;
+  for(let i=0;i<(climateAt(state.t).season===3?0:4);i++){const a=i*1.57+patch,x2=x+Math.cos(a)*.32,z2=z+Math.sin(a)*.3;
    cone(x2,y+.53,z2,.11,.2,rgb([0xffc272,0xffb4bd,0xb59dff,0xf5f4b4][(i+patch)%4]),6);
   }
  }
 }
+let festivalGeometry=null,festivalSeason=-1,festivalCacheBuilds=0;
 function villageFestival(){
- royalPlaza(-2.5,2.0,3.4);
+ const season=climateAt(state.t).season;
+ if(!festivalGeometry||festivalSeason!==season){
+   const target=data;data=[];
+   royalPlaza(-2.5,2.0,3.4);orchardTrees();riverReeds();villageFlowerBeds();
+   festivalGeometry=data;data=target;festivalSeason=season;festivalCacheBuilds++;
+ }
+ for(let i=0;i<festivalGeometry.length;i++)data.push(festivalGeometry[i]);
  vibrantMarket(0,5);
- orchardTrees();riverReeds();villageFlowerBeds();
  festivalBanner(-14,-5,0xffc56a,0);festivalBanner(13,-5,0x64ccdf,1);
  festivalBanner(-8,12,0xd67e76,2);festivalBanner(10,11,0xe3c37c,3);
 }
@@ -616,6 +622,6 @@ market(0,5);well(-15,4);villageGarden(12,11);villageGarden(-17,-3);guildBanner(-
 for(let i=0;i<5;i++){let xx=-17+i*1.3,zz=-14+(i%2)*1.4;box(xx,terrain(xx,zz),zz,1,.45,.64,rgb(0x7d5d45))}
 for(const p of people)villager(p);weatherParticles(atmosphere);
 const elevation=Math.sin(pitch)*zoom,rad=Math.cos(pitch)*zoom,eye=[focusPoint[0]+Math.sin(yaw)*rad,elevation,focusPoint[1]+Math.cos(yaw)*rad];let m=mat4multiply(perspective(Math.PI/3.2,w/h,.1,190),lookAt(eye,[focusPoint[0],.25,focusPoint[1]],[0,1,0]));gl.uniformMatrix4fv(uniforms.viewProjection,false,m);gl.uniform3f(uniforms.fogColor,...atmosphere.fog);gl.uniform3f(uniforms.sunTint,...atmosphere.light);gl.uniform3f(uniforms.sunDirection,Math.cos(state.t/24*6.283),.3+atmosphere.daylight*.9,Math.sin(state.t/24*6.283));lastFrameTriangles=data.length/27;gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(data),gl.DYNAMIC_DRAW);gl.drawArrays(gl.TRIANGLES,0,data.length/9);if((frames++%14)===0){updateUI();drawAtlas();updateRealmSignal()}}
-requestAnimationFrame(render);window.__tinyKingdom={getState:()=>JSON.parse(JSON.stringify({state,people:people.map(({name,job,x,z,target})=>({name,job,x,z,target}))})),setSpeed:x=>{speed=x},step,reset:start,renderer:()=>canvas.getContext('webgl')?'webgl':'software',metrics:()=>({citizens:people.length,buildings:city.length+2,day:Math.floor(state.t/24)+1,food:state.food,wood:state.wood,gold:state.gold,relationships:people.filter(p=>p.friend).length}),route:(a,b)=>routeBetween(a[0],a[1],b[0],b[1]),walkable:(p)=>walkable(p[0],p[1]),getNavigation:()=>people.map(p=>({name:p.name,position:[p.x,p.z],target:p.target,remaining:p.path?.length||0,path:p.path,activity:p.activity,hunger:p.hunger,energy:p.energy})),exportSnapshot,restoreSnapshot,saveWorld,restoreWorld,climateAt,skyConditions,getCitizenProfiles:()=>cloneData(people.map(({name,job,trait,friend,bonds,energy,hunger,activity})=>({name,job,trait,friend,bonds,energy,hunger,activity}))),getSelectedCitizen:()=>people[selectedCitizen]?.name,routeCacheMetrics:()=>({entries:routeCache.size,hits:cacheHits,misses:cacheMisses}),getCamera:()=>({yaw,pitch,zoom,focus:focusPoint.slice(),follow,cinematic}),getTerrainHeight:(x,z)=>terrain(x,z),getWildfloraCount:()=>wildflora.length,renderStats:()=>({terrainRebuilds,terrainCacheKey,terrainCacheTriangles,lastFrameTriangles}),setCamera:o=>{yaw=Number.isFinite(o.yaw)?o.yaw:yaw;pitch=Number.isFinite(o.pitch)?Math.max(.25,Math.min(1.45,o.pitch)):pitch;zoom=Number.isFinite(o.zoom)?Math.max(9,Math.min(85,o.zoom)):zoom;if(Array.isArray(o.focus)&&o.focus.length===2)focusPoint=o.focus.slice(0,2)}};
+requestAnimationFrame(render);window.__tinyKingdom={getState:()=>JSON.parse(JSON.stringify({state,people:people.map(({name,job,x,z,target})=>({name,job,x,z,target}))})),setSpeed:x=>{speed=x},step,reset:start,renderer:()=>canvas.getContext('webgl')?'webgl':'software',metrics:()=>({citizens:people.length,buildings:city.length+2,day:Math.floor(state.t/24)+1,food:state.food,wood:state.wood,gold:state.gold,relationships:people.filter(p=>p.friend).length}),route:(a,b)=>routeBetween(a[0],a[1],b[0],b[1]),walkable:(p)=>walkable(p[0],p[1]),getNavigation:()=>people.map(p=>({name:p.name,position:[p.x,p.z],target:p.target,remaining:p.path?.length||0,path:p.path,activity:p.activity,hunger:p.hunger,energy:p.energy})),exportSnapshot,restoreSnapshot,saveWorld,restoreWorld,climateAt,skyConditions,getCitizenProfiles:()=>cloneData(people.map(({name,job,trait,friend,bonds,energy,hunger,activity})=>({name,job,trait,friend,bonds,energy,hunger,activity}))),getSelectedCitizen:()=>people[selectedCitizen]?.name,routeCacheMetrics:()=>({entries:routeCache.size,hits:cacheHits,misses:cacheMisses}),getCamera:()=>({yaw,pitch,zoom,focus:focusPoint.slice(),follow,cinematic}),getTerrainHeight:(x,z)=>terrain(x,z),getWildfloraCount:()=>wildflora.length,getFestivalVisualStats:()=>({season:festivalSeason,cacheBuilds:festivalCacheBuilds,vertices:festivalGeometry?.length||0}),renderStats:()=>({terrainRebuilds,terrainCacheKey,terrainCacheTriangles,lastFrameTriangles}),setCamera:o=>{yaw=Number.isFinite(o.yaw)?o.yaw:yaw;pitch=Number.isFinite(o.pitch)?Math.max(.25,Math.min(1.45,o.pitch)):pitch;zoom=Number.isFinite(o.zoom)?Math.max(9,Math.min(85,o.zoom)):zoom;if(Array.isArray(o.focus)&&o.focus.length===2)focusPoint=o.focus.slice(0,2)}};
 })();
 </script></body></html>
