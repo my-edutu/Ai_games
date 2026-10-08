@@ -156,7 +156,6 @@ function makeLamp(parent,x,z,night){
   }
 }
 function buildWorld(snapshot) {
-  disposeGroup(terrain.children.length?terrain:null || terrain);
   // Ambient and terrain children use shared geometry, so remove nodes without disposing shared meshes.
   while(terrain.children.length) { const obj=terrain.children[0];disposeGroup(obj); if(obj.parent===terrain)terrain.remove(obj); }
   while(ambient.children.length) { const obj=ambient.children[0];disposeGroup(obj); if(obj.parent===ambient)ambient.remove(obj); }
