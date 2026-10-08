@@ -223,6 +223,21 @@ test('WebGL context loss returns uninterrupted authority feed to legacy 2D rende
   await expect.poll(async()=>Number(await page.locator('[data-testid="tick"]').textContent()),{timeout:15000}).toBeGreaterThan(before);
   await expect(page.locator('[data-testid="tower-canvas"]')).toBeVisible();
 });
+test('Wayfinder production sculpt exposes layered geometry on moving skeletal joints',async({page})=>{
+  await page.setViewportSize({width:1440,height:900});
+  const errors=[];page.on('pageerror',e=>errors.push(e.message));
+  await page.goto(base+'/tower?camera=hero&cleanFeed=1',{waitUntil:'domcontentloaded'});
+  await expect.poll(()=>page.evaluate(()=>window.__TOWER_3D_DIAGNOSTICS__?.renderedFrames||0),{timeout:30000}).toBeGreaterThan(4);
+  const data=await page.evaluate(()=>window.__TOWER_3D_DIAGNOSTICS__);
+  expect(data.heroSculpt?.role).toBe('wayfinder');
+  expect(data.heroSculpt?.riggedAttachments).toBe(true);
+  expect(data.heroSculpt?.cosmeticMeshes).toBeGreaterThan(90);
+  expect(data.heroSculpt?.realContactAuthority).toBe(false);
+  expect(data.heroParts).toBeGreaterThan(160);
+  expect(errors).toEqual([]);
+  await page.screenshot({path:path.join(artifacts,'gauntlet-sculpted-wayfinder-v13.png'),fullPage:true});
+});
+
 test('3D module unavailable degrades safely to the existing 2D scene',async({page})=>{
   await page.route('**/tower/scene3d.js',route=>route.fulfill({status:503,body:'Module unavailable'}));
   await page.goto(base+'/tower');
