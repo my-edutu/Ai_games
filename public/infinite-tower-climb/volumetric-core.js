@@ -6,6 +6,7 @@ export function createVolumetricCore(seedInput=0x00a3f914,saved=null){
   const build={stride:0,grip:0,ward:0,salvage:0};
   let shields=0,upgradesTaken=0,wallClimbs=0;
   const climbing={active:false,targetFloor:-1,progress:0,stamina:100,fromX:0,fromY:0,fromZ:0};
+  const tether={anchorX:0,anchorY:.555,anchorZ:0,reeling:false,progress:0,startX:0,startY:0,startZ:0,rescues:0,length:12};
   const random=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296};
   const clamp=(value,low,high)=>Math.min(high,Math.max(low,value));
   const player={x:0,y:2.05,z:0,vx:0,vy:0,vz:0,grounded:true,at:0,checkpoint:0,deaths:0,health:5};
@@ -51,6 +52,7 @@ export function createVolumetricCore(seedInput=0x00a3f914,saved=null){
     return {stride:'Swift Ascender',grip:'Skyward Grip',salvage:'Salvage Instinct',ward:'Aegis Ward'}[key];
   }
   function registerLanding(p){
+    Object.assign(tether,{anchorX:p.x,anchorY:landingHeight(p),anchorZ:p.z,length:Math.max(12,Math.hypot(p.width,p.depth)+7)});
     const newlyReached=p.i>player.at;
   player.y=landingHeight(p)+config.halfHeight;player.vy=0;player.grounded=true;
           if(p.i>player.at){
@@ -71,6 +73,7 @@ export function createVolumetricCore(seedInput=0x00a3f914,saved=null){
     if(p.kind==='wall-climb'&&newlyReached){wallClimbs++;emit('wall-mantle','Climbed a vertical handhold section on floor '+p.i+'.',{stamina:climbing.stamina});}
   }
   function respawn(){
+    tether.reeling=false;
     const target=platforms.find(p=>p.i===player.checkpoint)||platforms[0];
     Object.assign(player,{x:target.x,z:target.z,y:landingHeight(target)+config.halfHeight+.02,
       vx:0,vy:0,vz:0,at:target.i,grounded:true,deaths:player.deaths+1,health:Math.max(1,player.health-1)});
@@ -81,6 +84,17 @@ export function createVolumetricCore(seedInput=0x00a3f914,saved=null){
   function step(dt=1/60,input){
     if(!Number.isFinite(dt)||dt<=0||dt>1/30)throw new RangeError('fixed-step dt');
     tick++;time+=dt;mode='CLIMBING';
+    if(tether.reeling){
+      tether.progress=Math.min(1,tether.progress+dt/1.2);
+      const k=tether.progress,e=k*k*(3-2*k);
+      player.x=tether.startX+(tether.anchorX-tether.startX)*e;
+      player.y=tether.startY+(tether.anchorY+config.halfHeight-tether.startY)*e;
+      player.z=tether.startZ+(tether.anchorZ-tether.startZ)*e;
+      player.vx=0;player.vy=0;player.vz=0;player.grounded=false;
+      mode='ROPE REELING';intent='REEL BACK TO SAFETY';
+      if(k>=1){tether.reeling=false;player.grounded=true;mode='ROPE RECOVERY COMPLETE';}
+      return snapshot();
+    }
     // Moving landings have real simulated 3D trajectories, not cosmetic animation.
     for(const platform of platforms)if(platform.kind==='moving'){
       platform.x=clamp(platform.baseX+Math.sin(tick*.016+platform.i*.51)*1.25,-13.5,13.5);
@@ -190,6 +204,12 @@ export function createVolumetricCore(seedInput=0x00a3f914,saved=null){
       }
       else{intent='POSITION FOR SAFE JUMP';}
     }
+    // Manual player can physically walk off a ledge; AI plans its leap separately.
+    if(input&&player.grounded){
+      const standing=platforms.some(p=>Math.abs(player.y-config.halfHeight-landingHeight(p))<.22&&
+        Math.abs(player.x-p.x)<=p.width/2+.25&&Math.abs(player.z-p.z)<=p.depth/2+.25&&p.structuralIntegrity>0);
+      if(!standing)player.grounded=false;
+    }
     const oldFoot=player.y-config.halfHeight;
     player.vy=Math.max(config.maxFall,player.vy-config.gravity*dt);
     player.x=clamp(player.x+player.vx*dt,-config.worldX,config.worldX);
@@ -206,7 +226,14 @@ export function createVolumetricCore(seedInput=0x00a3f914,saved=null){
       }
     }
     const anchor=platforms.find(p=>p.i===player.at);
-    if(anchor&&player.y<landingHeight(anchor)-13)respawn();
+    if(anchor&&!player.grounded&&player.y<tether.anchorY-10&&!climbing.active){
+      tether.reeling=true;tether.progress=0;
+      tether.startX=player.x;tether.startY=player.y;tether.startZ=player.z;
+      tether.rescues++;score=Math.max(0,score-90);
+      player.vx=0;player.vy=0;player.vz=0;
+      mode='ROPE ARREST';intent='SAFETY LINE CAUGHT THE FALL';
+      emit('rope-rescue','The safety piton caught the fall. Reeling back to the last secure ledge.',{rescues:tether.rescues});
+    }else if(anchor&&player.y<landingHeight(anchor)-13)respawn();
     while(highestGenerated<player.at+15)addLanding(highestGenerated+1);
     while(platforms.length>24&&platforms[0].i<player.at-8)platforms.shift();
     return snapshot();
@@ -216,7 +243,7 @@ export function createVolumetricCore(seedInput=0x00a3f914,saved=null){
     return {schemaVersion:SAVE_VERSION,seedState:seed>>>0,initialSeed:seedInput>>>0,tick,time,
       highestGenerated,highestReached,mode,intent,guardianKills,score,build:{...build},
       shields,upgradesTaken,wallClimbs,climbing:{...climbing},player:{...player},
-      platforms:platforms.map(p=>({...p})),events:events.slice(-32)};
+      platforms:platforms.map(p=>({...p})),events:events.slice(-32),tether:{...tether}};
   }
   function importSave(raw){
     if(raw?.schemaVersion!==SAVE_VERSION||!raw.player||!Array.isArray(raw.platforms)||
@@ -249,6 +276,12 @@ export function createVolumetricCore(seedInput=0x00a3f914,saved=null){
     for(const key of ['x','y','z','vx','vy','vz','at','checkpoint','deaths','health'])
       player[key]=raw.player[key];
     player.grounded=Boolean(raw.player.grounded);
+    if(!raw.tether||!Number.isFinite(raw.tether.anchorX)||!Number.isFinite(raw.tether.anchorY)||
+      !Number.isFinite(raw.tether.anchorZ)||!Number.isFinite(raw.tether.progress)||
+      raw.tether.progress<0||raw.tether.progress>1||!Number.isFinite(raw.tether.rescues))
+      throw Error('Invalid tether save');
+    for(const key of ['anchorX','anchorY','anchorZ','reeling','progress','startX','startY','startZ','rescues','length'])
+      tether[key]=key==='reeling'?Boolean(raw.tether[key]):Number(raw.tether[key]||0);
     for(const key of ['active','targetFloor','progress','stamina','fromX','fromY','fromZ'])
       climbing[key]=key==='active'?Boolean(raw.climbing[key]):Number(raw.climbing[key]||0);
     platforms.splice(0,platforms.length,...raw.platforms.map(p=>({...p})));
@@ -257,6 +290,7 @@ export function createVolumetricCore(seedInput=0x00a3f914,saved=null){
   function snapshot(){
     return {tick,time,mode,intent,theme:currentTheme(),highestReached,highestGenerated,guardianKills,score,
       events:events.slice(-12),build:{...build},shields,upgradesTaken,wallClimbs,
+      tether:{...tether},
       climbing:{...climbing},
       player:{...player},platforms:platforms.map(p=>({...p})),dimensionality:3};
   }
