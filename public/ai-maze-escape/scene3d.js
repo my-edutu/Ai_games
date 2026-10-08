@@ -617,6 +617,11 @@ function render(now) {
     lanternLight.intensity=reducedMotion?7.5:7.1+Math.sin(now*.016)*.6;
   }
   if(ground) ground.position.set(explorer.position.x,-.46,explorer.position.z);
+  if(sunLight){
+    sunLight.position.set(explorer.position.x-7,14,explorer.position.z-3);
+    sunLight.target.position.set(explorer.position.x,0,explorer.position.z);
+    sunLight.target.updateMatrixWorld();
+  }
   if(skyDome)skyDome.position.copy(explorer.position);
   if(ambientDust) {
     ambientDust.position.set(explorer.position.x,0,explorer.position.z);
@@ -733,6 +738,7 @@ function init() {
   sun.shadow.camera.near=.5;sun.shadow.camera.far=75;
   sun.shadow.bias=-.0008;
   scene.add(sun);
+  scene.add(sun.target);
   const edge=new THREE.DirectionalLight(0x5affca,1.9);
   rimLight=edge;
   edge.position.set(10,8,10);
