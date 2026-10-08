@@ -14,7 +14,9 @@ function hazard(overrides={}){
 }
 test('reactive pilot jumps once per threat using the public, finite observation window',()=>{
   const pilot=createReactivePilot();
-  const snapshot=frame({hazards:[hazard()]});
+  const far=frame({hazards:[hazard()]});
+  assert.equal(pilot.decide(far).jumpPressed,false,'do not launch early and land inside potholes');
+  const snapshot=frame({hazards:[hazard({x:7.4})]});
   assert.equal(pilot.decide(snapshot).jumpPressed,true);
   assert.equal(pilot.decide({...snapshot,tick:101}).jumpPressed,false);
   pilot.reset();
