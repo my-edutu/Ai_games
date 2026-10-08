@@ -85,7 +85,7 @@
     climber.setMotion(player.vx*dt,player.vy*dt,manual?'manual':'autonomous');
     Object.assign(details,{status:'live',tick:snapshot.tick,floor:player.at,x:player.x,y:player.y,z:player.z,
       velocity:{x:player.vx,y:player.vy,z:player.vz},platforms:models.size,next:player.at+1,
-      deaths:player.deaths,biome,mode:snapshot.mode,guardianKills:snapshot.guardianKills,
+      deaths:player.deaths,biome,mode:snapshot.mode,intent:snapshot.intent,guardianKills:snapshot.guardianKills,
       score:snapshot.score,health:player.health,autonomous:!manual,dimensionality:3,
       highestReached:snapshot.highestReached});
   }
@@ -115,14 +115,14 @@
     if(details.tick%8===0){
       document.getElementById('floor').textContent=String(player.at).padStart(3,'0');
       document.getElementById('height').textContent=Math.round(Math.max(0,player.y))+'m';
-      document.getElementById('intent').textContent=details.mode||'ASCENDING';
+      document.getElementById('intent').textContent=details.intent||'ASSESSING THE TOWER';
       document.getElementById('depth').textContent='Z '+player.z.toFixed(1);
       document.getElementById('biome').textContent=biome.toUpperCase();
       document.getElementById('recoveries').textContent=String(player.deaths);
       document.getElementById('guardian-kills').textContent=String(details.guardianKills);
       document.getElementById('score').textContent=details.score.toLocaleString();
       document.getElementById('health').textContent=String(details.health)+' / 5';
-      status.textContent=(manual?'MANUAL 3D':'AUTONOMOUS 3D AI')+' · '+details.tick+' TICKS';
+      status.textContent=(manual?'MANUAL 3D':'AUTONOMOUS 3D AI')+' · '+details.mode+' · '+details.tick+' TICKS';
     }
     requestAnimationFrame(animate);
   }
