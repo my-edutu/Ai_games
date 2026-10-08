@@ -72,6 +72,14 @@ async function sampleRuntime(){
     const metrics=child?.__MAZE_3D_METRICS__;
     byId('render-mode').textContent=metrics?.active?'3D WEBGL':'2D FALLBACK';
     byId('render-performance').textContent=metrics?.active?metrics.fps+' FPS / '+metrics.drawCalls:'—';
+    const model=child?.__MAZE_3D_MODEL__;
+    byId('hero-rig').textContent=model?.status==='loaded'
+      ?'RIGGED • '+model.bones+' BONES'
+      :model?.status==='loading'?'LOADING REAL 3D ASSET'
+      :model?.status==='fallback'?'PROCEDURAL FALLBACK':'AWAITING GPU';
+    byId('scene-grade').textContent=metrics?.active
+      ?String(metrics.cinematicCue||'EXPLORING').toUpperCase()+' • '+String(metrics.qualityMode||'ADAPTIVE').toUpperCase()
+      :'TACTICAL VIEW';
   }catch{
     byId('health').textContent='RECONNECTING';
   }
