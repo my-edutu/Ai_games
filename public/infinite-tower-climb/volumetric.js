@@ -60,12 +60,14 @@
       models.get(p.i).position.set(p.x,p.y,p.z);
       models.get(p.i).visible=p.structuralIntegrity>0;
       if(p.guardianHealth>0&&!guardians.has(p.i)){
-        const guardian=art.enemy({kind:'guardian',telegraph:p.guardianHealth<4},
+        const guardian=art.enemy({kind:'guardian',guardianClass:p.guardianClass,telegraph:true},
           p.x,p.y+p.height/2+1.78,.9,1.3);
         guardian.position.z=p.z;
+        if(guardian.userData.telegraph)guardian.userData.telegraph.visible=!!p.guardianTelegraph;
         enemyScene.add(guardian);guardians.set(p.i,guardian);
       }else if(p.guardianHealth>0&&guardians.has(p.i)){
         guardians.get(p.i).position.set(p.x,p.y+p.height/2+1.78,p.z);
+        if(guardians.get(p.i).userData.telegraph)guardians.get(p.i).userData.telegraph.visible=!!p.guardianTelegraph;
       }else if(p.guardianHealth<=0&&guardians.has(p.i)){
         const guardian=guardians.get(p.i);enemyScene.remove(guardian);art.release(guardian);guardians.delete(p.i);
       }
