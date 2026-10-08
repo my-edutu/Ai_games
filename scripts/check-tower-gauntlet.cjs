@@ -13,12 +13,13 @@ const scripts=[
   'public/infinite-tower-climb/biome-v4.js',
   'public/infinite-tower-climb/hazards-v4.js',
   'public/infinite-tower-climb/landmarks-v5.js',
-  'public/infinite-tower-climb/effects-v6.js'
+  'public/infinite-tower-climb/effects-v6.js',
+  'public/infinite-tower-climb/atmosphere-v8.js'
 ];
 const source=scripts.map(read);
 const publicApp=read('public/infinite-tower-climb/app.js');
 const publicHtml=read('public/infinite-tower-climb/index.html');
-const visualCss=read('public/infinite-tower-climb/visual-v4.css');
+const visualCss=read('public/infinite-tower-climb/visual-v8.css');
 const host=read('scripts/serve-tower-stream.cjs');
 const sim=read('games/infinite-tower-climb/src/presentation/snapshot.ts');
 const pack=JSON.parse(read('package.json'));
@@ -35,12 +36,14 @@ for(let i=0;i<source.length;i++){
     assert(host.includes(url),scripts[i]+' import '+url+' missing host route');
   }
 }
-assert(publicHtml.includes('visual-v4.css'),'New UI must be mounted in the real game');
-assert(host.includes("'/tower/visual-v4.css'"),'UI assets must be served locally');
+assert(publicHtml.includes('visual-v8.css'),'Visual Edition VIII must be mounted in the real game');
+assert(!publicHtml.includes('visual-v4.css')&&!publicHtml.includes('visual-v5.css')&&!publicHtml.includes('visual-v7.css'),'Conflicting old visual editions must not be loaded');
+assert(host.includes("'/tower/visual-v8.css'"),'Unified UI must be served locally');
 assert(visualCss.includes('.world-label')&&visualCss.includes('.arena-wrap'),'World and stage layout must be styled');
 assert(source.some(x=>x.includes('buildPainterlyTowerBackdrop')),'3D environment must use scenic world composition');
 assert(source.some(x=>x.includes('createTowerHazard3D')),'Visually identifiable gameplay hazards required');
 assert(source.some(x=>x.includes('buildBiomeLandmarks')),'Five individually composed biome landmarks must be mounted');
+assert(source.some(x=>x.includes('mountTowerAtmosphere')),'Bounded cinematic atmosphere must be present');
 assert(source.some(x=>x.includes('createTowerEffectsDirector')),'Gameplay feedback effects director must be mounted');
 assert(source.some(x=>x.includes('PerspectiveCamera')),'Perspective depth camera must be active');
 assert(publicApp.includes("params.get('renderer')!=='2d'"),'2D explicit fallback missing');
