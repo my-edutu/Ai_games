@@ -32,6 +32,8 @@ let sceneAnimators=[];
 const dynamic = new THREE.Group();
 const routeLayer = new THREE.Group();
 let previousRouteSignature='';
+let captureRequested=false;
+const onCapture=()=>{captureRequested=true;};
 const world = new THREE.Group();
 let renderer = null;
 let scene = null;
@@ -710,6 +712,25 @@ function render(now) {
     restore2DFallback('render-fallback');
     return;
   }
+  if(captureRequested){
+    captureRequested=false;
+    try{
+      // Capture immediately after WebGL rendered the real scene into this drawing buffer.
+      // preserveDrawingBuffer is not needed, so 24/7 rendering retains its performance.
+      const png=renderer.domElement.toDataURL('image/png');
+      if(png.startsWith('data:image/png')){
+        const link=document.createElement('a');
+        link.href=png;
+        link.download='ai-maze-escape-'+(lastFrame.snapshot?.tick||0)+'.png';
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        window.dispatchEvent(new CustomEvent('maze:captured',{detail:{tick:lastFrame.snapshot?.tick||0}}));
+      }
+    }catch{
+      window.dispatchEvent(new CustomEvent('maze:capture-error'));
+    }
+  }
   fpsFrames++;
   if(now-fpsSince>=1000){
     currentFPS=Math.round(fpsFrames*1000/Math.max(1,now-fpsSince));fpsFrames=0;fpsSince=now;
@@ -856,8 +877,10 @@ function init() {
   const observer=new ResizeObserver(resize);
   observer.observe(mount);
   window.addEventListener('maze:frame',onFrame);
+  window.addEventListener('maze:capture',onCapture);
   window.addEventListener('pagehide',()=>{
     active=false;observer.disconnect();window.removeEventListener('maze:frame',onFrame);
+    window.removeEventListener('maze:capture',onCapture);
     renderer.dispose();
     atmosphere.dispose();moments.dispose();
   },{once:true});
