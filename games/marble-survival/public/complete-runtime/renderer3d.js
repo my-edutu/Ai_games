@@ -308,6 +308,11 @@
     opacity: gl.getUniformLocation(program,'uOpacity')
   });
   const sphereMesh=createSphereMesh(), boxMesh=createBoxMesh(), cylinderMesh=createCylinderMesh(), shadowMesh=createCylinderMesh(24);
+  const gauntletChannel = typeof BroadcastChannel === 'function' ? new BroadcastChannel('marble-gauntlet-v1') : null;
+  let frameDrawCalls = 0;
+  let frameTriangles = 0;
+  let sampledFrames = 0;
+  let sampleStartedAt = performance.now();
   const rollingById=new Map(); const effects=[]; let snapshot=null,previousSnapshot=null,snapshotReceivedAt=performance.now(),lastEventSeq=-1,cameraState=null,cameraArenaId=null,pollingStopped=false,requestInFlight=false;
   gl.enable(gl.DEPTH_TEST); gl.enable(gl.CULL_FACE); gl.cullFace(gl.BACK); gl.enable(gl.BLEND); gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
@@ -341,7 +346,7 @@
   }
   function smoothedCamera(currentSnapshot,marbles){const next=cameraFromDirective(currentSnapshot,marbles);if(!cameraState||cameraArenaId!==currentSnapshot.arena.id){cameraArenaId=currentSnapshot.arena.id;cameraState=next;return next;}const reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;const amount=reduced?1:0.075;cameraState={eye:lerp3(cameraState.eye,next.eye,amount),target:lerp3(cameraState.target,next.target,amount),mode:next.mode};return cameraState;}
   function material(color,roughness=0.65,metalness=0.08,emissive=0,opacity=1,patternType=0,patternColor=[0.94,0.925,0.86]){return{color,roughness,metalness,emissive,opacity,patternType,patternColor};}
-  function drawMesh(mesh,model,surface,viewProjection,cameraPosition){gl.useProgram(program);gl.uniformMatrix4fv(uniforms.model,false,model);gl.uniformMatrix4fv(uniforms.viewProjection,false,viewProjection);gl.uniformMatrix3fv(uniforms.normalMatrix,false,normalMatrix3(model));gl.uniform3fv(uniforms.color,surface.color);gl.uniform3fv(uniforms.patternColor,surface.patternColor);gl.uniform1f(uniforms.patternType,surface.patternType);gl.uniform3fv(uniforms.lightDirection,[0.42,-1,0.28]);gl.uniform3fv(uniforms.cameraPosition,cameraPosition);gl.uniform1f(uniforms.roughness,surface.roughness);gl.uniform1f(uniforms.metalness,surface.metalness);gl.uniform1f(uniforms.emissive,surface.emissive);gl.uniform1f(uniforms.opacity,surface.opacity);gl.bindVertexArray(mesh.vao);gl.drawElements(gl.TRIANGLES,mesh.count,gl.UNSIGNED_SHORT,0);gl.bindVertexArray(null);}
+  function drawMesh(mesh,model,surface,viewProjection,cameraPosition){gl.useProgram(program);gl.uniformMatrix4fv(uniforms.model,false,model);gl.uniformMatrix4fv(uniforms.viewProjection,false,viewProjection);gl.uniformMatrix3fv(uniforms.normalMatrix,false,normalMatrix3(model));gl.uniform3fv(uniforms.color,surface.color);gl.uniform3fv(uniforms.patternColor,surface.patternColor);gl.uniform1f(uniforms.patternType,surface.patternType);gl.uniform3fv(uniforms.lightDirection,[0.42,-1,0.28]);gl.uniform3fv(uniforms.cameraPosition,cameraPosition);gl.uniform1f(uniforms.roughness,surface.roughness);gl.uniform1f(uniforms.metalness,surface.metalness);gl.uniform1f(uniforms.emissive,surface.emissive);gl.uniform1f(uniforms.opacity,surface.opacity);gl.bindVertexArray(mesh.vao);gl.drawElements(gl.TRIANGLES,mesh.count,gl.UNSIGNED_SHORT,0);frameDrawCalls+=1;frameTriangles+=mesh.count/3;gl.bindVertexArray(null);}
   function drawBox(center,size,surface,viewProjection,cameraPosition,rotation=[0,0,0]){drawMesh(boxMesh,modelMatrix(center,rotation,[size[0]/2,size[1]/2,size[2]/2]),surface,viewProjection,cameraPosition);}
 
   function drawArenaDeck(arena,theme,viewProjection,cameraPosition){const width=arena.width*WORLD_SCALE,depth=arena.height*WORLD_SCALE;drawBox([0,-0.23,0],[width+0.9,0.42,depth+0.9],material(theme.trim,0.82,0.18),viewProjection,cameraPosition);drawBox([0,-0.015,0],[width,0.08,depth],material(theme.deck,0.73,0.08),viewProjection,cameraPosition);for(let lane=1;lane<4;lane+=1){const x=-width/2+width*lane/4;drawBox([x,0.035,0],[0.025,0.015,depth*0.96],material([0.68,0.69,0.67],0.95,0,0,0.24),viewProjection,cameraPosition);}}
@@ -378,10 +383,38 @@
   function spawnEffects(next){for(const event of next.events||[]){if(event.seq<=lastEventSeq)continue;lastEventSeq=Math.max(lastEventSeq,event.seq);if(!['marble-eliminated','shield-recovery','marble-qualified','tournament-champion'].includes(event.type))continue;const marbleId=Number(event.data?.marbleId??event.data?.championId),marble=next.marbles.find((candidate)=>candidate.id===marbleId);if(!marble)continue;const point=toWorld(marble.x,marble.y,next.arena),count=event.type==='tournament-champion'?28:event.type==='marble-eliminated'?16:10,color=event.type==='marble-eliminated'?[0.96,0.22,0.08]:event.type==='shield-recovery'?[0.34,0.78,1.0]:[1.0,0.72,0.20],elevation=(marble.elevation||0)*WORLD_SCALE;for(let index=0;index<count;index+=1){const unitA=deterministicUnit(event.seq*4099+index*193),unitB=deterministicUnit(event.seq*8191+index*389),angle=unitA*Math.PI*2,speed=0.7+unitB*1.7;effects.push({position:[point[0],elevation+0.30,point[2]],velocity:[Math.cos(angle)*speed,0.7+unitA*1.6,Math.sin(angle)*speed],color,age:0,lifetime:0.65+unitB*0.75});}}if(effects.length>160)effects.splice(0,effects.length-160);}
   function drawEffects(dt,viewProjection,cameraPosition){const quality=document.getElementById('quality-select')?.value||'balanced',cap=quality==='low'?24:quality==='balanced'?72:140;let drawn=0;for(const effect of effects){effect.age+=dt;if(effect.age>=effect.lifetime)continue;effect.velocity[1]-=2.7*dt;effect.position[0]+=effect.velocity[0]*dt;effect.position[1]+=effect.velocity[1]*dt;effect.position[2]+=effect.velocity[2]*dt;if(drawn<cap){const life=1-effect.age/effect.lifetime,size=0.035+life*0.045;drawMesh(sphereMesh,modelMatrix(effect.position,[0,0,0],[size,size,size]),material(effect.color,0.4,0.15,0.7,life),viewProjection,cameraPosition);drawn+=1;}}for(let index=effects.length-1;index>=0;index-=1)if(effects[index].age>=effects[index].lifetime)effects.splice(index,1);}
 
-  function drawScene(now,dt){if(!resize()||!snapshot)return;const arena=snapshot.arena,theme=THEMES[arena.archetype]||THEMES['seeding-sprint'];gl.clearColor(...theme.clear,1);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);const marbles=interpolatedMarbles(now),camera=smoothedCamera(snapshot,marbles),projection=perspective4(Math.PI*0.245,canvas.width/Math.max(1,canvas.height),0.08,120),view=lookAt4(camera.eye,camera.target),viewProjection=multiply4(projection,view),focusIds=new Set(snapshot.camera.directive?.focusIds||[]);drawArenaDeck(arena,theme,viewProjection,camera.eye);drawGuardRails(arena,theme,viewProjection,camera.eye);for(const ramp of arena.ramps||[])drawRampStructure(ramp,arena,theme,viewProjection,camera.eye);for(const hazard of arena.hazards)drawHazardPit(hazard,arena,theme,viewProjection,camera.eye);for(const obstacle of arena.obstacles)drawObstacle(obstacle,arena,theme,viewProjection,camera.eye);for(const bumper of arena.bumpers)drawBumper(bumper,arena,theme,viewProjection,camera.eye);for(const sweeper of arena.sweepers)drawSweeperMachine(sweeper,arena,theme,snapshot.tick,viewProjection,camera.eye);drawFinishGate(arena,theme,viewProjection,camera.eye);const quality=document.getElementById('quality-select')?.value||'balanced';if(quality!=='low')for(const marble of marbles)if(marble.status!=='eliminated')drawContactShadow(marble,arena,viewProjection,camera.eye);for(const marble of marbles)drawMarble(marble,arena,viewProjection,camera.eye,now/1000,focusIds.has(marble.id));drawEffects(dt,viewProjection,camera.eye);}
+  function drawScene(now,dt){if(!resize()||!snapshot)return;frameDrawCalls=0;frameTriangles=0;const arena=snapshot.arena,theme=THEMES[arena.archetype]||THEMES['seeding-sprint'];gl.clearColor(...theme.clear,1);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);const marbles=interpolatedMarbles(now),camera=smoothedCamera(snapshot,marbles),projection=perspective4(Math.PI*0.245,canvas.width/Math.max(1,canvas.height),0.08,120),view=lookAt4(camera.eye,camera.target),viewProjection=multiply4(projection,view),focusIds=new Set(snapshot.camera.directive?.focusIds||[]);drawArenaDeck(arena,theme,viewProjection,camera.eye);drawGuardRails(arena,theme,viewProjection,camera.eye);for(const ramp of arena.ramps||[])drawRampStructure(ramp,arena,theme,viewProjection,camera.eye);for(const hazard of arena.hazards)drawHazardPit(hazard,arena,theme,viewProjection,camera.eye);for(const obstacle of arena.obstacles)drawObstacle(obstacle,arena,theme,viewProjection,camera.eye);for(const bumper of arena.bumpers)drawBumper(bumper,arena,theme,viewProjection,camera.eye);for(const sweeper of arena.sweepers)drawSweeperMachine(sweeper,arena,theme,snapshot.tick,viewProjection,camera.eye);drawFinishGate(arena,theme,viewProjection,camera.eye);const quality=document.getElementById('quality-select')?.value||'balanced';if(quality!=='low')for(const marble of marbles)if(marble.status!=='eliminated')drawContactShadow(marble,arena,viewProjection,camera.eye);for(const marble of marbles)drawMarble(marble,arena,viewProjection,camera.eye,now/1000,focusIds.has(marble.id));drawEffects(dt,viewProjection,camera.eye);}
   function acceptSnapshot(next){if(!next||next.version!==1||!next.arena||!Array.isArray(next.marbles)||!next.camera?.directive)return;const discontinuity=snapshot&&(next.tick<snapshot.tick||next.arena.id!==snapshot.arena.id);previousSnapshot=discontinuity?null:snapshot;snapshot=next;snapshotReceivedAt=performance.now();if(discontinuity){rollingById.clear();cameraState=null;cameraArenaId=null;effects.length=0;}spawnEffects(next);shell.classList.add('webgl-ready');shell.dataset.renderer='webgl2';}
   async function refreshSnapshot(){if(requestInFlight||pollingStopped||document.hidden)return;requestInFlight=true;try{const response=await fetch('/api/snapshot',{cache:'no-store'});if(!response.ok)throw new Error(`snapshot ${response.status}`);acceptSnapshot(await response.json());}catch{if(!snapshot)shell.classList.remove('webgl-ready');}finally{requestInFlight=false;}}
-  let previousFrameAt=performance.now();function frame(now){const dt=clamp((now-previousFrameAt)/1000,0,0.05);previousFrameAt=now;drawScene(now,dt);requestAnimationFrame(frame);}
+  let previousFrameAt=performance.now();
+  function frame(now) {
+    const dt=clamp((now-previousFrameAt)/1000,0,0.05);
+    previousFrameAt=now;
+    if (!document.hidden) {
+      drawScene(now,dt);
+      if (snapshot) sampledFrames += 1;
+    }
+    const elapsed=now-sampleStartedAt;
+    if (elapsed>=1000) {
+      const metrics=Object.freeze({
+        renderer: 'webgl2',
+        fps: Math.round(sampledFrames*1000/elapsed),
+        drawCalls: frameDrawCalls,
+        triangles: frameTriangles,
+        tick: snapshot?.tick ?? null,
+        arena: snapshot?.arena?.id ?? null,
+        measuredAt: Date.now(),
+      });
+      window.marbleRenderTelemetry=metrics;
+      shell.dataset.renderFps=String(metrics.fps);
+      shell.dataset.renderDrawCalls=String(metrics.drawCalls);
+      shell.dataset.renderTriangles=String(metrics.triangles);
+      if (gauntletChannel) gauntletChannel.postMessage(metrics);
+      sampleStartedAt=now;
+      sampledFrames=0;
+    }
+    requestAnimationFrame(frame);
+  }
   canvas.addEventListener('webglcontextlost',(event)=>{event.preventDefault();shell.classList.remove('webgl-ready');pollingStopped=true;});
   canvas.addEventListener('webglcontextrestored',()=>{pollingStopped=false;shell.classList.remove('webgl-ready');location.reload();});
   window.addEventListener('resize',resize,{passive:true});document.addEventListener('visibilitychange',()=>{if(!document.hidden)refreshSnapshot();});
