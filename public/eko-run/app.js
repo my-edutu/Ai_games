@@ -69,7 +69,7 @@ function labelSprite(parent,text,x,y,z,{color='#fff2cf',bg='#1d3947',scale=1}={}
   return sprite;
 }
 function disposeGroup(group){
-  group.traverse(object=>{if(object.userData.ownTexture)object.userData.ownTexture.dispose();if(object.isSprite)object.material.dispose();if(object.userData.disposeGeometryOnRemove)object.geometry.dispose();});
+  group.traverse(object=>{if(object.userData.ownTexture)object.userData.ownTexture.dispose();if(object.isSprite)object.material.dispose();if(object.userData.disposeGeometryOnRemove)object.geometry.dispose();if(object.userData.disposeMaterialOnRemove)object.material.dispose();});
   group.parent?.remove(group);
 }
 function numberHash(n){let x=(Math.imul(n+1,0x9e3779b1)>>>0);x^=x>>>16;x=Math.imul(x,0x85ebca6b)>>>0;return (x>>>0)/4294967295;}
@@ -217,6 +217,10 @@ function buildWorld(snapshot) {
   const road=box(terrain,length,.25,6.8,length/2-4,-.18,0,style.ground,false);
   road.receiveShadow=true;
   road.material=surfaces.asphalt;
+  // The near-side footpath fills the lower part of the screen with real material,
+  // rather than the cyan background visible through a missing world surface.
+  const nearPlaza=box(terrain,length,.25,13,length/2-4,-.16,11.35,0xb3c4b7,false);
+  nearPlaza.material=surfaces.sidewalk;
   for(const side of [-1,1]){
     const sidewalk=box(terrain,length,.25,1.1,length/2-4,.06,side*4.05,0xc6ad91,false);
     sidewalk.material=surfaces.sidewalk;
@@ -239,7 +243,9 @@ function buildWorld(snapshot) {
     // Previous grey primitive shops visually covered the richer studio art.
     // Keep their inexpensive far-background silhouette only in lower-end mode.
     if(i%2===0 && worldState.quality==='low') makeShop(terrain,x+1,-14.1,i+71,night);
-    if(i%3===0) makeTree(terrain,x+.4,4.95,i+4);
+    // Gauntlet visual critique: tall foreground trees obscured Tayo and hazard cues.
+    // Preserve Lagos tree canopy on the back sidewalk, away from camera sightlines.
+    if(i%4===0) makeTree(terrain,x+.4,-5.85,i+4);
     if(i%4===0) makeLamp(terrain,x,-4.40,night);
     if(i%4===1) makeBus(terrain,x+1.0,-2.42,i);
     if(i%5===0){
@@ -343,7 +349,7 @@ function buildWorld(snapshot) {
   worldState.vibrance=composeStreetVibrance(THREE,{terrain,box,ball,cylinder,labelSprite,material,district,length,quality:worldState.quality});
   // Limit terrain shadow casters; the actor and reactive dangers retain silhouettes.
   terrain.traverse(node=>{if(node.isMesh)node.castShadow=false;});
-  worldState.batching=batchDistrictGeometry(THREE,terrain,{chunkMeters:18});
+  worldState.batching=batchDistrictGeometry(THREE,terrain,{chunkMeters:18,mergeSolidColors:true});
   worldState.district=district;worldState.finish=snapshot.route.finishX;
 }
 // Reusable, bounded, presentation-only rain particles for Lagos showers.
