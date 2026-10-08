@@ -66,6 +66,28 @@ test('Marble WebGL broadcast renders authoritative tournament and captures runti
   await expect(shell).toHaveAttribute('data-renderer', 'webgl2', { timeout: 20_000 });
   await expect(shell).toHaveAttribute('data-identity', 'projected', { timeout: 20_000 });
 
+  // Critic gate: labels must be drawn from the exact frame's projection,
+  // not a separately moving presentation camera.
+  await expect(shell).toHaveAttribute('data-identity-source', 'webgl-frame', { timeout: 20_000 });
+  await page.waitForFunction(() => {
+    const shell = document.querySelector('.broadcast-shell');
+    return shell?.dataset.identitySource === 'webgl-frame' &&
+      shell.dataset.identityTick === shell.dataset.webglTick &&
+      shell.dataset.identityTick !== '';
+  }, { timeout: 15_000 });
+
+  const gauntletPage = await page.context().newPage();
+  try {
+    await gauntletPage.goto(`${base}/gauntlet.html`, { waitUntil: 'domcontentloaded' });
+    await expect(gauntletPage.locator('#iteration')).toContainText('Loop', { timeout: 10_000 });
+    await expect(gauntletPage.locator('#sync-status')).toContainText('connected', { timeout: 10_000 });
+    await expect(gauntletPage.locator('#comparison-status')).toContainText('NOT YET VERIFIED');
+    await gauntletPage.screenshot({ path: path.join(artifacts, '00-gauntlet-progress.png'), fullPage: true });
+  } finally {
+    await gauntletPage.close();
+  }
+
+
   const gpu = await page.evaluate(() => {
     const canvas = document.getElementById('arena-webgl');
     const gl = canvas?.getContext('webgl2');
