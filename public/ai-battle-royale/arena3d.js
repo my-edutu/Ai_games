@@ -25,6 +25,8 @@
     'in vec3 pos; in vec3 normal; in vec3 tint;',
     'uniform vec3 center; uniform vec2 scale;',
     'uniform float uYaw; uniform float uPitch; uniform float uPerspective;',
+    'uniform vec3 uEye; uniform vec3 uForward; uniform vec3 uRight; uniform vec3 uUp;',
+    'uniform vec2 uLens; uniform float uPhysicalCamera;',
     'out vec3 vNormal; out vec3 vTint; out float vDepth; out vec3 vWorld;',
     'void main(){',
     'vec3 p=pos-center;',
@@ -35,8 +37,16 @@
     'float up=p.y*cp-along*sp;',
     'float depth=p.y*sp+along*cp;',
     'float cameraW=max(0.55,1.0+depth*uPerspective);',
-    'gl_Position=vec4(east*scale.x,up*scale.y,-depth/80.0,cameraW);',
-    'vNormal=normal;vTint=tint;vDepth=depth;vWorld=pos;',
+    'vec3 ray=pos-uEye;',
+    'float depthPhysical=dot(ray,uForward);',
+    'float nearPlane=.20;float farPlane=160.0;',
+    'float clipZ=depthPhysical*(farPlane+nearPlane)/(farPlane-nearPlane)',
+    '           -2.0*farPlane*nearPlane/(farPlane-nearPlane);',
+    'vec4 pinhole=vec4(dot(ray,uRight)*uLens.x,dot(ray,uUp)*uLens.y,',
+    '                    clipZ,max(depthPhysical,.001));',
+    'vec4 stylized=vec4(east*scale.x,up*scale.y,-depth/80.0,cameraW);',
+    'gl_Position=mix(stylized,pinhole,uPhysicalCamera);',
+    'vNormal=normal;vTint=tint;vDepth=mix(depth,depthPhysical,uPhysicalCamera);vWorld=pos;',
     '}'
   ].join('\n');
   const fragmentSource=[
@@ -89,7 +99,7 @@
   const reducedMotion=params.get('reducedMotion')==='1'||matchMedia('(prefers-reduced-motion: reduce)').matches;
   const reducedFlash=params.get('reducedFlash')==='1';
   let previousSnapshot=null,startedAt=0,animationId=0,lastPaintTime=0;
-  const status={mode:forced2d?'forced-2d':'initializing',frames:0,triangles:0,contenders:0,p95SubmitMs:0,sceneBuilds:0,quality:quality,activeEffects:0,lastError:null,cameraMode:'tactical',materialAtlas:'fallback'};
+  const status={mode:forced2d?'forced-2d':'initializing',frames:0,triangles:0,contenders:0,p95SubmitMs:0,sceneBuilds:0,quality:quality,activeEffects:0,lastError:null,cameraMode:'tactical',projection:'stylized',materialAtlas:'fallback'};
   const staticCache={key:null,vertices:0};
   const frameSamples=[];
   const headings=new Map();
@@ -185,7 +195,7 @@
     gl.deleteShader(v);gl.deleteShader(f);
     if(!gl.getProgramParameter(program,gl.LINK_STATUS))throw Error('shader-link');
     attr=['pos','normal','tint'].map(name=>gl.getAttribLocation(program,name));
-    uniform=['center','scale','uYaw','uPitch','uPerspective','uBiomeRow','uAtlasReady','uSurfaceStrength','uSurfaceAtlas'].map(name=>gl.getUniformLocation(program,name));
+    uniform=['center','scale','uYaw','uPitch','uPerspective','uBiomeRow','uAtlasReady','uSurfaceStrength','uSurfaceAtlas','uEye','uForward','uRight','uUp','uLens','uPhysicalCamera'].map(name=>gl.getUniformLocation(program,name));
     staticBuffer=gl.createBuffer();dynamicBuffer=gl.createBuffer();
     surfaceAtlasTexture=null;status.materialAtlas=materialsEnabled?'fallback':'disabled';
     // Sampler2D must always have a complete texture even while the SVG loads.
@@ -1191,6 +1201,23 @@
     cameraTracking.z+=(target.z-cameraTracking.z)*factor;
     return {x:cameraTracking.x,z:cameraTracking.z};
   }
+  function physicalCamera(target,yaw,elevation,distance,aspect){
+    // Pinhole camera basis, physical FOV and actual near/far depth clipping.
+    const horizontal=Math.cos(elevation)*distance;
+    const eye=[target.x+Math.sin(yaw)*horizontal,
+      1.0+Math.sin(elevation)*distance,
+      target.z+Math.cos(yaw)*horizontal];
+    const forward=[(target.x-eye[0])/distance,
+      (1.0-eye[1])/distance,(target.z-eye[2])/distance];
+    const right=[-forward[2],0,forward[0]];
+    const rightLength=Math.hypot(...right)||1;
+    for(let k=0;k<3;k++)right[k]/=rightLength;
+    const up=[right[1]*forward[2]-right[2]*forward[1],
+      right[2]*forward[0]-right[0]*forward[2],
+      right[0]*forward[1]-right[1]*forward[0]];
+    const f=1/Math.tan(61*Math.PI/360);
+    return{eye,forward,right,up,lens:[f/aspect,f]};
+  }
   function spectatorCloseup(snapshot,area,mode){
     // Second camera pass views the SAME public geometry: no synthetic battles,
     // no hidden outcome changes, no second simulation.
@@ -1233,6 +1260,7 @@
         gl.uniform1f(uniform[3],.43);
         gl.uniform1f(uniform[4],.032);
       }
+      gl.uniform1f(uniform[14],0);
       drawScene();
     }finally{
       gl.disable(gl.SCISSOR_TEST);
@@ -1240,7 +1268,7 @@
       gl.clearColor(0,0,0,0);
     }
   }
-  function updateNameplates(snapshot,area,view,scale,zoom,yaw,pitch){
+  function updateNameplates(snapshot,area,view,scale,zoom,yaw,pitch,physical){
     // Public AI personalities visible in the *actual* 3D view, not a fake HUD.
     // Max six, no hidden player state, and no per-frame invented events.
     if(!plateLayer||quality==='low'||area.width<950)return;
@@ -1258,7 +1286,14 @@
       const east=px*cy-pz*sy,along=px*sy+pz*cy,up=py*cp-along*sp;
       const depth=py*sp+along*cp;
       const w=Math.max(.55,1+depth*.013);
-      const nx=east*scale*zoom/aspect/w,ny=up*scale*zoom/w;
+      let nx=east*scale*zoom/aspect/w,ny=up*scale*zoom/w;
+      if(physical?.eye){
+        const ray=[p.x-physical.eye[0],py-physical.eye[1],p.z-physical.eye[2]];
+        const z=ray[0]*physical.forward[0]+ray[1]*physical.forward[1]+ray[2]*physical.forward[2];
+        if(z<.2)continue;
+        nx=(ray[0]*physical.right[0]+ray[1]*physical.right[1]+ray[2]*physical.right[2])*physical.lens[0]/z;
+        ny=(ray[0]*physical.up[0]+ray[1]*physical.up[1]+ray[2]*physical.up[2])*physical.lens[1]/z;
+      }
       if(Math.abs(nx)>.94||ny<-.90||ny>.90)continue;
       const tag=document.createElement('div');
       tag.className='battle-3d-nameplate';
@@ -1343,6 +1378,18 @@
       gl.uniform1f(uniform[2],yaw);
       gl.uniform1f(uniform[3],pitch);
       gl.uniform1f(uniform[4],mode==='hero'?.033:.013);
+      const heroPhysical=mode==='hero'&&Boolean(heroView);
+      const camera=heroPhysical?physicalCamera(focus,yaw,.45,
+        snapshot.scene==='final-circle'?6.8:8.5,aspect):null;
+      if(camera){
+        gl.uniform3f(uniform[9],...camera.eye);
+        gl.uniform3f(uniform[10],...camera.forward);
+        gl.uniform3f(uniform[11],...camera.right);
+        gl.uniform3f(uniform[12],...camera.up);
+        gl.uniform2f(uniform[13],...camera.lens);
+      }
+      gl.uniform1f(uniform[14],heroPhysical?1:0);
+      status.projection=heroPhysical?'pinhole':'stylized';
       status.cameraMode=mode;
       document.body.dataset.battleCamera=mode;
       bindSceneBuffer(dynamicBuffer);
@@ -1350,7 +1397,7 @@
       dynamicVertexCount=data.length/9;
       gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
       drawScene();
-      updateNameplates(presented,area,focus,mode==='hero'?.30:scale,mode==='hero'?1:zoom,yaw,pitch);
+      updateNameplates(presented,area,focus,mode==='hero'?.30:scale,mode==='hero'?1:zoom,yaw,pitch,camera);
       spectatorCloseup(snapshot,area,mode);
       status.frames++;status.triangles=(data.length/9+staticCache.vertices)/3;
       frameSamples.push(performance.now()-startSubmit);
