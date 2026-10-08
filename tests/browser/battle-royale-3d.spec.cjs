@@ -102,3 +102,36 @@ test('slow battle-state network replies never cause overlapping broadcast polls'
   expect(highWater).toBe(1);
   await expect(page.locator('[data-testid="battle-canvas"]')).toBeVisible();
 });
+
+
+test('lower-end GPU quality draws fewer meshes while preserving the same simulation truth',async({browser,request})=>{
+  const stateResponse=await request.get(base+'/battle/state?w=1280&h=720');
+  expect(stateResponse.ok()).toBeTruthy();
+  const payload=await stateResponse.json();
+  const shared=JSON.stringify(payload);
+  const open=async(query)=>{
+    const page=await browser.newPage({viewport:{width:1280,height:720}});
+    await page.route('**/battle/state?*',route=>route.fulfill({status:200,contentType:'application/json',body:shared}));
+    await page.goto(base+'/battle?muted=1&'+query);
+    await page.waitForFunction(()=>Boolean(window.__BATTLE_PUBLIC_STATE__&&window.BattleArena3D));
+    return page;
+  };
+  const full=await open('quality=high');
+  const light=await open('quality=low');
+  try{
+    const stateA=await full.evaluate(()=>window.__BATTLE_PUBLIC_STATE__);
+    const stateB=await light.evaluate(()=>window.__BATTLE_PUBLIC_STATE__);
+    expect(stateA.runToken).toBe(stateB.runToken);
+    expect(stateA.goal).toEqual(stateB.goal);
+    const high=await full.evaluate(()=>({...window.BattleArena3D.status}));
+    const low=await light.evaluate(()=>({...window.BattleArena3D.status}));
+    expect(high.quality).toBe('high');
+    expect(low.quality).toBe('low');
+    if(high.mode==='webgl2'&&low.mode==='webgl2'){
+      expect(low.triangles).toBeLessThan(high.triangles);
+      expect(low.contenders).toBe(high.contenders);
+      await full.screenshot({path:path.join(captures,'same-state-high-detail.png')});
+      await light.screenshot({path:path.join(captures,'same-state-low-detail.png')});
+    }
+  }finally{await full.close();await light.close()}
+});
