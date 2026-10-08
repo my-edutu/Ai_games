@@ -1,4 +1,5 @@
 import * as THREE from '/dungeon/vendor/three.module.js';
+import {enrichEnvironment} from '/dungeon/environment.js';
 const $=id=>document.getElementById(id),canvas=$('world'),reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
 const renderer=new THREE.WebGLRenderer({canvas,antialias:true,powerPreference:'high-performance',alpha:false});
 renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.6));renderer.shadowMap.enabled=!reduced;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.38;
@@ -51,7 +52,7 @@ const dangerGlow=new THREE.MeshStandardMaterial({color:'#e67f50',emissive:'#bd4f
 const geo={cube:new THREE.BoxGeometry(1,1,1),sphere:new THREE.SphereGeometry(1,12,8),cylinder:new THREE.CylinderGeometry(1,1,1,10),cone:new THREE.ConeGeometry(1,1,10)};
 const make=(geometry,material,parent,x=0,y=0,z=0,sx=1,sy=1,sz=1)=>{const o=new THREE.Mesh(geometry,material);o.position.set(x,y,z);o.scale.set(sx,sy,sz);o.castShadow=!reduced;o.receiveShadow=true;parent.add(o);return o};
 function column(parent,x,z){make(geo.cylinder,stoneEdge,parent,x,.95,z,.26,1.95,.26);make(geo.cylinder,gold,parent,x,1.93,z,.4,.12,.4);make(geo.cylinder,stoneEdge,parent,x,.12,z,.37,.24,.37)}
-function clearWorld(){while(world.children.length){const obj=world.children[0];world.remove(obj);obj.traverse(o=>{if(o.geometry&&!Object.values(geo).includes(o.geometry))o.geometry.dispose();if(o.material&&!Object.values({stone,stoneEdge,floorMat,gold,black,tealGlow,dangerGlow}).includes(o.material)){const mats=Array.isArray(o.material)?o.material:[o.material];for(const m of mats)m.dispose()}})}for(const a of actors.values())scene.remove(a.root);actors.clear()}
+function clearWorld(){world.userData.dressing?.dispose();world.userData.dressing=null;while(world.children.length){const obj=world.children[0];world.remove(obj);obj.traverse(o=>{if(o.geometry&&!Object.values(geo).includes(o.geometry))o.geometry.dispose();if(o.material&&!Object.values({stone,stoneEdge,floorMat,gold,black,tealGlow,dangerGlow}).includes(o.material)){const mats=Array.isArray(o.material)?o.material:[o.material];for(const m of mats)m.dispose()}})}for(const a of actors.values())scene.remove(a.root);actors.clear()}
 function buildWorld(s){clearWorld();worldFloor=s.run+'-'+s.floor;lastCutawayKey='';
  const theme=floorThemes[(s.floor-1)%floorThemes.length];scene.background=new THREE.Color(theme.sky);scene.fog.color.set(theme.fog);moon.color.set(theme.fill);ambient.intensity=1.7;
  const floors=[],walls=[],trim=[];const size=s.map.length,offset=Math.floor(size/2);
@@ -123,6 +124,7 @@ function buildWorld(s){clearWorld();worldFloor=s.run+'-'+s.floor;lastCutawayKey=
  // Procedural decorative vaulted gate framing the final encounter.
  const gx=pos.x+.9,gz=pos.z;column(world,gx,gz-.8);column(world,gx,gz+.8);
  make(geo.cube,gold,world,gx,2.2,gz,.32,.22,1.9);
+ world.userData.dressing=enrichEnvironment(world,s.map,s.floor);
 }
 function rig(u){const colors=palette[u.kind],main=mat(colors[0],.5,.4),light=mat(colors[1],.45,.4),accent=mat(colors[2],.55,.3),enemy=u.faction==='enemy',boss=u.kind==='warden';
  const root=new THREE.Group(),body=new THREE.Group();root.add(body);const scale=boss?1.55:enemy?1.04:1;root.scale.setScalar(scale);
@@ -261,9 +263,10 @@ function animate(t){requestAnimationFrame(animate);const time=t/1000,dt=Math.min
   if(a.telegraph)a.telegraph.material.opacity=.42+.2*Math.sin(time*9);
   if(moving){const delta=a.at.clone().sub(a.root.position);a.root.rotation.y=Math.atan2(-delta.x,-delta.z)}}
  if(world.userData.portal&&!reduced)world.userData.portal.rotation.y=time*.26;
+ if(world.userData.dressing&&!reduced)world.userData.dressing.animate(time);
  cutawayWalls(target);
  const look=new THREE.Vector3(target.x,0,target.z),cam=new THREE.Vector3(target.x+10,16,target.z+12);camera.position.lerp(cam,reduced?1:.055);camera.lookAt(look.x,0,look.z);
- renderer.render(scene,camera);if(state)window.__DUNGEON_RENDER_DIAGNOSTICS__={frame:renderer.info.render.frame,drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,activeUnits:[...actors.values()].filter(x=>x.root.visible).length,webgl:true,theme:state.theme};
+ renderer.render(scene,camera);if(state)window.__DUNGEON_RENDER_DIAGNOSTICS__={frame:renderer.info.render.frame,drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,activeUnits:[...actors.values()].filter(x=>x.root.visible).length,webgl:true,theme:state.theme,dressing:world.userData.dressing?.metrics??null};
 }
 async function poll(){try{const r=await fetch('/dungeon/state',{cache:'no-store'});if(!r.ok)throw Error('State '+r.status);const data=await r.json();if(data.tick!==lastTick||data.run!==state?.run){lastTick=data.tick;update(data)}}catch(e){errorAt++;if(errorAt>=3){$('recovery').hidden=false;$('status').textContent='VIEW DEGRADED — RETRYING';console.warn('Dungeon view recovery',String(e))}}finally{setTimeout(poll,190)}}
 document.body.dataset.reducedMotion=String(reduced);requestAnimationFrame(animate);poll();
