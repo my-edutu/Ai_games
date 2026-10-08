@@ -103,14 +103,23 @@ function disposeActorAsset(actor){
  actor.mixer=null;actor.assetRoot=null;actor.assetMaterials=[];
 }
 function putEnvironment(world,sceneKey,map){
- // Five pre-authored pieces maximum: deliberate landmarks without creating collisions.
- // This is purely cosmetic and discarded on floor transitions.
- const placements=[],N=map.length,O=(N-1)/2;
- outer:for(let z=2;z<N-2;z++)for(let x=2;x<N-2;x++){
-  if(map[z][x]!=='#'||!(map[z-1][x]==='.'||map[z+1][x]==='.'||map[z][x-1]==='.'||map[z][x+1]==='.'))continue;
+ // Authored GLB masonry and prop dressing complements the instanced procedural
+ // layout; collision remains fully controlled by the deterministic grid simulation.
+ const placements=[],N=map.length,O=(N-1)/2,wall=(x,z)=>map[z]?.[x]==='#';
+ architecture:for(let z=2;z<N-2;z++)for(let x=2;x<N-2;x++){
+  if(!wall(x,z)||!(map[z-1][x]==='.'||map[z+1][x]==='.'||map[z][x-1]==='.'||map[z][x+1]==='.'))continue;
   const n=(x*71+z*31+N*17)&255;
-  if(n%32===0)placements.push({x:x-O,z:z-O,asset:placements.length%3===0?'environment/dungeon_pillar.glb':'environment/dungeon_wall.glb'});
-  if(placements.length>=5)break outer;
+  if(n%32===0)placements.push({x:x-O,z:z-O,asset:placements.length%3===0?'environment/dungeon_pillar.glb':'environment/dungeon_wall.glb',size:1.1,kind:'architecture'});
+  if(placements.length>=5)break architecture;
+ }
+ // A limited number of genuine wooden 3D crates perch beside walls, offset
+ // away from tile centres so they don't visually collide with exploring heroes.
+ props:for(let z=2;z<N-2;z++)for(let x=2;x<N-2;x++){
+  if(map[z][x]!=='.'||(Math.abs(x-1)+Math.abs(z-1)<4)||((x*97+z*17+N*11)&63)!==7)continue;
+  const directions=[[0,-1],[1,0],[0,1],[-1,0]],dir=directions.find(([dx,dz])=>wall(x+dx,z+dz));
+  if(!dir)continue;
+  placements.push({x:x-O+dir[0]*.29,z:z-O+dir[1]*.29,asset:'environment/dungeon_crate.glb',size:.53,kind:'prop'});
+  if(placements.length>=13)break props;
  }
  const group=new THREE.Group();world.add(group);
  for(const p of placements){load(p.asset).then(gltf=>{
@@ -119,7 +128,7 @@ function putEnvironment(world,sceneKey,map){
   const bounds=new THREE.Box3().setFromObject(source),extent=new THREE.Vector3();
   bounds.getSize(extent);
   const largest=Math.max(extent.x,extent.y/2.2,extent.z,.01);
-  const fit=Math.min(3,Math.max(.08,1.1/largest));
+  const fit=Math.min(3,Math.max(.08,p.size/largest));
   source.scale.setScalar(fit);
   source.position.set(p.x,-.03-bounds.min.y*fit,p.z);
   group.add(source);
