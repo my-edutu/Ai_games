@@ -38,17 +38,18 @@ function makeSnapshot(stage,champion=false){
 
 function makeMockGL(counters){
   const gl={};
-  const methods='createShader shaderSource compileShader deleteShader createProgram attachShader linkProgram deleteProgram createVertexArray bindVertexArray createBuffer bindBuffer bufferData enableVertexAttribArray vertexAttribPointer createTexture bindTexture texParameteri getUniformLocation useProgram enable disable blendFunc cullFace drawElements drawArrays uniformMatrix4fv uniformMatrix3fv uniform3fv uniform1f uniform1i viewport clearColor clear depthMask activeTexture pixelStorei texImage2D'.split(' ');
+  const methods='createShader shaderSource compileShader deleteShader createProgram attachShader linkProgram deleteProgram createVertexArray bindVertexArray createBuffer bindBuffer bufferData enableVertexAttribArray vertexAttribPointer createTexture bindTexture texParameteri createFramebuffer bindFramebuffer createRenderbuffer bindRenderbuffer renderbufferStorage framebufferTexture2D framebufferRenderbuffer uniform2fv getUniformLocation useProgram enable disable blendFunc cullFace drawElements drawArrays uniformMatrix4fv uniformMatrix3fv uniform3fv uniform1f uniform1i viewport clearColor clear depthMask activeTexture pixelStorei texImage2D'.split(' ');
   for(const name of methods)gl[name]=(...args)=>{
     if(name==='drawElements'){counters.drawElements++;counters.maximumMeshIndices=Math.max(counters.maximumMeshIndices,args[1]);}
     if(name==='drawArrays'){counters.drawArrays++;if(args[0]===gl.POINTS)counters.pointCloudDraws++;}
     if(name==='texImage2D')counters.uploads++;
     return name.startsWith('create')?{name}:null;
   };
-  const constants='VERTEX_SHADER FRAGMENT_SHADER COMPILE_STATUS LINK_STATUS ARRAY_BUFFER ELEMENT_ARRAY_BUFFER STATIC_DRAW FLOAT UNSIGNED_SHORT TRIANGLES TRIANGLE_FAN TEXTURE_2D TEXTURE_MIN_FILTER TEXTURE_MAG_FILTER TEXTURE_WRAP_S TEXTURE_WRAP_T LINEAR CLAMP_TO_EDGE COLOR_BUFFER_BIT DEPTH_BUFFER_BIT TEXTURE0 UNPACK_FLIP_Y_WEBGL RGBA UNSIGNED_BYTE POINTS DEPTH_TEST BLEND CULL_FACE BACK SRC_ALPHA ONE_MINUS_SRC_ALPHA'.split(' ');
+  const constants='VERTEX_SHADER FRAGMENT_SHADER COMPILE_STATUS LINK_STATUS ARRAY_BUFFER ELEMENT_ARRAY_BUFFER STATIC_DRAW FLOAT UNSIGNED_SHORT TRIANGLES TRIANGLE_FAN FRAMEBUFFER RENDERBUFFER DEPTH_COMPONENT16 FRAMEBUFFER_COMPLETE DEPTH_ATTACHMENT COLOR_ATTACHMENT0 TEXTURE_2D TEXTURE_MIN_FILTER TEXTURE_MAG_FILTER TEXTURE_WRAP_S TEXTURE_WRAP_T LINEAR CLAMP_TO_EDGE COLOR_BUFFER_BIT DEPTH_BUFFER_BIT TEXTURE0 UNPACK_FLIP_Y_WEBGL RGBA UNSIGNED_BYTE POINTS DEPTH_TEST BLEND CULL_FACE BACK SRC_ALPHA ONE_MINUS_SRC_ALPHA'.split(' ');
   for(const name of constants)gl[name]=name;
   gl.getShaderParameter=()=>true;
   gl.getProgramParameter=()=>true;
+  gl.checkFramebufferStatus=()=>gl.FRAMEBUFFER_COMPLETE;
   return gl;
 }
 
@@ -106,7 +107,10 @@ for(const biome of BIOMES){
     assert.ok(counters.drawArrays>=3,'sky, in-world LED and living GPU crowd must render');
     assert.equal(counters.pointCloudDraws,1,'hundreds of spectators should cost exactly one draw call');
     assert.equal(Number(shell.dataset.crowdCount),320);
-    assert.equal(counters.uploads,1,'text billboard should upload once per initial snapshot');
+    assert.equal(counters.uploads,2,'public 3D scoreboard and offscreen scene texture upload once');
+    assert.equal(shell.dataset.postprocess,'neon-glow',
+      'balanced and higher tiers must composite their actual 3D scene');
+    assert.ok(counters.drawArrays>=4,'sky, crowd, scoreboard and real GPU glow composite');
     assert.ok(frame?.viewProjection?.length===16);
   });
 }
@@ -116,6 +120,7 @@ test('low graphics tier removes expensive effects but keeps a real 3D race scene
   assert.equal(shell.dataset.renderer,'webgl2');
   assert.ok(counters.drawElements>20);
   assert.ok(counters.drawArrays>=2);
+  assert.equal(shell.dataset.postprocess,'direct','low tier must skip offscreen effects');
 });
 
 test('ultra graphical tier renders more geometry and extra physical LED signage',async()=>{
