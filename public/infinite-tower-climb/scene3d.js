@@ -7,6 +7,7 @@ import {createTowerCharacter,poseTowerCharacter} from '/tower/character3d.js';
 import {decorateTowerEnvironment,animateTowerEnvironment} from '/tower/environment3d.js';
 import {VISUAL_PALETTES,buildPainterlyTowerBackdrop} from '/tower/biome-v4.js';
 import {createTowerHazard3D,updateTowerHazard3D} from '/tower/hazards-v4.js';
+import {buildBiomeLandmarks,animateBiomeLandmarks} from '/tower/landmarks-v5.js';
 
 const SCALE = 1 / 1000;
 const palettes=VISUAL_PALETTES;
@@ -124,7 +125,7 @@ export function mountTower3D({host,getFrame,reducedMotion=false,highContrast=fal
     renderer.outputColorSpace=THREE.SRGBColorSpace;
   }catch(error){canvas.remove();throw error}
   const scene=new THREE.Scene(),fog=new THREE.FogExp2(0x987c6e,.00075);scene.fog=fog;
-  const camera=new THREE.OrthographicCamera(-120,120,80,-80,.1,1200);
+  const camera=new THREE.PerspectiveCamera(37,16/9,.3,1400);
   const backdrop=new THREE.Group(),structures=new THREE.Group(),actors=new THREE.Group(),effects=new THREE.Group();
   scene.add(backdrop,structures,actors,effects);
   const hemi=new THREE.HemisphereLight(0xffeacf,0x4c5363,2.65);scene.add(hemi);
@@ -133,7 +134,7 @@ export function mountTower3D({host,getFrame,reducedMotion=false,highContrast=fal
   const player=createTowerCharacter({tint:0xf7a65d,kind:'climber'});actors.add(player);
   const glow=new THREE.PointLight(0xffc273,66,150,2);actors.add(glow);
   const dynamic=new Map();
-  let floor=-1,theme='',lastChecksum='',latest=null,frame=null,running=true,lastAt=performance.now(),ornament=null;
+  let floor=-1,theme='',lastChecksum='',latest=null,frame=null,running=true,lastAt=performance.now(),ornament=null,landmarks=null;
   let cameraY=35,cameraX=240,worldWidth=480,observedFrames=0,visualX=null,visualY=null,visualRun='',visualFloor=-1;
   let frameTotalMs=0,slowFrames=0,frameSampleCount=0;
   const perf={frames:0,drawCalls:0,triangles:0,entityCount:0};window.__TOWER_3D_DIAGNOSTICS__=perf;
@@ -150,6 +151,7 @@ export function mountTower3D({host,getFrame,reducedMotion=false,highContrast=fal
     // The v4 visual pass removes the grid-like wall responsible for the flat blue prototype look.
     // Monument silhouettes, landscape horizons, open galleries and warm sunlight now define the world.
     buildPainterlyTowerBackdrop({group:backdrop,snapshot:s,theme,palette:p,worldWidth});
+    landmarks=buildBiomeLandmarks({group:backdrop,snapshot:s,palette:p,worldWidth});
     // Hundreds of particles rendered as ONE draw call instead of one sphere per dust mote.
     const motePositions=[];
     for(let i=0;i<210;i++){
@@ -294,9 +296,10 @@ export function mountTower3D({host,getFrame,reducedMotion=false,highContrast=fal
   function resize(){
     const w=Math.max(1,host.clientWidth),h=Math.max(1,host.clientHeight);
     if(canvas.width!==Math.floor(w*renderer.getPixelRatio())||canvas.height!==Math.floor(h*renderer.getPixelRatio()))renderer.setSize(w,h,false);
-    const aspect=w/h,span=heroCamera?59:(w<850?138:119);
-    camera.left=-span*aspect/2;camera.right=span*aspect/2;
-    camera.top=span/2;camera.bottom=-span/2;camera.updateProjectionMatrix();
+    const aspect=w/h;
+    camera.aspect=aspect;
+    camera.fov=heroCamera?24:(aspect<1.2?47:37);
+    camera.updateProjectionMatrix();
   }
   function draw(now){
     if(!running)return;
@@ -316,8 +319,8 @@ export function mountTower3D({host,getFrame,reducedMotion=false,highContrast=fal
     cameraX+=(clamp(targetX,80,worldWidth-80)-cameraX)*motion;
     cameraY+=(targetY-cameraY)*motion;
     const shake=!reducedMotion&&s.dangerPermille>800?Math.sin(now*.037)*1.5:0;
-    const depth=heroCamera?148:258;
-    camera.position.set(cameraX+(heroCamera?12:33)+shake,cameraY+(heroCamera?6:18)+shake*.6,depth);
+    const depth=heroCamera?134:214;
+    camera.position.set(cameraX+(heroCamera?10:31)+shake,cameraY+(heroCamera?6:16)+shake*.6,depth);
     camera.lookAt(cameraX,cameraY,-18);
     player.position.set(visualX,visualY,36);
     const collisionScale=clamp(coord(s.player.halfHeight)/26,.3,1.6);
@@ -331,8 +334,9 @@ export function mountTower3D({host,getFrame,reducedMotion=false,highContrast=fal
     }
     // Keep observed performance measurable for the independent critic.
     animateTowerEnvironment(ornament,now*.001,reducedMotion);
+    animateBiomeLandmarks(landmarks,now*.001,reducedMotion);
     renderer.render(scene,camera);observedFrames++;
-    if(observedFrames%60===0){perf.frames=observedFrames;perf.drawCalls=renderer.info.render.calls;perf.triangles=renderer.info.render.triangles;perf.heroParts=(()=>{let count=0;player.traverse(o=>{if(o.isMesh)count++});return count})();perf.renderMode='webgl-3d';perf.state=s.player.state;perf.heroCamera=heroCamera;perf.highContrast=highContrast;perf.averageFps=frameTotalMs>0?Math.round(1000*frameSampleCount/frameTotalMs):0;perf.slowFrames=slowFrames;perf.sampledFrames=frameSampleCount;perf.pixelRatio=renderer.getPixelRatio();}
+    if(observedFrames%60===0){perf.frames=observedFrames;perf.drawCalls=renderer.info.render.calls;perf.triangles=renderer.info.render.triangles;perf.heroParts=(()=>{let count=0;player.traverse(o=>{if(o.isMesh)count++});return count})();perf.renderMode='webgl-3d';perf.state=s.player.state;perf.heroCamera=heroCamera;perf.lens='perspective';perf.biomeLandmarks=landmarks?.world?.children.length||0;perf.highContrast=highContrast;perf.averageFps=frameTotalMs>0?Math.round(1000*frameSampleCount/frameTotalMs):0;perf.slowFrames=slowFrames;perf.sampledFrames=frameSampleCount;perf.pixelRatio=renderer.getPixelRatio();}
   }
   const onLost=event=>{event.preventDefault();running=false;renderer.dispose();canvas.remove();document.body.dataset.towerRenderer='2d-fallback';window.__TOWER_3D_ACTIVE__=false};
   canvas.addEventListener('webglcontextlost',onLost,{once:true});
