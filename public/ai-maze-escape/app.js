@@ -332,7 +332,7 @@ async function poll(){
 
 function animate(now){
   animationTime=now;
-  if(frame?.snapshot)draw(frame.snapshot,frame.scene,frame.camera);
+  if(frame?.snapshot && !window.__MAZE_3D_READY__)draw(frame.snapshot,frame.scene,frame.camera);
   requestAnimationFrame(animate);
 }
 
