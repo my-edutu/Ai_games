@@ -454,6 +454,45 @@
     b.cylinder(w*.5,3.10,-3.0,.42,.12,theme.accent,10);
     b.cone(w*.5,3.55,-3.0,.14,0,.82,[.69,.89,.90],8);
   }
+
+  function environmentProps(b,arena,theme){
+    // Perimeter-only biome silhouettes. Decorative entities never enter AI rules.
+    const w=arena.width,h=arena.height;
+    for(let i=0;i<16;i++){
+      const lane=i%2,idx=Math.floor(i/2);
+      const x=1.3+idx*(w-2.6)/7,z=lane===0?-1.48:h+1.48;
+      const height=1.3+((i*7)%5)*.26;
+      if(arena.theme==='arctic'){
+        const green=[.17,.39,.38],frost=[.73,.89,.89];
+        b.cone(x,.60,z,.10,.065,1.19,[.30,.37,.39],8);
+        for(let tier=0;tier<3;tier++){
+          const y=.79+tier*.39,r=.58-tier*.11;
+          b.cone(x,y,z,r,.03,.78,tier===2?frost:green,9);
+        }
+        b.cone(x,1.94,z,.12,0,.35,frost,8);
+      }else if(arena.theme==='neon'){
+        const magenta=[.64,.31,.76],electric=[.26,.85,.98];
+        b.cylinder(x,.57,z,.21,1.12,[.20,.29,.41],8);
+        b.cone(x,1.62,z,.35,.03,1.18,i%3===0?magenta:electric,7);
+        for(const delta of [-.35,.35]){
+          b.limb([x,.63,z],[x+delta,1.17,z+.11],.075,[.27,.35,.51]);
+          b.cone(x+delta,1.27,z+.11,.14,.02,.37,electric,6);
+        }
+      }else if(arena.theme==='ember'){
+        const trunk=[.40,.31,.24],crown=i%3===0?[.61,.47,.23]:[.31,.46,.31];
+        b.cone(x,height*.46,z,.15,.095,height*.92,trunk,8);
+        b.cylinder(x,height*.91,z,.24,.12,trunk,8);
+        for(let leaf=0;leaf<5;leaf++){
+          const a=leaf*Math.PI*2/5;
+          const dx=Math.cos(a)*.53,dz=Math.sin(a)*.53;
+          b.limb([x,height*.92,z],[x+dx,height*1.02,z+dz],.06,trunk);
+          b.cone(x+dx,height*.96,z+dz,.36,.02,.44,crown,7);
+        }
+      }else{
+        b.cone(x,.65,z,.42,.08,1.3,theme.wall,6);
+      }
+    }
+  }
   function worldStatic(b,a){
     const w=a.width,h=a.height,t=colours[a.theme]||colours.ember;
     b.box(w/2,-.25,h/2,w,.5,h,t.wall);
@@ -480,6 +519,7 @@
     if(quality!=='low'){
       worldLandmarks(b,a,t);
       atmosphericBackdrop(b,a,t);
+      environmentProps(b,a,t);
     }
     for(const [x,z] of [[0,0],[w,0],[0,h],[w,h]]){
       b.box(x,1.04,z,.35,2.08,.35,t.wall);
