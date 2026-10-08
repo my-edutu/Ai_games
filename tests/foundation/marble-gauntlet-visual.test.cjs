@@ -203,3 +203,59 @@ test('pit dive danger rings are driven by real negative altitude, never fabricat
   assert.ok(renderer.includes("'marble-pit-falling'"));
   assert.ok(app.includes("'marble-pit-falling'"));
 });
+
+test('the rendered glass racers use real quality-specific geometry and feathered projected shadows',()=>{
+  for(const marker of [
+    'sphereMeshLow=createSphereMesh(12,18)',
+    'sphereMeshHigh=createSphereMesh(36,52)',
+    'sphereMeshUltra=createSphereMesh(50,72)',
+    'function marbleMeshForQuality()',
+    'drawMesh(marbleMeshForQuality(),model',
+    'const SHADOW_FRAGMENT_SHADER',
+    'float feather=1.0-smoothstep(0.15,1.0,radial)',
+    'gl.useProgram(shadowProgram)',
+    'gl.depthMask(false)',
+  ])assert.ok(renderer.includes(marker),'missing glass racer quality bar: '+marker);
+  assert.ok(renderer.includes("h.kind==='pit'"),'shadows must not float over open holes');
+});
+
+test('live crowds and arena wind are budgeted, 3D and sourced from real tournament authority',()=>{
+  for(const marker of [
+    'const CROWD_VERTEX_SHADER',
+    'const CROWD_FRAGMENT_SHADER',
+    'function prepareCrowd(arena,theme,quality)',
+    'function drawLivingCrowd(',
+    'gl.drawArrays(gl.POINTS,0,crowdCount)',
+    'shell.dataset.crowdCount',
+    "quality==='low'?64:quality==='balanced'?320:quality==='high'?660:1100",
+    'function drawAuthoritativeWindFields(',
+    'const zones=Array.isArray(arena.windZones)?arena.windZones:[]',
+    'const dx=zone.forceX/intensity,dz=zone.forceY/intensity',
+    'shell.dataset.publicWindZones',
+    'gl.uniform1f(crowdUniforms.excitement,intensity)',
+  ]) assert.ok(renderer.includes(marker),'missing real-world spectator detail: '+marker);
+  const snapshot=fs.readFileSync(path.resolve(__dirname,
+    '../../games/marble-survival/src/presentation/snapshot.ts'),'utf8');
+  assert.ok(snapshot.includes('windZones: state.arena.windZones.map(zone => ('));
+  assert.equal(renderer.includes('Math.random('),false,'crowd formation must not introduce nondeterministic outcomes');
+});
+
+test('all track neon must break around actual voids and default graphics resolution must recover gracefully',()=>{
+  const geometry=read('arena-geometry.js');
+  for(const marker of [
+    'function solidLineSegments(arena, x, startY=0, endY=arena.height)',
+    'return sections;',
+    'deckLayout, solidLineSegments',
+  ])assert.ok(geometry.includes(marker),'missing track topology safeguard: '+marker);
+  for(const marker of [
+    'const fragments=window.MarbleArenaGeometry?.solidLineSegments(',
+    'function tuneRenderResolution(fps)',
+    'adaptiveResolution=Math.max(.82',
+    "if(quality!=='balanced')",
+    "quality==='balanced'?adaptiveResolution:1",
+  ])assert.ok(renderer.includes(marker),'missing track polish / FPS resilience: '+marker);
+  assert.ok(app.includes('currentStageIdentity=next.arena.id'));
+  assert.ok(app.includes('next.arena.windZones||[]'));
+  assert.ok(styles.includes('.broadcast-shell.stage-entering .arena-title-card'));
+  assert.ok(styles.includes('@media(prefers-reduced-motion:reduce)'));
+});
