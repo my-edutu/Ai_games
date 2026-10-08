@@ -1,5 +1,5 @@
 // Real WebGL2 perspective scene. The fixed-step game simulation remains authoritative.
-import { createGame, stepGame, selectCameraEvent, applyEvidenceScenario, isEvidenceScenario } from '../dist/index.js';
+import { createGame, stepGame, selectCameraEvent, applyEvidenceScenario, isEvidenceScenario, buildAudioPlan } from '../dist/index.js';
 
 const canvas = document.getElementById('scene');
 const hud = document.getElementById('hud');
@@ -22,6 +22,48 @@ let last = performance.now(), accumulator = 0, elapsed = 0, paused = frozen, hud
 let orbit = 0.82, range = 43, dragging = false, priorX = 0, cameraX = 0, cameraZ = 0, cameraFocusX = 0, cameraFocusZ = 0;
 let cameraMode = 'director', director = undefined, fpsSmooth = 30, lastStats = 0, buffersRebuilt = 0, lastGeometryStamp = '';
 const fixed = 1 / 30, maxVisibleZombies = 260;
+
+let audioContext, drone, wind, droneGain, windGain, audioEventsSeen = 0;
+function enableAudio() {
+  if (audioContext) { audioContext.resume(); return; }
+  const AudioCtor = window.AudioContext || window.webkitAudioContext;
+  if (!AudioCtor) { document.getElementById('sound').textContent = 'AUDIO UNAVAILABLE'; return; }
+  audioContext = new AudioCtor();
+  const master = audioContext.createGain();master.gain.value = 0.23;master.connect(audioContext.destination);
+  drone = audioContext.createOscillator();drone.type='triangle';drone.frequency.value=55;
+  wind = audioContext.createOscillator();wind.type='sine';wind.frequency.value=35;
+  droneGain=audioContext.createGain();windGain=audioContext.createGain();
+  droneGain.gain.value=0.018;windGain.gain.value=0.008;
+  drone.connect(droneGain);wind.connect(windGain);droneGain.connect(master);windGain.connect(master);
+  drone.start();wind.start();audioContext.resume();
+  document.getElementById('sound').textContent='◖ SOUND ACTIVE';
+}
+function audioCue(freq,duration,volume,type='triangle') {
+  if(!audioContext || audioContext.state!=='running')return;
+  const oscillator=audioContext.createOscillator(),gain=audioContext.createGain(),at=audioContext.currentTime;
+  oscillator.type=type;oscillator.frequency.setValueAtTime(freq,at);
+  oscillator.frequency.exponentialRampToValueAtTime(Math.max(34,freq*.63),at+duration);
+  gain.gain.setValueAtTime(volume,at);gain.gain.exponentialRampToValueAtTime(.0001,at+duration);
+  oscillator.connect(gain);gain.connect(audioContext.destination);
+  oscillator.start(at);oscillator.stop(at+duration+.01);
+}
+function updateAudio() {
+  if(!audioContext || audioContext.state!=='running')return;
+  const plan=buildAudioPlan(game),at=audioContext.currentTime;
+  const frequency={exploration:56,scavenging:61,tension:69,horde:43,combat:79,defense:52,critical:38,relief:89,defeat:33};
+  drone.frequency.setTargetAtTime(frequency[plan.music]||56,at,.36);
+  droneGain.gain.setTargetAtTime(.01+plan.intensity*.045,at,.4);
+  wind.frequency.setTargetAtTime(game.time.phase==='night'?27:38,at,.7);
+  windGain.gain.setTargetAtTime(plan.ambience.includes('rain')?.025:.008,at,.6);
+  for(const e of game.events.slice(-12)){
+    if(e.id<=audioEventsSeen)continue;
+    if(e.type==='shot')audioCue(160,.08,.025,'square');
+    else if(e.type==='barricade-hit')audioCue(67,.18,.018,'sawtooth');
+    else if(e.type==='rescue'||e.type==='safehouse-upgrade')audioCue(420,.36,.018);
+    audioEventsSeen=Math.max(audioEventsSeen,e.id);
+  }
+}
+
 const palette = {
   grass: '#263b35', road: '#293334', shoulder: '#3d4541', mark: '#8c8062',
   cement: '#555e57', metal: '#67746e', rust: '#715344', yellow: '#d4a75c',
@@ -216,6 +258,7 @@ function render(now){
   fpsSmooth=fpsSmooth*.93+(delta?1/delta:30)*.07;
   if(!paused&&game.status==='running'){accumulator+=delta;let limit=0;while(accumulator>=fixed&&limit++<4){game=stepGame(game,fixed);accumulator-=fixed;}}
   selectFocus(delta);
+  updateAudio();
   const dpi=Math.min(1.6,devicePixelRatio||1),w=Math.max(1,Math.round(innerWidth*dpi)),h=Math.max(1,Math.round(innerHeight*dpi));
   if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h;gl.viewport(0,0,w,h);}
   const night=game.time.phase==='night',sunset=game.time.phase==='sunset';
@@ -255,8 +298,9 @@ document.addEventListener('keydown',e=>{
   if(e.code==='Space'){e.preventDefault();paused=!paused;}
   if(e.key.toLowerCase()==='h'){hudShown=!hudShown;hud.hidden=!hudShown;}
   if(e.key.toLowerCase()==='g')cameraMode=cameraMode==='director'?'manual':'director';
-  if(e.key.toLowerCase()==='r'){seed=(seed+1)>>>0||1;game=createGame({seed,zombieCount:180});cameraMode='director';cameraFocusX=0;cameraFocusZ=0;lastGeometryStamp='';}
+  if(e.key.toLowerCase()==='r'){seed=(seed+1)>>>0||1;game=createGame({seed,zombieCount:180});audioEventsSeen=0;cameraMode='director';cameraFocusX=0;cameraFocusZ=0;lastGeometryStamp='';}
 });
+document.querySelector('#sound').addEventListener('click',enableAudio);
 document.querySelector('#togglePause').addEventListener('click',()=>{paused=!paused;});
 document.querySelector('#focus').addEventListener('click',()=>{cameraMode='director';});
 rebuildStatic(true);
