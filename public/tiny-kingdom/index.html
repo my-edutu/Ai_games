@@ -291,6 +291,89 @@ const city=[[-10,-7,0],[-6,-9,1],[-1,-10,0],[6,-9,1],[10,-5,2],[-12,1,2],[-8,4,0
 function biomeHash(n){const v=Math.sin(n*127.137+78.233)*43758.5453;return v-Math.floor(v)}
 const wildflora=[];for(let i=0;i<335;i++){const x=(biomeHash(i*3+1)-.5)*80,z=(biomeHash(i*3+2)-.5)*80;if((Math.abs(x)<15&&Math.abs(z)<16)||Math.hypot(x+27,z+18)<5||Math.abs(z-(20+Math.sin(x*.13)*3))<2.5)continue;wildflora.push({x,z,size:.6+biomeHash(i*3+3)*.7,color:i%5})}
 function wildflower(p){const x=p.x,z=p.z,size=p.size,y=terrain(x,z),leaf=rgb(0x52865c),leaf2=rgb(0x75ad5f);for(let j=0;j<3;j++){const a=j*2.094,b=.18+.08*j;tri([x,y+.02,z],[x+Math.cos(a)*.35*size,y+.12*size,z+Math.sin(a)*.35*size],[x+Math.cos(a+b)*.31*size,y+.43*size,z+Math.sin(a+b)*.31*size],j%2?leaf:leaf2)}const hue=[0xfde2a0,0xf5b6d1,0xc7c0f9,0xf5ce72,0xb7e9ed][p.color];cylinder(x,y+.05,z,.019*size,.43*size,rgb(0x6ba46d),4);cone(x,y+.47*size,z,.12*size,.15*size,rgb(hue),5)}
+
+/* Gauntlet 018: physical coloured scenery and planting, deterministic and simulation-independent. */
+function festivalBanner(x,z,color,index=0){
+ const y=terrain(x,z),pole=rgb(0x765d45),silk=rgb(color),trim=rgb(0xfce6b1);
+ cylinder(x,y,z,.075,3.9,pole,7);cylinder(x,y+3.67,z,.13,.25,trim,8);
+ const flutter=Math.sin(state.t*.7+index)*.16;
+ quad([x+.05,y+3.45,z],[x+1.18,y+3.42,z+flutter],[x+1.18,y+2.53,z+flutter+.06],[x+.05,y+2.55,z],silk);
+ box(x+.55,y+3.45,z,.95,.05,.07,trim);
+ for(let j=0;j<3;j++)tri([x+.16+j*.3,y+2.55,z],[x+.31+j*.3,y+2.25-.06*(j%2),z+.06],[x+.46+j*.3,y+2.55,z],silk);
+}
+function royalPlaza(x,z,r=3.9){
+ const paved=[rgb(0xcbb895),rgb(0xe3d1ab),rgb(0xaa9e84),rgb(0xbaa68a)];
+ for(let i=0;i<24;i++){const a=i*Math.PI/12,b=(i+1)*Math.PI/12;
+  const p=[x+Math.cos(a)*r,terrain(x+Math.cos(a)*r,z+Math.sin(a)*r)+.046,z+Math.sin(a)*r];
+  const q=[x+Math.cos(b)*r,terrain(x+Math.cos(b)*r,z+Math.sin(b)*r)+.046,z+Math.sin(b)*r];
+  const c=[x,terrain(x,z)+.046,z];tri(c,q,p,paved[i%4]);
+ }
+ for(let k=0;k<3;k++){const radius=r*(.3+k*.3),col=rgb(k%2?0xefdcba:0x8d8a75);
+  for(let j=0;j<30;j++){const a=j*Math.PI/15,b=(j+1)*Math.PI/15;
+   const p=[x+Math.cos(a)*radius,terrain(x+Math.cos(a)*radius,z+Math.sin(a)*radius)+.069,z+Math.sin(a)*radius],q=[x+Math.cos(b)*radius,terrain(x+Math.cos(b)*radius,z+Math.sin(b)*radius)+.069,z+Math.sin(b)*radius];
+   const p2=[x+Math.cos(a)*(radius+.075),terrain(x+Math.cos(a)*(radius+.075),z+Math.sin(a)*(radius+.075))+.072,z+Math.sin(a)*(radius+.075)],q2=[x+Math.cos(b)*(radius+.075),terrain(x+Math.cos(b)*(radius+.075),z+Math.sin(b)*(radius+.075))+.072,z+Math.sin(b)*(radius+.075)];
+   quad(p,q,q2,p2,col);
+  }
+ }
+}
+function orchardTrees(){
+ const soil=rgb(0x8b6d45),flowers=[rgb(0xffd69c),rgb(0xffb7af),rgb(0xf9e6bf)];
+ for(let row=0;row<3;row++)for(let col=0;col<3;col++){
+  const x=-28+col*2.9,z=6+row*3.2,y=terrain(x,z);
+  cylinder(x,y,z,.15,1.45,soil,8);
+  const leaves=rgb(row%2?0x519c5e:0x69a757);
+  ellipsoid(x,y+2.0,z,1.07,.83,.91,leaves,9);
+  ellipsoid(x+.55,y+1.75,z-.24,.60,.60,.58,rgb(0x7bb65a),8);
+  for(let i=0;i<5;i++){const a=i*2.39996+col*.5,fx=x+Math.sin(a)*.64,fz=z+Math.cos(a)*.55;
+   ellipsoid(fx,y+1.82+.19*Math.cos(a),fz,.13,.13,.13,flowers[(i+row)%3],6);
+  }
+ }
+ box(-28,terrain(-28,4.0),4.0,1.5,.54,.7,rgb(0xa9845e));
+ for(let i=0;i<3;i++){const x=-28.5+i*.45,z=3.7,y=terrain(x,z);ellipsoid(x,y+.57,z,.21,.20,.18,rgb(0xffb553),6)}
+}
+function riverReeds(){
+ const leaf=rgb(0x709a57),seedhead=rgb(0xb7a079);
+ for(let i=0;i<72;i++){
+  const x=-39+i*1.08,z=20+Math.sin(x*.13)*3+(i%2?2.25:-2.2),h=.58+(i%4)*.13,y=terrain(x,z);
+  for(let j=0;j<3;j++){const xx=x+(j-1)*.18,zz=z+Math.sin(i*2.7+j)*.19;
+   cylinder(xx,y,zz,.03,h,leaf,5);
+   cone(xx,y+h*.72,zz,.085,.27,seedhead,5);
+  }
+ }
+}
+function vibrantMarket(x,z){
+ const y=terrain(x,z),blue=rgb(0x37b8bc),coral=rgb(0xee8f71),lemon=rgb(0xffd18b),ivory=rgb(0xffe5bf);
+ for(let i=0;i<8;i++){
+  const a=x-1.42+i*.41,b=a+.38;
+  const col=i%2?ivory:coral;
+  quad([a,y+1.53,z-.91],[a+.21,y+2.24,z-.91],[a+.21,y+2.24,z+.91],[a,y+1.53,z+.91],col);
+  quad([a+.21,y+2.24,z-.91],[b,y+1.53,z-.91],[b,y+1.53,z+.91],[a+.21,y+2.24,z+.91],i%2?lemon:blue);
+ }
+ for(let i=0;i<7;i++){const px=x-1.17+i*.4;
+  cone(px,y+1.49,z+.89,.13,.28,i%2?blue:coral,5);
+  ellipsoid(px,y+.91,z+.45,.15,.16,.17,i%2?rgb(0xfaab54):rgb(0x88b15d),6);
+ }
+ festivalBanner(x+2.35,z-1.8,0x53c6bb,7);festivalBanner(x-2.45,z-1.8,0xe9a36b,5);
+}
+function villageFlowerBeds(){
+ const greens=[rgb(0x649d5e),rgb(0x4f976d),rgb(0x7fa953)];
+ for(let patch=0;patch<8;patch++){
+  const ang=patch*.78,x=11.0+Math.cos(ang)*3.1,z=13+Math.sin(ang)*3.2,y=terrain(x,z);
+  cylinder(x,y,z,.37,.29,rgb(0xc7a784),10);
+  ellipsoid(x,y+.36,z,.52,.28,.5,greens[patch%3],7);
+  for(let i=0;i<4;i++){const a=i*1.57+patch,x2=x+Math.cos(a)*.32,z2=z+Math.sin(a)*.3;
+   cone(x2,y+.53,z2,.11,.2,rgb([0xffc272,0xffb4bd,0xb59dff,0xf5f4b4][(i+patch)%4]),6);
+  }
+ }
+}
+function villageFestival(){
+ royalPlaza(-2.5,2.0,3.4);
+ vibrantMarket(0,5);
+ orchardTrees();riverReeds();villageFlowerBeds();
+ festivalBanner(-14,-5,0xffc56a,0);festivalBanner(13,-5,0x64ccdf,1);
+ festivalBanner(-8,12,0xd67e76,2);festivalBanner(10,11,0xe3c37c,3);
+}
+
 function windmill(x,z,time){const y=terrain(x,z),stone=rgb(0xf0d5ac),roof=rgb(0x966347),cloth=rgb(0xf7e7c5);shadow(x+.55,z+.55,2.2,1.4);cylinder(x,y,z,1.48,5.3,stone,12);cone(x,y+5.15,z,2.0,1.9,roof,12);box(x,y+.2,z+1.50,.72,1.65,.12,rgb(0x68483c));for(let j=0;j<3;j++){const yy=y+2.1+j*.90;box(x,yy,z+1.52,.46,.48,.1,rgb(0x406568))}const center=[x,y+4.25,z+1.68],span=2.35,theta=time*.11;for(let i=0;i<4;i++){const a=theta+i*Math.PI/2,c=Math.cos(a),u=Math.sin(a),nx=-u*.33,ny=c*.33;const pa=[center[0]+c*.50,center[1]+u*.50,center[2]+.02],pb=[center[0]+c*span,center[1]+u*span,center[2]+.02];box((pa[0]+pb[0])/2,(pa[1]+pb[1])/2,center[2],.08,.09,.09,rgb(0x916b52));quad([pa[0]+nx,pa[1]+ny,center[2]+.07],[pb[0]+nx,pb[1]+ny,center[2]+.07],[pb[0]-nx,pb[1]-ny,center[2]+.07],[pa[0]-nx,pa[1]-ny,center[2]+.07],cloth)}cylinder(x,y+4.25,z+1.71,.29,.25,rgb(0x654a35),10)}
 const names=['Alina','Rowan','Edric','Mira','Oren','Selene','Bram','Elowen','Tarin','Nora','Finn','Isolde','Lysa','Cador','Maeve','Oswin','Adela','Hugo','Idris','Rhea','Silas','Faye'];const jobs=['farmer','forester','builder','merchant','craftsperson','gatherer'];const colors=[0x8f6653,0x58788c,0x907048,0x65754a,0x8c6b7c,0x8d8c67].map(rgb);let state,people,stories=[],frozen=false,speed=1,follow=false,cinematic=false,timer=0,accumulator=0,selectedCitizen=0;const FIXED_STEP=1/30;
 function renderStories(){const feed=document.getElementById('feed');feed.replaceChildren();for(const e of stories.slice(0,4)){const item=document.createElement('div'),label=document.createElement('span');item.className='feeditem';label.textContent='Day '+e.day+' · Kingdom chronicle';item.append(label,document.createTextNode(e.text));feed.appendChild(item)}}
@@ -496,7 +579,7 @@ data=terrainCache.slice();
 // A winding stream through the southern side.
 for(let x=-42;x<42;x+=2){let z=20+Math.sin(x*.13)*3;quad([x,terrain(x,z)-.03,z-1.6],[x,terrain(x,z)+.01,z+1.6],[x+2,terrain(x+2,z)+.01,z+1.6],[x+2,terrain(x+2,z)-.03,z-1.6],water)}
 path([[-16,-7],[-8,-4],[-4,-4],[-4,3],[6,2],[14,2]],1.5);path([[0,-15],[0,-9],[-4,-4],[-4,3],[0,9],[4,15]],1.3);path([[-13,9],[-7,4],[-4,3],[7,-5],[15,-10]],1.1);
-for(const t of trees)tree(t.x,t.z,t.s);for(const flower of wildflora)wildflower(flower);windmill(-27,-18,state.t);for(const [x,z,k] of city){house(x,z,1,k);cottageDetails(x,z,1,k)}hall(0,-1);cottageDetails(0,-1,1.85,2);
+for(const t of trees)tree(t.x,t.z,t.s);for(const flower of wildflora)wildflower(flower);windmill(-27,-18,state.t);villageFestival();for(const [x,z,k] of city){house(x,z,1,k);cottageDetails(x,z,1,k)}hall(0,-1);cottageDetails(0,-1,1.85,2);
 // The worked spaces have identifiable props and readable boundaries.
 for(let i=0;i<4;i++)wheat(19+i*1.8,1);fenceLine(16,-2,6);fenceLine(16,4,6);fenceLine(16,-2,4,true);fenceLine(25,-2,4,true);
 market(0,5);well(-15,4);villageGarden(12,11);villageGarden(-17,-3);guildBanner(-2,3);guildBanner(5,-2);lantern(-5,-7,1.7);lantern(6,9,1.45);lantern(2,6,1.7);lantern(-14,6,1.45);for(let i=0;i<7;i++)stoneBoulder(-23+(i*1.8),5+Math.sin(i*3)*1.3,.65+(i%3)*.18);
