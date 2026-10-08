@@ -115,26 +115,54 @@ function mesh(geometry, material, parent, position, scale) {
   return result;
 }
 function humanoid(material) {
-  const group = new THREE.Group();
-  mesh(geometries.cylinder,material,group,[0,1.18,0],[0.38,0.75,0.31]);
-  mesh(geometries.sphere,materials.skin,group,[0,1.79,0],[0.24,0.28,0.24]);
-  mesh(geometries.cone,material,group,[0,2.11,-0.035],[0.36,0.38,0.36]).rotation.z=Math.PI;
-  mesh(geometries.cube,materials.dark,group,[0,0.88,-0.2],[0.7,0.08,0.12]);
-  group.userData.limbs = [];
-  for (const side of [-1,1]) {
-    const arm=mesh(geometries.cylinder,material,group,[side*0.43,1.22,0],[0.115,0.68,0.115]);
-    const leg=mesh(geometries.cylinder,materials.dark,group,[side*0.17,0.45,0],[0.15,0.8,0.15]);
-    group.userData.limbs.push({arm,leg,side});
+  const hero=new THREE.Group();
+  // Original stylised explorer: layered wanderer's cloak, articulated boots and lantern.
+  const tunic=mesh(geometries.cylinder,material,hero,[0,1.09,0],[0.35,0.82,0.29]);
+  tunic.rotation.z=.04;
+  mesh(geometries.cone,material,hero,[0,0.9,-.12],[.53,1.33,.46]).rotation.z=Math.PI;
+  mesh(geometries.cylinder,materials.trim,hero,[0,1.46,0],[.4,.13,.35]);
+  mesh(geometries.sphere,materials.skin,hero,[0,1.77,.02],[.27,.31,.28]);
+  // Hood and bronze clasp frame the face without requiring an external asset.
+  mesh(geometries.sphere,materials.dark,hero,[0,1.91,-.11],[.36,.36,.38]);
+  mesh(geometries.sphere,materials.skin,hero,[0,1.8,.19],[.225,.235,.11]);
+  mesh(geometries.cube,materials.trim,hero,[0,1.47,.3],[.14,.15,.1]);
+  for(const side of [-1,1]){
+    mesh(geometries.sphere,materials.trim,hero,[side*.35,1.43,0],[.2,.13,.25]);
+    const arm=mesh(geometries.cylinder,material,hero,[side*.46,1.07,.05],[.17,.64,.17]);
+    const leg=mesh(geometries.cylinder,materials.dark,hero,[side*.20,.44,0],[.175,.78,.17]);
+    const boot=mesh(geometries.cube,materials.dark,hero,[side*.20,.11,.20],[.37,.23,.57]);
+    const band=mesh(geometries.cylinder,materials.trim,hero,[side*.20,.7,0],[.18,.07,.18]);
+    hero.userData.limbs??=[];
+    hero.userData.limbs.push({arm,leg,boot,band,side});
   }
-  mesh(geometries.sphere,materials.eyes,group,[0,1.83,0.225],[0.17,0.065,0.03]);
-  return group;
+  for(const side of [-1,1]){
+    mesh(geometries.sphere,materials.goldLight,hero,[side*.105,1.83,.293],[.047,.053,.015]);
+  }
+  // A carried compass-lantern is the visual centre of the hero, not a luminous dot.
+  const lantern=new THREE.Group();
+  lantern.position.set(.69,.69,.24);
+  mesh(geometries.cylinder,materials.trim,lantern,[0,0,0],[.18,.48,.18]);
+  mesh(geometries.lantern,materials.goldLight,lantern,[0,.02,0],[.72,.86,.72]);
+  mesh(geometries.torus,materials.trim,lantern,[0,.3,0],[.2,.2,.2]).rotation.x=Math.PI/2;
+  mesh(geometries.cylinder,materials.trim,lantern,[0,-.3,0],[.2,.07,.2]);
+  hero.add(lantern);
+  hero.userData.lantern=lantern;
+  hero.userData.baseY=0;
+  return hero;
 }
-function monster() {
-  const group = new THREE.Group();
-  mesh(geometries.cone,materials.monster,group,[0,1,0],[0.65,2,0.65]).rotation.z=Math.PI;
-  mesh(geometries.sphere,materials.monster,group,[0,1.6,0],[0.55,0.62,0.5]);
-  for (const side of [-1,1]) mesh(geometries.sphere,materials.monsterEye,group,[side*0.22,1.72,0.47],[0.1,0.1,0.07]);
-  return group;
+function monster(){
+  const creature=new THREE.Group();
+  const root=mesh(geometries.cone,materials.monster,creature,[0,1.04,-.06],[.54,1.98,.56]);
+  root.rotation.z=Math.PI;
+  mesh(geometries.sphere,materials.monster,creature,[0,1.67,0],[.48,.46,.44]);
+  mesh(geometries.cone,materials.dark,creature,[0,1.94,-.15],[.51,.58,.56]);
+  mesh(geometries.torus,materials.hazard,creature,[0,.36,0],[.78,.78,.78]).rotation.x=Math.PI/2;
+  for(const side of [-1,1]){
+    mesh(geometries.cone,materials.monster,creature,[side*.63,1.01,0],[.19,.9,.19]).rotation.z=side*.22;
+    mesh(geometries.sphere,materials.monsterEye,creature,[side*.18,1.7,.4],[.11,.085,.04]);
+    mesh(geometries.cone,materials.wallTop,creature,[side*.31,2.11,-.1],[.11,.3,.12]);
+  }
+  return creature;
 }
 function clearWorld() {
   for(const entry of [...world.children]) {
