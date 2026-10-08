@@ -640,3 +640,33 @@ test('Gauntlet 027 forest branch frames stay orthonormal for steep and horizonta
     for(const dot of frame.dots)expect(Math.abs(dot)).toBeLessThan(1e-5);
   }
 });
+
+test('Tiny Kingdom background sky pass stays presentation-only and reacts to world time',async({page})=>{
+  const errors=[];page.on('pageerror',e=>errors.push(e.message));
+  await page.setContent(html);
+  await page.waitForFunction(()=>Boolean(window.__tinyKingdom));
+  await page.locator('#pause').click();
+  const first=await page.evaluate(()=>{
+    const g=window.__tinyKingdom;
+    return {
+      sky:g.skyStats(),
+      auth:JSON.stringify(g.exportSnapshot()),
+      day:g.skyConditions(13),
+      night:g.skyConditions(1)
+    };
+  });
+  expect(first.sky.model).toBe('day-night-atmosphere-v1');
+  expect(first.day.daylight).toBeGreaterThan(first.night.daylight);
+  expect(first.day.fog).not.toEqual(first.night.fog);
+  await page.evaluate(()=>window.__tinyKingdom.setCamera({focus:[29,10],yaw:.54,pitch:.56,zoom:31}));
+  await page.waitForTimeout(250);
+  const second=await page.evaluate(()=>({
+    auth:JSON.stringify(window.__tinyKingdom.exportSnapshot()),
+    sky:window.__tinyKingdom.skyStats(),
+    tier:window.__tinyKingdom.renderQuality().tier
+  }));
+  expect(second.auth).toBe(first.auth);
+  expect(second.sky.enabled).toBe(second.tier!=='canvas2d');
+  if(second.sky.enabled)expect(second.sky.passes).toBeGreaterThan(first.sky.passes);
+  expect(errors).toEqual([]);
+});
