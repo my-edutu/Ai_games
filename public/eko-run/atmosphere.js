@@ -38,7 +38,7 @@ export function createCityAtmosphere(THREE, scene) {
     fragmentShader,
     depthWrite:false,depthTest:false,toneMapped:false,fog:false,side:THREE.DoubleSide
   });
-  const sky=new THREE.Mesh(new THREE.PlaneGeometry(240,125),shader);
+  const sky=new THREE.Mesh(new THREE.PlaneGeometry(520,125),shader);
   sky.name='Eko procedural sunset sky';sky.position.set(0,18,-74);
   sky.renderOrder=-500;root.add(sky);
   const cloudMat=new THREE.MeshBasicMaterial({color:0xfff9e5,transparent:true,opacity:.68,depthWrite:false,fog:false});
