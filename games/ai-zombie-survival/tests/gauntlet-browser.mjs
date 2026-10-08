@@ -56,6 +56,12 @@ try{
   const recovered=await page.evaluate(()=>JSON.parse(localStorage.getItem('zombie-gauntlet-live')||'{}').tick||0);
   assert.ok(recovered>=after,'restored authoritative tick must not move backward after browser reload');
   report.checks.recoveredSimulation=true;
+  await page.keyboard.press('s');
+  assert.equal(await page.locator('#squadPanel').isVisible(),true);
+  assert.equal(await page.locator('#squadCards .squad-person').count(),6);
+  await page.locator('#squadCards .squad-person').first().click();
+  assert.equal(await page.locator('#squadPanel').isHidden(),true);
+  report.checks.autonomousDossiers=true;
   await page.keyboard.press('h');
   assert.equal(await page.locator('#hud').isHidden(),true);
   await page.keyboard.press('h');

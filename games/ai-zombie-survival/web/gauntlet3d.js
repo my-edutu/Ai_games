@@ -5,6 +5,8 @@ const canvas = document.getElementById('scene');
 const hud = document.getElementById('hud');
 const verdict = document.getElementById('verdict');
 const fallback = document.getElementById('fallback');
+const squadPanel=document.getElementById('squadPanel');
+const squadCards=document.getElementById('squadCards');
 const gl = canvas.getContext('webgl2', { antialias: true, alpha: false, powerPreference: 'high-performance' });
 if (!gl) {
   fallback.hidden = false;
@@ -451,6 +453,37 @@ function selectFocus(dt){
     cameraMode==='director'?directorZoom:range;
   directedRange+=(desired-directedRange)*Math.min(1,dt*(reducedMotion?3:1.9));
 }
+function renderSquad(){
+  if(squadPanel.hidden)return;
+  const fragment=document.createDocumentFragment();
+  for(const [index,member] of game.survivors.entries()){
+    const card=document.createElement('button');
+    card.type='button';card.className='squad-person'+(member.alive?'':' is-down');
+    card.disabled=!member.alive;
+    const top=document.createElement('span');top.className='squad-top';
+    const name=document.createElement('strong');name.textContent=member.name;
+    const role=document.createElement('small');role.textContent=member.role.toUpperCase();
+    top.append(name,role);card.append(top);
+    const intent=document.createElement('span');intent.className='squad-intent';
+    intent.textContent=member.alive?member.intent:'Fallen in the outbreak';
+    card.append(intent);
+    const hp=document.createElement('span');hp.className='squad-health';
+    const fill=document.createElement('i');fill.style.width=Math.max(0,Math.min(100,member.health))+'%';
+    hp.append(fill);card.append(hp);
+    const meta=document.createElement('span');meta.className='squad-meta';
+    meta.textContent='HP '+Math.round(member.health)+' · INFECTION '+Math.round(member.infection)+'% · KILLS '+member.kills;
+    card.append(meta);
+    card.setAttribute('aria-label','Follow '+member.name+', '+member.role+', health '+Math.round(member.health));
+    card.addEventListener('click',()=>{heroIndex=index;cameraMode='hero';squadPanel.hidden=true;document.getElementById('rosterToggle').setAttribute('aria-expanded','false');});
+    fragment.append(card);
+  }
+  squadCards.replaceChildren(fragment);
+}
+function toggleRoster(){
+  squadPanel.hidden=!squadPanel.hidden;
+  document.getElementById('rosterToggle').setAttribute('aria-expanded',String(!squadPanel.hidden));
+  if(!squadPanel.hidden)renderSquad();
+}
 function restartRun(){
   seed=(seed+1)>>>0||1;completedRuns++;resumeStatus='NEW RUN';game=createGame({seed,zombieCount:params.get('crowd')==='dense'?260:180});
   audioEventsSeen=0;cameraMode='director';cameraFocusX=0;cameraFocusZ=0;directedRange=27;
@@ -501,7 +534,7 @@ function render(now){
   frameCpuMs.push(performance.now()-cpuStart);
   if(frameCpuMs.length>180)frameCpuMs.shift();
   if(now-lastStats>450){
-    lastStats=now;const living=game.survivors.filter(s=>s.alive).length,infected=game.zombies.filter(z=>z.health>0).length;
+    lastStats=now;renderSquad();const living=game.survivors.filter(s=>s.alive).length,infected=game.zombies.filter(z=>z.health>0).length;
     hud.querySelector('#day').textContent='DAY '+game.time.day+' / '+game.time.phase.toUpperCase();
     hud.querySelector('#people').textContent=living+' SURVIVORS';
     hud.querySelector('#infected').textContent=infected+' INFECTED';
@@ -540,11 +573,13 @@ document.addEventListener('keydown',e=>{
   if(e.key.toLowerCase()==='c')cameraMode='hero';
   if(e.key.toLowerCase()==='v')cameraMode='overview';
   if(e.key.toLowerCase()==='n'){heroIndex=(heroIndex+1)%Math.max(1,game.survivors.length);cameraMode='hero';}
+  if(e.key.toLowerCase()==='s')toggleRoster();
   if(e.key.toLowerCase()==='r'){restartRun();}
 });
 document.querySelector('#sound').addEventListener('click',enableAudio);
 document.querySelector('#togglePause').addEventListener('click',togglePause);
 document.querySelector('#focus').addEventListener('click',()=>{cameraMode='director';});
 document.querySelector('#hero').addEventListener('click',()=>{cameraMode='hero';});
+document.querySelector('#rosterToggle').addEventListener('click',toggleRoster);
 rebuildStatic(true);
 requestAnimationFrame(render);

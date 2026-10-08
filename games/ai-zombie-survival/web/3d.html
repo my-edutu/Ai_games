@@ -29,9 +29,14 @@
 <div class="aiMeter" role="img" aria-label="Zombie pressure gauge"><div id="hordeMeter"></div></div>
 <div id="action">LAST EVENT • Watching the outbreak</div>
 </section>
+<section id="squadPanel" class="squadPanel" aria-label="Squad dossiers" hidden>
+  <div class="eyebrow">AUTONOMOUS SQUAD / LIVE DOSSIERS</div>
+  <div class="squad-help">Select a survivor to follow them in cinematic 3D.</div>
+  <div id="squadCards" class="squadCards"></div>
+</section>
 <footer class="bottom">
-  <div class="controls"><button id="togglePause" type="button">⏯ Pause / Resume</button><button id="sound" type="button">◖ ENABLE SOUND</button><button id="focus" type="button">◎ Auto Director</button><button id="hero" type="button">◈ Hero Camera</button><a href="./progress.html">GAUNTLET PROGRESS ↗</a><a href="./index.html">2.5D VERSION ↗</a></div>
-  <div class="hints">DRAG ORBIT · SCROLL ZOOM · G DIRECTOR · C HERO · V HORDE · N NEXT HERO · H HUD · R NEW SEED · SPACE PAUSE</div>
+  <div class="controls"><button id="togglePause" type="button">⏯ Pause / Resume</button><button id="sound" type="button">◖ ENABLE SOUND</button><button id="focus" type="button">◎ Auto Director</button><button id="hero" type="button">◈ Hero Camera</button><button id="rosterToggle" type="button" aria-controls="squadPanel" aria-expanded="false">≡ SQUAD</button><a href="./progress.html">GAUNTLET PROGRESS ↗</a><a href="./index.html">2.5D VERSION ↗</a></div>
+  <div class="hints">DRAG ORBIT · SCROLL ZOOM · G DIRECTOR · C HERO · V HORDE · N NEXT HERO · S SQUAD · H HUD · R NEW SEED · SPACE PAUSE</div>
 </footer>
 </main>
 <script type="module" src="./gauntlet3d.js"></script>
