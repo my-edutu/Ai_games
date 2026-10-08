@@ -30,6 +30,9 @@
   const accentMat = new THREE.MeshStandardMaterial({ color: 0xffd68a, emissive: 0x8b4c0a, emissiveIntensity: 0.4 });
   const architecture = new THREE.Group(); scene.add(architecture);
   const actors = new THREE.Group(); scene.add(actors);
+  const worldObjects = new Map();
+  let playerRig = null;
+  const reusedPosition = new THREE.Vector3();
   const clock = new THREE.Clock();
   let climber = null, lastClimberPosition = null;
   const decoration = new THREE.Group(); scene.add(decoration);
@@ -104,6 +107,8 @@
     }
     if (!lastState) camera.position.y = y(s.player?.y) + 5.2;
     metrics.actors=actors.children.length; metrics.status='live';
+    metrics.platforms=(s.platforms||[]).length; metrics.enemies=(s.enemies||[]).filter(e=>e.active).length;
+    metrics.hazards=(s.hazards||[]).length; metrics.pickups=(s.pickups||[]).length;
   }
   // The existing 2D renderer must not write to the same canvas after WebGL takes ownership.
   window.__TOWER_3D_ACTIVE__ = true;
