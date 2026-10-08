@@ -307,7 +307,7 @@ function animate(t){requestAnimationFrame(animate);const time=t/1000,dt=Math.min
  if(world.userData.portal&&!reduced)world.userData.portal.rotation.y=time*.26;
  if(world.userData.court&&!reduced)world.userData.court.rotation.y=Math.sin(time*.3)*.035;
  if(world.userData.dressing&&!reduced)world.userData.dressing.animate(time);
- cutawayWalls(target);
+ cutawayWalls(target);world.userData.dressing?.cutaway(target);
  const cameraType=cameraModes[cameraIndex]||'cinematic',offsets=cameraType==='tactical'?[2,20,2]:cameraType==='chase'?[5.5,8.5,7.5]:[9,14,11];
  const look=new THREE.Vector3(target.x,0,target.z),cam=new THREE.Vector3(target.x+offsets[0],offsets[1],target.z+offsets[2]);
  camera.position.lerp(cam,reduced?1:.065);camera.lookAt(look.x,0,look.z);

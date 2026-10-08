@@ -102,7 +102,7 @@ export function enrichEnvironment(world,map,floor){
  }
  batched(world,box,floorSurface,floorDetails,{variation:true,floor});
  // Wall trims stand slightly proud to create depth; avoid overdraw covering actors.
- batched(world,box,wallSurface,wallFaces,{variation:true,floor});
+ const facadeMesh=batched(world,box,wallSurface,wallFaces,{variation:true,floor});
  batched(world,box,chrome,columnCap,{floor});
  batched(world,box,moss,mossPatches,{floor});
  batched(world,box,jade,runeInlays,{floor});
@@ -140,6 +140,18 @@ export function enrichEnvironment(world,map,floor){
  }
  const pillarsCount=pillars.length,bannersCount=banners.length,ruins=worldAnchors.length;
  const totalDecor=floorDetails.length+wallFaces.length+columnCap.length+mossPatches.length+runeInlays.length+rubble.length+pillarsCount+bannersCount+ruins;
+ // Same 3D visibility policy as the base walls: rich wall cladding must not hide the AI.
+ let previousCutaway='';
+ const matrix=new THREE.Matrix4(),p=new THREE.Vector3(),q=new THREE.Quaternion(),scale=new THREE.Vector3();
+ function cutaway(target){
+  const k=Math.round(target.x)+':'+Math.round(target.z);if(previousCutaway===k)return;previousCutaway=k;
+  if(!facadeMesh)return;
+  for(let i=0;i<wallFaces.length;i++){const f=wallFaces[i];
+   const near=Math.abs(f[0]-target.x)+Math.abs(f[2]-target.z)<3.1 && f[0]+f[2]>target.x+target.z-.95;
+   const h=near?.30:f[4];p.set(f[0],near?.19:f[1],f[2]);scale.set(f[3],h,f[5]);matrix.compose(p,q,scale);facadeMesh.setMatrixAt(i,matrix);
+  }
+  facadeMesh.instanceMatrix.needsUpdate=true;
+ }
  const animate=time=>{for(const p of flames){const t=time*5+p.phase,scale=1+Math.sin(t)*.13;p.fire.scale.y=scale;p.inner.scale.setScalar(.91+Math.sin(t+1.3)*.14)}};
- return {animate,metrics:{biome:floor,decorInstances:totalDecor,torches:flames.length,banners:bannersCount,landmarks:ruins,texturedSurfaces:floorDetails.length+wallFaces.length},dispose:()=>{for(const g of geometries)g.dispose();for(const m of materials)m.dispose();for(const t of textures)t.dispose();for(const f of flames){f.inner.material.dispose()}}};
+ return {animate,cutaway,metrics:{biome:floor,decorInstances:totalDecor,torches:flames.length,banners:bannersCount,landmarks:ruins,texturedSurfaces:floorDetails.length+wallFaces.length},dispose:()=>{for(const g of geometries)g.dispose();for(const m of materials)m.dispose();for(const t of textures)t.dispose();for(const f of flames){f.inner.material.dispose()}}};
 }
