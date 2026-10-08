@@ -135,3 +135,14 @@ test('lower-end GPU quality draws fewer meshes while preserving the same simulat
     }
   }finally{await full.close();await light.close()}
 });
+
+
+test('unmuted original battle soundtrack stays responsive without browser exceptions',async({page})=>{
+  const errors=[];
+  page.on('pageerror',e=>errors.push(e.message));
+  await page.goto(base+'/battle?muted=0',{waitUntil:'domcontentloaded'});
+  await page.waitForFunction(()=>Boolean(window.__BATTLE_PUBLIC_STATE__&&window.BattleArena3D));
+  await page.waitForTimeout(750);
+  await expect(page.locator('[data-testid="battle-canvas"]')).toBeVisible();
+  expect(errors).toEqual([]);
+});
