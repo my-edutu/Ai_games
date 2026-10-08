@@ -8,7 +8,7 @@
     {
       "number": 1,
       "label": "Existing game audit and first playable 3D scene",
-      "status": "implementation-in-review",
+      "status": "implemented; independent rendered comparison pending",
       "built": [
         "Public-observation-driven Three.js scene",
         "Procedural 3D stone floors, walls, rooms, keys, locked doors and exit",
@@ -20,6 +20,21 @@
       "independentCritic": "Pending: external pixel-level blind A/B, real browser screenshots and endurance evidence",
       "largestKnownGap": "Procedural 3D characters and environments are not yet comparable to authored AAA assets, lighting, animation and art direction.",
       "baseline": "R4 software candidate; 88/100 production evidence score according to existing repository documents.",
+      "visualBarMet": false
+    },
+    {
+      "number": 2,
+      "label": "Movement, failure fallback and live threat",
+      "status": "implemented; awaiting running browser critique",
+      "built": [
+        "Interpolate explorer movement without resetting position every tick",
+        "Throttle 3D environment rebuilds to reduce CPU churn",
+        "Check WebGL2 support and return to the 2D view after a lost GPU context",
+        "Activate a deterministic hunter for the livestream preset",
+        "Capture 3D Chromium screenshot in browser test"
+      ],
+      "independentCritic": "No independent visual critic has inspected the running game: coding-agent connection unavailable and GitHub CI queued.",
+      "largestKnownGap": "Author-quality character rig, detailed maze materials and atmospheric lighting remain far short of AAA references; measured gameplay FPS and real A/B captures are outstanding.",
       "visualBarMet": false
     }
   ],
