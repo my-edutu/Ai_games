@@ -116,6 +116,7 @@ export function composeStreetVibrance(THREE, { terrain, box, ball, cylinder, lab
     for(let stripe=0;stripe<7;stripe++)
       b(.21,.018,5.4,x+stripe*.55,-.025,0,0xefe9c8);
   }
+  if(['mainland-morning','market-rush','danfo-junction'].includes(district)) {
   // "OJU EKO" fictional bus shelter: a bespoke, readable set piece near the first decision.
   // All structural geometry is outside the -3.4 metre road edge; never a surprise collision.
   const stationX=24,stationZ=-5.0;
@@ -153,7 +154,7 @@ export function composeStreetVibrance(THREE, { terrain, box, ball, cylinder, lab
     for(const dz of [-1.17,1.17]){
       cylinder(group,.08,.09,3.0,stageX+dx,1.52,stageZ+dz,0x496473,10);features++;
     }
-  sp('LAGOS MORNING MARKET',stageX,3.72,stageZ+.12,1.10,'#fff3c7','#0f6573');
+  sp(district==='danfo-junction'?'EKO DANFO MARKET':district==='market-rush'?'OJA RUSH MARKET':'LAGOS MORNING MARKET',stageX,3.72,stageZ+.12,1.10,'#fff3c7','#0f6573');
   for(let i=0;i<3;i++){
     const x=stageX-2.4+i*2.4;
     b(1.74,.14,1.05,x,.90,stageZ+.55,0x986b4c);
@@ -163,7 +164,8 @@ export function composeStreetVibrance(THREE, { terrain, box, ball, cylinder, lab
       ball(group,.15,fx,1.08,fz,choose([0xffb849,0xfd7255,0x6cbd71,0xefc45f],j+i));features++;
     }
   }
-    // Palm trees and city garden planters only on far side; occlusion avoidance is intentional.
+    }
+  // Palm trees and city garden planters only on far side; occlusion avoidance is intentional.
   for(let i=0;i<Math.ceil(maxX/22);i++){
     const x=7+i*22;
     const z=-5.3;
