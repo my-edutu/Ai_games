@@ -140,8 +140,8 @@ export function createTowerEnvironment(THREE,scene) {
   const motes=new THREE.Points(dustGeo,dustMaterial);root.add(motes);
   const palette={
     foundry:{stone:0x625a5c,shadow:0x292b3f,bronze:0xaf6c43,glow:0xffa857,fog:0x1c2131},
-    ice:{stone:0x577b94,shadow:0x213e52,bronze:0x9ec9da,glow:0x83d9ff,fog:0x11283d},
-    verdant:{stone:0x667d62,shadow:0x263b34,bronze:0x977753,glow:0xa8efa9,fog:0x182d2a},
+    ruins:{stone:0x74806a,shadow:0x2b3c32,bronze:0x9a815b,glow:0xa9d5a1,fog:0x1c302b},
+    clockwork:{stone:0x4c5d70,shadow:0x2a3445,bronze:0xc19a52,glow:0xffc879,fog:0x252739},
     storm:{stone:0x697083,shadow:0x27273e,bronze:0xb0a3a0,glow:0xb6c9ff,fog:0x252339},
     void:{stone:0x61547b,shadow:0x29243f,bronze:0x9d81ad,glow:0xbb87ff,fog:0x1b1530}
   };
