@@ -17,7 +17,14 @@ test('tower art is made from actual THREE meshes and animatable body parts',()=>
   assert.ok(parts.length>=45,'climber should have body, articulated limbs and gear');
   rig.setMotion(0,.6,'ascending');assert.equal(rig.pose,'climb');
   rig.animate(1,false);rig.setMotion(.7,0,'run');assert.equal(rig.pose,'run');
-  rig.animate(1.1,false);assert.ok(parts.every(m=>m.geometry&&m.material));
+  rig.animate(1.1,false);
+  rig.setMotion(.12,.01,'run',.3);rig.animate(1.2,false);
+  rig.setMotion(0,.3,'leaping',0);assert.equal(rig.pose,'leap');
+  rig.setMotion(0,-.3,'falling',0);assert.equal(rig.pose,'fall');
+  rig.setMotion(0,0,'GUARDIAN ENGAGED',0);assert.equal(rig.pose,'combat');
+  const joints=[];rig.root.traverse(node=>{if(node.name==='knee'||node.name==='elbow')joints.push(node)});
+  assert.equal(joints.length,4,'real articulated elbows and knees');
+  assert.ok(parts.every(m=>m.geometry&&m.material));
 });
 test('tower enemy/platform geometry is volumetric and guardian differs from normal enemies',()=>{
   const art=loadFactory('entities3d.js','createTowerEntities')(THREE);
