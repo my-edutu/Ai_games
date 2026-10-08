@@ -320,4 +320,6 @@ body.clean-feed #app .hero-identity,
 body.clean-feed #app .checkpoint-pill,
 body.clean-feed #app .climb-rail,
 body.clean-feed #app .stage-signal {display:none!important}
+/* Clean-feed header overrides the themed high-specificity display:flex rule. */
+body.clean-feed #app .shell[data-ux-revision] .top{display:none!important}
 body.clean-feed #app .arena-wrap {inset:0!important}
