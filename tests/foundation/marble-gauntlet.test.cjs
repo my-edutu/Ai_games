@@ -35,6 +35,11 @@ test('stadium renders 3D geometry without editing authoritative obstacles', () =
   assert.ok(renderer.includes('drawBox([x,height/2-0.14,0]'));
 });
 
+test('director camera applies time-based smoothing independent of refresh rate', () => {
+  assert.ok(renderer.includes('smoothedCamera(snapshot,marbles,dt)'));
+  assert.ok(renderer.includes('Math.pow(1-0.075,60*clamp(dt,0,0.05))'));
+});
+
 test('progress page exposes live metrics and never fabricates visual acceptance', () => {
   assert.ok(page.includes('href="/gauntlet.css"'));
   assert.ok(page.includes('src="/gauntlet.js"'));
