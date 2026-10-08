@@ -19,6 +19,8 @@ let seed = Number(params.get('seed') || 2026) >>> 0 || 2026;
 let game = createGame({ seed, zombieCount: params.get('crowd') === 'dense' ? 260 : 180 });
 if (isEvidenceScenario(scenario)) { game = applyEvidenceScenario(game, scenario); if (!frozen) delete game.evidenceScenario; }
 let last = performance.now(), accumulator = 0, elapsed = 0, paused = frozen, hudShown = true;
+let completedRuns=0, terminalSince=null;
+const restartDelayMs=Math.max(500,Math.min(60000,Number(params.get('restartMs'))||12000));
 let orbit = 0.67, range = 27, dragging = false, priorX = 0, cameraX = 0, cameraZ = 0, cameraFocusX = 0, cameraFocusZ = 0;
 let cameraMode = ['hero','overview'].includes(params.get('view'))?params.get('view'):'director', heroIndex=0, director = undefined, fpsSmooth = 30, lastStats = 0, buffersRebuilt = 0, lastGeometryStamp = '';
 const fixed = 1 / 30, maxVisibleZombies = 260;
@@ -328,10 +330,19 @@ function selectFocus(dt){
   const a=Math.min(1,dt*(reducedMotion?2:1.75));
   cameraFocusX+=(focus.x-cameraFocusX)*a;cameraFocusZ+=(focus.y-cameraFocusZ)*a;
 }
+function restartRun(){
+  seed=(seed+1)>>>0||1;completedRuns++;game=createGame({seed,zombieCount:params.get('crowd')==='dense'?260:180});
+  audioEventsSeen=0;cameraMode='director';cameraFocusX=0;cameraFocusZ=0;
+  terminalSince=null;accumulator=0;director=undefined;lastGeometryStamp='';
+}
 function render(now){
   const delta=Math.min(.09,Math.max(0,(now-last)/1000));last=now;elapsed+=delta;
   fpsSmooth=fpsSmooth*.93+(delta?1/delta:30)*.07;
   if(!paused&&game.status==='running'){accumulator+=delta;let limit=0;while(accumulator>=fixed&&limit++<4){game=stepGame(game,fixed);accumulator-=fixed;}}
+  if(!paused&&!frozen&&game.status!=='running'){
+    if(terminalSince===null)terminalSince=now;
+    else if(now-terminalSince>=restartDelayMs)restartRun();
+  }
   selectFocus(delta);
   updateAudio();
   const dpi=Math.min(1.6,devicePixelRatio||1),w=Math.max(1,Math.round(innerWidth*dpi)),h=Math.max(1,Math.round(innerHeight*dpi));
@@ -358,7 +369,7 @@ function render(now){
     hud.querySelector('#integrity').textContent=Math.round(game.safeHouse.integrity)+'% BASE';
     hud.querySelector('#goal').textContent=game.objective.label;
     hud.querySelector('#resources').textContent='SUPPLIES  '+Math.floor(game.resources.food)+' FOOD  /  '+Math.floor(game.resources.ammo)+' AMMO';
-    hud.querySelector('#status').textContent=game.status==='running'?'AUTONOMOUS LIVE':'RUN ENDED: '+game.status.toUpperCase();
+    hud.querySelector('#status').textContent=game.status==='running'?'RUN '+(completedRuns+1)+' · AUTONOMOUS LIVE':'RUN '+(completedRuns+1)+' ENDED · RESTART PENDING';
     const featured=game.survivors.find(v=>v.id===director?.targetId&&v.alive)||game.survivors.find(v=>v.alive);
     hud.querySelector('#decisionName').textContent=featured?featured.name.toUpperCase()+' / '+featured.role.toUpperCase():'SQUAD LOST';
     hud.querySelector('#decision').textContent=featured?.intent||'The survivors are down. Preparing a new run.';
@@ -387,7 +398,7 @@ document.addEventListener('keydown',e=>{
   if(e.key.toLowerCase()==='c')cameraMode='hero';
   if(e.key.toLowerCase()==='v')cameraMode='overview';
   if(e.key.toLowerCase()==='n'){heroIndex=(heroIndex+1)%Math.max(1,game.survivors.length);cameraMode='hero';}
-  if(e.key.toLowerCase()==='r'){seed=(seed+1)>>>0||1;game=createGame({seed,zombieCount:180});audioEventsSeen=0;cameraMode='director';cameraFocusX=0;cameraFocusZ=0;lastGeometryStamp='';}
+  if(e.key.toLowerCase()==='r'){restartRun();}
 });
 document.querySelector('#sound').addEventListener('click',enableAudio);
 document.querySelector('#togglePause').addEventListener('click',togglePause);
