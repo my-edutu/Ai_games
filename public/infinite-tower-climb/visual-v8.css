@@ -309,3 +309,15 @@ body[data-tower-theme="void"]{--tower-accent:#ca7dff;--tower-secondary:#ff89cb;-
  #app .side .intent-panel{background:rgba(27,44,47,.93)!important}
  #app .world-title{font-size:clamp(25px,7.4vw,44px)!important}
 }
+
+
+/* Clean-feed must win over every colored HUD rule, including #app specificity. */
+body.clean-feed #app .top,
+body.clean-feed #app .side,
+body.clean-feed #app .caption,
+body.clean-feed #app .world-label,
+body.clean-feed #app .hero-identity,
+body.clean-feed #app .checkpoint-pill,
+body.clean-feed #app .climb-rail,
+body.clean-feed #app .stage-signal {display:none!important}
+body.clean-feed #app .arena-wrap {inset:0!important}
