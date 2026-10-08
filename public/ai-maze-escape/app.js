@@ -275,6 +275,7 @@ function update(frameValue){
   const snapshot=frameValue.snapshot;
   if(!snapshot)return;
   window.__MAZE_PUBLIC_STATE__=snapshot;
+  window.dispatchEvent(new CustomEvent('maze:frame',{detail:frameValue}));
   window.__MAZE_VIEW__=computePublicView(snapshot,frameValue.camera);
   elements.tick.textContent=String(snapshot.tick);
   elements.steps.textContent=String(Math.max(0,snapshot.travelledRoute.length-1));
