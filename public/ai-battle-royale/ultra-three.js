@@ -7,6 +7,7 @@
 import * as THREE from './vendor/three.module.min.js';
 import {GLTFLoader} from './vendor/loaders/GLTFLoader.js';
 import {clone as cloneSkin} from './vendor/utils/SkeletonUtils.js';
+import {buildVista,disposeVista} from './ultra-scenery.js';
 
 const opts=new URLSearchParams(location.search);
 if(opts.get('renderer')!=='three')throw Error('Ultra renderer is opt-in via renderer=three');
@@ -15,7 +16,7 @@ const source=window.BattleArena3D;
 if(!stage||!source)throw Error('Battle Ultra needs the live public-state renderer');
 const state={mode:'initializing',frames:0,meshes:0,actors:0,worldRebuilds:0,
   lastError:null,source:'Quaternius CC0 humanoid',sourceFile:'/battle/models/quaternius-hero.glb',
-  materialAtlas:'fallback',joints:0,
+  materialAtlas:'fallback',joints:0,sceneryInstances:0,
   gpu:'three-r182',animation:'original AI intent driven bone poses'};
 window.BattleUltraThree=state;
 const colors={vanguard:0xf48154,ranger:0x47cfff,
@@ -25,7 +26,7 @@ const zones={
   neon:{sky:0x273763,fog:0x455681,ambient:0x94b7f6,sun:0xe5cfff},
   arctic:{sky:0x9bd3e4,fog:0x8cc3d8,ambient:0xb9dcf9,sun:0xffffff}
 };
-let renderer,scene,camera,wideCamera,sun,hemisphere,terrain,ambientProps;
+let renderer,scene,camera,wideCamera,sun,hemisphere,terrain,ambientProps,biomeScenery;
 let template,bounds,unitScale=1,modelYOffset=0,lastExportVersion=0,lastStaticKey='';
 let raf=0,ready=false,models=new Map(),bonesByModel=new WeakMap();
 let nametagLayer=null,clockTime=0,tracked=new THREE.Vector3(),cameraPosition=new THREE.Vector3();
@@ -306,6 +307,13 @@ function updateWorld(frame){
     terrain.castShadow=true;terrain.receiveShadow=true;
     terrain.frustumCulled=false;scene.add(terrain);
     lastStaticKey=String(frame.sceneBuilds);state.worldRebuilds++;
+    // Original themed vista lies entirely outside the actual battle grid.
+    if(biomeScenery){
+      scene.remove(biomeScenery);disposeVista(biomeScenery);
+    }
+    biomeScenery=buildVista(frame.snapshot.arena,frame.snapshot.runToken);
+    scene.add(biomeScenery);
+    state.sceneryInstances=biomeScenery.userData.instanceCount;
   }
   if(ambientProps){scene.remove(ambientProps);ambientProps.geometry.dispose();}
   ambientProps=new THREE.Mesh(setWorldVertexGeometry(frame.dynamicVertices),effectsMaterial);

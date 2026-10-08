@@ -508,3 +508,13 @@ test('ultra-quality uses a truly skinned local CC0 human and original 3D world, 
   expect(errors).toEqual([]);
   await page.screenshot({path:path.join(captures,'ultra-human-true-skeletal-3d.png'),fullPage:true});
 });
+
+test('Ultra biome vista imports original first-party modules and cannot alter collision',async({request})=>{
+  const scenery=await request.get(base+'/battle/ultra-scenery.js');
+  expect(scenery.ok()).toBeTruthy();
+  const content=await scenery.text();
+  expect(content).toContain('NON_PLAYABLE_VISTA');
+  expect(content).toContain('InstancedMesh');
+  expect(content).toContain('disposeVista');
+  expect(content).not.toContain('runtime.step(');
+});
