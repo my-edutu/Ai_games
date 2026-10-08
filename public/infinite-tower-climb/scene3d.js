@@ -11,7 +11,6 @@ import {buildBiomeLandmarks,animateBiomeLandmarks} from '/tower/landmarks-v5.js'
 import {createTowerEffectsDirector} from '/tower/effects-v6.js';
 import {mountTowerAtmosphere,animateTowerAtmosphere} from '/tower/atmosphere-v8.js';
 import {selectVisibleLedge,applyContactPose} from '/tower/grip-v10.js';
-import {buildTowerGeology} from '/tower/geology-v9.js';
 
 const SCALE = 1 / 1000;
 const palettes=VISUAL_PALETTES;
@@ -194,7 +193,6 @@ export function mountTower3D({host,getFrame,reducedMotion=false,highContrast=fal
     buildPainterlyTowerBackdrop({group:backdrop,snapshot:s,theme,palette:p,worldWidth});
     landmarks=buildBiomeLandmarks({group:backdrop,snapshot:s,palette:p,worldWidth});
     atmosphere=mountTowerAtmosphere({group:backdrop,snapshot:s,quality});
-    buildTowerGeology({group:backdrop,snapshot:s,quality});
     // Colored environmental dust is now batched by the V8 atmosphere director.
     // Visual set dressing changes with the procedural level theme; it is not collision geometry.
     if(theme==='clockwork'){
