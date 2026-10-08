@@ -1,0 +1,130 @@
+{
+  "schemaVersion": 1,
+  "source": "sion-rgb/tactical-slash",
+  "revision": "8bf8d835cb7afa7cb3f4d893b0966c6b4e9b7727",
+  "license": "CC0-1.0",
+  "sourceAttribution": "Kay Lousberg / KayKit; adapted and re-exported by tactical-slash contributors",
+  "sourceLicenseUrl": "https://github.com/sion-rgb/tactical-slash/blob/main/THIRD_PARTY_ASSETS.md",
+  "assets": [
+    {
+      "target": "player/player_swordsman.glb",
+      "sourcePath": "assets/characters/player/player_swordsman.glb",
+      "blobSha": "24492f0e0609708495284bdb8759b98f2bd66f49",
+      "size": 549284
+    },
+    {
+      "target": "player/player_archer.glb",
+      "sourcePath": "assets/characters/player/player_archer.glb",
+      "blobSha": "739a7b5d6fdf6acb2127f3009e7efd32ae15a011",
+      "size": 701504
+    },
+    {
+      "target": "player/player_priest.glb",
+      "sourcePath": "assets/characters/player/player_priest.glb",
+      "blobSha": "ce30039961ce60585e1da2928c935a42cf17ae5f",
+      "size": 536752
+    },
+    {
+      "target": "enemy/enemy_swordsman.glb",
+      "sourcePath": "assets/characters/enemy/enemy_swordsman.glb",
+      "blobSha": "1f502e9da044af60759cac6eb24f58c916b05c6a",
+      "size": 673216
+    },
+    {
+      "target": "enemy/enemy_archer.glb",
+      "sourcePath": "assets/characters/enemy/enemy_archer.glb",
+      "blobSha": "3850891479b7087df54ab0e3e767e7d5ff46230e",
+      "size": 683976
+    },
+    {
+      "target": "enemy/enemy_priest.glb",
+      "sourcePath": "assets/characters/enemy/enemy_priest.glb",
+      "blobSha": "b54983c9858900bf0f5e515f6a5f5756d107a224",
+      "size": 594168
+    },
+    {
+      "target": "player/player_swordsman_knight_texture.png",
+      "sourcePath": "assets/characters/player/player_swordsman_knight_texture.png",
+      "blobSha": "a56eae7514f908862e304620b89dc2d0cb9f362f",
+      "size": 14172
+    },
+    {
+      "target": "player/player_archer_rogue_texture.png",
+      "sourcePath": "assets/characters/player/player_archer_rogue_texture.png",
+      "blobSha": "542954baba7281f028f93306943fc780b1ebcf55",
+      "size": 16670
+    },
+    {
+      "target": "player/player_archer_weapons_bits_texture.png",
+      "sourcePath": "assets/characters/player/player_archer_weapons_bits_texture.png",
+      "blobSha": "f94f11e0384d09132f8dbfc64d811812875dcc64",
+      "size": 17508
+    },
+    {
+      "target": "player/player_priest_mage_texture.png",
+      "sourcePath": "assets/characters/player/player_priest_mage_texture.png",
+      "blobSha": "d0b91fba111e8b9c952aab6698807c0200061100",
+      "size": 16311
+    },
+    {
+      "target": "enemy/enemy_swordsman_skeleton_texture.png",
+      "sourcePath": "assets/characters/enemy/enemy_swordsman_skeleton_texture.png",
+      "blobSha": "00bf24bd5fd17937e08fd90f819a7bc69de432b8",
+      "size": 17037
+    },
+    {
+      "target": "enemy/enemy_archer_skeleton_texture.png",
+      "sourcePath": "assets/characters/enemy/enemy_archer_skeleton_texture.png",
+      "blobSha": "00bf24bd5fd17937e08fd90f819a7bc69de432b8",
+      "size": 17037
+    },
+    {
+      "target": "enemy/enemy_archer_weapons_bits_texture.png",
+      "sourcePath": "assets/characters/enemy/enemy_archer_weapons_bits_texture.png",
+      "blobSha": "f94f11e0384d09132f8dbfc64d811812875dcc64",
+      "size": 17508
+    },
+    {
+      "target": "enemy/enemy_priest_skeleton_texture.png",
+      "sourcePath": "assets/characters/enemy/enemy_priest_skeleton_texture.png",
+      "blobSha": "00bf24bd5fd17937e08fd90f819a7bc69de432b8",
+      "size": 17037
+    },
+    {
+      "target": "environment/dungeon_wall.glb",
+      "sourcePath": "assets/environment/dungeon_wall.glb",
+      "blobSha": "a29e908600596824efa007f3ac279e17a933d9c6",
+      "size": 53272
+    },
+    {
+      "target": "environment/dungeon_pillar.glb",
+      "sourcePath": "assets/environment/dungeon_pillar.glb",
+      "blobSha": "dfb2d0149b1ff4bcbdd33ba6ad10625031fd50ae",
+      "size": 55328
+    },
+    {
+      "target": "environment/dungeon_crate.glb",
+      "sourcePath": "assets/environment/dungeon_crate.glb",
+      "blobSha": "6bec8004636c4d0625d7d61ef971b36fbb468db7",
+      "size": 28800
+    },
+    {
+      "target": "environment/dungeon_wall_dungeon_texture.png",
+      "sourcePath": "assets/environment/dungeon_wall_dungeon_texture.png",
+      "blobSha": "3c36806274363fbe9edb04e8e4d2b46287778418",
+      "size": 15794
+    },
+    {
+      "target": "environment/dungeon_pillar_dungeon_texture.png",
+      "sourcePath": "assets/environment/dungeon_pillar_dungeon_texture.png",
+      "blobSha": "3c36806274363fbe9edb04e8e4d2b46287778418",
+      "size": 15794
+    },
+    {
+      "target": "environment/dungeon_crate_dungeon_texture.png",
+      "sourcePath": "assets/environment/dungeon_crate_dungeon_texture.png",
+      "blobSha": "3c36806274363fbe9edb04e8e4d2b46287778418",
+      "size": 15794
+    }
+  ]
+}
