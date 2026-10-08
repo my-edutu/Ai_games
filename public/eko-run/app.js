@@ -204,7 +204,7 @@ function buildHero(){
   const skin=material(0x805039),shoe=material(0xf0eee7),dark=material(0x263b4d);
   const jacket=box(character,.70,.75,.48,0,1.37,0,0xf7bb2d);bodyParts.jacket=jacket;
   const trim=box(character,.10,.68,.50,.05,1.37,0,0x18b6a5);bodyParts.trim=trim;
-  const pack=box(character,.18,.57,.50,-.40,1.33,0,0x193747);pack.rotation.z=-.12;
+  const pack=box(character,.18,.57,.50,-.40,1.33,0,0x193747);pack.rotation.z=-.12;bodyParts.pack=pack;
   const neck=cylinder(character,.15,.15,.18,0,1.84,0,0x805039);
   const head=ball(character,.34,.07,2.12,0,0x805039);head.scale.set(.92,1,.87);
   ball(character,.25,0,2.39,0,0x24242a);
@@ -223,6 +223,41 @@ function buildHero(){
     bodyParts[side===-1?'legL':'legR']=leg;
   }
   bodyParts.head=head;bodyParts.neck=neck;bodyParts.shoe=shoe;bodyParts.dark=dark;bodyParts.skin=skin;
+  // Presentation-only cultural silhouettes. Every outfit uses exactly the same physics body.
+  bodyParts.variants=new Map();
+  function variant(id,configure){
+    const group=new THREE.Group();character.add(group);group.visible=false;
+    configure(group);bodyParts.variants.set(id,group);
+  }
+  variant('lagos-streetwear',group=>{
+    const brim=box(group,.52,.08,.68,.10,2.51,.03,0x103847);
+    brim.rotation.z=.1;box(group,.54,.23,.55,-.02,2.58,0,0x183d49);
+    box(group,.13,.45,.49,-.42,1.34,0,0x18b6a5);
+  });
+  variant('yoruba-agbada-fila',group=>{
+    box(group,.78,.77,.09,-.02,1.31,.34,0xe9dfc3);
+    box(group,.78,.77,.09,-.02,1.31,-.34,0xe9dfc3);
+    const robe=box(group,.92,.66,.69,-.04,.99,0,0x174b76);
+    robe.rotation.z=-.08;
+    box(group,.09,.66,.69,.17,1.40,0,0xd7a83d);
+    cylinder(group,.25,.28,.22,.02,2.57,0,0x174b76,10);
+    box(group,.08,.2,.44,.01,2.57,.26,0xe7c275);
+  });
+  variant('igbo-isi-agu-red-cap',group=>{
+    cylinder(group,.30,.31,.12,.06,2.48,0,0xb72e43,12);
+    cylinder(group,.19,.28,.28,.04,2.67,0,0xc93c4d,12);
+    for(const z of [-.26,.26])for(const y of [1.21,1.46,1.69]){
+      ball(group,.058,.13,y,z,0xc9a86a);
+    }
+    box(group,.55,.1,.55,0,1.73,0,0xc9a86a);
+  });
+  variant('hausa-baban-riga-cap',group=>{
+    box(group,.78,1.12,.72,-.01,1.14,0,0x126e69);
+    box(group,.1,.72,.74,.23,1.44,0,0xe4d2a0);
+    box(group,.82,.09,.75,0,.58,0,0xd9bf8b);
+    cylinder(group,.28,.28,.22,.03,2.56,0,0xe5d3ac,12);
+    for(const x of [-.12,0,.12])box(group,.04,.11,.12,x,2.69,.22,0x176961);
+  });
 }
 buildHero();
 function outfitUpdate(outfit) {
@@ -236,6 +271,8 @@ function outfitUpdate(outfit) {
     leg.children[0].material=material(colors[1]);
     leg.children[1].material=material(colors[1]);
   }
+  for(const [id,group] of bodyParts.variants)group.visible=id===outfit;
+  bodyParts.pack.visible=outfit==='lagos-streetwear';
   worldState.outfit=outfit;
 }
 function makeHazard(h){
