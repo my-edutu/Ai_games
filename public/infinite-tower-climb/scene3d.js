@@ -112,7 +112,7 @@ function stoneworkMaterial(name,color){
   masonry.set(name,material);return material;
 }
 
-export function mountTower3D({host,getFrame,reducedMotion=false,heroCamera=false,quality='auto'}){
+export function mountTower3D({host,getFrame,reducedMotion=false,highContrast=false,heroCamera=false,quality='auto'}){
   const canvas=document.createElement('canvas');
   canvas.id='tower-3d-canvas';canvas.dataset.testid='tower-3d-canvas';
   canvas.setAttribute('aria-hidden','true');
@@ -145,7 +145,9 @@ export function mountTower3D({host,getFrame,reducedMotion=false,heroCamera=false
   function buildBackdrop(s){
     clearGroup(backdrop);clearGroup(structures);for(const [id,obj] of dynamic){actors.remove(obj);clearGroup(obj);dynamic.delete(id)}
     floor=s.floor;theme=s.theme;worldWidth=coord(s.worldWidth);
-    const p=palettes[theme]||palettes.foundry;scene.background=new THREE.Color(p.haze);fog.color.setHex(p.haze);
+    const standard=palettes[theme]||palettes.foundry;
+    const p=highContrast?{...standard,stone:0x28384a,rim:0xe2edf8,glow:0xffdc5a,haze:0x080d17,accent:0xffffff}:standard;
+    scene.background=new THREE.Color(p.haze);fog.color.setHex(p.haze);scene.fog=highContrast?null:fog;
     key.color.setHex(p.accent);rim.color.setHex(p.glow);
     const stone=stoneworkMaterial(theme,p.stone),trim=matte(p.rim,.64,.44),dark=matte(0x131923,.96,.08),light=emissive(p.glow,1.9);
     const centerY=coord(s.chunkBaseY+s.chunkHeight*.5);
@@ -358,7 +360,7 @@ export function mountTower3D({host,getFrame,reducedMotion=false,heroCamera=false
     // Keep observed performance measurable for the independent critic.
     animateTowerEnvironment(ornament,now*.001,reducedMotion);
     renderer.render(scene,camera);observedFrames++;
-    if(observedFrames%60===0){perf.frames=observedFrames;perf.drawCalls=renderer.info.render.calls;perf.triangles=renderer.info.render.triangles;perf.heroParts=(()=>{let count=0;player.traverse(o=>{if(o.isMesh)count++});return count})();perf.renderMode='webgl-3d';perf.state=s.player.state;perf.heroCamera=heroCamera;perf.averageFps=frameTotalMs>0?Math.round(1000*frameSampleCount/frameTotalMs):0;perf.slowFrames=slowFrames;perf.sampledFrames=frameSampleCount;perf.pixelRatio=renderer.getPixelRatio();}
+    if(observedFrames%60===0){perf.frames=observedFrames;perf.drawCalls=renderer.info.render.calls;perf.triangles=renderer.info.render.triangles;perf.heroParts=(()=>{let count=0;player.traverse(o=>{if(o.isMesh)count++});return count})();perf.renderMode='webgl-3d';perf.state=s.player.state;perf.heroCamera=heroCamera;perf.highContrast=highContrast;perf.averageFps=frameTotalMs>0?Math.round(1000*frameSampleCount/frameTotalMs):0;perf.slowFrames=slowFrames;perf.sampledFrames=frameSampleCount;perf.pixelRatio=renderer.getPixelRatio();}
   }
   const onLost=event=>{event.preventDefault();running=false;renderer.dispose();canvas.remove();document.body.dataset.towerRenderer='2d-fallback';window.__TOWER_3D_ACTIVE__=false};
   canvas.addEventListener('webglcontextlost',onLost,{once:true});
