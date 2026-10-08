@@ -11,9 +11,92 @@ function captureEffects(snapshot){for(const event of snapshot.recentEvents){if(e
 function replaceList(container,items){const fragment=document.createDocumentFragment();for(const item of items){const li=document.createElement('li'),mark=document.createElement('span'),label=document.createElement('span'),metric=document.createElement('span');mark.textContent=item.mark;label.textContent=item.label;metric.textContent=item.metric;li.append(mark,label,metric);fragment.append(li)}container.replaceChildren(fragment)}
 function updatePanels(snapshot,status){objective.textContent=`${snapshot.goal.survivors} survivors of ${snapshot.goal.totalContenders}`;tick.textContent=`Tick ${snapshot.tick}`;progress.style.width=`${Math.round(snapshot.goal.progress*100)}%`;zonePhase.textContent=`Phase ${snapshot.zone.phase}`;zoneTimer.textContent=snapshot.zone.ticksUntilShrink>0?`${snapshot.zone.ticksUntilShrink} ticks`:'Closing';arenaStatus.textContent=status.simulationFault?'Degraded':status.paused?'Paused':'Online';sceneBanner.textContent=snapshot.headline;document.body.dataset.scene=snapshot.scene;const focus=snapshot.focus;if(focus){focusName.textContent=`${focus.name} · ${focus.archetype}`;focusWeapon.textContent=String(focus.weapon||'Unarmed').replaceAll('-',' ').toUpperCase();focusAmmo.textContent=String(focus.ammo);focusMedkits.textContent=String(focus.medkits);focusConfidence.textContent=`${focus.confidence}%`;intent.textContent=`${focus.intent.replaceAll('-',' ')} — ${focus.goal}`;healthBar.style.transform=`scaleX(${focus.health/Math.max(1,focus.maxHealth)})`;shieldBar.style.transform=`scaleX(${focus.shield/Math.max(1,focus.maxShield)})`}else{focusName.textContent='No active contender';for(const value of [focusWeapon,focusAmmo,focusMedkits,focusConfidence])value.textContent='—';intent.textContent='Awaiting the next deterministic match.';healthBar.style.transform='scaleX(0)';shieldBar.style.transform='scaleX(0)'}caption.textContent=snapshot.captions.join(' • ');replaceList(leaderboard,snapshot.leaderboard.map((entry,index)=>({mark:String(index+1).padStart(2,'0'),label:`${entry.name} · ${entry.archetype}`,metric:entry.alive?`${entry.eliminations} K`:'OUT'})));const decisive=snapshot.recentEvents.filter(event=>event.importance>=3).slice(-7).reverse().map(event=>({mark:event.type==='elimination'?'✕':'•',label:event.detail?`${event.type.replaceAll('-',' ')} · ${event.detail}`:event.type.replaceAll('-',' '),metric:`T${event.tick}`}));replaceList(killFeed,decisive.length?decisive:[{mark:'•',label:'Arena telemetry nominal',metric:`T${snapshot.tick}`}]);const vote=snapshot.audience.currentVote;if(vote&&vote.status==='open'){voteCard.hidden=false;voteTitle.textContent=`Vote closes in ${vote.ticksRemaining} ticks`;voteOptions.textContent=vote.options.map(option=>`${option.effectId.replaceAll('-',' ')} ${option.weight}`).join(' · ')}else voteCard.hidden=true}
 function ensureAudio(){if(muted)return null;if(!audioContext){const AudioCtor=window.AudioContext||window.webkitAudioContext;if(!AudioCtor)return null;audioContext=new AudioCtor()}if(audioContext.state==='suspended')audioContext.resume().catch(()=>{});return audioContext}
-function tone(cue){const audio=ensureAudio();if(!audio||activeVoices>=MAX_VOICES)return;activeVoices+=1;const oscillator=audio.createOscillator(),gain=audio.createGain(),frequencies={terminal:220,danger:165,elimination:110,audience:330,action:440,ambience:82},duration=cue.category==='terminal'?.65:cue.category==='ambience'?.9:.18;oscillator.type=cue.category==='danger'||cue.category==='elimination'?'sawtooth':'sine';oscillator.frequency.value=frequencies[cue.category]||220;gain.gain.setValueAtTime(.0001,audio.currentTime);gain.gain.exponentialRampToValueAtTime(Math.max(.0001,cue.gain*.12),audio.currentTime+.02);gain.gain.exponentialRampToValueAtTime(.0001,audio.currentTime+duration);oscillator.connect(gain).connect(audio.destination);oscillator.start();oscillator.stop(audio.currentTime+duration+.03);oscillator.addEventListener('ended',()=>{activeVoices=Math.max(0,activeVoices-1)},{once:true})}
-function playCues(cues){for(const cue of cues){if(seenCues.has(cue.id))continue;seenCues.add(cue.id);tone(cue)}if(seenCues.size>256){const retained=[...seenCues].slice(-128);seenCues.clear();for(const key of retained)seenCues.add(key)}}
+let broadcastNoise=null;
+function panForCue(cue,snapshot){
+  if(!snapshot?.arena?.width)return 0;
+  const match=String(cue.id).match(/:(\d+)$/);
+  const sequence=match?Number(match[1]):NaN;
+  const event=snapshot.recentEvents.find(e=>e.sequence===sequence);
+  const cell=Number.isInteger(event?.cell)?event.cell:
+    cue.category==='danger'?snapshot.zone.centerCell:null;
+  if(!Number.isInteger(cell))return 0;
+  const x=(cell%snapshot.arena.width+.5)/snapshot.arena.width;
+  return Math.max(-.75,Math.min(.75,(x-.5)*1.5));
+}
+function noiseForCue(audio,cue,destination,start,duration){
+  if(typeof audio.createBufferSource!=='function'||typeof audio.createBuffer!=='function')return;
+  if(!broadcastNoise){
+    const rate=audio.sampleRate||44100;
+    const length=Math.floor(rate*.95);
+    broadcastNoise=audio.createBuffer(1,length,rate);
+    const data=broadcastNoise.getChannelData(0);
+    let seed=0x71a294c3;
+    for(let i=0;i<data.length;i++){
+      seed=(Math.imul(seed,1664525)+1013904223)|0;
+      data[i]=((seed>>>9)/0x7fffff)*2-1;
+    }
+  }
+  const source=audio.createBufferSource(),gain=audio.createGain();
+  source.buffer=broadcastNoise;
+  const amount=cue.category==='action'?.11:cue.category==='danger'?.07:.028;
+  gain.gain.setValueAtTime(.0001,start);
+  gain.gain.linearRampToValueAtTime(amount,start+.018);
+  gain.gain.exponentialRampToValueAtTime(.0001,start+duration);
+  if(typeof audio.createBiquadFilter==='function'){
+    const filter=audio.createBiquadFilter();
+    filter.type=cue.category==='action'?'bandpass':'lowpass';
+    filter.frequency.setValueAtTime(cue.category==='action'?1900:620,start);
+    source.connect(filter).connect(gain).connect(destination);
+  }else source.connect(gain).connect(destination);
+  source.start(start);
+  source.stop(start+Math.min(duration,.88));
+}
+function tone(cue,snapshot){
+  const audio=ensureAudio();
+  if(!audio||activeVoices>=MAX_VOICES)return;
+  activeVoices+=1;
+  const category=cue.category||'action',now=audio.currentTime;
+  const profile={
+    terminal:{hz:300,endHz:480,duration:.76,wave:'triangle'},
+    danger:{hz:120,endHz:71,duration:.48,wave:'sawtooth'},
+    elimination:{hz:260,endHz:108,duration:.46,wave:'triangle'},
+    audience:{hz:520,endHz:720,duration:.28,wave:'sine'},
+    action:{hz:380,endHz:138,duration:.19,wave:'square'},
+    ambience:{hz:67,endHz:56,duration:.85,wave:'sine'}
+  }[category]||{hz:380,endHz:180,duration:.19,wave:'triangle'};
+  const panner=typeof audio.createStereoPanner==='function'?audio.createStereoPanner():null;
+  if(panner){
+    panner.pan.setValueAtTime(panForCue(cue,snapshot),now);
+    panner.connect(audio.destination);
+  }
+  const destination=panner||audio.destination;
+  const oscillator=audio.createOscillator(),gain=audio.createGain();
+  oscillator.type=profile.wave;
+  oscillator.frequency.setValueAtTime(profile.hz,now);
+  oscillator.frequency.exponentialRampToValueAtTime(profile.endHz,now+profile.duration);
+  const level=Math.min(.09,Math.max(.003,(Number(cue.gain)||.3)*.115));
+  gain.gain.setValueAtTime(.0001,now);
+  gain.gain.exponentialRampToValueAtTime(level,now+.022);
+  gain.gain.exponentialRampToValueAtTime(.0001,now+profile.duration);
+  oscillator.connect(gain).connect(destination);
+  try{noiseForCue(audio,cue,destination,now,profile.duration)}catch{}
+  oscillator.start(now);
+  oscillator.stop(now+profile.duration+.02);
+  oscillator.addEventListener('ended',()=>{activeVoices=Math.max(0,activeVoices-1)},{once:true});
+}
+function playCues(cues,snapshot){
+  for(const cue of cues){
+    if(seenCues.has(cue.id))continue;
+    seenCues.add(cue.id);
+    tone(cue,snapshot);
+  }
+  if(seenCues.size>256){
+    const retained=[...seenCues].slice(-128);
+    seenCues.clear();
+    for(const key of retained)seenCues.add(key);
+  }
+}
 let refreshInFlight=false;
-async function refresh(){if(refreshInFlight)return;refreshInFlight=true;try{const query=new URLSearchParams({w:String(innerWidth),h:String(innerHeight),cleanFeed:cleanFeed?'1':'0'}),response=await fetch(`/battle/state?${query}`,{cache:'no-store'});if(!response.ok)throw new Error(`state-${response.status}`);const payload=await response.json(),snapshot=payload.snapshot;if(!snapshot)return;if(snapshot.runToken!==lastRunToken){lastRunToken=snapshot.runToken;lastRevision=-1;effects.length=0}if(snapshot.revision<lastRevision)return;lastRevision=snapshot.revision;window.__BATTLE_PUBLIC_STATE__=snapshot;captureEffects(snapshot);updatePanels(snapshot,payload.status);drawArena(snapshot);playCues(payload.audioCues||[]);lastSnapshot=snapshot}catch{arenaStatus.textContent='Reconnecting'}finally{refreshInFlight=false}}
+async function refresh(){if(refreshInFlight)return;refreshInFlight=true;try{const query=new URLSearchParams({w:String(innerWidth),h:String(innerHeight),cleanFeed:cleanFeed?'1':'0'}),response=await fetch(`/battle/state?${query}`,{cache:'no-store'});if(!response.ok)throw new Error(`state-${response.status}`);const payload=await response.json(),snapshot=payload.snapshot;if(!snapshot)return;if(snapshot.runToken!==lastRunToken){lastRunToken=snapshot.runToken;lastRevision=-1;effects.length=0}if(snapshot.revision<lastRevision)return;lastRevision=snapshot.revision;window.__BATTLE_PUBLIC_STATE__=snapshot;captureEffects(snapshot);updatePanels(snapshot,payload.status);drawArena(snapshot);playCues(payload.audioCues||[],snapshot);lastSnapshot=snapshot}catch{arenaStatus.textContent='Reconnecting'}finally{refreshInFlight=false}}
 function configureControls(){const controls=params.get('controls')==='1';operatorPanel.hidden=!controls;if(!controls)return;for(const button of operatorPanel.querySelectorAll('[data-command]'))button.addEventListener('click',async()=>{const command=button.dataset.command,token=operatorTokenInput?.value??'';if(!token){operatorStatus.textContent='Operator token required';operatorTokenInput?.focus();return}operatorStatus.textContent=`Sending ${command}…`;try{const response=await fetch('/battle/command',{method:'POST',headers:{'content-type':'application/json','x-battle-operator-token':token},body:JSON.stringify({command})}),body=await response.json();operatorStatus.textContent=response.ok?`${command} accepted`:(body.error||'Command rejected')}catch{operatorStatus.textContent='Command unavailable'}});muteControl.textContent=muted?'Audio muted':'Audio enabled';muteControl.addEventListener('click',()=>{muted=!muted;muteControl.textContent=muted?'Audio muted':'Audio enabled';if(!muted)ensureAudio()})}
 configureControls();addEventListener('resize',()=>{if(lastSnapshot)drawArena(lastSnapshot)});refresh();setInterval(refresh,180);})();
