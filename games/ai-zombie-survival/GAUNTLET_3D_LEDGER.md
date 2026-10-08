@@ -126,3 +126,23 @@ The browser screenshot suite now captures `world-hud-hidden.png` (actual world w
 **Loop 13:** upgraded terrain/building shader with subtle masonry courses on high walls, varying ground/asphalt roughness, and rain-responsive top-surface glints; distant/fallen infected draw only within a bounded visual distance and camera-near alive zombies are prioritized when the headless CPU/software GPU renderer struggles. This sacrifices invisible background infected detail under load **only in the render buffer**, never in the AI/physics simulation.
 
 **Gate:** The newest GitHub Actions run has not produced screenshots or a completed build; full WebGL shader compilation, pixel metrics, controls and FPS must still pass Chromium. Source syntax and source-level mock geometry checks are not a substitute for real screenshots. Independent Days Gone comparison remains a large open goal.
+
+
+## Loops 14–19 — screenshot-driven gameplay/hardware critique
+
+**Real Chromium CI evidence inspected**, not artist mockups:
+- Run `37769270488` on an earlier branch revision generated authentic day, night, large-horde, hero and interior scenes, but failed because `renderSquad()` rebuilt every survivor card every 450ms and Playwright could not click a moving DOM target. This also harmed real users; replaced with a stable, keyed dossier cache and delegated event handler.
+- Run `37782493776` generated actual **hero-clear-view.png** after the first HQ cutaway, showing an identifiable six-person squad in a physical 3D courtyard, but failed because clicking Pause only refreshed its DOM label, leaving a stale telemetry tick until the 450ms HUD timer. Pause now publishes the exact authoritative tick immediately. This test failure did **not** prove AI kept advancing; it proved the cached stats were stale.
+- Real `37782493776` scene scores: daytime world-only screenshot median luminance **0.367**, colorful pixel fraction **0.2405** (pixel-level quantization metrics). `day.png` frame stats reported **27 FPS and CPU P95 50.2ms**; `large-horde.png` reported **27 FPS and CPU P95 238.1ms** in the software rendering environment. These are **older measured captures**, not new-build performance claims. They reveal a serious CPU-throughput quality gap and explain the new adaptive mesh-update throttle and close-camera zombie LOD. This is still visually boxy and nowhere near the *Days Gone Remastered* screenshot quality bar.
+
+**Loop 15:** live AI-director and hero camera now use conditional HQ cutaways whenever a roof would block foreground characters; this addresses the original screenshot where the entire view was an opaque beige HQ wall. Screenshots are explicit for hero full HUD and distraction-free Hero Cinema. Added render-only mesh caching to avoid rebuilding identical paused geometry and to use measured mesh-build cost for LOD.
+
+**Loop 16:** `web/shadow-pass.js` adds native WebGL2 FBO directional shadow depth texture with 2x2 PCF, usable with `?lighting=shadows` or `?quality=cinematic`. This is experimental and defaults OFF on software/mobile GPUs until real FPS and picture quality are verified; browser suite includes `cinematic-shadows.png` and WebGL error check. Close-camera 3D survivors have ellipsoidal shoulder/torso/head forms, 3D faces and more distinct role hues rather than only a box torso; these are still procedural, not production sculpted, rigged people.
+
+**Loop 17:** launching the server's `/` root now serves `web/3d.html` instead of the old 2.5D viewer, with a browser assertion; the original 2.5D stays reachable from its explicit `/web/index.html` fallback.
+
+**Loop 18:** horde director shots now focus on actual infected approach positions rather than an anonymous building rooftop center. Framing logic does not add entities or alter their movement.
+
+**Loop 19:** close dead infected and survivor models now have posed fallen bodies and contact marks instead of a single rectangular 'corpse' placeholder.
+
+**Current STOP-SHIP:** Newest CI after these changes has not been visually inspected, shadow FBO browser compilation is not verified, and software renderer horde throughput remains the largest measured performance blocker. Continue comparing screenshots against official reference rather than using implementation count as an art-quality score.
