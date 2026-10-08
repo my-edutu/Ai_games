@@ -159,7 +159,7 @@ const fs = [
   '#version 300 es',
   'precision highp float;',
   'in vec3 vColor; in vec3 vNormal; in vec3 vPosition;',
-  'uniform vec3 uEye; uniform vec3 uFogColor; uniform float uFog; uniform vec3 uLight; uniform float uNight;',
+  'uniform vec3 uEye; uniform vec3 uFogColor; uniform float uFog; uniform vec3 uLight; uniform float uNight; uniform float uWeatherFlash;',
   'out vec4 fragColor;',
   'void main(){vec3 N=normalize(vNormal);vec3 L=normalize(uLight);',
   'float lambert=max(dot(N,L),0.0);float wrap=max(dot(N,L)*0.65+0.35,0.0);',
@@ -169,6 +169,11 @@ const fs = [
   'vec3 V=normalize(uEye-vPosition);vec3 H=normalize(L+V);',
   'float sheen=pow(max(dot(N,H),0.0),24.0)*0.065*(1.0-uNight*0.5);',
   'color+=sunlight*sheen;',
+  'float rescueGlow=pow(max(0.0,1.0-length(vPosition.xz-vec2(0.0,0.0))*.065),2.0);',
+  'float medicGlow=pow(max(0.0,1.0-length(vPosition.xz-vec2(34.0,-34.0))*.065),2.0);',
+  'vec3 rescueColor=vec3(.24,.81,.94)*rescueGlow+vec3(1.0,.45,.24)*medicGlow;',
+  'color+=vColor*(rescueColor*uNight*.64);',
+  'color+=vec3(.64,.68,.85)*uWeatherFlash*.31;',
   'float grain=fract(sin(dot(floor(vPosition.xz*2.1+vPosition.y*0.3),vec2(12.9898,78.233)))*43758.5453);',
   'color*=0.972+0.055*grain;',
   'float distanceToCamera=distance(uEye,vPosition);',
@@ -178,7 +183,7 @@ const fs = [
 const program = gl.createProgram();gl.attachShader(program,shader(gl.VERTEX_SHADER,vs));gl.attachShader(program,shader(gl.FRAGMENT_SHADER,fs));gl.linkProgram(program);
 if(!gl.getProgramParameter(program,gl.LINK_STATUS))throw new Error(gl.getProgramInfoLog(program));
 gl.useProgram(program);gl.enable(gl.DEPTH_TEST);gl.depthFunc(gl.LEQUAL);
-const uniforms = Object.fromEntries(['uVP','uEye','uFogColor','uFog','uLight','uNight'].map(k=>[k,gl.getUniformLocation(program,k)]));
+const uniforms = Object.fromEntries(['uVP','uEye','uFogColor','uFog','uLight','uNight','uWeatherFlash'].map(k=>[k,gl.getUniformLocation(program,k)]));
 const drawSky=createSkyPass(gl);
 function buffer(){const vao=gl.createVertexArray(),vbo=gl.createBuffer();gl.bindVertexArray(vao);gl.bindBuffer(gl.ARRAY_BUFFER,vbo);const stride=9*4;for(let i=0;i<3;i++){gl.enableVertexAttribArray(i);gl.vertexAttribPointer(i,3,gl.FLOAT,false,stride,i*12);}gl.bindVertexArray(null);return{vao,vbo,count:0};}
 const staticMesh=buffer(),movingMesh=buffer();
@@ -465,6 +470,35 @@ function selectFocus(dt){
     cameraMode==='director'?directorZoom:range;
   directedRange+=(desired-directedRange)*Math.min(1,dt*(reducedMotion?3:1.9));
 }
+function renderEventChronicle(){
+  const el=document.getElementById('eventTape');
+  if(!el)return;
+  const important=new Set(['shot','kill','rescue','near-death','horde','safehouse-upgrade','heal','barricade-hit','phase','milestone','resource-low','recovery']);
+  const events=game.events.filter(e=>important.has(e.type)).slice(-3).reverse();
+  const labels={
+    shot:'WEAPON DISCHARGED',kill:'INFECTED NEUTRALIZED',rescue:'CIVILIAN EXTRACTED',
+    'near-death':'SURVIVOR CRITICAL',horde:'HORDE ALERT','safehouse-upgrade':'HQ FORTIFIED',
+    heal:'MEDICAL ASSIST','barricade-hit':'PERIMETER BREACHED',phase:'DAY CYCLE CHANGED',
+    milestone:'SURVIVAL MILESTONE','resource-low':'SUPPLY WARNING',recovery:'SQUAD RECOVERY'
+  };
+  const fragment=document.createDocumentFragment();
+  if(events.length===0){
+    const row=document.createElement('div');
+    row.className='eventItem';row.textContent='● WAITING FOR FIRST CONTACT';
+    fragment.append(row);
+  }
+  for(const e of events){
+    const row=document.createElement('div');
+    row.className='eventItem '+(['horde','near-death','barricade-hit','resource-low'].includes(e.type)?'danger':
+      ['rescue','heal','recovery','safehouse-upgrade'].includes(e.type)?'success':'');
+    const time=document.createElement('span');time.className='eventTime';
+    const sec=Math.max(0,Math.floor(e.time));
+    time.textContent=String(Math.floor(sec/60)).padStart(2,'0')+':'+String(sec%60).padStart(2,'0');
+    const label=document.createElement('span');label.className='eventText';label.textContent=labels[e.type]||e.type.toUpperCase();
+    row.append(time,label);fragment.append(row);
+  }
+  el.replaceChildren(fragment);
+}
 function renderSquad(){
   if(squadPanel.hidden)return;
   const fragment=document.createDocumentFragment();
@@ -541,6 +575,9 @@ function render(now){
   gl.uniform3fv(uniforms.uEye,new Float32Array(eye));
   gl.uniform3fv(uniforms.uLight,new Float32Array(night?[.45,.9,.35]:[-.58,1,.48]));
   gl.uniform1f(uniforms.uNight,night?1:0);
+  const lightning=game.weather.kind==='storm'&&Math.sin(game.time.elapsed*.65)>0.965?
+    Math.pow(Math.max(0,Math.sin(game.time.elapsed*23)),6):0;
+  gl.uniform1f(uniforms.uWeatherFlash,lightning);
   gl.uniform3fv(uniforms.uFogColor,new Float32Array(sky));
   gl.uniform1f(uniforms.uFog,night?.010:.003+(game.weather.kind==='fog'?.006:0));
   rebuildStatic();
@@ -549,7 +586,7 @@ function render(now){
   frameCpuMs.push(performance.now()-cpuStart);
   if(frameCpuMs.length>180)frameCpuMs.shift();
   if(now-lastStats>450){
-    lastStats=now;renderSquad();
+    lastStats=now;renderSquad();renderEventChronicle();
     const spotted=drawTacticalMap(document.getElementById('miniMap'),game,cameraFocusX,cameraFocusZ);
     hud.querySelector('#mapCount').textContent='TRACKING '+spotted;const living=game.survivors.filter(s=>s.alive).length,infected=game.zombies.filter(z=>z.health>0).length;
     hud.dataset.phase=game.time.phase;

@@ -45,6 +45,7 @@ try{
   });
   assert.deepEqual(hudStyles,['#42f2e1','#ff647a','#ffc96e']);
   assert.ok((await page.locator('#cameraLabel').textContent()).length>2);
+  assert.ok(await page.locator('#eventTape').count(),'Outbreak chronicle must be mounted');
   await page.keyboard.press('h');
   const uncovered=await page.screenshot({path:root+'world-hud-hidden.png'});
   const appearance=await scoreScreenshot(page,uncovered);
