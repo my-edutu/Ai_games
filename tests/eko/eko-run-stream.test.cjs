@@ -51,6 +51,7 @@ test('serves actual Three.js rendering, browser HUD and a verifiable Gauntlet pa
     ['/eko/adaptive-quality.js', 'createAdaptiveQualityGovernor'],
     ['/eko/city-crowd.js', 'createCityCrowd'],
     ['/eko/hazard-sculpt.js', 'sculptStreetHazard'],
+    ['/eko/district-landmarks.js', 'buildDistrictLandmarks'],
     ['/vendor/three.module.js', 'THREE'], ['/eko/progress', 'Gauntlet progress board'],
     ['/eko/gauntlet.json', 'iterations']
   ]) {
