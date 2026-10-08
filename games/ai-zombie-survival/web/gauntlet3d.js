@@ -557,13 +557,24 @@ function selectFocus(dt){
   if(cameraMode==='director'&&director.targetId){
     focus=game.survivors.find(s=>s.id===director.targetId)||game.civilians.find(c=>c.id===director.targetId)||game.barricades.find(b=>b.id===director.targetId)||focus;
   }
-  if(cameraMode==='director'&&(director.mode==='horde-overview'||director.mode==='failure')){focus={x:0,y:0};}
+  if(cameraMode==='director'&&director.mode==='horde-overview'){
+    // Actual infected positions, not a staged fake: isolate the densest dangerous approach
+    // so a 3D horde is seen at character scale rather than as distant specks around rooftops.
+    const approach=game.zombies.filter(z=>z.health>0&&z.distanceToSafeHouse<36)
+      .sort((a,b)=>a.distanceToSafeHouse-b.distanceToSafeHouse).slice(0,40);
+    if(approach.length){
+      const x=approach.reduce((v,z)=>v+z.x,0)/approach.length;
+      const y=approach.reduce((v,z)=>v+z.y,0)/approach.length;
+      focus={x,y};
+    }
+  }
+  if(cameraMode==='director'&&director.mode==='failure'){focus={x:0,y:0};}
   if(cameraMode==='hero'){focus=game.survivors[heroIndex]||focus;}
   if(cameraMode==='overview'){focus={x:0,y:0};}
   const a=Math.min(1,dt*(reducedMotion?2:1.75));
   cameraFocusX+=(focus.x-cameraFocusX)*a;cameraFocusZ+=(focus.y-cameraFocusZ)*a;
   const directorZoom=({rescue:15,interior:15,scavenge:18,'near-death':13,'survivor-follow':17,
-    defense:22,'horde-overview':36,failure:30,squad:21})[director.mode]??21;
+    defense:22,'horde-overview':27,failure:30,squad:21})[director.mode]??21;
   const desired=cameraMode==='hero'?14:cameraMode==='overview'?57:
     cameraMode==='director'?directorZoom:range;
   directedRange+=(desired-directedRange)*Math.min(1,dt*(reducedMotion?3:1.9));
