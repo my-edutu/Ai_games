@@ -48,7 +48,7 @@ test('Gauntlet progress offers live before/after comparison with honest review s
   await page.goto(base+'/battle/gauntlet');
   await expect(page.locator('h1')).toContainText('AI Battle Royale');
   await expect(page.locator('.versus iframe')).toHaveCount(2);
-  await expect(page.locator('#verdict')).toContainText(/AAA QUALITY NOT MET|UNVERIFIED|GAUNTLET NOT ACHIEVED/i);
+  await expect(page.locator('#verdict')).toContainText(/AAA QUALITY NOT MET|UNVERIFIED|NOT ACHIEVED|QUALITY BELOW BENCHMARK/i);
   await expect(page.locator('#history li').first()).toBeVisible();
   await expect(page.locator('#gaps li').first()).toBeVisible();
   await page.screenshot({path:path.join(captures,'progress-desktop.png'),fullPage:true});
@@ -340,6 +340,11 @@ test('camera gauntlet contrasts same public match using cinematic hero and tacti
       if(status.mode==='webgl2'){
         expect(status.cameraMode).toBe(mode==='broadcast'?'hero':mode);
         expect(status.projection).toBe(mode==='tactical'?'stylized':'pinhole');
+        if(mode!=='tactical'){
+          expect(status.heroDistance).toBeGreaterThanOrEqual(3);
+          expect(status.heroDistance).toBeLessThanOrEqual(4.3);
+          expect(status.heroActorId).toBeTruthy();
+        }
         const overlay=await page.locator('.battle-3d-focus').textContent();
         expect(overlay).toContain(mode==='tactical'?'LIVE ACTION':'TACTICAL OVERVIEW');
         await page.screenshot({path:path.join(captures,'camera-'+mode+'-same-state.png')});
