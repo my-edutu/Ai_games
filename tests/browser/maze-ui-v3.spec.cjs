@@ -161,7 +161,15 @@ test('original sculpted characters and biome weather expose a real 3D performanc
   expect(real.public.seed).toBeUndefined();
   if(real.render){
     expect(real.report?.triangles).toBeGreaterThan(0);
-    expect(real.report?.explorerMeshes).toBeGreaterThan(20);
+    // Rigged GLB uses three skinned meshes plus authored equipment;
+    // bone count is the meaningful fidelity gate rather than box-mesh quantity.
+    if(real.report?.riggedCharacter==='loaded'){
+      expect(real.report.rigBones).toBeGreaterThan(20);
+      expect(real.report.explorerMeshes).toBeGreaterThan(2);
+    }else{
+      expect(real.report?.explorerMeshes).toBeGreaterThan(20);
+    }
+    expect(real.report?.heroAlwaysVisibleBeacon).toBe(true);
     expect(real.report?.atmosphereParticles).toBeGreaterThanOrEqual(300);
     expect(real.report?.artDetails?.skyline).toBeGreaterThan(0);
     expect(real.report?.artDetails?.monumentalProps).toBeGreaterThanOrEqual(0);
