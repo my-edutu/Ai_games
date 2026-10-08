@@ -19,18 +19,21 @@ test('capture original 3D Lagos run, authored obstacle and mobile screenshot ref
   await page.goto(ROOT+'/eko/',{waitUntil:'domcontentloaded'});
   await expect(page.locator('#connection')).toContainText('CONNECTED',{timeout:25000});
   await expect(page.locator('#state')).toHaveText('RUN LIVE');
-  await page.waitForTimeout(1600);
+  // Let any prior semantic-event toast settle so the screenshot is an honest
+  // neutral idle frame, not an artificially styled screenshot.
+  await expect.poll(async()=>Number(await page.locator('#event').evaluate(node=>getComputedStyle(node).opacity)),
+    {timeout:9000,intervals:[250,400,600]}).toBeLessThan(.09);
   await page.screenshot({path:path.join(DIR,'gauntlet-opening-street.png'),fullPage:true});
-  await page.keyboard.down('ArrowRight');
-  try{
-    await expect.poll(async()=>{
-      const data=await(await page.request.get(ROOT+'/eko/state')).json();
-      return data.snapshot.player.position.x;
-    },{timeout:12000,intervals:[150,200,300,450]}).toBeGreaterThanOrEqual(6.0);
-  }finally{
-    await page.keyboard.up('ArrowRight');
-  }
-  await page.waitForTimeout(100);
+  // Actual controller traffic can arrive late under Chromium software rendering,
+  // resulting in unintended collision screenshots. Use the real 60Hz AI authority
+  // for a reproducible no-cheat approaching-obstacle game frame.
+  await page.locator('#mode').click();
+  await expect(page.locator('#mode')).toContainText('SWITCH TO PLAYER');
+  await expect.poll(async()=>{
+    const data=await(await page.request.get(ROOT+'/eko/state')).json();
+    return data.snapshot.player.position.x;
+  },{timeout:15000,intervals:[150,200,300,450]}).toBeGreaterThanOrEqual(7);
+  await expect(page.locator('#state')).toHaveText('RUN LIVE');
   await page.screenshot({path:path.join(DIR,'gauntlet-approaching-hazard.png'),fullPage:true});
   await page.locator('#outfit').selectOption('yoruba-agbada-fila');
   await expect.poll(async()=>page.evaluate(()=>window.__EKO_VISUAL_AUDIT__()?.character.outfit))
