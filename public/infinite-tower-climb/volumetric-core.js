@@ -13,7 +13,7 @@ export function createVolumetricCore(seedInput=0x00a3f914){
     const z=i===0?0:clamp(prev.z+(random()-.5)*10,-11,11);
     const y=i===0?0:prev.y+3.05+(random()-.5)*.28;
     const width=i===0?11:6.8+random()*1.8,depth=i===0?11:6.3+random()*1.8,height=.95;
-    platforms.push({i,x,y,z,width,depth,height,kind:i%7===0?'moving':'solid',
+    platforms.push({i,x,y,z,baseX:x,baseZ:z,width,depth,height,kind:i>0&&i%7===0?'moving':'solid',
       guardian:i>0&&i%10===0,guardianHealth:i>0&&i%10===0?4:0,
       pickup:i>0&&i%6===0,collected:false});
     highestGenerated=i;
@@ -30,6 +30,11 @@ export function createVolumetricCore(seedInput=0x00a3f914){
   function step(dt=1/60,input){
     if(!Number.isFinite(dt)||dt<=0||dt>1/30)throw new RangeError('fixed-step dt');
     tick++;time+=dt;mode='CLIMBING';
+    // Moving landings have real simulated 3D trajectories, not cosmetic animation.
+    for(const platform of platforms)if(platform.kind==='moving'){
+      platform.x=clamp(platform.baseX+Math.sin(tick*.016+platform.i*.51)*1.25,-13.5,13.5);
+      platform.z=clamp(platform.baseZ+Math.cos(tick*.013+platform.i*.24)*1.15,-11.5,11.5);
+    }
     const current=platforms.find(p=>p.i===player.at);
     const guardian=current&&current.guardianHealth>0&&player.grounded?current:null;
     const target=guardian||platforms.find(p=>p.i===player.at+1);
