@@ -15,7 +15,8 @@ test('tower art is made from actual THREE meshes and animatable body parts',()=>
   const rig=loadFactory('character3d.js','createClimber')(THREE);
   const parts=[];rig.root.traverse(n=>{if(n.isMesh)parts.push(n)});
   assert.ok(parts.length>=45,'climber should have body, articulated limbs and gear');
-  rig.setMotion(0,.6,'ascending');assert.equal(rig.pose,'climb');
+  rig.setMotion(0,.6,'ascending');assert.equal(rig.pose,'leap');
+  rig.setMotion(0,.02,'wall climb');assert.equal(rig.pose,'climb');
   rig.animate(1,false);rig.setMotion(.7,0,'run');assert.equal(rig.pose,'run');
   rig.animate(1.1,false);
   rig.setMotion(.12,.01,'run',.3);rig.animate(1.2,false);
