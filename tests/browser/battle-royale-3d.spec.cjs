@@ -339,6 +339,7 @@ test('camera gauntlet contrasts same public match using cinematic hero and tacti
       const status=await page.evaluate(()=>window.BattleArena3D.status);
       if(status.mode==='webgl2'){
         expect(status.cameraMode).toBe(mode==='broadcast'?'hero':mode);
+        expect(status.projection).toBe(mode==='tactical'?'stylized':'pinhole');
         const overlay=await page.locator('.battle-3d-focus').textContent();
         expect(overlay).toContain(mode==='tactical'?'LIVE ACTION':'TACTICAL OVERVIEW');
         await page.screenshot({path:path.join(captures,'camera-'+mode+'-same-state.png')});
