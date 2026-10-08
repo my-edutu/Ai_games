@@ -218,7 +218,7 @@ export function mountTower3D({host,getFrame,reducedMotion=false,highContrast=fal
         add(backdrop,box(21,2.2,17,emissive(0xff8143,1.75)),vent.position.x,vent.position.y+3,-39);
       }
     }
-    ornament=decorateTowerEnvironment({group:backdrop,snapshot:s,theme,palette:p,worldWidth});
+    ornament=(s.floor>0&&s.floor%8===0)?decorateTowerEnvironment({group:backdrop,snapshot:s,theme,palette:p,worldWidth}):null;
     // Actual snapshot geometry, not an invented obstacle course.
     for(const platform of s.platforms){
       const cx=coord(platform.x+platform.width/2),cy=coord(platform.y+platform.height/2),w=coord(platform.width);
@@ -247,14 +247,9 @@ export function mountTower3D({host,getFrame,reducedMotion=false,highContrast=fal
       group.userData.origin={x:platform.x,y:platform.y};
       platformMeshes.set(platform.id,group);
     }
-    // Hanging environmental silhouettes make each vertical climb feel monumental.
-    for(let i=0;i<6;i++){
-      const x=worldWidth*(.1+(i%3)*.4);
-      const y=coord(s.chunkBaseY)+i*61+34;
-      add(backdrop,box(6,44,7,stone),x,y,-40);
-      add(backdrop,ball(8,trim,9),x,y-25,-36);
-      add(backdrop,ball(3,light),x,y-25,-24);
-    }
+    // Every visible traversable horizontal shape above is authoritative.
+    // Removed six always-on floating lamps/boxes that formerly cluttered the
+    // collision-readable silhouette in every tower screenshot.
   }
 
   function upsert(id,kind,construct){
