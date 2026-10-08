@@ -1,66 +1,76 @@
 {
   "project": "Infinite Tower Climb — 3D Gauntlet",
   "date": "2026-10-08",
-  "round": 1,
+  "round": 2,
   "target": "Jusant (DON'T NOD): official screenshots and captured gameplay",
-  "status": "3D vertical slice committed; runtime screenshot and independent A/B review pending",
+  "status": "Round 1 CI PASS (GitHub Actions 37736794883). Real screenshot inspected: overly repetitive background geometry and simple box-bodied characters; fallback 2D at higher floors was blank. Round 2 builder changes committed; browser and independent benchmark critic pending.",
   "completionRule": "A separate critic must inspect the rendered game, compare screenshots or gameplay against official Jusant imagery, report the worst gap, and repeat. A functioning renderer alone is not a pass.",
   "lanes": [
     {
-      "name": "3D tower environment",
-      "status": "implemented; browser inspection pending",
-      "criterion": "True perspective/depth, readable platforms, rich materials and atmospheric lighting"
+      "name": "Layered tower environment",
+      "status": "Round 2: richer arches, cloth banners, chains, weathering, monuments and one-draw dust; screenshot review pending",
+      "criterion": "Unique sculptural environments, geometry readability and cinematic depth on a real captured frame"
     },
     {
-      "name": "Fully modeled climber",
-      "status": "procedural articulated rig; inspection pending",
-      "criterion": "Recognizable anatomy, convincing movement, and character silhouette"
+      "name": "Fully articulated climber",
+      "status": "Round 2: detailed original hero kit, jointed limbs, helmet, equipment, adaptive poses, hero camera; screenshot review pending",
+      "criterion": "Anatomy, materials and convincing locomotion vs Jusant reference"
     },
     {
-      "name": "Hazards, enemies, pickups",
-      "status": "3D snapshot-driven visuals; inspection pending",
-      "criterion": "Every gameplay entity remains legible and consistent with authority"
+      "name": "Climbing AI and authority",
+      "status": "Round 1 CI pass; authoritative fixed-step runtime untouched",
+      "criterion": "All simulation/replay/stream self-tests green"
     },
     {
-      "name": "Autonomous gameplay",
-      "status": "existing simulation preserved; CI pending",
-      "criterion": "Fixed-step seeded simulation and replay tests remain green"
+      "name": "Fallback and recovery",
+      "status": "Round 2 fixed observed higher-floor blank 2D fallback; regression test queued",
+      "criterion": "2D scene shows climb geometry even after floor transitions"
     },
     {
-      "name": "Capture and A/B review",
-      "status": "not yet independently reviewed",
-      "criterion": "Blind real-output comparison with a separate visual critic"
+      "name": "Performance and rendering",
+      "status": "Particle batching and GPU instrumentation implemented; new CI pending",
+      "criterion": "3D draw/triangles nonzero, desktop and mobile legible, drawCalls bounded"
     },
     {
-      "name": "Production quality",
-      "status": "not achieved",
-      "criterion": "Polish, performance, stability, animation and independent visual acceptance"
+      "name": "Independent blind AAA comparison",
+      "status": "NOT DONE — only internal screenshot critique completed",
+      "criterion": "Independent fresh-context reviewer inspects actual footage against official Jusant at matched angles"
     }
   ],
   "evidence": [
     {
-      "name": "3D browser capture",
-      "state": "awaiting Playwright CI artifact"
+      "name": "Round 1 GitHub Actions",
+      "state": "PASS",
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/37736794883"
     },
     {
-      "name": "Jusant visual reference inspection",
-      "state": "awaiting independent critic"
+      "name": "Round 1 actual 3D screenshot",
+      "state": "Captured in workflow artifact infinite-tower-climb-phase3-capture; manually inspected"
     },
     {
-      "name": "Performance counters",
-      "state": "exposed at window.__TOWER_3D_DIAGNOSTICS__"
+      "name": "Round 2 screenshot and hero close-up",
+      "state": "Pending new CI artifact"
+    },
+    {
+      "name": "Independent official Jusant A/B review",
+      "state": "Not yet performed"
     }
   ],
   "history": [
     {
       "round": 0,
-      "summary": "Existing autonomous 2D game; deterministic tower simulation, HUD, browser stream and recovery",
-      "verdict": "baseline only, no AAA visual claim"
+      "summary": "Autonomous authoritative 2D gameplay, HUD, stream and recovery",
+      "verdict": "baseline"
     },
     {
       "round": 1,
-      "summary": "Procedural 3D tower, rigged climber, biome scene layers, hazards, local Three modules, A/B board and capture tests",
-      "verdict": "commit complete; browser and independent Jusant review pending"
+      "summary": "Three.js 3D rendering with five themes, environment structures, enemy rigs, basic camera, browser captures and self-tests",
+      "verdict": "CI passed, real screenshot exposes repetitive environment and rudimentary climber"
+    },
+    {
+      "round": 2,
+      "summary": "Detailed jointed hero rig, helmet and pack, biome monuments, banners/arches/chains, reduced dust draw calls, critic hero mode, higher-floor 2D fallback fix",
+      "verdict": "changes committed; CI and independent Jusant comparison pending"
     }
   ]
 }
