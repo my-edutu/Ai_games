@@ -145,11 +145,11 @@ const wallTexture=stoneTexture('wall');
 const floorTexture=stoneTexture('floor');
 const bronzeTexture=stoneTexture('bronze');
 const materials = {
-  floor: new THREE.MeshStandardMaterial({map:floorTexture,color:0x9fb1a6,roughness:0.94,metalness:0.08}),
-  alternate: new THREE.MeshStandardMaterial({map:floorTexture,color:0x7f9992,roughness:0.98}),
-  wall: new THREE.MeshStandardMaterial({map:wallTexture,color:0x9daaa1,roughness:0.93,metalness:0.03}),
-  wallTop: new THREE.MeshStandardMaterial({map:wallTexture,color:0xb6aa88,roughness:0.67}),
-  trim: new THREE.MeshStandardMaterial({map:bronzeTexture,color:0xe1b16f,metalness:0.63,roughness:0.42}),
+  floor: new THREE.MeshStandardMaterial({map:floorTexture,bumpMap:floorTexture,bumpScale:.105,color:0x9fb1a6,roughness:0.92,metalness:0.04}),
+  alternate: new THREE.MeshStandardMaterial({map:floorTexture,bumpMap:floorTexture,bumpScale:.065,color:0x7f9992,roughness:0.96}),
+  wall: new THREE.MeshStandardMaterial({map:wallTexture,bumpMap:wallTexture,bumpScale:.09,color:0x9daaa1,roughness:0.87,metalness:0.03}),
+  wallTop: new THREE.MeshStandardMaterial({map:wallTexture,bumpMap:wallTexture,bumpScale:.06,color:0xb6aa88,roughness:0.67}),
+  trim: new THREE.MeshStandardMaterial({map:bronzeTexture,bumpMap:bronzeTexture,bumpScale:.035,color:0xe1b16f,metalness:0.63,roughness:0.42}),
   trail: new THREE.LineBasicMaterial({color:0x69ded1,transparent:true,opacity:0.72}),
   plan: new THREE.LineBasicMaterial({color:0xfac876,transparent:true,opacity:0.8}),
   hazard: new THREE.MeshStandardMaterial({color:0x9b334b,emissive:0x5c0c1f,emissiveIntensity:1}),
@@ -167,7 +167,7 @@ const materials = {
   goldLight:new THREE.MeshBasicMaterial({color:0xffdb8c}),
   aura:new THREE.MeshBasicMaterial({color:0x81ffdd,transparent:true,opacity:.38,side:THREE.DoubleSide,depthWrite:false}),
   void:new THREE.MeshStandardMaterial({map:soilTexture,color:0x607069,roughness:1}),
-  paving:new THREE.MeshStandardMaterial({map:floorTexture,color:0x71877a,roughness:1})
+  paving:new THREE.MeshStandardMaterial({map:floorTexture,bumpMap:floorTexture,bumpScale:.07,color:0x71877a,roughness:.94})
 };
 const geometries = {
   floor: new THREE.BoxGeometry(GRID-0.08,0.19,GRID-0.08),
