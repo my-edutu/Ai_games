@@ -49,3 +49,36 @@ test('Gauntlet progress offers live before/after comparison with honest review s
   await expect(page.locator('#gaps li').first()).toBeVisible();
   await page.screenshot({path:path.join(captures,'progress-desktop.png'),fullPage:true});
 });
+
+
+test('Gauntlet captures matched-state baseline and 3D candidate without altering authority',async({browser})=>{
+  const viewport={width:1600,height:900};
+  const baseline=await browser.newPage({viewport});
+  const candidate=await browser.newPage({viewport});
+  try{
+    const response=await baseline.request.get(base+'/battle/state?w=1600&h=900');
+    expect(response.ok()).toBeTruthy();
+    const payload=await response.json();
+    const snapshot=payload.snapshot;
+    expect(snapshot).toBeTruthy();
+    const intercepted={...payload,status:{paused:true,simulationFault:false,lastStepAgeMs:0,runIndex:0}};
+    const intercept=async route=>route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(intercepted)});
+    await baseline.route('**/battle/state?*',intercept);
+    await candidate.route('**/battle/state?*',intercept);
+    await baseline.goto(base+'/battle?muted=1&visual=2d');
+    await candidate.goto(base+'/battle?muted=1');
+    await baseline.waitForFunction(()=>Boolean(window.__BATTLE_PUBLIC_STATE__));
+    await candidate.waitForFunction(()=>Boolean(window.__BATTLE_PUBLIC_STATE__));
+    const stateA=await baseline.evaluate(()=>window.__BATTLE_PUBLIC_STATE__);
+    const stateB=await candidate.evaluate(()=>window.__BATTLE_PUBLIC_STATE__);
+    expect(stateA.runToken).toBe(snapshot.runToken);
+    expect(stateB.revision).toBe(stateA.revision);
+    expect(stateB.goal).toEqual(stateA.goal);
+    await expect(candidate.locator('.battle-3d-focus')).toBeVisible();
+    await baseline.screenshot({path:path.join(captures,'matched-baseline-2d.png')});
+    await candidate.screenshot({path:path.join(captures,'matched-candidate-3d.png')});
+  }finally{
+    await baseline.close();
+    await candidate.close();
+  }
+});
