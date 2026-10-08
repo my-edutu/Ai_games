@@ -154,31 +154,42 @@ const server = http.createServer(async (req, res) => {
     try {
       const body = await readBody(req);
       if (typeof body !== 'object' || !body || Array.isArray(body)) throw new Error('INVALID_CONTROL');
-      // Preview-only reset, explicitly invoked by tests or a local operator. It
-      // starts a new evidence scene, never modifies a scored completed run.
-      if (body.resetPreview !== undefined) {
-        if (body.resetPreview !== true) throw new Error('INVALID_RESET_PREVIEW');
-        state = game.createPhase6State(config);
-        events = []; sequence = 0; terminalTicks = 0; fault = null;
-        input = { axis: 1, jumpPressed: false, jumpReleased: false, slide: false, vault: false };
-        pilot.reset();
-        broadcast();
+      // Validate the COMPLETE request before touching the authoritative run.
+      // Previously resetPreview:true followed by mode:'invalid' reset a run on a 400.
+      const nextMode=body.mode===undefined?mode:body.mode;
+      if(body.resetPreview!==undefined && body.resetPreview!==true)throw new Error('INVALID_RESET_PREVIEW');
+      if(body.mode!==undefined && !VALID_MODES.has(body.mode))throw new Error('INVALID_MODE');
+      if(body.outfit!==undefined && !VALID_OUTFITS.has(body.outfit))throw new Error('INVALID_OUTFIT');
+      let newInput=null;
+      if(body.input!==undefined){
+        if(nextMode!=='player'||!body.input||typeof body.input!=='object'||Array.isArray(body.input))
+          throw new Error('INPUT_UNAVAILABLE');
+        const p=body.input;
+        if(![-1,0,1].includes(p.axis)||
+          ['jumpPressed','jumpReleased','slide','vault'].some(k=>p[k]!==undefined&&typeof p[k]!=='boolean'))
+          throw new Error('INVALID_INPUT');
+        newInput={axis:p.axis,jumpPressed:!!p.jumpPressed,jumpReleased:!!p.jumpReleased,
+          slide:!!p.slide,vault:!!p.vault};
       }
-      if (body.mode !== undefined) {
-        if (!VALID_MODES.has(body.mode)) throw new Error('INVALID_MODE');
-        mode = body.mode;
+      if(body.resetPreview===true){
+        state=game.createPhase6State(config);
+        events=[];sequence=0;terminalTicks=0;fault=null;
+        input={axis:1,jumpPressed:false,jumpReleased:false,slide:false,vault:false};
+        pilot.reset();
+      }
+      if(body.mode!==undefined){
+        mode=body.mode;
         if(mode==='ai')pilot.reset();
       }
-      if (body.outfit !== undefined) {
-        if (!VALID_OUTFITS.has(body.outfit)) throw new Error('INVALID_OUTFIT');
-        outfit = body.outfit;
+      if(body.outfit!==undefined)outfit=body.outfit;
+      if(newInput){
+        input={axis:newInput.axis,
+          jumpPressed:newInput.jumpPressed||input.jumpPressed,
+          jumpReleased:newInput.jumpReleased||input.jumpReleased,
+          slide:newInput.slide||input.slide,
+          vault:newInput.vault||input.vault};
       }
-      if (body.input !== undefined) {
-        if (mode !== 'player' || !body.input || typeof body.input !== 'object') throw new Error('INPUT_UNAVAILABLE');
-        const p = body.input;
-        if (![ -1, 0, 1 ].includes(p.axis) || ['jumpPressed','jumpReleased','slide','vault'].some(k => p[k] !== undefined && typeof p[k] !== 'boolean')) throw new Error('INVALID_INPUT');
-        input = { axis: p.axis, jumpPressed: !!p.jumpPressed || input.jumpPressed, jumpReleased: !!p.jumpReleased || input.jumpReleased, slide: !!p.slide || input.slide, vault: !!p.vault || input.vault };
-      }
+      if(body.resetPreview===true)broadcast();
       return send(res, 200, 'application/json', JSON.stringify({ ok: true, mode, outfit }));
     } catch (error) {
       return send(res, 400, 'application/json', JSON.stringify({ error: error.message }));
