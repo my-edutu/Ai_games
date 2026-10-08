@@ -215,3 +215,34 @@ test('graphics preset selector preserves user options and real 3D capture export
     await expect(page.locator('#maze')).toBeVisible();
   }
 });
+
+
+test('real CC0 humanoid GLB and offline loader are streamed with a safe procedural fallback',async({page,request})=>{
+  const binary=await request.get(base+'/maze/models/wayfinder-rig.glb');
+  expect(binary.ok()).toBe(true);
+  const bytes=await binary.body();
+  expect(bytes.byteLength).toBeGreaterThan(500000);
+  expect(bytes.toString('ascii',0,4)).toBe('glTF');
+  for(const module of [
+    'rigged-assets.js','vendor/loaders/GLTFLoader.js',
+    'vendor/utils/BufferGeometryUtils.js','vendor/utils/SkeletonUtils.js'
+  ]){
+    const response=await request.get(base+'/maze/'+module);
+    expect(response.ok(),module).toBe(true);
+  }
+  await page.setViewportSize({width:1440,height:900});
+  const errors=[];
+  page.on('pageerror',e=>errors.push(e.message));
+  await page.goto(base+'/maze',{waitUntil:'domcontentloaded'});
+  await page.waitForFunction(()=>window.__MAZE_PUBLIC_STATE__?.tick>5);
+  if(await page.evaluate(()=>window.__MAZE_3D_READY__)){
+    await page.waitForFunction(()=>['loaded','fallback'].includes(window.__MAZE_3D_MODEL__?.status),null,{timeout:18000});
+    const model=await page.evaluate(()=>window.__MAZE_3D_MODEL__);
+    expect(model.source).toMatch(/Quaternius/);
+    expect(model.status).toBe('loaded');
+    expect(model.bones).toBeGreaterThan(20);
+    expect(model.meshes).toBeGreaterThanOrEqual(3);
+    await page.screenshot({path:path.join(artifacts,'gauntlet-cc0-rigged-wayfinder-v11.png'),fullPage:true});
+  }
+  expect(errors).toEqual([]);
+});
