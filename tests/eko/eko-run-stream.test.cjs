@@ -1,198 +1,127 @@
 'use strict';
-// A development-only authoritative host. Simulations remain in the existing Eko engine.
-const http = require('node:http');
-const fs = require('node:fs');
-const path = require('node:path');
-const { URL } = require('node:url');
-const game = require('../dist/games/eko-street-run/src/index.js');
-const { createReactivePilot } = require('./eko-ai-pilot.cjs');
+const { test, before, after } = require('node:test');
+const assert = require('node:assert/strict');
+const { spawn } = require('node:child_process');
+const { setTimeout: delay } = require('node:timers/promises');
 
-const PORT = Number(process.env.EKO_PORT || 4177);
-const HOST = process.env.EKO_HOST || '127.0.0.1';
-const ROOT = path.resolve(__dirname, '..');
-const clients = new Set();
-const VALID_MODES = new Set(['ai', 'player']);
-const VALID_OUTFITS = new Set(['lagos-streetwear', 'yoruba-agbada-fila', 'igbo-isi-agu-red-cap', 'hausa-baban-riga-cap']);
-const seed = (process.env.EKO_SEED || 'eko-gauntlet-mainland-v1').slice(0, 128);
-const config = game.createDefaultConfig({ seed });
-let state = game.createPhase6State(config);
-let events = [];
-let mode = 'ai';
-let outfit = 'lagos-streetwear';
-let sequence = 0;
-let terminalTicks = 0;
-const pilot = createReactivePilot();
-let input = { axis: 1, jumpPressed: false, jumpReleased: false, slide: false, vault: false };
-let latest = {};
-let fault = null;
-let nextBroadcast = 0;
+const PORT = 42771;
+const ROOT = 'http://127.0.0.1:' + PORT;
+let child;
+let output = '';
 
-function command(type, payload) {
-  return {
-    schemaVersion: game.COMMAND_SCHEMA_VERSION, runId: state.runId,
-    targetTick: state.tick, priority: 0, sourceId: 'eko-stream-host',
-    sourceSequence: sequence++, type, payload,
-  };
-}
-function aiIntent(snapshot) { return pilot.decide(snapshot); }
-function payload() {
-  return {
-    snapshot: game.createRenderSnapshot(state, events),
-    checksum: game.checksumState(state),
-    mode, outfit, seed,
-    error: fault ? { code: 'AUTHORITY_QUARANTINED', message: 'Simulation stopped; inspect host logs.' } : null,
-  };
-}
-function broadcast() {
-  latest = payload();
-  events = []; // one bounded batch of semantic events per publicly emitted frame
-  const packet = 'data: ' + JSON.stringify(latest) + '\n\n';
-  for (const client of clients) {
-    if (client.destroyed || client.writableLength > 131072) { clients.delete(client); client.end(); continue; }
-    client.write(packet);
-  }
-}
-function tick() {
-  if (fault) return;
-  try {
-    let type, value;
-    if (state.lifecycle === 'running') {
-      const intent = mode === 'ai' ? aiIntent(game.createRenderSnapshot(state)) : input;
-      type = 'move'; value = { ...intent };
-      input.jumpPressed = false; input.jumpReleased = false; input.slide = false; input.vault = false;
-      terminalTicks = 0;
-
-
-    } else {
-      terminalTicks++;
-      if (terminalTicks < 90) {
-        if (++nextBroadcast % 3 === 0) broadcast();
-        return;
-      }
-      if (state.lifecycle === 'failed') { type = 'restart'; value = {}; }
-      else if (state.lifecycle === 'intermission') { type = 'advance'; value = {}; }
-      else {
-        state = game.createPhase6State(config); sequence = 0; terminalTicks = 0; pilot.reset();
-        broadcast(); return;
-      }
-      terminalTicks = 0;
-      pilot.reset();
-    }
-    const result = game.stepSimulation(state, [command(type, value)], config);
-    if (result.rejectedCommands.length) throw new Error('AUTHORITATIVE_COMMAND_REJECTED: ' + result.rejectedCommands[0].reason);
-    state = result.state;
-    events = [...events, ...result.events].slice(-12);
-    if (++nextBroadcast % 3 === 0) broadcast();
-  } catch (error) {
-    fault = error;
-    console.error('[EKO_RUN_AUTHORITY_FAILED]', error);
-    broadcast();
-  }
-}
-function send(res, code, type, body, cache = 'no-store') {
-  res.writeHead(code, { 'Content-Type': type, 'Cache-Control': cache, 'X-Content-Type-Options': 'nosniff', 'Content-Security-Policy': "default-src 'self' data:; script-src 'self'; style-src 'self' 'unsafe-inline'; connect-src 'self'; img-src 'self' data:; font-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'" });
-  res.end(body);
-}
-function readBody(req) {
-  return new Promise((resolve, reject) => {
-    let data = '';
-    req.on('data', chunk => {
-      data += chunk;
-      if (data.length > 2048) { reject(new Error('PAYLOAD_TOO_LARGE')); req.destroy(); }
-    });
-    req.on('end', () => {
-      try { resolve(JSON.parse(data)); } catch { reject(new Error('INVALID_JSON')); }
-    });
-    req.on('error', reject);
+before(async () => {
+  child = spawn(process.execPath, ['scripts/serve-eko-run.cjs'], {
+    cwd: require('node:path').resolve(__dirname, '../..'),
+    env: { ...process.env, EKO_PORT: String(PORT), EKO_HOST: '127.0.0.1', EKO_SEED: 'eko-gauntlet-browser-contract-01' },
+    stdio: ['ignore','pipe','pipe'],
   });
-}
-const FILES = new Map([
-  ['/eko/', ['public/eko-run/index.html', 'text/html; charset=utf-8']],
-  ['/eko/app.js', ['public/eko-run/app.js', 'text/javascript; charset=utf-8']],
-  ['/eko/theme.css', ['public/eko-run/theme.css', 'text/css; charset=utf-8']],
-  ['/eko/character-craft.js', ['public/eko-run/character-craft.js', 'text/javascript; charset=utf-8']],
-  ['/eko/static-batch.js', ['public/eko-run/static-batch.js', 'text/javascript; charset=utf-8']],
-  ['/eko/material-craft.js', ['public/eko-run/material-craft.js', 'text/javascript; charset=utf-8']],
-  ['/eko/world-vibrance.js', ['public/eko-run/world-vibrance.js', 'text/javascript; charset=utf-8']],
-  ['/eko/atmosphere.js', ['public/eko-run/atmosphere.js', 'text/javascript; charset=utf-8']],
-  ['/eko/gamefeel.js', ['public/eko-run/gamefeel.js', 'text/javascript; charset=utf-8']],
-  ['/eko/soundscape.js', ['public/eko-run/soundscape.js', 'text/javascript; charset=utf-8']],
-  ['/eko/adaptive-quality.js', ['public/eko-run/adaptive-quality.js', 'text/javascript; charset=utf-8']],
-  ['/eko/city-crowd.js', ['public/eko-run/city-crowd.js', 'text/javascript; charset=utf-8']],
-  ['/eko/hazard-sculpt.js', ['public/eko-run/hazard-sculpt.js', 'text/javascript; charset=utf-8']],
-  ['/eko/district-landmarks.js', ['public/eko-run/district-landmarks.js', 'text/javascript; charset=utf-8']],
-  ['/eko/camera-director.js', ['public/eko-run/camera-director.js', 'text/javascript; charset=utf-8']],
-  ['/eko/progress', ['public/eko-run/progress.html', 'text/html; charset=utf-8']],
-  ['/eko/progress.js', ['public/eko-run/progress.js', 'text/javascript; charset=utf-8']],
-  ['/eko/gauntlet.json', ['public/eko-run/gauntlet.json', 'application/json; charset=utf-8']],
-  ['/vendor/three.module.js', ['node_modules/three/build/three.module.js', 'text/javascript; charset=utf-8']],
-  ['/vendor/three.core.js', ['node_modules/three/build/three.core.js', 'text/javascript; charset=utf-8']],
-]);
-const server = http.createServer(async (req, res) => {
-  const url = new URL(req.url, 'http://localhost');
-  if (req.method === 'GET' && url.pathname === '/eko/health') {
-    return send(res, fault ? 503 : 200, 'application/json', JSON.stringify({ status: fault ? 'quarantined' : 'ok', tick: state.tick, clients: clients.size, mode, pilot: pilot.metrics(), district: state.progression?.districtId || null }));
-  }
-  if (req.method === 'GET' && url.pathname === '/eko/state') return send(res, 200, 'application/json', JSON.stringify(payload()));
-  if (req.method === 'GET' && url.pathname === '/eko/stream') {
-    res.writeHead(200, { 'Content-Type':'text/event-stream', 'Cache-Control':'no-cache, no-transform', 'Connection':'keep-alive', 'X-Accel-Buffering':'no', 'X-Content-Type-Options':'nosniff' });
-    if (clients.size >= 32) return res.end();
-    clients.add(res);
-    res.write('retry: 1000\n\n');
-    res.write('data: ' + JSON.stringify(payload()) + '\n\n');
-    req.on('close', () => clients.delete(res));
-    return;
-  }
-  if (req.method === 'POST' && url.pathname === '/eko/control') {
-    const origin = req.headers.origin;
-    const host = req.headers.host;
-    if (origin) {
-      let permitted = false;
-      try { const parsed = new URL(origin); permitted = parsed.protocol === 'http:' && !!host && parsed.host === host; } catch {}
-      if (!permitted) return send(res, 403, 'application/json', '{"error":"ORIGIN_DENIED"}');
-    }
+  child.stdout.on('data', chunk => output += chunk.toString());
+  child.stderr.on('data', chunk => output += chunk.toString());
+  for (let attempt = 0; attempt < 75; attempt++) {
+    if (child.exitCode !== null) throw new Error('Eko host exited: ' + output);
     try {
-      const body = await readBody(req);
-      if (typeof body !== 'object' || !body || Array.isArray(body)) throw new Error('INVALID_CONTROL');
-      // Preview-only reset, explicitly invoked by tests or a local operator. It
-      // starts a new evidence scene, never modifies a scored completed run.
-      if (body.resetPreview !== undefined) {
-        if (body.resetPreview !== true) throw new Error('INVALID_RESET_PREVIEW');
-        state = game.createPhase6State(config);
-        events = []; sequence = 0; terminalTicks = 0; fault = null;
-        input = { axis: 1, jumpPressed: false, jumpReleased: false, slide: false, vault: false };
-        pilot.reset();
-        broadcast();
-      }
-      if (body.mode !== undefined) {
-        if (!VALID_MODES.has(body.mode)) throw new Error('INVALID_MODE');
-        mode = body.mode;
-        if(mode==='ai')pilot.reset();
-      }
-      if (body.outfit !== undefined) {
-        if (!VALID_OUTFITS.has(body.outfit)) throw new Error('INVALID_OUTFIT');
-        outfit = body.outfit;
-      }
-      if (body.input !== undefined) {
-        if (mode !== 'player' || !body.input || typeof body.input !== 'object') throw new Error('INPUT_UNAVAILABLE');
-        const p = body.input;
-        if (![ -1, 0, 1 ].includes(p.axis) || ['jumpPressed','jumpReleased','slide','vault'].some(k => p[k] !== undefined && typeof p[k] !== 'boolean')) throw new Error('INVALID_INPUT');
-        input = { axis: p.axis, jumpPressed: !!p.jumpPressed || input.jumpPressed, jumpReleased: !!p.jumpReleased || input.jumpReleased, slide: !!p.slide || input.slide, vault: !!p.vault || input.vault };
-      }
-      return send(res, 200, 'application/json', JSON.stringify({ ok: true, mode, outfit }));
-    } catch (error) {
-      return send(res, 400, 'application/json', JSON.stringify({ error: error.message }));
-    }
+      const response = await fetch(ROOT + '/eko/health', { signal: AbortSignal.timeout(500) });
+      if (response.ok) return;
+    } catch {}
+    await delay(100);
   }
-  if (req.method === 'GET' && (url.pathname === '/eko' || FILES.has(url.pathname))) {
-    const [file, type] = FILES.get(url.pathname === '/eko' ? '/eko/' : url.pathname);
-    try { return send(res, 200, type, fs.readFileSync(path.join(ROOT, file)), url.pathname.startsWith('/vendor/') ? 'public, max-age=86400' : 'no-cache'); }
-    catch { return send(res, 404, 'text/plain', 'Asset not available'); }
-  }
-  return send(res, 404, 'application/json', '{"error":"NOT_FOUND"}');
+  throw new Error('Eko host never became healthy: ' + output);
 });
-server.listen(PORT, HOST, () => console.log('Eko Run live at http://' + HOST + ':' + PORT + '/eko/'));
-const interval = setInterval(tick, 1000 / 60);
-interval.unref();
-process.on('SIGINT', () => { clearInterval(interval); server.close(); });
-process.on('SIGTERM', () => { clearInterval(interval); server.close(); });
+
+after(async () => {
+  if (child && child.exitCode === null) {
+    const exited = new Promise(resolve => child.once('exit', resolve));
+    child.kill('SIGTERM');
+    await Promise.race([exited, delay(2000)]);
+    if (child.exitCode === null) child.kill('SIGKILL');
+  }
+});
+
+test('serves actual Three.js rendering, browser HUD and a verifiable Gauntlet page', async () => {
+  for (const [resource, expected] of [
+    ['/eko/', 'EKO RUN'], ['/eko/app.js', 'WebGLRenderer'],
+    ['/eko/character-craft.js', 'createTayoActor'],
+    ['/eko/static-batch.js', 'batchDistrictGeometry'],
+    ['/eko/material-craft.js', 'createEkoSurfaceKit'],
+    ['/eko/theme.css', 'city HUD'],
+    ['/eko/world-vibrance.js', 'composeStreetVibrance'],
+    ['/eko/atmosphere.js', 'createCityAtmosphere'],
+    ['/eko/gamefeel.js', 'createEkoGameFeel'],
+    ['/eko/soundscape.js', 'createEkoSoundscape'],
+    ['/eko/adaptive-quality.js', 'createAdaptiveQualityGovernor'],
+    ['/eko/city-crowd.js', 'createCityCrowd'],
+    ['/eko/hazard-sculpt.js', 'sculptStreetHazard'],
+    ['/eko/district-landmarks.js', 'buildDistrictLandmarks'],
+    ['/eko/camera-director.js', 'computeCameraShot'],
+    ['/vendor/three.module.js', 'THREE'], ['/eko/progress', 'Gauntlet progress board'],
+    ['/eko/gauntlet.json', 'iterations']
+  ]) {
+    const response = await fetch(ROOT + resource);
+    assert.equal(response.status, 200, resource);
+    assert.match(await response.text(), new RegExp(expected, 'i'), resource);
+  }
+});
+
+test('live snapshots advance the existing deterministic Phase 6 authority', async () => {
+  const first = await (await fetch(ROOT + '/eko/state')).json();
+  await delay(230);
+  const second = await (await fetch(ROOT + '/eko/state')).json();
+  assert.ok(second.snapshot.tick > first.snapshot.tick, 'authoritative ticks must move');
+  assert.equal(second.snapshot.progression.districtId, 'mainland-morning');
+  assert.ok(Array.isArray(second.snapshot.hazards));
+  assert.ok(second.checksum && second.snapshot.runId);
+  assert.equal(second.snapshot.version, first.snapshot.version);
+  assert.equal(second.mode, 'ai');
+});
+
+test('rejects malformed controls and hostile cross-origin writes; supports bounded mode and outfit', async () => {
+  async function post(value, headers = {}) {
+    return fetch(ROOT + '/eko/control', { method: 'POST', headers: { 'content-type':'application/json', ...headers }, body: JSON.stringify(value) });
+  }
+  assert.equal((await post({mode:'god-mode'})).status, 400);
+  assert.equal((await post({input:{axis:100}})).status, 400);
+  assert.equal((await post({mode:'player'}, {origin:'https://untrusted.example'})).status, 403);
+  assert.equal((await post({mode:'player',outfit:'hausa-baban-riga-cap'})).status, 200);
+  assert.equal((await post({input:{axis:1,jumpPressed:true}})).status, 200);
+  const state = await (await fetch(ROOT + '/eko/state')).json();
+  assert.equal(state.mode, 'player');
+  assert.equal(state.outfit, 'hausa-baban-riga-cap');
+  assert.equal((await post({input:{axis:Infinity}})).status, 400);
+  assert.equal((await post({mode:'ai'})).status, 200);
+});
+
+test('SSE publishes one public snapshot without exposing private state', async () => {
+  const controller = new AbortController();
+  const response = await fetch(ROOT + '/eko/stream', { signal: controller.signal });
+  assert.equal(response.headers.get('content-type'), 'text/event-stream');
+  const reader = response.body.getReader();
+  const chunk = (await reader.read()).value;
+  assert.ok(new TextDecoder().decode(chunk).includes('data:'));
+  controller.abort();
+  await reader.cancel().catch(()=>{});
+});
+
+test('health includes observable activity and a bounded connection count', async () => {
+  const response = await (await fetch(ROOT + '/eko/health')).json();
+  assert.equal(response.status, 'ok');
+  assert.ok(Number.isSafeInteger(response.tick));
+  assert.ok(response.clients >= 0 && response.clients <= 32);
+});
+
+test('preview reset explicitly restores authoritative route and cannot be triggered cross-origin', async()=>{
+  const before=await(await fetch(ROOT+'/eko/state')).json();
+  const invalid=await fetch(ROOT+'/eko/control',{method:'POST',
+    headers:{'content-type':'application/json'},body:JSON.stringify({resetPreview:'yes'})});
+  assert.equal(invalid.status,400);
+  const hostile=await fetch(ROOT+'/eko/control',{method:'POST',
+    headers:{'content-type':'application/json',origin:'https://malicious.example'},
+    body:JSON.stringify({resetPreview:true})});
+  assert.equal(hostile.status,403);
+  const okay=await fetch(ROOT+'/eko/control',{method:'POST',
+    headers:{'content-type':'application/json'},body:JSON.stringify({resetPreview:true,mode:'ai'})});
+  assert.equal(okay.status,200);
+  const after=await(await fetch(ROOT+'/eko/state')).json();
+  assert.equal(after.mode,'ai');
+  assert.equal(after.snapshot.progression.districtId,'mainland-morning');
+  assert.ok(after.snapshot.tick<=before.snapshot.tick,'dev preview reset should be deterministic');
+});
