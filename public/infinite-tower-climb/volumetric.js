@@ -23,8 +23,9 @@
   const art=createTowerEntities(THREE),climber=createClimber(THREE),vfx=createTowerVfx(THREE,scene);
   scene.add(climber.root);
   const world=new THREE.Group();scene.add(world);
-  const sim=createVolumetricCore(),player=sim.player,models=new Map();
-  const details={status:'loading',tick:0,floor:0,x:0,y:0,z:0,platforms:0,deaths:0,autonomous:true,dimensionality:3};
+  const sim=createVolumetricCore(),player=sim.player,models=new Map(),guardians=new Map(),rewards=new Map();
+  const enemyScene=new THREE.Group(),rewardScene=new THREE.Group();scene.add(enemyScene,rewardScene);
+  const details={status:'loading',tick:0,floor:0,x:0,y:0,z:0,platforms:0,deaths:0,guardianKills:0,score:0,health:5,autonomous:true,dimensionality:3};
   window.__TOWER_VOLUMETRIC_STATE__=details;
   const controls={left:false,right:false,forward:false,back:false,jump:false};
   const reduced=new URLSearchParams(location.search).get('reducedMotion')==='1';
@@ -41,11 +42,28 @@
     const live=new Set();
     for(const p of snapshot.platforms){
       live.add(p.i);
-      if(models.has(p.i))continue;
-      const mesh=art.platform(p,p.x,p.y,p.width,p.height);
-      mesh.position.z=p.z;mesh.scale.z=p.depth/4.5;world.add(mesh);models.set(p.i,mesh);
+      if(!models.has(p.i)){
+        const mesh=art.platform(p,p.x,p.y,p.width,p.height);
+        mesh.position.z=p.z;mesh.scale.z=p.depth/4.5;world.add(mesh);models.set(p.i,mesh);
+      }
+      if(p.guardianHealth>0&&!guardians.has(p.i)){
+        const guardian=art.enemy({kind:'guardian',telegraph:p.guardianHealth<4},
+          p.x,p.y+p.height/2+1.78,.9,1.3);
+        guardian.position.z=p.z;
+        enemyScene.add(guardian);guardians.set(p.i,guardian);
+      }else if(p.guardianHealth<=0&&guardians.has(p.i)){
+        const guardian=guardians.get(p.i);enemyScene.remove(guardian);guardians.delete(p.i);
+      }
+      if(p.pickup&&!p.collected&&!rewards.has(p.i)){
+        const item=art.pickup({kind:'health'},p.x,p.y+p.height/2+1.8);
+        item.position.z=p.z+.2;rewardScene.add(item);rewards.set(p.i,item);
+      }else if((!p.pickup||p.collected)&&rewards.has(p.i)){
+        const item=rewards.get(p.i);rewardScene.remove(item);rewards.delete(p.i);
+      }
     }
     for(const [id,mesh] of models){if(!live.has(id)){world.remove(mesh);models.delete(id);}}
+    for(const [id,mesh] of guardians){if(!live.has(id)){enemyScene.remove(mesh);guardians.delete(id);}}
+    for(const [id,mesh] of rewards){if(!live.has(id)){rewardScene.remove(mesh);rewards.delete(id);}}
     if(snapshot.theme!==biome){biome=snapshot.theme;environment.setTheme(biome);}
   }
   function fixedStep(dt){
@@ -56,7 +74,8 @@
     climber.setMotion(player.vx*dt,player.vy*dt,manual?'manual':'autonomous');
     Object.assign(details,{status:'live',tick:snapshot.tick,floor:player.at,x:player.x,y:player.y,z:player.z,
       velocity:{x:player.vx,y:player.vy,z:player.vz},platforms:models.size,next:player.at+1,
-      deaths:player.deaths,biome,mode:snapshot.mode,autonomous:!manual,dimensionality:3,
+      deaths:player.deaths,biome,mode:snapshot.mode,guardianKills:snapshot.guardianKills,
+      score:snapshot.score,health:player.health,autonomous:!manual,dimensionality:3,
       highestReached:snapshot.highestReached});
   }
   function resize(){
@@ -71,6 +90,8 @@
     let steps=0;
     while(accumulator>=1/60&&steps++<5){fixedStep(1/60);accumulator-=1/60;}
     resize();climber.animate(simTime,reduced);environment.animate(simTime,reduced);
+    if(!reduced){for(const item of rewards.values()){item.rotation.y+=dt*.9;item.position.y+=Math.sin(simTime*2+item.position.x)*dt*.09;}
+      for(const [index,guardian] of guardians){guardian.rotation.y=Math.sin(simTime*.55+index)*.08;}}
     environment.root.position.y=player.y*.95;
     const aim=new THREE.Vector3(player.x,player.y+4,player.z);
     const follow=new THREE.Vector3(player.x+13,player.y+12,player.z+23);
@@ -85,6 +106,9 @@
       document.getElementById('depth').textContent='Z '+player.z.toFixed(1);
       document.getElementById('biome').textContent=biome.toUpperCase();
       document.getElementById('recoveries').textContent=String(player.deaths);
+      document.getElementById('guardian-kills').textContent=String(details.guardianKills);
+      document.getElementById('score').textContent=details.score.toLocaleString();
+      document.getElementById('health').textContent=String(details.health)+' / 5';
       status.textContent=(manual?'MANUAL 3D':'AUTONOMOUS 3D AI')+' · '+details.tick+' TICKS';
     }
     requestAnimationFrame(animate);
