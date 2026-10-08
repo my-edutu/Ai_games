@@ -164,6 +164,15 @@
         lit += mix(uStageAccent,vec3(1.0),0.62) * edgeStrip * 0.74;
         lit += uStageAccent * skyBounce * curvedGlass * 0.23;
         lit += surfaceColor * pow(facing,4.0) * 0.12;
+        // Tiny internal light-scattering flecks and swirling translucent
+        // coloured glass are confined to the material, not the actual path.
+        vec3 point=normalize(vLocalPosition);
+        float swirl=sin(point.x*33.0+point.y*18.0+sin(point.z*21.0)*3.4);
+        float depthMask=pow(max(0.0,1.0-abs(point.y)),2.0);
+        float glassVein=smoothstep(0.78,0.98,swirl)*depthMask;
+        float microfleck=pow(max(0.0,sin(point.x*73.0)*sin(point.y*61.0)*sin(point.z*67.0)),20.0);
+        lit+=mix(surfaceColor,skyReflected,0.6)*glassVein*0.065;
+        lit+=vec3(0.95,0.97,1.0)*microfleck*0.10;
       }
       lit += surfaceColor * uEmissive;
       float distanceFog = clamp((length(uCameraPosition - vWorldPosition) - 12.0) / 36.0, 0.0, 0.52);
@@ -518,7 +527,11 @@
   const boardContext=boardCanvas.getContext('2d',{alpha:true});
   let lastBoardSignature=null;
 
-  const sphereMesh=createSphereMesh(), boxMesh=createBoxMesh(), cylinderMesh=createCylinderMesh(), shadowMesh=createCylinderMesh(24), torusMesh=createTorusMesh(), crystalMesh=createCrystalMesh();
+  const sphereMesh=createSphereMesh(), sphereMeshLow=createSphereMesh(12,18), sphereMeshHigh=createSphereMesh(36,52), sphereMeshUltra=createSphereMesh(50,72), boxMesh=createBoxMesh(), cylinderMesh=createCylinderMesh(), shadowMesh=createCylinderMesh(24), torusMesh=createTorusMesh(), crystalMesh=createCrystalMesh();
+  function marbleMeshForQuality(){
+    const quality=document.getElementById('quality-select')?.value||'balanced';
+    return quality==='low'?sphereMeshLow:quality==='high'?sphereMeshHigh:quality==='ultra'?sphereMeshUltra:sphereMesh;
+  }
   const gauntletChannel = typeof BroadcastChannel === 'function' ? new BroadcastChannel('marble-gauntlet-v1') : null;
   let currentFogColor=[0.08,0.15,0.28];
   let currentStageAccent=[0.15,0.82,1.0];
@@ -1155,7 +1168,7 @@
     }
   }
 
-  function drawMarble(marble,arena,viewProjection,cameraPosition,nowSeconds,focused){if(marble.status==='eliminated')return;const point=toWorld(marble.x,marble.y,arena),rolling=rollingState(marble,nowSeconds),base=PALETTE[marble.palette]||[0.50,0.56,0.54],champion=marble.status==='champion',qualified=marble.status==='qualified',threatened=marble.status==='threatened',metalness=marble.pattern==='split'?0.68:marble.pattern==='ring'?0.48:0.28,roughness=marble.pattern==='dots'?0.42:0.24,scale=champion?1.08:1,elevation=(marble.elevation||0)*WORLD_SCALE,patternType=marblePatternType(marble.pattern),patternColor=marblePatternColor(base);const model=modelMatrix([point[0],elevation+MARBLE_RADIUS+0.05,point[2]],[rolling.x,0,rolling.z],[MARBLE_RADIUS*scale,MARBLE_RADIUS*scale,MARBLE_RADIUS*scale]);drawMesh(sphereMesh,model,material(base,roughness,metalness,champion?0.22:qualified?0.08:0,1,patternType,patternColor),viewProjection,cameraPosition);if(focused||threatened||marble.status==='recovering'){const haloColor=threatened?[0.95,0.12,0.06]:marble.status==='recovering'?[1.0,0.66,0.12]:[0.40,0.82,1.0];drawMesh(cylinderMesh,modelMatrix([point[0],elevation+0.045,point[2]],[0,0,0],[MARBLE_RADIUS*1.46,0.010,MARBLE_RADIUS*1.46]),material(haloColor,0.5,0.18,0.65,0.48),viewProjection,cameraPosition);}drawArchetypeAccents(marble,arena,viewProjection,cameraPosition,nowSeconds,focused);}
+  function drawMarble(marble,arena,viewProjection,cameraPosition,nowSeconds,focused){if(marble.status==='eliminated')return;const point=toWorld(marble.x,marble.y,arena),rolling=rollingState(marble,nowSeconds),base=PALETTE[marble.palette]||[0.50,0.56,0.54],champion=marble.status==='champion',qualified=marble.status==='qualified',threatened=marble.status==='threatened',metalness=marble.pattern==='split'?0.68:marble.pattern==='ring'?0.48:0.28,roughness=marble.pattern==='dots'?0.42:0.24,scale=champion?1.08:1,elevation=(marble.elevation||0)*WORLD_SCALE,patternType=marblePatternType(marble.pattern),patternColor=marblePatternColor(base);const model=modelMatrix([point[0],elevation+MARBLE_RADIUS+0.05,point[2]],[rolling.x,0,rolling.z],[MARBLE_RADIUS*scale,MARBLE_RADIUS*scale,MARBLE_RADIUS*scale]);drawMesh(marbleMeshForQuality(),model,material(base,roughness,metalness,champion?0.22:qualified?0.08:0,1,patternType,patternColor),viewProjection,cameraPosition);if(focused||threatened||marble.status==='recovering'){const haloColor=threatened?[0.95,0.12,0.06]:marble.status==='recovering'?[1.0,0.66,0.12]:[0.40,0.82,1.0];drawMesh(cylinderMesh,modelMatrix([point[0],elevation+0.045,point[2]],[0,0,0],[MARBLE_RADIUS*1.46,0.010,MARBLE_RADIUS*1.46]),material(haloColor,0.5,0.18,0.65,0.48),viewProjection,cameraPosition);}drawArchetypeAccents(marble,arena,viewProjection,cameraPosition,nowSeconds,focused);}
 
   function spawnEffects(next){for(const event of next.events||[]){if(event.seq<=lastEventSeq)continue;lastEventSeq=Math.max(lastEventSeq,event.seq);if(!['marble-eliminated','shield-recovery','marble-launched','marble-pit-falling','marble-qualified','tournament-champion'].includes(event.type))continue;const marbleId=Number(event.data?.marbleId??event.data?.championId),marble=next.marbles.find((candidate)=>candidate.id===marbleId);if(!marble)continue;const point=toWorld(marble.x,marble.y,next.arena),count=event.type==='tournament-champion'?28:event.type==='marble-eliminated'?16:event.type==='marble-pit-falling'?20:event.type==='marble-launched'?14:10,color=event.type==='marble-eliminated'||event.type==='marble-pit-falling'?[0.96,0.22,0.08]:event.type==='shield-recovery'||event.type==='marble-launched'?[0.34,0.78,1.0]:[1.0,0.72,0.20],elevation=(marble.elevation||0)*WORLD_SCALE;for(let index=0;index<count;index+=1){const unitA=deterministicUnit(event.seq*4099+index*193),unitB=deterministicUnit(event.seq*8191+index*389),angle=unitA*Math.PI*2,speed=0.7+unitB*1.7;effects.push({position:[point[0],elevation+0.30,point[2]],velocity:[Math.cos(angle)*speed,0.7+unitA*1.6,Math.sin(angle)*speed],color,age:0,lifetime:0.65+unitB*0.75});}}if(effects.length>160)effects.splice(0,effects.length-160);}
   function drawEffects(dt,viewProjection,cameraPosition){const quality=document.getElementById('quality-select')?.value||'balanced',cap=quality==='low'?24:quality==='balanced'?72:140;let drawn=0;for(const effect of effects){effect.age+=dt;if(effect.age>=effect.lifetime)continue;effect.velocity[1]-=2.7*dt;effect.position[0]+=effect.velocity[0]*dt;effect.position[1]+=effect.velocity[1]*dt;effect.position[2]+=effect.velocity[2]*dt;if(drawn<cap){const life=1-effect.age/effect.lifetime,size=0.035+life*0.045;drawMesh(sphereMesh,modelMatrix(effect.position,[0,0,0],[size,size,size]),material(effect.color,0.4,0.15,0.7,life),viewProjection,cameraPosition);drawn+=1;}}for(let index=effects.length-1;index>=0;index-=1)if(effects[index].age>=effects[index].lifetime)effects.splice(index,1);}
