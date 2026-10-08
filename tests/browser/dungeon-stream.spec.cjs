@@ -265,3 +265,28 @@ test('mobile gameplay has a dominant 3D stage and legible full-width hero cards'
  expect(m.font).toBeGreaterThanOrEqual(11);expect(m.overflow).toBeLessThanOrEqual(1);
  await page.screenshot({path:'artifacts/dungeon-mobile-legibility-round13.png',fullPage:true});
 });
+
+test('world-only screenshot audits actual WebGL light, chroma and hero visibility',async({page})=>{
+ await page.setViewportSize({width:1440,height:900});
+ await page.goto('/dungeon');
+ await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.composition?.visibleHeroes??0),{timeout:25000}).toBeGreaterThan(0);
+ await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.triangles??0),{timeout:25000}).toBeGreaterThan(100);
+ const capture=await page.locator('canvas#world').screenshot({path:'artifacts/dungeon-3d-world-only.png'});
+ const pixels=await page.evaluate(async encoded=>{
+  const image=new Image();image.src='data:image/png;base64,'+encoded;await image.decode();
+  const canvas=document.createElement('canvas');canvas.width=160;canvas.height=100;
+  const ctx=canvas.getContext('2d',{willReadFrequently:true});ctx.drawImage(image,0,0,160,100);
+  const rgba=ctx.getImageData(0,0,160,100).data;let lit=0,coloured=0,brightness=0;
+  for(let i=0;i<rgba.length;i+=4){
+   const r=rgba[i],g=rgba[i+1],b=rgba[i+2],l=.2126*r+.7152*g+.0722*b;
+   brightness+=l;if(l>25)lit++;if(l>25&&Math.max(r,g,b)-Math.min(r,g,b)>18)coloured++;
+  }
+  return{sampledPixels:rgba.length/4,litFraction:lit/(rgba.length/4),colouredFraction:coloured/(rgba.length/4),meanLuminance:brightness/(rgba.length/4)};
+ },capture.toString('base64'));
+ const diagnostics=await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__);
+ const evidence={schemaVersion:1,reference:'None; candidate WebGL canvas only',at:new Date().toISOString(),...pixels,triangles:diagnostics.triangles,composition:diagnostics.composition,visibility:diagnostics.visibility,authored3D:diagnostics.authored3D,atmosphere:diagnostics.atmosphere,livingWorld:diagnostics.livingWorld};
+ fs.writeFileSync('artifacts/dungeon-scene-visual-metrics.json',JSON.stringify(evidence,null,2));
+ expect(evidence.composition.visibleHeroes).toBeGreaterThan(0);
+ expect(evidence.litFraction).toBeGreaterThan(.08);
+ expect(evidence.meanLuminance).toBeGreaterThan(10);
+});
