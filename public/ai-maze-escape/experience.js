@@ -55,7 +55,10 @@ window.addEventListener('maze:frame',event=>{
     addJournal('A new expedition begins. The AI is observing its surroundings.');
   }
   // Biome-specific colors are keyed only to the public challenge profile.
-  document.getElementById('broadcast').dataset.mazeBiome=String(snapshot.profile||'loops');
+  const broadcast=document.getElementById('broadcast');
+  broadcast.dataset.mazeBiome=String(snapshot.profile||'loops');
+  broadcast.dataset.mazeDanger=snapshot.threats.length?'high':'clear';
+  broadcast.dataset.mazeScene=String(event.detail?.scene||'exploration');
   const level=String(snapshot.level||1).padStart(2,'0');
   runLabel.textContent='RUN '+level;
   zoneNumber.textContent='ZONE '+level;
