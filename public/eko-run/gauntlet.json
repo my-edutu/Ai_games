@@ -3,7 +3,7 @@
   "baseline": "SYBO Subway Surfers City — official gameplay footage; original IP only",
   "scope": "Interactive 3D vertical slice; not a finished or externally benchmarked game",
   "updated": "2026-10-08",
-  "runStatus": "Iteration 2: independent runtime capture pending; static critic found and fixed terrain disposal, missing Three.js core module, CSP scripting, incomplete late-district terrain and invisible warned hazards.",
+  "runStatus": "Iteration 3: 5/5 authoritative host tests and 3/3 real Chromium Playwright checks passed on captured HEAD 012047f; actual desktop/mobile screenshots reviewed. Reference-quality gate FAILED. Occlusion/camera repair committed as 19b16c5; new screenshot confirmation pending.",
   "iterations": [
     {
       "round": 0,
@@ -28,44 +28,73 @@
       "builder": "Repaired scene disposal, hosted Three.js split ESM module, moved progress script to CSP-safe route, extended road to every district finish, and kept warned hazards visible.",
       "critic": "Static inspection identified invisible terrain after first draw, script blocked by CSP, missing vendor dependency, truncated Bridge Run environment, and disappearing danger cues. No screenshots have yet been inspected.",
       "decision": "Run GitHub Actions / Playwright to capture desktop and mobile output; then judge screenshots and gameplay against real reference and fix next worst gap."
+    },
+    {
+      "round": 3,
+      "title": "Real screenshot critique and camera correction",
+      "status": "stop-ship findings; repair committed; re-capture pending",
+      "builder": "CI captured actual Chromium 3D desktop (1280x720), portrait mobile (390x844), and live dashboard; corrected shop placement and camera focal distance afterward.",
+      "critic": "Desktop capture showed giant foreground buildings hiding roadway and a too-small Tayo; mobile showed distant low-poly player and shallow Lagos detailing; 7 FPS appeared on CI screenshot and requires hardware-context profiling. Actual screenshot reviewed; blind A/B and independent subagent comparison still missing.",
+      "decision": "Verify fix via fresh Playwright captures, then prioritize production-quality original rigged Tayo and one beautifully authored Lagos street block. Review recorded normal-speed gameplay and FPS on real hardware before closing quality gate."
     }
   ],
   "gates": [
     {
-      "name": "Real 60Hz simulation drives UI",
-      "status": "needs-runtime-verification"
+      "name": "Real 60Hz authoritative engine drives interactive UI",
+      "status": "passed-engine-contract (5/5 API checks)"
     },
     {
-      "name": "3D interactive character and district scene",
-      "status": "needs-visual-review"
+      "name": "WebGL 3D game opens on desktop and mobile",
+      "status": "passed-basic-render (3/3 Playwright)"
     },
     {
-      "name": "Six generated district transitions",
-      "status": "needs-endurance-test"
+      "name": "Visually polished fully rigged character and outfits",
+      "status": "failed-reference-quality"
     },
     {
-      "name": "Desktop and mobile controls",
-      "status": "needs-playtest"
+      "name": "Cinematic Lagos street environment and six developed districts",
+      "status": "failed-reference-quality"
     },
     {
-      "name": "Character rigged assets, custom animations and material polish",
-      "status": "open"
+      "name": "Responsive, fair obstacles with observable animation/AI gameplay",
+      "status": "open-normal-speed-footage"
     },
     {
-      "name": "Screenshot/video blind A/B against reference",
-      "status": "open"
+      "name": "Stable FPS/mobile performance under declared hardware",
+      "status": "open-CI-7fps-investigate"
     },
     {
-      "name": "Licensed original production audio and assets",
-      "status": "open"
+      "name": "Independent builder/critic and blind A/B vs reference",
+      "status": "not-started"
     },
     {
-      "name": "Soak, performance, security, accessibility, and R5",
-      "status": "open"
+      "name": "Live Gauntlet progress board with review record",
+      "status": "passed-ui-capture"
+    },
+    {
+      "name": "Original production models, audio and license provenance",
+      "status": "not-started"
+    },
+    {
+      "name": "Endurance, replay, accessibility and R5 deployment evidence",
+      "status": "not-started"
     }
   ],
   "sources": {
     "code": "https://github.com/my-edutu/Ai_games/tree/feat/eko-run-3d-gauntlet-slice",
     "benchmark": "https://www.subwaysurfers.com/"
+  },
+  "capturedEvidence": {
+    "artifactId": 11536931787,
+    "workflowRunId": 37745525387,
+    "capturedHead": "012047f8ad6dd936c8b5c46af987ba22c2a21194",
+    "files": [
+      "desktop.png",
+      "mobile.png",
+      "progress.png"
+    ],
+    "testResults": "5/5 API; 3/3 browser",
+    "visualReview": "games/eko-street-run/docs/EKO_GAUNTLET_VISUAL_REVIEW_2026-10-08.md",
+    "unverifiedRepairCommit": "19b16c571df25e3fb58f92b9f7692f2b2209d10a"
   }
 }
