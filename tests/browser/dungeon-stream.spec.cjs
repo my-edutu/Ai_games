@@ -162,3 +162,19 @@ test('actual class footprints, spells and character-close camera are inspectable
  await page.screenshot({path:'artifacts/dungeon-ranger-close-ui.png',fullPage:true});
  expect(errors).toEqual([]);
 });
+
+test('autonomous spectator director can be overridden without changing the AI simulation',async({page})=>{
+ await page.goto('/dungeon');
+ await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.frame??0),{timeout:20000}).toBeGreaterThan(3);
+ const before=await page.evaluate(()=>window.__DUNGEON_PUBLIC_STATE__.checksum);
+ const director=page.locator('#director-toggle');
+ await expect(director).toHaveAttribute('aria-pressed','true');
+ await page.locator('.hero-card[data-hero-id="ranger"]').click();
+ await expect(director).toHaveAttribute('aria-pressed','false');
+ await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.autoDirector),{timeout:8000}).toBe(false);
+ await director.click();
+ await expect(director).toHaveAttribute('aria-pressed','true');
+ await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.autoDirector),{timeout:8000}).toBe(true);
+ const after=await page.evaluate(()=>window.__DUNGEON_PUBLIC_STATE__.checksum);
+ expect(before).toBeTruthy();expect(after).toBeTruthy();
+});

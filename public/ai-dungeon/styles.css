@@ -104,3 +104,5 @@ body[data-biome="ember"] .icon-button{color:#ffe0b0}
 .mission-chip strong{color:#ffffff;text-shadow:0 1px 7px #6fdce138}
 @media(max-width:680px){.chapter,.panel{box-shadow:0 5px 18px #0005}.mission-chip{max-width:100%}}
 @media(prefers-reduced-motion:reduce){.squad-panel .hero-card{transition:none}}
+
+.director-toggle{color:#fff1c2;border-color:#e8c7799a;background:linear-gradient(110deg,#5b3f5f,#32305a)}.director-toggle[aria-pressed=true]{box-shadow:0 0 18px #ffd17834,inset 0 0 10px #ffe2aa17}.director-toggle[aria-pressed=false]{color:#abb0d3;border-color:#6f789b66;background:#242a4a}@media(max-width:1160px){.director-toggle span{display:none}}@media(max-width:680px){.director-toggle{padding:9px 7px;min-height:33px}}

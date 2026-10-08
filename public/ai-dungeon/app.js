@@ -7,7 +7,24 @@ import {createCombatDirector} from '/dungeon/combat-director.js';
 import {addContactProjection} from '/dungeon/contact-projection.js';
 import {attachCharacter,updateActor,disposeActorAsset,putEnvironment,stats as assetStats} from '/dungeon/model-assets.js';
 const $=id=>document.getElementById(id),canvas=$('world'),reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
-let focusedHeroId='vanguard';
+let focusedHeroId='vanguard',autoDirector=true,lastAutoSwitch=0;
+function directCamera(s){
+ const alive=s.units.filter(u=>u.faction==='party'&&u.hp>0);
+ if(!alive.length)return;
+ const current=alive.find(u=>u.id===focusedHeroId);
+ if(!autoDirector&&current)return;
+ const now=performance.now();
+ if(current&&now-lastAutoSwitch<4800)return;
+ const foes=s.units.filter(u=>u.faction==='enemy'&&u.hp>0);
+ const priority=alive.map(u=>{
+  const minDist=foes.length?Math.min(...foes.map(f=>Math.abs(f.x-u.x)+Math.abs(f.z-u.z))):100;
+  return {u,score:(u.action==='attack'?8:u.action==='cast'?9:u.action==='hurt'?6:0)+(minDist<=3?3:0)-(u.hp/u.maxHp<.25?2:0)}
+ }).sort((a,b)=>b.score-a.score||a.u.id.localeCompare(b.u.id));
+ const select=priority[0]?.u;
+ if(!select||select.id===focusedHeroId)return;
+ focusedHeroId=select.id;lastAutoSwitch=now;
+ $('focus-label').textContent='DIRECTOR FOLLOW · '+(classMeta[select.kind]?.name||select.kind).toUpperCase();
+}
 const renderer=new THREE.WebGLRenderer({canvas,antialias:true,powerPreference:'high-performance',alpha:false});
 renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.6));renderer.info.autoReset=false;renderer.shadowMap.enabled=!reduced;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.38;
 const scene=new THREE.Scene();scene.background=new THREE.Color('#070d18');scene.fog=new THREE.FogExp2('#090f1a',.024);
@@ -360,6 +377,7 @@ function update(s){combatOverlay.record(s,timeNow());state=s;received=true;error
   wardenSpot.intensity=s.bossPhase==='ECLIPSE'?3.2:s.bossPhase==='RUPTURE'?2.9:2.1;
  }else wardenSpot.intensity=0;
  for(const trap of s.traps||[]){const marker=world.userData.hazardMeshes?.get(trap.id);if(marker){marker.userData.active=trap.active;marker.userData.charge.visible=trap.active;marker.userData.ring.visible=!trap.disarmed;marker.scale.setScalar(trap.disarmed?.67:1)}}
+ directCamera(s);
  renderDashboard(s);
  window.__DUNGEON_PUBLIC_STATE__=s;
 }
@@ -405,17 +423,23 @@ function animate(t){requestAnimationFrame(animate);const time=t/1000,dt=Math.min
  renderer.info.reset();
  try{if(composer&&postFXEnabled){bloomPass.strength=innerWidth<680?.26:.49;composer.render()}else renderer.render(scene,camera)}
  catch(error){console.warn('[DUNGEON] post effect fault, restoring WebGL:',String(error));composer=null;postFXStatus='fallback';renderer.info.reset();renderer.render(scene,camera)}
- combatOverlay.render(state,actors,camera,time);if(state)window.__DUNGEON_RENDER_DIAGNOSTICS__={frame:renderer.info.render.frame,drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,camera:cameraModes[cameraIndex],focusedHeroId,postFX:composer&&postFXEnabled?'bloom':'direct',postFXStatus,bossFramed:Boolean(bossDistance),activeUnits:[...actors.values()].filter(x=>x.root.visible).length,characterDetails:[...actors.values()].reduce((sum,x)=>sum+(x.detail?.parts||0),0),webgl:true,theme:state.theme,dressing:world.userData.dressing?.metrics??null,atmosphere:world.userData.atmosphere?.metrics??null,overlay:combatOverlay.metrics(),combatStage:combatDirector.stats(),groundedActors:[...actors.values()].filter(x=>Boolean(x.ground)).length,authored3D:assetStats(actors)};
+ combatOverlay.render(state,actors,camera,time);if(state)window.__DUNGEON_RENDER_DIAGNOSTICS__={frame:renderer.info.render.frame,drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,camera:cameraModes[cameraIndex],focusedHeroId,autoDirector,postFX:composer&&postFXEnabled?'bloom':'direct',postFXStatus,bossFramed:Boolean(bossDistance),activeUnits:[...actors.values()].filter(x=>x.root.visible).length,characterDetails:[...actors.values()].reduce((sum,x)=>sum+(x.detail?.parts||0),0),webgl:true,theme:state.theme,dressing:world.userData.dressing?.metrics??null,atmosphere:world.userData.atmosphere?.metrics??null,overlay:combatOverlay.metrics(),combatStage:combatDirector.stats(),groundedActors:[...actors.values()].filter(x=>Boolean(x.ground)).length,authored3D:assetStats(actors)};
 }
 async function poll(){try{const r=await fetch('/dungeon/state',{cache:'no-store'});if(!r.ok)throw Error('State '+r.status);const data=await r.json();if(data.tick!==lastTick||data.run!==state?.run){lastTick=data.tick;update(data)}}catch(e){errorAt++;if(errorAt>=3){$('recovery').hidden=false;$('status').textContent='VIEW DEGRADED — RETRYING';console.warn('Dungeon view recovery',String(e))}}finally{setTimeout(poll,190)}}
 $('party').addEventListener('click',e=>{
  const node=e.target.closest('[data-hero-id]');if(!node)return;
  const unit=state?.units.find(u=>u.id===node.dataset.heroId&&u.faction==='party'&&u.hp>0);
  if(!unit)return;
- focusedHeroId=unit.id;$('focus-label').textContent='FOLLOWING '+(classMeta[unit.kind]?.name||unit.kind).toUpperCase();
+ focusedHeroId=unit.id;autoDirector=false;$('director-toggle').setAttribute('aria-pressed','false');$('director-toggle').querySelector('span').textContent='DIRECTOR PAUSED';$('focus-label').textContent='FOLLOWING '+(classMeta[unit.kind]?.name||unit.kind).toUpperCase();
  for(const el of document.querySelectorAll('.hero-card')){el.dataset.focused=String(el.dataset.heroId===focusedHeroId);el.setAttribute('aria-pressed',String(el.dataset.heroId===focusedHeroId))}
 });
 $('party').addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){const card=e.target.closest('[data-hero-id]');if(card){e.preventDefault();card.click()}}});
+$('director-toggle').addEventListener('click',()=>{
+ autoDirector=!autoDirector;
+ $('director-toggle').setAttribute('aria-pressed',String(autoDirector));
+ $('director-toggle').querySelector('span').textContent=autoDirector?'AUTO DIRECTOR':'DIRECTOR PAUSED';
+ lastAutoSwitch=0;
+});
 const cameraModes=['cinematic','tactical','chase'];let cameraIndex=0;const viewButton=$('view-toggle');
 viewButton.addEventListener('click',()=>{cameraIndex=(cameraIndex+1)%cameraModes.length;viewButton.querySelector('span').textContent=cameraModes[cameraIndex].toUpperCase();viewButton.setAttribute('aria-label','Camera: '+cameraModes[cameraIndex]+'; change view');});
 document.body.dataset.reducedMotion=String(reduced);requestAnimationFrame(animate);poll();
