@@ -13,6 +13,8 @@ let settledCamera=false;
 let lastTopologyKey='';
 let lanternFlame=null;
 let lanternLight=null;
+let ambientDust=null;
+let ground=null;
 const dynamic = new THREE.Group();
 const world = new THREE.Group();
 let renderer = null;
@@ -323,6 +325,15 @@ function rebuild(snapshot) {
     threats.push(body);
   }
   const target=point(snapshot.currentCell,w);
+  // Frame known geography only. Hidden cells never influence composition.
+  const nearby=snapshot.cells.filter(c=>{
+    const p=point(c.cell,w);
+    return Math.abs(p.x-target.x)<GRID*4 && Math.abs(p.z-target.z)<GRID*4;
+  });
+  if(nearby.length){
+    const avg=nearby.reduce((acc,c)=>acc.add(point(c.cell,w)),new THREE.Vector3()).multiplyScalar(1/nearby.length);
+    lookTarget.copy(target).lerp(avg,.42);
+  }else lookTarget.copy(target);
   if(lastPosition===null || previousRun!==snapshot.runToken) explorer.position.copy(target);
   lastPosition=target.clone();
   explorerTarget.copy(target);
@@ -360,11 +371,29 @@ function render(now) {
     limb.arm.rotation.x=-limb.leg.rotation.x*.8;
   }
   for(const enemy of threats)if(!reducedMotion)enemy.position.y=Math.sin(now*.003+enemy.position.x)*.07;
-  const focus=explorer.position;
-  const desired=new THREE.Vector3(focus.x+10,focus.y+14,focus.z+16);
-  if(reducedMotion)camera.position.copy(desired);
-  else camera.position.lerp(desired,Math.min(1,seconds*3));
-  camera.lookAt(focus.x,0.4,focus.z);
+  if(!reducedMotion){
+    explorer.userData.lantern.rotation.z=Math.sin(now*.006)*.09;
+    explorer.position.y=(moving?Math.abs(Math.sin(now*.008))*.075:Math.sin(now*.002)*.025);
+    for(const enemy of threats)enemy.rotation.y+=seconds*.3;
+  }else explorer.position.y=0;
+  if(lanternLight) {
+    lanternLight.position.copy(explorer.position).add(new THREE.Vector3(.68,1.02,.28));
+    lanternLight.intensity=reducedMotion?7.5:7.1+Math.sin(now*.016)*.6;
+  }
+  if(ground) ground.position.set(explorer.position.x,-.46,explorer.position.z);
+  if(ambientDust) {
+    ambientDust.position.set(explorer.position.x,0,explorer.position.z);
+    if(!reducedMotion)ambientDust.rotation.y+=seconds*.003;
+  }
+  const target=lookTarget.clone().lerp(explorer.position,.34);
+  if(!settledCamera || reducedMotion)smoothedLook.copy(target);
+  else smoothedLook.lerp(target,Math.min(1,seconds*2));
+  const scale=isCompact()?1.25:1;
+  const desired=new THREE.Vector3(smoothedLook.x+8.2*scale,12.2*scale,smoothedLook.z+10.7*scale);
+  if(!settledCamera || reducedMotion)camera.position.copy(desired);
+  else camera.position.lerp(desired,Math.min(1,seconds*2.4));
+  settledCamera=true;
+  camera.lookAt(smoothedLook.x,.7,smoothedLook.z);
   renderer.render(scene,camera);
 }
 function init() {
@@ -382,7 +411,9 @@ function init() {
     renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,1.5));
     renderer.outputColorSpace=THREE.SRGBColorSpace;
     renderer.toneMapping=THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure=1.4;
+    renderer.toneMappingExposure=1.68;
+    renderer.shadowMap.enabled=true;
+    renderer.shadowMap.type=THREE.PCFSoftShadowMap;
     mount.appendChild(renderer.domElement);
     renderer.domElement.addEventListener('webglcontextlost',event=>{
       event.preventDefault();
@@ -396,13 +427,35 @@ function init() {
     return;
   }
   scene=new THREE.Scene();
-  scene.background=new THREE.Color(0x071319);
-  scene.fog=new THREE.FogExp2(0x081519,0.025);
-  camera=new THREE.PerspectiveCamera(48,1,0.1,190);
+  scene.background=new THREE.Color(0x101b1f);
+  scene.fog=new THREE.FogExp2(0x122227,.017);
+  camera=new THREE.PerspectiveCamera(45,1,0.1,160);
   camera.position.set(10,15,19);
-  scene.add(new THREE.HemisphereLight(0x9bd9da,0x1b1d22,2.5));
+  scene.add(new THREE.HemisphereLight(0xc8ddd4,0x172622,2.1));
+  ground=mesh(new THREE.PlaneGeometry(185,185),materials.void,scene,[0,-.46,0]);
+  ground.rotation.x=-Math.PI/2;ground.receiveShadow=true;
+  const dustCoordinates=new Float32Array(240*3);
+  for(let i=0;i<240;i++){
+    const angle=seededNoise(i,11,17)*Math.PI*2;
+    const radius=3+seededNoise(i,71,13)*22;
+    dustCoordinates[i*3]=Math.cos(angle)*radius;
+    dustCoordinates[i*3+1]=.9+seededNoise(i,29,71)*6;
+    dustCoordinates[i*3+2]=Math.sin(angle)*radius;
+  }
+  const dustGeometry=new THREE.BufferGeometry();
+  dustGeometry.setAttribute('position',new THREE.BufferAttribute(dustCoordinates,3));
+  ambientDust=new THREE.Points(dustGeometry,new THREE.PointsMaterial({
+    color:0xf9dab1,size:.055,transparent:true,opacity:.46,depthWrite:false
+  }));
+  scene.add(ambientDust);
   const sun=new THREE.DirectionalLight(0xffe5bd,2.5);
   sun.position.set(-7,14,-3);
+  sun.castShadow=true;
+  sun.shadow.mapSize.set(1024,1024);
+  sun.shadow.camera.left=-29;sun.shadow.camera.right=29;
+  sun.shadow.camera.top=29;sun.shadow.camera.bottom=-29;
+  sun.shadow.camera.near=.5;sun.shadow.camera.far=75;
+  sun.shadow.bias=-.0008;
   scene.add(sun);
   const edge=new THREE.DirectionalLight(0x5affca,1.9);
   edge.position.set(10,8,10);
@@ -410,6 +463,11 @@ function init() {
   scene.add(world,dynamic);
   explorer=humanoid(materials.cloak);
   dynamic.add(explorer);
+  lanternLight=new THREE.PointLight(0xffc77d,8,11,2);
+  scene.add(lanternLight);
+  explorer.traverse(item=>{if(item.isMesh)item.castShadow=true});
+  explorer.userData.halo=mesh(geometries.torus,materials.aura,explorer,[0,.04,0],[.82,.82,.82]);
+  explorer.userData.halo.rotation.x=Math.PI/2;
   const resize=()=>{
     const rect=mount.getBoundingClientRect();
     renderer.setSize(Math.max(1,Math.floor(rect.width)),Math.max(1,Math.floor(rect.height)),false);
