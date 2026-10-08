@@ -169,6 +169,23 @@
       "independentCritic": "Fresh-context subagent unavailable. Latest Chromium screenshots and direct reference comparison remain outstanding. The earlier reviewed screenshot was far below the Talos Principle 2 standard.",
       "largestKnownGap": "Still relies on generated stylised geometry, not authored AAA assets or photoreal animation. Must capture latest real WebGL frames, compare blind against references and prove sustained performance before claiming goal met.",
       "visualBarMet": false
+    },
+    {
+      "number": 11,
+      "label": "Real skeletal hero and animated monster art, public event VFX and spectator capture",
+      "status": "Implemented in repository; latest CI browser screenshots, rigging and endurance evidence pending",
+      "built": [
+        "Installed a genuine Quaternius CC0 rigged humanoid GLB (741 KB) with detailed skin mesh and complete humanoid skeleton, verified source SHA and preserved license manifest",
+        "Three.js local GLTFLoader and SkeletonUtils addons hosted with no CDN and safe procedural fallback",
+        "Created rigged-assets.js that attaches a real skeleton underneath authored armor, cape and lantern and animates head/arms/legs from autonomous exploration",
+        "Installed Quaternius Ultimate Monsters CC0 ghost GLB (~289 KB) with 8 source animation clips; built live skinned-ghost actor clones with crossfaded idle/flying animations driven by visible threats",
+        "Added pooled bounded WebGL VFX for actual observed key collection, clue discovery, threat arrival, exit appearance and escape outcomes",
+        "Added user-selectable adaptive/cinematic/balanced/performance graphics, actual in-game screenshot export and rig/animation/scene stats to live Gauntlet dashboard",
+        "Added real GLB binary/bone/clip/CC0 license tests, source browser download tests and screenshot capture checks"
+      ],
+      "independentCritic": "Studio-reference comparison and screenshots of latest rigged assets are not yet available. Previous generic shapes did not meet standards.",
+      "largestKnownGap": "Imported rigged assets are real but are not yet original fully art-directed finished characters. Environments, cinematography and character animations still need high-quality visual A/B proof, authoring and sustained GPU performance before Gauntlet pass.",
+      "visualBarMet": false
     }
   ],
   "milestones": [
@@ -247,6 +264,14 @@
     {
       "label": "Adaptive 24/7 GPU budget, separate journey trails and recoverable 3D errors",
       "status": "implemented; full run verification pending"
+    },
+    {
+      "label": "Real rigged CC0 hero, 8-clip animated spectral enemy and complete attribution",
+      "status": "code implemented; Chromium GLB loading and screenshot proof pending"
+    },
+    {
+      "label": "Event-reactive GPU particle effects and true PNG spectator capture",
+      "status": "code implemented; visual and automated regression tests pending"
     }
   ],
   "updatedAt": "2026-10-08",
@@ -268,9 +293,9 @@
     {
       "name": "Fully developed hero and threats",
       "reference": "Little Nightmares III — distinctive modeled and animated characters",
-      "current": "Original articulated procedural 3D models now have sculpted garments and monster silhouettes, with modeled faces, lanterns, layered armor and animated cloth; not yet studio-authored.",
-      "status": "below",
-      "evidence": "character-art.js and scene3d.js model-count assertions; latest browser capture pending"
+      "current": "Real CC0 rigged human with ~1.8m skin and full humanoid bones, plus animated 8-clip skeletal ghost now integrated with original procedural armor, cape and fallback; quality review pending.",
+      "status": "awaiting-verification",
+      "evidence": "models/wayfinder-rig.glb, models/hollow-sentinel-ghost.glb, rigged-assets.js, spectral-assets.js; browser evidence pending"
     },
     {
       "name": "Autonomous decision-making and replay",
@@ -303,7 +328,7 @@
     {
       "name": "Production performance and endurance",
       "reference": "Stable play across long 24/7 live sessions",
-      "current": "Bounded instancing, FPS measurements, adaptive pixel ratio, separate route trails, caught scene-rebuild errors and 2D recovery.",
+      "current": "Adaptive GPU quality, bounded VFX and original simulation resilience. No completed long-run 24/7 render proof.",
       "status": "blocked",
       "evidence": "render-budget.js and browserless test; no completed sustained performance run yet"
     }
