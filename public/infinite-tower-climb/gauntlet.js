@@ -14,6 +14,7 @@ $('reveal').addEventListener('click',()=>{
 async function ledger(){
   try{const r=await fetch('/tower/gauntlet.json',{cache:'no-store'});if(!r.ok)throw Error('ledger unavailable');const d=await r.json();
     $('round').textContent=d.round;$('round-foot').textContent=d.round;$('status').textContent=d.status;
+    const history=$('history');history.replaceChildren(...(d.history||[]).map(row=>{const li=document.createElement('li');li.textContent='ROUND '+row.round+' · '+row.summary+' · '+row.verdict;return li}));
     const list=$('lanes');list.replaceChildren(...d.lanes.map(l=>{
       const li=document.createElement('li'),name=document.createElement('strong'),status=document.createElement('span');
       name.textContent=l.name;status.textContent=l.status;li.append(name,status);return li;
