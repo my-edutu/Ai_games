@@ -780,8 +780,13 @@
     if(!focus.length&&currentSnapshot.round.remaining<=4)focus=active.slice(0,4);
     let target=[0,0.25,0];
     if(focus.length){const averageX=focus.reduce((sum,marble)=>sum+marble.x,0)/focus.length; const averageY=focus.reduce((sum,marble)=>sum+marble.y,0)/focus.length; const averageElevation=focus.reduce((sum,marble)=>sum+(marble.elevation||0),0)/focus.length; const point=toWorld(averageX,averageY,arena); target=[point[0],0.30+averageElevation*WORLD_SCALE,point[2]];}
-    const zoom=clamp((directive.zoomPermille||1000)/1000,0.9,1.8); let eye=[0,13.5/zoom,18/zoom];
-    if(directive.mode==='overview'&&currentSnapshot.round.remaining<=4)eye=[target[0]+4.4/zoom,7.0/zoom,target[2]+8.4/zoom];
+    const zoom=clamp((directive.zoomPermille||1000)/1000,0.9,1.8);
+    // Real Chromium captures showed a mostly flat rectangle because the old
+    // default jib was 13.5 m high. Bring the stadium's side structures, crowd
+    // and distant gantries into a readable perspective without shrinking the
+    // actual gameplay view to a tiny close-up.
+    let eye=[target[0]+3.9/zoom,9.0/zoom,target[2]+17.8/zoom];
+    if(directive.mode==='overview'&&currentSnapshot.round.remaining<=4)eye=[target[0]+4.7/zoom,6.8/zoom,target[2]+9.3/zoom];
     if(directive.mode === 'danger')eye=[target[0]+4.8/zoom,7.2/zoom,target[2]+8.5/zoom];
     if(directive.mode==='cut-line')eye=[target[0]+3.2/zoom,8.4/zoom,target[2]+10.5/zoom];
     if(directive.mode === 'finish'){
