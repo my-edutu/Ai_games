@@ -27,7 +27,7 @@ jobs:
         run: npm test
       - name: Check all 3D renderer modules syntax
         run: |
-          for file in games/ai-zombie-survival/web/{gauntlet3d,scene-art,actor-art,sky-pass,tactical-map,world-setpieces,camera-rig,world-overlays,environment-vfx,interior-art,shadow-pass,animation-pose,packed-geometry}.js; do
+          for file in games/ai-zombie-survival/web/{gauntlet3d,scene-art,actor-art,sky-pass,tactical-map,world-setpieces,camera-rig,world-overlays,environment-vfx,interior-art,shadow-pass,animation-pose,packed-geometry,gltf-assets,cc0-models}.js; do
             node --check "$file"
           done
       - name: Install test browser

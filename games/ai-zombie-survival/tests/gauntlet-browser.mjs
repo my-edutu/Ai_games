@@ -65,6 +65,16 @@ try{
   await page.waitForFunction(()=>document.querySelector('#fps')?.textContent?.includes('CPU P95'),{timeout:12000});
   await page.screenshot({path:root+'night-storm.png'});
   report.checks.weatherEvidence=true;
+  // CC0 GLB pipeline is network-optional and may fall back without disrupting the live game.
+  await page.goto('http://127.0.0.1:4177/web/3d.html?scenario=small-encounter&freeze=1&models=cc0&view=hero',{waitUntil:'load'});
+  await page.waitForFunction(()=>{
+    const d=JSON.parse(localStorage.getItem('zombie-gauntlet-live')||'{}');
+    return ['ready','fallback'].includes(d.cc0AssetState);
+  },{timeout:13000});
+  const cc0State=await page.evaluate(()=>JSON.parse(localStorage.getItem('zombie-gauntlet-live')||'{}').cc0AssetState);
+  await page.screenshot({path:root+'cc0-imported-characters.png'});
+  report.assetPipeline={cc0State,source:'Ariescar/gobkit-free-assets; CC0-1.0; pinned git commit'};
+  report.checks.glbImportFallback=true;
   await page.goto('http://127.0.0.1:4177/web/3d.html?scenario=day&freeze=1&lighting=shadows',{waitUntil:'load'});
   await page.waitForFunction(()=>document.querySelector('#fps')?.textContent?.includes('CPU P95'),{timeout:16000});
   const shadowGL=await page.locator('#scene').evaluate(el=>el.getContext('webgl2').getError());
