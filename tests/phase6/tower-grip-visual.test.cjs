@@ -58,3 +58,23 @@ test('contact pose changes only presentation arm joints, never the character roo
   assert.equal(JSON.stringify(hero.position),snapshot);
   assert.equal(applyContactPose(hero,null),false);
 });
+
+test('grip IK compensates for animated torso sway and bob before placing the hand',async()=>{
+  const {applyContactPose}=await loaded;
+  const rot=()=>({x:0,z:0});
+  const mk=()=>({shoulder:{rotation:rot()},elbow:{rotation:rot()},hand:{rotation:rot()}});
+  const right=mk();
+  const hero={userData:{jointRoot:{rotation:{z:.15},position:{y:.32}},arms:[mk(),right]}};
+  const x=15,y=17;
+  assert.equal(applyContactPose(hero,{side:1,localX:x,localY:y}),true);
+  const theta=right.shoulder.rotation.z,phi=theta+right.elbow.rotation.z;
+  // Elbow rest vector is (1.3,-9.1), wrist rest vector (0,-9).
+  const elbowX=8.2+Math.cos(theta)*1.3+Math.sin(theta)*9.1;
+  const elbowY=8.2+Math.sin(theta)*1.3-Math.cos(theta)*9.1;
+  const wristX=elbowX+9*Math.sin(phi);
+  const wristY=elbowY-9*Math.cos(phi);
+  const torso=hero.userData.jointRoot;
+  const worldX=Math.cos(torso.rotation.z)*wristX-Math.sin(torso.rotation.z)*wristY;
+  const worldY=Math.sin(torso.rotation.z)*wristX+Math.cos(torso.rotation.z)*wristY+torso.position.y;
+  assert.ok(Math.hypot(worldX-x,worldY-y)<1e-6,'animated wrist remains on the real selected ledge');
+});
