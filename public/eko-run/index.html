@@ -21,6 +21,7 @@ button,select,.button{font:inherit;border:1px solid #597680;background:#1f3a45;c
 @media(max-height:550px){.touch{display:none}.score{padding:6px}.district{font-size:23px}.brand small{display:none}#event{display:none}}
 @media(prefers-reduced-motion:reduce){#event.pop{animation:none}}
 </style>
+<link rel="stylesheet" href="/eko/theme.css">
 </head>
 <body>
 <div class="shell">
@@ -31,9 +32,14 @@ button,select,.button{font:inherit;border:1px solid #597680;background:#1f3a45;c
 <div class="brand"><div class="brand-mark">E!</div><div><small>THE CITY NEVER STOPS</small><h1>EKO RUN</h1></div></div>
 <div class="topright"><div class="pill" id="connection" role="status">● CONNECTING</div><div class="pill"><strong id="cycle">CYCLE 01</strong> · <span id="fps">— FPS</span></div></div>
 </header>
+<section class="hud-race" aria-label="Live district route progress">
+  <div class="hud-race__top"><span class="hud-race__eyebrow">DISTRICT COMPLETION</span><strong id="route-percent">0%</strong></div>
+  <div class="hud-race__track" role="progressbar" aria-label="Current district completion" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="route-progress"><div id="route-fill"></div></div>
+  <div class="hud-race__meta"><span id="next-checkpoint">NEXT CHECKPOINT: —</span><span id="threat">ROAD CLEAR</span></div>
+</section>
 <div class="middle" aria-live="polite"><div id="event"></div><div id="banner" hidden></div></div>
 <div class="bottombar">
-<div class="story"><div><div class="eyebrow" id="signal">AI PILOT CONNECTING</div><div class="district" id="district">MAINLAND MORNING</div><div id="detail">LOADING AUTHORITATIVE SIMULATION…</div></div><div class="scores" aria-label="Run scoreboard"><div class="score"><span>DISTANCE</span><strong id="distance">0000 M</strong></div><div class="score gold"><span>EKO TOKENS</span><strong id="tokens">00</strong></div><div class="score"><span>RUN STATUS</span><strong id="state">STARTING</strong></div></div></div>
+<div class="story"><div><div class="eyebrow"><span class="hud-live"><i aria-hidden="true"></i><span id="signal">AI PILOT CONNECTING</span></span></div><div class="district" id="district">MAINLAND MORNING</div><div id="detail">LOADING AUTHORITATIVE SIMULATION…</div></div><div class="scores" aria-label="Run scoreboard"><div class="score"><span>DISTANCE</span><strong id="distance">0000 M</strong></div><div class="score gold"><span>EKO TOKENS</span><strong id="tokens">00</strong></div><div class="score"><span>RUN STATUS</span><strong id="state">STARTING</strong></div></div></div>
 <div class="touch" aria-label="Touch controls"><button data-control="ArrowLeft" aria-label="Move left">◀</button><button data-control="ArrowRight" aria-label="Move right">▶</button><button data-control="Space" aria-label="Jump">JUMP</button><button data-control="ArrowDown" aria-label="Slide">SLIDE</button><button data-control="KeyV" aria-label="Vault">VAULT</button></div>
 <div class="toolbar">
 <button class="primary" id="mode" type="button">SWITCH TO PLAYER</button>
