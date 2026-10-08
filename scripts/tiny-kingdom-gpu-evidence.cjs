@@ -13,7 +13,14 @@ const path = require('node:path');
   let evidence={errors,webglVerified:false};
   try {
     await page.goto('file://'+path.resolve('public/tiny-kingdom/index.html'),{waitUntil:'load',timeout:30000});
-    await page.waitForFunction(()=>Boolean(window.__tinyKingdom),{timeout:20000});
+    try {
+      await page.waitForFunction(()=>Boolean(window.__tinyKingdom),{timeout:10000});
+    } catch (error) {
+      // The shader/program compilation exception previously hid behind a generic
+      // waitForFunction timeout. Preserve pageerrors to expose actual root cause.
+      await page.screenshot({path:path.join(out,'bootstrap-failure.png'),fullPage:true}).catch(()=>{});
+      throw Error('Browser bootstrap failed: '+errors.join(' | ')+'; '+String(error.message));
+    }
     await page.waitForTimeout(1400);
     evidence = await page.evaluate(() => {
       const canvases=[...document.querySelectorAll('canvas')];
