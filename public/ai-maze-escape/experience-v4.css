@@ -232,3 +232,34 @@ body[data-high-contrast="true"] #broadcast[data-ux-revision="3"] .metric-grid st
   color:#95ffd4;border-color:rgba(151,255,198,.7)
 }
 body[data-reduced-motion="true"] #broadcast[data-ux-revision="3"] * {scroll-behavior:auto}
+
+/* Optional spectator theater: intentional minimal chrome without hiding essential telemetry. */
+#broadcast[data-ux-revision="3"] #theater-toggle{
+  cursor:pointer;white-space:nowrap;font-size:9px;letter-spacing:.09em;font-weight:850;
+  padding:10px 12px;border-radius:9px;color:#b8faff;
+  border:1px solid rgba(120,232,248,.44);
+  background:linear-gradient(125deg,rgba(39,131,170,.20),rgba(52,89,152,.20));
+}
+#broadcast[data-ux-revision="3"] #theater-toggle[aria-pressed="true"]{
+  border-color:var(--ui-amber);color:#fff1cd;
+  background:rgba(219,145,53,.22)
+}
+#theater-toggle:focus-visible{outline:2px solid #b1fff1;outline-offset:2px}
+#broadcast[data-ux-revision="3"].theater-mode #hud{display:none}
+#broadcast[data-ux-revision="3"].theater-mode #captions{right:30px}
+#broadcast[data-ux-revision="3"].theater-mode #camera-switch{right:32px}
+#broadcast[data-ux-revision="3"].theater-mode #cinema-hunter{right:32px!important}
+#broadcast[data-ux-revision="3"].theater-mode #cinema-banner{max-width:min(58vw,650px)}
+#broadcast[data-ux-revision="3"].theater-mode #cinema-banner strong{font-size:clamp(40px,4.6vw,73px)}
+#broadcast[data-ux-revision="3"].clean-feed #theater-toggle{display:none}
+@media(max-width:1120px){#broadcast[data-ux-revision="3"] #theater-toggle{font-size:8px;padding:8px}}
+@media(max-width:900px) and (orientation:landscape){
+  #broadcast[data-ux-revision="3"] #theater-toggle{padding:6px 7px;font-size:7px}
+  #broadcast[data-ux-revision="3"].theater-mode #captions{left:161px;right:13px}
+  #broadcast[data-ux-revision="3"].theater-mode #camera-switch{right:14px}
+  #broadcast[data-ux-revision="3"].theater-mode #cinema-hunter{right:14px!important}
+  #broadcast[data-ux-revision="3"].theater-mode #cinema-banner strong{font-size:clamp(20px,3.5vw,33px)}
+}
+@media(max-width:640px) and (orientation:portrait){
+  #broadcast[data-ux-revision="3"] #theater-toggle{display:none}
+}
