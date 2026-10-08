@@ -15,6 +15,10 @@
       pick('verdict').textContent=progress.verdict;
       pick('health').textContent=state?.status==='healthy'?'SIMULATION RUNNING':'SIMULATION UNAVAILABLE';
       pick('tick').textContent=state&&Number.isInteger(state.tick)?'Tick '+state.tick:'Offline';
+      const frame=document.querySelector('iframe[title="New live 3D AI Battle Royale"]');
+      const renderer=frame?.contentWindow?.BattleArena3D?.status;
+      pick('renderer').textContent=renderer?.mode||'Loading';
+      pick('framecost').textContent=Number.isFinite(renderer?.p95SubmitMs)&&renderer.frames>0?renderer.p95SubmitMs+' ms':'Pending';
       list('history',progress.completed,item=>item);
       list('gaps',progress.gaps,item=>item);
       pick('updated').textContent='Updated: '+progress.updated;
