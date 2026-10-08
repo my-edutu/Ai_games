@@ -172,3 +172,6 @@ button:focus-visible,select:focus-visible,.button:focus-visible{outline:3px soli
  .score{padding:8px 11px}
 }
 @media(prefers-reduced-motion:reduce){#route-fill{transition:none}button,select,.button{transition:none;transform:none!important}}
+
+/* GAUNTLET VIEWABILITY: one-row live desktop controls keep more of the road visible. */
+@media (min-width:861px){.toolbar{flex-wrap:nowrap}.toolbar .hint{display:none}}
