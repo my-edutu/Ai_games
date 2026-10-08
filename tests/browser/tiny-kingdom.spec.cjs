@@ -522,3 +522,28 @@ test('Tiny Kingdom six-view mobile tour stays within viewport', async ({browser}
   expect(faults).toEqual([]);
   await page.close();
 });
+
+test('Tiny Kingdom material channels allocate exactly ten floats per vertex without changing authority', async ({page}) => {
+  const errors=[];
+  page.on('pageerror',e=>errors.push(e.message));
+  await page.setContent(html);
+  await page.waitForFunction(()=>Boolean(window.__tinyKingdom));
+  await page.locator('#pause').click();
+  const before=await page.evaluate(()=>JSON.stringify(window.__tinyKingdom.exportSnapshot()));
+  const a=await page.evaluate(()=>{
+    const g=window.__tinyKingdom;g.setCamera({focus:[29,10],zoom:29,pitch:.53,yaw:.6});
+    return {materials:g.getMaterialSystem(),scene:g.getScenicSites(),render:g.renderStats()};
+  });
+  await page.waitForTimeout(350);
+  const b=await page.evaluate(()=>({
+    auth:JSON.stringify(window.__tinyKingdom.exportSnapshot()),
+    render:window.__tinyKingdom.renderStats()
+  }));
+  expect(a.materials.surfaceShaderVersion).toBe('procedural-023');
+  expect(a.materials.vertexStride).toBe(10);
+  expect(a.materials.materials).toHaveLength(8);
+  expect(a.scene.count).toBe(2);
+  expect(b.render.lastFrameTriangles).toBeGreaterThan(10000);
+  expect(b.auth).toBe(before);
+  expect(errors).toEqual([]);
+});
