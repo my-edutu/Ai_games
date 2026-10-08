@@ -185,7 +185,7 @@ test('Visual VIII loads a single polished biome-responsive stylesheet without co
   await page.goto(base+'/tower',{waitUntil:'domcontentloaded'});
   await expect.poll(()=>page.evaluate(()=>document.body.dataset.towerTheme),{timeout:20000}).toMatch(/^(foundry|ruins|storm|clockwork|void)$/);
   const sheets=await page.locator('link[rel="stylesheet"]').evaluateAll(nodes=>nodes.map(node=>new URL(node.href).pathname));
-  expect(sheets.filter(x=>/visual-v\\d+\\.css/.test(x))).toEqual(['/tower/visual-v8.css']);
+  expect(sheets.filter(x=>/visual-v\d+\.css/.test(x))).toEqual(['/tower/visual-v8.css']);
   const colors=await page.evaluate(()=>({
     accent:getComputedStyle(document.body).getPropertyValue('--tower-accent').trim(),
     glass:getComputedStyle(document.querySelector('.vital-panel')).backgroundImage,
