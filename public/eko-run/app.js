@@ -521,13 +521,15 @@ function updateSnapshot(packet){
         'token.collected':'EKO TOKEN +1',
         'district.completed':'DISTRICT COMPLETE',
         'district.started':'NEXT DISTRICT',
-        'run.failed':'RUN ENDED',
+        'run.failed':packet.mode==='ai'?'AI RETRY':'RUN ENDED',
         'run.restarted':'BACK ON THE STREET'
       })[event.type];
       if(text){ui.event.textContent=text;ui.event.classList.remove('pop');void ui.event.offsetWidth;ui.event.classList.add('pop');}
     }
   }
-  ui.banner.hidden=s.lifecycle==='running';
+  // Autonomous livestreams should never interrupt the actual game with a giant
+  // failure card. Spectators already see live status and the lightweight event cue.
+  ui.banner.hidden=s.lifecycle==='running'||packet.mode==='ai';
   ui.banner.textContent=s.lifecycle==='failed'?'RUN OVER · RESTARTING':s.lifecycle==='intermission'?'DISTRICT CLEARED · NEXT UP':s.lifecycle==='running'?'':s.lifecycle.toUpperCase();
   ui.detail.textContent=packet.error?'Gameplay paused due to an integrity error.':'60Hz AUTHORITATIVE SIMULATION · LAGOS, NIGERIA';
 }
