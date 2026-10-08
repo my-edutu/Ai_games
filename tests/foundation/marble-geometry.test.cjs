@@ -4,7 +4,7 @@ const test=require('node:test');
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
-const {deckLayout}=require('../../games/marble-survival/public/complete-runtime/arena-geometry.js');
+const {deckLayout,solidLineSegments}=require('../../games/marble-survival/public/complete-runtime/arena-geometry.js');
 
 const arena=(hazards=[])=>({width:20000,height:14000,hazards});
 const pit=(x,y,width,height)=>({kind:'pit',x,y,width,height,id:'pit'});
@@ -76,4 +76,30 @@ test('presentation planner does not mutate authoritative arena or hazards',()=>{
 test('world dimensions must fail closed on invalid data',()=>{
   assert.throws(()=>deckLayout({width:0,height:100,hazards:[]}),RangeError);
   assert.throws(()=>deckLayout({width:Infinity,height:100,hazards:[]}),RangeError);
+});
+
+test('neon edge lights break around actual pit openings without building false bridges',()=>{
+  const state=arena([pit(500,4000,900,2200)]);
+  const strips=solidLineSegments(state,800,0,14000);
+  assert.deepEqual(strips,[{start:0,end:4000},{start:6200,end:14000}]);
+  assert.deepEqual(solidLineSegments(state,5000,0,14000),[{start:0,end:14000}]);
+});
+
+test('overlapping holes merge cleanly without zero-size or overlapping LED fragments',()=>{
+  const state=arena([pit(500,3000,900,2400),pit(700,4500,1000,2500)]);
+  assert.deepEqual(solidLineSegments(state,800,0,10000),[
+    {start:0,end:3000},
+    {start:7000,end:10000},
+  ]);
+  assert.deepEqual(solidLineSegments(state,800,3500,6500),[]);
+  assert.deepEqual(solidLineSegments(state,800,15000,16000),[]);
+});
+
+test('LED segment planning tolerates reversed ranges and rejects malformed positions',()=>{
+  const state=arena([pit(500,4000,900,2200)]);
+  assert.deepEqual(solidLineSegments(state,800,14000,0),solidLineSegments(state,800,0,14000));
+  assert.deepEqual(solidLineSegments(state,Number.NaN,0,14000),[]);
+  assert.deepEqual(solidLineSegments(state,-1,0,14000),[]);
+  assert.deepEqual(solidLineSegments(state,800,Infinity,14000),[]);
+  assert.deepEqual(solidLineSegments(state,800,10,10),[]);
 });
