@@ -59,7 +59,9 @@ try{
   await page.keyboard.press('s');
   assert.equal(await page.locator('#squadPanel').isVisible(),true);
   assert.equal(await page.locator('#squadCards .squad-person').count(),6);
-  await page.locator('#squadCards .squad-person').first().click();
+  assert.match(await page.locator('#squadCards .squad-person').first().textContent(),/HP|INFECTION/);
+  await page.screenshot({path:root+'survivor-dossiers.png'});
+  await page.locator('#squadCards .squad-person:not([disabled])').first().click();
   assert.equal(await page.locator('#squadPanel').isHidden(),true);
   report.checks.autonomousDossiers=true;
   await page.keyboard.press('h');

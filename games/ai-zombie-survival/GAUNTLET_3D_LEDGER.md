@@ -69,3 +69,13 @@ For each piece: builder patch -> fresh-code spec review -> browser capture -> ha
 4. Run GPU frame timing and 30–60 minute stress capture before escalating crowd population.
 
 Status as of 2026-10-08: iterations 01–03 implemented and pushed for validation; visually compared older iteration and rejected it for weak art direction. Latest browser pass not yet independently verified; no AAA or production-readiness claim.
+
+## Iterations 04–05 — implementation, awaiting browser verdict
+
+**Iteration 04:** directional day/night shader and mild material wear; simple projected contact shadows rather than raytraced shadows; 3D rain and roadway wetness driven by live weather; camera zoom adapted to director mode; authoritative event-driven muzzle tracers, impact fragments and rescues; CPU render p95/triangles and bounded adaptive render scale; session-scoped snapshots and version-checked recovery on refresh/device loss. A terminal defeat remains terminal after recovery instead of being silently undone.
+
+**Iteration 05:** all six survivors have a show/hide dossier accessible through the **S** key or Squad button. Dossiers consume authoritative state (name, role, current intent, health, infection and kills), and clicking a living survivor selects the hero-follow camera only. This does not modify any AI behavior or combat result.
+
+**Concrete previous visual finding:** First-batch browser screenshots were small, low-contrast, gray miniature city scenes; the large-horde sample reported approximately 22 FPS on the earlier CI software renderer. The later visual improvements are not proven by those older images.
+
+**Required next critic gate:** inspect new CI screenshots (day, night, storm, large horde, hero and squad) at 1280×720 and mobile; review gameplay camera readability, real simulation continuity and CPU p95. Raise any failing result as a new iteration. No blind A/B win or AAA quality claim can be inferred from adding assets/effects alone.
