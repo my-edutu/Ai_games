@@ -1,5 +1,6 @@
 import * as THREE from '/dungeon/vendor/three.module.js';
 import {enrichEnvironment} from '/dungeon/environment.js';
+import {enrichCharacter} from '/dungeon/characters.js';
 const $=id=>document.getElementById(id),canvas=$('world'),reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
 const renderer=new THREE.WebGLRenderer({canvas,antialias:true,powerPreference:'high-performance',alpha:false});
 renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.6));renderer.shadowMap.enabled=!reduced;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.38;
@@ -52,7 +53,8 @@ const dangerGlow=new THREE.MeshStandardMaterial({color:'#e67f50',emissive:'#bd4f
 const geo={cube:new THREE.BoxGeometry(1,1,1),sphere:new THREE.SphereGeometry(1,12,8),cylinder:new THREE.CylinderGeometry(1,1,1,10),cone:new THREE.ConeGeometry(1,1,10)};
 const make=(geometry,material,parent,x=0,y=0,z=0,sx=1,sy=1,sz=1)=>{const o=new THREE.Mesh(geometry,material);o.position.set(x,y,z);o.scale.set(sx,sy,sz);o.castShadow=!reduced;o.receiveShadow=true;parent.add(o);return o};
 function column(parent,x,z){make(geo.cylinder,stoneEdge,parent,x,.95,z,.26,1.95,.26);make(geo.cylinder,gold,parent,x,1.93,z,.4,.12,.4);make(geo.cylinder,stoneEdge,parent,x,.12,z,.37,.24,.37)}
-function clearWorld(){world.userData.dressing?.dispose();world.userData.dressing=null;while(world.children.length){const obj=world.children[0];world.remove(obj);obj.traverse(o=>{if(o.geometry&&!Object.values(geo).includes(o.geometry))o.geometry.dispose();if(o.material&&!Object.values({stone,stoneEdge,floorMat,gold,black,tealGlow,dangerGlow}).includes(o.material)){const mats=Array.isArray(o.material)?o.material:[o.material];for(const m of mats)m.dispose()}})}for(const a of actors.values())scene.remove(a.root);actors.clear()}
+function disposeActor(a){a.detail?.dispose();a.root.traverse(o=>{if(o.geometry&&!Object.values(geo).includes(o.geometry))o.geometry.dispose()});scene.remove(a.root)}
+function clearWorld(){world.userData.dressing?.dispose();world.userData.dressing=null;while(world.children.length){const obj=world.children[0];world.remove(obj);obj.traverse(o=>{if(o.geometry&&!Object.values(geo).includes(o.geometry))o.geometry.dispose();if(o.material&&!Object.values({stone,stoneEdge,floorMat,gold,black,tealGlow,dangerGlow}).includes(o.material)){const mats=Array.isArray(o.material)?o.material:[o.material];for(const m of mats)m.dispose()}})}for(const a of actors.values())disposeActor(a);actors.clear()}
 function buildWorld(s){clearWorld();worldFloor=s.run+'-'+s.floor;lastCutawayKey='';
  const theme=floorThemes[(s.floor-1)%floorThemes.length];scene.background=new THREE.Color(theme.sky);scene.fog.color.set(theme.fog);moon.color.set(theme.fill);ambient.intensity=1.7;
  const floors=[],walls=[],trim=[];const size=s.map.length,offset=Math.floor(size/2);
@@ -165,7 +167,8 @@ function rig(u){const colors=palette[u.kind],main=mat(colors[0],.5,.4),light=mat
  const base=new THREE.Mesh(new THREE.CircleGeometry(.38,20),new THREE.MeshBasicMaterial({color:enemy?'#c04a53':'#43b3a7',transparent:true,opacity:.12,side:THREE.DoubleSide,depthWrite:false}));base.rotation.x=-Math.PI/2;base.position.y=.018;root.add(base);
  let telegraph=null;
  if(boss){telegraph=new THREE.Mesh(new THREE.RingGeometry(1.85,2.03,56),new THREE.MeshBasicMaterial({color:'#ff7049',transparent:true,opacity:.65,side:THREE.DoubleSide,depthWrite:false}));telegraph.rotation.x=-Math.PI/2;telegraph.position.y=.025;telegraph.visible=false;root.add(telegraph);}
- scene.add(root);return {root,body,leftLeg,rightLeg,leftArm,rightArm,telegraph,u,at:new THREE.Vector3(u.x-9,0,u.z-9)};
+ const detail=enrichCharacter(u,{root,body,leftLeg,rightLeg,leftArm,rightArm});
+ scene.add(root);return {root,body,leftLeg,rightLeg,leftArm,rightArm,detail,telegraph,u,at:new THREE.Vector3(u.x-9,0,u.z-9)};
 }
 const timeNow=()=>performance.now()/1000;
 // Broadcast command centre: projections never mutate simulation state.
@@ -241,7 +244,7 @@ function update(s){state=s;received=true;errorAt=0;$('recovery').hidden=true;
  for(const e of s.events){const id=s.run+':'+e.tick+':'+e.kind+':'+e.text;if(!seenEventIds.has(id)){seenEventIds.add(id);if(seenEventIds.size>150)seenEventIds.delete(seenEventIds.values().next().value);cue(e,s);notifyDungeon(e);playEffect(e.kind)}}
  if(worldFloor!==s.run+'-'+s.floor)buildWorld(s);
  const seen=new Set(s.units.map(u=>u.id));
- for(const [id,a] of actors)if(!seen.has(id)){scene.remove(a.root);a.root.traverse(o=>{if(o.geometry&&!Object.values(geo).includes(o.geometry))o.geometry.dispose();if(o.material){const list=Array.isArray(o.material)?o.material:[o.material];for(const m of list)if(![stone,stoneEdge,floorMat,gold,black,tealGlow,dangerGlow].includes(m))m.dispose()}});actors.delete(id)}
+ for(const [id,a] of actors)if(!seen.has(id)){disposeActor(a);actors.delete(id)}
  for(const u of s.units){let a=actors.get(u.id);if(!a){a=rig(u);actors.set(u.id,a);a.root.position.set(u.x-9,0,u.z-9)}
   if(a.u.actionTick!==u.actionTick||a.u.action!==u.action){a.actionStarted=timeNow();}a.u=u;a.at.set(u.x-9,0,u.z-9);a.root.visible=u.hp>0;if(a.telegraph)a.telegraph.visible=u.hp>0&&[4,5].includes(s.tick%6);}
  renderDashboard(s);
@@ -261,12 +264,13 @@ function animate(t){requestAnimationFrame(animate);const time=t/1000,dt=Math.min
   else if(a.u.action==='hurt'&&since<.30){a.body.rotation.z=.16*Math.sin(phase*Math.PI*2);a.body.position.y+=.10*Math.sin(phase*Math.PI)}
   else a.body.rotation.z*=.65;
   if(a.telegraph)a.telegraph.material.opacity=.42+.2*Math.sin(time*9);
+  a.detail?.update(time,a.u.action||'idle');
   if(moving){const delta=a.at.clone().sub(a.root.position);a.root.rotation.y=Math.atan2(-delta.x,-delta.z)}}
  if(world.userData.portal&&!reduced)world.userData.portal.rotation.y=time*.26;
  if(world.userData.dressing&&!reduced)world.userData.dressing.animate(time);
  cutawayWalls(target);
  const look=new THREE.Vector3(target.x,0,target.z),cam=new THREE.Vector3(target.x+10,16,target.z+12);camera.position.lerp(cam,reduced?1:.055);camera.lookAt(look.x,0,look.z);
- renderer.render(scene,camera);if(state)window.__DUNGEON_RENDER_DIAGNOSTICS__={frame:renderer.info.render.frame,drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,activeUnits:[...actors.values()].filter(x=>x.root.visible).length,webgl:true,theme:state.theme,dressing:world.userData.dressing?.metrics??null};
+ renderer.render(scene,camera);if(state)window.__DUNGEON_RENDER_DIAGNOSTICS__={frame:renderer.info.render.frame,drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,activeUnits:[...actors.values()].filter(x=>x.root.visible).length,characterDetails:[...actors.values()].reduce((sum,x)=>sum+(x.detail?.parts||0),0),webgl:true,theme:state.theme,dressing:world.userData.dressing?.metrics??null};
 }
 async function poll(){try{const r=await fetch('/dungeon/state',{cache:'no-store'});if(!r.ok)throw Error('State '+r.status);const data=await r.json();if(data.tick!==lastTick||data.run!==state?.run){lastTick=data.tick;update(data)}}catch(e){errorAt++;if(errorAt>=3){$('recovery').hidden=false;$('status').textContent='VIEW DEGRADED — RETRYING';console.warn('Dungeon view recovery',String(e))}}finally{setTimeout(poll,190)}}
 document.body.dataset.reducedMotion=String(reduced);requestAnimationFrame(animate);poll();

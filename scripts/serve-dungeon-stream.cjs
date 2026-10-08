@@ -17,7 +17,7 @@ function file(res,filepath,contentType){if(!fs.existsSync(filepath)){res.writeHe
 function serve(port=Number(process.env.PORT||4181)){
  if(!Number.isInteger(port)||port<1||port>65535)throw new Error('Invalid port');
  const host=createHost();const interval=setInterval(()=>{if(!host.fault)host.tick()},350);
- const paths=new Map([['/dungeon','index.html'],['/dungeon/','index.html'],['/dungeon/index.html','index.html'],['/dungeon/app.js','app.js'],['/dungeon/environment.js','environment.js'],['/dungeon/styles.css','styles.css'],['/dungeon/gauntlet','gauntlet.html'],['/dungeon/gauntlet.html','gauntlet.html'],['/dungeon/gauntlet.js','gauntlet.js']]);
+ const paths=new Map([['/dungeon','index.html'],['/dungeon/','index.html'],['/dungeon/index.html','index.html'],['/dungeon/app.js','app.js'],['/dungeon/environment.js','environment.js'],['/dungeon/characters.js','characters.js'],['/dungeon/styles.css','styles.css'],['/dungeon/gauntlet','gauntlet.html'],['/dungeon/gauntlet.html','gauntlet.html'],['/dungeon/gauntlet.js','gauntlet.js']]);
  const server=http.createServer((req,res)=>{try{
   const url=new URL(req.url||'/','http://localhost');
   if(req.method!=='GET'){res.writeHead(405);res.end('Method not allowed');return}
