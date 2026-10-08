@@ -3,11 +3,11 @@
 // Shares original 3D visual assets but NOT the existing 2D simulation authority.
 (async()=>{
   const canvas=document.getElementById('volumetric-canvas'),status=document.getElementById('status');
-  let THREE,createClimber,createTowerEnvironment,createTowerEntities,createTowerVfx,createVolumetricCore,loadClimberAsset,createTowerDirector;
+  let THREE,createClimber,createTowerEnvironment,createTowerEntities,createTowerVfx,createVolumetricCore,loadClimberAsset,createTowerDirector,createTowerSky;
   try{
-    [THREE,{createClimber},{createTowerEnvironment},{createTowerEntities},{createTowerVfx},{createVolumetricCore},{loadClimberAsset},{createTowerDirector}]=await Promise.all([
+    [THREE,{createClimber},{createTowerEnvironment},{createTowerEntities},{createTowerVfx},{createVolumetricCore},{loadClimberAsset},{createTowerDirector},{createTowerSky}]=await Promise.all([
       import('/tower/vendor/three.module.js'),import('/tower/character3d.js'),import('/tower/environment3d.js'),
-      import('/tower/entities3d.js'),import('/tower/vfx3d.js'),import('/tower/volumetric-core.js'),import('/tower/asset3d.js'),import('/tower/director3d.js')
+      import('/tower/entities3d.js'),import('/tower/vfx3d.js'),import('/tower/volumetric-core.js'),import('/tower/asset3d.js'),import('/tower/director3d.js'),import('/tower/sky3d.js')
     ]);
   }catch(error){status.textContent='3D MODULE LOAD FAILED';console.error(error);return;}
   let renderer;
@@ -18,6 +18,7 @@
   const scene=new THREE.Scene();scene.fog=new THREE.FogExp2(0x1c2131,.008);
   const camera=new THREE.PerspectiveCamera(57,1,.1,700);
   const director=createTowerDirector(THREE,camera);
+  const sky=createTowerSky(THREE,scene);
   const hemi=new THREE.HemisphereLight(0xb4d5ff,0x1a2333,2.7);scene.add(hemi);
   const sun=new THREE.DirectionalLight(0xffd9a3,2.6);sun.position.set(-30,70,40);scene.add(sun);
   const environment=createTowerEnvironment(THREE,scene);environment.root.scale.set(1.25,1.25,.8);
@@ -80,7 +81,7 @@
     for(const [id,mesh] of models){if(!live.has(id)){world.remove(mesh);art.release(mesh);models.delete(id);}}
     for(const [id,mesh] of guardians){if(!live.has(id)){enemyScene.remove(mesh);art.release(mesh);guardians.delete(id);}}
     for(const [id,mesh] of rewards){if(!live.has(id)){rewardScene.remove(mesh);art.release(mesh);rewards.delete(id);}}
-    if(snapshot.theme!==biome){biome=snapshot.theme;environment.setTheme(biome);}
+    if(snapshot.theme!==biome){biome=snapshot.theme;environment.setTheme(biome);sky.setTheme(biome);}
   }
   function fixedStep(dt){
     const snapshot=sim.step(dt,manual?controls:undefined);simTime+=dt;
@@ -116,6 +117,7 @@
       for(const [index,guardian] of guardians){guardian.rotation.y=Math.sin(simTime*.55+index)*.08;}}
     environment.root.position.y=player.y*.95;
     const directorFrame=director.update(dt,sim.snapshot(),{reducedMotion:reduced});
+    sky.update(simTime,camera,{climberY:player.y,reducedMotion:reduced});
     details.cameraMode=directorFrame.mode;
     sun.position.set(player.x-30,player.y+65,player.z+34);
     vfx.update(dt,{x:player.x,y:player.y,z:player.z,dx:player.vx,dy:player.vy},biome,0,reduced);
