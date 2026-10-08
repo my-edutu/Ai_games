@@ -12,12 +12,12 @@
   let renderer;
   try { renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false }); }
   catch (error) { console.warn('WebGL unavailable', error); canvas.remove(); return; }
-  const [{createClimber},{createTowerEnvironment}]=await Promise.all([import('/tower/character3d.js'),import('/tower/environment3d.js')]);
+  const [{createClimber},{createTowerEnvironment},{createTowerEntities}]=await Promise.all([import('/tower/character3d.js'),import('/tower/environment3d.js'),import('/tower/entities3d.js')]);
   const scene = new THREE.Scene();
   scene.background = new THREE.Color('#10172a');
   scene.fog = new THREE.FogExp2('#10172a', 0.013);
-  const camera = new THREE.PerspectiveCamera(48, 1, 0.1, 500);
-  camera.position.set(0, 10, 29);
+  const camera = new THREE.PerspectiveCamera(52, 1, 0.1, 850);
+  camera.position.set(0, 45, 125);
   const hemi = new THREE.HemisphereLight(0x91c9ff, 0x1a1325, 2.2);
   scene.add(hemi);
   renderer.outputColorSpace=THREE.SRGBColorSpace;
@@ -27,32 +27,18 @@
   key.position.set(-10, 18, 15); scene.add(key);
   const rim = new THREE.PointLight(0x59dfff, 55, 28);
   rim.position.set(8, 8, -3); scene.add(rim);
-  const floorMat = new THREE.MeshStandardMaterial({ color: 0x536581, metalness: 0.45, roughness: 0.55 });
-  const hazardMat = new THREE.MeshStandardMaterial({ color: 0xf24163, emissive: 0x9b122a, emissiveIntensity: 1.1 });
-  const enemyMat = new THREE.MeshStandardMaterial({ color: 0x9859e6, metalness: 0.4, roughness: 0.32 });
-  const playerMat = new THREE.MeshStandardMaterial({ color: 0x52dafa, metalness: 0.55, roughness: 0.25 });
-  const accentMat = new THREE.MeshStandardMaterial({ color: 0xffd68a, emissive: 0x8b4c0a, emissiveIntensity: 0.4 });
   const architecture=createTowerEnvironment(THREE,scene);
+  architecture.root.scale.set(3,3,1);
+  const entities=createTowerEntities(THREE);
   const actors = new THREE.Group(); scene.add(actors);
   const clock = new THREE.Clock();
   const climber=createClimber(THREE); scene.add(climber.root);
   let lastClimberPosition = null;
-  const decoration = new THREE.Group(); scene.add(decoration);
-  const effects = new THREE.Group(); scene.add(effects);
+  const groundLight=new THREE.PointLight(0xffaa55,30,130,1.8);scene.add(groundLight);
   const themeColors = {foundry:0xffaa55,ice:0x70d8ff,verdant:0x6ae5a4,void:0xaa72ff,storm:0x92c5ff};
   let themeKey = '', frameCount = 0, lastRenderWidth = 0, lastRenderHeight = 0;
   const metrics = {frames:0,frameMs:0,actors:0,renderer:'webgl',status:'starting'};
   window.__TOWER_3D_METRICS__ = metrics;
-  const wallMat = new THREE.MeshStandardMaterial({color:0x28364d,metalness:0.2,roughness:0.86});
-  const trimMat = new THREE.MeshStandardMaterial({color:0x7b99ae,metalness:0.72,roughness:0.32});
-  const box = new THREE.BoxGeometry(1, 1, 1);
-  const sphere = new THREE.SphereGeometry(1, 16, 12);
-  const pickupGeometry = new THREE.OctahedronGeometry(0.28);
-  const inactiveHazardMat = new THREE.MeshStandardMaterial({color:0x542c40,roughness:0.9});
-  function mesh(geometry, material, parent, x, y, z, sx, sy, sz) {
-    const m = new THREE.Mesh(geometry, material);
-    m.position.set(x, y, z); m.scale.set(sx, sy, sz); parent.add(m); return m;
-  }
   let previousChecksum = '', lastState = null;
   const size = () => {
     const w = Math.max(1, canvas.clientWidth), h = Math.max(1, canvas.clientHeight);
@@ -63,32 +49,35 @@
   };
   function rebuild(s) {
     while (actors.children.length) actors.remove(actors.children[0]);
-    while (effects.children.length) effects.remove(effects.children[0]);
     const theme = String(s.theme || 'foundry').toLowerCase();
-    if (theme !== themeKey) { themeKey=theme; const color=themeColors[theme]||0xffaa55; rim.color.setHex(color); accentMat.color.setHex(color); architecture.setTheme(theme); }
-    const groundLight = new THREE.PointLight(themeColors[theme]||0xffaa55, 15, 13); groundLight.position.set(0, Number(s.player?.y||0)/1000-Number(s.chunkBaseY||0)/1000+2, 3); effects.add(groundLight);
+    if (theme !== themeKey) { themeKey=theme; const color=themeColors[theme]||0xffaa55; rim.color.setHex(color); groundLight.color.setHex(color); architecture.setTheme(theme); }
+    groundLight.position.set(Number(s.player?.x||0)/1000-Number(s.worldWidth||0)/2000,Number(s.player?.y||0)/1000-Number(s.chunkBaseY||0)/1000+12,9);
     const base = Number(s.chunkBaseY || 0) / 1000;
     const y = value => Number(value || 0) / 1000 - base;
     const x = value => Number(value || 0) / 1000 - Number(s.worldWidth || 0) / 2000;
-    for (const p of s.platforms || []) {
-      const m = mesh(box, floorMat, actors, x(p.x) + p.width / 2000, y(p.y) + p.height / 2000, 0, Math.max(0.1, p.width / 1000), Math.max(0.14, p.height / 1000), 4);
-      m.castShadow = false;
-      mesh(box, accentMat, actors, m.position.x, m.position.y + m.scale.y / 2 + 0.06, 0, m.scale.x, 0.1, 4.1);
+    for(const p of s.platforms||[]) {
+      const width=p.width/1000,height=p.height/1000;
+      actors.add(entities.platform(p,x(p.x)+width/2,y(p.y)+height/2,width,height));
     }
-    for (const h of s.hazards || []) { const hazard=mesh(box, hazardMat, actors, x(h.x) + h.width / 2000, y(h.y) + h.height / 2000, 0.2, Math.max(0.1, h.width / 1000), Math.max(0.1, h.height / 1000), 3.4); hazard.userData.hazardActive=h.active!==false; if (!hazard.userData.hazardActive) hazard.material=inactiveHazardMat; }
-    for (const e of s.enemies || []) if (e.active) {
-      const m = mesh(sphere, enemyMat, actors, x(e.x), y(e.y), 0.5, Math.max(0.35, e.halfWidth / 1000), Math.max(0.35, e.halfHeight / 1000), 0.65);
-      mesh(sphere, hazardMat, m, 0, 0.2, 0.85, 0.28, 0.18, 0.15);
+    for(const h of s.hazards||[]) {
+      const width=h.width/1000,height=h.height/1000;
+      actors.add(entities.hazard(h,x(h.x)+width/2,y(h.y)+height/2,width,height));
     }
-    for (const p of s.pickups || []) { const pickup=mesh(pickupGeometry, accentMat, actors, x(p.x), y(p.y), 0.5, 1, 1, 1); pickup.userData.pickup=true; }
+    for(const e of s.enemies||[]) if(e.active)
+      actors.add(entities.enemy(e,x(e.x),y(e.y),e.halfWidth/1000,e.halfHeight/1000));
+    for(const p of s.pickups||[]) actors.add(entities.pickup(p,x(p.x),y(p.y)));
+    for(const p of s.projectiles||[]) actors.add(entities.projectile(p,x(p.x),y(p.y)));
     const p = s.player;
     if (p) {
       const px = x(p.x), py = y(p.y);
-      climber.root.position.set(px,py,0.5);
+      const playerScale=Math.max(1,Math.min(13,(p.halfHeight/1000*2)/3.15));
+      climber.root.scale.setScalar(playerScale);
+      climber.root.position.set(px,py,2);
       if (lastClimberPosition) climber.setMotion(px-lastClimberPosition.x,py-lastClimberPosition.y,s.intent?.summary||'');
       lastClimberPosition={x:px,y:py};
     }
-    if (!lastState) camera.position.y = y(s.player?.y) + 5.2;
+    if (!lastState) {camera.position.x=x(s.player?.x);camera.position.y=y(s.player?.y)+35;}
+    architecture.root.position.x=x(s.player?.x);
     metrics.actors=actors.children.length; metrics.status='live';
     metrics.platforms=(s.platforms||[]).length; metrics.enemies=(s.enemies||[]).filter(e=>e.active).length;
     metrics.hazards=(s.hazards||[]).length; metrics.pickups=(s.pickups||[]).length;
@@ -107,9 +96,12 @@
     climber.animate(elapsed,document.body.dataset.reducedMotion==='true');
     architecture.animate(elapsed,document.body.dataset.reducedMotion==='true');
     if (lastState) {
-      const target = Number(lastState.player?.y || 0) / 1000 - Number(lastState.chunkBaseY || 0) / 1000 + 5.2;
-      camera.position.y += (target - camera.position.y) * 0.05;
-      camera.lookAt(0,camera.position.y-2.5,0);
+      const playerX=Number(lastState.player?.x||0)/1000-Number(lastState.worldWidth||0)/2000;
+      const playerY=Number(lastState.player?.y||0)/1000-Number(lastState.chunkBaseY||0)/1000;
+      camera.position.x+=(playerX+14-camera.position.x)*0.07;
+      camera.position.y+=(playerY+36-camera.position.y)*0.07;
+      camera.lookAt(playerX,playerY+17,0);
+      architecture.root.position.x=playerX;
     }
     if (++frameCount % 2 === 0 && !document.body.dataset.reducedMotion?.includes('true')) { const elapsed=clock.getElapsedTime(); for (const object of actors.children) if (object.userData.pickup) { object.rotation.y=elapsed*1.5; object.position.y+=Math.sin(elapsed*2+object.position.x)*0.001; } }
     renderer.render(scene, camera);
