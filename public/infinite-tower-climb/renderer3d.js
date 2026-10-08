@@ -15,14 +15,14 @@
   const [{createClimber},{createTowerEnvironment},{createTowerEntities},{loadClimberAsset},{createTowerVfx},{createTowerSky}]=await Promise.all([import('/tower/character3d.js'),import('/tower/environment3d.js'),import('/tower/entities3d.js'),import('/tower/asset3d.js'),import('/tower/vfx3d.js'),import('/tower/sky3d.js')]);
   const scene = new THREE.Scene();
   scene.background = new THREE.Color('#10172a');
-  scene.fog = new THREE.FogExp2('#10172a', 0.013);
+  scene.fog = new THREE.FogExp2('#10172a', 0.004);
   const camera = new THREE.PerspectiveCamera(52, 1, 0.1, 850);
-  camera.position.set(0, 45, 125);
+  camera.position.set(0, 12, 48);
   const hemi = new THREE.HemisphereLight(0x91c9ff, 0x1a1325, 2.2);
   scene.add(hemi);
   renderer.outputColorSpace=THREE.SRGBColorSpace;
   renderer.toneMapping=THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure=1.15;
+  renderer.toneMappingExposure=1.45;
   renderer.shadowMap.enabled=true;
   renderer.shadowMap.type=THREE.PCFSoftShadowMap;
   const key = new THREE.DirectionalLight(0xffd7a2, 3);
@@ -32,8 +32,8 @@
   key.shadow.camera.top=125;key.shadow.camera.bottom=-125;
   key.shadow.camera.near=1;key.shadow.camera.far=400;
   key.shadow.bias=-0.0003;
-  const rim = new THREE.PointLight(0x59dfff, 55, 28);
-  rim.position.set(8, 8, -3); scene.add(rim);
+  const rim = new THREE.PointLight(0x59dfff, 220, 75);
+  rim.position.set(8, 8, 12); scene.add(rim);
   const architecture=createTowerEnvironment(THREE,scene);
   const sky=createTowerSky(THREE,scene);
   architecture.root.scale.set(3,3,1);
@@ -46,7 +46,7 @@
   const vfx=createTowerVfx(THREE,scene);
   let importedClimber=null,previousFrameTime=performance.now();
   let lastClimberPosition = null;
-  const groundLight=new THREE.PointLight(0xffaa55,30,130,1.8);scene.add(groundLight);
+  const groundLight=new THREE.PointLight(0xffaa55,140,110,1.8);scene.add(groundLight);
   const themeColors = {foundry:0xffaa55,ruins:0xa9d5a1,clockwork:0xffc879,void:0xaa72ff,storm:0x92c5ff};
   let themeKey = '', frameCount = 0, lastRenderWidth = 0, lastRenderHeight = 0;
   const metrics = {frames:0,frameMs:0,actors:0,renderer:'webgl',status:'starting'};
@@ -73,7 +73,7 @@
     const theme = String(s.theme || 'foundry').toLowerCase();
     if (theme !== themeKey) { themeKey=theme; const color=themeColors[theme]||0xffaa55; rim.color.setHex(color); groundLight.color.setHex(color); architecture.setTheme(theme);sky.setTheme(theme); }
     groundLight.position.set(Number(s.player?.x||0)/1000-Number(s.worldWidth||0)/2000,Number(s.player?.y||0)/1000-Number(s.chunkBaseY||0)/1000+12,9);
-    rim.position.set(xCoord(s.player?.x,s.worldWidth)+18,Number(s.player?.y||0)/1000-Number(s.chunkBaseY||0)/1000+28,11);
+    rim.position.set(xCoord(s.player?.x,s.worldWidth)+18,Number(s.player?.y||0)/1000-Number(s.chunkBaseY||0)/1000+10,12);
     const base = Number(s.chunkBaseY || 0) / 1000;
     const y = value => Number(value || 0) / 1000 - base;
     const x = value => Number(value || 0) / 1000 - Number(s.worldWidth || 0) / 2000;
@@ -121,7 +121,7 @@
       if (lastClimberPosition) climber.setMotion(px-lastClimberPosition.x,py-lastClimberPosition.y,s.intent?.summary||'');
       lastClimberPosition={x:px,y:py};
     }
-    if (!lastState) {camera.position.x=x(s.player?.x);camera.position.y=y(s.player?.y)+35;}
+    if (!lastState) {camera.position.x=x(s.player?.x)+7;camera.position.y=y(s.player?.y)+8;}
     architecture.root.position.x=x(s.player?.x);
     key.position.set(x(s.player?.x)-35,y(s.player?.y)+80,85);
     key.target.position.set(x(s.player?.x),y(s.player?.y),0);
@@ -161,11 +161,11 @@
     if (lastState) {
       const playerX=Number(lastState.player?.x||0)/1000-Number(lastState.worldWidth||0)/2000;
       const playerY=Number(lastState.player?.y||0)/1000-Number(lastState.chunkBaseY||0)/1000;
-      camera.position.x+=(playerX+14-camera.position.x)*0.07;
-      camera.position.y+=(playerY+36-camera.position.y)*0.07;
-      camera.lookAt(playerX,playerY+17,0);
-      const targetDepth=scenePhase==='guardian'?158:scenePhase==='danger'?110:scenePhase==='result'?190:125;
-      camera.position.z+=(targetDepth-camera.position.z)*.025;
+      camera.position.x+=(playerX+6-camera.position.x)*0.12;
+      camera.position.y+=(playerY+9-camera.position.y)*0.12;
+      camera.lookAt(playerX,playerY+2.2,0);
+      const targetDepth=scenePhase==='guardian'?43:scenePhase==='danger'?34:scenePhase==='result'?62:40;
+      camera.position.z+=(targetDepth-camera.position.z)*.1;
       architecture.root.position.x=playerX;
     }
     if (++frameCount % 2 === 0 && !document.body.dataset.reducedMotion?.includes('true')) { const elapsed=clock.getElapsedTime(); for (const object of actors.children) if (object.userData.pickup) { object.rotation.y=elapsed*1.5; object.position.y+=Math.sin(elapsed*2+object.position.x)*0.001; } }
@@ -180,6 +180,7 @@
     metrics.reusedEntities=liveEntities.size;
     metrics.vfxParticles=vfx.count;
     metrics.scene=scenePhase;metrics.cameraDepth=Math.round(camera.position.z);
+    metrics.cameraTargetY=lastState?Math.round(Number(lastState.player?.y||0)/1000-Number(lastState.chunkBaseY||0)/1000):0;
     if(diagnostics&&metrics.frames%12===0)diagnostics.textContent=[
       '3D GAUNTLET / '+metrics.status,
       'SCENE '+String(scenePhase).toUpperCase(),
