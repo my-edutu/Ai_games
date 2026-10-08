@@ -25,8 +25,10 @@ function makeSnapshot(stage,champion=false){
       ramps:[{id:'ramp',x:8000,y:7000,width:5000,height:2100,axis:'y',startElevation:1600,endElevation:0}],
     },
     marbles:[
-      {id:0,number:1,name:'Astra',x:10000,y:9000,elevation:0,velocityX:150,velocityY:-80,progressPermille:480,palette:'cyan',pattern:'ring',status:champion?'champion':'racing'},
-      {id:1,number:2,name:'Sol',x:11000,y:7000,elevation:700,velocityX:120,velocityY:20,progressPermille:550,palette:'gold',pattern:'split',status:'near-finish'},
+      {id:0,number:1,name:'Astra',archetype:'navigator',x:10000,y:9000,elevation:0,velocityX:150,velocityY:-80,progressPermille:480,palette:'cyan',pattern:'ring',status:champion?'champion':'racing'},
+      {id:1,number:2,name:'Sol',archetype:'sprinter',x:11000,y:7000,elevation:700,velocityX:120,velocityY:20,progressPermille:550,palette:'gold',pattern:'split',status:'near-finish'},
+      {id:2,number:3,name:'Titan',archetype:'bruiser',x:14000,y:10000,elevation:0,velocityX:60,velocityY:-60,progressPermille:320,palette:'ruby',pattern:'chevron',status:'racing'},
+      {id:3,number:4,name:'Verdant',archetype:'survivor',x:11500,y:8000,elevation:-230,velocityX:0,velocityY:0,progressPermille:420,palette:'mint',pattern:'dots',status:'threatened'},
     ],
     camera:{directive:{mode:champion?'victory':'overview',zoomPermille:1000,focusIds:[0]},championId:champion?0:null},
     events:[],
@@ -121,4 +123,13 @@ test('championship 3D scene can render legitimate trophy without a client-picked
   assert.ok(counters.drawElements>50);
   assert.equal(frame?.snapshot?.camera?.championId,0);
   assert.equal(frame?.snapshot?.lifecycle,'tournament-result');
+});
+
+test('all four character archetypes render physically distinct attachments and a falling contestant casts no false deck shadow',async()=>{
+  const result=await simulateStage('hazard-circuit','high');
+  assert.equal(result.shell.dataset.renderer,'webgl2');
+  assert.ok(result.counters.drawElements>140,'real distinct character geometry and falling hazard visuals must increase the mesh budget');
+  assert.equal(result.frame.marbles.length,4);
+  assert.deepEqual(result.frame.marbles.map(m=>m.archetype),['navigator','sprinter','bruiser','survivor']);
+  assert.ok(result.frame.marbles.some(m=>m.elevation<0));
 });
