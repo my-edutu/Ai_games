@@ -122,6 +122,7 @@ const FILES = new Map([
   ['/eko/', ['public/eko-run/index.html', 'text/html; charset=utf-8']],
   ['/eko/app.js', ['public/eko-run/app.js', 'text/javascript; charset=utf-8']],
   ['/eko/character-craft.js', ['public/eko-run/character-craft.js', 'text/javascript; charset=utf-8']],
+  ['/eko/static-batch.js', ['public/eko-run/static-batch.js', 'text/javascript; charset=utf-8']],
   ['/eko/progress', ['public/eko-run/progress.html', 'text/html; charset=utf-8']],
   ['/eko/progress.js', ['public/eko-run/progress.js', 'text/javascript; charset=utf-8']],
   ['/eko/gauntlet.json', ['public/eko-run/gauntlet.json', 'application/json; charset=utf-8']],
