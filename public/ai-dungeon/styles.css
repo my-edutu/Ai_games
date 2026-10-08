@@ -106,3 +106,13 @@ body[data-biome="ember"] .icon-button{color:#ffe0b0}
 @media(prefers-reduced-motion:reduce){.squad-panel .hero-card{transition:none}}
 
 .director-toggle{color:#fff1c2;border-color:#e8c7799a;background:linear-gradient(110deg,#5b3f5f,#32305a)}.director-toggle[aria-pressed=true]{box-shadow:0 0 18px #ffd17834,inset 0 0 10px #ffe2aa17}.director-toggle[aria-pressed=false]{color:#abb0d3;border-color:#6f789b66;background:#242a4a}@media(max-width:1160px){.director-toggle span{display:none}}@media(max-width:680px){.director-toggle{padding:9px 7px;min-height:33px}}
+
+/* Tactical feedback is legible at live-stream scale, even when hero models are small. */
+.hero-card[data-action="guard"]{border-color:#ffc77d!important;background:linear-gradient(110deg,#3e3a61,#173e54)!important;box-shadow:0 0 0 1px #ffd98f7c,0 0 19px #ffcf9c36}
+.hero-card[data-action="guard"] .hero-icon{color:#ffe7ae;border-color:#ffca71;background:radial-gradient(circle at 50% 30%,#635663,#334863)}
+.hero-card[data-action="guard"] .hero-sub b{color:#ffe19f}
+.hero-card[data-action="cast"] .hero-icon{box-shadow:0 0 18px #9c8bff60}
+.hero-card[data-action="hurt"]{border-color:#ff8b948c!important}
+.hero-card[data-action="move"] .life i{box-shadow:0 0 12px #72fffad0}
+.boss-strip[data-phase="ECLIPSE"][data-warning="true"]{box-shadow:0 0 0 1px #f6b7fa,0 0 54px #bb63e28c}
+@media(prefers-reduced-motion:reduce){.hero-card{transition:none}}

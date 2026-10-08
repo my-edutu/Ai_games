@@ -387,7 +387,7 @@ function renderDashboard(s){
  $('scene-weather').textContent=s.theme.includes('EMBER')?'FIRELIT // ASH':s.theme.includes('OBSIDIAN')?'ARCANE // MIST':s.theme.includes('HOLLOW')?'ETHEREAL // VOID':'MOONLIT // CRYPT';
  const party=$('party');party.replaceChildren(...heroes.map(u=>{
   const meta=classMeta[u.kind],card=document.createElement('article');card.className='hero-card'+(u.hp===0?' down':'');card.dataset.class=u.kind;
-  card.dataset.heroId=u.id;card.dataset.focused=String(u.id===focusedHeroId);card.tabIndex=0;card.setAttribute('role','button');card.setAttribute('aria-label','Follow '+meta.name+' in the cinematic camera');card.setAttribute('aria-pressed',String(u.id===focusedHeroId));
+  card.dataset.heroId=u.id;card.dataset.action=u.action||'idle';card.dataset.focused=String(u.id===focusedHeroId);card.tabIndex=0;card.setAttribute('role','button');card.setAttribute('aria-label','Follow '+meta.name+' in the cinematic camera');card.setAttribute('aria-pressed',String(u.id===focusedHeroId));
   const icon=document.createElement('div');icon.className='hero-icon';icon.setAttribute('aria-hidden','true');icon.textContent=meta.icon;
   const info=document.createElement('div');info.className='hero-info';const head=document.createElement('div');head.className='hero-heading';
   const name=document.createElement('b');name.textContent=meta.name;const hp=document.createElement('small');hp.textContent=u.hp+'/'+u.maxHp+' HP';
@@ -410,7 +410,11 @@ function update(s){combatOverlay.record(s,timeNow());state=s;received=true;error
  const seen=new Set(s.units.map(u=>u.id));
  for(const [id,a] of actors)if(!seen.has(id)){disposeActor(a);actors.delete(id)}
  for(const u of s.units){let a=actors.get(u.id);if(!a){a=rig(u);a.ground=addContactProjection(a);actors.set(u.id,a);a.root.position.set(u.x-9,0,u.z-9);attachCharacter(a)}
-  if(a.u.actionTick!==u.actionTick||a.u.action!==u.action){a.actionStarted=timeNow();}a.u=u;a.at.set(u.x-9,0,u.z-9);a.root.visible=u.hp>0;if(a.telegraph)a.telegraph.visible=u.hp>0&&[4,5].includes(s.tick%6);}
+  if(a.u.actionTick!==u.actionTick||a.u.action!==u.action){a.actionStarted=timeNow();}a.u=u;a.at.set(u.x-9,0,u.z-9);a.root.visible=u.hp>0;if(a.telegraph){
+   const interval=s.bossPhase==='ECLIPSE'?4:6;
+   a.telegraph.visible=u.hp>0&&s.tick%interval>=interval-2;
+   a.telegraph.material.color.set(s.bossPhase==='ECLIPSE'?'#c97aff':s.bossPhase==='RUPTURE'?'#ff9f62':'#ff7049');
+  }}
  combatDirector.accept(s);
  if(world.userData.courtShield){
   world.userData.courtShield.visible=s.bossPhase==='SENTINEL';
