@@ -4,6 +4,7 @@
  * The authored silhouettes are owned by the tower game; no third-party character art.
  */
 import * as THREE from '/tower/three.module.js';
+import {sculptWayfinder} from '/tower/hero-sculpt-v13.js';
 
 const material=(color,metalness=.35,roughness=.48)=>new THREE.MeshStandardMaterial({color,metalness,roughness});
 const glow=(color,intensity=2.2)=>new THREE.MeshStandardMaterial({color,emissive:color,emissiveIntensity:intensity,metalness:.15,roughness:.25});
@@ -231,6 +232,7 @@ export function createTowerCharacter({tint=0x69cedf,guardian=false,kind='climber
   const light=new THREE.PointLight(guardian?0xff9855:kind==='shooter'?0xff8b79:kind==='sentinel'?0xb9ebcb:0xffd7a0,2.5,45,2);
   light.position.set(0,4,7);root.add(light);
   root.userData={jointRoot,head,pack,arms,legs,kind,guardian,light,clothSegments};
+  if(kind==='climber'&&!guardian)sculptWayfinder(root);
   return root;
 }
 
