@@ -39,6 +39,9 @@
     '}'
   ].join('\n');
   let canvas=null,gl=null,program=null,buffer=null,attr=null,uniform=null,lastSnapshot=null,disabled=forced2d||!host;
+  const reducedMotion=params.get('reducedMotion')==='1'||matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const reducedFlash=params.get('reducedFlash')==='1';
+  let previousSnapshot=null,startedAt=0,animationId=0,lastPaintTime=0;
   const status={mode:forced2d?'forced-2d':'initializing',frames:0,triangles:0,contenders:0};
   function compile(type,source){
     const shader=gl.createShader(type);gl.shaderSource(shader,source);gl.compileShader(shader);
@@ -105,7 +108,7 @@
   }
   function pos(cell,w){return{x:cell%w+.5,z:Math.floor(cell/w)+.5}}
   function contender(b,f,w,theme,focus){
-    const p=pos(f.cell,w);
+    const p=f.visual||pos(f.cell,w);
     if(!f.alive){b.box(p.x,.08,p.z,.46,.13,.46,[.25,.28,.32]);return}
     const col=suits[f.archetype]||suits.vanguard,steel=[.13,.19,.25],shadow=[.07,.11,.16];
     b.box(p.x,.035,p.z,.72,.03,.55,shadow);
@@ -157,6 +160,15 @@
     for(const f of s.combatants.slice(0,64))contender(b,f,w,t,Boolean(s.focus&&s.focus.id===f.id));
     const c=pos(s.zone.centerCell,w);
     b.ring(c.x,.056,c.z,Math.max(.25,s.zone.radius),.08,t.accent,128);
+    // High-priority tactical signals, derived exclusively from published semantic events.
+    if(!reducedFlash){
+      for(const event of s.recentEvents.slice(-8)){
+        if((event.type==='elimination'||event.type==='shield-broken')&&Number.isInteger(event.cell)){
+          const p=pos(event.cell,w);
+          b.ring(p.x,.075,p.z,.32,.048,[1,.25,.32],24);
+        }
+      }
+    }
     b.box(w/2,.15,-.1,w+.35,.3,.2,t.wall);
     b.box(w/2,.15,h+.1,w+.35,.3,.2,t.wall);
     b.box(-.1,.15,h/2,.2,.3,h+.35,t.wall);
@@ -166,8 +178,7 @@
       b.box(x,2.16,z,.54,.24,.54,t.accent);
     }
   }
-  function render(snapshot){
-    lastSnapshot=snapshot;
+  function paint(snapshot){
     if(disabled||!gl||gl.isContextLost()||status.mode!=='webgl2')return false;
     if(!snapshot?.arena||!snapshot.zone||!Array.isArray(snapshot.combatants))return false;
     try{
@@ -178,13 +189,30 @@
       const height=Math.min(2160,Math.max(1,Math.round(area.height*ratio)));
       if(canvas.width!==width||canvas.height!==height){canvas.width=width;canvas.height=height}
       gl.viewport(0,0,width,height);
-      const b=mesh();world(b,snapshot);
+      const b=mesh();
+      const alpha=Math.min(1,Math.max(0,(performance.now()-startedAt)/200));
+      const prior=previousSnapshot&&previousSnapshot.runToken===snapshot.runToken
+        ? new Map(previousSnapshot.combatants.map(f=>[f.id,f])):new Map();
+      const presented=reducedMotion?snapshot:{
+        ...snapshot,
+        combatants:snapshot.combatants.map(f=>{
+          const previous=prior.get(f.id);
+          if(!previous||!previous.alive||!f.alive||previous.cell===f.cell)return f;
+          const from=pos(previous.cell,snapshot.arena.width),to=pos(f.cell,snapshot.arena.width);
+          if(Math.abs(from.x-to.x)+Math.abs(from.z-to.z)>2)return f;
+          return {...f,visual:{x:from.x+(to.x-from.x)*alpha,z:from.z+(to.z-from.z)*alpha}};
+        })
+      };
+      world(b,presented);
       const data=new Float32Array(b.v),w=snapshot.arena.width,h=snapshot.arena.height;
       const aspect=area.width/area.height;
       const scale=Math.min(1.87/((w*.61+h*.79)*.52+5),1.87*aspect/(w*.79+h*.61+4));
       gl.useProgram(program);
-      gl.uniform3f(uniform[0],w/2,0,h/2);
-      gl.uniform2f(uniform[1],scale/aspect,scale);
+      const close=snapshot.scene==='final-circle';
+      const focus=close?pos(snapshot.zone.centerCell,w):{x:w/2,z:h/2};
+      const zoom=close?1.12:1;
+      gl.uniform3f(uniform[0],focus.x,0,focus.z);
+      gl.uniform2f(uniform[1],scale*zoom/aspect,scale*zoom);
       gl.bindBuffer(gl.ARRAY_BUFFER,buffer);
       gl.bufferData(gl.ARRAY_BUFFER,data,gl.DYNAMIC_DRAW);
       for(let i=0;i<3;i++){
@@ -204,6 +232,21 @@
       document.body.dataset.battleRenderer='2d-fallback';
       canvas.style.display='none';return false;
     }
+  }
+  function animate(time){
+    animationId=0;
+    if(disabled||!lastSnapshot||status.mode!=='webgl2'||document.hidden)return;
+    if(time-lastPaintTime>=42){paint(lastSnapshot);lastPaintTime=time}
+    if(time-startedAt<230)animationId=requestAnimationFrame(animate);
+  }
+  function render(snapshot){
+    if(!snapshot)return false;
+    previousSnapshot=lastSnapshot&&lastSnapshot.runToken===snapshot.runToken?lastSnapshot:null;
+    lastSnapshot=snapshot;
+    startedAt=performance.now();
+    const painted=paint(snapshot);
+    if(painted&&!reducedMotion&&!animationId)animationId=requestAnimationFrame(animate);
+    return painted;
   }
   window.BattleArena3D={render,status};
 })();
