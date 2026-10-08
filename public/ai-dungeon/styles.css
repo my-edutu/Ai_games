@@ -54,3 +54,14 @@ body[data-biome="ember"] .icon-button{color:#ffe0b0}
 
 .world-info .rig-status{grid-column:1/-1;color:#a5ffeb;font-size:8px;padding-top:5px;border-top:1px solid #5cf5e854;letter-spacing:.7px}
 @media(max-width:680px){.world-info .rig-status{display:none}}
+
+/* Player-follow inspection stays strictly spectator-side. */
+.hero-card{cursor:pointer;transition:background .18s,border-color .18s,box-shadow .18s}
+.hero-card:hover{border-color:#90eeffb0;background:linear-gradient(105deg,#304e77,#242d50)}
+.hero-card[data-focused="true"]{border-color:var(--class-color);box-shadow:0 0 0 1px var(--class-color),0 0 17px #5bfbe729;background:linear-gradient(105deg,#263f6a,#232b50)}
+.hero-card:focus-visible{outline:2px solid var(--aqua);outline-offset:3px}
+.boss-strip[data-phase=RUPTURE]{border-color:#ffc16e;box-shadow:0 0 44px #ffb45b53}
+.boss-strip[data-phase=ECLIPSE]{border-color:#e49cff;background:linear-gradient(100deg,#52205bef,#241b50eb);box-shadow:0 0 50px #c76dff5f}
+.boss-strip[data-phase=ECLIPSE] .boss-bar i{background:linear-gradient(90deg,#965bff,#f58bfb);box-shadow:0 0 20px #d98cfc}
+.boss-strip[data-warning=true]{outline:2px solid #ffad6b87;outline-offset:2px}
+.camera-label #focus-label{color:#e1eaff;letter-spacing:.7px;font-size:8px}

@@ -21,7 +21,6 @@ const clips={
  hurt:[/hit/i,/hurt/i,/damage/i,/impact/i]
 };
 const assetUrl=path=>'/dungeon/assets/'+path;
-const loading=new Map();
 function load(path){
  if(!cache.has(path)){
   cache.set(path,loader.loadAsync(assetUrl(path)).catch(e=>{failures.add(path);return null}));
@@ -56,15 +55,23 @@ function attachCharacter(actor){
   if(!gltf||actor.detached||actor.u.id!==id)return false;
   const instance=cloneSkeleton(gltf.scene),owned=[],isBoss=actor.u.kind==='warden';
   configure(instance,isBoss,owned);
-  // Source models are normalized near 1.85m; match authoritative cell centres.
-  instance.rotation.y=0;instance.position.y=0;
+  // Fit artist source units to dungeon scale and centre the feet on the floor.
+  instance.updateMatrixWorld(true);
+  const bounds=new THREE.Box3().setFromObject(instance),size=new THREE.Vector3(),center=new THREE.Vector3();
+  bounds.getSize(size);bounds.getCenter(center);
+  if(Number.isFinite(size.y)&&size.y>.05&&size.y<1000){
+   const targetHeight=isBoss?2.05:1.82;
+   const sourceScale=Math.max(.08,Math.min(12,targetHeight/size.y));
+   instance.scale.setScalar(sourceScale);
+   instance.position.set(-center.x*sourceScale,-bounds.min.y*sourceScale,-center.z*sourceScale);
+  }
   actor.root.add(instance);actor.assetRoot=instance;actor.assetMaterials=owned;
   actor.body.visible=false;actor.authored=true;actor.mixer=new THREE.AnimationMixer(instance);
   actor.availableClips=gltf.animations||[];actor.currentAction='';
   changeAction(actor,actor.u.action||'idle');
   return true;
  }).catch(e=>{failures.add(asset);return false});
- loading.set(id,request);return request;
+ return request;
 }
 function changeAction(actor,action){
  if(!actor.mixer||actor.currentAction===action)return;
@@ -73,8 +80,12 @@ function changeAction(actor,action){
  const next=actor.mixer.clipAction(clip);
  if(next!==actor.activeClip){
   next.reset().setEffectiveTimeScale(1).setEffectiveWeight(1);
-  next.enabled=true;next.play();
-  if(actor.activeClip){next.crossFadeFrom(actor.activeClip,.2,true)}
+  next.enabled=true;
+  const oneShot=['attack','cast','hurt'].includes(action);
+  next.setLoop(oneShot?THREE.LoopOnce:THREE.LoopRepeat,oneShot?1:Infinity);
+  next.clampWhenFinished=oneShot;
+  next.play();
+  if(actor.activeClip)next.crossFadeFrom(actor.activeClip,oneShot?.12:.23,true);
   actor.activeClip=next;
  }
  actor.currentAction=action;
@@ -105,7 +116,13 @@ function putEnvironment(world,sceneKey,map){
  for(const p of placements){load(p.asset).then(gltf=>{
   if(!gltf||world.userData.sceneKey!==sceneKey)return;
   const source=gltf.scene.clone(true);source.traverse(o=>{if(o.isMesh){o.castShadow=false;o.receiveShadow=true;o.userData.sharedAssetGeometry=true}});
-  source.position.set(p.x,-.03,p.z);source.scale.setScalar(.86);group.add(source);
+  const bounds=new THREE.Box3().setFromObject(source),extent=new THREE.Vector3();
+  bounds.getSize(extent);
+  const largest=Math.max(extent.x,extent.y/2.2,extent.z,.01);
+  const fit=Math.min(3,Math.max(.08,1.1/largest));
+  source.scale.setScalar(fit);
+  source.position.set(p.x,-.03-bounds.min.y*fit,p.z);
+  group.add(source);
  })}
  return{group,count:placements.length};
 }

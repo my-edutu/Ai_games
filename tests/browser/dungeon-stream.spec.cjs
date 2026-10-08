@@ -114,3 +114,15 @@ test('CC0 authored asset rigging is observable, with graceful procedural fallbac
  }
  const blocked=await request.get('/dungeon/assets/../package.json');expect(blocked.status()).toBe(404);
 });
+
+test('public stream exposes authentic boss phase and a health/checkpoint monitor',async({page,request})=>{
+ await page.goto('/dungeon');await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_PUBLIC_STATE__?.bossPhase),{timeout:15000}).toBeTruthy();
+ const state=await(await request.get('/dungeon/state')).json();
+ expect(['SENTINEL','RUPTURE','ECLIPSE','VANQUISHED']).toContain(state.bossPhase);
+ const meta=await(await request.get('/dungeon/gauntlet/state')).json();
+ expect(meta.game.bossPhase).toBeTruthy();
+ expect(Number.isInteger(meta.game.heroesAlive)).toBe(true);
+ const health=await(await request.get('/dungeon/health')).json();
+ expect(typeof health.restored).toBe('boolean');
+ expect(health.status).toBe('healthy');
+});

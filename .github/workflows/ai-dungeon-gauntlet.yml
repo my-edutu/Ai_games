@@ -56,3 +56,13 @@ jobs:
             artifacts/dungeon-visual-metrics.json
             test-results/**
           if-no-files-found: warn
+
+      - name: Upload focused WebGL scene audit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dungeon-world-only-review
+          path: |
+            artifacts/dungeon-3d-world-only.png
+            artifacts/dungeon-scene-visual-metrics.json
+          if-no-files-found: warn

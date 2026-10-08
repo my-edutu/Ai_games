@@ -31,6 +31,12 @@ The spectator view now includes themed cinematic lighting, atmospheric set exten
 - Actual Three.js meshes, articulated character rigs, dynamic fog/lights, dungeon stonework, portal, relics, environment variations, HUD, camera tracking and reduced-motion handling.
 - Isolated live Gauntlet progress page and repeatable multi-seed simulation campaign.
 
+## Unattended persistence, Warden phases and combat presentation
+
+The host now checkpoints its authoritative, checksummed RPG snapshot **atomically every 15 ticks** (about 5.25 seconds). On process restart it attempts an exact verified restore. Checkpoints with invalid hashes, mismatched seeds or versions **abort startup rather than resetting silently**. Override the local path with `DUNGEON_STATE_FILE`; the default is `runtime/dungeon-checkpoint.json` and must remain excluded from commits. On graceful shutdown the host flushes once more. Progress telemetry reports snapshot and restore status.
+
+The Warden is a prolonged three-phase encounter (SENTINEL → RUPTURE → ECLIPSE), with guard absorption, readable telegraph intervals, real autonomous summoned enemies and matching cinematic light/presentation. Visual-only effects include melee slashes, arcane projectiles, hit rings and impact cues with hard particle budgets. Click or keyboard-select any live hero card to follow that hero in the cinematic view without ever changing authoritative AI decisions.
+
 ## Known boundaries
 
 The models are procedural, not production-quality authored AAA models. AI tactical behaviour, enemy diversity, combat readability, assets, audio, persistence across server restarts, provider gateways, mature replay pipeline, long-haul soak, and blind A/B reference judging all require further measured iterations. Headless stability cannot certify visual parity with Path of Exile 2 or a full broadcast launch. The server retains one in-memory authoritative game. No paid influence or provider SDK is enabled.

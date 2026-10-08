@@ -100,3 +100,25 @@ test('authored CC0 model manifest is pinned, bounded and path-safe',()=>{
   assert.ok(file.sourcePath.startsWith('assets/'));
  }
 });
+
+test('unattended host writes atomic verified checkpoints and resumes the exact expedition',()=>{
+ const fs=require('node:fs'),os=require('node:os'),path=require('node:path');
+ const {createHost}=require('../../scripts/serve-dungeon-stream.cjs');
+ const dir=fs.mkdtempSync(path.join(os.tmpdir(),'edutu-dungeon-'));
+ const stateFile=path.join(dir,'checkpoint.json');
+ try{
+  const a=createHost('durability-fixture',{stateFile});
+  for(let i=0;i<37;i++)a.tick();
+  a.flush();
+  assert.ok(fs.statSync(stateFile).size>2000);
+  assert.equal(fs.statSync(stateFile).mode&0o777,0o600);
+  const before=a.game.save(),b=createHost('durability-fixture',{stateFile});
+  assert.equal(b.status().restored,true);assert.equal(b.status().checkpointTick,37);
+  assert.deepEqual(before,b.game.save());
+  for(let i=0;i<40;i++){a.tick();b.tick();assert.equal(a.game.publicState().checksum,b.game.publicState().checksum)}
+  assert.throws(()=>createHost('wrong-seed',{stateFile}),/seed mismatch/);
+  const corrupted=JSON.parse(fs.readFileSync(stateFile,'utf8'));corrupted.state.gold+=999;
+  fs.writeFileSync(stateFile,JSON.stringify(corrupted));
+  assert.throws(()=>createHost('durability-fixture',{stateFile}),/checksum mismatch/);
+ }finally{fs.rmSync(dir,{recursive:true,force:true})}
+});
