@@ -57,6 +57,7 @@
   let biome='',simTime=0,accumulator=0,lastFrame=performance.now(),sizeW=0,sizeH=0;
   let renderFrames=0,lastFrameMark=performance.now(),rollingFrameMs=16.7;
   const renderMetrics={frames:0,fps:0,frameMs:0,drawCalls:0,triangles:0,gpuGeometries:0,gpuTextures:0,status:'starting'};
+  const liveChannel='BroadcastChannel' in window?new BroadcastChannel('tower-gauntlet-3d-live'):null;
   window.__TOWER_VOLUMETRIC_RENDER_METRICS__=renderMetrics;
   function syncWorld(snapshot){
     const live=new Set();
@@ -152,6 +153,7 @@
     renderMetrics.ropeSegments=22;
     renderMetrics.status='live';
     details.status='live';
+    if(renderFrames%15===0)liveChannel?.postMessage({state:{...details},render:{...renderMetrics},timestamp:Date.now()});
     evidence.maybeCapture(details,renderMetrics);
     if(details.tick%8===0){
       document.getElementById('floor').textContent=String(player.at).padStart(3,'0');
