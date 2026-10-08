@@ -29,6 +29,12 @@ try{
     assert.ok(shot.length>12000,'screenshot suspiciously small for '+scenario);
     report.scenarios.push({name:scenario,bytes:shot.length,...info});
   }
+  await page.goto('http://127.0.0.1:4177/web/3d.html?scenario=small-encounter&view=hero&freeze=1',{waitUntil:'load'});
+  await page.waitForFunction(()=>document.querySelector('#fps')?.textContent?.includes('FPS'),{timeout:12000});
+  await page.screenshot({path:root+'hero-closeup.png'});
+  const aiIntent=await page.locator('#decision').textContent();
+  assert.ok(aiIntent?.length>12,'AI decision panel must expose a meaningful current intent');
+  report.checks.heroCameraAndIntent=true;
   await page.goto('http://127.0.0.1:4177/web/3d.html?seed=2026',{waitUntil:'load'});
   await page.waitForFunction(()=>document.querySelector('#fps')?.textContent?.includes('FPS'),{timeout:12000});
   const before=await page.evaluate(()=>JSON.parse(localStorage.getItem('zombie-gauntlet-live')||'{}').tick||0);
@@ -41,7 +47,7 @@ try{
   await page.keyboard.press('h');
   assert.equal(await page.locator('#hud').isVisible(),true);
   await page.keyboard.press('Space');
-  await page.waitForTimeout(200);
+  await page.waitForFunction(()=>document.querySelector('#verdict')?.textContent?.includes('PAUSED'),{timeout:5000});
   assert.match(await page.locator('#verdict').textContent(),/PAUSED/);
   report.checks.hudPause=true;
   await page.setViewportSize({width:390,height:844});
