@@ -148,3 +148,11 @@ No environment dressing, cosmetic shadow, UI display or audio function can chang
 3. Validating the active stage and HUD readability on representative 1080p/4K OBS conditions and an automated multi-hour GPU memory/latency soak.
 
 **Rollbacks:** `/battle?visual=2d` for rendering, `/battle?quality=low` for reduced geometry. Avoid merging the draft PR until real browser/production gates are satisfied.
+
+## Gauntlet loop 30–32 — sculpted biome terrain and material uplift
+
+- **Loop 30**: outside the real tactical grid, replace low flat tiles with a two-triangle-per-cell tessellated heightfield using deterministic sinusoidal ridges and genuine computed world-space normals. Terrain smoothly returns toward platform elevation near the grid border. Decorative terrain remains non-traversable; *agent navigation and collisions are unchanged*. Out-of-bounds visual flora/structures now settle on landscape height.
+- **Loop 31**: fragment shading uses two scales of deterministic material-grain noise, a sun + bounce light, half-vector specular reflection with approximate varying roughness, colored rim light and restrained stylized emissive accents. Blend terrain tiles more coherently to reduce checkerboard imagery. It is an original stylized material, **not commercial physically based material assets**.
+- **Loop 32**: original biome hero signatures designed outside the arena: suspended neon entrance/skybridge and twin towers, faceted glacier gateway/cathedral, rusted dual-tower badlands refinery with luminous overhead platform. They are unambiguously scenery; **not** new playable buildings.
+
+**QA still required**: real browser shader compilation, exact-head CI, 1080p screenshot A/B, occlusion and mobile responsiveness, and independent Fortnite Chapter 4 visual comparison. Synthetic JS parsing and stub GPU tests are insufficient to claim production-grade rendered fidelity.

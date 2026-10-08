@@ -36,23 +36,38 @@
     'precision highp float;',
     'in vec3 vNormal; in vec3 vTint; in float vDepth; in vec3 vWorld;',
     'out vec4 result;',
+    'float hash21(vec2 p){',
+    'return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453123);',
+    '}',
     'void main(){',
     'vec3 n=normalize(vNormal);',
-    'float direct=max(dot(n,normalize(vec3(-.52,.90,.34))),0.0);',
-    'float bounce=max(dot(n,normalize(vec3(.38,.54,-.72))),0.0);',
-    'float surfaceNoise=fract(sin(dot(floor(vWorld.xz*6.0),vec2(127.1,311.7)))*43758.5453123);',
-    'float textureGrain=mix(.90,1.09,surfaceNoise);',
-    'float ground=step(.88,n.y);',
-    'float micro=ground*textureGrain+(1.0-ground)*1.0;',
-    'float fill=.68+.53*direct+.17*bounce;',
-    'vec3 lit=vTint*fill*micro+vec3(.052,.075,.091);',
-    'float silhouette=pow(1.0-max(dot(n,normalize(vec3(.2,.8,.5))),0.0),2.0);',
-    'lit+=vec3(.028,.086,.12)*silhouette;',
-    'float haze=clamp(1.0-abs(vDepth)/130.0,.77,1.0);',
-    'lit=clamp(lit,vec3(0.),vec3(1.));',
-    'result=vec4(mix(vec3(.13,.22,.37),lit,haze),1.0);',
+    'vec3 lightDir=normalize(vec3(-.52,.90,.34));',
+    'vec3 viewDir=normalize(vec3(.24,.85,1.03));',
+    'float diffuse=max(dot(n,lightDir),0.0);',
+    'float bounce=max(dot(n,normalize(vec3(.46,.54,-.72))),0.0);',
+    'float grain=hash21(floor(vWorld.xz*10.0));',
+    'float grainFine=hash21(floor(vWorld.xz*32.0+19.4));',
+    'float ground=step(.72,n.y);',
+    'float natural=(grain*.62+grainFine*.38);',
+    'float surfaceNoise=mix(1.0,mix(.92,1.10,natural),ground);',
+    'float roughness=mix(.78,.32,smoothstep(.36,.88,vTint.b));',
+    'vec3 halfDir=normalize(viewDir+lightDir);',
+    'float specPower=mix(14.0,66.0,1.0-roughness);',
+    'float specular=pow(max(0.0,dot(n,halfDir)),specPower);',
+    'vec3 ambient=vec3(.20,.24,.33);',
+    'vec3 lit=vTint*(ambient+vec3(.53,.51,.43)*diffuse+vec3(.14,.18,.23)*bounce)*surfaceNoise;',
+    'lit+=vec3(.18,.23,.31)*specular*(.14+.30*(1.0-roughness));',
+    'float rim=pow(1.0-max(0.0,dot(n,viewDir)),2.0);',
+    'lit+=vTint*rim*.10;',
+    'float vibrant=max(vTint.r,max(vTint.g,vTint.b))-min(vTint.r,min(vTint.g,vTint.b));',
+    'float luminous=smoothstep(.68,.98,max(vTint.r,max(vTint.g,vTint.b)))*vibrant;',
+    'lit+=vTint*luminous*.16;',
+    'float haze=clamp(1.0-abs(vDepth)/138.0,.76,1.0);',
+    'vec3 finalColor=mix(vec3(.17,.28,.44),lit,haze);',
+    'finalColor=clamp(finalColor,vec3(0.0),vec3(1.0));',
+    'result=vec4(finalColor,1.0);',
     '}'
-  ].join('\n');
+  ].join('\\n');
   let canvas=null,closeupLabel=null,gl=null,program=null,buffer=null,staticBuffer=null,dynamicBuffer=null,attr=null,uniform=null,lastSnapshot=null,disabled=forced2d||!host;
   const reducedMotion=params.get('reducedMotion')==='1'||matchMedia('(prefers-reduced-motion: reduce)').matches;
   const reducedFlash=params.get('reducedFlash')==='1';
@@ -229,7 +244,14 @@
     function blade(x,y,z,width,height,col){
       quad([x-width/2,y,z],[x,y+height,z],[x+width/2,y,z],[x-width/2,y,z],[0,0,1],col);
     }
-    return{v,quad,box,ring,cone,cylinder,limb,blade,pushPose,popPose};
+    function facet(a,b,c,col){
+      const ab=[b[0]-a[0],b[1]-a[1],b[2]-a[2]];
+      const ac=[c[0]-a[0],c[1]-a[1],c[2]-a[2]];
+      let n=[ab[1]*ac[2]-ab[2]*ac[1],ab[2]*ac[0]-ab[0]*ac[2],ab[0]*ac[1]-ab[1]*ac[0]];
+      const len=Math.hypot(...n)||1;n=n.map(v=>v/len);
+      tri(a,b,c,n,col);
+    }
+    return{v,quad,box,ring,cone,cylinder,limb,blade,facet,pushPose,popPose};
   }
   function pos(cell,w){return{x:cell%w+.5,z:Math.floor(cell/w)+.5}}
   function actorHeading(f,w,events,roster){
@@ -709,70 +731,153 @@
       }
     }
   }
+  function terrainHeight(x,z,w,h){
+    // Heightfield stays outside every authoritative playable cell. The edge
+    // of the region returns precisely to the existing stage's (-0.48) base.
+    const dx=Math.max(0,-x,x-w),dz=Math.max(0,-z,z-h);
+    const outside=Math.hypot(dx,dz);
+    const fade=Math.min(1,Math.pow(outside/3.9,1.38));
+    const soft=Math.sin(x*.53+z*.34)*.54+
+      Math.cos(z*.65-x*.41)*.31+Math.sin(x*.22+z*.27)*.19;
+    const height=fade*(1.30+outside*.14+soft*.94);
+    return -.48+Math.max(0,height);
+  }
   function surroundingTerrain(b,arena,theme){
-    // The map no longer floats as a bare tabletop. This wider world is
-    // decorative and explicitly outside the authoritative playable grid.
-    const w=arena.width,h=arena.height;
+    // Actually sculpted triangles (not a checkerboard plane). The world is
+    // beyond the collision grid, wholly cosmetic and deterministic.
+    const w=arena.width,h=arena.height,padding=quality==='low'?2:6;
     const land=arena.theme==='arctic'?[.38,.61,.66]
-      :arena.theme==='neon'?[.24,.32,.47]:[.42,.45,.32];
+      :arena.theme==='neon'?[.25,.35,.54]:[.47,.49,.32];
     const darker=arena.theme==='arctic'?[.27,.43,.51]
       :arena.theme==='neon'?[.17,.23,.38]:[.31,.36,.27];
-    const ridge=arena.theme==='arctic'?[.73,.88,.93]
-      :arena.theme==='neon'?[.35,.40,.60]:[.58,.51,.34];
-    const padding=quality==='low'?2:5;
-    b.box(w/2,-.78,h/2,w+padding*2,.52,h+padding*2,darker);
-    b.box(w/2,-.52,h/2,w+padding*2,.045,h+padding*2,land);
-    if(quality==='low')return;
-    // Repeatable terrain tiles, with low mounds and out-of-bounds features.
+    const ridge=arena.theme==='arctic'?[.75,.90,.96]
+      :arena.theme==='neon'?[.46,.55,.76]:[.66,.57,.36];
+    b.box(w/2,-.98,h/2,w+padding*2,.52,h+padding*2,darker);
+    if(quality==='low'){
+      b.box(w/2,-.55,h/2,w+padding*2,.38,h+padding*2,land);
+      return;
+    }
+    const step=.5;
+    for(let z=-padding;z<h+padding;z+=step){
+      for(let x=-padding;x<w+padding;x+=step){
+        if(x>=0&&x<w&&z>=0&&z<h)continue;
+        const a=[x,terrainHeight(x,z,w,h),z];
+        const d=[x,terrainHeight(x,z+step,w,h),z+step];
+        const c=[x+step,terrainHeight(x+step,z+step,w,h),z+step];
+        const e=[x+step,terrainHeight(x+step,z,w,h),z];
+        const noise=Math.sin(x*.71+z*.47)*.043+Math.cos(x*.21-z*.68)*.036;
+        const height=(a[1]+c[1])*.5;
+        const high=Math.min(.52,Math.max(0,height-.12)*.13);
+        const pigment=land.map((v,i)=>Math.max(.02,Math.min(1,v+noise+high*(ridge[i]-v))));
+        b.facet(a,d,c,pigment);
+        b.facet(a,c,e,pigment);
+      }
+    }
+    // Original decorated lands beyond the simulation edge; their feet conform
+    // to actual terrain height instead of appearing as floating props.
     for(let z=-padding;z<h+padding;z++){
       for(let x=-padding;x<w+padding;x++){
         if(x>=0&&x<w&&z>=0&&z<h)continue;
         const seed=(Math.imul(x+173,1913)^Math.imul(z+283,7309))>>>0;
-        const variation=(seed%9)*.016;
-        const shade=land.map(c=>Math.max(0,Math.min(1,c+variation-.06)));
-        b.quad([x,-.48,z],[x,-.48,z+1],[x+1,-.48,z+1],[x+1,-.48,z],[0,1,0],shade);
-        if(seed%9===0){
-          const cx=x+.23+((seed>>>9)%40)/100,cz=z+.38;
-          const height=.24+(seed%4)*.13;
-          b.cone(cx,-.45+height*.5,cz,.26,.06,height,ridge,6);
-        }
-        if(seed%17===0){
-          const cx=x+.42,cz=z+.52;
-          const height=.42+(seed%5)*.12;
-          if(arena.theme==='arctic'){
-            b.cone(cx,-.47+height*.5,cz,.30,.04,height,[.82,.96,.98],7);
-          }else if(arena.theme==='neon'){
-            b.box(cx,-.40+height*.5,cz,.36,height,.29,[.29,.44,.61]);
-            b.box(cx,-.38+height,cz,.42,.07,.34,theme.accent);
-          }else{
-            b.cone(cx,-.44+height*.5,cz,.35,.07,height,[.41,.43,.31],7);
-            b.cone(cx,-.35+height,cz,.20,.02,.42,[.51,.63,.31],6);
-          }
+        if(seed%13!==0&&seed%19!==0)continue;
+        const px=x+.43,pz=z+.53,base=terrainHeight(px,pz,w,h);
+        const height=.32+(seed%5)*.16;
+        if(arena.theme==='arctic'){
+          b.cone(px,base+height*.5,pz,.27,.025,height,[.80,.95,1],7);
+          b.cone(px+.14,base+.13,pz+.16,.24,.015,.32,[.44,.72,.81],6);
+        }else if(arena.theme==='neon'){
+          b.box(px,base+height*.5,pz,.30,height,.31,[.34,.45,.70]);
+          b.box(px,base+height+.055,pz,.40,.09,.39,theme.accent);
+        }else{
+          b.cone(px,base+height*.5,pz,.29,.045,height,[.46,.43,.30],7);
+          b.cone(px,base+height,pz,.23,.01,.37,[.60,.67,.32],6);
         }
       }
     }
-    // Access avenues connect perimeter to the surrounding region.
+    // Roads use a visible slope to bridge from the raised tactical stage into
+    // the scenic hinterland; they never become a real traversable route.
     for(const x of [w*.27,w*.70]){
-      const c=arena.theme==='neon'?[.14,.22,.32]:[.30,.36,.32];
-      b.box(x,-.44,-2.5,1.35,.038,5.0,c);
-      b.box(x,-.44,h+2.5,1.35,.038,5.0,c);
-      for(const z of [-4.7,-2.7,h+1.4,h+3.4])
-        b.box(x,-.411,z,.09,.012,.70,[.82,.89,.77]);
+      for(const south of [false,true]){
+        for(let k=0;k<12;k++){
+          const z=south?h+k*.50:-k*.50;
+          const y=terrainHeight(x,z,w,h)+.025;
+          const z2=south?z+.50:z-.50;
+          const y2=terrainHeight(x,z2,w,h)+.025;
+          const color=arena.theme==='neon'?[.17,.25,.36]:[.31,.38,.32];
+          b.facet([x-.55,y,z],[x-.55,y2,z2],[x+.55,y2,z2],color);
+          b.facet([x-.55,y,z],[x+.55,y2,z2],[x+.55,y,z],color);
+          if(k%3===0)b.box(x,y+.035,z,.07,.015,.30,[.92,.91,.75]);
+        }
+      }
     }
-    // Wall-edge beveled plinth doubles as atmospheric contact shadow.
+    // Plinth and edge shadow give the studio-grade foreground depth.
     for(const side of [-1,1]){
       const z=side<0?-.66:h+.66;
       b.box(w/2,-.28,z,w+.9,.17,.76,theme.wall);
       b.box(w/2,-.17,z,w+.6,.04,.46,theme.accent);
     }
   }
+  function heroLandmarks(b,arena,theme){
+    // One central, legible skyline signature for each biome. Every coordinate
+    // is well beyond the logical arena, and all structures are visual-only.
+    const x=arena.width*.5,z=-3.5;
+    if(arena.theme==='neon'){
+      const cyan=[.33,.96,1],pink=[1,.42,.76],steel=[.19,.28,.45];
+      for(const side of [-1,1]){
+        const px=x+side*2.25,height=5.2;
+        b.box(px,height*.5,z,.95,height,1.1,steel);
+        b.box(px,height+.07,z,1.12,.14,1.24,cyan);
+        for(let floor=.64;floor<height;floor+=.47){
+          b.box(px,floor,z+.57,.72,.07,.047,floor%2>1?cyan:pink);
+        }
+        b.limb([px,height*.95,z],[px+side*.36,height+1,z],.08,pink);
+      }
+      // Suspended arena entrance/skybridge and neon title billboard.
+      b.box(x,3.88,z,5.4,.39,.90,steel);
+      b.box(x,4.14,z+.48,3.76,.20,.06,pink);
+      b.box(x,3.64,z+.51,4.70,.12,.06,cyan);
+      for(let i=-2;i<=2;i++)b.box(x+i*.78,3.90,z+.56,.28,.18,.07,cyan);
+      b.cone(x,4.88,z,.50,.06,1.02,pink,9);
+    }else if(arena.theme==='arctic'){
+      const ice=[.80,.97,1],blue=[.46,.75,.91],stone=[.32,.53,.66];
+      for(const side of [-1,1]){
+        const px=x+side*2.40;
+        b.cone(px,2.55,z,.72,.12,5.1,stone,9);
+        b.cone(px,3.65,z,.51,.01,3.10,ice,9);
+        b.cone(px+side*.55,1.27,z+.38,.59,.02,2.4,blue,7);
+        b.box(px,1.62,z+.48,.69,.20,.70,ice);
+      }
+      b.limb([x-2.35,3.3,z],[x,4.55,z],.14,ice);
+      b.limb([x,4.55,z],[x+2.35,3.3,z],.14,ice);
+      b.cone(x,4.86,z,.30,.025,.66,ice,10);
+      b.box(x,1.04,z,3.1,1.4,1.25,stone);
+      b.box(x,1.77,z+.73,2.45,.13,.05,ice);
+    }else{
+      const rust=[.43,.32,.24],copper=[.70,.49,.27],fire=[1,.74,.32];
+      for(const side of [-1,1]){
+        const px=x+side*2.45;
+        b.cone(px,1.95,z,.76,.51,3.90,rust,9);
+        b.box(px,3.95,z,.95,.21,.95,copper);
+        b.cone(px,4.55,z,.22,.025,1.10,fire,8);
+        b.limb([px,3.60,z],[x,3.30,z],.14,copper);
+        for(let y=.65;y<3.50;y+=.8)
+          b.box(px,y,z+.64,.70,.12,.09,[.79,.62,.35]);
+      }
+      b.box(x,3.29,z,5.26,.25,.81,rust);
+      b.box(x,3.43,z,5.29,.09,.89,fire);
+      b.box(x,1.30,z,2.14,2.54,1.8,[.50,.40,.29]);
+      b.cylinder(x,2.78,z,.62,.42,copper,10);
+      b.cone(x,3.44,z,.24,.01,.83,fire,9);
+    }
+  }
+
   function worldStatic(b,a){
     const w=a.width,h=a.height,t=colours[a.theme]||colours.ember;
     surroundingTerrain(b,a,t);
     b.box(w/2,-.25,h/2,w,.5,h,t.wall);
     for(let y=0;y<h;y++)for(let x=0;x<w;x++){
       const variation=(x*17+y*31+x*y*7)%11;
-      const mult=variation<3?1.13:variation>8?.82:1;
+      const mult=1+Math.sin(x*.44+y*.53)*.026+Math.cos(x*.21-y*.49)*.020+(variation-5)*.002;
       const tint=t.ground.map(v=>Math.min(1,v*mult));
       b.quad([x,.012,y],[x,.012,y+1],[x+1,.012,y+1],[x+1,.012,y],[0,1,0],tint);
       if((x*7+y*13)%41===0)b.box(x+.24,.065,y+.32,.11,.12,.13,t.accent);
@@ -795,6 +900,7 @@
       atmosphericBackdrop(b,a,t);
       environmentProps(b,a,t);
       districtDetails(b,a,t);
+      heroLandmarks(b,a,t);
     }
     for(const [x,z] of [[0,0],[w,0],[0,h],[w,h]]){
       b.box(x,1.04,z,.35,2.08,.35,t.wall);
