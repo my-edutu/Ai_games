@@ -25,7 +25,9 @@ export function createVolumetricCore(seedInput=0x00a3f914){
     const width=i===0?11:kind==='narrow'?5.4+random():6.8+random()*1.8;
     const depth=i===0?11:kind==='narrow'?5.2+random():6.3+random()*1.8,height=.95;
     platforms.push({i,x,y,z,baseX:x,baseZ:z,width,depth,height,kind,structuralIntegrity:kind==='crumbling'?1:2,
-      guardian:i>0&&i%10===0,guardianHealth:i>0&&i%10===0?4:0,
+      guardian:i>0&&i%10===0,guardianHealth:i>0&&i%10===0?(i%30===0?7:5):0,
+      guardianClock:0,guardianTelegraph:false,
+      guardianClass:i%30===0?'titan':i%20===0?'stormcaller':'warden',
       pickup:i>0&&i%6===0,collected:false});
     highestGenerated=i;
   }
@@ -67,6 +69,13 @@ export function createVolumetricCore(seedInput=0x00a3f914){
       current.structuralIntegrity--;
       if(current.structuralIntegrity<=0)emit('crumble','The stones gave way beneath the climber.');
     }
+    if(guardian)guardian.guardianClock++;
+    const threatPhase=guardian?guardian.guardianClock%78:0;
+    const evading=!!guardian&&threatPhase>=20&&threatPhase<=36;
+    if(guardian){
+      guardian.guardianTelegraph=evading;
+      if(threatPhase===20)emit('guardian-telegraph','The '+guardian.guardianClass+' charges a crushing attack.',{guardianClass:guardian.guardianClass});
+    }
     const target=guardian||platforms.find(p=>p.i===player.at+1);
     // Predict the landing surface at the DOWNWARD intersection time, not its current position.
     // This makes our decisions sensitive to moving targets rather than blind reactive pursuit.
@@ -80,9 +89,15 @@ export function createVolumetricCore(seedInput=0x00a3f914){
     const futureX=target?.kind==='moving'?clamp(target.baseX+Math.sin((tick+landingLeadTicks)*.016+target.i*.51)*1.25,-13.5,13.5):target?.x;
     const futureZ=target?.kind==='moving'?clamp(target.baseZ+Math.cos((tick+landingLeadTicks)*.013+target.i*.24)*1.15,-11.5,11.5):target?.z;
     let dx=target?futureX-player.x:0,dz=target?futureZ-player.z:0;
+    // Predict strike timing; step beyond the projected radius, then counterattack.
+    if(evading){
+      const dir=guardian.i%20===0?-1:1;
+      dx=guardian.x+dir*3.05-player.x;
+      dz=guardian.z+(dir*.9)-player.z;
+    }
     if(input){dx=Number(Boolean(input.right))-Number(Boolean(input.left));dz=Number(Boolean(input.back))-Number(Boolean(input.forward));}
     const dist=Math.hypot(dx,dz),speed=dist>.15?speedLimit():0;
-    intent=guardian?'NEUTRALIZE GUARDIAN':target?.kind==='moving'?'PREDICT MOVING LANDING':target?'SECURE NEXT PLATFORM':'SEARCHING FOR ROUTE';
+    intent=guardian?(evading?'DODGE GUARDIAN TELEGRAPH':'NEUTRALIZE GUARDIAN'):target?.kind==='moving'?'PREDICT MOVING LANDING':target?'SECURE NEXT PLATFORM':'SEARCHING FOR ROUTE';
     const desiredX=dist>.15?dx/dist*speed:0,desiredZ=dist>.15?dz/dist*speed:0;
     player.vx+=clamp(desiredX-player.vx,-config.acceleration*dt,config.acceleration*dt);
     if(current?.kind==='wind'&&!player.grounded){
@@ -91,11 +106,26 @@ export function createVolumetricCore(seedInput=0x00a3f914){
     }
     player.vz+=clamp(desiredZ-player.vz,-config.acceleration*dt,config.acceleration*dt);
     if(guardian){
-      mode='GUARDIAN ENGAGED';
-      if(dist<4&&tick%18===0){guardian.guardianHealth--;mode='STRIKING GUARDIAN';score+=50+build.salvage*10;}
-      if(guardian.guardianHealth>0&&tick%54===0){if(shields>0)shields--;else player.health--;mode='GUARDIAN RETALIATION';}
-      if(guardian.guardianHealth===0){guardianKills++;score+=500;mode='GUARDIAN DEFEATED';
-        emit('guardian-defeated','Guardian '+player.at+' defeated. The ascent continues.',{score});}
+      mode=evading?'GUARDIAN TELEGRAPH':'GUARDIAN ENGAGED';
+      const opponentDist=Math.hypot(player.x-guardian.x,player.z-guardian.z);
+      if(!evading&&opponentDist<4.4&&guardian.guardianClock%13===0){
+        guardian.guardianHealth--;mode='STRIKING GUARDIAN';score+=50+build.salvage*10;
+      }
+      if(guardian.guardianHealth>0&&threatPhase===37){
+        if(opponentDist<(guardian.guardianClass==='titan'?3.15:2.45)){
+          if(shields>0)shields--;else player.health--;
+          mode='GUARDIAN RETALIATION';
+          emit('guardian-hit','The '+guardian.guardianClass+' strike connected.',{health:player.health});
+        }else{
+          mode='GUARDIAN DODGED';
+          score+=30;emit('guardian-evaded','The climber escaped the '+guardian.guardianClass+' impact.');
+        }
+      }
+      if(guardian.guardianHealth<=0){
+        guardian.guardianHealth=0;guardian.guardianTelegraph=false;
+        guardianKills++;score+=500;mode='GUARDIAN DEFEATED';
+        emit('guardian-defeated','Guardian '+player.at+' defeated. The ascent continues.',{score,guardianClass:guardian.guardianClass});
+      }
       if(player.health<=0)respawn();
     }
     if(player.grounded&&!guardian&&((!input&&target)||(input&&input.jump))){
