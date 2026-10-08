@@ -407,7 +407,7 @@ function rebuild(snapshot) {
       if(side.id>=0 && known.has(side.id) && side.id<cell.cell) continue;
       const manhattan=Math.abs(col-activeCol)+Math.abs(row-activeRow);
       const inFront=(side.dx>0||side.dz>0);
-      masonryWall(world,p.x+side.dx,p.z+side.dz,side.kind,cell.cell,manhattan<=1&&inFront);
+      masonryWall(world,p.x+side.dx,p.z+side.dz,side.kind,cell.cell,manhattan<=2&&inFront);
     }
     if(cell.checkpoint) {
       const beacon=mesh(geometries.cylinder,materials.exit,world,[p.x,0.09,p.z],[0.38,0.13,0.38]);
@@ -623,22 +623,22 @@ function render(now) {
     if(!reducedMotion)ambientDust.rotation.y+=seconds*.003;
   }
   atmosphere.update(now,seconds,explorer.position,reducedMotion);
-  const target=lookTarget.clone().lerp(explorer.position,.34);
+  const target=lookTarget.clone().lerp(explorer.position,.78);
   if(!settledCamera || reducedMotion)smoothedLook.copy(target);
   else smoothedLook.lerp(target,Math.min(1,seconds*2));
   const scale=isCompact()?1.25:1;
   // View controls only affect presentation; the autonomous AI never receives camera state.
   const mode=window.__MAZE_CAMERA_MODE__;
   const offset=mode==='follow'
-    ?new THREE.Vector3(3.7*scale,6.7*scale,6.1*scale)
+    ?new THREE.Vector3(3.5*scale,6.2*scale,5.4*scale)
     :mode==='tactical'
       ?new THREE.Vector3(.001,16.5*scale,3.8*scale)
-      :new THREE.Vector3(6.5*scale,9.5*scale,9.3*scale);
+      :new THREE.Vector3(5.2*scale,8.0*scale,7.2*scale);
   const desired=smoothedLook.clone().add(offset);
   if(!settledCamera || reducedMotion)camera.position.copy(desired);
   else camera.position.lerp(desired,Math.min(1,seconds*2.4));
   settledCamera=true;
-  camera.lookAt(smoothedLook.x,.7,smoothedLook.z);
+  camera.lookAt(smoothedLook.x,1.05,smoothedLook.z);
   try {
     renderer.render(scene,camera);
   } catch(error) {
@@ -713,7 +713,7 @@ function init() {
   }));
   skyDome.renderOrder=-20;
   scene.add(skyDome);
-  camera=new THREE.PerspectiveCamera(45,1,0.1,160);
+  camera=new THREE.PerspectiveCamera(44,1,0.1,160);
   camera.position.set(10,15,19);
   skyLight=new THREE.HemisphereLight(0xe3f2e8,0x26292d,2.7);
   scene.add(skyLight);
