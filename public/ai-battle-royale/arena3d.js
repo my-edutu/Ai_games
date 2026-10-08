@@ -347,11 +347,36 @@
     b.limb(rightKnee,rightFoot,.080,steel);
     b.box(leftFoot[0],.095,leftFoot[2]+.085,.23,.16,.32,neutral);
     b.box(rightFoot[0],.095,rightFoot[2]+.085,.23,.16,.32,neutral);
+    // Role-colored armor plates reinforce a readable running combat silhouette.
+    for(const knee of [leftKnee,rightKnee]){
+      b.cone(knee[0],knee[1]-.02,knee[2]+.085,.135,.095,.20,roleArmor.main,8);
+      b.box(knee[0],knee[1]+.055,knee[2]+.165,.13,.055,.05,roleArmor.trim);
+    }
+    b.box(leftFoot[0],.13,leftFoot[2]+.22,.19,.09,.12,roleArmor.main);
+    b.box(rightFoot[0],.13,rightFoot[2]+.22,.19,.09,.12,roleArmor.main);
     b.cone(cx,hipY+.18,cz,.29,.36,.34,undersuit,8); // armored waist
-    b.cone(cx,hipY+.59,cz,.33,.255,.68,roleArmor.main,10); // shaped chest
+    b.cone(cx,hipY+.59,cz,.33,.255,.68,roleArmor.main,14); // shaped chest
     b.box(cx,hipY+.65,cz+.24,.43,.35,.09,roleArmor.trim); // ballistic breast plate
     b.box(cx,hipY+.36,cz+.26,.33,.09,.10,neutral); // utility belt
+    for(const dx of [-.23,.23]){
+      b.box(cx+dx,hipY+.36,cz+.16,.14,.21,.19,[.19,.24,.23]);
+      b.box(cx+dx,hipY+.31,cz+.27,.13,.045,.05,roleArmor.trim);
+    }
+    // Raised harness/armor strips and central power-core geometry.
+    b.limb([cx-.24,hipY+.92,cz+.20],[cx-.12,hipY+.43,cz+.315],.044,roleArmor.trim);
+    b.limb([cx+.24,hipY+.92,cz+.20],[cx+.12,hipY+.43,cz+.315],.044,roleArmor.trim);
+    b.box(cx,hipY+.83,cz+.31,.11,.21,.065,neutral);
+    b.cylinder(cx,hipY+.83,cz+.355,.07,.055,roleArmor.trim,8);
+    for(let i=0;i<3;i++){
+      b.box(cx-.26,hipY+.57+i*.12,cz+.227,.08,.032,.06,[.10,.16,.21]);
+      b.box(cx+.26,hipY+.57+i*.12,cz+.227,.08,.032,.06,[.10,.16,.21]);
+    }
     b.box(cx,hipY+.63,cz-roleArmor.backpack,.43,.47,.16,neutral);
+    b.box(cx,hipY+.64,cz-roleArmor.backpack-.105,.28,.39,.095,roleArmor.main);
+    b.box(cx,hipY+.80,cz-roleArmor.backpack-.158,.19,.065,.036,roleArmor.trim);
+    for(const side of [-1,1]){
+      b.cylinder(cx+side*.25,hipY+.56,cz-roleArmor.backpack-.04,.067,.25,steel,7);
+    }
     b.cylinder(cx,hipY+.99,cz,.13,.16,undersuit,8);
     const shoulderY=hipY+.87;
     const elbowZ=cz+(pose.attacking?.22:pose.healing?-.10:.15);
@@ -362,11 +387,26 @@
     b.limb([cx-.36,hipY+.53,elbowZ],[cx-.20,hipY+.64,handZ],.080,undersuit);
     b.limb([cx+.36,shoulderY,cz],[cx+.36,hipY+.53,elbowZ],.095,roleArmor.main);
     b.limb([cx+.36,hipY+.53,elbowZ],[cx+.24,hipY+.65,handZ],.080,undersuit);
-    b.cylinder(cx,hipY+1.19,cz,.245,.30,helmet,10); // modeled head
-    b.cone(cx,hipY+1.38,cz,.268,.17,.18,roleArmor.main,10);
+    // Two-piece gauntlets and gripping gloves; procedural pose-driven pieces.
+    for(const side of [-1,1]){
+      b.cylinder(cx+side*.36,shoulderY-.15,cz+.08,.13,.18,roleArmor.main,9);
+      b.box(cx+side*.22,hipY+.66,handZ,.15,.17,.18,neutral);
+      b.box(cx+side*.22,hipY+.70,handZ+.102,.13,.042,.041,roleArmor.trim);
+      b.cone(cx+side*.36,shoulderY+.07,cz,roleArmor.shoulders*.83,.07,.20,roleArmor.main,9);
+    }
+    b.cylinder(cx,hipY+1.19,cz,.245,.30,helmet,14); // modeled head
+    b.cone(cx,hipY+1.38,cz,.268,.17,.18,roleArmor.main,14);
     b.box(cx,hipY+1.22,cz+.24,.33,.115,.06,[.065,.19,.25]); // visor
     b.box(cx,hipY+1.11,cz+.22,.23,.045,.075,steel); // mask
     b.box(cx,hipY+1.42,cz,.35,.05,.23,roleArmor.trim); // crest
+    // Helmet side cheek-guards and distinct eye emitters at hero-camera scale.
+    for(const side of [-1,1]){
+      b.box(cx+side*.205,hipY+1.135,cz+.082,.10,.24,.24,roleArmor.main);
+      b.box(cx+side*.10,hipY+1.235,cz+.289,.10,.055,.035,roleArmor.trim);
+      b.cylinder(cx+side*.223,hipY+1.25,cz,.05,.066,neutral,7);
+    }
+    b.box(cx,hipY+1.075,cz+.235,.20,.085,.078,neutral);
+    b.box(cx,hipY+1.045,cz+.277,.125,.023,.034,roleArmor.trim);
     if(f.archetype==='vanguard'){
       b.box(cx-.42,shoulderY-.08,cz,.20,.32,.34,steel);
       b.box(cx+.42,shoulderY-.08,cz,.20,.32,.34,steel);
