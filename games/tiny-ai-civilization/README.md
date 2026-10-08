@@ -19,6 +19,14 @@ Run browser regression tests with `npm run test:browser` (requires Playwright br
 
 This is not the final game package or a conforming `GameModule` yet. Character models and landscapes remain simplified; no rigorous replay, large-world pathfinding, persistence, physical environment simulation, live provider integration, animation blending, full behavioral ecology, accessibility review, load test, or production sign-off exists. Rendering may vary by device. A separate independent critic has not been run because the local agent tunnel was disconnected in this session. Current benchmark verdict: **FAIL**.
 
+## Latest inspected rounds (003–004)
+
+- Added role-specific citizens with individual proportions, face geometry, hats, carried tools, and articulated procedural walking poses.
+- Added differentiated broadleaf/conifer forest cover, buildings with gables, roof seams, framing and foundations, soft sampled turf, foreground fence, market, well and quarry props.
+- Captured actual Chromium-wide and close-camera frames in `public/tiny-kingdom/progress.html`; neither passes the visual bar.
+- Verified deterministic seeded reset, 400 simulated game hours, village growth and friendships in Chromium; in the same run, food became scarce while gold accumulated, exposing an unsolved economy failure.
+- Added browser tests of social connections and economy progression. Real WebGL GPU capture, rigged character models, blind comparison, production harness integration and fresh-context external critic are still pending. Do not confuse procedural face geometry with animated AAA characters.
+
 ## Gauntlet continuation
 
 Primary bar: official *Manor Lords* captured gameplay and screenshots, camera-matched with our game (https://www.hoodedhorse.com/games/manor-lords). Secondary: Foundation for autonomous labor behavior, The Universim for character emergence. Keep original assets; do not copy proprietary models or textures.
