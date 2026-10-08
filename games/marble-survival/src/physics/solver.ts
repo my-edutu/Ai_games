@@ -21,6 +21,9 @@ const VELOCITY_PREFILTER_MULTIPLIER = 8;
 const BLOCK_COLLIDER_TOP = 760;
 const SWEEPER_COLLIDER_TOP = 660;
 const BUMPER_COLLIDER_TOP = 780;
+// Matches the illuminated reactor well below the zero-height track surface.
+// Pit floors are terminal, not a new platform on which to resume racing.
+const PIT_FLOOR_DEPTH = 900;
 
 interface Rectangle {
   id: string;
@@ -75,6 +78,12 @@ function supportElevation(state: MarbleState, position: Vec2): number | null {
   return support;
 }
 
+function isInsideOpenPit(state: MarbleState, position: Vec2): boolean {
+  return state.arena.hazards.some(hazard =>
+    hazard.kind === 'pit' && insideRectangle(position, hazard)
+  );
+}
+
 function gravityDelta(config: MarbleConfig, substep: number, substeps: number): number {
   const before = divideRound(config.gravityPerTick * substep, substeps);
   const after = divideRound(config.gravityPerTick * (substep + 1), substeps);
@@ -87,8 +96,26 @@ function advanceVertical(
   nextSupport: number | null,
   config: MarbleConfig,
   substep: number,
-  substeps: number
+  substeps: number,
+  pitOpen: boolean
 ): void {
+  if (pitOpen) {
+    // The floor was cut away. Detach from the support and let the marble
+    // descend physically until the terminal reactor depth is reached.
+    // Never clamp it back onto the invisible y=0 racing surface.
+    if (marble.grounded) {
+      marble.grounded = false;
+      marble.verticalVelocity = Math.min(0, marble.verticalVelocity);
+    }
+    marble.elevation = Math.max(-PIT_FLOOR_DEPTH,
+      marble.elevation + divideRound(marble.verticalVelocity, substeps));
+    marble.verticalVelocity = clampInteger(
+      marble.verticalVelocity - gravityDelta(config, substep, substeps),
+      -config.maxVerticalSpeed,
+      config.maxVerticalSpeed
+    );
+    return;
+  }
   if (marble.grounded) {
     if (nextSupport !== null) {
       const previousElevation = marble.elevation;
@@ -194,6 +221,7 @@ function resolveWorld(marble: MarbleCompetitor, state: MarbleState): PhysicsCont
 }
 
 function resolveRectangle(marble: MarbleCompetitor, rectangle: Rectangle, radius: number): PhysicsContact | null {
+  if (marble.elevation < -radius) return null;
   // A marble flying completely above the body must not be knocked sideways
   // by its ground-plane silhouette.
   const colliderTop = rectangle.kind === 'sweeper' ? SWEEPER_COLLIDER_TOP : BLOCK_COLLIDER_TOP;
@@ -243,6 +271,7 @@ function resolveRectangle(marble: MarbleCompetitor, rectangle: Rectangle, radius
 }
 
 function resolveBumper(marble: MarbleCompetitor, bumper: ArenaBumper, marbleRadius: number, stateMaxVerticalSpeed: number): PhysicsContact | null {
+  if (marble.elevation < -marbleRadius) return null;
   // Electric spring tops are physically taller than ordinary bumpers;
   // the collision envelope tracks the actual 3D crest rather than its base.
   const top = (bumper.launchSpeed ?? 0) > 0 ? 1_050 : BUMPER_COLLIDER_TOP;
@@ -272,6 +301,7 @@ function resolveBumper(marble: MarbleCompetitor, bumper: ArenaBumper, marbleRadi
 function resolveMarblePair(first: MarbleCompetitor, second: MarbleCompetitor, state: MarbleState): PhysicsContact | null {
   const radius = state.config.marbleRadius;
   const minimum = radius * 2;
+  if (first.elevation < -radius || second.elevation < -radius) return null;
   const heightDelta = second.elevation - first.elevation;
   if (Math.abs(heightDelta) >= minimum) return null;
   const dx = second.position.x - first.position.x;
@@ -382,7 +412,9 @@ function validateState(state: MarbleState) {
     for (const value of [marble.velocity.x, marble.velocity.y]) {
       if (!Number.isSafeInteger(value)) return { code: 'numeric-range' as const, detail: `Marble ${marble.id} velocity is outside deterministic integer range.` };
     }
-    if (!Number.isSafeInteger(marble.elevation) || marble.elevation < 0 || marble.elevation > POSITION_LIMIT) {
+    if (!Number.isSafeInteger(marble.elevation)
+      || marble.elevation < -PIT_FLOOR_DEPTH || marble.elevation > POSITION_LIMIT
+      || (marble.elevation < 0 && !isInsideOpenPit(state, marble.position))) {
       return { code: 'numeric-range' as const, detail: `Marble ${marble.id} elevation exceeds deterministic range.` };
     }
     if (!Number.isSafeInteger(marble.verticalVelocity) || Math.abs(marble.verticalVelocity) > state.config.maxVerticalSpeed) {
@@ -447,7 +479,11 @@ export function stepMarblePhysics(state: MarbleState, actions: MarbleAction[]): 
       for (const sweeper of sweepers) addContact(contacts, resolveRectangle(marble, sweeper, next.config.marbleRadius), next.config.maxContactsPerTick);
       for (const bumper of next.arena.bumpers) addContact(contacts, resolveBumper(marble, bumper, next.config.marbleRadius, next.config.maxVerticalSpeed), next.config.maxContactsPerTick);
       const nextSupport = supportElevation(next, marble.position);
-      advanceVertical(marble, previousSupport, nextSupport, next.config, substep, substeps);
+      // Shielded racers hover safely at track height during recovery; unshielded
+      // racers begin deterministic gravity-driven descent into open pit wells.
+      const pitOpen = isInsideOpenPit(next, marble.position)
+        && marble.recoveryUntilTick < next.tick;
+      advanceVertical(marble, previousSupport, nextSupport, next.config, substep, substeps, pitOpen);
     }
     for (let iteration = 0; iteration < next.config.collisionIterations; iteration++) {
       for (let firstIndex = 0; firstIndex < active.length; firstIndex++) {
