@@ -624,10 +624,10 @@ function animate(now){
     // Portrait quality gate: prior real capture put Tayo at 42px in a 390px
     // viewport, with most of the playable character clipped off-screen.
     // Keep roughly 70% of the narrow frame ahead for obstacle decisions.
-    const targetX=player.position.x+(portrait?1.20:3.3);
+    const targetX=player.position.x+(portrait?.85:3.3);
     const camX=targetX-2.1;
-    const camZ=portrait?16.8:12.4;
-    const camY=portrait?5.1:4.65;
+    const camZ=portrait?15.5:11.5;
+    const camY=portrait?4.70:4.38;
     camera.position.x=THREE.MathUtils.lerp(camera.position.x,camX,1-Math.exp(-dt*4.5));
     camera.position.y=THREE.MathUtils.lerp(camera.position.y,camY+player.position.y*.18,1-Math.exp(-dt*4));
     camera.position.z=camZ;
