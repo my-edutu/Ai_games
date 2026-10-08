@@ -171,3 +171,18 @@ The 3D renderer now optionally projects up to six public surviving fighters into
 The original screenshot showed a dark, blocky tactical miniature. We have now radically changed scene framing, environment topography, landmark readability, character identity overlays, dramatic event UI and biome sky. **These are implemented coding changes; neither a real screenshot of the newest full-bleed build nor an unbiased Fortnite reference review has yet established that the subjective appearance improved enough.** The exact-head GitHub browser runs are queued. Do not merge until screenshots, gameplay correctness, mobile/OBS and performance have passed.
 
 Further work must move beyond primitives into original professionally authored geometry, textures, proper skinned skeletal animation, shadow maps, authored effect libraries and high-quality lighting/reflections.
+
+## Gauntlet loops 37–41 — shift to real cinematic 3D materials and battle readability
+
+**Screenshot critique:** In the last verified Playwright captures, the interface had improved considerably but the battle still looked like a *miniature table of identical small huts*. This iteration focuses on true camera perspective, identifiable subjects, nonrepeating material surfaces and coherent city architecture, not further cosmetic UI-only amendments.
+
+- **37 — Adaptive director:** Fighter-focused hero scene when six or fewer contenders remain, true public-state tactical inset, `?camera=tactical` for the original overview and `?camera=hero` to force close framing.
+- **38 — Character detail:** Improved geometric equipment, role-specific armor, animated joint additions, boots, segmented gloves, shoulder armor, visors and tools. These **still do not** equal a professionally skinned 3D character.
+- **39 — Material assets:** Created `public/ai-battle-royale/material-atlas.svg` with six original texture tiles (ground and architecture in each of ember/neon/arctic). Real local GPU `sampler2D`, automatic first-party image loading, once-only texture upload, fallback 1×1 white sampler. Toggle `?materials=off` for a same-state untextured A/B; never alters AI outcomes.
+- **40 — Correct physical camera:** Hero view now uses actual pinhole projection with physical eye/right/up/forward vectors, camera FOV, near/far clipping and depth perspective instead of a distant quasi-isometric rendering. Nameplates use the same perspective equation to stay aligned; tactical inset deliberately remains a wide overview.
+- **41 — Contiguous architecture:** Adjacent authoritative obstacle cells join into recognizable warehouses and utility rooftops without covering *any* traversable cell. The previous single-cell barricades are preserved for isolated obstacles. All modules are still visual only; low GPU quality keeps lightweight blocks.
+
+### Reference testing and adverse findings
+Independent competitor screenshots should be used to evaluate modeled character appeal, environment storytelling, illumination, camera composition, props, spatial detail and realism. The exact-head browser capture suite includes `camera-hero-same-state.png`, `camera-tactical-same-state.png`, `material-on-hero.png` and `material-off-hero.png`. Review these against earlier `v4-theatre-full-bleed.png` and against official real Fortnite references.
+
+**Current verification:** renderer JS source/syntax and mock WebGL frame submissions were exercised in-chat; the newest real Chromium run and SVG upload tests remain pending. **AAA NOT ACHIEVED.** Need a genuine asset pipeline with authored PBR geometry and full animation rigs, realistic material/shadow workflows, production performance and independent blind screenshot reviews. Draft PR only; no merge or deployment.

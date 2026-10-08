@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
   "project": "AI Battle Royale",
-  "iteration": 36,
+  "iteration": 41,
   "updated": "2026-10-08",
-  "verdict": "GAUNTLET NOT ACHIEVED — FRESH WEBGL SCREENSHOTS/BLIND CRITIC PENDING",
+  "verdict": "NOT ACHIEVED — camera/materials/architecture browser visual review pending",
   "benchmark": "Fortnite Chapter 4 UE5.1 / Apex Legends / PUBG",
   "completed": [
     "Loop 0 — inspected existing 2D Canvas broadcast, deterministic simulation and reference branch.",
@@ -44,15 +44,18 @@
     "Loop 33 — added 3D camera-projected, live-public-state fighter identity/health nameplates with archetype accents and focus highlights, 6-person cap and responsive OBS hiding; surfaced renderer fallback diagnostics.",
     "Loop 34 — exposed vivid biome-specific sky/atmosphere gradients behind actual WebGL2 geometry using a transparent alpha-composited framebuffer; the traditional 2D scene remains a safe fallback.",
     "Loop 35 — replaced default narrow three-column stage with full-bleed cinematic battlefield and floating, colorful esports telemetry/leaderboard panels; ?layout=panels restores legacy v3 layout and clean OBS feed remains full-screen.",
-    "Loop 36 — built colorful but time-bounded cinematic elimination/shield-break broadcast cards from genuine public events, avoiding fictional victory cues; added deterministic browser fixture and expiration capture."
+    "Loop 36 — built colorful but time-bounded cinematic elimination/shield-break broadcast cards from genuine public events, avoiding fictional victory cues; added deterministic browser fixture and expiration capture.",
+    "Loop 37 — built adaptive fighter-focused third-person hero framing when a match becomes decisive, with true-state tactical inset and a reversible ?camera=tactical view.",
+    "Loop 38 — increased bespoke per-archetype combat character detail: knee guards, segmented boots and gauntlets, helmet cheek armor, visor emitters, utility equipment and harness trim.",
+    "Loop 39 — added an original self-contained SVG GPU texture atlas with six different ground/building surfaces for ember, neon and arctic; WebGL material upload with a safe white-texture fallback and materials=off visual A/B mode.",
+    "Loop 40 — implemented physically correct perspective-divided pinhole hero camera, real near/far clipping, and mathematically projected public-fighter nameplates; tactical inset remains readable.",
+    "Loop 41 — combine adjacent, truly blocked cells into larger contiguous cinematic industrial architecture, reducing repetitive box-hut visuals without changing obstacle footprints or walkability."
   ],
   "gaps": [
-    "P0 — New real WebGL2 Chromium screenshots not yet reviewed; these code changes must not be mistaken for a passed visual bar.",
-    "P0 — Still missing truly professional textured meshes, PBR materials, real shadow maps, character skeletons, AAA animation, custom original art direction and geometry blending.",
-    "P1 — Validate shadow/horizon consistency and rendering performance with new heightfield and monument; compare same-state desktop/mobile/OBS captures.",
-    "P1 — No independent reference-based blind critic has declared parity with Fortnite.",
-    "P0 benchmark shortfall — original procedural low-poly environments and character silhouettes remain far behind Fortnite Chapter 4 UE5 artistry, realistic shadows, advanced PBR material response and animations.",
-    "P0 independent critique — no blind human A/B review against actual Epic Fortnite reference images or 24/7 observable-match record; do not claim benchmark victory.",
-    "P1 world — author terrain heightfields, buildings and interiors, environmental occlusion, realistic vegetation, cinematic lighting and varied material assets while preserving true collision and AI pathfinding."
+    "P0 real-browser visual validation — exact-head Playwright and independent screenshot inspection of the new true pinhole camera, material-atlas upload and grouped world are REQUIRED; do not claim a pass.",
+    "P0 art benchmark — original procedurally modeled humans, simplistic props, approximate lighting and lack of full skinned character rigs remain FAR short of Fortnite Chapter 4 UE5 or any AAA battle royale.",
+    "P0 production asset gap — need authored textured character models, animation rigs, original environment assets, PBR and shadow mapping, thoughtful encounter spaces, and multi-hour OBS production soak.",
+    "P1 quality gate — compare same public state camera hero/tactical and materials on/off, evaluate silhouettes, world occlusion, lighting and legibility, then fix highest-impact deficits.",
+    "P1 reliability gate — precise latest-head full CI and screenshot workflow are queued; no automated tests may be represented as passed before checking outcomes."
   ]
 }
