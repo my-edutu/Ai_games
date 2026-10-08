@@ -231,3 +231,116 @@ body {
  .broadcast-lower-overlay .influence-panel{background:#050b20;border:2px solid #fff;backdrop-filter:none}
  .strip-cell{border-color:#fff!important}
 }
+
+/* LOOP 16 · CHARACTER DOSSIER + IMMERSIVE BROADCAST TOOLS
+   An observer can inspect an autonomous contestant without acquiring operator
+   controls, changing its path or moving the server's chosen broadcast camera. */
+.broadcast-shell .view-toggle[aria-pressed="true"] {
+  background:linear-gradient(115deg,#2149a9a3,#6c36b7a3);
+  border-color:var(--arena-accent);
+  box-shadow:0 0 17px #43caff36;
+}
+.leaderboard-panel.broadcast-overlay {
+  pointer-events:auto;
+}
+.leaderboard-panel.broadcast-overlay .leaderboard li {
+  position:relative;
+  isolation:isolate;
+  transition:background .14s ease,border-color .14s ease;
+}
+.leaderboard-panel.broadcast-overlay .leaderboard li:hover,
+.leaderboard-panel.broadcast-overlay .leaderboard li:has(.inspect-marble:focus-visible),
+.leaderboard-panel.broadcast-overlay .leaderboard li[data-inspected="true"] {
+  background:linear-gradient(90deg,rgba(102,121,240,.52),rgba(29,101,181,.36));
+  border-color:var(--arena-accent);
+  box-shadow:inset 3px 0 var(--arena-accent);
+}
+.leaderboard-panel.broadcast-overlay .inspect-marble {
+  position:absolute;inset:0;z-index:2;display:block;width:100%;height:100%;
+  border:0;border-radius:inherit;background:transparent;color:transparent;
+  cursor:pointer;
+}
+.leaderboard-panel.broadcast-overlay .inspect-marble:focus-visible {
+  outline:2px solid var(--arena-fire);
+  outline-offset:1px;
+}
+.spotlight-card[hidden] { display:none!important; }
+.spotlight-card {
+  --competitor-color:#78deff;
+  position:absolute;z-index:9;left:17px;top:225px;width:300px;
+  padding:16px;
+  border:1px solid color-mix(in srgb,var(--competitor-color) 64%,transparent);
+  border-radius:14px;
+  background:linear-gradient(155deg,rgba(18,31,82,.95),rgba(12,17,46,.96));
+  box-shadow:0 19px 52px #010822bd,inset 0 1px #b6e2ff27,0 0 26px color-mix(in srgb,var(--competitor-color) 13%,transparent);
+  backdrop-filter:blur(20px) saturate(1.2);
+  pointer-events:auto;
+  color:#f4f9ff;
+}
+.spotlight-heading{display:flex;align-items:center;justify-content:space-between;gap:8px;color:var(--competitor-color);font-size:9px;font-weight:900;letter-spacing:.20em}
+.spotlight-heading button{
+  width:29px;height:29px;display:grid;place-items:center;border-radius:7px;
+  border:1px solid #ffffff40;color:#f3f6ff;background:#2b3f79b9;cursor:pointer
+}
+.spotlight-heading button:hover{border-color:var(--competitor-color)}
+.spotlight-identity{display:flex;align-items:center;gap:12px;margin-top:15px}
+.spotlight-identity>div{min-width:0;display:grid;gap:5px}
+.spotlight-orb{
+  width:66px;height:66px;border-radius:50%;flex:none;display:grid;place-items:center;
+  background:radial-gradient(circle at 32% 23%,#fff, color-mix(in srgb,var(--competitor-color) 76%,#fff) 13%,var(--competitor-color) 48%,#121943 95%);
+  box-shadow:0 0 22px color-mix(in srgb,var(--competitor-color) 42%,transparent),inset -10px -10px 18px #040d3cb7;
+  border:1px solid #ffffff8a;position:relative
+}
+.spotlight-orb:after{content:"";position:absolute;inset:9px 5px;border-top:2px solid #ffffffca;border-bottom:2px solid #d2e6ff8f;border-radius:50%;transform:rotate(-34deg)}
+.spotlight-orb b{position:relative;z-index:1;background:#081735d6;padding:4px 6px;color:#fff;border-radius:5px;font-size:17px;text-shadow:0 1px 4px #000}
+.spotlight-identity small{color:#b4c9eb;font-size:9px;letter-spacing:.10em;font-weight:790}
+.spotlight-identity strong{font-size:21px;line-height:1.05;letter-spacing:-.05em;color:#fff;overflow-wrap:anywhere}
+.spotlight-identity span:not(.spotlight-orb){font-size:10px;font-weight:900;letter-spacing:.13em;color:var(--competitor-color)}
+.spotlight-progress{height:6px;margin:20px 0 16px;border-radius:10px;background:#8baff524;overflow:hidden}
+.spotlight-progress>span{display:block;height:100%;width:0;background:linear-gradient(90deg,#787dff,var(--competitor-color));border-radius:inherit;box-shadow:0 0 13px var(--competitor-color);transition:width .25s ease}
+.spotlight-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+.spotlight-stats div{min-width:0;padding:9px 6px;background:#6492eb1a;border:1px solid #b5d7ff25;border-radius:8px}
+.spotlight-stats span{display:block;color:#a9bfe6;font-size:8px;letter-spacing:.10em;font-weight:800}
+.spotlight-stats strong{display:block;margin-top:5px;color:#fff;font-size:16px;font-variant-numeric:tabular-nums}
+.spotlight-card p{margin:13px 0 0;color:#afc6e8;font-size:9px;line-height:1.55}
+
+/* Cinematic mode retains all rendering, server authority, the title and
+   projected character tags. Only broadcast furniture is hidden. */
+.broadcast-shell[data-view="cinematic"] .leaderboard-panel.broadcast-overlay,
+.broadcast-shell[data-view="cinematic"] .broadcast-lower-overlay,
+.broadcast-shell[data-view="cinematic"] .spotlight-card,
+.broadcast-shell[data-view="cinematic"] .arena-threat-badge {
+  display:none!important;
+}
+.broadcast-shell[data-view="cinematic"] .arena-title-card{
+  transform:scale(.82);transform-origin:top left;opacity:.76;
+}
+.broadcast-shell[data-view="cinematic"] .arena-topline #feed-value{background:#081d3bb0}
+.broadcast-shell[data-view="cinematic"] .arena-card{
+  border-color:var(--arena-accent);box-shadow:0 24px 78px #010926b4,0 0 33px #38b1ff37;
+}
+.broadcast-shell[data-clean="true"] .spotlight-card{display:none!important}
+
+@media(max-width:760px){
+  .spotlight-card{left:9px;top:auto;bottom:95px;width:min(295px,calc(100vw - 18px));padding:12px}
+  .spotlight-orb{width:52px;height:52px}
+  .spotlight-identity strong{font-size:18px}
+  .spotlight-card p{display:none}
+  .spotlight-progress{margin:11px 0}
+  .spotlight-stats div{padding:7px 5px}
+  .spotlight-stats strong{font-size:14px}
+  .leaderboard-panel.broadcast-overlay .inspect-marble{touch-action:manipulation}
+}
+@media(max-width:410px){
+  .broadcast-shell[data-layout="arena-first"] .status-cluster .view-toggle{
+    display:inline-flex;min-width:60px;justify-content:center
+  }
+}
+@media(prefers-reduced-motion:reduce){
+  .spotlight-progress>span,.leaderboard-panel.broadcast-overlay .leaderboard li{transition:none}
+}
+@media(prefers-contrast:more){
+  .spotlight-card{background:#050b1c;border:2px solid #fff;backdrop-filter:none}
+  .spotlight-identity span:not(.spotlight-orb){color:#fff}
+  .spotlight-stats span,.spotlight-card p{color:#fff}
+}
