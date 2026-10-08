@@ -243,3 +243,23 @@ test('3D nameplates follow published living AI fighters and never overwhelm broa
     await expect(page.locator('[data-testid="battle-canvas"]')).toBeVisible();
   }
 });
+
+test('v3 WebGL scene preserves the biome sky behind actual shaded 3D geometry',async({page})=>{
+  await page.setViewportSize({width:1600,height:900});
+  await page.goto(base+'/battle?muted=1',{waitUntil:'domcontentloaded'});
+  await page.waitForFunction(()=>Boolean(window.__BATTLE_PUBLIC_STATE__&&window.BattleArena3D));
+  const values=await page.evaluate(()=>{
+    const shell=document.querySelector('.arena-shell');
+    const canvas=document.querySelector('.battle-webgl3d');
+    const style=getComputedStyle(shell);
+    return{background:style.backgroundImage,mode:window.BattleArena3D.status.mode,
+      rendererError:window.BattleArena3D.status.lastError,
+      canvasBackground:canvas?getComputedStyle(canvas).backgroundColor:null};
+  });
+  expect(values.background).toContain('gradient');
+  if(values.mode==='webgl2'){
+    expect(values.rendererError).toBeNull();
+    expect(values.canvasBackground).toBe('rgba(0, 0, 0, 0)');
+    await page.screenshot({path:path.join(captures,'atmospheric-3d-sky.png')});
+  }
+});

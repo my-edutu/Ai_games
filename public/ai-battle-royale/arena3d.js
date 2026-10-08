@@ -137,7 +137,7 @@
     staticBuffer=gl.createBuffer();dynamicBuffer=gl.createBuffer();
     staticCache.key=null;staticCache.vertices=0;
     gl.enable(gl.DEPTH_TEST);gl.depthFunc(gl.LEQUAL);
-    gl.disable(gl.CULL_FACE);gl.clearColor(.10,.17,.30,1);
+    gl.disable(gl.CULL_FACE);gl.clearColor(0,0,0,0);
     status.mode='webgl2';status.lastError=null;document.body.dataset.battleRenderer='webgl2';
   }
   if(!disabled){
@@ -166,7 +166,7 @@
       catch(error){status.mode='fallback-2d';status.lastError=String(error?.message||error).slice(0,180);disabled=true;canvas.style.display='none'}
     });
     try{
-      gl=canvas.getContext('webgl2',{antialias:true,alpha:false,powerPreference:'high-performance'});
+      gl=canvas.getContext('webgl2',{antialias:true,alpha:true,powerPreference:'high-performance'});
       if(!gl)throw Error('webgl2-unavailable');
       initialize();
     }catch(error){
@@ -1113,7 +1113,7 @@
     }finally{
       gl.disable(gl.SCISSOR_TEST);
       gl.viewport(0,0,canvas.width,canvas.height);
-      gl.clearColor(.10,.17,.30,1);
+      gl.clearColor(0,0,0,0);
     }
   }
   function updateNameplates(snapshot,area,view,scale,zoom,yaw,pitch){

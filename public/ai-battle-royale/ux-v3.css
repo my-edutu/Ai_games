@@ -399,3 +399,44 @@ body[data-ux-revision="3"] .battle-3d-nameplate[data-focus="true"]{
 body.clean-feed .battle-3d-nameplates,
 body[data-battle-renderer="2d-fallback"] .battle-3d-nameplates{display:none}
 @media (max-width:949px){body[data-ux-revision="3"] .battle-3d-nameplates{display:none}}
+
+/* Loop 34: daylight and atmospheric skylight actually show through the
+   alpha-composited WebGL2 background. The older 2D scene remains painted. */
+body[data-ux-revision="3"] .arena-shell canvas{
+  background:transparent;
+}
+body[data-ux-revision="3"] .arena-shell{
+  background:
+    radial-gradient(ellipse at 76% 13%,rgba(148,208,255,.24),transparent 40%),
+    linear-gradient(175deg,#1f3a63 0%,#2e4964 49%,#223c57 100%);
+}
+body[data-ux-revision="3"][data-arena-biome="neon"] .arena-shell{
+  background:
+    radial-gradient(ellipse at 75% 10%,rgba(255,83,172,.44),transparent 37%),
+    radial-gradient(ellipse at 9% 38%,rgba(56,237,255,.36),transparent 52%),
+    linear-gradient(160deg,#32477e,#17385c 50%,#101d43 100%);
+}
+body[data-ux-revision="3"][data-arena-biome="arctic"] .arena-shell{
+  background:
+    radial-gradient(ellipse at 81% 5%,rgba(233,249,255,.56),transparent 43%),
+    radial-gradient(ellipse at 10% 25%,rgba(76,226,240,.22),transparent 52%),
+    linear-gradient(160deg,#88c8da,#4b8aa9 55%,#2b688f 100%);
+}
+body[data-ux-revision="3"][data-arena-biome="ember"] .arena-shell{
+  background:
+    radial-gradient(ellipse at 79% 12%,rgba(255,231,130,.50),transparent 36%),
+    radial-gradient(ellipse at 4% 37%,rgba(255,93,91,.32),transparent 48%),
+    linear-gradient(160deg,#dd8d69,#ae6574 52%,#50617d 100%);
+}
+body[data-ux-revision="3"] .arena-shell:before{
+  content:"";position:absolute;inset:0;z-index:0;pointer-events:none;
+  background:
+    linear-gradient(105deg,transparent 0%,rgba(255,255,255,.09) 46%,transparent 63%),
+    radial-gradient(ellipse at 52% 74%,rgba(170,227,255,.12),transparent 53%);
+}
+body[data-ux-revision="3"].clean-feed .arena-shell:before{
+  opacity:.65;
+}
+body[data-ux-revision="3"][data-high-contrast="true"] .arena-shell{
+  background:#142840;
+}
