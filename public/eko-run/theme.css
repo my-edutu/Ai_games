@@ -175,3 +175,46 @@ button:focus-visible,select:focus-visible,.button:focus-visible{outline:3px soli
 
 /* GAUNTLET VIEWABILITY: one-row live desktop controls keep more of the road visible. */
 @media (min-width:861px){.toolbar{flex-wrap:nowrap}.toolbar .hint{display:none}}
+
+
+/* GAUNTLET LOOP 16 — GAMEPLAY-FIRST UI.
+ * Prior 1280px screenshots showed a giant event across Tayo/vehicles.
+ * Keep the HUD discoverable but let the 3D world dominate the image. */
+.middle{
+  top:clamp(100px,17vh,152px);
+  left:50%;width:max-content;max-width:min(450px,55vw);
+  transform:translate(-50%,-50%);
+  filter:drop-shadow(0 6px 14px rgba(2,21,30,.25));
+}
+#event{
+  padding:9px 15px;border-radius:100px;font-size:clamp(12px,1.1vw,16px);
+  font-weight:950;letter-spacing:.12em;text-transform:uppercase;
+  color:#152b38;text-shadow:none;background:linear-gradient(110deg,#ffec98,#ffd275);
+  border:1px solid rgba(255,250,204,.85);
+  box-shadow:0 10px 25px rgba(1,13,22,.24);
+  white-space:nowrap;opacity:0;pointer-events:none;
+}
+#event.pop{animation:ekoToast 1.15s cubic-bezier(.2,.7,.3,1) both}
+@keyframes ekoToast{
+  0%{transform:translateY(8px) scale(.95);opacity:0}
+  15%{transform:translateY(0) scale(1.00);opacity:.97}
+  56%{transform:translateY(-2px);opacity:.92}
+  100%{transform:translateY(-12px);opacity:0}
+}
+#banner{padding:13px 18px;font-size:clamp(14px,1.4vw,20px)}
+.story{gap:12px}
+.district{font-size:clamp(29px,3.9vw,56px)}
+.score{padding:11px 15px}
+.score strong{font-size:clamp(21px,2vw,29px)}
+.toolbar{padding:8px 10px}
+.toolbar button,.toolbar select,.toolbar .button{min-height:38px}
+#game{filter:saturate(1.09) contrast(1.025)}
+@media(max-width:860px){
+ .middle{top:clamp(148px,22vh,210px);left:50%;max-width:calc(100vw - 36px)}
+ #event{font-size:11px;padding:8px 12px;letter-spacing:.08em}
+ .district{font-size:clamp(27px,7.2vw,38px)}
+ .score{padding:8px 9px}
+ .score strong{font-size:18px}
+}
+@media(max-height:520px){.middle{display:none}}
+@media(prefers-reduced-motion:reduce){#event.pop{animation:none;opacity:1}}
