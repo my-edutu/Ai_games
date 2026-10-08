@@ -116,6 +116,8 @@ const fs = [
   'vec3 V=normalize(uEye-vPosition);vec3 H=normalize(L+V);',
   'float sheen=pow(max(dot(N,H),0.0),24.0)*0.065*(1.0-uNight*0.5);',
   'color+=sunlight*sheen;',
+  'float grain=fract(sin(dot(floor(vPosition.xz*2.1+vPosition.y*0.3),vec2(12.9898,78.233)))*43758.5453);',
+  'color*=0.972+0.055*grain;',
   'float distanceToCamera=distance(uEye,vPosition);',
   'float haze=1.0-exp(-pow(distanceToCamera*uFog,2.0));',
   'vec3 graded=pow(clamp(color,0.0,1.0),vec3(0.90));fragColor=vec4(mix(graded,uFogColor,clamp(haze,0.0,0.66)),1.0);}'
@@ -383,7 +385,7 @@ function restartRun(){
   terminalSince=null;accumulator=0;director=undefined;lastGeometryStamp='';
 }
 function render(now){
-  const delta=Math.min(.09,Math.max(0,(now-last)/1000));last=now;elapsed+=delta;
+  const delta=Math.min(.09,Math.max(0,(now-last)/1000));last=now;if(!paused)elapsed+=delta;
   fpsSmooth=fpsSmooth*.93+(delta?1/delta:30)*.07;
   if(!paused&&game.status==='running'){accumulator+=delta;let limit=0;while(accumulator>=fixed&&limit++<4){game=stepGame(game,fixed);accumulator-=fixed;}}
   if(!paused&&!frozen&&game.status!=='running'){
