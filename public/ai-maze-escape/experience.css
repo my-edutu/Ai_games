@@ -389,3 +389,19 @@ body[data-high-contrast="true"] #broadcast[data-ux-revision="3"] #cinema-banner 
   #camera-switch button{padding:8px;font-size:9px}
   #broadcast[data-ux-revision="3"] #cinema-hunter{right:16px!important;bottom:395px!important}
 }
+
+#broadcast[data-ux-revision="3"] .audience-panel{
+  display:grid;gap:8px;padding:13px;border-radius:12px;
+  border:1px solid rgba(144,223,205,.2);background:linear-gradient(135deg,rgba(33,82,72,.22),rgba(13,31,31,.38));
+}
+.audience-pressure{display:flex;justify-content:space-between;align-items:center;color:#bed7d0;
+  font-size:9px;font-weight:800;letter-spacing:.12em}
+.audience-pressure strong{font-size:18px;color:#b2f7e4}
+.audience-pressure-track{height:5px;border-radius:10px;overflow:hidden;background:rgba(145,197,182,.18)}
+.audience-pressure-track span{display:block;width:0;height:100%;border-radius:inherit;
+  background:linear-gradient(90deg,#69cfad,#edc68b);transition:width .3s}
+#audience-effect{font-size:11px;line-height:1.4;color:#bcd3c8;margin:0}
+#broadcast[data-ux-revision="3"] .audience-panel .eyebrow{margin-bottom:0}
+@media(max-width:1000px){
+  #broadcast[data-ux-revision="3"] .audience-panel{display:none}
+}
