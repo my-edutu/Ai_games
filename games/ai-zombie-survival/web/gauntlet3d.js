@@ -1,5 +1,6 @@
 // Real WebGL2 perspective scene. The fixed-step game simulation remains authoritative.
 import { createGame, stepGame, selectCameraEvent, applyEvidenceScenario, isEvidenceScenario, buildAudioPlan, validateWorld } from '../dist/index.js';
+import { decorateBuilding, decorateWorld } from './scene-art.js';
 
 const canvas = document.getElementById('scene');
 const hud = document.getElementById('hud');
@@ -71,7 +72,7 @@ canvas.addEventListener('webglcontextlost',event=>{
 const restartDelayMs=Math.max(500,Math.min(60000,Number(params.get('restartMs'))||12000));
 let orbit = 0.67, range = 27, dragging = false, priorX = 0, cameraX = 0, cameraZ = 0, cameraFocusX = 0, cameraFocusZ = 0;
 let cameraMode = ['hero','overview'].includes(params.get('view'))?params.get('view'):'director', heroIndex=0, director = undefined, fpsSmooth = 30, lastStats = 0, buffersRebuilt = 0, lastGeometryStamp = '';
-let directedRange = 27;
+let directedRange = 21;
 const frameCpuMs=[];
 let qualityScale=1, qualityCheckTime=0;
 const fixed = 1 / 30, maxVisibleZombies = 260;
@@ -157,7 +158,7 @@ const fs = [
   'out vec4 fragColor;',
   'void main(){vec3 N=normalize(vNormal);vec3 L=normalize(uLight);',
   'float lambert=max(dot(N,L),0.0);float wrap=max(dot(N,L)*0.65+0.35,0.0);',
-  'float skyBounce=0.10*max(N.y,0.0);float dayAmbient=mix(0.55,0.38,uNight);',
+  'float skyBounce=0.10*max(N.y,0.0);float dayAmbient=mix(0.69,0.45,uNight);',
   'vec3 sunlight=mix(vec3(1.09,0.99,0.84),vec3(0.52,0.65,0.93),uNight);',
   'vec3 color=vColor*(dayAmbient+skyBounce+sunlight*(0.38*wrap+0.24*lambert));',
   'vec3 V=normalize(uEye-vPosition);vec3 H=normalize(L+V);',
@@ -275,6 +276,9 @@ function constructStatic(){
       m.contactShadow(x,z,.48+wet*.68,.24+wet*.32,'#64858a',.123);
     }
   }
+  // Distinct hospital, residential, industrial and market facades plus the command headquarters.
+  for(const building of game.buildings)decorateBuilding(m,building,game);
+  decorateWorld(m,game);
   // Ruined green belt: trees, weeds, and autumn crowns provide organic contrast to boxy buildings.
   for(let i=0;i<48;i++){
     const x=-54+(i*31)%110,z=-37+(i*19)%80;
@@ -447,8 +451,8 @@ function selectFocus(dt){
   if(cameraMode==='overview'){focus={x:0,y:0};}
   const a=Math.min(1,dt*(reducedMotion?2:1.75));
   cameraFocusX+=(focus.x-cameraFocusX)*a;cameraFocusZ+=(focus.y-cameraFocusZ)*a;
-  const directorZoom=({rescue:16,interior:17,scavenge:19,'near-death':14,'survivor-follow':20,
-    defense:26,'horde-overview':46,failure:34,squad:27})[director.mode]??27;
+  const directorZoom=({rescue:15,interior:15,scavenge:18,'near-death':13,'survivor-follow':17,
+    defense:22,'horde-overview':36,failure:30,squad:21})[director.mode]??21;
   const desired=cameraMode==='hero'?14:cameraMode==='overview'?57:
     cameraMode==='director'?directorZoom:range;
   directedRange+=(desired-directedRange)*Math.min(1,dt*(reducedMotion?3:1.9));
@@ -486,7 +490,7 @@ function toggleRoster(){
 }
 function restartRun(){
   seed=(seed+1)>>>0||1;completedRuns++;resumeStatus='NEW RUN';game=createGame({seed,zombieCount:params.get('crowd')==='dense'?260:180});
-  audioEventsSeen=0;cameraMode='director';cameraFocusX=0;cameraFocusZ=0;directedRange=27;
+  audioEventsSeen=0;cameraMode='director';cameraFocusX=0;cameraFocusZ=0;directedRange=21;
   terminalSince=null;accumulator=0;director=undefined;lastGeometryStamp='';
   try{sessionStorage.removeItem(recoveryKey);}catch{}
 }
@@ -517,7 +521,7 @@ function render(now){
   const w=Math.max(1,Math.round(innerWidth*dpi)),h=Math.max(1,Math.round(innerHeight*dpi));
   if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h;gl.viewport(0,0,w,h);}
   const night=game.time.phase==='night',sunset=game.time.phase==='sunset';
-  const sky=night?[.042,.065,.105]:sunset?[.44,.30,.24]:[.50,.65,.73];
+  const sky=night?[.044,.080,.167]:sunset?[.73,.39,.29]:[.58,.76,.83];
   gl.clearColor(...sky,1);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
   const actualRange=cameraMode==='manual'?range:directedRange;
   const eye=[cameraFocusX+Math.sin(orbit)*actualRange,actualRange*(cameraMode==='hero'?.48:.51),cameraFocusZ+Math.cos(orbit)*actualRange];
@@ -527,7 +531,7 @@ function render(now){
   gl.uniform3fv(uniforms.uLight,new Float32Array(night?[.45,.9,.35]:[-.58,1,.48]));
   gl.uniform1f(uniforms.uNight,night?1:0);
   gl.uniform3fv(uniforms.uFogColor,new Float32Array(sky));
-  gl.uniform1f(uniforms.uFog,night?.012:.004+(game.weather.kind==='fog'?.006:0));
+  gl.uniform1f(uniforms.uFog,night?.010:.003+(game.weather.kind==='fog'?.006:0));
   rebuildStatic();
   const moving=new Mesh();drawObjects(moving,elapsed);upload(movingMesh,moving.vertices);
   for(const b of [staticMesh,movingMesh]){gl.bindVertexArray(b.vao);gl.drawArrays(gl.TRIANGLES,0,b.count);}
@@ -535,11 +539,19 @@ function render(now){
   if(frameCpuMs.length>180)frameCpuMs.shift();
   if(now-lastStats>450){
     lastStats=now;renderSquad();const living=game.survivors.filter(s=>s.alive).length,infected=game.zombies.filter(z=>z.health>0).length;
+    hud.dataset.phase=game.time.phase;
     hud.querySelector('#day').textContent='DAY '+game.time.day+' / '+game.time.phase.toUpperCase();
+    hud.querySelector('#weather').textContent=game.weather.kind.toUpperCase()+
+      (game.weather.kind==='clear'?' SKIES':game.weather.kind==='storm'?' WARNING':'');
     hud.querySelector('#people').textContent=living+' SURVIVORS';
     hud.querySelector('#infected').textContent=infected+' INFECTED';
-    hud.querySelector('#integrity').textContent=Math.round(game.safeHouse.integrity)+'% BASE';
+    const baseIntegrity=Math.max(0,Math.min(100,game.safeHouse.integrity));
+    hud.querySelector('#integrity').textContent=Math.round(baseIntegrity)+'% BASE';
+    hud.querySelector('#baseFill').style.width=baseIntegrity+'%';
     hud.querySelector('#goal').textContent=game.objective.label;
+    hud.querySelector('#objectiveType').textContent=game.objective.kind.toUpperCase();
+    const objProgress=game.objective.progress<=1?game.objective.progress*100:game.objective.progress;
+    hud.querySelector('#objectiveFill').style.width=Math.max(0,Math.min(100,objProgress||0))+'%';
     hud.querySelector('#resources').textContent='SUPPLIES  '+Math.floor(game.resources.food)+' FOOD  /  '+Math.floor(game.resources.ammo)+' AMMO';
     hud.querySelector('#status').textContent=game.status==='running'?(resumeStatus==='NEW RUN'?'RUN '+(completedRuns+1)+' · AUTONOMOUS LIVE':resumeStatus):'RUN '+(completedRuns+1)+' ENDED · RESTART PENDING';
     const featured=game.survivors.find(v=>v.id===director?.targetId&&v.alive)||game.survivors.find(v=>v.alive);
@@ -550,6 +562,11 @@ function render(now){
     hud.querySelector('#action').textContent=latest?'LATEST · '+(captions[latest.type]||latest.type.replaceAll('-',' ').toUpperCase()):'LATEST · Surveillance established';
     const pressure=Math.round(Math.max(0,Math.min(100,game.hordePressure*100)));
     hud.querySelector('#hordeMeter').style.width=pressure+'%';
+    hud.querySelector('#threatPercent').textContent=pressure+'%';
+    hud.querySelector('#cameraLabel').textContent=(
+      cameraMode==='director'?director.mode.replaceAll('-',' '):cameraMode
+    ).toUpperCase();
+    hud.querySelector('#wave').textContent=String(game.time.day).padStart(2,'0')+' / '+game.progression.pattern.replaceAll('-',' ').toUpperCase();
     hud.querySelector('.aiMeter').setAttribute('aria-label','Zombie pressure '+pressure+' percent');
     const sortedCosts=[...frameCpuMs].sort((a,b)=>a-b);
     const cpuP95=sortedCosts[Math.min(sortedCosts.length-1,Math.floor(sortedCosts.length*.95))]??0;
@@ -565,7 +582,7 @@ canvas.addEventListener('pointermove',e=>{if(dragging){orbit+=(e.clientX-priorX)
 canvas.addEventListener('pointerup',()=>dragging=false);
 canvas.addEventListener('pointercancel',()=>dragging=false);
 canvas.addEventListener('wheel',e=>{e.preventDefault();range=Math.max(19,Math.min(91,range+e.deltaY*.036));},{passive:false});
-function togglePause(){paused=!paused;verdict.textContent='WEBGL2 TRUE 3D • '+(paused?'PAUSED':'SIMULATION LIVE');}
+function togglePause(){paused=!paused;verdict.textContent='WEBGL2 TRUE 3D • '+(paused?'PAUSED':'SIMULATION LIVE');document.querySelector('#togglePause').innerHTML=paused?'⏵ RESUME':'⏯ PAUSE';}
 document.addEventListener('keydown',e=>{
   if(e.code==='Space'){e.preventDefault();togglePause();}
   if(e.key.toLowerCase()==='h'){hudShown=!hudShown;hud.hidden=!hudShown;}
