@@ -138,7 +138,13 @@ export function mountTower3D({host,getFrame,reducedMotion=false,highContrast=fal
   renderer.shadowMap.type=THREE.PCFSoftShadowMap;
   const key=new THREE.DirectionalLight(0xffddb0,3.4);key.position.set(-45,120,135);key.castShadow=quality!=='low';key.shadow.mapSize.set(1024,1024);key.shadow.camera.left=-300;key.shadow.camera.right=300;key.shadow.camera.top=300;key.shadow.camera.bottom=-300;key.shadow.camera.near=1;key.shadow.camera.far=650;key.shadow.bias=-.0003;scene.add(key,key.target);
   const rim=new THREE.DirectionalLight(0x9edce2,2.9);rim.position.set(80,55,-30);scene.add(rim,rim.target);
-  const player=createTowerCharacter({tint:0xf7a65d,kind:'climber'});player.traverse(o=>{if(o.isMesh)o.castShadow=true});actors.add(player);
+  const player=createTowerCharacter({tint:0xf7a65d,kind:'climber'});
+  // Shadows on every minute rivet and tiny finger segment multiply draw calls.
+  // Keep only the largest 22 Wayfinder surfaces shadow-casting in cinematics.
+  const shadowCandidates=[];
+  player.traverse(o=>{if(o.isMesh){o.castShadow=false;const size=o.geometry?.boundingSphere?.radius||0;shadowCandidates.push(o)}});
+  shadowCandidates.slice(0,22).forEach(o=>o.castShadow=true);
+  actors.add(player);
   // This quality-review turntable reuses exactly the same production character assets.
   // It does not alter game authority or the live snapshot and is opt-in only.
   const inspector=new THREE.Group();inspector.visible=inspectCharacters;actors.add(inspector);
@@ -162,7 +168,7 @@ export function mountTower3D({host,getFrame,reducedMotion=false,highContrast=fal
   let floor=-1,theme='',lastChecksum='',latest=null,frame=null,running=true,lastAt=performance.now(),ornament=null,landmarks=null,atmosphere=null;
   let cameraY=35,cameraX=240,worldWidth=480,observedFrames=0,visualX=null,visualY=null,visualRun='',visualFloor=-1;
   let frameTotalMs=0,slowFrames=0,frameSampleCount=0;
-  const perf={frames:0,drawCalls:0,triangles:0,entityCount:0};window.__TOWER_3D_DIAGNOSTICS__=perf;
+  const perf={frames:0,drawCalls:0,triangles:0,entityCount:0,phase:'initialized',bootError:null};window.__TOWER_3D_DIAGNOSTICS__=perf;
 
   function buildBackdrop(s){
     clearGroup(backdrop);clearGroup(structures);platformMeshes.clear();for(const [id,obj] of dynamic){actors.remove(obj);clearGroup(obj);dynamic.delete(id)}
@@ -341,7 +347,9 @@ export function mountTower3D({host,getFrame,reducedMotion=false,highContrast=fal
     try{
     const data=getFrame();if(!data?.snapshot)return;
     const s=data.snapshot;
+    perf.phase='synchronizing';
     if(lastChecksum!==s.publicChecksum)sync(s);
+    perf.phase='animation';
     const rawMs=now-lastAt,dt=clamp(rawMs/1000,0,.1);lastAt=now;resize();
     if(rawMs>0&&Number.isFinite(rawMs)){frameTotalMs+=rawMs;frameSampleCount++;if(rawMs>33.3)slowFrames++;}
     const authoritativeX=coord(s.player.x),authoritativeY=coord(s.player.y);
@@ -391,13 +399,15 @@ export function mountTower3D({host,getFrame,reducedMotion=false,highContrast=fal
     animateTowerEnvironment(ornament,now*.001,reducedMotion);
     animateBiomeLandmarks(landmarks,now*.001,reducedMotion);
     animateTowerAtmosphere(atmosphere,now,reducedMotion);
-    const effectFrame=actionEffects.frame(dt,s,visualX,visualY,reducedMotion);
+    actionEffects.frame(dt,s,visualX,visualY,reducedMotion);
+    perf.phase='rendering';
     renderer.render(scene,camera);observedFrames++;
+    perf.phase='presenting';
     perf.renderedFrames=observedFrames;
     perf.lastFrameTick=s.tick;
     perf.drawCalls=renderer.info.render.calls;
     perf.triangles=renderer.info.render.triangles;
-    if(observedFrames%60===0){perf.frames=observedFrames;perf.drawCalls=renderer.info.render.calls;perf.triangles=renderer.info.render.triangles;perf.heroParts=(()=>{let count=0;player.traverse(o=>{if(o.isMesh)count++});return count})();perf.heroSculpt=player.userData.sculpt||null;perf.renderMode='webgl-3d';perf.state=s.player.state;perf.heroCamera=heroCamera;perf.lens='perspective';perf.inspectCharacters=inspectCharacters;perf.inspectionModels=inspectors.length;perf.biomeLandmarks=landmarks?.world?.children.length||0;perf.atmosphere=atmosphere?.metrics||null;perf.actionFx=actionEffects.metrics();perf.highContrast=highContrast;perf.averageFps=frameTotalMs>0?Math.round(1000*frameSampleCount/frameTotalMs):0;perf.slowFrames=slowFrames;perf.sampledFrames=frameSampleCount;perf.pixelRatio=renderer.getPixelRatio();perf.effects=actionEffects.metrics();}
+    if(observedFrames===1||observedFrames%60===0){perf.frames=observedFrames;perf.drawCalls=renderer.info.render.calls;perf.triangles=renderer.info.render.triangles;perf.heroParts=(()=>{let count=0;player.traverse(o=>{if(o.isMesh)count++});return count})();perf.heroSculpt=player.userData.sculpt||null;perf.renderMode='webgl-3d';perf.state=s.player.state;perf.heroCamera=heroCamera;perf.lens='perspective';perf.inspectCharacters=inspectCharacters;perf.inspectionModels=inspectors.length;perf.biomeLandmarks=landmarks?.world?.children.length||0;perf.atmosphere=atmosphere?.metrics||null;perf.actionFx=actionEffects.metrics();perf.highContrast=highContrast;perf.averageFps=frameTotalMs>0?Math.round(1000*frameSampleCount/frameTotalMs):0;perf.slowFrames=slowFrames;perf.sampledFrames=frameSampleCount;perf.pixelRatio=renderer.getPixelRatio();perf.effects=actionEffects.metrics();}
     }catch(error){fallback3D(error)}
   }
   const onLost=event=>{event.preventDefault();fallback3D('webglcontextlost')};
