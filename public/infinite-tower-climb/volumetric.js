@@ -64,7 +64,7 @@
       }else if(p.guardianHealth>0&&guardians.has(p.i)){
         guardians.get(p.i).position.set(p.x,p.y+p.height/2+1.78,p.z);
       }else if(p.guardianHealth<=0&&guardians.has(p.i)){
-        const guardian=guardians.get(p.i);enemyScene.remove(guardian);guardians.delete(p.i);
+        const guardian=guardians.get(p.i);enemyScene.remove(guardian);art.release(guardian);guardians.delete(p.i);
       }
       if(p.pickup&&!p.collected&&!rewards.has(p.i)){
         const item=art.pickup({kind:'health'},p.x,p.y+p.height/2+1.8);
@@ -73,12 +73,12 @@
         rewards.get(p.i).position.x=p.x;
         rewards.get(p.i).position.z=p.z+.2;
       }else if((!p.pickup||p.collected)&&rewards.has(p.i)){
-        const item=rewards.get(p.i);rewardScene.remove(item);rewards.delete(p.i);
+        const item=rewards.get(p.i);rewardScene.remove(item);art.release(item);rewards.delete(p.i);
       }
     }
-    for(const [id,mesh] of models){if(!live.has(id)){world.remove(mesh);models.delete(id);}}
-    for(const [id,mesh] of guardians){if(!live.has(id)){enemyScene.remove(mesh);guardians.delete(id);}}
-    for(const [id,mesh] of rewards){if(!live.has(id)){rewardScene.remove(mesh);rewards.delete(id);}}
+    for(const [id,mesh] of models){if(!live.has(id)){world.remove(mesh);art.release(mesh);models.delete(id);}}
+    for(const [id,mesh] of guardians){if(!live.has(id)){enemyScene.remove(mesh);art.release(mesh);guardians.delete(id);}}
+    for(const [id,mesh] of rewards){if(!live.has(id)){rewardScene.remove(mesh);art.release(mesh);rewards.delete(id);}}
     if(snapshot.theme!==biome){biome=snapshot.theme;environment.setTheme(biome);}
   }
   function fixedStep(dt){
