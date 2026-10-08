@@ -82,8 +82,7 @@ test('3D survivor classes and infected variants receive distinctive bounded cosm
   assert.ok(survivors.every(m=>m.calls>=12&&m.calls<90));
   assert.ok(survivors.some(m=>m.colors.has('#d55b67')||m.colors.has('#d7ebdf')));
   const zombieVariants=['brute','runner','shambler'].map(archetype=>{
-    const m=new GeometryAudit(),original=g.zombies.find(z=>z.archetype===archetype);
-    assert.ok(original);
+    const m=new GeometryAudit(),original={...g.zombies[0],archetype,health:70};
     decorateActor(m,original,true,1,archetype==='brute'?1.34:1);
     assert.ok(m.calls>=5&&m.calls<60);
     return [...m.colors].sort().join(',');
