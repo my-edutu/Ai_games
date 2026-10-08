@@ -32,6 +32,10 @@ test('Tayo has an original articulated body and a developed face, limbs, shoes a
   const stats=characterMeshStats(actor);
   assert.ok(stats.meshes>=60,JSON.stringify(stats));
   assert.equal(stats.invalid,0);
+  let shadowCasters=0;
+  actor.root.traverse(node=>{if(node.isMesh&&node.castShadow)shadowCasters++;});
+  assert.ok(shadowCasters>=10,'major character silhouette must cast shadows');
+  assert.ok(shadowCasters<=32,'individual hair details and fingers must not dominate shadow pass');
   assert.ok(actor.root.getObjectByName('head'));
   assert.ok(actor.root.getObjectByName('left-shoulder'));
   assert.ok(actor.root.getObjectByName('right-hip'));
