@@ -19,7 +19,7 @@ function harness(search=''){
     linkProgram(){},deleteProgram(){},getProgramParameter:()=>true,
     getAttribLocation:()=>0,getUniformLocation:()=>0,createBuffer:()=>({}),
     enable(){},depthFunc(){},disable(){},clearColor(){},isContextLost:()=>false,
-    viewport(){},scissor(){},useProgram(){},uniform3f(){},uniform2f(){},bindBuffer(){},
+    viewport(){},scissor(){},useProgram(){},uniform3f(){},uniform2f(){},uniform1f(){},bindBuffer(){},
     bufferData(){},enableVertexAttribArray(){},vertexAttribPointer(){},clear(){},
     drawArrays(_mode,_first,count){drawCalls+=1; assert.ok(count>200)}
   };
