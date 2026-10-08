@@ -20,6 +20,7 @@ Only compare real captures at identical or documented viewport and quality setti
 | 4 · Camera | Frame-rate-normalized pursuit easing for server camera directives | Source exists, JS parse checked | Confirm the camera remains stable during cut-line and victory transitions at 30/60/144 Hz |
 | 5 · Label/renderer parity | Exact WebGL matrix and interpolated 3D positions drive projected competitor labels; authority/HUD tick data exposed | Source logic and headless assertions added | Verify labels stay locked in recorded moving-camera frames and after tournament restarts |
 | CI browser evidence | Push/PR workflow builds authority and runs Playwright screenshots, logs and metrics | Workflow queued; **not a browser pass** | Read artifacts and reject any rendering or clip-space mismatch |
+| 6 · Critic workstation | Local PNG/JPEG/WebP import, cryptographic A/B shuffle, manual winner/tie vote, gap notes and JSON export | Source implemented; browser UI check pending | Review independent critics' verdicts against real reference images; same-image smoke test is not a quality comparison |
 | Lab | `/gauntlet.html` page, `/gauntlet-progress.json` status log, authority metrics refresh and sourced journal | Source exists, JSON shape checked | Run and screenshot dashboard + compare honest evidence |
 
 **Unverified:** Visual parity, GLSL compilation on a live GPU, Playwright browser results, game stability, screen captures, comparative critic verdict, source-test pass in CI, and actual FPS on target devices.
@@ -59,3 +60,7 @@ This Gauntlet branch is based on PR #38's isolated Marble implementation, not cu
 The original identity layer independently fetched state and reconstructed its own camera. That could make numbered competitor tags drift away from marbles during a cut-line or victory camera move, especially across slow frames or ramp elevations. The renderer now publishes its exact current public snapshot, interpolated marbles and WebGL view-projection matrix to the in-page overlay. The overlay projects labels through that same matrix and uses the same elevation. It retains a polling fallback if the renderer has not produced a fresh frame. The HUD and renderer now expose source-backed tick and arena identifiers for browser tests.
 
 A new GitHub Actions workflow is triggered by pushes to the Gauntlet branch and pull requests against its Marble base. Its pass/fail result is independent evidence; it does not by itself establish visual parity with commercial references.
+
+## Loop 6 — Manual blind comparison
+
+The Gauntlet Lab now includes an on-device A/B critic workstation. Use actual game output from the browser evidence artifacts and a lawful reference screenshot at a comparable camera angle. It randomizes image A/B positions, hides identity labels until the vote and records the strongest visual deficiency. Critic votes and the optional note remain in local storage; use the JSON export to share review evidence. No images are uploaded, no score is manufactured, and merely using the tool does not count as an independent blind visual pass.
