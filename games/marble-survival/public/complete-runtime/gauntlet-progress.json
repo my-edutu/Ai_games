@@ -1,9 +1,9 @@
 {
   "schema": 1,
-  "iteration": "Loop 10 · replay integrity and versioned 3D authority",
+  "iteration": "Loop 14 · vivid worlds, premium broadcast UI and cinematic sky",
   "lastUpdated": "2026-10-08",
-  "criticTarget": "Run Node/TypeScript build and v3 replay checkpoint tests, then inspect actual 3D collisions, jump-bumper spectacle and champion ceremony in Chromium screenshots. Only independent blind reference votes can complete visual acceptance.",
-  "comparisonStatus": "NOT YET VERIFIED · 3D contacts and spring launches committed; GitHub Actions Chromium screenshots and blind A/B outcome remain pending.",
+  "criticTarget": "Review REAL screenshots at 1920×1080 and 390×844 from Chromium: reject flat-looking environments, unreadable HUD, excessive draw calls, low-contrast marble identities or visually empty skies. Compare matching gameplay against official Marble It Up! Ultra imagery without asserting parity before independent blind votes.",
+  "comparisonStatus": "NOT YET VERIFIED · High-chroma worlds, redesigned spectator UI, atmospheric shader and marble trails committed; browser screenshots and independent A/B reference judgment remain required.",
   "goals": [
     {
       "name": "Premium marble character optics",
@@ -89,9 +89,54 @@
       "name": "Deterministic physics v3 checkpoints",
       "detail": "Versioned snapshots and strict rejection of old v2 solver checkpoints prevent silent replay divergence",
       "status": "implemented"
+    },
+    {
+      "name": "Five visually distinct 3D arenas",
+      "detail": "Cyan Aurora Speedway, violet/orange Neon Ironworks, molten Inferno, orbital Skyline Showdown and gold Crown championship, with quality-tiered external landmarks",
+      "status": "implemented"
+    },
+    {
+      "name": "Luminous broadcast UI redesign",
+      "detail": "New high-contrast stage-aware typography, glass leaderboard, live threat indicator, responsive HUD and authority-driven qualification bar",
+      "status": "implemented"
+    },
+    {
+      "name": "GPU sky and cinematic atmosphere",
+      "detail": "Five independently coloured sky gradients, atmospheric clouds, stars, light bloom, local procedural track tiles and colour-matched fog",
+      "status": "implemented"
+    },
+    {
+      "name": "Character energy and crystalline monuments",
+      "detail": "Quality-scaled 3D floating crystals, orbital rings, stage landmarks and velocity-backed motion trails for tracked racing marbles",
+      "status": "implemented"
+    },
+    {
+      "name": "Visual parity evidence from real browser",
+      "detail": "Desktop/mobile screenshots for actual rounds; independent A/B reference judgments, shader validation and device performance metrics outstanding",
+      "status": "in-progress"
     }
   ],
   "history": [
+    {
+      "title": "Loop 14 — Kinetic character spectacle",
+      "note": "Added spotlighted, authoritative velocity-based marble light trails, angular crystal monument geometry and stage-specific orbital sculptural pieces. LOD limits effects at low quality.",
+      "proof": "Committed WebGL source; actual running-frame review pending"
+    },
+    {
+      "title": "Loop 13 — Chromatic GPU sky and track material",
+      "note": "Replaced flat background with full-screen WebGL atmospheric sky, clouds, sun bloom, procedural stars, arena-coloured haze and track tile detailing, all under quality presets.",
+      "proof": "Committed GPU shaders; compilation on actual WebGL browser pending"
+    },
+    {
+      "title": "Loop 12 — Complete broadcast UI reskin",
+      "note": "Introduced a vivid, contrast-aware responsive visual system, stage identity overlay, accessible live qualification bar, urgent spectator indicators and brighter rankings. All dynamic values are sourced from the authority snapshot.",
+      "proof": "Committed HTML/CSS/JS; mobile screenshot and accessibility review pending"
+    },
+    {
+      "title": "Loop 11 — Five redesigned environment identities",
+      "note": "Art-directed five distinct arena themes with saturated lighting palettes, external 3D spectator monuments, illuminated race boundaries, industrial reactors, celestial gates and championship colonnades.",
+      "proof": "Committed procedural 3D scene source; screenshot-to-reference blind comparison pending"
+    },
     {
       "title": "Loop 10 — Replay compatibility and integrity",
       "note": "Bumped the deterministic authority contract to marble-physics-v3 after modifying collisions. v3 snapshots now roundtrip; legacy v2 checkpoints are explicitly rejected rather than replayed under incompatible physics. Added version boundary regressions.",
