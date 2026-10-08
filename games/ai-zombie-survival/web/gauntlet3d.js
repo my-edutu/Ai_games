@@ -27,6 +27,8 @@ const restartDelayMs=Math.max(500,Math.min(60000,Number(params.get('restartMs'))
 let orbit = 0.67, range = 27, dragging = false, priorX = 0, cameraX = 0, cameraZ = 0, cameraFocusX = 0, cameraFocusZ = 0;
 let cameraMode = ['hero','overview'].includes(params.get('view'))?params.get('view'):'director', heroIndex=0, director = undefined, fpsSmooth = 30, lastStats = 0, buffersRebuilt = 0, lastGeometryStamp = '';
 let directedRange = 27;
+const frameCpuMs=[];
+let qualityScale=1, qualityCheckTime=0;
 const fixed = 1 / 30, maxVisibleZombies = 260;
 
 let audioContext, drone, wind, droneGain, windGain, audioEventsSeen = 0;
@@ -385,6 +387,7 @@ function restartRun(){
   terminalSince=null;accumulator=0;director=undefined;lastGeometryStamp='';
 }
 function render(now){
+  const cpuStart=performance.now();
   const delta=Math.min(.09,Math.max(0,(now-last)/1000));last=now;if(!paused)elapsed+=delta;
   fpsSmooth=fpsSmooth*.93+(delta?1/delta:30)*.07;
   if(!paused&&game.status==='running'){accumulator+=delta;let limit=0;while(accumulator>=fixed&&limit++<4){game=stepGame(game,fixed);accumulator-=fixed;}}
@@ -394,7 +397,14 @@ function render(now){
   }
   selectFocus(delta);
   updateAudio();
-  const dpi=Math.min(1.6,devicePixelRatio||1),w=Math.max(1,Math.round(innerWidth*dpi)),h=Math.max(1,Math.round(innerHeight*dpi));
+  if(now-qualityCheckTime>4000){
+    qualityCheckTime=now;
+    // Hysteresis prevents incessant resolution resize at quality boundaries.
+    if(fpsSmooth<18&&qualityScale>.79)qualityScale=.78;
+    else if(fpsSmooth>36&&qualityScale<1)qualityScale=1;
+  }
+  const dpi=Math.min(1.6,devicePixelRatio||1)*qualityScale;
+  const w=Math.max(1,Math.round(innerWidth*dpi)),h=Math.max(1,Math.round(innerHeight*dpi));
   if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h;gl.viewport(0,0,w,h);}
   const night=game.time.phase==='night',sunset=game.time.phase==='sunset';
   const sky=night?[.042,.065,.105]:sunset?[.44,.30,.24]:[.50,.65,.73];
@@ -411,6 +421,8 @@ function render(now){
   rebuildStatic();
   const moving=new Mesh();drawObjects(moving,elapsed);upload(movingMesh,moving.vertices);
   for(const b of [staticMesh,movingMesh]){gl.bindVertexArray(b.vao);gl.drawArrays(gl.TRIANGLES,0,b.count);}
+  frameCpuMs.push(performance.now()-cpuStart);
+  if(frameCpuMs.length>180)frameCpuMs.shift();
   if(now-lastStats>450){
     lastStats=now;const living=game.survivors.filter(s=>s.alive).length,infected=game.zombies.filter(z=>z.health>0).length;
     hud.querySelector('#day').textContent='DAY '+game.time.day+' / '+game.time.phase.toUpperCase();
@@ -429,9 +441,12 @@ function render(now){
     const pressure=Math.round(Math.max(0,Math.min(100,game.hordePressure*100)));
     hud.querySelector('#hordeMeter').style.width=pressure+'%';
     hud.querySelector('.aiMeter').setAttribute('aria-label','Zombie pressure '+pressure+' percent');
-    hud.querySelector('#fps').textContent=Math.round(fpsSmooth)+' FPS · '+Math.round(staticMesh.count/36)+' STATIC BOX EQUIV · '+Math.round(movingMesh.count/36)+' DYNAMIC BOX EQUIV';
+    const sortedCosts=[...frameCpuMs].sort((a,b)=>a-b);
+    const cpuP95=sortedCosts[Math.min(sortedCosts.length-1,Math.floor(sortedCosts.length*.95))]??0;
+    const tris=Math.round((staticMesh.count+movingMesh.count)/3);
+    hud.querySelector('#fps').textContent=Math.round(fpsSmooth)+' FPS · '+cpuP95.toFixed(1)+'ms CPU P95 · '+tris.toLocaleString()+' TRIANGLES';
     verdict.textContent='WEBGL2 TRUE 3D • '+(paused?'PAUSED':'SIMULATION LIVE');
-    try{localStorage.setItem('zombie-gauntlet-live',JSON.stringify({time:Date.now(),day:game.time.day,tick:game.tick,alive:living,zombies:infected,fps:Math.round(fpsSmooth),phase:game.time.phase,seed,renderer:'WebGL2',status:game.status}));}catch{}
+    try{localStorage.setItem('zombie-gauntlet-live',JSON.stringify({time:Date.now(),day:game.time.day,tick:game.tick,alive:living,zombies:infected,fps:Math.round(fpsSmooth),frameCpuP95Ms:Math.round(cpuP95*10)/10,triangles:tris,renderScale:qualityScale,phase:game.time.phase,seed,renderer:'WebGL2',status:game.status}));}catch{}
   }
   requestAnimationFrame(render);
 }
