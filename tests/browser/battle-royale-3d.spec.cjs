@@ -19,6 +19,7 @@ test('Battle Royale 3D Gauntlet draws a real WebGL2 scene or safely falls back t
     expect(status.frames).toBeGreaterThan(0);
     expect(status.triangles).toBeGreaterThan(100);
     expect(status.contenders).toBeGreaterThan(0);
+    expect(Number.isFinite(status.p95SubmitMs)).toBe(true);
     const layer=page.locator('[data-testid="battle-3d-canvas"]');
     await expect(layer).toBeVisible();
     await expect(layer).toHaveAttribute('data-renderer','webgl2');
