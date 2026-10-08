@@ -12,7 +12,7 @@
   let renderer;
   try { renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false }); }
   catch (error) { console.warn('WebGL unavailable', error); canvas.remove(); return; }
-  const {createClimber}=await import('/tower/character3d.js');
+  const [{createClimber},{createTowerEnvironment}]=await Promise.all([import('/tower/character3d.js'),import('/tower/environment3d.js')]);
   const scene = new THREE.Scene();
   scene.background = new THREE.Color('#10172a');
   scene.fog = new THREE.FogExp2('#10172a', 0.013);
@@ -20,6 +20,9 @@
   camera.position.set(0, 10, 29);
   const hemi = new THREE.HemisphereLight(0x91c9ff, 0x1a1325, 2.2);
   scene.add(hemi);
+  renderer.outputColorSpace=THREE.SRGBColorSpace;
+  renderer.toneMapping=THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure=1.15;
   const key = new THREE.DirectionalLight(0xffd7a2, 3);
   key.position.set(-10, 18, 15); scene.add(key);
   const rim = new THREE.PointLight(0x59dfff, 55, 28);
@@ -29,7 +32,7 @@
   const enemyMat = new THREE.MeshStandardMaterial({ color: 0x9859e6, metalness: 0.4, roughness: 0.32 });
   const playerMat = new THREE.MeshStandardMaterial({ color: 0x52dafa, metalness: 0.55, roughness: 0.25 });
   const accentMat = new THREE.MeshStandardMaterial({ color: 0xffd68a, emissive: 0x8b4c0a, emissiveIntensity: 0.4 });
-  const architecture = new THREE.Group(); scene.add(architecture);
+  const architecture=createTowerEnvironment(THREE,scene);
   const actors = new THREE.Group(); scene.add(actors);
   const clock = new THREE.Clock();
   const climber=createClimber(THREE); scene.add(climber.root);
@@ -50,15 +53,6 @@
     const m = new THREE.Mesh(geometry, material);
     m.position.set(x, y, z); m.scale.set(sx, sy, sz); parent.add(m); return m;
   }
-  for (let i = -5; i <= 5; i++) {
-    const pillar = mesh(box, floorMat, architecture, i * 5, 0, -11, 0.8, 300, 0.9);
-    pillar.material = floorMat;
-    for (let j = -8; j <= 8; j++) mesh(box, accentMat, architecture, i * 5, j * 12, -10.3, 0.9, 0.16, 0.3);
-  }
-  for (let i = -5; i <= 5; i++) for (let j = -7; j <= 7; j++) {
-    mesh(box, wallMat, decoration, i * 5 + 2.5, j * 12 + 5, -13, 4.7, 10, 0.5);
-    mesh(box, trimMat, decoration, i * 5 + 2.5, j * 12 - 0.3, -12.5, 5, 0.25, 0.6);
-  }
   let previousChecksum = '', lastState = null;
   const size = () => {
     const w = Math.max(1, canvas.clientWidth), h = Math.max(1, canvas.clientHeight);
@@ -71,7 +65,7 @@
     while (actors.children.length) actors.remove(actors.children[0]);
     while (effects.children.length) effects.remove(effects.children[0]);
     const theme = String(s.theme || 'foundry').toLowerCase();
-    if (theme !== themeKey) { themeKey=theme; const color=themeColors[theme]||0xffaa55; rim.color.setHex(color); accentMat.color.setHex(color); scene.fog.color.setHex(theme==='void'?0x101024:0x10172a); }
+    if (theme !== themeKey) { themeKey=theme; const color=themeColors[theme]||0xffaa55; rim.color.setHex(color); accentMat.color.setHex(color); architecture.setTheme(theme); }
     const groundLight = new THREE.PointLight(themeColors[theme]||0xffaa55, 15, 13); groundLight.position.set(0, Number(s.player?.y||0)/1000-Number(s.chunkBaseY||0)/1000+2, 3); effects.add(groundLight);
     const base = Number(s.chunkBaseY || 0) / 1000;
     const y = value => Number(value || 0) / 1000 - base;
@@ -109,7 +103,9 @@
   const animate = () => {
     const frameStart=performance.now();
     size();
-    climber.animate(clock.getElapsedTime(),document.body.dataset.reducedMotion==='true');
+    const elapsed=clock.getElapsedTime();
+    climber.animate(elapsed,document.body.dataset.reducedMotion==='true');
+    architecture.animate(elapsed,document.body.dataset.reducedMotion==='true');
     if (lastState) {
       const target = Number(lastState.player?.y || 0) / 1000 - Number(lastState.chunkBaseY || 0) / 1000 + 5.2;
       camera.position.y += (target - camera.position.y) * 0.05;
