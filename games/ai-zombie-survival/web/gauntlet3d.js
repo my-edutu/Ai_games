@@ -102,10 +102,16 @@ const fs = [
   '#version 300 es',
   'precision highp float;',
   'in vec3 vColor; in vec3 vNormal; in vec3 vPosition;',
-  'uniform vec3 uEye; uniform vec3 uFogColor; uniform float uFog; uniform vec3 uLight;',
+  'uniform vec3 uEye; uniform vec3 uFogColor; uniform float uFog; uniform vec3 uLight; uniform float uNight;',
   'out vec4 fragColor;',
-  'void main(){float diffuse=max(dot(normalize(vNormal),normalize(uLight)),0.0);',
-  'float ambient=0.59+0.46*diffuse;vec3 color=vColor*ambient;',
+  'void main(){vec3 N=normalize(vNormal);vec3 L=normalize(uLight);',
+  'float lambert=max(dot(N,L),0.0);float wrap=max(dot(N,L)*0.65+0.35,0.0);',
+  'float skyBounce=0.10*max(N.y,0.0);float dayAmbient=mix(0.55,0.38,uNight);',
+  'vec3 sunlight=mix(vec3(1.09,0.99,0.84),vec3(0.52,0.65,0.93),uNight);',
+  'vec3 color=vColor*(dayAmbient+skyBounce+sunlight*(0.38*wrap+0.24*lambert));',
+  'vec3 V=normalize(uEye-vPosition);vec3 H=normalize(L+V);',
+  'float sheen=pow(max(dot(N,H),0.0),24.0)*0.065*(1.0-uNight*0.5);',
+  'color+=sunlight*sheen;',
   'float distanceToCamera=distance(uEye,vPosition);',
   'float haze=1.0-exp(-pow(distanceToCamera*uFog,2.0));',
   'vec3 graded=pow(clamp(color,0.0,1.0),vec3(0.90));fragColor=vec4(mix(graded,uFogColor,clamp(haze,0.0,0.66)),1.0);}'
@@ -113,7 +119,7 @@ const fs = [
 const program = gl.createProgram();gl.attachShader(program,shader(gl.VERTEX_SHADER,vs));gl.attachShader(program,shader(gl.FRAGMENT_SHADER,fs));gl.linkProgram(program);
 if(!gl.getProgramParameter(program,gl.LINK_STATUS))throw new Error(gl.getProgramInfoLog(program));
 gl.useProgram(program);gl.enable(gl.DEPTH_TEST);gl.depthFunc(gl.LEQUAL);
-const uniforms = Object.fromEntries(['uVP','uEye','uFogColor','uFog','uLight'].map(k=>[k,gl.getUniformLocation(program,k)]));
+const uniforms = Object.fromEntries(['uVP','uEye','uFogColor','uFog','uLight','uNight'].map(k=>[k,gl.getUniformLocation(program,k)]));
 function buffer(){const vao=gl.createVertexArray(),vbo=gl.createBuffer();gl.bindVertexArray(vao);gl.bindBuffer(gl.ARRAY_BUFFER,vbo);const stride=9*4;for(let i=0;i<3;i++){gl.enableVertexAttribArray(i);gl.vertexAttribPointer(i,3,gl.FLOAT,false,stride,i*12);}gl.bindVertexArray(null);return{vao,vbo,count:0};}
 const staticMesh=buffer(),movingMesh=buffer();
 function upload(bufferObj,values){const array=new Float32Array(values);gl.bindBuffer(gl.ARRAY_BUFFER,bufferObj.vbo);gl.bufferData(gl.ARRAY_BUFFER,array,gl.DYNAMIC_DRAW);bufferObj.count=array.length/9;}
@@ -127,6 +133,14 @@ Mesh.prototype.box=function(x,y,z,w,h,d,color,yaw=0){
     .map(p=>{const dx=p[0]*w*.5,dz=p[2]*d*.5;return[x+dx*co+dz*si,y+p[1]*h*.5,z-dx*si+dz*co];});
   const faces=[[0,4,5,1,[0,-1,0]],[3,2,6,7,[0,1,0]],[4,7,6,5,[0,0,1]],[1,5,6,2,[1,0,0]],[0,1,2,3,[0,0,-1]],[0,3,7,4,[-1,0,0]]];
   for(const face of faces){const n=face[4],normal=[n[0]*co+n[2]*si,n[1],-n[0]*si+n[2]*co];this.quad(corners[face[0]],corners[face[1]],corners[face[2]],corners[face[3]],normal,col);}
+};
+Mesh.prototype.contactShadow=function(x,z,rx,rz,color='#344540',height=.115){
+  const c=typeof color==='string'?rgb(color):color;
+  const center=[x,height,z],segments=12;
+  for(let i=0;i<segments;i++){
+    const t=i*Math.PI*2/segments,t2=(i+1)*Math.PI*2/segments;
+    this.tri(center,[x+rx*Math.cos(t),height,z+rz*Math.sin(t)],[x+rx*Math.cos(t2),height,z+rz*Math.sin(t2)],[0,1,0],c);
+  }
 };
 Mesh.prototype.cylinder=function(x,y,z,r,h,color,n=8){const c=typeof color==='string'?rgb(color):color;for(let i=0;i<n;i++){const a=i*2*Math.PI/n,b=(i+1)*2*Math.PI/n,ca=Math.cos(a),sa=Math.sin(a),cb=Math.cos(b),sb=Math.sin(b),p=[x+r*ca,y-h*.5,z+r*sa],q=[x+r*cb,y-h*.5,z+r*sb],t=[x+r*ca,y+h*.5,z+r*sa],u=[x+r*cb,y+h*.5,z+r*sb];this.quad(p,q,u,t,norm([ca+cb,0,sa+sb]),c);this.tri([x,y+h*.5,z],t,u,[0,1,0],c);this.tri([x,y-h*.5,z],q,p,[0,-1,0],c);}};
 Mesh.prototype.ball=function(x,y,z,r,color){const c=typeof color==='string'?rgb(color):color,lat=5,lon=8;for(let i=0;i<lat;i++)for(let j=0;j<lon;j++){const p=i*Math.PI/lat,p2=(i+1)*Math.PI/lat,a=j*2*Math.PI/lon,a2=(j+1)*2*Math.PI/lon,point=(phi,theta)=>[x+r*Math.sin(phi)*Math.cos(theta),y+r*Math.cos(phi),z+r*Math.sin(phi)*Math.sin(theta)];const A=point(p,a),B=point(p2,a),C=point(p2,a2),D=point(p,a2);this.tri(A,B,C,norm(vsub(A,[x,y,z])),c);this.tri(A,C,D,norm(vsub(D,[x,y,z])),c);}};
@@ -160,6 +174,7 @@ function constructStatic(){
       m.box(b.x-b.w*.25,.57,b.y-b.h*.14,.95,.82,1.12,'#555b54');
       continue;
     }
+    m.contactShadow(b.x+height*.17,b.y-height*.12,b.w*.58+height*.35,b.h*.54+height*.24,'#405047',.117);
     m.box(b.x,height/2,b.y,b.w,height,b.h,tint(base,damaged));
     m.box(b.x,height*.5,b.y+b.h*.50+.044,b.w*.93,height*.93,.09,tint(base,.88));
     m.box(b.x+b.w*.50+.044,height*.54,b.y,.09,height*.87,b.h*.93,tint(base,.81));
@@ -206,6 +221,7 @@ function constructStatic(){
     if(Math.abs(x)<11&&Math.abs(z)<10)continue;
     if(Math.abs(x+17)<5||Math.abs(x-17)<5||Math.abs(z+8)<5||Math.abs(z-26)<5)continue;
     const h=2.6+(i%5)*.40;
+    m.contactShadow(x+.4,z-.3,1.25,.7,'#35473b');
     m.cylinder(x,h*.5,z,.13,h,'#5e493c',7);
     m.ball(x,h+.35,z,.98+(i%3)*.22,i%3===0?'#b6a165':i%3===1?'#6b805a':'#557a5a');
     m.ball(x+.49,h-.01,z+.2,.64,i%2===0?'#a98c57':'#5d805e');
@@ -224,6 +240,7 @@ function constructStatic(){
   // Clear readable district landmark: wrecked vehicles and containers.
   const cars=[[-24,-8,0],[-8,-8,.2],[26,-8,-.1],[-17,13,1.5],[17,1,1.5],[17,31,1.5],[-2,26,0]];
   for(let i=0;i<cars.length;i++){const [x,z,a]=cars[i],col=['#596358','#6a5d51','#596063'][i%3];
+    m.contactShadow(x+.25,z-.12,2.6,1.32,'#344644');
     m.box(x,.72,z,3.65,.85,1.8,col,a);m.box(x,1.36,z-.1,2.0,.5,1.48,'#394747',a);
     for(const dx of [-1.2,1.2])for(const dz of [-.82,.82])m.cylinder(x+dx, .38,z+dz,.36,.37,'#252b29',7);
   }
@@ -236,7 +253,7 @@ function human(m,entity,infected,time){
   const x=entity.x,z=entity.y,yaw=entity.facing||0;
   // Simplified distant infected retain recognizable heads and threats without rebuilding 70+ triangles per limb.
   const distance=Math.hypot(x-cameraFocusX,z-cameraFocusZ);
-  if(infected&&distance>22){
+  if(infected&&distance>(fpsSmooth<24?16:22)){
     if(entity.health<=0)return;
     const c=entity.archetype==='brute'?'#747b5f':entity.archetype==='runner'?'#769279':'#87917c';
     m.box(x,1.14*body,z,.57*body,1.55*body,.43*body,c,yaw);
@@ -254,6 +271,7 @@ function human(m,entity,infected,time){
   const shirt=infected?(entity.archetype==='brute'?'#65614d':entity.archetype==='runner'?'#536852':['#65745e','#555e50','#6b6654'][entity.variant%3]):roleColors[entity.role]||'#779189';
   const skin=infected?'#829079':['#a77458','#8b6049','#c4926c','#b67e5c'][Number(entity.id.split('-')[1]||0)%4];
   const trouser=infected?'#3a4a42':'#303d40';
+  m.contactShadow(x+.11,z-.08,.46*body,.32*body,infected?'#35483c':'#3d4b41');
   m.box(x,.03,z,.72*body,.045,.45*body,'#26362e',yaw);
   part(m,x,z,yaw,0,1.48*body,0,.58*body,.85*body,.38*body,shirt);
   // Distinct silhouette: tactical plates and fabric seams for living humans, ragged chest for infected.
@@ -356,6 +374,7 @@ function render(now){
   gl.uniformMatrix4fv(uniforms.uVP,false,new Float32Array(vp));
   gl.uniform3fv(uniforms.uEye,new Float32Array(eye));
   gl.uniform3fv(uniforms.uLight,new Float32Array(night?[.45,.9,.35]:[-.58,1,.48]));
+  gl.uniform1f(uniforms.uNight,night?1:0);
   gl.uniform3fv(uniforms.uFogColor,new Float32Array(sky));
   gl.uniform1f(uniforms.uFog,night?.012:.004+(game.weather.kind==='fog'?.006:0));
   rebuildStatic();
