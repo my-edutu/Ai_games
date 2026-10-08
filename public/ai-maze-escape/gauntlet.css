@@ -45,3 +45,36 @@ body[data-reduced-motion="true"] #maze-3d { animation:none; }
   #stage:has(#maze-3d) #maze{width:112px;height:82px}
   #stage:has(#maze-3d):before{display:none}
 }
+#cinema-banner{
+  position:absolute;z-index:4;left:25px;top:72px;
+  display:flex;flex-direction:column;align-items:flex-start;gap:6px;
+  max-width:min(55%,520px);pointer-events:none;
+  text-shadow:0 3px 13px rgba(0,0,0,.8);
+}
+#cinema-banner span{
+  font-weight:950;letter-spacing:.19em;font-size:9px;color:#f9ce93;
+}
+#cinema-banner strong{
+  font-size:clamp(19px,2.1vw,32px);line-height:1.05;letter-spacing:.06em;
+  font-family:Georgia,"Times New Roman",serif;
+  font-weight:700;color:#f2e8d5;
+}
+#cinema-banner small{
+  font-size:11px;line-height:1.3;font-weight:650;color:#c7d4c9;
+}
+#cinema-hunter{
+  position:absolute;right:20px;bottom:24px;z-index:4;
+  padding:10px 16px;border:1px solid #c47579;border-radius:8px;
+  background:rgba(46,14,24,.88);color:#ffd4c7;
+  font-size:10px;letter-spacing:.18em;font-weight:950;
+  text-shadow:0 1px 3px #000;box-shadow:0 0 35px rgba(252,67,91,.16);
+}
+#cinema-hunter[hidden]{display:none!important}
+#stage:not(:has(#maze-3d)) #cinema-banner,#stage:not(:has(#maze-3d)) #cinema-hunter{display:none}
+@media(max-width:900px){
+  #cinema-banner{top:43px;left:11px;gap:4px}
+  #cinema-banner strong{font-size:15px}
+  #cinema-banner span{font-size:7px}
+  #cinema-banner small{font-size:8px}
+  #cinema-hunter{bottom:8px;right:8px;font-size:7px;padding:6px}
+}
