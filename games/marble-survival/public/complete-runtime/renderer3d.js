@@ -902,6 +902,15 @@
     const origin=toWorld(hazard.x,hazard.y,arena);
     const width=hazard.width*WORLD_SCALE,depth=hazard.height*WORLD_SCALE;
     const center=[origin[0]+width/2,-0.86,origin[2]+depth/2];
+    if(hazard.kind!=='pit'){
+      // A kill zone is NOT a physical opening. Show its warning zone atop
+      // the racing deck, rather than illustrating an impossible deep hole.
+      drawBox([center[0],0.045,center[2]],[width,0.016,depth],material(theme.hazard,0.73,0.08,0.12,0.7),viewProjection,cameraPosition);
+      for(const side of [-1,1]){
+        drawBox([center[0],0.060,center[2]+side*depth/2],[width,0.02,0.06],material(theme.accent,0.34,0.31,0.22),viewProjection,cameraPosition);
+      }
+      return;
+    }
     const quality=document.getElementById('quality-select')?.value||'balanced';
     const danger=material(theme.hazard,0.28,0.16,0.34);
     const dark=material([0.018,0.016,0.04],0.88,0.09);
