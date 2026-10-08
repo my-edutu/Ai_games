@@ -493,7 +493,7 @@ function rebuild(snapshot) {
   // Additional public-cell-only scenery brings the flat geometry to life.
   worldCraft.populate({
     world,snapshot,cells:renderCells,queue:queueInstance,
-    put:mesh,point,grid:GRID,glow:addGlow
+    put:mesh,point,grid:GRID,glow:addGlow,centerCell:snapshot.currentCell
   });
   // Characters/threats update on each observed frame, independently from world geometry.
   finishInstances();
