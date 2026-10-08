@@ -1,9 +1,9 @@
 {
   "project": "Infinite Tower Climb — 3D Gauntlet",
   "date": "2026-10-08",
-  "round": 13,
+  "round": 16,
   "target": "Jusant (DON'T NOD): official screenshots and captured gameplay",
-  "status": "ACTIVE / NOT READY for Jusant quality: Round 13 is a production Wayfinder character-art and scene-readability pass. Compared actual older Chromium screenshot (head 7948872): hero remained boxy and tower was overwhelmed by fake catwalks, floating ornaments and busy HUD. New authored sculpt (helmet, visor, articulated protective gear, material-grain straps, tools and boots) added to production rig, decorative false catwalks removed, guardian-floor ornaments made conditional, and cached materials preserved across floor changes. JS parse and module routing checks passed. Latest head screenshot and full browser CI NOT YET VERIFIED; still 2D authority under 3D presentation.",
+  "status": "ACTIVE / NOT READY for Jusant quality: head 0c5d968 passed 18/18 Chromium Gauntlet browser tests in workflow 37795282546; real captured hero close-up visibly cropped the helmet and placed the climber left of center. Round 16 commits adjust cinematic camera framing and add actual projected mesh-bounds assertions. New-head CI/screenshot still pending. Game authority remains 2D; independent matched-camera Jusant A/B review NOT PASSED.",
   "completionRule": "A separate critic must inspect the rendered game, compare screenshots or gameplay against official Jusant imagery, report the worst gap, and repeat. A functioning renderer alone is not a pass.",
   "lanes": [
     {
@@ -154,6 +154,11 @@
     {
       "name": "Sculpt v13 live screenshot, visual critic and Jusant A/B",
       "state": "PENDING: new GitHub Actions evidence not yet complete"
+    },
+    {
+      "name": "Round 16 inspected real browser evidence",
+      "state": "PR head 0c5d968: 18/18 browser tests PASSED, including WebGL and fallback; 13 screenshots downloaded and visually inspected. Hero crop demonstrated in gauntlet-3d-hero.png.",
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/37795282546/artifacts/11559622245"
     }
   ],
   "history": [
@@ -241,6 +246,11 @@
       "round": 15,
       "summary": "Source audit found geology-v9.js was still absent from scene3d.js imports and biome buildBackdrop, despite server routing it. Restored actual geometry integration without changing simulation or 2D fallback.",
       "verdict": "Committed; visual effect not yet confirmed in fresh screenshot; Jusant benchmark unmet."
+    },
+    {
+      "round": 16,
+      "summary": "Inspected PR head 0c5d968, full successful Tower workflow 37795282546 (18/18 browser tests), downloaded and visually inspected 13 real screenshot artifacts (11559622245), including full 1440x900 gauntlet-3d-hero.png. The hero's helmet was cropped offscreen at the top and model was left-shifted. Fixed hero FOV 24→34, camera distance 134→174, removed hero-only world-X clamp and X/Y camera offsets, snapped camera to new runs/floors; added projected model-bounds telemetry and browser assertions requiring on-screen top/bottom/left/right. Did not alter simulation or fallback.",
+      "verdict": "Original screenshots establish a real camera-framing defect. Code and regression test committed; current-head screenshot/CI not yet inspected. Jusant visual quality and full 3D physics NOT MET."
     }
   ]
 }
