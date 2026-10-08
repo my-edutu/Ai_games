@@ -216,6 +216,7 @@ test('Marble WebGL broadcast renders authoritative tournament and captures runti
       ctx.drawImage(image, 0, 0, probe.width, probe.height);
       const data = ctx.getImageData(0, 0, probe.width, probe.height).data;
       let samples = 0, saturationSum = 0, brightnessSum = 0, colorful = 0, dark = 0;
+      let redSum=0,greenSum=0,blueSum=0;
       for (let y = 0; y < probe.height; y += 9) {
         for (let x = 0; x < probe.width; x += 9) {
           const index = (y * probe.width + x) * 4;
@@ -224,6 +225,7 @@ test('Marble WebGL broadcast renders authoritative tournament and captures runti
           const saturation = high ? (high - low) / high : 0;
           samples++;
           saturationSum += saturation;
+          redSum+=r;greenSum+=g;blueSum+=b;
           brightnessSum += (r * 0.2126 + g * 0.7152 + b * 0.0722);
           if (saturation >= 0.22 && high >= 74) colorful++;
           if (high <= 8) dark++;
@@ -233,6 +235,7 @@ test('Marble WebGL broadcast renders authoritative tournament and captures runti
         samples,
         averageSaturation: Number((saturationSum / samples).toFixed(3)),
         averageLuminance: Number((brightnessSum / samples).toFixed(1)),
+        meanRgb: [Math.round(redSum/samples),Math.round(greenSum/samples),Math.round(blueSum/samples)],
         colorfulFraction: Number((colorful / samples).toFixed(3)),
         nearBlackFraction: Number((dark / samples).toFixed(3)),
         source: 'actual WebGL canvas captured and decoded by Chromium',
@@ -249,10 +252,10 @@ test('Marble WebGL broadcast renders authoritative tournament and captures runti
       visualPixelMetrics[name] = metric;
       fs.writeFileSync(path.join(artifacts, 'visual-pixel-metrics.json'),JSON.stringify(visualPixelMetrics,null,2));
       expect(metric.samples).toBeGreaterThan(100);
-      expect(metric.averageLuminance).toBeGreaterThan(16);
-      expect(metric.averageSaturation).toBeGreaterThan(0.05);
-      expect(metric.colorfulFraction).toBeGreaterThan(0.025);
-      expect(metric.nearBlackFraction).toBeLessThan(0.94);
+      expect(metric.averageLuminance).toBeGreaterThan(30);
+      expect(metric.averageSaturation).toBeGreaterThan(0.16);
+      expect(metric.colorfulFraction).toBeGreaterThan(0.10);
+      expect(metric.nearBlackFraction).toBeLessThan(0.72);
     }
   };
 
@@ -399,6 +402,9 @@ test('Marble WebGL broadcast renders authoritative tournament and captures runti
         await expect(shell).toHaveAttribute('data-biome', biomeName, { timeout: 3_000 });
         await expect(page.locator('#arena-biome-title')).not.toBeEmpty();
       }
+      if (biomeName==='hazard-circuit' && Array.isArray(state.arena.windZones) && state.arena.windZones.length>0){
+        await expect(shell).toHaveAttribute('data-public-wind-zones', String(state.arena.windZones.length));
+      }
       for (const name of captures) await capture(name);
       await operator('resume');
     }
@@ -427,6 +433,22 @@ test('Marble WebGL broadcast renders authoritative tournament and captures runti
     await cleanPage.close();
   }
 
+  const stagePaletteSamples=Object.entries(visualPixelMetrics)
+    .filter(([name,metric])=>name.startsWith('11-biome-')&&Array.isArray(metric.meanRgb))
+    .map(([,metric])=>metric.meanRgb);
+  expect(stagePaletteSamples.length).toBeGreaterThanOrEqual(3);
+  let maximumPaletteDistance=0;
+  for(let i=0;i<stagePaletteSamples.length;i++){
+    for(let j=i+1;j<stagePaletteSamples.length;j++){
+      const difference=Math.hypot(...stagePaletteSamples[i].map((value,channel)=>
+        value-stagePaletteSamples[j][channel]));
+      maximumPaletteDistance=Math.max(maximumPaletteDistance,difference);
+    }
+  }
+  expect(maximumPaletteDistance).toBeGreaterThan(15);
+  fs.writeFileSync(path.join(artifacts,'visual-critic-summary.json'),
+    JSON.stringify({maximumPaletteDistance,stageCount:stagePaletteSamples.length,
+      independentVisualParityVerified:false,source:'actual desktop WebGL screenshots'},null,2));
   expect(biomeEvidence.size).toBeGreaterThanOrEqual(3);
   expect(archetypes.size).toBeGreaterThanOrEqual(3);
   expect(captured.has('03-moving-obstacle')).toBe(true);
