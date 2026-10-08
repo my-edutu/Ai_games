@@ -97,6 +97,7 @@
 @media(max-width:1250px){.world-tour small{display:none}.world-tour{top:94px}.realm-signal{top:142px}.atlas{top:171px}.feed{top:455px}}
 @media(max-width:790px){.world-tour{top:74px;padding:4px;gap:1px;border-radius:10px}.tour-btn{font-size:9px;padding:7px 6px}.realm-signal{display:none}.atlas{top:135px}.feed{top:362px}}
 @media(max-width:520px){.top{top:8px}.brand{padding:8px}.world-tour{top:83px;max-width:calc(100vw - 12px)}.tour-btn{font-size:9px;padding:7px 6px}.atlas{top:134px}.feed{top:auto;bottom:105px;height:174px}.sidebar{bottom:105px}}
+@media(max-width:900px){.world-tour{width:max-content;max-width:calc(100vw - 14px);overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:thin;scrollbar-color:#ffe0a7 transparent;justify-content:flex-start}.world-tour .tour-btn{flex:none}.world-tour::-webkit-scrollbar{height:3px}.world-tour::-webkit-scrollbar-thumb{background:#ffe0a7;border-radius:5px}}
 @media(prefers-reduced-motion:reduce){.tour-btn{transition:none}.tour-btn:hover{transform:none}}
 
 </style></head><body>
@@ -475,6 +476,14 @@ function pointedGlassWindow(x,y,z,width=0.7,height=1.55){
  box(x,y+.10,z+.13,.055,height-.23,.06,lead);
  for(let n=1;n<4;n++)box(x,y+n*height*.21,z+.13,width,.043,.065,lead);
 }
+function lancetSideWindow(x,y,z,side){
+ const glass=rgb(0x2a879a),frame=rgb(0xe1cbaa),lead=rgb(0x44535b),lit=rgb(0xa2d0c6);
+ box(x,y,z,.15,1.85,.86,frame);
+ box(x+side*.12,y+.15,z,.08,1.38,.68,glass);
+ tri([x+side*.19,y+1.58,z-.35],[x+side*.19,y+1.58,z+.35],[x+side*.19,y+2.02,z],lit);
+ box(x+side*.23,y+.16,z,.055,1.37,.045,lead);
+ for(let k=1;k<4;k++)box(x+side*.22,y+k*.36,z,.06,.035,.69,lead);
+}
 function hillsideSanctuary(){
  const x=SCENIC_SITES.sanctuary.x,z=SCENIC_SITES.sanctuary.z,y=terrain(x,z);
  const wall=rgb(0xe7d7bc),stone=rgb(0xc4b699),trim=rgb(0x8b806c),roof=rgb(0x796b79),roofLite=rgb(0x9b8890),slate=rgb(0xb7b2a6);
@@ -485,7 +494,7 @@ function hillsideSanctuary(){
   const xx=x+side*3.25;
   for(let k=0;k<4;k++){const zz=z-3.4+k*2.25;box(xx+side*.18,y-.1,zz,.60,3.3,.54,stone);box(xx+side*.22,y+3.0,zz,.66,.25,.66,trim)}
   // Tall lancet windows, with narrow lead dividers and frames.
-  for(let k=0;k<3;k++){const zz=z-2.25+k*2.3;pointedGlassWindow(xx+side*.09,y+1.15,zz,.52,1.6)}
+  for(let k=0;k<3;k++){const zz=z-2.25+k*2.3;lancetSideWindow(xx+side*.08,y+1.05,zz,side)}
  }
  // Twin pitched roofs with individual staggered slate courses.
  const h=y+4.36,top=y+6.2;
@@ -701,7 +710,9 @@ function skyConditions(time){
 function drawAtlas(){const c=document.getElementById('atlas-map');if(!c)return;const ctx=c.getContext('2d'),w=c.width,h=c.height,focalIndex=typeof selectedCitizen==='number'?selectedCitizen:0;const map=(x,z)=>[(x+43)/86*w,(z+43)/86*h];ctx.clearRect(0,0,w,h);const grad=ctx.createLinearGradient(0,0,w,h);grad.addColorStop(0,'#245f55');grad.addColorStop(.53,'#448a62');grad.addColorStop(1,'#204b62');ctx.fillStyle=grad;ctx.fillRect(0,0,w,h);
 ctx.globalAlpha=.2;ctx.strokeStyle='#e0f9b6';for(let i=1;i<7;i++){ctx.beginPath();ctx.moveTo(i*w/7,0);ctx.lineTo(i*w/7,h);ctx.stroke();ctx.beginPath();ctx.moveTo(0,i*h/7);ctx.lineTo(w,i*h/7);ctx.stroke()}ctx.globalAlpha=1;ctx.strokeStyle='#84d5eb';ctx.lineWidth=18;ctx.beginPath();for(let x=-43;x<=43;x+=2){const pt=map(x,20+Math.sin(x*.13)*3);if(x===-43)ctx.moveTo(...pt);else ctx.lineTo(...pt)}ctx.stroke();ctx.strokeStyle='#6db4c4';ctx.lineWidth=5;ctx.stroke();
 ctx.strokeStyle='#dbbe8b';ctx.lineWidth=5;for(const points of [[[-16,-7],[-8,-4],[-4,3],[6,2],[14,2]],[[0,-15],[0,-9],[-4,3],[4,15]]]){ctx.beginPath();points.forEach((p,i)=>i?ctx.lineTo(...map(...p)):ctx.moveTo(...map(...p)));ctx.stroke()}
-ctx.fillStyle='#ffe8ab';for(const b of city){const q=map(b[0],b[1]);ctx.fillRect(q[0]-3,q[1]-3,6,6)}for(let i=0;i<people.length;i++){const p=people[i],a=map(p.x,p.z);ctx.beginPath();ctx.arc(a[0],a[1],i===focalIndex?5:2.8,0,Math.PI*2);ctx.fillStyle=i===focalIndex?'#fff3ad':'#f7fdff';ctx.fill();if(i===focalIndex){ctx.beginPath();ctx.arc(a[0],a[1],9,0,Math.PI*2);ctx.strokeStyle='#fff0a6';ctx.lineWidth=2;ctx.stroke()}}
+// Clearly differentiated, navigable public landmarks — these do not inflate population or building totals.
+ for(const site of Object.values(SCENIC_SITES)){const q=map(site.x,site.z);ctx.beginPath();ctx.arc(q[0],q[1],site.kind==='stone sanctuary'?8:6,0,Math.PI*2);ctx.fillStyle=site.kind==='stone sanctuary'?'#ffe5ba':'#83fff2';ctx.fill();ctx.strokeStyle='#163e4d';ctx.lineWidth=2;ctx.stroke()}
+ ctx.fillStyle='#ffe8ab';for(const b of city){const q=map(b[0],b[1]);ctx.fillRect(q[0]-3,q[1]-3,6,6)}for(let i=0;i<people.length;i++){const p=people[i],a=map(p.x,p.z);ctx.beginPath();ctx.arc(a[0],a[1],i===focalIndex?5:2.8,0,Math.PI*2);ctx.fillStyle=i===focalIndex?'#fff3ad':'#f7fdff';ctx.fill();if(i===focalIndex){ctx.beginPath();ctx.arc(a[0],a[1],9,0,Math.PI*2);ctx.strokeStyle='#fff0a6';ctx.lineWidth=2;ctx.stroke()}}
 const center=map(...focusPoint);ctx.strokeStyle='#bffffb';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(center[0]-8,center[1]);ctx.lineTo(center[0]+8,center[1]);ctx.moveTo(center[0],center[1]-8);ctx.lineTo(center[0],center[1]+8);ctx.stroke();const season=climateAt(state.t);document.getElementById('atlas-season').textContent='✧ '+season.seasonName.toUpperCase()+' · '+season.weather.toUpperCase()}
 document.getElementById('atlas-map').addEventListener('pointerdown',e=>{const rect=e.currentTarget.getBoundingClientRect();focusPoint=[Math.max(-40,Math.min(40,((e.clientX-rect.left)/rect.width)*86-43)),Math.max(-40,Math.min(40,((e.clientY-rect.top)/rect.height)*86-43))];follow=false;cinematic=false;document.getElementById('focus').classList.remove('active');document.getElementById('camera').classList.remove('active');drawAtlas()});
 
