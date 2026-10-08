@@ -92,4 +92,14 @@ The browser runs in AI mode by default. Switch to Player Mode for left/right, Sp
 
 **Known shortcomings and review status:** a real Chromium WebGL screenshot at commit `54af280` (GitHub Actions artifact `11538341657`) confirmed improved camera visibility and Tayo readability. It did **not** pass the external Subway Surfers City reference bar, and the capture indicated 5 FPS in CI, which may involve software rendering. The new static batching, skyline and AI revisions are awaiting their own runtime measurements. Six districts still use shared environment grammar, without individually authored premium assets. Normal-speed gameplay critique, device-specific performance, independent reviewers and blind A/B, production audio and materials, and endurance/release approval all remain open. The ledger deliberately does not claim a quality-bar win or production readiness.
 
+## Gauntlet Visual Quality Iterations 7–9 (feature branch)
+
+The game now includes an original six-district **chromatic presentation system** with a high-contrast aqua/amber/coral/violet HUD, responsive progress meter, checkpoint countdown, upcoming-hazard warning, compact autonomous-mode controls, and district-reactive colors. The procedural skyline has been expanded into more visually distinctive fictional Lagos streets with stalls, painted shopfronts, posters, produce stands, building balconies, colorful awnings, murals and gardens. A lightweight single-shader sunset sky adds a sun halo and moving cloud depth.
+
+Additional presentation components include capped **event-synchronized VFX** (jump, landing, token, danger and checkpoint), original **opt-in synthesized street ambience and action cues** (no third-party audio assets), and a bounded stream-event accumulator so the browser does not miss events between snapshot updates. None of these components can mutate authoritative physics or award progress.
+
+The latest composition is implemented on this branch; all new modules passed independent JavaScript syntax parsing, but **new browser screenshot / gameplay / GPU tests have not yet completed**. In particular, more procedural density does not imply professional visual polish or verified performance. CI remains responsible for validating new code against mobile/desktop rendering; the latest visual quality verdict is still **BELOW the reference**.
+
+Style and runtime modules: `public/eko-run/theme.css`, `world-vibrance.js`, `atmosphere.js`, `gamefeel.js`, and `soundscape.js`. Quality gates are continuously recorded in `public/eko-run/gauntlet.json`.
+
 **Scope:** development-only host bound to loopback by default. Additional authentication, deployment, multi-operator sessions and remote public viewer infrastructure are not included in this feature.
