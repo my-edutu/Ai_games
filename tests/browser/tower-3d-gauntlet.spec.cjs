@@ -84,6 +84,18 @@ test('2D fallback projects floor-relative game entities after ascending',async({
   await page.screenshot({path:path.join(artifacts,'gauntlet-2d-higher-floor.png'),fullPage:true});
 });
 
+test('low-power accessible 3D maintains scene and exposes measured frame pacing',async({page})=>{
+  await page.setViewportSize({width:844,height:390});
+  await page.goto(base+'/tower?quality=low&highContrast=1&reducedMotion=1&cleanFeed=1');
+  await expect.poll(()=>page.evaluate(()=>window.__TOWER_3D_DIAGNOSTICS__?.sampledFrames||0),{timeout:25000}).toBeGreaterThan(55);
+  const d=await page.evaluate(()=>window.__TOWER_3D_DIAGNOSTICS__);
+  expect(d.highContrast).toBe(true);
+  expect(d.pixelRatio).toBeLessThanOrEqual(1);
+  expect(d.averageFps).toBeGreaterThan(0);
+  expect(d.drawCalls).toBeGreaterThan(50);
+  await page.screenshot({path:path.join(artifacts,'gauntlet-3d-mobile-accessible.png'),fullPage:true});
+});
+
 test('a critic can record the largest remaining visual gap without making a false AAA claim',async({page})=>{
   await page.goto(base+'/tower/gauntlet');
   await expect(page.getByRole('heading',{name:'Jusant quality gate'})).toBeVisible();
