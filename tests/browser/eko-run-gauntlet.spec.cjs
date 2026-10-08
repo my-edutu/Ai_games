@@ -29,6 +29,7 @@ test.describe('Eko Run 3D Gauntlet slice', () => {
     expect(audit.character.joints).toBeGreaterThanOrEqual(14);
     expect(audit.character.meshes).toBeGreaterThanOrEqual(60);
     expect(audit.character.inFrame).toBeTruthy();
+    expect(audit.character.safeHorizontalPadding).toBe(true);
     expect(audit.character.heightPx).toBeGreaterThan(65);
     expect(audit.character.outfits).toHaveLength(4);
     expect(audit.environment.materials.source).toBe('generated-original');
@@ -101,6 +102,7 @@ test.describe('Eko Run 3D Gauntlet slice', () => {
     await page.locator('[data-control="Space"]').click();
     const audit=await page.evaluate(()=>window.__EKO_VISUAL_AUDIT__());
     expect(audit.character.inFrame).toBeTruthy();
+    expect(audit.character.safeHorizontalPadding).toBe(true);
     expect(audit.character.heightPx).toBeGreaterThan(60);
     fs.mkdirSync('artifacts/eko-gauntlet', { recursive: true });
     fs.writeFileSync('artifacts/eko-gauntlet/mobile-metrics.json',JSON.stringify(audit,null,2));
