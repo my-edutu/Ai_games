@@ -405,3 +405,10 @@ body[data-high-contrast="true"] #broadcast[data-ux-revision="3"] #cinema-banner 
 @media(max-width:1000px){
   #broadcast[data-ux-revision="3"] .audience-panel{display:none}
 }
+
+/* Never show interactive camera choices when WebGL fell back to the 2D map. */
+#broadcast[data-ux-revision="3"] #stage:not(:has(#maze-3d)) #camera-switch{display:none}
+#broadcast[data-ux-revision="3"] #status-strip>.live-state{margin-left:0}
+@media(max-width:900px) and (orientation:landscape){
+  #broadcast[data-ux-revision="3"] #status-strip>.live-state{flex:0 0 auto}
+}
