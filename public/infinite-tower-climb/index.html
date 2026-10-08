@@ -14,6 +14,11 @@
       <canvas id="tower-canvas" data-testid="tower-canvas" aria-label="Infinite Tower Climb autonomous game view"></canvas>
       <div class="danger-vignette" aria-hidden="true"></div>
       <div class="checkpoint-pill"><span>RUN</span><b data-testid="run-token">—</b></div><div class="world-label" aria-hidden="true"><span class="world-kicker">THE ASCENT · CHAPTER <span id="world-chapter">I</span></span><span class="world-title" id="world-title">THE FOUNDRY</span><span class="world-detail" id="world-detail">WHERE EVERY JOURNEY BEGINS</span></div><div class="climb-rail" aria-hidden="true"><i id="climb-progress"></i></div>
+      <div class="hero-identity" aria-hidden="true">
+        <div class="hero-portrait"><span>▲</span></div>
+        <div><span class="hero-label">THE WAYFINDER / 01</span><strong>THE CLIMBER</strong><small id="hero-state">SCANNING THE ASCENT</small></div>
+      </div>
+      <div class="stage-signal" id="stage-signal" aria-hidden="true"><span id="signal-kicker">THREAT DETECTED</span><strong id="signal-title">STAY ALIVE</strong></div>
     </section>
     <aside class="side" data-testid="side-panel">
       <section class="panel vital-panel"><div class="panel-head"><span>CLIMBER STATUS</span><b data-testid="tick">0</b></div><div class="bar-row"><label>INTEGRITY</label><div class="bar"><i id="health-bar"></i></div><output data-testid="health">5/5</output></div><div class="bar-row"><label>STAMINA</label><div class="bar stamina"><i id="stamina-bar"></i></div><output data-testid="stamina">100</output></div><div class="shield-row"><span>SHIELDS</span><b data-testid="shields">0</b></div></section>
