@@ -65,6 +65,29 @@ test('Marble WebGL broadcast renders authoritative tournament and captures runti
   const shell = page.locator('.broadcast-shell');
   await expect(shell).toHaveAttribute('data-renderer', 'webgl2', { timeout: 20_000 });
   await expect(shell).toHaveAttribute('data-identity', 'projected', { timeout: 20_000 });
+  await expect(page.locator('#view-toggle')).toBeVisible();
+  await expect(page.locator('#leaderboard .inspect-marble').first()).toBeVisible({timeout:15000});
+  // UI controls must never mutate the autonomous race or operator authority.
+  await page.locator('#leaderboard .inspect-marble').first().click();
+  await expect(page.locator('#spotlight-card')).toBeVisible();
+  const selected = await page.locator('#leaderboard .inspect-marble').first().getAttribute('data-marble-id');
+  const spotlight = await page.evaluate(async id => {
+    const state = await (await fetch('/api/snapshot')).json();
+    const marble = state.marbles.find(candidate => candidate.id === Number(id));
+    return { name: marble.name, number: marble.number, status: marble.status };
+  }, selected);
+  await expect(page.locator('#spotlight-name')).toHaveText(spotlight.name);
+  await expect(page.locator('#spotlight-number')).toHaveText(String(spotlight.number).padStart(2,'0'));
+  await page.screenshot({path:path.join(artifacts,'00c-competitor-dossier.png'),fullPage:true});
+  await page.locator('#spotlight-close').click();
+  await expect(page.locator('#spotlight-card')).toBeHidden();
+  await page.locator('#view-toggle').click();
+  await expect(shell).toHaveAttribute('data-view', 'cinematic');
+  await expect(page.locator('.leaderboard-panel.broadcast-overlay')).toBeHidden();
+  await expect(page.locator('#arena-webgl')).toBeVisible();
+  await page.screenshot({path:path.join(artifacts,'00d-cinematic-view.png'),fullPage:true});
+  await page.locator('#view-toggle').click();
+  await expect(shell).toHaveAttribute('data-view', 'broadcast');
   await expect(shell).toHaveAttribute('data-biome', 'seeding-sprint');
   await expect(page.locator('#arena-biome-title')).toHaveText('AURORA SPEEDWAY');
   await expect(page.locator('#qualification-meter')).toHaveAttribute('role', 'progressbar');
