@@ -1,5 +1,6 @@
 import * as THREE from '/maze/vendor/three.module.js';
 import {makeWorldCraft} from '/maze/world-craft.js';
+import {makeCharacterArt} from '/maze/character-art.js';
 
 // Public-state-only 3D presentation. This module never reads hidden maze authority.
 const stage = document.getElementById('stage');
@@ -181,8 +182,9 @@ const geometries = {
   lantern: new THREE.OctahedronGeometry(.21),
 };
 const worldCraft=makeWorldCraft(THREE);
+const characterArt=makeCharacterArt(THREE);
 Object.assign(materials,worldCraft.materials);
-const reusable = new Set([...Object.values(geometries),...Object.values(worldCraft.geometries)]);
+const reusable = new Set([...Object.values(geometries),...Object.values(worldCraft.geometries),...Object.values(characterArt.geometries)]);
 function point(cell, width) {
   return new THREE.Vector3((cell % width)*GRID,0,Math.floor(cell / width)*GRID);
 }
@@ -217,74 +219,8 @@ function addGlow(parent,position,size,color){
   parent.add(glow);
   return glow;
 }
-function humanoid(material) {
-  const hero=new THREE.Group();
-  // Original stylised explorer: layered wanderer's cloak, articulated boots and lantern.
-  const tunic=mesh(geometries.cylinder,material,hero,[0,1.09,0],[0.35,0.82,0.29]);
-  tunic.rotation.z=.04;
-  mesh(geometries.cone,material,hero,[0,0.9,-.12],[.53,1.33,.46]).rotation.z=Math.PI;
-  const capeRig=new THREE.Group();
-  capeRig.position.set(0,1.42,-.35);
-  for(let section=0;section<3;section++){
-    const fabric=mesh(geometries.cube,section===2?materials.capeTrim:materials.cape,capeRig,
-      [0,-.26-section*.33,-.09-section*.10],[.78+section*.20,.43,.09]);
-    fabric.rotation.x=.13+section*.13;
-  }
-  hero.add(capeRig);hero.userData.capeRig=capeRig;
-  // A sculptural field pack establishes the explorer as a living traveller.
-  mesh(geometries.cube,materials.cape,hero,[0,1.22,-.49],[.57,.69,.3]);
-  mesh(geometries.cube,materials.trim,hero,[0,1.15,-.66],[.39,.11,.06]);
-  mesh(geometries.cylinder,materials.trim,hero,[0,1.46,0],[.4,.13,.35]);
-  const head=new THREE.Group();head.position.set(0,1.68,0);hero.add(head);hero.userData.head=head;
-  mesh(geometries.sphere,materials.skin,head,[0,.09,.02],[.27,.31,.28]);
-  // Separate articulated hood and expression permit independent look-around animation.
-  mesh(geometries.sphere,materials.dark,head,[0,.23,-.11],[.36,.36,.38]);
-  mesh(geometries.sphere,materials.skin,head,[0,.12,.19],[.225,.235,.11]);
-  mesh(geometries.cube,materials.trim,hero,[0,1.47,.3],[.14,.15,.1]);
-  for(const side of [-1,1]){
-    mesh(geometries.sphere,materials.trim,hero,[side*.35,1.43,0],[.2,.13,.25]);
-    const shoulder=new THREE.Group();shoulder.position.set(side*.44,1.43,.05);hero.add(shoulder);
-    mesh(geometries.cylinder,material,shoulder,[0,-.36,0],[.17,.64,.17]);
-    mesh(geometries.sphere,materials.skin,shoulder,[0,-.73,.04],[.15,.15,.15]);
-    const hip=new THREE.Group();hip.position.set(side*.2,.83,0);hero.add(hip);
-    mesh(geometries.cylinder,materials.dark,hip,[0,-.35,0],[.175,.78,.17]);
-    mesh(geometries.cube,materials.dark,hip,[0,-.71,.20],[.37,.23,.57]);
-    mesh(geometries.cylinder,materials.trim,hip,[0,-.13,0],[.18,.07,.18]);
-    hero.userData.limbs??=[];
-    hero.userData.limbs.push({arm:shoulder,leg:hip,side});
-    mesh(geometries.sphere,materials.goldLight,head,[side*.105,.15,.293],[.047,.053,.015]);
-  }
-  // A carried compass-lantern is the visual centre of the hero, not a luminous dot.
-  const lantern=new THREE.Group();
-  lantern.position.set(.69,.69,.24);
-  mesh(geometries.cylinder,materials.trim,lantern,[0,0,0],[.18,.48,.18]);
-  mesh(geometries.lantern,materials.goldLight,lantern,[0,.02,0],[.72,.86,.72]);
-  mesh(geometries.torus,materials.trim,lantern,[0,.3,0],[.2,.2,.2]).rotation.x=Math.PI/2;
-  mesh(geometries.cylinder,materials.trim,lantern,[0,-.3,0],[.2,.07,.2]);
-  hero.add(lantern);
-  addGlow(lantern,[0,.02,0],2.2,0xffcf8b);
-  hero.userData.lantern=lantern;
-  hero.userData.baseY=0;
-  return hero;
-}
-function monster(){
-  const creature=new THREE.Group();
-  const root=mesh(geometries.cone,materials.monster,creature,[0,1.04,-.06],[.54,1.98,.56]);
-  root.rotation.z=Math.PI;
-  mesh(geometries.sphere,materials.monster,creature,[0,1.67,0],[.48,.46,.44]);
-  mesh(geometries.cone,materials.dark,creature,[0,1.94,-.15],[.51,.58,.56]);
-  mesh(geometries.torus,materials.hazard,creature,[0,.36,0],[.78,.78,.78]).rotation.x=Math.PI/2;
-  for(const side of [-1,1]){
-    mesh(geometries.cone,materials.monster,creature,[side*.63,1.01,0],[.19,.9,.19]).rotation.z=side*.22;
-    for(let n=0;n<2;n++){
-      const shred=mesh(geometries.cone,materials.cape,creature,[side*(.37+n*.24),.39,-.17],[.13,.88+n*.26,.16]);
-      shred.rotation.z=side*.25;
-    }
-    mesh(geometries.sphere,materials.monsterEye,creature,[side*.18,1.7,.4],[.11,.085,.04]);
-    mesh(geometries.cone,materials.wallTop,creature,[side*.31,2.11,-.1],[.11,.3,.12]);
-  }
-  return creature;
-}
+function humanoid(){return characterArt.explorer()}
+function monster(){return characterArt.wraith()}
 function clearWorld() {
   for(const entry of [...world.children]) {
     world.remove(entry);
