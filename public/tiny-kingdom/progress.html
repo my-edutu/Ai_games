@@ -72,4 +72,22 @@ Stop only after evidence-backed wins or operator stop.</pre><p class="small">The
 <p><strong>Real simulation observation:</strong> A 150-day browser simulation on the local previous game build completed in approximately 20.5 seconds, observing 28 citizens, 37 structures, 27 friendships, ~699 food, ~100 wood and ~675 gold without page JavaScript errors. The local OBS launcher itself has been syntax parsed but has <strong>not</strong> yet completed its new GitHub CI self-test or a real OBS livestream soak. This should be considered an initial deployment surface, not proof of availability.</p>
 <p><strong>Critic:</strong> The game is still a small stylized 3D prototype with no production-grade 3D human assets, physical lights, rich textures, credible large-scale strategy, synchronized multi-viewer authority, recovery service or matched blind A/B win over Manor Lords. Visual gate remains FAIL. Next prioritize GPU browser evidence and replacing primitive models rather than polishing the HTML status indicator.</p>
 </section>
-</main></body></html>
+<section class="card" id="gauntlet-015" style="margin-top:26px;border:1px solid #76ebd4;border-top:4px solid #ffe18f;background:linear-gradient(140deg,#0e3e45,#123438)">
+<div class="badge">October 8, 2026 · Gauntlet 015 · INSPECTED LOCAL RENDER</div>
+<h2 style="margin:16px 0;color:#fff0b8">The Verdant Kingdom — interface and countryside pass</h2>
+<p class="pill">Manor Lords benchmark: FAIL — prototype remains visually far below reference.</p>
+<div class="grid">
+<div><h3 style="color:#8affe1">Builder — measurable changes</h3><ul>
+<li>Rebuilt the screen-level hierarchy using legible emerald/teal panels, gold accents, high-contrast resource cards, better spacing and reduced vignette darkness; implemented a world color-grade without rewriting simulation state.</li>
+<li>Added an actual interactive 2D kingdom atlas that draws live cottages, moving citizens, the river, road graph, seasonal weather and camera target. Clicking the map pans the 3D camera but does not issue authoritative simulation commands.</li>
+<li>Added original seeded presentation-only meadow/wildflower clusters and a four-sail animated windmill landmark. Flora uses independent deterministic hashes rather than consuming the authoritative RNG.</li>
+<li>Compact mobile chronicle and adaptive sidebar/tablet breakpoints. Added Playwright tests for cosmetic atlas navigation and mobile overflow/height.</li>
+</ul></div>
+<div><h3 style="color:#ffd899">Harsh critic — largest remaining gap</h3><ul>
+<li>The real 1440×900 software-rendered frame has better UI contrast, color separation and navigation, but the world still appears plainly low-poly with untextured ground, simplified trees, schematic roofs and no true rigged human models.</li>
+<li>The windmill is still assembled from primitive geometry. It provides a stronger skyline silhouette but cannot be called Manor Lords-level art.</li>
+<li>Direct GPU WebGL capture, consistent matched-camera A/B, lighting/material authoring, character animation rigs, distant terrain, world density, and performance budgets remain unverified or below target.</li>
+<li>Local Chromium exercised 20 simulated days and atlas click without page errors in the software fallback. A 390-pixel mobile pass detected no horizontal overflow. This does not establish end-to-end GPU or CI success.</li>
+</ul></div></div>
+<p class="small">Inspection sources: Gauntlet 015 local wide and close captures, mobile layout render, seeded 20-day simulation, and GitHub browser regression definitions. Independent fresh-context worker critic unavailable: the worker tunnel was disconnected, so this is an explicit internal critic verdict. Latest CI/GPU results should be read from this PR's workflow artifacts when completed.</p>
+</section></main></body></html>
