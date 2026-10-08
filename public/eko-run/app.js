@@ -97,18 +97,20 @@ let frames=0, fpsStamp=performance.now();
 
 function makeShop(parent,x,z,seed,night=false){
   const width=2.7+numberHash(seed+7)*1.8, depth=2.8, height=3.0+numberHash(seed+9)*2.5;
+  const front=z<0?1:-1;
+  const facade=z+front*depth/2;
   const tone=pick([0xd88e62,0xcab18b,0x9ebdb5,0xc1a0a5,0xe4c79c,0xa5b6c9],seed+15);
   box(parent,width,height,depth,x,height/2,z,tone);
   box(parent,width+.18,.27,depth+.1,x,height+.06,z,0x695953);
-  box(parent,width*.84,.14,0.38,x,2.30,z-depth/2-.25,pick([0xf3a947,0x16a5a0,0x9b4877],seed+27));
-  box(parent,width*.75,1.16,.05,x,1.20,z-depth/2-.04,0x354b59);
+  box(parent,width*.84,.14,0.38,x,2.30,facade+front*.25,pick([0xf3a947,0x16a5a0,0x9b4877],seed+27));
+  box(parent,width*.75,1.16,.05,x,1.20,facade+front*.04,0x354b59);
   for(let i=0;i<3;i++){
     const wx=x+(i-1)*width*.24;
-    box(parent,width*.18,.66,.06,wx,height-1.15,z-depth/2-.045,night?0xffda8a:0x345b66,false);
-    box(parent,.07,.72,.10,wx,height-1.15,z-depth/2-.09,0xe3d7b9,false);
+    box(parent,width*.18,.66,.06,wx,height-1.15,facade+front*.045,night?0xffda8a:0x345b66,false);
+    box(parent,.07,.72,.10,wx,height-1.15,facade+front*.09,0xe3d7b9,false);
   }
-  box(parent,width+.34,.16,.65,x,2.37,z-depth/2-.55,0x335566);
-  if(seed%4===0)labelSprite(parent,pick(['JOLLOF STOP','OJA MART','EKO TECH','SUYA SPOT','FRESH MARKET','PHONE HUB'],seed+3),x,2.81,z-depth/2-.68,{scale:.45,bg:'#154456'});
+  box(parent,width+.34,.16,.65,x,2.37,facade+front*.55,0x335566);
+  if(seed%4===0)labelSprite(parent,pick(['JOLLOF STOP','OJA MART','EKO TECH','SUYA SPOT','FRESH MARKET','PHONE HUB'],seed+3),x,2.81,facade+front*.68,{scale:.45,bg:'#154456'});
 }
 function makeBus(parent,x,z,variant=0){
   const b=new THREE.Group();parent.add(b);b.position.set(x,0,z);
@@ -180,8 +182,10 @@ function buildWorld(snapshot) {
   for(let i=0;i<Math.ceil(length/5);i++){
     const x=i*5-5.0;
     if(i%2===0) {
-      makeShop(terrain,x+1,7.05,i+12,night);
-      if(worldState.quality!=='low')makeShop(terrain,x+1,-7.05,i+71,night);
+      // Important camera-causality fix: shops sit BEHIND the authoritative running lane.
+      // Previously the near-side shop row hid Tayo and even the hazard lane.
+      makeShop(terrain,x+1,-7.05,i+12,night);
+      if(worldState.quality!=='low')makeShop(terrain,x+1,-10.85,i+71,night);
     }
     if(i%3===0) makeTree(terrain,x+.4,4.95,i+4);
     if(i%4===0) makeLamp(terrain,x,-4.40,night);
@@ -450,7 +454,7 @@ function resize(){
   const w=canvas.clientWidth,h=canvas.clientHeight;
   if(!w||!h)return;
   renderer.setPixelRatio(Math.min(devicePixelRatio,worldState.quality==='high'?1.6:1));
-  renderer.setSize(w,h,false);camera.aspect=w/h;camera.fov=w/h<.8?56:50;camera.updateProjectionMatrix();
+  renderer.setSize(w,h,false);camera.aspect=w/h;camera.fov=w/h<.8?54:48;camera.updateProjectionMatrix();
 }
 new ResizeObserver(resize).observe(canvas);resize();
 let last=performance.now();
@@ -474,10 +478,10 @@ function animate(now){
     bodyParts.root.position.y=running?Math.abs(motion)*.055:0;
     bodyParts.root.scale.y=player.movementState==='sliding'?.72:1;
     const portrait=camera.aspect<.8;
-    const targetX=player.position.x+(portrait?2.1:3.45);
-    const camX=targetX-3.1;
-    const camZ=portrait?24.5:17;
-    const camY=portrait?6.1:5.5;
+    const targetX=player.position.x+(portrait?2.25:3.3);
+    const camX=targetX-2.1;
+    const camZ=portrait?16.8:12.4;
+    const camY=portrait?5.1:4.65;
     camera.position.x=THREE.MathUtils.lerp(camera.position.x,camX,1-Math.exp(-dt*4.5));
     camera.position.y=THREE.MathUtils.lerp(camera.position.y,camY+player.position.y*.18,1-Math.exp(-dt*4));
     camera.position.z=camZ;
