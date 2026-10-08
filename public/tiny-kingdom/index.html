@@ -47,7 +47,20 @@ box(x+w*.31,y+h*.72,z,.28*scale,.81*scale,.28*scale,rgb(0x9d8c77));box(x+w*.31,y
 function hall(x,z){house(x,z,1.85,2);let y=terrain(x,z);cylinder(x,y+3.2,z,.5,2,rgb(0xcab48a));cone(x,y+5.2,z,1,1.7,rgb(0x5e6652));}
 function tree(x,z,s=1){let y=terrain(x,z);shadow(x+.37*s,z+.4*s,.95*s,.56*s);cylinder(x,y,z,.19*s,1.65*s,rgb(0x6b5638),7);
 if(Math.sin(x*1.71+z*3.14)>.12){const leaf=rgb(Math.sin(z*3.2)>.2?0x577f4b:0x53754a);ellipsoid(x,y+2.25*s,z,1.13*s,1.02*s,1.08*s,leaf,8);ellipsoid(x+.58*s,y+1.87*s,z-.28*s,.72*s,.75*s,.75*s,rgb(0x648b57),8);ellipsoid(x-.42*s,y+2.51*s,z+.17*s,.74*s,.67*s,.77*s,rgb(0x78975e),8)}else{cone(x,y+1.05*s,z,1.02*s,2.2*s,rgb(0x426b4e),9);cone(x,y+1.9*s,z,.76*s,1.8*s,rgb(0x557954),9);cone(x,y+2.55*s,z,.52*s,1.15*s,rgb(0x729268),9)}}
-function path(points,width=1){for(let i=0;i<points.length-1;i++){let a=points[i],b=points[i+1],dx=b[0]-a[0],dz=b[1]-a[1],l=Math.hypot(dx,dz),nx=dz/l*width*.5,nz=-dx/l*width*.5;let p=[a[0]+nx,terrain(...a)+.055,a[1]+nz],q=[a[0]-nx,terrain(...a)+.055,a[1]-nz],r=[b[0]-nx,terrain(...b)+.055,b[1]-nz],s=[b[0]+nx,terrain(...b)+.055,b[1]+nz];quad(p,q,r,s,rgb(0xb7a07b))}}
+function path(points,width=1){for(let i=0;i<points.length-1;i++){
+ const a=points[i],b=points[i+1],dx=b[0]-a[0],dz=b[1]-a[1],length=Math.hypot(dx,dz);
+ if(length<.001)continue;
+ const nx=dz/length*width*.5,nz=-dx/length*width*.5;
+ // Short terrain-following road strips avoid the huge near-camera triangles that
+ // made paths cut through buildings in software and hover over sloping land in WebGL.
+ const n=Math.ceil(length/.9),road=rgb(0xb09d7a);
+ for(let j=0;j<n;j++){
+  const t=j/n,u=(j+1)/n,x0=a[0]+dx*t,z0=a[1]+dz*t,x1=a[0]+dx*u,z1=a[1]+dz*u;
+  const p=[x0+nx,terrain(x0+nx,z0+nz)+.028,z0+nz],q=[x0-nx,terrain(x0-nx,z0-nz)+.028,z0-nz];
+  const r=[x1-nx,terrain(x1-nx,z1-nz)+.028,z1-nz],v=[x1+nx,terrain(x1+nx,z1+nz)+.028,z1+nz];
+  quad(p,q,r,v,road);
+ }
+}}
 function wheat(x,z){let y=terrain(x,z);for(let i=0;i<6;i++)for(let j=0;j<5;j++){let xx=x+(i-2.5)*.43,zz=z+(j-2)*.48,yy=terrain(xx,zz);cylinder(xx,yy,zz,.022,.6,rgb(0xbc9c56),4);cone(xx,yy+.39,zz,.12,.34,rgb(0xe4c47c),4)}}
 // Low-poly but individually proportioned citizens with articulated walk cycles, faces, tools and roles.
 function ellipsoid(x,y,z,rx,ry,rz,col,segments=9){for(let ring=0;ring<5;ring++){let a=Math.PI*ring/5,b=Math.PI*(ring+1)/5;for(let i=0;i<segments;i++){let u=i*Math.PI*2/segments,v=(i+1)*Math.PI*2/segments;let f=(t,k)=>[x+Math.sin(t)*Math.cos(k)*rx,y+Math.cos(t)*ry,z+Math.sin(t)*Math.sin(k)*rz];quad(f(a,u),f(a,v),f(b,v),f(b,u),col)}}}
