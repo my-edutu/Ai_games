@@ -54,6 +54,36 @@ test('gauntlet progress and blinded comparison page expose honest status',async(
   await expect(page.locator('#status')).toContainText('pending');
 });
 
+test('articulated hero close-up proves mesh detail and independently capturable pose',async({page})=>{
+  await page.setViewportSize({width:1440,height:900});
+  await page.goto(base+'/tower?camera=hero&cleanFeed=1',{waitUntil:'domcontentloaded'});
+  await expect.poll(()=>page.evaluate(()=>window.__TOWER_3D_ACTIVE__),{timeout:20000}).toBe(true);
+  await expect.poll(()=>page.evaluate(()=>window.__TOWER_3D_DIAGNOSTICS__?.heroParts||0),{timeout:20000}).toBeGreaterThan(70);
+  await expect.poll(()=>page.evaluate(()=>window.__TOWER_3D_DIAGNOSTICS__?.drawCalls||0),{timeout:20000}).toBeGreaterThan(80);
+  const status=await page.evaluate(()=>window.__TOWER_3D_DIAGNOSTICS__);
+  expect(status.heroCamera).toBe(true);
+  expect(status.drawCalls).toBeLessThan(1400);
+  await page.screenshot({path:path.join(artifacts,'gauntlet-3d-hero.png'),fullPage:true});
+});
+
+test('2D fallback projects floor-relative game entities after ascending',async({page})=>{
+  await page.setViewportSize({width:1280,height:720});
+  await page.goto(base+'/tower?renderer=2d&cleanFeed=1');
+  await expect.poll(()=>page.evaluate(()=>window.__TOWER_PUBLIC_STATE__?.floor||0),{timeout:25000}).toBeGreaterThanOrEqual(1);
+  await page.waitForTimeout(200);
+  const visible=await page.evaluate(()=>{
+    const canvas=document.getElementById('tower-canvas'),ctx=canvas.getContext('2d'),{data,width,height}=ctx.getImageData(0,0,canvas.width,canvas.height);
+    let details=0;
+    for(let y=0;y<height;y+=5)for(let x=0;x<width;x+=5){
+      const p=(y*width+x)*4;
+      if(data[p]>65&&data[p+1]>75&&data[p+2]>100)details++;
+    }
+    return details;
+  });
+  expect(visible).toBeGreaterThan(60);
+  await page.screenshot({path:path.join(artifacts,'gauntlet-2d-higher-floor.png'),fullPage:true});
+});
+
 test('3D module unavailable degrades safely to the existing 2D scene',async({page})=>{
   await page.route('**/tower/scene3d.js',route=>route.fulfill({status:503,body:'Module unavailable'}));
   await page.goto(base+'/tower');
