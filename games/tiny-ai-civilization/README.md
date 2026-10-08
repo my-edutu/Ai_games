@@ -54,6 +54,16 @@ Added deterministic 36-day years with spring/summer/autumn/winter, reproducible 
 
 **Tests:** added Playwright checks for yearly season boundaries, temperature and crop multiplier, calendar/UI alignment and deterministic multi-season replay. GitHub CI conclusions are tracked separately. Critic result: FAIL; high-fidelity human models, textures, atmospheric art direction, verifiable GPU evidence, night lighting, roof overlap, and sustainable economy still require work.
 
+## Gauntlet 009 — Lit windows, settlement lamps, timber economy
+
+After dark, the material palette of actual dwelling window meshes changes to warm amber and a small set of original 3D town lanterns marks working paths, the market and well. This is deliberately a lightweight night readability improvement, **not real emissive lighting, global illumination, or a substitute for real WebGL frame evidence**.
+
+Autonomous merchants now import timber when per-citizen reserves fall critically low and the treasury can pay for it. The purchase is a real state transaction and can generate an honest village chronicle; builder and craftsperson resource usage remains governed by the same stored inventory.
+
+**Observed local browser evidence:** 70 simulated days in ~4.5 seconds of synchronous simulation; 23 villagers, 22 buildings, 22 recorded friendship relationships, food ~498, timber ~22, gold ~486, zero JavaScript page errors. A real close-camera software fallback frame was captured locally, showing better occupancy but substantial primitive geometry and painter occlusion defects. Added a browser test asserting population, buildings, positive winter-capable food/wood and solvent treasury at day 71.
+
+**Critic:** Manor Lords parity remains FAIL, GPU/WebGL capture and independent blind A/B unverified. Priority gaps: rigged character assets, PBR-style architectural materials, terrain mesh/material quality, correct shadowing/lighting, GPU screenshot reproducibility, saved-world longevity, longer population stress tests, and authoritative shared engine integration.
+
 ## Gauntlet continuation
 
 Primary bar: official *Manor Lords* captured gameplay and screenshots, camera-matched with our game (https://www.hoodedhorse.com/games/manor-lords). Secondary: Foundation for autonomous labor behavior, The Universim for character emergence. Keep original assets; do not copy proprietary models or textures.
