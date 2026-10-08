@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createGame } from '../dist/index.js';
 import { decorateBuilding, decorateWorld } from '../web/scene-art.js';
+import { decorateActor } from '../web/actor-art.js';
 
 class GeometryAudit {
   constructor(){this.calls=0;this.colors=new Set();this.byKind=new Map();}
@@ -70,4 +71,19 @@ test('extreme roof and weather states cannot produce invalid or unbounded geomet
   state.weather={kind:'storm',intensity:1};
   const mesh=runCity(state);
   assert.ok(mesh.calls>400&&mesh.calls<6000);
+});
+
+test('3D survivor classes and infected variants receive distinctive bounded cosmetic equipment',()=>{
+  const g=createGame({seed:44,zombieCount:40});
+  const survivors=g.survivors.slice(0,6).map(s=>{const m=new GeometryAudit();decorateActor(m,s,false,12,1);return m;});
+  assert.ok(survivors.every(m=>m.calls>=12&&m.calls<90));
+  assert.ok(survivors.some(m=>m.colors.has('#d55b67')||m.colors.has('#d7ebdf')));
+  const zombieVariants=['brute','runner','shambler'].map(archetype=>{
+    const m=new GeometryAudit(),original=g.zombies.find(z=>z.archetype===archetype);
+    assert.ok(original);
+    decorateActor(m,original,true,1,archetype==='brute'?1.34:1);
+    assert.ok(m.calls>=5&&m.calls<60);
+    return [...m.colors].sort().join(',');
+  });
+  assert.equal(new Set(zombieVariants).size,3,'mutant variants require individually readable silhouettes');
 });

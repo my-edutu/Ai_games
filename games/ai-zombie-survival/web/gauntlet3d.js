@@ -3,6 +3,7 @@ import { createGame, stepGame, selectCameraEvent, applyEvidenceScenario, isEvide
 import { decorateBuilding, decorateWorld } from './scene-art.js';
 import { createSkyPass } from './sky-pass.js';
 import { drawTacticalMap } from './tactical-map.js';
+import { decorateActor } from './actor-art.js';
 
 const canvas = document.getElementById('scene');
 const hud = document.getElementById('hud');
@@ -390,6 +391,7 @@ function human(m,entity,infected,time){
     if(entity.action==='attack'||entity.action==='aim')part(m,x,z,yaw,.31*body,1.39*body,.57*body,.11*body,.13*body,.78*body,'#262d2d');
     if(entity.carrying>0)part(m,x,z,yaw,-.53*body,1.10*body,.01,.31*body,.44*body,.31*body,'#99835d');
   }
+  decorateActor(m,entity,infected,time,body);
 }
 function drawAtmosphere(m,t){
   // Fixed-budget cosmetic rain. Render-only; it never alters collision, health or tick outcomes.
