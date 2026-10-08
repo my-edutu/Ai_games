@@ -161,6 +161,8 @@ test('original sculpted characters and biome weather expose a real 3D performanc
   expect(real.public.seed).toBeUndefined();
   if(real.render){
     expect(real.report?.triangles).toBeGreaterThan(0);
+    expect(real.report?.explorerMeshes).toBeGreaterThan(20);
+    expect(real.report?.atmosphereParticles).toBeGreaterThanOrEqual(300);
     expect(real.report?.artDetails?.skyline).toBeGreaterThan(0);
     expect(real.report?.artDetails?.monumentalProps).toBeGreaterThanOrEqual(0);
   }
