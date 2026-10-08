@@ -47,7 +47,9 @@ export interface MarblePresentationArena {
   readonly obstacles: ReadonlyArray<Readonly<{ id: string; x: number; y: number; width: number; height: number }>>;
   readonly bumpers: ReadonlyArray<Readonly<{ id: string; x: number; y: number; radius: number; launchSpeed?: number }>>;
   readonly sweepers: ReadonlyArray<Readonly<{ id: string; baseX: number; baseY: number; width: number; height: number; axis: 'x' | 'y'; amplitude: number; periodTicks: number; phaseTicks: number }>>;
-  readonly ramps: ReadonlyArray<Readonly<{ id: string; kind: 'ramp'; x: number; y: number; width: number; height: number; axis: 'x' | 'y'; startElevation: number; endElevation: number }>>;
+  /** Public force field parameters for visualizing real arena wind, never secrets. */
+  readonly windZones: ReadonlyArray<Readonly<{ id: string; x: number; y: number; width: number; height: number; forceX: number; forceY: number }>>;
+    readonly ramps: ReadonlyArray<Readonly<{ id: string; kind: 'ramp'; x: number; y: number; width: number; height: number; axis: 'x' | 'y'; startElevation: number; endElevation: number }>>;
 }
 
 export interface MarblePresentationSnapshot {
