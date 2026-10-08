@@ -1,6 +1,7 @@
 import * as THREE from '/maze/vendor/three.module.js';
 import {makeWorldCraft} from '/maze/world-craft.js';
 import {makeCharacterArt} from '/maze/character-art.js';
+import {createAtmosphere} from '/maze/atmosphere.js';
 
 // Public-state-only 3D presentation. This module never reads hidden maze authority.
 const stage = document.getElementById('stage');
@@ -71,6 +72,7 @@ function paintSkyGradient(profile){
 }
 function setTheme(profile){
   worldCraft.setTheme(profile);
+  const atmosphericPreset=atmosphere.setTheme(profile);
   const theme=LABYRINTH_THEMES[profile]||LABYRINTH_THEMES.loops;
   scene.background.setHex(theme.sky);
   scene.fog.color.setHex(theme.fog);
@@ -86,6 +88,7 @@ function setTheme(profile){
   if(skyLight)skyLight.color.setHex(theme.rim);
   const groundPalettes={tree:0x7a8e74,loops:0x6c8c83,chambers:0xbc866a,layers:0x7f80b0,hunter:0x885c76};
   materials.void.color.setHex(groundPalettes[profile]??groundPalettes.loops);
+  if(scene?.fog)scene.fog.density=atmosphericPreset.fog;
   paintSkyGradient(profile);
   window.__MAZE_3D_THEME__=theme.label;
 }
@@ -183,6 +186,7 @@ const geometries = {
 };
 const worldCraft=makeWorldCraft(THREE);
 const characterArt=makeCharacterArt(THREE);
+const atmosphere=createAtmosphere(THREE);
 Object.assign(materials,worldCraft.materials);
 const reusable = new Set([...Object.values(geometries),...Object.values(worldCraft.geometries),...Object.values(characterArt.geometries)]);
 function point(cell, width) {
@@ -618,6 +622,7 @@ function render(now) {
     ambientDust.position.set(explorer.position.x,0,explorer.position.z);
     if(!reducedMotion)ambientDust.rotation.y+=seconds*.003;
   }
+  atmosphere.update(now,seconds,explorer.position,reducedMotion);
   const target=lookTarget.clone().lerp(explorer.position,.34);
   if(!settledCamera || reducedMotion)smoothedLook.copy(target);
   else smoothedLook.lerp(target,Math.min(1,seconds*2));
@@ -755,6 +760,7 @@ function init() {
   edge.position.set(10,8,10);
   scene.add(edge);
   scene.add(world,dynamic);
+  scene.add(atmosphere.group);
   explorer=humanoid(materials.cloak);
   dynamic.add(explorer);
   worldCraft.addHeroSurroundings({scene,hero:explorer,put:mesh,glow:addGlow});
@@ -776,6 +782,7 @@ function init() {
   window.addEventListener('pagehide',()=>{
     active=false;observer.disconnect();window.removeEventListener('maze:frame',onFrame);
     renderer.dispose();
+    atmosphere.dispose();
   },{once:true});
   ready=true;
   active=true;
