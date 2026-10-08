@@ -153,12 +153,15 @@ export function makeCharacterArt(THREE){
     group.name='The Hollow Sentinel — Hunting Wraith';
     obj(group,shadowGeo,mat.shadow,[0,.28,0],[1,1,1]);
     // Overlapping trailing strips give a skeletal, wind-torn creature silhouette.
+    const shrouds=[];
     for(let n=0;n<8;n++){
       const t=n*Math.PI/4,r=.47;
       const rag=obj(group,geo.cone,n%3===0?mat.shadowTrim:mat.shadow,
         [Math.cos(t)*r,.28,Math.sin(t)*r],[.22,.68+(n%3)*.17,.20]);
       rag.rotation.z=Math.cos(t)*.2;
+      shrouds.push({mesh:rag,phase:n*.9,rest:rag.rotation.z});
     }
+    group.userData.shrouds=shrouds;
     const torso=obj(group,geo.sphere,mat.shadowTrim,[0,1.46,0],[.43,.54,.34]);
     obj(group,geo.icosa,mat.shadowCore,[0,1.49,.33],[.17,.25,.1]);
     const crown=new THREE.Group();crown.position.set(0,1.85,0);group.add(crown);
