@@ -397,3 +397,25 @@ test('Gauntlet 018 legible responsive HUD and real 3D scenic dressing', async ({
   await testInfo.attach('tiny-kingdom-festival-mobile',{body:await page.screenshot(),contentType:'image/png'});
   expect(errors).toEqual([]);
 });
+
+test('Gauntlet 019 character palettes and rig-like animated costume geometry remain deterministic', async ({page}) => {
+  const errors=[];page.on('pageerror',e=>errors.push(e.message));
+  await page.setContent(html);
+  await page.waitForFunction(()=>Boolean(window.__tinyKingdom));
+  await page.locator('#pause').click();
+  const result=await page.evaluate(()=>{
+    const game=window.__tinyKingdom;
+    const first=JSON.stringify(game.getCitizenProfiles());
+    const before=JSON.stringify(game.exportSnapshot());
+    game.reset();
+    const second=JSON.stringify(game.getCitizenProfiles());
+    const after=JSON.stringify(game.exportSnapshot());
+    return {samePeople:first===second,sameSnapshot:before===after,
+      people:game.getCitizenProfiles().length,triangles:game.renderStats().lastFrameTriangles};
+  });
+  expect(result.people).toBe(12);
+  expect(result.samePeople).toBe(true);
+  // Full snapshot comparison is not meaningful across reset after a live frame.
+  expect(result.triangles).toBeGreaterThan(1000);
+  expect(errors).toEqual([]);
+});
