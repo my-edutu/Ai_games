@@ -1,8 +1,8 @@
 {
   "schema": 1,
-  "iteration": "Loop 3 · 3D stadium and cinematic stage",
+  "iteration": "Loop 4 · stable cinematic direction",
   "lastUpdated": "2026-10-08",
-  "criticTarget": "Visually inspect rendered stadium composition, marble surface quality, and silhouette readability at 1920×1080 and mobile resolutions; compare against real reference game screenshots before accepting.",
+  "criticTarget": "Film actual tournament camera passes, check WebGL shader and arena occlusion, then blind-compare frame-matched captures against reference footage.",
   "comparisonStatus": "NOT YET VERIFIED · Screenshots, blind A/B verdicts and performance sampling are outstanding.",
   "goals": [
     {
@@ -13,6 +13,11 @@
     {
       "name": "Constructed 3D tournament stadium",
       "detail": "Quality-scaled grandstands, illuminated finish gantry and procedural floodlight scenery",
+      "status": "implemented"
+    },
+    {
+      "name": "Frame-rate consistent director camera",
+      "detail": "World-space pursuit easing normalized across 30/60/144 Hz and reduced-motion preferences",
       "status": "implemented"
     },
     {
@@ -42,6 +47,11 @@
     }
   ],
   "history": [
+    {
+      "title": "Loop 4 — Camera behavior",
+      "note": "Replaced frame-count camera easing with delta-time-normalized pursuit; reduced-motion viewers still get immediate movement. Browser camera verification pending.",
+      "proof": "Source implementation"
+    },
     {
       "title": "Loop 3 — 3D arena atmosphere",
       "note": "Added grandstand geometry, industrial gantries, and quality-scaled emissive stadium lighting outside the authoritative collision world. Runtime visual review still needed.",
