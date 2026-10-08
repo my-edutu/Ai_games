@@ -47,6 +47,27 @@ const LABYRINTH_THEMES={
   layers:{label:'THE UNDERCRYPT',sky:0x252b68,fog:0x343569,wall:0xc0c5e6,floor:0xa9b9e6,trim:0xffcba0,moss:0x468dda,sun:0xc2c7ff,rim:0x879dff},
   hunter:{label:'THE WRAITH CITADEL',sky:0x4f2646,fog:0x512d4b,wall:0xdfbcce,floor:0xc4a8c0,trim:0xffbf74,moss:0xab527c,sun:0xffaf9a,rim:0xff6f99}
 };
+function paintSkyGradient(profile){
+  if(!skyDome)return;
+  const palette={
+    tree:['#15355d','#577990','#ffd49c'],
+    loops:['#12375a','#42867b','#d0bc7b'],
+    chambers:['#402943','#a96156','#fac78a'],
+    layers:['#161e60','#615fba','#ca8ec9'],
+    hunter:['#2e173a','#9b4366','#ed8466'],
+  }[profile]||['#12375a','#42867b','#d0bc7b'];
+  const [zenith,horizon,low]=palette.map(color=>new THREE.Color(color));
+  const positions=skyDome.geometry.getAttribute('position');
+  const colors=skyDome.geometry.getAttribute('color');
+  const color=new THREE.Color();
+  for(let i=0;i<positions.count;i++){
+    const t=THREE.MathUtils.clamp((positions.getY(i)/115+1)*.5,0,1);
+    if(t>.42)color.copy(horizon).lerp(zenith,(t-.42)/.58);
+    else color.copy(low).lerp(horizon,t/.42);
+    colors.setXYZ(i,color.r,color.g,color.b);
+  }
+  colors.needsUpdate=true;
+}
 function setTheme(profile){
   worldCraft.setTheme(profile);
   const theme=LABYRINTH_THEMES[profile]||LABYRINTH_THEMES.loops;
@@ -62,6 +83,9 @@ function setTheme(profile){
   if(sunLight)sunLight.color.setHex(theme.sun);
   if(rimLight)rimLight.color.setHex(theme.rim);
   if(skyLight)skyLight.color.setHex(theme.rim);
+  const groundPalettes={tree:0x7a8e74,loops:0x6c8c83,chambers:0xbc866a,layers:0x7f80b0,hunter:0x885c76};
+  materials.void.color.setHex(groundPalettes[profile]??groundPalettes.loops);
+  paintSkyGradient(profile);
   window.__MAZE_3D_THEME__=theme.label;
 }
 function seededNoise(x,y,seed){let n=(Math.imul(x+seed,374761393)+Math.imul(y+seed,668265263))|0;n=Math.imul(n^(n>>>13),1274126177);return ((n^(n>>>16))>>>0)/4294967295}
