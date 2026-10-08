@@ -7,6 +7,7 @@ import { decorateActor } from './actor-art.js';
 import { decorateSetpieces } from './world-setpieces.js';
 import { clearCamera } from './camera-rig.js';
 import { decorateTacticalWorld } from './world-overlays.js';
+import { drawEnvironmentVfx } from './environment-vfx.js';
 
 const canvas = document.getElementById('scene');
 const hud = document.getElementById('hud');
@@ -449,6 +450,7 @@ function drawObjects(m,t){
       }
     }
   }
+  drawEnvironmentVfx(m,game,t,cameraFocusX,cameraFocusZ);
   decorateTacticalWorld(m,game,t,cameraFocusX,cameraFocusZ);
   drawAtmosphere(m,t);
 }

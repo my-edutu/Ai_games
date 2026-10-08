@@ -6,6 +6,7 @@ import { decorateActor } from '../web/actor-art.js';
 import { decorateSetpieces } from '../web/world-setpieces.js';
 import { clearCamera } from '../web/camera-rig.js';
 import { decorateTacticalWorld } from '../web/world-overlays.js';
+import { drawEnvironmentVfx } from '../web/environment-vfx.js';
 
 class GeometryAudit {
   constructor(){this.calls=0;this.colors=new Set();this.byKind=new Map();}
@@ -119,4 +120,20 @@ test('world-space objectives, threatened survivors and rescue signals remain rea
   assert.ok(m.colors.has('#ff6d78'),'crisis needs a vivid marker');
   assert.ok(m.colors.has('#ffe397')||m.colors.has('#55ffcf')||m.colors.has('#77d7fc'));
   assert.equal(JSON.stringify(g),before,'World-space UI is presentation-only');
+});
+
+test('cinematic burning buildings, damage particles and warning strobes are deterministic presentation only',()=>{
+  const g=createGame({seed:118,zombieCount:180});
+  const damaged=g.buildings.filter(b=>b.kind!=='safehouse').slice(0,4);
+  damaged.forEach(b=>{b.damage=.72;});
+  g.time.phase='night';
+  const original=JSON.stringify(g);
+  const one=new GeometryAudit(),two=new GeometryAudit();
+  drawEnvironmentVfx(one,g,12.5,damaged[0].x,damaged[0].y);
+  drawEnvironmentVfx(two,g,12.5,damaged[0].x,damaged[0].y);
+  assert.ok(one.calls>12&&one.calls<450,'effect mesh must remain finite and bounded');
+  assert.equal(one.calls,two.calls);
+  assert.ok(one.colors.has('#ffad5c'),'burning ruins should have visible thermal highlights');
+  assert.ok(one.colors.has('#44555d'),'damaged structures should have smoldering smoke');
+  assert.equal(JSON.stringify(g),original,'visual VFX may not touch authoritative AI/survival state');
 });
