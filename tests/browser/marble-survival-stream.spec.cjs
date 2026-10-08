@@ -262,6 +262,16 @@ test('Marble WebGL broadcast renders authoritative tournament and captures runti
   };
   const capture = async name => {
     if (captured.has(name)) return;
+    // A frozen screenshot is not useful if the racing HUD and WebGL renderer
+    // represent different authority rounds. Wait for real projected parity.
+    await page.waitForFunction(() => {
+      const node=document.querySelector('.broadcast-shell');
+      if (!node) return false;
+      return Boolean(node.dataset.webglArena &&
+        node.dataset.webglArena===node.dataset.hudArena &&
+        node.dataset.webglArchetype===node.dataset.hudArchetype &&
+        node.dataset.webglTick===node.dataset.hudTick);
+    },undefined,{timeout:12_000});
     captured.add(name);
     await page.screenshot({ path: path.join(artifacts, `${name}.png`), fullPage: false });
     if (name === '01-race-start' || name.startsWith('11-biome-')) {
