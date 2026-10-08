@@ -6,6 +6,7 @@ import * as THREE from '/tower/three.module.js';
 import {createTowerCharacter,poseTowerCharacter} from '/tower/character3d.js';
 import {decorateTowerEnvironment,animateTowerEnvironment} from '/tower/environment3d.js';
 import {VISUAL_PALETTES,buildPainterlyTowerBackdrop} from '/tower/biome-v4.js';
+import {createTowerHazard3D,updateTowerHazard3D} from '/tower/hazards-v4.js';
 
 const SCALE = 1 / 1000;
 const palettes=VISUAL_PALETTES;
@@ -249,17 +250,9 @@ export function mountTower3D({host,getFrame,reducedMotion=false,highContrast=fal
     const palette=palettes[s.theme]||palettes.foundry;
     for(const h of s.hazards){
       const id='hazard:'+h.id;allowed.add(id);
-      const g=upsert(id,'hazard',()=>{
-        const g=new THREE.Group(),danger=emissive(0xff5576,2.4),metal=matte(0x492f40);
-        add(g,box(coord(h.width),coord(h.height),30,metal),0,0,0);
-        for(let i=0;i<4;i++){
-          const cone=new THREE.Mesh(new THREE.ConeGeometry(3.2,9,6),danger);
-          add(g,cone,(i-1.5)*coord(h.width)/4,7,17);
-        }
-        return g;
-      });
+      const g=upsert(id,'hazard',()=>createTowerHazard3D(h,palette));
       g.position.set(coord(h.x+h.width/2),coord(h.y+h.height/2),15);
-      g.visible=h.active;
+      updateTowerHazard3D(g,h.active,performance.now()*.001,reducedMotion);
     }
     for(const e of s.enemies){
       const id='enemy:'+e.id;allowed.add(id);
