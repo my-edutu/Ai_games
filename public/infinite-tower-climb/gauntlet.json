@@ -87,6 +87,10 @@
       "name": "Round 8 real browser screenshots and independent visual review",
       "state": "PENDING — no new WebGL screenshot or official Jusant A/B verdict independently inspected",
       "url": "https://github.com/my-edutu/Ai_games/actions"
+    },
+    {
+      "name": "Round 9 source audit",
+      "state": "BLOCKED: discovered duplicate createTowerEffectsDirector import in scene3d.js; module parse will fail. Existing latest CI queued, older screenshot inspected; fix not yet applied."
     }
   ],
   "history": [
