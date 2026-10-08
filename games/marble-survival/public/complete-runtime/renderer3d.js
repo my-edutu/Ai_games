@@ -1187,18 +1187,36 @@
     }
   }
   function drawBumper(bumper,arena,theme,viewProjection,cameraPosition){
-    const point=toWorld(bumper.x,bumper.y,arena),radius=bumper.radius*WORLD_SCALE;
+    const point=toWorld(bumper.x,bumper.y,arena);
+    const radius=bumper.radius*WORLD_SCALE;
     const spring=(bumper.launchSpeed||0)>0;
-    const metal=material([0.48,0.50,0.52],0.18,0.82);
-    drawMesh(cylinderMesh,modelMatrix([point[0],0.34,point[2]],[0,0,0],[radius,0.34,radius]),metal,viewProjection,cameraPosition);
-    drawMesh(cylinderMesh,modelMatrix([point[0],0.70,point[2]],[0,0,0],[radius*0.72,0.08,radius*0.72]),material(spring?[0.12,0.78,0.98]:theme.accent,0.24,0.38,spring?0.36:0.08),viewProjection,cameraPosition);
+    const quality=document.getElementById('quality-select')?.value||'balanced';
+    const metal=material(theme.structure,0.16,0.87);
+    const outer=material(theme.trim,0.23,0.66);
+    const electric=material(spring?[0.20,0.89,1.0]:theme.secondary,0.19,0.24,spring?0.57:0.18);
+    drawMesh(cylinderMesh,modelMatrix([point[0],0.32,point[2]],[0,0,0],[radius,0.32,radius]),metal,viewProjection,cameraPosition);
+    drawMesh(cylinderMesh,modelMatrix([point[0],0.67,point[2]],[0,0,0],[radius*0.78,0.070,radius*0.78]),outer,viewProjection,cameraPosition);
+    const rings=quality==='low'?1:quality==='balanced'?3:5;
+    for(let i=0;i<rings;i++){
+      const t=(i+0.5)/rings;
+      const r=radius*(0.54+t*0.24);
+      const height=0.43+0.34*t;
+      drawMesh(torusMesh,modelMatrix([point[0],height,point[2]],[0,0,0],[r,r,r]),
+        (i%2===0||spring)?electric:metal,viewProjection,cameraPosition);
+    }
     if(spring){
-      // The bright coiled crest marks an actual authoritative launch bumper.
-      drawMesh(cylinderMesh,modelMatrix([point[0],0.82,point[2]],[0,0,0],[radius*0.50,0.05,radius*0.50]),material([0.40,0.86,1],0.18,0.54,0.65),viewProjection,cameraPosition);
-      drawBox([point[0],0.96,point[2]],[radius*0.32,0.14,radius*0.32],material([0.88,0.97,1],0.12,0.30,0.25),viewProjection,cameraPosition);
+      // Central coil, electrically charged cap, and small vertical markers
+      // mark ONLY genuinely authoritative spring-launch bumpers.
+      drawMesh(cylinderMesh,modelMatrix([point[0],0.77,point[2]],[0,0,0],
+        [radius*0.47,0.10,radius*0.47]),electric,viewProjection,cameraPosition);
+      drawMesh(crystalMesh,modelMatrix([point[0],0.93,point[2]],[0,0.43,0],
+        [Math.max(.07,radius*0.24),0.12,Math.max(.07,radius*0.24)]),
+        material([0.75,0.96,1.0],0.13,0.53,0.60),viewProjection,cameraPosition);
+    }else{
+      drawMesh(sphereMeshLow,modelMatrix([point[0],0.75,point[2]],[0,0,0],
+        [radius*0.22,radius*0.22,radius*0.22]),metal,viewProjection,cameraPosition);
     }
   }
-
   function drawFactorySupport(ramp,arena,theme,viewProjection,cameraPosition){
     const origin=toWorld(ramp.x,ramp.y,arena),width=ramp.width*WORLD_SCALE,depth=ramp.height*WORLD_SCALE,start=ramp.startElevation*WORLD_SCALE,end=ramp.endElevation*WORLD_SCALE;
     const steel=material(theme.trim,0.34,0.82),accent=material(theme.accent,0.30,0.55,0.08);
