@@ -39,6 +39,9 @@ test('tower architecture contains instanced stonework and distinct official biom
     const colors=[];
     for(const theme of ['foundry','ruins','clockwork','storm','void']){
       env.setTheme(theme);colors.push(env.materials[0].color.getHex());
+      assert.ok(env.biomeDecor[theme].visible,theme+' scene geometry should become visible');
+      assert.equal(Object.values(env.biomeDecor).filter(g=>g.visible).length,1,'only one active biome scene');
+      assert.ok(env.biomeDecor[theme].children.length>0,'biome is not merely a recolor');
     }
     assert.equal(new Set(colors).size,5);
   }finally{global.document=previous}
