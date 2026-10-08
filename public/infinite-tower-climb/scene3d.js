@@ -306,7 +306,8 @@ export function mountTower3D({host,getFrame,reducedMotion=false,highContrast=fal
         g.add(ring);add(g,ball(2,emissive(color,2)),0,0,0);
         return g;
       });
-      g.position.set(coord(pickup.x),coord(pickup.y),36);
+      g.userData.authoritativeY=coord(pickup.y);
+      g.position.set(coord(pickup.x),g.userData.authoritativeY,36);
     }
     for(const projectile of s.projectiles){
       const id='projectile:'+projectile.id;allowed.add(id);
@@ -339,7 +340,7 @@ export function mountTower3D({host,getFrame,reducedMotion=false,highContrast=fal
     canvas.remove();
     document.body.dataset.towerRenderer='2d-fallback';
     window.__TOWER_3D_ACTIVE__=false;
-    if(error)console.warn('Tower 3D context recovered to 2D fallback:',String(error));
+    if(error){perf.fallbackReason=String(error);perf.fallbackStack=error?.stack?.slice(0,1800)||null;console.warn('Tower 3D context recovered to 2D fallback:',String(error));}
   }
   function draw(now){
     if(!running)return;
@@ -391,7 +392,7 @@ export function mountTower3D({host,getFrame,reducedMotion=false,highContrast=fal
     perf.armIKActive=visuallyGripping;
     for(const [id,g] of dynamic){
       if(id.startsWith('enemy:')&&g.visible)poseTowerCharacter(g,{time:now*.001+id.length,vx:1800,state:'standing',telegraph:g.userData.telegraph,reducedMotion});
-      else if(id.startsWith('pickup:')){g.rotation.y=reducedMotion?0:now*.0016;g.position.y+=reducedMotion?0:Math.sin(now*.002+g.position.x)*dt*.8}
+      else if(id.startsWith('pickup:')){g.rotation.y=reducedMotion?0:now*.0016;g.position.y=g.userData.authoritativeY+(reducedMotion?0:Math.sin(now*.002+g.position.x)*.8)}
     }
     // Keep observed performance measurable for the independent critic.
     animateTowerEnvironment(ornament,now*.001,reducedMotion);
