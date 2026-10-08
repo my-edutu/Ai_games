@@ -147,6 +147,38 @@ test('a critic can record the largest remaining visual gap without making a fals
   await expect(page.locator('[name="environment"]')).toHaveValue('4');
 });
 
+test('cinematic 3D uses perspective and renders bespoke landmark geometry from live floor snapshots',async({page})=>{
+  await page.setViewportSize({width:1600,height:900});
+  await page.goto(base+'/tower?cleanFeed=1',{waitUntil:'domcontentloaded'});
+  await expect.poll(()=>page.evaluate(()=>window.__TOWER_3D_DIAGNOSTICS__?.lens),{timeout:30000}).toBe('perspective');
+  await expect.poll(()=>page.evaluate(()=>window.__TOWER_3D_DIAGNOSTICS__?.biomeLandmarks||0),{timeout:30000}).toBeGreaterThan(10);
+  await expect.poll(()=>page.evaluate(()=>window.__TOWER_3D_DIAGNOSTICS__?.triangles||0),{timeout:30000}).toBeGreaterThan(500);
+  const lens=await page.evaluate(()=>window.__TOWER_3D_DIAGNOSTICS__);
+  expect(lens.drawCalls).toBeLessThan(1400);
+  await page.screenshot({path:path.join(artifacts,'gauntlet-perspective-kinetic-biome.png'),fullPage:true});
+});
+test('visual critics can inspect all four actual 3D character models in the same live scene',async({page})=>{
+  await page.setViewportSize({width:1600,height:900});
+  await page.goto(base+'/tower?inspect=characters&cleanFeed=1',{waitUntil:'domcontentloaded'});
+  await expect.poll(()=>page.evaluate(()=>window.__TOWER_3D_DIAGNOSTICS__?.inspectionModels),{timeout:30000}).toBe(4);
+  await expect.poll(()=>page.evaluate(()=>window.__TOWER_3D_DIAGNOSTICS__?.drawCalls||0),{timeout:30000}).toBeGreaterThan(80);
+  expect(await page.evaluate(()=>window.__TOWER_3D_DIAGNOSTICS__.lens)).toBe('perspective');
+  await expect(page.locator('[data-testid="hud"]')).toBeHidden();
+  await page.screenshot({path:path.join(artifacts,'gauntlet-character-lineup.png'),fullPage:true});
+});
+test('v5 HUD displays real character and danger states while cleanFeed remains unencumbered',async({page})=>{
+  await page.setViewportSize({width:1600,height:900});
+  await page.goto(base+'/tower',{waitUntil:'domcontentloaded'});
+  await expect.poll(()=>page.evaluate(()=>window.__TOWER_PUBLIC_STATE__?.tick||0),{timeout:20000}).toBeGreaterThan(5);
+  await expect(page.locator('.hero-identity')).toBeVisible();
+  await expect(page.locator('#hero-state')).not.toBeEmpty();
+  const scene=await page.locator('body').getAttribute('data-tower-scene');
+  expect(['normal','guardian','danger','result','upgrade','intermission','recovery']).toContain(scene);
+  await page.screenshot({path:path.join(artifacts,'gauntlet-hero-v5-hud.png'),fullPage:true});
+  await page.goto(base+'/tower?cleanFeed=1');
+  await expect(page.locator('.hero-identity')).toBeHidden();
+  await expect(page.locator('.stage-signal')).toBeHidden();
+});
 test('3D module unavailable degrades safely to the existing 2D scene',async({page})=>{
   await page.route('**/tower/scene3d.js',route=>route.fulfill({status:503,body:'Module unavailable'}));
   await page.goto(base+'/tower');
