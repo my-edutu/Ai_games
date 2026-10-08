@@ -753,7 +753,19 @@ canvas.addEventListener('pointermove',e=>{if(dragging){orbit+=(e.clientX-priorX)
 canvas.addEventListener('pointerup',()=>dragging=false);
 canvas.addEventListener('pointercancel',()=>dragging=false);
 canvas.addEventListener('wheel',e=>{e.preventDefault();range=Math.max(19,Math.min(91,range+e.deltaY*.036));},{passive:false});
-function togglePause(){paused=!paused;verdict.textContent='WEBGL2 TRUE 3D • '+(paused?'PAUSED':'SIMULATION LIVE');document.querySelector('#togglePause').innerHTML=paused?'⏵ RESUME':'⏯ PAUSE';}
+function togglePause(){
+  paused=!paused;
+  verdict.textContent='WEBGL2 TRUE 3D • '+(paused?'PAUSED':'SIMULATION LIVE');
+  document.querySelector('#togglePause').textContent=paused?'⏵ RESUME':'⏯ PAUSE';
+  // Immediately publish the current *authoritative* tick at the exact pause boundary.
+  // An older cached HUD tick must not be mistaken for continued AI progression.
+  try{
+    const old=JSON.parse(localStorage.getItem('zombie-gauntlet-live')||'{}');
+    localStorage.setItem('zombie-gauntlet-live',JSON.stringify({
+      ...old,time:Date.now(),tick:game.tick,status:game.status,paused
+    }));
+  }catch{}
+}
 document.addEventListener('keydown',e=>{
   if(e.code==='Space'){e.preventDefault();togglePause();}
   if(e.key.toLowerCase()==='h'){hudShown=!hudShown;hud.hidden=!hudShown;}
