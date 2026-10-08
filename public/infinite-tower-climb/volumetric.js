@@ -51,17 +51,23 @@
         const mesh=art.platform(p,p.x,p.y,p.width,p.height);
         mesh.position.z=p.z;mesh.scale.z=p.depth/4.5;world.add(mesh);models.set(p.i,mesh);
       }
+      models.get(p.i).position.set(p.x,p.y,p.z);
       if(p.guardianHealth>0&&!guardians.has(p.i)){
         const guardian=art.enemy({kind:'guardian',telegraph:p.guardianHealth<4},
           p.x,p.y+p.height/2+1.78,.9,1.3);
         guardian.position.z=p.z;
         enemyScene.add(guardian);guardians.set(p.i,guardian);
+      }else if(p.guardianHealth>0&&guardians.has(p.i)){
+        guardians.get(p.i).position.set(p.x,p.y+p.height/2+1.78,p.z);
       }else if(p.guardianHealth<=0&&guardians.has(p.i)){
         const guardian=guardians.get(p.i);enemyScene.remove(guardian);guardians.delete(p.i);
       }
       if(p.pickup&&!p.collected&&!rewards.has(p.i)){
         const item=art.pickup({kind:'health'},p.x,p.y+p.height/2+1.8);
         item.position.z=p.z+.2;rewardScene.add(item);rewards.set(p.i,item);
+      }else if(p.pickup&&!p.collected&&rewards.has(p.i)){
+        rewards.get(p.i).position.x=p.x;
+        rewards.get(p.i).position.z=p.z+.2;
       }else if((!p.pickup||p.collected)&&rewards.has(p.i)){
         const item=rewards.get(p.i);rewardScene.remove(item);rewards.delete(p.i);
       }
