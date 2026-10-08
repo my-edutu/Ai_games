@@ -8,6 +8,8 @@ const {
   applyTournamentRules,
   createMarblePresentationSnapshot,
   marbleStateChecksum,
+  createMarbleSnapshot,
+  restoreMarbleSnapshot,
 } = require('../../dist/games/marble-survival/src/index.js');
 
 const PIT = Object.freeze({ id:'reactor-well',kind:'pit',x:10_000,y:7_000,width:2_000,height:2_000 });
@@ -143,4 +145,28 @@ test('the new descent event reaches the public stream without leaking internal s
   assert.ok(published);
   assert.deepEqual(Object.keys(published.data).sort(),['depth','hazardId','marbleId']);
   assert.equal(published.data.hazardId,'reactor-well');
+});
+
+test('v4 mid-fall checkpoints replay exactly and reject impossible negative altitudes',()=>{
+  const seed='pit-checkpoint-replay';
+  const rt=MarbleRuntime.create({
+    rosterSize:2,roundQuotas:[1,1,1,1,1],roundIntroTicks:0,frictionPermille:1000,
+  },seed);
+  rt.state=prepare(seed);
+  for(let i=0;i<6;i++)rt.state=advance(rt.state).state;
+  assert.ok(rt.state.marbles[0].elevation<0);
+  const saved=createMarbleSnapshot(rt);
+  assert.equal(saved.deterministicVersion,'marble-physics-v4');
+  const restored=restoreMarbleSnapshot(saved);
+  assert.equal(marbleStateChecksum(restored.state),marbleStateChecksum(rt.state));
+
+  const invalid=structuredClone(rt.state);
+  invalid.marbles[0].position={x:3_000,y:3_000};
+  rt.state=invalid;
+  const forged=createMarbleSnapshot(rt);
+  assert.throws(
+    ()=>restoreMarbleSnapshot(forged),
+    error=>error&&error.code==='state',
+    'negative altitude outside a real pit is an invalid saved state',
+  );
 });
