@@ -319,9 +319,21 @@ export function mountTower3D({host,getFrame,reducedMotion=false,highContrast=fal
     camera.fov=inspectCharacters?43:heroCamera?24:(aspect<1.2?47:37);
     camera.updateProjectionMatrix();
   }
+  function fallback3D(error){
+    if(!running)return;
+    running=false;
+    window.removeEventListener('resize',resize);
+    try{actionEffects.dispose()}catch{}
+    try{renderer.dispose()}catch{}
+    canvas.remove();
+    document.body.dataset.towerRenderer='2d-fallback';
+    window.__TOWER_3D_ACTIVE__=false;
+    if(error)console.warn('Tower 3D context recovered to 2D fallback:',String(error));
+  }
   function draw(now){
     if(!running)return;
     requestAnimationFrame(draw);
+    try{
     const data=getFrame();if(!data?.snapshot)return;
     const s=data.snapshot;
     if(lastChecksum!==s.publicChecksum)sync(s);
@@ -371,12 +383,13 @@ export function mountTower3D({host,getFrame,reducedMotion=false,highContrast=fal
     const effectFrame=actionEffects.frame(dt,s,visualX,visualY,reducedMotion);
     renderer.render(scene,camera);observedFrames++;
     if(observedFrames%60===0){perf.frames=observedFrames;perf.drawCalls=renderer.info.render.calls;perf.triangles=renderer.info.render.triangles;perf.heroParts=(()=>{let count=0;player.traverse(o=>{if(o.isMesh)count++});return count})();perf.renderMode='webgl-3d';perf.state=s.player.state;perf.heroCamera=heroCamera;perf.lens='perspective';perf.inspectCharacters=inspectCharacters;perf.inspectionModels=inspectors.length;perf.biomeLandmarks=landmarks?.world?.children.length||0;perf.atmosphere=atmosphere?.metrics||null;perf.actionFx=actionEffects.metrics();perf.highContrast=highContrast;perf.averageFps=frameTotalMs>0?Math.round(1000*frameSampleCount/frameTotalMs):0;perf.slowFrames=slowFrames;perf.sampledFrames=frameSampleCount;perf.pixelRatio=renderer.getPixelRatio();perf.effects=actionEffects.metrics();}
+    }catch(error){fallback3D(error)}
   }
-  const onLost=event=>{event.preventDefault();running=false;actionEffects.dispose();renderer.dispose();canvas.remove();document.body.dataset.towerRenderer='2d-fallback';window.__TOWER_3D_ACTIVE__=false};
+  const onLost=event=>{event.preventDefault();fallback3D('webglcontextlost')};
   canvas.addEventListener('webglcontextlost',onLost,{once:true});
   window.addEventListener('resize',resize);
   document.body.dataset.towerRenderer='three-dimensional';
   window.__TOWER_3D_ACTIVE__=true;
   resize();requestAnimationFrame(draw);
-  return{destroy(){running=false;window.removeEventListener('resize',resize);actionEffects.dispose();renderer.dispose();canvas.remove();window.__TOWER_3D_ACTIVE__=false;document.body.dataset.towerRenderer='2d-fallback'}};
+  return{destroy(){fallback3D()}};
 }
