@@ -48,7 +48,7 @@
   const params=new URLSearchParams(location.search);
   const captureFloor=Math.min(120,Math.max(0,Number.parseInt(params.get('captureFloor')||'0',10)||0));
   const seedText=params.get('seed'),seed=seedText&&/^[0-9]{1,9}$/.test(seedText)?Number(seedText):undefined;
-  const progressKey=params.get('manual')==='1'?'tower-manual-save-v1':'tower-autonomous-save-v1';
+  const progressKey=params.get('manual')==='1'?'tower-manual-save-v2':'tower-autonomous-save-v2';
   const resumeEligible=!params.has('seed')&&!params.has('captureFloor')&&!params.has('reset');
   let recovered=null;
   if(resumeEligible){
@@ -128,6 +128,7 @@
       deaths:player.deaths,biome,mode:snapshot.mode,intent:snapshot.intent,guardianKills:snapshot.guardianKills,
       score:snapshot.score,health:player.health,build:snapshot.build,shields:snapshot.shields,
       wallClimbs:snapshot.wallClimbs,gripStamina:snapshot.climbing.stamina,climbing:snapshot.climbing.active,
+      safetyRescues:snapshot.tether.rescues,ropeTaut:snapshot.tether.reeling,
       upgradesTaken:snapshot.upgradesTaken,autonomous:!manual,dimensionality:3,
       highestReached:snapshot.highestReached,
       latestStory:snapshot.events?.at(-1)?.text||'A new climber enters the tower.',
@@ -152,7 +153,7 @@
       for(const [index,guardian] of guardians){guardian.rotation.y=Math.sin(simTime*.55+index)*.08;}}
     environment.root.position.y=player.y*.95;
     geology.update(player.y);
-    safetyRope.update(dt,player,sim.platforms.find(p=>p.i===player.at),details.mode,{reducedMotion:reduced});
+    safetyRope.update(dt,player,{x:sim.snapshot().tether.anchorX,y:sim.snapshot().tether.anchorY,z:sim.snapshot().tether.anchorZ},details.mode,{reducedMotion:reduced});
     const directorFrame=director.update(dt,sim.snapshot(),{reducedMotion:reduced});
     sky.update(simTime,camera,{climberY:player.y,reducedMotion:reduced});
     details.cameraMode=directorFrame.mode;
@@ -196,7 +197,7 @@
       document.getElementById('build-salvage').textContent=String(details.build?.salvage||0);
       document.getElementById('shield-value').textContent=String(details.shields||0);
       const wallStatus=document.getElementById('wall-status');
-      if(wallStatus)wallStatus.textContent='MANTLES '+(details.wallClimbs||0)+' · GRIP '+Math.round(details.gripStamina||0)+'%';
+      if(wallStatus)wallStatus.textContent='MANTLES '+(details.wallClimbs||0)+' · GRIP '+Math.round(details.gripStamina||0)+'% · ROPE SAVES '+(details.safetyRescues||0);
       status.textContent=(manual?'MANUAL 3D':'AUTONOMOUS 3D AI')+' · '+details.mode+' · '+details.tick+' TICKS';
     }
     requestAnimationFrame(animate);

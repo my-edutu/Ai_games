@@ -57,6 +57,7 @@ export function createTowerAudio(){
       else if(type==='wall-mantle'||type==='checkpoint')eventTone(520,.48,.13);
       else if(type==='biome')eventTone(390,.85,.13);
       else if(type==='recovery')eventTone(140,.51,.10);
+      else if(type==='rope-rescue')eventTone(310,.75,.14);
     }
   }
   const dispose=async()=>{

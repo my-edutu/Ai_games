@@ -82,3 +82,15 @@ test('malformed, non-finite and manipulated local game checkpoints are rejected'
    assert.throws(()=>create(42,input),Error);
  }
 });
+
+test('rope catch and reel are real physics, checkpoint-safe and replay-exact',()=>{
+ const a=create(42);
+ for(let n=0;n<2200;n++){const s=a.step(1/60,{right:true});if(s.tether.rescues>0)break;}
+ const caught=a.snapshot();
+ assert.equal(caught.tether.rescues,1);
+ assert.equal(caught.mode,'ROPE ARREST');
+ const b=create(42,JSON.parse(JSON.stringify(a.exportSave())));
+ for(let n=0;n<150;n++){a.step(1/60,{left:true});b.step(1/60,{left:true});}
+ assert.deepEqual(a.snapshot(),b.snapshot());
+ assert.ok(a.snapshot().player.y>0);
+});

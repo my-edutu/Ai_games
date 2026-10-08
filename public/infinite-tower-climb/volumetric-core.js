@@ -238,7 +238,7 @@ export function createVolumetricCore(seedInput=0x00a3f914,saved=null){
     while(platforms.length>24&&platforms[0].i<player.at-8)platforms.shift();
     return snapshot();
   }
-  const SAVE_VERSION=1;
+  const SAVE_VERSION=2;
   function exportSave(){
     return {schemaVersion:SAVE_VERSION,seedState:seed>>>0,initialSeed:seedInput>>>0,tick,time,
       highestGenerated,highestReached,mode,intent,guardianKills,score,build:{...build},
