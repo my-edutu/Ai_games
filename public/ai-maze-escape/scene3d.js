@@ -326,6 +326,27 @@ function masonryWall(parent,x,z,kind,id,cutaway=false){
     queueInstance(geometries.column,materials.wallTop,[x+ox,1.31,z+oz],[.78,1,.78]);
     queueInstance(geometries.cube,materials.trim,[x+ox,2.52,z+oz],[.43,.17,.43]);
   }
+  if(id%7===0){
+    // A carved wall medallion, bezel and faintly emissive rune break up repeated brickwork.
+    const along=kind==='NS'?0:.16,across=kind==='NS'?.16:0;
+    const plaque=mesh(worldCraft.geometries.disc,materials.sandstone,parent,
+      [x+along,WALL_HEIGHT*.62,z+across],[.43,.12,.43]);
+    plaque.rotation.x=kind==='NS'?Math.PI/2:0;
+    plaque.rotation.z=kind==='EW'?Math.PI/2:0;
+    const sigil=mesh(worldCraft.geometries.ring,materials.sigil,parent,
+      [x+along+(kind==='EW'?.09:0),WALL_HEIGHT*.62,z+across+(kind==='NS'?.09:0)],
+      [.32,.32,.32]);
+    sigil.rotation.y=kind==='EW'?Math.PI/2:0;
+  }
+  if(id%5===2){
+    // Painted noble banners and aged support ribs add authored variation.
+    const along=kind==='NS'?0:.17,across=kind==='NS'?.17:0;
+    const pennant=mesh(worldCraft.geometries.flag,materials.hangingCloth,parent,
+      [x+along,WALL_HEIGHT*.64,z+across],[.54,.9,1]);
+    if(kind==='EW')pennant.rotation.y=Math.PI/2;
+    queueInstance(geometries.cube,materials.goldInlay,
+      [x,WALL_HEIGHT*.94,z],kind==='NS'?[.72,.065,.26]:[.26,.065,.72]);
+  }
   if(id%9===0){
     // Non-structural creeping foliage varies by cell index, never hidden world data.
     const ivy=mesh(geometries.plane,materials.moss,parent,[x,WALL_HEIGHT*.63,z+.13],
