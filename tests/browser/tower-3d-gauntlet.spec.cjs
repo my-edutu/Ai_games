@@ -4,6 +4,32 @@ const {test,expect}=require('@playwright/test');
 const base='http://127.0.0.1:4176';
 const artifacts=path.resolve(__dirname,'../../artifacts/tower-phase3');
 test.beforeAll(()=>fs.mkdirSync(artifacts,{recursive:true}));
+// On any browser failure, preserve the actual renderer boot/fallback reason,
+// console diagnostics, module loading failures and a screenshot for the next loop.
+// This is evidence collection, not a claim that WebGL rendered successfully.
+test.beforeEach(async({page})=>{
+  const diagnostics=[];
+  page.on('pageerror',error=>diagnostics.push({kind:'pageerror',message:error.message,stack:error.stack?.slice(0,2500)}));
+  page.on('console',message=>{if(message.type()==='error'||message.type()==='warning')diagnostics.push({kind:'console',level:message.type(),message:message.text().slice(0,1200)})});
+  page.on('requestfailed',request=>diagnostics.push({kind:'requestfailed',url:request.url(),failure:request.failure()}));
+  page.on('response',response=>{if(response.status()>=400&&response.url().includes('/tower/'))diagnostics.push({kind:'http',url:response.url(),status:response.status()})});
+  page.__towerDiagnostics=diagnostics;
+});
+test.afterEach(async({page},testInfo)=>{
+  if(testInfo.status===testInfo.expectedStatus)return;
+  let runtime=null;
+  try{runtime=await page.evaluate(()=>({
+    href:location.href,
+    renderer:document.body.dataset.towerRenderer,
+    active:window.__TOWER_3D_ACTIVE__,
+    bootError:window.__TOWER_3D_BOOT_ERROR__,
+    diagnostics:window.__TOWER_3D_DIAGNOSTICS__,
+    snapshotTick:window.__TOWER_PUBLIC_STATE__?.tick
+  }))}catch(error){runtime={evaluationError:String(error)}}
+  const record={test:testInfo.title,status:testInfo.status,expectedStatus:testInfo.expectedStatus,runtime,events:page.__towerDiagnostics||[]};
+  await testInfo.attach('tower-renderer-failure.json',{body:Buffer.from(JSON.stringify(record,null,2)),contentType:'application/json'});
+  try{await page.screenshot({path:testInfo.outputPath('tower-renderer-failure.png'),fullPage:true,timeout:7000})}catch{}
+});
 
 test('3D tower uses real snapshot geometry and keeps autonomous simulation authoritative',async({page})=>{
   const errors=[];page.on('pageerror',e=>errors.push(e.message));
