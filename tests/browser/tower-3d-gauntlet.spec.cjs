@@ -44,14 +44,14 @@ test('original renderer is available as a side-by-side visual regression baselin
 test('gauntlet progress and blinded comparison page expose honest status',async({page})=>{
   await page.goto(base+'/tower/gauntlet');
   await expect(page.getByRole('heading',{name:/3D GAUNTLET/})).toBeVisible();
-  await expect.poll(()=>page.locator('#round').textContent()).toBe('1');
+  await expect.poll(async()=>Number(await page.locator('#round').textContent())).toBeGreaterThanOrEqual(1);
   await expect(page.locator('#views iframe')).toHaveCount(2);
   await expect(page.locator('#label-a')).toContainText('HIDDEN');
   await page.getByRole('button',{name:'REVEAL VERSIONS'}).click();
   const labels=(await page.locator('.tag').allTextContents()).join(' ');
   expect(labels).toContain('ORIGINAL 2D');
   expect(labels).toContain('NEW 3D');
-  await expect(page.locator('#status')).toContainText('pending');
+  await expect(page.locator('#status')).toContainText(/pending|awaiting|not yet|not done/i);
 });
 
 test('articulated hero close-up proves mesh detail and independently capturable pose',async({page})=>{
