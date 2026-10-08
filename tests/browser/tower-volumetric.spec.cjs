@@ -19,6 +19,9 @@ test('actual 3-axis autonomous world moves through depth and height',async({page
   expect(second.tick).toBeGreaterThan(first.tick+60);
   expect(second.platforms).toBeGreaterThanOrEqual(15);
   expect(Math.abs(second.z-first.z)).toBeGreaterThan(.3);
+  expect(second.score).toBeGreaterThanOrEqual(first.score);
+  expect(second.guardianKills).toBeGreaterThanOrEqual(first.guardianKills);
+  expect(second.health).toBeGreaterThan(0);
   expect(Number.isFinite(second.y)).toBe(true);
   await page.screenshot({path:path.join(artifacts,'gauntlet-volumetric-3axis.png'),fullPage:true});
   fs.writeFileSync(path.join(artifacts,'volumetric-3axis-diagnostics.json'),JSON.stringify({first,second,errors},null,2));
