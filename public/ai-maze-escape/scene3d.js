@@ -232,6 +232,13 @@ function init() {
     renderer.toneMapping=THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure=1.4;
     mount.appendChild(renderer.domElement);
+    renderer.domElement.addEventListener('webglcontextlost',event=>{
+      event.preventDefault();
+      active=false;
+      ready=false;
+      window.__MAZE_3D_READY__=false;
+      mount.remove();
+    },{once:true});
   }catch{
     mount.remove();
     return;
