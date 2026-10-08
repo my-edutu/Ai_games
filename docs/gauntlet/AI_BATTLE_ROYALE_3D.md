@@ -73,3 +73,47 @@ npm run test:browser
 Use `/battle?visual=2d` to disable the 3D layer instantly if a browser/GPU is unsupported; this never alters outcomes. Roll back this branch independently of the underlying R4 candidate if stream capture or performance fails.
 
 **External production readiness:** remains blocked by the existing exact-candidate R5 gates; this document authorizes no release.
+
+
+## Critic pass — captured real Chromium output, October 8
+
+Reviewed the real `webgl3d-desktop.png` from [GitHub Actions run #37745187741](https://github.com/my-edutu/Ai_games/actions/runs/37745187741). At this point it showed a working 3D scene with fighting characters, tactical structures, genuine event cues and a live closeup. It was **not visually competitive with Fortnite Chapter 4**: the terrain read as a dark uniform board, architecture was repeated primitive blocks, the cinematic inset obstructed the battlefield, and characters lacked professional skinned animation, textures, facial rigs and believable equipment.
+
+**Biggest observed gap:** the stage and people still read as a procedural toy battlefield rather than a living high-production-quality 3D world. This is a self-review grounded in an actual screenshot, **not** a blind independent critic pass, and there is no A/B win claim.
+
+## Subsequent loops: 7–15
+
+- **7 — Framing and material response:** atmospheric fill/rim lighting, procedural surface microtexture, warmer sky background, compact cinematic inset positioned in unused upper screen space; fixed CI's stale dashboard-verdict expectation.
+- **8 — Environment design:** unique 3D terrain marks, ground vegetation, debris, concrete fortification details, thematic horizon props, architectural detailing. All new ground/sky props remain visual only.
+- **9 — Character expressiveness:** authored procedural rig-style geometry now faces known attackers, targets and movement direction; bounded facing cache resets on new match.
+- **10 — GPU budgeting:** static arena geometry is uploaded once per immutable arena fingerprint; dynamic combatants/effects/loot update in a separate GPU buffer. Context restoration invalidates the GPU cache. The dashboard and unit/browser tests inspect the static mesh rebuild count.
+- **11 — Honest winner cinematic:** show a 3D ceremonial motif and champion focus only when a game result declares a real winner, never on technical failure. Spectator labels identify real combatants.
+- **12 — Stream robustness:** prevent overlapping asynchronous match-state fetches; slow-network browser regression added.
+- **13 — Meaningful fighter identities:** show the focused contender's public weapon, ammunition, medkits and AI confidence in the broadcast panel; no hidden model or operator fields.
+- **14 — Accessibility and performance:** optional `?quality=low` reduces decorative GPU geometry, preserving full simulation, safe-zone representation and contenders.
+- **15 — Distinct environments:** biome-specific palm trees, crystalline energy pylons and snowy conifers beyond playable boundaries; focused screenshot CI workflow.
+
+### Evidence gates
+
+| Evidence | Status |
+| --- | --- |
+| Baseline 3D renderer Chromium CI | **Passed** on `97550ec` |
+| Real browser frame of loop 6 | **Inspected**; recorded above |
+| Focused native WebGL synthetic harness after mesh caching | **Passed** (two viewport passes, static scene rebuilt once) |
+| All loop 7–15 GitHub CI/browser tests | **Pending until exact-head run finishes** |
+| Blind reference comparison using independent reviewers | **Not run** |
+| High-poly assets, authored animation, AAA benchmark superiority | **Not achieved** |
+| 24/7 production GPU/OBS streaming evidence | **Not run** |
+
+The gameplay authority remains unchanged. There is no 24/7 autonomous code-editing worker running: continue iterations during actual coding sessions or in a user-authorized persistent agent workspace. Keep this record truthful.
+
+### Focused screenshot loop
+
+```bash
+npm ci
+npm run build
+npm run battle:stream
+npx playwright test tests/browser/battle-royale-3d.spec.cjs --workers=1
+```
+
+Inspect `artifacts/battle-gauntlet/` and GitHub Actions' `battle-royale-gauntlet-current` artifact. Compare fixed-state `matched-baseline-2d.png` against `matched-candidate-3d.png`, and the new high-vs-low quality captures. These confirm visual behavior and performance tiers, **not** AAA reference superiority. R5 remains separately blocked by real production evidence.
