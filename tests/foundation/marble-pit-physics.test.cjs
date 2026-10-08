@@ -47,8 +47,10 @@ function advance(state) {
 test('pit descent visibly crosses y=0 and does not instantly eliminate on entry',()=>{
   let state=prepare('real-pit-fall');
   const elevations=[];
+  let fallEvents=0;
   for(let i=0;i<6;i++){
     const result=advance(state);
+    fallEvents+=result.events.filter(event=>event.type==='marble-pit-falling').length;
     state=result.state;
     const marble=state.marbles[0];
     assert.equal(marble.status,'active','falling must remain visible until the reactor catches the competitor');
@@ -59,6 +61,7 @@ test('pit descent visibly crosses y=0 and does not instantly eliminate on entry'
   assert.equal(elevations[0],0);
   assert.ok(elevations[1]<0,'the first follow-up tick must show a real negative elevation');
   assert.ok(elevations.every((x,i)=>i===0||x<=elevations[i-1]),'pit gravity must move the ball downward');
+  assert.equal(fallEvents,1,'an actual first descent should be announced exactly once');
   const publicState=createMarblePresentationSnapshot(state,[]);
   assert.ok(publicState.marbles[0].elevation<0,'real descent must reach spectators, not only the internal solver');
 });
@@ -89,6 +92,7 @@ test('airborne marble really flies above a pit and reaches the other side',()=>{
   assert.equal(result.state.marbles[0].status,'active');
   assert.ok(result.state.marbles[0].elevation>1300);
   assert.ok(!result.events.some(e=>e.type==='marble-eliminated'));
+  assert.ok(!result.events.some(e=>e.type==='marble-pit-falling'),'flying above the pit must not announce a fall');
 });
 
 test('shield can rescue descending marble without teleporting or inventing a second authority outcome',()=>{
@@ -122,4 +126,21 @@ test('two independently simulated 3D descents produce byte-identical authoritati
     first=a.state;second=b.state;
     if(first.lifecycle!=='active')break;
   }
+});
+
+test('the new descent event reaches the public stream without leaking internal seed or authority',()=>{
+  let state=prepare('pit-public-event');
+  let events=[];
+  for(let i=0;i<4;i++){
+    const result=advance(state);
+    state=result.state;
+    events.push(...result.events);
+  }
+  const falling=events.find(e=>e.type==='marble-pit-falling');
+  assert.ok(falling);
+  const visible=createMarblePresentationSnapshot(state,events.map((event,seq)=>({...event,seq})));
+  const published=visible.events.find(event=>event.type==='marble-pit-falling');
+  assert.ok(published);
+  assert.deepEqual(Object.keys(published.data).sort(),['depth','hazardId','marbleId']);
+  assert.equal(published.data.hazardId,'reactor-well');
 });
