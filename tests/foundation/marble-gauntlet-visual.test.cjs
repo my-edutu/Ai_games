@@ -345,3 +345,16 @@ test('procedural floor paint remains seamless when true reactor pits split the 3
   assert.ok(renderer.includes('function drawArenaDeck('));
   assert.ok(renderer.includes('const pieces=cutouts?.tiles'));
 });
+
+test('every individual marble carries a deterministic GPU-engraved race-ID signature',()=>{
+  for(const marker of [
+    'uniform float uIdentitySeed;',
+    'identitySeed:gl.getUniformLocation(program',
+    'gl.uniform1f(uniforms.identitySeed,surface.identitySeed||0)',
+    'float rays=4.0+mod(uIdentitySeed,7.0)',
+    'float inscription=smoothstep(.96,.997,code)*window',
+    'patternColor,marble.id+1',
+  ])assert.ok(renderer.includes(marker),'missing distinct contestant surface identity: '+marker);
+  assert.equal(renderer.includes('Math.random('),false,
+    'visual marble identity must derive only from official numeric ID');
+});
