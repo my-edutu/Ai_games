@@ -336,3 +336,12 @@ test('five scenery heroes and distant terrain are actual source meshes, never ca
     'gl.deleteVertexArray?.(mesh.vao)',
   ])assert.ok(renderer.includes(marker),'missing camera-visible procedural world: '+marker);
 });
+
+test('procedural floor paint remains seamless when true reactor pits split the 3D deck',()=>{
+  assert.ok(renderer.includes('vec2 t=(vWorldPosition.xz+vec2(13.0))*vec2(1.52,1.69)'),
+    'floor patterns must use global world coordinates, not per-tile local cube UVs');
+  assert.ok(renderer.includes('vec2 trace=fract(vWorldPosition.xz*vec2(2.46,2.21)+vec2(.10,.37))'),
+    'circuit lines must stay aligned across pit tile cuts');
+  assert.ok(renderer.includes('function drawArenaDeck('));
+  assert.ok(renderer.includes('const pieces=cutouts?.tiles'));
+});
