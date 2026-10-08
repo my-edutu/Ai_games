@@ -7,7 +7,7 @@ export function batchDistrictGeometry(THREE, root, {chunkMeters=18}={}) {
   root.traverse(node=>{
     if(node===root)return;
     if(node.isMesh && !node.isSkinnedMesh && !node.isInstancedMesh)meshes.push(node);
-    else if(node.isSprite || node.isLight)retain.push(node);
+    else if(node.isSprite || node.isLight || node.isLine || node.isPoints)retain.push(node);
   });
   const buckets=new Map();
   let inputTriangleCount=0;
