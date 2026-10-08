@@ -14,7 +14,7 @@ const board = read('gauntlet.js');
 const plan = JSON.parse(read('gauntlet-progress.json'));
 
 test('new 3D character renderer and live dashboard have valid JavaScript syntax', () => {
-  for (const file of ['renderer3d.js', 'gauntlet.js']) {
+  for (const file of ['renderer3d.js', 'gauntlet.js', 'gauntlet-ab.js', 'identity-overlay.js']) {
     execFileSync(process.execPath, ['--check', path.join(root, file)], { stdio: 'pipe' });
   }
 });
@@ -59,4 +59,23 @@ test('progress log is versioned and explicitly separates source work from runtim
   assert.ok(plan.history.length >= 3);
   assert.ok(plan.history.every((entry) => entry.proof));
   assert.ok(plan.criticTarget.includes('Visually inspect'));
+});
+
+
+test('blinded local image critique never uploads screenshots or claims an automatic win', () => {
+  const critic = read('gauntlet-ab.js');
+  for (const marker of [
+    "crypto.getRandomValues(random)",
+    "fileAsDataUrl(inputA.files[0])",
+    "fileAsDataUrl(inputB.files[0])",
+    "independentlyVerified: false",
+    "localStorage.setItem",
+    "marble-gauntlet-blind-reviews.json",
+  ]) assert.ok(critic.includes(marker), `missing review integrity gate: ${marker}`);
+  for (const forbidden of ["fetch(", "XMLHttpRequest", "sendBeacon(", "forceWinner"]) {
+    assert.equal(critic.includes(forbidden), false, `critic may not transmit or invent outcome: ${forbidden}`);
+  }
+  assert.ok(read('gauntlet.html').includes('id="ab-voting" hidden'));
+  assert.ok(read('gauntlet.html').includes('src="/gauntlet-ab.js"'));
+  assert.ok(read('gauntlet.css').includes('.ab-grid'));
 });
