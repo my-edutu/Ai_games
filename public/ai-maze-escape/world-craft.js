@@ -145,7 +145,7 @@ export function makeWorldCraft(THREE) {
     world.userData.artAnimators??=[];
     world.userData.artAnimators.push({jewel,inner,phase:cell.cell*.51});
   }
-  function populate({world,snapshot,cells,queue,put,point,grid,glow}){
+  function populate({world,snapshot,cells,queue,put,point,grid,glow,centerCell=null}){
     const p=palettes[theme];
     let clusters=0;
     let beacons=0;
@@ -313,7 +313,8 @@ export function makeWorldCraft(THREE) {
     // Visible scenic horizon follows the PUBLIC explorer position, not hidden maze
     // topology. Previous full-map bounds placed scenery too far away to render.
     // These non-interactive distant ruins are deliberately NOT gameplay passages.
-    const anchor=point(snapshot.currentCell,snapshot.width);
+    const fallbackCell=cells[Math.floor(cells.length/2)]?.cell??0;
+    const anchor=point(Number.isInteger(centerCell)?centerCell:fallbackCell,snapshot.width);
     const originX=anchor.x,originZ=anchor.z;
     const outerX=grid*6.35,outerZ=grid*5.9;
     let skyline=0;
