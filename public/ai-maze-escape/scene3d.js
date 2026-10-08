@@ -6,6 +6,13 @@ const stateQuery = new URLSearchParams(location.search);
 const reducedMotion = document.body.dataset.reducedMotion === 'true';
 const GRID = 2.5;
 const WALL_HEIGHT = 2.8;
+const isCompact=()=>window.innerWidth<900;
+const lookTarget=new THREE.Vector3();
+const smoothedLook=new THREE.Vector3();
+let settledCamera=false;
+let lastTopologyKey='';
+let lanternFlame=null;
+let lanternLight=null;
 const dynamic = new THREE.Group();
 const world = new THREE.Group();
 let renderer = null;
@@ -22,12 +29,46 @@ let lastPosition = null;
 let threats = [];
 let active = false;
 let ready = false;
+function seededNoise(x,y,seed){let n=(Math.imul(x+seed,374761393)+Math.imul(y+seed,668265263))|0;n=Math.imul(n^(n>>>13),1274126177);return ((n^(n>>>16))>>>0)/4294967295}
+function stoneTexture(kind){
+  const canvas=document.createElement('canvas');canvas.width=512;canvas.height=512;
+  const c=canvas.getContext('2d');
+  const floor=kind==='floor',stone=kind==='wall';
+  c.fillStyle=floor?'#6d746b':stone?'#65706b':'#786c57';c.fillRect(0,0,512,512);
+  const blocks=floor?4:6,rows=floor?4:10,dx=512/blocks,dy=512/rows;
+  for(let row=0;row<rows;row++)for(let col=-1;col<blocks+1;col++){
+    const offset=floor?0:(row%2)*dx*.5;
+    const x=col*dx+offset,y=row*dy,grain=seededNoise(col+5,row+13,23);
+    const shade=Math.floor(grain*18)-10,base=floor?[101,112,106]:stone?[100,108,101]:[128,112,86];
+    c.fillStyle='rgb('+base.map(v=>Math.max(0,v+shade)).join(',')+')';
+    c.fillRect(x+2,y+2,dx-4,dy-4);
+    c.strokeStyle='rgba(13,21,21,.45)';c.lineWidth=3;c.strokeRect(x+1,y+1,dx-2,dy-2);
+    c.strokeStyle='rgba(233,218,184,.16)';c.lineWidth=1;
+    c.beginPath();c.moveTo(x+4,y+4);c.lineTo(x+dx-6,y+4);c.stroke();
+    for(let i=0;i<18;i++){
+      const seed=seededNoise(col*41+i,row*19+i,7);
+      const px=x+seed*(dx-10)+5,py=y+seededNoise(i,row+col,16)*(dy-8)+4;
+      c.fillStyle=seed>.55?'rgba(27,34,31,.17)':'rgba(230,235,217,.1)';
+      c.fillRect(px,py,2+seed*4,1+seed*2);
+    }
+  }
+  const data=c.getImageData(0,0,512,512),bytes=data.data;
+  for(let y=0;y<512;y+=2)for(let x=0;x<512;x+=2){
+    const o=(y*512+x)*4,n=seededNoise(x,y,41)*16-8;
+    bytes[o]=Math.max(0,bytes[o]+n);bytes[o+1]=Math.max(0,bytes[o+1]+n);bytes[o+2]=Math.max(0,bytes[o+2]+n);
+  }
+  c.putImageData(data,0,0);
+  const texture=new THREE.CanvasTexture(canvas);texture.colorSpace=THREE.SRGBColorSpace;texture.wrapS=texture.wrapT=THREE.RepeatWrapping;texture.anisotropy=4;return texture;
+}
+const wallTexture=stoneTexture('wall');
+const floorTexture=stoneTexture('floor');
+const bronzeTexture=stoneTexture('bronze');
 const materials = {
-  floor: new THREE.MeshStandardMaterial({color:0x273938,roughness:0.94,metalness:0.06}),
-  alternate: new THREE.MeshStandardMaterial({color:0x31433f,roughness:0.96}),
-  wall: new THREE.MeshStandardMaterial({color:0x526560,roughness:0.82,metalness:0.04}),
-  wallTop: new THREE.MeshStandardMaterial({color:0x82958b,roughness:0.66}),
-  trim: new THREE.MeshStandardMaterial({color:0x987e50,metalness:0.55,roughness:0.4}),
+  floor: new THREE.MeshStandardMaterial({map:floorTexture,color:0x9fb1a6,roughness:0.94,metalness:0.08}),
+  alternate: new THREE.MeshStandardMaterial({map:floorTexture,color:0x7f9992,roughness:0.98}),
+  wall: new THREE.MeshStandardMaterial({map:wallTexture,color:0x9daaa1,roughness:0.93,metalness:0.03}),
+  wallTop: new THREE.MeshStandardMaterial({map:wallTexture,color:0xb6aa88,roughness:0.67}),
+  trim: new THREE.MeshStandardMaterial({map:bronzeTexture,color:0xe1b16f,metalness:0.63,roughness:0.42}),
   trail: new THREE.LineBasicMaterial({color:0x69ded1,transparent:true,opacity:0.72}),
   plan: new THREE.LineBasicMaterial({color:0xfac876,transparent:true,opacity:0.8}),
   hazard: new THREE.MeshStandardMaterial({color:0x9b334b,emissive:0x5c0c1f,emissiveIntensity:1}),
@@ -39,6 +80,11 @@ const materials = {
   eyes: new THREE.MeshBasicMaterial({color:0x9dfff0}),
   monster: new THREE.MeshStandardMaterial({color:0x3a2737,roughness:0.91}),
   monsterEye: new THREE.MeshBasicMaterial({color:0xff5e85}),
+  moss:new THREE.MeshStandardMaterial({color:0x32614c,roughness:1,side:THREE.DoubleSide}),
+  goldLight:new THREE.MeshBasicMaterial({color:0xffdb8c}),
+  aura:new THREE.MeshBasicMaterial({color:0x81ffdd,transparent:true,opacity:.38,side:THREE.DoubleSide,depthWrite:false}),
+  void:new THREE.MeshStandardMaterial({color:0x101d1d,roughness:1}),
+  paving:new THREE.MeshStandardMaterial({map:floorTexture,color:0x71877a,roughness:1})
 };
 const geometries = {
   floor: new THREE.BoxGeometry(GRID-0.08,0.19,GRID-0.08),
@@ -51,6 +97,9 @@ const geometries = {
   cylinder: new THREE.CylinderGeometry(1,1,1,12),
   cone: new THREE.ConeGeometry(1,1,8),
   torus: new THREE.TorusGeometry(0.6,0.07,7,20),
+  plane: new THREE.PlaneGeometry(1,1),
+  column: new THREE.CylinderGeometry(0.16,0.18,2.5,8),
+  lantern: new THREE.OctahedronGeometry(.21),
 };
 const reusable = new Set(Object.values(geometries));
 function point(cell, width) {
