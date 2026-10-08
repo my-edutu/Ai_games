@@ -152,6 +152,15 @@
     while(sim.player.at<captureFloor&&guard++<18000)sim.step(1/60);
     if(sim.player.at<captureFloor){status.textContent='EVIDENCE STAGE UNREACHABLE';return;}
   }
+  // Capture the actual AI combat telegraph, never a fake posed screenshot.
+  if(captureFloor&&params.get('captureGuardianPhase')==='telegraph'){
+    let guard=0;
+    while(guard++<240){
+      const at=sim.platforms.find(p=>p.i===sim.player.at);
+      if(at?.guardianHealth>0&&at.guardianTelegraph)break;
+      sim.step(1/60);
+    }
+  }
   const opening=sim.snapshot();syncWorld(opening);
   climber.root.position.set(player.x,player.y,player.z);
   Object.assign(details,{status:'loading',floor:player.at,tick:opening.tick,stageTarget:captureFloor});
