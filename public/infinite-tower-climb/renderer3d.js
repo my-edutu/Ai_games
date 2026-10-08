@@ -35,7 +35,9 @@
   const decoration = new THREE.Group(); scene.add(decoration);
   const effects = new THREE.Group(); scene.add(effects);
   const themeColors = {foundry:0xffaa55,ice:0x70d8ff,verdant:0x6ae5a4,void:0xaa72ff,storm:0x92c5ff};
-  let themeKey = '', frameCount = 0;
+  let themeKey = '', frameCount = 0, lastRenderWidth = 0, lastRenderHeight = 0;
+  const metrics = {frames:0,frameMs:0,actors:0,renderer:'webgl',status:'starting'};
+  window.__TOWER_3D_METRICS__ = metrics;
   const wallMat = new THREE.MeshStandardMaterial({color:0x28364d,metalness:0.2,roughness:0.86});
   const trimMat = new THREE.MeshStandardMaterial({color:0x7b99ae,metalness:0.72,roughness:0.32});
   const box = new THREE.BoxGeometry(1, 1, 1);
@@ -56,6 +58,8 @@
   let previousChecksum = '', lastState = null;
   const size = () => {
     const w = Math.max(1, canvas.clientWidth), h = Math.max(1, canvas.clientHeight);
+    if (w === lastRenderWidth && h === lastRenderHeight) return;
+    lastRenderWidth=w; lastRenderHeight=h;
     renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 2));
     renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix();
   };
@@ -99,6 +103,7 @@
       lastClimberPosition={x:px,y:py};
     }
     if (!lastState) camera.position.y = y(s.player?.y) + 5.2;
+    metrics.actors=actors.children.length; metrics.status='live';
   }
   // The existing 2D renderer must not write to the same canvas after WebGL takes ownership.
   window.__TOWER_3D_ACTIVE__ = true;
@@ -107,6 +112,7 @@
     previousChecksum = s.publicChecksum; lastState = s; rebuild(s);
   };
   const animate = () => {
+    const frameStart=performance.now();
     size();
     if (climber && !document.body.dataset.reducedMotion?.includes('true')) {
       const t = clock.getElapsedTime(), motion = climber.userData.motion || {dx:0,dy:0};
@@ -124,7 +130,10 @@
     }
     if (++frameCount % 2 === 0 && !document.body.dataset.reducedMotion?.includes('true')) { const elapsed=clock.getElapsedTime(); for (const object of actors.children) if (object.userData.pickup) { object.rotation.y=elapsed*1.5; object.position.y+=Math.sin(elapsed*2+object.position.x)*0.001; } }
     renderer.render(scene, camera);
+    metrics.frames++; metrics.frameMs=Math.round((performance.now()-frameStart)*100)/100;
     requestAnimationFrame(animate);
   };
+  window.addEventListener('webglcontextlost', event => { if(event.target===canvas) { event.preventDefault(); metrics.status='context-lost'; canvas.style.display='none'; } });
+  window.addEventListener('webglcontextrestored', event => { if(event.target===canvas) { canvas.style.display='block'; metrics.status='restored'; } });
   animate();
 })();
