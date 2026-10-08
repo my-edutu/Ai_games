@@ -112,6 +112,33 @@ export function makeWorldCraft(THREE) {
       queue(g.prism,m.bloodBronze,[x,height*.44,z],vertical?[.26,.17,.43]:[.43,.17,.26]);
     }
   }
+  function monumentalJunction({world,cell,pos,queue,put,glow}){
+    // Ceremonial rotunda only when three or more passages are already known.
+    // Raised ornament remains above traversal clearance; it does not alter the maze.
+    const columns=[
+      [-.88,-.88],[.88,-.88],[-.88,.88],[.88,.88]
+    ];
+    const landmarkMat=theme==='layers'?m.darkMarble:
+      theme==='hunter'?m.bloodBronze:theme==='chambers'?m.sandstone:m.carvedRuin;
+    for(const [dx,dz] of columns){
+      queue(g.prism,landmarkMat,[pos.x+dx,1.4,pos.z+dz],[.29,2.8,.29]);
+      queue(g.slab,m.goldInlay,[pos.x+dx,2.82,pos.z+dz],[.48,.17,.48]);
+      queue(g.slab,landmarkMat,[pos.x+dx,.19,pos.z+dz],[.53,.32,.53]);
+    }
+    for(const [a,b,rotation] of [[-1,-1,0],[1,1,0],[-1,1,Math.PI/2],[1,-1,Math.PI/2]]){
+      const arc=put(g.arch,m.goldInlay,world,[pos.x+a*.86,2.58,pos.z+b*.86],[.73,.67,.73]);
+      arc.rotation.y=rotation;
+    }
+    const cupola=put(g.ring,m.goldInlay,world,[pos.x,3.18,pos.z],[1.54,1.54,1.54]);
+    cupola.rotation.x=Math.PI/2;
+    const inner=put(g.ring,m.sigil,world,[pos.x,3.13,pos.z],[1.16,1.16,1.16]);
+    inner.rotation.x=Math.PI/2;
+    const jewel=put(g.orb,m[palettes[theme].crystal],world,[pos.x,2.96,pos.z],[.22,.42,.22]);
+    jewel.rotation.y=.34;
+    glow(world,[pos.x,2.97,pos.z],2.1,palettes[theme].ray);
+    world.userData.artAnimators??=[];
+    world.userData.artAnimators.push({jewel,inner,phase:cell.cell*.51});
+  }
   function populate({world,snapshot,cells,queue,put,point,grid,glow}){
     const p=palettes[theme];
     let clusters=0;
@@ -120,6 +147,8 @@ export function makeWorldCraft(THREE) {
     let fragments=0;
     let monumentalProps=0;
     let ambientFlares=0;
+    let junctions=0;
+    world.userData.artAnimators=[];
     // Each prop is deterministic for a public cell index. Props sit on the cell edges:
     // never on the central traversal lane, and never reveal unknown topology.
     const publicKnown=new Set(cells.map(x=>x.cell));
@@ -129,6 +158,10 @@ export function makeWorldCraft(THREE) {
       const col=cell.cell%snapshot.width,row=Math.floor(cell.cell/snapshot.width);
       const marker=noise(col,row,9);
       const leafMat=m[p.leaf],crystalMat=m[p.crystal];
+      if(cell.neighbors?.length>=3 && cell.cell%4===0 && junctions<4){
+        monumentalJunction({world,cell,pos,queue,put,glow});
+        junctions++;
+      }
       if(marker<.72){
         // Sculpted clump of botanicals, stones, flowers and roots in the floor margin.
         const side=noise(row,col,19)<.5?-1:1;
@@ -294,7 +327,7 @@ export function makeWorldCraft(THREE) {
       }
       skyline++;
     }
-    world.userData.artStats={clusters,beacons,glyphs,fragments,monumentalProps,ambientFlares,skyline,biome:theme};
+    world.userData.artStats={clusters,beacons,glyphs,fragments,monumentalProps,ambientFlares,skyline,junctions,biome:theme};
   }
   function addHeroSurroundings({scene,hero,put,glow}){
     // Exterior lantern flares respond to the explorer's real position in scene3d;
