@@ -41,6 +41,14 @@ test('Tayo has an original articulated body and a developed face, limbs, shoes a
   actor.root.traverse(node=>{if(node.isMesh&&node.castShadow)shadowCasters++;});
   assert.ok(shadowCasters>=10,'major character silhouette must cast shadows');
   assert.ok(shadowCasters<=32,'individual hair details and fingers must not dominate shadow pass');
+  // Deliberately keep the protagonist visually separable from bright yellow danfo
+  // traffic in screenshots: cyan jacket vs amber bus, not two yellow objects.
+  const jacket=actor.root.getObjectByName('jacket');
+  const danfoYellow=new THREE.Color(0xffcd36);
+  const delta=Math.abs(jacket.material.color.r-danfoYellow.r)
+    +Math.abs(jacket.material.color.g-danfoYellow.g)
+    +Math.abs(jacket.material.color.b-danfoYellow.b);
+  assert.ok(delta>.75,'Tayo primary apparel should be visibly distinct from yellow buses');
   assert.ok(actor.root.getObjectByName('head'));
   assert.ok(actor.root.getObjectByName('left-shoulder'));
   assert.ok(actor.root.getObjectByName('right-hip'));
