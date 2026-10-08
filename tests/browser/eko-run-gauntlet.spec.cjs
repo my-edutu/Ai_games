@@ -42,8 +42,7 @@ test.describe('Eko Run 3D Gauntlet slice', () => {
     expect(widths.html).toBeLessThanOrEqual(widths.viewport+1);
     await page.locator('#mode').click();
     await expect(page.locator('#mode')).toContainText('SWITCH TO AI');
-    await page.locator('[data-control="Space"]').dispatchEvent('pointerdown', {pointerId:1});
-    await page.locator('[data-control="Space"]').dispatchEvent('pointerup', {pointerId:1});
+    await page.locator('[data-control="Space"]').click();
     fs.mkdirSync('artifacts/eko-gauntlet', { recursive: true });
     await page.screenshot({ path: path.join('artifacts/eko-gauntlet', 'mobile.png'), fullPage: true });
   });
