@@ -1,9 +1,9 @@
 {
   "schema": 1,
-  "iteration": "Loop 4 · stable cinematic direction",
+  "iteration": "Loop 5 · real output verification + synchronized identity",
   "lastUpdated": "2026-10-08",
-  "criticTarget": "Film actual tournament camera passes, check WebGL shader and arena occlusion, then blind-compare frame-matched captures against reference footage.",
-  "comparisonStatus": "NOT YET VERIFIED · Screenshots, blind A/B verdicts and performance sampling are outstanding.",
+  "criticTarget": "Independent critic: inspect actual CI screenshots for scene framing, legible identities and believable marble optics. Reject until blind A/B screenshots of real gameplay compare favorably to Marble It Up! Ultra and Marbles on Stream.",
+  "comparisonStatus": "NOT YET VERIFIED · Browser workflow queued. Blind reference comparisons and real 3D physics still outstanding.",
   "goals": [
     {
       "name": "Premium marble character optics",
@@ -18,6 +18,11 @@
     {
       "name": "Frame-rate consistent director camera",
       "detail": "World-space pursuit easing normalized across 30/60/144 Hz and reduced-motion preferences",
+      "status": "implemented"
+    },
+    {
+      "name": "Frame-exact competitor identities",
+      "detail": "Project numbers and tags through the exact WebGL frame matrix and authoritative elevation; preserve fallback",
       "status": "implemented"
     },
     {
@@ -44,9 +49,19 @@
       "name": "Long-session stability and production gate",
       "detail": "Soak tests, accessible UX review, real frame measurements, release evidence",
       "status": "blocked"
+    },
+    {
+      "name": "Real Chromium screenshot evidence",
+      "detail": "GitHub Actions invokes Playwright real WebGL tests, labels/tick parity, screenshots and performance artifacts",
+      "status": "in-progress"
     }
   ],
   "history": [
+    {
+      "title": "Loop 5 — Frame-truth and browser checks",
+      "note": "Eliminated independent HUD-label camera drift by using renderer's actual view-projection matrix and interpolated marble locations. Added exact frame/tick assertions plus a triggered browser-evidence CI workflow.",
+      "proof": "Code and queued GitHub Actions job — runtime screenshots not yet reviewed"
+    },
     {
       "title": "Loop 4 — Camera behavior",
       "note": "Replaced frame-count camera easing with delta-time-normalized pursuit; reduced-motion viewers still get immediate movement. Browser camera verification pending.",
