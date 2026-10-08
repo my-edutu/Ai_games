@@ -72,3 +72,25 @@ test('original procedural audio requires opt-in and always honours mute',async({
   await page.goto(base+'/maze',{waitUntil:'domcontentloaded'});
   await expect(page.locator('#sound-toggle')).toHaveAttribute('aria-pressed','false');
 });
+
+
+test('WebGL loss returns safely to the authoritative 2D maze without stopping its AI',async({page})=>{
+  await page.setViewportSize({width:1280,height:720});
+  await page.goto(base+'/maze',{waitUntil:'domcontentloaded'});
+  await page.waitForFunction(()=>window.__MAZE_PUBLIC_STATE__?.tick>3);
+  const before=await page.evaluate(()=>window.__MAZE_PUBLIC_STATE__.tick);
+  const had3D=await page.evaluate(()=>Boolean(window.__MAZE_3D_READY__));
+  if(had3D){
+    await page.evaluate(()=>{
+      const canvas=document.querySelector('#maze-3d canvas');
+      canvas.dispatchEvent(new Event('webglcontextlost',{cancelable:true}));
+    });
+    await page.waitForFunction(()=>!window.__MAZE_3D_READY__);
+    await expect(page.locator('#maze-3d')).toHaveCount(0);
+  }
+  await page.waitForTimeout(550);
+  const after=await page.evaluate(()=>window.__MAZE_PUBLIC_STATE__.tick);
+  expect(after).toBeGreaterThan(before);
+  const fallback=page.locator('#maze');
+  await expect(fallback).toBeVisible();
+});
