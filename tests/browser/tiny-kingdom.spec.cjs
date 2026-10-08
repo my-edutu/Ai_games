@@ -620,3 +620,23 @@ test('Tiny Kingdom software-GPU render quality is bounded and does not modify si
   expect(qa.auth).toEqual(before);
   expect(faults).toEqual([]);
 });
+
+test('Gauntlet 027 forest branch frames stay orthonormal for steep and horizontal limbs', async ({page}) => {
+  await page.setContent(html);
+  await page.waitForFunction(()=>Boolean(window.__tinyKingdom));
+  const measurements=await page.evaluate(()=>{
+    const source=document.querySelector('script').textContent;
+    const fn=source.match(/function branchFrame\(a,b\)\{[\s\S]*?return \{n,u,v,length\};\s*\}/);
+    if(!fn)throw new Error('branchFrame not found');
+    const branch=new Function(fn[0]+';return branchFrame;')();
+    return [[[0,0,0],[0,3,0]],[[0,0,0],[2,0,0]],[[1,2,3],[2,5,7]]].map(([a,b])=>{
+      const frame=branch(a,b),dot=(x,y)=>x.reduce((sum,q,i)=>sum+q*y[i],0);
+      return {length:frame.length,norms:[frame.n,frame.u,frame.v].map(q=>Math.hypot(...q)),dots:[dot(frame.n,frame.u),dot(frame.n,frame.v),dot(frame.u,frame.v)]};
+    });
+  });
+  for(const frame of measurements){
+    expect(frame.length).toBeGreaterThan(0);
+    for(const norm of frame.norms)expect(norm).toBeCloseTo(1,5);
+    for(const dot of frame.dots)expect(Math.abs(dot)).toBeLessThan(1e-5);
+  }
+});
