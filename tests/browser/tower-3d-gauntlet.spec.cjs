@@ -290,6 +290,24 @@ test('Wayfinder production sculpt exposes layered geometry on moving skeletal jo
   await page.screenshot({path:path.join(artifacts,'gauntlet-sculpted-wayfinder-v13.png'),fullPage:true});
 });
 
+test('a WebGL constructor failure never masks the active 2D game with an orphan canvas',async({page})=>{
+  await page.addInitScript(()=>{
+    const native=HTMLCanvasElement.prototype.getContext;
+    HTMLCanvasElement.prototype.getContext=function(name,...args){
+      if(String(name).toLowerCase().startsWith('webgl'))throw new Error('Synthetic WebGL startup failure');
+      return native.call(this,name,...args);
+    };
+  });
+  await page.goto(base+'/tower',{waitUntil:'domcontentloaded'});
+  await expect.poll(()=>page.evaluate(()=>document.body.dataset.towerRenderer),{timeout:20000}).toBe('2d-fallback');
+  await expect(page.locator('#tower-3d-canvas')).toHaveCount(0);
+  await expect(page.locator('#tower-canvas')).toBeVisible();
+  const reason=await page.evaluate(()=>window.__TOWER_3D_BOOT_ERROR__?.message||'');
+  expect(reason).toContain('WebGL');
+  const tick=await page.locator('[data-testid="tick"]').textContent();
+  await expect.poll(async()=>page.locator('[data-testid="tick"]').textContent(),{timeout:20000}).not.toBe(tick);
+});
+
 test('3D module unavailable degrades safely to the existing 2D scene',async({page})=>{
   await page.route('**/tower/scene3d.js',route=>route.fulfill({status:503,body:'Module unavailable'}));
   await page.goto(base+'/tower');
