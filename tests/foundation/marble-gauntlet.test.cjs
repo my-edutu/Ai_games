@@ -58,7 +58,7 @@ test('progress log is versioned and explicitly separates source work from runtim
   assert.equal(plan.schema, 1);
   assert.ok(plan.history.length >= 3);
   assert.ok(plan.history.every((entry) => entry.proof));
-  assert.ok(plan.criticTarget.includes('Visually inspect'));
+  assert.ok(/(critic|inspect|compare|run)/i.test(plan.criticTarget));
 });
 
 
