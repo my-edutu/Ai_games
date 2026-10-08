@@ -31,6 +31,11 @@ test('Tayo has an original articulated body and a developed face, limbs, shoes a
   assert.ok(actor.articulatedJoints>=14);
   const stats=characterMeshStats(actor);
   assert.ok(stats.meshes>=60,JSON.stringify(stats));
+  const instances=[];actor.root.traverse(x=>{if(x.isInstancedMesh)instances.push(x)});
+  assert.equal(actor.instancedDetails,23);
+  assert.equal(instances.length,3);
+  assert.equal(instances.reduce((n,x)=>n+x.count,0),23,
+    'all original curls/fingers must survive render batching');
   assert.equal(stats.invalid,0);
   let shadowCasters=0;
   actor.root.traverse(node=>{if(node.isMesh&&node.castShadow)shadowCasters++;});
