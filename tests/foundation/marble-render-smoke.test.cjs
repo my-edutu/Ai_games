@@ -98,6 +98,10 @@ for(const biome of BIOMES){
     assert.equal(shell.dataset.cutoutCount,'1');
     assert.ok(Number(shell.dataset.deckTileCount)>1);
     assert.equal(shell.dataset.ledRound,String(BIOMES.indexOf(biome)+1));
+    assert.equal(shell.dataset.stadiumStyle,biome);
+    assert.ok(Number(shell.dataset.stadiumModules)>=120,'arena must have genuinely detailed geometry');
+    assert.equal(shell.dataset.spotlightVolumes,'6');
+    assert.equal(shell.dataset.crowdCount,'320');
     assert.ok(counters.drawElements>50,'3D world must draw actual meshes');
     assert.ok(counters.drawArrays>=3,'sky, in-world LED and living GPU crowd must render');
     assert.equal(counters.pointCloudDraws,1,'hundreds of spectators should cost exactly one draw call');
@@ -129,6 +133,10 @@ test('championship 3D scene can render legitimate trophy without a client-picked
   assert.ok(counters.drawElements>50);
   assert.equal(frame?.snapshot?.camera?.championId,0);
   assert.equal(frame?.snapshot?.lifecycle,'tournament-result');
+  assert.equal(frame?.snapshot?.camera?.championId,0);
+  const verified=await simulateStage('championship','high',true);
+  assert.equal(verified.shell.dataset.ceremonyChampion,'0');
+  assert.equal(verified.shell.dataset.ceremonyArchitecture,'crown-arches');
 });
 
 test('all four character archetypes render physically distinct attachments and a falling contestant casts no false deck shadow',async()=>{
@@ -165,4 +173,13 @@ test('the audience reacts harder to official championship than a mid-round battl
   assert.equal(normal.shell.dataset.crowdCount,'320');
   assert.ok(Number(winner.shell.dataset.crowdExcitement)>Number(normal.shell.dataset.crowdExcitement));
   assert.equal(winner.counters.pointCloudDraws,1,'victory crowd must still stay within one draw call');
+});
+
+test('stadium kit scales up at Ultra while respecting one-time body mesh batching',async()=>{
+  const low=await simulateStage('seeding-sprint','low');
+  const ultra=await simulateStage('seeding-sprint','ultra');
+  assert.ok(Number(ultra.shell.dataset.stadiumModules)>Number(low.shell.dataset.stadiumModules));
+  assert.equal(low.shell.dataset.stadiumStyle,'seeding-sprint');
+  assert.equal(ultra.shell.dataset.stadiumStyle,'seeding-sprint');
+  assert.equal(ultra.shell.dataset.spotlightVolumes,'16');
 });
