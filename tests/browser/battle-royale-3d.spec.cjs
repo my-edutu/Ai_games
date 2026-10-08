@@ -263,3 +263,27 @@ test('v3 WebGL scene preserves the biome sky behind actual shaded 3D geometry',a
     await page.screenshot({path:path.join(captures,'atmospheric-3d-sky.png')});
   }
 });
+
+test('theatre-first UI gives the 3D battlefield nearly the full screen, with panel-mode rollback',async({page})=>{
+  await page.setViewportSize({width:1600,height:900});
+  await page.goto(base+'/battle?muted=1');
+  await page.waitForFunction(()=>Boolean(window.__BATTLE_PUBLIC_STATE__));
+  await expect(page.locator('body')).toHaveClass(/theatre-mode/);
+  const theatre=await page.evaluate(()=>{
+    const stage=document.querySelector('.arena-shell').getBoundingClientRect();
+    const hud=document.querySelector('.hud').getBoundingClientRect();
+    const caption=document.querySelector('.captions').getBoundingClientRect();
+    return{stageWidth:stage.width,stageHeight:stage.height,
+      hudWidth:hud.width,hudOverlap:hud.x<stage.x+stage.width,captionBottom:caption.bottom};
+  });
+  expect(theatre.stageWidth).toBeGreaterThan(1550);
+  expect(theatre.stageHeight).toBeGreaterThan(760);
+  expect(theatre.hudOverlap).toBeTruthy();
+  await page.screenshot({path:path.join(captures,'v4-theatre-full-bleed.png')});
+  await page.goto(base+'/battle?muted=1&layout=panels');
+  await page.waitForFunction(()=>Boolean(window.__BATTLE_PUBLIC_STATE__));
+  await expect(page.locator('body')).not.toHaveClass(/theatre-mode/);
+  const panels=await page.locator('.arena-shell').evaluate(el=>el.getBoundingClientRect().width);
+  expect(panels).toBeLessThan(theatre.stageWidth*.78);
+  await page.screenshot({path:path.join(captures,'v4-panel-rollback.png')});
+});

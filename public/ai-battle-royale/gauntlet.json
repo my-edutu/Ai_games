@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "AI Battle Royale",
-  "iteration": 34,
+  "iteration": 35,
   "updated": "2026-10-08",
   "verdict": "GAUNTLET NOT ACHIEVED — FRESH WEBGL SCREENSHOTS/BLIND CRITIC PENDING",
   "benchmark": "Fortnite Chapter 4 UE5.1 / Apex Legends / PUBG",
@@ -42,7 +42,8 @@
     "Loop 31 — upgraded WebGL fragment surface materials with multiscale grain, specular metal-like highlights, smoother broad terrain coloration and physically inspired lighting.",
     "Loop 32 — built legible original 3D biome hero landmark complexes: neon towers/skybridge, glacial cathedral and badlands refinery; entirely outside simulation authority.",
     "Loop 33 — added 3D camera-projected, live-public-state fighter identity/health nameplates with archetype accents and focus highlights, 6-person cap and responsive OBS hiding; surfaced renderer fallback diagnostics.",
-    "Loop 34 — exposed vivid biome-specific sky/atmosphere gradients behind actual WebGL2 geometry using a transparent alpha-composited framebuffer; the traditional 2D scene remains a safe fallback."
+    "Loop 34 — exposed vivid biome-specific sky/atmosphere gradients behind actual WebGL2 geometry using a transparent alpha-composited framebuffer; the traditional 2D scene remains a safe fallback.",
+    "Loop 35 — replaced default narrow three-column stage with full-bleed cinematic battlefield and floating, colorful esports telemetry/leaderboard panels; ?layout=panels restores legacy v3 layout and clean OBS feed remains full-screen."
   ],
   "gaps": [
     "P0 — New real WebGL2 Chromium screenshots not yet reviewed; these code changes must not be mistaken for a passed visual bar.",
