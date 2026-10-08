@@ -252,6 +252,22 @@ Mesh.prototype.contactShadow=function(x,z,rx,rz,color='#344540',height=.115){
 };
 Mesh.prototype.cylinder=function(x,y,z,r,h,color,n=8){const c=typeof color==='string'?rgb(color):color;for(let i=0;i<n;i++){const a=i*2*Math.PI/n,b=(i+1)*2*Math.PI/n,ca=Math.cos(a),sa=Math.sin(a),cb=Math.cos(b),sb=Math.sin(b),p=[x+r*ca,y-h*.5,z+r*sa],q=[x+r*cb,y-h*.5,z+r*sb],t=[x+r*ca,y+h*.5,z+r*sa],u=[x+r*cb,y+h*.5,z+r*sb];this.quad(p,q,u,t,norm([ca+cb,0,sa+sb]),c);this.tri([x,y+h*.5,z],t,u,[0,1,0],c);this.tri([x,y-h*.5,z],q,p,[0,-1,0],c);}};
 Mesh.prototype.ball=function(x,y,z,r,color){const c=typeof color==='string'?rgb(color):color,lat=5,lon=8;for(let i=0;i<lat;i++)for(let j=0;j<lon;j++){const p=i*Math.PI/lat,p2=(i+1)*Math.PI/lat,a=j*2*Math.PI/lon,a2=(j+1)*2*Math.PI/lon,point=(phi,theta)=>[x+r*Math.sin(phi)*Math.cos(theta),y+r*Math.cos(phi),z+r*Math.sin(phi)*Math.sin(theta)];const A=point(p,a),B=point(p2,a),C=point(p2,a2),D=point(p,a2);this.tri(A,B,C,norm(vsub(A,[x,y,z])),c);this.tri(A,C,D,norm(vsub(D,[x,y,z])),c);}};
+// Ellipsoid softens hero silhouettes without external assets or skinned mesh dependencies.
+Mesh.prototype.ellipsoid=function(x,y,z,rx,ry,rz,color,lat=8,lon=12){
+  if(rx<=0||ry<=0||rz<=0)return;
+  const col=typeof color==='string'?rgb(color):color;
+  const sample=(phi,theta)=>[
+    x+rx*Math.sin(phi)*Math.cos(theta),
+    y+ry*Math.cos(phi),
+    z+rz*Math.sin(phi)*Math.sin(theta)
+  ];
+  const normal=(p)=>norm([(p[0]-x)/rx**2,(p[1]-y)/ry**2,(p[2]-z)/rz**2]);
+  for(let i=0;i<lat;i++)for(let j=0;j<lon;j++){
+    const a=i*Math.PI/lat,b=(i+1)*Math.PI/lat,u=j*2*Math.PI/lon,v=(j+1)*2*Math.PI/lon;
+    const A=sample(a,u),B=sample(b,u),C=sample(b,v),D=sample(a,v);
+    this.tri(A,B,C,normal(A),col);this.tri(A,C,D,normal(C),col);
+  }
+};
 Mesh.prototype.bone=function(a,b,width,color){const midpoint=a.map((v,i)=>(v+b[i])/2);const delta=vsub(b,a),length=Math.hypot(...delta);if(length<.001)return;const vertical=Math.abs(delta[1])>0.03;const tangent=vertical?norm(cross(delta,[1,0,0])):[1,0,0],side=norm(cross(delta,tangent)),c=typeof color==='string'?rgb(color):color;const around=[];for(let i=0;i<6;i++){const t=i*Math.PI/3;around.push(tangent.map((v,j)=>v*Math.cos(t)*width+side[j]*Math.sin(t)*width));}for(let i=0;i<6;i++){const j=(i+1)%6,P=a.map((v,k)=>v+around[i][k]),Q=a.map((v,k)=>v+around[j][k]),R=b.map((v,k)=>v+around[j][k]),S=b.map((v,k)=>v+around[i][k]);this.quad(P,Q,R,S,norm(around[i]),c);}};
 function buildingColor(b){return({residential:'#bd9c7e',commercial:'#a79d85',industrial:'#7f9491',medical:'#d3ccc1',civic:'#b7a58e',outskirts:'#b08e78'})[b.district]||'#9a9c87';}
 function headquartersCutaway(){
@@ -405,13 +421,17 @@ function human(m,entity,infected,time){
   const moving=infected?entity.action==='pursue'||entity.action==='wander':entity.action==='move'||entity.action==='retreat'||entity.action==='rescue';
   const stride=moving?Math.sin(time*(infected?6:8)+(entity.variant||0)*1.1):0;
   const l=(dx,y,dz)=>{const c=Math.cos(yaw),s=Math.sin(yaw);return[x+body*(dx*c+dz*s),y*body,z+body*(-dx*s+dz*c)];};
-  const roleColors={leader:'#ccac70',scout:'#668f86',medic:'#c3c5b4',defender:'#89796b',scavenger:'#a8885e',engineer:'#7290a0'};
+  const roleColors={leader:'#d7ad72',scout:'#4a98a3',medic:'#cce4d7',defender:'#6078a1',scavenger:'#d39a54',engineer:'#678fcb'};
   const shirt=infected?(entity.archetype==='brute'?'#65614d':entity.archetype==='runner'?'#536852':['#65745e','#555e50','#6b6654'][entity.variant%3]):roleColors[entity.role]||'#779189';
   const skin=infected?'#829079':['#a77458','#8b6049','#c4926c','#b67e5c'][Number(entity.id.split('-')[1]||0)%4];
   const trouser=infected?'#3a4a42':'#303d40';
   m.contactShadow(x+.11,z-.08,.46*body,.32*body,infected?'#35483c':'#3d4b41');
   m.box(x,.03,z,.72*body,.045,.45*body,'#26362e',yaw);
-  part(m,x,z,yaw,0,1.48*body,0,.58*body,.85*body,.38*body,shirt);
+  if(distance<12){
+    m.ellipsoid(x,1.48*body,z,.33*body,.46*body,.26*body,shirt);
+    m.ellipsoid(...l(-.26,1.76,0),.17*body,.16*body,.21*body,shirt);
+    m.ellipsoid(...l(.26,1.76,0),.17*body,.16*body,.21*body,shirt);
+  }else part(m,x,z,yaw,0,1.48*body,0,.58*body,.85*body,.38*body,shirt);
   // Distinct silhouette: tactical plates and fabric seams for living humans, ragged chest for infected.
   if(!infected){
     part(m,x,z,yaw,0,1.56*body,.22*body,.39*body,.61*body,.08*body,'#404a43');
@@ -423,12 +443,21 @@ function human(m,entity,infected,time){
     part(m,x,z,yaw,.17*body,1.72*body,.19*body,.14*body,.14*body,.07*body,'#9b735c');
   }
   part(m,x,z,yaw,0,1.03*body,0,.50*body,.25*body,.35*body,trouser);
-  const head=l(0,2.20,0);m.ball(...head,.25*body,skin);
+  const head=l(0,2.20,0);if(distance<13)m.ellipsoid(...head,.255*body,.294*body,.242*body,skin);else m.ball(...head,.25*body,skin);
   part(m,x,z,yaw,0,2.42*body,-.02*body,.38*body,.13*body,.38*body,infected?'#455247':'#292f2c');
   if(!infected){
     part(m,x,z,yaw,0,2.55*body,-.03*body,.46*body,.16*body,.50*body,entity.role==='medic'?'#e4dfc2':'#56665b');
     part(m,x,z,yaw,0,2.22*body,.235*body,.30*body,.13*body,.04*body,'#2c3e3d');
     part(m,x,z,yaw,.0,2.45*body,.24*body,.10*body,.10*body,.04*body,'#d7b775');
+    if(distance<12){
+      // Readable closeup facial identity; the face follows each survivor's authoritative direction.
+      for(const sign of [-1,1]){
+        part(m,x,z,yaw,sign*.105*body,2.235*body,.232*body,.088*body,.052*body,.034*body,'#e1d2b7');
+        part(m,x,z,yaw,sign*.106*body,2.234*body,.261*body,.038*body,.042*body,.018*body,'#223a45');
+      }
+      m.ellipsoid(...l(0,2.145,.257),.064*body,.095*body,.069*body,skin,5,8);
+      part(m,x,z,yaw,0,2.05*body,.23*body,.135*body,.03*body,.04*body,'#6f4940');
+    }
   }else{
     part(m,x,z,yaw,0,2.23*body,.215*body,.34*body,.08*body,.07*body,'#4c5143');
     if(entity.archetype==='runner')part(m,x,z,yaw,0,2.54*body,-.09*body,.39*body,.15*body,.38*body,'#403a35');
