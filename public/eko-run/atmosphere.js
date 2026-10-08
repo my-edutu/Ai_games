@@ -42,22 +42,37 @@ export function createCityAtmosphere(THREE, scene) {
   sky.name='Eko procedural sunset sky';sky.position.set(0,18,-74);
   sky.renderOrder=-500;root.add(sky);
   const cloudMat=new THREE.MeshBasicMaterial({color:0xfff9e5,transparent:true,opacity:.68,depthWrite:false,fog:false});
-  const cloudMeshes=[];
+  // Previous nine groups × five cloud sphere meshes required 45 GPU draw calls
+  // in the expensive software CI renderer. Bake their transforms into ONE
+  // dynamic instanced mesh without losing original scrolling parallax.
   const cloudGeometry=new THREE.SphereGeometry(1.0,8,6);
-  for(let i=0;i<9;i++){
-    const group=new THREE.Group();
-    const spread=(i%4)*3.3;
-    const radius=.7+.23*(i%3);
-    for(let j=0;j<5;j++){
-      const puff=new THREE.Mesh(cloudGeometry,cloudMat);
-      puff.scale.set(radius*(1.7+j*.15),radius*(.45+j%2*.16),radius*.38);
-      puff.position.set((j-2)*radius*1.35,Math.sin(j*2.9)*radius*.22,0);
-      group.add(puff);
+  const CLOUD_COUNT=45;
+  const clouds=new THREE.InstancedMesh(cloudGeometry,cloudMat,CLOUD_COUNT);
+  clouds.name='Eko instanced atmospheric cloud formations';
+  clouds.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+  clouds.frustumCulled=false;clouds.renderOrder=-100;root.add(clouds);
+  const cloudPivot=new THREE.Object3D();
+  function placeClouds(viewX,now,reducedMotion){
+    for(let i=0;i<9;i++){
+      const spread=(i%4)*3.3;
+      const radius=.7+.23*(i%3);
+      const base=(i-4)*15+(i%3)*7;
+      const scroll=viewX*.70+base+(reducedMotion?0:Math.sin(now*.00008+i)*1.3);
+      for(let j=0;j<5;j++){
+        const k=i*5+j;
+        cloudPivot.position.set(
+          scroll+(j-2)*radius*1.35,
+          11+spread+Math.sin(j*2.9)*radius*.22,
+          -45-(i%3)*6
+        );
+        cloudPivot.scale.set(radius*(1.7+j*.15),radius*(.45+j%2*.16),radius*.38);
+        cloudPivot.rotation.set(0,0,0);cloudPivot.updateMatrix();
+        clouds.setMatrixAt(k,cloudPivot.matrix);
+      }
     }
-    group.position.set((i-4)*15+(i%3)*7,11+spread,-45-(i%3)*6);
-    group.renderOrder=-100;root.add(group);
-    cloudMeshes.push(group);
+    clouds.instanceMatrix.needsUpdate=true;
   }
+  placeClouds(0,0,true);
   const skies={
     'mainland-morning':['#1488be','#ffaa74','#ffe1a5','#ffe8b3',.14],
     'market-rush':['#b75385','#ff9b63','#ffd0a8','#ffcf8a',.16],
@@ -82,14 +97,11 @@ export function createCityAtmosphere(THREE, scene) {
     if(!Number.isFinite(lastX)||Math.abs(lastX-viewX)>.01){
       sky.position.x=viewX;lastX=viewX;
     }
-    for(let i=0;i<cloudMeshes.length;i++){
-      const cloud=cloudMeshes[i],base=(i-4)*15+(i%3)*7;
-      cloud.position.x=viewX*.70+base+(reducedMotion?0:Math.sin(now*.00008+i)*1.3);
-    }
+    placeClouds(viewX,now,reducedMotion);
   }
   function destroy(){
     root.parent?.remove(root);
-    cloudMat.dispose();cloudGeometry.dispose();sky.geometry.dispose();shader.dispose();
+    clouds.dispose();cloudMat.dispose();cloudGeometry.dispose();sky.geometry.dispose();shader.dispose();
   }
   return Object.freeze({setDistrict,update,destroy,signature:'single-shader-city-sky'});
 }
