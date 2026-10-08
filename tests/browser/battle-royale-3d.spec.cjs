@@ -357,7 +357,7 @@ test('original local GPU surface atlas loads and compares against same-state mat
   const surface=await atlas.text();
   expect(surface).toContain('Original Battle Royale surface atlas');
   expect(surface).not.toContain('<script');
-  expect(surface).not.toContain('http://');
+  expect(surface).not.toMatch(/<script|<foreignObject|href=['\"]https?:/i);
 
   const source=await request.get(base+'/battle/state?w=1600&h=900');
   expect(source.ok()).toBeTruthy();
@@ -376,7 +376,7 @@ test('original local GPU surface atlas loads and compares against same-state mat
       if(mode==='webgl2'){
         if(materials==='on'){
           await page.waitForFunction(()=>window.BattleArena3D.status.materialAtlas==='ready',
-            {timeout:15000});
+            null,{timeout:15000});
         }
         const info=await page.evaluate(()=>({...window.BattleArena3D.status}));
         expect(info.materialAtlas).toBe(materials==='off'?'disabled':'ready');
