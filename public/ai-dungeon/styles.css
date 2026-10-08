@@ -51,3 +51,6 @@ body[data-biome="ember"] .icon-button{color:#ffe0b0}
 @media(prefers-reduced-motion:reduce){body{transition:none}.floor-splash{animation:none}}
 
 .hazard-dot{background:linear-gradient(135deg,#ffbc68,#ff5778);box-shadow:0 0 10px #ff54768c}.hazard-count{color:#ffc08d!important;font-size:9px;letter-spacing:1px;font-weight:900;padding:6px 8px;border:1px solid #ff8a7463;border-radius:7px;background:#592e4f65}
+
+.world-info .rig-status{grid-column:1/-1;color:#a5ffeb;font-size:8px;padding-top:5px;border-top:1px solid #5cf5e854;letter-spacing:.7px}
+@media(max-width:680px){.world-info .rig-status{display:none}}

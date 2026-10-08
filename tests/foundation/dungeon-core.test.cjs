@@ -87,3 +87,16 @@ test('interactive traps are deterministic and can hurt or be disarmed by autonom
  assert.equal(qtrap.disarmed,true,'ranger must choose to disable a nearby trap');
  assert.ok(q.events.some(e=>e.kind==='disarm'));
 });
+
+test('authored CC0 model manifest is pinned, bounded and path-safe',()=>{
+ const manifest=require('../../games/ai-dungeon/assets/manifest.json');
+ assert.equal(manifest.license,'CC0-1.0');
+ assert.match(manifest.revision,/^[a-f0-9]{40}$/);
+ assert.ok(manifest.assets.filter(a=>a.target.endsWith('.glb')).length>=6);
+ for(const file of manifest.assets){
+  assert.match(file.target,/^(player|enemy|environment)\/[\w-]+\.(glb|png)$/);
+  assert.match(file.blobSha,/^[a-f0-9]{40}$/);
+  assert.ok(file.size>0&&file.size<8*1024*1024);
+  assert.ok(file.sourcePath.startsWith('assets/'));
+ }
+});

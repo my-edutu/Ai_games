@@ -98,3 +98,19 @@ test('animated dungeon hazards match authoritative state and surface in radar',a
  expect(projection.traps.every(t=>['arcane','ember'].includes(t.kind))).toBe(true);
  expect(projection.rendered).toBeGreaterThan(100);
 });
+
+test('CC0 authored asset rigging is observable, with graceful procedural fallback',async({page,request})=>{
+ await page.goto('/dungeon');
+ await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.authored3D?.proceduralFallbacks??-1),{timeout:15000}).toBeGreaterThanOrEqual(0);
+ const assets=await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.authored3D);
+ expect(assets.authoredCharacters+assets.proceduralFallbacks).toBeGreaterThanOrEqual(3);
+ expect(assets.missingAssets).toBeGreaterThanOrEqual(0);
+ const addon=await request.get('/dungeon/vendor/addons/loaders/GLTFLoader.js');
+ expect(addon.status()).toBe(200);
+ expect(await addon.text()).toContain("/dungeon/vendor/three.module.js");
+ if(process.env.DUNGEON_REQUIRE_MODELS==='1'){
+  await expect.poll(async()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.authored3D?.authoredCharacters??0),{timeout:30000}).toBeGreaterThan(2);
+  expect((await request.get('/dungeon/assets/player/player_swordsman.glb')).status()).toBe(200);
+ }
+ const blocked=await request.get('/dungeon/assets/../package.json');expect(blocked.status()).toBe(404);
+});

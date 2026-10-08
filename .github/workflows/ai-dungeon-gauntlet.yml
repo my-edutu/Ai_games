@@ -44,6 +44,8 @@ jobs:
       - run: npm run dungeon:assets:strict
       - run: npx playwright install --with-deps chromium
       - run: npm run dungeon:visual
+        env:
+          DUNGEON_REQUIRE_MODELS: '1'
       - name: Upload screenshot proof
         if: always()
         uses: actions/upload-artifact@v4
