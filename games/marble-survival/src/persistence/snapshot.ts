@@ -42,7 +42,14 @@ function validateState(state: MarbleState): void {
     if (!Number.isSafeInteger(marble.position.x) || !Number.isSafeInteger(marble.position.y) || Math.abs(marble.position.x) > 10_000_000 || Math.abs(marble.position.y) > 10_000_000) {
       throw new MarbleSnapshotError('state', `Marble ${marble.id} position is outside deterministic range.`);
     }
-    if (!Number.isSafeInteger(marble.elevation) || marble.elevation < 0 || marble.elevation > 10_000_000) {
+    const isFallingIntoPit = marble.elevation < 0 && state.arena.hazards.some(hazard =>
+      hazard.kind === 'pit'
+      && marble.position.x >= hazard.x && marble.position.x <= hazard.x + hazard.width
+      && marble.position.y >= hazard.y && marble.position.y <= hazard.y + hazard.height
+    );
+    if (!Number.isSafeInteger(marble.elevation)
+        || marble.elevation < -900 || marble.elevation > 10_000_000
+        || (marble.elevation < 0 && !isFallingIntoPit)) {
       throw new MarbleSnapshotError('state', `Marble ${marble.id} elevation is outside deterministic range.`);
     }
     if (!Number.isSafeInteger(marble.verticalVelocity) || Math.abs(marble.verticalVelocity) > state.config.maxVerticalSpeed) {
