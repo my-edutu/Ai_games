@@ -63,14 +63,31 @@ The first launch balance target is a 12–30 minute standard full-district run f
 - `phases/` — executable phase contracts.
 - `docs/` — project-specific experience and research standards.
 
-## Current Phase
+## Current Implementation Evidence
 
-Phase 0 establishes the executable game contract, cultural/visual reference pack, asset provenance and evidence model. Phase 1 establishes a headless deterministic simulation foundation. Three.js scene production begins only after the foundation and precision-movement gates.
+The existing repository contains fixed-step deterministic gameplay, authored/procedural Phase 6 districts, hazard contracts, kinematic movement, character-pose and visual-world presentation packages. Their readiness is determined by tests and evidence rather than package presence.
 
-## Current Commands
+**Gauntlet 3D preview (feature branch):** the experimental browser viewer at `/eko/` uses Three.js to render a Lagos-inspired streetscape with procedural shopfronts, minibuses, lighting, animated Tayo, road furniture, pedestrians, real hazard positions, six-district visual themes, player/AI controls, and a mobile HUD. A Node host runs the **existing authoritative Phase 6 simulation** at a fixed logical 60Hz; the browser renders immutable public snapshots over server-sent events. The renderer cannot award tokens, bypass hazards, or write physics state.
 
-Phase 0 is documentation-only. Phase 1 adds `scripts/run-eko-run-headless.cjs` and foundation test commands. Until those files are committed and verified, no README command claims they exist.
+**Run locally:**
 
-## Known Current Limitations
+```bash
+npm ci
+npm run eko:stream
+# Open http://127.0.0.1:4177/eko/
+# Live quality ledger: http://127.0.0.1:4177/eko/progress
+```
 
-There is not yet a playable build, renderer, audio engine, controller, AI policy, generated route system, viewer integration, or production deployment. These are owned by the numbered phases in the master plan and may not be represented as complete before evidence exists.
+**Focused smoke and browser evidence:**
+
+```bash
+npm run test:eko:stream
+npx playwright install chromium
+npx playwright test tests/browser/eko-run-gauntlet.spec.cjs
+```
+
+The browser runs in AI mode by default. Switch to Player Mode for left/right, Space to jump, Down to slide, or V to vault. Touch buttons are available on mobile; outfits may be changed for visual exploration without changing hitboxes. Quality Low removes decoration and shadows before gameplay warnings.
+
+**Known shortcomings:** the characters and environments are generated stylized primitives, **not** polished production meshes with shipped skeletal rigs, detailed materials or authored cinematic animation. Six districts have distinct palettes and shared environment grammar rather than complete bespoke art direction. The autonomous driver is a bounded heuristic preview, not a certified high-survival policy. Real captured screenshots, normal-speed critical gameplay review, mobile/low-tier performance results, independent critics, reference blind A/B, full original audio, final asset provenance checks, uptime/soak, and release readiness remain unverified or open. The ledger deliberately does not claim a quality-bar win or production readiness.
+
+**Scope:** development-only host bound to loopback by default. Additional authentication, deployment, multi-operator sessions and remote public viewer infrastructure are not included in this feature.
