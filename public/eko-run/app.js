@@ -306,6 +306,31 @@ weather.visible=false;
 // Iteration 4: Original articulation-first Tayo character; gameplay hitbox remains authoritative.
 const actor=createTayoActor(THREE);
 hero.add(actor.root);
+function projectedVisibility(){
+  scene.updateMatrixWorld(true);
+  camera.updateMatrixWorld(true);
+  const feet=new THREE.Vector3(0,0,0).applyMatrix4(hero.matrixWorld).project(camera);
+  const head=new THREE.Vector3(0,2.66,0).applyMatrix4(hero.matrixWorld).project(camera);
+  const heightPx=Math.abs(feet.y-head.y)*renderer.domElement.clientHeight/2;
+  const centerPx=(head.x+feet.x)*renderer.domElement.clientWidth/4+renderer.domElement.clientWidth/2;
+  return {heightPx:Math.round(heightPx),centerXPx:Math.round(centerPx),
+    inFrame:Math.abs(head.x)<1&&Math.abs(head.y)<1&&Math.abs(feet.x)<1&&Math.abs(feet.y)<1};
+}
+// Diagnostic is limited to public render state; never exposes private authoritative simulation.
+window.__EKO_VISUAL_AUDIT__=()=>{
+  let actorMeshes=0, worldMeshes=0;
+  actor.root.traverse(node=>{if(node.isMesh)actorMeshes++;});
+  terrain.traverse(node=>{if(node.isMesh)worldMeshes++;});
+  return Object.freeze({
+    character:{type:'original-procedural-joint-rig',joints:actor.articulatedJoints,meshes:actorMeshes,
+      outfits:actor.availableOutfits,outfit:worldState.outfit,...projectedVisibility()},
+    environment:{district:worldState.district,meshes:worldMeshes},
+    performance:{drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,
+      pixelRatio:renderer.getPixelRatio(),frameRateReported:ui.fps.textContent,
+      renderer:renderer.capabilities.isWebGL2?'WebGL2':'WebGL'},
+    simulation:{publicTick:latest?.snapshot.tick??null,lifecycle:latest?.snapshot.lifecycle??null}
+  });
+};
 function outfitUpdate(outfit){
   actor.setOutfit(outfit);
   worldState.outfit=outfit;
