@@ -68,3 +68,24 @@ test('colour-direction varies by dungeon biome and uses real-world broadcast fra
  expect(state.label).toBeTruthy();expect(state.atmo?.landmarks).toBeGreaterThan(0);
  expect(state.atmo?.particles).toBe(48);
 });
+
+test('actual desktop capture contains varied visible colour instead of near-black low-contrast output',async({page})=>{
+ await page.goto('/dungeon');
+ await expect.poll(async()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.triangles??0),{timeout:20000}).toBeGreaterThan(100);
+ const screenshot=await page.screenshot({path:'artifacts/dungeon-colour-audit.png',fullPage:true});
+ const audit=await page.evaluate(async base64=>{
+  const img=new Image();img.src='data:image/png;base64,'+base64;await img.decode();
+  const c=document.createElement('canvas');c.width=320;c.height=200;
+  const ctx=c.getContext('2d',{willReadFrequently:true});ctx.drawImage(img,0,0,320,200);
+  const d=ctx.getImageData(0,0,320,200).data;
+  let lit=0,saturated=0,warm=0,cool=0,luminance=0;
+  for(let i=0;i<d.length;i+=4){const r=d[i],g=d[i+1],b=d[i+2],max=Math.max(r,g,b),min=Math.min(r,g,b),chroma=max-min,L=.2126*r+.7152*g+.0722*b;
+   luminance+=L;if(L>27)lit++;if(L>27&&chroma>21)saturated++;if(r>g*1.1&&r>b*1.14&&L>36)warm++;if(b>r*1.09||g>r*1.09)cool++;
+  }
+  const n=d.length/4;return {litFraction:lit/n,colouredFraction:saturated/n,warmFraction:warm/n,coolFraction:cool/n,meanLuminance:luminance/n,sampledPixels:n};
+ },screenshot.toString('base64'));
+ fs.writeFileSync('artifacts/dungeon-visual-metrics.json',JSON.stringify({schemaVersion:1,reference:'None – own-image colour audit only',at:new Date().toISOString(),...audit},null,2));
+ expect(audit.litFraction).toBeGreaterThan(.18);
+ expect(audit.colouredFraction).toBeGreaterThan(.05);
+ expect(audit.meanLuminance).toBeGreaterThan(18);
+});

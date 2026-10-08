@@ -12,6 +12,9 @@ on:
       - "tsconfig.json"
       - ".github/workflows/ai-dungeon-gauntlet.yml"
   workflow_dispatch:
+concurrency:
+  group: ai-dungeon-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 jobs:
   authority:
     runs-on: ubuntu-latest
@@ -47,5 +50,6 @@ jobs:
           name: dungeon-browser-captures
           path: |
             artifacts/dungeon-*.png
+            artifacts/dungeon-visual-metrics.json
             test-results/**
           if-no-files-found: warn
