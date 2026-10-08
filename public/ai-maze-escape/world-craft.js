@@ -15,6 +15,9 @@ export function makeWorldCraft(THREE) {
     shard:new THREE.TetrahedronGeometry(1,0),
     orb:new THREE.OctahedronGeometry(1,0),
     flag:new THREE.PlaneGeometry(1,1),
+    blossom:new THREE.DodecahedronGeometry(1,0),
+    water:new THREE.CylinderGeometry(1,1,.055,20),
+    arch:new THREE.TorusGeometry(.77,.13,8,22,Math.PI),
   };
   const m={
     weatheredRock:new THREE.MeshStandardMaterial({color:0x889992,roughness:1,flatShading:true}),
@@ -35,6 +38,15 @@ export function makeWorldCraft(THREE) {
     shallowWater:new THREE.MeshStandardMaterial({color:0x28889f,emissive:0x136a85,emissiveIntensity:.25,metalness:.48,roughness:.21,transparent:true,opacity:.85}),
     lightRay:new THREE.MeshBasicMaterial({color:0x8affd8,transparent:true,opacity:.095,side:THREE.DoubleSide,depthWrite:false,blending:THREE.AdditiveBlending}),
     hangingCloth:new THREE.MeshStandardMaterial({color:0xdb7058,roughness:.91,side:THREE.DoubleSide}),
+    canopyShade:new THREE.MeshStandardMaterial({color:0x166f61,roughness:1,flatShading:true}),
+    canopyLight:new THREE.MeshStandardMaterial({color:0x3ccf95,roughness:1,flatShading:true}),
+    lanternGlass:new THREE.MeshStandardMaterial({color:0x8dffff,emissive:0x39d3de,emissiveIntensity:1.3,transparent:true,opacity:.9,metalness:.08}),
+    carvedRuin:new THREE.MeshStandardMaterial({color:0xe0c4a0,roughness:.79,metalness:.04,flatShading:true}),
+    darkMarble:new THREE.MeshStandardMaterial({color:0x48507c,metalness:.35,roughness:.43}),
+    royalViolet:new THREE.MeshStandardMaterial({color:0x856df0,emissive:0x4730bd,emissiveIntensity:.75,roughness:.35}),
+    bloodBronze:new THREE.MeshStandardMaterial({color:0x9b5260,metalness:.48,roughness:.45}),
+    paleGrass:new THREE.MeshStandardMaterial({color:0xb3df8d,roughness:1,side:THREE.DoubleSide}),
+    foam:new THREE.MeshBasicMaterial({color:0x8aefff,transparent:true,opacity:.72,side:THREE.DoubleSide}),
   };
   let theme='loops';
   const palettes={
@@ -56,6 +68,8 @@ export function makeWorldCraft(THREE) {
     m.goldInlay.color.setHex(pal.gold);
     m.sigil.color.setHex(pal.ray);
     m.lightRay.color.setHex(pal.ray);
+    m.canopyShade.color.setHex(theme==='hunter'?0x6a284c:theme==='layers'?0x4649a3:theme==='chambers'?0x9b684b:0x166e61);
+    m.canopyLight.color.setHex(theme==='hunter'?0xe35673:theme==='layers'?0x6488ee:theme==='chambers'?0xf4aa69:0x39d69b);
     return theme;
   }
   function populate({world,snapshot,cells,queue,put,point,grid,glow}){
@@ -64,6 +78,8 @@ export function makeWorldCraft(THREE) {
     let beacons=0;
     let glyphs=0;
     let fragments=0;
+    let monumentalProps=0;
+    let ambientFlares=0;
     // Each prop is deterministic for a public cell index. Props sit on the cell edges:
     // never on the central traversal lane, and never reveal unknown topology.
     const publicKnown=new Set(cells.map(x=>x.cell));
@@ -114,6 +130,66 @@ export function makeWorldCraft(THREE) {
         }
         glyphs++;
       }
+      // World diversity: five physically different architectural/flora grammars.
+      // Everything occupies the CORNER of a KNOWN traversable cell, never its route centre.
+      const variation=noise(col,row,103);
+      if(variation>.36&&monumentalProps<34){
+        const side=noise(col,row,61)<.5?-1:1;
+        const corner=noise(col,row,63)<.5?-1:1;
+        const x=pos.x+side*.94,z=pos.z+corner*.92;
+        if(theme==='tree'||theme==='loops'){
+          // Multi-tiered luminous canopy and root system; distant silhouette ≠ plain box.
+          const height=1.35+noise(col,row,52)*.68;
+          queue(g.trunk,m.bark,[x,height*.46,z],[.90,height*.95,.88]);
+          queue(g.rock,m.canopyShade,[x,height+.42,z],[.75,.56,.66]);
+          queue(g.rock,m.canopyLight,[x+.31,height+.66,z-.16],[.52,.37,.47]);
+          queue(g.rock,m.canopyShade,[x-.27,height+.62,z+.26],[.47,.39,.49]);
+          for(let q=0;q<4;q++){
+            const ang=q*Math.PI*.5+noise(col,row,78);
+            queue(g.spire,m[p.leaf],[x+Math.cos(ang)*.48,.34,z+Math.sin(ang)*.48],[.08,.7,.09]);
+          }
+          if(variation>.84 && ambientFlares<10){
+            glow(world,[x,height+.68,z],2.25,p.ray);
+            ambientFlares++;
+          }
+        }else if(theme==='chambers'){
+          // Gold-capped collapsed sandstone sanctuaries with reflective water basins.
+          const height=.9+noise(col,row,58)*.7;
+          queue(g.prism,m.carvedRuin,[x,height*.48,z],[.41,height,.41]);
+          queue(g.slab,m.goldInlay,[x,height+.05,z],[.74,.11,.74]);
+          if(variation>.67){
+            queue(g.water,m.shallowWater,[x,.05,z],[.54,1,.54]);
+            queue(g.ring,m.foam,[x,.09,z],[.58,.58,.58]);
+          }
+          queue(g.rock,m.sandstone,[x+.42,.14,z-.22],[.31,.24,.38]);
+        }else if(theme==='layers'){
+          // Arcane crystal forests, not recycled brick-and-plants across every biome.
+          queue(g.prism,m.darkMarble,[x,.26,z],[.55,.48,.51]);
+          for(let n=0;n<5;n++){
+            const a=n*Math.PI*2/5+variation,dist=(n%2?.28:.12);
+            const h=.74+noise(n+col,row,74)*1.1;
+            queue(g.spire,n%2?m.royalViolet:m[p.crystal],
+              [x+Math.cos(a)*dist,h*.46,z+Math.sin(a)*dist],
+              [.15+n*.017,h,.13+n*.016]);
+          }
+          if(ambientFlares<10){
+            glow(world,[x,1.2,z],2.15,p.ray);
+            ambientFlares++;
+          }
+        }else if(theme==='hunter'){
+          // Blood-bronze obelisks, ceremonial torches and sinister spire ruin.
+          const height=1.2+noise(col,row,45)*.7;
+          queue(g.prism,m.bloodBronze,[x,height*.48,z],[.34,height,.36]);
+          queue(g.slab,m.goldInlay,[x,height,z],[.5,.11,.52]);
+          queue(g.spire,m.redCrystal,[x,height+.42,z],[.22,.85,.2]);
+          queue(g.pebble,m.weatheredRock,[x-.38,.13,z+.34],[.42,.17,.31]);
+          if(ambientFlares<10){
+            glow(world,[x,height+.35,z],1.85,p.ray);
+            ambientFlares++;
+          }
+        }
+        monumentalProps++;
+      }
       if(marker>.92&&beacons<6){
         // Six-sided ancient waystones with an independent low-intensity glow.
         const sx=pos.x+(noise(col,row,12)<.5?-.83:.83);
@@ -140,11 +216,11 @@ export function makeWorldCraft(THREE) {
         {x:0,z:1,id:cell.cell+snapshot.width,inside:row<snapshot.height-1},
       ];
       for(const side of candidate){
-        // Do not build false maze walls or pretend to know unknown cells.
-        if(side.inside||publicKnown.has(side.id))continue;
+        // Edge dressing references only the current observation footprint; never tests hidden links.
+        if(publicKnown.has(side.id))continue;
         if(noise(col+side.x,row+side.z,41)<.58)continue;
         if(fragments>40)break;
-        const x=pos.x+side.x*(grid*.95),z=pos.z+side.z*(grid*.95);
+        const x=pos.x+side.x*(grid*.45),z=pos.z+side.z*(grid*.45);
         const size=.4+noise(col,row,31)*.45;
         queue(g.rock,m.weatheredRock,[x,-.30,z],[size,.3,size]);
         for(let n=0;n<2;n++){
@@ -154,7 +230,7 @@ export function makeWorldCraft(THREE) {
         fragments++;
       }
     }
-    world.userData.artStats={clusters,beacons,glyphs,fragments,biome:theme};
+    world.userData.artStats={clusters,beacons,glyphs,fragments,monumentalProps,ambientFlares,biome:theme};
   }
   function addHeroSurroundings({scene,hero,put,glow}){
     // Exterior lantern flares respond to the explorer's real position in scene3d;
