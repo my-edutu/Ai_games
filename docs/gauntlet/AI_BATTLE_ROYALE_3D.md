@@ -160,3 +160,14 @@ No environment dressing, cosmetic shadow, UI display or audio function can chang
 ## Gauntlet loop 33 — live 3D identity and diagnostics
 
 The 3D renderer now optionally projects up to six public surviving fighters into small archetype-coded DOM labels that move with the camera and do not disclose hidden simulation information. The focus target gets a highlighted identifier; labels are hidden on small screens, low-quality mode and clean OBS feeds, and cannot change targeting or gameplay. WebGL initialization/render failure messages are available as `BattleArena3D.status.lastError` for QA and safe 2D fallback debugging. No claim of authoritative camera/simulation edits or AAA character-label polish.
+
+## Gauntlet loops 34–36 — cinematic world-first broadcast
+
+- **34 — Atmospheric skylight**: an alpha-composited WebGL2 framebuffer reveals distinct original arctic daylight, neon dusk and ember sunset gradients behind the actual 3D terrain. The second close-up camera still clears to a solid dark background, preserving the action crop; the 2D fallback still paints its own scene. Browser tests check the transparent scene canvas and screenshot output; **GPU compilation remains unverified until real CI runs**.
+- **35 — Full-bleed theatre layout**: converted the broadcast's default arrangement from side-constrained three-column panes to a large world-first stage, with semi-transparent frosted esports data panels floating left and right, a lower caption ticker, studio on-air indicators and safe viewports for cinematic spectator coverage. The former three-column arrangement remains available at `/battle?layout=panels`. OBS clean feed remains unencumbered at `?cleanFeed=1`.
+- **36 — Semantic event stingers**: vivid, short-lived elimination and shield-broken cards are triggered exclusively by genuine sanitized public combat events. Events are de-duplicated by sequence, reset per match, and hidden after a bounded delay. Rendering never awards an elimination or injects HTML.
+
+### Critic's current gate
+The original screenshot showed a dark, blocky tactical miniature. We have now radically changed scene framing, environment topography, landmark readability, character identity overlays, dramatic event UI and biome sky. **These are implemented coding changes; neither a real screenshot of the newest full-bleed build nor an unbiased Fortnite reference review has yet established that the subjective appearance improved enough.** The exact-head GitHub browser runs are queued. Do not merge until screenshots, gameplay correctness, mobile/OBS and performance have passed.
+
+Further work must move beyond primitives into original professionally authored geometry, textures, proper skinned skeletal animation, shadow maps, authored effect libraries and high-quality lighting/reflections.
