@@ -122,6 +122,7 @@ const FILES = new Map([
   ['/eko/', ['public/eko-run/index.html', 'text/html; charset=utf-8']],
   ['/eko/app.js', ['public/eko-run/app.js', 'text/javascript; charset=utf-8']],
   ['/eko/progress', ['public/eko-run/progress.html', 'text/html; charset=utf-8']],
+  ['/eko/progress.js', ['public/eko-run/progress.js', 'text/javascript; charset=utf-8']],
   ['/eko/gauntlet.json', ['public/eko-run/gauntlet.json', 'application/json; charset=utf-8']],
   ['/vendor/three.module.js', ['node_modules/three/build/three.module.js', 'text/javascript; charset=utf-8']],
 ]);
@@ -143,7 +144,11 @@ const server = http.createServer(async (req, res) => {
   if (req.method === 'POST' && url.pathname === '/eko/control') {
     const origin = req.headers.origin;
     const host = req.headers.host;
-    if (origin && (!host || new URL(origin).host !== host)) return send(res, 403, 'application/json', '{"error":"ORIGIN_DENIED"}');
+    if (origin) {
+      let permitted = false;
+      try { const parsed = new URL(origin); permitted = parsed.protocol === 'http:' && !!host && parsed.host === host; } catch {}
+      if (!permitted) return send(res, 403, 'application/json', '{"error":"ORIGIN_DENIED"}');
+    }
     try {
       const body = await readBody(req);
       if (typeof body !== 'object' || !body || Array.isArray(body)) throw new Error('INVALID_CONTROL');
