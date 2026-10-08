@@ -510,8 +510,10 @@ function renderEventChronicle(){
   const fragment=document.createDocumentFragment();
   if(events.length===0){
     const row=document.createElement('div');
-    row.className='eventItem';row.textContent='● WAITING FOR FIRST CONTACT';
-    fragment.append(row);
+    row.className='eventItem waiting';
+    const label=document.createElement('span');label.className='eventText';
+    label.textContent='● WAITING FOR FIRST CONTACT';
+    row.append(label);fragment.append(row);
   }
   for(const e of events){
     const row=document.createElement('div');
@@ -525,31 +527,36 @@ function renderEventChronicle(){
   }
   el.replaceChildren(fragment);
 }
+// Stable keyed DOM: never destroy clickable survivor cards during Playwright or live user interaction.
+const rosterCache=new Map();
+squadCards.addEventListener('click',event=>{
+  const card=event.target.closest('button[data-survivor-id]');
+  if(!card||card.disabled)return;
+  const index=game.survivors.findIndex(member=>member.id===card.dataset.survivorId);
+  if(index<0||!game.survivors[index].alive)return;
+  heroIndex=index;cameraMode='hero';squadPanel.hidden=true;
+  document.getElementById('rosterToggle').setAttribute('aria-expanded','false');
+});
 function renderSquad(){
   if(squadPanel.hidden)return;
-  const fragment=document.createDocumentFragment();
-  for(const [index,member] of game.survivors.entries()){
-    const card=document.createElement('button');
-    card.type='button';card.className='squad-person'+(member.alive?'':' is-down');
-    card.disabled=!member.alive;
-    const top=document.createElement('span');top.className='squad-top';
-    const name=document.createElement('strong');name.textContent=member.name;
-    const role=document.createElement('small');role.textContent=member.role.toUpperCase();
-    top.append(name,role);card.append(top);
-    const intent=document.createElement('span');intent.className='squad-intent';
-    intent.textContent=member.alive?member.intent:'Fallen in the outbreak';
-    card.append(intent);
-    const hp=document.createElement('span');hp.className='squad-health';
-    const fill=document.createElement('i');fill.style.width=Math.max(0,Math.min(100,member.health))+'%';
-    hp.append(fill);card.append(hp);
-    const meta=document.createElement('span');meta.className='squad-meta';
-    meta.textContent='HP '+Math.round(member.health)+' · INFECTION '+Math.round(member.infection)+'% · KILLS '+member.kills;
-    card.append(meta);
+  const liveIds=new Set(game.survivors.map(member=>member.id));
+  for(const [key,old] of rosterCache)if(!liveIds.has(key)){old.remove();rosterCache.delete(key);}
+  for(const member of game.survivors){
+    let card=rosterCache.get(member.id);
+    if(!card){
+      card=document.createElement('button');
+      card.type='button';card.className='squad-person';card.dataset.survivorId=member.id;
+      card.innerHTML='<span class="squad-top"><strong></strong><small></small></span><span class="squad-intent"></span><span class="squad-health"><i></i></span><span class="squad-meta"></span>';
+      rosterCache.set(member.id,card);squadCards.append(card);
+    }
+    card.classList.toggle('is-down',!member.alive);card.disabled=!member.alive;
+    card.querySelector('strong').textContent=member.name;
+    card.querySelector('small').textContent=member.role.toUpperCase();
+    card.querySelector('.squad-intent').textContent=member.alive?member.intent:'Fallen in the outbreak';
+    card.querySelector('.squad-health i').style.width=Math.max(0,Math.min(100,member.health))+'%';
+    card.querySelector('.squad-meta').textContent='HP '+Math.round(member.health)+' · INFECTION '+Math.round(member.infection)+'% · KILLS '+member.kills;
     card.setAttribute('aria-label','Follow '+member.name+', '+member.role+', health '+Math.round(member.health));
-    card.addEventListener('click',()=>{heroIndex=index;cameraMode='hero';squadPanel.hidden=true;document.getElementById('rosterToggle').setAttribute('aria-expanded','false');});
-    fragment.append(card);
   }
-  squadCards.replaceChildren(fragment);
 }
 function toggleCinema(){
   cinematic=!cinematic;
