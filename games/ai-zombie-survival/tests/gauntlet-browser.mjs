@@ -50,6 +50,12 @@ try{
   const after=await page.evaluate(()=>JSON.parse(localStorage.getItem('zombie-gauntlet-live')||'{}').tick||0);
   assert.ok(after>before,'authoritative simulation must continue while rendered');
   report.checks.autonomousSimulation=true;
+  // A browser refresh must restore RNG, tick and actual authority, never restart at day one.
+  await page.reload({waitUntil:'load'});
+  await page.waitForFunction(()=>document.querySelector('#fps')?.textContent?.includes('CPU P95'),{timeout:12000});
+  const recovered=await page.evaluate(()=>JSON.parse(localStorage.getItem('zombie-gauntlet-live')||'{}').tick||0);
+  assert.ok(recovered>=after,'restored authoritative tick must not move backward after browser reload');
+  report.checks.recoveredSimulation=true;
   await page.keyboard.press('h');
   assert.equal(await page.locator('#hud').isHidden(),true);
   await page.keyboard.press('h');
