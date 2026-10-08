@@ -111,6 +111,7 @@
   }
   // The existing 2D renderer must not write to the same canvas after WebGL takes ownership.
   window.__TOWER_3D_ACTIVE__ = true;
+  original.style.visibility = 'hidden';
   window.__TOWER_3D_RENDER__ = s => {
     if (!s || s.publicChecksum === previousChecksum) return;
     previousChecksum = s.publicChecksum; lastState = s; rebuild(s);
