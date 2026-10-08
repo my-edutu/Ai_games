@@ -8,7 +8,8 @@ on:
 
 concurrency:
   group: zombie-3d-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: true
+  # Keep one active actual screenshot run alive across rapid art commits; supersede pending commits.
+  cancel-in-progress: false
 
 jobs:
   visual-smoke:
