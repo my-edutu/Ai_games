@@ -636,6 +636,8 @@ function render(now) {
   }
   if(explorer.userData.head)
     explorer.userData.head.rotation.y=reducedMotion?0:Math.sin(now*.0019)*(spotted?.19:.32);
+  if(explorer.userData.riggedAnimation)
+    explorer.userData.riggedAnimation(now,moving,spotted,reducedMotion);
   // Publicly discovered cathedral junctions have gently rotating arcane fixtures.
   for(const accent of world.userData.artAnimators||[]){
     if(reducedMotion)continue;
@@ -743,6 +745,8 @@ function render(now) {
       triangles:renderer.info.render.triangles,
       geometryObjects:world.children.length,
       explorerMeshes:explorer.userData.meshCount||0,
+      riggedCharacter:window.__MAZE_3D_MODEL__?.status||'procedural',
+      rigBones:window.__MAZE_3D_MODEL__?.bones||0,
       observedHunterCount:threats.length,
       atmosphereParticles:320,
       artDetails:world.userData.artStats||null,
@@ -754,6 +758,26 @@ function render(now) {
       pixelRatio:renderBudget.ratio,
       webgl2:renderer.capabilities.isWebGL2
     };
+  }
+}
+async function loadRiggedHero(){
+  try {
+    // Dynamic import means any add-on or asset failure cannot break the base 3D game.
+    const {attachRiggedWayfinder}=await import('/maze/rigged-assets.js');
+    if(!active||!explorer)return;
+    await attachRiggedWayfinder(THREE,explorer,{
+      keepMaterials:[
+        characterArt.materials.royalTrim,characterArt.materials.leather,
+        characterArt.materials.chest,characterArt.materials.turquoise
+      ],
+      onReady:()=>{
+        let meshes=0;
+        explorer.traverseVisible(item=>{if(item.isMesh)meshes++});
+        explorer.userData.meshCount=meshes;
+      }
+    });
+  } catch{
+    window.__MAZE_3D_MODEL__={status:'fallback',source:'Quaternius CC0'};
   }
 }
 function init() {
@@ -887,6 +911,7 @@ function init() {
   ready=true;
   active=true;
   window.__MAZE_3D_READY__=true;
+  void loadRiggedHero();
   requestAnimationFrame(render);
 }
 init();
