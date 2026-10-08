@@ -156,7 +156,14 @@ export function applyTournamentRules(state: MarbleState, contacts: PhysicsContac
     });
   }
 
-  for (const contact of contacts) events.push({ tick: next.tick, type: 'physics-contact', data: { kind: contact.kind, marbleId: contact.marbleId, otherMarbleId: contact.otherMarbleId, colliderId: contact.colliderId, impulse: contact.impulse } });
+  for (const contact of contacts) {
+    events.push({ tick: next.tick, type: 'physics-contact', data: { kind: contact.kind, marbleId: contact.marbleId, otherMarbleId: contact.otherMarbleId, colliderId: contact.colliderId, impulse: contact.impulse } });
+    if (contact.kind === 'bumper' && (contact.launchSpeed ?? 0) > 0) {
+      // A visual celebration is emitted *after* the physics-authoritative launch.
+      // No camera, UI or external vote can create this event.
+      events.push({ tick: next.tick, type: 'marble-launched', data: { marbleId: contact.marbleId, colliderId: contact.colliderId, launchSpeed: contact.launchSpeed } });
+    }
+  }
   if (next.qualifiedIds.length >= next.currentQuota) {
     const resolved = resolveRound(next, 'quota');
     return { state: resolved.state, events: [...events, ...resolved.events] };
