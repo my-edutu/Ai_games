@@ -732,3 +732,23 @@ test('Gauntlet 030 river Fresnel, animated ripples and modeled banks preserve ci
   if(changed.glError!==null)expect(changed.glError).toBe(0);
   expect(faults).toEqual([]);
 });
+
+test('Gauntlet 031 animated citizen geometry remains aligned and bounded', async ({page}) => {
+  const faults=[];page.on('pageerror',e=>faults.push(e.message));
+  await page.setContent(html);
+  await page.waitForFunction(()=>Boolean(window.__tinyKingdom));
+  await page.locator('#pause').click();
+  await page.waitForTimeout(250);
+  const audit=await page.evaluate(()=>window.__tinyKingdom.getGeometryAudit());
+  for(const mesh of [audit.static,audit.dynamic]){
+    expect(mesh.aligned).toBe(true);
+    expect(Number.isInteger(mesh.triangles)).toBe(true);
+    expect(mesh.invalidComponents).toBe(0);
+    expect(mesh.invalidNormals).toBe(0);
+    expect(mesh.invalidColors).toBe(0);
+    expect(mesh.outOfBounds).toBe(0);
+  }
+  expect(audit.dynamic.triangles).toBeGreaterThan(100);
+  expect(audit.totalTriangles).toBe(audit.static.triangles+audit.dynamic.triangles);
+  expect(faults).toEqual([]);
+});
