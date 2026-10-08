@@ -30,3 +30,14 @@ test('every linked tower stylesheet is routed and present',()=>{
     assert.ok(server.includes("'/tower/"+name+"':'"+name+"'"),name+' missing route');
   }
 });
+
+test('renderer has one effects import and wires authored geology into backdrop',()=>{
+  const source=fs.readFileSync(path.join(publicRoot,'scene3d.js'),'utf8');
+  const imports=[...source.matchAll(/import\s*\{\s*createTowerEffectsDirector\s*\}\s*from\s*['"]\/tower\/effects-v6\.js['"]/g)];
+  assert.equal(imports.length,1,'duplicate named import breaks ES module parsing');
+  assert.match(source,/import\s*\{\s*buildTowerGeology\s*\}\s*from\s*['"]\/tower\/geology-v9\.js['"]/);
+  assert.match(source,/buildTowerGeology\(\{group:backdrop,snapshot:s,quality\}\)/);
+  const geology=fs.readFileSync(path.join(publicRoot,'geology-v9.js'),'utf8');
+  assert.match(geology,/export function buildTowerGeology\(/);
+  assert.match(geology,/new THREE\.InstancedMesh\(/);
+});
