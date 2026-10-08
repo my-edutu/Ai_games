@@ -116,6 +116,8 @@ for(const biome of BIOMES){
     assert.ok(Number(shell.dataset.deckTileCount)>1);
     assert.equal(shell.dataset.ledRound,String(BIOMES.indexOf(biome)+1));
     assert.equal(shell.dataset.stadiumStyle,biome);
+    assert.ok(Number(shell.dataset.propContactShadows)>0,
+      'industrial machinery must be physically grounded with 3D soft shadows');
     assert.ok(Number(shell.dataset.stadiumModules)>=120,'arena must have genuinely detailed geometry');
     assert.equal(shell.dataset.spotlightVolumes,'6');
     assert.equal(shell.dataset.crowdCount,'320');
