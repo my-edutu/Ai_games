@@ -7,6 +7,39 @@ export function createTowerEnvironment(THREE,scene) {
   const edgeStone=new THREE.MeshStandardMaterial({color:0x80939a,metalness:0.38,roughness:0.66});
   const bronze=new THREE.MeshStandardMaterial({color:0x9f7850,metalness:0.82,roughness:0.31});
   const glow=new THREE.MeshStandardMaterial({color:0xf7cf98,emissive:0xe5a559,emissiveIntensity:1.3,metalness:0.45,roughness:0.4});
+  // Procedural cracked limestone albedo: texture is deterministic and bundled in source.
+  function masonryTexture(){
+    const canvas=document.createElement('canvas');canvas.width=512;canvas.height=512;
+    const ctx=canvas.getContext('2d');
+    let seed=20261008;const rand=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296;};
+    ctx.fillStyle='#e8e6db';ctx.fillRect(0,0,512,512);
+    const rowH=64;
+    for(let row=0;row<8;row++){
+      const offset=(row%2)*38;
+      for(let col=-1;col<9;col++){
+        const x=col*76-offset, y=row*rowH,shade=Math.floor(188+rand()*55);
+        ctx.fillStyle='rgb('+shade+','+Math.min(255,shade+1)+','+Math.min(255,shade+4)+')';
+        ctx.fillRect(x+2,y+2,72,60);
+        ctx.strokeStyle='rgba(53,46,40,.3)';ctx.lineWidth=2;ctx.strokeRect(x+2,y+2,72,60);
+        for(let n=0;n<16;n++){
+          const xx=x+rand()*73,yy=y+rand()*60;
+          ctx.fillStyle=rand()>.5?'rgba(20,25,29,.06)':'rgba(255,250,230,.13)';
+          ctx.fillRect(xx,yy,2+rand()*9,1+rand()*5);
+        }
+      }
+    }
+    ctx.lineWidth=1.3;ctx.strokeStyle='rgba(45,40,44,.24)';
+    for(let i=0;i<24;i++){
+      const x=rand()*512,y=rand()*512;
+      ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+rand()*27-13,y+rand()*18);ctx.lineTo(x+rand()*35-17,y+rand()*33);ctx.stroke();
+    }
+    const texture=new THREE.CanvasTexture(canvas);
+    texture.wrapS=THREE.RepeatWrapping;texture.wrapT=THREE.RepeatWrapping;
+    texture.colorSpace=THREE.SRGBColorSpace;
+    texture.anisotropy=4;
+    return texture;
+  }
+  const stoneDetail=masonryTexture();sandstone.map=stoneDetail;shadowStone.map=stoneDetail;edgeStone.map=stoneDetail;
   const materials=[sandstone,shadowStone,edgeStone,bronze,glow];
   const boxGeo=new THREE.BoxGeometry(1,1,1);
   const geoCache=new Map();
