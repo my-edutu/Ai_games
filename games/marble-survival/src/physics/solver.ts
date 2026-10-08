@@ -256,13 +256,14 @@ function resolveBumper(marble: MarbleCompetitor, bumper: ArenaBumper, marbleRadi
   marble.position.y += divideRound(normal.y * penetration, FIXED_SCALE);
   const reflected = reflect(marble.velocity, normal, bumper.restitutionPermille);
   marble.velocity = reflected.velocity;
-  if (reflected.impulse > 0 && marble.grounded && (bumper.launchSpeed ?? 0) > 0) {
+  const launched = reflected.impulse > 0 && marble.grounded && (bumper.launchSpeed ?? 0) > 0;
+  if (launched) {
     // Physical launch only after an approaching, authoritative contact; not
     // from an arbitrary renderer animation or spectator event.
     marble.verticalVelocity = Math.min(stateMaxVerticalSpeed, bumper.launchSpeed ?? 0);
     marble.grounded = false;
   }
-  return { key: `bumper:${bumper.id}:${marble.id}`, kind: 'bumper', marbleId: marble.id, colliderId: bumper.id, impulse: reflected.impulse };
+  return { key: `bumper:${bumper.id}:${marble.id}`, kind: 'bumper', marbleId: marble.id, colliderId: bumper.id, impulse: reflected.impulse, launchSpeed: launched ? marble.verticalVelocity : undefined };
 }
 
 function resolveMarblePair(first: MarbleCompetitor, second: MarbleCompetitor, state: MarbleState): PhysicsContact | null {
