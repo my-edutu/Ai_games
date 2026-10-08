@@ -26,3 +26,28 @@ test('mobile viewport retains usable 3D scene',async({page})=>{
  await expect.poll(async()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.activeUnits??0),{timeout:15000}).toBeGreaterThan(0);
  await page.screenshot({path:'artifacts/dungeon-mobile.png',fullPage:true});
 });
+
+test('redesigned command centre exposes vivid UI, tactical radar and independent scene dressing',async({page,request})=>{
+ const shader=await request.get('/dungeon/environment.js');expect(shader.ok()).toBe(true);
+ await page.goto('/dungeon',{waitUntil:'domcontentloaded'});
+ await expect(page.locator('[data-visual-revision="4"]')).toBeVisible();
+ await expect(page.getByTestId('dungeon-minimap')).toBeVisible();
+ await expect(page.locator('#audio-toggle')).toHaveAttribute('aria-pressed','false');
+ await expect(page.locator('#party-count')).toContainText('3');
+ await expect(page.locator('#theme')).not.toBeEmpty();
+ await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.dressing?.decorInstances??0),{timeout:15000}).toBeGreaterThan(80);
+ const colors=await page.locator('.gauntlet-link').evaluate(el=>({bg:getComputedStyle(el).backgroundImage,color:getComputedStyle(el).color}));
+ expect(colors.bg).toContain('linear-gradient');
+ expect(colors.color).not.toBe('rgb(0, 0, 0)');
+ await page.locator('#audio-toggle').click();
+ await expect(page.locator('#audio-toggle')).toHaveAttribute('aria-pressed','true');
+ await page.locator('#audio-toggle').click();
+ await expect(page.locator('#audio-toggle')).toHaveAttribute('aria-pressed','false');
+});
+test('compact mobile viewport preserves full controls and semantic minimap',async({page})=>{
+ await page.setViewportSize({width:360,height:740});await page.goto('/dungeon');
+ await expect(page.getByTestId('dungeon-minimap')).toBeVisible();
+ await expect.poll(async()=>page.evaluate(()=>window.__DUNGEON_PUBLIC_STATE__?.tick??0),{timeout:15000}).toBeGreaterThan(3);
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
+ await page.screenshot({path:'artifacts/dungeon-mobile-compact.png',fullPage:true});
+});
