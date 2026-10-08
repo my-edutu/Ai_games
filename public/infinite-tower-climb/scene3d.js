@@ -4,6 +4,7 @@
  */
 import * as THREE from '/tower/three.module.js';
 import {createTowerCharacter,poseTowerCharacter} from '/tower/character3d.js';
+import {decorateTowerEnvironment} from '/tower/environment3d.js';
 
 const SCALE = 1 / 1000;
 const palettes = {
@@ -76,7 +77,7 @@ export function mountTower3D({host,getFrame,reducedMotion=false}){
       add(backdrop,box(worldWidth+80,8,15,stone),worldWidth/2,y-6,-71);
       for(let x=26;x<worldWidth;x+=96){
         const aperture=new THREE.Mesh(new THREE.TorusGeometry(12,2.5,8,20,Math.PI),trim);
-        aperture.rotation.z=Math.PI;add(backdrop,aperture,x,y+20,-51);
+        add(backdrop,aperture,x,y+20,-51);
         add(backdrop,box(20,31,.8,light),x,y+3,-76);
         add(backdrop,box(26,3,5,stone),x,y+3,-48);
       }
@@ -89,16 +90,20 @@ export function mountTower3D({host,getFrame,reducedMotion=false}){
         add(backdrop,box(4,3,35,trim),x,y+5,-42);
       }
     }
-    // Deterministic particles, decorative only, no RNG or authority coupling.
-    for(let i=0;i<88;i++){
-      const x=12+seeded(i+floor*113)*(worldWidth-24);
-      const y=coord(s.chunkBaseY)+seeded(i*3+floor*17)*coord(s.chunkHeight);
-      const dot=ball(.38+seeded(i*6)*.7,light,6);
-      dot.material=emissive(p.glow,.55);
-      dot.position.set(x,y,-29-seeded(i*11)*33);
-      dot.userData.floatPhase=i*1.61;
-      backdrop.add(dot);
+    // Hundreds of particles rendered as ONE draw call instead of one sphere per dust mote.
+    const motePositions=[];
+    for(let i=0;i<210;i++){
+      motePositions.push(12+seeded(i+floor*113)*(worldWidth-24));
+      motePositions.push(coord(s.chunkBaseY)+seeded(i*3+floor*17)*coord(s.chunkHeight));
+      motePositions.push(-12-seeded(i*11+floor)*80);
     }
+    const moteGeometry=new THREE.BufferGeometry();
+    moteGeometry.setAttribute('position',new THREE.Float32BufferAttribute(motePositions,3));
+    const motes=new THREE.Points(moteGeometry,new THREE.PointsMaterial({
+      color:p.glow,size:1.05,transparent:true,opacity:.62,sizeAttenuation:true,
+      depthWrite:false,blending:THREE.AdditiveBlending
+    }));
+    backdrop.add(motes);
     // Visual set dressing changes with the procedural level theme; it is not collision geometry.
     if(theme==='clockwork'){
       for(let i=0;i<5;i++){
@@ -135,6 +140,7 @@ export function mountTower3D({host,getFrame,reducedMotion=false}){
         add(backdrop,box(21,2.2,17,emissive(0xff8143,1.75)),vent.position.x,vent.position.y+3,-39);
       }
     }
+    decorateTowerEnvironment({group:backdrop,snapshot:s,theme,palette:p,worldWidth});
     // Actual snapshot geometry, not an invented obstacle course.
     for(const platform of s.platforms){
       const cx=coord(platform.x+platform.width/2),cy=coord(platform.y+platform.height/2),w=coord(platform.width);
@@ -262,7 +268,7 @@ export function mountTower3D({host,getFrame,reducedMotion=false}){
     }
     // Keep observed performance measurable for the independent critic.
     renderer.render(scene,camera);observedFrames++;
-    if(observedFrames%60===0){perf.frames=observedFrames;perf.drawCalls=renderer.info.render.calls;perf.triangles=renderer.info.render.triangles}
+    if(observedFrames%60===0){perf.frames=observedFrames;perf.drawCalls=renderer.info.render.calls;perf.triangles=renderer.info.render.triangles;perf.heroParts=(()=>{let count=0;player.traverse(o=>{if(o.isMesh)count++});return count})();perf.renderMode='webgl-3d';perf.state=s.player.state;}
   }
   const onLost=event=>{event.preventDefault();running=false;renderer.dispose();canvas.remove();document.body.dataset.towerRenderer='2d-fallback';window.__TOWER_3D_ACTIVE__=false};
   canvas.addEventListener('webglcontextlost',onLost,{once:true});
