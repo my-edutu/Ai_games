@@ -16,6 +16,8 @@ test('real 3-axis autonomous climber traverses over 80 floors with bounded state
   assert.ok(maxZ-minZ>8,'depth axis must be actively traversed');
   assert.ok(platformMax<=24,'streamed world geometry must stay bounded');
   assert.ok(result.player.deaths<4,'route planner should be able to land');
+  assert.ok(result.guardianKills>=10,'AI must autonomously win major 3D guardian battles');
+  assert.ok(result.score>1000,'completed battles, climbs and rewards must earn points');
 });
 test('3-axis navigation is deterministic for the same seed and fixed tick sequence',()=>{
   const a=create(719),b=create(719);
