@@ -77,5 +77,12 @@ $('critic-form')?.addEventListener('submit',async(event)=>{
     form.reset();await render();
   }catch(err){$('evidence-status').textContent=String(err)}
 });
+fetch('/tower/gauntlet-findings.json',{cache:'no-store'}).then(r=>r.json()).then(report=>{
+  const issue=report.baselineCriticFinding;
+  $('historical-gap').textContent=issue.biggestGap;
+  $('historical-fix').textContent='Attempted correction, NOT screenshot-verified: '+issue.specificFixAttempted;
+  $('historical-light').textContent=issue.meanLuminance+' / 255';
+  $('historical-dark').textContent=(issue.fractionBelow34*100).toFixed(1)+'%';
+}).catch(error=>console.warn('Quality report unavailable',error));
 render().catch(error=>{$('evidence-status').textContent='Evidence unavailable: '+error.message});
 setInterval(()=>{if(!document.hidden)void render().catch(()=>{})},12000);
