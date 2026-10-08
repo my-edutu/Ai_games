@@ -43,6 +43,28 @@ test('embedded GLTF buffer and mesh accessor sizes are valid, finite and bounded
    }
  }
 });
+test('original glTF has outward-facing indexed triangles rather than inside-out geometry',()=>{
+ const uri=asset.buffers[0].uri,binary=Buffer.from(uri.slice(uri.indexOf(',')+1),'base64');
+ const data=new DataView(binary.buffer,binary.byteOffset,binary.byteLength);
+ let outward=0,inward=0;
+ for(const mesh of asset.meshes){
+   const prim=mesh.primitives[0],p=asset.bufferViews[asset.accessors[prim.attributes.POSITION].bufferView],
+     n=asset.bufferViews[asset.accessors[prim.attributes.NORMAL].bufferView],
+     ids=asset.bufferViews[asset.accessors[prim.indices].bufferView],
+     count=asset.accessors[prim.indices].count;
+   for(let k=0;k<count;k+=3){
+     const idx=[0,1,2].map(j=>data.getUint16(ids.byteOffset+(k+j)*2,true));
+     const verts=idx.map(id=>[0,1,2].map(d=>data.getFloat32(p.byteOffset+(id*3+d)*4,true)));
+     const normal=[0,1,2].map(d=>data.getFloat32(n.byteOffset+(idx[0]*3+d)*4,true));
+     const a=verts[1].map((value,d)=>value-verts[0][d]),b=verts[2].map((value,d)=>value-verts[0][d]);
+     const cross=[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]];
+     const direction=cross.reduce((sum,v,d)=>sum+v*normal[d],0);
+     if(direction>1e-7)outward++;else if(direction< -1e-7)inward++;
+   }
+ }
+ assert.equal(inward,0,'climber mesh winding is inverted: external faces may disappear');
+ assert.ok(outward>=2000,'model should have substantive outward geometry');
+});
 test('cinematic sky changes light shafts, background hues and star density across biomes',()=>{
  const src=fs.readFileSync(path.join(base,'sky3d.js'),'utf8').replace('export function','function');
  const make=new Function(src+';return createTowerSky;')();
