@@ -102,6 +102,8 @@ export interface ArenaBumper {
   y: number;
   radius: number;
   restitutionPermille: number;
+  /** Optional deterministic vertical launch on an actual inbound bumper hit. */
+  launchSpeed?: number;
 }
 
 export interface ArenaHazard {
