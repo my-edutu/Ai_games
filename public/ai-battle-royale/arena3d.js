@@ -56,7 +56,7 @@
   const reducedMotion=params.get('reducedMotion')==='1'||matchMedia('(prefers-reduced-motion: reduce)').matches;
   const reducedFlash=params.get('reducedFlash')==='1';
   let previousSnapshot=null,startedAt=0,animationId=0,lastPaintTime=0;
-  const status={mode:forced2d?'forced-2d':'initializing',frames:0,triangles:0,contenders:0,p95SubmitMs:0,sceneBuilds:0,quality:quality};
+  const status={mode:forced2d?'forced-2d':'initializing',frames:0,triangles:0,contenders:0,p95SubmitMs:0,sceneBuilds:0,quality:quality,activeEffects:0};
   const staticCache={key:null,vertices:0};
   const frameSamples=[];
   const headings=new Map();
@@ -804,6 +804,7 @@
       const ordered=[...frameSamples].sort((a,b)=>a-b);
       status.p95SubmitMs=Number(ordered[Math.max(0,Math.ceil(ordered.length*.95)-1)].toFixed(2));
       status.contenders=snapshot.combatants.filter(f=>f.alive).length;
+      status.activeEffects=activeVisualEvents().length;
       canvas.dataset.renderer='webgl2';
       canvas.dataset.triangles=String(status.triangles);
       canvas.dataset.contenders=String(status.contenders);
