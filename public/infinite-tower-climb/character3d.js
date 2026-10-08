@@ -236,7 +236,7 @@ export function createTowerCharacter({tint=0x69cedf,guardian=false,kind='climber
 
 export function poseTowerCharacter(root,{time=0,state='standing',vx=0,vy=0,mode='',telegraph=false,reducedMotion=false}={}){
   if(!root?.userData?.arms)return;
-  const {jointRoot,head,pack,arms,legs,light,clothSegments=[]}=root.userData;
+  const {jointRoot,head,pack,arms,legs,light,clothSegments=[],kind,guardian}=root.userData;
   const dt=reducedMotion?0:time;
   const travel=range(Math.abs(vx)/10000,0,1);
   const sprint=state==='standing'&&travel>.07;
@@ -269,6 +269,64 @@ export function poseTowerCharacter(root,{time=0,state='standing',vx=0,vy=0,mode=
       dash?-.9:airborne?.58:sprint?Math.max(0,-alternate*step)*.95*speed:.06;
     foot.rotation.x=airborne?.24:-.07;
   });
+  // Role-specific silhouette acting: never modifies physics or collision.
+  // The broad gestural arcs remain recognizable at the livestream camera distance.
+  if(kind==='sentinel'){
+    jointRoot.rotation.x=telegraph?.13:-.06;
+    arms[0].shoulder.rotation.z=-.36;
+    arms[0].shoulder.rotation.x=telegraph?-1.0:-.45;
+    arms[0].elbow.rotation.x=telegraph?-.3:-.7;
+    arms[1].shoulder.rotation.x=telegraph?-1.65:-.22;
+    legs.forEach(({hip,knee},i)=>{
+      hip.rotation.z=(i===0?1:-1)*.12;
+      knee.rotation.x+=telegraph?.32:.14;
+    });
+    head.rotation.y=reducedMotion?0:Math.sin(dt*.9)*.16;
+  }else if(kind==='shooter'){
+    // Ranged targeting: staggered shoulders, braced left forearm and recoil.
+    arms[1].shoulder.rotation.x=telegraph?-1.47:-1.05;
+    arms[1].elbow.rotation.x=telegraph?-.25:-.8;
+    arms[0].shoulder.rotation.x=-.45;
+    arms[0].elbow.rotation.x=-.65;
+    head.rotation.y=reducedMotion?0:Math.sin(dt*.6)*.19;
+    jointRoot.rotation.y=telegraph?.18:.065;
+    pack.rotation.z=reducedMotion?0:Math.sin(dt*1.8)*.012;
+  }else if(guardian||kind==='guardian'){
+    // Massive weight and a boss-specific windup: held pose before its verified telegraph.
+    const power=telegraph?1:0;
+    jointRoot.rotation.x=-.09-power*.08;
+    arms[0].shoulder.rotation.z=-.31-power*.48;
+    arms[1].shoulder.rotation.z=.31+power*.48;
+    arms[0].shoulder.rotation.x=-.22-power*1.1;
+    arms[1].shoulder.rotation.x=-.22-power*1.1;
+    arms.forEach(({elbow})=>elbow.rotation.x=-.45-power*.33);
+    legs[0].hip.rotation.z=-.19;legs[1].hip.rotation.z=.19;
+    legs.forEach(({knee})=>knee.rotation.x=.24+power*.21);
+    head.rotation.x=-.12-power*.14;
+    jointRoot.position.y+=reducedMotion?0:Math.sin(dt*1.2)*.32;
+  }else{
+    // Wayfinder reaches asymmetrically for imaginary holds while airborne;
+    // game authority still determines position, state and every actual landing.
+    if(climbing){
+      arms[0].shoulder.rotation.x=-1.3+Math.sin(dt*5.8)*.22;
+      arms[1].shoulder.rotation.x=-1.3-Math.sin(dt*5.8)*.22;
+      arms[0].elbow.rotation.x=-.68+Math.cos(dt*5.8)*.23;
+      arms[1].elbow.rotation.x=-.68-Math.cos(dt*5.8)*.23;
+      head.rotation.x=.22;
+      jointRoot.rotation.x=-.11;
+      legs[0].knee.rotation.x=.37+Math.max(0,Math.sin(dt*5.8))*.63;
+      legs[1].knee.rotation.x=.37+Math.max(0,-Math.sin(dt*5.8))*.63;
+    }else if(dash){
+      jointRoot.rotation.x=-.26;
+      legs[0].hip.rotation.x=.64;legs[1].hip.rotation.x=.36;
+      head.rotation.x=-.22;
+    }else if(hurt){
+      arms.forEach(({shoulder})=>shoulder.rotation.x=-.8);
+      head.rotation.x=.28;
+    }else{
+      jointRoot.rotation.x=reducedMotion?0:Math.sin(dt*1.6)*.01;
+    }
+  }
   for(let i=0;i<clothSegments.length;i++){
     clothSegments[i].rotation.z=(reducedMotion?0:Math.sin(dt*3.3+i*.8)*.07)+(state==='dashing'?.14:0);
   }
