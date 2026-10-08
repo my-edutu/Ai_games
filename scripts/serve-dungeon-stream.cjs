@@ -28,6 +28,7 @@ function serve(port=Number(process.env.PORT||4181)){
   if(url.pathname==='/dungeon/gauntlet-history.json')return file(res,path.join(PUBLIC,'gauntlet-history.json'),'application/json; charset=utf-8');
   if(url.pathname==='/dungeon/evidence/desktop.png')return file(res,path.join(ROOT,'artifacts/dungeon-desktop.png'),'image/png');
   if(url.pathname==='/dungeon/evidence/mobile.png')return file(res,path.join(ROOT,'artifacts/dungeon-mobile.png'),'image/png');
+  if(url.pathname==='/dungeon/evidence/visual-metrics.json')return file(res,path.join(ROOT,'artifacts/dungeon-visual-metrics.json'),'application/json; charset=utf-8');
   if(url.pathname==='/dungeon/vendor/three.module.js')return file(res,path.join(ROOT,'node_modules/three/build/three.module.js'),'text/javascript; charset=utf-8');
   if(url.pathname==='/favicon.ico'){res.writeHead(204);res.end();return}
   const name=paths.get(url.pathname);if(!name){res.writeHead(404);res.end('Not found');return}
