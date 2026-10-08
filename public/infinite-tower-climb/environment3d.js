@@ -40,6 +40,8 @@ function banners(group,{x,y,color,trim,side=1,variant=0}){
   }
   geo.computeVertexNormals();
   const mesh=add(group,new THREE.Mesh(geo,cloth),x,y,-21);
+  mesh.userData.restPositions=Float32Array.from(geo.attributes.position.array);
+  mesh.userData.drapePhase=variant*2.3+x*.08;
   mesh.rotation.y=side*.08;
   add(group,block(16,1.4,4,trim),x,y+length/2+1,-20);
   for(let s of [-1,1]){
@@ -117,6 +119,7 @@ export function decorateTowerEnvironment({group,snapshot,theme,palette,worldWidt
   const ornament=new THREE.Group();ornament.name='world-ornaments';
   group.add(ornament);
   // Monumental three-dimensional portals frame the playable shafts but never occlude actors.
+  const movingCloth=[],softBeams=[];
   for(let i=0;i<3;i++){
     const x=worldWidth*(.19+.31*i),y=y0+levelHeight*(.2+.28*(i%2));
     arch(ornament,x,y,stone,trim,light,50+10*(i%2));
@@ -124,7 +127,8 @@ export function decorateTowerEnvironment({group,snapshot,theme,palette,worldWidt
   }
   for(let i=0;i<4;i++){
     const x=worldWidth*(.16+.225*i),y=y0+levelHeight*(.11+.20*(i%3));
-    banners(ornament,{x,y,color:theme==='ruins'?0x294f43:theme==='foundry'?0x7d322d:theme==='storm'?0x375b8b:theme==='void'?0x502a7a:0x856029,trim,side:i%2?1:-1,variant:i%3});
+    const banner=banners(ornament,{x,y,color:theme==='ruins'?0x294f43:theme==='foundry'?0x7d322d:theme==='storm'?0x375b8b:theme==='void'?0x502a7a:0x856029,trim,side:i%2?1:-1,variant:i%3});
+    movingCloth.push(banner.mesh);
     chain(ornament,x-10,y+70,y+30,trim,i);
     chain(ornament,x+10,y+70,y+30,trim,i*2);
   }
@@ -141,4 +145,28 @@ export function decorateTowerEnvironment({group,snapshot,theme,palette,worldWidt
     }
   }
   stoneWeathering(ornament,worldWidth,y0,y0+levelHeight,theme,snapshot.floor);
+  for(const obj of ornament.children)if(obj.material?.transparent)softBeams.push(obj);
+  ornament.userData.animation={movingCloth,softBeams};
+  return ornament;
 }
+/** The cinematic world is animated independently of seeded, authoritative physics. */
+export function animateTowerEnvironment(ornament,time,reducedMotion=false){
+  if(!ornament||reducedMotion)return;
+  const {movingCloth=[],softBeams=[]}=ornament.userData.animation||{};
+  for(const cloth of movingCloth){
+    const position=cloth.geometry.attributes.position,rest=cloth.userData.restPositions,phase=cloth.userData.drapePhase;
+    for(let i=0;i<position.count;i++){
+      const idx=i*3,y=rest[idx+1];
+      const travel=(.5-y/50);
+      position.array[idx+2]=rest[idx+2]+Math.sin(time*1.3+phase+y*.15)*travel*1.75;
+      position.array[idx]=rest[idx]+Math.sin(time*.9+phase+y*.09)*travel*.5;
+    }
+    position.needsUpdate=true;
+    cloth.geometry.computeVertexNormals();
+  }
+  for(let i=0;i<softBeams.length;i++){
+    const beam=softBeams[i],material=beam.material;
+    if(material?.isMeshBasicMaterial)material.opacity=.055+.025*Math.sin(time*.67+i*1.2);
+  }
+}
+
