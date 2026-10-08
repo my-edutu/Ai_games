@@ -104,3 +104,15 @@ test('authoritative 3D collisions and vertical launch mechanics are visible in b
     renderer.includes("bumper.launchSpeed"),
   ]) assert.ok(source, 'authoritative spring/3D evidence missing');
 });
+
+test('victory scene is driven solely by an official authoritative champion', () => {
+  for (const text of [
+    'function drawVictoryCeremony',
+    "['tournament-result','intermission'].includes(authority.lifecycle)",
+    'const championId=authority.camera?.championId',
+    'Number.isInteger(championId)',
+    "champion.status==='eliminated'",
+    'drawVictoryCeremony(snapshot,marbles,arena,viewProjection,camera.eye,now)',
+  ]) assert.ok(renderer.includes(text), `missing authority-backed victory guard: ${text}`);
+  assert.equal(renderer.includes('forceWinner'), false);
+});
