@@ -182,3 +182,38 @@ test('24/7 renderer budgets only reduce resolution after sustained slow frames',
   const compact=createRenderBudget({mode:'adaptive',compact:true,dpr:3});
   assert.ok(compact.ratio<=1.15);
 });
+
+test('public-event 3D VFX are bounded, trigger from observed changes and dispose correctly',async()=>{
+  const {createMomentEffects}=await loadModule('moment-effects.js');
+  const moments=createMomentEffects(THREE);
+  const state={
+    runToken:'run-1',lifecycle:'exploration',currentCell:0,width:5,
+    inventory:[],cells:[{cell:0,clue:false,visible:true}],
+    threats:[],exitCell:null
+  };
+  const guarded=new Proxy(state,{get(target,key){
+    if(key in target)return target[key];
+    throw new Error('Moment effects must not inspect hidden state: '+String(key));
+  }});
+  const resolve=(id,width)=>new THREE.Vector3(id%width*2.5,0,Math.floor(id/width)*2.5);
+  moments.observe(guarded,resolve);
+  assert.equal(moments.activeObjects,0);
+  state.inventory=['silver-key'];
+  moments.observe(guarded,resolve);
+  assert.ok(moments.activeObjects>0);
+  assert.ok(moments.recentEvents.includes('key'));
+  state.exitCell=4;
+  moments.observe(guarded,resolve);
+  assert.ok(moments.recentEvents.includes('exit'));
+  state.threats=[{id:'observed-1',cell:2}];
+  moments.observe(guarded,resolve);
+  assert.ok(moments.recentEvents.includes('danger'));
+  for(let i=0;i<40;i++)moments.update(.1,false);
+  assert.equal(moments.activeObjects,0);
+  state.lifecycle='result';state.result={reason:'escape'};
+  moments.observe(guarded,resolve,{reducedMotion:true});
+  assert.ok(moments.recentEvents.includes('triumph'));
+  assert.ok(moments.activeObjects<=65);
+  moments.dispose();
+  assert.equal(moments.activeObjects,0);
+});
