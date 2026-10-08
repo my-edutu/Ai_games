@@ -289,6 +289,7 @@
       b.ring(p.x,.08,p.z,.38,.035,[.72,.25,.27],20);
       return;
     }
+    groundShadow(b,p.x,p.z,.28,.48,theme);
     b.pushPose(p.x,p.z,actorHeading(f,w,events,roster));
     const prev=previousSnapshot?.combatants.find(c=>c.id===f.id);
     const moving=Boolean(prev&&prev.cell!==f.cell);
@@ -517,8 +518,31 @@
       b.box(x+.55,.018,height/2,.78,.012,.036,palette.debris);
     }
   }
+  function groundShadow(b,x,z,radius,length,theme){
+    // Contact and directional cast-shadow decal; visual shading only.
+    // All points remain below the foot/cover mesh and above the arena floor.
+    const ground=theme.ground||[.25,.35,.35];
+    const shade=ground.map(channel=>Math.max(.035,channel*.35));
+    const near=[x-radius*.72,.031,z-radius*.72];
+    const far=[x+length,.031,z-length*.59];
+    b.quad(
+      [x-radius,.031,z-radius],
+      [x-radius,.031,z+radius],
+      [far[0]+radius*.55,.031,far[2]+radius*.50],
+      [far[0],.031,far[2]-radius*.70],
+      [0,1,0],shade
+    );
+    b.quad(
+      [x-radius*.79,.033,z-radius*.55],
+      [x-radius*.79,.033,z+radius*.55],
+      [x+radius*.83,.033,z+radius*.55],
+      [x+radius*.83,.033,z-radius*.55],
+      [0,1,0],shade
+    );
+  }
   function fortification(b,cell,width,theme,isCover){
     const p=pos(cell,width),x=p.x,z=p.z;
+    groundShadow(b,x,z,isCover?.30:.49,isCover?.42:.85,theme);
     if(isCover){
       // Knee-high modular concrete cover, faceted silhouette and caution stripe.
       b.box(x,.31,z,.79,.62,.80,theme.wall);
