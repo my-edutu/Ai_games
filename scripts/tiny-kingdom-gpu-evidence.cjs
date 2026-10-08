@@ -45,6 +45,18 @@ const path = require('node:path');
     if(evidence.webglVerified&&evidence.materialVertexAttribute<0)throw Error('GPU material attribute was optimized away or omitted');
     if(evidence.materials.vertexStride!==10||evidence.materials.materials.length!==8)
       throw Error('GPU material layout mismatch');
+    // GPU static vertex upload invariant: camera motion must never re-upload
+    // dense terrain and village meshes; only moving agents update per frame.
+    evidence.staticGPU=await page.evaluate(()=>window.__tinyKingdom.renderStats());
+    await page.evaluate(()=>window.__tinyKingdom.setCamera({zoom:24,pitch:.51,yaw:.82,focus:[0,0]}));
+    await page.waitForTimeout(450);
+    evidence.staticGPUAfterCamera=await page.evaluate(()=>window.__tinyKingdom.renderStats());
+    if(evidence.webglVerified){
+      if(!evidence.staticGPU.dualBufferGPU||evidence.staticGPU.staticGpuUploads<1)
+        throw Error('Static GPU vertex buffer was not uploaded');
+      if(evidence.staticGPUAfterCamera.staticGpuUploads!==evidence.staticGPU.staticGpuUploads)
+        throw Error('Moving camera re-uploaded static world');
+    }
     evidence.errors=errors;
     await page.screenshot({path:path.join(out,'day1.png'),fullPage:true});
     // Matched camera framing and a deterministic later-day sample are essential
