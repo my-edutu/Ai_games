@@ -79,3 +79,28 @@ test('blinded local image critique never uploads screenshots or claims an automa
   assert.ok(read('gauntlet.html').includes('src="/gauntlet-ab.js"'));
   assert.ok(read('gauntlet.css').includes('.ab-grid'));
 });
+
+
+test('authoritative 3D collisions and vertical launch mechanics are visible in broadcast presentation', () => {
+  const gameRoot = path.resolve(__dirname, '../../games/marble-survival/src');
+  const physics = fs.readFileSync(path.join(gameRoot, 'physics/solver.ts'), 'utf8');
+  const generation = fs.readFileSync(path.join(gameRoot, 'generation/arena.ts'), 'utf8');
+  const rules = fs.readFileSync(path.join(gameRoot, 'rules/tournament.ts'), 'utf8');
+  const snapshot = fs.readFileSync(path.join(gameRoot, 'presentation/snapshot.ts'), 'utf8');
+  const audio = read('audio-director.js');
+  const app = read('app.js');
+  for (const source of [
+    physics.includes('heightDelta * heightDelta'),
+    physics.includes('first.verticalVelocity = clampInteger'),
+    physics.includes('marble.elevation >= colliderTop'),
+    physics.includes('marble.elevation >= BUMPER_COLLIDER_TOP'),
+    physics.includes('bumper.launchSpeed ?? 0'),
+    generation.includes('launchSpeed: roundIndex >= 2'),
+    rules.includes("type: 'marble-launched'"),
+    snapshot.includes("'marble-launched': ['marbleId', 'colliderId', 'launchSpeed']"),
+    audio.includes("event.type === 'marble-launched'"),
+    app.includes("event.type === 'marble-launched'"),
+    renderer.includes("event.type==='marble-launched'"),
+    renderer.includes("bumper.launchSpeed"),
+  ]) assert.ok(source, 'authoritative spring/3D evidence missing');
+});
