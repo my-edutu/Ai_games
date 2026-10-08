@@ -1,6 +1,7 @@
 'use strict';
 const fs=require('node:fs'),path=require('node:path');
 const {test,expect}=require('@playwright/test');
+const {analyzePng}=require('../../scripts/tower-image-metrics.cjs');
 const base='http://127.0.0.1:4176';
 const artifacts=path.resolve(__dirname,'../../artifacts/tower-phase3');
 test.beforeAll(()=>fs.mkdirSync(artifacts,{recursive:true}));
@@ -20,14 +21,18 @@ test('3D tower really starts WebGL, progresses autonomously and produces screens
   expect(first.metrics.platforms).toBeGreaterThan(0);
   expect(first.metrics.frames).toBeGreaterThan(0);
   expect(first.metrics.renderer).toBe('webgl');
-  await page.waitForTimeout(1200);
+  // Software WebGL can render slowly in CI: wait for a real additional frame rather than a fixed 1.2s.
+  await page.waitForFunction(({frames,tick})=>window.__TOWER_3D_METRICS__?.frames>frames&&window.__TOWER_PUBLIC_STATE__?.tick>tick,{frames:first.metrics.frames,tick:first.tick},{timeout:12000});
   const second=await page.evaluate(()=>({tick:window.__TOWER_PUBLIC_STATE__?.tick,metrics:{...window.__TOWER_3D_METRICS__}}));
   expect(second.tick).toBeGreaterThan(first.tick);
   expect(second.metrics.frames).toBeGreaterThan(first.metrics.frames);
   const canvas=page.locator('#tower-3d-canvas');
   const box=await canvas.boundingBox();expect(box.width).toBeGreaterThan(400);expect(box.height).toBeGreaterThan(300);
-  await page.screenshot({path:path.join(artifacts,'gauntlet-3d-desktop.png'),fullPage:true});
-  fs.writeFileSync(path.join(artifacts,'gauntlet-3d-diagnostics.json'),JSON.stringify({first,second,errors},null,2));
+  const png=await page.screenshot({path:path.join(artifacts,'gauntlet-3d-desktop.png'),fullPage:true});
+  const world=analyzePng(png,{region:[.06,.21,.73,.86],stride:4});
+  fs.writeFileSync(path.join(artifacts,'gauntlet-3d-diagnostics.json'),JSON.stringify({first,second,world,errors},null,2));
+  expect(world.meanLuminance,'3D world must not be a dim silhouette').toBeGreaterThan(34);
+  expect(world.luminanceStdDev,'3D scene needs legible depth and contrast').toBeGreaterThan(9);
   expect(errors).toEqual([]);
 });
 
