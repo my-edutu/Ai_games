@@ -58,6 +58,7 @@
         mesh.position.z=p.z;mesh.scale.z=p.depth/4.5;world.add(mesh);models.set(p.i,mesh);
       }
       models.get(p.i).position.set(p.x,p.y,p.z);
+      models.get(p.i).visible=p.structuralIntegrity>0;
       if(p.guardianHealth>0&&!guardians.has(p.i)){
         const guardian=art.enemy({kind:'guardian',telegraph:p.guardianHealth<4},
           p.x,p.y+p.height/2+1.78,.9,1.3);
