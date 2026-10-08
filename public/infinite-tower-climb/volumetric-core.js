@@ -7,6 +7,12 @@ export function createVolumetricCore(seedInput=0x00a3f914){
   const clamp=(value,low,high)=>Math.min(high,Math.max(low,value));
   const player={x:0,y:2.05,z:0,vx:0,vy:0,vz:0,grounded:true,at:0,checkpoint:0,deaths:0,health:5};
   const platforms=[];
+  const events=[];
+  const emit=(type,text,extra={})=>{
+    events.push({id:tick+':'+type+':'+events.length,tick,floor:player.at,type,text,...extra});
+    if(events.length>32)events.shift();
+  };
+  emit('run-start','A new climber enters the infinite tower.');
   function addLanding(i){
     const prev=platforms[platforms.length-1];
     const x=i===0?0:clamp(prev.x+(random()-.5)*11,-13,13);
@@ -26,6 +32,7 @@ export function createVolumetricCore(seedInput=0x00a3f914){
     Object.assign(player,{x:target.x,z:target.z,y:landingHeight(target)+config.halfHeight+.02,
       vx:0,vy:0,vz:0,at:target.i,grounded:true,deaths:player.deaths+1,health:Math.max(1,player.health-1)});
     mode='RECOVERING';
+    emit('recovery','The climber fell and returned to checkpoint '+player.checkpoint+'.');
   }
   function step(dt=1/60,input){
     if(!Number.isFinite(dt)||dt<=0||dt>1/30)throw new RangeError('fixed-step dt');
@@ -60,7 +67,8 @@ export function createVolumetricCore(seedInput=0x00a3f914){
       mode='GUARDIAN ENGAGED';
       if(dist<4&&tick%18===0){guardian.guardianHealth--;mode='STRIKING GUARDIAN';score+=50;}
       if(guardian.guardianHealth>0&&tick%54===0){player.health--;mode='GUARDIAN RETALIATION';}
-      if(guardian.guardianHealth===0){guardianKills++;score+=500;mode='GUARDIAN DEFEATED';}
+      if(guardian.guardianHealth===0){guardianKills++;score+=500;mode='GUARDIAN DEFEATED';
+        emit('guardian-defeated','Guardian '+player.at+' defeated. The ascent continues.',{score});}
       if(player.health<=0)respawn();
     }
     if(player.grounded&&!guardian&&((!input&&target)||(input&&input.jump))){
@@ -80,8 +88,16 @@ export function createVolumetricCore(seedInput=0x00a3f914){
         const p=platforms[i],top=landingHeight(p);
         if(oldFoot>=top-.08&&newFoot<=top&&Math.abs(player.x-p.x)<p.width/2+.4&&Math.abs(player.z-p.z)<p.depth/2+.4){
           player.y=top+config.halfHeight;player.vy=0;player.grounded=true;
-          if(p.i>player.at){player.at=p.i;player.checkpoint=Math.floor(p.i/5)*5;highestReached=Math.max(highestReached,p.i);score+=25;mode='LANDED';}
-          if(p.pickup&&!p.collected){p.collected=true;player.health=Math.min(5,player.health+1);score+=100;}
+          if(p.i>player.at){
+            const before=player.checkpoint,oldTheme=currentTheme();
+            player.at=p.i;player.checkpoint=Math.floor(p.i/5)*5;
+            highestReached=Math.max(highestReached,p.i);score+=25;mode='LANDED';
+            if(p.i%5===0)emit('checkpoint','Checkpoint secured on floor '+p.i+'.',{checkpoint:player.checkpoint});
+            if(p.kind==='moving')emit('moving-platform','The AI intercepted a moving platform at floor '+p.i+'.');
+            if(currentTheme()!==oldTheme)emit('biome','Entering the '+currentTheme()+' sector.',{theme:currentTheme()});
+          }
+          if(p.pickup&&!p.collected){p.collected=true;player.health=Math.min(5,player.health+1);score+=100;
+            emit('recovery-item','Recovered equipment on floor '+p.i+'.',{health:player.health});}
           break;
         }
       }
@@ -94,6 +110,7 @@ export function createVolumetricCore(seedInput=0x00a3f914){
   }
   function snapshot(){
     return {tick,time,mode,intent,theme:currentTheme(),highestReached,highestGenerated,guardianKills,score,
+      events:events.slice(-12),
       player:{...player},platforms:platforms.map(p=>({...p})),dimensionality:3};
   }
   return {step,snapshot,platforms,player,landingHeight,config};
