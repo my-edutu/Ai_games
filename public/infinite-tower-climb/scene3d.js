@@ -10,7 +10,6 @@ import {createTowerHazard3D,updateTowerHazard3D} from '/tower/hazards-v4.js';
 import {buildBiomeLandmarks,animateBiomeLandmarks} from '/tower/landmarks-v5.js';
 import {createTowerEffectsDirector} from '/tower/effects-v6.js';
 import {mountTowerAtmosphere,animateTowerAtmosphere} from '/tower/atmosphere-v8.js';
-import {buildTowerGeology} from '/tower/geology-v9.js';
 import {selectVisibleLedge,applyContactPose} from '/tower/grip-v10.js';
 
 const SCALE = 1 / 1000;
@@ -182,7 +181,6 @@ export function mountTower3D({host,getFrame,reducedMotion=false,highContrast=fal
     buildPainterlyTowerBackdrop({group:backdrop,snapshot:s,theme,palette:p,worldWidth});
     landmarks=buildBiomeLandmarks({group:backdrop,snapshot:s,palette:p,worldWidth});
     atmosphere=mountTowerAtmosphere({group:backdrop,snapshot:s,quality});
-    buildTowerGeology({group:backdrop,snapshot:s,quality});
     // Colored environmental dust is now batched by the V8 atmosphere director.
     // Visual set dressing changes with the procedural level theme; it is not collision geometry.
     if(theme==='clockwork'){
@@ -400,6 +398,10 @@ export function mountTower3D({host,getFrame,reducedMotion=false,highContrast=fal
     animateTowerAtmosphere(atmosphere,now,reducedMotion);
     const effectFrame=actionEffects.frame(dt,s,visualX,visualY,reducedMotion);
     renderer.render(scene,camera);observedFrames++;
+    perf.renderedFrames=observedFrames;
+    perf.lastFrameTick=s.tick;
+    perf.drawCalls=renderer.info.render.calls;
+    perf.triangles=renderer.info.render.triangles;
     if(observedFrames%60===0){perf.frames=observedFrames;perf.drawCalls=renderer.info.render.calls;perf.triangles=renderer.info.render.triangles;perf.heroParts=(()=>{let count=0;player.traverse(o=>{if(o.isMesh)count++});return count})();perf.renderMode='webgl-3d';perf.state=s.player.state;perf.heroCamera=heroCamera;perf.lens='perspective';perf.inspectCharacters=inspectCharacters;perf.inspectionModels=inspectors.length;perf.biomeLandmarks=landmarks?.world?.children.length||0;perf.atmosphere=atmosphere?.metrics||null;perf.actionFx=actionEffects.metrics();perf.highContrast=highContrast;perf.averageFps=frameTotalMs>0?Math.round(1000*frameSampleCount/frameTotalMs):0;perf.slowFrames=slowFrames;perf.sampledFrames=frameSampleCount;perf.pixelRatio=renderer.getPixelRatio();perf.effects=actionEffects.metrics();}
     }catch(error){fallback3D(error)}
   }
