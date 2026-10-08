@@ -159,14 +159,14 @@ export function mountTower3D({host,getFrame,reducedMotion=false,highContrast=fal
     inspector.add(character);return{character,name,kind};
   }):[];
   const glow=new THREE.PointLight(0xffc273,66,150,2);actors.add(glow);
-  const dynamic=new Map();
+  const dynamic=new Map(),platformMeshes=new Map();
   let floor=-1,theme='',lastChecksum='',latest=null,frame=null,running=true,lastAt=performance.now(),ornament=null,landmarks=null,atmosphere=null;
   let cameraY=35,cameraX=240,worldWidth=480,observedFrames=0,visualX=null,visualY=null,visualRun='',visualFloor=-1;
   let frameTotalMs=0,slowFrames=0,frameSampleCount=0;
   const perf={frames:0,drawCalls:0,triangles:0,entityCount:0};window.__TOWER_3D_DIAGNOSTICS__=perf;
 
   function buildBackdrop(s){
-    clearGroup(backdrop);clearGroup(structures);for(const [id,obj] of dynamic){actors.remove(obj);clearGroup(obj);dynamic.delete(id)}
+    clearGroup(backdrop);clearGroup(structures);platformMeshes.clear();for(const [id,obj] of dynamic){actors.remove(obj);clearGroup(obj);dynamic.delete(id)}
     floor=s.floor;theme=s.theme;worldWidth=coord(s.worldWidth);
     const standard=palettes[theme]||palettes.foundry;
     const p=highContrast?{...standard,stone:0x59616b,rim:0xffffff,glow:0xffe2a5,haze:0x21212b,accent:0xffffff}:standard;
@@ -246,6 +246,8 @@ export function mountTower3D({host,getFrame,reducedMotion=false,highContrast=fal
       }
       group.traverse(o=>{if(o.isMesh){o.receiveShadow=true;o.castShadow=true}});
       structures.add(group);
+      group.userData.origin={x:platform.x,y:platform.y};
+      platformMeshes.set(platform.id,group);
     }
     // Hanging environmental silhouettes make each vertical climb feel monumental.
     for(let i=0;i<6;i++){
@@ -268,6 +270,12 @@ export function mountTower3D({host,getFrame,reducedMotion=false,highContrast=fal
     if(lastChecksum===s.publicChecksum)return;
     lastChecksum=s.publicChecksum;latest=s;
     actionEffects.ingest(s);
+    // Exact moving platform coordinates come from the same fixed-step physics tick
+    // used for collisions, replay and the Wayfinder's visible handhold selection.
+    for(const platform of s.platforms){
+      const visual=platformMeshes.get(platform.id);if(!visual)continue;
+      visual.position.set(coord(platform.x-visual.userData.origin.x),coord(platform.y-visual.userData.origin.y),0);
+    }
     const allowed=new Set();
     const palette=palettes[s.theme]||palettes.foundry;
     for(const h of s.hazards){
@@ -311,6 +319,7 @@ export function mountTower3D({host,getFrame,reducedMotion=false,highContrast=fal
     }
     for(const [id,g] of dynamic)if(!allowed.has(id)){actors.remove(g);clearGroup(g);dynamic.delete(id)}
     perf.entityCount=allowed.size;
+    perf.movingPlatforms=s.platforms.filter(p=>p.kind==='moving').length;
   }
 
   function resize(){
