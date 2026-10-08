@@ -417,7 +417,20 @@ function human(m,entity,infected,time){
     return;
   }
   const alive=infected?entity.health>0:entity.alive;
-  if(!alive){m.box(x,.19,z,1.0,.27,.44,infected?'#3e4840':'#52564c',yaw);return;}
+  if(!alive){
+    // Actual articulated prone anatomy and environmental discoloration, not a flat death cube.
+    const c=Math.cos(yaw),sn=Math.sin(yaw);
+    const spot=(dx,y,dz)=>[x+(dx*c+dz*sn)*body,y*body,z+(-dx*sn+dz*c)*body];
+    m.contactShadow(x,z,.72*body,.57*body,infected?'#6d4542':'#495253');
+    m.ellipsoid(...spot(0,.22,0),.38*body,.15*body,.24*body,infected?'#57604e':'#486368',6,8);
+    m.ball(...spot(0,.21,.43),.20*body,infected?'#8b9581':'#ae8a71');
+    for(const sign of [-1,1]){
+      m.bone(spot(sign*.21,.23,-.25),spot(sign*.27,.15,-.76),.10*body,'#3b4544');
+      m.bone(spot(sign*.27,.15,-.76),spot(sign*.30,.13,-1.0),.08*body,'#323c3d');
+      m.bone(spot(sign*.35,.24,.12),spot(sign*.62,.17,.39),.075*body,infected?'#7d8872':'#987960');
+    }
+    return;
+  }
   const moving=infected?entity.action==='pursue'||entity.action==='wander':entity.action==='move'||entity.action==='retreat'||entity.action==='rescue';
   const stride=moving?Math.sin(time*(infected?6:8)+(entity.variant||0)*1.1):0;
   const l=(dx,y,dz)=>{const c=Math.cos(yaw),s=Math.sin(yaw);return[x+body*(dx*c+dz*s),y*body,z+body*(-dx*s+dz*c)];};
