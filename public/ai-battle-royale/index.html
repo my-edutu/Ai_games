@@ -55,6 +55,11 @@
       <canvas data-testid="battle-canvas" aria-label="Autonomous battle arena with an optional 3D presentation"></canvas>
       <div class="arena-topline" aria-label="Live arena broadcast status"><span class="pulse-dot" aria-hidden="true"></span><strong>ON AIR</strong><span id="arena-biome">ARENA</span><span id="arena-counter">TICK 0</span></div>
       <div class="scene-banner" id="scene-banner" role="status"></div>
+      <div class="battle-highlight" id="battle-highlight" role="status" aria-live="polite" hidden>
+        <span id="battle-highlight-kicker">LIVE EVENT</span>
+        <strong id="battle-highlight-title">Battle action</strong>
+        <small id="battle-highlight-meta">AI GENERATED MOMENT</small>
+      </div>
       <div class="arena-footer" aria-label="Live battle telemetry"><span>CONTESTANTS <b id="arena-contenders">—</b></span><i class="separator"></i><span>STORM <b id="arena-storm">—</b></span><i class="separator"></i><span id="arena-director">AI CAMERA ACTIVE</span></div>
       <div class="legend" aria-label="Archetype shape legend">
         <span>⬢ Vanguard</span><span>▲ Ranger</span><span>◆ Scavenger</span><span>□ Tactician</span>

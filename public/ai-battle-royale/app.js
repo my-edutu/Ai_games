@@ -25,7 +25,35 @@ function updateArenaChips(snapshot,status){
     :snapshot.scene==='final-circle'?'FINAL CIRCLE':'AI CAMERA ACTIVE';
   document.body.dataset.arenaBiome=snapshot.arena.theme;
 }
-function updatePanels(snapshot,status){objective.textContent=`${snapshot.goal.survivors} survivors of ${snapshot.goal.totalContenders}`;tick.textContent=`Tick ${snapshot.tick}`;progress.style.width=`${Math.round(snapshot.goal.progress*100)}%`;zonePhase.textContent=`Phase ${snapshot.zone.phase}`;zoneTimer.textContent=snapshot.zone.ticksUntilShrink>0?`${snapshot.zone.ticksUntilShrink} ticks`:'Closing';arenaStatus.textContent=status.simulationFault?'Degraded':status.paused?'Paused':'Online';sceneBanner.textContent=snapshot.headline;document.body.dataset.scene=snapshot.scene;updateArenaChips(snapshot,status);const focus=snapshot.focus;if(focus){focusName.textContent=`${focus.name} · ${focus.archetype}`;focusWeapon.textContent=String(focus.weapon||'Unarmed').replaceAll('-',' ').toUpperCase();focusAmmo.textContent=String(focus.ammo);focusMedkits.textContent=String(focus.medkits);focusConfidence.textContent=`${focus.confidence}%`;intent.textContent=`${focus.intent.replaceAll('-',' ')} — ${focus.goal}`;healthBar.style.transform=`scaleX(${focus.health/Math.max(1,focus.maxHealth)})`;shieldBar.style.transform=`scaleX(${focus.shield/Math.max(1,focus.maxShield)})`}else{focusName.textContent='No active contender';for(const value of [focusWeapon,focusAmmo,focusMedkits,focusConfidence])value.textContent='—';intent.textContent='Awaiting the next deterministic match.';healthBar.style.transform='scaleX(0)';shieldBar.style.transform='scaleX(0)'}caption.textContent=snapshot.captions.join(' • ');replaceList(leaderboard,snapshot.leaderboard.map((entry,index)=>({mark:String(index+1).padStart(2,'0'),label:`${entry.name} · ${entry.archetype}`,metric:entry.alive?`${entry.eliminations} K`:'OUT'})));const decisive=snapshot.recentEvents.filter(event=>event.importance>=3).slice(-7).reverse().map(event=>({mark:event.type==='elimination'?'✕':'•',label:event.detail?`${event.type.replaceAll('-',' ')} · ${event.detail}`:event.type.replaceAll('-',' '),metric:`T${event.tick}`}));replaceList(killFeed,decisive.length?decisive:[{mark:'•',label:'Arena telemetry nominal',metric:`T${snapshot.tick}`}]);const vote=snapshot.audience.currentVote;if(vote&&vote.status==='open'){voteCard.hidden=false;voteTitle.textContent=`Vote closes in ${vote.ticksRemaining} ticks`;voteOptions.textContent=vote.options.map(option=>`${option.effectId.replaceAll('-',' ')} ${option.weight}`).join(' · ')}else voteCard.hidden=true}
+const battleHighlight=document.querySelector('#battle-highlight');
+const highlightKicker=document.querySelector('#battle-highlight-kicker');
+const highlightTitle=document.querySelector('#battle-highlight-title');
+const highlightMeta=document.querySelector('#battle-highlight-meta');
+let lastHighlightRun='',lastHighlightSequence=-1,highlightTimer=null;
+function updateBattleHighlight(snapshot){
+  if(!battleHighlight)return;
+  if(lastHighlightRun!==snapshot.runToken){
+    lastHighlightRun=snapshot.runToken;
+    lastHighlightSequence=-1;
+    battleHighlight.hidden=true;
+    if(highlightTimer!==null)clearTimeout(highlightTimer);
+    highlightTimer=null;
+  }
+  // Only report genuine simulation events, not invented fight results.
+  const event=snapshot.recentEvents.slice(-12).reverse().find(entry=>
+    Number.isSafeInteger(entry.sequence)&&entry.sequence>lastHighlightSequence&&
+    (entry.type==='elimination'||entry.type==='shield-broken'));
+  if(!event)return;
+  lastHighlightSequence=event.sequence;
+  highlightKicker.textContent=event.type==='elimination'?'ELIMINATION CONFIRMED':'SHIELD BROKEN';
+  highlightTitle.textContent=String(event.detail||'Authoritative arena event').slice(0,140);
+  highlightMeta.textContent='VERIFIED AI ACTION • TICK '+String(event.tick??snapshot.tick);
+  battleHighlight.hidden=false;
+  battleHighlight.dataset.type=event.type;
+  if(highlightTimer!==null)clearTimeout(highlightTimer);
+  highlightTimer=setTimeout(()=>{battleHighlight.hidden=true;highlightTimer=null},2100);
+}
+function updatePanels(snapshot,status){objective.textContent=`${snapshot.goal.survivors} survivors of ${snapshot.goal.totalContenders}`;tick.textContent=`Tick ${snapshot.tick}`;progress.style.width=`${Math.round(snapshot.goal.progress*100)}%`;zonePhase.textContent=`Phase ${snapshot.zone.phase}`;zoneTimer.textContent=snapshot.zone.ticksUntilShrink>0?`${snapshot.zone.ticksUntilShrink} ticks`:'Closing';arenaStatus.textContent=status.simulationFault?'Degraded':status.paused?'Paused':'Online';sceneBanner.textContent=snapshot.headline;document.body.dataset.scene=snapshot.scene;updateArenaChips(snapshot,status);updateBattleHighlight(snapshot);const focus=snapshot.focus;if(focus){focusName.textContent=`${focus.name} · ${focus.archetype}`;focusWeapon.textContent=String(focus.weapon||'Unarmed').replaceAll('-',' ').toUpperCase();focusAmmo.textContent=String(focus.ammo);focusMedkits.textContent=String(focus.medkits);focusConfidence.textContent=`${focus.confidence}%`;intent.textContent=`${focus.intent.replaceAll('-',' ')} — ${focus.goal}`;healthBar.style.transform=`scaleX(${focus.health/Math.max(1,focus.maxHealth)})`;shieldBar.style.transform=`scaleX(${focus.shield/Math.max(1,focus.maxShield)})`}else{focusName.textContent='No active contender';for(const value of [focusWeapon,focusAmmo,focusMedkits,focusConfidence])value.textContent='—';intent.textContent='Awaiting the next deterministic match.';healthBar.style.transform='scaleX(0)';shieldBar.style.transform='scaleX(0)'}caption.textContent=snapshot.captions.join(' • ');replaceList(leaderboard,snapshot.leaderboard.map((entry,index)=>({mark:String(index+1).padStart(2,'0'),label:`${entry.name} · ${entry.archetype}`,metric:entry.alive?`${entry.eliminations} K`:'OUT'})));const decisive=snapshot.recentEvents.filter(event=>event.importance>=3).slice(-7).reverse().map(event=>({mark:event.type==='elimination'?'✕':'•',label:event.detail?`${event.type.replaceAll('-',' ')} · ${event.detail}`:event.type.replaceAll('-',' '),metric:`T${event.tick}`}));replaceList(killFeed,decisive.length?decisive:[{mark:'•',label:'Arena telemetry nominal',metric:`T${snapshot.tick}`}]);const vote=snapshot.audience.currentVote;if(vote&&vote.status==='open'){voteCard.hidden=false;voteTitle.textContent=`Vote closes in ${vote.ticksRemaining} ticks`;voteOptions.textContent=vote.options.map(option=>`${option.effectId.replaceAll('-',' ')} ${option.weight}`).join(' · ')}else voteCard.hidden=true}
 function ensureAudio(){if(muted)return null;if(!audioContext){const AudioCtor=window.AudioContext||window.webkitAudioContext;if(!AudioCtor)return null;audioContext=new AudioCtor()}if(audioContext.state==='suspended')audioContext.resume().catch(()=>{});return audioContext}
 let broadcastNoise=null;
 function panForCue(cue,snapshot){

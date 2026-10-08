@@ -287,3 +287,25 @@ test('theatre-first UI gives the 3D battlefield nearly the full screen, with pan
   expect(panels).toBeLessThan(theatre.stageWidth*.78);
   await page.screenshot({path:path.join(captures,'v4-panel-rollback.png')});
 });
+
+test('broadcast cinematic elimination card is driven only by a public event and expires',async({browser,request})=>{
+  const source=await request.get(base+'/battle/state?w=1600&h=900');
+  expect(source.ok()).toBeTruthy();
+  const payload=await source.json();
+  const event={sequence:999997,type:'elimination',importance:4,tick:payload.snapshot.tick,
+    detail:'Authoritative elimination test fixture'};
+  const fixture=JSON.stringify({...payload,snapshot:{...payload.snapshot,
+    recentEvents:[...payload.snapshot.recentEvents.slice(-8),event]}});
+  const page=await browser.newPage({viewport:{width:1600,height:900}});
+  try{
+    await page.route('**/battle/state?*',route=>route.fulfill({
+      status:200,contentType:'application/json',body:fixture
+    }));
+    await page.goto(base+'/battle?muted=1');
+    await expect(page.locator('#battle-highlight')).toBeVisible();
+    await expect(page.locator('#battle-highlight-kicker')).toHaveText('ELIMINATION CONFIRMED');
+    await expect(page.locator('#battle-highlight-title')).toHaveText('Authoritative elimination test fixture');
+    await page.screenshot({path:path.join(captures,'v4-semantic-elimination.png')});
+    await expect(page.locator('#battle-highlight')).toBeHidden({timeout:4000});
+  }finally{await page.close()}
+});

@@ -162,3 +162,50 @@ body[data-ux-revision="3"].theatre-mode.clean-feed .arena-shell{
   border-radius:0;border:0;box-shadow:none;
 }
 body[data-ux-revision="3"].theatre-mode.clean-feed .arena-shell:after{display:none}
+
+/* Loop 36 — one genuine semantic action at a time; no invented kills. */
+body[data-ux-revision="3"] .battle-highlight{
+  position:absolute;z-index:5;
+  left:50%;bottom:clamp(106px,13vh,156px);
+  transform:translateX(-50%);
+  width:min(490px,42vw);
+  max-width:calc(100% - 38px);
+  display:flex;flex-direction:column;align-items:center;text-align:center;
+  gap:4px;padding:15px 24px;
+  border:1px solid rgba(255,97,172,.68);
+  border-radius:13px;
+  background:linear-gradient(122deg,rgba(53,20,76,.94),rgba(84,26,71,.91),rgba(20,55,91,.93));
+  box-shadow:0 16px 42px rgba(7,2,25,.45),0 0 25px rgba(255,77,162,.18);
+  backdrop-filter:blur(10px);
+  pointer-events:none;
+}
+body[data-ux-revision="3"] .battle-highlight[hidden]{display:none!important}
+body[data-ux-revision="3"] .battle-highlight span{
+  font-size:11px;font-weight:950;color:#ff92cf;letter-spacing:.21em;
+}
+body[data-ux-revision="3"] .battle-highlight strong{
+  font-size:clamp(14px,1.3vw,22px);line-height:1.21;
+  letter-spacing:-.015em;color:#fff;
+}
+body[data-ux-revision="3"] .battle-highlight small{
+  font-weight:850;color:#bad8fb;font-size:10px;letter-spacing:.14em;
+}
+body[data-ux-revision="3"] .battle-highlight[data-type="shield-broken"]{
+  border-color:rgba(78,233,255,.72);
+  background:linear-gradient(122deg,rgba(19,50,89,.93),rgba(30,41,85,.93),rgba(48,28,97,.92));
+}
+body[data-ux-revision="3"] .battle-highlight[data-type="shield-broken"] span{
+  color:var(--royal-cyan);
+}
+body.clean-feed .battle-highlight{display:none!important}
+@media(max-width:950px),(max-height:520px){
+  body[data-ux-revision="3"] .battle-highlight{
+    bottom:54px;width:min(320px,53vw);padding:7px 10px;gap:2px;
+  }
+  body[data-ux-revision="3"] .battle-highlight strong{font-size:12px}
+  body[data-ux-revision="3"] .battle-highlight small{display:none}
+}
+body[data-reduced-motion="true"] .battle-highlight,
+body[data-reduced-flash="true"] .battle-highlight{
+  animation:none!important;transition:none!important;
+}
