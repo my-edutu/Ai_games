@@ -6,11 +6,11 @@
   const startup={phase:'bootstrap',status:'starting',tick:0,autonomous:true,dimensionality:3};
   window.__TOWER_VOLUMETRIC_STATE__=startup;
   const progress=(phase)=>{startup.phase=phase;};
-  let THREE,createClimber,createTowerEnvironment,createTowerEntities,createTowerVfx,createVolumetricCore,loadClimberAsset,createTowerDirector,createTowerSky;
+  let THREE,createClimber,createTowerEnvironment,createTowerEntities,createTowerVfx,createVolumetricCore,loadClimberAsset,createTowerDirector,createTowerSky,createTowerGeology,createClimbingRope;
   try{
-    [THREE,{createClimber},{createTowerEnvironment},{createTowerEntities},{createTowerVfx},{createVolumetricCore},{loadClimberAsset},{createTowerDirector},{createTowerSky}]=await Promise.all([
+    [THREE,{createClimber},{createTowerEnvironment},{createTowerEntities},{createTowerVfx},{createVolumetricCore},{loadClimberAsset},{createTowerDirector},{createTowerSky},{createTowerGeology},{createClimbingRope}]=await Promise.all([
       import('/tower/vendor/three.module.js'),import('/tower/character3d.js'),import('/tower/environment3d.js'),
-      import('/tower/entities3d.js'),import('/tower/vfx3d.js'),import('/tower/volumetric-core.js'),import('/tower/asset3d.js'),import('/tower/director3d.js'),import('/tower/sky3d.js')
+      import('/tower/entities3d.js'),import('/tower/vfx3d.js'),import('/tower/volumetric-core.js'),import('/tower/asset3d.js'),import('/tower/director3d.js'),import('/tower/sky3d.js'),import('/tower/geology3d.js'),import('/tower/rope3d.js')
     ]);
   }catch(error){status.textContent='3D MODULE LOAD FAILED';console.error(error);return;}
   progress('modules-loaded');
@@ -24,6 +24,8 @@
   const camera=new THREE.PerspectiveCamera(57,1,.1,700);
   const director=createTowerDirector(THREE,camera);
   const sky=createTowerSky(THREE,scene);
+  const geology=createTowerGeology(THREE,scene);
+  const safetyRope=createClimbingRope(THREE,scene);
   const hemi=new THREE.HemisphereLight(0xb4d5ff,0x1a2333,2.7);scene.add(hemi);
   const sun=new THREE.DirectionalLight(0xffd9a3,2.6);sun.position.set(-30,70,40);scene.add(sun);
   progress('creating-environment');
@@ -94,7 +96,7 @@
     for(const [id,mesh] of models){if(!live.has(id)){world.remove(mesh);art.release(mesh);models.delete(id);}}
     for(const [id,mesh] of guardians){if(!live.has(id)){enemyScene.remove(mesh);art.release(mesh);guardians.delete(id);}}
     for(const [id,mesh] of rewards){if(!live.has(id)){rewardScene.remove(mesh);art.release(mesh);rewards.delete(id);}}
-    if(snapshot.theme!==biome){biome=snapshot.theme;environment.setTheme(biome);sky.setTheme(biome);}
+    if(snapshot.theme!==biome){biome=snapshot.theme;environment.setTheme(biome);sky.setTheme(biome);geology.setTheme(biome);}
   }
   function fixedStep(dt){
     const snapshot=sim.step(dt,manual?controls:undefined);simTime+=dt;
@@ -130,6 +132,8 @@
     if(!reduced){for(const item of rewards.values()){item.rotation.y+=dt*.9;item.position.y+=Math.sin(simTime*2+item.position.x)*dt*.09;}
       for(const [index,guardian] of guardians){guardian.rotation.y=Math.sin(simTime*.55+index)*.08;}}
     environment.root.position.y=player.y*.95;
+    geology.update(player.y);
+    safetyRope.update(dt,player,sim.platforms.find(p=>p.i===player.at),details.mode,{reducedMotion:reduced});
     const directorFrame=director.update(dt,sim.snapshot(),{reducedMotion:reduced});
     sky.update(simTime,camera,{climberY:player.y,reducedMotion:reduced});
     details.cameraMode=directorFrame.mode;
@@ -148,6 +152,8 @@
     renderMetrics.triangles=renderer.info.render.triangles;
     renderMetrics.gpuGeometries=renderer.info.memory.geometries;
     renderMetrics.gpuTextures=renderer.info.memory.textures;
+    renderMetrics.terrainMeshes=geology.rocks.length;
+    renderMetrics.ropeSegments=22;
     renderMetrics.status='live';
     details.status='live';
     if(details.tick%8===0){
