@@ -124,7 +124,7 @@ export function mountTower3D({host,getFrame,reducedMotion=false,highContrast=fal
     const lowPower=quality==='low'||(quality==='auto'&&window.innerWidth<850);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,lowPower?1:1.65));
     renderer.toneMapping=THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure=1.52;
+    renderer.toneMappingExposure=1.34;
     renderer.outputColorSpace=THREE.SRGBColorSpace;
   }catch(error){canvas.remove();throw error}
   const scene=new THREE.Scene(),fog=new THREE.FogExp2(0x987c6e,.00075);scene.fog=fog;
@@ -132,12 +132,12 @@ export function mountTower3D({host,getFrame,reducedMotion=false,highContrast=fal
   const backdrop=new THREE.Group(),structures=new THREE.Group(),actors=new THREE.Group(),effects=new THREE.Group();
   scene.add(backdrop,structures,actors,effects);
   const actionEffects=createTowerEffectsDirector(effects);
-  const hemi=new THREE.HemisphereLight(0xffeacf,0x4c5363,2.65);scene.add(hemi);
+  const hemi=new THREE.HemisphereLight(0xffedd6,0x43455d,1.65);scene.add(hemi);
   // Soft, directional shadowing anchors the playable platforms without changing collision.
   renderer.shadowMap.enabled=quality!=='low';
   renderer.shadowMap.type=THREE.PCFSoftShadowMap;
-  const key=new THREE.DirectionalLight(0xffddb0,4.0);key.position.set(-45,120,135);key.castShadow=quality!=='low';key.shadow.mapSize.set(1024,1024);key.shadow.camera.left=-300;key.shadow.camera.right=300;key.shadow.camera.top=300;key.shadow.camera.bottom=-300;key.shadow.camera.near=1;key.shadow.camera.far=650;key.shadow.bias=-.0003;scene.add(key);
-  const rim=new THREE.DirectionalLight(0xffc49a,2.0);rim.position.set(80,55,-30);scene.add(rim);
+  const key=new THREE.DirectionalLight(0xffddb0,3.4);key.position.set(-45,120,135);key.castShadow=quality!=='low';key.shadow.mapSize.set(1024,1024);key.shadow.camera.left=-300;key.shadow.camera.right=300;key.shadow.camera.top=300;key.shadow.camera.bottom=-300;key.shadow.camera.near=1;key.shadow.camera.far=650;key.shadow.bias=-.0003;scene.add(key);
+  const rim=new THREE.DirectionalLight(0x9edce2,2.9);rim.position.set(80,55,-30);scene.add(rim);
   const player=createTowerCharacter({tint:0xf7a65d,kind:'climber'});player.traverse(o=>{if(o.isMesh)o.castShadow=true});actors.add(player);
   // This quality-review turntable reuses exactly the same production character assets.
   // It does not alter game authority or the live snapshot and is opt-in only.
@@ -170,7 +170,10 @@ export function mountTower3D({host,getFrame,reducedMotion=false,highContrast=fal
     const standard=palettes[theme]||palettes.foundry;
     const p=highContrast?{...standard,stone:0x59616b,rim:0xffffff,glow:0xffe2a5,haze:0x21212b,accent:0xffffff}:standard;
     scene.background=new THREE.Color(p.haze);fog.color.setHex(p.haze);scene.fog=highContrast?null:fog;
-    key.color.setHex(p.accent);rim.color.setHex(p.glow);
+    key.color.setHex(p.accent);
+    const bounce={foundry:0x8cdaea,ruins:0x7de1af,storm:0xaff6ff,clockwork:0xb4d5ef,void:0xe1a7ff};
+    rim.color.setHex(bounce[theme]||0xb5d9e6);
+    renderer.toneMappingExposure=theme==='void'?1.44:theme==='ruins'?1.39:1.34;
     const stone=stoneworkMaterial(theme,p.stone),trim=matte(p.rim,.64,.44),dark=matte(0x131923,.96,.08),light=emissive(p.glow,1.9);
     const centerY=coord(s.chunkBaseY+s.chunkHeight*.5);
     // The v4 visual pass removes the grid-like wall responsible for the flat blue prototype look.
