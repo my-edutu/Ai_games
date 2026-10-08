@@ -49,7 +49,7 @@ function noiseForCue(audio,cue,destination,start,duration){
     let seed=0x71a294c3;
     for(let i=0;i<data.length;i++){
       seed=(Math.imul(seed,1664525)+1013904223)|0;
-      data[i]=((seed>>>9)/0x7fffff)*2-1;
+      data[i]=((seed>>>8)/0xffffff)*2-1;
     }
   }
   const source=audio.createBufferSource(),gain=audio.createGain();
