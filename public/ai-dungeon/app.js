@@ -544,7 +544,8 @@ function animate(t){requestAnimationFrame(animate);const time=t/1000,dt=Math.min
  const cameraType=cameraModes[cameraIndex]||'cinematic',offsets=cameraType==='tactical'?[3.5,23.5,4.5]:cameraType==='chase'?[6.1,12.0,7.2]:[9.5,17.2,11.3];
  const boss=state?.units.find(u=>u.kind==='warden'&&u.hp>0),bossDistance=boss&&state?.units.some(u=>u.faction==='party'&&u.hp>0&&Math.abs(u.x-boss.x)+Math.abs(u.z-boss.z)<=5);
  const look=new THREE.Vector3(target.x,0,target.z);
- if(boss&&bossDistance&&cameraType==='cinematic')look.lerp(new THREE.Vector3(boss.x-9,0,boss.z-9),.28);
+ // Frame the actual encounter midpoint, not a fabricated nine-tile offset that pushes the boss and heroes offscreen.
+ if(boss&&bossDistance&&cameraType==='cinematic')look.lerp(new THREE.Vector3(boss.x,0,boss.z),.28);
  const cam=new THREE.Vector3(look.x+offsets[0],offsets[1],look.z+offsets[2]);
  camera.position.lerp(cam,reduced?1:.065);camera.lookAt(look.x,0,look.z);
  // The camera must settle before the cutaway is measured. Previous frames culled
