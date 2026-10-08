@@ -242,7 +242,7 @@ function resolveRectangle(marble: MarbleCompetitor, rectangle: Rectangle, radius
   };
 }
 
-function resolveBumper(marble: MarbleCompetitor, bumper: ArenaBumper, marbleRadius: number): PhysicsContact | null {
+function resolveBumper(marble: MarbleCompetitor, bumper: ArenaBumper, marbleRadius: number, stateMaxVerticalSpeed: number): PhysicsContact | null {
   if (marble.elevation >= BUMPER_COLLIDER_TOP) return null;
   const dx = marble.position.x - bumper.x;
   const dy = marble.position.y - bumper.y;
@@ -256,6 +256,12 @@ function resolveBumper(marble: MarbleCompetitor, bumper: ArenaBumper, marbleRadi
   marble.position.y += divideRound(normal.y * penetration, FIXED_SCALE);
   const reflected = reflect(marble.velocity, normal, bumper.restitutionPermille);
   marble.velocity = reflected.velocity;
+  if (reflected.impulse > 0 && marble.grounded && (bumper.launchSpeed ?? 0) > 0) {
+    // Physical launch only after an approaching, authoritative contact; not
+    // from an arbitrary renderer animation or spectator event.
+    marble.verticalVelocity = Math.min(stateMaxVerticalSpeed, bumper.launchSpeed ?? 0);
+    marble.grounded = false;
+  }
   return { key: `bumper:${bumper.id}:${marble.id}`, kind: 'bumper', marbleId: marble.id, colliderId: bumper.id, impulse: reflected.impulse };
 }
 
@@ -427,7 +433,7 @@ export function stepMarblePhysics(state: MarbleState, actions: MarbleAction[]): 
       for (const contact of resolveWorld(marble, next)) addContact(contacts, contact, next.config.maxContactsPerTick);
       for (const rectangle of rectangles) addContact(contacts, resolveRectangle(marble, rectangle, next.config.marbleRadius), next.config.maxContactsPerTick);
       for (const sweeper of sweepers) addContact(contacts, resolveRectangle(marble, sweeper, next.config.marbleRadius), next.config.maxContactsPerTick);
-      for (const bumper of next.arena.bumpers) addContact(contacts, resolveBumper(marble, bumper, next.config.marbleRadius), next.config.maxContactsPerTick);
+      for (const bumper of next.arena.bumpers) addContact(contacts, resolveBumper(marble, bumper, next.config.marbleRadius, next.config.maxVerticalSpeed), next.config.maxContactsPerTick);
       const nextSupport = supportElevation(next, marble.position);
       advanceVertical(marble, previousSupport, nextSupport, next.config, substep, substeps);
     }
