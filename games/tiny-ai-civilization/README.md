@@ -64,6 +64,14 @@ Autonomous merchants now import timber when per-citizen reserves fall critically
 
 **Critic:** Manor Lords parity remains FAIL, GPU/WebGL capture and independent blind A/B unverified. Priority gaps: rigged character assets, PBR-style architectural materials, terrain mesh/material quality, correct shadowing/lighting, GPU screenshot reproducibility, saved-world longevity, longer population stress tests, and authoritative shared engine integration.
 
+## Gauntlet 011 — Browser livestream deployment surface
+
+Created `scripts/serve-tiny-kingdom-stream.cjs`, a minimal local HTTP/OBS browser-source host with `/tiny/`, `/tiny/progress` and `/tiny/health`. It serves only whitelisted assets, returns no-cache HTML, hashes inline scripts/styles in its CSP rather than enabling unsafe-inline, and provides a fail-closed asset-health report. The status explicitly declares `serverAuthoritative:false` and `productionReady:false`; a process serving HTML is **not** the same thing as a 24/7 durable authoritative simulation.
+
+Start after npm installation using `npm run tiny:stream` (defaults to 127.0.0.1:4177), then add `http://127.0.0.1:4177/tiny/` as an OBS Browser Source. `npm run tiny:stream:self-test` validates access boundaries, the page's required functions, progress-page presence and CSP, and is wired into GitHub CI. A syntax parse of the server script passed, while the GitHub CI run and real OBS integration remain unverified.
+
+**Additional performance evidence:** An inspected 150-day local browser simulation using Gauntlet 009 reached 28 citizens, 37 structures, 27 relationships, 699 food, 99 timber and 674 gold without JavaScript page errors; the step loop took ~20.5 seconds. Long-duration service continuity, browser restarts, saved-game durability under power loss and production WebGL are still open.
+
 ## Gauntlet continuation
 
 Primary bar: official *Manor Lords* captured gameplay and screenshots, camera-matched with our game (https://www.hoodedhorse.com/games/manor-lords). Secondary: Foundation for autonomous labor behavior, The Universim for character emergence. Keep original assets; do not copy proprietary models or textures.
