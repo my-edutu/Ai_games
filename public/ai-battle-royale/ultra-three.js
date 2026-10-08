@@ -17,7 +17,8 @@ if(!stage||!source)throw Error('Battle Ultra needs the live public-state rendere
 const state={mode:'initializing',frames:0,meshes:0,actors:0,worldRebuilds:0,
   lastError:null,source:'Quaternius CC0 humanoid',sourceFile:'/battle/models/quaternius-hero.glb',
   materialAtlas:'fallback',joints:0,sceneryInstances:0,
-  gpu:'three-r182',animation:'original AI intent driven bone poses'};
+  gpu:'three-r182',animation:'original AI intent driven bone poses',
+  actionLights:4,renderCostMs:0};
 window.BattleUltraThree=state;
 const colors={vanguard:0xf48154,ranger:0x47cfff,
   scavenger:0xffc355,tactician:0x9ceb7b};
@@ -26,10 +27,11 @@ const zones={
   neon:{sky:0x273763,fog:0x455681,ambient:0x94b7f6,sun:0xe5cfff},
   arctic:{sky:0x9bd3e4,fog:0x8cc3d8,ambient:0xb9dcf9,sun:0xffffff}
 };
-let renderer,scene,camera,wideCamera,sun,hemisphere,terrain,ambientProps,biomeScenery;
+let renderer,scene,camera,wideCamera,sun,hemisphere,terrain,ambientProps,biomeScenery,stormLamp;
 let template,bounds,unitScale=1,modelYOffset=0,lastExportVersion=0,lastStaticKey='';
 let raf=0,ready=false,models=new Map(),bonesByModel=new WeakMap();
 let nametagLayer=null,clockTime=0,tracked=new THREE.Vector3(),cameraPosition=new THREE.Vector3();
+const actionLamps=[],MAX_ACTION_LAMPS=4;
 let atlasLoaded=false,atlasTexture=null,atlasLoading=false,biomeMaterialRow=0;
 const texturedMaterials=opts.get('ultraMaterial')!=='off';
 const uvScale=1/3.3;
@@ -365,6 +367,37 @@ function positionCamera(frame){
   wideCamera.position.set(a.width*.91,Math.max(a.width,a.height)*1.12,a.height*.93);
   wideCamera.lookAt(a.width/2,0,a.height/2);
 }
+function updateCinematicLights(frame,seconds){
+  // Lights do not fabricate hit events. Only very recent authoritative
+  // miss/hit/shield-break/elimination records can create a glow.
+  const entities=new Map(frame.snapshot.combatants.map(actor=>[actor.id,actor]));
+  const w=frame.snapshot.arena.width;
+  const events=frame.snapshot.recentEvents.filter(event=>
+    ['hit','miss','shield-broken','elimination'].includes(event.type)&&
+    Number.isInteger(event.tick)&&event.tick>=frame.snapshot.tick-1).slice(-MAX_ACTION_LAMPS);
+  for(let i=0;i<MAX_ACTION_LAMPS;i++){
+    const bulb=actionLamps[i],event=events[i];
+    if(!bulb)continue;
+    if(!event){bulb.intensity=0;continue}
+    const target=entities.get(event.targetId),origin=entities.get(event.actorId);
+    const actor=target||origin;
+    const cell=actor?.cell??event.cell;
+    if(!Number.isInteger(cell)){bulb.intensity=0;continue}
+    const pos=positionOf({cell},w);
+    bulb.position.set(pos.x,1.3,pos.z);
+    bulb.color.setHex(event.type==='shield-broken'?0x59c9ff:
+      event.type==='elimination'?0xff547a:0xffbd58);
+    const pulse=.70+.30*Math.sin(seconds*20+i);
+    bulb.intensity=event.type==='elimination'?1.8*pulse:1.2*pulse;
+  }
+  const zone=frame.snapshot.zone;
+  const center=positionOf({cell:zone.centerCell},w);
+  if(stormLamp){
+    stormLamp.position.set(center.x,1.8,center.z);
+    stormLamp.color.setHex(frame.snapshot.arena.theme==='ember'?0xffae53:0x68caff);
+    stormLamp.intensity=zone.ticksUntilShrink<=4?1.2:.33;
+  }
+}
 function updateLabels(frame){
   if(!nametagLayer)return;
   const fragments=[];
@@ -423,10 +456,22 @@ function draw(time){
     }
   }
   positionCamera(frame);
+  updateCinematicLights(frame,time*.001);
   updateLabels(frame);
-  renderer.render(scene,camera);
-  if(w>=950&&h>=450)displayInset();
-  state.frames++;
+  const frameStart=performance.now();
+  try{
+    renderer.render(scene,camera);
+    if(w>=950&&h>=450)displayInset();
+    state.renderCostMs=Number((performance.now()-frameStart).toFixed(2));
+    state.frames++;
+  }catch(error){
+    ready=false;
+    state.mode='fallback-webgl2';
+    state.lastError=String(error?.message||error).slice(0,190);
+    document.body.dataset.battleRenderer='webgl2';
+    nametagLayer?.replaceChildren();
+    renderer.domElement.style.display='none';
+  }
 }
 async function start(){
   const model=await new GLTFLoader().loadAsync('/battle/models/quaternius-hero.glb');
@@ -462,6 +507,12 @@ async function start(){
   sun.shadow.normalBias=.018;
   sun.shadow.camera.updateProjectionMatrix();
   scene.add(sun);
+  for(let i=0;i<MAX_ACTION_LAMPS;i++){
+    const lamp=new THREE.PointLight(0xffb755,0,3.6,2);
+    lamp.castShadow=false;scene.add(lamp);actionLamps.push(lamp);
+  }
+  stormLamp=new THREE.PointLight(0x65d9ff,.25,5.8,2);
+  stormLamp.castShadow=false;scene.add(stormLamp);
   await loadEnvironmentAtlas();
   nametagLayer=document.createElement('div');
   nametagLayer.className='battle-three-nameplates';
