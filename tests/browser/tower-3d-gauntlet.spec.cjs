@@ -211,6 +211,18 @@ test('environmental atmosphere renderer provides bounded real geometry and measu
   await page.screenshot({path:path.join(artifacts,'gauntlet-v8-atmosphere-cleanfeed.png'),fullPage:true});
 });
 
+test('WebGL context loss returns uninterrupted authority feed to legacy 2D renderer',async({page})=>{
+  await page.goto(base+'/tower',{waitUntil:'domcontentloaded'});
+  await expect.poll(()=>page.evaluate(()=>window.__TOWER_3D_ACTIVE__),{timeout:25000}).toBe(true);
+  const before=Number(await page.locator('[data-testid="tick"]').textContent());
+  await page.locator('#tower-3d-canvas').evaluate(canvas=>
+    canvas.dispatchEvent(new Event('webglcontextlost',{cancelable:true}))
+  );
+  await expect.poll(()=>page.evaluate(()=>document.body.dataset.towerRenderer),{timeout:15000}).toBe('2d-fallback');
+  await expect(page.locator('#tower-3d-canvas')).toHaveCount(0);
+  await expect.poll(async()=>Number(await page.locator('[data-testid="tick"]').textContent()),{timeout:15000}).toBeGreaterThan(before);
+  await expect(page.locator('[data-testid="tower-canvas"]')).toBeVisible();
+});
 test('3D module unavailable degrades safely to the existing 2D scene',async({page})=>{
   await page.route('**/tower/scene3d.js',route=>route.fulfill({status:503,body:'Module unavailable'}));
   await page.goto(base+'/tower');
