@@ -3,6 +3,7 @@
 (()=>{
   const params=new URLSearchParams(location.search);
   const forced2d=params.get('visual')==='2d';
+  const quality=params.get('quality')==='low'?'low':'high';
   const tactical=document.querySelector('[data-testid="battle-canvas"]');
   const host=tactical?.parentElement;
   const colours={
@@ -51,7 +52,7 @@
   const reducedMotion=params.get('reducedMotion')==='1'||matchMedia('(prefers-reduced-motion: reduce)').matches;
   const reducedFlash=params.get('reducedFlash')==='1';
   let previousSnapshot=null,startedAt=0,animationId=0,lastPaintTime=0;
-  const status={mode:forced2d?'forced-2d':'initializing',frames:0,triangles:0,contenders:0,p95SubmitMs:0,sceneBuilds:0};
+  const status={mode:forced2d?'forced-2d':'initializing',frames:0,triangles:0,contenders:0,p95SubmitMs:0,sceneBuilds:0,quality:quality};
   const staticCache={key:null,vertices:0};
   const frameSamples=[];
   const headings=new Map();
@@ -463,15 +464,23 @@
       b.quad([x,.012,y],[x,.012,y+1],[x+1,.012,y+1],[x+1,.012,y],[0,1,0],tint);
       if((x*7+y*13)%41===0)b.box(x+.24,.065,y+.32,.11,.12,.13,t.accent);
     }
-    terrainDetails(b,a,t);
-    for(const cell of a.obstacles.slice(0,2048))fortification(b,cell,w,t,false);
-    for(const cell of a.cover.slice(0,2048))fortification(b,cell,w,t,true);
+    if(quality!=='low')terrainDetails(b,a,t);
+    for(const cell of a.obstacles.slice(0,2048)){
+      if(quality==='low'){const p=pos(cell,w);b.box(p.x,.72,p.z,.91,1.44,.91,t.wall)}
+      else fortification(b,cell,w,t,false);
+    }
+    for(const cell of a.cover.slice(0,2048)){
+      if(quality==='low'){const p=pos(cell,w);b.box(p.x,.32,p.z,.75,.64,.75,t.wall)}
+      else fortification(b,cell,w,t,true);
+    }
     b.box(w/2,.15,-.1,w+.35,.3,.2,t.wall);
     b.box(w/2,.15,h+.1,w+.35,.3,.2,t.wall);
     b.box(-.1,.15,h/2,.2,.3,h+.35,t.wall);
     b.box(w+.1,.15,h/2,.2,.3,h+.35,t.wall);
-    worldLandmarks(b,a,t);
-    atmosphericBackdrop(b,a,t);
+    if(quality!=='low'){
+      worldLandmarks(b,a,t);
+      atmosphericBackdrop(b,a,t);
+    }
     for(const [x,z] of [[0,0],[w,0],[0,h],[w,h]]){
       b.box(x,1.04,z,.35,2.08,.35,t.wall);
       b.box(x,2.16,z,.54,.24,.54,t.accent);
@@ -591,7 +600,7 @@
       if(canvas.width!==width||canvas.height!==height){canvas.width=width;canvas.height=height}
       gl.viewport(0,0,width,height);
       const a=snapshot.arena;
-      const key=JSON.stringify([a.width,a.height,a.theme,a.obstacles,a.cover]);
+      const key=JSON.stringify([a.width,a.height,a.theme,a.obstacles,a.cover,quality]);
       if(key!==staticCache.key){
         const staticBuilder=mesh();
         worldStatic(staticBuilder,a);
