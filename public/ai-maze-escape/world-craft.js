@@ -72,6 +72,46 @@ export function makeWorldCraft(THREE) {
     m.canopyLight.color.setHex(theme==='hunter'?0xe35673:theme==='layers'?0x6488ee:theme==='chambers'?0xf4aa69:0x39d69b);
     return theme;
   }
+  function decorateWall({world,x,z,id,kind,queue,put,height,glow}){
+    // Repeated walls receive biome-specific sculpture rather than the same green bricks.
+    if(id%4!==0)return;
+    const vertical=kind==='NS';
+    const dx=vertical?0:.18,dz=vertical?.18:0;
+    const face=vertical?0:Math.PI/2;
+    if(theme==='tree'||theme==='loops'){
+      for(let n=0;n<3;n++){
+        const length=.5+n*.22+noise(id,n,15)*.4;
+        queue(g.trunk,m.bark,[x+dx+(vertical?(n-1)*.3:0),height-length*.36,z+dz+(vertical?0:(n-1)*.3)],
+          [.08,length*.65,.08]);
+        queue(g.leaf,n%2?m.canopyLight:m.jadeLeaf,
+          [x+dx+(vertical?(n-1)*.3:0),height-length*.52,z+dz+(vertical?0:(n-1)*.3)],
+          [.19,length*.45,.15]);
+      }
+    }else if(theme==='chambers'){
+      const sun=put(g.disc,m.goldInlay,world,[x+dx,height*.61,z+dz],[.34,.25,.34]);
+      sun.rotation.set(vertical?Math.PI/2:0,0,vertical?0:Math.PI/2);
+      queue(g.slab,m.carvedRuin,[x,height*.32,z],vertical?[.8,.2,.29]:[.29,.2,.8]);
+      for(let j=-1;j<=1;j++){
+        const i=put(g.spire,m.hotAmber,world,
+          [x+dx+(vertical?j*.38:0),height*.63,z+dz+(vertical?0:j*.38)],[.08,.37,.08]);
+        i.rotation.z=Math.PI;
+      }
+    }else if(theme==='layers'){
+      const crystal=put(g.orb,m.royalViolet,world,[x+dx,height*.65,z+dz],[.27,.57,.14]);
+      crystal.rotation.y=face;
+      queue(g.slab,m.darkMarble,[x,height*.44,z],vertical?[.59,.10,.28]:[.28,.10,.59]);
+      queue(g.slab,m.goldInlay,[x,height*.92,z],vertical?[.70,.05,.30]:[.30,.05,.70]);
+    }else if(theme==='hunter'){
+      const banner=put(g.flag,m.hangingCloth,world,[x+dx,height*.62,z+dz],[.65,.85,1]);
+      banner.rotation.y=face;
+      for(let j=-1;j<=1;j++){
+        const thorn=put(g.spire,m.redCrystal,world,
+          [x+(vertical?j*.37:0),height+.26,z+(vertical?0:j*.37)],[.11,.52,.11]);
+        thorn.rotation.z=j*.21;
+      }
+      queue(g.prism,m.bloodBronze,[x,height*.44,z],vertical?[.26,.17,.43]:[.43,.17,.26]);
+    }
+  }
   function populate({world,snapshot,cells,queue,put,point,grid,glow}){
     const p=palettes[theme];
     let clusters=0;
@@ -267,5 +307,5 @@ export function makeWorldCraft(THREE) {
     sign.position.set(-.47,.55,-.23);
     return sign;
   }
-  return {geometries:g,materials:m,setTheme,populate,addHeroSurroundings};
+  return {geometries:g,materials:m,setTheme,populate,decorateWall,addHeroSurroundings};
 }
