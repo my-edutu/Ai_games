@@ -406,7 +406,18 @@
   function drawFinishGate(arena,theme,viewProjection,cameraPosition){const finish=toWorld(arena.width/2,arena.finishY,arena),halfWidth=arena.width*WORLD_SCALE/2,steel=material(theme.rail,0.32,0.82),accent=material(theme.accent,0.32,0.35,0.18);drawBox([-halfWidth+0.32,1.15,finish[2]],[0.22,2.3,0.22],steel,viewProjection,cameraPosition);drawBox([halfWidth-0.32,1.15,finish[2]],[0.22,2.3,0.22],steel,viewProjection,cameraPosition);drawBox([0,2.22,finish[2]],[arena.width*WORLD_SCALE-0.6,0.22,0.26],steel,viewProjection,cameraPosition);for(let index=0;index<24;index+=1){const cellWidth=arena.width*WORLD_SCALE/24,color=index%2===0?[0.92,0.91,0.86]:[0.055,0.055,0.06];drawBox([-halfWidth+cellWidth*(index+0.5),0.04,finish[2]],[cellWidth,0.04,0.24],material(color,0.84,0),viewProjection,cameraPosition);}drawBox([0,2.21,finish[2]-0.15],[3.6,0.08,0.08],accent,viewProjection,cameraPosition);}
   function drawHazardPit(hazard,arena,theme,viewProjection,cameraPosition){const origin=toWorld(hazard.x,hazard.y,arena),width=hazard.width*WORLD_SCALE,depth=hazard.height*WORLD_SCALE,center=[origin[0]+width/2,-0.005,origin[2]+depth/2];drawBox(center,[width,0.055,depth],material(theme.hazard,0.92,0.02,0.16),viewProjection,cameraPosition);const rim=material(theme.accent,0.44,0.34,0.08);drawBox([center[0],0.07,center[2]-depth/2],[width+0.12,0.12,0.08],rim,viewProjection,cameraPosition);drawBox([center[0],0.07,center[2]+depth/2],[width+0.12,0.12,0.08],rim,viewProjection,cameraPosition);}
   function drawObstacle(obstacle,arena,theme,viewProjection,cameraPosition){const origin=toWorld(obstacle.x,obstacle.y,arena),width=obstacle.width*WORLD_SCALE,depth=obstacle.height*WORLD_SCALE,center=[origin[0]+width/2,0.38,origin[2]+depth/2];drawBox(center,[width,0.76,depth],material([0.27,0.29,0.30],0.32,0.72),viewProjection,cameraPosition);drawBox([center[0],0.78,center[2]],[width*0.9,0.08,depth*0.84],material(theme.rail,0.24,0.76),viewProjection,cameraPosition);drawBox([center[0],0.20,center[2]-depth/2-0.03],[width*0.72,0.18,0.06],material(theme.accent,0.40,0.30,0.08),viewProjection,cameraPosition);}
-  function drawBumper(bumper,arena,theme,viewProjection,cameraPosition){const point=toWorld(bumper.x,bumper.y,arena),radius=bumper.radius*WORLD_SCALE;drawMesh(cylinderMesh,modelMatrix([point[0],0.34,point[2]],[0,0,0],[radius,0.34,radius]),material([0.48,0.50,0.52],0.18,0.82),viewProjection,cameraPosition);drawMesh(cylinderMesh,modelMatrix([point[0],0.70,point[2]],[0,0,0],[radius*0.72,0.08,radius*0.72]),material(theme.accent,0.24,0.38,0.08),viewProjection,cameraPosition);}
+  function drawBumper(bumper,arena,theme,viewProjection,cameraPosition){
+    const point=toWorld(bumper.x,bumper.y,arena),radius=bumper.radius*WORLD_SCALE;
+    const spring=(bumper.launchSpeed||0)>0;
+    const metal=material([0.48,0.50,0.52],0.18,0.82);
+    drawMesh(cylinderMesh,modelMatrix([point[0],0.34,point[2]],[0,0,0],[radius,0.34,radius]),metal,viewProjection,cameraPosition);
+    drawMesh(cylinderMesh,modelMatrix([point[0],0.70,point[2]],[0,0,0],[radius*0.72,0.08,radius*0.72]),material(spring?[0.12,0.78,0.98]:theme.accent,0.24,0.38,spring?0.36:0.08),viewProjection,cameraPosition);
+    if(spring){
+      // The bright coiled crest marks an actual authoritative launch bumper.
+      drawMesh(cylinderMesh,modelMatrix([point[0],0.82,point[2]],[0,0,0],[radius*0.50,0.05,radius*0.50]),material([0.40,0.86,1],0.18,0.54,0.65),viewProjection,cameraPosition);
+      drawBox([point[0],0.96,point[2]],[radius*0.32,0.14,radius*0.32],material([0.88,0.97,1],0.12,0.30,0.25),viewProjection,cameraPosition);
+    }
+  }
 
   function drawFactorySupport(ramp,arena,theme,viewProjection,cameraPosition){
     const origin=toWorld(ramp.x,ramp.y,arena),width=ramp.width*WORLD_SCALE,depth=ramp.height*WORLD_SCALE,start=ramp.startElevation*WORLD_SCALE,end=ramp.endElevation*WORLD_SCALE;
