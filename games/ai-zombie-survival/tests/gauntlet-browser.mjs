@@ -1,4 +1,5 @@
 import { chromium } from '@playwright/test';
+import { scoreScreenshot, compareWithVisualGoals } from './browser-scene-quality.mjs';
 import assert from 'node:assert/strict';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
@@ -45,7 +46,12 @@ try{
   assert.deepEqual(hudStyles,['#42f2e1','#ff647a','#ffc96e']);
   assert.ok((await page.locator('#cameraLabel').textContent()).length>2);
   await page.keyboard.press('h');
-  await page.screenshot({path:root+'world-hud-hidden.png'});
+  const uncovered=await page.screenshot({path:root+'world-hud-hidden.png'});
+  const appearance=await scoreScreenshot(page,uncovered);
+  const score=compareWithVisualGoals(appearance);
+  report.visualQuality={appearance,score};
+  assert.ok(score.minimumReadability,'The daylight game world is still too dark to read');
+  assert.ok(score.minimumSaturation,'The daylight game world palette regressed to washed-out gray');
   await page.keyboard.press('h');
   await page.screenshot({path:root+'vibrant-ui.png'});
   report.checks.vibrantHudAndMap=true;
