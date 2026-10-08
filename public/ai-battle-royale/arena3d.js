@@ -249,6 +249,29 @@
     }
     return headings.get(f.id)??0;
   }
+  function characterizeWeapon(weapon){
+    switch(weapon){
+      case 'marksman': return {length:.97,barrel:.042,stock:.30,scope:true,shade:[.29,.37,.44]};
+      case 'scattergun': return {length:.69,barrel:.092,stock:.19,scope:false,shade:[.31,.27,.22]};
+      case 'sidearm': return {length:.37,barrel:.058,stock:.06,scope:false,shade:[.22,.26,.31]};
+      case 'carbine': default: return {length:.78,barrel:.061,stock:.20,scope:true,shade:[.24,.31,.34]};
+    }
+  }
+  function characterPose(f,moving,events){
+    const healing=f.intent==='healing';
+    const attacking=f.intent==='attacking'||events.some(e=>
+      (e.type==='hit'||e.type==='miss')&&e.actorId===f.id);
+    const running=moving&&(f.intent==='pursuing'||f.intent==='seeking-zone'
+      ||f.intent==='seeking-loot'||f.intent==='fallback');
+    const walkPhase=(!reducedMotion&&moving)?Math.sin(performance.now()/(running?88:133)+f.cell*.23):0;
+    const breathing=reducedMotion?0:Math.sin(performance.now()/510+f.cell*.19)*.019;
+    return{
+      crouch:healing?.23:0,
+      swing:walkPhase*(running?1.2:.72),
+      bob:Math.abs(walkPhase)*.06+breathing,
+      attacking,healing,running
+    };
+  }
   function contender(b,f,w,theme,focus,events,roster){
     const p=f.visual||pos(f.cell,w);
     const dead=!f.alive;
@@ -268,13 +291,15 @@
     b.pushPose(p.x,p.z,actorHeading(f,w,events,roster));
     const prev=previousSnapshot?.combatants.find(c=>c.id===f.id);
     const moving=Boolean(prev&&prev.cell!==f.cell);
-    const walkPhase=(!reducedMotion&&moving)?Math.sin(performance.now()/125+f.cell*.23):0;
-    const bob=Math.abs(walkPhase)*.055;
+    const pose=characterPose(f,moving,events);
+    const walkPhase=pose.swing;
+    const bob=pose.bob;
+    const weapon=characterizeWeapon(f.weapon);
     const cx=p.x,cz=p.z;
     const dark=[.07,.12,.16];
     b.box(cx,.032,cz,.67,.026,.56,dark); // soft contact silhouette
     b.ring(cx,.053,cz,.31,.028,[.21,.32,.36],16);
-    const hipY=.73+bob,hipLeft=[cx-.14,hipY,cz],hipRight=[cx+.14,hipY,cz];
+    const hipY=.73+bob-pose.crouch,hipLeft=[cx-.14,hipY,cz],hipRight=[cx+.14,hipY,cz];
     const leftKnee=[cx-.18,.39+bob+walkPhase*.105,cz+walkPhase*.15];
     const rightKnee=[cx+.18,.39+bob-walkPhase*.105,cz-walkPhase*.15];
     const leftFoot=[cx-.19,.14,cz+walkPhase*.30+.07];
@@ -291,7 +316,9 @@
     b.box(cx,hipY+.36,cz+.26,.33,.09,.10,neutral); // utility belt
     b.box(cx,hipY+.63,cz-roleArmor.backpack,.43,.47,.16,neutral);
     b.cylinder(cx,hipY+.99,cz,.13,.16,undersuit,8);
-    const shoulderY=hipY+.87,elbowZ=cz+.15,handZ=cz+.41;
+    const shoulderY=hipY+.87;
+    const elbowZ=cz+(pose.attacking?.22:pose.healing?-.10:.15);
+    const handZ=cz+(pose.attacking?.56:pose.healing?.04:.41);
     b.cone(cx-.38,shoulderY,cz,roleArmor.shoulders,.16,.22,roleArmor.trim,7);
     b.cone(cx+.38,shoulderY,cz,roleArmor.shoulders,.16,.22,roleArmor.trim,7);
     b.limb([cx-.36,shoulderY,cz],[cx-.36,hipY+.53,elbowZ],.095,roleArmor.main);
@@ -316,16 +343,34 @@
       b.box(cx-.39,hipY+1.12,cz,.12,.17,.15,theme.accent);
       b.ring(cx,hipY+1.54,cz,.21,.025,roleArmor.trim,20);
     }
-    // Distinct modeled firearms stay presentation-only: they never determine hit legality.
-    const weaponShade=f.weapon==='sniper'?[.31,.41,.45]:[.20,.24,.31];
-    b.limb([cx+.05,hipY+.67,cz+.27],[cx+.05,hipY+.72,cz+.84],.085,weaponShade);
-    b.box(cx+.06,hipY+.79,cz+.55,.15,.12,.35,neutral);
-    b.cylinder(cx+.06,hipY+.72,cz+.92,.045,.12,steel,6);
-    b.box(cx-.06,hipY+.48,cz+.45,.13,.24,.09,steel);
-    const muzzleFlash=!reducedFlash&&events.some(e=>(e.type==='hit'||e.type==='miss')&&e.actorId===f.id);
-    if(muzzleFlash){
-      b.cone(cx+.06,hipY+.72,cz+1.04,.16,0,.28,[1,.88,.31],7);
-      b.ring(cx+.06,hipY+.72,cz+1.0,.17,.05,[1,.42,.12],16);
+    // Public legal weapon types control visual shapes, not accuracy or damage.
+    const weaponY=pose.attacking?hipY+.85:hipY+.68;
+    const near=cz+(pose.healing?.15:.27);
+    const far=near+weapon.length;
+    if(!pose.healing){
+      b.limb([cx+.055,weaponY,near],[cx+.055,weaponY+.02,far],weapon.barrel,weapon.shade);
+      b.box(cx+.055,weaponY+.11,(near+far)/2,.17,.13,weapon.length*.44,neutral);
+      b.box(cx-.055,weaponY-.21,near+.24,.12,.26,.095,steel);
+      b.box(cx+.055,weaponY+.035,near-.09,.18,.17,weapon.stock,weapon.shade);
+      if(weapon.scope){
+        b.box(cx+.055,weaponY+.22,near+weapon.length*.49,.12,.09,.25,[.06,.16,.23]);
+        b.cylinder(cx+.055,weaponY+.22,near+weapon.length*.55,.060,.18,steel,7);
+      }
+      if(f.weapon==='scattergun'){
+        b.cylinder(cx+.055,weaponY+.02,far,.095,.20,neutral,9);
+        b.box(cx+.055,weaponY-.10,near+.33,.22,.07,.25,steel);
+      }
+      if(f.weapon==='sidearm')b.box(cx+.055,weaponY-.12,near+.1,.12,.20,.08,steel);
+      const muzzleFlash=!reducedFlash&&events.some(e=>(e.type==='hit'||e.type==='miss')&&e.actorId===f.id);
+      if(muzzleFlash){
+        b.cone(cx+.055,weaponY+.02,far+.12,.16,0,.25,[1,.89,.32],7);
+        b.ring(cx+.055,weaponY+.02,far+.06,.14,.043,[1,.49,.16],16);
+      }
+    }else{
+      // Health pack and triage posture are purely a reaction to public 'healing' intent.
+      b.box(cx,hipY+.60,cz+.43,.29,.22,.24,[.81,.91,.85]);
+      b.box(cx,hipY+.60,cz+.564,.17,.06,.045,[.22,.66,.58]);
+      b.box(cx,hipY+.60,cz+.565,.045,.17,.05,[.22,.66,.58]);
     }
     const hp=Math.max(0,Math.min(1,f.health/Math.max(1,f.maxHealth)));
     const shield=Math.max(0,Math.min(1,f.shield/Math.max(1,f.maxShield)));
