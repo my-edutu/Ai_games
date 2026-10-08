@@ -3,6 +3,7 @@ import {makeWorldCraft} from '/maze/world-craft.js';
 import {makeCharacterArt} from '/maze/character-art.js';
 import {createAtmosphere} from '/maze/atmosphere.js';
 import {createCinematicDirector} from '/maze/cinematic-director.js';
+import {createRenderBudget} from '/maze/render-budget.js';
 
 // Public-state-only 3D presentation. This module never reads hidden maze authority.
 const stage = document.getElementById('stage');
@@ -190,6 +191,8 @@ const worldCraft=makeWorldCraft(THREE);
 const characterArt=makeCharacterArt(THREE);
 const atmosphere=createAtmosphere(THREE);
 const cinematics=createCinematicDirector(THREE);
+const renderBudget=createRenderBudget({mode:stateQuery.get('quality')||'adaptive',dpr:window.devicePixelRatio||1,compact:isCompact()});
+let updateViewport=()=>{};
 Object.assign(materials,worldCraft.materials);
 const reusable = new Set([...Object.values(geometries),...Object.values(worldCraft.geometries),...Object.values(characterArt.geometries)]);
 function point(cell, width) {
@@ -671,7 +674,11 @@ function render(now) {
     return;
   }
   fpsFrames++;
-  if(now-fpsSince>=1000){currentFPS=Math.round(fpsFrames*1000/Math.max(1,now-fpsSince));fpsFrames=0;fpsSince=now;}
+  if(now-fpsSince>=1000){
+    currentFPS=Math.round(fpsFrames*1000/Math.max(1,now-fpsSince));fpsFrames=0;fpsSince=now;
+    const decision=renderBudget.sample(currentFPS,now);
+    if(decision.changed){renderer.setPixelRatio(decision.ratio);updateViewport();}
+  }
   if(!window.__MAZE_3D_METRICS__ || now-(window.__MAZE_3D_METRICS__.sampleAt||0)>1000){
     window.__MAZE_3D_METRICS__={
       active:true,sampleAt:now,fps:currentFPS,drawCalls:renderer.info.render.calls,
@@ -683,6 +690,8 @@ function render(now) {
       artDetails:world.userData.artStats||null,
       visualTheme:window.__MAZE_3D_THEME__,
       cinematicCue:cinematics.cue,
+      qualityMode:renderBudget.mode,
+      pixelRatio:renderBudget.ratio,
       webgl2:renderer.capabilities.isWebGL2
     };
   }
@@ -699,7 +708,7 @@ function init() {
   stage.appendChild(mount);
   try{
     renderer=new THREE.WebGLRenderer({antialias:true,alpha:false,powerPreference:'high-performance'});
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,1.5));
+    renderer.setPixelRatio(renderBudget.ratio);
     renderer.outputColorSpace=THREE.SRGBColorSpace;
     renderer.toneMapping=THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure=1.85;
@@ -773,7 +782,7 @@ function init() {
   sunLight=sun;
   sun.position.set(-7,14,-3);
   sun.castShadow=true;
-  sun.shadow.mapSize.set(1024,1024);
+  sun.shadow.mapSize.set(renderBudget.shadowResolution,renderBudget.shadowResolution);
   sun.shadow.camera.left=-29;sun.shadow.camera.right=29;
   sun.shadow.camera.top=29;sun.shadow.camera.bottom=-29;
   sun.shadow.camera.near=.5;sun.shadow.camera.far=75;
@@ -802,6 +811,7 @@ function init() {
     camera.aspect=Math.max(1,rect.width)/Math.max(1,rect.height);
     camera.updateProjectionMatrix();
   };
+  updateViewport=resize;
   resize();
   const observer=new ResizeObserver(resize);
   observer.observe(mount);
