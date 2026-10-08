@@ -37,6 +37,8 @@ jobs:
         run: npm ci --no-audit --no-fund
       - name: Build verified runtime
         run: npm run build
+      - name: Validate real Three.js meshes and public-only art
+        run: node --test tests/browserless/maze-scene-art.test.cjs
       - name: Install browser
         run: npx playwright install --with-deps chromium
       - name: Capture true running game at desktop and mobile sizes
