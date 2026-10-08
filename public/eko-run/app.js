@@ -9,6 +9,7 @@ import { createEkoSoundscape } from '/eko/soundscape.js';
 import { createAdaptiveQualityGovernor } from '/eko/adaptive-quality.js';
 import { createCityCrowd } from '/eko/city-crowd.js';
 import { sculptStreetHazard } from '/eko/hazard-sculpt.js';
+import { buildDistrictLandmarks } from '/eko/district-landmarks.js';
 
 // Presentation-only renderer. The Node simulation owns all movement, collision and rewards.
 const $ = id => document.getElementById(id);
@@ -296,7 +297,7 @@ function buildWorld(snapshot) {
     // Preserve Lagos tree canopy on the back sidewalk, away from camera sightlines.
     if(i%4===0) makeTree(terrain,x+.4,-5.85,i+4);
     if(i%4===0) makeLamp(terrain,x,-4.40,night);
-    if(i%4===1) makeBus(terrain,x+1.0,-2.42,i);
+    if(i%4===1) makeBus(terrain,x+1.0,-6.7,i); // parked traffic beyond active lane
     if(i%5===0){
       box(terrain,.65,.50,.50,x+.45,.28,4.85,0x4e7365,false);
       box(terrain,.74,.08,.60,x+.45,.57,4.85,0x254e58,false);
@@ -403,6 +404,9 @@ function buildWorld(snapshot) {
   box(terrain,.24,4.6,.24,snapshot.route.finishX,2.30,-3.02,0xffc857);
   labelSprite(terrain,'FINISH LINE',snapshot.route.finishX,4.48,-3,{scale:1,bg:'#173d4c'});
   worldState.vibrance=composeStreetVibrance(THREE,{terrain,box,ball,cylinder,labelSprite,material,district,length,quality:worldState.quality});
+  worldState.landmarks=buildDistrictLandmarks(THREE,{
+    terrain,district,length,box,cylinder,ball,labelSprite,material,quality:worldState.quality
+  });
   // Limit terrain shadow casters; the actor and reactive dangers retain silhouettes.
   terrain.traverse(node=>{if(node.isMesh)node.castShadow=false;});
   worldState.batching=batchDistrictGeometry(THREE,terrain,{chunkMeters:18,mergeSolidColors:true});
@@ -446,7 +450,7 @@ window.__EKO_VISUAL_AUDIT__=()=>{
   return Object.freeze({
     character:{type:'original-procedural-joint-rig',joints:actor.articulatedJoints,meshes:actorMeshes,
       outfits:actor.availableOutfits,outfit:worldState.outfit,...projectedVisibility()},
-    environment:{district:worldState.district,horizonLength:worldState.horizonLength,meshes:worldMeshes,batching:worldState.batching,materials:surfaces.stats(),vibrance:worldState.vibrance,atmosphere:atmosphere.signature},
+    environment:{district:worldState.district,horizonLength:worldState.horizonLength,meshes:worldMeshes,batching:worldState.batching,materials:surfaces.stats(),vibrance:worldState.vibrance,landmarks:worldState.landmarks,atmosphere:atmosphere.signature},
     performance:{drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,visualEffects:vfx.stats(),crowd:cityCrowd.metrics(),adaptive:qualityGovernor.metrics(),
       pixelRatio:renderer.getPixelRatio(),frameRateReported:ui.fps.textContent,
       renderer:renderer.capabilities.isWebGL2?'WebGL2':'WebGL'},
