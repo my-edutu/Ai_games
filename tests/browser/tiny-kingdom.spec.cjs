@@ -575,3 +575,23 @@ test('Tiny Kingdom static architectural meshes are cached across camera updates 
   expect(third.scenicMeshRebuilds).toBeGreaterThan(first.scene.scenicMeshRebuilds);
   expect(errors).toEqual([]);
 });
+
+test('Gauntlet 025 tapered forest boughs render deterministically through seasonal transitions', async ({page}) => {
+  const errors=[];page.on('pageerror',e=>errors.push(e.message));
+  await page.setContent(html);
+  await page.waitForFunction(()=>Boolean(window.__tinyKingdom));
+  await page.locator('#pause').click();
+  const initial=await page.evaluate(()=>({
+    snapshot:JSON.stringify(window.__tinyKingdom.exportSnapshot()),
+    triangles:window.__tinyKingdom.renderStats().lastFrameTriangles
+  }));
+  expect(initial.triangles).toBeGreaterThan(1000);
+  await page.evaluate(()=>window.__tinyKingdom.reset());
+  await page.locator('#pause').click();
+  const after=await page.evaluate(()=>({
+    snapshot:JSON.stringify(window.__tinyKingdom.exportSnapshot()),
+    triangles:window.__tinyKingdom.renderStats().lastFrameTriangles
+  }));
+  expect(after.triangles).toBeGreaterThan(1000);
+  expect(errors).toEqual([]);
+});
