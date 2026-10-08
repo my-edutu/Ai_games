@@ -61,6 +61,51 @@
   const frameSamples=[];
   const headings=new Map();
   let headingRunToken='';
+  const visualEffects=[];
+  const observedSequences=new Set();
+  let visualEventRunToken='';
+  const VISUAL_LIFETIME_MS=1350;
+  const MAX_VISUAL_EVENTS=24;
+  const MAX_SEEN_SEQUENCES=128;
+  function ingestVisualEvents(snapshot){
+    if(visualEventRunToken!==snapshot.runToken){
+      visualEventRunToken=snapshot.runToken;
+      observedSequences.clear();
+      visualEffects.length=0;
+    }
+    const now=performance.now();
+    const actors=new Map(snapshot.combatants.map(f=>[f.id,f]));
+    const valid=['hit','miss','shield-broken','elimination','pickup','zone-shrink'];
+    for(const event of snapshot.recentEvents.slice(-16)){
+      if(!valid.includes(event.type)||!Number.isSafeInteger(event.sequence))continue;
+      if(observedSequences.has(event.sequence))continue;
+      observedSequences.add(event.sequence);
+      const source=event.actorId?actors.get(event.actorId):null;
+      const target=event.targetId?actors.get(event.targetId):null;
+      const location=target?.cell??(Number.isInteger(event.cell)?event.cell:undefined);
+      visualEffects.push({
+        sequence:event.sequence,
+        event,
+        born:now,
+        from:source?.cell,
+        cell:location,
+      });
+    }
+    if(visualEffects.length>MAX_VISUAL_EVENTS)
+      visualEffects.splice(0,visualEffects.length-MAX_VISUAL_EVENTS);
+    // Prevent an unbounded session-long sequence set; very old effects cannot recur.
+    if(observedSequences.size>MAX_SEEN_SEQUENCES){
+      const recent=visualEffects.map(f=>f.sequence);
+      observedSequences.clear();
+      for(const sequence of recent)observedSequences.add(sequence);
+    }
+  }
+  function activeVisualEvents(){
+    const now=performance.now();
+    for(let i=visualEffects.length-1;i>=0;i--)
+      if(now-visualEffects[i].born>VISUAL_LIFETIME_MS)visualEffects.splice(i,1);
+    return visualEffects;
+  }
   function compile(type,source){
     const shader=gl.createShader(type);gl.shaderSource(shader,source);gl.compileShader(shader);
     if(!gl.getShaderParameter(shader,gl.COMPILE_STATUS)){const error=gl.getShaderInfoLog(shader);gl.deleteShader(shader);throw Error(error)}
@@ -331,39 +376,61 @@
     b.box(w/2,.07,h+.10,w+.2,.13,.13,theme.accent);
   }
   function combatEffects(b,s,theme){
-    // Genuine combat cues, derived from existing authoritative event envelopes.
-    const byId=new Map(s.combatants.map(f=>[f.id,f]));
-    const w=s.arena.width;
-    for(const event of s.recentEvents.slice(-12)){
-      const actor=event.actorId?byId.get(event.actorId):null;
-      const target=event.targetId?byId.get(event.targetId):null;
-      if((event.type==='hit'||event.type==='miss'||event.type==='shield-broken')&&actor){
-        const from=pos(actor.cell,w);
-        const to=target?pos(target.cell,w):(Number.isInteger(event.cell)?pos(event.cell,w):null);
-        if(to&&Math.abs(from.x-to.x)+Math.abs(from.z-to.z)>.2){
-          const tint=event.type==='miss'?[.49,.83,1]:[1,.85,.35];
-          b.limb([from.x,1.51,from.z],[to.x,1.16,to.z],.034,tint);
-          b.cone(to.x,.86,to.z,.18,.01,.35,tint,8);
-          if(event.type==='shield-broken')b.ring(to.x,.11,to.z,.48,.070,[.24,.72,1],24);
+    // Cosmetic reactions depend only on sanitized public semantic events.
+    // Never reuse stale event beams beyond their own bounded visual lifetime.
+    const width=s.arena.width;
+    const now=performance.now();
+    for(const effect of activeVisualEvents()){
+      const event=effect.event;
+      const progress=Math.min(1,Math.max(0,(now-effect.born)/VISUAL_LIFETIME_MS));
+      const fade=1-progress;
+      const from=Number.isInteger(effect.from)?pos(effect.from,width):null;
+      const to=Number.isInteger(effect.cell)?pos(effect.cell,width):null;
+      if((event.type==='hit'||event.type==='miss'||event.type==='shield-broken')&&from&&to){
+        const dx=to.x-from.x,dz=to.z-from.z;
+        const range=Math.hypot(dx,dz);
+        if(range>.15){
+          const shot=Math.min(1,progress*4.5);
+          const tail=Math.max(0,shot-.30);
+          const a=[from.x+dx*tail,1.30+(1-tail)*.27,from.z+dz*tail];
+          const z=[from.x+dx*shot,1.30+(1-shot)*.27,from.z+dz*shot];
+          if(!reducedFlash&&progress<.50){
+            const tint=event.type==='miss'?[.52,.85,1]:[1,.78,.27];
+            b.limb(a,z,.024*fade+.010,tint);
+          }
+          if(event.type!=='miss'&&progress<.65){
+            const burst=(progress/.65),radius=.12+.28*burst;
+            const color=event.type==='shield-broken'?[.28,.81,1]:[1,.58,.29];
+            b.ring(to.x,.10,to.z,radius,.035*fade+.01,color,20);
+            if(!reducedFlash){
+              for(let i=0;i<6;i++){
+                const angle=6.283185307179586*i/6+event.sequence*.25;
+                const d=(.16+.30*burst),x=to.x+Math.cos(angle)*d,z=to.z+Math.sin(angle)*d;
+                b.cone(x,.24+.14*burst,z,.055*fade,.004,.15*fade+.02,color,5);
+              }
+            }
+          }
         }
       }
-      if(event.type==='elimination'){
-        const victim=target||(Number.isInteger(event.cell)?{cell:event.cell}:null);
-        if(victim){
-          const at=pos(victim.cell,w);
-          b.ring(at.x,.13,at.z,.56,.08,[1,.27,.33],32);
-          b.cone(at.x,.50,at.z,.26,0,.98,[.96,.26,.30],10);
-          b.cone(at.x,1.11,at.z,.12,0,.45,[1,.77,.32],8);
+      if(event.type==='elimination'&&to){
+        const radius=.3+1.12*progress;
+        b.ring(to.x,.09,to.z,radius,.07*fade+.012,[1,.25,.39],32);
+        if(!reducedFlash){
+          const height=1.6*fade;
+          if(height>.02)b.cone(to.x,height*.50,to.z,.22*fade,.01,height,[1,.53,.24],10);
         }
       }
-      if(event.type==='pickup'&&actor){
-        const at=pos(actor.cell,w);
-        b.ring(at.x,.09,at.z,.45,.043,[.98,.84,.4],24);
+      if(event.type==='pickup'&&to){
+        b.ring(to.x,.08,to.z,.3+.30*progress,.040*fade+.01,[1,.81,.35],24);
+      }
+      if(event.type==='zone-shrink'){
+        const center=pos(s.zone.centerCell,width);
+        b.ring(center.x,.06,center.z,Math.max(.3,s.zone.radius)+progress*.35,.045*fade+.012,theme.accent,64);
       }
     }
   }
 
-  function terrainDetails(b,arena,theme){
+    function terrainDetails(b,arena,theme){
     // Pure, bounded coordinate variation: visual only, no new collision geometry.
     const width=arena.width,height=arena.height;
     const blocked=new Set(arena.obstacles);
@@ -565,17 +632,10 @@
       b.box(p.x,.30,p.z,.24,.25,.24,[1,.80,.35]);
       b.box(p.x,.51,p.z,.10,.18,.10,[.60,.96,1]);
     }
-    for(const f of s.combatants.slice(0,64))contender(b,f,w,t,Boolean(s.focus&&s.focus.id===f.id),s.recentEvents,s.combatants);
+    const eventFrames=activeVisualEvents().filter(f=>performance.now()-f.born<230).map(f=>f.event);
+    for(const f of s.combatants.slice(0,64))contender(b,f,w,t,Boolean(s.focus&&s.focus.id===f.id),eventFrames,s.combatants);
     const c=pos(s.zone.centerCell,w);
     b.ring(c.x,.056,c.z,Math.max(.25,s.zone.radius),.08,t.accent,128);
-    if(!reducedFlash){
-      for(const event of s.recentEvents.slice(-8)){
-        if((event.type==='elimination'||event.type==='shield-broken')&&Number.isInteger(event.cell)){
-          const p=pos(event.cell,w);
-          b.ring(p.x,.075,p.z,.32,.048,[1,.25,.32],24);
-        }
-      }
-    }
     combatEffects(b,s,t);
     victorySequence(b,s);
   }
@@ -713,10 +773,11 @@
     animationId=0;
     if(disabled||!lastSnapshot||status.mode!=='webgl2'||document.hidden)return;
     if(time-lastPaintTime>=42){paint(lastSnapshot);lastPaintTime=time}
-    if(time-startedAt<230)animationId=requestAnimationFrame(animate);
+    if(time-startedAt<230||activeVisualEvents().length>0)animationId=requestAnimationFrame(animate);
   }
   function render(snapshot){
     if(!snapshot)return false;
+    ingestVisualEvents(snapshot);
     if(headingRunToken!==snapshot.runToken){
       headings.clear();headingRunToken=snapshot.runToken;
     }
