@@ -108,6 +108,28 @@ test('health includes observable activity and a bounded connection count', async
   assert.ok(response.clients >= 0 && response.clients <= 32);
 });
 
+test('mixed invalid control cannot partially reset or rewrite a valid run', async()=>{
+  await delay(500);
+  const before=await(await fetch(ROOT+'/eko/state')).json();
+  const invalid=await fetch(ROOT+'/eko/control',{
+    method:'POST',headers:{'content-type':'application/json'},
+    body:JSON.stringify({resetPreview:true,mode:'god-mode',outfit:'lagos-streetwear'})
+  });
+  assert.equal(invalid.status,400);
+  const after=await(await fetch(ROOT+'/eko/state')).json();
+  assert.equal(after.snapshot.runId,before.snapshot.runId);
+  assert.ok(after.snapshot.tick>=before.snapshot.tick,
+    'a rejected compound write must never reset the authoritative clock');
+  assert.equal(after.mode,before.mode);
+  const invalidInput=await fetch(ROOT+'/eko/control',{
+    method:'POST',headers:{'content-type':'application/json'},
+    body:JSON.stringify({resetPreview:true,mode:'player',input:{axis:55}})
+  });
+  assert.equal(invalidInput.status,400);
+  const later=await(await fetch(ROOT+'/eko/state')).json();
+  assert.ok(later.snapshot.tick>=after.snapshot.tick);
+});
+
 test('preview reset explicitly restores authoritative route and cannot be triggered cross-origin', async()=>{
   const before=await(await fetch(ROOT+'/eko/state')).json();
   const invalid=await fetch(ROOT+'/eko/control',{method:'POST',
