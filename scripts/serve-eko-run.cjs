@@ -120,6 +120,7 @@ const FILES = new Map([
   ['/eko/adaptive-quality.js', ['public/eko-run/adaptive-quality.js', 'text/javascript; charset=utf-8']],
   ['/eko/city-crowd.js', ['public/eko-run/city-crowd.js', 'text/javascript; charset=utf-8']],
   ['/eko/hazard-sculpt.js', ['public/eko-run/hazard-sculpt.js', 'text/javascript; charset=utf-8']],
+  ['/eko/district-landmarks.js', ['public/eko-run/district-landmarks.js', 'text/javascript; charset=utf-8']],
   ['/eko/progress', ['public/eko-run/progress.html', 'text/html; charset=utf-8']],
   ['/eko/progress.js', ['public/eko-run/progress.js', 'text/javascript; charset=utf-8']],
   ['/eko/gauntlet.json', ['public/eko-run/gauntlet.json', 'application/json; charset=utf-8']],
