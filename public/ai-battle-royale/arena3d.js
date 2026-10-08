@@ -610,6 +610,81 @@
       }
     }
   }
+
+  function districtDetails(b,arena,theme){
+    // Visual-only world dressing, all city infrastructure outside playable cells;
+    // ground markings remain flush to floor and never suggest collision cover.
+    const w=arena.width,h=arena.height;
+    const dark=arena.theme==='arctic'?[.25,.48,.57]:[.16,.29,.41];
+    const road=arena.theme==='ember'?[.31,.37,.30]:[.18,.30,.43];
+    const signal=arena.theme==='neon'?[1,.42,.78]:theme.accent;
+    const safeRect=(x0,z0,x1,z1,col,y=.021)=>{
+      b.quad([x0,y,z0],[x0,y,z1],[x1,y,z1],[x1,y,z0],[0,1,0],col);
+    };
+    // Broad, intersecting roads and clean edge highlights on the traversable board.
+    for(const x of [Math.floor(w*.30),Math.floor(w*.73)]){
+      safeRect(x-.42,0,x+.42,h,road,.015);
+      safeRect(x-.39,0,x-.34,h,theme.accent,.020);
+      safeRect(x+.34,0,x+.39,h,theme.accent,.020);
+      for(let z=1;z<h-1;z+=3)b.box(x,.024,z,.06,.012,1.25,[.91,.91,.74]);
+    }
+    for(const z of [Math.floor(h*.25),Math.floor(h*.72)]){
+      safeRect(0,z-.40,w,z+.40,road,.024);
+      for(let x=1;x<w-1;x+=3)b.box(x,.029,z,1.20,.012,.06,[.91,.91,.74]);
+    }
+    // Landing pads & painted rings are low decals, not collision objects.
+    for(const [x,z] of [[w*.11,h*.16],[w*.87,h*.81],[w*.55,h*.44]]){
+      b.ring(x,.032,z,1.02,.095,signal,36);
+      b.ring(x,.033,z,.67,.035,[.74,.84,.88],28);
+      b.box(x,.037,z,.82,.014,.07,signal);
+      b.box(x,.037,z,.07,.014,.82,signal);
+    }
+    // Out-of-bounds world continues into a more recognizable distant district.
+    for(let side=0;side<2;side++){
+      for(let i=0;i<10;i++){
+        const x=1.6+i*(w-3.2)/9, z=side===0?-3.5-(i%2)*.7:h+3.5+(i%2)*.7;
+        if(arena.theme==='neon'){
+          // Cybercity towers with layered window bands and neon aerial beacons.
+          const height=2.3+(i*7%6)*.65,width=.64+(i%3)*.19;
+          b.box(x,height*.5,z,width,height,width,[(i%3)*.055+.20,.26,.49]);
+          b.box(x,height+.07,z,width+.19,.15,width+.17,[.17,.28,.44]);
+          for(let floor=.6;floor<height-.35;floor+=.51){
+            b.box(x,floor,z+width*.51,width*.68,.08,.04,i%2?signal:theme.accent);
+            b.box(x+width*.51,floor,z,.04,.08,width*.65,[.64,.84,.96]);
+          }
+          if(i%2===0){
+            b.cone(x,height+.42,z,.15,.01,.62,signal,7);
+            b.box(x,height-.33,z+width*.52,width*.78,.30,.038,[.75,.25,.62]);
+          }
+        }else if(arena.theme==='arctic'){
+          // Wind-carved ice shelves and spires use faceted, height-varying silhouettes.
+          const height=1.65+(i*11%7)*.55;
+          b.cone(x,height*.47,z,.81,.06,height,[.65,.83,.91],7);
+          b.cone(x+.44,height*.32,z+.48,.57,.03,height*.66,[.33,.63,.79],7);
+          b.cone(x-.37,height*.26,z-.38,.47,.04,height*.51,[.84,.96,1],7);
+        }else{
+          // Sculpted badlands, sunlit terraces and tall desert silhouettes.
+          const height=1.5+(i*9%6)*.45;
+          b.cone(x,height*.43,z,.87,.23,height,[.50,.40,.28],7);
+          b.box(x,height*.52,z,.78,.14,.66,[.72,.52,.30]);
+          b.cone(x+.39,height*.23,z+.45,.39,.02,height*.50,[.40,.48,.30],6);
+          if(i%3===0){
+            b.cone(x-.73,.70,z,.12,.06,1.4,[.27,.43,.32],8);
+            b.cone(x-.73,1.44,z,.30,.03,.53,[.35,.55,.30],8);
+          }
+        }
+      }
+    }
+    // Layered illuminated access gantries outside the tactical stage.
+    for(let i=0;i<4;i++){
+      const z=1.8+i*(h-3.6)/3;
+      for(const x of [-.78,w+.78]){
+        b.box(x,1.02,z,.19,2.04,.20,dark);
+        b.box(x,2.08,z,.56,.13,.53,theme.accent);
+        b.cone(x,2.30,z,.15,.01,.34,signal,7);
+      }
+    }
+  }
   function worldStatic(b,a){
     const w=a.width,h=a.height,t=colours[a.theme]||colours.ember;
     b.box(w/2,-.25,h/2,w,.5,h,t.wall);
@@ -637,6 +712,7 @@
       worldLandmarks(b,a,t);
       atmosphericBackdrop(b,a,t);
       environmentProps(b,a,t);
+      districtDetails(b,a,t);
     }
     for(const [x,z] of [[0,0],[w,0],[0,h],[w,h]]){
       b.box(x,1.04,z,.35,2.08,.35,t.wall);
