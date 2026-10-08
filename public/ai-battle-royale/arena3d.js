@@ -7,9 +7,9 @@
   const tactical=document.querySelector('[data-testid="battle-canvas"]');
   const host=tactical?.parentElement;
   const colours={
-    ember:{ground:[.14,.20,.22],wall:[.27,.31,.36],accent:[.96,.55,.24]},
-    neon:{ground:[.09,.13,.24],wall:[.27,.33,.51],accent:[.35,.93,1]},
-    arctic:{ground:[.22,.38,.46],wall:[.35,.52,.60],accent:[.60,.89,1]}
+    ember:{ground:[.26,.34,.25],wall:[.38,.48,.46],accent:[1,.66,.24]},
+    neon:{ground:[.15,.24,.40],wall:[.31,.41,.64],accent:[.23,.96,1]},
+    arctic:{ground:[.34,.54,.61],wall:[.53,.69,.75],accent:[.69,.96,1]}
   };
   const suits={vanguard:[.98,.39,.31],ranger:[.37,.84,.97],scavenger:[.97,.76,.37],tactician:[.70,.94,.53]};
   const vertexSource=[
@@ -41,15 +41,16 @@
     'float direct=max(dot(n,normalize(vec3(-.52,.90,.34))),0.0);',
     'float bounce=max(dot(n,normalize(vec3(.38,.54,-.72))),0.0);',
     'float surfaceNoise=fract(sin(dot(floor(vWorld.xz*6.0),vec2(127.1,311.7)))*43758.5453123);',
-    'float textureGrain=mix(.955,1.045,surfaceNoise);',
+    'float textureGrain=mix(.90,1.09,surfaceNoise);',
     'float ground=step(.88,n.y);',
     'float micro=ground*textureGrain+(1.0-ground)*1.0;',
-    'float fill=.54+.43*direct+.10*bounce;',
-    'vec3 lit=vTint*fill*micro+vec3(.043,.054,.067);',
+    'float fill=.68+.53*direct+.17*bounce;',
+    'vec3 lit=vTint*fill*micro+vec3(.052,.075,.091);',
     'float silhouette=pow(1.0-max(dot(n,normalize(vec3(.2,.8,.5))),0.0),2.0);',
-    'lit+=vec3(.036,.071,.085)*silhouette;',
-    'float haze=clamp(1.0-abs(vDepth)/98.0,.72,1.0);',
-    'result=vec4(mix(vec3(.065,.103,.135),lit,haze),1.0);',
+    'lit+=vec3(.028,.086,.12)*silhouette;',
+    'float haze=clamp(1.0-abs(vDepth)/130.0,.77,1.0);',
+    'lit=clamp(lit,vec3(0.),vec3(1.));',
+    'result=vec4(mix(vec3(.13,.22,.37),lit,haze),1.0);',
     '}'
   ].join('\n');
   let canvas=null,closeupLabel=null,gl=null,program=null,buffer=null,staticBuffer=null,dynamicBuffer=null,attr=null,uniform=null,lastSnapshot=null,disabled=forced2d||!host;
@@ -121,7 +122,7 @@
     staticBuffer=gl.createBuffer();dynamicBuffer=gl.createBuffer();
     staticCache.key=null;staticCache.vertices=0;
     gl.enable(gl.DEPTH_TEST);gl.depthFunc(gl.LEQUAL);
-    gl.disable(gl.CULL_FACE);gl.clearColor(.065,.103,.135,1);
+    gl.disable(gl.CULL_FACE);gl.clearColor(.10,.17,.30,1);
     status.mode='webgl2';document.body.dataset.battleRenderer='webgl2';
   }
   if(!disabled){
@@ -795,7 +796,7 @@
     try{
       gl.scissor(frameX,frameY,frameW,frameH);
       gl.viewport(frameX,frameY,frameW,frameH);
-      gl.clearColor(.055,.103,.145,1);
+      gl.clearColor(.09,.19,.30,1);
       gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
       gl.uniform3f(uniform[0],p.x,.8,p.z);
       gl.uniform2f(uniform[1],zoom/aspect,zoom);
@@ -806,7 +807,7 @@
     }finally{
       gl.disable(gl.SCISSOR_TEST);
       gl.viewport(0,0,canvas.width,canvas.height);
-      gl.clearColor(.065,.103,.135,1);
+      gl.clearColor(.10,.17,.30,1);
     }
   }
   function paint(snapshot){
