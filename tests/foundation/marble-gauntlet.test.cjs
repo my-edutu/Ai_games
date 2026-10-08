@@ -119,14 +119,14 @@ test('victory scene is driven solely by an official authoritative champion', () 
 });
 
 
-test('new 3D collision semantics use a versioned v3 authority and reject v2 checkpoints', () => {
+test('real 3D pit descents use a versioned v4 authority and reject v3 checkpoints', () => {
   const src = path.resolve(__dirname, '../../games/marble-survival/src');
   const stateTypes = fs.readFileSync(path.join(src, 'state/types.ts'), 'utf8');
   const runtime = fs.readFileSync(path.join(src, 'runtime/run.ts'), 'utf8');
   const snapshots = fs.readFileSync(path.join(src, 'persistence/snapshot.ts'), 'utf8');
   for (const content of [stateTypes, runtime, snapshots]) {
-    assert.ok(content.includes('marble-physics-v3'), 'v3 determinism contract missing');
+    assert.ok(content.includes('marble-physics-v4'), 'v4 deterministic contract missing');
   }
-  assert.ok(snapshots.includes("snapshot.deterministicVersion !== 'marble-physics-v3'"));
-  assert.ok(!runtime.includes('marble-physics-v2'));
+  assert.ok(snapshots.includes("snapshot.deterministicVersion !== 'marble-physics-v4'"));
+  assert.ok(!runtime.includes('marble-physics-v3'));
 });
