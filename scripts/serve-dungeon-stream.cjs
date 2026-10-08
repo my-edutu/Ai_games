@@ -36,7 +36,7 @@ function serve(port=Number(process.env.PORT||4181)){
  if(!Number.isInteger(port)||port<1||port>65535)throw new Error('Invalid port');
  const stateFile=process.env.DUNGEON_STATE_FILE||path.join(ROOT,'runtime','dungeon-checkpoint.json');
  const host=createHost(DEFAULT_SEED,{stateFile});const interval=setInterval(()=>{if(!host.fault)host.tick()},350);
- const paths=new Map([['/dungeon','index.html'],['/dungeon/','index.html'],['/dungeon/index.html','index.html'],['/dungeon/app.js','app.js'],['/dungeon/environment.js','environment.js'],['/dungeon/characters.js','characters.js'],['/dungeon/biome-atmosphere.js','biome-atmosphere.js'],['/dungeon/combat-overlay.js','combat-overlay.js'],['/dungeon/combat-director.js','combat-director.js'],['/dungeon/model-assets.js','model-assets.js'],['/dungeon/styles.css','styles.css'],['/dungeon/gauntlet','gauntlet.html'],['/dungeon/gauntlet.html','gauntlet.html'],['/dungeon/gauntlet.js','gauntlet.js']]);
+ const paths=new Map([['/dungeon','index.html'],['/dungeon/','index.html'],['/dungeon/index.html','index.html'],['/dungeon/app.js','app.js'],['/dungeon/environment.js','environment.js'],['/dungeon/characters.js','characters.js'],['/dungeon/biome-atmosphere.js','biome-atmosphere.js'],['/dungeon/combat-overlay.js','combat-overlay.js'],['/dungeon/combat-director.js','combat-director.js'],['/dungeon/boot-watchdog.js','boot-watchdog.js'],['/dungeon/model-assets.js','model-assets.js'],['/dungeon/styles.css','styles.css'],['/dungeon/gauntlet','gauntlet.html'],['/dungeon/gauntlet.html','gauntlet.html'],['/dungeon/gauntlet.js','gauntlet.js']]);
  const server=http.createServer((req,res)=>{try{
   const url=new URL(req.url||'/','http://localhost');
   if(req.method!=='GET'){res.writeHead(405);res.end('Method not allowed');return}
@@ -64,6 +64,7 @@ function serve(port=Number(process.env.PORT||4181)){
    res.writeHead(200,{'content-type':'text/javascript; charset=utf-8','content-length':body.length,'cache-control':'no-store','x-content-type-options':'nosniff'});
    res.end(body);return;
   }
+  if(url.pathname==='/dungeon/vendor/three.core.js')return file(res,path.join(ROOT,'node_modules/three/build/three.core.js'),'text/javascript; charset=utf-8');
   if(url.pathname==='/dungeon/vendor/three.module.js')return file(res,path.join(ROOT,'node_modules/three/build/three.module.js'),'text/javascript; charset=utf-8');
   if(url.pathname==='/favicon.ico'){res.writeHead(204);res.end();return}
   const name=paths.get(url.pathname);if(!name){res.writeHead(404);res.end('Not found');return}

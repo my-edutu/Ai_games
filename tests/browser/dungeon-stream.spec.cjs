@@ -139,3 +139,12 @@ test('optional cinematic glow uses locally served Three.js postprocessing and re
  await page.locator('#fx-toggle').click();
  await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.postFX),{timeout:10000}).toBe('bloom');
 });
+
+test('Three.js core module resolves and startup watchdog detects a real 3D frame',async({page,request})=>{
+ const core=await request.get('/dungeon/vendor/three.core.js');expect(core.status()).toBe(200);
+ await page.goto('/dungeon');
+ await expect.poll(async()=>page.evaluate(()=>document.body.dataset.rendererStatus),{timeout:24000}).toBe('ready');
+ await expect(page.locator('#recovery')).toBeHidden();
+ const engine=await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__);
+ expect(engine.frame).toBeGreaterThan(3);
+});
