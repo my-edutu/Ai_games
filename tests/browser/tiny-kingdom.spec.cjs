@@ -670,3 +670,26 @@ test('Tiny Kingdom background sky pass stays presentation-only and reacts to wor
   if(second.sky.enabled)expect(second.sky.passes).toBeGreaterThan(first.sky.passes);
   expect(errors).toEqual([]);
 });
+
+test('Tiny Kingdom cinematic HUD toggles with keyboard, exposes unobscured game, and preserves authority',async({page})=>{
+  const faults=[];page.on('pageerror',e=>faults.push(e.message));
+  await page.setContent(html);
+  await page.waitForFunction(()=>Boolean(window.__tinyKingdom));
+  await page.locator('#pause').click();
+  const first=await page.evaluate(()=>JSON.stringify(window.__tinyKingdom.exportSnapshot()));
+  await page.locator('#hud-toggle').click();
+  await expect(page.locator('body')).toHaveAttribute('data-hud','cinema');
+  expect(await page.evaluate(()=>window.__tinyKingdom.getHudMode())).toBe('cinema');
+  await expect(page.locator('.sidebar')).toBeHidden();
+  await expect(page.locator('.atlas')).toBeHidden();
+  await expect(page.locator('.world-tour')).toBeHidden();
+  await expect(page.locator('#cinema-exit')).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(page.locator('body')).toHaveAttribute('data-hud','full');
+  await expect(page.locator('.sidebar')).toBeVisible();
+  await page.keyboard.press('h');
+  await expect(page.locator('#cinema-exit')).toBeVisible();
+  await page.locator('#cinema-exit').click();
+  expect(await page.evaluate(()=>JSON.stringify(window.__tinyKingdom.exportSnapshot()))).toBe(first);
+  expect(faults).toEqual([]);
+});
