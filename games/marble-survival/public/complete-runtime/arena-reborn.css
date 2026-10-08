@@ -76,7 +76,11 @@ body {
 .broadcast-shell[data-layout="arena-first"] .strip-cell #qualification-value{color:var(--arena-accent)}
 .qualification-meter{width:100%;max-width:240px;height:5px;margin-top:7px;background:rgba(146,184,243,.16);border-radius:99px;overflow:hidden}
 .qualification-meter>span{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--arena-second),var(--arena-accent),#f4edaf);border-radius:inherit;box-shadow:0 0 12px var(--arena-accent);transition:width 450ms ease}
-.broadcast-shell[data-layout="arena-first"] .stage-grid{height:clamp(620px,calc(100dvh - 178px),950px)}
+.broadcast-shell[data-layout="arena-first"] .stage-grid{
+  /* Reserve real header, round ribbon, footer and shell margins. The old
+     178px subtraction clipped the canvas 7px below a 1080px viewport. */
+  height:clamp(615px,calc(100dvh - 210px),920px);
+}
 .broadcast-shell[data-layout="arena-first"] .arena-card {
   background:radial-gradient(circle at 50% 30%,#224789,#09122d 60%,#070a1a);
   border:2px solid var(--arena-border);
