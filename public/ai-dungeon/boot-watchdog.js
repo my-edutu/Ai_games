@@ -11,6 +11,39 @@
  const errors=[];
  window.addEventListener('error',event=>{if(event.message)errors.push(String(event.message).slice(0,180))});
  window.addEventListener('unhandledrejection',event=>{errors.push(String(event.reason?.message||event.reason||'Unknown module failure').slice(0,180))});
+
+ // Startup success is not a lifetime guarantee for an unattended broadcast.
+ // Detect frozen frames, stale simulation snapshots and WebGL context loss.
+ let lastFrame=0,lastTick=-1,lastFrameAt=Date.now(),lastTickAt=Date.now(),contextLost=false;
+ const canvas=document.getElementById('world');
+ const degraded=(status,heading)=>{
+  document.body.dataset.rendererStatus=status;
+  if(!message)return;
+  message.hidden=false;
+  message.textContent=heading+' — the autonomous simulation may still be running.';
+ };
+ canvas?.addEventListener('webglcontextlost',()=>{
+  contextLost=true;degraded('context-lost','3D graphics context lost; waiting for recovery');
+ });
+ canvas?.addEventListener('webglcontextrestored',()=>{
+  contextLost=false;lastFrameAt=lastTickAt=Date.now();
+  document.body.dataset.rendererStatus='recovering';
+ });
+ setInterval(()=>{
+  const now=Date.now();
+  if(document.hidden){lastFrameAt=lastTickAt=now;return}
+  const frame=window.__DUNGEON_RENDER_DIAGNOSTICS__?.frame||0;
+  const tick=window.__DUNGEON_PUBLIC_STATE__?.tick;
+  if(frame>lastFrame){lastFrame=frame;lastFrameAt=now}
+  if(Number.isFinite(tick)&&tick!==lastTick){lastTick=tick;lastTickAt=now}
+  if(contextLost)return;
+  if(document.body.dataset.rendererStatus==='failed')return;
+  if(frame>3&&Number.isFinite(tick)&&(now-lastFrameAt>25000||now-lastTickAt>25000)){
+   degraded('stalled',now-lastFrameAt>25000?'3D renderer stalled':'Autonomous stream stalled');
+  }else if(document.body.dataset.rendererStatus==='stalled'&&now-lastFrameAt<3000&&now-lastTickAt<3000){
+   document.body.dataset.rendererStatus='ready';if(message)message.hidden=true;
+  }
+ },1000);
  const timer=setInterval(()=>{
   ticks++;
   if(window.__DUNGEON_RENDER_DIAGNOSTICS__?.frame>3&&window.__DUNGEON_PUBLIC_STATE__?.tick>0){
