@@ -65,3 +65,12 @@ The Gauntlet development branch keeps the original 2.5D fallback and the same au
 - Shader and renderer: subtle procedural high-wall brick pattern, day/night practical lighting, weather glints, storm flashes, horde visibility culling and mobile cinema mode.
 
 **These are committed art and renderer changes, not a verified Days Gone–quality result; screenshots, real browser tests and FPS soak remain stop-ship.**
+
+
+## Experimental CC0 imported 3D mesh lane
+
+Launch with `/web/3d.html?models=cc0` to exercise three external, explicitly pinned and independently licensed CC0 GLB enemy models close to the camera. The program retains authored procedural enemies if offline. It does not download/upload any new executable code, and does not claim rigged animation has yet been integrated into the native renderer.
+
+The models are by Gobkit (https://github.com/Ariescar/gobkit-free-assets) under its verified CC0 1.0 license. Pinned git SHA `0d654ab3306515b1b63621a5c6548554034482dc`; see `web/cc0-models.js`. The original source's `LICENSE` was checked before using this asset lane. Since the running game fetches binary geometry from an external host, bundle vetted models locally before declaring offline or production readiness.
+
+`web/audio-foley.js` adds opt-in world-space synthetic effects; `web/packed-geometry.js` reduces transient geometry allocations; `web/animation-pose.js` is a pure deterministic action visualizer. See `tests/gauntlet-glb.test.mjs` for malformed/valid GLB test fixtures and UV colors, plus `tests/gauntlet-3d-scene.test.mjs` for the geometry/animation/audio contracts.
