@@ -166,17 +166,83 @@ function rig(u){const colors=palette[u.kind],main=mat(colors[0],.5,.4),light=mat
  scene.add(root);return {root,body,leftLeg,rightLeg,leftArm,rightArm,telegraph,u,at:new THREE.Vector3(u.x-9,0,u.z-9)};
 }
 const timeNow=()=>performance.now()/1000;
+// Broadcast command centre: projections never mutate simulation state.
+const minimap=$('minimap'),mini=minimap.getContext('2d',{alpha:false}),mapPalette={wall:'#273653',floor:'#15233e',traced:'#477091',hero:'#5bf9e2',enemy:'#ff6f9c',exit:'#65baff',loot:'#ffd277'};
+let previousEventKey='',alertTimer=null,ambience=null;
+const classMeta={vanguard:{name:'ASHEN VANGUARD',title:'FRONT-LINE KNIGHT',icon:'⚔'},ranger:{name:'WILDSHADOW',title:'PHANTOM ARCHER',icon:'➶'},mystic:{name:'STARWEAVER',title:'ARCANE HEALER',icon:'✧'}};
+function drawMinimap(s){
+ const N=s.map.length,W=minimap.width,H=minimap.height,cell=W/N,margin=0;
+ mini.fillStyle='#0d1529';mini.fillRect(0,0,W,H);
+ for(let z=0;z<N;z++)for(let x=0;x<N;x++){
+  const solid=s.map[z][x]!=='#',px=Math.floor(x*cell),pz=Math.floor(z*cell);
+  mini.fillStyle=solid?((x+z)%3===0?'#223952':mapPalette.floor):mapPalette.wall;
+  mini.fillRect(px,pz,Math.ceil(cell),Math.ceil(cell));
+  if(solid){mini.strokeStyle='#476d9050';mini.lineWidth=.35;mini.strokeRect(px+.3,pz+.3,cell-.6,cell-.6)}
+ }
+ const cx=x=>x*cell+cell/2,cz=z=>z*cell+cell/2;
+ mini.fillStyle='#45ffe2';mini.shadowBlur=13;mini.shadowColor='#45ffe2';
+ mini.beginPath();mini.arc(cx(s.exit.x),cz(s.exit.z),cell*.36,0,Math.PI*2);mini.fill();mini.shadowBlur=0;
+ mini.fillStyle=mapPalette.loot;for(const r of s.relics){mini.fillRect(cx(r.x)-2,cz(r.z)-2,4,4)}
+ for(const u of s.units){if(u.hp<=0)continue;mini.beginPath();mini.fillStyle=u.faction==='party'?mapPalette.hero:mapPalette.enemy;mini.strokeStyle=u.faction==='party'?'#d9fffd':'#ffd2d9';mini.lineWidth=1.2;mini.arc(cx(u.x)+(u.id==='ranger'?2:u.id==='mystic'?-2:0),cz(u.z),u.kind==='warden'?cell*.46:cell*.29,0,Math.PI*2);mini.fill();mini.stroke()}
+ mini.strokeStyle='#72d5e860';mini.lineWidth=1;mini.strokeRect(.5,.5,W-1,H-1);
+}
+function notifyDungeon(event){
+ if(!['telegraph','floor','kill','defeat','loot'].includes(event.kind))return;
+ const banner=$('alert-flash');clearTimeout(alertTimer);banner.hidden=false;
+ banner.textContent=event.kind==='telegraph'?'⚠  '+event.text.toUpperCase():event.kind==='floor'?'✦  '+event.text.toUpperCase():event.kind==='defeat'?'☠  '+event.text.toUpperCase():event.text.toUpperCase();
+ banner.dataset.kind=event.kind;
+ alertTimer=setTimeout(()=>{banner.hidden=true},event.kind==='telegraph'?1400:1900);
+}
+function playEffect(kind){
+ if(!ambience)return;const ctx=ambience;if(ctx.state!=='running')return;
+ const hz={floor:524,loot:880,kill:340,healing:660,telegraph:195,danger:142}[kind];if(!hz)return;
+ const now=ctx.currentTime,o=ctx.createOscillator(),g=ctx.createGain();o.type=kind==='danger'?'sawtooth':'sine';o.frequency.setValueAtTime(hz,now);o.frequency.exponentialRampToValueAtTime(hz*.7,now+.19);g.gain.setValueAtTime(.0001,now);g.gain.exponentialRampToValueAtTime(.052,now+.015);g.gain.exponentialRampToValueAtTime(.0001,now+.23);o.connect(g).connect(ctx.destination);o.start(now);o.stop(now+.25);
+}
+$('audio-toggle').addEventListener('click',async()=>{
+ const button=$('audio-toggle');
+ if(!ambience){const Audio=window.AudioContext||window.webkitAudioContext;if(!Audio){button.title='Audio unavailable in this browser';return}ambience=new Audio()}
+ if(ambience.state==='running'){await ambience.suspend();button.setAttribute('aria-pressed','false');button.querySelector('span').textContent='AUDIO OFF';}
+ else{await ambience.resume();button.setAttribute('aria-pressed','true');button.querySelector('span').textContent='AUDIO ON';playEffect('floor')}
+});
+function renderDashboard(s){
+ const heroes=s.units.filter(u=>u.faction==='party'),alive=heroes.filter(u=>u.hp>0).length,foes=s.units.filter(u=>u.faction==='enemy'&&u.hp>0);
+ const boss=s.units.find(u=>u.kind==='warden'),nearBoss=boss&&boss.hp>0&&heroes.some(h=>h.hp>0&&Math.abs(h.x-boss.x)+Math.abs(h.z-boss.z)<6);
+ $('floor').textContent=String(s.floor).padStart(2,'0');$('chapter').textContent=String(s.floor).padStart(2,'0');
+ $('theme').textContent=s.theme;$('run').textContent=String(s.run).padStart(3,'0');$('tick').textContent='TICK '+String(s.tick).padStart(5,'0');
+ $('kills').textContent=s.kills.toLocaleString();$('gold').textContent=s.gold.toLocaleString();$('level').textContent=s.level;
+ $('intent').textContent=s.intent;$('reasoning').textContent=s.intent;
+ $('party-count').textContent=alive+' / '+heroes.length;$('party-condition').textContent=alive===heroes.length?'READY':alive?'COMPROMISED':'FALLEN';
+ $('status').textContent=s.phase==='intermission'?'THE NEXT EXPEDITION IS FORMING':'AI HEROES EXPLORING THE UNKNOWN';
+ $('floor-status').textContent=s.phase==='intermission'?'REASSEMBLING':nearBoss?'GUARDIAN BATTLE':foes.length?'CLEARING THE CRYPT':'PORTAL UNLOCKED';
+ const remaining=s.units.filter(u=>u.faction==='enemy'&&u.hp>0).length;
+ $('depth-fill').style.width=Math.max(8,Math.min(100,100-(remaining/(s.units.filter(u=>u.faction==='enemy').length||1)*92)))+'%';
+ const bossStrip=$('boss-strip');bossStrip.hidden=!nearBoss;
+ if(boss){const percent=Math.max(0,Math.round(boss.hp/boss.maxHp*100));$('boss-hp').textContent=percent+'%';$('boss-bar').style.width=percent+'%';$('boss-phase').textContent=s.tick%6>=4?'ARCANE WARNING':'ENGAGED'}
+ $('scene-weather').textContent=s.theme.includes('EMBER')?'FIRELIT // ASH':s.theme.includes('OBSIDIAN')?'ARCANE // MIST':s.theme.includes('HOLLOW')?'ETHEREAL // VOID':'MOONLIT // CRYPT';
+ const party=$('party');party.replaceChildren(...heroes.map(u=>{
+  const meta=classMeta[u.kind],card=document.createElement('article');card.className='hero-card'+(u.hp===0?' down':'');card.dataset.class=u.kind;
+  const icon=document.createElement('div');icon.className='hero-icon';icon.setAttribute('aria-hidden','true');icon.textContent=meta.icon;
+  const info=document.createElement('div');info.className='hero-info';const head=document.createElement('div');head.className='hero-heading';
+  const name=document.createElement('b');name.textContent=meta.name;const hp=document.createElement('small');hp.textContent=u.hp+'/'+u.maxHp+' HP';
+  head.append(name,hp);const sub=document.createElement('div');sub.className='hero-sub';const job=document.createElement('span');job.textContent=meta.title;const action=document.createElement('b');action.textContent=(u.action||'idle').toUpperCase();sub.append(job,action);
+  const bar=document.createElement('div');bar.className='life';const fill=document.createElement('i');fill.style.width=(u.hp/u.maxHp*100)+'%';bar.append(fill);info.append(head,sub,bar);card.append(icon,info);return card;
+ }));
+ const entries=$('events');entries.replaceChildren(...[...s.events].reverse().slice(0,3).map(e=>{
+  const li=document.createElement('li');li.style.setProperty('--event-color',({danger:'#ff7f9e',telegraph:'#ffc178',kill:'#ffe28f',healing:'#77ffc6',floor:'#b9a4ff',loot:'#78deff'}[e.kind]||'#8bbfff'));
+  const time=document.createElement('small');time.textContent='T+'+String(e.tick).padStart(5,'0')+' · '+e.kind.toUpperCase();li.append(time,document.createTextNode(e.text));return li
+ }));
+ $('map-cells').textContent=s.map.reduce((n,row)=>n+[...row].filter(ch=>ch==='.').length,0)+' TILES';
+ drawMinimap(s);
+}
+
 function update(s){state=s;received=true;errorAt=0;$('recovery').hidden=true;
- for(const e of s.events){const id=s.run+':'+e.tick+':'+e.kind+':'+e.text;if(!seenEventIds.has(id)){seenEventIds.add(id);if(seenEventIds.size>150)seenEventIds.delete(seenEventIds.values().next().value);cue(e,s)}}
+ for(const e of s.events){const id=s.run+':'+e.tick+':'+e.kind+':'+e.text;if(!seenEventIds.has(id)){seenEventIds.add(id);if(seenEventIds.size>150)seenEventIds.delete(seenEventIds.values().next().value);cue(e,s);notifyDungeon(e);playEffect(e.kind)}}
  if(worldFloor!==s.run+'-'+s.floor)buildWorld(s);
  const seen=new Set(s.units.map(u=>u.id));
  for(const [id,a] of actors)if(!seen.has(id)){scene.remove(a.root);a.root.traverse(o=>{if(o.geometry&&!Object.values(geo).includes(o.geometry))o.geometry.dispose();if(o.material){const list=Array.isArray(o.material)?o.material:[o.material];for(const m of list)if(![stone,stoneEdge,floorMat,gold,black,tealGlow,dangerGlow].includes(m))m.dispose()}});actors.delete(id)}
  for(const u of s.units){let a=actors.get(u.id);if(!a){a=rig(u);actors.set(u.id,a);a.root.position.set(u.x-9,0,u.z-9)}
   if(a.u.actionTick!==u.actionTick||a.u.action!==u.action){a.actionStarted=timeNow();}a.u=u;a.at.set(u.x-9,0,u.z-9);a.root.visible=u.hp>0;if(a.telegraph)a.telegraph.visible=u.hp>0&&[4,5].includes(s.tick%6);}
- $('floor').textContent=String(s.floor).padStart(2,'0');$('chapter').textContent=String(s.floor).padStart(2,'0');$('theme').textContent=s.theme;$('chapter-name').textContent=s.theme;$('run').textContent=String(s.run).padStart(3,'0');$('kills').textContent=s.kills;$('gold').textContent=s.gold;$('level').textContent=s.level;$('intent').textContent=s.intent;$('reasoning').textContent=s.intent;
- $('status').textContent=s.phase==='intermission'?'EXPEDITION RESET IN PROGRESS':'AI PARTY EXPLORING IN REAL TIME';
- const party=$('party');party.replaceChildren(...s.units.filter(u=>u.faction==='party').map(u=>{const card=document.createElement('div');card.className='hero-card'+(u.hp===0?' down':'');const icon=document.createElement('div');icon.className='hero-icon';icon.textContent=({vanguard:'⚔',ranger:'🏹',mystic:'✧'})[u.kind];const info=document.createElement('div');info.className='hero-info';const h=document.createElement('div');h.className='hero-heading';const name=document.createElement('b');name.textContent=({vanguard:'ASHEN VANGUARD',ranger:'WILDSHADOW',mystic:'STARWEAVER'})[u.kind];const hp=document.createElement('small');hp.textContent=u.hp+'/'+u.maxHp+' HP';h.append(name,hp);const life=document.createElement('div');life.className='life';const bar=document.createElement('i');bar.style.width=100*u.hp/u.maxHp+'%';life.append(bar);info.append(h,life);card.append(icon,info);return card}));
- const entries=$('events');entries.replaceChildren(...[...s.events].reverse().slice(0,6).map(e=>{const li=document.createElement('li'),meta=document.createElement('small');meta.textContent='TICK '+String(e.tick).padStart(5,'0')+' / '+e.kind.toUpperCase();li.append(meta,document.createTextNode(e.text));return li}));
+ renderDashboard(s);
  window.__DUNGEON_PUBLIC_STATE__=s;
 }
 let lastFrameTime=0;
