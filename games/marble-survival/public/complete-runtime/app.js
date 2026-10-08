@@ -67,7 +67,7 @@ const CAMERA_LABELS = Object.freeze({
 });
 
 const IMPORTANT_EVENTS = new Set([
-  'round-started', 'round-live', 'shield-recovery', 'marble-launched', 'marble-eliminated',
+  'round-started', 'round-live', 'shield-recovery', 'marble-launched', 'marble-pit-falling', 'marble-eliminated',
   'marble-qualified', 'round-resolved', 'tournament-champion', 'intermission-started',
 ]);
 
@@ -664,6 +664,7 @@ function describeEvent(event, next) {
   if (event.type === 'marble-eliminated') return `${identity} eliminated · ${String(data.cause || 'hazard')}.`;
   if (event.type === 'shield-recovery') return `${identity} survived a hazard with shield recovery.`;
   if (event.type === 'marble-launched') return `${identity} blasted skyward from an electric spring bumper.`;
+  if (event.type === 'marble-pit-falling') return `${identity} plunged into the reactor shaft!`; 
   if (event.type === 'round-started') return `Round ${Number(data.roundIndex || 0) + 1} is live.`;
   if (event.type === 'round-resolved') return `Round result locked by authority · ${String(data.resolution || 'resolved')}.`;
   if (event.type === 'tournament-champion') return `Champion result locked: marble #${Number(data.championId) + 1}.`;
