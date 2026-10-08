@@ -1270,6 +1270,36 @@
     cameraTracking.z+=(target.z-cameraTracking.z)*factor;
     return {x:cameraTracking.x,z:cameraTracking.z};
   }
+  let heldCameraAngle=null;
+  function selectClearCameraYaw(snapshot,focus){
+    // Real collision map blocks the shot-selection algorithm, but neither
+    // cinematography nor its hold memory can modify the match authority.
+    const now=performance.now();
+    if(heldCameraAngle?.runToken===snapshot.runToken
+        &&heldCameraAngle.actorId===focus?.id
+        &&now-heldCameraAngle.selectedAt<2200)return heldCameraAngle.yaw;
+    const arena=snapshot.arena,w=arena.width,h=arena.height;
+    const position=pos(focus.cell,w);
+    const blocked=new Set(arena.obstacles);
+    let selected=.85,best=Infinity;
+    for(let angleIndex=0;angleIndex<12;angleIndex++){
+      const yaw=angleIndex*Math.PI/6;
+      const sx=Math.sin(yaw),sz=Math.cos(yaw);
+      let score=0;
+      for(let d=1;d<=7;d++){
+        const x=Math.floor(position.x+sx*d),z=Math.floor(position.z+sz*d);
+        if(x<0||z<0||x>=w||z>=h){score+=.85;continue}
+        const cell=z*w+x;
+        if(blocked.has(cell))score+=(8-d)*2.4;
+      }
+      const angularDelta=Math.abs(Math.atan2(Math.sin(yaw-.85),Math.cos(yaw-.85)));
+      score+=angularDelta*.35;
+      if(score<best){best=score;selected=yaw}
+    }
+    heldCameraAngle={yaw:selected,actorId:focus.id,runToken:snapshot.runToken,selectedAt:now};
+    return selected;
+  }
+
   function physicalCamera(target,yaw,elevation,distance,aspect){
     // Pinhole camera basis, physical FOV and actual near/far depth clipping.
     const horizontal=Math.cos(elevation)*distance;
@@ -1439,7 +1469,7 @@
       const zoom=mode==='hero'&&heroView?.30:(winner?1.20:(close?1.15:1.10));
       const lensScale=mode==='hero'&&heroView?zoom:scale*zoom;
       const yaw=mode==='hero'&&heroView?
-        (.85+(reducedMotion?0:Math.sin(performance.now()/16000)*.07)):
+        (selectClearCameraYaw(snapshot,hero)+(reducedMotion?0:Math.sin(performance.now()/16000)*.025)):
         (.65+(reducedMotion?0:Math.sin(performance.now()/18000)*.035));
       const pitch=mode==='hero'&&heroView?.42:.56;
       gl.uniform3f(uniform[0],focus.x,mode==='hero'?1.0:0,focus.z);
