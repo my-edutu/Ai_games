@@ -158,3 +158,11 @@ test('minimal-quality audience uses a single point draw and keeps marble geometr
   assert.equal(high.counters.pointCloudDraws,1);
   assert.ok(high.counters.maximumMeshIndices>low.counters.maximumMeshIndices);
 });
+
+test('the audience reacts harder to official championship than a mid-round battle',async()=>{
+  const normal=await simulateStage('championship','balanced',false);
+  const winner=await simulateStage('championship','balanced',true);
+  assert.equal(normal.shell.dataset.crowdCount,'320');
+  assert.ok(Number(winner.shell.dataset.crowdExcitement)>Number(normal.shell.dataset.crowdExcitement));
+  assert.equal(winner.counters.pointCloudDraws,1,'victory crowd must still stay within one draw call');
+});
