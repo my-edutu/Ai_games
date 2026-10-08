@@ -588,6 +588,13 @@ function render(now) {
   }
   if(explorer.userData.head)
     explorer.userData.head.rotation.y=reducedMotion?0:Math.sin(now*.0019)*(spotted?.19:.32);
+  // Publicly discovered cathedral junctions have gently rotating arcane fixtures.
+  for(const accent of world.userData.artAnimators||[]){
+    if(reducedMotion)continue;
+    accent.jewel.rotation.y+=seconds*.38;
+    accent.jewel.position.y=2.96+Math.sin(now*.0015+accent.phase)*.075;
+    accent.inner.rotation.z=Math.sin(now*.0007+accent.phase)*.16;
+  }
   for(const animator of sceneAnimators){
     if(reducedMotion)continue;
     if(animator.kind==='key'){
