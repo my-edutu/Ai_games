@@ -9,6 +9,7 @@ import {VISUAL_PALETTES,buildPainterlyTowerBackdrop} from '/tower/biome-v4.js';
 import {createTowerHazard3D,updateTowerHazard3D} from '/tower/hazards-v4.js';
 import {buildBiomeLandmarks,animateBiomeLandmarks} from '/tower/landmarks-v5.js';
 import {createTowerEffectsDirector} from '/tower/effects-v6.js';
+import {mountTowerAtmosphere,animateTowerAtmosphere} from '/tower/atmosphere-v8.js';
 import {createTowerEffectsDirector} from '/tower/effects-v6.js';
 
 const SCALE = 1 / 1000;
@@ -130,7 +131,6 @@ export function mountTower3D({host,getFrame,reducedMotion=false,highContrast=fal
   const camera=new THREE.PerspectiveCamera(37,16/9,.3,1400);
   const backdrop=new THREE.Group(),structures=new THREE.Group(),actors=new THREE.Group(),effects=new THREE.Group();
   scene.add(backdrop,structures,actors,effects);
-  const effectsDirector=createTowerEffectsDirector(effects);
   const actionEffects=createTowerEffectsDirector(effects);
   const hemi=new THREE.HemisphereLight(0xffeacf,0x4c5363,2.65);scene.add(hemi);
   // Soft, directional shadowing anchors the playable platforms without changing collision.
@@ -159,7 +159,7 @@ export function mountTower3D({host,getFrame,reducedMotion=false,highContrast=fal
   }):[];
   const glow=new THREE.PointLight(0xffc273,66,150,2);actors.add(glow);
   const dynamic=new Map();
-  let floor=-1,theme='',lastChecksum='',latest=null,frame=null,running=true,lastAt=performance.now(),ornament=null,landmarks=null;
+  let floor=-1,theme='',lastChecksum='',latest=null,frame=null,running=true,lastAt=performance.now(),ornament=null,landmarks=null,atmosphere=null;
   let cameraY=35,cameraX=240,worldWidth=480,observedFrames=0,visualX=null,visualY=null,visualRun='',visualFloor=-1;
   let frameTotalMs=0,slowFrames=0,frameSampleCount=0;
   const perf={frames:0,drawCalls:0,triangles:0,entityCount:0};window.__TOWER_3D_DIAGNOSTICS__=perf;
@@ -177,20 +177,8 @@ export function mountTower3D({host,getFrame,reducedMotion=false,highContrast=fal
     // Monument silhouettes, landscape horizons, open galleries and warm sunlight now define the world.
     buildPainterlyTowerBackdrop({group:backdrop,snapshot:s,theme,palette:p,worldWidth});
     landmarks=buildBiomeLandmarks({group:backdrop,snapshot:s,palette:p,worldWidth});
-    // Hundreds of particles rendered as ONE draw call instead of one sphere per dust mote.
-    const motePositions=[];
-    for(let i=0;i<210;i++){
-      motePositions.push(12+seeded(i+floor*113)*(worldWidth-24));
-      motePositions.push(coord(s.chunkBaseY)+seeded(i*3+floor*17)*coord(s.chunkHeight));
-      motePositions.push(-12-seeded(i*11+floor)*80);
-    }
-    const moteGeometry=new THREE.BufferGeometry();
-    moteGeometry.setAttribute('position',new THREE.Float32BufferAttribute(motePositions,3));
-    const motes=new THREE.Points(moteGeometry,new THREE.PointsMaterial({
-      color:p.glow,size:1.05,transparent:true,opacity:.62,sizeAttenuation:true,
-      depthWrite:false,blending:THREE.AdditiveBlending
-    }));
-    backdrop.add(motes);
+    atmosphere=mountTowerAtmosphere({group:backdrop,snapshot:s,quality});
+    // Colored environmental dust is now batched by the V8 atmosphere director.
     // Visual set dressing changes with the procedural level theme; it is not collision geometry.
     if(theme==='clockwork'){
       for(let i=0;i<5;i++){
@@ -274,7 +262,6 @@ export function mountTower3D({host,getFrame,reducedMotion=false,highContrast=fal
     if(floor!==s.floor||theme!==s.theme)buildBackdrop(s);
     if(lastChecksum===s.publicChecksum)return;
     lastChecksum=s.publicChecksum;latest=s;
-    effectsDirector.ingest(s);
     actionEffects.ingest(s);
     const allowed=new Set();
     const palette=palettes[s.theme]||palettes.foundry;
@@ -369,9 +356,10 @@ export function mountTower3D({host,getFrame,reducedMotion=false,highContrast=fal
     // Keep observed performance measurable for the independent critic.
     animateTowerEnvironment(ornament,now*.001,reducedMotion);
     animateBiomeLandmarks(landmarks,now*.001,reducedMotion);
+    animateTowerAtmosphere(atmosphere,now,reducedMotion);
     const effectFrame=actionEffects.frame(dt,s,visualX,visualY,reducedMotion);
     renderer.render(scene,camera);observedFrames++;
-    if(observedFrames%60===0){perf.frames=observedFrames;perf.drawCalls=renderer.info.render.calls;perf.triangles=renderer.info.render.triangles;perf.heroParts=(()=>{let count=0;player.traverse(o=>{if(o.isMesh)count++});return count})();perf.renderMode='webgl-3d';perf.state=s.player.state;perf.heroCamera=heroCamera;perf.lens='perspective';perf.inspectCharacters=inspectCharacters;perf.inspectionModels=inspectors.length;perf.biomeLandmarks=landmarks?.world?.children.length||0;perf.actionFx=actionEffects.metrics();perf.highContrast=highContrast;perf.averageFps=frameTotalMs>0?Math.round(1000*frameSampleCount/frameTotalMs):0;perf.slowFrames=slowFrames;perf.sampledFrames=frameSampleCount;perf.pixelRatio=renderer.getPixelRatio();perf.effects=effectsDirector.metrics();}
+    if(observedFrames%60===0){perf.frames=observedFrames;perf.drawCalls=renderer.info.render.calls;perf.triangles=renderer.info.render.triangles;perf.heroParts=(()=>{let count=0;player.traverse(o=>{if(o.isMesh)count++});return count})();perf.renderMode='webgl-3d';perf.state=s.player.state;perf.heroCamera=heroCamera;perf.lens='perspective';perf.inspectCharacters=inspectCharacters;perf.inspectionModels=inspectors.length;perf.biomeLandmarks=landmarks?.world?.children.length||0;perf.atmosphere=atmosphere?.metrics||null;perf.actionFx=actionEffects.metrics();perf.highContrast=highContrast;perf.averageFps=frameTotalMs>0?Math.round(1000*frameSampleCount/frameTotalMs):0;perf.slowFrames=slowFrames;perf.sampledFrames=frameSampleCount;perf.pixelRatio=renderer.getPixelRatio();perf.effects=actionEffects.metrics();}
   }
   const onLost=event=>{event.preventDefault();running=false;actionEffects.dispose();renderer.dispose();canvas.remove();document.body.dataset.towerRenderer='2d-fallback';window.__TOWER_3D_ACTIVE__=false};
   canvas.addEventListener('webglcontextlost',onLost,{once:true});
@@ -379,5 +367,5 @@ export function mountTower3D({host,getFrame,reducedMotion=false,highContrast=fal
   document.body.dataset.towerRenderer='three-dimensional';
   window.__TOWER_3D_ACTIVE__=true;
   resize();requestAnimationFrame(draw);
-  return{destroy(){running=false;window.removeEventListener('resize',resize);actionEffects.dispose();effectsDirector.dispose();renderer.dispose();canvas.remove();window.__TOWER_3D_ACTIVE__=false;document.body.dataset.towerRenderer='2d-fallback'}};
+  return{destroy(){running=false;window.removeEventListener('resize',resize);actionEffects.dispose();renderer.dispose();canvas.remove();window.__TOWER_3D_ACTIVE__=false;document.body.dataset.towerRenderer='2d-fallback'}};
 }
