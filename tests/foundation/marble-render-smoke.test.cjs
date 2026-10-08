@@ -38,11 +38,15 @@ function makeSnapshot(stage,champion=false){
 
 function makeMockGL(counters){
   const gl={};
-  const methods='createShader shaderSource compileShader deleteShader createProgram attachShader linkProgram deleteProgram createVertexArray bindVertexArray createBuffer bindBuffer bufferData enableVertexAttribArray vertexAttribPointer createTexture bindTexture texParameteri createFramebuffer bindFramebuffer createRenderbuffer bindRenderbuffer renderbufferStorage framebufferTexture2D framebufferRenderbuffer uniform2fv getUniformLocation useProgram enable disable blendFunc cullFace drawElements drawArrays uniformMatrix4fv uniformMatrix3fv uniform3fv uniform1f uniform1i viewport clearColor clear depthMask activeTexture pixelStorei texImage2D'.split(' ');
+  const methods='createShader shaderSource compileShader deleteShader createProgram attachShader linkProgram deleteProgram createVertexArray deleteVertexArray bindVertexArray createBuffer deleteBuffer bindBuffer bufferData enableVertexAttribArray vertexAttribPointer createTexture bindTexture texParameteri createFramebuffer bindFramebuffer createRenderbuffer bindRenderbuffer renderbufferStorage framebufferTexture2D framebufferRenderbuffer uniform2fv getUniformLocation useProgram enable disable blendFunc cullFace drawElements drawArrays uniformMatrix4fv uniformMatrix3fv uniform3fv uniform1f uniform1i viewport clearColor clear depthMask activeTexture pixelStorei texImage2D'.split(' ');
   for(const name of methods)gl[name]=(...args)=>{
     if(name==='drawElements'){counters.drawElements++;counters.maximumMeshIndices=Math.max(counters.maximumMeshIndices,args[1]);}
     if(name==='drawArrays'){counters.drawArrays++;if(args[0]===gl.POINTS)counters.pointCloudDraws++;}
     if(name==='texImage2D')counters.uploads++;
+    if(name==='deleteBuffer')counters.deletedBuffers=(counters.deletedBuffers||0)+1;
+    if(name==='deleteVertexArray')counters.deletedVertexArrays=(counters.deletedVertexArrays||0)+1;
+    if(name==='createBuffer')counters.createdBuffers=(counters.createdBuffers||0)+1;
+    if(name==='createVertexArray')counters.createdVertexArrays=(counters.createdVertexArrays||0)+1;
     return name.startsWith('create')?{name}:null;
   };
   const constants='VERTEX_SHADER FRAGMENT_SHADER COMPILE_STATUS LINK_STATUS ARRAY_BUFFER ELEMENT_ARRAY_BUFFER STATIC_DRAW FLOAT UNSIGNED_SHORT TRIANGLES TRIANGLE_FAN FRAMEBUFFER RENDERBUFFER DEPTH_COMPONENT16 FRAMEBUFFER_COMPLETE DEPTH_ATTACHMENT COLOR_ATTACHMENT0 TEXTURE_2D TEXTURE_MIN_FILTER TEXTURE_MAG_FILTER TEXTURE_WRAP_S TEXTURE_WRAP_T LINEAR CLAMP_TO_EDGE COLOR_BUFFER_BIT DEPTH_BUFFER_BIT TEXTURE0 UNPACK_FLIP_Y_WEBGL RGBA UNSIGNED_BYTE POINTS DEPTH_TEST BLEND CULL_FACE BACK SRC_ALPHA ONE_MINUS_SRC_ALPHA'.split(' ');
@@ -75,11 +79,12 @@ async function simulateStage(stage,quality,champion=false){
     createElement:()=>({width:1024,height:256,getContext:()=>ctx}),
   };
   const frames=[];
+  let currentStage=stage,currentChampion=champion,requestPoll=()=>{};
   const sandbox={
     window,document,performance:{now:()=>12},
-    fetch:async()=>({ok:true,json:async()=>makeSnapshot(stage,champion)}),
+    fetch:async()=>({ok:true,json:async()=>makeSnapshot(currentStage,currentChampion)}),
     requestAnimationFrame:callback=>{frames.push(callback);},
-    setInterval(){},
+    setInterval(callback){requestPoll=callback;},
     BroadcastChannel:undefined,
     location:{reload(){}},
   };
@@ -89,7 +94,18 @@ async function simulateStage(stage,quality,champion=false){
   await new Promise(resolve=>setImmediate(resolve));
   assert.ok(frames.length>0,'WebGL renderer must request an animation frame');
   frames.shift()(120);
-  return {counters,shell,frame:sandbox.window.marbleRenderFrame};
+  return {
+    counters,shell,frame:sandbox.window.marbleRenderFrame,
+    async nextStage(next,officialChampion=false){
+      currentStage=next;
+      currentChampion=officialChampion;
+      requestPoll();
+      await new Promise(resolve=>setImmediate(resolve));
+      assert.ok(frames.length>0,'scene must keep scheduling render frames');
+      frames.shift()(140+BIOMES.indexOf(next)*120);
+      return sandbox.window.marbleRenderFrame;
+    },
+  };
 }
 
 for(const biome of BIOMES){
@@ -204,4 +220,27 @@ test('every stage gets its own monumental 3D skyline, architecture and physics-s
     styles.add(shell.dataset.landmarkStyle);
   }
   assert.equal(styles.size,5,'five arena biomes may not become recoloured clones');
+});
+
+test('always-on autonomous stadium releases obsolete stage GPU buffers through complete biome and victory cycles',async()=>{
+  const render=await simulateStage('seeding-sprint','high');
+  const oldBuffers=render.counters.createdBuffers;
+  const oldVaos=render.counters.createdVertexArrays;
+  const cycle=['gate-gauntlet','hazard-circuit','final-four','championship','seeding-sprint'];
+  for(const biome of cycle){
+    const frame=await render.nextStage(biome,biome==='championship');
+    assert.equal(frame.snapshot.arena.archetype,biome);
+    assert.equal(render.shell.dataset.stadiumStyle,biome);
+    assert.equal(render.shell.dataset.landmarkStyle,biome);
+    assert.equal(render.shell.dataset.postprocess,'neon-glow');
+    assert.equal(render.shell.dataset.crowdCount,'660');
+    assert.ok(Number(render.shell.dataset.horizonGeometry)>=300);
+  }
+  assert.ok(render.counters.createdBuffers>oldBuffers,
+    'distinct stages must upload actual separate mesh geometries');
+  assert.ok(render.counters.createdVertexArrays>oldVaos);
+  assert.ok(render.counters.deletedBuffers>=15,
+    'stale stadium/skyline GPU buffers must be explicitly freed on stage changes');
+  assert.ok(render.counters.deletedVertexArrays>=10,
+    'old geometry vertex-array handles cannot accumulate across tournaments');
 });
