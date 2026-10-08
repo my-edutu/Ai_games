@@ -6,6 +6,7 @@ on:
       - 'public/infinite-tower-climb/**'
       - 'scripts/serve-tower-stream.cjs'
       - 'tests/browser/tower-3d-gauntlet.spec.cjs'
+      - 'tests/browser/tower-volumetric.spec.cjs'
       - '.github/workflows/tower-3d-gauntlet.yml'
   pull_request:
     paths:
@@ -30,7 +31,7 @@ jobs:
         run: node --test tests/foundation/tower-3d-art.test.cjs
       - run: npx playwright install --with-deps chromium
       - name: Browser evidence — WebGL/AI state/fallback
-        run: npx playwright test tests/browser/tower-3d-gauntlet.spec.cjs
+        run: npx playwright test tests/browser/tower-3d-gauntlet.spec.cjs tests/browser/tower-volumetric.spec.cjs
       - name: Keep screenshots and browser traces
         if: always()
         uses: actions/upload-artifact@v4
