@@ -12,7 +12,7 @@
   let renderer;
   try { renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false }); }
   catch (error) { console.warn('WebGL unavailable', error); canvas.remove(); return; }
-  const [{createClimber},{createTowerEnvironment},{createTowerEntities},{loadClimberAsset}]=await Promise.all([import('/tower/character3d.js'),import('/tower/environment3d.js'),import('/tower/entities3d.js'),import('/tower/asset3d.js')]);
+  const [{createClimber},{createTowerEnvironment},{createTowerEntities},{loadClimberAsset},{createTowerVfx}]=await Promise.all([import('/tower/character3d.js'),import('/tower/environment3d.js'),import('/tower/entities3d.js'),import('/tower/asset3d.js'),import('/tower/vfx3d.js')]);
   const scene = new THREE.Scene();
   scene.background = new THREE.Color('#10172a');
   scene.fog = new THREE.FogExp2('#10172a', 0.013);
@@ -42,6 +42,7 @@
   let runSignature='';
   const clock = new THREE.Clock();
   const climber=createClimber(THREE); scene.add(climber.root);
+  const vfx=createTowerVfx(THREE,scene);
   let importedClimber=null,previousFrameTime=performance.now();
   let lastClimberPosition = null;
   const groundLight=new THREE.PointLight(0xffaa55,30,130,1.8);scene.add(groundLight);
@@ -149,6 +150,10 @@
     }
     previousFrameTime=performance.now();
     architecture.animate(elapsed,document.body.dataset.reducedMotion==='true');
+    vfx.update((performance.now()-previousFrameTime)/1000,lastState?{
+      x:climber.root.position.x,y:climber.root.position.y,z:climber.root.position.z,
+      dx:Number(lastState.player?.vx||0)/1000,dy:Number(lastState.player?.vy||0)/1000
+    }:null,lastState?.theme,Number(lastState?.dangerPermille||0)/1000,document.body.dataset.reducedMotion==='true');
     if (lastState) {
       const playerX=Number(lastState.player?.x||0)/1000-Number(lastState.worldWidth||0)/2000;
       const playerY=Number(lastState.player?.y||0)/1000-Number(lastState.chunkBaseY||0)/1000;
@@ -167,6 +172,7 @@
     metrics.drawCalls=renderer.info.render.calls;
     metrics.triangles=renderer.info.render.triangles;
     metrics.reusedEntities=liveEntities.size;
+    metrics.vfxParticles=vfx.count;
     metrics.scene=scenePhase;metrics.cameraDepth=Math.round(camera.position.z);
     if(diagnostics&&metrics.frames%12===0)diagnostics.textContent=[
       '3D GAUNTLET / '+metrics.status,
