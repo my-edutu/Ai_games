@@ -118,11 +118,16 @@ export function mountTower3D({host,getFrame,reducedMotion=false,highContrast=fal
   canvas.setAttribute('aria-hidden','true');
   canvas.style.cssText='position:absolute;inset:0;width:100%;height:100%;display:block;pointer-events:none';
   host.appendChild(canvas);
-  let renderer;
+  let renderer,softwareRenderer=false,lowPower=quality==='low'||(quality==='auto'&&window.innerWidth<850);
   try{
-    renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:false,powerPreference:'high-performance'});
-    const lowPower=quality==='low'||(quality==='auto'&&window.innerWidth<850);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,lowPower?1:1.65));
+    renderer=new THREE.WebGLRenderer({canvas,antialias:!lowPower,alpha:false,powerPreference:'high-performance'});
+    try{
+      const gl=renderer.getContext(),ext=gl.getExtension('WEBGL_debug_renderer_info');
+      const hardware=String(ext?gl.getParameter(ext.UNMASKED_RENDERER_WEBGL):gl.getParameter(gl.RENDERER)||'');
+      softwareRenderer=/swiftshader|llvmpipe|software rasterizer|softpipe/i.test(hardware);
+    }catch{}
+    lowPower=lowPower||softwareRenderer;
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,lowPower?1:1.45));
     renderer.toneMapping=THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure=1.34;
     renderer.outputColorSpace=THREE.SRGBColorSpace;
@@ -134,16 +139,17 @@ export function mountTower3D({host,getFrame,reducedMotion=false,highContrast=fal
   const actionEffects=createTowerEffectsDirector(effects);
   const hemi=new THREE.HemisphereLight(0xffedd6,0x43455d,1.65);scene.add(hemi);
   // Soft, directional shadowing anchors the playable platforms without changing collision.
-  renderer.shadowMap.enabled=quality!=='low';
+  renderer.shadowMap.enabled=!lowPower;
   renderer.shadowMap.type=THREE.PCFSoftShadowMap;
-  const key=new THREE.DirectionalLight(0xffddb0,3.4);key.position.set(-45,120,135);key.castShadow=quality!=='low';key.shadow.mapSize.set(1024,1024);key.shadow.camera.left=-300;key.shadow.camera.right=300;key.shadow.camera.top=300;key.shadow.camera.bottom=-300;key.shadow.camera.near=1;key.shadow.camera.far=650;key.shadow.bias=-.0003;scene.add(key,key.target);
+  const key=new THREE.DirectionalLight(0xffddb0,3.4);key.position.set(-45,120,135);key.castShadow=!lowPower;key.shadow.mapSize.set(1024,1024);key.shadow.camera.left=-300;key.shadow.camera.right=300;key.shadow.camera.top=300;key.shadow.camera.bottom=-300;key.shadow.camera.near=1;key.shadow.camera.far=650;key.shadow.bias=-.0003;scene.add(key,key.target);
   const rim=new THREE.DirectionalLight(0x9edce2,2.9);rim.position.set(80,55,-30);scene.add(rim,rim.target);
   const player=createTowerCharacter({tint:0xf7a65d,kind:'climber'});
   // Shadows on every minute rivet and tiny finger segment multiply draw calls.
   // Keep only the largest 22 Wayfinder surfaces shadow-casting in cinematics.
   const shadowCandidates=[];
-  player.traverse(o=>{if(o.isMesh){o.castShadow=false;const size=o.geometry?.boundingSphere?.radius||0;shadowCandidates.push(o)}});
-  shadowCandidates.slice(0,22).forEach(o=>o.castShadow=true);
+  player.traverse(o=>{if(o.isMesh){o.castShadow=false;shadowCandidates.push(o)}});
+  // Only render large body-part shadows; tiny visor seams / rivets add nothing at gameplay scale.
+  shadowCandidates.slice(0,18).forEach(o=>o.castShadow=true);
   actors.add(player);
   // This quality-review turntable reuses exactly the same production character assets.
   // It does not alter game authority or the live snapshot and is opt-in only.
@@ -168,7 +174,7 @@ export function mountTower3D({host,getFrame,reducedMotion=false,highContrast=fal
   let floor=-1,theme='',lastChecksum='',latest=null,frame=null,running=true,lastAt=performance.now(),ornament=null,landmarks=null,atmosphere=null;
   let cameraY=35,cameraX=240,worldWidth=480,observedFrames=0,visualX=null,visualY=null,visualRun='',visualFloor=-1;
   let frameTotalMs=0,slowFrames=0,frameSampleCount=0;
-  const perf={frames:0,drawCalls:0,triangles:0,entityCount:0,phase:'initialized',bootError:null};window.__TOWER_3D_DIAGNOSTICS__=perf;
+  const perf={frames:0,drawCalls:0,triangles:0,entityCount:0,phase:'initialized',bootError:null,softwareRenderer,lowPower};window.__TOWER_3D_DIAGNOSTICS__=perf;
 
   function buildBackdrop(s){
     clearGroup(backdrop);clearGroup(structures);platformMeshes.clear();for(const [id,obj] of dynamic){actors.remove(obj);clearGroup(obj);dynamic.delete(id)}
