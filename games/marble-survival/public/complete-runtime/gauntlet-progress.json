@@ -1,13 +1,18 @@
 {
   "schema": 1,
-  "iteration": "Loop 2 · instrument and verify",
+  "iteration": "Loop 3 · 3D stadium and cinematic stage",
   "lastUpdated": "2026-10-08",
-  "criticTarget": "Obtain actual rendered browser screenshots at identical viewports, then compare blindly against Marble It Up! Ultra. No independent visual judgment has been run yet.",
+  "criticTarget": "Visually inspect rendered stadium composition, marble surface quality, and silhouette readability at 1920×1080 and mobile resolutions; compare against real reference game screenshots before accepting.",
   "comparisonStatus": "NOT YET VERIFIED · Screenshots, blind A/B verdicts and performance sampling are outstanding.",
   "goals": [
     {
       "name": "Premium marble character optics",
       "detail": "Shader clearcoat, fresnel edge light and rotating internal glass veins",
+      "status": "implemented"
+    },
+    {
+      "name": "Constructed 3D tournament stadium",
+      "detail": "Quality-scaled grandstands, illuminated finish gantry and procedural floodlight scenery",
       "status": "implemented"
     },
     {
@@ -37,6 +42,11 @@
     }
   ],
   "history": [
+    {
+      "title": "Loop 3 — 3D arena atmosphere",
+      "note": "Added grandstand geometry, industrial gantries, and quality-scaled emissive stadium lighting outside the authoritative collision world. Runtime visual review still needed.",
+      "proof": "Source implementation"
+    },
     {
       "title": "Loop 2 — Objective telemetry",
       "note": "Instrumented actual WebGL draw calls, triangles, FPS and same-origin live progress feed; browser runtime validation still required.",
