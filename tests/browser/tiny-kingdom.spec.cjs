@@ -367,7 +367,7 @@ test('Gauntlet 018 camera tour provides six semantic views without affecting aut
   await page.locator('#pause').click();
   const before=await page.evaluate(()=>JSON.stringify(window.__tinyKingdom.exportSnapshot()));
   expect(await page.locator('.tour-btn').count()).toBe(6);
-  for(const [scene,x,z] of [['market',0,5],['mill',-27,-18],['orchard',-26,9],['river',5,20],['valley',0,0]]){
+  for(const [scene,x,z] of [['market',0,5],['mill',-27,-18],['orchard',-26,9],['river',-6,18.1],['valley',0,0]]){
     await page.locator('[data-scenic="'+scene+'"]').click();
     await expect(page.locator('[data-scenic="'+scene+'"]')).toHaveAttribute('aria-pressed','true');
     const camera=await page.evaluate(()=>window.__tinyKingdom.getCamera());
