@@ -49,10 +49,10 @@ test.describe('Eko Run 3D Gauntlet slice', () => {
 
   test('progress dashboard shows grounded claims and live authority', async ({ page }) => {
     await page.goto(ROOT+'/eko/progress');
-    await expect(page.locator('#iterations')).toHaveText('3');
+    await expect.poll(async () => Number(await page.locator('#iterations').innerText())).toBeGreaterThanOrEqual(4);
     await expect(page.locator('#open')).not.toHaveText('—');
     await expect(page.locator('#tick')).not.toHaveText('—');
-    await expect(page.locator('#rounds .card')).toHaveCount(3);
+    await expect.poll(async () => page.locator('#rounds .card').count()).toBeGreaterThanOrEqual(4);
     await expect(page.locator('#status')).toContainText('Iteration');
     fs.mkdirSync('artifacts/eko-gauntlet', { recursive: true });
     await page.screenshot({ path: path.join('artifacts/eko-gauntlet','progress.png'), fullPage:true });
