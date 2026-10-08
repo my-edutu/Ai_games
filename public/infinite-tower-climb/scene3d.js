@@ -90,7 +90,7 @@ export function mountTower3D({host,getFrame,reducedMotion=false}){
   const glow=new THREE.PointLight(0x7ff3e7,100,170,2);actors.add(glow);
   const dynamic=new Map();
   let floor=-1,theme='',lastChecksum='',latest=null,frame=null,running=true,lastAt=performance.now();
-  let cameraY=35,cameraX=240,worldWidth=480,observedFrames=0;
+  let cameraY=35,cameraX=240,worldWidth=480,observedFrames=0,visualX=null,visualY=null,visualRun='';
   const perf={frames:0,drawCalls:0,triangles:0,entityCount:0};window.__TOWER_3D_DIAGNOSTICS__=perf;
 
   function buildBackdrop(s){
@@ -262,7 +262,7 @@ export function mountTower3D({host,getFrame,reducedMotion=false}){
 
   function resize(){
     const w=Math.max(1,host.clientWidth),h=Math.max(1,host.clientHeight);
-    if(canvas.width!==Math.round(w*renderer.getPixelRatio())||canvas.height!==Math.round(h*renderer.getPixelRatio()))renderer.setSize(w,h,false);
+    if(canvas.width!==Math.floor(w*renderer.getPixelRatio())||canvas.height!==Math.floor(h*renderer.getPixelRatio()))renderer.setSize(w,h,false);
     const aspect=w/h,span=156;
     camera.left=-span*aspect/2;camera.right=span*aspect/2;
     camera.top=span/2;camera.bottom=-span/2;camera.updateProjectionMatrix();
@@ -274,7 +274,11 @@ export function mountTower3D({host,getFrame,reducedMotion=false}){
     const s=data.snapshot;
     if(lastChecksum!==s.publicChecksum)sync(s);
     const dt=clamp((now-lastAt)/1000,0,.1);lastAt=now;resize();
-    const targetX=coord(s.player.x),targetY=coord(data.camera?.centerY??s.player.y);
+    const authoritativeX=coord(s.player.x),authoritativeY=coord(s.player.y);
+    if(visualRun!==s.runToken||visualX===null||floor!==s.floor){visualX=authoritativeX;visualY=authoritativeY;visualRun=s.runToken}
+    const follow=reducedMotion?1:1-Math.exp(-dt*13);
+    visualX+=(authoritativeX-visualX)*follow;visualY+=(authoritativeY-visualY)*follow;
+    const targetX=visualX,targetY=coord(data.camera?.centerY??s.player.y);
     // Smooth tracking affects presentation only, never the simulation.
     const motion=reducedMotion?1:1-Math.exp(-dt*4.2);
     cameraX+=(clamp(targetX,80,worldWidth-80)-cameraX)*motion;
@@ -283,11 +287,11 @@ export function mountTower3D({host,getFrame,reducedMotion=false}){
     const az=worldWidth/2;const depth=258;
     camera.position.set(cameraX+33+shake,cameraY+18+shake*.6,depth);
     camera.lookAt(cameraX,cameraY,-18);
-    player.position.set(coord(s.player.x),coord(s.player.y),36);
+    player.position.set(visualX,visualY,36);
     const collisionScale=clamp(coord(s.player.halfHeight)/24,.3,1.6);
     player.scale.set((s.player.facing===-1?-1:1)*collisionScale,collisionScale,collisionScale);
     player.visible=s.player.health>0;
-    glow.position.set(coord(s.player.x),coord(s.player.y)+14,36);
+    glow.position.set(visualX,visualY+14,36);
     animateRig(player,now*.001,coord(s.player.vx),s.player.state!=='airborne',reducedMotion);
     for(const [id,g] of dynamic){
       if(id.startsWith('enemy:')&&g.visible)animateRig(g,now*.001+id.length,2,true,reducedMotion);
