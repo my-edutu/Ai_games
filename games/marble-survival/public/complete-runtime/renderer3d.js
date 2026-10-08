@@ -1208,16 +1208,48 @@
   }
 
   function drawRampStructure(ramp,arena,theme,viewProjection,cameraPosition){
-    const origin=toWorld(ramp.x,ramp.y,arena),width=ramp.width*WORLD_SCALE,depth=ramp.height*WORLD_SCALE,start=ramp.startElevation*WORLD_SCALE,end=ramp.endElevation*WORLD_SCALE;
-    const rise=end-start; const slopeLength=Math.hypot(depth,rise); const center=[origin[0]+width/2,(start+end)/2+0.07,origin[2]+depth/2];
+    const origin=toWorld(ramp.x,ramp.y,arena);
+    const width=ramp.width*WORLD_SCALE,depth=ramp.height*WORLD_SCALE;
+    const start=ramp.startElevation*WORLD_SCALE,end=ramp.endElevation*WORLD_SCALE;
+    const rise=end-start;
+    const slopeLength=Math.hypot(ramp.axis==='y'?depth:width,rise);
+    const center=[origin[0]+width/2,(start+end)/2+0.07,origin[2]+depth/2];
     const rotation=ramp.axis==='y'?[Math.atan2(rise,depth),0,0]:[0,0,-Math.atan2(rise,width)];
-    const size=ramp.axis==='y'?[width,0.14,slopeLength]:[Math.hypot(width,rise),0.14,depth];
+    const size=ramp.axis==='y'?[width,0.14,slopeLength]:[slopeLength,0.14,depth];
+    const quality=document.getElementById('quality-select')?.value||'balanced';
+    const steel=material(theme.structure,0.27,0.68);
+    const dark=material(theme.trim,0.22,0.83);
+    const neon=material(theme.secondary,0.18,0.39,0.38);
+    const highlight=material(theme.accent,0.22,0.33,0.18);
     drawFactorySupport(ramp,arena,theme,viewProjection,cameraPosition);
-    drawBox(center,size,material([0.30,0.32,0.33],0.38,0.68),viewProjection,cameraPosition,rotation);
-    const stripeCount=7;
-    for(let index=0;index<stripeCount;index+=1){const t=(index+0.5)/stripeCount;const z=origin[2]+depth*t;const elevation=lerp(start,end,t)+0.12;drawBox([origin[0]+width/2,elevation,z],[width*0.92,0.035,0.08],material(index%2===0?theme.accent:[0.10,0.105,0.11],0.48,0.32,0.05),viewProjection,cameraPosition,rotation);}
+    // Non-contact sculptural deck wraps the real sloped support plane;
+    // the server alone determines elevation and ramp support boundaries.
+    drawBox(center,size,steel,viewProjection,cameraPosition,rotation);
+    const sideRailHeight=(start+end)/2+0.25;
+    for(const side of [-1,1]){
+      if(ramp.axis==='y'){
+        const x=center[0]+side*width*0.47;
+        drawBox([x,sideRailHeight,center[2]],[0.105,0.15,slopeLength],dark,viewProjection,cameraPosition,rotation);
+        drawBox([x,sideRailHeight+0.11,center[2]],[0.035,0.044,slopeLength*0.98],neon,viewProjection,cameraPosition,rotation);
+      }else{
+        const z=center[2]+side*depth*0.47;
+        drawBox([center[0],sideRailHeight,z],[slopeLength,0.15,0.105],dark,viewProjection,cameraPosition,rotation);
+        drawBox([center[0],sideRailHeight+0.11,z],[slopeLength*0.98,0.044,0.035],neon,viewProjection,cameraPosition,rotation);
+      }
+    }
+    const stripeCount=quality==='low'?4:quality==='balanced'?8:12;
+    for(let i=0;i<stripeCount;i++){
+      const t=(i+0.5)/stripeCount;
+      const elevation=lerp(start,end,t)+0.12;
+      const x=ramp.axis==='y'?center[0]:origin[0]+width*t;
+      const z=ramp.axis==='y'?origin[2]+depth*t:center[2];
+      const stripSize=ramp.axis==='y'?[width*0.85,0.033,0.085]:[0.085,0.033,depth*0.85];
+      drawBox([x,elevation,z],stripSize,i%3===0?highlight:dark,viewProjection,cameraPosition,rotation);
+      if((quality==='high'||quality==='ultra')&&i%3===1){
+        drawMesh(crystalMesh,modelMatrix([x,elevation+0.20,z],[0,0.7,0],[0.055,0.13,0.055]),neon,viewProjection,cameraPosition);
+      }
+    }
   }
-
   function drawSweeperMachine(sweeper,arena,theme,tick,viewProjection,cameraPosition){const offset=triangleWave(tick,sweeper.periodTicks,sweeper.amplitude,sweeper.phaseTicks),x=sweeper.baseX+(sweeper.axis==='x'?offset:0),y=sweeper.baseY+(sweeper.axis==='y'?offset:0),origin=toWorld(x,y,arena),width=sweeper.width*WORLD_SCALE,depth=Math.max(0.18,sweeper.height*WORLD_SCALE),center=[origin[0]+width/2,0.36,origin[2]+depth/2],steel=material([0.42,0.45,0.47],0.22,0.88);drawBox(center,[width,0.28,depth],steel,viewProjection,cameraPosition);drawBox([center[0],0.57,center[2]],[width*0.88,0.10,Math.max(0.10,depth*0.56)],material(theme.accent,0.28,0.44,0.10),viewProjection,cameraPosition);const hubRadius=Math.max(0.16,depth*0.8);for(const side of [-1,1]){const hubX=center[0]+side*width/2;drawMesh(cylinderMesh,modelMatrix([hubX,0.36,center[2]],[0,0,Math.PI/2],[hubRadius,0.12,hubRadius]),steel,viewProjection,cameraPosition);drawBox([hubX,0.15,center[2]],[0.18,0.30,0.18],material(theme.trim,0.38,0.76),viewProjection,cameraPosition);}}
   function rollingState(marble,nowSeconds){let state=rollingById.get(marble.id);if(!state){state={x:0,z:0,lastTime:nowSeconds};rollingById.set(marble.id,state);}const dt=clamp(nowSeconds-state.lastTime,0,0.05);state.lastTime=nowSeconds;const vx=marble.velocityX*WORLD_SCALE,vz=marble.velocityY*WORLD_SCALE;state.x+=-vz/MARBLE_RADIUS*dt*60;state.z+=vx/MARBLE_RADIUS*dt*60;return state;}
   function drawVictoryCeremony(authority,marbles,arena,viewProjection,cameraPosition,now) {
