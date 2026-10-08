@@ -5,6 +5,7 @@ import { createEkoSurfaceKit } from '/eko/material-craft.js';
 import { composeStreetVibrance } from '/eko/world-vibrance.js';
 import { createCityAtmosphere } from '/eko/atmosphere.js';
 import { createEkoGameFeel } from '/eko/gamefeel.js';
+import { createEkoSoundscape } from '/eko/soundscape.js';
 
 // Presentation-only renderer. The Node simulation owns all movement, collision and rewards.
 const $ = id => document.getElementById(id);
@@ -89,6 +90,7 @@ try {
 const scene=new THREE.Scene();
 const atmosphere=createCityAtmosphere(THREE,scene);
 const vfx=createEkoGameFeel(THREE,scene);
+const audio=createEkoSoundscape();
 const camera=new THREE.PerspectiveCamera(52,1,.15,220);
 const hemi=new THREE.HemisphereLight(0xecfaff,0x647261,1.2);scene.add(hemi);
 const sun=new THREE.DirectionalLight(0xffe0a3,3.1);sun.position.set(-9,17,13);sun.castShadow=true;
@@ -206,6 +208,7 @@ function buildWorld(snapshot) {
   const style=DISTRICTS[district]||DISTRICTS['mainland-morning'];
   scene.background=new THREE.Color(style.sky);scene.fog=new THREE.FogExp2(style.fog,.009);
   atmosphere.setDistrict(district);
+  audio.theme(district);
   hemi.intensity=style.skyLight;sun.color.setHex(style.warm);
   sun.intensity=district==='island-night'?1.2:2.45;
   const night=district==='island-night';
@@ -426,6 +429,7 @@ function updateSnapshot(packet){
   if(!packet || !packet.snapshot || (latest&&packet.snapshot.tick<latest.snapshot.tick))return;
   latest=packet;lastPacket=performance.now();
   vfx.ingest(packet.snapshot.recentEvents,packet.snapshot.player,packet.snapshot.runId);
+  audio.ingest(packet.snapshot.recentEvents,packet.snapshot.runId);
   const s=packet.snapshot, p=s.progression;
   document.documentElement.dataset.district=p?.districtId||'mainland-morning';
   ui.district.textContent=DISTRICTS[p?.districtId]?.name||'MAINLAND MORNING';
@@ -508,6 +512,17 @@ function postControl(body){
   return fetch('/eko/control',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}).catch(()=>null);
 }
 $('mode').addEventListener('click',()=>postControl({mode:worldState.mode==='ai'?'player':'ai'}));
+$('sound').addEventListener('click',async()=>{
+  try {
+    await audio.setEnabled(!audio.enabled);
+    $('sound').textContent=audio.enabled?'♫ SOUND ON':'♫ SOUND OFF';
+    $('sound').setAttribute('aria-pressed',String(audio.enabled));
+  } catch(error) {
+    $('sound').textContent='♫ AUDIO UNAVAILABLE';
+    $('sound').disabled=true;
+    console.warn('Eko Run audio unavailable:',error?.message||error);
+  }
+});
 $('outfit').addEventListener('change',ev=>postControl({outfit:ev.target.value}));
 $('quality').addEventListener('click',()=>{
   worldState.quality=worldState.quality==='high'?'low':'high';
@@ -583,4 +598,4 @@ requestAnimationFrame(animate);
 const stream=new EventSource('/eko/stream');
 stream.onmessage=ev=>{try{updateSnapshot(JSON.parse(ev.data));}catch(error){console.error('Render snapshot rejected:',error);}};
 stream.onerror=()=>{ui.signal.textContent='RECONNECTING TO AUTHORITY';};
-window.addEventListener('pagehide',()=>stream.close());
+window.addEventListener('pagehide',()=>{stream.close();audio.dispose();});
