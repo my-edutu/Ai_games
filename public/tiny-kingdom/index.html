@@ -245,13 +245,42 @@ function path(points,width=1){for(let i=0;i<points.length-1;i++){
  }
 }}
 function wheat(x,z){let y=terrain(x,z);for(let i=0;i<6;i++)for(let j=0;j<5;j++){let xx=x+(i-2.5)*.43,zz=z+(j-2)*.48,yy=terrain(xx,zz);cylinder(xx,yy,zz,.022,.6,rgb(0xbc9c56),4);cone(xx,yy+.39,zz,.12,.34,rgb([0x82b45b,0xe4c47c,0xcca45c,0xc2c9b9][climateAt(state.t).season]),4)}}
+/* Gauntlet 020: render-only deterministic joint hierarchy. */
+function citizenRigPose(p){
+ const activity=p.activity.toLowerCase(),working=/harvest|cutting|craft|construct|making|forag/.test(activity),traveling=/travel|explor/.test(activity);
+ const intensity=traveling?1:working?.4:.16,stride=Math.sin(p.phase*2.7)*intensity,workBeat=working?Math.sin(p.phase*4.1):0;
+ const legs=[-1,1].map(side=>{const swing=side*stride,lift=Math.max(0,-swing)*.16;return {hip:[side*.115,.56,0],knee:[side*.115,.31,swing*.43+lift],ankle:[side*.115,.08,swing*.92]};});
+ const arms=[-1,1].map(side=>{const swing=-side*stride*.67,toolArm=working&&side===1,beat=toolArm?workBeat*.17:0;return {shoulder:[side*.30,1.015,0],elbow:[side*.34,.79+(toolArm?.08:0),swing*.43+beat],wrist:[side*.34,.55+(toolArm?.14+workBeat*.055:0),swing*.77+beat*1.35]};});
+ return {legs,arms,working,traveling,stride};
+}
+function limbSegment(a,b,radius,col,sides=7){
+ const dx=b[0]-a[0],dy=b[1]-a[1],dz=b[2]-a[2],length=Math.hypot(dx,dy,dz);if(length<.00001)return;
+ const d=[dx/length,dy/length,dz/length],ref=Math.abs(d[1])>.88?[1,0,0]:[0,1,0];
+ let right=[d[1]*ref[2]-d[2]*ref[1],d[2]*ref[0]-d[0]*ref[2],d[0]*ref[1]-d[1]*ref[0]];
+ const n=Math.hypot(...right);right=right.map(v=>v/n);
+ const up=[d[1]*right[2]-d[2]*right[1],d[2]*right[0]-d[0]*right[2],d[0]*right[1]-d[1]*right[0]];
+ const vertex=(origin,angle)=>origin.map((v,k)=>v+radius*(Math.cos(angle)*right[k]+Math.sin(angle)*up[k]));
+ for(let i=0;i<sides;i++){const t=i*2*Math.PI/sides,u=(i+1)*2*Math.PI/sides;quad(vertex(a,t),vertex(a,u),vertex(b,u),vertex(b,t),col);}
+}
+
 // Low-poly but individually proportioned citizens with articulated walk cycles, faces, tools and roles.
 function ellipsoid(x,y,z,rx,ry,rz,col,segments=9){for(let ring=0;ring<5;ring++){let a=Math.PI*ring/5,b=Math.PI*(ring+1)/5;for(let i=0;i<segments;i++){let u=i*Math.PI*2/segments,v=(i+1)*Math.PI*2/segments;let f=(t,k)=>[x+Math.sin(t)*Math.cos(k)*rx,y+Math.cos(t)*ry,z+Math.sin(t)*Math.sin(k)*rz];quad(f(a,u),f(a,v),f(b,v),f(b,u),col)}}}
 function villager(p){const vertexStart=data.length;let x=p.x,z=p.z,y=terrain(x,z),u=p.phase,idx=Math.max(0,people.indexOf(p)),size=.92+(idx%5)*.045;let c=colors[jobs.indexOf(p.job)]||colors[0],skin=rgb([0xd5a781,0x95654b,0xefc19c,0xbe8968,0x9a6a48][(idx+names.length)%5]),hair=rgb([0x4c3228,0x342f29,0x8b633f,0x664b36,0xa18b65][(idx+4)%5]);const busy=p.activity.toLowerCase().includes('harvest')||p.activity.toLowerCase().includes('cutting')||p.activity.toLowerCase().includes('craft')||p.activity.toLowerCase().includes('construct');let pace=p.activity.includes('Traveling')||p.activity.includes('Explor')?1:.23,step=Math.sin(u*2.7)*.21*pace;
 // Torso, shoulders, tunic seams and belt.
 box(x,y+.61*size,z,.43*size,.62*size,.30*size,c);box(x,y+.52*size,z,.47*size,.09*size,.34*size,rgb(0x69513a));box(x,y+.47*size,z+.175*size,.07*size,.20*size,.015*size,rgb(0xd9c091));
 // Individual gait, boots, hands, long sleeves and silhouettes.
-for(let side of [-1,1]){box(x+side*.115*size,y+.06*size,z+side*step,.155*size,.43*size,.21*size,rgb(0x534637));box(x+side*.115*size,y+.04*size,z+side*step+.09,.20*size,.12*size,.31*size,rgb(0x40382e));box(x+side*.30*size,y+.64*size,z-side*step*.6,.135*size,.43*size,.185*size,c);ellipsoid(x+side*.30*size,y+.60*size,z-side*step*.6,.085*size,.10*size,.09*size,skin,6)}
+const rig=citizenRigPose(p),worldJoint=q=>[x+q[0]*size,y+q[1]*size,z+q[2]*size];
+for(let sideIndex=0;sideIndex<2;sideIndex++){
+ const leg=rig.legs[sideIndex],arm=rig.arms[sideIndex];
+ limbSegment(worldJoint(leg.hip),worldJoint(leg.knee),.091*size,rgb(0x534637));
+ limbSegment(worldJoint(leg.knee),worldJoint(leg.ankle),.076*size,rgb(0x534637));
+ ellipsoid(...worldJoint(leg.knee),.096*size,.094*size,.097*size,rgb(0x534637),7);
+ const foot=worldJoint(leg.ankle);box(foot[0],foot[1]-.045*size,foot[2]+.095*size,.19*size,.13*size,.30*size,rgb(0x40382e));
+ limbSegment(worldJoint(arm.shoulder),worldJoint(arm.elbow),.091*size,c);
+ limbSegment(worldJoint(arm.elbow),worldJoint(arm.wrist),.077*size,c);
+ ellipsoid(...worldJoint(arm.elbow),.084*size,.084*size,.084*size,c,7);
+ ellipsoid(...worldJoint(arm.wrist),.09*size,.095*size,.085*size,skin,7);
+}
 // Sculpted neck and head with a real facial front (positive Z).
 cylinder(x,y+1.16*size,z,.12*size,.15*size,skin,8);ellipsoid(x,y+1.43*size,z,.22*size,.29*size,.19*size,skin);ellipsoid(x,y+1.67*size,z-.035*size,.235*size,.115*size,.185*size,hair,8);
 for(let side of [-1,1]){box(x+side*.083*size,y+1.475*size,z+.181*size,.029*size,.034*size,.023*size,rgb(0x342b29));box(x+side*.085*size,y+1.525*size,z+.185*size,.074*size,.025*size,.022*size,hair)}
@@ -703,6 +732,6 @@ riverBridge();hillsideSanctuary();market(0,5);well(-15,4);villageGarden(12,11);v
 for(let i=0;i<5;i++){let xx=-17+i*1.3,zz=-14+(i%2)*1.4;box(xx,terrain(xx,zz),zz,1,.45,.64,rgb(0x7d5d45))}
 for(const p of people)villager(p);weatherParticles(atmosphere);
 const elevation=Math.sin(pitch)*zoom,rad=Math.cos(pitch)*zoom,eye=[focusPoint[0]+Math.sin(yaw)*rad,elevation,focusPoint[1]+Math.cos(yaw)*rad];let m=mat4multiply(perspective(Math.PI/3.2,w/h,.1,190),lookAt(eye,[focusPoint[0],.25,focusPoint[1]],[0,1,0]));gl.uniformMatrix4fv(uniforms.viewProjection,false,m);gl.uniform3f(uniforms.fogColor,...atmosphere.fog);gl.uniform3f(uniforms.sunTint,...atmosphere.light);gl.uniform3f(uniforms.sunDirection,Math.cos(state.t/24*6.283),.3+atmosphere.daylight*.9,Math.sin(state.t/24*6.283));lastFrameTriangles=data.length/27;gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(data),gl.DYNAMIC_DRAW);gl.drawArrays(gl.TRIANGLES,0,data.length/9);if((frames++%14)===0){updateUI();drawAtlas();updateRealmSignal()}}
-requestAnimationFrame(render);window.__tinyKingdom={getState:()=>JSON.parse(JSON.stringify({state,people:people.map(({name,job,x,z,target})=>({name,job,x,z,target}))})),setSpeed:x=>{speed=x},step,reset:start,renderer:()=>canvas.getContext('webgl')?'webgl':'software',metrics:()=>({citizens:people.length,buildings:city.length+2,day:Math.floor(state.t/24)+1,food:state.food,wood:state.wood,gold:state.gold,relationships:people.filter(p=>p.friend).length}),route:(a,b)=>routeBetween(a[0],a[1],b[0],b[1]),walkable:(p)=>walkable(p[0],p[1]),getNavigation:()=>people.map(p=>({name:p.name,position:[p.x,p.z],target:p.target,remaining:p.path?.length||0,path:p.path,activity:p.activity,hunger:p.hunger,energy:p.energy})),exportSnapshot,restoreSnapshot,saveWorld,restoreWorld,climateAt,skyConditions,getCitizenProfiles:()=>cloneData(people.map(({name,job,trait,friend,bonds,energy,hunger,activity})=>({name,job,trait,friend,bonds,energy,hunger,activity}))),getSelectedCitizen:()=>people[selectedCitizen]?.name,routeCacheMetrics:()=>({entries:routeCache.size,hits:cacheHits,misses:cacheMisses}),getCamera:()=>({yaw,pitch,zoom,focus:focusPoint.slice(),follow,cinematic}),getTerrainHeight:(x,z)=>terrain(x,z),getWildfloraCount:()=>wildflora.length,getScenicSites:scenicSiteMetrics,getFestivalVisualStats:()=>({season:festivalSeason,cacheBuilds:festivalCacheBuilds,vertices:festivalGeometry?.length||0}),renderStats:()=>({terrainRebuilds,terrainCacheKey,terrainCacheTriangles,lastFrameTriangles}),setCamera:o=>{yaw=Number.isFinite(o.yaw)?o.yaw:yaw;pitch=Number.isFinite(o.pitch)?Math.max(.25,Math.min(1.45,o.pitch)):pitch;zoom=Number.isFinite(o.zoom)?Math.max(9,Math.min(85,o.zoom)):zoom;if(Array.isArray(o.focus)&&o.focus.length===2)focusPoint=o.focus.slice(0,2)}};
+requestAnimationFrame(render);window.__tinyKingdom={getState:()=>JSON.parse(JSON.stringify({state,people:people.map(({name,job,x,z,target})=>({name,job,x,z,target}))})),setSpeed:x=>{speed=x},step,reset:start,renderer:()=>canvas.getContext('webgl')?'webgl':'software',metrics:()=>({citizens:people.length,buildings:city.length+2,day:Math.floor(state.t/24)+1,food:state.food,wood:state.wood,gold:state.gold,relationships:people.filter(p=>p.friend).length}),route:(a,b)=>routeBetween(a[0],a[1],b[0],b[1]),walkable:(p)=>walkable(p[0],p[1]),getNavigation:()=>people.map(p=>({name:p.name,position:[p.x,p.z],target:p.target,remaining:p.path?.length||0,path:p.path,activity:p.activity,hunger:p.hunger,energy:p.energy})),exportSnapshot,restoreSnapshot,saveWorld,restoreWorld,climateAt,skyConditions,getCitizenProfiles:()=>cloneData(people.map(({name,job,trait,friend,bonds,energy,hunger,activity})=>({name,job,trait,friend,bonds,energy,hunger,activity}))),getRigPose:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(citizenRigPose(people[index])):null,getSelectedCitizen:()=>people[selectedCitizen]?.name,routeCacheMetrics:()=>({entries:routeCache.size,hits:cacheHits,misses:cacheMisses}),getCamera:()=>({yaw,pitch,zoom,focus:focusPoint.slice(),follow,cinematic}),getTerrainHeight:(x,z)=>terrain(x,z),getWildfloraCount:()=>wildflora.length,getScenicSites:scenicSiteMetrics,getFestivalVisualStats:()=>({season:festivalSeason,cacheBuilds:festivalCacheBuilds,vertices:festivalGeometry?.length||0}),renderStats:()=>({terrainRebuilds,terrainCacheKey,terrainCacheTriangles,lastFrameTriangles}),setCamera:o=>{yaw=Number.isFinite(o.yaw)?o.yaw:yaw;pitch=Number.isFinite(o.pitch)?Math.max(.25,Math.min(1.45,o.pitch)):pitch;zoom=Number.isFinite(o.zoom)?Math.max(9,Math.min(85,o.zoom)):zoom;if(Array.isArray(o.focus)&&o.focus.length===2)focusPoint=o.focus.slice(0,2)}};
 })();
 </script></body></html>
