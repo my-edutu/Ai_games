@@ -68,6 +68,11 @@ test('cinematic sky is one persistent shader and changes per district with safe 
   atmosphere.update(19,1000,false);
   const sky=scene.getObjectByName('Eko procedural sunset sky');
   assert.ok(sky && sky.material.isShaderMaterial);
+  const clouds=scene.getObjectByName('Eko instanced atmospheric cloud formations');
+  assert.ok(clouds?.isInstancedMesh);
+  assert.equal(clouds.count,45);
+  assert.equal(scene.children[0].children.filter(x=>x.isInstancedMesh).length,1,
+    'sky cloud puffs should consume one draw call, not forty-five');
   assert.equal(sky.position.x,19);
   const light=sky.material.uniforms.skyBottom.value.clone();
   atmosphere.setDistrict('island-night');
