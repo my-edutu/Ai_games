@@ -259,3 +259,22 @@ test('all track neon must break around actual voids and default graphics resolut
   assert.ok(styles.includes('.broadcast-shell.stage-entering .arena-title-card'));
   assert.ok(styles.includes('@media(prefers-reduced-motion:reduce)'));
 });
+
+test('stage cinematography uses true motion, connected 3D speed ribbons and one authority camera',()=>{
+  for(const fragment of [
+    "shell.dataset.view==='cinematic'&&focus.length",
+    "const avgVX=focus.reduce",
+    "target=[target[0]+clamp(avgVX*WORLD_SCALE*3",
+    "function drawMarbleSpeedTrails",
+    "const speed=Math.hypot(vx,vz)",
+    "const length=0.2+Math.min(1.7,speed*WORLD_SCALE*3.8)",
+    "drawBox([x,height-0.05*t,z]",
+    "marbleMeshForQuality()",
+    "window.marbleRenderFrame={snapshot,marbles,viewProjection",
+  ])assert.ok(renderer.includes(fragment),'broken race-dynamics camera or trails: '+fragment);
+  for(const fake of ["forceWinner","overrideCameraAuthority","fakeVelocity","Math.random("]){
+    assert.equal(renderer.includes(fake),false,'presentation must not invent simulation input: '+fake);
+  }
+  assert.ok(app.includes("setTimeout(()=>{"));
+  assert.ok(styles.includes("@keyframes marble-stage-unveil"));
+});
