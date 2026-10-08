@@ -1,15 +1,20 @@
 {
   "project": "Infinite Tower Climb — 3D Gauntlet",
   "date": "2026-10-08",
-  "round": 11,
+  "round": 13,
   "target": "Jusant (DON'T NOD): official screenshots and captured gameplay",
-  "status": "ACTIVE / NOT YET AT JUSANT BAR: Round 11 focused on the single biggest character-action truth gap: Wayfinder arms previously reached imaginary holds and the snapshot left moving platform positions static. Added constrained analytic two-bone grip IK sourced only from reachable actual public platform edges; moving platform visuals now match physics at each tick; dedicated unit and replay-alignment tests committed. Source parse/route check passed, but latest CI and actual browser capture remain pending. 3D visual presentation still runs on deterministic 2D authoritative movement; this is not full 3D climbing physics.",
+  "status": "ACTIVE / NOT READY for Jusant quality: Round 13 is a production Wayfinder character-art and scene-readability pass. Compared actual older Chromium screenshot (head 7948872): hero remained boxy and tower was overwhelmed by fake catwalks, floating ornaments and busy HUD. New authored sculpt (helmet, visor, articulated protective gear, material-grain straps, tools and boots) added to production rig, decorative false catwalks removed, guardian-floor ornaments made conditional, and cached materials preserved across floor changes. JS parse and module routing checks passed. Latest head screenshot and full browser CI NOT YET VERIFIED; still 2D authority under 3D presentation.",
   "completionRule": "A separate critic must inspect the rendered game, compare screenshots or gameplay against official Jusant imagery, report the worst gap, and repeat. A functioning renderer alone is not a pass.",
   "lanes": [
     {
-      "name": "CURRENT FOCUS — Wayfinder believable grip and ledge alignment",
-      "status": "Implemented pure analytic IK against public snapshot geometry; 3D moving ledge positions now follow same platformAtTick solver used in physics. Node and snapshot regression tests added; awaiting CI and gameplay capture.",
-      "criterion": "Visible hero hand should reach an actual close platform edge; never grip empty space; platform visible X/Y must equal authoritative collision surface at snapshot tick."
+      "name": "CURRENT CRITICAL TARGET — Wayfinder model fidelity",
+      "status": "Production sculpt v13 added: shaped torso/helmet/visor, belt/rope hardware, bracers, boot geometry, grained material, instanced studs; inherits pose/handhold rig. Static integration passed; real close-up screenshot needed.",
+      "criterion": "Running close-up shows convincingly shaped equipment/materials and readable hero silhouette; visual critic compares camera-matched Jusant footage."
+    },
+    {
+      "name": "Scene composition and collision readability",
+      "status": "Inspected older Chromium capture: fake 3D catwalks, ornate rings and generic suspended props compete with player. Removed fake galleries and generic silhouettes; retained only collision-authoritative platforms and themed landmarks. Current screenshot review pending.",
+      "criterion": "Decorative geometry clearly behind playable objects; hero/platform route apparent at a glance, no noninteractive platform-shaped distractions."
     },
     {
       "name": "Vivid premium visual system",
@@ -136,6 +141,19 @@
       "name": "Round 12 screenshot artifact",
       "state": "EXISTS (artifact 11549936491, 4.7 MB); images not opened or evaluated.",
       "url": "https://github.com/my-edutu/Ai_games/actions/runs/37768933717/artifacts/11549936491"
+    },
+    {
+      "name": "Actual earlier-build Chromium gameplay still image",
+      "state": "INSPECTED: run 37768933717, gauntlet-visual-v8-immersive.png; identified cluttered false platforms and boxy Wayfinder; not representative of latest branch",
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/37768933717"
+    },
+    {
+      "name": "Sculpt v13 production and route source gate",
+      "state": "PASS: ES-module syntax checks and same-origin URL mapping for new sculpted character code"
+    },
+    {
+      "name": "Sculpt v13 live screenshot, visual critic and Jusant A/B",
+      "state": "PENDING: new GitHub Actions evidence not yet complete"
     }
   ],
   "history": [
@@ -208,6 +226,11 @@
       "round": 12,
       "summary": "Investigated actual CI run 37768933717: deterministic/replay and source-security jobs passed, but Chromium WebGL critic failed six tests with missing 3D diagnostics; screenshot artifact exists but not visually inspected. Fixed pickup bobbing cumulative drift and added explicit renderer/boot fallback error telemetry for the next CI failure investigation.",
       "verdict": "CI failed; cause of 3D startup/render failure not yet established. Changes committed but untested. No independent visual review or Jusant parity."
+    },
+    {
+      "round": 13,
+      "summary": "Built original layered Wayfinder model art on animated rig, mesh-count diagnostics and browser capture test; fixed pooled materials across floors. Critiqued actual Round 11 screenshot and removed fake catwalks/generic floating ornaments to recover gameplay visual hierarchy.",
+      "verdict": "Source/parser and browser-route checks passed; no new-head Chromium footage or independent Jusant A/B verdict. AAA quality, live visual acceptance and full 3D movement remain open."
     }
   ]
 }
