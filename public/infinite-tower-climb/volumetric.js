@@ -48,10 +48,26 @@
   const params=new URLSearchParams(location.search);
   const captureFloor=Math.min(120,Math.max(0,Number.parseInt(params.get('captureFloor')||'0',10)||0));
   const seedText=params.get('seed'),seed=seedText&&/^[0-9]{1,9}$/.test(seedText)?Number(seedText):undefined;
-  const sim=createVolumetricCore(seed),player=sim.player,models=new Map(),guardians=new Map(),rewards=new Map();
+  const progressKey=params.get('manual')==='1'?'tower-manual-save-v1':'tower-autonomous-save-v1';
+  const resumeEligible=!params.has('seed')&&!params.has('captureFloor')&&!params.has('reset');
+  let recovered=null;
+  if(resumeEligible){
+    try{
+      const value=JSON.parse(localStorage.getItem(progressKey)||'null');
+      if(value&&Date.now()-value.savedAt<7*24*60*60*1000)recovered=value.state;
+    }catch(error){console.warn('Stored progress invalid, starting new run',error)}
+  }
+  let sim;
+  try{sim=createVolumetricCore(seed,recovered)}
+  catch(error){
+    console.warn('Unsafe or incompatible checkpoint rejected; beginning a new 3D climb',error);
+    try{localStorage.removeItem(progressKey)}catch{}
+    recovered=null;sim=createVolumetricCore(seed);
+  }
+  const player=sim.player,models=new Map(),guardians=new Map(),rewards=new Map();
   const enemyScene=new THREE.Group(),rewardScene=new THREE.Group();scene.add(enemyScene,rewardScene);
   const details=startup;
-  Object.assign(details,{status:'loading',tick:0,floor:0,x:0,y:0,z:0,platforms:0,deaths:0,guardianKills:0,score:0,health:5,autonomous:true,dimensionality:3});
+  Object.assign(details,{status:'loading',tick:0,floor:0,x:0,y:0,z:0,platforms:0,deaths:0,guardianKills:0,score:0,health:5,autonomous:true,dimensionality:3,resumed:Boolean(recovered)});
   const reduced=params.get('reducedMotion')==='1';
   const input=createTowerInput(params);
   const manual=input.manual;
@@ -100,6 +116,10 @@
   }
   function fixedStep(dt){
     const snapshot=sim.step(dt,input.sample());simTime+=dt;
+    if(resumeEligible&&snapshot.tick%360===0){
+      try{localStorage.setItem(progressKey,JSON.stringify({savedAt:Date.now(),state:sim.exportSave()}));}
+      catch(error){console.warn('Checkpoint persistence unavailable',error)}
+    }
     syncWorld(snapshot);
     climber.root.position.set(player.x,player.y,player.z);
     climber.setMotion(player.vx*dt,player.vy*dt,snapshot.mode,player.vz*dt);
@@ -197,6 +217,7 @@
     }
   }
   const opening=sim.snapshot();syncWorld(opening);
+  if(recovered){const status=document.getElementById('status');if(status)status.textContent='CHECKPOINT RESTORED · FLOOR '+player.at;}
   climber.root.position.set(player.x,player.y,player.z);
   Object.assign(details,{status:'loading',floor:player.at,tick:opening.tick,stageTarget:captureFloor});
   camera.position.set(player.x+13,player.y+12,player.z+23);
