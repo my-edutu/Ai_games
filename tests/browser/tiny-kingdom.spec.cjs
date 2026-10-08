@@ -693,3 +693,42 @@ test('Tiny Kingdom cinematic HUD toggles with keyboard, exposes unobscured game,
   expect(await page.evaluate(()=>JSON.stringify(window.__tinyKingdom.exportSnapshot()))).toBe(first);
   expect(faults).toEqual([]);
 });
+
+// Gauntlet 030: optical river materials and shoreline geometry must be real scene
+// changes, not a video overlay or an authoritative simulation mutation.
+test('Gauntlet 030 river Fresnel, animated ripples and modeled banks preserve civilization state', async ({page}) => {
+  const faults=[];page.on('pageerror',e=>faults.push(e.message));
+  await page.setContent(html);
+  await page.waitForFunction(()=>Boolean(window.__tinyKingdom));
+  await page.locator('#pause').click();
+  const initial=await page.evaluate(()=>{
+    const g=window.__tinyKingdom;
+    return {
+      authority:JSON.stringify(g.exportSnapshot()),
+      water:g.waterStats(),
+      materials:g.getMaterialSystem(),
+      scene:g.renderStats()
+    };
+  });
+  expect(initial.water.model).toBe('fresnel-ripple-shorefoam-v1');
+  expect(initial.water.segments).toBe(105);
+  expect(initial.water.waterTriangles).toBe(1260);
+  expect(initial.water.bankTriangles).toBe(840);
+  expect(initial.materials.materials).toContain('WATER');
+  expect(initial.scene.scenicMeshTriangles).toBeGreaterThan(10000);
+  await page.evaluate(()=>window.__tinyKingdom.setCamera({focus:[-6,18.1],yaw:.82,pitch:.52,zoom:20}));
+  await page.waitForTimeout(220);
+  const changed=await page.evaluate(()=>({
+    authority:JSON.stringify(window.__tinyKingdom.exportSnapshot()),
+    water:window.__tinyKingdom.waterStats(),
+    camera:window.__tinyKingdom.getCamera(),
+    glError:window.__tinyKingdom.renderer()==='webgl'
+      ? document.getElementById('world').getContext('webgl').getError()
+      : null
+  }));
+  expect(changed.camera.focus).toEqual([-6,18.1]);
+  expect(changed.authority).toBe(initial.authority);
+  expect(changed.water).toEqual(initial.water);
+  if(changed.glError!==null)expect(changed.glError).toBe(0);
+  expect(faults).toEqual([]);
+});
