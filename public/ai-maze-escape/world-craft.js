@@ -136,6 +136,12 @@ export function makeWorldCraft(THREE) {
     const jewel=put(g.orb,m[palettes[theme].crystal],world,[pos.x,2.96,pos.z],[.22,.42,.22]);
     jewel.rotation.y=.34;
     glow(world,[pos.x,2.97,pos.z],2.1,palettes[theme].ray);
+    if((world.userData.artLightCount||0)<4){
+      const coloredLight=new THREE.PointLight(palettes[theme].ray,6.2,8,2);
+      coloredLight.position.set(pos.x,2.82,pos.z);
+      world.add(coloredLight);
+      world.userData.artLightCount=(world.userData.artLightCount||0)+1;
+    }
     world.userData.artAnimators??=[];
     world.userData.artAnimators.push({jewel,inner,phase:cell.cell*.51});
   }
@@ -149,6 +155,7 @@ export function makeWorldCraft(THREE) {
     let ambientFlares=0;
     let junctions=0;
     world.userData.artAnimators=[];
+    world.userData.artLightCount=0;
     // Each prop is deterministic for a public cell index. Props sit on the cell edges:
     // never on the central traversal lane, and never reveal unknown topology.
     const publicKnown=new Set(cells.map(x=>x.cell));
