@@ -383,6 +383,9 @@
     const p=f.visual||pos(f.cell,w);
     const dead=!f.alive;
     const neutral=[.075,.115,.17],undersuit=[.13,.20,.25],steel=[.28,.39,.43],helmet=[.62,.72,.74];
+    const roleSeed=String(f.id||f.name||f.archetype||'AI')
+      .split('').reduce((n,ch)=>((n*33+ch.charCodeAt(0))>>>0),2166136261);
+    const identityVariant=roleSeed%4;
     const roleArmor={
       vanguard:{main:[.94,.35,.24],trim:[1,.76,.47],shoulders:.30,backpack:.25},
       ranger:{main:[.20,.76,.90],trim:[.70,.95,.99],shoulders:.16,backpack:.13},
@@ -490,6 +493,35 @@
     }else{
       b.box(cx-.39,hipY+1.12,cz,.12,.17,.15,theme.accent);
       b.ring(cx,hipY+1.54,cz,.21,.025,roleArmor.trim,20);
+    }
+    // Distinct public-ID-derived cosmetics, stable between frames and replays.
+    // These alter silhouettes, never body hitboxes, skills, or aiming.
+    if(identityVariant===0){
+      // Recon optic with asymmetrical short antenna.
+      b.box(cx-.17,hipY+1.25,cz+.30,.13,.07,.10,[.05,.20,.25]);
+      b.box(cx+.17,hipY+1.25,cz+.30,.13,.07,.10,[.05,.20,.25]);
+      b.limb([cx+.25,hipY+1.38,cz],[cx+.31,hipY+1.77,cz-.02],.024,roleArmor.trim);
+      b.cone(cx+.31,hipY+1.79,cz-.02,.06,.01,.12,[.9,.96,.97],6);
+    }else if(identityVariant===1){
+      // Fabric shoulder pennant, reinforced chest harness, twin canisters.
+      b.box(cx+.31,hipY+.69,cz-.26,.14,.63,.07,roleArmor.main);
+      b.box(cx+.36,hipY+.39,cz-.28,.17,.12,.075,roleArmor.trim);
+      b.cylinder(cx-.19,hipY+.65,cz-.45,.094,.33,[.16,.23,.29],8);
+      b.cylinder(cx+.19,hipY+.65,cz-.45,.094,.33,[.16,.23,.29],8);
+      b.box(cx,hipY+.72,cz+.34,.28,.07,.06,roleArmor.trim);
+    }else if(identityVariant===2){
+      // Arm-mounted telemetry pad and doubled cheek-plate helmet outline.
+      b.box(cx+.40,hipY+.54,cz+.08,.20,.18,.21,[.16,.26,.30]);
+      b.box(cx+.41,hipY+.56,cz+.21,.15,.09,.035,roleArmor.trim);
+      b.cone(cx-.27,hipY+1.25,cz+.05,.15,.06,.28,roleArmor.main,8);
+      b.cone(cx+.27,hipY+1.25,cz+.05,.15,.06,.28,roleArmor.main,8);
+    }else{
+      // Elite reinforced collar and a wider chest insignia.
+      b.cylinder(cx,hipY+1.01,cz,.295,.15,roleArmor.main,12);
+      b.box(cx,hipY+.77,cz+.36,.31,.25,.04,roleArmor.trim);
+      b.box(cx,hipY+.74,cz+.391,.21,.11,.046,neutral);
+      b.box(cx-.39,hipY+.94,cz+.11,.095,.26,.13,roleArmor.trim);
+      b.box(cx+.39,hipY+.94,cz+.11,.095,.26,.13,roleArmor.trim);
     }
     // Public legal weapon types control visual shapes, not accuracy or damage.
     const weaponY=pose.attacking?hipY+.85:hipY+.68;
