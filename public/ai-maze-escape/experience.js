@@ -15,6 +15,16 @@ const confidence=document.getElementById('confidence-score');
 const runLabel=document.getElementById('run-label');
 const zoneNumber=document.getElementById('zone-number');
 const renderStatus=document.getElementById('render-state');
+const theaterToggle=document.getElementById('theater-toggle');
+const broadcast=document.getElementById('broadcast');
+if(theaterToggle){
+  theaterToggle.addEventListener('click',()=>{
+    const enabled=broadcast.classList.toggle('theater-mode');
+    theaterToggle.setAttribute('aria-pressed',String(enabled));
+    theaterToggle.textContent=enabled?'EXIT THEATER':'THEATER VIEW';
+  });
+}
+
 const audienceMode=document.getElementById('audience-mode');
 const audiencePressure=document.getElementById('audience-pressure');
 const audienceFill=document.getElementById('audience-pressure-fill');
@@ -55,7 +65,6 @@ window.addEventListener('maze:frame',event=>{
     addJournal('A new expedition begins. The AI is observing its surroundings.');
   }
   // Biome-specific colors are keyed only to the public challenge profile.
-  const broadcast=document.getElementById('broadcast');
   broadcast.dataset.mazeBiome=String(snapshot.profile||'loops');
   broadcast.dataset.mazeDanger=snapshot.threats.length?'high':'clear';
   broadcast.dataset.mazeScene=String(event.detail?.scene||'exploration');
