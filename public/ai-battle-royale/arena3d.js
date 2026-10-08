@@ -53,6 +53,8 @@
   let previousSnapshot=null,startedAt=0,animationId=0,lastPaintTime=0;
   const status={mode:forced2d?'forced-2d':'initializing',frames:0,triangles:0,contenders:0,p95SubmitMs:0};
   const frameSamples=[];
+  const headings=new Map();
+  let headingRunToken='';
   function compile(type,source){
     const shader=gl.createShader(type);gl.shaderSource(shader,source);gl.compileShader(shader);
     if(!gl.getShaderParameter(shader,gl.COMPILE_STATUS)){const error=gl.getShaderInfoLog(shader);gl.deleteShader(shader);throw Error(error)}
@@ -99,7 +101,23 @@
   }
   function mesh(){
     const v=[];
-    function tri(a,b,c,n,col){for(const p of [a,b,c])v.push(p[0],p[1],p[2],...n,...col)}
+    let pose=null;
+    function pushPose(x,z,angle){
+      pose={x,z,c:Math.cos(angle),s:Math.sin(angle)};
+    }
+    function popPose(){pose=null}
+    function tri(a,b,c,n,col){
+      let normal=n;
+      if(pose)normal=[n[0]*pose.c+n[2]*pose.s,n[1],-n[0]*pose.s+n[2]*pose.c];
+      for(const point of [a,b,c]){
+        const p=pose?[
+          pose.x+(point[0]-pose.x)*pose.c+(point[2]-pose.z)*pose.s,
+          point[1],
+          pose.z-(point[0]-pose.x)*pose.s+(point[2]-pose.z)*pose.c
+        ]:point;
+        v.push(p[0],p[1],p[2],...normal,...col);
+      }
+    }
     function quad(a,b,c,d,n,col){tri(a,b,c,n,col);tri(a,c,d,n,col)}
     function box(x,y,z,w,h,d,col){
       const x0=x-w/2,x1=x+w/2,y0=y-h/2,y1=y+h/2,z0=z-d/2,z1=z+d/2;
@@ -157,10 +175,28 @@
     function blade(x,y,z,width,height,col){
       quad([x-width/2,y,z],[x,y+height,z],[x+width/2,y,z],[x-width/2,y,z],[0,0,1],col);
     }
-    return{v,quad,box,ring,cone,cylinder,limb,blade};
+    return{v,quad,box,ring,cone,cylinder,limb,blade,pushPose,popPose};
   }
   function pos(cell,w){return{x:cell%w+.5,z:Math.floor(cell/w)+.5}}
-  function contender(b,f,w,theme,focus,events){
+  function actorHeading(f,w,events,roster){
+    // Orientation is derived from *visible* events and last public movement only.
+    const attack=events.slice(-12).reverse().find(e=>e.actorId===f.id&&(e.type==='hit'||e.type==='miss'));
+    const target=attack?.targetId?roster.find(c=>c.id===attack.targetId):null;
+    const prior=previousSnapshot?.combatants.find(c=>c.id===f.id);
+    const to=target&&target.alive&&target.cell!==f.cell?pos(target.cell,w):pos(f.cell,w);
+    const from=target&&target.alive&&target.cell!==f.cell?pos(f.cell,w):
+      prior&&prior.cell!==f.cell?pos(prior.cell,w):null;
+    if(from){
+      const dx=to.x-from.x,dz=to.z-from.z;
+      if(Math.abs(dx)+Math.abs(dz)>.01){
+        const angle=Math.atan2(dx,dz);
+        headings.set(f.id,angle);
+        return angle;
+      }
+    }
+    return headings.get(f.id)??0;
+  }
+  function contender(b,f,w,theme,focus,events,roster){
     const p=f.visual||pos(f.cell,w);
     const dead=!f.alive;
     const neutral=[.075,.115,.17],undersuit=[.13,.20,.25],steel=[.28,.39,.43],helmet=[.62,.72,.74];
@@ -176,6 +212,7 @@
       b.ring(p.x,.08,p.z,.38,.035,[.72,.25,.27],20);
       return;
     }
+    b.pushPose(p.x,p.z,actorHeading(f,w,events,roster));
     const prev=previousSnapshot?.combatants.find(c=>c.id===f.id);
     const moving=Boolean(prev&&prev.cell!==f.cell);
     const walkPhase=(!reducedMotion&&moving)?Math.sin(performance.now()/125+f.cell*.23):0;
@@ -246,6 +283,7 @@
       b.ring(cx,.06,cz,.57,.048,roleArmor.trim,32);
       b.cone(cx,hipY+2.10,cz,.10,0,.27,roleArmor.trim,7);
     }
+    b.popPose();
   }
 
   function worldLandmarks(b,arena,theme){
@@ -430,7 +468,7 @@
       b.box(p.x,.30,p.z,.24,.25,.24,[1,.80,.35]);
       b.box(p.x,.51,p.z,.10,.18,.10,[.60,.96,1]);
     }
-    for(const f of s.combatants.slice(0,64))contender(b,f,w,t,Boolean(s.focus&&s.focus.id===f.id),s.recentEvents);
+    for(const f of s.combatants.slice(0,64))contender(b,f,w,t,Boolean(s.focus&&s.focus.id===f.id),s.recentEvents,s.combatants);
     const c=pos(s.zone.centerCell,w);
     b.ring(c.x,.056,c.z,Math.max(.25,s.zone.radius),.08,t.accent,128);
     // High-priority tactical signals, derived exclusively from published semantic events.
@@ -556,6 +594,9 @@
   }
   function render(snapshot){
     if(!snapshot)return false;
+    if(headingRunToken!==snapshot.runToken){
+      headings.clear();headingRunToken=snapshot.runToken;
+    }
     previousSnapshot=lastSnapshot&&lastSnapshot.runToken===snapshot.runToken?lastSnapshot:null;
     lastSnapshot=snapshot;
     startedAt=performance.now();
