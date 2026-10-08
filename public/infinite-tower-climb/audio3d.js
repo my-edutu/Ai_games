@@ -2,7 +2,7 @@
 // no external streaming URLs, and no autoplay audio without user interaction.
 export function createTowerAudio(){
   let ctx=null,master=null,wind=null,windFilter=null,droneA=null,droneB=null,
-    droneGain=null,windGain=null,source=null,enabled=false,lastEventId='';
+    droneGain=null,windGain=null,source=null,enabled=false,heard=new Set();
   const tones={foundry:[110,165],ruins:[130.81,196],clockwork:[146.83,220],
     storm:[98,146.83],void:[92.5,138.59]};
   function setup(){
@@ -49,8 +49,8 @@ export function createTowerAudio(){
     windGain.gain.setTargetAtTime(motion?.095:.04,now,.7);
     windFilter.frequency.setTargetAtTime(biome==='storm'?2200:biome==='void'?610:1150,now,1.2);
     for(const e of events.slice(-2)){
-      if(!e?.id||e.id===lastEventId)continue;
-      lastEventId=e.id;
+      if(!e?.id||heard.has(e.id))continue;
+      heard.add(e.id);if(heard.size>150)heard.delete(heard.values().next().value);
       const type=e.type;
       if(type==='guardian-telegraph')eventTone(210,.65,.11);
       else if(type==='guardian-defeated')eventTone(720,.75,.17);
