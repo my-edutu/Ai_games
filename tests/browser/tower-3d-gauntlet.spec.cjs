@@ -114,6 +114,12 @@ test('articulated hero close-up proves mesh detail and independently capturable 
   await expect.poll(()=>page.evaluate(()=>window.__TOWER_3D_DIAGNOSTICS__?.drawCalls||0),{timeout:20000}).toBeGreaterThan(80);
   const status=await page.evaluate(()=>window.__TOWER_3D_DIAGNOSTICS__);
   expect(status.heroCamera).toBe(true);
+  const framing=await page.evaluate(()=>window.__TOWER_3D_DIAGNOSTICS__?.heroFraming);
+  expect(framing).toBeTruthy();
+  expect(framing.top).toBeGreaterThan(0.035);
+  expect(framing.bottom).toBeLessThan(0.965);
+  expect(framing.left).toBeGreaterThan(0.12);
+  expect(framing.right).toBeLessThan(0.88);
   expect(status.drawCalls).toBeLessThan(1400);
   await page.screenshot({path:path.join(artifacts,'gauntlet-3d-hero.png'),fullPage:true});
 });
