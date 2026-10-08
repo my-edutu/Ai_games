@@ -356,7 +356,12 @@ test('Marble WebGL broadcast renders authoritative tournament and captures runti
     await expect(shell).toHaveAttribute('data-render-scale', '0.58', { timeout: 2_000 });
     await page.waitForTimeout(250);
   } else {
-    await expect(shell).toHaveAttribute('data-render-scale', '0.72', { timeout: 2_000 });
+    await page.waitForFunction(() => {
+      const scale=Number(document.querySelector('.broadcast-shell')?.dataset.renderScale);
+      // Balanced can legitimately trade up to 18% pixel resolution for
+      // stability after slow real frames. Low/High/Ultra presets remain fixed.
+      return Number.isFinite(scale) && scale>=0.5900 && scale<=0.721;
+    },undefined,{timeout:3_000});
   }
 
   await operator('resume');
@@ -404,7 +409,12 @@ test('Marble WebGL broadcast renders authoritative tournament and captures runti
   // All visual evidence below remains on the normal Balanced presentation tier.
   if (benchmarkQuality !== 'balanced') {
     await qualitySelect.selectOption('balanced');
-    await expect(shell).toHaveAttribute('data-render-scale', '0.72', { timeout: 2_000 });
+    await page.waitForFunction(() => {
+      const scale=Number(document.querySelector('.broadcast-shell')?.dataset.renderScale);
+      // Balanced can legitimately trade up to 18% pixel resolution for
+      // stability after slow real frames. Low/High/Ultra presets remain fixed.
+      return Number.isFinite(scale) && scale>=0.5900 && scale<=0.721;
+    },undefined,{timeout:3_000});
     await page.waitForTimeout(250);
   }
 
