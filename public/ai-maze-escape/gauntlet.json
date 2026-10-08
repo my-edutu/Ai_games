@@ -87,6 +87,22 @@
       "independentCritic": "Pending: latest CI Chromium output, measured FPS, fresh-context visual A/B; only earlier screenshots manually reviewed.",
       "largestKnownGap": "Original procedural characters, authored environment variety and cinematic animation remain visibly below Little Nightmares III and The Talos Principle 2; audio quality also requires real livestream listening review.",
       "visualBarMet": false
+    },
+    {
+      "number": 6,
+      "label": "Cinema-first HUD and meaningful livestream intelligence",
+      "status": "implemented in branch; awaits independent screenshots and mobile verification",
+      "built": [
+        "Replaced narrow-game-plus-large-sidebar composition with a full-bleed camera stage and translucent floating mission control",
+        "Clearer objective, AI intention, confidence, progress, inventory and threat hierarchy",
+        "Three selectable cinematic/follow/tactical cameras connected to real Three.js render camera",
+        "Dynamic expedition event journal and real audience pressure/effect telemetry from public observation data",
+        "Responsive desktop, mobile landscape, portrait and clean-feed layouts",
+        "Added four browser UI benchmarks and stage-based canvas assertions"
+      ],
+      "independentCritic": "Reference comparison not yet run on this latest revision; awaiting GitHub Actions and independent visual review.",
+      "largestKnownGap": "Studio-grade environment art and expressive character animation; visual A/B evidence; and potential visual occlusion/typography problems on mobile still need actual screenshots.",
+      "visualBarMet": false
     }
   ],
   "milestones": [
@@ -131,5 +147,63 @@
       "status": "waiting for latest GitHub Actions browser artifact"
     }
   ],
-  "updatedAt": "2026-10-08"
+  "updatedAt": "2026-10-08",
+  "gauntletGoals": [
+    {
+      "name": "Playable autonomous 3D world",
+      "reference": "Talos Principle 2 — true volumetric environments",
+      "current": "Working WebGL scene uses live partial observations; earlier Chromium screenshots confirmed",
+      "status": "partial",
+      "evidence": "Browser artifact 11535023451; latest camera/UI unverified"
+    },
+    {
+      "name": "Visual environment quality",
+      "reference": "Talos Principle 2 — geometry, material layering and lighting",
+      "current": "Procedural stone/arches, animated portals and biome colors; remains visibly below reference",
+      "status": "below",
+      "evidence": "Earlier screenshot artifact 11535023451; later art unreviewed"
+    },
+    {
+      "name": "Fully developed hero and threats",
+      "reference": "Little Nightmares III — distinctive modeled and animated characters",
+      "current": "Articulated primitive-based humanoid and hunter; lacks authored meshes/rigs",
+      "status": "below",
+      "evidence": "Procedural scene3d.js; no reference-winning captures"
+    },
+    {
+      "name": "Autonomous decision-making and replay",
+      "reference": "Actual unscripted maze-solving, safe partial observation",
+      "current": "Existing R4 software systems preserved without exposing secrets",
+      "status": "preserved",
+      "evidence": "Prior repository readiness and successful CI 37744765674; latest head pending"
+    },
+    {
+      "name": "Broadcast-ready interface",
+      "reference": "Premium game-grade HUD that never obscures action",
+      "current": "New full-bleed cinematic overlay, public event journal, camera modes and phone-specific layouts",
+      "status": "awaiting-verification",
+      "evidence": "New Playwright layout, behavior, caption, privacy and screenshot tests queued"
+    },
+    {
+      "name": "Audience participation",
+      "reference": "Livestream viewers can follow impacts without compromising AI integrity",
+      "current": "Live influence state now visible, interactions remain existing bounded backend",
+      "status": "partial",
+      "evidence": "Public snapshot audience fields; usability validation pending"
+    },
+    {
+      "name": "Visual A/B critic loop",
+      "reference": "Independent blind side-by-side gameplay screenshots and recordings",
+      "current": "One prior screenshot critique; fresh-context workers offline",
+      "status": "blocked",
+      "evidence": "Not passed; no independent blinded review"
+    },
+    {
+      "name": "Production performance and endurance",
+      "reference": "Stable play across long 24/7 live sessions",
+      "current": "Instancing and FPS counters implemented, no measured sustained WebGL performance",
+      "status": "blocked",
+      "evidence": "Latest test run pending; R5 external evidence outstanding"
+    }
+  ]
 }
