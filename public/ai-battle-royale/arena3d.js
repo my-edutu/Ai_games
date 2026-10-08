@@ -27,6 +27,9 @@
     'uniform float uYaw; uniform float uPitch; uniform float uPerspective;',
     'uniform vec3 uEye; uniform vec3 uForward; uniform vec3 uRight; uniform vec3 uUp;',
     'uniform vec2 uLens; uniform float uPhysicalCamera;',
+    'uniform vec3 uShadowRight; uniform vec3 uShadowUp; uniform vec3 uShadowSun;',
+    'uniform vec3 uShadowCenter; uniform float uShadowRadius;',
+    'out vec3 vShadowUV;',
     'out vec3 vNormal; out vec3 vTint; out float vDepth; out vec3 vWorld;',
     'void main(){',
     'vec3 p=pos-center;',
@@ -47,6 +50,10 @@
     'vec4 stylized=vec4(east*scale.x,up*scale.y,-depth/80.0,cameraW);',
     'gl_Position=mix(stylized,pinhole,uPhysicalCamera);',
     'vNormal=normal;vTint=tint;vDepth=mix(depth,depthPhysical,uPhysicalCamera);vWorld=pos;',
+    'vec3 sh=pos-uShadowCenter;',
+    'vShadowUV=vec3(.5+dot(sh,uShadowRight)/(uShadowRadius*2.0),',
+    '               .5+dot(sh,uShadowUp)/(uShadowRadius*2.0),',
+    '               .5-dot(sh,uShadowSun)/(uShadowRadius*2.0));',
     '}'
   ].join('\n');
   const fragmentSource=[
@@ -55,6 +62,8 @@
     'in vec3 vNormal; in vec3 vTint; in float vDepth; in vec3 vWorld;',
     'uniform sampler2D uSurfaceAtlas;',
     'uniform float uBiomeRow; uniform float uAtlasReady; uniform float uSurfaceStrength;',
+    'in vec3 vShadowUV;',
+    'uniform sampler2DShadow uShadowMap;uniform float uShadowEnabled;',
     'out vec4 result;',
     'float hash21(vec2 p){',
     'return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453123);',
@@ -81,7 +90,17 @@
     'vec2 atlasUV=(vec2(column,uBiomeRow)+uv*.98+.01)/vec2(2.0,3.0);',
     'vec3 texel=texture(uSurfaceAtlas,atlasUV).rgb;',
     'vec3 materialColor=mix(vTint,vTint*(texel*.93+.58),uAtlasReady*uSurfaceStrength);',
-    'vec3 lit=materialColor*(ambient+vec3(.53,.51,.43)*diffuse+vec3(.14,.18,.23)*bounce)*surfaceNoise;',
+    'float sunlight=1.0;',
+    'if(uShadowEnabled>.5&&all(greaterThan(vShadowUV,vec3(0.002)))',
+    '  &&all(lessThan(vShadowUV,vec3(.998)))){',
+    'float visibility=0.0;',
+    'for(int y=-1;y<=1;y++)for(int x=-1;x<=1;x++){',
+    '  vec2 o=vec2(float(x),float(y))/1024.0;',
+    '  visibility+=texture(uShadowMap,vec3(vShadowUV.xy+o,vShadowUV.z-.0010));',
+    '}',
+    'sunlight=.48+.52*visibility/9.0;',
+    '}',
+    'vec3 lit=materialColor*(ambient+vec3(.53,.51,.43)*diffuse*sunlight+vec3(.14,.18,.23)*bounce)*surfaceNoise;',
     'lit+=vec3(.18,.23,.31)*specular*(.14+.30*(1.0-roughness));',
     'float rim=pow(1.0-max(0.0,dot(n,viewDir)),2.0);',
     'lit+=vTint*rim*.10;',
@@ -95,11 +114,14 @@
     '}'
   ].join('\n');
   let canvas=null,closeupLabel=null,plateLayer=null,gl=null,program=null,buffer=null,staticBuffer=null,dynamicBuffer=null,attr=null,uniform=null,lastSnapshot=null,disabled=forced2d||!host;
+  const shadowsEnabled=quality!=='low'&&params.get('shadows')!=='off';
+  let shadowProgram=null,shadowFramebuffer=null,shadowDepthTexture=null,shadowUniform=null,shadowAttr=-1;
+  let shadowLastTick=null,shadowLastKey=null;
   let surfaceAtlasImage=null,surfaceAtlasTexture=null,surfaceAtlasRequested=false;
   const reducedMotion=params.get('reducedMotion')==='1'||matchMedia('(prefers-reduced-motion: reduce)').matches;
   const reducedFlash=params.get('reducedFlash')==='1';
   let previousSnapshot=null,startedAt=0,animationId=0,lastPaintTime=0;
-  const status={mode:forced2d?'forced-2d':'initializing',frames:0,triangles:0,contenders:0,p95SubmitMs:0,sceneBuilds:0,quality:quality,activeEffects:0,lastError:null,cameraMode:'tactical',projection:'stylized',materialAtlas:'fallback'};
+  const status={mode:forced2d?'forced-2d':'initializing',frames:0,triangles:0,contenders:0,p95SubmitMs:0,sceneBuilds:0,quality:quality,activeEffects:0,lastError:null,cameraMode:'tactical',projection:'stylized',materialAtlas:'fallback',shadowMap:'disabled',shadowPasses:0};
   const staticCache={key:null,vertices:0};
   const frameSamples=[];
   const headings=new Map();
@@ -189,13 +211,115 @@
     source.onerror=()=>{status.materialAtlas='fallback'};
     source.src='/battle/material-atlas.svg';
   }
+  const shadowVertexSource=[
+    '#version 300 es',
+    'in vec3 pos;',
+    'uniform vec3 uShadowRight,uShadowUp,uShadowSun,uShadowCenter;',
+    'uniform float uShadowRadius;',
+    'void main(){',
+    'vec3 ray=pos-uShadowCenter;',
+    'gl_Position=vec4(dot(ray,uShadowRight)/uShadowRadius,',
+    'dot(ray,uShadowUp)/uShadowRadius,-dot(ray,uShadowSun)/uShadowRadius,1.);',
+    '}'
+  ].join('\n');
+  const shadowFragmentSource=[
+    '#version 300 es',
+    'precision highp float;',
+    'void main(){}'
+  ].join('\n');
+  function initializeShadowMap(){
+    status.shadowMap='fallback';
+    if(!shadowsEnabled||typeof gl.createFramebuffer!=='function'
+        ||typeof gl.drawBuffers!=='function')return;
+    try{
+      const v=compile(gl.VERTEX_SHADER,shadowVertexSource);
+      const f=compile(gl.FRAGMENT_SHADER,shadowFragmentSource);
+      shadowProgram=gl.createProgram();
+      gl.attachShader(shadowProgram,v);gl.attachShader(shadowProgram,f);
+      gl.linkProgram(shadowProgram);gl.deleteShader(v);gl.deleteShader(f);
+      if(!gl.getProgramParameter(shadowProgram,gl.LINK_STATUS))throw Error('shadow-program-link');
+      shadowAttr=gl.getAttribLocation(shadowProgram,'pos');
+      shadowUniform=['uShadowRight','uShadowUp','uShadowSun','uShadowCenter','uShadowRadius']
+        .map(name=>gl.getUniformLocation(shadowProgram,name));
+      shadowDepthTexture=gl.createTexture();
+      gl.activeTexture(gl.TEXTURE1);
+      gl.bindTexture(gl.TEXTURE_2D,shadowDepthTexture);
+      gl.texImage2D(gl.TEXTURE_2D,0,gl.DEPTH_COMPONENT24,1024,1024,0,
+        gl.DEPTH_COMPONENT,gl.UNSIGNED_INT,null);
+      gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_COMPARE_MODE,gl.COMPARE_REF_TO_TEXTURE);
+      gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_COMPARE_FUNC,gl.LEQUAL);
+      shadowFramebuffer=gl.createFramebuffer();
+      gl.bindFramebuffer(gl.FRAMEBUFFER,shadowFramebuffer);
+      gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.DEPTH_ATTACHMENT,gl.TEXTURE_2D,shadowDepthTexture,0);
+      gl.drawBuffers([gl.NONE]);
+      gl.readBuffer(gl.NONE);
+      if(gl.checkFramebufferStatus(gl.FRAMEBUFFER)!==gl.FRAMEBUFFER_COMPLETE)
+        throw Error('shadow-framebuffer-incomplete');
+      status.shadowMap='ready';shadowLastTick=null;shadowLastKey=null;
+    }catch(error){
+      status.shadowMap='fallback';shadowFramebuffer=null;shadowProgram=null;
+    }finally{
+      gl.bindFramebuffer(gl.FRAMEBUFFER,null);
+      gl.activeTexture(gl.TEXTURE0);
+    }
+  }
+  function shadowBasis(arena){
+    const sun=[-.52,.90,.34],len=Math.hypot(...sun);
+    for(let i=0;i<3;i++)sun[i]/=len;
+    const right=[sun[2],0,-sun[0]],rlen=Math.hypot(...right);
+    for(let i=0;i<3;i++)right[i]/=rlen;
+    const up=[sun[1]*right[2]-sun[2]*right[1],
+      sun[2]*right[0]-sun[0]*right[2],sun[0]*right[1]-sun[1]*right[0]];
+    return{sun,right,up,center:[arena.width/2,.2,arena.height/2],
+      radius:Math.max(arena.width,arena.height)*.80+12};
+  }
+  function uniformsForShadow(shaderUniforms,basis){
+    gl.uniform3f(shaderUniforms[0],...basis.right);
+    gl.uniform3f(shaderUniforms[1],...basis.up);
+    gl.uniform3f(shaderUniforms[2],...basis.sun);
+    gl.uniform3f(shaderUniforms[3],...basis.center);
+    gl.uniform1f(shaderUniforms[4],basis.radius);
+  }
+  function renderShadowMap(snapshot,staticKey,basis){
+    if(status.shadowMap!=='ready')return;
+    if(shadowLastTick===snapshot.tick&&shadowLastKey===staticKey)return;
+    try{
+      gl.bindFramebuffer(gl.FRAMEBUFFER,shadowFramebuffer);
+      gl.viewport(0,0,1024,1024);
+      gl.colorMask(false,false,false,false);
+      gl.clear(gl.DEPTH_BUFFER_BIT);
+      gl.useProgram(shadowProgram);
+      uniformsForShadow(shadowUniform,basis);
+      gl.bindBuffer(gl.ARRAY_BUFFER,staticBuffer);
+      if(shadowAttr>=0){
+        gl.enableVertexAttribArray(shadowAttr);
+        gl.vertexAttribPointer(shadowAttr,3,gl.FLOAT,false,36,0);
+      }
+      if(staticCache.vertices)gl.drawArrays(gl.TRIANGLES,0,staticCache.vertices);
+      gl.bindBuffer(gl.ARRAY_BUFFER,dynamicBuffer);
+      if(shadowAttr>=0)gl.vertexAttribPointer(shadowAttr,3,gl.FLOAT,false,36,0);
+      if(dynamicVertexCount)gl.drawArrays(gl.TRIANGLES,0,dynamicVertexCount);
+      status.shadowPasses++;
+      shadowLastTick=snapshot.tick;shadowLastKey=staticKey;
+    }catch(error){
+      status.shadowMap='fallback';
+    }finally{
+      gl.colorMask(true,true,true,true);
+      gl.bindFramebuffer(gl.FRAMEBUFFER,null);
+      gl.activeTexture(gl.TEXTURE0);
+    }
+  }
   function initialize(){
     const v=compile(gl.VERTEX_SHADER,vertexSource),f=compile(gl.FRAGMENT_SHADER,fragmentSource);
     program=gl.createProgram();gl.attachShader(program,v);gl.attachShader(program,f);gl.linkProgram(program);
     gl.deleteShader(v);gl.deleteShader(f);
     if(!gl.getProgramParameter(program,gl.LINK_STATUS))throw Error('shader-link');
     attr=['pos','normal','tint'].map(name=>gl.getAttribLocation(program,name));
-    uniform=['center','scale','uYaw','uPitch','uPerspective','uBiomeRow','uAtlasReady','uSurfaceStrength','uSurfaceAtlas','uEye','uForward','uRight','uUp','uLens','uPhysicalCamera'].map(name=>gl.getUniformLocation(program,name));
+    uniform=['center','scale','uYaw','uPitch','uPerspective','uBiomeRow','uAtlasReady','uSurfaceStrength','uSurfaceAtlas','uEye','uForward','uRight','uUp','uLens','uPhysicalCamera', 'uShadowRight','uShadowUp','uShadowSun','uShadowCenter','uShadowRadius','uShadowMap','uShadowEnabled'].map(name=>gl.getUniformLocation(program,name));
     staticBuffer=gl.createBuffer();dynamicBuffer=gl.createBuffer();
     surfaceAtlasTexture=null;status.materialAtlas=materialsEnabled?'fallback':'disabled';
     // Sampler2D must always have a complete texture even while the SVG loads.
@@ -212,6 +336,7 @@
       gl.bindTexture(gl.TEXTURE_2D,null);
     }
     uploadSurfaceAtlas();
+    initializeShadowMap();
     staticCache.key=null;staticCache.vertices=0;
     gl.enable(gl.DEPTH_TEST);gl.depthFunc(gl.LEQUAL);
     gl.disable(gl.CULL_FACE);gl.clearColor(0,0,0,0);
@@ -1538,6 +1663,20 @@
       bindSceneBuffer(dynamicBuffer);
       gl.bufferData(gl.ARRAY_BUFFER,data,gl.DYNAMIC_DRAW);
       dynamicVertexCount=data.length/9;
+      const shadowSun=shadowBasis(a);
+      // Use an independently compiled depth pass for actual moving geometry
+      // shadows; do not recalculate shadow maps at 60Hz during interpolation.
+      renderShadowMap(snapshot,key,shadowSun);
+      gl.viewport(0,0,width,height);
+      gl.useProgram(program);
+      uniformsForShadow(uniform.slice(15,20),shadowSun);
+      gl.uniform1f(uniform[21],status.shadowMap==='ready'?1:0);
+      if(status.shadowMap==='ready'){
+        gl.activeTexture(gl.TEXTURE1);
+        gl.bindTexture(gl.TEXTURE_2D,shadowDepthTexture);
+        gl.uniform1i(uniform[20],1);
+        gl.activeTexture(gl.TEXTURE0);
+      }
       gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
       drawScene();
       updateNameplates(presented,area,focus,mode==='hero'?.30:scale,mode==='hero'?1:zoom,yaw,pitch,camera);
