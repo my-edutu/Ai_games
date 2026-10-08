@@ -168,3 +168,26 @@ test('original sculpted characters and biome weather expose a real 3D performanc
   }
   await page.screenshot({path:path.join(artifacts,'gauntlet-character-atmosphere-v8.png'),fullPage:true});
 });
+
+
+test('adaptive GPU budget and autonomous cinematic lighting preserve the 24/7 stream',async({page,request})=>{
+  for(const name of ['render-budget.js','cinematic-director.js']){
+    const resource=await request.get(base+'/maze/'+name);
+    expect(resource.ok(),name+' failed to load').toBe(true);
+  }
+  await page.setViewportSize({width:1366,height:768});
+  await page.goto(base+'/maze?quality=performance',{waitUntil:'domcontentloaded'});
+  await page.waitForFunction(()=>window.__MAZE_PUBLIC_STATE__?.tick>5);
+  const initial=await page.evaluate(()=>window.__MAZE_PUBLIC_STATE__.tick);
+  if(await page.evaluate(()=>!!window.__MAZE_3D_READY__)){
+    await page.waitForFunction(()=>window.__MAZE_3D_METRICS__?.qualityMode==='performance');
+    const metrics=await page.evaluate(()=>window.__MAZE_3D_METRICS__);
+    expect(metrics.pixelRatio).toBeLessThanOrEqual(1);
+    expect(['exploration','clues','exit','pursuit','success','setback']).toContain(metrics.cinematicCue);
+    expect(metrics.drawCalls).toBeGreaterThan(0);
+    await page.screenshot({path:path.join(artifacts,'gauntlet-cinematic-performance-v10.png'),fullPage:true});
+  }
+  await page.waitForTimeout(650);
+  const advanced=await page.evaluate(()=>window.__MAZE_PUBLIC_STATE__.tick);
+  expect(advanced).toBeGreaterThan(initial);
+});
