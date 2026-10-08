@@ -661,6 +661,9 @@ function render(now) {
       active:true,sampleAt:now,fps:currentFPS,drawCalls:renderer.info.render.calls,
       triangles:renderer.info.render.triangles,
       geometryObjects:world.children.length,
+      explorerMeshes:explorer.userData.meshCount||0,
+      observedHunterCount:threats.length,
+      atmosphereParticles:320,
       artDetails:world.userData.artStats||null,
       visualTheme:window.__MAZE_3D_THEME__,
       webgl2:renderer.capabilities.isWebGL2
@@ -771,7 +774,9 @@ function init() {
   worldCraft.addHeroSurroundings({scene,hero:explorer,put:mesh,glow:addGlow});
   lanternLight=new THREE.PointLight(0xffc77d,8,11,2);
   scene.add(lanternLight);
-  explorer.traverse(item=>{if(item.isMesh)item.castShadow=true});
+  let heroMeshes=0;
+  explorer.traverse(item=>{if(item.isMesh){item.castShadow=true;heroMeshes++;}});
+  explorer.userData.meshCount=heroMeshes;
   explorer.userData.halo=mesh(geometries.torus,materials.aura,explorer,[0,.04,0],[.82,.82,.82]);
   explorer.userData.halo.rotation.x=Math.PI/2;
   const resize=()=>{
