@@ -30,31 +30,31 @@
   const THEMES = Object.freeze({
     'seeding-sprint': Object.freeze({
       floorPattern:5.0,
-      deck:[0.24,0.37,0.46],trim:[0.035,0.085,0.17],rail:[0.37,0.76,0.94],
+      deck:[0.13,0.40,0.55],trim:[0.035,0.085,0.17],rail:[0.37,0.76,0.94],
       hazard:[0.87,0.15,0.27],accent:[1.0,0.73,0.25],secondary:[0.15,0.82,1.0],
       clear:[0.045,0.10,0.22],fog:[0.08,0.15,0.28],structure:[0.16,0.32,0.54],skyUpper:[0.055,0.22,0.58],skyLower:[0.26,0.70,0.95],
     }),
     'gate-gauntlet': Object.freeze({
       floorPattern:6.0,
-      deck:[0.27,0.27,0.42],trim:[0.065,0.045,0.15],rail:[0.70,0.57,1.0],
+      deck:[0.27,0.19,0.47],trim:[0.065,0.045,0.15],rail:[0.70,0.57,1.0],
       hazard:[0.95,0.19,0.38],accent:[1.0,0.49,0.21],secondary:[0.69,0.40,1.0],
       clear:[0.10,0.045,0.19],fog:[0.19,0.09,0.32],structure:[0.38,0.19,0.52],skyUpper:[0.21,0.09,0.54],skyLower:[0.72,0.28,0.80],
     }),
     'hazard-circuit': Object.freeze({
       floorPattern:7.0,
-      deck:[0.32,0.30,0.33],trim:[0.15,0.065,0.12],rail:[0.94,0.46,0.35],
+      deck:[0.44,0.18,0.22],trim:[0.15,0.065,0.12],rail:[0.94,0.46,0.35],
       hazard:[1.0,0.11,0.13],accent:[1.0,0.34,0.12],secondary:[1.0,0.72,0.19],
       clear:[0.18,0.045,0.065],fog:[0.32,0.08,0.10],structure:[0.49,0.18,0.17],skyUpper:[0.24,0.065,0.20],skyLower:[0.91,0.32,0.26],
     }),
     'final-four': Object.freeze({
       floorPattern:8.0,
-      deck:[0.19,0.33,0.47],trim:[0.025,0.08,0.16],rail:[0.37,0.84,1.0],
+      deck:[0.16,0.35,0.56],trim:[0.025,0.08,0.16],rail:[0.37,0.84,1.0],
       hazard:[0.77,0.09,0.39],accent:[0.34,0.90,1.0],secondary:[0.95,0.36,0.85],
       clear:[0.025,0.075,0.17],fog:[0.07,0.15,0.32],structure:[0.17,0.35,0.58],skyUpper:[0.05,0.20,0.56],skyLower:[0.22,0.70,0.94],
     }),
     championship: Object.freeze({
       floorPattern:9.0,
-      deck:[0.30,0.29,0.36],trim:[0.075,0.065,0.16],rail:[1.0,0.77,0.41],
+      deck:[0.34,0.22,0.48],trim:[0.075,0.065,0.16],rail:[1.0,0.77,0.41],
       hazard:[0.85,0.14,0.20],accent:[1.0,0.77,0.28],secondary:[0.73,0.50,1.0],
       clear:[0.08,0.055,0.15],fog:[0.18,0.10,0.25],structure:[0.40,0.25,0.54],skyUpper:[0.16,0.08,0.38],skyLower:[0.62,0.32,0.61],
     }),
