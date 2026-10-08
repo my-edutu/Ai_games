@@ -126,6 +126,16 @@
     {
       "name": "Round 11 real gameplay/CI visual gate",
       "state": "PENDING: needs actual browser capture and an independent paired frame review"
+    },
+    {
+      "name": "Round 12 latest inspected CI",
+      "state": "FAIL: WebGL/browser critic 6 failed, 10 passed; replay/security jobs passed. Run 37768933717.",
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/37768933717"
+    },
+    {
+      "name": "Round 12 screenshot artifact",
+      "state": "EXISTS (artifact 11549936491, 4.7 MB); images not opened or evaluated.",
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/37768933717/artifacts/11549936491"
     }
   ],
   "history": [
@@ -193,6 +203,11 @@
       "round": 11,
       "summary": "Focused Wayfinder contact milestone: immutable snapshot-derived reachable ledges, analytical two-bone arm pose in both facing directions, moving ledges updated at each physics tick, protected unit regressions.",
       "verdict": "Scoped source integrity verified; new simulation/browser tests queued. Authored hero fidelity, true 3D climbing physics and Jusant independent A/B benchmark remain unmet."
+    },
+    {
+      "round": 12,
+      "summary": "Investigated actual CI run 37768933717: deterministic/replay and source-security jobs passed, but Chromium WebGL critic failed six tests with missing 3D diagnostics; screenshot artifact exists but not visually inspected. Fixed pickup bobbing cumulative drift and added explicit renderer/boot fallback error telemetry for the next CI failure investigation.",
+      "verdict": "CI failed; cause of 3D startup/render failure not yet established. Changes committed but untested. No independent visual review or Jusant parity."
     }
   ]
 }
