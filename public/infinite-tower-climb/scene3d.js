@@ -31,6 +31,51 @@ function clearGroup(group){
 function seeded(n){const t=Math.sin(n*84.17+19.67)*43758.5453;return t-Math.floor(t)}
 // Small original weathered-masonry canvas textures. Deterministic and bounded (five variants).
 const masonry=new Map();
+const vistaCache=new Map();
+function skylineMaterial(theme){
+  if(vistaCache.has(theme))return vistaCache.get(theme);
+  const cvs=document.createElement('canvas');cvs.width=192;cvs.height=384;
+  const ctx=cvs.getContext('2d');
+  const colors={
+    foundry:['#17274a','#936653','#e2ab6e'],
+    ruins:['#102e39','#306b6e','#d0d7b3'],
+    storm:['#10213f','#4d779b','#bbdafa'],
+    clockwork:['#241a2d','#906b4b','#e9bd71'],
+    void:['#0d0924','#514083','#b38dec']
+  }[theme]||['#0f2032','#4e738b','#c3dce9'];
+  const sky=ctx.createLinearGradient(0,0,0,cvs.height);
+  colors.forEach((color,i)=>sky.addColorStop(i/2,color));
+  ctx.fillStyle=sky;ctx.fillRect(0,0,cvs.width,cvs.height);
+  const moonX=135,moonY=94;
+  const halo=ctx.createRadialGradient(moonX,moonY,0,moonX,moonY,82);
+  halo.addColorStop(0,'rgba(255,252,227,.58)');
+  halo.addColorStop(.23,'rgba(244,234,201,.19)');
+  halo.addColorStop(1,'rgba(244,234,201,0)');
+  ctx.fillStyle=halo;ctx.fillRect(0,0,192,220);
+  ctx.fillStyle=theme==='void'?'#e9b9ff':'#f2ead2';
+  ctx.beginPath();ctx.arc(moonX,moonY,theme==='storm'?13:9,0,Math.PI*2);ctx.fill();
+  for(let layer=0;layer<4;layer++){
+    const baseline=215+layer*46,amp=21+layer*7;
+    ctx.beginPath();ctx.moveTo(0,384);ctx.lineTo(0,baseline);
+    for(let x=0;x<=192;x+=12){
+      const yy=baseline-Math.abs(Math.sin(x*.028+layer*.9))*amp-seeded(x+layer*33)*14;
+      ctx.lineTo(x,yy);
+    }
+    ctx.lineTo(192,384);ctx.closePath();
+    ctx.fillStyle=theme==='ruins'?['#26464e','#173c40','#183236','#0b252e'][layer]:
+      theme==='void'?['#392e65','#2c2455','#201a42','#15152f'][layer]:
+      ['#425772','#2b425c','#20344c','#172942'][layer];
+    ctx.fill();
+  }
+  for(let i=0;i<42;i++){
+    const x=seeded(i*17)*192,y=seeded(i*33)*180;
+    ctx.fillStyle='rgba(255,255,255,'+(.18+seeded(i*3)*.46)+')';
+    ctx.fillRect(x,y,.5+seeded(i*7)*1.2,.5+seeded(i*5)*1.2);
+  }
+  const texture=new THREE.CanvasTexture(cvs);texture.colorSpace=THREE.SRGBColorSpace;
+  const mat=new THREE.MeshBasicMaterial({map:texture,side:THREE.DoubleSide,toneMapped:false});
+  vistaCache.set(theme,mat);return mat;
+}
 function stoneworkMaterial(name,color){
   if(masonry.has(name))return masonry.get(name);
   const tile=document.createElement('canvas');tile.width=256;tile.height=256;
@@ -116,7 +161,10 @@ export function mountTower3D({host,getFrame,reducedMotion=false,heroCamera=false
       for(let x=26;x<worldWidth;x+=96){
         const aperture=new THREE.Mesh(new THREE.TorusGeometry(12,2.5,8,20,Math.PI),trim);
         add(backdrop,aperture,x,y+20,-51);
-        add(backdrop,box(20,31,.8,light),x,y+3,-76);
+        add(backdrop,new THREE.Mesh(new THREE.PlaneGeometry(19,29),skylineMaterial(theme)),x,y+4,-51);
+        add(backdrop,box(20,1.2,3,trim),x,y+19,-48);
+        add(backdrop,box(1.1,30,3,trim),x-9.5,y+3,-48);
+        add(backdrop,box(1.1,30,3,trim),x+9.5,y+3,-48);
         add(backdrop,box(26,3,5,stone),x,y+3,-48);
       }
     }
