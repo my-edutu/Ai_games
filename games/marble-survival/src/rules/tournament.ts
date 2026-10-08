@@ -105,6 +105,15 @@ export function applyTournamentRules(state: MarbleState, contacts: PhysicsContac
     const pitReachedRim = marble.elevation < 0;
     const pitFallenBelowSafety = marble.elevation <= -650;
     const pitActionable = !isPit || (pitReachedRim && (marble.shieldCharges > 0 || pitFallenBelowSafety));
+    if (isPit && pitReachedRim && recoveryUntilTick < next.tick && marble.pitFallHazardId !== hazard.id) {
+      marble.pitFallHazardId = hazard.id;
+      events.push({tick: next.tick, type:'marble-pit-falling', data:{
+        marbleId:marble.id, hazardId:hazard.id, depth:Math.abs(marble.elevation)
+      }});
+      next.meaningfulEventTick = next.tick;
+    } else if (!isPit && marble.pitFallHazardId) {
+      marble.pitFallHazardId = null;
+    }
     if (hazard && pitActionable && recoveryUntilTick < next.tick) {
       if (marble.shieldCharges > 0) {
         marble.shieldCharges--;
