@@ -22,7 +22,13 @@ export function createTayoActor(THREE) {
     }
     const mesh=new THREE.Mesh(geoPool.get(kind),mat(color));
     mesh.position.set(x,y,z);mesh.scale.set(sx,sy,sz);
-    mesh.name=name||kind;mesh.castShadow=true;mesh.receiveShadow=true;
+    mesh.name=name||kind;
+    // On Chromium CI the prior 129-piece character created approximately a
+    // hundred redundant shadow passes. Cast shadows only for major silhouette
+    // masses; do not make every eyebrow, finger or embroidery a shadow caster.
+    const coreSilhouette=/^(jacket|head|waist|hip|upper sleeve|forearm|trouser|shin|running shoe|short natural hair|agbada drape|isi agu tunic|baban riga outer robe|fila|red cap|embroidered cap|urban running cap)$/;
+    mesh.castShadow=coreSilhouette.test(mesh.name);
+    mesh.receiveShadow=mesh.castShadow;
     parent.add(mesh);return mesh;
   }
   const rootShadow=shape(root,'ball',0,.025,0,.45,.035,.29,0x1b2734,'contact-shadow-proxy');
