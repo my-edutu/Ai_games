@@ -4,10 +4,6 @@ on:
   push:
     branches:
       - 'gauntlet/battle-royale-*'
-  pull_request:
-    branches:
-      - 'agent/**'
-      - main
 
 permissions:
   contents: read
