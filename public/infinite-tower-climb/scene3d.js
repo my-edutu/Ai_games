@@ -131,9 +131,12 @@ export function mountTower3D({host,getFrame,reducedMotion=false,highContrast=fal
   scene.add(backdrop,structures,actors,effects);
   const actionEffects=createTowerEffectsDirector(effects);
   const hemi=new THREE.HemisphereLight(0xffeacf,0x4c5363,2.65);scene.add(hemi);
-  const key=new THREE.DirectionalLight(0xffddb0,4.0);key.position.set(-45,120,135);scene.add(key);
+  // Soft, directional shadowing anchors the playable platforms without changing collision.
+  renderer.shadowMap.enabled=quality!=='low';
+  renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+  const key=new THREE.DirectionalLight(0xffddb0,4.0);key.position.set(-45,120,135);key.castShadow=quality!=='low';key.shadow.mapSize.set(1024,1024);key.shadow.camera.left=-300;key.shadow.camera.right=300;key.shadow.camera.top=300;key.shadow.camera.bottom=-300;key.shadow.camera.near=1;key.shadow.camera.far=650;key.shadow.bias=-.0003;scene.add(key);
   const rim=new THREE.DirectionalLight(0xffc49a,2.0);rim.position.set(80,55,-30);scene.add(rim);
-  const player=createTowerCharacter({tint:0xf7a65d,kind:'climber'});actors.add(player);
+  const player=createTowerCharacter({tint:0xf7a65d,kind:'climber'});player.traverse(o=>{if(o.isMesh)o.castShadow=true});actors.add(player);
   // This quality-review turntable reuses exactly the same production character assets.
   // It does not alter game authority or the live snapshot and is opt-in only.
   const inspector=new THREE.Group();inspector.visible=inspectCharacters;actors.add(inspector);
@@ -246,6 +249,7 @@ export function mountTower3D({host,getFrame,reducedMotion=false,highContrast=fal
         const glyph=add(group,new THREE.Mesh(new THREE.TorusGeometry(7,1.8,8,24),emissive(p.glow,1.3)),cx,cy-7,30);
         glyph.rotation.y=Math.PI/5;
       }
+      group.traverse(o=>{if(o.isMesh){o.receiveShadow=true;o.castShadow=true}});
       structures.add(group);
     }
     // Hanging environmental silhouettes make each vertical climb feel monumental.
