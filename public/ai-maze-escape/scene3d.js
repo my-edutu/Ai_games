@@ -433,6 +433,7 @@ function rebuild(snapshot) {
   world.userData.torchCount=0;
   const known = new Set(snapshot.cells.map(cell=>cell.cell));
   const w = snapshot.width;
+  if(ground)ground.position.set((w-1)*GRID*.5,-.56,(snapshot.height-1)*GRID*.5);
   const activeCol=snapshot.currentCell%w,activeRow=Math.floor(snapshot.currentCell/w);
   // Artistic geometry is a local window; discovery, AI logic and authoritative memory remain untouched.
   const renderCells=snapshot.cells.filter(cell=>{
@@ -670,7 +671,7 @@ function render(now) {
     explorer.userData.lantern.getWorldPosition(lanternLight.position);
     lanternLight.intensity=reducedMotion?7.5:7.1+Math.sin(now*.016)*.6;
   }
-  if(ground) ground.position.set(explorer.position.x,-.46,explorer.position.z);
+  // The sculpted ground stays fixed in world space, instead of sliding with the hero.
   if(sunLight){
     sunLight.position.set(explorer.position.x-7,14,explorer.position.z-3);
     sunLight.target.position.set(explorer.position.x,0,explorer.position.z);
@@ -775,7 +776,18 @@ function init() {
   camera.position.set(10,15,19);
   skyLight=new THREE.HemisphereLight(0xe3f2e8,0x26292d,2.7);
   scene.add(skyLight);
-  ground=mesh(new THREE.PlaneGeometry(185,185),materials.void,scene,[0,-.46,0]);
+  const terrain=new THREE.PlaneGeometry(185,185,98,98);
+  const terrainPoints=terrain.getAttribute('position');
+  // Deterministic non-interactive elevation; never encodes any hidden maze passages.
+  for(let i=0;i<terrainPoints.count;i++){
+    const x=terrainPoints.getX(i),y=terrainPoints.getY(i);
+    const broad=Math.sin(x*.13)*Math.cos(y*.10)*.18;
+    const ridges=Math.sin(x*.39+y*.22)*Math.cos(y*.3-x*.27)*.10;
+    const fine=seededNoise(Math.floor(x*2),Math.floor(y*2),31)*.08;
+    terrainPoints.setZ(i,broad+ridges+fine);
+  }
+  terrain.computeVertexNormals();
+  ground=mesh(terrain,materials.void,scene,[0,-.56,0]);
   ground.rotation.x=-Math.PI/2;ground.receiveShadow=true;
   const dustCoordinates=new Float32Array(240*3);
   for(let i=0;i<240;i++){
