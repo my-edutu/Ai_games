@@ -4,6 +4,8 @@ const {test,expect}=require('@playwright/test');
 const base='http://127.0.0.1:4176';
 const artifacts=path.resolve(__dirname,'../../artifacts/tower-phase3');
 test.beforeAll(()=>fs.mkdirSync(artifacts,{recursive:true}));
+// CI containers may not have a GPU; require deterministic Chromium software WebGL.
+test.use({launchOptions:{args:['--enable-webgl','--use-gl=angle','--use-angle=swiftshader','--enable-unsafe-swiftshader']}});
 
 test('3D tower really starts WebGL, progresses autonomously and produces screenshot evidence',async({page})=>{
   const errors=[];
