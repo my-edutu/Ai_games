@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
   "project": "AI Battle Royale",
-  "iteration": 16,
+  "iteration": 26,
   "updated": "2026-10-08",
-  "verdict": "UNVERIFIED — AAA QUALITY NOT MET",
+  "verdict": "VISUAL BENCHMARK NOT MET — NEW BUILD AWAITS REAL BROWSER CAPTURE",
   "benchmark": "Fortnite Chapter 4 UE5.1 / Apex Legends / PUBG",
   "completed": [
     "Loop 0 — inspected existing 2D Canvas broadcast, deterministic simulation and reference branch.",
@@ -24,15 +24,24 @@
     "Loop 13 — added public-snapshot-driven focused contender weapon, ammo, medkit and confidence display.",
     "Loop 14 — introduced ?quality=low to reduce decorative meshes while preserving authoritative actors and zone cues.",
     "Loop 15 — added distinct original ember palms, neon crystal pylons and arctic snow conifers to the perimeter; activated a focused browser-capture workflow.",
-    "Loop 16 — upgraded the 3D camera to a real perspective-divided yaw/pitch projection with a distinct cinematic angle, restrained autonomous orbit and reduced-motion-safe viewpoint."
+    "Loop 16 — upgraded the 3D camera to a real perspective-divided yaw/pitch projection with a distinct cinematic angle, restrained autonomous orbit and reduced-motion-safe viewpoint.",
+    "Loop 17 — attached finite-lifetime, real-event-only muzzle tracers, shield bursts and elimination pulses with sequence deduplication and reset between matches.",
+    "Loop 18 — fighter animation responds to published battle intents and legal weapon categories with healing, running, aiming and distinct carbine/sidearm/scattergun/marksman silhouettes.",
+    "Loop 19 — added raised, authoritative-zone-following 3D storm contours, pylons and shrink warnings.",
+    "Loop 20 — replaced sudden cinematic camera jumps with held action subjects and reduced-motion-aware smooth tracking.",
+    "Loop 21 — added capped synthetic spatial WebAudio effects for combat, danger, victory and ambience; public battle events determine playback.",
+    "Loop 22 — created vibrant v3 esports broadcast UI with cyan, electric violet, magenta, lime and amber; branded live status, more colorful ranking panels and bold arena headline.",
+    "Loop 23 — increased environment material brightness and saturation, raised ambient/rim shading, reduced muddy fog and improved biome palette separation.",
+    "Loop 24 — dressed the arena with illuminated district roads, three biome-specific out-of-bounds skylines, marked landing pads, beacons and world architecture.",
+    "Loop 25 — added budget-capped, biome-specific snowfall, neon rainfall and drifting cinder weather with reduced-motion and reduced-flash support.",
+    "Loop 26 — extended the map into physically contiguous themed out-of-bounds terrain, decorative hills, roads and stage plinths instead of a floating tabletop."
   ],
   "gaps": [
-    "P0 recent-capture gate — verify new perspective/terrain graphics in actual Chromium screenshots; current candidate has no independent benchmark win.",
-    "P0 benchmark gap — Fortnite UE5 still leads heavily in surface fidelity, complex lighting, realistic animation, rigged geometry and authored world assets.",
-    "P0 visual review gap — loops 7–15 require fresh official-reference blind A/B from real Playwright capture; do not claim visual quality has won.",
-    "P1 character gap — avatars remain procedurally modeled rather than high-resolution authored and skinned 3D character assets with facial rigs.",
-    "P1 environment gap — no physically based materials, dynamic shadows, nav-mesh-aware 3D landscapes, destructible buildings or weather cycles.",
-    "P1 studio gap — cinematics and VFX are preliminary; authored animations, studio audio and persistent personality arcs remain.",
-    "P1 operations gap — scheduled GPU soak, representative OBS capture, 72-hour endurance, production throughput, deployment and true independent review remain absent."
+    "P0 — Latest loop 22–26 screenshots and full browser CSS/WebGL tests must be inspected before declaring visuals improved in practice; the current full CI is queued.",
+    "P0 — Not AAA: Fortnite UE5-level authored environment assets, convincing level design, dynamic lighting/shadows, realistic materials and character fidelity are still missing.",
+    "P0 — Independent blind A/B reviews against actual official benchmark captures have NOT occurred; this dashboard records implementation, not benchmark victory.",
+    "P1 — Need proper professionally modeled and skinned characters, high-quality walk/aim/heal animations, weapon/reload animation and authored effects.",
+    "P1 — Need validated GPU/CPU budgets, weather and biome performance profiling across desktop/mobile/OBS, multi-day stream endurance.",
+    "P1 — Improve broadcast replay direction, authored audio and meaningful original character personalities while keeping AI state authoritative."
   ]
 }
