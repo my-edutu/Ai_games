@@ -23,7 +23,9 @@ permissions:
   contents: read
 
 concurrency:
-  group: marble-gauntlet-${{ github.ref }}
+  # Push and draft-PR events on the same head branch now share one live run.
+  # This saves scarce runners and makes iterative screenshot feedback faster.
+  group: marble-gauntlet-${{ github.head_ref || github.ref_name }}
   cancel-in-progress: true
 
 jobs:
