@@ -11,6 +11,7 @@ test('first-party 3D lab boot sequence emits precise errors instead of silent ti
  await page.waitForTimeout(2500);
  const state=await page.evaluate(()=>({
   state:{...window.__TOWER_VOLUMETRIC_STATE__},
+  render:{...window.__TOWER_VOLUMETRIC_RENDER_METRICS__},
   canvas:document.querySelector('#volumetric-canvas')?.getBoundingClientRect()?.toJSON(),
   statusText:document.querySelector('#status')?.textContent,
   sceneModules:performance.getEntriesByType('resource').filter(r=>r.name.includes('/tower/')).map(r=>r.name)
@@ -22,4 +23,5 @@ test('first-party 3D lab boot sequence emits precise errors instead of silent ti
  expect(errors).toEqual([]);
  expect(state.state?.status).toBe('live');
  expect(state.state?.tick).toBeGreaterThan(0);
+ expect(state.render?.frames).toBeGreaterThan(0);
 });

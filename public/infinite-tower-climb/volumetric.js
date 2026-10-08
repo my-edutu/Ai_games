@@ -56,6 +56,9 @@
     addEventListener('keyup',event=>{const key=mapping[event.code];if(key){event.preventDefault();controls[key]=false;}});
   }
   let biome='',simTime=0,accumulator=0,lastFrame=performance.now(),sizeW=0,sizeH=0;
+  let renderFrames=0,lastFrameMark=performance.now(),rollingFrameMs=16.7;
+  const renderMetrics={frames:0,fps:0,frameMs:0,drawCalls:0,triangles:0,gpuGeometries:0,gpuTextures:0,status:'starting'};
+  window.__TOWER_VOLUMETRIC_RENDER_METRICS__=renderMetrics;
   function syncWorld(snapshot){
     const live=new Set();
     for(const p of snapshot.platforms){
@@ -99,7 +102,7 @@
     syncWorld(snapshot);
     climber.root.position.set(player.x,player.y,player.z);
     climber.setMotion(player.vx*dt,player.vy*dt,snapshot.mode,player.vz*dt);
-    Object.assign(details,{status:'live',tick:snapshot.tick,floor:player.at,x:player.x,y:player.y,z:player.z,
+    Object.assign(details,{status:renderFrames>0?'live':'simulating',tick:snapshot.tick,floor:player.at,x:player.x,y:player.y,z:player.z,
       velocity:{x:player.vx,y:player.vy,z:player.vz},platforms:models.size,next:player.at+1,
       deaths:player.deaths,biome,mode:snapshot.mode,intent:snapshot.intent,guardianKills:snapshot.guardianKills,
       score:snapshot.score,health:player.health,build:snapshot.build,shields:snapshot.shields,
@@ -132,7 +135,21 @@
     details.cameraMode=directorFrame.mode;
     sun.position.set(player.x-30,player.y+65,player.z+34);
     vfx.update(dt,{x:player.x,y:player.y,z:player.z,dx:player.vx,dy:player.vy},biome,0,reduced);
-    renderer.render(scene,camera);
+    try{renderer.render(scene,camera);}
+    catch(error){renderMetrics.status='failed';renderMetrics.error=String(error?.stack||error);
+      details.status='failed';details.error=renderMetrics.error;
+      status.textContent='3D GPU RENDER FAILED';console.error(error);return;}
+    renderFrames++;
+    rollingFrameMs=rollingFrameMs*.92+Math.max(1,now-lastFrameMark)*.08;
+    lastFrameMark=now;
+    renderMetrics.frames=renderFrames;renderMetrics.fps=Math.round(1000/rollingFrameMs);
+    renderMetrics.frameMs=Math.round(rollingFrameMs*100)/100;
+    renderMetrics.drawCalls=renderer.info.render.calls;
+    renderMetrics.triangles=renderer.info.render.triangles;
+    renderMetrics.gpuGeometries=renderer.info.memory.geometries;
+    renderMetrics.gpuTextures=renderer.info.memory.textures;
+    renderMetrics.status='live';
+    details.status='live';
     if(details.tick%8===0){
       document.getElementById('floor').textContent=String(player.at).padStart(3,'0');
       document.getElementById('height').textContent=Math.round(Math.max(0,player.y))+'m';
@@ -150,7 +167,8 @@
       document.getElementById('build-ward').textContent=String(details.build?.ward||0);
       document.getElementById('build-salvage').textContent=String(details.build?.salvage||0);
       document.getElementById('shield-value').textContent=String(details.shields||0);
-      const status=document.getElementById('wall-status');if(status)status.textContent='MANTLES '+(details.wallClimbs||0)+' · GRIP '+Math.round(details.gripStamina||0)+'%';
+      const wallStatus=document.getElementById('wall-status');
+      if(wallStatus)wallStatus.textContent='MANTLES '+(details.wallClimbs||0)+' · GRIP '+Math.round(details.gripStamina||0)+'%';
       status.textContent=(manual?'MANUAL 3D':'AUTONOMOUS 3D AI')+' · '+details.mode+' · '+details.tick+' TICKS';
     }
     requestAnimationFrame(animate);

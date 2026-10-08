@@ -11,11 +11,15 @@ test('actual 3-axis autonomous world moves through depth and height',async({page
   await page.setViewportSize({width:1600,height:900});
   await page.goto('http://127.0.0.1:4176/tower/volumetric',{waitUntil:'domcontentloaded'});
   await page.waitForFunction(()=>window.__TOWER_VOLUMETRIC_STATE__?.status==='live',null,{timeout:30000});
-  const first=await page.evaluate(()=>({...window.__TOWER_VOLUMETRIC_STATE__}));
+  const first=await page.evaluate(()=>({...window.__TOWER_VOLUMETRIC_STATE__,renderMetrics:{...window.__TOWER_VOLUMETRIC_RENDER_METRICS__}}));
+  expect(first.renderMetrics.frames).toBeGreaterThan(0);
+  expect(first.renderMetrics.drawCalls).toBeGreaterThan(0);
   expect(first.dimensionality).toBe(3);
   expect(first.autonomous).toBe(true);
   await page.waitForTimeout(5000);
-  const second=await page.evaluate(()=>({...window.__TOWER_VOLUMETRIC_STATE__}));
+  const second=await page.evaluate(()=>({...window.__TOWER_VOLUMETRIC_STATE__,renderMetrics:{...window.__TOWER_VOLUMETRIC_RENDER_METRICS__}}));
+  expect(second.renderMetrics.frames).toBeGreaterThan(first.renderMetrics.frames);
+  expect(second.renderMetrics.gpuGeometries).toBeGreaterThan(0);
   expect(second.tick).toBeGreaterThan(first.tick+60);
   expect(second.platforms).toBeGreaterThanOrEqual(15);
   expect(Math.abs(second.z-first.z)).toBeGreaterThan(.3);
