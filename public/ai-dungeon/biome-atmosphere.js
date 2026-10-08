@@ -36,7 +36,7 @@ export function createBiomeAtmosphere(root,map,floor,exit){
  const dark=register(new THREE.MeshStandardMaterial({color:biome.shadow,metalness:.68,roughness:.41}));
  const plant=register(new THREE.MeshStandardMaterial({color:biome.plant,roughness:.9,side:THREE.DoubleSide}));
  const glimmer=register(new THREE.MeshBasicMaterial({color:biome.bright,transparent:true,opacity:.62,depthWrite:false,blending:THREE.AdditiveBlending,side:THREE.DoubleSide}));
- const glowTexture=gradientTexture(biome,floor);textures.push(glowTexture);
+ const glowTexture=gradientTexture(biome,floor);textures.push(glowTexture);glimmer.map=glowTexture;glimmer.needsUpdate=true;
  const pools=[],innerPools=[],spires=[],spikeCaps=[],growth=[],mushroomHeads=[],plinths=[],runes=[],ceilingDrops=[];
  const stoneGeo=geometry(new THREE.BoxGeometry(1,1,1)),spearGeo=geometry(new THREE.ConeGeometry(.5,1,7));
  const crystalGeo=geometry(new THREE.OctahedronGeometry(.5,0)),poolGeo=geometry(new THREE.CylinderGeometry(.5,.5,.04,24));

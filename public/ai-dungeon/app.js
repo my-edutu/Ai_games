@@ -6,7 +6,7 @@ import {createCombatOverlay} from '/dungeon/combat-overlay.js';
 const $=id=>document.getElementById(id),canvas=$('world'),reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
 const renderer=new THREE.WebGLRenderer({canvas,antialias:true,powerPreference:'high-performance',alpha:false});
 renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.6));renderer.shadowMap.enabled=!reduced;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.38;
-const scene=new THREE.Scene();scene.background=new THREE.Color('#070d18');scene.fog=new THREE.FogExp2('#090f1a',.041);
+const scene=new THREE.Scene();scene.background=new THREE.Color('#070d18');scene.fog=new THREE.FogExp2('#090f1a',.024);
 const camera=new THREE.PerspectiveCamera(44,1,.1,110);
 const ambient=new THREE.HemisphereLight('#7191bf','#111526',1.9);scene.add(ambient);
 const moon=new THREE.DirectionalLight('#a6c6ff',2.0);moon.position.set(-7,17,5);moon.castShadow=!reduced;moon.shadow.mapSize.set(1024,1024);moon.shadow.camera.left=-17;moon.shadow.camera.right=17;moon.shadow.camera.top=17;moon.shadow.camera.bottom=-17;scene.add(moon);
@@ -229,7 +229,7 @@ function drawMinimap(s){
 }
 function notifyDungeon(event){
  if(!['telegraph','floor','kill','defeat','loot'].includes(event.kind))return;
- if(event.kind==='floor'){const splash=$('floor-splash');clearTimeout(splashTimer);splash.hidden=false;const match=event.text.match(/^FLOOR (\\d+) · (.+)$/);$('splash-floor').textContent=match?match[1].padStart(2,'0'):String(state?.floor??'02').padStart(2,'0');$('splash-name').textContent=match?match[2]:state?.theme??'THE NEXT CHAPTER';splashTimer=setTimeout(()=>{splash.hidden=true},reduced?800:2400)}
+ if(event.kind==='floor'){const splash=$('floor-splash');clearTimeout(splashTimer);splash.hidden=false;const match=event.text.match(/^FLOOR (\d+) · (.+)$/);$('splash-floor').textContent=match?match[1].padStart(2,'0'):String(state?.floor??'02').padStart(2,'0');$('splash-name').textContent=match?match[2]:state?.theme??'THE NEXT CHAPTER';splashTimer=setTimeout(()=>{splash.hidden=true},reduced?800:2400)}
  const banner=$('alert-flash');clearTimeout(alertTimer);banner.hidden=false;
  banner.textContent=event.kind==='telegraph'?'⚠  '+event.text.toUpperCase():event.kind==='floor'?'✦  '+event.text.toUpperCase():event.kind==='defeat'?'☠  '+event.text.toUpperCase():event.text.toUpperCase();
  banner.dataset.kind=event.kind;
@@ -315,12 +315,15 @@ function animate(t){requestAnimationFrame(animate);const time=t/1000,dt=Math.min
  if(world.userData.dressing&&!reduced)world.userData.dressing.animate(time);
  if(world.userData.atmosphere&&!reduced)world.userData.atmosphere.update(time);
  cutawayWalls(target);world.userData.dressing?.cutaway(target);
- const cameraType=cameraModes[cameraIndex]||'cinematic',offsets=cameraType==='tactical'?[2,20,2]:cameraType==='chase'?[5.5,8.5,7.5]:[9,14,11];
- const look=new THREE.Vector3(target.x,0,target.z),cam=new THREE.Vector3(target.x+offsets[0],offsets[1],target.z+offsets[2]);
+ const cameraType=cameraModes[cameraIndex]||'cinematic',offsets=cameraType==='tactical'?[2,20,2]:cameraType==='chase'?[3.8,6.5,5.0]:[6.7,10.5,8.5];
+ const boss=state?.units.find(u=>u.kind==='warden'&&u.hp>0),bossDistance=boss&&state?.units.some(u=>u.faction==='party'&&u.hp>0&&Math.abs(u.x-boss.x)+Math.abs(u.z-boss.z)<=5);
+ const look=new THREE.Vector3(target.x,0,target.z);
+ if(boss&&bossDistance&&cameraType==='cinematic')look.lerp(new THREE.Vector3(boss.x-9,0,boss.z-9),.28);
+ const cam=new THREE.Vector3(look.x+offsets[0],offsets[1],look.z+offsets[2]);
  camera.position.lerp(cam,reduced?1:.065);camera.lookAt(look.x,0,look.z);
  if(shakeStrength>.008&&!reduced){camera.position.x+=Math.sin(time*57)*shakeStrength;camera.position.y+=Math.cos(time*43)*shakeStrength*.5;}
  partyGlow.position.set(target.x,2,target.z);
- renderer.render(scene,camera);combatOverlay.render(state,actors,camera,time);if(state)window.__DUNGEON_RENDER_DIAGNOSTICS__={frame:renderer.info.render.frame,drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,camera:cameraModes[cameraIndex],activeUnits:[...actors.values()].filter(x=>x.root.visible).length,characterDetails:[...actors.values()].reduce((sum,x)=>sum+(x.detail?.parts||0),0),webgl:true,theme:state.theme,dressing:world.userData.dressing?.metrics??null,atmosphere:world.userData.atmosphere?.metrics??null,overlay:combatOverlay.metrics()};
+ renderer.render(scene,camera);combatOverlay.render(state,actors,camera,time);if(state)window.__DUNGEON_RENDER_DIAGNOSTICS__={frame:renderer.info.render.frame,drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,camera:cameraModes[cameraIndex],bossFramed:Boolean(bossDistance),activeUnits:[...actors.values()].filter(x=>x.root.visible).length,characterDetails:[...actors.values()].reduce((sum,x)=>sum+(x.detail?.parts||0),0),webgl:true,theme:state.theme,dressing:world.userData.dressing?.metrics??null,atmosphere:world.userData.atmosphere?.metrics??null,overlay:combatOverlay.metrics()};
 }
 async function poll(){try{const r=await fetch('/dungeon/state',{cache:'no-store'});if(!r.ok)throw Error('State '+r.status);const data=await r.json();if(data.tick!==lastTick||data.run!==state?.run){lastTick=data.tick;update(data)}}catch(e){errorAt++;if(errorAt>=3){$('recovery').hidden=false;$('status').textContent='VIEW DEGRADED — RETRYING';console.warn('Dungeon view recovery',String(e))}}finally{setTimeout(poll,190)}}
 const cameraModes=['cinematic','tactical','chase'];let cameraIndex=0;const viewButton=$('view-toggle');

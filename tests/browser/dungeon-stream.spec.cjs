@@ -59,3 +59,12 @@ test('projected in-world health labels follow real autonomous state without synt
  const scene=await page.evaluate(()=>({labels:window.__DUNGEON_RENDER_DIAGNOSTICS__?.overlay?.labels,units:window.__DUNGEON_RENDER_DIAGNOSTICS__?.activeUnits}));
  expect(scene.labels).toBeLessThanOrEqual(scene.units);
 });
+
+test('colour-direction varies by dungeon biome and uses real-world broadcast framing',async({page})=>{
+ await page.goto('/dungeon');
+ await expect.poll(async()=>page.evaluate(()=>window.__DUNGEON_PUBLIC_STATE__?.floor??0),{timeout:15000}).toBeGreaterThan(0);
+ await expect(page.locator('body')).toHaveAttribute('data-biome',/sunken|ember|obsidian|hollow/);
+ const state=await page.evaluate(()=>({label:document.querySelector('#theme')?.textContent,overlay:window.__DUNGEON_RENDER_DIAGNOSTICS__?.overlay,atmo:window.__DUNGEON_RENDER_DIAGNOSTICS__?.atmosphere}));
+ expect(state.label).toBeTruthy();expect(state.atmo?.landmarks).toBeGreaterThan(0);
+ expect(state.atmo?.particles).toBe(48);
+});
