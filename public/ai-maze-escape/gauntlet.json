@@ -152,6 +152,23 @@
       "independentCritic": "Earlier real screenshot critique identified a tiny obscured hero, repetitive brickwork and near-black terrain. The independent latest-pixel critic has not run. Fresh-context subagents unavailable.",
       "largestKnownGap": "Reference-level visual and animation quality are still not achieved. Need actual Chromium captures of the latest 3D world, systematic blind A/B inspection, licensed PBR texture authoring and measured extended GPU frame rates.",
       "visualBarMet": false
+    },
+    {
+      "number": 10,
+      "label": "Architectural landmarks, active cinematography and sustained rendering",
+      "status": "Committed and syntax checked; latest Chromium and CI evidence pending",
+      "built": [
+        "Observed three/four-way passage junctions gain elaborate 3D ceremonial rotundas, illuminated columns, animated crystalline ceilings and golden arch structures",
+        "AI-driven cinematic director transitions physical exposure, visible fog density, rim lighting and field-of-view for danger, clues, exit and outcomes",
+        "GPU render-budget manager adaptively reduces pixel ratio only after sustained FPS degradation, with cinematic/balanced/performance overrides and a mobile-friendly cap",
+        "Public route trail meshes now refresh independently from structural world rebuild; visual decoration errors fail safely to original 2D",
+        "Decorative junctions receive capped point lighting, distinct from the basic shared wall textures",
+        "Biome-aware WebGL canvas color grading and reduced-transparency accessibility",
+        "New real Three.js tests verify cathedral junctions, public-only cinematic decisions, renderer budget recovery; expanded browser screenshot/performance test"
+      ],
+      "independentCritic": "Fresh-context subagent unavailable. Latest Chromium screenshots and direct reference comparison remain outstanding. The earlier reviewed screenshot was far below the Talos Principle 2 standard.",
+      "largestKnownGap": "Still relies on generated stylised geometry, not authored AAA assets or photoreal animation. Must capture latest real WebGL frames, compare blind against references and prove sustained performance before claiming goal met.",
+      "visualBarMet": false
     }
   ],
   "milestones": [
@@ -222,6 +239,14 @@
     {
       "label": "GPU-independent real Three.js artwork and animation smoke tests",
       "status": "implemented in CI; execution pending"
+    },
+    {
+      "label": "Cinematic junction monuments and AI-event-based physical light direction",
+      "status": "implemented; real screenshot critique pending"
+    },
+    {
+      "label": "Adaptive 24/7 GPU budget, separate journey trails and recoverable 3D errors",
+      "status": "implemented; full run verification pending"
     }
   ],
   "updatedAt": "2026-10-08",
@@ -236,9 +261,9 @@
     {
       "name": "Visual environment quality",
       "reference": "Talos Principle 2 — geometry, material layering and lighting",
-      "current": "Biome-specific sculptural props, water basins, architectural reliefs, canopy trees, crystals, giant stone skyline, brightness-corrected textured masonry and atmospheric shafts.",
+      "current": "Multiple sculpted wall themes, scenic ruin props, ceremonial rotundas at public intersections, animated vaulted fixtures, biome lighting and higher material relief; reference win unverified.",
       "status": "below",
-      "evidence": "world-craft.js, atmosphere.js and corrected scene3d.js albedo; real latest screenshot pending"
+      "evidence": "world-craft.js, scene3d.js; new Chromium screenshots and independent critique pending"
     },
     {
       "name": "Fully developed hero and threats",
@@ -278,9 +303,9 @@
     {
       "name": "Production performance and endurance",
       "reference": "Stable play across long 24/7 live sessions",
-      "current": "Instancing and FPS counters implemented, no measured sustained WebGL performance",
+      "current": "Bounded instancing, FPS measurements, adaptive pixel ratio, separate route trails, caught scene-rebuild errors and 2D recovery.",
       "status": "blocked",
-      "evidence": "Latest test run pending; R5 external evidence outstanding"
+      "evidence": "render-budget.js and browserless test; no completed sustained performance run yet"
     }
   ]
 }
