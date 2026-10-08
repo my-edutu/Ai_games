@@ -94,7 +94,7 @@ test('a critic can record the largest remaining visual gap without making a fals
   await page.getByRole('button',{name:'SAVE LOCAL REVIEW'}).click();
   await expect(page.locator('#review-state')).toContainText('saved');
   await page.reload();
-  await expect(page.locator('#critic-gap')).toContainText('Architectural silhouettes');
+  await expect(page.locator('#critic-gap')).toHaveValue(/Architectural silhouettes/);
   await expect(page.locator('[name="environment"]')).toHaveValue('4');
 });
 
