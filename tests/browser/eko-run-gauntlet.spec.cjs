@@ -30,7 +30,9 @@ test.describe('Eko Run 3D Gauntlet slice', () => {
     expect(audit.character.inFrame).toBeTruthy();
     expect(audit.character.heightPx).toBeGreaterThan(65);
     expect(audit.character.outfits).toHaveLength(4);
-    expect(audit.environment.meshes).toBeGreaterThan(250);
+    expect(audit.environment.batching.sourceMeshes).toBeGreaterThan(250);
+    expect(audit.environment.batching.batchedMeshes).toBeLessThan(audit.environment.batching.sourceMeshes*0.55);
+    expect(audit.environment.meshes).toBeLessThan(audit.environment.batching.sourceMeshes);
     expect(audit.performance.drawCalls).toBeGreaterThan(0);
     fs.mkdirSync('artifacts/eko-gauntlet', { recursive: true });
     fs.writeFileSync('artifacts/eko-gauntlet/desktop-metrics.json', JSON.stringify(audit,null,2));
