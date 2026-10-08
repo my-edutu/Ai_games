@@ -5,7 +5,7 @@ export const DUNGEON_VERSION='0.1.0';
 export const MAP_SIZE=19;
 export type UnitKind='vanguard'|'ranger'|'mystic'|'revenant'|'cultist'|'warden';
 export type Faction='party'|'enemy';
-export interface Unit {id:string;kind:UnitKind;faction:Faction;x:number;z:number;hp:number;maxHp:number;attack:number;cooldown:number}
+export interface Unit {id:string;kind:UnitKind;faction:Faction;x:number;z:number;hp:number;maxHp:number;attack:number;cooldown:number;action?:'idle'|'move'|'attack'|'cast'|'hurt';actionTick?:number}
 export interface DungeonEvent {tick:number;kind:string;text:string}
 export interface DungeonState {schemaVersion:1;tick:number;floor:number;run:number;phase:'exploring'|'intermission';intermission:number;theme:string;map:string[];exit:{x:number;z:number};units:Unit[];relics:{x:number;z:number}[];kills:number;gold:number;level:number;intent:string;events:DungeonEvent[]}
 export interface DungeonSave {version:string;seed:string;rng:RngSnapshot;state:DungeonState;signature:string}
@@ -86,7 +86,7 @@ export class DungeonRuntime {
  static restore(save:DungeonSave){if(save.version!==DUNGEON_VERSION||save.signature!==checksum({seed:save.seed,rng:save.rng,state:save.state}))throw Error('Dungeon snapshot checksum mismatch');return new DungeonRuntime(save.seed,NamedRng.restore(save.rng),clone(save.state))}
  save():DungeonSave {const state=clone(this.state),rng=this.rng.snapshot();return {version:DUNGEON_VERSION,seed:this.seed,rng,state,signature:checksum({seed:this.seed,rng,state})}}
  step(){
-  const s=this.state;s.tick++;
+  const s=this.state;s.tick++;for(const unit of s.units){unit.action='idle';unit.actionTick=s.tick}
   if(s.phase==='intermission'){if(--s.intermission<=0){const run=s.run+1;this.state=createFloor(this.seed,1,this.rng,run);push(this.state,'restart','A new expedition enters the dungeon.')}return this.publicState()}
   const party=s.units.filter(u=>u.faction==='party'&&u.hp>0),foes=s.units.filter(u=>u.faction==='enemy'&&u.hp>0),leader=party[0];
   if(!leader){s.phase='intermission';s.intermission=14;push(s,'defeat','The expedition was lost. A new run begins shortly.');return this.publicState()}
@@ -94,22 +94,22 @@ export class DungeonRuntime {
   for(const hero of party){
    const enemies=s.units.filter(u=>u.faction==='enemy'&&u.hp>0).sort((a,b)=>dist(hero,a)-dist(hero,b)||a.id.localeCompare(b.id));
    const target=enemies[0],range=hero.kind==='vanguard'?1:hero.kind==='ranger'?4:3;
-   if(hero.kind==='mystic'&&s.tick%6===0){const wounded=party.filter(u=>u.hp>0&&u.hp<u.maxHp*.7).sort((a,b)=>a.hp/a.maxHp-b.hp/b.maxHp)[0];if(wounded){wounded.hp=Math.min(wounded.maxHp,wounded.hp+15+s.level);s.intent='Starweaver channels restorative magic';push(s,'healing','Starweaver healed '+wounded.kind);continue}}
+   if(hero.kind==='mystic'&&s.tick%6===0){const wounded=party.filter(u=>u.hp>0&&u.hp<u.maxHp*.7).sort((a,b)=>a.hp/a.maxHp-b.hp/b.maxHp)[0];if(wounded){wounded.hp=Math.min(wounded.maxHp,wounded.hp+15+s.level);hero.action='cast';s.intent='Starweaver channels restorative magic';push(s,'healing','Starweaver healed '+wounded.kind);continue}}
    const visible=target&&((hero.x===target.x&&Array.from({length:Math.abs(hero.z-target.z)-1},(_,i)=>Math.min(hero.z,target.z)+1+i).every(z=>walkable(s.map,hero.x,z)))||(hero.z===target.z&&Array.from({length:Math.abs(hero.x-target.x)-1},(_,i)=>Math.min(hero.x,target.x)+1+i).every(x=>walkable(s.map,x,hero.z))));
    if(target&&dist(hero,target)<=range&&(dist(hero,target)===1||visible)){
-    const damage=hero.attack+(s.level-1)*2;target.hp=Math.max(0,target.hp-damage);
+    const damage=hero.attack+(s.level-1)*2;target.hp=Math.max(0,target.hp-damage);hero.action=hero.kind==='mystic'?'cast':'attack';target.action='hurt';
     s.intent=hero.kind==='mystic'?'Arcane support engaging hostiles':hero.kind==='ranger'?'Ranger providing covering fire':'Vanguard holding the front line';
     if(target.hp===0){s.kills++;s.gold+=12;s.level=1+Math.floor(s.kills/5);push(s,'kill',(target.kind==='warden'?'WARDEN DEFEATED':'Enemy defeated')+' · +12 gold');}
     else if(s.tick%4===0)push(s,'combat',hero.kind+' struck '+target.kind+' for '+damage);
     continue;
    }
-   if(hero!==leader) {const route=shortestPath(s.map,hero,leader);if(route.length>1){hero.x=route[0].x;hero.z=route[0].z;}continue}
+   if(hero!==leader) {const route=shortestPath(s.map,hero,leader);if(route.length>1){hero.x=route[0].x;hero.z=route[0].z;hero.action='move';}continue}
    const bossAlive=s.units.some(u=>u.kind==='warden'&&u.hp>0);
    const goal=bossAlive?s.units.find(u=>u.kind==='warden'&&u.hp>0)!:s.exit;
    const route=shortestPath(s.map,hero,goal);
    if(route.length){const next=route[0];const blocker=s.units.find(u=>u.faction==='enemy'&&u.hp>0&&u.x===next.x&&u.z===next.z);
-    if(blocker){blocker.hp=Math.max(0,blocker.hp-hero.attack);s.intent='Breaking through the enemy line';if(!blocker.hp){s.kills++;s.gold+=12;push(s,'kill','Vanguard cleared the passage');}}
-    else{hero.x=next.x;hero.z=next.z;s.intent=bossAlive?'Hunting the dungeon warden':'Claiming the portal';}
+    if(blocker){blocker.hp=Math.max(0,blocker.hp-hero.attack);hero.action='attack';blocker.action='hurt';s.intent='Breaking through the enemy line';if(!blocker.hp){s.kills++;s.gold+=12;push(s,'kill','Vanguard cleared the passage');}}
+    else{hero.x=next.x;hero.z=next.z;hero.action='move';s.intent=bossAlive?'Hunting the dungeon warden':'Claiming the portal';}
    }
   }
   // Enemies pursue only within a bounded aggro distance. Cooldowns prevent unavoidable stun-lock.
@@ -120,12 +120,12 @@ export class DungeonRuntime {
    if(enemy.kind==='warden'&&distance<=3&&s.tick%6===4){push(s,'telegraph','The Warden begins charging a shockwave — brace for impact')}
    if(enemy.kind==='warden'&&distance<=3&&s.tick%6===0){const affected=party.filter(u=>u.hp>0&&dist(enemy,u)<=3);
     const shock=6+Math.min(14,s.floor);
-    for(const hero of affected)hero.hp=Math.max(0,hero.hp-shock);
+    for(const hero of affected){hero.hp=Math.max(0,hero.hp-shock);hero.action='hurt'}enemy.action='cast';
     if(affected.length)push(s,'danger','The Warden unleashed an arcane shockwave · '+shock+' damage');
    }
-   if(enemy.kind==='cultist'&&distance>1&&distance<=3&&s.tick%4===0){nearest.hp=Math.max(0,nearest.hp-5-Math.min(8,Math.floor(s.floor/2)));push(s,'danger','Cultist hurled a shadow bolt')}
-   if(distance<=1){if(enemy.cooldown===0){nearest.hp=Math.max(0,nearest.hp-enemy.attack);enemy.cooldown=2;push(s,'danger',enemy.kind+' hit '+nearest.kind+' for '+enemy.attack)}}
-   else if(distance<=5&&s.tick%2===0){const route=shortestPath(s.map,enemy,nearest);if(route.length>1){enemy.x=route[0].x;enemy.z=route[0].z}}
+   if(enemy.kind==='cultist'&&distance>1&&distance<=3&&s.tick%4===0){const visible=(enemy.x===nearest.x&&Array.from({length:Math.abs(enemy.z-nearest.z)-1},(_,i)=>Math.min(enemy.z,nearest.z)+i+1).every(z=>walkable(s.map,enemy.x,z)))||(enemy.z===nearest.z&&Array.from({length:Math.abs(enemy.x-nearest.x)-1},(_,i)=>Math.min(enemy.x,nearest.x)+i+1).every(x=>walkable(s.map,x,enemy.z)));if(visible){nearest.hp=Math.max(0,nearest.hp-5-Math.min(8,Math.floor(s.floor/2)));nearest.action='hurt';enemy.action='cast';push(s,'danger','Cultist hurled a shadow bolt')}}
+   if(distance<=1){if(enemy.cooldown===0){nearest.hp=Math.max(0,nearest.hp-enemy.attack);enemy.cooldown=2;enemy.action='attack';nearest.action='hurt';push(s,'danger',enemy.kind+' hit '+nearest.kind+' for '+enemy.attack)}}
+   else if(distance<=5&&s.tick%2===0){const route=shortestPath(s.map,enemy,nearest);if(route.length>1){enemy.x=route[0].x;enemy.z=route[0].z;enemy.action='move'}}
    if(enemy.cooldown>0)enemy.cooldown--;
   }
   for(const hero of s.units.filter(u=>u.faction==='party'&&u.hp>0)){
