@@ -102,7 +102,9 @@
       if (uPatternType > 4.5) {
         // Stage-specific industrial surfacing. Repeated local coordinates
         // have subtle inlaid reflective grooves, not a plain grey grid.
-        vec2 t=(localPosition.xz+vec2(1.0))*vec2(12.0,9.0);
+        // Every detached physical deck tile uses the SAME world-space UV,
+        // so cut-through reactor openings cannot stretch/reset floor paint.
+        vec2 t=(vWorldPosition.xz+vec2(13.0))*vec2(1.52,1.69);
         vec2 f=fract(t);
         float edge=min(min(f.x,f.y),min(1.0-f.x,1.0-f.y));
         float etched=1.0-smoothstep(0.012,0.055,edge);
@@ -113,7 +115,7 @@
         }
         if(uPatternType < 6.5){
           // Gate: mechanical circuit traces and portal grid.
-          vec2 trace=fract((localPosition.xz+vec2(1.0))*vec2(18.0,13.0));
+          vec2 trace=fract(vWorldPosition.xz*vec2(2.46,2.21)+vec2(.10,.37));
           float circuit=(1.0-smoothstep(0.02,0.10,abs(trace.x-0.48)))
                        *step(0.28,trace.y)*step(trace.y,0.78);
           float corner=(1.0-smoothstep(0.0,0.1,length(trace-vec2(0.48,0.78))));
