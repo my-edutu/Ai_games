@@ -9,6 +9,7 @@ test('actual 3D autonomous dungeon scene renders and advances',async({page})=>{
  const hasWebGL=await page.evaluate(()=>{const c=document.getElementById('world');return Boolean(c?.getContext('webgl2')||c?.getContext('webgl'))});expect(hasWebGL).toBe(true);
  const snapshot=await page.evaluate(()=>window.__DUNGEON_PUBLIC_STATE__);
  expect(snapshot.map.length).toBe(19);expect(snapshot.units.length).toBeGreaterThan(3);expect(snapshot.seed).toBeUndefined();
+ await expect.poll(async()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.triangles??0),{timeout:15000}).toBeGreaterThan(100);
  await page.screenshot({path:'artifacts/dungeon-desktop.png',fullPage:true});
  expect(errors).toEqual([]);
 });
@@ -22,5 +23,6 @@ test('mobile viewport retains usable 3D scene',async({page})=>{
  await expect(page.getByTestId('dungeon-canvas')).toBeVisible();
  await expect.poll(async()=>page.evaluate(()=>window.__DUNGEON_PUBLIC_STATE__?.tick??0),{timeout:15000}).toBeGreaterThan(3);
  const width=await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1);expect(width).toBe(true);
+ await expect.poll(async()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.activeUnits??0),{timeout:15000}).toBeGreaterThan(0);
  await page.screenshot({path:'artifacts/dungeon-mobile.png',fullPage:true});
 });
