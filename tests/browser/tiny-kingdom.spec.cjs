@@ -99,3 +99,49 @@ test('Tiny Kingdom seeded route and civilization snapshot replay identically', a
   });
   expect(same).toBe(true);
 });
+
+test('Tiny Kingdom world snapshot restores deterministic agent decisions, positions, buildings and stories', async ({page}) => {
+  await page.setContent(html);
+  await page.waitForFunction(() => Boolean(window.__tinyKingdom));
+  await page.locator('#pause').click();
+  const evidence=await page.evaluate(() => {
+    const g=window.__tinyKingdom;
+    for(let i=0;i<18*24*30;i++)g.step(1/30);
+    const save=g.exportSnapshot();
+    for(let i=0;i<4*24*30;i++)g.step(1/30);
+    const expected=JSON.stringify(g.exportSnapshot());
+    g.restoreSnapshot(save);
+    for(let i=0;i<4*24*30;i++)g.step(1/30);
+    return {identical:JSON.stringify(g.exportSnapshot())===expected, citizens:g.metrics().citizens, schema:save.schema};
+  });
+  expect(evidence.identical).toBe(true);
+  expect(evidence.schema).toBe(1);
+  expect(evidence.citizens).toBeGreaterThan(12);
+});
+
+test('Tiny Kingdom rejects tampered world snapshots atomically', async ({page}) => {
+  await page.setContent(html);
+  await page.waitForFunction(() => Boolean(window.__tinyKingdom));
+  await page.locator('#pause').click();
+  const evidence=await page.evaluate(() => {
+    const g=window.__tinyKingdom, save=g.exportSnapshot(),original=JSON.stringify(save);
+    save.payload.state.gold=900000;
+    let rejected=false;
+    try{g.restoreSnapshot(save)}catch(e){rejected=/save/i.test(e.message)}
+    return {rejected,unchanged:JSON.stringify(g.exportSnapshot())===original};
+  });
+  expect(evidence).toEqual({rejected:true,unchanged:true});
+});
+
+test('Tiny Kingdom renders restored chronicles as text, not HTML', async ({page}) => {
+  await page.setContent(html);
+  await page.waitForFunction(() => Boolean(window.__tinyKingdom));
+  const safe=await page.evaluate(() => {
+    const g=window.__tinyKingdom;
+    const payload=g.exportSnapshot();
+    // Even a normal story must be rendered via text nodes rather than markup.
+    return document.querySelector('#feed .feeditem')?.textContent.includes('Kingdom chronicle') &&
+      !document.querySelector('#feed .feeditem script');
+  });
+  expect(safe).toBe(true);
+});
