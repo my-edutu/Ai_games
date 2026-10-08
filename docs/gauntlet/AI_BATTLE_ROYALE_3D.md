@@ -117,3 +117,7 @@ npx playwright test tests/browser/battle-royale-3d.spec.cjs --workers=1
 ```
 
 Inspect `artifacts/battle-gauntlet/` and GitHub Actions' `battle-royale-gauntlet-current` artifact. Compare fixed-state `matched-baseline-2d.png` against `matched-candidate-3d.png`, and the new high-vs-low quality captures. These confirm visual behavior and performance tiers, **not** AAA reference superiority. R5 remains separately blocked by real production evidence.
+
+## Loop 16 — 3D camera correction
+
+The first 3D viewport used 3D geometry projected with an orthographic isometric camera. To move away from the prior 2.5D impression, the lead agent updated the WebGL2 camera to explicit yaw, pitch and perspective division using real mesh depth. The stable overview and action inset now use different physical viewpoints. Autonomous camera motion is reduced when reduced-motion is requested. This is not proof of a AAA camera: screenshot comparison, occlusion review and GPU frame timing for the exact revision remain mandatory. The focused WebGL2 regression workflow records desktop 3D, exact-state high/low, and baseline comparisons when CI completes.
