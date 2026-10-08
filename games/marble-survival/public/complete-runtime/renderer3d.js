@@ -937,36 +937,47 @@
     const stripe=material(theme.accent,0.37,0.26,0.21);
     const subtle=material([0.81,0.89,1.0],0.69,0.11,0.02);
     const outer=width/2-0.38;
-    // Track-edge LED raceway: makes the racing line visible at a glance.
+    // Any long track marking gets tessellated around the ACTUAL cutouts.
+    // Never visually invent a bridge over an empty pit.
+    const segmentLine=(x,zStart,zEnd,thickness,mat)=>{
+      const worldX=arena.width/2+x/WORLD_SCALE;
+      const fromY=arena.height/2+zStart/WORLD_SCALE;
+      const toY=arena.height/2+zEnd/WORLD_SCALE;
+      const fragments=window.MarbleArenaGeometry?.solidLineSegments(
+        arena,worldX,fromY,toY
+      )||[{start:Math.min(fromY,toY),end:Math.max(fromY,toY)}];
+      for(const piece of fragments){
+        if((piece.end-piece.start)*WORLD_SCALE<0.025)continue;
+        const centerZ=((piece.start+piece.end)/2-arena.height/2)*WORLD_SCALE;
+        const sizeZ=(piece.end-piece.start)*WORLD_SCALE;
+        drawBox([x,0.064,centerZ],[thickness,0.012,sizeZ],mat,viewProjection,cameraPosition);
+      }
+    };
+    // Track-edge LED raceway follows the remaining solid decking, even at
+    // the left/right reactor wells.
     for(const side of [-1,1]){
-      drawBox([side*outer,0.052,0],[0.065,0.017,depth*0.94],edge,viewProjection,cameraPosition);
+      segmentLine(side*outer,-depth*0.47,depth*0.47,0.065,edge);
     }
-    // High-readability start / checkpoint painted into the physical deck.
     const zStart=depth/2-1.15;
     drawBox([0,0.053,zStart],[width*0.92,0.02,0.11],stripe,viewProjection,cameraPosition);
-    for(let i=0;i<4;i++){
-      const x=-width/2+width*(i+0.5)/4;
-      drawBox([x,0.049,0],[0.024,0.012,depth*0.89],subtle,viewProjection,cameraPosition);
-    }
-    const dashCount=quality==='low'?4:quality==='balanced'?9:15;
+    const dashes=quality==='low'?4:quality==='balanced'?9:15;
     const lanes=quality==='low'?[0]:[-width/4,0,width/4];
     for(const x of lanes){
-      for(let j=0;j<dashCount;j++){
-        const z=-depth*0.4+(j+0.5)*depth*0.8/dashCount;
-        drawBox([x,0.059,z],[0.08,0.013,0.22],j%3===0?stripe:subtle,viewProjection,cameraPosition);
+      segmentLine(x,-depth*0.445,depth*0.445,0.024,subtle);
+      for(let j=0;j<dashes;j++){
+        const z=-depth*0.4+(j+0.5)*depth*0.8/dashes;
+        segmentLine(x,z-0.11,z+0.11,0.077,j%3===0?stripe:subtle);
       }
     }
     if(quality==='high'||quality==='ultra'){
-      const count=8;
-      for(let j=0;j<count;j++){
+      for(let j=0;j<8;j++){
         const z=-depth*0.42+j*depth*0.12;
         for(const side of [-1,1]){
-          drawBox([side*(outer-0.16),0.058,z],[0.23,0.012,0.095],stripe,viewProjection,cameraPosition);
+          segmentLine(side*(outer-0.16),z-0.047,z+0.047,0.23,stripe);
         }
       }
     }
   }
-
   // Broadcast stadium scenery is outside the authoritative collision world.
   // It cannot create obstacles, alter seeds, move marbles, or decide results.
   function drawStadiumScenery(arena,theme,viewProjection,cameraPosition,tick) {
