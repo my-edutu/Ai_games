@@ -127,7 +127,9 @@ export function mountTower3D({host,getFrame,reducedMotion=false,highContrast=fal
       softwareRenderer=/swiftshader|llvmpipe|software rasterizer|softpipe/i.test(hardware);
     }catch{}
     lowPower=lowPower||softwareRenderer;
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,lowPower?1:1.45));
+    // Four production rigs are expensive to rasterize under CI's SwiftShader.
+    // The opt-in inspection gallery trades pixel density for a responsive real WebGL frame.
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,inspectCharacters&&softwareRenderer?.65:lowPower?1:1.45));
     renderer.toneMapping=THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure=1.34;
     renderer.outputColorSpace=THREE.SRGBColorSpace;
@@ -154,6 +156,32 @@ export function mountTower3D({host,getFrame,reducedMotion=false,highContrast=fal
   // This quality-review turntable reuses exactly the same production character assets.
   // It does not alter game authority or the live snapshot and is opt-in only.
   const inspector=new THREE.Group();inspector.visible=inspectCharacters;actors.add(inspector);
+  if(inspectCharacters){
+    // A lightweight, deliberately isolated studio presents the SAME animated
+    // production rigs without drawing an entire procedural level behind them.
+    // The regular game retains every biome, hazard and gameplay snapshot.
+    const card=document.createElement('canvas');card.width=256;card.height=256;
+    const pen=card.getContext('2d');
+    const gradient=pen.createLinearGradient(0,0,0,256);
+    gradient.addColorStop(0,'#546c88');gradient.addColorStop(.55,'#253d56');gradient.addColorStop(1,'#13263d');
+    pen.fillStyle=gradient;pen.fillRect(0,0,256,256);
+    for(let i=0;i<4;i++){
+      const x=32+i*64;pen.fillStyle='rgba(241,204,149,.065)';pen.fillRect(x-19,0,38,256);
+      pen.strokeStyle='rgba(248,221,180,.18)';pen.strokeRect(x-26,16,52,220);
+    }
+    const map=new THREE.CanvasTexture(card);map.colorSpace=THREE.SRGBColorSpace;
+    const panel=new THREE.Mesh(new THREE.PlaneGeometry(490,310),new THREE.MeshBasicMaterial({map,depthWrite:false}));
+    panel.position.set(0,0,-115);inspector.add(panel);
+    const pedestalMat=new THREE.MeshStandardMaterial({color:0x38556a,metalness:.3,roughness:.56});
+    const trimMat=new THREE.MeshBasicMaterial({color:0xecc58e});
+    for(let i=0;i<4;i++){
+      const x=(i-1.5)*49;
+      const plinth=new THREE.Mesh(new THREE.CylinderGeometry(21,24,3,16),pedestalMat);
+      plinth.position.set(x,-29,-5);inspector.add(plinth);
+      const edge=new THREE.Mesh(new THREE.TorusGeometry(21,1.1,5,24),trimMat);
+      edge.position.set(x,-27,-5);edge.rotation.x=Math.PI/2;inspector.add(edge);
+    }
+  }
   const inspectors=inspectCharacters?[
     ['WAYFINDER','climber',0xf7a65d,false],
     ['SENTINEL','sentinel',0x659e7e,false],
@@ -179,6 +207,11 @@ export function mountTower3D({host,getFrame,reducedMotion=false,highContrast=fal
   function buildBackdrop(s){
     clearGroup(backdrop);clearGroup(structures);platformMeshes.clear();for(const [id,obj] of dynamic){actors.remove(obj);clearGroup(obj);dynamic.delete(id)}
     floor=s.floor;theme=s.theme;worldWidth=coord(s.worldWidth);
+    if(inspectCharacters){
+      scene.background=new THREE.Color(0x1c3046);scene.fog=null;
+      perf.inspectionScene='isolated-production-rigs';
+      return;
+    }
     const standard=palettes[theme]||palettes.foundry;
     const p=highContrast?{...standard,stone:0x59616b,rim:0xffffff,glow:0xffe2a5,haze:0x21212b,accent:0xffffff}:standard;
     scene.background=new THREE.Color(p.haze);fog.color.setHex(p.haze);scene.fog=highContrast?null:fog;
@@ -274,6 +307,7 @@ export function mountTower3D({host,getFrame,reducedMotion=false,highContrast=fal
     if(floor!==s.floor||theme!==s.theme)buildBackdrop(s);
     if(lastChecksum===s.publicChecksum)return;
     lastChecksum=s.publicChecksum;latest=s;
+    if(inspectCharacters){perf.entityCount=0;return;}
     actionEffects.ingest(s);
     // Exact moving platform coordinates come from the same fixed-step physics tick
     // used for collisions, replay and the Wayfinder's visible handhold selection.
@@ -406,10 +440,12 @@ export function mountTower3D({host,getFrame,reducedMotion=false,highContrast=fal
       else if(id.startsWith('pickup:')){g.rotation.y=reducedMotion?0:now*.0016;g.position.y=g.userData.authoritativeY+(reducedMotion?0:Math.sin(now*.002+g.position.x)*.8)}
     }
     // Keep observed performance measurable for the independent critic.
-    animateTowerEnvironment(ornament,now*.001,reducedMotion);
-    animateBiomeLandmarks(landmarks,now*.001,reducedMotion);
-    animateTowerAtmosphere(atmosphere,now,reducedMotion);
-    actionEffects.frame(dt,s,visualX,visualY,reducedMotion);
+    if(!inspectCharacters){
+      animateTowerEnvironment(ornament,now*.001,reducedMotion);
+      animateBiomeLandmarks(landmarks,now*.001,reducedMotion);
+      animateTowerAtmosphere(atmosphere,now,reducedMotion);
+      actionEffects.frame(dt,s,visualX,visualY,reducedMotion);
+    }
     perf.phase='rendering';
     renderer.render(scene,camera);observedFrames++;
     perf.phase='presenting';
