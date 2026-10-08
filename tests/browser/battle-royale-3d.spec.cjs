@@ -397,3 +397,30 @@ test('original local GPU surface atlas loads and compares against same-state mat
     await Promise.all(pages.map(page=>page.close()));
   }
 });
+
+test('transparent WebGL scene reveals biome skies, not a second black 2D canvas underlay',async({page})=>{
+  await page.setViewportSize({width:1600,height:900});
+  await page.goto(base+'/battle?muted=1&camera=hero');
+  await page.waitForFunction(()=>Boolean(window.BattleArena3D?.status.frames>0));
+  const styles=await page.evaluate(()=>{
+    const canvas=document.querySelector('[data-testid="battle-canvas"]');
+    const background=document.querySelector('.arena-shell');
+    const scene=document.querySelector('.battle-webgl3d');
+    return {
+      mode:window.BattleArena3D.status.mode,
+      oldOpacity:getComputedStyle(canvas).opacity,
+      backdrop:getComputedStyle(background).backgroundImage,
+      alpha:scene?getComputedStyle(scene).backgroundColor:null
+    };
+  });
+  if(styles.mode==='webgl2'){
+    expect(styles.oldOpacity).toBe('0');
+    expect(styles.backdrop).toContain('gradient');
+    expect(styles.alpha).toBe('rgba(0, 0, 0, 0)');
+    await page.screenshot({path:path.join(captures,'hero-real-sky-no-2d-underlay.png')});
+  }
+  await page.goto(base+'/battle?visual=2d&muted=1');
+  await expect(page.locator('[data-testid="battle-canvas"]')).toBeVisible();
+  const opacity=await page.locator('[data-testid="battle-canvas"]').evaluate(el=>getComputedStyle(el).opacity);
+  expect(opacity).toBe('1');
+});

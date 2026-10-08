@@ -209,3 +209,14 @@ body[data-reduced-motion="true"] .battle-highlight,
 body[data-reduced-flash="true"] .battle-highlight{
   animation:none!important;transition:none!important;
 }
+
+/* Loop 45: hide the old 2D picture UNDER an active transparent WebGL scene.
+   Otherwise it leaks a flat BLACK sky through alpha, destroying the vivid
+   atmospheric gradients. Fallback is automatic when WebGL context fails. */
+body[data-battle-renderer="webgl2"] [data-testid="battle-canvas"]{
+  opacity:0;
+}
+body[data-battle-renderer="2d-fallback"] [data-testid="battle-canvas"],
+body[data-battle-renderer="forced-2d"] [data-testid="battle-canvas"]{
+  opacity:1;
+}
