@@ -1,0 +1,20 @@
+/* Cinematic 3D presentation is layered over the original deterministic 2D fallback. */
+#stage { isolation:isolate; }
+#maze { position:relative; z-index:0; }
+#maze-3d {
+  position:absolute; inset:0; z-index:1; overflow:hidden;
+  pointer-events:none;
+  background:radial-gradient(ellipse at 50% 38%,#1d3937,#071318 70%);
+}
+#maze-3d canvas { display:block; width:100%;height:100%; }
+#status-strip { z-index:3; }
+#scene-card { z-index:5; }
+#hud footer a {
+  display:inline-block; margin-top:9px; color:var(--accent);
+  text-decoration:none; font-size:10px; letter-spacing:.12em;
+}
+#hud footer a:hover, #hud footer a:focus-visible { text-decoration:underline; }
+body[data-reduced-motion="true"] #maze-3d { animation:none; }
+@media (prefers-reduced-motion: reduce) {
+  #maze-3d * { animation:none!important; }
+}
