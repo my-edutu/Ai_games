@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { parseGlb } from '../web/gltf-assets.js';
+import { parseGlb,applyEmbeddedTextureColors } from '../web/gltf-assets.js';
 import { CC0_MODELS,drawCc0Model } from '../web/cc0-models.js';
 
 function fixtureGlb({badIndex=false}={}){
@@ -66,4 +66,26 @@ test('real imported mesh is transformable and drawn with a strict budget without
     assert.ok(a[2]>-12&&a[2]<-4);
   }
   assert.equal(JSON.stringify(actor),before);
+});
+
+test('embedded glTF UV atlas material colors can be hydrated independently of the game',async()=>{
+  const previousBitmap=globalThis.createImageBitmap,previousCanvas=globalThis.OffscreenCanvas;
+  const fakePixels=Uint8ClampedArray.from([110,210,165,255,250,10,40,255,70,115,200,255,40,15,180,255]);
+  globalThis.createImageBitmap=async()=>({width:2,height:2,close(){}});
+  globalThis.OffscreenCanvas=class{
+    constructor(w,h){this.width=w;this.height=h;}
+    getContext(){return {drawImage(){},getImageData:()=>({data:fakePixels})};}
+  };
+  try{
+    const tri={uv:[.25,.25],imageId:0,color:[.8,.6,.4],a:[0,0,0],b:[1,0,0],c:[0,1,0],n:[0,0,1]};
+    const data={triangles:[tri],embeddedImages:[{bytes:new ArrayBuffer(4),mimeType:'image/png'}]};
+    const out=await applyEmbeddedTextureColors(data);
+    assert.equal(out,data);
+    assert.ok(out.triangles[0].color.every(v=>Number.isFinite(v)&&v>=0&&v<=1));
+    assert.notDeepEqual(out.triangles[0].color,[.8,.6,.4],'actual sampled UV pixels must influence imported GLB materials');
+    assert.deepEqual(out.triangles[0].color,[.8*70/255,.6*115/255,.4*200/255]);
+  }finally{
+    if(previousBitmap===undefined)delete globalThis.createImageBitmap;else globalThis.createImageBitmap=previousBitmap;
+    if(previousCanvas===undefined)delete globalThis.OffscreenCanvas;else globalThis.OffscreenCanvas=previousCanvas;
+  }
 });
