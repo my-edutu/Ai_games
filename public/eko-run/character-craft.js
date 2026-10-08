@@ -49,7 +49,7 @@ export function createTayoActor(THREE) {
   rootShadow.castShadow=false;
   // Functional landmarks are modeled independently so poses remain legible at 360p.
   const pelvis=shape(torso,'ball',0,1.09,0,.33,.26,.32,0x173b4b,'waist');
-  const jacket=shape(torso,'torso',-.025,1.54,0,.38,.52,.43,0xf4b52b,'jacket');
+  const jacket=shape(torso,'torso',-.025,1.54,0,.38,.52,.43,0x06a4ac,'jacket');
   const shirt=shape(torso,'ball',.24,1.51,0,.14,.42,.31,0xf0ebe0,'shirt');
   const seam=shape(torso,'capsule',.34,1.50,0,.025,.31,.035,0x1a9e98,'jacket front seam');
   // Fine silhouette and costume construction, with custom hand-sewn edges.
@@ -81,7 +81,7 @@ export function createTayoActor(THREE) {
   const arms=[], legs=[];
   for(const s of [-1,1]){
     const shoulder=new THREE.Group();shoulder.position.set(0,1.86,s*.34);torso.add(shoulder);shoulder.name=(s<0?'left':'right')+'-shoulder';
-    shape(shoulder,'capsule',0,-.21,0,.164,.22,.145,0xf3b42b,'upper sleeve');
+    shape(shoulder,'capsule',0,-.21,0,.164,.22,.145,0x06a4ac,'upper sleeve');
     const elbow=new THREE.Group();elbow.position.set(0,-.48,0);shoulder.add(elbow);
     shape(elbow,'ball',0,0,0,.136,.13,.135,0x8a593e,'elbow');
     shape(elbow,'capsule',.02,-.17,0,.115,.18,.118,skins[1],'forearm');
@@ -154,7 +154,7 @@ export function createTayoActor(THREE) {
     shape(g,'capsule',.22,2.74,.23,.07,.07,.04,0xf7ce67,'cap crown embroidery');
   });
   const palette={
-    'lagos-streetwear':[0xf3bc30,0x193b55,0x16acaa],
+    'lagos-streetwear':[0x08b3bf,0x193b55,0xffcf62],
     'yoruba-agbada-fila':[0x244f81,0xede2cb,0xe1b75c],
     'igbo-isi-agu-red-cap':[0x352422,0x39292a,0xbc9f67],
     'hausa-baban-riga-cap':[0x146e66,0xd0b886,0xe4d3a7]
