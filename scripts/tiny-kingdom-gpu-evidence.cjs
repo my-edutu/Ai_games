@@ -29,6 +29,31 @@ const path = require('node:path');
     });
     evidence.errors=errors;
     await page.screenshot({path:path.join(out,'day1.png'),fullPage:true});
+    // Matched camera framing and a deterministic later-day sample are essential
+    // to distinguish lighting/geometry progress from a fortunate opening frame.
+    await page.evaluate(() => {
+      const g=window.__tinyKingdom;
+      g.setCamera({zoom:14,pitch:0.43,focus:[0,-1]});
+    });
+    await page.waitForTimeout(300);
+    await page.screenshot({path:path.join(out,'settlement-close.png'),fullPage:true});
+    const replay=await page.evaluate(() => {
+      const g=window.__tinyKingdom;
+      g.reset();
+      for(let i=0;i<10*24*30;i++)g.step(1/30);
+      return {metrics:g.metrics(),snapshot:JSON.stringify(g.exportSnapshot())};
+    });
+    await page.waitForTimeout(300);
+    await page.screenshot({path:path.join(out,'day11-close.png'),fullPage:true});
+    const second=await page.evaluate(() => {
+      const g=window.__tinyKingdom;
+      g.reset();
+      for(let i=0;i<10*24*30;i++)g.step(1/30);
+      return JSON.stringify(g.exportSnapshot());
+    });
+    evidence.day11=replay.metrics;
+    evidence.tenDayReplayIdentical=(replay.snapshot===second);
+    if(!evidence.tenDayReplayIdentical)throw Error('10-day replay mismatch');
     if(!evidence.webglVerified)throw Error('No existing game canvas provides WebGL; evidence is not a WebGL capture');
     if(errors.length)throw Error('Uncaught page errors: '+errors.join('; '));
   } catch (error) {
