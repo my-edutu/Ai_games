@@ -3,6 +3,7 @@ import { createTayoActor } from '/eko/character-craft.js';
 import { batchDistrictGeometry } from '/eko/static-batch.js';
 import { createEkoSurfaceKit } from '/eko/material-craft.js';
 import { composeStreetVibrance } from '/eko/world-vibrance.js';
+import { createCityAtmosphere } from '/eko/atmosphere.js';
 
 // Presentation-only renderer. The Node simulation owns all movement, collision and rewards.
 const $ = id => document.getElementById(id);
@@ -85,6 +86,7 @@ try {
   throw error;
 }
 const scene=new THREE.Scene();
+const atmosphere=createCityAtmosphere(THREE,scene);
 const camera=new THREE.PerspectiveCamera(52,1,.15,220);
 const hemi=new THREE.HemisphereLight(0xecfaff,0x647261,1.2);scene.add(hemi);
 const sun=new THREE.DirectionalLight(0xffe0a3,3.1);sun.position.set(-9,17,13);sun.castShadow=true;
@@ -201,6 +203,7 @@ function buildWorld(snapshot) {
   const district=snapshot.progression?.districtId||'mainland-morning';
   const style=DISTRICTS[district]||DISTRICTS['mainland-morning'];
   scene.background=new THREE.Color(style.sky);scene.fog=new THREE.FogExp2(style.fog,.009);
+  atmosphere.setDistrict(district);
   hemi.intensity=style.skyLight;sun.color.setHex(style.warm);
   sun.intensity=district==='island-night'?1.2:2.45;
   const night=district==='island-night';
@@ -373,7 +376,7 @@ window.__EKO_VISUAL_AUDIT__=()=>{
   return Object.freeze({
     character:{type:'original-procedural-joint-rig',joints:actor.articulatedJoints,meshes:actorMeshes,
       outfits:actor.availableOutfits,outfit:worldState.outfit,...projectedVisibility()},
-    environment:{district:worldState.district,meshes:worldMeshes,batching:worldState.batching,materials:surfaces.stats(),vibrance:worldState.vibrance},
+    environment:{district:worldState.district,meshes:worldMeshes,batching:worldState.batching,materials:surfaces.stats(),vibrance:worldState.vibrance,atmosphere:atmosphere.signature},
     performance:{drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,
       pixelRatio:renderer.getPixelRatio(),frameRateReported:ui.fps.textContent,
       renderer:renderer.capabilities.isWebGL2?'WebGL2':'WebGL'},
@@ -536,7 +539,9 @@ function animate(now){
     const smoothing=1-Math.exp(-dt*16);
     hero.position.x=THREE.MathUtils.lerp(hero.position.x,player.position.x,smoothing);
     hero.position.y=THREE.MathUtils.lerp(hero.position.y,player.position.y,smoothing);
-    actor.pose({...player,tick:s.tick},now,matchMedia('(prefers-reduced-motion: reduce)').matches);
+    const reducedMotion=matchMedia('(prefers-reduced-motion: reduce)').matches;
+    actor.pose({...player,tick:s.tick},now,reducedMotion);
+    atmosphere.update(player.position.x,now,reducedMotion);
     const portrait=camera.aspect<.8;
     const targetX=player.position.x+(portrait?2.25:3.3);
     const camX=targetX-2.1;
