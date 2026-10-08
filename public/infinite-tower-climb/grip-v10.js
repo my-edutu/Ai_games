@@ -68,14 +68,25 @@ export function applyContactPose(character,contact,{reducedMotion=false}={}){
   if(!arms||!contact)return false;
   const index=contact.side===-1?0:1,arm=arms[index];
   if(!arm)return false;
+  // Transform the actual world-relative ledge target into the currently
+  // animated torso space. The body may already be tilted or bobbing.
+  const torso=character.userData.jointRoot;
+  const angle=torso?.rotation?.z||0;
+  const py=contact.localY-(torso?.position?.y||0);
+  const cos=Math.cos(angle),sin=Math.sin(angle);
+  const targetX=cos*contact.localX+sin*py;
+  const targetY=-sin*contact.localX+cos*py;
   const solved=solveGrip2D({
-    side:contact.side,targetX:contact.localX,targetY:contact.localY,
+    side:contact.side,targetX,targetY,
     bend:contact.side===-1?-1:1
   });
   if(!solved)return false;
-  arm.shoulder.rotation.x=.25;
+  // The planar IK is exact only when the grip arm remains in its XY plane.
+  // Environmental platform depth is a separate visual concern; do not
+  // claim a simulated physical contact constraint.
+  arm.shoulder.rotation.x=0;
   arm.shoulder.rotation.z=solved.shoulderZ;
-  arm.elbow.rotation.x=.16;
+  arm.elbow.rotation.x=0;
   arm.elbow.rotation.z=solved.elbowZ;
   arm.hand.rotation.z=-.21*contact.side;
   // The other arm remains a freely animated reaching counterweight.
