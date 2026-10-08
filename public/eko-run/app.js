@@ -8,6 +8,7 @@ import { createEkoGameFeel } from '/eko/gamefeel.js';
 import { createEkoSoundscape } from '/eko/soundscape.js';
 import { createAdaptiveQualityGovernor } from '/eko/adaptive-quality.js';
 import { createCityCrowd } from '/eko/city-crowd.js';
+import { sculptStreetHazard } from '/eko/hazard-sculpt.js';
 
 // Presentation-only renderer. The Node simulation owns all movement, collision and rewards.
 const $ = id => document.getElementById(id);
@@ -440,22 +441,13 @@ function outfitUpdate(outfit){
   worldState.outfit=outfit;
 }
 function makeHazard(h){
-  const g=new THREE.Group();
-  g.position.set(h.x,0,0);
-  if(h.family.includes('danfo')||h.family.includes('molue')) {
-    const bus=makeBus(g,0,0,0);bus.scale.set(h.family.includes('molue')?1.35:.95,.80,1.0);
-  } else if(h.family.includes('crowd') || h.family.includes('disturbance')) {
-    makePedestrian(g,-.3,0,2);makePedestrian(g,.3,0,3);
-  } else {
-    const danger=box(g,Math.max(.55,h.width),Math.max(.14,h.height*.84),.8,0,Math.max(.10,h.height*.40),0,h.family.includes('puddle')?0x52bac2:0xe07439);
-    danger.castShadow=true;
-  }
-  const marker=ball(g,.17,0,2.7,0,0xf9d551);marker.scale.set(1.3,1.3,1.3);
-  const cue=h.legalResponses.includes('jump')?'JUMP':h.legalResponses.includes('slide')?'SLIDE':h.legalResponses.includes('vault')?'VAULT':'WAIT';
-  labelSprite(g,cue,0,3.55,0,{scale:.56,bg:'#8c4024',color:'#fff8df'});
-  const cylinderMesh=cylinder(g,.42,.42,.025,0,.05,0,0xffd166);cylinderMesh.material=material(0xfbbf44);
-  g.userData.marker=marker;
-  hazards.add(g);return g;
+  const model=sculptStreetHazard(THREE,hazards,h,{
+    box,ball,cylinder,material,labelSprite,makeBus,makePedestrian
+  });
+  model.root.position.set(h.x,0,0);
+  model.root.userData.marker=model.marker;
+  model.root.userData.warningPhase=h.phase;
+  return model.root;
 }
 const hazardMeshes=new Map();
 function updateHazards(snapshot){
@@ -468,7 +460,9 @@ function updateHazards(snapshot){
     if(!g){g=makeHazard(h);hazardMeshes.set(h.id,g);}
     g.position.x=h.x;
     g.visible=h.active||h.phase==='warned';
-    g.userData.marker.position.y=2.65+Math.sin(performance.now()/230)*.13;
+    g.userData.marker.visible=h.phase==='warned';
+    if(g.userData.marker.visible)g.userData.marker.position.y=
+      Math.max(1.0,h.height+.30)+Math.sin(performance.now()/230)*.08;
   }
   for(const [id,g] of hazardMeshes)if(!present.has(id)){disposeGroup(g);hazardMeshes.delete(id);}
 }
