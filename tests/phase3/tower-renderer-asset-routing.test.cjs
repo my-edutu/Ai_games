@@ -35,8 +35,11 @@ test('renderer has one effects import and wires authored geology into backdrop',
   const source=fs.readFileSync(path.join(publicRoot,'scene3d.js'),'utf8');
   const imports=[...source.matchAll(/import\s*\{\s*createTowerEffectsDirector\s*\}\s*from\s*['"]\/tower\/effects-v6\.js['"]/g)];
   assert.equal(imports.length,1,'duplicate named import breaks ES module parsing');
-  assert.match(source,/import\s*\{\s*buildTowerGeology\s*\}\s*from\s*['"]\/tower\/geology-v9\.js['"]/);
-  assert.match(source,/buildTowerGeology\(\{group:backdrop,snapshot:s,quality\}\)/);
+  const biome=fs.readFileSync(path.join(publicRoot,'biome-v4.js'),'utf8');
+  assert.match(source,/buildPainterlyTowerBackdrop\(/,'scene uses the art-directed world root');
+  assert.match(biome,/import\s*\{\s*buildTowerGeology\s*\}\s*from\s*['"]\/tower\/geology-v9\.js['"]/,'geology comes through the biome implementation');
+  assert.match(biome,/buildTowerGeology\(\{group:stage,snapshot,quality:'auto'\}\)/);
+  assert.doesNotMatch(source,/buildTowerGeology\(/,'no duplicate geology world that doubles draw calls');
   const geology=fs.readFileSync(path.join(publicRoot,'geology-v9.js'),'utf8');
   assert.match(geology,/export function buildTowerGeology\(/);
   assert.match(geology,/new THREE\.InstancedMesh\(/);
