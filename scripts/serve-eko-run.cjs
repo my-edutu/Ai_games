@@ -108,6 +108,7 @@ function readBody(req) {
 const FILES = new Map([
   ['/eko/', ['public/eko-run/index.html', 'text/html; charset=utf-8']],
   ['/eko/app.js', ['public/eko-run/app.js', 'text/javascript; charset=utf-8']],
+  ['/eko/theme.css', ['public/eko-run/theme.css', 'text/css; charset=utf-8']],
   ['/eko/character-craft.js', ['public/eko-run/character-craft.js', 'text/javascript; charset=utf-8']],
   ['/eko/static-batch.js', ['public/eko-run/static-batch.js', 'text/javascript; charset=utf-8']],
   ['/eko/material-craft.js', ['public/eko-run/material-craft.js', 'text/javascript; charset=utf-8']],
