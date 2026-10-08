@@ -67,6 +67,9 @@ const path = require('node:path');
         throw Error('Moving camera re-uploaded static world');
     }
     evidence.renderBudget=softwareRendererRenderBudget;
+    evidence.water=await page.evaluate(()=>window.__tinyKingdom.waterStats());
+    if(evidence.water.model!=='fresnel-ripple-shorefoam-v1'||evidence.water.waterTriangles!==1260||evidence.water.bankTriangles!==840)
+      throw Error('River material or shoreline geometry gate failed');
     evidence.errors=errors;
     await page.screenshot({path:path.join(out,'day1.png'),fullPage:true,timeout:90000});
     // Matched camera framing and a deterministic later-day sample are essential
@@ -104,11 +107,14 @@ const path = require('node:path');
     for(const shot of [
       {name:'sanctuary-landmark.png',camera:{focus:[29,10],yaw:.75,pitch:.48,zoom:27}},
       {name:'stone-bridge.png',camera:{focus:[-6,18.1],yaw:.84,pitch:.64,zoom:26}},
+      {name:'riverbank-close.png',camera:{focus:[-12,19],yaw:.66,pitch:.48,zoom:17}},
     ]){
       await page.evaluate(camera=>window.__tinyKingdom.setCamera(camera),shot.camera);
       await page.waitForTimeout(400);
       await page.screenshot({path:path.join(out,shot.name),fullPage:true,timeout:90000});
     }
+    evidence.riverGlError=await page.evaluate(()=>document.getElementById('world').getContext('webgl').getError());
+    if(evidence.riverGlError!==0)throw Error('WebGL error after river scene capture: '+evidence.riverGlError);
     await page.evaluate(()=>window.__tinyKingdom.setHudMode('full'));
     await page.setViewportSize({width:390,height:844});
     await page.waitForTimeout(300);
