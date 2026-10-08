@@ -20,7 +20,7 @@ let game = createGame({ seed, zombieCount: params.get('crowd') === 'dense' ? 260
 if (isEvidenceScenario(scenario)) { game = applyEvidenceScenario(game, scenario); if (!frozen) delete game.evidenceScenario; }
 let last = performance.now(), accumulator = 0, elapsed = 0, paused = frozen, hudShown = true;
 let orbit = 0.67, range = 27, dragging = false, priorX = 0, cameraX = 0, cameraZ = 0, cameraFocusX = 0, cameraFocusZ = 0;
-let cameraMode = 'director', director = undefined, fpsSmooth = 30, lastStats = 0, buffersRebuilt = 0, lastGeometryStamp = '';
+let cameraMode = ['hero','overview'].includes(params.get('view'))?params.get('view'):'director', heroIndex=0, director = undefined, fpsSmooth = 30, lastStats = 0, buffersRebuilt = 0, lastGeometryStamp = '';
 const fixed = 1 / 30, maxVisibleZombies = 260;
 
 let audioContext, drone, wind, droneGain, windGain, audioEventsSeen = 0;
@@ -323,6 +323,8 @@ function selectFocus(dt){
     focus=game.survivors.find(s=>s.id===director.targetId)||game.civilians.find(c=>c.id===director.targetId)||game.barricades.find(b=>b.id===director.targetId)||focus;
   }
   if(cameraMode==='director'&&(director.mode==='horde-overview'||director.mode==='failure')){focus={x:0,y:0};}
+  if(cameraMode==='hero'){focus=game.survivors[heroIndex]||focus;}
+  if(cameraMode==='overview'){focus={x:0,y:0};}
   const a=Math.min(1,dt*(reducedMotion?2:1.75));
   cameraFocusX+=(focus.x-cameraFocusX)*a;cameraFocusZ+=(focus.y-cameraFocusZ)*a;
 }
@@ -337,7 +339,8 @@ function render(now){
   const night=game.time.phase==='night',sunset=game.time.phase==='sunset';
   const sky=night?[.042,.065,.105]:sunset?[.44,.30,.24]:[.50,.65,.73];
   gl.clearColor(...sky,1);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
-  const eye=[cameraFocusX+Math.sin(orbit)*range,range*.51,cameraFocusZ+Math.cos(orbit)*range];
+  const actualRange=cameraMode==='hero'?Math.min(range,15):cameraMode==='overview'?Math.max(range,57):range;
+  const eye=[cameraFocusX+Math.sin(orbit)*actualRange,actualRange*(cameraMode==='hero'?.48:.51),cameraFocusZ+Math.cos(orbit)*actualRange];
   const vp=multiply(perspective(Math.PI/3,w/h,.1,230),lookAt(eye,[cameraFocusX,1.5,cameraFocusZ]));
   gl.uniformMatrix4fv(uniforms.uVP,false,new Float32Array(vp));
   gl.uniform3fv(uniforms.uEye,new Float32Array(eye));
@@ -380,11 +383,15 @@ function togglePause(){paused=!paused;verdict.textContent='WEBGL2 TRUE 3D • '+
 document.addEventListener('keydown',e=>{
   if(e.code==='Space'){e.preventDefault();togglePause();}
   if(e.key.toLowerCase()==='h'){hudShown=!hudShown;hud.hidden=!hudShown;}
-  if(e.key.toLowerCase()==='g')cameraMode=cameraMode==='director'?'manual':'director';
+  if(e.key.toLowerCase()==='g')cameraMode='director';
+  if(e.key.toLowerCase()==='c')cameraMode='hero';
+  if(e.key.toLowerCase()==='v')cameraMode='overview';
+  if(e.key.toLowerCase()==='n'){heroIndex=(heroIndex+1)%Math.max(1,game.survivors.length);cameraMode='hero';}
   if(e.key.toLowerCase()==='r'){seed=(seed+1)>>>0||1;game=createGame({seed,zombieCount:180});audioEventsSeen=0;cameraMode='director';cameraFocusX=0;cameraFocusZ=0;lastGeometryStamp='';}
 });
 document.querySelector('#sound').addEventListener('click',enableAudio);
 document.querySelector('#togglePause').addEventListener('click',togglePause);
 document.querySelector('#focus').addEventListener('click',()=>{cameraMode='director';});
+document.querySelector('#hero').addEventListener('click',()=>{cameraMode='hero';});
 rebuildStatic(true);
 requestAnimationFrame(render);
