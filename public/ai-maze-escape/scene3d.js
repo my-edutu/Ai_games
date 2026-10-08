@@ -631,7 +631,16 @@ function render(now) {
   else camera.position.lerp(desired,Math.min(1,seconds*2.4));
   settledCamera=true;
   camera.lookAt(smoothedLook.x,.7,smoothedLook.z);
-  renderer.render(scene,camera);
+  try {
+    renderer.render(scene,camera);
+  } catch(error) {
+    // Never replace a working autonomous broadcast with a black WebGL viewport.
+    active=false;ready=false;
+    window.__MAZE_3D_READY__=false;
+    window.__MAZE_3D_METRICS__={active:false,error:'render-fallback'};
+    document.getElementById('maze-3d')?.remove();
+    return;
+  }
   fpsFrames++;
   if(now-fpsSince>=1000){currentFPS=Math.round(fpsFrames*1000/Math.max(1,now-fpsSince));fpsFrames=0;fpsSince=now;}
   if(!window.__MAZE_3D_METRICS__ || now-(window.__MAZE_3D_METRICS__.sampleAt||0)>1000){
