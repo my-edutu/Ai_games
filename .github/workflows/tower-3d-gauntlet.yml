@@ -28,7 +28,7 @@ jobs:
       - run: npm run build
       - run: npx playwright install --with-deps chromium
       - name: Browser evidence — WebGL/AI state/fallback
-        run: npx playwright test tests/browser/tower-3d-gauntlet.spec.cjs --project=chromium
+        run: npx playwright test tests/browser/tower-3d-gauntlet.spec.cjs
       - name: Keep screenshots and browser traces
         if: always()
         uses: actions/upload-artifact@v4
