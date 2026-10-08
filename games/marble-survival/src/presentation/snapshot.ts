@@ -11,6 +11,7 @@ const PRESENTATION_EVENT_FIELDS: Record<string, readonly string[]> = {
   'round-live': ['roundIndex'],
   'checkpoint-reached': ['marbleId', 'checkpointIndex'],
   'physics-contact': ['kind', 'marbleId', 'otherMarbleId', 'colliderId', 'impulse'],
+  'marble-launched': ['marbleId', 'colliderId', 'launchSpeed'],
   'shield-recovery': ['marbleId', 'hazardId', 'impulseY', 'recoveryUntilTick'],
   'marble-eliminated': ['marbleId', 'cause', 'hazardId'],
   'marble-qualified': ['marbleId', 'finishRank', 'crossingFraction'],
