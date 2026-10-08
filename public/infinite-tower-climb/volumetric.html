@@ -1,7 +1,14 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Infinite Tower — 3D Ascent Laboratory</title><link rel="stylesheet" href="/tower/volumetric.css"></head>
 <body><main class="game"><canvas id="volumetric-canvas" aria-label="Autonomous 3D climbing world"></canvas>
   <header class="top"><div class="logo"><span>▲</span><div><small>AUTONOMOUS VOLUMETRIC ASCENT</small><strong>INFINITE TOWER <em>3D LAB</em></strong></div></div>
-  <div class="badge">EXPERIMENTAL VERTICAL SLICE</div></header>
+  <div class="mode-menu"><a id="game-mode" href="/tower/volumetric?manual=1">PLAY MANUALLY ↗</a><a href="/tower/gauntlet.html">GAUNTLET ↗</a></div></header>
+  <nav class="touch-controls" aria-label="Movement controls">
+    <div class="touch-movement"><button data-tower-control="forward" type="button">▲</button>
+    <div><button data-tower-control="left" type="button">◀</button>
+    <button data-tower-control="back" type="button">▼</button>
+    <button data-tower-control="right" type="button">▶</button></div></div>
+    <button class="touch-jump" data-tower-control="jump" type="button">JUMP</button>
+  </nav>
   <section class="readouts"><div><small>LEVEL</small><b id="floor">000</b></div><div><small>ALTITUDE</small><b id="height">0m</b></div><div><small>DEPTH AXIS</small><b id="depth">Z 0.0</b></div><div><small>RECOVERIES</small><b id="recoveries">0</b></div><div><small>GUARDIANS</small><b id="guardian-kills">0</b></div><div><small>SCORE</small><b id="score">0</b></div><div><small>HEALTH</small><b id="health">5 / 5</b></div></section>
   <div id="wall-status" class="wall-status" aria-live="polite">MANTLES 0 · GRIP 100%</div>
   <section class="buildbar" aria-label="AI-selected equipment upgrades"><h2>ASCENT BUILD <small>AI AUTONOMOUS</small></h2><p>STRIDE <b id="build-stride">0</b></p><p>GRIP <b id="build-grip">0</b></p><p>WARD <b id="build-ward">0</b></p><p>SALVAGE <b id="build-salvage">0</b></p><p>SHIELDS <b id="shield-value">0</b></p></section>

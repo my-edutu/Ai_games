@@ -6,11 +6,11 @@
   const startup={phase:'bootstrap',status:'starting',tick:0,autonomous:true,dimensionality:3};
   window.__TOWER_VOLUMETRIC_STATE__=startup;
   const progress=(phase)=>{startup.phase=phase;};
-  let THREE,createClimber,createTowerEnvironment,createTowerEntities,createTowerVfx,createVolumetricCore,loadClimberAsset,createTowerDirector,createTowerSky,createTowerGeology,createClimbingRope,createTowerEvidenceRecorder;
+  let THREE,createClimber,createTowerEnvironment,createTowerEntities,createTowerVfx,createVolumetricCore,loadClimberAsset,createTowerDirector,createTowerSky,createTowerGeology,createClimbingRope,createTowerEvidenceRecorder,createTowerInput;
   try{
-    [THREE,{createClimber},{createTowerEnvironment},{createTowerEntities},{createTowerVfx},{createVolumetricCore},{loadClimberAsset},{createTowerDirector},{createTowerSky},{createTowerGeology},{createClimbingRope},{createTowerEvidenceRecorder}]=await Promise.all([
+    [THREE,{createClimber},{createTowerEnvironment},{createTowerEntities},{createTowerVfx},{createVolumetricCore},{loadClimberAsset},{createTowerDirector},{createTowerSky},{createTowerGeology},{createClimbingRope},{createTowerEvidenceRecorder},{createTowerInput}]=await Promise.all([
       import('/tower/vendor/three.module.js'),import('/tower/character3d.js'),import('/tower/environment3d.js'),
-      import('/tower/entities3d.js'),import('/tower/vfx3d.js'),import('/tower/volumetric-core.js'),import('/tower/asset3d.js'),import('/tower/director3d.js'),import('/tower/sky3d.js'),import('/tower/geology3d.js'),import('/tower/rope3d.js'),import('/tower/evidence3d.js')
+      import('/tower/entities3d.js'),import('/tower/vfx3d.js'),import('/tower/volumetric-core.js'),import('/tower/asset3d.js'),import('/tower/director3d.js'),import('/tower/sky3d.js'),import('/tower/geology3d.js'),import('/tower/rope3d.js'),import('/tower/evidence3d.js'),import('/tower/input3d.js')
     ]);
   }catch(error){status.textContent='3D MODULE LOAD FAILED';console.error(error);return;}
   progress('modules-loaded');
@@ -50,16 +50,10 @@
   const enemyScene=new THREE.Group(),rewardScene=new THREE.Group();scene.add(enemyScene,rewardScene);
   const details=startup;
   Object.assign(details,{status:'loading',tick:0,floor:0,x:0,y:0,z:0,platforms:0,deaths:0,guardianKills:0,score:0,health:5,autonomous:true,dimensionality:3});
-  const controls={left:false,right:false,forward:false,back:false,jump:false};
   const reduced=params.get('reducedMotion')==='1';
-  const manual=params.get('manual')==='1';
+  const input=createTowerInput(params);
+  const manual=input.manual;
   document.body.dataset.reducedMotion=String(reduced);
-  if(manual){
-    const mapping={ArrowLeft:'left',KeyA:'left',ArrowRight:'right',KeyD:'right',
-      ArrowUp:'forward',KeyW:'forward',ArrowDown:'back',KeyS:'back',Space:'jump'};
-    addEventListener('keydown',event=>{const key=mapping[event.code];if(key){event.preventDefault();controls[key]=true;}});
-    addEventListener('keyup',event=>{const key=mapping[event.code];if(key){event.preventDefault();controls[key]=false;}});
-  }
   let biome='',simTime=0,accumulator=0,lastFrame=performance.now(),sizeW=0,sizeH=0;
   let renderFrames=0,lastFrameMark=performance.now(),rollingFrameMs=16.7;
   const renderMetrics={frames:0,fps:0,frameMs:0,drawCalls:0,triangles:0,gpuGeometries:0,gpuTextures:0,status:'starting'};
@@ -102,8 +96,7 @@
     if(snapshot.theme!==biome){biome=snapshot.theme;environment.setTheme(biome);sky.setTheme(biome);geology.setTheme(biome);}
   }
   function fixedStep(dt){
-    const snapshot=sim.step(dt,manual?controls:undefined);simTime+=dt;
-    if(manual)controls.jump=false;
+    const snapshot=sim.step(dt,input.sample());simTime+=dt;
     syncWorld(snapshot);
     climber.root.position.set(player.x,player.y,player.z);
     climber.setMotion(player.vx*dt,player.vy*dt,snapshot.mode,player.vz*dt);
