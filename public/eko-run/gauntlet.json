@@ -3,7 +3,7 @@
   "baseline": "SYBO Subway Surfers City — official gameplay footage; original IP only",
   "scope": "Interactive 3D vertical slice; not a finished or externally benchmarked game",
   "updated": "2026-10-08",
-  "runStatus": "Iteration 10–12 built on Draft PR #51: unoccluded player sightlines, original detailed danfo vehicle fittings and Tayo costume stitches, filled foreground geometry, per-sector vertex-color batching, adaptive render resolution, 32-capacity GPU-instanced animated sidewalk citizens, explicit deterministic preview resets, and 8-seed autonomous campaign telemetry. Latest browser/render tests and new soak outcomes remain pending. The official production-quality benchmark is NOT achieved.",
+  "runStatus": "Iterations 13–15: genuine GitHub Actions 3D game captures and recordings verified. The richer Lagos street, original Tayo and costumes, cinematic sky, HUD, 10 custom 3D hazard families, decorative horizon, safe portrait camera, 1-draw-call clouds and reduced shadow passes are implemented. Verified latest renderer at e0685e1 PASS browser and host CI, but reference visual quality and representative device FPS remain NOT MET. Additional recording-capture fixes after e0685e1 await CI.",
   "iterations": [
     {
       "round": 0,
@@ -108,6 +108,30 @@
       "builder": "Added explicit same-origin local preview reset for repeatable live screenshots, fixed mobile Playwright's shared-mode-state false failure, and added an eight-seed authoritative AI campaign script that writes per-hazard failure distribution as a CI artifact.",
       "critic": "Earlier full browser suite failed specifically because previous outfit test left shared host in player mode, not because WebGL failed. This has been addressed by explicit mode reset, but no new passing result exists. Auto AI still visibly restarted after failures in screenshots; its survival/recovery quality remains open.",
       "decision": "Collect latest end-to-end browser result, autonomy-soak.json, desktop/mobile metrics; use observed fail patterns and frame pacing to target next loop."
+    },
+    {
+      "round": 13,
+      "title": "Real WebGL screenshots and measured scene draw-call optimization",
+      "status": "verified browser evidence; reference gate FAILED",
+      "builder": "Captured real 1280x720/390x844 gameplay, costume and live AI WebM videos. City geometry batching, animated crowds and sunlit sky ran against existing authoritative sim. Verified GitHub Actions 37784370462 on head 2143c5e.",
+      "critic": "Screenshot still looks like stylized procedural primitives; vertical HUD and repeated ad-like billboards dominate the scene. Software CI measured 185 desktop/131 mobile draw calls (down from 423/200+ first pass), but 2 FPS desktop and 4 FPS mobile, and portrait hero center only 90px. This does not demonstrate acceptable game performance.",
+      "decision": "Fix character composition, reduce cloud and hero shadow draw overhead, stabilize long background and avoid giant UI overlays. Keep visual quality FAIL."
+    },
+    {
+      "round": 14,
+      "title": "Hero framing and live-scene presentation repairs",
+      "status": "verified Chromium gameplay captures; full quality gate OPEN",
+      "builder": "Reframed portrait hero into a safer visible area, enlarged hero in both layouts, extended cosmetic horizon/sky, eliminated duplicate cloud and tiny accessory shadow passes, and fixed toolbar wrapping. Added actual visual captures and nonmocked video evidence to GitHub Actions.",
+      "critic": "Run 37785184878 at head e0685e1 passed full CI. Real 390px viewport captured character center=124px, height=133px (previously center 42px); Tayo remains partly hidden behind an active danfo and buildings, with toy-like materials and static architecture. CI desktop shows 181 draw calls; realistic device framerate unmeasured. Benchmark image review still FAIL.",
+      "decision": "Prioritize production-grade original GLB character/vehicle authoring and rigged motion, deliberate foreground layering to avoid occlusion, better lighting and real mobile hardware profiling."
+    },
+    {
+      "round": 15,
+      "title": "Honest screenshot sequence and autonomy evidence",
+      "status": "eight-seed campaign verified; screenshot follow-up code committed",
+      "builder": "Eight seeded authoritative AI runs of 1,600 ticks had 0 terminal failures, 4 district completions and 0 rejected commands; screenshots and WebM clips originate from Playwright real gameplay. Corrected screenshot tests to capture surviving AI instead of delayed player collisions in software CI.",
+      "critic": "26.7 seconds per seed and small sample cannot prove survival/entertainment at livestream scale. Some real captured frames still show transient hit/toast text. Production footage, independent human critic and blind official reference comparison remain open.",
+      "decision": "Extend autonomous 30–60 minute soak; capture diverse district footage, verify low-tier GPU and art/lighting parity before gauntlet acceptance."
     }
   ],
   "gates": [
@@ -181,6 +205,18 @@
       "workflowRunId": 37750503108,
       "artifactId": 11538341657,
       "result": "host and browser CI PASS; unoccluded street and newly articulated Tayo visible, but still basic art and CI 5 FPS"
+    },
+    {
+      "head": "2143c5e8be1cc22fe4d57a8736475ae6de846a34",
+      "workflowRunId": 37784370462,
+      "artifactId": 11554205883,
+      "result": "PASS 6 browser and 25 Node; desktop 185 draw calls, mobile hero center90px, CI 2FPS; reference FAIL"
+    },
+    {
+      "head": "e0685e1083dac1745b1d6a2c436de1c107b54272",
+      "workflowRunId": 37785184878,
+      "artifactId": 11554062576,
+      "result": "PASS host/browser; desktop 181 draw calls, mobile hero center124px, software CI 2-4 FPS; reference FAIL"
     }
   ],
   "experimentalBuild": {
@@ -196,19 +232,26 @@
     ]
   },
   "latestImplementation": {
-    "branch": "feat/eko-run-3d-gauntlet-slice",
-    "headline": "Vibrant Lagos Gauntlet art/UI pass",
-    "newComponents": [
-      "theme.css",
-      "world-vibrance.js",
-      "atmosphere.js",
-      "gamefeel.js",
-      "soundscape.js",
-      "tests/eko/visual-direction.test.cjs",
-      "tests/eko/soundscape.test.cjs"
+    "head": "e0685e1083dac1745b1d6a2c436de1c107b54272",
+    "checked": "GitHub Actions 37785184878 PASS, artifacts 11554062576",
+    "newCapturedPhotos": [
+      "gauntlet-opening-street.png",
+      "desktop.png",
+      "mobile.png",
+      "gauntlet-mobile-portrait.png",
+      "gauntlet-tayo-outfit.png",
+      "gauntlet-approaching-hazard.png"
     ],
-    "validation": "syntax-only checks on new JavaScript modules; actual latest GitHub Actions pending",
-    "comparativeStatus": "NOT MET — no official gameplay A/B win, no independent critic signoff"
+    "metrics": {
+      "desktopDrawCalls": 181,
+      "staticCitySourceMeshes": 2052,
+      "staticWorldBatches": 16,
+      "portraitCenterXPx": 124,
+      "portraitHeightPx": 133,
+      "autonomySeeds": 8,
+      "autonomyTerminalFailures": 0
+    },
+    "proof": "Real Chromium and deterministic authority, not an independent user device or benchmark; still significantly below official Subway Surfers City visual standard."
   },
   "latestBuild": {
     "branch": "feat/eko-run-3d-gauntlet-slice",
