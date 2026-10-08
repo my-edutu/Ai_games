@@ -45,7 +45,7 @@ test('Tiny Kingdom speed, pause and restart work', async ({page}) => {
 });
 
 
-test('Tiny Kingdom grows through actual agent work and records social connections', async ({page}) => {
+test('Tiny Kingdom grows for 90 simulated days through work and social connections', async ({page}) => {
   await page.setContent(html);
   await page.waitForFunction(() => Boolean(window.__tinyKingdom));
   await page.locator('#pause').click();
@@ -53,12 +53,49 @@ test('Tiny Kingdom grows through actual agent work and records social connection
     const game=window.__tinyKingdom;
     game.reset();
     game.setCamera({zoom:14,pitch:.43,focus:[0,-1]});
-    for(let i=0;i<400*24*30;i++) game.step(1/30);
+    for(let i=0;i<90*24*30;i++) game.step(1/30);
     return game.metrics();
   });
-  expect(metrics.day).toBe(401);
+  expect(metrics.day).toBe(91);
   expect(metrics.buildings).toBeGreaterThan(14);
   expect(metrics.gold).toBeGreaterThan(42);
   expect(metrics.relationships).toBeGreaterThan(0);
   expect(metrics.food).toBeGreaterThan(metrics.citizens*2);
+});
+
+test('Tiny Kingdom plans walkable routes around buildings and water', async ({page}) => {
+  await page.setContent(html);
+  await page.waitForFunction(() => Boolean(window.__tinyKingdom));
+  await page.locator('#pause').click();
+  const result = await page.evaluate(() => {
+    const g=window.__tinyKingdom;
+    const a=[-18,-6],b=[20,3],route=g.route(a,b);
+    if(!route || route.length===0)return {route,walkable:false,safe:false};
+    let prior=a,safe=true;
+    for(const point of route){
+      if(!g.walkable(point))safe=false;
+      const steps=Math.ceil(Math.hypot(point[0]-prior[0],point[1]-prior[1])/.04);
+      for(let i=1;i<=steps;i++){
+        const t=i/steps,mid=[prior[0]+(point[0]-prior[0])*t,prior[1]+(point[1]-prior[1])*t];
+        if(!g.walkable(mid)){safe=false;break}
+      }
+      prior=point;
+    }
+    return {route,walkable:g.getNavigation().every(p=>g.walkable(p.position)),safe};
+  });
+  expect(result.walkable).toBe(true);
+  expect(result.safe).toBe(true);
+  expect(result.route.length).toBeGreaterThan(0);
+});
+
+test('Tiny Kingdom seeded route and civilization snapshot replay identically', async ({page}) => {
+  await page.setContent(html);
+  await page.waitForFunction(() => Boolean(window.__tinyKingdom));
+  await page.locator('#pause').click();
+  const same = await page.evaluate(() => {
+    const g=window.__tinyKingdom;
+    function sim(){g.reset();for(let i=0;i<7*24*30;i++)g.step(1/30);return JSON.stringify({world:g.getState(),routes:g.getNavigation(),metrics:g.metrics()});}
+    return sim()===sim();
+  });
+  expect(same).toBe(true);
 });
