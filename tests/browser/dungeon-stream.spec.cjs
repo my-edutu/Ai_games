@@ -244,3 +244,24 @@ test('all fantasy biomes contain animated living inhabitants rather than static 
  expect(life.instancedMotes).toBeLessThanOrEqual(55);
  await page.screenshot({path:'artifacts/dungeon-living-world-3d.png'});
 });
+
+test('stream updates preserve clickable hero cards instead of detaching them each tick',async({page})=>{
+ await page.goto('/dungeon');
+ await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_PUBLIC_STATE__?.tick??0),{timeout:15000}).toBeGreaterThan(3);
+ const start=await page.evaluate(()=>{window.__DUNGEON_HERO_DOM_PROBE__=document.querySelector('.hero-card[data-hero-id="ranger"]');return window.__DUNGEON_PUBLIC_STATE__.tick});
+ await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_PUBLIC_STATE__?.tick??0),{timeout:15000}).toBeGreaterThan(start+3);
+ expect(await page.evaluate(()=>window.__DUNGEON_HERO_DOM_PROBE__?.isConnected&&window.__DUNGEON_HERO_DOM_PROBE__===document.querySelector('.hero-card[data-hero-id="ranger"]'))).toBe(true);
+ await page.locator('.hero-card[data-hero-id="ranger"]').click({timeout:5000});
+ await expect(page.locator('.hero-card[data-hero-id="ranger"]')).toHaveAttribute('aria-pressed','true');
+});
+test('mobile gameplay has a dominant 3D stage and legible full-width hero cards',async({page})=>{
+ await page.setViewportSize({width:390,height:844});await page.goto('/dungeon');
+ await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.frame??0),{timeout:20000}).toBeGreaterThan(3);
+ const m=await page.evaluate(()=>{
+  const a=document.querySelector('.arena').getBoundingClientRect(),p=document.querySelector('.squad-panel').getBoundingClientRect(),h=document.querySelector('.hero-card').getBoundingClientRect();
+  return{stageHeight:a.height,ratio:h.width/p.width,font:parseFloat(getComputedStyle(document.querySelector('.hero-heading b')).fontSize),overflow:document.documentElement.scrollWidth-innerWidth};
+ });
+ expect(m.stageHeight).toBeGreaterThan(400);expect(m.ratio).toBeGreaterThan(.88);
+ expect(m.font).toBeGreaterThanOrEqual(11);expect(m.overflow).toBeLessThanOrEqual(1);
+ await page.screenshot({path:'artifacts/dungeon-mobile-legibility-round13.png',fullPage:true});
+});

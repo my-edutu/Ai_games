@@ -116,3 +116,23 @@ body[data-biome="ember"] .icon-button{color:#ffe0b0}
 .hero-card[data-action="move"] .life i{box-shadow:0 0 12px #72fffad0}
 .boss-strip[data-phase="ECLIPSE"][data-warning="true"]{box-shadow:0 0 0 1px #f6b7fa,0 0 54px #bb63e28c}
 @media(prefers-reduced-motion:reduce){.hero-card{transition:none}}
+
+/* Round 013: screenshot evidence showed two-column 8px mobile cards. */
+@media(max-width:680px){
+ .arena{height:62dvh;min-height:420px;max-height:720px}
+ .sidebar{grid-template-columns:minmax(0,1fr);gap:10px}
+ .squad-panel,.map-panel,.encounter,.chapter{grid-column:1/-1}
+ .squad-panel .hero-heading{flex-direction:row;align-items:center;gap:8px}
+ .hero-card{min-height:52px;padding:8px 10px;gap:10px}
+ .hero-icon{width:40px;height:40px;font-size:20px}
+ .hero-heading b{font-size:11px;letter-spacing:.45px}
+ .hero-heading small{font-size:10px}
+ .hero-sub{font-size:9px}
+ .panel-title small{font-size:10px}
+ .panel-title strong{font-size:13px}
+ .map-layout{display:grid;grid-template-columns:minmax(140px,1fr) minmax(125px,1fr);gap:12px;align-items:center}
+ .map-viewport{width:100%;max-height:210px}
+ .map-key span{font-size:10px;gap:7px}
+ .map-data{display:block;grid-column:1/-1}
+ .team-foot{font-size:9px}
+}

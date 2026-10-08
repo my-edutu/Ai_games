@@ -353,11 +353,14 @@ $('audio-toggle').addEventListener('click',async()=>{
   if(!Audio){setEnabled(false);button.title='Audio unavailable in this browser';return}
   try{ambience=new Audio()}catch(error){setEnabled(false);button.title='Audio output device unavailable';return}
  }
- if(ambience.state==='running'){
+ if(button.getAttribute('aria-pressed')==='true'){
   setEnabled(false);
-  try{await settleAudio(ambience.suspend())}catch(error){button.title='Audio device could not be suspended'}
+  try{await settleAudio(ambience.suspend());button.removeAttribute('title')}
+  catch(error){button.title='Audio device could not be suspended'}
   return;
  }
+ // An AudioContext may already be running before the first click; only
+ // explicit user intent can toggle this opt-in spectator audio control.
  try{
   await settleAudio(ambience.resume());
   if(ambience.state!=='running')throw Error('Audio output remains suspended');
@@ -387,15 +390,34 @@ function renderDashboard(s){
   bossStrip.dataset.warning=String(s.tick%attackInterval>=attackInterval-2);
  }
  $('scene-weather').textContent=s.theme.includes('EMBER')?'FIRELIT // ASH':s.theme.includes('OBSIDIAN')?'ARCANE // MIST':s.theme.includes('HOLLOW')?'ETHEREAL // VOID':'MOONLIT // CRYPT';
- const party=$('party');party.replaceChildren(...heroes.map(u=>{
-  const meta=classMeta[u.kind],card=document.createElement('article');card.className='hero-card'+(u.hp===0?' down':'');card.dataset.class=u.kind;
-  card.dataset.heroId=u.id;card.dataset.action=u.action||'idle';card.dataset.focused=String(u.id===focusedHeroId);card.tabIndex=0;card.setAttribute('role','button');card.setAttribute('aria-label','Follow '+meta.name+' in the cinematic camera');card.setAttribute('aria-pressed',String(u.id===focusedHeroId));
-  const icon=document.createElement('div');icon.className='hero-icon';icon.setAttribute('aria-hidden','true');icon.textContent=meta.icon;
-  const info=document.createElement('div');info.className='hero-info';const head=document.createElement('div');head.className='hero-heading';
-  const name=document.createElement('b');name.textContent=meta.name;const hp=document.createElement('small');hp.textContent=u.hp+'/'+u.maxHp+' HP';
-  head.append(name,hp);const sub=document.createElement('div');sub.className='hero-sub';const job=document.createElement('span');job.textContent=meta.title;const action=document.createElement('b');action.textContent=(u.action||'idle').toUpperCase();sub.append(job,action);
-  const bar=document.createElement('div');bar.className='life';const fill=document.createElement('i');fill.style.width=(u.hp/u.maxHp*100)+'%';bar.append(fill);info.append(head,sub,bar);card.append(icon,info);return card;
- }));
+ const party=$('party');
+ // Stable keyed DOM cards: never detach spectator controls on every state tick.
+ const activeIds=new Set(heroes.map(u=>u.id));
+ for(const old of [...party.children])if(!activeIds.has(old.dataset.heroId))old.remove();
+ heroes.forEach((u,i)=>{
+  const meta=classMeta[u.kind];let card=[...party.children].find(el=>el.dataset.heroId===u.id);
+  if(!card){
+   card=document.createElement('article');card.className='hero-card';card.dataset.heroId=u.id;
+   card.tabIndex=0;card.setAttribute('role','button');
+   const icon=document.createElement('div');icon.className='hero-icon';icon.setAttribute('aria-hidden','true');
+   const info=document.createElement('div');info.className='hero-info';
+   const head=document.createElement('div');head.className='hero-heading';head.append(document.createElement('b'),document.createElement('small'));
+   const sub=document.createElement('div');sub.className='hero-sub';sub.append(document.createElement('span'),document.createElement('b'));
+   const bar=document.createElement('div');bar.className='life';bar.append(document.createElement('i'));
+   info.append(head,sub,bar);card.append(icon,info);
+  }
+  card.classList.toggle('down',u.hp===0);
+  card.dataset.class=u.kind;card.dataset.action=u.action||'idle';card.dataset.focused=String(u.id===focusedHeroId);
+  card.setAttribute('aria-label','Follow '+meta.name+' in the cinematic camera');
+  card.setAttribute('aria-pressed',String(u.id===focusedHeroId));
+  card.querySelector('.hero-icon').textContent=meta.icon;
+  card.querySelector('.hero-heading b').textContent=meta.name;
+  card.querySelector('.hero-heading small').textContent=u.hp+'/'+u.maxHp+' HP';
+  card.querySelector('.hero-sub span').textContent=meta.title;
+  card.querySelector('.hero-sub b').textContent=(u.action||'idle').toUpperCase();
+  card.querySelector('.life i').style.width=(u.hp/u.maxHp*100)+'%';
+  if(party.children[i]!==card)party.insertBefore(card,party.children[i]||null);
+ });
  const entries=$('events');entries.replaceChildren(...[...s.events].reverse().slice(0,3).map(e=>{
   const li=document.createElement('li');li.style.setProperty('--event-color',({danger:'#ff7f9e',telegraph:'#ffc178',kill:'#ffe28f',healing:'#77ffc6',floor:'#b9a4ff',loot:'#78deff'}[e.kind]||'#8bbfff'));
   const time=document.createElement('small');time.textContent='T+'+String(e.tick).padStart(5,'0')+' · '+e.kind.toUpperCase();li.append(time,document.createTextNode(e.text));return li
