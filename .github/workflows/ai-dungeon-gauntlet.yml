@@ -1,0 +1,51 @@
+name: AI Dungeon 3D Gauntlet Foundation
+on:
+  pull_request:
+    paths:
+      - "games/ai-dungeon/**"
+      - "public/ai-dungeon/**"
+      - "scripts/serve-dungeon-stream.cjs"
+      - "scripts/run-dungeon-gauntlet.cjs"
+      - "tests/foundation/dungeon-core.test.cjs"
+      - "tests/browser/dungeon*"
+      - "package.json"
+      - "tsconfig.json"
+      - ".github/workflows/ai-dungeon-gauntlet.yml"
+  workflow_dispatch:
+jobs:
+  authority:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '22', cache: 'npm'}
+      - run: npm ci
+      - run: npm run dungeon:test
+      - run: npm run dungeon:gauntlet
+      - name: Upload actual headless evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dungeon-headless-campaign
+          path: evidence/dungeon/gauntlet-latest.json
+          if-no-files-found: warn
+  browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '22', cache: 'npm'}
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm run dungeon:visual
+      - name: Upload screenshot proof
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dungeon-browser-captures
+          path: |
+            artifacts/dungeon-*.png
+            test-results/**
+          if-no-files-found: warn
