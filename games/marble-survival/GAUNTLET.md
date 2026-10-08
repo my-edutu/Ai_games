@@ -17,7 +17,10 @@ Only compare real captures at identical or documented viewport and quality setti
 | 1 · Character optics | Clearcoat specularity, fresnel edge light, secondary illumination and rolling internal ribbons in WebGL shader | Source exists, JS parse checked | Compare screenshots of different identities against Marble It Up! Ultra; fix muddy/dull/rubber-like material |
 | 2 · Measurable rendering | Real FPS samples, draw calls and triangle counts broadcast to a same-origin viewer page | Source exists, JS parse checked | Profile 1920×1080 and mobile GPU; verify no frame regressions |
 | 3 · Tournament arena | Quality-scaled stands, emissive rails and floodlight gantries outside collision geometry | Source exists, JS parse checked | Browser-review occlusion, camera framing, arena visibility and readability |
-| 4 · Camera | Frame-rate-normalized pursuit easing for server camera directives | Source exists, JS parse checked | Confirm the camera remains stable during cut-line and victory transitions at 30/60/144 Hz |\n| Lab | `/gauntlet.html` page, `/gauntlet-progress.json` status log, authority metrics refresh and sourced journal | Source exists, JSON shape checked | Run and screenshot dashboard + compare honest evidence |
+| 4 · Camera | Frame-rate-normalized pursuit easing for server camera directives | Source exists, JS parse checked | Confirm the camera remains stable during cut-line and victory transitions at 30/60/144 Hz |
+| 5 · Label/renderer parity | Exact WebGL matrix and interpolated 3D positions drive projected competitor labels; authority/HUD tick data exposed | Source logic and headless assertions added | Verify labels stay locked in recorded moving-camera frames and after tournament restarts |
+| CI browser evidence | Push/PR workflow builds authority and runs Playwright screenshots, logs and metrics | Workflow queued; **not a browser pass** | Read artifacts and reject any rendering or clip-space mismatch |
+| Lab | `/gauntlet.html` page, `/gauntlet-progress.json` status log, authority metrics refresh and sourced journal | Source exists, JSON shape checked | Run and screenshot dashboard + compare honest evidence |
 
 **Unverified:** Visual parity, GLSL compilation on a live GPU, Playwright browser results, game stability, screen captures, comparative critic verdict, source-test pass in CI, and actual FPS on target devices.
 
@@ -50,3 +53,9 @@ The lab reads `/api/snapshot` every 2 seconds, source-backed progress JSON every
 ## Repository safety
 
 This Gauntlet branch is based on PR #38's isolated Marble implementation, not current `main`. Bring it into that PR's base branch after review, then resolve any divergence with current main separately. Do not blindly merge old game revisions over newer Eko or unrelated projects.
+
+## Loop 5 findings
+
+The original identity layer independently fetched state and reconstructed its own camera. That could make numbered competitor tags drift away from marbles during a cut-line or victory camera move, especially across slow frames or ramp elevations. The renderer now publishes its exact current public snapshot, interpolated marbles and WebGL view-projection matrix to the in-page overlay. The overlay projects labels through that same matrix and uses the same elevation. It retains a polling fallback if the renderer has not produced a fresh frame. The HUD and renderer now expose source-backed tick and arena identifiers for browser tests.
+
+A new GitHub Actions workflow is triggered by pushes to the Gauntlet branch and pull requests against its Marble base. Its pass/fail result is independent evidence; it does not by itself establish visual parity with commercial references.
