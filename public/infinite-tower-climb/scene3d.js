@@ -3,6 +3,7 @@
  * No simulation state is modified by this renderer.
  */
 import * as THREE from '/tower/three.module.js';
+import {createTowerCharacter,poseTowerCharacter} from '/tower/character3d.js';
 
 const SCALE = 1 / 1000;
 const palettes = {
@@ -27,44 +28,6 @@ function clearGroup(group){
   }
 }
 function seeded(n){const t=Math.sin(n*84.17+19.67)*43758.5453;return t-Math.floor(t)}
-function createClimber(color=0x4be2ee,scale=1){
-  const root=new THREE.Group(),rig=new THREE.Group();root.add(rig);
-  const suit=matte(color,.42,.65),trim=matte(0x182439,.56,.67),pale=matte(0xd3e4eb,.46,.14);
-  const visor=emissive(0xaef9ff,1.35),accent=emissive(0x77f5dc,1.7);
-  add(rig,box(12,16,8,suit),0,3,0);
-  add(rig,box(14,4,9,trim),0,8,0);
-  add(rig,box(10,12,5,trim),0,3,-6);
-  add(rig,box(8,4,1.2,accent),0,4,5.1);
-  add(rig,ball(6.7,trim),0,17,0);
-  add(rig,box(10,4.1,4.8,visor),0,17.5,5.2);
-  add(rig,box(3,2,5,pale),0,11,0);
-  const arms=[],legs=[];
-  for(const sign of [-1,1]){
-    add(rig,ball(3.1,trim),sign*9,8,0);
-    const arm=new THREE.Group();arm.position.set(sign*9,8,0);
-    limb(arm,suit,2.45,9,0,-5,0);
-    add(arm,box(4,4.5,4,trim),0,-10,0);
-    rig.add(arm);arms.push(arm);
-    const leg=new THREE.Group();leg.position.set(sign*3.9,-6.5,0);
-    limb(leg,trim,3.1,11,0,-6,0);
-    add(leg,box(6,4,8,suit),0,-13,2);
-    rig.add(leg);legs.push(leg);
-    add(rig,box(2,2,6,accent),sign*7.1,4,4.4);
-  }
-  const pack=add(rig,box(7,11,4,trim),0,1,-7.7);
-  add(pack,box(4,7,1,accent),0,0,-2.6);
-  rig.scale.setScalar(scale);
-  root.userData={rig,arms,legs,visor,phase:0};
-  return root;
-}
-function animateRig(root,time,velocity=0,grounded=true,reduced=false){
-  const {rig,arms,legs}=root.userData,phase=reduced?0:time*5.5;
-  const running=clamp(Math.abs(velocity)/12,0,1);
-  arms.forEach((a,i)=>{a.rotation.z=(i?1:-1)*(.17+(grounded?Math.sin(phase+i*Math.PI)*.28*running:.5));a.rotation.x=grounded?Math.sin(phase+i*Math.PI)*.4*running:-.55});
-  legs.forEach((l,i)=>{l.rotation.x=grounded?Math.sin(phase+i*Math.PI)*.4*running:-.38});
-  rig.rotation.z=grounded?Math.sin(phase*.5)*.012:clamp(velocity/180,-.14,.14);
-  rig.position.y=reduced?0:(grounded?Math.sin(phase*2)*.45*running:Math.sin(phase)*.25);
-}
 export function mountTower3D({host,getFrame,reducedMotion=false}){
   const canvas=document.createElement('canvas');
   canvas.id='tower-3d-canvas';canvas.dataset.testid='tower-3d-canvas';
@@ -86,7 +49,7 @@ export function mountTower3D({host,getFrame,reducedMotion=false}){
   const hemi=new THREE.HemisphereLight(0x9ec5ef,0x172030,2.1);scene.add(hemi);
   const key=new THREE.DirectionalLight(0xffdeb0,3.1);key.position.set(70,120,130);scene.add(key);
   const rim=new THREE.DirectionalLight(0x6abefe,3.7);rim.position.set(-65,70,-35);scene.add(rim);
-  const player=createClimber();actors.add(player);
+  const player=createTowerCharacter({tint:0x46d4d9});actors.add(player);
   const glow=new THREE.PointLight(0x7ff3e7,100,170,2);actors.add(glow);
   const dynamic=new Map();
   let floor=-1,theme='',lastChecksum='',latest=null,frame=null,running=true,lastAt=performance.now();
@@ -227,12 +190,12 @@ export function mountTower3D({host,getFrame,reducedMotion=false}){
       const id='enemy:'+e.id;allowed.add(id);
       const guardian=e.kind==='guardian';
       const g=upsert(id,e.kind,()=>{
-        const g=createClimber(guardian?0xffb26a:e.kind==='shooter'?0xff668f:0xad8cff,guardian?1.2:.8);
+        const g=createTowerCharacter({tint:guardian?0xf2a04f:e.kind==='shooter'?0xf05693:0x9670e9,guardian,kind:e.kind});
         if(guardian){const crown=add(g,box(17,4,12,emissive(0xffbc52,2.8)),0,26,0);crown.rotation.z=.17}
         return g;
       });
       g.position.set(coord(e.x),coord(e.y),35);
-      g.scale.setScalar(clamp(coord(e.halfHeight)/(24*(guardian?1.2:.8)),.45,2));
+      g.scale.setScalar(clamp(coord(e.halfHeight)/26,.3,1.7));
       g.visible=e.active;
       g.userData.telegraph=e.telegraph;
     }
@@ -288,13 +251,13 @@ export function mountTower3D({host,getFrame,reducedMotion=false}){
     camera.position.set(cameraX+33+shake,cameraY+18+shake*.6,depth);
     camera.lookAt(cameraX,cameraY,-18);
     player.position.set(visualX,visualY,36);
-    const collisionScale=clamp(coord(s.player.halfHeight)/24,.3,1.6);
+    const collisionScale=clamp(coord(s.player.halfHeight)/26,.3,1.6);
     player.scale.set((s.player.facing===-1?-1:1)*collisionScale,collisionScale,collisionScale);
     player.visible=s.player.health>0;
     glow.position.set(visualX,visualY+14,36);
-    animateRig(player,now*.001,coord(s.player.vx),s.player.state!=='airborne',reducedMotion);
+    poseTowerCharacter(player,{time:now*.001,state:s.player.state,vx:s.player.vx,vy:s.player.vy,mode:s.intent.mode,reducedMotion});
     for(const [id,g] of dynamic){
-      if(id.startsWith('enemy:')&&g.visible)animateRig(g,now*.001+id.length,2,true,reducedMotion);
+      if(id.startsWith('enemy:')&&g.visible)poseTowerCharacter(g,{time:now*.001+id.length,vx:1800,state:'standing',reducedMotion});
       else if(id.startsWith('pickup:')){g.rotation.y=reducedMotion?0:now*.0016;g.position.y+=reducedMotion?0:Math.sin(now*.002+g.position.x)*dt*.8}
     }
     // Keep observed performance measurable for the independent critic.
