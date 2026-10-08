@@ -10,6 +10,7 @@ import { decorateTacticalWorld } from './world-overlays.js';
 import { drawEnvironmentVfx } from './environment-vfx.js';
 import { decorateInterior } from './interior-art.js';
 import { actionPose } from './animation-pose.js';
+import { PackedVertices } from './packed-geometry.js';
 import { createSunShadows } from './shadow-pass.js';
 
 const canvas = document.getElementById('scene');
@@ -239,25 +240,6 @@ function upload(bufferObj,values){
   gl.bindBuffer(gl.ARRAY_BUFFER,bufferObj.vbo);
   gl.bufferData(gl.ARRAY_BUFFER,array,gl.DYNAMIC_DRAW);
   bufferObj.count=array.length/9;
-}
-class PackedVertices{
-  constructor(capacity=32768){this.data=new Float32Array(capacity);this.length=0;}
-  reserve(n){
-    const needed=this.length+n;if(needed<=this.data.length)return;
-    const expanded=new Float32Array(Math.max(needed,Math.ceil(this.data.length*1.75)));
-    expanded.set(this.data);this.data=expanded;
-  }
-  triangle(a,b,c,n,color){
-    this.reserve(27);
-    const dst=this.data;let i=this.length;
-    for(const p of [a,b,c]){
-      dst[i++]=p[0];dst[i++]=p[1];dst[i++]=p[2];
-      dst[i++]=n[0];dst[i++]=n[1];dst[i++]=n[2];
-      dst[i++]=color[0];dst[i++]=color[1];dst[i++]=color[2];
-    }
-    this.length=i;
-  }
-  view(){return this.data.subarray(0,this.length);}
 }
 function Mesh(){this.vertices=new PackedVertices();}
 Mesh.prototype.tri=function(a,b,c,n,col){this.vertices.triangle(a,b,c,n,col);};
