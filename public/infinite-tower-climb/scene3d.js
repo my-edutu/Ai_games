@@ -4,7 +4,7 @@
  */
 import * as THREE from '/tower/three.module.js';
 import {createTowerCharacter,poseTowerCharacter} from '/tower/character3d.js';
-import {decorateTowerEnvironment} from '/tower/environment3d.js';
+import {decorateTowerEnvironment,animateTowerEnvironment} from '/tower/environment3d.js';
 
 const SCALE = 1 / 1000;
 const palettes = {
@@ -53,7 +53,7 @@ export function mountTower3D({host,getFrame,reducedMotion=false,heroCamera=false
   const player=createTowerCharacter({tint:0x46d4d9});actors.add(player);
   const glow=new THREE.PointLight(0x7ff3e7,100,170,2);actors.add(glow);
   const dynamic=new Map();
-  let floor=-1,theme='',lastChecksum='',latest=null,frame=null,running=true,lastAt=performance.now();
+  let floor=-1,theme='',lastChecksum='',latest=null,frame=null,running=true,lastAt=performance.now(),ornament=null;
   let cameraY=35,cameraX=240,worldWidth=480,observedFrames=0,visualX=null,visualY=null,visualRun='',visualFloor=-1;
   const perf={frames:0,drawCalls:0,triangles:0,entityCount:0};window.__TOWER_3D_DIAGNOSTICS__=perf;
 
@@ -140,7 +140,7 @@ export function mountTower3D({host,getFrame,reducedMotion=false,heroCamera=false
         add(backdrop,box(21,2.2,17,emissive(0xff8143,1.75)),vent.position.x,vent.position.y+3,-39);
       }
     }
-    decorateTowerEnvironment({group:backdrop,snapshot:s,theme,palette:p,worldWidth});
+    ornament=decorateTowerEnvironment({group:backdrop,snapshot:s,theme,palette:p,worldWidth});
     // Actual snapshot geometry, not an invented obstacle course.
     for(const platform of s.platforms){
       const cx=coord(platform.x+platform.width/2),cy=coord(platform.y+platform.height/2),w=coord(platform.width);
@@ -267,6 +267,7 @@ export function mountTower3D({host,getFrame,reducedMotion=false,heroCamera=false
       else if(id.startsWith('pickup:')){g.rotation.y=reducedMotion?0:now*.0016;g.position.y+=reducedMotion?0:Math.sin(now*.002+g.position.x)*dt*.8}
     }
     // Keep observed performance measurable for the independent critic.
+    animateTowerEnvironment(ornament,now*.001,reducedMotion);
     renderer.render(scene,camera);observedFrames++;
     if(observedFrames%60===0){perf.frames=observedFrames;perf.drawCalls=renderer.info.render.calls;perf.triangles=renderer.info.render.triangles;perf.heroParts=(()=>{let count=0;player.traverse(o=>{if(o.isMesh)count++});return count})();perf.renderMode='webgl-3d';perf.state=s.player.state;perf.heroCamera=heroCamera;}
   }
