@@ -59,3 +59,16 @@ test('Gauntlet progress is live, honest about visual bar and linked to the game'
   expect(later).toBeGreaterThan(first);
   await expect(page.locator('#milestones li')).toHaveCount(review.milestones.length);
 });
+
+
+test('original procedural audio requires opt-in and always honours mute',async({page,request})=>{
+  const source=await request.get(base+'/maze/soundscape.js');
+  expect(source.ok()).toBe(true);
+  await page.goto(base+'/maze?muted=1',{waitUntil:'domcontentloaded'});
+  const toggle=page.locator('#sound-toggle');
+  await expect(toggle).toBeVisible();
+  await expect(toggle).toBeDisabled();
+  await expect(toggle).toHaveAttribute('aria-pressed','false');
+  await page.goto(base+'/maze',{waitUntil:'domcontentloaded'});
+  await expect(page.locator('#sound-toggle')).toHaveAttribute('aria-pressed','false');
+});
