@@ -50,7 +50,8 @@ if(!scenario&&!frozen&&params.get('fresh')!=='1'){
     }
   }catch(e){console.warn('Ignoring invalid zombie recovery snapshot',String(e));}
 }
-let last = performance.now(), accumulator = 0, elapsed = 0, paused = frozen, hudShown = true;
+let last = performance.now(), accumulator = 0, elapsed = 0, paused = frozen, hudShown = true, cinematic = params.get('cinema')==='1';
+hud.dataset.cinema=String(cinematic);
 let completedRuns=0, terminalSince=null;
 let lastSnapshotAt=performance.now();
 function persistGame(){
@@ -527,6 +528,18 @@ function renderSquad(){
   }
   squadCards.replaceChildren(fragment);
 }
+function toggleCinema(){
+  cinematic=!cinematic;
+  hud.dataset.cinema=String(cinematic);
+  const btn=document.getElementById('cinemaMode');
+  btn.setAttribute('aria-pressed',String(cinematic));
+  btn.innerHTML=cinematic?'▣ FULL HUD':'▣ CINEMA';
+  if(cinematic&& !squadPanel.hidden){
+    squadPanel.hidden=true;
+    document.getElementById('rosterToggle').setAttribute('aria-expanded','false');
+  }
+}
+document.getElementById('cinemaMode').setAttribute('aria-pressed',String(cinematic));
 function toggleRoster(){
   squadPanel.hidden=!squadPanel.hidden;
   document.getElementById('rosterToggle').setAttribute('aria-expanded',String(!squadPanel.hidden));
@@ -643,6 +656,7 @@ document.addEventListener('keydown',e=>{
   if(e.key.toLowerCase()==='v')cameraMode='overview';
   if(e.key.toLowerCase()==='n'){heroIndex=(heroIndex+1)%Math.max(1,game.survivors.length);cameraMode='hero';}
   if(e.key.toLowerCase()==='s')toggleRoster();
+  if(e.key.toLowerCase()==='m')toggleCinema();
   if(e.key.toLowerCase()==='r'){restartRun();}
 });
 document.querySelector('#sound').addEventListener('click',enableAudio);
@@ -650,5 +664,6 @@ document.querySelector('#togglePause').addEventListener('click',togglePause);
 document.querySelector('#focus').addEventListener('click',()=>{cameraMode='director';});
 document.querySelector('#hero').addEventListener('click',()=>{cameraMode='hero';});
 document.querySelector('#rosterToggle').addEventListener('click',toggleRoster);
+document.querySelector('#cinemaMode').addEventListener('click',toggleCinema);
 rebuildStatic(true);
 requestAnimationFrame(render);

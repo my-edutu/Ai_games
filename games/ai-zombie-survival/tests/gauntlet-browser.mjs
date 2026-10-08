@@ -69,6 +69,13 @@ try{
   await page.keyboard.press('c');
   assert.ok(aiIntent?.length>12,'AI decision panel must expose a meaningful current intent');
   report.checks.heroCameraAndIntent=true;
+  await page.keyboard.press('m');
+  assert.equal(await page.locator('#hud').getAttribute('data-cinema'),'true');
+  assert.equal(await page.locator('#cinemaMode').getAttribute('aria-pressed'),'true');
+  await page.screenshot({path:root+'cinema-mode.png'});
+  await page.keyboard.press('m');
+  assert.equal(await page.locator('#hud').getAttribute('data-cinema'),'false');
+  report.checks.cinemaMode=true;
   await page.goto('http://127.0.0.1:4177/web/3d.html?seed=2026',{waitUntil:'load'});
   await page.waitForFunction(()=>document.querySelector('#fps')?.textContent?.includes('FPS'),{timeout:12000});
   const before=await page.evaluate(()=>JSON.parse(localStorage.getItem('zombie-gauntlet-live')||'{}').tick||0);
