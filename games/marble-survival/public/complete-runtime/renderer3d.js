@@ -784,7 +784,15 @@
     if(directive.mode==='overview'&&currentSnapshot.round.remaining<=4)eye=[target[0]+4.4/zoom,7.0/zoom,target[2]+8.4/zoom];
     if(directive.mode === 'danger')eye=[target[0]+4.8/zoom,7.2/zoom,target[2]+8.5/zoom];
     if(directive.mode==='cut-line')eye=[target[0]+3.2/zoom,8.4/zoom,target[2]+10.5/zoom];
-    if(directive.mode === 'finish'){const finish=toWorld(arena.width/2,arena.finishY,arena);target=[lerp(target[0],finish[0],0.55),0.25,lerp(target[2],finish[2],0.55)];eye=[target[0]+5.8/zoom,6.4/zoom,target[2]+7.4/zoom];}
+    if(directive.mode === 'finish'){
+      const finish=toWorld(arena.width/2,arena.finishY,arena);
+      // Do not prematurely frame an EMPTY finish gate. The live spectacle
+      // must follow the actual racing subjects until they approach the line.
+      const progress=focus.length?Math.max(...focus.map(m=>m.progressPermille||0)):0;
+      const bias=clamp((progress/1000-.70)/.30,0,1)*.56;
+      target=[lerp(target[0],finish[0],bias),target[1],lerp(target[2],finish[2],bias)];
+      eye=[target[0]+5.8/zoom,6.4/zoom,target[2]+7.4/zoom];
+    }
     if(directive.mode === 'victory')eye=[target[0]+3.4/zoom,4.0/zoom,target[2]+5.0/zoom];
     // Cinematic spectator mode keeps server-appointed focus IDs but lowers
     // the virtual jib and anticipates the TRUE race velocities by ~3 ticks.
@@ -812,7 +820,9 @@
     // playback must follow the same shot rather than drifting at different rates.
     const reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const amount=reduced?1:1-Math.pow(1-0.075,60*clamp(dt,0,0.05));
-    cameraState={eye:lerp3(cameraState.eye,next.eye,amount),target:lerp3(cameraState.target,next.target,amount),mode:next.mode};
+    const jump=Math.hypot(...next.target.map((value,index)=>value-cameraState.target[index]));
+    const responsiveAmount=reduced?1:Math.max(amount,jump>6?.40:cameraState.mode!==next.mode?.22:amount);
+    cameraState={eye:lerp3(cameraState.eye,next.eye,responsiveAmount),target:lerp3(cameraState.target,next.target,responsiveAmount),mode:next.mode};
     return cameraState;
   }
   function material(color,roughness=0.65,metalness=0.08,emissive=0,opacity=1,patternType=0,patternColor=[0.94,0.925,0.86]){return{color,roughness,metalness,emissive,opacity,patternType,patternColor};}
