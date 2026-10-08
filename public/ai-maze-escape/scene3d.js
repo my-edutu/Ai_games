@@ -182,14 +182,93 @@ function line(route,width,material) {
   const geo = new THREE.BufferGeometry().setFromPoints(pts);
   world.add(new THREE.Line(geo,material));
 }
+function masonryWall(parent,x,z,kind,id){
+  // Wall spine, carved ledges, fractured stone coursing and end buttress.
+  mesh(geometries['wall'+kind],materials.wall,parent,[x,WALL_HEIGHT*.5,z]);
+  mesh(geometries['trim'+kind],materials.wallTop,parent,[x,WALL_HEIGHT+.03,z]);
+  const base=mesh(geometries.cube,materials.wallTop,parent,[x,.20,z],kind==='NS'?[GRID+.08,.38,.31]:[.31,.38,GRID+.08]);
+  base.castShadow=true;
+  // Horizontal masonry bands catch real light so the walls have physical depth.
+  for(let band=1;band<=3;band++){
+    const course=mesh(geometries.cube,band===2?materials.trim:materials.wallTop,parent,[x,band*.66,z],kind==='NS'?[GRID+.025,.055,.23]:[.23,.055,GRID+.025]);
+    course.castShadow=false;
+  }
+  const vertical=kind==='NS';
+  for(const side of [-1,1]){
+    const ox=vertical?side*(GRID*.5-.12):0,oz=vertical?0:side*(GRID*.5-.12);
+    const pillar=mesh(geometries.column,materials.wallTop,parent,[x+ox,1.31,z+oz],[.78,1,.78]);
+    pillar.castShadow=true;
+    mesh(geometries.cube,materials.trim,parent,[x+ox,2.52,z+oz],[.43,.17,.43]);
+  }
+  if(id%9===0){
+    // Non-structural creeping foliage varies by cell index, never hidden world data.
+    const ivy=mesh(geometries.plane,materials.moss,parent,[x,WALL_HEIGHT*.63,z+.13],
+      vertical?[.7,1.1,1]:[.28,1.1,1]);
+    if(!vertical){ivy.position.x+=.13;ivy.rotation.y=Math.PI/2}
+    ivy.rotation.z=.13;
+  }
+}
+function addArch(parent,p,side){
+  const acrossX=side.id===undefined?false:Math.abs(side.id-side.from)===1;
+  const cx=p.x+side.dx,cz=p.z+side.dz;
+  const bar=mesh(geometries.cube,materials.wallTop,parent,[cx,2.72,cz],acrossX?[.46,.32,2.05]:[2.05,.32,.46]);
+  bar.castShadow=true;
+  for(const sign of [-1,1]){
+    const px=cx+(acrossX?0:sign*.98),pz=cz+(acrossX?sign*.98:0);
+    mesh(geometries.column,materials.wall,parent,[px,1.3,pz],[.75,.91,.75]);
+    mesh(geometries.cube,materials.trim,parent,[px,2.62,pz],[.39,.22,.39]);
+  }
+}
+function shrineProp(cell,p){
+  const marker=cell.cell;
+  const settled=(marker*17)%19;
+  if(!cell.visible)return;
+  if(settled===0||settled===1){
+    // Carved ceremonial plinth and raised golden lantern.
+    mesh(geometries.cylinder,materials.wallTop,world,[p.x+.78,.21,p.z-.8],[.38,.38,.38]);
+    mesh(geometries.column,materials.trim,world,[p.x+.78,.8,p.z-.8],[.72,.35,.72]);
+    mesh(geometries.cube,materials.dark,world,[p.x+.78,1.19,p.z-.8],[.32,.27,.32]);
+    mesh(geometries.lantern,materials.goldLight,world,[p.x+.78,1.42,p.z-.8],[.62,.71,.62]);
+    mesh(geometries.cube,materials.trim,world,[p.x+.78,1.7,p.z-.8],[.32,.06,.32]);
+    if(settled===0 && world.userData.torchCount<6){
+      const lamp=new THREE.PointLight(0xffb86b,10,9,2);
+      lamp.position.set(p.x+.78,1.45,p.z-.8);
+      world.add(lamp);world.userData.torchCount++;
+    }
+  }
+  if(settled===2||settled===3){
+    for(let n=0;n<4;n++){
+      const a=n*2.2+marker;
+      const stone=mesh(geometries.cube,n%2?materials.wallTop:materials.wall,world,
+        [p.x+Math.cos(a)*.83,.07,p.z+Math.sin(a)*.78],
+        [.17+n*.05,.1+n*.04,.15+n*.03]);
+      stone.rotation.y=a;
+    }
+  }
+  if(settled===5||settled===6){
+    for(let n=0;n<3;n++){
+      const blade=mesh(geometries.cone,materials.moss,world,
+       [p.x+.67+n*.11,.24,p.z+.75+n*.07],[.11,.48+n*.12,.11]);
+      blade.rotation.z=(n-1)*.25;
+    }
+  }
+}
 function rebuild(snapshot) {
   clearWorld();
+  world.userData.torchCount=0;
   const known = new Set(snapshot.cells.map(cell=>cell.cell));
   const w = snapshot.width;
   for (const cell of snapshot.cells) {
     const p=point(cell.cell,w);
     const tile=mesh(geometries.floor,(cell.cell % 5 === 0)?materials.alternate:materials.floor,world,[p.x,-0.13,p.z]);
     tile.material=cell.visible?tile.material:materials.dark;
+    if(cell.visible){
+      mesh(geometries.cube,materials.paving,world,[p.x,-.26,p.z],[GRID+.03,.16,GRID+.03]);
+      if(cell.cell%3===0) {
+        const crack=mesh(geometries.cube,materials.dark,world,[p.x+.26,-.017,p.z-.3],[.55,.013,.018]);
+        crack.rotation.y=cell.cell*.43;
+      }
+    }
     if(cell.blocked) continue;
     const col=cell.cell % w,row=Math.floor(cell.cell/w);
     // Build only from previously discovered cells and their visible connections.
@@ -202,8 +281,7 @@ function rebuild(snapshot) {
     for(const side of directions) {
       if(cell.neighbors.includes(side.id)) continue;
       if(side.id>=0 && known.has(side.id) && side.id<cell.cell) continue;
-      mesh(geometries['wall'+side.kind],materials.wall,world,[p.x+side.dx,WALL_HEIGHT/2,p.z+side.dz]);
-      mesh(geometries['trim'+side.kind],materials.wallTop,world,[p.x+side.dx,WALL_HEIGHT,p.z+side.dz]);
+      masonryWall(world,p.x+side.dx,p.z+side.dz,side.kind,cell.cell);
     }
     if(cell.checkpoint) {
       const beacon=mesh(geometries.cylinder,materials.exit,world,[p.x,0.09,p.z],[0.38,0.13,0.38]);
@@ -213,10 +291,7 @@ function rebuild(snapshot) {
     if(cell.trap) {
       for(let n=-1;n<=1;n++)mesh(geometries.cone,materials.hazard,world,[p.x+n*.5,0.24,p.z],[0.18,0.5,0.18]);
     }
-    if(cell.visible && cell.cell%13===0) {
-      mesh(geometries.cylinder,materials.trim,world,[p.x+0.73,0.63,p.z-0.73],[0.12,1.2,0.12]);
-      mesh(geometries.sphere,materials.gold,world,[p.x+0.73,1.3,p.z-0.73],[0.2,0.2,0.2]);
-    }
+    shrineProp(cell,p);
   }
   const visible = new Set(snapshot.cells.map(c=>c.cell));
   line(snapshot.travelledRoute.filter(id=>visible.has(id)).slice(-120),w,materials.trail);
