@@ -78,3 +78,21 @@ The original 2D renderer is preserved at `/tower?renderer=2d`. If GPU creation o
 ## Next code review and visual critique
 
 Await the first Chromium artifact. Compare physical character footprint, platform legibility and camera framing against the old renderer, then compare the strongest actual frame against official Jusant. Record an honest verdict and keep looping.
+
+## Round 2 — screenshot-driven art improvement (committed, not yet validated)
+
+After the first CI run **passed** (Actions run `37736794883`), the actual `gauntlet-3d-desktop.png` screenshot was inspected. It showed an unvaried blue wall grid, repeated U-shaped decorative openings, primitive humanoid silhouettes and sparse environmental storytelling. The `gauntlet-2d-reference.png` capture showed an empty gradient after progressing above floor 0; the 2D renderer mixed chunk-relative camera and absolute world coordinates. Neither image approached the official Jusant bar.
+
+Changes made in response: original articulated hero kit with independently moving upper/lower arms and legs, armor and helmet detail, backpack gear, distinctive guardian/sentinel/shooter silhouettes, ledge-reaching jump poses; giant level monuments, weathered stone textures, skyline vignettes, arches, banners, chains, animated atmospheric rays, batched dust particles and two-call instanced stone weathering. Fixed floor-relative 2D coordinates and added a higher-floor visibility regression test.
+
+The quality reviewer has **not** yet inspected a new screenshot from these changes. A static code review cannot claim improved perceptual quality.
+
+## Round 3 — independently inspectable workflow (committed, awaiting CI)
+
+New gauntlet-specific GitHub Actions runs **three independent automated jobs in parallel**: deterministic gameplay/replay, security and presentation isolation, and a genuine running-browser Playwright critic capture. These are engineering review lanes, **not** independent LLM visual critics. The visual reviewer must still open the captured screenshots and compare with real official Jusant frames.
+
+The game now exposes a hero close-up (`/tower?camera=hero&cleanFeed=1`), low-power stream preset (`?quality=low`), high-contrast 3D palette, actual browser frame-pacing instrumentation and a gauntlet rubric with local review persistence and a handoff containing the biggest outstanding gap. Progress is published through a versioned JSON ledger and an in-browser history page.
+
+**Next non-negotiable gameplay gap:** the authoritative physics system remains a 2D platformer with 3D presentation. Full free-depth movement and actual physical climbing/contact are not implemented. Do not market it as a complete 3D climbing adventure until those interactions are independently tested, playable and replay-safe.
+
+**Current outcome:** Round 1 CI **PASS**; new code parse checked independently; Rounds 2/3 browser CI and matching Jusant video criticism remain **pending**. No AAA parity claim is justified.
