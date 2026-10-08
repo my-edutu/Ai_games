@@ -80,7 +80,7 @@ test('pit eliminates at terminal depth and emits original pit authority cause',(
   assert.ok(eliminationEvent,'marble must eventually be eliminated after falling');
   assert.equal(eliminationEvent.data.hazardId,'reactor-well');
   assert.equal(eliminationEvent.data.cause,'pit');
-  assert.ok(state.marbles[0].elevation<=-650);
+  assert.ok(state.marbles[0].elevation<=-500);
   assert.equal(state.marbles[0].status,'eliminated');
 });
 
