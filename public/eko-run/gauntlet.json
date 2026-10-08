@@ -3,7 +3,7 @@
   "baseline": "SYBO Subway Surfers City — official gameplay footage; original IP only",
   "scope": "Interactive 3D vertical slice; not a finished or externally benchmarked game",
   "updated": "2026-10-08",
-  "runStatus": "Iteration 1: initial procedural 3D client and authoritative stream host committed; independent visual benchmark pending",
+  "runStatus": "Iteration 2: independent runtime capture pending; static critic found and fixed terrain disposal, missing Three.js core module, CSP scripting, incomplete late-district terrain and invisible warned hazards.",
   "iterations": [
     {
       "round": 0,
@@ -17,17 +17,17 @@
       "round": 1,
       "title": "Playable 3D foundation",
       "status": "implementation-in-review",
-      "builder": "Three.js scene, articulated Tayo, Lagos roadside shopfronts, danfo forms, district palette, HUD, responsive input",
-      "critic": "Procedural block models do not meet Subway Surfers City art quality; screenshot and mobile evaluation not yet witnessed",
-      "decision": "Fix critical renderer issues; add screenshot capture and runtime tests"
+      "builder": "Built a real Three.js interactive preview consuming existing 60Hz authoritative Phase 6 snapshots, 3D Lagos world, original Tayo variants, district-specific geometry, weather and live HUD.",
+      "critic": "Static review: insufficient character meshes, bespoke art, animation polish and visual comparison to reference; no verified runtime footage yet.",
+      "decision": "Added silhouette variants, Lagos market/bridge/night detail, rain and hazard action prompts; retain open visual gate."
     },
     {
       "round": 2,
-      "title": "Visual and control review",
-      "status": "not-started",
-      "builder": "Requires measured actual browser screenshots and video",
-      "critic": "Blind A/B not run; independent critic unavailable in current session",
-      "decision": "Keep goal open; do not claim reference win"
+      "title": "Static critic and repair loop",
+      "status": "code-review-fixes-committed; browser-validation-queued",
+      "builder": "Repaired scene disposal, hosted Three.js split ESM module, moved progress script to CSP-safe route, extended road to every district finish, and kept warned hazards visible.",
+      "critic": "Static inspection identified invisible terrain after first draw, script blocked by CSP, missing vendor dependency, truncated Bridge Run environment, and disappearing danger cues. No screenshots have yet been inspected.",
+      "decision": "Run GitHub Actions / Playwright to capture desktop and mobile output; then judge screenshots and gameplay against real reference and fix next worst gap."
     }
   ],
   "gates": [
