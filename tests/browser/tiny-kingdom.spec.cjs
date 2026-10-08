@@ -358,3 +358,42 @@ test('Tiny Kingdom scenic hills rise without changing world state or seeded repl
   expect(result.meadow).toBeGreaterThan(100);
   expect(result.same).toBe(true);
 });
+
+
+test('Gauntlet 018 camera tour provides five semantic views without affecting authoritative world', async ({page}) => {
+  const errors=[];page.on('pageerror', e=>errors.push(e.message));
+  await page.setContent(html);
+  await page.waitForFunction(()=>Boolean(window.__tinyKingdom));
+  await page.locator('#pause').click();
+  const before=await page.evaluate(()=>JSON.stringify(window.__tinyKingdom.exportSnapshot()));
+  expect(await page.locator('.tour-btn').count()).toBe(5);
+  for(const [scene,x,z] of [['market',0,5],['mill',-27,-18],['orchard',-26,9],['river',5,20],['valley',0,0]]){
+    await page.locator('[data-scenic="'+scene+'"]').click();
+    await expect(page.locator('[data-scenic="'+scene+'"]')).toHaveAttribute('aria-pressed','true');
+    const camera=await page.evaluate(()=>window.__tinyKingdom.getCamera());
+    expect(camera.focus[0]).toBeCloseTo(x,2);
+    expect(camera.focus[1]).toBeCloseTo(z,2);
+  }
+  expect(await page.evaluate(()=>JSON.stringify(window.__tinyKingdom.exportSnapshot()))).toBe(before);
+  expect(errors).toEqual([]);
+});
+
+test('Gauntlet 018 legible responsive HUD and real 3D scenic dressing', async ({page},testInfo) => {
+  const errors=[];page.on('pageerror',e=>errors.push(e.message));
+  await page.setViewportSize({width:1440,height:900});
+  await page.setContent(html);
+  await page.waitForFunction(()=>Boolean(window.__tinyKingdom));
+  await page.locator('#pause').click();
+  await expect(page.locator('#realm-title')).not.toBeEmpty();
+  const before=await page.evaluate(()=>window.__tinyKingdom.renderStats().lastFrameTriangles);
+  expect(before).toBeGreaterThan(1000);
+  await testInfo.attach('tiny-kingdom-festival-wide',{body:await page.screenshot(),contentType:'image/png'});
+  await page.setViewportSize({width:390,height:844});
+  const widths=await page.evaluate(()=>({screen:window.innerWidth,doc:document.documentElement.scrollWidth,tour:document.querySelector('.world-tour').getBoundingClientRect().width}));
+  expect(widths.doc).toBeLessThanOrEqual(widths.screen);
+  expect(widths.tour).toBeLessThanOrEqual(widths.screen);
+  await page.locator('[data-scenic="orchard"]').click();
+  await expect(page.locator('[data-scenic="orchard"]')).toHaveAttribute('aria-pressed','true');
+  await testInfo.attach('tiny-kingdom-festival-mobile',{body:await page.screenshot(),contentType:'image/png'});
+  expect(errors).toEqual([]);
+});
