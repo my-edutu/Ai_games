@@ -4,3 +4,5 @@
 body.clean-feed .top,body.clean-feed .side,body.clean-feed .caption,body.clean-feed .checkpoint-pill{display:none}body.clean-feed .shell{display:block;padding:0}body.clean-feed .arena-wrap{width:100%;height:100%;border:0;border-radius:0}
 
 .gauntlet-link{font-size:10px;letter-spacing:.13em;font-weight:900;color:#d7c09b;text-decoration:none;border:1px solid rgba(214,191,146,.35);border-radius:9px;padding:10px;white-space:nowrap}.gauntlet-link:hover{background:rgba(214,191,146,.15)}@media(max-width:999px){.gauntlet-link{font-size:8px;padding:5px}}
+
+.three-d-link{border-color:#e6bc72!important;background:linear-gradient(90deg,rgba(205,127,53,.29),rgba(219,159,72,.18));color:#fbd49a!important;box-shadow:0 2px 16px #c99d4d40}.three-d-link:hover{background:#aa7845!important;color:#fff!important}
