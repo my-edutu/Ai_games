@@ -2,6 +2,7 @@ import * as THREE from '/dungeon/vendor/three.module.js';
 import {enrichEnvironment} from '/dungeon/environment.js';
 import {enrichCharacter} from '/dungeon/characters.js';
 import {createBiomeAtmosphere} from '/dungeon/biome-atmosphere.js';
+import {createCombatOverlay} from '/dungeon/combat-overlay.js';
 const $=id=>document.getElementById(id),canvas=$('world'),reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
 const renderer=new THREE.WebGLRenderer({canvas,antialias:true,powerPreference:'high-performance',alpha:false});
 renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.6));renderer.shadowMap.enabled=!reduced;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.38;
@@ -12,6 +13,7 @@ const moon=new THREE.DirectionalLight('#a6c6ff',2.0);moon.position.set(-7,17,5);
 const partyGlow=new THREE.PointLight('#50e9ff',2.35,7.7,2);partyGlow.position.set(0,2,0);scene.add(partyGlow);
 const ground=new THREE.Mesh(new THREE.PlaneGeometry(150,150),new THREE.MeshStandardMaterial({color:'#080e17',roughness:1}));ground.rotation.x=-Math.PI/2;ground.position.y=-.17;scene.add(ground);
 const actors=new Map(),world=new THREE.Group();scene.add(world);
+const combatOverlay=createCombatOverlay($('battle-overlay'));
 const floorThemes=[
  {sky:'#0b2032',fog:'#143047',torch:'#ffb45c',accent:'#5cf1d2',fill:'#75adcf'},
  {sky:'#291324',fog:'#341b2e',torch:'#ffaf55',accent:'#fe806f',fill:'#a66d9a'},
@@ -274,7 +276,7 @@ function renderDashboard(s){
  drawMinimap(s);
 }
 
-function update(s){state=s;received=true;errorAt=0;$('recovery').hidden=true;
+function update(s){combatOverlay.record(s,timeNow());state=s;received=true;errorAt=0;$('recovery').hidden=true;
  for(const e of s.events){const id=s.run+':'+e.tick+':'+e.kind+':'+e.text;if(!seenEventIds.has(id)){seenEventIds.add(id);if(seenEventIds.size>150)seenEventIds.delete(seenEventIds.values().next().value);cue(e,s);notifyDungeon(e);playEffect(e.kind)}}
  if(worldFloor!==s.run+'-'+s.floor)buildWorld(s);
  const seen=new Set(s.units.map(u=>u.id));
@@ -316,7 +318,7 @@ function animate(t){requestAnimationFrame(animate);const time=t/1000,dt=Math.min
  camera.position.lerp(cam,reduced?1:.065);camera.lookAt(look.x,0,look.z);
  if(shakeStrength>.008&&!reduced){camera.position.x+=Math.sin(time*57)*shakeStrength;camera.position.y+=Math.cos(time*43)*shakeStrength*.5;}
  partyGlow.position.set(target.x,2,target.z);
- renderer.render(scene,camera);if(state)window.__DUNGEON_RENDER_DIAGNOSTICS__={frame:renderer.info.render.frame,drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,camera:cameraModes[cameraIndex],activeUnits:[...actors.values()].filter(x=>x.root.visible).length,characterDetails:[...actors.values()].reduce((sum,x)=>sum+(x.detail?.parts||0),0),webgl:true,theme:state.theme,dressing:world.userData.dressing?.metrics??null,atmosphere:world.userData.atmosphere?.metrics??null};
+ renderer.render(scene,camera);combatOverlay.render(state,actors,camera,time);if(state)window.__DUNGEON_RENDER_DIAGNOSTICS__={frame:renderer.info.render.frame,drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,camera:cameraModes[cameraIndex],activeUnits:[...actors.values()].filter(x=>x.root.visible).length,characterDetails:[...actors.values()].reduce((sum,x)=>sum+(x.detail?.parts||0),0),webgl:true,theme:state.theme,dressing:world.userData.dressing?.metrics??null,atmosphere:world.userData.atmosphere?.metrics??null,overlay:combatOverlay.metrics()};
 }
 async function poll(){try{const r=await fetch('/dungeon/state',{cache:'no-store'});if(!r.ok)throw Error('State '+r.status);const data=await r.json();if(data.tick!==lastTick||data.run!==state?.run){lastTick=data.tick;update(data)}}catch(e){errorAt++;if(errorAt>=3){$('recovery').hidden=false;$('status').textContent='VIEW DEGRADED — RETRYING';console.warn('Dungeon view recovery',String(e))}}finally{setTimeout(poll,190)}}
 const cameraModes=['cinematic','tactical','chase'];let cameraIndex=0;const viewButton=$('view-toggle');

@@ -51,3 +51,11 @@ test('compact mobile viewport preserves full controls and semantic minimap',asyn
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
  await page.screenshot({path:'artifacts/dungeon-mobile-compact.png',fullPage:true});
 });
+
+test('projected in-world health labels follow real autonomous state without synthetic damage',async({page})=>{
+ await page.goto('/dungeon');
+ await expect(page.getByTestId('battle-overlay')).toBeVisible();
+ await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.overlay?.labels??0),{timeout:20000}).toBeGreaterThan(0);
+ const scene=await page.evaluate(()=>({labels:window.__DUNGEON_RENDER_DIAGNOSTICS__?.overlay?.labels,units:window.__DUNGEON_RENDER_DIAGNOSTICS__?.activeUnits}));
+ expect(scene.labels).toBeLessThanOrEqual(scene.units);
+});
