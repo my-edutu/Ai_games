@@ -10,6 +10,7 @@ import { createAdaptiveQualityGovernor } from '/eko/adaptive-quality.js';
 import { createCityCrowd } from '/eko/city-crowd.js';
 import { sculptStreetHazard } from '/eko/hazard-sculpt.js';
 import { buildDistrictLandmarks } from '/eko/district-landmarks.js';
+import { computeCameraShot,nextCameraStyle,AVAILABLE_CAMERA_STYLES } from '/eko/camera-director.js';
 
 // Presentation-only renderer. The Node simulation owns all movement, collision and rewards.
 const $ = id => document.getElementById(id);
@@ -107,7 +108,8 @@ const hazards=new THREE.Group();scene.add(hazards);
 const hero=new THREE.Group();scene.add(hero);
 const ambient=new THREE.Group();scene.add(ambient);
 const weather=new THREE.Group();scene.add(weather);
-const worldState={district:'',finish:0,quality:'high',hazardIds:'',outfit:'',mode:'ai',lastEventTick:-1,frame:null,alive:false};
+const worldState={district:'',finish:0,quality:'high',hazardIds:'',outfit:'',mode:'ai',cameraStyle:'broadcast',lastEventTick:-1,frame:null,alive:false};
+const cameraTarget=new THREE.Vector3();let cameraTargetReady=false;
 let latest=null;
 let lastPacket=0;
 let frames=0, fpsStamp=performance.now();
@@ -454,7 +456,7 @@ window.__EKO_VISUAL_AUDIT__=()=>{
     performance:{drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,visualEffects:vfx.stats(),crowd:cityCrowd.metrics(),adaptive:qualityGovernor.metrics(),
       pixelRatio:renderer.getPixelRatio(),frameRateReported:ui.fps.textContent,
       renderer:renderer.capabilities.isWebGL2?'WebGL2':'WebGL'},
-    simulation:{publicTick:latest?.snapshot.tick??null,lifecycle:latest?.snapshot.lifecycle??null}
+    camera:{style:worldState.cameraStyle,allowed:AVAILABLE_CAMERA_STYLES},simulation:{publicTick:latest?.snapshot.tick??null,lifecycle:latest?.snapshot.lifecycle??null}
   });
 };
 function outfitUpdate(outfit){
@@ -576,6 +578,20 @@ function postControl(body){
   return fetch('/eko/control',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}).catch(()=>null);
 }
 $('mode').addEventListener('click',()=>postControl({mode:worldState.mode==='ai'?'player':'ai'}));
+function setCameraStyle(style){
+  if(!AVAILABLE_CAMERA_STYLES.includes(style))throw new RangeError('Invalid cosmetic camera');
+  worldState.cameraStyle=style;
+  $('camera').textContent=style==='broadcast'?'VIEW: SIDE':'VIEW: 3/4';
+  $('camera').setAttribute('aria-pressed',String(style==='street-cinema'));
+  return style;
+}
+$('camera').addEventListener('click',()=>setCameraStyle(nextCameraStyle(worldState.cameraStyle)));
+window.__EKO_SET_CAMERA_STYLE__=setCameraStyle;
+window.addEventListener('keydown',event=>{
+  if(event.code==='KeyC'&&!event.repeat&&!['INPUT','SELECT','TEXTAREA'].includes(document.activeElement?.tagName))
+    setCameraStyle(nextCameraStyle(worldState.cameraStyle));
+});
+
 $('sound').addEventListener('click',async()=>{
   try {
     await audio.setEnabled(!audio.enabled);
@@ -625,17 +641,17 @@ function animate(now){
     actor.pose({...player,tick:s.tick},now,reducedMotion);
     atmosphere.update(player.position.x,now,reducedMotion);
     const portrait=camera.aspect<.8;
-    // Portrait quality gate: prior real capture put Tayo at 42px in a 390px
-    // viewport, with most of the playable character clipped off-screen.
-    // Keep roughly 70% of the narrow frame ahead for obstacle decisions.
-    const targetX=player.position.x+(portrait?.85:3.3);
-    const camX=targetX-2.1;
-    const camZ=portrait?15.5:11.5;
-    const camY=portrait?4.70:4.38;
-    camera.position.x=THREE.MathUtils.lerp(camera.position.x,camX,1-Math.exp(-dt*4.5));
-    camera.position.y=THREE.MathUtils.lerp(camera.position.y,camY+player.position.y*.18,1-Math.exp(-dt*4));
-    camera.position.z=camZ;
-    camera.lookAt(targetX,1.2,0);
+    const shot=computeCameraShot({
+      playerX:player.position.x,playerY:player.position.y,
+      portrait,style:worldState.cameraStyle
+    });
+    const ease=1-Math.exp(-dt*4.5);
+    camera.position.x=THREE.MathUtils.lerp(camera.position.x,shot.x,ease);
+    camera.position.y=THREE.MathUtils.lerp(camera.position.y,shot.y,ease);
+    camera.position.z=THREE.MathUtils.lerp(camera.position.z,shot.z,ease);
+    if(!cameraTargetReady){cameraTarget.set(shot.targetX,shot.targetY,shot.targetZ);cameraTargetReady=true}
+    else cameraTarget.lerp(new THREE.Vector3(shot.targetX,shot.targetY,shot.targetZ),ease);
+    camera.lookAt(cameraTarget);
     sun.position.x=player.position.x-8;
     sun.target.position.set(player.position.x,0,0);sun.target.updateMatrixWorld();
     cityCrowd.animate(now,worldState.quality);
