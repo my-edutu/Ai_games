@@ -148,3 +148,17 @@ test('Three.js core module resolves and startup watchdog detects a real 3D frame
  const engine=await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__);
  expect(engine.frame).toBeGreaterThan(3);
 });
+
+test('actual class footprints, spells and character-close camera are inspectable',async({page})=>{
+ const errors=[];page.on('pageerror',e=>errors.push(e.message));
+ await page.goto('/dungeon');
+ await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.groundedActors??0),{timeout:20000}).toBeGreaterThan(2);
+ await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.combatStage?.activeProjectiles??-1),{timeout:20000}).toBeGreaterThanOrEqual(0);
+ const ranger=page.locator('.hero-card[data-hero-id="ranger"]');await ranger.click();
+ await page.locator('#view-toggle').click();await page.locator('#view-toggle').click();
+ await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.camera),{timeout:12000}).toBe('chase');
+ await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_PUBLIC_STATE__?.tick??0),{timeout:20000}).toBeGreaterThan(12);
+ await page.locator('canvas#world').screenshot({path:'artifacts/dungeon-ranger-close-world.png'});
+ await page.screenshot({path:'artifacts/dungeon-ranger-close-ui.png',fullPage:true});
+ expect(errors).toEqual([]);
+});

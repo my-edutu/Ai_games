@@ -3,6 +3,8 @@ import {enrichEnvironment} from '/dungeon/environment.js';
 import {enrichCharacter} from '/dungeon/characters.js';
 import {createBiomeAtmosphere} from '/dungeon/biome-atmosphere.js';
 import {createCombatOverlay} from '/dungeon/combat-overlay.js';
+import {createCombatDirector} from '/dungeon/combat-director.js';
+import {addContactProjection} from '/dungeon/contact-projection.js';
 import {attachCharacter,updateActor,disposeActorAsset,putEnvironment,stats as assetStats} from '/dungeon/model-assets.js';
 const $=id=>document.getElementById(id),canvas=$('world'),reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
 let focusedHeroId='vanguard';
@@ -45,6 +47,7 @@ const partyGlow=new THREE.PointLight('#50e9ff',2.35,7.7,2);partyGlow.position.se
 const ground=new THREE.Mesh(new THREE.PlaneGeometry(150,150),new THREE.MeshStandardMaterial({color:'#080e17',roughness:1}));ground.rotation.x=-Math.PI/2;ground.position.y=-.17;scene.add(ground);
 const actors=new Map(),world=new THREE.Group();scene.add(world);
 const combatOverlay=createCombatOverlay($('battle-overlay'));
+const combatDirector=createCombatDirector(scene,{reducedMotion:reduced});
 const floorThemes=[
  {sky:'#0b2032',fog:'#143047',torch:'#ffb45c',accent:'#5cf1d2',fill:'#75adcf'},
  {sky:'#291324',fog:'#341b2e',torch:'#ffaf55',accent:'#fe806f',fill:'#a66d9a'},
@@ -105,8 +108,17 @@ const dangerGlow=new THREE.MeshStandardMaterial({color:'#e67f50',emissive:'#bd4f
 const geo={cube:new THREE.BoxGeometry(1,1,1),sphere:new THREE.SphereGeometry(1,12,8),cylinder:new THREE.CylinderGeometry(1,1,1,10),cone:new THREE.ConeGeometry(1,1,10)};
 const make=(geometry,material,parent,x=0,y=0,z=0,sx=1,sy=1,sz=1)=>{const o=new THREE.Mesh(geometry,material);o.position.set(x,y,z);o.scale.set(sx,sy,sz);o.castShadow=!reduced;o.receiveShadow=true;parent.add(o);return o};
 function column(parent,x,z){make(geo.cylinder,stoneEdge,parent,x,.95,z,.26,1.95,.26);make(geo.cylinder,gold,parent,x,1.93,z,.4,.12,.4);make(geo.cylinder,stoneEdge,parent,x,.12,z,.37,.24,.37)}
-function disposeActor(a){disposeActorAsset(a);a.detail?.dispose();a.root.traverse(o=>{if(o.geometry&&!Object.values(geo).includes(o.geometry))o.geometry.dispose()});scene.remove(a.root)}
-function clearWorld(){world.userData.atmosphere?.dispose();world.userData.atmosphere=null;world.userData.dressing?.dispose();world.userData.dressing=null;while(world.children.length){const obj=world.children[0];world.remove(obj);obj.traverse(o=>{if(o.geometry&&!Object.values(geo).includes(o.geometry))o.geometry.dispose();if(o.material&&!Object.values({stone,stoneEdge,floorMat,gold,black,tealGlow,dangerGlow}).includes(o.material)){const mats=Array.isArray(o.material)?o.material:[o.material];for(const m of mats)m.dispose()}})}for(const a of actors.values())disposeActor(a);actors.clear()}
+function disposeActor(a){
+ a.ground?.dispose();disposeActorAsset(a);a.detail?.dispose();
+ const protectedMaterials=new Set([stone,stoneEdge,floorMat,gold,black,tealGlow,dangerGlow]),seenMat=new Set(),seenGeo=new Set();
+ a.root.traverse(o=>{
+  if(o.geometry&&!o.userData.sharedAssetGeometry&&!Object.values(geo).includes(o.geometry)&&!seenGeo.has(o.geometry)){seenGeo.add(o.geometry);o.geometry.dispose()}
+  const list=o.material?(Array.isArray(o.material)?o.material:[o.material]):[];
+  for(const m of list)if(!seenMat.has(m)&&!protectedMaterials.has(m)){seenMat.add(m);m.dispose()}
+ });
+ scene.remove(a.root);
+}
+function clearWorld(){combatDirector.reset();world.userData.atmosphere?.dispose();world.userData.atmosphere=null;world.userData.dressing?.dispose();world.userData.dressing=null;while(world.children.length){const obj=world.children[0];world.remove(obj);obj.traverse(o=>{if(o.geometry&&!o.userData.sharedAssetGeometry&&!Object.values(geo).includes(o.geometry))o.geometry.dispose();if(o.material&&!o.userData.sharedAssetGeometry&&!Object.values({stone,stoneEdge,floorMat,gold,black,tealGlow,dangerGlow}).includes(o.material)){const mats=Array.isArray(o.material)?o.material:[o.material];for(const m of mats)m.dispose()}})}for(const a of actors.values())disposeActor(a);actors.clear()}
 function buildWorld(s){clearWorld();worldFloor=s.run+'-'+s.floor;world.userData.sceneKey=worldFloor;lastCutawayKey='';
  const theme=floorThemes[(s.floor-1)%floorThemes.length];scene.background=new THREE.Color(theme.sky);scene.fog.color.set(theme.fog);moon.color.set(theme.fill);ambient.intensity=1.7;
  const floors=[],walls=[],trim=[];const size=s.map.length,offset=Math.floor(size/2);
@@ -335,8 +347,9 @@ function update(s){combatOverlay.record(s,timeNow());state=s;received=true;error
  if(worldFloor!==s.run+'-'+s.floor)buildWorld(s);
  const seen=new Set(s.units.map(u=>u.id));
  for(const [id,a] of actors)if(!seen.has(id)){disposeActor(a);actors.delete(id)}
- for(const u of s.units){let a=actors.get(u.id);if(!a){a=rig(u);actors.set(u.id,a);a.root.position.set(u.x-9,0,u.z-9);attachCharacter(a)}
+ for(const u of s.units){let a=actors.get(u.id);if(!a){a=rig(u);a.ground=addContactProjection(a);actors.set(u.id,a);a.root.position.set(u.x-9,0,u.z-9);attachCharacter(a)}
   if(a.u.actionTick!==u.actionTick||a.u.action!==u.action){a.actionStarted=timeNow();}a.u=u;a.at.set(u.x-9,0,u.z-9);a.root.visible=u.hp>0;if(a.telegraph)a.telegraph.visible=u.hp>0&&[4,5].includes(s.tick%6);}
+ combatDirector.accept(s);
  if(world.userData.courtShield){
   world.userData.courtShield.visible=s.bossPhase==='SENTINEL';
   world.userData.courtShield.material.color.set('#69eaff');
@@ -352,6 +365,7 @@ function update(s){combatOverlay.record(s,timeNow());state=s;received=true;error
 }
 let lastFrameTime=0;
 function animate(t){requestAnimationFrame(animate);const time=t/1000,dt=Math.min(.05,Math.max(0,time-lastFrameTime));lastFrameTime=time;
+ combatDirector.animate(dt);
  for(let i=effects.length-1;i>=0;i--){const e=effects[i];e.life+=dt;
   if(e.life>=e.duration){scene.remove(e.mesh);e.mesh.material.dispose();effects.splice(i,1);continue}
   const progression=e.life/e.duration;e.mesh.scale.setScalar((e.large?.2:.13)+progression*(e.large?1.1:.80));e.mesh.material.opacity=.60*(1-progression);
@@ -369,7 +383,7 @@ function animate(t){requestAnimationFrame(animate);const time=t/1000,dt=Math.min
   else if(a.u.action==='hurt'&&since<.30){a.body.rotation.z=.16*Math.sin(phase*Math.PI*2);a.body.position.y+=.10*Math.sin(phase*Math.PI)}
   else a.body.rotation.z*=.65;
   if(a.telegraph)a.telegraph.material.opacity=.42+.2*Math.sin(time*9);
-  if(!a.authored)a.detail?.update(time,a.u.action||'idle');updateActor(a,dt);
+  if(!a.authored)a.detail?.update(time,a.u.action||'idle');a.ground?.update(time,a.u.action||'idle',a.u.hp>0);updateActor(a,dt);
   if(moving){const delta=a.at.clone().sub(a.root.position);a.root.rotation.y=Math.atan2(-delta.x,-delta.z)}}
  if(world.userData.portal&&!reduced)world.userData.portal.rotation.y=time*.26;
  if(world.userData.court&&!reduced)world.userData.court.rotation.y=Math.sin(time*.3)*.035;
@@ -391,7 +405,7 @@ function animate(t){requestAnimationFrame(animate);const time=t/1000,dt=Math.min
  renderer.info.reset();
  try{if(composer&&postFXEnabled){bloomPass.strength=innerWidth<680?.26:.49;composer.render()}else renderer.render(scene,camera)}
  catch(error){console.warn('[DUNGEON] post effect fault, restoring WebGL:',String(error));composer=null;postFXStatus='fallback';renderer.info.reset();renderer.render(scene,camera)}
- combatOverlay.render(state,actors,camera,time);if(state)window.__DUNGEON_RENDER_DIAGNOSTICS__={frame:renderer.info.render.frame,drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,camera:cameraModes[cameraIndex],focusedHeroId,postFX:composer&&postFXEnabled?'bloom':'direct',postFXStatus,bossFramed:Boolean(bossDistance),activeUnits:[...actors.values()].filter(x=>x.root.visible).length,characterDetails:[...actors.values()].reduce((sum,x)=>sum+(x.detail?.parts||0),0),webgl:true,theme:state.theme,dressing:world.userData.dressing?.metrics??null,atmosphere:world.userData.atmosphere?.metrics??null,overlay:combatOverlay.metrics(),authored3D:assetStats(actors)};
+ combatOverlay.render(state,actors,camera,time);if(state)window.__DUNGEON_RENDER_DIAGNOSTICS__={frame:renderer.info.render.frame,drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,camera:cameraModes[cameraIndex],focusedHeroId,postFX:composer&&postFXEnabled?'bloom':'direct',postFXStatus,bossFramed:Boolean(bossDistance),activeUnits:[...actors.values()].filter(x=>x.root.visible).length,characterDetails:[...actors.values()].reduce((sum,x)=>sum+(x.detail?.parts||0),0),webgl:true,theme:state.theme,dressing:world.userData.dressing?.metrics??null,atmosphere:world.userData.atmosphere?.metrics??null,overlay:combatOverlay.metrics(),combatStage:combatDirector.stats(),groundedActors:[...actors.values()].filter(x=>Boolean(x.ground)).length,authored3D:assetStats(actors)};
 }
 async function poll(){try{const r=await fetch('/dungeon/state',{cache:'no-store'});if(!r.ok)throw Error('State '+r.status);const data=await r.json();if(data.tick!==lastTick||data.run!==state?.run){lastTick=data.tick;update(data)}}catch(e){errorAt++;if(errorAt>=3){$('recovery').hidden=false;$('status').textContent='VIEW DEGRADED — RETRYING';console.warn('Dungeon view recovery',String(e))}}finally{setTimeout(poll,190)}}
 $('party').addEventListener('click',e=>{
