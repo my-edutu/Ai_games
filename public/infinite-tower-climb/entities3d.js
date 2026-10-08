@@ -89,6 +89,28 @@ export function createTowerEntities(THREE){
       shape(root,spikeGeo,gold,bodyWidth*1.2,bodyHeight*1.36,.3,.22,.4,.22);
       bar(root,gold,-bodyWidth*.9,.15,.7,bodyWidth*.7,bodyHeight*.95,.25);
       for(const side of [-1,1])shape(root,spikeGeo,trim,side*bodyWidth*.65,bodyHeight*.6,0,.34,.55,.34);
+      const type=String(data.guardianClass||'warden');
+      root.userData.guardianClass=type;
+      if(type==='titan'){
+        for(const side of [-1,1]){
+          const armor=bar(root,obsidian,side*bodyWidth*.8,bodyHeight*.55,-.1,bodyWidth*.9,bodyHeight*.75,.7);
+          armor.rotation.z=side*.22;
+          const crown=shape(root,spikeGeo,gold,side*bodyWidth*.37,bodyHeight*1.55,.05,.31,.67,.3);
+          crown.rotation.z=side*.18;
+        }
+        orb(root,eye,0,bodyHeight*.1,.65,.31,.38,.22);
+        bar(root,metal,bodyWidth*1.45,bodyHeight*.3,.18,.34,bodyHeight*1.9,.38);
+      }
+      if(type==='stormcaller'){
+        for(const side of [-1,1]){
+          const coil=new THREE.Mesh(new THREE.TorusGeometry(.38,.09,8,20),stamina);
+          coil.position.set(side*bodyWidth*.85,bodyHeight*.44,.72);
+          coil.rotation.y=side*.38;root.add(coil);
+          orb(root,stamina,side*bodyWidth*.87,bodyHeight*.44,.82,.2,.2,.18);
+        }
+        const aura=new THREE.Mesh(new THREE.TorusGeometry(bodyWidth*1.06,.055,8,36),violet);
+        aura.position.set(0,bodyHeight*.17,-.6);aura.rotation.x=.15;root.add(aura);
+      }
     }else if(shooter){
       bar(root,obsidian,bodyWidth*.7,.1,.65,bodyWidth*.85,.26,.24);
       orb(root,eye,bodyWidth*1.2,.1,.65,.17,.17,.17);
