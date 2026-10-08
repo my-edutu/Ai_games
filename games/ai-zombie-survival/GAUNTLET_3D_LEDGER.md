@@ -79,3 +79,26 @@ Status as of 2026-10-08: iterations 01–03 implemented and pushed for validatio
 **Concrete previous visual finding:** First-batch browser screenshots were small, low-contrast, gray miniature city scenes; the large-horde sample reported approximately 22 FPS on the earlier CI software renderer. The later visual improvements are not proven by those older images.
 
 **Required next critic gate:** inspect new CI screenshots (day, night, storm, large horde, hero and squad) at 1280×720 and mobile; review gameplay camera readability, real simulation continuity and CPU p95. Raise any failing result as a new iteration. No blind A/B win or AAA quality claim can be inferred from adding assets/effects alone.
+
+
+## Iteration 06 — major visual direction reset
+
+The user's critique remains correct: the older actual rendered day/night/large-horde screenshots are dull, mostly monochromatic overhead dioramas. Their daylight screenshot had approximately 0.24 mean luminance and only about 0.2% of pixels with high channel-separated saturation (RGB max-minus-min > 0.22). These are measurements of the **older evidence artifact only**, not a claim that the newest build has improved them.
+
+Builder work now committed:
+- Replaced the entire game-facing UI with a brighter **signal cyan / warning coral / rescue amber / night violet** design language, including stronger information hierarchy, named objective, squad defense bar, event story card, director strip and mobile layout.
+- Introduced a separate deterministic `web/scene-art.js` module with bespoke building identity (medical, market, industrial, apartment), awnings, shop signs built from physical 3D glyphs, quarantine banners, emergency vehicles, supply kiosks, lamps, detailed field architecture and a taller rescue HQ/beacon. All scene art is presentation-only and does not change collision or pathfinding.
+- Added a dedicated atmospheric WebGL2 sky pass (`web/sky-pass.js`) and an HTML canvas tactical map (`web/tactical-map.js`) showing actual live zombies and survivor positions.
+- Added static geometry-contract tests for finite transforms, bounds, deterministic colors and authoritative state purity.
+
+### Reproducible visual metrics
+
+The browser screenshot suite now captures `world-hud-hidden.png` (actual world without overlay) and `vibrant-ui.png`, and scores real PNG pixels with `tests/browser-scene-quality.mjs`. It records luminance, bright/dark fraction, colorful-pixel fraction, quantized palette size, and objective thresholds in `evidence/3d-runtime/browser-report.json`. Minimum readability and minimum saturation now fail the browser smoke if the scene regresses badly. More ambitious provisional goals are median luminance ≥0.34 and high-saturation pixels ≥18% for **daylight**, but meeting them is not sufficient for AAA or visual reference parity. The first full CI pass on this iteration is **pending**; no new measured score has been claimed.
+
+## Iteration 07 — character identity
+
+- Added `web/actor-art.js` as a standalone, simulation-pure cosmetic layer. Six survivor roles have distinct tactical vests, helmets/visors, medic packs, leader patches, engineer tools, scavenging pouches and individually visible injury/infection signs.
+- Added asymmetric torn clothing, scars, eyes and silhouette mutations for shamblers, runners and brutes, with more geometry reserved for near-camera characters. Far hordes retain the simpler existing distance LOD.
+- Added Node geometry-contract tests for every role/archetype and budgets. **This is still procedural stylized geometry** and nowhere close to finished rigged cinematic characters, facial performance or animations.
+
+**Gate remains OPEN:** demand real updated CI screenshots, frame CPU p95 and headless/mid-range/mobile reviews, then side-by-side Days Gone Remastered reference comparisons. Do not rename this build “AAA” based on code volume or color saturation alone.
