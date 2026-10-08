@@ -3,7 +3,7 @@
   "baseline": "SYBO Subway Surfers City — official gameplay footage; original IP only",
   "scope": "Interactive 3D vertical slice; not a finished or externally benchmarked game",
   "updated": "2026-10-08",
-  "runStatus": "Gauntlet iteration 9: vibrant chromatic HUD and six district palettes, live hazard/route meter, denser original Lagos architecture, markets/murals/skyline, cinematic sky gradient, opt-in synthetic audio and bounded event VFX have been committed. JavaScript syntax was verified; GitHub Actions visual captures and runtime tests for this HEAD are still queued. Reference-quality win NOT claimed.",
+  "runStatus": "Iteration 10–12 built on Draft PR #51: unoccluded player sightlines, original detailed danfo vehicle fittings and Tayo costume stitches, filled foreground geometry, per-sector vertex-color batching, adaptive render resolution, 32-capacity GPU-instanced animated sidewalk citizens, explicit deterministic preview resets, and 8-seed autonomous campaign telemetry. Latest browser/render tests and new soak outcomes remain pending. The official production-quality benchmark is NOT achieved.",
   "iterations": [
     {
       "round": 0,
@@ -84,6 +84,30 @@
       "builder": "Added original low-voice-count Web Audio stingers and opt-in city ambience, one-draw-call capped VFX for jump/land/hazards/tokens/checkpoints, buffered semantic events across three-tick visual frames, chromatic world and atmosphere unit tests, and branch Gauntlet workflow concurrency.",
       "critic": "Motion/audio polish and performance are unproven without normal-speed footage, tested real devices and human controls. Audio is optional and disabled until the user enables it. Full production sound and animation remain open.",
       "decision": "Run smoke and browser video/screenshot tests; inspect severe visual gaps and continue until genuinely comparable with official quality footage."
+    },
+    {
+      "round": 10,
+      "title": "Playable framing, silhouette, and foreground repair",
+      "status": "code committed; latest visual re-capture queued",
+      "builder": "Visual criticism of actual Chromium screenshots detected trees hiding Tayo, cyan missing pavement in the lower half, toy-like danfo fittings, and over-sized failure overlays. Replaced near-side tree occlusion with far-side canopy, filled the foreground with textured footpath geometry, refined bus mirrors/windows/wheels/route badge, and enriched costume seams, shoes, and cuffs.",
+      "critic": "Last real screenshot used artifact 11547205062, source bb07483, before these edits. It measured 423 draw calls and only 6 FPS in software-like CI Chromium; busy foreground tree hid character. New rendering improvements are unverified until current HEAD evidence exists.",
+      "decision": "Compare new desktop and mobile screenshots at fixed timestamps; test Tayo visibility without tree occlusion and improve the most obviously weak original 3D geometry."
+    },
+    {
+      "round": 11,
+      "title": "Sustainable lively city rendering",
+      "status": "implemented; new performance gate not yet verified",
+      "builder": "Replaced many per-color static draw calls with per-chunk GPU vertex colors while preserving original texture maps; added an adaptive resolution hysteresis governor; developed 28+ unique colored instanced walking citizens rendered as only eleven instanced limb/body categories rather than many independent pedestrians.",
+      "critic": "Static Node tests assert color retention, fixed draw-call budget and responsive quality scaling. Actual WebGL metrics and stability under continuous AI play are still unverified. Crowd remains cosmetic and must never be described as autonomous NPC intelligence.",
+      "decision": "Verify draw calls/FPS/scene readability with actual browser telemetry on latest HEAD and a genuine mobile GPU before closing performance."
+    },
+    {
+      "round": 12,
+      "title": "Evidence-driven autonomy and reproducible scene capture",
+      "status": "instrumentation committed; CI results queued",
+      "builder": "Added explicit same-origin local preview reset for repeatable live screenshots, fixed mobile Playwright's shared-mode-state false failure, and added an eight-seed authoritative AI campaign script that writes per-hazard failure distribution as a CI artifact.",
+      "critic": "Earlier full browser suite failed specifically because previous outfit test left shared host in player mode, not because WebGL failed. This has been addressed by explicit mode reset, but no new passing result exists. Auto AI still visibly restarted after failures in screenshots; its survival/recovery quality remains open.",
+      "decision": "Collect latest end-to-end browser result, autonomy-soak.json, desktop/mobile metrics; use observed fail patterns and frame pacing to target next loop."
     }
   ],
   "gates": [
@@ -93,7 +117,7 @@
     },
     {
       "name": "WebGL 3D game opens on desktop and mobile",
-      "status": "passed-browser (two verified screenshot runs)"
+      "status": "previous screenshot passed, latest head unverified"
     },
     {
       "name": "Visually polished fully rigged character and outfits",
@@ -101,15 +125,15 @@
     },
     {
       "name": "Cinematic Lagos street environment and six developed districts",
-      "status": "denser colored prototype committed; visual reference still FAIL"
+      "status": "OPEN — significant original procedural architecture/market/skyline/vehicle/crowd revisions, new visual screenshots required"
     },
     {
       "name": "Responsive, fair obstacles with observable animation/AI gameplay",
-      "status": "OPEN — live HUD cues + reactive AI + semantic VFX implemented; real-play proof pending"
+      "status": "OPEN — eight-seed autonomy report and normal-speed footage pending"
     },
     {
       "name": "Stable FPS/mobile performance under declared hardware",
-      "status": "OPEN — latest denser world and batching need hardware GPU measurement"
+      "status": "OPEN — last real CI 6 FPS / 423 draw calls before latest batching, adaptive quality and crowd changes; no real device benchmark"
     },
     {
       "name": "Independent builder/critic and blind A/B vs reference",
@@ -185,5 +209,21 @@
     ],
     "validation": "syntax-only checks on new JavaScript modules; actual latest GitHub Actions pending",
     "comparativeStatus": "NOT MET — no official gameplay A/B win, no independent critic signoff"
+  },
+  "latestBuild": {
+    "branch": "feat/eko-run-3d-gauntlet-slice",
+    "head": "b09424f3d33bf8aa1e1c54edad27cb9e62cb9b69",
+    "state": "Draft, reference bar failed",
+    "verification": "New CI run queued; no latest screenshot/FPS/artifact published yet",
+    "evidencePrior": {
+      "head": "bb0748394e36f6e9e6d08e1344f94a23dab80bea",
+      "workflowRunId": 37754962890,
+      "artifactId": 11547205062,
+      "realMeasurements": {
+        "drawCalls": 423,
+        "fpsCI": 6
+      },
+      "browserTests": "3 passed, 1 mobile shared-mode-state failure fixed afterward"
+    }
   }
 }
