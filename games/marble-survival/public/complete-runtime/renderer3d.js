@@ -1374,39 +1374,46 @@
   function drawMarbleSpeedTrails(marbles,arena,theme,focusIds,viewProjection,cameraPosition,now) {
     const quality=document.getElementById('quality-select')?.value||'balanced';
     if(quality==='low')return;
-    // Limit the trail budget to the race leaders and camera subjects; the
-    // camera stays legible even with 32 simultaneously moving competitors.
+    // Actual momentum drives these lengthened *continuous* cinematic streaks.
+    // Focused marbles and true contenders win the visual budget.
     const eligible=marbles
-      .filter(marble=>marble.status!=='eliminated' &&
-        (focusIds.has(marble.id)||marble.status==='near-finish'||marble.status==='champion'))
+      .filter(m=>m.status!=='eliminated' &&
+        (focusIds.has(m.id)||m.status==='near-finish'||m.status==='champion'))
       .sort((a,b)=>b.progressPermille-a.progressPermille||a.id-b.id)
       .slice(0,quality==='balanced'?5:10);
-    const beads=quality==='balanced'?3:5;
+    const segments=quality==='balanced'?3:5;
+    gl.depthMask(false);
     for(const marble of eligible){
       const vx=marble.velocityX||0,vz=marble.velocityY||0;
       const speed=Math.hypot(vx,vz);
       if(speed<95)continue;
-      const directionX=vx/speed,directionZ=vz/speed;
+      const dirX=vx/speed,dirZ=vz/speed;
+      const yaw=-Math.atan2(dirZ,dirX);
       const point=toWorld(marble.x,marble.y,arena);
-      const y=(marble.elevation||0)*WORLD_SCALE+MARBLE_RADIUS*0.75;
+      const height=(marble.elevation||0)*WORLD_SCALE+MARBLE_RADIUS*0.77;
       const base=PALETTE[marble.palette]||theme.secondary;
-      const trail=material(base,0.18,0.24,0.40,0.65);
-      const bright=material(theme.secondary,0.20,0.15,0.55,0.48);
-      for(let i=0;i<beads;i++){
-        const n=(i+1)/(beads+1);
-        const length=0.16+n*Math.min(1.35,speed*WORLD_SCALE*2.3);
-        const shimmer=Math.sin(now*0.004+marble.id*2.31+i*1.16)*0.024;
-        const pos=[
-          point[0]-directionX*length+(-directionZ)*shimmer,
-          y-0.06*n,
-          point[2]-directionZ*length+directionX*shimmer,
-        ];
-        const size=0.078*(1-n*0.72);
-        drawMesh(sphereMesh,modelMatrix(pos,[0,0,0],[size,size,size]),i===0?bright:trail,viewProjection,cameraPosition);
+      const length=0.2+Math.min(1.7,speed*WORLD_SCALE*3.8);
+      for(let i=0;i<segments;i++){
+        const from=0.14+(length-0.14)*i/segments;
+        const to=0.14+(length-0.14)*(i+1)/segments;
+        const t=(i+0.5)/segments;
+        const middle=(from+to)*0.5;
+        const waviness=Math.sin(now*0.003+marble.id*2.31+i*0.64)*0.022*t;
+        const x=point[0]-dirX*middle-dirZ*waviness;
+        const z=point[2]-dirZ*middle+dirX*waviness;
+        const glow=material(i===0?theme.secondary:base,0.16,0.18,0.46-t*0.12,0.66*(1-t*0.80));
+        drawBox([x,height-0.05*t,z],
+          [to-from+0.012,0.030*(1-t*0.60),0.088*(1-t*0.75)],
+          glow,viewProjection,cameraPosition,[0,yaw,0]);
       }
+      // One small bright light-tip makes the trail attach to the moving
+      // character rather than forming detached generic coloured beads.
+      const tip=[point[0]-dirX*0.11,height,point[2]-dirZ*0.11];
+      drawMesh(sphereMeshLow,modelMatrix(tip,[0,0,0],[0.065,0.065,0.065]),
+        material(theme.secondary,0.17,0.11,0.66,0.70),viewProjection,cameraPosition);
     }
+    gl.depthMask(true);
   }
-
   function drawContactShadow(marble,arena,viewProjection,cameraPosition){
     // A hole is not a plane: there can be no dark decal over an open shaft.
     if((arena.hazards||[]).some(h=>h.kind==='pit'&&marble.x>=h.x&&marble.x<=h.x+h.width&&marble.y>=h.y&&marble.y<=h.y+h.height))return;
