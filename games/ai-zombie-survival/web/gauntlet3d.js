@@ -8,6 +8,7 @@ import { decorateSetpieces } from './world-setpieces.js';
 import { clearCamera } from './camera-rig.js';
 import { decorateTacticalWorld } from './world-overlays.js';
 import { drawEnvironmentVfx } from './environment-vfx.js';
+import { decorateInterior } from './interior-art.js';
 
 const canvas = document.getElementById('scene');
 const hud = document.getElementById('hud');
@@ -240,6 +241,7 @@ function constructStatic(){
       m.box(b.x,.88,b.y-b.h*.5,b.w,1.42,.24,tint(base,.77));
       m.box(b.x, .43,b.y+b.h*.3,b.w*.34,.55,.42,'#655d4a');
       m.box(b.x-b.w*.25,.57,b.y-b.h*.14,.95,.82,1.12,'#555b54');
+      decorateInterior(m,b,game);
       continue;
     }
     m.contactShadow(b.x+height*.17,b.y-height*.12,b.w*.58+height*.35,b.h*.54+height*.24,'#405047',.117);

@@ -7,6 +7,7 @@ import { decorateSetpieces } from '../web/world-setpieces.js';
 import { clearCamera } from '../web/camera-rig.js';
 import { decorateTacticalWorld } from '../web/world-overlays.js';
 import { drawEnvironmentVfx } from '../web/environment-vfx.js';
+import { decorateInterior } from '../web/interior-art.js';
 
 class GeometryAudit {
   constructor(){this.calls=0;this.colors=new Set();this.byKind=new Map();}
@@ -136,4 +137,21 @@ test('cinematic burning buildings, damage particles and warning strobes are dete
   assert.ok(one.colors.has('#ffad5c'),'burning ruins should have visible thermal highlights');
   assert.ok(one.colors.has('#44555d'),'damaged structures should have smoldering smoke');
   assert.equal(JSON.stringify(g),original,'visual VFX may not touch authoritative AI/survival state');
+});
+
+test('scenario interiors have true role-specific furnishing and never modify civilians or navigation',()=>{
+  const state=createGame({seed:2026,zombieCount:20});
+  const first=state.buildings.find(b=>b.kind!=='safehouse');
+  const variants=['hospital','apartment','supermarket','police','fuel','warehouse'];
+  const signatures=[];
+  for(const kind of variants){
+    const b={...first,kind,roofVisible:false,w:8,h:7};
+    const m=new GeometryAudit();
+    const before=JSON.stringify(state);
+    decorateInterior(m,b,state);
+    assert.equal(JSON.stringify(state),before,'interior art must be visual-only');
+    assert.ok(m.calls>15&&m.calls<220,'interior detail should be substantial yet bounded');
+    signatures.push([...m.colors].sort().join(','));
+  }
+  assert.ok(new Set(signatures).size>=5,'Hospital, apartment, supermarket and police interiors must read as unique');
 });
