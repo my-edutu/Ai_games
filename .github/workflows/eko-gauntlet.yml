@@ -21,6 +21,10 @@ on:
       - 'package.json'
       - '.github/workflows/eko-gauntlet.yml'
 
+concurrency:
+  group: eko-gauntlet-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 
