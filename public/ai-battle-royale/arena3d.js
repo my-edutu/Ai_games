@@ -105,35 +105,133 @@
              [x+Math.cos(b)*(r-t),y,z+Math.sin(b)*(r-t)],[0,1,0],col);
       }
     }
-    return{v,quad,box,ring};
+
+    // Smooth faceted primitives: original geometry, no third-party models/assets.
+    function cone(x,y,z,rBottom,rTop,h,col,segments=9){
+      const bottom=y-h/2,top=y+h/2;
+      for(let i=0;i<segments;i++){
+        const a=i*2*Math.PI/segments,b=(i+1)*2*Math.PI/segments;
+        const direction=[Math.cos((a+b)/2),0,Math.sin((a+b)/2)];
+        const a0=[x+Math.cos(a)*rBottom,bottom,z+Math.sin(a)*rBottom];
+        const b0=[x+Math.cos(b)*rBottom,bottom,z+Math.sin(b)*rBottom];
+        const a1=[x+Math.cos(a)*rTop,top,z+Math.sin(a)*rTop];
+        const b1=[x+Math.cos(b)*rTop,top,z+Math.sin(b)*rTop];
+        quad(a0,b0,b1,a1,direction,col);
+        tri([x,top,z],a1,b1,[0,1,0],col);
+        tri([x,bottom,z],b0,a0,[0,-1,0],col);
+      }
+    }
+    function cylinder(x,y,z,r,h,col,segments=9){cone(x,y,z,r,r,h,col,segments)}
+    function limb(start,end,r,col){
+      const dx=end[0]-start[0],dy=end[1]-start[1],dz=end[2]-start[2];
+      const len=Math.hypot(dx,dy,dz)||1;
+      const direction=[dx/len,dy/len,dz/len];
+      const ref=Math.abs(direction[1])>.92?[1,0,0]:[0,1,0];
+      let u=[direction[1]*ref[2]-direction[2]*ref[1],direction[2]*ref[0]-direction[0]*ref[2],direction[0]*ref[1]-direction[1]*ref[0]];
+      const ul=Math.hypot(...u)||1;u=u.map(n=>n/ul);
+      const v=[direction[1]*u[2]-direction[2]*u[1],direction[2]*u[0]-direction[0]*u[2],direction[0]*u[1]-direction[1]*u[0]];
+      const axes=[[u[0]+v[0],u[1]+v[1],u[2]+v[2]],[u[0]-v[0],u[1]-v[1],u[2]-v[2]],
+        [-u[0]-v[0],-u[1]-v[1],-u[2]-v[2]],[-u[0]+v[0],-u[1]+v[1],-u[2]+v[2]]];
+      for(let i=0;i<4;i++){
+        const a=axes[i],b=axes[(i+1)%4];
+        const startA=start.map((n,k)=>n+a[k]*r),startB=start.map((n,k)=>n+b[k]*r);
+        const endA=end.map((n,k)=>n+a[k]*r),endB=end.map((n,k)=>n+b[k]*r);
+        const n=axes[i].map((value,k)=>value+axes[(i+1)%4][k]);
+        quad(startA,startB,endB,endA,n,col);
+      }
+    }
+    function blade(x,y,z,width,height,col){
+      quad([x-width/2,y,z],[x,y+height,z],[x+width/2,y,z],[x-width/2,y,z],[0,0,1],col);
+    }
+    return{v,quad,box,ring,cone,cylinder,limb,blade};
   }
   function pos(cell,w){return{x:cell%w+.5,z:Math.floor(cell/w)+.5}}
-  function contender(b,f,w,theme,focus){
+  function contender(b,f,w,theme,focus,events){
     const p=f.visual||pos(f.cell,w);
-    if(!f.alive){b.box(p.x,.08,p.z,.46,.13,.46,[.25,.28,.32]);return}
-    const col=suits[f.archetype]||suits.vanguard,steel=[.13,.19,.25],shadow=[.07,.11,.16];
-    b.box(p.x,.035,p.z,.72,.03,.55,shadow);
-    b.box(p.x-.13,.28,p.z,.17,.48,.20,steel);
-    b.box(p.x+.13,.28,p.z,.17,.48,.20,steel);
-    b.box(p.x,.79,p.z,.49,.55,.30,col);
-    b.box(p.x,.88,p.z+.18,.35,.33,.09,steel);
-    b.box(p.x-.34,.80,p.z,.16,.50,.18,steel);
-    b.box(p.x+.34,.80,p.z,.16,.50,.18,steel);
-    b.box(p.x,1.28,p.z,.33,.34,.32,[.77,.78,.74]);
-    b.box(p.x,1.41,p.z,.39,.20,.36,col);
-    b.box(p.x,1.30,p.z+.18,.26,.10,.045,[.04,.16,.23]);
-    b.box(p.x+.26,.92,p.z+.25,.10,.10,.47,steel);
+    const dead=!f.alive;
+    const neutral=[.075,.115,.17],undersuit=[.13,.20,.25],steel=[.28,.39,.43],helmet=[.62,.72,.74];
+    const roleArmor={
+      vanguard:{main:[.94,.35,.24],trim:[1,.76,.47],shoulders:.30,backpack:.25},
+      ranger:{main:[.20,.76,.90],trim:[.70,.95,.99],shoulders:.16,backpack:.13},
+      scavenger:{main:[.98,.69,.25],trim:[1,.85,.49],shoulders:.20,backpack:.34},
+      tactician:{main:[.49,.81,.46],trim:[.79,.96,.70],shoulders:.18,backpack:.23}
+    }[f.archetype]||{main:suits.vanguard,trim:steel,shoulders:.2,backpack:.2};
+    if(dead){
+      b.box(p.x,.07,p.z,.74,.10,.58,neutral);
+      b.cylinder(p.x,.13,p.z,.26,.12,roleArmor.main,8);
+      b.ring(p.x,.08,p.z,.38,.035,[.72,.25,.27],20);
+      return;
+    }
+    const prev=previousSnapshot?.combatants.find(c=>c.id===f.id);
+    const moving=Boolean(prev&&prev.cell!==f.cell);
+    const walkPhase=(!reducedMotion&&moving)?Math.sin(performance.now()/125+f.cell*.23):0;
+    const bob=Math.abs(walkPhase)*.055;
+    const cx=p.x,cz=p.z;
+    const dark=[.07,.12,.16];
+    b.box(cx,.032,cz,.67,.026,.56,dark); // soft contact silhouette
+    b.ring(cx,.053,cz,.31,.028,[.21,.32,.36],16);
+    const hipY=.73+bob,hipLeft=[cx-.14,hipY,cz],hipRight=[cx+.14,hipY,cz];
+    const leftKnee=[cx-.18,.39+bob+walkPhase*.105,cz+walkPhase*.15];
+    const rightKnee=[cx+.18,.39+bob-walkPhase*.105,cz-walkPhase*.15];
+    const leftFoot=[cx-.19,.14,cz+walkPhase*.30+.07];
+    const rightFoot=[cx+.19,.14,cz-walkPhase*.30+.07];
+    b.limb(hipLeft,leftKnee,.100,undersuit);
+    b.limb(leftKnee,leftFoot,.080,steel);
+    b.limb(hipRight,rightKnee,.100,undersuit);
+    b.limb(rightKnee,rightFoot,.080,steel);
+    b.box(leftFoot[0],.095,leftFoot[2]+.085,.23,.16,.32,neutral);
+    b.box(rightFoot[0],.095,rightFoot[2]+.085,.23,.16,.32,neutral);
+    b.cone(cx,hipY+.18,cz,.29,.36,.34,undersuit,8); // armored waist
+    b.cone(cx,hipY+.59,cz,.33,.255,.68,roleArmor.main,10); // shaped chest
+    b.box(cx,hipY+.65,cz+.24,.43,.35,.09,roleArmor.trim); // ballistic breast plate
+    b.box(cx,hipY+.36,cz+.26,.33,.09,.10,neutral); // utility belt
+    b.box(cx,hipY+.63,cz-roleArmor.backpack,.43,.47,.16,neutral);
+    b.cylinder(cx,hipY+.99,cz,.13,.16,undersuit,8);
+    const shoulderY=hipY+.87,elbowZ=cz+.15,handZ=cz+.41;
+    b.cone(cx-.38,shoulderY,cz,roleArmor.shoulders,.16,.22,roleArmor.trim,7);
+    b.cone(cx+.38,shoulderY,cz,roleArmor.shoulders,.16,.22,roleArmor.trim,7);
+    b.limb([cx-.36,shoulderY,cz],[cx-.36,hipY+.53,elbowZ],.095,roleArmor.main);
+    b.limb([cx-.36,hipY+.53,elbowZ],[cx-.20,hipY+.64,handZ],.080,undersuit);
+    b.limb([cx+.36,shoulderY,cz],[cx+.36,hipY+.53,elbowZ],.095,roleArmor.main);
+    b.limb([cx+.36,hipY+.53,elbowZ],[cx+.24,hipY+.65,handZ],.080,undersuit);
+    b.cylinder(cx,hipY+1.19,cz,.245,.30,helmet,10); // modeled head
+    b.cone(cx,hipY+1.38,cz,.268,.17,.18,roleArmor.main,10);
+    b.box(cx,hipY+1.22,cz+.24,.33,.115,.06,[.065,.19,.25]); // visor
+    b.box(cx,hipY+1.11,cz+.22,.23,.045,.075,steel); // mask
+    b.box(cx,hipY+1.42,cz,.35,.05,.23,roleArmor.trim); // crest
     if(f.archetype==='vanguard'){
-      b.box(p.x-.33,1.02,p.z,.28,.18,.35,steel);b.box(p.x+.33,1.02,p.z,.28,.18,.35,steel);
-    }else if(f.archetype==='ranger')b.box(p.x,1.60,p.z,.07,.24,.08,col);
-    else if(f.archetype==='scavenger')b.box(p.x,.85,p.z-.22,.28,.44,.17,[.37,.27,.15]);
-    else b.box(p.x-.31,1.19,p.z,.14,.14,.13,theme.accent);
+      b.box(cx-.42,shoulderY-.08,cz,.20,.32,.34,steel);
+      b.box(cx+.42,shoulderY-.08,cz,.20,.32,.34,steel);
+    }else if(f.archetype==='ranger'){
+      b.limb([cx+.15,hipY+1.45,cz],[cx+.20,hipY+1.78,cz-.03],.023,roleArmor.trim);
+      b.cone(cx+.20,hipY+1.79,cz-.03,.055,.01,.13,roleArmor.trim,6);
+    }else if(f.archetype==='scavenger'){
+      b.box(cx,hipY+.51,cz-.40,.38,.50,.31,[.38,.27,.13]);
+      b.cylinder(cx-.17,hipY+.55,cz-.47,.10,.28,roleArmor.trim,8);
+    }else{
+      b.box(cx-.39,hipY+1.12,cz,.12,.17,.15,theme.accent);
+      b.ring(cx,hipY+1.54,cz,.21,.025,roleArmor.trim,20);
+    }
+    // Distinct modeled firearms stay presentation-only: they never determine hit legality.
+    const weaponShade=f.weapon==='sniper'?[.31,.41,.45]:[.20,.24,.31];
+    b.limb([cx+.05,hipY+.67,cz+.27],[cx+.05,hipY+.72,cz+.84],.085,weaponShade);
+    b.box(cx+.06,hipY+.79,cz+.55,.15,.12,.35,neutral);
+    b.cylinder(cx+.06,hipY+.72,cz+.92,.045,.12,steel,6);
+    b.box(cx-.06,hipY+.48,cz+.45,.13,.24,.09,steel);
+    const muzzleFlash=!reducedFlash&&events.some(e=>(e.type==='hit'||e.type==='miss')&&e.actorId===f.id);
+    if(muzzleFlash){
+      b.cone(cx+.06,hipY+.72,cz+1.04,.16,0,.28,[1,.88,.31],7);
+      b.ring(cx+.06,hipY+.72,cz+1.0,.17,.05,[1,.42,.12],16);
+    }
     const hp=Math.max(0,Math.min(1,f.health/Math.max(1,f.maxHealth)));
     const shield=Math.max(0,Math.min(1,f.shield/Math.max(1,f.maxShield)));
-    b.box(p.x,1.82,p.z,.80,.08,.12,shadow);
-    if(hp>0)b.box(p.x-.40+.4*hp,1.83,p.z+.01,.8*hp,.08,.12,[.93,.26,.28]);
-    if(shield>0)b.box(p.x-.40+.4*shield,1.93,p.z+.01,.8*shield,.06,.11,[.25,.73,.98]);
-    if(focus)b.ring(p.x,.07,p.z,.53,.045,theme.accent,24);
+    b.box(cx,hipY+1.72,cz,.86,.085,.13,neutral);
+    if(hp>0)b.box(cx-.43+.43*hp,hipY+1.73,cz+.01,.86*hp,.080,.13,[.97,.29,.35]);
+    if(shield>0)b.box(cx-.43+.43*shield,hipY+1.82,cz,.86*shield,.065,.11,[.26,.78,1]);
+    if(focus){
+      b.ring(cx,.06,cz,.57,.048,roleArmor.trim,32);
+      b.cone(cx,hipY+2.10,cz,.10,0,.27,roleArmor.trim,7);
+    }
   }
   function world(b,s){
     const a=s.arena,w=a.width,h=a.height,t=colours[a.theme]||colours.ember;
@@ -158,7 +256,7 @@
       b.box(p.x,.30,p.z,.24,.25,.24,[1,.80,.35]);
       b.box(p.x,.51,p.z,.10,.18,.10,[.60,.96,1]);
     }
-    for(const f of s.combatants.slice(0,64))contender(b,f,w,t,Boolean(s.focus&&s.focus.id===f.id));
+    for(const f of s.combatants.slice(0,64))contender(b,f,w,t,Boolean(s.focus&&s.focus.id===f.id),s.recentEvents);
     const c=pos(s.zone.centerCell,w);
     b.ring(c.x,.056,c.z,Math.max(.25,s.zone.radius),.08,t.accent,128);
     // High-priority tactical signals, derived exclusively from published semantic events.
