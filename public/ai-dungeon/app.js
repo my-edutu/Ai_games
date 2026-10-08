@@ -29,11 +29,28 @@ function cutawayWalls(target){
  }mesh.instanceMatrix.needsUpdate=true;mesh.computeBoundingSphere();
 }
 const particles=[],MAX_PARTICLES=72;const seenEventIds=new Set();
+const effects=[],MAX_EFFECTS=12,ringGeometry=new THREE.RingGeometry(.92,1,56),shockGeometry=new THREE.RingGeometry(2.5,2.7,64);
+let shakeStrength=0;
+function pulseFX(event,s){
+ if(reduced)return;
+ let origin,theme='#51fff0',big=false;
+ if(event.kind==='telegraph'||(event.kind==='danger'&&event.text.includes('Warden'))){
+  origin=s.units.find(u=>u.kind==='warden');theme=event.kind==='danger'?'#ff4d86':'#ffba70';big=true;shakeStrength=event.kind==='danger'?.11:shakeStrength;
+ }else if(event.kind==='healing'||event.kind==='loot'){origin=s.units.find(u=>u.id==='mystic')||s.units[0];theme='#5fffe4'}
+ else if(event.kind==='kill'){origin=s.units.find(u=>u.faction==='enemy'&&u.hp<=0);theme='#ffd27d'}
+ if(!origin)return;
+ if(effects.length>=MAX_EFFECTS){const oldest=effects.shift();scene.remove(oldest.mesh);oldest.mesh.material.dispose()}
+ const material=new THREE.MeshBasicMaterial({color:theme,transparent:true,opacity:.72,side:THREE.DoubleSide,depthWrite:false,blending:THREE.AdditiveBlending});
+ const mesh=new THREE.Mesh(big?shockGeometry:ringGeometry,material);
+ mesh.rotation.x=-Math.PI/2;mesh.position.set(origin.x-9,.08,origin.z-9);mesh.scale.setScalar(big?.2:.14);
+ scene.add(mesh);effects.push({mesh,life:0,duration:big?.8:.55,large:big});
+}
 const particleGeo=new THREE.OctahedronGeometry(.07,0);
 function disposeParticle(p){scene.remove(p.mesh);p.mesh.material.dispose()}
 function cue(event,s){
  if(reduced)return;
- const colors={kill:'#ffe3a0',combat:'#e99159',danger:'#ef5864',healing:'#58ebba',loot:'#66d7e5',floor:'#d7bbff'};
+ pulseFX(event,s);
+ const colors={kill:'#ffe3a0',combat:'#e99159',danger:'#ef5864',telegraph:'#ffb77b',healing:'#58ebba',loot:'#66d7e5',floor:'#d7bbff'};
  const color=colors[event.kind];if(!color)return;
  const target=event.kind==='danger'?s.units.find(u=>u.faction==='party'&&u.hp>0):event.kind==='kill'?s.units.find(u=>u.kind==='warden'&&u.hp>0):s.units.find(u=>u.id==='mystic')||s.units[0];
  const x=(target?.x??s.exit.x)-9,z=(target?.z??s.exit.z)-9;
@@ -268,6 +285,11 @@ function update(s){state=s;received=true;errorAt=0;$('recovery').hidden=true;
 }
 let lastFrameTime=0;
 function animate(t){requestAnimationFrame(animate);const time=t/1000,dt=Math.min(.05,Math.max(0,time-lastFrameTime));lastFrameTime=time;
+ for(let i=effects.length-1;i>=0;i--){const e=effects[i];e.life+=dt;
+  if(e.life>=e.duration){scene.remove(e.mesh);e.mesh.material.dispose();effects.splice(i,1);continue}
+  const progression=e.life/e.duration;e.mesh.scale.setScalar((e.large?.2:.13)+progression*(e.large?1.1:.80));e.mesh.material.opacity=.60*(1-progression);
+ }
+ shakeStrength=Math.max(0,shakeStrength-dt*.25);
  for(let i=particles.length-1;i>=0;i--){const p=particles[i];p.life+=dt;if(p.life>=p.duration){disposeParticle(p);particles.splice(i,1);continue}
   p.mesh.position.x+=p.vx*dt;p.mesh.position.y+=p.vy*dt;p.mesh.position.z+=p.vz*dt;p.mesh.material.opacity=.75*(1-p.life/p.duration);p.mesh.scale.multiplyScalar(1-.35*dt)}
 
@@ -289,6 +311,7 @@ function animate(t){requestAnimationFrame(animate);const time=t/1000,dt=Math.min
  const cameraType=cameraModes[cameraIndex]||'cinematic',offsets=cameraType==='tactical'?[2,20,2]:cameraType==='chase'?[5.5,8.5,7.5]:[9,14,11];
  const look=new THREE.Vector3(target.x,0,target.z),cam=new THREE.Vector3(target.x+offsets[0],offsets[1],target.z+offsets[2]);
  camera.position.lerp(cam,reduced?1:.065);camera.lookAt(look.x,0,look.z);
+ if(shakeStrength>.008&&!reduced){camera.position.x+=Math.sin(time*57)*shakeStrength;camera.position.y+=Math.cos(time*43)*shakeStrength*.5;}
  partyGlow.position.set(target.x,2,target.z);
  renderer.render(scene,camera);if(state)window.__DUNGEON_RENDER_DIAGNOSTICS__={frame:renderer.info.render.frame,drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,camera:cameraModes[cameraIndex],activeUnits:[...actors.values()].filter(x=>x.root.visible).length,characterDetails:[...actors.values()].reduce((sum,x)=>sum+(x.detail?.parts||0),0),webgl:true,theme:state.theme,dressing:world.userData.dressing?.metrics??null};
 }
