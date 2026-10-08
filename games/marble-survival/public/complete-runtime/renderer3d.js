@@ -307,6 +307,22 @@
     }
     void main(){
       vec3 original=texture(uSceneColor,vUV).rgb;
+      // FXAA-inspired edge antialiasing: offscreen colour targets do not
+      // inherit the default canvas's MSAA sample count. Preserve game HUD
+      // sharpness (HTML sits outside this FBO) and smooth 3D silhouette edges.
+      vec3 n=texture(uSceneColor,vUV+vec2(0.0,uInvResolution.y)).rgb;
+      vec3 so=texture(uSceneColor,vUV-vec2(0.0,uInvResolution.y)).rgb;
+      vec3 e=texture(uSceneColor,vUV+vec2(uInvResolution.x,0.0)).rgb;
+      vec3 w=texture(uSceneColor,vUV-vec2(uInvResolution.x,0.0)).rgb;
+      vec3 weights=vec3(.2126,.7152,.0722);
+      float centerLuma=dot(original,weights);
+      float aroundMin=min(min(dot(n,weights),dot(so,weights)),
+                          min(dot(e,weights),dot(w,weights)));
+      float aroundMax=max(max(dot(n,weights),dot(so,weights)),
+                          max(dot(e,weights),dot(w,weights)));
+      float contrast=max(aroundMax,centerLuma)-min(aroundMin,centerLuma);
+      float edgeBlend=smoothstep(.065,.30,contrast)*.33;
+      original=mix(original,(n+so+e+w)*.25,edgeBlend);
       vec3 glow=vec3(0.0);
       vec2 radius=uInvResolution*3.0;
       for(int i=0;i<8;i++){
