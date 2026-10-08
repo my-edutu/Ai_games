@@ -7,11 +7,11 @@ on:
       - 'public/infinite-tower-climb/**'
       - 'scripts/serve-tower-stream.cjs'
       - 'tests/browser/tower-*.spec.cjs'
+      - 'tests/phase6/tower-*.test.cjs'
+      - 'scripts/check-tower-gauntlet.cjs'
       - 'docs/gauntlet/**'
       - '.github/workflows/tower-3d-gauntlet.yml'
-  push:
-    branches:
-      - 'feat/infinite-tower-3d-gauntlet'
+  workflow_dispatch:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
