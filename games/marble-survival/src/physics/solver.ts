@@ -243,7 +243,10 @@ function resolveRectangle(marble: MarbleCompetitor, rectangle: Rectangle, radius
 }
 
 function resolveBumper(marble: MarbleCompetitor, bumper: ArenaBumper, marbleRadius: number, stateMaxVerticalSpeed: number): PhysicsContact | null {
-  if (marble.elevation >= BUMPER_COLLIDER_TOP) return null;
+  // Electric spring tops are physically taller than ordinary bumpers;
+  // the collision envelope tracks the actual 3D crest rather than its base.
+  const top = (bumper.launchSpeed ?? 0) > 0 ? 1_050 : BUMPER_COLLIDER_TOP;
+  if (marble.elevation >= top) return null;
   const dx = marble.position.x - bumper.x;
   const dy = marble.position.y - bumper.y;
   const minimum = marbleRadius + bumper.radius;
