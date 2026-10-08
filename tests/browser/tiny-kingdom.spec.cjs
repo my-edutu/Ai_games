@@ -234,3 +234,40 @@ test('Tiny Kingdom timber market remains solvent across two years', async ({page
   expect(metrics.gold).toBeGreaterThan(0);
   expect(errors).toEqual([]);
 });
+
+
+test('Tiny Kingdom selects named autonomous citizens and exposes real personality and bonds', async ({page}) => {
+  await page.setContent(html);
+  await page.waitForFunction(() => Boolean(window.__tinyKingdom));
+  await page.locator('#pause').click();
+  const before=await page.locator('#citizen-name').textContent();
+  await page.locator('#cycleCitizen').click();
+  const after=await page.locator('#citizen-name').textContent();
+  const profile=await page.evaluate(() => {
+    const g=window.__tinyKingdom;
+    return {selected:g.getSelectedCitizen(),person:g.getCitizenProfiles().find(c=>c.name===g.getSelectedCitizen())};
+  });
+  expect(before).toBe('Alina');
+  expect(after).toBe('Rowan');
+  expect(profile.selected).toBe(after);
+  expect(profile.person).toEqual(expect.objectContaining({name:'Rowan',job:'forester',trait:'curious'}));
+  expect(profile.person.bonds).toEqual(expect.any(Object));
+});
+
+test('Tiny Kingdom population has unique names and stable saved relationships after growth', async ({page}) => {
+  await page.setContent(html);
+  await page.waitForFunction(() => Boolean(window.__tinyKingdom));
+  await page.locator('#pause').click();
+  const evidence=await page.evaluate(() => {
+    const g=window.__tinyKingdom;g.reset();
+    for(let i=0;i<80*24*30;i++)g.step(1/30);
+    const before=g.getCitizenProfiles(),save=g.exportSnapshot();
+    g.restoreSnapshot(save);
+    const after=g.getCitizenProfiles();
+    return {count:before.length,unique:new Set(before.map(p=>p.name)).size,stable:JSON.stringify(before)===JSON.stringify(after),hasSecondGeneration:before.some(p=>p.name.endsWith(' II'))};
+  });
+  expect(evidence.count).toBeGreaterThan(22);
+  expect(evidence.unique).toBe(evidence.count);
+  expect(evidence.stable).toBe(true);
+  expect(evidence.hasSecondGeneration).toBe(true);
+});
