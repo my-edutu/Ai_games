@@ -33,6 +33,9 @@
   const clock = new THREE.Clock();
   let climber = null, lastClimberPosition = null;
   const decoration = new THREE.Group(); scene.add(decoration);
+  const effects = new THREE.Group(); scene.add(effects);
+  const themeColors = {foundry:0xffaa55,ice:0x70d8ff,verdant:0x6ae5a4,void:0xaa72ff,storm:0x92c5ff};
+  let themeKey = '', frameCount = 0;
   const wallMat = new THREE.MeshStandardMaterial({color:0x28364d,metalness:0.2,roughness:0.86});
   const trimMat = new THREE.MeshStandardMaterial({color:0x7b99ae,metalness:0.72,roughness:0.32});
   const box = new THREE.BoxGeometry(1, 1, 1);
@@ -58,6 +61,10 @@
   };
   function rebuild(s) {
     while (actors.children.length) actors.remove(actors.children[0]);
+    while (effects.children.length) effects.remove(effects.children[0]);
+    const theme = String(s.theme || 'foundry').toLowerCase();
+    if (theme !== themeKey) { themeKey=theme; const color=themeColors[theme]||0xffaa55; rim.color.setHex(color); accentMat.color.setHex(color); scene.fog.color.setHex(theme==='void'?0x101024:0x10172a); }
+    const groundLight = new THREE.PointLight(themeColors[theme]||0xffaa55, 15, 13); groundLight.position.set(0, Number(s.player?.y||0)/1000-Number(s.chunkBaseY||0)/1000+2, 3); effects.add(groundLight);
     const base = Number(s.chunkBaseY || 0) / 1000;
     const y = value => Number(value || 0) / 1000 - base;
     const x = value => Number(value || 0) / 1000 - Number(s.worldWidth || 0) / 2000;
@@ -66,12 +73,12 @@
       m.castShadow = false;
       mesh(box, accentMat, actors, m.position.x, m.position.y + m.scale.y / 2 + 0.06, 0, m.scale.x, 0.1, 4.1);
     }
-    for (const h of s.hazards || []) mesh(box, hazardMat, actors, x(h.x) + h.width / 2000, y(h.y) + h.height / 2000, 0.2, Math.max(0.1, h.width / 1000), Math.max(0.1, h.height / 1000), 3.4);
+    for (const h of s.hazards || []) { const hazard=mesh(box, hazardMat, actors, x(h.x) + h.width / 2000, y(h.y) + h.height / 2000, 0.2, Math.max(0.1, h.width / 1000), Math.max(0.1, h.height / 1000), 3.4); hazard.userData.hazardActive=h.active!==false; if (!hazard.userData.hazardActive) hazard.material=new THREE.MeshStandardMaterial({color:0x542c40,roughness:0.9}); }
     for (const e of s.enemies || []) if (e.active) {
       const m = mesh(sphere, enemyMat, actors, x(e.x), y(e.y), 0.5, Math.max(0.35, e.halfWidth / 1000), Math.max(0.35, e.halfHeight / 1000), 0.65);
       mesh(sphere, hazardMat, m, 0, 0.2, 0.85, 0.28, 0.18, 0.15);
     }
-    for (const p of s.pickups || []) mesh(sphere, accentMat, actors, x(p.x), y(p.y), 0.5, 0.24, 0.24, 0.24);
+    for (const p of s.pickups || []) { const pickup=mesh(new THREE.OctahedronGeometry(0.28), accentMat, actors, x(p.x), y(p.y), 0.5, 1, 1, 1); pickup.userData.pickup=true; }
     const p = s.player;
     if (p) {
       const px = x(p.x), py = y(p.y);
@@ -115,6 +122,7 @@
       camera.position.y += (target - camera.position.y) * 0.05;
       camera.lookAt(0,camera.position.y-2.5,0);
     }
+    if (++frameCount % 2 === 0 && !document.body.dataset.reducedMotion?.includes('true')) { const elapsed=clock.getElapsedTime(); for (const object of actors.children) if (object.userData.pickup) { object.rotation.y=elapsed*1.5; object.position.y+=Math.sin(elapsed*2+object.position.x)*0.001; } }
     renderer.render(scene, camera);
     requestAnimationFrame(animate);
   };
