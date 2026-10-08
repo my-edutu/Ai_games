@@ -3,6 +3,9 @@
 // Shares original 3D visual assets but NOT the existing 2D simulation authority.
 (async()=>{
   const canvas=document.getElementById('volumetric-canvas'),status=document.getElementById('status');
+  const startup={phase:'bootstrap',status:'starting',tick:0,autonomous:true,dimensionality:3};
+  window.__TOWER_VOLUMETRIC_STATE__=startup;
+  const progress=(phase)=>{startup.phase=phase;};
   let THREE,createClimber,createTowerEnvironment,createTowerEntities,createTowerVfx,createVolumetricCore,loadClimberAsset,createTowerDirector,createTowerSky;
   try{
     [THREE,{createClimber},{createTowerEnvironment},{createTowerEntities},{createTowerVfx},{createVolumetricCore},{loadClimberAsset},{createTowerDirector},{createTowerSky}]=await Promise.all([
@@ -10,9 +13,11 @@
       import('/tower/entities3d.js'),import('/tower/vfx3d.js'),import('/tower/volumetric-core.js'),import('/tower/asset3d.js'),import('/tower/director3d.js'),import('/tower/sky3d.js')
     ]);
   }catch(error){status.textContent='3D MODULE LOAD FAILED';console.error(error);return;}
+  progress('modules-loaded');
   let renderer;
   try{renderer=new THREE.WebGLRenderer({canvas,antialias:true,powerPreference:'high-performance'});}
   catch(error){status.textContent='WEBGL UNAVAILABLE';return;}
+  progress('webgl-created');
   renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure=1.18;renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
   const scene=new THREE.Scene();scene.fog=new THREE.FogExp2(0x1c2131,.008);
@@ -21,8 +26,10 @@
   const sky=createTowerSky(THREE,scene);
   const hemi=new THREE.HemisphereLight(0xb4d5ff,0x1a2333,2.7);scene.add(hemi);
   const sun=new THREE.DirectionalLight(0xffd9a3,2.6);sun.position.set(-30,70,40);scene.add(sun);
+  progress('creating-environment');
   const environment=createTowerEnvironment(THREE,scene);environment.root.scale.set(1.25,1.25,.8);
   const art=createTowerEntities(THREE),climber=createClimber(THREE),vfx=createTowerVfx(THREE,scene);
+  progress('creating-climber');
   scene.add(climber.root);
   let importedClimber=null;
   void loadClimberAsset(THREE).then(result=>{
@@ -36,8 +43,8 @@
   const seedText=params.get('seed'),seed=seedText&&/^[0-9]{1,9}$/.test(seedText)?Number(seedText):undefined;
   const sim=createVolumetricCore(seed),player=sim.player,models=new Map(),guardians=new Map(),rewards=new Map();
   const enemyScene=new THREE.Group(),rewardScene=new THREE.Group();scene.add(enemyScene,rewardScene);
-  const details={status:'loading',tick:0,floor:0,x:0,y:0,z:0,platforms:0,deaths:0,guardianKills:0,score:0,health:5,autonomous:true,dimensionality:3};
-  window.__TOWER_VOLUMETRIC_STATE__=details;
+  const details=startup;
+  Object.assign(details,{status:'loading',tick:0,floor:0,x:0,y:0,z:0,platforms:0,deaths:0,guardianKills:0,score:0,health:5,autonomous:true,dimensionality:3});
   const controls={left:false,right:false,forward:false,back:false,jump:false};
   const reduced=params.get('reducedMotion')==='1';
   const manual=params.get('manual')==='1';
@@ -165,5 +172,11 @@
   climber.root.position.set(player.x,player.y,player.z);
   Object.assign(details,{status:'loading',floor:player.at,tick:opening.tick,stageTarget:captureFloor});
   camera.position.set(player.x+13,player.y+12,player.z+23);
+  progress('first-frame-requested');
   requestAnimationFrame(animate);
-})();
+})().catch(error=>{
+  const info=window.__TOWER_VOLUMETRIC_STATE__||{};
+  info.status='failed';info.error=String(error?.stack||error);
+  const status=document.getElementById('status');if(status)status.textContent='3D ENGINE FAILED';
+  console.error('Volumetric tower startup failure',error);
+});
