@@ -7,6 +7,7 @@
   <title>Marble Survival · Gauntlet Lab</title>
   <link rel="stylesheet" href="/gauntlet.css">
   <script src="/gauntlet.js" defer></script>
+  <script src="/gauntlet-ab.js" defer></script>
 </head>
 <body>
   <a class="skip" href="#goals">Skip to improvement goals</a>
@@ -45,6 +46,29 @@
           <div class="divider"></div><div class="panel-label">BLIND A/B EVIDENCE</div>
           <p id="comparison-status">Unverified. Running-game captures and blinded reference comparisons are required before declaring victory.</p>
         </aside></div>
+      </section>
+      <section class="ab-lab" aria-labelledby="ab-title">
+        <div class="section-heading"><div><p class="eyebrow">CRITIC LAB / NO FAKE EVIDENCE</p><h2 id="ab-title">Blind A/B visual review</h2></div><span class="tag" id="ab-status" role="status">Awaiting actual screenshots</span></div>
+        <p class="hint ab-intro">Bring a screenshot from the running Marble game and a legitimately obtained reference screenshot. Both remain on your device. The reviewer sees randomized A/B labels; voting will not automatically mark the Gauntlet complete.</p>
+        <div class="ab-inputs">
+          <label>Our game screenshot <input id="ab-candidate" type="file" accept="image/png,image/jpeg,image/webp"></label>
+          <label>Reference screenshot <input id="ab-reference" type="file" accept="image/png,image/jpeg,image/webp"></label>
+          <button id="ab-start" class="primary" type="button" disabled>Shuffle and compare ↗</button>
+        </div>
+        <div id="ab-voting" hidden>
+          <div class="ab-grid">
+            <figure><div class="ab-figure-label">A</div><img id="ab-image-a" alt="Anonymized game comparison image A"></figure>
+            <figure><div class="ab-figure-label">B</div><img id="ab-image-b" alt="Anonymized game comparison image B"></figure>
+          </div>
+          <div class="ab-review-actions">
+            <button type="button" data-ab-vote="A">A looks better</button>
+            <button type="button" data-ab-vote="B">B looks better</button>
+            <button type="button" data-ab-vote="tie">Too close to call</button>
+          </div>
+          <label class="ab-note">Biggest visible gap (optional) <textarea id="ab-notes" maxlength="1200" rows="3" placeholder="Lighting? Marble materials? Track silhouette? Legibility?"></textarea></label>
+          <p id="ab-result" class="ab-result" role="status" aria-live="polite"></p>
+          <button id="ab-export" class="secondary" type="button">Export local verdicts (.json)</button>
+        </div>
       </section>
       <section class="history" aria-labelledby="history-title"><div class="section-heading"><div><p class="eyebrow">CHANGES / EVIDENCE</p><h2 id="history-title">Iteration journal</h2></div></div><ol id="iteration-history"></ol></section>
     </main>
