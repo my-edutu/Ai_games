@@ -3,11 +3,11 @@
 // Shares original 3D visual assets but NOT the existing 2D simulation authority.
 (async()=>{
   const canvas=document.getElementById('volumetric-canvas'),status=document.getElementById('status');
-  let THREE,createClimber,createTowerEnvironment,createTowerEntities,createTowerVfx,createVolumetricCore,loadClimberAsset;
+  let THREE,createClimber,createTowerEnvironment,createTowerEntities,createTowerVfx,createVolumetricCore,loadClimberAsset,createTowerDirector;
   try{
-    [THREE,{createClimber},{createTowerEnvironment},{createTowerEntities},{createTowerVfx},{createVolumetricCore},{loadClimberAsset}]=await Promise.all([
+    [THREE,{createClimber},{createTowerEnvironment},{createTowerEntities},{createTowerVfx},{createVolumetricCore},{loadClimberAsset},{createTowerDirector}]=await Promise.all([
       import('/tower/vendor/three.module.js'),import('/tower/character3d.js'),import('/tower/environment3d.js'),
-      import('/tower/entities3d.js'),import('/tower/vfx3d.js'),import('/tower/volumetric-core.js'),import('/tower/asset3d.js')
+      import('/tower/entities3d.js'),import('/tower/vfx3d.js'),import('/tower/volumetric-core.js'),import('/tower/asset3d.js'),import('/tower/director3d.js')
     ]);
   }catch(error){status.textContent='3D MODULE LOAD FAILED';console.error(error);return;}
   let renderer;
@@ -17,6 +17,7 @@
   renderer.toneMappingExposure=1.18;renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
   const scene=new THREE.Scene();scene.fog=new THREE.FogExp2(0x1c2131,.008);
   const camera=new THREE.PerspectiveCamera(57,1,.1,700);
+  const director=createTowerDirector(THREE,camera);
   const hemi=new THREE.HemisphereLight(0xb4d5ff,0x1a2333,2.7);scene.add(hemi);
   const sun=new THREE.DirectionalLight(0xffd9a3,2.6);sun.position.set(-30,70,40);scene.add(sun);
   const environment=createTowerEnvironment(THREE,scene);environment.root.scale.set(1.25,1.25,.8);
@@ -106,9 +107,8 @@
     if(!reduced){for(const item of rewards.values()){item.rotation.y+=dt*.9;item.position.y+=Math.sin(simTime*2+item.position.x)*dt*.09;}
       for(const [index,guardian] of guardians){guardian.rotation.y=Math.sin(simTime*.55+index)*.08;}}
     environment.root.position.y=player.y*.95;
-    const aim=new THREE.Vector3(player.x,player.y+4,player.z);
-    const follow=new THREE.Vector3(player.x+13,player.y+12,player.z+23);
-    camera.position.lerp(follow,.055);camera.lookAt(aim);
+    const directorFrame=director.update(dt,sim.snapshot(),{reducedMotion:reduced});
+    details.cameraMode=directorFrame.mode;
     sun.position.set(player.x-30,player.y+65,player.z+34);
     vfx.update(dt,{x:player.x,y:player.y,z:player.z,dx:player.vx,dy:player.vy},biome,0,reduced);
     renderer.render(scene,camera);
