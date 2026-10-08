@@ -160,3 +160,19 @@ test('presentation event history starts after the latest tournament restart boun
   assert.equal(snapshot.events.some((event) => event.type === 'tournament-champion'), false);
   assert.equal(snapshot.events.some((event) => event.tick > state.tick), false);
 });
+
+test('spectator receives exact public wind-zone forces to animate only real airflow',()=>{
+  const state=presentationState();
+  state.arena.windZones=[{
+    id:'wind-real-1',kind:'wind',x:6000,y:9000,width:8000,height:2000,forceX:-10,forceY:-2,
+    hiddenOperatorKey:'never-publish',
+  }];
+  const snapshot=createMarblePresentationSnapshot(state,[]);
+  assert.equal(snapshot.arena.windZones.length,1);
+  assert.deepEqual(snapshot.arena.windZones[0],{
+    id:'wind-real-1',x:6000,y:9000,width:8000,height:2000,forceX:-10,forceY:-2,
+  });
+  assert.equal(Object.isFrozen(snapshot.arena.windZones[0]),true);
+  assert.equal(JSON.stringify(snapshot).includes('hiddenOperatorKey'),false);
+  assert.equal(JSON.stringify(snapshot).includes('never-publish'),false);
+});
