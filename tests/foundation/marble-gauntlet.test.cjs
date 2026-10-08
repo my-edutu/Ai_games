@@ -117,3 +117,16 @@ test('victory scene is driven solely by an official authoritative champion', () 
   ]) assert.ok(renderer.includes(text), `missing authority-backed victory guard: ${text}`);
   assert.equal(renderer.includes('forceWinner'), false);
 });
+
+
+test('new 3D collision semantics use a versioned v3 authority and reject v2 checkpoints', () => {
+  const src = path.resolve(__dirname, '../../games/marble-survival/src');
+  const stateTypes = fs.readFileSync(path.join(src, 'state/types.ts'), 'utf8');
+  const runtime = fs.readFileSync(path.join(src, 'runtime/run.ts'), 'utf8');
+  const snapshots = fs.readFileSync(path.join(src, 'persistence/snapshot.ts'), 'utf8');
+  for (const content of [stateTypes, runtime, snapshots]) {
+    assert.ok(content.includes('marble-physics-v3'), 'v3 determinism contract missing');
+  }
+  assert.ok(snapshots.includes("snapshot.deterministicVersion !== 'marble-physics-v3'"));
+  assert.ok(!runtime.includes('marble-physics-v2'));
+});
