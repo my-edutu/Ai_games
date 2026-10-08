@@ -1,6 +1,6 @@
 // Static district render batching. Authoritative physics is untouched.
 // A low draw-call scene matters more than decorative mesh count during continuous livestreaming.
-export function batchDistrictGeometry(THREE, root, {chunkMeters=18}={}) {
+export function batchDistrictGeometry(THREE, root, {chunkMeters=18, mergeSolidColors=false}={}) {
   root.updateMatrixWorld(true);
   const meshes=[];
   const retain=[];
@@ -10,6 +10,9 @@ export function batchDistrictGeometry(THREE, root, {chunkMeters=18}={}) {
     else if(node.isSprite || node.isLight || node.isLine || node.isPoints)retain.push(node);
   });
   const buckets=new Map();
+  // Share one vertex-color material across every chunk instead of forcing a draw call
+  // for each subtly different paint color. Textured and transparent materials remain distinct.
+  const solidMaterial=mergeSolidColors?new THREE.MeshStandardMaterial({vertexColors:true,roughness:.91,metalness:0}):null;
   let inputTriangleCount=0;
   const tmp=new THREE.Vector3(), nrm=new THREE.Vector3(), normalMat=new THREE.Matrix3();
   for(const mesh of meshes) {
@@ -20,9 +23,10 @@ export function batchDistrictGeometry(THREE, root, {chunkMeters=18}={}) {
     mesh.updateWorldMatrix(true,false);
     normalMat.getNormalMatrix(world);
     const chunkX=Math.floor(mesh.getWorldPosition(tmp).x/chunkMeters);
-    const key=chunkX+'::'+mat.uuid;
+    const paint=Boolean(mergeSolidColors && mat.isMeshStandardMaterial && !mat.map && !mat.transparent && !mat.vertexColors && mat.color && !mat.alphaMap);
+    const key=chunkX+'::'+(paint?'solid-colors':mat.uuid);
     let bucket=buckets.get(key);
-    if(!bucket){bucket={chunkX,material:mat,vertices:[],normals:[],uvs:[],triangles:0};buckets.set(key,bucket);}
+    if(!bucket){bucket={chunkX,material:paint?solidMaterial:mat,paint,vertices:[],normals:[],uvs:[],colors:[],triangles:0};buckets.set(key,bucket);}
     const idx=geo.index;
     const length=idx?idx.count:position.count;
     for(let i=0;i<length;i++){
@@ -33,6 +37,7 @@ export function batchDistrictGeometry(THREE, root, {chunkMeters=18}={}) {
       bucket.normals.push(nrm.x,nrm.y,nrm.z);
       if(uv)bucket.uvs.push(uv.getX(k),uv.getY(k));
       else bucket.uvs.push(0,0);
+      if(paint)bucket.colors.push(mat.color.r,mat.color.g,mat.color.b);
     }
     inputTriangleCount+=length/3;
     bucket.triangles+=length/3;
@@ -54,10 +59,12 @@ export function batchDistrictGeometry(THREE, root, {chunkMeters=18}={}) {
     geometry.setAttribute('position',new THREE.Float32BufferAttribute(bucket.vertices,3));
     geometry.setAttribute('normal',new THREE.Float32BufferAttribute(bucket.normals,3));
     geometry.setAttribute('uv',new THREE.Float32BufferAttribute(bucket.uvs,2));
+    if(bucket.paint)geometry.setAttribute('color',new THREE.Float32BufferAttribute(bucket.colors,3));
     geometry.computeBoundingSphere();
     const merged=new THREE.Mesh(geometry,bucket.material);
     merged.name='EkoStaticDistrictChunk:'+key;
     merged.castShadow=false;merged.receiveShadow=true;merged.userData.disposeGeometryOnRemove=true;
+    if(bucket.paint)merged.userData.disposeMaterialOnRemove=true;
     merged.frustumCulled=true;
     root.add(merged);
   }
@@ -66,6 +73,8 @@ export function batchDistrictGeometry(THREE, root, {chunkMeters=18}={}) {
     batchedMeshes:buckets.size,
     triangles:Math.round(inputTriangleCount),
     retainedSceneNodes:retain.length,
+    vertexColorChunks:[...buckets.values()].filter(bucket=>bucket.paint).length,
+    originalMaterialDrawCallsAvoided:mergeSolidColors ? Math.max(0,meshes.length-buckets.size) : 0,
     chunkMeters
   });
 }
