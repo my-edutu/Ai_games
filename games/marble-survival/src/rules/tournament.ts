@@ -103,7 +103,8 @@ export function applyTournamentRules(state: MarbleState, contacts: PhysicsContac
     // contact, preserving a readable chance to survive.
     const isPit = hazard?.kind === 'pit';
     const pitReachedRim = marble.elevation < 0;
-    const pitFallenBelowSafety = marble.elevation <= -650;
+    // The reactor floor is at -780 mm; a 280 mm sphere rests on it at -500 mm.
+    const pitFallenBelowSafety = marble.elevation <= -500;
     const pitActionable = !isPit || (marble.shieldCharges > 0 && marble.elevation <= 0) || pitFallenBelowSafety;
     if (hazard && isPit && pitReachedRim && recoveryUntilTick < next.tick && marble.pitFallHazardId !== hazard.id) {
       marble.pitFallHazardId = hazard.id;
