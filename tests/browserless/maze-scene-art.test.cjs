@@ -217,3 +217,25 @@ test('public-event 3D VFX are bounded, trigger from observed changes and dispose
   moments.dispose();
   assert.equal(moments.activeObjects,0);
 });
+
+test('real embedded GLB supplies complete humanoid skeleton and its CC0 license',async()=>{
+  const file=path.join(root,'public','ai-maze-escape','models','wayfinder-rig.glb');
+  const bytes=await fs.readFile(file);
+  assert.equal(bytes.subarray(0,4).toString('ascii'),'glTF');
+  assert.equal(bytes.readUInt32LE(4),2,'GLB version 2');
+  assert.equal(bytes.readUInt32LE(8),bytes.length);
+  const headerLength=bytes.readUInt32LE(12);
+  assert.ok(headerLength>1000&&headerLength<100000);
+  const document=JSON.parse(bytes.toString('utf8',20,20+headerLength).trimEnd());
+  assert.ok(document.meshes.length>=3,'requires detailed skinned meshes');
+  assert.ok(document.skins.length>=1,'requires a real skin');
+  const bones=new Set(document.nodes.map(n=>n.name));
+  for(const name of ['Head','thigh_l','thigh_r','upperarm_l','upperarm_r','pelvis']){
+    assert.ok(bones.has(name),'missing rigged humanoid bone: '+name);
+  }
+  const license=await fs.readFile(path.join(root,'public','ai-maze-escape','models','QUATERNIUS-LICENSE.txt'),'utf8');
+  assert.match(license,/CC0|Creative Commons Zero/i);
+  const manifest=await fs.readFile(path.join(root,'games','ai-maze-escape','ASSETS.md'),'utf8');
+  assert.match(manifest,/Quaternius/);
+  assert.match(manifest,/wayfinder-rig\.glb/);
+});
