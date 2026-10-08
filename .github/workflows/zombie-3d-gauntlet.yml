@@ -1,12 +1,14 @@
 name: Zombie 3D Gauntlet
 on:
-  push:
-    branches: [agent/zombie-survival-3d-gauntlet-2026-10-08]
   pull_request:
     paths:
       - "games/ai-zombie-survival/**"
       - ".github/workflows/zombie-3d-gauntlet.yml"
   workflow_dispatch:
+
+concurrency:
+  group: zombie-3d-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 jobs:
   visual-smoke:
