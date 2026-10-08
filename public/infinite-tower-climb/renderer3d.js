@@ -45,7 +45,7 @@
   let importedClimber=null,previousFrameTime=performance.now();
   let lastClimberPosition = null;
   const groundLight=new THREE.PointLight(0xffaa55,30,130,1.8);scene.add(groundLight);
-  const themeColors = {foundry:0xffaa55,ice:0x70d8ff,verdant:0x6ae5a4,void:0xaa72ff,storm:0x92c5ff};
+  const themeColors = {foundry:0xffaa55,ruins:0xa9d5a1,clockwork:0xffc879,void:0xaa72ff,storm:0x92c5ff};
   let themeKey = '', frameCount = 0, lastRenderWidth = 0, lastRenderHeight = 0;
   const metrics = {frames:0,frameMs:0,actors:0,renderer:'webgl',status:'starting'};
   window.__TOWER_3D_METRICS__ = metrics;
@@ -53,6 +53,7 @@
     metrics.assetStatus=result.status;
     if(result.replacement){importedClimber=result.replacement;scene.add(importedClimber.root);climber.root.visible=false;}
   }).catch(error=>{metrics.assetStatus='asset-load-error';metrics.assetError=String(error);});
+  const xCoord=(value,width)=>Number(value||0)/1000-Number(width||0)/2000;
   let previousChecksum = '', lastState = null, scenePhase='normal';
   const debug=new URLSearchParams(location.search).has('debug3d');
   let diagnostics=null;
@@ -69,6 +70,7 @@
     const theme = String(s.theme || 'foundry').toLowerCase();
     if (theme !== themeKey) { themeKey=theme; const color=themeColors[theme]||0xffaa55; rim.color.setHex(color); groundLight.color.setHex(color); architecture.setTheme(theme); }
     groundLight.position.set(Number(s.player?.x||0)/1000-Number(s.worldWidth||0)/2000,Number(s.player?.y||0)/1000-Number(s.chunkBaseY||0)/1000+12,9);
+    rim.position.set(xCoord(s.player?.x,s.worldWidth)+18,Number(s.player?.y||0)/1000-Number(s.chunkBaseY||0)/1000+28,11);
     const base = Number(s.chunkBaseY || 0) / 1000;
     const y = value => Number(value || 0) / 1000 - base;
     const x = value => Number(value || 0) / 1000 - Number(s.worldWidth || 0) / 2000;
