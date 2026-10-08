@@ -19,8 +19,8 @@ export function createTowerEntities(THREE){
     const root=new THREE.Group();root.position.set(px,py,0);
     const moving=data.kind==='moving',oneway=data.kind==='oneway',
       crumble=data.kind==='crumbling',wind=data.kind==='wind',
-      narrow=data.kind==='narrow',spring=data.kind==='spring',guardian=data.kind==='guardian';
-    const surface=crumble?wood:spring?health:wind?stamina:narrow?edge:oneway?edge:stone;
+      narrow=data.kind==='narrow',spring=data.kind==='spring',guardian=data.kind==='guardian',wall=data.kind==='wall-climb';
+    const surface=crumble?wood:spring?health:wind?stamina:wall?edge:narrow?edge:oneway?edge:stone;
     const slab=bar(root,surface,0,0,0,width,Math.max(height,.24),4.5);
     // Underside cantilevers and inset luminous edge give each landing real mass.
     bar(root,wood,0,-Math.max(height,.24)*.5-.24,0,width*.85,.23,3.65);
@@ -60,6 +60,14 @@ export function createTowerEntities(THREE){
         bar(root,gold,side*width*.45,.75,-1.5,.13,.7,.18);
         bar(root,gold,side*width*.45,.75,1.5,.13,.7,.18);
       }
+    }
+    if(wall){
+      bar(root,obsidian,0,-3.7,1.4,width*.95,7.4,1.1);
+      for(let row=0;row<6;row++)for(const side of [-1,1]){
+        const hold=orb(root,row%2?gold:edge,side*width*.21,-6.8+row*1.15,2.07,.35,.18,.26);
+        hold.rotation.z=side*(row%2?.18:-.14);
+      }
+      for(const side of [-1,1])bar(root,metal,side*width*.42,-3.9,1.55,.22,7.7,.34);
     }
     if(guardian){
       for(const side of [-1,1]){

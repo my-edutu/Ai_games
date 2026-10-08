@@ -34,7 +34,7 @@ test('tower enemy/platform geometry is volumetric and guardian differs from norm
   const soldier=art.enemy({kind:'patroller',telegraph:false},0,0,2,3);
   assert.ok(moving.children.length>5);
   const simple=art.platform({kind:'solid'},0,0,7,.95);
-  for(const kind of ['crumbling','wind','spring','narrow','guardian']){
+  for(const kind of ['crumbling','wind','spring','narrow','guardian','wall-climb']){
     const distinct=art.platform({kind},0,0,7,.95);
     assert.ok(distinct.children.length>simple.children.length,kind+' requires additional unique 3D architecture');
   }

@@ -103,6 +103,7 @@
       velocity:{x:player.vx,y:player.vy,z:player.vz},platforms:models.size,next:player.at+1,
       deaths:player.deaths,biome,mode:snapshot.mode,intent:snapshot.intent,guardianKills:snapshot.guardianKills,
       score:snapshot.score,health:player.health,build:snapshot.build,shields:snapshot.shields,
+      wallClimbs:snapshot.wallClimbs,gripStamina:snapshot.climbing.stamina,climbing:snapshot.climbing.active,
       upgradesTaken:snapshot.upgradesTaken,autonomous:!manual,dimensionality:3,
       highestReached:snapshot.highestReached,
       latestStory:snapshot.events?.at(-1)?.text||'A new climber enters the tower.',
@@ -149,6 +150,7 @@
       document.getElementById('build-ward').textContent=String(details.build?.ward||0);
       document.getElementById('build-salvage').textContent=String(details.build?.salvage||0);
       document.getElementById('shield-value').textContent=String(details.shields||0);
+      const status=document.getElementById('wall-status');if(status)status.textContent='MANTLES '+(details.wallClimbs||0)+' · GRIP '+Math.round(details.gripStamina||0)+'%';
       status.textContent=(manual?'MANUAL 3D':'AUTONOMOUS 3D AI')+' · '+details.mode+' · '+details.tick+' TICKS';
     }
     requestAnimationFrame(animate);

@@ -4,11 +4,13 @@ export function createVolumetricCore(seedInput=0x00a3f914){
   const config=Object.freeze({gravity:24,jump:14.2,speed:9.4,acceleration:45,halfHeight:1.5,maxFall:-27,worldX:18,worldZ:16});
   let seed=seedInput>>>0,tick=0,time=0,highestGenerated=-1,highestReached=0,mode='INIT',guardianKills=0,score=0,intent='ASSESSING ROUTE';
   const build={stride:0,grip:0,ward:0,salvage:0};
-  let shields=0,upgradesTaken=0;
+  let shields=0,upgradesTaken=0,wallClimbs=0;
+  const climbing={active:false,targetFloor:-1,progress:0,stamina:100,fromX:0,fromY:0,fromZ:0};
   const random=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296};
   const clamp=(value,low,high)=>Math.min(high,Math.max(low,value));
   const player={x:0,y:2.05,z:0,vx:0,vy:0,vz:0,grounded:true,at:0,checkpoint:0,deaths:0,health:5};
   const platforms=[];
+  const isWallClimb=i=>i>0&&i%23===0;
   const events=[];
   const emit=(type,text,extra={})=>{
     events.push({id:tick+':'+type+':'+events.length,tick,floor:player.at,type,text,...extra});
@@ -19,9 +21,9 @@ export function createVolumetricCore(seedInput=0x00a3f914){
     const prev=platforms[platforms.length-1];
     const x=i===0?0:clamp(prev.x+(random()-.5)*11,-13,13);
     const z=i===0?0:clamp(prev.z+(random()-.5)*10,-11,11);
-    const y=i===0?0:prev.y+3.05+(random()-.5)*.28;
-    const kind=i===0?'solid':i%10===0?'guardian':i%17===0?'crumbling':
+    const kind=isWallClimb(i)?'wall-climb':i===0?'solid':i%10===0?'guardian':i%17===0?'crumbling':
       i%13===0?'narrow':i%11===0?'wind':i%7===0?'moving':i%19===0?'spring':'solid';
+    const y=i===0?0:prev.y+(kind==='wall-climb'?5.15:3.05)+(random()-.5)*.28;
     const width=i===0?11:kind==='narrow'?5.4+random():6.8+random()*1.8;
     const depth=i===0?11:kind==='narrow'?5.2+random():6.3+random()*1.8,height=.95;
     platforms.push({i,x,y,z,baseX:x,baseZ:z,width,depth,height,kind,structuralIntegrity:kind==='crumbling'?1:2,
@@ -48,10 +50,30 @@ export function createVolumetricCore(seedInput=0x00a3f914){
     if(key==='ward')shields+=2;
     return {stride:'Swift Ascender',grip:'Skyward Grip',salvage:'Salvage Instinct',ward:'Aegis Ward'}[key];
   }
+  function registerLanding(p){
+  player.y=landingHeight(p)+config.halfHeight;player.vy=0;player.grounded=true;
+          if(p.i>player.at){
+            const before=player.checkpoint,oldTheme=currentTheme();
+            player.at=p.i;player.checkpoint=Math.floor(p.i/5)*5;
+            highestReached=Math.max(highestReached,p.i);score+=25+build.salvage*5;mode='LANDED';
+            if(p.i>0&&p.i%8===0){upgradesTaken++;const chosen=chooseUpgrade(p.i);emit('upgrade','The AI selected '+chosen+' at floor '+p.i+'.',{chosen,build:{...build}});}
+            if(p.i%5===0)emit('checkpoint','Checkpoint secured on floor '+p.i+'.',{checkpoint:player.checkpoint});
+            if(p.kind==='moving')emit('moving-platform','The AI intercepted a moving platform at floor '+p.i+'.');
+            if(p.kind==='narrow')emit('precision-landing','Narrow ledge secured at floor '+p.i+'.');
+            if(p.kind==='spring')emit('updraft','The climber found a powerful jump pad.');
+            if(p.kind==='crumbling')emit('unstable-ground','Unstable masonry: must move before it collapses.');
+            if(currentTheme()!==oldTheme)emit('biome','Entering the '+currentTheme()+' sector.',{theme:currentTheme()});
+          }
+          if(p.pickup&&!p.collected){p.collected=true;player.health=Math.min(5,player.health+1);score+=100+build.salvage*20;
+            emit('recovery-item','Recovered equipment on floor '+p.i+'.',{health:player.health});}
+
+    if(p.kind==='wall-climb'){wallClimbs++;emit('wall-mantle','Climbed a vertical handhold section on floor '+p.i+'.',{stamina:climbing.stamina});}
+  }
   function respawn(){
     const target=platforms.find(p=>p.i===player.checkpoint)||platforms[0];
     Object.assign(player,{x:target.x,z:target.z,y:landingHeight(target)+config.halfHeight+.02,
       vx:0,vy:0,vz:0,at:target.i,grounded:true,deaths:player.deaths+1,health:Math.max(1,player.health-1)});
+    climbing.active=false;
     mode='RECOVERING';
     emit('recovery','The climber fell and returned to checkpoint '+player.checkpoint+'.');
   }
@@ -62,6 +84,28 @@ export function createVolumetricCore(seedInput=0x00a3f914){
     for(const platform of platforms)if(platform.kind==='moving'){
       platform.x=clamp(platform.baseX+Math.sin(tick*.016+platform.i*.51)*1.25,-13.5,13.5);
       platform.z=clamp(platform.baseZ+Math.cos(tick*.013+platform.i*.24)*1.15,-11.5,11.5);
+    }
+    if(player.grounded&&!climbing.active)climbing.stamina=Math.min(100,climbing.stamina+dt*17);
+    if(climbing.active){
+      const p=platforms.find(p=>p.i===climbing.targetFloor);
+      if(!p){respawn();return snapshot();}
+      const duration=Math.max(1.05,1.85-build.grip*.11),easing=(t)=>t*t*(3-2*t);
+      climbing.progress=Math.min(1,climbing.progress+dt/duration);
+      const k=climbing.progress,eased=easing(k);
+      player.x=climbing.fromX+(p.x-climbing.fromX)*eased;
+      player.z=climbing.fromZ+(p.z-climbing.fromZ)*eased;
+      player.y=climbing.fromY+(landingHeight(p)+config.halfHeight-climbing.fromY)*eased;
+      player.vx=(p.x-climbing.fromX)/duration;player.vz=(p.z-climbing.fromZ)/duration;
+      player.vy=(landingHeight(p)+config.halfHeight-climbing.fromY)/duration;
+      climbing.stamina=Math.max(0,climbing.stamina-dt*(14-build.grip*1.2));
+      player.grounded=false;
+      mode=k>.83?'WALL MANTLE':'WALL CLIMBING';
+      intent=k>.83?'MANTLE THE UPPER LEDGE':'ASCEND VERTICAL HANDHOLDS';
+      if(climbing.stamina<=0){climbing.active=false;player.vy=-2;mode='FALLING';emit('slip','Grip exhausted on the ascent wall.');}
+      else if(k>=1){climbing.active=false;registerLanding(p);mode='WALL MANTLE COMPLETE';}
+      while(highestGenerated<player.at+15)addLanding(highestGenerated+1);
+      while(platforms.length>24&&platforms[0].i<player.at-8)platforms.shift();
+      return snapshot();
     }
     const current=platforms.find(p=>p.i===player.at);
     const guardian=current&&current.guardianHealth>0&&player.grounded?current:null;
@@ -96,6 +140,12 @@ export function createVolumetricCore(seedInput=0x00a3f914){
       dz=guardian.z+(dir*.9)-player.z;
     }
     if(input){dx=Number(Boolean(input.right))-Number(Boolean(input.left));dz=Number(Boolean(input.back))-Number(Boolean(input.forward));}
+    if(player.grounded&&!guardian&&target?.kind==='wall-climb'&&Math.hypot(dx,dz)<8.2&&climbing.stamina>=25){
+      Object.assign(climbing,{active:true,targetFloor:target.i,progress:0,fromX:player.x,fromY:player.y,fromZ:player.z});
+      player.grounded=false;player.vy=0;mode='WALL GRAB';intent='TAKE THE FIRST HANDHOLD';
+      emit('wall-grab','A vertical face blocks the route; the AI engages climbing handholds.');
+      return snapshot();
+    }
     const dist=Math.hypot(dx,dz),speed=dist>.15?speedLimit():0;
     intent=guardian?(evading?'DODGE GUARDIAN TELEGRAPH':'NEUTRALIZE GUARDIAN'):target?.kind==='moving'?'PREDICT MOVING LANDING':target?'SECURE NEXT PLATFORM':'SEARCHING FOR ROUTE';
     const desiredX=dist>.15?dx/dist*speed:0,desiredZ=dist>.15?dz/dist*speed:0;
@@ -128,7 +178,7 @@ export function createVolumetricCore(seedInput=0x00a3f914){
       }
       if(player.health<=0)respawn();
     }
-    if(player.grounded&&!guardian&&((!input&&target)||(input&&input.jump))){
+    if(player.grounded&&!guardian&&target?.kind!=='wall-climb'&&((!input&&target)||(input&&input.jump))){
       const nextDelta=target?landingHeight(target)-(landingHeight(platforms.find(p=>p.i===player.at)||platforms[0])):0;
       const leap=jumpImpulse();
       const reach=speedLimit()*(leap+Math.sqrt(Math.max(0,leap*leap-2*config.gravity*Math.max(0,nextDelta))))/config.gravity;
@@ -149,21 +199,7 @@ export function createVolumetricCore(seedInput=0x00a3f914){
       for(let i=platforms.length-1;i>=0;i--){
         const p=platforms[i],top=landingHeight(p);
         if(p.structuralIntegrity>0&&oldFoot>=top-.08&&newFoot<=top&&Math.abs(player.x-p.x)<p.width/2+.4&&Math.abs(player.z-p.z)<p.depth/2+.4){
-          player.y=top+config.halfHeight;player.vy=0;player.grounded=true;
-          if(p.i>player.at){
-            const before=player.checkpoint,oldTheme=currentTheme();
-            player.at=p.i;player.checkpoint=Math.floor(p.i/5)*5;
-            highestReached=Math.max(highestReached,p.i);score+=25+build.salvage*5;mode='LANDED';
-            if(p.i>0&&p.i%8===0){upgradesTaken++;const chosen=chooseUpgrade(p.i);emit('upgrade','The AI selected '+chosen+' at floor '+p.i+'.',{chosen,build:{...build}});}
-            if(p.i%5===0)emit('checkpoint','Checkpoint secured on floor '+p.i+'.',{checkpoint:player.checkpoint});
-            if(p.kind==='moving')emit('moving-platform','The AI intercepted a moving platform at floor '+p.i+'.');
-            if(p.kind==='narrow')emit('precision-landing','Narrow ledge secured at floor '+p.i+'.');
-            if(p.kind==='spring')emit('updraft','The climber found a powerful jump pad.');
-            if(p.kind==='crumbling')emit('unstable-ground','Unstable masonry: must move before it collapses.');
-            if(currentTheme()!==oldTheme)emit('biome','Entering the '+currentTheme()+' sector.',{theme:currentTheme()});
-          }
-          if(p.pickup&&!p.collected){p.collected=true;player.health=Math.min(5,player.health+1);score+=100+build.salvage*20;
-            emit('recovery-item','Recovered equipment on floor '+p.i+'.',{health:player.health});}
+          registerLanding(p);
           break;
         }
       }
@@ -176,7 +212,8 @@ export function createVolumetricCore(seedInput=0x00a3f914){
   }
   function snapshot(){
     return {tick,time,mode,intent,theme:currentTheme(),highestReached,highestGenerated,guardianKills,score,
-      events:events.slice(-12),build:{...build},shields,upgradesTaken,
+      events:events.slice(-12),build:{...build},shields,upgradesTaken,wallClimbs,
+      climbing:{...climbing},
       player:{...player},platforms:platforms.map(p=>({...p})),dimensionality:3};
   }
   return {step,snapshot,platforms,player,landingHeight,config};

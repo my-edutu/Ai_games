@@ -52,4 +52,6 @@ test('new physics platforms are materially distinct and keep scene size bounded'
    assert.ok(kinds.has(name),'missing mechanical platform '+name);
  assert.ok(s.snapshot().highestReached>=90);
  assert.ok(s.snapshot().upgradesTaken>=9);
+ assert.ok(s.snapshot().wallClimbs>=3,'real vertical handhold sections must be traversed');
+ assert.ok(s.snapshot().climbing.stamina>=0&&s.snapshot().climbing.stamina<=100);
 });
