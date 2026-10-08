@@ -28,7 +28,10 @@ function createReactivePilot(){
     const legal=h.legalResponses;
     const repeatAction=h.id===lastActionId && snapshot.tick-lastActionTick<24;
     const intent={...EMPTY};
-    const responseLead=Math.max(2.8,Math.min(4.7,1.6+speed*.35));
+    // A jump started four metres ahead can land on top of a short pothole.
+    // Target the center of the physically safe flight arc based on current speed
+    // and obstacle width; never use unrevealed hazard-generation parameters.
+    const responseLead=Math.max(1.75,Math.min(3.35,1.35+speed*.15+h.width*.36));
     if(grounded && !repeatAction){
       if(legal.includes('jump') && distance<=responseLead && distance>.65){
         intent.jumpPressed=true;
@@ -45,7 +48,7 @@ function createReactivePilot(){
     // Stop or slow for road crossings that cannot be cleared by legal platform actions.
     const mustYield=legal.includes('wait') || legal.includes('slow');
     const actionable=legal.includes('jump')||legal.includes('slide')||legal.includes('vault');
-    if(mustYield && !actionable && h.active && distance<=Math.max(2.2,speed*.40)){
+    if(mustYield && !actionable && h.active && distance<=Math.max(2.75,speed*.54+h.width*.36)){
       holds++;
       return {...EMPTY,axis:0};
     }
