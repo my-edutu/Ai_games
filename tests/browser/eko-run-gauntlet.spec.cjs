@@ -8,6 +8,7 @@ test.describe('Eko Run 3D Gauntlet slice', () => {
   test('desktop: renders real WebGL gameplay from advancing authority', async ({ page }) => {
     const failures = [];
     page.on('pageerror', error => failures.push(error.message));
+    expect((await page.request.post(ROOT+'/eko/control',{data:{resetPreview:true,mode:'ai'}})).ok()).toBeTruthy();
     await page.goto(ROOT + '/eko/', { waitUntil: 'domcontentloaded' });
     await expect(page.locator('#connection')).toContainText('CONNECTED', { timeout: 20000 });
     await expect(page.locator('#state')).toHaveText('RUN LIVE');
@@ -37,6 +38,7 @@ test.describe('Eko Run 3D Gauntlet slice', () => {
     expect(audit.environment.atmosphere).toBe('single-shader-city-sky');
     expect(audit.environment.batching.sourceMeshes).toBeGreaterThan(250);
     expect(audit.environment.batching.batchedMeshes).toBeLessThan(audit.environment.batching.sourceMeshes*0.55);
+    expect(audit.environment.batching.vertexColorChunks).toBeGreaterThan(0);
     expect(audit.environment.meshes).toBeLessThan(audit.environment.batching.sourceMeshes);
     expect(audit.performance.drawCalls).toBeGreaterThan(0);
     await expect(page.locator('#route-progress')).toHaveAttribute('aria-valuenow', /\d+/);
@@ -54,6 +56,7 @@ test.describe('Eko Run 3D Gauntlet slice', () => {
   });
 
   test('Tayo outfit changes preserve the same authoritative player physics', async ({ page }) => {
+    await page.request.post(ROOT+'/eko/control',{data:{resetPreview:true,mode:'ai'}});
     await page.goto(ROOT+'/eko/',{waitUntil:'domcontentloaded'});
     await expect(page.locator('#connection')).toContainText('CONNECTED',{timeout:20000});
     await page.locator('#mode').click();
@@ -76,7 +79,7 @@ test.describe('Eko Run 3D Gauntlet slice', () => {
   test('mobile: displays 3D scene and touch controls without horizontal overflow', async ({ page }) => {
     // Tests share the same long-running authority. The preceding outfit test deliberately
     // switches to player mode, so restore a deterministic AI precondition explicitly.
-    const reset = await page.request.post(ROOT+'/eko/control',{data:{mode:'ai'}});
+    const reset = await page.request.post(ROOT+'/eko/control',{data:{resetPreview:true,mode:'ai'}});
     expect(reset.ok()).toBeTruthy();
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto(ROOT + '/eko/', { waitUntil: 'domcontentloaded' });
