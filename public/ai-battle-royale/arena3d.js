@@ -5,6 +5,8 @@
   const forced2d=params.get('visual')==='2d';
   const quality=params.get('quality')==='low'?'low':'high';
   const materialsEnabled=params.get('materials')!=='off';
+  const threeRequested=params.get('renderer')==='three';
+  let threeStaticData=null,threeDynamicData=null,threeSnapshot=null,threeRevision=0;
   const cameraPreference=params.get('camera')==='hero'?'hero'
     :params.get('camera')==='tactical'?'tactical':'broadcast';
   function selectCameraMode(snapshot){
@@ -1367,7 +1369,7 @@
       }
     }
   }
-  function worldDynamic(b,s){
+  function worldDynamic(b,s,includeCharacters=true){
     const a=s.arena,w=a.width,t=colours[a.theme]||colours.ember;
     for(const item of a.loot.slice(0,100)){
       const p=pos(item.cell,w);
@@ -1376,7 +1378,7 @@
       b.box(p.x,.51,p.z,.10,.18,.10,[.60,.96,1]);
     }
     const eventFrames=activeVisualEvents().filter(f=>performance.now()-f.born<230).map(f=>f.event);
-    for(const f of s.combatants.slice(0,64))contender(b,f,w,t,Boolean(s.focus&&s.focus.id===f.id),eventFrames,s.combatants);
+    if(includeCharacters)for(const f of s.combatants.slice(0,64))contender(b,f,w,t,Boolean(s.focus&&s.focus.id===f.id),eventFrames,s.combatants);
     const c=pos(s.zone.centerCell,w);
     b.ring(c.x,.056,c.z,Math.max(.25,s.zone.radius),.08,t.accent,128);
     stormWall(b,s,t);
@@ -1599,6 +1601,7 @@
         const staticBuilder=mesh();
         worldStatic(staticBuilder,a);
         const fixed=new Float32Array(staticBuilder.v);
+        if(threeRequested)threeStaticData=fixed;
         bindSceneBuffer(staticBuffer);
         gl.bufferData(gl.ARRAY_BUFFER,fixed,gl.STATIC_DRAW);
         staticCache.key=key;
@@ -1620,6 +1623,13 @@
         })
       };
       worldDynamic(b,presented);
+      if(threeRequested){
+        const environmentOnly=mesh();
+        worldDynamic(environmentOnly,presented,false);
+        threeDynamicData=new Float32Array(environmentOnly.v);
+        threeSnapshot=presented;
+        threeRevision++;
+      }
       const data=new Float32Array(b.v),w=snapshot.arena.width,h=snapshot.arena.height;
       const aspect=area.width/area.height;
       const scale=Math.min(1.87/((w*.61+h*.79)*.52+5),1.87*aspect/(w*.79+h*.61+4));
@@ -1731,5 +1741,12 @@
     if(painted&&!reducedMotion&&!animationId)animationId=requestAnimationFrame(animate);
     return painted;
   }
-  window.BattleArena3D={render,status};
+  window.BattleArena3D={render,status,
+    exportScene(){
+      if(!threeRequested||!threeStaticData||!threeDynamicData)return null;
+      return {staticVertices:threeStaticData,dynamicVertices:threeDynamicData,
+        snapshot:threeSnapshot,revision:threeRevision,
+        sceneBuilds:status.sceneBuilds,cameraTargetId:status.heroActorId};
+    }
+  };
 })();
