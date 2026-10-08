@@ -6,11 +6,11 @@
   const startup={phase:'bootstrap',status:'starting',tick:0,autonomous:true,dimensionality:3};
   window.__TOWER_VOLUMETRIC_STATE__=startup;
   const progress=(phase)=>{startup.phase=phase;};
-  let THREE,createClimber,createTowerEnvironment,createTowerEntities,createTowerVfx,createVolumetricCore,loadClimberAsset,createTowerDirector,createTowerSky,createTowerGeology,createClimbingRope,createTowerEvidenceRecorder,createTowerInput;
+  let THREE,createClimber,createTowerEnvironment,createTowerEntities,createTowerVfx,createVolumetricCore,loadClimberAsset,createTowerDirector,createTowerSky,createTowerGeology,createClimbingRope,createTowerEvidenceRecorder,createTowerInput,createTowerAudio;
   try{
-    [THREE,{createClimber},{createTowerEnvironment},{createTowerEntities},{createTowerVfx},{createVolumetricCore},{loadClimberAsset},{createTowerDirector},{createTowerSky},{createTowerGeology},{createClimbingRope},{createTowerEvidenceRecorder},{createTowerInput}]=await Promise.all([
+    [THREE,{createClimber},{createTowerEnvironment},{createTowerEntities},{createTowerVfx},{createVolumetricCore},{loadClimberAsset},{createTowerDirector},{createTowerSky},{createTowerGeology},{createClimbingRope},{createTowerEvidenceRecorder},{createTowerInput},{createTowerAudio}]=await Promise.all([
       import('/tower/vendor/three.module.js'),import('/tower/character3d.js'),import('/tower/environment3d.js'),
-      import('/tower/entities3d.js'),import('/tower/vfx3d.js'),import('/tower/volumetric-core.js'),import('/tower/asset3d.js'),import('/tower/director3d.js'),import('/tower/sky3d.js'),import('/tower/geology3d.js'),import('/tower/rope3d.js'),import('/tower/evidence3d.js'),import('/tower/input3d.js')
+      import('/tower/entities3d.js'),import('/tower/vfx3d.js'),import('/tower/volumetric-core.js'),import('/tower/asset3d.js'),import('/tower/director3d.js'),import('/tower/sky3d.js'),import('/tower/geology3d.js'),import('/tower/rope3d.js'),import('/tower/evidence3d.js'),import('/tower/input3d.js'),import('/tower/audio3d.js')
     ]);
   }catch(error){status.textContent='3D MODULE LOAD FAILED';console.error(error);return;}
   progress('modules-loaded');
@@ -19,6 +19,8 @@
   catch(error){status.textContent='WEBGL UNAVAILABLE';return;}
   progress('webgl-created');
   const evidence=createTowerEvidenceRecorder(canvas);
+  const audio=createTowerAudio();
+  window.__TOWER_AUDIO_TOGGLE__=()=>audio.toggle();
   window.__TOWER_EVIDENCE_CAPTURE__=()=>evidence.capture(window.__TOWER_VOLUMETRIC_STATE__,'manual user capture');
   window.__TOWER_EVIDENCE_RECORD__=()=>evidence.recordClip(window.__TOWER_VOLUMETRIC_STATE__,8000);
   renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;
@@ -153,6 +155,7 @@
     renderMetrics.ropeSegments=22;
     renderMetrics.status='live';
     details.status='live';
+    if(renderFrames%6===0)audio.update(details,sim.snapshot().events);
     if(renderFrames%15===0)liveChannel?.postMessage({state:{...details},render:{...renderMetrics},timestamp:Date.now()});
     evidence.maybeCapture(details,renderMetrics);
     if(details.tick%8===0){
