@@ -311,16 +311,12 @@ function guildBanner(x,z){
 function hall(x,z){house(x,z,1.85,2);let y=terrain(x,z);cylinder(x,y+3.2,z,.5,2,rgb(0xcab48a));cone(x,y+5.2,z,1,1.7,rgb(0x5e6652));}
 // Gauntlet 025: coordinate-derived tapering branches and unique forest crowns.
 function taperedBranch(a,b,r0,r1,col,sides=7){
- const d=[b[0]-a[0],b[1]-a[1],b[2]-a[2]],length=Math.hypot(...d);
- if(length<.0001)return;
- const n=d.map(v=>v/length),up=Math.abs(n[1])>.9?[1,0,0]:[0,1,0];
- let u=[n[1]*up[2]-n[2]*up[1],n[2]*up[0]-n[0]*up[2],n[0]*up[1]-n[1]*up[0]];
- const m=Math.hypot(...u);u=u.map(v=>v/(m||1));
- const v=[n[1]*u[2]-n[2]*u[1],n[2]*u[0]-n[0]*u[2],n[0]*u[1]-n[1]*u[0]];
+ const frame=branchFrame(a,b);if(!frame)return;
+ const {u,v}=frame;
  const ring=(p,r,t)=>[p[0]+r*(u[0]*Math.cos(t)+v[0]*Math.sin(t)),p[1]+r*(u[1]*Math.cos(t)+v[1]*Math.sin(t)),p[2]+r*(u[2]*Math.cos(t)+v[2]*Math.sin(t))];
  for(let i=0;i<sides;i++){
-  const a0=i*2*Math.PI/sides,a1=(i+1)*2*Math.PI/sides;
-  quad(ring(a,r0,a0),ring(a,r0,a1),ring(b,r1,a1),ring(b,r1,a0),col);
+  const t0=i*2*Math.PI/sides,t1=(i+1)*2*Math.PI/sides;
+  quad(ring(a,r0,t0),ring(a,r0,t1),ring(b,r1,t1),ring(b,r1,t0),col);
  }
 }
 // Preserve a separate orientation testable without changing simulation state.
