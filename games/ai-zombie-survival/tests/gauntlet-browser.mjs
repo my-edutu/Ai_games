@@ -23,16 +23,24 @@ try{
         status:document.querySelector('#verdict').textContent,stats:document.querySelector('#fps').textContent};
     });
     assert.match(info.renderer,/WebGL 2/);
-    assert.match(info.stats,/STATIC BOX EQUIV/);
+    assert.match(info.stats,/CPU P95/);
+    assert.match(info.stats,/TRIANGLES/);
     assert.ok(info.width>=1280&&info.height>=720);
     const shot=await page.screenshot({path:root+scenario+'.png',animations:'disabled'});
     assert.ok(shot.length>12000,'screenshot suspiciously small for '+scenario);
     report.scenarios.push({name:scenario,bytes:shot.length,...info});
   }
+  await page.goto('http://127.0.0.1:4177/web/3d.html?scenario=night&weather=storm&freeze=1',{waitUntil:'load'});
+  await page.waitForFunction(()=>document.querySelector('#fps')?.textContent?.includes('CPU P95'),{timeout:12000});
+  await page.screenshot({path:root+'night-storm.png'});
+  report.checks.weatherEvidence=true;
   await page.goto('http://127.0.0.1:4177/web/3d.html?scenario=small-encounter&view=hero&freeze=1',{waitUntil:'load'});
   await page.waitForFunction(()=>document.querySelector('#fps')?.textContent?.includes('FPS'),{timeout:12000});
   await page.screenshot({path:root+'hero-closeup.png'});
   const aiIntent=await page.locator('#decision').textContent();
+  await page.keyboard.press('n');
+  await page.keyboard.press('g');
+  await page.keyboard.press('c');
   assert.ok(aiIntent?.length>12,'AI decision panel must expose a meaningful current intent');
   report.checks.heroCameraAndIntent=true;
   await page.goto('http://127.0.0.1:4177/web/3d.html?seed=2026',{waitUntil:'load'});
