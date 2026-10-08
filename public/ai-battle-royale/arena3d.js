@@ -233,6 +233,75 @@
       b.cone(cx,hipY+2.10,cz,.10,0,.27,roleArmor.trim,7);
     }
   }
+
+  function worldLandmarks(b,arena,theme){
+    // Decorative scenery stays on or beyond the perimeter, never fake cover.
+    const w=arena.width,h=arena.height;
+    function beacon(x,z,height){
+      b.cone(x,height/2,z,.19,.13,height,theme.wall,8);
+      b.cylinder(x,height,z,.38,.15,theme.accent,8);
+      b.cone(x,height+.24,z,.12,0,.35,[.80,.94,.98],8);
+      b.box(x+.20,height-.50,z,.08,.68,.13,[.08,.14,.20]);
+    }
+    for(let x=2;x<w-1;x+=5){
+      beacon(x,-.32,x%2===0?1.9:2.4);
+      beacon(x,h+.32,2.0);
+      b.box(x,.024,.46,.83,.020,.045,theme.accent);
+      b.box(x,.024,h-.46,.83,.020,.045,theme.accent);
+    }
+    for(let z=3;z<h-2;z+=6){
+      beacon(-.32,z,1.9);beacon(w+.32,z,1.9);
+    }
+    for(let i=0;i<8;i++){
+      const x=1+i*(w-2)/7,z=i%2===0?-1.05:h+1.05;
+      if(arena.theme==='arctic'){
+        b.cone(x,.48,z,.35,.09,.96,[.25,.40,.46],7);
+        b.cone(x,.99,z,.27,0,.88,[.71,.88,.89],7);
+      }else if(arena.theme==='neon'){
+        b.box(x,.36,z,.58,.71,.53,[.15,.22,.37]);
+        b.box(x,.75,z,.60,.10,.55,theme.accent);
+        b.limb([x,.80,z],[x+.11,1.43,z],.034,[.44,.91,.98]);
+      }else{
+        b.cone(x,.35,z,.41,.31,.68,[.35,.27,.22],7);
+        b.cone(x,.81,z,.32,.01,.53,[.54,.39,.30],7);
+      }
+    }
+    // Stadium silhouette / warning rail.
+    b.box(w/2,.07,-.10,w+.2,.13,.13,theme.accent);
+    b.box(w/2,.07,h+.10,w+.2,.13,.13,theme.accent);
+  }
+  function combatEffects(b,s,theme){
+    // Genuine combat cues, derived from existing authoritative event envelopes.
+    const byId=new Map(s.combatants.map(f=>[f.id,f]));
+    const w=s.arena.width;
+    for(const event of s.recentEvents.slice(-12)){
+      const actor=event.actorId?byId.get(event.actorId):null;
+      const target=event.targetId?byId.get(event.targetId):null;
+      if((event.type==='hit'||event.type==='miss'||event.type==='shield-broken')&&actor){
+        const from=pos(actor.cell,w);
+        const to=target?pos(target.cell,w):(Number.isInteger(event.cell)?pos(event.cell,w):null);
+        if(to&&Math.abs(from.x-to.x)+Math.abs(from.z-to.z)>.2){
+          const tint=event.type==='miss'?[.49,.83,1]:[1,.85,.35];
+          b.limb([from.x,1.51,from.z],[to.x,1.16,to.z],.034,tint);
+          b.cone(to.x,.86,to.z,.18,.01,.35,tint,8);
+          if(event.type==='shield-broken')b.ring(to.x,.11,to.z,.48,.070,[.24,.72,1],24);
+        }
+      }
+      if(event.type==='elimination'){
+        const victim=target||(Number.isInteger(event.cell)?{cell:event.cell}:null);
+        if(victim){
+          const at=pos(victim.cell,w);
+          b.ring(at.x,.13,at.z,.56,.08,[1,.27,.33],32);
+          b.cone(at.x,.50,at.z,.26,0,.98,[.96,.26,.30],10);
+          b.cone(at.x,1.11,at.z,.12,0,.45,[1,.77,.32],8);
+        }
+      }
+      if(event.type==='pickup'&&actor){
+        const at=pos(actor.cell,w);
+        b.ring(at.x,.09,at.z,.45,.043,[.98,.84,.4],24);
+      }
+    }
+  }
   function world(b,s){
     const a=s.arena,w=a.width,h=a.height,t=colours[a.theme]||colours.ember;
     b.box(w/2,-.25,h/2,w,.5,h,t.wall);
@@ -272,6 +341,8 @@
     b.box(w/2,.15,h+.1,w+.35,.3,.2,t.wall);
     b.box(-.1,.15,h/2,.2,.3,h+.35,t.wall);
     b.box(w+.1,.15,h/2,.2,.3,h+.35,t.wall);
+    worldLandmarks(b,a,t);
+    combatEffects(b,s,t);
     for(const [x,z] of [[0,0],[w,0],[0,h],[w,h]]){
       b.box(x,1.04,z,.35,2.08,.35,t.wall);
       b.box(x,2.16,z,.54,.24,.54,t.accent);
