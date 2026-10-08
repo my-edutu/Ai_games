@@ -12,6 +12,7 @@
   let renderer;
   try { renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false }); }
   catch (error) { console.warn('WebGL unavailable', error); canvas.remove(); return; }
+  const {createClimber}=await import('/tower/character3d.js');
   const scene = new THREE.Scene();
   scene.background = new THREE.Color('#10172a');
   scene.fog = new THREE.FogExp2('#10172a', 0.013);
@@ -31,7 +32,8 @@
   const architecture = new THREE.Group(); scene.add(architecture);
   const actors = new THREE.Group(); scene.add(actors);
   const clock = new THREE.Clock();
-  let climber = null, lastClimberPosition = null;
+  const climber=createClimber(THREE); scene.add(climber.root);
+  let lastClimberPosition = null;
   const decoration = new THREE.Group(); scene.add(decoration);
   const effects = new THREE.Group(); scene.add(effects);
   const themeColors = {foundry:0xffaa55,ice:0x70d8ff,verdant:0x6ae5a4,void:0xaa72ff,storm:0x92c5ff};
@@ -88,20 +90,8 @@
     const p = s.player;
     if (p) {
       const px = x(p.x), py = y(p.y);
-      climber = new THREE.Group(); climber.position.set(px,py,0.5); actors.add(climber);
-      mesh(box, playerMat, climber, 0, 0.1, 0, 0.62, 0.9, 0.42);
-      mesh(sphere, playerMat, climber, 0, 0.82, 0, 0.3, 0.34, 0.29);
-      mesh(box, accentMat, climber, 0, 0.18, 0.27, 0.36, 0.12, 0.08);
-      climber.userData.limbs = [];
-      for (const side of [-1,1]) {
-        const arm = new THREE.Group(); arm.position.set(side * 0.43,0.38,0); climber.add(arm);
-        mesh(box,playerMat,arm,side * 0.07,-0.34,0,0.2,0.65,0.23);
-        const leg = new THREE.Group(); leg.position.set(side * 0.18,-0.4,0); climber.add(leg);
-        mesh(box,playerMat,leg,0,-0.39,0,0.24,0.7,0.29);
-        mesh(box,trimMat,leg,0,-0.76,0.14,0.28,0.16,0.46);
-        climber.userData.limbs.push({arm,leg,side});
-      }
-      if (lastClimberPosition) climber.userData.motion = {dx:px-lastClimberPosition.x,dy:py-lastClimberPosition.y};
+      climber.root.position.set(px,py,0.5);
+      if (lastClimberPosition) climber.setMotion(px-lastClimberPosition.x,py-lastClimberPosition.y,s.intent?.summary||'');
       lastClimberPosition={x:px,y:py};
     }
     if (!lastState) camera.position.y = y(s.player?.y) + 5.2;
@@ -119,15 +109,7 @@
   const animate = () => {
     const frameStart=performance.now();
     size();
-    if (climber && !document.body.dataset.reducedMotion?.includes('true')) {
-      const t = clock.getElapsedTime(), motion = climber.userData.motion || {dx:0,dy:0};
-      const pace = Math.min(1,Math.hypot(motion.dx,motion.dy) * 2);
-      for (const {arm,leg,side} of climber.userData.limbs) {
-        arm.rotation.z = Math.sin(t*8)*0.48*pace*side;
-        leg.rotation.z = -Math.sin(t*8)*0.52*pace*side;
-      }
-      climber.rotation.z = Math.max(-0.15,Math.min(0.15,-motion.dx*0.14));
-    }
+    climber.animate(clock.getElapsedTime(),document.body.dataset.reducedMotion==='true');
     if (lastState) {
       const target = Number(lastState.player?.y || 0) / 1000 - Number(lastState.chunkBaseY || 0) / 1000 + 5.2;
       camera.position.y += (target - camera.position.y) * 0.05;
