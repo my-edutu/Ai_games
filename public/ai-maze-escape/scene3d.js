@@ -22,6 +22,7 @@ let skyLight=null;
 let fpsFrames=0;
 let fpsSince=0;
 let currentFPS=0;
+let sceneAnimators=[];
 const dynamic = new THREE.Group();
 const world = new THREE.Group();
 let renderer = null;
@@ -166,6 +167,28 @@ function mesh(geometry, material, parent, position, scale) {
   parent.add(result);
   return result;
 }
+function createGlowTexture(){
+  const canvas=document.createElement('canvas');canvas.width=128;canvas.height=128;
+  const c=canvas.getContext('2d');
+  const gradient=c.createRadialGradient(64,64,1,64,64,63);
+  gradient.addColorStop(0,'rgba(255,255,242,.95)');
+  gradient.addColorStop(.16,'rgba(255,242,196,.74)');
+  gradient.addColorStop(.42,'rgba(255,192,120,.18)');
+  gradient.addColorStop(1,'rgba(255,169,95,0)');
+  c.fillStyle=gradient;c.fillRect(0,0,128,128);
+  return new THREE.CanvasTexture(canvas);
+}
+const glowTexture=createGlowTexture();
+function addGlow(parent,position,size,color){
+  const glow=new THREE.Sprite(new THREE.SpriteMaterial({
+    map:glowTexture,color,transparent:true,
+    blending:THREE.AdditiveBlending,depthWrite:false,opacity:.72
+  }));
+  glow.position.set(position[0],position[1],position[2]);
+  glow.scale.set(size,size,size);
+  parent.add(glow);
+  return glow;
+}
 function humanoid(material) {
   const hero=new THREE.Group();
   // Original stylised explorer: layered wanderer's cloak, articulated boots and lantern.
@@ -211,6 +234,7 @@ function humanoid(material) {
   mesh(geometries.torus,materials.trim,lantern,[0,.3,0],[.2,.2,.2]).rotation.x=Math.PI/2;
   mesh(geometries.cylinder,materials.trim,lantern,[0,-.3,0],[.2,.07,.2]);
   hero.add(lantern);
+  addGlow(lantern,[0,.02,0],2.2,0xffcf8b);
   hero.userData.lantern=lantern;
   hero.userData.baseY=0;
   return hero;
@@ -327,6 +351,7 @@ function shrineProp(cell,p){
     mesh(geometries.column,materials.trim,world,[p.x+.78,.8,p.z-.8],[.72,.35,.72]);
     mesh(geometries.cube,materials.dark,world,[p.x+.78,1.19,p.z-.8],[.32,.27,.32]);
     mesh(geometries.lantern,materials.goldLight,world,[p.x+.78,1.42,p.z-.8],[.62,.71,.62]);
+    addGlow(world,[p.x+.78,1.42,p.z-.8],2.0,0xffb96e);
     mesh(geometries.cube,materials.trim,world,[p.x+.78,1.7,p.z-.8],[.32,.06,.32]);
     if(settled===0 && world.userData.torchCount<6){
       const lamp=new THREE.PointLight(0xffb86b,10,9,2);
@@ -354,6 +379,7 @@ function shrineProp(cell,p){
 function rebuild(snapshot) {
   if(previousRun!==snapshot.runToken)setTheme(snapshot.profile);
   clearWorld();
+  sceneAnimators=[];
   instanceQueues=new Map();
   world.userData.torchCount=0;
   const known = new Set(snapshot.cells.map(cell=>cell.cell));
@@ -431,6 +457,8 @@ function rebuild(snapshot) {
     const pedestal=mesh(geometries.cylinder,materials.wallTop,world,[p.x,.18,p.z],[.4,.36,.4]);
     const ring=mesh(geometries.torus,materials.gold,world,[p.x,1.07,p.z],[.3,.3,.3]);
     const blade=mesh(geometries.cube,materials.gold,world,[p.x,.77,p.z],[.12,.47,.11]);
+    sceneAnimators.push({object:ring,kind:'key',baseY:ring.position.y,phase:key.cell*.53});
+    addGlow(world,[p.x,1.15,p.z],1.7,0xffd17a);
     mesh(geometries.cube,materials.gold,world,[p.x+.11,.63,p.z],[.24,.1,.11]);
     const radiance=new THREE.PointLight(0xffb45e,3.7,4.5,2);
     radiance.position.set(p.x,1.3,p.z);
@@ -447,6 +475,8 @@ function rebuild(snapshot) {
     const lintel=mesh(geometries.cube,materials.wallTop,world,[p.x,3.0,p.z],[2.3,.45,.58]);
     lintel.castShadow=true;
     const gate=mesh(geometries.torus,materials.exit,world,[p.x,1.65,p.z],[1.0,1.48,1]);
+    sceneAnimators.push({object:gate,kind:'portal',baseY:gate.position.y,phase:p.x*.11});
+    addGlow(world,[p.x,1.65,p.z],4.0,0x68ffd9);
     mesh(geometries.cube,materials.exit,world,[p.x,.05,p.z],[1.7,.06,1.7]);
     if(world.userData.torchCount<7){
       const portalLight=new THREE.PointLight(0x66ffbd,5,8,2);
@@ -559,6 +589,16 @@ function render(now) {
   }
   if(explorer.userData.head)
     explorer.userData.head.rotation.y=reducedMotion?0:Math.sin(now*.0019)*(spotted?.19:.32);
+  for(const animator of sceneAnimators){
+    if(reducedMotion)continue;
+    if(animator.kind==='key'){
+      animator.object.rotation.y+=seconds*1.1;
+      animator.object.position.y=animator.baseY+Math.sin(now*.003+animator.phase)*.11;
+    }else if(animator.kind==='portal'){
+      animator.object.rotation.y=Math.sin(now*.0012)*.11;
+      animator.object.scale.z=.92+Math.sin(now*.004)*.08;
+    }
+  }
   for(const enemy of threats){
     if(enemy.userData.target){
       if(reducedMotion)enemy.position.copy(enemy.userData.target);
