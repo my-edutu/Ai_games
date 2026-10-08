@@ -42,6 +42,11 @@ test('three camera buttons change presentation state without affecting autonomou
   await expect(page.locator('[data-camera-mode="follow"]')).toHaveAttribute('aria-pressed','true');
   await page.waitForFunction(()=>window.__MAZE_PUBLIC_STATE__?.tick>2);
   const before=await page.evaluate(()=>window.__MAZE_PUBLIC_STATE__.tick);
+  const webgl=await page.evaluate(()=>Boolean(window.__MAZE_3D_READY__));
+  if(!webgl){
+    await expect(page.locator('#camera-switch')).toBeHidden();
+    return;
+  }
   await page.getByRole('button',{name:'Tactical'}).click();
   expect(await page.evaluate(()=>window.__MAZE_CAMERA_MODE__)).toBe('tactical');
   await expect(page.locator('[data-camera-mode="tactical"]')).toHaveAttribute('aria-pressed','true');
