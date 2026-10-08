@@ -114,7 +114,9 @@ export function enrichEnvironment(world,map,floor){
   const cup=new THREE.Mesh(new THREE.CylinderGeometry(.2,.1,.12,9),chrome);cup.position.y=1.82;group.add(cup);
   const fire=new THREE.Mesh(new THREE.ConeGeometry(.15,.46,9),jade);fire.position.y=2.04;group.add(fire);
   const inner=new THREE.Mesh(new THREE.ConeGeometry(.065,.26,8),new THREE.MeshBasicMaterial({color:'#fff2c7',transparent:true,opacity:.87,depthWrite:false}));inner.position.y=1.99;group.add(inner);
-  world.add(group);flames.push({fire,inner,phase:(h%37)*.33});return group;
+  world.add(group);
+  if(flames.length<5){const torchLight=new THREE.PointLight(biome.glow,2.2,6.5,2);torchLight.position.set(x,2.1,z);world.add(torchLight)}
+  flames.push({fire,inner,phase:(h%37)*.33});return group;
  };
  for(const [x,z,yaw,h] of pillars.slice(0,20)){
   const root=new THREE.Group();root.position.set(x,0,z);root.rotation.y=yaw;

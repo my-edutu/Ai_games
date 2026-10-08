@@ -8,13 +8,14 @@ const scene=new THREE.Scene();scene.background=new THREE.Color('#070d18');scene.
 const camera=new THREE.PerspectiveCamera(44,1,.1,110);
 const ambient=new THREE.HemisphereLight('#7191bf','#111526',1.9);scene.add(ambient);
 const moon=new THREE.DirectionalLight('#a6c6ff',2.0);moon.position.set(-7,17,5);moon.castShadow=!reduced;moon.shadow.mapSize.set(1024,1024);moon.shadow.camera.left=-17;moon.shadow.camera.right=17;moon.shadow.camera.top=17;moon.shadow.camera.bottom=-17;scene.add(moon);
+const partyGlow=new THREE.PointLight('#50e9ff',2.35,7.7,2);partyGlow.position.set(0,2,0);scene.add(partyGlow);
 const ground=new THREE.Mesh(new THREE.PlaneGeometry(150,150),new THREE.MeshStandardMaterial({color:'#080e17',roughness:1}));ground.rotation.x=-Math.PI/2;ground.position.y=-.17;scene.add(ground);
 const actors=new Map(),world=new THREE.Group();scene.add(world);
 const floorThemes=[
- {sky:'#080e1b',fog:'#0c1520',torch:'#ff9964',accent:'#b28e5b',fill:'#43566e'},
- {sky:'#1c0d15',fog:'#21111b',torch:'#ffa45a',accent:'#dc835c',fill:'#795060'},
- {sky:'#0b1323',fog:'#10192d',torch:'#8ce2dc',accent:'#79c5bd',fill:'#3b5b78'},
- {sky:'#130e23',fog:'#1b1230',torch:'#c4a3ff',accent:'#aa95c5',fill:'#4b426b'}
+ {sky:'#0b2032',fog:'#143047',torch:'#ffb45c',accent:'#5cf1d2',fill:'#75adcf'},
+ {sky:'#291324',fog:'#341b2e',torch:'#ffaf55',accent:'#fe806f',fill:'#a66d9a'},
+ {sky:'#101b3b',fog:'#1a2452',torch:'#82f7ef',accent:'#72bbff',fill:'#648ed5'},
+ {sky:'#251343',fog:'#2f1b4d',torch:'#d39bff',accent:'#fc91c8',fill:'#aa8ae2'}
 ];let lastCutawayKey='';
 const cachedVec=new THREE.Vector3(),cachedQuat=new THREE.Quaternion(),cachedScale=new THREE.Vector3(),cachedMatrix=new THREE.Matrix4();
 function cutawayWalls(target){
@@ -272,6 +273,7 @@ function animate(t){requestAnimationFrame(animate);const time=t/1000,dt=Math.min
  const cameraType=cameraModes[cameraIndex]||'cinematic',offsets=cameraType==='tactical'?[2,20,2]:cameraType==='chase'?[5.5,8.5,7.5]:[9,14,11];
  const look=new THREE.Vector3(target.x,0,target.z),cam=new THREE.Vector3(target.x+offsets[0],offsets[1],target.z+offsets[2]);
  camera.position.lerp(cam,reduced?1:.065);camera.lookAt(look.x,0,look.z);
+ partyGlow.position.set(target.x,2,target.z);
  renderer.render(scene,camera);if(state)window.__DUNGEON_RENDER_DIAGNOSTICS__={frame:renderer.info.render.frame,drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,camera:cameraModes[cameraIndex],activeUnits:[...actors.values()].filter(x=>x.root.visible).length,characterDetails:[...actors.values()].reduce((sum,x)=>sum+(x.detail?.parts||0),0),webgl:true,theme:state.theme,dressing:world.userData.dressing?.metrics??null};
 }
 async function poll(){try{const r=await fetch('/dungeon/state',{cache:'no-store'});if(!r.ok)throw Error('State '+r.status);const data=await r.json();if(data.tick!==lastTick||data.run!==state?.run){lastTick=data.tick;update(data)}}catch(e){errorAt++;if(errorAt>=3){$('recovery').hidden=false;$('status').textContent='VIEW DEGRADED — RETRYING';console.warn('Dungeon view recovery',String(e))}}finally{setTimeout(poll,190)}}
