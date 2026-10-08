@@ -12,7 +12,7 @@
   let renderer;
   try { renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false }); }
   catch (error) { console.warn('WebGL unavailable', error); canvas.remove(); return; }
-  const [{createClimber},{createTowerEnvironment},{createTowerEntities},{loadClimberAsset},{createTowerVfx}]=await Promise.all([import('/tower/character3d.js'),import('/tower/environment3d.js'),import('/tower/entities3d.js'),import('/tower/asset3d.js'),import('/tower/vfx3d.js')]);
+  const [{createClimber},{createTowerEnvironment},{createTowerEntities},{loadClimberAsset},{createTowerVfx},{createTowerSky}]=await Promise.all([import('/tower/character3d.js'),import('/tower/environment3d.js'),import('/tower/entities3d.js'),import('/tower/asset3d.js'),import('/tower/vfx3d.js'),import('/tower/sky3d.js')]);
   const scene = new THREE.Scene();
   scene.background = new THREE.Color('#10172a');
   scene.fog = new THREE.FogExp2('#10172a', 0.013);
@@ -35,6 +35,7 @@
   const rim = new THREE.PointLight(0x59dfff, 55, 28);
   rim.position.set(8, 8, -3); scene.add(rim);
   const architecture=createTowerEnvironment(THREE,scene);
+  const sky=createTowerSky(THREE,scene);
   architecture.root.scale.set(3,3,1);
   const entities=createTowerEntities(THREE);
   const actors = new THREE.Group(); scene.add(actors);
@@ -70,7 +71,7 @@
   };
   function rebuild(s) {
     const theme = String(s.theme || 'foundry').toLowerCase();
-    if (theme !== themeKey) { themeKey=theme; const color=themeColors[theme]||0xffaa55; rim.color.setHex(color); groundLight.color.setHex(color); architecture.setTheme(theme); }
+    if (theme !== themeKey) { themeKey=theme; const color=themeColors[theme]||0xffaa55; rim.color.setHex(color); groundLight.color.setHex(color); architecture.setTheme(theme);sky.setTheme(theme); }
     groundLight.position.set(Number(s.player?.x||0)/1000-Number(s.worldWidth||0)/2000,Number(s.player?.y||0)/1000-Number(s.chunkBaseY||0)/1000+12,9);
     rim.position.set(xCoord(s.player?.x,s.worldWidth)+18,Number(s.player?.y||0)/1000-Number(s.chunkBaseY||0)/1000+28,11);
     const base = Number(s.chunkBaseY || 0) / 1000;
@@ -152,6 +153,7 @@
       importedClimber.root.scale.copy(climber.root.scale);
     }
     architecture.animate(elapsed,document.body.dataset.reducedMotion==='true');
+    sky.update(elapsed,camera,{climberY:climber.root.position.y,reducedMotion:document.body.dataset.reducedMotion==='true'});
     vfx.update(dt,lastState?{
       x:climber.root.position.x,y:climber.root.position.y,z:climber.root.position.z,
       dx:Number(lastState.player?.vx||0)/1000,dy:Number(lastState.player?.vy||0)/1000
