@@ -36,6 +36,9 @@ test.describe('Eko Run 3D Gauntlet slice', () => {
     expect(audit.environment.materials.textures).toBe(3);
     expect(audit.environment.vibrance.kind).toBe('original-lagos-chromatic');
     expect(audit.environment.vibrance.features).toBeGreaterThan(500);
+    expect(audit.environment.landmarks.authorityNeutral).toBe(true);
+    expect(audit.environment.landmarks.arches).toBeGreaterThanOrEqual(3);
+    expect(audit.environment.landmarks.signs.length).toBeGreaterThanOrEqual(1);
     expect(audit.environment.horizonLength).toBeGreaterThanOrEqual(235);
     expect(audit.performance.crowd.avatars).toBeGreaterThanOrEqual(20);
     expect(audit.performance.crowd.drawCalls).toBeLessThanOrEqual(12);
