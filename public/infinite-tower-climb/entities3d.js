@@ -88,5 +88,18 @@ export function createTowerEntities(THREE){
     root.rotation.z=Math.atan2(Number(data.vy||0),Number(data.vx||1));
     return root;
   }
-  return {platform,enemy,hazard,pickup,projectile,materials:meshes};
+  // Box, sphere, spikes and octahedra are shared for all visible entities.
+  // Unique ring geometries must be released when a streamed floor leaves view.
+  const sharedGeometries=new Set([boxGeo,sphereGeo,spikeGeo,octaGeo]);
+  function release(root){
+    let disposed=0;
+    root.traverse(node=>{
+      if(node.isMesh&&node.geometry&&!sharedGeometries.has(node.geometry)){
+        node.geometry.dispose();
+        disposed++;
+      }
+    });
+    return disposed;
+  }
+  return {platform,enemy,hazard,pickup,projectile,release,materials:meshes};
 }
