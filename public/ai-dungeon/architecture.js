@@ -37,7 +37,10 @@ export function addDungeonWindows(world,faces,floor,biome,materials,geometries,t
  const sill=new THREE.BoxGeometry(.83,.12,.25);
  const pier=new THREE.BoxGeometry(.15,1.35,.24);
  const finial=new THREE.ConeGeometry(.13,.28,5);
- geometries.push(jamb,arch,pane,keystone,sill,pier,finial);
+ const tracery=new THREE.BoxGeometry(.045,.69,.045);
+ const peakRib=new THREE.CylinderGeometry(.045,.045,.46,7);
+ const corbel=new THREE.BoxGeometry(.20,.16,.26);
+ geometries.push(jamb,arch,pane,keystone,sill,pier,finial,tracery,peakRib,corbel);
  let count=0;
  // Only visible wall facades are supplied. Selection is stable per floor.
  for(let i=7;i<faces.length&&count<10;i+=23){
@@ -51,6 +54,14 @@ export function addDungeonWindows(world,faces,floor,biome,materials,geometries,t
   };
   add(pane,glass,0,1.43,.092);
   add(arch,frame,0,1.82,.105);
+  // Three-dimensional lead tracery and pointed vault ribs break up flat wall slabs.
+  // Reuse geometries/materials across every window; no per-window GPU allocations.
+  for(const side of [-1,0,1])add(tracery,frame,side*.17,1.43,.15);
+  for(const side of [-1,1]){
+   const rib=add(peakRib,frame,side*.145,2.00,.14);
+   rib.rotation.z=-side*.68;
+   add(corbel,stone,side*.42,.91,.075);
+  }
   for(const side of [-1,1]){
    add(jamb,frame,side*.34,1.34,.11);
    add(pier,stone,side*.45,1.42,.015);
