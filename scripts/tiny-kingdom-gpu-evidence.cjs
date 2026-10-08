@@ -4,28 +4,38 @@ const fs = require('node:fs');
 const path = require('node:path');
 
 (async () => {
-  const dir = path.resolve('artifacts/tiny-kingdom');
-  fs.mkdirSync(dir, {recursive:true});
+  const out = path.resolve('artifacts/tiny-kingdom');
+  fs.mkdirSync(out, { recursive: true });
   const browser = await chromium.launch({headless:true,args:['--enable-webgl','--use-gl=angle','--use-angle=swiftshader','--enable-unsafe-swiftshader','--disable-dev-shm-usage']});
   const page = await browser.newPage({viewport:{width:1440,height:900},deviceScaleFactor:1});
   const errors=[];
-  page.on('pageerror', e=>errors.push(e.message));
+  page.on('pageerror',e=>errors.push(e.message));
+  let evidence={errors,webglVerified:false};
   try {
     await page.goto('file://'+path.resolve('public/tiny-kingdom/index.html'),{waitUntil:'load',timeout:30000});
     await page.waitForFunction(()=>Boolean(window.__tinyKingdom),{timeout:20000});
     await page.waitForTimeout(1400);
-    const result=await page.evaluate(()=>{
+    evidence = await page.evaluate(() => {
       const canvases=[...document.querySelectorAll('canvas')];
-      return {webglContexts:canvases.map(c=>{
+      const contexts=canvases.map(c=>{
+        // Querying an existing renderer canvas for WebGL is safe only when the engine
+        // has already created it; never count a newly allocated probe canvas.
         const gl=c.getContext('webgl2')||c.getContext('webgl');
-        if(!gl)return {webgl:false};
+        if(!gl)return {webgl:false,width:c.width,height:c.height};
         const ext=gl.getExtension('WEBGL_debug_renderer_info');
-        return {webgl:true,vendor:ext?gl.getParameter(ext.UNMASKED_VENDOR_WEBGL):null,renderer:ext?gl.getParameter(ext.UNMASKED_RENDERER_WEBGL):null,width:c.width,height:c.height};
-      }),metrics:window.__tinyKingdom.metrics()};
+        return {webgl:true,width:c.width,height:c.height,renderer:ext?gl.getParameter(ext.UNMASKED_RENDERER_WEBGL):'unavailable'};
+      });
+      return {contexts,metrics:window.__tinyKingdom.metrics(),webglVerified:contexts.some(x=>x.webgl)};
     });
-    await page.screenshot({path:path.join(dir,'day1.png'),fullPage:true});
-    fs.writeFileSync(path.join(dir,'evidence.json'),JSON.stringify({result,errors},null,2));
-    if(!result.webglContexts.some(c=>c.webgl))throw Error('No WebGL context; screenshot is fallback, not GPU/WebGL evidence');
-    if(errors.length)throw Error('Page errors: '+errors.join('; '));
-  } finally {await browser.close();}
+    evidence.errors=errors;
+    await page.screenshot({path:path.join(out,'day1.png'),fullPage:true});
+    if(!evidence.webglVerified)throw Error('No existing game canvas provides WebGL; evidence is not a WebGL capture');
+    if(errors.length)throw Error('Uncaught page errors: '+errors.join('; '));
+  } catch (error) {
+    evidence.failure=String(error.stack||error);
+    throw error;
+  } finally {
+    fs.writeFileSync(path.join(out,'evidence.json'),JSON.stringify(evidence,null,2));
+    await browser.close();
+  }
 })().catch(e=>{console.error(e);process.exitCode=1});
