@@ -260,7 +260,13 @@ function rebuild(snapshot) {
   world.userData.torchCount=0;
   const known = new Set(snapshot.cells.map(cell=>cell.cell));
   const w = snapshot.width;
-  for (const cell of snapshot.cells) {
+  const activeCol=snapshot.currentCell%w,activeRow=Math.floor(snapshot.currentCell/w);
+  // Artistic geometry is a local window; discovery, AI logic and authoritative memory remain untouched.
+  const renderCells=snapshot.cells.filter(cell=>{
+    const col=cell.cell%w,row=Math.floor(cell.cell/w);
+    return Math.abs(col-activeCol)<=6 && Math.abs(row-activeRow)<=5;
+  });
+  for (const cell of renderCells) {
     const p=point(cell.cell,w);
     const tile=mesh(geometries.floor,(cell.cell % 5 === 0)?materials.alternate:materials.floor,world,[p.x,-0.13,p.z]);
     tile.material=cell.visible?tile.material:materials.dark;
@@ -298,7 +304,7 @@ function rebuild(snapshot) {
     }
     shrineProp(cell,p);
   }
-  const visible = new Set(snapshot.cells.map(c=>c.cell));
+  const visible = new Set(renderCells.map(c=>c.cell));
   line(snapshot.travelledRoute.filter(id=>visible.has(id)).slice(-120),w,materials.trail);
   line(snapshot.plannedRoute.filter(id=>visible.has(id)).slice(0,60),w,materials.plan);
   for(const door of snapshot.doors){
