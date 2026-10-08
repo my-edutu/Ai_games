@@ -102,19 +102,14 @@ export function buildPainterlyTowerBackdrop({group,snapshot,palette,worldWidth,t
     battlement(stage,left,y,stone,trim,i%3);
     battlement(stage,right,y,stone,trim,(i+1)%3);
   }
-  // Two broken galleries create readable depth; changing offsets prevent tiling.
-  for(let gallery=0;gallery<3;gallery++){
-    const y=y0+height*(.16+gallery*.34),long=worldWidth*(gallery%2?.58:.72);
-    const center=worldWidth*(gallery===1?.61:.39);
-    add(stage,block(long,7,27,shadow),center,y,-78);
-    add(stage,block(long-7,2.5,29,trim),center,y+5,-76);
-    const colHeight=40+gallery*8;
-    for(let i=0;i<3;i++){
-      const x=center-long*.42+i*long*.42;
-      add(stage,block(9,colHeight,25,stone),x,y+colHeight*.5,-77);
-      const crown=add(stage,new THREE.Mesh(new THREE.OctahedronGeometry(7+gallery,0),trim),x,y+colHeight+3,-76);
-      crown.scale.y=.64;
-    }
+  // Distant silhouette buttresses replace former giant fake catwalks.
+  // The earlier decorative catwalks looked exactly like gameplay platforms,
+  // occluded traversal, and confused the camera's focal hierarchy.
+  for(let i=0;i<4;i++){
+    const x=worldWidth*(.11+i*.27),y=y0+height*(.21+(i%3)*.3);
+    const pillar=add(stage,block(11,30+i*5,11,shadow),x,y,-123);
+    pillar.rotation.z=(i%2?1:-1)*.025;
+    add(stage,block(18,4,12,stone),x,y+17+i*2.5,-122);
   }
   for(let i=0;i<4;i++){
     const x=worldWidth*(.11+i*.26),y=y0+height*(.16+(i%3)*.28);
@@ -122,13 +117,13 @@ export function buildPainterlyTowerBackdrop({group,snapshot,palette,worldWidth,t
   }
   // Huge decorative relic on one side, intentionally asymmetrical for environmental storytelling.
   const relicX=worldWidth*(snapshot.floor%2?.84:.16),relicY=y0+height*.76;
-  const ring=new THREE.Mesh(new THREE.TorusGeometry(26,5,11,40),trim);
-  add(stage,ring,relicX,relicY,-72);ring.rotation.y=.2;
-  const core=add(stage,new THREE.Mesh(new THREE.IcosahedronGeometry(10,1),lit(palette.glow,.6)),relicX,relicY,-71);
+  const ring=new THREE.Mesh(new THREE.TorusGeometry(19,2.7,11,36),shadow);
+  add(stage,ring,relicX,relicY,-122);ring.rotation.y=.2;
+  const core=add(stage,new THREE.Mesh(new THREE.IcosahedronGeometry(5,1),lit(palette.glow,.35)),relicX,relicY,-121);
   for(let i=0;i<8;i++){
     const angle=i*Math.PI/4;
     const tooth=block(5,11,7,stone);tooth.rotation.z=-angle;
-    add(stage,tooth,relicX+Math.sin(angle)*28,relicY+Math.cos(angle)*28,-67);
+    add(stage,tooth,relicX+Math.sin(angle)*22,relicY+Math.cos(angle)*22,-119);
   }
   // Biome-specific landmark silhouette.
   if(theme==='ruins'){
