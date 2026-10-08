@@ -67,7 +67,8 @@ function setWorldVertexGeometry(vertices){
     let u=((ux*uvScale)%1+1)%1,v=((vz*uvScale)%1+1)%1;
     u=Math.max(.010,Math.min(.990,u));v=Math.max(.010,Math.min(.990,v));
     uv[i*2]=(column+u)/2;
-    uv[i*2+1]=(biomeMaterialRow+v)/3;
+    // Three.js flips HTMLImageElement atlas Y on upload, so tile rows are reversed.
+    uv[i*2+1]=(2-biomeMaterialRow+v)/3;
   }
   geo.setAttribute('position',new THREE.BufferAttribute(pos,3));
   geo.setAttribute('normal',new THREE.BufferAttribute(norm,3));
