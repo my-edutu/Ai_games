@@ -40,3 +40,16 @@ test('mobile platforms move in physical X/Z and AI still clears ten guardians ac
     assert.ok(snap.guardianKills>=10,'boss system must not stall the route');
   }
 });
+
+test('new physics platforms are materially distinct and keep scene size bounded',()=>{
+ const s=create(42),kinds=new Set();
+ for(let i=0;i<7200;i++){
+   const view=s.step(1/60);
+   view.platforms.forEach(p=>kinds.add(p.kind));
+   assert.ok(view.platforms.length<=24);
+ }
+ for(const name of ['solid','moving','crumbling','narrow','wind','spring','guardian'])
+   assert.ok(kinds.has(name),'missing mechanical platform '+name);
+ assert.ok(s.snapshot().highestReached>=90);
+ assert.ok(s.snapshot().upgradesTaken>=9);
+});
