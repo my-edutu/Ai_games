@@ -45,6 +45,7 @@ function payload() {
 }
 function broadcast() {
   latest = payload();
+  events = []; // one bounded batch of semantic events per publicly emitted frame
   const packet = 'data: ' + JSON.stringify(latest) + '\n\n';
   for (const client of clients) {
     if (client.destroyed || client.writableLength > 131072) { clients.delete(client); client.end(); continue; }
@@ -80,7 +81,7 @@ function tick() {
     const result = game.stepSimulation(state, [command(type, value)], config);
     if (result.rejectedCommands.length) throw new Error('AUTHORITATIVE_COMMAND_REJECTED: ' + result.rejectedCommands[0].reason);
     state = result.state;
-    events = result.events.slice(-12);
+    events = [...events, ...result.events].slice(-12);
     if (++nextBroadcast % 3 === 0) broadcast();
   } catch (error) {
     fault = error;
