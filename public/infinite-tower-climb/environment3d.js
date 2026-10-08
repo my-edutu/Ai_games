@@ -9,12 +9,14 @@ export function createTowerEnvironment(THREE,scene) {
   const glow=new THREE.MeshStandardMaterial({color:0xf7cf98,emissive:0xe5a559,emissiveIntensity:1.3,metalness:0.45,roughness:0.4});
   const materials=[sandstone,shadowStone,edgeStone,bronze,glow];
   const boxGeo=new THREE.BoxGeometry(1,1,1);
+  const geoCache=new Map();
+  const cylinderGeometry=(top,bottom,height,segments)=>{const key=[top,bottom,height,segments].join(':');if(!geoCache.has(key))geoCache.set(key,new THREE.CylinderGeometry(top,bottom,height,segments));return geoCache.get(key)};
   function block(parent,x,y,z,w,h,d,mat=sandstone) {
     const m=new THREE.Mesh(boxGeo,mat);m.position.set(x,y,z);m.scale.set(w,h,d);
     m.receiveShadow=true;parent.add(m);return m;
   }
   function cylinder(parent,x,y,z,rTop,rBottom,h,mat,segments=12) {
-    const m=new THREE.Mesh(new THREE.CylinderGeometry(rTop,rBottom,h,segments),mat);
+    const m=new THREE.Mesh(cylinderGeometry(rTop,rBottom,h,segments),mat);
     m.position.set(x,y,z);m.receiveShadow=true;parent.add(m);return m;
   }
   function arch(parent,x,y,z,width,height,material=sandstone) {
@@ -79,6 +81,21 @@ export function createTowerEnvironment(THREE,scene) {
       block(root,x,y+.4,7.8,1.5,.16,.1,bronze);
     }
   }
+  // Batch repeated 3D stonework into instanced meshes to keep GPU draw calls bounded.
+  const groups=new Map();
+  for (const object of [...root.children]){
+    if (!object.isMesh)continue;
+    const key=object.geometry.uuid+'/'+object.material.uuid;
+    if(!groups.has(key))groups.set(key,[]);
+    groups.get(key).push(object);
+  }
+  for(const group of groups.values()){
+    if(group.length<3)continue;
+    const instanced=new THREE.InstancedMesh(group[0].geometry,group[0].material,group.length);
+    instanced.name='Batched stonework';instanced.receiveShadow=true;
+    group.forEach((object,i)=>{object.updateMatrix();instanced.setMatrixAt(i,object.matrix);root.remove(object)});
+    instanced.instanceMatrix.needsUpdate=true;root.add(instanced);
+  }
   // Dust motes are real 3D points distributed throughout the shaft.
   const count=560,verts=new Float32Array(count*3);
   let seed=248201;const rand=()=>{seed=(1664525*seed+1013904223)>>>0;return seed/4294967296};
@@ -109,5 +126,5 @@ export function createTowerEnvironment(THREE,scene) {
     if(!reduced){motes.rotation.y=Math.sin(time*.1)*.025;dustMaterial.opacity=.28+Math.sin(time*.7)*.05;}
   }
   setTheme('foundry');
-  return {root,materials,setTheme,animate,signature:'monumental-vaulted-tower-v1'};
+  return {root,materials,setTheme,animate,signature:'monumental-vaulted-tower-v2-instanced'};
 }
