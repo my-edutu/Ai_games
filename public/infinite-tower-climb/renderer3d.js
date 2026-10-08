@@ -41,7 +41,10 @@
   let themeKey = '', frameCount = 0, lastRenderWidth = 0, lastRenderHeight = 0;
   const metrics = {frames:0,frameMs:0,actors:0,renderer:'webgl',status:'starting'};
   window.__TOWER_3D_METRICS__ = metrics;
-  let previousChecksum = '', lastState = null;
+  let previousChecksum = '', lastState = null, scenePhase='normal';
+  const debug=new URLSearchParams(location.search).has('debug3d');
+  let diagnostics=null;
+  if(debug){diagnostics=document.createElement('pre');diagnostics.id='tower-3d-debug';diagnostics.style.cssText='position:absolute;bottom:15px;left:15px;z-index:4;color:#bbf7fa;background:rgba(2,8,14,.82);padding:12px;border:1px solid #357280;border-radius:10px;font:12px monospace;pointer-events:none';original.parentElement.append(diagnostics);}
   let lastFrameAt=performance.now();
   const size = () => {
     const w = Math.max(1, canvas.clientWidth), h = Math.max(1, canvas.clientHeight);
@@ -110,7 +113,8 @@
   // The existing 2D renderer must not write to the same canvas after WebGL takes ownership.
   window.__TOWER_3D_ACTIVE__ = true;
   original.style.visibility = 'hidden';
-  window.__TOWER_3D_RENDER__ = s => {
+  window.__TOWER_3D_RENDER__ = (s,phase='normal') => {
+    scenePhase=phase;
     if (!s || (s.publicChecksum && s.publicChecksum === previousChecksum)) return;
     previousChecksum = s.publicChecksum; lastState = s; rebuild(s);
   };
@@ -126,6 +130,8 @@
       camera.position.x+=(playerX+14-camera.position.x)*0.07;
       camera.position.y+=(playerY+36-camera.position.y)*0.07;
       camera.lookAt(playerX,playerY+17,0);
+      const targetDepth=scenePhase==='guardian'?158:scenePhase==='danger'?110:scenePhase==='result'?190:125;
+      camera.position.z+=(targetDepth-camera.position.z)*.025;
       architecture.root.position.x=playerX;
     }
     if (++frameCount % 2 === 0 && !document.body.dataset.reducedMotion?.includes('true')) { const elapsed=clock.getElapsedTime(); for (const object of actors.children) if (object.userData.pickup) { object.rotation.y=elapsed*1.5; object.position.y+=Math.sin(elapsed*2+object.position.x)*0.001; } }
@@ -136,6 +142,14 @@
     metrics.drawCalls=renderer.info.render.calls;
     metrics.triangles=renderer.info.render.triangles;
     metrics.reusedEntities=liveEntities.size;
+    metrics.scene=scenePhase;metrics.cameraDepth=Math.round(camera.position.z);
+    if(diagnostics&&metrics.frames%12===0)diagnostics.textContent=[
+      '3D GAUNTLET / '+metrics.status,
+      'SCENE '+String(scenePhase).toUpperCase(),
+      'FPS '+metrics.fps+'  DRAWS '+metrics.drawCalls,
+      'TRIS '+metrics.triangles+'  OBJECTS '+liveEntities.size,
+      'FLOOR '+(lastState?.floor??'—')+' TICK '+(lastState?.tick??'—')
+    ].join('\n');
     requestAnimationFrame(animate);
   };
   canvas.addEventListener('webglcontextlost', event => { event.preventDefault(); metrics.status='context-lost'; canvas.style.display='none'; original.style.visibility='visible'; });
