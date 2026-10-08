@@ -82,6 +82,52 @@ for(let k=-1;k<=1;k+=2){box(x+k*w*.32,y+h*.43,z-d/2-.082,.40*scale,.51*scale,.07
 // Structural timber posts and chimney establish scale and depth.
 for(let k of [-1,1])box(x+k*(w/2-.12),y+.14,z-d/2-.09,.13*scale,h-.15,.12*scale,wood);
 box(x+w*.31,y+h*.72,z,.28*scale,.81*scale,.28*scale,rgb(0x9d8c77));box(x+w*.31,y+h*1.13,z,.38*scale,.12*scale,.38*scale,rgb(0x736f64));} 
+
+// Gauntlet 015: original modeled settlement details, independent of simulation state.
+function cottageDetails(x,z,scale,variant){
+ const y=terrain(x,z),w=(2.4+variant*.42)*scale,d=(2.1+variant*.18)*scale,h=1.9*scale;
+ const beam=rgb(0x594536),stone=rgb(0xa5a091),iron=rgb(0x3b4545);
+ // Layered stone foundations and timber framing on both gable ends.
+ for(let side of [-1,1]){
+   let face=z+side*(d/2+.09*scale);
+   box(x,y+.09*scale,face,w+.15*scale,.17*scale,.13*scale,stone);
+   for(let post of [-.46,.46])box(x+post*w,y+.18*scale,face,.09*scale,h-.16*scale,.09*scale,beam);
+   box(x,y+h*.77,face,w,.10*scale,.10*scale,beam);
+   for(let k of [-1,1]){let wx=x+k*w*.29;
+     box(wx,y+h*.51,face+.018*side,.43*scale,.49*scale,.045*scale,iron);
+     box(wx,y+h*.51,face+.044*side,.055*scale,.51*scale,.052*scale,rgb(0xe2c994));
+     box(wx,y+h*.51,face+.044*side,.45*scale,.055*scale,.052*scale,rgb(0xe2c994));
+   }
+ }
+ // Eave brackets and handmade ceramic ridge caps.
+ for(let zz of [-.36,0,.36]){
+   box(x,y+h+1.22*scale,z+zz*d,.16*scale,.13*scale,.22*scale,rgb(0xb18b63));
+ }
+ // A small timber stack beside each home, visible at settlement scale.
+ const bx=x+w*.57,bz=z+d*.43;
+ for(let k=0;k<3;k++)cylinder(bx+k*.17*scale,terrain(bx+k*.17*scale,bz),bz,.085*scale,.55*scale,rgb(0x856047),6);
+}
+function villageGarden(x,z){
+ const soil=rgb(0x604c36),leaf=rgb(0x78a85a),bloom=rgb(0xe9c17c);
+ for(let row=0;row<3;row++){
+   const gx=x+row*.45;
+   box(gx,terrain(gx,z)+.025,z,.28,.05,1.4,soil);
+   for(let col=0;col<5;col++){
+     const gz=z+(col-2)*.26,gy=terrain(gx,gz);
+     cone(gx,gy+.09,gz,.12,.27,leaf,5);
+     if((row+col)%3===0)ellipsoid(gx,gy+.36,gz,.055,.06,.055,bloom,6);
+   }
+ }
+}
+function guildBanner(x,z){
+ const y=terrain(x,z),pole=rgb(0x70563e),cloth=rgb(0x9d3f43),trim=rgb(0xf0c77d);
+ cylinder(x,y,z,.06,3.4,pole,7);
+ box(x+.46,y+2.65,z,.88,.85,.055,cloth);
+ box(x+.46,y+3.05,z,.9,.065,.075,trim);
+ box(x+.46,y+2.27,z,.9,.065,.075,trim);
+ box(x+.42,y+2.63,z,.13,.45,.08,trim);
+}
+
 function hall(x,z){house(x,z,1.85,2);let y=terrain(x,z);cylinder(x,y+3.2,z,.5,2,rgb(0xcab48a));cone(x,y+5.2,z,1,1.7,rgb(0x5e6652));}
 function tree(x,z,s=1){let y=terrain(x,z);shadow(x+.37*s,z+.4*s,.95*s,.56*s);cylinder(x,y,z,.19*s,1.65*s,rgb(0x6b5638),7);
 if(Math.sin(x*1.71+z*3.14)>.12){const c=climateAt(state.t).season;
@@ -302,10 +348,10 @@ for(let x=-43;x<43;x+=2.1)for(let z=-43;z<43;z+=2.1){let a=[x,terrain(x,z)-.09,z
 // A winding stream through the southern side.
 for(let x=-42;x<42;x+=2){let z=20+Math.sin(x*.13)*3;quad([x,terrain(x,z)-.03,z-1.6],[x,terrain(x,z)+.01,z+1.6],[x+2,terrain(x+2,z)+.01,z+1.6],[x+2,terrain(x+2,z)-.03,z-1.6],water)}
 path([[-16,-7],[-8,-4],[-4,-4],[-4,3],[6,2],[14,2]],1.5);path([[0,-15],[0,-9],[-4,-4],[-4,3],[0,9],[4,15]],1.3);path([[-13,9],[-7,4],[-4,3],[7,-5],[15,-10]],1.1);
-for(const t of trees)tree(t.x,t.z,t.s);for(const [x,z,k] of city)house(x,z,1,k);hall(0,-1);
+for(const t of trees)tree(t.x,t.z,t.s);for(const [x,z,k] of city){house(x,z,1,k);cottageDetails(x,z,1,k)}hall(0,-1);cottageDetails(0,-1,1.85,2);
 // The worked spaces have identifiable props and readable boundaries.
 for(let i=0;i<4;i++)wheat(19+i*1.8,1);fenceLine(16,-2,6);fenceLine(16,4,6);fenceLine(16,-2,4,true);fenceLine(25,-2,4,true);
-market(0,5);well(-15,4);lantern(-5,-7,1.7);lantern(6,9,1.45);lantern(2,6,1.7);lantern(-14,6,1.45);for(let i=0;i<7;i++)stoneBoulder(-23+(i*1.8),5+Math.sin(i*3)*1.3,.65+(i%3)*.18);
+market(0,5);well(-15,4);villageGarden(12,11);villageGarden(-17,-3);guildBanner(-2,3);guildBanner(5,-2);lantern(-5,-7,1.7);lantern(6,9,1.45);lantern(2,6,1.7);lantern(-14,6,1.45);for(let i=0;i<7;i++)stoneBoulder(-23+(i*1.8),5+Math.sin(i*3)*1.3,.65+(i%3)*.18);
 for(let i=0;i<5;i++){let xx=-17+i*1.3,zz=-14+(i%2)*1.4;box(xx,terrain(xx,zz),zz,1,.45,.64,rgb(0x7d5d45))}
 for(const p of people)villager(p);weatherParticles(atmosphere);
 const elevation=Math.sin(pitch)*zoom,rad=Math.cos(pitch)*zoom,eye=[focusPoint[0]+Math.sin(yaw)*rad,elevation,focusPoint[1]+Math.cos(yaw)*rad];let m=mat4multiply(perspective(Math.PI/3.2,w/h,.1,190),lookAt(eye,[focusPoint[0],.25,focusPoint[1]],[0,1,0]));gl.uniformMatrix4fv(uniforms.viewProjection,false,m);gl.uniform3f(uniforms.fogColor,...atmosphere.fog);gl.uniform3f(uniforms.sunTint,...atmosphere.light);gl.uniform3f(uniforms.sunDirection,Math.cos(state.t/24*6.283),.3+atmosphere.daylight*.9,Math.sin(state.t/24*6.283));gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(data),gl.DYNAMIC_DRAW);gl.drawArrays(gl.TRIANGLES,0,data.length/9);if((frames++%14)===0)updateUI()}
