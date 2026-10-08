@@ -116,7 +116,54 @@ export function composeStreetVibrance(THREE, { terrain, box, ball, cylinder, lab
     for(let stripe=0;stripe<7;stripe++)
       b(.21,.018,5.4,x+stripe*.55,-.025,0,0xefe9c8);
   }
-  // Palm trees and city garden planters only on far side; occlusion avoidance is intentional.
+  // "OJU EKO" fictional bus shelter: a bespoke, readable set piece near the first decision.
+  // All structural geometry is outside the -3.4 metre road edge; never a surprise collision.
+  const stationX=24,stationZ=-5.0;
+  b(7.9,.22,2.4,stationX,3.30,stationZ-.55,0x14546a);
+  b(8.25,.13,2.68,stationX,3.45,stationZ-.55,0xffcb4b);
+  b(7.85,.07,2.32,stationX,3.56,stationZ-.55,0x22b3ac);
+  for(const dx of [-3.6,-1.18,1.18,3.6]){
+    cylinder(group,.10,.13,3.22,stationX+dx,1.61,stationZ-1.10,0x456475,10);features++;
+    b(.21,.16,2.36,stationX+dx,2.88,stationZ-.57,0xf8c663);
+  }
+  b(7.3,.82,.23,stationX,3.98,stationZ-.88,0x0e3952);
+  b(7.17,.14,.30,stationX,3.55,stationZ-.86,0xfb8d61);
+  sp('OJU EKO • NEXT STOP',stationX,4.10,stationZ-.64,1.16,'#fff1bd','#206b7b');
+  for(let i=0;i<3;i++){
+    const x=stationX-2.65+i*2.56;
+    b(1.4,.19,.58,x,.75,stationZ-.82,0xf0b756);
+    b(1.35,.78,.12,x,1.18,stationZ-1.15,0x217f8c);
+    b(.13,.72,.11,x-.55,.38,stationZ-.83,0x225366);
+    b(.13,.72,.11,x+.55,.38,stationZ-.83,0x225366);
+  }
+  b(1.85,2.45,.18,stationX-4.55,1.40,stationZ-.91,0x173d56);
+  b(1.63,1.77,.21,stationX-4.55,1.55,stationZ-.80,0xe1cf9d);
+  sp('EKO STREET MAP',stationX-4.55,2.25,stationZ-.52,.42,'#e7fff5','#187d82');
+  for(let i=0;i<6;i++){
+    b(.14,.12,.20,stationX-5.10+(i%3)*.45,1.68-Math.floor(i/3)*.5,stationZ-.58,choose(p.awnings,i+34));
+  }
+  // Market-stage canopy and handcart: commerce, culture, street-level narrative.
+  const stageX=56,stageZ=-5.75;
+  b(7.1,.23,2.5,stageX,3.10,stageZ-.15,p.cloth);
+  b(7.35,.12,2.72,stageX,3.26,stageZ-.15,0xfaf0d4);
+  for(let i=0;i<9;i++){
+    b(.36,.08,2.74,stageX-3.3+i*.82,3.37,stageZ-.15,choose(p.awnings,i+80));
+  }
+  for(const dx of [-3.25,3.25])
+    for(const dz of [-1.17,1.17]){
+      cylinder(group,.08,.09,3.0,stageX+dx,1.52,stageZ+dz,0x496473,10);features++;
+    }
+  sp('LAGOS MORNING MARKET',stageX,3.72,stageZ+.12,1.10,'#fff3c7','#0f6573');
+  for(let i=0;i<3;i++){
+    const x=stageX-2.4+i*2.4;
+    b(1.74,.14,1.05,x,.90,stageZ+.55,0x986b4c);
+    b(1.6,.51,.88,x,.50,stageZ+.55,choose(p.awnings,i+12));
+    for(let j=0;j<8;j++){
+      const fx=x-.61+(j%4)*.40,fz=stageZ+.19+Math.floor(j/4)*.36;
+      ball(group,.15,fx,1.08,fz,choose([0xffb849,0xfd7255,0x6cbd71,0xefc45f],j+i));features++;
+    }
+  }
+    // Palm trees and city garden planters only on far side; occlusion avoidance is intentional.
   for(let i=0;i<Math.ceil(maxX/22);i++){
     const x=7+i*22;
     const z=-5.3;
