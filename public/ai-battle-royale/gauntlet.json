@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
   "project": "AI Battle Royale",
-  "iteration": 26,
+  "iteration": 28,
   "updated": "2026-10-08",
-  "verdict": "VISUAL BENCHMARK NOT MET — NEW BUILD AWAITS REAL BROWSER CAPTURE",
+  "verdict": "GAUNTLET NOT ACHIEVED — REAL CHROMIUM REVIEW REQUIRED",
   "benchmark": "Fortnite Chapter 4 UE5.1 / Apex Legends / PUBG",
   "completed": [
     "Loop 0 — inspected existing 2D Canvas broadcast, deterministic simulation and reference branch.",
@@ -34,14 +34,16 @@
     "Loop 23 — increased environment material brightness and saturation, raised ambient/rim shading, reduced muddy fog and improved biome palette separation.",
     "Loop 24 — dressed the arena with illuminated district roads, three biome-specific out-of-bounds skylines, marked landing pads, beacons and world architecture.",
     "Loop 25 — added budget-capped, biome-specific snowfall, neon rainfall and drifting cinder weather with reduced-motion and reduced-flash support.",
-    "Loop 26 — extended the map into physically contiguous themed out-of-bounds terrain, decorative hills, roads and stage plinths instead of a floating tabletop."
+    "Loop 26 — extended the map into physically contiguous themed out-of-bounds terrain, decorative hills, roads and stage plinths instead of a floating tabletop.",
+    "Loop 27 — broadcast brand glows, objective and storm accents now change with the real ember, neon, or arctic biome while preserving legibility and high contrast.",
+    "Loop 28 — added static cover and animated fighter directional ground-contact shadows to anchor 3D characters and architecture into the world."
   ],
   "gaps": [
-    "P0 — Latest loop 22–26 screenshots and full browser CSS/WebGL tests must be inspected before declaring visuals improved in practice; the current full CI is queued.",
-    "P0 — Not AAA: Fortnite UE5-level authored environment assets, convincing level design, dynamic lighting/shadows, realistic materials and character fidelity are still missing.",
-    "P0 — Independent blind A/B reviews against actual official benchmark captures have NOT occurred; this dashboard records implementation, not benchmark victory.",
-    "P1 — Need proper professionally modeled and skinned characters, high-quality walk/aim/heal animations, weapon/reload animation and authored effects.",
-    "P1 — Need validated GPU/CPU budgets, weather and biome performance profiling across desktop/mobile/OBS, multi-day stream endurance.",
-    "P1 — Improve broadcast replay direction, authored audio and meaningful original character personalities while keeping AI state authoritative."
+    "P0 visual inspection — run exact-head Chromium and inspect fresh 1080p desktop, mobile-landscape, high/low GPU, clean-feed and real match screenshots before judging visual quality.",
+    "P0 benchmark shortfall — original procedural low-poly environments and character silhouettes remain far behind Fortnite Chapter 4 UE5 artistry, realistic shadows, advanced PBR material response and animations.",
+    "P0 independent critique — no blind human A/B review against actual Epic Fortnite reference images or 24/7 observable-match record; do not claim benchmark victory.",
+    "P1 world — author terrain heightfields, buildings and interiors, environmental occlusion, realistic vegetation, cinematic lighting and varied material assets while preserving true collision and AI pathfinding.",
+    "P1 characters — professionally modeled, textured, rigged and animated distinct characters with weapon/skill transitions, facial details and believable combat motion.",
+    "P1 broadcaster — real OBS capture, multi-hour GPU soak, memory profiling, failover and validated visual performance on desktop/mobile hardware."
   ]
 }
