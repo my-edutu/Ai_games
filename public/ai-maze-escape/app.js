@@ -24,6 +24,10 @@ const elements={
   sceneCard:document.getElementById('scene-card'),
   sceneTitle:document.getElementById('scene-title'),
   sceneMessage:document.getElementById('scene-message'),
+  cinemaChapter:document.getElementById('cinema-chapter'),
+  cinemaBiome:document.getElementById('cinema-biome'),
+  cinemaTension:document.getElementById('cinema-tension'),
+  cinemaHunter:document.getElementById('cinema-hunter'),
 };
 const query=new URLSearchParams(location.search);
 const settings={
@@ -289,6 +293,14 @@ function update(frameValue){
   elements.confidence.style.width=`${Math.round(snapshot.intent.confidence*100)}%`;
   elements.inventory.textContent=snapshot.inventory.length?snapshot.inventory.join(' • '):'No keys collected';
   elements.profile.textContent=`PROFILE: ${snapshot.profile.toUpperCase()} • L${snapshot.level}`;
+  const themes={tree:'THE FORGOTTEN COURTYARD',loops:'THE VERDANT LABYRINTH',
+    chambers:'THE SUNKEN SANCTUARY',layers:'THE UNDERCRYPT',hunter:'THE WRAITH CITADEL'};
+  elements.cinemaChapter.textContent=`CHAPTER ${String(snapshot.level).padStart(2,'0')} • AUTONOMOUS EXPEDITION`;
+  elements.cinemaBiome.textContent=themes[snapshot.profile]??'THE UNKNOWN MAZE';
+  elements.cinemaTension.textContent=snapshot.threats.length
+    ?'A presence stirs in the corridors.'
+    :snapshot.inventory.length?'Clues gathered. The exit draws closer.':'Every passage hides another possibility.';
+  elements.cinemaHunter.hidden=snapshot.threats.length===0;
   elements.integrity.textContent=`INTEGRITY: ${snapshot.authorityChecksum?'VERIFIED':'CHECKING'}`;
   const captions=frameValue.audio?.captions??[];
   if(captions.length)lastCaption=captions.at(-1);
