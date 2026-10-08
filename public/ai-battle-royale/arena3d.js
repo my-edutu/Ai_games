@@ -1631,6 +1631,13 @@
         threeRevision++;
       }
       const data=new Float32Array(b.v),w=snapshot.arena.width,h=snapshot.arena.height;
+      if(threeRequested&&document.body.dataset.battleRenderer==='three-ultra'){
+        // Scene meshes stay available to the new Three.js renderer while the
+        // legacy WebGL GPU passes stop entirely. Same public snapshot.
+        status.contenders=snapshot.combatants.filter(f=>f.alive).length;
+        status.frames++;
+        return true;
+      }
       const aspect=area.width/area.height;
       const scale=Math.min(1.87/((w*.61+h*.79)*.52+5),1.87*aspect/(w*.79+h*.61+4));
       gl.useProgram(program);
@@ -1724,7 +1731,8 @@
   }
   function animate(time){
     animationId=0;
-    if(disabled||!lastSnapshot||status.mode!=='webgl2'||document.hidden)return;
+    if(disabled||!lastSnapshot||status.mode!=='webgl2'||document.hidden||
+      document.body.dataset.battleRenderer==='three-ultra')return;
     if(time-lastPaintTime>=42){paint(lastSnapshot);lastPaintTime=time}
     if(time-startedAt<230||activeVisualEvents().length>0)animationId=requestAnimationFrame(animate);
   }
@@ -1738,7 +1746,8 @@
     lastSnapshot=snapshot;
     startedAt=performance.now();
     const painted=paint(snapshot);
-    if(painted&&!reducedMotion&&!animationId)animationId=requestAnimationFrame(animate);
+    if(painted&&!reducedMotion&&!animationId&&
+      document.body.dataset.battleRenderer!=='three-ultra')animationId=requestAnimationFrame(animate);
     return painted;
   }
   window.BattleArena3D={render,status,

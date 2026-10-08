@@ -272,6 +272,13 @@ function draw(time){
     updateWorld(frame);
     updateActors(frame,time*.001);
     updateTheme(frame);
+  }else{
+    // The original 65-joint GLB skeleton still animates at display refresh
+    // rates even though the authoritative AI runs in discrete network ticks.
+    for(const fighter of frame.snapshot.combatants){
+      const actor=models.get(fighter.id);
+      if(actor?.holder.visible)animateSkeleton(actor,fighter,time*.001);
+    }
   }
   positionCamera(frame);
   updateLabels(frame);
