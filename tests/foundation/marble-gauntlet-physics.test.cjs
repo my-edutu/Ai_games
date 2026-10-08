@@ -175,3 +175,32 @@ test('bounce bumper never launches with a separating or stationary contact', () 
   assert.equal(result.state.marbles[0].verticalVelocity, 0);
   assert.equal(result.state.marbles[0].elevation, 0);
 });
+
+
+test('springboard launch is an authority event, sanitized for presentation and visual/audio cues', () => {
+  const { applyTournamentRules, createMarblePresentationSnapshot } =
+    require('../../dist/games/marble-survival/src/index.js');
+  const initial = isolatedState('gauntlet-launch-event');
+  const marble = initial.marbles[0];
+  marble.position = { x: 11_500, y: 8_000 };
+  marble.velocity = { x: 180, y: 0 };
+  initial.arena.bumpers = [{
+    id: 'event-spring', kind: 'bumper', x: 12_000, y: 8_000,
+    radius: 500, restitutionPermille: 900, launchSpeed: 250,
+  }];
+  const physics = stepMarblePhysics(initial, idle(initial));
+  const applied = applyTournamentRules(physics.state, physics.contacts);
+  assert.equal(physics.integrityIssue, undefined);
+  const event = applied.events.find(item => item.type === 'marble-launched');
+  assert.ok(event, 'physics launch must produce its own authoritative event');
+  assert.equal(event.data.marbleId, marble.id);
+  assert.equal(event.data.colliderId, 'event-spring');
+  assert.equal(event.data.launchSpeed, 250);
+
+  const publicSnapshot = createMarblePresentationSnapshot(applied.state, applied.events);
+  const visible = publicSnapshot.events.find(item => item.type === 'marble-launched');
+  assert.ok(visible, 'spectator snapshots must expose a sanitized launch');
+  assert.equal(visible.data.colliderId, 'event-spring');
+  assert.equal(visible.data.launchSpeed, 250);
+  assert.equal('rootSeed' in visible.data, false);
+});
