@@ -297,3 +297,48 @@ test('Tiny Kingdom reuses 3,362 terrain triangles until the seasonal material ch
   expect(await page.evaluate(()=>window.__tinyKingdom.renderStats().terrainRebuilds)).toBe(summer.terrainRebuilds+1);
   expect(faults).toEqual([]);
 });
+
+test('Tiny Kingdom strategic atlas pans only the camera and does not alter simulation authority', async ({page}) => {
+  const faults=[];
+  page.on('pageerror', error => faults.push(error.message));
+  await page.setViewportSize({width:1440,height:900});
+  await page.setContent(html);
+  await page.waitForFunction(() => Boolean(window.__tinyKingdom));
+  await page.locator('#pause').click();
+  await page.waitForFunction(() => document.querySelector('#atlas-season')?.textContent.includes('SPRING'));
+  const before=await page.evaluate(() => ({snap:JSON.stringify(window.__tinyKingdom.exportSnapshot()),cam:window.__tinyKingdom.getCamera()}));
+  await page.locator('#atlas-map').click({position:{x:172,y:44}});
+  const after=await page.evaluate(() => ({snap:JSON.stringify(window.__tinyKingdom.exportSnapshot()),cam:window.__tinyKingdom.getCamera()}));
+  expect(after.snap).toBe(before.snap);
+  expect(after.cam.focus).not.toEqual(before.cam.focus);
+  expect(after.cam.follow).toBe(false);
+  expect(after.cam.cinematic).toBe(false);
+  expect(faults).toEqual([]);
+});
+
+test('Tiny Kingdom vibrant layout remains responsive at phone and desktop widths', async ({page}) => {
+  const errors=[];
+  page.on('pageerror', error => errors.push(error.message));
+  await page.setViewportSize({width:390,height:844});
+  await page.setContent(html);
+  await page.waitForFunction(() => Boolean(window.__tinyKingdom));
+  await page.waitForTimeout(160);
+  expect(await page.locator('#atlas-map').isVisible()).toBe(true);
+  expect(await page.locator('#feed').isVisible()).toBe(true);
+  const mobile=await page.evaluate(() => ({
+    documentWidth:document.documentElement.scrollWidth,
+    viewportWidth:window.innerWidth,
+    chronicleHeight:document.querySelector('.feed').getBoundingClientRect().height
+  }));
+  expect(mobile.documentWidth).toBeLessThanOrEqual(mobile.viewportWidth);
+  expect(mobile.chronicleHeight).toBeLessThanOrEqual(205);
+  await page.setViewportSize({width:1440,height:900});
+  await page.waitForTimeout(120);
+  const desktop=await page.evaluate(() => ({
+    width:document.querySelector('.atlas').getBoundingClientRect().width,
+    mapLabel:document.querySelector('#atlas-season').textContent
+  }));
+  expect(desktop.width).toBeGreaterThan(230);
+  expect(desktop.mapLabel).toMatch(/SPRING|SUMMER|AUTUMN|WINTER/);
+  expect(errors).toEqual([]);
+});
