@@ -36,32 +36,75 @@
       "independentCritic": "No independent visual critic has inspected the running game: coding-agent connection unavailable and GitHub CI queued.",
       "largestKnownGap": "Author-quality character rig, detailed maze materials and atmospheric lighting remain far short of AAA references; measured gameplay FPS and real A/B captures are outstanding.",
       "visualBarMet": false
+    },
+    {
+      "number": 3,
+      "label": "Real screenshot critique — environment framing and visual readability",
+      "status": "inspected screenshots; below benchmark",
+      "built": [
+        "Viewed actual Chromium desktop screenshot for initial branch build, screenshot artifact 11532352952",
+        "Reviewed updated screenshot from successful workflow 37744765674, artifact 11535023451",
+        "Confirmed masonry texture and actor/camera framing significantly improved from the initial featureless wall build"
+      ],
+      "evidence": {
+        "baselineArtifact": "11532352952",
+        "reviewedArtifact": "11535023451",
+        "reviewedCommit": "1d1cf601b522e587a42bad9fce4a782368ffa03a",
+        "visualReview": "Manually inspected both actual Chromium PNGs"
+      },
+      "independentCritic": "Human-style visual critique from inspected actual screenshots; not a fresh-context subagent or blinded A/B.",
+      "largestKnownGap": "Protagonist partially occluded by walls, flat void/ground, sparse atmosphere, hard-edged procedural silhouette. Far below The Talos Principle 2.",
+      "visualBarMet": false
+    },
+    {
+      "number": 4,
+      "label": "Cinematic world and adaptive simulation-aware scene",
+      "status": "committed; CI screenshot verification pending",
+      "built": [
+        "Detailed modular masonry with arches, trim courses, stone texture and illuminated shrines",
+        "Viewport-centered framing with foreground occlusion cutaways and tactical 2D inset",
+        "Scenic night-sky gradient, terrain texture, biome-specific lighting and cinematic chapter labels",
+        "Layered articulated traveler and animated spectral hunter with physical portal, key and rune props",
+        "Instanced masonry and tiles, local streaming and static-world topology signatures",
+        "Independent observed threat motion, render FPS/draw-call telemetry and Playwright capture assertions"
+      ],
+      "independentCritic": "Pending Chromium screenshot capture of latest head commit; CI latest queued.",
+      "largestKnownGap": "No authored rigged character assets, cinematic animations or blind A/B win against the reference. Need real performance captures, licensed art and independent visual criticism.",
+      "visualBarMet": false
     }
   ],
   "milestones": [
     {
-      "label": "Preserve deterministic AI and hidden-information fairness",
-      "status": "implemented previously; regression validation pending"
+      "label": "Preserve authoritative AI, deterministic and fairness rules",
+      "status": "unchanged; earlier mainline checks passed, new branch CI still pending"
     },
     {
-      "label": "Implement genuine perspective 3D renderer",
-      "status": "implemented; browser validation pending"
+      "label": "Perspective 3D maze rendering with public-only data",
+      "status": "implemented; baseline Chromium screenshot and checks passed"
     },
     {
-      "label": "Upgrade character models and cinematic animations",
-      "status": "prototype only"
+      "label": "Cinematic camera, architectural scenery and original traveler",
+      "status": "implemented; updated screenshot pending"
     },
     {
-      "label": "Art-directed scenes, materials, lighting and audio",
-      "status": "prototype only"
+      "label": "Instancing, local rendering, FPS and GPU counters",
+      "status": "implemented; performance evidence pending"
     },
     {
-      "label": "Independent visual A/B and functional acceptance",
-      "status": "not started"
+      "label": "Biomes, threat characters and environmental storytelling",
+      "status": "implemented; updated screenshot pending"
     },
     {
-      "label": "Production performance and long-run stability",
-      "status": "not started"
+      "label": "Rigged studio-grade assets, advanced animations and VFX",
+      "status": "not complete"
+    },
+    {
+      "label": "Fresh-context independent visual critics and blind A/B",
+      "status": "blocked — agent workspace unavailable"
+    },
+    {
+      "label": "Endurance, performance and R5 production evidence",
+      "status": "not complete"
     }
   ],
   "updatedAt": "2026-10-08"
