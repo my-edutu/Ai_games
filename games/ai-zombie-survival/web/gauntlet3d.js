@@ -236,6 +236,11 @@ Mesh.prototype.cylinder=function(x,y,z,r,h,color,n=8){const c=typeof color==='st
 Mesh.prototype.ball=function(x,y,z,r,color){const c=typeof color==='string'?rgb(color):color,lat=5,lon=8;for(let i=0;i<lat;i++)for(let j=0;j<lon;j++){const p=i*Math.PI/lat,p2=(i+1)*Math.PI/lat,a=j*2*Math.PI/lon,a2=(j+1)*2*Math.PI/lon,point=(phi,theta)=>[x+r*Math.sin(phi)*Math.cos(theta),y+r*Math.cos(phi),z+r*Math.sin(phi)*Math.sin(theta)];const A=point(p,a),B=point(p2,a),C=point(p2,a2),D=point(p,a2);this.tri(A,B,C,norm(vsub(A,[x,y,z])),c);this.tri(A,C,D,norm(vsub(D,[x,y,z])),c);}};
 Mesh.prototype.bone=function(a,b,width,color){const midpoint=a.map((v,i)=>(v+b[i])/2);const delta=vsub(b,a),length=Math.hypot(...delta);if(length<.001)return;const vertical=Math.abs(delta[1])>0.03;const tangent=vertical?norm(cross(delta,[1,0,0])):[1,0,0],side=norm(cross(delta,tangent)),c=typeof color==='string'?rgb(color):color;const around=[];for(let i=0;i<6;i++){const t=i*Math.PI/3;around.push(tangent.map((v,j)=>v*Math.cos(t)*width+side[j]*Math.sin(t)*width));}for(let i=0;i<6;i++){const j=(i+1)%6,P=a.map((v,k)=>v+around[i][k]),Q=a.map((v,k)=>v+around[j][k]),R=b.map((v,k)=>v+around[j][k]),S=b.map((v,k)=>v+around[i][k]);this.quad(P,Q,R,S,norm(around[i]),c);}};
 function buildingColor(b){return({residential:'#bd9c7e',commercial:'#a79d85',industrial:'#7f9491',medical:'#d3ccc1',civic:'#b7a58e',outskirts:'#b08e78'})[b.district]||'#9a9c87';}
+function headquartersCutaway(){
+  const activeCloseup=cameraMode==='hero'||(cameraMode==='director'&&directedRange<29)||
+    (cameraMode==='manual'&&range<20);
+  return activeCloseup&&Math.hypot(cameraFocusX-game.safeHouse.x,cameraFocusZ-game.safeHouse.y)<11;
+}
 function constructStatic(){
   const m=new Mesh();
   m.box(0,-.30,0,142,.5,112,palette.grass);
@@ -254,7 +259,7 @@ function constructStatic(){
   for(const b of game.buildings){
     const height=b.kind==='safehouse'?4.9:2.7+b.floors*1.25;
     const base=buildingColor(b),damaged=1-b.damage*.30;
-    if(cameraMode==='hero'&&b.kind==='safehouse'){
+    if(headquartersCutaway()&&b.kind==='safehouse'){
       // Cinematic cutaway while survivors spawn INSIDE the HQ footprint.
       // The normal solid roof hides every hero closeup; replace it with a readable interior courtyard.
       m.box(b.x,.11,b.y,b.w,.18,b.h,'#748f8c');
@@ -328,7 +333,7 @@ function constructStatic(){
   }
   // Distinct hospital, residential, industrial and market facades plus the command headquarters.
   for(const building of game.buildings)decorateBuilding(m,building,game);
-  decorateWorld(m,game,{headquartersCutaway:cameraMode==='hero'});
+  decorateWorld(m,game,{headquartersCutaway:headquartersCutaway()});
   decorateSetpieces(m);
   // Ruined green belt: trees, weeds, and autumn crowns provide organic contrast to boxy buildings.
   for(let i=0;i<48;i++){
@@ -496,7 +501,7 @@ function drawObjects(m,t){
   drawAtmosphere(m,t);
 }
 function rebuildStatic(force=false){
-  const stamp=cameraMode==='hero'?'hero|'+game.time.phase+'|': 'world|'+game.time.phase+'|'+game.weather.kind+'|'+Math.round(game.weather.intensity*3)+'|'+game.safeHouse.level+'|'+game.buildings.map(b=>b.roofVisible?'1':'0').join('')+'|'+game.buildings.map(b=>Math.floor(b.damage*3)).join('');
+  const stamp=(headquartersCutaway()?'cutaway|':'solid|')+game.time.phase+'|'+game.weather.kind+'|'+Math.round(game.weather.intensity*3)+'|'+game.safeHouse.level+'|'+game.buildings.map(b=>b.roofVisible?'1':'0').join('')+'|'+game.buildings.map(b=>Math.floor(b.damage*3)).join('');
   if(force||stamp!==lastGeometryStamp){upload(staticMesh,constructStatic());lastGeometryStamp=stamp;buffersRebuilt++;}
 }
 function selectFocus(dt){
