@@ -72,6 +72,16 @@ Start after npm installation using `npm run tiny:stream` (defaults to 127.0.0.1:
 
 **Additional performance evidence:** An inspected 150-day local browser simulation using Gauntlet 009 reached 28 citizens, 37 structures, 27 relationships, 699 food, 99 timber and 674 gold without JavaScript page errors; the step loop took ~20.5 seconds. Long-duration service continuity, browser restarts, saved-game durability under power loss and production WebGL are still open.
 
+## Gauntlet 023–024 — Real GPU material channels and static world buffering
+
+This milestone adds eight explicitly tagged procedural material classes to the browser WebGL scene, carrying 10 floats per vertex instead of nine. The fragment shader derives world-space grass breakup, rippled and sunlit water, granular road surfaces, irregular foliage, worn stone and slate, and timber/cloth fiber variation. This is original non-PBR procedural shading; no external copyrighted asset textures were imported.
+
+A second rendering iteration separates fixed seasonal terrain, houses, rivers, landmark architecture and vegetation from continually moving citizens, windmills and fluttering banners. A static WebGL VBO is uploaded only when climate, daylight/night stage, building count or saved world changes; active objects are streamed through a separate dynamic VBO. Software canvas fallback keeps combined painter sorting. Both paths use the same authoritative deterministic world; neither changes save-format contracts.
+
+**Critical real GPU finding:** The first shader GPU run failed to link because `sunDirection` had mismatched precision in the two shader stages. The actual GitHub failure artifact was downloaded and examined, and `uniform highp vec3 sunDirection` was added to the fragment shader to match the vertex stage. CI has new shader-attribute and static-VBO invariant checks, but no green post-fix GPU evidence has yet been verified. Do not assume the visual effect or frame-rate improvement is real until its uploaded screenshots and jobs are inspected.
+
+The visual gauntlet remains **FAIL**. Before believing fidelity claims, an independent critic must compare repeatable actual frames against official Manor Lords captures and show measurable improvement to real architecture, vegetation, rigged character performance, shadows and streaming reliability. See `public/tiny-kingdom/progress.html#gauntlet-024` for details.
+
 ## Gauntlet continuation
 
 Primary bar: official *Manor Lords* captured gameplay and screenshots, camera-matched with our game (https://www.hoodedhorse.com/games/manor-lords). Secondary: Foundation for autonomous labor behavior, The Universim for character emergence. Keep original assets; do not copy proprietary models or textures.
