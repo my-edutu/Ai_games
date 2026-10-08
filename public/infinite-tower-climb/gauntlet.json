@@ -1,76 +1,86 @@
 {
   "project": "Infinite Tower Climb — 3D Gauntlet",
   "date": "2026-10-08",
-  "round": 2,
+  "round": 3,
   "target": "Jusant (DON'T NOD): official screenshots and captured gameplay",
-  "status": "Round 1 CI PASS (GitHub Actions 37736794883). Real screenshot inspected: overly repetitive background geometry and simple box-bodied characters; fallback 2D at higher floors was blank. Round 2 builder changes committed; browser and independent benchmark critic pending.",
+  "status": "Round 1 CI and browser captures PASSED. Round 1 screenshots were inspected and exposed primitive character art, repetitive background and an empty upper-floor 2D fallback. Rounds 2–3 improvements are committed but the new real-output capture and external Jusant visual gate are still pending. Full 3D movement/physics and AAA parity are NOT complete.",
   "completionRule": "A separate critic must inspect the rendered game, compare screenshots or gameplay against official Jusant imagery, report the worst gap, and repeat. A functioning renderer alone is not a pass.",
   "lanes": [
     {
-      "name": "Layered tower environment",
-      "status": "Round 2: richer arches, cloth banners, chains, weathering, monuments and one-draw dust; screenshot review pending",
-      "criterion": "Unique sculptural environments, geometry readability and cinematic depth on a real captured frame"
+      "name": "Art direction / spatial depth",
+      "status": "Implemented procedural sky vistas, weathered stone textures, giant statues, arches, banners, chains and animated ambient light; fresh screenshots pending",
+      "criterion": "Screenshots and footage should show deliberate composition, material variety and visible depth versus official Jusant"
     },
     {
-      "name": "Fully articulated climber",
-      "status": "Round 2: detailed original hero kit, jointed limbs, helmet, equipment, adaptive poses, hero camera; screenshot review pending",
-      "criterion": "Anatomy, materials and convincing locomotion vs Jusant reference"
+      "name": "Distinct 3D characters",
+      "status": "Detailed procedural rig and dedicated sentinel, ranged shooter and guardian equipment; adaptive arm/leg animation; close-up QA capture queued",
+      "criterion": "Independent reviewer confirms silhouette distinction, physical credibility, readable anatomy and animation"
     },
     {
-      "name": "Climbing AI and authority",
-      "status": "Round 1 CI pass; authoritative fixed-step runtime untouched",
-      "criterion": "All simulation/replay/stream self-tests green"
+      "name": "Real 3D mechanics",
+      "status": "NOT DONE: authoritative gameplay still moves in a 2D plane with 3D presentation",
+      "criterion": "Genuine third-axis traversal, physical contact and believable hand-over-hand climbing without weakening seeded replay correctness"
     },
     {
-      "name": "Fallback and recovery",
-      "status": "Round 2 fixed observed higher-floor blank 2D fallback; regression test queued",
-      "criterion": "2D scene shows climb geometry even after floor transitions"
+      "name": "Runtime reliability",
+      "status": "Round 1 full CI passed; 2D upper-floor projection bug fixed; new regression tests queued",
+      "criterion": "Replay, game simulation and stream self-tests green after changes"
     },
     {
-      "name": "Performance and rendering",
-      "status": "Particle batching and GPU instrumentation implemented; new CI pending",
-      "criterion": "3D draw/triangles nonzero, desktop and mobile legible, drawCalls bounded"
+      "name": "GPU performance and mobile",
+      "status": "Instanced dust/weathering, reduced pixel ratio preset, frame pacing counters and accessibility mode implemented; CI pending",
+      "criterion": "Responsive mobile screenshots, bounded draw calls, measured frame pacing and stable streaming"
     },
     {
-      "name": "Independent blind AAA comparison",
-      "status": "NOT DONE — only internal screenshot critique completed",
-      "criterion": "Independent fresh-context reviewer inspects actual footage against official Jusant at matched angles"
+      "name": "Gauntlet and independent criticism",
+      "status": "Live A/B, cumulative history, structured official-reference scoring, parallel CI critic jobs implemented. Independent human/agent AAA visual verdict NOT RUN",
+      "criterion": "Fresh critic inspects running game and actual Jusant imagery, hands off biggest gap and a verified subsequent capture"
     }
   ],
   "evidence": [
     {
-      "name": "Round 1 GitHub Actions",
+      "name": "Round 1 full CI and Playwright captures",
       "state": "PASS",
       "url": "https://github.com/my-edutu/Ai_games/actions/runs/37736794883"
     },
     {
-      "name": "Round 1 actual 3D screenshot",
-      "state": "Captured in workflow artifact infinite-tower-climb-phase3-capture; manually inspected"
+      "name": "Round 1 3D actual captured screenshot",
+      "state": "inspected; reveals primitive art and repeated environments"
     },
     {
-      "name": "Round 2 screenshot and hero close-up",
-      "state": "Pending new CI artifact"
+      "name": "Round 2 and 3 3D hero, mobile and higher-floor captures",
+      "state": "CI pending; must inspect genuine artifact"
     },
     {
-      "name": "Independent official Jusant A/B review",
-      "state": "Not yet performed"
+      "name": "Official Jusant quality gate",
+      "state": "reference identified; fresh-context gameplay A/B still required",
+      "url": "https://dont-nod.com/en/games/jusant/"
+    },
+    {
+      "name": "Full 3D game physics",
+      "state": "not yet implemented; game has 2D authority with 3D presentation"
     }
   ],
   "history": [
     {
       "round": 0,
-      "summary": "Autonomous authoritative 2D gameplay, HUD, stream and recovery",
-      "verdict": "baseline"
+      "summary": "Original autonomous authoritative 2D tower with AI climbing and replay",
+      "verdict": "baseline, not a 3D game"
     },
     {
       "round": 1,
-      "summary": "Three.js 3D rendering with five themes, environment structures, enemy rigs, basic camera, browser captures and self-tests",
-      "verdict": "CI passed, real screenshot exposes repetitive environment and rudimentary climber"
+      "summary": "True Three.js 3D scene, hero and enemy primitives, camera, floor themes and WebGL fallback; Playwright screenshots + full CI PASS",
+      "verdict": "screenshot reviewed: overly repetitive visuals; elementary character design; 2D upper-floor projection broken"
     },
     {
       "round": 2,
-      "summary": "Detailed jointed hero rig, helmet and pack, biome monuments, banners/arches/chains, reduced dust draw calls, critic hero mode, higher-floor 2D fallback fix",
-      "verdict": "changes committed; CI and independent Jusant comparison pending"
+      "summary": "Jointed hero rig and individualized hostile types; original armor and climbing equipment; atmospheric landscapes, stone textures, banners, statues and living details; corrected 2D upper-floor projection",
+      "verdict": "builder changes committed, browser photo evidence pending"
+    },
+    {
+      "round": 3,
+      "summary": "Hero close-up, viewer-side blind A/B, official Jusant link, structured critic form, independent parallel automated CI checks, high-contrast/mobile presets, GPU telemetry and draw-call batching",
+      "verdict": "engineering verification pending; independent benchmark rejection/acceptance not yet performed"
     }
   ]
 }
