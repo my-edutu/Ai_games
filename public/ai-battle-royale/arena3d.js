@@ -669,6 +669,46 @@
       b.ring(p.x,.14,p.z,1.21+.20*pulse,.035,[.98,.87,.43],48);
     }
   }
+  function stormWall(b,s,theme){
+    // A faithful 3D expression of the authoritative zone: no collision,
+    // no damage and no alternative zone position is ever simulated here.
+    const center=pos(s.zone.centerCell,s.arena.width);
+    const radius=Math.max(.3,s.zone.radius);
+    const segments=quality==='low'?24:56;
+    const now=reducedMotion?0:performance.now()/1100;
+    const color=s.arena.theme==='neon'?[.24,.80,1]
+      :s.arena.theme==='arctic'?[.66,.87,.96]:[1,.45,.17];
+    const horizon=s.zone.phase>1?1.38:1.12;
+    const intensity=Number.isInteger(s.zone.ticksUntilShrink)
+      &&s.zone.ticksUntilShrink<6?1.2:1;
+    // Vertical energy pylons and upper contour give depth, unlike a ground ring.
+    for(let i=0;i<segments;i++){
+      const angle=i*Math.PI*2/segments;
+      const wave=reducedMotion?0:Math.sin(now*1.8+i*.91)*.10;
+      const r=radius+(wave*.04);
+      const x=center.x+Math.cos(angle)*r;
+      const z=center.z+Math.sin(angle)*r;
+      const h=(horizon+(i%4===0?.25:0)+wave)*intensity;
+      const beam=quality==='low'?i%4===0:i%2===0;
+      if(beam){
+        b.limb([x,.09,z],[x,h,z],.020,color);
+        b.cone(x,h+.12,z,.078,.006,.25,color,6);
+      }
+      // Horizontal perimeter beams maintain a readable continuous safe-zone edge.
+      const next=(i+1)*Math.PI*2/segments;
+      const x2=center.x+Math.cos(next)*r,z2=center.z+Math.sin(next)*r;
+      b.limb([x,.47,z],[x2,.47,z2],.014,color);
+      if(quality!=='low'){
+        const arcY=horizon*.73;
+        b.limb([x,arcY,z],[x2,arcY,z2],.009,theme.accent);
+      }
+    }
+    if(!reducedFlash&&s.zone.ticksUntilShrink<=3){
+      const progress=(Math.sin(now*5)+1)/2;
+      b.ring(center.x,.045,center.z,radius+progress*.14,.04,theme.accent,96);
+    }
+  }
+
   function worldDynamic(b,s){
     const a=s.arena,w=a.width,t=colours[a.theme]||colours.ember;
     for(const item of a.loot.slice(0,100)){
@@ -681,6 +721,7 @@
     for(const f of s.combatants.slice(0,64))contender(b,f,w,t,Boolean(s.focus&&s.focus.id===f.id),eventFrames,s.combatants);
     const c=pos(s.zone.centerCell,w);
     b.ring(c.x,.056,c.z,Math.max(.25,s.zone.radius),.08,t.accent,128);
+    stormWall(b,s,t);
     combatEffects(b,s,t);
     victorySequence(b,s);
   }
