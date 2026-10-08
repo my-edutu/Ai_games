@@ -24,7 +24,7 @@ function add(group,mesh,x,y,z){mesh.position.set(x,y,z);group.add(mesh);return m
 function limb(group,mat,radius,height,x,y,z){const m=new THREE.Mesh(new THREE.CylinderGeometry(radius*.88,radius,height,9),mat);add(group,m,x,y,z);return m}
 function clearGroup(group){
   for(const child of [...group.children]){
-    child.traverse(obj=>{if(obj.isMesh||obj.isPoints){obj.geometry?.dispose();if(Array.isArray(obj.material))obj.material.forEach(m=>m.dispose());else obj.material?.dispose()}});
+    child.traverse(obj=>{if(obj.isMesh||obj.isPoints){obj.geometry?.dispose();if(Array.isArray(obj.material))obj.material.forEach(m=>{if(!m.userData?.pooled)m.dispose()});else if(!obj.material?.userData?.pooled)obj.material?.dispose()}});
     group.remove(child);
   }
 }
@@ -74,7 +74,7 @@ function skylineMaterial(theme){
   }
   const texture=new THREE.CanvasTexture(cvs);texture.colorSpace=THREE.SRGBColorSpace;
   const mat=new THREE.MeshBasicMaterial({map:texture,side:THREE.DoubleSide,toneMapped:false});
-  vistaCache.set(theme,mat);return mat;
+  mat.userData.pooled=true;vistaCache.set(theme,mat);return mat;
 }
 function stoneworkMaterial(name,color){
   if(masonry.has(name))return masonry.get(name);
@@ -109,7 +109,7 @@ function stoneworkMaterial(name,color){
   map.colorSpace=THREE.SRGBColorSpace;
   map.anisotropy=4;
   const material=new THREE.MeshStandardMaterial({map,roughness:.91,metalness:.06});
-  masonry.set(name,material);return material;
+  material.userData.pooled=true;masonry.set(name,material);return material;
 }
 
 export function mountTower3D({host,getFrame,reducedMotion=false,highContrast=false,heroCamera=false,quality='auto',inspectCharacters=false}){
