@@ -123,3 +123,15 @@ These are **quality comparisons**, not source assets to reuse. All new art is re
 **Outstanding highest-impact work:** Real WebGL2 compilation in Chromium, actual screenshot inspection and contrast critique, physical marbles descending into actual 3D holes, production-grade 3D colliders, sophisticated stage art and hero models, reference A/B and long-session soak. No Gauntlet completion or release quality is asserted.
 
 All geometry, public billboards, spotlight/cinema interactions, effects and art remain presentation-only and never inject marbles, votes, winners or movement into the deterministic authority.
+
+## Loops 19–21 — Real gravity through the track, character by character
+
+The earlier dramatic reactor well was only a **visual cavity**; elimination occurred upon entering the zone regardless of height. In loop 19 we changed the authoritative simulation so an unshielded marble detaches from the missing floor and accumulates signed negative elevation under integer/fixed-point gravity. It is eliminated only when its centre reaches the depth of the actually modelled reactor floor (model depth 780 mm minus marble radius 280 mm). A competitor travelling *above* the cutout can cross safely, and a protected racer consumes a shield at the lip without client-side teleportation. Falling marbles lose ground-supported shadow and stop colliding with above-ground machinery while well below the surface.
+
+**Replay version:** Physics outcomes now use `marble-physics-v4`. This intentionally refuses all older v3 checkpoints because they would silently replay old immediate-pit eliminations under the new falling simulation. The snapshot validator accepts signed height only inside a real pit to prevent corrupt state injection. Mid-fall save/restore tests have been added; production migration for existing tournaments remains an open release gate.
+
+Loop 20 adds a once-per-entry `marble-pit-falling` event, saved within the deterministic state, exposed only through the sanitized presentation event map. The crowd hears a descending audio cue and sees the fall ticker and reactive reactor effects derived from that **actual** authority event; airborne competitors cannot generate it.
+
+Loop 21 adds distinctive 3D character silhouettes tied to actual archetypes and marble velocity: navigating instrument halos, sprinter turbine fins, bruiser armour and survivor shield rings. These visual models are budgeted by the graphics quality tier and do not change the sphere colliders. Industrial obstacles now have layered armour, emissive vents and bold silhouette parts instead of uniformly grey blocks.
+
+**Evidence:** The previous 5-stage VM render smoke suite passed 9 of 9 cases against current GitHub source, and the existing visual-source suite passed 9 of 9, with post-check additions parsed as JavaScript. The real TypeScript build and WebGL2 screenshot job are still not observed completing. These are *not* evidence of parity with Marble It Up! Ultra; continue judging against real frames, not pass counts.
