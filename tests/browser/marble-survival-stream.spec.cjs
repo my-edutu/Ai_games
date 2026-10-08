@@ -65,6 +65,15 @@ test('Marble WebGL broadcast renders authoritative tournament and captures runti
   const shell = page.locator('.broadcast-shell');
   await expect(shell).toHaveAttribute('data-renderer', 'webgl2', { timeout: 20_000 });
   await expect(shell).toHaveAttribute('data-identity', 'projected', { timeout: 20_000 });
+  await expect(shell).toHaveAttribute('data-biome', 'seeding-sprint');
+  await expect(page.locator('#arena-biome-title')).toHaveText('AURORA SPEEDWAY');
+  await expect(page.locator('#qualification-meter')).toHaveAttribute('role', 'progressbar');
+  await page.evaluate(() => {
+    const root = document.querySelector('.broadcast-shell');
+    const palette = getComputedStyle(root);
+    if (!palette.getPropertyValue('--arena-accent').trim()) throw new Error('Vivid arena accent missing');
+    if (!document.querySelector('link[href="/arena-reborn.css"]')) throw new Error('Premium art-direction stylesheet missing');
+  });
 
   // Critic gate: labels must be drawn from the exact frame's projection,
   // not a separately moving presentation camera.
@@ -166,6 +175,7 @@ test('Marble WebGL broadcast renders authoritative tournament and captures runti
 
   const captured = new Set();
   const archetypes = new Set();
+  const biomeEvidence = new Set();
   const capture = async name => {
     if (captured.has(name)) return;
     captured.add(name);
@@ -174,6 +184,22 @@ test('Marble WebGL broadcast renders authoritative tournament and captures runti
 
   // Always capture the normal Balanced presentation before any CI-only fallback benchmark tier.
   await capture('01-race-start');
+  // Real mobile game capture, not a CSS concept mock-up. Reuse the same browser
+  // context and close this graphics surface before starting performance timing.
+  const mobileScene = await browser.newPage({ viewport: { width: 390, height: 844 } });
+  try {
+    await mobileScene.goto(base, { waitUntil: 'domcontentloaded' });
+    await expect(mobileScene.locator('.broadcast-shell')).toHaveAttribute('data-renderer', 'webgl2', { timeout: 20_000 });
+    await expect(mobileScene.locator('#arena-biome-title')).toHaveText('AURORA SPEEDWAY', { timeout: 10_000 });
+    const mobileBounds = await mobileScene.evaluate(() => ({
+      client: document.documentElement.clientWidth,
+      scroll: document.documentElement.scrollWidth,
+    }));
+    expect(mobileBounds.scroll).toBeLessThanOrEqual(mobileBounds.client + 1);
+    await mobileScene.screenshot({ path: path.join(artifacts, '01b-mobile-3d-arena.png'), fullPage: true });
+  } finally {
+    await mobileScene.close();
+  }
 
   // Verify that the critic's file-based A/B tool operates on real captured pixels
   // and never automatically turns a tie into a product-quality victory.
@@ -271,6 +297,12 @@ test('Marble WebGL broadcast renders authoritative tournament and captures runti
     archetypes.add(state.arena.archetype);
 
     const captures = [];
+    const biomeName = state.arena.archetype;
+    const biomeCapture = '11-biome-' + biomeName;
+    if (!biomeEvidence.has(biomeName)) {
+      biomeEvidence.add(biomeName);
+      captures.push(biomeCapture);
+    }
     if (state.round.remaining >= 20 && !captured.has('02-large-marble-pack')) captures.push('02-large-marble-pack');
     if (state.lifecycle === 'active' && state.arena.sweepers.length > 0 && !captured.has('03-moving-obstacle')) captures.push('03-moving-obstacle');
     if (state.lifecycle === 'active' && state.arena.ramps.length > 0 && state.marbles.some(m => m.status !== 'eliminated' && Number(m.elevation) >= 120) && !captured.has('04-high-speed-ramp')) {
@@ -289,6 +321,10 @@ test('Marble WebGL broadcast renders authoritative tournament and captures runti
     if (captures.length > 0 && state.lifecycle !== 'tournament-result') {
       await operator('pause');
       if (captures.includes('08-semifinal-final')) await waitForHudRoundAtLeast(4);
+      if (captures.includes('11-biome-' + biomeName)) {
+        await expect(shell).toHaveAttribute('data-biome', biomeName, { timeout: 3_000 });
+        await expect(page.locator('#arena-biome-title')).not.toBeEmpty();
+      }
       for (const name of captures) await capture(name);
       await operator('resume');
     }
@@ -317,6 +353,7 @@ test('Marble WebGL broadcast renders authoritative tournament and captures runti
     await cleanPage.close();
   }
 
+  expect(biomeEvidence.size).toBeGreaterThanOrEqual(3);
   expect(archetypes.size).toBeGreaterThanOrEqual(3);
   expect(captured.has('03-moving-obstacle')).toBe(true);
   expect(captured.has('04-high-speed-ramp')).toBe(true);
