@@ -76,3 +76,29 @@ test('keeps distinct materials separate to avoid silently recolouring buildings'
   assert.equal(output.batchedMeshes,2);
   assert.deepEqual(new Set(root.children.map(x=>x.material)),new Set(materials));
 });
+
+test('Gauntlet color batching preserves individual facade colors while collapsing draw calls',async()=>{
+  const {batchDistrictGeometry}=await moduleUnderTest();
+  const scene=new THREE.Group();
+  const cube=new THREE.BoxGeometry(1,1,1);
+  const tones=[0xff6b46,0x39d2c3,0xffd85f,0x7155c2];
+  const values=[];
+  for(let i=0;i<80;i++){
+    const material=new THREE.MeshStandardMaterial({color:tones[i%4]});
+    const mesh=new THREE.Mesh(cube,material);
+    mesh.position.set((i%20)*.45,1,Math.floor(i/20)*.6);
+    scene.add(mesh);values.push(material.color.clone());
+  }
+  const stats=batchDistrictGeometry(THREE,scene,{mergeSolidColors:true,chunkMeters:20});
+  assert.equal(stats.sourceMeshes,80);
+  assert.equal(stats.vertexColorChunks,1);
+  assert.equal(stats.batchedMeshes,1,'identical sector should be one draw call');
+  const child=scene.children[0];
+  assert.ok(child.material.vertexColors);
+  const palette=child.geometry.getAttribute('color');
+  assert.equal(palette.count,80*36);
+  for(let i=0;i<80;i++){
+    const color=new THREE.Color().fromBufferAttribute(palette,i*36);
+    assert.ok(color.distanceTo(values[i])<1e-6,'a facade was recolored during batching');
+  }
+});
