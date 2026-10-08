@@ -360,22 +360,51 @@ function rebuild(snapshot) {
   line(snapshot.plannedRoute.filter(id=>visible.has(id)).slice(0,60),w,materials.plan);
   for(const door of snapshot.doors){
     if(!visible.has(door.a)||!visible.has(door.b)) continue;
-    const a=point(door.a,w),b=point(door.b,w),center=a.clone().add(b).multiplyScalar(0.5);
-    const acrossX = a.x!==b.x;
-    mesh(geometries.cube,door.open?materials.exit:materials.trim,world,[center.x,1.25,center.z],
-      acrossX?[0.16,2.4,1.7]:[1.7,2.4,0.16]);
+    const a=point(door.a,w),b=point(door.b,w),center=a.clone().add(b).multiplyScalar(.5);
+    const acrossX=a.x!==b.x;
+    const gate=mesh(geometries.cube,door.open?materials.wall:materials.trim,world,
+      [center.x,1.16,center.z],acrossX?[.21,2.26,1.62]:[1.62,2.26,.21]);
+    gate.castShadow=true;
+    mesh(geometries.cube,materials.wallTop,world,[center.x,2.59,center.z],
+      acrossX?[.52,.28,2.38]:[2.38,.28,.52]);
+    for(const sign of [-1,1]){
+      mesh(geometries.column,materials.wallTop,world,
+        [center.x+(acrossX?0:sign*.95),1.26,center.z+(acrossX?sign*.95:0)],[1.2,1,1.2]);
+    }
+    if(!door.open){
+      const rune=mesh(geometries.torus,materials.gold,world,
+        [center.x+(acrossX?.14:0),1.35,center.z+(acrossX?0:.14)],[.35,.35,.35]);
+      if(!acrossX)rune.rotation.y=Math.PI/2;
+    }
   }
   for(const key of snapshot.keys){
     if(key.collected||!visible.has(key.cell))continue;
     const p=point(key.cell,w);
-    const ring=mesh(geometries.torus,materials.gold,world,[p.x,0.9,p.z],[0.28,0.28,0.28]);
-    ring.rotation.x=Math.PI/2;
+    const pedestal=mesh(geometries.cylinder,materials.wallTop,world,[p.x,.18,p.z],[.4,.36,.4]);
+    const ring=mesh(geometries.torus,materials.gold,world,[p.x,1.07,p.z],[.3,.3,.3]);
+    const blade=mesh(geometries.cube,materials.gold,world,[p.x,.77,p.z],[.12,.47,.11]);
+    mesh(geometries.cube,materials.gold,world,[p.x+.11,.63,p.z],[.24,.1,.11]);
+    const radiance=new THREE.PointLight(0xffb45e,3.7,4.5,2);
+    radiance.position.set(p.x,1.3,p.z);
+    if(world.userData.torchCount<7){world.add(radiance);world.userData.torchCount++}
   }
   if(snapshot.exitCell!==null && visible.has(snapshot.exitCell)){
     const p=point(snapshot.exitCell,w);
-    const gate=mesh(geometries.torus,materials.exit,world,[p.x,1.25,p.z],[1.3,1.65,1]);
-    gate.rotation.y=Math.PI/2;
-    mesh(geometries.cube,materials.exit,world,[p.x,0.02,p.z],[1.7,0.06,1.7]);
+    mesh(geometries.cylinder,materials.wallTop,world,[p.x,.12,p.z],[1.04,.26,1.04]);
+    for(const side of [-1,1]){
+      const column=mesh(geometries.column,materials.wallTop,world,[p.x+side*.88,1.42,p.z],[1.4,1.09,1.4]);
+      column.castShadow=true;
+      mesh(geometries.cube,materials.trim,world,[p.x+side*.88,2.8,p.z],[.53,.2,.52]);
+    }
+    const lintel=mesh(geometries.cube,materials.wallTop,world,[p.x,3.0,p.z],[2.3,.45,.58]);
+    lintel.castShadow=true;
+    const gate=mesh(geometries.torus,materials.exit,world,[p.x,1.65,p.z],[1.0,1.48,1]);
+    mesh(geometries.cube,materials.exit,world,[p.x,.05,p.z],[1.7,.06,1.7]);
+    if(world.userData.torchCount<7){
+      const portalLight=new THREE.PointLight(0x66ffbd,5,8,2);
+      portalLight.position.set(p.x,1.5,p.z);
+      world.add(portalLight);world.userData.torchCount++;
+    }
   }
   for(const enemy of snapshot.threats){
     if(!visible.has(enemy.cell)) continue;
@@ -383,6 +412,9 @@ function rebuild(snapshot) {
     body.position.copy(p);
     world.add(body);
     threats.push(body);
+    const omen=mesh(geometries.torus,materials.hazard,world,[p.x,.03,p.z],[1.04,1.04,1.04]);
+    omen.rotation.x=Math.PI/2;
+    mesh(geometries.cylinder,materials.hazard,world,[p.x,-.04,p.z],[.73,.025,.73]);
   }
   finishInstances();
   const target=point(snapshot.currentCell,w);
