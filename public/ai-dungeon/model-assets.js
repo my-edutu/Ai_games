@@ -95,11 +95,11 @@ function putEnvironment(world,sceneKey,map){
  // Five pre-authored pieces maximum: deliberate landmarks without creating collisions.
  // This is purely cosmetic and discarded on floor transitions.
  const placements=[],N=map.length,O=(N-1)/2;
- for(let z=2;z<N-2;z++)for(let x=2;x<N-2;x++){
+ outer:for(let z=2;z<N-2;z++)for(let x=2;x<N-2;x++){
   if(map[z][x]!=='#'||!(map[z-1][x]==='.'||map[z+1][x]==='.'||map[z][x-1]==='.'||map[z][x+1]==='.'))continue;
   const n=(x*71+z*31+N*17)&255;
   if(n%32===0)placements.push({x:x-O,z:z-O,asset:placements.length%3===0?'environment/dungeon_pillar.glb':'environment/dungeon_wall.glb'});
-  if(placements.length>=5)break;
+  if(placements.length>=5)break outer;
  }
  const group=new THREE.Group();world.add(group);
  for(const p of placements){load(p.asset).then(gltf=>{
