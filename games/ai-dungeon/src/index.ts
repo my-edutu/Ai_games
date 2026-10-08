@@ -117,7 +117,8 @@ export class DungeonRuntime {
    const nearest=party.filter(u=>u.hp>0).sort((a,b)=>dist(a,enemy)-dist(b,enemy)||a.id.localeCompare(b.id))[0];if(!nearest)break;
    const distance=dist(enemy,nearest);
    // Readable periodic boss shockwave creates real danger without hidden outcome forcing.
-   if(enemy.kind==='warden'&&distance<=3&&s.tick%3===0){const affected=party.filter(u=>u.hp>0&&dist(enemy,u)<=3);
+   if(enemy.kind==='warden'&&distance<=3&&s.tick%6===4){push(s,'telegraph','The Warden begins charging a shockwave — brace for impact')}
+   if(enemy.kind==='warden'&&distance<=3&&s.tick%6===0){const affected=party.filter(u=>u.hp>0&&dist(enemy,u)<=3);
     const shock=6+Math.min(14,s.floor);
     for(const hero of affected)hero.hp=Math.max(0,hero.hp-shock);
     if(affected.length)push(s,'danger','The Warden unleashed an arcane shockwave · '+shock+' damage');
