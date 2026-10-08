@@ -67,6 +67,10 @@ const path = require('node:path');
         throw Error('Moving camera re-uploaded static world');
     }
     evidence.renderBudget=softwareRendererRenderBudget;
+    evidence.geometry=await page.evaluate(()=>window.__tinyKingdom.getGeometryAudit());
+    for(const mesh of [evidence.geometry.static,evidence.geometry.dynamic]){
+      if(!mesh.aligned||mesh.invalidComponents||mesh.invalidNormals||mesh.invalidColors||mesh.outOfBounds)throw Error('Malformed 3D geometry: '+JSON.stringify(mesh));
+    }
     evidence.water=await page.evaluate(()=>window.__tinyKingdom.waterStats());
     if(evidence.water.model!=='fresnel-ripple-shorefoam-v1'||evidence.water.waterTriangles!==1260||evidence.water.bankTriangles!==840)
       throw Error('River material or shoreline geometry gate failed');
