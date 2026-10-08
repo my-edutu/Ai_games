@@ -10,6 +10,7 @@ import { drawEnvironmentVfx } from '../web/environment-vfx.js';
 import { decorateInterior } from '../web/interior-art.js';
 import { actionPose } from '../web/animation-pose.js';
 import { PackedVertices } from '../web/packed-geometry.js';
+import { spatialVolume,eventSound } from '../web/audio-foley.js';
 
 class GeometryAudit {
   constructor(){this.calls=0;this.colors=new Set();this.byKind=new Map();}
@@ -196,4 +197,17 @@ test('packed typed WebGL geometry preserves triangle topology without intermedia
   const next=new PackedVertices(27);
   next.triangle([0,0,0],[0,2,0],[1,0,0],normal,color);
   assert.equal(next.view().length,27);
+});
+
+test('spatial live zombie sound respects source distance, whitelist and quiet fallbacks',()=>{
+  assert.equal(spatialVolume(0,0,0,0),1);
+  assert.ok(spatialVolume(8,2,0,0)<1);
+  assert.ok(spatialVolume(50,0,0,0)<.07);
+  assert.equal(spatialVolume(0,0,0,0),spatialVolume(0,0,0,0));
+  assert.deepEqual(eventSound('shot'),{band:'crack',volume:.11,seconds:.15});
+  assert.equal(eventSound('nonsense'),null);
+  for(const kind of ['horde','near-death','rescue','heal','barricade-hit']){
+    const x=eventSound(kind);
+    assert.ok(x&&x.volume>0&&x.volume<=.2&&x.seconds>0&&x.seconds<=1);
+  }
 });
