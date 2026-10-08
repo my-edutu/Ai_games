@@ -335,6 +335,28 @@
     return createMesh(positions,normals,indices);
   }
 
+  function createCrystalMesh(){
+    const positions=[],normals=[],indices=[];
+    const ring=[[1,0,0],[0,0,1],[-1,0,0],[0,0,-1]];
+    const tips=[[0,1.55,0],[0,-0.9,0]];
+    for(const tip of tips){
+      for(let i=0;i<4;i++){
+        let a=ring[i],b=ring[(i+1)%4];
+        const edge1=[a[0]-tip[0],a[1]-tip[1],a[2]-tip[2]];
+        const edge2=[b[0]-tip[0],b[1]-tip[1],b[2]-tip[2]];
+        let n=[edge1[1]*edge2[2]-edge1[2]*edge2[1],edge1[2]*edge2[0]-edge1[0]*edge2[2],edge1[0]*edge2[1]-edge1[1]*edge2[0]];
+        const faceCenter=[(tip[0]+a[0]+b[0])/3,(tip[1]+a[1]+b[1])/3,(tip[2]+a[2]+b[2])/3];
+        if(n[0]*faceCenter[0]+n[1]*faceCenter[1]+n[2]*faceCenter[2]<0){const temp=a;a=b;b=temp;n=n.map(x=>-x);}
+        const length=Math.hypot(...n)||1;
+        const offset=positions.length/3;
+        positions.push(...tip,...a,...b);
+        for(let j=0;j<3;j++)normals.push(n[0]/length,n[1]/length,n[2]/length);
+        indices.push(offset,offset+1,offset+2);
+      }
+    }
+    return createMesh(positions,normals,indices);
+  }
+
   function identity4() { return new Float32Array([1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1]); }
   function multiply4(a, b) {
     const out = new Float32Array(16);
@@ -426,7 +448,7 @@
     opacity: gl.getUniformLocation(program,'uOpacity'),
     fogColor: gl.getUniformLocation(program,'uFogColor')
   });
-  const sphereMesh=createSphereMesh(), boxMesh=createBoxMesh(), cylinderMesh=createCylinderMesh(), shadowMesh=createCylinderMesh(24), torusMesh=createTorusMesh();
+  const sphereMesh=createSphereMesh(), boxMesh=createBoxMesh(), cylinderMesh=createCylinderMesh(), shadowMesh=createCylinderMesh(24), torusMesh=createTorusMesh(), crystalMesh=createCrystalMesh();
   const gauntletChannel = typeof BroadcastChannel === 'function' ? new BroadcastChannel('marble-gauntlet-v1') : null;
   let currentFogColor=[0.08,0.15,0.28];
   let frameDrawCalls = 0;
@@ -528,6 +550,7 @@
           drawBox([x,height/2,z],[0.70,height,0.85],steel,viewProjection,cameraPosition);
           drawBox([x,height+0.19,z],[1.32,0.12,1.28],accent,viewProjection,cameraPosition);
           drawBox([x,height+0.46,z],[0.11,0.62,0.11],glow,viewProjection,cameraPosition);
+          if(quality!=='low')drawMesh(crystalMesh,modelMatrix([x+side*0.5,height+0.63,z],[0,now*0.00016,0],[0.23,0.43,0.23]),glow,viewProjection,cameraPosition);
         }else if(arena.archetype==='gate-gauntlet'){
           // Massive cyber-industrial portal architecture.
           drawBox([x,height/2,z],[0.98,height,1.20],steel,viewProjection,cameraPosition);
@@ -542,12 +565,13 @@
           // Sculptural sky bridges, translucent orbital monuments.
           drawBox([x,height/2,z],[0.65,height,0.65],steel,viewProjection,cameraPosition);
           drawMesh(torusMesh,modelMatrix([x,height+0.24,z],[Math.PI/2,0,now*0.00012],[0.98,0.98,0.98]),glow,viewProjection,cameraPosition);
-          drawMesh(sphereMesh,modelMatrix([x,height+0.24,z],[0,0,0],[0.33,0.33,0.33]),accent,viewProjection,cameraPosition);
+          drawMesh(crystalMesh,modelMatrix([x,height+0.24,z],[0,now*0.00014,0],[0.40,0.75,0.40]),accent,viewProjection,cameraPosition);
         }else{
           // Royal championship colonnades, jewellery-like gold halos.
           drawMesh(cylinderMesh,modelMatrix([x,height/2,z],[0,0,0],[0.43,height/2,0.43]),steel,viewProjection,cameraPosition);
           drawMesh(torusMesh,modelMatrix([x,height+0.32,z],[0.30,0,0],[0.78,0.78,0.78]),accent,viewProjection,cameraPosition);
           drawBox([x,height+0.07,z],[1.20,0.17,1.20],glow,viewProjection,cameraPosition);
+          if(quality==='high'||quality==='ultra')drawMesh(crystalMesh,modelMatrix([x,height+0.93,z],[0,now*0.00009,0],[0.28,0.62,0.28]),accent,viewProjection,cameraPosition);
         }
       }
     }
