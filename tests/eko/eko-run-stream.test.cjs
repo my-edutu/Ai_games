@@ -42,6 +42,7 @@ test('serves actual Three.js rendering, browser HUD and a verifiable Gauntlet pa
     ['/eko/', 'EKO RUN'], ['/eko/app.js', 'WebGLRenderer'],
     ['/eko/character-craft.js', 'createTayoActor'],
     ['/eko/static-batch.js', 'batchDistrictGeometry'],
+    ['/eko/material-craft.js', 'createEkoSurfaceKit'],
     ['/vendor/three.module.js', 'THREE'], ['/eko/progress', 'Gauntlet progress board'],
     ['/eko/gauntlet.json', 'iterations']
   ]) {
