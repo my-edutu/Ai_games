@@ -4,6 +4,7 @@ import {makeCharacterArt} from '/maze/character-art.js';
 import {createAtmosphere} from '/maze/atmosphere.js';
 import {createCinematicDirector} from '/maze/cinematic-director.js';
 import {createRenderBudget} from '/maze/render-budget.js';
+import {createMomentEffects} from '/maze/moment-effects.js';
 
 // Public-state-only 3D presentation. This module never reads hidden maze authority.
 const stage = document.getElementById('stage');
@@ -193,6 +194,7 @@ const worldCraft=makeWorldCraft(THREE);
 const characterArt=makeCharacterArt(THREE);
 const atmosphere=createAtmosphere(THREE);
 const cinematics=createCinematicDirector(THREE);
+const moments=createMomentEffects(THREE);
 const renderBudget=createRenderBudget({mode:stateQuery.get('quality')||'adaptive',dpr:window.devicePixelRatio||1,compact:isCompact()});
 let updateViewport=()=>{};
 Object.assign(materials,worldCraft.materials);
@@ -592,6 +594,7 @@ function onFrame(event) {
     const runChanged=previousRun!==snapshot.runToken;
     explorerTarget.copy(point(snapshot.currentCell,snapshot.width));
     syncThreats(snapshot,runChanged);
+    moments.observe(snapshot,(id,w)=>point(id,w),{reducedMotion});
     const signature=structuralSignature(snapshot);
     const now=performance.now();
     if(runChanged||(signature!==lastTopologyKey&&now-lastEnvironmentUpdate>340)){
@@ -682,6 +685,7 @@ function render(now) {
     if(!reducedMotion)ambientDust.rotation.y+=seconds*.003;
   }
   atmosphere.update(now,seconds,explorer.position,reducedMotion);
+  moments.update(seconds,reducedMotion);
   cinematics.animate({renderer,scene,camera,lantern:lanternLight,rim:rimLight},seconds,reducedMotion);
   const target=lookTarget.clone().lerp(explorer.position,.78);
   if(!settledCamera || reducedMotion)smoothedLook.copy(target);
@@ -723,6 +727,8 @@ function render(now) {
       artDetails:world.userData.artStats||null,
       visualTheme:window.__MAZE_3D_THEME__,
       cinematicCue:cinematics.cue,
+      activeEffects:moments.activeObjects,
+      effectEvents:moments.recentEvents,
       qualityMode:renderBudget.mode,
       pixelRatio:renderBudget.ratio,
       webgl2:renderer.capabilities.isWebGL2
@@ -828,7 +834,7 @@ function init() {
   scene.add(edge);
   scene.add(world,dynamic);
   dynamic.add(routeLayer);
-  scene.add(atmosphere.group);
+  scene.add(atmosphere.group,moments.group);
   explorer=humanoid(materials.cloak);
   dynamic.add(explorer);
   worldCraft.addHeroSurroundings({scene,hero:explorer,put:mesh,glow:addGlow});
@@ -853,7 +859,7 @@ function init() {
   window.addEventListener('pagehide',()=>{
     active=false;observer.disconnect();window.removeEventListener('maze:frame',onFrame);
     renderer.dispose();
-    atmosphere.dispose();
+    atmosphere.dispose();moments.dispose();
   },{once:true});
   ready=true;
   active=true;
