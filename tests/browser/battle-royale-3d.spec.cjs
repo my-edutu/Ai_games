@@ -196,3 +196,29 @@ test('v3 layout keeps playing field visible in phone landscape and isolates clea
     await phone.close();await clean.close();
   }
 });
+
+
+test('Gauntlet critic captures all three art-direction biomes from a clearly labeled public-state fixture',async({browser,request})=>{
+  const response=await request.get(base+'/battle/state?w=1600&h=900');
+  expect(response.ok()).toBeTruthy();
+  const payload=await response.json();
+  expect(payload.snapshot?.arena).toBeTruthy();
+  for(const theme of ['ember','neon','arctic']){
+    const page=await browser.newPage({viewport:{width:1600,height:900}});
+    try{
+      // Visual-only art-direction fixture: no authoritative server state is changed.
+      const snapshot={...payload.snapshot,arena:{...payload.snapshot.arena,theme}};
+      const fixture=JSON.stringify({...payload,snapshot});
+      await page.route('**/battle/state?*',route=>route.fulfill({
+        status:200,contentType:'application/json',body:fixture
+      }));
+      await page.goto(base+'/battle?muted=1&quality=high',{waitUntil:'domcontentloaded'});
+      await page.waitForFunction(()=>window.__BATTLE_PUBLIC_STATE__?.arena?.theme!=null);
+      await expect(page.locator('body')).toHaveAttribute('data-arena-biome',theme);
+      await expect(page.locator('[data-testid="battle-canvas"]')).toBeVisible();
+      const state=await page.evaluate(()=>({...window.BattleArena3D.status}));
+      expect(['webgl2','fallback-2d']).toContain(state.mode);
+      await page.screenshot({path:path.join(captures,'art-fixture-'+theme+'.png'),fullPage:true});
+    }finally{await page.close()}
+  }
+});
