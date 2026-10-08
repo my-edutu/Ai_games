@@ -41,11 +41,11 @@ let threats = [];
 let active = false;
 let ready = false;
 const LABYRINTH_THEMES={
-  tree:{label:'THE FORGOTTEN COURTYARD',sky:0x1c2e34,fog:0x1a3034,wall:0xc5bca8,floor:0x9dad95,trim:0xe4b973,moss:0x3e7450,sun:0xf9d2a8,rim:0x7bf0cf},
-  loops:{label:'THE VERDANT LABYRINTH',sky:0x122527,fog:0x122c2d,wall:0xc6d1be,floor:0xb1c1a5,trim:0xd9ac6d,moss:0x427d53,sun:0xffdfae,rim:0x79f9cb},
-  chambers:{label:'THE SUNKEN SANCTUARY',sky:0x302a2a,fog:0x312724,wall:0xd6bfa3,floor:0xc2ab92,trim:0xffd18b,moss:0x65724a,sun:0xffc087,rim:0xa7d5d7},
-  layers:{label:'THE UNDERCRYPT',sky:0x161e37,fog:0x191b32,wall:0xabaed6,floor:0x939bc5,trim:0xf2c9a0,moss:0x3f728b,sun:0xaabcf9,rim:0x8da7ff},
-  hunter:{label:'THE WRAITH CITADEL',sky:0x231c2b,fog:0x2b1d27,wall:0xb4a8b0,floor:0x9e98a5,trim:0xf7ba79,moss:0x715a65,sun:0xfcc9a3,rim:0xff839f}
+  tree:{label:'THE FORGOTTEN COURTYARD',sky:0x2a3f5b,fog:0x2c424b,wall:0xe3c6a4,floor:0xc9c99e,trim:0xffc479,moss:0x30b782,sun:0xffd595,rim:0x68f3d1},
+  loops:{label:'THE VERDANT LABYRINTH',sky:0x143951,fog:0x19444a,wall:0xd3c9aa,floor:0xbfd7b9,trim:0xffca79,moss:0x3acf94,sun:0xffdf9d,rim:0x52ffcf},
+  chambers:{label:'THE SUNKEN SANCTUARY',sky:0x633540,fog:0x5e343e,wall:0xf4d8a2,floor:0xe7c79f,trim:0xffbf5e,moss:0xd87555,sun:0xffad69,rim:0x87e6e3},
+  layers:{label:'THE UNDERCRYPT',sky:0x252b68,fog:0x343569,wall:0xc0c5e6,floor:0xa9b9e6,trim:0xffcba0,moss:0x468dda,sun:0xc2c7ff,rim:0x879dff},
+  hunter:{label:'THE WRAITH CITADEL',sky:0x4f2646,fog:0x512d4b,wall:0xdfbcce,floor:0xc4a8c0,trim:0xffbf74,moss:0xab527c,sun:0xffaf9a,rim:0xff6f99}
 };
 function setTheme(profile){
   worldCraft.setTheme(profile);
@@ -643,10 +643,10 @@ function render(now) {
   // View controls only affect presentation; the autonomous AI never receives camera state.
   const mode=window.__MAZE_CAMERA_MODE__;
   const offset=mode==='follow'
-    ?new THREE.Vector3(4.7*scale,7.2*scale,7.5*scale)
+    ?new THREE.Vector3(3.7*scale,6.7*scale,6.1*scale)
     :mode==='tactical'
-      ?new THREE.Vector3(.001,19.2*scale,5*scale)
-      :new THREE.Vector3(8.2*scale,12.2*scale,10.7*scale);
+      ?new THREE.Vector3(.001,16.5*scale,3.8*scale)
+      :new THREE.Vector3(6.5*scale,9.5*scale,9.3*scale);
   const desired=smoothedLook.clone().add(offset);
   if(!settledCamera || reducedMotion)camera.position.copy(desired);
   else camera.position.lerp(desired,Math.min(1,seconds*2.4));
@@ -688,7 +688,7 @@ function init() {
     renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,1.5));
     renderer.outputColorSpace=THREE.SRGBColorSpace;
     renderer.toneMapping=THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure=1.68;
+    renderer.toneMappingExposure=1.85;
     renderer.shadowMap.enabled=true;
     renderer.shadowMap.type=THREE.PCFSoftShadowMap;
     mount.appendChild(renderer.domElement);
@@ -705,7 +705,7 @@ function init() {
   }
   scene=new THREE.Scene();
   scene.background=new THREE.Color(0x101b1f);
-  scene.fog=new THREE.FogExp2(0x122227,.017);
+  scene.fog=new THREE.FogExp2(0x122227,.012);
   // An original gradient night sky occupies empty horizon; it carries no undiscovered map geometry.
   const domeGeometry=new THREE.SphereGeometry(115,36,18);
   const colorValues=new Float32Array(domeGeometry.attributes.position.count*3);
@@ -726,7 +726,7 @@ function init() {
   scene.add(skyDome);
   camera=new THREE.PerspectiveCamera(45,1,0.1,160);
   camera.position.set(10,15,19);
-  skyLight=new THREE.HemisphereLight(0xc8ddd4,0x172622,2.1);
+  skyLight=new THREE.HemisphereLight(0xe3f2e8,0x26292d,2.7);
   scene.add(skyLight);
   ground=mesh(new THREE.PlaneGeometry(185,185),materials.void,scene,[0,-.46,0]);
   ground.rotation.x=-Math.PI/2;ground.receiveShadow=true;
@@ -744,7 +744,7 @@ function init() {
     color:0xf9dab1,size:.055,transparent:true,opacity:.46,depthWrite:false
   }));
   scene.add(ambientDust);
-  const sun=new THREE.DirectionalLight(0xffe5bd,2.5);
+  const sun=new THREE.DirectionalLight(0xffe5bd,3.3);
   sunLight=sun;
   sun.position.set(-7,14,-3);
   sun.castShadow=true;
@@ -755,7 +755,7 @@ function init() {
   sun.shadow.bias=-.0008;
   scene.add(sun);
   scene.add(sun.target);
-  const edge=new THREE.DirectionalLight(0x5affca,1.9);
+  const edge=new THREE.DirectionalLight(0x5affca,2.6);
   rimLight=edge;
   edge.position.set(10,8,10);
   scene.add(edge);
