@@ -124,7 +124,9 @@ const materials = {
   hazard: new THREE.MeshStandardMaterial({color:0x9b334b,emissive:0x5c0c1f,emissiveIntensity:1}),
   exit: new THREE.MeshStandardMaterial({color:0x5efec5,emissive:0x24c987,emissiveIntensity:1.5}),
   gold: new THREE.MeshStandardMaterial({color:0xe8bd69,emissive:0x75531b,emissiveIntensity:0.55,metalness:0.65}),
-  cloak: new THREE.MeshStandardMaterial({color:0x23756e,roughness:0.88}),
+  cloak: new THREE.MeshStandardMaterial({color:0x24b7ac,roughness:0.77}),
+  cape:new THREE.MeshStandardMaterial({color:0x244759,roughness:.89,side:THREE.DoubleSide}),
+  capeTrim:new THREE.MeshStandardMaterial({color:0xe0c386,metalness:.28,roughness:.71}),
   skin: new THREE.MeshStandardMaterial({color:0xcd9b79,roughness:0.92}),
   dark: new THREE.MeshStandardMaterial({color:0x18282a,roughness:0.9}),
   eyes: new THREE.MeshBasicMaterial({color:0x9dfff0}),
@@ -170,6 +172,17 @@ function humanoid(material) {
   const tunic=mesh(geometries.cylinder,material,hero,[0,1.09,0],[0.35,0.82,0.29]);
   tunic.rotation.z=.04;
   mesh(geometries.cone,material,hero,[0,0.9,-.12],[.53,1.33,.46]).rotation.z=Math.PI;
+  const capeRig=new THREE.Group();
+  capeRig.position.set(0,1.42,-.35);
+  for(let section=0;section<3;section++){
+    const fabric=mesh(geometries.cube,section===2?materials.capeTrim:materials.cape,capeRig,
+      [0,-.26-section*.33,-.09-section*.10],[.78+section*.20,.43,.09]);
+    fabric.rotation.x=.13+section*.13;
+  }
+  hero.add(capeRig);hero.userData.capeRig=capeRig;
+  // A sculptural field pack establishes the explorer as a living traveller.
+  mesh(geometries.cube,materials.cape,hero,[0,1.22,-.49],[.57,.69,.3]);
+  mesh(geometries.cube,materials.trim,hero,[0,1.15,-.66],[.39,.11,.06]);
   mesh(geometries.cylinder,materials.trim,hero,[0,1.46,0],[.4,.13,.35]);
   mesh(geometries.sphere,materials.skin,hero,[0,1.77,.02],[.27,.31,.28]);
   // Hood and bronze clasp frame the face without requiring an external asset.
@@ -209,6 +222,10 @@ function monster(){
   mesh(geometries.torus,materials.hazard,creature,[0,.36,0],[.78,.78,.78]).rotation.x=Math.PI/2;
   for(const side of [-1,1]){
     mesh(geometries.cone,materials.monster,creature,[side*.63,1.01,0],[.19,.9,.19]).rotation.z=side*.22;
+    for(let n=0;n<2;n++){
+      const shred=mesh(geometries.cone,materials.cape,creature,[side*(.37+n*.24),.39,-.17],[.13,.88+n*.26,.16]);
+      shred.rotation.z=side*.25;
+    }
     mesh(geometries.sphere,materials.monsterEye,creature,[side*.18,1.7,.4],[.11,.085,.04]);
     mesh(geometries.cone,materials.wallTop,creature,[side*.31,2.11,-.1],[.11,.3,.12]);
   }
@@ -487,6 +504,11 @@ function render(now) {
   if(moving && !reducedMotion) {
     const delta=explorerTarget.clone().sub(explorer.position);
     if(delta.lengthSq()>0.001)explorer.rotation.y=Math.atan2(delta.x,delta.z);
+  }
+  if(explorer.userData.capeRig){
+    const cape=explorer.userData.capeRig;
+    cape.rotation.x=reducedMotion?0:.12+Math.sin(now*.004)*.07+(moving?.12:0);
+    cape.rotation.z=reducedMotion?0:Math.sin(now*.003)*.05;
   }
   for(const limb of explorer.userData.limbs){
     limb.leg.rotation.x=reducedMotion?0:(moving?Math.sin(now*.009*limb.side)*.38:0);
