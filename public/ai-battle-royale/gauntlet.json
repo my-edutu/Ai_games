@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
   "project": "AI Battle Royale",
-  "iteration": 41,
+  "iteration": 43,
   "updated": "2026-10-08",
-  "verdict": "NOT ACHIEVED — camera/materials/architecture browser visual review pending",
+  "verdict": "NOT ACHIEVED — exact-head browser screenshot, texture and physical camera critique pending",
   "benchmark": "Fortnite Chapter 4 UE5.1 / Apex Legends / PUBG",
   "completed": [
     "Loop 0 — inspected existing 2D Canvas broadcast, deterministic simulation and reference branch.",
@@ -49,9 +49,12 @@
     "Loop 38 — increased bespoke per-archetype combat character detail: knee guards, segmented boots and gauntlets, helmet cheek armor, visor emitters, utility equipment and harness trim.",
     "Loop 39 — added an original self-contained SVG GPU texture atlas with six different ground/building surfaces for ember, neon and arctic; WebGL material upload with a safe white-texture fallback and materials=off visual A/B mode.",
     "Loop 40 — implemented physically correct perspective-divided pinhole hero camera, real near/far clipping, and mathematically projected public-fighter nameplates; tactical inset remains readable.",
-    "Loop 41 — combine adjacent, truly blocked cells into larger contiguous cinematic industrial architecture, reducing repetitive box-hut visuals without changing obstacle footprints or walkability."
+    "Loop 41 — combine adjacent, truly blocked cells into larger contiguous cinematic industrial architecture, reducing repetitive box-hut visuals without changing obstacle footprints or walkability.",
+    "Loop 42 — cinematic eye angle now checks real occupied grid cells with 12 candidate views and a 2.2s cut hold, minimizing building occlusion without altering collision/AI actions.",
+    "Loop 43 — each public fighter gets one of four stable identity-derived accessory and armor variants, improving unique recognition without inventing gameplay attributes."
   ],
   "gaps": [
+    "P0 queue pressure — many concurrent AI_games workflows are saturating GitHub Actions; do not treat queued or superseded runs as passing checks.",
     "P0 real-browser visual validation — exact-head Playwright and independent screenshot inspection of the new true pinhole camera, material-atlas upload and grouped world are REQUIRED; do not claim a pass.",
     "P0 art benchmark — original procedurally modeled humans, simplistic props, approximate lighting and lack of full skinned character rigs remain FAR short of Fortnite Chapter 4 UE5 or any AAA battle royale.",
     "P0 production asset gap — need authored textured character models, animation rigs, original environment assets, PBR and shadow mapping, thoughtful encounter spaces, and multi-hour OBS production soak.",
