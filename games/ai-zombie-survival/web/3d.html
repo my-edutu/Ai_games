@@ -1,43 +1,79 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#10191b">
-<title>AI Zombie Survival — 3D Gauntlet</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0c172a">
+<title>Dead Zone — Autonomous Outbreak / 3D Gauntlet</title>
 <link rel="stylesheet" href="./gauntlet3d.css">
 </head>
 <body>
-<canvas id="scene" aria-label="Real-time 3D autonomous zombie survival scene. Drag to rotate camera; wheel to zoom."></canvas>
-<div id="fallback" hidden role="alert">This 3D build requires WebGL2. <a href="./index.html">Open the original 2.5D experience</a>.</div>
-<main id="hud" aria-live="off">
-<header class="top">
-  <div class="branding"><div class="eyebrow"><span class="pulse"></span> EDUTU AI GAMES / EXPERIMENTAL 3D</div><h1>DEAD ZONE <span>/ AUTONOMOUS SURVIVAL</span></h1></div>
-  <div class="right"><span id="status">AUTONOMOUS LIVE</span><span id="day">DAY 1 / DAWN</span></div>
-</header>
-<section class="hud-left" aria-label="Survival status">
-  <div class="label">SAFE HOUSE // OUTBREAK 001</div>
-  <div class="metric"><strong id="people">6 SURVIVORS</strong><span>SQUAD</span></div>
-  <div class="metric"><strong id="infected">180 INFECTED</strong><span>THREAT</span></div>
-  <div class="metric"><strong id="integrity">100% BASE</strong><span>DEFENSE</span></div>
-  <div class="divider"></div><div class="label">CURRENT OBJECTIVE</div><p id="goal">Survive the outbreak</p><p id="resources"></p>
-</section>
-<div class="sceneBadge"><span id="verdict">WEBGL2 TRUE 3D</span><span id="fps">RENDERER INITIALIZING</span></div>
-<section class="aiStory" aria-label="Autonomous survivor decisions">
-<div class="eyebrow">LIVE AI / DECISION FEED</div>
-<div id="decisionName">MARA · LEADER</div>
-<div id="decision">Assessing threat and securing the perimeter</div>
-<div class="aiMeter" role="img" aria-label="Zombie pressure gauge"><div id="hordeMeter"></div></div>
-<div id="action">LAST EVENT • Watching the outbreak</div>
-</section>
-<section id="squadPanel" class="squadPanel" aria-label="Squad dossiers" hidden>
-  <div class="eyebrow">AUTONOMOUS SQUAD / LIVE DOSSIERS</div>
-  <div class="squad-help">Select a survivor to follow them in cinematic 3D.</div>
-  <div id="squadCards" class="squadCards"></div>
-</section>
-<footer class="bottom">
-  <div class="controls"><button id="togglePause" type="button">⏯ Pause / Resume</button><button id="sound" type="button">◖ ENABLE SOUND</button><button id="focus" type="button">◎ Auto Director</button><button id="hero" type="button">◈ Hero Camera</button><button id="rosterToggle" type="button" aria-controls="squadPanel" aria-expanded="false">≡ SQUAD</button><a href="./progress.html">GAUNTLET PROGRESS ↗</a><a href="./index.html">2.5D VERSION ↗</a></div>
-  <div class="hints">DRAG ORBIT · SCROLL ZOOM · G DIRECTOR · C HERO · V HORDE · N NEXT HERO · S SQUAD · H HUD · R NEW SEED · SPACE PAUSE</div>
-</footer>
+<canvas id="scene" aria-label="Real-time 3D autonomous zombie survival. Drag to orbit; scroll to zoom; press S for squad."></canvas>
+<div class="colorAtmosphere" aria-hidden="true"></div>
+<div id="fallback" hidden role="alert">WebGL2 is not available. <a href="./index.html">Return to the 2.5D viewer</a>.</div>
+<main id="hud" data-phase="day" aria-live="off">
+  <div class="hudGrain" aria-hidden="true"></div>
+  <header class="top">
+    <div class="branding">
+      <div class="eyebrow"><span class="pulse"></span><span>EDUTU LABS</span><span class="slash">/</span> AUTONOMOUS WORLD 01 <span class="buildTag">ALPHA • 3D</span></div>
+      <div class="brandLine"><span class="brandSymbol" aria-hidden="true">DZ<span>✦</span></span>
+        <div><h1>DEAD<span>ZONE</span></h1><div class="subtitle">SURVIVE THE LAST CITY</div></div>
+      </div>
+    </div>
+    <div class="right">
+      <div class="topStatus"><span class="onAir"><span class="liveDot"></span> LIVE / SIMULATION</span><span id="status">AUTONOMOUS LIVE</span></div>
+      <div class="topInfo"><span class="dayTag" id="day">DAY 1 / DAWN</span><span class="weatherTag" id="weather">CLEAR SKIES</span></div>
+    </div>
+  </header>
+
+  <section class="hud-left" aria-label="Squad and base survival status">
+    <div class="panelKicker"><span>01 / SURVIVAL SYSTEMS</span><span class="kickerIcon" aria-hidden="true">↗</span></div>
+    <div class="panelHeading">SAFE HOUSE <span>ALPHA</span></div>
+    <div class="metric metricAlive"><span class="metricSymbol" aria-hidden="true">✚</span><strong id="people">6 SURVIVORS</strong><span class="metricLabel">ALIVE</span></div>
+    <div class="metric metricThreat"><span class="metricSymbol" aria-hidden="true">◉</span><strong id="infected">180 INFECTED</strong><span class="metricLabel">HOSTILES</span></div>
+    <div class="metric metricBase"><span class="metricSymbol" aria-hidden="true">⬡</span><strong id="integrity">100% BASE</strong><span class="metricLabel">DEFENSE</span></div>
+    <div class="baseIntegrity"><div class="baseFill" id="baseFill"></div></div>
+    <div class="objectiveHeader"><span>ACTIVE OBJECTIVE</span><span id="objectiveType">MISSION</span></div>
+    <p class="objectiveText" id="goal">Survive the outbreak</p>
+    <div class="objectiveTrack"><span id="objectiveFill"></span></div>
+    <p id="resources"></p>
+  </section>
+
+  <aside class="sceneBadge" aria-label="3D performance and capture mode"><span id="verdict">WEBGL2 TRUE 3D</span><span id="fps">RENDERER INITIALIZING</span></aside>
+
+  <section class="aiStory" aria-label="Live autonomous survivor decisions">
+    <div class="panelKicker"><span>02 / AUTONOMOUS AI</span><span class="brainIcon" aria-hidden="true">✺</span></div>
+    <div class="aiHeader">INSIDE THE <em>SQUAD</em></div>
+    <div id="decisionName">MARA / LEADER</div>
+    <div id="decision">Assessing threat and securing the perimeter</div>
+    <div class="threatHeading"><span>HORDE PRESSURE</span><strong id="threatPercent">0%</strong></div>
+    <div class="aiMeter" role="img" aria-label="Zombie pressure gauge"><div id="hordeMeter"></div></div>
+    <div id="action">LATEST EVENT • SURVEILLANCE ESTABLISHED</div>
+  </section>
+
+  <section class="directorStrip" aria-label="Current cinematic focus">
+    <div class="stripIcon" aria-hidden="true">◈</div>
+    <div><span class="stripLabel">AUTO DIRECTOR <b class="liveDot"></b></span><strong id="cameraLabel">SQUAD OVERVIEW</strong></div>
+    <span class="stripLine"></span><div class="stripMini"><span>EPISODE</span><strong id="wave">01 / OUTBREAK</strong></div>
+  </section>
+
+  <section id="squadPanel" class="squadPanel" aria-label="Squad dossiers" hidden>
+    <div class="eyebrow">SQUAD COMMAND / ALL SURVIVORS</div>
+    <div class="squad-help">Choose a survivor to follow through the 3D outbreak.</div>
+    <div id="squadCards" class="squadCards"></div>
+  </section>
+
+  <footer class="bottom">
+    <div class="controls">
+      <button id="togglePause" type="button" aria-label="Pause or resume simulation"><span aria-hidden="true">⏯</span> PAUSE</button>
+      <button id="sound" type="button"><span aria-hidden="true">◖</span> SOUND</button>
+      <button id="focus" type="button"><span aria-hidden="true">◎</span> DIRECTOR</button>
+      <button id="hero" type="button"><span aria-hidden="true">◈</span> HERO CAM</button>
+      <button id="rosterToggle" type="button" aria-controls="squadPanel" aria-expanded="false"><span aria-hidden="true">☷</span> SQUAD</button>
+      <a href="./progress.html">GAUNTLET ↗</a><a class="legacy" href="./index.html">2.5D ↗</a>
+    </div>
+    <div class="hints">ORBIT: DRAG <span>·</span> ZOOM: SCROLL <span>·</span> C: HERO <span>·</span> G: DIRECTOR <span>·</span> S: SQUAD <span>·</span> H: HUD</div>
+  </footer>
 </main>
 <script type="module" src="./gauntlet3d.js"></script>
 </body>
