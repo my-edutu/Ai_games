@@ -4,6 +4,13 @@
   const params=new URLSearchParams(location.search);
   const forced2d=params.get('visual')==='2d';
   const quality=params.get('quality')==='low'?'low':'high';
+  const cameraPreference=params.get('camera')==='hero'?'hero'
+    :params.get('camera')==='tactical'?'tactical':'broadcast';
+  function selectCameraMode(snapshot){
+    if(cameraPreference!=='broadcast')return cameraPreference;
+    const alive=snapshot.combatants.filter(f=>f.alive).length;
+    return alive<=6||snapshot.scene==='final-circle'||snapshot.scene==='result'?'hero':'tactical';
+  }
   const tactical=document.querySelector('[data-testid="battle-canvas"]');
   const host=tactical?.parentElement;
   const colours={
@@ -72,7 +79,7 @@
   const reducedMotion=params.get('reducedMotion')==='1'||matchMedia('(prefers-reduced-motion: reduce)').matches;
   const reducedFlash=params.get('reducedFlash')==='1';
   let previousSnapshot=null,startedAt=0,animationId=0,lastPaintTime=0;
-  const status={mode:forced2d?'forced-2d':'initializing',frames:0,triangles:0,contenders:0,p95SubmitMs:0,sceneBuilds:0,quality:quality,activeEffects:0,lastError:null};
+  const status={mode:forced2d?'forced-2d':'initializing',frames:0,triangles:0,contenders:0,p95SubmitMs:0,sceneBuilds:0,quality:quality,activeEffects:0,lastError:null,cameraMode:'tactical'};
   const staticCache={key:null,vertices:0};
   const frameSamples=[];
   const headings=new Map();
@@ -1081,34 +1088,48 @@
     cameraTracking.z+=(target.z-cameraTracking.z)*factor;
     return {x:cameraTracking.x,z:cameraTracking.z};
   }
-  function spectatorCloseup(snapshot,area){
+  function spectatorCloseup(snapshot,area,mode){
     // Second camera pass views the SAME public geometry: no synthetic battles,
     // no hidden outcome changes, no second simulation.
     if(area.width<950||area.height<450||snapshot.scene==='recovery')return;
-    const focal=chooseSpectatorTarget(snapshot);
-    if(!focal)return;
+    const tacticalInset=mode==='hero';
+    const focal=tacticalInset?null:chooseSpectatorTarget(snapshot);
+    if(!tacticalInset&&!focal)return;
     if(closeupLabel){
-      const title=snapshot.scene==='result'&&snapshot.result?.winnerId===focal.id?'CHAMPION':'LIVE ACTION';
-      closeupLabel.textContent=title+'  //  '+String(focal.name||focal.archetype||'CONTENDER').slice(0,30).toUpperCase();
+      if(tacticalInset)closeupLabel.textContent='● TACTICAL OVERVIEW // LIVE';
+      else {
+        const title=snapshot.scene==='result'&&snapshot.result?.winnerId===focal.id?'CHAMPION':'LIVE ACTION';
+        closeupLabel.textContent=title+' // '+String(focal.name||focal.archetype||'CONTENDER').slice(0,30).toUpperCase();
+      }
     }
-    const p=smoothCameraTarget(pos(focal.cell,snapshot.arena.width),snapshot);
+    const p=tacticalInset?{x:snapshot.arena.width/2,z:snapshot.arena.height/2}:
+      smoothCameraTarget(pos(focal.cell,snapshot.arena.width),snapshot);
     const frameW=Math.max(1,Math.round(canvas.width*.27));
     const frameH=Math.max(1,Math.round(canvas.height*.27));
     const frameX=Math.round(canvas.width*.705);
     const frameY=Math.round(canvas.height*.65);
     const aspect=frameW/frameH;
-    const zoom=.43;
+    const zoom=tacticalInset?1:.43;
     gl.enable(gl.SCISSOR_TEST);
     try{
       gl.scissor(frameX,frameY,frameW,frameH);
       gl.viewport(frameX,frameY,frameW,frameH);
       gl.clearColor(.09,.19,.30,1);
       gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
-      gl.uniform3f(uniform[0],p.x,.8,p.z);
-      gl.uniform2f(uniform[1],zoom/aspect,zoom);
-      gl.uniform1f(uniform[2],.95);
-      gl.uniform1f(uniform[3],.43);
-      gl.uniform1f(uniform[4],.032);
+      gl.uniform3f(uniform[0],p.x,tacticalInset?0:.8,p.z);
+      if(tacticalInset){
+        const w=snapshot.arena.width,h=snapshot.arena.height;
+        const wide=Math.min(1.79/((w*.61+h*.79)*.52+6),1.79*aspect/(w*.79+h*.61+5));
+        gl.uniform2f(uniform[1],wide/aspect,wide);
+        gl.uniform1f(uniform[2],.65);
+        gl.uniform1f(uniform[3],.56);
+        gl.uniform1f(uniform[4],.013);
+      }else{
+        gl.uniform2f(uniform[1],zoom/aspect,zoom);
+        gl.uniform1f(uniform[2],.95);
+        gl.uniform1f(uniform[3],.43);
+        gl.uniform1f(uniform[4],.032);
+      }
       drawScene();
     }finally{
       gl.disable(gl.SCISSOR_TEST);
@@ -1192,25 +1213,35 @@
       const aspect=area.width/area.height;
       const scale=Math.min(1.87/((w*.61+h*.79)*.52+5),1.87*aspect/(w*.79+h*.61+4));
       gl.useProgram(program);
+      const mode=selectCameraMode(snapshot);
+      const hero=mode==='hero'?chooseSpectatorTarget(snapshot):null;
       const close=snapshot.scene==='final-circle';
       const winner=snapshot.scene==='result'&&snapshot.result?.kind==='game'
         ?snapshot.combatants.find(f=>f.id===snapshot.result?.winnerId):null;
-      const focus=winner?pos(winner.cell,w):(close?pos(snapshot.zone.centerCell,w):{x:w/2,z:h/2});
-      const zoom=winner?1.20:(close?1.15:1.10);
-      gl.uniform3f(uniform[0],focus.x,0,focus.z);
-      gl.uniform2f(uniform[1],scale*zoom/aspect,scale*zoom);
-      const yaw=.65+(reducedMotion?0:Math.sin(performance.now()/18000)*.035);
-      const pitch=.56;
+      const tacticalView=winner?pos(winner.cell,w):
+        (close?pos(snapshot.zone.centerCell,w):{x:w/2,z:h/2});
+      const heroView=hero?smoothCameraTarget(pos(hero.cell,w),snapshot):null;
+      const focus=mode==='hero'&&heroView?heroView:tacticalView;
+      const zoom=mode==='hero'&&heroView?.30:(winner?1.20:(close?1.15:1.10));
+      const lensScale=mode==='hero'&&heroView?zoom:scale*zoom;
+      const yaw=mode==='hero'&&heroView?
+        (.85+(reducedMotion?0:Math.sin(performance.now()/16000)*.07)):
+        (.65+(reducedMotion?0:Math.sin(performance.now()/18000)*.035));
+      const pitch=mode==='hero'&&heroView?.42:.56;
+      gl.uniform3f(uniform[0],focus.x,mode==='hero'?1.0:0,focus.z);
+      gl.uniform2f(uniform[1],lensScale/aspect,lensScale);
       gl.uniform1f(uniform[2],yaw);
       gl.uniform1f(uniform[3],pitch);
-      gl.uniform1f(uniform[4],.013);
+      gl.uniform1f(uniform[4],mode==='hero'?.033:.013);
+      status.cameraMode=mode;
+      document.body.dataset.battleCamera=mode;
       bindSceneBuffer(dynamicBuffer);
       gl.bufferData(gl.ARRAY_BUFFER,data,gl.DYNAMIC_DRAW);
       dynamicVertexCount=data.length/9;
       gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
       drawScene();
-      updateNameplates(presented,area,focus,scale,zoom,yaw,pitch);
-      spectatorCloseup(snapshot,area);
+      updateNameplates(presented,area,focus,mode==='hero'?.30:scale,mode==='hero'?1:zoom,yaw,pitch);
+      spectatorCloseup(snapshot,area,mode);
       status.frames++;status.triangles=(data.length/9+staticCache.vertices)/3;
       frameSamples.push(performance.now()-startSubmit);
       if(frameSamples.length>90)frameSamples.shift();
