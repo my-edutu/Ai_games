@@ -39,6 +39,7 @@ if(settings.cleanFeed)elements.broadcast.classList.add('clean-feed');
 let frame=null;
 let lastCaption='The explorer is mapping the nearest frontier.';
 let animationTime=0;
+let lastMinimapRender=0;
 let pollTimer=0;
 let stopped=false;
 
@@ -332,7 +333,10 @@ async function poll(){
 
 function animate(now){
   animationTime=now;
-  if(frame?.snapshot && !window.__MAZE_3D_READY__)draw(frame.snapshot,frame.scene,frame.camera);
+  if(frame?.snapshot && (!window.__MAZE_3D_READY__ || now-lastMinimapRender>160)){
+    draw(frame.snapshot,frame.scene,frame.camera);
+    lastMinimapRender=now;
+  }
   requestAnimationFrame(animate);
 }
 
