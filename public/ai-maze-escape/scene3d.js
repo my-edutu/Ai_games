@@ -690,6 +690,8 @@ function render(now) {
       active:true,sampleAt:now,fps:currentFPS,drawCalls:renderer.info.render.calls,
       triangles:renderer.info.render.triangles,
       geometryObjects:world.children.length,
+      artDetails:world.userData.artStats||null,
+      visualTheme:window.__MAZE_3D_THEME__,
       webgl2:renderer.capabilities.isWebGL2
     };
   }
