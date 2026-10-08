@@ -1,0 +1,65 @@
+name: Marble Survival Gauntlet — real browser evidence
+
+on:
+  push:
+    branches:
+      - agent/marble-gauntlet-2026-10-08
+    paths:
+      - 'games/marble-survival/**'
+      - 'tests/foundation/marble-*.test.cjs'
+      - 'tests/browser/marble-survival-stream.spec.cjs'
+      - '.github/workflows/marble-gauntlet.yml'
+  pull_request:
+    branches:
+      - agent/marble-survival-2-5d-mainline
+    paths:
+      - 'games/marble-survival/**'
+      - 'tests/foundation/marble-*.test.cjs'
+      - 'tests/browser/marble-survival-stream.spec.cjs'
+      - '.github/workflows/marble-gauntlet.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: marble-gauntlet-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  source-and-browser-evidence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout Gauntlet branch
+        uses: actions/checkout@v6
+      - name: Setup Node 22
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Compile authoritative runtime
+        run: npm run build
+      - name: Run all Marble foundation and Gauntlet regression tests
+        run: node --test tests/foundation/marble-*.test.cjs
+      - name: Assert authoritative server starts and preserves API contracts
+        run: node games/marble-survival/scripts/serve-complete-runtime.cjs --self-test
+      - name: Install Chromium for actual WebGL screenshots
+        run: npx playwright install --with-deps chromium
+      - name: Run visual smoke, camera/label parity and tournament evidence capture
+        run: npx playwright test tests/browser/marble-survival-stream.spec.cjs --workers=1
+        env:
+          CI: 'true'
+      - name: Upload real screenshots, renderer stats and browser traces
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: marble-gauntlet-browser-evidence
+          path: |
+            artifacts/marble-visual-rebuild/
+            test-results/
+            playwright-report/
+          if-no-files-found: warn
+          retention-days: 30
