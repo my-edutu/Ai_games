@@ -15,6 +15,7 @@ const source=window.BattleArena3D;
 if(!stage||!source)throw Error('Battle Ultra needs the live public-state renderer');
 const state={mode:'initializing',frames:0,meshes:0,actors:0,worldRebuilds:0,
   lastError:null,source:'Quaternius CC0 humanoid',sourceFile:'/battle/models/quaternius-hero.glb',
+  materialAtlas:'fallback',joints:0,
   gpu:'three-r182',animation:'original AI intent driven bone poses'};
 window.BattleUltraThree=state;
 const colors={vanguard:0xf48154,ranger:0x47cfff,
@@ -28,6 +29,9 @@ let renderer,scene,camera,wideCamera,sun,hemisphere,terrain,ambientProps;
 let template,bounds,unitScale=1,modelYOffset=0,lastExportVersion=0,lastStaticKey='';
 let raf=0,ready=false,models=new Map(),bonesByModel=new WeakMap();
 let nametagLayer=null,clockTime=0,tracked=new THREE.Vector3(),cameraPosition=new THREE.Vector3();
+let atlasLoaded=false,atlasTexture=null,atlasLoading=false,biomeMaterialRow=0;
+const texturedMaterials=opts.get('ultraMaterial')!=='off';
+const uvScale=1/3.3;
 const scratch=new THREE.Vector3();
 const currentFighter=(frame)=>{
   const alive=frame.snapshot.combatants.filter(f=>f.alive);
@@ -45,16 +49,30 @@ function numberSeed(id){
 function setWorldVertexGeometry(vertices){
   const geo=new THREE.BufferGeometry();
   const n=Math.floor(vertices.length/9);
-  const pos=new Float32Array(n*3),norm=new Float32Array(n*3),rgb=new Float32Array(n*3);
+  const pos=new Float32Array(n*3),norm=new Float32Array(n*3),
+    rgb=new Float32Array(n*3),uv=new Float32Array(n*2);
   for(let i=0;i<n;i++){
     const src=i*9,dst=i*3;
     pos[dst]=vertices[src];pos[dst+1]=vertices[src+1];pos[dst+2]=vertices[src+2];
     norm[dst]=vertices[src+3];norm[dst+1]=vertices[src+4];norm[dst+2]=vertices[src+5];
     rgb[dst]=vertices[src+6];rgb[dst+1]=vertices[src+7];rgb[dst+2]=vertices[src+8];
+    // Tile only within the authored 2-column/3-row surface atlas cells.
+    // This is a real glTF/Three.js texture coordinate attribute, not a
+    // procedural lighting tint. Walls use the cladding atlas column.
+    const isFloor=Math.abs(norm[dst+1])>.70;
+    const column=isFloor?0:1;
+    const ux=isFloor?pos[dst]:Math.abs(norm[dst])>Math.abs(norm[dst+2])
+      ?pos[dst+2]:pos[dst];
+    const vz=isFloor?pos[dst+2]:pos[dst+1];
+    let u=((ux*uvScale)%1+1)%1,v=((vz*uvScale)%1+1)%1;
+    u=Math.max(.010,Math.min(.990,u));v=Math.max(.010,Math.min(.990,v));
+    uv[i*2]=(column+u)/2;
+    uv[i*2+1]=(biomeMaterialRow+v)/3;
   }
   geo.setAttribute('position',new THREE.BufferAttribute(pos,3));
   geo.setAttribute('normal',new THREE.BufferAttribute(norm,3));
   geo.setAttribute('color',new THREE.BufferAttribute(rgb,3));
+  geo.setAttribute('uv',new THREE.BufferAttribute(uv,2));
   geo.computeBoundingSphere();
   return geo;
 }
@@ -65,6 +83,27 @@ const effectsMaterial=new THREE.MeshStandardMaterial({
   vertexColors:true,roughness:.42,metalness:.19,
   side:THREE.DoubleSide,emissive:0x0a1224,emissiveIntensity:.22
 });
+async function loadEnvironmentAtlas(){
+  if(!texturedMaterials||atlasLoading)return;
+  atlasLoading=true;
+  try{
+    const texture=await new THREE.TextureLoader().loadAsync('/battle/material-atlas.svg');
+    texture.colorSpace=THREE.SRGBColorSpace;
+    texture.wrapS=THREE.ClampToEdgeWrapping;
+    texture.wrapT=THREE.ClampToEdgeWrapping;
+    texture.magFilter=THREE.LinearFilter;
+    texture.minFilter=THREE.LinearMipmapLinearFilter;
+    texture.generateMipmaps=true;
+    atlasTexture=texture;atlasLoaded=true;
+    groundMaterial.map=texture;
+    groundMaterial.needsUpdate=true;
+    effectsMaterial.map=texture;
+    effectsMaterial.needsUpdate=true;
+    state.materialAtlas='ready';
+  }catch(error){
+    atlasLoaded=false;state.materialAtlas='fallback';
+  }
+}
 function assignModelMaterial(root,character){
   const main=new THREE.Color(colors[character.archetype]||0xb7e6ee);
   root.traverse(obj=>{
@@ -276,6 +315,12 @@ function updateWorld(frame){
 }
 function updateTheme(frame){
   const p=zones[frame.snapshot.arena.theme]||zones.ember;
+  const index={ember:0,neon:1,arctic:2}[frame.snapshot.arena.theme]??0;
+  if(index!==biomeMaterialRow){
+    biomeMaterialRow=index;
+    // GPU geometry UVs carry the row: force a cache-consistent rebuild.
+    lastStaticKey='';lastExportVersion=-1;
+  }
   scene.background=new THREE.Color(p.sky);
   if(!scene.fog)scene.fog=new THREE.FogExp2(p.fog,.015);
   else scene.fog.color.setHex(p.fog);
@@ -377,6 +422,8 @@ function draw(time){
 async function start(){
   const model=await new GLTFLoader().loadAsync('/battle/models/quaternius-hero.glb');
   template=model.scene;
+  state.joints=getSkeletonBones(template).length;
+  if(state.joints<8)throw Error('Rig joints missing: '+state.joints);
   bounds=new THREE.Box3().setFromObject(template);
   const size=new THREE.Vector3();bounds.getSize(size);
   if(!Number.isFinite(size.y)||size.y<.05)throw Error('invalid humanoid bounds');
@@ -406,6 +453,7 @@ async function start(){
   sun.shadow.normalBias=.018;
   sun.shadow.camera.updateProjectionMatrix();
   scene.add(sun);
+  await loadEnvironmentAtlas();
   nametagLayer=document.createElement('div');
   nametagLayer.className='battle-three-nameplates';
   stage.appendChild(nametagLayer);
