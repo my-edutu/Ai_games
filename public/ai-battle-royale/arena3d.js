@@ -16,14 +16,18 @@
     '#version 300 es',
     'in vec3 pos; in vec3 normal; in vec3 tint;',
     'uniform vec3 center; uniform vec2 scale;',
+    'uniform float uYaw; uniform float uPitch; uniform float uPerspective;',
     'out vec3 vNormal; out vec3 vTint; out float vDepth; out vec3 vWorld;',
     'void main(){',
     'vec3 p=pos-center;',
-    'float east=p.x*.79-p.z*.61;',
-    'float along=p.x*.61+p.z*.79;',
-    'float up=p.y*.85-along*.52;',
-    'float depth=p.y*.52+along*.85;',
-    'gl_Position=vec4(east*scale.x,up*scale.y,-depth/80.0,1.0);',
+    'float cy=cos(uYaw),sy=sin(uYaw);',
+    'float cp=cos(uPitch),sp=sin(uPitch);',
+    'float east=p.x*cy-p.z*sy;',
+    'float along=p.x*sy+p.z*cy;',
+    'float up=p.y*cp-along*sp;',
+    'float depth=p.y*sp+along*cp;',
+    'float cameraW=max(0.55,1.0+depth*uPerspective);',
+    'gl_Position=vec4(east*scale.x,up*scale.y,-depth/80.0,cameraW);',
     'vNormal=normal;vTint=tint;vDepth=depth;vWorld=pos;',
     '}'
   ].join('\n');
@@ -68,7 +72,7 @@
     gl.deleteShader(v);gl.deleteShader(f);
     if(!gl.getProgramParameter(program,gl.LINK_STATUS))throw Error('shader-link');
     attr=['pos','normal','tint'].map(name=>gl.getAttribLocation(program,name));
-    uniform=['center','scale'].map(name=>gl.getUniformLocation(program,name));
+    uniform=['center','scale','uYaw','uPitch','uPerspective'].map(name=>gl.getUniformLocation(program,name));
     staticBuffer=gl.createBuffer();dynamicBuffer=gl.createBuffer();
     staticCache.key=null;staticCache.vertices=0;
     gl.enable(gl.DEPTH_TEST);gl.depthFunc(gl.LEQUAL);
@@ -620,6 +624,9 @@
       gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
       gl.uniform3f(uniform[0],p.x,.8,p.z);
       gl.uniform2f(uniform[1],zoom/aspect,zoom);
+      gl.uniform1f(uniform[2],.95);
+      gl.uniform1f(uniform[3],.43);
+      gl.uniform1f(uniform[4],.032);
       drawScene();
     }finally{
       gl.disable(gl.SCISSOR_TEST);
@@ -677,6 +684,9 @@
       const zoom=winner?1.20:(close?1.15:1.10);
       gl.uniform3f(uniform[0],focus.x,0,focus.z);
       gl.uniform2f(uniform[1],scale*zoom/aspect,scale*zoom);
+      gl.uniform1f(uniform[2],.65+(reducedMotion?0:Math.sin(performance.now()/18000)*.035));
+      gl.uniform1f(uniform[3],.56);
+      gl.uniform1f(uniform[4],.013);
       bindSceneBuffer(dynamicBuffer);
       gl.bufferData(gl.ARRAY_BUFFER,data,gl.DYNAMIC_DRAW);
       dynamicVertexCount=data.length/9;
