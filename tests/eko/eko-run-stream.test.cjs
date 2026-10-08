@@ -41,6 +41,7 @@ test('serves actual Three.js rendering, browser HUD and a verifiable Gauntlet pa
   for (const [resource, expected] of [
     ['/eko/', 'EKO RUN'], ['/eko/app.js', 'WebGLRenderer'],
     ['/eko/character-craft.js', 'createTayoActor'],
+    ['/eko/static-batch.js', 'batchDistrictGeometry'],
     ['/vendor/three.module.js', 'THREE'], ['/eko/progress', 'Gauntlet progress board'],
     ['/eko/gauntlet.json', 'iterations']
   ]) {
