@@ -78,3 +78,14 @@ body[data-reduced-motion="true"] #maze-3d { animation:none; }
   #cinema-banner small{font-size:8px}
   #cinema-hunter{bottom:8px;right:8px;font-size:7px;padding:6px}
 }
+
+#sound-toggle{
+  appearance:none;border:1px solid rgba(245,211,148,.45);border-radius:999px;
+  background:rgba(33,27,19,.7);padding:6px 11px;color:#f6ddac;
+  font:800 9px/1 Inter,system-ui,sans-serif;letter-spacing:.09em;
+  cursor:pointer;flex:0 0 auto;white-space:nowrap
+}
+#sound-toggle[aria-pressed="true"]{border-color:#7df5cb;background:rgba(21,67,54,.83);color:#b8ffe3}
+#sound-toggle:disabled{cursor:default;opacity:.55}
+#sound-toggle:focus-visible{outline:2px solid #b6e8ff;outline-offset:2px}
+@media(max-width:900px){#sound-toggle{font-size:7px;padding:4px 5px;letter-spacing:0}}
