@@ -23,8 +23,15 @@
   renderer.outputColorSpace=THREE.SRGBColorSpace;
   renderer.toneMapping=THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure=1.15;
+  renderer.shadowMap.enabled=true;
+  renderer.shadowMap.type=THREE.PCFSoftShadowMap;
   const key = new THREE.DirectionalLight(0xffd7a2, 3);
-  key.position.set(-10, 18, 15); scene.add(key);
+  key.position.set(-35, 80, 85); scene.add(key);scene.add(key.target);
+  key.castShadow=true;key.shadow.mapSize.set(1024,1024);
+  key.shadow.camera.left=-125;key.shadow.camera.right=125;
+  key.shadow.camera.top=125;key.shadow.camera.bottom=-125;
+  key.shadow.camera.near=1;key.shadow.camera.far=400;
+  key.shadow.bias=-0.0003;
   const rim = new THREE.PointLight(0x59dfff, 55, 28);
   rim.position.set(8, 8, -3); scene.add(rim);
   const architecture=createTowerEnvironment(THREE,scene);
@@ -106,6 +113,8 @@
     }
     if (!lastState) {camera.position.x=x(s.player?.x);camera.position.y=y(s.player?.y)+35;}
     architecture.root.position.x=x(s.player?.x);
+    key.position.set(x(s.player?.x)-35,y(s.player?.y)+80,85);
+    key.target.position.set(x(s.player?.x),y(s.player?.y),0);
     metrics.actors=actors.children.length; metrics.status='live';
     metrics.platforms=(s.platforms||[]).length; metrics.enemies=(s.enemies||[]).filter(e=>e.active).length;
     metrics.hazards=(s.hazards||[]).length; metrics.pickups=(s.pickups||[]).length;
