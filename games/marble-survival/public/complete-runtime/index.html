@@ -9,14 +9,16 @@
   <link rel="stylesheet" href="/ux-v2.css">
   <link rel="stylesheet" href="/visual-3d.css">
   <link rel="stylesheet" href="/spectator-polish.css">
+  <link rel="stylesheet" href="/arena-reborn.css">
 </head>
 <body>
   <a class="skip-link" href="#arena">Skip to arena</a>
-  <main class="broadcast-shell" data-clean="false" data-quality="balanced" data-ux-revision="6" data-layout="arena-first">
+  <main class="broadcast-shell" data-clean="false" data-quality="balanced" data-ux-revision="6" data-layout="arena-first" data-biome="seeding-sprint">
     <header class="topbar" aria-label="Tournament status">
       <div class="brand-lockup">
-        <span class="eyebrow">Game 7 · Live deterministic tournament</span>
-        <h1>Marble Survival Tournament</h1>
+        <div class="brand-emblem" aria-hidden="true"><span></span></div>
+        <div class="brand-type"><span class="eyebrow">Game 07 &nbsp; / &nbsp; Autonomous 3D survival</span>
+        <h1>MARBLE <span>SURVIVAL</span><small> / TOURNAMENT</small></h1></div>
       </div>
       <div class="status-cluster">
         <span id="connection" class="status-pill" role="status">Connecting</span>
@@ -51,6 +53,7 @@
       <div class="strip-cell qualification-cell">
         <span class="strip-label">Cut line</span>
         <strong id="qualification-value">Awaiting authority</strong>
+        <div class="qualification-meter" id="qualification-meter" role="progressbar" aria-label="Round qualification progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="qualification-meter-fill"></span></div>
       </div>
       <div class="strip-cell compact-cell">
         <span class="strip-label">Tick</span>
@@ -63,6 +66,8 @@
         <canvas id="arena-webgl" width="1600" height="900" aria-label="Live three-dimensional authoritative marble tournament arena"></canvas>
         <canvas id="arena-identity-overlay" width="1600" height="900" aria-hidden="true"></canvas>
         <canvas id="arena-canvas" width="1600" height="900" aria-label="Live authoritative marble tournament arena fallback"></canvas>
+        <div class="arena-title-card" aria-hidden="true"><span class="arena-title-eyebrow"><span class="beacon-dot"></span> NOW ENTERING / STAGE <span id="arena-stage-number">01</span></span><strong id="arena-biome-title">AURORA SPEEDWAY</strong><span id="arena-biome-subtitle">The race begins under electric skies.</span><div class="arena-title-line"></div></div>
+        <div class="arena-threat-badge" aria-live="off" aria-hidden="true"><span class="threat-pulse"></span><span id="arena-threat">AWAITING RACE DATA</span></div>
         <div class="arena-topline" aria-hidden="true">
           <span id="camera-value">Overview</span>
           <span id="feed-value">AUTHORITY LIVE</span>
@@ -106,7 +111,7 @@
     </section>
 
     <footer>
-      <span>Fixed-step authority · WebGL presentation · replay-safe results</span>
+      <span><span class="footer-led"></span> MARBLE SURVIVAL <span class="footer-divider">/</span> Fixed-step authority · 3D graphics · Replay-safe results</span>
       <span id="system-health">Health pending</span>
     </footer>
   </main>
