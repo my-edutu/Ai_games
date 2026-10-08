@@ -47,7 +47,7 @@
     'result=vec4(mix(vec3(.065,.103,.135),lit,haze),1.0);',
     '}'
   ].join('\n');
-  let canvas=null,gl=null,program=null,buffer=null,staticBuffer=null,dynamicBuffer=null,attr=null,uniform=null,lastSnapshot=null,disabled=forced2d||!host;
+  let canvas=null,closeupLabel=null,gl=null,program=null,buffer=null,staticBuffer=null,dynamicBuffer=null,attr=null,uniform=null,lastSnapshot=null,disabled=forced2d||!host;
   const reducedMotion=params.get('reducedMotion')==='1'||matchMedia('(prefers-reduced-motion: reduce)').matches;
   const reducedFlash=params.get('reducedFlash')==='1';
   let previousSnapshot=null,startedAt=0,animationId=0,lastPaintTime=0;
@@ -80,7 +80,7 @@
     canvas.dataset.testid='battle-3d-canvas';
     canvas.setAttribute('aria-hidden','true');
     host.appendChild(canvas);
-    const closeupLabel=document.createElement('div');
+    closeupLabel=document.createElement('div');
     closeupLabel.className='battle-3d-focus';
     closeupLabel.setAttribute('aria-label','Live action closeup');
     closeupLabel.textContent='● LIVE ACTION // AI SPECTATOR';
@@ -477,6 +477,33 @@
       b.box(x,2.16,z,.54,.24,.54,t.accent);
     }
   }
+
+  function victorySequence(b,snapshot){
+    // A purely cosmetic result sequence, never a fabricated winner.
+    if(snapshot.scene!=='result'||!snapshot.result||
+       snapshot.result.kind!=='game'||!snapshot.result.winnerId)return;
+    const fighter=snapshot.combatants.find(c=>c.id===snapshot.result.winnerId);
+    if(!fighter)return;
+    const p=pos(fighter.cell,snapshot.arena.width);
+    const gold=[1,.76,.30],copper=[.61,.33,.17];
+    b.ring(p.x,.085,p.z,.80,.080,gold,48);
+    b.ring(p.x,.09,p.z,1.10,.044,copper,48);
+    for(let i=0;i<9;i++){
+      const angle=Math.PI*2*i/9,x=p.x+Math.cos(angle)*.88,z=p.z+Math.sin(angle)*.88;
+      b.cone(x,.40,z,.075,.020,.78,gold,6);
+      if(!reducedFlash)b.cone(x,.85,z,.03,0,.24,[1,.94,.66],5);
+    }
+    b.cone(p.x,2.68,p.z,.31,.08,.38,gold,9);
+    b.cylinder(p.x,2.89,p.z,.24,.075,copper,10);
+    for(let i=0;i<5;i++){
+      const angle=i*Math.PI*2/5;
+      b.cone(p.x+Math.cos(angle)*.22,3.03,p.z+Math.sin(angle)*.22,.09,0,.29,gold,6);
+    }
+    if(!reducedMotion){
+      const pulse=(Math.sin(performance.now()/460)+1)/2;
+      b.ring(p.x,.14,p.z,1.21+.20*pulse,.035,[.98,.87,.43],48);
+    }
+  }
   function worldDynamic(b,s){
     const a=s.arena,w=a.width,t=colours[a.theme]||colours.ember;
     for(const item of a.loot.slice(0,100)){
@@ -497,6 +524,7 @@
       }
     }
     combatEffects(b,s,t);
+    victorySequence(b,s);
   }
   function bindSceneBuffer(buffer){
     gl.bindBuffer(gl.ARRAY_BUFFER,buffer);
@@ -519,10 +547,15 @@
     if(area.width<950||area.height<450||snapshot.scene==='recovery')return;
     const recent=snapshot.recentEvents.slice(-8).reverse()
       .find(event=>event.importance>=3&&(event.targetId||event.actorId));
-    const id=recent?.targetId||recent?.actorId||snapshot.focus?.id;
+    const id=snapshot.scene==='result'&&snapshot.result?.kind==='game'&&snapshot.result?.winnerId
+      ?snapshot.result.winnerId:(recent?.targetId||recent?.actorId||snapshot.focus?.id);
     const focal=snapshot.combatants.find(f=>f.id===id&&f.alive)
       ||snapshot.combatants.find(f=>f.alive);
     if(!focal)return;
+    if(closeupLabel){
+      const title=snapshot.scene==='result'&&snapshot.result?.winnerId===focal.id?'CHAMPION':'LIVE ACTION';
+      closeupLabel.textContent=title+'  //  '+String(focal.name||focal.archetype||'CONTENDER').slice(0,30).toUpperCase();
+    }
     const p=pos(focal.cell,snapshot.arena.width);
     const frameW=Math.max(1,Math.round(canvas.width*.27));
     const frameH=Math.max(1,Math.round(canvas.height*.27));
@@ -589,8 +622,10 @@
       const scale=Math.min(1.87/((w*.61+h*.79)*.52+5),1.87*aspect/(w*.79+h*.61+4));
       gl.useProgram(program);
       const close=snapshot.scene==='final-circle';
-      const focus=close?pos(snapshot.zone.centerCell,w):{x:w/2,z:h/2};
-      const zoom=close?1.15:1.10;
+      const winner=snapshot.scene==='result'&&snapshot.result?.kind==='game'
+        ?snapshot.combatants.find(f=>f.id===snapshot.result?.winnerId):null;
+      const focus=winner?pos(winner.cell,w):(close?pos(snapshot.zone.centerCell,w):{x:w/2,z:h/2});
+      const zoom=winner?1.20:(close?1.15:1.10);
       gl.uniform3f(uniform[0],focus.x,0,focus.z);
       gl.uniform2f(uniform[1],scale*zoom/aspect,scale*zoom);
       bindSceneBuffer(dynamicBuffer);
