@@ -23,7 +23,7 @@ test('physics v2 initializes deterministic vertical state and versioned snapshot
   assert.equal(config.maxVerticalSpeed, 480);
 
   const runtime = MarbleRuntime.create(config, 'vertical-contract');
-  assert.equal(runtime.state.determinismVersion, 'marble-physics-v2');
+  assert.equal(runtime.state.determinismVersion, 'marble-physics-v3');
 
   for (const marble of runtime.state.marbles) {
     assert.equal(marble.elevation, 0);
@@ -34,8 +34,8 @@ test('physics v2 initializes deterministic vertical state and versioned snapshot
   }
 
   const snapshot = createMarbleSnapshot(runtime);
-  assert.equal(snapshot.deterministicVersion, 'marble-physics-v2');
-  assert.equal(snapshot.payload.state.determinismVersion, 'marble-physics-v2');
+  assert.equal(snapshot.deterministicVersion, 'marble-physics-v3');
+  assert.equal(snapshot.payload.state.determinismVersion, 'marble-physics-v3');
 });
 
 test('gate gauntlet generation contains a bounded authoritative ramp surface on every declared race lane', () => {
