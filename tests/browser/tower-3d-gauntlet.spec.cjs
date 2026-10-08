@@ -96,6 +96,43 @@ test('low-power accessible 3D maintains scene and exposes measured frame pacing'
   await page.screenshot({path:path.join(artifacts,'gauntlet-3d-mobile-accessible.png'),fullPage:true});
 });
 
+test('visual edition v4 removes the sidebar dashboard and makes the game a full-viewport stage',async({page})=>{
+  await page.setViewportSize({width:1600,height:900});
+  await page.goto(base+'/tower',{waitUntil:'domcontentloaded'});
+  await expect.poll(()=>page.evaluate(()=>document.body.dataset.towerTheme),{timeout:20000}).toMatch(/^(foundry|ruins|storm|clockwork|void)$/);
+  await expect(page.locator('#world-title')).not.toBeEmpty();
+  await expect(page.locator('.world-label')).toBeVisible();
+  const layout=await page.evaluate(()=>{
+    const area=document.querySelector('.arena-wrap').getBoundingClientRect();
+    const side=document.querySelector('.side').getBoundingClientRect();
+    const style=getComputedStyle(document.querySelector('.top'));
+    return{arenaWidth:area.width,arenaHeight:area.height,sidebarWidth:side.width,headerPosition:style.position,accent:getComputedStyle(document.body).getPropertyValue('--honey').trim()};
+  });
+  expect(layout.arenaWidth).toBeGreaterThan(1590);
+  expect(layout.arenaHeight).toBeGreaterThan(890);
+  expect(layout.sidebarWidth).toBeLessThan(260);
+  expect(layout.headerPosition).toBe('absolute');
+  expect(layout.accent).toMatch(/^#/);
+  await expect(page.locator('body')).toHaveAttribute('data-tower-theme',/foundry|ruins|storm|clockwork|void/);
+  await page.screenshot({path:path.join(artifacts,'gauntlet-visual-v4-desktop.png'),fullPage:true});
+});
+
+test('visual edition v4 retains readable mobile layout and uncluttered clean feed',async({page})=>{
+  await page.setViewportSize({width:844,height:390});
+  await page.goto(base+'/tower',{waitUntil:'domcontentloaded'});
+  await expect.poll(()=>page.evaluate(()=>window.__TOWER_PUBLIC_STATE__?.tick||0)).toBeGreaterThan(5);
+  await expect(page.locator('.world-label')).toBeVisible();
+  await expect(page.locator('[data-testid="captions"]')).toBeVisible();
+  await expect(page.locator('[data-testid="floor"]')).toBeVisible();
+  const geometry=await page.locator('.arena-wrap').boundingBox();
+  expect(geometry.width).toBeGreaterThanOrEqual(840);
+  expect(geometry.height).toBeGreaterThanOrEqual(385);
+  await page.screenshot({path:path.join(artifacts,'gauntlet-visual-v4-mobile.png'),fullPage:true});
+  await page.goto(base+'/tower?cleanFeed=1');
+  await expect(page.locator('.world-label')).toBeHidden();
+  await expect(page.locator('[data-testid="hud"]')).toBeHidden();
+});
+
 test('a critic can record the largest remaining visual gap without making a false AAA claim',async({page})=>{
   await page.goto(base+'/tower/gauntlet');
   await expect(page.getByRole('heading',{name:'Jusant quality gate'})).toBeVisible();
