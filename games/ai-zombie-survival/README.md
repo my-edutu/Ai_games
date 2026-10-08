@@ -53,3 +53,15 @@ Refer to `GAUNTLET_3D_LEDGER.md`, `VISUAL_ACCEPTANCE_REPORT.md`, and `PRODUCTION
 - `tests/browser-scene-quality.mjs`: objective scores for actual screenshot pixels; distinct from a Days Gone A/B verdict.
 
 The Gauntlet development branch keeps the original 2.5D fallback and the same authoritative simulation. New code and test additions require GitHub Actions validation before the latest visual implementation can be called verified. If the new interface looks dull or the runtime is sluggish, report the actual screenshot or CI artifact in the Gauntlet ledger and continue the next harsh review loop.
+
+
+## Latest critical environment improvements
+
+- `web/world-setpieces.js`: 8 district-defining 3D landmark structures, including the evacuation gate, ruined overpass, water tower, metro, helipad and emergency construction props.
+- `web/camera-rig.js`: building-occlusion-aware third-person camera selection.
+- `web/world-overlays.js`: 3D physical mission, distress and horde beacons; world-space survivor and barricade health meters based on real game state.
+- `web/environment-vfx.js`: deterministic animated smoke, flames, embers and warning strobes on damaged buildings and real in-world events.
+- `web/interior-art.js`: materially different cutaway hospital, apartment, market, police and industrial rescue interiors.
+- Shader and renderer: subtle procedural high-wall brick pattern, day/night practical lighting, weather glints, storm flashes, horde visibility culling and mobile cinema mode.
+
+**These are committed art and renderer changes, not a verified Days Gone–quality result; screenshots, real browser tests and FPS soak remain stop-ship.**

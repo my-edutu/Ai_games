@@ -117,3 +117,12 @@ The browser screenshot suite now captures `world-hud-hidden.png` (actual world w
 **Independent developer-side verification:** JS syntax checks passed for new `world-setpieces.js`, `environment-vfx.js`, `camera-rig.js` and `world-overlays.js`. Pure geometry mocks rendered **185** deterministic landmark primitives (60 valid distinct color swatches), and **52** bounded world marker primitives without simulation mutation. These are **source-level implementation checks, not real browser render results**.
 
 **Visual stop ship:** Latest GitHub Actions runners remain queued; superseded CI runs have been cancelled by concurrency policy. Latest full Playwright browser gameplay screenshots, daylight color metrics, reference A/B, FPS and 24-hour live-stream soak have *not* passed. Compare the newly captured screenshots with official Days Gone gameplay and insist on another art iteration if they remain crude or unreadable.
+
+
+## Iterations 12–13 — fully varied interiors and material-depth pass (committed)
+
+**Loop 12:** `web/interior-art.js` adds recognizably different **hospital treatment, apartment living, supermarket aisles, police precinct, fuel station and warehouse scenes** revealed by the authoritative roof-cutaway mechanic. Specific geometry includes clinic beds, IV stands, diagnostic screens, couches, lamps, stocked shelves, counters, registers, lockers, crates, industrial barrels and shelves. Geometry-contract tests exercise six kinds with **41–80** primitive placements per illustrative interior, verify distinct palettes and no world-state writes. This is a real 3D cutaway layout, but remains procedural art rather than authored production environment meshes.
+
+**Loop 13:** upgraded terrain/building shader with subtle masonry courses on high walls, varying ground/asphalt roughness, and rain-responsive top-surface glints; distant/fallen infected draw only within a bounded visual distance and camera-near alive zombies are prioritized when the headless CPU/software GPU renderer struggles. This sacrifices invisible background infected detail under load **only in the render buffer**, never in the AI/physics simulation.
+
+**Gate:** The newest GitHub Actions run has not produced screenshots or a completed build; full WebGL shader compilation, pixel metrics, controls and FPS must still pass Chromium. Source syntax and source-level mock geometry checks are not a substitute for real screenshots. Independent Days Gone comparison remains a large open goal.
