@@ -1,5 +1,6 @@
 import * as THREE from '/vendor/three.module.js';
 import { createTayoActor } from '/eko/character-craft.js';
+import { batchDistrictGeometry } from '/eko/static-batch.js';
 
 // Presentation-only renderer. The Node simulation owns all movement, collision and rewards.
 const $ = id => document.getElementById(id);
@@ -62,7 +63,7 @@ function labelSprite(parent,text,x,y,z,{color='#fff2cf',bg='#1d3947',scale=1}={}
   return sprite;
 }
 function disposeGroup(group){
-  group.traverse(object=>{if(object.userData.ownTexture)object.userData.ownTexture.dispose();if(object.isSprite)object.material.dispose();});
+  group.traverse(object=>{if(object.userData.ownTexture)object.userData.ownTexture.dispose();if(object.isSprite)object.material.dispose();if(object.userData.disposeGeometryOnRemove)object.geometry.dispose();});
   group.parent?.remove(group);
 }
 function numberHash(n){let x=(Math.imul(n+1,0x9e3779b1)>>>0);x^=x>>>16;x=Math.imul(x,0x85ebca6b)>>>0;return (x>>>0)/4294967295;}
@@ -287,6 +288,7 @@ function buildWorld(snapshot) {
   labelSprite(terrain,'FINISH LINE',snapshot.route.finishX,4.48,-3,{scale:1,bg:'#173d4c'});
   // Limit terrain shadow casters; the actor and reactive dangers retain silhouettes.
   terrain.traverse(node=>{if(node.isMesh)node.castShadow=false;});
+  worldState.batching=batchDistrictGeometry(THREE,terrain,{chunkMeters:18});
   worldState.district=district;worldState.finish=snapshot.route.finishX;
 }
 // Reusable, bounded, presentation-only rain particles for Lagos showers.
@@ -324,7 +326,7 @@ window.__EKO_VISUAL_AUDIT__=()=>{
   return Object.freeze({
     character:{type:'original-procedural-joint-rig',joints:actor.articulatedJoints,meshes:actorMeshes,
       outfits:actor.availableOutfits,outfit:worldState.outfit,...projectedVisibility()},
-    environment:{district:worldState.district,meshes:worldMeshes},
+    environment:{district:worldState.district,meshes:worldMeshes,batching:worldState.batching},
     performance:{drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,
       pixelRatio:renderer.getPixelRatio(),frameRateReported:ui.fps.textContent,
       renderer:renderer.capabilities.isWebGL2?'WebGL2':'WebGL'},
