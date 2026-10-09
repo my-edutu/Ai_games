@@ -58,6 +58,7 @@ test('capture real portrait visual reference without overlaid active AI controls
   await page.goto(ROOT+'/eko/',{waitUntil:'domcontentloaded'});
   await expect(page.locator('#connection')).toContainText('CONNECTED',{timeout:25000});
   await expect(page.locator('[data-control="Space"]')).toBeHidden();
+  await expect.poll(async()=>page.evaluate(()=>window.__EKO_VISUAL_AUDIT__?.()?.character.inFrame),{timeout:17000}).toBe(true);
   await page.screenshot({path:path.join(DIR,'gauntlet-mobile-portrait.png'),fullPage:true});
   const audit=await page.evaluate(()=>window.__EKO_VISUAL_AUDIT__?.());
   expect(audit.character.inFrame).toBe(true);
