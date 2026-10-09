@@ -114,6 +114,124 @@ body[data-hud="cinema"] #cinema-exit{display:block}
 body[data-hud="cinema"] .vignette{background:linear-gradient(180deg,#14222a15,transparent 30%,transparent 80%,#08192330)}
 #cinema-exit:focus-visible{outline:3px solid #ffd578;outline-offset:3px}
 @media(max-width:600px){#cinema-exit{right:12px;bottom:13px;padding:10px 12px}}
+
+/* Gauntlet 033: cinematic gilded glass — one coherent, legible command layer.
+   Neutral world colour grading preserves the material/lighting evidence below. */
+:root {
+ --tk-panel:#0c2632;--tk-abyss:#071c29;--tk-aqua:#65efd5;
+ --tk-fire:#ffad68;--tk-amber:#f8ce86;--tk-parchment:#fff5db;
+ --tk-border:rgba(255,217,151,.47);--tk-outline:rgba(117,238,221,.62);
+ --tk-shadow:0 22px 52px rgba(0,16,29,.54);
+}
+#world{filter:none}
+.vignette{background:linear-gradient(180deg,rgba(8,18,34,.23),transparent 23%,transparent 77%,rgba(7,17,30,.27)),
+ radial-gradient(ellipse at center,transparent 66%,rgba(6,22,33,.23))}
+.brand,.panel,.pill,.atlas,.feed,.world-tour,.bottom,.realm-signal{
+ box-shadow:var(--tk-shadow),inset 0 1px rgba(255,248,213,.14);
+}
+.brand{
+ background:linear-gradient(120deg,rgba(5,33,49,.93),rgba(13,64,72,.84) 76%,rgba(10,45,58,.91));
+ border:1px solid var(--tk-border);border-radius:19px;
+ padding:11px 22px 11px 11px;
+}
+.brand::after{content:"";align-self:stretch;width:3px;border-radius:12px;
+ background:linear-gradient(180deg,rgba(255,243,196,.3),var(--tk-fire),rgba(87,235,212,.64))}
+.seal{background:linear-gradient(145deg,#fff2bb 5%,#f6c577 52%,#ac713f);color:#184351;
+ border:1px solid #ffe8ac;box-shadow:inset 0 2px 1px #fff8d8a6,0 9px 28px #0007}
+.overline{letter-spacing:2.15px;color:#90f4e4;font-size:10px}
+.name{font-family:Georgia,"Times New Roman",serif;font-size:clamp(25px,2.2vw,36px);
+ line-height:1.07;letter-spacing:-.7px;text-shadow:0 3px 18px rgba(0,0,0,.65)}
+.subtitle{color:#f4e5c6;font-size:12px;letter-spacing:.2px}
+.pill{border:1px solid rgba(255,220,148,.54);
+ background:linear-gradient(120deg,rgba(10,41,58,.96),rgba(16,91,94,.87));
+ color:#fff6d8}
+.live{background:#8ff9d0;box-shadow:0 0 0 4px rgba(125,252,207,.12),0 0 19px rgba(74,255,196,.68)}
+.panel,.atlas,.feed{
+ background:linear-gradient(144deg,rgba(11,43,58,.92),rgba(8,31,46,.92) 56%,rgba(12,54,60,.88));
+ border:1px solid rgba(244,209,145,.44);
+ backdrop-filter:blur(18px) saturate(1.25);
+}
+.panel{border-radius:16px;padding:16px}
+.panel::before,.atlas::before,.feed::before{
+ content:"";display:block;position:absolute;top:0;left:18px;right:18px;height:1px;
+ background:linear-gradient(90deg,transparent,rgba(255,239,196,.58),transparent);
+ pointer-events:none}
+.panel,.atlas,.feed{position:fixed}
+.sidebar>.panel{position:relative}
+.panel h2,.atlas-heading{font-size:11px;letter-spacing:1.7px;color:#ffdfa0;
+ text-shadow:0 1px 8px rgba(244,169,86,.20)}
+.stats{gap:8px}
+.stat{background:linear-gradient(155deg,rgba(43,107,109,.54),rgba(14,46,69,.52));
+ border:1px solid rgba(148,240,215,.36);border-radius:10px}
+.stat:nth-child(1){background:linear-gradient(160deg,rgba(126,86,50,.68),rgba(42,66,60,.66))}
+.stat:nth-child(2){background:linear-gradient(155deg,rgba(22,102,118,.65),rgba(26,64,89,.63))}
+.stat:nth-child(3){background:linear-gradient(155deg,rgba(34,111,90,.67),rgba(14,70,77,.54))}
+.stat:nth-child(4){background:linear-gradient(155deg,rgba(112,63,61,.55),rgba(39,71,78,.62))}
+.stat strong{font:600 clamp(23px,2vw,29px) Georgia,serif;color:var(--tk-parchment);
+ text-shadow:0 2px 16px rgba(0,0,0,.40);font-variant-numeric:tabular-nums}
+.stat label{font-size:11px;color:#d9f5e9;font-weight:600}
+.resource{color:#eaf7ed;font-size:12px;border-color:rgba(142,220,209,.17)}
+.resource b{color:#fff5d8;background:rgba(236,164,87,.20);border:1px solid rgba(255,214,152,.24)}
+.meter{background:#071922;border:1px solid rgba(255,224,168,.24);height:9px}
+.meter span{background:linear-gradient(90deg,#35d5c0,#a2f7c8 42%,#f2c36e 78%,#ff9867);
+ box-shadow:0 0 17px rgba(133,241,198,.55)}
+#citizen-name{font:600 22px Georgia,serif;color:var(--tk-parchment)}
+#cycleCitizen{background:rgba(23,91,105,.9)!important;color:#fff4d5!important}
+.feed{border-top:2px solid #fbc575;overflow:auto;scrollbar-color:#d8bb7b transparent}
+.feeditem{padding:10px 11px;border-left:2px solid var(--tk-fire);
+ border-top:1px solid rgba(255,238,194,.07);margin:5px 0;
+ background:linear-gradient(92deg,rgba(248,190,114,.11),transparent 85%);
+ line-height:1.56;color:#ecf6e8}
+.feeditem:nth-child(even){border-left-color:var(--tk-aqua)}
+.feeditem span{color:#ffe1aa;font-size:10px}
+.atlas{border-top:2px solid #7beedc}
+#atlas-map{border:1px solid rgba(176,251,226,.78);border-radius:10px;
+ box-shadow:inset 0 0 25px rgba(8,36,40,.55)}
+.world-tour{border:1px solid rgba(245,207,143,.64);border-radius:14px;
+ background:linear-gradient(135deg,rgba(7,34,52,.96),rgba(12,74,77,.93));padding:7px 10px}
+.world-tour small{color:#99f5dd}
+.tour-btn{font-size:11px;font-weight:750;color:#eafcf3;border-radius:8px;padding:10px 11px;
+ min-height:36px}
+.tour-btn[aria-pressed="true"]{background:linear-gradient(145deg,#ffedb7,#f4ad62);
+ color:#133845;box-shadow:inset 0 1px #fff8db,0 3px 13px rgba(241,166,86,.35)}
+.tour-btn:focus-visible,.btn:focus-visible,#cycleCitizen:focus-visible{
+ outline:2px solid #f6d28d;outline-offset:2px}
+.bottom{border-radius:16px;border:1px solid rgba(255,214,144,.61);
+ background:linear-gradient(135deg,rgba(7,37,56,.97),rgba(11,73,76,.96));gap:3px}
+.btn{font-weight:750;letter-spacing:.1px;color:#e9fff4}
+.btn.active{background:linear-gradient(145deg,#ffedb7,#edab64);color:#143946}
+.realm-signal{background:linear-gradient(100deg,rgba(7,50,65,.91),rgba(14,63,61,.91));
+ border-color:rgba(255,214,145,.47)}
+.realm-signal b{color:#ffe5b8}
+@media(min-width:1200px){
+ .sidebar{width:258px}
+ .atlas,.feed{width:260px}
+ .top{left:21px;right:21px}
+ .bottom{bottom:16px}
+}
+@media(max-width:790px){
+ .brand{padding:8px 11px 8px 8px}
+ .brand::after{display:none}
+ .stat strong{font-size:20px}
+ .panel h2,.atlas-heading{font-size:10px}
+ .tour-btn{min-height:34px;padding:7px 8px}
+}
+@media(max-width:520px){
+ .top{left:8px;right:8px}
+ .name{font-size:18px}
+ .seal{width:39px;height:39px}
+ .pill{max-width:137px;font-size:9px}
+ .sidebar{width:154px}
+ .stat{padding:7px}
+ .stat strong{font-size:19px}
+ .stat label{font-size:10px}
+ .feed{width:156px}
+ .atlas{width:154px}
+ .world-tour{width:calc(100vw - 14px)}
+ .tour-btn{padding:7px 8px}
+ .btn{font-size:11px}
+}
+@media(prefers-reduced-motion:reduce){.live{animation:none}}
 </style></head><body>
 <canvas id="world" aria-label="Live 3D simulation of a medieval valley with autonomous villagers"></canvas><div class="vignette"></div>
 <div class="top"><div class="brand"><div class="seal">♜</div><div><div class="overline">AI Civilization · World 001</div><div class="name">The Living Valley</div><div class="subtitle">A kingdom that writes its own story</div></div></div><div class="pill"><span class="live"></span><span id="clock">DAY 1 · DAWN</span><span style="color:#dec48b" id="weather">☀ CLEAR SKIES</span></div></div>
