@@ -4,6 +4,20 @@ const path = require('node:path');
 const { test, expect } = require('@playwright/test');
 
 const ROOT = 'http://127.0.0.1:4177';
+async function captureNonblankFrame(page,filename,minBytes){
+  // A real headless software WebGL compositor can present an empty canvas
+  // immediately after a CSS mode switch even though the engine keeps ticking.
+  // Capture repeated ACTUAL browser frames until scenic content appears.
+  let image=null;
+  for(let attempt=0;attempt<6;attempt++){
+    await page.waitForTimeout(850);
+    image=await page.screenshot({path:filename,fullPage:true});
+    if(image.length>=minBytes)return image;
+  }
+  throw new Error('EKO_BLANK_SCENE_CAPTURE: '+filename+
+    ' produced only '+(image?.length||0)+' PNG bytes after six visual frames');
+}
+
 test.describe('Eko Run 3D Gauntlet slice', () => {
   test('desktop: renders real WebGL gameplay from advancing authority', async ({ page }) => {
     const failures = [];
@@ -70,7 +84,7 @@ test.describe('Eko Run 3D Gauntlet slice', () => {
     await expect(page.locator('.hud-race__top')).toBeHidden();
     await expect(page.locator('#focus-view-exit')).toBeVisible();
     await expect(page.locator('#focus-view-toggle')).toHaveAttribute('aria-pressed','true');
-    await page.screenshot({path:'artifacts/eko-gauntlet/desktop-focus-view.png',fullPage:true});
+    await captureNonblankFrame(page,'artifacts/eko-gauntlet/desktop-focus-view.png',110000);
     await page.keyboard.press('KeyH');
     await expect(page.locator('#focus-view-toggle')).toHaveAttribute('aria-pressed','false');
 
@@ -142,7 +156,7 @@ test.describe('Eko Run 3D Gauntlet slice', () => {
     await expect(page.locator('#distance')).toBeHidden();
     await expect(page.locator('#threat')).toBeVisible();
     await expect(page.locator('#focus-view-exit')).toBeVisible();
-    await page.screenshot({path:'artifacts/eko-gauntlet/mobile-focus-player.png',fullPage:true});
+    await captureNonblankFrame(page,'artifacts/eko-gauntlet/mobile-focus-player.png',70000);
     await page.locator('#focus-view-exit').click();
     await expect(page.locator('#distance')).toBeVisible();
     await expect(page.locator('#focus-view-exit')).toBeHidden();
