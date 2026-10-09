@@ -1,9 +1,9 @@
 {
   "schema": 1,
-  "iteration": "Loop 41 · production-strength skyline, five 3D landmarks, anti-aliased neon glow and stable GPU lifetimes",
+  "iteration": "Loop 42 · red native CI root-cause repair and screenshot-directed environment Gauntlet",
   "lastUpdated": "2026-10-08",
-  "criticTarget": "Reject any 3D shot where the track looks like a giant flat rectangle, artwork/characters are illegible, landmark/stadium silhouette is absent, browser shader throws, stage images are not chromatically distinct, gameplay cards overflow desktop/mobile, or actual frame-budget and commercial screenshot review fails. Require native CI + real Chromium and blind A/B before acceptance.",
-  "comparisonStatus": "NOT YET VERIFIED · Source-level Gauntlet loops 36–41 implemented; 15/15 instrumented WebGL runtime cases and 19/19 visual source checks passed in JS harnesses. Real Chromium shader compilation, screenshots of new architecture, FPS, and blind reference parity remain pending.",
+  "criticTarget": "CRITIC MUST INSPECT real Chromium screenshots and captured gameplay video, compare side-by-side against official Marble It Up! Ultra and Marbles on Stream imagery, and reject every empty, flat, low-contrast or unreadable scene. Run actual WebGL2 shader compilation, verify frames, mobile layout and deterministic authority. No source-only acceptance.",
+  "comparisonStatus": "NOT YET VERIFIED — native GitHub run 37789996353 failed Gauntlet progress-log contract because criticTarget did not include active inspection instruction. Fixed contract; commercial visual parity unproven.",
   "goals": [
     {
       "name": "Premium marble character optics",
