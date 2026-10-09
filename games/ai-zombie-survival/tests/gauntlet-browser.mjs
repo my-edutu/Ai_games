@@ -97,7 +97,38 @@ try{
   }
   await page.goto('http://127.0.0.1:4177/web/3d.html?scenario=day&freeze=1',{waitUntil:'load'});
   await page.waitForFunction(()=>document.querySelector('#fps')?.textContent?.includes('CPU P95'),{timeout:12000});
-  const hudStyles=await page.evaluate(()=>{
+  // Loop 43: measure 1280px default clear corridor and prove details remain interactive.
+   const compactHud=await page.evaluate(()=>{
+     const rect=id=>{const r=document.getElementById(id).getBoundingClientRect();
+       return {left:r.left,right:r.right,top:r.top,bottom:r.bottom,width:r.width};};
+     return {survival:rect('survivalPanel'),intel:rect('intelPanel'),
+       rosterDisplay:getComputedStyle(document.getElementById('squadQuick')).display,
+       mapDisplay:getComputedStyle(document.getElementById('miniMap')).display,
+       expanded:[...document.querySelectorAll('.desktopHudToggle')].map(b=>b.getAttribute('aria-expanded'))};
+   });
+   assert.ok(compactHud.survival.width<=240&&compactHud.intel.width<=240,
+     'desktop panels must not consume nearly half the game image');
+   assert.ok(compactHud.intel.left-compactHud.survival.right>=760,
+     'desktop action corridor must remain >=760px wide at 1280px');
+   assert.ok(compactHud.survival.bottom<430&&compactHud.intel.bottom<400,
+     'compact panels must not obscure lower combat staging');
+   assert.equal(compactHud.rosterDisplay,'none');
+   assert.equal(compactHud.mapDisplay,'none');
+   assert.deepEqual(compactHud.expanded,['false','false']);
+   await page.screenshot({path:root+'desktop-hud-compact.png',animations:'disabled'});
+   await page.locator('#survivalPanel .desktopHudToggle').click();
+   assert.equal(await page.locator('#survivalPanel .desktopHudToggle').getAttribute('aria-expanded'),'true');
+   assert.equal(await page.locator('#squadQuick').isVisible(),true);
+   assert.equal(await page.locator('.supplyGrid').isVisible(),true);
+   await page.locator('#intelPanel .desktopHudToggle').click();
+   assert.equal(await page.locator('#intelPanel .desktopHudToggle').getAttribute('aria-expanded'),'true');
+   assert.equal(await page.locator('#miniMap').isVisible(),true);
+   await page.screenshot({path:root+'desktop-hud-expanded.png',animations:'disabled'});
+   await page.locator('#intelPanel .desktopHudToggle').click();
+   assert.equal(await page.locator('#miniMap').isVisible(),false);
+   await page.locator('#intelPanel .desktopHudToggle').click();
+   report.checks.desktopPlayfieldFocus=true;
+   const hudStyles=await page.evaluate(()=>{
     const css=getComputedStyle(document.documentElement);
     return ['--cyan','--coral','--amber'].map(k=>css.getPropertyValue(k).trim().toLowerCase());
   });
@@ -231,6 +262,8 @@ try{
       horde:document.querySelector('#mobilePressure').textContent};
   });
   assert.equal(mobileState.panel,'none');
+   assert.equal(await page.locator('#survivalPanel .desktopHudToggle').isVisible(),false,
+     'desktop density control must not intrude into phone drawers');
   assert.equal(mobileState.left,'none');
   assert.equal(mobileState.right,'none');
   assert.notEqual(mobileState.nav,'none');

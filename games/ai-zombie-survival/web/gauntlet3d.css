@@ -327,3 +327,47 @@ main[data-phase="night"]{--cyan:#7bcbff;--amber:#fbd197;--coral:#ff738c}main[dat
   .alertText strong{font-size:11px;line-height:1.25;white-space:nowrap;
     overflow:hidden;text-overflow:ellipsis}
 }
+
+/* LOOP 43: wide-screen playfield-first HUD. Desktop only; mobile drawers unchanged. */
+.desktopHudToggle{display:none}
+@media(min-width:1060px){
+  .hud-left,.aiStory{transition:width .18s ease,top .18s ease,padding .18s ease}
+  .panelKicker .desktopHudToggle{display:inline-flex;align-items:center;justify-content:center;
+    flex:0 0 auto;margin-left:auto;padding:6px 7px;min-height:29px;pointer-events:auto;
+    border:1px solid #6bafb89c;border-radius:4px;background:#1b4357;color:#d3fff4;
+    font:900 9px/1 Inter,system-ui,sans-serif;letter-spacing:.055em;cursor:pointer}
+  .panelKicker .desktopHudToggle:hover{border-color:#ffe1a1;background:#275e6b}
+  .panelKicker .desktopHudToggle:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+  .hud-left[data-desktop-open="false"]{top:151px;left:24px;width:228px;padding:12px 13px 11px;
+    border-left-width:3px;background:linear-gradient(145deg,#0c2738ed,#0b1c2edb)}
+  .aiStory[data-desktop-open="false"]{top:151px;right:24px;width:228px;padding:12px 13px 11px;
+    border-right-width:3px;background:linear-gradient(145deg,#242640eb,#101e31df)}
+  .hud-left[data-desktop-open="false"] .kickerIcon,
+  .aiStory[data-desktop-open="false"] .brainIcon{display:none}
+  .hud-left[data-desktop-open="false"] .panelHeading{font-size:16px;padding:6px 0 5px}
+  .hud-left[data-desktop-open="false"] .metric{grid-template-columns:17px 1fr;gap:6px;padding:7px 0}
+  .hud-left[data-desktop-open="false"] .metric strong{font-size:13px}
+  .hud-left[data-desktop-open="false"] .metricLabel{display:none}
+  .hud-left[data-desktop-open="false"] .baseIntegrity,
+  .hud-left[data-desktop-open="false"] .quickRosterTitle,
+  .hud-left[data-desktop-open="false"] .squadQuick,
+  .hud-left[data-desktop-open="false"] .objectiveHeader,
+  .hud-left[data-desktop-open="false"] .objectiveText,
+  .hud-left[data-desktop-open="false"] .objectiveTrack,
+  .hud-left[data-desktop-open="false"] .supplyHeader,
+  .hud-left[data-desktop-open="false"] .supplyGrid{display:none}
+  .aiStory[data-desktop-open="false"] .aiHeader{font-size:11px;margin-top:7px}
+  .aiStory[data-desktop-open="false"] #decisionName{font-size:13px;margin-top:7px}
+  .aiStory[data-desktop-open="false"] #decision{font-size:11px;line-height:1.35;
+    min-height:0;max-height:2.7em;overflow:hidden}
+  .aiStory[data-desktop-open="false"] .threatHeading{margin-top:8px}
+  .aiStory[data-desktop-open="false"] .aiMeter{height:6px;margin-top:5px}
+  .aiStory[data-desktop-open="false"] #action,
+  .aiStory[data-desktop-open="false"] .feedTitle,
+  .aiStory[data-desktop-open="false"] .eventTape,
+  .aiStory[data-desktop-open="false"] .miniLabel,
+  .aiStory[data-desktop-open="false"] #miniMap,
+  .aiStory[data-desktop-open="false"] .miniLegend{display:none}
+  .hud-left[data-desktop-open="true"],.aiStory[data-desktop-open="true"]{z-index:7;pointer-events:auto}
+  .sceneBadge{top:107px}
+}

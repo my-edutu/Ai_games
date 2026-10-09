@@ -38,8 +38,8 @@
     <div><strong id="mobileBase">100%</strong><span>BASE</span></div>
   </section>
 
-  <section id="survivalPanel" class="hud-left" aria-label="Squad and base survival status">
-    <div class="panelKicker"><span>01 / SURVIVAL SYSTEMS</span><button class="panelClose" data-close-panel="survival" aria-label="Close survival panel" type="button">✕</button><span class="kickerIcon" aria-hidden="true">↗</span></div>
+  <section id="survivalPanel" class="hud-left" data-desktop-open="false" aria-label="Squad and base survival status">
+    <div class="panelKicker"><span>01 / SURVIVAL SYSTEMS</span><button class="desktopHudToggle" type="button" aria-controls="survivalPanel" aria-expanded="false" aria-label="Expand survival details">DETAILS +</button><button class="panelClose" data-close-panel="survival" aria-label="Close survival panel" type="button">✕</button><span class="kickerIcon" aria-hidden="true">↗</span></div>
     <div class="panelHeading">SAFE HOUSE <span>ALPHA</span></div>
     <div class="metric metricAlive"><span class="metricSymbol" aria-hidden="true">✚</span><strong id="people">6 SURVIVORS</strong><span class="metricLabel">ALIVE</span></div>
     <div class="metric metricThreat"><span class="metricSymbol" aria-hidden="true">◉</span><strong id="infected">180 INFECTED</strong><span class="metricLabel">HOSTILES</span></div>
@@ -61,8 +61,8 @@
 
   <aside class="sceneBadge" aria-label="3D performance and capture mode"><span id="verdict">WEBGL2 TRUE 3D</span><span id="fps">RENDERER INITIALIZING</span><span id="fpsCompact" aria-label="Current frame rate">— FPS</span></aside>
 
-  <section id="intelPanel" class="aiStory" aria-label="Live autonomous survivor decisions">
-    <div class="panelKicker"><span>02 / AUTONOMOUS AI</span><button class="panelClose" data-close-panel="intel" aria-label="Close AI intelligence panel" type="button">✕</button><span class="brainIcon" aria-hidden="true">✺</span></div>
+  <section id="intelPanel" class="aiStory" data-desktop-open="false" aria-label="Live autonomous survivor decisions">
+    <div class="panelKicker"><span>02 / AUTONOMOUS AI</span><button class="desktopHudToggle" type="button" aria-controls="intelPanel" aria-expanded="false" aria-label="Expand AI intelligence details">DETAILS +</button><button class="panelClose" data-close-panel="intel" aria-label="Close AI intelligence panel" type="button">✕</button><span class="brainIcon" aria-hidden="true">✺</span></div>
     <div class="aiHeader">INSIDE THE <em>SQUAD</em></div>
     <div id="decisionName">MARA / LEADER</div>
     <div id="decision">Assessing threat and securing the perimeter</div>

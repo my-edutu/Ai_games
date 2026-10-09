@@ -779,7 +779,19 @@ function setMobilePanel(value,{focus=false}={}){
     if(focus)document.querySelector('#'+(next==='survival'?'survivalPanel':'intelPanel')+' .panelClose')?.focus();
   }
 }
-function toggleCinema(){
+// Loop 43: desktop information density only; no game state writes.
+ for(const button of document.querySelectorAll('.desktopHudToggle')){
+   button.addEventListener('click',()=>{
+     const panel=document.getElementById(button.getAttribute('aria-controls'));
+     const open=panel.dataset.desktopOpen!=='true';
+     panel.dataset.desktopOpen=String(open);
+     button.setAttribute('aria-expanded',String(open));
+     button.textContent=open?'LESS −':'DETAILS +';
+     button.setAttribute('aria-label',(open?'Collapse ':'Expand ')+
+       (panel.id==='survivalPanel'?'survival details':'AI intelligence details'));
+   });
+ }
+ function toggleCinema(){
   setMobileTools(false);
   cinematic=!cinematic;
   if(cinematic){hud.dataset.mobilePanel='none';
