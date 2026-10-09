@@ -12,7 +12,7 @@ const geometrySource=fs.readFileSync(path.join(runtime,'arena-geometry.js'),'utf
 const QUALITY=['low','balanced','high','ultra'];
 const BIOMES=['seeding-sprint','gate-gauntlet','hazard-circuit','final-four','championship'];
 
-function makeSnapshot(stage,champion=false){
+function makeSnapshot(stage,champion=false,focusIds=[0]){
   return {
     version:1,tick:312,lifecycle:champion?'tournament-result':'active',
     round:{number:BIOMES.indexOf(stage)+1,index:BIOMES.indexOf(stage),remaining:champion?1:12,qualified:champion?1:3,quota:8},
@@ -31,7 +31,7 @@ function makeSnapshot(stage,champion=false){
       {id:2,number:3,name:'Titan',archetype:'bruiser',x:14000,y:10000,elevation:0,velocityX:60,velocityY:-60,progressPermille:320,palette:'ruby',pattern:'chevron',status:'racing'},
       {id:3,number:4,name:'Verdant',archetype:'survivor',x:11500,y:8000,elevation:-230,velocityX:0,velocityY:0,progressPermille:420,palette:'mint',pattern:'dots',status:'threatened'},
     ],
-    camera:{directive:{mode:champion?'victory':'overview',zoomPermille:1000,focusIds:[0]},championId:champion?0:null},
+    camera:{directive:{mode:champion?'victory':'overview',zoomPermille:1000,focusIds},championId:champion?0:null},
     events:[],
   };
 }
@@ -57,7 +57,7 @@ function makeMockGL(counters){
   return gl;
 }
 
-async function simulateStage(stage,quality,champion=false){
+async function simulateStage(stage,quality,champion=false,focusIds=[0]){
   const counters={drawElements:0,drawArrays:0,uploads:0,pointCloudDraws:0,maximumMeshIndices:0};
   const gl=makeMockGL(counters);
   const shell={dataset:{},classList:{add(){},remove(){}}};
@@ -82,7 +82,7 @@ async function simulateStage(stage,quality,champion=false){
   let currentStage=stage,currentChampion=champion,requestPoll=()=>{};
   const sandbox={
     window,document,performance:{now:()=>12},
-    fetch:async()=>({ok:true,json:async()=>makeSnapshot(currentStage,currentChampion)}),
+    fetch:async()=>({ok:true,json:async()=>makeSnapshot(currentStage,currentChampion,focusIds)}),
     requestAnimationFrame:callback=>{frames.push(callback);},
     setInterval(callback){requestPoll=callback;},
     BroadcastChannel:undefined,
@@ -245,4 +245,22 @@ test('always-on autonomous stadium releases obsolete stage GPU buffers through c
     'stale stadium/skyline GPU buffers must be explicitly freed on stage changes');
   assert.ok(render.counters.deletedVertexArrays>=10,
     'old geometry vertex-array handles cannot accumulate across tournaments');
+});
+
+test('G43 real industrial reactor shafts are present in all five stages and bounded by actual pit geometry',async()=>{
+  for(const biome of BIOMES){
+    const output=await simulateStage(biome,'high');
+    assert.equal(output.shell.dataset.reactorGeometry,'shaft-with-depth-and-stators');
+    assert.equal(output.shell.dataset.cutoutCount,'1');
+    assert.ok(output.counters.drawElements>100,'reactor must be a 3D environment, not a flat decal');
+  }
+});
+test('G43 stale or eliminated official camera focus never leaves a live marathon competitor invisible',async()=>{
+  const stale=await simulateStage('gate-gauntlet','balanced',false,[9999]);
+  assert.equal(stale.shell.dataset.cameraTargetSource,'live-fallback');
+  assert.ok(Number(stale.shell.dataset.cameraSubjects)>=1);
+  const official=await simulateStage('gate-gauntlet','balanced',false,[1]);
+  assert.equal(official.shell.dataset.cameraTargetSource,'official-focus');
+  assert.equal(official.shell.dataset.cameraSubjects,'1');
+  assert.equal(official.frame.snapshot.camera.directive.focusIds[0],1);
 });
