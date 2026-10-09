@@ -4,7 +4,7 @@ import { createGame } from '../dist/index.js';
 import { decorateBuilding, decorateWorld, decorateRoof } from '../web/scene-art.js';
 import { decorateActor } from '../web/actor-art.js';
 import { decorateSetpieces } from '../web/world-setpieces.js';
-import { clearCamera } from '../web/camera-rig.js';
+import { clearCamera, anchorMobileAction } from '../web/camera-rig.js';
 import { decorateTacticalWorld } from '../web/world-overlays.js';
 import { drawEnvironmentVfx } from '../web/environment-vfx.js';
 import { decorateInterior } from '../web/interior-art.js';
@@ -146,6 +146,23 @@ test('third-person camera avoids opaque architecture without touching game state
   assert.ok(camera[2]>2,'Camera should preserve character framing and not collapse into target');
   assert.deepEqual(clearCamera(focus,eye,[]),eye,'Open view must preserve intended framing');
   assert.deepEqual(clearCamera(focus,eye,[{...buildings[0],roofVisible:false}]),eye,'Cutaways should not obstruct view');
+});
+
+
+test('mobile director defense framing centers a real living survivor without altering authority',()=>{
+  const focus={x:0,y:0},survivors=[
+    {id:'dead',x:0,y:0,alive:false},
+    {id:'mara',x:10,y:4,alive:true},
+    {id:'far',x:70,y:70,alive:true}
+  ];
+  const original=JSON.stringify({focus,survivors});
+  const framed=anchorMobileAction(focus,survivors);
+  assert.deepEqual(framed,{x:9,y:3.6},'mobile action target must move toward a living actor');
+  assert.deepEqual(anchorMobileAction(focus,survivors),framed,'shot selection must be deterministic');
+  assert.deepEqual(anchorMobileAction(focus,[survivors[0]]),focus,'dead survivors are never framed');
+  assert.deepEqual(anchorMobileAction(focus,[survivors[2]]),focus,'distant survivor must not steal the shot');
+  assert.deepEqual(anchorMobileAction(focus,survivors,{blend:0}),focus,'zero blend leaves existing focus intact');
+  assert.equal(JSON.stringify({focus,survivors}),original,'camera framing must not mutate the simulation');
 });
 
 test('world-space objectives, threatened survivors and rescue signals remain read-only and bounded',()=>{

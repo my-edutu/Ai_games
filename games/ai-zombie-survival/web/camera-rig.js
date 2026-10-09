@@ -29,3 +29,23 @@ export function clearCamera(focus,desired,buildings){
     focus[2]+dz*clamped,
   ];
 }
+
+
+/**
+ * Keep a living, nearby squad member inside narrow mobile director shots.
+ * This only changes the presentation target; the authoritative simulation
+ * and the actual director decision remain untouched.
+ */
+export function anchorMobileAction(focus,survivors,{radius=28,blend=.9}={}){
+  if(!focus||!Number.isFinite(focus.x)||!Number.isFinite(focus.y))return focus;
+  let nearest=null,nearestDistance=Infinity;
+  for(const survivor of survivors){
+    if(!survivor?.alive||!Number.isFinite(survivor.x)||!Number.isFinite(survivor.y))continue;
+    const distance=Math.hypot(survivor.x-focus.x,survivor.y-focus.y);
+    if(distance<nearestDistance){nearest=survivor;nearestDistance=distance;}
+  }
+  if(!nearest||nearestDistance>radius)return focus;
+  const weight=Math.max(0,Math.min(1,blend));
+  return {x:focus.x+(nearest.x-focus.x)*weight,
+    y:focus.y+(nearest.y-focus.y)*weight};
+}

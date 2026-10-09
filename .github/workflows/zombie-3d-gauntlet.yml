@@ -31,6 +31,8 @@ jobs:
           for file in games/ai-zombie-survival/web/{gauntlet3d,scene-art,actor-art,sky-pass,tactical-map,world-setpieces,camera-rig,world-overlays,environment-vfx,interior-art,shadow-pass,animation-pose,packed-geometry,gltf-assets,cc0-models,instanced-horde,audio-foley,character-rig,material-functions,animation-mixer,skinning}.js; do
             node --check "$file"
           done
+      - name: Parse Playwright test syntax
+        run: node --check games/ai-zombie-survival/tests/gauntlet-browser.mjs
       - name: Install test browser
         run: npx playwright install --with-deps chromium
       - name: Start actual browser game

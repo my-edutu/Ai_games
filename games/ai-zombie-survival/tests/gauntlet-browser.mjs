@@ -54,7 +54,14 @@ try{
       // scene-first instead of placing a bright vertical beam over the hero.
       await page.setViewportSize({width:390,height:844});
       try{
-        await page.waitForTimeout(300);
+        // Allow the narrow-screen autonomous director shot to settle on a
+        // nearby living squad member before evaluating its real composition.
+        await page.waitForTimeout(1500);
+        const mobileCamera=await page.evaluate(()=>JSON.parse(localStorage.getItem('zombie-gauntlet-live')||'{}'));
+        assert.ok(Number.isFinite(mobileCamera.cameraFocusX)&&Number.isFinite(mobileCamera.cameraFocusZ),
+          'mobile shot must expose actual 3D camera focus telemetry');
+        report.mobileCamera={mode:mobileCamera.cameraMode,x:mobileCamera.cameraFocusX,z:mobileCamera.cameraFocusZ};
+        report.checks.mobileCameraTelemetry=true;
         assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=391),
           'dense horde phone viewport must not overflow');
         const mobileHorde=await page.screenshot({path:root+'mobile-ground-threat.png',animations:'disabled'});

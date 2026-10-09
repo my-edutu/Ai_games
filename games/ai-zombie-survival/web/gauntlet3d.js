@@ -5,7 +5,7 @@ import { createSkyPass } from './sky-pass.js';
 import { drawTacticalMap } from './tactical-map.js';
 import { decorateActor } from './actor-art.js';
 import { decorateSetpieces } from './world-setpieces.js';
-import { clearCamera } from './camera-rig.js';
+import { clearCamera, anchorMobileAction } from './camera-rig.js';
 import { decorateTacticalWorld } from './world-overlays.js';
 import { drawEnvironmentVfx } from './environment-vfx.js';
 import { decorateInterior } from './interior-art.js';
@@ -644,6 +644,13 @@ function selectFocus(dt){
   if(cameraMode==='director'&&director.mode==='failure'){focus={x:0,y:0};}
   if(cameraMode==='hero'){focus=game.survivors[heroIndex]||focus;}
   if(cameraMode==='overview'){focus={x:0,y:0};}
+  // A 390px director defense shot previously framed a blank wall while the
+  // actual squad was cut off at the bottom-right. Keep a nearby living actor
+  // central without modifying their autonomous actions or the chosen event.
+  if(cameraMode==='director'&&innerWidth<=740&&
+     ['defense','squad','survivor-follow'].includes(director.mode)){
+    focus=anchorMobileAction(focus,game.survivors);
+  }
   const a=Math.min(1,dt*(reducedMotion?2:1.75));
   cameraFocusX+=(focus.x-cameraFocusX)*a;cameraFocusZ+=(focus.y-cameraFocusZ)*a;
   const directorZoom=({rescue:15,interior:15,scavenge:18,'near-death':13,'survivor-follow':17,
@@ -980,7 +987,7 @@ function render(now){
     hud.querySelector('#fps').textContent=Math.round(fpsSmooth)+' FPS · '+cpuP95.toFixed(1)+'ms CPU P95 · '+tris.toLocaleString()+' TRIANGLES';
     hud.querySelector('#fpsCompact').textContent=Math.round(fpsSmooth)+' FPS';
     verdict.textContent='WEBGL2 TRUE 3D • '+(paused?'PAUSED':'SIMULATION LIVE');
-    try{localStorage.setItem('zombie-gauntlet-live',JSON.stringify({time:Date.now(),day:game.time.day,tick:game.tick,alive:living,zombies:infected,fps:Math.round(fpsSmooth),frameCpuP95Ms:Math.round(cpuP95*10)/10,triangles:tris,rendererGpu:isSoftwareGPU?'software':'hardware',gpuHordeInstances:distantHorde.count,gpuHordeTriangles:distantHorde.triangles,cc0AssetState:cc0Status.state,dynamicShadows:!!sunShadows?.available,renderScale:qualityScale,dynamicRebuilds:dynamicMeshRebuilds,meshBuildP95Ms:Math.round(percentile(meshBuildMs)*10)/10,phase:game.time.phase,seed,renderer:'WebGL2',status:game.status}));}catch{}
+    try{localStorage.setItem('zombie-gauntlet-live',JSON.stringify({time:Date.now(),day:game.time.day,tick:game.tick,alive:living,zombies:infected,fps:Math.round(fpsSmooth),frameCpuP95Ms:Math.round(cpuP95*10)/10,triangles:tris,rendererGpu:isSoftwareGPU?'software':'hardware',gpuHordeInstances:distantHorde.count,gpuHordeTriangles:distantHorde.triangles,cc0AssetState:cc0Status.state,dynamicShadows:!!sunShadows?.available,renderScale:qualityScale,dynamicRebuilds:dynamicMeshRebuilds,cameraMode,cameraFocusX:Math.round(cameraFocusX*100)/100,cameraFocusZ:Math.round(cameraFocusZ*100)/100,meshBuildP95Ms:Math.round(percentile(meshBuildMs)*10)/10,phase:game.time.phase,seed,renderer:'WebGL2',status:game.status}));}catch{}
   }
   requestAnimationFrame(render);
 }
