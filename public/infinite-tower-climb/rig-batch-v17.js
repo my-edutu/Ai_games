@@ -13,6 +13,10 @@ const mergeable=mesh=>{
   if(Object.keys(mesh.geometry?.morphAttributes||{}).some(k=>mesh.geometry.morphAttributes[k]?.length))return false;
   if(mesh.geometry?.drawRange?.start!==0||mesh.geometry?.drawRange?.count!==Infinity)return false;
   if(Array.isArray(mesh.material)||!mesh.geometry?.isBufferGeometry||mesh.userData?.noBatch)return false;
+  // Negative local transforms change winding; do not flatten those into a
+  // positive-determinant parent and silently flip triangle culling.
+  if(mesh.matrixAutoUpdate)mesh.updateMatrix();
+  if(mesh.matrix.determinant()<0)return false;
   const attrs=Object.keys(mesh.geometry.attributes);
   return attrs.includes('position')&&attrs.includes('normal')&&attrs.every(a=>supportedAttributes.has(a));
 };
@@ -31,7 +35,8 @@ function mergeGroup(parent,members){
   }
   let vertices=0;
   for(const part of members){
-    part.updateMatrix();
+    // Preserve externally supplied matrices used by animation joints and props.
+    if(part.matrixAutoUpdate)part.updateMatrix();
     const g=part.geometry.index?part.geometry.toNonIndexed():part.geometry.clone();
     g.applyMatrix4(part.matrix);
     if(!g.getAttribute('normal'))g.computeVertexNormals();
@@ -55,6 +60,10 @@ function mergeGroup(parent,members){
   merged.castShadow=members.some(x=>x.castShadow);
   merged.receiveShadow=members.some(x=>x.receiveShadow);
   merged.renderOrder=members[0].renderOrder;
+  // Grouping by matching state is insufficient unless the merged draw inherits
+  // that state: the studio camera uses multiple render layers and custom culling.
+  merged.layers.mask=members[0].layers.mask;
+  merged.frustumCulled=members[0].frustumCulled;
   parent.add(merged);
   for(const m of members)parent.remove(m);
   for(const chunk of chunks)chunk.dispose();
