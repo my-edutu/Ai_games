@@ -354,3 +354,12 @@ test('Gauntlet framing keeps the autonomous protagonist large enough to inspect 
  expect(before.composition.visibleHeroes).toBeGreaterThan(0);
  await page.locator('canvas#world').screenshot({path:'artifacts/dungeon-readable-cinematic-scale.png'});
 });
+
+test('real fantasy dungeon chambers contain distinct woven textile setpieces',async({page})=>{
+ await page.goto('/dungeon');
+ await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.dressing?.wovenRugs??0),{timeout:20000}).toBeGreaterThan(0);
+ const d=await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__);
+ expect(d.dressing.texturedSurfaces).toBeGreaterThan(100);
+ expect(d.dressing.wovenRugs).toBeLessThanOrEqual(6);
+ await page.locator('canvas#world').screenshot({path:'artifacts/dungeon-room-textile-setpieces.png'});
+});
