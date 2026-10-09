@@ -601,6 +601,7 @@ function setFocusView(enabled){
   return focused;
 }
 focusToggle.addEventListener('click',()=>setFocusView(!document.body.classList.contains('focus-view')));
+$('focus-view-exit').addEventListener('click',()=>setFocusView(false));
 window.__EKO_SET_FOCUS_VIEW__=setFocusView;
 window.addEventListener('keydown',event=>{
   if(['INPUT','TEXTAREA','SELECT'].includes(document.activeElement?.tagName))return;
@@ -609,7 +610,10 @@ window.addEventListener('keydown',event=>{
   }
 });
 window.addEventListener('keydown',event=>{
-  if(event.key==='Escape'&&document.body.classList.contains('settings-open'))setSettingsOpen(false);
+  if(event.key==='Escape'){
+    if(document.body.classList.contains('focus-view'))setFocusView(false);
+    else if(document.body.classList.contains('settings-open'))setSettingsOpen(false);
+  }
 });
 $('mode').addEventListener('click',()=>{
   setSettingsOpen(false);
