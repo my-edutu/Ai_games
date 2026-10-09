@@ -265,7 +265,10 @@ try{
   const pausedTick=await page.evaluate(()=>JSON.parse(localStorage.getItem('zombie-gauntlet-live')||'{}').tick);
   assert.equal(pausedTick,pauseTick,'pause must stop authoritative simulation ticks');
   report.checks.hudPause=true;
+  const before=await page.evaluate(()=>JSON.parse(localStorage.getItem('zombie-gauntlet-live')||'{}').dynamicRebuilds||0);
   await page.setViewportSize({width:390,height:844});
+  await page.waitForFunction(n=>JSON.parse(localStorage.getItem('zombie-gauntlet-live')||'{}').dynamicRebuilds>n,before,{timeout:12000});
+  report.checks.pausedViewportSignalRebuild=true;
   await page.waitForTimeout(250);
   const mobile=await page.locator('#scene').boundingBox();
   assert.equal(mobile.width,390);

@@ -99,7 +99,7 @@ let directedRange = 21;
 const poseMixer=createPoseMixer({responseSeconds:.14,maxActors:800});
 const frameCpuMs=[],frameWallMs=[],meshBuildMs=[];
 let qualityScale=1, qualityCheckTime=0;
-let dynamicBuildAt=0,lastDynamicTick=-1,lastDynamicFocusX=Infinity,lastDynamicFocusZ=Infinity,dynamicMeshRebuilds=0;
+let dynamicBuildAt=0,lastDynamicTick=-1,lastDynamicFocusX=Infinity,lastDynamicFocusZ=Infinity,dynamicMeshRebuilds=0,lastDynamicCompactSignals=null;
 const percentile=(values,p=.95)=>{
   if(!values.length)return 0;
   const sorted=[...values].sort((a,b)=>a-b);
@@ -875,8 +875,11 @@ function render(now){
   // Decouple expensive vertex rebuilding from display refresh and reuse frozen scene buffers.
   // The fixed-step authoritative AI still advances at the same simulation frequency.
   const focusChanged=Math.hypot(cameraFocusX-lastDynamicFocusX,cameraFocusZ-lastDynamicFocusZ)>.20;
+  // Paused 3D scene geometry must be rebuilt on a mobile/desktop layout change.
+  const compactSignals=innerWidth<=740;
+  const signalLayoutChanged=compactSignals!==lastDynamicCompactSignals;
   const updateMs=Math.max(32,Math.min(120,percentile(meshBuildMs,.70)*1.15));
-  if(movingMesh.count===0||(
+  if(movingMesh.count===0||signalLayoutChanged||(
        paused?(game.tick!==lastDynamicTick||focusChanged):now>=dynamicBuildAt
     )){
     const started=performance.now();
@@ -885,6 +888,7 @@ function render(now){
     if(meshBuildMs.length>60)meshBuildMs.shift();
     dynamicBuildAt=now+updateMs;dynamicMeshRebuilds++;
     lastDynamicTick=game.tick;lastDynamicFocusX=cameraFocusX;lastDynamicFocusZ=cameraFocusZ;
+    lastDynamicCompactSignals=compactSignals;
   }
   const useShadows=Boolean(sunShadows?.available);
   if(useShadows&&(dynamicMeshRebuilds!==lastShadowStamp||
