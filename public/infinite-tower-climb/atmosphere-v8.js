@@ -14,21 +14,39 @@ const PALETTE={
 const hash=n=>{const a=Math.sin(n*127.17+14.31)*31345.23;return a-Math.floor(a)};
 const add=(g,obj,x,y,z)=>{obj.position.set(x,y,z);g.add(obj);return obj};
 const m=(color,roughness=.83,metalness=.15)=>new THREE.MeshStandardMaterial({color,roughness,metalness,side:THREE.DoubleSide});
-const glow=(color,opacity=.21)=>new THREE.MeshBasicMaterial({color,transparent:true,opacity,depthWrite:false,blending:THREE.AdditiveBlending,side:THREE.DoubleSide,fog:false});
+// The old additive cones clipped nearly white across gameplay platforms.
+const glow=(color,opacity=.21)=>new THREE.MeshBasicMaterial({
+  color,transparent:true,opacity,depthWrite:false,blending:THREE.NormalBlending,
+  side:THREE.DoubleSide,fog:false,toneMapped:false
+});
 const cube=(w,h,d,material)=>new THREE.Mesh(new THREE.BoxGeometry(w,h,d),material);
 const cone=(r,h,material)=>new THREE.Mesh(new THREE.ConeGeometry(r,h,8,1,true),material);
 const plane=(w,h,material)=>new THREE.Mesh(new THREE.PlaneGeometry(w,h),material);
 
+// Thin back-plane light curtains are not opaque solid geometry. They remain
+// behind active platforms and characters instead of washing out the action.
 function buildLightShafts(scene,p,width,height,base,seed,quality){
-  const shafts=[];
-  for(let i=0;i<(quality==='low'?2:6);i++){
-    const x=width*(.12+hash(seed+i*11)*.76),y=base+height*(.17+.72*hash(seed+i*13));
-    const intensity=.10+hash(seed+i*31)*.1;
+  const shafts=[],count=quality==='low'?2:4;
+  for(let i=0;i<count;i++){
+    const length=80+hash(seed+i*7)*58;
+    const x=width*(.12+hash(seed+i*11)*.76);
+    const y=base+height*(.25+.6*hash(seed+i*13));
+    const widthTop=4+hash(seed+i*19)*4,widthBottom=10+hash(seed+i*31)*8;
+    const geometry=new THREE.BufferGeometry();
+    geometry.setAttribute('position',new THREE.Float32BufferAttribute([
+      -widthTop/2,length/2,0,
+      widthTop/2,length/2,0,
+      -widthBottom/2,-length/2,0,
+      widthBottom/2,-length/2,0
+    ],3));
+    geometry.setIndex([0,2,1,1,2,3]);
+    geometry.computeVertexNormals();
+    const intensity=.027+hash(seed+i*31)*.021;
     const mat=glow(i%2?p.light:p.sun,intensity);
-    const beam=add(scene,cone(quality==='low'?15:30,95+hash(seed+i*7)*70,mat),x,y,-42);
-    beam.rotation.z=.25+(hash(seed+i*19)-.5)*.45;
-    beam.rotation.x=.24;
+    const beam=add(scene,new THREE.Mesh(geometry,mat),x,y,-108);
+    beam.rotation.z=.22+(hash(seed+i*19)-.5)*.3;
     beam.userData.restOpacity=intensity;
+    beam.name='distant-soft-light-curtain';
     shafts.push(beam);
   }
   return shafts;
@@ -43,7 +61,7 @@ function curtain(scene,p,width,base,height,seed){
       const px=pos.getX(k);pos.setZ(k,Math.sin(px*.024+layer+seed)*2);
     }
     geo.computeVertexNormals();
-    const mat=glow(layer%2?p.secondary:p.sun,.042+(3-layer)*.013);
+    const mat=glow(layer%2?p.secondary:p.sun,.022+(3-layer)*.008);
     const mesh=add(curtainGroup,new THREE.Mesh(geo,mat),width/2,base+height*(.2+layer*.18),-77+layer*9);
     mesh.userData.phase=layer*1.8+seed;mesh.userData.rest=rest;
     strips.push(mesh);
@@ -125,7 +143,7 @@ export function mountTowerAtmosphere({group,snapshot,quality='auto'}){
   const dust=particles(root,p,width,base,height,seed,quality);
   biomeDetails(root,theme,p,width,base,height,seed,quality);
   // A softly illuminated distant halo, decorative rather than an authoritative target.
-  const halo=add(root,plane(195,195,glow(p.sun,.13)),width*(.25+hash(seed)*.5),base+height*.79,-123);
+  const halo=add(root,plane(130,130,glow(p.sun,.042)),width*(.25+hash(seed)*.5),base+height*.79,-145);
   halo.rotation.z=.12;
   return{root,shafts,strips,dust,halo,theme,metrics:{volumeLights:shafts.length,dustPoints:dust.count,curtains:strips.length}};
 }
