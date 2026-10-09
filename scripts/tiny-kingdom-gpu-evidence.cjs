@@ -74,6 +74,18 @@ const path = require('node:path');
     evidence.water=await page.evaluate(()=>window.__tinyKingdom.waterStats());
     if(evidence.water.model!=='fresnel-ripple-shorefoam-v1'||evidence.water.waterTriangles!==1260||evidence.water.bankTriangles!==840)
       throw Error('River material or shoreline geometry gate failed');
+    evidence.meadow=await page.evaluate(()=>window.__tinyKingdom.getMeadowStats());
+    evidence.visualHud=await page.evaluate(()=>({
+      worldFilter:getComputedStyle(document.querySelector('#world')).filter,
+      headingPx:parseFloat(getComputedStyle(document.querySelector('.name')).fontSize),
+      panelGradient:getComputedStyle(document.querySelector('.sidebar .panel')).backgroundImage.includes('gradient'),
+      navigationChoices:document.querySelectorAll('.tour-btn').length
+    }));
+    if(evidence.meadow.clusters<240||evidence.meadow.triangles!==evidence.meadow.clusters*8||!evidence.meadow.cached)
+      throw Error('Gauntlet 034 meadow budget or static-cache contract failed');
+    if(evidence.visualHud.worldFilter!=='none'||evidence.visualHud.headingPx<25||
+       !evidence.visualHud.panelGradient||evidence.visualHud.navigationChoices!==6)
+      throw Error('Gauntlet 033 visual HUD contract failed');
     evidence.errors=errors;
     await page.screenshot({path:path.join(out,'day1.png'),fullPage:true,timeout:90000});
     // Matched camera framing and a deterministic later-day sample are essential
