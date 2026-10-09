@@ -41,8 +41,9 @@ button,select,.button{font:inherit;border:1px solid #597680;background:#1f3a45;c
 <div class="bottombar">
 <div class="story"><div><div class="eyebrow"><span class="hud-live"><i aria-hidden="true"></i><span id="signal">AI PILOT CONNECTING</span></span></div><div class="district" id="district">MAINLAND MORNING</div><div id="detail">LOADING AUTHORITATIVE SIMULATION…</div></div><div class="scores" aria-label="Run scoreboard"><div class="score"><span>DISTANCE</span><strong id="distance">0000 M</strong></div><div class="score gold"><span>EKO TOKENS</span><strong id="tokens">00</strong></div><div class="score"><span>RUN STATUS</span><strong id="state">STARTING</strong></div></div></div>
 <div class="touch" aria-label="Touch controls"><button data-control="ArrowLeft" aria-label="Move left">◀</button><button data-control="ArrowRight" aria-label="Move right">▶</button><button data-control="Space" aria-label="Jump">JUMP</button><button data-control="ArrowDown" aria-label="Slide">SLIDE</button><button data-control="KeyV" aria-label="Vault">VAULT</button></div>
-<div class="toolbar">
+<div class="toolbar" id="game-settings">
 <button class="primary" id="mode" type="button">SWITCH TO PLAYER</button>
+<button id="hud-settings-toggle" class="hud-settings-toggle" type="button" aria-controls="game-settings" aria-expanded="false" aria-label="Show game settings">⚙ OPTIONS</button>
 <label class="soft" for="outfit">TAYO OUTFIT</label><select id="outfit"><option value="lagos-streetwear">Streetwear</option><option value="yoruba-agbada-fila">Agbada</option><option value="igbo-isi-agu-red-cap">Isi Agu</option><option value="hausa-baban-riga-cap">Baban Riga</option></select>
 <button id="quality" type="button">QUALITY HIGH</button><button id="camera" type="button" aria-label="Switch cosmetic camera perspective" aria-pressed="false" title="Press C to switch camera">VIEW: SIDE</button><button id="sound" type="button" aria-label="Enable original generated game audio" aria-pressed="false">♫ SOUND OFF</button><div class="spacer"></div>
 <span class="hint">PLAYER: ← → MOVE · SPACE JUMP · ↓ SLIDE · V VAULT</span>
