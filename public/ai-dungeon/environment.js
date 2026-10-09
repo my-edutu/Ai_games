@@ -38,6 +38,44 @@ function texture(floor,kind,biome){
  if(kind==='wall'){c.strokeStyle='#00000045';c.lineWidth=3;for(let y=0;y<256;y+=51){c.beginPath();c.moveTo(0,y);c.lineTo(256,y);c.stroke()}}
  const t=new THREE.CanvasTexture(canvas);t.wrapS=t.wrapT=THREE.RepeatWrapping;t.anisotropy=4;t.colorSpace=THREE.SRGBColorSpace;return t;
 }
+// Original hand-patterned fantasy tapestries add warm, readable landmarks to
+// bare rooms. Rugs lie flat and never change autonomous navigation.
+function weaveTexture(floor){
+ const canvas=document.createElement('canvas');canvas.width=192;canvas.height=256;
+ const c=canvas.getContext('2d'),colors=[
+  ['#176b70','#f6d69a','#ffa978','#123d4e'],
+  ['#a04b42','#ffda80','#632948','#fdc58d'],
+  ['#2c5597','#b5eaff','#daa76e','#162e64'],
+  ['#714bad','#f6b4ff','#e9c878','#33174f']
+ ][(floor-1)%4];
+ const w=canvas.width,h=canvas.height;
+ const background=c.createLinearGradient(0,0,w,h);
+ background.addColorStop(0,colors[0]);background.addColorStop(.55,colors[3]);background.addColorStop(1,colors[0]);
+ c.fillStyle=background;c.fillRect(0,0,w,h);
+ for(let i=0;i<3800;i++){
+  const x=Math.floor(rand(i,109,floor)*w),y=Math.floor(rand(17,i,floor)*h);
+  c.fillStyle=i%5===0?'#ffffff12':'#00000017';c.fillRect(x,y,2,1);
+ }
+ for(let k=0;k<3;k++){
+  c.lineWidth=k===0?9:k===1?3:1.5;c.strokeStyle=k===0?colors[1]:k===1?colors[3]:colors[2];
+  c.strokeRect(10+k*7,11+k*8,w-20-k*14,h-22-k*16);
+ }
+ for(let y=24;y<h-16;y+=17){
+  c.fillStyle=colors[1];c.globalAlpha=.50;
+  for(const x of [16,36,w-36,w-16]){
+   c.beginPath();c.moveTo(x,y-4);c.lineTo(x+4,y);c.lineTo(x,y+4);c.lineTo(x-4,y);c.fill();
+  }
+ }
+ c.globalAlpha=1;
+ c.save();c.translate(w/2,h/2);c.rotate(Math.PI/4);
+ c.lineWidth=5;c.strokeStyle=colors[1];c.strokeRect(-33,-33,66,66);
+ c.lineWidth=3;c.strokeStyle=colors[2];c.strokeRect(-23,-23,46,46);
+ c.fillStyle=colors[1];c.beginPath();c.arc(0,0,11,0,Math.PI*2);c.fill();
+ c.fillStyle=colors[3];c.beginPath();c.arc(0,0,5,0,Math.PI*2);c.fill();c.restore();
+ for(let x=13;x<w-10;x+=8){c.fillStyle=colors[1];c.fillRect(x,1,3,12);c.fillRect(x,h-13,3,12)}
+ const tex=new THREE.CanvasTexture(canvas);tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=4;
+ return tex;
+}
 function batched(world,geometry,material,transforms,options={}){
  if(!transforms.length)return null;
  const mesh=new THREE.InstancedMesh(geometry,material,transforms.length);
@@ -104,12 +142,17 @@ export function enrichEnvironment(world,map,floor){
  const cloth=new THREE.MeshStandardMaterial({map:bannerTexture,color:biome.banner,roughness:.87,side:THREE.DoubleSide});
  materials.push(floorSurface,wallSurface,chrome,brass,jade,moss,cloth);geometries.push(box,blade,ring);
  const floorDetails=[],wallFaces=[],columnCap=[],mossPatches=[],runeInlays=[],rubble=[],brazierBases=[],vases=[];
+ const rugs=[],rugCandidates=[];
  const pillars=[],banners=[],statues=[],worldAnchors=[],foregroundGroups=[];
  const open=(x,z)=>x>=0&&z>=0&&x<N&&z<N&&map[z][x]==='.';
  for(let z=1;z<N-1;z++)for(let x=1;x<N-1;x++){
   const px=x-O,pz=z-O,h=hash(x,z,floor);
   if(open(x,z)){
    floorDetails.push([px,-.005,pz,.965,.035,.965,(h%4)*Math.PI/2]);
+   if(x>2&&z>2&&x<N-3&&z<N-3&&open(x-1,z)&&open(x+1,z)&&open(x,z-1)&&open(x,z+1)){
+    rugCandidates.push([px,pz,h]);
+    if(h%19===5&&rugs.length<6)rugs.push([px,pz,h]);
+   }
    if(h%9===0)mossPatches.push([px+.2,.016,pz-.21,.42,.018,.23]);
    if(h%13===0)runeInlays.push([px,.02,pz,.45,.017,.075,(h%4)*Math.PI/2]);
    if(h%23===0&&x>2&&z>2&&x<N-3&&z<N-3)rubble.push([px-.27,.08,pz+.28,.27,.16,.19,(h%8)*Math.PI/4]);
@@ -126,7 +169,19 @@ export function enrichEnvironment(world,map,floor){
    if(h%31===0){banners.push([ax,az,face.yaw,h]);}
   }
  }
- batched(world,box,floorSurface,floorDetails,{variation:true,floor});
+ // Floor tapestries are not collisions: they help viewers distinguish rooms
+ // at a glance, even during fast autonomous combat.
+ if(!rugs.length&&rugCandidates.length)rugs.push(rugCandidates[0]);
+ const rugTexture=weaveTexture(floor);textures.push(rugTexture);
+ const rugMaterial=new THREE.MeshStandardMaterial({map:rugTexture,roughness:.94,metalness:0,side:THREE.DoubleSide,emissive:'#21161c',emissiveIntensity:.15});
+ materials.push(rugMaterial);
+ const rugGeometry=new THREE.PlaneGeometry(.88,1.34);geometries.push(rugGeometry);
+ for(const [px,pz,h] of rugs){
+  const carpet=new THREE.Mesh(rugGeometry,rugMaterial);
+  carpet.rotation.set(-Math.PI/2,0,(h%2)*Math.PI/2);
+  carpet.position.set(px,.027,pz);carpet.receiveShadow=true;world.add(carpet);
+ }
+  batched(world,box,floorSurface,floorDetails,{variation:true,floor});
  // Wall trims stand slightly proud to create depth; avoid overdraw covering actors.
  const facadeMesh=batched(world,box,wallSurface,wallFaces,{variation:true,floor});
  batched(world,box,chrome,columnCap,{floor});
@@ -201,6 +256,6 @@ export function enrichEnvironment(world,map,floor){
  }
 
  const animate=time=>{for(const p of flames){const t=time*5+p.phase,scale=1+Math.sin(t)*.13;p.fire.scale.y=scale;p.inner.scale.setScalar(.91+Math.sin(t+1.3)*.14)}};
- return {animate,cutaway,occluders:[facadeMesh,...foregroundGroups].filter(Boolean),metrics:Object.assign(sceneMetrics,{biome:floor,decorInstances:totalDecor+archWindows,archWindows,torches:flames.length,banners:bannersCount,landmarks:ruins,texturedSurfaces:floorDetails.length+wallFaces.length}),dispose:()=>{for(const g of geometries)g.dispose();for(const m of materials)m.dispose();for(const t of textures)t.dispose();for(const f of flames){f.inner.material.dispose()}}};
+ return {animate,cutaway,occluders:[facadeMesh,...foregroundGroups].filter(Boolean),metrics:Object.assign(sceneMetrics,{biome:floor,decorInstances:totalDecor+archWindows,archWindows,torches:flames.length,banners:bannersCount,landmarks:ruins,wovenRugs:rugs.length,texturedSurfaces:floorDetails.length+wallFaces.length}),dispose:()=>{for(const g of geometries)g.dispose();for(const m of materials)m.dispose();for(const t of textures)t.dispose();for(const f of flames){f.inner.material.dispose()}}};
 }
 
