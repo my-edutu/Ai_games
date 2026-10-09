@@ -45,10 +45,18 @@
     <div class="metric metricThreat"><span class="metricSymbol" aria-hidden="true">◉</span><strong id="infected">180 INFECTED</strong><span class="metricLabel">HOSTILES</span></div>
     <div class="metric metricBase"><span class="metricSymbol" aria-hidden="true">⬡</span><strong id="integrity">100% BASE</strong><span class="metricLabel">DEFENSE</span></div>
     <div class="baseIntegrity"><div class="baseFill" id="baseFill"></div></div>
+    <div class="quickRosterTitle"><span>ACTIVE SQUAD LINK</span><span id="rosterLive">6 CONNECTED</span></div>
+    <div id="squadQuick" class="squadQuick" role="group" aria-label="Follow live survivor by their call sign"></div>
     <div class="objectiveHeader"><span>ACTIVE OBJECTIVE</span><span id="objectiveType">MISSION</span></div>
     <p class="objectiveText" id="goal">Survive the outbreak</p>
     <div class="objectiveTrack"><span id="objectiveFill"></span></div>
-    <p id="resources"></p>
+    <div class="supplyHeader">SUPPLY RESERVES <span>AUTHENTIC INVENTORY</span></div>
+    <div class="supplyGrid" aria-label="Current survival resources">
+      <div><span>FOOD</span><strong id="resFood">—</strong></div>
+      <div><span>AMMO</span><strong id="resAmmo">—</strong></div>
+      <div><span>MEDICAL</span><strong id="resMed">—</strong></div>
+    </div>
+    <p id="resources" class="srOnly" aria-live="off"></p>
   </section>
 
   <aside class="sceneBadge" aria-label="3D performance and capture mode"><span id="verdict">WEBGL2 TRUE 3D</span><span id="fps">RENDERER INITIALIZING</span></aside>
