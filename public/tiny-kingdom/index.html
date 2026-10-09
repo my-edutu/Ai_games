@@ -805,6 +805,39 @@ const city=[[-10,-7,0],[-6,-9,1],[-1,-10,0],[6,-9,1],[10,-5,2],[-12,1,2],[-8,4,0
 /* Gauntlet 015 environmental dressing — static deterministic flora, independent of authoritative RNG. */
 function biomeHash(n){const v=Math.sin(n*127.137+78.233)*43758.5453;return v-Math.floor(v)}
 const wildflora=[];for(let i=0;i<335;i++){const x=(biomeHash(i*3+1)-.5)*80,z=(biomeHash(i*3+2)-.5)*80;if((Math.abs(x)<15&&Math.abs(z)<16)||Math.hypot(x+27,z+18)<5||Math.abs(z-(20+Math.sin(x*.13)*3))<2.5)continue;wildflora.push({x,z,size:.6+biomeHash(i*3+3)*.7,color:i%5})}
+/* Gauntlet 034 — deterministic, low-budget meadow understory.
+   Every tuft is 8 triangles and is batched into the seasonal static mesh.
+   Coordinates are independent from all authoritative simulation RNG. */
+const meadowUnderstory=[];
+for(let i=0;i<480;i++){
+ const x=(biomeHash(11001+i*4)-.5)*82,z=(biomeHash(11002+i*4)-.5)*82;
+ if(Math.abs(x)<16&&Math.abs(z)<15)continue;
+ if(Math.hypot(x+27,z+18)<4.5||Math.hypot(x-29,z-10)<5.5)continue;
+ if(Math.abs(z-20-Math.sin(x*.13)*3)<3.3)continue;
+ meadowUnderstory.push({x,z,phase:biomeHash(11003+i*4),size:.68+biomeHash(11004+i*4)*.7});
+}
+function meadowTuft(p,index){
+ const season=climateAt(state.t).season;
+ const palettes=[
+  [0x398357,0x4caa6c,0x83b96c,0xa9c56f],
+  [0x347e57,0x4a9568,0x709b55,0xb0bb62],
+  [0x977347,0xb58b50,0x6c8252,0xc5a16c],
+  [0x77978e,0x91a29b,0xacc1ae,0x8d967e]
+ ];
+ const shades=palettes[season],y=terrain(p.x,p.z)+.035;
+ for(let blade=0;blade<4;blade++){
+  const angle=blade*2.399963+p.phase*6.28318;
+  const dx=Math.cos(angle),dz=Math.sin(angle);
+  const bend=(.10+.07*biomeHash(index*7+blade+501))*p.size;
+  const rise=(.27+.23*biomeHash(index*7+blade+811))*p.size*(season===3?.77:1);
+  const halfWidth=(.040+.027*biomeHash(index*7+blade+29))*p.size;
+  const sideX=-dz*halfWidth,sideZ=dx*halfWidth;
+  const a=[p.x-sideX,y,p.z-sideZ],b=[p.x+sideX,y,p.z+sideZ];
+  const c=[p.x+dx*bend,y+rise,p.z+dz*bend];
+  const front=rgb(shades[(index+blade)%4]),back=rgb(shades[(index+blade+2)%4]);
+  tri(a,b,c,front);tri(b,a,c,back);
+ }
+}
 function wildflower(p){const x=p.x,z=p.z,size=p.size,y=terrain(x,z),leaf=rgb(0x52865c),leaf2=rgb(0x75ad5f);for(let j=0;j<3;j++){const a=j*2.094,b=.18+.08*j;tri([x,y+.02,z],[x+Math.cos(a)*.35*size,y+.12*size,z+Math.sin(a)*.35*size],[x+Math.cos(a+b)*.31*size,y+.43*size,z+Math.sin(a+b)*.31*size],j%2?leaf:leaf2)}const hue=[0xfde2a0,0xf5b6d1,0xc7c0f9,0xf5ce72,0xb7e9ed][p.color];cylinder(x,y+.05,z,.019*size,.43*size,rgb(0x6ba46d),4);cone(x,y+.47*size,z,.12*size,.15*size,rgb(hue),5)}
 
 /* Gauntlet 018: physical coloured scenery and planting, deterministic and simulation-independent. */
@@ -1259,7 +1292,7 @@ for(let segment=0;segment<RIVER_SEGMENTS;segment++){
 currentMaterial=MATERIAL.ROAD;
  path([[-16,-7],[-8,-4],[-4,-4],[-4,3],[6,2],[14,2]],1.5);path([[0,-15],[0,-9],[-4,-4],[-4,3],[0,9],[4,15]],1.3);path([[-13,9],[-7,4],[-4,3],[7,-5],[15,-10]],1.1);
 currentMaterial=MATERIAL.FOLIAGE;
- for(const t of trees){if(Math.hypot(t.x-SCENIC_SITES.sanctuary.x,t.z-SCENIC_SITES.sanctuary.z)>8)tree(t.x,t.z,t.s);}for(const flower of wildflora)wildflower(flower);currentMaterial=MATERIAL.STONE;
+ for(const t of trees){if(Math.hypot(t.x-SCENIC_SITES.sanctuary.x,t.z-SCENIC_SITES.sanctuary.z)>8)tree(t.x,t.z,t.s);}for(const flower of wildflora)wildflower(flower);for(let i=0;i<meadowUnderstory.length;i++)meadowTuft(meadowUnderstory[i],i);currentMaterial=MATERIAL.STONE;
  for(const [x,z,k] of city){house(x,z,1,k);cottageDetails(x,z,1,k)}hall(0,-1);cottageDetails(0,-1,1.85,2);
 // The worked spaces have identifiable props and readable boundaries.
 for(let i=0;i<4;i++)wheat(19+i*1.8,1);fenceLine(16,-2,6);fenceLine(16,4,6);fenceLine(16,-2,4,true);fenceLine(25,-2,4,true);
@@ -1279,6 +1312,6 @@ currentMaterial=MATERIAL.WOOD;
 const elevation=Math.sin(pitch)*zoom,rad=Math.cos(pitch)*zoom,eye=[focusPoint[0]+Math.sin(yaw)*rad,elevation,focusPoint[1]+Math.cos(yaw)*rad];let m=mat4multiply(perspective(Math.PI/3.2,w/h,.1,190),lookAt(eye,[focusPoint[0],.25,focusPoint[1]],[0,1,0]));gl.uniformMatrix4fv(uniforms.viewProjection,false,m);gl.uniform3f(uniforms.fogColor,...atmosphere.fog);gl.uniform3f(uniforms.sunTint,...atmosphere.light);gl.uniform1f(uniforms.worldTime,state.t);gl.uniform3f(uniforms.eyePosition,eye[0],eye[1],eye[2]);gl.uniform3f(uniforms.sunDirection,Math.cos(state.t/24*6.283),.3+atmosphere.daylight*.9,Math.sin(state.t/24*6.283));lastFrameTriangles=(gpuAvailable?scenicMeshCache.length+data.length:data.length)/30;
 if(gpuAvailable){bindGeometry(staticBuffer);gl.drawArrays(gl.TRIANGLES,0,scenicMeshCache.length/10);}
 bindGeometry(buffer);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(data),gl.DYNAMIC_DRAW);gl.drawArrays(gl.TRIANGLES,0,data.length/10);if((frames++%14)===0){updateUI();drawAtlas();updateRealmSignal()}}
-requestAnimationFrame(render);window.__tinyKingdom={getState:()=>JSON.parse(JSON.stringify({state,people:people.map(({name,job,x,z,target})=>({name,job,x,z,target}))})),setSpeed:x=>{speed=x},step,reset:start,renderer:()=>canvas.getContext('webgl')?'webgl':'software',metrics:()=>({citizens:people.length,buildings:city.length+2,day:Math.floor(state.t/24)+1,food:state.food,wood:state.wood,gold:state.gold,relationships:people.filter(p=>p.friend).length}),route:(a,b)=>routeBetween(a[0],a[1],b[0],b[1]),walkable:(p)=>walkable(p[0],p[1]),getNavigation:()=>people.map(p=>({name:p.name,position:[p.x,p.z],target:p.target,remaining:p.path?.length||0,path:p.path,activity:p.activity,hunger:p.hunger,energy:p.energy})),exportSnapshot,restoreSnapshot,saveWorld,restoreWorld,climateAt,skyConditions,getCitizenProfiles:()=>cloneData(people.map(({name,job,trait,friend,bonds,energy,hunger,activity})=>({name,job,trait,friend,bonds,energy,hunger,activity}))),getRigPose:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(citizenRigPose(people[index])):null,getSelectedCitizen:()=>people[selectedCitizen]?.name,routeCacheMetrics:()=>({entries:routeCache.size,hits:cacheHits,misses:cacheMisses}),getCamera:()=>({yaw,pitch,zoom,focus:focusPoint.slice(),follow,cinematic}),getTerrainHeight:(x,z)=>terrain(x,z),getWildfloraCount:()=>wildflora.length,getMaterialSystem:()=>({vertexStride:10,surfaceShaderVersion:'procedural-023',materials:Object.keys(MATERIAL),gpuRenderValidated:false}),waterStats:()=>({model:'fresnel-ripple-shorefoam-v1',segments:RIVER_SEGMENTS,waterTriangles:RIVER_SEGMENTS*RIVER_BANDS*2,bankTriangles:RIVER_SEGMENTS*2*RIVER_BANK_BANDS*2}),getScenicSites:scenicSiteMetrics,getFestivalVisualStats:()=>({season:festivalSeason,cacheBuilds:festivalCacheBuilds,vertices:festivalGeometry?.length||0}),getGeometryAudit:geometryAudit,renderStats:()=>({terrainRebuilds,terrainCacheKey,terrainCacheTriangles,lastFrameTriangles,scenicMeshRebuilds,scenicMeshTriangles,scenicMeshKey,staticGpuUploads,dualBufferGPU:gpuAvailable}),renderQuality,setRenderQuality,shadowStats:()=>({triangles:castShadowTriangles,...sunShadow(state.t)}),sampleSunShadow:(time)=>sunShadow(time),getHudMode:()=>cinematicHud?'cinema':'full',setHudMode:setCinematicHud,skyStats:()=>({enabled:gpuAvailable,passes:skyPassCount,model:'day-night-atmosphere-v1'}),setCamera:o=>{yaw=Number.isFinite(o.yaw)?o.yaw:yaw;pitch=Number.isFinite(o.pitch)?Math.max(.25,Math.min(1.45,o.pitch)):pitch;zoom=Number.isFinite(o.zoom)?Math.max(9,Math.min(85,o.zoom)):zoom;if(Array.isArray(o.focus)&&o.focus.length===2)focusPoint=o.focus.slice(0,2)}};
+requestAnimationFrame(render);window.__tinyKingdom={getState:()=>JSON.parse(JSON.stringify({state,people:people.map(({name,job,x,z,target})=>({name,job,x,z,target}))})),setSpeed:x=>{speed=x},step,reset:start,renderer:()=>canvas.getContext('webgl')?'webgl':'software',metrics:()=>({citizens:people.length,buildings:city.length+2,day:Math.floor(state.t/24)+1,food:state.food,wood:state.wood,gold:state.gold,relationships:people.filter(p=>p.friend).length}),route:(a,b)=>routeBetween(a[0],a[1],b[0],b[1]),walkable:(p)=>walkable(p[0],p[1]),getNavigation:()=>people.map(p=>({name:p.name,position:[p.x,p.z],target:p.target,remaining:p.path?.length||0,path:p.path,activity:p.activity,hunger:p.hunger,energy:p.energy})),exportSnapshot,restoreSnapshot,saveWorld,restoreWorld,climateAt,skyConditions,getCitizenProfiles:()=>cloneData(people.map(({name,job,trait,friend,bonds,energy,hunger,activity})=>({name,job,trait,friend,bonds,energy,hunger,activity}))),getRigPose:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(citizenRigPose(people[index])):null,getSelectedCitizen:()=>people[selectedCitizen]?.name,routeCacheMetrics:()=>({entries:routeCache.size,hits:cacheHits,misses:cacheMisses}),getCamera:()=>({yaw,pitch,zoom,focus:focusPoint.slice(),follow,cinematic}),getTerrainHeight:(x,z)=>terrain(x,z),getWildfloraCount:()=>wildflora.length,getMeadowStats:()=>({clusters:meadowUnderstory.length,triangles:meadowUnderstory.length*8,season:climateAt(state.t).season,cached:true}),getMaterialSystem:()=>({vertexStride:10,surfaceShaderVersion:'procedural-023',materials:Object.keys(MATERIAL),gpuRenderValidated:false}),waterStats:()=>({model:'fresnel-ripple-shorefoam-v1',segments:RIVER_SEGMENTS,waterTriangles:RIVER_SEGMENTS*RIVER_BANDS*2,bankTriangles:RIVER_SEGMENTS*2*RIVER_BANK_BANDS*2}),getScenicSites:scenicSiteMetrics,getFestivalVisualStats:()=>({season:festivalSeason,cacheBuilds:festivalCacheBuilds,vertices:festivalGeometry?.length||0}),getGeometryAudit:geometryAudit,renderStats:()=>({terrainRebuilds,terrainCacheKey,terrainCacheTriangles,lastFrameTriangles,scenicMeshRebuilds,scenicMeshTriangles,scenicMeshKey,staticGpuUploads,dualBufferGPU:gpuAvailable}),renderQuality,setRenderQuality,shadowStats:()=>({triangles:castShadowTriangles,...sunShadow(state.t)}),sampleSunShadow:(time)=>sunShadow(time),getHudMode:()=>cinematicHud?'cinema':'full',setHudMode:setCinematicHud,skyStats:()=>({enabled:gpuAvailable,passes:skyPassCount,model:'day-night-atmosphere-v1'}),setCamera:o=>{yaw=Number.isFinite(o.yaw)?o.yaw:yaw;pitch=Number.isFinite(o.pitch)?Math.max(.25,Math.min(1.45,o.pitch)):pitch;zoom=Number.isFinite(o.zoom)?Math.max(9,Math.min(85,o.zoom)):zoom;if(Array.isArray(o.focus)&&o.focus.length===2)focusPoint=o.focus.slice(0,2)}};
 })();
 </script></body></html>
