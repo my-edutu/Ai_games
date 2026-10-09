@@ -1556,17 +1556,28 @@
           [0.035,0.015,depth],boundary,viewProjection,cameraPosition);
       }
       const strips=quality==='low'?3:quality==='balanced'?9:quality==='high'?17:28;
-      const speed=0.006+Math.min(0.012,intensity*0.0003);
+      const distance=tick*(0.016+Math.min(0.065,intensity*0.0015));
+      const wrap=value=>((value%1)+1)%1;
       for(let i=0;i<strips;i++){
-        const stagger=i*0.61803398875;
-        const along=(tick*speed+stagger)%1;
-        const cross=((Math.floor(i/3)+i*0.37)%1);
-        const x=origin[0]+width*(0.11+0.78*along);
-        const z=origin[2]+depth*(0.12+cross*0.76);
+        // Each air streamer advects through the signed *actual* 2D force
+        // direction. The old effect marched rightward even in a left wind.
+        const seedU=wrap(i*0.61803398875+.12);
+        const seedV=wrap(i*0.38196601125+.73);
+        const u=wrap(seedU+dx*distance/width);
+        const v=wrap(seedV+dz*distance/depth);
+        const x=origin[0]+width*(0.09+0.82*u);
+        const z=origin[2]+depth*(0.09+0.82*v);
         const height=0.13+0.20*Math.abs(Math.sin(tick*0.032+i*0.59));
-        const len=0.16+Math.min(0.21,intensity*0.007);
-        drawBox([x,height,z],[len,0.017,0.035],i%4===0?bright:stream,viewProjection,cameraPosition,[0,yaw,0]);
+        const len=0.12+Math.min(0.24,intensity*0.008);
+        drawBox([x,height,z],[len,0.018,0.034],
+          i%4===0?bright:stream,viewProjection,cameraPosition,[0,yaw,0]);
+        if((quality==='high'||quality==='ultra')&&i%4===0){
+          drawMesh(crystalMesh,modelMatrix([x+dx*.09,height,z+dz*.09],
+            [0,-yaw,0],[.075,.035,.065]),
+            bright,viewProjection,cameraPosition);
+        }
       }
+      shell.dataset.windVector=dx.toFixed(2)+','+dz.toFixed(2);
       if(quality==='high'||quality==='ultra'){
         for(const side of [-1,1]){
           const x=origin[0]+width*(0.5+side*0.5);
