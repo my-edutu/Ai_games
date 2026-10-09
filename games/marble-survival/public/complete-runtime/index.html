@@ -68,6 +68,16 @@
         <canvas id="arena-identity-overlay" width="1600" height="900" aria-hidden="true"></canvas>
         <canvas id="arena-canvas" width="1600" height="900" aria-label="Live authoritative marble tournament arena fallback"></canvas>
         <div class="arena-title-card" aria-hidden="true"><span class="arena-title-eyebrow"><span class="beacon-dot"></span> NOW ENTERING / STAGE <span id="arena-stage-number">01</span></span><strong id="arena-biome-title">AURORA SPEEDWAY</strong><span id="arena-biome-subtitle">The race begins under electric skies.</span><div class="arena-title-line"></div></div>
+        <div class="stage-journey" id="stage-journey" role="group" aria-label="Official five-stage tournament progress">
+          <span class="stage-journey-kicker">THE SURVIVAL ROAD</span>
+          <ol class="stage-journey-steps" id="stage-journey-steps">
+            <li data-stage-step="1" data-state="active" aria-current="step"><b>01</b><span>Aurora</span></li>
+            <li data-stage-step="2" data-state="locked"><b>02</b><span>Ironworks</span></li>
+            <li data-stage-step="3" data-state="locked"><b>03</b><span>Inferno</span></li>
+            <li data-stage-step="4" data-state="locked"><b>04</b><span>Showdown</span></li>
+            <li data-stage-step="5" data-state="locked"><b>05</b><span>Crown</span></li>
+          </ol>
+        </div>
         <div class="arena-threat-badge" aria-live="off" aria-hidden="true"><span class="threat-pulse"></span><span id="arena-threat">AWAITING RACE DATA</span></div>
         <div class="arena-topline" aria-hidden="true">
           <span id="camera-value">Overview</span>
