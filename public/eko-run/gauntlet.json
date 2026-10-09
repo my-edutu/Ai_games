@@ -2,8 +2,8 @@
   "project": "Eko Run — 3D Gauntlet",
   "baseline": "SYBO Subway Surfers City — official gameplay footage; original IP only",
   "scope": "Interactive 3D vertical slice; not a finished or externally benchmarked game",
-  "updated": "2026-10-08",
-  "runStatus": "Iterations 13–15: genuine GitHub Actions 3D game captures and recordings verified. The richer Lagos street, original Tayo and costumes, cinematic sky, HUD, 10 custom 3D hazard families, decorative horizon, safe portrait camera, 1-draw-call clouds and reduced shadow passes are implemented. Verified latest renderer at e0685e1 PASS browser and host CI, but reference visual quality and representative device FPS remain NOT MET. Additional recording-capture fixes after e0685e1 await CI.",
+  "updated": "2026-10-09",
+  "runStatus": "Iterations 16–17 code committed. Live real-frame capture gallery and randomized optional blind A/B reviewer added, correction of incorrect landmark-test doubles, browser tests and same-origin screenshot provenance checks. Latest CI on these commits still pending and production visual bar FAILS. Connected subagent/Ultracode tunnel unavailable; independent judge/parallel agent rounds not claimed.",
   "iterations": [
     {
       "round": 0,
@@ -132,6 +132,22 @@
       "builder": "Eight seeded authoritative AI runs of 1,600 ticks had 0 terminal failures, 4 district completions and 0 rejected commands; screenshots and WebM clips originate from Playwright real gameplay. Corrected screenshot tests to capture surviving AI instead of delayed player collisions in software CI.",
       "critic": "26.7 seconds per seed and small sample cannot prove survival/entertainment at livestream scale. Some real captured frames still show transient hit/toast text. Production footage, independent human critic and blind official reference comparison remain open.",
       "decision": "Extend autonomous 30–60 minute soak; capture diverse district footage, verify low-tier GPU and art/lighting parity before gauntlet acceptance."
+    },
+    {
+      "round": 16,
+      "title": "Inspect real gameplay, compare actual reference visuals",
+      "status": "builder implemented; browser verification queued; independent critic blocked",
+      "builder": "Implemented user-triggered same-origin WebGL readback and screenshot gallery directly in /eko/progress. The game can render actual pixels into a screenshot without screenshot fakeries. Recorded recent passing GitHub artifact history and official SYBO gameplay video as independent external benchmark.",
+      "critic": "Last verified playable screenshots clearly lag SYBO's original game in silhouette diversity, camera composition, pavement/structure depth and texture fidelity. A live screenshot renderer is not proof of visual parity. No independent critic agent was available via disconnected worker tunnel.",
+      "decision": "Verify both live framebuffer capture and mask/reveal behavior in Chromium CI; then compare genuine Eko/official crops at matched framing with fresh independent reviewers."
+    },
+    {
+      "round": 17,
+      "title": "Blind critic arena and provenance-safe runtime proof",
+      "status": "implementation committed; GitHub Actions queued",
+      "builder": "Added randomized Image A / Image B local browser review, legitimate external reference upload (no remote storage), anonymized human vote, original image-save links, tests for real WebGL PNG dimensions and reference fixture UI behavior. Fixed landmarker test mocks to match actual sphere signatures, preventing a false safety violation. Preserved stable server authoritative movement and UI compatibility.",
+      "critic": "Human blind trial tool itself cannot establish actual quality victory. Reference upload origin is unverified, randomization is browser-local, and CI's cross-platform FPS 2–4 cannot substitute for device GPU benchmarks. Test failures may still emerge from slow headless Chromium.",
+      "decision": "Block production acceptance until current CI visual captures and independent blind comparisons provide a repeated convincing win, and hardware FPS/performance meets target."
     }
   ],
   "gates": [
@@ -141,7 +157,7 @@
     },
     {
       "name": "WebGL 3D game opens on desktop and mobile",
-      "status": "previous screenshot passed, latest head unverified"
+      "status": "last verified at e0685e1; current branch new features awaiting CI"
     },
     {
       "name": "Visually polished fully rigged character and outfits",
@@ -157,15 +173,15 @@
     },
     {
       "name": "Stable FPS/mobile performance under declared hardware",
-      "status": "OPEN — last real CI 6 FPS / 423 draw calls before latest batching, adaptive quality and crowd changes; no real device benchmark"
+      "status": "OPEN — last passing CI software Chromium 2–4 FPS and ~181 desktop calls; hardware benchmark missing"
     },
     {
       "name": "Independent builder/critic and blind A/B vs reference",
-      "status": "not-started"
+      "status": "OPEN — optional blind A/B review tool added; no independent agent judgement performed, worker tunnel unavailable"
     },
     {
       "name": "Live Gauntlet progress board with review record",
-      "status": "implemented, evolving iteration ledger"
+      "status": "new real-WebGL screenshot gallery, CI evidence history and randomized review UI committed; latest browser validation pending"
     },
     {
       "name": "Original production models, audio and license provenance",
@@ -178,7 +194,8 @@
   ],
   "sources": {
     "code": "https://github.com/my-edutu/Ai_games/tree/feat/eko-run-3d-gauntlet-slice",
-    "benchmark": "https://www.subwaysurfers.com/"
+    "benchmark": "https://www.youtube.com/watch?v=oQpRzQgBWpc",
+    "additional": "https://www.youtube.com/watch?v=dsIOso4gsQI"
   },
   "capturedEvidence": {
     "artifactId": 11536931787,
@@ -255,18 +272,19 @@
   },
   "latestBuild": {
     "branch": "feat/eko-run-3d-gauntlet-slice",
-    "head": "b09424f3d33bf8aa1e1c54edad27cb9e62cb9b69",
-    "state": "Draft, reference bar failed",
-    "verification": "New CI run queued; no latest screenshot/FPS/artifact published yet",
+    "head": "18263a61a5cd207d036f5a53c678353c4904a75a",
+    "state": "Draft PR #51; production bar FAIL",
+    "verification": "Pending GitHub Actions; no new independently verified visuals yet",
     "evidencePrior": {
-      "head": "bb0748394e36f6e9e6d08e1344f94a23dab80bea",
-      "workflowRunId": 37754962890,
-      "artifactId": 11547205062,
+      "head": "e0685e1083dac1745b1d6a2c436de1c107b54272",
+      "workflowRunId": 37785184878,
+      "artifactId": 11554062576,
       "realMeasurements": {
-        "drawCalls": 423,
-        "fpsCI": 6
+        "drawCalls": 181,
+        "fpsCI": 2,
+        "portraitCenterXPx": 124
       },
-      "browserTests": "3 passed, 1 mobile shared-mode-state failure fixed afterward"
+      "browserTests": "passing six browser tests"
     }
   }
 }
