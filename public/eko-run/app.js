@@ -451,7 +451,7 @@ window.__EKO_VISUAL_AUDIT__=()=>{
   terrain.traverse(node=>{if(node.isMesh)worldMeshes++;});
   return Object.freeze({
     character:{type:'original-procedural-joint-rig',joints:actor.articulatedJoints,meshes:actorMeshes,
-      outfits:actor.availableOutfits,outfit:worldState.outfit,instancedDetails:actor.instancedDetails,...projectedVisibility()},
+      outfits:actor.availableOutfits,outfit:worldState.outfit,instancedDetails:actor.instancedDetails,expressiveFacialParts:actor.expressiveFacialParts,...projectedVisibility()},
     environment:{district:worldState.district,horizonLength:worldState.horizonLength,meshes:worldMeshes,batching:worldState.batching,materials:surfaces.stats(),vibrance:worldState.vibrance,landmarks:worldState.landmarks,atmosphere:atmosphere.signature},
     performance:{drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,visualEffects:vfx.stats(),crowd:cityCrowd.metrics(),adaptive:qualityGovernor.metrics(),
       pixelRatio:renderer.getPixelRatio(),frameRateReported:ui.fps.textContent,
