@@ -577,7 +577,22 @@ for(const b of document.querySelectorAll('[data-control]')){
 function postControl(body){
   return fetch('/eko/control',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}).catch(()=>null);
 }
-$('mode').addEventListener('click',()=>postControl({mode:worldState.mode==='ai'?'player':'ai'}));
+const settingsToggle=$('hud-settings-toggle');
+function setSettingsOpen(open){
+  const value=Boolean(open);
+  document.body.classList.toggle('settings-open',value);
+  settingsToggle.setAttribute('aria-expanded',String(value));
+  settingsToggle.setAttribute('aria-label',value?'Hide game settings':'Show game settings');
+  settingsToggle.textContent=value?'✕ CLOSE':'⚙ OPTIONS';
+}
+settingsToggle.addEventListener('click',()=>setSettingsOpen(!document.body.classList.contains('settings-open')));
+window.addEventListener('keydown',event=>{
+  if(event.key==='Escape'&&document.body.classList.contains('settings-open'))setSettingsOpen(false);
+});
+$('mode').addEventListener('click',()=>{
+  setSettingsOpen(false);
+  postControl({mode:worldState.mode==='ai'?'player':'ai'});
+});
 function setCameraStyle(style){
   if(!AVAILABLE_CAMERA_STYLES.includes(style))throw new RangeError('Invalid cosmetic camera');
   worldState.cameraStyle=style;
