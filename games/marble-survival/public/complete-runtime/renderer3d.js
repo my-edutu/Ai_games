@@ -1810,10 +1810,10 @@
     // All five skins keep the same 760 mm physical collision box, including
     // its width/depth and top height. These are actual 3D industrial props.
     drawBox([cx,.38,cz],[w,.74,d],steel,viewProjection,cameraPosition);
-    drawBox([cx,.756,cz],[w*.96,.05,d*.95],trim,viewProjection,cameraPosition);
+    drawBox([cx,.721,cz],[w*.96,.05,d*.95],trim,viewProjection,cameraPosition);
     if(type==='seeding-sprint'){
       // AURORA: aerodynamic blue winglets and polished neon speed-lattice.
-      drawBox([cx,.773,cz],[w*.82,.029,d*.75],neon,viewProjection,cameraPosition);
+      drawBox([cx,.729,cz],[w*.82,.029,d*.75],neon,viewProjection,cameraPosition);
       for(const sign of [-1,1]){
         drawBox([cx+sign*w*.39,.42,cz],[Math.min(w*.11,.14),.55,d*.89],
           trim,viewProjection,cameraPosition);
@@ -1821,15 +1821,15 @@
           neon,viewProjection,cameraPosition);
       }
       if(quality==='high'||quality==='ultra')
-        drawMesh(crystalMesh,modelMatrix([cx,.70,cz],[0,0,0],[.09,.13,.09]),
+        drawMesh(crystalMesh,modelMatrix([cx,.62,cz],[0,0,0],[.09,.13,.09]),
           accent,viewProjection,cameraPosition);
     }else if(type==='gate-gauntlet'){
       // GATE: layered purple actuator cassettes with orange circuit coils.
-      drawBox([cx,.765,cz],[w*.79,.03,d*.66],trim,viewProjection,cameraPosition);
+      drawBox([cx,.707,cz],[w*.79,.03,d*.66],trim,viewProjection,cameraPosition);
       const slots=quality==='low'?2:5;
       for(let i=0;i<slots;i++){
         const x=cx+(i-(slots-1)/2)*(w*.76/slots);
-        drawBox([x,.78,cz],[Math.min(.045,w/slots*.25),.036,d*.58],
+        drawBox([x,.73,cz],[Math.min(.045,w/slots*.25),.036,d*.58],
           i%2===0?neon:accent,viewProjection,cameraPosition);
       }
       for(const sign of [-1,1]){
@@ -1838,11 +1838,11 @@
       }
     }else if(type==='hazard-circuit'){
       // INFERNO: heat-treated metal, bolted furnace pressure ribs and vents.
-      drawBox([cx,.77,cz],[w*.94,.035,d*.89],trim,viewProjection,cameraPosition);
+      drawBox([cx,.706,cz],[w*.94,.035,d*.89],trim,viewProjection,cameraPosition);
       const lines=quality==='low'?2:quality==='balanced'?4:7;
       for(let i=0;i<lines;i++){
         const x=cx+(i-(lines-1)/2)*(w*.83/lines);
-        drawBox([x,.793,cz],[Math.min(.07,w/lines*.32),.032,d*.78],
+        drawBox([x,.73,cz],[Math.min(.07,w/lines*.32),.032,d*.78],
           i%3===0?accent:neon,viewProjection,cameraPosition);
       }
       for(const z of [cz-d*.50,cz+d*.50]){
@@ -1851,11 +1851,11 @@
       }
     }else if(type==='final-four'){
       // SKYLINE: royal-blue raised ceramic facets and jewel inlays.
-      drawBox([cx,.78,cz],[w*.76,.036,d*.81],neon,viewProjection,cameraPosition);
+      drawBox([cx,.728,cz],[w*.76,.036,d*.81],neon,viewProjection,cameraPosition);
       const count=quality==='ultra'?5:quality==='low'?1:3;
       for(let i=0;i<count;i++){
         const x=cx+(i-(count-1)/2)*w*.19;
-        drawMesh(crystalMesh,modelMatrix([x,.73,cz],[0,.78,0],
+        drawMesh(crystalMesh,modelMatrix([x,.63,cz],[0,.78,0],
           [Math.min(.08,w*.09),.09,.08]),
           i%2===0?accent:trim,viewProjection,cameraPosition);
       }
@@ -1863,9 +1863,9 @@
         neon,viewProjection,cameraPosition);
     }else{
       // CHAMPIONSHIP: gold-inlaid monument block with an inset trophy crest.
-      drawBox([cx,.772,cz],[w*.83,.040,d*.81],accent,viewProjection,cameraPosition);
-      drawBox([cx,.797,cz],[w*.64,.02,d*.65],trim,viewProjection,cameraPosition);
-      drawMesh(crystalMesh,modelMatrix([cx,.68,cz],[0,.79,0],
+      drawBox([cx,.712,cz],[w*.83,.040,d*.81],accent,viewProjection,cameraPosition);
+      drawBox([cx,.735,cz],[w*.64,.02,d*.65],trim,viewProjection,cameraPosition);
+      drawMesh(crystalMesh,modelMatrix([cx,.62,cz],[0,.79,0],
         [Math.min(.17,w*.20),.12,Math.min(.17,d*.20)]),
         neon,viewProjection,cameraPosition);
       for(const sign of [-1,1]){
@@ -1881,6 +1881,7 @@
         accent,viewProjection,cameraPosition);
     }
     shell.dataset.obstacleArtStyle=String(type);
+    shell.dataset.obstacleArtPhysicalHeight='0.76';
   }
   function drawBumper(bumper,arena,theme,viewProjection,cameraPosition){
     const point=toWorld(bumper.x,bumper.y,arena);
