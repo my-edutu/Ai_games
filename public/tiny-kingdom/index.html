@@ -738,12 +738,34 @@ function path(points,width=1){for(let i=0;i<points.length-1;i++){
 }}
 function wheat(x,z){let y=terrain(x,z);for(let i=0;i<6;i++)for(let j=0;j<5;j++){let xx=x+(i-2.5)*.43,zz=z+(j-2)*.48,yy=terrain(xx,zz);cylinder(xx,yy,zz,.022,.6,rgb(0xbc9c56),4);cone(xx,yy+.39,zz,.12,.34,rgb([0x82b45b,0xe4c47c,0xcca45c,0xc2c9b9][climateAt(state.t).season]),4)}}
 /* Gauntlet 020: render-only deterministic joint hierarchy. */
+// Gauntlet 036: bounded human gait, shorter anatomically plausible stride,
+// lifted swing foot and counter-swing arms; render-only, no simulation RNG.
 function citizenRigPose(p){
- const activity=p.activity.toLowerCase(),working=/harvest|cutting|craft|construct|making|forag/.test(activity),traveling=/travel|explor/.test(activity);
- const intensity=traveling?1:working?.4:.16,stride=Math.sin(p.phase*2.7)*intensity,workBeat=working?Math.sin(p.phase*4.1):0;
- const legs=[-1,1].map(side=>{const swing=side*stride,lift=Math.max(0,-swing)*.16;return {hip:[side*.115,.56,0],knee:[side*.115,.31,swing*.43+lift],ankle:[side*.115,.08,swing*.92]};});
- const arms=[-1,1].map(side=>{const swing=-side*stride*.67,toolArm=working&&side===1,beat=toolArm?workBeat*.17:0;return {shoulder:[side*.30,1.015,0],elbow:[side*.34,.79+(toolArm?.08:0),swing*.43+beat],wrist:[side*.34,.55+(toolArm?.14+workBeat*.055:0),swing*.77+beat*1.35]};});
- return {legs,arms,working,traveling,stride};
+ const action=p.activity.toLowerCase();
+ const working=/harvest|cutting|craft|construct|making|forag/.test(action);
+ const traveling=/travel|explor/.test(action);
+ const intensity=traveling?.72:working?.34:.11;
+ const phase=p.phase*2.7,stepWave=Math.sin(phase)*intensity,workBeat=working?Math.sin(p.phase*4.1):0;
+ const legs=[-1,1].map(side=>{
+   const limbPhase=phase+(side<0?0:Math.PI);
+   const swing=Math.sin(limbPhase)*intensity;
+   const toeLift=Math.max(0,Math.cos(limbPhase))*.095*intensity;
+   return {
+     hip:[side*.115,.56,0],
+     knee:[side*.115,.305+toeLift*.3,swing*.19+.032],
+     ankle:[side*.115,.065+toeLift,swing*.43]
+   };
+ });
+ const arms=[-1,1].map(side=>{
+   const swing=-side*stepWave*.27;
+   const toolArm=working&&side===1,beat=toolArm?workBeat*.10:0;
+   return {
+     shoulder:[side*.30,1.015,0],
+     elbow:[side*.325,.795+beat*.28,swing*.53+beat*.62],
+     wrist:[side*.33,.565+beat,swing+beat]
+   };
+ });
+ return {legs,arms,working,traveling,stride:stepWave};
 }
 function limbSegment(a,b,radius,col,sides=7){
  const dx=b[0]-a[0],dy=b[1]-a[1],dz=b[2]-a[2],length=Math.hypot(dx,dy,dz);if(length<.00001)return;
