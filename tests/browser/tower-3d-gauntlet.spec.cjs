@@ -417,6 +417,41 @@ test('Gauntlet XII: real desktop HUD makes the scene primary without losing spec
   for(const label of info.labels)expect(label).toBeGreaterThan(15);
   await page.screenshot({path:path.join(artifacts,'gauntlet-xii-composed-1600.png'),fullPage:true});
 });
+test('Gauntlet XIII: world chapter condenses into a real compact HUD marker without losing the biome name',async({page})=>{
+  await page.setViewportSize({width:1600,height:900});
+  await page.goto(base+'/tower?worldLabel=compact',{waitUntil:'domcontentloaded'});
+  await expect.poll(()=>page.evaluate(()=>document.body.dataset.worldLabel),{timeout:20000}).toBe('compact');
+  await expect(page.locator('#world-title')).not.toBeEmpty();
+  const view=await page.evaluate(()=>{
+    const rect=document.querySelector('.world-label').getBoundingClientRect();
+    const title=document.querySelector('.world-title').getBoundingClientRect();
+    return{height:rect.height,width:rect.width,titleFont:parseFloat(getComputedStyle(document.querySelector('.world-title')).fontSize),titleHeight:title.height,biome:document.body.dataset.towerTheme};
+  });
+  expect(view.height).toBeLessThan(77);
+  expect(view.width).toBeLessThan(260);
+  expect(view.titleFont).toBeLessThanOrEqual(25);
+  expect(view.biome).toMatch(/^(foundry|ruins|storm|clockwork|void)$/);
+  await page.screenshot({path:path.join(artifacts,'gauntlet-xiii-compact-biome-badge.png'),fullPage:true});
+  await page.goto(base+'/tower?worldLabel=expanded');
+  await expect.poll(()=>page.evaluate(()=>document.body.dataset.worldLabel),{timeout:20000}).toBe('expanded');
+  await expect(page.locator('.world-detail')).toBeVisible();
+});
+
+test('Gauntlet XIII: compact identity stays small on real landscape phone without masking game captions',async({page})=>{
+  await page.setViewportSize({width:844,height:390});
+  await page.goto(base+'/tower?worldLabel=compact',{waitUntil:'domcontentloaded'});
+  await expect.poll(()=>page.evaluate(()=>document.body.dataset.worldLabel),{timeout:20000}).toBe('compact');
+  const parts=await page.evaluate(()=>{
+    const r=s=>document.querySelector(s).getBoundingClientRect();
+    const badge=r('.world-label'),caption=r('.caption'),arena=r('.arena-wrap');
+    return{badge:{right:badge.right,bottom:badge.bottom,width:badge.width},
+      caption:{top:caption.top,left:caption.left,right:caption.right},arena:{width:arena.width,height:arena.height}};
+  });
+  expect(parts.badge.width).toBeLessThan(195);
+  expect(parts.badge.bottom).toBeLessThan(parts.caption.top);
+  expect(parts.caption.right).toBeLessThanOrEqual(parts.arena.width);
+  await page.screenshot({path:path.join(artifacts,'gauntlet-xiii-mobile-compact-hud.png'),fullPage:true});
+});
 test('3D module unavailable degrades safely to the existing 2D scene',async({page})=>{
   await page.route('**/tower/scene3d.js',route=>route.fulfill({status:503,body:'Module unavailable'}));
   await page.goto(base+'/tower');
