@@ -114,6 +114,7 @@ for(const biome of BIOMES){
     assert.equal(shell.dataset.renderer,'webgl2');
     assert.equal(shell.dataset.cutoutCount,'1');
     assert.ok(Number(shell.dataset.deckTileCount)>1);
+    assert.ok(Number(shell.dataset.rampServicePanels)>0,'real elevated ramp must reveal a darker 3D service underdeck');
     assert.equal(shell.dataset.ledRound,String(BIOMES.indexOf(biome)+1));
     assert.equal(shell.dataset.stadiumStyle,biome);
     assert.ok(Number(shell.dataset.propContactShadows)>0,
