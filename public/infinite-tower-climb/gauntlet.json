@@ -269,6 +269,11 @@
       "round": 18,
       "summary": "Scoped visual quality overhaul from screenshot-driven critique: repaired whitewashed environment atmosphere; retuned all five sky colors and opaque readable HUD; batched identical-material character rig parts while preserving every vertex; rebuilt collision-accurate tower platforms as sculpted textured ledges rather than simple boxes; added source/real-browser regression gates.",
       "verdict": "Source syntax and same-origin asset routing checked; previous head failed one gallery draw-call threshold and one fallback test; new CI and current screenshot evidence still pending. Full 3D climbing and independent matched-camera Jusant quality remain unmet."
+    },
+    {
+      "round": 21,
+      "summary": "UI hierarchy pass: desktop side-panel scrolling and keyboard focus visibility, mobile title width/scale and lower-cost mobile backdrop filtering. Prior completed CI at db979c5 had browser critic success but simulation and general CI failures. No fresh Chromium screenshot or post-commit CI result yet.",
+      "verdict": "Committed UI CSS only; visual acceptance and current-head browser verification pending. Jusant parity not achieved."
     }
   ]
 }
