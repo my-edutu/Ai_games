@@ -126,7 +126,7 @@ test('G47 true pits always cut through elevated ramp rectangles without unsuppor
   const layout=deckLayout(state);
   assert.ok(!layout.tiles.some(tile=>covers(tile,8000,6000)));
   assert.ok(layout.tiles.some(tile=>tile.underRamp&&covers(tile,7300,5200)));
-  assert.equal(layout.openingArea,1800*800,'out-of-bounds pit part clips exactly');
+  assert.equal(layout.openingArea,1800*850,'pit area remains exact despite ramp overlap');
   assert.equal(layout.solidArea+layout.openingArea,layout.worldArea);
   verifyNoTileOverlaps(layout);
 });
