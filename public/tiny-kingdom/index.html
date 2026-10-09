@@ -1494,8 +1494,14 @@ function updateWorldRibbon(){
   document.getElementById('world-'+name).textContent=document.getElementById(id).textContent.trim();
  }
  const story=document.querySelector('#feed .feeditem');
- document.getElementById('world-story').textContent=story?
-  story.textContent.replace(/\s+/g,' ').trim().slice(0,140):
+ // Chronicle labels and event text are adjacent DOM nodes, with no delimiter
+ // in textContent. Use only the original narrative text to avoid run-together
+ // strings such as "Kingdom chronicleMira ..." in the compact HUD.
+ const narrative=story?Array.from(story.childNodes)
+  .filter(node=>node.nodeType===3)
+  .map(node=>node.textContent.trim()).filter(Boolean).join(' '):'';
+ document.getElementById('world-story').textContent=narrative?
+  narrative.replace(/\s+/g,' ').slice(0,140):
   'Your villagers write their own chronicle.';
 }
 function setCommandView(next){
