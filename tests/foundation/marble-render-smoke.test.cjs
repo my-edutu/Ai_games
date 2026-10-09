@@ -176,6 +176,10 @@ test('real public wind fields render only in the stage where authority declares 
   const noWind=await simulateStage('seeding-sprint','balanced');
   assert.equal(wind.shell.dataset.publicWindZones,'1');
   assert.equal(noWind.shell.dataset.publicWindZones,'0');
+  const [actualX,actualY]=wind.shell.dataset.windVector.split(',').map(Number);
+  assert.ok(actualX<-0.95,'public -10 force must visibly travel left');
+  assert.ok(actualY<0,'public -2 force must visibly travel toward negative track Y');
+  assert.equal(noWind.shell.dataset.windVector,undefined,'no fake wind in absent source');
   assert.ok(wind.counters.drawElements>noWind.counters.drawElements,
     'real wind must render genuinely visible 3D stream meshes');
   assert.equal(wind.counters.pointCloudDraws,1);
