@@ -34,7 +34,7 @@ jobs:
       # Keep visual evidence available even if native geometry assertions fail.
       - name: Native THREE geometry tests
         if: ${{ !cancelled() }}
-        run: node --test tests/foundation/tower-3d-art.test.cjs tests/foundation/tower-volumetric-core.test.cjs tests/foundation/tower-authored-asset.test.cjs tests/foundation/tower-geology-rope.test.cjs
+        run: node --test tests/foundation/tower-3d-art.test.cjs tests/foundation/tower-volumetric-core.test.cjs tests/foundation/tower-authored-asset.test.cjs tests/foundation/tower-geology-rope.test.cjs tests/foundation/tower-spectacle.test.cjs
       - name: Keep screenshots and browser traces
         if: always()
         uses: actions/upload-artifact@v4
