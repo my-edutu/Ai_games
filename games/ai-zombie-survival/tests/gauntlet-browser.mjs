@@ -58,6 +58,8 @@ try{
   assert.deepEqual(hudStyles,['#42f2e1','#ff647a','#ffc96e']);
   assert.ok((await page.locator('#cameraLabel').textContent()).length>2);
   assert.ok(await page.locator('#eventTape').count(),'Outbreak chronicle must be mounted');
+  assert.ok(await page.locator('#alertBanner').count(),'live survival warning must be mounted');
+  assert.ok(await page.locator('.mobileOverview').count(),'mobile status overview must be mounted');
   await page.keyboard.press('h');
   const uncovered=await page.screenshot({path:root+'world-hud-hidden.png'});
   const appearance=await scoreScreenshot(page,uncovered);
@@ -146,7 +148,47 @@ try{
   const mobile=await page.locator('#scene').boundingBox();
   assert.equal(mobile.width,390);
   assert.equal(mobile.height,844);
+  // Real 390x844 critic: default panels must not hide the world.
+  const mobileState=await page.evaluate(()=>{
+    const h=document.querySelector('#hud');
+    return {panel:h.dataset.mobilePanel,
+      left:getComputedStyle(document.querySelector('#survivalPanel')).display,
+      right:getComputedStyle(document.querySelector('#intelPanel')).display,
+      nav:getComputedStyle(document.querySelector('.mobileDeck')).display,
+      summary:getComputedStyle(document.querySelector('.mobileOverview')).display,
+      pageWidth:document.documentElement.scrollWidth,
+      alive:document.querySelector('#mobileAlive').textContent,
+      horde:document.querySelector('#mobilePressure').textContent};
+  });
+  assert.equal(mobileState.panel,'none');
+  assert.equal(mobileState.left,'none');
+  assert.equal(mobileState.right,'none');
+  assert.notEqual(mobileState.nav,'none');
+  assert.notEqual(mobileState.summary,'none');
+  assert.ok(mobileState.pageWidth<=391,'mobile UI must not introduce horizontal overflow');
+  assert.match(mobileState.alive,/^[0-9]+$/);
+  assert.match(mobileState.horde,/^[0-9]+%$/);
   await page.screenshot({path:root+'mobile.png'});
+  await page.locator('#mobileSurvival').click();
+  assert.equal(await page.locator('#hud').getAttribute('data-mobile-panel'),'survival');
+  assert.equal(await page.locator('#mobileSurvival').getAttribute('aria-expanded'),'true');
+  assert.equal(await page.locator('#survivalPanel').isVisible(),true);
+  assert.equal(await page.locator('#intelPanel').isVisible(),false);
+  await page.screenshot({path:root+'mobile-survival-panel.png'});
+  await page.locator('#mobileIntel').click();
+  assert.equal(await page.locator('#hud').getAttribute('data-mobile-panel'),'intel');
+  assert.equal(await page.locator('#survivalPanel').isVisible(),false);
+  assert.equal(await page.locator('#intelPanel').isVisible(),true);
+  await page.screenshot({path:root+'mobile-ai-intel-panel.png'});
+  await page.locator('#mobileMap').click();
+  assert.equal(await page.locator('#mobileMap').getAttribute('aria-expanded'),'true');
+  await page.screenshot({path:root+'mobile-tactical-map.png'});
+  await page.locator('#intelPanel .panelClose').click();
+  assert.equal(await page.locator('#hud').getAttribute('data-mobile-panel'),'none');
+  await page.locator('#mobileSurvival').click();
+  await page.keyboard.press('Escape');
+  assert.equal(await page.locator('#hud').getAttribute('data-mobile-panel'),'none');
+  report.checks.mobileMissionPanels=true;
   report.checks.mobileResponsive=true;
   await page.goto('http://127.0.0.1:4177/web/3d.html?scenario=failure&restartMs=750',{waitUntil:'load'});
   await page.waitForFunction(()=>document.querySelector('#status')?.textContent?.includes('RUN 2'),{timeout:15000});
