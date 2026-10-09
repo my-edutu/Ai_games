@@ -7,7 +7,7 @@ import * as THREE from '/tower/three.module.js';
 
 const supportedAttributes=new Set(['position','normal','uv','color','uv1']);
 const mergeable=mesh=>{
-  if(!mesh?.isMesh||mesh.isSkinnedMesh||mesh.isInstancedMesh||mesh.material?.transparent)return false;
+  if(!mesh?.isMesh||mesh.children.length||mesh.isSkinnedMesh||mesh.isInstancedMesh||mesh.material?.transparent)return false;
   if(Array.isArray(mesh.material)||!mesh.geometry?.isBufferGeometry||mesh.userData?.noBatch)return false;
   const attrs=Object.keys(mesh.geometry.attributes);
   return attrs.includes('position')&&attrs.includes('normal')&&attrs.every(a=>supportedAttributes.has(a));
