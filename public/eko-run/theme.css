@@ -222,3 +222,118 @@ button:focus-visible,select:focus-visible,.button:focus-visible{outline:3px soli
 #camera{border-color:rgba(115,254,225,.60);color:#adfff1;background:linear-gradient(145deg,#154f59,#124251)}
 #camera[aria-pressed="true"]{border-color:#ffd276;color:#fff4cd;background:linear-gradient(140deg,#614666,#26566c)}
 @media(max-width:440px){#camera{min-width:77px;padding-inline:6px!important;letter-spacing:0}}
+
+
+/* GAUNTLET UI v18 — design for unobstructed play, not the height of a dashboard.
+   Keep critical threat and progress cues legible at a glance, with all player
+   actions accessible and a collapsible, semantic settings dock on phones. */
+.hud-settings-toggle{display:none}
+@media(min-width:651px){
+ .brand h1{font-size:clamp(25px,2.6vw,36px)}
+ .brand-mark{height:46px;width:46px;font-size:27px}
+ .brand small{font-size:9px;letter-spacing:.22em}
+ .hud-race{top:94px;width:min(326px,30vw);padding:12px 15px}
+ .hud-race__top{margin-bottom:8px}
+ .hud-race__track{height:7px}
+ .hud-race__meta{margin-top:7px;font-size:9px}
+ .district{font-size:clamp(29px,3.2vw,44px)}
+ .eyebrow{font-size:10px}
+ .hud-live{padding:5px 9px;font-size:9px}
+ #detail{font-size:9px;margin-top:6px}
+ .score{min-width:110px;padding:10px 13px;border-radius:12px}
+ .score span{margin-bottom:4px}
+ .score strong{font-size:clamp(19px,1.9vw,27px)}
+ .score:last-child strong{font-size:17px}
+ .bottombar{gap:8px}
+ .toolbar{padding:7px;gap:7px;border-radius:13px}
+ .toolbar button,.toolbar select,.toolbar .button{min-height:36px;padding:8px 11px;font-size:10px}
+}
+@media(max-width:650px){
+ .overlay{
+   padding:12px 13px max(12px,env(safe-area-inset-bottom));
+   padding-top:max(12px,env(safe-area-inset-top));
+   justify-content:space-between;
+ }
+ header{gap:8px;align-items:flex-start}
+ .brand{gap:6px}
+ .brand-mark{height:35px;width:35px;font-size:20px;border-radius:12px}
+ .brand h1{font-size:21px!important;letter-spacing:-.055em}
+ .brand small{font-size:7px;letter-spacing:.08em;margin-bottom:3px}
+ .brand::before{inset:-4px -6px;border-radius:12px}
+ .topright{gap:0;align-items:end}
+ #connection{font-size:8px;padding:7px 9px!important;letter-spacing:.08em}
+ .topright .pill:last-child{display:none}
+ .hud-race{
+   top:70px;left:13px;right:13px;width:auto;
+   padding:8px 11px 9px;border-radius:12px;
+   background:linear-gradient(120deg,rgba(6,32,41,.90),rgba(9,38,45,.76));
+   box-shadow:0 8px 25px #08171c44;
+ }
+ .hud-race__top{margin-bottom:5px}
+ .hud-race__eyebrow{font-size:8px;letter-spacing:.12em}
+ #route-percent{font-size:13px}
+ .hud-race__track{height:5px}
+ .hud-race__meta{margin-top:5px;font-size:8px}
+ .hud-race__meta>span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+ .middle{top:clamp(135px,19vh,165px);max-width:80vw}
+ .bottombar{gap:5px;min-width:0}
+ .story{display:grid;grid-template-columns:minmax(0,1fr);gap:5px}
+ .eyebrow{font-size:8px}
+ .hud-live{font-size:8px;padding:4px 9px;gap:6px}
+ .hud-live i{width:5px;height:5px}
+ .district{font-size:clamp(22px,6vw,29px);margin:4px 0 2px;letter-spacing:-.035em}
+ #detail{display:none}
+ .scores{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));width:100%;gap:5px}
+ .score{min-width:0;padding:6px 8px 7px;border-radius:10px}
+ .score:before{height:2px}
+ .score span{font-size:7px;margin-bottom:3px;letter-spacing:.04em}
+ .score strong{font-size:clamp(14px,4.4vw,18px)}
+ .score:last-child strong,.score:nth-child(3) strong{font-size:clamp(12px,3.4vw,15px)}
+ .toolbar{
+   display:grid;grid-template-columns:minmax(0,1fr) auto;
+   align-items:center;gap:6px;padding:6px;
+   border-radius:13px;background:rgba(7,29,39,.90);
+   box-shadow:0 9px 32px #00101b44;backdrop-filter:blur(8px);
+ }
+ .toolbar #mode{width:100%;font-size:10px;letter-spacing:.025em;min-height:38px}
+ .hud-settings-toggle{
+   display:inline-flex;align-items:center;justify-content:center;
+   padding:7px 12px!important;min-height:38px!important;
+   border:1px solid rgba(112,246,233,.48);
+   background:#174451;color:#dbfff7;font-size:10px!important;
+   letter-spacing:.015em;white-space:nowrap;
+ }
+ .toolbar>:not(#mode):not(#hud-settings-toggle){display:none!important}
+ .settings-open .toolbar{display:flex;flex-wrap:wrap;align-items:center}
+ .settings-open .toolbar #mode{width:auto;flex:1}
+ .settings-open .toolbar>:not(#mode):not(#hud-settings-toggle){display:inline-flex!important}
+ .settings-open .toolbar .spacer,.settings-open .toolbar .hint{display:none!important}
+ .settings-open .toolbar .soft{align-self:center;font-size:9px}
+ .settings-open .toolbar #quality{display:inline-flex!important}
+ .settings-open .toolbar #outfit{max-width:132px}
+ .settings-open .toolbar .button{flex:1;justify-content:center}
+ .touch{gap:5px;margin:0}
+ .touch button{
+   min-height:44px;height:44px;max-width:none;flex:1;
+   font-size:10px;border-radius:10px;padding:5px;
+   background:rgba(14,49,67,.88)
+ }
+ .autonomous .touch{display:none!important}
+ .vignette{background:linear-gradient(180deg,rgba(4,15,25,.32),transparent 22%,transparent 66%,rgba(1,12,23,.58))}
+}
+@media(max-width:360px){
+ .brand h1{font-size:18px!important}
+ .hud-race{top:65px}
+ .score span{font-size:6.4px}
+ .toolbar #mode,.hud-settings-toggle{font-size:9px!important}
+}
+@media(max-width:650px) and (max-height:680px){
+ .hud-race{top:62px}
+ .district{font-size:21px}
+ .hud-live{display:none}
+ .score{padding:5px 6px}
+ .toolbar #mode,.hud-settings-toggle{min-height:33px!important}
+}
+@media(prefers-reduced-motion:reduce){
+ .hud-settings-toggle{transition:none}
+}
