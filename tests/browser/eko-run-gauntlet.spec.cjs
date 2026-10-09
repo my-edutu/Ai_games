@@ -138,7 +138,7 @@ test.describe('Eko Run 3D Gauntlet slice', () => {
     await expect(page.locator('#blind-start')).toBeEnabled();
     await page.locator('#blind-start').click();
     await expect(page.locator('#blind-grid')).toBeVisible();
-    await expect(page.locator('#blind-a')).toHaveAttribute('src',/^(data:image\\/png|blob:)/);
+    await expect(page.locator('#blind-a')).toHaveAttribute('src',new RegExp('^(data:image/png|blob:)'));
     await page.locator('[data-blind-vote="A"]').click();
     await expect(page.locator('#blind-result')).toContainText('Reveal: Eko = Image');
     await expect(page.locator('[data-blind-vote="B"]')).toBeDisabled();
@@ -154,7 +154,7 @@ test.describe('Eko Run 3D Gauntlet slice', () => {
     await expect(page.locator('#tick')).not.toHaveText('—');
     await expect.poll(async () => page.locator('#rounds .card').count()).toBeGreaterThanOrEqual(4);
     await expect(page.locator('#status')).toContainText('Iteration');
-    await expect(page.locator('#evidence-history a').first()).toHaveAttribute('href',/actions\\/runs\\/\\d+\\/artifacts\\/\\d+/);
+    await expect(page.locator('#evidence-history a').first()).toHaveAttribute('href',new RegExp('actions/runs/[0-9]+/artifacts/[0-9]+'));
     await expect(page.locator('#snapshots')).toContainText('No real frames captured yet');
     fs.mkdirSync('artifacts/eko-gauntlet', { recursive: true });
     await page.screenshot({ path: path.join('artifacts/eko-gauntlet','progress.png'), fullPage:true });
