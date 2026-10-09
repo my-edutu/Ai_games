@@ -746,27 +746,42 @@ function citizenRigPose(p){
  const working=/harvest|cutting|craft|construct|making|forag/.test(action);
  const traveling=/travel|explor/.test(action);
  const intensity=traveling?.72:working?.34:.11;
- const phase=p.phase*2.7,stepWave=Math.sin(phase)*intensity,workBeat=working?Math.sin(p.phase*4.1):0;
+ const phase=p.phase*2.7,workBeat=working?Math.sin(p.phase*4.1):0;
+ // The two bones have fixed lengths; each foot follows the actual terrain
+ // under its forward-facing boot rather than floating at the pelvis height.
+ const idx=Math.max(0,people.indexOf(p)),scale=.92+(idx%5)*.045;
+ const look=p.path?.length?p.path[0]:p.target;
+ const angle=look?Math.atan2(look[0]-p.x,look[1]-p.z):0;
+ const co=Math.cos(angle),si=Math.sin(angle),rootGround=terrain(p.x,p.z);
+ const upper=.335,lower=.335;
  const legs=[-1,1].map(side=>{
-   const limbPhase=phase+(side<0?0:Math.PI);
-   const swing=Math.sin(limbPhase)*intensity;
-   const toeLift=Math.max(0,Math.cos(limbPhase))*.095*intensity;
-   return {
-     hip:[side*.115,.56,0],
-     knee:[side*.115,.305+toeLift*.3,swing*.19+.032],
-     ankle:[side*.115,.065+toeLift,swing*.43]
-   };
+  const cycle=phase+(side<0?0:Math.PI);
+  const footZ=Math.sin(cycle)*intensity*.34;
+  const lift=Math.max(0,Math.cos(cycle))*.115*intensity;
+  const footX=side*.125,bootZ=footZ+.095;
+  const gx=p.x+(co*footX+si*bootZ)*scale;
+  const gz=p.z+(-si*footX+co*bootZ)*scale;
+  const groundOffset=(terrain(gx,gz)-rootGround)/scale;
+  const hip=[footX,.60,0],ankle=[footX,.11+groundOffset+lift,footZ];
+  const dz=ankle[2]-hip[2],dy=ankle[1]-hip[1],distance=Math.hypot(dz,dy);
+  const reach=Math.max(.0001,Math.min(distance,upper+lower-.0001));
+  const along=(upper*upper-lower*lower+reach*reach)/(2*reach);
+  const bend=Math.sqrt(Math.max(0,upper*upper-along*along));
+  const uz=dz/(distance||1),uy=dy/(distance||1);
+  const knee=[footX,hip[1]+uy*along+uz*bend,hip[2]+uz*along-uy*bend];
+  return {hip,knee,ankle,lift,groundOffset};
  });
  const arms=[-1,1].map(side=>{
-   const swing=-side*stepWave*.27;
-   const toolArm=working&&side===1,beat=toolArm?workBeat*.10:0;
-   return {
-     shoulder:[side*.30,1.015,0],
-     elbow:[side*.325,.795+beat*.28,swing*.53+beat*.62],
-     wrist:[side*.33,.565+beat,swing+beat]
-   };
+  // Opposite arm to the same-side foot; previous sign moved them together.
+  const swing=-Math.sin(phase+(side<0?0:Math.PI))*intensity*.27;
+  const toolArm=working&&side===1,beat=toolArm?workBeat*.10:0;
+  return {
+   shoulder:[side*.30,1.015,0],
+   elbow:[side*.325,.795+beat*.28,swing*.53+beat*.62],
+   wrist:[side*.33,.565+beat,swing+beat]
+  };
  });
- return {legs,arms,working,traveling,stride:stepWave};
+ return {legs,arms,working,traveling,stride:Math.sin(phase)*intensity};
 }
 function limbSegment(a,b,radius,col,sides=7){
  const dx=b[0]-a[0],dy=b[1]-a[1],dz=b[2]-a[2],length=Math.hypot(dx,dy,dz);if(length<.00001)return;

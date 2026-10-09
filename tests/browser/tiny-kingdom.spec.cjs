@@ -1002,3 +1002,47 @@ test('Gauntlet 036 joint endpoints obey realistic stride and preserve the determ
  }
  expect(errors).toEqual([]);
 });
+
+test('Gauntlet 038 knees keep fixed two-bone lengths',async({page})=>{
+ await page.setContent(html);
+ await page.waitForFunction(()=>Boolean(window.__tinyKingdom?.getRigPose));
+ await page.locator('#pause').click();
+ const result=await page.evaluate(()=>{
+  const g=window.__tinyKingdom;
+  return g.getCitizenProfiles().flatMap((_,i)=>g.getRigPose(i).legs.map(l=>[
+   Math.hypot(...l.knee.map((v,j)=>v-l.hip[j])),
+   Math.hypot(...l.ankle.map((v,j)=>v-l.knee[j]))]));
+ });
+ expect(result).toHaveLength(24);
+ for(const lengths of result)for(const length of lengths)expect(length).toBeCloseTo(.335,1);
+});
+
+test('Gauntlet 038 boot terrain sample is accurate',async({page})=>{
+ await page.setContent(html);
+ await page.waitForFunction(()=>Boolean(window.__tinyKingdom?.getRigPose));
+ await page.locator('#pause').click();
+ const err=await page.evaluate(()=>{
+  const g=window.__tinyKingdom,p=g.getNavigation()[0],leg=g.getRigPose(0).legs[0];
+  const look=p.path?.length?p.path[0]:p.target;
+  const a=Math.atan2(look[0]-p.position[0],look[1]-p.position[1]);
+  const x=p.position[0]+Math.cos(a)*leg.ankle[0]*.92+Math.sin(a)*(leg.ankle[2]+.095)*.92;
+  const z=p.position[1]-Math.sin(a)*leg.ankle[0]*.92+Math.cos(a)*(leg.ankle[2]+.095)*.92;
+  return Math.abs(g.getTerrainHeight(x,z)-g.getTerrainHeight(...p.position)-leg.groundOffset*.92);
+ });
+ expect(err).toBeLessThan(.002);
+});
+
+test('Gauntlet 038 traveling arms oppose same-side walking feet',async({page})=>{
+ await page.setContent(html);
+ await page.waitForFunction(()=>Boolean(window.__tinyKingdom?.getRigPose));
+ await page.locator('#pause').click();
+ const pairs=await page.evaluate(()=>{
+  const g=window.__tinyKingdom;
+  return g.getCitizenProfiles().flatMap((_,i)=>{
+   const pose=g.getRigPose(i);
+   return pose.traveling?pose.legs.map((l,j)=>l.ankle[2]*pose.arms[j].wrist[2]):[];
+  });
+ });
+ expect(pairs.length).toBeGreaterThan(0);
+ for(const p of pairs)expect(p).toBeLessThanOrEqual(0);
+});
