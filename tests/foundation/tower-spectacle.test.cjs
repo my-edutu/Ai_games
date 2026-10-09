@@ -94,3 +94,27 @@ test('original material atlas supplies three reusable PBR maps with valid finite
   assert.ok(entities.materials.steelSkin.normalMap,'the gameplay deck must actually consume the map');
   assert.ok(entities.materials.stone.roughnessMap,'the gameplay stone must use roughness');
 });
+
+test('biome weather produces colored atmospheric GPU particles with no per-frame allocations',()=>{
+  const scene=new THREE.Scene();
+  const create=fromFile('weather3d.js','createTowerWeather'),weather=create(THREE,scene);
+  assert.equal(weather.count,520);
+  assert.equal(weather.root.geometry.getAttribute('position').count,520);
+  assert.ok(weather.root.isPoints);
+  const points=weather.root,geometry=points.geometry,material=points.material;
+  const combinations=[];
+  for(const biome of ['foundry','ruins','clockwork','storm','void']){
+    weather.setTheme(biome);
+    weather.update(12.4,{x:5,y:155,z:2},false);
+    combinations.push(material.uniforms.uColor.value.getHex());
+    assert.equal(weather.theme,biome);
+    assert.strictEqual(points.geometry,geometry,'GPU positions must be reused');
+    assert.strictEqual(points.material,material,'one draw call and shader material per biome');
+    assert.equal(points.position.x,5);
+    assert.equal(points.position.y,180);
+    assert.equal(points.position.z,2);
+  }
+  assert.equal(new Set(combinations).size,5);
+  weather.update(99,{y:155},true);
+  assert.equal(material.uniforms.uTime.value,0,'accessibility mode must freeze particle drift');
+});
