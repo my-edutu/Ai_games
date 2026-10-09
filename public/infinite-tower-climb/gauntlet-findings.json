@@ -47,74 +47,77 @@
   },
   "progress": [
     {
-      "item": "Three-axis deterministic autonomous movement, guardians, wall traversal and skill decisions",
-      "status": "SOURCE IMPLEMENTED; 5-seed headless tests previously executed"
+      "item": "Original fully 3D autonomous navigation, guardians, tactile climbing, upgrades and recoveries",
+      "status": "Implemented; deterministic headless simulation verified across multiple seeds; not a AAA gameplay pass"
     },
     {
-      "item": "Articulated authored low-poly 3D GLTF climber and animation clips",
-      "status": "SOURCE IMPLEMENTED; AAA visual quality not established"
+      "item": "Authored GLTF climber, accessory gear and six transform animation clips",
+      "status": "Implemented; professional skinned locomotion and contact-aware animation not established"
     },
     {
-      "item": "Original stratified cliff landscape and safety rope",
-      "status": "SOURCE IMPLEMENTED; latest browser screenshot pending"
+      "item": "Five sculpted volumetric biome setpieces: volcanic foundries, emerald ruins, clockwork orreries, lightning spires and void portals",
+      "status": "NEW SOURCE IMPLEMENTED; latest WebGL screenshots pending review"
     },
     {
-      "item": "Manual keyboard/touch/gamepad",
-      "status": "SOURCE IMPLEMENTED; live interaction browser test pending"
+      "item": "Beveled PBR platforms with original metal/stone/ceramic normal, roughness and albedo maps",
+      "status": "NEW SOURCE IMPLEMENTED; native map contract tests written; visual approval pending"
     },
     {
-      "item": "Adaptive procedural audio",
-      "status": "SOURCE IMPLEMENTED; real device audio review pending"
+      "item": "Five GPU atmospheric particle systems: forge ash, ruin pollen, gear sparks, storm rain and astral motes",
+      "status": "NEW SOURCE IMPLEMENTED; one-draw-call and accessibility tests written"
     },
     {
-      "item": "True screenshot archive and short gameplay captures",
-      "status": "SOURCE IMPLEMENTED; live recording browser test pending"
+      "item": "Cinematic HUD redesign for primary /tower and true 3D /tower/volumetric, reactive to all five biome palettes",
+      "status": "NEW SOURCE IMPLEMENTED; desktop/mobile screenshot quality gates added"
     },
     {
-      "item": "Label-hidden blinded Jusant comparisons",
-      "status": "SOURCE IMPLEMENTED; zero independent winning evaluations"
+      "item": "Cinematic low-angle camera, hero aura, richer character spotlight and soundscape",
+      "status": "NEW SOURCE IMPLEMENTED; stage screenshots and actual frame pacing pending"
     },
     {
-      "item": "Resumable deterministic save/replay",
-      "status": "HEADLESS ROUND-TRIP PROVED; reload browser test pending"
+      "item": "Manual keyboard/touch/gamepad and resumable deterministic save",
+      "status": "Implemented; earlier focused browser tests passed on prior production slice"
+    },
+    {
+      "item": "Independent label-hidden blinded benchmark review versus Jusant",
+      "status": "Reviewer workflow exists; no fresh independent winning evaluation; Gauntlet NOT PASSED"
     }
   ],
   "notPassed": [
-    "Real screenshots from latest source",
-    "Independent blind A/B critics",
-    "Professionally skinned character and contact-aware animation",
-    "Stable browser FPS and memory across 1-hour run",
-    "Cinematic direction and fully authored soundscape",
-    "Production release safety",
-    "Latest browser capture pipeline and comparison with official references"
+    "New post-redesign 1600×900 and mobile screenshot inspection against archived before images",
+    "Independent blind A/B reviewer verdict versus published Jusant reference",
+    "Photorealistic or professionally authored production-ready skinned character, contact-aware climbing motion and physical rope interaction",
+    "Art-directed vegetation/lighting/materials beyond low-poly authored procedural structures",
+    "Long-running performance and memory budgets under 1080p/60 FPS and mobile constraints",
+    "Production QA on full autonomous and manual climb sessions",
+    "Final soundscape design and cinematic transitions"
   ],
   "qualityPassed": false,
   "latestCriticCycle": {
-    "date": "2026-10-08",
-    "evidenceWorkflowRun": 37804944830,
-    "headAtFailure": "6a84cd77b88ec6c8ea951bae40a0c7af0822e565",
-    "verdict": "FAIL — ACTUAL SCREENSHOTS INSPECTED; ART AND TEST GAPS REMAIN",
-    "largestIndependentlyVerifiableGap": "The real 3D high-altitude biome capture points away from the climber: the void screenshot shows a large repetitive dark facade, the hero is absent, and the HUD incorrectly reads LEVEL 000 / ALTITUDE 0m even though the authoritative simulation is at floor 48, y=155.55. This fails the Jusant visual clarity and truthful progress bar.",
-    "observedLog": "CI 37804944830: WebGL smoke passed; 14/16 browser tests passed, two failed (manual jump not observed after a fixed 250ms wait; autonomous tick count 35 versus expected >67 under software WebGL); all 18 native tests passed. Real 1600x900 desktop, portrait, five biome and guardian screenshots uploaded.",
-    "directImageInspection": "Inspected downloaded screenshots: legacy-overlay 3D desktop is visible but dominated by diagonal facade; climber small. Foundry volumetric frame has legible platforms but repetitive rectangular geometry. Void frame misframed with hero absent and wrong initial HUD despite state floor 48. Self-critique, not independent.",
+    "date": "2026-10-09",
+    "evidenceWorkflowRun": 37806789466,
+    "headAtFailure": "9bd57e9a86a32cc1ab9dc1545cd69c7b77460c8a",
+    "verdict": "FAIL VISUAL BAR — BROWSER TEST SUCCESS IS NOT JUSANT-LEVEL ART",
+    "largestIndependentlyVerifiableGap": "Actual 1600×900 screenshots of all five biomes show repetitive boxy stair platforms, a small climber, flat dark masonry and miniature dull HUD typography. The world is operational but looks substantially below Jusant’s sculpted environmental art and readable human climbing motion.",
+    "observedLog": "Tower 3D Visual Gate workflow 37806789466 COMPLETED SUCCESS with screenshots of foundry, ruins, clockwork, storm, void, and guardian encounters. Images downloaded and visually inspected before this iteration. Browser functional pass ≠ independent art approval.",
+    "directImageInspection": "Measured actual gameplay screenshots: foundry 38.00/255 average luminance, ruins 46.02, clockwork 38.85, storm 42.33, void 30.84; previous HUD consisted of tiny blue-gray cards and environment was mostly stacked brown rectangular platforms.",
     "measuredNewDesktop": {
       "width": 1600,
       "height": 900,
-      "meanLuminance": 37.15,
-      "luminanceStdDev": 40.31,
-      "darkFraction": 0.38,
-      "uniqueQuantizedColors": 292
+      "meanLuminance": 38,
+      "luminanceStdDev": 26,
+      "darkFraction": 0.041,
+      "uniqueQuantizedColors": 219
     },
     "measuredVoid": {
       "floor": 48,
-      "playerY": 155.55,
-      "meanLuminance": 26.85,
-      "darkFraction": 0.362
+      "meanLuminance": 30.84,
+      "darkFraction": 0.244
     },
-    "benchmarkContrast": "Jusant shows visible climber against illuminated sculpted rock, identifiable holds and rope. Only Up! and Chained Together emphasize readable hazard silhouettes and coherent vertical paths. Our repeated facade and unreliable framing are below those references.",
-    "change": "Commit a01b32d97ab5b031c494e4e8cfb851a7000b8e86 snaps first-frame camera to high-altitude player, synchronizes HUD on first render, and adds unit/browser regression tests. New screenshot validation pending.",
-    "newWorkflowRun": "awaiting run for a01b32d",
-    "freshIndependentCritic": "Dedicated coding/subagent connector offline (tunnel-client not seen for 300 seconds); no independent review was performed.",
+    "benchmarkContrast": "Jusant uses distinct environmental silhouettes, layered lighting, tactile rock, a human-readable climber, grounded rope/holds and intentional framing. Our screenshot still had procedural repetitive surfaces and lacked this level of authored identity.",
+    "change": "New authored monumental biome setpieces, original PBR material atlases, chamfered and illuminated platforms, biome weather GPU systems, closer character-oriented camera with hero footing aura, redesigned bold biome-reactive HUD on both /tower and /tower/volumetric, and new desktop/mobile screenshot gates.",
+    "newWorkflowRun": "Latest candidate PR head pending GitHub Actions screenshots and strict native geometry/visual browser verification; do not count latest changes as visually passed.",
+    "freshIndependentCritic": "None. The 2026-10-09 pass is an explicitly self-assessed, evidence-based critique of real screenshots, not an independent blind assessment.",
     "qualityPassed": false
   }
 }
