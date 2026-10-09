@@ -278,3 +278,30 @@ test('real Quaternius animated ghost loads locally with real flying clips',async
     await page.screenshot({path:path.join(artifacts,'gauntlet-animated-ghost-v12.png'),fullPage:true});
   }
 });
+
+
+test('actual medieval environment prefabs load locally and enrich visible passages',async({page,request})=>{
+  for(const name of ['Wall_Arch','DoorFrame_Round_Brick','Roof_Tower_RoundTiles','Prop_Vine4']){
+    const file=await request.get(base+'/maze/models/'+name+'.glb');
+    expect(file.ok(),name+' GLB unavailable').toBe(true);
+    const bytes=await file.body();
+    expect(bytes.toString('ascii',0,4)).toBe('glTF');
+    expect(bytes.length).toBeGreaterThan(2500);
+  }
+  const loader=await request.get(base+'/maze/architectural-assets.js');
+  expect(loader.ok()).toBe(true);
+  await page.setViewportSize({width:1440,height:900});
+  await page.goto(base+'/maze',{waitUntil:'domcontentloaded'});
+  await page.waitForFunction(()=>window.__MAZE_PUBLIC_STATE__?.tick>=6);
+  if(await page.evaluate(()=>window.__MAZE_3D_READY__)){
+    await page.waitForFunction(()=>['loaded','fallback'].includes(window.__MAZE_3D_ARCHITECTURE__?.status),null,{timeout:22000});
+    const reality=await page.evaluate(()=>({
+      status:window.__MAZE_3D_ARCHITECTURE__,
+      render:window.__MAZE_3D_METRICS__
+    }));
+    expect(reality.status.status).toBe('loaded');
+    expect(reality.status.names).toHaveLength(4);
+    expect(reality.render.active).toBe(true);
+    await page.screenshot({path:path.join(artifacts,'gauntlet-real-medieval-architecture-v13.png'),fullPage:true});
+  }
+});
