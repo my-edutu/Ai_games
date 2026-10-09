@@ -17,7 +17,8 @@ const scripts=[
   'public/infinite-tower-climb/atmosphere-v8.js',
   'public/infinite-tower-climb/geology-v9.js',
   'public/infinite-tower-climb/grip-v10.js',
-  'public/infinite-tower-climb/hero-sculpt-v13.js'
+  'public/infinite-tower-climb/hero-sculpt-v13.js',
+  'public/infinite-tower-climb/rig-batch-v17.js'
 ];
 const source=scripts.map(read);
 const publicApp=read('public/infinite-tower-climb/app.js');
