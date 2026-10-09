@@ -378,6 +378,45 @@ test('sculpted biome ledges retain exact live collision alignment while simplify
   expect(metric.drawCalls).toBeLessThan(1400);
   await page.screenshot({path:path.join(artifacts,'gauntlet-v18-sculpted-authoritative-ledges.png'),fullPage:true});
 });
+test('Gauntlet XII: the normal broadcast camera keeps the autonomous climber inside the rendered 3D view',async({page})=>{
+  await page.setViewportSize({width:1600,height:900});
+  await page.goto(base+'/tower?cleanFeed=1',{waitUntil:'domcontentloaded'});
+  await expect.poll(()=>page.evaluate(()=>window.__TOWER_3D_DIAGNOSTICS__?.heroOnScreen),{timeout:30000}).toBe(true);
+  const f=await page.evaluate(()=>window.__TOWER_3D_DIAGNOSTICS__?.heroFraming);
+  expect(f).toBeTruthy();
+  expect(f.top).toBeGreaterThan(-.035);
+  expect(f.bottom).toBeLessThan(1.035);
+  expect(f.left).toBeGreaterThan(-.035);
+  expect(f.right).toBeLessThan(1.035);
+  await page.screenshot({path:path.join(artifacts,'gauntlet-xii-visible-climber.png'),fullPage:true});
+});
+
+test('Gauntlet XII: real desktop HUD makes the scene primary without losing spectator data',async({page})=>{
+  await page.setViewportSize({width:1600,height:900});
+  await page.goto(base+'/tower',{waitUntil:'domcontentloaded'});
+  await expect.poll(()=>page.evaluate(()=>document.body.dataset.towerTheme),{timeout:20000}).toBeTruthy();
+  const info=await page.evaluate(()=>{
+    const bounds=selector=>document.querySelector(selector).getBoundingClientRect();
+    const title=bounds('.world-label'),sidebar=bounds('.side'),header=bounds('.top'),footer=bounds('.caption');
+    const panels=[...document.querySelectorAll('.side .panel')];
+    return{
+      title:{left:title.left,right:title.right,height:title.height},
+      sidebar:{left:sidebar.left,width:sidebar.width},
+      header:{right:header.right,height:header.height},
+      footer:{width:footer.width,top:footer.top},
+      panelColors:panels.map(p=>getComputedStyle(p).color),
+      labels:panels.map(p=>p.textContent.trim().length)
+    };
+  });
+  expect(info.title.right).toBeLessThan(info.sidebar.left);
+  expect(info.header.right).toBeLessThan(info.sidebar.left);
+  expect(info.title.height).toBeLessThan(180);
+  expect(info.sidebar.width).toBeLessThan(245);
+  expect(info.footer.width).toBeLessThan(750);
+  expect(info.panelColors).toHaveLength(4);
+  for(const label of info.labels)expect(label).toBeGreaterThan(15);
+  await page.screenshot({path:path.join(artifacts,'gauntlet-xii-composed-1600.png'),fullPage:true});
+});
 test('3D module unavailable degrades safely to the existing 2D scene',async({page})=>{
   await page.route('**/tower/scene3d.js',route=>route.fulfill({status:503,body:'Module unavailable'}));
   await page.goto(base+'/tower');
