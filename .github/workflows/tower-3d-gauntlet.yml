@@ -30,7 +30,7 @@ jobs:
       - name: WebGL boot smoke (diagnose before expensive captures)
         run: npx playwright test tests/browser/tower-startup-diagnostics.spec.cjs --workers=1
       - name: Browser evidence — WebGL/AI state/fallback
-        run: npx playwright test tests/browser/tower-3d-gauntlet.spec.cjs tests/browser/tower-volumetric.spec.cjs tests/browser/tower-biome-evidence.spec.cjs tests/browser/tower-production-features.spec.cjs
+        run: npx playwright test tests/browser/tower-3d-gauntlet.spec.cjs tests/browser/tower-volumetric.spec.cjs tests/browser/tower-biome-evidence.spec.cjs tests/browser/tower-production-features.spec.cjs tests/browser/tower-visual-redesign.spec.cjs
       # Keep visual evidence available even if native geometry assertions fail.
       - name: Native THREE geometry tests
         if: ${{ !cancelled() }}
@@ -43,6 +43,7 @@ jobs:
           path: |
             artifacts/tower-phase3
             artifacts/tower-gauntlet-evidence
+            artifacts/tower-gauntlet-ui
             test-results
           if-no-files-found: warn
           retention-days: 30
