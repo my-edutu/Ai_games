@@ -8,7 +8,28 @@ export function createTowerEntities(THREE){
     obsidian=mat(0x262c47,.58,.38),eye=mat(0xffaa77,.3,.27,0xee4422),violet=mat(0x996cee,.35,.38,0x4720a0),
     health=mat(0x5bf2bd,.4,.23,0x116c50),stamina=mat(0x71cbff,.4,.23,0x1750aa),gold=mat(0xffd16e,.65,.22,0xa05f12),
     inactive=mat(0x504d63,.1,.87),danger=mat(0xeb415d,.45,.4,0x9e132d);
-  const meshes={stone,edge,metal,obsidian,eye,violet,health,stamina,gold,inactive,danger};
+  const steelSkin=new THREE.MeshStandardMaterial({color:0x2e4b63,metalness:.67,roughness:.34}),
+    inlay=new THREE.MeshStandardMaterial({color:0x789eb3,metalness:.36,roughness:.47}),
+    neon=new THREE.MeshBasicMaterial({color:0x67eafa});
+  const bevelShape=new THREE.Shape();
+  bevelShape.moveTo(-.5,-.5);bevelShape.lineTo(.5,-.5);bevelShape.lineTo(.5,.5);bevelShape.lineTo(-.5,.5);bevelShape.closePath();
+  const beveledDeck=new THREE.ExtrudeGeometry(bevelShape,{depth:.72,steps:1,
+    bevelEnabled:true,bevelThickness:.10,bevelSize:.08,bevelSegments:2,curveSegments:2});
+  beveledDeck.translate(0,0,-.36);
+  const meshes={stone,edge,metal,obsidian,eye,violet,health,stamina,gold,inactive,danger,steelSkin,inlay,neon};
+  const themeColors={
+    foundry:{stone:0x8f6960,skin:0x39475a,inlay:0xbf8e71,neon:0xffb56b,edge:0xa7cad6},
+    ruins:{stone:0x657a65,skin:0x355b55,inlay:0x87b7a2,neon:0x77ffcd,edge:0xc2ffc2},
+    clockwork:{stone:0x66788e,skin:0x4c5365,inlay:0xbda37b,neon:0xffdf89,edge:0x99dbff},
+    storm:{stone:0x596b9e,skin:0x334a86,inlay:0x87a5ca,neon:0x72daff,edge:0xc1d7ff},
+    void:{stone:0x65548b,skin:0x493663,inlay:0x9e83d1,neon:0xec90ff,edge:0xd8aaff}
+  };
+  function setTheme(name='foundry'){
+    const colors=themeColors[name]||themeColors.foundry;
+    stone.color.setHex(colors.stone);steelSkin.color.setHex(colors.skin);
+    inlay.color.setHex(colors.inlay);neon.color.setHex(colors.neon);edge.color.setHex(colors.edge);
+  }
+  setTheme('foundry');
   function shape(parent,geometry,material,x,y,z,sx,sy,sz){
     const o=new THREE.Mesh(geometry,material);o.position.set(x,y,z);o.scale.set(sx,sy,sz);
     o.castShadow=true;o.receiveShadow=true;parent.add(o);return o;
@@ -21,7 +42,16 @@ export function createTowerEntities(THREE){
       crumble=data.kind==='crumbling',wind=data.kind==='wind',
       narrow=data.kind==='narrow',spring=data.kind==='spring',guardian=data.kind==='guardian',wall=data.kind==='wall-climb';
     const surface=crumble?wood:spring?health:wind?stamina:wall?edge:narrow?edge:oneway?edge:stone;
-    const slab=bar(root,surface,0,0,0,width,Math.max(height,.24),4.5);
+    const safeHeight=Math.max(height,.24);
+    const slab=shape(root,beveledDeck,steelSkin,0,0,0,width,safeHeight,4.5);
+    slab.name='Chamfered structural steel deck';
+    // Two-layer color-treated stone and metallic fascia make the route readable from afar.
+    bar(root,surface,0,safeHeight*.5-.10,0,width*.86,.16,3.92);
+    bar(root,inlay,0,safeHeight*.5+.01,0,width*.67,.045,3.35);
+    bar(root,neon,0,safeHeight*.5+.11,2.04,width*.92,.075,.12);
+    for(const side of [-1,1]){
+      bar(root,neon,side*width*.452,safeHeight*.50+.075,0,.075,.075,3.85);
+    }
     // Underside cantilevers and inset luminous edge give each landing real mass.
     bar(root,wood,0,-Math.max(height,.24)*.5-.24,0,width*.85,.23,3.65);
     bar(root,moving?violet:crumble?danger:spring?gold:wind?stamina:metal,0,Math.max(height,.24)*.5+.08,0,width,.16,4.55);
@@ -157,7 +187,7 @@ export function createTowerEntities(THREE){
   }
   // Box, sphere, spikes and octahedra are shared for all visible entities.
   // Unique ring geometries must be released when a streamed floor leaves view.
-  const sharedGeometries=new Set([boxGeo,sphereGeo,spikeGeo,octaGeo]);
+  const sharedGeometries=new Set([boxGeo,sphereGeo,spikeGeo,octaGeo,beveledDeck]);
   function release(root){
     let disposed=0;
     root.traverse(node=>{
@@ -168,5 +198,5 @@ export function createTowerEntities(THREE){
     });
     return disposed;
   }
-  return {platform,enemy,hazard,pickup,projectile,release,materials:meshes};
+  return {platform,enemy,hazard,pickup,projectile,release,setTheme,materials:meshes};
 }
