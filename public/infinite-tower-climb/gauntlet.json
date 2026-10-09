@@ -1,20 +1,25 @@
 {
   "project": "Infinite Tower Climb — 3D Gauntlet",
   "date": "2026-10-08",
-  "round": 16,
+  "round": 17,
   "target": "Jusant (DON'T NOD): official screenshots and captured gameplay",
-  "status": "ACTIVE / NOT READY for Jusant quality: head 0c5d968 passed 18/18 Chromium Gauntlet browser tests in workflow 37795282546; real captured hero close-up visibly cropped the helmet and placed the climber left of center. Round 16 commits adjust cinematic camera framing and add actual projected mesh-bounds assertions. New-head CI/screenshot still pending. Game authority remains 2D; independent matched-camera Jusant A/B review NOT PASSED.",
+  "status": "ROUND 17 active: inspected real captured 2026-10-08 browser evidence (10 MB run 37811391368). Main visible problems: clipped white beam cones/weak chroma in worlds and unreadable low-contrast right HUD. Also CI failed its four-rig draw-call budget (983 > 850) and fallback test assumed tick could never reset across runs. This round replaces near-white additive cones with soft normal-blend back-plane shafts, intensifies five distinct landscape palettes, introduces high-contrast themed dark UI plates with a browser-measured >7:1 threshold, batches identical-material same-joint gallery meshes without sacrificing model geometry, and corrects cross-run fallback test. New head CI and real screenshot remain pending; 2D authoritative movement and Jusant independent visual parity NOT achieved.",
   "completionRule": "A separate critic must inspect the rendered game, compare screenshots or gameplay against official Jusant imagery, report the worst gap, and repeat. A functioning renderer alone is not a pass.",
   "lanes": [
     {
-      "name": "CURRENT CRITICAL TARGET — Wayfinder model fidelity",
-      "status": "Production sculpt v13 added: shaped torso/helmet/visor, belt/rope hardware, bracers, boot geometry, grained material, instanced studs; inherits pose/handhold rig. Static integration passed; real close-up screenshot needed.",
-      "criterion": "Running close-up shows convincingly shaped equipment/materials and readable hero silhouette; visual critic compares camera-matched Jusant footage."
+      "name": "FOCUS — Actual screenshot whiteout, world richness and readable HUD",
+      "status": "Implemented shader/geometry-facing fix (low-alpha NormalBlending beam sprites behind platform), stronger theme palettes, truly dark readable UI plates, Chromium >7:1 contrast test. Latest captured results pending.",
+      "criterion": "Visually inspect updated gameplay screenshot vs previous huge white glare. User/judge should distinguish biomes and clearly read all vital numbers. No fake AAA parity."
     },
     {
-      "name": "Scene composition and collision readability",
-      "status": "Inspected older Chromium capture: fake 3D catwalks, ornate rings and generic suspended props compete with player. Removed fake galleries and generic silhouettes; retained only collision-authoritative platforms and themed landmarks. Current screenshot review pending.",
-      "criterion": "Decorative geometry clearly behind playable objects; hero/platform route apparent at a glance, no noninteractive platform-shaped distractions."
+      "name": "Production character gallery performance",
+      "status": "Implemented opaque sibling-mesh coalescer per animated character joint. Browser inspector quality test still enforces <850 draw calls (previous 983) with four full detailed live character rigs. Await latest CI results.",
+      "criterion": "Browser screenshot visually retains original complete models; actual GPU call count <850 and rig instrumentation shows measurable savings."
+    },
+    {
+      "name": "Failover correctness",
+      "status": "Fixed Playwright fallback gate to check snapshot checksum advancement and distinguish ordinary run-token resets; unchanged original authoritative state + 2D draw fallback.",
+      "criterion": "CI confirms simulated WebGL context-loss retains fresh 2D updates across even reset/new runs."
     },
     {
       "name": "Vivid premium visual system",
@@ -40,11 +45,6 @@
       "name": "Authoritative game physics",
       "status": "Still 2D deterministic simulation with a Three.js 3D render/perspective camera; no true 3-axis climbing.",
       "criterion": "Requires separate authoritative replay-safe 3D movement/handholds/contact validation before full 3D completion"
-    },
-    {
-      "name": "Jusant independent quality gate",
-      "status": "NOT PASSED: current screenshot artifacts and benchmark comparison remain unavailable or unreviewed; internal source inspection alone not acceptable.",
-      "criterion": "Separate critic inspects actual gameplay video vs real matched Jusant frames and identifies the single largest remaining gap"
     }
   ],
   "evidence": [
@@ -159,6 +159,20 @@
       "name": "Round 16 inspected real browser evidence",
       "state": "PR head 0c5d968: 18/18 browser tests PASSED, including WebGL and fallback; 13 screenshots downloaded and visually inspected. Hero crop demonstrated in gauntlet-3d-hero.png.",
       "url": "https://github.com/my-edutu/Ai_games/actions/runs/37795282546/artifacts/11559622245"
+    },
+    {
+      "name": "Real GitHub gameplay screenshots / independent internal critic",
+      "state": "INSPECTED 2026-10-09: gauntlet-3d-hero.png, gauntlet-visual-v8-immersive.png, four-character inspection failure screenshot from run 37811391368. Huge bright light shafts, blue-ish backgrounds, small illegible stat typography, 983 renderer calls in inspector.",
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/37811391368"
+    },
+    {
+      "name": "Last complete browser check",
+      "state": "FAILED at 17/18: gallery draws 983 vs threshold 850; separate full CI 32/33 fallback test failed due legitimate run-token/tick reset.",
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/37811391368"
+    },
+    {
+      "name": "Round 17 new-source checks",
+      "state": "PASS JS syntax + same-origin module route inspection before final browser run; latest real capture PENDING"
     }
   ],
   "history": [
@@ -251,6 +265,11 @@
       "round": 16,
       "summary": "Inspected PR head 0c5d968, full successful Tower workflow 37795282546 (18/18 browser tests), downloaded and visually inspected 13 real screenshot artifacts (11559622245), including full 1440x900 gauntlet-3d-hero.png. The hero's helmet was cropped offscreen at the top and model was left-shifted. Fixed hero FOV 24→34, camera distance 134→174, removed hero-only world-X clamp and X/Y camera offsets, snapped camera to new runs/floors; added projected model-bounds telemetry and browser assertions requiring on-screen top/bottom/left/right. Did not alter simulation or fallback.",
       "verdict": "Original screenshots establish a real camera-framing defect. Code and regression test committed; current-head screenshot/CI not yet inspected. Jusant visual quality and full 3D physics NOT MET."
+    },
+    {
+      "round": 17,
+      "summary": "Actual independent GitHub Chromium artifact review of Storm/Clockwork gameplay, hero close-up, four-character gallery. Source changes to cut whiteout beams and lighten/match world art, improve UI contrast and panel styling, merge per-joint opaque meshes for gallery performance, and make fallback run-token-safe. Added active Chromium color-contrast (>7:1) and gallery batching validation.",
+      "verdict": "Last verified CI had 17/18 Gauntlet browser tests and 32/33 full CI browser tests; latest changes not yet run to completion, no Jusant visual acceptance."
     }
   ]
 }
