@@ -1,50 +1,35 @@
 {
   "project": "Infinite Tower Climb — 3D Gauntlet",
   "date": "2026-10-08",
-  "round": 17,
+  "round": 18,
   "target": "Jusant (DON'T NOD): official screenshots and captured gameplay",
-  "status": "ROUND 17 active: inspected real captured 2026-10-08 browser evidence (10 MB run 37811391368). Main visible problems: clipped white beam cones/weak chroma in worlds and unreadable low-contrast right HUD. Also CI failed its four-rig draw-call budget (983 > 850) and fallback test assumed tick could never reset across runs. This round replaces near-white additive cones with soft normal-blend back-plane shafts, intensifies five distinct landscape palettes, introduces high-contrast themed dark UI plates with a browser-measured >7:1 threshold, batches identical-material same-joint gallery meshes without sacrificing model geometry, and corrects cross-run fallback test. New head CI and real screenshot remain pending; 2D authoritative movement and Jusant independent visual parity NOT achieved.",
+  "status": "Gauntlet Round 18 implementation: real Chromium artifact run 37811391368 confirmed unacceptable overexposed world beams, insufficient biome saturation, dark-on-glass HUD labels, 983 draw calls in four-production-character critic, and run-token reset failing fallback assertion. Fixed source accordingly: physically bounded soft light curtains (normal blending, far behind gameplay), five vivid unique sky palettes, dark high-contrast UI plates with measured browser gate >=7:1, joint-local material mesh merging for inspector characters without deleting detail, authored chipped/stratified ledges precisely synced with authoritative physics, and run-aware 2D fallback test. Unit tests added for full-vertex-preserving character batching. Latest CI/browser screenshots on new head remain pending; NOT at Jusant bar and not full 3D physics.",
   "completionRule": "A separate critic must inspect the rendered game, compare screenshots or gameplay against official Jusant imagery, report the worst gap, and repeat. A functioning renderer alone is not a pass.",
   "lanes": [
     {
-      "name": "FOCUS — Actual screenshot whiteout, world richness and readable HUD",
-      "status": "Implemented shader/geometry-facing fix (low-alpha NormalBlending beam sprites behind platform), stronger theme palettes, truly dark readable UI plates, Chromium >7:1 contrast test. Latest captured results pending.",
-      "criterion": "Visually inspect updated gameplay screenshot vs previous huge white glare. User/judge should distinguish biomes and clearly read all vital numbers. No fake AAA parity."
+      "name": "PRIORITY 1 — screenshot-proven environmental overexposure and color",
+      "status": "Applied explicit normal-blend low-alpha shafts at z=-108, lessened moon/sun bloom, five higher-chroma landscape palettes, theme-aware dark readable gameplay HUD; browser >7:1 color checks committed.",
+      "criterion": "Real new screenshots distinguish all five biomes and do not contain giant white overlay triangles; text readable from gameplay distance."
     },
     {
-      "name": "Production character gallery performance",
-      "status": "Implemented opaque sibling-mesh coalescer per animated character joint. Browser inspector quality test still enforces <850 draw calls (previous 983) with four full detailed live character rigs. Await latest CI results.",
-      "criterion": "Browser screenshot visually retains original complete models; actual GPU call count <850 and rig instrumentation shows measurable savings."
+      "name": "PRIORITY 2 — authoritative platform geometry looks sculpted",
+      "status": "Added ledge-v18: collision-width exact sculpted triangular lower rock faces, deterministic stone scratch texture, theme-specific metal/accent trims, moving ledge insignia, authoritative physics-tick positioning and diagnostic max alignment error.",
+      "criterion": "No fake handholds; photographed gameplay platforms visually believable and precisely align with fixed-step collision rectangles."
     },
     {
-      "name": "Failover correctness",
-      "status": "Fixed Playwright fallback gate to check snapshot checksum advancement and distinguish ordinary run-token resets; unchanged original authoritative state + 2D draw fallback.",
-      "criterion": "CI confirms simulated WebGL context-loss retains fresh 2D updates across even reset/new runs."
+      "name": "PRIORITY 3 — four-character inspection performance",
+      "status": "New rig-batch-v17 merges opaque sibling pieces with shared material under the exact same animated joint. No decimation, no removing model detail. New Node tests preserve vertex counts/pose world bounds and original cloth, transparent visor and attached children; browser <850 draw-call budget remains strict.",
+      "criterion": "Four production character rigs remain visually identical and gallery draws <850 actual GPU calls, no loss of pose consistency."
     },
     {
-      "name": "Vivid premium visual system",
-      "status": "Round 8: replaced three conflicting loaded CSS visual passes with one unified Visual VIII; jewel-tone biome accents, readable warm parchment vital/progress cards, improved bright/dark hierarchy and mobile rules. Browser screenshot review pending.",
-      "criterion": "Desktop/mobile browser captures clearly outperform old blue HUD without obstructing live action; WCAG-ish contrast review and two blinded human screenshots"
+      "name": "PRIORITY 4 — fallback integrity",
+      "status": "Fixed browser assertion to accept tick resets across new autonomous runs while requiring new snapshot checksum and live 2D view.",
+      "criterion": "WebGL context loss switches to 2D and autonomous snapshots continue updating without blocked canvas."
     },
     {
-      "name": "Living 3D environment",
-      "status": "Round 8: integrated bounded animated colored dust (78 low/180 high), 4 translucent mist curtains, 2–6 angled atmospheric light shafts and biome-specific decorative foliage/machinery/crystals. Screenshot/GPUs pending.",
-      "criterion": "Immersive, distinct biome lighting, convincing depth and no visible repetitive tiles in real browser frames"
-    },
-    {
-      "name": "Character motion and silhouettes",
-      "status": "Round 8: authored separate hero grip/dash/hurt sequences, Sentinel shield posture, Shooter aiming, Guardian windup/braced stance while preserving actual public simulation. Full authored high-resolution character meshes still missing.",
-      "criterion": "Real recorded frames have legible poses, locomotion and role identity vs Jusant reference; avoid mannequin animation"
-    },
-    {
-      "name": "GPU reliability",
-      "status": "Round 8: consolidated double-instantiated action-effects director into one instance; restored cooler rim/warmer key light, reduced overexposed flat ambient. Browser frame metrics and long-play pending.",
-      "criterion": "No render-context error, bounded WebGL draw calls, no cross-floor memory growth, FPS stable on mobile"
-    },
-    {
-      "name": "Authoritative game physics",
-      "status": "Still 2D deterministic simulation with a Three.js 3D render/perspective camera; no true 3-axis climbing.",
-      "criterion": "Requires separate authoritative replay-safe 3D movement/handholds/contact validation before full 3D completion"
+      "name": "OPEN — Jusant matched-camera and fully authoritative 3D climbing",
+      "status": "NOT achieved. Current deterministic simulator is 2D and rendered with Three.js; external detailed asset pipeline/animation production and independent Jusant screenshot match remain ahead.",
+      "criterion": "Independent critic reviews matched screenshots/recording and actual gameplay mechanics before any 'done' verdict."
     }
   ],
   "evidence": [
@@ -173,6 +158,15 @@
     {
       "name": "Round 17 new-source checks",
       "state": "PASS JS syntax + same-origin module route inspection before final browser run; latest real capture PENDING"
+    },
+    {
+      "name": "Round 18 source parser and routed imports",
+      "state": "PASS: eight changed JS/test files syntax parsed and same-origin new rig/ledge shader asset URLs checked"
+    },
+    {
+      "name": "Round 18 authored-platform screenshot, four-character draw budget, UI contrast",
+      "state": "PENDING: new GitHub Actions WebGL screenshots and all browser quality assertions",
+      "url": "https://github.com/my-edutu/Ai_games/pull/48/checks"
     }
   ],
   "history": [
@@ -270,6 +264,11 @@
       "round": 17,
       "summary": "Actual independent GitHub Chromium artifact review of Storm/Clockwork gameplay, hero close-up, four-character gallery. Source changes to cut whiteout beams and lighten/match world art, improve UI contrast and panel styling, merge per-joint opaque meshes for gallery performance, and make fallback run-token-safe. Added active Chromium color-contrast (>7:1) and gallery batching validation.",
       "verdict": "Last verified CI had 17/18 Gauntlet browser tests and 32/33 full CI browser tests; latest changes not yet run to completion, no Jusant visual acceptance."
+    },
+    {
+      "round": 18,
+      "summary": "Scoped visual quality overhaul from screenshot-driven critique: repaired whitewashed environment atmosphere; retuned all five sky colors and opaque readable HUD; batched identical-material character rig parts while preserving every vertex; rebuilt collision-accurate tower platforms as sculpted textured ledges rather than simple boxes; added source/real-browser regression gates.",
+      "verdict": "Source syntax and same-origin asset routing checked; previous head failed one gallery draw-call threshold and one fallback test; new CI and current screenshot evidence still pending. Full 3D climbing and independent matched-camera Jusant quality remain unmet."
     }
   ]
 }
