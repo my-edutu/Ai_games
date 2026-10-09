@@ -713,8 +713,28 @@ function renderSquad(){
     card.setAttribute('aria-label','Follow '+member.name+', '+member.role+', health '+Math.round(member.health));
   }
 }
+const mobilePanelButtons={survival:document.getElementById('mobileSurvival'),
+  intel:document.getElementById('mobileIntel'),map:document.getElementById('mobileMap')};
+function setMobilePanel(value,{focus=false}={}){
+  const target=value===hud.dataset.mobilePanel?'none':value;
+  const next=['survival','intel'].includes(target)?target:'none';
+  hud.dataset.mobilePanel=next;
+  mobilePanelButtons.survival.setAttribute('aria-expanded',String(next==='survival'));
+  mobilePanelButtons.intel.setAttribute('aria-expanded',String(next==='intel'));
+  mobilePanelButtons.map.setAttribute('aria-expanded',String(next==='intel'));
+  if(next!=='none'){
+    squadPanel.hidden=true;
+    document.getElementById('rosterToggle').setAttribute('aria-expanded','false');
+    if(cinematic){cinematic=false;hud.dataset.cinema='false';
+      const cinema=document.getElementById('cinemaMode');
+      cinema.setAttribute('aria-pressed','false');cinema.textContent='▣ CINEMA';}
+    if(focus)document.querySelector('#'+(next==='survival'?'survivalPanel':'intelPanel')+' .panelClose')?.focus();
+  }
+}
 function toggleCinema(){
   cinematic=!cinematic;
+  if(cinematic){hud.dataset.mobilePanel='none';
+    for(const button of Object.values(mobilePanelButtons))button.setAttribute('aria-expanded','false');}
   hud.dataset.cinema=String(cinematic);
   const btn=document.getElementById('cinemaMode');
   btn.setAttribute('aria-pressed',String(cinematic));
@@ -825,6 +845,7 @@ function render(now){
     const spotted=drawTacticalMap(document.getElementById('miniMap'),game,cameraFocusX,cameraFocusZ);
     hud.querySelector('#mapCount').textContent='TRACKING '+spotted;const living=game.survivors.filter(s=>s.alive).length,infected=game.zombies.filter(z=>z.health>0).length;
     hud.dataset.phase=game.time.phase;
+    document.getElementById('mobileAlive').textContent=String(living);
     hud.querySelector('#day').textContent='DAY '+game.time.day+' / '+game.time.phase.toUpperCase();
     hud.querySelector('#weather').textContent=game.weather.kind.toUpperCase()+
       (game.weather.kind==='clear'?' SKIES':game.weather.kind==='storm'?' WARNING':'');
@@ -833,6 +854,7 @@ function render(now){
     const baseIntegrity=Math.max(0,Math.min(100,game.safeHouse.integrity));
     hud.querySelector('#integrity').textContent=Math.round(baseIntegrity)+'% BASE';
     hud.querySelector('#baseFill').style.width=baseIntegrity+'%';
+    document.getElementById('mobileBase').textContent=Math.round(baseIntegrity)+'%';
     hud.querySelector('#goal').textContent=game.objective.label;
     hud.querySelector('#objectiveType').textContent=game.objective.kind.toUpperCase();
     const objProgress=game.objective.progress<=1?game.objective.progress*100:game.objective.progress;
@@ -848,6 +870,23 @@ function render(now){
     const pressure=Math.round(Math.max(0,Math.min(100,game.hordePressure*100)));
     hud.querySelector('#hordeMeter').style.width=pressure+'%';
     hud.querySelector('#threatPercent').textContent=pressure+'%';
+    document.getElementById('mobilePressure').textContent=pressure+'%';
+    const crisis=game.status!=='running'||pressure>=65||baseIntegrity<45?'critical':
+      pressure>=35||baseIntegrity<75?'elevated':'stable';
+    hud.dataset.crisis=crisis;
+    const alert=document.getElementById('alertBanner');
+    const crisisActive=crisis==='critical'&&game.status==='running';
+    alert.hidden=!crisisActive;
+    if(crisisActive){
+      const baseCritical=baseIntegrity<45;
+      const headline=baseCritical?'BASE INTEGRITY CRITICAL':'HORDE PRESSURE CRITICAL';
+      const detail=baseCritical?'Defensive integrity '+Math.round(baseIntegrity)+'%':
+        pressure+'% pressure · squad intervention underway';
+      if(document.getElementById('alertLabel').textContent!==headline)
+        document.getElementById('alertLabel').textContent=headline;
+      if(document.getElementById('alertDetail').textContent!==detail)
+        document.getElementById('alertDetail').textContent=detail;
+    }
     hud.querySelector('#cameraLabel').textContent=(
       cameraMode==='director'?director.mode.replaceAll('-',' '):cameraMode
     ).toUpperCase();
@@ -890,6 +929,8 @@ document.addEventListener('keydown',e=>{
   if(e.key.toLowerCase()==='s')toggleRoster();
   if(e.key.toLowerCase()==='m')toggleCinema();
   if(e.key.toLowerCase()==='r'){restartRun();}
+  if(e.key==='Escape'){setMobilePanel('none');squadPanel.hidden=true;
+    document.getElementById('rosterToggle').setAttribute('aria-expanded','false');}
 });
 document.querySelector('#sound').addEventListener('click',enableAudio);
 document.querySelector('#togglePause').addEventListener('click',togglePause);
@@ -897,5 +938,15 @@ document.querySelector('#focus').addEventListener('click',()=>{cameraMode='direc
 document.querySelector('#hero').addEventListener('click',()=>{cameraMode='hero';});
 document.querySelector('#rosterToggle').addEventListener('click',toggleRoster);
 document.querySelector('#cinemaMode').addEventListener('click',toggleCinema);
+mobilePanelButtons.survival.addEventListener('click',()=>setMobilePanel('survival'));
+mobilePanelButtons.intel.addEventListener('click',()=>setMobilePanel('intel'));
+mobilePanelButtons.map.addEventListener('click',()=>{
+  const alreadyOpen=hud.dataset.mobilePanel==='intel';
+  if(!alreadyOpen)setMobilePanel('intel');
+  document.getElementById('miniMap').scrollIntoView({block:'nearest',behavior:'instant'});
+});
+for(const close of document.querySelectorAll('[data-close-panel]')){
+  close.addEventListener('click',()=>{setMobilePanel('none');mobilePanelButtons[close.dataset.closePanel].focus();});
+}
 rebuildStatic(true);
 requestAnimationFrame(render);
