@@ -300,7 +300,14 @@
   const opening=sim.snapshot();syncWorld(opening);
   if(recovered){const status=document.getElementById('status');if(status)status.textContent='CHECKPOINT RESTORED · FLOOR '+player.at;}
   climber.root.position.set(player.x,player.y,player.z);
-  Object.assign(details,{status:'loading',floor:player.at,tick:opening.tick,stageTarget:captureFloor});
+  Object.assign(details,{
+    status:'loading',floor:player.at,tick:opening.tick,stageTarget:captureFloor,
+    mode:opening.mode,intent:opening.intent,biome:opening.theme,health:player.health,
+    gripStamina:opening.climbing.stamina,build:opening.build,shields:opening.shields,
+    score:opening.score,guardianKills:opening.guardianKills,wallClimbs:opening.wallClimbs,
+    safetyRescues:opening.tether.rescues,latestStory:opening.events?.at(-1)?.text||
+      'A new climber enters the infinite tower.'
+  });
   camera.position.set(player.x+13,player.y+12,player.z+23);
   progress('first-frame-requested');
   requestAnimationFrame(animate);

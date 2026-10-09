@@ -118,3 +118,29 @@ test('biome weather produces colored atmospheric GPU particles with no per-frame
   weather.update(99,{y:155},true);
   assert.equal(material.uniforms.uTime.value,0,'accessibility mode must freeze particle drift');
 });
+
+test('foreground 3D floor fading is camera-specific, reversible and never changes the physical platform',()=>{
+  const scene=new THREE.Scene(),root=new THREE.Group();scene.add(root);
+  const create=fromFile('occlusion3d.js','createTowerOcclusion');
+  const manager=create(THREE,root);
+  const original=new THREE.MeshStandardMaterial({color:0x1b567b});
+  const landing=new THREE.Group();landing.userData.platform=true;
+  const slab=new THREE.Mesh(new THREE.BoxGeometry(12,1.4,5),original);
+  landing.add(slab);root.add(landing);
+  const camera=new THREE.PerspectiveCamera(54,16/9,.1,300);
+  camera.position.set(0,8,15);
+  // A suspended upper landing is between the climber and cinematic lens.
+  landing.position.set(0,4,6);
+  const hero={x:0,y:0,z:0};
+  let visible=manager.update(camera,hero,1);
+  assert.ok(visible>=1,'real foreground overhang should be identified');
+  assert.notStrictEqual(slab.material,original);
+  assert.ok(slab.material.transparent&&slab.material.opacity<.5);
+  const originalGeometry=slab.geometry;
+  landing.position.set(40,4,6);
+  visible=manager.update(camera,hero,8);
+  assert.equal(visible,0);
+  assert.strictEqual(slab.material,original,'material must be restored when obstruction clears');
+  assert.strictEqual(slab.geometry,originalGeometry,'art fading must never replace game collision/render topology');
+  manager.dispose();
+});

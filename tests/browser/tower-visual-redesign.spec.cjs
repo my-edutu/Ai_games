@@ -12,6 +12,8 @@ test('redesigned cinematic 3D HUD has legible hero floor and unobstructed centra
  await page.waitForFunction(()=>window.__TOWER_VOLUMETRIC_STATE__?.status==='live'&&window.__TOWER_VOLUMETRIC_RENDER_METRICS__?.frames>0,null,{timeout:30000});
  await expect(page.locator('body')).toHaveAttribute('data-biome','clockwork');
  await expect(page.locator('#biome')).toHaveText('CLOCKWORK');
+ await expect(page.locator('#grip-percent')).toHaveText('100%');
+ await expect(page.locator('#status')).not.toContainText('undefined');
  await expect(page.locator('#floor')).toHaveText(/24|25/);
  const measurements=await page.evaluate(()=>{
    const rect=selector=>{const r=document.querySelector(selector).getBoundingClientRect();return{x:r.x,y:r.y,width:r.width,height:r.height}};
