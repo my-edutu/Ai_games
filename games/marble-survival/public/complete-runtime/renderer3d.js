@@ -932,6 +932,10 @@
         ||a.id-b.id);
       focus=sorted.slice(0,currentSnapshot.round.remaining<=4?4:Math.min(6,sorted.length));
     }
+    // Overviews are wide by composition, not by selecting fake race leaders.
+    // The server's nominated focus IDs remain intact for labels and events.
+    const widePack=directive.mode==='overview'&&active.length>=12;
+    shell.dataset.cameraFraming=widePack?'full-grid':'director-focus';
     shell.dataset.cameraSubjects=String(focus.length);
     shell.dataset.cameraTargetSource=(directive.focusIds||[]).some(id=>focus.some(m=>m.id===id))
       ?'official-focus':'live-fallback';
@@ -943,24 +947,23 @@
     // and distant gantries into a readable perspective without shrinking the
     // actual gameplay view to a tiny close-up.
     let eye=[target[0]+3.9/zoom,9.0/zoom,target[2]+17.8/zoom];
-    // Opening broadcast: a full starting grid must remain legible before the
-    // director switches to individual leaders. This is presentation-only.
-    // Widen the overview framing rather than allowing the first six leaders
-    // to pull the entire field off-screen at the start of a race.
-    if(directive.mode==='overview'&&active.length>12){
-      const minX=Math.min(...active.map(m=>m.x));
-      const maxX=Math.max(...active.map(m=>m.x));
-      const minY=Math.min(...active.map(m=>m.y));
-      const maxY=Math.max(...active.map(m=>m.y));
-      const spread=Math.max(maxX-minX,maxY-minY);
-      const center=toWorld((minX+maxX)/2,(minY+maxY)/2,arena);
-      const opening=currentSnapshot.round?.elapsedTicks<=120;
-      if(opening){
-        target=[center[0],target[1],center[2]];
-        const distance=Math.max(19.5,spread*WORLD_SCALE*1.65);
-        eye=[target[0]+distance*.20/zoom,distance*.53/zoom,target[2]+distance/zoom];
-      }
-    }
+    // Wide framing uses the *entire* observed live field and a look-ahead
+    // toward the physical finish. The presentation snapshot does not publish
+    // round.elapsedTicks, so this cannot depend on that missing property.
+    if(widePack){
+      const minX=Math.min(...active.map(m=>m.x)),maxX=Math.max(...active.map(m=>m.x));
+      const minY=Math.min(...active.map(m=>m.y)),maxY=Math.max(...active.map(m=>m.y));
+      const pack=toWorld((minX+maxX)*0.5,(minY+maxY)*0.5,arena);
+      const width=arena.width*WORLD_SCALE,depth=arena.height*WORLD_SCALE;
+      // Keep the full competition legible while leaving the next hazards
+      // and the destination in view. No authoritative state is modified.
+      const lookAhead=Math.min(depth*0.28,7.0);
+      target=[pack[0],0.42,Math.max(-depth*0.32,pack[2]-lookAhead)];
+      const height=Math.max(13.5,width*0.96,depth*0.54);
+      eye=[target[0]+height*0.12/zoom,height/zoom,
+        target[2]+height*1.12/zoom];
+      shell.dataset.cameraWideCompetitors=String(active.length);
+    }else shell.dataset.cameraWideCompetitors='0';
     if(directive.mode==='overview'&&currentSnapshot.round.remaining<=4)eye=[target[0]+3.15/zoom,4.25/zoom,target[2]+6.55/zoom];
     if(directive.mode === 'danger')eye=[target[0]+2.8/zoom,3.75/zoom,target[2]+5.45/zoom];
     if(directive.mode==='cut-line')eye=[target[0]+2.6/zoom,4.30/zoom,target[2]+7.15/zoom];
@@ -982,7 +985,12 @@
       const avgVY=focus.reduce((total,m)=>total+(m.velocityY||0),0)/focus.length;
       target=[target[0]+clamp(avgVX*WORLD_SCALE*3,-0.8,0.8),
         target[1],target[2]+clamp(avgVY*WORLD_SCALE*3,-0.8,0.8)];
-      if(directive.mode==='overview'){
+      if(widePack){
+        // Cinema must not accidentally undo full-grid coverage.
+        const width=arena.width*WORLD_SCALE,depth=arena.height*WORLD_SCALE;
+        const height=Math.max(13.5,width*.96,depth*.54);
+        eye=[target[0]+height*.12/zoom,height/zoom,target[2]+height*1.12/zoom];
+      }else if(directive.mode==='overview'){
         eye=[target[0]+4.8/zoom,6.8/zoom,target[2]+7.9/zoom];
       }else{
         eye=[lerp(eye[0],target[0]+3.2/zoom,0.28),eye[1]*0.88,
