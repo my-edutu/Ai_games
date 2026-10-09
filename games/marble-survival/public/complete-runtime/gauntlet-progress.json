@@ -1,9 +1,9 @@
 {
   "schema": 1,
-  "iteration": "Loop 47 · race camera hero framing and physics-faithful elevated ramp service architecture",
+  "iteration": "Loops 48–51 · full-grid 3D framing, low-tier material budget and authority-backed spectator UX",
   "lastUpdated": "2026-10-09",
   "criticTarget": "CRITIC MUST INSPECT real Chromium screenshots and captured gameplay video, compare side-by-side against official Marble It Up! Ultra and Marbles on Stream imagery, and reject every empty, flat, low-contrast or unreadable scene. Run actual WebGL2 shader compilation, verify frames, mobile layout and deterministic authority. No source-only acceptance.",
-  "comparisonStatus": "NOT YET VERIFIED — Reactors and five obstacle families are live in committed 3D code; 19/19 instrumented GPU-path cases and 12/12 real geometry checks passed in a JavaScript harness, but native Chromium screenshots of this revision, shader compile, device FPS and independent commercial A/B votes are pending.",
+  "comparisonStatus": "NOT YET VERIFIED — Previous actual Chromium screenshot shows a large empty-looking blue field and tiny competitors; previous SwiftShader Low run measured frame p50 316.7 ms / p95 400 ms. Loops 48–51 are committed source changes with foundation and Playwright assertions, but the new Chromium screenshots, WebGL shader compile, performance and independent blinded official Marble It Up! Ultra/Marbles on Stream A/B comparison are pending. No commercial visual parity claimed.",
   "goals": [
     {
       "name": "Premium marble character optics",
@@ -264,9 +264,44 @@
       "name": "Actual native Chromium visual reference parity",
       "detail": "Automated screenshots and measured GPU tests plus blind official Marble It Up! Ultra A/B comparison remain required",
       "status": "in-progress"
+    },
+    {
+      "name": "Full-grid 3D camera composition",
+      "detail": "Broadcast and Cinema overview cameras calculate bounds of all actively racing competitors, preview the physical course and expose source-backed camera-framing telemetry; 90% visible real-browser projection test added",
+      "status": "in-progress"
+    },
+    {
+      "name": "Software-rasterizer WebGL material path",
+      "detail": "Low-tier visual-quality preset bypasses expensive multi-light glass microdetail for simplified stage-coloured shading; SwiftShader p95 baseline 400 ms must be remeasured in Chromium",
+      "status": "in-progress"
+    },
+    {
+      "name": "Live five-stage survival-road overlay",
+      "detail": "Accessible responsive on-arena five-stage progression keyed only to the public authoritative round and tournament result; hidden in clean/cinema mode",
+      "status": "in-progress"
+    },
+    {
+      "name": "Authority-backed ranking progress bars",
+      "detail": "Stable keyed leaderboard elements visualize public leaderboard progressPermille without local race simulation or operator mutation",
+      "status": "in-progress"
     }
   ],
   "history": [
+    {
+      "title": "Loop 51 — Actual leaderboard progress in vivid racer rows",
+      "note": "The stable keyed standings rows gain a stage-aware thin course-completion bar and live spoken inspect labels from public authoritative progressPermille. Pure UI; no competitor speed or outcome is inferred locally.",
+      "proof": "GitHub source commits 654686d and 4ccfe9f; new screenshot/accessibility check pending."
+    },
+    {
+      "title": "Loop 50 — Stage road, not five disconnected dull HUD numbers",
+      "note": "New responsive five-stage arena overlay announces actual stage advancement. Official round.number and lifecycle alone decide complete/current/locked visual states; clean and cinematic views remove the overlay to keep the race the hero.",
+      "proof": "GitHub source commits e1762bd, fc71989, ecef49b; foundation assertions committed; native browser pending."
+    },
+    {
+      "title": "Loops 48–49 — Uncropped opening grid and low-cost GPU material budget",
+      "note": "Fixed broken check on nonexistent round.elapsedTicks, framed all actual racing starters instead of only initial nominated focus IDs, and prevented cinema from reverting that fix. Simplified low-quality material shader to reduce work on SwiftShader. Added native Chromium 90% starter coverage assertion.",
+      "proof": "GitHub source commits adb7b04, 1f09d50, def5b2b, fc0442a; before: 22/32 projected in analytical inspection; previous real SwiftShader p95 400 ms, AFTER browser evidence pending."
+    },
     {
       "title": "Loop 46 — Real champion hero camera instead of a distant tabletop shot",
       "note": "Final four, danger, finishing and crowned winner use closer lower-angle compositions driven only by official camera focus and real racer motion. Refocus on winner is observable and screenshot-critical; no champion ID is ever chosen on client.",
