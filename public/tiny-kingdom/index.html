@@ -1308,6 +1308,154 @@ function chimneySmoke(x,z,variant,time,scale=1){
  }
 }
 
+
+/* Gauntlet 043: blacksmith workshop, cart and trade yard.
+   Original, authored-in-code architecture, not a UI illustration. The 3D scene
+   shares the game's weather/lighting and stays within terrain navigation bounds.
+   Craft workshops are landmarks, not fabricated economy buildings. */
+const CRAFT_DISTRICT=Object.freeze({x:19,z:-15,width:8.2,depth:6.4});
+const craftCounters={pieces:0,cartWheels:0,smokePuffs:0};
+function forgeBarrel(x,z,r=.29,barrelHeight=.78){
+ const y=terrain(x,z),oak=rgb(0x936940),iron=rgb(0x484d4b),head=rgb(0x715738);
+ cylinder(x,y,z,r,barrelHeight,oak,10);
+ for(let band=0;band<3;band++)cylinder(x,y+.12+band*.22,z,r*1.07,.045,iron,10);
+ cylinder(x,y+barrelHeight,z,r*.86,.05,head,10);
+ craftCounters.pieces++;
+}
+function cartWheel(x,y,z,r=.52){
+ const wood=rgb(0x795c3d),iron=rgb(0x5d5b56);
+ // Two vertical annuli and a recognizable recessed hub.
+ for(let side of [-1,1]){
+  const zz=z+side*.09;
+  for(let i=0;i<12;i++){
+   const a=i*Math.PI/6,b=(i+1)*Math.PI/6;
+   const p=(angle,radius)=>[x+Math.cos(angle)*radius,y+Math.sin(angle)*radius,zz];
+   quad(p(a,r*.78),p(b,r*.78),p(b,r),p(a,r),iron);
+  }
+ }
+ cylinder(x,y-r*.16,z,.12,.26,wood,8);
+ for(let i=0;i<6;i++){
+  const a=i*Math.PI/3,dx=Math.cos(a)*r*.72,dy=Math.sin(a)*r*.72;
+  limbSegment([x,y,z],[x+dx,y+dy,z],.055,wood,6);
+ }
+ craftCounters.cartWheels++;
+}
+function timberCart(x,z){
+ const y=terrain(x,z),plank=rgb(0xb68b54),rim=rgb(0x785334);
+ // The shaft points toward the lane, the load remains off the walking route.
+ box(x,y+.65,z,2.45,.20,1.85,plank);
+ for(const side of [-1,1]){
+  box(x+side*1.17,y+.77,z,.11,.48,1.88,rim);
+  box(x+side*1.11,y+.56,z-1.04,.17,.75,.19,rim);
+  cartWheel(x+side*1.30,y+.54,z-.57,.47);
+  cartWheel(x+side*1.30,y+.54,z+.57,.47);
+ }
+ box(x,y+.76,z+1.04,2.38,.42,.12,rim);
+ for(let n=0;n<4;n++){
+  const xx=x+(n%2?-.51:.51),zz=z+(n>1?.35:-.40);
+  box(xx,y+.82+(n>1?.35:0),zz,.85,.44,.76,rgb(n%2?0xc8aa6c:0xb69b61));
+  for(let t=0;t<3;t++)box(xx,y+.85+(n>1?.35:0)+t*.14,zz,.90,.027,.8,rgb(0xa78a54));
+ }
+ for(const side of [-1,1])box(x+side*.71,y+.39,z+1.73,.13,.11,1.58,rim);
+ craftCounters.pieces+=13;
+}
+function forgeRoof(x,y,z){
+ const slate=[rgb(0x746c71),rgb(0x8e7777),rgb(0x9e8b80),rgb(0x6a6d72)];
+ const lower=y+3.35,peak=lower+1.83,xl=x-4.1,xr=x+4.1,z0=z-3.23,z1=z+3.23;
+ materialScope(MATERIAL.ROOF,()=>{
+   // Overlapping staggered individual slates, with real 3D raised seams.
+   for(let side of [-1,1]){
+    for(let row=0;row<8;row++)for(let col=0;col<12;col++){
+     const r0=row/8,r1=(row+1)/8;
+     const p0=x+side*(4.25*(1-r0)),p1=x+side*(4.25*(1-r1));
+     const h0=lower+(peak-lower)*r0,h1=lower+(peak-lower)*r1;
+     const stagger=(row%2)*.35;
+     const t0=Math.max(0,(col+stagger)/12),t1=Math.min(1,(col+1+stagger)/12);
+     if(t1<=t0)continue;
+     const za=z0+(z1-z0)*t0,zb=z0+(z1-z0)*t1;
+     const colr=slate[(row*11+col*7+side*3+144)%slate.length];
+     // Emit both faces so the pitched tiles survive all camera quadrants.
+     const a=[p0,h0+.026,za],b=[p1,h1+.026,za],c=[p1,h1+.026,zb],d=[p0,h0+.026,zb];
+     quad(a,b,c,d,colr);quad(d,c,b,a,colr);
+    }
+   }
+ });
+ box(x,y+5.16,z,.17,.13,6.8,rgb(0xb5a994));
+}
+function forgeWorkshop(){
+ const {x,z,width,depth}=CRAFT_DISTRICT,y=terrain(x,z);
+ craftCounters.pieces=0;craftCounters.cartWheels=0;
+ const stone=rgb(0xbeaf99),oak=rgb(0x6c503c),brick=rgb(0xa68a76),plaster=rgb(0xd3c6aa);
+ box(x,y-.10,z,width,.38,depth,stone);
+ box(x,y+.22,z,width-.65,3.18,depth-.52,plaster);
+ for(const side of [-1,1]){
+   const xx=x+side*3.78;
+   for(let i=0;i<4;i++){
+     const zz=z-2.55+i*1.68;
+     box(xx,y+.16,zz,.28,3.31,.29,oak);
+     box(xx+side*.12,y+2.90,zz,.35,.16,.43,stone);
+   }
+   for(let i=0;i<3;i++){
+     const zz=z-1.73+i*1.73;
+     box(xx+side*.12,y+1.17,zz,.14,1.10,.74,rgb(0x416e77));
+     for(let k=0;k<2;k++)box(xx+side*.21,y+1.42+k*.42,zz,.06,.066,.79,rgb(0xcfbd9b));
+   }
+ }
+ const front=z-3.2;
+ // A real arched cart entrance and split plank gates.
+ box(x,y+.36,front,2.42,2.52,.28,rgb(0x504438));
+ for(const side of [-1,1]){
+   box(x+side*.66,y+.36,front-.13,.95,2.35,.13,rgb(0x8d6145));
+   box(x+side*.71,y+1.48,front-.22,.08,2.15,.09,rgb(0x543f35));
+ }
+ box(x,y+2.96,front,3.07,.40,.40,stone);
+ for(let i=0;i<5;i++)box(x,y+.31+i*.63,front+3.16,7.5,.08,.10,brick);
+ forgeRoof(x,y,z);
+ // Tall smoky chimney, colored masonry instead of floating smoke spheres.
+ const cx=x+2.48,cz=z+1.18;
+ box(cx,y+3.12,cz,.96,4.12,.92,brick);
+ for(let n=0;n<14;n++)box(cx,y+3.22+n*.27,cz,1.0,.035,.97,rgb(n%3?0xa1907d:0x7f796c));
+ box(cx,y+7.16,cz,1.35,.19,1.28,stone);
+ box(cx,y+7.35,cz,.62,.09,.57,rgb(0x343636));
+ // The outdoor charcoal forge, bellows and anvil make the profession legible.
+ const fx=x-3.30,fz=z-4.37,fy=terrain(fx,fz);
+ box(fx,fy-.04,fz,2.0,.31,1.5,stone);
+ box(fx,fy+.25,fz-.09,1.70,.94,.87,brick);
+ box(fx,fy+1.01,fz-.15,1.18,.15,.76,rgb(0x504945));
+ box(fx,fy+1.12,fz-.19,.70,.20,.48,rgb(0xe6a865));
+ for(const side of [-1,1])box(fx+side*.69,fy+.32,fz-.61,.18,1.02,.22,oak);
+ const ax=x-.82,az=z-4.65,ay=terrain(ax,az);
+ box(ax,ay+.08,az,.48,.91,.48,oak);
+ box(ax,ay+.95,az,.88,.26,.48,rgb(0x626b71));
+ box(ax-.45,ay+1.03,az,.48,.10,.30,rgb(0x6e7577));
+ box(ax+.47,ay+1.03,az,.42,.1,.30,rgb(0x656d73));
+ for(let i=0;i<4;i++)forgeBarrel(x+3.88+i%2*.65,z-4.15+Math.floor(i/2)*.75,.24,.69);
+ // Masonry paving, a drying rack, timber stock and tool silhouettes.
+ for(let n=0;n<16;n++){
+  const px=x-3.4+(n%4)*1.05,pz=z-6.15+Math.floor(n/4)*.67;
+  const py=terrain(px,pz)+.036;
+  box(px,py,pz,.93,.06,.59,rgb((n%4)<2?0xb5a289:0x958c7d));
+ }
+ for(let i=0;i<5;i++){
+   const zz=z+2.25+i*.29,xx=x-4.5;
+   cylinder(xx,terrain(xx,zz),zz,.14,1.3,rgb(i%2?0xa4784c:0x816144),8);
+ }
+ timberCart(x+5.65,z-5.18);
+ craftCounters.pieces+=72;
+}
+function forgeSmoke(time){
+ const x=CRAFT_DISTRICT.x+2.48,z=CRAFT_DISTRICT.z+1.18;
+ const base=terrain(CRAFT_DISTRICT.x,CRAFT_DISTRICT.z)+7.49;
+ craftCounters.smokePuffs=0;
+ for(let k=0;k<3;k++){
+  const p=(k/3+time*.009)%1,drift=.5*Math.sin(time*.027+x);
+  const xx=x+drift*p,zz=z+.24*p;
+  const tint=rgb(0x92918f),radius=.15+.18*p;
+  ellipsoid(xx,base+p*2.05,zz,radius,radius*.68,radius,tint,6);
+  craftCounters.smokePuffs++;
+ }
+}
+
 function windmill(x,z,time){const y=terrain(x,z),stone=rgb(0xf0d5ac),roof=rgb(0x966347),cloth=rgb(0xf7e7c5);shadow(x+.55,z+.55,2.2,1.4);cylinder(x,y,z,1.48,5.3,stone,12);cone(x,y+5.15,z,2.0,1.9,roof,12);box(x,y+.2,z+1.50,.72,1.65,.12,rgb(0x68483c));for(let j=0;j<3;j++){const yy=y+2.1+j*.90;box(x,yy,z+1.52,.46,.48,.1,rgb(0x406568))}const center=[x,y+4.25,z+1.68],span=2.35,theta=time*.11;for(let i=0;i<4;i++){const a=theta+i*Math.PI/2,c=Math.cos(a),u=Math.sin(a),nx=-u*.33,ny=c*.33;const pa=[center[0]+c*.50,center[1]+u*.50,center[2]+.02],pb=[center[0]+c*span,center[1]+u*span,center[2]+.02];box((pa[0]+pb[0])/2,(pa[1]+pb[1])/2,center[2],.08,.09,.09,rgb(0x916b52));quad([pa[0]+nx,pa[1]+ny,center[2]+.07],[pb[0]+nx,pb[1]+ny,center[2]+.07],[pb[0]-nx,pb[1]-ny,center[2]+.07],[pa[0]-nx,pa[1]-ny,center[2]+.07],cloth)}cylinder(x,y+4.25,z+1.71,.29,.25,rgb(0x654a35),10)}
 const names=['Alina','Rowan','Edric','Mira','Oren','Selene','Bram','Elowen','Tarin','Nora','Finn','Isolde','Lysa','Cador','Maeve','Oswin','Adela','Hugo','Idris','Rhea','Silas','Faye'];const jobs=['farmer','forester','builder','merchant','craftsperson','gatherer'];const colors=[0x8f6653,0x58788c,0x907048,0x65754a,0x8c6b7c,0x8d8c67].map(rgb);let state,people,stories=[],frozen=false,speed=1,follow=false,cinematic=false,timer=0,accumulator=0,selectedCitizen=0;const FIXED_STEP=1/30;
 function renderStories(){const feed=document.getElementById('feed');feed.replaceChildren();for(const e of stories.slice(0,4)){const item=document.createElement('div'),label=document.createElement('span');item.className='feeditem';label.textContent='Day '+e.day+' · Kingdom chronicle';item.append(label,document.createTextNode(e.text));feed.appendChild(item)}}
@@ -1663,7 +1811,7 @@ currentMaterial=MATERIAL.FOLIAGE;
  for(const [x,z,k] of city){house(x,z,1,k);cottageDetails(x,z,1,k)}hall(0,-1);cottageDetails(0,-1,1.85,2);
 // The worked spaces have identifiable props and readable boundaries.
 for(let i=0;i<4;i++)wheat(19+i*1.8,1);fenceLine(16,-2,6);fenceLine(16,4,6);fenceLine(16,-2,4,true);fenceLine(25,-2,4,true);
-riverBridge();hillsideSanctuary();market(0,5);well(-15,4);villageGarden(12,11);villageGarden(-17,-3);guildBanner(-2,3);guildBanner(5,-2);lantern(-5,-7,1.7);lantern(6,9,1.45);lantern(2,6,1.7);lantern(-14,6,1.45);for(let i=0;i<7;i++)stoneBoulder(-23+(i*1.8),5+Math.sin(i*3)*1.3,.65+(i%3)*.18);
+riverBridge();hillsideSanctuary();forgeWorkshop();market(0,5);well(-15,4);villageGarden(12,11);villageGarden(-17,-3);guildBanner(-2,3);guildBanner(5,-2);lantern(-5,-7,1.7);lantern(6,9,1.45);lantern(2,6,1.7);lantern(-14,6,1.45);for(let i=0;i<7;i++)stoneBoulder(-23+(i*1.8),5+Math.sin(i*3)*1.3,.65+(i%3)*.18);
 for(let i=0;i<5;i++){let xx=-17+i*1.3,zz=-14+(i%2)*1.4;box(xx,terrain(xx,zz),zz,1,.45,.64,rgb(0x7d5d45))}
 
  scenicMeshCache=data.slice();scenicMeshKey=staticKey;scenicMeshTriangles=scenicMeshCache.length/30;scenicMeshRebuilds++;
@@ -1673,12 +1821,12 @@ for(let i=0;i<5;i++){let xx=-17+i*1.3,zz=-14+(i%2)*1.4;box(xx,terrain(xx,zz),zz,
 data=gpuAvailable?[]:scenicMeshCache.slice();
 directionalCastShadows(state.t);
 currentMaterial=MATERIAL.FOLIAGE;
-windmill(-27,-18,state.t);activeChimneys=0;smokePuffs=0;smokeTriangles=0;smokeMaxRadius=0;for(const [x,z,k] of city)chimneySmoke(x,z,k,state.t);villageFestival();
+windmill(-27,-18,state.t);forgeSmoke(state.t);activeChimneys=0;smokePuffs=0;smokeTriangles=0;smokeMaxRadius=0;for(const [x,z,k] of city)chimneySmoke(x,z,k,state.t);villageFestival();
 currentMaterial=MATERIAL.WOOD;
  for(const p of people)villager(p);currentMaterial=MATERIAL.GENERAL;weatherParticles(atmosphere);
 const elevation=Math.sin(pitch)*zoom,rad=Math.cos(pitch)*zoom,eye=[focusPoint[0]+Math.sin(yaw)*rad,elevation,focusPoint[1]+Math.cos(yaw)*rad];let m=mat4multiply(perspective(Math.PI/3.2,w/h,.1,190),lookAt(eye,[focusPoint[0],.25,focusPoint[1]],[0,1,0]));gl.uniformMatrix4fv(uniforms.viewProjection,false,m);gl.uniform3f(uniforms.fogColor,...atmosphere.fog);gl.uniform3f(uniforms.sunTint,...atmosphere.light);gl.uniform1f(uniforms.worldTime,state.t);gl.uniform3f(uniforms.eyePosition,eye[0],eye[1],eye[2]);gl.uniform3f(uniforms.sunDirection,Math.cos(state.t/24*6.283),.3+atmosphere.daylight*.9,Math.sin(state.t/24*6.283));lastFrameTriangles=(gpuAvailable?scenicMeshCache.length+data.length:data.length)/30;
 if(gpuAvailable){bindGeometry(staticBuffer);gl.drawArrays(gl.TRIANGLES,0,scenicMeshCache.length/10);}
 bindGeometry(buffer);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(data),gl.DYNAMIC_DRAW);gl.drawArrays(gl.TRIANGLES,0,data.length/10);if((frames++%14)===0){updateUI();drawAtlas();updateRealmSignal();updateWorldRibbon()}}
-requestAnimationFrame(render);window.__tinyKingdom={getState:()=>JSON.parse(JSON.stringify({state,people:people.map(({name,job,x,z,target})=>({name,job,x,z,target}))})),setSpeed:x=>{speed=x},step,reset:start,renderer:()=>canvas.getContext('webgl')?'webgl':'software',metrics:()=>({citizens:people.length,buildings:city.length+2,day:Math.floor(state.t/24)+1,food:state.food,wood:state.wood,gold:state.gold,relationships:people.filter(p=>p.friend).length}),route:(a,b)=>routeBetween(a[0],a[1],b[0],b[1]),walkable:(p)=>walkable(p[0],p[1]),getNavigation:()=>people.map(p=>({name:p.name,position:[p.x,p.z],target:p.target,remaining:p.path?.length||0,path:p.path,activity:p.activity,hunger:p.hunger,energy:p.energy})),exportSnapshot,restoreSnapshot,saveWorld,restoreWorld,climateAt,skyConditions,getCitizenProfiles:()=>cloneData(people.map(({name,job,trait,friend,bonds,energy,hunger,activity})=>({name,job,trait,friend,bonds,energy,hunger,activity}))),getRigPose:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(citizenRigPose(people[index])):null,getGarmentProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(garmentProfile(people[index],index,citizenRigPose(people[index]))):null,getFaceProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(faceProfile(people[index],index)):null,getSelectedCitizen:()=>people[selectedCitizen]?.name,routeCacheMetrics:()=>({entries:routeCache.size,hits:cacheHits,misses:cacheMisses}),getCamera:()=>({yaw,pitch,zoom,focus:focusPoint.slice(),follow,cinematic}),getTerrainHeight:(x,z)=>terrain(x,z),getWildfloraCount:()=>wildflora.length,getMeadowStats:()=>({clusters:meadowUnderstory.length,triangles:meadowUnderstory.length*8,season:climateAt(state.t).season,cached:true}),getMaterialSystem:()=>({vertexStride:10,surfaceShaderVersion:'procedural-023',materials:Object.keys(MATERIAL),gpuRenderValidated:false}),waterStats:()=>({model:'fresnel-ripple-shorefoam-v1',segments:RIVER_SEGMENTS,waterTriangles:RIVER_SEGMENTS*RIVER_BANDS*2,bankTriangles:RIVER_SEGMENTS*2*RIVER_BANK_BANDS*2}),getScenicSites:scenicSiteMetrics,getFestivalVisualStats:()=>({season:festivalSeason,cacheBuilds:festivalCacheBuilds,vertices:festivalGeometry?.length||0}),getGeometryAudit:geometryAudit,getCottageEffects:()=>({activeChimneys,smokePuffs,smokeTriangles,smokeMaxRadius}),renderStats:()=>({terrainRebuilds,terrainCacheKey,terrainCacheTriangles,lastFrameTriangles,scenicMeshRebuilds,scenicMeshTriangles,scenicMeshKey,staticGpuUploads,dualBufferGPU:gpuAvailable}),renderQuality,setRenderQuality,shadowStats:()=>({triangles:castShadowTriangles,...sunShadow(state.t)}),sampleSunShadow:(time)=>sunShadow(time),getEconomyHistory:()=>cloneData(uiHistory),getHudMode:()=>cinematicHud?'cinema':'full',setHudMode:setCinematicHud,getCommandView:()=>commandView,setCommandView,skyStats:()=>({enabled:gpuAvailable,passes:skyPassCount,model:'day-night-atmosphere-v1'}),setCamera:o=>{yaw=Number.isFinite(o.yaw)?o.yaw:yaw;pitch=Number.isFinite(o.pitch)?Math.max(.25,Math.min(1.45,o.pitch)):pitch;zoom=Number.isFinite(o.zoom)?Math.max(9,Math.min(85,o.zoom)):zoom;if(Array.isArray(o.focus)&&o.focus.length===2)focusPoint=o.focus.slice(0,2)}};
+requestAnimationFrame(render);window.__tinyKingdom={getState:()=>JSON.parse(JSON.stringify({state,people:people.map(({name,job,x,z,target})=>({name,job,x,z,target}))})),setSpeed:x=>{speed=x},step,reset:start,renderer:()=>canvas.getContext('webgl')?'webgl':'software',metrics:()=>({citizens:people.length,buildings:city.length+2,day:Math.floor(state.t/24)+1,food:state.food,wood:state.wood,gold:state.gold,relationships:people.filter(p=>p.friend).length}),route:(a,b)=>routeBetween(a[0],a[1],b[0],b[1]),walkable:(p)=>walkable(p[0],p[1]),getNavigation:()=>people.map(p=>({name:p.name,position:[p.x,p.z],target:p.target,remaining:p.path?.length||0,path:p.path,activity:p.activity,hunger:p.hunger,energy:p.energy})),exportSnapshot,restoreSnapshot,saveWorld,restoreWorld,climateAt,skyConditions,getCitizenProfiles:()=>cloneData(people.map(({name,job,trait,friend,bonds,energy,hunger,activity})=>({name,job,trait,friend,bonds,energy,hunger,activity}))),getRigPose:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(citizenRigPose(people[index])):null,getGarmentProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(garmentProfile(people[index],index,citizenRigPose(people[index]))):null,getFaceProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(faceProfile(people[index],index)):null,getSelectedCitizen:()=>people[selectedCitizen]?.name,routeCacheMetrics:()=>({entries:routeCache.size,hits:cacheHits,misses:cacheMisses}),getCamera:()=>({yaw,pitch,zoom,focus:focusPoint.slice(),follow,cinematic}),getTerrainHeight:(x,z)=>terrain(x,z),getWildfloraCount:()=>wildflora.length,getMeadowStats:()=>({clusters:meadowUnderstory.length,triangles:meadowUnderstory.length*8,season:climateAt(state.t).season,cached:true}),getMaterialSystem:()=>({vertexStride:10,surfaceShaderVersion:'procedural-023',materials:Object.keys(MATERIAL),gpuRenderValidated:false}),waterStats:()=>({model:'fresnel-ripple-shorefoam-v1',segments:RIVER_SEGMENTS,waterTriangles:RIVER_SEGMENTS*RIVER_BANDS*2,bankTriangles:RIVER_SEGMENTS*2*RIVER_BANK_BANDS*2}),getScenicSites:scenicSiteMetrics,getFestivalVisualStats:()=>({season:festivalSeason,cacheBuilds:festivalCacheBuilds,vertices:festivalGeometry?.length||0}),getGeometryAudit:geometryAudit,getCraftDistrictStats:()=>({...CRAFT_DISTRICT,...craftCounters}),getCottageEffects:()=>({activeChimneys,smokePuffs,smokeTriangles,smokeMaxRadius}),renderStats:()=>({terrainRebuilds,terrainCacheKey,terrainCacheTriangles,lastFrameTriangles,scenicMeshRebuilds,scenicMeshTriangles,scenicMeshKey,staticGpuUploads,dualBufferGPU:gpuAvailable}),renderQuality,setRenderQuality,shadowStats:()=>({triangles:castShadowTriangles,...sunShadow(state.t)}),sampleSunShadow:(time)=>sunShadow(time),getEconomyHistory:()=>cloneData(uiHistory),getHudMode:()=>cinematicHud?'cinema':'full',setHudMode:setCinematicHud,getCommandView:()=>commandView,setCommandView,skyStats:()=>({enabled:gpuAvailable,passes:skyPassCount,model:'day-night-atmosphere-v1'}),setCamera:o=>{yaw=Number.isFinite(o.yaw)?o.yaw:yaw;pitch=Number.isFinite(o.pitch)?Math.max(.25,Math.min(1.45,o.pitch)):pitch;zoom=Number.isFinite(o.zoom)?Math.max(9,Math.min(85,o.zoom)):zoom;if(Array.isArray(o.focus)&&o.focus.length===2)focusPoint=o.focus.slice(0,2)}};
 })();
 </script></body></html>
