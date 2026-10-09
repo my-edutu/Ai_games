@@ -84,7 +84,7 @@
   document.body.dataset.reducedMotion=String(reduced);
   document.body.dataset.manual=String(manual);
   const gameModeLink=document.getElementById('game-mode');
-  if(manual&&gameModeLink){gameModeLink.href='/tower/volumetric';gameModeLink.textContent='WATCH AUTONOMOUS ↗';}
+  if(manual&&gameModeLink){gameModeLink.href='/tower/volumetric';gameModeLink.textContent='RETURN TO AUTONOMY ↗';}
   let biome='',simTime=0,accumulator=0,lastFrame=performance.now(),sizeW=0,sizeH=0;
   let renderFrames=0,lastFrameMark=performance.now(),rollingFrameMs=16.7;
   const renderMetrics={frames:0,fps:0,frameMs:0,drawCalls:0,triangles:0,gpuGeometries:0,gpuTextures:0,status:'starting'};
