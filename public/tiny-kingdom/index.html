@@ -1,0 +1,1843 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Tiny Kingdom — The Living Valley</title>
+<style>
+:root{font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,sans-serif;color:#f5f1e5;background:#0c1412}*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden}canvas{display:block;width:100%;height:100%;cursor:grab}canvas:active{cursor:grabbing}.vignette{position:fixed;inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(3,12,12,.65),transparent 25%,transparent 68%,rgba(4,10,10,.65)),radial-gradient(ellipse at center,transparent 40%,#06100a55)}.top{position:fixed;top:22px;left:28px;right:28px;display:flex;justify-content:space-between;align-items:flex-start;gap:14px;pointer-events:none}.brand{display:flex;gap:13px;align-items:center}.seal{width:49px;height:49px;border-radius:16px;background:#e1bc75;color:#253b30;display:grid;place-items:center;font-size:25px;box-shadow:0 8px 32px #0005}.overline{font-size:10px;color:#b8d9bd;text-transform:uppercase;letter-spacing:3px;font-weight:800}.name{font-family:Georgia,serif;font-size:32px;line-height:1.06;letter-spacing:-1.3px}.subtitle{color:#dedac9ad;font-size:12px;margin-top:5px}.pill{border:1px solid #d7ebce4b;background:#16291fdc;backdrop-filter:blur(18px);padding:12px 16px;border-radius:17px;display:flex;align-items:center;gap:13px;font-size:12px;box-shadow:0 8px 30px #0003}.live{width:7px;height:7px;background:#8af7b3;border-radius:50%;box-shadow:0 0 12px #8af7b3}.sidebar{position:fixed;left:28px;top:130px;display:flex;flex-direction:column;gap:12px;width:246px}.panel{background:#0a1e1be0;border:1px solid #cfe5d62c;backdrop-filter:blur(18px);border-radius:19px;padding:18px;box-shadow:0 18px 60px #0005}.panel h2{font-size:10px;text-transform:uppercase;letter-spacing:2.1px;color:#d5c08e;margin:0 0 15px}.stats{display:grid;grid-template-columns:1fr 1fr;gap:14px}.stat strong{font-family:Georgia,serif;font-size:29px;font-weight:500;display:block}.stat label{display:block;color:#a1b6a8;font-size:11px;margin-top:1px}.meter{height:6px;border-radius:5px;background:#ffffff1c;overflow:hidden;margin:8px 0 14px}.meter span{height:100%;display:block;background:linear-gradient(90deg,#dcba74,#f2e6a1);border-radius:4px}.resource{display:flex;justify-content:space-between;align-items:center;margin:11px 0;color:#b5cabb;font-size:12px}.resource b{color:#f6ebce;font-size:15px;font-weight:550}.feed{position:fixed;bottom:100px;right:27px;width:288px;max-height:290px;overflow:hidden}.feeditem{padding:11px 0;border-top:1px solid #fff2;font-size:12px;line-height:1.5;color:#d4dfd3}.feeditem span{font-size:10px;color:#cdbb87;display:block;letter-spacing:.7px;text-transform:uppercase}.bottom{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);display:flex;gap:8px;align-items:center;padding:8px;border:1px solid #ffffff40;border-radius:18px;background:#10231fe8;backdrop-filter:blur(22px);box-shadow:0 15px 40px #0005}.btn{border:0;border-radius:11px;padding:11px 15px;background:transparent;color:#e8eada;font-size:12px;cursor:pointer;white-space:nowrap}.btn:hover,.btn.active{background:#d6c08b;color:#182821}.divider{height:27px;width:1px;background:#ffffff3b;margin:0 3px}.hint{position:fixed;bottom:32px;left:29px;color:#d8e5d0a8;font-size:11px;line-height:1.65}.toast{position:fixed;left:50%;top:100px;transform:translateX(-50%);background:#102a22ed;border:1px solid #d6c08b77;padding:12px 24px;border-radius:12px;font-size:13px;opacity:0;transition:opacity .3s;pointer-events:none}.toast.show{opacity:1}a{color:#e7d296}@media(max-width:800px){.top{left:15px;right:15px;top:14px}.name{font-size:25px}.subtitle{display:none}.sidebar{top:104px;left:12px;width:180px}.panel{padding:12px}.stats{gap:9px}.stat strong{font-size:23px}.pill{padding:8px;font-size:10px}.feed{right:10px;bottom:102px;width:200px}.hint{display:none}.bottom{bottom:12px;max-width:calc(100% - 12px);overflow:auto}.btn{padding:10px;font-size:11px}}
+
+/* Gauntlet 014: illuminated royal observatory — visual-only, responsive HUD */
+:root{--royal-gold:#f7d18a;--royal-cream:#fff7e8;--royal-teal:#4ad6ba;--royal-panel:rgba(12,31,35,.90)}
+.vignette{background:linear-gradient(180deg,rgba(4,16,26,.47),transparent 31%,transparent 75%,rgba(5,16,21,.65)),radial-gradient(ellipse at center,transparent 52%,rgba(5,13,21,.38))}
+.seal{background:linear-gradient(145deg,#ffe6aa,#e6a95b);border:1px solid #fff1c3;box-shadow:0 0 35px #e3ad5680,0 10px 25px #0007}
+.name{color:var(--royal-cream);text-shadow:0 2px 16px #000a}
+.overline{color:#9df7d4}
+.panel,.pill,.bottom{background:linear-gradient(145deg,rgba(21,53,58,.94),var(--royal-panel));border:1px solid rgba(255,219,150,.36);box-shadow:0 12px 40px #041015a6,inset 0 1px #ffffff17}
+.panel{border-radius:20px}
+.panel h2{color:var(--royal-gold);font-weight:800}
+.stat strong{color:var(--royal-cream);text-shadow:0 0 18px #ffd5853d}
+.stat label,.resource{color:#c6e7dc}
+.resource b{color:#ffe5a7}
+.meter{height:8px;background:#071d22;border:1px solid #fff2}
+.meter span{background:linear-gradient(90deg,#35cdb0,#ffe4a3);box-shadow:0 0 15px #52e4bd}
+.btn{transition:background .18s ease,color .18s ease,transform .18s ease}
+.btn:hover{background:#f2d38e;color:#163136;transform:translateY(-1px)}
+.btn.active{background:linear-gradient(145deg,#ffe7ad,#dbaf61);color:#1d3034;font-weight:700}
+.feeditem{border-color:#f5dc9540}
+.feeditem span{color:#ffe0a0}
+#citizen-name{color:#ffe2a5}
+@media(max-width:800px){.top{gap:7px}.pill{gap:6px}.sidebar{width:185px}.panel{padding:12px}.feed{max-height:200px}}
+@media(prefers-reduced-motion:reduce){.btn{transition:none}.btn:hover{transform:none}}
+
+/* Gauntlet 015 — vibrant command center, deliberate hierarchy and map navigation */
+:root{--tk-ink:#052e36;--tk-cream:#fff8ea;--tk-mint:#73f1c9;--tk-gold:#ffd27a;--tk-blue:#70dfff}
+.vignette{background:linear-gradient(180deg,rgba(6,29,42,.37),transparent 25%,transparent 82%,rgba(5,24,32,.47)),radial-gradient(ellipse at center,transparent 64%,rgba(8,32,43,.22))}
+.top{top:18px;left:22px;right:22px;align-items:center;z-index:4}
+.brand{padding:12px 21px 12px 13px;border-radius:22px;background:linear-gradient(115deg,rgba(8,53,63,.93),rgba(12,50,58,.70));border:1px solid rgba(255,229,164,.48);box-shadow:0 13px 44px #0a253c75,inset 0 1px #fff3;backdrop-filter:blur(20px)}
+.seal{width:57px;height:57px;border-radius:16px;background:linear-gradient(155deg,#fff4ba,#f6bb55 65%,#c78631);border:2px solid #fff6cd;color:#28535b;font-size:29px;box-shadow:0 6px 23px #ffcc7170}
+.overline{color:#a2ffe2;font-size:10px;letter-spacing:2.2px}.name{font-size:30px;letter-spacing:-.7px;color:#fffaeb}.subtitle{font-size:12px;color:#def8e9}
+.pill{padding:15px 19px;background:linear-gradient(120deg,#0c3f48e8,#185a5de1);border:1px solid #92e9d798;box-shadow:0 9px 34px #07293d75;font-size:11px;font-weight:750;color:#f2ffee;border-radius:16px}
+.live{background:#69ffd0;width:9px;height:9px;box-shadow:0 0 0 5px #67ffca28,0 0 15px #62fdb0}
+.sidebar{left:22px;top:127px;width:255px;gap:11px;z-index:3}
+.panel{background:linear-gradient(139deg,rgba(9,54,65,.91),rgba(12,47,55,.84) 52%,rgba(8,42,47,.87));border:1px solid rgba(172,255,223,.40);box-shadow:0 10px 39px #061d2b78,inset 0 1px #edffdf25;border-radius:20px;padding:16px;backdrop-filter:blur(22px)}
+.sidebar>.panel:first-child{border-top:3px solid #ffcd71}.sidebar>.panel:nth-child(2){border-top:3px solid #61eac5}.sidebar>.panel:nth-child(3){border-top:3px solid #8ad8ff}
+.panel h2{color:#ffe4aa;font-size:10px;letter-spacing:2px;margin-bottom:12px}
+.stats{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.stat{padding:10px 9px;border-radius:12px;border:1px solid #b5e9db38;background:linear-gradient(140deg,#26758570,#0b444a77);box-shadow:inset 0 1px #fff1;min-width:0}
+.stat:nth-child(1){border-color:#ffd37b7a;background:linear-gradient(135deg,#6d672677,#283f3977)}.stat:nth-child(2){border-color:#8fdcff7a}.stat:nth-child(3){border-color:#75ffd07a}.stat:nth-child(4){border-color:#f5ad907a}
+.stat strong{font-size:24px;color:#fff4d1;line-height:1.2;display:block}.stat label{font-size:10px;color:#e6f4e7}
+.meter{height:8px;border-radius:10px;background:#052931}.meter span{height:100%;background:linear-gradient(90deg,#61e7cc,#ffe3a2,#ffbc65);box-shadow:0 0 13px #ffe19a8b}
+.resource{margin:0;padding:9px 7px;border-bottom:1px solid #a9e8e11b;color:#e5fae8;font-size:12px}.resource b{font-size:13px;color:#ffe6a9;background:#dfb45b23;border-radius:7px;padding:3px 8px}
+#citizen-name{color:#ffe4a7}#cycleCitizen{background:#29747a!important;color:#ecfff5!important;border:1px solid #a2fadd8c!important}
+.feed{right:22px;top:410px;bottom:96px;max-height:none;width:258px;overflow:auto;border-top:3px solid #ffcf8d}
+.feeditem{padding:10px 3px;border-color:#8ee7c03c;color:#f4f9ef;line-height:1.5}.feeditem span{display:block;color:#ffe6aa;font-weight:750;font-size:9px}
+.bottom{bottom:17px;left:50%;transform:translateX(-50%);width:max-content;max-width:calc(100vw - 44px);display:flex;flex-wrap:wrap;justify-content:center;gap:4px;padding:8px 11px;background:linear-gradient(120deg,rgba(7,50,59,.96),rgba(19,76,81,.96));border:1px solid #b4eade8c;border-radius:20px;box-shadow:0 16px 40px #072b3a9a;backdrop-filter:blur(20px);z-index:6}
+.btn{border-radius:10px;color:#f0fff4;font-weight:650;transition:background .2s ease,transform .2s ease,color .2s ease;padding:11px 12px}.btn:hover{background:#80f5d9;color:#073b42;transform:translateY(-1px)}
+.btn.active{background:linear-gradient(145deg,#ffeaa9,#f4c56c);color:#194448;box-shadow:inset 0 1px #fff8d3,0 4px 15px #edc06840}
+.hint{left:50%;transform:translateX(-50%);bottom:83px;text-align:center;background:rgba(9,53,59,.78);border:1px solid rgba(183,255,222,.45);border-radius:12px;padding:6px 12px;white-space:nowrap;font-size:9px;line-height:1.4;color:#eaf9d9}.hint a{color:#ffe5aa}
+.atlas{position:fixed;right:22px;top:127px;width:258px;height:272px;padding:14px;z-index:4;background:linear-gradient(145deg,rgba(11,53,61,.94),rgba(16,67,71,.91));border:1px solid #8cebd1a1;border-top:3px solid #81e7ef;border-radius:20px;box-shadow:0 17px 40px #0926359a,inset 0 1px #fff3;backdrop-filter:blur(20px)}
+.atlas-heading{font-size:10px;color:#ffe6ad;letter-spacing:2.1px;font-weight:800;display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}.atlas-heading b{color:#81ffe1;font-size:10px;letter-spacing:1px}
+#atlas-map{display:block;width:100%;height:165px;background:#195b5a;border:1px solid #baffdb80;border-radius:12px;cursor:crosshair;box-shadow:inset 0 0 25px #072b3a8a}
+.atlas-footer{display:flex;gap:10px;align-items:center;justify-content:space-between;font-size:10px;color:#e5fff0;margin-top:10px}.atlas-footer em{font-style:normal;color:#ffe6aa;font-weight:700}
+.atlas-legend{display:flex;gap:9px;align-items:center;font-size:9px;color:#bfffe8;margin-top:6px}.atlas-legend i{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:3px}
+@media(max-width:1100px){.sidebar{width:213px}.atlas,.feed{width:222px}.atlas{height:256px}.feed{top:395px}.stat strong{font-size:20px}.brand{padding:9px 13px}.name{font-size:25px}.bottom{width:calc(100vw - 30px)}.hint{display:none}}
+@media(max-width:790px){.sidebar{top:100px;left:11px;width:185px}.sidebar .panel{padding:10px}.sidebar .panel:nth-child(3){display:none}.atlas{top:102px;right:11px;width:180px;height:221px;padding:10px}.atlas-heading{letter-spacing:.5px;font-size:9px}#atlas-map{height:115px}.atlas-footer{font-size:9px}.feed{right:11px;top:333px;width:180px;bottom:96px}.brand .subtitle{display:none}.seal{width:40px;height:40px;font-size:21px}.name{font-size:19px}.pill{font-size:9px;padding:8px}.top{left:11px;right:11px;top:8px}.bottom{bottom:8px;padding:6px}.bottom .btn{padding:7px 8px;font-size:10px}.resource{padding:4px}.stat{padding:6px}.stat strong{font-size:18px}}
+@media(max-width:520px){.name{font-size:16px}.overline{font-size:8px}.pill{gap:6px;flex-wrap:wrap;max-width:135px}.sidebar{top:auto;bottom:100px;left:8px;width:155px;gap:5px}.sidebar>.panel:nth-child(2){display:none}.atlas{top:100px;right:7px;width:155px;height:202px}.feed{top:310px;right:7px;width:155px;bottom:100px}.feed .feeditem:nth-child(n+3){display:none}.panel h2{font-size:8px}.atlas-footer{margin-top:6px}.atlas-legend{display:none}}
+@media(prefers-reduced-motion:reduce){.btn,.live{transition:none;animation:none}}
+/* World color grade: lifts deliberately murky olive palette without changing simulation. */
+#world{filter:brightness(1.22) saturate(1.32) contrast(1.06)}
+@media(max-width:520px){.feed{top:auto;bottom:100px;height:185px;max-height:185px;overflow:auto;padding:10px}.atlas{height:202px}}
+
+/* Gauntlet 033 — bright, data-true economic observatory. */
+#economic-observatory{margin-top:15px;border-radius:15px;padding:11px 10px;
+ background:linear-gradient(145deg,#0f5864e8,#0d414fe8);
+ border:1px solid #8becd37d;box-shadow:inset 0 1px 0 #f8f5d72e}
+#economic-observatory .economic-header{display:flex;justify-content:space-between;
+ font:800 10px system-ui;color:#ffdf9a;letter-spacing:1.3px;margin-bottom:7px}
+#economic-observatory .economic-header span{font:600 9px system-ui;color:#96f5d6}
+#resource-trends{width:100%;height:70px;display:block;border-radius:9px;background:linear-gradient(#176b749c,#0a414e68)}
+.economic-legend{display:flex;justify-content:space-between;gap:5px;margin-top:8px}
+.economic-legend span{font:700 10px system-ui;color:#eaf9f1;white-space:nowrap}
+.economic-legend b{display:inline-block;width:7px;height:7px;border-radius:2px;margin-right:4px}
+.economic-legend strong{color:#ffecba;margin-left:3px;font-size:9px}
+.economic-legend [data-movement="down"] strong{color:#ffa697}
+.economic-legend [data-movement="up"] strong{color:#95ffd4}
+@media(max-width:790px){#economic-observatory{padding:8px 6px}#resource-trends{height:52px}.economic-legend span{font-size:9px}}
+/* Gauntlet 018 — high-contrast illuminated village controls, accessible world views. */
+:root{--sunlight:#ffdd91;--lagoon:#64f6db;--story:#fbf0d7;--coral:#ff9d78}
+#world{filter:brightness(1.31) saturate(1.52) contrast(1.08)}
+.brand{border-color:#fff5c586;box-shadow:0 18px 48px #082a3970,inset 0 1px #fff7}
+.name{color:#fffef6;text-shadow:0 3px 22px #061c28c0;font-size:clamp(23px,2.1vw,34px)}
+.overline{color:#adffdf}.subtitle{color:#d8fff1}
+.panel{background:linear-gradient(145deg,rgba(9,55,67,.95),rgba(18,72,73,.92) 45%,rgba(9,45,55,.94));border-color:#9cead371;box-shadow:0 17px 45px #031d2b9a,inset 0 1px #ffffff38}
+.sidebar>.panel:first-child{border-top:3px solid #ffd57f}.sidebar>.panel:nth-child(2){border-top:3px solid #75f5d9}.sidebar>.panel:nth-child(3){border-top:3px solid #8ed6ff}
+.stat{background:linear-gradient(145deg,#2c818787,#173f5f80);border-color:#bcffe050}
+.stat:nth-child(1){background:linear-gradient(145deg,#846534aa,#564c3ba4);border-color:#ffcd809c}.stat:nth-child(3){background:linear-gradient(145deg,#147b75aa,#164c71a4)}
+.stat strong{font-variant-numeric:tabular-nums;font-size:clamp(21px,2vw,27px);color:#fff9e7}
+.resource b{background:#ffe2a52b;color:#fff1c3;font-variant-numeric:tabular-nums}
+.atlas{background:linear-gradient(140deg,#0a5261ed,#124f5bea,#0e3e4be9);border:1px solid #95fff2a3;border-top:3px solid #a3fcff}
+#atlas-map{border-color:#dbfff5b5;background:#267e70}
+.feed{background:linear-gradient(165deg,#135765f0,#0c3945f5);border-color:#ffdd998f;border-top:3px solid #ffbd72}
+.feeditem{padding:12px 8px;border-left:3px solid #ffd17a9c;background:linear-gradient(90deg,#f9d18112,transparent 65%);margin-bottom:5px;border-radius:0 8px 8px 0}
+.feeditem:nth-child(even){border-left-color:#78e9e4}.feeditem span{letter-spacing:.55px;font-size:9px;color:#ffdfa4}
+.pill{background:linear-gradient(130deg,#0c6671ee,#144952ed);border-color:#a2ffeeab;color:#fffdf2}
+.bottom{background:linear-gradient(115deg,#0b5767ee,#063747f9 55%,#145c5cf2);border-color:#a6ffe4b5}
+.btn.active{background:linear-gradient(145deg,#fff1b9,#f5ba65)}
+.vignette{background:linear-gradient(180deg,#071f2822,transparent 23%,transparent 75%,#0929363d),radial-gradient(ellipse at center,transparent 68%,#08202f25)}
+.world-tour{position:fixed;left:50%;top:19px;transform:translateX(-50%);z-index:8;display:flex;align-items:center;gap:5px;padding:8px 10px 8px 14px;background:linear-gradient(100deg,#085766ed,#0d3f4de8);border:1px solid #9cfff4ac;border-radius:17px;box-shadow:0 14px 41px #05293290,inset 0 1px #fff6;backdrop-filter:blur(20px);pointer-events:auto;white-space:nowrap}
+.world-tour small{color:#a9ffe4;font-size:9px;line-height:1.45;letter-spacing:1.25px;font-weight:850;text-transform:uppercase;padding-right:9px;border-right:1px solid #bce6d366}
+.tour-btn{border:1px solid transparent;background:transparent;color:#f3fff4;padding:10px 11px;font:700 11px system-ui;cursor:pointer;border-radius:10px;transition:all .18s ease}
+.tour-btn:hover,.tour-btn:focus-visible{background:#72ffe5;color:#043c4b;transform:translateY(-1px);outline:0}
+.tour-btn[aria-pressed="true"]{background:linear-gradient(125deg,#ffe8a7,#f6ba5b);color:#153b49;box-shadow:0 3px 11px #fdcc875e}
+.realm-signal{position:fixed;left:50%;top:88px;transform:translateX(-50%);z-index:6;background:#0b4552dc;border:1px solid #b7ffe59c;box-shadow:0 11px 33px #082b3894;backdrop-filter:blur(16px);border-radius:0 0 13px 13px;color:#e9fff8;display:flex;gap:14px;align-items:center;padding:7px 16px;font-size:10px;white-space:nowrap;pointer-events:none}
+.realm-signal b{color:#ffe1a2;font-size:10px;letter-spacing:.7px}.realm-signal i{width:6px;height:6px;background:#61ffd9;border-radius:50%;box-shadow:0 0 11px #62ffe5;flex:none}
+.realm-signal[data-condition="warning"] i{background:#ffad82;box-shadow:0 0 11px #ff9b65}.realm-signal[data-condition="warning"] b{color:#ffc29a}
+@media(max-width:1250px){.world-tour small{display:none}.world-tour{top:94px}.realm-signal{top:142px}.atlas{top:171px}.feed{top:455px}}
+@media(max-width:790px){.world-tour{top:74px;padding:4px;gap:1px;border-radius:10px}.tour-btn{font-size:9px;padding:7px 6px}.realm-signal{display:none}.atlas{top:135px}.feed{top:362px}}
+@media(max-width:520px){.top{top:8px}.brand{padding:8px}.world-tour{top:83px;max-width:calc(100vw - 12px)}.tour-btn{font-size:9px;padding:7px 6px}.atlas{top:134px}.feed{top:auto;bottom:105px;height:174px}.sidebar{bottom:105px}}
+@media (min-width:901px) and (max-width:1570px){.world-tour{top:88px}.realm-signal{top:144px}}
+@media(max-width:900px){.world-tour{width:max-content;max-width:calc(100vw - 14px);overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:thin;scrollbar-color:#ffe0a7 transparent;justify-content:flex-start}.world-tour .tour-btn{flex:none}.world-tour::-webkit-scrollbar{height:3px}.world-tour::-webkit-scrollbar-thumb{background:#ffe0a7;border-radius:5px}}
+@media(prefers-reduced-motion:reduce){.tour-btn{transition:none}.tour-btn:hover{transform:none}}
+
+/* Gauntlet 029: unobstructed 3D benchmark inspection mode. */
+#cinema-exit{display:none;position:fixed;right:22px;bottom:22px;z-index:30;
+ background:linear-gradient(130deg,#0c4654e8,#123b51ed);color:#fff3cd;
+ border:1px solid #ffda978c;padding:12px 17px;border-radius:12px;
+ font:700 12px system-ui;cursor:pointer;box-shadow:0 10px 24px #001e2980}
+body[data-hud="cinema"] .top,body[data-hud="cinema"] .sidebar,
+body[data-hud="cinema"] .feed,body[data-hud="cinema"] .atlas,
+body[data-hud="cinema"] .world-tour,body[data-hud="cinema"] .bottom,
+body[data-hud="cinema"] .hint,body[data-hud="cinema"] .realm-signal{display:none!important}
+body[data-hud="cinema"] #cinema-exit{display:block}
+body[data-hud="cinema"] .vignette{background:linear-gradient(180deg,#14222a15,transparent 30%,transparent 80%,#08192330)}
+#cinema-exit:focus-visible{outline:3px solid #ffd578;outline-offset:3px}
+@media(max-width:600px){#cinema-exit{right:12px;bottom:13px;padding:10px 12px}}
+
+/* Gauntlet 033: cinematic gilded glass — one coherent, legible command layer.
+   Neutral world colour grading preserves the material/lighting evidence below. */
+:root {
+ --tk-panel:#0c2632;--tk-abyss:#071c29;--tk-aqua:#65efd5;
+ --tk-fire:#ffad68;--tk-amber:#f8ce86;--tk-parchment:#fff5db;
+ --tk-border:rgba(255,217,151,.47);--tk-outline:rgba(117,238,221,.62);
+ --tk-shadow:0 22px 52px rgba(0,16,29,.54);
+}
+#world{filter:none}
+.vignette{background:linear-gradient(180deg,rgba(8,18,34,.23),transparent 23%,transparent 77%,rgba(7,17,30,.27)),
+ radial-gradient(ellipse at center,transparent 66%,rgba(6,22,33,.23))}
+.brand,.panel,.pill,.atlas,.feed,.world-tour,.bottom,.realm-signal{
+ box-shadow:var(--tk-shadow),inset 0 1px rgba(255,248,213,.14);
+}
+.brand{
+ background:linear-gradient(120deg,rgba(5,33,49,.93),rgba(13,64,72,.84) 76%,rgba(10,45,58,.91));
+ border:1px solid var(--tk-border);border-radius:19px;
+ padding:11px 22px 11px 11px;
+}
+.brand::after{content:"";align-self:stretch;width:3px;border-radius:12px;
+ background:linear-gradient(180deg,rgba(255,243,196,.3),var(--tk-fire),rgba(87,235,212,.64))}
+.seal{background:linear-gradient(145deg,#fff2bb 5%,#f6c577 52%,#ac713f);color:#184351;
+ border:1px solid #ffe8ac;box-shadow:inset 0 2px 1px #fff8d8a6,0 9px 28px #0007}
+.overline{letter-spacing:2.15px;color:#90f4e4;font-size:10px}
+.name{font-family:Georgia,"Times New Roman",serif;font-size:clamp(25px,2.2vw,36px);
+ line-height:1.07;letter-spacing:-.7px;text-shadow:0 3px 18px rgba(0,0,0,.65)}
+.subtitle{color:#f4e5c6;font-size:12px;letter-spacing:.2px}
+.pill{border:1px solid rgba(255,220,148,.54);
+ background:linear-gradient(120deg,rgba(10,41,58,.96),rgba(16,91,94,.87));
+ color:#fff6d8}
+.live{background:#8ff9d0;box-shadow:0 0 0 4px rgba(125,252,207,.12),0 0 19px rgba(74,255,196,.68)}
+.panel,.atlas,.feed{
+ background:linear-gradient(144deg,rgba(11,43,58,.92),rgba(8,31,46,.92) 56%,rgba(12,54,60,.88));
+ border:1px solid rgba(244,209,145,.44);
+ backdrop-filter:blur(18px) saturate(1.25);
+}
+.panel{border-radius:16px;padding:16px}
+.panel::before,.atlas::before,.feed::before{
+ content:"";display:block;position:absolute;top:0;left:18px;right:18px;height:1px;
+ background:linear-gradient(90deg,transparent,rgba(255,239,196,.58),transparent);
+ pointer-events:none}
+.panel,.atlas,.feed{position:fixed}
+.sidebar>.panel{position:relative}
+.panel h2,.atlas-heading{font-size:11px;letter-spacing:1.7px;color:#ffdfa0;
+ text-shadow:0 1px 8px rgba(244,169,86,.20)}
+.stats{gap:8px}
+.stat{background:linear-gradient(155deg,rgba(43,107,109,.54),rgba(14,46,69,.52));
+ border:1px solid rgba(148,240,215,.36);border-radius:10px}
+.stat:nth-child(1){background:linear-gradient(160deg,rgba(126,86,50,.68),rgba(42,66,60,.66))}
+.stat:nth-child(2){background:linear-gradient(155deg,rgba(22,102,118,.65),rgba(26,64,89,.63))}
+.stat:nth-child(3){background:linear-gradient(155deg,rgba(34,111,90,.67),rgba(14,70,77,.54))}
+.stat:nth-child(4){background:linear-gradient(155deg,rgba(112,63,61,.55),rgba(39,71,78,.62))}
+.stat strong{font:600 clamp(23px,2vw,29px) Georgia,serif;color:var(--tk-parchment);
+ text-shadow:0 2px 16px rgba(0,0,0,.40);font-variant-numeric:tabular-nums}
+.stat label{font-size:11px;color:#d9f5e9;font-weight:600}
+.resource{color:#eaf7ed;font-size:12px;border-color:rgba(142,220,209,.17)}
+.resource b{color:#fff5d8;background:rgba(236,164,87,.20);border:1px solid rgba(255,214,152,.24)}
+.meter{background:#071922;border:1px solid rgba(255,224,168,.24);height:9px}
+.meter span{background:linear-gradient(90deg,#35d5c0,#a2f7c8 42%,#f2c36e 78%,#ff9867);
+ box-shadow:0 0 17px rgba(133,241,198,.55)}
+#citizen-name{font:600 22px Georgia,serif;color:var(--tk-parchment)}
+#cycleCitizen{background:rgba(23,91,105,.9)!important;color:#fff4d5!important}
+.feed{border-top:2px solid #fbc575;overflow:auto;scrollbar-color:#d8bb7b transparent}
+.feeditem{padding:10px 11px;border-left:2px solid var(--tk-fire);
+ border-top:1px solid rgba(255,238,194,.07);margin:5px 0;
+ background:linear-gradient(92deg,rgba(248,190,114,.11),transparent 85%);
+ line-height:1.56;color:#ecf6e8}
+.feeditem:nth-child(even){border-left-color:var(--tk-aqua)}
+.feeditem span{color:#ffe1aa;font-size:10px}
+.atlas{border-top:2px solid #7beedc}
+#atlas-map{border:1px solid rgba(176,251,226,.78);border-radius:10px;
+ box-shadow:inset 0 0 25px rgba(8,36,40,.55)}
+.world-tour{border:1px solid rgba(245,207,143,.64);border-radius:14px;
+ background:linear-gradient(135deg,rgba(7,34,52,.96),rgba(12,74,77,.93));padding:7px 10px}
+.world-tour small{color:#99f5dd}
+.tour-btn{font-size:11px;font-weight:750;color:#eafcf3;border-radius:8px;padding:10px 11px;
+ min-height:36px}
+.tour-btn[aria-pressed="true"]{background:linear-gradient(145deg,#ffedb7,#f4ad62);
+ color:#133845;box-shadow:inset 0 1px #fff8db,0 3px 13px rgba(241,166,86,.35)}
+.tour-btn:focus-visible,.btn:focus-visible,#cycleCitizen:focus-visible{
+ outline:2px solid #f6d28d;outline-offset:2px}
+.bottom{border-radius:16px;border:1px solid rgba(255,214,144,.61);
+ background:linear-gradient(135deg,rgba(7,37,56,.97),rgba(11,73,76,.96));gap:3px}
+.btn{font-weight:750;letter-spacing:.1px;color:#e9fff4}
+.btn.active{background:linear-gradient(145deg,#ffedb7,#edab64);color:#143946}
+.realm-signal{background:linear-gradient(100deg,rgba(7,50,65,.91),rgba(14,63,61,.91));
+ border-color:rgba(255,214,145,.47)}
+.realm-signal b{color:#ffe5b8}
+@media(min-width:1200px){
+ .sidebar{width:258px}
+ .atlas,.feed{width:260px}
+ .top{left:21px;right:21px}
+ .bottom{bottom:16px}
+}
+@media(max-width:790px){
+ .brand{padding:8px 11px 8px 8px}
+ .brand::after{display:none}
+ .stat strong{font-size:20px}
+ .panel h2,.atlas-heading{font-size:10px}
+ .tour-btn{min-height:34px;padding:7px 8px}
+}
+@media(max-width:520px){
+ .top{left:8px;right:8px}
+ .name{font-size:18px}
+ .seal{width:39px;height:39px}
+ .pill{max-width:137px;font-size:9px}
+ .sidebar{width:154px}
+ .stat{padding:7px}
+ .stat strong{font-size:19px}
+ .stat label{font-size:10px}
+ .feed{width:156px}
+ .atlas{width:154px}
+ .world-tour{width:calc(100vw - 14px)}
+ .tour-btn{padding:7px 8px}
+ .btn{font-size:11px}
+}
+.sidebar{max-height:calc(100dvh - 230px);overflow-y:auto;overscroll-behavior-y:contain;scrollbar-width:thin;padding-bottom:8px}
+@media(prefers-reduced-motion:reduce){.live{animation:none}}
+
+/* Gauntlet 042: world-first survey layer. A readable live command strip,
+   not cinematic mode: the game continues and primary controls remain available. */
+#world-ribbon{display:none;position:fixed;left:50%;top:185px;transform:translateX(-50%);
+ z-index:27;box-sizing:border-box;max-width:calc(100vw - 16px);width:max-content;
+ padding:9px 12px;align-items:center;gap:12px;border-radius:16px;
+ background:linear-gradient(125deg,rgba(6,30,44,.93),rgba(11,83,88,.91));
+ border:1px solid rgba(255,221,155,.73);
+ box-shadow:0 18px 45px #02131dd4,inset 0 1px #fbeed14f;
+ backdrop-filter:blur(14px);color:#fdf6df;flex-wrap:wrap}
+body[data-command="world"] #world-ribbon{display:flex}
+body[data-command="world"] .sidebar,body[data-command="world"] .atlas,
+body[data-command="world"] .feed,body[data-command="world"] .hint,
+body[data-command="world"] .realm-signal{display:none!important}
+body[data-command="world"] .bottom #save,body[data-command="world"] .bottom #restore,
+body[data-command="world"] .bottom #restart,body[data-command="world"] .bottom .divider{display:none}
+body[data-hud="cinema"] #world-ribbon{display:none!important}
+#world-ribbon .world-identity{display:flex;flex-direction:column;gap:2px;min-width:97px;
+ padding-right:12px;border-right:1px solid rgba(253,221,174,.26)}
+#world-ribbon .world-identity strong{font:700 10px system-ui;letter-spacing:1.7px;color:#ffdf9f}
+#world-ribbon .world-identity small{font:500 10px system-ui;color:#bcefe3}
+#world-ribbon .world-measure{display:flex;gap:6px;align-items:baseline;white-space:nowrap}
+#world-ribbon .world-measure .world-glyph{color:#ffdf9f;font-size:13px}
+#world-ribbon .world-measure strong{font:700 18px Georgia,serif;font-variant-numeric:tabular-nums}
+#world-ribbon .world-measure small{font:600 10px system-ui;color:#bcefe3}
+#world-ribbon #world-story{max-width:190px;font:500 10px/1.4 system-ui;
+ color:#d3eee6;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+#world-open-command{border:1px solid rgba(255,220,155,.65);border-radius:10px;
+ padding:10px 12px;background:linear-gradient(145deg,#ffe8b0,#f0b66a);
+ color:#123943;font:800 11px system-ui;cursor:pointer;white-space:nowrap}
+#world-open-command:focus-visible,#command-toggle:focus-visible{outline:3px solid #ffdf95;outline-offset:3px}
+body[data-command="world"] #command-toggle{background:linear-gradient(145deg,#fce5ac,#f4b16c);
+ color:#123b44}
+@media(max-width:900px){
+ #world-ribbon{top:140px;gap:8px;justify-content:center;max-width:calc(100vw - 16px)}
+ #world-ribbon #world-story{display:none}
+ #world-ribbon .world-measure strong{font-size:16px}
+}
+@media(max-width:520px){
+ #world-ribbon{top:133px;left:8px;right:8px;transform:none;width:auto;gap:7px 12px;padding:8px}
+ #world-ribbon .world-identity{min-width:auto;padding-right:7px}
+ #world-ribbon .world-identity small{display:none}
+ #world-ribbon .world-measure{gap:3px}
+ #world-ribbon .world-measure small{font-size:9px}
+ #world-open-command{padding:8px;font-size:10px}
+ body[data-command="world"] .bottom{max-width:calc(100vw - 12px)}
+}
+@media(prefers-reduced-motion:reduce){#world-ribbon{scroll-behavior:auto}}
+</style></head><body>
+<canvas id="world" aria-label="Live 3D simulation of a medieval valley with autonomous villagers"></canvas><div class="vignette"></div>
+<div class="top"><div class="brand"><div class="seal">♜</div><div><div class="overline">AI Civilization · World 001</div><div class="name">The Living Valley</div><div class="subtitle">A kingdom that writes its own story</div></div></div><div class="pill"><span class="live"></span><span id="clock">DAY 1 · DAWN</span><span style="color:#dec48b" id="weather">☀ CLEAR SKIES</span></div></div>
+<div class="sidebar"><div class="panel"><h2>✧ Kingdom overview</h2><div class="stats"><div class="stat"><strong id="population">12</strong><label>Villagers</label></div><div class="stat"><strong id="buildings">9</strong><label>Buildings</label></div><div class="stat"><strong id="happiness">78%</strong><label>Happiness</label></div><div class="stat"><strong id="year">01</strong><label>Year</label></div></div><div style="margin-top:18px;color:#b4c8b8;font-size:11px">Civilization progress</div><div class="meter"><span id="progress" style="width:23%"></span></div><div style="font-size:10px;color:#8fac99">The valley is growing on its own.</div></div><div class="panel"><h2>◈ Village resources</h2><div class="resource"><span>🌾 Food stores</span><b id="food">180</b></div><div class="resource"><span>🪵 Timber</span><b id="wood">90</b></div><div class="resource"><span>🪙 Treasury</span><b id="gold">42</b></div><div class="resource"><span>👨‍🌾 Working citizens</span><b id="working">8</b></div>
+<div id="economic-observatory" aria-label="Daily food, timber and gold trends">
+ <div class="economic-header">◈ KINGDOM PULSE <span id="economic-days">DAY 1</span></div>
+ <canvas id="resource-trends" width="440" height="140" aria-label="Last twelve recorded days of resource trends"></canvas>
+ <div class="economic-legend">
+  <span data-resource="food"><b style="background:#73f4bd"></b>Food <strong>—</strong></span>
+  <span data-resource="wood"><b style="background:#ffcd73"></b>Wood <strong>—</strong></span>
+  <span data-resource="gold"><b style="background:#ff9299"></b>Gold <strong>—</strong></span>
+ </div>
+</div></div>
+<div class="panel" id="citizen-card"><h2>☼ Citizen spotlight</h2><button class="btn" id="cycleCitizen" style="font-size:10px;margin:-8px 0 12px;padding:6px 10px;border:1px solid #bdc8a850;border-radius:9px;background:#23382f;color:#dfcfad;cursor:pointer">↻ Next citizen</button><div style="font-family:Georgia,serif;font-size:20px" id="citizen-name">Alina</div><div style="color:#b7c7b8;font-size:12px;line-height:1.7;margin-top:6px" id="citizen-detail">Farmer · tending the fields</div><div style="font-size:10px;color:#d9c08a;margin-top:9px" id="citizen-bond">Every citizen has a story.</div></div></div>
+<div class="feed panel"><h2>✦ Stories unfolding</h2><div id="feed"></div></div>
+<div class="hint">DRAG TO ORBIT · SCROLL TO ZOOM<br>EVERY CITIZEN HAS A NAME AND PURPOSE<br><a href="progress.html">VIEW GAUNTLET PROGRESS ↗</a></div>
+<aside class="atlas" aria-label="Interactive kingdom map"><div class="atlas-heading"><span>◈ THE KINGDOM ATLAS</span><b>LIVE</b></div><canvas id="atlas-map" width="460" height="330" aria-label="Map of homes and moving villagers; click to move camera"></canvas><div class="atlas-footer"><span id="atlas-season">✧ SEASONAL LANDSCAPE</span><em>↗ PAN CAMERA</em></div><div class="atlas-legend"><span><i style="background:#ffe29b"></i>Village</span><span><i style="background:#f9fce8"></i>People</span><span><i style="background:#7be5f9"></i>River</span></div></aside><div class="bottom"><button id="pause" class="btn active">Ⅱ Pause</button><span class="divider"></span><button class="btn active" id="speed1">1× Real time</button><button class="btn" id="speed4">4×</button><button class="btn" id="speed16">16×</button><span class="divider"></span><button class="btn" id="focus">◎ Follow villager</button><button class="btn" id="camera">◈ Cinematic</button><button class="btn" id="command-toggle" type="button" aria-pressed="false" aria-controls="world-ribbon" aria-keyshortcuts="U">◉ World view</button><button class="btn" id="hud-toggle" aria-pressed="false">⌗ Clear HUD</button><button class="btn" id="save">↓ Save world</button><button class="btn" id="restore">↑ Restore world</button><button class="btn" id="restart">↻ New world</button></div><div class="toast" id="toast"></div><button id="cinema-exit" type="button" aria-label="Restore game interface">✧ Restore interface · H</button>
+<div class="world-tour" role="group" aria-label="Explore scenic village camera viewpoints"><small>EXPLORE<br>THE VALLEY</small><button class="tour-btn" data-scenic="valley" aria-pressed="true">✦ Village</button><button class="tour-btn" data-scenic="market" aria-pressed="false">◈ Market</button><button class="tour-btn" data-scenic="mill" aria-pressed="false">✧ Windmill</button><button class="tour-btn" data-scenic="orchard" aria-pressed="false">❀ Orchard</button><button class="tour-btn" data-scenic="river" aria-pressed="false">≈ Riverside</button><button class="tour-btn" data-scenic="sanctuary" aria-pressed="false">♜ Sanctuary</button></div>
+<div class="realm-signal" id="realm-signal" role="status" aria-live="off"><i></i><b id="realm-title">A LIVING KINGDOM</b><span id="realm-detail">Every villager shapes the valley</span></div>
+<section id="world-ribbon" role="group" aria-label="World-first kingdom overview">
+ <div class="world-identity"><strong>✦ LIVE KINGDOM</strong><small>World-first view · U</small></div>
+ <div class="world-measure"><span class="world-glyph">♜</span><strong id="world-population">12</strong><small>People</small></div>
+ <div class="world-measure"><span class="world-glyph">✿</span><strong id="world-food">180</strong><small>Food</small></div>
+ <div class="world-measure"><span class="world-glyph">♧</span><strong id="world-wood">90</strong><small>Wood</small></div>
+ <div class="world-measure"><span class="world-glyph">✧</span><strong id="world-gold">42</strong><small>Gold</small></div>
+ <span id="world-story" aria-live="off">Your villagers write their own chronicle.</span>
+ <button id="world-open-command" type="button" aria-label="Open complete kingdom command interface">▤ Command desk</button>
+</section>
+<script>
+(() => {
+'use strict';
+const canvas=document.getElementById('world'); let gl=canvas.getContext('webgl',{antialias:true,alpha:false});const gpuAvailable=Boolean(gl);
+// Gauntlet 026: render-budget gate. Chromium SwiftShader cannot afford heavyweight
+// per-pixel procedural material shading at full HD / 60fps. Keep game-state fixed
+// step independent of the display tier, and expose the tier for objective QA.
+const gpuInfo=gpuAvailable?gl.getExtension('WEBGL_debug_renderer_info'):null;
+const gpuName=gpuInfo?String(gl.getParameter(gpuInfo.UNMASKED_RENDERER_WEBGL)):'unknown';
+const swiftGpu=gpuAvailable&&/SwiftShader|llvmpipe|softpipe/i.test(gpuName);
+const graphicsTier=gpuAvailable?(swiftGpu?'software-webgl':'hardware-webgl'):'canvas2d';
+let qualityOverride=null,framesDrawn=0,framesSkipped=0,frameGateTime=0;
+function renderQuality(){const automated=swiftGpu||!gpuAvailable;return {tier:graphicsTier,renderer:gpuName,scale:qualityOverride??(automated?.65:1),targetFps:automated?12:60,framesDrawn,framesSkipped}}
+function setRenderQuality(scale){if(!Number.isFinite(scale)||scale<.35||scale>1.5)throw Error('Render scale must be between 0.35 and 1.5');qualityOverride=scale;return renderQuality()}
+
+// Accessible no-WebGL preview for constrained machines. Real browsers use the WebGL path.
+if(!gl){const ctx=canvas.getContext('2d');let projection=null,sky=[.4,.55,.52],sunTint=[1,1,1],sunDirection=[-.55,.82,.25],vertices=null;const noop=()=>{};gl={VERTEX_SHADER:1,FRAGMENT_SHADER:2,ARRAY_BUFFER:3,FLOAT:4,DYNAMIC_DRAW:5,COLOR_BUFFER_BIT:6,DEPTH_BUFFER_BIT:7,DEPTH_TEST:8,CULL_FACE:9,BACK:10,TRIANGLES:11,COMPILE_STATUS:12,LINK_STATUS:13,createShader:()=>({}),shaderSource:noop,compileShader:noop,getShaderParameter:()=>true,createProgram:()=>({}),attachShader:noop,linkProgram:noop,getProgramParameter:()=>true,useProgram:noop,getUniformLocation:(_,k)=>k,createBuffer:()=>({}),bindBuffer:noop,getAttribLocation:()=>0,enableVertexAttribArray:noop,vertexAttribPointer:noop,uniformMatrix4fv:(_,__,m)=>{projection=m},uniform1f:noop,uniform3f:(key,r,g,b)=>{if(key==='fogColor')sky=[r,g,b];if(key==='sunTint')sunTint=[r,g,b];if(key==='sunDirection')sunDirection=[r,g,b]},clearColor:(r,g,b)=>{sky=[r,g,b]},clear:()=>{ctx.fillStyle=`rgb(${sky.map(v=>Math.round(v*255)).join(',')})`;ctx.fillRect(0,0,canvas.width,canvas.height)},viewport:noop,enable:noop,cullFace:noop,bufferData:(_,v)=>{vertices=v},drawArrays:()=>{if(!vertices||!projection)return;const polys=[];const m=projection;function convert(i){const x=vertices[i],y=vertices[i+1],z=vertices[i+2],w=m[3]*x+m[7]*y+m[11]*z+m[15];if(w<=.05)return null;return [(m[0]*x+m[4]*y+m[8]*z+m[12])/w,(m[1]*x+m[5]*y+m[9]*z+m[13])/w,w]}for(let i=0;i<vertices.length;i+=30){let a=convert(i),b=convert(i+10),c=convert(i+20);if(!a||!b||!c)continue;let depth=(a[2]+b[2]+c[2])/3;let col=[vertices[i+6],vertices[i+7],vertices[i+8]],dir=Math.hypot(...sunDirection)||1,lit=Math.max(0,(vertices[i+3]*sunDirection[0]+vertices[i+4]*sunDirection[1]+vertices[i+5]*sunDirection[2])/dir);let fog=Math.max(0,Math.min(.82,(depth-24)/105));col=col.map((v,k)=>Math.min(255,Math.round(255*(v*(.46+lit*.56)*sunTint[k]*(1-fog)+sky[k]*fog))));polys.push({a,b,c,depth,fill:`rgb(${col.join(',')})`})}polys.sort((a,b)=>b.depth-a.depth);for(let p of polys){ctx.beginPath();ctx.moveTo((p.a[0]+1)*canvas.width/2,(1-p.a[1])*canvas.height/2);ctx.lineTo((p.b[0]+1)*canvas.width/2,(1-p.b[1])*canvas.height/2);ctx.lineTo((p.c[0]+1)*canvas.width/2,(1-p.c[1])*canvas.height/2);ctx.closePath();ctx.fillStyle=p.fill;ctx.fill()}}};}
+const vs=`attribute vec3 position;attribute vec3 normal;attribute vec3 color;attribute float materialId;
+uniform mat4 viewProjection;uniform vec3 sunDirection;uniform vec3 sunTint;
+varying vec3 vColor;varying vec3 vWorld;varying vec3 vNormal;varying float vFog;varying float vMaterial;
+void main(){
+ vec4 p=viewProjection*vec4(position,1.);gl_Position=p;
+ vec3 n=normalize(normal);vec3 sun=normalize(sunDirection);
+ float lit=max(dot(n,sun),0.);float hemi=.5+.5*n.y;
+ float bounce=max(dot(n,normalize(vec3(-sun.x,.28,-sun.z))),0.);
+ vec3 ambient=mix(vec3(.28,.37,.43),vec3(.55,.51,.41),hemi);
+ vColor=color*(ambient+lit*.67*sunTint+bounce*.11);
+ vWorld=position;vNormal=n;vMaterial=materialId;vFog=clamp((p.w-24.)/105.,0.,.82);
+}`;
+// Gauntlet 023 — world-space GPU materials. Original procedural detail; not full PBR.
+const fs=`precision mediump float;
+varying vec3 vColor;varying vec3 vWorld;varying vec3 vNormal;varying float vFog;varying float vMaterial;
+uniform vec3 fogColor;uniform highp vec3 sunDirection;uniform highp vec3 eyePosition;uniform float worldTime;
+float hash3(vec3 p){p=fract(p*.1031);p+=dot(p,p.yxz+33.33);return fract((p.x+p.y)*p.z);}
+float noise3(vec3 p){
+ vec3 i=floor(p),f=fract(p);f=f*f*(3.0-2.0*f);
+ float a=hash3(i),b=hash3(i+vec3(1.,0.,0.));
+ float c=hash3(i+vec3(0.,1.,0.)),d=hash3(i+vec3(1.,1.,0.));
+ float e=hash3(i+vec3(0.,0.,1.)),g=hash3(i+vec3(1.,0.,1.));
+ float h=hash3(i+vec3(0.,1.,1.)),j=hash3(i+vec3(1.,1.,1.));
+ return mix(mix(mix(a,b,f.x),mix(c,d,f.x),f.y),mix(mix(e,g,f.x),mix(h,j,f.x),f.y),f.z);
+}
+void main(){
+ vec3 c=vColor;
+ vec3 n=normalize(vNormal);
+ if(vMaterial>0.5&&vMaterial<1.5){
+  float meadow=noise3(vWorld*vec3(.29,1.1,.29));
+  float blades=noise3(vWorld*vec3(5.2,1.4,5.2));
+  c*=mix(.82,1.17,meadow)*mix(.92,1.10,blades);
+  c=mix(c,c*vec3(.83,1.05,.76),smoothstep(.48,.8,meadow)*.2);
+ }else if(vMaterial>1.5&&vMaterial<2.5){
+  // Gauntlet 030: view-dependent Fresnel and physically motivated sun reflection.
+  // Water normals are optical ripple normals, not the stepped bank mesh normals.
+  float flowA=vWorld.x*2.45+vWorld.z*1.09-worldTime*.86;
+  float flowB=vWorld.z*5.25-vWorld.x*1.61+worldTime*1.33;
+  float waveA=sin(flowA),waveB=sin(flowB);
+  vec3 rippleNormal=normalize(vec3(-.078*cos(flowA)-.042*cos(flowB),1.,
+                                  -.041*cos(flowA)+.075*cos(flowB)));
+  vec3 viewDir=normalize(eyePosition-vWorld);
+  float face=max(dot(rippleNormal,viewDir),0.);
+  float fresnel=.034+.966*pow(1.-face,5.);
+  vec3 bedColor=c*vec3(.63,.99,1.03);
+  vec3 skyReflect=mix(fogColor*vec3(1.10,1.08,1.05),vec3(.48,.64,.70),.38);
+  c=mix(bedColor,skyReflect,clamp(.08+fresnel*.72,.08,.75));
+  float sunGlint=pow(max(dot(reflect(-normalize(sunDirection),rippleNormal),viewDir),0.),32.);
+  c+=vec3(1.,.86,.67)*sunGlint*.54;
+  float shoreDistance=abs(vWorld.z-(20.+3.*sin(vWorld.x*.13)));
+  float shoreWash=smoothstep(1.21,1.79,shoreDistance);
+  float whiteWater=smoothstep(.15,.79,waveA*.35+waveB*.27+.47);
+  c=mix(c,vec3(.67,.79,.74),shoreWash*whiteWater*.30);
+ }else if(vMaterial>2.5&&vMaterial<3.5){
+  c*=.79+.27*noise3(vWorld*5.5)-.12*step(.8,noise3(vWorld*10.));
+ }else if(vMaterial>3.5&&vMaterial<4.5){
+  c*=.75+.38*noise3(vWorld*3.5);
+  c+=vec3(.018,.052,.016)*pow(max(dot(n,normalize(sunDirection)),0.),2.);
+ }else if(vMaterial>4.5&&vMaterial<5.5){
+  vec2 uv=abs(n.y)>.67?vWorld.xz:(abs(n.x)>abs(n.z)?vWorld.zy:vWorld.xy);
+  vec2 brick=uv*vec2(1.2,2.2);brick.x+=floor(brick.y)*.5;
+  vec2 seam=abs(fract(brick)-.5);
+  float mortar=1.-smoothstep(.45,.499,max(seam.x,seam.y));
+  c*=.86+.28*noise3(vWorld*5.);
+  c*=mix(.69,1.,mortar);
+ }else if(vMaterial>5.5&&vMaterial<6.5){
+  float fibers=.5+.5*sin(vWorld.y*45.+noise3(vWorld*2.5)*3.);
+  c*=.90+.16*mix(fibers,noise3(vWorld*7.),.45);
+ }else if(vMaterial>6.5&&vMaterial<7.5){
+  float soot=noise3(vWorld*vec3(2.5,3.2,2.1));
+  c*=.76+.35*soot;
+  c=mix(c,c*vec3(.79,.83,.81),max(0.,soot-.65)*.24);
+ }
+ c=mix(c,fogColor,vFog);
+ vec3 mapped=c/(c+vec3(.34));
+ mapped=pow(max(mapped,vec3(0.)),vec3(.88));
+ gl_FragColor=vec4(mapped,1.);
+}`;
+function shader(type,src){const s=gl.createShader(type);gl.shaderSource(s,src);gl.compileShader(s);if(!gl.getShaderParameter(s,gl.COMPILE_STATUS))throw Error(gl.getShaderInfoLog(s));return s}
+const program=gl.createProgram();gl.attachShader(program,shader(gl.VERTEX_SHADER,vs));gl.attachShader(program,shader(gl.FRAGMENT_SHADER,fs));gl.linkProgram(program);if(!gl.getProgramParameter(program,gl.LINK_STATUS))throw Error(gl.getProgramInfoLog(program));gl.useProgram(program);
+const uniforms={viewProjection:gl.getUniformLocation(program,'viewProjection'),fogColor:gl.getUniformLocation(program,'fogColor'),sunDirection:gl.getUniformLocation(program,'sunDirection'),sunTint:gl.getUniformLocation(program,'sunTint'),worldTime:gl.getUniformLocation(program,'worldTime'),eyePosition:gl.getUniformLocation(program,'eyePosition')};const buffer=gl.createBuffer();const staticBuffer=gl.createBuffer();let staticGpuUploads=0;
+const stride=40,attributes=[['position',3,0],['normal',3,12],['color',3,24],['materialId',1,36]].map(([name,size,offset])=>({loc:gl.getAttribLocation(program,name),size,offset}));
+function bindGeometry(target){gl.bindBuffer(gl.ARRAY_BUFFER,target);for(const {loc,size,offset} of attributes){if(loc<0)continue;gl.enableVertexAttribArray(loc);gl.vertexAttribPointer(loc,size,gl.FLOAT,false,stride,offset)}}
+bindGeometry(buffer);
+
+// Gauntlet 027 — atmospheric sky. A separate full-screen GPU render pass creates
+// moving cloud bands and changing daylight without adding world polygons.
+const skyVertexSource=`attribute vec2 screenPosition;varying vec2 skyUv;
+void main(){skyUv=screenPosition*.5+.5;gl_Position=vec4(screenPosition,1.,1.);}`;
+const skyFragmentSource=`precision mediump float;
+varying vec2 skyUv;
+uniform vec3 horizonColor;
+uniform vec3 zenithColor;
+uniform float skyDaylight;
+uniform float skyCloud;
+uniform float skyTime;
+void main(){
+ float horizon=smoothstep(0.0,.98,skyUv.y);
+ vec3 color=mix(horizonColor,zenithColor,pow(horizon,.67));
+ float layer=smoothstep(.18,.37,skyUv.y)*(1.-smoothstep(.76,1.0,skyUv.y));
+ float wave=sin(skyUv.x*13.5+skyUv.y*6.8-skyTime*.0028)
+    +.40*sin(skyUv.x*29.8-skyUv.y*11.2+skyTime*.0014);
+ float coverage=smoothstep(.08,1.1,wave)*layer*skyCloud;
+ color=mix(color,mix(vec3(.39,.45,.55),vec3(.88,.91,.86),skyDaylight),coverage*.54);
+ float theta=skyTime*.2617993878; // time is measured in simulation hours
+ vec2 sun=vec2(.5+.27*cos(theta),.55+.27*sin(theta));
+ float dist=distance(skyUv,sun*vec2(1.,1.32));
+ float glow=exp(-dist*dist*85.)*smoothstep(.12,.83,skyDaylight);
+ color+=vec3(.36,.24,.11)*glow;
+ float star=fract(sin(dot(floor(skyUv*vec2(212.,117.)),vec2(12.9898,78.233)))*43758.5453);
+ color+=vec3(.23,.31,.43)*step(.997,star)*(1.-skyDaylight)*smoothstep(.52,.75,skyUv.y);
+ gl_FragColor=vec4(clamp(color,vec3(0.),vec3(1.)),1.);
+}`;
+let skyAtmosphereProgram=null,skyAtmosphereBuffer=null,skyAttrib=-1,skyUniforms=null,skyPassCount=0;
+if(gpuAvailable){
+ skyAtmosphereProgram=gl.createProgram();
+ gl.attachShader(skyAtmosphereProgram,shader(gl.VERTEX_SHADER,skyVertexSource));
+ gl.attachShader(skyAtmosphereProgram,shader(gl.FRAGMENT_SHADER,skyFragmentSource));
+ gl.linkProgram(skyAtmosphereProgram);
+ if(!gl.getProgramParameter(skyAtmosphereProgram,gl.LINK_STATUS))throw Error('sky atmosphere: '+gl.getProgramInfoLog(skyAtmosphereProgram));
+ skyAttrib=gl.getAttribLocation(skyAtmosphereProgram,'screenPosition');
+ skyUniforms={
+  horizon:gl.getUniformLocation(skyAtmosphereProgram,'horizonColor'),
+  zenith:gl.getUniformLocation(skyAtmosphereProgram,'zenithColor'),
+  daylight:gl.getUniformLocation(skyAtmosphereProgram,'skyDaylight'),
+  cloud:gl.getUniformLocation(skyAtmosphereProgram,'skyCloud'),
+  time:gl.getUniformLocation(skyAtmosphereProgram,'skyTime')
+ };
+ skyAtmosphereBuffer=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,skyAtmosphereBuffer);
+ gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,3,-1,-1,3]),gl.STATIC_DRAW);
+ gl.useProgram(program);
+}
+function drawAtmosphere(a){
+ if(!gpuAvailable)return;
+ gl.useProgram(skyAtmosphereProgram);
+ gl.disable(gl.DEPTH_TEST);gl.depthMask(false);
+ gl.bindBuffer(gl.ARRAY_BUFFER,skyAtmosphereBuffer);
+ gl.enableVertexAttribArray(skyAttrib);
+ gl.vertexAttribPointer(skyAttrib,2,gl.FLOAT,false,0,0);
+ const h=a.fog;
+ gl.uniform3f(skyUniforms.horizon,h[0]*1.05,h[1]*1.06,h[2]*1.04);
+ gl.uniform3f(skyUniforms.zenith,.047+a.daylight*.14,.082+a.daylight*.29,.17+a.daylight*.49);
+ gl.uniform1f(skyUniforms.daylight,a.daylight);
+ gl.uniform1f(skyUniforms.cloud,.25+a.cloud*1.35);
+ gl.uniform1f(skyUniforms.time,state.t);
+ gl.drawArrays(gl.TRIANGLES,0,3);
+ gl.disableVertexAttribArray(skyAttrib);
+ gl.depthMask(true);gl.enable(gl.DEPTH_TEST);gl.useProgram(program);
+ skyPassCount++;
+}
+
+const MATERIAL=Object.freeze({GENERAL:0,GRASS:1,WATER:2,ROAD:3,FOLIAGE:4,STONE:5,WOOD:6,ROOF:7});
+const RIVER_SEGMENTS=105,RIVER_SPAN=84,RIVER_BANDS=6,RIVER_BANK_BANDS=2;
+let currentMaterial=MATERIAL.GENERAL;
+function materialScope(id,make){const old=currentMaterial;currentMaterial=id;try{return make()}finally{currentMaterial=old}}
+let data=[];let scenicMeshCache=null,scenicMeshKey='',scenicMeshRebuilds=0,scenicMeshTriangles=0;let terrainCache=null,terrainCacheKey='',terrainRebuilds=0,terrainCacheTriangles=0,lastFrameTriangles=0;const rgb=hex=>[(hex>>16&255)/255,(hex>>8&255)/255,(hex&255)/255];let grass=rgb(0x67865c),ground=rgb(0x789260),stone=rgb(0xc4ad81),wood=rgb(0x987451),roofColor=rgb(0x855448),water=rgb(0x497b83);
+// Gauntlet 031 — on-demand mesh audit; never scans buffers during normal frames.
+// Each vertex is position(3), normal(3), RGB(3), materialId(1): 10 floats.
+function inspectMeshGeometry(vertices){
+ const stride=10,aligned=vertices.length%(stride*3)===0;
+ let invalidComponents=0,invalidNormals=0,invalidColors=0,outOfBounds=0;
+ for(let i=0;i<vertices.length;i+=stride){
+  const x=vertices[i],y=vertices[i+1],z=vertices[i+2];
+  for(let j=0;j<stride;j++)if(!Number.isFinite(vertices[i+j]))invalidComponents++;
+  if(!Number.isFinite(x)||!Number.isFinite(y)||!Number.isFinite(z)||
+     Math.abs(x)>95||Math.abs(z)>95||y< -12||y>55)outOfBounds++;
+  const n=Math.hypot(vertices[i+3],vertices[i+4],vertices[i+5]);
+  if(!Number.isFinite(n)||n<.90||n>1.10)invalidNormals++;
+  for(let j=6;j<=8;j++)if(!Number.isFinite(vertices[i+j])||
+     vertices[i+j]<0||vertices[i+j]>1.001)invalidColors++;
+  const material=vertices[i+9];
+  if(!Number.isInteger(material)||material<0||material>7)invalidComponents++;
+ }
+ return {floats:vertices.length,vertices:vertices.length/stride,
+  triangles:vertices.length/(stride*3),aligned,invalidComponents,
+  invalidNormals,invalidColors,outOfBounds};
+}
+function geometryAudit(){
+ const fixed=inspectMeshGeometry(scenicMeshCache||[]);
+ const animated=inspectMeshGeometry(data);
+ return {static:fixed,dynamic:animated,
+  totalTriangles:fixed.triangles+animated.triangles};
+}
+function tri(a,b,c,col){let ux=b[0]-a[0],uy=b[1]-a[1],uz=b[2]-a[2],vx=c[0]-a[0],vy=c[1]-a[1],vz=c[2]-a[2];let nx=uy*vz-uz*vy,ny=uz*vx-ux*vz,nz=ux*vy-uy*vx,len=Math.hypot(nx,ny,nz)||1;for(const v of [a,b,c])data.push(...v,nx/len,ny/len,nz/len,...col,currentMaterial)}
+function quad(a,b,c,d,col){tri(a,b,c,col);tri(a,c,d,col)}
+function box(x,y,z,w,h,d,col){let xa=x-w/2,xb=x+w/2,za=z-d/2,zb=z+d/2,ya=y,yb=y+h;quad([xa,ya,za],[xa,yb,za],[xb,yb,za],[xb,ya,za],col);quad([xb,ya,zb],[xb,yb,zb],[xa,yb,zb],[xa,ya,zb],col);quad([xa,ya,zb],[xa,yb,zb],[xa,yb,za],[xa,ya,za],col);quad([xb,ya,za],[xb,yb,za],[xb,yb,zb],[xb,ya,zb],col);quad([xa,yb,za],[xa,yb,zb],[xb,yb,zb],[xb,yb,za],col);quad([xa,ya,zb],[xa,ya,za],[xb,ya,za],[xb,ya,zb],col)}
+function cylinder(x,y,z,r,h,col,sides=8){for(let i=0;i<sides;i++){let a=i*Math.PI*2/sides,b=(i+1)*Math.PI*2/sides;let v=[x+Math.cos(a)*r,y,z+Math.sin(a)*r],w=[x+Math.cos(b)*r,y,z+Math.sin(b)*r],vv=[v[0],y+h,v[2]],ww=[w[0],y+h,w[2]];quad(v,w,ww,vv,col);tri([x,y+h,z],vv,ww,col)}}
+function cone(x,y,z,r,h,col,sides=9){for(let i=0;i<sides;i++){let a=i*Math.PI*2/sides,b=(i+1)*Math.PI*2/sides;tri([x+Math.cos(a)*r,y,z+Math.sin(a)*r],[x+Math.cos(b)*r,y,z+Math.sin(b)*r],[x,y+h,z],col)}}
+const SEASONS=['SPRING','SUMMER','AUTUMN','WINTER'];
+const YEAR_DAYS=36,SEASON_DAYS=9;
+// Deterministic day forecast; never consumes citizen RNG stream.
+function climateAt(time){
+ const day=Math.floor(time/24)+1,yearDay=(day-1)%YEAR_DAYS;
+ const season=Math.floor(yearDay/SEASON_DAYS),h=((day*2654435761)^(day<<13)^0x9e3779b9)>>>0;
+ const roll=h%100;
+ const weather=season===3?(roll<31?'snow':roll<62?'cloudy':'clear'):
+   season===2?(roll<22?'rain':roll<57?'cloudy':'clear'):
+   season===0?(roll<35?'rain':roll<66?'cloudy':'clear'):(roll<13?'rain':roll<35?'cloudy':'clear');
+ const yieldMultiplier=([1.08,1.34,1.13,.68][season])*(weather==='rain'?1.17:weather==='snow'?.89:1);
+ return {day,year:Math.floor((day-1)/YEAR_DAYS)+1,season,seasonName:SEASONS[season],weather,yieldMultiplier,temperature:[15,26,13,-2][season]+(weather==='clear'?2:weather==='snow'?-4:0)};
+}
+function terrain(x,z){const d=Math.hypot(x,z),edge=Math.max(0,Math.min(1,(d-24)/18));const upland=edge*edge*(2.8+1.8*Math.sin(x*.18+z*.11)*Math.cos(z*.24));return .13*Math.sin(x*.32)*Math.cos(z*.24)+.7*Math.pow(Math.abs(x)/40,2)+.25*Math.pow(Math.abs(z)/38,2)+upland}
+// Continuous grass vertex colours and normals remove the obvious checkerboard mesh.
+function turfColor(x,z){const moss=Math.sin(x*.17+z*.065)*Math.cos(z*.23)*.045+Math.sin(x*.73-z*.61)*.012;const ridge=Math.max(0,terrain(x,z)-.6)*.033;const season=climateAt(state?.t??7).season;
+ const snowy=season===3&&climateAt(state.t).weather==='snow',scale=[1,1.06,.80,.83][season];
+ return snowy?[.63+moss*.3,.68+moss*.3,.69+moss*.3]:[(.305+moss+ridge)*(season===2?1.22:scale),(.425+moss*1.05+ridge)*scale,(.291+moss*.8+ridge)*(season===3?.90:scale)]}
+function turfTri(a,b,c){for(const v of [a,b,c]){const x=v[0],z=v[2],dx=(terrain(x+.15,z)-terrain(x-.15,z))/.3,dz=(terrain(x,z+.15)-terrain(x,z-.15))/.3,L=Math.hypot(dx,1,dz);data.push(...v,-dx/L,1/L,-dz/L,...turfColor(x,z),MATERIAL.GRASS)}}
+function turfQuad(a,b,c,d){turfTri(a,b,c);turfTri(a,c,d)}
+
+// Gauntlet 032: low-cost sun-synchronous 3D contact and cast-shadow silhouettes.
+// No shadow bitmap, external texture, random stream or save-state mutation.
+// Geometry follows terrain and is appended to the *dynamic* mesh rather than
+// invalidating 50k triangles of static architecture each simulated hour.
+let castShadowTriangles=0;
+function sunShadow(time){
+ const hour=((time%24)+24)%24,atmosphere=skyConditions(time);
+ const sunElevation=.30+atmosphere.daylight*.9;
+ const azimuth=hour/24*Math.PI*2;
+ const night=hour<5.8||hour>19.7;
+ const strength=night?0:Math.max(0,Math.min(1,(atmosphere.daylight-.22)*1.65));
+ const distance=strength>0?Math.min(7,1.3/sunElevation):0;
+ return {strength,distance,dx:-Math.cos(azimuth),dz:-Math.sin(azimuth),hour};
+}
+function dropShadowPoint(x,z,height,sun){
+ const scale=height*sun.distance;
+ const px=x+sun.dx*scale,pz=z+sun.dz*scale;
+ return [px,terrain(px,pz)+.075,pz];
+}
+function shadowPatch(cx,cz,radiusX,radiusZ,height,sun,isDense=false){
+ if(!sun.strength||Math.abs(cx)>40||Math.abs(cz)>40)return 0;
+ const [px,,pz]=dropShadowPoint(cx,cz,height,sun);
+ const grassShade=turfColor(px,pz);
+ const dark=grassShade.map((v,i)=>Math.max(.025,v*(1-(isDense?.57:.42)*sun.strength)*(i===0?.86:1)));
+ const mid=grassShade.map(v=>Math.max(.03,v*(1-.28*sun.strength)));
+ const center=[px,terrain(px,pz)+.077,pz];
+ const segments=8;
+ const outer=[],inner=[];
+ for(let i=0;i<=segments;i++){
+  const a=i*Math.PI*2/segments,c=Math.cos(a),d=Math.sin(a);
+  const ox=px+c*radiusX*1.15,oz=pz+d*radiusZ*1.15;
+  const ix=px+c*radiusX*.75,iz=pz+d*radiusZ*.75;
+  outer.push([ox,terrain(ox,oz)+.075,oz]);
+  inner.push([ix,terrain(ix,iz)+.077,iz]);
+ }
+ for(let i=0;i<segments;i++){
+  quad(outer[i],inner[i],inner[i+1],outer[i+1],mid);
+  tri(center,inner[i+1],inner[i],dark);
+ }
+ return segments*3;
+}
+function directionalCastShadows(time){
+ const sun=sunShadow(time);castShadowTriangles=0;
+ if(sun.strength<=.01)return;
+ const old=currentMaterial;currentMaterial=MATERIAL.GENERAL;
+ try{
+  // Built structures cast a long roof shadow; cottages grow with the village.
+  for(const [x,z,k] of city){
+   if(!Number.isFinite(x)||!Number.isFinite(z))continue;
+   const width=(2.4+k*.42)*.73,length=(2.1+k*.18)*.62;
+   castShadowTriangles+=shadowPatch(x,z,width,length,2.4,sun,true);
+  }
+  castShadowTriangles+=shadowPatch(0,-1,3.3,2.7,5.1,sun,true);
+  castShadowTriangles+=shadowPatch(-27,-18,1.75,1.3,5.4,sun,true);
+  castShadowTriangles+=shadowPatch(29,10,4.0,4.3,7.1,sun,true);
+  // Trees project compact disconnected canopy footprints, avoiding a flat
+  // blanket of shadow over each path and the central town square.
+  for(let i=0;i<trees.length;i++){
+   const t=trees[i];if(Math.hypot(t.x-29,t.z-10)<8)continue;
+   castShadowTriangles+=shadowPatch(t.x,t.z,.71*t.s,.63*t.s,2.7*t.s,sun,false);
+  }
+  for(const p of people){
+   castShadowTriangles+=shadowPatch(p.x,p.z,.20,.14,1.1,sun,true);
+  }
+ }finally{currentMaterial=old}
+}
+
+function shadow(x,z,rx,rz){const y=terrain(x,z)+.013,col=rgb(0x4b6549);for(let i=0;i<10;i++){const a=i*Math.PI/5,b=(i+1)*Math.PI/5;tri([x,y,z],[x+Math.cos(a)*rx,y,z+Math.sin(a)*rz],[x+Math.cos(b)*rx,y,z+Math.sin(b)*rz],col)}}
+function house(x,z,scale=1,variant=0){let y=terrain(x,z);let w=(2.4+variant*.42)*scale,d=(2.1+variant*.18)*scale,h=1.9*scale;shadow(x+.28,z+.20,w*.77,d*.74);box(x,y-.04,z,w+.14,.23*scale,d+.14,rgb(0x908978));box(x,y+.19*scale,z,w,h-.19*scale,d,variant%2?rgb(0xe1c7a0):rgb(0xd1bc97));let ridge=h+1.25*scale,zy=z-d/2-.18*scale,zz=z+d/2+.18*scale,xx=x-w/2-.25*scale,xr=x+w/2+.25*scale;let col=variant%2?rgb(0x725046):rgb(0x976047);
+// Both slopes, proper triangular end gables, visible eaves and offset ridge trim.
+quad([xx,y+h,zy],[x,y+ridge,zy],[x,y+ridge,zz],[xx,y+h,zz],col);quad([x,y+ridge,zy],[xr,y+h,zy],[xr,y+h,zz],[x,y+ridge,zz],col);
+tri([xx,y+h,zy],[xr,y+h,zy],[x,y+ridge,zy],rgb(0xd1bf9e));tri([xr,y+h,zz],[xx,y+h,zz],[x,y+ridge,zz],rgb(0xd1bf9e));
+// Gauntlet 017: overlapping individual roof tiles, built as actual 3D geometry.
+// Each row is staggered; subtle raised edges catch directional sunlight. The
+// deterministic pattern depends only on building variant and tile coordinates.
+const roofTileColors=[rgb(0xa96d50),rgb(0xb27c56),rgb(0x825143),rgb(0xc18b61),rgb(0x97634b)];
+for(let slope=0;slope<2;slope++){
+ const edge=slope===0?xx:xr;
+ const roofWidth=x-edge;
+ for(let row=0;row<7;row++){
+  const t0=row/7,t1=(row+1)/7;
+  const outer0=[edge+roofWidth*t0,y+h+(ridge-h)*t0];
+  const outer1=[edge+roofWidth*t1,y+h+(ridge-h)*t1];
+  for(let col=0;col<9;col++){
+   const shift=(row%2)*.5;
+   const v0=Math.max(0,(col+shift)/9),v1=Math.min(1,(col+1+shift)/9);
+   if(v1<=v0)continue;
+   const z0=zy+(zz-zy)*v0,z1=zy+(zz-zy)*v1;
+   const color=roofTileColors[(row*7+col*3+variant*5)%roofTileColors.length];
+   const lift=.022*scale+row*.001*scale;
+   materialScope(MATERIAL.ROOF,()=>quad([outer0[0],outer0[1]+lift,z0],[outer1[0],outer1[1]+lift,z0],[outer1[0],outer1[1]+lift,z1],[outer0[0],outer0[1]+lift,z1],color));
+  }
+ }
+}
+// Decorative layered roof seams catch light without pretending to be a texture pack.
+for(let i=1;i<=5;i++){let q=i/6;const lx=xx+(x-xx)*q,rx=x+(xr-x)*q,top=y+h+(ridge-h)*q;quad([lx,top+.018,zy],[lx+.025,top+.018,zy],[lx+.025,top+.018,zz],[lx,top+.018,zz],rgb(0x624838));quad([rx,top+.018,zy],[rx+.025,top+.018,zy],[rx+.025,top+.018,zz],[rx,top+.018,zz],rgb(0x634b3c))}
+box(x,y,z-d/2-.045*scale,.66*scale,1.25*scale,.085,rgb(0x76523c));box(x,y+1.03*scale,z-d/2-.084*scale,.07*scale,.055,.07,rgb(0xd5b778));
+for(let k=-1;k<=1;k+=2){box(x+k*w*.32,y+h*.43,z-d/2-.082,.40*scale,.51*scale,.07,(skyConditions(state.t).daylight<.55?[.98,.88,.47]:rgb(0x4f7772)));box(x+k*w*.32,y+h*.43,z-d/2-.1,.45*scale,.055,.07,rgb(0xe3cba7));box(x+k*w*.32,y+h*.64,z-d/2-.1,.055,.51*scale,.08,wood)}
+// Structural timber posts and chimney establish scale and depth.
+for(let k of [-1,1])box(x+k*(w/2-.12),y+.14,z-d/2-.09,.13*scale,h-.15,.12*scale,wood);
+box(x+w*.31,y+h*.72,z,.28*scale,.81*scale,.28*scale,rgb(0x9d8c77));box(x+w*.31,y+h*1.13,z,.38*scale,.12*scale,.38*scale,rgb(0x736f64));} 
+
+// Gauntlet 015: original modeled settlement details, independent of simulation state.
+function cottageDetails(x,z,scale,variant){
+ const y=terrain(x,z),w=(2.4+variant*.42)*scale,d=(2.1+variant*.18)*scale,h=1.9*scale;
+ const beam=rgb(0x594536),stone=rgb(0xa5a091),iron=rgb(0x3b4545);
+ // Layered stone foundations and timber framing on both gable ends.
+ for(let side of [-1,1]){
+   let face=z+side*(d/2+.09*scale);
+   box(x,y+.09*scale,face,w+.15*scale,.17*scale,.13*scale,stone);
+   for(let post of [-.46,.46])box(x+post*w,y+.18*scale,face,.09*scale,h-.16*scale,.09*scale,beam);
+   box(x,y+h*.77,face,w,.10*scale,.10*scale,beam);
+   for(let k of [-1,1]){let wx=x+k*w*.29;
+     box(wx,y+h*.51,face+.018*side,.43*scale,.49*scale,.045*scale,iron);
+     box(wx,y+h*.51,face+.044*side,.055*scale,.51*scale,.052*scale,rgb(0xe2c994));
+     box(wx,y+h*.51,face+.044*side,.45*scale,.055*scale,.052*scale,rgb(0xe2c994));
+   }
+ }
+ // Eave brackets and handmade ceramic ridge caps.
+ for(let zz of [-.36,0,.36]){
+   box(x,y+h+1.22*scale,z+zz*d,.16*scale,.13*scale,.22*scale,rgb(0xb18b63));
+ }
+ // A small timber stack beside each home, visible at settlement scale.
+ const bx=x+w*.57,bz=z+d*.43;
+ for(let k=0;k<3;k++)cylinder(bx+k*.17*scale,terrain(bx+k*.17*scale,bz),bz,.085*scale,.55*scale,rgb(0x856047),6);
+ // Gauntlet 034: authentic roof silhouettes; original geometric chimney masonry,
+ // soot-darkened flue, hand-carved window planters and climbing greenery.
+ const chimneyX=x+(variant%2?-.24:.24)*w,chimneyZ=z+d*.22;
+ const roofSlope=1.25*scale*(1-Math.min(1,2*Math.abs(chimneyX-x)/w));
+ const chimneyBottom=y+h+roofSlope-.22*scale;
+ const plaster=rgb(variant%2?0xe2ccb1:0xc8baa0),mortar=rgb(0x877768);
+ box(chimneyX,chimneyBottom,chimneyZ,.36*scale,1.14*scale,.40*scale,plaster);
+ for(let course=0;course<5;course++){
+   const yy=chimneyBottom+(course+.1)*.21*scale;
+   box(chimneyX,yy,chimneyZ,.395*scale,.028*scale,.435*scale,mortar);
+ }
+ box(chimneyX,chimneyBottom+1.08*scale,chimneyZ,.53*scale,.12*scale,.57*scale,rgb(0xa89d8b));
+ box(chimneyX,chimneyBottom+1.2*scale,chimneyZ,.28*scale,.027*scale,.28*scale,rgb(0x433d35));
+ // Front-facing timber flower boxes make this a lived-in settlement.
+ const frontZ=z-d*.5-.14*scale;
+ for(const side of [-1,1]){
+  const wx=x+side*w*.29,fy=y+h*.34;
+  box(wx,fy,frontZ,.52*scale,.17*scale,.23*scale,rgb(0x98663f));
+  box(wx,fy+.14*scale,frontZ,.50*scale,.055*scale,.22*scale,rgb(0x61563a));
+  for(let flower=0;flower<3;flower++){
+   const fx=wx+(flower-1)*.15*scale, fz=frontZ+.045*scale;
+   cone(fx,fy+.16*scale,fz,.085*scale,(.18+.05*(flower%2))*scale,
+    rgb(0x5f985d),5);
+   ellipsoid(fx,fy+(.33+.04*(flower%2))*scale,fz,.065*scale,.06*scale,.065*scale,
+    rgb((variant+flower)%2?0xf1b478:0xdf9ea0),6);
+  }
+ }
+ // Variant-dependent wooden porch awning: creates a recognizable silhouette.
+ if(variant%3===1){
+  const awnZ=z-d*.5-.46*scale;
+  box(x,y+.10*scale,awnZ,.11*scale,1.32*scale,.11*scale,rgb(0x74533e));
+  box(x-.40*scale,y+1.37*scale,awnZ,.11*scale,.17*scale,.11*scale,rgb(0x74533e));
+  quad([x-.7*scale,y+1.43*scale,z-d*.5],[x+.7*scale,y+1.43*scale,z-d*.5],
+   [x+.7*scale,y+1.17*scale,awnZ-.16*scale],[x-.7*scale,y+1.17*scale,awnZ-.16*scale],rgb(0xaa7455));
+ }
+
+}
+function villageGarden(x,z){
+ const soil=rgb(0x604c36),leaf=rgb(0x78a85a),bloom=rgb(0xe9c17c);
+ for(let row=0;row<3;row++){
+   const gx=x+row*.45;
+   box(gx,terrain(gx,z)+.025,z,.28,.05,1.4,soil);
+   for(let col=0;col<5;col++){
+     const gz=z+(col-2)*.26,gy=terrain(gx,gz);
+     cone(gx,gy+.09,gz,.12,.27,leaf,5);
+     if((row+col)%3===0)ellipsoid(gx,gy+.36,gz,.055,.06,.055,bloom,6);
+   }
+ }
+}
+function guildBanner(x,z){
+ const y=terrain(x,z),pole=rgb(0x70563e),cloth=rgb(0x9d3f43),trim=rgb(0xf0c77d);
+ cylinder(x,y,z,.06,3.4,pole,7);
+ box(x+.46,y+2.65,z,.88,.85,.055,cloth);
+ box(x+.46,y+3.05,z,.9,.065,.075,trim);
+ box(x+.46,y+2.27,z,.9,.065,.075,trim);
+ box(x+.42,y+2.63,z,.13,.45,.08,trim);
+}
+
+function hall(x,z){house(x,z,1.85,2);let y=terrain(x,z);cylinder(x,y+3.2,z,.5,2,rgb(0xcab48a));cone(x,y+5.2,z,1,1.7,rgb(0x5e6652));}
+// Gauntlet 025: coordinate-derived tapering branches and unique forest crowns.
+function taperedBranch(a,b,r0,r1,col,sides=7){
+ const frame=branchFrame(a,b);if(!frame)return;
+ const {u,v}=frame;
+ const ring=(p,r,t)=>[p[0]+r*(u[0]*Math.cos(t)+v[0]*Math.sin(t)),p[1]+r*(u[1]*Math.cos(t)+v[1]*Math.sin(t)),p[2]+r*(u[2]*Math.cos(t)+v[2]*Math.sin(t))];
+ for(let i=0;i<sides;i++){
+  const t0=i*2*Math.PI/sides,t1=(i+1)*2*Math.PI/sides;
+  quad(ring(a,r0,t0),ring(a,r0,t1),ring(b,r1,t1),ring(b,r1,t0),col);
+ }
+}
+// Preserve a separate orientation testable without changing simulation state.
+function branchFrame(a,b){
+ const dx=b[0]-a[0],dy=b[1]-a[1],dz=b[2]-a[2],length=Math.hypot(dx,dy,dz);
+ if(length<1e-4)return null;
+ const n=[dx/length,dy/length,dz/length],up=Math.abs(n[1])>.9?[1,0,0]:[0,1,0];
+ let u=[n[1]*up[2]-n[2]*up[1],n[2]*up[0]-n[0]*up[2],n[0]*up[1]-n[1]*up[0]];
+ const norm=Math.hypot(...u);u=u.map(q=>q/norm);
+ const v=[n[1]*u[2]-n[2]*u[1],n[2]*u[0]-n[0]*u[2],n[0]*u[1]-n[1]*u[0]];
+ return {n,u,v,length};
+}
+function tree(x,z,s=1){
+ const y=terrain(x,z),v=Math.sin(x*1.71+z*3.14),season=climateAt(state.t).season;
+ const deciduous=v>.12,signature=Math.sin(x*2.73-z*1.81);
+ const leanX=.12*Math.sin(x*3.2+z)*s,leanZ=.11*Math.cos(z*2.7-x)*s;
+ const bark=rgb(signature>.2?0x70583d:0x62523e);
+ const fork=[x+leanX,y+(1.58+.18*signature)*s,z+leanZ];
+ shadow(x+.37*s,z+.4*s,.95*s,.56*s);
+ taperedBranch([x,y,z],fork,.20*s,.105*s,bark,8);
+ if(deciduous){
+  const leaf=rgb(season===2?0x987e42:season===3?0x879184:(Math.sin(z*3.2)>.2?0x577f4b:0x53754a));
+  const accent=rgb(season===2?0xb1a05b:season===3?0x9ba69d:0x78975e);
+  for(let i=0;i<3;i++){
+   const angle=i*2.39996+signature*.43,reach=(.73+.15*Math.sin(x*.81+i))*s;
+   const tip=[fork[0]+Math.cos(angle)*reach,fork[1]+(.45+.14*i)*s,fork[2]+Math.sin(angle)*reach];
+   taperedBranch([fork[0],fork[1]-.19*s,fork[2]],tip,.105*s,.036*s,bark,6);
+   ellipsoid(tip[0],tip[1]+.26*s,tip[2],(.65+.1*i)*s,(.60+.06*i)*s,(.68+.04*i)*s,i%2?accent:leaf,7);
+  }
+  ellipsoid(fork[0],fork[1]+.64*s,fork[2],.88*s,.87*s,.82*s,leaf,8);
+ }else{
+  for(let tier=0;tier<4;tier++){
+   const radius=(1.02-tier*.20)*s,base=y+(.79+tier*.62)*s;
+   cone(x+leanX*tier/4,base,z+leanZ*tier/4,radius,(1.63-tier*.19)*s,
+    rgb([0x365b47,0x426b4e,0x557954,0x729268][tier]),9);
+  }
+ }
+}
+function path(points,width=1){for(let i=0;i<points.length-1;i++){
+ const a=points[i],b=points[i+1],dx=b[0]-a[0],dz=b[1]-a[1],length=Math.hypot(dx,dz);
+ if(length<.001)continue;
+ const nx=dz/length*width*.5,nz=-dx/length*width*.5;
+ // Short terrain-following road strips avoid the huge near-camera triangles that
+ // made paths cut through buildings in software and hover over sloping land in WebGL.
+ const n=Math.ceil(length/.9),road=rgb(0xb09d7a);
+ for(let j=0;j<n;j++){
+  const t=j/n,u=(j+1)/n,x0=a[0]+dx*t,z0=a[1]+dz*t,x1=a[0]+dx*u,z1=a[1]+dz*u;
+  const p=[x0+nx,terrain(x0+nx,z0+nz)+.028,z0+nz],q=[x0-nx,terrain(x0-nx,z0-nz)+.028,z0-nz];
+  const r=[x1-nx,terrain(x1-nx,z1-nz)+.028,z1-nz],v=[x1+nx,terrain(x1+nx,z1+nz)+.028,z1+nz];
+  quad(p,q,r,v,road);
+ }
+}}
+function wheat(x,z){let y=terrain(x,z);for(let i=0;i<6;i++)for(let j=0;j<5;j++){let xx=x+(i-2.5)*.43,zz=z+(j-2)*.48,yy=terrain(xx,zz);cylinder(xx,yy,zz,.022,.6,rgb(0xbc9c56),4);cone(xx,yy+.39,zz,.12,.34,rgb([0x82b45b,0xe4c47c,0xcca45c,0xc2c9b9][climateAt(state.t).season]),4)}}
+/* Gauntlet 020: render-only deterministic joint hierarchy. */
+// Gauntlet 036: bounded human gait, shorter anatomically plausible stride,
+// lifted swing foot and counter-swing arms; render-only, no simulation RNG.
+function citizenRigPose(p){
+ const action=p.activity.toLowerCase();
+ const working=/harvest|cutting|craft|construct|making|forag/.test(action);
+ const traveling=/travel|explor/.test(action);
+ const intensity=traveling?.72:working?.34:.11;
+ const phase=p.phase*2.7,workBeat=working?Math.sin(p.phase*4.1):0;
+ // The two bones have fixed lengths; each foot follows the actual terrain
+ // under its forward-facing boot rather than floating at the pelvis height.
+ const idx=Math.max(0,people.indexOf(p)),scale=.92+(idx%5)*.045;
+ const look=p.path?.length?p.path[0]:p.target;
+ const angle=look?Math.atan2(look[0]-p.x,look[1]-p.z):0;
+ const co=Math.cos(angle),si=Math.sin(angle),rootGround=terrain(p.x,p.z);
+ const upper=.335,lower=.335;
+ const legs=[-1,1].map(side=>{
+  const cycle=phase+(side<0?0:Math.PI);
+  const footZ=Math.sin(cycle)*intensity*.34;
+  const lift=Math.max(0,Math.cos(cycle))*.115*intensity;
+  const footX=side*.125,bootZ=footZ+.095;
+  const gx=p.x+(co*footX+si*bootZ)*scale;
+  const gz=p.z+(-si*footX+co*bootZ)*scale;
+  const groundOffset=(terrain(gx,gz)-rootGround)/scale;
+  const hip=[footX,.60,0],ankle=[footX,.11+groundOffset+lift,footZ];
+  const dz=ankle[2]-hip[2],dy=ankle[1]-hip[1],distance=Math.hypot(dz,dy);
+  const reach=Math.max(.0001,Math.min(distance,upper+lower-.0001));
+  const along=(upper*upper-lower*lower+reach*reach)/(2*reach);
+  const bend=Math.sqrt(Math.max(0,upper*upper-along*along));
+  const uz=dz/(distance||1),uy=dy/(distance||1);
+  const knee=[footX,hip[1]+uy*along+uz*bend,hip[2]+uz*along-uy*bend];
+  return {hip,knee,ankle,lift,groundOffset};
+ });
+ const arms=[-1,1].map(side=>{
+  // Opposite arm to the same-side foot; previous sign moved them together.
+  const swing=-Math.sin(phase+(side<0?0:Math.PI))*intensity*.27;
+  const toolArm=working&&side===1,beat=toolArm?workBeat*.10:0;
+  return {
+   shoulder:[side*.30,1.015,0],
+   elbow:[side*.325,.795+beat*.28,swing*.53+beat*.62],
+   wrist:[side*.33,.565+beat,swing+beat]
+  };
+ });
+ return {legs,arms,working,traveling,stride:Math.sin(phase)*intensity};
+}
+function limbSegment(a,b,radius,col,sides=7){
+ const dx=b[0]-a[0],dy=b[1]-a[1],dz=b[2]-a[2],length=Math.hypot(dx,dy,dz);if(length<.00001)return;
+ const d=[dx/length,dy/length,dz/length],ref=Math.abs(d[1])>.88?[1,0,0]:[0,1,0];
+ let right=[d[1]*ref[2]-d[2]*ref[1],d[2]*ref[0]-d[0]*ref[2],d[0]*ref[1]-d[1]*ref[0]];
+ const n=Math.hypot(...right);right=right.map(v=>v/n);
+ const up=[d[1]*right[2]-d[2]*right[1],d[2]*right[0]-d[0]*right[2],d[0]*right[1]-d[1]*right[0]];
+ const vertex=(origin,angle)=>origin.map((v,k)=>v+radius*(Math.cos(angle)*right[k]+Math.sin(angle)*up[k]));
+ for(let i=0;i<sides;i++){const t=i*2*Math.PI/sides,u=(i+1)*2*Math.PI/sides;quad(vertex(a,t),vertex(a,u),vertex(b,u),vertex(b,t),col);}
+}
+
+// Low-poly but individually proportioned citizens with articulated walk cycles, faces, tools and roles.
+// Gauntlet 032: avoid zero-area pole quads and give curved surfaces analytic
+// outward-facing normals. Fixed 10-float layout remains position/normal/RGB/material.
+function ellipsoid(x,y,z,rx,ry,rz,col,segments=9){
+ if(!(rx>0&&ry>0&&rz>0)||!Number.isInteger(segments)||segments<3)return;
+ const vertex=(latitude,azimuth)=>{
+  const st=latitude===0||latitude===Math.PI?0:Math.sin(latitude);
+  const ct=Math.cos(latitude),ca=Math.cos(azimuth),sa=Math.sin(azimuth);
+  const normal=[st*ca/rx,ct/ry,st*sa/rz],size=Math.hypot(...normal)||1;
+  return {p:[x+st*ca*rx,y+ct*ry,z+st*sa*rz],n:normal.map(v=>v/size)};
+ };
+ const emit=(a,b,c)=>{
+  for(const point of [a,b,c])data.push(...point.p,...point.n,...col,currentMaterial);
+ };
+ for(let ring=0;ring<5;ring++){
+  const lat0=Math.PI*ring/5,lat1=Math.PI*(ring+1)/5;
+  for(let slice=0;slice<segments;slice++){
+   const az0=slice*Math.PI*2/segments,az1=(slice+1)*Math.PI*2/segments;
+   const a=vertex(lat0,az0),b=vertex(lat0,az1);
+   const c=vertex(lat1,az0),d=vertex(lat1,az1);
+   if(ring===0)emit(a,d,c);
+   else if(ring===4)emit(a,b,c);
+   else {emit(a,b,d);emit(a,d,c)}
+  }
+ }
+}
+// Gauntlet 040: authored, five-ring medieval coat; procedural but not a box torso.
+// The only inputs are a stable citizen identity and read-only render gait.
+function garmentProfile(p,idx,rig){
+ const shoulder=.277+(idx%3)*.012+(p.job==='builder'?.023:0);
+ const waist=.216+(idx%4)*.008;
+ const hem=.318+(idx%3)*.013+(p.job==='merchant'?.018:0);
+ const sway=Math.max(-.025,Math.min(.025,rig.stride*.027));
+ return {style:p.job==='merchant'?'merchant coat':p.job==='builder'?'workcoat':'village tunic',
+  panelCount:8,surfaceTriangles:104,hemSway:sway,
+  rings:[
+   {y:.42,rx:hem,rz:.255+(idx%3)*.008,z:sway},
+   {y:.62,rx:waist+.022,rz:.201,z:sway*.55},
+   {y:.79,rx:waist,rz:.188,z:sway*.25},
+   {y:1.02,rx:shoulder,rz:.205,z:0},
+   {y:1.145,rx:.168,rz:.148,z:0}
+  ]};
+}
+function tailoredGarment(x,y,z,size,cloth,trim,profile){
+ const rings=profile.rings,n=profile.panelCount;
+ const vertex=(r,i)=>{const a=i*2*Math.PI/n;return [x+Math.sin(a)*r.rx*size,y+r.y*size,z+(Math.cos(a)*r.rz+r.z)*size];};
+ const shade=(c,f)=>c.map(v=>Math.max(0,Math.min(1,v*f)));
+ // Four shaped transitions: hem, waist, shoulders and fitted collar.
+ for(let i=0;i<n;i++)for(let j=0;j<rings.length-1;j++){
+  const tint=1+(i%2===0?.045:-.045)-(j===0?.055:0);
+  quad(vertex(rings[j],i),vertex(rings[j],i+1),vertex(rings[j+1],i+1),vertex(rings[j+1],i),shade(cloth,tint));
+ }
+ const top=rings[rings.length-1],center=[x,y+top.y*size,z];
+ for(let i=0;i<n;i++)tri(center,vertex(top,i),vertex(top,i+1),shade(cloth,.92));
+ // Closed garment hem and belt bands track the tapered profile, not a cube.
+ const hem=rings[0],hemBand={...hem,y:.465,rx:hem.rx*.99,rz:hem.rz*.99};
+ const beltLow={y:.685,rx:rings[1].rx*.955,rz:rings[1].rz*.97,z:rings[1].z};
+ const beltHigh={y:.755,rx:rings[2].rx*1.035,rz:rings[2].rz*1.04,z:rings[2].z};
+ for(let i=0;i<n;i++){
+  quad(vertex(hem,i),vertex(hem,i+1),vertex(hemBand,i+1),vertex(hemBand,i),shade(trim,.70));
+  quad(vertex(beltLow,i),vertex(beltLow,i+1),vertex(beltHigh,i+1),vertex(beltHigh,i),rgb(0x69513a));
+ }
+}
+// Gauntlet 041: explicit craniofacial topology and landmarks, authored per
+// stable identity. All geometry is render-only and consumes no RNG.
+function faceProfile(p,idx){
+ const jawWidth=.141+(idx%4)*.010;
+ const cheekWidth=.188+(idx%3)*.009;
+ const eyeSpacing=.077+(idx%3)*.009;
+ const noseProjection=.051+(idx%4)*.009;
+ const earHeight=.097+(idx%3)*.009;
+ return {segments:12,meshTriangles:156,jawWidth,cheekWidth,eyeSpacing,noseProjection,earHeight,
+  beard:idx%5===2||(p.job==='builder'&&idx%3===0),
+  rings:[
+   {y:1.185,rx:.055,rz:.083,z:.015},
+   {y:1.235,rx:jawWidth*.79,rz:.137,z:.015},
+   {y:1.31,rx:jawWidth,rz:.168,z:.012},
+   {y:1.41,rx:cheekWidth,rz:.185,z:0},
+   {y:1.505,rx:cheekWidth*.98,rz:.186,z:-.012},
+   {y:1.62,rx:cheekWidth*.94,rz:.170,z:-.022},
+   {y:1.704,rx:cheekWidth*.75,rz:.122,z:-.026}
+  ]};
+}
+function sculptedFace(x,y,z,size,skin,hair,profile){
+ const previousMaterial=currentMaterial;currentMaterial=MATERIAL.GENERAL;
+ const n=profile.segments,rings=profile.rings;
+ const vertex=(r,i)=>{
+  const angle=i*2*Math.PI/n;
+  return [x+Math.sin(angle)*r.rx*size,y+r.y*size,z+(Math.cos(angle)*r.rz+r.z)*size];
+ };
+ // Jaw, cheekbones, orbital brow, temples and cranium share a continuous mesh.
+ for(let j=0;j<rings.length-1;j++)for(let i=0;i<n;i++){
+  const shade=j===0?.90:j===3?1.035:j===4?.96:1;
+  const color=skin.map(v=>Math.min(1,v*shade));
+  quad(vertex(rings[j],i),vertex(rings[j],i+1),vertex(rings[j+1],i+1),vertex(rings[j+1],i),color);
+ }
+ const crown=rings[rings.length-1],apex=[x,y+1.735*size,z-.026*size];
+ for(let i=0;i<n;i++)tri(apex,vertex(crown,i),vertex(crown,i+1),skin);
+ const eyeWhite=rgb(0xc9bba9),iris=rgb(0x49493e),mouth=rgb(0x845c51);
+ for(const side of [-1,1]){
+  // Ears have inner folds; eyes sit on the front (+Z) facial plane.
+  ellipsoid(x+side*.209*size,y+1.432*size,z-.012*size,
+   .044*size,profile.earHeight*size,.049*size,skin,7);
+  ellipsoid(x+side*.246*size,y+1.438*size,z+.018*size,
+   .015*size,.043*size,.018*size,skin.map(v=>v*.82),6);
+  const eyeX=x+side*profile.eyeSpacing*size;
+  ellipsoid(eyeX,y+1.492*size,z+.177*size,.040*size,.024*size,.014*size,eyeWhite,7);
+  ellipsoid(eyeX,y+1.49*size,z+.188*size,.016*size,.018*size,.009*size,iris,7);
+  ellipsoid(eyeX,y+1.491*size,z+.195*size,.006*size,.009*size,.005*size,rgb(0x211e1b),6);
+  limbSegment([eyeX-side*.043*size,y+1.548*size,z+.165*size],
+   [eyeX+side*.043*size,y+1.558*size,z+.155*size],.012*size,hair,6);
+ }
+ // Bridge and projecting cartilage, paired nostrils, lips and rounded chin.
+ limbSegment([x,y+1.515*size,z+.174*size],
+  [x,y+1.396*size,z+.198*size],.036*size,skin,7);
+ ellipsoid(x,y+1.379*size,z+(.188+profile.noseProjection*.45)*size,
+  .039*size,.033*size,.033*size,skin,8);
+ for(const side of [-1,1])ellipsoid(x+side*.030*size,y+1.35*size,
+  z+(.200+profile.noseProjection*.39)*size,.008*size,.007*size,.007*size,mouth,6);
+ limbSegment([x-.060*size,y+1.291*size,z+.161*size],
+  [x+.060*size,y+1.291*size,z+.161*size],.009*size,mouth,7);
+ ellipsoid(x,y+1.263*size,z+.133*size,.073*size,.036*size,.033*size,skin,7);
+ if(profile.beard){
+  ellipsoid(x,y+1.225*size,z+.113*size,.105*size,.055*size,.047*size,hair,7);
+  for(const side of [-1,1])ellipsoid(x+side*.118*size,y+1.315*size,z+.117*size,
+   .034*size,.092*size,.033*size,hair,7);
+ }
+ currentMaterial=previousMaterial;
+}
+function villager(p){const vertexStart=data.length;let x=p.x,z=p.z,y=terrain(x,z),u=p.phase,idx=Math.max(0,people.indexOf(p)),size=.92+(idx%5)*.045;let c=colors[jobs.indexOf(p.job)]||colors[0],skin=rgb([0xd5a781,0x95654b,0xefc19c,0xbe8968,0x9a6a48][(idx+names.length)%5]),hair=rgb([0x4c3228,0x342f29,0x8b633f,0x664b36,0xa18b65][(idx+4)%5]);const busy=p.activity.toLowerCase().includes('harvest')||p.activity.toLowerCase().includes('cutting')||p.activity.toLowerCase().includes('craft')||p.activity.toLowerCase().includes('construct');let pace=p.activity.includes('Traveling')||p.activity.includes('Explor')?1:.23,step=Math.sin(u*2.7)*.21*pace;
+// Individual fitted wool coats: flared hem, waist, chest, collar, gait sway.
+const rig=citizenRigPose(p);
+const outfitTrim=[0xf2cb79,0x82b5b2,0xf0b9a0,0xe1d3a3,0xaac6d1,0xd7a9c8].map(rgb);
+const trim=outfitTrim[idx%outfitTrim.length];
+tailoredGarment(x,y,z,size,c,trim,garmentProfile(p,idx,rig));
+box(x,y+.685*size,z+.211*size,.078*size,.082*size,.026*size,rgb(0xd9c091));
+// Individual gait, boots, hands, long sleeves and silhouettes.
+const worldJoint=q=>[x+q[0]*size,y+q[1]*size,z+q[2]*size];
+for(let sideIndex=0;sideIndex<2;sideIndex++){
+ const leg=rig.legs[sideIndex],arm=rig.arms[sideIndex];
+ limbSegment(worldJoint(leg.hip),worldJoint(leg.knee),.091*size,rgb(0x534637));
+ limbSegment(worldJoint(leg.knee),worldJoint(leg.ankle),.076*size,rgb(0x534637));
+ ellipsoid(...worldJoint(leg.knee),.096*size,.094*size,.097*size,rgb(0x534637),7);
+ const foot=worldJoint(leg.ankle);box(foot[0],foot[1]-.045*size,foot[2]+.095*size,.19*size,.13*size,.30*size,rgb(0x40382e));
+ limbSegment(worldJoint(arm.shoulder),worldJoint(arm.elbow),.091*size,c);
+ limbSegment(worldJoint(arm.elbow),worldJoint(arm.wrist),.077*size,c);
+ ellipsoid(...worldJoint(arm.elbow),.084*size,.084*size,.084*size,c,7);
+ ellipsoid(...worldJoint(arm.wrist),.09*size,.095*size,.085*size,skin,7);
+}
+// Sculpted neck and head with a real facial front (positive Z).
+cylinder(x,y+1.16*size,z,.12*size,.15*size,skin,8);
+sculptedFace(x,y,z,size,skin,hair,faceProfile(p,idx));
+ellipsoid(x,y+1.67*size,z-.035*size,.235*size,.115*size,.185*size,hair,8);
+// Gauntlet 019: character-by-character authored visual identity, independent
+// from simulation RNG, so save/replay behaviour remains bit-for-bit stable.
+const mantle=rgb([0x395b51,0x72513c,0x6e3647,0x405879,0x746342,0x4e5a63][idx%6]);
+// Individually tailored collar, stitched front placket and shoulder cape.
+box(x,y+1.055*size,z+.10*size,.33*size,.085*size,.25*size,trim);
+limbSegment([x,y+.59*size,z+.232*size],[x,y+.99*size,z+.214*size],.018*size,trim,5);
+box(x,y+.965*size,z-.165*size,.54*size,.19*size,.11*size,mantle);
+for(let button=0;button<3;button++)ellipsoid(x,y+(.82-button*.13)*size,z+.185*size,.023*size,.023*size,.019*size,rgb(0xd9bc84),6);
+// Role-coded embroidery across the front: each character uses its own
+// exact coat palette, even when another villager shares the same profession.
+for(const side of [-1,1])limbSegment([x+side*.145*size,y+.60*size,z+.197*size],[x+side*.145*size,y+.96*size,z+.197*size],.012*size,trim,5);
+// Distinct hair silhouettes: braid, sidebun, short fringe or swept-back tuft.
+if(idx%4===0){
+ ellipsoid(x+.18*size,y+1.44*size,z-.10*size,.095*size,.17*size,.105*size,hair,7);
+ ellipsoid(x+.19*size,y+1.23*size,z-.12*size,.065*size,.12*size,.075*size,hair,7);
+}else if(idx%4===1){
+ ellipsoid(x-.22*size,y+1.53*size,z-.12*size,.15*size,.14*size,.14*size,hair,7);
+}else if(idx%4===2){
+ box(x,y+1.61*size,z+.13*size,.34*size,.08*size,.11*size,hair);
+}else{
+ ellipsoid(x-.10*size,y+1.69*size,z-.10*size,.17*size,.08*size,.16*size,hair,8);
+}
+// Leather satchel with buckles is unique to odd-index citizens.
+if(idx%2===1){
+ box(x+.255*size,y+.37*size,z-.12*size,.24*size,.28*size,.15*size,rgb(0x805534));
+ box(x+.258*size,y+.58*size,z-.20*size,.055*size,.44*size,.035*size,trim);
+}
+// Jobs are identifiable even without UI: hats, satchels and useful objects.
+if(p.job==='farmer'||p.job==='gatherer'){cylinder(x,y+1.655*size,z,.34*size,.06*size,rgb(0xb89a61),10);cone(x,y+1.66*size,z,.19*size,.19*size,rgb(0xc4a36c),8)}
+if(p.job==='forester'){cone(x,y+1.65*size,z,.255*size,.25*size,rgb(0x526a49),8);box(x+.35*size,y+.48*size,z+.03,.05*size,.52*size,.06*size,rgb(0x826449));box(x+.35*size,y+.83*size,z+.03,.24*size,.14*size,.045*size,rgb(0xa5a6a0))}
+if(p.job==='builder'){box(x,y+1.73*size,z,.48*size,.10*size,.43*size,rgb(0xa78a5e));box(x-.37*size,y+.54*size,z,.12*size,.28*size,.17*size,rgb(0x9b7850))}
+if(p.job==='merchant'){box(x-.31*size,y+.55*size,z+.13,.20*size,.36*size,.18*size,rgb(0x7d5433));box(x-.31*size,y+.86*size,z+.13,.13*size,.045*size,.16*size,rgb(0xe0be74))}
+if(p.job==='craftsperson'){box(x+.33*size,y+.48*size,z,.10*size,.48*size,.1*size,rgb(0x6e5140));box(x+.33*size,y+.81*size,z,.23*size,.12*size,.17*size,rgb(0xa3a9a1))}
+if(busy){box(x,y+.1*size,z-.30*size,.10*size,.04*size,.14*size,rgb(0x68533a))}
+// Every character actually faces the next waypoint. Rotate their assembled 3D
+// geometry and vertex normals, not the underlying authoritative positions.
+const look=p.path?.length?p.path[0]:p.target;
+const angle=look?Math.atan2(look[0]-x,look[1]-z):0;
+const co=Math.cos(angle),si=Math.sin(angle);
+for(let i=vertexStart;i<data.length;i+=10){const dx=data[i]-x,dz=data[i+2]-z,nx=data[i+3],nz=data[i+5];data[i]=x+co*dx+si*dz;data[i+2]=z-si*dx+co*dz;data[i+3]=co*nx+si*nz;data[i+5]=-si*nx+co*nz;}}
+
+function stoneBoulder(x,z,scale=1){let y=terrain(x,z);cylinder(x,y,z,.42*scale,.36*scale,rgb(0x858c80),7);cone(x,y+.18*scale,z,.52*scale,.38*scale,rgb(0xa1a79a),7)}
+function fenceLine(x,z,len,alongZ=false){let panel=rgb(0x957752),pole=rgb(0x715b43);for(let i=0;i<=len;i++){let xx=x+(alongZ?0:i*1.5),zz=z+(alongZ?i*1.5:0),y=terrain(xx,zz);box(xx,y,zz,.11,.74,.11,pole)}for(let i=0;i<len;i++){let xx=x+(alongZ?0:(i+.5)*1.5),zz=z+(alongZ?(i+.5)*1.5:0),y=terrain(xx,zz);box(xx,y+.31,zz,alongZ?.09:1.55,.11,alongZ?1.55:.09,panel);box(xx,y+.55,zz,alongZ?.09:1.55,.09,alongZ?1.55:.09,panel)}}
+function well(x,z){let y=terrain(x,z);cylinder(x,y,z,.75,.66,rgb(0x9b9b84),12);cylinder(x,y+.67,z,.59,.07,rgb(0x514f43),12);for(let sx of [-1,1])box(x+sx*.71,y,z,.12,1.8,.12,wood);box(x,y+1.77,z,1.7,.16,.15,wood);box(x,y+1.06,z,.08,.72,.09,rgb(0x8d7862));box(x,y+.75,z,.30,.33,.3,rgb(0x806648))}
+// Small 3D lanterns signal occupied streets after dusk. Brighter than diffuse
+// materials to approximate emissive glass on WebGL1 without an extra texture pack.
+function lantern(x,z,height=1.45){
+ const y=terrain(x,z),night=skyConditions(state.t).daylight<.55;
+ const bronze=rgb(0x554735);
+ cylinder(x,y,z,.065,height,bronze,8);
+ box(x,y+height-.12,z,.25,.08,.25,bronze);
+ ellipsoid(x,y+height+.05,z,.17,.20,.17,night?[.98,.90,.44]:rgb(0x9a8052),8);
+ cone(x,y+height+.2,z,.28,.24,rgb(0x675442),8);
+}
+function market(x,z){let y=terrain(x,z);for(let dx of [-1.1,1.1])for(let dz of [-.68,.68])box(x+dx,y,z+dz,.13,1.55,.13,wood);box(x,y+.8,z,2.8,.12,1.7,rgb(0x956a47));const tent=rgb(0xcaa768),trim=rgb(0x796447);quad([x-1.55,y+1.57,z-.95],[x,y+2.20,z-.95],[x,y+2.2,z+.95],[x-1.55,y+1.57,z+.95],tent);quad([x,y+2.2,z-.95],[x+1.55,y+1.57,z-.95],[x+1.55,y+1.57,z+.95],[x,y+2.2,z+.95],trim);for(let i=0;i<4;i++){let xx=x-.8+i*.54;box(xx,y+.94,z+.35,.35,.18,.33,rgb(i%2?0xb07e40:0x9a6739))}}
+
+const city=[[-10,-7,0],[-6,-9,1],[-1,-10,0],[6,-9,1],[10,-5,2],[-12,1,2],[-8,4,0],[-3,6,1],[7,6,2],[11,2,1],[3,10,0],[-7,11,1]];const trees=[];let seed=83127;function rand(){seed^=seed<<13;seed^=seed>>>17;seed^=seed<<5;return (seed>>>0)/4294967296}for(let i=0;i<140;i++){let x=(rand()-.5)*78,z=(rand()-.5)*78;if(Math.abs(x)<17&&Math.abs(z)<15||x*x+z*z>1550||Math.abs(z-9-Math.sin(x/9)*2)<2)continue;trees.push({x,z,s:.65+rand()*.85})}
+
+/* Gauntlet 015 environmental dressing — static deterministic flora, independent of authoritative RNG. */
+function biomeHash(n){const v=Math.sin(n*127.137+78.233)*43758.5453;return v-Math.floor(v)}
+const wildflora=[];for(let i=0;i<335;i++){const x=(biomeHash(i*3+1)-.5)*80,z=(biomeHash(i*3+2)-.5)*80;if((Math.abs(x)<15&&Math.abs(z)<16)||Math.hypot(x+27,z+18)<5||Math.abs(z-(20+Math.sin(x*.13)*3))<2.5)continue;wildflora.push({x,z,size:.6+biomeHash(i*3+3)*.7,color:i%5})}
+/* Gauntlet 034 — deterministic, low-budget meadow understory.
+   Every tuft is 8 triangles and is batched into the seasonal static mesh.
+   Coordinates are independent from all authoritative simulation RNG. */
+const meadowUnderstory=[];
+for(let i=0;i<480;i++){
+ const x=(biomeHash(11001+i*4)-.5)*82,z=(biomeHash(11002+i*4)-.5)*82;
+ if(Math.abs(x)<16&&Math.abs(z)<15)continue;
+ if(Math.hypot(x+27,z+18)<4.5||Math.hypot(x-29,z-10)<5.5)continue;
+ if(Math.abs(z-20-Math.sin(x*.13)*3)<3.3)continue;
+ meadowUnderstory.push({x,z,phase:biomeHash(11003+i*4),size:.68+biomeHash(11004+i*4)*.7});
+}
+function meadowTuft(p,index){
+ const season=climateAt(state.t).season;
+ const palettes=[
+  [0x398357,0x4caa6c,0x83b96c,0xa9c56f],
+  [0x347e57,0x4a9568,0x709b55,0xb0bb62],
+  [0x977347,0xb58b50,0x6c8252,0xc5a16c],
+  [0x77978e,0x91a29b,0xacc1ae,0x8d967e]
+ ];
+ const shades=palettes[season],y=terrain(p.x,p.z)+.035;
+ for(let blade=0;blade<4;blade++){
+  const angle=blade*2.399963+p.phase*6.28318;
+  const dx=Math.cos(angle),dz=Math.sin(angle);
+  const bend=(.10+.07*biomeHash(index*7+blade+501))*p.size;
+  const rise=(.27+.23*biomeHash(index*7+blade+811))*p.size*(season===3?.77:1);
+  const halfWidth=(.040+.027*biomeHash(index*7+blade+29))*p.size;
+  const sideX=-dz*halfWidth,sideZ=dx*halfWidth;
+  const a=[p.x-sideX,y,p.z-sideZ],b=[p.x+sideX,y,p.z+sideZ];
+  const c=[p.x+dx*bend,y+rise,p.z+dz*bend];
+  const front=rgb(shades[(index+blade)%4]),back=rgb(shades[(index+blade+2)%4]);
+  tri(a,b,c,front);tri(b,a,c,back);
+ }
+}
+function wildflower(p){const x=p.x,z=p.z,size=p.size,y=terrain(x,z),leaf=rgb(0x52865c),leaf2=rgb(0x75ad5f);for(let j=0;j<3;j++){const a=j*2.094,b=.18+.08*j;tri([x,y+.02,z],[x+Math.cos(a)*.35*size,y+.12*size,z+Math.sin(a)*.35*size],[x+Math.cos(a+b)*.31*size,y+.43*size,z+Math.sin(a+b)*.31*size],j%2?leaf:leaf2)}const hue=[0xfde2a0,0xf5b6d1,0xc7c0f9,0xf5ce72,0xb7e9ed][p.color];cylinder(x,y+.05,z,.019*size,.43*size,rgb(0x6ba46d),4);cone(x,y+.47*size,z,.12*size,.15*size,rgb(hue),5)}
+
+/* Gauntlet 018: physical coloured scenery and planting, deterministic and simulation-independent. */
+function festivalBanner(x,z,color,index=0){
+ const y=terrain(x,z),pole=rgb(0x765d45),silk=rgb(color),trim=rgb(0xfce6b1);
+ cylinder(x,y,z,.075,3.9,pole,7);cylinder(x,y+3.67,z,.13,.25,trim,8);
+ const flutter=Math.sin(state.t*.7+index)*.16;
+ quad([x+.05,y+3.45,z],[x+1.18,y+3.42,z+flutter],[x+1.18,y+2.53,z+flutter+.06],[x+.05,y+2.55,z],silk);
+ box(x+.55,y+3.45,z,.95,.05,.07,trim);
+ for(let j=0;j<3;j++)tri([x+.16+j*.3,y+2.55,z],[x+.31+j*.3,y+2.25-.06*(j%2),z+.06],[x+.46+j*.3,y+2.55,z],silk);
+}
+function royalPlaza(x,z,r=3.9){
+ const paved=[rgb(0xcbb895),rgb(0xe3d1ab),rgb(0xaa9e84),rgb(0xbaa68a)];
+ for(let i=0;i<24;i++){const a=i*Math.PI/12,b=(i+1)*Math.PI/12;
+  const p=[x+Math.cos(a)*r,terrain(x+Math.cos(a)*r,z+Math.sin(a)*r)+.046,z+Math.sin(a)*r];
+  const q=[x+Math.cos(b)*r,terrain(x+Math.cos(b)*r,z+Math.sin(b)*r)+.046,z+Math.sin(b)*r];
+  const c=[x,terrain(x,z)+.046,z];tri(c,q,p,paved[i%4]);
+ }
+ for(let k=0;k<3;k++){const radius=r*(.3+k*.3),col=rgb(k%2?0xefdcba:0x8d8a75);
+  for(let j=0;j<30;j++){const a=j*Math.PI/15,b=(j+1)*Math.PI/15;
+   const p=[x+Math.cos(a)*radius,terrain(x+Math.cos(a)*radius,z+Math.sin(a)*radius)+.069,z+Math.sin(a)*radius],q=[x+Math.cos(b)*radius,terrain(x+Math.cos(b)*radius,z+Math.sin(b)*radius)+.069,z+Math.sin(b)*radius];
+   const p2=[x+Math.cos(a)*(radius+.075),terrain(x+Math.cos(a)*(radius+.075),z+Math.sin(a)*(radius+.075))+.072,z+Math.sin(a)*(radius+.075)],q2=[x+Math.cos(b)*(radius+.075),terrain(x+Math.cos(b)*(radius+.075),z+Math.sin(b)*(radius+.075))+.072,z+Math.sin(b)*(radius+.075)];
+   quad(p,q,q2,p2,col);
+  }
+ }
+}
+function orchardTrees(){
+ const soil=rgb(0x8b6d45),flowers=[rgb(0xffd69c),rgb(0xffb7af),rgb(0xf9e6bf)];
+ for(let row=0;row<3;row++)for(let col=0;col<3;col++){
+  const x=-28+col*2.9,z=6+row*3.2,y=terrain(x,z);
+  cylinder(x,y,z,.15,1.45,soil,8);
+  const season=climateAt(state.t).season,leaves=rgb(season===3?0xc4d7ca:season===2?0xd0a455:row%2?0x519c5e:0x69a757);
+  ellipsoid(x,y+2.0,z,1.07,.83,.91,leaves,9);
+  ellipsoid(x+.55,y+1.75,z-.24,.60,.60,.58,rgb(climateAt(state.t).season===3?0xe4e7db:climateAt(state.t).season===2?0xd2a963:0x7bb65a),8);
+  for(let i=0;i<(season===3?0:5);i++){const a=i*2.39996+col*.5,fx=x+Math.sin(a)*.64,fz=z+Math.cos(a)*.55;
+   ellipsoid(fx,y+1.82+.19*Math.cos(a),fz,.13,.13,.13,flowers[(i+row)%3],6);
+  }
+ }
+ box(-28,terrain(-28,4.0),4.0,1.5,.54,.7,rgb(0xa9845e));
+ for(let i=0;i<3;i++){const x=-28.5+i*.45,z=3.7,y=terrain(x,z);ellipsoid(x,y+.57,z,.21,.20,.18,rgb(0xffb553),6)}
+}
+function riverReeds(){
+ const leaf=rgb(0x709a57),seedhead=rgb(0xb7a079);
+ for(let i=0;i<72;i++){
+  const x=-39+i*1.08,z=20+Math.sin(x*.13)*3+(i%2?2.25:-2.2),h=.58+(i%4)*.13,y=terrain(x,z);
+  for(let j=0;j<3;j++){const xx=x+(j-1)*.18,zz=z+Math.sin(i*2.7+j)*.19;
+   cylinder(xx,y,zz,.03,h,leaf,5);
+   cone(xx,y+h*.72,zz,.085,.27,seedhead,5);
+  }
+ }
+}
+function vibrantMarket(x,z){
+ const y=terrain(x,z),blue=rgb(0x37b8bc),coral=rgb(0xee8f71),lemon=rgb(0xffd18b),ivory=rgb(0xffe5bf);
+ for(let i=0;i<8;i++){
+  const a=x-1.42+i*.41,b=a+.38;
+  const col=i%2?ivory:coral;
+  quad([a,y+1.53,z-.91],[a+.21,y+2.24,z-.91],[a+.21,y+2.24,z+.91],[a,y+1.53,z+.91],col);
+  quad([a+.21,y+2.24,z-.91],[b,y+1.53,z-.91],[b,y+1.53,z+.91],[a+.21,y+2.24,z+.91],i%2?lemon:blue);
+ }
+ for(let i=0;i<7;i++){const px=x-1.17+i*.4;
+  cone(px,y+1.49,z+.89,.13,.28,i%2?blue:coral,5);
+  ellipsoid(px,y+.91,z+.45,.15,.16,.17,i%2?rgb(0xfaab54):rgb(0x88b15d),6);
+ }
+ festivalBanner(x+2.35,z-1.8,0x53c6bb,7);festivalBanner(x-2.45,z-1.8,0xe9a36b,5);
+}
+function villageFlowerBeds(){
+ const greens=[rgb(0x649d5e),rgb(0x4f976d),rgb(0x7fa953)];
+ for(let patch=0;patch<8;patch++){
+  const ang=patch*.78,x=11.0+Math.cos(ang)*3.1,z=13+Math.sin(ang)*3.2,y=terrain(x,z);
+  cylinder(x,y,z,.37,.29,rgb(0xc7a784),10);
+  ellipsoid(x,y+.36,z,.52,.28,.5,greens[patch%3],7);
+  for(let i=0;i<(climateAt(state.t).season===3?0:4);i++){const a=i*1.57+patch,x2=x+Math.cos(a)*.32,z2=z+Math.sin(a)*.3;
+   cone(x2,y+.53,z2,.11,.2,rgb([0xffc272,0xffb4bd,0xb59dff,0xf5f4b4][(i+patch)%4]),6);
+  }
+ }
+}
+let festivalGeometry=null,festivalSeason=-1,festivalCacheBuilds=0;
+function villageFestival(){
+ const season=climateAt(state.t).season;
+ if(!festivalGeometry||festivalSeason!==season){
+   const target=data;data=[];
+   royalPlaza(-2.5,2.0,3.4);orchardTrees();riverReeds();villageFlowerBeds();
+   festivalGeometry=data;data=target;festivalSeason=season;festivalCacheBuilds++;
+ }
+ for(let i=0;i<festivalGeometry.length;i++)data.push(festivalGeometry[i]);
+ vibrantMarket(0,5);
+ festivalBanner(-14,-5,0xffc56a,0);festivalBanner(13,-5,0x64ccdf,1);
+ festivalBanner(-8,12,0xd67e76,2);festivalBanner(10,11,0xe3c37c,3);
+}
+
+/* Gauntlet 020: river crossing and hill sanctuary. Entirely local original geometry,
+   deterministic without authoritative RNG, remote textures or asset downloads. */
+const SCENIC_SITES=Object.freeze({
+ bridge:Object.freeze({x:-6,z:18.1,kind:'river crossing'}),
+ sanctuary:Object.freeze({x:29,z:10,kind:'stone sanctuary'})
+});
+function landmarkStone(x,z){const variation=Math.sin(x*4.19+z*.71)*.035;return [.70+variation,.70+variation*.6,.65+variation*.4]}
+function landmarkStair(x,z,width=3){const y=terrain(x,z);for(let n=0;n<4;n++){let zz=z+n*.48;box(x,terrain(x,zz)-.10,zz,width,.20+n*.075,.43,landmarkStone(x,zz))}}
+function riverBridge(){
+ const x=SCENIC_SITES.bridge.x,center=SCENIC_SITES.bridge.z;
+ const yDeck=z=>terrain(x,z)+.35+.32*Math.max(0,1-Math.pow((z-center)/7,2));
+ const stone=rgb(0xb6b4a2),rail=rgb(0x6b5947),rivet=rgb(0xe7d49d);
+ // Sixteen terrain-following stone deck sections form a continuous raised foot crossing.
+ for(let j=0;j<20;j++){
+  const z0=12.5+j*.56,z1=z0+.56,y0=yDeck(z0),y1=yDeck(z1),shade=j%3?rgb(0xb4ad98):rgb(0xc9bfa8);
+  quad([x-2.12,y0,z0],[x-2.12,y1,z1],[x+2.12,y1,z1],[x+2.12,y0,z0],shade);
+  box(x,y0-.24,z0+.28,4.24,.19,.52,stone);
+  // Stone voussoirs and an actual open-water gap beneath the span.
+  if(j%4===0){box(x-2.19,y0-.35,z0+.23,.16,.47,.48,rgb(0x8e8d85));box(x+2.19,y0-.35,z0+.23,.16,.47,.48,rgb(0x8e8d85))}
+ }
+ for(const side of [-1,1]){
+   for(let n=0;n<=7;n++){const zz=12.5+n*1.6,yy=yDeck(zz);box(x+side*2.2,yy,zz,.27,.96,.27,stone);cone(x+side*2.2,yy+.94,zz,.27,.22,rivet,7)}
+   for(let n=0;n<7;n++){const zz=13.3+n*1.6,yy=yDeck(zz);box(x+side*2.2,yy+.43,zz,.13,.15,1.65,rail);box(x+side*2.2,yy+.80,zz,.15,.12,1.65,stone)}
+ }
+ // Bank approach paving, retaining stones, flower and banner columns.
+ for(const z of [10.2,25.8]){const yy=terrain(x,z);box(x,yy-.09,z,4.5,.13,3.4,rgb(0xaba58f));for(let side of [-1,1]){cylinder(x+side*2.5,yy,z,.38,.6,stone,8);cone(x+side*2.5,yy+.55,z,.38,.26,rgb(0xd0bc8f),7)}}
+ for(let j=0;j<9;j++){const zz=12.1+j*1.6;for(const side of [-1,1]){const xx=x+side*(3.2+.4*Math.sin(j));const yy=terrain(xx,zz);ellipsoid(xx,yy+.12,zz,.34,.19,.31,rgb(j%2?0x9b9f8a:0xc7b69a),7)}}
+}
+function pointedGlassWindow(x,y,z,width=0.7,height=1.55){
+ const lead=rgb(0x494f5b),glass=rgb(0x358b9c),glow=rgb(0x9cc7bf),outline=rgb(0xd9c6a2);
+ box(x,y,z,width+.24,height+.18,.12,outline);
+ box(x,y+.11,z+.075,width,height-.3,.065,glass);
+ tri([x-width*.52,y+height-.23,z+.12],[x+width*.52,y+height-.23,z+.12],[x,y+height+.22,z+.12],glow);
+ box(x,y+.10,z+.13,.055,height-.23,.06,lead);
+ for(let n=1;n<4;n++)box(x,y+n*height*.21,z+.13,width,.043,.065,lead);
+}
+function lancetSideWindow(x,y,z,side){
+ const glass=rgb(0x2a879a),frame=rgb(0xe1cbaa),lead=rgb(0x44535b),lit=rgb(0xa2d0c6);
+ box(x,y,z,.15,1.85,.86,frame);
+ box(x+side*.12,y+.15,z,.08,1.38,.68,glass);
+ tri([x+side*.19,y+1.58,z-.35],[x+side*.19,y+1.58,z+.35],[x+side*.19,y+2.02,z],lit);
+ box(x+side*.23,y+.16,z,.055,1.37,.045,lead);
+ for(let k=1;k<4;k++)box(x+side*.22,y+k*.36,z,.06,.035,.69,lead);
+}
+function hillsideSanctuary(){
+ const x=SCENIC_SITES.sanctuary.x,z=SCENIC_SITES.sanctuary.z,y=terrain(x,z);
+ const wall=rgb(0xe7d7bc),stone=rgb(0xc4b699),trim=rgb(0x8b806c),roof=rgb(0x796b79),roofLite=rgb(0x9b8890),slate=rgb(0xb7b2a6);
+ // Raised compact sanctuary, nave + timber-framed porch + square western bell tower.
+ box(x,y-.40,z,7.6,.43,10.6,stone);
+ box(x,y,z,6.5,4.4,9.1,wall);
+ for(let side of [-1,1]){
+  const xx=x+side*3.25;
+  for(let k=0;k<4;k++){const zz=z-3.4+k*2.25;box(xx+side*.18,y-.1,zz,.60,3.3,.54,stone);box(xx+side*.22,y+3.0,zz,.66,.25,.66,trim)}
+  // Tall lancet windows, with narrow lead dividers and frames.
+  for(let k=0;k<3;k++){const zz=z-2.25+k*2.3;lancetSideWindow(xx+side*.08,y+1.05,zz,side)}
+ }
+ // Twin pitched roofs with individual staggered slate courses.
+ const h=y+4.36,top=y+6.2;
+ quad([x-3.7,h,z-4.86],[x,top,z-4.86],[x,top,z+4.86],[x-3.7,h,z+4.86],roof);
+ quad([x,top,z-4.86],[x+3.7,h,z-4.86],[x+3.7,h,z+4.86],[x,top,z+4.86],roof);
+ for(let side of [-1,1])for(let row=0;row<9;row++)for(let col=0;col<13;col++){
+  const t=row/9,tt=(row+1)/9,z0=z-4.75+col*.735,z1=z0+.72;
+  const xx=x+side*(3.66-3.66*t),xy=x+side*(3.66-3.66*tt);
+  const a=h+(top-h)*t+.025,b=h+(top-h)*tt+.025;
+  const tint=(row+col)%4===0?roofLite:roof;
+  quad([xx,a,z0],[xy,b,z0],[xy,b,z1],[xx,a,z1],tint);
+ }
+ for(let side of [-1,1])box(x+side*3.62,y+4.15,z,.14,.13,10.1,trim);
+ // Bell tower: framed stone stages, four windows and a tall copper-tinted spire.
+ const tz=z-4.75,ty=y+.15;
+ box(x,ty,tz,3.15,8.0,3.15,stone);
+ for(const h0 of [2.1,4.65,7.15])box(x,ty+h0,tz,3.48,.22,3.48,trim);
+ for(const side of [-1,1]){box(x+side*1.60,ty+5.25,tz,.17,1.45,2.65,wall);box(x,ty+5.35,tz+side*1.62,.83,1.25,.13,rgb(0x435c60))}
+ box(x,ty+6.3,tz+1.72,1.0,1.45,.11,rgb(0x42545a));
+ cone(x,ty+8.15,tz,2.3,3.0,rgb(0x647f7c),12);
+ cylinder(x,ty+11.0,tz,.045,.8,rgb(0xe1ca8d),8);
+ box(x,ty+11.64,tz,.88,.09,.12,rgb(0xe1ca8d));
+ box(x,ty+11.64,tz,.10,.70,.12,rgb(0xe1ca8d));
+ // Doorway, real physical stone steps and courtyard street furniture.
+ const front=z-5.28;
+ box(x,y,front,.95,2.55,.16,rgb(0x644c40));
+ for(let side of [-1,1]){box(x+side*.57,y,front,.16,2.6,.27,stone);ellipsoid(x+side*1.9,y+.45,z-5.8,.55,.48,.54,rgb(0x4f815f),9)}
+ landmarkStair(x,front-1.6,3.1);
+ for(let i=0;i<9;i++){const zz=front-3.2-i*.55;box(x,terrain(x,zz)-.065,zz,3.0,.075,.43,i%2?stone:slate)}
+ return 1;
+}
+function scenicSiteMetrics(){return {count:Object.keys(SCENIC_SITES).length,riverBridge:{...SCENIC_SITES.bridge,walkable:walkable(-6,20)},sanctuary:{...SCENIC_SITES.sanctuary,walkable:walkable(29,10)}}}
+
+// Gauntlet 039: narrow wind-drifted fireplace wisps, not opaque spheres that
+// eclipse whole cottages in the actual close-camera GPU capture. These are
+// render-only, bounded five-sided taper segments; no RNG or authority writes.
+let activeChimneys=0,smokePuffs=0,smokeTriangles=0,smokeMaxRadius=0;
+function chimneySmoke(x,z,variant,time,scale=1){
+ if(Math.abs(x)>33||Math.abs(z)>33)return;
+ if((Math.round(Math.abs(x*7+z*11))+variant)%3!==0)return;
+ const y=terrain(x,z),w=(2.4+variant*.42)*scale,h=1.9*scale,d=(2.1+variant*.18)*scale;
+ const cx=x+(variant%2?-.24:.24)*w,cz=z+d*.22;
+ const slope=1.25*scale*(1-Math.min(1,2*Math.abs(cx-x)/w));
+ const top=y+h+slope+1.06*scale;
+ const breeze=Math.sin(time*.031+x*.13)*.30;
+ const climate=climateAt(time),density=climate.season===3?4:3;
+ const tint=skyConditions(time).daylight<.52?rgb(0x747a79):rgb(0x989c93);
+ activeChimneys++;
+ for(let i=0;i<density;i++){
+  const progress=(time*.062+i/density)%1;
+  const xx=cx+breeze*progress+Math.sin(progress*7+i+x)*.09*progress;
+  const zz=cz+progress*.34+Math.cos(progress*9+z)*.06*progress;
+  const yy=top+.12+progress*1.8;
+  const r=(.035+progress*.015)*scale;
+  const p0=[xx,yy,zz];
+  const p1=[xx+breeze*.24+.025*Math.sin(time*.05+i),yy+.23*scale,zz+.055*scale];
+  const p2=[p1[0]+breeze*.19+.035*Math.sin(time*.07+i),p1[1]+.25*scale,p1[2]+.05*scale];
+  const before=data.length;
+  taperedBranch(p0,p1,r,r*.63,tint,5);
+  taperedBranch(p1,p2,r*.63,.006*scale,tint,5);
+  smokeTriangles+=(data.length-before)/30;
+  smokeMaxRadius=Math.max(smokeMaxRadius,r);
+  smokePuffs++;
+ }
+}
+
+
+/* Gauntlet 043: blacksmith workshop, cart and trade yard.
+   Original, authored-in-code architecture, not a UI illustration. The 3D scene
+   shares the game's weather/lighting and stays within terrain navigation bounds.
+   Craft workshops are landmarks, not fabricated economy buildings. */
+const CRAFT_DISTRICT=Object.freeze({x:19,z:-15,width:8.2,depth:6.4});
+const craftCounters={pieces:0,cartWheels:0,smokePuffs:0};
+function forgeBarrel(x,z,r=.29,barrelHeight=.78){
+ const y=terrain(x,z),oak=rgb(0x936940),iron=rgb(0x484d4b),head=rgb(0x715738);
+ cylinder(x,y,z,r,barrelHeight,oak,10);
+ for(let band=0;band<3;band++)cylinder(x,y+.12+band*.22,z,r*1.07,.045,iron,10);
+ cylinder(x,y+barrelHeight,z,r*.86,.05,head,10);
+ craftCounters.pieces++;
+}
+function cartWheel(x,y,z,r=.52){
+ const wood=rgb(0x795c3d),iron=rgb(0x5d5b56);
+ // Two vertical annuli and a recognizable recessed hub.
+ for(let side of [-1,1]){
+  const zz=z+side*.09;
+  for(let i=0;i<12;i++){
+   const a=i*Math.PI/6,b=(i+1)*Math.PI/6;
+   const p=(angle,radius)=>[x+Math.cos(angle)*radius,y+Math.sin(angle)*radius,zz];
+   quad(p(a,r*.78),p(b,r*.78),p(b,r),p(a,r),iron);
+  }
+ }
+ cylinder(x,y-r*.16,z,.12,.26,wood,8);
+ for(let i=0;i<6;i++){
+  const a=i*Math.PI/3,dx=Math.cos(a)*r*.72,dy=Math.sin(a)*r*.72;
+  limbSegment([x,y,z],[x+dx,y+dy,z],.055,wood,6);
+ }
+ craftCounters.cartWheels++;
+}
+function timberCart(x,z){
+ const y=terrain(x,z),plank=rgb(0xb68b54),rim=rgb(0x785334);
+ // The shaft points toward the lane, the load remains off the walking route.
+ box(x,y+.65,z,2.45,.20,1.85,plank);
+ for(const side of [-1,1]){
+  box(x+side*1.17,y+.77,z,.11,.48,1.88,rim);
+  box(x+side*1.11,y+.56,z-1.04,.17,.75,.19,rim);
+  cartWheel(x+side*1.30,y+.54,z-.57,.47);
+  cartWheel(x+side*1.30,y+.54,z+.57,.47);
+ }
+ box(x,y+.76,z+1.04,2.38,.42,.12,rim);
+ for(let n=0;n<4;n++){
+  const xx=x+(n%2?-.51:.51),zz=z+(n>1?.35:-.40);
+  box(xx,y+.82+(n>1?.35:0),zz,.85,.44,.76,rgb(n%2?0xc8aa6c:0xb69b61));
+  for(let t=0;t<3;t++)box(xx,y+.85+(n>1?.35:0)+t*.14,zz,.90,.027,.8,rgb(0xa78a54));
+ }
+ for(const side of [-1,1])box(x+side*.71,y+.39,z+1.73,.13,.11,1.58,rim);
+ craftCounters.pieces+=13;
+}
+function forgeRoof(x,y,z){
+ const slate=[rgb(0x746c71),rgb(0x8e7777),rgb(0x9e8b80),rgb(0x6a6d72)];
+ const lower=y+3.35,peak=lower+1.83,xl=x-4.1,xr=x+4.1,z0=z-3.23,z1=z+3.23;
+ materialScope(MATERIAL.ROOF,()=>{
+   // Overlapping staggered individual slates, with real 3D raised seams.
+   for(let side of [-1,1]){
+    for(let row=0;row<8;row++)for(let col=0;col<12;col++){
+     const r0=row/8,r1=(row+1)/8;
+     const p0=x+side*(4.25*(1-r0)),p1=x+side*(4.25*(1-r1));
+     const h0=lower+(peak-lower)*r0,h1=lower+(peak-lower)*r1;
+     const stagger=(row%2)*.35;
+     const t0=Math.max(0,(col+stagger)/12),t1=Math.min(1,(col+1+stagger)/12);
+     if(t1<=t0)continue;
+     const za=z0+(z1-z0)*t0,zb=z0+(z1-z0)*t1;
+     const colr=slate[(row*11+col*7+side*3+144)%slate.length];
+     // Emit both faces so the pitched tiles survive all camera quadrants.
+     const a=[p0,h0+.026,za],b=[p1,h1+.026,za],c=[p1,h1+.026,zb],d=[p0,h0+.026,zb];
+     quad(a,b,c,d,colr);quad(d,c,b,a,colr);
+    }
+   }
+ });
+ box(x,y+5.16,z,.17,.13,6.8,rgb(0xb5a994));
+}
+function forgeWorkshop(){
+ const {x,z,width,depth}=CRAFT_DISTRICT,y=terrain(x,z);
+ craftCounters.pieces=0;craftCounters.cartWheels=0;
+ const stone=rgb(0xbeaf99),oak=rgb(0x6c503c),brick=rgb(0xa68a76),plaster=rgb(0xd3c6aa);
+ box(x,y-.10,z,width,.38,depth,stone);
+ box(x,y+.22,z,width-.65,3.18,depth-.52,plaster);
+ for(const side of [-1,1]){
+   const xx=x+side*3.78;
+   for(let i=0;i<4;i++){
+     const zz=z-2.55+i*1.68;
+     box(xx,y+.16,zz,.28,3.31,.29,oak);
+     box(xx+side*.12,y+2.90,zz,.35,.16,.43,stone);
+   }
+   for(let i=0;i<3;i++){
+     const zz=z-1.73+i*1.73;
+     box(xx+side*.12,y+1.17,zz,.14,1.10,.74,rgb(0x416e77));
+     for(let k=0;k<2;k++)box(xx+side*.21,y+1.42+k*.42,zz,.06,.066,.79,rgb(0xcfbd9b));
+   }
+ }
+ const front=z-3.2;
+ // A real arched cart entrance and split plank gates.
+ box(x,y+.36,front,2.42,2.52,.28,rgb(0x504438));
+ for(const side of [-1,1]){
+   box(x+side*.66,y+.36,front-.13,.95,2.35,.13,rgb(0x8d6145));
+   box(x+side*.71,y+1.48,front-.22,.08,2.15,.09,rgb(0x543f35));
+ }
+ box(x,y+2.96,front,3.07,.40,.40,stone);
+ for(let i=0;i<5;i++)box(x,y+.31+i*.63,front+3.16,7.5,.08,.10,brick);
+ forgeRoof(x,y,z);
+ // Tall smoky chimney, colored masonry instead of floating smoke spheres.
+ const cx=x+2.48,cz=z+1.18;
+ box(cx,y+3.12,cz,.96,4.12,.92,brick);
+ for(let n=0;n<14;n++)box(cx,y+3.22+n*.27,cz,1.0,.035,.97,rgb(n%3?0xa1907d:0x7f796c));
+ box(cx,y+7.16,cz,1.35,.19,1.28,stone);
+ box(cx,y+7.35,cz,.62,.09,.57,rgb(0x343636));
+ // The outdoor charcoal forge, bellows and anvil make the profession legible.
+ const fx=x-3.30,fz=z-4.37,fy=terrain(fx,fz);
+ box(fx,fy-.04,fz,2.0,.31,1.5,stone);
+ box(fx,fy+.25,fz-.09,1.70,.94,.87,brick);
+ box(fx,fy+1.01,fz-.15,1.18,.15,.76,rgb(0x504945));
+ box(fx,fy+1.12,fz-.19,.70,.20,.48,rgb(0xe6a865));
+ for(const side of [-1,1])box(fx+side*.69,fy+.32,fz-.61,.18,1.02,.22,oak);
+ const ax=x-.82,az=z-4.65,ay=terrain(ax,az);
+ box(ax,ay+.08,az,.48,.91,.48,oak);
+ box(ax,ay+.95,az,.88,.26,.48,rgb(0x626b71));
+ box(ax-.45,ay+1.03,az,.48,.10,.30,rgb(0x6e7577));
+ box(ax+.47,ay+1.03,az,.42,.1,.30,rgb(0x656d73));
+ for(let i=0;i<4;i++)forgeBarrel(x+3.88+i%2*.65,z-4.15+Math.floor(i/2)*.75,.24,.69);
+ // Masonry paving, a drying rack, timber stock and tool silhouettes.
+ for(let n=0;n<16;n++){
+  const px=x-3.4+(n%4)*1.05,pz=z-6.15+Math.floor(n/4)*.67;
+  const py=terrain(px,pz)+.036;
+  box(px,py,pz,.93,.06,.59,rgb((n%4)<2?0xb5a289:0x958c7d));
+ }
+ for(let i=0;i<5;i++){
+   const zz=z+2.25+i*.29,xx=x-4.5;
+   cylinder(xx,terrain(xx,zz),zz,.14,1.3,rgb(i%2?0xa4784c:0x816144),8);
+ }
+ materialScope(MATERIAL.WOOD,()=>timberCart(x+5.65,z-5.18));
+ guildBanner(x-3.27,z-4.32);
+ guildBanner(x+3.21,z-4.32);
+ craftCounters.pieces+=72;
+}
+function forgeSmoke(time){
+ const x=CRAFT_DISTRICT.x+2.48,z=CRAFT_DISTRICT.z+1.18;
+ const base=terrain(CRAFT_DISTRICT.x,CRAFT_DISTRICT.z)+7.49;
+ craftCounters.smokePuffs=0;
+ for(let k=0;k<3;k++){
+  const p=(k/3+time*.009)%1,drift=.5*Math.sin(time*.027+x);
+  const xx=x+drift*p,zz=z+.24*p;
+  const tint=rgb(0x92918f),radius=.15+.18*p;
+  materialScope(MATERIAL.GENERAL,()=>ellipsoid(xx,base+p*2.05,zz,radius,radius*.68,radius,tint,6));
+  craftCounters.smokePuffs++;
+ }
+}
+
+function windmill(x,z,time){const y=terrain(x,z),stone=rgb(0xf0d5ac),roof=rgb(0x966347),cloth=rgb(0xf7e7c5);shadow(x+.55,z+.55,2.2,1.4);cylinder(x,y,z,1.48,5.3,stone,12);cone(x,y+5.15,z,2.0,1.9,roof,12);box(x,y+.2,z+1.50,.72,1.65,.12,rgb(0x68483c));for(let j=0;j<3;j++){const yy=y+2.1+j*.90;box(x,yy,z+1.52,.46,.48,.1,rgb(0x406568))}const center=[x,y+4.25,z+1.68],span=2.35,theta=time*.11;for(let i=0;i<4;i++){const a=theta+i*Math.PI/2,c=Math.cos(a),u=Math.sin(a),nx=-u*.33,ny=c*.33;const pa=[center[0]+c*.50,center[1]+u*.50,center[2]+.02],pb=[center[0]+c*span,center[1]+u*span,center[2]+.02];box((pa[0]+pb[0])/2,(pa[1]+pb[1])/2,center[2],.08,.09,.09,rgb(0x916b52));quad([pa[0]+nx,pa[1]+ny,center[2]+.07],[pb[0]+nx,pb[1]+ny,center[2]+.07],[pb[0]-nx,pb[1]-ny,center[2]+.07],[pa[0]-nx,pa[1]-ny,center[2]+.07],cloth)}cylinder(x,y+4.25,z+1.71,.29,.25,rgb(0x654a35),10)}
+const names=['Alina','Rowan','Edric','Mira','Oren','Selene','Bram','Elowen','Tarin','Nora','Finn','Isolde','Lysa','Cador','Maeve','Oswin','Adela','Hugo','Idris','Rhea','Silas','Faye'];const jobs=['farmer','forester','builder','merchant','craftsperson','gatherer'];const colors=[0x8f6653,0x58788c,0x907048,0x65754a,0x8c6b7c,0x8d8c67].map(rgb);let state,people,stories=[],frozen=false,speed=1,follow=false,cinematic=false,timer=0,accumulator=0,selectedCitizen=0;const FIXED_STEP=1/30;
+function renderStories(){const feed=document.getElementById('feed');feed.replaceChildren();for(const e of stories.slice(0,4)){const item=document.createElement('div'),label=document.createElement('span');item.className='feeditem';label.textContent='Day '+e.day+' · Kingdom chronicle';item.append(label,document.createTextNode(e.text));feed.appendChild(item)}}
+function uniqueCitizenName(index){const given=names[index%names.length];const generation=Math.floor(index/names.length);return generation?given+' '+(generation===1?'II':String(generation+1)):given}
+function report(s){stories.unshift({day:Math.floor(state.t/24)+1,text:s});stories=stories.slice(0,6);renderStories()}
+function start(){scenicMeshCache=null;scenicMeshKey='';seed=83127;accumulator=0;selectedCitizen=0;routeCache.clear();routeCacheRevision=-1;cacheHits=0;cacheMisses=0;city.splice(12);state={t:7,food:180,wood:90,gold:42,homes:city.length,buildCount:city.length+2,happiness:78,lastStory:0};people=names.slice(0,12).map((name,i)=>({name,job:jobs[i%jobs.length],trait:['patient','curious','bold','generous','resourceful','loyal'][i%6],x:(rand()-.5)*14,z:(rand()-.5)*11,target:[(rand()-.5)*24,(rand()-.5)*20],phase:rand()*8,friend:null,bonds:{},energy:60+rand()*40,hunger:rand()*20,activity:'Exploring the valley',workTimer:0,friendshipRecorded:false}));for(const p of people){if(!walkable(p.x,p.z)){const spot=navSnap(p.x,p.z);if(spot)[p.x,p.z]=navPoint(...spot)}choose(p)}stories=[];report('The first families arrive in a lush and untamed valley.');report('A new settlement is born beneath the old mountain ridge.');updateUI()}
+// Walkable navigation is separate from decorative geometry. Deterministic bounded A*
+// prevents villagers crossing house interiors or swimming through the river.
+const NAV_LIMIT=40,NAV_BUDGET=3200,NAV_SPACING=1.15;
+function walkable(x,z){
+  if(!Number.isFinite(x)||!Number.isFinite(z)||Math.abs(x)>NAV_LIMIT||Math.abs(z)>NAV_LIMIT)return false;
+  for(const [hx,hz,k] of city)if(Math.abs(x-hx)<(2.4+k*.42)*.5+.39&&Math.abs(z-hz)<(2.1+k*.18)*.5+.39)return false;
+  if(Math.abs(x)<3.55&&Math.abs(z+1)<2.8)return false;
+  if(Math.abs(x)<1.95&&Math.abs(z-5)<1.5)return false;
+  if(Math.hypot(x+15,z-4)<1.1)return false;
+  // Guild forge walls are solid; the outdoor trade path remains accessible.
+  if(Math.abs(x-CRAFT_DISTRICT.x)<CRAFT_DISTRICT.width*.5-.10&&Math.abs(z-CRAFT_DISTRICT.z)<CRAFT_DISTRICT.depth*.5-.12)return false;
+  if(Math.abs(x-SCENIC_SITES.sanctuary.x)<3.8&&Math.abs(z-SCENIC_SITES.sanctuary.z)<5.35)return false;
+  const waterline=20+Math.sin(x*.13)*3;
+  if(Math.abs(z-waterline)<1.7&&Math.abs(x+17)>2.1&&Math.abs(x-10)>2.1&&Math.abs(x-SCENIC_SITES.bridge.x)>1.65)return false;
+  return true;
+}
+function navPoint(ix,iz){return [ix*NAV_SPACING,iz*NAV_SPACING]}
+function navSnap(x,z,requireSight=false){
+  let cx=Math.round(x/NAV_SPACING),cz=Math.round(z/NAV_SPACING),winner=null,score=Infinity;
+  for(let r=0;r<=12;r++){
+    for(let dx=-r;dx<=r;dx++)for(let dz=-r;dz<=r;dz++){
+      if(Math.max(Math.abs(dx),Math.abs(dz))!==r)continue;
+      const ix=cx+dx,iz=cz+dz,[px,pz]=navPoint(ix,iz);
+      if(!walkable(px,pz)||(requireSight&&walkable(x,z)&&!clearSegment([x,z],[px,pz])))continue;
+      const dist=(px-x)**2+(pz-z)**2;
+      if(dist<score){score=dist;winner=[ix,iz]}
+    }
+    if(winner)return winner;
+  }
+  return null;
+}
+const NAV_DIRS=[[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]];
+function clearSegment(a,b){const len=Math.hypot(a[0]-b[0],a[1]-b[1]);if(len<=.04)return walkable(b[0],b[1]);const steps=Math.ceil(len/.04);for(let i=1;i<=steps;i++){let t=i/steps;if(!walkable(a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t))return false}return true}
+// Binary priority queue keeps worst-case A* expansion bounded without repeated full sorts.
+const navCompare=(a,b)=>a.f-b.f||a.g-b.g||a.x-b.x||a.z-b.z;
+function navPush(heap,n){let i=heap.length;heap.push(n);while(i>0){const p=(i-1)>>1;if(navCompare(heap[p],n)<=0)break;heap[i]=heap[p];i=p}heap[i]=n}
+function navPop(heap){const top=heap[0],end=heap.pop();if(heap.length){let i=0;while(i*2+1<heap.length){let c=i*2+1;if(c+1<heap.length&&navCompare(heap[c+1],heap[c])<0)c++;if(navCompare(end,heap[c])<=0)break;heap[i]=heap[c];i=c}heap[i]=end}return top}
+const routeCache=new Map();let routeCacheRevision=-1,cacheHits=0,cacheMisses=0;
+function compressRoute(points,x,z,tx,tz){
+  points=points.slice();const last=points[points.length-1];
+  if(walkable(tx,tz)&&clearSegment(last,[tx,tz]))points.push([tx,tz]);
+  const compressed=[],begin=walkable(x,z)?[x,z]:points[0];
+  for(let i=0;i<points.length;){let j=points.length-1;while(j>i&&!clearSegment(compressed.length?compressed[compressed.length-1]:begin,points[j]))j--;if(!clearSegment(compressed.length?compressed[compressed.length-1]:begin,points[j]))return null;compressed.push(points[j]);i=j+1}
+  return compressed;
+}
+function routeBetween(x,z,tx,tz){
+  // Most trips stay in the same open yard. Do not invoke grid search for clear sight.
+  if(walkable(x,z)&&walkable(tx,tz)&&clearSegment([x,z],[tx,tz]))return [[tx,tz]];
+  let start=navSnap(x,z,true),goal=navSnap(tx,tz);
+  if(!start||!goal)return null;
+  const key=(ix,iz)=>ix+','+iz;
+  const startK=key(...start),goalK=key(...goal);
+  if(routeCacheRevision!==city.length){routeCache.clear();routeCacheRevision=city.length}
+  const routeKey=startK+'>'+goalK,cached=routeCache.get(routeKey);
+  if(cached&&cached.length&&clearSegment([x,z],cached[0])){
+    const route=compressRoute(cached,x,z,tx,tz);if(route){cacheHits++;return route}
+  }
+  cacheMisses++;
+  const heuristic=(ix,iz)=>Math.hypot(ix-goal[0],iz-goal[1]);
+  let frontier=[{x:start[0],z:start[1],g:0,f:heuristic(...start),key:startK}],bestG=new Map([[startK,0]]),parent=new Map(),closed=new Set(),expanded=0;
+  while(frontier.length&&expanded++<NAV_BUDGET){
+    const node=navPop(frontier);if(closed.has(node.key))continue;closed.add(node.key);
+    if(node.key===goalK){
+      let points=[],at=goalK;
+      for(let i=0;i<NAV_BUDGET&&at;i++){const [ix,iz]=at.split(',').map(Number);points.push(navPoint(ix,iz));if(at===startK)break;at=parent.get(at)}
+      if(!points.length||at!==startK)return null;
+      points.reverse();if(routeCache.size>=1800)routeCache.delete(routeCache.keys().next().value);routeCache.set(routeKey,points);
+      return compressRoute(points,x,z,tx,tz);
+    }
+    for(const [dx,dz] of NAV_DIRS){
+      const nx=node.x+dx,nz=node.z+dz,p=navPoint(nx,nz);
+      if(!walkable(...p))continue;
+      if(dx&&dz&&(!walkable(...navPoint(node.x+dx,node.z))||!walkable(...navPoint(node.x,node.z+dz))))continue;
+      const k=key(nx,nz),cost=node.g+(dx&&dz?Math.SQRT2:1);
+      if(closed.has(k)||cost+1e-8>=(bestG.get(k)??Infinity))continue;
+      bestG.set(k,cost);parent.set(k,node.key);navPush(frontier,{x:nx,z:nz,g:cost,f:cost+heuristic(nx,nz),key:k});
+    }
+  }
+  return null;
+}
+function routeCitizen(p){const route=routeBetween(p.x,p.z,...p.target);p.path=route||[];if(route&&route.length)p.target=route[route.length-1].slice();else{p.activity='Waiting for a safe route';p.target=[p.x,p.z]}}
+function choose(p){let dest;if(p.energy<30||p.hunger>88){dest=[-3,2];p.activity='Resting and gathering food'}else{dest=p.job==='farmer'?[18,1]:p.job==='forester'?[-21,12]:p.job==='merchant'?[0,5]:p.job==='builder'?[7,-4]:p.job==='craftsperson'?[-4,4]:[-8,7];p.activity='Traveling to '+p.job+' work'}p.target=[dest[0]+(rand()-.5)*3,dest[1]+(rand()-.5)*3];routeCitizen(p)}
+function recount(p){if(state.t-state.lastStory<5)return;state.lastStory=state.t;const actions={farmer:`${p.name} gathered grain from the eastern fields.`,forester:`${p.name} delivered timber from the forest.`,builder:`${p.name} is repairing the village dwellings.`,merchant:`${p.name} bartered surplus food for coin in the market.`,craftsperson:`${p.name} crafted household supplies for local families.`,gatherer:`${p.name} returned with wild herbs and food.`};report(actions[p.job])}
+function work(p){if(p.energy<30||p.hunger>88){p.energy=Math.min(100,p.energy+6);p.hunger=Math.max(0,p.hunger-9);p.activity='Resting at home';return}p.activity=p.job==='farmer'?(climateAt(state.t).season===3?'Tending winter stores':'Harvesting grain'):p.job==='forester'?'Cutting timber':p.job==='merchant'?'Bartering at market':p.job==='builder'?'Constructing cottages':p.job==='craftsperson'?'Making household goods':'Foraging the hillside';if(p.job==='farmer')state.food+=2.8*climateAt(state.t).yieldMultiplier;if(p.job==='gatherer')state.food+=1.4;if(p.job==='forester')state.wood+=2.1;if(p.job==='merchant'&&state.wood<people.length*.8&&state.gold>=4){
+ state.gold-=4;state.wood+=8;p.activity='Importing timber for village repairs';
+ if(state.t-state.lastStory>5){state.lastStory=state.t;report(`${p.name} arranged a timber shipment for the village workshops.`)}
+ }else if(p.job==='merchant'&&state.food>people.length*5){state.food-=1.5;state.gold+=1.2}else if(p.job==='merchant'&&state.food<people.length*3&&state.gold>=2){state.gold-=2;state.food+=5;if(state.t-state.lastStory>5){state.lastStory=state.t;report(`${p.name} imported grain to protect the village food reserve.`)}}if(p.job==='craftsperson'&&state.wood>=.7){state.wood-=.7;state.gold+=.45}if(p.job==='builder'&&state.wood>=28&&city.length<35){state.wood-=28;state.buildCount++;let i=city.length-12,x=-17-Math.floor(i/3)*3.1,z=-14+(i%3)*6.5;if(people.some(v=>Math.hypot(v.x-x,v.z-z)<4)){state.wood+=28;return}city.push([x,z,i%3]);report(`${p.name} finished a new cottage for the growing village.`)}p.energy=Math.max(0,p.energy-3.5);p.hunger=Math.min(100,p.hunger+2);recount(p)}
+function step(dt){state.t+=dt;for(let i=0;i<people.length;i++){const p=people[i],dx=p.target[0]-p.x,dz=p.target[1]-p.z,dist=Math.hypot(dx,dz);p.phase+=dt*2.2;p.workTimer+=dt;p.hunger=Math.min(100,p.hunger+dt*.14);
+const wp=p.path&&p.path.length?p.path[0]:p.target,wx=wp[0]-p.x,wz=wp[1]-p.z,remaining=Math.hypot(wx,wz);
+if(remaining>.24){const move=Math.min(remaining,dt*(.75+i%4*.09));const nx=p.x+wx/remaining*move,nz=p.z+wz/remaining*move;if(move<=.04?walkable(nx,nz):clearSegment([p.x,p.z],[nx,nz])){p.x=nx;p.z=nz;p.energy=Math.max(0,p.energy-dt*.10)}else if(p.workTimer>1){routeCitizen(p);p.workTimer=0}}
+else if(p.path&&p.path.length){p.path.shift()}
+else if(p.workTimer>=2.5){work(p);p.workTimer=0;choose(p)}}
+// Relationships are generated only by real proximity between villagers, not invented stories.
+for(let i=0;i<people.length;i++)for(let j=i+1;j<people.length;j++){let a=people[i],b=people[j];if(Math.abs(a.x-b.x)<1.3&&Math.abs(a.z-b.z)<1.3&&(a.x-b.x)**2+(a.z-b.z)**2<1.69){const inc=dt*.65;a.bonds[b.name]=(a.bonds[b.name]||0)+inc;b.bonds[a.name]=(b.bonds[a.name]||0)+inc;if(a.bonds[b.name]>3&&!a.friend){a.friend=b.name;if(state.t-state.lastStory>2){report(`${a.name} and ${b.name} became friends after meeting in the village.`);state.lastStory=state.t}}}}
+state.food=Math.max(0,state.food-dt*people.length*.016);if(state.food<1)for(const p of people)p.hunger=Math.min(100,p.hunger+dt*.38);
+state.happiness=Math.max(15,Math.min(98,80+(state.food>15?6:-28)-people.reduce((s,p)=>s+p.hunger,0)/people.length*.28+Math.sin(state.t/12)*5));let last=Math.floor((state.t-dt)/24),now=Math.floor(state.t/24);if(now>last){const oldClimate=climateAt((state.t-dt)),newClimate=climateAt(state.t);
+ if(oldClimate.season!==newClimate.season)report(`${newClimate.seasonName} arrives in the valley. The fields and village work change with the season.`);
+ if(newClimate.weather!==oldClimate.weather&&newClimate.weather==='snow')report('Snow settles over the valley; farmers turn to winter stores.');
+ report(`Day ${now+1} begins. The settlement now has ${people.length} citizens and ${state.buildCount} buildings.`);if(now%6===0&&people.length<28&&state.food>60&&state.buildCount>=Math.ceil((people.length+1)/3)){let n=uniqueCitizenName(people.length);let citizen={name:n,job:jobs[people.length%jobs.length],trait:'hopeful',x:0,z:0,target:[rand()*12,rand()*12],phase:0,energy:90,hunger:15,friend:null,bonds:{},activity:'Finding a home',workTimer:0};people.push(citizen);if(!walkable(citizen.x,citizen.z)){const spot=navSnap(citizen.x,citizen.z);if(spot)[citizen.x,citizen.z]=navPoint(...spot)}choose(citizen);report(`${n} joined the growing community as its newest citizen.`)}updateUI();}}
+// Render-only historical economy graph. Sampling occurs at most once per day.
+const uiHistory=[];const trendColors={food:'#73f4bd',wood:'#ffcd73',gold:'#ff9299'};
+function renderResourceTrends(day){
+ if(uiHistory.length&&day<uiHistory[uiHistory.length-1].day)uiHistory.length=0;
+ const current={day,food:state.food,wood:state.wood,gold:state.gold};
+ if(!uiHistory.length||uiHistory[uiHistory.length-1].day!==day){
+  uiHistory.push(current);if(uiHistory.length>12)uiHistory.shift();
+ }else uiHistory[uiHistory.length-1]=current;
+ const canvas=document.getElementById('resource-trends');
+ if(!canvas)return;
+ const ctx=canvas.getContext('2d');if(!ctx)return;
+ const w=canvas.width,h=canvas.height,pad=13;
+ ctx.clearRect(0,0,w,h);
+ ctx.lineWidth=1;ctx.strokeStyle='rgba(203,255,239,.14)';
+ for(let row=1;row<=3;row++){const y=pad+(h-2*pad)*row/4;ctx.beginPath();ctx.moveTo(pad,y);ctx.lineTo(w-pad,y);ctx.stroke()}
+ for(const key of ['food','wood','gold']){
+  const samples=uiHistory.map(v=>v[key]),low=Math.min(...samples),high=Math.max(...samples);
+  const spread=Math.max(1,high-low),first=samples[0],last=samples[samples.length-1];
+  ctx.strokeStyle=trendColors[key];ctx.fillStyle=trendColors[key];ctx.lineWidth=3.8;
+  ctx.lineJoin='round';ctx.lineCap='round';ctx.beginPath();
+  samples.forEach((n,i)=>{
+   const x=pad+i/(Math.max(11,samples.length-1))*(w-pad*2);
+   const y=h-pad-(.12+.76*(n-low)/spread)*(h-pad*2);
+   if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);
+  });ctx.stroke();
+  const x=pad+(samples.length-1)/Math.max(11,samples.length-1)*(w-pad*2);
+  const y=h-pad-(.12+.76*(last-low)/spread)*(h-pad*2);
+  ctx.beginPath();ctx.arc(x,y,4.5,0,Math.PI*2);ctx.fill();
+  const el=document.querySelector('#economic-observatory [data-resource="'+key+'"]');
+  const delta=Math.round(last-first),label=el.querySelector('strong');
+  el.dataset.movement=delta>0?'up':delta<0?'down':'flat';
+  label.textContent=delta>0?'+'+delta:String(delta);
+ }
+ document.getElementById('economic-days').textContent='DAY '+day+' · '+uiHistory.length+' SAMPLES';
+}
+
+function updateUI(){const day=Math.floor(state.t/24)+1; const time=state.t%24;const climate=climateAt(state.t);document.getElementById('weather').textContent=({'clear':'☀ CLEAR SKIES','cloudy':'☁ CLOUD COVER','rain':'☂ RAINFALL','snow':'❄ SNOWFALL'}[climate.weather])+' · '+climate.seasonName;document.getElementById('clock').textContent=`DAY ${day} · ${time<6?'NIGHT':time<9?'DAWN':time<12?'MORNING':time<17?'AFTERNOON':time<20?'EVENING':'NIGHT'}`;for(let [key,val] of Object.entries({population:people.length,buildings:state.buildCount,happiness:Math.round(state.happiness)+'%',year:String(Math.ceil(day/36)).padStart(2,'0'),food:Math.floor(state.food),wood:Math.floor(state.wood),gold:Math.floor(state.gold),working:people.filter(p=>p.activity.includes("Traveling")||p.activity.includes("Harvest")||p.activity.includes("Cutting")||p.activity.includes("Bartering")||p.activity.includes("Crafting")||p.activity.includes("Foraging")||p.activity.includes("Constructing")).length}))document.getElementById(key).textContent=val;document.getElementById('progress').style.width=Math.min(98,21+people.length*1.4+state.buildCount*.8)+'%';const citizen=people[Math.min(selectedCitizen,people.length-1)];document.getElementById('citizen-name').textContent=citizen.name;document.getElementById('citizen-detail').textContent=`${citizen.trait} ${citizen.job} · ${citizen.activity}`;document.getElementById('citizen-bond').textContent=`Energy ${Math.round(citizen.energy)}% · Hunger ${Math.round(citizen.hunger)}% · ${citizen.friend?'Friend: '+citizen.friend:'Making connections'} · Bonds ${Object.values(citizen.bonds).filter(x=>x>=1).length}`;renderResourceTrends(day)}
+// Save only authoritative civilization state, including RNG and pending routes. No DOM,
+// provider credentials, executable functions, or browser-specific renderer state.
+const SAVE_KEY='tiny-kingdom:living-valley:v1',SNAPSHOT_SCHEMA=1;
+function cloneData(value){return JSON.parse(JSON.stringify(value))}
+function checksum(value){let hash=2166136261;const str=JSON.stringify(value);for(let i=0;i<str.length;i++){hash^=str.charCodeAt(i);hash=Math.imul(hash,16777619)}return (hash>>>0).toString(16).padStart(8,'0')}
+function exportSnapshot(){const payload={seed:seed>>>0,state:cloneData(state),city:cloneData(city),people:cloneData(people),stories:cloneData(stories)};return {schema:SNAPSHOT_SCHEMA,game:'tiny-ai-civilization',algorithm:'seeded-v1',payload,checksum:checksum(payload)}}
+function validScalar(n,min,max){return typeof n==='number'&&Number.isFinite(n)&&n>=min&&n<=max}
+function validPoint(v){return Array.isArray(v)&&v.length===2&&v.every(n=>validScalar(n,-40,40))}
+function validText(s,max=160){return typeof s==='string'&&s.length>0&&s.length<=max&&![...s].some(c=>c.charCodeAt(0)<32)}
+function validateSnapshot(snapshot){
+ if(!snapshot||typeof snapshot!=='object'||snapshot.schema!==SNAPSHOT_SCHEMA||snapshot.game!=='tiny-ai-civilization'||snapshot.algorithm!=='seeded-v1'||!snapshot.payload||checksum(snapshot.payload)!==snapshot.checksum)throw Error('Invalid, incompatible, or damaged save');
+ const q=snapshot.payload,s=q.state;
+ if(!validScalar(q.seed,0,4294967295)||!s||!validScalar(s.t,0,1e8)||!validScalar(s.food,0,1e8)||!validScalar(s.wood,0,1e8)||!validScalar(s.gold,0,1e8)||!validScalar(s.happiness,0,100)||!validScalar(s.buildCount,0,100)||!validScalar(s.lastStory,0,1e8))throw Error('Save contains invalid game state');
+ if(!Array.isArray(q.city)||q.city.length<12||q.city.length>35||!q.city.every(c=>Array.isArray(c)&&c.length===3&&validScalar(c[0],-40,40)&&validScalar(c[1],-40,40)&&Number.isInteger(c[2])&&c[2]>=0&&c[2]<=2)||s.buildCount!==q.city.length+2)throw Error('Save contains invalid buildings');
+ if(!Array.isArray(q.people)||q.people.length<12||q.people.length>28||!q.people.every(p=>{
+   if(!p||!validText(p.name,40)||!jobs.includes(p.job)||!validText(p.trait,40)||!validText(p.activity,100)||!validPoint([p.x,p.z])||!validPoint(p.target)||!Array.isArray(p.path)||p.path.length>100||!p.path.every(validPoint)||!validScalar(p.phase,0,1e9)||!validScalar(p.energy,0,100)||!validScalar(p.hunger,0,100)||!validScalar(p.workTimer,0,10000)||!(p.friend===null||validText(p.friend,40))||!p.bonds||typeof p.bonds!=='object'||Array.isArray(p.bonds))return false;
+   const bonds=Object.entries(p.bonds);return bonds.length<=28&&bonds.every(([k,v])=>validText(k,40)&&validScalar(v,0,1e8));
+ }))throw Error('Save contains invalid citizens');
+ if(!Array.isArray(q.stories)||q.stories.length>6||!q.stories.every(e=>e&&Number.isInteger(e.day)&&e.day>0&&validText(e.text,240)))throw Error('Save contains invalid chronicles');
+}
+function restoreSnapshot(snapshot){validateSnapshot(snapshot);uiHistory.length=0;scenicMeshCache=null;scenicMeshKey='';const q=cloneData(snapshot.payload);selectedCitizen=Math.min(selectedCitizen,q.people.length-1);routeCache.clear();routeCacheRevision=-1;cacheHits=0;cacheMisses=0;seed=q.seed>>>0;state=q.state;city.splice(0,city.length,...q.city);people=q.people;stories=q.stories;accumulator=0;renderStories();updateUI();return true}
+function saveWorld(){try{localStorage.setItem(SAVE_KEY,JSON.stringify(exportSnapshot()));showToast('World saved — Day '+(Math.floor(state.t/24)+1))}catch(error){showToast('Save unavailable: '+error.message)}}
+function restoreWorld(){try{const stored=localStorage.getItem(SAVE_KEY);if(!stored)throw Error('No stored civilization yet');restoreSnapshot(JSON.parse(stored));showToast('The valley has been restored')}catch(error){showToast(error.message)}}
+function showToast(message){const node=document.getElementById('toast');node.textContent=message;node.style.opacity='1';clearTimeout(showToast.timer);showToast.timer=setTimeout(()=>node.style.opacity='0',3600)}
+start();const mat4multiply=(a,b)=>{let c=new Float32Array(16);for(let col=0;col<4;col++)for(let row=0;row<4;row++)for(let k=0;k<4;k++)c[col*4+row]+=a[k*4+row]*b[col*4+k];return c};function perspective(fov,aspect,near,far){let f=1/Math.tan(fov/2),m=new Float32Array(16);m[0]=f/aspect;m[5]=f;m[10]=(far+near)/(near-far);m[11]=-1;m[14]=(2*far*near)/(near-far);return m}function lookAt(eye,center,up){let z=eye.map((v,i)=>v-center[i]),zl=Math.hypot(...z);z=z.map(v=>v/zl);let x=[up[1]*z[2]-up[2]*z[1],up[2]*z[0]-up[0]*z[2],up[0]*z[1]-up[1]*z[0]],xl=Math.hypot(...x);x=x.map(v=>v/xl);let y=[z[1]*x[2]-z[2]*x[1],z[2]*x[0]-z[0]*x[2],z[0]*x[1]-z[1]*x[0]];let m=new Float32Array(16);m[0]=x[0];m[1]=y[0];m[2]=z[0];m[4]=x[1];m[5]=y[1];m[6]=z[1];m[8]=x[2];m[9]=y[2];m[10]=z[2];m[12]=-x.reduce((s,v,i)=>s+v*eye[i],0);m[13]=-y.reduce((s,v,i)=>s+v*eye[i],0);m[14]=-z.reduce((s,v,i)=>s+v*eye[i],0);m[15]=1;return m}
+let yaw=.7,pitch=.88,zoom=43,focusPoint=[0,0],dragging=false,lastX,lastY,screenTimer=0,frames=0;canvas.addEventListener('pointerdown',e=>{dragging=true;lastX=e.clientX;lastY=e.clientY;canvas.setPointerCapture(e.pointerId)});canvas.addEventListener('pointerup',()=>dragging=false);canvas.addEventListener('pointermove',e=>{if(!dragging)return;yaw+=(e.clientX-lastX)*.006;pitch=Math.max(.33,Math.min(1.38,pitch+(e.clientY-lastY)*.005));lastX=e.clientX;lastY=e.clientY;cinematic=false});canvas.addEventListener('wheel',e=>{zoom=Math.min(85,Math.max(16,zoom+e.deltaY*.035));e.preventDefault()},{passive:false});function button(id,fn){document.getElementById(id).onclick=fn}
+let cinematicHud=false;
+function setCinematicHud(enabled){
+ // The public API accepts explicit mode strings as well as button booleans.
+ // Boolean('full') is true and previously hid the HUD in mobile GPU captures.
+ if(typeof enabled==='string'){
+  if(enabled!=='cinema'&&enabled!=='full')throw Error('Unknown HUD mode: '+enabled);
+  enabled=enabled==='cinema';
+ }
+ cinematicHud=Boolean(enabled);document.body.dataset.hud=cinematicHud?'cinema':'full';
+ const toggle=document.getElementById('hud-toggle');
+ toggle.setAttribute('aria-pressed',String(cinematicHud));
+ toggle.textContent=cinematicHud?'⌗ Restore HUD':'⌗ Clear HUD';return cinematicHud;
+}
+let commandView='command';
+function updateWorldRibbon(){
+ const sources=[['population','population'],['food','food'],['wood','wood'],['gold','gold']];
+ for(const [name,id] of sources){
+  document.getElementById('world-'+name).textContent=document.getElementById(id).textContent.trim();
+ }
+ const story=document.querySelector('#feed .feeditem');
+ // Chronicle labels and event text are adjacent DOM nodes, with no delimiter
+ // in textContent. Use only the original narrative text to avoid run-together
+ // strings such as "Kingdom chronicleMira ..." in the compact HUD.
+ const narrative=story?Array.from(story.childNodes)
+  .filter(node=>node.nodeType===3)
+  .map(node=>node.textContent.trim()).filter(Boolean).join(' '):'';
+ document.getElementById('world-story').textContent=narrative?
+  narrative.replace(/\s+/g,' ').slice(0,140):
+  'Your villagers write their own chronicle.';
+}
+function setCommandView(next){
+ if(next!=='world'&&next!=='command')throw Error('Unknown command view: '+next);
+ commandView=next;document.body.dataset.command=next;
+ const control=document.getElementById('command-toggle');
+ control.setAttribute('aria-pressed',String(next==='world'));
+ control.textContent=next==='world'?'▤ Full command':'◉ World view';
+ updateWorldRibbon();return commandView;
+}
+document.body.dataset.command='command';
+button('command-toggle',()=>setCommandView(commandView==='command'?'world':'command'));
+button('world-open-command',()=>setCommandView('command'));
+button('hud-toggle',()=>setCinematicHud(!cinematicHud));
+button('cinema-exit',()=>setCinematicHud(false));
+document.addEventListener('keydown',e=>{
+ if((e.key==='h'||e.key==='H')&&!e.ctrlKey&&!e.metaKey&&!e.altKey){
+   const tag=document.activeElement?.tagName;
+   if(tag==='INPUT'||tag==='TEXTAREA'||tag==='SELECT')return;
+   setCinematicHud(!cinematicHud);
+ }else if((e.key==='u'||e.key==='U')&&!e.ctrlKey&&!e.metaKey&&!e.altKey){
+   const tag=document.activeElement?.tagName;
+   if(tag==='INPUT'||tag==='TEXTAREA'||tag==='SELECT'||document.activeElement?.isContentEditable)return;
+   setCommandView(commandView==='world'?'command':'world');
+ }else if(e.key==='Escape'&&cinematicHud)setCinematicHud(false);
+ else if(e.key==='Escape'&&commandView==='world')setCommandView('command');
+});
+button('pause',()=>{frozen=!frozen;document.getElementById('pause').textContent=frozen?'▶ Resume':'Ⅱ Pause'});for(let v of [1,4,16])button('speed'+v,()=>{speed=v;for(let n of [1,4,16])document.getElementById('speed'+n).classList.toggle('active',n===v)});button('focus',()=>{follow=!follow;document.getElementById('focus').classList.toggle('active',follow)});button('camera',()=>{cinematic=!cinematic;document.getElementById('camera').classList.toggle('active',cinematic)});button('restart',()=>{city.splice(12);start()});
+
+/* Player-controlled cinematic viewpoints; never affects authoritative state. */
+const scenicViews={valley:{focus:[0,0],zoom:43,yaw:.7,pitch:.88},market:{focus:[0,5],zoom:23,yaw:.52,pitch:.56},mill:{focus:[-27,-18],zoom:24,yaw:.66,pitch:.54},orchard:{focus:[-26,9],zoom:25,yaw:1.02,pitch:.63},river:{focus:[-6,18.1],zoom:26,yaw:.84,pitch:.64},sanctuary:{focus:[29,10],zoom:27,yaw:.75,pitch:.48}};
+document.querySelectorAll('.tour-btn').forEach(button=>button.addEventListener('click',()=>{
+ const next=scenicViews[button.dataset.scenic];if(!next)return;
+ follow=false;cinematic=false;focusPoint=next.focus.slice();yaw=next.yaw;pitch=next.pitch;zoom=next.zoom;
+ document.querySelectorAll('.tour-btn').forEach(item=>item.setAttribute('aria-pressed',String(item===button)));
+ document.getElementById('focus').classList.remove('active');
+ document.getElementById('camera').classList.remove('active');
+}));
+function updateRealmSignal(){
+ const container=document.getElementById('realm-signal');if(!container)return;
+ const unsafe=state.food<people.length*3||state.wood<10;
+ const message=state.food<people.length*3?['FOOD RESERVES LOW','Village traders are sourcing new grain']:
+  state.wood<10?['TIMBER SUPPLY LOW','The foresters are gathering resources']:
+  state.happiness<58?['CITIZEN WELLBEING','The settlement needs more stability']:
+  ['THE VALLEY IS THRIVING',people.length+' living citizens · '+state.buildCount+' buildings'];
+ container.dataset.condition=unsafe?'warning':'good';
+ document.getElementById('realm-title').textContent=message[0];
+ document.getElementById('realm-detail').textContent=message[1];
+}
+button('cycleCitizen',()=>{selectedCitizen=(selectedCitizen+1)%people.length;updateUI()});button('save',saveWorld);button('restore',restoreWorld);
+function weatherParticles(atmosphere){
+ const weather=atmosphere.climate.weather;
+ if(weather!=='rain'&&weather!=='snow')return;
+ const rain=weather==='rain',count=rain?100:120;
+ for(let i=0;i<count;i++){
+   const n=(i*2246822519+3266489917)>>>0;
+   const x=((n%991)/991-.5)*66,z=(((n>>>9)%977)/977-.5)*64;
+   const pace=rain?2.7:.78;
+   const y=.3+((i*.171+state.t*pace)%11.5),zz=z+(rain?.3*Math.sin(i*1.7):Math.sin(state.t*.28+i*.7)*.35);
+   if(rain){const col=[.49,.69,.72];quad([x,y,zz],[x+.035,y-.46,zz+.02],[x+.043,y-.46,zz+.02],[x+.008,y,zz],col)}
+   else {const col=[.9,.94,.94],rad=.075;quad([x-rad,y,zz],[x,y+rad,zz],[x+rad,y,zz],[x,y-rad,zz],col)}
+ }
+}
+function skyConditions(time){
+ const climate=climateAt(time),hour=time%24;
+ const daylight=Math.max(.20,Math.sin(Math.PI*(hour-5.6)/13.2));
+ const dawn=Math.max(0,1-Math.abs(hour-7)/2.5),dusk=Math.max(0,1-Math.abs(hour-18.5)/2.5);
+ const warm=Math.max(dawn,dusk);
+ const cloud=climate.weather==='clear'?0:climate.weather==='cloudy'?.25:climate.weather==='rain'?.48:.38;
+ const day=[.42+.21*warm,.59-.05*warm,.69-.22*warm],night=[.18,.23,.31];
+ const rgb=day.map((c,i)=>night[i]*(1-daylight)+c*daylight);
+ const fog=rgb.map(c=>c*(1-cloud*.40));
+ const light=night.map((_,i)=>(i===0?.74:i===1?.78:.91)*(1-daylight)+daylight*([1.08+.09*warm,.99-.01*warm,.93-.22*warm][i]));
+ return {fog,light,daylight,climate,cloud};
+}
+
+function drawAtlas(){const c=document.getElementById('atlas-map');if(!c)return;const ctx=c.getContext('2d'),w=c.width,h=c.height,focalIndex=typeof selectedCitizen==='number'?selectedCitizen:0;const map=(x,z)=>[(x+43)/86*w,(z+43)/86*h];ctx.clearRect(0,0,w,h);const grad=ctx.createLinearGradient(0,0,w,h);grad.addColorStop(0,'#245f55');grad.addColorStop(.53,'#448a62');grad.addColorStop(1,'#204b62');ctx.fillStyle=grad;ctx.fillRect(0,0,w,h);
+ctx.globalAlpha=.2;ctx.strokeStyle='#e0f9b6';for(let i=1;i<7;i++){ctx.beginPath();ctx.moveTo(i*w/7,0);ctx.lineTo(i*w/7,h);ctx.stroke();ctx.beginPath();ctx.moveTo(0,i*h/7);ctx.lineTo(w,i*h/7);ctx.stroke()}ctx.globalAlpha=1;ctx.strokeStyle='#84d5eb';ctx.lineWidth=18;ctx.beginPath();for(let x=-43;x<=43;x+=2){const pt=map(x,20+Math.sin(x*.13)*3);if(x===-43)ctx.moveTo(...pt);else ctx.lineTo(...pt)}ctx.stroke();ctx.strokeStyle='#6db4c4';ctx.lineWidth=5;ctx.stroke();
+ctx.strokeStyle='#dbbe8b';ctx.lineWidth=5;for(const points of [[[-16,-7],[-8,-4],[-4,3],[6,2],[14,2]],[[0,-15],[0,-9],[-4,3],[4,15]]]){ctx.beginPath();points.forEach((p,i)=>i?ctx.lineTo(...map(...p)):ctx.moveTo(...map(...p)));ctx.stroke()}
+// Clearly differentiated, navigable public landmarks — these do not inflate population or building totals.
+ for(const site of Object.values(SCENIC_SITES)){const q=map(site.x,site.z);ctx.beginPath();ctx.arc(q[0],q[1],site.kind==='stone sanctuary'?8:6,0,Math.PI*2);ctx.fillStyle=site.kind==='stone sanctuary'?'#ffe5ba':'#83fff2';ctx.fill();ctx.strokeStyle='#163e4d';ctx.lineWidth=2;ctx.stroke()}
+ // Craft guild atlas marker: a warm-amber working district, distinct from homes.
+ {const [sx,sy]=map(CRAFT_DISTRICT.x,CRAFT_DISTRICT.z);
+  ctx.fillStyle='#382c3c';ctx.fillRect(sx-9,sy-9,18,18);
+  ctx.strokeStyle='#ffca86';ctx.lineWidth=2;ctx.strokeRect(sx-9,sy-9,18,18);
+  ctx.fillStyle='#ffe0ab';ctx.font='bold 14px system-ui';
+  ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('⚒',sx,sy+1);
+ }
+ ctx.fillStyle='#ffe8ab';for(const b of city){const q=map(b[0],b[1]);ctx.fillRect(q[0]-3,q[1]-3,6,6)}for(let i=0;i<people.length;i++){const p=people[i],a=map(p.x,p.z);ctx.beginPath();ctx.arc(a[0],a[1],i===focalIndex?5:2.8,0,Math.PI*2);ctx.fillStyle=i===focalIndex?'#fff3ad':'#f7fdff';ctx.fill();if(i===focalIndex){ctx.beginPath();ctx.arc(a[0],a[1],9,0,Math.PI*2);ctx.strokeStyle='#fff0a6';ctx.lineWidth=2;ctx.stroke()}}
+const center=map(...focusPoint);ctx.strokeStyle='#bffffb';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(center[0]-8,center[1]);ctx.lineTo(center[0]+8,center[1]);ctx.moveTo(center[0],center[1]-8);ctx.lineTo(center[0],center[1]+8);ctx.stroke();const season=climateAt(state.t);document.getElementById('atlas-season').textContent='✧ '+season.seasonName.toUpperCase()+' · '+season.weather.toUpperCase()}
+document.getElementById('atlas-map').addEventListener('pointerdown',e=>{const rect=e.currentTarget.getBoundingClientRect();focusPoint=[Math.max(-40,Math.min(40,((e.clientX-rect.left)/rect.width)*86-43)),Math.max(-40,Math.min(40,((e.clientY-rect.top)/rect.height)*86-43))];follow=false;cinematic=false;document.getElementById('focus').classList.remove('active');document.getElementById('camera').classList.remove('active');drawAtlas()});
+
+function render(now){requestAnimationFrame(render);
+ const minFrameMs=(swiftGpu||!gpuAvailable)?1000/12:0;
+ if(minFrameMs&&frameGateTime&&now-frameGateTime<minFrameMs){framesSkipped++;return}
+ frameGateTime=now;framesDrawn++;
+ const dt=Math.min(.18,(now-(timer||now))/1000);timer=now;const atmosphere=skyConditions(state.t);gl.clearColor(...atmosphere.fog,1);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);if(!frozen){accumulator+=dt*speed*1.35;let ticks=0;while(accumulator>=FIXED_STEP&&ticks++<64){step(FIXED_STEP);accumulator-=FIXED_STEP}if(ticks>=64)accumulator=0;}if(follow){const citizen=people[Math.min(selectedCitizen,people.length-1)];focusPoint[0]+=(citizen.x-focusPoint[0])*.03;focusPoint[1]+=(citizen.z-focusPoint[1])*.03}if(cinematic)yaw+=dt*.05;const w=canvas.clientWidth,h=canvas.clientHeight,dpr=Math.min(window.devicePixelRatio||1,1.6)*renderQuality().scale;if(canvas.width!==Math.floor(w*dpr)||canvas.height!==Math.floor(h*dpr)){canvas.width=Math.floor(w*dpr);canvas.height=Math.floor(h*dpr);gl.viewport(0,0,canvas.width,canvas.height)}gl.enable(gl.DEPTH_TEST);gl.enable(gl.CULL_FACE);gl.cullFace(gl.BACK);drawAtmosphere(atmosphere);
+// Cache seasonal ground geometry: camera and citizens cannot change it.
+// Winter snow affects colour; ordinary rain does not.
+const groundClimate=climateAt(state.t);
+const nextTerrainKey=groundClimate.season+':'+(groundClimate.season===3&&groundClimate.weather==='snow'?1:0);
+if(!terrainCache||nextTerrainKey!==terrainCacheKey){
+  data=[];
+  for(let x=-43;x<43;x+=2.1)for(let z=-43;z<43;z+=2.1){
+    let a=[x,terrain(x,z)-.09,z],b=[x+2.1,terrain(x+2.1,z)-.09,z],c=[x+2.1,terrain(x+2.1,z+2.1)-.09,z+2.1],d=[x,terrain(x,z+2.1)-.09,z+2.1];
+    turfQuad(a,d,c,b);
+  }
+  terrainCache=data.slice();
+  terrainCacheKey=nextTerrainKey;
+  terrainCacheTriangles=terrainCache.length/30;
+  terrainRebuilds++;
+}
+// Gauntlet 024: cache unchanging architecture, riverbank, roads and forest once
+// per climate, sky stage and construction revision. Moving citizens and banners
+// remain uncached and are rebuilt with the live world state every frame.
+const staticClimate=climateAt(state.t);
+const daylightStage=atmosphere.daylight<.55?'night':'day';
+const staticKey=nextTerrainKey+':'+daylightStage+':'+city.length;
+if(!scenicMeshCache||scenicMeshKey!==staticKey){
+data=terrainCache.slice();currentMaterial=MATERIAL.WATER;
+// A winding stream through the southern side.
+// Sample each cross-section at its own river centre to eliminate jagged joins.
+for(let segment=0;segment<RIVER_SEGMENTS;segment++){
+ const x=-42+segment*RIVER_SPAN/RIVER_SEGMENTS;
+ const nx=-42+(segment+1)*RIVER_SPAN/RIVER_SEGMENTS;
+ const z=20+Math.sin(x*.13)*3,nz=20+Math.sin(nx*.13)*3;
+ const banks=[-1.8,-1.38,-.75,0,.75,1.38,1.8];
+ for(let i=0;i<RIVER_BANDS;i++){
+  const a=banks[i],b=banks[i+1],tone=i===0||i===5?rgb(0x719ca0):i===1||i===4?rgb(0x5cabb3):rgb(0x368f9d);
+  const v=(px,pz,off)=>[px,terrain(px,pz+off)+.08,pz+off];
+  quad(v(x,z,a),v(x,z,b),v(nx,nz,b),v(nx,nz,a),tone);
+ }
+ // A terrain-following gravel-to-meadow transition on BOTH stream banks.
+ // Segment endpoints sample identical world x coordinates to avoid cracks.
+ currentMaterial=MATERIAL.ROAD;
+ for(const side of [-1,1]){
+  const bankPoint=(px,center,rise,depth)=>{
+   const edge=depth===1.8?1.8:depth+.055*Math.sin(px*.39+side*1.4);
+   const pz=center+side*edge;
+   return [px,terrain(px,pz)+rise,pz];
+  };
+  const strips=[
+   [1.8,2.14,.081,.102,rgb(0x908e78)],
+   [2.14,2.72,.102,.036,rgb(0xaaa082)]
+  ];
+  for(const [inner,outer,y0,y1,tone] of strips){
+   const a=bankPoint(x,z,y0,inner),b=bankPoint(x,z,y1,outer);
+   const c=bankPoint(nx,nz,y1,outer),d=bankPoint(nx,nz,y0,inner);
+   if(side===1)quad(a,b,c,d,tone);else quad(b,a,d,c,tone);
+  }
+  if(segment%4===0){
+   const px=x+.43,pebbleZ=z+side*(2.43+.12*Math.sin(x*1.11+side));
+   const pebbleY=terrain(px,pebbleZ)+.085;
+   materialScope(MATERIAL.STONE,()=>{
+     ellipsoid(px,pebbleY,pebbleZ,.17,.075,.13,
+       rgb(segment%3===0?0xa9a38f:0x777f78),6);
+   });
+  }
+ }
+ currentMaterial=MATERIAL.WATER;
+}
+currentMaterial=MATERIAL.ROAD;
+ path([[-16,-7],[-8,-4],[-4,-4],[-4,3],[6,2],[14,2]],1.5);path([[0,-15],[0,-9],[-4,-4],[-4,3],[0,9],[4,15]],1.3);path([[-13,9],[-7,4],[-4,3],[7,-5],[15,-10]],1.1);
+currentMaterial=MATERIAL.FOLIAGE;
+ for(const t of trees){if(Math.hypot(t.x-SCENIC_SITES.sanctuary.x,t.z-SCENIC_SITES.sanctuary.z)>8)tree(t.x,t.z,t.s);}for(const flower of wildflora)wildflower(flower);for(let i=0;i<meadowUnderstory.length;i++)meadowTuft(meadowUnderstory[i],i);currentMaterial=MATERIAL.STONE;
+ for(const [x,z,k] of city){house(x,z,1,k);cottageDetails(x,z,1,k)}hall(0,-1);cottageDetails(0,-1,1.85,2);
+// The worked spaces have identifiable props and readable boundaries.
+for(let i=0;i<4;i++)wheat(19+i*1.8,1);fenceLine(16,-2,6);fenceLine(16,4,6);fenceLine(16,-2,4,true);fenceLine(25,-2,4,true);
+riverBridge();hillsideSanctuary();forgeWorkshop();market(0,5);well(-15,4);villageGarden(12,11);villageGarden(-17,-3);guildBanner(-2,3);guildBanner(5,-2);lantern(-5,-7,1.7);lantern(6,9,1.45);lantern(2,6,1.7);lantern(-14,6,1.45);for(let i=0;i<7;i++)stoneBoulder(-23+(i*1.8),5+Math.sin(i*3)*1.3,.65+(i%3)*.18);
+for(let i=0;i<5;i++){let xx=-17+i*1.3,zz=-14+(i%2)*1.4;box(xx,terrain(xx,zz),zz,1,.45,.64,rgb(0x7d5d45))}
+
+ scenicMeshCache=data.slice();scenicMeshKey=staticKey;scenicMeshTriangles=scenicMeshCache.length/30;scenicMeshRebuilds++;
+ if(gpuAvailable){bindGeometry(staticBuffer);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(scenicMeshCache),gl.STATIC_DRAW);staticGpuUploads++;}
+
+}
+data=gpuAvailable?[]:scenicMeshCache.slice();
+directionalCastShadows(state.t);
+currentMaterial=MATERIAL.FOLIAGE;
+windmill(-27,-18,state.t);forgeSmoke(state.t);activeChimneys=0;smokePuffs=0;smokeTriangles=0;smokeMaxRadius=0;for(const [x,z,k] of city)chimneySmoke(x,z,k,state.t);villageFestival();
+currentMaterial=MATERIAL.WOOD;
+ for(const p of people)villager(p);currentMaterial=MATERIAL.GENERAL;weatherParticles(atmosphere);
+const elevation=Math.sin(pitch)*zoom,rad=Math.cos(pitch)*zoom,eye=[focusPoint[0]+Math.sin(yaw)*rad,elevation,focusPoint[1]+Math.cos(yaw)*rad];let m=mat4multiply(perspective(Math.PI/3.2,w/h,.1,190),lookAt(eye,[focusPoint[0],.25,focusPoint[1]],[0,1,0]));gl.uniformMatrix4fv(uniforms.viewProjection,false,m);gl.uniform3f(uniforms.fogColor,...atmosphere.fog);gl.uniform3f(uniforms.sunTint,...atmosphere.light);gl.uniform1f(uniforms.worldTime,state.t);gl.uniform3f(uniforms.eyePosition,eye[0],eye[1],eye[2]);gl.uniform3f(uniforms.sunDirection,Math.cos(state.t/24*6.283),.3+atmosphere.daylight*.9,Math.sin(state.t/24*6.283));lastFrameTriangles=(gpuAvailable?scenicMeshCache.length+data.length:data.length)/30;
+if(gpuAvailable){bindGeometry(staticBuffer);gl.drawArrays(gl.TRIANGLES,0,scenicMeshCache.length/10);}
+bindGeometry(buffer);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(data),gl.DYNAMIC_DRAW);gl.drawArrays(gl.TRIANGLES,0,data.length/10);if((frames++%14)===0){updateUI();drawAtlas();updateRealmSignal();updateWorldRibbon()}}
+requestAnimationFrame(render);window.__tinyKingdom={getState:()=>JSON.parse(JSON.stringify({state,people:people.map(({name,job,x,z,target})=>({name,job,x,z,target}))})),setSpeed:x=>{speed=x},step,reset:start,renderer:()=>canvas.getContext('webgl')?'webgl':'software',metrics:()=>({citizens:people.length,buildings:city.length+2,day:Math.floor(state.t/24)+1,food:state.food,wood:state.wood,gold:state.gold,relationships:people.filter(p=>p.friend).length}),route:(a,b)=>routeBetween(a[0],a[1],b[0],b[1]),walkable:(p)=>walkable(p[0],p[1]),getNavigation:()=>people.map(p=>({name:p.name,position:[p.x,p.z],target:p.target,remaining:p.path?.length||0,path:p.path,activity:p.activity,hunger:p.hunger,energy:p.energy})),exportSnapshot,restoreSnapshot,saveWorld,restoreWorld,climateAt,skyConditions,getCitizenProfiles:()=>cloneData(people.map(({name,job,trait,friend,bonds,energy,hunger,activity})=>({name,job,trait,friend,bonds,energy,hunger,activity}))),getRigPose:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(citizenRigPose(people[index])):null,getGarmentProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(garmentProfile(people[index],index,citizenRigPose(people[index]))):null,getFaceProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(faceProfile(people[index],index)):null,getSelectedCitizen:()=>people[selectedCitizen]?.name,routeCacheMetrics:()=>({entries:routeCache.size,hits:cacheHits,misses:cacheMisses}),getCamera:()=>({yaw,pitch,zoom,focus:focusPoint.slice(),follow,cinematic}),getTerrainHeight:(x,z)=>terrain(x,z),getWildfloraCount:()=>wildflora.length,getMeadowStats:()=>({clusters:meadowUnderstory.length,triangles:meadowUnderstory.length*8,season:climateAt(state.t).season,cached:true}),getMaterialSystem:()=>({vertexStride:10,surfaceShaderVersion:'procedural-023',materials:Object.keys(MATERIAL),gpuRenderValidated:false}),waterStats:()=>({model:'fresnel-ripple-shorefoam-v1',segments:RIVER_SEGMENTS,waterTriangles:RIVER_SEGMENTS*RIVER_BANDS*2,bankTriangles:RIVER_SEGMENTS*2*RIVER_BANK_BANDS*2}),getScenicSites:scenicSiteMetrics,getFestivalVisualStats:()=>({season:festivalSeason,cacheBuilds:festivalCacheBuilds,vertices:festivalGeometry?.length||0}),getGeometryAudit:geometryAudit,getCraftDistrictStats:()=>({...CRAFT_DISTRICT,...craftCounters}),getCottageEffects:()=>({activeChimneys,smokePuffs,smokeTriangles,smokeMaxRadius}),renderStats:()=>({terrainRebuilds,terrainCacheKey,terrainCacheTriangles,lastFrameTriangles,scenicMeshRebuilds,scenicMeshTriangles,scenicMeshKey,staticGpuUploads,dualBufferGPU:gpuAvailable}),renderQuality,setRenderQuality,shadowStats:()=>({triangles:castShadowTriangles,...sunShadow(state.t)}),sampleSunShadow:(time)=>sunShadow(time),getEconomyHistory:()=>cloneData(uiHistory),getHudMode:()=>cinematicHud?'cinema':'full',setHudMode:setCinematicHud,getCommandView:()=>commandView,setCommandView,skyStats:()=>({enabled:gpuAvailable,passes:skyPassCount,model:'day-night-atmosphere-v1'}),setCamera:o=>{yaw=Number.isFinite(o.yaw)?o.yaw:yaw;pitch=Number.isFinite(o.pitch)?Math.max(.25,Math.min(1.45,o.pitch)):pitch;zoom=Number.isFinite(o.zoom)?Math.max(9,Math.min(85,o.zoom)):zoom;if(Array.isArray(o.focus)&&o.focus.length===2)focusPoint=o.focus.slice(0,2)}};
+})();
+</script></body></html>
