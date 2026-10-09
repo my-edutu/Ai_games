@@ -329,6 +329,45 @@ test('a WebGL constructor failure never masks the active 2D game with an orphan 
   await expect.poll(async()=>page.locator('[data-testid="tick"]').textContent(),{timeout:20000}).not.toBe(tick);
 });
 
+test('all five biome HUD plates keep a measured high-contrast readability floor',async({page})=>{
+  await page.setViewportSize({width:1600,height:900});
+  await page.goto(base+'/tower',{waitUntil:'domcontentloaded'});
+  await expect.poll(()=>page.evaluate(()=>document.body.dataset.towerTheme),{timeout:20000}).toBeTruthy();
+  const measured=await page.evaluate(()=>{
+    const color=hex=>{
+      const value=hex.replace('#','');
+      return [0,2,4].map(i=>parseInt(value.slice(i,i+2),16)/255).map(v=>
+        v<=.04045?v/12.92:((v+.055)/1.055)**2.4
+      );
+    };
+    const lum=hex=>{const [r,g,b]=color(hex);return r*.2126+g*.7152+b*.0722};
+    const contrast=(a,b)=>{const x=lum(a),y=lum(b);return (Math.max(x,y)+.05)/(Math.min(x,y)+.05)};
+    const all=[];
+    for(const theme of ['foundry','ruins','storm','clockwork','void']){
+      document.body.dataset.towerTheme=theme;
+      const plate=getComputedStyle(document.querySelector('.vital-panel'));
+      const label=getComputedStyle(document.querySelector('.vital-panel .panel-head span'));
+      const sample={
+        theme,background:getComputedStyle(document.body).getPropertyValue('--stage-plate').trim(),
+        text:plate.color,label:label.color,
+        accent:getComputedStyle(document.body).getPropertyValue('--tower-accent').trim(),
+        overlay:plate.backgroundImage
+      };
+      const rgbHex=x=>'#'+(x.match(/\d+/g)||[]).slice(0,3).map(v=>Number(v).toString(16).padStart(2,'0')).join('');
+      sample.bodyContrast=contrast(rgbHex(sample.text),sample.background);
+      sample.labelContrast=contrast(rgbHex(sample.label),sample.background);
+      all.push(sample);
+    }
+    return all;
+  });
+  expect(new Set(measured.map(p=>p.background)).size).toBe(5);
+  expect(new Set(measured.map(p=>p.accent)).size).toBe(5);
+  for(const panel of measured){
+    expect(panel.bodyContrast).toBeGreaterThan(7);
+    expect(panel.labelContrast).toBeGreaterThan(7);
+    expect(panel.overlay).toContain('gradient');
+  }
+});
 test('3D module unavailable degrades safely to the existing 2D scene',async({page})=>{
   await page.route('**/tower/scene3d.js',route=>route.fulfill({status:503,body:'Module unavailable'}));
   await page.goto(base+'/tower');
