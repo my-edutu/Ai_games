@@ -81,6 +81,10 @@ test('rejects malformed controls and hostile cross-origin writes; supports bound
   assert.equal((await post({mode:'god-mode'})).status, 400);
   assert.equal((await post({input:{axis:100}})).status, 400);
   assert.equal((await post({mode:'player'}, {origin:'https://untrusted.example'})).status, 403);
+  const csp=(await fetch(ROOT+'/eko/')).headers.get('content-security-policy');
+  assert.match(csp,/frame-ancestors 'self'/);
+  assert.match(csp,/frame-src 'self'/);
+  assert.doesNotMatch(csp,/frame-ancestors 'none'/);
   assert.equal((await post({mode:'player',outfit:'hausa-baban-riga-cap'})).status, 200);
   assert.equal((await post({input:{axis:1,jumpPressed:true}})).status, 200);
   const state = await (await fetch(ROOT + '/eko/state')).json();
