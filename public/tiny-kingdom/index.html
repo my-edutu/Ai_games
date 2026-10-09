@@ -1440,7 +1440,9 @@ function forgeWorkshop(){
    const zz=z+2.25+i*.29,xx=x-4.5;
    cylinder(xx,terrain(xx,zz),zz,.14,1.3,rgb(i%2?0xa4784c:0x816144),8);
  }
- timberCart(x+5.65,z-5.18);
+ materialScope(MATERIAL.WOOD,()=>timberCart(x+5.65,z-5.18));
+ guildBanner(x-3.27,z-4.32);
+ guildBanner(x+3.21,z-4.32);
  craftCounters.pieces+=72;
 }
 function forgeSmoke(time){
@@ -1451,7 +1453,7 @@ function forgeSmoke(time){
   const p=(k/3+time*.009)%1,drift=.5*Math.sin(time*.027+x);
   const xx=x+drift*p,zz=z+.24*p;
   const tint=rgb(0x92918f),radius=.15+.18*p;
-  ellipsoid(xx,base+p*2.05,zz,radius,radius*.68,radius,tint,6);
+  materialScope(MATERIAL.GENERAL,()=>ellipsoid(xx,base+p*2.05,zz,radius,radius*.68,radius,tint,6));
   craftCounters.smokePuffs++;
  }
 }
