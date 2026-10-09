@@ -13,6 +13,12 @@ export function createTowerEntities(THREE,surfaceLibrary=null){
     neon=new THREE.MeshBasicMaterial({color:0x67eafa});
   const bevelShape=new THREE.Shape();
   bevelShape.moveTo(-.5,-.5);bevelShape.lineTo(.5,-.5);bevelShape.lineTo(.5,.5);bevelShape.lineTo(-.5,.5);bevelShape.closePath();
+  const chevronShape=new THREE.Shape();
+  chevronShape.moveTo(-.54,-.42);chevronShape.lineTo(0,.20);
+  chevronShape.lineTo(.54,-.42);chevronShape.lineTo(.54,-.15);
+  chevronShape.lineTo(0,.49);chevronShape.lineTo(-.54,-.15);chevronShape.closePath();
+  const arrowGeometry=new THREE.ShapeGeometry(chevronShape);
+  const checkpointHaloGeo=new THREE.TorusGeometry(1.18,.065,7,36);
   const beveledDeck=new THREE.ExtrudeGeometry(bevelShape,{depth:.72,steps:1,
     bevelEnabled:true,bevelThickness:.10,bevelSize:.08,bevelSegments:2,curveSegments:2});
   beveledDeck.translate(0,0,-.36);
@@ -55,6 +61,20 @@ export function createTowerEntities(THREE,surfaceLibrary=null){
     bar(root,surface,0,safeHeight*.5-.10,0,width*.86,.16,3.92);
     bar(root,inlay,0,safeHeight*.5+.01,0,width*.67,.045,3.35);
     bar(root,neon,0,safeHeight*.5+.11,2.04,width*.92,.075,.12);
+    // Surface decals are actual geometry, not a CSS pseudo-object.
+    const emblem=new THREE.Mesh(arrowGeometry,neon);
+    emblem.position.set(0,safeHeight*.5+.115,.5);
+    emblem.rotation.x=-Math.PI/2;emblem.scale.set(.9,1.4,1);
+    emblem.name='Route-readable climbing chevron';
+    root.add(emblem);
+    if(Number.isInteger(data.i)&&data.i>0&&data.i%5===0){
+      const halo=new THREE.Mesh(checkpointHaloGeo,gold);
+      halo.rotation.x=Math.PI/2;halo.position.set(0,safeHeight*.5+.13,0);
+      halo.name='Checkpoint victory halo';root.add(halo);
+    }
+    for(const side of [-1,1]){
+      bar(root,inlay,side*width*.26,-safeHeight*.63,2.28,width*.19,.2,.15);
+    }
     for(const side of [-1,1]){
       bar(root,neon,side*width*.452,safeHeight*.50+.075,0,.075,.075,3.85);
     }
@@ -193,7 +213,7 @@ export function createTowerEntities(THREE,surfaceLibrary=null){
   }
   // Box, sphere, spikes and octahedra are shared for all visible entities.
   // Unique ring geometries must be released when a streamed floor leaves view.
-  const sharedGeometries=new Set([boxGeo,sphereGeo,spikeGeo,octaGeo,beveledDeck]);
+  const sharedGeometries=new Set([boxGeo,sphereGeo,spikeGeo,octaGeo,beveledDeck,arrowGeometry,checkpointHaloGeo]);
   function release(root){
     let disposed=0;
     root.traverse(node=>{
