@@ -1783,37 +1783,90 @@
     }
     shell.dataset.reactorGeometry='shaft-with-depth-and-stators';
   }
-  function drawObstacle(obstacle,arena,theme,viewProjection,cameraPosition) {
+  function drawObstacle(obstacle,arena,theme,viewProjection,cameraPosition){
     const origin=toWorld(obstacle.x,obstacle.y,arena);
-    const width=obstacle.width*WORLD_SCALE,depth=obstacle.height*WORLD_SCALE;
-    const center=[origin[0]+width/2,0.38,origin[2]+depth/2];
-    const shell=material(theme.structure,0.31,0.62);
-    const metal=material(theme.trim,0.19,0.88);
-    const bevel=material(theme.rail,0.22,0.73,0.18);
-    const glow=material(theme.secondary,0.18,0.24,0.46);
-    // Armour plate layers, recesses and illuminated vents replace the old
-    // monolithic grey box. The silhouette matches the old 760 mm collider.
-    drawBox(center,[width,0.74,depth],shell,viewProjection,cameraPosition);
-    drawBox([center[0],0.775,center[2]],[width*0.97,0.065,depth*0.94],metal,viewProjection,cameraPosition);
-    drawBox([center[0],0.814,center[2]],[width*0.82,0.028,depth*0.74],bevel,viewProjection,cameraPosition);
-    const front=center[2]-depth/2-0.025;
-    drawBox([center[0],0.42,front],[width*0.86,0.39,0.045],metal,viewProjection,cameraPosition);
-    drawBox([center[0],0.52,front-0.028],[width*0.76,0.052,0.027],glow,viewProjection,cameraPosition);
+    const w=obstacle.width*WORLD_SCALE,d=obstacle.height*WORLD_SCALE;
+    const cx=origin[0]+w/2,cz=origin[2]+d/2;
+    const steel=material(theme.structure,.24,.72);
+    const trim=material(theme.trim,.17,.86);
+    const neon=material(theme.secondary,.16,.31,.53);
+    const accent=material(theme.accent,.17,.45,.41);
     const quality=document.getElementById('quality-select')?.value||'balanced';
+    const type=arena.archetype;
+    // All five skins keep the same 760 mm physical collision box, including
+    // its width/depth and top height. These are actual 3D industrial props.
+    drawBox([cx,.38,cz],[w,.74,d],steel,viewProjection,cameraPosition);
+    drawBox([cx,.756,cz],[w*.96,.05,d*.95],trim,viewProjection,cameraPosition);
+    if(type==='seeding-sprint'){
+      // AURORA: aerodynamic blue winglets and polished neon speed-lattice.
+      drawBox([cx,.773,cz],[w*.82,.029,d*.75],neon,viewProjection,cameraPosition);
+      for(const sign of [-1,1]){
+        drawBox([cx+sign*w*.39,.42,cz],[Math.min(w*.11,.14),.55,d*.89],
+          trim,viewProjection,cameraPosition);
+        drawBox([cx+sign*w*.36,.43,cz-d*.501],[.05,.31,.025],
+          neon,viewProjection,cameraPosition);
+      }
+      if(quality==='high'||quality==='ultra')
+        drawMesh(crystalMesh,modelMatrix([cx,.70,cz],[0,0,0],[.09,.13,.09]),
+          accent,viewProjection,cameraPosition);
+    }else if(type==='gate-gauntlet'){
+      // GATE: layered purple actuator cassettes with orange circuit coils.
+      drawBox([cx,.765,cz],[w*.79,.03,d*.66],trim,viewProjection,cameraPosition);
+      const slots=quality==='low'?2:5;
+      for(let i=0;i<slots;i++){
+        const x=cx+(i-(slots-1)/2)*(w*.76/slots);
+        drawBox([x,.78,cz],[Math.min(.045,w/slots*.25),.036,d*.58],
+          i%2===0?neon:accent,viewProjection,cameraPosition);
+      }
+      for(const sign of [-1,1]){
+        drawBox([cx+sign*w*.41,.40,cz-d*.505],
+          [Math.min(.105,w*.1),.60,.035],accent,viewProjection,cameraPosition);
+      }
+    }else if(type==='hazard-circuit'){
+      // INFERNO: heat-treated metal, bolted furnace pressure ribs and vents.
+      drawBox([cx,.77,cz],[w*.94,.035,d*.89],trim,viewProjection,cameraPosition);
+      const lines=quality==='low'?2:quality==='balanced'?4:7;
+      for(let i=0;i<lines;i++){
+        const x=cx+(i-(lines-1)/2)*(w*.83/lines);
+        drawBox([x,.793,cz],[Math.min(.07,w/lines*.32),.032,d*.78],
+          i%3===0?accent:neon,viewProjection,cameraPosition);
+      }
+      for(const z of [cz-d*.50,cz+d*.50]){
+        drawBox([cx,.44,z],[w*.82,.14,.041],
+          accent,viewProjection,cameraPosition);
+      }
+    }else if(type==='final-four'){
+      // SKYLINE: royal-blue raised ceramic facets and jewel inlays.
+      drawBox([cx,.78,cz],[w*.76,.036,d*.81],neon,viewProjection,cameraPosition);
+      const count=quality==='ultra'?5:quality==='low'?1:3;
+      for(let i=0;i<count;i++){
+        const x=cx+(i-(count-1)/2)*w*.19;
+        drawMesh(crystalMesh,modelMatrix([x,.73,cz],[0,.78,0],
+          [Math.min(.08,w*.09),.09,.08]),
+          i%2===0?accent:trim,viewProjection,cameraPosition);
+      }
+      drawBox([cx,.33,cz-d*.506],[w*.65,.08,.032],
+        neon,viewProjection,cameraPosition);
+    }else{
+      // CHAMPIONSHIP: gold-inlaid monument block with an inset trophy crest.
+      drawBox([cx,.772,cz],[w*.83,.040,d*.81],accent,viewProjection,cameraPosition);
+      drawBox([cx,.797,cz],[w*.64,.02,d*.65],trim,viewProjection,cameraPosition);
+      drawMesh(crystalMesh,modelMatrix([cx,.68,cz],[0,.79,0],
+        [Math.min(.17,w*.20),.12,Math.min(.17,d*.20)]),
+        neon,viewProjection,cameraPosition);
+      for(const sign of [-1,1]){
+        drawBox([cx+sign*w*.44,.40,cz-d*.50],[Math.min(.080,w*.13),.51,.03],
+          accent,viewProjection,cameraPosition);
+      }
+    }
     if(quality!=='low'){
-      for(const side of [-1,1]){
-        const x=center[0]+side*width*0.38;
-        drawBox([x,0.40,front-0.036],[Math.max(0.065,width*0.095),0.55,0.044],bevel,viewProjection,cameraPosition);
-        drawBox([x,0.18,center[2]+depth/2+0.023],[Math.max(0.07,width*0.1),0.23,0.05],metal,viewProjection,cameraPosition);
-      }
+      // Shared safe warning bumper: actual size and centre from server.
+      drawBox([cx,.41,cz-d/2-.022],[w*.78,.10,.045],
+        neon,viewProjection,cameraPosition);
+      drawBox([cx,.22,cz+d/2+.022],[w*.72,.07,.045],
+        accent,viewProjection,cameraPosition);
     }
-    if(quality==='high'||quality==='ultra'){
-      const step=4;
-      for(let i=0;i<step;i++){
-        const x=center[0]+(i-(step-1)/2)*width*0.16;
-        drawBox([x,0.33,front-0.061],[Math.max(0.032,width*0.055),0.16,0.015],glow,viewProjection,cameraPosition);
-      }
-    }
+    shell.dataset.obstacleArtStyle=String(type);
   }
   function drawBumper(bumper,arena,theme,viewProjection,cameraPosition){
     const point=toWorld(bumper.x,bumper.y,arena);
