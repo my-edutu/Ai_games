@@ -48,6 +48,15 @@ test('beveled platform families have luminous route edges and biome-specific col
   const disposed=entities.release(deck);
   assert.equal(disposed,0,'cached beveled platform geometry must not be released when a floor streams out');
 });
+test('climbing route decals and checkpoint halos use reusable real 3D geometry',()=>{
+  const art=fromFile('entities3d.js','createTowerEntities')(THREE);
+  const normal=art.platform({kind:'solid',i:3},0,0,7,1);
+  const checkpoint=art.platform({kind:'solid',i:5},0,0,7,1);
+  assert.ok(normal.children.some(n=>n.name==='Route-readable climbing chevron'&&n.geometry.type==='ShapeGeometry'));
+  assert.ok(checkpoint.children.some(n=>n.name==='Checkpoint victory halo'&&n.geometry.type==='TorusGeometry'));
+  assert.ok(art.release(normal)>=0);
+  assert.ok(art.release(checkpoint)>=0);
+});
 test('new colorful HUD supports live biome states without losing essential game controls',()=>{
   const html=fs.readFileSync(path.join(root,'volumetric.html'),'utf8');
   const css=fs.readFileSync(path.join(root,'volumetric.css'),'utf8');
