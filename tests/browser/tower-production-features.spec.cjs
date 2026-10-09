@@ -28,8 +28,15 @@ test('manual mode genuinely moves the physics character and jumps while autonomo
   await expect(page.locator('#game-mode')).toContainText('RETURN TO AUTONOMY');
   await expect(page.locator('[data-tower-control="jump"]')).toBeVisible();
   const p=await page.evaluate(()=>({...window.__TOWER_VOLUMETRIC_STATE__}));
-  await page.keyboard.down('KeyD');await page.waitForTimeout(650);await page.keyboard.up('KeyD');
+  await page.keyboard.down('KeyD');
+  try{
+    // Software WebGL may render fewer frames per second. Judge fixed physics ticks,
+    // not a fixed wall-clock delay unrelated to the authoritative movement.
+    await page.waitForFunction(start=>window.__TOWER_VOLUMETRIC_STATE__?.x>start.x+.1,
+      {x:p.x},{timeout:16000});
+  }finally{await page.keyboard.up('KeyD');}
   const moved=await page.evaluate(()=>({...window.__TOWER_VOLUMETRIC_STATE__}));
+  expect(moved.tick).toBeGreaterThan(p.tick);
   expect(moved.x).toBeGreaterThan(p.x+.1);
   // The movement test may leave the hero over a ledge; reload for a grounded jump.
   await page.reload({waitUntil:'domcontentloaded'});

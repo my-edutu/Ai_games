@@ -75,8 +75,8 @@ test('cinematic camera first frame targets a restored climber at high altitude',
   const director=loadFactory('director3d.js','createTowerDirector')(THREE,camera);
   const player={x:2,y:155,z:8,at:48,vx:0,vy:0,vz:0};
   director.update(1/60,{player,theme:'void',mode:'CLIMBING',platforms:[]});
-  assert.ok(Math.abs(director.target.y-159.5)<.001,'camera must aim near the high-altitude player on first frame');
-  assert.ok(Math.abs(camera.position.y-169)<.001,'first view must start at the player, not world origin');
+  assert.ok(Math.abs(director.target.y-(player.y+2.7))<.001,'camera must aim at the climber and their upward route');
+  assert.ok(Math.abs(camera.position.y-(player.y+9.0))<.001,'first view must start near high-altitude player, not world origin');
   const hero=new THREE.Vector3(player.x,player.y,player.z).project(camera);
   assert.ok(Math.abs(hero.x)<1&&Math.abs(hero.y)<1,'climber must be inside the first-frame viewport');
 });

@@ -22,21 +22,21 @@ export function createTowerDirector(THREE,camera) {
     mode=combat?'guardian-encounter':verticalClimb?'vertical-climb':transition>0?'establishing':freefall?'freefall':'follow-ascent';
     if(mode==='guardian-encounter'){
       // Wide enough to show both human silhouette and guardian telegraph.
-      desired.set(p.x+7.2,p.y+5.1,p.z+14.6);
+      desired.set(p.x+6.2,p.y+8.3,p.z+13.5);
       target.set(p.x+THREE.MathUtils.clamp((boss?.x??p.x)-p.x,-2.5,2.5),p.y+2.1,p.z+THREE.MathUtils.clamp((boss?.z??p.z)-p.z,-2.5,2.5));
     }else if(mode==='vertical-climb'){
       // Heroic low-angle closeup keeps hands, rope and the climbing wall in frame.
-      desired.set(p.x+6.3,p.y+3.8,p.z+11.8);
+      desired.set(p.x+5.5,p.y+6.9,p.z+12.8);
       target.set(p.x,p.y+2.5,p.z-.7);
     }else if(mode==='establishing'){
-      desired.set(p.x+7.4,p.y+6.0,p.z+14.2);
+      desired.set(p.x+6.5,p.y+9.0,p.z+14.4);
       target.set(p.x,p.y+2.7,p.z);
     }else if(mode==='freefall'){
-      desired.set(p.x+7.1,p.y+4.2,p.z+13.8);
+      desired.set(p.x+6.1,p.y+8.1,p.z+15.3);
       target.set(p.x,p.y+0.8,p.z);
     }else{
       // Anticipate upward navigation without violent pans.
-      desired.set(p.x+5.9,p.y+4.6,p.z+12.2);
+      desired.set(p.x+5.7,p.y+8.1,p.z+13.8);
       target.set(p.x+THREE.MathUtils.clamp(p.vx*.12,-1.5,1.5),p.y+2.7,p.z+THREE.MathUtils.clamp(p.vz*.12,-1.5,1.5));
     }
     const rate=mode==='guardian-encounter'?3.2:2.3;
