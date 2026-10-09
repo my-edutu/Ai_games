@@ -676,3 +676,58 @@ body.clean-feed #app .shell[data-ux-revision] .top,
 body.clean-feed #app .shell[data-ux-revision] .caption,
 body.clean-feed #app .side{display:none!important}
 @media(prefers-reduced-motion:reduce){#app .side .panel{transition:none!important}}
+
+
+/* GAUNTLET XIII: opening chapter title becomes a lightweight location marker
+ * once the audience has had time to read it. The hero and actual ledges get
+ * their screen space back. Testable with ?worldLabel=compact/expanded.
+ */
+#app .world-label{
+ transition:width .38s ease,background-color .38s ease,padding .38s ease,opacity .38s ease!important;
+}
+#app .world-title{
+ transition:font-size .38s ease,line-height .38s ease!important;
+}
+body[data-world-label="compact"] #app .world-label{
+ width:fit-content!important;max-width:255px!important;
+ min-width:0!important;top:103px!important;
+ left:clamp(16px,2.1vw,34px)!important;
+ padding:8px 15px 9px 12px!important;
+ border-left:3px solid var(--tower-accent)!important;
+ background:linear-gradient(95deg,rgba(16,27,40,.91),rgba(21,29,41,.72))!important;
+ border-radius:0 9px 9px 0!important;
+ filter:drop-shadow(0 4px 9px rgba(0,0,0,.18))!important;
+}
+body[data-world-label="compact"] #app .world-kicker{
+ font-size:8px!important;letter-spacing:.12em!important;
+ line-height:1.05!important;color:var(--tower-secondary)!important;
+}
+body[data-world-label="compact"] #app .world-title{
+ font-size:clamp(18px,1.35vw,23px)!important;
+ line-height:1.05!important;letter-spacing:-.025em!important;
+ max-width:220px!important;white-space:normal;
+}
+body[data-world-label="compact"] #app .world-detail,
+body[data-world-label="compact"] #app .world-label:after{display:none!important}
+body.hud-focus[data-world-label="compact"] #app .world-label{
+ top:92px!important;left:23px!important;width:fit-content!important;
+ max-width:240px!important;
+}
+@media(max-width:1059px){
+ body[data-world-label="compact"] #app .world-label{
+   top:70px!important;left:10px!important;max-width:190px!important;
+   padding:5px 10px!important;
+ }
+ body[data-world-label="compact"] #app .world-title{
+   font-size:clamp(15px,2vw,19px)!important;
+ }
+ body.hud-focus[data-world-label="compact"] #app .world-label{top:64px!important;left:10px!important}
+}
+@media(max-width:699px){
+ body[data-world-label="compact"] #app .world-label{top:61px!important;max-width:170px!important}
+ body[data-world-label="compact"] #app .world-kicker{font-size:7px!important}
+ body[data-world-label="compact"] #app .world-title{font-size:16px!important;max-width:150px!important}
+}
+@media(prefers-reduced-motion:reduce){
+ #app .world-label,#app .world-title{transition:none!important}
+}
