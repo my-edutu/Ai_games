@@ -36,6 +36,15 @@
   const sun=new THREE.DirectionalLight(0xffd9a3,3.3);sun.position.set(-30,70,40);scene.add(sun);
   const heroFill=new THREE.PointLight(0x5efaff,145,38,1.65),heroWarm=new THREE.PointLight(0xffa968,125,35,1.7);
   scene.add(heroFill,heroWarm);
+  const focusMaterial=new THREE.MeshBasicMaterial({color:0x7ff5f8,transparent:true,opacity:.6,
+    depthWrite:false,blending:THREE.AdditiveBlending,side:THREE.DoubleSide});
+  const focusRing=new THREE.Mesh(new THREE.RingGeometry(.83,1.02,48),focusMaterial);
+  const focusDisc=new THREE.Mesh(new THREE.CircleGeometry(.81,40),
+    new THREE.MeshBasicMaterial({color:0x53eaff,transparent:true,opacity:.105,
+      depthWrite:false,blending:THREE.AdditiveBlending,side:THREE.DoubleSide}));
+  focusRing.rotation.x=-Math.PI/2;focusDisc.rotation.x=-Math.PI/2;
+  focusRing.renderOrder=15;focusDisc.renderOrder=14;
+  scene.add(focusRing,focusDisc);
   const biomeMood={
     foundry:{cool:0x58eaf3,warm:0xffbd63,sun:0xffdebd,description:'THE EMBER FORGE'},
     ruins:{cool:0x81ffd0,warm:0xe2ff86,sun:0xddffcf,description:'THE EMERALD SANCTUARY'},
@@ -130,6 +139,7 @@
       document.body.dataset.biome=biome;
       const mood=biomeMood[biome]||biomeMood.foundry;
       heroFill.color.setHex(mood.cool);heroWarm.color.setHex(mood.warm);sun.color.setHex(mood.sun);
+      focusMaterial.color.setHex(mood.cool);focusDisc.material.color.setHex(mood.cool);
       const biomeDescription=document.getElementById('biome-description');
       if(biomeDescription)biomeDescription.textContent=mood.description;
     }
@@ -181,6 +191,11 @@
     sun.position.set(player.x-30,player.y+65,player.z+34);
     heroFill.position.set(player.x-5,player.y+6,player.z+8);
     heroWarm.position.set(player.x+5,player.y+2,player.z+5);
+    const ringY=player.y-1.5+.08;
+    focusRing.position.set(player.x,ringY,player.z);
+    focusDisc.position.set(player.x,ringY-.035,player.z);
+    focusRing.scale.setScalar(1+Math.sin(simTime*2.4)*.10);
+    focusMaterial.opacity=reduced?.5:.5+.19*Math.sin(simTime*3.1);
     vfx.update(dt,{x:player.x,y:player.y,z:player.z,dx:player.vx,dy:player.vy},biome,0,reduced);
     try{renderer.render(scene,camera);}
     catch(error){renderMetrics.status='failed';renderMetrics.error=String(error?.stack||error);
