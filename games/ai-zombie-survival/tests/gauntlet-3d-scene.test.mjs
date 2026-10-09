@@ -13,6 +13,7 @@ import { PackedVertices } from '../web/packed-geometry.js';
 import { spatialVolume,eventSound } from '../web/audio-foley.js';
 import { partitionHorde } from '../web/instanced-horde.js';
 import { drawCharacterRig } from '../web/character-rig.js';
+import { createPoseMixer } from '../web/animation-mixer.js';
 
 class GeometryAudit {
   constructor(){this.calls=0;this.colors=new Set();this.byKind=new Map();}
@@ -258,4 +259,21 @@ test('full articulated organic hero rig varies across real AI poses and mutant c
   assert.equal(drawCharacterRig(m,{...zombie,health:80,action:'pursue'},true,3),true);
   assert.ok(m.calls>=200&&m.calls<=2000,'mutant anatomical rig geometry budget');
   assert.ok(m.colors.has('#fb746a'),'infected closeups require glowing eyes');
+});
+ 
+test('animation blend transitions smoothly between autonomous actions without modifying character AI',()=>{
+  const mixer=createPoseMixer({responseSeconds:.14,maxActors:8});
+  const actor={id:'survivor-7',role:'medic',action:'move',health:90};
+  const before=JSON.stringify(actor);
+  const moving=mixer.sample(actor,false,1);
+  const changed={...actor,action:'attack'};
+  const attack=mixer.sample(changed,false,1.016);
+  assert.ok(attack.rightHandRaise<mixer.sample({...changed,id:'fresh'},false,1.016).rightHandRaise,
+    'first attack frame must not snap to final gun pose');
+  const settled=mixer.sample(changed,false,1.5);
+  assert.ok(settled.rightHandRaise>attack.rightHandRaise);
+  assert.equal(JSON.stringify(actor),before);
+  assert.equal(mixer.size,2);
+  mixer.reset();assert.equal(mixer.size,0);
+  assert.deepEqual(mixer.sample(actor,false,1),moving);
 });

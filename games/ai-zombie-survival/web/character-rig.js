@@ -65,10 +65,10 @@ function posedLimb(mesh,coords,r,color){
 }
 // Dedicated close-range skin, non-box torso, calves, elbows, neck and role equipment.
 // Gait, stance and facial direction change deterministically as the real AI action changes.
-export function drawCharacterRig(mesh,entity,infected,time,{scale=1}={}){
+export function drawCharacterRig(mesh,entity,infected,time,{scale=1,pose=null}={}){
   if((infected&&entity.health<=0)||(!infected&&!entity.alive))return false;
   const body=infected?(entity.archetype==='brute'?1.28:entity.archetype==='runner'?.89:1):1;
-  const S=scale*body,p=actionPose(entity,infected,time);
+  const S=scale*body,p=pose||actionPose(entity,infected,time);
   const yaw=entity.facing||0,co=Math.cos(yaw),si=Math.sin(yaw);
   const at=([dx,y,dz])=>[entity.x+S*(dx*co+dz*si),y*S,entity.y+S*(-dx*si+dz*co)];
   const style=infected?(INFECTED[entity.archetype]||INFECTED.shambler):(ROLES[entity.role]||ROLES.scout);

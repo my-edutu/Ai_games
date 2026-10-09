@@ -16,6 +16,7 @@ import { createSpatialFoley } from './audio-foley.js';
 import { createSunShadows } from './shadow-pass.js';
 import { createInstancedHorde,partitionHorde } from './instanced-horde.js';
 import { drawCharacterRig } from './character-rig.js';
+import { createPoseMixer } from './animation-mixer.js';
 import { materialFunctions } from './material-functions.js';
 
 const canvas = document.getElementById('scene');
@@ -95,6 +96,7 @@ const restartDelayMs=Math.max(500,Math.min(60000,Number(params.get('restartMs'))
 let orbit = 0.67, range = 27, dragging = false, priorX = 0, cameraX = 0, cameraZ = 0, cameraFocusX = 0, cameraFocusZ = 0;
 let cameraMode = ['hero','overview'].includes(params.get('view'))?params.get('view'):'director', heroIndex=0, director = undefined, fpsSmooth = 30, lastStats = 0, buffersRebuilt = 0, lastGeometryStamp = '';
 let directedRange = 21;
+const poseMixer=createPoseMixer({responseSeconds:.14,maxActors:800});
 const frameCpuMs=[],frameWallMs=[],meshBuildMs=[];
 let qualityScale=1, qualityCheckTime=0;
 let dynamicBuildAt=0,lastDynamicTick=-1,lastDynamicFocusX=Infinity,lastDynamicFocusZ=Infinity,dynamicMeshRebuilds=0;
@@ -470,13 +472,13 @@ function human(m,entity,infected,time){
     }
     return;
   }
+  const pose=poseMixer.sample(entity,infected,time);
   // Real close-cameras use connected anatomically tapered surfaces with posed joints.
   // Far actors retain lightweight original articulated primitives and GPU instanced infected.
-  if(distance<(infected?8:14)&&drawCharacterRig(m,entity,infected,time)){
+  if(distance<(infected?8:14)&&drawCharacterRig(m,entity,infected,time,{pose})){
     if(!infected)decorateActor(m,entity,false,time,body);
     return;
   }
-  const pose=actionPose(entity,infected,time);
   const stride=pose.stride;
   const l=(dx,y,dz)=>{const c=Math.cos(yaw),s=Math.sin(yaw);return[x+body*(dx*c+dz*s),y*body,z+body*(-dx*s+dz*c)];};
   const roleColors={leader:'#d7ad72',scout:'#4a98a3',medic:'#cce4d7',defender:'#6078a1',scavenger:'#d39a54',engineer:'#678fcb'};
@@ -731,7 +733,7 @@ function toggleRoster(){
 function restartRun(){
   seed=(seed+1)>>>0||1;completedRuns++;resumeStatus='NEW RUN';game=createGame({seed,zombieCount:params.get('crowd')==='dense'?260:180});
   audioEventsSeen=0;cameraMode='director';cameraFocusX=0;cameraFocusZ=0;directedRange=21;lastDynamicTick=-1;
-  terminalSince=null;accumulator=0;director=undefined;lastGeometryStamp='';
+  terminalSince=null;accumulator=0;director=undefined;lastGeometryStamp='';poseMixer.reset();
   try{sessionStorage.removeItem(recoveryKey);}catch{}
 }
 function render(now){
