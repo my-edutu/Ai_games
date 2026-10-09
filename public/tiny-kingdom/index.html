@@ -379,7 +379,7 @@ for(let slope=0;slope<2;slope++){
 // Decorative layered roof seams catch light without pretending to be a texture pack.
 for(let i=1;i<=5;i++){let q=i/6;const lx=xx+(x-xx)*q,rx=x+(xr-x)*q,top=y+h+(ridge-h)*q;quad([lx,top+.018,zy],[lx+.025,top+.018,zy],[lx+.025,top+.018,zz],[lx,top+.018,zz],rgb(0x624838));quad([rx,top+.018,zy],[rx+.025,top+.018,zy],[rx+.025,top+.018,zz],[rx,top+.018,zz],rgb(0x634b3c))}
 box(x,y,z-d/2-.045*scale,.66*scale,1.25*scale,.085,rgb(0x76523c));box(x,y+1.03*scale,z-d/2-.084*scale,.07*scale,.055,.07,rgb(0xd5b778));
-for(let k=-1;k<=1;k+=2){box(x+k*w*.32,y+h*.43,z-d/2-.082,.40*scale,.51*scale,.07,(skyConditions(state.t).daylight<.55?[1.5,1.08,.47]:rgb(0x4f7772)));box(x+k*w*.32,y+h*.43,z-d/2-.1,.45*scale,.055,.07,rgb(0xe3cba7));box(x+k*w*.32,y+h*.64,z-d/2-.1,.055,.51*scale,.08,wood)}
+for(let k=-1;k<=1;k+=2){box(x+k*w*.32,y+h*.43,z-d/2-.082,.40*scale,.51*scale,.07,(skyConditions(state.t).daylight<.55?[.98,.88,.47]:rgb(0x4f7772)));box(x+k*w*.32,y+h*.43,z-d/2-.1,.45*scale,.055,.07,rgb(0xe3cba7));box(x+k*w*.32,y+h*.64,z-d/2-.1,.055,.51*scale,.08,wood)}
 // Structural timber posts and chimney establish scale and depth.
 for(let k of [-1,1])box(x+k*(w/2-.12),y+.14,z-d/2-.09,.13*scale,h-.15,.12*scale,wood);
 box(x+w*.31,y+h*.72,z,.28*scale,.81*scale,.28*scale,rgb(0x9d8c77));box(x+w*.31,y+h*1.13,z,.38*scale,.12*scale,.38*scale,rgb(0x736f64));} 
@@ -510,7 +510,31 @@ function limbSegment(a,b,radius,col,sides=7){
 }
 
 // Low-poly but individually proportioned citizens with articulated walk cycles, faces, tools and roles.
-function ellipsoid(x,y,z,rx,ry,rz,col,segments=9){for(let ring=0;ring<5;ring++){let a=Math.PI*ring/5,b=Math.PI*(ring+1)/5;for(let i=0;i<segments;i++){let u=i*Math.PI*2/segments,v=(i+1)*Math.PI*2/segments;let f=(t,k)=>[x+Math.sin(t)*Math.cos(k)*rx,y+Math.cos(t)*ry,z+Math.sin(t)*Math.sin(k)*rz];quad(f(a,u),f(a,v),f(b,v),f(b,u),col)}}}
+// Gauntlet 032: avoid zero-area pole quads and give curved surfaces analytic
+// outward-facing normals. Fixed 10-float layout remains position/normal/RGB/material.
+function ellipsoid(x,y,z,rx,ry,rz,col,segments=9){
+ if(!(rx>0&&ry>0&&rz>0)||!Number.isInteger(segments)||segments<3)return;
+ const vertex=(latitude,azimuth)=>{
+  const st=latitude===0||latitude===Math.PI?0:Math.sin(latitude);
+  const ct=Math.cos(latitude),ca=Math.cos(azimuth),sa=Math.sin(azimuth);
+  const normal=[st*ca/rx,ct/ry,st*sa/rz],size=Math.hypot(...normal)||1;
+  return {p:[x+st*ca*rx,y+ct*ry,z+st*sa*rz],n:normal.map(v=>v/size)};
+ };
+ const emit=(a,b,c)=>{
+  for(const point of [a,b,c])data.push(...point.p,...point.n,...col,currentMaterial);
+ };
+ for(let ring=0;ring<5;ring++){
+  const lat0=Math.PI*ring/5,lat1=Math.PI*(ring+1)/5;
+  for(let slice=0;slice<segments;slice++){
+   const az0=slice*Math.PI*2/segments,az1=(slice+1)*Math.PI*2/segments;
+   const a=vertex(lat0,az0),b=vertex(lat0,az1);
+   const c=vertex(lat1,az0),d=vertex(lat1,az1);
+   if(ring===0)emit(a,d,c);
+   else if(ring===4)emit(a,b,c);
+   else {emit(a,b,d);emit(a,d,c)}
+  }
+ }
+}
 function villager(p){const vertexStart=data.length;let x=p.x,z=p.z,y=terrain(x,z),u=p.phase,idx=Math.max(0,people.indexOf(p)),size=.92+(idx%5)*.045;let c=colors[jobs.indexOf(p.job)]||colors[0],skin=rgb([0xd5a781,0x95654b,0xefc19c,0xbe8968,0x9a6a48][(idx+names.length)%5]),hair=rgb([0x4c3228,0x342f29,0x8b633f,0x664b36,0xa18b65][(idx+4)%5]);const busy=p.activity.toLowerCase().includes('harvest')||p.activity.toLowerCase().includes('cutting')||p.activity.toLowerCase().includes('craft')||p.activity.toLowerCase().includes('construct');let pace=p.activity.includes('Traveling')||p.activity.includes('Explor')?1:.23,step=Math.sin(u*2.7)*.21*pace;
 // Torso, shoulders, tunic seams and belt.
 box(x,y+.61*size,z,.43*size,.62*size,.30*size,c);box(x,y+.52*size,z,.47*size,.09*size,.34*size,rgb(0x69513a));box(x,y+.47*size,z+.175*size,.07*size,.20*size,.015*size,rgb(0xd9c091));
@@ -585,7 +609,7 @@ function lantern(x,z,height=1.45){
  const bronze=rgb(0x554735);
  cylinder(x,y,z,.065,height,bronze,8);
  box(x,y+height-.12,z,.25,.08,.25,bronze);
- ellipsoid(x,y+height+.05,z,.17,.20,.17,night?[1.70,1.10,.44]:rgb(0x9a8052),8);
+ ellipsoid(x,y+height+.05,z,.17,.20,.17,night?[.98,.90,.44]:rgb(0x9a8052),8);
  cone(x,y+height+.2,z,.28,.24,rgb(0x675442),8);
 }
 function market(x,z){let y=terrain(x,z);for(let dx of [-1.1,1.1])for(let dz of [-.68,.68])box(x+dx,y,z+dz,.13,1.55,.13,wood);box(x,y+.8,z,2.8,.12,1.7,rgb(0x956a47));const tent=rgb(0xcaa768),trim=rgb(0x796447);quad([x-1.55,y+1.57,z-.95],[x,y+2.20,z-.95],[x,y+2.2,z+.95],[x-1.55,y+1.57,z+.95],tent);quad([x,y+2.2,z-.95],[x+1.55,y+1.57,z-.95],[x+1.55,y+1.57,z+.95],[x,y+2.2,z+.95],trim);for(let i=0;i<4;i++){let xx=x-.8+i*.54;box(xx,y+.94,z+.35,.35,.18,.33,rgb(i%2?0xb07e40:0x9a6739))}}
