@@ -1696,41 +1696,77 @@
     const width=hazard.width*WORLD_SCALE,depth=hazard.height*WORLD_SCALE;
     const center=[origin[0]+width/2,-0.86,origin[2]+depth/2];
     if(hazard.kind!=='pit'){
-      // A kill zone is NOT a physical opening. Show its warning zone atop
-      // the racing deck, rather than illustrating an impossible deep hole.
-      drawBox([center[0],0.045,center[2]],[width,0.016,depth],material(theme.hazard,0.73,0.08,0.12,0.7),viewProjection,cameraPosition);
+      drawBox([center[0],0.045,center[2]],[width,0.016,depth],
+        material(theme.hazard,0.73,0.08,0.12,0.7),viewProjection,cameraPosition);
       for(const side of [-1,1]){
-        drawBox([center[0],0.060,center[2]+side*depth/2],[width,0.02,0.06],material(theme.accent,0.34,0.31,0.22),viewProjection,cameraPosition);
+        drawBox([center[0],0.060,center[2]+side*depth/2],
+          [width,0.02,0.06],material(theme.accent,0.34,0.31,0.22),
+          viewProjection,cameraPosition);
       }
       return;
     }
     const quality=document.getElementById('quality-select')?.value||'balanced';
-    const danger=material(theme.hazard,0.28,0.16,0.34);
-    const dark=material([0.018,0.016,0.04],0.88,0.09);
-    const metal=material(theme.trim,0.40,0.76);
-    const warning=material(theme.accent,0.21,0.41,0.38);
-    // Correctly cut raceway exposes a well: deep radioactive floor, visible
-    // inner side walls and a bright lip. No actual arena collider is added.
-    drawBox([center[0],-0.78,center[2]],[width,0.06,depth],danger,viewProjection,cameraPosition);
-    drawBox([center[0],-0.43,center[2]-depth/2],[width,0.72,0.12],dark,viewProjection,cameraPosition);
-    drawBox([center[0],-0.43,center[2]+depth/2],[width,0.72,0.12],metal,viewProjection,cameraPosition);
-    drawBox([center[0]-width/2,-0.43,center[2]],[0.12,0.72,depth],metal,viewProjection,cameraPosition);
-    drawBox([center[0]+width/2,-0.43,center[2]],[0.12,0.72,depth],dark,viewProjection,cameraPosition);
-    for(const z of [center[2]-depth/2,center[2]+depth/2]){
-      drawBox([center[0],0.062,z],[width+0.17,0.09,0.11],warning,viewProjection,cameraPosition);
+    const cx=center[0],cz=center[2];
+    const danger=material(theme.hazard,0.23,0.19,0.39);
+    const dark=material([0.018,0.019,0.048],0.77,0.24);
+    const metal=material(theme.trim,0.32,0.79);
+    const chrome=material(theme.rail,0.17,0.85);
+    const warning=material(theme.accent,0.18,0.44,0.47);
+    const pulse=0.23+0.17*(0.5+0.5*Math.sin(tick*0.093+cx*3.1));
+    // The top of the 3D hole is at y=0. The real reactor terminal surface is
+    // y=-0.78. All mechanical geometry stays inside the visual void:
+    // physical marble descent and safety elimination remain server-owned.
+    drawBox([cx,-0.78,cz],[width*0.98,0.055,depth*0.98],danger,viewProjection,cameraPosition);
+    for(const sign of [-1,1]){
+      const z=cz+sign*depth/2;
+      const x=cx+sign*width/2;
+      drawBox([cx,-0.39,z],[width,0.76,0.13],sign<0?dark:metal,viewProjection,cameraPosition);
+      drawBox([x,-0.39,cz],[0.13,0.76,depth],sign<0?metal:dark,viewProjection,cameraPosition);
+      drawBox([cx,0.048,z],[width+0.14,0.085,0.105],warning,viewProjection,cameraPosition);
+      drawBox([x,0.048,cz],[0.105,0.085,depth+0.14],warning,viewProjection,cameraPosition);
     }
-    for(const x of [center[0]-width/2,center[0]+width/2]){
-      drawBox([x,0.062,center[2]],[0.11,0.09,depth+0.18],warning,viewProjection,cameraPosition);
-    }
-    // Energy depth cues are a visual consequence of the actual hazard area.
     if(quality!=='low'){
-      const stripes=quality==='balanced'?4:7;
-      const pulse=0.16+0.09*Math.sin(tick*0.07);
-      for(let i=0;i<stripes;i++){
-        const z=center[2]-depth/2+(i+0.5)*depth/stripes;
-        drawBox([center[0],-0.72,z],[width*0.86,0.023,0.046],material(theme.secondary,0.26,0.14,pulse),viewProjection,cameraPosition);
+      const ribs=quality==='balanced'?3:quality==='high'?5:8;
+      const energy=material(theme.secondary,0.14,0.23,pulse);
+      const ember=material(theme.hazard,0.12,0.16,0.40);
+      for(let i=0;i<ribs;i++){
+        const t=(i+0.5)/ribs;
+        const z=cz+depth*(t-0.5);
+        const x=cx+width*(t-0.5);
+        // Light tunnels at three distinct depths make falling feel volumetric.
+        for(const sign of [-1,1]){
+          drawBox([cx,-0.11,z],[Math.max(.08,width*.87),.035,.044],energy,viewProjection,cameraPosition);
+          drawBox([x,-.53,cz],[.044,.037,Math.max(.08,depth*.81)],i%2===0?ember:energy,
+            viewProjection,cameraPosition);
+          if(i%2===0){
+            drawBox([cx,-.41,cz+sign*depth*.43],
+              [Math.max(.08,width*.90),.13,.065],metal,viewProjection,cameraPosition);
+          }
+        }
+      }
+      const minR=Math.min(width,depth);
+      if(minR>.92){
+        // Concentric reactor machinery sits BELOW the rim, so the hole stays
+        // open. Toroidal stators and a spinning prismatic power core provide a
+        // memorable 3D hazard silhouette under real falling competitors.
+        const baseR=Math.min(width,depth)*.24;
+        drawMesh(torusMesh,modelMatrix([cx,-.69,cz],[0,0,0],
+          [baseR,baseR,baseR]),chrome,viewProjection,cameraPosition);
+        drawMesh(torusMesh,modelMatrix([cx,-.61,cz],[0,tick*.007,0],
+          [baseR*.76,baseR*.76,baseR*.76]),energy,viewProjection,cameraPosition);
+        if(quality==='high'||quality==='ultra'){
+          drawMesh(crystalMesh,modelMatrix([cx,-.62,cz],[0,tick*.011,0],
+            [baseR*.35,.12,baseR*.35]),ember,viewProjection,cameraPosition);
+          for(let i=0;i<4;i++){
+            const theta=tick*.012+i*Math.PI/2;
+            drawMesh(sphereMeshLow,modelMatrix([cx+Math.cos(theta)*baseR*.77,-.49,
+              cz+Math.sin(theta)*baseR*.77],[0,0,0],[.07,.07,.07]),
+              energy,viewProjection,cameraPosition);
+          }
+        }
       }
     }
+    shell.dataset.reactorGeometry='shaft-with-depth-and-stators';
   }
   function drawObstacle(obstacle,arena,theme,viewProjection,cameraPosition) {
     const origin=toWorld(obstacle.x,obstacle.y,arena);
