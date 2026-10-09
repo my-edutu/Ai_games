@@ -119,6 +119,37 @@ const path = require('node:path');
     });
     await page.waitForTimeout(300);
     await page.screenshot({path:path.join(out,'settlement-close.png'),fullPage:true,timeout:90000});
+
+    // G042: camera-identical wide screenshot of the interactive world-first
+    // resource command strip; unlike cinema, pause/camera controls remain shown.
+    evidence.worldFirstHud=await page.evaluate(()=>{
+      const g=window.__tinyKingdom;
+      const authority=JSON.stringify(g.exportSnapshot());
+      g.setCommandView('world');
+      const ribbon=document.querySelector('#world-ribbon').getBoundingClientRect();
+      const hidden=['.sidebar','.feed','.atlas'].every(selector=>
+        getComputedStyle(document.querySelector(selector)).display==='none');
+      const state={
+        view:g.getCommandView(),
+        ribbonVisible:ribbon.width>100&&ribbon.height>25,
+        withinViewport:ribbon.left>=0&&ribbon.right<=innerWidth,
+        sidePanelsHidden:hidden,
+        primaryControlVisible:getComputedStyle(document.querySelector('#pause')).display!=='none',
+        resourceValues:['world-population','world-food','world-wood','world-gold']
+          .map(id=>Number(document.getElementById(id).textContent.trim())),
+        authorityUnchanged:authority===JSON.stringify(g.exportSnapshot())
+      };
+      return state;
+    });
+    if(evidence.worldFirstHud.view!=='world'||!evidence.worldFirstHud.ribbonVisible||
+       !evidence.worldFirstHud.withinViewport||!evidence.worldFirstHud.sidePanelsHidden||
+       !evidence.worldFirstHud.primaryControlVisible||!evidence.worldFirstHud.authorityUnchanged||
+       evidence.worldFirstHud.resourceValues.some(value=>!Number.isFinite(value)||value<0))
+      throw Error('G042 world-first UI contract failed: '+JSON.stringify(evidence.worldFirstHud));
+    await page.waitForTimeout(250);
+    await page.screenshot({path:path.join(out,'world-first-wide.png'),fullPage:true,timeout:90000});
+    await page.evaluate(()=>window.__tinyKingdom.setCommandView('command'));
+
     // Character-study capture: actual SwiftShader render at a reproducible close
     // camera, without HUD covering the garments. This is evidence, not parity.
     await page.evaluate(()=>{
@@ -199,6 +230,20 @@ const path = require('node:path');
       tourWidth:document.querySelector('.world-tour').getBoundingClientRect().width,
     }));
     await page.screenshot({path:path.join(out,'mobile-sanctuary.png'),fullPage:true,timeout:90000});
+    evidence.mobileWorldFirst=await page.evaluate(()=>{
+      const g=window.__tinyKingdom,before=JSON.stringify(g.exportSnapshot());
+      g.setCommandView('world');
+      const rect=document.querySelector('#world-ribbon').getBoundingClientRect();
+      return {width:rect.width,inViewport:rect.left>=0&&rect.right<=innerWidth,
+        noOverflow:document.documentElement.scrollWidth<=document.documentElement.clientWidth+1,
+        authorityUnchanged:before===JSON.stringify(g.exportSnapshot())};
+    });
+    if(!evidence.mobileWorldFirst.inViewport||!evidence.mobileWorldFirst.noOverflow||
+       !evidence.mobileWorldFirst.authorityUnchanged)
+      throw Error('G042 mobile world-first UI regression: '+JSON.stringify(evidence.mobileWorldFirst));
+    await page.screenshot({path:path.join(out,'world-first-mobile.png'),fullPage:true,timeout:90000});
+    await page.evaluate(()=>window.__tinyKingdom.setCommandView('command'));
+
     if(evidence.mobileViewport.scrollWidth>evidence.mobileViewport.clientWidth+1)
       throw Error('Mobile visual regression: horizontal page overflow');
     if(evidence.mobileViewport.tourWidth<100)
