@@ -74,6 +74,16 @@ const path = require('node:path');
     evidence.water=await page.evaluate(()=>window.__tinyKingdom.waterStats());
     if(evidence.water.model!=='fresnel-ripple-shorefoam-v1'||evidence.water.waterTriangles!==1260||evidence.water.bankTriangles!==840)
       throw Error('River material or shoreline geometry gate failed');
+    evidence.garments=await page.evaluate(()=>{
+      const g=window.__tinyKingdom;
+      const profiles=g.getCitizenProfiles().map((_,i)=>g.getGarmentProfile(i));
+      return {citizens:profiles.length,distinctProfiles:new Set(profiles.map(p=>p.style+':'+p.rings.map(r=>r.rx.toFixed(3)).join(','))).size,
+        panelCount:profiles[0]?.panelCount,trianglesPerCoat:profiles[0]?.surfaceTriangles,
+        finite:profiles.every(p=>p.rings.length===5&&p.rings.every(r=>[r.y,r.rx,r.rz,r.z].every(Number.isFinite)))};
+    });
+    if(evidence.garments.citizens<12||evidence.garments.distinctProfiles<6||
+       evidence.garments.panelCount!==8||evidence.garments.trianglesPerCoat!==104||!evidence.garments.finite)
+      throw Error('G040 authored garment geometry profile regression: '+JSON.stringify(evidence.garments));
     evidence.meadow=await page.evaluate(()=>window.__tinyKingdom.getMeadowStats());
     evidence.visualHud=await page.evaluate(()=>({
       worldFilter:getComputedStyle(document.querySelector('#world')).filter,
@@ -96,6 +106,17 @@ const path = require('node:path');
     });
     await page.waitForTimeout(300);
     await page.screenshot({path:path.join(out,'settlement-close.png'),fullPage:true,timeout:90000});
+    // Character-study capture: actual SwiftShader render at a reproducible close
+    // camera, without HUD covering the garments. This is evidence, not parity.
+    await page.evaluate(()=>{
+      const g=window.__tinyKingdom;
+      const subject=g.getNavigation()[0].position;
+      g.setCamera({focus:subject,zoom:9,pitch:.37,yaw:.78});
+      g.setHudMode('cinema');
+    });
+    await page.waitForTimeout(450);
+    await page.screenshot({path:path.join(out,'citizen-study.png'),fullPage:true,timeout:90000});
+    await page.evaluate(()=>window.__tinyKingdom.setHudMode('full'));
     const replay=await page.evaluate(() => {
       const g=window.__tinyKingdom;
       g.reset();
