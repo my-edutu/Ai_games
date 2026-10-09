@@ -323,3 +323,95 @@ body.clean-feed #app .stage-signal {display:none!important}
 /* Clean-feed header overrides the themed high-specificity display:flex rule. */
 body.clean-feed #app .shell[data-ux-revision] .top{display:none!important}
 body.clean-feed #app .arena-wrap {inset:0!important}
+
+
+/* GAUNTLET COLOR CRITIC / EDITION IX
+   Screenshot review: labels on translucent parchment are practically illegible.
+   Establish opaque dark panels, saturated theme accents and real luminance separation.
+   This block is the final UI override; all previous designs remain fallback-safe.
+*/
+:root{
+ --stage-ink:#fff7e9;--stage-muted:#dfe8eb;--stage-plate:#182938;
+ --stage-plate-deep:#101c2d;--stage-outline:rgba(247,242,219,.42);
+}
+body[data-tower-theme="foundry"]{--stage-plate:#342024;--stage-plate-deep:#21171f;--stage-outline:rgba(255,182,124,.68)}
+body[data-tower-theme="ruins"]{--stage-plate:#183a35;--stage-plate-deep:#102626;--stage-outline:rgba(144,244,183,.62)}
+body[data-tower-theme="storm"]{--stage-plate:#17324a;--stage-plate-deep:#101e34;--stage-outline:rgba(116,229,255,.65)}
+body[data-tower-theme="clockwork"]{--stage-plate:#3b2929;--stage-plate-deep:#211a26;--stage-outline:rgba(255,202,126,.66)}
+body[data-tower-theme="void"]{--stage-plate:#332344;--stage-plate-deep:#1a192f;--stage-outline:rgba(216,155,255,.73)}
+#app .side .panel,
+#app .side .vital-panel,#app .side .progress-panel,
+#app .side .intent-panel,#app .side .build-panel{
+ color:var(--stage-ink)!important;
+ background:linear-gradient(138deg,var(--stage-plate),var(--stage-plate-deep))!important;
+ border:1px solid var(--stage-outline)!important;
+ border-left:4px solid var(--tower-accent)!important;
+ border-radius:10px!important;
+ backdrop-filter:blur(14px) saturate(1.26);
+ box-shadow:0 14px 42px rgba(9,13,24,.34),inset 0 1px 0 rgba(255,255,255,.13)!important;
+}
+#app .side .panel-head span,
+#app .side .vital-panel .panel-head span,
+#app .side .progress-panel .panel-head span,
+#app .side .build-panel .panel-head span,
+#app .side .vital-panel .bar-row label,
+#app .side .vital-panel .shield-row span,
+#app .side .progress-panel p,
+#app .side .vital-panel:before{
+ color:var(--stage-muted)!important;font-weight:850!important;opacity:1!important;
+}
+#app .side .panel-head b,
+#app .side .vital-panel .panel-head b,
+#app .side .progress-panel .panel-head b,
+#app .side .progress-panel .progress-value,
+#app .side .vital-panel output,
+#app .side .vital-panel .shield-row b,
+#app .side .intent-panel h2{
+ color:#fff8ee!important;font-weight:900!important;opacity:1!important;
+}
+#app .side .vital-panel .bar,
+#app .side .progress-panel .vertical-progress{
+ background:rgba(255,250,226,.25)!important;border:1px solid rgba(255,250,226,.15)!important;
+}
+#app .side .intent-panel p{color:#a1ffde!important}
+#app .side .vital-panel:before{border-color:rgba(255,245,220,.28)!important}
+#app .side .build-panel .tags em{
+ color:#fff0d8!important;background:rgba(255,197,134,.2)!important;
+ border-color:rgba(255,224,171,.65)!important;
+}
+#app .world-title{
+ max-width:480px!important;
+ color:#fffaf0!important;
+ filter:drop-shadow(0 3px 12px rgba(13,22,31,.82))!important;
+}
+#app .world-kicker,#app .world-detail{
+ color:#fff7e5!important;
+ text-shadow:0 2px 7px rgba(14,22,32,.9),0 0 15px rgba(18,22,30,.65)!important;
+}
+#app .top,#app .shell[data-ux-revision] .top{
+ background:linear-gradient(110deg,rgba(17,26,40,.96),rgba(28,30,44,.91))!important;
+ border-color:var(--stage-outline)!important;
+}
+#app .caption,#app .shell[data-ux-revision] .caption{
+ color:#fff9ea!important;
+ background:linear-gradient(110deg,rgba(18,27,40,.95),rgba(27,29,44,.88))!important;
+}
+#app .hero-identity{
+ background:linear-gradient(110deg,rgba(20,30,42,.94),rgba(27,30,42,.87))!important;
+ border-color:var(--stage-outline)!important;
+}
+#app .hero-label{color:var(--tower-neon)!important}
+#app .hero-identity strong,#app .hero-identity small{color:#fff8eb!important}
+body[data-high-contrast=true] #app .side .panel,
+body[data-high-contrast=true] #app .world-label{
+ background:#10101a!important;color:#fff!important;border-color:#fff!important;
+}
+@media(max-width:1050px){
+ #app .side .panel{border-left-width:3px!important}
+ #app .world-title{max-width:42vw!important}
+}
+body.clean-feed #app .top,body.clean-feed #app .side,
+body.clean-feed #app .caption,body.clean-feed #app .hero-identity,
+body.clean-feed #app .world-label,body.clean-feed #app .checkpoint-pill,
+body.clean-feed #app .climb-rail,body.clean-feed #app .stage-signal,
+body.clean-feed #app .shell[data-ux-revision] .top{display:none!important}
