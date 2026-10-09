@@ -12,7 +12,7 @@
   let renderer;
   try { renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false }); }
   catch (error) { console.warn('WebGL unavailable', error); canvas.remove(); return; }
-  const [{createClimber},{createTowerEnvironment},{createTowerEntities},{loadClimberAsset},{createTowerVfx},{createTowerSky},{createTowerSpectacle},{createTowerGeology},{createClimbingRope}]=await Promise.all([import('/tower/character3d.js'),import('/tower/environment3d.js'),import('/tower/entities3d.js'),import('/tower/asset3d.js'),import('/tower/vfx3d.js'),import('/tower/sky3d.js'),import('/tower/spectacle3d.js'),import('/tower/geology3d.js'),import('/tower/rope3d.js')]);
+  const [{createClimber},{createTowerEnvironment},{createTowerEntities},{loadClimberAsset},{createTowerVfx},{createTowerSky},{createTowerSpectacle},{createTowerSurfaceLibrary},{createTowerGeology},{createClimbingRope}]=await Promise.all([import('/tower/character3d.js'),import('/tower/environment3d.js'),import('/tower/entities3d.js'),import('/tower/asset3d.js'),import('/tower/vfx3d.js'),import('/tower/sky3d.js'),import('/tower/spectacle3d.js'),import('/tower/material3d.js'),import('/tower/geology3d.js'),import('/tower/rope3d.js')]);
   const scene = new THREE.Scene();
   scene.background = new THREE.Color('#10172a');
   scene.fog = new THREE.FogExp2('#10172a', 0.004);
@@ -40,7 +40,7 @@
   const geology=createTowerGeology(THREE,scene);
   const safetyRope=createClimbingRope(THREE,scene);
   architecture.root.scale.set(3,3,1);
-  const entities=createTowerEntities(THREE);
+  const entities=createTowerEntities(THREE,createTowerSurfaceLibrary(THREE));
   const actors = new THREE.Group(); scene.add(actors);
   const liveEntities=new Map();
   let runSignature='';

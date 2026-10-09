@@ -6,11 +6,11 @@
   const startup={phase:'bootstrap',status:'starting',tick:0,autonomous:true,dimensionality:3};
   window.__TOWER_VOLUMETRIC_STATE__=startup;
   const progress=(phase)=>{startup.phase=phase;};
-  let THREE,createClimber,createTowerEnvironment,createTowerEntities,createTowerVfx,createVolumetricCore,loadClimberAsset,createTowerDirector,createTowerSky,createTowerSpectacle,createTowerGeology,createClimbingRope,createTowerEvidenceRecorder,createTowerInput,createTowerAudio;
+  let THREE,createClimber,createTowerEnvironment,createTowerEntities,createTowerVfx,createVolumetricCore,loadClimberAsset,createTowerDirector,createTowerSky,createTowerSpectacle,createTowerSurfaceLibrary,createTowerGeology,createClimbingRope,createTowerEvidenceRecorder,createTowerInput,createTowerAudio;
   try{
-    [THREE,{createClimber},{createTowerEnvironment},{createTowerEntities},{createTowerVfx},{createVolumetricCore},{loadClimberAsset},{createTowerDirector},{createTowerSky},{createTowerSpectacle},{createTowerGeology},{createClimbingRope},{createTowerEvidenceRecorder},{createTowerInput},{createTowerAudio}]=await Promise.all([
+    [THREE,{createClimber},{createTowerEnvironment},{createTowerEntities},{createTowerVfx},{createVolumetricCore},{loadClimberAsset},{createTowerDirector},{createTowerSky},{createTowerSpectacle},{createTowerSurfaceLibrary},{createTowerGeology},{createClimbingRope},{createTowerEvidenceRecorder},{createTowerInput},{createTowerAudio}]=await Promise.all([
       import('/tower/vendor/three.module.js'),import('/tower/character3d.js'),import('/tower/environment3d.js'),
-      import('/tower/entities3d.js'),import('/tower/vfx3d.js'),import('/tower/volumetric-core.js'),import('/tower/asset3d.js'),import('/tower/director3d.js'),import('/tower/sky3d.js'),import('/tower/spectacle3d.js'),import('/tower/geology3d.js'),import('/tower/rope3d.js'),import('/tower/evidence3d.js'),import('/tower/input3d.js'),import('/tower/audio3d.js')
+      import('/tower/entities3d.js'),import('/tower/vfx3d.js'),import('/tower/volumetric-core.js'),import('/tower/asset3d.js'),import('/tower/director3d.js'),import('/tower/sky3d.js'),import('/tower/spectacle3d.js'),import('/tower/material3d.js'),import('/tower/geology3d.js'),import('/tower/rope3d.js'),import('/tower/evidence3d.js'),import('/tower/input3d.js'),import('/tower/audio3d.js')
     ]);
   }catch(error){status.textContent='3D MODULE LOAD FAILED';console.error(error);return;}
   progress('modules-loaded');
@@ -54,7 +54,7 @@
   };
   progress('creating-environment');
   const environment=createTowerEnvironment(THREE,scene);environment.root.scale.set(1.25,1.25,.8);
-  const art=createTowerEntities(THREE),climber=createClimber(THREE),vfx=createTowerVfx(THREE,scene);
+  const art=createTowerEntities(THREE,createTowerSurfaceLibrary(THREE)),climber=createClimber(THREE),vfx=createTowerVfx(THREE,scene);
   progress('creating-climber');
   scene.add(climber.root);
   let importedClimber=null;

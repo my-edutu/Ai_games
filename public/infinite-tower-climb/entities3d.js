@@ -1,6 +1,6 @@
 // Purpose-built 3D scenery and enemy silhouettes for the tower visual layer.
 // Collision, scoring and AI remain governed exclusively by authoritative simulation snapshots.
-export function createTowerEntities(THREE){
+export function createTowerEntities(THREE,surfaceLibrary=null){
   const boxGeo=new THREE.BoxGeometry(1,1,1),sphereGeo=new THREE.SphereGeometry(1,12,10),
     spikeGeo=new THREE.ConeGeometry(1,1,6),octaGeo=new THREE.OctahedronGeometry(1);
   const mat=(color,metalness=.24,roughness=.72,emissive=0)=>new THREE.MeshStandardMaterial({color,metalness,roughness,emissive});
@@ -16,6 +16,12 @@ export function createTowerEntities(THREE){
   const beveledDeck=new THREE.ExtrudeGeometry(bevelShape,{depth:.72,steps:1,
     bevelEnabled:true,bevelThickness:.10,bevelSize:.08,bevelSegments:2,curveSegments:2});
   beveledDeck.translate(0,0,-.36);
+  if(surfaceLibrary){
+    surfaceLibrary.apply(steelSkin,'forged-alloy');
+    surfaceLibrary.apply(inlay,'inlaid-ceramic');
+    surfaceLibrary.apply(stone,'hand-hewn-stone');
+    surfaceLibrary.apply(wood,'hand-hewn-stone');
+  }
   const meshes={stone,edge,metal,obsidian,eye,violet,health,stamina,gold,inactive,danger,steelSkin,inlay,neon};
   const themeColors={
     foundry:{stone:0x8f6960,skin:0x39475a,inlay:0xbf8e71,neon:0xffb56b,edge:0xa7cad6},
