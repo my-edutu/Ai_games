@@ -35,9 +35,11 @@ test('capture original 3D Lagos run, authored obstacle and mobile screenshot ref
   },{timeout:15000,intervals:[150,200,300,450]}).toBeGreaterThanOrEqual(7);
   await expect(page.locator('#state')).toHaveText('RUN LIVE');
   await page.screenshot({path:path.join(DIR,'gauntlet-approaching-hazard.png'),fullPage:true});
+  await page.locator('#hud-settings-toggle').click();
   await page.locator('#outfit').selectOption('yoruba-agbada-fila');
   await expect.poll(async()=>page.evaluate(()=>window.__EKO_VISUAL_AUDIT__()?.character.outfit))
     .toBe('yoruba-agbada-fila');
+  await page.locator('#hud-settings-toggle').click();
   await page.screenshot({path:path.join(DIR,'gauntlet-tayo-outfit.png'),fullPage:true});
   const audit=await page.evaluate(()=>window.__EKO_VISUAL_AUDIT__?.());
   expect(audit.character.inFrame).toBe(true);
