@@ -19,6 +19,7 @@ import { drawCharacterRig } from './character-rig.js';
 import { createPoseMixer } from './animation-mixer.js';
 import { materialFunctions } from './material-functions.js';
 import { createGpuFrameTimer } from './gpu-frame-timer.js';
+import { createAdaptiveResolution } from './adaptive-resolution.js';
 
 const canvas = document.getElementById('scene');
 const hud = document.getElementById('hud');
@@ -99,7 +100,7 @@ let cameraMode = ['hero','overview'].includes(params.get('view'))?params.get('vi
 let directedRange = 21, directorRangeTarget = 21, cameraEyeDistance = 0;
 const poseMixer=createPoseMixer({responseSeconds:.14,maxActors:800});
 const frameCpuMs=[],frameWallMs=[],meshBuildMs=[];
-let qualityScale=1, qualityCheckTime=0;
+let qualityScale=1;
 let dynamicBuildAt=0,lastDynamicTick=-1,lastDynamicFocusX=Infinity,lastDynamicFocusZ=Infinity,dynamicMeshRebuilds=0,lastDynamicCompactSignals=null;
 const percentile=(values,p=.95)=>{
   if(!values.length)return 0;
@@ -261,6 +262,7 @@ function buffer(){const vao=gl.createVertexArray(),vbo=gl.createBuffer();gl.bind
 const staticMesh=buffer(),movingMesh=buffer();
 const distantHorde=createInstancedHorde(gl,{maxInstances:500});
 const gpuFrameTimer=createGpuFrameTimer(gl);
+const adaptiveResolution=createAdaptiveResolution({minScale:.70});
 const hardwareInfo=gl.getExtension('WEBGL_debug_renderer_info');
 const rendererLabel=String(hardwareInfo?gl.getParameter(hardwareInfo.UNMASKED_RENDERER_WEBGL):gl.getParameter(gl.RENDERER)||'');
 const isSoftwareGPU=/swiftshader|llvmpipe|software|softpipe|swrast/i.test(rendererLabel);
@@ -856,18 +858,17 @@ function render(now){
   }
   selectFocus(delta);
   updateAudio();
-  if(now-qualityCheckTime>4000){
-    qualityCheckTime=now;
-    // Hysteresis prevents incessant resolution resize at quality boundaries.
-    if(fpsSmooth<18&&qualityScale>.79)qualityScale=.78;
-    else if(fpsSmooth>36&&qualityScale<1)qualityScale=1;
-  }
+  // GPU queries are polled before selecting this frame's presentation-only pixel budget.
+  // A 3-second hysteresis window prevents repeated canvas reallocations and frame thrash.
+  gpuFrameTimer.poll();
+  const resolutionBudget=adaptiveResolution.update(now,{...gpuFrameTimer.snapshot(),fps:fpsSmooth});
+  qualityScale=resolutionBudget.scale;
   const dpi=Math.min(1.6,devicePixelRatio||1)*qualityScale;
   const w=Math.max(1,Math.round(innerWidth*dpi)),h=Math.max(1,Math.round(innerHeight*dpi));
   if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h;gl.viewport(0,0,w,h);}
   const night=game.time.phase==='night',sunset=game.time.phase==='sunset';
   const sky=night?[.044,.080,.167]:sunset?[.73,.39,.29]:[.58,.76,.83];
-  gpuFrameTimer.poll();gpuFrameTimer.begin();
+  gpuFrameTimer.begin();
   gl.clearColor(...sky,1);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
   drawSky(game);
   const actualRange=cameraMode==='manual'?range:directedRange;
@@ -997,7 +998,7 @@ function render(now){
     hud.querySelector('#fps').textContent=Math.round(fpsSmooth)+' FPS · '+cpuP95.toFixed(1)+'ms CPU P95 · '+tris.toLocaleString()+' TRIANGLES';
     hud.querySelector('#fpsCompact').textContent=Math.round(fpsSmooth)+' FPS';
     verdict.textContent='WEBGL2 TRUE 3D • '+(paused?'PAUSED':'SIMULATION LIVE');
-    try{localStorage.setItem('zombie-gauntlet-live',JSON.stringify({time:Date.now(),day:game.time.day,tick:game.tick,alive:living,zombies:infected,fps:Math.round(fpsSmooth),frameCpuP95Ms:Math.round(cpuP95*10)/10,triangles:tris,rendererGpu:isSoftwareGPU?'software':'hardware',gpuHordeInstances:distantHorde.count,gpuHordeTriangles:distantHorde.triangles,cc0AssetState:cc0Status.state,dynamicShadows:!!sunShadows?.available,renderScale:qualityScale,dynamicRebuilds:dynamicMeshRebuilds,cameraMode,cameraRangeTarget:Math.round(directorRangeTarget*100)/100,cameraEyeDistance:Math.round(cameraEyeDistance*100)/100,cameraFocusX:Math.round(cameraFocusX*100)/100,cameraFocusZ:Math.round(cameraFocusZ*100)/100,meshBuildP95Ms:Math.round(percentile(meshBuildMs)*10)/10,...gpuFrameTimer.snapshot(),phase:game.time.phase,seed,renderer:'WebGL2',status:game.status}));}catch{}
+    try{localStorage.setItem('zombie-gauntlet-live',JSON.stringify({time:Date.now(),day:game.time.day,tick:game.tick,alive:living,zombies:infected,fps:Math.round(fpsSmooth),frameCpuP95Ms:Math.round(cpuP95*10)/10,triangles:tris,rendererGpu:isSoftwareGPU?'software':'hardware',gpuHordeInstances:distantHorde.count,gpuHordeTriangles:distantHorde.triangles,cc0AssetState:cc0Status.state,dynamicShadows:!!sunShadows?.available,renderScale:qualityScale,resolutionBudgetReason:resolutionBudget.reason,dynamicRebuilds:dynamicMeshRebuilds,cameraMode,cameraRangeTarget:Math.round(directorRangeTarget*100)/100,cameraEyeDistance:Math.round(cameraEyeDistance*100)/100,cameraFocusX:Math.round(cameraFocusX*100)/100,cameraFocusZ:Math.round(cameraFocusZ*100)/100,meshBuildP95Ms:Math.round(percentile(meshBuildMs)*10)/10,...gpuFrameTimer.snapshot(),phase:game.time.phase,seed,renderer:'WebGL2',status:game.status}));}catch{}
   }
   requestAnimationFrame(render);
 }

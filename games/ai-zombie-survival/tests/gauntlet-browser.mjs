@@ -31,7 +31,9 @@ try{
     assert.match(info.renderer,/WebGL 2/);
     assert.match(info.stats,/CPU P95/);
     assert.match(info.stats,/TRIANGLES/);
-    assert.ok(info.width>=1280&&info.height>=720);
+    // Internal 3D resolution can adapt to measured GPU stalls; CSS viewport stays 1280x720.
+    assert.ok(info.width>=Math.floor(1280*.69)&&info.height>=Math.floor(720*.69),
+      'adaptive 3D canvas must retain at least 70% linear resolution');
     const map=await page.locator('#miniMap').evaluate(el=>{
       const c=el.getContext('2d');const data=c.getImageData(0,0,el.width,el.height).data;
       let painted=0;for(let i=3;i<data.length;i+=4)if(data[i]>0)painted++;
@@ -53,6 +55,12 @@ try{
           'GPU p95 must be measured and finite');
       else assert.equal(runtimeStats.gpuFrameP95Ms,null,
         'missing GPU timings must never be replaced with CPU estimates');
+      assert.ok(Number.isFinite(runtimeStats.renderScale)&&runtimeStats.renderScale>=.70&&runtimeStats.renderScale<=1,
+        'adaptive 3D resolution must stay inside safe presentation limits');
+      assert.ok(['native','awaiting-gpu-samples','gpu-within-budget','gpu-over-budget',
+        'gpu-headroom','frame-pacing-over-budget','frame-pacing-headroom'].includes(runtimeStats.resolutionBudgetReason),
+        'budget decision must be inspectable in runtime evidence');
+      report.checks.adaptiveSceneBudget=true;
       report.checks.nonblockingGpuTelemetry=true;
     }
     if(scenario==='large-horde'){
