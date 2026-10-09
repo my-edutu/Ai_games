@@ -11,6 +11,7 @@ import { decorateInterior } from '../web/interior-art.js';
 import { actionPose } from '../web/animation-pose.js';
 import { PackedVertices } from '../web/packed-geometry.js';
 import { spatialVolume,eventSound } from '../web/audio-foley.js';
+import { partitionHorde } from '../web/instanced-horde.js';
 
 class GeometryAudit {
   constructor(){this.calls=0;this.colors=new Set();this.byKind=new Map();}
@@ -210,4 +211,20 @@ test('spatial live zombie sound respects source distance, whitelist and quiet fa
     const x=eventSound(kind);
     assert.ok(x&&x.volume>0&&x.volume<=.2&&x.seconds>0&&x.seconds<=1);
   }
+});
+ 
+test('GPU horde instancing preserves every visible infected exactly once across dense squads',()=>{
+  const g=createGame({seed:2026,zombieCount:260});
+  const before=JSON.stringify(g.zombies);
+  const chosen=partitionHorde(g.zombies,0,0,{detailRadius:13,maxDetailed:18,maxInstances:500});
+  const all=[...chosen.detail,...chosen.instanced];
+  assert.equal(new Set(all.map(e=>e.actor.id)).size,all.length,'single representation per infected');
+  assert.ok(chosen.detail.length<=18);
+  assert.ok(chosen.instanced.length>40,'crowds should be instanced, not rebuilt per character');
+  assert.ok(chosen.instanced.length<=500);
+  const eligible=g.zombies.filter(z=>z.health>0&&Math.hypot(z.x,z.y)<=58);
+  assert.equal(all.length,eligible.length,'visible enemies cannot disappear just for frame rate');
+  assert.equal(JSON.stringify(g.zombies),before,'GPU LOD must not change simulation state or population order');
+  const again=partitionHorde(g.zombies,0,0,{detailRadius:13,maxDetailed:18,maxInstances:500});
+  assert.deepEqual(all.map(e=>e.actor.id),[...again.detail,...again.instanced].map(e=>e.actor.id));
 });

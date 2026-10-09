@@ -14,6 +14,7 @@ import { PackedVertices } from './packed-geometry.js';
 import { loadCc0Models,drawCc0Model } from './cc0-models.js';
 import { createSpatialFoley } from './audio-foley.js';
 import { createSunShadows } from './shadow-pass.js';
+import { createInstancedHorde,partitionHorde } from './instanced-horde.js';
 
 const canvas = document.getElementById('scene');
 const hud = document.getElementById('hud');
@@ -239,6 +240,7 @@ const uniforms = Object.fromEntries(['uVP','uEye','uFogColor','uFog','uLight','u
 const drawSky=createSkyPass(gl);
 function buffer(){const vao=gl.createVertexArray(),vbo=gl.createBuffer();gl.bindVertexArray(vao);gl.bindBuffer(gl.ARRAY_BUFFER,vbo);const stride=9*4;for(let i=0;i<3;i++){gl.enableVertexAttribArray(i);gl.vertexAttribPointer(i,3,gl.FLOAT,false,stride,i*12);}gl.bindVertexArray(null);return{vao,vbo,count:0};}
 const staticMesh=buffer(),movingMesh=buffer();
+const distantHorde=createInstancedHorde(gl,{maxInstances:500});
 const hardwareInfo=gl.getExtension('WEBGL_debug_renderer_info');
 const rendererLabel=String(hardwareInfo?gl.getParameter(hardwareInfo.UNMASKED_RENDERER_WEBGL):gl.getParameter(gl.RENDERER)||'');
 const isSoftwareGPU=/swiftshader|llvmpipe|software|softpipe|swrast/i.test(rendererLabel);
@@ -547,19 +549,24 @@ function drawObjects(m,t){
   for(const node of game.loot)if(node.amount>0){m.box(node.x,.25,node.y,.57,.48,.60,node.kind==='medicine'?'#c5c9b4':'#9e8157');m.box(node.x,.50,node.y,.64,.055,.64,'#4d5046');}
   for(const s of game.survivors)human(m,s,false,t);
   for(const c of game.civilians)if(c.state!=='safe'&&c.state!=='dead'){human(m,{...c,alive:true,role:'scout',action:c.state==='escorting'?'move':'idle',id:c.id},false,t);}
+  // Characters inside the cinematic radius keep individual articulated details;
+  // the remainder of the AUTHENTIC living horde uses one GPU instanced mesh.
   const cost=percentile(meshBuildMs,.70);
-  const zombieBudget=Math.min(maxVisibleZombies,cost>65?105:cost>35?155:260);
-  const nearest=game.zombies.map(z=>({actor:z,dist:(z.x-cameraFocusX)**2+(z.y-cameraFocusZ)**2}))
-    .filter(o=>(o.actor.health>0?o.dist<52*52:o.dist<15*15))
-    .sort((a,b)=>a.dist-b.dist).slice(0,zombieBudget);
+  const chosen=partitionHorde(game.zombies,cameraFocusX,cameraFocusZ,{
+    detailRadius:cameraMode==='hero'?17:cost>50?10:14,
+    maxDetailed:cost>65?9:cost>35?17:28,
+    maxInstances:500,range:58
+  });
+  distantHorde.update(chosen.instanced);
   let importedCount=0;
-  for(const z of nearest){
+  for(const z of chosen.detail){
     const actor=z.actor,model=cc0Status.data?.[actor.archetype];
-    if(cc0Requested&&model&&importedCount<3&&z.dist<13*13&&
-      drawCc0Model(m,model,actor,t,{maxTriangles:900})){
+    if(cc0Requested&&model&&importedCount<3&&
+      drawCc0Model(m,model,actor,t,{maxTriangles:1600})){
       importedCount++;
     }else human(m,actor,true,t);
   }
+  // True world-state visibility is not reduced; only the distant mesh representation changes.
   // Combat feedback is derived only from authoritative events. Transient VFX cannot affect outcomes.
   for(const e of game.events.slice(-18)){
     const age=game.time.elapsed-e.time;if(age<0||age>.42)continue;
@@ -789,6 +796,7 @@ function render(now){
     gl.uniform1i(uniforms.uShadowMap,2);
   }
   for(const b of [staticMesh,movingMesh]){gl.bindVertexArray(b.vao);gl.drawArrays(gl.TRIANGLES,0,b.count);}
+  distantHorde.render({vp,eye,sky,night,fog:night?.010:.003+(game.weather.kind==='fog'?.006:0),time:elapsed});
   frameCpuMs.push(performance.now()-cpuStart);
   if(frameCpuMs.length>180)frameCpuMs.shift();
   if(now-lastStats>450){
