@@ -968,3 +968,35 @@ test('Gauntlet 035 HUD API restores actual controls after cinematic GPU screensh
  expect(await page.evaluate(()=>JSON.stringify(window.__tinyKingdom.exportSnapshot()))).toEqual(before);
  expect(errors).toEqual([]);
 });
+
+test('Gauntlet 036 joint endpoints obey realistic stride and preserve the deterministic world',async({page})=>{
+ const errors=[];page.on('pageerror',e=>errors.push(e.message));
+ await page.setContent(html);
+ await page.waitForFunction(()=>Boolean(window.__tinyKingdom?.getRigPose));
+ await page.locator('#pause').click();
+ const sample=await page.evaluate(()=>{
+  const g=window.__tinyKingdom;
+  const before=JSON.stringify(g.exportSnapshot());
+  const people=g.getCitizenProfiles(),poses=people.map((_,i)=>g.getRigPose(i));
+  let segments=[];
+  for(const pose of poses){
+   for(const leg of pose.legs){
+    const thigh=Math.hypot(...leg.knee.map((n,i)=>n-leg.hip[i]));
+    const shin=Math.hypot(...leg.ankle.map((n,i)=>n-leg.knee[i]));
+    segments.push({thigh,shin,footZ:leg.ankle[2],footY:leg.ankle[1]});
+   }
+  }
+  return {segments,unchanged:before===JSON.stringify(g.exportSnapshot())};
+ });
+ expect(sample.unchanged).toBe(true);
+ expect(sample.segments).toHaveLength(24);
+ for(const leg of sample.segments){
+   expect(leg.thigh).toBeGreaterThan(.15);
+   expect(leg.thigh).toBeLessThan(.38);
+   expect(leg.shin).toBeGreaterThan(.15);
+   expect(leg.shin).toBeLessThan(.40);
+   expect(Math.abs(leg.footZ)).toBeLessThanOrEqual(.32);
+   expect(leg.footY).toBeGreaterThanOrEqual(.05);
+ }
+ expect(errors).toEqual([]);
+});
