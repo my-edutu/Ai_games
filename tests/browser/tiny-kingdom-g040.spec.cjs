@@ -32,7 +32,8 @@ test('Gauntlet 040 tailored medieval garment profiles are tapered, distinct and 
  expect(result.audit.dynamic.invalidNormals).toBe(0);
  expect(result.audit.dynamic.invalidColors).toBe(0);
  expect(result.audit.dynamic.outOfBounds).toBe(0);
- expect(result.audit.dynamic.triangles).toBeLessThan(32000);
+ // G041 facial meshes add 10,032 real triangles; keep a bounded post-G041 budget.
+ expect(result.audit.dynamic.triangles).toBeLessThan(42000);
  expect(result.unchanged).toBe(true);
  expect(errors).toEqual([]);
 });
