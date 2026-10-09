@@ -60,6 +60,9 @@ try{
       assert.ok(['native','awaiting-gpu-samples','gpu-within-budget','gpu-over-budget',
         'gpu-headroom','frame-pacing-over-budget','frame-pacing-headroom'].includes(runtimeStats.resolutionBudgetReason),
         'budget decision must be inspectable in runtime evidence');
+      assert.equal(runtimeStats.shaderPath,runtimeStats.rendererGpu==='software'?'low-spec':'cinematic',
+        'actual WebGL renderer must select the matching material shader');
+      report.checks.softwareMaterialPath=true;
       report.checks.adaptiveSceneBudget=true;
       report.checks.nonblockingGpuTelemetry=true;
     }

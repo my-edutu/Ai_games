@@ -20,6 +20,7 @@ import { createPoseMixer } from './animation-mixer.js';
 import { materialFunctions } from './material-functions.js';
 import { createGpuFrameTimer } from './gpu-frame-timer.js';
 import { createAdaptiveResolution } from './adaptive-resolution.js';
+import { lowSpecFragmentSource, selectMaterialShaderPath } from './low-spec-shader.js';
 
 const canvas = document.getElementById('scene');
 const hud = document.getElementById('hud');
@@ -175,6 +176,10 @@ function perspective(fovy,aspect,near,far){const f=1/Math.tan(fovy/2);return[f/a
 function lookAt(eye,target){const forward=norm(vsub(target,eye)),right=norm(cross(forward,[0,1,0])),up=cross(right,forward);return[right[0],up[0],-forward[0],0,right[1],up[1],-forward[1],0,right[2],up[2],-forward[2],0,-dot(right,eye),-dot(up,eye),dot(forward,eye),1];}
 function multiply(a,b){const o=new Array(16);for(let col=0;col<4;col++)for(let row=0;row<4;row++){let t=0;for(let k=0;k<4;k++)t+=a[k*4+row]*b[col*4+k];o[col*4+row]=t;}return o;}
 function shader(type,source){const s=gl.createShader(type);gl.shaderSource(s,source);gl.compileShader(s);if(!gl.getShaderParameter(s,gl.COMPILE_STATUS))throw new Error(gl.getShaderInfoLog(s));return s;}
+const hardwareInfo=gl.getExtension('WEBGL_debug_renderer_info');
+const rendererLabel=String(hardwareInfo?gl.getParameter(hardwareInfo.UNMASKED_RENDERER_WEBGL):gl.getParameter(gl.RENDERER)||'');
+const shaderPath=selectMaterialShaderPath(rendererLabel);
+const isSoftwareGPU=shaderPath==='low-spec';
 const vs = [
   '#version 300 es',
   'precision highp float;',
@@ -185,7 +190,7 @@ const vs = [
   'out vec3 vColor; out vec3 vNormal; out vec3 vPosition;',
   'void main(){vColor=aColor;vNormal=aNormal;vPosition=aPosition;gl_Position=uVP*vec4(aPosition,1.0);}'
 ].join('\n');
-const fs = [
+const fs = isSoftwareGPU ? lowSpecFragmentSource : [
   '#version 300 es',
   'precision highp float;',
   'in vec3 vColor; in vec3 vNormal; in vec3 vPosition;',
@@ -263,9 +268,6 @@ const staticMesh=buffer(),movingMesh=buffer();
 const distantHorde=createInstancedHorde(gl,{maxInstances:500});
 const gpuFrameTimer=createGpuFrameTimer(gl);
 const adaptiveResolution=createAdaptiveResolution({minScale:.70});
-const hardwareInfo=gl.getExtension('WEBGL_debug_renderer_info');
-const rendererLabel=String(hardwareInfo?gl.getParameter(hardwareInfo.UNMASKED_RENDERER_WEBGL):gl.getParameter(gl.RENDERER)||'');
-const isSoftwareGPU=/swiftshader|llvmpipe|software|softpipe|swrast/i.test(rendererLabel);
 const explicitlyShadows=['shadows','cinematic'].includes(params.get('lighting'))||
   params.get('quality')==='cinematic';
 const cinematicShadows=explicitlyShadows||(!isSoftwareGPU&&
@@ -998,7 +1000,7 @@ function render(now){
     hud.querySelector('#fps').textContent=Math.round(fpsSmooth)+' FPS · '+cpuP95.toFixed(1)+'ms CPU P95 · '+tris.toLocaleString()+' TRIANGLES';
     hud.querySelector('#fpsCompact').textContent=Math.round(fpsSmooth)+' FPS';
     verdict.textContent='WEBGL2 TRUE 3D • '+(paused?'PAUSED':'SIMULATION LIVE');
-    try{localStorage.setItem('zombie-gauntlet-live',JSON.stringify({time:Date.now(),day:game.time.day,tick:game.tick,alive:living,zombies:infected,fps:Math.round(fpsSmooth),frameCpuP95Ms:Math.round(cpuP95*10)/10,triangles:tris,rendererGpu:isSoftwareGPU?'software':'hardware',gpuHordeInstances:distantHorde.count,gpuHordeTriangles:distantHorde.triangles,cc0AssetState:cc0Status.state,dynamicShadows:!!sunShadows?.available,renderScale:qualityScale,resolutionBudgetReason:resolutionBudget.reason,dynamicRebuilds:dynamicMeshRebuilds,cameraMode,cameraRangeTarget:Math.round(directorRangeTarget*100)/100,cameraEyeDistance:Math.round(cameraEyeDistance*100)/100,cameraFocusX:Math.round(cameraFocusX*100)/100,cameraFocusZ:Math.round(cameraFocusZ*100)/100,meshBuildP95Ms:Math.round(percentile(meshBuildMs)*10)/10,...gpuFrameTimer.snapshot(),phase:game.time.phase,seed,renderer:'WebGL2',status:game.status}));}catch{}
+    try{localStorage.setItem('zombie-gauntlet-live',JSON.stringify({time:Date.now(),day:game.time.day,tick:game.tick,alive:living,zombies:infected,fps:Math.round(fpsSmooth),frameCpuP95Ms:Math.round(cpuP95*10)/10,triangles:tris,rendererGpu:isSoftwareGPU?'software':'hardware',gpuHordeInstances:distantHorde.count,gpuHordeTriangles:distantHorde.triangles,cc0AssetState:cc0Status.state,dynamicShadows:!!sunShadows?.available,renderScale:qualityScale,resolutionBudgetReason:resolutionBudget.reason,dynamicRebuilds:dynamicMeshRebuilds,cameraMode,cameraRangeTarget:Math.round(directorRangeTarget*100)/100,cameraEyeDistance:Math.round(cameraEyeDistance*100)/100,cameraFocusX:Math.round(cameraFocusX*100)/100,cameraFocusZ:Math.round(cameraFocusZ*100)/100,meshBuildP95Ms:Math.round(percentile(meshBuildMs)*10)/10,...gpuFrameTimer.snapshot(),shaderPath,phase:game.time.phase,seed,renderer:'WebGL2',status:game.status}));}catch{}
   }
   requestAnimationFrame(render);
 }
