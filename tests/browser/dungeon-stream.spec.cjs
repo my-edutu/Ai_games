@@ -342,3 +342,15 @@ test('Gauntlet desktop header remains collision-free and all masonry layers repo
  expect(layout.statusVisible).toBe(false);
  await page.screenshot({path:'artifacts/dungeon-header-and-parapets.png',fullPage:true});
 });
+
+test('Gauntlet framing keeps the autonomous protagonist large enough to inspect in actual 3D',async({page})=>{
+ await page.setViewportSize({width:1440,height:900});
+ await page.goto('/dungeon');
+ await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.composition?.minHeroPixels??0),{timeout:25000}).toBeGreaterThan(53);
+ const before=await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__);
+ expect(before.composition.subjectOnscreen).toBe(true);
+ expect(before.camera).toBe('cinematic');
+ expect(before.cameraMargin).toBeGreaterThanOrEqual(0);
+ expect(before.composition.visibleHeroes).toBeGreaterThan(0);
+ await page.locator('canvas#world').screenshot({path:'artifacts/dungeon-readable-cinematic-scale.png'});
+});
