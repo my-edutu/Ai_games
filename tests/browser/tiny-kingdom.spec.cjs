@@ -905,7 +905,7 @@ test('Kingdom Pulse chart displays measured per-day resource changes without alt
  expect(initial.history[0].food).toBe(initial.metrics.food);
  await page.locator('[data-scenic="market"]').click();
  expect(await page.evaluate(()=>JSON.stringify(window.__tinyKingdom.exportSnapshot()))).toBe(initial.snapshot);
- await page.evaluate(()=>{const g=window.__tinyKingdom;for(let i=0;i<3*24*30;i++)g.step(1/30)});
+ await page.evaluate(()=>{const g=window.__tinyKingdom;for(let i=0;i<4*24*30;i++){g.step(1/30);if(g.metrics().day===4)break;}});
  const outcome=await page.evaluate(()=>{
   const g=window.__tinyKingdom;
   const entries=g.getEconomyHistory();
@@ -938,6 +938,11 @@ test('Cottage roof details and smoke stay deterministic and do not corrupt origi
   return {effects,geometry,unchanged:JSON.stringify(g.exportSnapshot())===JSON.stringify(first)};
  });
  expect(output.effects.activeChimneys).toBeGreaterThan(0);
+  // Screenshot-driven regression: no giant opaque chimney smoke globes.
+  expect(output.effects.smokePuffs).toBeGreaterThan(0);
+  expect(output.effects.smokeTriangles).toBeGreaterThan(0);
+  expect(output.effects.smokeTriangles).toBeLessThanOrEqual(output.effects.smokePuffs*24);
+  expect(output.effects.smokeMaxRadius).toBeLessThan(.075);
  expect(output.effects.smokePuffs).toBeGreaterThan(output.effects.activeChimneys);
  expect(output.geometry.dynamic.aligned).toBe(true);
  expect(output.geometry.dynamic.invalidComponents).toBe(0);
