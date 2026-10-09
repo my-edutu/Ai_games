@@ -548,3 +548,31 @@ body {
 @media(prefers-reduced-motion:reduce){
   .leaderboard-panel.broadcast-overlay .leaderboard li::after{transition:none}
 }
+
+/* Small-screen live race HUD: unobstructed action is the default. Spectators
+   can still expand all ranks with an actual accessible button. */
+.mobile-standings-toggle{display:none}
+@media(max-width:760px){
+  .leaderboard-panel.broadcast-overlay{
+    max-height:min(310px,40vh);
+    overflow:auto;
+    scrollbar-width:thin;
+    overscroll-behavior:contain;
+  }
+  .leaderboard-panel.broadcast-overlay[data-mobile-expanded="false"] .leaderboard li:nth-child(n+4){
+    display:none;
+  }
+  .mobile-standings-toggle{
+    display:flex;width:100%;align-items:center;justify-content:center;
+    min-height:31px;margin-top:8px;padding:5px 8px;
+    border-radius:7px;border:1px solid var(--arena-border);
+    background:linear-gradient(115deg,#21447b99,#172757dd);
+    color:#e8f6ff;font-size:10px;font-weight:850;letter-spacing:.08em;
+    cursor:pointer;
+  }
+  .mobile-standings-toggle:focus-visible{outline:3px solid var(--arena-fire);outline-offset:2px}
+  .mobile-standings-toggle[aria-expanded="true"]{color:var(--arena-accent);border-color:var(--arena-accent)}
+}
+@media(prefers-reduced-motion:reduce){
+  .mobile-standings-toggle{transition:none}
+}
