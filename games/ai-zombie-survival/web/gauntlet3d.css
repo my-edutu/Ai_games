@@ -25,3 +25,134 @@ main[data-phase="night"]{--cyan:#7bcbff;--amber:#fbd197;--coral:#ff738c}main[dat
 
 /* Unattributed/empty chronicle rows span the full width instead of getting squeezed into timestamp column. */
 .eventItem.waiting{display:block;color:#a3d6d8;letter-spacing:.07em;font-size:9px}.eventItem.waiting .eventText{display:block;white-space:normal;overflow:visible;text-overflow:clip}
+
+
+/* GAUNTLET LOOP 33 — actual screenshot critic: reserve the 3D playfield, not two opaque phone sidebars. */
+[hidden]{display:none!important}
+.mobileOverview,.mobileDeck,.panelClose{display:none}
+.alertBanner{position:absolute;top:113px;left:50%;transform:translateX(-50%);
+  width:min(460px,calc(100vw - 32px));padding:10px 13px;display:flex;align-items:center;gap:12px;
+  border:1px solid #ff9c9b9c;border-left:4px solid #ff7886;border-radius:7px;
+  background:linear-gradient(100deg,#4d213de9,#251e36f0 65%,#192536e6);
+  box-shadow:0 18px 50px #01091396,0 0 40px #ff53632b;
+  backdrop-filter:blur(14px);z-index:4;pointer-events:none}
+.alertPulse{flex:none;display:grid;place-items:center;width:27px;height:27px;border-radius:50%;
+  font-size:16px;font-weight:950;background:#ff7081;color:#331323;
+  box-shadow:0 0 16px #ff768a8a}
+.alertText{display:grid;gap:1px;min-width:0}
+.alertText>span{color:#ffb7bb;font-size:9px;font-weight:900;letter-spacing:.16em}
+.alertText strong{font-size:12px;font-weight:850;letter-spacing:.015em;color:#fff5ea}
+.alertCode{margin-left:auto;white-space:nowrap;color:#f7beab;font-size:8px;font-weight:850;letter-spacing:.1em}
+#hud[data-crisis="critical"] .metricThreat strong,#hud[data-crisis="critical"] #threatPercent{color:#ff8c96}
+#hud[data-crisis="critical"] .aiMeter{border-color:#ff8c96b8;box-shadow:0 0 22px #ff697b42}
+#hud[data-crisis="critical"] .onAir{border-color:#ff9a8a91}
+#hud[data-crisis="critical"] .liveDot{background:#ff8c96;box-shadow:0 0 12px #ff6d89}
+#hud[data-crisis="critical"] .hud-left{border-left-color:#ff8796}
+#hud[data-crisis="critical"] .objectiveHeader{color:#ffe1aa}
+#hud[data-cinema="true"] .alertBanner{display:none!important}
+
+/* Filmic broadcast palette: precision type, high contrast and localized translucency. */
+.hud-left,.aiStory{isolation:isolate;box-shadow:0 20px 70px #000a19a8,0 2px 20px #061424a3}
+.hud-left{background:linear-gradient(150deg,#102f44f7,#12253af5 64%,#13273ceb)}
+.aiStory{background:linear-gradient(145deg,#282746fa,#14253df5 75%,#1b2b45f0)}
+.panelHeading{letter-spacing:.035em}
+.metric strong{font-variant-numeric:tabular-nums}
+.metricThreat .metricSymbol{text-shadow:0 0 13px #ff647a88}
+.objectiveText{overflow-wrap:anywhere}
+#decision{overflow-wrap:anywhere}
+.eventTape{overflow-wrap:anywhere}
+.panelKicker button.panelClose{pointer-events:auto;cursor:pointer;border:1px solid #65a3b689;
+ background:#17384a;border-radius:7px;color:#edfcff;font-size:14px;width:29px;height:29px}
+#hud .sceneBadge #fps{font-variant-numeric:tabular-nums}
+
+/* Deliberately narrow mobile navigation: panels become on-demand, accessible sheets. */
+@media(max-width:740px){
+  .colorAtmosphere{background:linear-gradient(180deg,#09172490 0%,transparent 16%,transparent 69%,#08131b9e 100%);mix-blend-mode:normal}
+  main{background:linear-gradient(180deg,#061829dc 0%,transparent 21%,transparent 74%,#061624ad 100%)}
+  .top{padding:9px 12px 7px;gap:6px;background:linear-gradient(180deg,#0c2539db,#0716259a)}
+  .branding .brandLine{margin-top:6px}
+  .top .right{gap:5px}
+  .topStatus #status{display:none}
+  .mobileOverview{position:absolute;top:87px;left:9px;right:9px;z-index:3;display:grid;
+    grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;pointer-events:none}
+  .mobileOverview>div{min-width:0;display:flex;align-items:center;justify-content:center;gap:5px;
+    height:34px;border:1px solid #5fa3ae7d;background:linear-gradient(130deg,#112f44dd,#13263bdc);
+    border-radius:6px;box-shadow:0 8px 18px #08152262;backdrop-filter:blur(8px)}
+  .mobileOverview strong{font-size:12px;font-weight:950;color:var(--amber);font-variant-numeric:tabular-nums}
+  .mobileOverview>div:first-child strong{color:var(--cyan)}
+  .mobileOverview>div:nth-child(2) strong{color:var(--coral)}
+  .mobileOverview span:not(.liveStatusDot){color:#d3e3e8;font-size:8px;letter-spacing:.07em;font-weight:900}
+  .liveStatusDot{height:6px;width:6px;border-radius:50%;background:var(--cyan);box-shadow:0 0 9px var(--cyan)}
+  .hud-left,.aiStory{display:none!important}
+  main[data-mobile-panel="survival"] .hud-left,
+  main[data-mobile-panel="intel"] .aiStory{position:absolute;top:154px;left:10px;right:auto;
+    display:block!important;width:min(350px,calc(100vw - 20px));
+    max-height:calc(100svh - 333px);min-height:0;overflow-y:auto;
+    z-index:9;border-radius:12px;border:1px solid #5fc4d19c;border-left:4px solid var(--cyan);
+    padding:16px 17px;background:linear-gradient(130deg,#102f45f7,#15243efa);
+    box-shadow:0 12px 65px #000e20ea;pointer-events:auto;backdrop-filter:blur(16px)}
+  main[data-mobile-panel="intel"] .aiStory{border-left-color:var(--violet)}
+  .panelKicker button.panelClose{display:inline-grid;place-items:center;margin-left:auto}
+  .hud-left .metric{grid-template-columns:24px 1fr auto;gap:9px;padding:10px 0}
+  .hud-left .metric strong{font-size:15px}
+  .hud-left .metricLabel{display:block;font-size:9px}
+  .hud-left .panelHeading{font-size:20px}
+  .hud-left .objectiveText{font-size:14px}
+  .aiStory .aiHeader{font-size:13px}
+  .aiStory #decisionName{font-size:16px}
+  .aiStory #decision{max-height:none;font-size:13px;line-height:1.5}
+  .aiStory #action{display:block;font-size:11px}
+  .aiStory .eventTape{max-height:122px;overflow-y:auto}
+  .aiStory #miniMap{display:block;width:100%;height:auto}
+  .alertBanner{top:130px;width:calc(100vw - 20px);max-width:500px;
+    padding:7px 10px;gap:8px;z-index:3}
+  .alertPulse{width:21px;height:21px;font-size:12px}
+  .alertText>span{font-size:8px}
+  .alertText strong{font-size:10px}
+  .alertCode{display:none}
+  #hud[data-mobile-panel="survival"] .alertBanner,#hud[data-mobile-panel="intel"] .alertBanner{display:none!important}
+  .sceneBadge{top:auto;bottom:201px;right:9px;max-width:calc(100vw - 18px);gap:3px;z-index:2}
+  .sceneBadge #verdict{font-size:8px;letter-spacing:.03em}
+  .sceneBadge #fps{white-space:normal;max-width:270px;font-size:8px;line-height:1.4}
+  .directorStrip{bottom:145px;width:max-content;max-width:calc(100vw - 20px);
+    min-width:245px;padding:7px 11px;border-radius:8px;z-index:2}
+  .mobileDeck{display:grid;position:absolute;bottom:77px;left:9px;right:9px;
+    grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;z-index:11;pointer-events:auto}
+  .mobileDeck button{cursor:pointer;min-width:0;min-height:44px;display:flex;align-items:center;
+    justify-content:center;gap:5px;padding:9px 4px;border-radius:7px;
+    border:1px solid #64adc5b0;background:linear-gradient(135deg,#17364b,#172c45);
+    box-shadow:0 5px 13px #06142599;color:#d6f4f6;font-size:9px;font-weight:900;letter-spacing:.055em}
+  .mobileDeck button[aria-expanded="true"]{background:linear-gradient(110deg,var(--cyan),#a4dbec);
+    border-color:#bdfaf0;color:#042c35;box-shadow:0 3px 24px #54f4ce50}
+  .mobileDeck button>span{font-size:14px}
+  .bottom{position:absolute;bottom:0;left:0;right:0;margin-top:0;
+    display:block;padding:7px 9px calc(8px + env(safe-area-inset-bottom,0px));
+    background:linear-gradient(180deg,#081b2ae5,#071421f9);border-top:1px solid #54899b4f;z-index:10}
+  .controls{display:flex;max-width:none;flex-wrap:nowrap;overflow-x:auto;
+    -webkit-overflow-scrolling:touch;scrollbar-width:none;gap:5px}
+  .controls::-webkit-scrollbar{display:none}
+  .controls button,.controls a{flex:0 0 auto;min-height:42px;padding:10px 10px;font-size:10px;
+    letter-spacing:.035em;border-radius:7px}
+  .controls #togglePause{order:-2}
+  .controls #cinemaMode{order:-1}
+  .controls .legacy{display:none}
+  .squadPanel{left:9px;bottom:calc(135px + env(safe-area-inset-bottom,0px));
+    width:calc(100vw - 18px);max-height:calc(100svh - 225px);z-index:12}
+  #hud[data-cinema="true"] .mobileOverview,#hud[data-cinema="true"] .mobileDeck{display:none}
+  #hud[data-cinema="true"] .sceneBadge{bottom:85px}
+  #hud[data-cinema="true"] .directorStrip{bottom:105px}
+}
+@media(max-width:740px) and (max-height:610px){
+  .mobileOverview{top:64px}
+  .alertBanner{top:104px}
+  main[data-mobile-panel="survival"] .hud-left,main[data-mobile-panel="intel"] .aiStory{
+    top:110px;max-height:calc(100svh - 255px)}
+  .directorStrip{display:none}
+  .sceneBadge{bottom:142px}
+  .mobileDeck{bottom:67px}
+  .controls button,.controls a{min-height:36px}
+}
+@media(prefers-reduced-motion:reduce){
+  .hud-left,.aiStory,.mobileDeck button,.controls button,.controls a{transition:none!important}
+  .liveStatusDot,.alertPulse,.pulse,.liveDot{animation:none!important}
+}
