@@ -357,6 +357,16 @@ test('Marble WebGL broadcast renders authoritative tournament and captures runti
       scroll: document.documentElement.scrollWidth,
     }));
     expect(mobileBounds.scroll).toBeLessThanOrEqual(mobileBounds.client + 1);
+    const standingsPanel=mobileScene.locator('.leaderboard-panel.broadcast-overlay');
+    const toggle=mobileScene.locator('#mobile-standings-toggle');
+    await expect(toggle).toBeVisible();
+    await expect(toggle).toHaveAttribute('aria-expanded','false');
+    await expect(standingsPanel.locator('.leaderboard li').nth(3)).toBeHidden();
+    await toggle.click();
+    await expect(toggle).toHaveAttribute('aria-expanded','true');
+    await expect(standingsPanel.locator('.leaderboard li').nth(3)).toBeVisible();
+    await toggle.click();
+    await expect(toggle).toHaveAttribute('aria-expanded','false');
     await mobileScene.screenshot({ path: path.join(artifacts, '01b-mobile-3d-arena.png'), fullPage: true });
   } finally {
     await mobileScene.close();
