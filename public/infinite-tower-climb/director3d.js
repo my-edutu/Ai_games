@@ -21,18 +21,18 @@ export function createTowerDirector(THREE,camera) {
     mode=combat?'guardian-encounter':transition>0?'establishing':freefall?'freefall':'follow-ascent';
     if(mode==='guardian-encounter'){
       // Wide enough to show both human silhouette and guardian telegraph.
-      desired.set(p.x+8.5,p.y+8,p.z+17);
-      target.set(boss?.x??p.x,p.y+2.6,boss?.z??p.z);
+      desired.set(p.x+8,p.y+4.5,p.z+17.5);
+      target.set(p.x+THREE.MathUtils.clamp((boss?.x??p.x)-p.x,-2.5,2.5),p.y+2.1,p.z+THREE.MathUtils.clamp((boss?.z??p.z)-p.z,-2.5,2.5));
     }else if(mode==='establishing'){
-      desired.set(p.x+17,p.y+14,p.z+29);
-      target.set(p.x,p.y+4.5,p.z);
+      desired.set(p.x+9,p.y+5.5,p.z+17.5);
+      target.set(p.x,p.y+2.8,p.z);
     }else if(mode==='freefall'){
-      desired.set(p.x+10,p.y+7,p.z+23);
-      target.set(p.x,p.y-2.2,p.z);
+      desired.set(p.x+8.5,p.y+3.8,p.z+17.5);
+      target.set(p.x,p.y+0.8,p.z);
     }else{
       // Anticipate upward navigation without violent pans.
-      desired.set(p.x+12,p.y+10,p.z+22);
-      target.set(p.x+THREE.MathUtils.clamp(p.vx*.15,-2,2),p.y+4.6,p.z+THREE.MathUtils.clamp(p.vz*.15,-2,2));
+      desired.set(p.x+8,p.y+4.2,p.z+15.5);
+      target.set(p.x+THREE.MathUtils.clamp(p.vx*.12,-1.5,1.5),p.y+2.7,p.z+THREE.MathUtils.clamp(p.vz*.12,-1.5,1.5));
     }
     const rate=mode==='guardian-encounter'?3.2:2.3;
     // On initial load or a restored high-floor save, the origin is not the hero.
