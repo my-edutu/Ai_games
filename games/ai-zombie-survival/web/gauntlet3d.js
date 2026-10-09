@@ -5,7 +5,7 @@ import { createSkyPass } from './sky-pass.js';
 import { drawTacticalMap } from './tactical-map.js';
 import { decorateActor } from './actor-art.js';
 import { decorateSetpieces } from './world-setpieces.js';
-import { clearCamera, anchorMobileAction } from './camera-rig.js';
+import { clearCamera, anchorMobileAction, desktopDirectorActionRange } from './camera-rig.js';
 import { decorateTacticalWorld } from './world-overlays.js';
 import { drawEnvironmentVfx } from './environment-vfx.js';
 import { decorateInterior } from './interior-art.js';
@@ -95,7 +95,7 @@ canvas.addEventListener('webglcontextlost',event=>{
 const restartDelayMs=Math.max(500,Math.min(60000,Number(params.get('restartMs'))||12000));
 let orbit = 0.67, range = 27, dragging = false, priorX = 0, cameraX = 0, cameraZ = 0, cameraFocusX = 0, cameraFocusZ = 0;
 let cameraMode = ['hero','overview'].includes(params.get('view'))?params.get('view'):'director', heroIndex=0, director = undefined, fpsSmooth = 30, lastStats = 0, buffersRebuilt = 0, lastGeometryStamp = '';
-let directedRange = 21;
+let directedRange = 21, directorRangeTarget = 21, cameraEyeDistance = 0;
 const poseMixer=createPoseMixer({responseSeconds:.14,maxActors:800});
 const frameCpuMs=[],frameWallMs=[],meshBuildMs=[];
 let qualityScale=1, qualityCheckTime=0;
@@ -657,7 +657,8 @@ function selectFocus(dt){
   const directorZoom=({rescue:15,interior:15,scavenge:18,'near-death':13,'survivor-follow':17,
     defense:22,'horde-overview':27,failure:30,squad:21})[director.mode]??21;
   const desired=cameraMode==='hero'?14:cameraMode==='overview'?57:
-    cameraMode==='director'?directorZoom:range;
+    cameraMode==='director'?desktopDirectorActionRange(director.mode,directorZoom,{width:innerWidth,height:innerHeight}):range;
+  directorRangeTarget=desired;
   directedRange+=(desired-directedRange)*Math.min(1,dt*(reducedMotion?3:1.9));
 }
 function renderEventChronicle(){
@@ -867,6 +868,7 @@ function render(now){
   const target=[cameraFocusX,1.5,cameraFocusZ];
   const requestedEye=[cameraFocusX+Math.sin(orbit)*actualRange,actualRange*(cameraMode==='hero'?.48:.51),cameraFocusZ+Math.cos(orbit)*actualRange];
   const eye=clearCamera(target,requestedEye,game.buildings);
+  cameraEyeDistance=Math.hypot(eye[0]-target[0],eye[1]-target[1],eye[2]-target[2]);
   const vp=multiply(perspective(Math.PI/3,w/h,.1,230),lookAt(eye,target));
   gl.uniformMatrix4fv(uniforms.uVP,false,new Float32Array(vp));
   gl.uniform3fv(uniforms.uEye,new Float32Array(eye));
@@ -988,7 +990,7 @@ function render(now){
     hud.querySelector('#fps').textContent=Math.round(fpsSmooth)+' FPS · '+cpuP95.toFixed(1)+'ms CPU P95 · '+tris.toLocaleString()+' TRIANGLES';
     hud.querySelector('#fpsCompact').textContent=Math.round(fpsSmooth)+' FPS';
     verdict.textContent='WEBGL2 TRUE 3D • '+(paused?'PAUSED':'SIMULATION LIVE');
-    try{localStorage.setItem('zombie-gauntlet-live',JSON.stringify({time:Date.now(),day:game.time.day,tick:game.tick,alive:living,zombies:infected,fps:Math.round(fpsSmooth),frameCpuP95Ms:Math.round(cpuP95*10)/10,triangles:tris,rendererGpu:isSoftwareGPU?'software':'hardware',gpuHordeInstances:distantHorde.count,gpuHordeTriangles:distantHorde.triangles,cc0AssetState:cc0Status.state,dynamicShadows:!!sunShadows?.available,renderScale:qualityScale,dynamicRebuilds:dynamicMeshRebuilds,cameraMode,cameraFocusX:Math.round(cameraFocusX*100)/100,cameraFocusZ:Math.round(cameraFocusZ*100)/100,meshBuildP95Ms:Math.round(percentile(meshBuildMs)*10)/10,phase:game.time.phase,seed,renderer:'WebGL2',status:game.status}));}catch{}
+    try{localStorage.setItem('zombie-gauntlet-live',JSON.stringify({time:Date.now(),day:game.time.day,tick:game.tick,alive:living,zombies:infected,fps:Math.round(fpsSmooth),frameCpuP95Ms:Math.round(cpuP95*10)/10,triangles:tris,rendererGpu:isSoftwareGPU?'software':'hardware',gpuHordeInstances:distantHorde.count,gpuHordeTriangles:distantHorde.triangles,cc0AssetState:cc0Status.state,dynamicShadows:!!sunShadows?.available,renderScale:qualityScale,dynamicRebuilds:dynamicMeshRebuilds,cameraMode,cameraRangeTarget:Math.round(directorRangeTarget*100)/100,cameraEyeDistance:Math.round(cameraEyeDistance*100)/100,cameraFocusX:Math.round(cameraFocusX*100)/100,cameraFocusZ:Math.round(cameraFocusZ*100)/100,meshBuildP95Ms:Math.round(percentile(meshBuildMs)*10)/10,phase:game.time.phase,seed,renderer:'WebGL2',status:game.status}));}catch{}
   }
   requestAnimationFrame(render);
 }

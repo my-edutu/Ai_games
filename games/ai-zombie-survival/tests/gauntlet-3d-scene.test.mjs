@@ -4,7 +4,7 @@ import { createGame } from '../dist/index.js';
 import { decorateBuilding, decorateWorld, decorateRoof, decorateSafehouseCourtyard } from '../web/scene-art.js';
 import { decorateActor } from '../web/actor-art.js';
 import { decorateSetpieces } from '../web/world-setpieces.js';
-import { clearCamera, anchorMobileAction, cameraRoofOccluders, composeMobileDirectorEye } from '../web/camera-rig.js';
+import { clearCamera, anchorMobileAction, cameraRoofOccluders, composeMobileDirectorEye, desktopDirectorActionRange } from '../web/camera-rig.js';
 import { decorateTacticalWorld } from '../web/world-overlays.js';
 import { drawEnvironmentVfx } from '../web/environment-vfx.js';
 import { decorateInterior } from '../web/interior-art.js';
@@ -430,4 +430,20 @@ test('Loop 50 emergency HQ courtyard adds bounded scene-first details without ob
   const other=new GeometryAudit();
   decorateSafehouseCourtyard(other,{...b,kind:'shop'});
   assert.equal(other.calls,0,'ordinary roofs must not receive HQ-only props');
+});
+
+test('Loop 52 desktop action framing is bounded, deterministic and presentation-only',()=>{
+  const world=createGame({seed:2026,zombieCount:24});
+  const before=JSON.stringify(world);
+  const desktop={width:1280,height:720};
+  assert.equal(desktopDirectorActionRange('squad',21,desktop),15.8);
+  assert.equal(desktopDirectorActionRange('defense',22,desktop),17.2);
+  assert.equal(desktopDirectorActionRange('survivor-follow',17,desktop),14.5);
+  assert.equal(desktopDirectorActionRange('horde-overview',27,desktop),27);
+  assert.equal(desktopDirectorActionRange('failure',30,desktop),30);
+  assert.equal(desktopDirectorActionRange('squad',21,{width:390,height:844}),21);
+  assert.equal(desktopDirectorActionRange('squad',21,{width:900,height:720}),21);
+  assert.equal(desktopDirectorActionRange('squad',21,{width:1280,height:480}),21);
+  assert.equal(desktopDirectorActionRange('squad',21,desktop),15.8);
+  assert.equal(JSON.stringify(world),before,'framing must never change simulation');
 });

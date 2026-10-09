@@ -48,6 +48,15 @@ try{
       report.checks.gpuInstancedCrowd=true;
     }
     report.scenarios.push({name:scenario,bytes:shot.length,...info,performance:runtimeStats});
+    if(scenario==='day'){
+      assert.equal(runtimeStats.cameraMode,'director','day scene must retain autonomous director');
+      assert.ok(runtimeStats.cameraRangeTarget>=14&&runtimeStats.cameraRangeTarget<=18,
+        'desktop director must frame squad close enough: '+JSON.stringify(runtimeStats));
+      assert.ok(Number.isFinite(runtimeStats.cameraEyeDistance)&&runtimeStats.cameraEyeDistance>4,
+        'actual desktop camera must remain finite and outside near clipping');
+      report.desktopCamera={target:runtimeStats.cameraRangeTarget,actual:runtimeStats.cameraEyeDistance};
+      report.checks.desktopActionFraming=true;
+    }
 
     if(scenario==='large-horde'){
       // Real 390x844 stress screenshot: ensure dense horde signalling stays

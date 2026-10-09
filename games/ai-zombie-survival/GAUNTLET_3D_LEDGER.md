@@ -380,3 +380,12 @@ GitHub Actions [run #37942234140](https://github.com/my-edutu/Ai_games/actions/r
 **Actual 390×844 mobile screenshot comparison:** the critical-warning bottom shifts from approximately y=165 to y=144, reclaiming about **21px** of upper game visibility without sacrificing the 15px survival numerals or 44px control targets. The top of the horde and the safehouse remain visible; the compact header, three vital tiles and two-line alert do not overlap. The 1280×720 `day.png` still renders with its existing compact desktop panels and no newly observed HUD collisions. This verifies a small, concrete phone composition improvement, **not** AAA parity or broad hardware compatibility. The screenshots were reviewed from the actual CI artifact, not synthesized mockups.
 
 **Performance stop-ship:** the same SwiftShader-only capture reports CPU p95 **3944.5ms day**, **3074.2ms night**, **132.5ms large horde**, **1724.1ms barricade** and **1724.4ms interior**. These highly variable software/browser capture measurements cannot establish GPU frame-time p95 or reliable OBS frame pacing. The next high-impact investigation is render-loop/capture stalls and actual hardware GPU profiling; additional major gaps remain character topology/textures, urban assets, animation, blind Days Gone reference comparisons, and 24–72h unattended OBS soak. **NOT WON. No merge/deploy.**
+
+
+## Loop 52 — desktop director framing (2026-10-09; CI pending)
+
+PR #50 baseline HEAD 77ebcad4, Actions run 37951519648: success; screenshot artifact 11626417866 inspected at 1280×720 and 390×844. Browser report: 28 checks true, zero reported errors. The desktop frame has excessive foreground rooftops and a distant squad. The phone frame has clearer survivors. This is below the Days Gone Remastered reference.
+
+Implement desktop-only closer squad/defense/follow camera ranges with deterministic tests and browser camera telemetry. No mobile, manual, overview, simulation or 2.5D changes. New screenshots still require verification.
+
+SwiftShader CPU p95: day 73.2ms, night 4820.1ms, large horde 104.9ms, defense 70.8ms. Hardware GPU p95, real assets, animation, long OBS soak and independent reference comparison remain unresolved. NOT ACHIEVED. Draft PR, no merge or deployment.

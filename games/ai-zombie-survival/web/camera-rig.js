@@ -94,3 +94,11 @@ export function composeMobileDirectorEye(focus,desired,buildings){
   }
   return best;
 }
+
+// Desktop action shot scale; camera presentation only, never simulation state.
+export function desktopDirectorActionRange(mode,baseline,{width,height}={}){
+  if(!Number.isFinite(baseline)||baseline<=0)return baseline;
+  if(!Number.isFinite(width)||!Number.isFinite(height)||width<1024||height<600)return baseline;
+  const close={squad:15.8,defense:17.2,'survivor-follow':14.5,rescue:14.2,scavenge:16.4,interior:14.5}[mode];
+  return Number.isFinite(close)?Math.max(12,Math.min(baseline,close)):baseline;
+}
