@@ -1,0 +1,56 @@
+name: Zombie 3D Gauntlet
+on:
+  pull_request:
+    paths:
+      - "games/ai-zombie-survival/**"
+      - ".github/workflows/zombie-3d-gauntlet.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: zombie-3d-${{ github.event.pull_request.number || github.ref }}
+  # Keep one active actual screenshot run alive across rapid art commits; supersede pending commits.
+  cancel-in-progress: false
+
+jobs:
+  visual-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Install pinned dependencies
+        run: npm ci
+      - name: Build and run deterministic game tests
+        working-directory: games/ai-zombie-survival
+        run: npm test
+      - name: Check all 3D renderer modules syntax
+        run: |
+          for file in games/ai-zombie-survival/web/{gauntlet3d,scene-art,actor-art,sky-pass,tactical-map,world-setpieces,camera-rig,world-overlays,environment-vfx,interior-art,shadow-pass,animation-pose,packed-geometry,gltf-assets,cc0-models,instanced-horde,audio-foley,character-rig,material-functions,animation-mixer,skinning}.js; do
+            node --check "$file"
+          done
+      - name: Parse Playwright test syntax
+        run: node --check games/ai-zombie-survival/tests/gauntlet-browser.mjs
+      - name: Install test browser
+        run: npx playwright install --with-deps chromium
+      - name: Start actual browser game
+        run: nohup node games/ai-zombie-survival/serve.mjs > /tmp/zombie-3d-server.log 2>&1 &
+      - name: Wait for WebGL page
+        run: |
+          for i in {1..45}; do
+            if curl -fsS http://127.0.0.1:4177/web/3d.html >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/zombie-3d-server.log
+          exit 1
+      - name: Playwright WebGL2 scenarios, controls, and 3D screenshots
+        run: node games/ai-zombie-survival/tests/gauntlet-browser.mjs
+      - name: Upload actual runtime captures and report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: zombie-3d-gauntlet-evidence
+          path: games/ai-zombie-survival/evidence/3d-runtime
+          if-no-files-found: warn

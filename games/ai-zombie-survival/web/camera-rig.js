@@ -1,0 +1,104 @@
+// Presentation-only obstruction solver for cinematic 3D cameras. No gameplay state changes.
+export function clearCamera(focus,desired,buildings){
+  // On phone screens, keep the near squad visible behind actual city roofs.
+  // This presentation-only eyeline adjustment never touches simulation state.
+  if(typeof window!=='undefined'&&window.innerWidth<=740){
+    const candidate=composeMobileDirectorEye(focus,desired,buildings);
+    if(candidate.blockers<candidate.baselineBlockers)desired=candidate.eye;
+  }
+  const dx=desired[0]-focus[0],dy=desired[1]-focus[1],dz=desired[2]-focus[2];
+  const span=Math.hypot(dx,dy,dz);
+  if(!Number.isFinite(span)||span<0.01)return desired;
+  const minSpan=4.6,steps=28;
+  let first=1;
+  for(const b of buildings){
+    if(!b.roofVisible)continue;
+    const halfW=b.w*.5+.25,halfH=b.h*.5+.25;
+    // A near-camera hero can be standing in a building's footprint. Don't snap for that structure.
+    if(Math.abs(focus[0]-b.x)<halfW&&Math.abs(focus[2]-b.y)<halfH)continue;
+    const top=b.kind==='safehouse'?5.55:2.7+b.floors*1.25+.5;
+    // Sample along focal ray from hero to camera; choose the nearest actual occluder.
+    for(let i=3;i<steps;i++){
+      const t=i/steps;
+      if(t>=first)break;
+      const x=focus[0]+dx*t,y=focus[1]+dy*t,z=focus[2]+dz*t;
+      if(y<top+.55&&Math.abs(x-b.x)<halfW&&Math.abs(z-b.y)<halfH){
+        first=t;break;
+      }
+    }
+  }
+  if(first>=1)return desired;
+  const clamped=Math.min(1,Math.max(minSpan/span,first-.06));
+  return[
+    focus[0]+dx*clamped,
+    focus[1]+dy*clamped+Math.min(2.2,(1-clamped)*2.5),
+    focus[2]+dz*clamped,
+  ];
+}
+
+
+/**
+ * Keep a living, nearby squad member inside narrow mobile director shots.
+ * This only changes the presentation target; the authoritative simulation
+ * and the actual director decision remain untouched.
+ */
+export function anchorMobileAction(focus,survivors,{radius=28,blend=.9}={}){
+  if(!focus||!Number.isFinite(focus.x)||!Number.isFinite(focus.y))return focus;
+  let nearest=null,nearestDistance=Infinity;
+  for(const survivor of survivors){
+    if(!survivor?.alive||!Number.isFinite(survivor.x)||!Number.isFinite(survivor.y))continue;
+    const distance=Math.hypot(survivor.x-focus.x,survivor.y-focus.y);
+    if(distance<nearestDistance){nearest=survivor;nearestDistance=distance;}
+  }
+  if(!nearest||nearestDistance>radius)return focus;
+  const weight=Math.max(0,Math.min(1,blend));
+  return {x:focus.x+(nearest.x-focus.x)*weight,
+    y:focus.y+(nearest.y-focus.y)*weight};
+}
+
+/** Deterministic, presentation-only roof obstruction count on camera ray. */
+export function cameraRoofOccluders(focus,eye,buildings){
+  if(!focus?.every(Number.isFinite)||!eye?.every(Number.isFinite))return Infinity;
+  let blocked=0,dx=eye[0]-focus[0],dz=eye[2]-focus[2];
+  for(const b of buildings){
+    if(!b.roofVisible||!Number.isFinite(b.x)||!Number.isFinite(b.y))continue;
+    const hw=b.w*.5+.25,hh=b.h*.5+.25;
+    if(Math.abs(focus[0]-b.x)<hw&&Math.abs(focus[2]-b.y)<hh)continue;
+    let enter=.07,exit=.98,miss=false;
+    for(const [o,d,c,h] of [[focus[0],dx,b.x,hw],[focus[2],dz,b.y,hh]]){
+      if(Math.abs(d)<1e-6){if(Math.abs(o-c)>h)miss=true;continue;}
+      const t0=(c-h-o)/d,t1=(c+h-o)/d;
+      enter=Math.max(enter,Math.min(t0,t1));exit=Math.min(exit,Math.max(t0,t1));
+    }
+    if(miss||enter>exit)continue;
+    const roof=b.kind==='safehouse'?5.55:2.7+b.floors*1.25+.5;
+    if(focus[1]+(eye[1]-focus[1])*enter<roof+.6)blocked++;
+  }
+  return blocked;
+}
+/** Loop 49: alternate bounded mobile director sightlines; no simulation writes. */
+export function composeMobileDirectorEye(focus,desired,buildings){
+  const baseline=cameraRoofOccluders(focus,desired,buildings);
+  let best={eye:[...desired],baselineBlockers:baseline,blockers:baseline,yawOffset:0,lift:0};
+  if(!Number.isFinite(baseline)||baseline===0)return best;
+  const dx=desired[0]-focus[0],dz=desired[2]-focus[2];
+  let score=baseline*20;
+  for(const yaw of [0,-.4,.4,-.8,.8,-1.2,1.2]){
+    const c=Math.cos(yaw),s=Math.sin(yaw);
+    for(const lift of [0,3.5,7]){
+      const eye=[focus[0]+dx*c-dz*s,desired[1]+lift,focus[2]+dx*s+dz*c];
+      const blockers=cameraRoofOccluders(focus,eye,buildings);
+      const candidate=blockers*20+Math.abs(yaw)*1.6+lift*.12;
+      if(candidate<score-1e-6){score=candidate;best={eye,baselineBlockers:baseline,blockers,yawOffset:yaw,lift};}
+    }
+  }
+  return best;
+}
+
+// Desktop action shot scale; camera presentation only, never simulation state.
+export function desktopDirectorActionRange(mode,baseline,{width,height}={}){
+  if(!Number.isFinite(baseline)||baseline<=0)return baseline;
+  if(!Number.isFinite(width)||!Number.isFinite(height)||width<1024||height<600)return baseline;
+  const close={squad:15.8,defense:17.2,'survivor-follow':14.5,rescue:14.2,scavenge:16.4,interior:14.5}[mode];
+  return Number.isFinite(close)?Math.max(12,Math.min(baseline,close)):baseline;
+}

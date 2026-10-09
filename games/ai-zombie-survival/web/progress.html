@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AI Zombie Survival — Gauntlet Progress</title>
+<style>
+:root{color-scheme:dark}*{box-sizing:border-box}body{margin:0;font:14px/1.5 system-ui,-apple-system,sans-serif;background:#0e1515;color:#e9e7dc}a{color:#d1b681}header{padding:26px max(20px,4vw) 15px;display:flex;align-items:center;justify-content:space-between;gap:20px;border-bottom:1px solid #40504a}h1{font-size:clamp(22px,3vw,35px);margin:2px 0 7px;line-height:1.15}h2{font-size:17px;margin:0 0 12px}.eyebrow{color:#c4ad76;font-size:11px;font-weight:800;letter-spacing:.18em}p{color:#b4c0b8;margin:0}main{padding:24px max(20px,4vw);max-width:1740px;margin:auto}.grid{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(340px,.8fr);gap:24px}.panel{background:#15201f;border:1px solid #354840;border-radius:10px;overflow:hidden}.pad{padding:18px}.monitor{aspect-ratio:16/9;background:#10191b;min-height:370px}.monitor iframe{border:0;width:100%;height:100%;display:block}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.stats span{background:#21312b;border:1px solid #355040;border-radius:5px;padding:10px;font-size:11px;color:#d9e2d7}.stats strong{display:block;color:#d8ba7d;font-size:18px}.status{display:flex;align-items:center;justify-content:space-between;margin-top:10px;font-size:12px;color:#a8b9aa}.rows{display:grid;gap:9px}.row{background:#192824;border:1px solid #3b5045;border-radius:7px;padding:12px 14px}.row strong{display:flex;align-items:center;justify-content:space-between;gap:12px}.pill{font-size:9px;font-weight:800;letter-spacing:.1em;padding:4px 7px;border-radius:4px;background:#38423a;color:#d9d5b9;white-space:nowrap}.pill.done{background:#294d3c;color:#a9dec0}.pill.gap{background:#4f3330;color:#f1b4a2}.row p{font-size:12px;margin-top:4px}.note{margin-top:16px;padding:16px;background:#1b2926;border-left:3px solid #bda074;font-size:13px}.links{display:flex;gap:15px;flex-wrap:wrap}footer{padding:20px max(20px,4vw);color:#9caeaa;font-size:12px}@media(max-width:1000px){.grid{grid-template-columns:1fr}.monitor{min-height:240px}.stats{grid-template-columns:repeat(2,1fr)}}@media(max-width:530px){header{display:block}.links{margin-top:10px}.monitor{min-height:240px}}
+/* A brighter visual hierarchy; progress dashboard stays distinct from game screen. */
+:root{--cyan:#5ef4dd;--amber:#ffd48a;--red:#ff7d8a}
+body{background:radial-gradient(circle at 62% 0%,#1a3250 0%,#0a1728 62%,#0a1424 100%);color:#eef9f2}
+.panel{background:#10283a;border-color:#457b97}
+header{border-color:#5ba3b6;background:#0c2136db}
+.eyebrow{color:var(--cyan)}a{color:var(--amber)}
+.row{background:linear-gradient(110deg,#183248,#172942);border-color:#426c87}
+.stats span{background:#17364b;border-color:#4c8592}.stats strong{color:var(--amber)}
+.pill.done{background:#176354;color:#b5ffe9}.pill.gap{background:#68323c;color:#ffd3d7}
+.note{background:#14344b;border-left-color:var(--cyan)}
+
+/* Visual critic cockpit: use actual running seeded scenes rather than static sample artwork. */
+.sceneChooser{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;
+ gap:8px;padding:10px 13px;border-top:1px solid #54849951;border-bottom:1px solid #54849951;
+ background:#0c2639}
+.sceneChooser>span{font-weight:900;font-size:10px;letter-spacing:.13em;color:var(--cyan)}
+.sceneButtons{display:flex;flex-wrap:wrap;gap:5px}
+.sceneButtons button,.ledgerBar button{border:1px solid #588ba4a3;border-radius:5px;
+ background:#193e52;color:#d3edf5;padding:7px 10px;font:900 10px/1.2 inherit;letter-spacing:.055em;
+ cursor:pointer;min-height:32px}
+.sceneButtons button[aria-pressed="true"]{border-color:#a5eadf;background:linear-gradient(105deg,#43e2cd,#cae8cc);color:#103441}
+.sceneButtons button:hover,.ledgerBar button:hover{border-color:#ffe1a4}
+.sceneButtons button:focus-visible,.ledgerBar button:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+.ledgerBar{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.ledgerBar button{font-size:9px;color:#ffe1a4}
+.historyRow{display:none}
+body[data-history="expanded"] .historyRow{display:block}
+#ciResult[data-status="success"]{color:#5ef4dd}
+#ciResult[data-status="failure"],#ciResult[data-status="cancelled"]{color:#ff98a1}
+#ciResult[data-status="queued"],#ciResult[data-status="in_progress"]{color:#ffd48a}
+@media(max-width:740px){
+ .sceneChooser{padding:9px}
+ .sceneChooser>span{font-size:9px}
+ .sceneButtons button{padding:7px 9px;min-height:34px;font-size:9px}
+ .ledgerBar{align-items:flex-start;flex-direction:column}
+ .ledgerBar button{width:100%;min-height:38px}
+}
+</style></head>
+<body>
+<header><div><div class="eyebrow">AI GAMES / QUALITY GAUNTLET / ITERATION 56</div><h1>Zombie Survival — Live Build Progress</h1><p>Real-time 3D vertical slice, not an AAA-completion claim. Reference: Days Gone Remastered.</p></div><div class="links"><a href="./3d.html">Open 3D viewer ↗</a><a href="./index.html">Open previous 2.5D ↗</a></div></header>
+<main><div class="grid"><section class="panel"><div class="pad"><h2>Real running game</h2><p>Rendering a live autonomous run inside this page. Characters, hordes, buildings, weather and day/night derive from the game simulation.</p></div><div class="sceneChooser" aria-label="Real Gauntlet build quality inspection scenes">
+<span>SCENE INSPECTOR</span>
+<div class="sceneButtons">
+  <button data-scene="live" type="button" aria-pressed="true">● LIVE</button>
+  <button data-scene="day" type="button" aria-pressed="false">DAYLIGHT</button>
+  <button data-scene="night" type="button" aria-pressed="false">NIGHT</button>
+  <button data-scene="large-horde" type="button" aria-pressed="false">HORDE</button>
+  <button data-scene="interior" type="button" aria-pressed="false">INTERIOR</button>
+  <button data-scene="near-death" type="button" aria-pressed="false">CRITICAL</button>
+</div>
+</div>
+<div class="monitor"><iframe id="gauntletViewer" title="Live 3D Zombie Survival simulation" src="./3d.html?seed=2026&crowd=dense"></iframe></div><div class="pad"><div class="stats"><span><strong id="tick">—</strong>Ticks</span><span><strong id="survivors">—</strong>Survivors</span><span><strong id="zombies">—</strong>Infected</span><span><strong id="fps">—</strong>FPS reported</span>
+<span><strong id="cpuP95">—</strong>CPU render p95 (ms)</span>
+<span><strong id="triangles">—</strong>3D triangles/frame</span>
+<span><strong id="quality">—</strong>3D render resolution scale</span>
+<span><strong id="gpuP95">—</strong>Measured GPU p95 (ms)</span>
+<span><strong id="gpuBudget">—</strong>Resolution governor</span>
+<span><strong id="simState">—</strong>Authoritative state</span>
+<span><strong id="gpuCrowd">—</strong>Actual GPU-instanced infected</span>
+<span><strong id="meshP95">—</strong>Mesh CPU p95 (ms)</span>
+<span><strong id="gpuType">—</strong>GPU renderer type</span>
+<span><strong id="realAssets">—</strong>Opt-in CC0 assets</span></div><div class="status"><span id="health">Waiting for 3D frame telemetry…</span><span id="seed">Seed 2026</span></div></div></section>
+<aside class="panel pad"><div class="ledgerBar"><h2>Acceptance ledger</h2>
+<button type="button" id="historyToggle" aria-expanded="false">VIEW EARLIER LOOPS +</button></div><p style="margin-bottom:10px">Latest independent browser check: <strong id="ciResult">Checking GitHub CI…</strong> · <a id="ciLink" target="_blank" rel="noopener noreferrer" href="https://github.com/my-edutu/Ai_games/actions/workflows/zombie-3d-gauntlet.yml">View evidence runs ↗</a></p><div class="rows">
+<div class="row"><strong>Loop 50 / emergency HQ staging <span class="pill done">27 BROWSER CHECKS PASS · VISUALLY VERIFIED</span></strong><p><a href="https://github.com/my-edutu/Ai_games/actions/runs/37942234140" target="_blank" rel="noopener noreferrer">Run 37942234140</a> and screenshot artifact 11623046344: actual 390×844 and 1280×720 captures show medical, radio, sandbag, floodlight and extraction details on the formerly blank HQ floor. No browser errors; survivor faces remain visible. Still far below AAA reference; software CPU p95 reached 4095.5ms in daylight and 2823.5ms at night. Hardware GPU and OBS soak unverified.</p></div>
+<div class="row"><strong>Loop 49 / mobile roof-clear camera <span class="pill done">BROWSER VERIFIED</span></strong><p>Run <a href="https://github.com/my-edutu/Ai_games/actions/runs/37935428293" target="_blank" rel="noopener noreferrer">37935428293</a> passed 27 checks, no browser errors; downloaded 1280×720 and 390×844 screenshots. Software night/horde CPU p95 exceeded 2.8 seconds; this is not hardware GPU evidence.</p></div>
+<div class="row"><strong>Loop 47 / responsive marker cache <span class="pill">CI PENDING</span></strong><p>Corrected paused desktop-to-phone WebGL mesh invalidation. Added a browser regression check. The new mobile screenshots remain unverified.</p></div>
+<div class="row"><strong>Loop 46 / all mobile beacons grounded <span class="pill">CORRECTIVE CODE — CI PENDING</span></strong><p>Fresh run <a href="https://github.com/my-edutu/Ai_games/actions/runs/37927935609" target="_blank" rel="noopener noreferrer">37927935609</a> passed 25 checks, but actual mobile.png still showed a large pink trapped-civilian pillar and mobile-ground-threat.png a giant cyan mission ring. The earlier Loop 45 horde-only fix did NOT resolve the visual defect. Corrected objective and civilian world beacons too, preserving desktop height and authoritative AI. Expanded geometry tests. Await changed-code screenshots; no parity claim.</p></div>
+<div class="row"><strong>Loop 45 / ground-level mobile horde warning <span class="pill">CI PASS — VISUAL DEFECT REMAINED</span></strong><p>Actual 390×844 mobile.png from passing run 37923029797 showed an oversized pink horde ring and vertical pillar crossing the central survivors. Mobile horde markers now use broken ground arcs and short chevrons instead; desktop retains its beacon. Added geometry budget/immutability assertions and mobile-ground-threat.png browser evidence capture. New-code screenshots must still be inspected. SwiftShader CPU p95 large-horde 783.2ms in previous report; hardware GPU and 24–72h OBS soak unverified. Still far below Days Gone Remastered visual bar.</p></div>
+<div class="row"><strong>Loop 44 / infected identity silhouettes <span class="pill done">WEBGL2 VERIFIED — BELOW AAA</span></strong><p>Actual 1280×720 hero-closeup and 390×844 mobile screenshots from passing run 37916677546 showed repeated bald faceted infected heads. Added deterministic jaw, cheeks, brows, four scalp/wound profiles and gait-responsive torn jackets to near-camera 3D rigs. Added bounded geometry tests and a mobile character-study capture. Fresh run <a href="https://github.com/my-edutu/Ai_games/actions/runs/37921871245" target="_blank" rel="noopener noreferrer">37921871245</a> passed 24 browser checks, zero errors. Inspected real 1280×720 hero and 390×844 mobile-character-study screenshots: infected scalp/face silhouettes are somewhat more distinct, still visibly low-poly. SwiftShader CPU p95 remains severe (night 4175.1ms, horde 1726.9ms); hardware GPU profiling, production assets and OBS soak remain open.</p></div>
+<div class="row"><strong>Loop 43 / desktop playfield-first HUD <span class="pill done">WEBGL2 VERIFIED</span></strong><p>Actual 1280×720 day screenshot showed two permanent opaque panels taking ~44% of frame width. Compact translucent survival/AI capsules expose full roster, supplies, map and chronicle on demand. Run 37915745664 passed 23 browser checks, zero errors; inspected 1280×720 compact/expanded and 390×844 mobile screenshots. SwiftShader night/horde CPU p95 exceeded 2.8 seconds. Remaining art, hardware GPU p95 and OBS gaps are open.</p></div>
+<div class="row"><strong>Loop 42 / compact mobile critical alert <span class="pill done">WEBGL2 VERIFIED</span></strong><p>Run <a href="https://github.com/my-edutu/Ai_games/actions/runs/37909969872" target="_blank" rel="noopener noreferrer">37909969872</a>: 22 browser checks passed, zero errors. Inspected the real 390×844 mobile-critical-alert.png. The two-line alert no longer covers a large part of the upper horde view; characters and urban assets remain below the AAA bar.</p></div>
+<div class="row"><strong>Loop 41 / readable phone telemetry <span class="pill done">WEBGL2 VERIFIED</span></strong><p>Run 37905454779 passed 21 browser checks with zero errors. Downloaded actual desktop 1280×720 and mobile 390×844 captures. Larger mobile text is visible, but premium parity remains open.</p></div>
+<div class="row"><strong>Loop 40 / honest command-state colors <span class="pill done">WEBGL2 VERIFIED</span></strong><p>Run 37905454779 verified inactive SOUND/MORE states and the real expanded More tray.</p></div>
+<div class="row"><strong>Loop 39 / mobile control discoverability <span class="pill done">WEBGL2 VERIFIED</span></strong><p>Run 37903755529 passed 20 browser checks, with real 390×844 mobile.png and mobile-more-controls.png. Four complete primary buttons and accessible More tray replace the clipped footer.</p></div>
+<div class="row"><strong>Loop 38 / rooftop skyline density <span class="pill done">WEBGL2 VERIFIED</span></strong><p>Run 37902832842 passed with actual 1280×720 day.png and 390×844 mobile.png; new rooftop HVAC, parapets, tanks/solar and damage wear are visible. Still stylized, not AAA.</p></div>
+<div class="row"><strong>Browser liveness and recovery <span class="pill done">PASSED RUN 148</span></strong><p>Run 37902832842: 19 browser checks passed, zero page/console errors, autonomous ticks and recovery verified. SwiftShader large-horde CPU p95 ~93.1ms and night p95 ~1,388ms remain STOP-SHIP.</p></div>
+<div class="row historyRow"><strong>Autonomous fixed-step simulation <span class="pill done">INTEGRATED</span></strong><p>Retains existing decisions, rescues, combat, resources and seeded progression.</p></div>
+<div class="row historyRow"><strong>Actual perspective WebGL2 <span class="pill done">IMPLEMENTED</span></strong><p>Depth-tested 3D city blocks, road geometry, vehicles, safe house and barricades.</p></div>
+<div class="row historyRow"><strong>Animated 3D survivor and zombie meshes <span class="pill done">IMPLEMENTED</span></strong><p>Role silhouettes, 3 infected archetypes, action-linked gait and basic gear; final character assets remain unfinished.</p></div>
+<div class="row historyRow"><strong>Camera and stream information <span class="pill done">INTEGRATED</span></strong><p>Autonomous director, hero follow, orbit/zoom, horde overview, actor goals, threat meter and objective HUD.</p></div>
+<div class="row historyRow"><strong>Gauntlet iteration 02 <span class="pill done">COMMITTED</span></strong><p>Warmer district palettes, stronger daylight, lighter distance fog, physical storefronts and awnings, tree canopy geometry and role-specific tactical silhouettes.</p></div>
+<div class="row historyRow"><strong>Gauntlet iteration 03 <span class="pill done">COMMITTED</span></strong><p>Close-up character camera, survivor decisions, recent events, farther-infected level of detail, and unattended restart after simulation loss.</p></div>
+<div class="row historyRow"><strong>Gauntlet iteration 04 <span class="pill done">COMMITTED</span></strong><p>Directional sun/night shader, projected foot and building shadows, storm precipitation and wet surfaces, authoritative combat VFX, cinematic zoom, CPU p95 metrics, adaptive resolution, and periodic authoritative snapshots with refresh recovery.</p></div>
+<div class="row historyRow"><strong>Gauntlet iteration 05 <span class="pill done">COMMITTED</span></strong><p>Interactive dossiers for every survivor showing name, role, current AI decision, health, infection, kills and click-to-follow cinematic camera. Visual roster screenshot and accessibility checks added.</p></div>
+<div class="row historyRow"><strong>Gauntlet iteration 06: District art and UI <span class="pill done">COMMITTED</span></strong><p>Full neon cyan/amber/coral HUD redesign; bespoke hospital, market, industrial and residential facades; safehouse signal tower, urban quarantine props and cinematic cloud sky; tactical minimap using real agent positions. Art assets and browser screenshots still require critic comparison.</p></div>
+<div class="row historyRow"><strong>Gauntlet iteration 07: Character art <span class="pill done">COMMITTED</span></strong><p>Role-specific tactical survivor equipment and injury markings; brute, runner and shambler mutation overlays. Procedural meshes, not AAA character rigs; fidelity remains far below reference.</p></div>
+<div class="row historyRow"><strong>Gauntlet iteration 08: District landmarks <span class="pill done">COMMITTED</span></strong><p>Industrial water tower, evacuation checkpoint, helipad, ruined bridge, medical sign tower, metro station, fountains and construction vehicle in real 3D. Camera dynamically avoids nearby opaque architecture.</p></div>
+<div class="row historyRow"><strong>Gauntlet iteration 09: Cinema lighting <span class="pill done">COMMITTED</span></strong><p>Position-dependent colored nighttime practical lights, deterministic storm lightning flashes and a live timeline of actual AI/combat events.</p></div>
+<div class="row historyRow"><strong>Gauntlet iteration 10: Cinematic storytelling <span class="pill done">COMMITTED</span></strong><p>On-demand distraction-free cinema HUD with controls preserved; actual 3D mission beacons, low-health warnings, rescue targets and horde alerts.</p></div>
+<div class="row historyRow"><strong>Gauntlet iteration 11: Dynamic environment <span class="pill done">COMMITTED</span></strong><p>Damaged buildings visibly smolder, shed embers and show animated fire/smoke; rescue-zone warning strobes use time/weather. Cosmetic only, with finite-geometry tests.</p></div>
+<div class="row historyRow"><strong>Gauntlet iteration 12: Detailed interiors <span class="pill done">COMMITTED</span></strong><p>3D furnishings for rescue hospitals, apartments, shops, supermarkets, police stations and industrial buildings; physical medical beds, desks, shelving, stock, lighting, furniture and emergency equipment, revealed by roof cutaways.</p></div>
+<div class="row historyRow"><strong>Gauntlet iteration 13: Material depth and horde fidelity <span class="pill done">COMMITTED</span></strong><p>Procedural masonry coursing, asphalt variation, wet-surface directional response and camera-prioritized horde LOD to retain nearby infected detail under CPU pressure.</p></div>
+<div class="row historyRow"><strong>Gauntlet loop 14 · Real screenshot failure fixes <span class="pill done">COMMITTED</span></strong><p>Inspected actual Chromium artifacts and corrected detached survivor-roster buttons and stale paused tick telemetry; added stable live DOM. These were genuine failing browser checks, not simulated issues.</p></div>
+<div class="row historyRow"><strong>Gauntlet loops 15–16 · Camera/lighting/art <span class="pill done">COMMITTED</span></strong><p>Restored live views when close cameras were blocked by the HQ. Added measured-cost renderer cache, experimental GPU directional PCF shadow map, more organic hero ellipsoids and expressive faces.</p></div>
+<div class="row historyRow"><strong>Gauntlet loops 17–19 · Actual game clarity <span class="pill done">COMMITTED</span></strong><p>Made the true 3D viewer the game server's default root. Horde camera now follows real massed infected instead of rooftops; defeated entities have 3D fallen silhouettes. Added browser shadow and canonical-entry checks.</p></div>
+<div class="row historyRow"><strong>Gauntlet loop 20 · Motion and geometry engine <span class="pill done">COMMITTED</span></strong><p>Typed vertex buffers now avoid repeated boxing and copies; deterministic poses create aiming, retreating, rescue, injury and horde aggression motion directly from real AI actions. Node geometry tests cover 20k triangles and pose reproducibility.</p></div>
+<div class="row historyRow"><strong>Gauntlet loop 21 · Premium surface identity <span class="pill done">COMMITTED</span></strong><p>Replaced the unrealistic every-wall brick pattern with weathered concrete and road imperfections; saturated signage has a shader emissive response.</p></div>
+<div class="row historyRow"><strong>Gauntlet loops 22–25 · Actual CC0 mesh pipeline <span class="pill done">COMMITTED</span></strong><p>Built a strict no-runtime-dependency GLB loader with bounded node transforms, primitives, normals, indices, material colours and optional embedded PBR texture-atlas decoding. Can draw three genuinely sourced rigged GLB undead meshes in an opt-in close view, with safe fallback if offline. Animation skinning remains future work.</p></div>
+<div class="row historyRow"><strong>Gauntlet loop 26 · Spatial soundscape <span class="pill done">COMMITTED</span></strong><p>Procedural world-space impacts, infected alerts, weapons, medical events and storm ambience generated live from actual simulation events; sound remains permission-gated.</p></div>
+<div class="row"><strong>Loop 27: Defective production entry fixed <span class="pill done">COMMITTED</span></strong><p>Corrected a real 404 on the 3D root: serving relative JS/CSS from / had left the game blank. Canonical root now HTTP redirects to /web/3d.html. Browser/CI remains a hard gate.</p></div>
+<div class="row"><strong>Loop 28: Actual GPU-instanced hordes <span class="pill done">COMMITTED</span></strong><p>Replaced rebuilding distant infected geometry every frame with a single WebGL2 drawArraysInstanced call using one authored skeletal silhouette mesh. Nearby heroes and threats retain high-detail models; deterministic CPU LOD tests prevent disappearing agents.</p></div>
+<div class="row"><strong>Loop 29: Articulated close-camera characters <span class="pill done">COMMITTED</span></strong><p>Connected original anatomical meshes, actual elbow/knee/wrist pose, asymmetrical infected posture and survivor gear/face detail. These are original programmable 3D assets, NOT commercial-grade hand-sculpted characters.</p></div>
+<div class="row"><strong>Loop 30: Advanced material surface <span class="pill done">COMMITTED</span></strong><p>Hardware-mode physically based GGX illumination, world-space weathering/grime, rain-responsive roughness and emissive signage. Software GPU keeps a lighter fallback; visuals must be checked in actual Chromium.</p></div>
+<div class="row"><strong>Loops 31–32: Rigged GLB clip playback and motion crossfade <span class="pill done">COMMITTED</span></strong><p>Added JOINTS/WEIGHTS/inverse-bind and animation-sampler intake, quaternion interpolation, sampled CPU skinning for three optional CC0 imported enemies, nonlooping death and render-only pose transition blends. Fixed reversed surface normals that made organic faces too dark.</p></div>
+<div class="row"><strong>Loop 33 · Mobile UI scene readability <span class="pill done">COMMITTED</span></strong><p>Actual 390×844 browser captures exposed permanent HUD cards blocking the playable area. Replaced with three accessible Survival / AI Intel / Tactical Map navigation actions, a compact live health/pressure/base strip, safe mobile bottom controls, keyboard Escape handling and crisis-only alerts.</p></div>
+<div class="row"><strong>Loop 34 · Live command intelligence <span class="pill done">COMMITTED</span></strong><p>Clickable survivor call-sign portraits now focus the real hero camera. Supply reserves show authoritative food, ammo and medicine, including shortage state, instead of cramped text; keyed stable DOM ensures rapid AI updates do not detach interactive controls.</p></div>
+<div class="row"><strong>Loop 35 · Cinematic director UI <span class="pill done">COMMITTED</span></strong><p>Film-mode broadcasts now show a compact readable overlay naming the actual featured AI survivor and decision. Nonessential controls disappear in cinematic mode; standard HUD remains available immediately.</p></div>
+<div class="row"><strong>Loop 36 · Honest operator controls <span class="pill done">COMMITTED</span></strong><p>Hero/Director highlights, pause and audio button states now follow real game mode rather than CSS position; pause title switches LIVE/PAUSED. Progress cockpit gained real seeded scenario tabs and collapsible historical implementation records. New desktop and mobile Playwright screenshots/checks are queued.</p></div>
+<div class="row"><strong>Loop 47 · Paused phone scene refresh <span class="pill done">BROWSER VERIFIED</span></strong><p>Actual 390×844 screenshot from Actions #37930718407 confirms the tall coral world marker no longer cuts across survivors after desktop-to-mobile resizing. 26 checks passed, zero page/console errors. The mobile defense shot still cropped the living squad along the lower-right edge.</p></div>
+<div class="row"><strong>Loop 48 · Mobile action camera framing <span class="pill">FRESH CI PENDING</span></strong><p>Director defense and squad shots now prefer nearby living survivor focus on narrow screens. Pure nonmutation tests, real camera telemetry and a settled 390×844 defense capture are added; actual improvement must be judged in new screenshots. The game remains far below Days Gone art parity, with severe variable software frame-time p95 and no hardware/OBS soak validation.</p></div>
+<div class="row"><strong>Objective screenshot scoring <span class="pill">CI PENDING</span></strong><p>Capture world-only daylight pixels and automatically report median brightness, colorful-pixel fraction, dark-pixel fraction and quantized palette. Quality threshold is separate from a true Days Gone visual A/B win.</p></div>
+<div class="row"><strong>Real browser screenshot verdict <span class="pill">AWAITING CI</span></strong><p>CI smoke/capture is required before the renderer can be marked visually verified.</p></div>
+<div class="row"><strong>Loop 56 · Night horde silhouettes and software fragment cost <span class="pill gap">34 CHECKS PASS · PERFORMANCE NOT WON</span></strong><p>HEAD <a href="https://github.com/my-edutu/Ai_games/actions/runs/37978735139" target="_blank" rel="noopener noreferrer">Actions #37978735139</a> passed 33 browser checks, zero reported errors; inspected 1280×720 night and 390×844 mobile images. Infected merge into dark backgrounds. This iteration adds a cool night rim and squared-distance fog only for software GPU hordes; hardware shading and autonomous AI are unchanged. Baseline SwiftShader GPU p95: 350.5ms night, 430.8ms large horde. New CI screenshots inspected: silhouettes are clearer but some are pale; night SwiftShader GPU p95 worsened to 386.9ms, horde improved to 251.6ms, with variable CPU tails. Real hardware GPU and OBS soak remain stop-ship. NOT WON.</p></div>
+<div class="row"><strong>Loop 55 · Software GPU shader and cinematic contrast <span class="pill gap">FRESH CI / VISUAL REVIEW PENDING</span></strong><p>Inspected HEAD Actions <a href="https://github.com/my-edutu/Ai_games/actions/runs/37972595426" target="_blank" rel="noopener noreferrer">#37972595426</a> (32 browser checks, zero reported errors) and actual 1280×720 / 390×844 images. Daytime urban faces remain plasticky and low-contrast, with measured SwiftShader GPU p95 1620.7ms day, 1643.8ms night and 1665.8ms large horde. This loop adds a separate, cheap Lambert/fog/contrast shader selected only on software GPUs, retaining the original cinematic GGX shader on hardware. New browser and deterministic shader tests check the path; fresh CI screenshots and performance comparisons are REQUIRED before declaring improvement. Character/urban fidelity, real hardware GPU and OBS soak remain stop-ship. NOT WON.</p></div>
+<div class="row"><strong>Loop 54 · GPU-paced 3D resolution <span class="pill gap">32 CHECKS PASS · PERFORMANCE NOT WON</span></strong><p>Latest baseline <a href="https://github.com/my-edutu/Ai_games/actions/runs/37964195283" target="_blank" rel="noopener noreferrer">Actions #37964195283</a> passed, but the actual 1280×720 and 390×844 captures show low-poly horde encounters and severe rendering latency. Measured SwiftShader GPU p95 is 674–859ms across scenes. This loop adds a measured-GPU adaptive canvas budget with 70% linear-resolution floor, 3-second adjustment cadence, slow recovery and testable runtime telemetry. Actual <a href="https://github.com/my-edutu/Ai_games/actions/runs/37971647887" target="_blank" rel="noopener noreferrer">Actions #37971647887</a> passed 32/32 browser checks, zero reported errors; inspected 1280×720 and 390×844 captures. SwiftShader GPU p95 was worse in these noisy samples: day 1193.1ms (prior 822.3), night 1221.3ms (prior 729.6), large horde 1279.5ms (prior 858.6). The governor reached 76% scale in horde but has NOT demonstrated a speedup. Need GPU shader/geometry profiling; visual fidelity remains far below reference. Gameplay state, HUD CSS, recovery and 2.5D remain unchanged. NOT WON.</p></div>
+<div class="row"><strong>Loop 53 · GPU telemetry + night lighting <span class="pill done">31 BROWSER CHECKS PASS · VERIFIED</span></strong><p>Pre-change <a href="https://github.com/my-edutu/Ai_games/actions/runs/37959159820" target="_blank" rel="noopener noreferrer">Actions #37959159820</a> passed and real 1280×720 and 390×844 captures were reviewed. The night HQ has an overly cyan floor hotspot; SwiftShader CPU p95 reached 8388.7ms at night. This change softens the cyan, skips costly fragment weathering in software mode, and adds bounded asynchronous GPU timing with explicit unsupported/disjoint states and tests. Post-change <a href="https://github.com/my-edutu/Ai_games/actions/runs/37964195283" target="_blank" rel="noopener noreferrer">Actions #37964195283</a> passed 31/31 browser checks with zero reported errors. Inspected actual desktop and phone screenshots. Measured SwiftShader GPU p95 remained 822.3ms day and 729.6ms night; hardware GPU, premium assets and OBS soak remain stop-ship.</p></div>
+<div class="row"><strong>Loop 52 · Desktop action framing <span class="pill done">30 BROWSER CHECKS PASS · VISUALLY VERIFIED</span></strong><p><a href="https://github.com/my-edutu/Ai_games/actions/runs/37958135524" target="_blank" rel="noopener noreferrer">Actions #37958135524</a> and artifact 11630411559: actual 1280×720 screenshot now frames the squad and courtyard at larger scale, with less foreground roof obstruction; 390×844 mobile remains readable. The prior local GitHub API 403 was corrected; 30/30 checks pass with zero reported browser errors. Night SwiftShader CPU p95 still reached 2660.3ms, large horde 1588.2ms. Hardware GPU, AAA asset fidelity and unattended OBS remain unverified. NOT WON.</p></div>
+<div class="row"><strong>Loop 51 · Phone action viewport <span class="pill done">BROWSER VERIFIED</span></strong><p>Actions #37949954028 passed 28/28 browser checks with zero reported errors; independently inspected 390×844 screenshots show the critical-warning bottom moving from ~165px to ~144px, reclaiming ~21px of game view without losing readable vitals or 44px controls. Desktop 1280×720 capture remains stable. SwiftShader CPU p95 still spikes above 3,900ms; hardware GPU and unattended OBS remain stop-ship.</p></div>
+<div class="row"><strong>Days Gone Remastered visual A/B <span class="pill gap">MAJOR GAP</span></strong><p>Licensed character meshes, PBR materials, shadows, facial rigs, weapon effects, environmental art and animations are not yet at reference quality.</p></div>
+<div class="row"><strong>Production safety / livestream soak <span class="pill gap">NOT PASSED</span></strong><p>OBS capture, 24–72 hour soak, independent visual critique, restore/rollback and seven-day canary still required.</p></div>
+
+</div><div class="note"><strong>Gauntlet rule:</strong> No checkbox changes to “passed” based on intentions. Only runnable builds, real captures, critic reviews and measured tests close gaps.<br><br><strong>Iteration trail:</strong> 01 · 3D foundation → 02 · art direction and LOD → 03 · intelligent broadcast and continuity → 04 · light/weather/VFX and continuity recovery → 05 · complete squad dossiers → 06 · vibrant city world + HUD + minimap → 07 · survivor and infected gear → 08 · authored skyline landmarks → 09 · practical lighting/event tape → 10 · world objective signals/cinema UI → 11 · smoldering environments → 12 · furnished rescue interiors → 13 · masonry, wet materials and smart horde visibility → 14 · screenshot-driven browser regressions → 15 · hero/AI-director sightlines → 16 · organic anatomy + experimental directional shadows → 17 · canonical root 3D → 18 · horde framing → 19 · posed casualties → 20–26 · material/asset/audio groundwork → 27 · restore 3D startup → 28 · GPU-instanced authentic hordes → 29 · connected humanoid anatomy → 30 · hardware GGX materials → 31 · imported GLB skeletal animation → 32 · pose crossfades and corrected surface normals → 33 · mobile tactical drawer HUD → 34 · active squad/supply command → 35 · cinematic AI tickers → 36 · real mode state + scenario inspection. <strong>Next critic target:</strong> actual screenshots, AAA character art, PBR/shadows, and headless performance tails.</div></aside></div>
+</main><footer>Use the viewer’s <strong>G</strong> key for director mode, <strong>Space</strong> to pause, <strong>H</strong> for HUD and drag to orbit. This page reads local telemetry from the iframe and polls the public CI run status. It does not control a background agent.</footer>
+<script>
+function sample(){
+ const s=localStorage.getItem('zombie-gauntlet-live');if(!s)return;
+ try{const d=JSON.parse(s),fresh=Date.now()-d.time<5000;
+ document.querySelector('#tick').textContent=d.tick;
+ document.querySelector('#survivors').textContent=d.alive;
+ document.querySelector('#zombies').textContent=d.zombies;
+ document.querySelector('#fps').textContent=d.fps;
+ document.querySelector('#cpuP95').textContent=d.frameCpuP95Ms??'—';
+ document.querySelector('#triangles').textContent=(d.triangles??0).toLocaleString();
+ document.querySelector('#quality').textContent=Math.round((d.renderScale??1)*100)+'%';
+ document.querySelector('#gpuP95').textContent=d.gpuTimingState==='measured'?
+   String(d.gpuFrameP95Ms):'— ('+(d.gpuTimingState||'unsupported')+')';
+ document.querySelector('#gpuBudget').textContent=(d.resolutionBudgetReason||'awaiting samples').replaceAll('-',' ');
+ document.querySelector('#gpuCrowd').textContent=d.gpuHordeInstances??'—';
+ document.querySelector('#meshP95').textContent=d.meshBuildP95Ms??'—';
+ document.querySelector('#gpuType').textContent=d.rendererGpu||'—';
+ document.querySelector('#realAssets').textContent=(d.cc0AssetState||'off').toUpperCase();
+ document.querySelector('#simState').textContent=d.status==='running'?'LIVE':'TERMINAL';
+ document.querySelector('#seed').textContent='Seed '+d.seed+' · Day '+d.day+' / '+d.phase;
+ document.querySelector('#health').textContent=fresh?'● LIVE • '+d.renderer+' • '+d.status:'○ No fresh 3D frame telemetry';
+ }catch{document.querySelector('#health').textContent='Telemetry parse unavailable';}
+}
+async function checkCI(){
+ // The local smoke-test server has no GitHub API credentials or rate-limit
+ // budget. Link to the workflow instead of making a failing external fetch.
+ if(location.hostname==='127.0.0.1'||location.hostname==='localhost'){
+  document.querySelector('#ciResult').textContent='CI ON GITHUB ↗';
+  document.querySelector('#ciResult').dataset.status='unknown';
+  return;
+ }
+ try{
+  const r=await fetch('https://api.github.com/repos/my-edutu/Ai_games/actions/workflows/zombie-3d-gauntlet.yml/runs?branch=agent%2Fzombie-survival-3d-gauntlet-2026-10-08&per_page=1',{headers:{Accept:'application/vnd.github+json'}});
+  if(!r.ok)throw Error('CI API '+r.status);
+  const run=(await r.json()).workflow_runs?.[0];
+  if(!run)throw Error('No workflow runs yet');
+  const status=run.status==='completed'?run.conclusion:run.status;
+  document.querySelector('#ciResult').textContent=status.toUpperCase()+' / '+run.head_sha.slice(0,8);
+  document.querySelector('#ciResult').dataset.status=status;
+  document.querySelector('#ciLink').href=run.html_url;
+ }catch{
+  document.querySelector('#ciResult').textContent='Status unavailable — open GitHub';
+ }
+}
+const sceneUrls={
+ live:'./3d.html?seed=2026&crowd=dense',
+ day:'./3d.html?scenario=day&freeze=1',
+ night:'./3d.html?scenario=night&freeze=1',
+ 'large-horde':'./3d.html?scenario=large-horde&freeze=1',
+ interior:'./3d.html?scenario=interior&freeze=1',
+ 'near-death':'./3d.html?scenario=near-death&freeze=1'
+};
+document.querySelectorAll('[data-scene]').forEach(button=>{
+ button.addEventListener('click',()=>{
+  const scene=button.dataset.scene;if(!Object.hasOwn(sceneUrls,scene))return;
+  document.querySelector('#gauntletViewer').src=sceneUrls[scene];
+  document.querySelectorAll('[data-scene]').forEach(item=>
+   item.setAttribute('aria-pressed',String(item===button)));
+ });
+});
+document.querySelector('#historyToggle').addEventListener('click',()=>{
+ const expanded=document.body.dataset.history!=='expanded';
+ document.body.dataset.history=expanded?'expanded':'collapsed';
+ const button=document.querySelector('#historyToggle');
+ button.setAttribute('aria-expanded',String(expanded));
+ button.textContent=expanded?'COLLAPSE EARLIER LOOPS −':'VIEW EARLIER LOOPS +';
+});
+setInterval(sample,700);sample();
+checkCI();setInterval(checkCI,120000);
+</script></body></html>
