@@ -379,3 +379,136 @@ body {
   .broadcast-shell.stage-entering .arena-title-card,
   .broadcast-shell.stage-entering .arena-title-card:after{animation:none!important}
 }
+
+/* GAUNTLET LOOP 50 · THE SURVIVAL ROAD
+   This overlay is read-only; stage state always comes from official snapshots.
+   The canvas remains the hero and the rail disappears in cinema/clean views. */
+.stage-journey {
+  position:absolute;
+  left:50%;
+  bottom:125px;
+  transform:translateX(-50%);
+  z-index:6;
+  width:min(690px,calc(100% - 510px));
+  padding:10px 17px 11px;
+  border:1px solid rgba(145,201,255,.34);
+  border-radius:14px;
+  background:linear-gradient(110deg,rgba(6,17,42,.92),rgba(16,25,66,.86) 52%,rgba(12,13,40,.93));
+  box-shadow:0 20px 44px rgba(0,4,17,.46),inset 0 1px rgba(205,230,255,.16);
+  backdrop-filter:blur(14px) saturate(135%);
+  pointer-events:none;
+}
+.stage-journey:before {
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius:inherit;
+  border-top:2px solid var(--arena-accent);
+  opacity:.8;
+  pointer-events:none;
+}
+.stage-journey-kicker {
+  display:block;
+  text-align:center;
+  color:#cce8ff;
+  font-size:9px;
+  font-weight:900;
+  letter-spacing:.24em;
+  margin-bottom:8px;
+}
+.stage-journey-steps {
+  list-style:none;
+  display:grid;
+  grid-template-columns:repeat(5,minmax(0,1fr));
+  gap:0;
+  padding:0;
+  margin:0;
+}
+.stage-journey-steps li {
+  position:relative;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  min-width:0;
+  gap:4px;
+  color:#a2b8d8;
+  opacity:.72;
+}
+.stage-journey-steps li:not(:last-child):after {
+  content:"";
+  position:absolute;
+  left:calc(50% + 19px);
+  top:15px;
+  width:calc(100% - 38px);
+  height:2px;
+  background:linear-gradient(90deg,rgba(130,174,230,.48),rgba(130,174,230,.14));
+}
+.stage-journey-steps li b {
+  display:grid;
+  place-items:center;
+  width:30px;
+  height:30px;
+  font-size:11px;
+  font-weight:950;
+  font-variant-numeric:tabular-nums;
+  border:1px solid rgba(143,175,225,.42);
+  border-radius:50%;
+  color:#d3ddf2;
+  background:rgba(67,81,139,.26);
+}
+.stage-journey-steps li span {
+  max-width:100%;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  font-size:10px;
+  font-weight:800;
+  letter-spacing:.03em;
+}
+.stage-journey-steps li[data-state="complete"] {opacity:1;color:#97f4d3}
+.stage-journey-steps li[data-state="complete"] b {
+  background:rgba(38,179,132,.22);
+  border-color:rgba(100,239,196,.68);
+  color:#d7fff3;
+}
+.stage-journey-steps li[data-state="complete"]:not(:last-child):after {
+  background:linear-gradient(90deg,#64e6c0,var(--arena-accent));
+}
+.stage-journey-steps li[data-state="active"] {opacity:1;color:#fff}
+.stage-journey-steps li[data-state="active"] b {
+  width:33px;height:33px;
+  border:2px solid #fff;
+  color:#06122c;
+  background:var(--arena-accent);
+  box-shadow:0 0 0 4px rgba(108,200,255,.13),0 0 20px var(--arena-accent);
+}
+.stage-journey-steps li[data-state="active"] span {color:#fff;text-shadow:0 0 12px var(--arena-accent)}
+.broadcast-shell[data-view="cinematic"] .stage-journey,
+.broadcast-shell[data-clean="true"] .stage-journey {display:none}
+@media(max-width:1250px){
+  .stage-journey{width:min(590px,calc(100% - 325px));bottom:120px}
+}
+@media(max-width:760px){
+  .stage-journey{
+    bottom:114px;
+    width:calc(100% - 20px);
+    padding:7px 9px;
+    border-radius:10px;
+  }
+  .stage-journey-kicker{font-size:7px;letter-spacing:.15em;margin-bottom:5px}
+  .stage-journey-steps li{gap:2px}
+  .stage-journey-steps li b{height:23px;width:23px;font-size:9px}
+  .stage-journey-steps li[data-state="active"] b{height:26px;width:26px}
+  .stage-journey-steps li span{font-size:8px}
+  .stage-journey-steps li:not(:last-child):after{top:12px;left:calc(50% + 16px);width:calc(100% - 32px)}
+}
+@media(max-width:410px){
+  .stage-journey{bottom:102px}
+  .stage-journey-kicker{display:none}
+  .stage-journey-steps li span{font-size:7px}
+}
+@media(prefers-contrast:more) {
+  .stage-journey {background:#050b20;border:2px solid #fff;backdrop-filter:none}
+  .stage-journey-steps li[data-state="active"] b{box-shadow:none}
+}
