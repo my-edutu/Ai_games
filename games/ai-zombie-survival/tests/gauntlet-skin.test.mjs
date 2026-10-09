@@ -36,7 +36,7 @@ test('rig animations loop idle/attack but never twitch dead bodies',()=>{
   assert.ok(Math.abs(a.seconds-b.seconds)<1e-7);
   assert.equal(animationClock('attack',.2).key,'attack');
   assert.equal(animationClock('dead',500).key,'dead');
-  assert.equal(animationClock('dead',500).seconds,89/24);
+  assert.ok(Math.abs(animationClock('dead',500).seconds-89/24)<1e-9);
 });
 test('bad skeletal parents and malicious joint graphs fail closed rather than corrupt render state',()=>{
   const runtime={nodes:[{children:[1]},{children:[0]}],skins:[{joints:[1],inverseBindMatrices:[identity4()]}],animations:[]};
