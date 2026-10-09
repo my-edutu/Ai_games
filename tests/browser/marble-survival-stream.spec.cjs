@@ -384,7 +384,7 @@ test('Marble WebGL broadcast renders authoritative tournament and captures runti
   if (softwareRenderer) {
     benchmarkQuality = 'low';
     await qualitySelect.selectOption('low');
-    await expect(shell).toHaveAttribute('data-render-scale', '0.58', { timeout: 2_000 });
+    await expect(shell).toHaveAttribute('data-render-scale', '0.48', { timeout: 2_000 });
     await page.waitForTimeout(250);
   } else {
     await page.waitForFunction(() => {
