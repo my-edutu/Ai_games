@@ -29,3 +29,24 @@
 - It is driven only by the publicly visible threat list. No invisible opponent, path or hidden map information is read from the underlying maze.
 
 This model is appropriately licensed but does not make our game visually comparable to an AAA reference without further environment, animation and cinematic work.
+
+## Quaternius Medieval Village MegaKit — real environment meshes
+
+Imported four geometrically authored architectural meshes for known maze passages and an explicitly non-interactive scenic horizon:
+
+| Local GLB | Source mesh | Size | Git blob SHA |
+| --- | --- | ---: | --- |
+| `models/Wall_Arch.glb` | `glTF/Wall_Arch.gltf` + `.bin` | 10,644 B | `792f472c3dcbc3b8e3392a7992ebbac1abfb89f4` |
+| `models/DoorFrame_Round_Brick.glb` | `glTF/DoorFrame_Round_Brick.gltf` + `.bin` | 65,220 B | `214f508127b2431baf7529c1f2ce6356d20e09c3` |
+| `models/Roof_Tower_RoundTiles.glb` | `glTF/Roof_Tower_RoundTiles.gltf` + `.bin` | 207,772 B | `e2c6f44b20ad26f9252f1475a69096af07735160` |
+| `models/Prop_Vine4.glb` | `glTF/Prop_Vine4.gltf` + `.bin` | 3,320 B | `c79338c80cf2e6134e2a60be5f4ac623f84d902f` |
+
+- **Creator:** Quaternius.
+- **Original distribution:** https://quaternius.itch.io/medieval-village-megakit
+- **Source repository:** https://github.com/J-Ponzo/gltf-medieval-village-megakit (free Standard subset).
+- **License:** Creative Commons CC0 1.0 Universal (preserved in `public/ai-maze-escape/models/MEDIEVAL-VILLAGE-CC0-LICENSE.txt`).
+- **Local conversion:** The original glTF mesh geometry and buffer attributes have been bundled into glTF 2.0 binary; upstream texture dependencies were removed, and original in-game PBR palettes assigned in place so every GLB is entirely self-contained, compact, and fetches nothing remotely.
+- **Runtime:** `architectural-assets.js` loads optional models once and clones only into already-observed scene sections, capped at 16 decorated actors per rebuild. It does not create game collision or navigation authority.
+- **Fallback:** Procedural architecture continues rendering if any imported model is unavailable; assets never gate AI operation.
+
+These are original models from a third-party CC0 kit, **not** a professional custom environment built for this game. Reference-winning art direction and animation still require substantial work.
