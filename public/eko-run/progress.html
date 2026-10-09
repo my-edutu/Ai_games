@@ -43,6 +43,19 @@ footer{margin-top:45px;color:#91aeb6;font-size:13px}
 .shots figcaption{padding:12px 14px;font-size:12px;color:#c7e8df}
 .shots a{display:inline-block;margin-top:7px;color:#ffd37d}
 .evidence-history a{font-weight:700}
+.blind{margin:38px 0;background:linear-gradient(160deg,#132f3b,#0a2330);border:1px solid #437a7b;border-radius:20px;padding:27px}
+.blind .actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:15px 0}
+.blind label{font-size:13px;font-weight:700;color:#bfeee3}
+.blind input[type=file]{max-width:300px;font-size:12px;color:#b0ced4}
+.blind button{font:800 12px system-ui;background:#f2be56;border:0;border-radius:9px;padding:11px 15px;cursor:pointer;color:#132838}
+.blind button:disabled{background:#37535f;color:#9fb5b9}
+.blind-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:17px}
+.blind-entry{border:1px solid #45747f;border-radius:14px;overflow:hidden;background:#071c27}
+.blind-entry h3{font-size:18px;padding:10px 15px;margin:0;color:#ffdc83;letter-spacing:.1em}
+.blind-entry img{width:100%;aspect-ratio:16/9;object-fit:contain;display:block;background:#061722}
+.blind-entry button{width:calc(100% - 26px);margin:12px}
+.blind-result{margin-top:12px;font-size:13px;color:#b8e9c9;min-height:20px}
+@media(max-width:640px){.blind-grid{grid-template-columns:1fr}.blind{padding:18px}}
 @media(max-width:840px){.evidence{grid-template-columns:1fr}.preview-box{aspect-ratio:390/450}}
 @media(prefers-reduced-motion:reduce){.preview-box *{animation:none!important}}
 </style></head>
@@ -75,6 +88,18 @@ footer{margin-top:45px;color:#91aeb6;font-size:13px}
 </div>
 <h2>Actual captures from this session</h2><p>These screenshots come directly from the WebGL drawing buffer. They remain in this tab only until you save them; they are not automatically submitted as CI proof.</p>
 <div id="snapshots" class="shots" aria-live="polite"><p>No real frames captured yet. Launch the scene and choose “Capture real frame.”</p></div>
+<section class="blind" aria-label="Blind gameplay screenshot comparison">
+ <span class="tag">HARSH CRITIC · BLIND A/B</span>
+ <h2>Compare real gameplay, not commit messages.</h2>
+ <p>Upload a legitimate screenshot of the official reference game, then capture Eko's current WebGL frame above. The page randomly hides which is which. Vote on visual clarity and polish before revealing either source. Reference files stay in your browser and are never uploaded.</p>
+ <div class="actions"><label for="reference-upload">Official reference frame</label><input type="file" id="reference-upload" accept="image/png,image/jpeg,image/webp">
+ <button id="blind-start" type="button" disabled>Start blind comparison</button></div>
+ <div class="blind-grid" id="blind-grid" hidden>
+  <div class="blind-entry"><h3>IMAGE A</h3><img id="blind-a" alt="Anonymized first game capture"><button type="button" data-blind-vote="A">Image A looks better</button></div>
+  <div class="blind-entry"><h3>IMAGE B</h3><img id="blind-b" alt="Anonymized second game capture"><button type="button" data-blind-vote="B">Image B looks better</button></div>
+ </div>
+ <div id="blind-result" class="blind-result" role="status">Requires one real Eko capture and one uploaded reference screenshot.</div>
+</section>
 </section>
 <h2>Builder → critic → improvement</h2><section class="rounds" id="rounds" aria-live="polite"></section>
 <h2>Proof gates</h2><ul class="ledger" id="gates"></ul>
