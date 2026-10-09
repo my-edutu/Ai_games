@@ -115,3 +115,76 @@
 @media(prefers-reduced-motion:reduce){
   #app [data-ux-revision="2"] *,#app [data-ux-revision="2"] *::before,#app [data-ux-revision="2"] *::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
 }
+
+
+/* Gauntlet visual pass 3: clearer visual hierarchy and richer broadcast palette.
+   CSS-only; simulation, AI decisions and replay are unchanged. */
+#app [data-ux-revision="2"]{
+  --color-bg:#050918;--color-surface:rgba(10,19,40,.93);
+  --color-progress:#55e8f7;--tower-violet:#ae80ff;
+  --color-warning:#ffcd71;--tower-ok:#6fffc3;
+  background:radial-gradient(ellipse at 28% 0%,rgba(32,125,198,.28),transparent 45%),
+    radial-gradient(ellipse at 85% 80%,rgba(131,64,204,.16),transparent 42%),#050918;
+}
+#app [data-ux-revision="2"] .top{
+  background:linear-gradient(105deg,rgba(16,40,69,.98),rgba(11,16,40,.96) 64%,rgba(44,23,67,.92));
+  border:1px solid rgba(108,210,255,.36);
+  box-shadow:inset 0 1px rgba(255,255,255,.13),0 12px 36px rgba(0,0,0,.4);
+}
+#app [data-ux-revision="2"] .brand-mark{
+  background:linear-gradient(145deg,#73f3f5 0%,#7189ff 54%,#d28dff);
+  box-shadow:0 0 0 3px rgba(112,230,255,.09),0 0 30px rgba(101,167,255,.3);
+}
+#app [data-ux-revision="2"] .brand h1{
+  color:#fff;letter-spacing:.075em;text-shadow:0 2px 16px rgba(104,218,255,.26);
+}
+#app [data-ux-revision="2"] .primary-metrics article{
+  background:linear-gradient(180deg,rgba(94,163,255,.10),rgba(94,163,255,.015));
+  border-left:2px solid rgba(90,218,250,.48);border-radius:4px 11px 11px 4px;
+}
+#app [data-ux-revision="2"] .primary-metrics strong{
+  color:#fff;text-shadow:0 0 15px rgba(92,218,255,.25);
+}
+#app [data-ux-revision="2"] .arena-wrap{
+  border:1px solid rgba(96,218,252,.4);
+  box-shadow:inset 0 0 50px rgba(40,100,180,.12),0 25px 75px rgba(0,0,0,.46);
+}
+#app [data-ux-revision="2"] .panel{
+  background:linear-gradient(150deg,rgba(16,35,65,.95),rgba(9,14,33,.94));
+  border:1px solid rgba(124,194,255,.26);
+  box-shadow:inset 0 1px rgba(255,255,255,.06),0 14px 35px rgba(0,0,0,.25);
+}
+#app [data-ux-revision="2"] .intent-panel{
+  border-color:rgba(106,241,255,.52);
+  background:linear-gradient(135deg,rgba(15,63,92,.96),rgba(19,25,64,.94));
+}
+#app [data-ux-revision="2"] .intent-panel h2{
+  color:#fff;font-weight:900;letter-spacing:.025em;
+}
+#app [data-ux-revision="2"] .bar{height:9px;background:#17233e;box-shadow:inset 0 1px 3px #0008}
+#app [data-ux-revision="2"] .bar i{box-shadow:0 0 13px rgba(255,123,121,.3)}
+#app [data-ux-revision="2"] .bar.stamina i{background:linear-gradient(90deg,#7c85ff,#5ce7ff,#6dffcf)}
+#app [data-ux-revision="2"] .tags em{
+  background:rgba(122,102,252,.19);border-color:rgba(182,147,255,.45);
+  color:#efe8ff;
+}
+#app [data-ux-revision="2"] .caption{
+  background:linear-gradient(90deg,rgba(11,31,56,.98),rgba(16,17,40,.95));
+  border:1px solid rgba(101,209,252,.32);
+}
+#app [data-ux-revision="2"] .caption p{color:#edf8ff;font-weight:600}
+#app [data-ux-revision="2"] .status-chip{
+  background:linear-gradient(120deg,rgba(65,234,176,.18),rgba(67,180,215,.09));
+  border-color:rgba(108,241,181,.48);box-shadow:0 0 20px rgba(84,235,178,.09);
+}
+#app [data-ux-revision="2"] .gauntlet-link{
+  color:#e4faff;border-color:rgba(103,216,255,.4);
+  background:rgba(48,117,160,.12);
+}
+#app [data-ux-revision="2"] .gauntlet-link:hover{
+  background:rgba(76,188,244,.23);
+}
+@media(max-width:999px),(max-height:559px){
+  #app [data-ux-revision="2"] .primary-metrics article{background:rgba(94,163,255,.07)}
+  #app [data-ux-revision="2"] .intent-panel{background:rgba(10,35,66,.88)}
+}
