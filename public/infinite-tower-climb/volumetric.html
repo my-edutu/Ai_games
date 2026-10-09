@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#102333">
+  <title>Infinite Tower — The Ascension | 3D Simulation</title>
+  <link rel="stylesheet" href="/tower/volumetric.css">
+</head>
+<body data-biome="foundry">
+<main class="game">
+  <canvas id="volumetric-canvas" aria-label="Live 3D autonomous tower-climbing world"></canvas>
+  <div class="cinematic-vignette" aria-hidden="true"></div>
+  <div class="cinematic-grid" aria-hidden="true"></div>
+  <div class="ambient-orb ambient-orb--top" aria-hidden="true"></div>
+
+  <header class="top">
+    <div class="logo">
+      <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 42 42" fill="none" width="38" height="38"><path d="M21 3 39 35H3L21 3Z" stroke="currentColor" stroke-width="2.7" stroke-linejoin="round"/><path d="M21 12 30 30H12L21 12Z" fill="currentColor"/><path d="M21 3V13" stroke="#fff" stroke-width="2"/></svg></span>
+      <span class="brand-copy"><small>EDUTU GAMES • GAUNTLET EDITION</small><strong>INFINITE <em>TOWER</em></strong><span class="brand-subtitle">THE NEVER-ENDING ASCENT</span></span>
+    </div>
+    <div class="broadcast-badge" role="status"><span class="broadcast-pulse"></span><span id="broadcast-mode">AUTONOMOUS WORLD <small>LIVE SIMULATION</small></span></div>
+    <div class="mode-menu"><a id="game-mode" href="/tower/volumetric?manual=1">TAKE CONTROL <span aria-hidden="true">↗</span></a><a class="mode-menu--quiet" href="/tower/gauntlet.html">QUALITY GATES</a></div>
+  </header>
+
+  <button type="button" id="hud-toggle" class="hud-toggle" aria-expanded="false"
+    aria-controls="tower-telemetry">✦ SHOW STATS</button>
+  <div id="biome-reveal" class="biome-reveal" aria-live="polite" aria-atomic="true">
+    <span class="biome-reveal__eyebrow">✦ ENTERING NEW TERRITORY</span>
+    <strong id="biome-reveal-name">THE EMBER FORGE</strong>
+    <span id="biome-reveal-sector" class="biome-reveal__sector">ASCENT REGION 01</span>
+  </div>
+  <section class="hero-panel" aria-label="Current climb progress">
+    <div class="hero-panel__eyebrow"><span class="panel-point"></span> SUMMIT PROGRESS <span class="hero-panel__live">∞ INFINITE</span></div>
+    <div class="floor-stat"><span>FLOOR</span><strong id="floor">000</strong><span class="floor-stat__suffix">ASCENDING</span></div>
+    <div class="altitude-stat"><span>ELEVATION GAIN</span><strong id="height">0m</strong><span class="altitude-arrow" aria-hidden="true">↗</span></div>
+    <div class="milestone"><div class="milestone__head"><span>NEXT MILESTONE</span><strong id="next-milestone">05</strong></div><div class="milestone__track"><div id="milestone-progress" class="milestone__fill"></div></div><small>CLIMB. ADAPT. SURVIVE.</small></div>
+  </section>
+
+  <aside class="right-rail" id="tower-telemetry" aria-label="Climber telemetry and biome">
+    <section class="biome-panel" aria-live="polite">
+      <span class="biome-panel__label">EXPLORING REGION <span class="biome-star" aria-hidden="true">✦</span></span>
+      <strong id="biome">FOUNDRY</strong>
+      <span id="biome-description" class="biome-panel__description">THE EMBER FORGE</span>
+      <span class="biome-panel__rule"></span>
+      <span class="biome-panel__foot"><span class="biome-dot"></span> WORLD GENERATED LIVE</span>
+    </section>
+    <section class="readouts" aria-label="Game statistics">
+      <div><small>GUARDIANS</small><b id="guardian-kills">0</b></div>
+      <div><small>SCORE</small><b id="score">0</b></div>
+      <div><small>HEALTH</small><b id="health">5 / 5</b></div>
+      <div><small>RECOVERIES</small><b id="recoveries">0</b></div>
+      <div class="readouts__depth"><small>DEPTH COORDINATE</small><b id="depth">Z 0.0</b></div>
+    </section>
+    <section class="health-panel" aria-label="Survival vitals">
+      <div><span><span class="vital-dot"></span>VITALITY</span><strong id="health-percent">100%</strong></div>
+      <div class="vitality-track"><div id="health-bar-fill" class="vitality-fill"></div></div>
+      <div><span>GRIP STAMINA</span><strong id="grip-percent">100%</strong></div>
+      <div class="vitality-track vitality-track--grip"><div id="grip-bar-fill" class="vitality-fill vitality-fill--grip"></div></div>
+    </section>
+  </aside>
+
+  <section class="buildbar" aria-label="Autonomous ability loadout">
+    <h2>ASCENT LOADOUT <small>AI-SELECTED</small></h2>
+    <div class="buildbar__item"><span class="buildbar__icon">↗</span><span>STRIDE</span><b id="build-stride">0</b></div>
+    <div class="buildbar__item"><span class="buildbar__icon">◆</span><span>GRIP</span><b id="build-grip">0</b></div>
+    <div class="buildbar__item"><span class="buildbar__icon">⬡</span><span>WARD</span><b id="build-ward">0</b></div>
+    <div class="buildbar__item"><span class="buildbar__icon">✧</span><span>SALVAGE</span><b id="build-salvage">0</b></div>
+    <div class="buildbar__shields"><span>ACTIVE SHIELDS</span><strong id="shield-value">0</strong></div>
+  </section>
+
+  <section class="boss-alert" id="boss-alert" aria-live="polite" aria-label="Guardian battle" hidden>
+    <div class="boss-alert__glyph" aria-hidden="true">⚔</div>
+    <div><small>GUARDIAN ENCOUNTER</small><strong id="boss-title">THE WARDEN</strong><span id="boss-intent">THE TOWER IS WATCHING</span></div>
+    <div class="boss-alert__bar"><div id="boss-health"></div></div>
+  </section>
+
+  <section class="feed" aria-live="polite">
+    <div class="feed__icon" aria-hidden="true">◈</div>
+    <div class="feed__copy"><small id="status">INITIALIZING ASCENT</small><strong id="intent">SCANNING THE PATH AHEAD</strong></div>
+    <span class="feed__signal" id="pilot-status">AI PILOT <span class="signal-dot"></span></span>
+  </section>
+  <section class="story" aria-live="polite"><b><span class="story__symbol">✦</span> ASCENT CHRONICLE</b><p id="story-line">A new climber enters the infinite tower.</p></section>
+  <div id="wall-status" class="wall-status" aria-live="polite">MANTLES 0 · GRIP 100%</div>
+
+  <nav class="touch-controls" aria-label="Movement controls">
+    <div class="touch-movement"><button data-tower-control="forward" type="button" aria-label="Move forward">▲</button>
+    <div><button data-tower-control="left" type="button" aria-label="Move left">◀</button>
+    <button data-tower-control="back" type="button" aria-label="Move backward">▼</button>
+    <button data-tower-control="right" type="button" aria-label="Move right">▶</button></div></div>
+    <button class="touch-jump" data-tower-control="jump" type="button">JUMP</button>
+  </nav>
+  <div class="evidence-commands" aria-label="Broadcast actions">
+    <button type="button" id="audio-control">♫ AUDIO</button>
+    <button type="button" id="quality-control" aria-label="Cycle graphics quality" title="Change renderer quality">◈ GRAPHICS AUTO</button>
+    <button type="button" id="capture-still">◉ SNAPSHOT</button>
+    <button type="button" id="record-clip">● RECORD 8S</button>
+    <a href="/tower/gauntlet.html" target="_blank" rel="noopener">REVIEW GAUNTLET ↗</a>
+    <small id="capture-feedback" aria-live="polite"></small>
+  </div>
+  <aside class="disclaimer">Experimental 3D vertical slice · Not a passed visual-quality benchmark</aside>
+</main>
+<script type="module" src="/tower/volumetric.js"></script>
+<script src="/tower/capture-controls.js" defer></script>
+</body>
+</html>
