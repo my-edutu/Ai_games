@@ -222,6 +222,7 @@ test('visual critics can inspect all four actual 3D character models in the same
   await expect.poll(()=>page.evaluate(()=>window.__TOWER_3D_DIAGNOSTICS__?.drawCalls||0),{timeout:30000}).toBeGreaterThan(80);
   const inspection=await page.evaluate(()=>window.__TOWER_3D_DIAGNOSTICS__);
   expect(inspection.inspectionScene).toBe('isolated-production-rigs');
+  expect(inspection.inspectionDrawsSaved).toBeGreaterThan(0); // Actual geometry retained, GPU calls reduced by parent-local batching.
   expect(inspection.drawCalls).toBeLessThan(850);
   expect(inspection.triangles).toBeGreaterThan(1000);
   expect(inspection.entityCount).toBe(0);
