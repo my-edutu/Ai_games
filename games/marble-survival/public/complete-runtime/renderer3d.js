@@ -943,9 +943,9 @@
     // and distant gantries into a readable perspective without shrinking the
     // actual gameplay view to a tiny close-up.
     let eye=[target[0]+3.9/zoom,9.0/zoom,target[2]+17.8/zoom];
-    if(directive.mode==='overview'&&currentSnapshot.round.remaining<=4)eye=[target[0]+4.7/zoom,6.8/zoom,target[2]+9.3/zoom];
-    if(directive.mode === 'danger')eye=[target[0]+4.8/zoom,7.2/zoom,target[2]+8.5/zoom];
-    if(directive.mode==='cut-line')eye=[target[0]+3.2/zoom,8.4/zoom,target[2]+10.5/zoom];
+    if(directive.mode==='overview'&&currentSnapshot.round.remaining<=4)eye=[target[0]+3.15/zoom,4.25/zoom,target[2]+6.55/zoom];
+    if(directive.mode === 'danger')eye=[target[0]+2.8/zoom,3.75/zoom,target[2]+5.45/zoom];
+    if(directive.mode==='cut-line')eye=[target[0]+2.6/zoom,4.30/zoom,target[2]+7.15/zoom];
     if(directive.mode === 'finish'){
       const finish=toWorld(arena.width/2,arena.finishY,arena);
       // Do not prematurely frame an EMPTY finish gate. The live spectacle
@@ -953,9 +953,9 @@
       const progress=focus.length?Math.max(...focus.map(m=>m.progressPermille||0)):0;
       const bias=clamp((progress/1000-.70)/.30,0,1)*.56;
       target=[lerp(target[0],finish[0],bias),target[1],lerp(target[2],finish[2],bias)];
-      eye=[target[0]+5.8/zoom,6.4/zoom,target[2]+7.4/zoom];
+      eye=[target[0]+3.85/zoom,4.30/zoom,target[2]+6.25/zoom];
     }
-    if(directive.mode === 'victory')eye=[target[0]+3.4/zoom,4.0/zoom,target[2]+5.0/zoom];
+    if(directive.mode === 'victory')eye=[target[0]+2.15/zoom,2.65/zoom,target[2]+3.85/zoom];
     // Cinematic spectator mode keeps server-appointed focus IDs but lowers
     // the virtual jib and anticipates the TRUE race velocities by ~3 ticks.
     // The label canvas receives the exact same final camera matrix.
@@ -971,6 +971,9 @@
           lerp(eye[2],target[2]+6.2/zoom,0.24)];
       }
     }
+    // Optional broadcast-only optics: enforce a readable live hero without
+    // changing official focus, server outcomes, or the identity projection.
+    shell.dataset.cameraDistance=Math.hypot(...eye.map((v,i)=>v-target[i])).toFixed(2);
     return {eye,target,mode:directive.mode};
   }
   function smoothedCamera(currentSnapshot,marbles,dt){
