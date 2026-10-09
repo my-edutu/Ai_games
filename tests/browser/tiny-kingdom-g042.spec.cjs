@@ -17,6 +17,10 @@ test('Gauntlet 042 world-first command HUD exposes the scene without hiding esse
  await expect(page.locator('.feed')).toBeHidden();
  await expect(page.locator('.atlas')).toBeHidden();
  await expect(page.locator('#world-ribbon')).toBeVisible();
+ // Screenshot-driven regression: chronicle badge text must never run into its story.
+ const story=await page.locator('#world-story').textContent();
+ expect(story?.length).toBeGreaterThan(10);
+ expect(story).not.toMatch(/Kingdom chronicle/i);
  await expect(page.locator('#pause')).toBeVisible();
  const evidence=await page.evaluate(()=>{
   const bar=document.getElementById('world-ribbon').getBoundingClientRect();
