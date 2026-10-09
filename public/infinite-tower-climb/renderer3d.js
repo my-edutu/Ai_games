@@ -75,7 +75,7 @@
   };
   function rebuild(s) {
     const theme = String(s.theme || 'foundry').toLowerCase();
-    if (theme !== themeKey) { themeKey=theme; const color=themeColors[theme]||0xffaa55; rim.color.setHex(color); groundLight.color.setHex(color); architecture.setTheme(theme);sky.setTheme(theme);geology.setTheme(theme);spectacle.setTheme(theme); }
+    if (theme !== themeKey) { themeKey=theme; const color=themeColors[theme]||0xffaa55; rim.color.setHex(color); groundLight.color.setHex(color); architecture.setTheme(theme);sky.setTheme(theme);geology.setTheme(theme);spectacle.setTheme(theme);entities.setTheme(theme); }
     groundLight.position.set(Number(s.player?.x||0)/1000-Number(s.worldWidth||0)/2000,Number(s.player?.y||0)/1000-Number(s.chunkBaseY||0)/1000+12,9);
     rim.position.set(xCoord(s.player?.x,s.worldWidth)+18,Number(s.player?.y||0)/1000-Number(s.chunkBaseY||0)/1000+10,12);
     const base = Number(s.chunkBaseY || 0) / 1000;

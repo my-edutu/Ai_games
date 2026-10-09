@@ -126,7 +126,7 @@
     for(const [id,mesh] of guardians){if(!live.has(id)){enemyScene.remove(mesh);art.release(mesh);guardians.delete(id);}}
     for(const [id,mesh] of rewards){if(!live.has(id)){rewardScene.remove(mesh);art.release(mesh);rewards.delete(id);}}
     if(snapshot.theme!==biome){
-      biome=snapshot.theme;environment.setTheme(biome);sky.setTheme(biome);geology.setTheme(biome);spectacle.setTheme(biome);
+      biome=snapshot.theme;environment.setTheme(biome);sky.setTheme(biome);geology.setTheme(biome);spectacle.setTheme(biome);art.setTheme(biome);
       document.body.dataset.biome=biome;
       const mood=biomeMood[biome]||biomeMood.foundry;
       heroFill.color.setHex(mood.cool);heroWarm.color.setHex(mood.warm);sun.color.setHex(mood.sun);
