@@ -889,3 +889,36 @@ test('Gauntlet 034 seasonal meadow blades are bounded and cached across camera m
  expect(after.authority).toBe(initial.authority);
  expect(faults).toEqual([]);
 });
+
+test('Kingdom Pulse chart displays measured per-day resource changes without altering simulation',async({page})=>{
+ const errors=[];page.on('pageerror',e=>errors.push(e.message));
+ await page.setContent(html);
+ await page.waitForFunction(()=>Boolean(window.__tinyKingdom));
+ await page.locator('#pause').click();
+ const initial=await page.evaluate(()=>({
+  history:window.__tinyKingdom.getEconomyHistory(),
+  snapshot:JSON.stringify(window.__tinyKingdom.exportSnapshot())
+ }));
+ expect(initial.history).toHaveLength(1);
+ expect(initial.history[0].food).toBe(180);
+ await page.locator('[data-scenic="market"]').click();
+ expect(await page.evaluate(()=>JSON.stringify(window.__tinyKingdom.exportSnapshot()))).toBe(initial.snapshot);
+ await page.evaluate(()=>{const g=window.__tinyKingdom;for(let i=0;i<3*24*30;i++)g.step(1/30)});
+ const outcome=await page.evaluate(()=>{
+  const g=window.__tinyKingdom;
+  const entries=g.getEconomyHistory();
+  const labels=[...document.querySelectorAll('#economic-observatory .economic-legend strong')].map(el=>el.textContent);
+  const ctx=document.getElementById('resource-trends').getContext('2d');
+  return {entries,labels,canvas:ctx.canvas.width,metrics:g.metrics()};
+ });
+ expect(outcome.entries.length).toBeGreaterThan(2);
+ expect(outcome.entries.length).toBeLessThanOrEqual(12);
+ expect(outcome.entries.at(-1).food).toBeCloseTo(outcome.metrics.food);
+ expect(outcome.entries.at(-1).wood).toBeCloseTo(outcome.metrics.wood);
+ expect(outcome.entries.at(-1).gold).toBeCloseTo(outcome.metrics.gold);
+ expect(outcome.labels).toHaveLength(3);
+ expect(outcome.canvas).toBe(440);
+ await page.evaluate(()=>window.__tinyKingdom.reset());
+ expect(await page.evaluate(()=>window.__tinyKingdom.getEconomyHistory())).toHaveLength(1);
+ expect(errors).toEqual([]);
+});
