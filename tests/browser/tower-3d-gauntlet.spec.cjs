@@ -368,6 +368,16 @@ test('all five biome HUD plates keep a measured high-contrast readability floor'
     expect(panel.overlay).toContain('gradient');
   }
 });
+test('sculpted biome ledges retain exact live collision alignment while simplifying platform draw calls',async({page})=>{
+  await page.setViewportSize({width:1600,height:900});
+  await page.goto(base+'/tower?cleanFeed=1',{waitUntil:'domcontentloaded'});
+  await expect.poll(()=>page.evaluate(()=>window.__TOWER_3D_DIAGNOSTICS__?.renderedFrames||0),{timeout:30000}).toBeGreaterThan(4);
+  const metric=await page.evaluate(()=>window.__TOWER_3D_DIAGNOSTICS__);
+  expect(metric.ledgeModels).toBeGreaterThan(0);
+  expect(metric.ledgeSyncError).toBeLessThan(1e-6);
+  expect(metric.drawCalls).toBeLessThan(1400);
+  await page.screenshot({path:path.join(artifacts,'gauntlet-v18-sculpted-authoritative-ledges.png'),fullPage:true});
+});
 test('3D module unavailable degrades safely to the existing 2D scene',async({page})=>{
   await page.route('**/tower/scene3d.js',route=>route.fulfill({status:503,body:'Module unavailable'}));
   await page.goto(base+'/tower');
