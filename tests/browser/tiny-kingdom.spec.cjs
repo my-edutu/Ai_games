@@ -828,3 +828,36 @@ test('Gauntlet 033 cinematic UI grade is readable, responsive, accessible and pr
  expect(after).toBe(original);
  expect(errors).toEqual([]);
 });
+
+test('Tiny Kingdom directional shadow geometry follows sun and never corrupts civilian simulation',async({page})=>{
+  const errors=[];page.on('pageerror',e=>errors.push(e.message));
+  await page.setContent(html);
+  await page.waitForFunction(()=>Boolean(window.__tinyKingdom));
+  await page.locator('#pause').click();
+  const sample=await page.evaluate(()=>{
+    const g=window.__tinyKingdom;
+    const source=JSON.stringify(g.exportSnapshot());
+    const morning=g.sampleSunShadow(8);
+    const noon=g.sampleSunShadow(13);
+    const evening=g.sampleSunShadow(18);
+    const night=g.sampleSunShadow(1);
+    return {source,morning,noon,evening,night};
+  });
+  expect(sample.noon.strength).toBeGreaterThan(sample.night.strength);
+  expect(sample.night.strength).toBe(0);
+  expect(sample.morning.dx).not.toBe(sample.evening.dx);
+  await page.waitForFunction(()=>window.__tinyKingdom.shadowStats().triangles>0);
+  const rendering=await page.evaluate(()=>({
+    shadow:window.__tinyKingdom.shadowStats(),
+    audit:window.__tinyKingdom.getGeometryAudit(),
+    source:JSON.stringify(window.__tinyKingdom.exportSnapshot()),
+  }));
+  expect(rendering.shadow.triangles).toBeGreaterThan(2500);
+  expect(rendering.audit.dynamic.aligned).toBe(true);
+  expect(rendering.audit.dynamic.invalidComponents).toBe(0);
+  expect(rendering.audit.dynamic.invalidNormals).toBe(0);
+  expect(rendering.audit.dynamic.invalidColors).toBe(0);
+  expect(rendering.audit.dynamic.outOfBounds).toBe(0);
+  expect(rendering.source).toEqual(sample.source);
+  expect(errors).toEqual([]);
+});
