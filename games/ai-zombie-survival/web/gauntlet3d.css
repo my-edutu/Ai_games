@@ -314,3 +314,16 @@ main[data-phase="night"]{--cyan:#7bcbff;--amber:#fbd197;--coral:#ff738c}main[dat
   .alertText>span{font-size:10px;letter-spacing:.06em}
   .alertText strong{font-size:12px;line-height:1.25}
 }
+
+/* GAUNTLET LOOP 42 — compact mobile warning preserves 3D scene visibility. */
+@media(max-width:740px){
+  .alertBanner{min-height:36px;max-height:42px;padding:4px 9px;gap:8px;
+    border-radius:6px;box-shadow:0 7px 18px #030b16a8,0 0 14px #ff536321;
+    backdrop-filter:blur(9px)}
+  .alertPulse{width:20px;height:20px;font-size:12px}
+  .alertText{flex:1;min-width:0;gap:0}
+  .alertText>span{font-size:10px;line-height:1.2;white-space:nowrap;
+    overflow:hidden;text-overflow:ellipsis}
+  .alertText strong{font-size:11px;line-height:1.25;white-space:nowrap;
+    overflow:hidden;text-overflow:ellipsis}
+}

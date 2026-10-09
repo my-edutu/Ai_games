@@ -254,3 +254,17 @@ Scoped the Pause amber styling to direct child `.controls > button:first-child` 
 **Change:** raised phone vitals to 15px, summary labels/navigation/command captions to at least 10px, director objective to 12px and compact frame badge to 11px; increased text contrast and retained compact overlay bounds. New Playwright computed-style assertions at **390×844** enforce the legibility floor and existing geometry tests still guard against header/footer collisions. The **1280×720** desktop HUD and 2.5D fallback are unchanged. No simulation, camera, AI or rendering pipeline changes.
 
 **Evidence status:** existing Loop 39 screenshots are baseline only, not proof of this Loop 41 change. Fresh CI WebGL2 screenshots, mobile overlap inspection, hardware GPU p95 and 24–72 hour OBS soak remain required. Do not claim Days Gone Remastered parity: current models, motion, environment detail and CPU tails remain far below the visual/performance benchmark.
+
+## Loop 41 — independently verified browser artifacts (2026-10-09)
+
+Inspected exact draft PR #50 HEAD `2494b7f6f7a1928524cd4933089385503e54bd5e`. GitHub Actions run `37905454779` completed **SUCCESS**. Downloaded the 15 MB screenshot artifact and inspected actual 1280×720 daylight/night/hero views and 390×844 mobile, first-look and mobile-drawer views. Browser report recorded **21 passing checks and zero errors**. Mobile 10–15px telemetry is now visibly legible; on-demand panels do not permanently cover the scene. Seeded scenario screenshots correctly show PAUSED because they use freeze mode; autonomous tick advancement and refresh recovery were separately verified.
+
+Measured software-renderer screenshot telemetry: daylight 58.8ms CPU p95 / 21 FPS; night 78.1ms / 19 FPS; large horde 111.4ms / 20 FPS. These are not hardware GPU frame times and remain below production goals. Official Days Gone Remastered gameplay has more realistic characters, fabrics, vegetation, lighting, action staging and restrained overlays. No blind reference A/B or OBS soak has passed.
+
+## Loop 42 — mobile critical warning footprint (NEW CODE; fresh browser evidence pending)
+
+**Independent screenshot critic:** the real 390×844 `mobile.png` capture shows a large, multi-row red warning panel covering the upper combat view beneath the vitals strip. It competes with already dense mobile overlays, reducing the visible survivor and infected action. This is one concrete, independently judgeable visual defect.
+
+**Builder:** reduced the warning to a bounded **36–42px** two-line mobile panel, kept the 10px danger headline and 11px detail, and retained complete underlying alert text for assistive technology. Reduced shadow spread but retained danger contrast. Added a Playwright screenshot `mobile-critical-alert.png` from a real seeded large-horde scene at **390×844** and checks for height, separation from vitals, remaining playfield, width and typography. No changes to the fixed-step seeded simulation, authoritative persistence, 3D scene logic, desktop controls or 2.5D fallback.
+
+**Verification OPEN:** new screenshot, visual comparison and Actions status must be inspected before declaring this fix successful. Character/urban asset quality, motion, hardware GPU p95 and unattended OBS stability remain major gaps. Do not merge or deploy.

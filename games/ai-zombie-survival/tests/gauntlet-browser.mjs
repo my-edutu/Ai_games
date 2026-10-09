@@ -301,6 +301,25 @@ try{
   assert.equal(await page.locator('#hud').getAttribute('data-mobile-panel'),'none');
   report.checks.mobileMissionPanels=true;
   report.checks.mobileResponsive=true;
+  // Compact crisis warning must retain a readable 3D phone playfield.
+  await page.goto('http://127.0.0.1:4177/web/3d.html?scenario=large-horde&freeze=1',{waitUntil:'load'});
+  await page.waitForFunction(()=>document.querySelector('#alertBanner')?.hidden===false,{timeout:12000});
+  const warning=await page.locator('#alertBanner').evaluate(el=>{
+    const r=el.getBoundingClientRect();
+    const s=document.querySelector('.mobileOverview').getBoundingClientRect();
+    return {height:r.height,width:r.width,top:r.top,bottom:r.bottom,
+      summaryBottom:s.bottom,visible:!el.hidden,
+      titleSize:parseFloat(getComputedStyle(document.querySelector('#alertLabel')).fontSize),
+      detailSize:parseFloat(getComputedStyle(document.querySelector('#alertDetail')).fontSize)};
+  });
+  assert.equal(warning.visible,true);
+  assert.ok(warning.height>=32&&warning.height<=42,'mobile alert must use two compact lines');
+  assert.ok(warning.top>=warning.summaryBottom+2,'warning overlaps survival vitals');
+  assert.ok(warning.bottom<=180,'warning obscures the phone action');
+  assert.ok(warning.width<=390,'mobile warning overflows phone width');
+  assert.ok(warning.titleSize>=10&&warning.detailSize>=11,'warning typography too small');
+  await page.screenshot({path:root+'mobile-critical-alert.png',animations:'disabled'});
+  report.checks.mobileCriticalAlertViewport=true;
   await page.goto('http://127.0.0.1:4177/web/3d.html?scenario=failure&restartMs=750',{waitUntil:'load'});
   await page.waitForFunction(()=>document.querySelector('#status')?.textContent?.includes('RUN 2'),{timeout:15000});
   assert.match(await page.locator('#status').textContent(),/RUN 2/);
