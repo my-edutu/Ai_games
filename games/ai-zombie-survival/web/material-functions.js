@@ -1,0 +1,48 @@
+// Material vocabulary for urban cinematic WebGL2 rendering. Optional high quality pass
+// remains bypassed on software GPUs; all source colours still come from real world meshes.
+export const materialFunctions=[
+  'float materialHash(vec3 p){return fract(sin(dot(p,vec3(129.31,311.71,71.23)))*43758.5453);}',
+  'float materialNoise(vec3 p){',
+    'vec3 i=floor(p),f=fract(p);f=f*f*(3.0-2.0*f);',
+    'float a=mix(materialHash(i),materialHash(i+vec3(1,0,0)),f.x);',
+    'float b=mix(materialHash(i+vec3(0,1,0)),materialHash(i+vec3(1,1,0)),f.x);',
+    'float c=mix(materialHash(i+vec3(0,0,1)),materialHash(i+vec3(1,0,1)),f.x);',
+    'float d=mix(materialHash(i+vec3(0,1,1)),materialHash(i+vec3(1,1,1)),f.x);',
+    'return mix(mix(a,b,f.y),mix(c,d,f.y),f.z);',
+  '}',
+  'vec3 materialWear(vec3 albedo,vec3 world,vec3 normal,float wet){',
+    'float coarse=materialNoise(world*vec3(.54,.63,.54));',
+    'float fine=materialNoise(world*2.47);',
+    'float streak=smoothstep(.36,.73,materialNoise(world*vec3(.8,.12,.8)));',
+    'float wall=1.0-smoothstep(.15,.6,abs(normal.y));',
+    'float dirt=wall*(.03+.11*(1.0-coarse))+.065*(.5-fine);',
+    'float leak=wall*streak*smoothstep(1.1,10.0,world.y)*.074;',
+    'float ground=(1.0-wall)*smoothstep(.04,.18,wet)*(.03+fine*.04);',
+    'return max(vec3(.0),albedo*(1.0-dirt-leak-ground));',
+  '}',
+  'float materialRoughness(vec3 albedo,vec3 world,vec3 normal,float wet){',
+    'float gray=1.0-(max(albedo.r,max(albedo.g,albedo.b))-min(albedo.r,min(albedo.g,albedo.b)));',
+    'float road=(1.0-smoothstep(.08,.35,world.y))*max(0.0,normal.y);',
+    'float rough=mix(.77,.51,clamp(gray*.50,0.0,1.0));',
+    'float puddle=road*smoothstep(.47,.72,materialNoise(world*vec3(.35,1.0,.35)));',
+    'return clamp(rough-wet*(.20+.30*puddle),.09,.93);',
+  '}',
+  'vec3 materialSpecular(vec3 base,vec3 N,vec3 L,vec3 V,float roughness,float sunExposure){',
+    'vec3 H=normalize(L+V);',
+    'float NdotL=max(dot(N,L),.001),NdotV=max(dot(N,V),.001);',
+    'float NdotH=max(dot(N,H),.001),VdotH=max(dot(V,H),0.0);',
+    'float alpha=roughness*roughness,alpha2=alpha*alpha;',
+    'float denom=NdotH*NdotH*(alpha2-1.0)+1.0;',
+    'float D=alpha2/max(.01,3.14159*denom*denom);',
+    'float k=pow(roughness+1.0,2.0)*.125;',
+    'float G=(NdotV/(NdotV*(1.0-k)+k))*(NdotL/(NdotL*(1.0-k)+k));',
+    'float metal=.13*max(0.0,1.0-max(base.r,max(base.g,base.b)));',
+    'vec3 F0=mix(vec3(.045),base,metal);',
+    'vec3 F=F0+(1.0-F0)*pow(1.0-VdotH,5.0);',
+    'return min(vec3(.68),D*G*F/max(.025,4.0*NdotV*NdotL))*NdotL*sunExposure;',
+  '}'
+];
+export const MATERIAL_PASS_LIMITS=Object.freeze({
+  textureScale:2.47,minRoughness:.09,maxRoughness:.93,
+  softGpuDefault:false,highGpuDefault:true
+});
