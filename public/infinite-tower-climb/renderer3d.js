@@ -17,7 +17,7 @@
   scene.background = new THREE.Color('#10172a');
   scene.fog = new THREE.FogExp2('#10172a', 0.004);
   const camera = new THREE.PerspectiveCamera(52, 1, 0.1, 850);
-  camera.position.set(0, 12, 48);
+  camera.position.set(0, 12, 22);
   const hemi = new THREE.HemisphereLight(0x91c9ff, 0x1a1325, 2.2);
   scene.add(hemi);
   renderer.outputColorSpace=THREE.SRGBColorSpace;
@@ -52,6 +52,9 @@
   let importedClimber=null,previousFrameTime=performance.now();
   let lastClimberPosition = null;
   const groundLight=new THREE.PointLight(0xffaa55,140,110,1.8);scene.add(groundLight);
+  const frontFill=new THREE.PointLight(0x6beaff,185,60,1.5);
+  frontFill.name='Cinematic climber fill';
+  scene.add(frontFill);
   const themeColors = {foundry:0xffaa55,ruins:0xa9d5a1,clockwork:0xffc879,void:0xaa72ff,storm:0x92c5ff};
   let themeKey = '', frameCount = 0, lastRenderWidth = 0, lastRenderHeight = 0;
   const metrics = {frames:0,frameMs:0,actors:0,renderer:'webgl',status:'starting'};
@@ -73,13 +76,17 @@
     if (w === lastRenderWidth && h === lastRenderHeight) return;
     lastRenderWidth=w; lastRenderHeight=h;
     renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 2));
-    renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix();
+    renderer.setSize(w, h, false);
+    camera.aspect = w / h;
+    camera.fov=camera.aspect<.8?64:50;
+    camera.updateProjectionMatrix();
   };
   function rebuild(s) {
     const theme = String(s.theme || 'foundry').toLowerCase();
     if (theme !== themeKey) { themeKey=theme; const color=themeColors[theme]||0xffaa55; rim.color.setHex(color); groundLight.color.setHex(color); architecture.setTheme(theme);sky.setTheme(theme);geology.setTheme(theme);spectacle.setTheme(theme);entities.setTheme(theme);weather.setTheme(theme); }
     groundLight.position.set(Number(s.player?.x||0)/1000-Number(s.worldWidth||0)/2000,Number(s.player?.y||0)/1000-Number(s.chunkBaseY||0)/1000+12,9);
-    rim.position.set(xCoord(s.player?.x,s.worldWidth)+18,Number(s.player?.y||0)/1000-Number(s.chunkBaseY||0)/1000+10,12);
+    rim.position.set(xCoord(s.player?.x,s.worldWidth)+8,Number(s.player?.y||0)/1000-Number(s.chunkBaseY||0)/1000+5,12);
+    frontFill.position.set(xCoord(s.player?.x,s.worldWidth)-4,Number(s.player?.y||0)/1000-Number(s.chunkBaseY||0)/1000+3,10);
     const base = Number(s.chunkBaseY || 0) / 1000;
     const y = value => Number(value || 0) / 1000 - base;
     const x = value => Number(value || 0) / 1000 - Number(s.worldWidth || 0) / 2000;
@@ -127,7 +134,7 @@
       if (lastClimberPosition) climber.setMotion(px-lastClimberPosition.x,py-lastClimberPosition.y,s.intent?.summary||'');
       lastClimberPosition={x:px,y:py};
     }
-    if (!lastState) {camera.position.x=x(s.player?.x)+7;camera.position.y=y(s.player?.y)+8;}
+    if (!lastState) {camera.position.x=x(s.player?.x)+3.5;camera.position.y=y(s.player?.y)+7;camera.position.z=camera.aspect<.8?30:22;}
     architecture.root.position.x=x(s.player?.x);
     key.position.set(x(s.player?.x)-35,y(s.player?.y)+80,85);
     key.target.position.set(x(s.player?.x),y(s.player?.y),0);
@@ -174,11 +181,11 @@
     if (lastState) {
       const playerX=Number(lastState.player?.x||0)/1000-Number(lastState.worldWidth||0)/2000;
       const playerY=Number(lastState.player?.y||0)/1000-Number(lastState.chunkBaseY||0)/1000;
-      camera.position.x+=(playerX+6-camera.position.x)*0.12;
-      camera.position.y+=(playerY+9-camera.position.y)*0.12;
-      camera.lookAt(playerX,playerY+2.2,0);
-      const targetDepth=scenePhase==='guardian'?43:scenePhase==='danger'?34:scenePhase==='result'?62:40;
-      camera.position.z+=(targetDepth-camera.position.z)*.1;
+      camera.position.x+=(playerX+(camera.aspect<.8?2.2:3.7)-camera.position.x)*0.15;
+      camera.position.y+=(playerY+7.5-camera.position.y)*0.15;
+      camera.lookAt(playerX,playerY+2.25,climber.root.position.z);
+      const targetDepth=(camera.aspect<.8?32:22)+(scenePhase==='guardian'?5:scenePhase==='danger'?-1:scenePhase==='result'?12:0);
+      camera.position.z+=(targetDepth-camera.position.z)*.15;
       architecture.root.position.x=playerX;
     }
     if (++frameCount % 2 === 0 && !document.body.dataset.reducedMotion?.includes('true')) { const elapsed=clock.getElapsedTime(); for (const object of actors.children) if (object.userData.pickup) { object.rotation.y=elapsed*1.5; object.position.y+=Math.sin(elapsed*2+object.position.x)*0.001; } }
@@ -203,6 +210,7 @@
     }
     metrics.vfxParticles=vfx.count;
     metrics.scene=scenePhase;metrics.cameraDepth=Math.round(camera.position.z);
+    metrics.heroCompositionGoalPct=14;
     metrics.cameraTargetY=lastState?Math.round(Number(lastState.player?.y||0)/1000-Number(lastState.chunkBaseY||0)/1000):0;
     if(diagnostics&&metrics.frames%12===0)diagnostics.textContent=[
       '3D GAUNTLET / '+metrics.status,
