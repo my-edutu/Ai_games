@@ -407,3 +407,19 @@ button:focus-visible,select:focus-visible,.button:focus-visible{outline:3px soli
   .focus-view:not(.autonomous) .touch{bottom:77px}
 }
 @media(prefers-reduced-motion:reduce){.focus-view-toggle{transition:none!important}}
+
+/* Gauntlet critic fix: a nested absolute toolbar drifted outside the 390px
+   portrait layout. HUD restoration lives in its own fixed viewport layer. */
+#focus-view-exit{display:none;position:fixed;z-index:8;right:16px;
+  bottom:max(16px,env(safe-area-inset-bottom));padding:11px 16px;
+  border:1px solid #ffe6ab;border-radius:12px;
+  background:linear-gradient(130deg,#ffe298,#ffba64);color:#183341;
+  box-shadow:0 9px 30px #0007;font-size:11px;font-weight:950;
+  line-height:1.2;letter-spacing:.025em;pointer-events:auto}
+.focus-view #focus-view-exit{display:inline-flex!important;align-items:center;justify-content:center}
+.focus-view .toolbar{display:none!important}
+@media(max-width:650px){
+  #focus-view-exit{right:12px;bottom:max(13px,env(safe-area-inset-bottom));
+    padding:12px 15px;min-height:44px;max-width:calc(100vw - 24px)}
+  .focus-view:not(.autonomous) .touch{bottom:76px}
+}
