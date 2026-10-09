@@ -512,3 +512,39 @@ body {
   .stage-journey {background:#050b20;border:2px solid #fff;backdrop-filter:none}
   .stage-journey-steps li[data-state="active"] b{box-shadow:none}
 }
+
+/* GAUNTLET LOOP 51 · Broadcast race telemetry in each stable leaderboard row.
+   --race-progress is sourced from the server's leaderboard progressPermille. */
+.leaderboard-panel.broadcast-overlay .leaderboard li::after {
+  content:"";
+  position:absolute;
+  left:0;
+  bottom:0;
+  width:var(--race-progress,0%);
+  max-width:100%;
+  height:3px;
+  z-index:1;
+  pointer-events:none;
+  border-radius:0 3px 3px 8px;
+  background:linear-gradient(90deg,var(--arena-second),var(--arena-accent));
+  box-shadow:0 -1px 9px rgba(65,210,255,.35);
+  transition:width .16s ease-out;
+}
+.leaderboard-panel.broadcast-overlay .leaderboard li[data-status="qualified"]::after,
+.leaderboard-panel.broadcast-overlay .leaderboard li[data-status="champion"]::after{
+  background:linear-gradient(90deg,#48dab0,#bcffbd);
+}
+.leaderboard-panel.broadcast-overlay .leaderboard li[data-status="threatened"]::after {
+  background:linear-gradient(90deg,#ffab59,#ff5369);
+}
+.leaderboard-panel.broadcast-overlay .leaderboard li:first-child .rank{
+  color:#fff2ac;
+  font-weight:950;
+}
+.leaderboard-panel.broadcast-overlay .leaderboard li[data-inspected="true"]{
+  outline:1px solid var(--arena-accent);
+  outline-offset:-2px;
+}
+@media(prefers-reduced-motion:reduce){
+  .leaderboard-panel.broadcast-overlay .leaderboard li::after{transition:none}
+}
