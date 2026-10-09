@@ -861,3 +861,31 @@ test('Tiny Kingdom directional shadow geometry follows sun and never corrupts ci
   expect(rendering.source).toEqual(sample.source);
   expect(errors).toEqual([]);
 });
+
+test('Gauntlet 034 seasonal meadow blades are bounded and cached across camera moves',async({page})=>{
+ const faults=[];page.on('pageerror',error=>faults.push(error.message));
+ await page.setContent(html);
+ await page.waitForFunction(()=>Boolean(window.__tinyKingdom));
+ await page.waitForFunction(()=>window.__tinyKingdom.renderStats().scenicMeshTriangles>0);
+ await page.locator('#pause').click();
+ const initial=await page.evaluate(()=>({
+  meadow:window.__tinyKingdom.getMeadowStats(),
+  scene:window.__tinyKingdom.renderStats(),
+  authority:JSON.stringify(window.__tinyKingdom.exportSnapshot())
+ }));
+ expect(initial.meadow.clusters).toBeGreaterThan(240);
+ expect(initial.meadow.clusters).toBeLessThan(480);
+ expect(initial.meadow.triangles).toBe(initial.meadow.clusters*8);
+ expect(initial.meadow.cached).toBe(true);
+ await page.evaluate(()=>window.__tinyKingdom.setCamera({focus:[29,10],yaw:.8,pitch:.53,zoom:17}));
+ await page.waitForTimeout(250);
+ const after=await page.evaluate(()=>({
+  meadow:window.__tinyKingdom.getMeadowStats(),
+  scene:window.__tinyKingdom.renderStats(),
+  authority:JSON.stringify(window.__tinyKingdom.exportSnapshot())
+ }));
+ expect(after.meadow).toEqual(initial.meadow);
+ expect(after.scene.staticGpuUploads).toBe(initial.scene.staticGpuUploads);
+ expect(after.authority).toBe(initial.authority);
+ expect(faults).toEqual([]);
+});
