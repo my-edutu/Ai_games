@@ -4,6 +4,26 @@ const canvas=document.getElementById('tower-canvas'),ctx=canvas.getContext('2d',
 const reduced=params.get('reducedMotion')==='1',contrast=params.get('highContrast')==='1',muted=params.get('muted')==='1',clean=params.get('cleanFeed')==='1';
 body.dataset.reducedMotion=String(reduced);body.dataset.highContrast=String(contrast);body.classList.toggle('clean-feed',clean);
 const $=id=>document.getElementById(id),q=id=>document.querySelector(`[data-testid=${id}]`),MAX_PARTICLES=96;
+/* Presentation-only spectator preference. No simulation state or renderer changes. */
+const hudViewToggle=$('hud-view-toggle');
+function readHudFocus(){try{return sessionStorage.getItem('tower-hud-view')==='focus'}catch{return false}}
+let hudFocused=params.has('hud')?params.get('hud')==='focus':readHudFocus();
+function setTowerHudFocus(enabled,persist=true){
+  hudFocused=!!enabled;
+  body.classList.toggle('hud-focus',hudFocused);
+  body.dataset.towerHud=hudFocused?'focus':'full';
+  if(hudViewToggle){
+    hudViewToggle.setAttribute('aria-pressed',String(hudFocused));
+    hudViewToggle.setAttribute('aria-label',hudFocused?'Show full telemetry HUD':'Enable cinematic focus view');
+    hudViewToggle.title=hudFocused?'Show full telemetry HUD':'Toggle cinematic focus view';
+    const text=hudViewToggle.querySelector('.hud-view-copy');
+    if(text)text.textContent=hudFocused?'FULL HUD':'FOCUS VIEW';
+  }
+  if(persist){try{sessionStorage.setItem('tower-hud-view',hudFocused?'focus':'full')}catch{}}
+}
+hudViewToggle?.addEventListener('click',()=>setTowerHudFocus(!hudFocused));
+setTowerHudFocus(hudFocused,false);
+
 let current=null,polling=false,closed=false,lastChecksum='';
 function fit(){const d=Math.min(2,devicePixelRatio||1),r=canvas.getBoundingClientRect(),w=Math.max(1,Math.round(r.width*d)),h=Math.max(1,Math.round(r.height*d));if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h;ctx.setTransform(d,0,0,d,0,0)}}
 function sceneName(scene){return({normal:'ASCENDING',danger:'DANGER',upgrade:'BUILD CHOICE',guardian:'GUARDIAN',result:'RUN COMPLETE',intermission:'NEXT RUN',recovery:'RECOVERING'})[scene]||String(scene).toUpperCase()}
