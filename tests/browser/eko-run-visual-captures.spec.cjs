@@ -65,7 +65,7 @@ test('capture real portrait visual reference without overlaid active AI controls
   fs.writeFileSync(path.join(DIR,'gauntlet-mobile-visual-metrics.json'),JSON.stringify(audit,null,2));
   await page.evaluate(()=>window.__EKO_SET_FOCUS_VIEW__(true));
   await expect(page.locator('#hud-settings-toggle')).toBeHidden();
-  await expect(page.locator('#focus-view-toggle')).toBeVisible();
+  await expect(page.locator('#focus-view-exit')).toBeVisible();
   await page.screenshot({path:path.join(DIR,'gauntlet-mobile-immersive.png'),fullPage:true});
   await page.evaluate(()=>window.__EKO_SET_FOCUS_VIEW__(false));
 
