@@ -945,3 +945,26 @@ test('Cottage roof details and smoke stay deterministic and do not corrupt origi
  expect(output.unchanged).toBe(true);
  expect(errors).toEqual([]);
 });
+
+test('Gauntlet 035 HUD API restores actual controls after cinematic GPU screenshot and on mobile',async({page})=>{
+ const errors=[];page.on('pageerror',error=>errors.push(error.message));
+ await page.setViewportSize({width:390,height:844});
+ await page.setContent(html);
+ await page.waitForFunction(()=>Boolean(window.__tinyKingdom));
+ await page.locator('#pause').click();
+ const before=await page.evaluate(()=>JSON.stringify(window.__tinyKingdom.exportSnapshot()));
+ await page.evaluate(()=>window.__tinyKingdom.setHudMode('cinema'));
+ await expect(page.locator('body')).toHaveAttribute('data-hud','cinema');
+ await expect(page.locator('.world-tour')).toBeHidden();
+ await page.evaluate(()=>window.__tinyKingdom.setHudMode('full'));
+ await expect(page.locator('body')).toHaveAttribute('data-hud','full');
+ await expect(page.locator('.world-tour')).toBeVisible();
+ await expect(page.locator('.sidebar')).toBeVisible();
+ expect(await page.evaluate(()=>document.querySelector('.world-tour').getBoundingClientRect().width)).toBeGreaterThan(100);
+ await page.evaluate(()=>window.__tinyKingdom.setHudMode(true));
+ await expect(page.locator('#cinema-exit')).toBeVisible();
+ await page.evaluate(()=>window.__tinyKingdom.setHudMode(false));
+ await expect(page.locator('#cinema-exit')).toBeHidden();
+ expect(await page.evaluate(()=>JSON.stringify(window.__tinyKingdom.exportSnapshot()))).toEqual(before);
+ expect(errors).toEqual([]);
+});
