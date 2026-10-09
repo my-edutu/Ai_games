@@ -80,3 +80,21 @@ test('jump, run, slide and failure change separate articulated joints without mu
   assert.ok(torso.rotation.z<-.7);
   assert.equal(JSON.stringify(initial),frozen);
 });
+
+test('Tayo gives authentic readable facial acting and stops blinking for reduced-motion users',async()=>{
+  const actor=await factory();
+  assert.ok(actor.expressiveFacialParts>=8);
+  const lid=actor.root.getObjectByName('expressive eyelid');
+  const brow=actor.root.getObjectByName('brow');
+  const smile=actor.root.getObjectByName('smile');
+  assert.ok(lid&&brow&&smile);
+  actor.pose(runFrame('grounded'),1000,false);
+  const open=lid.scale.y,neutralBrow=brow.position.y;
+  actor.pose(runFrame('grounded'),130,false);
+  assert.ok(lid.scale.y>open+.035,'hand-crafted actor must actually blink');
+  actor.pose(runFrame('stumbling'),130,false);
+  assert.ok(brow.position.y<neutralBrow,'danger should lower eyebrows');
+  assert.ok(smile.scale.z<.08,'stumble should change face expression');
+  actor.pose(runFrame('grounded'),130,true);
+  assert.ok(lid.scale.y<=.003,'reduced-motion request suppresses animated blinking');
+});
