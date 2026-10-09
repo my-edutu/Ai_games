@@ -24,15 +24,24 @@
   window.__TOWER_EVIDENCE_CAPTURE__=()=>evidence.capture(window.__TOWER_VOLUMETRIC_STATE__,'manual user capture');
   window.__TOWER_EVIDENCE_RECORD__=()=>evidence.recordClip(window.__TOWER_VOLUMETRIC_STATE__,8000);
   renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure=1.18;renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
-  const scene=new THREE.Scene();scene.fog=new THREE.FogExp2(0x1c2131,.008);
+  renderer.toneMappingExposure=1.42;renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+  const scene=new THREE.Scene();scene.fog=new THREE.FogExp2(0x1c2131,.0053);
   const camera=new THREE.PerspectiveCamera(57,1,.1,700);
   const director=createTowerDirector(THREE,camera);
   const sky=createTowerSky(THREE,scene);
   const geology=createTowerGeology(THREE,scene);
   const safetyRope=createClimbingRope(THREE,scene);
   const hemi=new THREE.HemisphereLight(0xb4d5ff,0x1a2333,2.7);scene.add(hemi);
-  const sun=new THREE.DirectionalLight(0xffd9a3,2.6);sun.position.set(-30,70,40);scene.add(sun);
+  const sun=new THREE.DirectionalLight(0xffd9a3,3.3);sun.position.set(-30,70,40);scene.add(sun);
+  const heroFill=new THREE.PointLight(0x5efaff,145,38,1.65),heroWarm=new THREE.PointLight(0xffa968,125,35,1.7);
+  scene.add(heroFill,heroWarm);
+  const biomeMood={
+    foundry:{cool:0x58eaf3,warm:0xffbd63,sun:0xffdebd,description:'THE EMBER FORGE'},
+    ruins:{cool:0x81ffd0,warm:0xe2ff86,sun:0xddffcf,description:'THE EMERALD SANCTUARY'},
+    clockwork:{cool:0x69dcff,warm:0xffd17c,sun:0xffebbf,description:'THE GOLDEN ENGINE'},
+    storm:{cool:0x7ab6ff,warm:0x9eabff,sun:0xc6dbff,description:'THE TEMPEST SPIRES'},
+    void:{cool:0xd49bff,warm:0xff89e9,sun:0xe6c5ff,description:'THE ASTRAL ABYSS'}
+  };
   progress('creating-environment');
   const environment=createTowerEnvironment(THREE,scene);environment.root.scale.set(1.25,1.25,.8);
   const art=createTowerEntities(THREE),climber=createClimber(THREE),vfx=createTowerVfx(THREE,scene);
@@ -72,6 +81,9 @@
   const input=createTowerInput(params);
   const manual=input.manual;
   document.body.dataset.reducedMotion=String(reduced);
+  document.body.dataset.manual=String(manual);
+  const gameModeLink=document.getElementById('game-mode');
+  if(manual&&gameModeLink){gameModeLink.href='/tower/volumetric';gameModeLink.textContent='WATCH AUTONOMOUS ↗';}
   let biome='',simTime=0,accumulator=0,lastFrame=performance.now(),sizeW=0,sizeH=0;
   let renderFrames=0,lastFrameMark=performance.now(),rollingFrameMs=16.7;
   const renderMetrics={frames:0,fps:0,frameMs:0,drawCalls:0,triangles:0,gpuGeometries:0,gpuTextures:0,status:'starting'};
@@ -112,7 +124,14 @@
     for(const [id,mesh] of models){if(!live.has(id)){world.remove(mesh);art.release(mesh);models.delete(id);}}
     for(const [id,mesh] of guardians){if(!live.has(id)){enemyScene.remove(mesh);art.release(mesh);guardians.delete(id);}}
     for(const [id,mesh] of rewards){if(!live.has(id)){rewardScene.remove(mesh);art.release(mesh);rewards.delete(id);}}
-    if(snapshot.theme!==biome){biome=snapshot.theme;environment.setTheme(biome);sky.setTheme(biome);geology.setTheme(biome);}
+    if(snapshot.theme!==biome){
+      biome=snapshot.theme;environment.setTheme(biome);sky.setTheme(biome);geology.setTheme(biome);
+      document.body.dataset.biome=biome;
+      const mood=biomeMood[biome]||biomeMood.foundry;
+      heroFill.color.setHex(mood.cool);heroWarm.color.setHex(mood.warm);sun.color.setHex(mood.sun);
+      const biomeDescription=document.getElementById('biome-description');
+      if(biomeDescription)biomeDescription.textContent=mood.description;
+    }
   }
   function fixedStep(dt){
     const snapshot=sim.step(dt,input.sample());simTime+=dt;
@@ -158,6 +177,8 @@
     sky.update(simTime,camera,{climberY:player.y,reducedMotion:reduced});
     details.cameraMode=directorFrame.mode;
     sun.position.set(player.x-30,player.y+65,player.z+34);
+    heroFill.position.set(player.x-5,player.y+6,player.z+8);
+    heroWarm.position.set(player.x+5,player.y+2,player.z+5);
     vfx.update(dt,{x:player.x,y:player.y,z:player.z,dx:player.vx,dy:player.vy},biome,0,reduced);
     try{renderer.render(scene,camera);}
     catch(error){renderMetrics.status='failed';renderMetrics.error=String(error?.stack||error);
@@ -197,6 +218,33 @@
       document.getElementById('build-ward').textContent=String(details.build?.ward||0);
       document.getElementById('build-salvage').textContent=String(details.build?.salvage||0);
       document.getElementById('shield-value').textContent=String(details.shields||0);
+      const nextMilestone=(Math.floor(player.at/5)+1)*5;
+      const milestone=document.getElementById('next-milestone');
+      if(milestone)milestone.textContent=String(nextMilestone).padStart(2,'0');
+      const milestoneFill=document.getElementById('milestone-progress');
+      if(milestoneFill)milestoneFill.style.width=(player.at%5)*20+'%';
+      const healthAmount=Math.max(0,Math.min(100,Number(details.health||0)*20));
+      const gripAmount=Math.max(0,Math.min(100,Number(details.gripStamina||0)));
+      const hpLabel=document.getElementById('health-percent'),gripLabel=document.getElementById('grip-percent');
+      if(hpLabel)hpLabel.textContent=healthAmount+'%';
+      if(gripLabel)gripLabel.textContent=Math.round(gripAmount)+'%';
+      const hpBar=document.getElementById('health-bar-fill'),gripBar=document.getElementById('grip-bar-fill');
+      if(hpBar)hpBar.style.width=healthAmount+'%';
+      if(gripBar)gripBar.style.width=gripAmount+'%';
+      const bossPanel=document.getElementById('boss-alert');
+      const livingGuardian=sim.snapshot().platforms.find(p=>p.i===player.at&&p.guardianHealth>0);
+      if(bossPanel){
+        bossPanel.hidden=!livingGuardian;
+        if(livingGuardian){
+          const guardianName=document.getElementById('boss-title');
+          if(guardianName)guardianName.textContent=(livingGuardian.guardianClass||'warden').replace(/-/g,' ').toUpperCase();
+          const bossIntent=document.getElementById('boss-intent');
+          if(bossIntent)bossIntent.textContent=String(details.intent||'GUARDIAN ENCOUNTER');
+          const bossHp=document.getElementById('boss-health');
+          if(bossHp)bossHp.style.width=Math.max(0,Math.min(100,
+            100*livingGuardian.guardianHealth/(livingGuardian.guardianClass==='titan'?7:5)))+'%';
+        }
+      }
       const wallStatus=document.getElementById('wall-status');
       if(wallStatus)wallStatus.textContent='MANTLES '+(details.wallClimbs||0)+' · GRIP '+Math.round(details.gripStamina||0)+'% · ROPE SAVES '+(details.safetyRescues||0);
       status.textContent=(manual?'MANUAL 3D':'AUTONOMOUS 3D AI')+' · '+details.mode+' · '+details.tick+' TICKS';
