@@ -752,3 +752,32 @@ test('Gauntlet 031 animated citizen geometry remains aligned and bounded', async
   expect(audit.totalTriangles).toBe(audit.static.triangles+audit.dynamic.triangles);
   expect(faults).toEqual([]);
 });
+
+test('Gauntlet 032 smooth 3D ellipsoids have no degenerate pole normals and bounded colours',async({page})=>{
+ const faults=[];page.on('pageerror',error=>faults.push(error.message));
+ await page.setContent(html);
+ await page.waitForFunction(()=>Boolean(window.__tinyKingdom));
+ await page.waitForFunction(()=>window.__tinyKingdom.renderStats().lastFrameTriangles>0);
+ await page.locator('#pause').click();
+ const before=await page.evaluate(()=>({
+  audit:window.__tinyKingdom.getGeometryAudit(),
+  world:JSON.stringify(window.__tinyKingdom.exportSnapshot())
+ }));
+ for(const mesh of [before.audit.static,before.audit.dynamic]){
+  expect(mesh.aligned).toBe(true);
+  expect(mesh.invalidComponents).toBe(0);
+  expect(mesh.invalidNormals).toBe(0);
+  expect(mesh.invalidColors).toBe(0);
+  expect(mesh.outOfBounds).toBe(0);
+ }
+ await page.evaluate(()=>window.__tinyKingdom.setCamera({focus:[-6,18.1],yaw:.82,pitch:.53,zoom:19}));
+ await page.waitForTimeout(250);
+ const after=await page.evaluate(()=>({
+  audit:window.__tinyKingdom.getGeometryAudit(),
+  world:JSON.stringify(window.__tinyKingdom.exportSnapshot())
+ }));
+ expect(after.world).toBe(before.world);
+ expect(after.audit.static.invalidNormals).toBe(0);
+ expect(after.audit.dynamic.invalidNormals).toBe(0);
+ expect(faults).toEqual([]);
+});
