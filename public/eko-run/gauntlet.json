@@ -3,7 +3,7 @@
   "baseline": "SYBO Subway Surfers City — official gameplay footage; original IP only",
   "scope": "Interactive 3D vertical slice; not a finished or externally benchmarked game",
   "updated": "2026-10-09",
-  "runStatus": "Iterations 16–17 code committed. Live real-frame capture gallery and randomized optional blind A/B reviewer added, correction of incorrect landmark-test doubles, browser tests and same-origin screenshot provenance checks. Latest CI on these commits still pending and production visual bar FAILS. Connected subagent/Ultracode tunnel unavailable; independent judge/parallel agent rounds not claimed.",
+  "runStatus": "UI Gauntlet loops 18–19: responsive HUD + same-origin live-review repair VERIFIED at da168e1 via 32 Node and 7 Chromium tests; current follow-up camera/obstacle cues/progress timeline under CI. Overall SYBO visual reference grade FAIL; software Chromium FPS 2–7, no independent A/B verdict or hardware device signoff.",
   "iterations": [
     {
       "round": 0,
@@ -148,6 +148,22 @@
       "builder": "Added randomized Image A / Image B local browser review, legitimate external reference upload (no remote storage), anonymized human vote, original image-save links, tests for real WebGL PNG dimensions and reference fixture UI behavior. Fixed landmarker test mocks to match actual sphere signatures, preventing a false safety violation. Preserved stable server authoritative movement and UI compatibility.",
       "critic": "Human blind trial tool itself cannot establish actual quality victory. Reference upload origin is unverified, randomization is browser-local, and CI's cross-platform FPS 2–4 cannot substitute for device GPU benchmarks. Test failures may still emerge from slow headless Chromium.",
       "decision": "Block production acceptance until current CI visual captures and independent blind comparisons provide a repeated convincing win, and hardware FPS/performance meets target."
+    },
+    {
+      "round": 18,
+      "title": "Mobile-first broadcast HUD: give playable Lagos scenery its space",
+      "status": "VERIFIED current-run GitHub Actions 37897277701",
+      "builder": "Made secondary settings a collapsible, keyboard accessible mobile Options dock, shrank progress bar and scoreboard, tuned responsive brand sizing and foreground vignette, removed costly backdrop filters on mobile, improved initial hero snap. Allowed same-origin WebGL viewer inside restrictive CSP, loaded frame eagerly after user starts preview. Browser artifacts contain actual desktop, mobile, 3/4 and in-progress reviewer screenshots.",
+      "critic": "Real 390×844 before image consumed ~300px for the bottom HUD and Tayo sometimes appeared at screen edge. Real verified after image has ~160px bottom HUD and Tayo near center-left. More of the 3D game visible, but street scenery is still boxy, UI game feel is not at SYBO standard, and CI software-renderer reads only 2–7 FPS. One autonomous terminal failure over 57,600 ticks is an open reliability gate.",
+      "decision": "Retain mobile space improvements; repair desktop side-view horizontal padding and make hazard cues/action telemetry more deliberate. Only judge further after new captures."
+    },
+    {
+      "round": 19,
+      "title": "Broadcast quality pass: clean desktop camera and critic navigation",
+      "status": "committed, awaiting new Chromium screenshot capture",
+      "builder": "Shifted side-view desktop follow-camera ahead offset from 3.3m to 2.55m to place Tayo inside composition safe zone, introduced color+symbol hazard warning card, disabled expensive mobile glass blur, reworked live Gauntlet round history to show six recent compact cards with expandable critique details and optional full-history view. Added UI/browser checks.",
+      "critic": "Prior verified desktop side camera had center x=249px on 1280px viewport, below 22% safe left boundary, despite test eventually settling. Latest fixes require actual screenshots to confirm. Progress page was several screens of densely stacked text obscuring live visual evidence; new progressive-disclosure design aims to reduce that.",
+      "decision": "Gate this iteration on real screenshot/Playwright success, mobile readability, camera framing and performance. Continue production modeling and independent blind comparison separately."
     }
   ],
   "gates": [
@@ -157,7 +173,7 @@
     },
     {
       "name": "WebGL 3D game opens on desktop and mobile",
-      "status": "last verified at e0685e1; current branch new features awaiting CI"
+      "status": "verified 2026-10-09 / 7 browser tests, run 37897277701; newer camera change not yet measured"
     },
     {
       "name": "Visually polished fully rigged character and outfits",
@@ -169,19 +185,19 @@
     },
     {
       "name": "Responsive, fair obstacles with observable animation/AI gameplay",
-      "status": "OPEN — eight-seed autonomy report and normal-speed footage pending"
+      "status": "OPEN — 8-seed 57,600-tick simulation reported one terminal failure, despite no command rejection"
     },
     {
       "name": "Stable FPS/mobile performance under declared hardware",
-      "status": "OPEN — last passing CI software Chromium 2–4 FPS and ~181 desktop calls; hardware benchmark missing"
+      "status": "OPEN — software-rendered Chromium 2–7 FPS, no physical/mobile hardware benchmark"
     },
     {
       "name": "Independent builder/critic and blind A/B vs reference",
-      "status": "OPEN — optional blind A/B review tool added; no independent agent judgement performed, worker tunnel unavailable"
+      "status": "OPEN — local blind human review UI verified; no independent blind scoring or working parallel worker tunnel"
     },
     {
       "name": "Live Gauntlet progress board with review record",
-      "status": "new real-WebGL screenshot gallery, CI evidence history and randomized review UI committed; latest browser validation pending"
+      "status": "verified same-origin real WebGL capture and A/B reviewer UI via run 37897277701, v19 recent-first UI pending"
     },
     {
       "name": "Original production models, audio and license provenance",
@@ -234,6 +250,12 @@
       "workflowRunId": 37785184878,
       "artifactId": 11554062576,
       "result": "PASS host/browser; desktop 181 draw calls, mobile hero center124px, software CI 2-4 FPS; reference FAIL"
+    },
+    {
+      "head": "da168e1bc880d4d3211fc3ec02a26c3a6d722cbc",
+      "workflowRunId": 37897277701,
+      "artifactId": 11601470378,
+      "result": "PASS 32 Node and 7 Chromium. Actual compact mobile HUD and WebGL replay gallery screenshot; 57,600 AI ticks, 1 terminal failure; CI software FPS 2–7. Benchmark FAIL"
     }
   ],
   "experimentalBuild": {
@@ -249,26 +271,27 @@
     ]
   },
   "latestImplementation": {
-    "head": "e0685e1083dac1745b1d6a2c436de1c107b54272",
-    "checked": "GitHub Actions 37785184878 PASS, artifacts 11554062576",
+    "head": "da168e1bc880d4d3211fc3ec02a26c3a6d722cbc",
+    "checked": "GitHub Actions 37897277701 PASS, artifact 11601470378",
     "newCapturedPhotos": [
-      "gauntlet-opening-street.png",
       "desktop.png",
       "mobile.png",
+      "gauntlet-opening-street.png",
       "gauntlet-mobile-portrait.png",
-      "gauntlet-tayo-outfit.png",
-      "gauntlet-approaching-hazard.png"
+      "gauntlet-three-quarter-desktop.png",
+      "gauntlet-three-quarter-portrait.png",
+      "live-review-progress.png"
     ],
     "metrics": {
-      "desktopDrawCalls": 181,
-      "staticCitySourceMeshes": 2052,
-      "staticWorldBatches": 16,
-      "portraitCenterXPx": 124,
-      "portraitHeightPx": 133,
-      "autonomySeeds": 8,
-      "autonomyTerminalFailures": 0
+      "nodeTests": 32,
+      "browserTests": 7,
+      "desktopSideCenterXPx": 249,
+      "mobileCenterXPx": 131,
+      "mobileCharacterHeightPx": 136,
+      "autonomyTicks": 57600,
+      "autonomyTerminalFailures": 1
     },
-    "proof": "Real Chromium and deterministic authority, not an independent user device or benchmark; still significantly below official Subway Surfers City visual standard."
+    "proof": "Authenticated GitHub Actions Chromium captures; later v19 changes are not represented in these images. Reference grade FAIL."
   },
   "latestBuild": {
     "branch": "feat/eko-run-3d-gauntlet-slice",
