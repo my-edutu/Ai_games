@@ -261,3 +261,36 @@ main[data-phase="night"]{--cyan:#7bcbff;--amber:#fbd197;--coral:#ff738c}main[dat
   font-variant-numeric:tabular-nums}
  .sceneBadge #verdict{color:#cbe6e5;font-size:8px}
 }
+
+
+/* GAUNTLET LOOP 39 — phone footer must never show chopped, unreadable controls.
+   Keep four complete 44px+ thumb targets. Secondary actions remain reachable
+   in an explicit accessible tray, never a half-visible horizontal scroll rail. */
+#mobileMoreControls{display:none}
+.secondaryControls{display:contents}
+@media(max-width:740px){
+  .bottom .controls{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));
+    gap:6px;max-width:100%;overflow:visible}
+  .bottom .controls>button{display:flex;align-items:center;justify-content:center;
+    gap:4px;min-width:0;width:100%;min-height:44px;padding:8px 4px;
+    font-size:9px;white-space:nowrap;overflow:hidden}
+  #mobileMoreControls{display:flex}
+  #mobileMoreControls[aria-expanded="true"]{color:#073340;background:linear-gradient(110deg,#42f2e1,#c2e9d7);
+    border-color:#b6f8e9}
+  .secondaryControls{display:none}
+  #hud[data-mobile-tools="open"] .secondaryControls{
+    display:grid;position:absolute;bottom:calc(135px + env(safe-area-inset-bottom,0px));
+    left:9px;right:9px;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;
+    padding:12px;border:1px solid #72c6d5a8;border-radius:11px;
+    background:linear-gradient(145deg,#112f45fa,#142238f9);
+    box-shadow:0 16px 65px #000b19e8;z-index:18;pointer-events:auto}
+  #hud[data-mobile-tools="open"] .secondaryControls>button,
+  #hud[data-mobile-tools="open"] .secondaryControls>a{
+    display:flex;align-items:center;justify-content:center;gap:4px;
+    min-width:0;min-height:44px;padding:8px 4px;font-size:10px;
+    border-radius:7px;text-align:center;white-space:nowrap}
+  #hud[data-mobile-tools="open"] .directorStrip{display:none}
+  #hud[data-cinema="true"] #mobileMoreControls{display:none}
+  #hud[data-cinema="true"] .bottom .controls{grid-template-columns:repeat(3,minmax(0,1fr))}
+  #hud[data-cinema="true"] .secondaryControls{display:none!important}
+}

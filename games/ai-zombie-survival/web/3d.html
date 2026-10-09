@@ -11,7 +11,7 @@
 <canvas id="scene" aria-label="Real-time 3D autonomous zombie survival. Drag to orbit; scroll to zoom; press S for squad."></canvas>
 <div class="colorAtmosphere" aria-hidden="true"></div>
 <div id="fallback" hidden role="alert">WebGL2 is not available. <a href="./index.html">Return to the 2.5D viewer</a>.</div>
-<main id="hud" data-phase="day" data-crisis="stable" data-mobile-panel="none" aria-live="off">
+<main id="hud" data-phase="day" data-crisis="stable" data-mobile-panel="none" data-mobile-tools="closed" aria-live="off">
   <div class="hudGrain" aria-hidden="true"></div>
   <header class="top">
     <div class="branding">
@@ -104,11 +104,15 @@
   <footer class="bottom">
     <div class="controls">
       <button id="togglePause" type="button" aria-label="Pause or resume simulation" aria-pressed="false"><span aria-hidden="true">⏯</span> PAUSE</button>
-      <button id="sound" type="button" aria-pressed="false"><span aria-hidden="true">◖</span> SOUND</button>
-      <button id="focus" type="button" aria-pressed="true"><span aria-hidden="true">◎</span> DIRECTOR</button>
+      <button id="cinemaMode" type="button" aria-pressed="false"><span aria-hidden="true">▣</span> CINEMA</button>
       <button id="hero" type="button" aria-pressed="false"><span aria-hidden="true">◈</span> HERO CAM</button>
-      <button id="rosterToggle" type="button" aria-controls="squadPanel" aria-expanded="false"><span aria-hidden="true">☷</span> SQUAD</button><button id="cinemaMode" type="button" aria-pressed="false"><span aria-hidden="true">▣</span> CINEMA</button>
-      <a href="./progress.html">GAUNTLET ↗</a><a class="legacy" href="./index.html">2.5D ↗</a>
+      <button id="mobileMoreControls" type="button" aria-controls="secondaryControls" aria-expanded="false"><span aria-hidden="true">☷</span> MORE</button>
+      <div class="secondaryControls" id="secondaryControls" aria-label="Additional operator controls">
+        <button id="sound" type="button" aria-pressed="false"><span aria-hidden="true">◖</span> SOUND</button>
+        <button id="focus" type="button" aria-pressed="true"><span aria-hidden="true">◎</span> DIRECTOR</button>
+        <button id="rosterToggle" type="button" aria-controls="squadPanel" aria-expanded="false"><span aria-hidden="true">☷</span> SQUAD</button>
+        <a href="./progress.html">GAUNTLET ↗</a><a class="legacy" href="./index.html">2.5D ↗</a>
+      </div>
     </div>
     <div class="hints">ORBIT: DRAG <span>·</span> ZOOM: SCROLL <span>·</span> C: HERO <span>·</span> M: CINEMA <span>·</span> G: DIRECTOR <span>·</span> S: SQUAD <span>·</span> H: HUD</div>
   </footer>

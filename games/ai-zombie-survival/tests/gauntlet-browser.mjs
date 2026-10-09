@@ -225,6 +225,34 @@ try{
   assert.match(mobileState.alive,/^[0-9]+$/);
   assert.match(mobileState.horde,/^[0-9]+%$/);
   await page.screenshot({path:root+'mobile.png'});
+  // Harsh phone critic: the previous footer ended with a chopped cyan button.
+  // All primary controls must now fit fully without horizontal scrolling.
+  const rail=await page.evaluate(()=>{
+    const ids=['togglePause','cinemaMode','hero','mobileMoreControls'];
+    const parent=document.querySelector('.bottom .controls');
+    const footer=document.querySelector('.bottom').getBoundingClientRect();
+    return {overflow:parent.scrollWidth-parent.clientWidth,
+      buttons:ids.map(id=>{const r=document.getElementById(id).getBoundingClientRect();
+        return {id,x:r.x,right:r.right,width:r.width,height:r.height,top:r.top,bottom:r.bottom};}),
+      footerTop:footer.top,footerBottom:footer.bottom};
+  });
+  assert.ok(rail.overflow<=1,'phone footer must not require horizontal scrolling');
+  for(const button of rail.buttons){
+    assert.ok(button.x>=0&&button.right<=391,'clipped phone button: '+button.id);
+    assert.ok(button.width>=44&&button.height>=44,'undersized phone control: '+button.id);
+    assert.ok(button.top>=rail.footerTop-1&&button.bottom<=rail.footerBottom+1,
+      'mobile control collides with footer: '+button.id);
+  }
+  await page.locator('#mobileMoreControls').click();
+  assert.equal(await page.locator('#mobileMoreControls').getAttribute('aria-expanded'),'true');
+  for(const id of ['sound','focus','rosterToggle'])
+    assert.equal(await page.locator('#'+id).isVisible(),true,'secondary action must remain accessible: '+id);
+  await page.screenshot({path:root+'mobile-more-controls.png'});
+  await page.keyboard.press('Escape');
+  assert.equal(await page.locator('#mobileMoreControls').getAttribute('aria-expanded'),'false');
+  assert.equal(await page.locator('#sound').isVisible(),false);
+  report.checks.mobileCommandRail=true;
+
   await page.locator('#mobileSurvival').click();
   assert.equal(await page.locator('#hud').getAttribute('data-mobile-panel'),'survival');
   assert.equal(await page.locator('#mobileSurvival').getAttribute('aria-expanded'),'true');

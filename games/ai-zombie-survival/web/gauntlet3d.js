@@ -750,6 +750,16 @@ function renderSquad(){
     card.setAttribute('aria-label','Follow '+member.name+', '+member.role+', health '+Math.round(member.health));
   }
 }
+const mobileMoreControls=document.getElementById('mobileMoreControls');
+function setMobileTools(open){
+  hud.dataset.mobileTools=open?'open':'closed';
+  mobileMoreControls.setAttribute('aria-expanded',String(open));
+}
+mobileMoreControls.addEventListener('click',()=>{
+  const open=hud.dataset.mobileTools!=='open';
+  if(open)setMobilePanel('none');
+  setMobileTools(open);
+});
 const mobilePanelButtons={survival:document.getElementById('mobileSurvival'),
   intel:document.getElementById('mobileIntel'),map:document.getElementById('mobileMap')};
 function setMobilePanel(value,{focus=false}={}){
@@ -760,6 +770,7 @@ function setMobilePanel(value,{focus=false}={}){
   mobilePanelButtons.intel.setAttribute('aria-expanded',String(next==='intel'));
   mobilePanelButtons.map.setAttribute('aria-expanded',String(next==='intel'));
   if(next!=='none'){
+    setMobileTools(false);
     squadPanel.hidden=true;
     document.getElementById('rosterToggle').setAttribute('aria-expanded','false');
     if(cinematic){cinematic=false;hud.dataset.cinema='false';
@@ -769,6 +780,7 @@ function setMobilePanel(value,{focus=false}={}){
   }
 }
 function toggleCinema(){
+  setMobileTools(false);
   cinematic=!cinematic;
   if(cinematic){hud.dataset.mobilePanel='none';
     for(const button of Object.values(mobilePanelButtons))button.setAttribute('aria-expanded','false');}
@@ -987,7 +999,7 @@ document.addEventListener('keydown',e=>{
   if(e.key.toLowerCase()==='s')toggleRoster();
   if(e.key.toLowerCase()==='m')toggleCinema();
   if(e.key.toLowerCase()==='r'){restartRun();}
-  if(e.key==='Escape'){setMobilePanel('none');squadPanel.hidden=true;
+  if(e.key==='Escape'){setMobilePanel('none');setMobileTools(false);squadPanel.hidden=true;
     document.getElementById('rosterToggle').setAttribute('aria-expanded','false');}
 });
 document.querySelector('#sound').addEventListener('click',enableAudio);
