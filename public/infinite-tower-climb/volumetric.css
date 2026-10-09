@@ -269,3 +269,23 @@ body[data-manual="true"] .touch-controls{display:flex}
   .hero-panel{width:135px}.floor-stat strong{font-size:42px}
   .right-rail{width:116px}.hud-toggle{width:116px}
 }
+
+/* Gauntlet cinematic biome transitions: distinctive and nonblocking, not a modal. */
+.biome-reveal{position:absolute;top:124px;left:50%;transform:translate(-50%,-15px);
+  z-index:6;display:flex;align-items:center;flex-direction:column;gap:7px;pointer-events:none;
+  max-width:450px;min-width:270px;padding:20px 24px;text-align:center;
+  background:linear-gradient(100deg,transparent,rgba(10,26,48,.78) 20%,rgba(10,26,48,.84) 80%,transparent);
+  border-top:1px solid rgba(var(--accent-rgb),.5);border-bottom:1px solid rgba(var(--accent-rgb),.3);
+  opacity:0;visibility:hidden;transition:opacity .6s,transform .6s,visibility .6s}
+.biome-reveal--active{opacity:1;visibility:visible;transform:translate(-50%,0)}
+.biome-reveal__eyebrow{font-size:9px;color:var(--positive);letter-spacing:.26em;font-weight:950}
+.biome-reveal strong{font-size:clamp(21px,2.5vw,35px);font-weight:950;letter-spacing:.06em;white-space:nowrap;
+  background:linear-gradient(110deg,#fff,var(--accent),var(--accent-2));color:transparent;background-clip:text;
+  text-shadow:0 0 35px rgba(var(--accent-rgb),.13)}
+.biome-reveal__sector{font-size:10px;color:#d2e9f6;font-weight:850;letter-spacing:.24em}
+body[data-critical="true"] .health-panel{border-color:#ff6e81;box-shadow:0 0 28px rgba(255,57,93,.24)}
+body[data-boss="true"] .boss-alert{animation:boss-in 450ms ease-out}
+@keyframes boss-in{from{transform:translate(-50%,-20px) scale(.96);opacity:0}to{transform:translate(-50%,0) scale(1);opacity:1}}
+body[data-climbing="true"] .floor-stat strong{filter:drop-shadow(0 0 14px rgba(var(--accent-rgb),.42))}
+@media(max-width:740px){.biome-reveal{display:none}}
+@media(prefers-reduced-motion:reduce){.biome-reveal{transition:none}.boss-alert{animation:none!important}}

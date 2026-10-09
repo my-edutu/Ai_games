@@ -105,6 +105,7 @@
   const gameModeLink=document.getElementById('game-mode');
   if(manual&&gameModeLink){gameModeLink.href='/tower/volumetric';gameModeLink.textContent='RETURN TO AUTONOMY ↗';}
   let biome='',simTime=0,accumulator=0,lastFrame=performance.now(),sizeW=0,sizeH=0;
+  let biomeRevealTimer=0;
   let renderFrames=0,lastFrameMark=performance.now(),rollingFrameMs=16.7;
   const renderMetrics={frames:0,fps:0,frameMs:0,drawCalls:0,triangles:0,gpuGeometries:0,gpuTextures:0,status:'starting'};
   const liveChannel='BroadcastChannel' in window?new BroadcastChannel('tower-gauntlet-3d-live'):null;
@@ -152,6 +153,16 @@
       focusMaterial.color.setHex(mood.cool);focusDisc.material.color.setHex(mood.cool);
       const biomeDescription=document.getElementById('biome-description');
       if(biomeDescription)biomeDescription.textContent=mood.description;
+      const reveal=document.getElementById('biome-reveal');
+      if(reveal){
+        document.getElementById('biome-reveal-name').textContent=mood.description;
+        document.getElementById('biome-reveal-sector').textContent='ASCENT REGION '+String(Math.floor(snapshot.player.at/12)+1).padStart(2,'0');
+        reveal.classList.remove('biome-reveal--active');
+        void reveal.offsetWidth;
+        if(!reduced)reveal.classList.add('biome-reveal--active');
+        clearTimeout(biomeRevealTimer);
+        biomeRevealTimer=setTimeout(()=>reveal.classList.remove('biome-reveal--active'),2800);
+      }
     }
   }
   function fixedStep(dt){
@@ -262,9 +273,12 @@
       const hpBar=document.getElementById('health-bar-fill'),gripBar=document.getElementById('grip-bar-fill');
       if(hpBar)hpBar.style.width=healthAmount+'%';
       if(gripBar)gripBar.style.width=gripAmount+'%';
+      document.body.dataset.critical=String(healthAmount<=40);
+      document.body.dataset.climbing=String(Boolean(details.climbing));
       const bossPanel=document.getElementById('boss-alert');
       const livingGuardian=sim.snapshot().platforms.find(p=>p.i===player.at&&p.guardianHealth>0);
       if(bossPanel){
+        document.body.dataset.boss=String(Boolean(livingGuardian));
         bossPanel.hidden=!livingGuardian;
         if(livingGuardian){
           const guardianName=document.getElementById('boss-title');
