@@ -6,11 +6,11 @@
   const startup={phase:'bootstrap',status:'starting',tick:0,autonomous:true,dimensionality:3};
   window.__TOWER_VOLUMETRIC_STATE__=startup;
   const progress=(phase)=>{startup.phase=phase;};
-  let THREE,createClimber,createTowerEnvironment,createTowerEntities,createTowerVfx,createVolumetricCore,loadClimberAsset,createTowerDirector,createTowerSky,createTowerSpectacle,createTowerSurfaceLibrary,createTowerWeather,createTowerGeology,createClimbingRope,createTowerEvidenceRecorder,createTowerInput,createTowerAudio;
+  let THREE,createClimber,createTowerEnvironment,createTowerEntities,createTowerVfx,createVolumetricCore,loadClimberAsset,createTowerDirector,createTowerSky,createTowerSpectacle,createTowerSurfaceLibrary,createTowerWeather,createTowerOcclusion,createTowerGeology,createClimbingRope,createTowerEvidenceRecorder,createTowerInput,createTowerAudio;
   try{
-    [THREE,{createClimber},{createTowerEnvironment},{createTowerEntities},{createTowerVfx},{createVolumetricCore},{loadClimberAsset},{createTowerDirector},{createTowerSky},{createTowerSpectacle},{createTowerSurfaceLibrary},{createTowerWeather},{createTowerGeology},{createClimbingRope},{createTowerEvidenceRecorder},{createTowerInput},{createTowerAudio}]=await Promise.all([
+    [THREE,{createClimber},{createTowerEnvironment},{createTowerEntities},{createTowerVfx},{createVolumetricCore},{loadClimberAsset},{createTowerDirector},{createTowerSky},{createTowerSpectacle},{createTowerSurfaceLibrary},{createTowerWeather},{createTowerOcclusion},{createTowerGeology},{createClimbingRope},{createTowerEvidenceRecorder},{createTowerInput},{createTowerAudio}]=await Promise.all([
       import('/tower/vendor/three.module.js'),import('/tower/character3d.js'),import('/tower/environment3d.js'),
-      import('/tower/entities3d.js'),import('/tower/vfx3d.js'),import('/tower/volumetric-core.js'),import('/tower/asset3d.js'),import('/tower/director3d.js'),import('/tower/sky3d.js'),import('/tower/spectacle3d.js'),import('/tower/material3d.js'),import('/tower/weather3d.js'),import('/tower/geology3d.js'),import('/tower/rope3d.js'),import('/tower/evidence3d.js'),import('/tower/input3d.js'),import('/tower/audio3d.js')
+      import('/tower/entities3d.js'),import('/tower/vfx3d.js'),import('/tower/volumetric-core.js'),import('/tower/asset3d.js'),import('/tower/director3d.js'),import('/tower/sky3d.js'),import('/tower/spectacle3d.js'),import('/tower/material3d.js'),import('/tower/weather3d.js'),import('/tower/occlusion3d.js'),import('/tower/geology3d.js'),import('/tower/rope3d.js'),import('/tower/evidence3d.js'),import('/tower/input3d.js'),import('/tower/audio3d.js')
     ]);
   }catch(error){status.textContent='3D MODULE LOAD FAILED';console.error(error);return;}
   progress('modules-loaded');
@@ -65,6 +65,7 @@
       window.__TOWER_VOLUMETRIC_STATE__.assetClips=result.replacement.clips;}
   }).catch(error=>{window.__TOWER_VOLUMETRIC_STATE__.assetStatus='load-error';console.warn('Optional climber asset unavailable',error)});
   const world=new THREE.Group();scene.add(world);
+  const occlusion=createTowerOcclusion(THREE,world);
   const params=new URLSearchParams(location.search);
   const captureFloor=Math.min(120,Math.max(0,Number.parseInt(params.get('captureFloor')||'0',10)||0));
   const seedText=params.get('seed'),seed=seedText&&/^[0-9]{1,9}$/.test(seedText)?Number(seedText):undefined;
@@ -140,7 +141,7 @@
         const item=rewards.get(p.i);rewardScene.remove(item);art.release(item);rewards.delete(p.i);
       }
     }
-    for(const [id,mesh] of models){if(!live.has(id)){world.remove(mesh);art.release(mesh);models.delete(id);}}
+    for(const [id,mesh] of models){if(!live.has(id)){occlusion.release(mesh);world.remove(mesh);art.release(mesh);models.delete(id);}}
     for(const [id,mesh] of guardians){if(!live.has(id)){enemyScene.remove(mesh);art.release(mesh);guardians.delete(id);}}
     for(const [id,mesh] of rewards){if(!live.has(id)){rewardScene.remove(mesh);art.release(mesh);rewards.delete(id);}}
     if(snapshot.theme!==biome){
@@ -198,6 +199,7 @@
     const directorFrame=director.update(dt,sim.snapshot(),{reducedMotion:reduced});
     sky.update(simTime,camera,{climberY:player.y,reducedMotion:reduced});
     details.cameraMode=directorFrame.mode;
+    renderMetrics.foregroundFades=occlusion.update(camera,player,renderFrames+1);
     sun.position.set(player.x-30,player.y+65,player.z+34);
     heroFill.position.set(player.x-5,player.y+6,player.z+8);
     heroWarm.position.set(player.x+5,player.y+2,player.z+5);

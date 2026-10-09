@@ -12,7 +12,7 @@
   let renderer;
   try { renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false }); }
   catch (error) { console.warn('WebGL unavailable', error); canvas.remove(); return; }
-  const [{createClimber},{createTowerEnvironment},{createTowerEntities},{loadClimberAsset},{createTowerVfx},{createTowerSky},{createTowerSpectacle},{createTowerSurfaceLibrary},{createTowerWeather},{createTowerGeology},{createClimbingRope}]=await Promise.all([import('/tower/character3d.js'),import('/tower/environment3d.js'),import('/tower/entities3d.js'),import('/tower/asset3d.js'),import('/tower/vfx3d.js'),import('/tower/sky3d.js'),import('/tower/spectacle3d.js'),import('/tower/material3d.js'),import('/tower/weather3d.js'),import('/tower/geology3d.js'),import('/tower/rope3d.js')]);
+  const [{createClimber},{createTowerEnvironment},{createTowerEntities},{loadClimberAsset},{createTowerVfx},{createTowerSky},{createTowerSpectacle},{createTowerSurfaceLibrary},{createTowerWeather},{createTowerOcclusion},{createTowerGeology},{createClimbingRope}]=await Promise.all([import('/tower/character3d.js'),import('/tower/environment3d.js'),import('/tower/entities3d.js'),import('/tower/asset3d.js'),import('/tower/vfx3d.js'),import('/tower/sky3d.js'),import('/tower/spectacle3d.js'),import('/tower/material3d.js'),import('/tower/weather3d.js'),import('/tower/occlusion3d.js'),import('/tower/geology3d.js'),import('/tower/rope3d.js')]);
   const scene = new THREE.Scene();
   scene.background = new THREE.Color('#10172a');
   scene.fog = new THREE.FogExp2('#10172a', 0.004);
@@ -43,6 +43,7 @@
   architecture.root.scale.set(3,3,1);
   const entities=createTowerEntities(THREE,createTowerSurfaceLibrary(THREE));
   const actors = new THREE.Group(); scene.add(actors);
+  const occlusion=createTowerOcclusion(THREE,actors);
   const liveEntities=new Map();
   let runSignature='';
   const clock = new THREE.Clock();
@@ -88,7 +89,7 @@
       seen.add(key);
       let entity=liveEntities.get(key);
       if(!entity||entity.variant!==variant){
-        if(entity){actors.remove(entity.root);entities.release(entity.root);}
+        if(entity){occlusion.release(entity.root);actors.remove(entity.root);entities.release(entity.root);}
         const root=make();
         root.position.x=xx;root.position.y=yy;
         actors.add(root);
@@ -116,7 +117,7 @@
       const xx=x(p.x),yy=y(p.y);
       place('projectile:'+p.id,p.owner,()=>entities.projectile(p,xx,yy),xx,yy);
     }
-    for(const [key,entity] of liveEntities) if(!seen.has(key)) {actors.remove(entity.root);entities.release(entity.root);liveEntities.delete(key);}
+    for(const [key,entity] of liveEntities) if(!seen.has(key)) {occlusion.release(entity.root);actors.remove(entity.root);entities.release(entity.root);liveEntities.delete(key);}
     const p = s.player;
     if (p) {
       const px = x(p.x), py = y(p.y);
@@ -181,6 +182,7 @@
       architecture.root.position.x=playerX;
     }
     if (++frameCount % 2 === 0 && !document.body.dataset.reducedMotion?.includes('true')) { const elapsed=clock.getElapsedTime(); for (const object of actors.children) if (object.userData.pickup) { object.rotation.y=elapsed*1.5; object.position.y+=Math.sin(elapsed*2+object.position.x)*0.001; } }
+    metrics.foregroundFades=occlusion.update(camera,climber.root.position,metrics.frames+1);
     renderer.render(scene, camera);
     const now=performance.now();
     metrics.frames++; metrics.frameMs=Math.round((now-frameStart)*100)/100;
