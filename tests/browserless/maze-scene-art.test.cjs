@@ -270,3 +270,26 @@ test('adaptive mode defaults to an efficient resolution without touching user ci
   const cinematic=createRenderBudget({mode:'cinematic',dpr:2});
   assert.ok(cinematic.ratio>=1.5,'the user-selected cinematic quality must remain rich');
 });
+
+test('CC0 medieval architecture is self-contained glTF, texture-safe and fully licensed',async()=>{
+  const names=['Wall_Arch','DoorFrame_Round_Brick','Roof_Tower_RoundTiles','Prop_Vine4'];
+  for(const name of names){
+    const file=path.join(root,'public','ai-maze-escape','models',name+'.glb');
+    const bytes=await fs.readFile(file);
+    assert.equal(bytes.toString('ascii',0,4),'glTF',name);
+    assert.equal(bytes.readUInt32LE(8),bytes.byteLength);
+    const jsonLength=bytes.readUInt32LE(12);
+    const data=JSON.parse(bytes.toString('utf8',20,20+jsonLength).trim());
+    assert.ok(data.meshes?.length>=1,name+' should contain authored geometry');
+    assert.ok(data.accessors?.length>=4);
+    assert.equal(data.buffers.length,1);
+    assert.ok(!data.buffers[0].uri,'texture-safe bundled GLB must not fetch remote geometry');
+    assert.ok(!data.images||data.images.length===0,'all materials should be safely original and self-contained');
+    assert.ok(bytes.byteLength<400000,'each mesh must be economical for a 24/7 stream');
+  }
+  const license=await fs.readFile(
+    path.join(root,'public','ai-maze-escape','models','MEDIEVAL-VILLAGE-CC0-LICENSE.txt'),'utf8');
+  assert.match(license,/CC0|Creative Commons|public domain/i);
+  const manifest=await fs.readFile(path.join(root,'games','ai-maze-escape','ASSETS.md'),'utf8');
+  assert.match(manifest,/Medieval Village MegaKit/);
+});
