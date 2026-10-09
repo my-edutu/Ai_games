@@ -222,3 +222,6 @@ body[data-manual="true"] .touch-controls{display:flex}
 @media(max-width:400px){.hero-panel{width:125px}.right-rail{width:125px}.buildbar{width:125px}.brand-copy strong{font-size:13px}.mode-menu a{font-size:6px;padding:6px}}
 @media (max-height:650px) and (min-width:741px){.top{top:10px}.hero-panel,.right-rail{top:88px}.buildbar{top:370px}.wall-status{top:340px}.story{display:none}.evidence-commands{bottom:10px}.feed{bottom:10px}}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:0s!important;transition-duration:0s!important}}
+
+/* Boss warnings cannot cover primary telemetry on narrow devices. */
+@media(max-width:740px){.boss-alert{top:auto;bottom:calc(285px + var(--safe-bottom));left:50%;transform:translateX(-50%);width:min(320px,calc(100% - 24px));min-width:0}}
