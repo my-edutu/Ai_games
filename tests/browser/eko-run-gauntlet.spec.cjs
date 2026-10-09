@@ -68,7 +68,7 @@ test.describe('Eko Run 3D Gauntlet slice', () => {
     // Evidence-only broadcast layout: compare real 3D game rather than a giant HUD.
     await page.evaluate(()=>window.__EKO_SET_FOCUS_VIEW__(true));
     await expect(page.locator('.hud-race__top')).toBeHidden();
-    await expect(page.locator('#focus-view-toggle')).toBeVisible();
+    await expect(page.locator('#focus-view-exit')).toBeVisible();
     await expect(page.locator('#focus-view-toggle')).toHaveAttribute('aria-pressed','true');
     await page.screenshot({path:'artifacts/eko-gauntlet/desktop-focus-view.png',fullPage:true});
     await page.keyboard.press('KeyH');
@@ -141,9 +141,11 @@ test.describe('Eko Run 3D Gauntlet slice', () => {
     await expect(page.locator('.touch button[data-control="Space"]')).toBeVisible();
     await expect(page.locator('#distance')).toBeHidden();
     await expect(page.locator('#threat')).toBeVisible();
+    await expect(page.locator('#focus-view-exit')).toBeVisible();
     await page.screenshot({path:'artifacts/eko-gauntlet/mobile-focus-player.png',fullPage:true});
-    await page.locator('#focus-view-toggle').click();
+    await page.locator('#focus-view-exit').click();
     await expect(page.locator('#distance')).toBeVisible();
+    await expect(page.locator('#focus-view-exit')).toBeHidden();
 
   });
 
