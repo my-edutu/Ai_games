@@ -1471,6 +1471,8 @@ function walkable(x,z){
   if(Math.abs(x)<3.55&&Math.abs(z+1)<2.8)return false;
   if(Math.abs(x)<1.95&&Math.abs(z-5)<1.5)return false;
   if(Math.hypot(x+15,z-4)<1.1)return false;
+  // Guild forge walls are solid; the outdoor trade path remains accessible.
+  if(Math.abs(x-CRAFT_DISTRICT.x)<CRAFT_DISTRICT.width*.5-.10&&Math.abs(z-CRAFT_DISTRICT.z)<CRAFT_DISTRICT.depth*.5-.12)return false;
   if(Math.abs(x-SCENIC_SITES.sanctuary.x)<3.8&&Math.abs(z-SCENIC_SITES.sanctuary.z)<5.35)return false;
   const waterline=20+Math.sin(x*.13)*3;
   if(Math.abs(z-waterline)<1.7&&Math.abs(x+17)>2.1&&Math.abs(x-10)>2.1&&Math.abs(x-SCENIC_SITES.bridge.x)>1.65)return false;
