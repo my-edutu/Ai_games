@@ -83,6 +83,7 @@ window.addEventListener('message',event=>{
     time:String(event.data.capturedAt||new Date().toISOString())
   };
   captures.unshift(shot);if(captures.length>6)captures.pop();
+  $('blind-start').disabled=!referenceUrl;
   $('capture-status').textContent='Captured real '+shot.camera+' WebGL frame at tick '+shot.tick+'; save it for the critic.';
   const gallery=$('snapshots');
   gallery.replaceChildren();
@@ -101,3 +102,49 @@ window.addEventListener('message',event=>{
     figure.append(img,caption);gallery.appendChild(figure);
   }
 });
+
+let referenceUrl=null;
+let activeBlindPair=null;
+let votedEko=0,votedReference=0;
+$('reference-upload').addEventListener('change',event=>{
+  const file=event.target.files?.[0];
+  if(referenceUrl){URL.revokeObjectURL(referenceUrl);referenceUrl=null;}
+  if(!file)return;
+  const supported=['image/png','image/jpeg','image/webp'];
+  if(!supported.includes(file.type)||file.size>12*1024*1024){
+    $('blind-result').textContent='Choose a PNG, JPEG, or WebP reference frame under 12 MB.';
+    $('blind-start').disabled=true;return;
+  }
+  referenceUrl=URL.createObjectURL(file);
+  $('blind-start').disabled=captures.length===0;
+  $('blind-result').textContent='Reference loaded locally. Capture Eko at the same aspect ratio for a fair trial.';
+});
+$('blind-start').addEventListener('click',()=>{
+  if(!referenceUrl||!captures[0])return;
+  const values=new Uint32Array(1);
+  crypto.getRandomValues(values);
+  const ekoSide=values[0]%2===0?'A':'B';
+  const referenceSide=ekoSide==='A'?'B':'A';
+  activeBlindPair={ekoSide,referenceSide};
+  $('blind-a').src=ekoSide==='A'?captures[0].image:referenceUrl;
+  $('blind-b').src=ekoSide==='B'?captures[0].image:referenceUrl;
+  $('blind-grid').hidden=false;
+  for(const button of document.querySelectorAll('[data-blind-vote]'))button.disabled=false;
+  $('blind-result').textContent='Both sources concealed. Choose the objectively stronger visual result. Do not infer identity from the interface.';
+});
+for(const button of document.querySelectorAll('[data-blind-vote]')){
+  button.addEventListener('click',()=>{
+    if(!activeBlindPair)return;
+    const vote=button.dataset.blindVote;
+    const ekoWon=vote===activeBlindPair.ekoSide;
+    if(ekoWon)votedEko++;else votedReference++;
+    $('blind-result').textContent='Reveal: Eko = Image '+activeBlindPair.ekoSide+
+      ', reference = Image '+activeBlindPair.referenceSide+
+      '. Winner: '+(ekoWon?'Eko':'reference')+
+      '. Session votes: Eko '+votedEko+' / reference '+votedReference+
+      '. Human votes are subjective; this is not independent validated acceptance.';
+    activeBlindPair=null;
+    for(const voteButton of document.querySelectorAll('[data-blind-vote]'))voteButton.disabled=true;
+  });
+}
+window.addEventListener('pagehide',()=>{if(referenceUrl)URL.revokeObjectURL(referenceUrl);});
