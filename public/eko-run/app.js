@@ -590,6 +590,24 @@ function setSettingsOpen(open){
   settingsToggle.textContent=value?'✕ CLOSE':'⚙ OPTIONS';
 }
 settingsToggle.addEventListener('click',()=>setSettingsOpen(!document.body.classList.contains('settings-open')));
+const focusToggle=$('focus-view-toggle');
+function setFocusView(enabled){
+  const focused=Boolean(enabled);
+  document.body.classList.toggle('focus-view',focused);
+  focusToggle.setAttribute('aria-pressed',String(focused));
+  focusToggle.setAttribute('aria-label',focused?'Restore full gameplay HUD':'Enable unobstructed gameplay view');
+  focusToggle.textContent=focused?'▣ SHOW HUD':'◫ FOCUS VIEW';
+  if(focused)setSettingsOpen(false);
+  return focused;
+}
+focusToggle.addEventListener('click',()=>setFocusView(!document.body.classList.contains('focus-view')));
+window.__EKO_SET_FOCUS_VIEW__=setFocusView;
+window.addEventListener('keydown',event=>{
+  if(['INPUT','TEXTAREA','SELECT'].includes(document.activeElement?.tagName))return;
+  if(event.code==='KeyH'&&!event.repeat){
+    setFocusView(!document.body.classList.contains('focus-view'));
+  }
+});
 window.addEventListener('keydown',event=>{
   if(event.key==='Escape'&&document.body.classList.contains('settings-open'))setSettingsOpen(false);
 });
