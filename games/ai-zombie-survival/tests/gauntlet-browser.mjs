@@ -63,6 +63,9 @@ try{
       assert.equal(runtimeStats.shaderPath,runtimeStats.rendererGpu==='software'?'low-spec':'cinematic',
         'actual WebGL renderer must select the matching material shader');
       report.checks.softwareMaterialPath=true;
+      assert.equal(runtimeStats.hordeShaderPath,runtimeStats.shaderPath,
+        'GPU-instanced infected must use the verified software/hardware shader tier');
+      report.checks.hordeSoftwareLighting=true;
       report.checks.adaptiveSceneBudget=true;
       report.checks.nonblockingGpuTelemetry=true;
     }

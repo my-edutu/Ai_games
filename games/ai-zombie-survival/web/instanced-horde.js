@@ -84,7 +84,35 @@ function makeSilhouette(){
 }
 
 export function inspectHordeSilhouette(){return makeSilhouette();}
-export function createInstancedHorde(gl,{maxInstances=500}={}){
+// Loop 56: software hordes use cheap fog and a cool night rim; hardware remains cinematic.
+export function hordeFragmentSource(shaderPath='cinematic'){
+  const common=[
+    '#version 300 es','precision highp float;',
+    'in vec3 vNormal;in vec3 vColor;in vec3 vWorld;',
+    'uniform vec3 uEye;uniform vec3 uFogColor;uniform float uFog;uniform float uNight;',
+    'out vec4 outColor;'
+  ];
+  const body=shaderPath==='low-spec'?[
+    'void main(){vec3 n=normalize(vNormal);',
+    'float key=max(dot(n,normalize(vec3(-.55,1.0,.48))),0.0);',
+    'float hemi=.69+.27*key+.12*max(n.y,0.0);',
+    'vec3 color=vColor*hemi*mix(vec3(1.04,1.00,.90),vec3(.82,.90,1.11),uNight);',
+    'vec3 delta=uEye-vWorld;',
+    'float rim=1.0-max(dot(n,normalize(delta)),0.0);rim*=rim;',
+    'color+=vec3(.20,.30,.37)*rim*(.12+.72*uNight);',
+    'float fog2=dot(delta,delta)*uFog*uFog;',
+    'float haze=clamp(fog2/(1.0+fog2),0.0,.69);',
+    'outColor=vec4(mix(color,uFogColor,haze),1.0);}'
+  ]:[
+    'void main(){vec3 n=normalize(vNormal),light=normalize(vec3(-.55,1.0,.48));',
+    'float hemi=.52+.29*max(0.0,dot(n,light))+.14*max(n.y,0.0);',
+    'vec3 color=vColor*hemi*mix(vec3(1.08,1.04,.90),vec3(.66,.77,1.12),uNight);',
+    'float haze=1.0-exp(-pow(distance(uEye,vWorld)*uFog,2.0));',
+    'outColor=vec4(mix(color,uFogColor,clamp(haze,0.0,.71)),1.0);}'
+  ];
+  return [...common,...body].join('\n');
+}
+export function createInstancedHorde(gl,{maxInstances=500,shaderPath='cinematic'}={}){
   const compiled=makeSilhouette(),limit=Math.max(1,Math.min(2048,maxInstances));
   const compile=(kind,source)=>{
     const shader=gl.createShader(kind);gl.shaderSource(shader,source);gl.compileShader(shader);
@@ -110,17 +138,7 @@ export function createInstancedHorde(gl,{maxInstances=500}={}){
     'vColor=aColor*mix(vec3(.58,.64,.60),aTint,.63);vWorld=pos;',
     'gl_Position=uVP*vec4(pos,1.0);}'
   ].join('\n'));
-  const fragment=compile(gl.FRAGMENT_SHADER,[
-    '#version 300 es','precision highp float;',
-    'in vec3 vNormal;in vec3 vColor;in vec3 vWorld;',
-    'uniform vec3 uEye;uniform vec3 uFogColor;uniform float uFog;uniform float uNight;',
-    'out vec4 outColor;',
-    'void main(){vec3 n=normalize(vNormal),light=normalize(vec3(-.55,1.0,.48));',
-    'float hemi=.52+.29*max(0.0,dot(n,light))+.14*max(n.y,0.0);',
-    'vec3 color=vColor*hemi*mix(vec3(1.08,1.04,.90),vec3(.66,.77,1.12),uNight);',
-    'float haze=1.0-exp(-pow(distance(uEye,vWorld)*uFog,2.0));',
-    'outColor=vec4(mix(color,uFogColor,clamp(haze,0.0,.71)),1.0);}'
-  ].join('\n'));
+  const fragment=compile(gl.FRAGMENT_SHADER,hordeFragmentSource(shaderPath));
   const program=gl.createProgram();gl.attachShader(program,vertex);gl.attachShader(program,fragment);gl.linkProgram(program);
   if(!gl.getProgramParameter(program,gl.LINK_STATUS))throw Error('Horde link: '+gl.getProgramInfoLog(program));
   gl.deleteShader(vertex);gl.deleteShader(fragment);
@@ -169,7 +187,7 @@ export function createInstancedHorde(gl,{maxInstances=500}={}){
     gl.bindVertexArray(null);gl.useProgram(original);
     return count;
   }
-  return {update,render,get count(){return count},get triangles(){return trianglesDrawn},
+  return {update,render,get shaderPath(){return shaderPath},get count(){return count},get triangles(){return trianglesDrawn},
     get silhouetteTriangles(){return compiled.triangles},
     dispose(){gl.deleteProgram(program);gl.deleteBuffer(geometry);gl.deleteBuffer(instances);gl.deleteVertexArray(vao);}};
 }
