@@ -1,9 +1,9 @@
 {
   "project": "Infinite Tower Climb — 3D Gauntlet",
   "date": "2026-10-08",
-  "round": 18,
+  "round": 22,
   "target": "Jusant (DON'T NOD): official screenshots and captured gameplay",
-  "status": "Gauntlet Round 18 implementation: real Chromium artifact run 37811391368 confirmed unacceptable overexposed world beams, insufficient biome saturation, dark-on-glass HUD labels, 983 draw calls in four-production-character critic, and run-token reset failing fallback assertion. Fixed source accordingly: physically bounded soft light curtains (normal blending, far behind gameplay), five vivid unique sky palettes, dark high-contrast UI plates with measured browser gate >=7:1, joint-local material mesh merging for inspector characters without deleting detail, authored chipped/stratified ledges precisely synced with authoritative physics, and run-aware 2D fallback test. Unit tests added for full-vertex-preserving character batching. Latest CI/browser screenshots on new head remain pending; NOT at Jusant bar and not full 3D physics.",
+  "status": "Gauntlet Round 22 in progress, NOT ACCEPTED. Last inspected Chromium artifact 11600623402 was a partial/cancelled run (9 images) before the current final head. Correctness CI run 37896843861 failed the rig-batching test's conservative Box3 comparison; opaque rig geometry, manual matrices, winding, render layers and frustum preservation now patched with exact world-vertex tests. Cinematic focus HUD committed with responsive mobile/desktop interaction and 3 new browser regression captures; post-commit real WebGL screenshots, browser and general CI remain UNVERIFIED. Official Jusant visual parity, independent critic approval and genuine full-3D physics NOT MET.",
   "completionRule": "A separate critic must inspect the rendered game, compare screenshots or gameplay against official Jusant imagery, report the worst gap, and repeat. A functioning renderer alone is not a pass.",
   "lanes": [
     {
@@ -167,6 +167,21 @@
       "name": "Round 18 authored-platform screenshot, four-character draw budget, UI contrast",
       "state": "PENDING: new GitHub Actions WebGL screenshots and all browser quality assertions",
       "url": "https://github.com/my-edutu/Ai_games/pull/48/checks"
+    },
+    {
+      "name": "Round 22 real screenshot baseline (pre-focus)",
+      "state": "INSPECTED: real 1600x900 WebGL gauntlet-visual-v8-immersive.png in complete 14-file Chromium artifact; motivated a reversible focus HUD and slimmer default composition.",
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/37875294981/artifacts/11592515388"
+    },
+    {
+      "name": "Round 22 failed phase6 verification",
+      "state": "FAILED run 37896843861: Tower phase6 vertex-preservation test compared changing conservative Box3 bounds rather than transformed vertices; current source and regression fix awaiting fresh CI.",
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/37896843861"
+    },
+    {
+      "name": "Round 22 final-head focus/WebGL visual & reliability proof",
+      "state": "PENDING: 3 new Chromium focus captures, complete Gauntlet and general CI, and independent matched-camera visual critique.",
+      "url": "https://github.com/my-edutu/Ai_games/pull/48/checks"
     }
   ],
   "history": [
@@ -274,6 +289,11 @@
       "round": 21,
       "summary": "UI hierarchy pass: desktop side-panel scrolling and keyboard focus visibility, mobile title width/scale and lower-cost mobile backdrop filtering. Prior completed CI at db979c5 had browser critic success but simulation and general CI failures. No fresh Chromium screenshot or post-commit CI result yet.",
       "verdict": "Committed UI CSS only; visual acceptance and current-head browser verification pending. Jusant parity not achieved."
+    },
+    {
+      "round": 22,
+      "summary": "Inspected actual 1600x900 Chromium screenshot gauntlet-visual-v8-immersive.png from artifact 11592515388: oversize world heading, long top bar, and stacked spectator sidebar compete with render stage. Added accessible, session-persistent cinematic Focus View, 44px minimum mobile control, responsive layout and safe clean-feed. Added desktop/phone/landscape/focus live-WebGL Playwright captures. Also fixed rig batch merging for negative winding, manual matrices, render layers and frustum; replaced invalid conservative-AABB test with per-vertex world-space comparison and added two regressions. Other concurrent branch work appended Visual XII compact HUD styling and tests.",
+      "verdict": "Source and test syntax parsed; browser screenshots of final head and all CI acceptance checks pending. Last phase6 CI failed before rig test fix. The only retrieved newer artifact 11600623402 is 9 screenshots from a cancelled run, not an accepted finish. No Jusant parity or independent matched-camera critic pass."
     }
   ]
 }
