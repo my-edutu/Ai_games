@@ -279,3 +279,15 @@ test('G44 mechanical obstacles remain grounded in all five complete 3D stage sce
     assert.equal(shell.dataset.cutoutCount,'1','decorative machinery never changes pit topology');
   }
 });
+
+test('G46 live authoritative winner receives a real foreground hero shot instead of a distant empty tabletop',async()=>{
+  const racing=await simulateStage('championship','balanced',false,[0]);
+  const crowned=await simulateStage('championship','balanced',true,[0]);
+  assert.equal(crowned.shell.dataset.cameraTargetSource,'official-focus');
+  assert.ok(Number(crowned.shell.dataset.cameraDistance)<Number(racing.shell.dataset.cameraDistance)*.50,
+    'an actual championship result must occupy far more of the shot');
+  assert.ok(Number(crowned.shell.dataset.cameraDistance)>1.8,
+    'keep the real marble within the near plane without forcing teleportation');
+  assert.equal(crowned.frame.snapshot.camera.championId,0,'celebrate server winner only');
+  assert.equal(crowned.shell.dataset.ceremonyChampion,'0');
+});
