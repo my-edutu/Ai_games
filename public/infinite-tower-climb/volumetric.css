@@ -296,3 +296,12 @@ body[data-manual="true"] .broadcast-badge{
 }
 body[data-manual="true"] .broadcast-pulse{background:var(--accent);box-shadow:0 0 15px var(--accent)}
 body[data-manual="true"] .feed__signal{color:var(--accent)}
+
+/* One-tap genuine renderer-quality control for performance-sensitive clients. */
+#quality-control{border-color:rgba(var(--accent-rgb),.75);color:var(--accent);
+  background:linear-gradient(115deg,rgba(var(--accent-rgb),.12),rgba(12,37,60,.91))}
+body[data-render-quality="eco"] .feed__signal::before{content:"ECO ";color:#a9fdda}
+@media(max-width:740px){
+  .evidence-commands #quality-control{display:none}
+  body[data-hud-expanded="true"] .evidence-commands #quality-control{display:inline-flex}
+}

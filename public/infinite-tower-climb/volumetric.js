@@ -19,6 +19,24 @@
   catch(error){status.textContent='WEBGL UNAVAILABLE';return;}
   progress('webgl-created');
   const evidence=createTowerEvidenceRecorder(canvas);
+  const qualityOrder=['auto','cinematic','performance','eco'];
+  let quality=qualityOrder.includes(new URLSearchParams(location.search).get('quality'))?
+    new URLSearchParams(location.search).get('quality'):'auto';
+  const qualityCaps={auto:1.25,cinematic:1.75,performance:1,eco:.8};
+  const qualityButton=document.getElementById('quality-control');
+  function setQuality(next){
+    quality=qualityOrder.includes(next)?next:'auto';
+    if(qualityButton)qualityButton.textContent='◈ GRAPHICS '+quality.toUpperCase();
+    renderer.setPixelRatio(Math.min(devicePixelRatio||1,qualityCaps[quality]));
+    if(canvas.clientWidth&&canvas.clientHeight)
+      renderer.setSize(Math.max(1,canvas.clientWidth),Math.max(1,canvas.clientHeight),false);
+    document.body.dataset.renderQuality=quality;
+    return quality;
+  }
+  qualityButton?.addEventListener('click',()=>{
+    setQuality(qualityOrder[(qualityOrder.indexOf(quality)+1)%qualityOrder.length]);
+  });
+  setQuality(quality);
   const audio=createTowerAudio();
   window.__TOWER_AUDIO_TOGGLE__=()=>audio.toggle();
   window.__TOWER_EVIDENCE_CAPTURE__=()=>evidence.capture(window.__TOWER_VOLUMETRIC_STATE__,'manual user capture');
@@ -195,7 +213,8 @@
   function resize(){
     const w=Math.max(1,canvas.clientWidth),h=Math.max(1,canvas.clientHeight);
     if(w===sizeW&&h===sizeH)return;sizeW=w;sizeH=h;
-    renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.75));renderer.setSize(w,h,false);
+    renderer.setPixelRatio(Math.min(devicePixelRatio||1,qualityCaps[quality]));
+    renderer.setSize(w,h,false);
     camera.aspect=w/h;camera.updateProjectionMatrix();
   }
   function animate(now){
@@ -235,6 +254,8 @@
     rollingFrameMs=rollingFrameMs*.92+Math.max(1,now-lastFrameMark)*.08;
     lastFrameMark=now;
     renderMetrics.frames=renderFrames;renderMetrics.fps=Math.round(1000/rollingFrameMs);
+    renderMetrics.renderQuality=quality;
+    renderMetrics.pixelRatio=renderer.getPixelRatio();
     renderMetrics.frameMs=Math.round(rollingFrameMs*100)/100;
     renderMetrics.drawCalls=renderer.info.render.calls;
     renderMetrics.triangles=renderer.info.render.triangles;

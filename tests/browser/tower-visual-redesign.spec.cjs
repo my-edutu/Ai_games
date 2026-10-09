@@ -50,11 +50,15 @@ test('redesigned HUD works on a small touch viewport with accessible movement co
  await expect(page.locator('#floor')).toBeVisible();
  await expect(page.locator('#biome')).toBeVisible();
  await expect(page.locator('#hud-toggle')).toBeVisible();
+ await expect(page.locator('#quality-control')).toBeHidden();
  await expect(page.locator('.buildbar')).toBeHidden();
  await page.locator('#hud-toggle').click();
  await expect(page.locator('body')).toHaveAttribute('data-hud-expanded','true');
  await expect(page.locator('#hud-toggle')).toHaveAttribute('aria-expanded','true');
  await expect(page.locator('.buildbar')).toBeVisible();
+ await expect(page.locator('#quality-control')).toBeVisible();
+ await page.locator('#quality-control').click();
+ await expect(page.locator('body')).toHaveAttribute('data-render-quality','cinematic');
  await page.locator('#hud-toggle').click();
  await expect(page.locator('.buildbar')).toBeHidden();
  await expect(page.locator('#game-mode')).toContainText('RETURN TO AUTONOMY');
@@ -98,4 +102,20 @@ test('primary autonomous tower stream uses the same luminous v3 Gauntlet visual 
  const metrics=assertVisualMinimum(analyzePng(png,{region:[0,.08,.98,.9],stride:4}));
  fs.writeFileSync(path.join(folder,'primary-broadcast.json'),JSON.stringify({ui,metrics,errors},null,2));
  expect(errors).toEqual([]);
+});
+
+test('performance preset makes a real WebGL resolution change without stopping AI',async({page})=>{
+ await page.setViewportSize({width:960,height:600});
+ await page.goto(ROOT+'?seed=42&quality=auto',{waitUntil:'domcontentloaded'});
+ await page.waitForFunction(()=>window.__TOWER_VOLUMETRIC_RENDER_METRICS__?.frames>1,null,{timeout:30000});
+ const before=await page.evaluate(()=>({...window.__TOWER_VOLUMETRIC_RENDER_METRICS__,tick:window.__TOWER_VOLUMETRIC_STATE__.tick}));
+ await page.locator('#quality-control').click(); // CINEMATIC
+ await page.locator('#quality-control').click(); // PERFORMANCE
+ await page.locator('#quality-control').click(); // ECO
+ await expect(page.locator('body')).toHaveAttribute('data-render-quality','eco');
+ await page.waitForFunction(()=>window.__TOWER_VOLUMETRIC_RENDER_METRICS__?.renderQuality==='eco',null,{timeout:15000});
+ const after=await page.evaluate(()=>({...window.__TOWER_VOLUMETRIC_RENDER_METRICS__,tick:window.__TOWER_VOLUMETRIC_STATE__.tick}));
+ expect(after.pixelRatio).toBeLessThan(1);
+ expect(after.frames).toBeGreaterThan(before.frames);
+ expect(after.tick).toBeGreaterThanOrEqual(before.tick);
 });
