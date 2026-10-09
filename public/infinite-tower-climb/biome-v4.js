@@ -5,11 +5,11 @@
 import * as THREE from '/tower/three.module.js';
 import {buildTowerGeology} from '/tower/geology-v9.js';
 export const VISUAL_PALETTES={
-  foundry:{stone:0x775344,rim:0xf9ca8b,glow:0xffa350,haze:0x764f49,accent:0xffe0af,shadow:0x453a3a,sky:['#ffe3a9','#eda978','#aa6c68','#5c4854'],moss:0xf6a868},
-  ruins:{stone:0x8a8972,rim:0xf4e3b7,glow:0xfecb77,haze:0x66776f,accent:0xffedd1,shadow:0x445e54,sky:['#f8e4b5','#b4d9bb','#81b6a9','#4d817c'],moss:0x65a68a},
-  storm:{stone:0x738390,rim:0xffe1b7,glow:0xffd082,haze:0x6b8fa0,accent:0xfff0d2,shadow:0x425a78,sky:['#ffe7ae','#b5dbe2','#79adcb','#546e9a'],moss:0x90dbe9},
-  clockwork:{stone:0xa58665,rim:0xffe7b6,glow:0xf8be70,haze:0x9c795b,accent:0xffe4ad,shadow:0x654c44,sky:['#ffe0a4','#e8ac74','#bd855f','#765e5e'],moss:0xd8a35e},
-  void:{stone:0x686184,rim:0xe8c4f4,glow:0xf49cca,haze:0x777195,accent:0xffd3f2,shadow:0x3b355b,sky:['#ffe3ed','#b8adf1','#867ab8','#4b467d'],moss:0xbe91db}
+  foundry:{stone:0x775344,rim:0xf9ca8b,glow:0xffa350,haze:0x764f49,accent:0xffe0af,shadow:0x453a3a,sky:['#ffe08e','#e99a60','#b96859','#594456'],moss:0xf6a868},
+  ruins:{stone:0x8a8972,rim:0xf4e3b7,glow:0xfecb77,haze:0x66776f,accent:0xffedd1,shadow:0x445e54,sky:['#e9ebac','#a6d8ac','#5da58d','#376f66'],moss:0x65a68a},
+  storm:{stone:0x738390,rim:0xffe1b7,glow:0xffd082,haze:0x6b8fa0,accent:0xfff0d2,shadow:0x425a78,sky:['#ffe8a4','#96d7e4','#4998c4','#354e89'],moss:0x90dbe9},
+  clockwork:{stone:0xa58665,rim:0xffe7b6,glow:0xf8be70,haze:0x9c795b,accent:0xffe4ad,shadow:0x654c44,sky:['#ffdf85','#efa065','#b96453','#68465c'],moss:0xd8a35e},
+  void:{stone:0x686184,rim:0xe8c4f4,glow:0xf49cca,haze:0x777195,accent:0xffd3f2,shadow:0x3b355b,sky:['#ffcfed','#ba93e9','#846dbb','#463968'],moss:0xbe91db}
 };
 const rand=n=>{const x=Math.sin(n*96.173+12.779)*14173.67;return x-Math.floor(x)};
 const flat=(c,rough=.84,metal=.14)=>new THREE.MeshStandardMaterial({color:c,roughness:rough,metalness:metal});
@@ -24,11 +24,11 @@ function paintScene(theme,floor){
   ctx.fillStyle=grad;ctx.fillRect(0,0,768,1024);
   // Great sun / moon with bloom, warm even when the biome is stormy.
   const cx=theme==='void'?535:205,cy=255+rand(floor+9)*85;
-  const halo=ctx.createRadialGradient(cx,cy,12,cx,cy,320);
-  halo.addColorStop(0,theme==='void'?'rgba(255,230,251,.88)':'rgba(255,249,219,.92)');
-  halo.addColorStop(.14,'rgba(255,238,192,.48)');halo.addColorStop(1,'rgba(255,237,216,0)');
+  const halo=ctx.createRadialGradient(cx,cy,12,cx,cy,210);
+  halo.addColorStop(0,theme==='void'?'rgba(255,230,251,.88)':'rgba(255,233,188,.69)');
+  halo.addColorStop(.14,'rgba(255,223,177,.29)');halo.addColorStop(1,'rgba(255,237,216,0)');
   ctx.fillStyle=halo;ctx.fillRect(0,0,768,1024);
-  ctx.fillStyle=theme==='void'?'#f8e4ff':'#fff3d0';ctx.beginPath();ctx.arc(cx,cy,theme==='storm'?60:90,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle=theme==='void'?'#f8e4ff':'#fff3d0';ctx.beginPath();ctx.arc(cx,cy,theme==='storm'?40:60,0,Math.PI*2);ctx.fill();
   // Multiple distinct ridges, architecture / forest silhouettes and atmospheric haze.
   for(let layer=0;layer<5;layer++){
     const yy=550+layer*90,amp=40+layer*13;
@@ -38,11 +38,11 @@ function paintScene(theme,floor){
       ctx.lineTo(x,yy-ridge-rand(x*.47+layer*45+floor)*15);
     }
     ctx.lineTo(808,1050);ctx.closePath();
-    const colors=theme==='void'?['#a7a0d0','#857cae','#6c638e','#524b78','#373459']:
-      theme==='foundry'?['#cb9580','#ae7b6d','#99645b','#76504e','#533f43']:
-      theme==='ruins'?['#b4bf9e','#90a68a','#708b77','#567665','#3e574c']:
+    const colors=theme==='void'?['#b39bcf','#9175b3','#705499','#534378','#353259']:
+      theme==='foundry'?['#dfab80','#bd7961','#9b5753','#713e45','#472e3b']:
+      theme==='ruins'?['#bad4a3','#8ebd92','#609477','#42745e','#294a42']:
       theme==='clockwork'?['#d6a97c','#b98e69','#9d7357','#80604e','#5f4943']:
-      ['#a6c7cf','#88a9b7','#6f94a7','#567c94','#3e5f7b'];
+      ['#91ccda','#6fabc4','#4b83a8','#395f8b','#283d66'];
     ctx.fillStyle=colors[layer];ctx.fill();
     // Atmospheric monuments grow between layers, never a repeated window grid.
     if(layer>0&&layer<4){
