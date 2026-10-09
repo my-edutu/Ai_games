@@ -70,6 +70,23 @@ try{
         assert.equal(layout.right,'none');
         assert.ok(layout.summary>=layout.header-8,'mobile vitals must not collide with header');
         assert.ok(layout.navigation<=layout.footer+3,'mobile navigation must not collide with footer');
+        const phoneType=await page.evaluate(()=>{
+          const px=selector=>parseFloat(getComputedStyle(document.querySelector(selector)).fontSize);
+          return {
+            overview: px('.mobileOverview span:not(.liveStatusDot)'),
+            count: px('.mobileOverview strong'),
+            navigation: px('.mobileDeck button'),
+            command: px('.bottom .controls>button'),
+            director: px('.directorStrip strong'),
+            frame: px('.sceneBadge #fpsCompact'),
+          };
+        });
+        for(const key of ['overview','navigation','command'])
+          assert.ok(phoneType[key]>=10,'unreadable native 390px phone label: '+key);
+        assert.ok(phoneType.count>=15,'live vitals must be glance-readable');
+        assert.ok(phoneType.director>=12,'director objective must be legible');
+        assert.ok(phoneType.frame>=11,'frame badge must be legible');
+        report.checks.mobileReadableTypography=true;
         await page.screenshot({path:root+'mobile-first-look.png',animations:'disabled'});
         report.checks.mobileFirstLook=true;
       }finally{

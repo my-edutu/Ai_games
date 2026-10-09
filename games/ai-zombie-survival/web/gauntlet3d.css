@@ -294,3 +294,23 @@ main[data-phase="night"]{--cyan:#7bcbff;--amber:#fbd197;--coral:#ff738c}main[dat
   #hud[data-cinema="true"] .bottom .controls{grid-template-columns:repeat(3,minmax(0,1fr))}
   #hud[data-cinema="true"] .secondaryControls{display:none!important}
 }
+
+/* GAUNTLET LOOP 41 — phone screenshot critic: critical telemetry and actions
+   were rendered at 8–9px on a real 390px capture. Preserve the unobstructed
+   3D viewport while making the information hierarchy readable at native size. */
+@media(max-width:740px){
+  .mobileOverview>div{height:38px;gap:5px;background:linear-gradient(135deg,#102e43f2,#14283ef0);border-color:#72b8c4b0}
+  .mobileOverview strong{font-size:15px;line-height:1;font-variant-numeric:tabular-nums}
+  .mobileOverview span:not(.liveStatusDot){font-size:10px;letter-spacing:.015em;color:#e8f5f5}
+  .mobileDeck button{font-size:10px;letter-spacing:.015em;color:#f2fffa;border-color:#7fc5d5a8}
+  .bottom .controls>button{font-size:10px;letter-spacing:0}
+  .directorStrip{background:linear-gradient(110deg,#0e3048f5,#15243df5);border-color:#72cdd6c4}
+  .directorStrip strong{font-size:12px;letter-spacing:.015em}
+  .stripLabel{font-size:10px;letter-spacing:.025em}
+  .stripMini span{font-size:10px}
+  .stripMini strong{font-size:11px}
+  .sceneBadge #fpsCompact{font-size:11px;letter-spacing:.025em}
+  .sceneBadge #verdict{font-size:10px;letter-spacing:0}
+  .alertText>span{font-size:10px;letter-spacing:.06em}
+  .alertText strong{font-size:12px;line-height:1.25}
+}

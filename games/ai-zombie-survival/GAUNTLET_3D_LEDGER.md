@@ -246,3 +246,11 @@ Reorganized phone footer into four complete thumb-sized primary controls (Pause,
 ## Loop 40 — correct nested control highlights (NEW CODE; browser retest pending)
 
 Scoped the Pause amber styling to direct child `.controls > button:first-child` only. Scoped the fourth-child bright cyan state to MORE only when `aria-expanded=true`; closed MORE and inactive SOUND remain dark until actually activated. Browser asserts inactive SOUND and MORE do not inherit the Pause background and that expanding MORE changes its computed visual state. This is purely CSS and browser assertions; simulation, recovery, 3D geometry, controls and 2.5D fallback are unchanged. Await the new CI and screenshot artifact before claiming verification.
+
+## Loop 41 — 390×844 mobile HUD legibility hierarchy (NEW CODE; fresh CI pending)
+
+**Independent visual critic input:** downloaded and inspected the successful Loop 39 actual `mobile-first-look.png` (390×844) and `day.png` (1280×720), plus `mobile-more-controls.png`. The phone now preserves most of the playfield, but the vital labels, director episode text, footer actions and performance badge were 8–10px and visually hard to distinguish at native resolution. This is a separate readability defect from the Loop 40 false button highlights.
+
+**Change:** raised phone vitals to 15px, summary labels/navigation/command captions to at least 10px, director objective to 12px and compact frame badge to 11px; increased text contrast and retained compact overlay bounds. New Playwright computed-style assertions at **390×844** enforce the legibility floor and existing geometry tests still guard against header/footer collisions. The **1280×720** desktop HUD and 2.5D fallback are unchanged. No simulation, camera, AI or rendering pipeline changes.
+
+**Evidence status:** existing Loop 39 screenshots are baseline only, not proof of this Loop 41 change. Fresh CI WebGL2 screenshots, mobile overlap inspection, hardware GPU p95 and 24–72 hour OBS soak remain required. Do not claim Days Gone Remastered parity: current models, motion, environment detail and CPU tails remain far below the visual/performance benchmark.
