@@ -28,6 +28,7 @@ test.describe('Eko Run 3D Gauntlet slice', () => {
     expect(audit?.character.type).toBe('original-procedural-joint-rig');
     expect(audit.character.joints).toBeGreaterThanOrEqual(14);
     expect(audit.character.instancedDetails).toBe(23);
+    expect(audit.character.expressiveFacialParts).toBeGreaterThanOrEqual(8);
     expect(audit.character.meshes).toBeGreaterThanOrEqual(60);
     expect(audit.character.inFrame).toBeTruthy();
     expect(audit.character.safeHorizontalPadding).toBe(true);
