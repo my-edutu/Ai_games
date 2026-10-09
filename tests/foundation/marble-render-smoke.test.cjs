@@ -38,9 +38,14 @@ function makeSnapshot(stage,champion=false,focusIds=[0]){
 
 function makeMockGL(counters){
   const gl={};
-  const methods='createShader shaderSource compileShader deleteShader createProgram attachShader linkProgram deleteProgram createVertexArray deleteVertexArray bindVertexArray createBuffer deleteBuffer bindBuffer bufferData enableVertexAttribArray vertexAttribPointer createTexture bindTexture texParameteri createFramebuffer bindFramebuffer createRenderbuffer bindRenderbuffer renderbufferStorage framebufferTexture2D framebufferRenderbuffer uniform2fv getUniformLocation useProgram enable disable blendFunc cullFace drawElements drawArrays uniformMatrix4fv uniformMatrix3fv uniform3fv uniform1f uniform1i viewport clearColor clear depthMask activeTexture pixelStorei texImage2D'.split(' ');
+  const methods='createShader shaderSource compileShader deleteShader createProgram attachShader linkProgram deleteProgram createVertexArray deleteVertexArray bindVertexArray createBuffer deleteBuffer bindBuffer bufferData enableVertexAttribArray vertexAttribPointer vertexAttribDivisor drawElementsInstanced createTexture bindTexture texParameteri createFramebuffer bindFramebuffer createRenderbuffer bindRenderbuffer renderbufferStorage framebufferTexture2D framebufferRenderbuffer uniform2fv getUniformLocation useProgram enable disable blendFunc cullFace drawElements drawArrays uniformMatrix4fv uniformMatrix3fv uniform3fv uniform1f uniform1i viewport clearColor clear depthMask activeTexture pixelStorei texImage2D'.split(' ');
   for(const name of methods)gl[name]=(...args)=>{
     if(name==='drawElements'){counters.drawElements++;counters.maximumMeshIndices=Math.max(counters.maximumMeshIndices,args[1]);}
+    if(name==='drawElementsInstanced'){
+      counters.instancedDraws++;
+      counters.instancedCompetitors+=args[4];
+      counters.maximumMeshIndices=Math.max(counters.maximumMeshIndices,args[1]);
+    }
     if(name==='drawArrays'){counters.drawArrays++;if(args[0]===gl.POINTS)counters.pointCloudDraws++;}
     if(name==='texImage2D')counters.uploads++;
     if(name==='deleteBuffer')counters.deletedBuffers=(counters.deletedBuffers||0)+1;
@@ -58,7 +63,7 @@ function makeMockGL(counters){
 }
 
 async function simulateStage(stage,quality,champion=false,focusIds=[0]){
-  const counters={drawElements:0,drawArrays:0,uploads:0,pointCloudDraws:0,maximumMeshIndices:0};
+  const counters={drawElements:0,drawArrays:0,uploads:0,pointCloudDraws:0,maximumMeshIndices:0,instancedDraws:0,instancedCompetitors:0};
   const gl=makeMockGL(counters);
   const shell={dataset:{},classList:{add(){},remove(){}}};
   const canvas={getContext:()=>gl,getBoundingClientRect:()=>({width:1600,height:900}),width:1600,height:900,addEventListener(){}};
@@ -140,6 +145,9 @@ test('low graphics tier removes expensive effects but keeps a real 3D race scene
   assert.ok(counters.drawElements>20);
   assert.ok(counters.drawArrays>=2);
   assert.equal(shell.dataset.postprocess,'direct','low tier must skip offscreen effects');
+  assert.equal(counters.instancedDraws,1,'Low must render the entire authoritative roster in one draw');
+  assert.equal(counters.instancedCompetitors,4);
+  assert.equal(shell.dataset.marbleDrawCalls,'1');
 });
 
 test('ultra graphical tier renders more geometry and extra physical LED signage',async()=>{
@@ -150,6 +158,7 @@ test('ultra graphical tier renders more geometry and extra physical LED signage'
   assert.ok(ultra.counters.maximumMeshIndices>balanced.counters.maximumMeshIndices,'ultra requires genuinely denser marble surface geometry');
   assert.equal(ultra.shell.dataset.crowdCount,'1100');
   assert.equal(balanced.shell.dataset.crowdCount,'320');
+  assert.equal(ultra.counters.instancedDraws,0,'Ultra retains the studio-quality per-marble materials');
 });
 
 test('championship 3D scene can render legitimate trophy without a client-picked champion',async()=>{
