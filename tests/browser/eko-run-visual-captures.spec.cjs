@@ -45,8 +45,10 @@ test('capture original 3D Lagos run, authored obstacle and mobile screenshot ref
   expect(audit.character.inFrame).toBe(true);
   expect(audit.character.safeHorizontalPadding).toBe(true);
   fs.writeFileSync(path.join(DIR,'gauntlet-visual-metrics.json'),JSON.stringify(audit,null,2));
+  await page.locator('#hud-settings-toggle').click();
   await page.locator('#camera').click();
   await expect(page.locator('#camera')).toHaveAttribute('aria-pressed','true');
+  await page.locator('#hud-settings-toggle').click();
   await page.waitForTimeout(3400);
   await page.screenshot({path:path.join(DIR,'gauntlet-three-quarter-desktop.png'),fullPage:true});
   const cinematic=await page.evaluate(()=>window.__EKO_VISUAL_AUDIT__?.());
