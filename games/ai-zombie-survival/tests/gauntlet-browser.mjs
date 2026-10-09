@@ -40,7 +40,14 @@ try{
     assert.ok(map.width>=200&&map.painted>=map.width,'Tactical map must paint real pixels');
     const shot=await page.screenshot({path:root+scenario+'.png',animations:'disabled'});
     assert.ok(shot.length>12000,'screenshot suspiciously small for '+scenario);
-    report.scenarios.push({name:scenario,bytes:shot.length,...info});
+    const runtimeStats=await page.evaluate(()=>JSON.parse(localStorage.getItem('zombie-gauntlet-live')||'{}'));
+    if(scenario==='large-horde'){
+      assert.ok(runtimeStats.gpuHordeInstances>=10,'distant infected must use true WebGL2 GPU instancing');
+      assert.ok(runtimeStats.gpuHordeTriangles>=runtimeStats.gpuHordeInstances*30,
+        'GPU horde must consist of real articulated 3D geometry rather than sprites');
+      report.checks.gpuInstancedCrowd=true;
+    }
+    report.scenarios.push({name:scenario,bytes:shot.length,...info,performance:runtimeStats});
   }
   await page.goto('http://127.0.0.1:4177/web/3d.html?scenario=day&freeze=1',{waitUntil:'load'});
   await page.waitForFunction(()=>document.querySelector('#fps')?.textContent?.includes('CPU P95'),{timeout:12000});
