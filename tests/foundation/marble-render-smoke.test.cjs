@@ -213,6 +213,7 @@ test('every stage gets its own monumental 3D skyline, architecture and physics-s
   for(const stage of stages){
     const {shell,counters}=await simulateStage(stage,'balanced',false);
     assert.equal(shell.dataset.stadiumStyle,stage);
+    assert.equal(shell.dataset.obstacleArtStyle,stage,'actual collision obstacle receives a unique dimensional stage treatment');
     assert.equal(shell.dataset.landmarkStyle,stage);
     assert.equal(shell.dataset.spotlightVolumes,'6');
     assert.ok(Number(shell.dataset.stadiumModules)>=300,'arena buildings must contain detailed geometry modules');
@@ -263,4 +264,14 @@ test('G43 stale or eliminated official camera focus never leaves a live marathon
   assert.equal(official.shell.dataset.cameraTargetSource,'official-focus');
   assert.equal(official.shell.dataset.cameraSubjects,'1');
   assert.equal(official.frame.snapshot.camera.directive.focusIds[0],1);
+});
+
+test('G44 mechanical obstacles remain grounded in all five complete 3D stage scenes',async()=>{
+  for(const biome of BIOMES){
+    const {shell,counters}=await simulateStage(biome,'high');
+    assert.equal(shell.dataset.obstacleArtStyle,biome);
+    assert.ok(Number(shell.dataset.propContactShadows)>=1);
+    assert.ok(counters.drawElements>140,'3D obstacles must draw a detailed mesh ensemble');
+    assert.equal(shell.dataset.cutoutCount,'1','decorative machinery never changes pit topology');
+  }
 });
