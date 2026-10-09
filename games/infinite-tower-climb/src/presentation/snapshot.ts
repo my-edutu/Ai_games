@@ -1,5 +1,6 @@
 import{checksum}from'../../../../packages/replay/src/index';
 import type{TowerState}from'../state/types';
+import{platformAtTick}from'../generation/chunks';
 
 function deepFreeze<T>(value:T):Readonly<T>{
   if(value&&typeof value==='object'&&!Object.isFrozen(value)){
@@ -49,7 +50,7 @@ export function createTowerRenderSnapshot(state:TowerState):Readonly<TowerRender
     runToken:checksum({runId:state.runId}),revision:state.tick*1000+state.stats.floorsCleared,tick:state.tick,lifecycle:state.lifecycle,
     floor:state.floor,theme:chunk.theme,worldWidth:state.config.worldWidth,chunkBaseY:chunk.baseY,chunkHeight:chunk.height,
     player:{x:state.player.position.x,y:state.player.position.y,vx:state.player.velocity.x,vy:state.player.velocity.y,halfWidth:state.player.halfWidth,halfHeight:state.player.halfHeight,facing:state.player.facing,health:state.player.health,maxHealth:state.player.maxHealth,stamina:state.player.stamina,maxStamina:state.player.maxStamina,shieldCharges:state.player.shieldCharges,state:state.player.state,score:state.player.score},
-    platforms:chunk.platforms.map(p=>({id:p.id,kind:p.kind,x:p.x,y:p.y,width:p.width,height:p.height})).sort((a,b)=>a.id.localeCompare(b.id)),
+    platforms:chunk.platforms.map(p=>platformAtTick(p,state.tick)).map(p=>({id:p.id,kind:p.kind,x:p.x,y:p.y,width:p.width,height:p.height})).sort((a,b)=>a.id.localeCompare(b.id)),
     hazards:chunk.hazards.map(h=>({id:h.id,kind:h.kind,x:h.x,y:h.y,width:h.width,height:h.height,active:activeHazard(h,state.tick)})).sort((a,b)=>a.id.localeCompare(b.id)),
     enemies:state.enemies.filter(e=>e.floor===state.floor).map(e=>({id:e.id,kind:e.kind,x:e.position.x,y:e.position.y,halfWidth:e.halfWidth,halfHeight:e.halfHeight,health:e.health,maxHealth:e.maxHealth,active:e.active,telegraph:e.telegraphUntilTick>state.tick})).sort((a,b)=>a.id.localeCompare(b.id)),
     projectiles:state.projectiles.filter(p=>p.floor===state.floor&&p.active).map(p=>({id:p.id,owner:p.owner,x:p.position.x,y:p.position.y,vx:p.velocity.x,vy:p.velocity.y})).sort((a,b)=>a.id.localeCompare(b.id)),

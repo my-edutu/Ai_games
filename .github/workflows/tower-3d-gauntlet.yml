@@ -1,0 +1,87 @@
+name: Infinite Tower 3D Gauntlet
+
+on:
+  pull_request:
+    paths:
+      - 'games/infinite-tower-climb/**'
+      - 'public/infinite-tower-climb/**'
+      - 'scripts/serve-tower-stream.cjs'
+      - 'tests/browser/tower-*.spec.cjs'
+      - 'tests/phase6/tower-*.test.cjs'
+      - 'scripts/check-tower-gauntlet.cjs'
+      - 'docs/gauntlet/**'
+      - '.github/workflows/tower-3d-gauntlet.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  simulation-critic:
+    name: AI simulation and replay critic
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '22.16.0'
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npm run build
+      - run: npm run test:tower:phase1
+      - run: npm run test:tower:phase2
+      - run: npm run test:tower:phase3
+      - run: npm run test:tower:phase4
+      - run: npm run test:tower:phase5
+      - run: npm run test:tower:phase6
+      - run: npm run tower:stream:self-test
+
+  security-critic:
+    name: Presentation security and integrity critic
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '22.16.0'
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - name: Parse each tower browser module
+        shell: bash
+        run: |
+          set -euo pipefail
+          for file in public/infinite-tower-climb/scene3d.js public/infinite-tower-climb/character3d.js public/infinite-tower-climb/environment3d.js public/infinite-tower-climb/biome-v4.js public/infinite-tower-climb/hazards-v4.js public/infinite-tower-climb/landmarks-v5.js public/infinite-tower-climb/effects-v6.js public/infinite-tower-climb/atmosphere-v8.js public/infinite-tower-climb/geology-v9.js public/infinite-tower-climb/grip-v10.js public/infinite-tower-climb/hero-sculpt-v13.js public/infinite-tower-climb/rig-batch-v17.js public/infinite-tower-climb/ledge-v18.js; do
+            node --input-type=module --check < "$file"
+          done
+      - name: Check scene integration and prohibited remote libraries
+        run: node scripts/check-tower-gauntlet.cjs
+
+  browser-critic:
+    name: Running game / screenshots / WebGL critic
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '22.16.0'
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - name: Critic captures real 3D gameplay and 2D fallback
+        run: npx playwright test tests/browser/tower-3d-gauntlet.spec.cjs --workers=1
+      - name: Publish independently inspectable gameplay captures
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: tower-3d-gauntlet-critic-captures
+          path: artifacts/tower-phase3/
+          retention-days: 30
+          if-no-files-found: warn

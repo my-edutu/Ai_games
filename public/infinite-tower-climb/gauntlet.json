@@ -1,0 +1,299 @@
+{
+  "project": "Infinite Tower Climb — 3D Gauntlet",
+  "date": "2026-10-08",
+  "round": 22,
+  "target": "Jusant (DON'T NOD): official screenshots and captured gameplay",
+  "status": "Gauntlet Round 22 in progress, NOT ACCEPTED. Last inspected Chromium artifact 11600623402 was a partial/cancelled run (9 images) before the current final head. Correctness CI run 37896843861 failed the rig-batching test's conservative Box3 comparison; opaque rig geometry, manual matrices, winding, render layers and frustum preservation now patched with exact world-vertex tests. Cinematic focus HUD committed with responsive mobile/desktop interaction and 3 new browser regression captures; post-commit real WebGL screenshots, browser and general CI remain UNVERIFIED. Official Jusant visual parity, independent critic approval and genuine full-3D physics NOT MET.",
+  "completionRule": "A separate critic must inspect the rendered game, compare screenshots or gameplay against official Jusant imagery, report the worst gap, and repeat. A functioning renderer alone is not a pass.",
+  "lanes": [
+    {
+      "name": "PRIORITY 1 — screenshot-proven environmental overexposure and color",
+      "status": "Applied explicit normal-blend low-alpha shafts at z=-108, lessened moon/sun bloom, five higher-chroma landscape palettes, theme-aware dark readable gameplay HUD; browser >7:1 color checks committed.",
+      "criterion": "Real new screenshots distinguish all five biomes and do not contain giant white overlay triangles; text readable from gameplay distance."
+    },
+    {
+      "name": "PRIORITY 2 — authoritative platform geometry looks sculpted",
+      "status": "Added ledge-v18: collision-width exact sculpted triangular lower rock faces, deterministic stone scratch texture, theme-specific metal/accent trims, moving ledge insignia, authoritative physics-tick positioning and diagnostic max alignment error.",
+      "criterion": "No fake handholds; photographed gameplay platforms visually believable and precisely align with fixed-step collision rectangles."
+    },
+    {
+      "name": "PRIORITY 3 — four-character inspection performance",
+      "status": "New rig-batch-v17 merges opaque sibling pieces with shared material under the exact same animated joint. No decimation, no removing model detail. New Node tests preserve vertex counts/pose world bounds and original cloth, transparent visor and attached children; browser <850 draw-call budget remains strict.",
+      "criterion": "Four production character rigs remain visually identical and gallery draws <850 actual GPU calls, no loss of pose consistency."
+    },
+    {
+      "name": "PRIORITY 4 — fallback integrity",
+      "status": "Fixed browser assertion to accept tick resets across new autonomous runs while requiring new snapshot checksum and live 2D view.",
+      "criterion": "WebGL context loss switches to 2D and autonomous snapshots continue updating without blocked canvas."
+    },
+    {
+      "name": "OPEN — Jusant matched-camera and fully authoritative 3D climbing",
+      "status": "NOT achieved. Current deterministic simulator is 2D and rendered with Three.js; external detailed asset pipeline/animation production and independent Jusant screenshot match remain ahead.",
+      "criterion": "Independent critic reviews matched screenshots/recording and actual gameplay mechanics before any 'done' verdict."
+    }
+  ],
+  "evidence": [
+    {
+      "name": "Round 1 full CI and Playwright captures",
+      "state": "PASS",
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/37736794883"
+    },
+    {
+      "name": "Round 1 3D actual captured screenshot",
+      "state": "inspected; reveals primitive art and repeated environments"
+    },
+    {
+      "name": "Round 2 and 3 3D hero, mobile and higher-floor captures",
+      "state": "CI pending; must inspect genuine artifact"
+    },
+    {
+      "name": "Official Jusant quality gate",
+      "state": "reference identified; fresh-context gameplay A/B still required",
+      "url": "https://dont-nod.com/en/games/jusant/"
+    },
+    {
+      "name": "Full 3D game physics",
+      "state": "not yet implemented; game has 2D authority with 3D presentation"
+    },
+    {
+      "name": "Visual Edition IV PR #48",
+      "state": "Changes committed: new art, UI, character and hazard modules; latest full CI pending",
+      "url": "https://github.com/my-edutu/Ai_games/pull/48"
+    },
+    {
+      "name": "Round 5 responsive HUD implementation",
+      "state": "committed; no browser proof or passing CI yet",
+      "url": "https://github.com/my-edutu/Ai_games/pull/48"
+    },
+    {
+      "name": "Round 7 source syntax + module routing",
+      "state": "PASS: manual syntax parse of updated JS modules and same-origin import/HTML CSS route checks (not browser execution)"
+    },
+    {
+      "name": "Round 7 CI and captured artwork",
+      "state": "QUEUED: no green latest-run CI or human visual verdict confirmed",
+      "url": "https://github.com/my-edutu/Ai_games/actions"
+    },
+    {
+      "name": "Round 8 source syntax/import and single-stylesheet verification",
+      "state": "PASS — connector file reads verified 12 JS modules/tests, routes and only /tower/visual-v8.css linked"
+    },
+    {
+      "name": "Round 8 real browser screenshots and independent visual review",
+      "state": "PENDING — no new WebGL screenshot or official Jusant A/B verdict independently inspected",
+      "url": "https://github.com/my-edutu/Ai_games/actions"
+    },
+    {
+      "name": "Round 9 source audit",
+      "state": "BLOCKED: discovered duplicate createTowerEffectsDirector import in scene3d.js; module parse will fail. Existing latest CI queued, older screenshot inspected; fix not yet applied."
+    },
+    {
+      "name": "Round 9 real screenshot",
+      "state": "INSPECTED older 2026-10-08 06:32 UTC capture; repetitive blue grid and mannequin silhouettes; NOT representative of current head",
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/37736794883"
+    },
+    {
+      "name": "Round 9 latest CI",
+      "state": "QUEUED (as observed) and no current screenshot artifacts",
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/37759810287"
+    },
+    {
+      "name": "Round 9 blocker",
+      "state": "3D module parse error (duplicate import) and missing /tower/geology-v9.js HTTP route. Source update attempts blocked by safety checks. Must repair before next visual review."
+    },
+    {
+      "name": "Round 10 repair commits",
+      "state": "COMMITTED: 81228668 (scene integration), dd799923 (HTTP route), c3ca8c8 (regression tests). Browser rendering and tests NOT VERIFIED."
+    },
+    {
+      "name": "Round 10 parallel workers",
+      "state": "UNAVAILABLE: chat_on_steriod worker service returned NOT_FOUND tunnel-client not seen for 300 seconds; no independent critic executed."
+    },
+    {
+      "name": "Round 11 focused source gate",
+      "state": "PASS: source JS syntax, same-origin module route and unique effect-import count; no live screenshot confirmation"
+    },
+    {
+      "name": "Round 11 real gameplay/CI visual gate",
+      "state": "PENDING: needs actual browser capture and an independent paired frame review"
+    },
+    {
+      "name": "Round 12 latest inspected CI",
+      "state": "FAIL: WebGL/browser critic 6 failed, 10 passed; replay/security jobs passed. Run 37768933717.",
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/37768933717"
+    },
+    {
+      "name": "Round 12 screenshot artifact",
+      "state": "EXISTS (artifact 11549936491, 4.7 MB); images not opened or evaluated.",
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/37768933717/artifacts/11549936491"
+    },
+    {
+      "name": "Actual earlier-build Chromium gameplay still image",
+      "state": "INSPECTED: run 37768933717, gauntlet-visual-v8-immersive.png; identified cluttered false platforms and boxy Wayfinder; not representative of latest branch",
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/37768933717"
+    },
+    {
+      "name": "Sculpt v13 production and route source gate",
+      "state": "PASS: ES-module syntax checks and same-origin URL mapping for new sculpted character code"
+    },
+    {
+      "name": "Sculpt v13 live screenshot, visual critic and Jusant A/B",
+      "state": "PENDING: new GitHub Actions evidence not yet complete"
+    },
+    {
+      "name": "Round 16 inspected real browser evidence",
+      "state": "PR head 0c5d968: 18/18 browser tests PASSED, including WebGL and fallback; 13 screenshots downloaded and visually inspected. Hero crop demonstrated in gauntlet-3d-hero.png.",
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/37795282546/artifacts/11559622245"
+    },
+    {
+      "name": "Real GitHub gameplay screenshots / independent internal critic",
+      "state": "INSPECTED 2026-10-09: gauntlet-3d-hero.png, gauntlet-visual-v8-immersive.png, four-character inspection failure screenshot from run 37811391368. Huge bright light shafts, blue-ish backgrounds, small illegible stat typography, 983 renderer calls in inspector.",
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/37811391368"
+    },
+    {
+      "name": "Last complete browser check",
+      "state": "FAILED at 17/18: gallery draws 983 vs threshold 850; separate full CI 32/33 fallback test failed due legitimate run-token/tick reset.",
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/37811391368"
+    },
+    {
+      "name": "Round 17 new-source checks",
+      "state": "PASS JS syntax + same-origin module route inspection before final browser run; latest real capture PENDING"
+    },
+    {
+      "name": "Round 18 source parser and routed imports",
+      "state": "PASS: eight changed JS/test files syntax parsed and same-origin new rig/ledge shader asset URLs checked"
+    },
+    {
+      "name": "Round 18 authored-platform screenshot, four-character draw budget, UI contrast",
+      "state": "PENDING: new GitHub Actions WebGL screenshots and all browser quality assertions",
+      "url": "https://github.com/my-edutu/Ai_games/pull/48/checks"
+    },
+    {
+      "name": "Round 22 real screenshot baseline (pre-focus)",
+      "state": "INSPECTED: real 1600x900 WebGL gauntlet-visual-v8-immersive.png in complete 14-file Chromium artifact; motivated a reversible focus HUD and slimmer default composition.",
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/37875294981/artifacts/11592515388"
+    },
+    {
+      "name": "Round 22 failed phase6 verification",
+      "state": "FAILED run 37896843861: Tower phase6 vertex-preservation test compared changing conservative Box3 bounds rather than transformed vertices; current source and regression fix awaiting fresh CI.",
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/37896843861"
+    },
+    {
+      "name": "Round 22 final-head focus/WebGL visual & reliability proof",
+      "state": "PENDING: 3 new Chromium focus captures, complete Gauntlet and general CI, and independent matched-camera visual critique.",
+      "url": "https://github.com/my-edutu/Ai_games/pull/48/checks"
+    }
+  ],
+  "history": [
+    {
+      "round": 0,
+      "summary": "Original autonomous authoritative 2D tower with AI climbing and replay",
+      "verdict": "baseline, not a 3D game"
+    },
+    {
+      "round": 1,
+      "summary": "True Three.js 3D scene, hero and enemy primitives, camera, floor themes and WebGL fallback; Playwright screenshots + full CI PASS",
+      "verdict": "screenshot reviewed: overly repetitive visuals; elementary character design; 2D upper-floor projection broken"
+    },
+    {
+      "round": 2,
+      "summary": "Jointed hero rig and individualized hostile types; original armor and climbing equipment; atmospheric landscapes, stone textures, banners, statues and living details; corrected 2D upper-floor projection",
+      "verdict": "builder changes committed, browser photo evidence pending"
+    },
+    {
+      "round": 3,
+      "summary": "Hero close-up, viewer-side blind A/B, official Jusant link, structured critic form, independent parallel automated CI checks, high-contrast/mobile presets, GPU telemetry and draw-call batching",
+      "verdict": "engineering verification pending; independent benchmark rejection/acceptance not yet performed"
+    },
+    {
+      "round": 4,
+      "summary": "Direct user-driven design overhaul: new light and warm 3D scenic backgrounds, full-screen compact expedition HUD, role-specific character sculpted details and five independently modeled danger families.",
+      "verdict": "Code committed. Real browser output and independent reference comparison pending."
+    },
+    {
+      "round": 5,
+      "summary": "CSS-only expedition visual layer: luminous biome-neutral accents, legible chapter typography, high-contrast panel hierarchy, responsive small-screen layout, clean-feed preservation.",
+      "verdict": "Implementation committed; actual browser rendering and visual improvement unverified."
+    },
+    {
+      "round": 5,
+      "summary": "Found and corrected missing HTTP route for visual-v5.css; added stylesheet to server self-test asset inventory.",
+      "verdict": "Source-level integration fixed; browser rendering and CI still unverified."
+    },
+    {
+      "round": 6,
+      "summary": "Fixed 3D renderer import chain: scene3d.js references landmarks-v5.js, previously missing from HTTP allowlist. Added node regression tests traversing renderer imports and HTML CSS links.",
+      "verdict": "Fix committed; screenshot and build verification pending."
+    },
+    {
+      "round": 7,
+      "summary": "Five custom animated landmark worlds and a real-perspective climbing camera; new role lineup inspection, full-screen warm HUD threat cards and snapshot-driven damage, ascent and guardian FX with 96-particle cap.",
+      "verdict": "Source parse/router inspection passed; actual browser and official Jusant visual critique not yet complete. 3D authoritative movement not claimed."
+    },
+    {
+      "round": 8,
+      "summary": "Replaced piled-on visual editions with a single vivid, readable theme-aware HUD. Added true 3D environmental mist, volumetric-style light shafts, dense floating dust and scene-specific props, cinematic light balance and individual procedural combat/climbing poses. Removed duplicate active GPU effects system.",
+      "verdict": "JavaScript parser/module routing checks performed; newest CI/Chromium screenshots still pending; AAA art and 3D physics not yet achieved."
+    },
+    {
+      "round": 9,
+      "summary": "Inspected docs, ledger, PR, current queued CI and real older screenshot. Built sculpted-geology-v9.js with faceted cliffs, striations, instanced talus and shelves; attempted to wire it, but source-file update safety checks blocked required server/scene corrections.",
+      "verdict": "BLOCKED: module route missing and duplicate named import in scene3d.js. Real current-head browser rendering unverified; Gauntlet NOT MET."
+    },
+    {
+      "round": 10,
+      "summary": "Repaired duplicate createTowerEffectsDirector ES import; integrated Round 9 sculpted geology into 3D backdrop; added HTTP route and self-test asset; added regression tests for import uniqueness and geology wiring. Parallel worker service unavailable (tunnel disconnected), so changes were self-reviewed only.",
+      "verdict": "Source integration committed; latest CI queued and no current-head screenshot inspected. Jusant benchmark NOT MET."
+    },
+    {
+      "round": 11,
+      "summary": "Focused Wayfinder contact milestone: immutable snapshot-derived reachable ledges, analytical two-bone arm pose in both facing directions, moving ledges updated at each physics tick, protected unit regressions.",
+      "verdict": "Scoped source integrity verified; new simulation/browser tests queued. Authored hero fidelity, true 3D climbing physics and Jusant independent A/B benchmark remain unmet."
+    },
+    {
+      "round": 12,
+      "summary": "Investigated actual CI run 37768933717: deterministic/replay and source-security jobs passed, but Chromium WebGL critic failed six tests with missing 3D diagnostics; screenshot artifact exists but not visually inspected. Fixed pickup bobbing cumulative drift and added explicit renderer/boot fallback error telemetry for the next CI failure investigation.",
+      "verdict": "CI failed; cause of 3D startup/render failure not yet established. Changes committed but untested. No independent visual review or Jusant parity."
+    },
+    {
+      "round": 13,
+      "summary": "Built original layered Wayfinder model art on animated rig, mesh-count diagnostics and browser capture test; fixed pooled materials across floors. Critiqued actual Round 11 screenshot and removed fake catwalks/generic floating ornaments to recover gameplay visual hierarchy.",
+      "verdict": "Source/parser and browser-route checks passed; no new-head Chromium footage or independent Jusant A/B verdict. AAA quality, live visual acceptance and full 3D movement remain open."
+    },
+    {
+      "round": 14,
+      "summary": "Inspected current PR head e705fc0 and latest workflow state: Tower 3D CI queued; broader Autonomous Games CI failed. Added failure-only Playwright capture of page errors, browser console errors/warnings, failed requests, HTTP 4xx/5xx, boot exception stack, renderer fallback reason, snapshot tick and screenshot; persisted reports in existing uploaded artifact directory.",
+      "verdict": "Instrumentation committed; no passing Chromium or new-head visual proof yet. Jusant comparison and parity remain unmet."
+    },
+    {
+      "round": 15,
+      "summary": "Source audit found geology-v9.js was still absent from scene3d.js imports and biome buildBackdrop, despite server routing it. Restored actual geometry integration without changing simulation or 2D fallback.",
+      "verdict": "Committed; visual effect not yet confirmed in fresh screenshot; Jusant benchmark unmet."
+    },
+    {
+      "round": 16,
+      "summary": "Inspected PR head 0c5d968, full successful Tower workflow 37795282546 (18/18 browser tests), downloaded and visually inspected 13 real screenshot artifacts (11559622245), including full 1440x900 gauntlet-3d-hero.png. The hero's helmet was cropped offscreen at the top and model was left-shifted. Fixed hero FOV 24→34, camera distance 134→174, removed hero-only world-X clamp and X/Y camera offsets, snapped camera to new runs/floors; added projected model-bounds telemetry and browser assertions requiring on-screen top/bottom/left/right. Did not alter simulation or fallback.",
+      "verdict": "Original screenshots establish a real camera-framing defect. Code and regression test committed; current-head screenshot/CI not yet inspected. Jusant visual quality and full 3D physics NOT MET."
+    },
+    {
+      "round": 17,
+      "summary": "Actual independent GitHub Chromium artifact review of Storm/Clockwork gameplay, hero close-up, four-character gallery. Source changes to cut whiteout beams and lighten/match world art, improve UI contrast and panel styling, merge per-joint opaque meshes for gallery performance, and make fallback run-token-safe. Added active Chromium color-contrast (>7:1) and gallery batching validation.",
+      "verdict": "Last verified CI had 17/18 Gauntlet browser tests and 32/33 full CI browser tests; latest changes not yet run to completion, no Jusant visual acceptance."
+    },
+    {
+      "round": 18,
+      "summary": "Scoped visual quality overhaul from screenshot-driven critique: repaired whitewashed environment atmosphere; retuned all five sky colors and opaque readable HUD; batched identical-material character rig parts while preserving every vertex; rebuilt collision-accurate tower platforms as sculpted textured ledges rather than simple boxes; added source/real-browser regression gates.",
+      "verdict": "Source syntax and same-origin asset routing checked; previous head failed one gallery draw-call threshold and one fallback test; new CI and current screenshot evidence still pending. Full 3D climbing and independent matched-camera Jusant quality remain unmet."
+    },
+    {
+      "round": 21,
+      "summary": "UI hierarchy pass: desktop side-panel scrolling and keyboard focus visibility, mobile title width/scale and lower-cost mobile backdrop filtering. Prior completed CI at db979c5 had browser critic success but simulation and general CI failures. No fresh Chromium screenshot or post-commit CI result yet.",
+      "verdict": "Committed UI CSS only; visual acceptance and current-head browser verification pending. Jusant parity not achieved."
+    },
+    {
+      "round": 22,
+      "summary": "Inspected actual 1600x900 Chromium screenshot gauntlet-visual-v8-immersive.png from artifact 11592515388: oversize world heading, long top bar, and stacked spectator sidebar compete with render stage. Added accessible, session-persistent cinematic Focus View, 44px minimum mobile control, responsive layout and safe clean-feed. Added desktop/phone/landscape/focus live-WebGL Playwright captures. Also fixed rig batch merging for negative winding, manual matrices, render layers and frustum; replaced invalid conservative-AABB test with per-vertex world-space comparison and added two regressions. Other concurrent branch work appended Visual XII compact HUD styling and tests.",
+      "verdict": "Source and test syntax parsed; browser screenshots of final head and all CI acceptance checks pending. Last phase6 CI failed before rig test fix. The only retrieved newer artifact 11600623402 is 9 screenshots from a cancelled run, not an accepted finish. No Jusant parity or independent matched-camera critic pass."
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+/* Round 7 — broadcast-grade HUD typography and biome-responsive colour direction. */
+#app .top{backdrop-filter:blur(20px) saturate(1.35)}
+#app .brand h1{font-weight:900!important;letter-spacing:.08em!important;text-shadow:0 2px 13px rgba(0,0,0,.34)}
+#app .eyebrow{color:var(--expedition-gold)!important;letter-spacing:.23em!important}
+#app .primary-metrics article{background:linear-gradient(150deg,rgba(255,239,201,.11),rgba(255,255,255,.025))!important;border:1px solid rgba(255,240,203,.18)!important;border-radius:7px!important}
+#app .primary-metrics strong{font-variant-numeric:tabular-nums;color:#fff6e5!important;text-shadow:0 1px 12px rgba(255,214,143,.24)}
+#app .world-title{font-weight:900!important;letter-spacing:-.06em!important;line-height:1.02!important;text-transform:uppercase}
+#app .world-label{filter:drop-shadow(0 8px 28px rgba(18,15,22,.34))}
+#app .world-detail{letter-spacing:.17em!important;font-weight:800!important}
+#app .panel-head span{color:var(--expedition-gold)!important;letter-spacing:.15em!important}
+#app .intent-panel h2{color:#f7fff6!important;text-shadow:0 0 12px rgba(124,232,216,.23)}
+#app .checkpoint-pill{background:rgba(26,23,30,.78)!important;backdrop-filter:blur(12px);border-radius:6px!important}
+#app .caption{background:linear-gradient(90deg,rgba(24,22,29,.94),rgba(30,24,33,.76))!important;backdrop-filter:blur(18px);border-top:1px solid rgba(255,235,191,.3)!important}
+#app .caption-icon{color:var(--expedition-teal)!important;text-shadow:0 0 14px var(--expedition-teal)}
+#app .choice-card,#app .result-card,#app .recovery-card{background:linear-gradient(145deg,rgba(28,26,36,.97),rgba(62,41,49,.94))!important;border:1px solid rgba(255,221,164,.56)!important;box-shadow:0 24px 90px rgba(8,9,18,.52),inset 0 1px rgba(255,255,255,.12)!important}
+body[data-tower-theme="ruins"] #app .world-title{background-image:linear-gradient(110deg,#fffbe7,#d4ffe0,#95e7bd)}
+body[data-tower-theme="storm"] #app .world-title{background-image:linear-gradient(110deg,#fffdf0,#bcefff,#8ad7fa)}
+body[data-tower-theme="clockwork"] #app .world-title{background-image:linear-gradient(110deg,#fff9e6,#ffe1a3,#ffad65)}
+body[data-tower-theme="void"] #app .world-title{background-image:linear-gradient(110deg,#fff2ff,#f3c4ff,#b9b1ff)}
+body[data-tower-theme="foundry"] #app .world-title{background-image:linear-gradient(110deg,#fff8e4,#ffd08c,#ff9375)}
+@media(max-width:700px){
+ #app .brand .eyebrow{font-size:7px!important}
+ #app .primary-metrics strong{font-size:14px!important}
+ #app .world-label{pointer-events:none}
+ #app .world-title{max-width:90vw;font-size:clamp(23px,7.6vw,42px)!important;overflow-wrap:break-word}
+ #app .world-detail{font-size:8px!important;letter-spacing:.08em!important}
+ #app .caption{padding-inline:12px!important}
+}
+@media(prefers-reduced-motion:reduce){#app .caption-icon{text-shadow:none}}

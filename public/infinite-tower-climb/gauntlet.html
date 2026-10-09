@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Infinite Tower | Gauntlet Lab</title><link rel="stylesheet" href="/tower/gauntlet.css"></head>
+<body><main class="shell">
+<header class="mast"><div><p class="overline">INFINITE TOWER / BUILD VS CRITIC</p><h1>3D GAUNTLET <span>LAB</span></h1><p class="summary">Live, synchronized simulation feeds. Compare the original 2D renderer against the new 3D presentation without changing gameplay authority.</p></div><a class="launch" href="/tower" target="_blank" rel="noopener">OPEN GAME ↗</a></header>
+<section class="stats" aria-label="Live game stats"><div><span>ROUND</span><strong id="round">—</strong></div><div><span>FLOOR</span><strong id="floor">—</strong></div><div><span>LIVE TICK</span><strong id="tick">—</strong></div><div><span>REFERENCE</span><strong>JUSANT</strong></div></section>
+<section class="review" aria-label="Blind side-by-side review">
+<div class="review-top"><div><p class="overline">RENDERED OUTPUT / SIDE-BY-SIDE</p><h2>Blind A/B Review</h2></div><button id="reveal" type="button" aria-pressed="false">REVEAL VERSIONS</button></div>
+<p class="notice">Both feeds use the same live autonomous simulation. Compare lighting, environment depth, visual clarity and character silhouette; inspect the actual game before voting. Jusant reference footage must be compared separately by a reviewer.</p>
+<div class="views" id="views">
+<figure><figcaption><span class="tag" id="label-a">FEED A — HIDDEN</span><span class="live">● LIVE</span></figcaption><iframe id="feed-a" title="First live game render" loading="eager"></iframe></figure>
+<figure><figcaption><span class="tag" id="label-b">FEED B — HIDDEN</span><span class="live">● LIVE</span></figcaption><iframe id="feed-b" title="Second live game render" loading="eager"></iframe></figure>
+</div><p class="footnote">Blind comparison here measures the old renderer against the new renderer, not a claim of AAA parity. Official Jusant gameplay remains the external quality bar.</p>
+</section>
+<section class="quality review" aria-label="Jusant benchmark review">
+<div><p class="overline">EXTERNAL QUALITY BAR / OFFICIAL REFERENCE</p><h2>Jusant quality gate</h2><p class="notice">Use official gameplay and our actual running game at comparable camera distances. Scores and verdicts are evidence notes, not a substitute for an independent critic.</p><a class="launch" href="https://dont-nod.com/en/games/jusant/" target="_blank" rel="noopener noreferrer">INSPECT OFFICIAL JUSANT ↗</a></div>
+<form id="critic-form"><div class="scores">
+<label>Character modeling <input name="character" type="range" min="0" max="10" value="3"><output data-score="character">3/10</output></label>
+<label>Motion and locomotion <input name="animation" type="range" min="0" max="10" value="2"><output data-score="animation">2/10</output></label>
+<label>Environment fidelity <input name="environment" type="range" min="0" max="10" value="3"><output data-score="environment">3/10</output></label>
+<label>Cinematic composition <input name="cinematic" type="range" min="0" max="10" value="3"><output data-score="cinematic">3/10</output></label>
+<label>Gameplay readability <input name="readability" type="range" min="0" max="10" value="5"><output data-score="readability">5/10</output></label>
+</div><label class="gap-label" for="critic-gap">Single most important gap for the next builder</label><textarea id="critic-gap" rows="3" minlength="10" maxlength="1200" required placeholder="Describe the biggest gap in the actual footage and how to verify the fix."></textarea><div class="review-actions"><button type="submit">SAVE LOCAL REVIEW</button><button type="button" id="copy-critique">COPY BUILDER HANDOFF</button><span id="review-state" role="status" aria-live="polite">No independent review submitted</span></div></form>
+</section>
+<section class="bottom"><article><p class="overline">EXECUTION BOARD</p><h2>Independent improvement lanes</h2><ul id="lanes"><li>Loading committed gauntlet ledger…</li></ul></article><article><p class="overline">HARSH CRITIC / CURRENT VERDICT</p><h2 id="verdict">Not yet independently reviewed</h2><p id="status"></p><div class="warning">The gauntlet is NOT complete. A high visual benchmark cannot be passed by source inspection or green unit tests alone.</div><p class="footnote">Live ledger is versioned in <code>public/infinite-tower-climb/gauntlet.json</code>. Update after each actual builder/critic cycle with screenshot evidence and the next biggest gap.</p></article></section>
+<section class="history review" aria-label="Gauntlet evolution"><p class="overline">ROUND HISTORY / EVIDENCE TRAIL</p><h2>Work evolving over time</h2><ol id="history"><li>Loading round history…</li></ol></section>
+<footer>INFINITE TOWER CLIMB • AUTONOMOUS 3D ASCENT • GAUNTLET ROUND <span id="round-foot">1</span></footer>
+</main><script src="/tower/gauntlet.js" defer></script></body></html>

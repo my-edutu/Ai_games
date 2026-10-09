@@ -1,0 +1,91 @@
+/* Round 5 — Expedition art direction. CSS-only: no authority or renderer changes. */
+:root{--expedition-gold:#ffd58b;--expedition-coral:#ff8e74;--expedition-teal:#7ce8d8}
+#app .top{background:linear-gradient(115deg,rgba(23,30,36,.78),rgba(36,27,41,.48))!important;border-color:rgba(255,234,191,.44)!important}
+#app .brand-mark{background:conic-gradient(from 210deg,#ff9778,#ffe2a1,#7de3d5,#ff9778)!important}
+#app .primary-metrics strong{letter-spacing:-.045em}
+#app .panel{background:linear-gradient(135deg,rgba(17,34,40,.80),rgba(50,30,46,.64))!important;border-color:rgba(241,224,188,.38)!important}
+#app .panel-head{border-bottom:1px solid rgba(255,232,200,.2);padding-bottom:8px}
+#app .intent-panel{border-left:3px solid var(--expedition-teal)!important}
+#app .vital-panel{border-left:3px solid var(--expedition-coral)!important}
+#app .progress-panel{border-left:3px solid var(--expedition-gold)!important}
+#app .world-title{background:linear-gradient(120deg,#fff9e8 8%,#ffe0a6 55%,#ffb79c);color:transparent!important;background-clip:text;-webkit-background-clip:text;filter:drop-shadow(0 4px 14px rgba(20,20,25,.35))}
+#app .world-kicker{display:inline-flex!important;align-items:center;gap:9px}
+#app .world-kicker:before{content:"";width:23px;height:2px;background:var(--expedition-gold);box-shadow:0 0 12px var(--expedition-gold)}
+#app .arena-wrap:before{content:"";position:absolute;inset:0;pointer-events:none;z-index:1;background:radial-gradient(ellipse at 50% 46%,transparent 37%,rgba(24,20,34,.18) 85%);mix-blend-mode:multiply}
+#app .caption{border-left:3px solid var(--expedition-gold)!important}
+#app .caption p{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#app .checkpoint-pill{border-left:2px solid var(--expedition-teal)!important}
+#app .status-chip{box-shadow:inset 0 0 20px rgba(255,205,120,.07)}
+@media(max-width:700px){
+ #app .top,#app .shell[data-ux-revision] .top{inset:8px 8px auto!important;padding:5px 8px!important;gap:4px!important}
+ #app .brand,#app .shell[data-ux-revision] .brand{min-width:0!important;flex:1 1 auto!important}
+ #app .brand h1,#app .shell[data-ux-revision] .brand h1{font-size:clamp(11px,3.2vw,17px)!important;white-space:nowrap}
+ #app .primary-metrics{flex:0 0 auto}
+ #app .primary-metrics article,#app .shell[data-ux-revision] .primary-metrics article{min-width:47px!important;padding:2px 6px!important}
+ #app .primary-metrics article:nth-child(2){display:none}
+ #app .world-label{top:80px;left:12px;max-width:calc(100% - 28px)}
+ #app .world-label .world-title{font-size:clamp(25px,8vw,44px)}
+ #app .side,#app .shell[data-ux-revision] .side{top:auto!important;bottom:52px!important;right:9px!important;width:min(174px,43vw)!important;max-height:96px}
+ #app .side .intent-panel{padding:7px 9px!important}
+ #app .intent-panel .panel-head{margin-bottom:4px!important;padding-bottom:4px}
+ #app .intent-panel h2{font-size:12px!important;margin:3px 0!important}
+ #app .caption{grid-template-columns:12px minmax(0,1fr)!important}
+ #app .caption p{font-size:11px!important}
+}
+@media(max-height:450px){#app .world-label{top:70px}#app .world-label .world-title{font-size:24px}#app .side{display:none!important}}
+body.clean-feed #app .arena-wrap:before{display:none}
+
+
+/* Round 6 / In-world identities and elevated contrast, following screenshot rejection. */
+body[data-tower-theme="foundry"]{--expedition-gold:#ffe28e;--expedition-coral:#ff8252;--expedition-teal:#ffd69b}
+body[data-tower-theme="ruins"]{--expedition-gold:#f9dc96;--expedition-coral:#ffb97d;--expedition-teal:#7cf2b2}
+body[data-tower-theme="storm"]{--expedition-gold:#ffe3a2;--expedition-coral:#fda773;--expedition-teal:#8ceeee}
+body[data-tower-theme="clockwork"]{--expedition-gold:#ffe2a1;--expedition-coral:#fba152;--expedition-teal:#f3ca76}
+body[data-tower-theme="void"]{--expedition-gold:#ffe3ee;--expedition-coral:#f78ed0;--expedition-teal:#ceadff}
+#app .top,#app .shell[data-ux-revision] .top{
+ border-radius:11px!important;border-color:rgba(255,244,208,.51)!important;
+ background:linear-gradient(110deg,rgba(27,23,28,.87),rgba(38,30,38,.66),rgba(28,23,30,.81))!important;
+ box-shadow:0 16px 45px rgba(16,13,19,.26),inset 0 1px 0 rgba(255,255,255,.17)!important
+}
+#app .arena-wrap:after{background:linear-gradient(180deg,rgba(17,15,20,.43),transparent 21%,transparent 68%,rgba(15,16,24,.46)),linear-gradient(90deg,rgba(18,16,22,.27),transparent 25%,transparent 75%,rgba(20,18,25,.1))!important}
+#app .brand-mark{box-shadow:inset 0 1px rgba(255,255,255,.42),0 0 17px rgba(255,198,121,.34)!important}
+#app .status-chip{background:linear-gradient(90deg,rgba(136,224,178,.23),rgba(255,219,153,.15))!important;border-color:rgba(225,255,217,.44)!important;box-shadow:0 0 13px rgba(255,231,173,.1)}
+#app .world-label:after{content:"";display:block;height:3px;width:80px;margin-top:16px;border-radius:4px;background:linear-gradient(90deg,var(--expedition-teal),var(--expedition-coral));box-shadow:0 0 18px rgba(255,224,170,.34)}
+#app .world-detail{color:#fff3db!important;text-shadow:0 2px 8px rgba(15,14,19,.5)}
+#app .side .panel{border-radius:10px!important;background:linear-gradient(125deg,rgba(30,24,28,.84),rgba(46,31,36,.63))!important;box-shadow:0 15px 35px rgba(10,10,19,.23),inset 0 1px rgba(255,255,255,.09)!important}
+#app .side .intent-panel{background:linear-gradient(115deg,rgba(24,46,45,.88),rgba(37,25,34,.72))!important;border-color:rgba(139,241,215,.49)!important}
+#app .bar i{background:linear-gradient(90deg,#ff8266,#ffd07b,#fff1ae)!important;box-shadow:0 0 11px rgba(251,147,91,.33)}
+#app .bar.stamina i{background:linear-gradient(90deg,#55cbbf,var(--expedition-teal),#e5fff2)!important}
+#app .hero-identity{
+ position:absolute;left:clamp(15px,3vw,47px);bottom:83px;z-index:4;
+ display:flex;align-items:center;gap:13px;padding:10px 18px 10px 10px;pointer-events:none;
+ border:1px solid rgba(255,239,206,.59);border-radius:12px;
+ background:linear-gradient(110deg,rgba(36,24,28,.82),rgba(40,25,34,.56));
+ box-shadow:0 13px 33px rgba(19,15,21,.26),inset 0 1px rgba(255,255,255,.12);
+ backdrop-filter:blur(16px) saturate(1.25);
+}
+#app .hero-portrait{display:grid;place-items:center;width:47px;height:47px;flex-shrink:0;background:radial-gradient(circle at 28% 18%,rgba(255,235,180,.69),transparent 41%),linear-gradient(125deg,#f6a166,#7a5363 85%);border-radius:9px;border:1px solid rgba(255,225,173,.7);box-shadow:0 0 17px rgba(254,173,93,.2);font-family:Georgia,serif;font-size:29px;font-weight:900;color:#fff3d2}
+#app .hero-label{font-size:9px;color:var(--expedition-teal);font-weight:900;letter-spacing:.18em}
+#app .hero-identity strong{display:block;margin-top:4px;font:700 18px/1 Georgia,serif;letter-spacing:.015em;color:#fff5e6}
+#app .hero-identity small{display:block;margin-top:6px;color:#fce1ba;font-weight:700;font-size:9px;letter-spacing:.11em}
+#app .stage-signal{position:absolute;z-index:4;top:47%;left:50%;transform:translate(-50%,-50%);padding:15px 36px;text-align:center;white-space:nowrap;opacity:0;transition:opacity .2s ease;pointer-events:none;background:linear-gradient(90deg,transparent,rgba(30,22,27,.62) 24% 76%,transparent);border-top:1px solid rgba(255,240,216,.34);border-bottom:1px solid rgba(255,240,216,.34)}
+#app .stage-signal span{display:block;color:#ffa189;font-weight:900;font-size:11px;letter-spacing:.28em}
+#app .stage-signal strong{display:block;margin-top:7px;font:700 clamp(26px,3vw,45px)/1 Georgia,serif;letter-spacing:-.04em;color:#fff4e1;text-shadow:0 5px 19px rgba(20,15,21,.55)}
+body[data-tower-scene="guardian"] #app .stage-signal,body[data-tower-scene="danger"] #app .stage-signal{opacity:1}
+body[data-tower-scene="guardian"] #app .stage-signal span{color:#ffe19b}
+body[data-tower-scene="danger"] #app .stage-signal strong{font-size:27px}
+#app .climb-rail i{background:linear-gradient(0deg,var(--expedition-coral),var(--expedition-teal))!important;box-shadow:0 0 11px var(--expedition-teal)!important}
+body.clean-feed #app .hero-identity,body.clean-feed #app .stage-signal{display:none!important}
+body[data-high-contrast=true] #app .hero-identity{background:rgba(0,0,0,.94);border-color:#fff}
+@media(max-width:1050px){
+ #app .hero-identity{left:10px;bottom:47px;gap:7px;padding:6px 11px 6px 6px;border-radius:8px}
+ #app .hero-portrait{width:31px;height:31px;font-size:18px;border-radius:6px}
+ #app .hero-identity strong{font-size:12px}
+ #app .hero-identity small{display:none}
+ #app .hero-label{font-size:7px}
+ #app .stage-signal{top:48%;padding:8px 15px}
+ #app .stage-signal strong{font-size:22px!important}
+ #app .stage-signal span{font-size:8px}
+}
+@media(max-width:600px){#app .hero-identity{display:none}#app .stage-signal{display:none}}
+@media(prefers-reduced-motion:reduce){#app .stage-signal{transition:none}}

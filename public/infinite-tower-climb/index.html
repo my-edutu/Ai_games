@@ -1,6 +1,6 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#070912"><title>Infinite Tower Climb</title><link rel="stylesheet" href="/tower/styles.css"><link rel="stylesheet" href="/tower/ux-v2.css"></head>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#070912"><title>Infinite Tower Climb</title><link rel="stylesheet" href="/tower/styles.css"><link rel="stylesheet" href="/tower/ux-v2.css"><link rel="stylesheet" href="/tower/visual-v8.css"></head>
 <body><main id="app" data-testid="tower-app">
-  <section class="shell" data-testid="shell" data-ux-revision="2">
+  <section class="shell" data-testid="shell" data-ux-revision="2" data-visual-revision="8">
     <header class="top" data-testid="hud">
       <div class="brand"><span class="brand-mark" aria-hidden="true">▲</span><div><p class="eyebrow">AUTONOMOUS ASCENT</p><h1>INFINITE TOWER</h1></div></div>
       <div class="primary-metrics">
@@ -9,11 +9,17 @@
         <article><span>NEXT GUARDIAN</span><strong data-testid="guardian">10</strong></article>
       </div>
       <div class="status-chip" data-testid="scene">ASCENDING</div>
+      <button type="button" id="hud-view-toggle" class="hud-view-toggle" aria-label="Enable cinematic focus view" aria-pressed="false" title="Toggle cinematic focus view"><span class="hud-view-symbol" aria-hidden="true">◈</span><span class="hud-view-copy">FOCUS VIEW</span></button>
     </header>
     <section class="arena-wrap">
       <canvas id="tower-canvas" data-testid="tower-canvas" aria-label="Infinite Tower Climb autonomous game view"></canvas>
       <div class="danger-vignette" aria-hidden="true"></div>
-      <div class="checkpoint-pill"><span>RUN</span><b data-testid="run-token">—</b></div>
+      <div class="checkpoint-pill"><span>RUN</span><b data-testid="run-token">—</b></div><div class="world-label" aria-hidden="true"><span class="world-kicker">THE ASCENT · CHAPTER <span id="world-chapter">I</span></span><span class="world-title" id="world-title">THE FOUNDRY</span><span class="world-detail" id="world-detail">WHERE EVERY JOURNEY BEGINS</span></div><div class="climb-rail" aria-hidden="true"><i id="climb-progress"></i></div>
+      <div class="hero-identity" aria-hidden="true">
+        <div class="hero-portrait"><span>▲</span></div>
+        <div><span class="hero-label">THE WAYFINDER / 01</span><strong>THE CLIMBER</strong><small id="hero-state">SCANNING THE ASCENT</small></div>
+      </div>
+      <div class="stage-signal" id="stage-signal" aria-hidden="true"><span id="signal-kicker">THREAT DETECTED</span><strong id="signal-title">STAY ALIVE</strong></div>
     </section>
     <aside class="side" data-testid="side-panel">
       <section class="panel vital-panel"><div class="panel-head"><span>CLIMBER STATUS</span><b data-testid="tick">0</b></div><div class="bar-row"><label>INTEGRITY</label><div class="bar"><i id="health-bar"></i></div><output data-testid="health">5/5</output></div><div class="bar-row"><label>STAMINA</label><div class="bar stamina"><i id="stamina-bar"></i></div><output data-testid="stamina">100</output></div><div class="shield-row"><span>SHIELDS</span><b data-testid="shields">0</b></div></section>
