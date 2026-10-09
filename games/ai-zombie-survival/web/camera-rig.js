@@ -1,5 +1,11 @@
 // Presentation-only obstruction solver for cinematic 3D cameras. No gameplay state changes.
 export function clearCamera(focus,desired,buildings){
+  // On phone screens, keep the near squad visible behind actual city roofs.
+  // This presentation-only eyeline adjustment never touches simulation state.
+  if(typeof window!=='undefined'&&window.innerWidth<=740){
+    const candidate=composeMobileDirectorEye(focus,desired,buildings);
+    if(candidate.blockers<candidate.baselineBlockers)desired=candidate.eye;
+  }
   const dx=desired[0]-focus[0],dy=desired[1]-focus[1],dz=desired[2]-focus[2];
   const span=Math.hypot(dx,dy,dz);
   if(!Number.isFinite(span)||span<0.01)return desired;
