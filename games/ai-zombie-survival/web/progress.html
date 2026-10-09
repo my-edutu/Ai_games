@@ -142,6 +142,13 @@ function sample(){
  }catch{document.querySelector('#health').textContent='Telemetry parse unavailable';}
 }
 async function checkCI(){
+ // The local smoke-test server has no GitHub API credentials or rate-limit
+ // budget. Link to the workflow instead of making a failing external fetch.
+ if(location.hostname==='127.0.0.1'||location.hostname==='localhost'){
+  document.querySelector('#ciResult').textContent='CI ON GITHUB ↗';
+  document.querySelector('#ciResult').dataset.status='unknown';
+  return;
+ }
  try{
   const r=await fetch('https://api.github.com/repos/my-edutu/Ai_games/actions/workflows/zombie-3d-gauntlet.yml/runs?branch=agent%2Fzombie-survival-3d-gauntlet-2026-10-08&per_page=1',{headers:{Accept:'application/vnd.github+json'}});
   if(!r.ok)throw Error('CI API '+r.status);

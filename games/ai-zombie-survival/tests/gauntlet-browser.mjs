@@ -419,6 +419,9 @@ try{
   report.checks.unattendedRestart=true;
   await page.goto('http://127.0.0.1:4177/web/progress.html',{waitUntil:'load'});
   await page.frameLocator('iframe').locator('#scene').waitFor();
+  assert.equal(await page.evaluate(()=>performance.getEntriesByType('resource').filter(r=>r.name.includes('api.github.com')).length),0,
+    'local progress page must not make a GitHub API request');
+  report.checks.localProgressOfflineSafe=true;
   await page.waitForTimeout(1100);
   assert.match(await page.locator('#health').textContent(),/LIVE|telemetry/);
   await page.screenshot({path:root+'progress.png'});

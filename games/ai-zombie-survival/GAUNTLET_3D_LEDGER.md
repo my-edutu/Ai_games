@@ -389,3 +389,10 @@ PR #50 baseline HEAD 77ebcad4, Actions run 37951519648: success; screenshot arti
 Implement desktop-only closer squad/defense/follow camera ranges with deterministic tests and browser camera telemetry. No mobile, manual, overview, simulation or 2.5D changes. New screenshots still require verification.
 
 SwiftShader CPU p95: day 73.2ms, night 4820.1ms, large horde 104.9ms, defense 70.8ms. Hardware GPU p95, real assets, animation, long OBS soak and independent reference comparison remain unresolved. NOT ACHIEVED. Draft PR, no merge or deployment.
+
+
+### Loop 52 browser review and CI defect (2026-10-09)
+
+Actions run #37956959080 failed after deterministic tests and renderer syntax checks passed. Its actual screenshot artifact 11629385194 was downloaded. The browser report recorded 29 true checks including desktopActionFraming; the sole reported browser error was an HTTP 403 during the progress page visit. This is a real failure, not a passing CI run. Desktop day camera telemetry: target 15.8, actual eye distance 11.47; inspected screenshot shows slightly larger survivors, but oversized foreground roofs remain. Actual 390×844 mobile screenshot still shows unobscured squad and controls. Night software CPU p95 2801.1ms, large horde 1796.2ms, defense 1715ms: unacceptable variability persists.
+
+The progress page previously requested public GitHub Actions status automatically, including when running on local CI; unauthenticated rate limits are a plausible cause of the 403. The next fix disables that remote request only on localhost and adds a browser regression check. Fresh CI must prove the error is gone. No visual parity or performance target is claimed. Draft PR only; no merge/deploy.
