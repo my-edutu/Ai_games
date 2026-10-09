@@ -683,7 +683,43 @@ function renderEventChronicle(){
   el.replaceChildren(fragment);
 }
 // Stable keyed DOM: never destroy clickable survivor cards during Playwright or live user interaction.
-const rosterCache=new Map();
+const rosterCache=new Map(),quickRosterCache=new Map();
+const quickRoster=document.getElementById('squadQuick');
+quickRoster.addEventListener('click',event=>{
+  const button=event.target.closest('button[data-survivor-id]');
+  if(!button||button.disabled)return;
+  const index=game.survivors.findIndex(member=>member.id===button.dataset.survivorId);
+  if(index<0||!game.survivors[index].alive)return;
+  heroIndex=index;cameraMode='hero';
+  if(hud.dataset.mobilePanel!=='none')setMobilePanel('none');
+});
+function renderQuickRoster(){
+  const present=new Set(game.survivors.map(v=>v.id));
+  for(const [id,button] of quickRosterCache){
+    if(!present.has(id)){button.remove();quickRosterCache.delete(id);}
+  }
+  for(const member of game.survivors){
+    let button=quickRosterCache.get(member.id);
+    if(!button){
+      button=document.createElement('button');button.type='button';
+      button.className='squadLink';button.dataset.survivorId=member.id;
+      button.innerHTML='<strong></strong><i aria-hidden="true"></i>';
+      quickRosterCache.set(member.id,button);quickRoster.append(button);
+    }
+    button.querySelector('strong').textContent=member.name.slice(0,2).toUpperCase();
+    const critical=member.health<40||member.infection>65;
+    button.dataset.condition=critical?'critical':'healthy';
+    button.classList.toggle('is-down',!member.alive);
+    button.classList.toggle('is-followed',cameraMode==='hero'&&game.survivors[heroIndex]?.id===member.id);
+    button.disabled=!member.alive;
+    button.setAttribute('aria-pressed',String(cameraMode==='hero'&&game.survivors[heroIndex]?.id===member.id));
+    button.setAttribute('aria-label','Follow '+member.name+' ('+member.role+'), '+
+      'health '+Math.round(member.health)+', infection '+Math.round(member.infection)+' percent');
+    button.title=member.name+' / '+member.role+' / '+Math.round(member.health)+' HP';
+    button.querySelector('i').style.width=Math.max(8,Math.min(94,Math.round(member.health)))+'%';
+  }
+  document.getElementById('rosterLive').textContent=game.survivors.filter(v=>v.alive).length+' CONNECTED';
+}
 squadCards.addEventListener('click',event=>{
   const card=event.target.closest('button[data-survivor-id]');
   if(!card||card.disabled)return;
@@ -841,7 +877,7 @@ function render(now){
   frameCpuMs.push(performance.now()-cpuStart);
   if(frameCpuMs.length>180)frameCpuMs.shift();
   if(now-lastStats>450){
-    lastStats=now;renderSquad();renderEventChronicle();
+    lastStats=now;renderSquad();renderQuickRoster();renderEventChronicle();
     const spotted=drawTacticalMap(document.getElementById('miniMap'),game,cameraFocusX,cameraFocusZ);
     hud.querySelector('#mapCount').textContent='TRACKING '+spotted;const living=game.survivors.filter(s=>s.alive).length,infected=game.zombies.filter(z=>z.health>0).length;
     hud.dataset.phase=game.time.phase;
@@ -859,7 +895,14 @@ function render(now){
     hud.querySelector('#objectiveType').textContent=game.objective.kind.toUpperCase();
     const objProgress=game.objective.progress<=1?game.objective.progress*100:game.objective.progress;
     hud.querySelector('#objectiveFill').style.width=Math.max(0,Math.min(100,objProgress||0))+'%';
-    hud.querySelector('#resources').textContent='SUPPLIES  '+Math.floor(game.resources.food)+' FOOD  /  '+Math.floor(game.resources.ammo)+' AMMO';
+    hud.querySelector('#resources').textContent='SUPPLIES  '+Math.floor(game.resources.food)+' FOOD  /  '+
+      Math.floor(game.resources.ammo)+' AMMO  /  '+Math.floor(game.resources.medicine)+' MEDICAL';
+    for(const [id,key,warning] of [['resFood','food',8],['resAmmo','ammo',15],['resMed','medicine',3]]){
+      const element=document.getElementById(id);
+      const value=Math.floor(game.resources[key]);
+      element.textContent=String(value);
+      element.parentElement.dataset.low=String(value<=warning);
+    }
     hud.querySelector('#status').textContent=game.status==='running'?(resumeStatus==='NEW RUN'?'RUN '+(completedRuns+1)+' · AUTONOMOUS LIVE':resumeStatus):'RUN '+(completedRuns+1)+' ENDED · RESTART PENDING';
     const featured=game.survivors.find(v=>v.id===director?.targetId&&v.alive)||game.survivors.find(v=>v.alive);
     hud.querySelector('#decisionName').textContent=featured?featured.name.toUpperCase()+' / '+featured.role.toUpperCase():'SQUAD LOST';
