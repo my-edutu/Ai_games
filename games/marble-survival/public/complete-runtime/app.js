@@ -6,15 +6,43 @@ const ctx = canvas.getContext('2d', { alpha: false });
 const connection = document.getElementById('connection');
 const soundToggle = document.getElementById('sound-toggle');
 const qualitySelect = document.getElementById('quality-select');
+const viewToggle = document.getElementById('view-toggle');
+const spotlightCard = document.getElementById('spotlight-card');
 const roundName = document.getElementById('round-name');
 const roundIndex = document.getElementById('round-index');
 const remainingValue = document.getElementById('remaining-value');
 const qualifiedValue = document.getElementById('qualified-value');
 const qualificationValue = document.getElementById('qualification-value');
 const tickValue = document.getElementById('tick-value');
+const qualificationMeter = document.getElementById('qualification-meter');
+const qualificationMeterFill = document.getElementById('qualification-meter-fill');
+const arenaBiomeTitle = document.getElementById('arena-biome-title');
+const arenaBiomeSubtitle = document.getElementById('arena-biome-subtitle');
+const arenaStageNumber = document.getElementById('arena-stage-number');
+const stageJourneySteps = Array.from(document.querySelectorAll('[data-stage-step]'));
+const arenaThreat = document.getElementById('arena-threat');
+const BIOME_BROADCAST = Object.freeze({
+  'seeding-sprint': Object.freeze({ title: 'AURORA SPEEDWAY', subtitle: 'Neon horizons. Thirty-two contenders. One survivor.' }),
+  'gate-gauntlet': Object.freeze({ title: 'NEON IRONWORKS', subtitle: 'Industrial sky gates and electric springboards.' }),
+  'hazard-circuit': Object.freeze({ title: 'INFERNO CIRCUIT', subtitle: 'Molten reactors. One mistake changes everything.' }),
+  'final-four': Object.freeze({ title: 'SKYLINE SHOWDOWN', subtitle: 'An orbital arena. Four competitors. No margin.' }),
+  championship: Object.freeze({ title: 'CROWN OF THE COSMOS', subtitle: 'The final race beneath the golden observatory.' }),
+});
 const cameraValue = document.getElementById('camera-value');
 const feedValue = document.getElementById('feed-value');
 const leaderboard = document.getElementById('leaderboard');
+const mobileStandingsToggle=document.getElementById('mobile-standings-toggle');
+const standingsPanel=document.querySelector('.leaderboard-panel.broadcast-overlay');
+if(mobileStandingsToggle&&standingsPanel){
+  standingsPanel.dataset.mobileExpanded='false';
+  mobileStandingsToggle.addEventListener('click',()=>{
+    const open=standingsPanel.dataset.mobileExpanded!=='true';
+    standingsPanel.dataset.mobileExpanded=String(open);
+    mobileStandingsToggle.setAttribute('aria-expanded',String(open));
+    mobileStandingsToggle.setAttribute('aria-label',open?'Show fewer live standings':'Show more live standings');
+    mobileStandingsToggle.textContent=open?'Fewer ranks ▴':'All ranks ▾';
+  });
+}
 const eventList = document.getElementById('event-list');
 const influenceStatus = document.getElementById('influence-status');
 const championCard = document.getElementById('champion-card');
@@ -30,9 +58,9 @@ const QUALITY_PRESETS = Object.freeze({
 });
 
 const PALETTE = Object.freeze({
-  aurora: '#78a58f', coral: '#bd725e', cyan: '#5f8f98', gold: '#b7924f',
-  lime: '#8ea45c', magenta: '#a46686', orchid: '#8d74a0', ruby: '#9d4e4e',
-  sky: '#6d91ad', violet: '#756c9e', amber: '#b47642', mint: '#6f9c87',
+  aurora: '#48efbb', coral: '#ff866d', cyan: '#47deff', gold: '#ffd968',
+  lime: '#bcf85d', magenta: '#ff65d7', orchid: '#b68dff', ruby: '#ff5878',
+  sky: '#7dbaff', violet: '#907bff', amber: '#ffae51', mint: '#5ff4d2',
 });
 
 const ROUND_LABELS = Object.freeze({
@@ -52,7 +80,7 @@ const CAMERA_LABELS = Object.freeze({
 });
 
 const IMPORTANT_EVENTS = new Set([
-  'round-started', 'round-live', 'shield-recovery', 'marble-eliminated',
+  'round-started', 'round-live', 'shield-recovery', 'marble-launched', 'marble-pit-falling', 'marble-eliminated',
   'marble-qualified', 'round-resolved', 'tournament-champion', 'intermission-started',
 ]);
 
@@ -67,6 +95,8 @@ let renderWidth = 1;
 let renderHeight = 1;
 let renderDpr = 1;
 let focusIds = new Set();
+let selectedSpotlightId = null;
+let currentStageIdentity = null;
 let cameraState = null;
 let cameraArenaId = null;
 const rotationById = new Map();
@@ -531,6 +561,29 @@ function statusLabel(status) {
   return labels[status] || status;
 }
 
+// Spectator dossiers are deliberately read-only. Selecting a marble NEVER
+// overrides the server-appointed camera, contender rankings, or collision logic.
+function renderSpotlight(next) {
+  if (!spotlightCard) return;
+  const marble = next?.marbles?.find(candidate => candidate.id === selectedSpotlightId);
+  if (!marble) { spotlightCard.hidden = true; return; }
+  spotlightCard.hidden = false;
+  const percent = Math.max(0, Math.min(100, Math.round(marble.progressPermille / 10)));
+  const speedIndex = Math.round(Math.hypot(marble.velocityX || 0, marble.velocityY || 0));
+  const altitude = Math.max(0, (marble.elevation || 0) / 1000);
+  document.getElementById('spotlight-number').textContent = String(marble.number).padStart(2, '0');
+  document.getElementById('spotlight-name').textContent = marble.name;
+  document.getElementById('spotlight-archetype').textContent = marble.archetype.replaceAll('-', ' ').toUpperCase() + ' / ' + marble.pattern.toUpperCase();
+  document.getElementById('spotlight-status').textContent = statusLabel(marble.status).toUpperCase();
+  document.getElementById('spotlight-percent').textContent = percent + '%';
+  document.getElementById('spotlight-elevation').textContent = altitude.toFixed(2) + 'm';
+  document.getElementById('spotlight-speed').textContent = String(speedIndex);
+  document.getElementById('spotlight-progress-fill').style.width = percent + '%';
+  document.getElementById('spotlight-progress').setAttribute('aria-valuenow', String(percent));
+  spotlightCard.style.setProperty('--competitor-color', PALETTE[marble.palette] || '#78deff');
+  spotlightCard.dataset.competitorStatus = marble.status;
+}
+
 function renderHud(next) {
   const directive = next.camera.directive || { mode: 'overview', focusIds: [], zoomPermille: 1000 };
   focusIds = new Set(directive.focusIds || []);
@@ -539,28 +592,119 @@ function renderHud(next) {
   remainingValue.textContent = String(next.round.remaining);
   qualifiedValue.textContent = String(next.round.qualified);
   qualificationValue.textContent = `${next.round.qualified}/${next.round.quota} locked · ${Math.max(0, next.round.quota - next.round.qualified)} spots open`;
+  const qualificationPercent = Math.round(Math.min(1, next.round.qualified / Math.max(1, next.round.quota)) * 100);
+  if (qualificationMeter && qualificationMeterFill) {
+    qualificationMeter.setAttribute('aria-valuenow', String(qualificationPercent));
+    qualificationMeterFill.style.width = qualificationPercent + '%';
+  }
+  // Actual authority arena selection owns scene copy and palette selection.
+  const biome = BIOME_BROADCAST[next.arena.archetype] || BIOME_BROADCAST['seeding-sprint'];
+  shell.dataset.biome = next.arena.archetype;
+  if(currentStageIdentity!==next.arena.id){
+    currentStageIdentity=next.arena.id;
+    shell.classList.remove('stage-entering');
+    // Restart the identity wipe exactly once for each official stage change.
+    void shell.offsetWidth;
+    shell.classList.add('stage-entering');
+    const stageId=currentStageIdentity;
+    setTimeout(()=>{
+      if(currentStageIdentity===stageId)shell.classList.remove('stage-entering');
+    },1350);
+  }
+  if (arenaBiomeTitle) arenaBiomeTitle.textContent = biome.title;
+  if (arenaBiomeSubtitle) arenaBiomeSubtitle.textContent = biome.subtitle;
+  if (arenaStageNumber) arenaStageNumber.textContent = String(next.round.number).padStart(2, '0');
+  // Live tournament phase is read-only official data. Never infer completion
+  // from time, animation, user votes, or the local renderer's own progression.
+  for (const element of stageJourneySteps) {
+    const step = Number(element.dataset.stageStep);
+    const state = step < next.round.number || (step===next.round.number &&
+      next.lifecycle==='tournament-result') ? 'complete' :
+      step === next.round.number ? 'active' : 'locked';
+    element.dataset.state = state;
+    if (state==='active') element.setAttribute('aria-current','step');
+    else element.removeAttribute('aria-current');
+  }
+  if (arenaThreat) {
+    const threatened = next.marbles.filter(marble => marble.status === 'threatened' || marble.status === 'recovering').length;
+    const windStrength = Math.round(Math.max(0,...(next.arena.windZones||[]).map(zone =>
+      Math.hypot(zone.forceX||0,zone.forceY||0))));
+    shell.dataset.windStrength=String(windStrength);
+    arenaThreat.textContent = next.lifecycle === 'tournament-result'
+      ? 'THE CHAMPION IS CROWNED'
+      : threatened > 0 ? `DANGER / ${threatened} COMPETITOR${threatened === 1 ? '' : 'S'} AT RISK`
+      : next.round.remaining <= 4 ? 'FINAL FOUR / HIGH PRESSURE'
+      : windStrength>0 ? `WIND CURRENT / FORCE ${windStrength}`
+      : 'RACE CONTROL / LIVE';
+  }
   tickValue.textContent = String(next.tick);
+  shell.dataset.hudTick = String(next.tick);
+  shell.dataset.hudArena = String(next.arena.id);
+  shell.dataset.hudArchetype = String(next.arena.archetype);
   cameraValue.textContent = CAMERA_LABELS[directive.mode] || directive.mode;
   feedValue.textContent = next.lifecycle === 'quarantined' ? 'AUTHORITY STOPPED' : 'AUTHORITY LIVE';
 
-  leaderboard.replaceChildren(...next.leaderboard.map((entry, index) => {
-    const item = document.createElement('li');
-    item.dataset.status = entry.status;
-    const rank = document.createElement('span');
-    rank.className = 'rank';
-    rank.textContent = String(index + 1).padStart(2, '0');
-    const number = document.createElement('span');
-    number.className = 'number';
-    number.textContent = String(entry.number);
-    const name = document.createElement('span');
-    name.className = 'name';
-    name.textContent = entry.name;
-    const status = document.createElement('span');
-    status.className = 'status';
-    status.textContent = statusLabel(entry.status);
-    item.append(rank, number, name, status);
+  // The broadcast refreshes ~10x/second. Replacing every <li> on every
+  // snapshot detaches its button mid-click, drops keyboard focus and makes
+  // automated (and human) spectator inspection unusable. Reconcile keyed
+  // nodes instead: stable racers retain one element and one focus target.
+  const byMarbleId=new Map(
+    Array.from(leaderboard.children)
+      .filter(item=>item.dataset.marbleId)
+      .map(item=>[Number(item.dataset.marbleId),item])
+  );
+  const visibleIds=new Set();
+  const wanted=next.leaderboard.map((entry,index)=>{
+    visibleIds.add(entry.id);
+    let item=byMarbleId.get(entry.id);
+    if(!item){
+      item=document.createElement('li');
+      item.dataset.marbleId=String(entry.id);
+      for(const className of ['rank','number','name','status']){
+        const span=document.createElement('span');
+        span.className=className;
+        item.append(span);
+      }
+      const inspect=document.createElement('button');
+      inspect.type='button';
+      inspect.className='inspect-marble';
+      inspect.dataset.marbleId=String(entry.id);
+      inspect.setAttribute('aria-label',`Inspect competitor #${entry.number} ${entry.name}`);
+      item.append(inspect);
+    }
+    item.dataset.status=entry.status;
+    item.dataset.inspected=String(selectedSpotlightId===entry.id);
+    // A live in-row progress rail shows *public authoritative* course
+    // distance, not an extrapolated/simulated client rank. Keep the keyed
+    // DOM node stable while advancing the visual bar each snapshot.
+    const coursePercent=Math.max(0,Math.min(100,(Number(entry.progressPermille)||0)/10));
+    item.style.setProperty('--race-progress',coursePercent.toFixed(1)+'%');
+    const fields=[
+      ['.rank',String(index+1).padStart(2,'0')],
+      ['.number',String(entry.number)],
+      ['.name',entry.name],
+      ['.status',statusLabel(entry.status)],
+    ];
+    for(const [selector,value] of fields){
+      const span=item.querySelector(selector);
+      if(span.textContent!==value)span.textContent=value;
+    }
+    const inspect=item.querySelector('.inspect-marble');
+    inspect.setAttribute('aria-pressed',String(selectedSpotlightId===entry.id));
+    inspect.setAttribute('aria-label',`Inspect competitor #${entry.number} ${entry.name}, ${Math.round(coursePercent)}% of course, ${statusLabel(entry.status)}`);
     return item;
-  }));
+  });
+  for(let index=0;index<wanted.length;index++){
+    const expected=wanted[index];
+    // insertBefore is a no-op when already ordered; no detached click target.
+    if(leaderboard.children[index]!==expected){
+      leaderboard.insertBefore(expected,leaderboard.children[index]||null);
+    }
+  }
+  for(const [id,item] of byMarbleId){
+    if(!visibleIds.has(id))item.remove();
+  }
+  renderSpotlight(next);
 
   const official = next.events.filter((event) => IMPORTANT_EVENTS.has(event.type)).slice(-6).reverse();
   eventList.replaceChildren(...official.map((event) => {
@@ -591,6 +735,8 @@ function describeEvent(event, next) {
   if (event.type === 'marble-qualified') return `${identity} officially qualified in P${data.finishRank}.`;
   if (event.type === 'marble-eliminated') return `${identity} eliminated · ${String(data.cause || 'hazard')}.`;
   if (event.type === 'shield-recovery') return `${identity} survived a hazard with shield recovery.`;
+  if (event.type === 'marble-launched') return `${identity} blasted skyward from an electric spring bumper.`;
+  if (event.type === 'marble-pit-falling') return `${identity} plunged into the reactor shaft!`; 
   if (event.type === 'round-started') return `Round ${Number(data.roundIndex || 0) + 1} is live.`;
   if (event.type === 'round-resolved') return `Round result locked by authority · ${String(data.resolution || 'resolved')}.`;
   if (event.type === 'tournament-champion') return `Champion result locked: marble #${Number(data.championId) + 1}.`;
@@ -682,6 +828,44 @@ async function refreshInfluenceStatus() {
     influenceStatus.textContent = 'Influence status unavailable.';
   }
 }
+
+// A presentation-only view switch: retains all racing state, sound, WebGL,
+ // operator security boundaries, and the autonomous server camera directive.
+function setCinematicView(enabled) {
+  shell.dataset.view = enabled ? 'cinematic' : 'broadcast';
+  if (viewToggle) {
+    viewToggle.setAttribute('aria-pressed', String(enabled));
+    viewToggle.textContent = enabled ? 'Broadcast ◈' : 'Cinema ◇';
+    viewToggle.title = enabled ? 'Return to broadcast controls (C)' : 'Toggle cinematic view (C)';
+  }
+}
+if (viewToggle) viewToggle.addEventListener('click', () =>
+  setCinematicView(shell.dataset.view !== 'cinematic'));
+document.addEventListener('keydown', event => {
+  const target = event.target;
+  if (event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey ||
+      /^(INPUT|TEXTAREA|SELECT)$/.test(target?.tagName || '') || target?.isContentEditable) return;
+  if (event.key?.toLowerCase() === 'c') setCinematicView(shell.dataset.view !== 'cinematic');
+  if (event.key === 'Escape' && selectedSpotlightId !== null) {
+    selectedSpotlightId = null;
+    if (spotlightCard) spotlightCard.hidden = true;
+    for (const button of leaderboard.querySelectorAll('.inspect-marble')) button.setAttribute('aria-pressed','false');
+  }
+});
+
+leaderboard.addEventListener('click', event => {
+  const button = event.target?.closest?.('.inspect-marble[data-marble-id]');
+  if (!button) return;
+  const marbleId = Number(button.dataset.marbleId);
+  if (!Number.isInteger(marbleId)) return;
+  selectedSpotlightId = selectedSpotlightId === marbleId ? null : marbleId;
+  if (snapshot) renderHud(snapshot);
+});
+document.getElementById('spotlight-close')?.addEventListener('click', () => {
+  selectedSpotlightId = null;
+  if (spotlightCard) spotlightCard.hidden = true;
+  if (snapshot) renderHud(snapshot);
+});
 
 qualitySelect.addEventListener('change', () => {
   quality = qualitySelect.value in QUALITY_PRESETS ? qualitySelect.value : 'balanced';

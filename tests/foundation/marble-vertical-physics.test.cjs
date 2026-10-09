@@ -6,13 +6,14 @@ const {
   MarbleRuntime,
   NamedRng,
   createMarbleSnapshot,
+  restoreMarbleSnapshot,
   generateMarbleArena,
   marbleStateChecksum,
   parseMarbleConfig,
   stepMarblePhysics,
 } = require('../../dist/games/marble-survival/src/index.js');
 
-test('physics v2 initializes deterministic vertical state and versioned snapshot contract', () => {
+test('physics v4 initializes deterministic vertical state and versioned snapshot contract', () => {
   const config = parseMarbleConfig({
     rosterSize: 4,
     roundQuotas: [2, 1, 1, 1, 1],
@@ -23,7 +24,7 @@ test('physics v2 initializes deterministic vertical state and versioned snapshot
   assert.equal(config.maxVerticalSpeed, 480);
 
   const runtime = MarbleRuntime.create(config, 'vertical-contract');
-  assert.equal(runtime.state.determinismVersion, 'marble-physics-v2');
+  assert.equal(runtime.state.determinismVersion, 'marble-physics-v4');
 
   for (const marble of runtime.state.marbles) {
     assert.equal(marble.elevation, 0);
@@ -34,8 +35,8 @@ test('physics v2 initializes deterministic vertical state and versioned snapshot
   }
 
   const snapshot = createMarbleSnapshot(runtime);
-  assert.equal(snapshot.deterministicVersion, 'marble-physics-v2');
-  assert.equal(snapshot.payload.state.determinismVersion, 'marble-physics-v2');
+  assert.equal(snapshot.deterministicVersion, 'marble-physics-v4');
+  assert.equal(snapshot.payload.state.determinismVersion, 'marble-physics-v4');
 });
 
 test('gate gauntlet generation contains a bounded authoritative ramp surface on every declared race lane', () => {
@@ -127,4 +128,26 @@ test('ramp traversal changes authoritative elevation and stays replay determinis
   assert.ok(peakElevation >= 800, `expected meaningful ramp elevation, got ${peakElevation}`);
   assert.ok(left.marbles[0].elevation >= 0);
   assert.ok(Math.abs(left.marbles[0].verticalVelocity) <= left.config.maxVerticalSpeed);
+});
+test('v4 snapshots restore, while pre-upgrade v3 physics checkpoints fail closed', () => {
+  const runtime = MarbleRuntime.create({
+    rosterSize: 4,
+    roundQuotas: [2, 1, 1, 1, 1],
+    roundIntroTicks: 0,
+  }, 'gauntlet-determinism-version');
+  const current = createMarbleSnapshot(runtime);
+  assert.equal(current.deterministicVersion, 'marble-physics-v4');
+  const restored = restoreMarbleSnapshot(current);
+  assert.equal(restored.state.determinismVersion, 'marble-physics-v4');
+  assert.equal(marbleStateChecksum(restored.state), marbleStateChecksum(runtime.state));
+
+  // The historical v3 solver did not descend into pits, so replaying its
+  // checkpoint under today's 3D dynamics would silently alter outcomes.
+  // Reject explicitly; a separate version-aware migration is required.
+  const legacy = { ...current, deterministicVersion: 'marble-physics-v3' };
+  assert.throws(
+    () => restoreMarbleSnapshot(legacy),
+    error => error && error.code === 'version',
+    'old physics replays must never be treated as current v4 authority',
+  );
 });

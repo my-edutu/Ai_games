@@ -16,7 +16,7 @@ export interface MarbleSnapshotPayload {
 export interface MarbleSnapshot {
   schemaVersion: 1;
   gameId: 'marble-survival';
-  deterministicVersion: 'marble-physics-v2';
+  deterministicVersion: 'marble-physics-v4';
   createdAtTick: number;
   stateChecksum: string;
   payload: MarbleSnapshotPayload;
@@ -31,7 +31,7 @@ export class MarbleSnapshotError extends Error {
 }
 
 function validateState(state: MarbleState): void {
-  if (state.schemaVersion !== 1 || state.determinismVersion !== 'marble-physics-v2') throw new MarbleSnapshotError('version', 'Unsupported state version.');
+  if (state.schemaVersion !== 1 || state.determinismVersion !== 'marble-physics-v4') throw new MarbleSnapshotError('version', 'Unsupported state version.');
   const identifiers = new Set(state.marbles.map(marble => marble.id));
   if (identifiers.size !== state.marbles.length) throw new MarbleSnapshotError('state', 'Duplicate marble identifiers.');
   const known = (id: number) => identifiers.has(id);
@@ -42,7 +42,14 @@ function validateState(state: MarbleState): void {
     if (!Number.isSafeInteger(marble.position.x) || !Number.isSafeInteger(marble.position.y) || Math.abs(marble.position.x) > 10_000_000 || Math.abs(marble.position.y) > 10_000_000) {
       throw new MarbleSnapshotError('state', `Marble ${marble.id} position is outside deterministic range.`);
     }
-    if (!Number.isSafeInteger(marble.elevation) || marble.elevation < 0 || marble.elevation > 10_000_000) {
+    const isFallingIntoPit = marble.elevation < 0 && state.arena.hazards.some(hazard =>
+      hazard.kind === 'pit'
+      && marble.position.x >= hazard.x && marble.position.x <= hazard.x + hazard.width
+      && marble.position.y >= hazard.y && marble.position.y <= hazard.y + hazard.height
+    );
+    if (!Number.isSafeInteger(marble.elevation)
+        || marble.elevation < -900 || marble.elevation > 10_000_000
+        || (marble.elevation < 0 && !isFallingIntoPit)) {
       throw new MarbleSnapshotError('state', `Marble ${marble.id} elevation is outside deterministic range.`);
     }
     if (!Number.isSafeInteger(marble.verticalVelocity) || Math.abs(marble.verticalVelocity) > state.config.maxVerticalSpeed) {
@@ -72,7 +79,7 @@ export function createMarbleSnapshot(runtime: MarbleRuntime): MarbleSnapshot {
   const partial = {
     schemaVersion: 1 as const,
     gameId: 'marble-survival' as const,
-    deterministicVersion: 'marble-physics-v2' as const,
+    deterministicVersion: 'marble-physics-v4' as const,
     createdAtTick: runtime.state.tick,
     stateChecksum: marbleStateChecksum(runtime.state),
     payload
@@ -82,7 +89,7 @@ export function createMarbleSnapshot(runtime: MarbleRuntime): MarbleSnapshot {
 
 export function restoreMarbleSnapshot(snapshot: MarbleSnapshot): MarbleRuntime {
   if (!snapshot || snapshot.schemaVersion !== 1 || snapshot.gameId !== 'marble-survival') throw new MarbleSnapshotError('schema', 'Unsupported snapshot schema.');
-  if (snapshot.deterministicVersion !== 'marble-physics-v2') throw new MarbleSnapshotError('version', 'Unsupported deterministic version.');
+  if (snapshot.deterministicVersion !== 'marble-physics-v4') throw new MarbleSnapshotError('version', 'Unsupported deterministic version.');
   const { checksum: provided, ...partial } = snapshot;
   if (checksum(partial) !== provided) throw new MarbleSnapshotError('checksum', 'Snapshot checksum mismatch.');
   const config = parseMarbleConfig(snapshot.payload.config);

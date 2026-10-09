@@ -97,7 +97,25 @@ export function applyTournamentRules(state: MarbleState, contacts: PhysicsContac
     }
     const hazard = next.arena.hazards.find(zone => inside(marble.position, zone));
     const recoveryUntilTick = marble.recoveryUntilTick ?? -1;
-    if (hazard && recoveryUntilTick < next.tick) {
+    // A true pit is an open cavity. Competitors can jump *over* it while
+    // descending racers are eliminated only when their physical centre has
+    // fallen beneath the illuminated rim. Shields still rescue on initial
+    // contact, preserving a readable chance to survive.
+    const isPit = hazard?.kind === 'pit';
+    const pitReachedRim = marble.elevation < 0;
+    // The reactor floor is at -780 mm; a 280 mm sphere rests on it at -500 mm.
+    const pitFallenBelowSafety = marble.elevation <= -500;
+    const pitActionable = !isPit || (marble.shieldCharges > 0 && marble.elevation <= 0) || pitFallenBelowSafety;
+    if (hazard && isPit && pitReachedRim && recoveryUntilTick < next.tick && marble.pitFallHazardId !== hazard.id) {
+      marble.pitFallHazardId = hazard.id;
+      events.push({tick: next.tick, type:'marble-pit-falling', data:{
+        marbleId:marble.id, hazardId:hazard.id, depth:Math.abs(marble.elevation)
+      }});
+      next.meaningfulEventTick = next.tick;
+    } else if (!isPit && marble.pitFallHazardId) {
+      marble.pitFallHazardId = null;
+    }
+    if (hazard && pitActionable && recoveryUntilTick < next.tick) {
       if (marble.shieldCharges > 0) {
         marble.shieldCharges--;
         marble.recoveryCount++;
@@ -156,7 +174,14 @@ export function applyTournamentRules(state: MarbleState, contacts: PhysicsContac
     });
   }
 
-  for (const contact of contacts) events.push({ tick: next.tick, type: 'physics-contact', data: { kind: contact.kind, marbleId: contact.marbleId, otherMarbleId: contact.otherMarbleId, colliderId: contact.colliderId, impulse: contact.impulse } });
+  for (const contact of contacts) {
+    events.push({ tick: next.tick, type: 'physics-contact', data: { kind: contact.kind, marbleId: contact.marbleId, otherMarbleId: contact.otherMarbleId, colliderId: contact.colliderId, impulse: contact.impulse } });
+    if (contact.kind === 'bumper' && (contact.launchSpeed ?? 0) > 0) {
+      // A visual celebration is emitted *after* the physics-authoritative launch.
+      // No camera, UI or external vote can create this event.
+      events.push({ tick: next.tick, type: 'marble-launched', data: { marbleId: contact.marbleId, colliderId: contact.colliderId, launchSpeed: contact.launchSpeed } });
+    }
+  }
   if (next.qualifiedIds.length >= next.currentQuota) {
     const resolved = resolveRound(next, 'quota');
     return { state: resolved.state, events: [...events, ...resolved.events] };

@@ -170,6 +170,18 @@
       return;
     }
 
+    if (event.type === 'marble-pit-falling') {
+      tone({frequency:360,duration:0.36,gain:0.021,type:'sawtooth',pan,glideTo:86});
+      tone({frequency:135,duration:0.24,gain:0.015,type:'triangle',offset:0.11,pan,glideTo:60});
+      return;
+    }
+
+    if (event.type === 'marble-launched') {
+      tone({ frequency: 310, duration: 0.18, gain: 0.018, type: 'sine', pan, glideTo: 820 });
+      tone({ frequency: 510, duration: 0.22, gain: 0.014, type: 'triangle', offset: 0.08, pan, glideTo: 1100 });
+      return;
+    }
+
     if (event.type === 'marble-qualified') {
       tone({ frequency: 660, duration: 0.13, gain: 0.026, type: 'sine', pan });
       tone({ frequency: 990, duration: 0.18, gain: 0.018, type: 'sine', offset: 0.07, pan });

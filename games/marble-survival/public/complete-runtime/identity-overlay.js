@@ -167,13 +167,13 @@
     };
   }
 
-  function selectedMarbles(marbles) {
-    if (!snapshot) return [];
+  function selectedMarbles(marbles, activeSnapshot = snapshot) {
+    if (!activeSnapshot) return [];
     const visible = marbles.filter((marble) => marble.status !== 'eliminated');
-    const selectedIds = new Set((snapshot.leaderboard || []).slice(0, snapshot.round.remaining <= 8 ? 8 : 6).map((entry) => entry.id));
-    for (const id of snapshot.camera.directive?.focusIds || []) selectedIds.add(id);
-    if (snapshot.camera.championId !== null) selectedIds.add(snapshot.camera.championId);
-    if (snapshot.round.remaining <= 8) for (const marble of visible) selectedIds.add(marble.id);
+    const selectedIds = new Set((activeSnapshot.leaderboard || []).slice(0, activeSnapshot.round.remaining <= 8 ? 8 : 6).map((entry) => entry.id));
+    for (const id of activeSnapshot.camera.directive?.focusIds || []) selectedIds.add(id);
+    if (activeSnapshot.camera.championId !== null) selectedIds.add(activeSnapshot.camera.championId);
+    if (activeSnapshot.round.remaining <= 8) for (const marble of visible) selectedIds.add(marble.id);
     return visible.filter((marble) => selectedIds.has(marble.id));
   }
 
@@ -188,10 +188,10 @@
     context.closePath();
   }
 
-  function drawIdentity(marble, position, focused, lateRound) {
+  function drawIdentity(marble, position, focused, lateRound, activeSnapshot = snapshot) {
     const champion = marble.status === 'champion';
     const threatened = marble.status === 'threatened' || marble.status === 'recovering';
-    const showName = focused || champion || (lateRound && snapshot.round.remaining <= 4);
+    const showName = focused || champion || (lateRound && activeSnapshot.round.remaining <= 4);
     const badgeRadius = champion ? 13 : focused ? 12 : 10;
     const base = PALETTE[marble.palette] || '#87908a';
     const labelY = position.y - (champion ? 34 : focused ? 28 : 22);
@@ -244,6 +244,20 @@
     context.restore();
   }
 
+  // Column-major OpenGL clip projection: the exact view-projection matrix used
+  // to draw the same marble in WebGL, rather than an independently estimated camera.
+  function projectWithWebglMatrix(point, matrix) {
+    const x = point[0], y = point[1], z = point[2];
+    const clipX = matrix[0] * x + matrix[4] * y + matrix[8] * z + matrix[12];
+    const clipY = matrix[1] * x + matrix[5] * y + matrix[9] * z + matrix[13];
+    const clipW = matrix[3] * x + matrix[7] * y + matrix[11] * z + matrix[15];
+    if (!(clipW > 0.08)) return null;
+    const nx = clipX / clipW;
+    const ny = clipY / clipW;
+    if (!Number.isFinite(nx) || !Number.isFinite(ny) || Math.abs(nx) > 1.12 || Math.abs(ny) > 1.12) return null;
+    return { x: (nx * 0.5 + 0.5) * width, y: (0.5 - ny * 0.5) * height, depth: clipW };
+  }
+
   function render(now) {
     if (!resize()) {
       requestAnimationFrame(render);
@@ -255,17 +269,31 @@
       return;
     }
 
-    const marbles = interpolatedMarbles(now);
-    const camera = smoothedCamera(snapshot, marbles);
-    const selected = selectedMarbles(marbles);
-    const focusIds = new Set(snapshot.camera.directive?.focusIds || []);
-    const lateRound = snapshot.round.index >= 3;
+    // Keep the independent snapshot path as a fallback if the renderer stalls.
+    const frame = window.marbleRenderFrame;
+    const synced = frame &&
+      frame.snapshot?.version === 1 &&
+      frame.snapshot.arena?.id === frame.arenaId &&
+      frame.viewProjection?.length === 16 &&
+      Array.isArray(frame.marbles) &&
+      now - frame.renderedAt >= 0 &&
+      now - frame.renderedAt < 200;
+    const activeSnapshot = synced ? frame.snapshot : snapshot;
+    const marbles = synced ? frame.marbles : interpolatedMarbles(now);
+    const camera = synced ? null : smoothedCamera(activeSnapshot, marbles);
+    const selected = selectedMarbles(marbles, activeSnapshot);
+    const focusIds = new Set(activeSnapshot.camera.directive?.focusIds || []);
+    const lateRound = activeSnapshot.round.index >= 3;
+    shell.dataset.identitySource = synced ? 'webgl-frame' : 'independent-snapshot';
+    shell.dataset.identityTick = String(activeSnapshot.tick);
     for (const marble of selected) {
-      const world = toWorld(marble.x, marble.y, snapshot.arena);
-      world[1] = 0.56;
-      const position = projectToScreen(world, camera);
+      const world = toWorld(marble.x, marble.y, activeSnapshot.arena);
+      world[1] = (marble.elevation || 0) * WORLD_SCALE + 0.56;
+      const position = synced
+        ? projectWithWebglMatrix(world, frame.viewProjection)
+        : projectToScreen(world, camera);
       if (!position) continue;
-      drawIdentity(marble, position, focusIds.has(marble.id), lateRound);
+      drawIdentity(marble, position, focusIds.has(marble.id), lateRound, activeSnapshot);
     }
     requestAnimationFrame(render);
   }

@@ -65,6 +65,119 @@ test('Marble WebGL broadcast renders authoritative tournament and captures runti
   const shell = page.locator('.broadcast-shell');
   await expect(shell).toHaveAttribute('data-renderer', 'webgl2', { timeout: 20_000 });
   await expect(shell).toHaveAttribute('data-identity', 'projected', { timeout: 20_000 });
+  const operator = async command => page.evaluate(async ({ command }) => {
+    const response = await fetch('/api/operator', {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        authorization: 'Bearer visual-evidence-only',
+      },
+      body: JSON.stringify({ command, actor: 'visual-evidence-browser', at: 1 }),
+    });
+    if (!response.ok) throw new Error(`operator ${command} ${response.status}`);
+    return response.json();
+  }, { command });
+  // The self-running test server advances every 4ms. Freeze its *existing*
+  // authority before interacting with live list buttons, then restart to a
+  // known round. Without this the top-ranked element can legitimately change
+  // between pointer-down and pointer-up, masking the real UX defect.
+  await operator('pause');
+  await operator('restart');
+  await expect(page.locator('#tick-value')).toHaveText('0', {timeout:3000});
+  // Native-browser framing gate: project ALL real active marble coordinates
+  // through the frame's actual WebGL matrix. Source checks alone cannot tell
+  // whether the opening shot crops racers out of the arena.
+  await expect(shell).toHaveAttribute('data-camera-framing','full-grid',{timeout:20_000});
+  await expect(page.locator('[data-stage-step="1"]')).toHaveAttribute('data-state','active');
+  await expect(page.locator('[data-stage-step="1"]')).toHaveAttribute('aria-current','step');
+  await expect(page.locator('[data-stage-step="5"]')).toHaveAttribute('data-state','locked');
+  await page.waitForFunction(() => {
+    const f=window.marbleRenderFrame;
+    return f?.snapshot?.tick===0&&f.snapshot.round.index===0&&
+      f.viewProjection?.length===16&&f.marbles?.length>=12;
+  },undefined,{timeout:20_000});
+  const gridFraming=await page.evaluate(()=>{
+    const {snapshot,marbles,viewProjection:m}=window.marbleRenderFrame;
+    const competitors=marbles.filter(v=>v.status!=='eliminated'&&v.status!=='qualified');
+    let visible=0;
+    for(const marble of competitors){
+      const x=(marble.x-snapshot.arena.width/2)/1000;
+      const y=(marble.elevation||0)/1000+.28;
+      const z=(marble.y-snapshot.arena.height/2)/1000;
+      const clipW=m[3]*x+m[7]*y+m[11]*z+m[15];
+      if(clipW<=0.08)continue;
+      const ndcX=(m[0]*x+m[4]*y+m[8]*z+m[12])/clipW;
+      const ndcY=(m[1]*x+m[5]*y+m[9]*z+m[13])/clipW;
+      if(Math.abs(ndcX)<=0.95&&Math.abs(ndcY)<=0.95)visible++;
+    }
+    return {visible,total:competitors.length};
+  });
+  expect(gridFraming.total).toBeGreaterThanOrEqual(12);
+  expect(gridFraming.visible).toBeGreaterThanOrEqual(Math.ceil(gridFraming.total*.9));
+
+  await expect(page.locator('#view-toggle')).toBeVisible();
+  await expect(page.locator('#leaderboard .inspect-marble').first()).toBeVisible({timeout:15000});
+  // UI controls must never mutate the autonomous race or operator authority.
+  const selected = await page.locator('#leaderboard .inspect-marble').first().getAttribute('data-marble-id');
+  await page.locator(`#leaderboard .inspect-marble[data-marble-id="${selected}"]`).click();
+  await expect(page.locator('#spotlight-card')).toBeVisible();
+  await expect(page.locator(`#leaderboard .inspect-marble[data-marble-id="${selected}"]`)).toHaveAttribute('aria-pressed','true');
+  // Hold the clicked DOM node and prove a fresh server poll never swaps it.
+  const nodeStayedAttached=await page.evaluate(async id=>{
+    const button=document.querySelector(`#leaderboard .inspect-marble[data-marble-id="${id}"]`);
+    await new Promise(resolve=>setTimeout(resolve,400));
+    return button?.isConnected===true
+      &&button===document.querySelector(`#leaderboard .inspect-marble[data-marble-id="${id}"]`);
+  },selected);
+  expect(nodeStayedAttached).toBe(true);
+  const spotlight = await page.evaluate(async id => {
+    const state = await (await fetch('/api/snapshot')).json();
+    const marble = state.marbles.find(candidate => candidate.id === Number(id));
+    return { name: marble.name, number: marble.number, status: marble.status };
+  }, selected);
+  await expect(page.locator('#spotlight-name')).toHaveText(spotlight.name);
+  await expect(page.locator('#spotlight-number')).toHaveText(String(spotlight.number).padStart(2,'0'));
+  await page.screenshot({path:path.join(artifacts,'00c-competitor-dossier.png'),fullPage:true});
+  await page.locator('#spotlight-close').click();
+  await expect(page.locator('#spotlight-card')).toBeHidden();
+  await page.locator('#view-toggle').click();
+  await expect(shell).toHaveAttribute('data-view', 'cinematic');
+  await expect(page.locator('.leaderboard-panel.broadcast-overlay')).toBeHidden();
+  await expect(page.locator('#arena-webgl')).toBeVisible();
+  await page.screenshot({path:path.join(artifacts,'00d-cinematic-view.png'),fullPage:true});
+  await page.locator('#view-toggle').click();
+  await expect(shell).toHaveAttribute('data-view', 'broadcast');
+  await expect(shell).toHaveAttribute('data-biome', 'seeding-sprint');
+  await expect(page.locator('#arena-biome-title')).toHaveText('AURORA SPEEDWAY');
+  await expect(page.locator('#qualification-meter')).toHaveAttribute('role', 'progressbar');
+  await page.evaluate(() => {
+    const root = document.querySelector('.broadcast-shell');
+    const palette = getComputedStyle(root);
+    if (!palette.getPropertyValue('--arena-accent').trim()) throw new Error('Vivid arena accent missing');
+    if (!document.querySelector('link[href="/arena-reborn.css"]')) throw new Error('Premium art-direction stylesheet missing');
+  });
+
+  // Critic gate: labels must be drawn from the exact frame's projection,
+  // not a separately moving presentation camera.
+  await expect(shell).toHaveAttribute('data-identity-source', 'webgl-frame', { timeout: 20_000 });
+  await page.waitForFunction(() => {
+    const shell = document.querySelector('.broadcast-shell');
+    return shell?.dataset.identitySource === 'webgl-frame' &&
+      shell.dataset.identityTick === shell.dataset.webglTick &&
+      shell.dataset.identityTick !== '';
+  }, undefined, { timeout: 15_000 });
+
+  const gauntletPage = await page.context().newPage();
+  try {
+    await gauntletPage.goto(`${base}/gauntlet.html`, { waitUntil: 'domcontentloaded' });
+    await expect(gauntletPage.locator('#iteration')).toContainText('Loop', { timeout: 10_000 });
+    await expect(gauntletPage.locator('#sync-status')).toContainText('connected', { timeout: 10_000 });
+    await expect(gauntletPage.locator('#comparison-status')).toContainText('NOT YET VERIFIED');
+    await gauntletPage.screenshot({ path: path.join(artifacts, '00-gauntlet-progress.png'), fullPage: true });
+  } finally {
+    await gauntletPage.close();
+  }
+
 
   const gpu = await page.evaluate(() => {
     const canvas = document.getElementById('arena-webgl');
@@ -106,18 +219,7 @@ test('Marble WebGL broadcast renders authoritative tournament and captures runti
   await expect(soundToggle).toHaveAttribute('aria-pressed', 'false');
   await expect(shell).toHaveAttribute('data-audio', 'off');
 
-  const operator = async command => page.evaluate(async ({ command }) => {
-    const response = await fetch('/api/operator', {
-      method: 'POST',
-      headers: {
-        'content-type': 'application/json',
-        authorization: 'Bearer visual-evidence-only',
-      },
-      body: JSON.stringify({ command, actor: 'visual-evidence-browser', at: 1 }),
-    });
-    if (!response.ok) throw new Error(`operator ${command} ${response.status}`);
-    return response.json();
-  }, { command });
+
 
   const snapshot = async () => page.evaluate(async () => {
     const response = await fetch('/api/snapshot', { cache: 'no-store' });
@@ -144,24 +246,163 @@ test('Marble WebGL broadcast renders authoritative tournament and captures runti
 
   const captured = new Set();
   const archetypes = new Set();
+  const biomeEvidence = new Set();
+  const visualPixelMetrics = {};
+  const measureActualVisualPixels = async () => {
+    // Decode actual Chromium-composited game canvas, never a concept image
+    // and never a source-palette guess. Explicitly distinguish this machine
+    // colour check from a blinded human A/B art critique.
+    const jpeg = await page.locator('#arena-webgl').screenshot({ type: 'jpeg', quality: 60 });
+    return page.evaluate(async encoded => {
+      const image = new Image();
+      image.src = 'data:image/jpeg;base64,' + encoded;
+      await image.decode();
+      const probe = document.createElement('canvas');
+      probe.width = Math.min(640, image.naturalWidth);
+      probe.height = Math.min(400, image.naturalHeight);
+      const ctx = probe.getContext('2d', { willReadFrequently: true });
+      ctx.drawImage(image, 0, 0, probe.width, probe.height);
+      const data = ctx.getImageData(0, 0, probe.width, probe.height).data;
+      let samples = 0, saturationSum = 0, brightnessSum = 0, colorful = 0, dark = 0;
+      let redSum=0,greenSum=0,blueSum=0;
+      for (let y = 0; y < probe.height; y += 9) {
+        for (let x = 0; x < probe.width; x += 9) {
+          const index = (y * probe.width + x) * 4;
+          const r = data[index], g = data[index + 1], b = data[index + 2];
+          const high = Math.max(r, g, b), low = Math.min(r, g, b);
+          const saturation = high ? (high - low) / high : 0;
+          samples++;
+          saturationSum += saturation;
+          redSum+=r;greenSum+=g;blueSum+=b;
+          brightnessSum += (r * 0.2126 + g * 0.7152 + b * 0.0722);
+          if (saturation >= 0.22 && high >= 74) colorful++;
+          if (high <= 8) dark++;
+        }
+      }
+      return {
+        samples,
+        averageSaturation: Number((saturationSum / samples).toFixed(3)),
+        averageLuminance: Number((brightnessSum / samples).toFixed(1)),
+        meanRgb: [Math.round(redSum/samples),Math.round(greenSum/samples),Math.round(blueSum/samples)],
+        colorfulFraction: Number((colorful / samples).toFixed(3)),
+        nearBlackFraction: Number((dark / samples).toFixed(3)),
+        source: 'actual WebGL canvas captured and decoded by Chromium',
+        independentVisualParityVerified: false,
+      };
+    }, jpeg.toString('base64'));
+  };
   const capture = async name => {
     if (captured.has(name)) return;
+    // A frozen screenshot is not useful if the racing HUD and WebGL renderer
+    // represent different authority rounds. Wait for real projected parity.
+    await page.waitForFunction(() => {
+      const node=document.querySelector('.broadcast-shell');
+      if (!node) return false;
+      return Boolean(node.dataset.webglArena &&
+        node.dataset.webglArena===node.dataset.hudArena &&
+        node.dataset.webglArchetype===node.dataset.hudArchetype &&
+        node.dataset.webglTick===node.dataset.hudTick);
+    },undefined,{timeout:12_000});
     captured.add(name);
     await page.screenshot({ path: path.join(artifacts, `${name}.png`), fullPage: false });
+    if (name === '01-race-start' || name.startsWith('11-biome-')) {
+      const metric = await measureActualVisualPixels();
+      const proof=await page.evaluate(()=>{
+        const shell=document.querySelector('.broadcast-shell');
+        const gl=document.getElementById('arena-webgl')?.getContext('webgl2');
+        return {
+          biome:shell?.dataset.webglArchetype,
+          architecture:shell?.dataset.stadiumStyle,
+          landmark:shell?.dataset.landmarkStyle,
+          stadiumModules:Number(shell?.dataset.stadiumModules||0),
+          horizonTriangles:Number(shell?.dataset.horizonGeometry||0),
+          cinematicSpotlights:Number(shell?.dataset.spotlightVolumes||0),
+          activePostprocess:shell?.dataset.postprocess,
+          stadiumCrowd:Number(shell?.dataset.crowdCount||0),
+          renderer:shell?.dataset.renderer,
+          glError:gl?.getError(),
+          glNoError:gl?.NO_ERROR,
+        };
+      });
+      expect(proof.renderer).toBe('webgl2');
+      expect(proof.architecture).toBe(proof.biome);
+      expect(proof.landmark).toBe(proof.biome);
+      expect(proof.stadiumModules).toBeGreaterThan(300);
+      expect(proof.horizonTriangles).toBeGreaterThan(300);
+      expect(proof.cinematicSpotlights).toBeGreaterThan(0);
+      expect(proof.stadiumCrowd).toBeGreaterThanOrEqual(320);
+      expect(proof.activePostprocess).toBe('neon-glow');
+      expect(proof.glError).toBe(proof.glNoError);
+      visualPixelMetrics[name] = { ...metric, actualWebglProof:proof };
+      fs.writeFileSync(path.join(artifacts, 'visual-pixel-metrics.json'),JSON.stringify(visualPixelMetrics,null,2));
+      expect(metric.samples).toBeGreaterThan(100);
+      expect(metric.averageLuminance).toBeGreaterThan(30);
+      expect(metric.averageSaturation).toBeGreaterThan(0.16);
+      expect(metric.colorfulFraction).toBeGreaterThan(0.10);
+      expect(metric.nearBlackFraction).toBeLessThan(0.72);
+    }
   };
 
   // Always capture the normal Balanced presentation before any CI-only fallback benchmark tier.
   await capture('01-race-start');
+  // Real mobile game capture, not a CSS concept mock-up. Reuse the same browser
+  // context and close this graphics surface before starting performance timing.
+  const mobileScene = await browser.newPage({ viewport: { width: 390, height: 844 } });
+  try {
+    await mobileScene.goto(base, { waitUntil: 'domcontentloaded' });
+    await expect(mobileScene.locator('.broadcast-shell')).toHaveAttribute('data-renderer', 'webgl2', { timeout: 20_000 });
+    await expect(mobileScene.locator('#arena-biome-title')).toHaveText('AURORA SPEEDWAY', { timeout: 10_000 });
+    const mobileBounds = await mobileScene.evaluate(() => ({
+      client: document.documentElement.clientWidth,
+      scroll: document.documentElement.scrollWidth,
+    }));
+    expect(mobileBounds.scroll).toBeLessThanOrEqual(mobileBounds.client + 1);
+    const standingsPanel=mobileScene.locator('.leaderboard-panel.broadcast-overlay');
+    const toggle=mobileScene.locator('#mobile-standings-toggle');
+    await expect(toggle).toBeVisible();
+    await expect(toggle).toHaveAttribute('aria-expanded','false');
+    await expect(standingsPanel.locator('.leaderboard li').nth(3)).toBeHidden();
+    await toggle.click();
+    await expect(toggle).toHaveAttribute('aria-expanded','true');
+    await expect(standingsPanel.locator('.leaderboard li').nth(3)).toBeVisible();
+    await toggle.click();
+    await expect(toggle).toHaveAttribute('aria-expanded','false');
+    await mobileScene.screenshot({ path: path.join(artifacts, '01b-mobile-3d-arena.png'), fullPage: true });
+  } finally {
+    await mobileScene.close();
+  }
+
+  // Verify that the critic's file-based A/B tool operates on real captured pixels
+  // and never automatically turns a tie into a product-quality victory.
+  const criticPage = await page.context().newPage();
+  try {
+    await criticPage.goto(`${base}/gauntlet.html`, { waitUntil: 'domcontentloaded' });
+    const realCapture = path.join(artifacts, '01-race-start.png');
+    await criticPage.locator('#ab-candidate').setInputFiles(realCapture);
+    await criticPage.locator('#ab-reference').setInputFiles(realCapture);
+    await criticPage.locator('#ab-start').click();
+    await expect(criticPage.locator('#ab-voting')).toBeVisible();
+    await criticPage.locator('[data-ab-vote="tie"]').click();
+    await expect(criticPage.locator('#ab-result')).toContainText('No winner claimed.');
+    await criticPage.screenshot({ path: path.join(artifacts, '00b-blind-comparison-lab.png'), fullPage: true });
+  } finally {
+    await criticPage.close();
+  }
 
   const qualitySelect = page.locator('#quality-select');
   let benchmarkQuality = 'balanced';
   if (softwareRenderer) {
     benchmarkQuality = 'low';
     await qualitySelect.selectOption('low');
-    await expect(shell).toHaveAttribute('data-render-scale', '0.58', { timeout: 2_000 });
+    await expect(shell).toHaveAttribute('data-render-scale', '0.48', { timeout: 2_000 });
     await page.waitForTimeout(250);
   } else {
-    await expect(shell).toHaveAttribute('data-render-scale', '0.72', { timeout: 2_000 });
+    await page.waitForFunction(() => {
+      const scale=Number(document.querySelector('.broadcast-shell')?.dataset.renderScale);
+      // Balanced can legitimately trade up to 18% pixel resolution for
+      // stability after slow real frames. Low/High/Ultra presets remain fixed.
+      return Number.isFinite(scale) && scale>=0.5900 && scale<=0.721;
+    },undefined,{timeout:3_000});
   }
 
   await operator('resume');
@@ -209,7 +450,12 @@ test('Marble WebGL broadcast renders authoritative tournament and captures runti
   // All visual evidence below remains on the normal Balanced presentation tier.
   if (benchmarkQuality !== 'balanced') {
     await qualitySelect.selectOption('balanced');
-    await expect(shell).toHaveAttribute('data-render-scale', '0.72', { timeout: 2_000 });
+    await page.waitForFunction(() => {
+      const scale=Number(document.querySelector('.broadcast-shell')?.dataset.renderScale);
+      // Balanced can legitimately trade up to 18% pixel resolution for
+      // stability after slow real frames. Low/High/Ultra presets remain fixed.
+      return Number.isFinite(scale) && scale>=0.5900 && scale<=0.721;
+    },undefined,{timeout:3_000});
     await page.waitForTimeout(250);
   }
 
@@ -232,6 +478,12 @@ test('Marble WebGL broadcast renders authoritative tournament and captures runti
     archetypes.add(state.arena.archetype);
 
     const captures = [];
+    const biomeName = state.arena.archetype;
+    const biomeCapture = '11-biome-' + biomeName;
+    if (!biomeEvidence.has(biomeName)) {
+      biomeEvidence.add(biomeName);
+      captures.push(biomeCapture);
+    }
     if (state.round.remaining >= 20 && !captured.has('02-large-marble-pack')) captures.push('02-large-marble-pack');
     if (state.lifecycle === 'active' && state.arena.sweepers.length > 0 && !captured.has('03-moving-obstacle')) captures.push('03-moving-obstacle');
     if (state.lifecycle === 'active' && state.arena.ramps.length > 0 && state.marbles.some(m => m.status !== 'eliminated' && Number(m.elevation) >= 120) && !captured.has('04-high-speed-ramp')) {
@@ -250,6 +502,13 @@ test('Marble WebGL broadcast renders authoritative tournament and captures runti
     if (captures.length > 0 && state.lifecycle !== 'tournament-result') {
       await operator('pause');
       if (captures.includes('08-semifinal-final')) await waitForHudRoundAtLeast(4);
+      if (captures.includes('11-biome-' + biomeName)) {
+        await expect(shell).toHaveAttribute('data-biome', biomeName, { timeout: 3_000 });
+        await expect(page.locator('#arena-biome-title')).not.toBeEmpty();
+      }
+      if (biomeName==='hazard-circuit' && Array.isArray(state.arena.windZones) && state.arena.windZones.length>0){
+        await expect(shell).toHaveAttribute('data-public-wind-zones', String(state.arena.windZones.length));
+      }
       for (const name of captures) await capture(name);
       await operator('resume');
     }
@@ -278,6 +537,23 @@ test('Marble WebGL broadcast renders authoritative tournament and captures runti
     await cleanPage.close();
   }
 
+  const stagePaletteSamples=Object.entries(visualPixelMetrics)
+    .filter(([name,metric])=>name.startsWith('11-biome-')&&Array.isArray(metric.meanRgb))
+    .map(([,metric])=>metric.meanRgb);
+  expect(stagePaletteSamples.length).toBeGreaterThanOrEqual(3);
+  let maximumPaletteDistance=0;
+  for(let i=0;i<stagePaletteSamples.length;i++){
+    for(let j=i+1;j<stagePaletteSamples.length;j++){
+      const difference=Math.hypot(...stagePaletteSamples[i].map((value,channel)=>
+        value-stagePaletteSamples[j][channel]));
+      maximumPaletteDistance=Math.max(maximumPaletteDistance,difference);
+    }
+  }
+  expect(maximumPaletteDistance).toBeGreaterThan(15);
+  fs.writeFileSync(path.join(artifacts,'visual-critic-summary.json'),
+    JSON.stringify({maximumPaletteDistance,stageCount:stagePaletteSamples.length,
+      independentVisualParityVerified:false,source:'actual desktop WebGL screenshots'},null,2));
+  expect(biomeEvidence.size).toBeGreaterThanOrEqual(3);
   expect(archetypes.size).toBeGreaterThanOrEqual(3);
   expect(captured.has('03-moving-obstacle')).toBe(true);
   expect(captured.has('04-high-speed-ramp')).toBe(true);

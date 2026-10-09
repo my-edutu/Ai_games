@@ -98,18 +98,30 @@ test('renderer consumes authoritative presentation schema and never uses legacy 
   }
 });
 
-test('premium visual direction is ivory/charcoal miniature motorsport rather than neon arcade', () => {
+test('Gauntlet visual direction moves beyond dull neutrals into five distinctive high-contrast biomes', () => {
+  const vivid = fs.readFileSync(path.join(root, 'arena-reborn.css'), 'utf8');
   includesAll(styles, [
-    '--ivory-track',
-    '--charcoal',
-    '--metal',
-    '--danger',
-    '[data-quality="low"]',
-    '[data-clean="true"]',
+    '--ivory-track', '--charcoal', '--metal', '--danger',
+    '[data-quality="low"]', '[data-clean="true"]',
   ]);
-  for (const legacyNeon of ['#70f1d2', '#8d7dff', '#101a3b']) {
-    assert.equal(styles.includes(legacyNeon), false, `legacy neon palette must be removed: ${legacyNeon}`);
-  }
+  includesAll(index, [
+    'arena-reborn.css',
+    'data-biome="seeding-sprint"',
+    'id="arena-biome-title"',
+  ]);
+  includesAll(vivid, [
+    '--arena-accent',
+    '#3fe0ff',
+    '#ffa74f',
+    '#ff7548',
+    '#5fe9ff',
+    '#ffe083',
+    '.leaderboard-panel.broadcast-overlay',
+    '.arena-title-card',
+    '.qualification-meter',
+  ]);
+  assert.ok(index.indexOf('arena-reborn.css') > index.indexOf('spectator-polish.css'),
+    'new luminous broadcast theme must be applied after legacy muted styling');
 });
 
 test('browser camera obeys server directive and applies presentation-only smooth viewport framing', () => {

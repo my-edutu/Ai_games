@@ -11,6 +11,8 @@ const PRESENTATION_EVENT_FIELDS: Record<string, readonly string[]> = {
   'round-live': ['roundIndex'],
   'checkpoint-reached': ['marbleId', 'checkpointIndex'],
   'physics-contact': ['kind', 'marbleId', 'otherMarbleId', 'colliderId', 'impulse'],
+  'marble-launched': ['marbleId', 'colliderId', 'launchSpeed'],
+  'marble-pit-falling': ['marbleId', 'hazardId', 'depth'],
   'shield-recovery': ['marbleId', 'hazardId', 'impulseY', 'recoveryUntilTick'],
   'marble-eliminated': ['marbleId', 'cause', 'hazardId'],
   'marble-qualified': ['marbleId', 'finishRank', 'crossingFraction'],
@@ -162,7 +164,7 @@ export function createMarblePresentationSnapshot(state: MarbleState, recentEvent
       finishY: state.arena.finishY,
       hazards: state.arena.hazards.map(hazard => ({ ...hazard })),
       obstacles: state.arena.obstacles.map(obstacle => ({ id: obstacle.id, x: obstacle.x, y: obstacle.y, width: obstacle.width, height: obstacle.height })),
-      bumpers: state.arena.bumpers.map(bumper => ({ id: bumper.id, x: bumper.x, y: bumper.y, radius: bumper.radius })),
+      bumpers: state.arena.bumpers.map(bumper => ({ id: bumper.id, x: bumper.x, y: bumper.y, radius: bumper.radius, launchSpeed: bumper.launchSpeed })),
       sweepers: state.arena.sweepers.map(sweeper => ({
         id: sweeper.id,
         baseX: sweeper.baseX,
@@ -173,6 +175,11 @@ export function createMarblePresentationSnapshot(state: MarbleState, recentEvent
         amplitude: sweeper.amplitude,
         periodTicks: sweeper.periodTicks,
         phaseTicks: sweeper.phaseTicks
+      })),
+      windZones: state.arena.windZones.map(zone => ({
+        id: zone.id, x: zone.x, y: zone.y,
+        width: zone.width, height: zone.height,
+        forceX: zone.forceX, forceY: zone.forceY,
       })),
       ramps: state.arena.ramps.map(ramp => ({ ...ramp }))
     },

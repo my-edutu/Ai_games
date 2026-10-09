@@ -15,6 +15,15 @@ import { FIXED_SCALE, clampInteger, clampMagnitude, divideRound, dotPermille, in
 
 const POSITION_LIMIT = 10_000_000;
 const VELOCITY_PREFILTER_MULTIPLIER = 8;
+/** Approximate authoritative collision envelopes (millimetre-scale fixed points).
+ * These heights match the physical machine silhouettes in the WebGL arena.
+ * Full top-face/rotating rigid-body collision remains a separate Gauntlet gate. */
+const BLOCK_COLLIDER_TOP = 760;
+const SWEEPER_COLLIDER_TOP = 660;
+const BUMPER_COLLIDER_TOP = 780;
+// Matches the illuminated reactor well below the zero-height track surface.
+// Pit floors are terminal, not a new platform on which to resume racing.
+const PIT_FLOOR_DEPTH = 900;
 
 interface Rectangle {
   id: string;
@@ -69,6 +78,12 @@ function supportElevation(state: MarbleState, position: Vec2): number | null {
   return support;
 }
 
+function isInsideOpenPit(state: MarbleState, position: Vec2): boolean {
+  return state.arena.hazards.some(hazard =>
+    hazard.kind === 'pit' && insideRectangle(position, hazard)
+  );
+}
+
 function gravityDelta(config: MarbleConfig, substep: number, substeps: number): number {
   const before = divideRound(config.gravityPerTick * substep, substeps);
   const after = divideRound(config.gravityPerTick * (substep + 1), substeps);
@@ -81,8 +96,26 @@ function advanceVertical(
   nextSupport: number | null,
   config: MarbleConfig,
   substep: number,
-  substeps: number
+  substeps: number,
+  pitOpen: boolean
 ): void {
+  if (pitOpen) {
+    // The floor was cut away. Detach from the support and let the marble
+    // descend physically until the terminal reactor depth is reached.
+    // Never clamp it back onto the invisible y=0 racing surface.
+    if (marble.grounded) {
+      marble.grounded = false;
+      marble.verticalVelocity = Math.min(0, marble.verticalVelocity);
+    }
+    marble.elevation = Math.max(-PIT_FLOOR_DEPTH,
+      marble.elevation + divideRound(marble.verticalVelocity, substeps));
+    marble.verticalVelocity = clampInteger(
+      marble.verticalVelocity - gravityDelta(config, substep, substeps),
+      -config.maxVerticalSpeed,
+      config.maxVerticalSpeed
+    );
+    return;
+  }
   if (marble.grounded) {
     if (nextSupport !== null) {
       const previousElevation = marble.elevation;
@@ -188,6 +221,11 @@ function resolveWorld(marble: MarbleCompetitor, state: MarbleState): PhysicsCont
 }
 
 function resolveRectangle(marble: MarbleCompetitor, rectangle: Rectangle, radius: number): PhysicsContact | null {
+  if (marble.elevation < -radius) return null;
+  // A marble flying completely above the body must not be knocked sideways
+  // by its ground-plane silhouette.
+  const colliderTop = rectangle.kind === 'sweeper' ? SWEEPER_COLLIDER_TOP : BLOCK_COLLIDER_TOP;
+  if (marble.elevation >= colliderTop) return null;
   const closestX = Math.max(rectangle.x, Math.min(marble.position.x, rectangle.x + rectangle.width));
   const closestY = Math.max(rectangle.y, Math.min(marble.position.y, rectangle.y + rectangle.height));
   const dx = marble.position.x - closestX;
@@ -232,7 +270,12 @@ function resolveRectangle(marble: MarbleCompetitor, rectangle: Rectangle, radius
   };
 }
 
-function resolveBumper(marble: MarbleCompetitor, bumper: ArenaBumper, marbleRadius: number): PhysicsContact | null {
+function resolveBumper(marble: MarbleCompetitor, bumper: ArenaBumper, marbleRadius: number, stateMaxVerticalSpeed: number): PhysicsContact | null {
+  if (marble.elevation < -marbleRadius) return null;
+  // Electric spring tops are physically taller than ordinary bumpers;
+  // the collision envelope tracks the actual 3D crest rather than its base.
+  const top = (bumper.launchSpeed ?? 0) > 0 ? 1_050 : BUMPER_COLLIDER_TOP;
+  if (marble.elevation >= top) return null;
   const dx = marble.position.x - bumper.x;
   const dy = marble.position.y - bumper.y;
   const minimum = marbleRadius + bumper.radius;
@@ -245,17 +288,79 @@ function resolveBumper(marble: MarbleCompetitor, bumper: ArenaBumper, marbleRadi
   marble.position.y += divideRound(normal.y * penetration, FIXED_SCALE);
   const reflected = reflect(marble.velocity, normal, bumper.restitutionPermille);
   marble.velocity = reflected.velocity;
-  return { key: `bumper:${bumper.id}:${marble.id}`, kind: 'bumper', marbleId: marble.id, colliderId: bumper.id, impulse: reflected.impulse };
+  const launched = reflected.impulse > 0 && marble.grounded && (bumper.launchSpeed ?? 0) > 0;
+  if (launched) {
+    // Physical launch only after an approaching, authoritative contact; not
+    // from an arbitrary renderer animation or spectator event.
+    marble.verticalVelocity = Math.min(stateMaxVerticalSpeed, bumper.launchSpeed ?? 0);
+    marble.grounded = false;
+  }
+  return { key: `bumper:${bumper.id}:${marble.id}`, kind: 'bumper', marbleId: marble.id, colliderId: bumper.id, impulse: reflected.impulse, launchSpeed: launched ? marble.verticalVelocity : undefined };
 }
 
 function resolveMarblePair(first: MarbleCompetitor, second: MarbleCompetitor, state: MarbleState): PhysicsContact | null {
   const radius = state.config.marbleRadius;
   const minimum = radius * 2;
-  if (Math.abs(second.elevation - first.elevation) >= minimum) return null;
+  if (first.elevation < -radius || second.elevation < -radius) return null;
+  const heightDelta = second.elevation - first.elevation;
+  if (Math.abs(heightDelta) >= minimum) return null;
   const dx = second.position.x - first.position.x;
   const dy = second.position.y - first.position.y;
-  const distanceSquared = dx * dx + dy * dy;
+  const distanceSquared = dx * dx + dy * dy + heightDelta * heightDelta;
   if (distanceSquared >= minimum * minimum) return null;
+
+  if (heightDelta !== 0) {
+    // Full three-dimensional sphere centres: a marble passing above another
+    // must not collide based on its X/Y shadow alone. All operations remain
+    // integer/fixed-point so the authoritative outcome can be replayed.
+    const distance = integerSqrt(distanceSquared);
+    const normal = distance === 0
+      ? { x: FIXED_SCALE, y: 0, z: 0 }
+      : {
+          x: divideRound(dx * FIXED_SCALE, distance),
+          y: divideRound(dy * FIXED_SCALE, distance),
+          z: divideRound(heightDelta * FIXED_SCALE, distance)
+        };
+    const penetration = minimum - distance;
+    const totalMass = first.traits.massPermille + second.traits.massPermille;
+    const firstMove = divideRound(penetration * second.traits.massPermille, totalMass);
+    const secondMove = penetration - firstMove;
+    first.position.x -= divideRound(normal.x * firstMove, FIXED_SCALE);
+    first.position.y -= divideRound(normal.y * firstMove, FIXED_SCALE);
+    second.position.x += divideRound(normal.x * secondMove, FIXED_SCALE);
+    second.position.y += divideRound(normal.y * secondMove, FIXED_SCALE);
+    const firstFloor = supportElevation(state, first.position) ?? 0;
+    const secondFloor = supportElevation(state, second.position) ?? 0;
+    const firstHeight = Math.max(firstFloor, first.elevation - divideRound(normal.z * firstMove, FIXED_SCALE));
+    const secondHeight = Math.max(secondFloor, second.elevation + divideRound(normal.z * secondMove, FIXED_SCALE));
+    first.grounded = first.grounded && firstHeight === firstFloor;
+    second.grounded = second.grounded && secondHeight === secondFloor;
+    first.elevation = firstHeight;
+    second.elevation = secondHeight;
+
+    const relative = divideRound(
+      (second.velocity.x - first.velocity.x) * normal.x
+        + (second.velocity.y - first.velocity.y) * normal.y
+        + (second.verticalVelocity - first.verticalVelocity) * normal.z,
+      FIXED_SCALE
+    );
+    let impulse = 0;
+    if (relative < 0) {
+      const numerator = -(FIXED_SCALE + state.config.marbleRestitutionPermille) * relative;
+      const firstShare = divideRound(numerator * second.traits.massPermille, FIXED_SCALE * totalMass);
+      const secondShare = divideRound(numerator * first.traits.massPermille, FIXED_SCALE * totalMass);
+      first.velocity.x -= divideRound(normal.x * firstShare, FIXED_SCALE);
+      first.velocity.y -= divideRound(normal.y * firstShare, FIXED_SCALE);
+      second.velocity.x += divideRound(normal.x * secondShare, FIXED_SCALE);
+      second.velocity.y += divideRound(normal.y * secondShare, FIXED_SCALE);
+      first.verticalVelocity = clampInteger(first.verticalVelocity - divideRound(normal.z * firstShare, FIXED_SCALE), -state.config.maxVerticalSpeed, state.config.maxVerticalSpeed);
+      second.verticalVelocity = clampInteger(second.verticalVelocity + divideRound(normal.z * secondShare, FIXED_SCALE), -state.config.maxVerticalSpeed, state.config.maxVerticalSpeed);
+      if (first.grounded && first.verticalVelocity > 0) first.grounded = false;
+      if (second.grounded && second.verticalVelocity > 0) second.grounded = false;
+      impulse = -relative;
+    }
+    return { key: `marble:${first.id}:${second.id}`, kind: 'marble', marbleId: first.id, otherMarbleId: second.id, impulse };
+  }
   const normal = distanceSquared === 0 ? { x: ((first.id + second.id) & 1) === 0 ? FIXED_SCALE : -FIXED_SCALE, y: 0 } : normalizePermille({ x: dx, y: dy });
   const distance = distanceSquared === 0 ? 0 : integerSqrt(distanceSquared);
   const penetration = minimum - distance;
@@ -284,7 +389,15 @@ function resolveMarblePair(first: MarbleCompetitor, second: MarbleCompetitor, st
 }
 
 function addContact(store: Map<string, PhysicsContact>, contact: PhysicsContact | null, cap: number): void {
-  if (!contact || store.has(contact.key) || store.size >= cap) return;
+  if (!contact) return;
+  const previous = store.get(contact.key);
+  if (previous) {
+    // A separation overlap can be recorded earlier in a tick than the impact.
+    // Never lose the later authoritative launch event to per-tick deduplication.
+    if ((contact.launchSpeed ?? 0) > (previous.launchSpeed ?? 0)) store.set(contact.key, contact);
+    return;
+  }
+  if (store.size >= cap) return;
   store.set(contact.key, contact);
 }
 
@@ -299,7 +412,9 @@ function validateState(state: MarbleState) {
     for (const value of [marble.velocity.x, marble.velocity.y]) {
       if (!Number.isSafeInteger(value)) return { code: 'numeric-range' as const, detail: `Marble ${marble.id} velocity is outside deterministic integer range.` };
     }
-    if (!Number.isSafeInteger(marble.elevation) || marble.elevation < 0 || marble.elevation > POSITION_LIMIT) {
+    if (!Number.isSafeInteger(marble.elevation)
+      || marble.elevation < -PIT_FLOOR_DEPTH || marble.elevation > POSITION_LIMIT
+      || (marble.elevation < 0 && !isInsideOpenPit(state, marble.position))) {
       return { code: 'numeric-range' as const, detail: `Marble ${marble.id} elevation exceeds deterministic range.` };
     }
     if (!Number.isSafeInteger(marble.verticalVelocity) || Math.abs(marble.verticalVelocity) > state.config.maxVerticalSpeed) {
@@ -362,9 +477,13 @@ export function stepMarblePhysics(state: MarbleState, actions: MarbleAction[]): 
       for (const contact of resolveWorld(marble, next)) addContact(contacts, contact, next.config.maxContactsPerTick);
       for (const rectangle of rectangles) addContact(contacts, resolveRectangle(marble, rectangle, next.config.marbleRadius), next.config.maxContactsPerTick);
       for (const sweeper of sweepers) addContact(contacts, resolveRectangle(marble, sweeper, next.config.marbleRadius), next.config.maxContactsPerTick);
-      for (const bumper of next.arena.bumpers) addContact(contacts, resolveBumper(marble, bumper, next.config.marbleRadius), next.config.maxContactsPerTick);
+      for (const bumper of next.arena.bumpers) addContact(contacts, resolveBumper(marble, bumper, next.config.marbleRadius, next.config.maxVerticalSpeed), next.config.maxContactsPerTick);
       const nextSupport = supportElevation(next, marble.position);
-      advanceVertical(marble, previousSupport, nextSupport, next.config, substep, substeps);
+      // Shielded racers hover safely at track height during recovery; unshielded
+      // racers begin deterministic gravity-driven descent into open pit wells.
+      const pitOpen = isInsideOpenPit(next, marble.position)
+        && marble.recoveryUntilTick < next.tick;
+      advanceVertical(marble, previousSupport, nextSupport, next.config, substep, substeps, pitOpen);
     }
     for (let iteration = 0; iteration < next.config.collisionIterations; iteration++) {
       for (let firstIndex = 0; firstIndex < active.length; firstIndex++) {

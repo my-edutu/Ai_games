@@ -43,6 +43,8 @@ export interface MarbleCompetitor {
   elevation: number;
   verticalVelocity: number;
   grounded: boolean;
+  /** Remember the most recent pit entry to announce a fall exactly once. */
+  pitFallHazardId?: string | null;
   checkpointIndex: number;
   progressPermille: number;
   finishTick: number | null;
@@ -102,6 +104,8 @@ export interface ArenaBumper {
   y: number;
   radius: number;
   restitutionPermille: number;
+  /** Optional deterministic vertical launch on an actual inbound bumper hit. */
+  launchSpeed?: number;
 }
 
 export interface ArenaHazard {
@@ -227,6 +231,8 @@ export interface PhysicsContact {
   marbleId: number;
   otherMarbleId?: number;
   colliderId?: string;
+  /** Only populated for an actual grounded spring-bumper collision. */
+  launchSpeed?: number;
   impulse: number;
 }
 
@@ -272,7 +278,7 @@ export interface MarbleInfluenceState {
 
 export interface MarbleState {
   schemaVersion: 1;
-  determinismVersion: 'marble-physics-v2';
+  determinismVersion: 'marble-physics-v4';
   runId: string;
   rootSeed: string;
   tournamentSeed: string;
