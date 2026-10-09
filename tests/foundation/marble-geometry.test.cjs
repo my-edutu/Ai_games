@@ -103,3 +103,30 @@ test('LED segment planning tolerates reversed ranges and rejects malformed posit
   assert.deepEqual(solidLineSegments(state,800,Infinity,14000),[]);
   assert.deepEqual(solidLineSegments(state,800,10,10),[]);
 });
+
+test('G47 elevated ramps cause real recessed industrial service-bay tiles without opening fake pits',()=>{
+  const state=arena([]);
+  state.ramps=[{id:'raised',x:7000,y:5000,width:3000,height:1500,axis:'y',
+    startElevation:0,endElevation:1200}];
+  const before=JSON.stringify(state);
+  const layout=deckLayout(state);
+  assert.equal(layout.openings.length,0);
+  assert.equal(layout.openingArea,0,'a ramp is a physically supported lower deck, not a falling hole');
+  assert.equal(layout.solidArea,layout.worldArea);
+  assert.equal(layout.rampRegions.length,1);
+  assert.ok(layout.tiles.some(tile=>tile.underRamp&&covers(tile,7600,5700)));
+  assert.ok(layout.tiles.some(tile=>!tile.underRamp&&covers(tile,4000,5700)));
+  assert.equal(JSON.stringify(state),before,'presentation may not mutate solver ramp configs');
+  verifyNoTileOverlaps(layout);
+});
+test('G47 true pits always cut through elevated ramp rectangles without unsupported overlapping floor tiles',()=>{
+  const state=arena([pit(7400,5700,1800,850)]);
+  state.ramps=[{id:'raised',x:7000,y:5000,width:3000,height:1500,
+    startElevation:300,endElevation:1300}];
+  const layout=deckLayout(state);
+  assert.ok(!layout.tiles.some(tile=>covers(tile,8000,6000)));
+  assert.ok(layout.tiles.some(tile=>tile.underRamp&&covers(tile,7300,5200)));
+  assert.equal(layout.openingArea,1800*800,'out-of-bounds pit part clips exactly');
+  assert.equal(layout.solidArea+layout.openingArea,layout.worldArea);
+  verifyNoTileOverlaps(layout);
+});
