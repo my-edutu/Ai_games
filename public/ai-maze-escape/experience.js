@@ -30,10 +30,20 @@ if(qualitySelect){
   });
 }
 if(captureButton){
-  captureButton.addEventListener('click',()=>window.dispatchEvent(new Event('maze:capture')));
+  captureButton.addEventListener('click',()=>{
+    captureButton.textContent='◌ CAPTURING';
+    captureButton.dataset.captureState='pending';
+    window.dispatchEvent(new Event('maze:capture'));
+  });
   window.addEventListener('maze:captured',()=>{
+    // Keep success visible until the next request: large WebGL PNGs take seconds
+    // to deliver and an 1800ms label made successful downloads appear to fail.
     captureButton.textContent='✓ SAVED';
-    setTimeout(()=>{captureButton.textContent='◎ Capture'},1800);
+    captureButton.dataset.captureState='saved';
+  });
+  window.addEventListener('maze:capture-error',()=>{
+    captureButton.textContent='↻ RETRY CAPTURE';
+    captureButton.dataset.captureState='error';
   });
 }
 
