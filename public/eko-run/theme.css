@@ -337,3 +337,25 @@ button:focus-visible,select:focus-visible,.button:focus-visible{outline:3px soli
 @media(prefers-reduced-motion:reduce){
  .hud-settings-toggle{transition:none}
 }
+
+
+/* Gauntlet visual critique: obstacle urgency must beat ambient decoration.
+   Warm signal uses color AND an explicit "⚠" cue for color-blind readability. */
+.hazard-near .hud-race{
+  border-color:rgba(255,136,93,.92);
+  background:linear-gradient(150deg,rgba(56,28,40,.93),rgba(21,38,50,.85));
+  box-shadow:0 8px 27px rgba(115,34,27,.18);
+}
+.hazard-near #threat{font-weight:1000;color:#ffbb99;letter-spacing:.035em}
+.hazard-near #route-fill{background:linear-gradient(90deg,#f7b24b,#ff7159)}
+.hazard-near .hud-race__track{border-color:rgba(255,175,114,.32)}
+@media(min-width:861px){
+ .hud-race{max-width:320px}
+ .district{max-width:550px}
+}
+@media(max-width:650px){
+ .hud-race{backdrop-filter:none}
+ .score,.toolbar,.pill{backdrop-filter:none}
+ .hazard-near .hud-race{border-width:1.5px}
+ #threat{max-width:53%;text-overflow:ellipsis}
+}
