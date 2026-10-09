@@ -149,3 +149,24 @@ body[data-biome="ember"] .icon-button{color:#ffe0b0}
  .arena-lower{bottom:9px}
  .mission-chip{padding:8px 11px}
 }
+
+
+/* Gauntlet colour pass: warm/cool hierarchy, vivid character readability, and restrained glass depth. */
+:root{--bg:#0c1023;--night:#162441;--card:#1b2948;--stroke:#7b91ba;--text:#fffaf2;--soft:#e1e8fa;--muted:#a9bbd9;--aqua:#60ffe2;--blue:#91b9ff;--violet:#c3a4ff;--rose:#ff92b0;--gold:#ffe09a;--amber:#ffb66b}
+body{background:radial-gradient(ellipse at 12% 8%,#365d84 0,transparent 43%),radial-gradient(ellipse at 88% 85%,#563d79 0,transparent 48%),#101629}
+.masthead{background:linear-gradient(110deg,#263e61f2,#172a46ed 50%,#443052e8);border-color:#a1c7ee7d;box-shadow:0 16px 42px #02061777,inset 0 1px #ffffff35}
+.arena{border-color:#9fd6ffb0;box-shadow:0 0 0 2px #71d7ed30,0 26px 60px #030718aa,inset 0 0 38px #ffe2a008}
+.arena:before{box-shadow:inset 0 0 38px #090b185c}
+.light-leak{background:radial-gradient(circle at 20% 18%,#ffe29c2c,transparent 38%),radial-gradient(circle at 78% 68%,#78baff25,transparent 40%);mix-blend-mode:screen}
+.cinema-top{background:linear-gradient(#0c1936b8,transparent)}
+.cinema-bottom{background:linear-gradient(transparent,#0c1936bb)}
+.panel,.chapter,.squad-panel,.encounter,.map-panel{border-color:#91aed071}
+.hero-card{border-color:#9cadd16e;background:linear-gradient(112deg,#263d60e8,#252c4eea)!important;box-shadow:inset 0 1px #ffffff17,0 5px 16px #060e285c}
+.hero-card[aria-pressed=true]{border-color:#ffe1a0!important;box-shadow:0 0 0 1px #ffd992,0 0 25px #ffc76b4a,inset 0 1px #ffffff38}
+.hero-heading b,.panel-title strong{color:#fff9ed;text-shadow:0 1px 8px #07112977}
+.hero-heading small,.hero-sub,.panel-title small{color:#c6d7f3}
+.icon-button{background:linear-gradient(125deg,#285a69,#293c64);border-color:#83e4e5b3;color:#eafff9}
+.icon-button:hover,.gauntlet-link:hover{filter:brightness(1.16)}
+.gauntlet-link{background:linear-gradient(110deg,#ffe6a2,#ffb873 58%,#ff94ad);color:#28253d;box-shadow:0 4px 20px #ffc4776b}
+@media(prefers-reduced-motion:no-preference){.hero-card,.icon-button,.gauntlet-link{transition:background .2s,border-color .2s,box-shadow .2s,filter .2s}}
+@media(max-width:680px){.masthead{box-shadow:0 5px 20px #02061777}.arena{box-shadow:0 0 0 1px #71d7ed30,0 12px 24px #03071888}}
