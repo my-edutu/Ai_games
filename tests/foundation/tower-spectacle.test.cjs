@@ -66,3 +66,31 @@ test('new colorful HUD supports live biome states without losing essential game 
   assert.ok(css.includes('@media(max-width:740px)'),'mobile responsive HUD is required');
   assert.ok(css.includes('prefers-reduced-motion'),'reduced motion preference should be respected');
 });
+
+test('original material atlas supplies three reusable PBR maps with valid finite normals',()=>{
+  const create=fromFile('material3d.js','createTowerSurfaceLibrary');
+  const library=create(THREE);
+  assert.equal(library.size,256);
+  assert.equal(Object.keys(library.textures).length,3);
+  for(const kind of ['forged-alloy','hand-hewn-stone','inlaid-ceramic']){
+    const maps=library.textures[kind];
+    for(const channel of ['albedo','roughness','normal']){
+      const texture=maps[channel];
+      assert.ok(texture.isDataTexture,'PBR '+kind+'/'+channel+' must be first-party GPU texture');
+      assert.equal(texture.image.width,256);
+      assert.equal(texture.image.height,256);
+      assert.equal(texture.image.data.length,256*256*4);
+    }
+    const values=maps.normal.image.data;
+    for(let i=0;i<values.length;i+=2048){
+      assert.ok(values[i]>=0&&values[i]<=255);
+      assert.ok(values[i+2]>126,'normal map must point outwards from the material');
+    }
+    const testMaterial=new THREE.MeshStandardMaterial({roughness:.7});
+    assert.equal(library.apply(testMaterial,kind),testMaterial);
+    assert.strictEqual(testMaterial.normalMap,maps.normal);
+  }
+  const entities=fromFile('entities3d.js','createTowerEntities')(THREE,library);
+  assert.ok(entities.materials.steelSkin.normalMap,'the gameplay deck must actually consume the map');
+  assert.ok(entities.materials.stone.roughnessMap,'the gameplay stone must use roughness');
+});
