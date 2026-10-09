@@ -917,9 +917,24 @@
     const arena=currentSnapshot.arena;
     const directive=currentSnapshot.camera.directive||{mode:'overview',focusIds:[],zoomPermille:1000};
     const byId=new Map(marbles.map((marble)=>[marble.id,marble]));
-    let focus=(directive.focusIds||[]).map((id)=>byId.get(id)).filter(Boolean);
-    const active=marbles.filter((marble)=>marble.status!=='eliminated'&&marble.status!=='qualified');
-    if(!focus.length&&currentSnapshot.round.remaining<=4)focus=active.slice(0,4);
+    const active=marbles.filter((marble)=>marble.status!=='eliminated'
+      &&marble.status!=='qualified'&&Number.isFinite(marble.x)&&Number.isFinite(marble.y));
+    const liveIds=new Set(active.map(m=>m.id));
+    // Camera focus IDs are official, but stale IDs from a previous race are
+    // not live camera targets. A dead marble must never anchor an empty shot.
+    let focus=(directive.focusIds||[]).map((id)=>byId.get(id))
+      .filter(m=>m&&liveIds.has(m.id));
+    if(!focus.length&&active.length){
+      // Only when authority has no surviving nominated target, find an
+      // observable race subject; this is a camera fallback, not a vote.
+      const sorted=active.slice().sort((a,b)=>
+        (Number(b.progressPermille)||0)-(Number(a.progressPermille)||0)
+        ||a.id-b.id);
+      focus=sorted.slice(0,currentSnapshot.round.remaining<=4?4:Math.min(6,sorted.length));
+    }
+    shell.dataset.cameraSubjects=String(focus.length);
+    shell.dataset.cameraTargetSource=(directive.focusIds||[]).some(id=>focus.some(m=>m.id===id))
+      ?'official-focus':'live-fallback';
     let target=[0,0.25,0];
     if(focus.length){const averageX=focus.reduce((sum,marble)=>sum+marble.x,0)/focus.length; const averageY=focus.reduce((sum,marble)=>sum+marble.y,0)/focus.length; const averageElevation=focus.reduce((sum,marble)=>sum+(marble.elevation||0),0)/focus.length; const point=toWorld(averageX,averageY,arena); target=[point[0],0.30+averageElevation*WORLD_SCALE,point[2]];}
     const zoom=clamp((directive.zoomPermille||1000)/1000,0.9,1.8);
