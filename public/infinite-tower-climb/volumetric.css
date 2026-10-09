@@ -289,3 +289,10 @@ body[data-boss="true"] .boss-alert{animation:boss-in 450ms ease-out}
 body[data-climbing="true"] .floor-stat strong{filter:drop-shadow(0 0 14px rgba(var(--accent-rgb),.42))}
 @media(max-width:740px){.biome-reveal{display:none}}
 @media(prefers-reduced-motion:reduce){.biome-reveal{transition:none}.boss-alert{animation:none!important}}
+
+body[data-manual="true"] .broadcast-badge{
+  border-color:rgba(var(--accent-rgb),.62);
+  background:linear-gradient(120deg,rgba(var(--accent-rgb),.17),rgba(13,33,50,.88));
+}
+body[data-manual="true"] .broadcast-pulse{background:var(--accent);box-shadow:0 0 15px var(--accent)}
+body[data-manual="true"] .feed__signal{color:var(--accent)}

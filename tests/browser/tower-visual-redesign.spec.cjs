@@ -44,6 +44,8 @@ test('redesigned HUD works on a small touch viewport with accessible movement co
  await page.goto(ROOT+'?manual=1&seed=42',{waitUntil:'domcontentloaded'});
  await page.waitForFunction(()=>window.__TOWER_VOLUMETRIC_STATE__?.status==='live',null,{timeout:30000});
  await expect(page.locator('body')).toHaveAttribute('data-manual','true');
+ await expect(page.locator('#broadcast-mode')).toContainText('MANUAL EXPEDITION');
+ await expect(page.locator('#pilot-status')).toContainText('YOU ARE PILOTING');
  await expect(page.locator('[data-tower-control="jump"]')).toBeVisible();
  await expect(page.locator('#floor')).toBeVisible();
  await expect(page.locator('#biome')).toBeVisible();

@@ -102,6 +102,13 @@
   });
   document.body.dataset.reducedMotion=String(reduced);
   document.body.dataset.manual=String(manual);
+  const broadcastMode=document.getElementById('broadcast-mode');
+  if(broadcastMode&&manual)broadcastMode.replaceChildren(
+    document.createTextNode('MANUAL EXPEDITION '),
+    Object.assign(document.createElement('small'),{textContent:'PLAYER IN CONTROL'})
+  );
+  const pilotStatus=document.getElementById('pilot-status');
+  if(pilotStatus&&manual)pilotStatus.textContent='YOU ARE PILOTING';
   const gameModeLink=document.getElementById('game-mode');
   if(manual&&gameModeLink){gameModeLink.href='/tower/volumetric';gameModeLink.textContent='RETURN TO AUTONOMY ↗';}
   let biome='',simTime=0,accumulator=0,lastFrame=performance.now(),sizeW=0,sizeH=0;

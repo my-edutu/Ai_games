@@ -19,7 +19,7 @@
       <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 42 42" fill="none" width="38" height="38"><path d="M21 3 39 35H3L21 3Z" stroke="currentColor" stroke-width="2.7" stroke-linejoin="round"/><path d="M21 12 30 30H12L21 12Z" fill="currentColor"/><path d="M21 3V13" stroke="#fff" stroke-width="2"/></svg></span>
       <span class="brand-copy"><small>EDUTU GAMES • GAUNTLET EDITION</small><strong>INFINITE <em>TOWER</em></strong><span class="brand-subtitle">THE NEVER-ENDING ASCENT</span></span>
     </div>
-    <div class="broadcast-badge" role="status"><span class="broadcast-pulse"></span><span>AUTONOMOUS WORLD <small>LIVE SIMULATION</small></span></div>
+    <div class="broadcast-badge" role="status"><span class="broadcast-pulse"></span><span id="broadcast-mode">AUTONOMOUS WORLD <small>LIVE SIMULATION</small></span></div>
     <div class="mode-menu"><a id="game-mode" href="/tower/volumetric?manual=1">TAKE CONTROL <span aria-hidden="true">↗</span></a><a class="mode-menu--quiet" href="/tower/gauntlet.html">QUALITY GATES</a></div>
   </header>
 
@@ -78,7 +78,7 @@
   <section class="feed" aria-live="polite">
     <div class="feed__icon" aria-hidden="true">◈</div>
     <div class="feed__copy"><small id="status">INITIALIZING ASCENT</small><strong id="intent">SCANNING THE PATH AHEAD</strong></div>
-    <span class="feed__signal">AI PILOT <span class="signal-dot"></span></span>
+    <span class="feed__signal" id="pilot-status">AI PILOT <span class="signal-dot"></span></span>
   </section>
   <section class="story" aria-live="polite"><b><span class="story__symbol">✦</span> ASCENT CHRONICLE</b><p id="story-line">A new climber enters the infinite tower.</p></section>
   <div id="wall-status" class="wall-status" aria-live="polite">MANTLES 0 · GRIP 100%</div>
