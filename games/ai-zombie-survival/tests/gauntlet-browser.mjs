@@ -267,7 +267,7 @@ try{
   report.checks.hudPause=true;
   const rebuildBefore=await page.evaluate(()=>JSON.parse(localStorage.getItem('zombie-gauntlet-live')||'{}').dynamicRebuilds||0);
   await page.setViewportSize({width:390,height:844});
-  await page.waitForFunction(n=>JSON.parse(localStorage.getItem('zombie-gauntlet-live')||'{}').dynamicRebuilds>n,before,{timeout:12000});
+  await page.waitForFunction(n=>JSON.parse(localStorage.getItem('zombie-gauntlet-live')||'{}').dynamicRebuilds>n,rebuildBefore,{timeout:12000});
   report.checks.pausedViewportSignalRebuild=true;
   await page.waitForTimeout(250);
   const mobile=await page.locator('#scene').boundingBox();
