@@ -14,7 +14,15 @@ test('each of the six neighborhoods has original readable curved landmark identi
     obj.position.set(x,y,z);obj.scale.set(w,h,d);parent.add(obj);return obj;
   };
   const helpers={
-    box:helper(base),cylinder:helper(base),ball:helper(sphere),
+    box:helper(base),
+    cylinder:(parent,rTop,rBottom,height,x,y,z,color)=>{
+      const obj=new THREE.Mesh(base,new THREE.MeshStandardMaterial({color}));
+      obj.position.set(x,y,z);obj.scale.set(rTop,height,rBottom);parent.add(obj);return obj;
+    },
+    ball:(parent,r,x,y,z,color)=>{
+      const obj=new THREE.Mesh(sphere,new THREE.MeshStandardMaterial({color}));
+      obj.position.set(x,y,z);obj.scale.setScalar(r);parent.add(obj);return obj;
+    },
     material:color=>new THREE.MeshStandardMaterial({color}),
     labelSprite:(parent,text,x,y,z)=>{const s=new THREE.Sprite(new THREE.SpriteMaterial());s.position.set(x,y,z);s.name=text;parent.add(s);return s;}
   };
@@ -33,7 +41,7 @@ test('each of the six neighborhoods has original readable curved landmark identi
     let meshCount=0;
     terrain.traverse(node=>{
       if(!node.isMesh)return;meshCount++;
-      assert.ok(node.position.z<=-5.0,'unapproved geometry occludes the physical running lane');
+      assert.ok(Number.isFinite(node.position.z) && node.position.z<=-5.0,`invalid/street-occluding mesh in ${district}: ${node.name} at ${node.position.z}`);
     });
     assert.ok(meshCount>=35);
   }
