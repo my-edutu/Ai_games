@@ -69,14 +69,20 @@ export function createTayoActor(THREE) {
     return [r*Math.cos(a),.54+(n%3)*.017,r*Math.sin(a),.075,.065,.075];
   });
   detailInstances(headPivot,'ball',curls,0x21232c,'hair texture · 17 original curls');
+  const eyebrows=[],eyelids=[],irises=[];
   for(const s of [-1,1]){
     shape(headPivot,'ball',.30,.285,s*.115,.026,.052,.046,0xf1eee7,'eye');
-    shape(headPivot,'ball',.318,.293,s*.12,.017,.031,.022,0x1a2533,'iris');
-    shape(headPivot,'ball',.315,.41,s*.12,.072,.027,.036,0x22222a,'brow');
+    irises.push(shape(headPivot,'ball',.318,.293,s*.12,.017,.031,.022,0x1a2533,'iris'));
+    eyebrows.push(shape(headPivot,'ball',.315,.41,s*.12,.072,.027,.036,0x22222a,'brow'));
+    const eyelid=shape(headPivot,'ball',.342,.294,s*.117,.028,.001,.052,skins[1],'expressive eyelid');
+    eyelids.push(eyelid);
     shape(headPivot,'ball',.02,.25,s*.258,.064,.082,.06,skins[1],'ear');
+    shape(headPivot,'ball',.273,.096,s*.186,.043,.065,.052,0x955b3e,'cheek highlight');
   }
   shape(headPivot,'ball',.30,.16,0,.078,.076,.086,skins[1],'nose');
-  shape(headPivot,'capsule',.316,.068,0,.022,.007,.101,0x4d2d2c,'smile');
+  const mouth=shape(headPivot,'capsule',.316,.068,0,.022,.007,.101,0x4d2d2c,'smile');
+  const lowerLip=shape(headPivot,'capsule',.307,.043,0,.021,.012,.075,0xa66f57,'lower lip');
+  shape(headPivot,'ball',.285,-.028,0,.065,.019,.11,skins[1],'chin');
 
   const arms=[], legs=[];
   for(const s of [-1,1]){
@@ -180,7 +186,24 @@ export function createTayoActor(THREE) {
     torso.rotation.z=slide?-.29:jump?.12:hit?-.28:failed?-.95:.04*Math.abs(swing);
     torso.position.y=slide?-.47:failed?-.43:(moving?.04*Math.abs(stride):0);
     torso.scale.y=slide?.88:1;
-    headPivot.rotation.z=jump?-.09:hit?.18:0;
+    headPivot.rotation.z=jump?-.09:hit?.18:failed?-.08:
+      (reducedMotion?0:.013*Math.sin(now*.0014));
+    // Subtle performative face animation: brows react to danger, eyes periodically
+    // blink and glance toward upcoming movement, without shaders or AI inference.
+    const blink=reducedMotion?0:Math.pow(Math.max(0,Math.sin(now*.0028+1.2)),24);
+    eyelids.forEach((lid,i)=>{
+      lid.scale.y=.002+blink*.057;
+      lid.position.y=.29+blink*.012;
+      eyebrows[i].position.y=.41+(jump?.035:hit?-.045:failed?-.025:0);
+      eyebrows[i].rotation.x=(i===0?-1:1)*(hit?.14:jump?-.07:0);
+      irises[i].position.y=.293+(jump?.009:hit?-.009:0);
+    });
+    mouth.scale.z=(hit?.065:failed?.10:jump?.074:.101);
+    mouth.position.y=hit?.044:failed?.026:.068;
+    lowerLip.position.y=hit?.017:.043;
+    const drape=costumes.get(active);
+    if(drape)drape.rotation.z=reducedMotion?0:
+      (moving?.018*Math.sin(frame.tick*.16+now*.002):jump?-.015:0);
     arms.forEach((arm,i)=>{
       const sign=i===0?1:-1;
       arm.shoulder.rotation.z=slide?-.82:jump?-.78:hit?sign*.65:failed?1:swing*sign*.8;
@@ -192,7 +215,10 @@ export function createTayoActor(THREE) {
       const sign=i===0?-1:1;
       leg.thigh.rotation.z=slide?-.97:jump?sign*.32:failed?.40:sign*swing;
       leg.knee.rotation.z=slide?1.5:jump?.55:failed?.85:Math.max(0,sign*swing)*.86;
-      leg.ankle.rotation.z=moving?-.2*sign*stride:0;
+      leg.ankle.rotation.z=slide?-.22:jump?-.25:failed?.38:
+        moving?-.22*sign*stride:0;
+      leg.ankle.rotation.x=reducedMotion?0:
+        (moving?sign*.038*Math.cos(frame.tick*.19+now*.003):0);
     });
     const shadowScale=1+Math.max(0,frame.position.y)*.20;
     rootShadow.scale.x=.45*shadowScale;
@@ -201,5 +227,7 @@ export function createTayoActor(THREE) {
     rootShadow.visible=frame.position.y<=.15;
   }
   return Object.freeze({root,pose,setOutfit,meshCount:root.children.length+torso.children.length,
-    articulatedJoints:arms.length*3+legs.length*3+2,instancedDetails:23,availableOutfits:Object.freeze(Object.keys(palette))});
+    articulatedJoints:arms.length*3+legs.length*3+2,instancedDetails:23,
+    expressiveFacialParts:eyebrows.length+eyelids.length+irises.length+2,
+    availableOutfits:Object.freeze(Object.keys(palette))});
 }
