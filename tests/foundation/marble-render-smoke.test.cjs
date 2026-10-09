@@ -301,3 +301,16 @@ test('G46 live authoritative winner receives a real foreground hero shot instead
   assert.equal(crowned.frame.snapshot.camera.championId,0,'celebrate server winner only');
   assert.equal(crowned.shell.dataset.ceremonyChampion,'0');
 });
+
+test('Low saves actual WebGL work, not just palette brightness or a fabricated FPS number',async()=>{
+  const low=await simulateStage('seeding-sprint','low');
+  const balanced=await simulateStage('seeding-sprint','balanced');
+  assert.equal(low.counters.instancedDraws,1);
+  assert.equal(balanced.counters.instancedDraws,0);
+  assert.ok(low.counters.drawElements < balanced.counters.drawElements * .75,
+    'minimum preset must materially reduce actual 3D draw calls');
+  assert.ok(low.counters.maximumMeshIndices < balanced.counters.maximumMeshIndices,
+    'minimum preset must use fewer GPU mesh indices');
+  assert.equal(low.shell.dataset.postprocess,'direct');
+  assert.equal(balanced.shell.dataset.postprocess,'neon-glow');
+});
