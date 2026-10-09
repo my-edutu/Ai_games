@@ -781,3 +781,50 @@ test('Gauntlet 032 smooth 3D ellipsoids have no degenerate pole normals and boun
  expect(after.audit.dynamic.invalidNormals).toBe(0);
  expect(faults).toEqual([]);
 });
+
+test('Gauntlet 033 cinematic UI grade is readable, responsive, accessible and presentation-only',async({page})=>{
+ const errors=[];page.on('pageerror',error=>errors.push(error.message));
+ await page.setViewportSize({width:1440,height:900});
+ await page.setContent(html);
+ await page.waitForFunction(()=>Boolean(window.__tinyKingdom));
+ await page.locator('#pause').click();
+ const original=await page.evaluate(()=>JSON.stringify(window.__tinyKingdom.exportSnapshot()));
+ const desktop=await page.evaluate(()=>{
+  const value=selector=>getComputedStyle(document.querySelector(selector));
+  return {
+   worldFilter:value('#world').filter,
+   headingSize:parseFloat(value('.name').fontSize),
+   panelBackground:value('.sidebar .panel').backgroundImage,
+   tourButtons:document.querySelectorAll('.tour-btn').length,
+   selected:document.querySelectorAll('.tour-btn[aria-pressed="true"]').length,
+   overflow:document.documentElement.scrollWidth-document.documentElement.clientWidth
+  };
+ });
+ expect(desktop.worldFilter).toBe('none');
+ expect(desktop.headingSize).toBeGreaterThanOrEqual(25);
+ expect(desktop.panelBackground).toContain('gradient');
+ expect(desktop.tourButtons).toBe(6);
+ expect(desktop.selected).toBe(1);
+ expect(desktop.overflow).toBeLessThanOrEqual(1);
+ await page.setViewportSize({width:390,height:844});
+ const mobile=await page.evaluate(()=>{
+  const nav=document.querySelector('.world-tour');
+  const tour=document.querySelectorAll('.tour-btn');
+  return {
+   docOverflow:document.documentElement.scrollWidth-document.documentElement.clientWidth,
+   tourFits:nav.getBoundingClientRect().width<=window.innerWidth,
+   controls:[...tour].every(button=>button.getBoundingClientRect().height>=30)
+  };
+ });
+ expect(mobile.docOverflow).toBeLessThanOrEqual(1);
+ expect(mobile.tourFits).toBe(true);
+ expect(mobile.controls).toBe(true);
+ await page.keyboard.press('h');
+ await expect(page.locator('.sidebar')).toBeHidden();
+ await expect(page.locator('#cinema-exit')).toBeVisible();
+ await page.keyboard.press('Escape');
+ await expect(page.locator('.sidebar')).toBeVisible();
+ const after=await page.evaluate(()=>JSON.stringify(window.__tinyKingdom.exportSnapshot()));
+ expect(after).toBe(original);
+ expect(errors).toEqual([]);
+});
