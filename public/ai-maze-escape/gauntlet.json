@@ -186,6 +186,39 @@
       "independentCritic": "Studio-reference comparison and screenshots of latest rigged assets are not yet available. Previous generic shapes did not meet standards.",
       "largestKnownGap": "Imported rigged assets are real but are not yet original fully art-directed finished characters. Environments, cinematography and character animations still need high-quality visual A/B proof, authoring and sustained GPU performance before Gauntlet pass.",
       "visualBarMet": false
+    },
+    {
+      "number": 12,
+      "label": "Measured screenshot criticism, real runtime repair and lighting/performance calibration",
+      "status": "Committed; screenshot-based defects identified, fixes implemented, latest post-fix browser screenshots pending",
+      "built": [
+        "Downloaded and inspected 14 genuine Chromium screenshots from workflow 37787835840, including desktop, mobile, rigged hero and animated hunter",
+        "Identified washed-out white stone, low-poly vegetation obstructing protagonist, repetitive masonry and reported 1 FPS on the software-rendered CI capture",
+        "Corrected content-security-policy for local blob: URLs required by GLTFLoader embedded textures, retaining no third-party network requests",
+        "Fixed screenshot control's transient success feedback that incorrectly failed browser verification despite a completed PNG download",
+        "Reduced extreme lighting overexposure and saturated the physical 3D viewport with balanced colors, controlled canopy density, mosaics and true instanced masonry variation",
+        "Added software-GL hardware detection to eliminate costly PCF shadow maps on software GPUs; capped adaptive pixel ratios while maintaining opt-in full cinematic quality",
+        "Moved the main camera closer to the rigged hero; checked JS syntax and asset endpoint contracts"
+      ],
+      "independentCritic": "Actual CI screenshots reviewed. These are visually below The Talos Principle 2 and Little Nightmares III; reference-style evaluation did not pass. Screenshot capture performance shows 1 FPS in Chromium software GPU, not proven production target FPS.",
+      "largestKnownGap": "Need completed post-fix visual CI and real FPS/draw-call measurement, improved authored artwork and repeatable blinded visual reference comparison.",
+      "visualBarMet": false
+    },
+    {
+      "number": 13,
+      "label": "Self-hosted real Quaternius medieval architecture and visible-open-door consistency",
+      "status": "Four independently licensed GLB assets committed and live scene integration implemented; browser art validation pending",
+      "built": [
+        "Imported four compact authored 3D architecture meshes from the CC0 Quaternius Medieval Village MegaKit: wooden arch, stone doorway, tiled tower roof, trailing ivy",
+        "Repacked glTF and .bin as self-contained GLBs using original geometry and new PBR materials, without large texture downloads or remote CDN dependencies",
+        "Attached real ruins to known public passages and decorative tower roofs only to non-interactive background horizon; capped imported prop count to 16 per reconstruction",
+        "Kept authored procedural fallbacks and registered cached GLB geometries/materials to prevent premature disposal during repeated autonomous runs",
+        "Fixed an open door previously showing a blocking solid slab even when AI authority considered it traversable",
+        "Added browserless GLB schema/license/size tests, real browser asset/scene test and complete per-file CC0 manifest"
+      ],
+      "independentCritic": "The latest architectural GLB output is committed but has not yet been pixel-inspected against the game benchmark.",
+      "largestKnownGap": "Overall world is still procedurally arranged and not authored like Talos 2; needs independent visual critique, character rig polishing, lighting, performance and accessibility gate evidence.",
+      "visualBarMet": false
     }
   ],
   "milestones": [
@@ -272,9 +305,17 @@
     {
       "label": "Event-reactive GPU particle effects and true PNG spectator capture",
       "status": "code implemented; visual and automated regression tests pending"
+    },
+    {
+      "label": "Actual CI screenshot inspection identifies overexposure and software GPU FPS regression",
+      "status": "done — reference bar still below; fixes committed and pending CI"
+    },
+    {
+      "label": "Imported licensed CC0 medieval arches, tower roofs, vines, doorframes and visual-open-door correctness",
+      "status": "implemented; browser screenshots and independent review pending"
     }
   ],
-  "updatedAt": "2026-10-08",
+  "updatedAt": "2026-10-09",
   "gauntletGoals": [
     {
       "name": "Playable autonomous 3D world",
@@ -286,9 +327,9 @@
     {
       "name": "Visual environment quality",
       "reference": "Talos Principle 2 — geometry, material layering and lighting",
-      "current": "Multiple sculpted wall themes, scenic ruin props, ceremonial rotundas at public intersections, animated vaulted fixtures, biome lighting and higher material relief; reference win unverified.",
+      "current": "Actual CC0 3D architectural arches, carved doorframes, tower roofs and trailing ivy now supplement the five procedural biome grammars. Stone materials have instanced color variation, mosaic trim and a balanced physical-lighting pass; still below reference.",
       "status": "below",
-      "evidence": "world-craft.js, scene3d.js; new Chromium screenshots and independent critique pending"
+      "evidence": "models/{Wall_Arch,DoorFrame_Round_Brick,Roof_Tower_RoundTiles,Prop_Vine4}.glb, architectural-assets.js; new Chromium screenshots pending"
     },
     {
       "name": "Fully developed hero and threats",
@@ -307,9 +348,9 @@
     {
       "name": "Broadcast-ready interface",
       "reference": "Premium game-grade HUD that never obscures action",
-      "current": "High-chroma biome-responsive HUD with 3D cinematic/follow/tactical cameras, audience signals, danger overlays and accessible theater mode.",
+      "current": "Premium contrasting floating HUD with color-reactive mission, theater and real PNG capture controls; screenshot download feedback fixed, CSP fixed; new CI pending.",
       "status": "awaiting-verification",
-      "evidence": "experience-v4.css, experience.js and Playwright UI gate; latest capture pending"
+      "evidence": "experience.js, experience-v4.css, maze-ui-v3.spec.cjs and CI logs"
     },
     {
       "name": "Audience participation",
@@ -321,16 +362,16 @@
     {
       "name": "Visual A/B critic loop",
       "reference": "Independent blind side-by-side gameplay screenshots and recordings",
-      "current": "One prior screenshot critique; fresh-context workers offline",
-      "status": "blocked",
-      "evidence": "Not passed; no independent blinded review"
+      "current": "Direct review of authentic desktop and mobile gameplay screenshots found overexposure, simplified repeated architecture, foliage occlusion and slow software rendering; no blinded AAA win.",
+      "status": "below",
+      "evidence": "GitHub Actions artifact 11556703247 (14 real screenshots); independent blind comparison outstanding"
     },
     {
       "name": "Production performance and endurance",
       "reference": "Stable play across long 24/7 live sessions",
-      "current": "Adaptive GPU quality, bounded VFX and original simulation resilience. No completed long-run 24/7 render proof.",
+      "current": "Screenshot showed only ~1 FPS with software WebGL, leading to adaptive pixel budgets, shadow off on software GPUs and lowered prop density. Actual post-fix FPS and 24/7 endurance remain unverified.",
       "status": "blocked",
-      "evidence": "render-budget.js and browserless test; no completed sustained performance run yet"
+      "evidence": "Real screenshot workflow 37787835840; render-budget.js and scene3d.js. Later CI queued"
     }
   ]
 }

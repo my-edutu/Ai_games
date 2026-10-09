@@ -42,3 +42,26 @@ The official screenshots of **The Talos Principle 2** remain the primary visual 
 - **Operational proof:** Chromium screenshots (`gauntlet-ui-v3-*.png`), browser test logs, render FPS and draw-call recordings, and matched unbiased A/B comparisons must be retained. A screenshot capture alone is not a visual pass.
 
 The goal-by-goal reference matrix in `public/ai-maze-escape/gauntlet.json` must stay truthful. No static design or passing DOM test is proof of the AAA benchmark.
+
+## Authentic visual critic: 2026-10-09 (Rounds 12–13)
+
+Source: **real running browser captures**, not ImageGen, in [GitHub Actions run 37787835840](https://github.com/my-edutu/Ai_games/actions/runs/37787835840), artifact `11556703247`, including `gauntlet-animated-ghost-v12.png`, `gauntlet-cc0-rigged-wayfinder-v11.png`, desktop, landscape and portrait.
+
+The first visual read is **FAIL** against Talos 2 and Little Nightmares III. Concrete findings:
+- Stone surfaces were frequently washed to mint-white, hiding material form despite saturated HUD colors.
+- The humanoid occupies too little of the screen, with near-field giant low-poly trees repeatedly concealing the character.
+- Corridor silhouettes remain too regular and modular; premium games have more silhouette and surface variety.
+- Background scenic props are sparse; dark empty voids between exposed sections expose the simulation's unfinished art direction.
+- One genuine Chromium software renderer screenshot reported `1 FPS`, unacceptable for broadcast without performance gating.
+- Earlier CI browser run had **18 passing, 2 failing tests**: GLTFLoader `blob:` texture fetch blocked by CSP, and correct screenshot export immediately reset the success label. Code fixes for both are committed; the latest retest verdict is pending.
+
+**Builder response:** smoother and closer hero-first camera; physically calmer lights while boosting color separation; fewer oversized foreground trees; differently tinted instanced stone masonry; discrete floor mosaic accents; no software-GPU shadow map; cheaper adaptive resolution. Four real CC0 Quaternius village meshes are self-hosted (without external assets) and placed only in observed/non-authoritative scenery. Open doors no longer draw a solid obstruction.
+
+**Hard visual acceptance gate:**
+1. Latest captured desktop/landscape/portrait shows no game-breaking JS/CSP errors; all focused tests pass.
+2. Original hero is consistently visible in a genuine 1920×1080 image while nearest environmental architecture remains legible.
+3. Colors are deliberately vivid but no broad highlighted floor/wall surfaces are clipped to uniform white.
+4. Actual on-screen FPS and draw calls improve measurably relative to the old software capture, and unattended multi-hour GPU performance is measured separately.
+5. Second fresh critic performs a blind A/B reference comparison and records failures honestly.
+
+Until all of these are evidenced, **Gauntlet visualBarMet remains FALSE**.
