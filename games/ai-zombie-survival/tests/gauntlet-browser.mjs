@@ -70,6 +70,17 @@ try{
   await page.keyboard.press('h');
   await page.screenshot({path:root+'vibrant-ui.png'});
   report.checks.vibrantHudAndMap=true;
+  await page.waitForFunction(()=>document.querySelectorAll('#squadQuick .squadLink').length>=6,{timeout:8000});
+  assert.equal(await page.locator('#squadQuick .squadLink').count(),6);
+  for(const id of ['resFood','resAmmo','resMed']){
+    assert.match(await page.locator('#'+id).textContent(),/^[0-9]+$/,
+      'supply tiles must display actual inventory, not placeholders');
+  }
+  await page.locator('#squadQuick .squadLink').first().click();
+  await page.waitForFunction(()=>document.querySelector('#cameraLabel').textContent.includes('HERO'),{timeout:6000});
+  assert.equal(await page.locator('#squadQuick .squadLink').first().getAttribute('aria-pressed'),'true');
+  await page.screenshot({path:root+'squad-quick-command.png'});
+  report.checks.quickSquadAndInventory=true;
   await page.goto('http://127.0.0.1:4177/web/3d.html?scenario=night&weather=storm&freeze=1',{waitUntil:'load'});
   await page.waitForFunction(()=>document.querySelector('#fps')?.textContent?.includes('CPU P95'),{timeout:12000});
   await page.screenshot({path:root+'night-storm.png'});
