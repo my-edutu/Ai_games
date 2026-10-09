@@ -13,10 +13,48 @@ header{border-color:#5ba3b6;background:#0c2136db}
 .stats span{background:#17364b;border-color:#4c8592}.stats strong{color:var(--amber)}
 .pill.done{background:#176354;color:#b5ffe9}.pill.gap{background:#68323c;color:#ffd3d7}
 .note{background:#14344b;border-left-color:var(--cyan)}
+
+/* Visual critic cockpit: use actual running seeded scenes rather than static sample artwork. */
+.sceneChooser{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;
+ gap:8px;padding:10px 13px;border-top:1px solid #54849951;border-bottom:1px solid #54849951;
+ background:#0c2639}
+.sceneChooser>span{font-weight:900;font-size:10px;letter-spacing:.13em;color:var(--cyan)}
+.sceneButtons{display:flex;flex-wrap:wrap;gap:5px}
+.sceneButtons button,.ledgerBar button{border:1px solid #588ba4a3;border-radius:5px;
+ background:#193e52;color:#d3edf5;padding:7px 10px;font:900 10px/1.2 inherit;letter-spacing:.055em;
+ cursor:pointer;min-height:32px}
+.sceneButtons button[aria-pressed="true"]{border-color:#a5eadf;background:linear-gradient(105deg,#43e2cd,#cae8cc);color:#103441}
+.sceneButtons button:hover,.ledgerBar button:hover{border-color:#ffe1a4}
+.sceneButtons button:focus-visible,.ledgerBar button:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+.ledgerBar{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.ledgerBar button{font-size:9px;color:#ffe1a4}
+.historyRow{display:none}
+body[data-history="expanded"] .historyRow{display:block}
+#ciResult[data-status="success"]{color:#5ef4dd}
+#ciResult[data-status="failure"],#ciResult[data-status="cancelled"]{color:#ff98a1}
+#ciResult[data-status="queued"],#ciResult[data-status="in_progress"]{color:#ffd48a}
+@media(max-width:740px){
+ .sceneChooser{padding:9px}
+ .sceneChooser>span{font-size:9px}
+ .sceneButtons button{padding:7px 9px;min-height:34px;font-size:9px}
+ .ledgerBar{align-items:flex-start;flex-direction:column}
+ .ledgerBar button{width:100%;min-height:38px}
+}
 </style></head>
 <body>
 <header><div><div class="eyebrow">AI GAMES / QUALITY GAUNTLET / ITERATION 32</div><h1>Zombie Survival — Live Build Progress</h1><p>Real-time 3D vertical slice, not an AAA-completion claim. Reference: Days Gone Remastered.</p></div><div class="links"><a href="./3d.html">Open 3D viewer ↗</a><a href="./index.html">Open previous 2.5D ↗</a></div></header>
-<main><div class="grid"><section class="panel"><div class="pad"><h2>Real running game</h2><p>Rendering a live autonomous run inside this page. Characters, hordes, buildings, weather and day/night derive from the game simulation.</p></div><div class="monitor"><iframe title="Live 3D Zombie Survival simulation" src="./3d.html?seed=2026&crowd=dense"></iframe></div><div class="pad"><div class="stats"><span><strong id="tick">—</strong>Ticks</span><span><strong id="survivors">—</strong>Survivors</span><span><strong id="zombies">—</strong>Infected</span><span><strong id="fps">—</strong>FPS reported</span>
+<main><div class="grid"><section class="panel"><div class="pad"><h2>Real running game</h2><p>Rendering a live autonomous run inside this page. Characters, hordes, buildings, weather and day/night derive from the game simulation.</p></div><div class="sceneChooser" aria-label="Real Gauntlet build quality inspection scenes">
+<span>SCENE INSPECTOR</span>
+<div class="sceneButtons">
+  <button data-scene="live" type="button" aria-pressed="true">● LIVE</button>
+  <button data-scene="day" type="button" aria-pressed="false">DAYLIGHT</button>
+  <button data-scene="night" type="button" aria-pressed="false">NIGHT</button>
+  <button data-scene="large-horde" type="button" aria-pressed="false">HORDE</button>
+  <button data-scene="interior" type="button" aria-pressed="false">INTERIOR</button>
+  <button data-scene="near-death" type="button" aria-pressed="false">CRITICAL</button>
+</div>
+</div>
+<div class="monitor"><iframe id="gauntletViewer" title="Live 3D Zombie Survival simulation" src="./3d.html?seed=2026&crowd=dense"></iframe></div><div class="pad"><div class="stats"><span><strong id="tick">—</strong>Ticks</span><span><strong id="survivors">—</strong>Survivors</span><span><strong id="zombies">—</strong>Infected</span><span><strong id="fps">—</strong>FPS reported</span>
 <span><strong id="cpuP95">—</strong>CPU render p95 (ms)</span>
 <span><strong id="triangles">—</strong>3D triangles/frame</span>
 <span><strong id="quality">—</strong>GPU resolution scale</span>
@@ -25,30 +63,31 @@ header{border-color:#5ba3b6;background:#0c2136db}
 <span><strong id="meshP95">—</strong>Mesh CPU p95 (ms)</span>
 <span><strong id="gpuType">—</strong>GPU renderer type</span>
 <span><strong id="realAssets">—</strong>Opt-in CC0 assets</span></div><div class="status"><span id="health">Waiting for 3D frame telemetry…</span><span id="seed">Seed 2026</span></div></div></section>
-<aside class="panel pad"><h2>Acceptance ledger</h2><p style="margin-bottom:10px">Latest independent browser check: <strong id="ciResult">Checking GitHub CI…</strong> · <a id="ciLink" target="_blank" rel="noopener noreferrer" href="https://github.com/my-edutu/Ai_games/actions/workflows/zombie-3d-gauntlet.yml">View evidence runs ↗</a></p><div class="rows">
-<div class="row"><strong>Autonomous fixed-step simulation <span class="pill done">INTEGRATED</span></strong><p>Retains existing decisions, rescues, combat, resources and seeded progression.</p></div>
-<div class="row"><strong>Actual perspective WebGL2 <span class="pill done">IMPLEMENTED</span></strong><p>Depth-tested 3D city blocks, road geometry, vehicles, safe house and barricades.</p></div>
-<div class="row"><strong>Animated 3D survivor and zombie meshes <span class="pill done">IMPLEMENTED</span></strong><p>Role silhouettes, 3 infected archetypes, action-linked gait and basic gear; final character assets remain unfinished.</p></div>
-<div class="row"><strong>Camera and stream information <span class="pill done">INTEGRATED</span></strong><p>Autonomous director, hero follow, orbit/zoom, horde overview, actor goals, threat meter and objective HUD.</p></div>
-<div class="row"><strong>Gauntlet iteration 02 <span class="pill done">COMMITTED</span></strong><p>Warmer district palettes, stronger daylight, lighter distance fog, physical storefronts and awnings, tree canopy geometry and role-specific tactical silhouettes.</p></div>
-<div class="row"><strong>Gauntlet iteration 03 <span class="pill done">COMMITTED</span></strong><p>Close-up character camera, survivor decisions, recent events, farther-infected level of detail, and unattended restart after simulation loss.</p></div>
-<div class="row"><strong>Gauntlet iteration 04 <span class="pill done">COMMITTED</span></strong><p>Directional sun/night shader, projected foot and building shadows, storm precipitation and wet surfaces, authoritative combat VFX, cinematic zoom, CPU p95 metrics, adaptive resolution, and periodic authoritative snapshots with refresh recovery.</p></div>
-<div class="row"><strong>Gauntlet iteration 05 <span class="pill done">COMMITTED</span></strong><p>Interactive dossiers for every survivor showing name, role, current AI decision, health, infection, kills and click-to-follow cinematic camera. Visual roster screenshot and accessibility checks added.</p></div>
-<div class="row"><strong>Gauntlet iteration 06: District art and UI <span class="pill done">COMMITTED</span></strong><p>Full neon cyan/amber/coral HUD redesign; bespoke hospital, market, industrial and residential facades; safehouse signal tower, urban quarantine props and cinematic cloud sky; tactical minimap using real agent positions. Art assets and browser screenshots still require critic comparison.</p></div>
-<div class="row"><strong>Gauntlet iteration 07: Character art <span class="pill done">COMMITTED</span></strong><p>Role-specific tactical survivor equipment and injury markings; brute, runner and shambler mutation overlays. Procedural meshes, not AAA character rigs; fidelity remains far below reference.</p></div>
-<div class="row"><strong>Gauntlet iteration 08: District landmarks <span class="pill done">COMMITTED</span></strong><p>Industrial water tower, evacuation checkpoint, helipad, ruined bridge, medical sign tower, metro station, fountains and construction vehicle in real 3D. Camera dynamically avoids nearby opaque architecture.</p></div>
-<div class="row"><strong>Gauntlet iteration 09: Cinema lighting <span class="pill done">COMMITTED</span></strong><p>Position-dependent colored nighttime practical lights, deterministic storm lightning flashes and a live timeline of actual AI/combat events.</p></div>
-<div class="row"><strong>Gauntlet iteration 10: Cinematic storytelling <span class="pill done">COMMITTED</span></strong><p>On-demand distraction-free cinema HUD with controls preserved; actual 3D mission beacons, low-health warnings, rescue targets and horde alerts.</p></div>
-<div class="row"><strong>Gauntlet iteration 11: Dynamic environment <span class="pill done">COMMITTED</span></strong><p>Damaged buildings visibly smolder, shed embers and show animated fire/smoke; rescue-zone warning strobes use time/weather. Cosmetic only, with finite-geometry tests.</p></div>
-<div class="row"><strong>Gauntlet iteration 12: Detailed interiors <span class="pill done">COMMITTED</span></strong><p>3D furnishings for rescue hospitals, apartments, shops, supermarkets, police stations and industrial buildings; physical medical beds, desks, shelving, stock, lighting, furniture and emergency equipment, revealed by roof cutaways.</p></div>
-<div class="row"><strong>Gauntlet iteration 13: Material depth and horde fidelity <span class="pill done">COMMITTED</span></strong><p>Procedural masonry coursing, asphalt variation, wet-surface directional response and camera-prioritized horde LOD to retain nearby infected detail under CPU pressure.</p></div>
-<div class="row"><strong>Gauntlet loop 14 · Real screenshot failure fixes <span class="pill done">COMMITTED</span></strong><p>Inspected actual Chromium artifacts and corrected detached survivor-roster buttons and stale paused tick telemetry; added stable live DOM. These were genuine failing browser checks, not simulated issues.</p></div>
-<div class="row"><strong>Gauntlet loops 15–16 · Camera/lighting/art <span class="pill done">COMMITTED</span></strong><p>Restored live views when close cameras were blocked by the HQ. Added measured-cost renderer cache, experimental GPU directional PCF shadow map, more organic hero ellipsoids and expressive faces.</p></div>
-<div class="row"><strong>Gauntlet loops 17–19 · Actual game clarity <span class="pill done">COMMITTED</span></strong><p>Made the true 3D viewer the game server's default root. Horde camera now follows real massed infected instead of rooftops; defeated entities have 3D fallen silhouettes. Added browser shadow and canonical-entry checks.</p></div>
-<div class="row"><strong>Gauntlet loop 20 · Motion and geometry engine <span class="pill done">COMMITTED</span></strong><p>Typed vertex buffers now avoid repeated boxing and copies; deterministic poses create aiming, retreating, rescue, injury and horde aggression motion directly from real AI actions. Node geometry tests cover 20k triangles and pose reproducibility.</p></div>
-<div class="row"><strong>Gauntlet loop 21 · Premium surface identity <span class="pill done">COMMITTED</span></strong><p>Replaced the unrealistic every-wall brick pattern with weathered concrete and road imperfections; saturated signage has a shader emissive response.</p></div>
-<div class="row"><strong>Gauntlet loops 22–25 · Actual CC0 mesh pipeline <span class="pill done">COMMITTED</span></strong><p>Built a strict no-runtime-dependency GLB loader with bounded node transforms, primitives, normals, indices, material colours and optional embedded PBR texture-atlas decoding. Can draw three genuinely sourced rigged GLB undead meshes in an opt-in close view, with safe fallback if offline. Animation skinning remains future work.</p></div>
-<div class="row"><strong>Gauntlet loop 26 · Spatial soundscape <span class="pill done">COMMITTED</span></strong><p>Procedural world-space impacts, infected alerts, weapons, medical events and storm ambience generated live from actual simulation events; sound remains permission-gated.</p></div>
+<aside class="panel pad"><div class="ledgerBar"><h2>Acceptance ledger</h2>
+<button type="button" id="historyToggle" aria-expanded="false">VIEW EARLIER LOOPS +</button></div><p style="margin-bottom:10px">Latest independent browser check: <strong id="ciResult">Checking GitHub CI…</strong> · <a id="ciLink" target="_blank" rel="noopener noreferrer" href="https://github.com/my-edutu/Ai_games/actions/workflows/zombie-3d-gauntlet.yml">View evidence runs ↗</a></p><div class="rows">
+<div class="row historyRow"><strong>Autonomous fixed-step simulation <span class="pill done">INTEGRATED</span></strong><p>Retains existing decisions, rescues, combat, resources and seeded progression.</p></div>
+<div class="row historyRow"><strong>Actual perspective WebGL2 <span class="pill done">IMPLEMENTED</span></strong><p>Depth-tested 3D city blocks, road geometry, vehicles, safe house and barricades.</p></div>
+<div class="row historyRow"><strong>Animated 3D survivor and zombie meshes <span class="pill done">IMPLEMENTED</span></strong><p>Role silhouettes, 3 infected archetypes, action-linked gait and basic gear; final character assets remain unfinished.</p></div>
+<div class="row historyRow"><strong>Camera and stream information <span class="pill done">INTEGRATED</span></strong><p>Autonomous director, hero follow, orbit/zoom, horde overview, actor goals, threat meter and objective HUD.</p></div>
+<div class="row historyRow"><strong>Gauntlet iteration 02 <span class="pill done">COMMITTED</span></strong><p>Warmer district palettes, stronger daylight, lighter distance fog, physical storefronts and awnings, tree canopy geometry and role-specific tactical silhouettes.</p></div>
+<div class="row historyRow"><strong>Gauntlet iteration 03 <span class="pill done">COMMITTED</span></strong><p>Close-up character camera, survivor decisions, recent events, farther-infected level of detail, and unattended restart after simulation loss.</p></div>
+<div class="row historyRow"><strong>Gauntlet iteration 04 <span class="pill done">COMMITTED</span></strong><p>Directional sun/night shader, projected foot and building shadows, storm precipitation and wet surfaces, authoritative combat VFX, cinematic zoom, CPU p95 metrics, adaptive resolution, and periodic authoritative snapshots with refresh recovery.</p></div>
+<div class="row historyRow"><strong>Gauntlet iteration 05 <span class="pill done">COMMITTED</span></strong><p>Interactive dossiers for every survivor showing name, role, current AI decision, health, infection, kills and click-to-follow cinematic camera. Visual roster screenshot and accessibility checks added.</p></div>
+<div class="row historyRow"><strong>Gauntlet iteration 06: District art and UI <span class="pill done">COMMITTED</span></strong><p>Full neon cyan/amber/coral HUD redesign; bespoke hospital, market, industrial and residential facades; safehouse signal tower, urban quarantine props and cinematic cloud sky; tactical minimap using real agent positions. Art assets and browser screenshots still require critic comparison.</p></div>
+<div class="row historyRow"><strong>Gauntlet iteration 07: Character art <span class="pill done">COMMITTED</span></strong><p>Role-specific tactical survivor equipment and injury markings; brute, runner and shambler mutation overlays. Procedural meshes, not AAA character rigs; fidelity remains far below reference.</p></div>
+<div class="row historyRow"><strong>Gauntlet iteration 08: District landmarks <span class="pill done">COMMITTED</span></strong><p>Industrial water tower, evacuation checkpoint, helipad, ruined bridge, medical sign tower, metro station, fountains and construction vehicle in real 3D. Camera dynamically avoids nearby opaque architecture.</p></div>
+<div class="row historyRow"><strong>Gauntlet iteration 09: Cinema lighting <span class="pill done">COMMITTED</span></strong><p>Position-dependent colored nighttime practical lights, deterministic storm lightning flashes and a live timeline of actual AI/combat events.</p></div>
+<div class="row historyRow"><strong>Gauntlet iteration 10: Cinematic storytelling <span class="pill done">COMMITTED</span></strong><p>On-demand distraction-free cinema HUD with controls preserved; actual 3D mission beacons, low-health warnings, rescue targets and horde alerts.</p></div>
+<div class="row historyRow"><strong>Gauntlet iteration 11: Dynamic environment <span class="pill done">COMMITTED</span></strong><p>Damaged buildings visibly smolder, shed embers and show animated fire/smoke; rescue-zone warning strobes use time/weather. Cosmetic only, with finite-geometry tests.</p></div>
+<div class="row historyRow"><strong>Gauntlet iteration 12: Detailed interiors <span class="pill done">COMMITTED</span></strong><p>3D furnishings for rescue hospitals, apartments, shops, supermarkets, police stations and industrial buildings; physical medical beds, desks, shelving, stock, lighting, furniture and emergency equipment, revealed by roof cutaways.</p></div>
+<div class="row historyRow"><strong>Gauntlet iteration 13: Material depth and horde fidelity <span class="pill done">COMMITTED</span></strong><p>Procedural masonry coursing, asphalt variation, wet-surface directional response and camera-prioritized horde LOD to retain nearby infected detail under CPU pressure.</p></div>
+<div class="row historyRow"><strong>Gauntlet loop 14 · Real screenshot failure fixes <span class="pill done">COMMITTED</span></strong><p>Inspected actual Chromium artifacts and corrected detached survivor-roster buttons and stale paused tick telemetry; added stable live DOM. These were genuine failing browser checks, not simulated issues.</p></div>
+<div class="row historyRow"><strong>Gauntlet loops 15–16 · Camera/lighting/art <span class="pill done">COMMITTED</span></strong><p>Restored live views when close cameras were blocked by the HQ. Added measured-cost renderer cache, experimental GPU directional PCF shadow map, more organic hero ellipsoids and expressive faces.</p></div>
+<div class="row historyRow"><strong>Gauntlet loops 17–19 · Actual game clarity <span class="pill done">COMMITTED</span></strong><p>Made the true 3D viewer the game server's default root. Horde camera now follows real massed infected instead of rooftops; defeated entities have 3D fallen silhouettes. Added browser shadow and canonical-entry checks.</p></div>
+<div class="row historyRow"><strong>Gauntlet loop 20 · Motion and geometry engine <span class="pill done">COMMITTED</span></strong><p>Typed vertex buffers now avoid repeated boxing and copies; deterministic poses create aiming, retreating, rescue, injury and horde aggression motion directly from real AI actions. Node geometry tests cover 20k triangles and pose reproducibility.</p></div>
+<div class="row historyRow"><strong>Gauntlet loop 21 · Premium surface identity <span class="pill done">COMMITTED</span></strong><p>Replaced the unrealistic every-wall brick pattern with weathered concrete and road imperfections; saturated signage has a shader emissive response.</p></div>
+<div class="row historyRow"><strong>Gauntlet loops 22–25 · Actual CC0 mesh pipeline <span class="pill done">COMMITTED</span></strong><p>Built a strict no-runtime-dependency GLB loader with bounded node transforms, primitives, normals, indices, material colours and optional embedded PBR texture-atlas decoding. Can draw three genuinely sourced rigged GLB undead meshes in an opt-in close view, with safe fallback if offline. Animation skinning remains future work.</p></div>
+<div class="row historyRow"><strong>Gauntlet loop 26 · Spatial soundscape <span class="pill done">COMMITTED</span></strong><p>Procedural world-space impacts, infected alerts, weapons, medical events and storm ambience generated live from actual simulation events; sound remains permission-gated.</p></div>
 <div class="row"><strong>Loop 27: Defective production entry fixed <span class="pill done">COMMITTED</span></strong><p>Corrected a real 404 on the 3D root: serving relative JS/CSS from / had left the game blank. Canonical root now HTTP redirects to /web/3d.html. Browser/CI remains a hard gate.</p></div>
 <div class="row"><strong>Loop 28: Actual GPU-instanced hordes <span class="pill done">COMMITTED</span></strong><p>Replaced rebuilding distant infected geometry every frame with a single WebGL2 drawArraysInstanced call using one authored skeletal silhouette mesh. Nearby heroes and threats retain high-detail models; deterministic CPU LOD tests prevent disappearing agents.</p></div>
 <div class="row"><strong>Loop 29: Articulated close-camera characters <span class="pill done">COMMITTED</span></strong><p>Connected original anatomical meshes, actual elbow/knee/wrist pose, asymmetrical infected posture and survivor gear/face detail. These are original programmable 3D assets, NOT commercial-grade hand-sculpted characters.</p></div>
@@ -88,11 +127,35 @@ async function checkCI(){
   if(!run)throw Error('No workflow runs yet');
   const status=run.status==='completed'?run.conclusion:run.status;
   document.querySelector('#ciResult').textContent=status.toUpperCase()+' / '+run.head_sha.slice(0,8);
+  document.querySelector('#ciResult').dataset.status=status;
   document.querySelector('#ciLink').href=run.html_url;
  }catch{
   document.querySelector('#ciResult').textContent='Status unavailable — open GitHub';
  }
 }
+const sceneUrls={
+ live:'./3d.html?seed=2026&crowd=dense',
+ day:'./3d.html?scenario=day&freeze=1',
+ night:'./3d.html?scenario=night&freeze=1',
+ 'large-horde':'./3d.html?scenario=large-horde&freeze=1',
+ interior:'./3d.html?scenario=interior&freeze=1',
+ 'near-death':'./3d.html?scenario=near-death&freeze=1'
+};
+document.querySelectorAll('[data-scene]').forEach(button=>{
+ button.addEventListener('click',()=>{
+  const scene=button.dataset.scene;if(!Object.hasOwn(sceneUrls,scene))return;
+  document.querySelector('#gauntletViewer').src=sceneUrls[scene];
+  document.querySelectorAll('[data-scene]').forEach(item=>
+   item.setAttribute('aria-pressed',String(item===button)));
+ });
+});
+document.querySelector('#historyToggle').addEventListener('click',()=>{
+ const expanded=document.body.dataset.history!=='expanded';
+ document.body.dataset.history=expanded?'expanded':'collapsed';
+ const button=document.querySelector('#historyToggle');
+ button.setAttribute('aria-expanded',String(expanded));
+ button.textContent=expanded?'COLLAPSE EARLIER LOOPS −':'VIEW EARLIER LOOPS +';
+});
 setInterval(sample,700);sample();
 checkCI();setInterval(checkCI,120000);
 </script></body></html>
