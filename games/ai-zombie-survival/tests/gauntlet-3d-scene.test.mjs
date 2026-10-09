@@ -23,6 +23,17 @@ class GeometryAudit {
     this.colors.add(color.toLowerCase());
     this.byKind.set(kind,(this.byKind.get(kind)||0)+1);
   }
+  tri(a,b,c,n,color){
+    for(const p of [a,b,c,n])assert.ok(Array.isArray(p)&&p.length===3&&p.every(Number.isFinite),'Nonfinite organic triangle');
+    assert.ok(Array.isArray(color)&&color.length===3&&color.every(v=>Number.isFinite(v)&&v>=0&&v<=1),'Nonfinite rig color');
+    this.calls++;
+    this.byKind.set('tri',(this.byKind.get('tri')||0)+1);
+    this.colors.add('#'+color.map(v=>Math.round(v*255).toString(16).padStart(2,'0')).join(''));
+  }
+  ellipsoid(x,y,z,rx,ry,rz,color){
+    assert.ok(rx>0&&ry>0&&rz>0,'Organic anatomy must have valid volumes');
+    this.record('ellipsoid',[x,y,z,rx,ry,rz],color);
+  }
   box(x,y,z,w,h,d,color,yaw=0){
     assert.ok(w>0&&h>0&&d>0,'Degenerate district geometry');
     this.record('box',[x,y,z,w,h,d,yaw],color);

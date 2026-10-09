@@ -16,6 +16,7 @@ import { createSpatialFoley } from './audio-foley.js';
 import { createSunShadows } from './shadow-pass.js';
 import { createInstancedHorde,partitionHorde } from './instanced-horde.js';
 import { drawCharacterRig } from './character-rig.js';
+import { materialFunctions } from './material-functions.js';
 
 const canvas = document.getElementById('scene');
 const hud = document.getElementById('hud');
@@ -185,6 +186,8 @@ const fs = [
   'in vec3 vColor; in vec3 vNormal; in vec3 vPosition;',
   'uniform vec3 uEye; uniform vec3 uFogColor; uniform float uFog; uniform vec3 uLight; uniform float uNight; uniform float uWeatherFlash; uniform float uWetness; uniform mat4 uShadowVP; uniform sampler2D uShadowMap; uniform float uUseShadows;',
   'out vec4 fragColor;',
+  ...materialFunctions,
+  'uniform float uMaterialQuality;',
   'void main(){vec3 N=normalize(vNormal);vec3 L=normalize(uLight);',
   'float lambert=max(dot(N,L),0.0);float wrap=max(dot(N,L)*0.65+0.35,0.0);',
   'float skyBounce=0.10*max(N.y,0.0);float dayAmbient=mix(0.69,0.45,uNight);',
@@ -203,9 +206,17 @@ const fs = [
   '}',
   'float sunExposure=1.0-shadow*.72;',
   'vec3 color=vColor*(dayAmbient+skyBounce+sunlight*(0.38*wrap+0.24*lambert)*sunExposure);',
-  'vec3 V=normalize(uEye-vPosition);vec3 H=normalize(L+V);',
+  'vec3 V=normalize(uEye-vPosition);',
+  'if(uMaterialQuality>0.5){',
+  'vec3 albedo=materialWear(vColor,vPosition,N,uWetness);',
+  'float rough=materialRoughness(albedo,vPosition,N,uWetness);',
+  'color*=albedo/max(vColor,vec3(.05));',
+  'color+=sunlight*materialSpecular(albedo,N,L,V,rough,sunExposure)*(.85-uNight*.24);',
+  '}else{',
+  'vec3 H=normalize(L+V);',
   'float sheen=pow(max(dot(N,H),0.0),24.0)*0.065*(1.0-uNight*0.5);',
   'color+=sunlight*sheen;',
+  '}',
   'float rescueGlow=pow(max(0.0,1.0-length(vPosition.xz-vec2(0.0,0.0))*.065),2.0);',
   'float medicGlow=pow(max(0.0,1.0-length(vPosition.xz-vec2(34.0,-34.0))*.065),2.0);',
   'vec3 rescueColor=vec3(.24,.81,.94)*rescueGlow+vec3(1.0,.45,.24)*medicGlow;',
@@ -237,7 +248,7 @@ const fs = [
 const program = gl.createProgram();gl.attachShader(program,shader(gl.VERTEX_SHADER,vs));gl.attachShader(program,shader(gl.FRAGMENT_SHADER,fs));gl.linkProgram(program);
 if(!gl.getProgramParameter(program,gl.LINK_STATUS))throw new Error(gl.getProgramInfoLog(program));
 gl.useProgram(program);gl.enable(gl.DEPTH_TEST);gl.depthFunc(gl.LEQUAL);
-const uniforms = Object.fromEntries(['uVP','uEye','uFogColor','uFog','uLight','uNight','uWeatherFlash','uWetness','uShadowVP','uShadowMap','uUseShadows'].map(k=>[k,gl.getUniformLocation(program,k)]));
+const uniforms = Object.fromEntries(['uVP','uEye','uFogColor','uFog','uLight','uNight','uWeatherFlash','uWetness','uShadowVP','uShadowMap','uUseShadows','uMaterialQuality'].map(k=>[k,gl.getUniformLocation(program,k)]));
 const drawSky=createSkyPass(gl);
 function buffer(){const vao=gl.createVertexArray(),vbo=gl.createBuffer();gl.bindVertexArray(vao);gl.bindBuffer(gl.ARRAY_BUFFER,vbo);const stride=9*4;for(let i=0;i<3;i++){gl.enableVertexAttribArray(i);gl.vertexAttribPointer(i,3,gl.FLOAT,false,stride,i*12);}gl.bindVertexArray(null);return{vao,vbo,count:0};}
 const staticMesh=buffer(),movingMesh=buffer();
@@ -768,6 +779,7 @@ function render(now){
   gl.uniform3fv(uniforms.uEye,new Float32Array(eye));
   gl.uniform3fv(uniforms.uLight,new Float32Array(night?[.45,.9,.35]:[-.58,1,.48]));
   gl.uniform1f(uniforms.uNight,night?1:0);
+  gl.uniform1f(uniforms.uMaterialQuality,isSoftwareGPU?0:1);
   const lightning=game.weather.kind==='storm'&&Math.sin(game.time.elapsed*.65)>0.965?
     Math.pow(Math.max(0,Math.sin(game.time.elapsed*23)),6):0;
   gl.uniform1f(uniforms.uWeatherFlash,lightning);
