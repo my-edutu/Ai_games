@@ -30,11 +30,11 @@ export function createTowerEntities(THREE,surfaceLibrary=null){
   }
   const meshes={stone,edge,metal,obsidian,eye,violet,health,stamina,gold,inactive,danger,steelSkin,inlay,neon};
   const themeColors={
-    foundry:{stone:0x8f6960,skin:0x39475a,inlay:0xbf8e71,neon:0xffb56b,edge:0xa7cad6},
-    ruins:{stone:0x657a65,skin:0x355b55,inlay:0x87b7a2,neon:0x77ffcd,edge:0xc2ffc2},
-    clockwork:{stone:0x66788e,skin:0x4c5365,inlay:0xbda37b,neon:0xffdf89,edge:0x99dbff},
-    storm:{stone:0x596b9e,skin:0x334a86,inlay:0x87a5ca,neon:0x72daff,edge:0xc1d7ff},
-    void:{stone:0x65548b,skin:0x493663,inlay:0x9e83d1,neon:0xec90ff,edge:0xd8aaff}
+    foundry:{stone:0xb28f76,skin:0x6f7885,inlay:0xefc496,neon:0xffcb7d,edge:0xbfe9ec},
+    ruins:{stone:0x93ac8b,skin:0x638879,inlay:0xb4ebd4,neon:0x8bffe0,edge:0xd7ffca},
+    clockwork:{stone:0x8c9bb0,skin:0x718498,inlay:0xe6c28e,neon:0xffe895,edge:0xa4eaff},
+    storm:{stone:0x839fd1,skin:0x6187b9,inlay:0xa9c9e7,neon:0x8feeff,edge:0xcfe9ff},
+    void:{stone:0x9783c0,skin:0x78669d,inlay:0xd1acee,neon:0xf9adff,edge:0xe0c4ff}
   };
   function setTheme(name='foundry'){
     const colors=themeColors[name]||themeColors.foundry;

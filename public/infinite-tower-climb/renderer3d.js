@@ -18,11 +18,11 @@
   scene.fog = new THREE.FogExp2('#10172a', 0.004);
   const camera = new THREE.PerspectiveCamera(52, 1, 0.1, 850);
   camera.position.set(0, 12, 22);
-  const hemi = new THREE.HemisphereLight(0x91c9ff, 0x1a1325, 2.2);
+  const hemi = new THREE.HemisphereLight(0xc2edff, 0x283b53, 2.9);
   scene.add(hemi);
   renderer.outputColorSpace=THREE.SRGBColorSpace;
   renderer.toneMapping=THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure=1.45;
+  renderer.toneMappingExposure=1.61;
   renderer.shadowMap.enabled=true;
   renderer.shadowMap.type=THREE.PCFSoftShadowMap;
   const key = new THREE.DirectionalLight(0xffd7a2, 3);

@@ -228,11 +228,11 @@ export function createTowerEnvironment(THREE,scene) {
   const dustMaterial=new THREE.PointsMaterial({color:0xffd9ad,size:0.065,transparent:true,opacity:.32,depthWrite:false});
   const motes=new THREE.Points(dustGeo,dustMaterial);root.add(motes);
   const palette={
-    foundry:{stone:0x625a5c,shadow:0x292b3f,bronze:0xaf6c43,glow:0xffa857,fog:0x1c2131},
-    ruins:{stone:0x74806a,shadow:0x2b3c32,bronze:0x9a815b,glow:0xa9d5a1,fog:0x1c302b},
-    clockwork:{stone:0x4c5d70,shadow:0x2a3445,bronze:0xc19a52,glow:0xffc879,fog:0x252739},
-    storm:{stone:0x697083,shadow:0x27273e,bronze:0xb0a3a0,glow:0xb6c9ff,fog:0x252339},
-    void:{stone:0x61547b,shadow:0x29243f,bronze:0x9d81ad,glow:0xbb87ff,fog:0x1b1530}
+    foundry:{stone:0xa18b80,shadow:0x44485b,bronze:0xd88e5a,glow:0xffc276,fog:0x2b3449},
+    ruins:{stone:0x9aae92,shadow:0x455c50,bronze:0xc1a67e,glow:0xb0ffbd,fog:0x304c45},
+    clockwork:{stone:0x8ca1b5,shadow:0x445668,bronze:0xe5b879,glow:0xffe4a1,fog:0x34475a},
+    storm:{stone:0x96a6c5,shadow:0x3c4b72,bronze:0xc2cfea,glow:0x86e5ff,fog:0x324968},
+    void:{stone:0x947fb3,shadow:0x473a63,bronze:0xc6a2e4,glow:0xf2a0ff,fog:0x333051}
   };
   let current='';
   function setTheme(name){

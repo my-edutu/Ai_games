@@ -24,7 +24,7 @@
   window.__TOWER_EVIDENCE_CAPTURE__=()=>evidence.capture(window.__TOWER_VOLUMETRIC_STATE__,'manual user capture');
   window.__TOWER_EVIDENCE_RECORD__=()=>evidence.recordClip(window.__TOWER_VOLUMETRIC_STATE__,8000);
   renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure=1.42;renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+  renderer.toneMappingExposure=1.58;renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
   const scene=new THREE.Scene();scene.fog=new THREE.FogExp2(0x1c2131,.0053);
   const camera=new THREE.PerspectiveCamera(57,1,.1,700);
   const director=createTowerDirector(THREE,camera);
@@ -33,7 +33,7 @@
   const weather=createTowerWeather(THREE,scene);
   const geology=createTowerGeology(THREE,scene);
   const safetyRope=createClimbingRope(THREE,scene);
-  const hemi=new THREE.HemisphereLight(0xb4d5ff,0x1a2333,2.7);scene.add(hemi);
+  const hemi=new THREE.HemisphereLight(0xc2e8ff,0x344055,3.15);scene.add(hemi);
   const sun=new THREE.DirectionalLight(0xffd9a3,3.3);sun.position.set(-30,70,40);scene.add(sun);
   const heroFill=new THREE.PointLight(0x5efaff,145,38,1.65),heroWarm=new THREE.PointLight(0xffa968,125,35,1.7);
   scene.add(heroFill,heroWarm);
