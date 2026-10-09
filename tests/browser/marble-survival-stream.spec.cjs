@@ -84,6 +84,37 @@ test('Marble WebGL broadcast renders authoritative tournament and captures runti
   await operator('pause');
   await operator('restart');
   await expect(page.locator('#tick-value')).toHaveText('0', {timeout:3000});
+  // Native-browser framing gate: project ALL real active marble coordinates
+  // through the frame's actual WebGL matrix. Source checks alone cannot tell
+  // whether the opening shot crops racers out of the arena.
+  await expect(shell).toHaveAttribute('data-camera-framing','full-grid',{timeout:20_000});
+  await expect(page.locator('[data-stage-step="1"]')).toHaveAttribute('data-state','active');
+  await expect(page.locator('[data-stage-step="1"]')).toHaveAttribute('aria-current','step');
+  await expect(page.locator('[data-stage-step="5"]')).toHaveAttribute('data-state','locked');
+  await page.waitForFunction(() => {
+    const f=window.marbleRenderFrame;
+    return f?.snapshot?.tick===0&&f.snapshot.round.index===0&&
+      f.viewProjection?.length===16&&f.marbles?.length>=12;
+  },undefined,{timeout:20_000});
+  const gridFraming=await page.evaluate(()=>{
+    const {snapshot,marbles,viewProjection:m}=window.marbleRenderFrame;
+    const competitors=marbles.filter(v=>v.status!=='eliminated'&&v.status!=='qualified');
+    let visible=0;
+    for(const marble of competitors){
+      const x=(marble.x-snapshot.arena.width/2)/1000;
+      const y=(marble.elevation||0)/1000+.28;
+      const z=(marble.y-snapshot.arena.height/2)/1000;
+      const clipW=m[3]*x+m[7]*y+m[11]*z+m[15];
+      if(clipW<=0.08)continue;
+      const ndcX=(m[0]*x+m[4]*y+m[8]*z+m[12])/clipW;
+      const ndcY=(m[1]*x+m[5]*y+m[9]*z+m[13])/clipW;
+      if(Math.abs(ndcX)<=0.95&&Math.abs(ndcY)<=0.95)visible++;
+    }
+    return {visible,total:competitors.length};
+  });
+  expect(gridFraming.total).toBeGreaterThanOrEqual(12);
+  expect(gridFraming.visible).toBeGreaterThanOrEqual(Math.ceil(gridFraming.total*.9));
+
   await expect(page.locator('#view-toggle')).toBeVisible();
   await expect(page.locator('#leaderboard .inspect-marble').first()).toBeVisible({timeout:15000});
   // UI controls must never mutate the autonomous race or operator authority.
