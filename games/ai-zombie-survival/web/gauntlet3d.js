@@ -18,6 +18,7 @@ import { createInstancedHorde,partitionHorde } from './instanced-horde.js';
 import { drawCharacterRig } from './character-rig.js';
 import { createPoseMixer } from './animation-mixer.js';
 import { materialFunctions } from './material-functions.js';
+import { createGpuFrameTimer } from './gpu-frame-timer.js';
 
 const canvas = document.getElementById('scene');
 const hud = document.getElementById('hud');
@@ -222,9 +223,11 @@ const fs = [
   '}',
   'float rescueGlow=pow(max(0.0,1.0-length(vPosition.xz-vec2(0.0,0.0))*.065),2.0);',
   'float medicGlow=pow(max(0.0,1.0-length(vPosition.xz-vec2(34.0,-34.0))*.065),2.0);',
-  'vec3 rescueColor=vec3(.24,.81,.94)*rescueGlow+vec3(1.0,.45,.24)*medicGlow;',
-  'color+=vColor*(rescueColor*uNight*.64);',
+  'vec3 rescueColor=vec3(.21,.61,.71)*rescueGlow+vec3(1.0,.45,.24)*medicGlow;',
+  'color+=vColor*(rescueColor*uNight*.42);',
   'color+=vec3(.64,.68,.85)*uWeatherFlash*.31;',
+  // Keep expensive per-fragment weathering on hardware; SwiftShader uses the simpler material fallback.
+  'if(uMaterialQuality>0.5){',
   'float grain=fract(sin(dot(floor(vPosition.xz*2.1+vPosition.y*0.3),vec2(12.9898,78.233)))*43758.5453);',
   'color*=0.972+0.055*grain;',
   'float horizontal=abs(N.y);',
@@ -241,6 +244,7 @@ const fs = [
   'vec3 R=reflect(-L,N);float glint=pow(max(dot(R,V),0.0),22.0);',
   'color+=vec3(.22,.46,.48)*glint*uWetness*.18;',
   '}',
+  '}',
   'float distanceToCamera=distance(uEye,vPosition);',
   'float haze=1.0-exp(-pow(distanceToCamera*uFog,2.0));',
   'float sat=max(color.r,max(color.g,color.b))-min(color.r,min(color.g,color.b));',
@@ -256,6 +260,7 @@ const drawSky=createSkyPass(gl);
 function buffer(){const vao=gl.createVertexArray(),vbo=gl.createBuffer();gl.bindVertexArray(vao);gl.bindBuffer(gl.ARRAY_BUFFER,vbo);const stride=9*4;for(let i=0;i<3;i++){gl.enableVertexAttribArray(i);gl.vertexAttribPointer(i,3,gl.FLOAT,false,stride,i*12);}gl.bindVertexArray(null);return{vao,vbo,count:0};}
 const staticMesh=buffer(),movingMesh=buffer();
 const distantHorde=createInstancedHorde(gl,{maxInstances:500});
+const gpuFrameTimer=createGpuFrameTimer(gl);
 const hardwareInfo=gl.getExtension('WEBGL_debug_renderer_info');
 const rendererLabel=String(hardwareInfo?gl.getParameter(hardwareInfo.UNMASKED_RENDERER_WEBGL):gl.getParameter(gl.RENDERER)||'');
 const isSoftwareGPU=/swiftshader|llvmpipe|software|softpipe|swrast/i.test(rendererLabel);
@@ -862,6 +867,7 @@ function render(now){
   if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h;gl.viewport(0,0,w,h);}
   const night=game.time.phase==='night',sunset=game.time.phase==='sunset';
   const sky=night?[.044,.080,.167]:sunset?[.73,.39,.29]:[.58,.76,.83];
+  gpuFrameTimer.poll();gpuFrameTimer.begin();
   gl.clearColor(...sky,1);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
   drawSky(game);
   const actualRange=cameraMode==='manual'?range:directedRange;
@@ -915,6 +921,7 @@ function render(now){
   }
   for(const b of [staticMesh,movingMesh]){gl.bindVertexArray(b.vao);gl.drawArrays(gl.TRIANGLES,0,b.count);}
   distantHorde.render({vp,eye,sky,night,fog:night?.010:.003+(game.weather.kind==='fog'?.006:0),time:elapsed});
+  gpuFrameTimer.end();
   frameCpuMs.push(performance.now()-cpuStart);
   if(frameCpuMs.length>180)frameCpuMs.shift();
   if(now-lastStats>450){
@@ -990,7 +997,7 @@ function render(now){
     hud.querySelector('#fps').textContent=Math.round(fpsSmooth)+' FPS · '+cpuP95.toFixed(1)+'ms CPU P95 · '+tris.toLocaleString()+' TRIANGLES';
     hud.querySelector('#fpsCompact').textContent=Math.round(fpsSmooth)+' FPS';
     verdict.textContent='WEBGL2 TRUE 3D • '+(paused?'PAUSED':'SIMULATION LIVE');
-    try{localStorage.setItem('zombie-gauntlet-live',JSON.stringify({time:Date.now(),day:game.time.day,tick:game.tick,alive:living,zombies:infected,fps:Math.round(fpsSmooth),frameCpuP95Ms:Math.round(cpuP95*10)/10,triangles:tris,rendererGpu:isSoftwareGPU?'software':'hardware',gpuHordeInstances:distantHorde.count,gpuHordeTriangles:distantHorde.triangles,cc0AssetState:cc0Status.state,dynamicShadows:!!sunShadows?.available,renderScale:qualityScale,dynamicRebuilds:dynamicMeshRebuilds,cameraMode,cameraRangeTarget:Math.round(directorRangeTarget*100)/100,cameraEyeDistance:Math.round(cameraEyeDistance*100)/100,cameraFocusX:Math.round(cameraFocusX*100)/100,cameraFocusZ:Math.round(cameraFocusZ*100)/100,meshBuildP95Ms:Math.round(percentile(meshBuildMs)*10)/10,phase:game.time.phase,seed,renderer:'WebGL2',status:game.status}));}catch{}
+    try{localStorage.setItem('zombie-gauntlet-live',JSON.stringify({time:Date.now(),day:game.time.day,tick:game.tick,alive:living,zombies:infected,fps:Math.round(fpsSmooth),frameCpuP95Ms:Math.round(cpuP95*10)/10,triangles:tris,rendererGpu:isSoftwareGPU?'software':'hardware',gpuHordeInstances:distantHorde.count,gpuHordeTriangles:distantHorde.triangles,cc0AssetState:cc0Status.state,dynamicShadows:!!sunShadows?.available,renderScale:qualityScale,dynamicRebuilds:dynamicMeshRebuilds,cameraMode,cameraRangeTarget:Math.round(directorRangeTarget*100)/100,cameraEyeDistance:Math.round(cameraEyeDistance*100)/100,cameraFocusX:Math.round(cameraFocusX*100)/100,cameraFocusZ:Math.round(cameraFocusZ*100)/100,meshBuildP95Ms:Math.round(percentile(meshBuildMs)*10)/10,...gpuFrameTimer.snapshot(),phase:game.time.phase,seed,renderer:'WebGL2',status:game.status}));}catch{}
   }
   requestAnimationFrame(render);
 }

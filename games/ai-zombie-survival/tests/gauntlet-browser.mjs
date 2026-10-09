@@ -41,6 +41,20 @@ try{
     const shot=await page.screenshot({path:root+scenario+'.png',animations:'disabled'});
     assert.ok(shot.length>12000,'screenshot suspiciously small for '+scenario);
     const runtimeStats=await page.evaluate(()=>JSON.parse(localStorage.getItem('zombie-gauntlet-live')||'{}'));
+    if(scenario==='day'){
+      assert.ok(['unsupported','warming','warming-after-disjoint','measured'].includes(runtimeStats.gpuTimingState),
+        'GPU timer must report extension support and measurement state');
+      assert.ok(Number.isInteger(runtimeStats.gpuFrameSamples)&&runtimeStats.gpuFrameSamples>=0,
+        'GPU sample count must be nonnegative');
+      assert.ok(Number.isInteger(runtimeStats.gpuTimerPending)&&runtimeStats.gpuTimerPending<=4,
+        'GPU query backlog must remain bounded');
+      if(runtimeStats.gpuTimingState==='measured')
+        assert.ok(Number.isFinite(runtimeStats.gpuFrameP95Ms)&&runtimeStats.gpuFrameP95Ms>=0,
+          'GPU p95 must be measured and finite');
+      else assert.equal(runtimeStats.gpuFrameP95Ms,null,
+        'missing GPU timings must never be replaced with CPU estimates');
+      report.checks.nonblockingGpuTelemetry=true;
+    }
     if(scenario==='large-horde'){
       assert.ok(runtimeStats.gpuHordeInstances>=10,'distant infected must use true WebGL2 GPU instancing');
       assert.ok(runtimeStats.gpuHordeTriangles>=runtimeStats.gpuHordeInstances*30,
