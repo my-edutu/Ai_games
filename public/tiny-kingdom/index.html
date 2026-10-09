@@ -1735,6 +1735,13 @@ ctx.globalAlpha=.2;ctx.strokeStyle='#e0f9b6';for(let i=1;i<7;i++){ctx.beginPath(
 ctx.strokeStyle='#dbbe8b';ctx.lineWidth=5;for(const points of [[[-16,-7],[-8,-4],[-4,3],[6,2],[14,2]],[[0,-15],[0,-9],[-4,3],[4,15]]]){ctx.beginPath();points.forEach((p,i)=>i?ctx.lineTo(...map(...p)):ctx.moveTo(...map(...p)));ctx.stroke()}
 // Clearly differentiated, navigable public landmarks — these do not inflate population or building totals.
  for(const site of Object.values(SCENIC_SITES)){const q=map(site.x,site.z);ctx.beginPath();ctx.arc(q[0],q[1],site.kind==='stone sanctuary'?8:6,0,Math.PI*2);ctx.fillStyle=site.kind==='stone sanctuary'?'#ffe5ba':'#83fff2';ctx.fill();ctx.strokeStyle='#163e4d';ctx.lineWidth=2;ctx.stroke()}
+ // Craft guild atlas marker: a warm-amber working district, distinct from homes.
+ {const [sx,sy]=map(CRAFT_DISTRICT.x,CRAFT_DISTRICT.z);
+  ctx.fillStyle='#382c3c';ctx.fillRect(sx-9,sy-9,18,18);
+  ctx.strokeStyle='#ffca86';ctx.lineWidth=2;ctx.strokeRect(sx-9,sy-9,18,18);
+  ctx.fillStyle='#ffe0ab';ctx.font='bold 14px system-ui';
+  ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('⚒',sx,sy+1);
+ }
  ctx.fillStyle='#ffe8ab';for(const b of city){const q=map(b[0],b[1]);ctx.fillRect(q[0]-3,q[1]-3,6,6)}for(let i=0;i<people.length;i++){const p=people[i],a=map(p.x,p.z);ctx.beginPath();ctx.arc(a[0],a[1],i===focalIndex?5:2.8,0,Math.PI*2);ctx.fillStyle=i===focalIndex?'#fff3ad':'#f7fdff';ctx.fill();if(i===focalIndex){ctx.beginPath();ctx.arc(a[0],a[1],9,0,Math.PI*2);ctx.strokeStyle='#fff0a6';ctx.lineWidth=2;ctx.stroke()}}
 const center=map(...focusPoint);ctx.strokeStyle='#bffffb';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(center[0]-8,center[1]);ctx.lineTo(center[0]+8,center[1]);ctx.moveTo(center[0],center[1]-8);ctx.lineTo(center[0],center[1]+8);ctx.stroke();const season=climateAt(state.t);document.getElementById('atlas-season').textContent='✧ '+season.seasonName.toUpperCase()+' · '+season.weather.toUpperCase()}
 document.getElementById('atlas-map').addEventListener('pointerdown',e=>{const rect=e.currentTarget.getBoundingClientRect();focusPoint=[Math.max(-40,Math.min(40,((e.clientX-rect.left)/rect.width)*86-43)),Math.max(-40,Math.min(40,((e.clientY-rect.top)/rect.height)*86-43))];follow=false;cinematic=false;document.getElementById('focus').classList.remove('active');document.getElementById('camera').classList.remove('active');drawAtlas()});
