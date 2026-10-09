@@ -1,9 +1,9 @@
 {
   "schema": 1,
-  "iteration": "Loop 45 · native CI correction, deep reactor systems, hero collider props and correct wind cinematography",
+  "iteration": "Loop 47 · race camera hero framing and physics-faithful elevated ramp service architecture",
   "lastUpdated": "2026-10-09",
   "criticTarget": "CRITIC MUST INSPECT real Chromium screenshots and captured gameplay video, compare side-by-side against official Marble It Up! Ultra and Marbles on Stream imagery, and reject every empty, flat, low-contrast or unreadable scene. Run actual WebGL2 shader compilation, verify frames, mobile layout and deterministic authority. No source-only acceptance.",
-  "comparisonStatus": "NOT YET VERIFIED — Real GitHub Actions 37789996353 passed the TypeScript build and 132/133 Marble foundation tests but failed progress-critic wording; that exact failure is repaired. Next native Chromium/shader/visual screenshot run is queued. 18/18 instrumented WebGL 3D tests passed locally in JS after latest changes; no independent visual reference approval.",
+  "comparisonStatus": "NOT YET VERIFIED — Reactors and five obstacle families are live in committed 3D code; 19/19 instrumented GPU-path cases and 12/12 real geometry checks passed in a JavaScript harness, but native Chromium screenshots of this revision, shader compile, device FPS and independent commercial A/B votes are pending.",
   "goals": [
     {
       "name": "Premium marble character optics",
@@ -249,9 +249,34 @@
       "name": "Repair native Gauntlet CI and capture live visuals",
       "detail": "Known criticTarget source-contract failure repaired; GitHub Chromium screenshot capture, device FPS, and blind comparisons still awaiting real completion",
       "status": "in-progress"
+    },
+    {
+      "name": "Cinematic official champion foreground shot",
+      "detail": "Low-angle genuinely closer winner/frontrunner view, preserving official focus IDs, unaltered game world, and synchronized projected labels",
+      "status": "implemented"
+    },
+    {
+      "name": "3D elevated ramp subfloor",
+      "detail": "Floor tessellation splits under authoritative ramps and renders recessed chrome service bays rather than an identical flat surface, without false physics holes",
+      "status": "implemented"
+    },
+    {
+      "name": "Actual native Chromium visual reference parity",
+      "detail": "Automated screenshots and measured GPU tests plus blind official Marble It Up! Ultra A/B comparison remain required",
+      "status": "in-progress"
     }
   ],
   "history": [
+    {
+      "title": "Loop 46 — Real champion hero camera instead of a distant tabletop shot",
+      "note": "Final four, danger, finishing and crowned winner use closer lower-angle compositions driven only by official camera focus and real racer motion. Refocus on winner is observable and screenshot-critical; no champion ID is ever chosen on client.",
+      "proof": "19/19 instrumented renderer scenes including close-shot winner contract pass; real screenshot composition still pending."
+    },
+    {
+      "title": "Loop 47 — Racing underpasses matching actual sloped physical ramps",
+      "note": "The floor tessellator now splits along the official ramp footprints to reveal recessed industrial underdeck service panels. The visible sloped ramp stays physically supported and actual pit holes still cut entirely through overlapping polygons. 12 geometry cases and 19 stage renderer smoke cases passed.",
+      "proof": "12/12 geometry and 19/19 renderer smoke cases executed in JS harness; actual browser images pending."
+    },
     {
       "title": "Loop 42 — Real reactor wells and red native CI failure correction",
       "note": "Native GitHub Action surfaced an actual source-contract failure: criticTarget did not explicitly instruct inspection; revised the quality gate. Reactor shafts now have three-dimensional deep stator rings, light galleries and warning architecture physically below the open deck.",
