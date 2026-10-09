@@ -1,10 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createGame } from '../dist/index.js';
-import { decorateBuilding, decorateWorld, decorateRoof } from '../web/scene-art.js';
+import { decorateBuilding, decorateWorld, decorateRoof, decorateSafehouseCourtyard } from '../web/scene-art.js';
 import { decorateActor } from '../web/actor-art.js';
 import { decorateSetpieces } from '../web/world-setpieces.js';
-import { clearCamera, anchorMobileAction } from '../web/camera-rig.js';
+import { clearCamera, anchorMobileAction, cameraRoofOccluders, composeMobileDirectorEye } from '../web/camera-rig.js';
 import { decorateTacticalWorld } from '../web/world-overlays.js';
 import { drawEnvironmentVfx } from '../web/environment-vfx.js';
 import { decorateInterior } from '../web/interior-art.js';
@@ -395,4 +395,39 @@ test('organic infected head and hero torso normals face outward for cinematic su
   }
   assert.ok(checked>=10,'head surface must have inspectable side normals');
   assert.ok(outward/checked>.70,'head normals must point outwards, not inward');
+});
+
+
+test('Loop 49 mobile roof-clear eye chooses a deterministic, unobstructed sightline',()=>{
+  const focus=[0,1.5,0],desired=[0,9,18];
+  const buildings=[{id:'blocker',x:0,y:8,w:5,h:5,floors:6,roofVisible:true,kind:'apartment'}];
+  const before=JSON.stringify({focus,desired,buildings});
+  assert.ok(cameraRoofOccluders(focus,desired,buildings)>0,'baseline must genuinely intersect a roof');
+  const solved=composeMobileDirectorEye(focus,desired,buildings);
+  assert.ok(solved.blockers<solved.baselineBlockers,'camera must find a clearer shot');
+  assert.ok(solved.eye.every(Number.isFinite),'camera eye must be finite');
+  assert.deepEqual(composeMobileDirectorEye(focus,desired,buildings),solved,'shot selection must be seeded-independent');
+  assert.equal(cameraRoofOccluders(focus,desired,[{...buildings[0],roofVisible:false}]),0);
+  assert.equal(JSON.stringify({focus,desired,buildings}),before,'presentation must not mutate the world');
+});
+
+test('Loop 50 emergency HQ courtyard adds bounded scene-first details without obstructing the squad',()=>{
+  const state=createGame({seed:2026,zombieCount:20});
+  const b=state.buildings.find(v=>v.kind==='safehouse');
+  assert.ok(b,'seeded world must have a safehouse');
+  const before=JSON.stringify(state);
+  const day=new GeometryAudit(),again=new GeometryAudit(),night=new GeometryAudit();
+  decorateSafehouseCourtyard(day,b);
+  decorateSafehouseCourtyard(again,b);
+  decorateSafehouseCourtyard(night,b,{night:true});
+  assert.ok(day.calls>=45&&day.calls<=95,'emergency art must be visible yet bounded');
+  assert.equal(day.calls,again.calls,'courtyard must not depend on frame timing');
+  assert.deepEqual([...day.colors].sort(),[...again.colors].sort());
+  assert.ok(day.colors.has('#ed7972'),'medical corner needs a readable emergency cross');
+  assert.ok(day.colors.has('#5dd4d0'),'floodlights should add a cinematic cool accent');
+  assert.notDeepEqual([...night.colors].sort(),[...day.colors].sort(),'night staging lights should change');
+  assert.equal(JSON.stringify(state),before,'all courtyard geometry must be read-only');
+  const other=new GeometryAudit();
+  decorateSafehouseCourtyard(other,{...b,kind:'shop'});
+  assert.equal(other.calls,0,'ordinary roofs must not receive HQ-only props');
 });

@@ -1,6 +1,6 @@
 // Real WebGL2 perspective scene. The fixed-step game simulation remains authoritative.
 import { createGame, stepGame, selectCameraEvent, applyEvidenceScenario, isEvidenceScenario, buildAudioPlan, validateWorld } from '../dist/index.js';
-import { decorateBuilding, decorateWorld } from './scene-art.js';
+import { decorateBuilding, decorateWorld, decorateSafehouseCourtyard } from './scene-art.js';
 import { createSkyPass } from './sky-pass.js';
 import { drawTacticalMap } from './tactical-map.js';
 import { decorateActor } from './actor-art.js';
@@ -346,6 +346,7 @@ function constructStatic(){
       m.box(b.x,.14,b.y+b.h*.47,b.w*.84,.05,.33,light);
       for(const x of [-2,2])m.box(b.x+x,.29,b.y+1.6,1.3,.42,1.0,'#355b64');
       m.box(b.x,.50,b.y-2.6,3.4,.78,1.05,'#d4ae75');
+      decorateSafehouseCourtyard(m,b,{night:game.time.phase==='night'});
       continue;
     }
     if(!b.roofVisible&&b.kind!=='safehouse'){

@@ -343,3 +343,18 @@ Source commit `af68e3a9` passed [Zombie 3D Gauntlet run 37921871245](https://git
 **Builder change for Loop 48:** In <=740px autonomous director defense/squad/survivor-follow shots, bias the read-only camera target toward the nearest *living* survivor when close to the chosen AI event, while leaving manual/hero/overview, distant events and the director's actual AI decisions untouched. Add a pure deterministic camera-focus contract test (dead/distant subjects, nonmutation), real mobile focus telemetry, and allow the actual phone screenshot camera to settle. Add an early `node --check` workflow gate so Playwright syntax errors are caught before expensive browser installation. **This new shot has not yet been independently verified in a running browser.** It must be judged against fresh 390×844 and 1280×720 artifacts before acceptance.
 
 **Measured Loop 47 SwiftShader CPU frame p95 (not GPU):** day 44ms, night 137ms, large-horde **2511.3ms**, barricade 89.7ms, interior 57.6ms, near-death 76.1ms. Severe inconsistent long-tail stalls remain a STOP-SHIP; production GPU p95, 24–72h unattended OBS soak, realistic rigs/animation, high-detail city art and blinded reference A/B are still missing. **Gauntlet NOT WON. Draft PR only; no merge/deploy.**
+
+
+## Loop 49 — mobile roof-clear sightline: independent verification (2026-10-09)
+
+**HEAD inspected:** `fcd2f629`, draft PR #50. GitHub Actions [run #37935428293](https://github.com/my-edutu/Ai_games/actions/runs/37935428293) completed **success** with 27 browser checks and `errors: []`; its screenshot artifact `11618573589` was downloaded and inspected, including actual 1280×720 `day.png` and 390×844 `mobile.png`. The Loop 49 camera change is in HEAD, but a dedicated roof-ray regression test had not been committed; Loop 50 includes it.
+
+**Reference critique:** Against [official Days Gone Remastered Horde Assault gameplay](https://blog.playstation.com/2025/04/09/days-gone-remastered-a-closer-look-at-the-horde-assault-modes-survival-arcade-action/), the game remains sharply below the character/material/lighting quality bar. The mobile screenshot shows recognizable survivors and infected but the foreground HQ is a broad empty pale slab, occupying much of the action composition. This is the selected independent visual defect for Loop 50.
+
+**Measured latest SwiftShader-only CPU p95:** day 50.7ms; night 2870.8ms; large horde 3074.8ms; barricade 3158.9ms. GPU frame-time p95 remains **unmeasured**, and these unstable software outliers are stop-ship evidence, not acceptable performance.
+
+## Loop 50 — authored emergency HQ staging courtyard (2026-10-09; fresh CI evidence pending)
+
+**Builder:** Add original low-profile perimeter medical/communications gear, sandbag barricades, extraction markings, floodlights, supply crates and worn ground detail to the previously blank 3D HQ cutaway. All props are geometry-only and placed near courtyard edges, leaving the central squad and authoritative collision/navigation untouched. Add deterministic bounded geometry tests for day/night and a dedicated Loop 49 roof-ray obstruction regression test. Preserve seeded fixed-step AI, 2.5D fallback, recovery and WebGL2 horde instancing.
+
+**Evidence gate:** Run new GitHub Actions browser suite; download and inspect fresh 1280×720 and 390×844 captures; check for console errors, missing assets, mobile overlays, improved courtyard legibility and frame-time regressions. **Do not mark the visual improvement verified until the new screenshots are actually reviewed.** Outstanding: photoreal original/licensed characters, urban assets, mocap-grade animation, real GPU p95, blind A/B and 24–72h OBS soak. **NOT WON. No merge/deploy.**

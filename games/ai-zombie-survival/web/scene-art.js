@@ -13,6 +13,57 @@ const SIGNAL={hospital:'#ff566b',police:'#4bd9f2',supermarket:'#f4b743',shop:'#3
  * deterministic function of building identity, so screenshots/replays agree.
  * Budget: fewer than 50 box/cylinder calls per visible building.
  */
+
+/**
+ * Loop 50: a readable, low-profile emergency staging area replaces the
+ * featureless foreground slab in close mobile HQ shots. Every prop is
+ * presentation-only and kept near the courtyard perimeter, away from the
+ * living squad's central traversal space. Deterministic and budgeted.
+ */
+export function decorateSafehouseCourtyard(m,b,{night=false}={}){
+  if(!b||b.kind!=='safehouse')return;
+  const x=b.x,z=b.y,w=b.w,d=b.h;
+  const cyan=night?'#9ff4ee':'#5dd4d0',amber=night?'#ffd58e':'#d8a85d';
+  // Painted extraction corridor and scuffed drainage run along the edges.
+  for(const side of [-1,1]){
+    box(m,x+side*w*.33,.125,z+d*.34,w*.17,.015,.08,amber);
+    box(m,x+side*w*.40,.132,z-d*.23,.065,.015,d*.39,'#4e7377');
+    for(let i=0;i<3;i++){
+      const zz=z+(i-1)*d*.23;
+      box(m,x+side*w*.43,.31,zz,.58,.29,.72,i===1?'#b1a68d':'#8f9d94',side*.08);
+      box(m,x+side*w*.43,.46,zz,.58,.055,.70,'#657e7d',side*.08);
+    }
+  }
+  // Back-wall medical station and radio generator remain below face height.
+  const back=z-d*.38;
+  box(m,x-w*.24,.42,back,1.42,.67,.86,'#506f75');
+  box(m,x-w*.24,.81,back,1.48,.10,.94,'#d4d7bb');
+  box(m,x-w*.24,.86,back+.10,.62,.035,.10,'#ed7972');
+  box(m,x-w*.24,.86,back+.10,.10,.035,.53,'#ed7972');
+  box(m,x+w*.26,.47,back,1.22,.74,.87,'#344c54');
+  for(let i=-1;i<=1;i++)box(m,x+w*.26+i*.29,.86,back,.12,.055,.58,'#769a9c');
+  box(m,x+w*.26,.45,back+.47,.92,.10,.10,amber);
+  // Compact floodlights make the staging area recognizable after dark.
+  for(const side of [-1,1]){
+    const px=x+side*w*.42,pz=z-d*.40;
+    m.cylinder(px,1.10,pz,.055,2.1,'#39545d',6);
+    box(m,px,2.17,pz,.44,.16,.32,'#253f4c');
+    box(m,px,2.08,pz+.18,.35,.10,.06,cyan);
+  }
+  // Crate stacks, rolled tarps, stains and evacuation chevrons hug the rim.
+  for(let i=0;i<3;i++){
+    const xx=x-w*.25+i*w*.24,zz=z+d*.40;
+    box(m,xx,.19,zz,.58,.27,.52,i%2?'#947d5e':'#617b79');
+    box(m,xx,.34,zz,.59,.04,.54,'#c0ac7f');
+    box(m,xx,.124,zz-d*.13,.44,.015,.09,amber,-.42);
+    box(m,xx+.19,.124,zz-d*.13,.44,.015,.09,amber,.42);
+  }
+  for(let i=0;i<4;i++){
+    const xx=x+(i-1.5)*w*.20,zz=z-d*.06+(i%2)*d*.12;
+    box(m,xx,.122,zz,.33,.014,.21,i%2?'#607e79':'#866e5b',i*.33);
+  }
+}
+
 export function decorateRoof(m,b){
   if(!b.roofVisible||b.kind==='safehouse')return;
   const roof=2.7+b.floors*1.25;
