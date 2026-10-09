@@ -390,7 +390,12 @@ export function mountTower3D({host,getFrame,reducedMotion=false,highContrast=fal
     if(cameraNeedsSnap){visualX=authoritativeX;visualY=authoritativeY;visualRun=s.runToken;visualFloor=s.floor}
     const follow=reducedMotion?1:1-Math.exp(-dt*13);
     visualX+=(authoritativeX-visualX)*follow;visualY+=(authoritativeY-visualY)*follow;
-    const targetX=visualX,targetY=inspectCharacters?visualY+7:heroCamera?visualY+2:coord(data.camera?.centerY??s.player.y);
+    const targetX=visualX;
+    // The spectator director can anticipate the next floor but may never lose
+    // the autonomous hero above the broadcast viewport. The old camera target
+    // followed a distant floor center and cropped the climber at its helmet.
+    const scriptedLookahead=coord(data.camera?.centerY??s.player.y)-visualY;
+    const targetY=inspectCharacters?visualY+7:heroCamera?visualY+2:visualY+clamp(scriptedLookahead,-19,27)*.52;
     // Smooth tracking affects presentation only, never the simulation.
     const motion=reducedMotion?1:1-Math.exp(-dt*4.2);
     // Cinematic close-ups must center the *actual* hero, including at a new
@@ -398,6 +403,12 @@ export function mountTower3D({host,getFrame,reducedMotion=false,highContrast=fal
     const desiredX=heroCamera?targetX:clamp(targetX,80,worldWidth-80);
     if(cameraNeedsSnap){cameraX=desiredX;cameraY=targetY}
     else{cameraX+=(desiredX-cameraX)*motion;cameraY+=(targetY-cameraY)*motion;}
+    if(!inspectCharacters&&!heroCamera){
+      // Guarantee readable broadcast framing even during unusually large climbs,
+      // camera interpolation lag and autonomous run/floor transitions.
+      cameraY=clamp(cameraY,visualY-25,visualY+29);
+      cameraX=clamp(cameraX,visualX-74,visualX+74);
+    }
     const shake=!reducedMotion&&s.dangerPermille>800?Math.sin(now*.037)*1.5:0;
     // Re-anchor directional light targets at the current floor. The old setup kept
     // its shadow frustum near floor zero, making later floors appear flat.
@@ -446,11 +457,15 @@ export function mountTower3D({host,getFrame,reducedMotion=false,highContrast=fal
     perf.lastFrameTick=s.tick;
     perf.drawCalls=renderer.info.render.calls;
     perf.triangles=renderer.info.render.triangles;
-    if(heroCamera&&player.visible&&(observedFrames===1||observedFrames%60===0)){
+    if(player.visible&&(observedFrames===1||observedFrames%60===0)){
+      // Calculate actual projected hero bounds on both standard and close-up
+      // cameras so critics can reject scenes with a cropped or absent climber.
       const bounds=new THREE.Box3().setFromObject(player);
       const projected=[];
       for(const x of [bounds.min.x,bounds.max.x])for(const y of [bounds.min.y,bounds.max.y])for(const z of [bounds.min.z,bounds.max.z])projected.push(new THREE.Vector3(x,y,z).project(camera));
       perf.heroFraming={left:(1-Math.max(...projected.map(v=>v.x)))/2,right:(1-Math.min(...projected.map(v=>v.x)))/2,top:(1-Math.max(...projected.map(v=>v.y)))/2,bottom:(1-Math.min(...projected.map(v=>v.y)))/2};
+      perf.heroOnScreen=perf.heroFraming.right>0&&perf.heroFraming.left<1&&perf.heroFraming.bottom>0&&perf.heroFraming.top<1;
+      perf.heroCameraMargin=Math.min(perf.heroFraming.left,1-perf.heroFraming.right,perf.heroFraming.top,1-perf.heroFraming.bottom);
     }
     if(observedFrames===1||observedFrames%60===0){perf.frames=observedFrames;perf.drawCalls=renderer.info.render.calls;perf.triangles=renderer.info.render.triangles;perf.heroParts=(()=>{let count=0;player.traverse(o=>{if(o.isMesh)count++});return count})();perf.heroSculpt=player.userData.sculpt||null;perf.renderMode='webgl-3d';perf.state=s.player.state;perf.heroCamera=heroCamera;perf.lens='perspective';perf.inspectCharacters=inspectCharacters;perf.inspectionModels=inspectors.length;perf.inspectionDrawsSaved=inspectors.reduce((sum,figure)=>sum+(figure.character.userData.galleryBatch?.reduced||0),0);perf.biomeLandmarks=landmarks?.world?.children.length||0;perf.atmosphere=atmosphere?.metrics||null;perf.actionFx=actionEffects.metrics();perf.highContrast=highContrast;perf.averageFps=frameTotalMs>0?Math.round(1000*frameSampleCount/frameTotalMs):0;perf.slowFrames=slowFrames;perf.sampledFrames=frameSampleCount;perf.pixelRatio=renderer.getPixelRatio();perf.effects=actionEffects.metrics();}
     }catch(error){fallback3D(error)}
