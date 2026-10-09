@@ -12,7 +12,7 @@ export function computeCameraShot({playerX,playerY=0,portrait=false,style='broad
     cam.y+=playerY*.18;cam.targetY+=playerY*.12;
     return Object.freeze({...cam,style,portrait});
   }
-  const targetX=playerX+(portrait?.85:3.3);
+  const targetX=playerX+(portrait?.85:2.55);
   return Object.freeze({
     x:targetX-2.1,y:(portrait?4.70:4.38)+playerY*.18,z:portrait?15.5:11.5,
     targetX,targetY:1.2,targetZ:0,style,portrait
