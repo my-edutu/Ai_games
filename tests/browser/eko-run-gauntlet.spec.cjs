@@ -26,6 +26,15 @@ test.describe('Eko Run 3D Gauntlet slice', () => {
     await page.goto(ROOT + '/eko/', { waitUntil: 'domcontentloaded' });
     await expect(page.locator('#connection')).toContainText('CONNECTED', { timeout: 20000 });
     await expect(page.locator('#state')).toHaveText('RUN LIVE');
+    // Desktop is game-first: keep dev configuration behind a real settings drawer.
+    await expect(page.locator('#hud-settings-toggle')).toBeVisible();
+    await expect(page.locator('#outfit')).toBeHidden();
+    await expect(page.locator('#focus-view-toggle')).toBeVisible();
+    await page.locator('#hud-settings-toggle').click();
+    await expect(page.locator('#outfit')).toBeVisible();
+    await expect(page.locator('#camera')).toBeVisible();
+    await page.locator('#hud-settings-toggle').click();
+    await expect(page.locator('#outfit')).toBeHidden();
     const first = (await (await page.request.get(ROOT + '/eko/state')).json()).snapshot.tick;
     await page.waitForTimeout(1800);
     const second = (await (await page.request.get(ROOT + '/eko/state')).json()).snapshot.tick;
@@ -96,6 +105,8 @@ test.describe('Eko Run 3D Gauntlet slice', () => {
     await expect(page.locator('#connection')).toContainText('CONNECTED',{timeout:20000});
     await page.locator('#mode').click();
     await expect(page.locator('#mode')).toContainText('SWITCH TO AI');
+    await page.locator('#hud-settings-toggle').click();
+    await expect(page.locator('#outfit')).toBeVisible();
     const before=(await (await page.request.get(ROOT+'/eko/state')).json()).snapshot;
     for(const outfit of ['yoruba-agbada-fila','igbo-isi-agu-red-cap','hausa-baban-riga-cap','lagos-streetwear']){
       await page.locator('#outfit').selectOption(outfit);
@@ -108,6 +119,7 @@ test.describe('Eko Run 3D Gauntlet slice', () => {
     fs.mkdirSync('artifacts/eko-gauntlet',{recursive:true});
     await page.locator('#outfit').selectOption('yoruba-agbada-fila');
     await expect.poll(async()=>page.evaluate(()=>window.__EKO_VISUAL_AUDIT__().character.outfit)).toBe('yoruba-agbada-fila');
+    await page.locator('#hud-settings-toggle').click();
     await page.screenshot({path:'artifacts/eko-gauntlet/outfit-agbada.png',fullPage:true});
   });
 
