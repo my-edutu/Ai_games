@@ -10,6 +10,7 @@ import {createTowerHazard3D,updateTowerHazard3D} from '/tower/hazards-v4.js';
 import {buildBiomeLandmarks,animateBiomeLandmarks} from '/tower/landmarks-v5.js';
 import {createTowerEffectsDirector} from '/tower/effects-v6.js';
 import {compactRigDraws} from '/tower/rig-batch-v17.js';
+import {createTowerLedge} from '/tower/ledge-v18.js';
 import {mountTowerAtmosphere,animateTowerAtmosphere} from '/tower/atmosphere-v8.js';
 import {selectVisibleLedge,applyContactPose} from '/tower/grip-v10.js';
 
@@ -269,30 +270,11 @@ export function mountTower3D({host,getFrame,reducedMotion=false,highContrast=fal
     ornament=(s.floor>0&&s.floor%8===0)?decorateTowerEnvironment({group:backdrop,snapshot:s,theme,palette:p,worldWidth}):null;
     // Actual snapshot geometry, not an invented obstacle course.
     for(const platform of s.platforms){
-      const cx=coord(platform.x+platform.width/2),cy=coord(platform.y+platform.height/2),w=coord(platform.width);
-      const group=new THREE.Group();
-      // Layered 3D traversable ledges with carved stone, contact highlights, and visible supports.
-      add(group,box(w,coord(platform.height)+4,30,stone),cx,cy,5);
-      add(group,box(w+2,3.6,37,trim),cx,cy+coord(platform.height)/2+2,6);
-      add(group,box(w-4,.8,38,light),cx,cy+coord(platform.height)/2+4.2,6.5);
-      add(group,box(w-8,3,38,matte(p.shadow,.95,.16)),cx,cy-5,6);
-      for(const d of [-1,1]){
-        const x=cx+d*(w/2-5);
-        add(group,box(7,9,38,trim),x,cy-6,5);
-        add(group,new THREE.Mesh(new THREE.CylinderGeometry(4,4,3,8),trim),x,cy+8,7);
-      }
-      if(w>65){
-        for(let bolt=0;bolt<Math.min(6,Math.floor(w/28));bolt++){
-          add(group,ball(1.2,light,8),cx-w/2+15+bolt*24,cy+5,26);
-        }
-      }
-      if(platform.kind==='moving'){
-        const glyph=add(group,new THREE.Mesh(new THREE.TorusGeometry(7,1.8,8,24),emissive(p.glow,1.3)),cx,cy-7,30);
-        glyph.rotation.y=Math.PI/5;
-      }
-      group.traverse(o=>{if(o.isMesh){o.receiveShadow=true;o.castShadow=true}});
+      // Chipped ledge silhouettes inherit only immutable authoritative collision
+      // dimensions; decorative cracks never enlarge physical platform bounds.
+      const group=createTowerLedge({platform,theme});
+      group.position.set(coord(platform.x+platform.width/2),coord(platform.y+platform.height/2),5);
       structures.add(group);
-      group.userData.origin={x:platform.x,y:platform.y};
       platformMeshes.set(platform.id,group);
     }
     // Every visible traversable horizontal shape above is authoritative.
@@ -316,7 +298,7 @@ export function mountTower3D({host,getFrame,reducedMotion=false,highContrast=fal
     // used for collisions, replay and the Wayfinder's visible handhold selection.
     for(const platform of s.platforms){
       const visual=platformMeshes.get(platform.id);if(!visual)continue;
-      visual.position.set(coord(platform.x-visual.userData.origin.x),coord(platform.y-visual.userData.origin.y),0);
+      visual.position.set(coord(platform.x+platform.width/2),coord(platform.y+platform.height/2),5);
     }
     const allowed=new Set();
     const palette=palettes[s.theme]||palettes.foundry;
