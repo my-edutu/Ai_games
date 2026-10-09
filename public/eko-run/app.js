@@ -506,12 +506,16 @@ function updateSnapshot(packet){
   const nextCheckpoint=s.route.checkpointXs.find(x=>x>s.player.position.x+.05);
   $('next-checkpoint').textContent=nextCheckpoint===undefined?'FINISH IN SIGHT':'CHECKPOINT · '+Math.max(0,Math.round(nextCheckpoint-s.player.position.x))+' M';
   const approaching=s.hazards.filter(h=>h.active&&h.phase!=='resolved'&&h.phase!=='hit'&&h.x>=s.player.position.x).sort((a,b)=>a.x-b.x)[0];
-  if(approaching&&approaching.x-s.player.position.x<8){
+  const dangerDistance=approaching?approaching.x-s.player.position.x:Infinity;
+  document.body.classList.toggle('hazard-near',dangerDistance>=0&&dangerDistance<5.5);
+  if(approaching&&dangerDistance<8){
     const danger=approaching.family.replaceAll('-',' ').toUpperCase();
-    $('threat').textContent=danger+' · '+Math.ceil(approaching.x-s.player.position.x)+' M';
-    $('threat').style.color='#ffb58b';
+    $('threat').textContent='⚠ '+danger+' · '+Math.ceil(dangerDistance)+' M';
+    $('threat').style.color='#ffba9d';
+    $('threat').title='Warning: upcoming '+danger.toLowerCase();
   }else{
     $('threat').textContent='PATH CLEAR';$('threat').style.color='#9affca';
+    $('threat').title='No imminent obstacle';
   }
 
   ui.tokens.textContent=String(s.resources?.ekoTokens||0).padStart(2,'0');
