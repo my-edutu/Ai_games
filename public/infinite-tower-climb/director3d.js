@@ -18,20 +18,25 @@ export function createTowerDirector(THREE,camera) {
     const combat=String(snapshot.mode||'').includes('GUARDIAN') || String(snapshot.mode||'').includes('STRIKING');
     const boss=(snapshot.platforms||[]).find(e=>e.i===floor&&e.guardianHealth>0);
     const freefall=p.vy< -3;
-    mode=combat?'guardian-encounter':transition>0?'establishing':freefall?'freefall':'follow-ascent';
+    const verticalClimb=/WALL CLIMB|WALL GRAB|WALL MANTLE/i.test(String(snapshot.mode||''));
+    mode=combat?'guardian-encounter':verticalClimb?'vertical-climb':transition>0?'establishing':freefall?'freefall':'follow-ascent';
     if(mode==='guardian-encounter'){
       // Wide enough to show both human silhouette and guardian telegraph.
-      desired.set(p.x+8,p.y+4.5,p.z+17.5);
+      desired.set(p.x+7.2,p.y+5.1,p.z+14.6);
       target.set(p.x+THREE.MathUtils.clamp((boss?.x??p.x)-p.x,-2.5,2.5),p.y+2.1,p.z+THREE.MathUtils.clamp((boss?.z??p.z)-p.z,-2.5,2.5));
+    }else if(mode==='vertical-climb'){
+      // Heroic low-angle closeup keeps hands, rope and the climbing wall in frame.
+      desired.set(p.x+6.3,p.y+3.8,p.z+11.8);
+      target.set(p.x,p.y+2.5,p.z-.7);
     }else if(mode==='establishing'){
-      desired.set(p.x+9,p.y+5.5,p.z+17.5);
-      target.set(p.x,p.y+2.8,p.z);
+      desired.set(p.x+7.4,p.y+6.0,p.z+14.2);
+      target.set(p.x,p.y+2.7,p.z);
     }else if(mode==='freefall'){
-      desired.set(p.x+8.5,p.y+3.8,p.z+17.5);
+      desired.set(p.x+7.1,p.y+4.2,p.z+13.8);
       target.set(p.x,p.y+0.8,p.z);
     }else{
       // Anticipate upward navigation without violent pans.
-      desired.set(p.x+8,p.y+4.2,p.z+15.5);
+      desired.set(p.x+5.9,p.y+4.6,p.z+12.2);
       target.set(p.x+THREE.MathUtils.clamp(p.vx*.12,-1.5,1.5),p.y+2.7,p.z+THREE.MathUtils.clamp(p.vz*.12,-1.5,1.5));
     }
     const rate=mode==='guardian-encounter'?3.2:2.3;
@@ -52,7 +57,7 @@ export function createTowerDirector(THREE,camera) {
       camera.position.x+=Math.sin(elapsed*42)*shake;
       camera.position.y+=Math.cos(elapsed*35)*shake*.48;
     }
-    camera.fov=smooth(camera.fov,mode==='guardian-encounter'?59:mode==='establishing'?62:mode==='freefall'?65:55,2.6,dt);
+    camera.fov=smooth(camera.fov,mode==='guardian-encounter'?53:mode==='vertical-climb'?49:mode==='establishing'?56:mode==='freefall'?57:50,2.6,dt);
     camera.updateProjectionMatrix();
     camera.lookAt(look);
     return {mode,biome,transition,impact,fov:camera.fov};
