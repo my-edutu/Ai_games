@@ -38,7 +38,8 @@ const frame=$('live-frame');
 const captures=[];
 let pendingCapture=null;
 $('open-preview').addEventListener('click',()=>{
-  if(!frame.src)frame.src='/eko/';
+  frame.loading='eager'; // user requested the playable preview: no lazy-delay below fold
+  if(!frame.getAttribute('src'))frame.src='/eko/';
   $('open-preview').disabled=true;
   $('capture-status').textContent='Loading real 3D renderer. Wait for connection, then capture.';
 });
