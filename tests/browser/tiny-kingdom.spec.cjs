@@ -922,3 +922,26 @@ test('Kingdom Pulse chart displays measured per-day resource changes without alt
  expect(await page.evaluate(()=>window.__tinyKingdom.getEconomyHistory())).toHaveLength(1);
  expect(errors).toEqual([]);
 });
+
+test('Cottage roof details and smoke stay deterministic and do not corrupt original 3D mesh', async ({page})=>{
+ const errors=[];page.on('pageerror',e=>errors.push(e.message));
+ await page.setContent(html);
+ await page.waitForFunction(()=>Boolean(window.__tinyKingdom));
+ await page.locator('#pause').click();
+ await page.waitForFunction(()=>window.__tinyKingdom.getCottageEffects().activeChimneys>0);
+ const output=await page.evaluate(()=>{
+  const g=window.__tinyKingdom,first=g.exportSnapshot();
+  const effects=g.getCottageEffects(),geometry=g.getGeometryAudit();
+  g.setCamera({focus:[0,-1],pitch:.6,zoom:19});
+  return {effects,geometry,unchanged:JSON.stringify(g.exportSnapshot())===JSON.stringify(first)};
+ });
+ expect(output.effects.activeChimneys).toBeGreaterThan(0);
+ expect(output.effects.smokePuffs).toBeGreaterThan(output.effects.activeChimneys);
+ expect(output.geometry.dynamic.aligned).toBe(true);
+ expect(output.geometry.dynamic.invalidComponents).toBe(0);
+ expect(output.geometry.dynamic.invalidNormals).toBe(0);
+ expect(output.geometry.dynamic.invalidColors).toBe(0);
+ expect(output.geometry.dynamic.outOfBounds).toBe(0);
+ expect(output.unchanged).toBe(true);
+ expect(errors).toEqual([]);
+});
