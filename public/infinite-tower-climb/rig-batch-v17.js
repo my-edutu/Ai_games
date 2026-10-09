@@ -7,7 +7,11 @@ import * as THREE from '/tower/three.module.js';
 
 const supportedAttributes=new Set(['position','normal','uv','color','uv1']);
 const mergeable=mesh=>{
-  if(!mesh?.isMesh||mesh.children.length||mesh.isSkinnedMesh||mesh.isInstancedMesh||mesh.material?.transparent)return false;
+  // Invisible props must remain invisible after optimization. Geometry with morph
+  // targets or custom draw ranges cannot be flattened without changing output.
+  if(!mesh?.isMesh||!mesh.visible||mesh.children.length||mesh.isSkinnedMesh||mesh.isInstancedMesh||mesh.material?.transparent)return false;
+  if(Object.keys(mesh.geometry?.morphAttributes||{}).some(k=>mesh.geometry.morphAttributes[k]?.length))return false;
+  if(mesh.geometry?.drawRange?.start!==0||mesh.geometry?.drawRange?.count!==Infinity)return false;
   if(Array.isArray(mesh.material)||!mesh.geometry?.isBufferGeometry||mesh.userData?.noBatch)return false;
   const attrs=Object.keys(mesh.geometry.attributes);
   return attrs.includes('position')&&attrs.includes('normal')&&attrs.every(a=>supportedAttributes.has(a));
@@ -68,7 +72,9 @@ export function compactRigDraws(root,{preserveAnimated=true}={}){
     const groups=new Map();
     for(const mesh of parent.children){
       if(animated.has(mesh)||!mergeable(mesh))continue;
-      const key=mesh.material.uuid+':'+mesh.renderOrder+':'+signatures(mesh);
+      // Keep visibility, shadow and culling semantics of each draw intact.
+      const key=[mesh.material.uuid,mesh.renderOrder,mesh.layers.mask,
+        Number(mesh.castShadow),Number(mesh.receiveShadow),Number(mesh.frustumCulled),signatures(mesh)].join(':');
       if(!groups.has(key))groups.set(key,[]);
       groups.get(key).push(mesh);
     }
