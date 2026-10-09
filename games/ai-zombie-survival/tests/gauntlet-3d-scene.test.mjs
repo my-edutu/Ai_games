@@ -11,7 +11,7 @@ import { decorateInterior } from '../web/interior-art.js';
 import { actionPose } from '../web/animation-pose.js';
 import { PackedVertices } from '../web/packed-geometry.js';
 import { spatialVolume,eventSound } from '../web/audio-foley.js';
-import { partitionHorde } from '../web/instanced-horde.js';
+import { partitionHorde,inspectHordeSilhouette } from '../web/instanced-horde.js';
 import { drawCharacterRig } from '../web/character-rig.js';
 import { createPoseMixer } from '../web/animation-mixer.js';
 
@@ -276,4 +276,19 @@ test('animation blend transitions smoothly between autonomous actions without mo
   assert.equal(mixer.size,2);
   mixer.reset();assert.equal(mixer.size,0);
   assert.deepEqual(mixer.sample(actor,false,1),moving);
+});
+ 
+test('organic infected head and hero torso normals face outward for cinematic sun and GGX shading',()=>{
+  const silhouette=inspectHordeSilhouette();
+  let outward=0,checked=0;
+  const data=silhouette.data;
+  for(let i=0;i<data.length;i+=27){
+    const a=[data[i],data[i+1],data[i+2]];
+    if(a[1]>2.04&&a[1]<2.48&&a[0]>.12){
+      checked++;
+      if(data[i+3]>0)outward++;
+    }
+  }
+  assert.ok(checked>=10,'head surface must have inspectable side normals');
+  assert.ok(outward/checked>.70,'head normals must point outwards, not inward');
 });

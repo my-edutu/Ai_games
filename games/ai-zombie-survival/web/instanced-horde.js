@@ -39,7 +39,7 @@ function makeSilhouette(){
     for(let i=0;i<rows;i++)for(let j=0;j<sides;j++){
       const p=i*Math.PI/rows,q=(i+1)*Math.PI/rows;
       const t=j*2*Math.PI/sides,u=(j+1)*2*Math.PI/sides;
-      tri(pt(p,t),pt(q,t),pt(q,u),col);tri(pt(p,t),pt(q,u),pt(p,u),col);
+      tri(pt(p,t),pt(q,u),pt(q,t),col);tri(pt(p,t),pt(p,u),pt(q,u),col); // outward sphere normals
     }
   };
   const capsule=(a,b,radius,col,segments=7)=>{
@@ -83,6 +83,7 @@ function makeSilhouette(){
   return {data:array,triangles:triangles.length};
 }
 
+export function inspectHordeSilhouette(){return makeSilhouette();}
 export function createInstancedHorde(gl,{maxInstances=500}={}){
   const compiled=makeSilhouette(),limit=Math.max(1,Math.min(2048,maxInstances));
   const compile=(kind,source)=>{

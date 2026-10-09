@@ -51,7 +51,7 @@ function torso(mesh,center,palette,lean,scale=1){
     for(let i=0;i<sides;i++){
       const a=i*Math.PI*2/sides,b=(i+1)*Math.PI*2/sides;
       const L0=pt(lower,a),L1=pt(lower,b),U0=pt(upper,a),U1=pt(upper,b);
-      tri(L0,L1,U1);tri(L0,U1,U0);
+      tri(L0,U1,L1);tri(L0,U0,U1); // outward-facing jacket normals, not inward dark shading
     }
   }
 }
