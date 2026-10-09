@@ -43,6 +43,7 @@ export function createTowerOcclusion(THREE,platformRoot){
     if(distance<.2)return 0;
     ray.set(from,toward.normalize());
     ray.far=distance-.45;
+    platformRoot.updateWorldMatrix(true,true);
     // Intersect only active gameplay landings, never architectural background.
     // 3D set dressing remains a permanent world with depth and parallax.
     const hits=ray.intersectObjects(platformRoot.children,true);
@@ -50,7 +51,7 @@ export function createTowerOcclusion(THREE,platformRoot){
     for(const hit of hits){
       let node=hit.object;
       while(node&&node.parent!==platformRoot)node=node.parent;
-      if(!node||node.parent!==platformRoot||node.visible===false)continue;
+      if(!node||node.parent!==platformRoot||node.visible===false||!node.userData.platform)continue;
       // Limit fade count, keep most of the 3D tower visually solid.
       visible.add(node);
       if(visible.size>=2)break;
