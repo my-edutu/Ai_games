@@ -170,3 +170,13 @@ body{background:radial-gradient(ellipse at 12% 8%,#365d84 0,transparent 43%),rad
 .gauntlet-link{background:linear-gradient(110deg,#ffe6a2,#ffb873 58%,#ff94ad);color:#28253d;box-shadow:0 4px 20px #ffc4776b}
 @media(prefers-reduced-motion:no-preference){.hero-card,.icon-button,.gauntlet-link{transition:background .2s,border-color .2s,box-shadow .2s,filter .2s}}
 @media(max-width:680px){.masthead{box-shadow:0 5px 20px #02061777}.arena{box-shadow:0 0 0 1px #71d7ed30,0 12px 24px #03071888}}
+
+/* Prevent HUD header collisions observed in actual 1440×900 capture. */
+@media (min-width:931px) and (max-width:1580px){
+ .masthead{justify-content:space-between;gap:14px}
+ .brand{flex:1 1 auto;min-width:0;overflow:hidden}
+ .brand h1{font-size:clamp(17px,1.35vw,22px);max-width:100%;text-overflow:clip}
+ .top-status{display:none}
+ .top-actions{flex-shrink:0;gap:8px}
+}
+@media(max-width:1060px){.top-actions{gap:5px}.icon-button{padding-inline:8px}.gauntlet-link{padding-inline:9px}}

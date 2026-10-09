@@ -327,3 +327,18 @@ test('world-only screenshot audits actual WebGL light, chroma and hero visibilit
  expect(evidence.litFraction).toBeGreaterThan(.08);
  expect(evidence.meanLuminance).toBeGreaterThan(10);
 });
+
+test('Gauntlet desktop header remains collision-free and all masonry layers report true 3D cutaways',async({page})=>{
+ await page.setViewportSize({width:1440,height:900});
+ await page.goto('/dungeon');
+ await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.cutawayParapets),{timeout:20000}).toBeGreaterThanOrEqual(0);
+ const layout=await page.evaluate(()=>{
+  const brand=document.querySelector('.brand').getBoundingClientRect();
+  const nav=document.querySelector('.top-actions').getBoundingClientRect();
+  const status=document.querySelector('.top-status');
+  return{brandRight:brand.right,navLeft:nav.left,statusVisible:getComputedStyle(status).display!=='none'};
+ });
+ expect(layout.brandRight).toBeLessThanOrEqual(layout.navLeft+1);
+ expect(layout.statusVisible).toBe(false);
+ await page.screenshot({path:'artifacts/dungeon-header-and-parapets.png',fullPage:true});
+});

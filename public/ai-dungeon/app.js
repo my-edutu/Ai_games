@@ -106,6 +106,23 @@ function cutawayWalls(target,subjects){
   cachedMatrix.compose(cachedVec,cachedQuat,cachedScale);mesh.setMatrixAt(i,cachedMatrix);
  }
  world.userData.cutawayWalls=cut;
+ // Decorative wall crowns must obey the same true-world sightline clearance
+ // as the main masonry. Otherwise an invisible wall can still hide the model
+ // behind an unrelated 2.5m-high square parapet.
+ const parapets=world.userData.parapets,parapetPositions=world.userData.parapetPositions;
+ let clearedParapets=0;
+ if(parapets&&parapetPositions){
+  for(let i=0;i<parapetPositions.length;i++){
+   const [px,pz]=parapetPositions[i],hidden=sightlineClearance(px,pz,subjects,camera.position,2.15);
+   if(hidden)clearedParapets++;
+   cachedVec.set(px,hidden?.08:2.53,pz);
+   cachedScale.set(1.04,hidden?.025:.12,1.04);
+   cachedMatrix.compose(cachedVec,cachedQuat,cachedScale);
+   parapets.setMatrixAt(i,cachedMatrix);
+  }
+  parapets.instanceMatrix.needsUpdate=true;
+ }
+ world.userData.cutawayParapets=clearedParapets;
  let removed=0;
  for(const group of world.userData.foregroundProps||[]){
   const hidden=sightlineClearance(group.position.x,group.position.z,subjects,camera.position,2.1);
@@ -203,9 +220,9 @@ function buildWorld(s){clearWorld();worldFloor=s.run+'-'+s.floor;world.userData.
   }
  }
  const ornament=mat(theme.accent,.5,.5),blackStone=mat('#171c29',.15,.98),runeMat=new THREE.MeshStandardMaterial({color:theme.torch,emissive:theme.torch,emissiveIntensity:1.6,roughness:.35});
- const garnish=(material,data,scale)=>{if(!data.length)return;const mesh=new THREE.InstancedMesh(geo.cube,material,data.length);const m=new THREE.Matrix4(),p=new THREE.Vector3(),sc=new THREE.Vector3(...scale),rot=new THREE.Quaternion();
-  for(let i=0;i<data.length;i++){p.set(...data[i]);m.compose(p,rot,sc);mesh.setMatrixAt(i,m)}mesh.receiveShadow=true;mesh.instanceMatrix.needsUpdate=true;world.add(mesh)};
- garnish(stoneEdge,topBricks,[1.04,.12,1.04]);garnish(blackStone,footBricks,[1.035,.21,1.035]);
+ const garnish=(material,data,scale)=>{if(!data.length)return null;const mesh=new THREE.InstancedMesh(geo.cube,material,data.length);const m=new THREE.Matrix4(),p=new THREE.Vector3(),sc=new THREE.Vector3(...scale),rot=new THREE.Quaternion();
+  for(let i=0;i<data.length;i++){p.set(...data[i]);m.compose(p,rot,sc);mesh.setMatrixAt(i,m)}mesh.receiveShadow=true;mesh.instanceMatrix.needsUpdate=true;world.add(mesh);return mesh};
+ world.userData.parapets=garnish(stoneEdge,topBricks,[1.04,.12,1.04]);world.userData.parapetPositions=topBricks.map(([x,,z])=>[x,z]);garnish(blackStone,footBricks,[1.035,.21,1.035]);
  garnish(stoneEdge,stonePavers,[.86,.025,.86]);garnish(runeMat,runes,[.52,.009,.10]);
  garnish(ornament,caps,[.30,.23,.35]);garnish(blackStone,shards,[.16,.17,.20]);
  // Decorated arches are constructed only at certain long corridors; avoid hiding characters.
@@ -587,7 +604,7 @@ function animate(t){requestAnimationFrame(animate);const time=t/1000,dt=Math.min
  renderer.info.reset();
  try{if(composer&&postFXEnabled){bloomPass.strength=innerWidth<680?.16:.30;composer.render()}else renderer.render(scene,camera)}
  catch(error){console.warn('[DUNGEON] post effect fault, restoring WebGL:',String(error));composer=null;postFXStatus='fallback';renderer.info.reset();renderer.render(scene,camera)}
- combatOverlay.render(state,actors,camera,time);if(state)window.__DUNGEON_RENDER_DIAGNOSTICS__={composition:inspectComposition(state),visibility:actualHeroVisibility(state,time),frame:renderer.info.render.frame,drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,camera:cameraModes[cameraIndex],cameraSpread:spread,cameraMargin:margin,focusedHeroId,autoDirector,cutawayWalls:world.userData.cutawayWalls??0,hiddenForegroundProps:world.userData.hiddenForegroundProps??0,postFX:composer&&postFXEnabled?'bloom':'direct',postFXStatus,bossFramed:Boolean(bossDistance),activeUnits:[...actors.values()].filter(x=>x.root.visible).length,characterDetails:[...actors.values()].reduce((sum,x)=>sum+(x.detail?.parts||0),0),webgl:true,theme:state.theme,dressing:world.userData.dressing?.metrics??null,atmosphere:world.userData.atmosphere?.metrics??null,livingWorld:world.userData.livingWorld?.metrics??null,overlay:combatOverlay.metrics(),combatStage:combatDirector.stats(),groundedActors:[...actors.values()].filter(x=>Boolean(x.ground)).length,authored3D:assetStats(actors)};
+ combatOverlay.render(state,actors,camera,time);if(state)window.__DUNGEON_RENDER_DIAGNOSTICS__={composition:inspectComposition(state),visibility:actualHeroVisibility(state,time),frame:renderer.info.render.frame,drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,camera:cameraModes[cameraIndex],cameraSpread:spread,cameraMargin:margin,focusedHeroId,autoDirector,cutawayWalls:world.userData.cutawayWalls??0,cutawayParapets:world.userData.cutawayParapets??0,hiddenForegroundProps:world.userData.hiddenForegroundProps??0,postFX:composer&&postFXEnabled?'bloom':'direct',postFXStatus,bossFramed:Boolean(bossDistance),activeUnits:[...actors.values()].filter(x=>x.root.visible).length,characterDetails:[...actors.values()].reduce((sum,x)=>sum+(x.detail?.parts||0),0),webgl:true,theme:state.theme,dressing:world.userData.dressing?.metrics??null,atmosphere:world.userData.atmosphere?.metrics??null,livingWorld:world.userData.livingWorld?.metrics??null,overlay:combatOverlay.metrics(),combatStage:combatDirector.stats(),groundedActors:[...actors.values()].filter(x=>Boolean(x.ground)).length,authored3D:assetStats(actors)};
 }
 async function poll(){try{const r=await fetch('/dungeon/state',{cache:'no-store'});if(!r.ok)throw Error('State '+r.status);const data=await r.json();if(data.tick!==lastTick||data.run!==state?.run){lastTick=data.tick;update(data)}}catch(e){errorAt++;if(errorAt>=3){$('recovery').hidden=false;$('status').textContent='VIEW DEGRADED — RETRYING';console.warn('Dungeon view recovery',String(e))}}finally{setTimeout(poll,190)}}
 $('party').addEventListener('click',e=>{
