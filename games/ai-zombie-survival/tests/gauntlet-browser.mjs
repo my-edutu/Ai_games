@@ -210,6 +210,19 @@ try{
   await page.waitForTimeout(1100);
   assert.match(await page.locator('#health').textContent(),/LIVE|telemetry/);
   await page.screenshot({path:root+'progress.png'});
+  assert.equal(await page.locator('.historyRow:visible').count(),0,'historical loops start compact');
+  await page.locator('#historyToggle').click();
+  assert.ok(await page.locator('.historyRow:visible').count()>10,'operator can expand full iteration ledger');
+  await page.locator('#historyToggle').click();
+  assert.equal(await page.locator('.historyRow:visible').count(),0);
+  await page.locator('[data-scene="night"]').click();
+  assert.equal(await page.locator('[data-scene="night"]').getAttribute('aria-pressed'),'true');
+  assert.match(await page.locator('#gauntletViewer').getAttribute('src'),/scenario=night/);
+  await page.frameLocator('#gauntletViewer').locator('#scene').waitFor({timeout:12000});
+  await page.screenshot({path:root+'progress-night-critic.png'});
+  await page.locator('[data-scene="live"]').click();
+  assert.match(await page.locator('#gauntletViewer').getAttribute('src'),/crowd=dense/);
+  report.checks.gauntletSceneInspector=true;
   report.checks.progressPage=true;
   assert.deepEqual(report.errors,[],report.errors.join('\n'));
 }finally{
