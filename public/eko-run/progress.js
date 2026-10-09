@@ -1,5 +1,27 @@
 const $=id=>document.getElementById(id);
 const escapeText=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let historyExpanded=false;
+let allRounds=[];
+function renderRounds(){
+  const rounds=historyExpanded?allRounds.slice().reverse():allRounds.slice(-6).reverse();
+  $('rounds').innerHTML=rounds.map(round=>
+    '<article class="card"><span class="round">ROUND '+escapeText(round.round)+
+    ' · '+escapeText(String(round.status||'open').toUpperCase())+'</span>'+
+    '<h3>'+escapeText(round.title)+'</h3>'+
+    '<p class="card-summary">'+escapeText(round.critic)+'</p>'+
+    '<details><summary>Inspect build, critique &amp; next step</summary>'+
+    '<b>BUILDER</b><p>'+escapeText(round.builder)+'</p>'+
+    '<b>CRITIC</b><p>'+escapeText(round.critic)+'</p>'+
+    '<b>NEXT DECISION</b><p>'+escapeText(round.decision)+'</p></details></article>'
+  ).join('');
+  const btn=$('toggle-history');
+  btn.hidden=allRounds.length<=6;
+  btn.setAttribute('aria-expanded',String(historyExpanded));
+  btn.textContent=historyExpanded?'Show latest six':'Show all '+allRounds.length+' rounds';
+}
+$('toggle-history').addEventListener('click',()=>{
+  historyExpanded=!historyExpanded;renderRounds();
+});
 async function loadLedger(){
   try{
     const r=await fetch('/eko/gauntlet.json',{cache:'no-store'});if(!r.ok)throw new Error('status '+r.status);
@@ -19,7 +41,8 @@ async function loadLedger(){
         +(valid?' · <a href="https://github.com/my-edutu/Ai_games/actions/runs/'+run+'/artifacts/'+artifact
         +'" target="_blank" rel="noopener noreferrer">Real screenshots, video &amp; metrics ↗</a>':'')+'</li>';
     }).join('')||'<li>No verified captures published yet.</li>';
-    $('rounds').innerHTML=data.iterations.map(r=>'<article class="card"><span class="round">ROUND '+escapeText(r.round)+' · '+escapeText(r.status.toUpperCase())+'</span><h3>'+escapeText(r.title)+'</h3><b>BUILDER</b><p>'+escapeText(r.builder)+'</p><b>CRITIC</b><p>'+escapeText(r.critic)+'</p><b>NEXT DECISION</b><p>'+escapeText(r.decision)+'</p></article>').join('');
+    allRounds=data.iterations;
+    renderRounds();
     $('gates').innerHTML=data.gates.map(g=>'<li><span>'+escapeText(g.name)+'</span><small>'+escapeText(g.status)+'</small></li>').join('');
   }catch(err){$('status').textContent='Could not read the Gauntlet ledger: '+err.message;}
 }
