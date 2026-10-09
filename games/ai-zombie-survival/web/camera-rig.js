@@ -49,3 +49,42 @@ export function anchorMobileAction(focus,survivors,{radius=28,blend=.9}={}){
   return {x:focus.x+(nearest.x-focus.x)*weight,
     y:focus.y+(nearest.y-focus.y)*weight};
 }
+
+/** Deterministic, presentation-only roof obstruction count on camera ray. */
+export function cameraRoofOccluders(focus,eye,buildings){
+  if(!focus?.every(Number.isFinite)||!eye?.every(Number.isFinite))return Infinity;
+  let blocked=0,dx=eye[0]-focus[0],dz=eye[2]-focus[2];
+  for(const b of buildings){
+    if(!b.roofVisible||!Number.isFinite(b.x)||!Number.isFinite(b.y))continue;
+    const hw=b.w*.5+.25,hh=b.h*.5+.25;
+    if(Math.abs(focus[0]-b.x)<hw&&Math.abs(focus[2]-b.y)<hh)continue;
+    let enter=.07,exit=.98,miss=false;
+    for(const [o,d,c,h] of [[focus[0],dx,b.x,hw],[focus[2],dz,b.y,hh]]){
+      if(Math.abs(d)<1e-6){if(Math.abs(o-c)>h)miss=true;continue;}
+      const t0=(c-h-o)/d,t1=(c+h-o)/d;
+      enter=Math.max(enter,Math.min(t0,t1));exit=Math.min(exit,Math.max(t0,t1));
+    }
+    if(miss||enter>exit)continue;
+    const roof=b.kind==='safehouse'?5.55:2.7+b.floors*1.25+.5;
+    if(focus[1]+(eye[1]-focus[1])*enter<roof+.6)blocked++;
+  }
+  return blocked;
+}
+/** Loop 49: alternate bounded mobile director sightlines; no simulation writes. */
+export function composeMobileDirectorEye(focus,desired,buildings){
+  const baseline=cameraRoofOccluders(focus,desired,buildings);
+  let best={eye:[...desired],baselineBlockers:baseline,blockers:baseline,yawOffset:0,lift:0};
+  if(!Number.isFinite(baseline)||baseline===0)return best;
+  const dx=desired[0]-focus[0],dz=desired[2]-focus[2];
+  let score=baseline*20;
+  for(const yaw of [0,-.4,.4,-.8,.8,-1.2,1.2]){
+    const c=Math.cos(yaw),s=Math.sin(yaw);
+    for(const lift of [0,3.5,7]){
+      const eye=[focus[0]+dx*c-dz*s,desired[1]+lift,focus[2]+dx*s+dz*c];
+      const blockers=cameraRoofOccluders(focus,eye,buildings);
+      const candidate=blockers*20+Math.abs(yaw)*1.6+lift*.12;
+      if(candidate<score-1e-6){score=candidate;best={eye,baselineBlockers:baseline,blockers,yawOffset:yaw,lift};}
+    }
+  }
+  return best;
+}
