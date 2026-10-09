@@ -848,7 +848,7 @@ function init() {
       ?String(webgl.getParameter(vendorExt.UNMASKED_RENDERER_WEBGL)||'')
       :String(webgl.getParameter(webgl.RENDERER)||'');
     const softwareGpu=/swiftshader|llvmpipe|software raster|softpipe/i.test(gpuName);
-    renderer.userData.softwareGpu=softwareGpu;
+    renderer.userData={softwareGpu};
     renderer.shadowMap.enabled=!softwareGpu&&renderBudget.mode!=='performance';
     renderer.shadowMap.type=THREE.PCFSoftShadowMap;
     mount.appendChild(renderer.domElement);
