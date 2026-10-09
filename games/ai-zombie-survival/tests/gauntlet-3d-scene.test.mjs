@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createGame } from '../dist/index.js';
-import { decorateBuilding, decorateWorld } from '../web/scene-art.js';
+import { decorateBuilding, decorateWorld, decorateRoof } from '../web/scene-art.js';
 import { decorateActor } from '../web/actor-art.js';
 import { decorateSetpieces } from '../web/world-setpieces.js';
 import { clearCamera } from '../web/camera-rig.js';
@@ -61,6 +61,27 @@ function runCity(state){
   assert.equal(JSON.stringify(state),before,'Renderer must never mutate authoritative simulation');
   return mesh;
 }
+
+
+test('rooftop art adds deterministic, bounded, damage-aware 3D silhouettes without changing authority',()=>{
+  const state=createGame({seed:2026,zombieCount:20});
+  const b=state.buildings.find(item=>item.kind!=='safehouse'&&item.roofVisible);
+  assert.ok(b,'a solid roof must exist in the seeded world');
+  const before=JSON.stringify(b);
+  const first=new GeometryAudit(),second=new GeometryAudit();
+  decorateRoof(first,b);decorateRoof(second,b);
+  assert.ok(first.calls>=16&&first.calls<50,'each rooftop must contain readable bounded utility detail');
+  assert.equal(first.calls,second.calls);
+  assert.deepEqual([...first.colors].sort(),[...second.colors].sort());
+  assert.ok(first.colors.has('#263f4c'),'HVAC mass should read against roof concrete');
+  assert.equal(JSON.stringify(b),before,'rooftop art must not alter building state');
+  const cutaway=new GeometryAudit();
+  decorateRoof(cutaway,{...b,roofVisible:false});
+  assert.equal(cutaway.calls,0,'open rescue cutaways must stay unobstructed');
+  const damaged=new GeometryAudit();
+  decorateRoof(damaged,{...b,damage:1});
+  assert.ok(damaged.calls>first.calls||b.damage>.16,'damaged rooftops should gain readable repair/debris detail');
+});
 
 test('3D city art is rich, deterministic, bounded and never changes the authoritative game',()=>{
   const state=createGame({seed:2026,zombieCount:90});

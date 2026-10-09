@@ -6,6 +6,54 @@ const SEGMENTS={
  X:'bcefg',Y:'bcdfg',Z:'abdeg',0:'abcdef',1:'bc',2:'abdeg',3:'abcdg',4:'bcfg',5:'acdfg',6:'acdefg',7:'abc',8:'abcdefg',9:'abcdfg'
 };
 const SIGNAL={hospital:'#ff566b',police:'#4bd9f2',supermarket:'#f4b743',shop:'#30e6b0',fuel:'#ff8b45',warehouse:'#6c9df7',safehouse:'#ffe0a1',apartment:'#b4b6ee'};
+
+/**
+ * Loop 38: authored rooftop silhouette layers, not a new simulation object.
+ * Each piece is anchored above an existing solid roof. All variation is a
+ * deterministic function of building identity, so screenshots/replays agree.
+ * Budget: fewer than 50 box/cylinder calls per visible building.
+ */
+export function decorateRoof(m,b){
+  if(!b.roofVisible||b.kind==='safehouse')return;
+  const roof=2.7+b.floors*1.25;
+  const x=b.x,z=b.y,w=b.w,d=b.h;
+  const key=String(b.id).split('').reduce((v,ch)=>v+ch.charCodeAt(0),0);
+  const weathered=key%2===0?'#526268':'#53605d';
+  const dark='#263f4c',metal='#789296',rust='#ad7455',glass='#285968';
+  // The previously blank flat foreground roofs now carry readable drainage
+  // seams, low parapets, and different recognizable utility silhouettes.
+  for(const offset of [-.29,.28]){
+    box(m,x,roof+.495,z+d*offset,w*.83,.035,.075,weathered);
+  }
+  for(const side of [-1,1]){
+    box(m,x+w*.43*side,roof+.64,z,.10,.33,d*.79,'#657578');
+    box(m,x,roof+.63,z+d*.43*side,w*.82,.31,.095,'#586b6d');
+  }
+  // Asymmetric HVAC housing with vent grill and copper drain.
+  const ux=x+w*(key%2===0?-.20:.20),uz=z-d*.18;
+  box(m,ux,roof+.80,uz,1.45,.59,1.08,dark);
+  box(m,ux,roof+1.11,uz,1.57,.075,1.17,metal);
+  for(let i=-2;i<=2;i++)box(m,ux+i*.23,roof+1.16,uz,.09,.035,.72,'#284551');
+  box(m,ux+.77,roof+.76,uz,.18,.37,.36,rust);
+  // A second identifiable mass breaks the rectangular roof silhouette.
+  if(key%3===0||b.kind==='warehouse'){
+    const tx=x-w*.21,tz=z+d*.21;
+    m.cylinder(tx,roof+1.13,tz,.48,1.15,'#587982',10);
+    m.cylinder(tx,roof+1.77,tz,.52,.12,'#b6b6a0',10);
+    for(const s of [-1,1])box(m,tx+s*.31,roof+.61,tz,.09,.27,.12,dark);
+  }else{
+    const px=x-w*.23,pz=z+d*.20;
+    box(m,px,roof+.66,pz,1.55,.12,.92,'#1b3445',-.15);
+    for(let i=-1;i<=1;i++)box(m,px+i*.42,roof+.74,pz,.04,.025,.77,'#54a7b0',-.15);
+    for(const s of [-.53,.53])box(m,px+s,roof+.56,pz,.08,.20,.08,metal);
+  }
+  // Broken tarps, repair patches and rubble are damage-responsive only.
+  if(b.damage>.16){
+    box(m,x+w*.09,roof+.51,z+d*.31,w*.28,.05,d*.16,'#956b53',.16);
+    for(let i=0;i<3;i++)box(m,x-w*.24+i*.31,roof+.55,z-d*.31,.28,.13,.21,i%2?rust:weathered,i*.31);
+  }
+}
+
 function box(m,x,y,z,w,h,d,c,yaw=0){m.box(x,y,z,w,h,d,c,yaw);}
 function lamp(m,x,z,color){
   m.cylinder(x,2.85,z,.085,5.7,'#25383f',7);
@@ -104,6 +152,7 @@ export function decorateBuilding(m,b,state){
   box(m,b.x-b.w*.40,1.4,b.y+b.h*.4,.11,2.5,.12,'#37464c');
   if(b.kind!=='hospital')box(m,b.x+b.w*.38,.38,z+.34,.68,.62,.66,'#c5a777');
   if(b.district==='industrial'&&b.floors>2)box(m,b.x,2.5,z+.29,b.w*.87,.23,.30,'#1b4248');
+  decorateRoof(m,b);
 }
 function post(m,x,z,color='#f8c15c'){
   box(m,x,.63,z,.20,1.26,.2,'#283a3c');

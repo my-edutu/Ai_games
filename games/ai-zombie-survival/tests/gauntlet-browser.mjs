@@ -48,6 +48,35 @@ try{
       report.checks.gpuInstancedCrowd=true;
     }
     report.scenarios.push({name:scenario,bytes:shot.length,...info,performance:runtimeStats});
+
+    // Capture the CURRENT 390x844 scene at the start of CI, before expensive
+    // horde/asset cases can fail and suppress all mobile visual evidence.
+    if(scenario==='day'){
+      await page.setViewportSize({width:390,height:844});
+      try{
+        await page.waitForTimeout(350);
+        const layout=await page.evaluate(()=>{
+          const box=sel=>document.querySelector(sel).getBoundingClientRect();
+          return {width:document.documentElement.scrollWidth,
+            panel:document.querySelector('#hud').dataset.mobilePanel,
+            left:getComputedStyle(document.querySelector('#survivalPanel')).display,
+            right:getComputedStyle(document.querySelector('#intelPanel')).display,
+            header:box('.top').bottom,summary:box('.mobileOverview').top,
+            navigation:box('.mobileDeck').bottom,footer:box('.bottom').top};
+        });
+        assert.ok(layout.width<=391,'mobile playfield must not overflow horizontally');
+        assert.equal(layout.panel,'none');
+        assert.equal(layout.left,'none');
+        assert.equal(layout.right,'none');
+        assert.ok(layout.summary>=layout.header-8,'mobile vitals must not collide with header');
+        assert.ok(layout.navigation<=layout.footer+3,'mobile navigation must not collide with footer');
+        await page.screenshot({path:root+'mobile-first-look.png',animations:'disabled'});
+        report.checks.mobileFirstLook=true;
+      }finally{
+        await page.setViewportSize({width:1280,height:720});
+      }
+    }
+
   }
   await page.goto('http://127.0.0.1:4177/web/3d.html?scenario=day&freeze=1',{waitUntil:'load'});
   await page.waitForFunction(()=>document.querySelector('#fps')?.textContent?.includes('CPU P95'),{timeout:12000});
@@ -124,10 +153,18 @@ try{
   await page.keyboard.press('m');
   assert.equal(await page.locator('#hud').getAttribute('data-cinema'),'false');
   report.checks.cinemaMode=true;
+  // A prior root-view visit can leave an unrelated session snapshot; start this
+  // liveness case clean, then still verify genuine recovery on the next reload.
+  await page.evaluate(()=>sessionStorage.removeItem('edutu-zombie-gauntlet-recovery-v1'));
   await page.goto('http://127.0.0.1:4177/web/3d.html?seed=2026',{waitUntil:'load'});
   await page.waitForFunction(()=>document.querySelector('#fps')?.textContent?.includes('FPS'),{timeout:12000});
   const before=await page.evaluate(()=>JSON.parse(localStorage.getItem('zombie-gauntlet-live')||'{}').tick||0);
-  await page.waitForTimeout(750);
+  // SwiftShader can spend >750ms in a single frame. Observe authoritative
+  // ticks rather than assuming a 750ms wall-clock sleep proves liveness.
+  await page.waitForFunction(previous=>{
+    const state=JSON.parse(localStorage.getItem('zombie-gauntlet-live')||'{}');
+    return state.status==='running'&&Number.isSafeInteger(state.tick)&&state.tick>previous;
+  },before,{timeout:30000,polling:250});
   const after=await page.evaluate(()=>JSON.parse(localStorage.getItem('zombie-gauntlet-live')||'{}').tick||0);
   assert.ok(after>before,'authoritative simulation must continue while rendered');
   report.checks.autonomousSimulation=true;
