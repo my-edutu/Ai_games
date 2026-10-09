@@ -385,3 +385,74 @@ test('3D module unavailable degrades safely to the existing 2D scene',async({pag
   await expect.poll(()=>page.evaluate(()=>window.__TOWER_PUBLIC_STATE__?.tick),{timeout:15000}).toBeGreaterThan(4);
   await expect(page.locator('[data-testid="tower-canvas"]')).toBeVisible();
 });
+
+
+test('cinematic spectator HUD focuses the climb without losing live metrics or legacy 2D fallback',async({page})=>{
+  await page.setViewportSize({width:1600,height:900});
+  await page.goto(base+'/tower?renderer=2d',{waitUntil:'domcontentloaded'});
+  await expect.poll(()=>page.evaluate(()=>window.__TOWER_PUBLIC_STATE__?.tick||0),{timeout:20000}).toBeGreaterThan(2);
+  await expect(page.locator('body')).toHaveAttribute('data-tower-hud','full');
+  await expect(page.locator('[data-testid="side-panel"]')).toBeVisible();
+  await expect(page.getByRole('button',{name:'Enable cinematic focus view'})).toBeVisible();
+  await page.getByRole('button',{name:'Enable cinematic focus view'}).click();
+  await expect(page.locator('body')).toHaveAttribute('data-tower-hud','focus');
+  await expect(page.locator('[data-testid="side-panel"]')).toBeHidden();
+  await expect(page.locator('[data-testid="captions"]')).toBeVisible();
+  await expect(page.locator('[data-testid="floor"]')).toBeVisible();
+  await expect(page.locator('#tower-canvas')).toBeVisible();
+  await expect(page.getByRole('button',{name:'Show full telemetry HUD'})).toHaveAttribute('aria-pressed','true');
+  const scene=await page.evaluate(()=>{
+    const canvas=document.querySelector('.arena-wrap').getBoundingClientRect();
+    const top=document.querySelector('.top').getBoundingClientRect();
+    return{canvasWidth:canvas.width,canvasHeight:canvas.height,headerWidth:top.width,viewportWidth:innerWidth};
+  });
+  expect(scene.canvasWidth).toBeGreaterThan(1550);
+  expect(scene.canvasHeight).toBeGreaterThan(850);
+  expect(scene.headerWidth).toBeLessThan(scene.viewportWidth*.62);
+  await page.screenshot({path:path.join(artifacts,'gauntlet-v21-focus-desktop-2d.png'),fullPage:true});
+  await page.reload();
+  await expect(page.locator('body')).toHaveAttribute('data-tower-hud','focus');
+  await page.getByRole('button',{name:'Show full telemetry HUD'}).click();
+  await expect(page.locator('[data-testid="side-panel"]')).toBeVisible();
+  await expect(page.locator('body')).toHaveAttribute('data-tower-hud','full');
+});
+
+test('focus HUD remains operable at phone and landscape sizes, preserving the clean feed',async({page})=>{
+  await page.setViewportSize({width:390,height:844});
+  await page.goto(base+'/tower?renderer=2d&hud=focus',{waitUntil:'domcontentloaded'});
+  await expect.poll(()=>page.evaluate(()=>window.__TOWER_PUBLIC_STATE__?.tick||0),{timeout:20000}).toBeGreaterThan(2);
+  await expect(page.locator('body')).toHaveAttribute('data-tower-hud','focus');
+  await expect(page.locator('[data-testid="side-panel"]')).toBeHidden();
+  const button=page.getByRole('button',{name:'Show full telemetry HUD'});
+  await expect(button).toBeVisible();
+  const target=await button.boundingBox();
+  expect(target.width).toBeGreaterThanOrEqual(40);
+  expect(target.height).toBeGreaterThanOrEqual(40);
+  const mobile=await page.evaluate(()=>{
+    const rect=document.querySelector('.top').getBoundingClientRect();
+    return{left:rect.left,right:rect.right,width:innerWidth};
+  });
+  expect(mobile.left).toBeGreaterThanOrEqual(0);
+  expect(mobile.right).toBeLessThanOrEqual(mobile.width);
+  await page.screenshot({path:path.join(artifacts,'gauntlet-v21-focus-phone.png'),fullPage:true});
+  await page.setViewportSize({width:844,height:390});
+  await expect(button).toBeVisible();
+  await page.screenshot({path:path.join(artifacts,'gauntlet-v21-focus-landscape.png'),fullPage:true});
+  await page.goto(base+'/tower?renderer=2d&cleanFeed=1');
+  await expect(page.locator('[data-testid="hud"]')).toBeHidden();
+  await expect(page.locator('[data-testid="side-panel"]')).toBeHidden();
+  await expect(page.locator('#tower-canvas')).toBeVisible();
+});
+
+test('focus HUD has a genuine running 3D capture, not just a CSS-only mock',async({page})=>{
+  await page.setViewportSize({width:1600,height:900});
+  await page.goto(base+'/tower?hud=focus',{waitUntil:'domcontentloaded'});
+  await expect.poll(()=>page.evaluate(()=>window.__TOWER_3D_ACTIVE__),{timeout:30000}).toBe(true);
+  await expect.poll(()=>page.evaluate(()=>window.__TOWER_3D_DIAGNOSTICS__?.drawCalls||0),{timeout:30000}).toBeGreaterThan(10);
+  await expect(page.locator('body')).toHaveAttribute('data-tower-hud','focus');
+  await expect(page.locator('[data-testid="side-panel"]')).toBeHidden();
+  await expect(page.locator('#tower-3d-canvas')).toBeVisible();
+  const before=await page.evaluate(()=>window.__TOWER_PUBLIC_STATE__?.publicChecksum);
+  await expect.poll(()=>page.evaluate(()=>window.__TOWER_PUBLIC_STATE__?.publicChecksum),{timeout:15000}).not.toBe(before);
+  await page.screenshot({path:path.join(artifacts,'gauntlet-v21-focus-live-3d.png'),fullPage:true});
+});
