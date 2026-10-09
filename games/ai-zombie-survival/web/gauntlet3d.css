@@ -371,3 +371,27 @@ main[data-phase="night"]{--cyan:#7bcbff;--amber:#fbd197;--coral:#ff738c}main[dat
   .hud-left[data-desktop-open="true"],.aiStory[data-desktop-open="true"]{z-index:7;pointer-events:auto}
   .sceneBadge{top:107px}
 }
+
+/* GAUNTLET LOOP 51 — screenshot-reviewed 390x844 playfield: the broadcast
+   masthead + vital bars + critical alert consumed ~166px of vertical space.
+   Recover ~20px without shrinking survival figures or touch controls.
+   Short landscape phones keep the established <=610px collision layout. */
+@media(max-width:740px) and (min-height:611px){
+  .top{padding:6px 9px 5px;gap:4px}
+  .top .brandLine{margin-top:3px;gap:5px}
+  .top .brandSymbol{width:31px;height:31px;font-size:14px}
+  .top .branding h1{font-size:19px}
+  .top .eyebrow{font-size:8px;letter-spacing:0;gap:4px;white-space:nowrap}
+  .top .subtitle{font-size:7px;letter-spacing:.11em;margin-top:2px}
+  .top .right{gap:4px}
+  .top .onAir{padding:5px 6px;font-size:9px;line-height:1;white-space:nowrap}
+  .top .onAir #liveLabel{white-space:nowrap}
+  .top .dayTag{padding:5px 6px;font-size:9px;line-height:1}
+  .mobileOverview{top:65px}
+  .mobileOverview>div{height:36px}
+  .alertBanner{top:108px}
+  main[data-mobile-panel="survival"] .hud-left,
+  main[data-mobile-panel="intel"] .aiStory{
+    top:145px;max-height:calc(100svh - 324px)
+  }
+}

@@ -305,6 +305,26 @@ try{
   assert.ok(mobileState.pageWidth<=391,'mobile UI must not introduce horizontal overflow');
   assert.match(mobileState.alive,/^[0-9]+$/);
   assert.match(mobileState.horde,/^[0-9]+%$/);
+  // Loop 51: real 390x844 HUD geometry, not only static CSS declarations.
+  // Preserve the EDUTU brand, readable vitals and independent control rail.
+  const phoneTop=await page.evaluate(()=>{
+    const rect=selector=>{
+      const b=document.querySelector(selector).getBoundingClientRect();
+      return {top:b.top,bottom:b.bottom,height:b.height};
+    };
+    return {header:rect('.top'),summary:rect('.mobileOverview'),
+      brand:getComputedStyle(document.querySelector('.branding h1')).fontSize,
+      summaryValue:getComputedStyle(document.querySelector('.mobileOverview strong')).fontSize};
+  });
+  assert.ok(phoneTop.header.bottom<=64,
+    'phone masthead still steals the top of the action: '+JSON.stringify(phoneTop));
+  assert.ok(phoneTop.summary.top>=phoneTop.header.bottom+2,
+    'phone vital bars overlap the masthead');
+  assert.ok(phoneTop.summary.bottom<=104,
+    'phone vital bars still obscure the upper action');
+  assert.ok(parseFloat(phoneTop.brand)>=19&&parseFloat(phoneTop.summaryValue)>=15,
+    'mobile broadcast hierarchy was shrunk below readable sizes');
+  report.checks.mobileVerticalPlayfield=true;
   await page.screenshot({path:root+'mobile.png'});
   // Harsh phone critic: the previous footer ended with a chopped cyan button.
   // All primary controls must now fit fully without horizontal scrolling.
@@ -379,7 +399,7 @@ try{
   assert.equal(warning.visible,true);
   assert.ok(warning.height>=32&&warning.height<=42,'mobile alert must use two compact lines');
   assert.ok(warning.top>=warning.summaryBottom+2,'warning overlaps survival vitals');
-  assert.ok(warning.bottom<=180,'warning obscures the phone action');
+  assert.ok(warning.bottom<=155,'warning obscures the phone action after compact masthead');
   assert.ok(warning.width<=390,'mobile warning overflows phone width');
   assert.ok(warning.titleSize>=10&&warning.detailSize>=11,'warning typography too small');
   await page.screenshot({path:root+'mobile-critical-alert.png',animations:'disabled'});
