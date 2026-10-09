@@ -9,6 +9,7 @@ import {VISUAL_PALETTES,buildPainterlyTowerBackdrop} from '/tower/biome-v4.js';
 import {createTowerHazard3D,updateTowerHazard3D} from '/tower/hazards-v4.js';
 import {buildBiomeLandmarks,animateBiomeLandmarks} from '/tower/landmarks-v5.js';
 import {createTowerEffectsDirector} from '/tower/effects-v6.js';
+import {compactRigDraws} from '/tower/rig-batch-v17.js';
 import {mountTowerAtmosphere,animateTowerAtmosphere} from '/tower/atmosphere-v8.js';
 import {selectVisibleLedge,applyContactPose} from '/tower/grip-v10.js';
 
@@ -189,6 +190,8 @@ export function mountTower3D({host,getFrame,reducedMotion=false,highContrast=fal
     ['GUARDIAN','guardian',0xe8bd78,true]
   ].map(([name,kind,tint,guardian])=>{
     const character=createTowerCharacter({kind,tint,guardian});
+    const rigReduction=compactRigDraws(character);
+    character.userData.galleryBatch=rigReduction;
     const title=document.createElement('canvas');title.width=256;title.height=64;
     const pen=title.getContext('2d');pen.fillStyle='rgba(36,24,30,.86)';pen.fillRect(0,0,256,64);
     pen.strokeStyle='#f8d9a0';pen.lineWidth=3;pen.strokeRect(2,2,252,60);
@@ -459,7 +462,7 @@ export function mountTower3D({host,getFrame,reducedMotion=false,highContrast=fal
       for(const x of [bounds.min.x,bounds.max.x])for(const y of [bounds.min.y,bounds.max.y])for(const z of [bounds.min.z,bounds.max.z])projected.push(new THREE.Vector3(x,y,z).project(camera));
       perf.heroFraming={left:(1-Math.max(...projected.map(v=>v.x)))/2,right:(1-Math.min(...projected.map(v=>v.x)))/2,top:(1-Math.max(...projected.map(v=>v.y)))/2,bottom:(1-Math.min(...projected.map(v=>v.y)))/2};
     }
-    if(observedFrames===1||observedFrames%60===0){perf.frames=observedFrames;perf.drawCalls=renderer.info.render.calls;perf.triangles=renderer.info.render.triangles;perf.heroParts=(()=>{let count=0;player.traverse(o=>{if(o.isMesh)count++});return count})();perf.heroSculpt=player.userData.sculpt||null;perf.renderMode='webgl-3d';perf.state=s.player.state;perf.heroCamera=heroCamera;perf.lens='perspective';perf.inspectCharacters=inspectCharacters;perf.inspectionModels=inspectors.length;perf.biomeLandmarks=landmarks?.world?.children.length||0;perf.atmosphere=atmosphere?.metrics||null;perf.actionFx=actionEffects.metrics();perf.highContrast=highContrast;perf.averageFps=frameTotalMs>0?Math.round(1000*frameSampleCount/frameTotalMs):0;perf.slowFrames=slowFrames;perf.sampledFrames=frameSampleCount;perf.pixelRatio=renderer.getPixelRatio();perf.effects=actionEffects.metrics();}
+    if(observedFrames===1||observedFrames%60===0){perf.frames=observedFrames;perf.drawCalls=renderer.info.render.calls;perf.triangles=renderer.info.render.triangles;perf.heroParts=(()=>{let count=0;player.traverse(o=>{if(o.isMesh)count++});return count})();perf.heroSculpt=player.userData.sculpt||null;perf.renderMode='webgl-3d';perf.state=s.player.state;perf.heroCamera=heroCamera;perf.lens='perspective';perf.inspectCharacters=inspectCharacters;perf.inspectionModels=inspectors.length;perf.inspectionDrawsSaved=inspectors.reduce((sum,figure)=>sum+(figure.character.userData.galleryBatch?.reduced||0),0);perf.biomeLandmarks=landmarks?.world?.children.length||0;perf.atmosphere=atmosphere?.metrics||null;perf.actionFx=actionEffects.metrics();perf.highContrast=highContrast;perf.averageFps=frameTotalMs>0?Math.round(1000*frameSampleCount/frameTotalMs):0;perf.slowFrames=slowFrames;perf.sampledFrames=frameSampleCount;perf.pixelRatio=renderer.getPixelRatio();perf.effects=actionEffects.metrics();}
     }catch(error){fallback3D(error)}
   }
   const onLost=event=>{event.preventDefault();fallback3D('webglcontextlost')};
