@@ -44,6 +44,7 @@ $('open-preview').addEventListener('click',()=>{
 });
 $('open-game').addEventListener('click',()=>window.open('/eko/','_blank','noopener'));
 frame.addEventListener('load',()=>{
+  if(!frame.getAttribute('src'))return; // ignore initial about:blank iframe load
   frame.classList.add('ready');
   $('preview-placeholder').hidden=true;
   $('capture-frame').disabled=false;
