@@ -15,6 +15,7 @@ import { loadCc0Models,drawCc0Model } from './cc0-models.js';
 import { createSpatialFoley } from './audio-foley.js';
 import { createSunShadows } from './shadow-pass.js';
 import { createInstancedHorde,partitionHorde } from './instanced-horde.js';
+import { drawCharacterRig } from './character-rig.js';
 
 const canvas = document.getElementById('scene');
 const hud = document.getElementById('hud');
@@ -456,6 +457,12 @@ function human(m,entity,infected,time){
       m.bone(spot(sign*.27,.15,-.76),spot(sign*.30,.13,-1.0),.08*body,'#323c3d');
       m.bone(spot(sign*.35,.24,.12),spot(sign*.62,.17,.39),.075*body,infected?'#7d8872':'#987960');
     }
+    return;
+  }
+  // Real close-cameras use connected anatomically tapered surfaces with posed joints.
+  // Far actors retain lightweight original articulated primitives and GPU instanced infected.
+  if(distance<(infected?8:14)&&drawCharacterRig(m,entity,infected,time)){
+    if(!infected)decorateActor(m,entity,false,time,body);
     return;
   }
   const pose=actionPose(entity,infected,time);

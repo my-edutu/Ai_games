@@ -12,6 +12,7 @@ import { actionPose } from '../web/animation-pose.js';
 import { PackedVertices } from '../web/packed-geometry.js';
 import { spatialVolume,eventSound } from '../web/audio-foley.js';
 import { partitionHorde } from '../web/instanced-horde.js';
+import { drawCharacterRig } from '../web/character-rig.js';
 
 class GeometryAudit {
   constructor(){this.calls=0;this.colors=new Set();this.byKind=new Map();}
@@ -227,4 +228,23 @@ test('GPU horde instancing preserves every visible infected exactly once across 
   assert.equal(JSON.stringify(g.zombies),before,'GPU LOD must not change simulation state or population order');
   const again=partitionHorde(g.zombies,0,0,{detailRadius:13,maxDetailed:18,maxInstances:500});
   assert.deepEqual(all.map(e=>e.actor.id),[...again.detail,...again.instanced].map(e=>e.actor.id));
+});
+
+test('full articulated organic hero rig varies across real AI poses and mutant class silhouettes',()=>{
+  const game=createGame({seed:112,zombieCount:40});
+  const sample=game.survivors[0];
+  const before=JSON.stringify(sample),drawn=[];
+  for(const action of ['move','attack','rescue','heal','injured']){
+    const actor={...sample,alive:true,action,health:action==='injured'?12:95};
+    const m=new GeometryAudit();
+    assert.equal(drawCharacterRig(m,actor,false,1.25),true);
+    assert.ok(m.calls>=250&&m.calls<=2000,'hero anatomy should have a bounded original triangle budget');
+    drawn.push([m.calls,[...m.colors].sort().join(',')]);
+  }
+  assert.equal(JSON.stringify(sample),before,'rig may not modify game state');
+  const zombie=game.zombies[0];
+  const m=new GeometryAudit();
+  assert.equal(drawCharacterRig(m,{...zombie,health:80,action:'pursue'},true,3),true);
+  assert.ok(m.calls>=200&&m.calls<=2000,'mutant anatomical rig geometry budget');
+  assert.ok(m.colors.has('#fb746a'),'infected closeups require glowing eyes');
 });
