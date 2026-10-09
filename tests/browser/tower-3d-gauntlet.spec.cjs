@@ -278,13 +278,21 @@ test('environmental atmosphere renderer provides bounded real geometry and measu
 test('WebGL context loss returns uninterrupted authority feed to legacy 2D renderer',async({page})=>{
   await page.goto(base+'/tower',{waitUntil:'domcontentloaded'});
   await expect.poll(()=>page.evaluate(()=>window.__TOWER_3D_ACTIVE__),{timeout:25000}).toBe(true);
-  const before=Number(await page.locator('[data-testid="tick"]').textContent());
+  const before=await page.evaluate(()=>({run:window.__TOWER_PUBLIC_STATE__?.runToken,tick:window.__TOWER_PUBLIC_STATE__?.tick,checksum:window.__TOWER_PUBLIC_STATE__?.publicChecksum}));
   await page.locator('#tower-3d-canvas').evaluate(canvas=>
     canvas.dispatchEvent(new Event('webglcontextlost',{cancelable:true}))
   );
   await expect.poll(()=>page.evaluate(()=>document.body.dataset.towerRenderer),{timeout:15000}).toBe('2d-fallback');
   await expect(page.locator('#tower-3d-canvas')).toHaveCount(0);
-  await expect.poll(async()=>Number(await page.locator('[data-testid="tick"]').textContent()),{timeout:15000}).toBeGreaterThan(before);
+  // Runs may naturally finish and reset tick to zero while 2D mode continues.
+  // Judge *new autonomous state* rather than an invalid globally monotonically
+  // increasing tick number that ignores run-token changes.
+  await expect.poll(()=>page.evaluate(before=>{
+    const now=window.__TOWER_PUBLIC_STATE__;
+    return !!(now&&now.publicChecksum!==before.checksum&&
+      ((now.runToken===before.run&&now.tick>before.tick)||
+       (now.runToken!==before.run&&now.tick>=0)));
+  },before),{timeout:15000}).toBe(true);
   await expect(page.locator('[data-testid="tower-canvas"]')).toBeVisible();
 });
 test('Wayfinder production sculpt exposes layered geometry on moving skeletal joints',async({page})=>{
