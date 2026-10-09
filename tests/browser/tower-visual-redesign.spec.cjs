@@ -50,3 +50,35 @@ test('redesigned HUD works on a small touch viewport with accessible movement co
  assertVisualMinimum(analyzePng(screenshot,{region:[0,.03,1,.88],stride:2}));
  expect(errors).toEqual([]);
 });
+
+test('primary autonomous tower stream uses the same luminous v3 Gauntlet visual language',async({page})=>{
+ const errors=[];page.on('pageerror',e=>errors.push(e.message));
+ await page.setViewportSize({width:1600,height:900});
+ await page.goto('http://127.0.0.1:4176/tower/',{waitUntil:'domcontentloaded'});
+ await page.waitForFunction(()=>window.__TOWER_PUBLIC_STATE__?.tick>0
+   &&window.__TOWER_3D_METRICS__?.status==='live',null,{timeout:30000});
+ await expect(page.locator('#tower-3d-canvas')).toBeVisible();
+ const ui=await page.evaluate(()=>({
+   sector:document.getElementById('stage-biome')?.textContent,
+   biome:document.body.dataset.biome,
+   expectedBiome:window.__TOWER_PUBLIC_STATE__.theme,
+   logoSize:parseFloat(getComputedStyle(document.querySelector('.brand-mark')).width),
+   hudHeight:document.querySelector('.top').getBoundingClientRect().height,
+   mainWidth:document.querySelector('.arena-wrap').getBoundingClientRect().width,
+   sideWidth:document.querySelector('.side').getBoundingClientRect().width,
+   css:!!document.querySelector('link[href="/tower/ux-v3.css"]'),
+   actor:window.__TOWER_3D_METRICS__.actors
+ }));
+ expect(ui.css).toBe(true);
+ expect(ui.biome).toBe(ui.expectedBiome);
+ expect(ui.sector).toContain(ui.biome.toUpperCase());
+ expect(ui.logoSize).toBeGreaterThan(38);
+ expect(ui.hudHeight).toBeGreaterThan(65);
+ expect(ui.mainWidth).toBeGreaterThan(850);
+ expect(ui.sideWidth).toBeGreaterThan(275);
+ expect(ui.actor).toBeGreaterThan(0);
+ const png=await page.screenshot({path:path.join(folder,'cinematic-hud-primary-broadcast.png'),fullPage:true});
+ const metrics=assertVisualMinimum(analyzePng(png,{region:[0,.08,.98,.9],stride:4}));
+ fs.writeFileSync(path.join(folder,'primary-broadcast.json'),JSON.stringify({ui,metrics,errors},null,2));
+ expect(errors).toEqual([]);
+});
