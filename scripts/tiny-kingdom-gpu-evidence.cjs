@@ -200,6 +200,9 @@ const path = require('node:path');
     });
     // Inspect both original high-detail civic landmarks at fixed, repeatable cameras.
     // These are real browser captures, not authored screenshot mockups.
+    evidence.craftDistrict=await page.evaluate(()=>window.__tinyKingdom.getCraftDistrictStats());
+    if(evidence.craftDistrict.cartWheels!==4||evidence.craftDistrict.smokePuffs!==3||
+       evidence.craftDistrict.pieces<75)throw Error('Craft district scene contract failed: '+JSON.stringify(evidence.craftDistrict));
     evidence.landmarks=await page.evaluate(()=>window.__tinyKingdom.getScenicSites());
     evidence.cinematicScreenshotsUnobstructed=await page.evaluate(()=>{
       window.__tinyKingdom.setHudMode('cinema');
@@ -212,6 +215,7 @@ const path = require('node:path');
       {name:'sanctuary-landmark.png',camera:{focus:[29,10],yaw:.75,pitch:.48,zoom:27}},
       {name:'stone-bridge.png',camera:{focus:[-6,18.1],yaw:.84,pitch:.64,zoom:26}},
       {name:'riverbank-close.png',camera:{focus:[-12,19],yaw:.66,pitch:.48,zoom:17}},
+      {name:'guild-forge.png',camera:{focus:[19,-15],yaw:.78,pitch:.57,zoom:23}},
     ]){
       await page.evaluate(camera=>window.__tinyKingdom.setCamera(camera),shot.camera);
       await page.waitForTimeout(400);
