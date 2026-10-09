@@ -116,6 +116,9 @@ try{
   report.checks.heroCameraAndIntent=true;
   await page.keyboard.press('m');
   assert.equal(await page.locator('#hud').getAttribute('data-cinema'),'true');
+  assert.ok((await page.locator('#cinemaActor').textContent()).length>5);
+  assert.ok((await page.locator('#cinemaIntent').textContent()).length>5);
+  assert.equal(await page.locator('.cinemaTicker').isVisible(),true);
   assert.equal(await page.locator('#cinemaMode').getAttribute('aria-pressed'),'true');
   await page.screenshot({path:root+'cinema-mode.png'});
   await page.keyboard.press('m');
@@ -148,6 +151,8 @@ try{
   assert.equal(await page.locator('#hud').isVisible(),true);
   await page.keyboard.press('Space');
   await page.waitForFunction(()=>document.querySelector('#verdict')?.textContent?.includes('PAUSED'),{timeout:5000});
+  assert.equal(await page.locator('#togglePause').getAttribute('aria-pressed'),'true');
+  assert.equal(await page.locator('#liveLabel').textContent(),'PAUSED / SIMULATION');
   assert.match(await page.locator('#verdict').textContent(),/PAUSED/);
   const pauseTick=await page.evaluate(()=>JSON.parse(localStorage.getItem('zombie-gauntlet-live')||'{}').tick);
   await page.waitForTimeout(850);

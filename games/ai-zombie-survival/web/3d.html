@@ -21,7 +21,7 @@
       </div>
     </div>
     <div class="right">
-      <div class="topStatus"><span class="onAir"><span class="liveDot"></span> LIVE / SIMULATION</span><span id="status">AUTONOMOUS LIVE</span></div>
+      <div class="topStatus"><span class="onAir"><span class="liveDot"></span><span id="liveLabel">LIVE / SIMULATION</span></span><span id="status">AUTONOMOUS LIVE</span></div>
       <div class="topInfo"><span class="dayTag" id="day">DAY 1 / DAWN</span><span class="weatherTag" id="weather">CLEAR SKIES</span></div>
     </div>
   </header>
@@ -103,10 +103,10 @@
 
   <footer class="bottom">
     <div class="controls">
-      <button id="togglePause" type="button" aria-label="Pause or resume simulation"><span aria-hidden="true">⏯</span> PAUSE</button>
-      <button id="sound" type="button"><span aria-hidden="true">◖</span> SOUND</button>
-      <button id="focus" type="button"><span aria-hidden="true">◎</span> DIRECTOR</button>
-      <button id="hero" type="button"><span aria-hidden="true">◈</span> HERO CAM</button>
+      <button id="togglePause" type="button" aria-label="Pause or resume simulation" aria-pressed="false"><span aria-hidden="true">⏯</span> PAUSE</button>
+      <button id="sound" type="button" aria-pressed="false"><span aria-hidden="true">◖</span> SOUND</button>
+      <button id="focus" type="button" aria-pressed="true"><span aria-hidden="true">◎</span> DIRECTOR</button>
+      <button id="hero" type="button" aria-pressed="false"><span aria-hidden="true">◈</span> HERO CAM</button>
       <button id="rosterToggle" type="button" aria-controls="squadPanel" aria-expanded="false"><span aria-hidden="true">☷</span> SQUAD</button><button id="cinemaMode" type="button" aria-pressed="false"><span aria-hidden="true">▣</span> CINEMA</button>
       <a href="./progress.html">GAUNTLET ↗</a><a class="legacy" href="./index.html">2.5D ↗</a>
     </div>

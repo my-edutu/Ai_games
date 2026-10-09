@@ -238,3 +238,14 @@ main[data-phase="night"]{--cyan:#7bcbff;--amber:#fbd197;--coral:#ff738c}main[dat
 @media(max-width:740px){
  #hud[data-cinema="true"] .cinemaTicker{display:none}
 }
+
+
+/* LOOP 36 — control highlights must reflect actual operator/director state, not CSS button position. */
+.controls #hero,.controls #focus{color:#d9edf0;background:linear-gradient(180deg,#21455d,#102c43);border-color:#568fa6a9}
+.controls #hero[aria-pressed="true"],.controls #focus[aria-pressed="true"]{
+ background:linear-gradient(120deg,var(--cyan),#9ed1ed);border-color:#c3ffff;
+ color:#08313b;box-shadow:0 0 17px #49e5de6c}
+.controls #sound[aria-pressed="true"]{border-color:#8be8e1;color:var(--cyan)}
+#hud[data-sim="paused"] .onAir{background:#2c3445de;color:#e6d4b3;border-color:#e6cd9477}
+#hud[data-sim="paused"] .onAir .liveDot{background:#ffc96e;box-shadow:0 0 11px #ffc96e}
+#hud[data-sim="paused"] .directorStrip{border-color:#e4c4877d}

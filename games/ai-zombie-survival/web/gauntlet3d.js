@@ -121,6 +121,7 @@ function enableAudio() {
   drone.connect(droneGain);wind.connect(windGain);droneGain.connect(master);windGain.connect(master);
   drone.start();wind.start();spatialFoley=createSpatialFoley(audioContext,master);audioContext.resume();
   document.getElementById('sound').textContent='◖ SOUND ACTIVE';
+  document.getElementById('sound').setAttribute('aria-pressed','true');
 }
 function audioCue(freq,duration,volume,type='triangle') {
   if(!audioContext || audioContext.state!=='running')return;
@@ -781,6 +782,8 @@ function toggleCinema(){
   }
 }
 document.getElementById('cinemaMode').setAttribute('aria-pressed',String(cinematic));
+document.getElementById('togglePause').setAttribute('aria-pressed',String(paused));
+document.getElementById('liveLabel').textContent=paused?'PAUSED / SIMULATION':'LIVE / SIMULATION';
 function toggleRoster(){
   squadPanel.hidden=!squadPanel.hidden;
   document.getElementById('rosterToggle').setAttribute('aria-expanded',String(!squadPanel.hidden));
@@ -881,6 +884,10 @@ function render(now){
     const spotted=drawTacticalMap(document.getElementById('miniMap'),game,cameraFocusX,cameraFocusZ);
     hud.querySelector('#mapCount').textContent='TRACKING '+spotted;const living=game.survivors.filter(s=>s.alive).length,infected=game.zombies.filter(z=>z.health>0).length;
     hud.dataset.phase=game.time.phase;
+    hud.dataset.sim=paused?'paused':'running';
+    document.getElementById('liveLabel').textContent=paused?'PAUSED / SIMULATION':'LIVE / SIMULATION';
+    document.getElementById('focus').setAttribute('aria-pressed',String(cameraMode==='director'));
+    document.getElementById('hero').setAttribute('aria-pressed',String(cameraMode==='hero'));
     document.getElementById('mobileAlive').textContent=String(living);
     hud.querySelector('#day').textContent='DAY '+game.time.day+' / '+game.time.phase.toUpperCase();
     hud.querySelector('#weather').textContent=game.weather.kind.toUpperCase()+
@@ -955,6 +962,9 @@ canvas.addEventListener('pointercancel',()=>dragging=false);
 canvas.addEventListener('wheel',e=>{e.preventDefault();range=Math.max(19,Math.min(91,range+e.deltaY*.036));},{passive:false});
 function togglePause(){
   paused=!paused;
+  hud.dataset.sim=paused?'paused':'running';
+  document.getElementById('togglePause').setAttribute('aria-pressed',String(paused));
+  document.getElementById('liveLabel').textContent=paused?'PAUSED / SIMULATION':'LIVE / SIMULATION';
   verdict.textContent='WEBGL2 TRUE 3D • '+(paused?'PAUSED':'SIMULATION LIVE');
   document.querySelector('#togglePause').textContent=paused?'⏵ RESUME':'⏯ PAUSE';
   // Immediately publish the current *authoritative* tick at the exact pause boundary.
