@@ -171,28 +171,35 @@ export function enrichEnvironment(world,map,floor){
  // Same 3D visibility policy as the base walls: rich wall cladding must not hide the AI.
  let previousCutaway='';const sceneMetrics={clearedForeground:0};
  const matrix=new THREE.Matrix4(),p=new THREE.Vector3(),q=new THREE.Quaternion(),scale=new THREE.Vector3();
- function cutaway(target,camera){
-  const dx=camera.x-target.x,dz=camera.z-target.z,len=Math.max(.001,Math.hypot(dx,dz)),dirX=dx/len,dirZ=dz/len;
-  const k=[Math.round(target.x),Math.round(target.z),Math.round(camera.x),Math.round(camera.z)].join(':');if(previousCutaway===k)return;previousCutaway=k;
+ function cutaway(subjects,camera){
   if(!facadeMesh)return;
-  for(let i=0;i<wallFaces.length;i++){const f=wallFaces[i],x=f[0]-target.x,z=f[2]-target.z;
-   const forward=x*dirX+z*dirZ,lateral=Math.abs(x*dirZ-z*dirX);
-   const blocked=forward>-.35&&forward<len+1.1&&lateral<2.55+forward*.18;
-   const h=blocked?.15:f[4];p.set(f[0],blocked?.13:f[1],f[2]);scale.set(f[3],h,f[5]);matrix.compose(p,q,scale);facadeMesh.setMatrixAt(i,matrix);
+  // World cladding, banners, stained-glass windows and statuary share the
+  // multi-hero camera clearance, instead of tracking only the focus actor.
+  const eyes=Array.isArray(subjects)?subjects:[subjects];
+  const obscures=(x,z,pad)=>eyes.some(subject=>{
+   if(!subject)return false;
+   const vx=camera.x-subject.x,vz=camera.z-subject.z,len=Math.hypot(vx,vz);
+   if(len<.001)return false;
+   const dx=x-subject.x,dz=z-subject.z;
+   const forward=(dx*vx+dz*vz)/len;
+   const lateral=Math.abs(dx*vz-dz*vx)/len;
+   return forward>-.55&&forward<len+.7&&lateral<pad+forward*.13;
+  });
+  let cleared=0;
+  for(let i=0;i<wallFaces.length;i++){
+   const f=wallFaces[i],blocked=obscures(f[0],f[2],2.1);
+   const h=blocked?.15:f[4];
+   p.set(f[0],blocked?.13:f[1],f[2]);scale.set(f[3],h,f[5]);matrix.compose(p,q,scale);
+   facadeMesh.setMatrixAt(i,matrix);
   }
   facadeMesh.instanceMatrix.needsUpdate=true;
-  // The original P0 screenshot defect was not only the wall mesh:
-  // freestanding banners, massive columns and statues also obscured AI fighters.
-  // They remain present outside the camera-to-subject viewing corridor.
-  let cleared=0;
   for(const group of foregroundGroups){
-   const x=group.position.x-target.x,z=group.position.z-target.z;
-   const forward=x*dirX+z*dirZ,lateral=Math.abs(x*dirZ-z*dirX);
-   const blocked=forward>.15&&forward<len+1.3&&lateral<2.0+forward*.16;
+   const blocked=obscures(group.position.x,group.position.z,2.1);
    group.visible=!blocked;if(blocked)cleared++;
   }
   sceneMetrics.clearedForeground=cleared;
  }
+
  const animate=time=>{for(const p of flames){const t=time*5+p.phase,scale=1+Math.sin(t)*.13;p.fire.scale.y=scale;p.inner.scale.setScalar(.91+Math.sin(t+1.3)*.14)}};
  return {animate,cutaway,occluders:[facadeMesh,...foregroundGroups].filter(Boolean),metrics:Object.assign(sceneMetrics,{biome:floor,decorInstances:totalDecor+archWindows,archWindows,torches:flames.length,banners:bannersCount,landmarks:ruins,texturedSurfaces:floorDetails.length+wallFaces.length}),dispose:()=>{for(const g of geometries)g.dispose();for(const m of materials)m.dispose();for(const t of textures)t.dispose();for(const f of flames){f.inner.material.dispose()}}};
 }
