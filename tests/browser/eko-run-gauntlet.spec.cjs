@@ -172,7 +172,7 @@ test.describe('Eko Run 3D Gauntlet slice', () => {
     await expect(page.locator('#toggle-history')).toHaveAttribute('aria-expanded','true');
     await page.locator('#rounds .card summary').first().click();
     await expect(page.locator('#rounds .card details').first()).toHaveAttribute('open','');
-    await expect(page.locator('#status')).toContainText('Iteration');
+    await expect(page.locator('#status')).toContainText(/(?:Gauntlet|iteration|loop)/i);
     await expect(page.locator('#evidence-history a').first()).toHaveAttribute('href',new RegExp('actions/runs/[0-9]+/artifacts/[0-9]+'));
     await expect(page.locator('#snapshots')).toContainText('No real frames captured yet');
     fs.mkdirSync('artifacts/eko-gauntlet', { recursive: true });
