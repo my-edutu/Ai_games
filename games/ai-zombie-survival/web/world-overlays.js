@@ -22,30 +22,34 @@ function objectivePoint(game){
   const target=id?list.find(entity=>entity.id===id):null;
   return target?{x:target.x,z:target.y}:{x:game.safeHouse.x,z:game.safeHouse.y};
 }
-// Phone/close-camera danger is grounded so the warning never draws a tall
-// opaque-looking halo through the hero's head. Crisis telemetry remains in HUD.
-function groundThreat(m,x,z,radius,time){
+// All phone/close-camera mission, civilian and horde signals stay on the ground:
+// tall rings and pillars otherwise pass through hero faces in real phone captures.
+function groundSignal(m,x,z,radius,color,time){
   const r=radius*(1+.055*Math.sin(time*2.8));
   for(let i=0;i<16;i++){
     if(i%4===3)continue; // broken quadrants read as a threat, not a selection halo
     const a=i*Math.PI/8,b=(i+1)*Math.PI/8;
     m.bone([x+r*Math.cos(a),.16,z+r*Math.sin(a)],
-      [x+r*Math.cos(b),.16,z+r*Math.sin(b)],.031,CRISIS);
+      [x+r*Math.cos(b),.16,z+r*Math.sin(b)],.031,color);
   }
   for(let i=0;i<4;i++){
     const a=(i+.5)*Math.PI/2;
     m.bone([x+(r+.27)*Math.cos(a),.18,z+(r+.27)*Math.sin(a)],
-      [x+(r+.08)*Math.cos(a),.18,z+(r+.08)*Math.sin(a)],.029,CRISIS);
+      [x+(r+.08)*Math.cos(a),.18,z+(r+.08)*Math.sin(a)],.029,color);
   }
 }
 export function decorateTacticalWorld(m,game,elapsed,focusX,focusZ,{compactSignals=false}={}){
   const point=objectivePoint(game);
   const missionColor=game.objective.kind==='rescue'?RESCUE:game.objective.kind==='fortify'?SHIELD:OBJECTIVE;
   if(Math.hypot(point.x-focusX,point.z-focusZ)<65){
-    beam(m,point.x,point.z,3.05,missionColor,1.25,elapsed);
-    // Directional chevron: top-down and close camera distinguish objective from static props.
-    m.bone([point.x-0.55,5.8,point.z],[point.x,5.25,point.z],.075,missionColor);
-    m.bone([point.x,5.25,point.z],[point.x+.55,5.8,point.z],.075,missionColor);
+    if(compactSignals){
+      groundSignal(m,point.x,point.z,1.05,missionColor,elapsed);
+    }else{
+      beam(m,point.x,point.z,3.05,missionColor,1.25,elapsed);
+      // High overview cameras can read the mission chevron from above.
+      m.bone([point.x-0.55,5.8,point.z],[point.x,5.25,point.z],.075,missionColor);
+      m.bone([point.x,5.25,point.z],[point.x+.55,5.8,point.z],.075,missionColor);
+    }
   }
   // Critical health and infection have persistent visible world-space indicators.
   for(const s of game.survivors){
@@ -68,7 +72,8 @@ export function decorateTacticalWorld(m,game,elapsed,focusX,focusZ,{compactSigna
     if(c.state==='safe'||c.state==='dead')continue;
     if(Math.hypot(c.x-focusX,c.y-focusZ)>31)continue;
     const color=c.state==='trapped'?CRISIS:RESCUE;
-    beam(m,c.x,c.y,2.58,color,.48,elapsed+c.panic*3);
+    if(compactSignals)groundSignal(m,c.x,c.y,.43,color,elapsed+c.panic*3);
+    else beam(m,c.x,c.y,2.58,color,.48,elapsed+c.panic*3);
   }
   // Actual nearby horde centroid becomes an amber/coral cluster signal.
   let count=0,x=0,z=0;
@@ -80,7 +85,7 @@ export function decorateTacticalWorld(m,game,elapsed,focusX,focusZ,{compactSigna
     x/=count;z/=count;
     const intensity=Math.min(1,count/100);
     if(compactSignals){
-      groundThreat(m,x,z,.65+intensity*.55,elapsed);
+      groundSignal(m,x,z,.65+intensity*.55,CRISIS,elapsed);
     }else{
       beam(m,x,z,3.20,CRISIS,.65+intensity*.75,elapsed);
       m.ball(x,5.85,z,.17+intensity*.3,CRISIS);

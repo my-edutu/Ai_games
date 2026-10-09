@@ -182,6 +182,26 @@ test('Loop 45 phone horde warnings stay at ground height without hiding survivor
   assert.ok(mobile.crisisMaxY<.5,'phone horde warning must not obscure character bodies');
   assert.equal(mobile.calls,repeat.calls,'mobile marker geometry must be deterministic');
   assert.equal(JSON.stringify(g),before,'phone visual adaptation cannot change authoritative state');
+  // The previous fix covered hordes only: real mobile.png still had a tall
+  // coral trapped-civilian ring, while large-horde showed a huge cyan mission ring.
+  const rescue={...g,objective:{kind:'rescue',targetId:'c1'},
+    civilians:[{id:'c1',x:1,y:0,state:'trapped',panic:.6}],zombies:[]};
+  const rescueBefore=JSON.stringify(rescue);
+  const close=new ThreatAudit(),wide=new ThreatAudit();
+  decorateTacticalWorld(close,rescue,2,0,0,{compactSignals:true});
+  decorateTacticalWorld(wide,rescue,2,0,0);
+  assert.ok(close.crisisBones>=12,'trapped civilian warning must remain visible on phones');
+  assert.ok(close.crisisMaxY<.5,'trapped civilian warning must not cross survivor faces');
+  assert.ok(wide.crisisMaxY>4,'wide-screen rescue can retain its elevated beacon');
+  assert.equal(JSON.stringify(rescue),rescueBefore,'rescue indicators must be read-only');
+  const mission={...g,objective:{kind:'fortify',targetId:null},safeHouse:{x:1,y:1},zombies:[]};
+  const missionMarker=new GeometryAudit();
+  const missionHeights=[];
+  const originalBone=missionMarker.bone.bind(missionMarker);
+  missionMarker.bone=(a,b,w,color)=>{missionHeights.push(a[1],b[1]);originalBone(a,b,w,color);};
+  decorateTacticalWorld(missionMarker,mission,2,0,0,{compactSignals:true});
+  assert.ok(missionHeights.length>=24&&Math.max(...missionHeights)<.5,
+    'phone objective marker must also be ground-level');
 });
 
 test('cinematic burning buildings, damage particles and warning strobes are deterministic presentation only',()=>{
