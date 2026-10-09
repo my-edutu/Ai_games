@@ -89,6 +89,9 @@ export function parseGlb(bytes,{maxBytes=8_000_000,maxTriangles=90_000}={}){
         if(primitive.extensions?.KHR_draco_mesh_compression||primitive.extensions?.EXT_meshopt_compression)continue;
         const positions=access(primitive.attributes.POSITION);
         const normals=primitive.attributes.NORMAL!==undefined?access(primitive.attributes.NORMAL):null;
+        const skinned=node.skin!==undefined&&primitive.attributes.JOINTS_0!==undefined&&primitive.attributes.WEIGHTS_0!==undefined;
+        const joints=skinned?access(primitive.attributes.JOINTS_0):null;
+        const weights=skinned?access(primitive.attributes.WEIGHTS_0):null;
         const uv0=primitive.attributes.TEXCOORD_0!==undefined?access(primitive.attributes.TEXCOORD_0):null;
         const indices=primitive.indices!==undefined?access(primitive.indices):positions.map((_,i)=>i);
         if(indices.length%3!==0||count+indices.length/3>maxTriangles)throw Error('GLB triangle budget');
@@ -103,7 +106,8 @@ export function parseGlb(bytes,{maxBytes=8_000_000,maxTriangles=90_000}={}){
           for(let j=0;j<3;j++){
             const idx=indices[i+j],p=positions[idx],n=normals?.[idx];
             if(!p||p.length!==3)throw Error('GLB invalid vertex reference');
-            tri.push({p:transform(world,p),n:n?transform(world,n,0):null});
+            tri.push({p:transform(world,p),n:n?transform(world,n,0):null,
+              base:p,skin:skinned?{position:p,joints:joints[idx],weights:weights[idx]}:null});
           }
           const a=tri[0].p,b=tri[1].p,c=tri[2].p;
           const ab=b.map((v,k)=>v-a[k]),ac=c.map((v,k)=>v-a[k]);
@@ -112,7 +116,8 @@ export function parseGlb(bytes,{maxBytes=8_000_000,maxTriangles=90_000}={}){
           const uvs=uv0&&[uv0[indices[i]],uv0[indices[i+1]],uv0[indices[i+2]]];
           const uv=uvs&&uvs.every(p=>Array.isArray(p)&&p.length>=2)?
             [(uvs[0][0]+uvs[1][0]+uvs[2][0])/3,(uvs[0][1]+uvs[1][1]+uvs[2][1])/3]:null;
-          verts.push({a,b,c,n,color,uv,imageId});
+          verts.push({a,b,c,n,color,uv,imageId,
+            skinIndex:skinned?node.skin:null,vertexSkin:skinned?tri.map(v=>v.skin):null});
         }
         count+=indices.length/3;out.push(...verts);
       }
@@ -129,7 +134,32 @@ export function parseGlb(bytes,{maxBytes=8_000_000,maxTriangles=90_000}={}){
     if(!Number.isFinite(p[i]))throw Error('Nonfinite GLB vertex');
     mins[i]=Math.min(mins[i],p[i]);maxes[i]=Math.max(maxes[i],p[i]);
   }
-  return Object.freeze({triangles:out,bounds:{min:mins,max:maxes},sourceTriangleCount:count,embeddedImages:imageViews});
+  const skeletons=(json.skins||[]).slice(0,16).map(s=>{
+    if((s.joints||[]).length>128)throw Error('GLB joint budget');
+    const inv=s.inverseBindMatrices!==undefined?access(s.inverseBindMatrices):[];
+    return {joints:s.joints||[],inverseBindMatrices:inv};
+  });
+  const animations=(json.animations||[]).slice(0,8).map(anim=>({
+    channels:(anim.channels||[]).slice(0,1024).map(ch=>{
+      const sample=anim.samplers?.[ch.sampler];
+      if(!sample||!Number.isInteger(ch.target?.node))return null;
+      const times=access(sample.input),values=access(sample.output);
+      const interpolation=sample.interpolation||'LINEAR';
+      const samples=interpolation==='CUBICSPLINE'?
+        values.filter((_,i)=>i%3===1):values;
+      return {node:ch.target.node,path:ch.target.path,times,values:samples,interpolation};
+    }).filter(Boolean)
+  }));
+  const skinRuntime=skeletons.length?{
+    nodes:(json.nodes||[]).slice(0,512).map(n=>({
+      matrix:n.matrix,translation:n.translation,rotation:n.rotation,scale:n.scale,children:n.children||[]
+    })),
+    skins:skeletons,animations,
+    // The verified Gobkit rig contains one baked 24fps 30-frame sequence per segment.
+    clips:{idle:[0,29],attack:[30,59],dead:[60,89]}
+  }:null;
+  return Object.freeze({triangles:out,bounds:{min:mins,max:maxes},
+    sourceTriangleCount:count,embeddedImages:imageViews,skinRuntime});
 }
 export async function applyEmbeddedTextureColors(model){
   if(typeof createImageBitmap!=='function'||typeof OffscreenCanvas!=='function')return model;
