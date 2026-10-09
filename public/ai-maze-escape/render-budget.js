@@ -5,7 +5,7 @@ export function createRenderBudget({mode='adaptive',dpr=1.5,compact=false}={}){
     cinematic:{min:1.1,max:Math.min(2,dpr),shadow:1024},
     balanced:{min:.85,max:Math.min(1.5,dpr),shadow:768},
     performance:{min:.7,max:Math.min(1,dpr),shadow:512},
-    adaptive:{min:.75,max:Math.min(compact?1.15:1.5,dpr),shadow:compact?512:1024}
+    adaptive:{min:.68,max:Math.min(compact?1:1.25,dpr),shadow:512}
   };
   const name=profiles[mode]?mode:'adaptive';
   const profile=profiles[name];
@@ -15,13 +15,13 @@ export function createRenderBudget({mode='adaptive',dpr=1.5,compact=false}={}){
   function sample(fps,now=0){
     if(!Number.isFinite(fps)||fps<=0)return {ratio,changed:false,mode:name};
     if(locked)return {ratio,changed:false,mode:name};
-    lowStreak=fps<30?lowStreak+1:0;
-    highStreak=fps>55?highStreak+1:0;
-    if(now-lastAdjustment<5500)return {ratio,changed:false,mode:name};
+    lowStreak=fps<32?lowStreak+1:0;
+    highStreak=fps>54?highStreak+1:0;
+    if(now-lastAdjustment<3500)return {ratio,changed:false,mode:name};
     const low=lowStreak>=4,high=highStreak>=10;
     if(!low&&!high)return {ratio,changed:false,mode:name};
     const before=ratio;
-    ratio=clamp(Math.round((ratio+(low?-.15:.07))*100)/100);
+    ratio=clamp(Math.round((ratio+(low?-.20:.06))*100)/100);
     lowStreak=0;highStreak=0;
     if(ratio!==before)lastAdjustment=now;
     return {ratio,changed:ratio!==before,mode:name};

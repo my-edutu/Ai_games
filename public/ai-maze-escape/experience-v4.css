@@ -336,3 +336,9 @@ body[data-high-contrast="true"] #broadcast[data-ux-revision="3"] #maze-3d canvas
 @media(max-width:900px) and (orientation:landscape){
   #broadcast[data-ux-revision="3"] #capture-scene{font-size:8px;padding:5px}
 }
+
+/* Round 12: vivid but readable, cinematic color without blown-out white stone. */
+#broadcast[data-ux-revision="3"] #maze-3d canvas{filter:saturate(1.3) contrast(1.09) brightness(1.0)}
+#broadcast[data-ux-revision="3"][data-maze-biome="chambers"] #maze-3d canvas{filter:saturate(1.25) contrast(1.10) brightness(1.025)}
+#broadcast[data-ux-revision="3"][data-maze-biome="layers"] #maze-3d canvas{filter:saturate(1.28) contrast(1.09) brightness(1.02)}
+#broadcast[data-ux-revision="3"][data-maze-biome="hunter"] #maze-3d canvas{filter:saturate(1.24) contrast(1.1) brightness(1.015)}

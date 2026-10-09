@@ -401,6 +401,14 @@ function rebuild(snapshot) {
     const p=point(cell.cell,w);
     queueInstance(geometries.floor,cell.visible?(cell.cell%5===0?materials.alternate:materials.floor):materials.dark,[p.x,-0.13,p.z]);
     if(cell.visible){
+      // Thin inlaid floor mosaics add a readable sense of scale without
+      // hundreds of individual materials or per-frame draw calls.
+      if(cell.cell%3===0)for(const sign of [-1,1]){
+        queueInstance(geometries.cube,materials.trim,
+          [p.x+sign*.86,.016,p.z+sign*.86],[.23,.013,.075]);
+        queueInstance(geometries.cube,materials.trim,
+          [p.x-sign*.86,.016,p.z+sign*.86],[.075,.013,.23]);
+      }
       queueInstance(geometries.cube,materials.paving,[p.x,-.26,p.z],[GRID+.03,.16,GRID+.03]);
       if(cell.cell%3===0) {
         const crack=mesh(geometries.cube,materials.dark,world,[p.x+.26,-.017,p.z-.3],[.55,.013,.018]);
@@ -688,7 +696,7 @@ function render(now) {
   if(lanternLight) {
     explorer.updateMatrixWorld(true);
     explorer.userData.lantern.getWorldPosition(lanternLight.position);
-    lanternLight.intensity=reducedMotion?7.5:7.1+Math.sin(now*.016)*.6;
+    lanternLight.intensity=reducedMotion?4.5:4.3+Math.sin(now*.016)*.34;
   }
   // The sculpted ground stays fixed in world space, instead of sliding with the hero.
   if(sunLight){
@@ -771,6 +779,8 @@ function render(now) {
       activeEffects:moments.activeObjects,
       effectEvents:moments.recentEvents,
       qualityMode:renderBudget.mode,
+      softwareGpu:renderer.userData.softwareGpu||false,
+      activeShadows:renderer.shadowMap.enabled,
       pixelRatio:renderBudget.ratio,
       webgl2:renderer.capabilities.isWebGL2
     };
@@ -829,8 +839,17 @@ function init() {
     renderer.setPixelRatio(renderBudget.ratio);
     renderer.outputColorSpace=THREE.SRGBColorSpace;
     renderer.toneMapping=THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure=1.85;
-    renderer.shadowMap.enabled=true;
+    renderer.toneMappingExposure=1.55;
+    // GitHub Actions software renderers can spend entire seconds per shadow
+    // frame. Prefer legible real-time gameplay to a 1-FPS screenshot.
+    const webgl=renderer.getContext();
+    const vendorExt=webgl.getExtension('WEBGL_debug_renderer_info');
+    const gpuName=vendorExt
+      ?String(webgl.getParameter(vendorExt.UNMASKED_RENDERER_WEBGL)||'')
+      :String(webgl.getParameter(webgl.RENDERER)||'');
+    const softwareGpu=/swiftshader|llvmpipe|software raster|softpipe/i.test(gpuName);
+    renderer.userData.softwareGpu=softwareGpu;
+    renderer.shadowMap.enabled=!softwareGpu&&renderBudget.mode!=='performance';
     renderer.shadowMap.type=THREE.PCFSoftShadowMap;
     mount.appendChild(renderer.domElement);
     renderer.domElement.addEventListener('webglcontextlost',event=>{
@@ -867,7 +886,7 @@ function init() {
   scene.add(skyDome);
   camera=new THREE.PerspectiveCamera(44,1,0.1,160);
   camera.position.set(10,15,19);
-  skyLight=new THREE.HemisphereLight(0xe3f2e8,0x26292d,2.7);
+  skyLight=new THREE.HemisphereLight(0xe3f2e8,0x26292d,1.65);
   scene.add(skyLight);
   const terrain=new THREE.PlaneGeometry(185,185,98,98);
   const terrainPoints=terrain.getAttribute('position');
@@ -896,10 +915,10 @@ function init() {
     color:0xf9dab1,size:.055,transparent:true,opacity:.46,depthWrite:false
   }));
   scene.add(ambientDust);
-  const sun=new THREE.DirectionalLight(0xffe5bd,3.3);
+  const sun=new THREE.DirectionalLight(0xffe5bd,2.5);
   sunLight=sun;
   sun.position.set(-7,14,-3);
-  sun.castShadow=true;
+  sun.castShadow=renderer.shadowMap.enabled;
   sun.shadow.mapSize.set(renderBudget.shadowResolution,renderBudget.shadowResolution);
   sun.shadow.camera.left=-29;sun.shadow.camera.right=29;
   sun.shadow.camera.top=29;sun.shadow.camera.bottom=-29;
@@ -907,7 +926,7 @@ function init() {
   sun.shadow.bias=-.0008;
   scene.add(sun);
   scene.add(sun.target);
-  const edge=new THREE.DirectionalLight(0x5affca,2.6);
+  const edge=new THREE.DirectionalLight(0x5affca,1.85);
   rimLight=edge;
   edge.position.set(10,8,10);
   scene.add(edge);
@@ -917,7 +936,7 @@ function init() {
   explorer=humanoid(materials.cloak);
   dynamic.add(explorer);
   worldCraft.addHeroSurroundings({scene,hero:explorer,put:mesh,glow:addGlow});
-  lanternLight=new THREE.PointLight(0xffc77d,8,11,2);
+  lanternLight=new THREE.PointLight(0xffc77d,4.8,9,2);
   scene.add(lanternLight);
   let heroMeshes=0;
   explorer.traverse(item=>{if(item.isMesh){item.castShadow=true;heroMeshes++;}});

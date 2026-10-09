@@ -259,3 +259,14 @@ test('Quaternius ghost includes a skeletal rig and eight real CC0 animation clip
   assert.match(manifest,/Hollow Sentinel ghost/);
   assert.match(manifest,/CC0/);
 });
+
+test('adaptive mode defaults to an efficient resolution without touching user cinematic overrides',async()=>{
+  const {createRenderBudget}=await loadModule('render-budget.js');
+  const desktop=createRenderBudget({mode:'adaptive',dpr:3});
+  assert.ok(desktop.ratio<=1.25);
+  assert.equal(desktop.shadowResolution,512);
+  const phone=createRenderBudget({mode:'adaptive',compact:true,dpr:3});
+  assert.ok(phone.ratio<=1.0);
+  const cinematic=createRenderBudget({mode:'cinematic',dpr:2});
+  assert.ok(cinematic.ratio>=1.5,'the user-selected cinematic quality must remain rich');
+});

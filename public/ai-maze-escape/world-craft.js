@@ -213,7 +213,7 @@ export function makeWorldCraft(THREE) {
       // World diversity: five physically different architectural/flora grammars.
       // Everything occupies the CORNER of a KNOWN traversable cell, never its route centre.
       const variation=noise(col,row,103);
-      if(variation>.36&&monumentalProps<34){
+      if(variation>.65&&monumentalProps<24){
         const side=noise(col,row,61)<.5?-1:1;
         const corner=noise(col,row,63)<.5?-1:1;
         const x=pos.x+side*.94,z=pos.z+corner*.92;
@@ -229,7 +229,7 @@ export function makeWorldCraft(THREE) {
             queue(g.spire,m[p.leaf],[x+Math.cos(ang)*.48,.34,z+Math.sin(ang)*.48],[.08,.7,.09]);
           }
           if(variation>.84 && ambientFlares<10){
-            glow(world,[x,height+.68,z],2.25,p.ray);
+            glow(world,[x,height+.68,z],1.55,p.ray);
             ambientFlares++;
           }
         }else if(theme==='chambers'){
@@ -253,7 +253,7 @@ export function makeWorldCraft(THREE) {
               [.15+n*.017,h,.13+n*.016]);
           }
           if(ambientFlares<10){
-            glow(world,[x,1.2,z],2.15,p.ray);
+            glow(world,[x,1.2,z],1.55,p.ray);
             ambientFlares++;
           }
         }else if(theme==='hunter'){

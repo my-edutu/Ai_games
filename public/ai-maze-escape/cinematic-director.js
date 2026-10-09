@@ -1,12 +1,12 @@
 // Presentation-only cinematography. The world solver must never read this module.
 export function createCinematicDirector(THREE) {
   const profiles = {
-    exploration: {exposure:1.92,fov:44,fogFactor:.95,lampColor:0xffca83,accentColor:0x78ffe1,accentPower:2.6,caption:'THE UNKNOWN'},
-    clues: {exposure:2.06,fov:42,fogFactor:.88,lampColor:0xffe19c,accentColor:0x72dfff,accentPower:3.1,caption:'FOLLOW THE EVIDENCE'},
-    exit: {exposure:2.14,fov:46,fogFactor:.78,lampColor:0xfff1bf,accentColor:0x68ffd9,accentPower:4.1,caption:'A WAY OUT'},
-    pursuit: {exposure:1.98,fov:48,fogFactor:1.06,lampColor:0xffc68c,accentColor:0xff8398,accentPower:4.5,caption:'HOSTILE PRESENCE'},
-    success: {exposure:2.24,fov:48,fogFactor:.63,lampColor:0xffebbe,accentColor:0x8dffcb,accentPower:5.2,caption:'FREEDOM'},
-    setback: {exposure:1.83,fov:44,fogFactor:1.08,lampColor:0xffb784,accentColor:0xff729a,accentPower:2.8,caption:'THE MAZE ENDURES'},
+    exploration: {exposure:1.56,fov:44,fogFactor:.95,lampColor:0xffca83,accentColor:0x78ffe1,accentPower:1.9,caption:'THE UNKNOWN'},
+    clues: {exposure:1.66,fov:42,fogFactor:.88,lampColor:0xffe19c,accentColor:0x72dfff,accentPower:2.3,caption:'FOLLOW THE EVIDENCE'},
+    exit: {exposure:1.71,fov:46,fogFactor:.78,lampColor:0xfff1bf,accentColor:0x68ffd9,accentPower:1.95,caption:'A WAY OUT'},
+    pursuit: {exposure:1.58,fov:48,fogFactor:1.06,lampColor:0xffc68c,accentColor:0xff8398,accentPower:3.0,caption:'HOSTILE PRESENCE'},
+    success: {exposure:1.76,fov:48,fogFactor:.63,lampColor:0xffebbe,accentColor:0x8dffcb,accentPower:3.2,caption:'FREEDOM'},
+    setback: {exposure:1.47,fov:44,fogFactor:1.08,lampColor:0xffb784,accentColor:0xff729a,accentPower:2.8,caption:'THE MAZE ENDURES'},
   };
   let sceneType='exploration',fogDensity=.012,lastRun='',changedAt=0;
   let latest={sceneType,light:profiles.exploration};
