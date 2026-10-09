@@ -257,21 +257,27 @@ function line(route,width,material,parent=world) {
   parent.add(new THREE.Line(geo,material));
 }
 let instanceQueues=new Map();
-function queueInstance(geometry,material,position,scale=[1,1,1]){
+function queueInstance(geometry,material,position,scale=[1,1,1],tint=null){
   const key=geometry.uuid+'|'+material.uuid;
-  if(!instanceQueues.has(key))instanceQueues.set(key,{geometry,material,matrices:[]});
+  if(!instanceQueues.has(key))instanceQueues.set(key,{geometry,material,matrices:[],tints:[]});
   const matrix=new THREE.Matrix4();
   matrix.compose(
     new THREE.Vector3(position[0],position[1],position[2]),
     new THREE.Quaternion(),
     new THREE.Vector3(scale[0],scale[1],scale[2])
   );
-  instanceQueues.get(key).matrices.push(matrix);
+  const record=instanceQueues.get(key);
+  record.matrices.push(matrix);
+  record.tints.push(tint);
 }
 function finishInstances(){
   for(const record of instanceQueues.values()){
     const batch=new THREE.InstancedMesh(record.geometry,record.material,record.matrices.length);
     record.matrices.forEach((matrix,i)=>batch.setMatrixAt(i,matrix));
+    if(record.tints.some(Boolean)){
+      record.tints.forEach((tint,i)=>batch.setColorAt(i,new THREE.Color(tint||0xffffff)));
+      batch.instanceColor.needsUpdate=true;
+    }
     batch.instanceMatrix.needsUpdate=true;
     batch.castShadow=true;
     batch.receiveShadow=true;
@@ -290,7 +296,9 @@ function masonryWall(parent,x,z,kind,id,cutaway=false){
     return;
   }
   // Wall spine, carved ledges, fractured stone coursing and end buttress.
-  queueInstance(geometries['wall'+kind],materials.wall,[x,WALL_HEIGHT*.5,z]);
+  const stoneTints=[0xf7f1dd,0xdbf1e5,0xe8e2cd,0xf2e2c3,0xd4e0d9,0xf3e8d5];
+  const tint=stoneTints[(Math.abs(id)+(kind==='NS'?2:0))%stoneTints.length];
+  queueInstance(geometries['wall'+kind],materials.wall,[x,WALL_HEIGHT*.5,z],undefined,tint);
   queueInstance(geometries['trim'+kind],materials.wallTop,[x,WALL_HEIGHT+.03,z]);
   queueInstance(geometries.cube,materials.wallTop,[x,.20,z],kind==='NS'?[GRID+.08,.38,.31]:[.31,.38,GRID+.08]);
   // Horizontal masonry bands catch real light so the walls have physical depth.
@@ -399,7 +407,12 @@ function rebuild(snapshot) {
   });
   for (const cell of renderCells) {
     const p=point(cell.cell,w);
-    queueInstance(geometries.floor,cell.visible?(cell.cell%5===0?materials.alternate:materials.floor):materials.dark,[p.x,-0.13,p.z]);
+    // True per-instance material tints add irregular natural stone variation
+    // while retaining a single GPU draw for the repeated floor mesh.
+    const floorTints=[0xe8f1de,0xd6e7d6,0xf4e2c5,0xe7e0d0,0xd2e9df,0xf9eddf,0xcee2d1];
+    queueInstance(geometries.floor,
+      cell.visible?(cell.cell%5===0?materials.alternate:materials.floor):materials.dark,
+      [p.x,-0.13,p.z],undefined,floorTints[cell.cell%floorTints.length]);
     if(cell.visible){
       // Thin inlaid floor mosaics add a readable sense of scale without
       // hundreds of individual materials or per-frame draw calls.
@@ -719,10 +732,10 @@ function render(now) {
   // View controls only affect presentation; the autonomous AI never receives camera state.
   const mode=window.__MAZE_CAMERA_MODE__;
   const offset=mode==='follow'
-    ?new THREE.Vector3(3.5*scale,6.2*scale,5.4*scale)
+    ?new THREE.Vector3(3.2*scale,5.3*scale,4.6*scale)
     :mode==='tactical'
       ?new THREE.Vector3(.001,16.5*scale,3.8*scale)
-      :new THREE.Vector3(5.2*scale,8.0*scale,7.2*scale);
+      :new THREE.Vector3(4.5*scale,6.7*scale,6.3*scale);
   const desired=smoothedLook.clone().add(offset);
   if(!settledCamera || reducedMotion)camera.position.copy(desired);
   else camera.position.lerp(desired,Math.min(1,seconds*2.4));
