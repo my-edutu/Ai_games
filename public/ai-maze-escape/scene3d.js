@@ -195,6 +195,7 @@ const geometries = {
 const worldCraft=makeWorldCraft(THREE);
 const characterArt=makeCharacterArt(THREE);
 let ghostFactory=null;
+let architecturePack=null;
 const atmosphere=createAtmosphere(THREE);
 const cinematics=createCinematicDirector(THREE);
 const moments=createMomentEffects(THREE);
@@ -202,6 +203,15 @@ const renderBudget=createRenderBudget({mode:stateQuery.get('quality')||'adaptive
 let updateViewport=()=>{};
 Object.assign(materials,worldCraft.materials);
 const reusable = new Set([...Object.values(geometries),...Object.values(worldCraft.geometries),...Object.values(characterArt.geometries)]);
+const reusableMaterials=new Set(Object.values(materials));
+function placeArchitecture(name,parent,position,height=2.8,yaw=0){
+  if(!architecturePack||world.userData.prefabCount>=16)return false;
+  const placed=architecturePack.spawn(name,parent,{
+    x:position.x,y:position.y||0,z:position.z,height,yaw
+  });
+  if(placed){world.userData.prefabCount++;return true}
+  return false;
+}
 function point(cell, width) {
   return new THREE.Vector3((cell % width)*GRID,0,Math.floor(cell / width)*GRID);
 }
@@ -243,7 +253,10 @@ function clearWorld() {
     world.remove(entry);
     entry.traverse(object => {
       if(object.geometry && !reusable.has(object.geometry)) object.geometry.dispose();
-      if(object.material && !Object.values(materials).includes(object.material)) object.material.dispose();
+      if(object.material){
+        const mats=Array.isArray(object.material)?object.material:[object.material];
+        for(const mat of mats)if(!reusableMaterials.has(mat))mat.dispose();
+      }
     });
   }
   // Threat actors live in the dynamic layer and survive static geometry refreshes.
@@ -311,6 +324,11 @@ function masonryWall(parent,x,z,kind,id,cutaway=false){
     queueInstance(geometries.column,materials.wallTop,[x+ox,1.31,z+oz],[.78,1,.78]);
     queueInstance(geometries.cube,materials.trim,[x+ox,2.52,z+oz],[.43,.17,.43]);
   }
+  // Original Quaternius ivy mesh replaces some flat wall billboards.
+  // Decorative only: it has no collision and reveals no unseen passages.
+  if(id%13===3)placeArchitecture('Prop_Vine4',parent,{
+    x:x+(kind==='EW'?.13:0),y:.63,z:z+(kind==='NS'?.13:0)
+  },1.36,kind==='EW'?Math.PI/2:0);
   worldCraft.decorateWall({
     world:parent,x,z,id,kind,height:WALL_HEIGHT,
     queue:queueInstance,put:mesh,glow:addGlow
@@ -347,6 +365,7 @@ function masonryWall(parent,x,z,kind,id,cutaway=false){
 function addArch(parent,p,side){
   const acrossX=side.id===undefined?false:Math.abs(side.id-side.from)===1;
   const cx=p.x+side.dx,cz=p.z+side.dz;
+  if(placeArchitecture('Wall_Arch',parent,{x:cx,y:0,z:cz},2.86,acrossX?Math.PI/2:0))return;
   const bar=mesh(geometries.cube,materials.wallTop,parent,[cx,2.72,cz],acrossX?[.46,.32,2.05]:[2.05,.32,.46]);
   bar.castShadow=true;
   for(const sign of [-1,1]){
@@ -396,6 +415,7 @@ function rebuild(snapshot) {
   sceneAnimators=[];
   instanceQueues=new Map();
   world.userData.torchCount=0;
+  world.userData.prefabCount=0;
   const known = new Set(snapshot.cells.map(cell=>cell.cell));
   const w = snapshot.width;
   if(ground)ground.position.set((w-1)*GRID*.5,-.56,(snapshot.height-1)*GRID*.5);
@@ -463,9 +483,14 @@ function rebuild(snapshot) {
     if(!visible.has(door.a)||!visible.has(door.b)) continue;
     const a=point(door.a,w),b=point(door.b,w),center=a.clone().add(b).multiplyScalar(.5);
     const acrossX=a.x!==b.x;
-    const gate=mesh(geometries.cube,door.open?materials.wall:materials.trim,world,
-      [center.x,1.16,center.z],acrossX?[.21,2.26,1.62]:[1.62,2.26,.21]);
-    gate.castShadow=true;
+    // An OPEN gate must have a real visible passage, not an invisible
+    // AI-state / visual-state contradiction showing a solid closed door.
+    if(!door.open){
+      const gate=mesh(geometries.cube,materials.trim,world,
+        [center.x,1.16,center.z],acrossX?[.21,2.26,1.62]:[1.62,2.26,.21]);
+      gate.castShadow=true;
+    }
+    placeArchitecture('DoorFrame_Round_Brick',world,center,2.72,acrossX?Math.PI/2:0);
     mesh(geometries.cube,materials.wallTop,world,[center.x,2.59,center.z],
       acrossX?[.52,.28,2.38]:[2.38,.28,.52]);
     for(const sign of [-1,1]){
@@ -516,6 +541,19 @@ function rebuild(snapshot) {
     world,snapshot,cells:renderCells,queue:queueInstance,
     put:mesh,point,grid:GRID,glow:addGlow,centerCell:snapshot.currentCell
   });
+  // Real imported CC0 tower roofs dress the scenic horizon; these are NOT
+  // the location of any undiscovered exit, objective or navigation target.
+  if(architecturePack){
+    const origin=point(snapshot.currentCell,w);
+    for(let n=0;n<3;n++){
+      const angle=n*Math.PI*2/3+.58;
+      const far=GRID*8.5;
+      placeArchitecture('Roof_Tower_RoundTiles',world,{
+        x:origin.x+Math.cos(angle)*far,y:-.34,
+        z:origin.z+Math.sin(angle)*far
+      },4.6+(n%2)*.75,angle);
+    }
+  }
   // Characters/threats update on each observed frame, independently from world geometry.
   finishInstances();
   const target=point(snapshot.currentCell,w);
@@ -778,6 +816,8 @@ function render(now) {
       active:true,sampleAt:now,fps:currentFPS,drawCalls:renderer.info.render.calls,
       triangles:renderer.info.render.triangles,
       geometryObjects:world.children.length,
+      importedArchitecture:world.userData.prefabCount||0,
+      architectureAssets:window.__MAZE_3D_ARCHITECTURE__?.status||'procedural',
       explorerMeshes:explorer.userData.meshCount||0,
       riggedCharacter:window.__MAZE_3D_MODEL__?.status||'procedural',
       rigBones:window.__MAZE_3D_MODEL__?.bones||0,
@@ -815,6 +855,32 @@ async function loadSpectralThreats(){
     window.__MAZE_3D_MONSTER__={
       status:'fallback',source:'Quaternius Ultimate Monsters CC0'
     };
+  }
+}
+async function loadMedievalArchitecture(){
+  try{
+    const {loadArchitecturePack}=await import('/maze/architectural-assets.js');
+    if(!active)return;
+    const prefabs=await loadArchitecturePack(THREE);
+    if(!active)return;
+    architecturePack=prefabs;
+    for(const entry of prefabs.models.values()){
+      entry.scene.traverse(object=>{
+        if(object.geometry)reusable.add(object.geometry);
+        if(object.material){
+          const mats=Array.isArray(object.material)?object.material:[object.material];
+          for(const mat of mats)reusableMaterials.add(mat);
+        }
+      });
+    }
+    window.__MAZE_3D_ARCHITECTURE__=prefabs.stats;
+    if(lastFrame?.snapshot){
+      rebuild(lastFrame.snapshot);
+      lastTopologyKey=structuralSignature(lastFrame.snapshot);
+      lastEnvironmentUpdate=performance.now();
+    }
+  }catch(error){
+    window.__MAZE_3D_ARCHITECTURE__={status:'fallback'};
   }
 }
 async function loadRiggedHero(){
@@ -990,6 +1056,7 @@ function init() {
   window.__MAZE_3D_READY__=true;
   void loadRiggedHero();
   void loadSpectralThreats();
+  void loadMedievalArchitecture();
   requestAnimationFrame(render);
 }
 init();
