@@ -233,3 +233,16 @@ The latest GPU-instanced, rigged-skinning and GGX visual systems are **committed
 Reorganized phone footer into four complete thumb-sized primary controls (Pause, Cinema, Hero, More). The More button exposes an explicit three-column secondary command tray for Sound, Director, Squad, Gauntlet and 2.5D; all original actions remain present. Escape, panel opening and cinema mode close the tray. Desktop retains all controls in one row. New Playwright checks assert >=44px complete buttons, no footer overflow, actual secondary-action visibility, and capture `mobile-more-controls.png` at 390×844.
 
 **Gate:** The new Loop 39 screenshot and CI have not completed at commit time; visual/performance impact remains unverified. No merge or deployment approved. Official Days Gone Remastered still exceeds this game in facial/garment detail, vegetation, PBR surfaces, camera staging, animation, VFX and hardware performance.
+
+
+## Loop 39 — VERIFIED actual mobile command tray (run 37903755529, commit d6d66ab4)
+
+**Fresh GitHub Actions passed**, with 20 browser checks true and zero console/page errors. Downloaded and visually inspected current 390×844 `mobile.png`, `mobile-first-look.png` and `mobile-more-controls.png`. The earlier chopped cyan footer button is gone; Pause, Cinema, Hero and More are now all fully visible and thumb-sized. More reveals five real controls in a bounded on-demand tray without obscuring the primary footer or mobile mission deck. Desktop day/horde screenshots and 2.5D fallback remain accessible. This resolves a specific phone usability defect, **not** overall premium visual parity.
+
+**Important new visual critic finding:** The actual expanded tray shows SOUND incorrectly colored bright amber despite `aria-pressed=false`; the global `.controls button:first-child` rule accidentally matches the first nested secondary button. Also the closed MORE button inherits a bright active-looking fourth-child highlight. These are dishonest operator-state cues and should be corrected before treating the UI as polished.
+
+**Measured headless p95 remains severe:** the 2026-10-09 SwiftShader run reported large-horde CPU p95 ~1,434.4ms and night ~1,412.1ms (individual screenshots; not representative hardware or matched benchmark). The previous run was substantially faster on the same nominal runner class, so performance variability needs disciplined repeated profiling and GPU/CPU separation. No 60 FPS claim.
+
+## Loop 40 — correct nested control highlights (NEW CODE; browser retest pending)
+
+Scoped the Pause amber styling to direct child `.controls > button:first-child` only. Scoped the fourth-child bright cyan state to MORE only when `aria-expanded=true`; closed MORE and inactive SOUND remain dark until actually activated. Browser asserts inactive SOUND and MORE do not inherit the Pause background and that expanding MORE changes its computed visual state. This is purely CSS and browser assertions; simulation, recovery, 3D geometry, controls and 2.5D fallback are unchanged. Await the new CI and screenshot artifact before claiming verification.

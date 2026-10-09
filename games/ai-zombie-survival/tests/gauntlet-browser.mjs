@@ -243,8 +243,18 @@ try{
     assert.ok(button.top>=rail.footerTop-1&&button.bottom<=rail.footerBottom+1,
       'mobile control collides with footer: '+button.id);
   }
+  const closedColors=await page.evaluate(()=>{
+    const bg=id=>getComputedStyle(document.getElementById(id)).backgroundImage;
+    return {pause:bg('togglePause'),sound:bg('sound'),more:bg('mobileMoreControls')};
+  });
+  assert.notEqual(closedColors.sound,closedColors.pause,
+    'SOUND must not inherit the highlighted PAUSE style while disabled');
+  assert.notEqual(closedColors.more,closedColors.pause,
+    'closed MORE must not look like the highlighted PAUSE action');
   await page.locator('#mobileMoreControls').click();
   assert.equal(await page.locator('#mobileMoreControls').getAttribute('aria-expanded'),'true');
+  const openMoreColor=await page.locator('#mobileMoreControls').evaluate(el=>getComputedStyle(el).backgroundImage);
+  assert.notEqual(openMoreColor,closedColors.more,'MORE visual state must change only when opened');
   for(const id of ['sound','focus','rosterToggle'])
     assert.equal(await page.locator('#'+id).isVisible(),true,'secondary action must remain accessible: '+id);
   await page.screenshot({path:root+'mobile-more-controls.png'});
