@@ -211,3 +211,30 @@ main[data-phase="night"]{--cyan:#7bcbff;--amber:#fbd197;--coral:#ff738c}main[dat
  .supplyGrid span{font-size:9px}
  .supplyGrid strong{font-size:13px}
 }
+
+
+/* GAUNTLET LOOP 35: readable, genuine autonomous director narrative in cinematic captures. */
+.cinemaTicker{display:none;pointer-events:none}
+#hud[data-cinema="true"] .cinemaTicker{
+ position:absolute;left:29px;bottom:95px;display:flex;flex-direction:column;gap:5px;
+ padding:14px 16px 15px;width:min(325px,calc(100vw - 58px));
+ color:#effdf5;background:linear-gradient(125deg,#112d40df,#132238b5);
+ border-left:3px solid var(--cyan);border-radius:0 10px 10px 0;
+ box-shadow:0 16px 30px #07132192;backdrop-filter:blur(5px)}
+.cinemaEyebrow{display:flex;align-items:center;gap:7px;color:var(--cyan);
+ font-size:9px;font-weight:900;letter-spacing:.12em}
+.cinemaEyebrow>span:last-child{margin-left:auto;color:var(--amber);font-size:8px}
+.cinemaTicker strong{font-size:15px;font-weight:950;letter-spacing:.035em;color:#fff3ce}
+.cinemaTicker p{margin:0;font-size:12px;line-height:1.5;font-weight:600;color:#d6eef0}
+.cinemaScanline{position:absolute;left:0;bottom:0;right:0;height:2px;
+ background:linear-gradient(90deg,var(--cyan),#98d7ff,var(--amber),transparent)}
+#hud[data-cinema="true"] .controls #rosterToggle,
+#hud[data-cinema="true"] .controls #sound,
+#hud[data-cinema="true"] .controls a{display:none}
+#hud[data-cinema="true"] .bottom .controls{max-width:100%}
+@media(max-width:1050px){
+ #hud[data-cinema="true"] .cinemaTicker{width:245px;left:16px;bottom:93px}
+}
+@media(max-width:740px){
+ #hud[data-cinema="true"] .cinemaTicker{display:none}
+}
