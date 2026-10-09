@@ -943,6 +943,24 @@
     // and distant gantries into a readable perspective without shrinking the
     // actual gameplay view to a tiny close-up.
     let eye=[target[0]+3.9/zoom,9.0/zoom,target[2]+17.8/zoom];
+    // Opening broadcast: a full starting grid must remain legible before the
+    // director switches to individual leaders. This is presentation-only.
+    // Widen the overview framing rather than allowing the first six leaders
+    // to pull the entire field off-screen at the start of a race.
+    if(directive.mode==='overview'&&active.length>12){
+      const minX=Math.min(...active.map(m=>m.x));
+      const maxX=Math.max(...active.map(m=>m.x));
+      const minY=Math.min(...active.map(m=>m.y));
+      const maxY=Math.max(...active.map(m=>m.y));
+      const spread=Math.max(maxX-minX,maxY-minY);
+      const center=toWorld((minX+maxX)/2,(minY+maxY)/2,arena);
+      const opening=currentSnapshot.round?.elapsedTicks<=120;
+      if(opening){
+        target=[center[0],target[1],center[2]];
+        const distance=Math.max(19.5,spread*WORLD_SCALE*1.65);
+        eye=[target[0]+distance*.20/zoom,distance*.53/zoom,target[2]+distance/zoom];
+      }
+    }
     if(directive.mode==='overview'&&currentSnapshot.round.remaining<=4)eye=[target[0]+3.15/zoom,4.25/zoom,target[2]+6.55/zoom];
     if(directive.mode === 'danger')eye=[target[0]+2.8/zoom,3.75/zoom,target[2]+5.45/zoom];
     if(directive.mode==='cut-line')eye=[target[0]+2.6/zoom,4.30/zoom,target[2]+7.15/zoom];
