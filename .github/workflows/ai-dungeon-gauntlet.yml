@@ -1,0 +1,68 @@
+name: AI Dungeon 3D Gauntlet Foundation
+on:
+  pull_request:
+    paths:
+      - "games/ai-dungeon/**"
+      - "public/ai-dungeon/**"
+      - "scripts/serve-dungeon-stream.cjs"
+      - "scripts/run-dungeon-gauntlet.cjs"
+      - "tests/foundation/dungeon-core.test.cjs"
+      - "tests/browser/dungeon*"
+      - "package.json"
+      - "tsconfig.json"
+      - ".github/workflows/ai-dungeon-gauntlet.yml"
+  workflow_dispatch:
+concurrency:
+  group: ai-dungeon-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+jobs:
+  authority:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '22', cache: 'npm'}
+      - run: npm ci
+      - run: npm run dungeon:test
+      - run: npm run dungeon:gauntlet
+      - name: Upload actual headless evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dungeon-headless-campaign
+          path: evidence/dungeon/gauntlet-latest.json
+          if-no-files-found: warn
+  browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '22', cache: 'npm'}
+      - run: npm ci
+      - run: npm run dungeon:assets:strict
+      - run: npx playwright install --with-deps chromium
+      - run: npm run dungeon:visual
+        env:
+          DUNGEON_REQUIRE_MODELS: '1'
+      - name: Upload screenshot proof
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dungeon-browser-captures
+          path: |
+            artifacts/dungeon-*.png
+            artifacts/dungeon-visual-metrics.json
+            test-results/**
+          if-no-files-found: warn
+
+      - name: Upload focused WebGL scene audit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dungeon-world-only-review
+          path: |
+            artifacts/dungeon-3d-world-only.png
+            artifacts/dungeon-scene-visual-metrics.json
+          if-no-files-found: warn
