@@ -73,34 +73,48 @@ const floorThemes=[
  {sky:'#251343',fog:'#2f1b4d',torch:'#d39bff',accent:'#fc91c8',fill:'#aa8ae2'}
 ];let lastCutawayKey='';
 const cachedVec=new THREE.Vector3(),cachedQuat=new THREE.Quaternion(),cachedScale=new THREE.Vector3(),cachedMatrix=new THREE.Matrix4();
-function cutawayWalls(target){
- const dx=camera.position.x-target.x,dz=camera.position.z-target.z,length=Math.max(.001,Math.hypot(dx,dz));
- const dirX=dx/length,dirZ=dz/length;
- const key=[Math.round(target.x),Math.round(target.z),Math.round(camera.position.x),Math.round(camera.position.z)].join(':');
- if(key===lastCutawayKey)return;lastCutawayKey=key;
- const mesh=world.userData.walls,positions=world.userData.wallPositions;if(!mesh||!positions)return;
+// The camera follows one hero, but every living party member needs a clear view.
+// Read only public snapshots; this presentation pass never alters authority.
+function sightlineClearance(x,z,subjects,cameraPosition,pad=2.1){
+ for(const subject of subjects){
+  const vx=cameraPosition.x-subject.x,vz=cameraPosition.z-subject.z;
+  const distance=Math.hypot(vx,vz);
+  if(distance<.001)continue;
+  const dx=x-subject.x,dz=z-subject.z;
+  const progress=(dx*vx+dz*vz)/distance;
+  const sideways=Math.abs(dx*vz-dz*vx)/distance;
+  if(progress>-.55&&progress<distance+.7&&sideways<pad+progress*.13)return true;
+ }
+ return false;
+}
+function visibleSubjects(s,target){
+ const party=s?.units?.filter(u=>u.faction==='party'&&u.hp>0).map(u=>({x:u.x,z:u.z}))||[];
+ return party.length?party:[{x:target.x,z:target.z}];
+}
+function cutawayWalls(target,subjects){
+ const positions=world.userData.wallPositions,mesh=world.userData.walls;
+ if(!mesh||!positions)return;
+ // Every frame is intentional: a rounded key previously skipped critical
+ // updates while the camera and party moved within a tile.
  let cut=0;
  for(let i=0;i<positions.length;i++){
-  const p=positions[i],x=p[0]-target.x,z=p[1]-target.z;
-  const forward=x*dirX+z*dirZ,lateral=Math.abs(x*dirZ-z*dirX);
-  // Any foreground masonry intersecting the isometric eye-to-hero corridor
-  // collapses into a low foundation course; distant walls stay full height.
-  const occluding=forward>-.35&&forward<length+1.1&&lateral<2.55+forward*.18;
-  const height=occluding?.18:2.6;if(occluding)cut++;
-  cachedVec.set(p[0],height/2-.03,p[1]);cachedScale.set(1.015,height,1.015);
+  const point=positions[i];
+  const hidden=sightlineClearance(point[0],point[1],subjects,camera.position,2.1);
+  const height=hidden?.16:2.6;
+  if(hidden)cut++;
+  cachedVec.set(point[0],height/2-.03,point[1]);cachedScale.set(1.015,height,1.015);
   cachedMatrix.compose(cachedVec,cachedQuat,cachedScale);mesh.setMatrixAt(i,cachedMatrix);
  }
  world.userData.cutawayWalls=cut;
  let removed=0;
  for(const group of world.userData.foregroundProps||[]){
-  const x=group.position.x-target.x,z=group.position.z-target.z;
-  const distance=x*dirX+z*dirZ,lateral=Math.abs(x*dirZ-z*dirX);
-  const blocked=distance>0&&distance<length+1&&lateral<2+distance*.17;
-  group.visible=!blocked;if(blocked)removed++;
+  const hidden=sightlineClearance(group.position.x,group.position.z,subjects,camera.position,2.1);
+  group.visible=!hidden;if(hidden)removed++;
  }
  world.userData.hiddenForegroundProps=removed;
- mesh.instanceMatrix.needsUpdate=true;mesh.computeBoundingSphere();
+ mesh.instanceMatrix.needsUpdate=true;
 }
+
 const particles=[],MAX_PARTICLES=72;const seenEventIds=new Set();
 const effects=[],MAX_EFFECTS=12,ringGeometry=new THREE.RingGeometry(.92,1,56),shockGeometry=new THREE.RingGeometry(2.5,2.7,64);
 let shakeStrength=0;
@@ -550,12 +564,11 @@ function animate(t){requestAnimationFrame(animate);const time=t/1000,dt=Math.min
  camera.position.lerp(cam,reduced?1:.065);camera.lookAt(look.x,0,look.z);
  // The camera must settle before the cutaway is measured. Previous frames culled
  // props using stale view angles during cinematic shot switches.
- cutawayWalls(target);world.userData.dressing?.cutaway(target,camera.position);
+ const partySightlines=visibleSubjects(state,target);
+ cutawayWalls(target,partySightlines);world.userData.dressing?.cutaway(partySightlines,camera.position);
  if(world.userData.authoredProps?.group){
-  const dx=camera.position.x-target.x,dz=camera.position.z-target.z,len=Math.max(.01,Math.hypot(dx,dz)),dirX=dx/len,dirZ=dz/len;
   for(const prop of world.userData.authoredProps.group.children){
-   const x=prop.position.x-target.x,z=prop.position.z-target.z,f=x*dirX+z*dirZ,l=Math.abs(x*dirZ-z*dirX);
-   prop.visible=!(f>0&&f<len+.8&&l<2.8+f*.16);
+   prop.visible=!sightlineClearance(prop.position.x,prop.position.z,partySightlines,camera.position,2.4);
   }
  }
 
