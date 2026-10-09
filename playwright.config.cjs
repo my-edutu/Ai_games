@@ -13,5 +13,7 @@ module.exports = defineConfig({
     {command:'node scripts/serve-tower-stream.cjs --port=4176',url:'http://127.0.0.1:4176/tower/health',timeout:60000,reuseExistingServer:false,stdout:'pipe',stderr:'pipe'},
     {command:'node scripts/serve-dungeon-stream.cjs --port=4181',url:'http://127.0.0.1:4181/dungeon/health',timeout:60000,reuseExistingServer:false,stdout:'pipe',stderr:'pipe'}
   ],
+  // Dungeon has its own browser suite on port 4181; keep it out of the catalogue's 4173 baseURL suite.
+  testIgnore:'dungeon-stream.spec.cjs',
   reporter:[['list']]
 });
