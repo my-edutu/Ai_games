@@ -358,3 +358,36 @@ test('every individual marble carries a deterministic GPU-engraved race-ID signa
   assert.equal(renderer.includes('Math.random('),false,
     'visual marble identity must derive only from official numeric ID');
 });
+
+test('full-grid director and five-stage road stay cosmetic, authority-backed and accessible', () => {
+  for (const marker of [
+    "const widePack=directive.mode==='overview'&&active.length>=12",
+    "shell.dataset.cameraFraming=widePack?'full-grid':'director-focus'",
+    "shell.dataset.cameraWideCompetitors=String(active.length)",
+    'const lookAhead=Math.min(depth*0.28,7.0)',
+    'Cinema must not accidentally undo full-grid coverage',
+    'renderDetail: gl.getUniformLocation',
+    'if (uRenderDetail < 0.5)',
+  ]) assert.ok(renderer.includes(marker), 'missing live camera or low-tier GPU branch: ' + marker);
+  assert.ok(!renderer.includes('round.elapsedTicks<=120'), 'presentation snapshots do not expose elapsedTicks');
+  for (const marker of [
+    'id="stage-journey"',
+    'id="stage-journey-steps"',
+    'aria-label="Official five-stage tournament progress"',
+    'data-stage-step="1"',
+    'data-stage-step="5"',
+  ]) assert.ok(index.includes(marker), 'missing five-stage UI marker: '+marker);
+  for (const marker of [
+    "const stageJourneySteps = Array.from(document.querySelectorAll('[data-stage-step]'))",
+    "step < next.round.number",
+    "next.lifecycle==='tournament-result'",
+    "element.setAttribute('aria-current','step')",
+  ]) assert.ok(app.includes(marker), 'round-state rail must come from the server: '+marker);
+  for (const marker of [
+    '.stage-journey-steps li[data-state="complete"]',
+    '.stage-journey-steps li[data-state="active"]',
+    '.broadcast-shell[data-view="cinematic"] .stage-journey',
+    '.broadcast-shell[data-clean="true"] .stage-journey',
+    '@media(prefers-contrast:more)',
+  ]) assert.ok(styles.includes(marker), 'missing rail UI/accessibility: '+marker);
+});
