@@ -63,14 +63,43 @@ The first launch balance target is a 12–30 minute standard full-district run f
 - `phases/` — executable phase contracts.
 - `docs/` — project-specific experience and research standards.
 
-## Current Phase
+## Current Implementation Evidence
 
-Phase 0 establishes the executable game contract, cultural/visual reference pack, asset provenance and evidence model. Phase 1 establishes a headless deterministic simulation foundation. Three.js scene production begins only after the foundation and precision-movement gates.
+The existing repository contains fixed-step deterministic gameplay, authored/procedural Phase 6 districts, hazard contracts, kinematic movement, character-pose and visual-world presentation packages. Their readiness is determined by tests and evidence rather than package presence.
 
-## Current Commands
+**Gauntlet 3D preview (feature branch):** the experimental browser viewer at `/eko/` uses Three.js to render a Lagos-inspired streetscape with procedural shopfronts, minibuses, lighting, animated Tayo, road furniture, pedestrians, real hazard positions, six-district visual themes, player/AI controls, and a mobile HUD. A Node host runs the **existing authoritative Phase 6 simulation** at a fixed logical 60Hz; the browser renders immutable public snapshots over server-sent events. The renderer cannot award tokens, bypass hazards, or write physics state.
 
-Phase 0 is documentation-only. Phase 1 adds `scripts/run-eko-run-headless.cjs` and foundation test commands. Until those files are committed and verified, no README command claims they exist.
+**Run locally:**
 
-## Known Current Limitations
+```bash
+npm ci
+npm run eko:stream
+# Open http://127.0.0.1:4177/eko/
+# Live quality ledger: http://127.0.0.1:4177/eko/progress
+```
 
-There is not yet a playable build, renderer, audio engine, controller, AI policy, generated route system, viewer integration, or production deployment. These are owned by the numbered phases in the master plan and may not be represented as complete before evidence exists.
+**Focused smoke and browser evidence:**
+
+```bash
+npm run test:eko:stream
+npx playwright install chromium
+npx playwright test tests/browser/eko-run-gauntlet.spec.cjs
+```
+
+The browser runs in AI mode by default. Switch to Player Mode for left/right, Space to jump, Down to slide, or V to vault. Touch buttons are available on mobile; outfits may be changed for visual exploration without changing hitboxes. Quality Low removes decoration and shadows before gameplay warnings.
+
+**Current art/AI iteration:** Tayo now has a hierarchical original joint rig with articulated shoulders, elbows, wrists, hips, knees, and ankles, expressive facial parts and four layered Nigerian-inspired costume silhouettes. This is a more developed procedural character, but **not** a high-fidelity skinned production mesh. The Lagos streetscape has more detailed buses, painted facade panels, street commerce, balconies, rooftop tanks, water drains and utility lines; static meshes are batched into frustum-culled chunks. An experimental hazard-aware autonomous policy consumes only public game snapshots and legal action commands. Focused model, performance-batching and deterministic-AI tests are available in `tests/eko/`.
+
+**Known shortcomings and review status:** a real Chromium WebGL screenshot at commit `54af280` (GitHub Actions artifact `11538341657`) confirmed improved camera visibility and Tayo readability. It did **not** pass the external Subway Surfers City reference bar, and the capture indicated 5 FPS in CI, which may involve software rendering. The new static batching, skyline and AI revisions are awaiting their own runtime measurements. Six districts still use shared environment grammar, without individually authored premium assets. Normal-speed gameplay critique, device-specific performance, independent reviewers and blind A/B, production audio and materials, and endurance/release approval all remain open. The ledger deliberately does not claim a quality-bar win or production readiness.
+
+## Gauntlet Visual Quality Iterations 7–9 (feature branch)
+
+The game now includes an original six-district **chromatic presentation system** with a high-contrast aqua/amber/coral/violet HUD, responsive progress meter, checkpoint countdown, upcoming-hazard warning, compact autonomous-mode controls, and district-reactive colors. The procedural skyline has been expanded into more visually distinctive fictional Lagos streets with stalls, painted shopfronts, posters, produce stands, building balconies, colorful awnings, murals and gardens. A lightweight single-shader sunset sky adds a sun halo and moving cloud depth.
+
+Additional presentation components include capped **event-synchronized VFX** (jump, landing, token, danger and checkpoint), original **opt-in synthesized street ambience and action cues** (no third-party audio assets), and a bounded stream-event accumulator so the browser does not miss events between snapshot updates. None of these components can mutate authoritative physics or award progress.
+
+The latest composition is implemented on this branch; all new modules passed independent JavaScript syntax parsing, but **new browser screenshot / gameplay / GPU tests have not yet completed**. In particular, more procedural density does not imply professional visual polish or verified performance. CI remains responsible for validating new code against mobile/desktop rendering; the latest visual quality verdict is still **BELOW the reference**.
+
+Style and runtime modules: `public/eko-run/theme.css`, `world-vibrance.js`, `atmosphere.js`, `gamefeel.js`, and `soundscape.js`. Quality gates are continuously recorded in `public/eko-run/gauntlet.json`.
+
+**Scope:** development-only host bound to loopback by default. Additional authentication, deployment, multi-operator sessions and remote public viewer infrastructure are not included in this feature.
