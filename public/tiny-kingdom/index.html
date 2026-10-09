@@ -1268,6 +1268,12 @@ start();const mat4multiply=(a,b)=>{let c=new Float32Array(16);for(let col=0;col<
 let yaw=.7,pitch=.88,zoom=43,focusPoint=[0,0],dragging=false,lastX,lastY,screenTimer=0,frames=0;canvas.addEventListener('pointerdown',e=>{dragging=true;lastX=e.clientX;lastY=e.clientY;canvas.setPointerCapture(e.pointerId)});canvas.addEventListener('pointerup',()=>dragging=false);canvas.addEventListener('pointermove',e=>{if(!dragging)return;yaw+=(e.clientX-lastX)*.006;pitch=Math.max(.33,Math.min(1.38,pitch+(e.clientY-lastY)*.005));lastX=e.clientX;lastY=e.clientY;cinematic=false});canvas.addEventListener('wheel',e=>{zoom=Math.min(85,Math.max(16,zoom+e.deltaY*.035));e.preventDefault()},{passive:false});function button(id,fn){document.getElementById(id).onclick=fn}
 let cinematicHud=false;
 function setCinematicHud(enabled){
+ // The public API accepts explicit mode strings as well as button booleans.
+ // Boolean('full') is true and previously hid the HUD in mobile GPU captures.
+ if(typeof enabled==='string'){
+  if(enabled!=='cinema'&&enabled!=='full')throw Error('Unknown HUD mode: '+enabled);
+  enabled=enabled==='cinema';
+ }
  cinematicHud=Boolean(enabled);document.body.dataset.hud=cinematicHud?'cinema':'full';
  const toggle=document.getElementById('hud-toggle');
  toggle.setAttribute('aria-pressed',String(cinematicHud));
