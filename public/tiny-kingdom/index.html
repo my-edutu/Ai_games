@@ -248,6 +248,54 @@ body[data-hud="cinema"] .vignette{background:linear-gradient(180deg,#14222a15,tr
 }
 .sidebar{max-height:calc(100dvh - 230px);overflow-y:auto;overscroll-behavior-y:contain;scrollbar-width:thin;padding-bottom:8px}
 @media(prefers-reduced-motion:reduce){.live{animation:none}}
+
+/* Gauntlet 042: world-first survey layer. A readable live command strip,
+   not cinematic mode: the game continues and primary controls remain available. */
+#world-ribbon{display:none;position:fixed;left:50%;top:185px;transform:translateX(-50%);
+ z-index:27;box-sizing:border-box;max-width:calc(100vw - 16px);width:max-content;
+ padding:9px 12px;align-items:center;gap:12px;border-radius:16px;
+ background:linear-gradient(125deg,rgba(6,30,44,.93),rgba(11,83,88,.91));
+ border:1px solid rgba(255,221,155,.73);
+ box-shadow:0 18px 45px #02131dd4,inset 0 1px #fbeed14f;
+ backdrop-filter:blur(14px);color:#fdf6df;flex-wrap:wrap}
+body[data-command="world"] #world-ribbon{display:flex}
+body[data-command="world"] .sidebar,body[data-command="world"] .atlas,
+body[data-command="world"] .feed,body[data-command="world"] .hint,
+body[data-command="world"] .realm-signal{display:none!important}
+body[data-command="world"] .bottom #save,body[data-command="world"] .bottom #restore,
+body[data-command="world"] .bottom #restart,body[data-command="world"] .bottom .divider{display:none}
+body[data-hud="cinema"] #world-ribbon{display:none!important}
+#world-ribbon .world-identity{display:flex;flex-direction:column;gap:2px;min-width:97px;
+ padding-right:12px;border-right:1px solid rgba(253,221,174,.26)}
+#world-ribbon .world-identity strong{font:700 10px system-ui;letter-spacing:1.7px;color:#ffdf9f}
+#world-ribbon .world-identity small{font:500 10px system-ui;color:#bcefe3}
+#world-ribbon .world-measure{display:flex;gap:6px;align-items:baseline;white-space:nowrap}
+#world-ribbon .world-measure .world-glyph{color:#ffdf9f;font-size:13px}
+#world-ribbon .world-measure strong{font:700 18px Georgia,serif;font-variant-numeric:tabular-nums}
+#world-ribbon .world-measure small{font:600 10px system-ui;color:#bcefe3}
+#world-ribbon #world-story{max-width:190px;font:500 10px/1.4 system-ui;
+ color:#d3eee6;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+#world-open-command{border:1px solid rgba(255,220,155,.65);border-radius:10px;
+ padding:10px 12px;background:linear-gradient(145deg,#ffe8b0,#f0b66a);
+ color:#123943;font:800 11px system-ui;cursor:pointer;white-space:nowrap}
+#world-open-command:focus-visible,#command-toggle:focus-visible{outline:3px solid #ffdf95;outline-offset:3px}
+body[data-command="world"] #command-toggle{background:linear-gradient(145deg,#fce5ac,#f4b16c);
+ color:#123b44}
+@media(max-width:900px){
+ #world-ribbon{top:140px;gap:8px;justify-content:center;max-width:calc(100vw - 16px)}
+ #world-ribbon #world-story{display:none}
+ #world-ribbon .world-measure strong{font-size:16px}
+}
+@media(max-width:520px){
+ #world-ribbon{top:133px;left:8px;right:8px;transform:none;width:auto;gap:7px 12px;padding:8px}
+ #world-ribbon .world-identity{min-width:auto;padding-right:7px}
+ #world-ribbon .world-identity small{display:none}
+ #world-ribbon .world-measure{gap:3px}
+ #world-ribbon .world-measure small{font-size:9px}
+ #world-open-command{padding:8px;font-size:10px}
+ body[data-command="world"] .bottom{max-width:calc(100vw - 12px)}
+}
+@media(prefers-reduced-motion:reduce){#world-ribbon{scroll-behavior:auto}}
 </style></head><body>
 <canvas id="world" aria-label="Live 3D simulation of a medieval valley with autonomous villagers"></canvas><div class="vignette"></div>
 <div class="top"><div class="brand"><div class="seal">♜</div><div><div class="overline">AI Civilization · World 001</div><div class="name">The Living Valley</div><div class="subtitle">A kingdom that writes its own story</div></div></div><div class="pill"><span class="live"></span><span id="clock">DAY 1 · DAWN</span><span style="color:#dec48b" id="weather">☀ CLEAR SKIES</span></div></div>
@@ -264,9 +312,18 @@ body[data-hud="cinema"] .vignette{background:linear-gradient(180deg,#14222a15,tr
 <div class="panel" id="citizen-card"><h2>☼ Citizen spotlight</h2><button class="btn" id="cycleCitizen" style="font-size:10px;margin:-8px 0 12px;padding:6px 10px;border:1px solid #bdc8a850;border-radius:9px;background:#23382f;color:#dfcfad;cursor:pointer">↻ Next citizen</button><div style="font-family:Georgia,serif;font-size:20px" id="citizen-name">Alina</div><div style="color:#b7c7b8;font-size:12px;line-height:1.7;margin-top:6px" id="citizen-detail">Farmer · tending the fields</div><div style="font-size:10px;color:#d9c08a;margin-top:9px" id="citizen-bond">Every citizen has a story.</div></div></div>
 <div class="feed panel"><h2>✦ Stories unfolding</h2><div id="feed"></div></div>
 <div class="hint">DRAG TO ORBIT · SCROLL TO ZOOM<br>EVERY CITIZEN HAS A NAME AND PURPOSE<br><a href="progress.html">VIEW GAUNTLET PROGRESS ↗</a></div>
-<aside class="atlas" aria-label="Interactive kingdom map"><div class="atlas-heading"><span>◈ THE KINGDOM ATLAS</span><b>LIVE</b></div><canvas id="atlas-map" width="460" height="330" aria-label="Map of homes and moving villagers; click to move camera"></canvas><div class="atlas-footer"><span id="atlas-season">✧ SEASONAL LANDSCAPE</span><em>↗ PAN CAMERA</em></div><div class="atlas-legend"><span><i style="background:#ffe29b"></i>Village</span><span><i style="background:#f9fce8"></i>People</span><span><i style="background:#7be5f9"></i>River</span></div></aside><div class="bottom"><button id="pause" class="btn active">Ⅱ Pause</button><span class="divider"></span><button class="btn active" id="speed1">1× Real time</button><button class="btn" id="speed4">4×</button><button class="btn" id="speed16">16×</button><span class="divider"></span><button class="btn" id="focus">◎ Follow villager</button><button class="btn" id="camera">◈ Cinematic</button><button class="btn" id="hud-toggle" aria-pressed="false">⌗ Clear HUD</button><button class="btn" id="save">↓ Save world</button><button class="btn" id="restore">↑ Restore world</button><button class="btn" id="restart">↻ New world</button></div><div class="toast" id="toast"></div><button id="cinema-exit" type="button" aria-label="Restore game interface">✧ Restore interface · H</button>
+<aside class="atlas" aria-label="Interactive kingdom map"><div class="atlas-heading"><span>◈ THE KINGDOM ATLAS</span><b>LIVE</b></div><canvas id="atlas-map" width="460" height="330" aria-label="Map of homes and moving villagers; click to move camera"></canvas><div class="atlas-footer"><span id="atlas-season">✧ SEASONAL LANDSCAPE</span><em>↗ PAN CAMERA</em></div><div class="atlas-legend"><span><i style="background:#ffe29b"></i>Village</span><span><i style="background:#f9fce8"></i>People</span><span><i style="background:#7be5f9"></i>River</span></div></aside><div class="bottom"><button id="pause" class="btn active">Ⅱ Pause</button><span class="divider"></span><button class="btn active" id="speed1">1× Real time</button><button class="btn" id="speed4">4×</button><button class="btn" id="speed16">16×</button><span class="divider"></span><button class="btn" id="focus">◎ Follow villager</button><button class="btn" id="camera">◈ Cinematic</button><button class="btn" id="command-toggle" type="button" aria-pressed="false" aria-controls="world-ribbon" aria-keyshortcuts="U">◉ World view</button><button class="btn" id="hud-toggle" aria-pressed="false">⌗ Clear HUD</button><button class="btn" id="save">↓ Save world</button><button class="btn" id="restore">↑ Restore world</button><button class="btn" id="restart">↻ New world</button></div><div class="toast" id="toast"></div><button id="cinema-exit" type="button" aria-label="Restore game interface">✧ Restore interface · H</button>
 <div class="world-tour" role="group" aria-label="Explore scenic village camera viewpoints"><small>EXPLORE<br>THE VALLEY</small><button class="tour-btn" data-scenic="valley" aria-pressed="true">✦ Village</button><button class="tour-btn" data-scenic="market" aria-pressed="false">◈ Market</button><button class="tour-btn" data-scenic="mill" aria-pressed="false">✧ Windmill</button><button class="tour-btn" data-scenic="orchard" aria-pressed="false">❀ Orchard</button><button class="tour-btn" data-scenic="river" aria-pressed="false">≈ Riverside</button><button class="tour-btn" data-scenic="sanctuary" aria-pressed="false">♜ Sanctuary</button></div>
 <div class="realm-signal" id="realm-signal" role="status" aria-live="off"><i></i><b id="realm-title">A LIVING KINGDOM</b><span id="realm-detail">Every villager shapes the valley</span></div>
+<section id="world-ribbon" role="group" aria-label="World-first kingdom overview">
+ <div class="world-identity"><strong>✦ LIVE KINGDOM</strong><small>World-first view · U</small></div>
+ <div class="world-measure"><span class="world-glyph">♜</span><strong id="world-population">12</strong><small>People</small></div>
+ <div class="world-measure"><span class="world-glyph">✿</span><strong id="world-food">180</strong><small>Food</small></div>
+ <div class="world-measure"><span class="world-glyph">♧</span><strong id="world-wood">90</strong><small>Wood</small></div>
+ <div class="world-measure"><span class="world-glyph">✧</span><strong id="world-gold">42</strong><small>Gold</small></div>
+ <span id="world-story" aria-live="off">Your villagers write their own chronicle.</span>
+ <button id="world-open-command" type="button" aria-label="Open complete kingdom command interface">▤ Command desk</button>
+</section>
 <script>
 (() => {
 'use strict';
@@ -1430,6 +1487,28 @@ function setCinematicHud(enabled){
  toggle.setAttribute('aria-pressed',String(cinematicHud));
  toggle.textContent=cinematicHud?'⌗ Restore HUD':'⌗ Clear HUD';return cinematicHud;
 }
+let commandView='command';
+function updateWorldRibbon(){
+ const sources=[['population','population'],['food','food'],['wood','wood'],['gold','gold']];
+ for(const [name,id] of sources){
+  document.getElementById('world-'+name).textContent=document.getElementById(id).textContent.trim();
+ }
+ const story=document.querySelector('#feed .feeditem');
+ document.getElementById('world-story').textContent=story?
+  story.textContent.replace(/\\s+/g,' ').trim().slice(0,140):
+  'Your villagers write their own chronicle.';
+}
+function setCommandView(next){
+ if(next!=='world'&&next!=='command')throw Error('Unknown command view: '+next);
+ commandView=next;document.body.dataset.command=next;
+ const control=document.getElementById('command-toggle');
+ control.setAttribute('aria-pressed',String(next==='world'));
+ control.textContent=next==='world'?'▤ Full command':'◉ World view';
+ updateWorldRibbon();return commandView;
+}
+document.body.dataset.command='command';
+button('command-toggle',()=>setCommandView(commandView==='command'?'world':'command'));
+button('world-open-command',()=>setCommandView('command'));
 button('hud-toggle',()=>setCinematicHud(!cinematicHud));
 button('cinema-exit',()=>setCinematicHud(false));
 document.addEventListener('keydown',e=>{
@@ -1437,7 +1516,12 @@ document.addEventListener('keydown',e=>{
    const tag=document.activeElement?.tagName;
    if(tag==='INPUT'||tag==='TEXTAREA'||tag==='SELECT')return;
    setCinematicHud(!cinematicHud);
+ }else if((e.key==='u'||e.key==='U')&&!e.ctrlKey&&!e.metaKey&&!e.altKey){
+   const tag=document.activeElement?.tagName;
+   if(tag==='INPUT'||tag==='TEXTAREA'||tag==='SELECT'||document.activeElement?.isContentEditable)return;
+   setCommandView(commandView==='world'?'command':'world');
  }else if(e.key==='Escape'&&cinematicHud)setCinematicHud(false);
+ else if(e.key==='Escape'&&commandView==='world')setCommandView('command');
 });
 button('pause',()=>{frozen=!frozen;document.getElementById('pause').textContent=frozen?'▶ Resume':'Ⅱ Pause'});for(let v of [1,4,16])button('speed'+v,()=>{speed=v;for(let n of [1,4,16])document.getElementById('speed'+n).classList.toggle('active',n===v)});button('focus',()=>{follow=!follow;document.getElementById('focus').classList.toggle('active',follow)});button('camera',()=>{cinematic=!cinematic;document.getElementById('camera').classList.toggle('active',cinematic)});button('restart',()=>{city.splice(12);start()});
 
@@ -1588,7 +1672,7 @@ currentMaterial=MATERIAL.WOOD;
  for(const p of people)villager(p);currentMaterial=MATERIAL.GENERAL;weatherParticles(atmosphere);
 const elevation=Math.sin(pitch)*zoom,rad=Math.cos(pitch)*zoom,eye=[focusPoint[0]+Math.sin(yaw)*rad,elevation,focusPoint[1]+Math.cos(yaw)*rad];let m=mat4multiply(perspective(Math.PI/3.2,w/h,.1,190),lookAt(eye,[focusPoint[0],.25,focusPoint[1]],[0,1,0]));gl.uniformMatrix4fv(uniforms.viewProjection,false,m);gl.uniform3f(uniforms.fogColor,...atmosphere.fog);gl.uniform3f(uniforms.sunTint,...atmosphere.light);gl.uniform1f(uniforms.worldTime,state.t);gl.uniform3f(uniforms.eyePosition,eye[0],eye[1],eye[2]);gl.uniform3f(uniforms.sunDirection,Math.cos(state.t/24*6.283),.3+atmosphere.daylight*.9,Math.sin(state.t/24*6.283));lastFrameTriangles=(gpuAvailable?scenicMeshCache.length+data.length:data.length)/30;
 if(gpuAvailable){bindGeometry(staticBuffer);gl.drawArrays(gl.TRIANGLES,0,scenicMeshCache.length/10);}
-bindGeometry(buffer);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(data),gl.DYNAMIC_DRAW);gl.drawArrays(gl.TRIANGLES,0,data.length/10);if((frames++%14)===0){updateUI();drawAtlas();updateRealmSignal()}}
-requestAnimationFrame(render);window.__tinyKingdom={getState:()=>JSON.parse(JSON.stringify({state,people:people.map(({name,job,x,z,target})=>({name,job,x,z,target}))})),setSpeed:x=>{speed=x},step,reset:start,renderer:()=>canvas.getContext('webgl')?'webgl':'software',metrics:()=>({citizens:people.length,buildings:city.length+2,day:Math.floor(state.t/24)+1,food:state.food,wood:state.wood,gold:state.gold,relationships:people.filter(p=>p.friend).length}),route:(a,b)=>routeBetween(a[0],a[1],b[0],b[1]),walkable:(p)=>walkable(p[0],p[1]),getNavigation:()=>people.map(p=>({name:p.name,position:[p.x,p.z],target:p.target,remaining:p.path?.length||0,path:p.path,activity:p.activity,hunger:p.hunger,energy:p.energy})),exportSnapshot,restoreSnapshot,saveWorld,restoreWorld,climateAt,skyConditions,getCitizenProfiles:()=>cloneData(people.map(({name,job,trait,friend,bonds,energy,hunger,activity})=>({name,job,trait,friend,bonds,energy,hunger,activity}))),getRigPose:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(citizenRigPose(people[index])):null,getGarmentProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(garmentProfile(people[index],index,citizenRigPose(people[index]))):null,getFaceProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(faceProfile(people[index],index)):null,getSelectedCitizen:()=>people[selectedCitizen]?.name,routeCacheMetrics:()=>({entries:routeCache.size,hits:cacheHits,misses:cacheMisses}),getCamera:()=>({yaw,pitch,zoom,focus:focusPoint.slice(),follow,cinematic}),getTerrainHeight:(x,z)=>terrain(x,z),getWildfloraCount:()=>wildflora.length,getMeadowStats:()=>({clusters:meadowUnderstory.length,triangles:meadowUnderstory.length*8,season:climateAt(state.t).season,cached:true}),getMaterialSystem:()=>({vertexStride:10,surfaceShaderVersion:'procedural-023',materials:Object.keys(MATERIAL),gpuRenderValidated:false}),waterStats:()=>({model:'fresnel-ripple-shorefoam-v1',segments:RIVER_SEGMENTS,waterTriangles:RIVER_SEGMENTS*RIVER_BANDS*2,bankTriangles:RIVER_SEGMENTS*2*RIVER_BANK_BANDS*2}),getScenicSites:scenicSiteMetrics,getFestivalVisualStats:()=>({season:festivalSeason,cacheBuilds:festivalCacheBuilds,vertices:festivalGeometry?.length||0}),getGeometryAudit:geometryAudit,getCottageEffects:()=>({activeChimneys,smokePuffs,smokeTriangles,smokeMaxRadius}),renderStats:()=>({terrainRebuilds,terrainCacheKey,terrainCacheTriangles,lastFrameTriangles,scenicMeshRebuilds,scenicMeshTriangles,scenicMeshKey,staticGpuUploads,dualBufferGPU:gpuAvailable}),renderQuality,setRenderQuality,shadowStats:()=>({triangles:castShadowTriangles,...sunShadow(state.t)}),sampleSunShadow:(time)=>sunShadow(time),getEconomyHistory:()=>cloneData(uiHistory),getHudMode:()=>cinematicHud?'cinema':'full',setHudMode:setCinematicHud,skyStats:()=>({enabled:gpuAvailable,passes:skyPassCount,model:'day-night-atmosphere-v1'}),setCamera:o=>{yaw=Number.isFinite(o.yaw)?o.yaw:yaw;pitch=Number.isFinite(o.pitch)?Math.max(.25,Math.min(1.45,o.pitch)):pitch;zoom=Number.isFinite(o.zoom)?Math.max(9,Math.min(85,o.zoom)):zoom;if(Array.isArray(o.focus)&&o.focus.length===2)focusPoint=o.focus.slice(0,2)}};
+bindGeometry(buffer);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(data),gl.DYNAMIC_DRAW);gl.drawArrays(gl.TRIANGLES,0,data.length/10);if((frames++%14)===0){updateUI();drawAtlas();updateRealmSignal();updateWorldRibbon()}}
+requestAnimationFrame(render);window.__tinyKingdom={getState:()=>JSON.parse(JSON.stringify({state,people:people.map(({name,job,x,z,target})=>({name,job,x,z,target}))})),setSpeed:x=>{speed=x},step,reset:start,renderer:()=>canvas.getContext('webgl')?'webgl':'software',metrics:()=>({citizens:people.length,buildings:city.length+2,day:Math.floor(state.t/24)+1,food:state.food,wood:state.wood,gold:state.gold,relationships:people.filter(p=>p.friend).length}),route:(a,b)=>routeBetween(a[0],a[1],b[0],b[1]),walkable:(p)=>walkable(p[0],p[1]),getNavigation:()=>people.map(p=>({name:p.name,position:[p.x,p.z],target:p.target,remaining:p.path?.length||0,path:p.path,activity:p.activity,hunger:p.hunger,energy:p.energy})),exportSnapshot,restoreSnapshot,saveWorld,restoreWorld,climateAt,skyConditions,getCitizenProfiles:()=>cloneData(people.map(({name,job,trait,friend,bonds,energy,hunger,activity})=>({name,job,trait,friend,bonds,energy,hunger,activity}))),getRigPose:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(citizenRigPose(people[index])):null,getGarmentProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(garmentProfile(people[index],index,citizenRigPose(people[index]))):null,getFaceProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(faceProfile(people[index],index)):null,getSelectedCitizen:()=>people[selectedCitizen]?.name,routeCacheMetrics:()=>({entries:routeCache.size,hits:cacheHits,misses:cacheMisses}),getCamera:()=>({yaw,pitch,zoom,focus:focusPoint.slice(),follow,cinematic}),getTerrainHeight:(x,z)=>terrain(x,z),getWildfloraCount:()=>wildflora.length,getMeadowStats:()=>({clusters:meadowUnderstory.length,triangles:meadowUnderstory.length*8,season:climateAt(state.t).season,cached:true}),getMaterialSystem:()=>({vertexStride:10,surfaceShaderVersion:'procedural-023',materials:Object.keys(MATERIAL),gpuRenderValidated:false}),waterStats:()=>({model:'fresnel-ripple-shorefoam-v1',segments:RIVER_SEGMENTS,waterTriangles:RIVER_SEGMENTS*RIVER_BANDS*2,bankTriangles:RIVER_SEGMENTS*2*RIVER_BANK_BANDS*2}),getScenicSites:scenicSiteMetrics,getFestivalVisualStats:()=>({season:festivalSeason,cacheBuilds:festivalCacheBuilds,vertices:festivalGeometry?.length||0}),getGeometryAudit:geometryAudit,getCottageEffects:()=>({activeChimneys,smokePuffs,smokeTriangles,smokeMaxRadius}),renderStats:()=>({terrainRebuilds,terrainCacheKey,terrainCacheTriangles,lastFrameTriangles,scenicMeshRebuilds,scenicMeshTriangles,scenicMeshKey,staticGpuUploads,dualBufferGPU:gpuAvailable}),renderQuality,setRenderQuality,shadowStats:()=>({triangles:castShadowTriangles,...sunShadow(state.t)}),sampleSunShadow:(time)=>sunShadow(time),getEconomyHistory:()=>cloneData(uiHistory),getHudMode:()=>cinematicHud?'cinema':'full',setHudMode:setCinematicHud,getCommandView:()=>commandView,setCommandView,skyStats:()=>({enabled:gpuAvailable,passes:skyPassCount,model:'day-night-atmosphere-v1'}),setCamera:o=>{yaw=Number.isFinite(o.yaw)?o.yaw:yaw;pitch=Number.isFinite(o.pitch)?Math.max(.25,Math.min(1.45,o.pitch)):pitch;zoom=Number.isFinite(o.zoom)?Math.max(9,Math.min(85,o.zoom)):zoom;if(Array.isArray(o.focus)&&o.focus.length===2)focusPoint=o.focus.slice(0,2)}};
 })();
 </script></body></html>
