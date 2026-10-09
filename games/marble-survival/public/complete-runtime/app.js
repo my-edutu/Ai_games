@@ -19,6 +19,7 @@ const qualificationMeterFill = document.getElementById('qualification-meter-fill
 const arenaBiomeTitle = document.getElementById('arena-biome-title');
 const arenaBiomeSubtitle = document.getElementById('arena-biome-subtitle');
 const arenaStageNumber = document.getElementById('arena-stage-number');
+const stageJourneySteps = Array.from(document.querySelectorAll('[data-stage-step]'));
 const arenaThreat = document.getElementById('arena-threat');
 const BIOME_BROADCAST = Object.freeze({
   'seeding-sprint': Object.freeze({ title: 'AURORA SPEEDWAY', subtitle: 'Neon horizons. Thirty-two contenders. One survivor.' }),
@@ -601,6 +602,17 @@ function renderHud(next) {
   if (arenaBiomeTitle) arenaBiomeTitle.textContent = biome.title;
   if (arenaBiomeSubtitle) arenaBiomeSubtitle.textContent = biome.subtitle;
   if (arenaStageNumber) arenaStageNumber.textContent = String(next.round.number).padStart(2, '0');
+  // Live tournament phase is read-only official data. Never infer completion
+  // from time, animation, user votes, or the local renderer's own progression.
+  for (const element of stageJourneySteps) {
+    const step = Number(element.dataset.stageStep);
+    const state = step < next.round.number || (step===next.round.number &&
+      next.lifecycle==='tournament-result') ? 'complete' :
+      step === next.round.number ? 'active' : 'locked';
+    element.dataset.state = state;
+    if (state==='active') element.setAttribute('aria-current','step');
+    else element.removeAttribute('aria-current');
+  }
   if (arenaThreat) {
     const threatened = next.marbles.filter(marble => marble.status === 'threatened' || marble.status === 'recovering').length;
     const windStrength = Math.round(Math.max(0,...(next.arena.windZones||[]).map(zone =>
