@@ -161,3 +161,32 @@ The browser screenshot suite now captures `world-hud-hidden.png` (actual world w
 **CI stability:** Real screenshot verification was repeatedly starved by rapid PR commits triggering `cancel-in-progress: true`. Changed Gauntlet workflow concurrency to `cancel-in-progress: false` so a running Chromium test can complete rather than being killed by every subsequent art commit, while pending runs are still deduplicated. Acceptance remains **NOT PASSED** until fresh captures, browser functionality, source unit tests and independent reference comparison are approved.
 
 **Remaining stop-ship:** Need truly production-quality originally created/licensed human meshes, full skin animation, PBR textures and shadows with real hardware profiling, better kill animations, performance soak and reference screenshots. The CC0 minion models are intermediate assets, not the intended finished zombie look.
+
+
+## Gauntlet loops 27–32 — four active quality barriers (current implementation)
+
+**Measured blocker:** Browser workflow `37789586403` initially failed at the root because `serve.mjs` rendered the `/web/3d.html` markup at the bare `/` URL. The relative module and stylesheet paths were therefore requested as `/gauntlet3d.js` and `/gauntlet3d.css` and returned 404. Fixed with a canonical HTTP redirect from `/` to `/web/3d.html`. Later run `37869376408` passed **58/59 deterministic tests**, then failed solely because the new rig test’s audit mock did not implement `mesh.tri`; this mock now validates RGB triangle records and ellipsoid primitives as actual renderer API methods.
+
+### Loop 28: Rendering throughput — real WebGL2 instancing
+
+`web/instanced-horde.js` contains an original humanoid silhouette mesh with **812 triangles** and dedicated per-instance world transforms, scale and distinct infected palettes. A crowd of 100–500 distant infected is rendered by a **single `gl.drawArraysInstanced()` GPU command**, not rebuilt into a per-zombie CPU vertex array every animation frame. `partitionHorde` deterministically allocates camera-close actors to individually articulated geometry and sends other genuinely visible actors to the instanced buffer; every entity remains governed by the same fixed-step simulation and event logic. A Node acceptance test checks 260-actor horde nonmutation, unique visual representation and no dropped agents inside the documented view range. The browser test now records `gpuHordeInstances`, `gpuHordeTriangles`, mesh P95 and measured CPU P95 from a **real live large-horde scene**.
+
+**Caveat:** GPU instancing decreases CPU scene-building volume but may still be fragment/vertex-bound in headless SwiftShader and has not yet passed a representative GPU/FPS benchmark. It is not evidence of production-level 60 FPS.
+
+### Loop 29: Near-camera anatomical character reconstruction
+
+`web/character-rig.js` builds tapered torso surfaces, distinct skinned faces, shoulder/neck attachments, posed elbow/wrist and hip/knee/ankle joints, medical/scouting/defender gear and asymmetric infected mutations using authored 3D surfaces. Role/action-linked poses are taken from the real simulation; mutation/death/attack do not modify game state. Near-camera actors use original anatomical geometry; distant infected are intentionally simplified and instanced for performance. An independent critic pass found inward-facing torso and infected head normals, and reversed the geometric winding; dedicated tests now enforce outward-facing normals.
+
+**Caveat:** These are original organic procedural meshes, **not** scanned/hand-sculpted AAA characters, facial rigs, motion capture or premium texture sets.
+
+### Loop 30: Material research implementation
+
+`web/material-functions.js` adds a true GGX specular BRDF, Fresnel reflection model, variable surface roughness, procedural weathered concrete, leakage streaks and asphalt puddle wetness based on world-space positions. Full microtexture is gated to hardware GPUs; software headless GL keeps an inexpensive diffuse fallback. The shader is compiled during true Chromium WebGL2 screenshots; no claims are made about material parity before it passes.
+
+### Loops 31–32: Rigged source assets and animation continuity
+
+`web/gltf-assets.js` can now read GLB 2.0 `JOINTS_0`, `WEIGHTS_0`, inverse bind matrices and baked animation samplers. `web/skinning.js` implements joint palette evaluation, quaternion slerp interpolation, time-clamped death and CPU vertex deform for up to three close imported CC0 actors. `web/animation-mixer.js` smooths survivor and infected motion when real decisions change (aim/attack/rescue/retreat/injury). These animation transforms are explicitly cosmetic and bounded; they never affect game outcomes. License status: optional Gobkit low-poly source CC0 is pinned and verified; offline production bundling and bespoke final high-fidelity assets remain open.
+
+### Harsh critic verdict — OPEN
+
+The latest GPU-instanced, rigged-skinning and GGX visual systems are **committed but not end-to-end browser validated**. The earlier real failure at 238 ms CPU P95 in a large-horde software renderer is a baseline, **not an achieved improvement**. The next visual A/B must inspect day/night actual screenshots, horde crowds, UI, faces, animation, shadows and headless/hardware p95. Stop-ship until independent Days Gone comparison and performance/OBS soaking are passed. Do not mistake this implementation count for a 100% Gauntlet score.

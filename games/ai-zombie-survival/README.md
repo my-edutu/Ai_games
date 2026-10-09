@@ -74,3 +74,12 @@ Launch with `/web/3d.html?models=cc0` to exercise three external, explicitly pin
 The models are by Gobkit (https://github.com/Ariescar/gobkit-free-assets) under its verified CC0 1.0 license. Pinned git SHA `0d654ab3306515b1b63621a5c6548554034482dc`; see `web/cc0-models.js`. The original source's `LICENSE` was checked before using this asset lane. Since the running game fetches binary geometry from an external host, bundle vetted models locally before declaring offline or production readiness.
 
 `web/audio-foley.js` adds opt-in world-space synthetic effects; `web/packed-geometry.js` reduces transient geometry allocations; `web/animation-pose.js` is a pure deterministic action visualizer. See `tests/gauntlet-glb.test.mjs` for malformed/valid GLB test fixtures and UV colors, plus `tests/gauntlet-3d-scene.test.mjs` for the geometry/animation/audio contracts.
+
+
+## Loops 27–32: GPU crowd, rigging and materials
+
+Run `npm test` in `games/ai-zombie-survival` to exercise the new skinning, anatomical rig, geometric winding and GPU-crowd partition test suites. Use `/web/3d.html` or the redirected server `/` for the 3D game. `/web/progress.html` now reports live GPU-instanced count, mesh rebuild p95, renderer type and optional GLB asset state.
+
+The crowd uses native WebGL2 instancing for hundreds of *real* living infected entities while keeping the 3D simulation fixed-step and independent; this replaces repeated JS mesh uploads for far infected. Close heroes/infected receive articulated anatomy and action-blended poses, while hardware WebGL2 receives procedural GGX material shading with wet asphalt and weathered concrete. `?models=cc0` additionally enables native GLB skeleton palette evaluation and animation playback, but this experimental model lane is still a **low-poly CC0 intermediate**, not the final cinematic model library.
+
+Neither 30/60fps on production GPUs nor Days Gone material/character parity has passed; the browser and screenshot CI remain authoritative and the PR must stay draft until independently reviewed.
