@@ -1104,10 +1104,16 @@
       // Keep the full competition legible while leaving the next hazards
       // and the destination in view. No authoritative state is modified.
       const lookAhead=Math.min(depth*0.28,7.0);
-      target=[pack[0],0.42,Math.max(-depth*0.32,pack[2]-lookAhead)];
-      const height=Math.max(13.5,width*0.96,depth*0.54);
-      eye=[target[0]+height*0.12/zoom,height/zoom,
-        target[2]+height*1.12/zoom];
+      target=[pack[0],0.82,Math.max(-depth*0.32,pack[2]-lookAhead)];
+      // The old high crane aimed almost vertically down, producing a
+      // flat, empty-looking blue floor in actual 1920×1080 screenshots.
+      // Lower the camera, retain enough horizontal FOV to see the live pack,
+      // and expose the genuine skyline/finish gantries behind the race.
+      const distance=Math.max(15.0,width*0.90,depth*1.03);
+      eye=[target[0]+distance*0.095/zoom,
+        Math.max(7.4,width*0.47)/zoom,
+        target[2]+distance/zoom];
+      shell.dataset.cameraPitch='stadium-broadcast';
       shell.dataset.cameraWideCompetitors=String(active.length);
     }else shell.dataset.cameraWideCompetitors='0';
     if(directive.mode==='overview'&&currentSnapshot.round.remaining<=4)eye=[target[0]+3.15/zoom,4.25/zoom,target[2]+6.55/zoom];
