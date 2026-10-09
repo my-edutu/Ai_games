@@ -156,3 +156,58 @@ main[data-phase="night"]{--cyan:#7bcbff;--amber:#fbd197;--coral:#ff738c}main[dat
   .hud-left,.aiStory,.mobileDeck button,.controls button,.controls a{transition:none!important}
   .liveStatusDot,.alertPulse,.pulse,.liveDot{animation:none!important}
 }
+
+
+/* GAUNTLET LOOP 34: information density with actual clickable teammates and resources. */
+.srOnly{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;
+ margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;
+ white-space:nowrap!important;border:0!important}
+.quickRosterTitle,.supplyHeader{display:flex;justify-content:space-between;align-items:center;
+ margin-top:12px;margin-bottom:7px;gap:8px;
+ font-size:9px;letter-spacing:.12em;font-weight:900;color:#c3e8ef}
+.quickRosterTitle span:last-child{color:var(--cyan);font-size:8px}
+.supplyHeader{margin-top:15px;color:var(--amber)}
+.supplyHeader span:last-child{font-size:7px;color:#95b9bd;letter-spacing:.02em}
+.squadQuick{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:5px}
+.squadLink{pointer-events:auto;position:relative;display:flex;flex-direction:column;align-items:center;
+ justify-content:center;min-width:0;min-height:37px;padding:5px 1px 4px;
+ border:1px solid #61879f88;border-radius:6px;
+ background:linear-gradient(145deg,#245064,#183147);color:#dbf7f1;
+ cursor:pointer;box-shadow:inset 0 1px 0 #cee8f02b;transition:transform .16s,border-color .16s}
+.squadLink strong{font-size:10px;font-weight:950;letter-spacing:-.02em;line-height:1}
+.squadLink i{display:block;height:3px;width:64%;max-width:26px;border-radius:6px;margin-top:6px;
+ background:linear-gradient(90deg,var(--cyan),#a6c6ff)}
+.squadLink:hover{transform:translateY(-2px);border-color:#8cf0db}
+.squadLink.is-followed{border-color:var(--amber);background:linear-gradient(160deg,#535143,#213b4b);
+ box-shadow:0 0 0 1px #ffc96e67,0 0 12px #ffd18a25}
+.squadLink[data-condition="critical"]{border-color:#ff7485;background:#543148}
+.squadLink[data-condition="critical"] i{background:var(--coral)}
+.squadLink.is-down{opacity:.44;filter:grayscale(1);cursor:not-allowed}
+.squadLink[disabled]{pointer-events:none}
+.supplyGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.supplyGrid>div{display:flex;align-items:center;justify-content:space-between;min-width:0;
+ padding:8px 7px;border-radius:5px;border:1px solid #6e9ba05c;
+ background:linear-gradient(145deg,#1b3446,#1a2e42);gap:2px}
+.supplyGrid span{font-size:8px;font-weight:800;letter-spacing:.065em;color:#aacecf}
+.supplyGrid strong{font-size:11px;font-weight:950;color:#ffe1a1;font-variant-numeric:tabular-nums}
+.supplyGrid [data-low="true"]{border-color:#ff8c938a;background:linear-gradient(135deg,#4c303d,#2d263e)}
+.supplyGrid [data-low="true"] strong{color:#ff98a3}
+#hud[data-cinema="true"] .quickRosterTitle,#hud[data-cinema="true"] .squadQuick{display:none}
+@media(max-width:1050px){
+ .quickRosterTitle,.supplyHeader{letter-spacing:.035em;font-size:8px}
+ .squadQuick{gap:3px}
+ .squadLink{min-height:32px}
+ .supplyGrid{gap:3px}
+ .supplyGrid>div{flex-wrap:wrap;padding:6px 5px}
+ .supplyGrid span{font-size:7px}
+}
+@media(max-width:740px){
+ .quickRosterTitle,.supplyHeader{font-size:10px;letter-spacing:.08em}
+ .squadQuick{gap:6px}
+ .squadLink{min-height:44px}
+ .squadLink strong{font-size:12px}
+ .supplyGrid{gap:7px}
+ .supplyGrid>div{padding:10px 8px;flex-wrap:nowrap}
+ .supplyGrid span{font-size:9px}
+ .supplyGrid strong{font-size:13px}
+}
