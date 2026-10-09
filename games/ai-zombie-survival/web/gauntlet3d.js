@@ -950,6 +950,7 @@ function render(now){
     const cpuP95=sortedCosts[Math.min(sortedCosts.length-1,Math.floor(sortedCosts.length*.95))]??0;
     const tris=Math.round((staticMesh.count+movingMesh.count)/3)+distantHorde.triangles;
     hud.querySelector('#fps').textContent=Math.round(fpsSmooth)+' FPS · '+cpuP95.toFixed(1)+'ms CPU P95 · '+tris.toLocaleString()+' TRIANGLES';
+    hud.querySelector('#fpsCompact').textContent=Math.round(fpsSmooth)+' FPS';
     verdict.textContent='WEBGL2 TRUE 3D • '+(paused?'PAUSED':'SIMULATION LIVE');
     try{localStorage.setItem('zombie-gauntlet-live',JSON.stringify({time:Date.now(),day:game.time.day,tick:game.tick,alive:living,zombies:infected,fps:Math.round(fpsSmooth),frameCpuP95Ms:Math.round(cpuP95*10)/10,triangles:tris,rendererGpu:isSoftwareGPU?'software':'hardware',gpuHordeInstances:distantHorde.count,gpuHordeTriangles:distantHorde.triangles,cc0AssetState:cc0Status.state,dynamicShadows:!!sunShadows?.available,renderScale:qualityScale,dynamicRebuilds:dynamicMeshRebuilds,meshBuildP95Ms:Math.round(percentile(meshBuildMs)*10)/10,phase:game.time.phase,seed,renderer:'WebGL2',status:game.status}));}catch{}
   }

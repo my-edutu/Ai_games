@@ -181,6 +181,9 @@ try{
   assert.equal(mobileState.right,'none');
   assert.notEqual(mobileState.nav,'none');
   assert.notEqual(mobileState.summary,'none');
+  assert.equal(await page.locator('#fpsCompact').isVisible(),true);
+  assert.equal(await page.locator('#fps').isVisible(),false);
+  assert.match(await page.locator('#fpsCompact').textContent(),/^[0-9]+ FPS$/);
   assert.ok(mobileState.pageWidth<=391,'mobile UI must not introduce horizontal overflow');
   assert.match(mobileState.alive,/^[0-9]+$/);
   assert.match(mobileState.horde,/^[0-9]+%$/);

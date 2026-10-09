@@ -249,3 +249,15 @@ main[data-phase="night"]{--cyan:#7bcbff;--amber:#fbd197;--coral:#ff738c}main[dat
 #hud[data-sim="paused"] .onAir{background:#2c3445de;color:#e6d4b3;border-color:#e6cd9477}
 #hud[data-sim="paused"] .onAir .liveDot{background:#ffc96e;box-shadow:0 0 11px #ffc96e}
 #hud[data-sim="paused"] .directorStrip{border-color:#e4c4877d}
+
+/* LOOP 37: technical debug text belongs in the Gauntlet, not over a phone's 3D game. */
+.sceneBadge #fpsCompact{display:none}
+@media(max-width:740px){
+ .sceneBadge{bottom:200px}
+ .sceneBadge #fps{display:none}
+ .sceneBadge #fpsCompact{display:inline-flex;justify-content:flex-end;align-self:flex-end;
+  padding:4px 8px;border:1px solid #6ac3ca91;border-radius:6px;
+  background:#153146d8;color:#bdf9ec;letter-spacing:.09em;font-weight:850;font-size:10px;
+  font-variant-numeric:tabular-nums}
+ .sceneBadge #verdict{color:#cbe6e5;font-size:8px}
+}
