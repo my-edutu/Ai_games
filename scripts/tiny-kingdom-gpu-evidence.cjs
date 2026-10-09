@@ -84,6 +84,19 @@ const path = require('node:path');
     if(evidence.garments.citizens<12||evidence.garments.distinctProfiles<6||
        evidence.garments.panelCount!==8||evidence.garments.trianglesPerCoat!==104||!evidence.garments.finite)
       throw Error('G040 authored garment geometry profile regression: '+JSON.stringify(evidence.garments));
+    evidence.faces=await page.evaluate(()=>{
+      const g=window.__tinyKingdom;
+      const profiles=g.getCitizenProfiles().map((_,i)=>g.getFaceProfile(i));
+      return {citizens:profiles.length,distinctMorphologies:new Set(profiles.map(p=>
+        [p.jawWidth,p.cheekWidth,p.eyeSpacing,p.noseProjection].map(v=>v.toFixed(4)).join(':'))).size,
+        segments:profiles[0]?.segments,meshTriangles:profiles[0]?.meshTriangles,
+        beardProfiles:profiles.filter(p=>p.beard).length,
+        finite:profiles.every(p=>p.rings.length===7&&p.rings.every(r=>
+          [r.y,r.rx,r.rz,r.z].every(Number.isFinite)))};
+    });
+    if(evidence.faces.citizens<12||evidence.faces.distinctMorphologies<12||
+       evidence.faces.segments!==12||evidence.faces.meshTriangles!==156||!evidence.faces.finite)
+      throw Error('G041 face topology or individuality regression: '+JSON.stringify(evidence.faces));
     evidence.meadow=await page.evaluate(()=>window.__tinyKingdom.getMeadowStats());
     evidence.visualHud=await page.evaluate(()=>({
       worldFilter:getComputedStyle(document.querySelector('#world')).filter,
@@ -116,6 +129,19 @@ const path = require('node:path');
     });
     await page.waitForTimeout(450);
     await page.screenshot({path:path.join(out,'citizen-study.png'),fullPage:true,timeout:90000});
+    // Front-of-face view is aligned to the subject's actual next waypoint,
+    // not a flattering arbitrary orbit. A second real GPU image makes eyes,
+    // ears, jaw and nose geometry inspectable rather than hidden from behind.
+    evidence.faceCamera=await page.evaluate(()=>{
+      const g=window.__tinyKingdom,subject=g.getNavigation()[0];
+      const point=subject.path?.length?subject.path[0]:subject.target;
+      const heading=point?Math.atan2(point[0]-subject.position[0],
+        point[1]-subject.position[1]):0;
+      g.setCamera({focus:subject.position,zoom:9,pitch:.25,yaw:heading});
+      return {subject:subject.name,heading,position:subject.position};
+    });
+    await page.waitForTimeout(450);
+    await page.screenshot({path:path.join(out,'face-study.png'),fullPage:true,timeout:90000});
     await page.evaluate(()=>window.__tinyKingdom.setHudMode('full'));
     const replay=await page.evaluate(() => {
       const g=window.__tinyKingdom;

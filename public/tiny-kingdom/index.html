@@ -856,6 +856,72 @@ function tailoredGarment(x,y,z,size,cloth,trim,profile){
   quad(vertex(beltLow,i),vertex(beltLow,i+1),vertex(beltHigh,i+1),vertex(beltHigh,i),rgb(0x69513a));
  }
 }
+// Gauntlet 041: explicit craniofacial topology and landmarks, authored per
+// stable identity. All geometry is render-only and consumes no RNG.
+function faceProfile(p,idx){
+ const jawWidth=.141+(idx%4)*.010;
+ const cheekWidth=.188+(idx%3)*.009;
+ const eyeSpacing=.077+(idx%3)*.009;
+ const noseProjection=.051+(idx%4)*.009;
+ const earHeight=.097+(idx%3)*.009;
+ return {segments:12,meshTriangles:156,jawWidth,cheekWidth,eyeSpacing,noseProjection,earHeight,
+  beard:idx%5===2||(p.job==='builder'&&idx%3===0),
+  rings:[
+   {y:1.185,rx:.055,rz:.083,z:.015},
+   {y:1.235,rx:jawWidth*.79,rz:.137,z:.015},
+   {y:1.31,rx:jawWidth,rz:.168,z:.012},
+   {y:1.41,rx:cheekWidth,rz:.185,z:0},
+   {y:1.505,rx:cheekWidth*.98,rz:.186,z:-.012},
+   {y:1.62,rx:cheekWidth*.94,rz:.170,z:-.022},
+   {y:1.704,rx:cheekWidth*.75,rz:.122,z:-.026}
+  ]};
+}
+function sculptedFace(x,y,z,size,skin,hair,profile){
+ const previousMaterial=currentMaterial;currentMaterial=MATERIAL.GENERAL;
+ const n=profile.segments,rings=profile.rings;
+ const vertex=(r,i)=>{
+  const angle=i*2*Math.PI/n;
+  return [x+Math.sin(angle)*r.rx*size,y+r.y*size,z+(Math.cos(angle)*r.rz+r.z)*size];
+ };
+ // Jaw, cheekbones, orbital brow, temples and cranium share a continuous mesh.
+ for(let j=0;j<rings.length-1;j++)for(let i=0;i<n;i++){
+  const shade=j===0?.90:j===3?1.035:j===4?.96:1;
+  const color=skin.map(v=>Math.min(1,v*shade));
+  quad(vertex(rings[j],i),vertex(rings[j],i+1),vertex(rings[j+1],i+1),vertex(rings[j+1],i),color);
+ }
+ const crown=rings[rings.length-1],apex=[x,y+1.735*size,z-.026*size];
+ for(let i=0;i<n;i++)tri(apex,vertex(crown,i),vertex(crown,i+1),skin);
+ const eyeWhite=rgb(0xe5dccb),iris=rgb(0x49493e),mouth=rgb(0x845c51);
+ for(const side of [-1,1]){
+  // Ears have inner folds; eyes sit on the front (+Z) facial plane.
+  ellipsoid(x+side*.209*size,y+1.432*size,z-.012*size,
+   .052*size,profile.earHeight*size,.054*size,skin,7);
+  ellipsoid(x+side*.246*size,y+1.438*size,z+.018*size,
+   .015*size,.043*size,.018*size,skin.map(v=>v*.82),6);
+  const eyeX=x+side*profile.eyeSpacing*size;
+  ellipsoid(eyeX,y+1.492*size,z+.177*size,.052*size,.034*size,.022*size,eyeWhite,7);
+  ellipsoid(eyeX,y+1.49*size,z+.198*size,.022*size,.025*size,.011*size,iris,7);
+  ellipsoid(eyeX,y+1.491*size,z+.207*size,.009*size,.013*size,.007*size,rgb(0x211e1b),6);
+  limbSegment([eyeX-side*.043*size,y+1.548*size,z+.165*size],
+   [eyeX+side*.043*size,y+1.558*size,z+.155*size],.017*size,hair,6);
+ }
+ // Bridge and projecting cartilage, paired nostrils, lips and rounded chin.
+ limbSegment([x,y+1.515*size,z+.174*size],
+  [x,y+1.396*size,z+.198*size],.036*size,skin,7);
+ ellipsoid(x,y+1.379*size,z+(.188+profile.noseProjection*.62)*size,
+  .050*size,.042*size,.044*size,skin,8);
+ for(const side of [-1,1])ellipsoid(x+side*.030*size,y+1.35*size,
+  z+(.200+profile.noseProjection*.48)*size,.011*size,.009*size,.009*size,mouth,6);
+ limbSegment([x-.060*size,y+1.291*size,z+.161*size],
+  [x+.060*size,y+1.291*size,z+.161*size],.012*size,mouth,7);
+ ellipsoid(x,y+1.263*size,z+.133*size,.073*size,.036*size,.033*size,skin,7);
+ if(profile.beard){
+  ellipsoid(x,y+1.225*size,z+.113*size,.105*size,.055*size,.047*size,hair,7);
+  for(const side of [-1,1])ellipsoid(x+side*.118*size,y+1.315*size,z+.117*size,
+   .034*size,.092*size,.033*size,hair,7);
+ }
+ currentMaterial=previousMaterial;
+}
 function villager(p){const vertexStart=data.length;let x=p.x,z=p.z,y=terrain(x,z),u=p.phase,idx=Math.max(0,people.indexOf(p)),size=.92+(idx%5)*.045;let c=colors[jobs.indexOf(p.job)]||colors[0],skin=rgb([0xd5a781,0x95654b,0xefc19c,0xbe8968,0x9a6a48][(idx+names.length)%5]),hair=rgb([0x4c3228,0x342f29,0x8b633f,0x664b36,0xa18b65][(idx+4)%5]);const busy=p.activity.toLowerCase().includes('harvest')||p.activity.toLowerCase().includes('cutting')||p.activity.toLowerCase().includes('craft')||p.activity.toLowerCase().includes('construct');let pace=p.activity.includes('Traveling')||p.activity.includes('Explor')?1:.23,step=Math.sin(u*2.7)*.21*pace;
 // Individual fitted wool coats: flared hem, waist, chest, collar, gait sway.
 const rig=citizenRigPose(p);
@@ -877,9 +943,9 @@ for(let sideIndex=0;sideIndex<2;sideIndex++){
  ellipsoid(...worldJoint(arm.wrist),.09*size,.095*size,.085*size,skin,7);
 }
 // Sculpted neck and head with a real facial front (positive Z).
-cylinder(x,y+1.16*size,z,.12*size,.15*size,skin,8);ellipsoid(x,y+1.43*size,z,.22*size,.29*size,.19*size,skin);ellipsoid(x,y+1.67*size,z-.035*size,.235*size,.115*size,.185*size,hair,8);
-for(let side of [-1,1]){box(x+side*.083*size,y+1.475*size,z+.181*size,.029*size,.034*size,.023*size,rgb(0x342b29));box(x+side*.085*size,y+1.525*size,z+.185*size,.074*size,.025*size,.022*size,hair)}
-box(x,y+1.393*size,z+.191*size,.037*size,.078*size,.061*size,skin);box(x,y+1.335*size,z+.185*size,.08*size,.018*size,.018*size,rgb(0x7d4e45));
+cylinder(x,y+1.16*size,z,.12*size,.15*size,skin,8);
+sculptedFace(x,y,z,size,skin,hair,faceProfile(p,idx));
+ellipsoid(x,y+1.67*size,z-.035*size,.235*size,.115*size,.185*size,hair,8);
 // Gauntlet 019: character-by-character authored visual identity, independent
 // from simulation RNG, so save/replay behaviour remains bit-for-bit stable.
 const mantle=rgb([0x395b51,0x72513c,0x6e3647,0x405879,0x746342,0x4e5a63][idx%6]);
@@ -1523,6 +1589,6 @@ currentMaterial=MATERIAL.WOOD;
 const elevation=Math.sin(pitch)*zoom,rad=Math.cos(pitch)*zoom,eye=[focusPoint[0]+Math.sin(yaw)*rad,elevation,focusPoint[1]+Math.cos(yaw)*rad];let m=mat4multiply(perspective(Math.PI/3.2,w/h,.1,190),lookAt(eye,[focusPoint[0],.25,focusPoint[1]],[0,1,0]));gl.uniformMatrix4fv(uniforms.viewProjection,false,m);gl.uniform3f(uniforms.fogColor,...atmosphere.fog);gl.uniform3f(uniforms.sunTint,...atmosphere.light);gl.uniform1f(uniforms.worldTime,state.t);gl.uniform3f(uniforms.eyePosition,eye[0],eye[1],eye[2]);gl.uniform3f(uniforms.sunDirection,Math.cos(state.t/24*6.283),.3+atmosphere.daylight*.9,Math.sin(state.t/24*6.283));lastFrameTriangles=(gpuAvailable?scenicMeshCache.length+data.length:data.length)/30;
 if(gpuAvailable){bindGeometry(staticBuffer);gl.drawArrays(gl.TRIANGLES,0,scenicMeshCache.length/10);}
 bindGeometry(buffer);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(data),gl.DYNAMIC_DRAW);gl.drawArrays(gl.TRIANGLES,0,data.length/10);if((frames++%14)===0){updateUI();drawAtlas();updateRealmSignal()}}
-requestAnimationFrame(render);window.__tinyKingdom={getState:()=>JSON.parse(JSON.stringify({state,people:people.map(({name,job,x,z,target})=>({name,job,x,z,target}))})),setSpeed:x=>{speed=x},step,reset:start,renderer:()=>canvas.getContext('webgl')?'webgl':'software',metrics:()=>({citizens:people.length,buildings:city.length+2,day:Math.floor(state.t/24)+1,food:state.food,wood:state.wood,gold:state.gold,relationships:people.filter(p=>p.friend).length}),route:(a,b)=>routeBetween(a[0],a[1],b[0],b[1]),walkable:(p)=>walkable(p[0],p[1]),getNavigation:()=>people.map(p=>({name:p.name,position:[p.x,p.z],target:p.target,remaining:p.path?.length||0,path:p.path,activity:p.activity,hunger:p.hunger,energy:p.energy})),exportSnapshot,restoreSnapshot,saveWorld,restoreWorld,climateAt,skyConditions,getCitizenProfiles:()=>cloneData(people.map(({name,job,trait,friend,bonds,energy,hunger,activity})=>({name,job,trait,friend,bonds,energy,hunger,activity}))),getRigPose:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(citizenRigPose(people[index])):null,getGarmentProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(garmentProfile(people[index],index,citizenRigPose(people[index]))):null,getSelectedCitizen:()=>people[selectedCitizen]?.name,routeCacheMetrics:()=>({entries:routeCache.size,hits:cacheHits,misses:cacheMisses}),getCamera:()=>({yaw,pitch,zoom,focus:focusPoint.slice(),follow,cinematic}),getTerrainHeight:(x,z)=>terrain(x,z),getWildfloraCount:()=>wildflora.length,getMeadowStats:()=>({clusters:meadowUnderstory.length,triangles:meadowUnderstory.length*8,season:climateAt(state.t).season,cached:true}),getMaterialSystem:()=>({vertexStride:10,surfaceShaderVersion:'procedural-023',materials:Object.keys(MATERIAL),gpuRenderValidated:false}),waterStats:()=>({model:'fresnel-ripple-shorefoam-v1',segments:RIVER_SEGMENTS,waterTriangles:RIVER_SEGMENTS*RIVER_BANDS*2,bankTriangles:RIVER_SEGMENTS*2*RIVER_BANK_BANDS*2}),getScenicSites:scenicSiteMetrics,getFestivalVisualStats:()=>({season:festivalSeason,cacheBuilds:festivalCacheBuilds,vertices:festivalGeometry?.length||0}),getGeometryAudit:geometryAudit,getCottageEffects:()=>({activeChimneys,smokePuffs,smokeTriangles,smokeMaxRadius}),renderStats:()=>({terrainRebuilds,terrainCacheKey,terrainCacheTriangles,lastFrameTriangles,scenicMeshRebuilds,scenicMeshTriangles,scenicMeshKey,staticGpuUploads,dualBufferGPU:gpuAvailable}),renderQuality,setRenderQuality,shadowStats:()=>({triangles:castShadowTriangles,...sunShadow(state.t)}),sampleSunShadow:(time)=>sunShadow(time),getEconomyHistory:()=>cloneData(uiHistory),getHudMode:()=>cinematicHud?'cinema':'full',setHudMode:setCinematicHud,skyStats:()=>({enabled:gpuAvailable,passes:skyPassCount,model:'day-night-atmosphere-v1'}),setCamera:o=>{yaw=Number.isFinite(o.yaw)?o.yaw:yaw;pitch=Number.isFinite(o.pitch)?Math.max(.25,Math.min(1.45,o.pitch)):pitch;zoom=Number.isFinite(o.zoom)?Math.max(9,Math.min(85,o.zoom)):zoom;if(Array.isArray(o.focus)&&o.focus.length===2)focusPoint=o.focus.slice(0,2)}};
+requestAnimationFrame(render);window.__tinyKingdom={getState:()=>JSON.parse(JSON.stringify({state,people:people.map(({name,job,x,z,target})=>({name,job,x,z,target}))})),setSpeed:x=>{speed=x},step,reset:start,renderer:()=>canvas.getContext('webgl')?'webgl':'software',metrics:()=>({citizens:people.length,buildings:city.length+2,day:Math.floor(state.t/24)+1,food:state.food,wood:state.wood,gold:state.gold,relationships:people.filter(p=>p.friend).length}),route:(a,b)=>routeBetween(a[0],a[1],b[0],b[1]),walkable:(p)=>walkable(p[0],p[1]),getNavigation:()=>people.map(p=>({name:p.name,position:[p.x,p.z],target:p.target,remaining:p.path?.length||0,path:p.path,activity:p.activity,hunger:p.hunger,energy:p.energy})),exportSnapshot,restoreSnapshot,saveWorld,restoreWorld,climateAt,skyConditions,getCitizenProfiles:()=>cloneData(people.map(({name,job,trait,friend,bonds,energy,hunger,activity})=>({name,job,trait,friend,bonds,energy,hunger,activity}))),getRigPose:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(citizenRigPose(people[index])):null,getGarmentProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(garmentProfile(people[index],index,citizenRigPose(people[index]))):null,getFaceProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(faceProfile(people[index],index)):null,getSelectedCitizen:()=>people[selectedCitizen]?.name,routeCacheMetrics:()=>({entries:routeCache.size,hits:cacheHits,misses:cacheMisses}),getCamera:()=>({yaw,pitch,zoom,focus:focusPoint.slice(),follow,cinematic}),getTerrainHeight:(x,z)=>terrain(x,z),getWildfloraCount:()=>wildflora.length,getMeadowStats:()=>({clusters:meadowUnderstory.length,triangles:meadowUnderstory.length*8,season:climateAt(state.t).season,cached:true}),getMaterialSystem:()=>({vertexStride:10,surfaceShaderVersion:'procedural-023',materials:Object.keys(MATERIAL),gpuRenderValidated:false}),waterStats:()=>({model:'fresnel-ripple-shorefoam-v1',segments:RIVER_SEGMENTS,waterTriangles:RIVER_SEGMENTS*RIVER_BANDS*2,bankTriangles:RIVER_SEGMENTS*2*RIVER_BANK_BANDS*2}),getScenicSites:scenicSiteMetrics,getFestivalVisualStats:()=>({season:festivalSeason,cacheBuilds:festivalCacheBuilds,vertices:festivalGeometry?.length||0}),getGeometryAudit:geometryAudit,getCottageEffects:()=>({activeChimneys,smokePuffs,smokeTriangles,smokeMaxRadius}),renderStats:()=>({terrainRebuilds,terrainCacheKey,terrainCacheTriangles,lastFrameTriangles,scenicMeshRebuilds,scenicMeshTriangles,scenicMeshKey,staticGpuUploads,dualBufferGPU:gpuAvailable}),renderQuality,setRenderQuality,shadowStats:()=>({triangles:castShadowTriangles,...sunShadow(state.t)}),sampleSunShadow:(time)=>sunShadow(time),getEconomyHistory:()=>cloneData(uiHistory),getHudMode:()=>cinematicHud?'cinema':'full',setHudMode:setCinematicHud,skyStats:()=>({enabled:gpuAvailable,passes:skyPassCount,model:'day-night-atmosphere-v1'}),setCamera:o=>{yaw=Number.isFinite(o.yaw)?o.yaw:yaw;pitch=Number.isFinite(o.pitch)?Math.max(.25,Math.min(1.45,o.pitch)):pitch;zoom=Number.isFinite(o.zoom)?Math.max(9,Math.min(85,o.zoom)):zoom;if(Array.isArray(o.focus)&&o.focus.length===2)focusPoint=o.focus.slice(0,2)}};
 })();
 </script></body></html>
