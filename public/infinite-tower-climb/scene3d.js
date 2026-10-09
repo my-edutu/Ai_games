@@ -300,6 +300,14 @@ export function mountTower3D({host,getFrame,reducedMotion=false,highContrast=fal
       const visual=platformMeshes.get(platform.id);if(!visual)continue;
       visual.position.set(coord(platform.x+platform.width/2),coord(platform.y+platform.height/2),5);
     }
+    perf.ledgeModels=platformMeshes.size;
+    perf.ledgeSyncError=s.platforms.reduce((max,p)=>{
+      const visual=platformMeshes.get(p.id);
+      if(!visual)return Math.max(max,9999);
+      return Math.max(max,
+        Math.abs(visual.position.x-coord(p.x+p.width/2)),
+        Math.abs(visual.position.y-coord(p.y+p.height/2)));
+    },0);
     const allowed=new Set();
     const palette=palettes[s.theme]||palettes.foundry;
     for(const h of s.hazards){
