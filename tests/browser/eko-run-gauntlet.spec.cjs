@@ -128,6 +128,20 @@ test.describe('Eko Run 3D Gauntlet slice', () => {
     expect(captured.startsAsRealPng).toBe(true);
     expect(captured.naturalWidth).toBeGreaterThanOrEqual(300);
     expect(captured.naturalHeight).toBeGreaterThanOrEqual(200);
+    // UI mechanics test ONLY: use this same WebGL image as the local test fixture.
+    // This intentionally does not claim a comparison with SYBO or a blind visual win.
+    const pngSource=await page.locator('#snapshots img').first().getAttribute('src');
+    await page.locator('#reference-upload').setInputFiles({
+      name:'UI-fixture.png',mimeType:'image/png',
+      buffer:Buffer.from(pngSource.slice('data:image/png;base64,'.length),'base64')
+    });
+    await expect(page.locator('#blind-start')).toBeEnabled();
+    await page.locator('#blind-start').click();
+    await expect(page.locator('#blind-grid')).toBeVisible();
+    await expect(page.locator('#blind-a')).toHaveAttribute('src',/^(data:image\\/png|blob:)/);
+    await page.locator('[data-blind-vote="A"]').click();
+    await expect(page.locator('#blind-result')).toContainText('Reveal: Eko = Image');
+    await expect(page.locator('[data-blind-vote="B"]')).toBeDisabled();
     const label=await page.locator('#snapshots figcaption').first().textContent();
     expect(label).toContain('draw calls');
     await page.screenshot({path:'artifacts/eko-gauntlet/live-review-progress.png',fullPage:true});
