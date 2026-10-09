@@ -423,3 +423,26 @@ button:focus-visible,select:focus-visible,.button:focus-visible{outline:3px soli
     padding:12px 15px;min-height:44px;max-width:calc(100vw - 24px)}
   .focus-view:not(.autonomous) .touch{bottom:76px}
 }
+
+/* GAUNTLET LOOP 22 — treat desktop like a real game, not a developer dashboard.
+   Controls stay available behind one keyboard-accessible options control. */
+@media(min-width:651px){
+  .hud-settings-toggle{
+    display:inline-flex;align-items:center;justify-content:center;
+    min-height:38px;padding:8px 13px;border:1px solid rgba(119,244,229,.5);
+    background:linear-gradient(140deg,#1c5160,#1b4054);color:#effffb;
+    white-space:nowrap;font-size:10px;font-weight:950;
+  }
+  .toolbar{
+    align-self:flex-end;width:max-content;max-width:100%;
+    margin-left:auto;gap:7px;padding:6px 7px;
+    flex-wrap:nowrap;box-shadow:0 6px 28px rgba(3,19,25,.30);
+  }
+  .toolbar>:not(#mode):not(#hud-settings-toggle):not(#focus-view-toggle){display:none!important}
+  .toolbar #focus-view-toggle{display:inline-flex!important;align-items:center;justify-content:center}
+  .settings-open .toolbar{width:100%;max-width:100%;flex-wrap:wrap}
+  .settings-open .toolbar>:not(#mode):not(#hud-settings-toggle):not(#focus-view-toggle){display:inline-flex!important}
+  .settings-open .toolbar .hint,.settings-open .toolbar .spacer{display:none!important}
+  .settings-open .toolbar label.soft{font-weight:800;font-size:9px;align-self:center}
+  .focus-view .toolbar{display:none!important}
+}
