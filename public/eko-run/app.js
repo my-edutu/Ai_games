@@ -643,6 +643,7 @@ function resize(){
 }
 new ResizeObserver(resize).observe(canvas);resize();
 let last=performance.now();
+let lastCameraFrame=last;
 function animate(now){
   requestAnimationFrame(animate);
   const dt=Math.min(.05,(now-last)/1000);last=now;
@@ -660,12 +661,23 @@ function animate(now){
       playerX:player.position.x,playerY:player.position.y,
       portrait,style:worldState.cameraStyle
     });
-    const ease=1-Math.exp(-dt*4.5);
-    camera.position.x=THREE.MathUtils.lerp(camera.position.x,shot.x,ease);
-    camera.position.y=THREE.MathUtils.lerp(camera.position.y,shot.y,ease);
-    camera.position.z=THREE.MathUtils.lerp(camera.position.z,shot.z,ease);
-    if(!cameraTargetReady){cameraTarget.set(shot.targetX,shot.targetY,shot.targetZ);cameraTargetReady=true}
-    else cameraTarget.lerp(new THREE.Vector3(shot.targetX,shot.targetY,shot.targetZ),ease);
+    // On slow renderers first-frame interpolation stranded Tayo near the
+    // screen edge for seconds. Snap on first actual authoritative frame or
+    // district/respawn teleport; smoothly follow after composition is stable.
+    const rawFrameDelta=Math.min(.35,Math.max(0,(now-lastCameraFrame)/1000));
+    lastCameraFrame=now;
+    const ease=1-Math.exp(-rawFrameDelta*7.0);
+    const snap=!cameraTargetReady || Math.abs(camera.position.x-shot.x)>7;
+    if(snap){
+      camera.position.set(shot.x,shot.y,shot.z);
+      cameraTarget.set(shot.targetX,shot.targetY,shot.targetZ);
+      cameraTargetReady=true;
+    }else{
+      camera.position.x=THREE.MathUtils.lerp(camera.position.x,shot.x,ease);
+      camera.position.y=THREE.MathUtils.lerp(camera.position.y,shot.y,ease);
+      camera.position.z=THREE.MathUtils.lerp(camera.position.z,shot.z,ease);
+      cameraTarget.lerp(new THREE.Vector3(shot.targetX,shot.targetY,shot.targetZ),ease);
+    }
     camera.lookAt(cameraTarget);
     sun.position.x=player.position.x-8;
     sun.target.position.set(player.position.x,0,0);sun.target.updateMatrixWorld();
