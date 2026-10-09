@@ -83,3 +83,10 @@ Run `npm test` in `games/ai-zombie-survival` to exercise the new skinning, anato
 The crowd uses native WebGL2 instancing for hundreds of *real* living infected entities while keeping the 3D simulation fixed-step and independent; this replaces repeated JS mesh uploads for far infected. Close heroes/infected receive articulated anatomy and action-blended poses, while hardware WebGL2 receives procedural GGX material shading with wet asphalt and weathered concrete. `?models=cc0` additionally enables native GLB skeleton palette evaluation and animation playback, but this experimental model lane is still a **low-poly CC0 intermediate**, not the final cinematic model library.
 
 Neither 30/60fps on production GPUs nor Days Gone material/character parity has passed; the browser and screenshot CI remain authoritative and the PR must stay draft until independently reviewed.
+
+
+### Gauntlet interface loops 33–36 — operator and mobile
+
+The phone build now hides both large telemetry panels until the audience opens Survival, AI Intel or Tactical Map via 44px mobile actions. The live vitals strip stays visible without obscuring the 3D camera, and crisis alerts reflect real horde/base pressure. Desktop HUD offers six interactive survivor call signs, real food/ammo/medicine inventory cards, and camera controls whose pressed appearance matches the *actual* selected mode. Cinema adds the selected survivor's live AI decision ticker. `/web/progress.html` supports click-to-preview true frozen daylight, night, horde, interior and critical scenes, plus its normal live autonomous view and a collapsible history.
+
+The new screenshot suite guards all those behaviours. The previous `aa320884` baseline CI passed and was inspected; **do not infer that the newer screenshot assertions have passed until their own matching commit succeeds**.

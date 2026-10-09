@@ -190,3 +190,20 @@ The browser screenshot suite now captures `world-hud-hidden.png` (actual world w
 ### Harsh critic verdict — OPEN
 
 The latest GPU-instanced, rigged-skinning and GGX visual systems are **committed but not end-to-end browser validated**. The earlier real failure at 238 ms CPU P95 in a large-horde software renderer is a baseline, **not an achieved improvement**. The next visual A/B must inspect day/night actual screenshots, horde crowds, UI, faces, animation, shadows and headless/hardware p95. Stop-ship until independent Days Gone comparison and performance/OBS soaking are passed. Do not mistake this implementation count for a 100% Gauntlet score.
+
+
+## Loops 33–36 — interface Gauntlet from real 1280×720 and 390×844 browser captures
+
+**Actual baseline browser build:** GitHub Actions `37870064320` finished **successfully** on commit `aa320884`. We retrieved its *actual* Playwright WebGL2 screenshots for day/night, large horde, hero, live HUD, cinema, mobile and progress. The 390×844 mobile screenshot was legible but *visually obstructed*—two big opaque survival/AI panels filled the scene's top half, and footer buttons were tiny; its actual CPU frame-time p95 was also unacceptably high. The screenshot scoring returned daylight world-only median luminance **0.3686**, colorful fraction **0.241**; these are modest chromatic metrics, not proof of Days Gone–quality artistry.
+
+**Loop 33 — mobile playfield first:** Shifted the phone UI from permanent stacked telemetry panels to an always-visible three-number vitals strip and large thumb-target panel navigation. Survival and AI Intel are mutually exclusive, scrollable sheets; Tactical Map jumps to the actual authoritative map inside Intel. The cinematics and main 3D scene remain visible by default. Implemented keyboard Escape/close buttons, stateful `aria-expanded`, mobile panel folding, safe-area-aware horizontal controls, and crisis-only banners from *real horde pressure/base damage* (no invented events).
+
+**Loop 34 — usable tactical operator command:** Live survivor roster shows click-to-follow call signs, health condition and selected-camera highlighting; the three reserve cards reflect food, ammo and medicine from authoritative resources, with shortage colours. The source uses stable keyed DOM for every interactive portrait to avoid reintroducing the earlier detached-button runtime regression.
+
+**Loop 35 — cinematic overlay:** Stream-oriented cinema HUD has a low-coverage, legible real AI decision ticker. Nonessential controls hide to prioritize gameplay. The ticker uses the same real selected survivor and intent as the full AI panel, and never scripts fictional dialogue/actions.
+
+**Loop 36 — honest mode state + quality inspection:** Director/Hero controls now highlight only their actual mode; paused state changes both control `aria-pressed` and visible LIVE/PAUSED text. The progress page embeds an interactive actual running build inspector for daylight, night, horde, interior and critical seeded scenarios, and collapses old milestone records while keeping independent acceptance/criticism available.
+
+**New screenshot gates:** The Playwright suite checks no permanently visible mobile sidebars at 390×844; genuine clickable and exclusive mobile sheets; live vitals and resource cards; quick-roster camera selection; cinema ticker and pause controls; scenario-inspector navigation. It captures `mobile-survival-panel.png`, `mobile-ai-intel-panel.png`, `mobile-tactical-map.png`, `squad-quick-command.png` and `progress-night-critic.png`.
+
+**Visual comparison remains OPEN:** The refreshed build has *not yet* had a completed latest browser-artifact review. Major AAA 3D character/environment/lighting, device FPS and OBS endurance gaps remain. A successful prior commit is not proof that the current UI branch passes.
