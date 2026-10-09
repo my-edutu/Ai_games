@@ -66,7 +66,13 @@ test('capture real portrait visual reference without overlaid active AI controls
   await page.evaluate(()=>window.__EKO_SET_FOCUS_VIEW__(true));
   await expect(page.locator('#hud-settings-toggle')).toBeHidden();
   await expect(page.locator('#focus-view-exit')).toBeVisible();
-  await page.screenshot({path:path.join(DIR,'gauntlet-mobile-immersive.png'),fullPage:true});
+  let captured=null;
+  for(let attempt=0;attempt<6;attempt++){
+    await page.waitForTimeout(850);
+    captured=await page.screenshot({path:path.join(DIR,'gauntlet-mobile-immersive.png'),fullPage:true});
+    if(captured.length>70000)break;
+  }
+  expect(captured.length,'Mobile focus screenshot must contain real 3D content').toBeGreaterThan(70000);
   await page.evaluate(()=>window.__EKO_SET_FOCUS_VIEW__(false));
 
   await page.evaluate(()=>window.__EKO_SET_CAMERA_STYLE__('street-cinema'));
