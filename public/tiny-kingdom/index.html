@@ -891,29 +891,29 @@ function sculptedFace(x,y,z,size,skin,hair,profile){
  }
  const crown=rings[rings.length-1],apex=[x,y+1.735*size,z-.026*size];
  for(let i=0;i<n;i++)tri(apex,vertex(crown,i),vertex(crown,i+1),skin);
- const eyeWhite=rgb(0xe5dccb),iris=rgb(0x49493e),mouth=rgb(0x845c51);
+ const eyeWhite=rgb(0xc9bba9),iris=rgb(0x49493e),mouth=rgb(0x845c51);
  for(const side of [-1,1]){
   // Ears have inner folds; eyes sit on the front (+Z) facial plane.
   ellipsoid(x+side*.209*size,y+1.432*size,z-.012*size,
-   .052*size,profile.earHeight*size,.054*size,skin,7);
+   .044*size,profile.earHeight*size,.049*size,skin,7);
   ellipsoid(x+side*.246*size,y+1.438*size,z+.018*size,
    .015*size,.043*size,.018*size,skin.map(v=>v*.82),6);
   const eyeX=x+side*profile.eyeSpacing*size;
-  ellipsoid(eyeX,y+1.492*size,z+.177*size,.052*size,.034*size,.022*size,eyeWhite,7);
-  ellipsoid(eyeX,y+1.49*size,z+.198*size,.022*size,.025*size,.011*size,iris,7);
-  ellipsoid(eyeX,y+1.491*size,z+.207*size,.009*size,.013*size,.007*size,rgb(0x211e1b),6);
+  ellipsoid(eyeX,y+1.492*size,z+.177*size,.040*size,.024*size,.014*size,eyeWhite,7);
+  ellipsoid(eyeX,y+1.49*size,z+.188*size,.016*size,.018*size,.009*size,iris,7);
+  ellipsoid(eyeX,y+1.491*size,z+.195*size,.006*size,.009*size,.005*size,rgb(0x211e1b),6);
   limbSegment([eyeX-side*.043*size,y+1.548*size,z+.165*size],
-   [eyeX+side*.043*size,y+1.558*size,z+.155*size],.017*size,hair,6);
+   [eyeX+side*.043*size,y+1.558*size,z+.155*size],.012*size,hair,6);
  }
  // Bridge and projecting cartilage, paired nostrils, lips and rounded chin.
  limbSegment([x,y+1.515*size,z+.174*size],
   [x,y+1.396*size,z+.198*size],.036*size,skin,7);
- ellipsoid(x,y+1.379*size,z+(.188+profile.noseProjection*.62)*size,
-  .050*size,.042*size,.044*size,skin,8);
+ ellipsoid(x,y+1.379*size,z+(.188+profile.noseProjection*.45)*size,
+  .039*size,.033*size,.033*size,skin,8);
  for(const side of [-1,1])ellipsoid(x+side*.030*size,y+1.35*size,
-  z+(.200+profile.noseProjection*.48)*size,.011*size,.009*size,.009*size,mouth,6);
+  z+(.200+profile.noseProjection*.39)*size,.008*size,.007*size,.007*size,mouth,6);
  limbSegment([x-.060*size,y+1.291*size,z+.161*size],
-  [x+.060*size,y+1.291*size,z+.161*size],.012*size,mouth,7);
+  [x+.060*size,y+1.291*size,z+.161*size],.009*size,mouth,7);
  ellipsoid(x,y+1.263*size,z+.133*size,.073*size,.036*size,.033*size,skin,7);
  if(profile.beard){
   ellipsoid(x,y+1.225*size,z+.113*size,.105*size,.055*size,.047*size,hair,7);

@@ -133,12 +133,22 @@ const path = require('node:path');
     // not a flattering arbitrary orbit. A second real GPU image makes eyes,
     // ears, jaw and nose geometry inspectable rather than hidden from behind.
     evidence.faceCamera=await page.evaluate(()=>{
-      const g=window.__tinyKingdom,subject=g.getNavigation()[0];
-      const point=subject.path?.length?subject.path[0]:subject.target;
-      const heading=point?Math.atan2(point[0]-subject.position[0],
-        point[1]-subject.position[1]):0;
-      g.setCamera({focus:subject.position,zoom:9,pitch:.25,yaw:heading});
-      return {subject:subject.name,heading,position:subject.position};
+      const g=window.__tinyKingdom;
+      const candidates=g.getNavigation().map((person,index)=>{
+        const point=person.path?.length?person.path[0]:person.target;
+        const heading=point?Math.atan2(point[0]-person.position[0],point[1]-person.position[1]):0;
+        let clearance=0;
+        for(let d=.6;d<=8.5;d+=.45){
+          if(!g.walkable([person.position[0]+Math.sin(heading)*d,
+                          person.position[1]+Math.cos(heading)*d]))break;
+          clearance=d;
+        }
+        return {person,index,heading,clearance};
+      }).sort((a,b)=>b.clearance-a.clearance||a.index-b.index);
+      const chosen=candidates[0],subject=chosen.person;
+      g.setCamera({focus:subject.position,zoom:9,pitch:.25,yaw:chosen.heading});
+      return {subject:subject.name,index:chosen.index,heading:chosen.heading,
+        position:subject.position,clearance:chosen.clearance};
     });
     await page.waitForTimeout(450);
     await page.screenshot({path:path.join(out,'face-study.png'),fullPage:true,timeout:90000});
