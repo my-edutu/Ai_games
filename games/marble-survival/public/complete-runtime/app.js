@@ -31,6 +31,18 @@ const BIOME_BROADCAST = Object.freeze({
 const cameraValue = document.getElementById('camera-value');
 const feedValue = document.getElementById('feed-value');
 const leaderboard = document.getElementById('leaderboard');
+const mobileStandingsToggle=document.getElementById('mobile-standings-toggle');
+const standingsPanel=document.querySelector('.leaderboard-panel.broadcast-overlay');
+if(mobileStandingsToggle&&standingsPanel){
+  standingsPanel.dataset.mobileExpanded='false';
+  mobileStandingsToggle.addEventListener('click',()=>{
+    const open=standingsPanel.dataset.mobileExpanded!=='true';
+    standingsPanel.dataset.mobileExpanded=String(open);
+    mobileStandingsToggle.setAttribute('aria-expanded',String(open));
+    mobileStandingsToggle.setAttribute('aria-label',open?'Show fewer live standings':'Show more live standings');
+    mobileStandingsToggle.textContent=open?'Fewer ranks ▴':'All ranks ▾';
+  });
+}
 const eventList = document.getElementById('event-list');
 const influenceStatus = document.getElementById('influence-status');
 const championCard = document.getElementById('champion-card');
