@@ -1,0 +1,91 @@
+/* Cinematic 3D presentation is layered over the original deterministic 2D fallback. */
+#stage { isolation:isolate; }
+#maze { position:relative; z-index:0; }
+#maze-3d {
+  position:absolute; inset:0; z-index:1; overflow:hidden;
+  pointer-events:none;
+  background:radial-gradient(ellipse at 50% 38%,#1d3937,#071318 70%);
+}
+#maze-3d canvas { display:block; width:100%;height:100%; }
+#status-strip { z-index:3; }
+#scene-card { z-index:5; }
+#hud footer a {
+  display:inline-block; margin-top:9px; color:var(--accent);
+  text-decoration:none; font-size:10px; letter-spacing:.12em;
+}
+#hud footer a:hover, #hud footer a:focus-visible { text-decoration:underline; }
+body[data-reduced-motion="true"] #maze-3d { animation:none; }
+@media (prefers-reduced-motion: reduce) {
+  #maze-3d * { animation:none!important; }
+}
+/* Make the older observation map a tactical in-game minimap when WebGL is live. */
+#stage:has(#maze-3d) #maze {
+  position:absolute;left:18px;bottom:20px;z-index:4;
+  width:205px;height:156px;min-height:0;
+  border:1px solid rgba(249,216,149,.55);border-radius:13px;
+  background:#041215;box-shadow:0 16px 36px rgba(0,0,0,.55),0 0 0 5px rgba(4,14,16,.65);
+  pointer-events:none;
+}
+#stage:has(#maze-3d):before {
+  content:"TACTICAL MAP • VERIFIED OBSERVATIONS";
+  position:absolute;z-index:4;left:22px;bottom:181px;
+  font-size:9px;font-weight:900;letter-spacing:.13em;
+  color:#e9d9b4;text-shadow:0 1px 4px #000;
+}
+#stage:has(#maze-3d):after {
+  box-shadow:inset 0 0 120px rgba(12,25,26,.38);
+  background:linear-gradient(180deg,rgba(2,10,13,.19),transparent 26%,transparent 72%,rgba(2,10,13,.33));
+}
+#stage:has(#maze-3d) #status-strip {border-color:rgba(248,204,125,.2);background:rgba(7,16,17,.82)}
+@media(max-width:900px){
+  #stage:has(#maze-3d) #maze{left:8px;bottom:8px;width:136px;height:95px;border-radius:8px}
+  #stage:has(#maze-3d):before{left:11px;bottom:112px;font-size:6px;letter-spacing:.07em}
+}
+@media(max-width:600px) and (orientation:portrait){
+  #stage:has(#maze-3d) #maze{width:112px;height:82px}
+  #stage:has(#maze-3d):before{display:none}
+}
+#cinema-banner{
+  position:absolute;z-index:4;left:25px;top:72px;
+  display:flex;flex-direction:column;align-items:flex-start;gap:6px;
+  max-width:min(55%,520px);pointer-events:none;
+  text-shadow:0 3px 13px rgba(0,0,0,.8);
+}
+#cinema-banner span{
+  font-weight:950;letter-spacing:.19em;font-size:9px;color:#f9ce93;
+}
+#cinema-banner strong{
+  font-size:clamp(19px,2.1vw,32px);line-height:1.05;letter-spacing:.06em;
+  font-family:Georgia,"Times New Roman",serif;
+  font-weight:700;color:#f2e8d5;
+}
+#cinema-banner small{
+  font-size:11px;line-height:1.3;font-weight:650;color:#c7d4c9;
+}
+#cinema-hunter{
+  position:absolute;right:20px;bottom:24px;z-index:4;
+  padding:10px 16px;border:1px solid #c47579;border-radius:8px;
+  background:rgba(46,14,24,.88);color:#ffd4c7;
+  font-size:10px;letter-spacing:.18em;font-weight:950;
+  text-shadow:0 1px 3px #000;box-shadow:0 0 35px rgba(252,67,91,.16);
+}
+#cinema-hunter[hidden]{display:none!important}
+#stage:not(:has(#maze-3d)) #cinema-banner,#stage:not(:has(#maze-3d)) #cinema-hunter{display:none}
+@media(max-width:900px){
+  #cinema-banner{top:43px;left:11px;gap:4px}
+  #cinema-banner strong{font-size:15px}
+  #cinema-banner span{font-size:7px}
+  #cinema-banner small{font-size:8px}
+  #cinema-hunter{bottom:8px;right:8px;font-size:7px;padding:6px}
+}
+
+#sound-toggle{
+  appearance:none;border:1px solid rgba(245,211,148,.45);border-radius:999px;
+  background:rgba(33,27,19,.7);padding:6px 11px;color:#f6ddac;
+  font:800 9px/1 Inter,system-ui,sans-serif;letter-spacing:.09em;
+  cursor:pointer;flex:0 0 auto;white-space:nowrap
+}
+#sound-toggle[aria-pressed="true"]{border-color:#7df5cb;background:rgba(21,67,54,.83);color:#b8ffe3}
+#sound-toggle:disabled{cursor:default;opacity:.55}
+#sound-toggle:focus-visible{outline:2px solid #b6e8ff;outline-offset:2px}
+@media(max-width:900px){#sound-toggle{font-size:7px;padding:4px 5px;letter-spacing:0}}

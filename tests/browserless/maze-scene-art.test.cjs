@@ -1,0 +1,295 @@
+'use strict';
+// Executes the actual ESM 3D art code without needing a GPU, browser or authoring engine.
+// This is independent of the authoritative maze solver and cannot access its world truth.
+const test=require('node:test');
+const assert=require('node:assert/strict');
+const fs=require('node:fs/promises');
+const path=require('node:path');
+const THREE=require('three');
+const root=path.resolve(__dirname,'..','..');
+async function loadModule(name){
+  const contents=await fs.readFile(path.join(root,'public','ai-maze-escape',name),'utf8');
+  const url='data:text/javascript;base64,'+Buffer.from(contents).toString('base64');
+  return import(url);
+}
+function observedCells(){
+  return Array.from({length:25},(_,cell)=>({
+    cell,visible:true,blocked:false,neighbors:[],visits:cell%4,
+    checkpoint:cell===2,clue:cell===5,trap:cell===6
+  }));
+}
+test('five uniquely colored biomes instantiate genuine 3D landscape, architectural details and glyphs',async()=>{
+  const {makeWorldCraft}=await loadModule('world-craft.js');
+  const art=makeWorldCraft(THREE);
+  const world=new THREE.Group();
+  const cells=observedCells();
+  const profileSamples=[];
+  for(const profile of ['tree','loops','chambers','layers','hunter']){
+    world.clear();
+    art.setTheme(profile);
+    let instanced=0;
+    let sculpted=0;
+    const queue=(geometry,material,position,scale=[])=>{
+      assert.ok(geometry instanceof THREE.BufferGeometry);
+      assert.ok(material instanceof THREE.Material);
+      assert.equal(position.length,3);
+      assert.ok(position.every(Number.isFinite));
+      instanced++;
+    };
+    const put=(geometry,material,parent,position,scale)=>{
+      assert.ok(geometry instanceof THREE.BufferGeometry);
+      const mesh=new THREE.Mesh(geometry,material);
+      mesh.position.set(...position);
+      if(scale)mesh.scale.set(...scale);
+      parent.add(mesh);
+      sculpted++;
+      return mesh;
+    };
+    const snapshot=new Proxy({width:5,height:5},{get(target,key){
+      if(key==='width'||key==='height')return target[key];
+      throw new Error('Procedural 3D art must not inspect hidden game authority: '+String(key));
+    }});
+    const options={world,snapshot,cells,queue,put,
+      point:(i,width)=>new THREE.Vector3(i%width*2.5,0,Math.floor(i/width)*2.5),
+      grid:2.5,glow(){}};
+    art.populate(options);
+    art.decorateWall({world,x:0,z:0,id:0,kind:'NS',queue,put,height:2.8,glow(){}});
+    art.decorateWall({world,x:0,z:0,id:0,kind:'EW',queue,put,height:2.8,glow(){}});
+    assert.equal(world.userData.artStats.biome,profile);
+    assert.equal(world.userData.artStats.skyline,18);
+    assert.ok(world.userData.artStats.monumentalProps>0);
+    assert.ok(world.userData.artStats.clusters>0);
+    assert.ok(instanced>150);
+    assert.ok(sculpted>15);
+    profileSamples.push({profile,instanced,sculpted});
+  }
+  assert.ok(new Set(profileSamples.map(v=>v.profile)).size===5);
+});
+test('original Wayfinder and Hollow Sentinel have articulated meshes rather than placeholder cylinders',async()=>{
+  const {makeCharacterArt}=await loadModule('character-art.js');
+  const art=makeCharacterArt(THREE);
+  const explorer=art.explorer(),wraith=art.wraith();
+  const count=root=>{let n=0;root.traverse(child=>{if(child.isMesh)n++});return n};
+  assert.ok(count(explorer)>=25,'rich explorer mesh must be visible');
+  assert.ok(count(wraith)>=16,'wraith must have a meaningful silhouette');
+  assert.equal(explorer.userData.limbs.length,2);
+  assert.ok(explorer.userData.lantern);
+  assert.ok(explorer.userData.head);
+  assert.ok(explorer.userData.capeRig);
+  assert.ok(wraith.userData.shrouds.length>=6);
+  // Animation APIs used by the scene must be available on real Three.js objects.
+  for(const limb of explorer.userData.limbs){
+    limb.leg.rotation.x=.25;limb.arm.rotation.x=-.2;
+  }
+  for(const shroud of wraith.userData.shrouds)shroud.mesh.rotation.z=shroud.rest+.1;
+});
+test('biome atmosphere updates real particle buffers and disposes its GPU data',async()=>{
+  const {createAtmosphere}=await loadModule('atmosphere.js');
+  const atmosphere=createAtmosphere(THREE);
+  assert.ok(atmosphere.group.children.length>=3);
+  for(const profile of ['tree','loops','chambers','layers','hunter']){
+    const preset=atmosphere.setTheme(profile);
+    assert.ok(preset.fog>0);
+    atmosphere.update(9000,1/60,new THREE.Vector3(9,0,11),false);
+    assert.equal(atmosphere.group.position.x,9);
+    assert.equal(atmosphere.group.position.z,11);
+    atmosphere.update(10000,1/60,new THREE.Vector3(),true);
+  }
+  atmosphere.dispose();
+});
+
+test('publicly observed intersections assemble monumental rotundas with animated fixtures',async()=>{
+  const {makeWorldCraft}=await loadModule('world-craft.js');
+  const art=makeWorldCraft(THREE);
+  art.setTheme('layers');
+  const world=new THREE.Group();
+  const cells=observedCells();
+  cells[12].neighbors=[7,11,13,17]; // known four-way intersection
+  let queued=0;
+  const put=(geometry,material,parent,position,scale)=>{
+    const mesh=new THREE.Mesh(geometry,material);
+    mesh.position.set(...position);
+    if(scale)mesh.scale.set(...scale);
+    parent.add(mesh);
+    return mesh;
+  };
+  art.populate({world,snapshot:{width:5,height:5},cells,
+    queue:()=>queued++,put,point:(id,w)=>new THREE.Vector3((id%w)*2.5,0,Math.floor(id/w)*2.5),
+    grid:2.5,glow(){}});
+  assert.ok(world.userData.artStats.junctions>=1);
+  assert.ok(world.userData.artAnimators.length>=1);
+  assert.ok(queued>100);
+  for(const entry of world.userData.artAnimators){
+    assert.ok(entry.jewel.isMesh&&entry.inner.isMesh);
+  }
+});
+test('cinematic lighting decisions depend only on public AI observations, never oracle state',async()=>{
+  const {createCinematicDirector}=await loadModule('cinematic-director.js');
+  const director=createCinematicDirector(THREE);
+  const real={runToken:'public-safe',lifecycle:'exploration',exitCell:null,threats:[],inventory:[]};
+  const snapshot=new Proxy(real,{get(obj,key){
+    if(key in obj)return obj[key];
+    throw new Error('Hidden authority leak: '+String(key));
+  }});
+  director.updatePublicState(snapshot,0);
+  assert.equal(director.cue,'exploration');
+  real.inventory=['bronze-key'];
+  director.updatePublicState(snapshot,100);
+  assert.equal(director.cue,'clues');
+  real.exitCell=10;
+  director.updatePublicState(snapshot,200);
+  assert.equal(director.cue,'exit');
+  real.threats=[{id:'known-enemy',cell:5}];
+  director.updatePublicState(snapshot,300);
+  assert.equal(director.cue,'pursuit');
+  real.lifecycle='result';
+  real.result={reason:'escape'};
+  director.updatePublicState(snapshot,400);
+  assert.equal(director.cue,'success');
+  const camera=new THREE.PerspectiveCamera(44,1.777,0.1,100);
+  const scene=new THREE.Scene();scene.fog=new THREE.FogExp2(0x123444,.01);
+  const lamp=new THREE.PointLight(),rim=new THREE.DirectionalLight();
+  const renderer={toneMappingExposure:1.8};
+  director.setBaseFog(.012);
+  director.animate({renderer,scene,camera,lantern:lamp,rim},.05,false);
+  assert.ok(renderer.toneMappingExposure>1.8);
+  assert.ok(Number.isFinite(scene.fog.density));
+  assert.equal(scene.userData.cinematicCue,'success');
+  assert.ok(Number.isFinite(camera.fov));
+});
+
+test('24/7 renderer budgets only reduce resolution after sustained slow frames',async()=>{
+  const {createRenderBudget}=await loadModule('render-budget.js');
+  const adaptive=createRenderBudget({dpr:2,mode:'adaptive'});
+  assert.equal(adaptive.mode,'adaptive');
+  const initial=adaptive.ratio;
+  assert.ok(initial<=1.5);
+  for(let i=0;i<3;i++){
+    const result=adaptive.sample(14,9000+i*1000);
+    assert.equal(result.changed,false,'a single slow frame must not cause thrashing');
+  }
+  const reduction=adaptive.sample(14,12000);
+  assert.equal(reduction.changed,true);
+  assert.ok(reduction.ratio<initial);
+  for(let i=0;i<9;i++)adaptive.sample(59,19000+i*1000);
+  const improved=adaptive.sample(59,28000);
+  assert.equal(improved.changed,true);
+  assert.ok(improved.ratio>reduction.ratio);
+  const fixed=createRenderBudget({mode:'cinematic',dpr:2});
+  const fixedRatio=fixed.ratio;
+  for(let i=0;i<40;i++)fixed.sample(5,i*1000);
+  assert.equal(fixed.ratio,fixedRatio,'user quality override is stable');
+  const compact=createRenderBudget({mode:'adaptive',compact:true,dpr:3});
+  assert.ok(compact.ratio<=1.15);
+});
+
+test('public-event 3D VFX are bounded, trigger from observed changes and dispose correctly',async()=>{
+  const {createMomentEffects}=await loadModule('moment-effects.js');
+  const moments=createMomentEffects(THREE);
+  const state={
+    runToken:'run-1',lifecycle:'exploration',currentCell:0,width:5,
+    inventory:[],cells:[{cell:0,clue:false,visible:true}],
+    threats:[],exitCell:null,result:null
+  };
+  const guarded=new Proxy(state,{get(target,key){
+    if(key in target)return target[key];
+    throw new Error('Moment effects must not inspect hidden state: '+String(key));
+  }});
+  const resolve=(id,width)=>new THREE.Vector3(id%width*2.5,0,Math.floor(id/width)*2.5);
+  moments.observe(guarded,resolve);
+  assert.equal(moments.activeObjects,0);
+  state.inventory=['silver-key'];
+  moments.observe(guarded,resolve);
+  assert.ok(moments.activeObjects>0);
+  assert.ok(moments.recentEvents.includes('key'));
+  state.exitCell=4;
+  moments.observe(guarded,resolve);
+  assert.ok(moments.recentEvents.includes('exit'));
+  state.threats=[{id:'observed-1',cell:2}];
+  moments.observe(guarded,resolve);
+  assert.ok(moments.recentEvents.includes('danger'));
+  for(let i=0;i<40;i++)moments.update(.1,false);
+  assert.equal(moments.activeObjects,0);
+  state.lifecycle='result';state.result={reason:'escape'};
+  moments.observe(guarded,resolve,{reducedMotion:true});
+  assert.ok(moments.recentEvents.includes('triumph'));
+  assert.ok(moments.activeObjects<=65);
+  moments.dispose();
+  assert.equal(moments.activeObjects,0);
+});
+
+test('real embedded GLB supplies complete humanoid skeleton and its CC0 license',async()=>{
+  const file=path.join(root,'public','ai-maze-escape','models','wayfinder-rig.glb');
+  const bytes=await fs.readFile(file);
+  assert.equal(bytes.subarray(0,4).toString('ascii'),'glTF');
+  assert.equal(bytes.readUInt32LE(4),2,'GLB version 2');
+  assert.equal(bytes.readUInt32LE(8),bytes.length);
+  const headerLength=bytes.readUInt32LE(12);
+  assert.ok(headerLength>1000&&headerLength<100000);
+  const document=JSON.parse(bytes.toString('utf8',20,20+headerLength).trimEnd());
+  assert.ok(document.meshes.length>=3,'requires detailed skinned meshes');
+  assert.ok(document.skins.length>=1,'requires a real skin');
+  const bones=new Set(document.nodes.map(n=>n.name));
+  for(const name of ['Head','thigh_l','thigh_r','upperarm_l','upperarm_r','pelvis']){
+    assert.ok(bones.has(name),'missing rigged humanoid bone: '+name);
+  }
+  const license=await fs.readFile(path.join(root,'public','ai-maze-escape','models','QUATERNIUS-LICENSE.txt'),'utf8');
+  assert.match(license,/CC0|Creative Commons Zero/i);
+  const manifest=await fs.readFile(path.join(root,'games','ai-maze-escape','ASSETS.md'),'utf8');
+  assert.match(manifest,/Quaternius/);
+  assert.match(manifest,/wayfinder-rig\.glb/);
+});
+
+test('Quaternius ghost includes a skeletal rig and eight real CC0 animation clips',async()=>{
+  const file=path.join(root,'public','ai-maze-escape','models','hollow-sentinel-ghost.glb');
+  const buffer=await fs.readFile(file);
+  assert.equal(buffer.subarray(0,4).toString('ascii'),'glTF');
+  assert.equal(buffer.readUInt32LE(4),2);
+  assert.equal(buffer.readUInt32LE(8),buffer.length);
+  const jsonSize=buffer.readUInt32LE(12);
+  const model=JSON.parse(buffer.toString('utf8',20,20+jsonSize).trimEnd());
+  assert.ok(model.skins.length>=1);
+  assert.ok(model.nodes.length>=30);
+  const names=model.animations.map(animation=>animation.name);
+  for(const required of ['Flying_Idle','Fast_Flying','HitReact','Death']){
+    assert.ok(names.includes(required),'missing live AI monster clip: '+required);
+  }
+  assert.ok(names.length>=8);
+  const manifest=await fs.readFile(path.join(root,'games','ai-maze-escape','ASSETS.md'),'utf8');
+  assert.match(manifest,/Hollow Sentinel ghost/);
+  assert.match(manifest,/CC0/);
+});
+
+test('adaptive mode defaults to an efficient resolution without touching user cinematic overrides',async()=>{
+  const {createRenderBudget}=await loadModule('render-budget.js');
+  const desktop=createRenderBudget({mode:'adaptive',dpr:3});
+  assert.ok(desktop.ratio<=1.25);
+  assert.equal(desktop.shadowResolution,512);
+  const phone=createRenderBudget({mode:'adaptive',compact:true,dpr:3});
+  assert.ok(phone.ratio<=1.0);
+  const cinematic=createRenderBudget({mode:'cinematic',dpr:2});
+  assert.ok(cinematic.ratio>=1.5,'the user-selected cinematic quality must remain rich');
+});
+
+test('CC0 medieval architecture is self-contained glTF, texture-safe and fully licensed',async()=>{
+  const names=['Wall_Arch','DoorFrame_Round_Brick','Roof_Tower_RoundTiles','Prop_Vine4'];
+  for(const name of names){
+    const file=path.join(root,'public','ai-maze-escape','models',name+'.glb');
+    const bytes=await fs.readFile(file);
+    assert.equal(bytes.toString('ascii',0,4),'glTF',name);
+    assert.equal(bytes.readUInt32LE(8),bytes.byteLength);
+    const jsonLength=bytes.readUInt32LE(12);
+    const data=JSON.parse(bytes.toString('utf8',20,20+jsonLength).trim());
+    assert.ok(data.meshes?.length>=1,name+' should contain authored geometry');
+    assert.ok(data.accessors?.length>=4);
+    assert.equal(data.buffers.length,1);
+    assert.ok(!data.buffers[0].uri,'texture-safe bundled GLB must not fetch remote geometry');
+    assert.ok(!data.images||data.images.length===0,'all materials should be safely original and self-contained');
+    assert.ok(bytes.byteLength<400000,'each mesh must be economical for a 24/7 stream');
+  }
+  const license=await fs.readFile(
+    path.join(root,'public','ai-maze-escape','models','MEDIEVAL-VILLAGE-CC0-LICENSE.txt'),'utf8');
+  assert.match(license,/CC0|Creative Commons|public domain/i);
+  const manifest=await fs.readFile(path.join(root,'games','ai-maze-escape','ASSETS.md'),'utf8');
+  assert.match(manifest,/Medieval Village MegaKit/);
+});

@@ -1,0 +1,57 @@
+name: AI Maze Escape — Visual Gauntlet
+on:
+  push:
+    branches:
+      - 'agent/maze-*'
+    paths:
+      - 'public/ai-maze-escape/**'
+      - 'games/ai-maze-escape/**'
+      - 'scripts/serve-maze-stream.cjs'
+      - 'tests/browser/maze-*.spec.cjs'
+      - 'tests/browserless/maze-scene-art.test.cjs'
+      - '.github/workflows/maze-ui-gauntlet.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'public/ai-maze-escape/**'
+      - 'games/ai-maze-escape/**'
+      - 'scripts/serve-maze-stream.cjs'
+      - 'tests/browser/maze-*.spec.cjs'
+      - 'tests/browserless/maze-scene-art.test.cjs'
+      - '.github/workflows/maze-ui-gauntlet.yml'
+permissions:
+  contents: read
+concurrency:
+  group: maze-gauntlet-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
+jobs:
+  visual:
+    name: Live browser quality and screenshot capture
+    runs-on: ubuntu-latest
+    timeout-minutes: 22
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '22.16.0'
+          cache: npm
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Build verified runtime
+        run: npm run build
+      - name: Validate real Three.js meshes and public-only art
+        run: node --test tests/browserless/maze-scene-art.test.cjs
+      - name: Install browser
+        run: npx playwright install --with-deps chromium
+      - name: Capture true running game at desktop and mobile sizes
+        run: npx playwright test tests/browser/maze-ui-v3.spec.cjs tests/browser/maze-gauntlet.spec.cjs tests/browser/maze-stream.spec.cjs tests/browser/maze-review.spec.cjs
+      - name: Upload evidence (even on failure)
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: ai-maze-escape-gauntlet-visual-captures
+          path: |
+            artifacts/maze-phase3/
+            test-results/
+          if-no-files-found: warn
+          retention-days: 30
