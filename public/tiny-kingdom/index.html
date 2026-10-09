@@ -467,6 +467,74 @@ function turfColor(x,z){const moss=Math.sin(x*.17+z*.065)*Math.cos(z*.23)*.045+M
  return snowy?[.63+moss*.3,.68+moss*.3,.69+moss*.3]:[(.305+moss+ridge)*(season===2?1.22:scale),(.425+moss*1.05+ridge)*scale,(.291+moss*.8+ridge)*(season===3?.90:scale)]}
 function turfTri(a,b,c){for(const v of [a,b,c]){const x=v[0],z=v[2],dx=(terrain(x+.15,z)-terrain(x-.15,z))/.3,dz=(terrain(x,z+.15)-terrain(x,z-.15))/.3,L=Math.hypot(dx,1,dz);data.push(...v,-dx/L,1/L,-dz/L,...turfColor(x,z),MATERIAL.GRASS)}}
 function turfQuad(a,b,c,d){turfTri(a,b,c);turfTri(a,c,d)}
+
+// Gauntlet 032: low-cost sun-synchronous 3D contact and cast-shadow silhouettes.
+// No shadow bitmap, external texture, random stream or save-state mutation.
+// Geometry follows terrain and is appended to the *dynamic* mesh rather than
+// invalidating 50k triangles of static architecture each simulated hour.
+let castShadowTriangles=0;
+function sunShadow(time){
+ const hour=((time%24)+24)%24,atmosphere=skyConditions(time);
+ const sunElevation=.30+atmosphere.daylight*.9;
+ const azimuth=hour/24*Math.PI*2;
+ const night=hour<5.8||hour>19.7;
+ const strength=night?0:Math.max(0,Math.min(1,(atmosphere.daylight-.22)*1.65));
+ const distance=strength>0?Math.min(7,1.3/sunElevation):0;
+ return {strength,distance,dx:-Math.cos(azimuth),dz:-Math.sin(azimuth),hour};
+}
+function dropShadowPoint(x,z,height,sun){
+ const scale=height*sun.distance;
+ const px=x+sun.dx*scale,pz=z+sun.dz*scale;
+ return [px,terrain(px,pz)+.075,pz];
+}
+function shadowPatch(cx,cz,radiusX,radiusZ,height,sun,isDense=false){
+ if(!sun.strength||Math.abs(cx)>40||Math.abs(cz)>40)return 0;
+ const [px,,pz]=dropShadowPoint(cx,cz,height,sun);
+ const grassShade=turfColor(px,pz);
+ const dark=grassShade.map((v,i)=>Math.max(.025,v*(1-(isDense?.57:.42)*sun.strength)*(i===0?.86:1)));
+ const mid=grassShade.map(v=>Math.max(.03,v*(1-.28*sun.strength)));
+ const center=[px,terrain(px,pz)+.077,pz];
+ const segments=8;
+ const outer=[],inner=[];
+ for(let i=0;i<=segments;i++){
+  const a=i*Math.PI*2/segments,c=Math.cos(a),d=Math.sin(a);
+  const ox=px+c*radiusX*1.15,oz=pz+d*radiusZ*1.15;
+  const ix=px+c*radiusX*.75,iz=pz+d*radiusZ*.75;
+  outer.push([ox,terrain(ox,oz)+.075,oz]);
+  inner.push([ix,terrain(ix,iz)+.077,iz]);
+ }
+ for(let i=0;i<segments;i++){
+  quad(outer[i],outer[i+1],inner[i+1],inner[i],mid);
+  tri(center,inner[i],inner[i+1],dark);
+ }
+ return segments*3;
+}
+function directionalCastShadows(time){
+ const sun=sunShadow(time);castShadowTriangles=0;
+ if(sun.strength<=.01)return;
+ const old=currentMaterial;currentMaterial=MATERIAL.GENERAL;
+ try{
+  // Built structures cast a long roof shadow; cottages grow with the village.
+  for(const [x,z,k] of city){
+   if(!Number.isFinite(x)||!Number.isFinite(z))continue;
+   const width=(2.4+k*.42)*.73,length=(2.1+k*.18)*.62;
+   castShadowTriangles+=shadowPatch(x,z,width,length,2.4,sun,true);
+  }
+  castShadowTriangles+=shadowPatch(0,-1,3.3,2.7,5.1,sun,true);
+  castShadowTriangles+=shadowPatch(-27,-18,1.75,1.3,5.4,sun,true);
+  castShadowTriangles+=shadowPatch(29,10,4.0,4.3,7.1,sun,true);
+  // Trees project compact disconnected canopy footprints, avoiding a flat
+  // blanket of shadow over each path and the central town square.
+  for(let i=0;i<trees.length;i++){
+   const t=trees[i];if(Math.hypot(t.x-29,t.z-10)<8)continue;
+   castShadowTriangles+=shadowPatch(t.x,t.z,.71*t.s,.63*t.s,2.7*t.s,sun,false);
+  }
+  for(const p of people){
+   castShadowTriangles+=shadowPatch(p.x,p.z,.20,.14,1.1,sun,true);
+  }
+ }finally{currentMaterial=old}
+}
+
 function shadow(x,z,rx,rz){const y=terrain(x,z)+.013,col=rgb(0x4b6549);for(let i=0;i<10;i++){const a=i*Math.PI/5,b=(i+1)*Math.PI/5;tri([x,y,z],[x+Math.cos(a)*rx,y,z+Math.sin(a)*rz],[x+Math.cos(b)*rx,y,z+Math.sin(b)*rz],col)}}
 function house(x,z,scale=1,variant=0){let y=terrain(x,z);let w=(2.4+variant*.42)*scale,d=(2.1+variant*.18)*scale,h=1.9*scale;shadow(x+.28,z+.20,w*.77,d*.74);box(x,y-.04,z,w+.14,.23*scale,d+.14,rgb(0x908978));box(x,y+.19*scale,z,w,h-.19*scale,d,variant%2?rgb(0xe1c7a0):rgb(0xd1bc97));let ridge=h+1.25*scale,zy=z-d/2-.18*scale,zz=z+d/2+.18*scale,xx=x-w/2-.25*scale,xr=x+w/2+.25*scale;let col=variant%2?rgb(0x725046):rgb(0x976047);
 // Both slopes, proper triangular end gables, visible eaves and offset ridge trim.
@@ -1203,6 +1271,7 @@ for(let i=0;i<5;i++){let xx=-17+i*1.3,zz=-14+(i%2)*1.4;box(xx,terrain(xx,zz),zz,
 
 }
 data=gpuAvailable?[]:scenicMeshCache.slice();
+directionalCastShadows(state.t);
 currentMaterial=MATERIAL.FOLIAGE;
 windmill(-27,-18,state.t);villageFestival();
 currentMaterial=MATERIAL.WOOD;
@@ -1210,6 +1279,6 @@ currentMaterial=MATERIAL.WOOD;
 const elevation=Math.sin(pitch)*zoom,rad=Math.cos(pitch)*zoom,eye=[focusPoint[0]+Math.sin(yaw)*rad,elevation,focusPoint[1]+Math.cos(yaw)*rad];let m=mat4multiply(perspective(Math.PI/3.2,w/h,.1,190),lookAt(eye,[focusPoint[0],.25,focusPoint[1]],[0,1,0]));gl.uniformMatrix4fv(uniforms.viewProjection,false,m);gl.uniform3f(uniforms.fogColor,...atmosphere.fog);gl.uniform3f(uniforms.sunTint,...atmosphere.light);gl.uniform1f(uniforms.worldTime,state.t);gl.uniform3f(uniforms.eyePosition,eye[0],eye[1],eye[2]);gl.uniform3f(uniforms.sunDirection,Math.cos(state.t/24*6.283),.3+atmosphere.daylight*.9,Math.sin(state.t/24*6.283));lastFrameTriangles=(gpuAvailable?scenicMeshCache.length+data.length:data.length)/30;
 if(gpuAvailable){bindGeometry(staticBuffer);gl.drawArrays(gl.TRIANGLES,0,scenicMeshCache.length/10);}
 bindGeometry(buffer);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(data),gl.DYNAMIC_DRAW);gl.drawArrays(gl.TRIANGLES,0,data.length/10);if((frames++%14)===0){updateUI();drawAtlas();updateRealmSignal()}}
-requestAnimationFrame(render);window.__tinyKingdom={getState:()=>JSON.parse(JSON.stringify({state,people:people.map(({name,job,x,z,target})=>({name,job,x,z,target}))})),setSpeed:x=>{speed=x},step,reset:start,renderer:()=>canvas.getContext('webgl')?'webgl':'software',metrics:()=>({citizens:people.length,buildings:city.length+2,day:Math.floor(state.t/24)+1,food:state.food,wood:state.wood,gold:state.gold,relationships:people.filter(p=>p.friend).length}),route:(a,b)=>routeBetween(a[0],a[1],b[0],b[1]),walkable:(p)=>walkable(p[0],p[1]),getNavigation:()=>people.map(p=>({name:p.name,position:[p.x,p.z],target:p.target,remaining:p.path?.length||0,path:p.path,activity:p.activity,hunger:p.hunger,energy:p.energy})),exportSnapshot,restoreSnapshot,saveWorld,restoreWorld,climateAt,skyConditions,getCitizenProfiles:()=>cloneData(people.map(({name,job,trait,friend,bonds,energy,hunger,activity})=>({name,job,trait,friend,bonds,energy,hunger,activity}))),getRigPose:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(citizenRigPose(people[index])):null,getSelectedCitizen:()=>people[selectedCitizen]?.name,routeCacheMetrics:()=>({entries:routeCache.size,hits:cacheHits,misses:cacheMisses}),getCamera:()=>({yaw,pitch,zoom,focus:focusPoint.slice(),follow,cinematic}),getTerrainHeight:(x,z)=>terrain(x,z),getWildfloraCount:()=>wildflora.length,getMaterialSystem:()=>({vertexStride:10,surfaceShaderVersion:'procedural-023',materials:Object.keys(MATERIAL),gpuRenderValidated:false}),waterStats:()=>({model:'fresnel-ripple-shorefoam-v1',segments:RIVER_SEGMENTS,waterTriangles:RIVER_SEGMENTS*RIVER_BANDS*2,bankTriangles:RIVER_SEGMENTS*2*RIVER_BANK_BANDS*2}),getScenicSites:scenicSiteMetrics,getFestivalVisualStats:()=>({season:festivalSeason,cacheBuilds:festivalCacheBuilds,vertices:festivalGeometry?.length||0}),getGeometryAudit:geometryAudit,renderStats:()=>({terrainRebuilds,terrainCacheKey,terrainCacheTriangles,lastFrameTriangles,scenicMeshRebuilds,scenicMeshTriangles,scenicMeshKey,staticGpuUploads,dualBufferGPU:gpuAvailable}),renderQuality,setRenderQuality,getHudMode:()=>cinematicHud?'cinema':'full',setHudMode:setCinematicHud,skyStats:()=>({enabled:gpuAvailable,passes:skyPassCount,model:'day-night-atmosphere-v1'}),setCamera:o=>{yaw=Number.isFinite(o.yaw)?o.yaw:yaw;pitch=Number.isFinite(o.pitch)?Math.max(.25,Math.min(1.45,o.pitch)):pitch;zoom=Number.isFinite(o.zoom)?Math.max(9,Math.min(85,o.zoom)):zoom;if(Array.isArray(o.focus)&&o.focus.length===2)focusPoint=o.focus.slice(0,2)}};
+requestAnimationFrame(render);window.__tinyKingdom={getState:()=>JSON.parse(JSON.stringify({state,people:people.map(({name,job,x,z,target})=>({name,job,x,z,target}))})),setSpeed:x=>{speed=x},step,reset:start,renderer:()=>canvas.getContext('webgl')?'webgl':'software',metrics:()=>({citizens:people.length,buildings:city.length+2,day:Math.floor(state.t/24)+1,food:state.food,wood:state.wood,gold:state.gold,relationships:people.filter(p=>p.friend).length}),route:(a,b)=>routeBetween(a[0],a[1],b[0],b[1]),walkable:(p)=>walkable(p[0],p[1]),getNavigation:()=>people.map(p=>({name:p.name,position:[p.x,p.z],target:p.target,remaining:p.path?.length||0,path:p.path,activity:p.activity,hunger:p.hunger,energy:p.energy})),exportSnapshot,restoreSnapshot,saveWorld,restoreWorld,climateAt,skyConditions,getCitizenProfiles:()=>cloneData(people.map(({name,job,trait,friend,bonds,energy,hunger,activity})=>({name,job,trait,friend,bonds,energy,hunger,activity}))),getRigPose:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(citizenRigPose(people[index])):null,getSelectedCitizen:()=>people[selectedCitizen]?.name,routeCacheMetrics:()=>({entries:routeCache.size,hits:cacheHits,misses:cacheMisses}),getCamera:()=>({yaw,pitch,zoom,focus:focusPoint.slice(),follow,cinematic}),getTerrainHeight:(x,z)=>terrain(x,z),getWildfloraCount:()=>wildflora.length,getMaterialSystem:()=>({vertexStride:10,surfaceShaderVersion:'procedural-023',materials:Object.keys(MATERIAL),gpuRenderValidated:false}),waterStats:()=>({model:'fresnel-ripple-shorefoam-v1',segments:RIVER_SEGMENTS,waterTriangles:RIVER_SEGMENTS*RIVER_BANDS*2,bankTriangles:RIVER_SEGMENTS*2*RIVER_BANK_BANDS*2}),getScenicSites:scenicSiteMetrics,getFestivalVisualStats:()=>({season:festivalSeason,cacheBuilds:festivalCacheBuilds,vertices:festivalGeometry?.length||0}),getGeometryAudit:geometryAudit,renderStats:()=>({terrainRebuilds,terrainCacheKey,terrainCacheTriangles,lastFrameTriangles,scenicMeshRebuilds,scenicMeshTriangles,scenicMeshKey,staticGpuUploads,dualBufferGPU:gpuAvailable}),renderQuality,setRenderQuality,shadowStats:()=>({triangles:castShadowTriangles,...sunShadow(state.t)}),sampleSunShadow:(time)=>sunShadow(time),getHudMode:()=>cinematicHud?'cinema':'full',setHudMode:setCinematicHud,skyStats:()=>({enabled:gpuAvailable,passes:skyPassCount,model:'day-night-atmosphere-v1'}),setCamera:o=>{yaw=Number.isFinite(o.yaw)?o.yaw:yaw;pitch=Number.isFinite(o.pitch)?Math.max(.25,Math.min(1.45,o.pitch)):pitch;zoom=Number.isFinite(o.zoom)?Math.max(9,Math.min(85,o.zoom)):zoom;if(Array.isArray(o.focus)&&o.focus.length===2)focusPoint=o.focus.slice(0,2)}};
 })();
 </script></body></html>
