@@ -662,6 +662,11 @@ function renderHud(next) {
     }
     item.dataset.status=entry.status;
     item.dataset.inspected=String(selectedSpotlightId===entry.id);
+    // A live in-row progress rail shows *public authoritative* course
+    // distance, not an extrapolated/simulated client rank. Keep the keyed
+    // DOM node stable while advancing the visual bar each snapshot.
+    const coursePercent=Math.max(0,Math.min(100,(Number(entry.progressPermille)||0)/10));
+    item.style.setProperty('--race-progress',coursePercent.toFixed(1)+'%');
     const fields=[
       ['.rank',String(index+1).padStart(2,'0')],
       ['.number',String(entry.number)],
@@ -674,6 +679,7 @@ function renderHud(next) {
     }
     const inspect=item.querySelector('.inspect-marble');
     inspect.setAttribute('aria-pressed',String(selectedSpotlightId===entry.id));
+    inspect.setAttribute('aria-label',`Inspect competitor #${entry.number} ${entry.name}, ${Math.round(coursePercent)}% of course, ${statusLabel(entry.status)}`);
     return item;
   });
   for(let index=0;index<wanted.length;index++){
