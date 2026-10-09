@@ -132,6 +132,8 @@ const path = require('node:path');
     evidence.riverGlError=await page.evaluate(()=>document.getElementById('world').getContext('webgl').getError());
     if(evidence.riverGlError!==0)throw Error('WebGL error after river scene capture: '+evidence.riverGlError);
     await page.evaluate(()=>window.__tinyKingdom.setHudMode('full'));
+    if(await page.evaluate(()=>window.__tinyKingdom.getHudMode()!=='full'))
+      throw Error('Failed to restore command HUD after cinematic screenshot');
     await page.setViewportSize({width:390,height:844});
     await page.waitForTimeout(300);
     evidence.mobileViewport=await page.evaluate(()=>({
@@ -142,6 +144,8 @@ const path = require('node:path');
     await page.screenshot({path:path.join(out,'mobile-sanctuary.png'),fullPage:true,timeout:90000});
     if(evidence.mobileViewport.scrollWidth>evidence.mobileViewport.clientWidth+1)
       throw Error('Mobile visual regression: horizontal page overflow');
+    if(evidence.mobileViewport.tourWidth<100)
+      throw Error('Mobile visual regression: camera ribbon hidden after cinematic restore');
     evidence.day11=replay.metrics;
     evidence.tenDayReplayIdentical=(replay.snapshot===second);
     if(!evidence.tenDayReplayIdentical)throw Error('10-day replay mismatch');
