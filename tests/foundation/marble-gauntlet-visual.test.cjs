@@ -391,3 +391,28 @@ test('full-grid director and five-stage road stay cosmetic, authority-backed and
     '@media(prefers-contrast:more)',
   ]) assert.ok(styles.includes(marker), 'missing rail UI/accessibility: '+marker);
 });
+
+test('Gauntlet 48 camera opens the actual stadium instead of occluding the live pack',()=>{
+  for(const fragment of [
+    'Only the FAR grandstand wall belongs in the camera-facing picture',
+    'for(const end of [-1])',
+    "shell.dataset.cameraPitch='stadium-broadcast'",
+    'const distance=Math.max(15.0,width*0.90,depth*1.03)',
+    'shell.dataset.cameraFraming',
+  ]) assert.ok(renderer.includes(fragment),'missing low-angle stadium camera improvement: '+fragment);
+  assert.ok(index.includes('id="mobile-standings-toggle"'));
+  assert.ok(app.includes("mobileStandingsToggle.addEventListener('click'"));
+  assert.ok(styles.includes('.leaderboard-panel.broadcast-overlay[data-mobile-expanded="false"] .leaderboard li:nth-child(n+4)'));
+});
+test('Gauntlet 49 low-power race still renders real competitors in a single WebGL2 draw',()=>{
+  for(const fragment of [
+    'const INSTANCED_MARBLE_VERTEX',
+    'const INSTANCED_MARBLE_FRAGMENT',
+    'gl.vertexAttribDivisor(attr,1)',
+    'function drawInstancedLowMarbles(',
+    'gl.drawElementsInstanced(gl.TRIANGLES,sphereMeshLow.count,gl.UNSIGNED_SHORT,0,living.length)',
+    "shell.dataset.marbleDrawCalls='1'",
+    "low: 0.48",
+  ]) assert.ok(renderer.includes(fragment),'missing genuine one-draw low-power roster: '+fragment);
+  assert.ok(!renderer.includes('Math.random('),'render path must not change simulation RNG');
+});
