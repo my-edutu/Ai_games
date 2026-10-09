@@ -687,6 +687,26 @@ function animate(now){
   }
 }
 requestAnimationFrame(animate);
+// Screenshot proof protocol: only the same-origin Gauntlet review page may
+// request a REAL WebGL frame. Render synchronously before copying pixels,
+// because normal WebGL contexts do not preserve the drawing buffer.
+window.addEventListener('message',event=>{
+  if(event.origin!==window.location.origin || event.data?.kind!=='eko.capture')return;
+  try{
+    renderer.render(scene,camera);
+    const dataUrl=renderer.domElement.toDataURL('image/png');
+    if(!dataUrl.startsWith('data:image/png;base64,')||dataUrl.length<1500)
+      throw new Error('WebGL frame not captured');
+    event.source?.postMessage({
+      kind:'eko.capture.result',dataUrl,source:'live-WebGL',
+      district:worldState.district,drawCalls:renderer.info.render.calls,
+      tick:latest?.snapshot?.tick??null,camera:worldState.cameraStyle,
+      capturedAt:new Date().toISOString()
+    },event.origin);
+  }catch(error){
+    event.source?.postMessage({kind:'eko.capture.error',reason:String(error.message||error)},event.origin);
+  }
+});
 const stream=new EventSource('/eko/stream');
 stream.onmessage=ev=>{try{updateSnapshot(JSON.parse(ev.data));}catch(error){console.error('Render snapshot rejected:',error);}};
 stream.onerror=()=>{ui.signal.textContent='RECONNECTING TO AUTHORITY';};
