@@ -40,6 +40,14 @@ test('redesigned HUD works on a small touch viewport with accessible movement co
  await expect(page.locator('[data-tower-control="jump"]')).toBeVisible();
  await expect(page.locator('#floor')).toBeVisible();
  await expect(page.locator('#biome')).toBeVisible();
+ await expect(page.locator('#hud-toggle')).toBeVisible();
+ await expect(page.locator('.buildbar')).toBeHidden();
+ await page.locator('#hud-toggle').click();
+ await expect(page.locator('body')).toHaveAttribute('data-hud-expanded','true');
+ await expect(page.locator('#hud-toggle')).toHaveAttribute('aria-expanded','true');
+ await expect(page.locator('.buildbar')).toBeVisible();
+ await page.locator('#hud-toggle').click();
+ await expect(page.locator('.buildbar')).toBeHidden();
  await expect(page.locator('#game-mode')).toContainText('RETURN TO AUTONOMY');
  const sizes=await page.evaluate(()=>({w:document.documentElement.clientWidth,scroll:document.documentElement.scrollWidth,
    hero:document.querySelector('.hero-panel').getBoundingClientRect().toJSON(),

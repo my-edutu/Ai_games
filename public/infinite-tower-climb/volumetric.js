@@ -91,6 +91,14 @@
   const reduced=params.get('reducedMotion')==='1';
   const input=createTowerInput(params);
   const manual=input.manual;
+  const toggleTelemetry=document.getElementById('hud-toggle');
+  document.body.dataset.hudExpanded='false';
+  toggleTelemetry?.addEventListener('click',()=>{
+    const expanded=document.body.dataset.hudExpanded!=='true';
+    document.body.dataset.hudExpanded=String(expanded);
+    toggleTelemetry.setAttribute('aria-expanded',String(expanded));
+    toggleTelemetry.textContent=expanded?'✕ HIDE STATS':'✦ SHOW STATS';
+  });
   document.body.dataset.reducedMotion=String(reduced);
   document.body.dataset.manual=String(manual);
   const gameModeLink=document.getElementById('game-mode');

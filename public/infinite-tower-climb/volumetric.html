@@ -23,6 +23,8 @@
     <div class="mode-menu"><a id="game-mode" href="/tower/volumetric?manual=1">TAKE CONTROL <span aria-hidden="true">↗</span></a><a class="mode-menu--quiet" href="/tower/gauntlet.html">QUALITY GATES</a></div>
   </header>
 
+  <button type="button" id="hud-toggle" class="hud-toggle" aria-expanded="false"
+    aria-controls="tower-telemetry">✦ SHOW STATS</button>
   <section class="hero-panel" aria-label="Current climb progress">
     <div class="hero-panel__eyebrow"><span class="panel-point"></span> SUMMIT PROGRESS <span class="hero-panel__live">∞ INFINITE</span></div>
     <div class="floor-stat"><span>FLOOR</span><strong id="floor">000</strong><span class="floor-stat__suffix">ASCENDING</span></div>
@@ -30,7 +32,7 @@
     <div class="milestone"><div class="milestone__head"><span>NEXT MILESTONE</span><strong id="next-milestone">05</strong></div><div class="milestone__track"><div id="milestone-progress" class="milestone__fill"></div></div><small>CLIMB. ADAPT. SURVIVE.</small></div>
   </section>
 
-  <aside class="right-rail" aria-label="Climber telemetry and biome">
+  <aside class="right-rail" id="tower-telemetry" aria-label="Climber telemetry and biome">
     <section class="biome-panel" aria-live="polite">
       <span class="biome-panel__label">EXPLORING REGION <span class="biome-star" aria-hidden="true">✦</span></span>
       <strong id="biome">FOUNDRY</strong>

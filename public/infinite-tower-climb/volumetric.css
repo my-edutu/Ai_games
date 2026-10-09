@@ -225,3 +225,47 @@ body[data-manual="true"] .touch-controls{display:flex}
 
 /* Boss warnings cannot cover primary telemetry on narrow devices. */
 @media(max-width:740px){.boss-alert{top:auto;bottom:calc(285px + var(--safe-bottom));left:50%;transform:translateX(-50%);width:min(320px,calc(100% - 24px));min-width:0}}
+
+/* GAUNTLET UX ROUND: mobile gameplay-first / an intentional expandable instrument view. */
+.hud-toggle{display:none;z-index:15}
+@media(max-width:740px){
+  .hud-toggle{position:absolute;top:62px;right:11px;display:flex;align-items:center;justify-content:center;
+    width:120px;padding:8px 10px;border-radius:9px;min-height:31px;
+    background:linear-gradient(115deg,var(--accent),var(--accent-2));
+    color:#071b2b;border:1px solid #ffffff90;font-weight:950;font-size:9px;letter-spacing:.04em;
+    box-shadow:0 4px 20px rgba(var(--accent-rgb),.31)}
+  .hero-panel{top:68px;width:153px;left:11px;border:1px solid rgba(var(--accent-rgb),.55);
+    box-shadow:0 10px 32px #020a16aa}
+  .floor-stat strong{font-size:46px}
+  .hero-panel .milestone{padding-top:9px}
+  .right-rail{position:absolute;top:102px;right:11px;width:125px;gap:6px}
+  .biome-panel{padding:9px 10px 11px;border-radius:11px}
+  .biome-panel__label{font-size:6px}
+  .biome-panel strong{font-size:16px}
+  .biome-panel__description{font-size:7px}
+  .biome-panel__rule{margin:6px 0}
+  .right-rail .readouts,.right-rail .health-panel,.buildbar,.wall-status,.story{display:none}
+  .evidence-commands{bottom:calc(94px + var(--safe-bottom));justify-content:center;
+    left:11px;right:11px;gap:7px}
+  .evidence-commands a,.evidence-commands #record-clip{display:none}
+  .evidence-commands button{font-size:9px;padding:8px 12px;border-radius:9px;
+    background:#102a47eb;border:1px solid #9bd2fb80}
+  .feed{bottom:calc(12px + var(--safe-bottom));min-height:60px;box-shadow:0 10px 24px #000a}
+  .feed__copy strong{font-size:11px}
+  .touch-controls{bottom:calc(171px + var(--safe-bottom));left:12px;right:12px}
+  .touch-controls button{height:42px;width:42px;border-radius:10px}
+  .touch-controls .touch-jump{width:73px;height:73px;border-radius:50%}
+  body[data-hud-expanded="true"] .right-rail .readouts,
+  body[data-hud-expanded="true"] .right-rail .health-panel{display:grid}
+  body[data-hud-expanded="true"] .right-rail{top:102px}
+  body[data-hud-expanded="true"] .buildbar{display:block;top:263px;left:11px}
+  body[data-hud-expanded="true"] .wall-status{display:block;top:241px;left:11px}
+  body[data-hud-expanded="true"] .story{display:block;bottom:calc(132px + var(--safe-bottom));max-width:calc(100% - 22px)}
+  body[data-hud-expanded="true"] .evidence-commands #record-clip,
+  body[data-hud-expanded="true"] .evidence-commands a{display:inline-flex}
+  body[data-hud-expanded="true"] .evidence-commands{bottom:calc(96px + var(--safe-bottom))}
+}
+@media(max-width:400px){
+  .hero-panel{width:135px}.floor-stat strong{font-size:42px}
+  .right-rail{width:116px}.hud-toggle{width:116px}
+}
