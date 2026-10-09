@@ -907,6 +907,10 @@ function render(now){
     const featured=game.survivors.find(v=>v.id===director?.targetId&&v.alive)||game.survivors.find(v=>v.alive);
     hud.querySelector('#decisionName').textContent=featured?featured.name.toUpperCase()+' / '+featured.role.toUpperCase():'SQUAD LOST';
     hud.querySelector('#decision').textContent=featured?.intent||'The survivors are down. Preparing a new run.';
+    hud.querySelector('#cinemaActor').textContent=featured?
+      featured.name.toUpperCase()+' / '+featured.role.toUpperCase():'LAST SURVIVOR DOWN';
+    hud.querySelector('#cinemaIntent').textContent=featured?.intent||
+      'An autonomous run is ending. Preparing the next chapter.';
     const latest=game.events[game.events.length-1];
     const captions={shot:'Shots fired',kill:'Infected neutralized',rescue:'Civilian brought to safety',loot:'Supplies recovered',heal:'Medical aid administered','barricade-hit':'Barricade under attack','barricade-repair':'Defensive position repaired',horde:'Horde approaching',phase:'Day cycle advanced','safehouse-upgrade':'Safe house fortified'};
     hud.querySelector('#action').textContent=latest?'LATEST · '+(captions[latest.type]||latest.type.replaceAll('-',' ').toUpperCase()):'LATEST · Surveillance established';
