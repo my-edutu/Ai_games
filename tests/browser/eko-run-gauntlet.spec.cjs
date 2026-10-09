@@ -24,6 +24,8 @@ test.describe('Eko Run 3D Gauntlet slice', () => {
     expect(info.gl).toBeTruthy();
     expect(info.width).toBeGreaterThan(800);
     expect(info.height).toBeGreaterThan(400);
+    await expect.poll(async()=>page.evaluate(()=>window.__EKO_VISUAL_AUDIT__?.().character.safeHorizontalPadding),
+      {timeout:16000}).toBe(true);
     const audit = await page.evaluate(() => window.__EKO_VISUAL_AUDIT__?.());
     expect(audit?.character.type).toBe('original-procedural-joint-rig');
     expect(audit.character.joints).toBeGreaterThanOrEqual(14);
@@ -164,6 +166,12 @@ test.describe('Eko Run 3D Gauntlet slice', () => {
     await expect(page.locator('#open')).not.toHaveText('—');
     await expect(page.locator('#tick')).not.toHaveText('—');
     await expect.poll(async () => page.locator('#rounds .card').count()).toBeGreaterThanOrEqual(4);
+    await expect(page.locator('#rounds .card')).toHaveCount(6);
+    await page.locator('#toggle-history').click();
+    await expect.poll(async()=>page.locator('#rounds .card').count()).toBeGreaterThanOrEqual(16);
+    await expect(page.locator('#toggle-history')).toHaveAttribute('aria-expanded','true');
+    await page.locator('#rounds .card summary').first().click();
+    await expect(page.locator('#rounds .card details').first()).toHaveAttribute('open','');
     await expect(page.locator('#status')).toContainText('Iteration');
     await expect(page.locator('#evidence-history a').first()).toHaveAttribute('href',new RegExp('actions/runs/[0-9]+/artifacts/[0-9]+'));
     await expect(page.locator('#snapshots')).toContainText('No real frames captured yet');
