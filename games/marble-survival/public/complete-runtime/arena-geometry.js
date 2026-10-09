@@ -24,8 +24,20 @@
         y0: clamp(h.y, 0, height), y1: clamp(h.y + h.height, 0, height),
       }))
       .filter(h => h.x1 > h.x0 && h.y1 > h.y0);
-    const xs = [...new Set([0, width, ...hazards.flatMap(h => [h.x0, h.x1])])].sort((a,b) => a-b);
-    const ys = [...new Set([0, height, ...hazards.flatMap(h => [h.y0, h.y1])])].sort((a,b) => a-b);
+    // Real server-approved ramps get a separate recessed machine-floor
+    // material below their elevated slope. This is NOT a cut-out: full
+    // lower-ground support remains visible, matching physics in v4.
+    const ramps=(Array.isArray(arena.ramps)?arena.ramps:[])
+      .filter(r=>r&&[r.x,r.y,r.width,r.height].every(Number.isFinite)
+        &&r.width>0&&r.height>0)
+      .slice(0,12)
+      .map(r=>({
+        x0:clamp(r.x,0,width),x1:clamp(r.x+r.width,0,width),
+        y0:clamp(r.y,0,height),y1:clamp(r.y+r.height,0,height),
+      }))
+      .filter(r=>r.x1>r.x0&&r.y1>r.y0);
+    const xs=[...new Set([0,width,...hazards.flatMap(h=>[h.x0,h.x1]),...ramps.flatMap(r=>[r.x0,r.x1])])].sort((a,b)=>a-b);
+    const ys=[...new Set([0,height,...hazards.flatMap(h=>[h.y0,h.y1]),...ramps.flatMap(r=>[r.y0,r.y1])])].sort((a,b)=>a-b);
     const tiles = [];
     let openingArea = 0;
     for (let xi = 0; xi < xs.length - 1; xi++) {
@@ -34,11 +46,13 @@
         const cx = (x0 + x1) * 0.5, cy = (y0 + y1) * 0.5;
         const open = hazards.some(h => cx >= h.x0 && cx < h.x1 && cy >= h.y0 && cy < h.y1);
         if (open) { openingArea += (x1-x0)*(y1-y0); continue; }
-        tiles.push({x:x0,y:y0,width:x1-x0,height:y1-y0});
+        const underRamp=ramps.some(r=>cx>=r.x0&&cx<r.x1&&cy>=r.y0&&cy<r.y1);
+        tiles.push({x:x0,y:y0,width:x1-x0,height:y1-y0,underRamp});
       }
     }
     return {
       tiles, openings: hazards,
+      rampRegions:ramps,
       openingArea,
       solidArea: tiles.reduce((sum,tile) => sum + tile.width*tile.height,0),
       worldArea: width*height,
