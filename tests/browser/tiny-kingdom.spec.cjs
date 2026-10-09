@@ -1051,3 +1051,57 @@ test('Gauntlet 038 traveling arms oppose same-side walking feet',async({page})=>
  expect(pairs.length).toBeGreaterThan(0);
  for(const p of pairs)expect(p).toBeLessThanOrEqual(0);
 });
+
+
+test('Gauntlet 043 guild forge renders original static craft assets and live smoke without altering civilization',async({page})=>{
+ const errors=[];page.on('pageerror',e=>errors.push(e.message));
+ await page.setContent(html);
+ await page.waitForFunction(()=>Boolean(window.__tinyKingdom?.getCraftDistrictStats));
+ await page.waitForFunction(()=>window.__tinyKingdom.getCraftDistrictStats().cartWheels===4);
+ await page.locator('#pause').click();
+ const report=await page.evaluate(()=>{
+  const g=window.__tinyKingdom;
+  const before=JSON.stringify(g.exportSnapshot());
+  const site=g.getCraftDistrictStats(),a=g.getGeometryAudit();
+  g.setCamera({focus:[site.x,site.z],zoom:26,pitch:.59,yaw:.73});
+  const after=JSON.stringify(g.exportSnapshot());
+  return {site,a,unchanged:before===after,blocked:g.walkable([site.x,site.z]),bank:g.walkable([site.x+6,site.z])};
+ });
+ expect(report.site.x).toBe(19);
+ expect(report.site.z).toBe(-15);
+ expect(report.site.cartWheels).toBe(4);
+ expect(report.site.pieces).toBeGreaterThan(75);
+ expect(report.site.smokePuffs).toBe(3);
+ expect(report.blocked).toBe(false);
+ expect(report.bank).toBe(true);
+ expect(report.unchanged).toBe(true);
+ for(const mesh of [report.a.static,report.a.dynamic]){
+  expect(mesh.aligned).toBe(true);
+  expect(mesh.invalidComponents).toBe(0);
+  expect(mesh.invalidNormals).toBe(0);
+  expect(mesh.invalidColors).toBe(0);
+  expect(mesh.outOfBounds).toBe(0);
+ }
+ expect(errors).toEqual([]);
+});
+
+test('Gauntlet 043 AI citizens route around guild forge rather than crossing a wall',async({page})=>{
+ await page.setContent(html);
+ await page.waitForFunction(()=>Boolean(window.__tinyKingdom?.getCraftDistrictStats));
+ const path=await page.evaluate(()=>{
+  const g=window.__tinyKingdom,start=[12,-15],goal=[27,-15],route=g.route(start,goal);
+  let ok=Array.isArray(route)&&route.length>0,prev=start;
+  for(const next of route||[]){
+   const distance=Math.hypot(next[0]-prev[0],next[1]-prev[1]);
+   for(let i=1;i<=Math.ceil(distance/.05);i++){
+    const t=i/Math.ceil(distance/.05);
+    const x=prev[0]+(next[0]-prev[0])*t,z=prev[1]+(next[1]-prev[1])*t;
+    if(!g.walkable([x,z]))ok=false;
+   }
+   prev=next;
+  }
+  return {route,ok};
+ });
+ expect(path.route?.length).toBeGreaterThan(1);
+ expect(path.ok).toBe(true);
+});
