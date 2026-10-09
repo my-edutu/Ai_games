@@ -12,7 +12,7 @@
   let renderer;
   try { renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false }); }
   catch (error) { console.warn('WebGL unavailable', error); canvas.remove(); return; }
-  const [{createClimber},{createTowerEnvironment},{createTowerEntities},{loadClimberAsset},{createTowerVfx},{createTowerSky},{createTowerSpectacle},{createTowerSurfaceLibrary},{createTowerGeology},{createClimbingRope}]=await Promise.all([import('/tower/character3d.js'),import('/tower/environment3d.js'),import('/tower/entities3d.js'),import('/tower/asset3d.js'),import('/tower/vfx3d.js'),import('/tower/sky3d.js'),import('/tower/spectacle3d.js'),import('/tower/material3d.js'),import('/tower/geology3d.js'),import('/tower/rope3d.js')]);
+  const [{createClimber},{createTowerEnvironment},{createTowerEntities},{loadClimberAsset},{createTowerVfx},{createTowerSky},{createTowerSpectacle},{createTowerSurfaceLibrary},{createTowerWeather},{createTowerGeology},{createClimbingRope}]=await Promise.all([import('/tower/character3d.js'),import('/tower/environment3d.js'),import('/tower/entities3d.js'),import('/tower/asset3d.js'),import('/tower/vfx3d.js'),import('/tower/sky3d.js'),import('/tower/spectacle3d.js'),import('/tower/material3d.js'),import('/tower/weather3d.js'),import('/tower/geology3d.js'),import('/tower/rope3d.js')]);
   const scene = new THREE.Scene();
   scene.background = new THREE.Color('#10172a');
   scene.fog = new THREE.FogExp2('#10172a', 0.004);
@@ -37,6 +37,7 @@
   const architecture=createTowerEnvironment(THREE,scene);
   const sky=createTowerSky(THREE,scene);
   const spectacle=createTowerSpectacle(THREE,scene);
+  const weather=createTowerWeather(THREE,scene);
   const geology=createTowerGeology(THREE,scene);
   const safetyRope=createClimbingRope(THREE,scene);
   architecture.root.scale.set(3,3,1);
@@ -75,7 +76,7 @@
   };
   function rebuild(s) {
     const theme = String(s.theme || 'foundry').toLowerCase();
-    if (theme !== themeKey) { themeKey=theme; const color=themeColors[theme]||0xffaa55; rim.color.setHex(color); groundLight.color.setHex(color); architecture.setTheme(theme);sky.setTheme(theme);geology.setTheme(theme);spectacle.setTheme(theme);entities.setTheme(theme); }
+    if (theme !== themeKey) { themeKey=theme; const color=themeColors[theme]||0xffaa55; rim.color.setHex(color); groundLight.color.setHex(color); architecture.setTheme(theme);sky.setTheme(theme);geology.setTheme(theme);spectacle.setTheme(theme);entities.setTheme(theme);weather.setTheme(theme); }
     groundLight.position.set(Number(s.player?.x||0)/1000-Number(s.worldWidth||0)/2000,Number(s.player?.y||0)/1000-Number(s.chunkBaseY||0)/1000+12,9);
     rim.position.set(xCoord(s.player?.x,s.worldWidth)+18,Number(s.player?.y||0)/1000-Number(s.chunkBaseY||0)/1000+10,12);
     const base = Number(s.chunkBaseY || 0) / 1000;
@@ -159,6 +160,7 @@
     architecture.animate(elapsed,document.body.dataset.reducedMotion==='true');
     geology.update(climber.root.position.y);
     spectacle.update(elapsed,climber.root.position.y,document.body.dataset.reducedMotion==='true');
+    weather.update(elapsed,climber.root.position,document.body.dataset.reducedMotion==='true');
     safetyRope.update(dt,climber.root.position,{
       x:climber.root.position.x-2.6,y:climber.root.position.y-3.3,z:-3.8
     },scenePhase==='guardian'?'GUARDIAN':scenePhase==='danger'?'FALL':'CLIMBING',
