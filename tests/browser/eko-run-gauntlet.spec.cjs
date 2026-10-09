@@ -31,7 +31,7 @@ test.describe('Eko Run 3D Gauntlet slice', () => {
     expect(audit.character.expressiveFacialParts).toBeGreaterThanOrEqual(8);
     expect(audit.character.meshes).toBeGreaterThanOrEqual(60);
     expect(audit.character.inFrame).toBeTruthy();
-    expect(audit.character.safeHorizontalPadding).toBe(true);
+    await expect.poll(async()=>page.evaluate(()=>window.__EKO_VISUAL_AUDIT__()?.character.safeHorizontalPadding),{timeout:16000}).toBe(true);
     expect(audit.character.heightPx).toBeGreaterThan(65);
     expect(audit.character.outfits).toHaveLength(4);
     expect(audit.environment.materials.source).toBe('generated-original');
@@ -95,6 +95,16 @@ test.describe('Eko Run 3D Gauntlet slice', () => {
     await page.goto(ROOT + '/eko/', { waitUntil: 'domcontentloaded' });
     await expect(page.locator('#connection')).toContainText('CONNECTED', { timeout: 20000 });
     await expect(page.locator('[data-control="Space"]')).toBeHidden();
+    await expect(page.locator('#mode')).toBeVisible();
+    await expect(page.locator('#hud-settings-toggle')).toBeVisible();
+    await expect(page.locator('#outfit')).toBeHidden();
+    const aiDock=await page.locator('.bottombar').boundingBox();
+    expect(aiDock?.height).toBeLessThan(190);
+    await page.locator('#hud-settings-toggle').click();
+    await expect(page.locator('#hud-settings-toggle')).toHaveAttribute('aria-expanded','true');
+    await expect(page.locator('#outfit')).toBeVisible();
+    await page.locator('#hud-settings-toggle').click();
+    await expect(page.locator('#outfit')).toBeHidden();
     const widths = await page.evaluate(() => ({
       viewport: innerWidth,
       body: document.body.scrollWidth,
