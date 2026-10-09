@@ -49,6 +49,20 @@ try{
     }
     report.scenarios.push({name:scenario,bytes:shot.length,...info,performance:runtimeStats});
 
+    if(scenario==='large-horde'){
+      // Real 390x844 stress screenshot: ensure dense horde signalling stays
+      // scene-first instead of placing a bright vertical beam over the hero.
+      await page.setViewportSize({width:390,height:844});
+      try{
+        await page.waitForTimeout(300);
+        assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=391),
+          'dense horde phone viewport must not overflow');
+        const mobileHorde=await page.screenshot({path:root+'mobile-ground-threat.png',animations:'disabled'});
+        assert.ok(mobileHorde.length>12000,'mobile horde screenshot must contain real pixels');
+        report.checks.mobileGroundThreatCapture=true;
+      }finally{await page.setViewportSize({width:1280,height:720});}
+    }
+
     // Capture the CURRENT 390x844 scene at the start of CI, before expensive
     // horde/asset cases can fail and suppress all mobile visual evidence.
     if(scenario==='day'){

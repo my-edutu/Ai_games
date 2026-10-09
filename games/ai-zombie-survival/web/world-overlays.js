@@ -22,7 +22,23 @@ function objectivePoint(game){
   const target=id?list.find(entity=>entity.id===id):null;
   return target?{x:target.x,z:target.y}:{x:game.safeHouse.x,z:game.safeHouse.y};
 }
-export function decorateTacticalWorld(m,game,elapsed,focusX,focusZ){
+// Phone/close-camera danger is grounded so the warning never draws a tall
+// opaque-looking halo through the hero's head. Crisis telemetry remains in HUD.
+function groundThreat(m,x,z,radius,time){
+  const r=radius*(1+.055*Math.sin(time*2.8));
+  for(let i=0;i<16;i++){
+    if(i%4===3)continue; // broken quadrants read as a threat, not a selection halo
+    const a=i*Math.PI/8,b=(i+1)*Math.PI/8;
+    m.bone([x+r*Math.cos(a),.16,z+r*Math.sin(a)],
+      [x+r*Math.cos(b),.16,z+r*Math.sin(b)],.031,CRISIS);
+  }
+  for(let i=0;i<4;i++){
+    const a=(i+.5)*Math.PI/2;
+    m.bone([x+(r+.27)*Math.cos(a),.18,z+(r+.27)*Math.sin(a)],
+      [x+(r+.08)*Math.cos(a),.18,z+(r+.08)*Math.sin(a)],.029,CRISIS);
+  }
+}
+export function decorateTacticalWorld(m,game,elapsed,focusX,focusZ,{compactSignals=false}={}){
   const point=objectivePoint(game);
   const missionColor=game.objective.kind==='rescue'?RESCUE:game.objective.kind==='fortify'?SHIELD:OBJECTIVE;
   if(Math.hypot(point.x-focusX,point.z-focusZ)<65){
@@ -63,7 +79,11 @@ export function decorateTacticalWorld(m,game,elapsed,focusX,focusZ){
   if(count>=28){
     x/=count;z/=count;
     const intensity=Math.min(1,count/100);
-    beam(m,x,z,3.20,CRISIS,.65+intensity*.75,elapsed);
-    m.ball(x,5.85,z,.17+intensity*.3,CRISIS);
+    if(compactSignals){
+      groundThreat(m,x,z,.65+intensity*.55,elapsed);
+    }else{
+      beam(m,x,z,3.20,CRISIS,.65+intensity*.75,elapsed);
+      m.ball(x,5.85,z,.17+intensity*.3,CRISIS);
+    }
   }
 }

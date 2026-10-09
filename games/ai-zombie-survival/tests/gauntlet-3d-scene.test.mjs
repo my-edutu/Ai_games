@@ -161,6 +161,29 @@ test('world-space objectives, threatened survivors and rescue signals remain rea
   assert.equal(JSON.stringify(g),before,'World-space UI is presentation-only');
 });
 
+test('Loop 45 phone horde warnings stay at ground height without hiding survivor faces',()=>{
+  const g={objective:{kind:'fortify',targetId:null},safeHouse:{x:100,y:100},
+    survivors:[],civilians:[],barricades:[],loot:[],buildings:[],
+    zombies:Array.from({length:36},(_,i)=>({id:'z'+i,x:3*Math.cos(i*.174),y:3*Math.sin(i*.174),health:100}))};
+  const before=JSON.stringify(g);
+  class ThreatAudit extends GeometryAudit{
+    constructor(){super();this.crisisMaxY=-Infinity;this.crisisBones=0;}
+    bone(a,b,width,color){super.bone(a,b,width,color);
+      if(color==='#ff6d78'){this.crisisBones++;this.crisisMaxY=Math.max(this.crisisMaxY,a[1],b[1]);}}
+    ball(x,y,z,r,color){super.ball(x,y,z,r,color);
+      if(color==='#ff6d78')this.crisisMaxY=Math.max(this.crisisMaxY,y+r);}
+  }
+  const desktop=new ThreatAudit(),mobile=new ThreatAudit(),repeat=new ThreatAudit();
+  decorateTacticalWorld(desktop,g,2,0,0);
+  decorateTacticalWorld(mobile,g,2,0,0,{compactSignals:true});
+  decorateTacticalWorld(repeat,g,2,0,0,{compactSignals:true});
+  assert.ok(desktop.crisisMaxY>5,'wide-screen threat can retain its tall world beacon');
+  assert.ok(mobile.crisisBones>=12&&mobile.crisisBones<=20,'ground warning must remain visible and bounded');
+  assert.ok(mobile.crisisMaxY<.5,'phone horde warning must not obscure character bodies');
+  assert.equal(mobile.calls,repeat.calls,'mobile marker geometry must be deterministic');
+  assert.equal(JSON.stringify(g),before,'phone visual adaptation cannot change authoritative state');
+});
+
 test('cinematic burning buildings, damage particles and warning strobes are deterministic presentation only',()=>{
   const g=createGame({seed:118,zombieCount:180});
   const damaged=g.buildings.filter(b=>b.kind!=='safehouse').slice(0,4);

@@ -617,7 +617,7 @@ function drawObjects(m,t){
     }
   }
   drawEnvironmentVfx(m,game,t,cameraFocusX,cameraFocusZ);
-  decorateTacticalWorld(m,game,t,cameraFocusX,cameraFocusZ);
+  decorateTacticalWorld(m,game,t,cameraFocusX,cameraFocusZ,{compactSignals:innerWidth<=740});
   drawAtmosphere(m,t);
 }
 function rebuildStatic(force=false){
