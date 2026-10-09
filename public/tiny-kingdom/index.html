@@ -1495,7 +1495,7 @@ function updateWorldRibbon(){
  }
  const story=document.querySelector('#feed .feeditem');
  document.getElementById('world-story').textContent=story?
-  story.textContent.replace(/\\s+/g,' ').trim().slice(0,140):
+  story.textContent.replace(/\s+/g,' ').trim().slice(0,140):
   'Your villagers write their own chronicle.';
 }
 function setCommandView(next){
