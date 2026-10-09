@@ -1099,12 +1099,19 @@
     const cutouts=window.MarbleArenaGeometry?.deckLayout(arena);
     const pieces=cutouts?.tiles||[{x:0,y:0,width:arena.width,height:arena.height}];
     const trackSurface=material(theme.deck,0.43,0.40,0.015,1,theme.floorPattern,theme.secondary);
+    const underRampMetal=material(theme.trim,0.35,0.78,0.065,1,6.0,theme.rail);
     const panelThickness=0.08;
+    let rampPanelCount=0;
     for(const tile of pieces){
       const x=(tile.x+tile.width/2-arena.width/2)*WORLD_SCALE;
       const z=(tile.y+tile.height/2-arena.height/2)*WORLD_SCALE;
-      drawBox([x,-0.015,z],[tile.width*WORLD_SCALE,panelThickness,tile.height*WORLD_SCALE],trackSurface,viewProjection,cameraPosition);
+      const bodyY=tile.underRamp?-0.058:-0.015;
+      const surface=tile.underRamp?underRampMetal:trackSurface;
+      drawBox([x,bodyY,z],[tile.width*WORLD_SCALE,panelThickness,tile.height*WORLD_SCALE],
+        surface,viewProjection,cameraPosition);
+      if(tile.underRamp)rampPanelCount++;
     }
+    shell.dataset.rampServicePanels=String(rampPanelCount);
     for(const side of [-1,1]){
       // Cast side panel edges into real 3D. Their top matches the track surface
       // while the lower truss makes the track read as a suspended structure.
