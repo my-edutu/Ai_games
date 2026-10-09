@@ -234,6 +234,22 @@ test('real 3D camera-ray visibility gate: gameplay actors are not hidden behind 
  expect(base.dressing.clearedForeground).toBeGreaterThanOrEqual(0);
 });
 
+test('every living party member has a clear real 3D sightline after the cutaway settles',async({page})=>{
+ await page.setViewportSize({width:1440,height:900});
+ await page.goto('/dungeon');
+ await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.visibility?.testedHeroes??0),{timeout:25000}).toBeGreaterThan(0);
+ // Sample more than one render/update cycle: the director can switch focus
+ // while the other two heroes fight independently.
+ await expect.poll(async()=>{
+  const d=await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__);
+  return d?.visibility?.testedHeroes>0&&d.visibility.occludedHeroes===0?true:false;
+ },{timeout:25000}).toBe(true);
+ const result=await page.evaluate(()=>({visibility:window.__DUNGEON_RENDER_DIAGNOSTICS__.visibility,stage:window.__DUNGEON_RENDER_DIAGNOSTICS__.composition}));
+ expect(result.visibility.unoccludedHeroes).toBe(result.visibility.testedHeroes);
+ expect(result.visibility.occludedHeroes).toBe(0);
+ await page.locator('canvas#world').screenshot({path:'artifacts/dungeon-all-heroes-sightlines.png'});
+});
+
 test('all fantasy biomes contain animated living inhabitants rather than static floor tiles',async({page,request})=>{
  expect((await request.get('/dungeon/living-world.js')).status()).toBe(200);
  await page.goto('/dungeon');
