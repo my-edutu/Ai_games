@@ -59,6 +59,22 @@ footer{margin-top:45px;color:#91aeb6;font-size:13px}
 @media(max-width:640px){.blind-grid{grid-template-columns:1fr}.blind{padding:18px}}
 @media(max-width:840px){.evidence{grid-template-columns:1fr}.preview-box{aspect-ratio:390/450}}
 @media(prefers-reduced-motion:reduce){.preview-box *{animation:none!important}}
+
+.history-head{display:flex;gap:15px;align-items:flex-end;justify-content:space-between;margin-top:36px}
+.history-head h2{margin:10px 0}
+.history-head p{margin:3px 0 14px;font-size:13px}
+.history-head button{flex:0 0 auto;border:1px solid #7dcebd;background:#143d47;color:#b9fff0;padding:12px 17px;border-radius:12px;font:800 12px system-ui;cursor:pointer}
+.history-head button:hover,.history-head button:focus-visible{background:#1c5661;outline:2px solid #8ae4cc}
+.rounds{grid-template-columns:repeat(auto-fit,minmax(250px,1fr))}
+.rounds .card{padding:18px;min-height:200px;display:flex;flex-direction:column}
+.rounds .card h3{font-size:18px;margin:12px 0 7px}
+.rounds .card .card-summary{font-size:12px;margin:7px 0 15px;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden}
+.rounds .card details{margin-top:auto;border-top:1px solid #325664;padding-top:13px}
+.rounds .card summary{cursor:pointer;color:#ffcd72;font-size:12px;font-weight:850;list-style-position:inside}
+.rounds .card details[open]{padding-bottom:3px}
+.rounds .card details p{font-size:12px;line-height:1.5}
+#status{white-space:normal;max-width:100%;line-height:1.5}
+@media(max-width:650px){.history-head{align-items:flex-start;flex-direction:column}.history-head button{width:100%}}
 </style></head>
 <body><main>
 <header><div class="brand">E! / EKO RUN / ENGINEERING</div><div class="tag" id="connection">● CONNECTING TO LOCAL SIMULATION</div><a href="/eko/">← LIVE GAME</a></header>
@@ -102,7 +118,8 @@ footer{margin-top:45px;color:#91aeb6;font-size:13px}
  <div id="blind-result" class="blind-result" role="status">Requires one real Eko capture and one uploaded reference screenshot.</div>
 </section>
 </section>
-<h2>Builder → critic → improvement</h2><section class="rounds" id="rounds" aria-live="polite"></section>
+<div class="history-head"><div><h2>Builder → critic → improvement</h2><p>Latest Gauntlet iterations first. Open each round to inspect the work, harsh critique, and remaining gap.</p></div><button id="toggle-history" type="button" aria-expanded="false">Show full history</button></div>
+<section class="rounds" id="rounds" aria-live="polite"></section>
 <h2>Proof gates</h2><ul class="ledger" id="gates"></ul>
 <p>Passing tests does not establish a visual win. A critic must inspect real gameplay captures, verify fair controls and obstacle readability, evaluate low-end/mobile performance, and perform blind A/B comparisons where licensing permits. Production readiness requires operational and endurance evidence.</p>
 <footer>Evidence snapshot: <time id="updated"></time> · <a href="/eko/gauntlet.json">Machine-readable ledger</a> · <a href="/eko/">Return to game</a></footer>
