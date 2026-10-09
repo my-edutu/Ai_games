@@ -1,1 +1,33 @@
-{"rounds":[]}
+{
+  "schemaVersion": 1,
+  "rounds": [
+    {
+      "round": 14,
+      "at": "2026-10-08T18:22:02Z",
+      "commit": "b6d211507e80f5d00e273fcb03cef1027a81c652",
+      "status": "VERIFIED CI PASS; VISUAL QUALITY REJECTED",
+      "sampleSeeds": 24,
+      "highestFloor": 9,
+      "determinismFailures": 0,
+      "ticksPerSeed": 900,
+      "visualVerdict": "Actual screenshot: 0/3 heroes unoccluded; tiny characters, dark empty skyline, repeated walls. PoE2 parity NOT ACHIEVED.",
+      "artifactUrl": "https://github.com/my-edutu/Ai_games/actions/runs/37822810747/artifacts/11570337657",
+      "evidenceMetrics": {
+        "meanLuminance": 42.72925755,
+        "colouredFraction": 0.48525,
+        "unoccludedHeroes": 0,
+        "occludedHeroes": 3,
+        "triangles": 134765
+      }
+    },
+    {
+      "round": 15,
+      "at": "2026-10-09",
+      "status": "BUILDER REVISION — AWAITING NEW SCREENSHOT CRITIC",
+      "sampleSeeds": "pending",
+      "highestFloor": "pending",
+      "visualVerdict": "Source fixes: hero-to-camera 9-tile coordinate mismatch, boss framing, foreground parapet cutaways, closer camera and readable HUD. Runtime visual comparison PENDING.",
+      "artifactUrl": null
+    }
+  ]
+}
