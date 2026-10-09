@@ -114,6 +114,25 @@ test.describe('Eko Run 3D Gauntlet slice', () => {
     await page.screenshot({ path: path.join('artifacts/eko-gauntlet', 'mobile.png'), fullPage: true });
   });
 
+  test('Gauntlet progress captures actual WebGL image pixels for honest in-browser review', async ({ page }) => {
+    await page.goto(ROOT+'/eko/progress',{waitUntil:'domcontentloaded'});
+    await page.locator('#open-preview').click();
+    await expect(page.locator('#live-frame')).toHaveClass(/ready/,{timeout:25000});
+    await expect(page.frameLocator('#live-frame').locator('#connection')).toContainText('CONNECTED',{timeout:25000});
+    await page.locator('#capture-frame').click();
+    await expect(page.locator('#snapshots figure').first()).toBeVisible({timeout:25000});
+    const captured=await page.locator('#snapshots img').first().evaluate(image=>({
+      startsAsRealPng:image.src.startsWith('data:image/png;base64,'),
+      naturalWidth:image.naturalWidth,naturalHeight:image.naturalHeight
+    }));
+    expect(captured.startsAsRealPng).toBe(true);
+    expect(captured.naturalWidth).toBeGreaterThanOrEqual(300);
+    expect(captured.naturalHeight).toBeGreaterThanOrEqual(200);
+    const label=await page.locator('#snapshots figcaption').first().textContent();
+    expect(label).toContain('draw calls');
+    await page.screenshot({path:'artifacts/eko-gauntlet/live-review-progress.png',fullPage:true});
+  });
+
   test('progress dashboard shows grounded claims and live authority', async ({ page }) => {
     await page.goto(ROOT+'/eko/progress');
     await expect.poll(async () => Number(await page.locator('#iterations').innerText())).toBeGreaterThanOrEqual(4);
@@ -121,6 +140,8 @@ test.describe('Eko Run 3D Gauntlet slice', () => {
     await expect(page.locator('#tick')).not.toHaveText('—');
     await expect.poll(async () => page.locator('#rounds .card').count()).toBeGreaterThanOrEqual(4);
     await expect(page.locator('#status')).toContainText('Iteration');
+    await expect(page.locator('#evidence-history a').first()).toHaveAttribute('href',/actions\\/runs\\/\\d+\\/artifacts\\/\\d+/);
+    await expect(page.locator('#snapshots')).toContainText('No real frames captured yet');
     fs.mkdirSync('artifacts/eko-gauntlet', { recursive: true });
     await page.screenshot({ path: path.join('artifacts/eko-gauntlet','progress.png'), fullPage:true });
   });
