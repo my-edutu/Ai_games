@@ -282,6 +282,29 @@ test('full articulated organic hero rig varies across real AI poses and mutant c
   assert.ok(m.colors.has('#fb746a'),'infected closeups require glowing eyes');
 });
  
+
+test('Loop 44 close infected have bounded, deterministic, individually sculpted head and garment profiles',()=>{
+  const game=createGame({seed:112,zombieCount:20});
+  const source=game.zombies[0],sourceBefore=JSON.stringify(source),signatures=[];
+  for(let variant=0;variant<4;variant++){
+    const actor={...source,id:'infected-'+variant,archetype:['shambler','runner','brute','shambler'][variant],
+      health:80,action:'pursue',facing:.4};
+    const before=JSON.stringify(actor),first=new GeometryAudit(),repeat=new GeometryAudit();
+    assert.equal(drawCharacterRig(first,actor,true,2.5),true);
+    assert.equal(drawCharacterRig(repeat,actor,true,2.5),true);
+    assert.ok((first.byKind.get('ellipsoid')||0)>=20,'faces need jaw, ears, cheek and scalp volumes');
+    assert.ok((first.byKind.get('tri')||0)>300&&first.calls<850,
+      'sculpted characters must remain inside the bounded close-range geometry budget');
+    assert.equal(first.calls,repeat.calls,'same actor and frame must yield deterministic geometry');
+    assert.deepEqual([...first.colors].sort(),[...repeat.colors].sort());
+    assert.ok(first.colors.has('#4a3835'),'infected cheek wounds must be present in near shots');
+    signatures.push([...first.colors].sort().join('|'));
+    assert.equal(JSON.stringify(actor),before,'face and cloth dressing must not change game authority');
+  }
+  assert.equal(new Set(signatures).size,4,'infected identity profiles must not be clones');
+  assert.equal(JSON.stringify(source),sourceBefore,'authoritative zombie must be unchanged');
+});
+
 test('animation blend transitions smoothly between autonomous actions without modifying character AI',()=>{
   const mixer=createPoseMixer({responseSeconds:.14,maxActors:8});
   const actor={id:'survivor-7',role:'medic',action:'move',health:90};

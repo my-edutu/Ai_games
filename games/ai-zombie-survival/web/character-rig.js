@@ -63,6 +63,65 @@ function posedLimb(mesh,coords,r,color){
   tubular(mesh,a,b,r[0],r[1],color,{sides:9});
   tubular(mesh,b,c,r[1],r[2],color,{sides:9});
 }
+
+/**
+ * Loop 44: near-camera identity pass. Identical bald spherical infected
+ * heads and flat tunics failed the real 1280x720 hero screenshot.
+ * Stable identity and pose only: no random or authoritative game writes.
+ */
+function sculptIdentity(mesh,place,entity,infected,style,skin,S,p,variant,lean){
+  const shadow=infected?'#817c68':'#9b7964';
+  // Jaw, cheek planes, ears and brows break the ball-head silhouette.
+  mesh.ellipsoid(...place([0,2.075,.23+lean]),.19*S,.12*S,.17*S,skin,7,10);
+  for(const side of [-1,1]){
+    mesh.ellipsoid(...place([side*.253,2.22,.12+lean]),.055*S,.106*S,.082*S,skin,6,8);
+    mesh.ellipsoid(...place([side*.162,2.20,.30+lean]),.103*S,.075*S,.067*S,shadow,7,9);
+    mesh.ellipsoid(...place([side*.114,2.392,.343+lean]),.12*S,.041*S,.052*S,
+      infected?'#5c564a':style.vest,6,9);
+  }
+  if(!infected){
+    mesh.ellipsoid(...place([0,1.987,.235]),.205*S,.092*S,.138*S,style.vest,7,10);
+    for(const side of [-1,1]){
+      mesh.ellipsoid(...place([side*.212,2.20,.235]),.035*S,.20*S,.043*S,
+        style.strap,5,8);
+    }
+    return;
+  }
+  const scalp=['#44483d','#65594b','#3e4c46','#777466'][variant];
+  const wound=['#824b45','#9e5d4c','#6f443f','#9c7059'][variant];
+  // Distinct tufts, ragged scalp and a bald scar variant.
+  if(variant!==3){
+    mesh.ellipsoid(...place([-.045,2.518,.08]),.235*S,.085*S,.218*S,scalp,7,11);
+    const tufts=variant===0?3:variant===1?5:2;
+    for(let i=0;i<tufts;i++){
+      const side=i%2===0?-1:1;
+      mesh.ellipsoid(...place([side*(.08+.038*i),2.53-(i%3)*.055,
+        -.04+(i%3)*.083]),(.07+(i%2)*.025)*S,.09*S,.077*S,scalp,5,7);
+    }
+  }else{
+    mesh.ellipsoid(...place([-.075,2.51,.135]),.11*S,.029*S,.17*S,wound,5,8);
+  }
+  const scarSide=variant%2===0?1:-1;
+  mesh.ellipsoid(...place([scarSide*.207,2.135,.305+lean]),
+    .046*S,.135*S,.032*S,wound,5,8);
+  mesh.ellipsoid(...place([scarSide*.118,2.046,.377+lean]),
+    .078*S,.035*S,.032*S,'#4a3835',5,7);
+  // Double-sided torn jacket flaps: triangular hems move with the visual gait.
+  const hem=Number.isFinite(p.stride)?p.stride*.038:0;
+  const cloth=entity.archetype==='brute'?'#564f42':
+    entity.archetype==='runner'?'#64705a':'#555d4e';
+  for(const side of [-1,1]){
+    const a=place([side*.29,1.60,.235]);
+    const b=place([side*.31,1.10,.285+hem*side]);
+    const c=place([side*(.09+.03*variant),1.04+(variant%2)*.07,.31-hem]);
+    const n=unit(cross(vec(b,a),vec(c,a))),color=tint(cloth);
+    mesh.tri(a,b,c,n,color);
+    mesh.tri(c,b,a,n.map(v=>-v),color);
+    mesh.ellipsoid(...place([side*.30,1.38,.252]),.044*S,.13*S,.045*S,
+      side===scarSide?wound:style.strap,5,7);
+  }
+}
+
 // Dedicated close-range skin, non-box torso, calves, elbows, neck and role equipment.
 // Gait, stance and facial direction change deterministically as the real AI action changes.
 export function drawCharacterRig(mesh,entity,infected,time,{scale=1,pose=null}={}){
@@ -114,6 +173,7 @@ export function drawCharacterRig(mesh,entity,infected,time,{scale=1,pose=null}={
     posedLimb(mesh,[shoulder,elbow,hand],[.146*S,.111*S,.075*S],infected?style.coat:style.vest);
     mesh.ellipsoid(...hand,.091*S,.105*S,.073*S,skin,5,8);
   }
+  sculptIdentity(mesh,place,entity,infected,style,skin,S,p,variant,lean);
   if(entity.action==='attack'||entity.action==='aim'){
     // Weapon and two-hand hold move with pose rather than teleporting.
     const barrel=place([.29,1.54+p.rightHandRaise*.26,.85-p.weaponRecoil]);

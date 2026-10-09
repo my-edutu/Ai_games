@@ -182,6 +182,13 @@ try{
   await page.waitForFunction(()=>document.querySelector('#fps')?.textContent?.includes('FPS'),{timeout:12000});
   await page.waitForTimeout(700);
   await page.screenshot({path:root+'hero-closeup.png'});
+  // Actual 390x844 phone capture, not a desktop screenshot resized in CSS.
+  await page.setViewportSize({width:390,height:844});
+  await page.waitForTimeout(250);
+  const phoneCharacter=await page.screenshot({path:root+'mobile-character-study.png',animations:'disabled'});
+  assert.ok(phoneCharacter.length>12000,'phone character study must contain rendered pixels');
+  await page.setViewportSize({width:1280,height:720});
+  report.checks.mobileCharacterStudy=true;
   await page.keyboard.press('m');
   await page.screenshot({path:root+'hero-clear-view.png'});
   await page.keyboard.press('m');
