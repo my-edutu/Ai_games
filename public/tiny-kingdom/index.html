@@ -528,8 +528,8 @@ function shadowPatch(cx,cz,radiusX,radiusZ,height,sun,isDense=false){
   inner.push([ix,terrain(ix,iz)+.077,iz]);
  }
  for(let i=0;i<segments;i++){
-  quad(outer[i],outer[i+1],inner[i+1],inner[i],mid);
-  tri(center,inner[i],inner[i+1],dark);
+  quad(outer[i],inner[i],inner[i+1],outer[i+1],mid);
+  tri(center,inner[i+1],inner[i],dark);
  }
  return segments*3;
 }
