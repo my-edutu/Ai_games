@@ -1,0 +1,313 @@
+{
+  "project": "Eko Run — 3D Gauntlet",
+  "baseline": "SYBO Subway Surfers City — official gameplay footage; original IP only",
+  "scope": "Interactive 3D vertical slice; not a finished or externally benchmarked game",
+  "updated": "2026-10-09",
+  "runStatus": "UI Gauntlet loops 18–19: responsive HUD + same-origin live-review repair VERIFIED at da168e1 via 32 Node and 7 Chromium tests; current follow-up camera/obstacle cues/progress timeline under CI. Overall SYBO visual reference grade FAIL; software Chromium FPS 2–7, no independent A/B verdict or hardware device signoff.",
+  "iterations": [
+    {
+      "round": 0,
+      "title": "Baseline audit",
+      "status": "documented",
+      "builder": "Inspected phase contracts, deterministic runtime, existing presentation and PRD",
+      "critic": "No playable browser route at baseline; visual A/B impossible",
+      "decision": "Create runnable browser vertical slice"
+    },
+    {
+      "round": 1,
+      "title": "Playable 3D foundation",
+      "status": "implementation-in-review",
+      "builder": "Built a real Three.js interactive preview consuming existing 60Hz authoritative Phase 6 snapshots, 3D Lagos world, original Tayo variants, district-specific geometry, weather and live HUD.",
+      "critic": "Static review: insufficient character meshes, bespoke art, animation polish and visual comparison to reference; no verified runtime footage yet.",
+      "decision": "Added silhouette variants, Lagos market/bridge/night detail, rain and hazard action prompts; retain open visual gate."
+    },
+    {
+      "round": 2,
+      "title": "Static critic and repair loop",
+      "status": "code-review-fixes-committed; browser-validation-queued",
+      "builder": "Repaired scene disposal, hosted Three.js split ESM module, moved progress script to CSP-safe route, extended road to every district finish, and kept warned hazards visible.",
+      "critic": "Static inspection identified invisible terrain after first draw, script blocked by CSP, missing vendor dependency, truncated Bridge Run environment, and disappearing danger cues. No screenshots have yet been inspected.",
+      "decision": "Run GitHub Actions / Playwright to capture desktop and mobile output; then judge screenshots and gameplay against real reference and fix next worst gap."
+    },
+    {
+      "round": 3,
+      "title": "Real screenshot critique and camera correction",
+      "status": "stop-ship findings; repair committed; re-capture pending",
+      "builder": "CI captured actual Chromium 3D desktop (1280x720), portrait mobile (390x844), and live dashboard; corrected shop placement and camera focal distance afterward.",
+      "critic": "Desktop capture showed giant foreground buildings hiding roadway and a too-small Tayo; mobile showed distant low-poly player and shallow Lagos detailing; 7 FPS appeared on CI screenshot and requires hardware-context profiling. Actual screenshot reviewed; blind A/B and independent subagent comparison still missing.",
+      "decision": "Verify fix via fresh Playwright captures, then prioritize production-quality original rigged Tayo and one beautifully authored Lagos street block. Review recorded normal-speed gameplay and FPS on real hardware before closing quality gate."
+    },
+    {
+      "round": 4,
+      "title": "New Tayo, camera repair — real browser comparison",
+      "status": "re-captured and reviewed; major gaps remain",
+      "builder": "Replaced original block figure with hierarchical articulated stylized Tayo, 14+ rig pivots, distinctive layered Nigerian outfits. Removed obstructive foreground shops and zoomed game camera.",
+      "critic": "Real CI screenshot captured at head 54af280 (artifact 11538341657): Tayo and route are now visibly unobstructed; Tayo is more readable. But the character remains mid-fidelity procedural, buildings remain basic, visual storytelling is weak and CI recorded 5 FPS. This is not close to Subway Surfers City.",
+      "decision": "Improve one street block, world depth, geometry batching and performance instrumentation; recapture and review on latest HEAD."
+    },
+    {
+      "round": 5,
+      "title": "Lagos art craft, draw calls and autonomous pilot",
+      "status": "implemented; latest workflow queued; not yet visually verified",
+      "builder": "Detailed painted facades, shop shutters, danfo bus glass/trim, street furniture/drains, stacked balconies and rooftop water tanks, utility wires; added frustum-culled static geometry batching, 14+ pivot Tayo audit, deterministic hazard-aware autopilot, seeded policy tests and reduced persistent UI occlusion.",
+      "critic": "No new screenshot or measured draw-call results on current head yet. Procedural art still cannot be called a final skinned/production asset. Static geometry batching needs live WebGL confirmation, and autopilot success/near-miss rates need campaign evidence.",
+      "decision": "Inspect new WebGL screenshots and renderer metrics after CI completes, then fix strongest remaining gameplay/art/performance gap. Keep Gauntlet open."
+    },
+    {
+      "round": 6,
+      "title": "Material craft, actor/hazard quality gates",
+      "status": "code committed; CI and visual verification queued",
+      "builder": "Added three reusable original CanvasTexture materials for road, sidewalk and plaster; reduced persistent event banners and autonomous-mode touch clutter; original Tayo rig and outfit pose tests; multi-seed AI policy and batching invariants; improved full Lagos mixed-use skyline and street prop detail.",
+      "critic": "New work has not yet been captured and evaluated on an actual running WebGL scene. CI jobs are queued; do not infer better FPS, game feel or reference quality from the code. The procedural aesthetic still differs considerably from production asset quality.",
+      "decision": "Review latest screenshots and renderer draw-call/FPS diagnostics, correct any runtime regressions, then target more highly authored Tayo/animation and a premium Mainland Morning reference block."
+    },
+    {
+      "round": 7,
+      "title": "Vivid interface and meaningful spectator telemetry",
+      "status": "implemented; browser capture pending",
+      "builder": "Replaced dull flat UI with bright teal, marigold, coral and violet system; richer glass panels, responsive HUD, prominent run identity, progress rail, checkpoint distance, incoming hazard callouts, accessible mode controls and district-aware accents.",
+      "critic": "Color changes and layout are committed but not yet judged in real desktop/mobile screenshots from this HEAD. UI must remain subordinate to gameplay and avoid blocking obstacles at 390px width.",
+      "decision": "Capture 1280x720 and 390x844 in Chromium, inspect text contrast, obstruction, progress updates and measured gameplay readability."
+    },
+    {
+      "round": 8,
+      "title": "Lagos street art and cinematic sky atmosphere",
+      "status": "implemented; visual/performance verification pending",
+      "builder": "Added original colorful low/midrise storefronts, patterned awnings, shutters, produce stalls, rooftop tanks, commercial boards, geometric murals, far-district depth and planters; removed grey foreground shops concealing richer art; upgraded skies with sunset gradient shader, sun halo and clouds. Retained existing server-authoritative movement.",
+      "critic": "Procedural geometry still does not constitute hand-authored professional 3D assets. Increases in scene density could increase initial load and GPU costs; static-batching and frustum tests need real measurements. Independent blind comparison remains open.",
+      "decision": "Measure actual draw calls, mobile frame rate, memory and screenshot readability on latest HEAD; optimize and hand-author the worst-looking block next."
+    },
+    {
+      "round": 9,
+      "title": "Semantic audiovisual feel and reliability gates",
+      "status": "implementation committed; test results queued",
+      "builder": "Added original low-voice-count Web Audio stingers and opt-in city ambience, one-draw-call capped VFX for jump/land/hazards/tokens/checkpoints, buffered semantic events across three-tick visual frames, chromatic world and atmosphere unit tests, and branch Gauntlet workflow concurrency.",
+      "critic": "Motion/audio polish and performance are unproven without normal-speed footage, tested real devices and human controls. Audio is optional and disabled until the user enables it. Full production sound and animation remain open.",
+      "decision": "Run smoke and browser video/screenshot tests; inspect severe visual gaps and continue until genuinely comparable with official quality footage."
+    },
+    {
+      "round": 10,
+      "title": "Playable framing, silhouette, and foreground repair",
+      "status": "code committed; latest visual re-capture queued",
+      "builder": "Visual criticism of actual Chromium screenshots detected trees hiding Tayo, cyan missing pavement in the lower half, toy-like danfo fittings, and over-sized failure overlays. Replaced near-side tree occlusion with far-side canopy, filled the foreground with textured footpath geometry, refined bus mirrors/windows/wheels/route badge, and enriched costume seams, shoes, and cuffs.",
+      "critic": "Last real screenshot used artifact 11547205062, source bb07483, before these edits. It measured 423 draw calls and only 6 FPS in software-like CI Chromium; busy foreground tree hid character. New rendering improvements are unverified until current HEAD evidence exists.",
+      "decision": "Compare new desktop and mobile screenshots at fixed timestamps; test Tayo visibility without tree occlusion and improve the most obviously weak original 3D geometry."
+    },
+    {
+      "round": 11,
+      "title": "Sustainable lively city rendering",
+      "status": "implemented; new performance gate not yet verified",
+      "builder": "Replaced many per-color static draw calls with per-chunk GPU vertex colors while preserving original texture maps; added an adaptive resolution hysteresis governor; developed 28+ unique colored instanced walking citizens rendered as only eleven instanced limb/body categories rather than many independent pedestrians.",
+      "critic": "Static Node tests assert color retention, fixed draw-call budget and responsive quality scaling. Actual WebGL metrics and stability under continuous AI play are still unverified. Crowd remains cosmetic and must never be described as autonomous NPC intelligence.",
+      "decision": "Verify draw calls/FPS/scene readability with actual browser telemetry on latest HEAD and a genuine mobile GPU before closing performance."
+    },
+    {
+      "round": 12,
+      "title": "Evidence-driven autonomy and reproducible scene capture",
+      "status": "instrumentation committed; CI results queued",
+      "builder": "Added explicit same-origin local preview reset for repeatable live screenshots, fixed mobile Playwright's shared-mode-state false failure, and added an eight-seed authoritative AI campaign script that writes per-hazard failure distribution as a CI artifact.",
+      "critic": "Earlier full browser suite failed specifically because previous outfit test left shared host in player mode, not because WebGL failed. This has been addressed by explicit mode reset, but no new passing result exists. Auto AI still visibly restarted after failures in screenshots; its survival/recovery quality remains open.",
+      "decision": "Collect latest end-to-end browser result, autonomy-soak.json, desktop/mobile metrics; use observed fail patterns and frame pacing to target next loop."
+    },
+    {
+      "round": 13,
+      "title": "Real WebGL screenshots and measured scene draw-call optimization",
+      "status": "verified browser evidence; reference gate FAILED",
+      "builder": "Captured real 1280x720/390x844 gameplay, costume and live AI WebM videos. City geometry batching, animated crowds and sunlit sky ran against existing authoritative sim. Verified GitHub Actions 37784370462 on head 2143c5e.",
+      "critic": "Screenshot still looks like stylized procedural primitives; vertical HUD and repeated ad-like billboards dominate the scene. Software CI measured 185 desktop/131 mobile draw calls (down from 423/200+ first pass), but 2 FPS desktop and 4 FPS mobile, and portrait hero center only 90px. This does not demonstrate acceptable game performance.",
+      "decision": "Fix character composition, reduce cloud and hero shadow draw overhead, stabilize long background and avoid giant UI overlays. Keep visual quality FAIL."
+    },
+    {
+      "round": 14,
+      "title": "Hero framing and live-scene presentation repairs",
+      "status": "verified Chromium gameplay captures; full quality gate OPEN",
+      "builder": "Reframed portrait hero into a safer visible area, enlarged hero in both layouts, extended cosmetic horizon/sky, eliminated duplicate cloud and tiny accessory shadow passes, and fixed toolbar wrapping. Added actual visual captures and nonmocked video evidence to GitHub Actions.",
+      "critic": "Run 37785184878 at head e0685e1 passed full CI. Real 390px viewport captured character center=124px, height=133px (previously center 42px); Tayo remains partly hidden behind an active danfo and buildings, with toy-like materials and static architecture. CI desktop shows 181 draw calls; realistic device framerate unmeasured. Benchmark image review still FAIL.",
+      "decision": "Prioritize production-grade original GLB character/vehicle authoring and rigged motion, deliberate foreground layering to avoid occlusion, better lighting and real mobile hardware profiling."
+    },
+    {
+      "round": 15,
+      "title": "Honest screenshot sequence and autonomy evidence",
+      "status": "eight-seed campaign verified; screenshot follow-up code committed",
+      "builder": "Eight seeded authoritative AI runs of 1,600 ticks had 0 terminal failures, 4 district completions and 0 rejected commands; screenshots and WebM clips originate from Playwright real gameplay. Corrected screenshot tests to capture surviving AI instead of delayed player collisions in software CI.",
+      "critic": "26.7 seconds per seed and small sample cannot prove survival/entertainment at livestream scale. Some real captured frames still show transient hit/toast text. Production footage, independent human critic and blind official reference comparison remain open.",
+      "decision": "Extend autonomous 30–60 minute soak; capture diverse district footage, verify low-tier GPU and art/lighting parity before gauntlet acceptance."
+    },
+    {
+      "round": 16,
+      "title": "Inspect real gameplay, compare actual reference visuals",
+      "status": "builder implemented; browser verification queued; independent critic blocked",
+      "builder": "Implemented user-triggered same-origin WebGL readback and screenshot gallery directly in /eko/progress. The game can render actual pixels into a screenshot without screenshot fakeries. Recorded recent passing GitHub artifact history and official SYBO gameplay video as independent external benchmark.",
+      "critic": "Last verified playable screenshots clearly lag SYBO's original game in silhouette diversity, camera composition, pavement/structure depth and texture fidelity. A live screenshot renderer is not proof of visual parity. No independent critic agent was available via disconnected worker tunnel.",
+      "decision": "Verify both live framebuffer capture and mask/reveal behavior in Chromium CI; then compare genuine Eko/official crops at matched framing with fresh independent reviewers."
+    },
+    {
+      "round": 17,
+      "title": "Blind critic arena and provenance-safe runtime proof",
+      "status": "implementation committed; GitHub Actions queued",
+      "builder": "Added randomized Image A / Image B local browser review, legitimate external reference upload (no remote storage), anonymized human vote, original image-save links, tests for real WebGL PNG dimensions and reference fixture UI behavior. Fixed landmarker test mocks to match actual sphere signatures, preventing a false safety violation. Preserved stable server authoritative movement and UI compatibility.",
+      "critic": "Human blind trial tool itself cannot establish actual quality victory. Reference upload origin is unverified, randomization is browser-local, and CI's cross-platform FPS 2–4 cannot substitute for device GPU benchmarks. Test failures may still emerge from slow headless Chromium.",
+      "decision": "Block production acceptance until current CI visual captures and independent blind comparisons provide a repeated convincing win, and hardware FPS/performance meets target."
+    },
+    {
+      "round": 18,
+      "title": "Mobile-first broadcast HUD: give playable Lagos scenery its space",
+      "status": "VERIFIED current-run GitHub Actions 37897277701",
+      "builder": "Made secondary settings a collapsible, keyboard accessible mobile Options dock, shrank progress bar and scoreboard, tuned responsive brand sizing and foreground vignette, removed costly backdrop filters on mobile, improved initial hero snap. Allowed same-origin WebGL viewer inside restrictive CSP, loaded frame eagerly after user starts preview. Browser artifacts contain actual desktop, mobile, 3/4 and in-progress reviewer screenshots.",
+      "critic": "Real 390×844 before image consumed ~300px for the bottom HUD and Tayo sometimes appeared at screen edge. Real verified after image has ~160px bottom HUD and Tayo near center-left. More of the 3D game visible, but street scenery is still boxy, UI game feel is not at SYBO standard, and CI software-renderer reads only 2–7 FPS. One autonomous terminal failure over 57,600 ticks is an open reliability gate.",
+      "decision": "Retain mobile space improvements; repair desktop side-view horizontal padding and make hazard cues/action telemetry more deliberate. Only judge further after new captures."
+    },
+    {
+      "round": 19,
+      "title": "Broadcast quality pass: clean desktop camera and critic navigation",
+      "status": "committed, awaiting new Chromium screenshot capture",
+      "builder": "Shifted side-view desktop follow-camera ahead offset from 3.3m to 2.55m to place Tayo inside composition safe zone, introduced color+symbol hazard warning card, disabled expensive mobile glass blur, reworked live Gauntlet round history to show six recent compact cards with expandable critique details and optional full-history view. Added UI/browser checks.",
+      "critic": "Prior verified desktop side camera had center x=249px on 1280px viewport, below 22% safe left boundary, despite test eventually settling. Latest fixes require actual screenshots to confirm. Progress page was several screens of densely stacked text obscuring live visual evidence; new progressive-disclosure design aims to reduce that.",
+      "decision": "Gate this iteration on real screenshot/Playwright success, mobile readability, camera framing and performance. Continue production modeling and independent blind comparison separately."
+    }
+  ],
+  "gates": [
+    {
+      "name": "Real 60Hz authoritative engine drives interactive UI",
+      "status": "passed-engine-contract (5/5 API checks)"
+    },
+    {
+      "name": "WebGL 3D game opens on desktop and mobile",
+      "status": "verified 2026-10-09 / 7 browser tests, run 37897277701; newer camera change not yet measured"
+    },
+    {
+      "name": "Visually polished fully rigged character and outfits",
+      "status": "failed-reference-quality (improved mid-fidelity procedural rig)"
+    },
+    {
+      "name": "Cinematic Lagos street environment and six developed districts",
+      "status": "OPEN — significant original procedural architecture/market/skyline/vehicle/crowd revisions, new visual screenshots required"
+    },
+    {
+      "name": "Responsive, fair obstacles with observable animation/AI gameplay",
+      "status": "OPEN — 8-seed 57,600-tick simulation reported one terminal failure, despite no command rejection"
+    },
+    {
+      "name": "Stable FPS/mobile performance under declared hardware",
+      "status": "OPEN — software-rendered Chromium 2–7 FPS, no physical/mobile hardware benchmark"
+    },
+    {
+      "name": "Independent builder/critic and blind A/B vs reference",
+      "status": "OPEN — local blind human review UI verified; no independent blind scoring or working parallel worker tunnel"
+    },
+    {
+      "name": "Live Gauntlet progress board with review record",
+      "status": "verified same-origin real WebGL capture and A/B reviewer UI via run 37897277701, v19 recent-first UI pending"
+    },
+    {
+      "name": "Original production models, audio and license provenance",
+      "status": "partial original generated textures and opt-in audio; authored production assets open"
+    },
+    {
+      "name": "Endurance, replay, accessibility and R5 deployment evidence",
+      "status": "not-started"
+    }
+  ],
+  "sources": {
+    "code": "https://github.com/my-edutu/Ai_games/tree/feat/eko-run-3d-gauntlet-slice",
+    "benchmark": "https://www.youtube.com/watch?v=oQpRzQgBWpc",
+    "additional": "https://www.youtube.com/watch?v=dsIOso4gsQI"
+  },
+  "capturedEvidence": {
+    "artifactId": 11536931787,
+    "workflowRunId": 37745525387,
+    "capturedHead": "012047f8ad6dd936c8b5c46af987ba22c2a21194",
+    "files": [
+      "desktop.png",
+      "mobile.png",
+      "progress.png"
+    ],
+    "testResults": "5/5 API; 3/3 browser",
+    "visualReview": "games/eko-street-run/docs/EKO_GAUNTLET_VISUAL_REVIEW_2026-10-08.md",
+    "unverifiedRepairCommit": "19b16c571df25e3fb58f92b9f7692f2b2209d10a"
+  },
+  "evidenceHistory": [
+    {
+      "head": "012047f8ad6dd936c8b5c46af987ba22c2a21194",
+      "workflowRunId": 37745525387,
+      "artifactId": 11536931787,
+      "result": "5/5 host tests and 3/3 browser; major street occlusion, weak character, CI 7 FPS"
+    },
+    {
+      "head": "54af280281e54c2081cce12966f732094d54db04",
+      "workflowRunId": 37750503108,
+      "artifactId": 11538341657,
+      "result": "host and browser CI PASS; unoccluded street and newly articulated Tayo visible, but still basic art and CI 5 FPS"
+    },
+    {
+      "head": "2143c5e8be1cc22fe4d57a8736475ae6de846a34",
+      "workflowRunId": 37784370462,
+      "artifactId": 11554205883,
+      "result": "PASS 6 browser and 25 Node; desktop 185 draw calls, mobile hero center90px, CI 2FPS; reference FAIL"
+    },
+    {
+      "head": "e0685e1083dac1745b1d6a2c436de1c107b54272",
+      "workflowRunId": 37785184878,
+      "artifactId": 11554062576,
+      "result": "PASS host/browser; desktop 181 draw calls, mobile hero center124px, software CI 2-4 FPS; reference FAIL"
+    },
+    {
+      "head": "da168e1bc880d4d3211fc3ec02a26c3a6d722cbc",
+      "workflowRunId": 37897277701,
+      "artifactId": 11601470378,
+      "result": "PASS 32 Node and 7 Chromium. Actual compact mobile HUD and WebGL replay gallery screenshot; 57,600 AI ticks, 1 terminal failure; CI software FPS 2–7. Benchmark FAIL"
+    }
+  ],
+  "experimentalBuild": {
+    "head": "ea2034f9fc37afea212684f8e703bca74063d380",
+    "validation": "pending latest GitHub Actions workflows",
+    "features": [
+      "original procedural articulated Tayo and outfit silhouettes",
+      "detailed Lagos facades, balconies, danfo",
+      "three reusable original surface textures",
+      "frustum-culled static world batching",
+      "deterministic public-snapshot reactive pilot",
+      "mobile/AI HUD readability improvements"
+    ]
+  },
+  "latestImplementation": {
+    "head": "da168e1bc880d4d3211fc3ec02a26c3a6d722cbc",
+    "checked": "GitHub Actions 37897277701 PASS, artifact 11601470378",
+    "newCapturedPhotos": [
+      "desktop.png",
+      "mobile.png",
+      "gauntlet-opening-street.png",
+      "gauntlet-mobile-portrait.png",
+      "gauntlet-three-quarter-desktop.png",
+      "gauntlet-three-quarter-portrait.png",
+      "live-review-progress.png"
+    ],
+    "metrics": {
+      "nodeTests": 32,
+      "browserTests": 7,
+      "desktopSideCenterXPx": 249,
+      "mobileCenterXPx": 131,
+      "mobileCharacterHeightPx": 136,
+      "autonomyTicks": 57600,
+      "autonomyTerminalFailures": 1
+    },
+    "proof": "Authenticated GitHub Actions Chromium captures; later v19 changes are not represented in these images. Reference grade FAIL."
+  },
+  "latestBuild": {
+    "branch": "feat/eko-run-3d-gauntlet-slice",
+    "head": "18263a61a5cd207d036f5a53c678353c4904a75a",
+    "state": "Draft PR #51; production bar FAIL",
+    "verification": "Pending GitHub Actions; no new independently verified visuals yet",
+    "evidencePrior": {
+      "head": "e0685e1083dac1745b1d6a2c436de1c107b54272",
+      "workflowRunId": 37785184878,
+      "artifactId": 11554062576,
+      "realMeasurements": {
+        "drawCalls": 181,
+        "fpsCI": 2,
+        "portraitCenterXPx": 124
+      },
+      "browserTests": "passing six browser tests"
+    }
+  }
+}
