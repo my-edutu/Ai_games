@@ -446,3 +446,32 @@ button:focus-visible,select:focus-visible,.button:focus-visible{outline:3px soli
   .settings-open .toolbar label.soft{font-weight:800;font-size:9px;align-self:center}
   .focus-view .toolbar{display:none!important}
 }
+
+/* GAUNTLET LOOP 23: compositor-budget UI. The WebGL scene is the hero.
+   Frosted full-screen dashboard layers are expensive on integrated GPUs:
+   use opaque translucent paint and reserve any blurring for optional menus. */
+:root{--hud-panel-ink:rgba(8,28,40,.94)}
+.pill,.score,.hud-race,.toolbar,.brand::before,.hud-live{
+  backdrop-filter:none!important;-webkit-backdrop-filter:none!important;
+}
+.pill,.score,.hud-race{
+  background:linear-gradient(140deg,rgba(7,28,41,.94),rgba(12,43,52,.89));
+  border-color:rgba(133,221,214,.40)
+}
+.toolbar{background:rgba(8,30,43,.94)}
+.brand::before{background:linear-gradient(115deg,rgba(8,26,40,.78),rgba(8,27,45,.34))}
+#focus-view-exit{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+@media(max-width:650px){
+  /* A single-line status header with compact telemetry keeps the mobile
+     action corridor visibly clear while retaining screen-reader labels. */
+  .topright{gap:3px}
+  #connection{font-size:9px;letter-spacing:.065em;padding:6px 8px!important}
+  .hud-race{border-width:1px;box-shadow:0 6px 20px #0414204d}
+  .hud-race__track{height:7px}
+  .score{box-shadow:0 5px 15px #06152050}
+  .score strong{font-variant-numeric:tabular-nums}
+}
+@media(prefers-reduced-transparency:reduce){
+  .vignette{background:none!important}
+  .pill,.score,.hud-race,.toolbar,.brand::before{background:#0c2b39!important}
+}
