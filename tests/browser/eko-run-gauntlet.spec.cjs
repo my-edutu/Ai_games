@@ -81,6 +81,18 @@ test.describe('Eko Run 3D Gauntlet slice', () => {
     await expect(page.locator('#next-checkpoint')).not.toBeEmpty();
     expect(await page.evaluate(()=>getComputedStyle(document.querySelector('.score')).borderTopColor))
       .not.toBe('rgba(0, 0, 0, 0)');
+    const hudEffects=await page.evaluate(()=>{
+      const selectors=['.pill','.score','.hud-race','.toolbar'];
+      return selectors.map(selector=>({
+        selector,
+        blur:getComputedStyle(document.querySelector(selector)).backdropFilter,
+        paint:getComputedStyle(document.querySelector(selector)).backgroundImage
+      }));
+    });
+    for(const effect of hudEffects){
+      expect(effect.blur).toBe('none');
+      expect(effect.paint).not.toBe('none');
+    }
     expect(await page.evaluate(()=>document.documentElement.dataset.district))
       .toBe('mainland-morning');
     fs.mkdirSync('artifacts/eko-gauntlet', { recursive: true });
