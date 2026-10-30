@@ -1,7 +1,7 @@
 {
-  "updatedAt": "2026-10-30T19:21:25Z",
-  "status": "Round 5 · expression and smoothness",
-  "detail": "The portrait camera and continuous snake anatomy are improved. Independent review still favors Snake Pass. A stronger eye/brow pass and a measured rendering optimization are under test.",
+  "updatedAt": "2026-10-30T19:56:24Z",
+  "status": "Round 5 · browser correctness and frame pacing",
+  "detail": "Draft PR52 preserves the 3D game and review evidence. The full Node regression suite passes515/515. Static scenery reuse is implemented; independent review and actual browser checks are underway.",
   "latestImage": "/progress/evidence/round-4-overview.jpg",
   "latestCaption": "Round 4 · rendered from a frozen real public replay frame; current code has further expression and scene fixes",
   "reviews": [
@@ -13,7 +13,7 @@
     {
       "area": "World and composition",
       "verdict": "Improved · benchmark not beaten",
-      "gap": "Floor repetition reduced, distant layers added and world triangles reduced 84.5%. Stronger character emphasis and smoother rendering remain open."
+      "gap": "Floor repetition, scenery depth, water cutoff and dormant-trap shapes have been improved. A static3D cache preserves depth and dynamic objects; colour/fog ordering received independent code review and is awaiting matched runtime captures."
     },
     {
       "area": "Whole experience",
@@ -98,11 +98,11 @@
     }
   ],
   "checks": [
-    "Deterministic host checks pass 5/5, including restart, recovery, privacy and authority isolation.",
+    "Full repository Node regression:515 passed,0 failed/skipped/cancelled, on published checkpoint40bc6cc.",
     "12 focused presentation and model checks pass: portal motion, restart, numeric safety, copy, camera fit, fallback visibility, timing and bounded model resources.",
     "Independent code review's three P2 findings are closed after fix re-review and reproduction checks.",
     "Original sandbox-dependent Eko and candidate failures were reproduced as environment restrictions; their escalated focused runs pass 2/2 and 3/3.",
-    "Software-rendered cadence remains below the existing 17fps gate. A single-browser profile is separating scene, character and shader cost; no hardware-performance claim is made.",
+    "Static material merging improved the isolated software-rendered dense-scene comparison from2.29 to3.88FPS, below the unchanged17FPS gate. A subsequent rendering cache is under validation; concurrent test runs currently prevent a clean new throughput claim.",
     "The commercial visual benchmark and external production R5 gates remain open."
   ]
 }

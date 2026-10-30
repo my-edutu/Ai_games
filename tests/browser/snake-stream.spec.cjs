@@ -3,6 +3,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const { test, expect } = require('@playwright/test');
+test.use({ launchOptions: { args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader'] } });
 
 const artifactDir = path.resolve(__dirname, '../../artifacts/phase3');
 

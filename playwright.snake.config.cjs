@@ -15,5 +15,5 @@ module.exports = defineConfig({
     command: 'node scripts/serve-snake-stream.cjs --port=43173',
     url: 'http://127.0.0.1:43173/health', reuseExistingServer: false, timeout: 60000,
   },
-  reporter: [['list']],
+  reporter: [['list'], ['json', { outputFile: 'artifacts/phase3/browser-results.json' }]],
 });

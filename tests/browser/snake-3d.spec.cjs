@@ -1,5 +1,13 @@
 'use strict';
 const { test, expect } = require('@playwright/test');
+const fs = require('node:fs');
+const path = require('node:path');
+test.use({ launchOptions: { args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader'] } });
+const evidence = name => {
+  const directory = path.resolve(__dirname, '../../artifacts/phase3');
+  fs.mkdirSync(directory, { recursive: true });
+  return path.join(directory, name);
+};
 
 function lifecycleFrames() {
   const { SnakeRuntime } = require('../../dist/games/autonomous-snake/src/runtime/run.js');
@@ -38,6 +46,9 @@ test('real WebGL scene advances and camera controls preserve the authoritative r
   await expect(page.locator('#board-overview')).toBeVisible();
   await page.locator('[data-control="camera"]').click();
   await page.waitForFunction(() => window.__snakePresentation.stats().cameraMode === 'detail');
+  await page.setViewportSize({ width: 1440, height: 1200 });
+  await page.waitForTimeout(1500);
+  await page.screenshot({ path: evidence('character-current.png') });
   await page.locator('#board-overview').click();
   await page.waitForFunction(() => window.__snakePresentation.stats().cameraMode === 'overview');
   const after = await page.evaluate(() => window.__snakePresentation.stats());
@@ -75,6 +86,8 @@ test('portrait layout and viewer settings retain accessible controls and progres
   const viewer = await page.locator('.viewer-tools').boundingBox();
   const operator = await page.locator('.controls').boundingBox();
   expect(viewer.y + viewer.height).toBeLessThan(operator.y);
+  await page.waitForFunction(() => window.__snakePresentation?.stats().frameCount > 2);
+  await page.screenshot({ path: evidence('portrait-390x844.png') });
 });
 
 test('unavailable drawing contexts retain the recovery explanation across successful polls', async ({ page }) => {
@@ -137,4 +150,41 @@ test('progress page and local renderer dependencies are available with safe MIME
   expect(progress.ok()).toBeTruthy();
   expect(await progress.text()).toContain('Gauntlet');
   expect((await request.get('/vendor/package.json')).status()).toBe(404);
+});
+
+test('static cache retains depth and dynamic geometry through resize and context loss', async ({ page }) => {
+  await page.setViewportSize({ width: 640, height: 480 });
+  await page.goto('/?quality=low');
+  await page.waitForFunction(() => window.__snakePresentation?.stats().staticCache?.hits >= 2);
+  const before = await page.evaluate(() => window.__snakePresentation.stats());
+  expect(before.staticCache.active).toBe(true);
+  expect(before.triangles).toBeGreaterThan(2000);
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.waitForFunction(builds => window.__snakePresentation.stats().staticCache.builds > builds, before.staticCache.builds);
+  const after = await page.evaluate(() => window.__snakePresentation.stats());
+  expect(after.textures).toBeLessThanOrEqual(before.textures + 2);
+  expect(await page.locator('#game').evaluate(canvas => canvas.getContext('webgl2').getError())).toBe(0);
+  await page.locator('#game').evaluate(canvas => canvas.getContext('webgl2').getExtension('WEBGL_lose_context').loseContext());
+  await expect(page.locator('#game')).toHaveAttribute('data-renderer', 'canvas-fallback');
+});
+
+test('matched real replay frames record cached and direct 3D output for independent review', async ({ browser, baseURL }) => {
+  const frame = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../../docs/reviews/snake-gauntlet/round-4-public-frame.json'), 'utf8'));
+  const source = fs.readFileSync(path.resolve(__dirname, '../../public/snake-stream/renderer.mjs'), 'utf8');
+  for (const cached of [false, true]) {
+    const page = await browser.newPage({ viewport: { width: 960, height: 640 }, reducedMotion: 'reduce' });
+    try {
+      await page.route('**/snapshot', route => route.fulfill({ json: frame }));
+      if (!cached) await page.route('**/renderer.mjs', route => route.fulfill({ contentType: 'text/javascript', body: source.replace("const cacheSupported = renderer.extensions.has('EXT_color_buffer_float');", 'const cacheSupported = false;') }));
+      await page.goto(`${baseURL}/?quality=low`);
+      await page.waitForFunction(() => window.__snakePresentation?.stats().frameCount >= 3);
+      const stats = await page.evaluate(() => window.__snakePresentation.stats());
+      expect(stats.renderer).toBe('webgl');
+      expect(stats.staticCache.active).toBe(cached);
+      expect(await page.locator('#game').evaluate(canvas => canvas.getContext('webgl2').getError())).toBe(0);
+      const name = cached ? 'cache-after' : 'cache-before';
+      await page.screenshot({ path: evidence(`${name}.png`) });
+      fs.writeFileSync(evidence(`${name}-metrics.json`), JSON.stringify(stats, null, 2));
+    } finally { await page.close(); }
+  }
 });

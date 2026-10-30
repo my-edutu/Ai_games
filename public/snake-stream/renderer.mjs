@@ -13,6 +13,9 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFShadowMap;
   renderer.shadowMap.autoUpdate = false;
+  // Count all real passes in a presented frame, including a cache rebuild.
+  renderer.info.autoReset = false;
+  const STATIC_LAYER = 1, DYNAMIC_LAYER = 2;
   const scene = new THREE.Scene();
   scene.background = new THREE.Color('#7daca5');
   scene.fog = new THREE.Fog('#7daca5', 48, 110);
@@ -27,9 +30,15 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
   sun.shadow.normalBias = 0.045;
   const rim = new THREE.DirectionalLight(0xb1e8ee, 0.9);
   rim.position.set(8, 12, -16);
+  for (const light of [sky, sun, rim]) {
+    light.layers.enable(STATIC_LAYER);
+    light.layers.enable(DYNAMIC_LAYER);
+  }
   scene.add(sky, sun, rim);
   const serpent = createSerpent(THREE);
-  serpent.group.traverse(object => { if (object.isMesh) object.castShadow = false; });
+  serpent.group.traverse(object => {
+    if (object.isMesh) { object.castShadow = false; object.layers.enable(DYNAMIC_LAYER); }
+  });
   scene.add(serpent.group);
   const shadowPixels = new Uint8Array(32 * 32 * 4);
   for (let y = 0; y < 32; y++) for (let x = 0; x < 32; x++) {
@@ -45,6 +54,7 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
   const contacts = new THREE.InstancedMesh(contactGeometry, contactMaterial, 2048);
   contacts.count = 0;
   contacts.frustumCulled = false;
+  contacts.layers.enable(DYNAMIC_LAYER);
   scene.add(contacts);
   const contactTransform = new THREE.Object3D();
   contactTransform.rotation.x = -Math.PI / 2;
@@ -66,6 +76,125 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
   const desiredTarget = new THREE.Vector3();
   const desiredPosition = new THREE.Vector3();
   const cameraOffset = new THREE.Vector3();
+  const cacheSize = new THREE.Vector2();
+  const cacheSupported = renderer.extensions.has('EXT_color_buffer_float');
+  const gl = renderer.getContext();
+  const colorSamples = cacheSupported ? Array.from(gl.getInternalformatParameter(gl.RENDERBUFFER, gl.RGBA16F, gl.SAMPLES)) : [];
+  const depthSamples = Array.from(gl.getInternalformatParameter(gl.RENDERBUFFER, gl.DEPTH_COMPONENT24, gl.SAMPLES));
+  const cacheSamples = colorSamples.filter(count => count <= 4 && depthSamples.includes(count)).sort((a, b) => b - a)[0] || 0;
+  let staticTarget = null;
+  let staticKey = '';
+  let staticMeshCount = 0;
+  let cacheHits = 0;
+  let cacheBuilds = 0;
+  let cacheActive = false;
+  // Preserve HDR lighting until the same final tone mapping as a direct draw.
+  // The copied depth lets animated objects pass behind the cached ruins normally.
+  const cacheGeometry = new THREE.BufferGeometry();
+  cacheGeometry.setAttribute('position', new THREE.Float32BufferAttribute([-1, -1, 0, 3, -1, 0, -1, 3, 0], 3));
+  cacheGeometry.setAttribute('uv', new THREE.Float32BufferAttribute([0, 0, 2, 0, 0, 2], 2));
+  const cacheMaterial = new THREE.ShaderMaterial({
+    uniforms: {
+      cachedColor: { value: null }, cachedDepth: { value: null },
+      cameraRange: { value: new THREE.Vector2(camera.near, camera.far) },
+      fogRange: { value: new THREE.Vector2() }, fogColor: { value: new THREE.Color() },
+    },
+    vertexShader: 'varying vec2 cacheUv; void main() { cacheUv = uv; gl_Position = vec4(position, 1.0); }',
+    fragmentShader: `
+      uniform sampler2D cachedColor;
+      uniform sampler2D cachedDepth;
+      uniform vec2 cameraRange;
+      uniform vec2 fogRange;
+      uniform vec3 fogColor;
+      varying vec2 cacheUv;
+      void main() {
+        float depth = texture2D(cachedDepth, cacheUv).r;
+        if (depth >= 1.0) discard;
+        gl_FragDepth = depth;
+        gl_FragColor = texture2D(cachedColor, cacheUv);
+        #include <tonemapping_fragment>
+        #include <colorspace_fragment>
+        float viewDepth = cameraRange.x * cameraRange.y / (cameraRange.y - depth * (cameraRange.y - cameraRange.x));
+        float fogFactor = smoothstep(fogRange.x, fogRange.y, viewDepth);
+        gl_FragColor.rgb = mix(gl_FragColor.rgb, fogColor, fogFactor);
+      }
+    `,
+    depthTest: true, depthWrite: true, depthFunc: THREE.AlwaysDepth,
+    blending: THREE.NoBlending,
+  });
+  const cacheScene = new THREE.Scene();
+  cacheScene.background = scene.background;
+  const cacheQuad = new THREE.Mesh(cacheGeometry, cacheMaterial);
+  cacheQuad.frustumCulled = false;
+  cacheScene.add(cacheQuad);
+  const cacheCamera = new THREE.Camera();
+
+  function invalidateStaticCache() {
+    staticKey = '';
+    cacheActive = false;
+  }
+
+  function renderPresentation() {
+    cacheActive = false;
+    // Follow/detail and the easing back to overview retain the ordinary 3D path.
+    if (!cacheSupported || !staticMeshCount || cameraMode !== 'overview' || cameraOffset.distanceToSquared(desiredPosition) > 0) {
+      renderer.render(scene, camera);
+      return;
+    }
+    renderer.getDrawingBufferSize(cacheSize);
+    if (!staticTarget || staticTarget.width !== cacheSize.x || staticTarget.height !== cacheSize.y) {
+      staticTarget?.dispose();
+      staticTarget = new THREE.WebGLRenderTarget(cacheSize.x, cacheSize.y, {
+        type: THREE.HalfFloatType, minFilter: THREE.NearestFilter, magFilter: THREE.NearestFilter,
+        depthBuffer: true, stencilBuffer: false,
+        depthTexture: new THREE.DepthTexture(cacheSize.x, cacheSize.y, THREE.UnsignedIntType),
+        samples: cacheSamples,
+      });
+      cacheMaterial.uniforms.cachedColor.value = staticTarget.texture;
+      cacheMaterial.uniforms.cachedDepth.value = staticTarget.depthTexture;
+      invalidateStaticCache();
+    }
+    camera.updateMatrixWorld();
+    const key = [dimensions, quality, cacheSize.x, cacheSize.y, scene.fog.near, scene.fog.far,
+      renderer.toneMappingExposure, ...camera.matrixWorld.elements, ...camera.projectionMatrix.elements].join('|');
+    const oldLayers = camera.layers.mask;
+    const oldBackground = scene.background;
+    const oldFog = scene.fog;
+    cacheMaterial.uniforms.cameraRange.value.set(camera.near, camera.far);
+    cacheMaterial.uniforms.fogRange.value.set(oldFog.near, oldFog.far);
+    cacheMaterial.uniforms.fogColor.value.copy(oldFog.color).convertLinearToSRGB();
+    const oldAutoClear = renderer.autoClear;
+    try {
+      if (key !== staticKey || renderer.shadowMap.needsUpdate) {
+        camera.layers.set(STATIC_LAYER);
+        renderer.setRenderTarget(staticTarget);
+        renderer.autoClear = true;
+        // Three applies fog after tone mapping/output conversion in the direct path.
+        // Defer it to the composite so distant scenery keeps that same ordering.
+        scene.fog = null;
+        renderer.render(scene, camera);
+        scene.fog = oldFog;
+        staticKey = key;
+        cacheBuilds++;
+      } else cacheHits++;
+      renderer.setRenderTarget(null);
+      renderer.autoClear = true;
+      renderer.render(cacheScene, cacheCamera);
+      // A Color background forces a clear even when autoClear is false.
+      scene.background = null;
+      renderer.autoClear = false;
+      camera.layers.set(DYNAMIC_LAYER);
+      renderer.render(scene, camera);
+      cacheActive = true;
+    } finally {
+      renderer.setRenderTarget(null);
+      camera.layers.mask = oldLayers;
+      scene.background = oldBackground;
+      scene.fog = oldFog;
+      renderer.autoClear = oldAutoClear;
+    }
+  }
+
   const observer = new ResizeObserver(() => { dirty = true; });
   observer.observe(canvas);
   const contextLost = event => {
@@ -83,6 +212,7 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
     renderer.setSize(width, height, false);
     camera.aspect = width / height;
     camera.updateProjectionMatrix();
+    invalidateStaticCache();
   }
 
   function applyQuality() {
@@ -92,6 +222,7 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
     sun.shadow.map?.dispose();
     sun.shadow.map = null;
     renderer.shadowMap.needsUpdate = true;
+    invalidateStaticCache();
     dirty = true;
   }
   applyQuality();
@@ -121,7 +252,13 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
     if (key !== dimensions) {
       if (world) { scene.remove(world.group); world.dispose(); }
       world = createWorld(THREE, { width: snapshot.width, height: snapshot.height });
-      world.group.traverse(object => { if (object.isMesh && !object.name.startsWith('Ruins / ')) object.castShadow = false; });
+      staticMeshCount = 0;
+      world.group.traverse(object => {
+        if (!object.isMesh) return;
+        if (object.userData.staticWorld) { object.layers.enable(STATIC_LAYER); staticMeshCount++; }
+        else { object.castShadow = false; object.layers.enable(DYNAMIC_LAYER); }
+      });
+      invalidateStaticCache();
       scene.add(world.group);
       dimensions = key;
       renderer.shadowMap.needsUpdate = true;
@@ -160,11 +297,14 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
     // Easing both world position and target made a fast head drift off screen.
     cameraTarget.copy(desiredTarget);
     cameraOffset.lerp(desiredPosition, mix);
+    // End only subpixel residual easing so an unchanged overview has an exact pose.
+    if (cameraMode === 'overview' && cameraOffset.distanceToSquared(desiredPosition) < 1e-10) cameraOffset.copy(desiredPosition);
     camera.position.copy(cameraTarget).add(cameraOffset);
     camera.lookAt(cameraTarget);
     scene.fog.near = Math.max(30, cameraOffset.length() + 15);
     scene.fog.far = scene.fog.near + 65;
-    renderer.render(scene, camera);
+    renderer.info.reset();
+    renderPresentation();
   }
 
   function stats() {
@@ -175,6 +315,8 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
       drawCalls: renderer.info.render.calls, triangles: renderer.info.render.triangles,
       geometries: renderer.info.memory.geometries, textures: renderer.info.memory.textures,
       frameMs: { p50: percentile(0.5), p95: percentile(0.95), p99: percentile(0.99) },
+      staticCache: { supported: cacheSupported, active: cacheActive, hits: cacheHits, builds: cacheBuilds,
+        width: staticTarget?.width || 0, height: staticTarget?.height || 0, samples: cacheSamples },
       world: world?.stats?.(), serpent: serpent.stats?.(),
     };
   }
@@ -197,6 +339,11 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
     contactGeometry.dispose();
     contactMaterial.dispose();
     contacts.dispose();
+    staticTarget?.dispose();
+    staticTarget = null;
+    cacheGeometry.dispose();
+    cacheMaterial.dispose();
+    cacheScene.clear();
     sun.shadow.map?.dispose();
     renderer.dispose();
   }

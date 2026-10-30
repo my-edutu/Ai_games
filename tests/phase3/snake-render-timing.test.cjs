@@ -13,7 +13,9 @@ test('resuming an intentionally skipped draw interval does not force permanent l
   const { cameraComposition } = await import('../../public/snake-stream/camera.mjs');
   class NoGpuRenderer {
     shadowMap = {};
-    info = { render: { calls: 1, triangles: 1 }, memory: { geometries: 1, textures: 1 } };
+    extensions = { has: () => false };
+    info = { render: { calls: 1, triangles: 1 }, memory: { geometries: 1, textures: 1 }, reset() {} };
+    getContext() { return { getInternalformatParameter: () => [] }; }
     setPixelRatio() {} setSize() {} render() {} dispose() {}
   }
   const factory = () => ({ group: new Three.Group(), update() {}, dispose() {}, stats() { return {}; } });
