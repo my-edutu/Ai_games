@@ -1,0 +1,47 @@
+[
+  {
+    "cycle": 0,
+    "geometries": 158,
+    "textures": 21,
+    "programs": 13,
+    "cachedGeometry": 246,
+    "sceneryTextures": 16,
+    "groups": 20
+  },
+  {
+    "cycle": 1,
+    "geometries": 158,
+    "textures": 21,
+    "programs": 13,
+    "cachedGeometry": 246,
+    "sceneryTextures": 16,
+    "groups": 20
+  },
+  {
+    "cycle": 2,
+    "geometries": 158,
+    "textures": 21,
+    "programs": 13,
+    "cachedGeometry": 246,
+    "sceneryTextures": 16,
+    "groups": 20
+  },
+  {
+    "cycle": 3,
+    "geometries": 158,
+    "textures": 21,
+    "programs": 13,
+    "cachedGeometry": 246,
+    "sceneryTextures": 16,
+    "groups": 20
+  },
+  {
+    "cycle": 4,
+    "geometries": 158,
+    "textures": 21,
+    "programs": 13,
+    "cachedGeometry": 246,
+    "sceneryTextures": 16,
+    "groups": 20
+  }
+]

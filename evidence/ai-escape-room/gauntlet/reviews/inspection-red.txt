@@ -1,0 +1,115 @@
+(node:5) [THREE_CJS_DEPRECATED] DeprecationWarning: `require("three")` is deprecated and will be removed.
+Replace `const THREE = require("three")` with `import * as THREE from "three"`.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+✖ inspection keeps complete real mechanism above the HUD at 1256x862 (381.443804ms)
+✖ inspection keeps complete real mechanism above the HUD at 364x576 (192.414926ms)
+✖ inspection exposes the side of the physical housing instead of a frontal elevation (203.612402ms)
+✖ all eight real mechanism families fit desktop and portrait at both wall boundaries without mutating public objects (373.455536ms)
+✖ an already inspected mechanism stays clear of the HUD after a portrait resize (212.273752ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 0
+ℹ fail 5
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1471.407566
+
+✖ failing tests:
+
+test at ../../../../tmp/escape-inspection-builder/gauntlet-inspection-framing.test.cjs:54:52
+✖ inspection keeps complete real mechanism above the HUD at 1256x862 (381.443804ms)
+  AssertionError [ERR_ASSERTION]: final-vault-back-wall-0 1256x862: complete height 70.1..896.1 must clear HUD 154..727
+      at assertFrame (/tmp/escape-inspection-builder/gauntlet-inspection-framing.test.cjs:47:10)
+      at TestContext.<anonymous> (/tmp/escape-inspection-builder/gauntlet-inspection-framing.test.cjs:55:101)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.start (node:internal/test_runner/test:1262:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at ../../../../tmp/escape-inspection-builder/gauntlet-inspection-framing.test.cjs:54:52
+✖ inspection keeps complete real mechanism above the HUD at 364x576 (192.414926ms)
+  AssertionError [ERR_ASSERTION]: final-vault-back-wall-0 364x576: complete width -77.4..433.0 must fit 16..348
+      at assertFrame (/tmp/escape-inspection-builder/gauntlet-inspection-framing.test.cjs:46:10)
+      at TestContext.<anonymous> (/tmp/escape-inspection-builder/gauntlet-inspection-framing.test.cjs:55:101)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at ../../../../tmp/escape-inspection-builder/gauntlet-inspection-framing.test.cjs:58:1
+✖ inspection exposes the side of the physical housing instead of a frontal elevation (203.612402ms)
+  AssertionError [ERR_ASSERTION]: visible housing depth requires a 20..45 degree horizontal oblique view, actual 4.573921259900861
+      at TestContext.<anonymous> (/tmp/escape-inspection-builder/gauntlet-inspection-framing.test.cjs:61:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at ../../../../tmp/escape-inspection-builder/gauntlet-inspection-framing.test.cjs:64:1
+✖ all eight real mechanism families fit desktop and portrait at both wall boundaries without mutating public objects (373.455536ms)
+  AssertionError [ERR_ASSERTION]: symbol-cipher-left-wall-3 1256x862: complete height 238.2..740.9 must clear HUD 154..727
+      at assertFrame (/tmp/escape-inspection-builder/gauntlet-inspection-framing.test.cjs:47:10)
+      at TestContext.<anonymous> (/tmp/escape-inspection-builder/gauntlet-inspection-framing.test.cjs:68:146)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at ../../../../tmp/escape-inspection-builder/gauntlet-inspection-framing.test.cjs:73:1
+✖ an already inspected mechanism stays clear of the HUD after a portrait resize (212.273752ms)
+  AssertionError [ERR_ASSERTION]: final-vault-back-wall-0 364x576: complete width -77.4..433.0 must fit 16..348
+      at assertFrame (/tmp/escape-inspection-builder/gauntlet-inspection-framing.test.cjs:46:10)
+      at TestContext.<anonymous> (/tmp/escape-inspection-builder/gauntlet-inspection-framing.test.cjs:74:143)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }

@@ -4,58 +4,82 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="color-scheme" content="dark">
-  <title>AI Escape Room — The Cipher Vault</title>
+  <meta name="description" content="Follow the Archivist through a living clockwork mystery. Watch an autonomous investigator uncover clues, unlock mechanisms and escape the Cipher Vault.">
+  <title>The Cipher Vault · AI Escape Room</title>
   <link rel="stylesheet" href="/escape-room/styles.css">
   <link rel="stylesheet" href="/escape-room/ux-v2.css">
   <script type="module" src="/escape-room/bootstrap.js"></script>
 </head>
-<body data-ux-revision="3" data-reduced-motion="false" data-high-contrast="false" data-clean-feed="false" data-muted="false" data-camera-mode="room">
+<body data-ux-revision="4" data-reduced-motion="false" data-high-contrast="false" data-clean-feed="false" data-muted="false" data-camera-mode="room" data-replay="false">
   <div class="shell" id="shell">
     <header class="mission-card" data-testid="hud">
-      <div class="brand-lockup"><span class="brand-mark" aria-hidden="true">◇</span><div><p class="eyebrow">AUTONOMOUS ESCAPE RUN</p><h1>THE CIPHER VAULT</h1></div></div>
-      <div class="mission-copy"><p class="eyebrow">OBJECTIVE</p><p class="objective" data-testid="objective">Unlock every mechanism and escape the room</p></div>
-      <div class="header-metrics" aria-label="Run status"><div><span>ROOM</span><strong data-testid="room">01</strong></div><div><span>CLEAR</span><strong data-testid="stage">0/0</strong></div><div class="tick-metric"><span>TICK</span><strong data-testid="tick">0</strong></div></div>
+      <div class="brand-lockup">
+        <svg class="brand-mark" viewBox="0 0 48 48" fill="none" aria-hidden="true"><path d="M24 2 44 13v22L24 46 4 35V13L24 2Z"/><path d="m24 8 14 8v16l-14 8-14-8V16l14-8Z"/><circle cx="24" cy="24" r="9"/><path d="M24 11v7m0 12v7M11 24h7m12 0h7m-6-13-7 13-7 13"/><circle cx="24" cy="24" r="2"/></svg>
+        <div><p class="eyebrow">AN AUTONOMOUS MYSTERY</p><h1>The Cipher Vault</h1></div>
+      </div>
+      <div class="mission-copy"><p class="eyebrow">THE OBJECTIVE</p><p class="objective" data-testid="objective">Unlock every mechanism and escape the room</p></div>
+      <div class="header-metrics" aria-label="Escape progress">
+        <div><span>CHAMBER</span><strong data-testid="room">01</strong></div>
+        <span class="metric-divider" aria-hidden="true"></span>
+        <div><span>LOCKS OPEN</span><strong data-testid="stage">0/0</strong></div>
+        <span data-testid="tick" hidden>0</span>
+      </div>
     </header>
-
     <main class="broadcast-grid">
-      <section class="vault-stage" aria-label="Physical escape room simulation">
-        <canvas data-testid="escape-canvas" tabindex="0" aria-label="Interactive 3D escape room showing physical clues, locks, hazards and the autonomous AI"></canvas>
+      <section class="vault-stage" aria-label="Interactive escape-room scene">
+        <canvas data-testid="escape-canvas" tabindex="0" aria-label="Explore the 3D escape room. Click a physical object to inspect it, press I to follow the Archivist or Escape for room view."></canvas>
         <div class="stage-vignette" aria-hidden="true"></div>
-        <div class="room-title" aria-hidden="true"><span data-testid="room-title-index" id="room-title-index">ROOM 01</span><strong data-testid="room-title-name" id="room-title-name">CIPHER VAULT</strong></div>
-        <div class="camera-help" aria-hidden="true"><span>I</span> follow AI focus <b>•</b> <span>ESC</span> room view <b>•</b> click a prop</div>
+        <div class="room-title" aria-hidden="true"><span class="room-kicker"><i></i><span data-testid="room-title-index" id="room-title-index">ROOM 01</span></span><strong data-testid="room-title-name" id="room-title-name">CIPHER VAULT</strong><span class="room-subtitle">Every lock has a story.</span></div>
+        <nav class="stage-controls" aria-label="View and sound controls">
+          <div class="camera-switch" role="group" aria-label="Camera view">
+            <button id="overview-button" class="control-button active" type="button" aria-label="Room overview (Escape)" aria-pressed="true" title="Room overview · Esc"><svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="m10 2 7 4v8l-7 4-7-4V6l7-4Z"/><path d="m3 6 7 4 7-4m-7 4v8"/></svg><span>Room</span></button>
+            <button id="follow-button" class="control-button" type="button" aria-label="Follow the Archivist's focus (I)" aria-pressed="false" title="Follow focus · I"><svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M7 3H3v4m10-4h4v4M3 13v4h4m10-4v4h-4"/><circle cx="10" cy="10" r="3"/></svg><span>Follow</span></button>
+          </div>
+          <button id="sound-button" class="control-button icon-control" type="button" aria-label="Enable sound (M)" aria-pressed="false" title="Enable sound · M"><svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M9 4 5 7H2v6h3l4 3V4Z"/><path class="sound-waves" d="M12 6c3 2 3 6 0 8m3-11c5 4 5 10 0 14"/><path class="sound-slash" d="m12 7 6 6m0-6-6 6"/></svg><span class="sr-only" id="sound-label">Enable sound</span></button>
+          <details id="view-settings" class="view-settings">
+            <summary class="control-button icon-control" aria-label="Viewing options" title="Viewing options"><svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M3 5h14M3 10h14M3 15h14"/><circle cx="7" cy="5" r="2"/><circle cx="13" cy="10" r="2"/><circle cx="8" cy="15" r="2"/></svg><span class="sr-only">Viewing options</span></summary>
+            <div class="settings-panel">
+              <p class="eyebrow">MAKE YOURSELF AT HOME</p>
+              <button id="character-button" class="setting-button" type="button" aria-label="Inspect the Archivist" aria-pressed="false"><span>Meet the Archivist<small>See the investigator up close</small></span><svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><circle cx="10" cy="7" r="4"/><path d="M4 18v-2a6 6 0 0 1 12 0v2M7 7h6m-3-3v6"/></svg></button>
+              <button id="motion-button" class="setting-button" type="button" aria-pressed="false"><span>Reduce motion<small>Steady camera and gentle effects</small></span><i class="toggle" aria-hidden="true"></i></button>
+              <button id="contrast-button" class="setting-button" type="button" aria-pressed="false"><span>High contrast<small>Stronger text and object definition</small></span><i class="toggle" aria-hidden="true"></i></button>
+              <button id="clean-feed-button" class="setting-button" type="button" aria-pressed="false"><span>Hide interface<small>Keep the room and captions · C</small></span><i class="toggle" aria-hidden="true"></i></button>
+            </div>
+          </details>
+        </nav>
+        <button class="clean-return control-button" id="show-interface-button" type="button" aria-label="Show interface (C)"><svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><rect x="3" y="4" width="14" height="12" rx="1"/><path d="M3 8h14m-4 0v8"/></svg>Show interface <kbd>C</kbd></button>
         <div class="inspect-label" id="inspect-label">INSPECT</div>
-        <div class="danger-ribbon" data-testid="danger"><span class="danger-glyph">!</span><span id="danger-copy">ROOM HAZARD ACTIVE</span></div>
+        <div class="danger-ribbon" data-testid="danger" role="status"><span class="danger-glyph" aria-hidden="true">!</span><span id="danger-copy">ROOM HAZARD ACTIVE</span></div>
+        <div class="camera-help" aria-hidden="true"><span class="desktop-help"><span class="mouse-glyph"></span> Select an object to look closer <span class="help-divider">/</span> <kbd>ESC</kbd> return to the room</span><span class="touch-help">Tap an object to inspect · Room returns to the overview</span></div>
         <div class="progress-dock" data-testid="progress">
           <div class="progress-copy"><span id="milestone-label">VAULT CLEARANCE</span><strong id="progress-label">0%</strong></div>
-          <div class="progress-track" role="progressbar" aria-label="Puzzle completion" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="progress-fill"></span></div>
-          <div class="timer"><span>TIME BUFFER</span><strong id="timer-value">—</strong></div>
+          <div class="progress-middle"><div class="progress-track" role="progressbar" aria-label="Puzzle completion" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="progress-fill"></span></div><div id="lock-steps" class="lock-steps" aria-hidden="true"></div></div>
+          <div class="timer"><span>TIME RESERVE</span><strong id="timer-value">—</strong></div>
         </div>
       </section>
-
-      <aside class="intel-rail" data-testid="intel-rail" aria-label="AI intent and contextual run information">
+      <aside class="intel-rail" data-testid="intel-rail" aria-label="The Archivist's field notes">
+        <div class="journal-heading"><div><span class="eyebrow">THE INVESTIGATION</span><h2>Field notes</h2></div><span class="folio-mark" aria-hidden="true">VIII</span></div>
         <section class="intel-card intent-card">
-          <div class="card-heading"><span class="pulse-dot" aria-hidden="true"></span><span>AI INTENT</span><span class="confidence" id="confidence">LOW</span></div>
-          <p class="intent" data-testid="ai-intent" id="ai-intent">Scanning the visible room</p>
-          <p class="observation" id="ai-observation">Searching for the next verified clue</p>
-          <div class="reason-row"><span>GOAL</span><strong id="ai-goal">SURVEY ROOM</strong></div>
+          <div class="card-heading"><span class="pulse-dot" aria-hidden="true"></span><span>THE ARCHIVIST</span><span class="confidence" id="confidence">LOW</span></div>
+          <p class="intent" data-testid="ai-intent" id="ai-intent">Surveying the room</p>
+          <p class="observation" id="ai-observation">Searching for the next verified clue.</p>
+          <div class="reason-row"><span>NEXT STEP</span><strong id="ai-goal">SURVEY ROOM</strong></div>
         </section>
         <section class="intel-card inventory-card contextual-card">
-          <div class="card-heading"><span>TOOLS</span><span id="inventory-count">0 / 16</span></div>
-          <div class="inventory-grid" id="inventory" aria-live="polite"></div>
+          <div class="section-heading"><h3>Collected tools</h3><span id="inventory-count">0 tools</span></div>
+          <div class="inventory-grid" id="inventory" aria-live="polite"><p class="empty-note">No tools collected yet.</p></div>
         </section>
         <section class="intel-card mechanism-card contextual-card">
-          <div class="card-heading"><span>DISCOVERED MECHANISMS</span><span id="mechanism-count">0 / 0</span></div>
-          <div class="mechanism-list" id="mechanisms"></div>
+          <div class="section-heading"><h3>Discovered locks</h3><span id="mechanism-count">0 / 0</span></div>
+          <div class="mechanism-list" id="mechanisms"><p class="empty-note">The Archivist is locating mechanisms.</p></div>
+          <p class="section-hint">Select a lock to inspect it.</p>
         </section>
-        <section class="intel-card status-card" aria-hidden="true">
-          <div class="card-heading"><span>RUN</span><span class="status-pill" id="health">HEALTHY</span></div>
-          <div class="status-grid"><div><span>SCORE</span><strong id="score">0</strong></div><div><span>STREAK</span><strong id="streak">0</strong></div><div><span>THEME</span><strong id="theme">CIPHER</strong></div><div><span>DIFFICULTY</span><strong id="difficulty">1</strong></div></div>
-        </section>
+        <div class="journal-footer"><span class="ornament" aria-hidden="true">✧</span><p>Observe. Discover. Escape.</p><span class="journal-line" aria-hidden="true"></span></div>
+        <section class="status-card" hidden aria-hidden="true"><span id="health">HEALTHY</span><span id="score">0</span><span id="streak">0</span><span id="theme">CIPHER</span><span id="difficulty">1</span></section>
       </aside>
     </main>
-
-    <footer class="caption-bar" data-testid="captions" aria-live="polite"><span class="caption-icon" aria-hidden="true">⌁</span><span class="caption-label">ROOM EVENT</span><strong id="caption-text">The AI is entering the vault.</strong><span class="connection" id="connection">LIVE</span></footer>
-    <div class="safe-scene" id="safe-scene" role="status"><span class="safe-symbol">◇</span><h2>Verified checkpoint view</h2><p>The autonomous simulation continues while the physical renderer restores.</p></div>
+    <footer class="caption-bar" data-testid="captions" aria-live="polite"><span class="caption-icon" aria-hidden="true">✧</span><span class="caption-label">ROOM EVENT</span><strong id="caption-text">The Archivist is entering the vault.</strong><button id="resume-live-button" class="resume-live" type="button">Return to live</button><span class="connection" id="connection">LIVE</span></footer>
+    <div class="safe-scene" id="safe-scene" role="status"><span class="safe-symbol" aria-hidden="true">◇</span><p class="eyebrow">THE CIPHER VAULT</p><h2>Restoring the view</h2><p>Reconnecting to the latest verified room state.</p></div>
   </div>
 </body>
 </html>

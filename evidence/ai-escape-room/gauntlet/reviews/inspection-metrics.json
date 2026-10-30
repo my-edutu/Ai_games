@@ -1,0 +1,53 @@
+{
+  "basis": "Real production mechanism geometry; measured-layout fixture rectangles; includes reserved danger ribbon; no rendered-image claim",
+  "cases": [
+    {
+      "width": 1256,
+      "height": 862,
+      "frame": {
+        "left": 379.75336262347054,
+        "right": 876.1976055940003,
+        "top": 160.37093479593383,
+        "bottom": 696.5773452583171
+      },
+      "distance": 3.2771484375000006,
+      "horizontalObliqueDegrees": 31.798912824294423,
+      "framed": true,
+      "fov": 46,
+      "camera": [
+        1.6920187540589005,
+        2.7549750015711876,
+        -3.250937493453387
+      ],
+      "look": [
+        0.04326763607860992,
+        1.9961796282412392,
+        -5.804257042014043
+      ]
+    },
+    {
+      "width": 364,
+      "height": 576,
+      "frame": {
+        "left": 51.33480105898788,
+        "right": 312.65027124094445,
+        "top": 146.03837722520555,
+        "bottom": 425.94670516826267
+      },
+      "distance": 3.585839843750001,
+      "horizontalObliqueDegrees": 31.798912824294423,
+      "framed": true,
+      "fov": 52,
+      "camera": [
+        1.8513986718603244,
+        2.8166704536233516,
+        -2.993873109902703
+      ],
+      "look": [
+        0.04060675611946054,
+        1.9931748957519437,
+        -5.801602080586191
+      ]
+    }
+  ]
+}

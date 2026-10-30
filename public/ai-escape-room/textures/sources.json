@@ -1,0 +1,161 @@
+{
+  "license": "CC0-1.0",
+  "licenseSource": "https://polyhaven.com/license",
+  "retrieved": "2026-10-30",
+  "totalBytes": 4068776,
+  "files": [
+    {
+      "asset": "wood_floor_worn",
+      "name": "Wood Floor Worn",
+      "authors": {
+        "Dimitrios Savva": "All"
+      },
+      "file": "wood-color.jpg",
+      "kind": "Diffuse",
+      "resolution": "1k",
+      "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/wood_floor_worn/wood_floor_worn_diff_1k.jpg",
+      "sourceSize": 629271,
+      "sourceMd5": "160b2c683907f592dee214a23d8dfa1e",
+      "assetPage": "https://polyhaven.com/a/wood_floor_worn",
+      "metadata": "https://api.polyhaven.com/files/wood_floor_worn",
+      "sha256": "db386853009b92b9edd7255b35c9f7b0d4b7de16837a7a9da8422148754bc758",
+      "bytes": 629271
+    },
+    {
+      "asset": "wood_floor_worn",
+      "name": "Wood Floor Worn",
+      "authors": {
+        "Dimitrios Savva": "All"
+      },
+      "file": "wood-normal.jpg",
+      "kind": "nor_gl",
+      "resolution": "1k",
+      "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/wood_floor_worn/wood_floor_worn_nor_gl_1k.jpg",
+      "sourceSize": 636603,
+      "sourceMd5": "b273afec89ec38d3b8e9f9790635f3eb",
+      "assetPage": "https://polyhaven.com/a/wood_floor_worn",
+      "metadata": "https://api.polyhaven.com/files/wood_floor_worn",
+      "sha256": "f428496e5d6c726d17d9ecea29c0acd8660348630acf791cea7bdd7f3c6e262b",
+      "bytes": 636603
+    },
+    {
+      "asset": "wood_floor_worn",
+      "name": "Wood Floor Worn",
+      "authors": {
+        "Dimitrios Savva": "All"
+      },
+      "file": "wood-roughness.jpg",
+      "kind": "Rough",
+      "resolution": "1k",
+      "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/wood_floor_worn/wood_floor_worn_rough_1k.jpg",
+      "sourceSize": 290570,
+      "sourceMd5": "cca134929e27d4de4637226e7135f89b",
+      "assetPage": "https://polyhaven.com/a/wood_floor_worn",
+      "metadata": "https://api.polyhaven.com/files/wood_floor_worn",
+      "sha256": "9d7492db1197f1386466dfd7dd43f692446166c1433ddeebf66c10e8b226a6d0",
+      "bytes": 290570
+    },
+    {
+      "asset": "grey_plaster",
+      "name": "Grey Plaster",
+      "authors": {
+        "Rob Tuytel": "All"
+      },
+      "file": "plaster-color.jpg",
+      "kind": "Diffuse",
+      "resolution": "1k",
+      "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/grey_plaster/grey_plaster_diff_1k.jpg",
+      "sourceSize": 704079,
+      "sourceMd5": "42d2ffe5338fcc0065e28076cbe15eba",
+      "assetPage": "https://polyhaven.com/a/grey_plaster",
+      "metadata": "https://api.polyhaven.com/files/grey_plaster",
+      "sha256": "dcf34c5f3801cc43189f0edae3c430b602c827956e9d6ce4b89a85e53e952da9",
+      "bytes": 704079
+    },
+    {
+      "asset": "grey_plaster",
+      "name": "Grey Plaster",
+      "authors": {
+        "Rob Tuytel": "All"
+      },
+      "file": "plaster-normal.jpg",
+      "kind": "nor_gl",
+      "resolution": "1k",
+      "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/grey_plaster/grey_plaster_nor_gl_1k.jpg",
+      "sourceSize": 355288,
+      "sourceMd5": "add2064b193d083c892aead5eaf461d2",
+      "assetPage": "https://polyhaven.com/a/grey_plaster",
+      "metadata": "https://api.polyhaven.com/files/grey_plaster",
+      "sha256": "85fe18209cb354b582003892898ee0cd6fe6b853644e01983718fc011140c0c2",
+      "bytes": 355288
+    },
+    {
+      "asset": "grey_plaster",
+      "name": "Grey Plaster",
+      "authors": {
+        "Rob Tuytel": "All"
+      },
+      "file": "plaster-arm.jpg",
+      "kind": "arm",
+      "resolution": "1k",
+      "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/grey_plaster/grey_plaster_arm_1k.jpg",
+      "sourceSize": 349854,
+      "sourceMd5": "9aad8459c111f17b7bc254f1780d96e5",
+      "assetPage": "https://polyhaven.com/a/grey_plaster",
+      "metadata": "https://api.polyhaven.com/files/grey_plaster",
+      "sha256": "89b687004c658b1a00fe95480115ef4d934d053821c17a04895d0aeb8ef9299f",
+      "bytes": 349854
+    },
+    {
+      "asset": "rusty_metal_02",
+      "name": "Rusty Metal 02",
+      "authors": {
+        "Rob Tuytel": "All"
+      },
+      "file": "metal-color.jpg",
+      "kind": "Diffuse",
+      "resolution": "1k",
+      "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/rusty_metal_02/rusty_metal_02_diff_1k.jpg",
+      "sourceSize": 564932,
+      "sourceMd5": "476bff9959bc727bd4b83c0a9ac4aeaa",
+      "assetPage": "https://polyhaven.com/a/rusty_metal_02",
+      "metadata": "https://api.polyhaven.com/files/rusty_metal_02",
+      "sha256": "adaf094391518b6afe787a123942110aa88ef521c844f970b124420f5ed5d3d9",
+      "bytes": 564932
+    },
+    {
+      "asset": "rusty_metal_02",
+      "name": "Rusty Metal 02",
+      "authors": {
+        "Rob Tuytel": "All"
+      },
+      "file": "metal-normal.jpg",
+      "kind": "nor_gl",
+      "resolution": "1k",
+      "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/rusty_metal_02/rusty_metal_02_nor_gl_1k.jpg",
+      "sourceSize": 403156,
+      "sourceMd5": "8d6dc7e26f2708ec59e2a739711c612b",
+      "assetPage": "https://polyhaven.com/a/rusty_metal_02",
+      "metadata": "https://api.polyhaven.com/files/rusty_metal_02",
+      "sha256": "995197a62cac6fbb000e6e6591a3330a3b77ef069c4ac58f505b586b9bdbd97b",
+      "bytes": 403156
+    },
+    {
+      "asset": "rusty_metal_02",
+      "name": "Rusty Metal 02",
+      "authors": {
+        "Rob Tuytel": "All"
+      },
+      "file": "metal-roughness.jpg",
+      "kind": "Rough",
+      "resolution": "1k",
+      "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/rusty_metal_02/rusty_metal_02_rough_1k.jpg",
+      "sourceSize": 135023,
+      "sourceMd5": "75551ad404e29489f9b75876da95a13a",
+      "assetPage": "https://polyhaven.com/a/rusty_metal_02",
+      "metadata": "https://api.polyhaven.com/files/rusty_metal_02",
+      "sha256": "178deb5896232f0498555676e55a3be1d6d197e2211d8d17cb8386a868bfd54a",
+      "bytes": 135023
+    }
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "method": "Real Three Frustum.intersectsObject on the 12-puzzle ready-to-escape production snapshot; dynamic color geometry only. Closeup is an explicitly sampled viewpoint, not a GPU capture.",
+  "rows": [
+    {
+      "batched": false,
+      "view": "desktop-overview",
+      "submissions": 179,
+      "triangles": 87096
+    },
+    {
+      "batched": false,
+      "view": "portrait-overview",
+      "submissions": 56,
+      "triangles": 38760
+    },
+    {
+      "batched": false,
+      "view": "sample-final-closeup",
+      "submissions": 18,
+      "triangles": 24796
+    },
+    {
+      "batched": true,
+      "view": "desktop-overview",
+      "submissions": 81,
+      "triangles": 87096
+    },
+    {
+      "batched": true,
+      "view": "portrait-overview",
+      "submissions": 36,
+      "triangles": 68216
+    },
+    {
+      "batched": true,
+      "view": "sample-final-closeup",
+      "submissions": 24,
+      "triangles": 62976
+    }
+  ]
+}

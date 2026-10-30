@@ -1,0 +1,147 @@
+{
+  "method": "Node VM with real repository-pinned Three.js geometry; canvas painting and texture loading stubbed. No browser, render, or visual acceptance claim.",
+  "originalSha256": "d36862d119bc9053a6e325d99328e90c5ea6fb2ac4a1fc35493e1a71c8b37dd1",
+  "proposalSha256": "46d1fe0b81224549c2082ca75d5f8c939c1393807e69f48bd17aa7478417b644",
+  "baseline": [
+    {
+      "cycle": 2,
+      "theme": "cipher-vault",
+      "triangles": 29322,
+      "batches": 17,
+      "cachedGeometries": 166,
+      "textureCount": 16,
+      "detailParts": 915,
+      "mergedVertexBytes": 2814912
+    },
+    {
+      "cycle": 2,
+      "theme": "clockwork-study",
+      "triangles": 29322,
+      "batches": 17,
+      "cachedGeometries": 166,
+      "textureCount": 16,
+      "detailParts": 915,
+      "mergedVertexBytes": 2814912
+    },
+    {
+      "cycle": 2,
+      "theme": "chromatic-lab",
+      "triangles": 29934,
+      "batches": 20,
+      "cachedGeometries": 166,
+      "textureCount": 16,
+      "detailParts": 916,
+      "mergedVertexBytes": 2873664
+    },
+    {
+      "cycle": 2,
+      "theme": "archive-zero",
+      "triangles": 29322,
+      "batches": 17,
+      "cachedGeometries": 166,
+      "textureCount": 16,
+      "detailParts": 915,
+      "mergedVertexBytes": 2814912
+    }
+  ],
+  "proposal": [
+    {
+      "cycle": 2,
+      "theme": "cipher-vault",
+      "triangles": 35582,
+      "batches": 18,
+      "cachedGeometries": 228,
+      "textureCount": 16,
+      "detailParts": 1112,
+      "mergedVertexBytes": 3415872
+    },
+    {
+      "cycle": 2,
+      "theme": "clockwork-study",
+      "triangles": 35582,
+      "batches": 18,
+      "cachedGeometries": 228,
+      "textureCount": 16,
+      "detailParts": 1112,
+      "mergedVertexBytes": 3415872
+    },
+    {
+      "cycle": 2,
+      "theme": "chromatic-lab",
+      "triangles": 36194,
+      "batches": 21,
+      "cachedGeometries": 228,
+      "textureCount": 16,
+      "detailParts": 1113,
+      "mergedVertexBytes": 3474624
+    },
+    {
+      "cycle": 2,
+      "theme": "archive-zero",
+      "triangles": 35582,
+      "batches": 18,
+      "cachedGeometries": 228,
+      "textureCount": 16,
+      "detailParts": 1112,
+      "mergedVertexBytes": 3415872
+    }
+  ],
+  "deltas": [
+    {
+      "theme": "cipher-vault",
+      "triangles": 6260,
+      "batches": 1,
+      "cachedGeometries": 62,
+      "textureCount": 0,
+      "detailParts": 197,
+      "mergedVertexBytes": 600960
+    },
+    {
+      "theme": "clockwork-study",
+      "triangles": 6260,
+      "batches": 1,
+      "cachedGeometries": 62,
+      "textureCount": 0,
+      "detailParts": 197,
+      "mergedVertexBytes": 600960
+    },
+    {
+      "theme": "chromatic-lab",
+      "triangles": 6260,
+      "batches": 1,
+      "cachedGeometries": 62,
+      "textureCount": 0,
+      "detailParts": 197,
+      "mergedVertexBytes": 600960
+    },
+    {
+      "theme": "archive-zero",
+      "triangles": 6260,
+      "batches": 1,
+      "cachedGeometries": 62,
+      "textureCount": 0,
+      "detailParts": 197,
+      "mergedVertexBytes": 600960
+    }
+  ],
+  "geometryCacheStableAcrossLastTwoFullThemeCycles": true,
+  "textureCacheStableAcrossLastTwoFullThemeCycles": true,
+  "attachmentChecks": {
+    "deskMaximumY": 0.9465000001341104,
+    "originalPedestalCapsUnchanged": true,
+    "chairBounds": {
+      "min": [
+        -0.875,
+        0.06314661212321654,
+        -1.74
+      ],
+      "max": [
+        0.7749999999999999,
+        1.7123366827859845,
+        -0.1399999999999999
+      ]
+    },
+    "chairClearOfTwelveFloorAttachmentEnvelopes": true,
+    "newShelfGeometryClearOfTwentyFourAttachmentEnvelopes": true
+  }
+}

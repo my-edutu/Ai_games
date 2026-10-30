@@ -1,0 +1,22 @@
+(node:154140) [THREE_CJS_DEPRECATED] DeprecationWarning: `require("three")` is deprecated and will be removed.
+Replace `const THREE = require("three")` with `import * as THREE from "three"`.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+✔ confirmed success stages the Archivist by the opened exit instead of an unrelated remaining clue (551.883644ms)
+✔ archivist remains inside the physical room for extreme focus positions and does not mutate snapshots (482.859441ms)
+✔ solve animation consumes each event once and new runs reset event identity (235.951307ms)
+✔ reduced-motion removes idle oscillation while preserving semantic pose and world location (167.661612ms)
+✔ resource count stays bounded across state changes and dispose is idempotent (215.972334ms)
+✔ character stays within its color-pass submission budget (336.182653ms)
+✔ dispose releases owned instance buffers and all resources once without releasing foreign attachments (206.059411ms)
+(node:154141) [THREE_CJS_DEPRECATED] DeprecationWarning: `require("three")` is deprecated and will be removed.
+Replace `const THREE = require("three")` with `import * as THREE from "three"`.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+✔ desktop overview contains the complete actor at both wall workstations (335.332327ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2792.904284

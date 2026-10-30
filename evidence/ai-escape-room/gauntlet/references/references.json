@@ -1,0 +1,92 @@
+{
+  "reference_set": "Official publisher Steam screenshot captures",
+  "method": "Retrieved the two public Steam app HTML pages, decoded their embedded JSON screenshot lists, downloaded exact full URLs listed in those pages, then visually selected reference views. Source HTML and candidate contact sheets retained for audit.",
+  "retrieved_at_utc": "2026-10-30T19:24:48.542405+00:00",
+  "scope": "Static screenshot comparisons. No claims about reference game runtime or benchmark performance are inferred from these images.",
+  "references": [
+    {
+      "game": "the-room-4-old-sins",
+      "role": "room-wide",
+      "selection_focus": "Layered study/library room, material richness, light hierarchy, density of authored props.",
+      "steam_screenshot_index": 4,
+      "source_page_url": "https://store.steampowered.com/app/1361320/",
+      "source_html_file": "the-room-4-old-sins-steam-source.html",
+      "image_url_from_source_page": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/1361320/ss_2f9ac2a6cf910e33fb0030edf15cd401bfaec3f6.1920x1080.jpg?t=1646758366",
+      "resolved_image_url": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/1361320/ss_2f9ac2a6cf910e33fb0030edf15cd401bfaec3f6.1920x1080.jpg?t=1646758366",
+      "local_file": "room4-library-wide.jpg",
+      "retrieved_at_utc": "2026-10-30T19:24:48.515216+00:00",
+      "http_status": 200,
+      "content_type": "image/jpeg",
+      "bytes": 358548,
+      "sha256": "85765fd1db9683606de7964984443a45490597ff7f5b986f2c3ebd1e2fc4819d",
+      "dimensions": [
+        1920,
+        1080
+      ],
+      "use": "Independent visual evaluation only; not an application game asset."
+    },
+    {
+      "game": "escape-simulator",
+      "role": "room-wide",
+      "selection_focus": "Readable room geometry, distinct avatar silhouette, contextual puzzle placement.",
+      "steam_screenshot_index": 3,
+      "source_page_url": "https://store.steampowered.com/app/1435790/",
+      "source_html_file": "escape-simulator-steam-source.html",
+      "image_url_from_source_page": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/1435790/ss_95d843b66c434f308eff367082b004ffeb95ac49.1920x1080.jpg?t=1791969592",
+      "resolved_image_url": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/1435790/ss_95d843b66c434f308eff367082b004ffeb95ac49.1920x1080.jpg?t=1791969592",
+      "local_file": "escape-simulator-egypt-avatar-wide.jpg",
+      "retrieved_at_utc": "2026-10-30T19:24:48.494312+00:00",
+      "http_status": 200,
+      "content_type": "image/jpeg",
+      "bytes": 409861,
+      "sha256": "a41470c3ac30d83d754e61ea9becadd28044d2dbf832560e26239a8de4f9c601",
+      "dimensions": [
+        1920,
+        1080
+      ],
+      "use": "Independent visual evaluation only; not an application game asset."
+    },
+    {
+      "game": "the-room-4-old-sins",
+      "role": "mechanism",
+      "selection_focus": "Hero mechanism with multiple functional-looking layers, brass/copper and blackened metal separation, contextual artifacts.",
+      "steam_screenshot_index": 7,
+      "source_page_url": "https://store.steampowered.com/app/1361320/",
+      "source_html_file": "the-room-4-old-sins-steam-source.html",
+      "image_url_from_source_page": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/1361320/ss_8f3b0d4deb724fce47763d4ff461cf146c40de3b.1920x1080.jpg?t=1646758366",
+      "resolved_image_url": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/1361320/ss_8f3b0d4deb724fce47763d4ff461cf146c40de3b.1920x1080.jpg?t=1646758366",
+      "local_file": "room4-workbench-mechanism.jpg",
+      "retrieved_at_utc": "2026-10-30T19:24:48.467328+00:00",
+      "http_status": 200,
+      "content_type": "image/jpeg",
+      "bytes": 499061,
+      "sha256": "3586ed5100854cd1177a5699d748cd64ec34b16c1bc8449ff467d7ef4e855b7a",
+      "dimensions": [
+        1920,
+        1080
+      ],
+      "use": "Independent visual evaluation only; not an application game asset."
+    },
+    {
+      "game": "the-room-4-old-sins",
+      "role": "mechanism",
+      "selection_focus": "Mechanical focal object with worn metal, exposed toothed controls, dimensional edging and differentiated surface detail.",
+      "steam_screenshot_index": 8,
+      "source_page_url": "https://store.steampowered.com/app/1361320/",
+      "source_html_file": "the-room-4-old-sins-steam-source.html",
+      "image_url_from_source_page": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/1361320/ss_d4e0d3588b43e3a0820e093129d96ad5e65316ac.1920x1080.jpg?t=1646758366",
+      "resolved_image_url": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/1361320/ss_d4e0d3588b43e3a0820e093129d96ad5e65316ac.1920x1080.jpg?t=1646758366",
+      "local_file": "room4-safe-mechanism.jpg",
+      "retrieved_at_utc": "2026-10-30T19:24:48.530415+00:00",
+      "http_status": 200,
+      "content_type": "image/jpeg",
+      "bytes": 395766,
+      "sha256": "d6dc7b30b72ff67fa404bc6af67dd83e6cda7ba9f97e4b42438a4acd332b6bda",
+      "dimensions": [
+        1920,
+        1080
+      ],
+      "use": "Independent visual evaluation only; not an application game asset."
+    }
+  ]
+}

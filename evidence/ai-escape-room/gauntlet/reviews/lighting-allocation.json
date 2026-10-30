@@ -1,0 +1,544 @@
+{
+  "method": "Real Three.js construction/attributes/dispose events in Node; image and canvas stubs. This is not a GPU timing or visual acceptance result.",
+  "baseline": {
+    "snapshots": [
+      {
+        "cycle": 0,
+        "theme": "cipher-vault",
+        "buildMs": 544,
+        "triangles": 35582,
+        "batches": 18,
+        "cachedGeometries": 226,
+        "textures": 16,
+        "mergedBytes": 3415872,
+        "dark": 0,
+        "lit": 0,
+        "occluded": 0,
+        "total": 0
+      },
+      {
+        "cycle": 0,
+        "theme": "clockwork-study",
+        "buildMs": 178,
+        "triangles": 35582,
+        "batches": 18,
+        "cachedGeometries": 226,
+        "textures": 16,
+        "mergedBytes": 3415872,
+        "dark": 0,
+        "lit": 0,
+        "occluded": 0,
+        "total": 0
+      },
+      {
+        "cycle": 0,
+        "theme": "chromatic-lab",
+        "buildMs": 159,
+        "triangles": 36194,
+        "batches": 21,
+        "cachedGeometries": 228,
+        "textures": 16,
+        "mergedBytes": 3474624,
+        "dark": 0,
+        "lit": 0,
+        "occluded": 0,
+        "total": 0
+      },
+      {
+        "cycle": 0,
+        "theme": "archive-zero",
+        "buildMs": 110,
+        "triangles": 35582,
+        "batches": 18,
+        "cachedGeometries": 228,
+        "textures": 16,
+        "mergedBytes": 3415872,
+        "dark": 0,
+        "lit": 0,
+        "occluded": 0,
+        "total": 0
+      },
+      {
+        "cycle": 1,
+        "theme": "cipher-vault",
+        "buildMs": 141,
+        "triangles": 35582,
+        "batches": 18,
+        "cachedGeometries": 228,
+        "textures": 16,
+        "mergedBytes": 3415872,
+        "dark": 0,
+        "lit": 0,
+        "occluded": 0,
+        "total": 0
+      },
+      {
+        "cycle": 1,
+        "theme": "clockwork-study",
+        "buildMs": 137,
+        "triangles": 35582,
+        "batches": 18,
+        "cachedGeometries": 228,
+        "textures": 16,
+        "mergedBytes": 3415872,
+        "dark": 0,
+        "lit": 0,
+        "occluded": 0,
+        "total": 0
+      },
+      {
+        "cycle": 1,
+        "theme": "chromatic-lab",
+        "buildMs": 151,
+        "triangles": 36194,
+        "batches": 21,
+        "cachedGeometries": 228,
+        "textures": 16,
+        "mergedBytes": 3474624,
+        "dark": 0,
+        "lit": 0,
+        "occluded": 0,
+        "total": 0
+      },
+      {
+        "cycle": 1,
+        "theme": "archive-zero",
+        "buildMs": 80,
+        "triangles": 35582,
+        "batches": 18,
+        "cachedGeometries": 228,
+        "textures": 16,
+        "mergedBytes": 3415872,
+        "dark": 0,
+        "lit": 0,
+        "occluded": 0,
+        "total": 0
+      },
+      {
+        "cycle": 2,
+        "theme": "cipher-vault",
+        "buildMs": 86,
+        "triangles": 35582,
+        "batches": 18,
+        "cachedGeometries": 228,
+        "textures": 16,
+        "mergedBytes": 3415872,
+        "dark": 0,
+        "lit": 0,
+        "occluded": 0,
+        "total": 0
+      },
+      {
+        "cycle": 2,
+        "theme": "clockwork-study",
+        "buildMs": 76,
+        "triangles": 35582,
+        "batches": 18,
+        "cachedGeometries": 228,
+        "textures": 16,
+        "mergedBytes": 3415872,
+        "dark": 0,
+        "lit": 0,
+        "occluded": 0,
+        "total": 0
+      },
+      {
+        "cycle": 2,
+        "theme": "chromatic-lab",
+        "buildMs": 141,
+        "triangles": 36194,
+        "batches": 21,
+        "cachedGeometries": 228,
+        "textures": 16,
+        "mergedBytes": 3474624,
+        "dark": 0,
+        "lit": 0,
+        "occluded": 0,
+        "total": 0
+      },
+      {
+        "cycle": 2,
+        "theme": "archive-zero",
+        "buildMs": 64,
+        "triangles": 35582,
+        "batches": 18,
+        "cachedGeometries": 228,
+        "textures": 16,
+        "mergedBytes": 3415872,
+        "dark": 0,
+        "lit": 0,
+        "occluded": 0,
+        "total": 0
+      }
+    ],
+    "disposeCounts": [
+      {
+        "oldMeshes": 0,
+        "disposed": 0
+      },
+      {
+        "oldMeshes": 18,
+        "disposed": 18
+      },
+      {
+        "oldMeshes": 18,
+        "disposed": 18
+      },
+      {
+        "oldMeshes": 21,
+        "disposed": 21
+      },
+      {
+        "oldMeshes": 18,
+        "disposed": 18
+      },
+      {
+        "oldMeshes": 18,
+        "disposed": 18
+      },
+      {
+        "oldMeshes": 18,
+        "disposed": 18
+      },
+      {
+        "oldMeshes": 21,
+        "disposed": 21
+      },
+      {
+        "oldMeshes": 18,
+        "disposed": 18
+      },
+      {
+        "oldMeshes": 18,
+        "disposed": 18
+      },
+      {
+        "oldMeshes": 18,
+        "disposed": 18
+      },
+      {
+        "oldMeshes": 21,
+        "disposed": 21
+      }
+    ]
+  },
+  "candidate": {
+    "snapshots": [
+      {
+        "cycle": 0,
+        "theme": "cipher-vault",
+        "buildMs": 4724,
+        "triangles": 40286,
+        "batches": 19,
+        "cachedGeometries": 226,
+        "textures": 16,
+        "mergedBytes": 4100016,
+        "dark": 55545,
+        "lit": 88855,
+        "occluded": 27425,
+        "total": 116280,
+        "lighting": {
+          "samples": 12,
+          "occluders": 840,
+          "uniqueVertices": 38027,
+          "vertices": 116280,
+          "attributeBytes": 232560,
+          "cacheHit": false
+        }
+      },
+      {
+        "cycle": 0,
+        "theme": "clockwork-study",
+        "buildMs": 344,
+        "triangles": 40286,
+        "batches": 19,
+        "cachedGeometries": 226,
+        "textures": 16,
+        "mergedBytes": 4100016,
+        "dark": 55545,
+        "lit": 88855,
+        "occluded": 27425,
+        "total": 116280,
+        "lighting": {
+          "samples": 12,
+          "occluders": 840,
+          "uniqueVertices": 38027,
+          "vertices": 116280,
+          "attributeBytes": 232560,
+          "cacheHit": true
+        }
+      },
+      {
+        "cycle": 0,
+        "theme": "chromatic-lab",
+        "buildMs": 4293,
+        "triangles": 40898,
+        "batches": 22,
+        "cachedGeometries": 228,
+        "textures": 16,
+        "mergedBytes": 4160040,
+        "dark": 55567,
+        "lit": 89598,
+        "occluded": 27318,
+        "total": 116916,
+        "lighting": {
+          "samples": 12,
+          "occluders": 831,
+          "uniqueVertices": 38079,
+          "vertices": 116916,
+          "attributeBytes": 233832,
+          "cacheHit": false
+        }
+      },
+      {
+        "cycle": 0,
+        "theme": "archive-zero",
+        "buildMs": 354,
+        "triangles": 40286,
+        "batches": 19,
+        "cachedGeometries": 228,
+        "textures": 16,
+        "mergedBytes": 4100016,
+        "dark": 55545,
+        "lit": 88855,
+        "occluded": 27425,
+        "total": 116280,
+        "lighting": {
+          "samples": 12,
+          "occluders": 840,
+          "uniqueVertices": 38027,
+          "vertices": 116280,
+          "attributeBytes": 232560,
+          "cacheHit": true
+        }
+      },
+      {
+        "cycle": 1,
+        "theme": "cipher-vault",
+        "buildMs": 349,
+        "triangles": 40286,
+        "batches": 19,
+        "cachedGeometries": 228,
+        "textures": 16,
+        "mergedBytes": 4100016,
+        "dark": 55545,
+        "lit": 88855,
+        "occluded": 27425,
+        "total": 116280,
+        "lighting": {
+          "samples": 12,
+          "occluders": 840,
+          "uniqueVertices": 38027,
+          "vertices": 116280,
+          "attributeBytes": 232560,
+          "cacheHit": true
+        }
+      },
+      {
+        "cycle": 1,
+        "theme": "clockwork-study",
+        "buildMs": 295,
+        "triangles": 40286,
+        "batches": 19,
+        "cachedGeometries": 228,
+        "textures": 16,
+        "mergedBytes": 4100016,
+        "dark": 55545,
+        "lit": 88855,
+        "occluded": 27425,
+        "total": 116280,
+        "lighting": {
+          "samples": 12,
+          "occluders": 840,
+          "uniqueVertices": 38027,
+          "vertices": 116280,
+          "attributeBytes": 232560,
+          "cacheHit": true
+        }
+      },
+      {
+        "cycle": 1,
+        "theme": "chromatic-lab",
+        "buildMs": 384,
+        "triangles": 40898,
+        "batches": 22,
+        "cachedGeometries": 228,
+        "textures": 16,
+        "mergedBytes": 4160040,
+        "dark": 55567,
+        "lit": 89598,
+        "occluded": 27318,
+        "total": 116916,
+        "lighting": {
+          "samples": 12,
+          "occluders": 831,
+          "uniqueVertices": 38079,
+          "vertices": 116916,
+          "attributeBytes": 233832,
+          "cacheHit": true
+        }
+      },
+      {
+        "cycle": 1,
+        "theme": "archive-zero",
+        "buildMs": 512,
+        "triangles": 40286,
+        "batches": 19,
+        "cachedGeometries": 228,
+        "textures": 16,
+        "mergedBytes": 4100016,
+        "dark": 55545,
+        "lit": 88855,
+        "occluded": 27425,
+        "total": 116280,
+        "lighting": {
+          "samples": 12,
+          "occluders": 840,
+          "uniqueVertices": 38027,
+          "vertices": 116280,
+          "attributeBytes": 232560,
+          "cacheHit": true
+        }
+      },
+      {
+        "cycle": 2,
+        "theme": "cipher-vault",
+        "buildMs": 272,
+        "triangles": 40286,
+        "batches": 19,
+        "cachedGeometries": 228,
+        "textures": 16,
+        "mergedBytes": 4100016,
+        "dark": 55545,
+        "lit": 88855,
+        "occluded": 27425,
+        "total": 116280,
+        "lighting": {
+          "samples": 12,
+          "occluders": 840,
+          "uniqueVertices": 38027,
+          "vertices": 116280,
+          "attributeBytes": 232560,
+          "cacheHit": true
+        }
+      },
+      {
+        "cycle": 2,
+        "theme": "clockwork-study",
+        "buildMs": 365,
+        "triangles": 40286,
+        "batches": 19,
+        "cachedGeometries": 228,
+        "textures": 16,
+        "mergedBytes": 4100016,
+        "dark": 55545,
+        "lit": 88855,
+        "occluded": 27425,
+        "total": 116280,
+        "lighting": {
+          "samples": 12,
+          "occluders": 840,
+          "uniqueVertices": 38027,
+          "vertices": 116280,
+          "attributeBytes": 232560,
+          "cacheHit": true
+        }
+      },
+      {
+        "cycle": 2,
+        "theme": "chromatic-lab",
+        "buildMs": 285,
+        "triangles": 40898,
+        "batches": 22,
+        "cachedGeometries": 228,
+        "textures": 16,
+        "mergedBytes": 4160040,
+        "dark": 55567,
+        "lit": 89598,
+        "occluded": 27318,
+        "total": 116916,
+        "lighting": {
+          "samples": 12,
+          "occluders": 831,
+          "uniqueVertices": 38079,
+          "vertices": 116916,
+          "attributeBytes": 233832,
+          "cacheHit": true
+        }
+      },
+      {
+        "cycle": 2,
+        "theme": "archive-zero",
+        "buildMs": 298,
+        "triangles": 40286,
+        "batches": 19,
+        "cachedGeometries": 228,
+        "textures": 16,
+        "mergedBytes": 4100016,
+        "dark": 55545,
+        "lit": 88855,
+        "occluded": 27425,
+        "total": 116280,
+        "lighting": {
+          "samples": 12,
+          "occluders": 840,
+          "uniqueVertices": 38027,
+          "vertices": 116280,
+          "attributeBytes": 232560,
+          "cacheHit": true
+        }
+      }
+    ],
+    "disposeCounts": [
+      {
+        "oldMeshes": 0,
+        "disposed": 0
+      },
+      {
+        "oldMeshes": 19,
+        "disposed": 19
+      },
+      {
+        "oldMeshes": 19,
+        "disposed": 19
+      },
+      {
+        "oldMeshes": 22,
+        "disposed": 22
+      },
+      {
+        "oldMeshes": 19,
+        "disposed": 19
+      },
+      {
+        "oldMeshes": 19,
+        "disposed": 19
+      },
+      {
+        "oldMeshes": 19,
+        "disposed": 19
+      },
+      {
+        "oldMeshes": 22,
+        "disposed": 22
+      },
+      {
+        "oldMeshes": 19,
+        "disposed": 19
+      },
+      {
+        "oldMeshes": 19,
+        "disposed": 19
+      },
+      {
+        "oldMeshes": 19,
+        "disposed": 19
+      },
+      {
+        "oldMeshes": 22,
+        "disposed": 22
+      }
+    ]
+  },
+  "sourceSha256": "48521c084b27ed7f9b86698b6a463d43f904b742388759bb5cba5b8a365bf494"
+}

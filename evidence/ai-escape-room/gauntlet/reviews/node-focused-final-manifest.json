@@ -1,0 +1,17 @@
+{
+  "time": "2026-10-30T20:48:33.819610+00:00",
+  "command": "node --test --test-isolation=none tests/escape-room/gauntlet-public-contract.test.cjs tests/escape-room/gauntlet-server.test.cjs tests/escape-room/gauntlet-renderer-lifecycle.test.cjs tests/escape-room/gauntlet-escape-transition.test.cjs",
+  "result": {
+    "assertions": 12,
+    "passed": 12,
+    "failed": 0
+  },
+  "sourceManifest": "integration-source-manifest-round04-resource.json",
+  "testHashes": {
+    "tests/escape-room/gauntlet-escape-transition.test.cjs": "e720bdbc1edfb8f9d38f636002038580454b1a4dd98ecc567c97251f33ca3339",
+    "tests/escape-room/gauntlet-overview-framing.test.cjs": "dca55d6f4e273d82c799709f9eb8aefca89c34d5cd04f5ed108b3f1f601d8f2c",
+    "tests/escape-room/gauntlet-public-contract.test.cjs": "ebcb7e8de1a5eade798b752adf0214fe0a2b7e424d198c2093a68c70057716f4",
+    "tests/escape-room/gauntlet-renderer-lifecycle.test.cjs": "3540790102fbe0189f70b534f18d9a599ed6ed69ca9707396d108bfdf3150cde",
+    "tests/escape-room/gauntlet-server.test.cjs": "1eca0dd0d52bd2781bfbeecd168c2407a2e0c9ea2d8048bfc69a2d410d846cd7"
+  }
+}

@@ -1,0 +1,139 @@
+(node:5) [THREE_CJS_DEPRECATED] DeprecationWarning: `require("three")` is deprecated and will be removed.
+Replace `const THREE = require("three")` with `import * as THREE from "three"`.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+TAP version 13
+# Subtest: real eleven and twelve puzzle rooms reserve draw-call headroom for scenery, actor, hazards and effects
+ok 1 - real eleven and twelve puzzle rooms reserve draw-call headroom for scenery, actor, hazards and effects
+  ---
+  duration_ms: 569.046333
+  type: 'test'
+  ...
+# Subtest: shared submissions preserve every stable world-space position, normal, UV and material
+ok 2 - shared submissions preserve every stable world-space position, normal, UV and material
+  ---
+  duration_ms: 1931.56577
+  type: 'test'
+  ...
+# Subtest: inspection retains the original complete object bounds and picking uses the retained meshes
+ok 3 - inspection retains the original complete object bounds and picking uses the retained meshes
+  ---
+  duration_ms: 464.088205
+  type: 'test'
+  ...
+# Subtest: mechanism articulation and the full final vault keep following the opening exit
+ok 4 - mechanism articulation and the full final vault keep following the opening exit
+  ---
+  duration_ms: 1380.113099
+  type: 'test'
+  ...
+# Subtest: rebuild and disposal release every shared batch and instance exactly once without disposing pooled mechanism geometry
+ok 5 - rebuild and disposal release every shared batch and instance exactly once without disposing pooled mechanism geometry
+  ---
+  duration_ms: 501.163355
+  type: 'test'
+  ...
+# Subtest: the physical exit stays open through the actual successful intermission and is closed before the exit action
+ok 6 - the physical exit stays open through the actual successful intermission and is closed before the exit action
+  ---
+  duration_ms: 44.849571
+  type: 'test'
+  ...
+# Subtest: inspection keeps complete real mechanism above the HUD at 1256x862
+ok 7 - inspection keeps complete real mechanism above the HUD at 1256x862
+  ---
+  duration_ms: 74.960429
+  type: 'test'
+  ...
+# Subtest: inspection keeps complete real mechanism above the HUD at 364x576
+ok 8 - inspection keeps complete real mechanism above the HUD at 364x576
+  ---
+  duration_ms: 82.259126
+  type: 'test'
+  ...
+# Subtest: inspection exposes the side of the physical housing instead of a frontal elevation
+ok 9 - inspection exposes the side of the physical housing instead of a frontal elevation
+  ---
+  duration_ms: 66.570758
+  type: 'test'
+  ...
+# Subtest: all eight real mechanism families fit desktop and portrait across solved states and wall placements without mutating public objects
+ok 10 - all eight real mechanism families fit desktop and portrait across solved states and wall placements without mutating public objects
+  ---
+  duration_ms: 1031.75991
+  type: 'test'
+  ...
+# Subtest: an already inspected mechanism stays clear of the HUD after a portrait resize
+ok 11 - an already inspected mechanism stays clear of the HUD after a portrait resize
+  ---
+  duration_ms: 80.871372
+  type: 'test'
+  ...
+# Subtest: portrait inspection reserves the danger caption area before the hazard appears
+ok 12 - portrait inspection reserves the danger caption area before the hazard appears
+  ---
+  duration_ms: 80.564517
+  type: 'test'
+  ...
+# Subtest: desktop overview contains the complete actor at both wall workstations
+ok 13 - desktop overview contains the complete actor at both wall workstations
+  ---
+  duration_ms: 59.809335
+  type: 'test'
+  ...
+# Subtest: the real room renderer exposes an explicit disposal lifecycle for its owned resources
+ok 14 - the real room renderer exposes an explicit disposal lifecycle for its owned resources
+  ---
+  duration_ms: 1.473743
+  type: 'test'
+  ...
+# Subtest: every mechanism has a distinct physical artifact and isolated articulation
+ok 15 - every mechanism has a distinct physical artifact and isolated articulation
+  ---
+  duration_ms: 88.472509
+  type: 'test'
+  ...
+# Subtest: all solved poses mechanically differ from closed poses and finish immediately in reduced motion
+ok 16 - all solved poses mechanically differ from closed poses and finish immediately in reduced motion
+  ---
+  duration_ms: 145.54013
+  type: 'test'
+  ...
+# Subtest: copied presentation motion interpolates to authoritative solved state without changing object data
+ok 17 - copied presentation motion interpolates to authoritative solved state without changing object data
+  ---
+  duration_ms: 31.189524
+  type: 'test'
+  ...
+# Subtest: public clue, tool, and decoy geometry accepts absent optional placement safely
+ok 18 - public clue, tool, and decoy geometry accepts absent optional placement safely
+  ---
+  duration_ms: 3.679055
+  type: 'test'
+  ...
+# Subtest: vault pinions counter-rotate at the drive ratio and remain deterministic across presentation clocks
+ok 19 - vault pinions counter-rotate at the drive ratio and remain deterministic across presentation clocks
+  ---
+  duration_ms: 43.609786
+  type: 'test'
+  ...
+# Subtest: vault drawbars stay attached to their fixed pivot and moving bolt through the full opening travel
+ok 20 - vault drawbars stay attached to their fixed pivot and moving bolt through the full opening travel
+  ---
+  duration_ms: 26.890083
+  type: 'test'
+  ...
+# Subtest: batched vault resources stay inside the room allocation and reuse shared materials on rebuild
+ok 21 - batched vault resources stay inside the room allocation and reuse shared materials on rebuild
+  ---
+  duration_ms: 201.041022
+  type: 'test'
+  ...
+1..21
+# tests 21
+# suites 0
+# pass 21
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 7200.382974

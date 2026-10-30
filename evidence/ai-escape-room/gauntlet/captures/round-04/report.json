@@ -1,0 +1,251 @@
+{
+  "label": "round-04",
+  "date": "2026-10-30T20:47:45.383Z",
+  "captureMode": "Real production snapshots; reduced-motion poses; real frame method with RAF paused for still capture; low quality tier; Chromium SwiftShader WebGL; FPS deliberately not measured",
+  "engineResult": {
+    "kind": "game",
+    "reason": "escape",
+    "tick": 25,
+    "roomIndex": 1,
+    "score": 5240,
+    "solvedPuzzles": 8
+  },
+  "ending": {
+    "tick": 25,
+    "scene": "result",
+    "progress": {
+      "solvedPuzzles": 8,
+      "totalPuzzles": 8,
+      "permille": 1000,
+      "currentStage": 8
+    }
+  },
+  "room": {
+    "renderer": "three-physical-room-v2",
+    "engine": "three",
+    "threeRevision": "186",
+    "webgl": true,
+    "roomSurfaces": 5,
+    "physicalProps": 1131,
+    "materialFamilies": 18,
+    "visibleClues": 4,
+    "visibleMechanisms": 8,
+    "exitPresent": true,
+    "mechanismVariants": 8,
+    "meshFamilies": 18,
+    "character": {
+      "identity": "archivist-a07",
+      "state": "waiting",
+      "meshCount": 39,
+      "triangles": 12526,
+      "geometryCount": 27,
+      "materialCount": 12,
+      "textureCount": 3,
+      "articulatedJoints": 17,
+      "reducedMotion": true,
+      "disposed": false
+    },
+    "scenery": {
+      "style": "crafted-archive",
+      "details": 1112,
+      "materialBatches": 18,
+      "textureCount": 16
+    },
+    "themedDressing": 64,
+    "hazardVisuals": 0,
+    "cameraPosition": [
+      0,
+      3.65,
+      8.9
+    ],
+    "cameraLook": [
+      0,
+      1.55,
+      -2.1
+    ],
+    "cameraTarget": [
+      0,
+      3.65,
+      8.9
+    ],
+    "cameraSettled": true,
+    "characterPosition": [
+      4.720000000000001,
+      1.85,
+      2
+    ],
+    "cameraMode": "room",
+    "inspectObjectId": null,
+    "drawCalls": 170,
+    "triangles": 111128,
+    "activeLights": 4,
+    "shadowMode": "disabled-quality-tier",
+    "particleCount": 18,
+    "qualityTier": "low",
+    "adaptiveQuality": true,
+    "rendererMemoryModel": "shared cached geometry + shared PBR materials + bounded dynamic groups",
+    "inspectSurface": null,
+    "cameraWithinBounds": false,
+    "inspectTargetVisible": false,
+    "cameraTargetDistance": null,
+    "cameraClearance": -4.2,
+    "cameraRig": "bounded-surface-aware-v1"
+  },
+  "detail": {
+    "renderer": "three-physical-room-v2",
+    "engine": "three",
+    "threeRevision": "186",
+    "webgl": true,
+    "roomSurfaces": 5,
+    "physicalProps": 1131,
+    "materialFamilies": 18,
+    "visibleClues": 4,
+    "visibleMechanisms": 8,
+    "exitPresent": true,
+    "mechanismVariants": 8,
+    "meshFamilies": 18,
+    "character": {
+      "identity": "archivist-a07",
+      "state": "waiting",
+      "meshCount": 39,
+      "triangles": 12526,
+      "geometryCount": 27,
+      "materialCount": 12,
+      "textureCount": 3,
+      "articulatedJoints": 17,
+      "reducedMotion": true,
+      "disposed": false
+    },
+    "scenery": {
+      "style": "crafted-archive",
+      "details": 1112,
+      "materialBatches": 18,
+      "textureCount": 16
+    },
+    "themedDressing": 64,
+    "hazardVisuals": 0,
+    "cameraPosition": [
+      0.16814330570624164,
+      2.5203582642656044,
+      -3.87820867867198
+    ],
+    "cameraLook": [
+      0,
+      2.15,
+      -5.98
+    ],
+    "cameraTarget": [
+      0.16814330570624164,
+      2.5203582642656044,
+      -3.87820867867198
+    ],
+    "cameraSettled": true,
+    "characterPosition": [
+      4.720000000000001,
+      1.85,
+      2
+    ],
+    "cameraMode": "inspect",
+    "inspectObjectId": "final-vault",
+    "drawCalls": 34,
+    "triangles": 60342,
+    "activeLights": 4,
+    "shadowMode": "disabled-quality-tier",
+    "particleCount": 18,
+    "qualityTier": "low",
+    "adaptiveQuality": true,
+    "rendererMemoryModel": "shared cached geometry + shared PBR materials + bounded dynamic groups",
+    "inspectSurface": "back-wall",
+    "cameraWithinBounds": true,
+    "inspectTargetVisible": true,
+    "cameraTargetDistance": 2.15,
+    "cameraClearance": 1.92,
+    "cameraRig": "bounded-surface-aware-v1"
+  },
+  "result": {
+    "renderer": "three-physical-room-v2",
+    "engine": "three",
+    "threeRevision": "186",
+    "webgl": true,
+    "roomSurfaces": 5,
+    "physicalProps": 1131,
+    "materialFamilies": 18,
+    "visibleClues": 5,
+    "visibleMechanisms": 8,
+    "exitPresent": true,
+    "mechanismVariants": 8,
+    "meshFamilies": 18,
+    "character": {
+      "identity": "archivist-a07",
+      "state": "celebrating",
+      "meshCount": 39,
+      "triangles": 12526,
+      "geometryCount": 27,
+      "materialCount": 12,
+      "textureCount": 3,
+      "articulatedJoints": 17,
+      "reducedMotion": true,
+      "disposed": false
+    },
+    "scenery": {
+      "style": "crafted-archive",
+      "details": 1112,
+      "materialBatches": 18,
+      "textureCount": 16
+    },
+    "themedDressing": 64,
+    "hazardVisuals": 2,
+    "cameraPosition": [
+      0,
+      3.65,
+      8.9
+    ],
+    "cameraLook": [
+      0,
+      1.55,
+      -2.1
+    ],
+    "cameraTarget": [
+      0,
+      3.65,
+      8.9
+    ],
+    "cameraSettled": true,
+    "characterPosition": [
+      0,
+      1.85,
+      -5.1
+    ],
+    "cameraMode": "room",
+    "inspectObjectId": null,
+    "drawCalls": 180,
+    "triangles": 113612,
+    "activeLights": 4,
+    "shadowMode": "disabled-quality-tier",
+    "particleCount": 18,
+    "qualityTier": "low",
+    "adaptiveQuality": true,
+    "rendererMemoryModel": "shared cached geometry + shared PBR materials + bounded dynamic groups",
+    "inspectSurface": null,
+    "cameraWithinBounds": false,
+    "inspectTargetVisible": false,
+    "cameraTargetDistance": null,
+    "cameraClearance": -4.2,
+    "cameraRig": "bounded-surface-aware-v1"
+  },
+  "mobile": {
+    "viewport": 390,
+    "scrollWidth": 390,
+    "canvas": {
+      "x": 13,
+      "y": 92,
+      "width": 364,
+      "height": 578,
+      "top": 92,
+      "right": 377,
+      "bottom": 670,
+      "left": 13
+    }
+  },
+  "errors": []
+}

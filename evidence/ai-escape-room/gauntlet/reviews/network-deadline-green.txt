@@ -1,0 +1,11 @@
+✔ completed state transfer survives a renderer-delayed JSON continuation (5.745276ms)
+✔ an incomplete state transfer remains bounded by the network deadline (3.646869ms)
+✔ unrelated and earlier completed responses cannot exempt a stuck request (2.188737ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 154.835629

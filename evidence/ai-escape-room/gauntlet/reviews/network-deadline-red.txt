@@ -1,0 +1,30 @@
+✖ completed state transfer survives a renderer-delayed JSON continuation (8.043355ms)
+✔ an incomplete state transfer remains bounded by the network deadline (3.260117ms)
+✔ unrelated and earlier completed responses cannot exempt a stuck request (1.674843ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 2
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 236.836641
+
+✖ failing tests:
+
+test at tests/escape-room/gauntlet-network-deadline.test.cjs:38:1
+✖ completed state transfer survives a renderer-delayed JSON continuation (8.043355ms)
+  AssertionError [ERR_ASSERTION]: a fully transferred response must not be aborted while main-thread JSON consumption is delayed
+  
+  true !== false
+  
+      at TestContext.<anonymous> (/workspace/scratch/4b9cf76baf7a/ai-escape-room/tests/escape-room/gauntlet-network-deadline.test.cjs:40:10)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: true,
+    expected: false,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

@@ -1,0 +1,317 @@
+[
+  {
+    "scenario": "created",
+    "state": "scanning",
+    "triangles": 12526,
+    "batches": [
+      61,
+      39
+    ],
+    "colorCalls": [
+      62,
+      40
+    ],
+    "visibleGeometryCount": [
+      19,
+      20
+    ],
+    "visibleGeometryBytes": [
+      134796,
+      224036
+    ],
+    "ownedGeometryCount": [
+      19,
+      27
+    ],
+    "bounds": [
+      -0.5509999999999999,
+      1.0199999994039537,
+      1.3374999940395356,
+      0.5509999999999999,
+      2.78,
+      2.1680000007152556
+    ],
+    "largestSurfaceDifference": 2.7415601677738266e-8,
+    "largestBoundsDifference": 5.9604645663569045e-9
+  },
+  {
+    "scenario": "idle",
+    "state": "scanning",
+    "triangles": 12526,
+    "batches": [
+      61,
+      39
+    ],
+    "colorCalls": [
+      62,
+      40
+    ],
+    "visibleGeometryCount": [
+      19,
+      20
+    ],
+    "visibleGeometryBytes": [
+      134796,
+      224036
+    ],
+    "ownedGeometryCount": [
+      19,
+      27
+    ],
+    "bounds": [
+      -0.5956205282034255,
+      1.041687026210193,
+      1.3374999940395356,
+      0.6113100772152524,
+      2.7985845992667477,
+      2.1680000007152556
+    ],
+    "largestSurfaceDifference": 2.77157334860334e-8,
+    "largestBoundsDifference": 5.9604645663569045e-9
+  },
+  {
+    "scenario": "travelling",
+    "state": "travelling",
+    "triangles": 12526,
+    "batches": [
+      61,
+      39
+    ],
+    "colorCalls": [
+      62,
+      40
+    ],
+    "visibleGeometryCount": [
+      19,
+      20
+    ],
+    "visibleGeometryBytes": [
+      134796,
+      224036
+    ],
+    "ownedGeometryCount": [
+      19,
+      27
+    ],
+    "bounds": [
+      -4.183610770526363,
+      1.0090596008689652,
+      -2.659509037288119,
+      -3.1132534090807167,
+      2.7650948944772473,
+      -1.7151930644208242
+    ],
+    "largestSurfaceDifference": 2.8647718322560856e-8,
+    "largestBoundsDifference": 5.6950402171906944e-9
+  },
+  {
+    "scenario": "inspecting",
+    "state": "inspecting",
+    "triangles": 12526,
+    "batches": [
+      61,
+      39
+    ],
+    "colorCalls": [
+      62,
+      40
+    ],
+    "visibleGeometryCount": [
+      19,
+      20
+    ],
+    "visibleGeometryBytes": [
+      134796,
+      224036
+    ],
+    "ownedGeometryCount": [
+      19,
+      27
+    ],
+    "bounds": [
+      -4.267158319231701,
+      1.0231231821724494,
+      -2.697605365833733,
+      -3.1488392811475734,
+      2.7817618418541077,
+      -1.7591845685702432
+    ],
+    "largestSurfaceDifference": 2.8891921757812078e-8,
+    "largestBoundsDifference": 5.705687478041455e-9
+  },
+  {
+    "scenario": "solving",
+    "state": "solving",
+    "triangles": 12526,
+    "batches": [
+      61,
+      39
+    ],
+    "colorCalls": [
+      62,
+      40
+    ],
+    "visibleGeometryCount": [
+      19,
+      20
+    ],
+    "visibleGeometryBytes": [
+      134796,
+      224036
+    ],
+    "ownedGeometryCount": [
+      19,
+      27
+    ],
+    "bounds": [
+      -4.321958610197052,
+      1.0437145292977021,
+      -2.732274893824608,
+      -3.208126139382106,
+      2.8061064265718625,
+      -1.8025910319749532
+    ],
+    "largestSurfaceDifference": 2.916425786980703e-8,
+    "largestBoundsDifference": 5.706941808014676e-9
+  },
+  {
+    "scenario": "alert",
+    "state": "alert",
+    "triangles": 12526,
+    "batches": [
+      61,
+      39
+    ],
+    "colorCalls": [
+      62,
+      40
+    ],
+    "visibleGeometryCount": [
+      19,
+      20
+    ],
+    "visibleGeometryBytes": [
+      134796,
+      224036
+    ],
+    "ownedGeometryCount": [
+      19,
+      27
+    ],
+    "bounds": [
+      -4.373391195282951,
+      0.9999134211900955,
+      -2.7703012620026333,
+      -3.240230003085126,
+      2.765932964841849,
+      -1.8434861741250925
+    ],
+    "largestSurfaceDifference": 2.918264502271839e-8,
+    "largestBoundsDifference": 5.727327945237448e-9
+  },
+  {
+    "scenario": "celebrating",
+    "state": "celebrating",
+    "triangles": 12526,
+    "batches": [
+      61,
+      39
+    ],
+    "colorCalls": [
+      62,
+      40
+    ],
+    "visibleGeometryCount": [
+      19,
+      20
+    ],
+    "visibleGeometryBytes": [
+      134796,
+      224036
+    ],
+    "ownedGeometryCount": [
+      19,
+      27
+    ],
+    "bounds": [
+      -4.343098140019839,
+      1.022371466239221,
+      -2.809661484902853,
+      -3.317470463953338,
+      2.781925280488057,
+      -1.8823066172700353
+    ],
+    "largestSurfaceDifference": 2.906108664824103e-8,
+    "largestBoundsDifference": 5.760738108762098e-9
+  },
+  {
+    "scenario": "recovering",
+    "state": "recovering",
+    "triangles": 12526,
+    "batches": [
+      61,
+      39
+    ],
+    "colorCalls": [
+      62,
+      40
+    ],
+    "visibleGeometryCount": [
+      19,
+      20
+    ],
+    "visibleGeometryBytes": [
+      134796,
+      224036
+    ],
+    "ownedGeometryCount": [
+      19,
+      27
+    ],
+    "bounds": [
+      -4.205749864609733,
+      1.0425275359969148,
+      -2.691125333069395,
+      -3.2421111383781835,
+      2.8009014774922636,
+      -1.7772624882107348
+    ],
+    "largestSurfaceDifference": 2.8287098045864933e-8,
+    "largestBoundsDifference": 6.267072194532375e-9
+  },
+  {
+    "scenario": "reduced-motion",
+    "state": "inspecting",
+    "triangles": 12526,
+    "batches": [
+      61,
+      39
+    ],
+    "colorCalls": [
+      62,
+      40
+    ],
+    "visibleGeometryCount": [
+      19,
+      20
+    ],
+    "visibleGeometryBytes": [
+      134796,
+      224036
+    ],
+    "ownedGeometryCount": [
+      19,
+      27
+    ],
+    "bounds": [
+      -5.50962740038261,
+      1.0199999994039537,
+      -4.557652842421697,
+      -4.53455957667823,
+      2.7891018247792894,
+      -3.2516904131622506
+    ],
+    "largestSurfaceDifference": 2.9514163779609248e-8,
+    "largestBoundsDifference": 5.50465095727759e-9
+  }
+]

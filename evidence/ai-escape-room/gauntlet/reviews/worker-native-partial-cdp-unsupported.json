@@ -1,0 +1,455 @@
+{
+  "started": "2026-10-30T21:38:28.590Z",
+  "sourceBefore": {
+    "public/ai-escape-room/app.js": "bffac0ff7c775c6e2984624a58ac276f69f06c7e1cce8c9b7ad06b8572386c69",
+    "public/ai-escape-room/network.js": "9548ed81b84c17dae7315d45561df80a11e170d24d0c90e37526135dcc87db20",
+    "public/ai-escape-room/state-worker.js": "a8185b01a99562da45fc5213aec721d666ee7204cf6b939149c2a85dc2d773e6",
+    "public/ai-escape-room/bootstrap.js": "a90df5ee6e69ba2ed66bf59f43a8f37e458a0919ff844a70195ca38fe97ac674",
+    "public/ai-escape-room/room3d.js": "eaa881f1e82874fd47e973576fd0839a72f633ef5dea8663f3558bb66aaf130b",
+    "public/ai-escape-room/scenery3d.js": "48521c084b27ed7f9b86698b6a463d43f904b742388759bb5cba5b8a365bf494",
+    "public/ai-escape-room/mechanisms3d.js": "8648cdbe0c8b6664862e266c140fd69fff059d8151cb15cd9efc2e87aca7b7c6",
+    "public/ai-escape-room/archivist3d.js": "9c35ccae91ca8e7ec9228774888255a28b161fceb3092c8f7c4509e6faf4270f",
+    "scripts/serve-escape-room-stream.cjs": "69e31a00cae3c23b7d5c511205d80e2b62d6806c43a9023dc38792ecff4e064a"
+  },
+  "browser": "Chromium / ANGLE SwiftShader WebGL",
+  "viewport": {
+    "width": 1920,
+    "height": 1080
+  },
+  "stallMs": 2600,
+  "console": [
+    {
+      "at": 1793396310837,
+      "type": "warning",
+      "text": "THREE.WebGLShadowMap: PCFSoftShadowMap has been removed. Using PCFShadowMap instead."
+    },
+    {
+      "at": 1793396313038,
+      "type": "warning",
+      "text": "[.WebGL-0x39fc01f0e300]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels"
+    },
+    {
+      "at": 1793396314093,
+      "type": "warning",
+      "text": "[.WebGL-0x39fc01f0e300]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels"
+    },
+    {
+      "at": 1793396315420,
+      "type": "warning",
+      "text": "[.WebGL-0x39fc01f0e300]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels"
+    },
+    {
+      "at": 1793396319024,
+      "type": "warning",
+      "text": "[.WebGL-0x39fc01f0e300]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)"
+    }
+  ],
+  "checks": {
+    "realWorkerHandshake": true,
+    "completedBodySurvivesMainStall": true
+  },
+  "initial": {
+    "network": {
+      "transport": "worker",
+      "reason": null,
+      "deadlineMs": 1800,
+      "startupDeadlineMs": 5000,
+      "inFlight": 1,
+      "workerStarts": 1,
+      "disposed": false
+    },
+    "public": {
+      "runToken": "1235f895",
+      "tick": 12
+    },
+    "mainEvents": [
+      {
+        "at": 1793396310759.2002,
+        "event": "worker-created",
+        "url": "/escape-room/state-worker.js",
+        "name": "escape-room-state"
+      },
+      {
+        "at": 1793396315384.6,
+        "event": "received",
+        "type": "ready"
+      },
+      {
+        "at": 1793396315384.7002,
+        "event": "sent",
+        "type": "poll",
+        "id": 1
+      },
+      {
+        "at": 1793396316285.2002,
+        "event": "received",
+        "type": "state",
+        "id": 1,
+        "tick": 56,
+        "runToken": "3bbffd31"
+      },
+      {
+        "at": 1793396319022.7002,
+        "event": "sent",
+        "type": "poll",
+        "id": 2
+      },
+      {
+        "at": 1793396320463.7002,
+        "event": "received",
+        "type": "state",
+        "id": 2,
+        "tick": 12,
+        "runToken": "1235f895"
+      },
+      {
+        "at": 1793396326785.2002,
+        "event": "sent",
+        "type": "poll",
+        "id": 3
+      }
+    ]
+  },
+  "stall": {
+    "start": {
+      "at": 1793396338666.3,
+      "event": "stall-start",
+      "id": 5
+    },
+    "end": {
+      "at": 1793396341279,
+      "event": "stall-end",
+      "id": 5
+    },
+    "delivery": {
+      "at": 1793396344376.8,
+      "event": "received",
+      "type": "state",
+      "id": 5,
+      "tick": 23,
+      "runToken": "0a72ae8a"
+    },
+    "workerEvents": [
+      {
+        "at": 1793396338666.7,
+        "event": "received",
+        "type": "poll",
+        "id": 5
+      },
+      {
+        "at": 1793396338666.9,
+        "event": "deadline-armed",
+        "id": 5,
+        "delay": 1800
+      },
+      {
+        "at": 1793396338666.9,
+        "event": "fetch-start",
+        "id": 5,
+        "url": "http://127.0.0.1:4177/escape-room/state?w=1920&h=1080&reducedMotion=0&cleanFeed=0&muted=0"
+      },
+      {
+        "at": 1793396338679.4,
+        "event": "headers",
+        "id": 5,
+        "status": 200
+      },
+      {
+        "at": 1793396338679.4,
+        "event": "native-body-start",
+        "id": 5
+      },
+      {
+        "at": 1793396338680.4,
+        "event": "body-complete",
+        "id": 5,
+        "tick": 23,
+        "runToken": "0a72ae8a"
+      },
+      {
+        "at": 1793396338680.4,
+        "event": "deadline-cleared",
+        "id": 5
+      },
+      {
+        "at": 1793396338680.5,
+        "event": "posted",
+        "type": "state",
+        "id": 5,
+        "tick": 23,
+        "runToken": "0a72ae8a"
+      }
+    ],
+    "deliveryAfterBodyMs": 5696.400146484375
+  },
+  "error": "Error: {\"code\":-32000,\"message\":\"Not supported\"}\n    at CDPSession.<anonymous> (/workspace/scratch/4b9cf76baf7a/ai-escape-room/evidence/ai-escape-room/gauntlet/reviews/worker-native-probe.cjs:92:281)\n    at CDPSession._callHandler (/workspace/scratch/4b9cf76baf7a/ai-escape-room/node_modules/playwright-core/lib/client/eventEmitter.js:66:29)\n    at CDPSession.emit (/workspace/scratch/4b9cf76baf7a/ai-escape-room/node_modules/playwright-core/lib/client/eventEmitter.js:56:12)\n    at Proxy.<anonymous> (/workspace/scratch/4b9cf76baf7a/ai-escape-room/node_modules/playwright-core/lib/client/cdpSession.js:32:12)\n    at Proxy._callHandler (/workspace/scratch/4b9cf76baf7a/ai-escape-room/node_modules/playwright-core/lib/client/eventEmitter.js:66:29)\n    at Proxy.emit (/workspace/scratch/4b9cf76baf7a/ai-escape-room/node_modules/playwright-core/lib/client/eventEmitter.js:56:12)\n    at Connection.dispatch (/workspace/scratch/4b9cf76baf7a/ai-escape-room/node_modules/playwright-core/lib/client/connection.js:175:21)\n    at Immediate.<anonymous> (/workspace/scratch/4b9cf76baf7a/ai-escape-room/node_modules/playwright-core/lib/inProcessFactory.js:48:85)\n    at process.processImmediate (node:internal/timers:574:21)",
+  "workerEvents": [
+    {
+      "at": 1793396334780.6,
+      "event": "received",
+      "type": "poll",
+      "id": 4
+    },
+    {
+      "at": 1793396334780.8,
+      "event": "deadline-armed",
+      "id": 4,
+      "delay": 1800
+    },
+    {
+      "at": 1793396334780.9,
+      "event": "fetch-start",
+      "id": 4,
+      "url": "http://127.0.0.1:4177/escape-room/state?w=1920&h=1080&reducedMotion=0&cleanFeed=0&muted=0"
+    },
+    {
+      "at": 1793396334811.3,
+      "event": "headers",
+      "id": 4,
+      "status": 200
+    },
+    {
+      "at": 1793396334811.4,
+      "event": "native-body-start",
+      "id": 4
+    },
+    {
+      "at": 1793396334823.5,
+      "event": "body-complete",
+      "id": 4,
+      "tick": 69,
+      "runToken": "04a1c456"
+    },
+    {
+      "at": 1793396334823.6,
+      "event": "deadline-cleared",
+      "id": 4
+    },
+    {
+      "at": 1793396334823.6,
+      "event": "posted",
+      "type": "state",
+      "id": 4,
+      "tick": 69,
+      "runToken": "04a1c456"
+    },
+    {
+      "at": 1793396338666.7,
+      "event": "received",
+      "type": "poll",
+      "id": 5
+    },
+    {
+      "at": 1793396338666.9,
+      "event": "deadline-armed",
+      "id": 5,
+      "delay": 1800
+    },
+    {
+      "at": 1793396338666.9,
+      "event": "fetch-start",
+      "id": 5,
+      "url": "http://127.0.0.1:4177/escape-room/state?w=1920&h=1080&reducedMotion=0&cleanFeed=0&muted=0"
+    },
+    {
+      "at": 1793396338679.4,
+      "event": "headers",
+      "id": 5,
+      "status": 200
+    },
+    {
+      "at": 1793396338679.4,
+      "event": "native-body-start",
+      "id": 5
+    },
+    {
+      "at": 1793396338680.4,
+      "event": "body-complete",
+      "id": 5,
+      "tick": 23,
+      "runToken": "0a72ae8a"
+    },
+    {
+      "at": 1793396338680.4,
+      "event": "deadline-cleared",
+      "id": 5
+    },
+    {
+      "at": 1793396338680.5,
+      "event": "posted",
+      "type": "state",
+      "id": 5,
+      "tick": 23,
+      "runToken": "0a72ae8a"
+    },
+    {
+      "at": 1793396348091.2,
+      "event": "received",
+      "type": "poll",
+      "id": 6
+    },
+    {
+      "at": 1793396348091.3,
+      "event": "deadline-armed",
+      "id": 6,
+      "delay": 1800
+    },
+    {
+      "at": 1793396348091.4,
+      "event": "fetch-start",
+      "id": 6,
+      "url": "http://127.0.0.1:4177/escape-room/state?w=1920&h=1080&reducedMotion=0&cleanFeed=0&muted=0"
+    },
+    {
+      "at": 1793396348105.3,
+      "event": "headers",
+      "id": 6,
+      "status": 200
+    },
+    {
+      "at": 1793396348105.3,
+      "event": "native-body-start",
+      "id": 6
+    },
+    {
+      "at": 1793396348106.9,
+      "event": "body-complete",
+      "id": 6,
+      "tick": 27,
+      "runToken": "de668910"
+    },
+    {
+      "at": 1793396348106.9,
+      "event": "deadline-cleared",
+      "id": 6
+    },
+    {
+      "at": 1793396348106.9,
+      "event": "posted",
+      "type": "state",
+      "id": 6,
+      "tick": 27,
+      "runToken": "de668910"
+    }
+  ],
+  "mainEvents": [
+    {
+      "at": 1793396310759.2002,
+      "event": "worker-created",
+      "url": "/escape-room/state-worker.js",
+      "name": "escape-room-state"
+    },
+    {
+      "at": 1793396315384.6,
+      "event": "received",
+      "type": "ready"
+    },
+    {
+      "at": 1793396315384.7002,
+      "event": "sent",
+      "type": "poll",
+      "id": 1
+    },
+    {
+      "at": 1793396316285.2002,
+      "event": "received",
+      "type": "state",
+      "id": 1,
+      "tick": 56,
+      "runToken": "3bbffd31"
+    },
+    {
+      "at": 1793396319022.7002,
+      "event": "sent",
+      "type": "poll",
+      "id": 2
+    },
+    {
+      "at": 1793396320463.7002,
+      "event": "received",
+      "type": "state",
+      "id": 2,
+      "tick": 12,
+      "runToken": "1235f895"
+    },
+    {
+      "at": 1793396326785.2002,
+      "event": "sent",
+      "type": "poll",
+      "id": 3
+    },
+    {
+      "at": 1793396328508,
+      "event": "received",
+      "type": "state",
+      "id": 3,
+      "tick": 8,
+      "runToken": "04a1c456"
+    },
+    {
+      "at": 1793396334779.8,
+      "event": "sent",
+      "type": "poll",
+      "id": 4
+    },
+    {
+      "at": 1793396336415,
+      "event": "received",
+      "type": "state",
+      "id": 4,
+      "tick": 69,
+      "runToken": "04a1c456"
+    },
+    {
+      "at": 1793396338666.3,
+      "event": "sent",
+      "type": "poll",
+      "id": 5
+    },
+    {
+      "at": 1793396338666.3,
+      "event": "stall-start",
+      "id": 5
+    },
+    {
+      "at": 1793396341279,
+      "event": "stall-end",
+      "id": 5
+    },
+    {
+      "at": 1793396344376.8,
+      "event": "received",
+      "type": "state",
+      "id": 5,
+      "tick": 23,
+      "runToken": "0a72ae8a"
+    },
+    {
+      "at": 1793396348091,
+      "event": "sent",
+      "type": "poll",
+      "id": 6
+    },
+    {
+      "at": 1793396349567.8,
+      "event": "received",
+      "type": "state",
+      "id": 6,
+      "tick": 27,
+      "runToken": "de668910"
+    }
+  ],
+  "sourceAfter": {
+    "public/ai-escape-room/app.js": "bffac0ff7c775c6e2984624a58ac276f69f06c7e1cce8c9b7ad06b8572386c69",
+    "public/ai-escape-room/network.js": "9548ed81b84c17dae7315d45561df80a11e170d24d0c90e37526135dcc87db20",
+    "public/ai-escape-room/state-worker.js": "a8185b01a99562da45fc5213aec721d666ee7204cf6b939149c2a85dc2d773e6",
+    "public/ai-escape-room/bootstrap.js": "a90df5ee6e69ba2ed66bf59f43a8f37e458a0919ff844a70195ca38fe97ac674",
+    "public/ai-escape-room/room3d.js": "eaa881f1e82874fd47e973576fd0839a72f633ef5dea8663f3558bb66aaf130b",
+    "public/ai-escape-room/scenery3d.js": "48521c084b27ed7f9b86698b6a463d43f904b742388759bb5cba5b8a365bf494",
+    "public/ai-escape-room/mechanisms3d.js": "8648cdbe0c8b6664862e266c140fd69fff059d8151cb15cd9efc2e87aca7b7c6",
+    "public/ai-escape-room/archivist3d.js": "9c35ccae91ca8e7ec9228774888255a28b161fceb3092c8f7c4509e6faf4270f",
+    "scripts/serve-escape-room-stream.cjs": "69e31a00cae3c23b7d5c511205d80e2b62d6806c43a9023dc38792ecff4e064a"
+  },
+  "sourceUnchanged": true,
+  "finished": "2026-10-30T21:39:15.030Z"
+}

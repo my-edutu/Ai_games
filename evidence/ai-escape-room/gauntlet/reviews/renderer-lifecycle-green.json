@@ -1,0 +1,33 @@
+{
+  "before": {
+    "frame": 2,
+    "pick": 0,
+    "resize": 1,
+    "roomView": 0,
+    "observer": 1
+  },
+  "stopped": {
+    "frame": 2,
+    "pick": 0,
+    "resize": 1,
+    "roomView": 0,
+    "observer": 1
+  },
+  "after": {
+    "frame": 2,
+    "pick": 0,
+    "resize": 1,
+    "roomView": 0,
+    "observer": 1
+  },
+  "drawn": 87,
+  "retiredContext": true,
+  "sharedAssets": 20,
+  "disposedShared": 0,
+  "survivor": {
+    "contextLost": false,
+    "drawCalls": 87
+  },
+  "registeredListeners": 6,
+  "remainingListeners": []
+}

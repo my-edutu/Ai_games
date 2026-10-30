@@ -1,0 +1,22 @@
+✔ real eleven and twelve puzzle rooms reserve draw-call headroom for scenery, actor, hazards and effects (778.0328ms)
+✔ shared submissions preserve every stable world-space position, normal, UV and material (1375.344041ms)
+✔ inspection retains the original complete object bounds and picking uses the retained meshes (338.290597ms)
+✔ mechanism articulation and the full final vault keep following the opening exit (935.234806ms)
+✔ rebuild and disposal release every shared batch and instance exactly once without disposing pooled mechanism geometry (441.867092ms)
+(node:196299) [THREE_CJS_DEPRECATED] DeprecationWarning: `require("three")` is deprecated and will be removed.
+Replace `const THREE = require("three")` with `import * as THREE from "three"`.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+✔ inspection keeps complete real mechanism above the HUD at 1256x862 (162.364769ms)
+✔ inspection keeps complete real mechanism above the HUD at 364x576 (90.794176ms)
+✔ inspection exposes the side of the physical housing instead of a frontal elevation (82.107923ms)
+✔ all eight real mechanism families fit desktop and portrait across solved states and wall placements without mutating public objects (1240.01817ms)
+✔ an already inspected mechanism stays clear of the HUD after a portrait resize (75.942372ms)
+✔ portrait inspection reserves the danger caption area before the hazard appears (58.554622ms)
+ℹ tests 11
+ℹ suites 0
+ℹ pass 11
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4055.161175

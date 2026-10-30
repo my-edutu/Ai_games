@@ -1,0 +1,510 @@
+{
+  "method": "Scratch source route overrides, fixed actual production opening frame, all quality tiers, ten presentation theme rebuilds. SwiftShader; no native frame-rate claim.",
+  "firstFrameMs": 10488,
+  "quality": [
+    {
+      "renderer": "three-physical-room-v2",
+      "engine": "three",
+      "threeRevision": "186",
+      "webgl": true,
+      "roomSurfaces": 5,
+      "physicalProps": 1131,
+      "materialFamilies": 18,
+      "visibleClues": 4,
+      "visibleMechanisms": 8,
+      "exitPresent": true,
+      "mechanismVariants": 8,
+      "meshFamilies": 18,
+      "character": {
+        "identity": "archivist-a07",
+        "state": "waiting",
+        "meshCount": 39,
+        "triangles": 12526,
+        "geometryCount": 27,
+        "materialCount": 12,
+        "textureCount": 3,
+        "articulatedJoints": 17,
+        "reducedMotion": true,
+        "disposed": false
+      },
+      "scenery": {
+        "style": "crafted-archive",
+        "details": 1112,
+        "materialBatches": 19,
+        "textureCount": 16,
+        "lighting": {
+          "samples": 12,
+          "occluders": 840,
+          "uniqueVertices": 38027,
+          "vertices": 116280,
+          "attributeBytes": 232560,
+          "cacheHit": false
+        }
+      },
+      "themedDressing": 64,
+      "hazardVisuals": 0,
+      "cameraPosition": [
+        0,
+        3.65,
+        8.9
+      ],
+      "cameraLook": [
+        0,
+        1.55,
+        -2.1
+      ],
+      "cameraTarget": [
+        0,
+        3.65,
+        8.9
+      ],
+      "cameraSettled": true,
+      "characterPosition": [
+        4.720000000000001,
+        1.85,
+        2
+      ],
+      "cameraMode": "room",
+      "inspectObjectId": null,
+      "drawCalls": 171,
+      "triangles": 115832,
+      "activeLights": 4,
+      "shadowMode": "disabled-quality-tier",
+      "particleCount": 18,
+      "qualityTier": "low",
+      "adaptiveQuality": true,
+      "rendererMemoryModel": "shared cached geometry + shared PBR materials + bounded dynamic groups",
+      "inspectSurface": null,
+      "cameraWithinBounds": false,
+      "inspectTargetVisible": false,
+      "cameraTargetDistance": null,
+      "cameraClearance": -4.2,
+      "cameraRig": "bounded-surface-aware-v1"
+    },
+    {
+      "renderer": "three-physical-room-v2",
+      "engine": "three",
+      "threeRevision": "186",
+      "webgl": true,
+      "roomSurfaces": 5,
+      "physicalProps": 1131,
+      "materialFamilies": 18,
+      "visibleClues": 4,
+      "visibleMechanisms": 8,
+      "exitPresent": true,
+      "mechanismVariants": 8,
+      "meshFamilies": 18,
+      "character": {
+        "identity": "archivist-a07",
+        "state": "waiting",
+        "meshCount": 39,
+        "triangles": 12526,
+        "geometryCount": 27,
+        "materialCount": 12,
+        "textureCount": 3,
+        "articulatedJoints": 17,
+        "reducedMotion": true,
+        "disposed": false
+      },
+      "scenery": {
+        "style": "crafted-archive",
+        "details": 1112,
+        "materialBatches": 19,
+        "textureCount": 16,
+        "lighting": {
+          "samples": 12,
+          "occluders": 840,
+          "uniqueVertices": 38027,
+          "vertices": 116280,
+          "attributeBytes": 232560,
+          "cacheHit": false
+        }
+      },
+      "themedDressing": 64,
+      "hazardVisuals": 0,
+      "cameraPosition": [
+        0,
+        3.65,
+        8.9
+      ],
+      "cameraLook": [
+        0,
+        1.55,
+        -2.1
+      ],
+      "cameraTarget": [
+        0,
+        3.65,
+        8.9
+      ],
+      "cameraSettled": true,
+      "characterPosition": [
+        4.720000000000001,
+        1.85,
+        2
+      ],
+      "cameraMode": "room",
+      "inspectObjectId": null,
+      "drawCalls": 171,
+      "triangles": 115832,
+      "activeLights": 4,
+      "shadowMode": "disabled-quality-tier",
+      "particleCount": 36,
+      "qualityTier": "medium",
+      "adaptiveQuality": true,
+      "rendererMemoryModel": "shared cached geometry + shared PBR materials + bounded dynamic groups",
+      "inspectSurface": null,
+      "cameraWithinBounds": false,
+      "inspectTargetVisible": false,
+      "cameraTargetDistance": null,
+      "cameraClearance": -4.2,
+      "cameraRig": "bounded-surface-aware-v1"
+    },
+    {
+      "renderer": "three-physical-room-v2",
+      "engine": "three",
+      "threeRevision": "186",
+      "webgl": true,
+      "roomSurfaces": 5,
+      "physicalProps": 1131,
+      "materialFamilies": 18,
+      "visibleClues": 4,
+      "visibleMechanisms": 8,
+      "exitPresent": true,
+      "mechanismVariants": 8,
+      "meshFamilies": 18,
+      "character": {
+        "identity": "archivist-a07",
+        "state": "waiting",
+        "meshCount": 39,
+        "triangles": 12526,
+        "geometryCount": 27,
+        "materialCount": 12,
+        "textureCount": 3,
+        "articulatedJoints": 17,
+        "reducedMotion": true,
+        "disposed": false
+      },
+      "scenery": {
+        "style": "crafted-archive",
+        "details": 1112,
+        "materialBatches": 19,
+        "textureCount": 16,
+        "lighting": {
+          "samples": 12,
+          "occluders": 840,
+          "uniqueVertices": 38027,
+          "vertices": 116280,
+          "attributeBytes": 232560,
+          "cacheHit": false
+        }
+      },
+      "themedDressing": 64,
+      "hazardVisuals": 0,
+      "cameraPosition": [
+        0,
+        3.65,
+        8.9
+      ],
+      "cameraLook": [
+        0,
+        1.55,
+        -2.1
+      ],
+      "cameraTarget": [
+        0,
+        3.65,
+        8.9
+      ],
+      "cameraSettled": true,
+      "characterPosition": [
+        4.720000000000001,
+        1.85,
+        2
+      ],
+      "cameraMode": "room",
+      "inspectObjectId": null,
+      "drawCalls": 175,
+      "triangles": 118808,
+      "activeLights": 4,
+      "shadowMode": "bounded-pcf",
+      "particleCount": 54,
+      "qualityTier": "high",
+      "adaptiveQuality": true,
+      "rendererMemoryModel": "shared cached geometry + shared PBR materials + bounded dynamic groups",
+      "inspectSurface": null,
+      "cameraWithinBounds": false,
+      "inspectTargetVisible": false,
+      "cameraTargetDistance": null,
+      "cameraClearance": -4.2,
+      "cameraRig": "bounded-surface-aware-v1"
+    }
+  ],
+  "counts": [
+    {
+      "cycle": 0,
+      "theme": "cipher-vault",
+      "buildAndRenderMs": 1202,
+      "geometries": 152,
+      "textures": 21,
+      "programs": 17,
+      "buffers": 498,
+      "cachedGeometry": 241,
+      "scenery": {
+        "style": "crafted-archive",
+        "details": 1112,
+        "materialBatches": 19,
+        "textureCount": 16,
+        "lighting": {
+          "samples": 12,
+          "occluders": 840,
+          "uniqueVertices": 38027,
+          "vertices": 116280,
+          "attributeBytes": 232560,
+          "cacheHit": true
+        }
+      }
+    },
+    {
+      "cycle": 1,
+      "theme": "clockwork-study",
+      "buildAndRenderMs": 1379,
+      "geometries": 152,
+      "textures": 21,
+      "programs": 17,
+      "buffers": 498,
+      "cachedGeometry": 241,
+      "scenery": {
+        "style": "crafted-archive",
+        "details": 1112,
+        "materialBatches": 19,
+        "textureCount": 16,
+        "lighting": {
+          "samples": 12,
+          "occluders": 840,
+          "uniqueVertices": 38027,
+          "vertices": 116280,
+          "attributeBytes": 232560,
+          "cacheHit": true
+        }
+      }
+    },
+    {
+      "cycle": 2,
+      "theme": "chromatic-lab",
+      "buildAndRenderMs": 3277,
+      "geometries": 155,
+      "textures": 21,
+      "programs": 18,
+      "buffers": 509,
+      "cachedGeometry": 243,
+      "scenery": {
+        "style": "crafted-archive",
+        "details": 1113,
+        "materialBatches": 22,
+        "textureCount": 16,
+        "lighting": {
+          "samples": 12,
+          "occluders": 831,
+          "uniqueVertices": 38079,
+          "vertices": 116916,
+          "attributeBytes": 233832,
+          "cacheHit": false
+        }
+      }
+    },
+    {
+      "cycle": 3,
+      "theme": "archive-zero",
+      "buildAndRenderMs": 1046,
+      "geometries": 152,
+      "textures": 21,
+      "programs": 17,
+      "buffers": 498,
+      "cachedGeometry": 243,
+      "scenery": {
+        "style": "crafted-archive",
+        "details": 1112,
+        "materialBatches": 19,
+        "textureCount": 16,
+        "lighting": {
+          "samples": 12,
+          "occluders": 840,
+          "uniqueVertices": 38027,
+          "vertices": 116280,
+          "attributeBytes": 232560,
+          "cacheHit": true
+        }
+      }
+    },
+    {
+      "cycle": 4,
+      "theme": "cipher-vault",
+      "buildAndRenderMs": 1349,
+      "geometries": 152,
+      "textures": 21,
+      "programs": 17,
+      "buffers": 498,
+      "cachedGeometry": 243,
+      "scenery": {
+        "style": "crafted-archive",
+        "details": 1112,
+        "materialBatches": 19,
+        "textureCount": 16,
+        "lighting": {
+          "samples": 12,
+          "occluders": 840,
+          "uniqueVertices": 38027,
+          "vertices": 116280,
+          "attributeBytes": 232560,
+          "cacheHit": true
+        }
+      }
+    },
+    {
+      "cycle": 5,
+      "theme": "clockwork-study",
+      "buildAndRenderMs": 1553,
+      "geometries": 152,
+      "textures": 21,
+      "programs": 17,
+      "buffers": 498,
+      "cachedGeometry": 243,
+      "scenery": {
+        "style": "crafted-archive",
+        "details": 1112,
+        "materialBatches": 19,
+        "textureCount": 16,
+        "lighting": {
+          "samples": 12,
+          "occluders": 840,
+          "uniqueVertices": 38027,
+          "vertices": 116280,
+          "attributeBytes": 232560,
+          "cacheHit": true
+        }
+      }
+    },
+    {
+      "cycle": 6,
+      "theme": "chromatic-lab",
+      "buildAndRenderMs": 1433,
+      "geometries": 155,
+      "textures": 21,
+      "programs": 18,
+      "buffers": 509,
+      "cachedGeometry": 243,
+      "scenery": {
+        "style": "crafted-archive",
+        "details": 1113,
+        "materialBatches": 22,
+        "textureCount": 16,
+        "lighting": {
+          "samples": 12,
+          "occluders": 831,
+          "uniqueVertices": 38079,
+          "vertices": 116916,
+          "attributeBytes": 233832,
+          "cacheHit": true
+        }
+      }
+    },
+    {
+      "cycle": 7,
+      "theme": "archive-zero",
+      "buildAndRenderMs": 975,
+      "geometries": 152,
+      "textures": 21,
+      "programs": 17,
+      "buffers": 498,
+      "cachedGeometry": 243,
+      "scenery": {
+        "style": "crafted-archive",
+        "details": 1112,
+        "materialBatches": 19,
+        "textureCount": 16,
+        "lighting": {
+          "samples": 12,
+          "occluders": 840,
+          "uniqueVertices": 38027,
+          "vertices": 116280,
+          "attributeBytes": 232560,
+          "cacheHit": true
+        }
+      }
+    },
+    {
+      "cycle": 8,
+      "theme": "cipher-vault",
+      "buildAndRenderMs": 852,
+      "geometries": 152,
+      "textures": 21,
+      "programs": 17,
+      "buffers": 498,
+      "cachedGeometry": 243,
+      "scenery": {
+        "style": "crafted-archive",
+        "details": 1112,
+        "materialBatches": 19,
+        "textureCount": 16,
+        "lighting": {
+          "samples": 12,
+          "occluders": 840,
+          "uniqueVertices": 38027,
+          "vertices": 116280,
+          "attributeBytes": 232560,
+          "cacheHit": true
+        }
+      }
+    },
+    {
+      "cycle": 9,
+      "theme": "clockwork-study",
+      "buildAndRenderMs": 950,
+      "geometries": 152,
+      "textures": 21,
+      "programs": 17,
+      "buffers": 498,
+      "cachedGeometry": 243,
+      "scenery": {
+        "style": "crafted-archive",
+        "details": 1112,
+        "materialBatches": 19,
+        "textureCount": 16,
+        "lighting": {
+          "samples": 12,
+          "occluders": 840,
+          "uniqueVertices": 38027,
+          "vertices": 116280,
+          "attributeBytes": 232560,
+          "cacheHit": true
+        }
+      }
+    }
+  ],
+  "disposal": {
+    "before": {
+      "created": 4540,
+      "deleted": 4042
+    },
+    "after": {
+      "created": 4540,
+      "deleted": 4521
+    },
+    "contextLost": true
+  },
+  "errors": [],
+  "hashes": {
+    "network.js": "7afe7958e6fa5742acb60f349ac833d949a6318c954ea35fd6589725c1b4c424",
+    "app.js": "df403474932905c3f1b7cefebf45c424b84c304c3b52cc33ed12fbb4db176c57",
+    "archivist3d.js": "9c35ccae91ca8e7ec9228774888255a28b161fceb3092c8f7c4509e6faf4270f",
+    "bootstrap.js": "4f63ff3cf9e26ac27466867d40f2d415891af41b4daa8435b417df206271a5da",
+    "room3d.js": "b26fbeba19dd62e3dbabe9013c8d9b3226105500c570600fe75ec5d34e0ef5f3",
+    "room3d-polish.js": "26e7e8224ca976c6bf166e7c8cf8fd53a7edc5d1cf906aa5b923585192b5ff4b",
+    "mechanisms3d.js": "8648cdbe0c8b6664862e266c140fd69fff059d8151cb15cd9efc2e87aca7b7c6",
+    "scenery3d.js": "48521c084b27ed7f9b86698b6a463d43f904b742388759bb5cba5b8a365bf494",
+    "index.html": "1492643e52e55105d8113c44d507ed61bb378ea8f1efc13d4ef6d3e9c51e8d50",
+    "styles.css": "e0e6f70cf82f479915ed95666d852d5e03b384e79db42dec0fafe167d1297d75",
+    "ux-v2.css": "d4b41a7de0ab0695a024e8b99051b8b2de05a86b0b441e0bbf86819abd9a4018"
+  }
+}

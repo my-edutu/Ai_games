@@ -1,0 +1,947 @@
+{
+  "started": "2026-10-30T21:20:42.030Z",
+  "bodyDelayMs": 0,
+  "continuationBlockMs": 2100,
+  "checkIncompleteTransfer": true,
+  "console": [
+    {
+      "time": 1793395244587,
+      "type": "warning",
+      "text": "THREE.WebGLShadowMap: PCFSoftShadowMap has been removed. Using PCFShadowMap instead."
+    },
+    {
+      "time": 1793395250824,
+      "type": "warning",
+      "text": "[.WebGL-0x32340110e900]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels"
+    },
+    {
+      "time": 1793395250827,
+      "type": "warning",
+      "text": "Escape Room state reconnect The user aborted a request."
+    },
+    {
+      "time": 1793395250831,
+      "type": "warning",
+      "text": "[.WebGL-0x32340110e900]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels"
+    },
+    {
+      "time": 1793395252682,
+      "type": "warning",
+      "text": "[.WebGL-0x32340110e900]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels"
+    },
+    {
+      "time": 1793395254391,
+      "type": "warning",
+      "text": "[.WebGL-0x32340110e900]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)"
+    },
+    {
+      "time": 1793395270063,
+      "type": "warning",
+      "text": "Escape Room state reconnect The user aborted a request."
+    },
+    {
+      "time": 1793395281391,
+      "type": "warning",
+      "text": "Escape Room state reconnect The user aborted a request."
+    }
+  ],
+  "first": {
+    "runToken": "2ac8b7ef",
+    "tick": 4,
+    "roomIndex": 111,
+    "at": 20318.10000000149,
+    "diagnostics": {
+      "renderer": "three-physical-room-v2",
+      "engine": "three",
+      "threeRevision": "186",
+      "webgl": true,
+      "roomSurfaces": 5,
+      "physicalProps": 1139,
+      "materialFamilies": 18,
+      "visibleClues": 6,
+      "visibleMechanisms": 11,
+      "exitPresent": true,
+      "mechanismVariants": 8,
+      "meshFamilies": 18,
+      "character": {
+        "identity": "archivist-a07",
+        "state": "alert",
+        "meshCount": 39,
+        "triangles": 12526,
+        "geometryCount": 27,
+        "materialCount": 12,
+        "textureCount": 3,
+        "articulatedJoints": 17,
+        "reducedMotion": false,
+        "disposed": false
+      },
+      "scenery": {
+        "style": "crafted-archive",
+        "details": 1113,
+        "materialBatches": 22,
+        "textureCount": 16,
+        "lighting": {
+          "samples": 12,
+          "occluders": 831,
+          "uniqueVertices": 38079,
+          "vertices": 116916,
+          "attributeBytes": 233832,
+          "cacheHit": false
+        }
+      },
+      "themedDressing": 64,
+      "hazardVisuals": 1,
+      "cameraPosition": [
+        0,
+        3.65,
+        8.9
+      ],
+      "cameraLook": [
+        0,
+        1.55,
+        -2.1
+      ],
+      "cameraTarget": [
+        0,
+        3.65,
+        8.9
+      ],
+      "cameraSettled": true,
+      "characterPosition": [
+        1.4269677409447339,
+        1.85,
+        1.8604647347857939
+      ],
+      "cameraMode": "room",
+      "inspectObjectId": null,
+      "drawCalls": 230,
+      "triangles": 142284,
+      "activeLights": 4,
+      "shadowMode": "bounded-pcf",
+      "particleCount": 54,
+      "qualityTier": "high",
+      "adaptiveQuality": true,
+      "fps": 1,
+      "rendererMemoryModel": "shared cached geometry + shared PBR materials + bounded dynamic groups",
+      "inspectSurface": null,
+      "cameraWithinBounds": false,
+      "inspectTargetVisible": false,
+      "inspectGeometryVisible": false,
+      "cameraTargetDistance": null,
+      "cameraClearance": -4.2,
+      "cameraRig": "bounded-geometry-fit-v2"
+    }
+  },
+  "progressWithin10s": true,
+  "last": {
+    "runToken": "a39ecdf6",
+    "tick": 8,
+    "roomIndex": 113,
+    "at": 33700.800000000745,
+    "diagnostics": {
+      "renderer": "three-physical-room-v2",
+      "engine": "three",
+      "threeRevision": "186",
+      "webgl": true,
+      "roomSurfaces": 5,
+      "physicalProps": 1139,
+      "materialFamilies": 18,
+      "visibleClues": 7,
+      "visibleMechanisms": 11,
+      "exitPresent": true,
+      "mechanismVariants": 8,
+      "meshFamilies": 18,
+      "character": {
+        "identity": "archivist-a07",
+        "state": "solving",
+        "meshCount": 39,
+        "triangles": 12526,
+        "geometryCount": 27,
+        "materialCount": 12,
+        "textureCount": 3,
+        "articulatedJoints": 17,
+        "reducedMotion": false,
+        "disposed": false
+      },
+      "scenery": {
+        "style": "crafted-archive",
+        "details": 1112,
+        "materialBatches": 19,
+        "textureCount": 16,
+        "lighting": {
+          "samples": 12,
+          "occluders": 840,
+          "uniqueVertices": 38027,
+          "vertices": 116280,
+          "attributeBytes": 232560,
+          "cacheHit": true
+        }
+      },
+      "themedDressing": 64,
+      "hazardVisuals": 0,
+      "cameraPosition": [
+        0,
+        3.65,
+        8.9
+      ],
+      "cameraLook": [
+        0,
+        1.55,
+        -2.1
+      ],
+      "cameraTarget": [
+        0,
+        3.65,
+        8.9
+      ],
+      "cameraSettled": true,
+      "characterPosition": [
+        4.232387589834328,
+        1.891182447147182,
+        1.7550546619873442
+      ],
+      "cameraMode": "room",
+      "inspectObjectId": null,
+      "drawCalls": 220,
+      "triangles": 135772,
+      "activeLights": 4,
+      "shadowMode": "disabled-quality-tier",
+      "particleCount": 18,
+      "qualityTier": "low",
+      "adaptiveQuality": true,
+      "fps": 1,
+      "rendererMemoryModel": "shared cached geometry + shared PBR materials + bounded dynamic groups",
+      "inspectSurface": null,
+      "cameraWithinBounds": false,
+      "inspectTargetVisible": false,
+      "inspectGeometryVisible": false,
+      "cameraTargetDistance": null,
+      "cameraClearance": -4.2,
+      "cameraRig": "bounded-geometry-fit-v2"
+    },
+    "events": [
+      {
+        "at": 141.89999999850988,
+        "event": "longtask",
+        "start": 65,
+        "duration": 75
+      },
+      {
+        "at": 2289.800000000745,
+        "id": 1,
+        "event": "deadline-armed",
+        "delay": 1800
+      },
+      {
+        "at": 2290,
+        "id": 1,
+        "event": "fetch-start"
+      },
+      {
+        "at": 5523.60000000149,
+        "event": "longtask",
+        "start": 361.1000000014901,
+        "duration": 1932
+      },
+      {
+        "at": 5523.699999999255,
+        "event": "longtask",
+        "start": 2335.10000000149,
+        "duration": 3168
+      },
+      {
+        "at": 5524.39999999851,
+        "id": 1,
+        "event": "resource-callback",
+        "entries": [
+          {
+            "name": "http://127.0.0.1:4177/escape-room/textures/wood-color.jpg",
+            "initiatorType": "img",
+            "startTime": 2292.60000000149,
+            "responseEnd": 2430.39999999851
+          },
+          {
+            "name": "http://127.0.0.1:4177/escape-room/textures/wood-roughness.jpg",
+            "initiatorType": "img",
+            "startTime": 2292.699999999255,
+            "responseEnd": 2404.699999999255
+          },
+          {
+            "name": "http://127.0.0.1:4177/escape-room/textures/wood-normal.jpg",
+            "initiatorType": "img",
+            "startTime": 2292.699999999255,
+            "responseEnd": 2430.60000000149
+          },
+          {
+            "name": "http://127.0.0.1:4177/escape-room/textures/metal-roughness.jpg",
+            "initiatorType": "img",
+            "startTime": 2292.89999999851,
+            "responseEnd": 2390.300000000745
+          },
+          {
+            "name": "http://127.0.0.1:4177/escape-room/textures/plaster-color.jpg",
+            "initiatorType": "img",
+            "startTime": 2292.89999999851,
+            "responseEnd": 2458.300000000745
+          },
+          {
+            "name": "http://127.0.0.1:4177/escape-room/textures/plaster-normal.jpg",
+            "initiatorType": "img",
+            "startTime": 2293,
+            "responseEnd": 2430.10000000149
+          },
+          {
+            "name": "http://127.0.0.1:4177/escape-room/textures/plaster-arm.jpg",
+            "initiatorType": "img",
+            "startTime": 2293.300000000745,
+            "responseEnd": 2457.60000000149
+          },
+          {
+            "name": "http://127.0.0.1:4177/escape-room/textures/metal-color.jpg",
+            "initiatorType": "img",
+            "startTime": 2293.5,
+            "responseEnd": 2493.60000000149
+          },
+          {
+            "name": "http://127.0.0.1:4177/escape-room/textures/metal-normal.jpg",
+            "initiatorType": "img",
+            "startTime": 2293.60000000149,
+            "responseEnd": 2485.5
+          }
+        ]
+      },
+      {
+        "at": 5525,
+        "id": 1,
+        "event": "headers",
+        "status": 200
+      },
+      {
+        "at": 5525.300000000745,
+        "id": 1,
+        "event": "body-start"
+      },
+      {
+        "at": 5525.300000000745,
+        "id": 1,
+        "event": "native-body-start"
+      },
+      {
+        "at": 5525.699999999255,
+        "id": 1,
+        "event": "main-thread-stall-start",
+        "durationMs": 2100
+      },
+      {
+        "at": 7654.39999999851,
+        "id": 1,
+        "event": "main-thread-stall-end"
+      },
+      {
+        "at": 8623.39999999851,
+        "id": 1,
+        "event": "deadline-fired"
+      },
+      {
+        "at": 8623.5,
+        "id": 1,
+        "event": "resource-records",
+        "entries": []
+      },
+      {
+        "at": 8624,
+        "id": 1,
+        "event": "abort"
+      },
+      {
+        "at": 8624.300000000745,
+        "id": 1,
+        "event": "body-error",
+        "name": "AbortError",
+        "message": "The user aborted a request."
+      },
+      {
+        "at": 10314.199999999255,
+        "event": "longtask",
+        "start": 7710.89999999851,
+        "duration": 898
+      },
+      {
+        "at": 10314.199999999255,
+        "event": "longtask",
+        "start": 8628.300000000745,
+        "duration": 1685
+      },
+      {
+        "at": 10315.5,
+        "id": 2,
+        "event": "deadline-armed",
+        "delay": 1800
+      },
+      {
+        "at": 10315.5,
+        "id": 2,
+        "event": "fetch-start"
+      },
+      {
+        "at": 12189.800000000745,
+        "id": 2,
+        "event": "headers",
+        "status": 200
+      },
+      {
+        "at": 12189.89999999851,
+        "id": 2,
+        "event": "body-start"
+      },
+      {
+        "at": 12189.89999999851,
+        "id": 2,
+        "event": "native-body-start"
+      },
+      {
+        "at": 13124.5,
+        "event": "longtask",
+        "start": 10316.5,
+        "duration": 1872
+      },
+      {
+        "at": 13124.5,
+        "event": "longtask",
+        "start": 12190.199999999255,
+        "duration": 934
+      },
+      {
+        "at": 13126.10000000149,
+        "id": 2,
+        "event": "deadline-fired"
+      },
+      {
+        "at": 13126.300000000745,
+        "id": 2,
+        "event": "resource-records",
+        "entries": [
+          {
+            "name": "http://127.0.0.1:4177/escape-room/state?w=1920&h=1080&reducedMotion=0&cleanFeed=0&muted=0",
+            "initiatorType": "fetch",
+            "startTime": 10316.10000000149,
+            "responseEnd": 10548.699999999255
+          }
+        ]
+      },
+      {
+        "at": 13971.5,
+        "id": 2,
+        "event": "body-complete",
+        "runToken": "2ac8b7ef",
+        "roomIndex": 111,
+        "tick": 4
+      },
+      {
+        "at": 18907.199999999255,
+        "event": "longtask",
+        "start": 13126.39999999851,
+        "duration": 845
+      },
+      {
+        "at": 18907.199999999255,
+        "event": "longtask",
+        "start": 15902.699999999255,
+        "duration": 3003
+      },
+      {
+        "at": 18908.199999999255,
+        "id": 3,
+        "event": "deadline-armed",
+        "delay": 1800
+      },
+      {
+        "at": 18908.300000000745,
+        "id": 3,
+        "event": "fetch-start"
+      },
+      {
+        "at": 20317.199999999255,
+        "id": 3,
+        "event": "headers",
+        "status": 200
+      },
+      {
+        "at": 20317.300000000745,
+        "id": 3,
+        "event": "body-start"
+      },
+      {
+        "at": 20317.300000000745,
+        "id": 3,
+        "event": "native-body-start"
+      },
+      {
+        "at": 21545.300000000745,
+        "event": "longtask",
+        "start": 18910.39999999851,
+        "duration": 1403
+      },
+      {
+        "at": 21545.300000000745,
+        "event": "longtask",
+        "start": 20320.60000000149,
+        "duration": 1224
+      },
+      {
+        "at": 22666.39999999851,
+        "id": 3,
+        "event": "deadline-fired"
+      },
+      {
+        "at": 22666.60000000149,
+        "id": 3,
+        "event": "resource-records",
+        "entries": [
+          {
+            "name": "http://127.0.0.1:4177/escape-room/state?w=1920&h=1080&reducedMotion=0&cleanFeed=0&muted=0",
+            "initiatorType": "fetch",
+            "startTime": 18909.699999999255,
+            "responseEnd": 18930.800000000745
+          }
+        ]
+      },
+      {
+        "at": 22666.800000000745,
+        "id": 3,
+        "event": "body-complete",
+        "runToken": "30aa9a8c",
+        "roomIndex": 112,
+        "tick": 10
+      },
+      {
+        "at": 25510,
+        "event": "longtask",
+        "start": 21550.10000000149,
+        "duration": 1115
+      },
+      {
+        "at": 25510.10000000149,
+        "event": "longtask",
+        "start": 23167.10000000149,
+        "duration": 2342
+      },
+      {
+        "at": 25511.300000000745,
+        "id": 4,
+        "event": "deadline-armed",
+        "delay": 1800
+      },
+      {
+        "at": 25511.5,
+        "id": 4,
+        "event": "fetch-start"
+      },
+      {
+        "at": 27321.10000000149,
+        "id": 4,
+        "event": "headers",
+        "status": 200
+      },
+      {
+        "at": 27321.699999999255,
+        "id": 4,
+        "event": "body-start"
+      },
+      {
+        "at": 27321.699999999255,
+        "id": 4,
+        "event": "native-body-start"
+      },
+      {
+        "at": 27853.800000000745,
+        "event": "longtask",
+        "start": 25512.300000000745,
+        "duration": 1807
+      },
+      {
+        "at": 27853.800000000745,
+        "event": "longtask",
+        "start": 27322.60000000149,
+        "duration": 530
+      },
+      {
+        "at": 27857.699999999255,
+        "id": 4,
+        "event": "deadline-fired"
+      },
+      {
+        "at": 27857.699999999255,
+        "id": 4,
+        "event": "resource-records",
+        "entries": []
+      },
+      {
+        "at": 27858,
+        "id": 4,
+        "event": "abort"
+      },
+      {
+        "at": 27858.39999999851,
+        "id": 4,
+        "event": "body-error",
+        "name": "AbortError",
+        "message": "The user aborted a request."
+      },
+      {
+        "at": 30223.300000000745,
+        "event": "longtask",
+        "start": 27861.60000000149,
+        "duration": 1075
+      },
+      {
+        "at": 30223.300000000745,
+        "event": "longtask",
+        "start": 28939.10000000149,
+        "duration": 1283
+      },
+      {
+        "at": 30223.800000000745,
+        "id": 5,
+        "event": "deadline-armed",
+        "delay": 1800
+      },
+      {
+        "at": 30223.800000000745,
+        "id": 5,
+        "event": "fetch-start"
+      },
+      {
+        "at": 30748,
+        "id": 5,
+        "event": "headers",
+        "status": 200
+      },
+      {
+        "at": 30748.10000000149,
+        "id": 5,
+        "event": "body-start"
+      },
+      {
+        "at": 30748.10000000149,
+        "id": 5,
+        "event": "native-body-start"
+      },
+      {
+        "at": 31222.300000000745,
+        "event": "longtask",
+        "start": 30225,
+        "duration": 522
+      },
+      {
+        "at": 31222.300000000745,
+        "event": "longtask",
+        "start": 30748.39999999851,
+        "duration": 473
+      },
+      {
+        "at": 31709,
+        "id": 5,
+        "event": "body-complete",
+        "runToken": "a39ecdf6",
+        "roomIndex": 113,
+        "tick": 8
+      },
+      {
+        "at": 33697.89999999851,
+        "event": "longtask",
+        "start": 31224.699999999255,
+        "duration": 483
+      },
+      {
+        "at": 33697.89999999851,
+        "event": "longtask",
+        "start": 32196.300000000745,
+        "duration": 1501
+      },
+      {
+        "at": 33698.5,
+        "id": 6,
+        "event": "deadline-armed",
+        "delay": 1800
+      },
+      {
+        "at": 33698.60000000149,
+        "id": 6,
+        "event": "fetch-start"
+      }
+    ],
+    "resources": [
+      {
+        "start": 2292.199999999255,
+        "responseEnd": 2362.60000000149,
+        "duration": 70.40000000223517
+      },
+      {
+        "start": 10316.10000000149,
+        "responseEnd": 10548.699999999255,
+        "duration": 232.59999999776483
+      },
+      {
+        "start": 18909.699999999255,
+        "responseEnd": 18930.800000000745,
+        "duration": 21.100000001490116
+      },
+      {
+        "start": 25512.10000000149,
+        "responseEnd": 25519.5,
+        "duration": 7.399999998509884
+      },
+      {
+        "start": 30224.60000000149,
+        "responseEnd": 30242.39999999851,
+        "duration": 17.799999997019768
+      }
+    ]
+  },
+  "continuationSurvivedBlock": false,
+  "completedDeadlineCases": [
+    {
+      "id": 1,
+      "nativeBodyBeforeDeadline": true,
+      "bodyCompletedAfterDeadline": false,
+      "aborted": true,
+      "resourceEntries": [
+        {
+          "name": "http://127.0.0.1:4177/escape-room/textures/wood-color.jpg",
+          "initiatorType": "img",
+          "startTime": 2292.60000000149,
+          "responseEnd": 2430.39999999851
+        },
+        {
+          "name": "http://127.0.0.1:4177/escape-room/textures/wood-roughness.jpg",
+          "initiatorType": "img",
+          "startTime": 2292.699999999255,
+          "responseEnd": 2404.699999999255
+        },
+        {
+          "name": "http://127.0.0.1:4177/escape-room/textures/wood-normal.jpg",
+          "initiatorType": "img",
+          "startTime": 2292.699999999255,
+          "responseEnd": 2430.60000000149
+        },
+        {
+          "name": "http://127.0.0.1:4177/escape-room/textures/metal-roughness.jpg",
+          "initiatorType": "img",
+          "startTime": 2292.89999999851,
+          "responseEnd": 2390.300000000745
+        },
+        {
+          "name": "http://127.0.0.1:4177/escape-room/textures/plaster-color.jpg",
+          "initiatorType": "img",
+          "startTime": 2292.89999999851,
+          "responseEnd": 2458.300000000745
+        },
+        {
+          "name": "http://127.0.0.1:4177/escape-room/textures/plaster-normal.jpg",
+          "initiatorType": "img",
+          "startTime": 2293,
+          "responseEnd": 2430.10000000149
+        },
+        {
+          "name": "http://127.0.0.1:4177/escape-room/textures/plaster-arm.jpg",
+          "initiatorType": "img",
+          "startTime": 2293.300000000745,
+          "responseEnd": 2457.60000000149
+        },
+        {
+          "name": "http://127.0.0.1:4177/escape-room/textures/metal-color.jpg",
+          "initiatorType": "img",
+          "startTime": 2293.5,
+          "responseEnd": 2493.60000000149
+        },
+        {
+          "name": "http://127.0.0.1:4177/escape-room/textures/metal-normal.jpg",
+          "initiatorType": "img",
+          "startTime": 2293.60000000149,
+          "responseEnd": 2485.5
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "nativeBodyBeforeDeadline": true,
+      "bodyCompletedAfterDeadline": true,
+      "aborted": false,
+      "resourceEntries": [
+        {
+          "name": "http://127.0.0.1:4177/escape-room/state?w=1920&h=1080&reducedMotion=0&cleanFeed=0&muted=0",
+          "initiatorType": "fetch",
+          "startTime": 10316.10000000149,
+          "responseEnd": 10548.699999999255
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "nativeBodyBeforeDeadline": true,
+      "bodyCompletedAfterDeadline": true,
+      "aborted": false,
+      "resourceEntries": [
+        {
+          "name": "http://127.0.0.1:4177/escape-room/state?w=1920&h=1080&reducedMotion=0&cleanFeed=0&muted=0",
+          "initiatorType": "fetch",
+          "startTime": 18909.699999999255,
+          "responseEnd": 18930.800000000745
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "nativeBodyBeforeDeadline": true,
+      "bodyCompletedAfterDeadline": false,
+      "aborted": true,
+      "resourceEntries": []
+    }
+  ],
+  "nativeCompletionExemptionObserved": true,
+  "incompleteTransferStartedAt": 36618.89999999851,
+  "incompleteTransferAborted": true,
+  "throttledEvents": [
+    {
+      "at": 36619.39999999851,
+      "id": 7,
+      "event": "deadline-armed",
+      "delay": 1800
+    },
+    {
+      "at": 36619.5,
+      "id": 7,
+      "event": "fetch-start"
+    },
+    {
+      "at": 37118.300000000745,
+      "event": "longtask",
+      "start": 35995.89999999851,
+      "duration": 621
+    },
+    {
+      "at": 37118.300000000745,
+      "event": "longtask",
+      "start": 36621.199999999255,
+      "duration": 496
+    },
+    {
+      "at": 37581.300000000745,
+      "id": 7,
+      "event": "headers",
+      "status": 200
+    },
+    {
+      "at": 37581.300000000745,
+      "id": 7,
+      "event": "body-start"
+    },
+    {
+      "at": 37581.300000000745,
+      "id": 7,
+      "event": "native-body-start"
+    },
+    {
+      "at": 38047,
+      "event": "longtask",
+      "start": 37125.5,
+      "duration": 454
+    },
+    {
+      "at": 38047,
+      "event": "longtask",
+      "start": 37581.60000000149,
+      "duration": 464
+    },
+    {
+      "at": 39176.89999999851,
+      "event": "longtask",
+      "start": 38047.5,
+      "duration": 473
+    },
+    {
+      "at": 39176.89999999851,
+      "event": "longtask",
+      "start": 38520.89999999851,
+      "duration": 655
+    },
+    {
+      "at": 39177.10000000149,
+      "id": 7,
+      "event": "deadline-fired"
+    },
+    {
+      "at": 39177.199999999255,
+      "id": 7,
+      "event": "resource-records",
+      "entries": []
+    },
+    {
+      "at": 39177.39999999851,
+      "id": 7,
+      "event": "abort"
+    },
+    {
+      "at": 39177.60000000149,
+      "id": 7,
+      "event": "body-error",
+      "name": "AbortError",
+      "message": "The user aborted a request."
+    },
+    {
+      "at": 39705.800000000745,
+      "id": 8,
+      "event": "deadline-armed",
+      "delay": 1800
+    },
+    {
+      "at": 39705.800000000745,
+      "id": 8,
+      "event": "fetch-start"
+    },
+    {
+      "at": 40146.199999999255,
+      "event": "longtask",
+      "start": 39179.800000000745,
+      "duration": 525
+    },
+    {
+      "at": 40146.199999999255,
+      "event": "longtask",
+      "start": 39707.89999999851,
+      "duration": 438
+    },
+    {
+      "at": 40146.300000000745,
+      "id": 8,
+      "event": "resource-callback",
+      "entries": [
+        {
+          "name": "http://127.0.0.1:4177/escape-room/state?w=1920&h=1080&reducedMotion=0&cleanFeed=0&muted=0",
+          "initiatorType": "fetch",
+          "startTime": 36620.89999999851,
+          "responseEnd": 39707.800000000745
+        }
+      ]
+    },
+    {
+      "at": 40146.89999999851,
+      "id": 8,
+      "event": "headers",
+      "status": 200
+    },
+    {
+      "at": 40146.89999999851,
+      "id": 8,
+      "event": "body-start"
+    },
+    {
+      "at": 40146.89999999851,
+      "id": 8,
+      "event": "native-body-start"
+    }
+  ],
+  "partialBodyAborted": true,
+  "finished": "2026-10-30T21:21:26.044Z"
+}

@@ -1,0 +1,15 @@
+{
+  "unblinded_at": "2026-10-30T21:24:02.393486+00:00",
+  "mapping": {
+    "bar": {
+      "X": "fixed-reference",
+      "Y": "candidate"
+    },
+    "iteration": {
+      "A": "lighting",
+      "B": "round-04"
+    }
+  },
+  "locked_review_sha256": "167f37bb7195ae67076305f9373a0a46b333339990220dc8548cef8256ac9d9c",
+  "note": "X/Y verdict was locked before A/B; source labels were hidden, recognizable imagery and differing formats/crops remain disclosed limits."
+}

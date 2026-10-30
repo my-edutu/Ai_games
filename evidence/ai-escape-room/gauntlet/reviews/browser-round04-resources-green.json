@@ -1,0 +1,118 @@
+{
+  "config": {
+    "configFile": "/tmp/escape-gauntlet-playwright.config.cjs",
+    "rootDir": "/workspace/scratch/4b9cf76baf7a/ai-escape-room/tests/browser",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "/workspace/scratch/4b9cf76baf7a/ai-escape-room/evidence/ai-escape-room/gauntlet/reviews/browser-results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "/workspace/scratch/4b9cf76baf7a/ai-escape-room/evidence/ai-escape-room/gauntlet/reviews/browser-test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "/workspace/scratch/4b9cf76baf7a/ai-escape-room/tests/browser",
+        "testIgnore": [],
+        "testMatch": [
+          "escape-room-gauntlet.spec.cjs"
+        ],
+        "timeout": 120000
+      }
+    ],
+    "shard": null,
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.55.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "escape-room-gauntlet.spec.cjs",
+      "file": "escape-room-gauntlet.spec.cjs",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "WebGL geometry, textures and programs stay bounded through replay and theme rebuilds",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 95692,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-30T20:44:27.317Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "webgl-resource-samples",
+                      "contentType": "application/json",
+                      "body": "WwogIHsKICAgICJjeWNsZSI6IDAsCiAgICAiZ2VvbWV0cmllcyI6IDE1OCwKICAgICJ0ZXh0dXJlcyI6IDIxLAogICAgInByb2dyYW1zIjogMTMsCiAgICAiY2FjaGVkR2VvbWV0cnkiOiAyNDYsCiAgICAic2NlbmVyeVRleHR1cmVzIjogMTYsCiAgICAiZ3JvdXBzIjogMjAKICB9LAogIHsKICAgICJjeWNsZSI6IDEsCiAgICAiZ2VvbWV0cmllcyI6IDE1OCwKICAgICJ0ZXh0dXJlcyI6IDIxLAogICAgInByb2dyYW1zIjogMTMsCiAgICAiY2FjaGVkR2VvbWV0cnkiOiAyNDYsCiAgICAic2NlbmVyeVRleHR1cmVzIjogMTYsCiAgICAiZ3JvdXBzIjogMjAKICB9LAogIHsKICAgICJjeWNsZSI6IDIsCiAgICAiZ2VvbWV0cmllcyI6IDE1OCwKICAgICJ0ZXh0dXJlcyI6IDIxLAogICAgInByb2dyYW1zIjogMTMsCiAgICAiY2FjaGVkR2VvbWV0cnkiOiAyNDYsCiAgICAic2NlbmVyeVRleHR1cmVzIjogMTYsCiAgICAiZ3JvdXBzIjogMjAKICB9LAogIHsKICAgICJjeWNsZSI6IDMsCiAgICAiZ2VvbWV0cmllcyI6IDE1OCwKICAgICJ0ZXh0dXJlcyI6IDIxLAogICAgInByb2dyYW1zIjogMTMsCiAgICAiY2FjaGVkR2VvbWV0cnkiOiAyNDYsCiAgICAic2NlbmVyeVRleHR1cmVzIjogMTYsCiAgICAiZ3JvdXBzIjogMjAKICB9LAogIHsKICAgICJjeWNsZSI6IDQsCiAgICAiZ2VvbWV0cmllcyI6IDE1OCwKICAgICJ0ZXh0dXJlcyI6IDIxLAogICAgInByb2dyYW1zIjogMTMsCiAgICAiY2FjaGVkR2VvbWV0cnkiOiAyNDYsCiAgICAic2NlbmVyeVRleHR1cmVzIjogMTYsCiAgICAiZ3JvdXBzIjogMjAKICB9Cl0="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "16c049a0815064222754-24a5361cc246053edd25",
+          "file": "escape-room-gauntlet.spec.cjs",
+          "line": 161,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-30T20:44:25.085Z",
+    "duration": 98799.86499999999,
+    "expected": 1,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

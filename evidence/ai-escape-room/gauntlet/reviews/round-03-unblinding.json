@@ -1,0 +1,9 @@
+{
+  "revealed_at": "2026-10-30T20:28:34.730481+00:00",
+  "mapping": {
+    "A": "round-03",
+    "B": "baseline"
+  },
+  "locked_review_sha256": "6dce76e2c572ad59ff94899eb18f63df9614c01d3cd7ac06513c559e016561e4",
+  "interpretation": "Round 03 won every randomized version comparison against baseline. The separate fixed commercial reference comparison still failed."
+}

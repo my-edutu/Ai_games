@@ -1,0 +1,35 @@
+(node:109406) [THREE_CJS_DEPRECATED] DeprecationWarning: `require("three")` is deprecated and will be removed.
+Replace `const THREE = require("three")` with `import * as THREE from "three"`.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+✔ archivist remains inside the physical room for extreme focus positions and does not mutate snapshots (1194.353637ms)
+✔ solve animation consumes each event once and new runs reset event identity (376.340652ms)
+✔ reduced-motion removes idle oscillation while preserving semantic pose and world location (412.133231ms)
+✔ resource count stays bounded across state changes and dispose is idempotent (438.207172ms)
+✔ character stays within its color-pass submission budget (524.694684ms)
+✔ dispose releases owned instance buffers and all resources once without releasing foreign attachments (574.092527ms)
+(node:109410) [THREE_CJS_DEPRECATED] DeprecationWarning: `require("three")` is deprecated and will be removed.
+Replace `const THREE = require("three")` with `import * as THREE from "three"`.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+✔ the physical exit stays open through the actual successful intermission and is closed before the exit action (1030.013749ms)
+(node:109411) [THREE_CJS_DEPRECATED] DeprecationWarning: `require("three")` is deprecated and will be removed.
+Replace `const THREE = require("three")` with `import * as THREE from "three"`.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+✔ the real room renderer exposes an explicit disposal lifecycle for its owned resources (74.266268ms)
+(node:109419) [THREE_CJS_DEPRECATED] DeprecationWarning: `require("three")` is deprecated and will be removed.
+Replace `const THREE = require("three")` with `import * as THREE from "three"`.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+✔ every mechanism has a distinct physical artifact and isolated articulation (1449.386767ms)
+✔ all solved poses mechanically differ from closed poses and finish immediately in reduced motion (828.260523ms)
+✔ copied presentation motion interpolates to authoritative solved state without changing object data (319.059729ms)
+✔ public clue, tool, and decoy geometry accepts absent optional placement safely (35.294613ms)
+✔ vault pinions counter-rotate at the drive ratio and remain deterministic across presentation clocks (415.428632ms)
+✔ vault drawbars stay attached to their fixed pivot and moving bolt through the full opening travel (219.871876ms)
+✔ batched vault resources stay inside the room allocation and reuse shared materials on rebuild (1691.488767ms)
+ℹ tests 15
+ℹ suites 0
+ℹ pass 15
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 7829.611749

@@ -1,0 +1,31 @@
+(node:6) [THREE_CJS_DEPRECATED] DeprecationWarning: `require("three")` is deprecated and will be removed.
+Replace `const THREE = require("three")` with `import * as THREE from "three"`.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+✖ the physical exit stays open through the actual successful intermission and is closed before the exit action (1464.534699ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1658.555948
+
+✖ failing tests:
+
+test at tests/escape-room/gauntlet-escape-transition.test.cjs:28:1
+✖ the physical exit stays open through the actual successful intermission and is closed before the exit action (1464.534699ms)
+  AssertionError [ERR_ASSERTION]: the confirmed escaped chamber must remain open while waiting for the next room
+      at TestContext.<anonymous> (/workspace/scratch/4b9cf76baf7a/ai-escape-room/tests/escape-room/gauntlet-escape-transition.test.cjs:43:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.start (node:internal/test_runner/test:1262:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }

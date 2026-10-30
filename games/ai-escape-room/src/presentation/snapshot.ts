@@ -48,9 +48,9 @@ function physicalPlacement(kind:string,mechanismKind:EscapePuzzleKind|null,index
   if(kind==='scale'||mechanismKind==='balance-clue')return{surface:'pedestal',slot:slot%4,variant,stage};
   if(kind==='switch'||mechanismKind==='switch-network')return{surface:variant%2===0?'right-wall':'console',slot:slot%6,variant,stage};
   if(kind==='lock'||mechanismKind){return{surface:variant%2===0?'left-wall':'right-wall',slot:slot%8,variant,stage};}
-  if(kind==='tool')return{surface:variant%3===0?'shelf':'desk',slot:slot%8,variant,stage};
-  if(kind==='clue')return{surface:variant%2===0?'desk':'shelf',slot:slot%10,variant,stage};
-  return{surface:variant%2===0?'floor':'shelf',slot:slot%10,variant,stage};
+  if(kind==='tool')return{surface:variant%3===0?'shelf':'desk',slot:slot%12,variant,stage};
+  if(kind==='clue')return{surface:variant%2===0?'desk':'shelf',slot:slot%12,variant,stage};
+  return{surface:variant%2===0?'floor':'shelf',slot:slot%12,variant,stage};
 }
 function presentationCoordinates(placement:EscapePhysicalPlacement){
   const normalized=(placement.slot%8)/7;
@@ -74,15 +74,29 @@ export function buildEscapeRenderSnapshot(state:EscapeState,signals:EscapePresen
   const visible=state.room.objects.filter(object=>state.objectStates[object.id]?.visible).slice(0,48).sort((a,b)=>a.id.localeCompare(b.id));
   const mechanismKinds=new Map(state.room.puzzles.map(puzzle=>[puzzle.targetObjectId,puzzle.kind] as const));
   const stageByObject=new Map<string,number>();for(const puzzle of state.room.puzzles){stageByObject.set(puzzle.targetObjectId,puzzle.stage);for(const clueId of puzzle.clueIds)stageByObject.set(clueId,puzzle.stage);}
-  const objects=visible.map((object,index)=>{
-    const mechanismKind=mechanismKinds.get(object.id)??null,stage=stageByObject.get(object.id)??null,placement=physicalPlacement(object.kind,mechanismKind,index,stage,object.id),coordinates=presentationCoordinates(placement);
+  // Reserve positions from the complete immutable room definition before filtering
+  // visibility. Revealing a clue must never move already placed props or cameras.
+  // Only the safe placement of visible objects is projected to the browser.
+  const placements=new Map<string,EscapePhysicalPlacement>();
+  const surfaceOrdinals=new Map<string,number>();
+  for(const object of [...state.room.objects].sort((a,b)=>a.id.localeCompare(b.id))){
+    const mechanismKind=mechanismKinds.get(object.id)??null,stage=stageByObject.get(object.id)??null;
+    const initial=physicalPlacement(object.kind,mechanismKind,0,stage,object.id);
+    const surfaceKey=initial.surface==='shelf'?`${initial.surface}:${initial.variant%2}`:initial.surface;
+    const ordinal=surfaceOrdinals.get(surfaceKey)??0;
+    placements.set(object.id,physicalPlacement(object.kind,mechanismKind,ordinal,stage,object.id));
+    surfaceOrdinals.set(surfaceKey,ordinal+1);
+  }
+  const objects=visible.map(object=>{
+    const mechanismKind=mechanismKinds.get(object.id)??null,placement=placements.get(object.id)!,coordinates=presentationCoordinates(placement);
     return{id:object.id,kind:object.kind,labelKey:object.labelKey,shape:object.publicShape??object.kind,symbol:object.publicSymbol??object.kind,color:object.publicColor??'neutral',
       inspected:state.objectStates[object.id]!.inspected,carried:state.objectStates[object.id]!.carried,solved:state.objectStates[object.id]!.solved,mechanismKind,placement,...coordinates};
   });
   const currentPuzzle=state.room.puzzles.find(puzzle=>!state.solvedPuzzleIds.includes(puzzle.id)&&puzzle.prerequisitePuzzleIds.every(id=>state.solvedPuzzleIds.includes(id)));
   const focusObjectId=currentPuzzle?.targetObjectId??objects.find(object=>!object.inspected)?.id??null;
   const focus=objects.find(object=>object.id===focusObjectId);
-  const aiMode:EscapeRenderSnapshot['avatar']['mode']=state.lifecycle==='result'?(state.result?.reason==='escape'?'celebrating':'recovering'):signals.ai.fallback?'waiting':signals.ai.intent.toLowerCase().includes('inspect')?'observing':'acting';
+  const terminal=state.lifecycle==='result'||state.lifecycle==='intermission';
+  const aiMode:EscapeRenderSnapshot['avatar']['mode']=terminal?(state.result?.reason==='escape'?'celebrating':'recovering'):signals.ai.fallback?'waiting':signals.ai.intent.toLowerCase().includes('inspect')?'observing':'acting';
   const progressPermille=Math.floor(state.solvedPuzzleIds.length*1000/Math.max(1,state.room.puzzles.length));
   const remainingTicks=Math.max(0,state.config.maxTicks-state.tick);
   const base:Omit<EscapeRenderSnapshot,'authorityChecksum'>={
