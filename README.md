@@ -36,7 +36,8 @@ Seeded authoritative simulation
 |---|---:|---:|---|---|
 | Autonomous Snake | 6 / 6 | R4 evidence-gated candidate | R4 | External R5 evidence blocked |
 | AI Maze Escape | 6 / 6 | **88 / 100** | R4 | External R5 evidence blocked |
-| Games 3–12 | Documentation/specification packages | Not scored | Pre-implementation | Not production ready |
+| AI Battle Royale | Autonomous 3D runtime + spectator surface | Comparative review open | Development candidate | Not production ready |
+| Games 3–5, 7–12 | See game-specific implementation evidence | Not scored here | See game-specific evidence | Not assessed here |
 
 No game is labelled R5 merely because code merged or CI passed. Production readiness requires exact-candidate primary evidence, real elapsed operation, current credentialed providers, external review, independently witnessed drills, and a guarded canary.
 
@@ -72,3 +73,7 @@ Paid or free audience input cannot guarantee victory, death, capture, escape, a 
 - `docs/operations/ai-maze-escape-handoff.md`
 
 Promotion to `production ready` is permitted only when the frozen deployed candidate’s final assessor returns `PASS`, `R5`, and `productionReady: true` with zero open P0/P1 findings.
+
+## AI Battle Royale — Game 6
+
+LAST LIGHT adds an autonomous Three.js battle royale with twelve original articulated competitors, a coastal outpost, seeded combat/loot/storm simulation, spectator cameras and a separate live development review page. Run `npm run royale:stream`, then open `http://localhost:4177/royale/` (game) or `/royale/dev/` (review progress). Commands and evidence limits: [Game 6 README](games/ai-battle-royale/README.md). Commercial-reference parity and production readiness remain unproven.

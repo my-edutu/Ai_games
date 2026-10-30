@@ -1,0 +1,6788 @@
+{
+  "capturedAt": "2026-10-30T22:07:22.448Z",
+  "baseline": "557e8d2bd805b3b5ea61ba222b95946110c50c18",
+  "source": "http://127.0.0.1:4286/royale/",
+  "method": "Actual game renderer and freshly rebuilt game actors; genuine frozen authority snapshots; identical camera/lighting; 36 identical 1/30-second pose updates ending at the declared presentation time; high materials; temporary Playwright inspection harness. Static poses do not establish motion or performance.",
+  "complete": true,
+  "viewport": {
+    "width": 1000,
+    "height": 900
+  },
+  "poseTime": 1.2,
+  "variants": [
+    {
+      "label": "A",
+      "version": "candidate",
+      "sourceSha256": "bc228863e197929831abae670cbb7d6d1c3a88ce22f487327c7cb9d8881f40c9"
+    },
+    {
+      "label": "B",
+      "version": "baseline",
+      "sourceSha256": "8c42f9c262e4313d3543054e196beacc42417d159139b1a3555694521e8825e6"
+    }
+  ],
+  "snapshots": {
+    "firing": {
+      "seed": "gauntlet-character-0",
+      "snapshot": {
+        "schemaVersion": 1,
+        "matchId": 1,
+        "tick": 61,
+        "time": 3.05,
+        "phase": "running",
+        "countdown": 0,
+        "remaining": 12,
+        "winner": null,
+        "zone": {
+          "x": 7,
+          "z": 7,
+          "radius": 62,
+          "nextRadius": 51.6667,
+          "stage": 0,
+          "secondsToShrink": 26.95
+        },
+        "map": {
+          "size": 120,
+          "buildings": [
+            {
+              "id": "relay",
+              "x": -22,
+              "z": -22,
+              "w": 12,
+              "d": 10,
+              "h": 9,
+              "kind": "relay"
+            },
+            {
+              "id": "habitat",
+              "x": 20,
+              "z": -22,
+              "w": 14,
+              "d": 10,
+              "h": 7,
+              "kind": "habitat"
+            },
+            {
+              "id": "lab",
+              "x": -23,
+              "z": 21,
+              "w": 12,
+              "d": 12,
+              "h": 7,
+              "kind": "lab"
+            },
+            {
+              "id": "hangar",
+              "x": 23,
+              "z": 22,
+              "w": 14,
+              "d": 10,
+              "h": 8,
+              "kind": "hangar"
+            },
+            {
+              "id": "uplink",
+              "x": 0,
+              "z": 0,
+              "w": 8,
+              "d": 8,
+              "h": 11,
+              "kind": "uplink"
+            },
+            {
+              "id": "pump",
+              "x": -44,
+              "z": 0,
+              "w": 7,
+              "d": 10,
+              "h": 5,
+              "kind": "pump"
+            },
+            {
+              "id": "dock",
+              "x": 45,
+              "z": 0,
+              "w": 6,
+              "d": 12,
+              "h": 5,
+              "kind": "dock"
+            }
+          ],
+          "covers": [
+            {
+              "id": "c1",
+              "x": -9,
+              "z": -16,
+              "w": 5,
+              "d": 2,
+              "h": 2.8,
+              "kind": "barricade"
+            },
+            {
+              "id": "c2",
+              "x": 9,
+              "z": 15,
+              "w": 5,
+              "d": 2,
+              "h": 2.8,
+              "kind": "barricade"
+            },
+            {
+              "id": "c3",
+              "x": -13,
+              "z": 3,
+              "w": 2,
+              "d": 6,
+              "h": 3.2,
+              "kind": "cargo"
+            },
+            {
+              "id": "c4",
+              "x": 14,
+              "z": -4,
+              "w": 2,
+              "d": 6,
+              "h": 3.2,
+              "kind": "cargo"
+            },
+            {
+              "id": "c5",
+              "x": -37,
+              "z": -34,
+              "w": 5,
+              "d": 3,
+              "h": 3,
+              "kind": "cargo"
+            },
+            {
+              "id": "c6",
+              "x": 35,
+              "z": 35,
+              "w": 5,
+              "d": 3,
+              "h": 3,
+              "kind": "cargo"
+            },
+            {
+              "id": "c7",
+              "x": 0,
+              "z": -39,
+              "w": 6,
+              "d": 2,
+              "h": 2.6,
+              "kind": "barricade"
+            },
+            {
+              "id": "c8",
+              "x": 0,
+              "z": 39,
+              "w": 6,
+              "d": 2,
+              "h": 2.6,
+              "kind": "barricade"
+            },
+            {
+              "id": "c9",
+              "x": -37,
+              "z": 35,
+              "w": 4,
+              "d": 3,
+              "h": 3,
+              "kind": "cargo"
+            },
+            {
+              "id": "c10",
+              "x": 36,
+              "z": -35,
+              "w": 4,
+              "d": 3,
+              "h": 3,
+              "kind": "cargo"
+            }
+          ]
+        },
+        "agents": [
+          {
+            "id": "sol",
+            "name": "SOL REYES",
+            "archetype": "vanguard",
+            "color": "#ff704b",
+            "x": -34.3502,
+            "z": 10.7734,
+            "yaw": -3.0994766910117497,
+            "hp": 100,
+            "shield": 59,
+            "kills": 0,
+            "alive": true,
+            "weapon": "Pulse Rifle",
+            "ammo": 23,
+            "intent": "Engaging NYX VALE",
+            "action": "aiming",
+            "hitTick": 61,
+            "fireTick": 60,
+            "targetId": "nyx"
+          },
+          {
+            "id": "nyx",
+            "name": "NYX VALE",
+            "archetype": "recon",
+            "color": "#ae8dff",
+            "x": -35.123,
+            "z": -7.5653,
+            "yaw": 0.0421154736956089,
+            "hp": 100,
+            "shield": 75,
+            "kills": 0,
+            "alive": true,
+            "weapon": "Scatter Cannon",
+            "ammo": 5,
+            "intent": "Closing on SOL REYES",
+            "action": "firing",
+            "hitTick": -100,
+            "fireTick": 61,
+            "targetId": "sol"
+          },
+          {
+            "id": "cove",
+            "name": "COVE MARIN",
+            "archetype": "support",
+            "color": "#44d8c5",
+            "x": -32.3951,
+            "z": -29.7751,
+            "yaw": 0.8275156188372681,
+            "hp": 100,
+            "shield": 75,
+            "kills": 0,
+            "alive": true,
+            "weapon": "Longshot",
+            "ammo": 5,
+            "intent": "Awaiting deployment",
+            "action": "aiming",
+            "hitTick": -100,
+            "fireTick": -100,
+            "targetId": null
+          },
+          {
+            "id": "rivet",
+            "name": "RIVET KNOX",
+            "archetype": "heavy",
+            "color": "#ffc66b",
+            "x": -10.7734,
+            "z": -34.3502,
+            "yaw": 0.30391789333336733,
+            "hp": 100,
+            "shield": 75,
+            "kills": 0,
+            "alive": true,
+            "weapon": "Arc SMG",
+            "ammo": 36,
+            "intent": "Awaiting deployment",
+            "action": "aiming",
+            "hitTick": -100,
+            "fireTick": -100,
+            "targetId": null
+          },
+          {
+            "id": "lux",
+            "name": "LUX ARDEN",
+            "archetype": "recon",
+            "color": "#f5f5dc",
+            "x": 7.8451,
+            "z": -35.1348,
+            "yaw": -0.2196821921525595,
+            "hp": 100,
+            "shield": 75,
+            "kills": 0,
+            "alive": true,
+            "weapon": "Pulse Rifle",
+            "ammo": 24,
+            "intent": "Awaiting deployment",
+            "action": "aiming",
+            "hitTick": -100,
+            "fireTick": -100,
+            "targetId": null
+          },
+          {
+            "id": "kestrel",
+            "name": "KESTREL VOSS",
+            "archetype": "vanguard",
+            "color": "#b5ef42",
+            "x": 29.7751,
+            "z": -32.3951,
+            "yaw": -0.7432807079576285,
+            "hp": 100,
+            "shield": 75,
+            "kills": 0,
+            "alive": true,
+            "weapon": "Scatter Cannon",
+            "ammo": 6,
+            "intent": "Awaiting deployment",
+            "action": "aiming",
+            "hitTick": -100,
+            "fireTick": -100,
+            "targetId": null
+          },
+          {
+            "id": "mako",
+            "name": "MAKO FINCH",
+            "archetype": "heavy",
+            "color": "#55b8ee",
+            "x": 34.3502,
+            "z": -10.7734,
+            "yaw": 0.042115962578043446,
+            "hp": 100,
+            "shield": 75,
+            "kills": 0,
+            "alive": true,
+            "weapon": "Longshot",
+            "ammo": 4,
+            "intent": "Engaging EMBER ROOK",
+            "action": "aiming",
+            "hitTick": -100,
+            "fireTick": 60,
+            "targetId": "ember"
+          },
+          {
+            "id": "ember",
+            "name": "EMBER ROOK",
+            "archetype": "support",
+            "color": "#f987bc",
+            "x": 35.1348,
+            "z": 7.8451,
+            "yaw": -3.0994766910117497,
+            "hp": 100,
+            "shield": 55,
+            "kills": 0,
+            "alive": true,
+            "weapon": "Arc SMG",
+            "ammo": 35,
+            "intent": "Engaging MAKO FINCH",
+            "action": "firing",
+            "hitTick": 60,
+            "fireTick": 61,
+            "targetId": "mako"
+          },
+          {
+            "id": "ion",
+            "name": "ION MERCER",
+            "archetype": "recon",
+            "color": "#7fafff",
+            "x": 32.3951,
+            "z": 29.7751,
+            "yaw": -2.314077034752525,
+            "hp": 100,
+            "shield": 75,
+            "kills": 0,
+            "alive": true,
+            "weapon": "Pulse Rifle",
+            "ammo": 24,
+            "intent": "Awaiting deployment",
+            "action": "aiming",
+            "hitTick": -100,
+            "fireTick": -100,
+            "targetId": null
+          },
+          {
+            "id": "sable",
+            "name": "SABLE CROSS",
+            "archetype": "vanguard",
+            "color": "#dfb77f",
+            "x": 10.7734,
+            "z": 34.3502,
+            "yaw": -2.837674760256426,
+            "hp": 100,
+            "shield": 75,
+            "kills": 0,
+            "alive": true,
+            "weapon": "Scatter Cannon",
+            "ammo": 6,
+            "intent": "Awaiting deployment",
+            "action": "aiming",
+            "hitTick": -100,
+            "fireTick": -100,
+            "targetId": null
+          },
+          {
+            "id": "tala",
+            "name": "TALA NOVA",
+            "archetype": "support",
+            "color": "#65df9d",
+            "x": -7.8451,
+            "z": 35.1348,
+            "yaw": 2.9219104614372338,
+            "hp": 100,
+            "shield": 75,
+            "kills": 0,
+            "alive": true,
+            "weapon": "Longshot",
+            "ammo": 5,
+            "intent": "Awaiting deployment",
+            "action": "aiming",
+            "hitTick": -100,
+            "fireTick": -100,
+            "targetId": null
+          },
+          {
+            "id": "flint",
+            "name": "FLINT QUILL",
+            "archetype": "heavy",
+            "color": "#ff9e68",
+            "x": -29.7751,
+            "z": 32.3951,
+            "yaw": 2.3983119456321647,
+            "hp": 100,
+            "shield": 75,
+            "kills": 0,
+            "alive": true,
+            "weapon": "Arc SMG",
+            "ammo": 36,
+            "intent": "Awaiting deployment",
+            "action": "aiming",
+            "hitTick": -100,
+            "fireTick": -100,
+            "targetId": null
+          }
+        ],
+        "loot": [
+          {
+            "id": "loot-0",
+            "x": 23.8539,
+            "z": -15.8908,
+            "kind": "medkit",
+            "active": true
+          },
+          {
+            "id": "loot-1",
+            "x": 23.6915,
+            "z": 3.0363,
+            "kind": "shield",
+            "active": true
+          },
+          {
+            "id": "loot-2",
+            "x": 12.0036,
+            "z": -34.0197,
+            "kind": "Longshot",
+            "active": true
+          },
+          {
+            "id": "loot-3",
+            "x": 1.2078,
+            "z": -5.6036,
+            "kind": "Arc SMG",
+            "active": true
+          },
+          {
+            "id": "loot-4",
+            "x": 4.5256,
+            "z": -34.8032,
+            "kind": "medkit",
+            "active": true
+          },
+          {
+            "id": "loot-5",
+            "x": 23.6317,
+            "z": -13.4208,
+            "kind": "shield",
+            "active": true
+          },
+          {
+            "id": "loot-6",
+            "x": -25.7377,
+            "z": -33.7203,
+            "kind": "Longshot",
+            "active": true
+          },
+          {
+            "id": "loot-7",
+            "x": -25.519,
+            "z": 37.4127,
+            "kind": "Arc SMG",
+            "active": true
+          },
+          {
+            "id": "loot-8",
+            "x": -4.7515,
+            "z": -33.9961,
+            "kind": "medkit",
+            "active": true
+          },
+          {
+            "id": "loot-9",
+            "x": -30.2607,
+            "z": 40.4419,
+            "kind": "shield",
+            "active": true
+          },
+          {
+            "id": "loot-10",
+            "x": 35.8162,
+            "z": 12.4316,
+            "kind": "Longshot",
+            "active": true
+          },
+          {
+            "id": "loot-11",
+            "x": -24.7167,
+            "z": -35.0066,
+            "kind": "Arc SMG",
+            "active": true
+          },
+          {
+            "id": "loot-12",
+            "x": -2.026,
+            "z": -17.1837,
+            "kind": "medkit",
+            "active": true
+          },
+          {
+            "id": "loot-13",
+            "x": -27.7116,
+            "z": 43.9956,
+            "kind": "shield",
+            "active": true
+          },
+          {
+            "id": "loot-14",
+            "x": 31.0345,
+            "z": 37.3252,
+            "kind": "Longshot",
+            "active": true
+          },
+          {
+            "id": "loot-15",
+            "x": 45.3817,
+            "z": -33.8593,
+            "kind": "Arc SMG",
+            "active": true
+          },
+          {
+            "id": "loot-16",
+            "x": 16.6178,
+            "z": 30.2173,
+            "kind": "medkit",
+            "active": true
+          },
+          {
+            "id": "loot-17",
+            "x": -25.6627,
+            "z": 45.9124,
+            "kind": "shield",
+            "active": true
+          },
+          {
+            "id": "loot-18",
+            "x": -25.1169,
+            "z": 39.1738,
+            "kind": "Longshot",
+            "active": true
+          },
+          {
+            "id": "loot-19",
+            "x": 2.3211,
+            "z": 30.3092,
+            "kind": "Arc SMG",
+            "active": true
+          },
+          {
+            "id": "loot-20",
+            "x": -35.6493,
+            "z": -36.9542,
+            "kind": "medkit",
+            "active": true
+          },
+          {
+            "id": "loot-21",
+            "x": 4.0395,
+            "z": -25.7772,
+            "kind": "shield",
+            "active": true
+          },
+          {
+            "id": "loot-22",
+            "x": 19.0655,
+            "z": -36.9502,
+            "kind": "Longshot",
+            "active": true
+          },
+          {
+            "id": "loot-23",
+            "x": 17.5909,
+            "z": 4.8639,
+            "kind": "Arc SMG",
+            "active": true
+          },
+          {
+            "id": "loot-24",
+            "x": 12.4263,
+            "z": -19.9928,
+            "kind": "medkit",
+            "active": true
+          },
+          {
+            "id": "loot-25",
+            "x": -47.5726,
+            "z": 32.5991,
+            "kind": "shield",
+            "active": true
+          },
+          {
+            "id": "loot-26",
+            "x": 46.134,
+            "z": -25.1784,
+            "kind": "Longshot",
+            "active": true
+          },
+          {
+            "id": "loot-27",
+            "x": -20.3478,
+            "z": 30.9374,
+            "kind": "Arc SMG",
+            "active": true
+          }
+        ],
+        "events": [
+          {
+            "id": 1,
+            "tick": 0,
+            "kind": "deployment",
+            "actor": null,
+            "target": null,
+            "text": "Match 1 \u00b7 12 contenders deploying",
+            "x": 7,
+            "z": 7
+          },
+          {
+            "id": 2,
+            "tick": 60,
+            "kind": "start",
+            "actor": null,
+            "target": null,
+            "text": "Deployment complete \u00b7 last contender standing wins",
+            "x": 7,
+            "z": 7
+          },
+          {
+            "id": 3,
+            "tick": 60,
+            "kind": "shot",
+            "actor": "sol",
+            "target": "nyx",
+            "text": "SOL REYES fires Pulse Rifle",
+            "x": -34.3502,
+            "z": 10.7734
+          },
+          {
+            "id": 4,
+            "tick": 60,
+            "kind": "shot",
+            "actor": "mako",
+            "target": "ember",
+            "text": "MAKO FINCH fires Longshot",
+            "x": 34.3502,
+            "z": -10.7734
+          },
+          {
+            "id": 5,
+            "tick": 61,
+            "kind": "shot",
+            "actor": "nyx",
+            "target": "sol",
+            "text": "NYX VALE fires Scatter Cannon",
+            "x": -35.123,
+            "z": -7.5653
+          },
+          {
+            "id": 6,
+            "tick": 61,
+            "kind": "shot",
+            "actor": "ember",
+            "target": "mako",
+            "text": "EMBER ROOK fires Arc SMG",
+            "x": 35.1348,
+            "z": 7.8451
+          }
+        ],
+        "checksum": "f8227031"
+      }
+    },
+    "reloading": {
+      "seed": "gauntlet-character-0",
+      "snapshot": {
+        "schemaVersion": 1,
+        "matchId": 1,
+        "tick": 205,
+        "time": 10.25,
+        "phase": "running",
+        "countdown": 0,
+        "remaining": 12,
+        "winner": null,
+        "zone": {
+          "x": 7,
+          "z": 7,
+          "radius": 62,
+          "nextRadius": 51.6667,
+          "stage": 0,
+          "secondsToShrink": 19.75
+        },
+        "map": {
+          "size": 120,
+          "buildings": [
+            {
+              "id": "relay",
+              "x": -22,
+              "z": -22,
+              "w": 12,
+              "d": 10,
+              "h": 9,
+              "kind": "relay"
+            },
+            {
+              "id": "habitat",
+              "x": 20,
+              "z": -22,
+              "w": 14,
+              "d": 10,
+              "h": 7,
+              "kind": "habitat"
+            },
+            {
+              "id": "lab",
+              "x": -23,
+              "z": 21,
+              "w": 12,
+              "d": 12,
+              "h": 7,
+              "kind": "lab"
+            },
+            {
+              "id": "hangar",
+              "x": 23,
+              "z": 22,
+              "w": 14,
+              "d": 10,
+              "h": 8,
+              "kind": "hangar"
+            },
+            {
+              "id": "uplink",
+              "x": 0,
+              "z": 0,
+              "w": 8,
+              "d": 8,
+              "h": 11,
+              "kind": "uplink"
+            },
+            {
+              "id": "pump",
+              "x": -44,
+              "z": 0,
+              "w": 7,
+              "d": 10,
+              "h": 5,
+              "kind": "pump"
+            },
+            {
+              "id": "dock",
+              "x": 45,
+              "z": 0,
+              "w": 6,
+              "d": 12,
+              "h": 5,
+              "kind": "dock"
+            }
+          ],
+          "covers": [
+            {
+              "id": "c1",
+              "x": -9,
+              "z": -16,
+              "w": 5,
+              "d": 2,
+              "h": 2.8,
+              "kind": "barricade"
+            },
+            {
+              "id": "c2",
+              "x": 9,
+              "z": 15,
+              "w": 5,
+              "d": 2,
+              "h": 2.8,
+              "kind": "barricade"
+            },
+            {
+              "id": "c3",
+              "x": -13,
+              "z": 3,
+              "w": 2,
+              "d": 6,
+              "h": 3.2,
+              "kind": "cargo"
+            },
+            {
+              "id": "c4",
+              "x": 14,
+              "z": -4,
+              "w": 2,
+              "d": 6,
+              "h": 3.2,
+              "kind": "cargo"
+            },
+            {
+              "id": "c5",
+              "x": -37,
+              "z": -34,
+              "w": 5,
+              "d": 3,
+              "h": 3,
+              "kind": "cargo"
+            },
+            {
+              "id": "c6",
+              "x": 35,
+              "z": 35,
+              "w": 5,
+              "d": 3,
+              "h": 3,
+              "kind": "cargo"
+            },
+            {
+              "id": "c7",
+              "x": 0,
+              "z": -39,
+              "w": 6,
+              "d": 2,
+              "h": 2.6,
+              "kind": "barricade"
+            },
+            {
+              "id": "c8",
+              "x": 0,
+              "z": 39,
+              "w": 6,
+              "d": 2,
+              "h": 2.6,
+              "kind": "barricade"
+            },
+            {
+              "id": "c9",
+              "x": -37,
+              "z": 35,
+              "w": 4,
+              "d": 3,
+              "h": 3,
+              "kind": "cargo"
+            },
+            {
+              "id": "c10",
+              "x": 36,
+              "z": -35,
+              "w": 4,
+              "d": 3,
+              "h": 3,
+              "kind": "cargo"
+            }
+          ]
+        },
+        "agents": [
+          {
+            "id": "sol",
+            "name": "SOL REYES",
+            "archetype": "vanguard",
+            "color": "#ff704b",
+            "x": -48.3111,
+            "z": 3.3731,
+            "yaw": 0.025360763735827185,
+            "hp": 94,
+            "shield": 0,
+            "kills": 0,
+            "alive": true,
+            "weapon": "Pulse Rifle",
+            "ammo": 10,
+            "intent": "Recovering supplies",
+            "action": "running",
+            "hitTick": 161,
+            "fireTick": 177,
+            "targetId": null
+          },
+          {
+            "id": "nyx",
+            "name": "NYX VALE",
+            "archetype": "recon",
+            "color": "#ae8dff",
+            "x": -36.5174,
+            "z": 5.5885,
+            "yaw": -1.4874771220195393,
+            "hp": 100,
+            "shield": 36,
+            "kills": 0,
+            "alive": true,
+            "weapon": "Scatter Cannon",
+            "ammo": 0,
+            "intent": "Reloading under cover",
+            "action": "reloading",
+            "hitTick": 185,
+            "fireTick": 176,
+            "targetId": "flint"
+          },
+          {
+            "id": "cove",
+            "name": "COVE MARIN",
+            "archetype": "support",
+            "color": "#44d8c5",
+            "x": -33.1926,
+            "z": -31.8687,
+            "yaw": -2.777931535766325,
+            "hp": 100,
+            "shield": 67,
+            "kills": 0,
+            "alive": true,
+            "weapon": "Longshot",
+            "ammo": 1,
+            "intent": "Engaging RIVET KNOX",
+            "action": "aiming",
+            "hitTick": 201,
+            "fireTick": 170,
+            "targetId": "rivet"
+          },
+          {
+            "id": "rivet",
+            "name": "RIVET KNOX",
+            "archetype": "heavy",
+            "color": "#ffc66b",
+            "x": -6.5219,
+            "z": -40.5348,
+            "yaw": -1.2566280994430972,
+            "hp": 60,
+            "shield": 0,
+            "kills": 0,
+            "alive": true,
+            "weapon": "Arc SMG",
+            "ammo": 1,
+            "intent": "Closing on COVE MARIN",
+            "action": "firing",
+            "hitTick": 202,
+            "fireTick": 205,
+            "targetId": "cove"
+          },
+          {
+            "id": "lux",
+            "name": "LUX ARDEN",
+            "archetype": "recon",
+            "color": "#f5f5dc",
+            "x": 3.62,
+            "z": -29.076,
+            "yaw": -2.4600936397277535,
+            "hp": 100,
+            "shield": 39,
+            "kills": 0,
+            "alive": true,
+            "weapon": "Pulse Rifle",
+            "ammo": 8,
+            "intent": "Engaging RIVET KNOX",
+            "action": "aiming",
+            "hitTick": 193,
+            "fireTick": 202,
+            "targetId": "rivet"
+          },
+          {
+            "id": "kestrel",
+            "name": "KESTREL VOSS",
+            "archetype": "vanguard",
+            "color": "#b5ef42",
+            "x": 31.6303,
+            "z": -23.6303,
+            "yaw": 0.20847796037590208,
+            "hp": 100,
+            "shield": 35,
+            "kills": 0,
+            "alive": true,
+            "weapon": "Scatter Cannon",
+            "ammo": 0,
+            "intent": "Reloading under cover",
+            "action": "reloading",
+            "hitTick": 168,
+            "fireTick": 180,
+            "targetId": "mako"
+          },
+          {
+            "id": "mako",
+            "name": "MAKO FINCH",
+            "archetype": "heavy",
+            "color": "#55b8ee",
+            "x": 34.3502,
+            "z": -10.7734,
+            "yaw": -2.933114693213891,
+            "hp": 78,
+            "shield": 0,
+            "kills": 0,
+            "alive": true,
+            "weapon": "Longshot",
+            "ammo": 0,
+            "intent": "Engaging KESTREL VOSS",
+            "action": "aiming",
+            "hitTick": 201,
+            "fireTick": 204,
+            "targetId": "kestrel"
+          },
+          {
+            "id": "ember",
+            "name": "EMBER ROOK",
+            "archetype": "support",
+            "color": "#f987bc",
+            "x": 35.1348,
+            "z": 7.8451,
+            "yaw": -3.0994766910117497,
+            "hp": 100,
+            "shield": 15,
+            "kills": 0,
+            "alive": true,
+            "weapon": "Arc SMG",
+            "ammo": 0,
+            "intent": "Reloading under cover",
+            "action": "reloading",
+            "hitTick": 170,
+            "fireTick": 201,
+            "targetId": "mako"
+          },
+          {
+            "id": "ion",
+            "name": "ION MERCER",
+            "archetype": "recon",
+            "color": "#7fafff",
+            "x": 30.1727,
+            "z": 29.4975,
+            "yaw": 2.916311852063975,
+            "hp": 100,
+            "shield": 75,
+            "kills": 0,
+            "alive": true,
+            "weapon": "Pulse Rifle",
+            "ammo": 8,
+            "intent": "Engaging EMBER ROOK",
+            "action": "aiming",
+            "hitTick": -100,
+            "fireTick": 197,
+            "targetId": "ember"
+          },
+          {
+            "id": "sable",
+            "name": "SABLE CROSS",
+            "archetype": "vanguard",
+            "color": "#dfb77f",
+            "x": 8.4863,
+            "z": 39.1595,
+            "yaw": 1.9897096112292236,
+            "hp": 100,
+            "shield": 10,
+            "kills": 0,
+            "alive": true,
+            "weapon": "Scatter Cannon",
+            "ammo": 0,
+            "intent": "Reloading under cover",
+            "action": "reloading",
+            "hitTick": 136,
+            "fireTick": 178,
+            "targetId": "tala"
+          },
+          {
+            "id": "tala",
+            "name": "TALA NOVA",
+            "archetype": "support",
+            "color": "#65df9d",
+            "x": -7.9395,
+            "z": 32.8964,
+            "yaw": -1.746591796876411,
+            "hp": 100,
+            "shield": 43,
+            "kills": 0,
+            "alive": true,
+            "weapon": "Longshot",
+            "ammo": 1,
+            "intent": "Engaging SABLE CROSS",
+            "action": "aiming",
+            "hitTick": 155,
+            "fireTick": 172,
+            "targetId": "sable"
+          },
+          {
+            "id": "flint",
+            "name": "FLINT QUILL",
+            "archetype": "heavy",
+            "color": "#ff9e68",
+            "x": -38.1905,
+            "z": 26.1795,
+            "yaw": 3.0605168210254443,
+            "hp": 100,
+            "shield": 50,
+            "kills": 0,
+            "alive": true,
+            "weapon": "Arc SMG",
+            "ammo": 0,
+            "intent": "Engaging NYX VALE",
+            "action": "firing",
+            "hitTick": 172,
+            "fireTick": 205,
+            "targetId": "nyx"
+          }
+        ],
+        "loot": [
+          {
+            "id": "loot-0",
+            "x": 23.8539,
+            "z": -15.8908,
+            "kind": "medkit",
+            "active": true
+          },
+          {
+            "id": "loot-1",
+            "x": 23.6915,
+            "z": 3.0363,
+            "kind": "shield",
+            "active": true
+          },
+          {
+            "id": "loot-2",
+            "x": 12.0036,
+            "z": -34.0197,
+            "kind": "Longshot",
+            "active": true
+          },
+          {
+            "id": "loot-3",
+            "x": 1.2078,
+            "z": -5.6036,
+            "kind": "Arc SMG",
+            "active": true
+          },
+          {
+            "id": "loot-4",
+            "x": 4.5256,
+            "z": -34.8032,
+            "kind": "medkit",
+            "active": true
+          },
+          {
+            "id": "loot-5",
+            "x": 23.6317,
+            "z": -13.4208,
+            "kind": "shield",
+            "active": true
+          },
+          {
+            "id": "loot-6",
+            "x": -25.7377,
+            "z": -33.7203,
+            "kind": "Longshot",
+            "active": true
+          },
+          {
+            "id": "loot-7",
+            "x": -25.519,
+            "z": 37.4127,
+            "kind": "Arc SMG",
+            "active": true
+          },
+          {
+            "id": "loot-8",
+            "x": -4.7515,
+            "z": -33.9961,
+            "kind": "medkit",
+            "active": true
+          },
+          {
+            "id": "loot-9",
+            "x": -30.2607,
+            "z": 40.4419,
+            "kind": "shield",
+            "active": true
+          },
+          {
+            "id": "loot-10",
+            "x": 35.8162,
+            "z": 12.4316,
+            "kind": "Longshot",
+            "active": true
+          },
+          {
+            "id": "loot-11",
+            "x": -24.7167,
+            "z": -35.0066,
+            "kind": "Arc SMG",
+            "active": true
+          },
+          {
+            "id": "loot-12",
+            "x": -2.026,
+            "z": -17.1837,
+            "kind": "medkit",
+            "active": true
+          },
+          {
+            "id": "loot-13",
+            "x": -27.7116,
+            "z": 43.9956,
+            "kind": "shield",
+            "active": true
+          },
+          {
+            "id": "loot-14",
+            "x": 31.0345,
+            "z": 37.3252,
+            "kind": "Longshot",
+            "active": true
+          },
+          {
+            "id": "loot-15",
+            "x": 45.3817,
+            "z": -33.8593,
+            "kind": "Arc SMG",
+            "active": true
+          },
+          {
+            "id": "loot-16",
+            "x": 16.6178,
+            "z": 30.2173,
+            "kind": "medkit",
+            "active": true
+          },
+          {
+            "id": "loot-17",
+            "x": -25.6627,
+            "z": 45.9124,
+            "kind": "shield",
+            "active": true
+          },
+          {
+            "id": "loot-18",
+            "x": -25.1169,
+            "z": 39.1738,
+            "kind": "Longshot",
+            "active": true
+          },
+          {
+            "id": "loot-19",
+            "x": 2.3211,
+            "z": 30.3092,
+            "kind": "Arc SMG",
+            "active": true
+          },
+          {
+            "id": "loot-20",
+            "x": -35.6493,
+            "z": -36.9542,
+            "kind": "medkit",
+            "active": true
+          },
+          {
+            "id": "loot-21",
+            "x": 4.0395,
+            "z": -25.7772,
+            "kind": "shield",
+            "active": true
+          },
+          {
+            "id": "loot-22",
+            "x": 19.0655,
+            "z": -36.9502,
+            "kind": "Longshot",
+            "active": true
+          },
+          {
+            "id": "loot-23",
+            "x": 17.5909,
+            "z": 4.8639,
+            "kind": "Arc SMG",
+            "active": true
+          },
+          {
+            "id": "loot-24",
+            "x": 12.4263,
+            "z": -19.9928,
+            "kind": "medkit",
+            "active": true
+          },
+          {
+            "id": "loot-25",
+            "x": -47.5726,
+            "z": 32.5991,
+            "kind": "shield",
+            "active": true
+          },
+          {
+            "id": "loot-26",
+            "x": 46.134,
+            "z": -25.1784,
+            "kind": "Longshot",
+            "active": true
+          },
+          {
+            "id": "loot-27",
+            "x": -20.3478,
+            "z": 30.9374,
+            "kind": "Arc SMG",
+            "active": true
+          }
+        ],
+        "events": [
+          {
+            "id": 111,
+            "tick": 141,
+            "kind": "shot",
+            "actor": "ember",
+            "target": "mako",
+            "text": "EMBER ROOK fires Arc SMG",
+            "x": 35.1348,
+            "z": 7.8451
+          },
+          {
+            "id": 112,
+            "tick": 141,
+            "kind": "shot",
+            "actor": "flint",
+            "target": "sol",
+            "text": "FLINT QUILL fires Arc SMG",
+            "x": -33.26,
+            "z": 30.4114
+          },
+          {
+            "id": 113,
+            "tick": 143,
+            "kind": "shot",
+            "actor": "rivet",
+            "target": "lux",
+            "text": "RIVET KNOX fires Arc SMG",
+            "x": -9.1804,
+            "z": -37.5228
+          },
+          {
+            "id": 114,
+            "tick": 143,
+            "kind": "shot",
+            "actor": "ion",
+            "target": "ember",
+            "text": "ION MERCER fires Pulse Rifle",
+            "x": 30.1727,
+            "z": 29.4975
+          },
+          {
+            "id": 115,
+            "tick": 145,
+            "kind": "shot",
+            "actor": "lux",
+            "target": "rivet",
+            "text": "LUX ARDEN fires Pulse Rifle",
+            "x": 7.8829,
+            "z": -32.8948
+          },
+          {
+            "id": 116,
+            "tick": 145,
+            "kind": "shot",
+            "actor": "ember",
+            "target": "mako",
+            "text": "EMBER ROOK fires Arc SMG",
+            "x": 35.1348,
+            "z": 7.8451
+          },
+          {
+            "id": 117,
+            "tick": 145,
+            "kind": "shot",
+            "actor": "flint",
+            "target": "sol",
+            "text": "FLINT QUILL fires Arc SMG",
+            "x": -33.5752,
+            "z": 29.5262
+          },
+          {
+            "id": 118,
+            "tick": 147,
+            "kind": "shot",
+            "actor": "rivet",
+            "target": "lux",
+            "text": "RIVET KNOX fires Arc SMG",
+            "x": -8.4372,
+            "z": -38.098
+          },
+          {
+            "id": 119,
+            "tick": 149,
+            "kind": "shot",
+            "actor": "ember",
+            "target": "mako",
+            "text": "EMBER ROOK fires Arc SMG",
+            "x": 35.1348,
+            "z": 7.8451
+          },
+          {
+            "id": 120,
+            "tick": 149,
+            "kind": "shot",
+            "actor": "flint",
+            "target": "sol",
+            "text": "FLINT QUILL fires Arc SMG",
+            "x": -33.9408,
+            "z": 28.6602
+          },
+          {
+            "id": 121,
+            "tick": 150,
+            "kind": "shot",
+            "actor": "sol",
+            "target": "nyx",
+            "text": "SOL REYES fires Pulse Rifle",
+            "x": -43.6701,
+            "z": 8.2191
+          },
+          {
+            "id": 122,
+            "tick": 151,
+            "kind": "shot",
+            "actor": "rivet",
+            "target": "lux",
+            "text": "RIVET KNOX fires Arc SMG",
+            "x": -7.694,
+            "z": -38.6732
+          },
+          {
+            "id": 123,
+            "tick": 152,
+            "kind": "shot",
+            "actor": "ion",
+            "target": "ember",
+            "text": "ION MERCER fires Pulse Rifle",
+            "x": 30.1727,
+            "z": 29.4975
+          },
+          {
+            "id": 124,
+            "tick": 153,
+            "kind": "shot",
+            "actor": "nyx",
+            "target": "sol",
+            "text": "NYX VALE fires Scatter Cannon",
+            "x": -35.1724,
+            "z": 1.0869
+          },
+          {
+            "id": 125,
+            "tick": 153,
+            "kind": "shot",
+            "actor": "ember",
+            "target": "mako",
+            "text": "EMBER ROOK fires Arc SMG",
+            "x": 35.1348,
+            "z": 7.8451
+          },
+          {
+            "id": 126,
+            "tick": 153,
+            "kind": "shot",
+            "actor": "flint",
+            "target": "sol",
+            "text": "FLINT QUILL fires Arc SMG",
+            "x": -34.3216,
+            "z": 27.8013
+          },
+          {
+            "id": 127,
+            "tick": 154,
+            "kind": "shot",
+            "actor": "lux",
+            "target": "rivet",
+            "text": "LUX ARDEN fires Pulse Rifle",
+            "x": 7.8829,
+            "z": -32.8948
+          },
+          {
+            "id": 128,
+            "tick": 155,
+            "kind": "shot",
+            "actor": "rivet",
+            "target": "lux",
+            "text": "RIVET KNOX fires Arc SMG",
+            "x": -6.9508,
+            "z": -39.2484
+          },
+          {
+            "id": 129,
+            "tick": 155,
+            "kind": "shot",
+            "actor": "sable",
+            "target": "tala",
+            "text": "SABLE CROSS fires Scatter Cannon",
+            "x": 5.2657,
+            "z": 38.0295
+          },
+          {
+            "id": 130,
+            "tick": 157,
+            "kind": "shot",
+            "actor": "kestrel",
+            "target": "mako",
+            "text": "KESTREL VOSS fires Scatter Cannon",
+            "x": 31.6303,
+            "z": -23.6303
+          },
+          {
+            "id": 131,
+            "tick": 157,
+            "kind": "shot",
+            "actor": "ember",
+            "target": "mako",
+            "text": "EMBER ROOK fires Arc SMG",
+            "x": 35.1348,
+            "z": 7.8451
+          },
+          {
+            "id": 132,
+            "tick": 157,
+            "kind": "shot",
+            "actor": "flint",
+            "target": "sol",
+            "text": "FLINT QUILL fires Arc SMG",
+            "x": -34.7487,
+            "z": 26.9637
+          },
+          {
+            "id": 133,
+            "tick": 159,
+            "kind": "shot",
+            "actor": "sol",
+            "target": "flint",
+            "text": "SOL REYES fires Pulse Rifle",
+            "x": -44.9812,
+            "z": 7.7286
+          },
+          {
+            "id": 134,
+            "tick": 159,
+            "kind": "shot",
+            "actor": "rivet",
+            "target": "cove",
+            "text": "RIVET KNOX fires Arc SMG",
+            "x": -6.613,
+            "z": -39.5961
+          },
+          {
+            "id": 135,
+            "tick": 161,
+            "kind": "shot",
+            "actor": "ember",
+            "target": "mako",
+            "text": "EMBER ROOK fires Arc SMG",
+            "x": 35.1348,
+            "z": 7.8451
+          },
+          {
+            "id": 136,
+            "tick": 161,
+            "kind": "shot",
+            "actor": "ion",
+            "target": "ember",
+            "text": "ION MERCER fires Pulse Rifle",
+            "x": 30.1727,
+            "z": 29.4975
+          },
+          {
+            "id": 137,
+            "tick": 161,
+            "kind": "shot",
+            "actor": "flint",
+            "target": "sol",
+            "text": "FLINT QUILL fires Arc SMG",
+            "x": -35.2764,
+            "z": 26.446
+          },
+          {
+            "id": 138,
+            "tick": 163,
+            "kind": "shot",
+            "actor": "rivet",
+            "target": "cove",
+            "text": "RIVET KNOX fires Arc SMG",
+            "x": -7.4914,
+            "z": -39.2614
+          },
+          {
+            "id": 139,
+            "tick": 163,
+            "kind": "shot",
+            "actor": "lux",
+            "target": "rivet",
+            "text": "LUX ARDEN fires Pulse Rifle",
+            "x": 7.4236,
+            "z": -31.8732
+          },
+          {
+            "id": 140,
+            "tick": 165,
+            "kind": "shot",
+            "actor": "ember",
+            "target": "mako",
+            "text": "EMBER ROOK fires Arc SMG",
+            "x": 35.1348,
+            "z": 7.8451
+          },
+          {
+            "id": 141,
+            "tick": 165,
+            "kind": "shot",
+            "actor": "flint",
+            "target": "sol",
+            "text": "FLINT QUILL fires Arc SMG",
+            "x": -36.106,
+            "z": 26.888
+          },
+          {
+            "id": 142,
+            "tick": 167,
+            "kind": "shot",
+            "actor": "rivet",
+            "target": "lux",
+            "text": "RIVET KNOX fires Arc SMG",
+            "x": -7.9482,
+            "z": -39.1305
+          },
+          {
+            "id": 143,
+            "tick": 168,
+            "kind": "shot",
+            "actor": "sol",
+            "target": "nyx",
+            "text": "SOL REYES fires Pulse Rifle",
+            "x": -46.2924,
+            "z": 7.2381
+          },
+          {
+            "id": 144,
+            "tick": 168,
+            "kind": "shot",
+            "actor": "mako",
+            "target": "kestrel",
+            "text": "MAKO FINCH fires Longshot",
+            "x": 34.3502,
+            "z": -10.7734
+          },
+          {
+            "id": 145,
+            "tick": 169,
+            "kind": "shot",
+            "actor": "ember",
+            "target": "mako",
+            "text": "EMBER ROOK fires Arc SMG",
+            "x": 35.1348,
+            "z": 7.8451
+          },
+          {
+            "id": 146,
+            "tick": 169,
+            "kind": "shot",
+            "actor": "flint",
+            "target": "sol",
+            "text": "FLINT QUILL fires Arc SMG",
+            "x": -36.9393,
+            "z": 27.3228
+          },
+          {
+            "id": 147,
+            "tick": 170,
+            "kind": "shot",
+            "actor": "cove",
+            "target": "rivet",
+            "text": "COVE MARIN fires Longshot",
+            "x": -32.8936,
+            "z": -31.0836
+          },
+          {
+            "id": 148,
+            "tick": 170,
+            "kind": "shot",
+            "actor": "ion",
+            "target": "ember",
+            "text": "ION MERCER fires Pulse Rifle",
+            "x": 30.1727,
+            "z": 29.4975
+          },
+          {
+            "id": 149,
+            "tick": 171,
+            "kind": "shot",
+            "actor": "rivet",
+            "target": "lux",
+            "text": "RIVET KNOX fires Arc SMG",
+            "x": -7.1402,
+            "z": -39.6109
+          },
+          {
+            "id": 150,
+            "tick": 172,
+            "kind": "shot",
+            "actor": "lux",
+            "target": "rivet",
+            "text": "LUX ARDEN fires Pulse Rifle",
+            "x": 6.2702,
+            "z": -29.6358
+          },
+          {
+            "id": 151,
+            "tick": 172,
+            "kind": "shot",
+            "actor": "tala",
+            "target": "flint",
+            "text": "TALA NOVA fires Longshot",
+            "x": -7.9395,
+            "z": 32.8964
+          },
+          {
+            "id": 152,
+            "tick": 173,
+            "kind": "shot",
+            "actor": "ember",
+            "target": "mako",
+            "text": "EMBER ROOK fires Arc SMG",
+            "x": 35.1348,
+            "z": 7.8451
+          },
+          {
+            "id": 153,
+            "tick": 173,
+            "kind": "shot",
+            "actor": "flint",
+            "target": "sol",
+            "text": "FLINT QUILL fires Arc SMG",
+            "x": -37.7837,
+            "z": 27.736
+          },
+          {
+            "id": 154,
+            "tick": 175,
+            "kind": "shot",
+            "actor": "rivet",
+            "target": "lux",
+            "text": "RIVET KNOX fires Arc SMG",
+            "x": -6.3322,
+            "z": -40.0913
+          },
+          {
+            "id": 155,
+            "tick": 176,
+            "kind": "shot",
+            "actor": "nyx",
+            "target": "sol",
+            "text": "NYX VALE fires Scatter Cannon",
+            "x": -35.4014,
+            "z": 5.4953
+          },
+          {
+            "id": 156,
+            "tick": 177,
+            "kind": "shot",
+            "actor": "sol",
+            "target": "nyx",
+            "text": "SOL REYES fires Pulse Rifle",
+            "x": -48.0955,
+            "z": 5.6059
+          },
+          {
+            "id": 157,
+            "tick": 177,
+            "kind": "shot",
+            "actor": "ember",
+            "target": "mako",
+            "text": "EMBER ROOK fires Arc SMG",
+            "x": 35.1348,
+            "z": 7.8451
+          },
+          {
+            "id": 158,
+            "tick": 177,
+            "kind": "shot",
+            "actor": "flint",
+            "target": "nyx",
+            "text": "FLINT QUILL fires Arc SMG",
+            "x": -38.3887,
+            "z": 27.8126
+          },
+          {
+            "id": 159,
+            "tick": 178,
+            "kind": "shot",
+            "actor": "sable",
+            "target": "ion",
+            "text": "SABLE CROSS fires Scatter Cannon",
+            "x": 7.4631,
+            "z": 39.6153
+          },
+          {
+            "id": 160,
+            "tick": 179,
+            "kind": "shot",
+            "actor": "rivet",
+            "target": "lux",
+            "text": "RIVET KNOX fires Arc SMG",
+            "x": -5.5242,
+            "z": -40.5717
+          },
+          {
+            "id": 161,
+            "tick": 179,
+            "kind": "shot",
+            "actor": "ion",
+            "target": "ember",
+            "text": "ION MERCER fires Pulse Rifle",
+            "x": 30.1727,
+            "z": 29.4975
+          },
+          {
+            "id": 162,
+            "tick": 180,
+            "kind": "shot",
+            "actor": "kestrel",
+            "target": "mako",
+            "text": "KESTREL VOSS fires Scatter Cannon",
+            "x": 31.6303,
+            "z": -23.6303
+          },
+          {
+            "id": 163,
+            "tick": 181,
+            "kind": "reload",
+            "actor": "nyx",
+            "target": null,
+            "text": "NYX VALE reloads Scatter Cannon",
+            "x": -36.5174,
+            "z": 5.5885
+          },
+          {
+            "id": 164,
+            "tick": 181,
+            "kind": "shot",
+            "actor": "ember",
+            "target": "mako",
+            "text": "EMBER ROOK fires Arc SMG",
+            "x": 35.1348,
+            "z": 7.8451
+          },
+          {
+            "id": 165,
+            "tick": 181,
+            "kind": "shot",
+            "actor": "flint",
+            "target": "nyx",
+            "text": "FLINT QUILL fires Arc SMG",
+            "x": -38.2755,
+            "z": 26.8794
+          },
+          {
+            "id": 166,
+            "tick": 183,
+            "kind": "reload",
+            "actor": "sable",
+            "target": null,
+            "text": "SABLE CROSS reloads Scatter Cannon",
+            "x": 8.4863,
+            "z": 39.1595
+          },
+          {
+            "id": 167,
+            "tick": 184,
+            "kind": "shot",
+            "actor": "lux",
+            "target": "cove",
+            "text": "LUX ARDEN fires Pulse Rifle",
+            "x": 5.5744,
+            "z": -28.9276
+          },
+          {
+            "id": 168,
+            "tick": 185,
+            "kind": "reload",
+            "actor": "kestrel",
+            "target": null,
+            "text": "KESTREL VOSS reloads Scatter Cannon",
+            "x": 31.6303,
+            "z": -23.6303
+          },
+          {
+            "id": 169,
+            "tick": 185,
+            "kind": "shot",
+            "actor": "rivet",
+            "target": "cove",
+            "text": "RIVET KNOX fires Arc SMG",
+            "x": -5.5896,
+            "z": -40.7171
+          },
+          {
+            "id": 170,
+            "tick": 185,
+            "kind": "shot",
+            "actor": "ember",
+            "target": "mako",
+            "text": "EMBER ROOK fires Arc SMG",
+            "x": 35.1348,
+            "z": 7.8451
+          },
+          {
+            "id": 171,
+            "tick": 185,
+            "kind": "shot",
+            "actor": "flint",
+            "target": "nyx",
+            "text": "FLINT QUILL fires Arc SMG",
+            "x": -38.1905,
+            "z": 26.1795
+          },
+          {
+            "id": 172,
+            "tick": 188,
+            "kind": "shot",
+            "actor": "ion",
+            "target": "ember",
+            "text": "ION MERCER fires Pulse Rifle",
+            "x": 30.1727,
+            "z": 29.4975
+          },
+          {
+            "id": 173,
+            "tick": 189,
+            "kind": "shot",
+            "actor": "rivet",
+            "target": "cove",
+            "text": "RIVET KNOX fires Arc SMG",
+            "x": -6.4848,
+            "z": -40.4303
+          },
+          {
+            "id": 174,
+            "tick": 189,
+            "kind": "shot",
+            "actor": "ember",
+            "target": "mako",
+            "text": "EMBER ROOK fires Arc SMG",
+            "x": 35.1348,
+            "z": 7.8451
+          },
+          {
+            "id": 175,
+            "tick": 189,
+            "kind": "shot",
+            "actor": "flint",
+            "target": "nyx",
+            "text": "FLINT QUILL fires Arc SMG",
+            "x": -38.1905,
+            "z": 26.1795
+          },
+          {
+            "id": 176,
+            "tick": 193,
+            "kind": "shot",
+            "actor": "rivet",
+            "target": "lux",
+            "text": "RIVET KNOX fires Arc SMG",
+            "x": -6.0519,
+            "z": -40.6152
+          },
+          {
+            "id": 177,
+            "tick": 193,
+            "kind": "shot",
+            "actor": "lux",
+            "target": "rivet",
+            "text": "LUX ARDEN fires Pulse Rifle",
+            "x": 3.62,
+            "z": -29.076
+          },
+          {
+            "id": 178,
+            "tick": 193,
+            "kind": "shot",
+            "actor": "ember",
+            "target": "mako",
+            "text": "EMBER ROOK fires Arc SMG",
+            "x": 35.1348,
+            "z": 7.8451
+          },
+          {
+            "id": 179,
+            "tick": 193,
+            "kind": "shot",
+            "actor": "flint",
+            "target": "nyx",
+            "text": "FLINT QUILL fires Arc SMG",
+            "x": -38.1905,
+            "z": 26.1795
+          },
+          {
+            "id": 180,
+            "tick": 197,
+            "kind": "shot",
+            "actor": "ember",
+            "target": "mako",
+            "text": "EMBER ROOK fires Arc SMG",
+            "x": 35.1348,
+            "z": 7.8451
+          },
+          {
+            "id": 181,
+            "tick": 197,
+            "kind": "shot",
+            "actor": "ion",
+            "target": "ember",
+            "text": "ION MERCER fires Pulse Rifle",
+            "x": 30.1727,
+            "z": 29.4975
+          },
+          {
+            "id": 182,
+            "tick": 197,
+            "kind": "shot",
+            "actor": "flint",
+            "target": "nyx",
+            "text": "FLINT QUILL fires Arc SMG",
+            "x": -38.1905,
+            "z": 26.1795
+          },
+          {
+            "id": 183,
+            "tick": 201,
+            "kind": "shot",
+            "actor": "rivet",
+            "target": "cove",
+            "text": "RIVET KNOX fires Arc SMG",
+            "x": -5.6279,
+            "z": -40.8252
+          },
+          {
+            "id": 184,
+            "tick": 201,
+            "kind": "shot",
+            "actor": "ember",
+            "target": "mako",
+            "text": "EMBER ROOK fires Arc SMG",
+            "x": 35.1348,
+            "z": 7.8451
+          },
+          {
+            "id": 185,
+            "tick": 201,
+            "kind": "shot",
+            "actor": "flint",
+            "target": "nyx",
+            "text": "FLINT QUILL fires Arc SMG",
+            "x": -38.1905,
+            "z": 26.1795
+          },
+          {
+            "id": 186,
+            "tick": 202,
+            "kind": "shot",
+            "actor": "lux",
+            "target": "rivet",
+            "text": "LUX ARDEN fires Pulse Rifle",
+            "x": 3.62,
+            "z": -29.076
+          },
+          {
+            "id": 187,
+            "tick": 204,
+            "kind": "shot",
+            "actor": "mako",
+            "target": "kestrel",
+            "text": "MAKO FINCH fires Longshot",
+            "x": 34.3502,
+            "z": -10.7734
+          },
+          {
+            "id": 188,
+            "tick": 205,
+            "kind": "reload",
+            "actor": "ember",
+            "target": null,
+            "text": "EMBER ROOK reloads Arc SMG",
+            "x": 35.1348,
+            "z": 7.8451
+          },
+          {
+            "id": 189,
+            "tick": 205,
+            "kind": "shot",
+            "actor": "rivet",
+            "target": "cove",
+            "text": "RIVET KNOX fires Arc SMG",
+            "x": -6.5219,
+            "z": -40.5348
+          },
+          {
+            "id": 190,
+            "tick": 205,
+            "kind": "shot",
+            "actor": "flint",
+            "target": "nyx",
+            "text": "FLINT QUILL fires Arc SMG",
+            "x": -38.1905,
+            "z": 26.1795
+          }
+        ],
+        "checksum": "8977c598"
+      }
+    },
+    "eliminated": {
+      "seed": "gauntlet-character-0",
+      "snapshot": {
+        "schemaVersion": 1,
+        "matchId": 1,
+        "tick": 621,
+        "time": 31.05,
+        "phase": "running",
+        "countdown": 0,
+        "remaining": 7,
+        "winner": null,
+        "zone": {
+          "x": 7,
+          "z": 7,
+          "radius": 61.5745,
+          "nextRadius": 51.6667,
+          "stage": 0,
+          "secondsToShrink": 24.449999999999996
+        },
+        "map": {
+          "size": 120,
+          "buildings": [
+            {
+              "id": "relay",
+              "x": -22,
+              "z": -22,
+              "w": 12,
+              "d": 10,
+              "h": 9,
+              "kind": "relay"
+            },
+            {
+              "id": "habitat",
+              "x": 20,
+              "z": -22,
+              "w": 14,
+              "d": 10,
+              "h": 7,
+              "kind": "habitat"
+            },
+            {
+              "id": "lab",
+              "x": -23,
+              "z": 21,
+              "w": 12,
+              "d": 12,
+              "h": 7,
+              "kind": "lab"
+            },
+            {
+              "id": "hangar",
+              "x": 23,
+              "z": 22,
+              "w": 14,
+              "d": 10,
+              "h": 8,
+              "kind": "hangar"
+            },
+            {
+              "id": "uplink",
+              "x": 0,
+              "z": 0,
+              "w": 8,
+              "d": 8,
+              "h": 11,
+              "kind": "uplink"
+            },
+            {
+              "id": "pump",
+              "x": -44,
+              "z": 0,
+              "w": 7,
+              "d": 10,
+              "h": 5,
+              "kind": "pump"
+            },
+            {
+              "id": "dock",
+              "x": 45,
+              "z": 0,
+              "w": 6,
+              "d": 12,
+              "h": 5,
+              "kind": "dock"
+            }
+          ],
+          "covers": [
+            {
+              "id": "c1",
+              "x": -9,
+              "z": -16,
+              "w": 5,
+              "d": 2,
+              "h": 2.8,
+              "kind": "barricade"
+            },
+            {
+              "id": "c2",
+              "x": 9,
+              "z": 15,
+              "w": 5,
+              "d": 2,
+              "h": 2.8,
+              "kind": "barricade"
+            },
+            {
+              "id": "c3",
+              "x": -13,
+              "z": 3,
+              "w": 2,
+              "d": 6,
+              "h": 3.2,
+              "kind": "cargo"
+            },
+            {
+              "id": "c4",
+              "x": 14,
+              "z": -4,
+              "w": 2,
+              "d": 6,
+              "h": 3.2,
+              "kind": "cargo"
+            },
+            {
+              "id": "c5",
+              "x": -37,
+              "z": -34,
+              "w": 5,
+              "d": 3,
+              "h": 3,
+              "kind": "cargo"
+            },
+            {
+              "id": "c6",
+              "x": 35,
+              "z": 35,
+              "w": 5,
+              "d": 3,
+              "h": 3,
+              "kind": "cargo"
+            },
+            {
+              "id": "c7",
+              "x": 0,
+              "z": -39,
+              "w": 6,
+              "d": 2,
+              "h": 2.6,
+              "kind": "barricade"
+            },
+            {
+              "id": "c8",
+              "x": 0,
+              "z": 39,
+              "w": 6,
+              "d": 2,
+              "h": 2.6,
+              "kind": "barricade"
+            },
+            {
+              "id": "c9",
+              "x": -37,
+              "z": 35,
+              "w": 4,
+              "d": 3,
+              "h": 3,
+              "kind": "cargo"
+            },
+            {
+              "id": "c10",
+              "x": 36,
+              "z": -35,
+              "w": 4,
+              "d": 3,
+              "h": 3,
+              "kind": "cargo"
+            }
+          ]
+        },
+        "agents": [
+          {
+            "id": "sol",
+            "name": "SOL REYES",
+            "archetype": "vanguard",
+            "color": "#ff704b",
+            "x": -48.0417,
+            "z": 15.4372,
+            "yaw": 0.027145884592210213,
+            "hp": 78,
+            "shield": 0,
+            "kills": 0,
+            "alive": true,
+            "weapon": "Pulse Rifle",
+            "ammo": 6,
+            "intent": "Recovering supplies",
+            "action": "running",
+            "hitTick": 501,
+            "fireTick": 572,
+            "targetId": null
+          },
+          {
+            "id": "nyx",
+            "name": "NYX VALE",
+            "archetype": "recon",
+            "color": "#ae8dff",
+            "x": -38.038,
+            "z": -4.8651,
+            "yaw": 2.884487072840489,
+            "hp": 54,
+            "shield": 0,
+            "kills": 1,
+            "alive": true,
+            "weapon": "Scatter Cannon",
+            "ammo": 6,
+            "intent": "Closing on COVE MARIN",
+            "action": "running",
+            "hitTick": 556,
+            "fireTick": 525,
+            "targetId": "cove"
+          },
+          {
+            "id": "cove",
+            "name": "COVE MARIN",
+            "archetype": "support",
+            "color": "#44d8c5",
+            "x": -30.3086,
+            "z": -33.1807,
+            "yaw": 1.212443681748705,
+            "hp": 100,
+            "shield": 22,
+            "kills": 1,
+            "alive": true,
+            "weapon": "Longshot",
+            "ammo": 1,
+            "intent": "Rotating to safe zone",
+            "action": "running",
+            "hitTick": 532,
+            "fireTick": 590,
+            "targetId": "lux"
+          },
+          {
+            "id": "rivet",
+            "name": "RIVET KNOX",
+            "archetype": "heavy",
+            "color": "#ffc66b",
+            "x": -4.3001,
+            "z": -41.3,
+            "yaw": 0.3381985003563568,
+            "hp": 0,
+            "shield": 0,
+            "kills": 0,
+            "alive": false,
+            "weapon": "Arc SMG",
+            "ammo": 15,
+            "intent": "Eliminated",
+            "action": "eliminated",
+            "hitTick": 382,
+            "fireTick": 331,
+            "targetId": null
+          },
+          {
+            "id": "lux",
+            "name": "LUX ARDEN",
+            "archetype": "recon",
+            "color": "#f5f5dc",
+            "x": -6.6674,
+            "z": -39.8903,
+            "yaw": -1.344613093876982,
+            "hp": 32,
+            "shield": 0,
+            "kills": 0,
+            "alive": true,
+            "weapon": "Pulse Rifle",
+            "ammo": 22,
+            "intent": "Applying field medkit",
+            "action": "healing",
+            "hitTick": 590,
+            "fireTick": 589,
+            "targetId": "cove"
+          },
+          {
+            "id": "kestrel",
+            "name": "KESTREL VOSS",
+            "archetype": "vanguard",
+            "color": "#b5ef42",
+            "x": 34.6035,
+            "z": -5.0675,
+            "yaw": 0.04112266136589045,
+            "hp": 41,
+            "shield": 0,
+            "kills": 0,
+            "alive": true,
+            "weapon": "Scatter Cannon",
+            "ammo": 4,
+            "intent": "Engaging EMBER ROOK",
+            "action": "aiming",
+            "hitTick": 617,
+            "fireTick": 620,
+            "targetId": "ember"
+          },
+          {
+            "id": "mako",
+            "name": "MAKO FINCH",
+            "archetype": "heavy",
+            "color": "#55b8ee",
+            "x": 34.3502,
+            "z": -10.7734,
+            "yaw": -3.101922773884375,
+            "hp": 0,
+            "shield": 0,
+            "kills": 0,
+            "alive": false,
+            "weapon": "Longshot",
+            "ammo": 3,
+            "intent": "Eliminated",
+            "action": "eliminated",
+            "hitTick": 321,
+            "fireTick": 308,
+            "targetId": null
+          },
+          {
+            "id": "ember",
+            "name": "EMBER ROOK",
+            "archetype": "support",
+            "color": "#f987bc",
+            "x": 35.1348,
+            "z": 7.8451,
+            "yaw": -3.100469992223903,
+            "hp": 0,
+            "shield": 0,
+            "kills": 1,
+            "alive": false,
+            "weapon": "Arc SMG",
+            "ammo": 33,
+            "intent": "Eliminated",
+            "action": "eliminated",
+            "hitTick": 620,
+            "fireTick": 617,
+            "targetId": null
+          },
+          {
+            "id": "ion",
+            "name": "ION MERCER",
+            "archetype": "recon",
+            "color": "#7fafff",
+            "x": 38.2584,
+            "z": 35.9912,
+            "yaw": -3.031066847939721,
+            "hp": 89,
+            "shield": 0,
+            "kills": 2,
+            "alive": true,
+            "weapon": "Longshot",
+            "ammo": 1,
+            "intent": "Engaging EMBER ROOK",
+            "action": "aiming",
+            "hitTick": 511,
+            "fireTick": 620,
+            "targetId": "ember"
+          },
+          {
+            "id": "sable",
+            "name": "SABLE CROSS",
+            "archetype": "vanguard",
+            "color": "#dfb77f",
+            "x": 17.3727,
+            "z": 31.6791,
+            "yaw": 1.2460886510951994,
+            "hp": 0,
+            "shield": 0,
+            "kills": 0,
+            "alive": false,
+            "weapon": "Scatter Cannon",
+            "ammo": 1,
+            "intent": "Eliminated",
+            "action": "eliminated",
+            "hitTick": 512,
+            "fireTick": 511,
+            "targetId": null
+          },
+          {
+            "id": "tala",
+            "name": "TALA NOVA",
+            "archetype": "support",
+            "color": "#65df9d",
+            "x": 4.7553,
+            "z": 28.2859,
+            "yaw": 2.411538875533988,
+            "hp": 100,
+            "shield": 11,
+            "kills": 0,
+            "alive": true,
+            "weapon": "Arc SMG",
+            "ammo": 36,
+            "intent": "Closing on KESTREL VOSS",
+            "action": "running",
+            "hitTick": 310,
+            "fireTick": 604,
+            "targetId": "kestrel"
+          },
+          {
+            "id": "flint",
+            "name": "FLINT QUILL",
+            "archetype": "heavy",
+            "color": "#ff9e68",
+            "x": -40.0697,
+            "z": 26.1283,
+            "yaw": 3.1185219238730375,
+            "hp": 0,
+            "shield": 0,
+            "kills": 0,
+            "alive": false,
+            "weapon": "Arc SMG",
+            "ammo": 25,
+            "intent": "Eliminated",
+            "action": "eliminated",
+            "hitTick": 470,
+            "fireTick": 469,
+            "targetId": null
+          }
+        ],
+        "loot": [
+          {
+            "id": "loot-0",
+            "x": 23.8539,
+            "z": -15.8908,
+            "kind": "medkit",
+            "active": true
+          },
+          {
+            "id": "loot-1",
+            "x": 23.6915,
+            "z": 3.0363,
+            "kind": "shield",
+            "active": true
+          },
+          {
+            "id": "loot-2",
+            "x": 12.0036,
+            "z": -34.0197,
+            "kind": "Longshot",
+            "active": true
+          },
+          {
+            "id": "loot-3",
+            "x": 1.2078,
+            "z": -5.6036,
+            "kind": "Arc SMG",
+            "active": true
+          },
+          {
+            "id": "loot-4",
+            "x": 4.5256,
+            "z": -34.8032,
+            "kind": "medkit",
+            "active": true
+          },
+          {
+            "id": "loot-5",
+            "x": 23.6317,
+            "z": -13.4208,
+            "kind": "shield",
+            "active": true
+          },
+          {
+            "id": "loot-6",
+            "x": -25.7377,
+            "z": -33.7203,
+            "kind": "Longshot",
+            "active": true
+          },
+          {
+            "id": "loot-7",
+            "x": -25.519,
+            "z": 37.4127,
+            "kind": "Arc SMG",
+            "active": true
+          },
+          {
+            "id": "loot-8",
+            "x": -4.7515,
+            "z": -33.9961,
+            "kind": "medkit",
+            "active": false
+          },
+          {
+            "id": "loot-9",
+            "x": -30.2607,
+            "z": 40.4419,
+            "kind": "shield",
+            "active": true
+          },
+          {
+            "id": "loot-10",
+            "x": 35.8162,
+            "z": 12.4316,
+            "kind": "Longshot",
+            "active": true
+          },
+          {
+            "id": "loot-11",
+            "x": -24.7167,
+            "z": -35.0066,
+            "kind": "Arc SMG",
+            "active": true
+          },
+          {
+            "id": "loot-12",
+            "x": -2.026,
+            "z": -17.1837,
+            "kind": "medkit",
+            "active": true
+          },
+          {
+            "id": "loot-13",
+            "x": -27.7116,
+            "z": 43.9956,
+            "kind": "shield",
+            "active": true
+          },
+          {
+            "id": "loot-14",
+            "x": 31.0345,
+            "z": 37.3252,
+            "kind": "Longshot",
+            "active": false
+          },
+          {
+            "id": "loot-15",
+            "x": 45.3817,
+            "z": -33.8593,
+            "kind": "Arc SMG",
+            "active": true
+          },
+          {
+            "id": "loot-16",
+            "x": 16.6178,
+            "z": 30.2173,
+            "kind": "medkit",
+            "active": false
+          },
+          {
+            "id": "loot-17",
+            "x": -25.6627,
+            "z": 45.9124,
+            "kind": "shield",
+            "active": true
+          },
+          {
+            "id": "loot-18",
+            "x": -25.1169,
+            "z": 39.1738,
+            "kind": "Longshot",
+            "active": true
+          },
+          {
+            "id": "loot-19",
+            "x": 2.3211,
+            "z": 30.3092,
+            "kind": "Arc SMG",
+            "active": false
+          },
+          {
+            "id": "loot-20",
+            "x": -35.6493,
+            "z": -36.9542,
+            "kind": "medkit",
+            "active": true
+          },
+          {
+            "id": "loot-21",
+            "x": 4.0395,
+            "z": -25.7772,
+            "kind": "shield",
+            "active": true
+          },
+          {
+            "id": "loot-22",
+            "x": 19.0655,
+            "z": -36.9502,
+            "kind": "Longshot",
+            "active": true
+          },
+          {
+            "id": "loot-23",
+            "x": 17.5909,
+            "z": 4.8639,
+            "kind": "Arc SMG",
+            "active": true
+          },
+          {
+            "id": "loot-24",
+            "x": 12.4263,
+            "z": -19.9928,
+            "kind": "medkit",
+            "active": true
+          },
+          {
+            "id": "loot-25",
+            "x": -47.5726,
+            "z": 32.5991,
+            "kind": "shield",
+            "active": true
+          },
+          {
+            "id": "loot-26",
+            "x": 46.134,
+            "z": -25.1784,
+            "kind": "Longshot",
+            "active": true
+          },
+          {
+            "id": "loot-27",
+            "x": -20.3478,
+            "z": 30.9374,
+            "kind": "Arc SMG",
+            "active": true
+          }
+        ],
+        "events": [
+          {
+            "id": 440,
+            "tick": 470,
+            "kind": "elimination",
+            "actor": "nyx",
+            "target": "flint",
+            "text": "NYX VALE eliminated FLINT QUILL",
+            "x": -40.0697,
+            "z": 26.1283
+          },
+          {
+            "id": 441,
+            "tick": 473,
+            "kind": "shot",
+            "actor": "ember",
+            "target": "kestrel",
+            "text": "EMBER ROOK fires Arc SMG",
+            "x": 35.1348,
+            "z": 7.8451
+          },
+          {
+            "id": 442,
+            "tick": 475,
+            "kind": "shot",
+            "actor": "kestrel",
+            "target": "ember",
+            "text": "KESTREL VOSS fires Scatter Cannon",
+            "x": 34.6035,
+            "z": -5.0675
+          },
+          {
+            "id": 443,
+            "tick": 476,
+            "kind": "shot",
+            "actor": "ion",
+            "target": "sable",
+            "text": "ION MERCER fires Pulse Rifle",
+            "x": 31.0627,
+            "z": 31.5531
+          },
+          {
+            "id": 444,
+            "tick": 477,
+            "kind": "shot",
+            "actor": "ember",
+            "target": "kestrel",
+            "text": "EMBER ROOK fires Arc SMG",
+            "x": 35.1348,
+            "z": 7.8451
+          },
+          {
+            "id": 445,
+            "tick": 478,
+            "kind": "shot",
+            "actor": "lux",
+            "target": "cove",
+            "text": "LUX ARDEN fires Pulse Rifle",
+            "x": -7.4373,
+            "z": -39.5085
+          },
+          {
+            "id": 446,
+            "tick": 481,
+            "kind": "shot",
+            "actor": "ember",
+            "target": "kestrel",
+            "text": "EMBER ROOK fires Arc SMG",
+            "x": 35.1348,
+            "z": 7.8451
+          },
+          {
+            "id": 447,
+            "tick": 482,
+            "kind": "shot",
+            "actor": "cove",
+            "target": "lux",
+            "text": "COVE MARIN fires Longshot",
+            "x": -32.4062,
+            "z": -33.9663
+          },
+          {
+            "id": 448,
+            "tick": 484,
+            "kind": "shot",
+            "actor": "sol",
+            "target": "nyx",
+            "text": "SOL REYES fires Pulse Rifle",
+            "x": -48.1877,
+            "z": 4.7682
+          },
+          {
+            "id": 449,
+            "tick": 485,
+            "kind": "shot",
+            "actor": "ember",
+            "target": "kestrel",
+            "text": "EMBER ROOK fires Arc SMG",
+            "x": 35.1348,
+            "z": 7.8451
+          },
+          {
+            "id": 450,
+            "tick": 485,
+            "kind": "shot",
+            "actor": "ion",
+            "target": "sable",
+            "text": "ION MERCER fires Pulse Rifle",
+            "x": 31.0627,
+            "z": 31.5531
+          },
+          {
+            "id": 451,
+            "tick": 487,
+            "kind": "shot",
+            "actor": "lux",
+            "target": "cove",
+            "text": "LUX ARDEN fires Pulse Rifle",
+            "x": -5.5538,
+            "z": -40.0525
+          },
+          {
+            "id": 452,
+            "tick": 488,
+            "kind": "shot",
+            "actor": "sable",
+            "target": "ion",
+            "text": "SABLE CROSS fires Scatter Cannon",
+            "x": 15.5227,
+            "z": 33.4761
+          },
+          {
+            "id": 453,
+            "tick": 489,
+            "kind": "shot",
+            "actor": "ember",
+            "target": "kestrel",
+            "text": "EMBER ROOK fires Arc SMG",
+            "x": 35.1348,
+            "z": 7.8451
+          },
+          {
+            "id": 454,
+            "tick": 492,
+            "kind": "shot",
+            "actor": "tala",
+            "target": "sable",
+            "text": "TALA NOVA fires Longshot",
+            "x": 1.6975,
+            "z": 41.1019
+          },
+          {
+            "id": 455,
+            "tick": 493,
+            "kind": "shot",
+            "actor": "ember",
+            "target": "kestrel",
+            "text": "EMBER ROOK fires Arc SMG",
+            "x": 35.1348,
+            "z": 7.8451
+          },
+          {
+            "id": 456,
+            "tick": 494,
+            "kind": "shot",
+            "actor": "ion",
+            "target": "sable",
+            "text": "ION MERCER fires Pulse Rifle",
+            "x": 31.3379,
+            "z": 33.7763
+          },
+          {
+            "id": 457,
+            "tick": 496,
+            "kind": "shot",
+            "actor": "lux",
+            "target": "cove",
+            "text": "LUX ARDEN fires Pulse Rifle",
+            "x": -7.4671,
+            "z": -39.6257
+          },
+          {
+            "id": 458,
+            "tick": 497,
+            "kind": "shot",
+            "actor": "ember",
+            "target": "kestrel",
+            "text": "EMBER ROOK fires Arc SMG",
+            "x": 35.1348,
+            "z": 7.8451
+          },
+          {
+            "id": 459,
+            "tick": 498,
+            "kind": "shot",
+            "actor": "kestrel",
+            "target": "ember",
+            "text": "KESTREL VOSS fires Scatter Cannon",
+            "x": 34.6035,
+            "z": -5.0675
+          },
+          {
+            "id": 460,
+            "tick": 500,
+            "kind": "shot",
+            "actor": "sol",
+            "target": "nyx",
+            "text": "SOL REYES fires Pulse Rifle",
+            "x": -47.9552,
+            "z": 5.9062
+          },
+          {
+            "id": 461,
+            "tick": 501,
+            "kind": "shot",
+            "actor": "nyx",
+            "target": "sol",
+            "text": "NYX VALE fires Scatter Cannon",
+            "x": -40.6453,
+            "z": 9.4884
+          },
+          {
+            "id": 462,
+            "tick": 501,
+            "kind": "shot",
+            "actor": "ember",
+            "target": "kestrel",
+            "text": "EMBER ROOK fires Arc SMG",
+            "x": 35.1348,
+            "z": 7.8451
+          },
+          {
+            "id": 463,
+            "tick": 503,
+            "kind": "shot",
+            "actor": "ion",
+            "target": "sable",
+            "text": "ION MERCER fires Pulse Rifle",
+            "x": 31.4313,
+            "z": 34.3285
+          },
+          {
+            "id": 464,
+            "tick": 504,
+            "kind": "loot",
+            "actor": "sable",
+            "target": null,
+            "text": "SABLE CROSS recovered medkit",
+            "x": 15.7215,
+            "z": 31.3679
+          },
+          {
+            "id": 465,
+            "tick": 505,
+            "kind": "shot",
+            "actor": "lux",
+            "target": "cove",
+            "text": "LUX ARDEN fires Pulse Rifle",
+            "x": -6.1126,
+            "z": -39.9797
+          },
+          {
+            "id": 466,
+            "tick": 505,
+            "kind": "shot",
+            "actor": "ember",
+            "target": "kestrel",
+            "text": "EMBER ROOK fires Arc SMG",
+            "x": 35.1348,
+            "z": 7.8451
+          },
+          {
+            "id": 467,
+            "tick": 509,
+            "kind": "loot",
+            "actor": "ion",
+            "target": null,
+            "text": "ION MERCER recovered Longshot",
+            "x": 31.7115,
+            "z": 35.9851
+          },
+          {
+            "id": 468,
+            "tick": 509,
+            "kind": "shot",
+            "actor": "sol",
+            "target": "nyx",
+            "text": "SOL REYES fires Pulse Rifle",
+            "x": -47.9938,
+            "z": 5.3476
+          },
+          {
+            "id": 469,
+            "tick": 509,
+            "kind": "shot",
+            "actor": "ember",
+            "target": "kestrel",
+            "text": "EMBER ROOK fires Arc SMG",
+            "x": 35.1348,
+            "z": 7.8451
+          },
+          {
+            "id": 470,
+            "tick": 511,
+            "kind": "shot",
+            "actor": "sable",
+            "target": "ion",
+            "text": "SABLE CROSS fires Scatter Cannon",
+            "x": 17.3727,
+            "z": 31.6791
+          },
+          {
+            "id": 471,
+            "tick": 512,
+            "kind": "shot",
+            "actor": "ion",
+            "target": "sable",
+            "text": "ION MERCER fires Longshot",
+            "x": 31.8516,
+            "z": 36.8134
+          },
+          {
+            "id": 472,
+            "tick": 512,
+            "kind": "elimination",
+            "actor": "ion",
+            "target": "sable",
+            "text": "ION MERCER eliminated SABLE CROSS",
+            "x": 17.3727,
+            "z": 31.6791
+          },
+          {
+            "id": 473,
+            "tick": 513,
+            "kind": "shot",
+            "actor": "ember",
+            "target": "kestrel",
+            "text": "EMBER ROOK fires Arc SMG",
+            "x": 35.1348,
+            "z": 7.8451
+          },
+          {
+            "id": 474,
+            "tick": 514,
+            "kind": "shot",
+            "actor": "lux",
+            "target": "cove",
+            "text": "LUX ARDEN fires Pulse Rifle",
+            "x": -6.9337,
+            "z": -39.8011
+          },
+          {
+            "id": 475,
+            "tick": 517,
+            "kind": "shot",
+            "actor": "ember",
+            "target": "kestrel",
+            "text": "EMBER ROOK fires Arc SMG",
+            "x": 35.1348,
+            "z": 7.8451
+          },
+          {
+            "id": 476,
+            "tick": 518,
+            "kind": "shot",
+            "actor": "cove",
+            "target": "lux",
+            "text": "COVE MARIN fires Longshot",
+            "x": -32.4062,
+            "z": -33.9663
+          },
+          {
+            "id": 477,
+            "tick": 521,
+            "kind": "shot",
+            "actor": "kestrel",
+            "target": "ember",
+            "text": "KESTREL VOSS fires Scatter Cannon",
+            "x": 34.6035,
+            "z": -5.0675
+          },
+          {
+            "id": 478,
+            "tick": 521,
+            "kind": "shot",
+            "actor": "ember",
+            "target": "kestrel",
+            "text": "EMBER ROOK fires Arc SMG",
+            "x": 35.1348,
+            "z": 7.8451
+          },
+          {
+            "id": 479,
+            "tick": 523,
+            "kind": "shot",
+            "actor": "lux",
+            "target": "cove",
+            "text": "LUX ARDEN fires Pulse Rifle",
+            "x": -6.6638,
+            "z": -39.8766
+          },
+          {
+            "id": 480,
+            "tick": 524,
+            "kind": "shot",
+            "actor": "sol",
+            "target": "nyx",
+            "text": "SOL REYES fires Pulse Rifle",
+            "x": -48.0848,
+            "z": 5.6323
+          },
+          {
+            "id": 481,
+            "tick": 525,
+            "kind": "shot",
+            "actor": "nyx",
+            "target": "sol",
+            "text": "NYX VALE fires Scatter Cannon",
+            "x": -40.1743,
+            "z": 7.0127
+          },
+          {
+            "id": 482,
+            "tick": 525,
+            "kind": "shot",
+            "actor": "ember",
+            "target": "kestrel",
+            "text": "EMBER ROOK fires Arc SMG",
+            "x": 35.1348,
+            "z": 7.8451
+          },
+          {
+            "id": 483,
+            "tick": 528,
+            "kind": "shot",
+            "actor": "tala",
+            "target": "ion",
+            "text": "TALA NOVA fires Longshot",
+            "x": 1.6975,
+            "z": 41.1019
+          },
+          {
+            "id": 484,
+            "tick": 529,
+            "kind": "shot",
+            "actor": "ember",
+            "target": "kestrel",
+            "text": "EMBER ROOK fires Arc SMG",
+            "x": 35.1348,
+            "z": 7.8451
+          },
+          {
+            "id": 485,
+            "tick": 532,
+            "kind": "shot",
+            "actor": "lux",
+            "target": "cove",
+            "text": "LUX ARDEN fires Pulse Rifle",
+            "x": -6.3924,
+            "z": -39.9454
+          },
+          {
+            "id": 486,
+            "tick": 533,
+            "kind": "reload",
+            "actor": "nyx",
+            "target": null,
+            "text": "NYX VALE reloads Scatter Cannon",
+            "x": -39.8836,
+            "z": 5.3205
+          },
+          {
+            "id": 487,
+            "tick": 533,
+            "kind": "shot",
+            "actor": "ember",
+            "target": "kestrel",
+            "text": "EMBER ROOK fires Arc SMG",
+            "x": 35.1348,
+            "z": 7.8451
+          },
+          {
+            "id": 488,
+            "tick": 536,
+            "kind": "reload",
+            "actor": "lux",
+            "target": null,
+            "text": "LUX ARDEN reloads Pulse Rifle",
+            "x": -5.5746,
+            "z": -40.1371
+          },
+          {
+            "id": 489,
+            "tick": 537,
+            "kind": "shot",
+            "actor": "ember",
+            "target": "kestrel",
+            "text": "EMBER ROOK fires Arc SMG",
+            "x": 35.1348,
+            "z": 7.8451
+          },
+          {
+            "id": 490,
+            "tick": 540,
+            "kind": "shot",
+            "actor": "sol",
+            "target": "nyx",
+            "text": "SOL REYES fires Pulse Rifle",
+            "x": -48.1682,
+            "z": 5.6354
+          },
+          {
+            "id": 491,
+            "tick": 541,
+            "kind": "shot",
+            "actor": "ember",
+            "target": "kestrel",
+            "text": "EMBER ROOK fires Arc SMG",
+            "x": 35.1348,
+            "z": 7.8451
+          },
+          {
+            "id": 492,
+            "tick": 544,
+            "kind": "shot",
+            "actor": "kestrel",
+            "target": "ember",
+            "text": "KESTREL VOSS fires Scatter Cannon",
+            "x": 34.6035,
+            "z": -5.0675
+          },
+          {
+            "id": 493,
+            "tick": 545,
+            "kind": "reload",
+            "actor": "kestrel",
+            "target": null,
+            "text": "KESTREL VOSS reloads Scatter Cannon",
+            "x": 34.6035,
+            "z": -5.0675
+          },
+          {
+            "id": 494,
+            "tick": 545,
+            "kind": "shot",
+            "actor": "ember",
+            "target": "kestrel",
+            "text": "EMBER ROOK fires Arc SMG",
+            "x": 35.1348,
+            "z": 7.8451
+          },
+          {
+            "id": 495,
+            "tick": 548,
+            "kind": "shot",
+            "actor": "ion",
+            "target": "ember",
+            "text": "ION MERCER fires Longshot",
+            "x": 38.2584,
+            "z": 35.9912
+          },
+          {
+            "id": 496,
+            "tick": 549,
+            "kind": "shot",
+            "actor": "ember",
+            "target": "kestrel",
+            "text": "EMBER ROOK fires Arc SMG",
+            "x": 35.1348,
+            "z": 7.8451
+          },
+          {
+            "id": 497,
+            "tick": 553,
+            "kind": "shot",
+            "actor": "ember",
+            "target": "kestrel",
+            "text": "EMBER ROOK fires Arc SMG",
+            "x": 35.1348,
+            "z": 7.8451
+          },
+          {
+            "id": 498,
+            "tick": 554,
+            "kind": "shot",
+            "actor": "cove",
+            "target": "lux",
+            "text": "COVE MARIN fires Longshot",
+            "x": -32.4062,
+            "z": -33.9663
+          },
+          {
+            "id": 499,
+            "tick": 556,
+            "kind": "shot",
+            "actor": "sol",
+            "target": "nyx",
+            "text": "SOL REYES fires Pulse Rifle",
+            "x": -48.2307,
+            "z": 5.6377
+          },
+          {
+            "id": 500,
+            "tick": 557,
+            "kind": "shot",
+            "actor": "ember",
+            "target": "kestrel",
+            "text": "EMBER ROOK fires Arc SMG",
+            "x": 35.1348,
+            "z": 7.8451
+          },
+          {
+            "id": 501,
+            "tick": 561,
+            "kind": "shot",
+            "actor": "ember",
+            "target": "kestrel",
+            "text": "EMBER ROOK fires Arc SMG",
+            "x": 35.1348,
+            "z": 7.8451
+          },
+          {
+            "id": 502,
+            "tick": 565,
+            "kind": "shot",
+            "actor": "ember",
+            "target": "kestrel",
+            "text": "EMBER ROOK fires Arc SMG",
+            "x": 35.1348,
+            "z": 7.8451
+          },
+          {
+            "id": 503,
+            "tick": 568,
+            "kind": "shot",
+            "actor": "tala",
+            "target": "kestrel",
+            "text": "TALA NOVA fires Longshot",
+            "x": -4.6831,
+            "z": 39.6499
+          },
+          {
+            "id": 504,
+            "tick": 572,
+            "kind": "shot",
+            "actor": "sol",
+            "target": "nyx",
+            "text": "SOL REYES fires Pulse Rifle",
+            "x": -48.2776,
+            "z": 5.6393
+          },
+          {
+            "id": 505,
+            "tick": 573,
+            "kind": "reload",
+            "actor": "ember",
+            "target": null,
+            "text": "EMBER ROOK reloads Arc SMG",
+            "x": 35.1348,
+            "z": 7.8451
+          },
+          {
+            "id": 506,
+            "tick": 580,
+            "kind": "shot",
+            "actor": "lux",
+            "target": "cove",
+            "text": "LUX ARDEN fires Pulse Rifle",
+            "x": -5.302,
+            "z": -40.201
+          },
+          {
+            "id": 507,
+            "tick": 584,
+            "kind": "shot",
+            "actor": "ion",
+            "target": "ember",
+            "text": "ION MERCER fires Longshot",
+            "x": 38.2584,
+            "z": 35.9912
+          },
+          {
+            "id": 508,
+            "tick": 589,
+            "kind": "shot",
+            "actor": "lux",
+            "target": "cove",
+            "text": "LUX ARDEN fires Pulse Rifle",
+            "x": -6.1216,
+            "z": -40.0159
+          },
+          {
+            "id": 509,
+            "tick": 590,
+            "kind": "shot",
+            "actor": "cove",
+            "target": "lux",
+            "text": "COVE MARIN fires Longshot",
+            "x": -32.4062,
+            "z": -33.9663
+          },
+          {
+            "id": 510,
+            "tick": 592,
+            "kind": "heal",
+            "actor": "lux",
+            "target": null,
+            "text": "LUX ARDEN applies a medkit",
+            "x": -6.6674,
+            "z": -39.8903
+          },
+          {
+            "id": 511,
+            "tick": 597,
+            "kind": "shot",
+            "actor": "kestrel",
+            "target": "ember",
+            "text": "KESTREL VOSS fires Scatter Cannon",
+            "x": 34.6035,
+            "z": -5.0675
+          },
+          {
+            "id": 512,
+            "tick": 604,
+            "kind": "shot",
+            "actor": "tala",
+            "target": "kestrel",
+            "text": "TALA NOVA fires Longshot",
+            "x": 1.5814,
+            "z": 31.8327
+          },
+          {
+            "id": 513,
+            "tick": 605,
+            "kind": "loot",
+            "actor": "tala",
+            "target": null,
+            "text": "TALA NOVA recovered Arc SMG",
+            "x": 1.7681,
+            "z": 31.624
+          },
+          {
+            "id": 514,
+            "tick": 609,
+            "kind": "shot",
+            "actor": "ember",
+            "target": "kestrel",
+            "text": "EMBER ROOK fires Arc SMG",
+            "x": 35.1348,
+            "z": 7.8451
+          },
+          {
+            "id": 515,
+            "tick": 613,
+            "kind": "shot",
+            "actor": "ember",
+            "target": "kestrel",
+            "text": "EMBER ROOK fires Arc SMG",
+            "x": 35.1348,
+            "z": 7.8451
+          },
+          {
+            "id": 516,
+            "tick": 617,
+            "kind": "shot",
+            "actor": "ember",
+            "target": "kestrel",
+            "text": "EMBER ROOK fires Arc SMG",
+            "x": 35.1348,
+            "z": 7.8451
+          },
+          {
+            "id": 517,
+            "tick": 620,
+            "kind": "shot",
+            "actor": "kestrel",
+            "target": "ember",
+            "text": "KESTREL VOSS fires Scatter Cannon",
+            "x": 34.6035,
+            "z": -5.0675
+          },
+          {
+            "id": 518,
+            "tick": 620,
+            "kind": "shot",
+            "actor": "ion",
+            "target": "ember",
+            "text": "ION MERCER fires Longshot",
+            "x": 38.2584,
+            "z": 35.9912
+          },
+          {
+            "id": 519,
+            "tick": 620,
+            "kind": "elimination",
+            "actor": "ion",
+            "target": "ember",
+            "text": "ION MERCER eliminated EMBER ROOK",
+            "x": 35.1348,
+            "z": 7.8451
+          }
+        ],
+        "checksum": "f9984f7a"
+      }
+    },
+    "running": {
+      "seed": "gauntlet-character-2",
+      "snapshot": {
+        "schemaVersion": 1,
+        "matchId": 1,
+        "tick": 1985,
+        "time": 99.25,
+        "phase": "running",
+        "countdown": 0,
+        "remaining": 2,
+        "winner": null,
+        "zone": {
+          "x": 7,
+          "z": 7,
+          "radius": 33.9379,
+          "nextRadius": 31,
+          "stage": 2,
+          "secondsToShrink": 7.25
+        },
+        "map": {
+          "size": 120,
+          "buildings": [
+            {
+              "id": "relay",
+              "x": -22,
+              "z": -22,
+              "w": 12,
+              "d": 10,
+              "h": 9,
+              "kind": "relay"
+            },
+            {
+              "id": "habitat",
+              "x": 20,
+              "z": -22,
+              "w": 14,
+              "d": 10,
+              "h": 7,
+              "kind": "habitat"
+            },
+            {
+              "id": "lab",
+              "x": -23,
+              "z": 21,
+              "w": 12,
+              "d": 12,
+              "h": 7,
+              "kind": "lab"
+            },
+            {
+              "id": "hangar",
+              "x": 23,
+              "z": 22,
+              "w": 14,
+              "d": 10,
+              "h": 8,
+              "kind": "hangar"
+            },
+            {
+              "id": "uplink",
+              "x": 0,
+              "z": 0,
+              "w": 8,
+              "d": 8,
+              "h": 11,
+              "kind": "uplink"
+            },
+            {
+              "id": "pump",
+              "x": -44,
+              "z": 0,
+              "w": 7,
+              "d": 10,
+              "h": 5,
+              "kind": "pump"
+            },
+            {
+              "id": "dock",
+              "x": 45,
+              "z": 0,
+              "w": 6,
+              "d": 12,
+              "h": 5,
+              "kind": "dock"
+            }
+          ],
+          "covers": [
+            {
+              "id": "c1",
+              "x": -9,
+              "z": -16,
+              "w": 5,
+              "d": 2,
+              "h": 2.8,
+              "kind": "barricade"
+            },
+            {
+              "id": "c2",
+              "x": 9,
+              "z": 15,
+              "w": 5,
+              "d": 2,
+              "h": 2.8,
+              "kind": "barricade"
+            },
+            {
+              "id": "c3",
+              "x": -13,
+              "z": 3,
+              "w": 2,
+              "d": 6,
+              "h": 3.2,
+              "kind": "cargo"
+            },
+            {
+              "id": "c4",
+              "x": 14,
+              "z": -4,
+              "w": 2,
+              "d": 6,
+              "h": 3.2,
+              "kind": "cargo"
+            },
+            {
+              "id": "c5",
+              "x": -37,
+              "z": -34,
+              "w": 5,
+              "d": 3,
+              "h": 3,
+              "kind": "cargo"
+            },
+            {
+              "id": "c6",
+              "x": 35,
+              "z": 35,
+              "w": 5,
+              "d": 3,
+              "h": 3,
+              "kind": "cargo"
+            },
+            {
+              "id": "c7",
+              "x": 0,
+              "z": -39,
+              "w": 6,
+              "d": 2,
+              "h": 2.6,
+              "kind": "barricade"
+            },
+            {
+              "id": "c8",
+              "x": 0,
+              "z": 39,
+              "w": 6,
+              "d": 2,
+              "h": 2.6,
+              "kind": "barricade"
+            },
+            {
+              "id": "c9",
+              "x": -37,
+              "z": 35,
+              "w": 4,
+              "d": 3,
+              "h": 3,
+              "kind": "cargo"
+            },
+            {
+              "id": "c10",
+              "x": 36,
+              "z": -35,
+              "w": 4,
+              "d": 3,
+              "h": 3,
+              "kind": "cargo"
+            }
+          ]
+        },
+        "agents": [
+          {
+            "id": "sol",
+            "name": "SOL REYES",
+            "archetype": "vanguard",
+            "color": "#ff704b",
+            "x": -5.2,
+            "z": -14.94,
+            "yaw": 0,
+            "hp": 0,
+            "shield": 0,
+            "kills": 1,
+            "alive": false,
+            "weapon": "Longshot",
+            "ammo": 5,
+            "intent": "Eliminated",
+            "action": "eliminated",
+            "hitTick": 883,
+            "fireTick": 756,
+            "targetId": null
+          },
+          {
+            "id": "nyx",
+            "name": "NYX VALE",
+            "archetype": "recon",
+            "color": "#ae8dff",
+            "x": 3.6,
+            "z": -40.6,
+            "yaw": 0.9940492021465499,
+            "hp": 0,
+            "shield": 0,
+            "kills": 0,
+            "alive": false,
+            "weapon": "Scatter Cannon",
+            "ammo": 0,
+            "intent": "Eliminated",
+            "action": "eliminated",
+            "hitTick": 518,
+            "fireTick": 516,
+            "targetId": null
+          },
+          {
+            "id": "cove",
+            "name": "COVE MARIN",
+            "archetype": "support",
+            "color": "#44d8c5",
+            "x": 20.0978,
+            "z": -29.8677,
+            "yaw": -2.1475434514432434,
+            "hp": 0,
+            "shield": 0,
+            "kills": 1,
+            "alive": false,
+            "weapon": "Longshot",
+            "ammo": 3,
+            "intent": "Eliminated",
+            "action": "eliminated",
+            "hitTick": 523,
+            "fireTick": 518,
+            "targetId": null
+          },
+          {
+            "id": "rivet",
+            "name": "RIVET KNOX",
+            "archetype": "heavy",
+            "color": "#ffc66b",
+            "x": 25.0266,
+            "z": -7.7614,
+            "yaw": -0.4843074137676289,
+            "hp": 87,
+            "shield": 75,
+            "kills": 2,
+            "alive": true,
+            "weapon": "Longshot",
+            "ammo": 0,
+            "intent": "Reloading under cover",
+            "action": "reloading",
+            "hitTick": 1146,
+            "fireTick": 1931,
+            "targetId": "ember"
+          },
+          {
+            "id": "lux",
+            "name": "LUX ARDEN",
+            "archetype": "recon",
+            "color": "#f5f5dc",
+            "x": 33.6847,
+            "z": 2.6784,
+            "yaw": -0.055206518717094775,
+            "hp": 0,
+            "shield": 0,
+            "kills": 0,
+            "alive": false,
+            "weapon": "Pulse Rifle",
+            "ammo": 0,
+            "intent": "Eliminated",
+            "action": "eliminated",
+            "hitTick": 538,
+            "fireTick": 523,
+            "targetId": null
+          },
+          {
+            "id": "kestrel",
+            "name": "KESTREL VOSS",
+            "archetype": "vanguard",
+            "color": "#b5ef42",
+            "x": 32.2368,
+            "z": -5.6204,
+            "yaw": 1.743538353298233,
+            "hp": 0,
+            "shield": 0,
+            "kills": 2,
+            "alive": false,
+            "weapon": "Scatter Cannon",
+            "ammo": 1,
+            "intent": "Eliminated",
+            "action": "eliminated",
+            "hitTick": 1183,
+            "fireTick": 1169,
+            "targetId": null
+          },
+          {
+            "id": "mako",
+            "name": "MAKO FINCH",
+            "archetype": "heavy",
+            "color": "#55b8ee",
+            "x": 16.1781,
+            "z": 34.1838,
+            "yaw": 1.7181607892274042,
+            "hp": 0,
+            "shield": 0,
+            "kills": 0,
+            "alive": false,
+            "weapon": "Longshot",
+            "ammo": 2,
+            "intent": "Eliminated",
+            "action": "eliminated",
+            "hitTick": 352,
+            "fireTick": 344,
+            "targetId": null
+          },
+          {
+            "id": "ember",
+            "name": "EMBER ROOK",
+            "archetype": "support",
+            "color": "#f987bc",
+            "x": 5.6121,
+            "z": 32.302,
+            "yaw": 2.690402473926489,
+            "hp": 49,
+            "shield": 0,
+            "kills": 1,
+            "alive": true,
+            "weapon": "Longshot",
+            "ammo": 2,
+            "intent": "Closing on RIVET KNOX",
+            "action": "running",
+            "hitTick": 1929,
+            "fireTick": 1969,
+            "targetId": "rivet"
+          },
+          {
+            "id": "ion",
+            "name": "ION MERCER",
+            "archetype": "recon",
+            "color": "#7fafff",
+            "x": -22.1824,
+            "z": 28.9319,
+            "yaw": 1.9199402157276633,
+            "hp": 0,
+            "shield": 0,
+            "kills": 1,
+            "alive": false,
+            "weapon": "Pulse Rifle",
+            "ammo": 15,
+            "intent": "Eliminated",
+            "action": "eliminated",
+            "hitTick": 1577,
+            "fireTick": 1573,
+            "targetId": null
+          },
+          {
+            "id": "sable",
+            "name": "SABLE CROSS",
+            "archetype": "vanguard",
+            "color": "#dfb77f",
+            "x": -38.4063,
+            "z": 10.2075,
+            "yaw": 3.0767175173935093,
+            "hp": 0,
+            "shield": 0,
+            "kills": 0,
+            "alive": false,
+            "weapon": "Scatter Cannon",
+            "ammo": 4,
+            "intent": "Eliminated",
+            "action": "eliminated",
+            "hitTick": 1107,
+            "fireTick": 1098,
+            "targetId": null
+          },
+          {
+            "id": "tala",
+            "name": "TALA NOVA",
+            "archetype": "support",
+            "color": "#65df9d",
+            "x": -39.4384,
+            "z": -5.2377,
+            "yaw": 2.262451577477462,
+            "hp": 0,
+            "shield": 0,
+            "kills": 0,
+            "alive": false,
+            "weapon": "Longshot",
+            "ammo": 2,
+            "intent": "Eliminated",
+            "action": "eliminated",
+            "hitTick": 365,
+            "fireTick": 348,
+            "targetId": null
+          },
+          {
+            "id": "flint",
+            "name": "FLINT QUILL",
+            "archetype": "heavy",
+            "color": "#ff9e68",
+            "x": 9.7404,
+            "z": 21.2944,
+            "yaw": -0.38063673443553536,
+            "hp": 0,
+            "shield": 0,
+            "kills": 2,
+            "alive": false,
+            "weapon": "Arc SMG",
+            "ammo": 0,
+            "intent": "Eliminated",
+            "action": "eliminated",
+            "hitTick": 1969,
+            "fireTick": 1933,
+            "targetId": null
+          }
+        ],
+        "loot": [
+          {
+            "id": "loot-0",
+            "x": -27.6844,
+            "z": -31.5813,
+            "kind": "medkit",
+            "active": true
+          },
+          {
+            "id": "loot-1",
+            "x": 3.1141,
+            "z": 27.9785,
+            "kind": "shield",
+            "active": false
+          },
+          {
+            "id": "loot-2",
+            "x": 32.6829,
+            "z": -9.6608,
+            "kind": "Longshot",
+            "active": false
+          },
+          {
+            "id": "loot-3",
+            "x": -6.916,
+            "z": 5.7145,
+            "kind": "Arc SMG",
+            "active": true
+          },
+          {
+            "id": "loot-4",
+            "x": -28.3626,
+            "z": 27.7804,
+            "kind": "medkit",
+            "active": false
+          },
+          {
+            "id": "loot-5",
+            "x": 25.0722,
+            "z": -11.8405,
+            "kind": "shield",
+            "active": false
+          },
+          {
+            "id": "loot-6",
+            "x": -3.139,
+            "z": 31.2781,
+            "kind": "Longshot",
+            "active": false
+          },
+          {
+            "id": "loot-7",
+            "x": -34.5705,
+            "z": 31.7854,
+            "kind": "Arc SMG",
+            "active": true
+          },
+          {
+            "id": "loot-8",
+            "x": 28.7447,
+            "z": -19.9953,
+            "kind": "medkit",
+            "active": false
+          },
+          {
+            "id": "loot-9",
+            "x": -31.4029,
+            "z": -17.257,
+            "kind": "shield",
+            "active": true
+          },
+          {
+            "id": "loot-10",
+            "x": 43.208,
+            "z": -15.6709,
+            "kind": "Longshot",
+            "active": false
+          },
+          {
+            "id": "loot-11",
+            "x": 14.6321,
+            "z": 34.6365,
+            "kind": "Arc SMG",
+            "active": true
+          },
+          {
+            "id": "loot-12",
+            "x": 47.282,
+            "z": -44.2145,
+            "kind": "medkit",
+            "active": true
+          },
+          {
+            "id": "loot-13",
+            "x": 22.6418,
+            "z": -32.2343,
+            "kind": "shield",
+            "active": true
+          },
+          {
+            "id": "loot-14",
+            "x": 11.5373,
+            "z": -21.2056,
+            "kind": "Longshot",
+            "active": true
+          },
+          {
+            "id": "loot-15",
+            "x": 38.1685,
+            "z": -26.5118,
+            "kind": "Arc SMG",
+            "active": true
+          },
+          {
+            "id": "loot-16",
+            "x": -8.2959,
+            "z": -22.5251,
+            "kind": "medkit",
+            "active": false
+          },
+          {
+            "id": "loot-17",
+            "x": 42.4133,
+            "z": 23.4518,
+            "kind": "shield",
+            "active": true
+          },
+          {
+            "id": "loot-18",
+            "x": 1.313,
+            "z": 41.1055,
+            "kind": "Longshot",
+            "active": false
+          },
+          {
+            "id": "loot-19",
+            "x": -19.0989,
+            "z": 1.5493,
+            "kind": "Arc SMG",
+            "active": true
+          },
+          {
+            "id": "loot-20",
+            "x": 33.9486,
+            "z": 32.863,
+            "kind": "medkit",
+            "active": true
+          },
+          {
+            "id": "loot-21",
+            "x": 41.3894,
+            "z": -28.6034,
+            "kind": "shield",
+            "active": true
+          },
+          {
+            "id": "loot-22",
+            "x": -9.1588,
+            "z": -28.2695,
+            "kind": "Longshot",
+            "active": false
+          },
+          {
+            "id": "loot-23",
+            "x": -16.2243,
+            "z": 14.8961,
+            "kind": "Arc SMG",
+            "active": false
+          },
+          {
+            "id": "loot-24",
+            "x": -28.9752,
+            "z": 42.039,
+            "kind": "medkit",
+            "active": true
+          },
+          {
+            "id": "loot-25",
+            "x": 27.5005,
+            "z": -20.8598,
+            "kind": "shield",
+            "active": false
+          },
+          {
+            "id": "loot-26",
+            "x": 23.6882,
+            "z": 45.7319,
+            "kind": "Longshot",
+            "active": true
+          },
+          {
+            "id": "loot-27",
+            "x": 16.8092,
+            "z": -6.722,
+            "kind": "Arc SMG",
+            "active": true
+          }
+        ],
+        "events": [
+          {
+            "id": 784,
+            "tick": 1577,
+            "kind": "elimination",
+            "actor": "flint",
+            "target": "ion",
+            "text": "FLINT QUILL eliminated ION MERCER",
+            "x": -22.1824,
+            "z": 28.9319
+          },
+          {
+            "id": 785,
+            "tick": 1585,
+            "kind": "shot",
+            "actor": "flint",
+            "target": "ember",
+            "text": "FLINT QUILL fires Arc SMG",
+            "x": -2.8231,
+            "z": 21.7674
+          },
+          {
+            "id": 786,
+            "tick": 1589,
+            "kind": "shot",
+            "actor": "flint",
+            "target": "ember",
+            "text": "FLINT QUILL fires Arc SMG",
+            "x": -2.4083,
+            "z": 22.611
+          },
+          {
+            "id": 787,
+            "tick": 1593,
+            "kind": "shot",
+            "actor": "ember",
+            "target": "flint",
+            "text": "EMBER ROOK fires Longshot",
+            "x": 6.1824,
+            "z": 40.0856
+          },
+          {
+            "id": 788,
+            "tick": 1593,
+            "kind": "shot",
+            "actor": "flint",
+            "target": "ember",
+            "text": "FLINT QUILL fires Arc SMG",
+            "x": -1.9935,
+            "z": 23.4546
+          },
+          {
+            "id": 789,
+            "tick": 1597,
+            "kind": "shot",
+            "actor": "flint",
+            "target": "ember",
+            "text": "FLINT QUILL fires Arc SMG",
+            "x": -1.5787,
+            "z": 24.2982
+          },
+          {
+            "id": 790,
+            "tick": 1601,
+            "kind": "shot",
+            "actor": "flint",
+            "target": "ember",
+            "text": "FLINT QUILL fires Arc SMG",
+            "x": -1.3262,
+            "z": 25.1585
+          },
+          {
+            "id": 791,
+            "tick": 1605,
+            "kind": "shot",
+            "actor": "flint",
+            "target": "ember",
+            "text": "FLINT QUILL fires Arc SMG",
+            "x": -1.5606,
+            "z": 26.0689
+          },
+          {
+            "id": 792,
+            "tick": 1609,
+            "kind": "shot",
+            "actor": "flint",
+            "target": "ember",
+            "text": "FLINT QUILL fires Arc SMG",
+            "x": -1.795,
+            "z": 26.9793
+          },
+          {
+            "id": 793,
+            "tick": 1611,
+            "kind": "shot",
+            "actor": "rivet",
+            "target": "ember",
+            "text": "RIVET KNOX fires Longshot",
+            "x": 28.2853,
+            "z": -16.3458
+          },
+          {
+            "id": 794,
+            "tick": 1613,
+            "kind": "shot",
+            "actor": "flint",
+            "target": "ember",
+            "text": "FLINT QUILL fires Arc SMG",
+            "x": -2.0294,
+            "z": 27.8897
+          },
+          {
+            "id": 795,
+            "tick": 1617,
+            "kind": "shot",
+            "actor": "flint",
+            "target": "ember",
+            "text": "FLINT QUILL fires Arc SMG",
+            "x": -2.2639,
+            "z": 28.8001
+          },
+          {
+            "id": 796,
+            "tick": 1620,
+            "kind": "storm",
+            "actor": null,
+            "target": null,
+            "text": "Storm phase 3 \u00b7 safe area contracting",
+            "x": 7,
+            "z": 7
+          },
+          {
+            "id": 797,
+            "tick": 1621,
+            "kind": "heal",
+            "actor": "ember",
+            "target": null,
+            "text": "EMBER ROOK applies a medkit",
+            "x": 4.3,
+            "z": 41.3
+          },
+          {
+            "id": 798,
+            "tick": 1630,
+            "kind": "loot",
+            "actor": "rivet",
+            "target": null,
+            "text": "RIVET KNOX recovered shield",
+            "x": 26.6098,
+            "z": -12.2078
+          },
+          {
+            "id": 799,
+            "tick": 1641,
+            "kind": "shot",
+            "actor": "flint",
+            "target": "ember",
+            "text": "FLINT QUILL fires Arc SMG",
+            "x": 0.6667,
+            "z": 29.1417
+          },
+          {
+            "id": 800,
+            "tick": 1645,
+            "kind": "shot",
+            "actor": "flint",
+            "target": "ember",
+            "text": "FLINT QUILL fires Arc SMG",
+            "x": 0.1503,
+            "z": 29.9273
+          },
+          {
+            "id": 801,
+            "tick": 1647,
+            "kind": "shot",
+            "actor": "rivet",
+            "target": "ember",
+            "text": "RIVET KNOX fires Longshot",
+            "x": 25.1634,
+            "z": -8.7374
+          },
+          {
+            "id": 802,
+            "tick": 1657,
+            "kind": "shot",
+            "actor": "flint",
+            "target": "ember",
+            "text": "FLINT QUILL fires Arc SMG",
+            "x": 1.1193,
+            "z": 29.5684
+          },
+          {
+            "id": 803,
+            "tick": 1661,
+            "kind": "shot",
+            "actor": "flint",
+            "target": "ember",
+            "text": "FLINT QUILL fires Arc SMG",
+            "x": 0.5505,
+            "z": 30.3168
+          },
+          {
+            "id": 804,
+            "tick": 1673,
+            "kind": "shot",
+            "actor": "flint",
+            "target": "ember",
+            "text": "FLINT QUILL fires Arc SMG",
+            "x": 1.4735,
+            "z": 29.5693
+          },
+          {
+            "id": 805,
+            "tick": 1677,
+            "kind": "shot",
+            "actor": "flint",
+            "target": "ember",
+            "text": "FLINT QUILL fires Arc SMG",
+            "x": 1.4735,
+            "z": 29.5693
+          },
+          {
+            "id": 806,
+            "tick": 1681,
+            "kind": "shot",
+            "actor": "flint",
+            "target": "ember",
+            "text": "FLINT QUILL fires Arc SMG",
+            "x": 1.4735,
+            "z": 29.5693
+          },
+          {
+            "id": 807,
+            "tick": 1683,
+            "kind": "shot",
+            "actor": "rivet",
+            "target": "ember",
+            "text": "RIVET KNOX fires Longshot",
+            "x": 25.1634,
+            "z": -8.7374
+          },
+          {
+            "id": 808,
+            "tick": 1685,
+            "kind": "shot",
+            "actor": "ember",
+            "target": "flint",
+            "text": "EMBER ROOK fires Longshot",
+            "x": 4.02,
+            "z": 41.3
+          },
+          {
+            "id": 809,
+            "tick": 1689,
+            "kind": "reload",
+            "actor": "flint",
+            "target": null,
+            "text": "FLINT QUILL reloads Arc SMG",
+            "x": 1.4735,
+            "z": 29.5693
+          },
+          {
+            "id": 810,
+            "tick": 1719,
+            "kind": "shot",
+            "actor": "rivet",
+            "target": "ember",
+            "text": "RIVET KNOX fires Longshot",
+            "x": 25.0266,
+            "z": -7.7614
+          },
+          {
+            "id": 811,
+            "tick": 1725,
+            "kind": "heal",
+            "actor": "ember",
+            "target": null,
+            "text": "EMBER ROOK applies a medkit",
+            "x": 1.9266,
+            "z": 40.7482
+          },
+          {
+            "id": 812,
+            "tick": 1727,
+            "kind": "reload",
+            "actor": "rivet",
+            "target": null,
+            "text": "RIVET KNOX reloads Longshot",
+            "x": 25.0266,
+            "z": -7.7614
+          },
+          {
+            "id": 813,
+            "tick": 1731,
+            "kind": "loot",
+            "actor": "flint",
+            "target": null,
+            "text": "FLINT QUILL recovered shield",
+            "x": 1.9796,
+            "z": 29.0785
+          },
+          {
+            "id": 814,
+            "tick": 1787,
+            "kind": "shot",
+            "actor": "rivet",
+            "target": "flint",
+            "text": "RIVET KNOX fires Longshot",
+            "x": 25.0266,
+            "z": -7.7614
+          },
+          {
+            "id": 815,
+            "tick": 1793,
+            "kind": "shot",
+            "actor": "flint",
+            "target": "ember",
+            "text": "FLINT QUILL fires Arc SMG",
+            "x": 10.2591,
+            "z": 19.7334
+          },
+          {
+            "id": 816,
+            "tick": 1797,
+            "kind": "shot",
+            "actor": "ember",
+            "target": "flint",
+            "text": "EMBER ROOK fires Longshot",
+            "x": 3.6708,
+            "z": 39.763
+          },
+          {
+            "id": 817,
+            "tick": 1797,
+            "kind": "shot",
+            "actor": "flint",
+            "target": "ember",
+            "text": "FLINT QUILL fires Arc SMG",
+            "x": 9.9627,
+            "z": 20.6254
+          },
+          {
+            "id": 818,
+            "tick": 1801,
+            "kind": "shot",
+            "actor": "flint",
+            "target": "ember",
+            "text": "FLINT QUILL fires Arc SMG",
+            "x": 9.7404,
+            "z": 21.2944
+          },
+          {
+            "id": 819,
+            "tick": 1805,
+            "kind": "shot",
+            "actor": "flint",
+            "target": "ember",
+            "text": "FLINT QUILL fires Arc SMG",
+            "x": 9.7404,
+            "z": 21.2944
+          },
+          {
+            "id": 820,
+            "tick": 1809,
+            "kind": "shot",
+            "actor": "flint",
+            "target": "ember",
+            "text": "FLINT QUILL fires Arc SMG",
+            "x": 9.7404,
+            "z": 21.2944
+          },
+          {
+            "id": 821,
+            "tick": 1813,
+            "kind": "shot",
+            "actor": "flint",
+            "target": "ember",
+            "text": "FLINT QUILL fires Arc SMG",
+            "x": 9.7404,
+            "z": 21.2944
+          },
+          {
+            "id": 822,
+            "tick": 1817,
+            "kind": "shot",
+            "actor": "flint",
+            "target": "ember",
+            "text": "FLINT QUILL fires Arc SMG",
+            "x": 9.7404,
+            "z": 21.2944
+          },
+          {
+            "id": 823,
+            "tick": 1821,
+            "kind": "shot",
+            "actor": "flint",
+            "target": "ember",
+            "text": "FLINT QUILL fires Arc SMG",
+            "x": 9.7404,
+            "z": 21.2944
+          },
+          {
+            "id": 824,
+            "tick": 1823,
+            "kind": "shot",
+            "actor": "rivet",
+            "target": "flint",
+            "text": "RIVET KNOX fires Longshot",
+            "x": 25.0266,
+            "z": -7.7614
+          },
+          {
+            "id": 825,
+            "tick": 1825,
+            "kind": "shot",
+            "actor": "flint",
+            "target": "ember",
+            "text": "FLINT QUILL fires Arc SMG",
+            "x": 9.7404,
+            "z": 21.2944
+          },
+          {
+            "id": 826,
+            "tick": 1829,
+            "kind": "shot",
+            "actor": "flint",
+            "target": "ember",
+            "text": "FLINT QUILL fires Arc SMG",
+            "x": 9.7404,
+            "z": 21.2944
+          },
+          {
+            "id": 827,
+            "tick": 1833,
+            "kind": "shot",
+            "actor": "ember",
+            "target": "flint",
+            "text": "EMBER ROOK fires Longshot",
+            "x": 3.836,
+            "z": 37.81
+          },
+          {
+            "id": 828,
+            "tick": 1833,
+            "kind": "shot",
+            "actor": "flint",
+            "target": "ember",
+            "text": "FLINT QUILL fires Arc SMG",
+            "x": 9.7404,
+            "z": 21.2944
+          },
+          {
+            "id": 829,
+            "tick": 1837,
+            "kind": "reload",
+            "actor": "ember",
+            "target": null,
+            "text": "EMBER ROOK reloads Longshot",
+            "x": 3.836,
+            "z": 37.81
+          },
+          {
+            "id": 830,
+            "tick": 1837,
+            "kind": "shot",
+            "actor": "flint",
+            "target": "ember",
+            "text": "FLINT QUILL fires Arc SMG",
+            "x": 9.7404,
+            "z": 21.2944
+          },
+          {
+            "id": 831,
+            "tick": 1841,
+            "kind": "shot",
+            "actor": "flint",
+            "target": "ember",
+            "text": "FLINT QUILL fires Arc SMG",
+            "x": 9.7404,
+            "z": 21.2944
+          },
+          {
+            "id": 832,
+            "tick": 1845,
+            "kind": "shot",
+            "actor": "flint",
+            "target": "ember",
+            "text": "FLINT QUILL fires Arc SMG",
+            "x": 9.7404,
+            "z": 21.2944
+          },
+          {
+            "id": 833,
+            "tick": 1849,
+            "kind": "shot",
+            "actor": "flint",
+            "target": "ember",
+            "text": "FLINT QUILL fires Arc SMG",
+            "x": 9.7404,
+            "z": 21.2944
+          },
+          {
+            "id": 834,
+            "tick": 1853,
+            "kind": "shot",
+            "actor": "flint",
+            "target": "ember",
+            "text": "FLINT QUILL fires Arc SMG",
+            "x": 9.7404,
+            "z": 21.2944
+          },
+          {
+            "id": 835,
+            "tick": 1857,
+            "kind": "shot",
+            "actor": "flint",
+            "target": "ember",
+            "text": "FLINT QUILL fires Arc SMG",
+            "x": 9.7404,
+            "z": 21.2944
+          },
+          {
+            "id": 836,
+            "tick": 1859,
+            "kind": "shot",
+            "actor": "rivet",
+            "target": "flint",
+            "text": "RIVET KNOX fires Longshot",
+            "x": 25.0266,
+            "z": -7.7614
+          },
+          {
+            "id": 837,
+            "tick": 1861,
+            "kind": "shot",
+            "actor": "flint",
+            "target": "ember",
+            "text": "FLINT QUILL fires Arc SMG",
+            "x": 9.7404,
+            "z": 21.2944
+          },
+          {
+            "id": 838,
+            "tick": 1865,
+            "kind": "shot",
+            "actor": "flint",
+            "target": "ember",
+            "text": "FLINT QUILL fires Arc SMG",
+            "x": 9.7404,
+            "z": 21.2944
+          },
+          {
+            "id": 839,
+            "tick": 1869,
+            "kind": "shot",
+            "actor": "flint",
+            "target": "ember",
+            "text": "FLINT QUILL fires Arc SMG",
+            "x": 9.7404,
+            "z": 21.2944
+          },
+          {
+            "id": 840,
+            "tick": 1873,
+            "kind": "shot",
+            "actor": "flint",
+            "target": "ember",
+            "text": "FLINT QUILL fires Arc SMG",
+            "x": 9.7404,
+            "z": 21.2944
+          },
+          {
+            "id": 841,
+            "tick": 1877,
+            "kind": "shot",
+            "actor": "flint",
+            "target": "ember",
+            "text": "FLINT QUILL fires Arc SMG",
+            "x": 9.7404,
+            "z": 21.2944
+          },
+          {
+            "id": 842,
+            "tick": 1881,
+            "kind": "shot",
+            "actor": "flint",
+            "target": "ember",
+            "text": "FLINT QUILL fires Arc SMG",
+            "x": 9.7404,
+            "z": 21.2944
+          },
+          {
+            "id": 843,
+            "tick": 1885,
+            "kind": "shot",
+            "actor": "flint",
+            "target": "ember",
+            "text": "FLINT QUILL fires Arc SMG",
+            "x": 9.7404,
+            "z": 21.2944
+          },
+          {
+            "id": 844,
+            "tick": 1889,
+            "kind": "shot",
+            "actor": "flint",
+            "target": "ember",
+            "text": "FLINT QUILL fires Arc SMG",
+            "x": 9.7404,
+            "z": 21.2944
+          },
+          {
+            "id": 845,
+            "tick": 1893,
+            "kind": "shot",
+            "actor": "flint",
+            "target": "ember",
+            "text": "FLINT QUILL fires Arc SMG",
+            "x": 9.7404,
+            "z": 21.2944
+          },
+          {
+            "id": 846,
+            "tick": 1895,
+            "kind": "shot",
+            "actor": "rivet",
+            "target": "flint",
+            "text": "RIVET KNOX fires Longshot",
+            "x": 25.0266,
+            "z": -7.7614
+          },
+          {
+            "id": 847,
+            "tick": 1897,
+            "kind": "shot",
+            "actor": "ember",
+            "target": "flint",
+            "text": "EMBER ROOK fires Longshot",
+            "x": 3.836,
+            "z": 37.81
+          },
+          {
+            "id": 848,
+            "tick": 1897,
+            "kind": "shot",
+            "actor": "flint",
+            "target": "ember",
+            "text": "FLINT QUILL fires Arc SMG",
+            "x": 9.7404,
+            "z": 21.2944
+          },
+          {
+            "id": 849,
+            "tick": 1901,
+            "kind": "shot",
+            "actor": "flint",
+            "target": "ember",
+            "text": "FLINT QUILL fires Arc SMG",
+            "x": 9.7404,
+            "z": 21.2944
+          },
+          {
+            "id": 850,
+            "tick": 1905,
+            "kind": "shot",
+            "actor": "flint",
+            "target": "ember",
+            "text": "FLINT QUILL fires Arc SMG",
+            "x": 9.7404,
+            "z": 21.2944
+          },
+          {
+            "id": 851,
+            "tick": 1909,
+            "kind": "shot",
+            "actor": "flint",
+            "target": "ember",
+            "text": "FLINT QUILL fires Arc SMG",
+            "x": 9.7404,
+            "z": 21.2944
+          },
+          {
+            "id": 852,
+            "tick": 1913,
+            "kind": "shot",
+            "actor": "flint",
+            "target": "ember",
+            "text": "FLINT QUILL fires Arc SMG",
+            "x": 9.7404,
+            "z": 21.2944
+          },
+          {
+            "id": 853,
+            "tick": 1917,
+            "kind": "shot",
+            "actor": "flint",
+            "target": "ember",
+            "text": "FLINT QUILL fires Arc SMG",
+            "x": 9.7404,
+            "z": 21.2944
+          },
+          {
+            "id": 854,
+            "tick": 1921,
+            "kind": "shot",
+            "actor": "flint",
+            "target": "ember",
+            "text": "FLINT QUILL fires Arc SMG",
+            "x": 9.7404,
+            "z": 21.2944
+          },
+          {
+            "id": 855,
+            "tick": 1925,
+            "kind": "shot",
+            "actor": "flint",
+            "target": "ember",
+            "text": "FLINT QUILL fires Arc SMG",
+            "x": 9.7404,
+            "z": 21.2944
+          },
+          {
+            "id": 856,
+            "tick": 1929,
+            "kind": "shot",
+            "actor": "flint",
+            "target": "ember",
+            "text": "FLINT QUILL fires Arc SMG",
+            "x": 9.7404,
+            "z": 21.2944
+          },
+          {
+            "id": 857,
+            "tick": 1931,
+            "kind": "shot",
+            "actor": "rivet",
+            "target": "flint",
+            "text": "RIVET KNOX fires Longshot",
+            "x": 25.0266,
+            "z": -7.7614
+          },
+          {
+            "id": 858,
+            "tick": 1933,
+            "kind": "shot",
+            "actor": "ember",
+            "target": "flint",
+            "text": "EMBER ROOK fires Longshot",
+            "x": 4.0248,
+            "z": 35.578
+          },
+          {
+            "id": 859,
+            "tick": 1933,
+            "kind": "shot",
+            "actor": "flint",
+            "target": "ember",
+            "text": "FLINT QUILL fires Arc SMG",
+            "x": 9.7404,
+            "z": 21.2944
+          },
+          {
+            "id": 860,
+            "tick": 1935,
+            "kind": "reload",
+            "actor": "rivet",
+            "target": null,
+            "text": "RIVET KNOX reloads Longshot",
+            "x": 25.0266,
+            "z": -7.7614
+          },
+          {
+            "id": 861,
+            "tick": 1937,
+            "kind": "reload",
+            "actor": "flint",
+            "target": null,
+            "text": "FLINT QUILL reloads Arc SMG",
+            "x": 9.7404,
+            "z": 21.2944
+          },
+          {
+            "id": 862,
+            "tick": 1969,
+            "kind": "shot",
+            "actor": "ember",
+            "target": "flint",
+            "text": "EMBER ROOK fires Longshot",
+            "x": 4.0248,
+            "z": 35.578
+          },
+          {
+            "id": 863,
+            "tick": 1969,
+            "kind": "elimination",
+            "actor": "ember",
+            "target": "flint",
+            "text": "EMBER ROOK eliminated FLINT QUILL",
+            "x": 9.7404,
+            "z": 21.2944
+          }
+        ],
+        "checksum": "1aae95fa"
+      }
+    },
+    "healing": {
+      "seed": "gauntlet-character-4",
+      "snapshot": {
+        "schemaVersion": 1,
+        "matchId": 1,
+        "tick": 717,
+        "time": 35.85,
+        "phase": "running",
+        "countdown": 0,
+        "remaining": 8,
+        "winner": null,
+        "zone": {
+          "x": 7,
+          "z": 7,
+          "radius": 59.6294,
+          "nextRadius": 51.6667,
+          "stage": 0,
+          "secondsToShrink": 19.65
+        },
+        "map": {
+          "size": 120,
+          "buildings": [
+            {
+              "id": "relay",
+              "x": -22,
+              "z": -22,
+              "w": 12,
+              "d": 10,
+              "h": 9,
+              "kind": "relay"
+            },
+            {
+              "id": "habitat",
+              "x": 20,
+              "z": -22,
+              "w": 14,
+              "d": 10,
+              "h": 7,
+              "kind": "habitat"
+            },
+            {
+              "id": "lab",
+              "x": -23,
+              "z": 21,
+              "w": 12,
+              "d": 12,
+              "h": 7,
+              "kind": "lab"
+            },
+            {
+              "id": "hangar",
+              "x": 23,
+              "z": 22,
+              "w": 14,
+              "d": 10,
+              "h": 8,
+              "kind": "hangar"
+            },
+            {
+              "id": "uplink",
+              "x": 0,
+              "z": 0,
+              "w": 8,
+              "d": 8,
+              "h": 11,
+              "kind": "uplink"
+            },
+            {
+              "id": "pump",
+              "x": -44,
+              "z": 0,
+              "w": 7,
+              "d": 10,
+              "h": 5,
+              "kind": "pump"
+            },
+            {
+              "id": "dock",
+              "x": 45,
+              "z": 0,
+              "w": 6,
+              "d": 12,
+              "h": 5,
+              "kind": "dock"
+            }
+          ],
+          "covers": [
+            {
+              "id": "c1",
+              "x": -9,
+              "z": -16,
+              "w": 5,
+              "d": 2,
+              "h": 2.8,
+              "kind": "barricade"
+            },
+            {
+              "id": "c2",
+              "x": 9,
+              "z": 15,
+              "w": 5,
+              "d": 2,
+              "h": 2.8,
+              "kind": "barricade"
+            },
+            {
+              "id": "c3",
+              "x": -13,
+              "z": 3,
+              "w": 2,
+              "d": 6,
+              "h": 3.2,
+              "kind": "cargo"
+            },
+            {
+              "id": "c4",
+              "x": 14,
+              "z": -4,
+              "w": 2,
+              "d": 6,
+              "h": 3.2,
+              "kind": "cargo"
+            },
+            {
+              "id": "c5",
+              "x": -37,
+              "z": -34,
+              "w": 5,
+              "d": 3,
+              "h": 3,
+              "kind": "cargo"
+            },
+            {
+              "id": "c6",
+              "x": 35,
+              "z": 35,
+              "w": 5,
+              "d": 3,
+              "h": 3,
+              "kind": "cargo"
+            },
+            {
+              "id": "c7",
+              "x": 0,
+              "z": -39,
+              "w": 6,
+              "d": 2,
+              "h": 2.6,
+              "kind": "barricade"
+            },
+            {
+              "id": "c8",
+              "x": 0,
+              "z": 39,
+              "w": 6,
+              "d": 2,
+              "h": 2.6,
+              "kind": "barricade"
+            },
+            {
+              "id": "c9",
+              "x": -37,
+              "z": 35,
+              "w": 4,
+              "d": 3,
+              "h": 3,
+              "kind": "cargo"
+            },
+            {
+              "id": "c10",
+              "x": 36,
+              "z": -35,
+              "w": 4,
+              "d": 3,
+              "h": 3,
+              "kind": "cargo"
+            }
+          ]
+        },
+        "agents": [
+          {
+            "id": "sol",
+            "name": "SOL REYES",
+            "archetype": "vanguard",
+            "color": "#ff704b",
+            "x": -38.7207,
+            "z": -1.9362,
+            "yaw": -3.032079280771211,
+            "hp": 100,
+            "shield": 0,
+            "kills": 0,
+            "alive": true,
+            "weapon": "Pulse Rifle",
+            "ammo": 11,
+            "intent": "Breaking line of sight",
+            "action": "running",
+            "hitTick": 685,
+            "fireTick": 708,
+            "targetId": "flint"
+          },
+          {
+            "id": "nyx",
+            "name": "NYX VALE",
+            "archetype": "recon",
+            "color": "#ae8dff",
+            "x": -11.4419,
+            "z": -38.4057,
+            "yaw": 1.769606302728995,
+            "hp": 57,
+            "shield": 53,
+            "kills": 1,
+            "alive": true,
+            "weapon": "Scatter Cannon",
+            "ammo": 2,
+            "intent": "Closing on RIVET KNOX",
+            "action": "firing",
+            "hitTick": 655,
+            "fireTick": 717,
+            "targetId": "rivet"
+          },
+          {
+            "id": "cove",
+            "name": "COVE MARIN",
+            "archetype": "support",
+            "color": "#44d8c5",
+            "x": -9.8033,
+            "z": -34.6395,
+            "yaw": -1.5931006400420185,
+            "hp": 0,
+            "shield": 0,
+            "kills": 0,
+            "alive": false,
+            "weapon": "Longshot",
+            "ammo": 1,
+            "intent": "Eliminated",
+            "action": "eliminated",
+            "hitTick": 401,
+            "fireTick": 382,
+            "targetId": null
+          },
+          {
+            "id": "rivet",
+            "name": "RIVET KNOX",
+            "archetype": "heavy",
+            "color": "#ffc66b",
+            "x": 10.0341,
+            "z": -42.7325,
+            "yaw": 1.8192837474523005,
+            "hp": 59,
+            "shield": 0,
+            "kills": 0,
+            "alive": true,
+            "weapon": "Arc SMG",
+            "ammo": 36,
+            "intent": "Recovering supplies",
+            "action": "running",
+            "hitTick": 661,
+            "fireTick": 655,
+            "targetId": null
+          },
+          {
+            "id": "lux",
+            "name": "LUX ARDEN",
+            "archetype": "recon",
+            "color": "#f5f5dc",
+            "x": 41.1158,
+            "z": -7.3458,
+            "yaw": -0.005714223519209185,
+            "hp": 100,
+            "shield": 55,
+            "kills": 2,
+            "alive": true,
+            "weapon": "Arc SMG",
+            "ammo": 36,
+            "intent": "Recovering supplies",
+            "action": "running",
+            "hitTick": 644,
+            "fireTick": 684,
+            "targetId": null
+          },
+          {
+            "id": "kestrel",
+            "name": "KESTREL VOSS",
+            "archetype": "vanguard",
+            "color": "#b5ef42",
+            "x": 34.7331,
+            "z": -3.0833,
+            "yaw": -0.14248328973456784,
+            "hp": 0,
+            "shield": 0,
+            "kills": 0,
+            "alive": false,
+            "weapon": "Scatter Cannon",
+            "ammo": 0,
+            "intent": "Eliminated",
+            "action": "eliminated",
+            "hitTick": 364,
+            "fireTick": 352,
+            "targetId": null
+          },
+          {
+            "id": "mako",
+            "name": "MAKO FINCH",
+            "archetype": "heavy",
+            "color": "#55b8ee",
+            "x": 33.0203,
+            "z": 8.8563,
+            "yaw": 2.5108012166538125,
+            "hp": 0,
+            "shield": 0,
+            "kills": 0,
+            "alive": false,
+            "weapon": "Longshot",
+            "ammo": 0,
+            "intent": "Eliminated",
+            "action": "eliminated",
+            "hitTick": 684,
+            "fireTick": 680,
+            "targetId": null
+          },
+          {
+            "id": "ember",
+            "name": "EMBER ROOK",
+            "archetype": "support",
+            "color": "#f987bc",
+            "x": 22.0435,
+            "z": 33.4626,
+            "yaw": -1.4414518778538108,
+            "hp": 37,
+            "shield": 0,
+            "kills": 1,
+            "alive": true,
+            "weapon": "Arc SMG",
+            "ammo": 10,
+            "intent": "Applying field medkit",
+            "action": "healing",
+            "hitTick": 640,
+            "fireTick": 709,
+            "targetId": "tala"
+          },
+          {
+            "id": "ion",
+            "name": "ION MERCER",
+            "archetype": "recon",
+            "color": "#7fafff",
+            "x": -11.5247,
+            "z": 41.664,
+            "yaw": -1.9164685605212335,
+            "hp": 77,
+            "shield": 12,
+            "kills": 0,
+            "alive": true,
+            "weapon": "Pulse Rifle",
+            "ammo": 9,
+            "intent": "Engaging TALA NOVA",
+            "action": "aiming",
+            "hitTick": 361,
+            "fireTick": 712,
+            "targetId": "tala"
+          },
+          {
+            "id": "sable",
+            "name": "SABLE CROSS",
+            "archetype": "vanguard",
+            "color": "#dfb77f",
+            "x": 12.3011,
+            "z": 34.7298,
+            "yaw": 1.7001407757359825,
+            "hp": 0,
+            "shield": 0,
+            "kills": 0,
+            "alive": false,
+            "weapon": "Scatter Cannon",
+            "ammo": 0,
+            "intent": "Eliminated",
+            "action": "eliminated",
+            "hitTick": 709,
+            "fireTick": 686,
+            "targetId": null
+          },
+          {
+            "id": "tala",
+            "name": "TALA NOVA",
+            "archetype": "support",
+            "color": "#65df9d",
+            "x": -34.1228,
+            "z": 34.8404,
+            "yaw": 0.1418970546041639,
+            "hp": 49,
+            "shield": 0,
+            "kills": 0,
+            "alive": true,
+            "weapon": "Longshot",
+            "ammo": 4,
+            "intent": "Breaking line of sight",
+            "action": "running",
+            "hitTick": 712,
+            "fireTick": 692,
+            "targetId": "flint"
+          },
+          {
+            "id": "flint",
+            "name": "FLINT QUILL",
+            "archetype": "heavy",
+            "color": "#ff9e68",
+            "x": -43.0095,
+            "z": 13.9228,
+            "yaw": -2.4917086527569694,
+            "hp": 45,
+            "shield": 0,
+            "kills": 0,
+            "alive": true,
+            "weapon": "Arc SMG",
+            "ammo": 11,
+            "intent": "Breaking line of sight",
+            "action": "running",
+            "hitTick": 685,
+            "fireTick": 713,
+            "targetId": "sol"
+          }
+        ],
+        "loot": [
+          {
+            "id": "loot-0",
+            "x": -41.6729,
+            "z": 5.4803,
+            "kind": "medkit",
+            "active": true
+          },
+          {
+            "id": "loot-1",
+            "x": 7.0422,
+            "z": 36.6824,
+            "kind": "shield",
+            "active": false
+          },
+          {
+            "id": "loot-2",
+            "x": 13.3133,
+            "z": -43.5654,
+            "kind": "Longshot",
+            "active": true
+          },
+          {
+            "id": "loot-3",
+            "x": 42.8625,
+            "z": -35.8137,
+            "kind": "Arc SMG",
+            "active": true
+          },
+          {
+            "id": "loot-4",
+            "x": -29.6462,
+            "z": 45.0025,
+            "kind": "medkit",
+            "active": true
+          },
+          {
+            "id": "loot-5",
+            "x": -21.2954,
+            "z": -40.4547,
+            "kind": "shield",
+            "active": true
+          },
+          {
+            "id": "loot-6",
+            "x": -42.0564,
+            "z": 23.7524,
+            "kind": "Longshot",
+            "active": true
+          },
+          {
+            "id": "loot-7",
+            "x": 41.1259,
+            "z": -9.0258,
+            "kind": "Arc SMG",
+            "active": false
+          },
+          {
+            "id": "loot-8",
+            "x": -3.392,
+            "z": 20.2583,
+            "kind": "medkit",
+            "active": true
+          },
+          {
+            "id": "loot-9",
+            "x": -4.5691,
+            "z": -40.7511,
+            "kind": "shield",
+            "active": false
+          },
+          {
+            "id": "loot-10",
+            "x": -44.8012,
+            "z": -15.6199,
+            "kind": "Longshot",
+            "active": true
+          },
+          {
+            "id": "loot-11",
+            "x": -47.6144,
+            "z": -8.9524,
+            "kind": "Arc SMG",
+            "active": true
+          },
+          {
+            "id": "loot-12",
+            "x": -48.213,
+            "z": -36.7017,
+            "kind": "medkit",
+            "active": true
+          },
+          {
+            "id": "loot-13",
+            "x": 9.599,
+            "z": -5.0978,
+            "kind": "shield",
+            "active": true
+          },
+          {
+            "id": "loot-14",
+            "x": -39.2198,
+            "z": 14.7955,
+            "kind": "Longshot",
+            "active": true
+          },
+          {
+            "id": "loot-15",
+            "x": -35.675,
+            "z": 28.179,
+            "kind": "Arc SMG",
+            "active": true
+          },
+          {
+            "id": "loot-16",
+            "x": -9.1395,
+            "z": 21.5126,
+            "kind": "medkit",
+            "active": true
+          },
+          {
+            "id": "loot-17",
+            "x": -48.8266,
+            "z": 27.5689,
+            "kind": "shield",
+            "active": true
+          },
+          {
+            "id": "loot-18",
+            "x": 4.4238,
+            "z": -14.1447,
+            "kind": "Longshot",
+            "active": true
+          },
+          {
+            "id": "loot-19",
+            "x": -40.4469,
+            "z": 28.5474,
+            "kind": "Arc SMG",
+            "active": true
+          },
+          {
+            "id": "loot-20",
+            "x": 4.8471,
+            "z": -7.5083,
+            "kind": "medkit",
+            "active": true
+          },
+          {
+            "id": "loot-21",
+            "x": -11.8552,
+            "z": -38.3694,
+            "kind": "shield",
+            "active": false
+          },
+          {
+            "id": "loot-22",
+            "x": 19.7146,
+            "z": 48.4035,
+            "kind": "Longshot",
+            "active": true
+          },
+          {
+            "id": "loot-23",
+            "x": -31.0231,
+            "z": -43.6893,
+            "kind": "Arc SMG",
+            "active": true
+          },
+          {
+            "id": "loot-24",
+            "x": 7.9567,
+            "z": -37.0699,
+            "kind": "medkit",
+            "active": false
+          },
+          {
+            "id": "loot-25",
+            "x": 41.0335,
+            "z": 6.6138,
+            "kind": "shield",
+            "active": true
+          },
+          {
+            "id": "loot-26",
+            "x": 6.335,
+            "z": 11.7895,
+            "kind": "Longshot",
+            "active": true
+          },
+          {
+            "id": "loot-27",
+            "x": 31.8962,
+            "z": -27.9159,
+            "kind": "Arc SMG",
+            "active": false
+          }
+        ],
+        "events": [
+          {
+            "id": 654,
+            "tick": 633,
+            "kind": "shot",
+            "actor": "flint",
+            "target": "sol",
+            "text": "FLINT QUILL fires Arc SMG",
+            "x": -41.9291,
+            "z": 15.6189
+          },
+          {
+            "id": 655,
+            "tick": 636,
+            "kind": "shot",
+            "actor": "lux",
+            "target": "mako",
+            "text": "LUX ARDEN fires Arc SMG",
+            "x": 40.7822,
+            "z": -4.8815
+          },
+          {
+            "id": 656,
+            "tick": 637,
+            "kind": "shot",
+            "actor": "ember",
+            "target": "sable",
+            "text": "EMBER ROOK fires Arc SMG",
+            "x": 22.0435,
+            "z": 33.4626
+          },
+          {
+            "id": 657,
+            "tick": 637,
+            "kind": "shot",
+            "actor": "flint",
+            "target": "sol",
+            "text": "FLINT QUILL fires Arc SMG",
+            "x": -42.4871,
+            "z": 14.8625
+          },
+          {
+            "id": 658,
+            "tick": 640,
+            "kind": "shot",
+            "actor": "lux",
+            "target": "mako",
+            "text": "LUX ARDEN fires Arc SMG",
+            "x": 40.7822,
+            "z": -4.8815
+          },
+          {
+            "id": 659,
+            "tick": 640,
+            "kind": "shot",
+            "actor": "ion",
+            "target": "tala",
+            "text": "ION MERCER fires Pulse Rifle",
+            "x": -11.2365,
+            "z": 39.4424
+          },
+          {
+            "id": 660,
+            "tick": 640,
+            "kind": "shot",
+            "actor": "sable",
+            "target": "ember",
+            "text": "SABLE CROSS fires Scatter Cannon",
+            "x": 12.3011,
+            "z": 34.7298
+          },
+          {
+            "id": 661,
+            "tick": 641,
+            "kind": "shot",
+            "actor": "ember",
+            "target": "sable",
+            "text": "EMBER ROOK fires Arc SMG",
+            "x": 22.0435,
+            "z": 33.4626
+          },
+          {
+            "id": 662,
+            "tick": 644,
+            "kind": "shot",
+            "actor": "sol",
+            "target": "tala",
+            "text": "SOL REYES fires Pulse Rifle",
+            "x": -39.0808,
+            "z": -3.3332
+          },
+          {
+            "id": 663,
+            "tick": 644,
+            "kind": "shot",
+            "actor": "lux",
+            "target": "mako",
+            "text": "LUX ARDEN fires Arc SMG",
+            "x": 40.7822,
+            "z": -4.8815
+          },
+          {
+            "id": 664,
+            "tick": 644,
+            "kind": "shot",
+            "actor": "mako",
+            "target": "lux",
+            "text": "MAKO FINCH fires Longshot",
+            "x": 33.0203,
+            "z": 8.8563
+          },
+          {
+            "id": 665,
+            "tick": 645,
+            "kind": "shot",
+            "actor": "ember",
+            "target": "sable",
+            "text": "EMBER ROOK fires Arc SMG",
+            "x": 22.0435,
+            "z": 33.4626
+          },
+          {
+            "id": 666,
+            "tick": 648,
+            "kind": "shot",
+            "actor": "lux",
+            "target": "mako",
+            "text": "LUX ARDEN fires Arc SMG",
+            "x": 40.8726,
+            "z": -4.6165
+          },
+          {
+            "id": 667,
+            "tick": 649,
+            "kind": "shot",
+            "actor": "ember",
+            "target": "sable",
+            "text": "EMBER ROOK fires Arc SMG",
+            "x": 22.0435,
+            "z": 33.4626
+          },
+          {
+            "id": 668,
+            "tick": 649,
+            "kind": "shot",
+            "actor": "ion",
+            "target": "tala",
+            "text": "ION MERCER fires Pulse Rifle",
+            "x": -11.3805,
+            "z": 40.5532
+          },
+          {
+            "id": 669,
+            "tick": 649,
+            "kind": "shot",
+            "actor": "flint",
+            "target": "sol",
+            "text": "FLINT QUILL fires Arc SMG",
+            "x": -41.2034,
+            "z": 14.3766
+          },
+          {
+            "id": 670,
+            "tick": 652,
+            "kind": "shot",
+            "actor": "lux",
+            "target": "mako",
+            "text": "LUX ARDEN fires Arc SMG",
+            "x": 41.2341,
+            "z": -3.5565
+          },
+          {
+            "id": 671,
+            "tick": 653,
+            "kind": "shot",
+            "actor": "sol",
+            "target": "flint",
+            "text": "SOL REYES fires Pulse Rifle",
+            "x": -38.9656,
+            "z": -1.9326
+          },
+          {
+            "id": 672,
+            "tick": 653,
+            "kind": "shot",
+            "actor": "ember",
+            "target": "sable",
+            "text": "EMBER ROOK fires Arc SMG",
+            "x": 22.0435,
+            "z": 33.4626
+          },
+          {
+            "id": 673,
+            "tick": 653,
+            "kind": "shot",
+            "actor": "flint",
+            "target": "sol",
+            "text": "FLINT QUILL fires Arc SMG",
+            "x": -41.8474,
+            "z": 13.6918
+          },
+          {
+            "id": 674,
+            "tick": 655,
+            "kind": "shot",
+            "actor": "rivet",
+            "target": "nyx",
+            "text": "RIVET KNOX fires Arc SMG",
+            "x": 9.1284,
+            "z": -42.4772
+          },
+          {
+            "id": 675,
+            "tick": 656,
+            "kind": "shot",
+            "actor": "lux",
+            "target": "mako",
+            "text": "LUX ARDEN fires Arc SMG",
+            "x": 41.5051,
+            "z": -2.7615
+          },
+          {
+            "id": 676,
+            "tick": 657,
+            "kind": "shot",
+            "actor": "ember",
+            "target": "sable",
+            "text": "EMBER ROOK fires Arc SMG",
+            "x": 22.0435,
+            "z": 33.4626
+          },
+          {
+            "id": 677,
+            "tick": 657,
+            "kind": "shot",
+            "actor": "flint",
+            "target": "tala",
+            "text": "FLINT QUILL fires Arc SMG",
+            "x": -42.2504,
+            "z": 13.3992
+          },
+          {
+            "id": 678,
+            "tick": 658,
+            "kind": "shot",
+            "actor": "ion",
+            "target": "tala",
+            "text": "ION MERCER fires Pulse Rifle",
+            "x": -11.5247,
+            "z": 41.664
+          },
+          {
+            "id": 679,
+            "tick": 660,
+            "kind": "shot",
+            "actor": "lux",
+            "target": "mako",
+            "text": "LUX ARDEN fires Arc SMG",
+            "x": 41.5051,
+            "z": -2.7615
+          },
+          {
+            "id": 680,
+            "tick": 661,
+            "kind": "shot",
+            "actor": "nyx",
+            "target": "rivet",
+            "text": "NYX VALE fires Scatter Cannon",
+            "x": -0.1194,
+            "z": -33.119
+          },
+          {
+            "id": 681,
+            "tick": 661,
+            "kind": "shot",
+            "actor": "ember",
+            "target": "sable",
+            "text": "EMBER ROOK fires Arc SMG",
+            "x": 22.0435,
+            "z": 33.4626
+          },
+          {
+            "id": 682,
+            "tick": 661,
+            "kind": "shot",
+            "actor": "flint",
+            "target": "tala",
+            "text": "FLINT QUILL fires Arc SMG",
+            "x": -41.9304,
+            "z": 14.2832
+          },
+          {
+            "id": 683,
+            "tick": 662,
+            "kind": "shot",
+            "actor": "sol",
+            "target": "tala",
+            "text": "SOL REYES fires Pulse Rifle",
+            "x": -39.2662,
+            "z": -2.7282
+          },
+          {
+            "id": 684,
+            "tick": 663,
+            "kind": "reload",
+            "actor": "rivet",
+            "target": null,
+            "text": "RIVET KNOX reloads Arc SMG",
+            "x": 7.5303,
+            "z": -42.0874
+          },
+          {
+            "id": 685,
+            "tick": 663,
+            "kind": "shot",
+            "actor": "sable",
+            "target": "ember",
+            "text": "SABLE CROSS fires Scatter Cannon",
+            "x": 12.3011,
+            "z": 34.7298
+          },
+          {
+            "id": 686,
+            "tick": 664,
+            "kind": "shot",
+            "actor": "lux",
+            "target": "mako",
+            "text": "LUX ARDEN fires Arc SMG",
+            "x": 41.5051,
+            "z": -2.7615
+          },
+          {
+            "id": 687,
+            "tick": 665,
+            "kind": "shot",
+            "actor": "ember",
+            "target": "sable",
+            "text": "EMBER ROOK fires Arc SMG",
+            "x": 22.0435,
+            "z": 33.4626
+          },
+          {
+            "id": 688,
+            "tick": 665,
+            "kind": "shot",
+            "actor": "flint",
+            "target": "sol",
+            "text": "FLINT QUILL fires Arc SMG",
+            "x": -41.8397,
+            "z": 14.7647
+          },
+          {
+            "id": 689,
+            "tick": 667,
+            "kind": "shot",
+            "actor": "ion",
+            "target": "tala",
+            "text": "ION MERCER fires Pulse Rifle",
+            "x": -11.5247,
+            "z": 41.664
+          },
+          {
+            "id": 690,
+            "tick": 668,
+            "kind": "shot",
+            "actor": "lux",
+            "target": "mako",
+            "text": "LUX ARDEN fires Arc SMG",
+            "x": 41.5051,
+            "z": -2.7615
+          },
+          {
+            "id": 691,
+            "tick": 669,
+            "kind": "shot",
+            "actor": "ember",
+            "target": "sable",
+            "text": "EMBER ROOK fires Arc SMG",
+            "x": 22.0435,
+            "z": 33.4626
+          },
+          {
+            "id": 692,
+            "tick": 672,
+            "kind": "shot",
+            "actor": "lux",
+            "target": "mako",
+            "text": "LUX ARDEN fires Arc SMG",
+            "x": 41.5051,
+            "z": -2.7615
+          },
+          {
+            "id": 693,
+            "tick": 673,
+            "kind": "shot",
+            "actor": "ember",
+            "target": "sable",
+            "text": "EMBER ROOK fires Arc SMG",
+            "x": 22.0435,
+            "z": 33.4626
+          },
+          {
+            "id": 694,
+            "tick": 676,
+            "kind": "shot",
+            "actor": "sol",
+            "target": "tala",
+            "text": "SOL REYES fires Pulse Rifle",
+            "x": -39.0957,
+            "z": -3.3028
+          },
+          {
+            "id": 695,
+            "tick": 676,
+            "kind": "shot",
+            "actor": "lux",
+            "target": "mako",
+            "text": "LUX ARDEN fires Arc SMG",
+            "x": 41.5051,
+            "z": -2.7615
+          },
+          {
+            "id": 696,
+            "tick": 676,
+            "kind": "shot",
+            "actor": "ion",
+            "target": "tala",
+            "text": "ION MERCER fires Pulse Rifle",
+            "x": -11.5247,
+            "z": 41.664
+          },
+          {
+            "id": 697,
+            "tick": 677,
+            "kind": "shot",
+            "actor": "ember",
+            "target": "sable",
+            "text": "EMBER ROOK fires Arc SMG",
+            "x": 22.0435,
+            "z": 33.4626
+          },
+          {
+            "id": 698,
+            "tick": 680,
+            "kind": "shot",
+            "actor": "lux",
+            "target": "mako",
+            "text": "LUX ARDEN fires Arc SMG",
+            "x": 41.5051,
+            "z": -2.7615
+          },
+          {
+            "id": 699,
+            "tick": 680,
+            "kind": "shot",
+            "actor": "mako",
+            "target": "lux",
+            "text": "MAKO FINCH fires Longshot",
+            "x": 33.0203,
+            "z": 8.8563
+          },
+          {
+            "id": 700,
+            "tick": 681,
+            "kind": "shot",
+            "actor": "ember",
+            "target": "sable",
+            "text": "EMBER ROOK fires Arc SMG",
+            "x": 22.0435,
+            "z": 33.4626
+          },
+          {
+            "id": 701,
+            "tick": 681,
+            "kind": "shot",
+            "actor": "flint",
+            "target": "sol",
+            "text": "FLINT QUILL fires Arc SMG",
+            "x": -41.2778,
+            "z": 13.9555
+          },
+          {
+            "id": 702,
+            "tick": 684,
+            "kind": "reload",
+            "actor": "mako",
+            "target": null,
+            "text": "MAKO FINCH reloads Longshot",
+            "x": 33.0203,
+            "z": 8.8563
+          },
+          {
+            "id": 703,
+            "tick": 684,
+            "kind": "shot",
+            "actor": "lux",
+            "target": "mako",
+            "text": "LUX ARDEN fires Arc SMG",
+            "x": 41.5051,
+            "z": -2.7615
+          },
+          {
+            "id": 704,
+            "tick": 684,
+            "kind": "elimination",
+            "actor": "lux",
+            "target": "mako",
+            "text": "LUX ARDEN eliminated MAKO FINCH",
+            "x": 33.0203,
+            "z": 8.8563
+          },
+          {
+            "id": 705,
+            "tick": 685,
+            "kind": "shot",
+            "actor": "sol",
+            "target": "flint",
+            "text": "SOL REYES fires Pulse Rifle",
+            "x": -38.8822,
+            "z": -1.9182
+          },
+          {
+            "id": 706,
+            "tick": 685,
+            "kind": "shot",
+            "actor": "ember",
+            "target": "sable",
+            "text": "EMBER ROOK fires Arc SMG",
+            "x": 22.0435,
+            "z": 33.4626
+          },
+          {
+            "id": 707,
+            "tick": 685,
+            "kind": "shot",
+            "actor": "ion",
+            "target": "tala",
+            "text": "ION MERCER fires Pulse Rifle",
+            "x": -11.5247,
+            "z": 41.664
+          },
+          {
+            "id": 708,
+            "tick": 685,
+            "kind": "shot",
+            "actor": "flint",
+            "target": "sol",
+            "text": "FLINT QUILL fires Arc SMG",
+            "x": -41.9366,
+            "z": 13.2851
+          },
+          {
+            "id": 709,
+            "tick": 686,
+            "kind": "shot",
+            "actor": "sable",
+            "target": "ember",
+            "text": "SABLE CROSS fires Scatter Cannon",
+            "x": 12.3011,
+            "z": 34.7298
+          },
+          {
+            "id": 710,
+            "tick": 687,
+            "kind": "reload",
+            "actor": "sable",
+            "target": null,
+            "text": "SABLE CROSS reloads Scatter Cannon",
+            "x": 12.3011,
+            "z": 34.7298
+          },
+          {
+            "id": 711,
+            "tick": 689,
+            "kind": "shot",
+            "actor": "ember",
+            "target": "sable",
+            "text": "EMBER ROOK fires Arc SMG",
+            "x": 22.0435,
+            "z": 33.4626
+          },
+          {
+            "id": 712,
+            "tick": 689,
+            "kind": "shot",
+            "actor": "flint",
+            "target": "tala",
+            "text": "FLINT QUILL fires Arc SMG",
+            "x": -42.3511,
+            "z": 13.0034
+          },
+          {
+            "id": 713,
+            "tick": 692,
+            "kind": "shot",
+            "actor": "tala",
+            "target": "ion",
+            "text": "TALA NOVA fires Longshot",
+            "x": -33.8457,
+            "z": 36.7808
+          },
+          {
+            "id": 714,
+            "tick": 693,
+            "kind": "shot",
+            "actor": "ember",
+            "target": "sable",
+            "text": "EMBER ROOK fires Arc SMG",
+            "x": 22.0435,
+            "z": 33.4626
+          },
+          {
+            "id": 715,
+            "tick": 694,
+            "kind": "shot",
+            "actor": "sol",
+            "target": "tala",
+            "text": "SOL REYES fires Pulse Rifle",
+            "x": -38.8973,
+            "z": -2.7609
+          },
+          {
+            "id": 716,
+            "tick": 694,
+            "kind": "shot",
+            "actor": "ion",
+            "target": "tala",
+            "text": "ION MERCER fires Pulse Rifle",
+            "x": -11.5247,
+            "z": 41.664
+          },
+          {
+            "id": 717,
+            "tick": 697,
+            "kind": "shot",
+            "actor": "ember",
+            "target": "sable",
+            "text": "EMBER ROOK fires Arc SMG",
+            "x": 22.0435,
+            "z": 33.4626
+          },
+          {
+            "id": 718,
+            "tick": 697,
+            "kind": "shot",
+            "actor": "flint",
+            "target": "sol",
+            "text": "FLINT QUILL fires Arc SMG",
+            "x": -41.9458,
+            "z": 14.372
+          },
+          {
+            "id": 719,
+            "tick": 701,
+            "kind": "shot",
+            "actor": "ember",
+            "target": "sable",
+            "text": "EMBER ROOK fires Arc SMG",
+            "x": 22.0435,
+            "z": 33.4626
+          },
+          {
+            "id": 720,
+            "tick": 701,
+            "kind": "shot",
+            "actor": "flint",
+            "target": "sol",
+            "text": "FLINT QUILL fires Arc SMG",
+            "x": -42.5542,
+            "z": 13.6556
+          },
+          {
+            "id": 721,
+            "tick": 703,
+            "kind": "shot",
+            "actor": "ion",
+            "target": "tala",
+            "text": "ION MERCER fires Pulse Rifle",
+            "x": -11.5247,
+            "z": 41.664
+          },
+          {
+            "id": 722,
+            "tick": 704,
+            "kind": "loot",
+            "actor": "lux",
+            "target": null,
+            "text": "LUX ARDEN recovered Arc SMG",
+            "x": 41.2176,
+            "z": -7.513
+          },
+          {
+            "id": 723,
+            "tick": 705,
+            "kind": "shot",
+            "actor": "ember",
+            "target": "sable",
+            "text": "EMBER ROOK fires Arc SMG",
+            "x": 22.0435,
+            "z": 33.4626
+          },
+          {
+            "id": 724,
+            "tick": 705,
+            "kind": "shot",
+            "actor": "flint",
+            "target": "tala",
+            "text": "FLINT QUILL fires Arc SMG",
+            "x": -42.9215,
+            "z": 13.3358
+          },
+          {
+            "id": 725,
+            "tick": 708,
+            "kind": "shot",
+            "actor": "sol",
+            "target": "tala",
+            "text": "SOL REYES fires Pulse Rifle",
+            "x": -38.9024,
+            "z": -3.3242
+          },
+          {
+            "id": 726,
+            "tick": 709,
+            "kind": "shot",
+            "actor": "ember",
+            "target": "sable",
+            "text": "EMBER ROOK fires Arc SMG",
+            "x": 22.0435,
+            "z": 33.4626
+          },
+          {
+            "id": 727,
+            "tick": 709,
+            "kind": "shot",
+            "actor": "flint",
+            "target": "tala",
+            "text": "FLINT QUILL fires Arc SMG",
+            "x": -42.5655,
+            "z": 14.2058
+          },
+          {
+            "id": 728,
+            "tick": 709,
+            "kind": "elimination",
+            "actor": "ember",
+            "target": "sable",
+            "text": "EMBER ROOK eliminated SABLE CROSS",
+            "x": 12.3011,
+            "z": 34.7298
+          },
+          {
+            "id": 729,
+            "tick": 711,
+            "kind": "loot",
+            "actor": "nyx",
+            "target": null,
+            "text": "NYX VALE recovered shield",
+            "x": -10.3605,
+            "z": -37.9625
+          },
+          {
+            "id": 730,
+            "tick": 712,
+            "kind": "shot",
+            "actor": "ion",
+            "target": "tala",
+            "text": "ION MERCER fires Pulse Rifle",
+            "x": -11.5247,
+            "z": 41.664
+          },
+          {
+            "id": 731,
+            "tick": 713,
+            "kind": "shot",
+            "actor": "flint",
+            "target": "sol",
+            "text": "FLINT QUILL fires Arc SMG",
+            "x": -42.4407,
+            "z": 14.6712
+          },
+          {
+            "id": 732,
+            "tick": 717,
+            "kind": "heal",
+            "actor": "ember",
+            "target": null,
+            "text": "EMBER ROOK applies a medkit",
+            "x": 22.0435,
+            "z": 33.4626
+          },
+          {
+            "id": 733,
+            "tick": 717,
+            "kind": "shot",
+            "actor": "nyx",
+            "target": "rivet",
+            "text": "NYX VALE fires Scatter Cannon",
+            "x": -11.4419,
+            "z": -38.4057
+          }
+        ],
+        "checksum": "193676ad"
+      }
+    }
+  },
+  "captures": [
+    {
+      "filename": "round-5-a-front.png",
+      "label": "A",
+      "shot": "front",
+      "seed": "gauntlet-character-0",
+      "matchId": 1,
+      "tick": 61,
+      "checksum": "f8227031",
+      "agent": "ember",
+      "action": "firing",
+      "alive": true,
+      "poseTime": 1.2,
+      "camera": {
+        "position": [
+          32.40002172411945,
+          2.3,
+          3.7792682546160625
+        ],
+        "target": [
+          35.1348,
+          1.43,
+          7.8451
+        ]
+      },
+      "drawCalls": 206,
+      "triangles": 473672
+    },
+    {
+      "filename": "round-5-a-side.png",
+      "label": "A",
+      "shot": "side",
+      "seed": "gauntlet-character-0",
+      "matchId": 1,
+      "tick": 61,
+      "checksum": "f8227031",
+      "agent": "ember",
+      "action": "firing",
+      "alive": true,
+      "poseTime": 1.2,
+      "camera": {
+        "position": [
+          30.23914505573242,
+          2.3,
+          8.05140721429075
+        ],
+        "target": [
+          35.1348,
+          1.43,
+          7.8451
+        ]
+      },
+      "drawCalls": 203,
+      "triangles": 473554
+    },
+    {
+      "filename": "round-5-a-rear.png",
+      "label": "A",
+      "shot": "rear",
+      "seed": "gauntlet-character-0",
+      "matchId": 1,
+      "tick": 61,
+      "checksum": "f8227031",
+      "agent": "ember",
+      "action": "firing",
+      "alive": true,
+      "poseTime": 1.2,
+      "camera": {
+        "position": [
+          35.34110721429075,
+          2.3,
+          12.740754944267579
+        ],
+        "target": [
+          35.1348,
+          1.43,
+          7.8451
+        ]
+      },
+      "drawCalls": 279,
+      "triangles": 503910
+    },
+    {
+      "filename": "round-5-a-running.png",
+      "label": "A",
+      "shot": "running",
+      "seed": "gauntlet-character-2",
+      "matchId": 1,
+      "tick": 1985,
+      "checksum": "1aae95fa",
+      "agent": "ember",
+      "action": "running",
+      "alive": true,
+      "poseTime": 1.2,
+      "camera": {
+        "position": [
+          5.12871934877153,
+          2.3,
+          27.425900826888572
+        ],
+        "target": [
+          5.6121,
+          1.43,
+          32.302
+        ]
+      },
+      "drawCalls": 198,
+      "triangles": 471440
+    },
+    {
+      "filename": "round-5-a-reload.png",
+      "label": "A",
+      "shot": "reload",
+      "seed": "gauntlet-character-0",
+      "matchId": 1,
+      "tick": 205,
+      "checksum": "8977c598",
+      "agent": "ember",
+      "action": "reloading",
+      "alive": true,
+      "poseTime": 1.2,
+      "camera": {
+        "position": [
+          32.40002172411945,
+          2.3,
+          3.7792682546160625
+        ],
+        "target": [
+          35.1348,
+          1.43,
+          7.8451
+        ]
+      },
+      "drawCalls": 207,
+      "triangles": 473768
+    },
+    {
+      "filename": "round-5-a-heal.png",
+      "label": "A",
+      "shot": "heal",
+      "seed": "gauntlet-character-4",
+      "matchId": 1,
+      "tick": 717,
+      "checksum": "193676ad",
+      "agent": "ember",
+      "action": "healing",
+      "alive": true,
+      "poseTime": 1.2,
+      "camera": {
+        "position": [
+          18.231374687885946,
+          2.3,
+          36.54118743659155
+        ],
+        "target": [
+          22.0435,
+          1.43,
+          33.4626
+        ]
+      },
+      "drawCalls": 255,
+      "triangles": 512418
+    },
+    {
+      "filename": "round-5-a-eliminated.png",
+      "label": "A",
+      "shot": "eliminated",
+      "seed": "gauntlet-character-0",
+      "matchId": 1,
+      "tick": 621,
+      "checksum": "f9984f7a",
+      "agent": "ember",
+      "action": "eliminated",
+      "alive": false,
+      "poseTime": 1.2,
+      "camera": {
+        "position": [
+          32.404061668187126,
+          2.3,
+          3.776553802257146
+        ],
+        "target": [
+          35.1348,
+          1.43,
+          7.8451
+        ]
+      },
+      "drawCalls": 256,
+      "triangles": 511012
+    },
+    {
+      "filename": "round-5-b-front.png",
+      "label": "B",
+      "shot": "front",
+      "seed": "gauntlet-character-0",
+      "matchId": 1,
+      "tick": 61,
+      "checksum": "f8227031",
+      "agent": "ember",
+      "action": "firing",
+      "alive": true,
+      "poseTime": 1.2,
+      "camera": {
+        "position": [
+          32.40002172411945,
+          2.3,
+          3.7792682546160625
+        ],
+        "target": [
+          35.1348,
+          1.43,
+          7.8451
+        ]
+      },
+      "drawCalls": 305,
+      "triangles": 462744
+    },
+    {
+      "filename": "round-5-b-side.png",
+      "label": "B",
+      "shot": "side",
+      "seed": "gauntlet-character-0",
+      "matchId": 1,
+      "tick": 61,
+      "checksum": "f8227031",
+      "agent": "ember",
+      "action": "firing",
+      "alive": true,
+      "poseTime": 1.2,
+      "camera": {
+        "position": [
+          30.23914505573242,
+          2.3,
+          8.05140721429075
+        ],
+        "target": [
+          35.1348,
+          1.43,
+          7.8451
+        ]
+      },
+      "drawCalls": 302,
+      "triangles": 462626
+    },
+    {
+      "filename": "round-5-b-rear.png",
+      "label": "B",
+      "shot": "rear",
+      "seed": "gauntlet-character-0",
+      "matchId": 1,
+      "tick": 61,
+      "checksum": "f8227031",
+      "agent": "ember",
+      "action": "firing",
+      "alive": true,
+      "poseTime": 1.2,
+      "camera": {
+        "position": [
+          35.34110721429075,
+          2.3,
+          12.740754944267579
+        ],
+        "target": [
+          35.1348,
+          1.43,
+          7.8451
+        ]
+      },
+      "drawCalls": 414,
+      "triangles": 492982
+    },
+    {
+      "filename": "round-5-b-running.png",
+      "label": "B",
+      "shot": "running",
+      "seed": "gauntlet-character-2",
+      "matchId": 1,
+      "tick": 1985,
+      "checksum": "1aae95fa",
+      "agent": "ember",
+      "action": "running",
+      "alive": true,
+      "poseTime": 1.2,
+      "camera": {
+        "position": [
+          5.12871934877153,
+          2.3,
+          27.425900826888572
+        ],
+        "target": [
+          5.6121,
+          1.43,
+          32.302
+        ]
+      },
+      "drawCalls": 294,
+      "triangles": 460480
+    },
+    {
+      "filename": "round-5-b-reload.png",
+      "label": "B",
+      "shot": "reload",
+      "seed": "gauntlet-character-0",
+      "matchId": 1,
+      "tick": 205,
+      "checksum": "8977c598",
+      "agent": "ember",
+      "action": "reloading",
+      "alive": true,
+      "poseTime": 1.2,
+      "camera": {
+        "position": [
+          32.40002172411945,
+          2.3,
+          3.7792682546160625
+        ],
+        "target": [
+          35.1348,
+          1.43,
+          7.8451
+        ]
+      },
+      "drawCalls": 306,
+      "triangles": 462808
+    },
+    {
+      "filename": "round-5-b-heal.png",
+      "label": "B",
+      "shot": "heal",
+      "seed": "gauntlet-character-4",
+      "matchId": 1,
+      "tick": 717,
+      "checksum": "193676ad",
+      "agent": "ember",
+      "action": "healing",
+      "alive": true,
+      "poseTime": 1.2,
+      "camera": {
+        "position": [
+          18.231374687885946,
+          2.3,
+          36.54118743659155
+        ],
+        "target": [
+          22.0435,
+          1.43,
+          33.4626
+        ]
+      },
+      "drawCalls": 405,
+      "triangles": 501490
+    },
+    {
+      "filename": "round-5-b-eliminated.png",
+      "label": "B",
+      "shot": "eliminated",
+      "seed": "gauntlet-character-0",
+      "matchId": 1,
+      "tick": 621,
+      "checksum": "f9984f7a",
+      "agent": "ember",
+      "action": "eliminated",
+      "alive": false,
+      "poseTime": 1.2,
+      "camera": {
+        "position": [
+          32.404061668187126,
+          2.3,
+          3.776553802257146
+        ],
+        "target": [
+          35.1348,
+          1.43,
+          7.8451
+        ]
+      },
+      "drawCalls": 403,
+      "triangles": 500108
+    }
+  ],
+  "pageErrors": [],
+  "publishedEquivalentBaseline": "eacda4a8f7bde5793d42ac9f30427462e451f9ae"
+}

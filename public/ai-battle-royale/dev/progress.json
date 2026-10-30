@@ -1,0 +1,104 @@
+{
+  "updated": "2026-10-30T22:16:18+00:00",
+  "status": "ACTIVE GAUNTLET — character construction and rendering diagnosis",
+  "summary": "The fresh blind character review preferred the new original Ember in all supplied views and accepted basic static two-handed weapon contact. Sixteen matched real-render frames preserve the evidence. The absolute commercial bar still fails. The next pass is addressing heal/reload clarity and eliminated-body grounding; continuous software rendering remains inadequate.",
+  "verified": [
+    "Published checkpoint: TypeScript build and all 25 focused authority/presentation tests passed. Follow-up source changes are under review.",
+    "Published checkpoint: all four browser checks passed for actual WebGL, read-only API, controls, authority, phone framing and progress page. These are frozen-frame/control checks, not continuous playback evidence.",
+    "Fresh independent engineering reviews accepted checkpoint, renderer/lifecycle and material-ownership repairs.",
+    "Actual high-tier gameplay, character and phone captures saved with match/tick metadata and zero page errors.",
+    "Latest independent visual gate confirmed selected characters are unobstructed and the phone panels do not collide in the supplied frames."
+  ],
+  "gaps": [
+    "FAIL: character anatomy, hands/weapon contact, clothing construction, facial forms and material separation remain below the fixed commercial bar.",
+    "FAIL: environment still needs richer surface detail, foliage masses, varied scenery and deeper architectural finish.",
+    "FAIL: sustained software rendering remains poor; still-frame/control passes are not a frame-rate or motion-quality pass. No physical GPU is exposed in this environment.",
+    "Actual full-match motion, target-device performance and all-character/all-state visual inspection remain unverified.",
+    "Selected reference video asset endpoint unavailable; official Fortnite stills inspected directly. No blind commercial gameplay win established.",
+    "Durable host recovery, real broadcast integration and production soak/canary remain open.",
+    "ultracode unavailable; native builder/critic subagents performed the review loops."
+  ],
+  "captures": [
+    {
+      "url": "/royale/dev/captures/round-5-a-front.png",
+      "caption": "New Ember — independent blind critic preferred this coherent head, clothing and equipment construction. Commercial finish remains below bar."
+    },
+    {
+      "url": "/royale/dev/captures/round-5-grip-a-grip.png",
+      "caption": "Matched opposite-side closeup — basic static two-hand weapon contact accepted; motion contact still unverified."
+    },
+    {
+      "url": "/royale/dev/captures/round-5-b-front.png",
+      "caption": "Previous Ember at the identical authority snapshot, camera and lighting — retained blind comparison control."
+    },
+    {
+      "url": "/royale/dev/captures/round-4-game.png",
+      "caption": "Current high-tier actual match — new architecture, coherent street layout and clear selected-contender framing."
+    },
+    {
+      "url": "/royale/dev/captures/round-4-character.png",
+      "caption": "Current original combatant — revised stock, grip, fore-end and stance. Commercial character fidelity still FAILS."
+    },
+    {
+      "url": "/royale/dev/captures/round-4-phone.png",
+      "caption": "Current phone frame — selected body/feet clear of HUD; storm and minimap no longer overlap."
+    },
+    {
+      "url": "/royale/dev/captures/build-revised.png",
+      "caption": "Earlier revision — improved camera and ground, before distinct roof/facade/road pass."
+    },
+    {
+      "url": "/royale/dev/captures/character-revised.png",
+      "caption": "Earlier character revision — improved anatomy; critic still rejected weapon/shoulder/grip coherence."
+    },
+    {
+      "url": "/royale/dev/captures/build-camera.png",
+      "caption": "Rejected camera revision — wall obscured the observed fighter."
+    },
+    {
+      "url": "/royale/dev/captures/character-initial.png",
+      "caption": "Rejected initial character — disconnected block silhouette and unclear grip."
+    },
+    {
+      "url": "/royale/dev/captures/build-initial.png",
+      "caption": "Rejected first gameplay capture — empty ground and clipped fighters."
+    }
+  ],
+  "reviews": [
+    {
+      "piece": "Matched original-character comparison",
+      "verdict": "NEW CHARACTER WINS INTERNAL A/B; COMMERCIAL BAR FAILS",
+      "finding": "Fresh critic inspected 16 matched real-render frames without source/version labels and preferred A (new Ember) throughout. Basic static two-hand attachment passes. Garment/anatomy/material finish, explicit heal/reload interactions and terminal-pose grounding remain gaps. Frozen-position running frames do not prove locomotion."
+    },
+    {
+      "piece": "Controlled continuous rendering baseline",
+      "verdict": "FAIL / DIAGNOSIS IN PROGRESS",
+      "finding": "Unfrozen baseline: 8 frames/11.58 s; a repeat achieved 16/10.05 s, demonstrating large host variance. Lower resolution, conservative instance culling and normal GPU launch flags did not establish usable playback or a robust gain. Client snapshots can advance before actually rendered ticks; end-of-probe rendered lag remained 5.10–6.25 seconds in two controls. These experimental changes were not landed."
+    },
+    {
+      "piece": "Authority",
+      "verdict": "SCOPED ENGINEERING PASS",
+      "finding": "Two independent critiques exposed checkpoint yaw, action/resource, lifecycle and strict-schema defects. Repairs and 11 authority regression checks pass."
+    },
+    {
+      "piece": "Presentation recovery",
+      "verdict": "SCOPED ENGINEERING PASS",
+      "finding": "Independent review reproduced and verified repair of render freezes, context-loss status, late fetch/JSON races, BFCache restoration, restart cursors and an early-recovery deadlock."
+    },
+    {
+      "piece": "Software graphics materials",
+      "verdict": "SCOPED ENGINEERING PASS / PERFORMANCE OPEN",
+      "finding": "Independent review accepted material sharing, animation, restoration and disposal. Actual continuous software rendering remains too slow."
+    },
+    {
+      "piece": "Blind internal version comparison",
+      "verdict": "REVISED VERSIONS PREFERRED",
+      "finding": "Fresh critics picked the revised world and character captures with version labels concealed. This comparison did not beat the commercial references and was not a controlled gameplay A/B."
+    },
+    {
+      "piece": "Current integrated visual gate",
+      "verdict": "FULL BAR FAILS",
+      "finding": "Selected-character readability and phone panel placement pass in the latest stills. Character construction and environment finish remain substantially below the reference; motion and completeness require further evidence."
+    }
+  ]
+}
