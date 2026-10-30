@@ -1,29 +1,29 @@
 {
-  "updatedAt": "2026-10-30T20:51:00Z",
-  "status": "Round 8 \u00b7 attached jaw and cheaper interface compositing",
-  "detail": "Independent review found a detached-looking eating jaw. The next candidate connects the jaw at the cheeks and recesses its interior. A controlled local comparison also isolated expensive interface blur/shadows; solid readable panels now replace them. Actual next-candidate browser validation is pending.",
-  "latestImage": "/progress/evidence/round-7-overview.jpg",
-  "latestCaption": "Round 7 \u00b7 actual full-HD browser capture with measured adaptive resolution; real 3D scenery and gameplay",
+  "updatedAt": "2026-10-30T21:06:47Z",
+  "status": "Round 9 · shared mouth anatomy and isolated render profiling",
+  "detail": "The next character candidate derives the upper muzzle, rounded jaw and cheek joins from the same surface, removing the floating smile tube. Actual visual validation is pending. Full repository regression on round 8 passes 518 tests. A controlled isolated experiment now measures real renderer submission, GPU completion and presentation cost; the production pacing gate is unchanged.",
+  "latestImage": "/progress/evidence/round-8-overview.jpg",
+  "latestCaption": "Round 8 · actual 1920 × 1080 browser capture; software-rendered pacing remains below the required gate",
   "reviews": [
     {
       "area": "Character and motion",
-      "verdict": "LOSE \u00b7 round 7 review; correction ready",
-      "gap": "Camera context and eye integration improved, but the eating mouth read as a separate plate. The jaw now has connected cheek surfaces, recessed interior and a supported shallow gape; new actual capture is pending."
+      "verdict": "LOSE against reference · improved over round 7",
+      "gap": "Independent actual-image and motion review confirms that the hanging oval is reduced, but the mouth line and pointed chin still read as attached parts. The face is being corrected at the existing lip surface. The comparison was nonblind; no blind win is claimed."
     },
     {
       "area": "World and composition",
-      "verdict": "Organic water and scene context captured",
-      "gap": "The repeating water grid is replaced by restrained flowing detail and distance fog. The close camera now includes surrounding plants, portals and ruins. Environment craft still requires independent comparison."
+      "verdict": "LOSE · independent whole-game comparison",
+      "gap": "The game and surrounding garden are readable, but the official reference has more natural lighting, stronger environmental depth and richer material surfaces. Current changes do not establish a commercial-quality win."
     },
     {
       "area": "Whole experience",
-      "verdict": "11/12 checks pass \u00b7 speed still fails",
-      "gap": "The first combined run records 7.619 FPS at DPR 0.469; a repeat records 5.604 FPS. Fixed 0.4-scale diagnostics with/without dynamic shadow reception both record 9.358 FPS. The pacing failure persists and shadow filtering is not the main cost."
+      "verdict": "518/518 repository tests · 11/12 focused browser checks",
+      "gap": "Exact published checkpoint 46ff9a8 passes all 518 Node tests. Isolated full-HD rendering records 4.837 FPS, six actual draws over 1240.5 ms and a 283.4 ms maximum gap. The unchanged 17 FPS / below-250 ms gate still fails."
     }
   ],
   "rounds": [
     {
-      "title": "Baseline \u00b7 flat 2D broadcast",
+      "title": "Baseline · flat 2D broadcast",
       "summary": "Recorded the existing running game before the 3D transformation.",
       "captures": [
         {
@@ -37,7 +37,7 @@
       ]
     },
     {
-      "title": "First construction \u00b7 verdant ruins",
+      "title": "First construction · verdant ruins",
       "summary": "Original procedural serpent and rich environment, responsive broadcast shell, safe WebGL fallback and motion handling. Visual review is still open.",
       "captures": [
         {
@@ -47,7 +47,7 @@
       ]
     },
     {
-      "title": "Round 2 \u00b7 scene cleanup and performance",
+      "title": "Round 2 · scene cleanup and performance",
       "summary": "Quiet weathered stone, deeper background, more visible fruit, correct occupancy and public-friendly intent. Capture exposed a shadow-map quality-switch bug; fixed and tested in the next round.",
       "captures": [
         {
@@ -61,7 +61,7 @@
       ]
     },
     {
-      "title": "Round 3 \u00b7 direct character comparison",
+      "title": "Round 3 · direct character comparison",
       "summary": "Shadow-map rendering is valid after resizing (GL error 0). Blind A/B reference won; character anatomy and close framing are being rebuilt. Portrait distance fog still needed correction.",
       "captures": [
         {
@@ -79,7 +79,7 @@
       ]
     },
     {
-      "title": "Round 4 \u00b7 continuous skull and portrait framing",
+      "title": "Round 4 · continuous skull and portrait framing",
       "summary": "A frozen real public replay frame makes the character and camera evidence reproducible. The reference still wins facial expression. Static world merging improved measured throughput from 2.29 to 3.88 FPS without removing scenery; the performance gate remains open.",
       "captures": [
         {
@@ -97,7 +97,7 @@
       ]
     },
     {
-      "title": "Round 5 \u00b7 character expression and independent browser evidence",
+      "title": "Round 5 · character expression and independent browser evidence",
       "summary": "The new face is rendered and the portrait controls no longer overlap. Independent CI passes 11 of 12 checks. Matched cache captures show the same real replay frame; speed at full HD is still below the required gate.",
       "captures": [
         {
@@ -119,12 +119,12 @@
       ]
     },
     {
-      "title": "Round 6 \u00b7 verified cache color and targeted visual corrections",
+      "title": "Round 6 · verified cache color and targeted visual corrections",
       "summary": "The display-color bake is pixel-identical to the preceding cache in the matched fixture, but full-HD speed remains 5.24 FPS. The next candidate keeps the large eyes while simplifying mouth layers, lowers the character camera, replaces plaid water and uses measured resolution adaptation. New actual captures and motion review are pending.",
       "captures": []
     },
     {
-      "title": "Round 7 \u00b7 the character in its garden",
+      "title": "Round 7 · the character in its garden",
       "summary": "Actual captures show the lower camera, simplified facial outlines and organic water. A real 28.72-second motion recording exposes neutral, turning and eating states. Functional checks remain 11/12; pacing remains below 17 FPS and is being diagnosed further.",
       "captures": [
         {
@@ -144,20 +144,34 @@
           "path": "/progress/evidence/round-7-progress.jpg"
         },
         {
-          "label": "Actual gameplay motion \u00b7 12-second excerpt",
+          "label": "Actual gameplay motion · 12-second excerpt",
           "path": "/progress/evidence/round-7-motion.mp4"
+        }
+      ]
+    },
+    {
+      "title": "Round 8 · attached jaw and measured rendering diagnosis",
+      "summary": "Actual images and gameplay motion were captured after the jaw and interface-compositing changes. The jaw still needs a rounded underside and an integrated mouth crease. Functional and regression checks pass; isolated pacing remains below the unchanged gate. The next experiment measures real renderer work and compares controlled rendering conditions.",
+      "captures": [
+        {
+          "label": "Actual character close-up",
+          "path": "/progress/evidence/round-8-character.jpg"
+        },
+        {
+          "label": "Actual full-HD overview",
+          "path": "/progress/evidence/round-8-overview.jpg"
         }
       ]
     }
   ],
   "checks": [
-    "Full repository Node regression: 515 passed, 0 failed/skipped/cancelled on checkpoint 40bc6cc; the repository CI also passed its Node and authority gates.",
-    "Isolated real-browser run on c07c412: 11 passed, 1 failed. Cameras, portrait controls, fallback, lifecycle/reconnect, cache resizing and context loss pass.",
-    "Full-HD gate on c953c64 remains open: 5.242 FPS, 6 actual draws over 1144.6 ms, maximum gap 266.6 ms. Requirements remain at least 17 FPS and gaps below 250 ms.",
+    "Full repository Node regression on 46ff9a8: 518 passed, 0 failed/skipped/cancelled. Repository CI also passes its build, stream-host, authority, chaos and release-validation steps.",
+    "Isolated real-browser run 41126688384 on 46ff9a8: 11 passed, 1 failed. Cameras, portrait controls, fallback, lifecycle/reconnect, local assets, cache resizing and context loss pass.",
+    "Full-HD gate on 46ff9a8 remains failed: 4.837 FPS, 6 actual draws over 1240.5 ms, maximum gap 283.4 ms. Requirements remain at least 17 FPS and gaps below 250 ms.",
     "Display-cache visual regression on c953c64: all 614,400 pixels match the preceding cached fixture. The prior fine-edge antialiasing difference is unchanged.",
-    "Matched cache frames show 74,935 \u2192 11,498 steady-frame triangles. Initial-frame timings are not treated as a sustained speed claim.",
+    "Matched cache frames show 74,935 → 11,498 steady-frame triangles. Initial-frame timings are not treated as a sustained speed claim.",
     "12 focused presentation/model checks and independent code-review corrections are retained.",
     "The commercial visual benchmark and external production R5 gates remain open.",
-    "Measured-resolution regression checks: 4/4 pass, including isolated-hitch resistance and all requested draws submitted. Camera/model/resource checks: 4/4 pass. Actual next-candidate GPU performance remains pending."
+    "Measured-resolution regression: 4/4 pass, including isolated-hitch resistance and real draw submission. Camera/model/resource checks: 4/4 pass. Passing these checks does not establish acceptable GPU performance."
   ]
 }

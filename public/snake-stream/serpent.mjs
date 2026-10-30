@@ -161,10 +161,8 @@ export function createSerpent(THREE) {
     [0.35,0.230,0.140,-0.122],[0.44,0.145,0.090,-0.105],
     [0.49,0.003,-0.030,-0.036],
   ];
-  function makeSkullGeometry(skullRings, skullSides) {
-  const skullPosition = [], skullUv = [], skullIndex = [];
-  for (let i = 0; i < skullRings; i++) {
-    const z = -0.5 + i / (skullRings - 1) * 0.99;
+  const mouthSurfaceY=z=>-.078+.025*smooth(.20,.48,z);
+  function skullSection(z){
     let segment = 0;
     while (segment < skullProfile.length - 2 && skullProfile[segment + 1][0] < z) segment++;
     const a = skullProfile[segment], b = skullProfile[segment + 1];
@@ -176,6 +174,18 @@ export function createSerpent(THREE) {
       const m1=(after[k]-a[k])/(after[0]-a[0])*(b[0]-a[0]);
       profile[k]=(2*t3-3*t2+1)*a[k]+(t3-2*t2+t)*m0+(-2*t3+3*t2)*b[k]+(t3-t2)*m1;
     }
+    return profile;
+  }
+  function mouthSection(z){
+    const profile=skullSection(z),center=(profile[2]+profile[3])*.5,halfHeight=(profile[2]-profile[3])*.5;
+    const y=mouthSurfaceY(z),latitude=clamp((y-center)/halfHeight,-1,1);
+    return {y,width:profile[1]*Math.sqrt(Math.max(0,1-latitude*latitude))};
+  }
+  function makeSkullGeometry(skullRings, skullSides) {
+  const skullPosition = [], skullUv = [], skullIndex = [];
+  for (let i = 0; i < skullRings; i++) {
+    const z = -0.5 + i / (skullRings - 1) * 0.99;
+    const profile=skullSection(z);
     const center=(profile[2]+profile[3])*0.5, height=(profile[2]-profile[3])*0.5;
     for(let j=0;j<=skullSides;j++) {
       const angle=j/skullSides*Math.PI*2;
@@ -185,7 +195,12 @@ export function createSerpent(THREE) {
       // forehead, keeping the enlarged eyes supported instead of stalk-mounted.
       const orbit=Math.exp(-Math.pow((Math.abs(x)-0.18)/0.115,2)-Math.pow((z-0.015)/0.22,2));
       const browLift=0.118*orbit*smooth(0.05,0.65,upper);
-      skullPosition.push(x,center+upper*height+browLift,z);
+      const originalY=center+upper*height+browLift;
+      // The upper muzzle terminates at the SAME mouth surface as its jaw.
+      // Rearwards this blends into the untouched neck; no closed chin remains
+      // above a second jaw, and no decorative curve floats below the skull.
+      const y=originalY+(Math.max(originalY,mouthSurfaceY(z))-originalY)*smooth(-.26,-.17,z);
+      skullPosition.push(x,y,z);
       skullUv.push(i/(skullRings-1),j/skullSides);
       if(i>0 && j<skullSides){
         const v=i*(skullSides+1)+j, back=v-skullSides-1;
@@ -203,22 +218,27 @@ export function createSerpent(THREE) {
   const skull = new THREE.Mesh(skullGeometry, skullMaterial);
   lodBindings.push([skull,skullGeometry,lowSkullGeometry]);
   skull.name='Continuous tapered skull and neck'; skull.castShadow=skull.receiveShadow=true; headPose.add(skull);
-  // The pivot sits at the rear mouth corners. A tapered lower-jaw shell and
-  // recessed palate share its profile, so the bite reads as anatomy, not an oval
-  // plate hanging below a closed muzzle.
-  const jaw = new THREE.Group();jaw.name='Attached lower jaw pivot';jaw.position.set(0,-0.105,-0.17);headPose.add(jaw);
-  const jawProfile=[[-.02,.20,.002],[.07,.235,.002],[.20,.25,0],[.34,.235,-.003],[.46,.185,-.007],[.56,.105,-.01],[.62,.003,-.012]];
-  function makeJawSurface(interior,sides){
+  // The lower jaw follows the actual section where the skull meets the mouth
+  // surface. Its round front cap tapers in BOTH width and thickness, avoiding a
+  // pointed vertical flap. A dark recessed palate supplies the smile itself.
+  const jawRear=-.17,neutralGap=.006;
+  let mouthEndLow=.44,mouthEndHigh=.49;
+  for(let i=0;i<32;i++){const z=(mouthEndLow+mouthEndHigh)*.5;if(skullSection(z)[3]<mouthSurfaceY(z))mouthEndLow=z;else mouthEndHigh=z;}
+  const mouthEnd=(mouthEndLow+mouthEndHigh)*.5;
+  const jaw = new THREE.Group();jaw.name='Attached lower jaw pivot';jaw.position.set(0,mouthSurfaceY(jawRear)-neutralGap,jawRear);headPose.add(jaw);
+  function makeJawSurface(interior,sides,rows){
     const p=[],uv=[],ind=[],columns=interior?sides+1:sides+3;
-    for(let r=0;r<jawProfile.length;r++){
-      const [z,width,top]=jawProfile[r];
+    for(let r=0;r<rows;r++){
+      const z=jawRear+(mouthEnd-jawRear)*Math.sin(r/(rows-1)*Math.PI/2),section=mouthSection(z);
+      const width=r===rows-1?0:section.width*.985,top=section.y-neutralGap-jaw.position.y;
+      const rounding=Math.sqrt(width/.27),thickness=.043*rounding,inset=.006*rounding;
       for(let j=0;j<columns;j++){
         let x,y;
-        if(interior){const t=j/sides;x=(1-t*2)*width*.86;y=top-.009-Math.sin(t*Math.PI)*.014;}
-        else if(j===0){x=width*.86;y=top-.009;}
-        else if(j===columns-1){x=-width*.86;y=top-.009;}
-        else {const angle=(j-1)/sides*Math.PI;x=Math.cos(angle)*width;y=top-Math.sin(angle)*.047;}
-        p.push(x,y,z);uv.push(r/(jawProfile.length-1),j/(columns-1));
+        if(interior){const t=j/sides;x=(1-t*2)*width*.90;y=top-inset-Math.sin(t*Math.PI)*.012*rounding;}
+        else if(j===0){x=width*.90;y=top-inset;}
+        else if(j===columns-1){x=-width*.90;y=top-inset;}
+        else {const angle=(j-1)/sides*Math.PI;x=Math.cos(angle)*width;y=top-Math.sin(angle)*thickness;}
+        p.push(x,y,z-jawRear);uv.push(r/(rows-1),j/(columns-1));
         if(r>0&&j<columns-1){const c=r*columns+j,a=c-columns;
           if(interior)ind.push(a,a+1,c,c,a+1,c+1);else ind.push(a,c,a+1,c,c+1,a+1);
         }
@@ -227,7 +247,7 @@ export function createSerpent(THREE) {
     const g=ownGeometry(new THREE.BufferGeometry());g.setAttribute('position',new THREE.Float32BufferAttribute(p,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));g.setIndex(ind);g.computeVertexNormals();return g;
   }
   for(const interior of [false,true]){
-    const high=makeJawSurface(interior,16),low=makeJawSurface(interior,8);
+    const high=makeJawSurface(interior,16,19),low=makeJawSurface(interior,8,10);
     const mesh=new THREE.Mesh(high,interior?mouthMaterial:cream);mesh.name=interior?'Recessed oral interior':'Unified cream lower jaw';mesh.castShadow=mesh.receiveShadow=true;jaw.add(mesh);lodBindings.push([mesh,high,low]);
   }
   // One small flexible cheek mesh joins both upper corners to the jaw. Its top
@@ -237,19 +257,18 @@ export function createSerpent(THREE) {
   const cheekGeometry=ownGeometry(new THREE.BufferGeometry());cheekGeometry.setAttribute('position',new THREE.BufferAttribute(cheekPositions,3).setUsage(THREE.DynamicDrawUsage));cheekGeometry.setIndex(cheekIndices);
   const cheekMaterial=ownMaterial(new THREE.MeshStandardMaterial({color:0x72934d,roughness:.76,side:THREE.DoubleSide}));
   const cheekBridge=new THREE.Mesh(cheekGeometry,cheekMaterial);cheekBridge.name='Attached mouth corners';cheekBridge.frustumCulled=false;cheekBridge.castShadow=cheekBridge.receiveShadow=true;headPose.add(cheekBridge);
-  const jawCornerAnchors=[[-.01,.20],[.07,.235],[.20,.25]];
+  const jawCornerAnchors=[jawRear,-.08,.03].map(z=>({z:z-jawRear,...mouthSection(z)}));
   function updateJawCorners(angle){
     const cosine=Math.cos(angle),sine=Math.sin(angle);
     for(let side=0;side<2;side++)for(let j=0;j<3;j++){
-      const sign=side?1:-1,[z,x]=jawCornerAnchors[j],y=.001;
-      let i=(side*6+j)*3;cheekPositions[i]=sign*(x+.012);cheekPositions[i+1]=-.087-j*.012;cheekPositions[i+2]=jaw.position.z+z;
-      i=(side*6+j+3)*3;cheekPositions[i]=sign*x;cheekPositions[i+1]=jaw.position.y+y*cosine-z*sine;cheekPositions[i+2]=jaw.position.z+y*sine+z*cosine;
+      const sign=side?1:-1,anchor=jawCornerAnchors[j],z=anchor.z,y=anchor.y-neutralGap-jaw.position.y;
+      let i=(side*6+j)*3;cheekPositions[i]=sign*anchor.width;cheekPositions[i+1]=anchor.y+.002;cheekPositions[i+2]=jaw.position.z+z;
+      i=(side*6+j+3)*3;cheekPositions[i]=sign*anchor.width*.985;cheekPositions[i+1]=jaw.position.y+y*cosine-z*sine;cheekPositions[i+2]=jaw.position.z+y*sine+z*cosine;
     }
     cheekGeometry.attributes.position.needsUpdate=true;cheekGeometry.computeVertexNormals();
   }
   updateJawCorners(0);
-  curveTube(headPose,mouthMaterial,[[-0.282,-0.09,-0.17],[-0.283,-0.11,0.02],[-0.25,-0.12,0.20],[-0.18,-0.119,0.36],[0,-0.105,0.476],[0.18,-0.119,0.36],[0.25,-0.12,0.20],[0.283,-0.11,0.02],[0.282,-0.09,-0.17]],0.006,'Long sculpted smile');
-  // The mouth has one fine crease and one cream jaw, without stacked lip bands.
+  // No independent smile tube: the narrow actual mouth opening supplies the line.
   for(const sign of [-1,1]) {
     ellipsoid(headPose,darkJade,sign*0.116,0.081,0.415,0.018,0.012,0.010,'Recessed nostril');
     curveTube(headPose,gold,[[sign*0.31,0.015,-0.19],[sign*0.308,0.0,-0.08],[sign*0.292,-0.012,0.07]],0.012,'Swept cheek marking');
@@ -286,7 +305,7 @@ export function createSerpent(THREE) {
     const brow=new THREE.Mesh(lidHigh,jade);brow.name='Continuous upper eyelid';brow.castShadow=brow.receiveShadow=true;socket.add(brow);
     lodBindings.push([brow,lidHigh,lidLow]);brows.push(brow);
   }
-  const tongue = new THREE.Group(); tongue.position.set(0, -0.133, 0.425); headPose.add(tongue);
+  const tongue = new THREE.Group(); tongue.position.set(0, mouthSurfaceY(.425)-.009, .425); headPose.add(tongue);
   curveTube(tongue, tongueMaterial, [[0,0,0],[0,-0.012,0.10],[0,0.0,0.20]], 0.018, 'Tongue stem');
   curveTube(tongue, tongueMaterial, [[0,0,0.19],[-0.027,0.008,0.24],[-0.048,0.014,0.28]], 0.009, 'Tongue left fork');
   curveTube(tongue, tongueMaterial, [[0,0,0.19],[0.027,0.008,0.24],[0.048,0.014,0.28]], 0.009, 'Tongue right fork');
@@ -415,8 +434,8 @@ export function createSerpent(THREE) {
     head.rotation.y = heading;
     headPose.rotation.x = reduced ? 0 : -eaten * 0.11 + dangerEase * 0.025;
     headPose.rotation.z = reduced ? 0 : clamp(-angleDifference * 0.045, -0.06, 0.06);
-    // Keep a shallow six-degree bite until the full upper palate supports more.
-    jaw.rotation.x = reduced ? 0 : eaten * 0.105;
+    // A shallow four-degree chew keeps the rounded jaw supported at both corners.
+    jaw.rotation.x = reduced ? 0 : eaten * 0.07;
     updateJawCorners(jaw.rotation.x);
     headPose.scale.set(1 + eaten * 0.035, 1 + eaten * 0.025, 1);
     const blinkPhase = ((time + 1.73) % 4.7);

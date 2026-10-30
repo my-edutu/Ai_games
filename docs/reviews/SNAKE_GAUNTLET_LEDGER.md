@@ -63,7 +63,7 @@ The remaining failure is the unchanged full-HD frame-rate gate: five RAF frames 
 
 Actual new character and portrait captures plus matched cache images are retained in the progress page. The matched captures use the same real public replay frame: steady-frame geometry falls from 74,935 to 11,498 triangles and draw calls from 63 to 51. Their short initial-frame timing samples are insufficient for a sustained speed claim. Exact CI provenance and counts are in `snake-gauntlet/round-5-browser-verification.json`.
 
-Independent visual review of these captures is underway. The commercial reference has not been beaten. The session's agent-thread limit prevents starting another fresh context; the existing separate critic is reused without labeling that review as a fully fresh-context comparison.
+Independent visual review of these captures is underway. The commercial reference has not been beaten. At this checkpoint all available concurrent agent slots were occupied; the existing separate critic was reused without labeling that review as fresh. Once a slot became available, a new whole-game critic was successfully started with no inherited context for rounds 7–8.
 
 ## Round 6 — display-cache evidence and next correction
 
@@ -80,3 +80,15 @@ Actual round-seven images and a 28.72-second browser recording show better conte
 Pacing remains below target: the first combined run records 7.619 FPS, and a repeat records 5.604 FPS. The same frozen real frame at fixed DPR 0.4 produces 9.3589 FPS with dynamic shadow reception versus 9.3580 FPS without it, ruling out shadow filtering as the primary cost in that pair. The unchanged gate remains failed.
 
 A bounded local full-app A/B/A comparison then removed CSS filters and box shadows while retaining rounded clipping and identical geometry. Cadence was 3.248 → 5.419 → 2.393 FPS under shared host load. Every condition submitted real draws, retained its active cache and returned GL error zero. This supports a relative compositing-cost correction, not a 17 FPS pass. The next candidate replaces blur/translucent overlays with opaque green panels and removes blurred stage shadows; layout, clipping, borders and focus behavior are preserved. Exact local data and parser verification are retained.
+
+## Round 8 — exact published build verified
+
+Checkpoint `46ff9a80a0dac70bdd792cc1bbc95493c4cecf1b`, [isolated run 41126688384](https://github.com/my-edutu/Ai_games/actions/runs/41126688384), still passes 11/12 focused browser checks. Desktop pacing is **4.837 FPS**, six real draws over 1240.5 ms, maximum gap 283.4 ms. The same frame at fixed DPR 0.4 records 7.062 FPS with shadow reception and 6.685 FPS without it. Removing interface blur did not produce a passing result.
+
+The full repository run [41126688081](https://github.com/my-edutu/Ai_games/actions/runs/41126688081) passes **518/518 Node tests**, no failures/skips/cancellations, and all stream-host, authority, chaos and release-validation steps. Its browser stage passes 23/24 checks; the same Snake pacing gate is the sole failure. These results are exact-head evidence, not a claim of production or commercial visual readiness.
+
+Actual screenshots and the separate 2,501,510-byte motion artifact were downloaded and inspected. Root review still finds a thin pointed lower jaw and a floating-looking smile crease; an independent whole-game critic is reviewing this output against the official Snake Pass reference. New targeted diagnostic work will separate actual renderer submission, GPU completion and page-compositing costs without altering the production gate. Published progress JPEGs are format conversions of the unmodified browser PNGs, retaining their native dimensions.
+
+The separate whole-game critic confirms a narrow improvement over round 7, but retains **LOSE** against the official commercial reference. It independently identifies the floating dark smile loop and pointed lower-jaw flap as the biggest art gap. Actual motion has held spans; nominal recording frame rate is not evidence of smooth live rendering. Report: `snake-gauntlet/character-critic-round8.md`. This follow-up was nonblind; it is not represented as a masked comparison.
+
+Round 9 candidate: the builder removed the independent smile tube and derived the upper mouth boundary, rounded jaw and flexible cheek joins from the same skull cross-sections. Four-degree chewing, 0.006-unit neutral gap, body/eye behavior and resource bounds are retained. Existing model tests plus 480 expression/LOD/reduced-motion updates pass; real appearance remains pending. A separate diagnostic-only browser test now measures actual renderer wall time, GPU timing/completion, full-app versus equal-size minimal-page cadence, and cache/depth/AA ablations. Partial-scene diagnostics never replace the production pacing gate.
