@@ -1,17 +1,111 @@
-'use strict';
-(()=>{
-const canvas=document.getElementById('tower-canvas'),ctx=canvas.getContext('2d',{alpha:false}),body=document.body,params=new URLSearchParams(location.search);
-const reduced=params.get('reducedMotion')==='1',contrast=params.get('highContrast')==='1',muted=params.get('muted')==='1',clean=params.get('cleanFeed')==='1';
-body.dataset.reducedMotion=String(reduced);body.dataset.highContrast=String(contrast);body.classList.toggle('clean-feed',clean);
-const $=id=>document.getElementById(id),q=id=>document.querySelector(`[data-testid=${id}]`),MAX_PARTICLES=96;
-let current=null,polling=false,closed=false,lastChecksum='';
-function fit(){const d=Math.min(2,devicePixelRatio||1),r=canvas.getBoundingClientRect(),w=Math.max(1,Math.round(r.width*d)),h=Math.max(1,Math.round(r.height*d));if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h;ctx.setTransform(d,0,0,d,0,0)}}
-function sceneName(scene){return({normal:'ASCENDING',danger:'DANGER',upgrade:'BUILD CHOICE',guardian:'GUARDIAN',result:'RUN COMPLETE',intermission:'NEXT RUN',recovery:'RECOVERING'})[scene]||String(scene).toUpperCase()}
-function setText(testId,value){const node=q(testId);if(node)node.textContent=String(value)}
-function update(data){const s=data.snapshot;if(!s)return;window.__TOWER_PUBLIC_STATE__=s;setText('floor',s.floor);setText('height',`${Math.floor(s.progress.height/1000)}m`);setText('guardian',s.progress.nextGuardianFloor);setText('tick',s.tick);setText('health',`${s.player.health}/${s.player.maxHealth}`);setText('stamina',s.player.stamina);setText('shields',s.player.shieldCharges);setText('ai-intent',s.intent.summary.toUpperCase());setText('score',s.player.score.toLocaleString());setText('scene',sceneName(data.scene));setText('run-token',s.runToken.slice(0,8));const progress=Math.round(s.progress.floorProgressPermille/10);setText('progress',`${progress}%`);$('floor-progress').style.width=`${progress}%`;$('health-bar').style.width=`${100*s.player.health/s.player.maxHealth}%`;$('stamina-bar').style.width=`${100*s.player.stamina/s.player.maxStamina}%`;$('theme-name').textContent=`${s.theme.toUpperCase()} SECTOR`;$('intent-mode').textContent=s.intent.mode.toUpperCase();$('confidence').textContent=`${Math.round(s.intent.confidencePermille/10)}%`;$('caption-text').textContent=data.audio?.captions?.[0]?.text||s.intent.summary;body.classList.toggle('danger',data.scene==='danger'||data.scene==='guardian');const tags=$('build-tags');tags.replaceChildren(...(s.buildTags.length?s.buildTags:['BASE KIT']).map(text=>{const e=document.createElement('em');e.textContent=text.replaceAll('-',' ').toUpperCase();return e}));const choice=$('choice-card');choice.hidden=data.scene!=='upgrade';const result=$('result-card');result.hidden=!['result','intermission'].includes(data.scene);$('recovery-card').hidden=data.scene!=='recovery';}
-function transform(s,w,h,camera){const scale=Math.min(w/(s.worldWidth/1000+60),h/(s.chunkHeight/1000*.74))/Math.max(.82,camera?.zoom||1),cx=s.worldWidth/2000,cy=((camera?.centerY||s.player.y)-s.chunkBaseY)/1000;return{x:v=>w/2+(v/1000-cx)*scale,y:v=>h*.64-(v/1000-cy)*scale,scale}}
-function fillRect(t,item){ctx.fillRect(t.x(item.x),t.y(item.y+item.height),item.width/1000*t.scale,item.height/1000*t.scale)}
-function draw(data){fit();const w=canvas.clientWidth,h=canvas.clientHeight,s=data?.snapshot,g=ctx.createLinearGradient(0,0,0,h);g.addColorStop(0,'#182244');g.addColorStop(1,'#060710');ctx.fillStyle=g;ctx.fillRect(0,0,w,h);if(!s)return;const t=transform(s,w,h,data.camera);ctx.strokeStyle='rgba(72,228,255,.12)';for(let y=0;y<h;y+=42){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(w,y);ctx.stroke()}for(const p of s.platforms){ctx.fillStyle=p.kind==='moving'?'#a68aff':p.kind==='oneway'?'#58bad4':'#63769a';fillRect(t,p)}for(const z of s.hazards){ctx.globalAlpha=z.active?1:.3;ctx.fillStyle=z.active?'#ff5277':'#7b4055';fillRect(t,z)}ctx.globalAlpha=1;for(const pick of s.pickups){ctx.fillStyle=pick.kind==='health'?'#66f5b4':pick.kind==='stamina'?'#48e4ff':'#ffca5a';ctx.beginPath();ctx.arc(t.x(pick.x),t.y(pick.y),7,0,Math.PI*2);ctx.fill()}for(const e of s.enemies){if(!e.active)continue;const x=t.x(e.x),y=t.y(e.y),rw=e.halfWidth/1000*t.scale,rh=e.halfHeight/1000*t.scale;ctx.fillStyle=e.kind==='guardian'?'#ffca5a':e.kind==='shooter'?'#ff7ea3':'#d05cff';ctx.fillRect(x-rw,y-rh,rw*2,rh*2);if(e.telegraph){ctx.strokeStyle='#fff';ctx.strokeRect(x-rw-5,y-rh-5,rw*2+10,rh*2+10)}}for(const p of s.projectiles){ctx.fillStyle=p.owner==='player'?'#48e4ff':'#ff5277';ctx.beginPath();ctx.arc(t.x(p.x),t.y(p.y),5,0,Math.PI*2);ctx.fill()}const x=t.x(s.player.x),y=t.y(s.player.y),rw=s.player.halfWidth/1000*t.scale,rh=s.player.halfHeight/1000*t.scale;ctx.shadowColor='#48e4ff';ctx.shadowBlur=18;ctx.fillStyle='#48e4ff';ctx.beginPath();ctx.roundRect(x-rw,y-rh,rw*2,rh*2,5);ctx.fill();ctx.shadowBlur=0;}
-async function poll(){if(polling||closed)return;polling=true;try{const response=await fetch(`/tower/state?w=${innerWidth}&h=${innerHeight}&reducedMotion=${reduced?1:0}&cleanFeed=${clean?1:0}&muted=${muted?1:0}`,{cache:'no-store'});if(!response.ok)throw new Error(String(response.status));const data=await response.json();current=data;if(data.snapshot?.publicChecksum!==lastChecksum){lastChecksum=data.snapshot?.publicChecksum||'';update(data)}$('provider-state').textContent='AUTONOMOUS CORE ONLINE'}catch(error){$('provider-state').textContent='VIEW RECOVERING — AI CONTINUES';console.warn('tower state unavailable',String(error))}finally{polling=false;if(!closed)setTimeout(poll,110)}}
-function render(){draw(current);requestAnimationFrame(render)}addEventListener('resize',fit);addEventListener('beforeunload',()=>closed=true);fit();poll();render();void MAX_PARTICLES;
-})();
+import { createTowerScene } from './visuals/scene.mjs';
+import { createTowerAudio } from './visuals/audio.mjs';
+import { createHUD } from './visuals/hud.mjs';
+
+const params = new URLSearchParams(location.search);
+const enabled = name => ['1', 'true'].includes(params.get(name));
+const disabled = name => ['0', 'false'].includes(params.get(name));
+const reduced = enabled('reducedMotion') || (!disabled('reducedMotion') && matchMedia('(prefers-reduced-motion: reduce)').matches);
+const clean = enabled('cleanFeed');
+const requestedQuality = params.get('quality');
+const quality = ['low', 'high'].includes(requestedQuality) ? requestedQuality : innerWidth < 700 ? 'low' : 'high';
+const audio = createTowerAudio();
+let view = null, current = null, closed = false, suspended = false, request = null, timer = null;
+let failures = 0, soundRequest = 0;
+const hud = createHUD({
+  initialQuality: quality,
+  onCamera: mode => view?.setCamera(mode),
+  onSound: async value => {
+    const operation = ++soundRequest;
+    const active = await audio.setEnabled(value);
+    if (!closed && operation === soundRequest && value && !active) hud.status('Sound could not start in this browser', 'degraded');
+  },
+  onMotion: value => view?.setMotion(value),
+  onQuality: value => view?.setQuality(value),
+  onFullscreen: async () => {
+    try { if (document.fullscreenElement) await document.exitFullscreen(); else await document.documentElement.requestFullscreen(); }
+    catch { hud.status('Fullscreen is unavailable in this view', 'degraded'); }
+  },
+});
+try {
+  view = createTowerScene(document.getElementById('tower-canvas'), {
+    camera: params.get('camera') === 'overview' ? 'overview' : 'follow',
+    quality,
+    reducedMotion: reduced,
+    onStatus: (message, kind) => hud.status(message, kind),
+  });
+} catch (error) {
+  console.error('Tower graphics could not start:', error);
+  hud.status('3D graphics unavailable in this browser', 'error');
+}
+window.__TOWER_RENDER_DIAGNOSTICS__ = () => ({ ...(view?.diagnostics() || { frames: 0, renderer: 'unavailable' }), ...audio.diagnostics(), requestsInFlight: request ? 1 : 0 });
+async function poll() {
+  if (closed || suspended || request) return;
+  timer = null;
+  const pending = { controller: new AbortController(), timeout: null };
+  request = pending;
+  pending.timeout = setTimeout(() => pending.controller.abort(), 2500);
+  try {
+    const query = new URLSearchParams({ w: String(innerWidth), h: String(innerHeight), reducedMotion: String(document.body.dataset.reducedMotion === 'true' ? 1 : 0), cleanFeed: clean ? '1' : '0', muted: audio.diagnostics().soundEnabled ? '0' : '1' });
+    const response = await fetch(`/tower/state?${query}`, { cache: 'no-store', signal: pending.controller.signal });
+    if (!response.ok) throw new Error(`state-${response.status}`);
+    const data = await response.json();
+    if (!data.snapshot || !Number.isFinite(data.snapshot.tick)) throw new Error('invalid-public-state');
+    if (closed || suspended || request !== pending) return;
+    current = data; failures = 0;
+    window.__TOWER_PUBLIC_STATE__ = data.snapshot;
+    view?.setStale(false);
+    view?.accept(data);
+    audio.accept(data);
+    const diagnostics = window.__TOWER_RENDER_DIAGNOSTICS__();
+    const renderState = diagnostics.renderProgress?.state;
+    const graphicsPending = ['waiting', 'starting', 'stalled'].includes(renderState);
+    const terminal = ['result', 'intermission'].includes(data.scene);
+    const recovery = !view || diagnostics.contextLost || data.scene === 'recovery' || (graphicsPending && !terminal);
+    const recoveryMessage = !view ? 'Your browser could not start 3D graphics. Enable WebGL and reload this page.'
+      : diagnostics.contextLost ? 'Graphics are reconnecting. The expedition continues.'
+      : data.scene === 'recovery' ? 'The expedition is restoring verified game state.'
+      : renderState === 'stalled' ? 'The 3D view is delayed. The expedition continues; try Low graphics quality.'
+      : graphicsPending ? 'Preparing the 3D view. The expedition continues.'
+      : 'The expedition is restoring verified game state.';
+    hud.update(recovery ? { ...data, scene: 'recovery' } : data, { ...diagnostics, recoveryMessage });
+    if (recovery || graphicsPending) hud.status(renderState === 'stalled' ? '3D view delayed · expedition continues' : 'Restoring the expedition', 'degraded');
+    else hud.status('LIVE EXPEDITION', 'online');
+  } catch (error) {
+    if (closed || suspended || request !== pending) return;
+    failures++;
+    view?.setStale(true);
+    hud.status('Reconnecting to the expedition', 'degraded');
+    hud.update({ ...(current || {}), scene: 'recovery' }, { recoveryMessage: 'The connection was interrupted. Reconnecting automatically.', ...audio.diagnostics() });
+  } finally {
+    clearTimeout(pending.timeout);
+    if (request === pending) {
+      request = null;
+      if (!closed && !suspended) timer = setTimeout(poll, failures ? Math.min(3000, 400 * failures) : 100);
+    }
+  }
+}
+function stopPolling() {
+  clearTimeout(timer); timer = null;
+  const pending = request;
+  request = null;
+  if (pending) { clearTimeout(pending.timeout); pending.controller.abort(); }
+}
+function dispose() {
+  if (closed) return;
+  closed = true; stopPolling();
+  removeEventListener('pagehide', pagehide); removeEventListener('pageshow', pageshow);
+  view?.dispose(); audio.dispose(); hud.dispose();
+}
+function pagehide(event) {
+  if (!event.persisted) { dispose(); return; }
+  // The browser preserves the scene and controls while this document is cached.
+  suspended = true; stopPolling(); view?.setStale(true);
+}
+function pageshow(event) {
+  if (!event.persisted || closed || !suspended) return;
+  suspended = false; poll();
+}
+addEventListener('pagehide', pagehide);
+addEventListener('pageshow', pageshow);
+poll();

@@ -1,29 +1,32 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#070912"><title>Infinite Tower Climb</title><link rel="stylesheet" href="/tower/styles.css"><link rel="stylesheet" href="/tower/ux-v2.css"></head>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#101613"><title>Infinite Tower Climb — Autonomous Ascent</title>
+<link rel="stylesheet" href="/tower/styles.css"><link rel="stylesheet" href="/tower/ux-v2.css">
+</head>
 <body><main id="app" data-testid="tower-app">
-  <section class="shell" data-testid="shell" data-ux-revision="2">
-    <header class="top" data-testid="hud">
-      <div class="brand"><span class="brand-mark" aria-hidden="true">▲</span><div><p class="eyebrow">AUTONOMOUS ASCENT</p><h1>INFINITE TOWER</h1></div></div>
-      <div class="primary-metrics">
-        <article><span>FLOOR</span><strong data-testid="floor">0</strong></article>
-        <article><span>HEIGHT</span><strong data-testid="height">0m</strong></article>
-        <article><span>NEXT GUARDIAN</span><strong data-testid="guardian">10</strong></article>
-      </div>
-      <div class="status-chip" data-testid="scene">ASCENDING</div>
-    </header>
-    <section class="arena-wrap">
-      <canvas id="tower-canvas" data-testid="tower-canvas" aria-label="Infinite Tower Climb autonomous game view"></canvas>
-      <div class="danger-vignette" aria-hidden="true"></div>
-      <div class="checkpoint-pill"><span>RUN</span><b data-testid="run-token">—</b></div>
-    </section>
-    <aside class="side" data-testid="side-panel">
-      <section class="panel vital-panel"><div class="panel-head"><span>CLIMBER STATUS</span><b data-testid="tick">0</b></div><div class="bar-row"><label>INTEGRITY</label><div class="bar"><i id="health-bar"></i></div><output data-testid="health">5/5</output></div><div class="bar-row"><label>STAMINA</label><div class="bar stamina"><i id="stamina-bar"></i></div><output data-testid="stamina">100</output></div><div class="shield-row"><span>SHIELDS</span><b data-testid="shields">0</b></div></section>
-      <section class="panel intent-panel"><div class="panel-head"><span>AI INTENT</span><b id="confidence">100%</b></div><h2 data-testid="ai-intent">ASSESSING ROUTE</h2><p id="intent-mode">BOOT</p></section>
-      <section class="panel build-panel"><div class="panel-head"><span>ACTIVE BUILD</span><b data-testid="score">0</b></div><div class="tags" id="build-tags"><em>BASE KIT</em></div></section>
-      <section class="panel progress-panel"><div class="panel-head"><span>FLOOR PROGRESS</span><b data-testid="progress">0%</b></div><div class="vertical-progress"><i id="floor-progress"></i><span></span></div><p id="theme-name">FOUNDRY SECTOR</p></section>
-    </aside>
-    <footer class="caption" data-testid="captions" aria-live="polite"><span class="caption-icon">●</span><p id="caption-text">The climber is entering the tower.</p><div class="provider-state" id="provider-state">AUTONOMOUS CORE ONLINE</div></footer>
-    <section class="choice-card" id="choice-card" hidden><p>BUILD DECISION</p><h2 id="choice-title">Upgrade available</h2><div id="choice-options"></div></section>
-    <section class="result-card" id="result-card" hidden><p>RUN COMPLETE</p><h2 id="result-title">ASCENT ENDED</h2><strong id="result-height">0m</strong><span>Automatic restart armed</span></section>
-    <section class="recovery-card" id="recovery-card" hidden><div class="spinner"></div><p>RESTORING VERIFIED VIEW</p><span>No game result has been recorded.</span></section>
-  </section>
-</main><script src="/tower/app.js" defer></script></body></html>
+<section class="shell" data-testid="shell" data-ux-revision="2" aria-label="Infinite Tower Climb spectator view">
+<section class="arena-wrap" aria-label="Autonomous tower expedition"><canvas id="tower-canvas" data-testid="tower-canvas" aria-label="Three dimensional view of an autonomous robot climbing the tower"></canvas><div class="stage-shade" aria-hidden="true"></div><div class="danger-vignette" aria-hidden="true"></div></section>
+<header class="top" data-testid="hud">
+<div class="brand"><svg class="brand-mark" viewBox="0 0 36 44" fill="none" aria-hidden="true"><path d="M18 3 3 38h9l6-15 6 15h9L18 3Z" stroke="currentColor" stroke-width="2"/><path d="M12 38h12M18 3v12" stroke="currentColor" stroke-width="2"/></svg><div><h1>INFINITE TOWER</h1><p class="eyebrow">AUTONOMOUS ASCENT</p></div></div>
+<div class="primary-metrics" aria-label="Expedition progress"><article class="floor-metric"><span>FLOOR</span><strong data-testid="floor">—</strong></article><article class="height-metric"><span>PEAK HEIGHT</span><strong data-testid="height">—</strong></article></div>
+</header>
+<aside class="expedition-state" aria-label="Current expedition phase"><div class="status-chip"><i aria-hidden="true"></i><span data-testid="scene">CONNECTING</span></div><div class="guardian-marker"><span>GUARDIAN AT FLOOR</span><strong data-testid="guardian">—</strong></div><p id="provider-state" role="status">Connecting to expedition</p></aside>
+<aside class="side" data-testid="side-panel" aria-label="Climber status">
+<section class="vital-panel"><div class="bar-row"><label>INTEGRITY</label><div class="bar"><i id="health-bar"></i></div><output data-testid="health">—</output></div><div class="bar-row"><label>STAMINA</label><div class="bar stamina"><i id="stamina-bar"></i></div><output data-testid="stamina">—</output></div><div class="shield-row"><span>SHIELDS</span><b data-testid="shields">—</b></div></section>
+<section class="intent-panel"><p class="section-label"><span class="intent-light" aria-hidden="true"></span>THE NEXT MOVE</p><h2 data-testid="ai-intent">Finding the first foothold</h2><p id="intent-mode">Waiting for live state</p><span id="confidence" class="sr-only"></span></section>
+<details class="run-details" id="run-details"><summary>Expedition details <span aria-hidden="true">+</span></summary><div class="detail-content"><div class="detail-row"><span>Run</span><b data-testid="run-token">—</b></div><div class="detail-row"><span>Score</span><b data-testid="score">—</b></div><div class="detail-row"><span>Floor progress</span><b data-testid="progress">—</b></div><div class="vertical-progress"><i id="floor-progress"></i></div><p id="theme-name">—</p><div class="tags" id="build-tags"></div><div class="detail-row tick-row"><span>Simulation step</span><b data-testid="tick">0</b></div></div></details>
+</aside>
+<footer class="caption" data-testid="captions" aria-live="polite" aria-atomic="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5h18v12H9l-5 4v-4H3V5Z"/><path d="M7 9h4m-4 4h4m3-4h3m-3 4h3"/></svg><p id="caption-text"></p></footer>
+<nav class="spectator-controls" aria-label="Spectator controls">
+<div class="camera-controls" role="group" aria-label="Camera view"><button type="button" id="camera-follow" aria-label="Follow camera" aria-pressed="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 4H4v4m12-4h4v4M4 16v4h4m12-4v4h-4"/><circle cx="12" cy="12" r="3"/></svg><span>Follow</span></button><button type="button" id="camera-overview" aria-label="Overview camera" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 9 6-9 6-9-6 9-6Zm-9 12 9 6 9-6M3 12l9 6 9-6"/></svg><span>Overview</span></button></div>
+<span class="control-divider" aria-hidden="true"></span>
+<button type="button" id="sound-toggle" aria-label="Enable sound" aria-pressed="false" title="Enable sound"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m11 4-6 5H2v6h3l6 5V4Z"/><path class="sound-waves" d="M15 8a6 6 0 0 1 0 8m3-11a10 10 0 0 1 0 14"/><path class="sound-muted" d="m16 9 5 6m0-6-5 6"/></svg><span class="control-label">Sound</span></button>
+<button type="button" id="motion-toggle" aria-label="Reduce motion" aria-pressed="false" title="Reduce motion"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7h10m-7 5h11M3 17h10m4-13 4 3-4 3m0 4 4 3-4 3"/></svg><span class="control-label">Motion</span></button>
+<button type="button" id="quality-toggle" aria-label="Use low graphics quality" aria-pressed="false" title="Use low graphics quality"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v12H4V5Zm4 16h8m-4-4v4M8 9h8m-8 4h4"/></svg><span class="control-label" id="quality-label">High</span></button>
+<button type="button" id="fullscreen-toggle" aria-label="Enter fullscreen" aria-pressed="false" title="Enter fullscreen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5"/></svg></button>
+</nav>
+<section class="choice-card" id="choice-card" hidden aria-label="Autonomous upgrade decision"><p class="section-label">FIELD UPGRADE</p><h2 id="choice-title">Choosing the next advantage</h2><div id="choice-options"></div><small>The climber selects its own build.</small></section>
+<section class="result-card" id="result-card" hidden aria-live="polite"><p class="section-label" id="result-kicker">EXPEDITION COMPLETE</p><h2 id="result-title">Ascent ended</h2><strong id="result-height">—</strong><p id="result-reason"></p><span id="restart-state">Awaiting the next expedition</span></section>
+<section class="recovery-card" id="recovery-card" hidden role="status"><div class="spinner" aria-hidden="true"></div><h2>Restoring the expedition view</h2><p id="recovery-message">Waiting for verified game state.</p><span>The view is recovering. This is not a game result.</span></section>
+</section></main><script src="/tower/app.js" type="module"></script></body></html>

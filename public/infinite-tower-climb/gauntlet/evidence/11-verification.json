@@ -1,0 +1,674 @@
+{
+  "sourceHashes": {
+    "app.js": "d3fad89870e5ffabdfb2e2aa75607ba7dd52c658c210fd351ba47b7e2c42fdff",
+    "visuals/scene.mjs": "9fa9286400eb31d6d50a6783c0a9b82731a9d4dc2f936fb05fc20e3554d3b99a",
+    "visuals/world.mjs": "6347b78bce91739df70690a801dc75986d0fc08bae6a154e1491bf825af71702",
+    "visuals/characters.mjs": "266821d740a60c3cc1b552d9b7679ee9c70fcff0a40c875d5acf2e631a6eee66",
+    "visuals/world-surface.mjs": "2d211239b251f124eb3beba8f185149ee85ac756318b881b10f9cc2c372e8158"
+  },
+  "capturedAt": "2026-10-30T22:05:58.700Z",
+  "appearanceMethod": "Unmodified authoritative Foundry tick118 held at the public snapshot boundary; renderer remains running; appearance evidence only",
+  "errors": [],
+  "restorations": [
+    {
+      "stoppedFrames": 8,
+      "restored": {
+        "renderer": "three-webgl",
+        "frames": 12,
+        "tick": 252,
+        "floor": 1,
+        "theme": "ruins",
+        "camera": "overview",
+        "quality": "high",
+        "reducedMotion": true,
+        "stale": false,
+        "contextLost": false,
+        "renderErrors": 0,
+        "renderProgress": {
+          "state": "current",
+          "visibleIdleMs": 6,
+          "staleAfterMs": 3000,
+          "submittedFrames": 12,
+          "lastSubmitted": {
+            "tick": 252,
+            "floor": 1,
+            "runToken": "b1903d50",
+            "atMs": 7789.800000000745
+          }
+        },
+        "calls": 158,
+        "triangles": 294892,
+        "geometries": 98,
+        "textures": 8,
+        "programs": 13,
+        "characters": 3,
+        "activeParticles": 0,
+        "frameMs": {
+          "p50": 3.8,
+          "p95": 30.6,
+          "p99": 30.6,
+          "max": 30.6,
+          "samples": 3
+        },
+        "lighting": {
+          "environmentReady": true,
+          "environmentState": "ready",
+          "environmentBuilds": 2,
+          "environmentFailures": 0,
+          "environmentLastError": null,
+          "environmentSize": [
+            336,
+            256
+          ],
+          "shadowLights": 1,
+          "shadowMapSize": 1024
+        },
+        "world": {
+          "objects": 128,
+          "meshes": 69,
+          "instances": 798,
+          "shadowCasterMeshes": 26,
+          "triangles": 107544,
+          "geometries": 80,
+          "materials": 21,
+          "platforms": 8,
+          "hazards": 1,
+          "ambientParticles": 48,
+          "floor": 1,
+          "theme": "ruins",
+          "quality": "high",
+          "disposed": false,
+          "surfaceTexture": {
+            "state": "ready",
+            "ownedTextures": 1,
+            "width": 1254,
+            "height": 1254
+          },
+          "platformTransforms": [
+            {
+              "id": "f1:cap",
+              "x": 115200,
+              "y": 692000,
+              "width": 249600,
+              "height": 12000,
+              "angle": 0,
+              "yWorld": 33.2
+            },
+            {
+              "id": "f1:ground",
+              "x": 0,
+              "y": 360000,
+              "width": 480000,
+              "height": 12000,
+              "angle": 0,
+              "yWorld": 0
+            },
+            {
+              "id": "f1:p1",
+              "x": 49064,
+              "y": 410000,
+              "width": 125000,
+              "height": 10000,
+              "angle": -0.5886650000000001,
+              "yWorld": 5
+            },
+            {
+              "id": "f1:p2",
+              "x": 260884,
+              "y": 460000,
+              "width": 115000,
+              "height": 10000,
+              "angle": 0.35926,
+              "yWorld": 10
+            },
+            {
+              "id": "f1:p3",
+              "x": 14972,
+              "y": 510000,
+              "width": 125000,
+              "height": 10000,
+              "angle": -0.7449200000000001,
+              "yWorld": 15
+            },
+            {
+              "id": "f1:p4",
+              "x": 282729,
+              "y": 560000,
+              "width": 135000,
+              "height": 10000,
+              "angle": 0.5052162500000001,
+              "yWorld": 20
+            },
+            {
+              "id": "f1:p5",
+              "x": 39639,
+              "y": 610000,
+              "width": 115000,
+              "height": 10000,
+              "angle": -0.6547795833333333,
+              "yWorld": 25
+            },
+            {
+              "id": "f1:p6",
+              "x": 257322,
+              "y": 660000,
+              "width": 115000,
+              "height": 10000,
+              "angle": 0.3429341666666667,
+              "yWorld": 30
+            }
+          ]
+        },
+        "cameraPosition": [
+          29.340458035771427,
+          39,
+          106.01479860024796
+        ],
+        "climberPosition": [
+          -19.699172742915565,
+          1.2,
+          15.392939720689238
+        ]
+      }
+    },
+    {
+      "stoppedFrames": 14,
+      "restored": {
+        "renderer": "three-webgl",
+        "frames": 18,
+        "tick": 461,
+        "floor": 2,
+        "theme": "storm",
+        "camera": "overview",
+        "quality": "high",
+        "reducedMotion": true,
+        "stale": false,
+        "contextLost": false,
+        "renderErrors": 0,
+        "renderProgress": {
+          "state": "current",
+          "visibleIdleMs": 9,
+          "staleAfterMs": 3000,
+          "submittedFrames": 18,
+          "lastSubmitted": {
+            "tick": 461,
+            "floor": 2,
+            "runToken": "b1903d50",
+            "atMs": 12808.89999999851
+          }
+        },
+        "calls": 173,
+        "triangles": 317208,
+        "geometries": 106,
+        "textures": 9,
+        "programs": 13,
+        "characters": 4,
+        "activeParticles": 0,
+        "frameMs": {
+          "p50": 16.4,
+          "p95": 3120.7,
+          "p99": 3120.7,
+          "max": 3120.7,
+          "samples": 8
+        },
+        "lighting": {
+          "environmentReady": true,
+          "environmentState": "ready",
+          "environmentBuilds": 3,
+          "environmentFailures": 0,
+          "environmentLastError": null,
+          "environmentSize": [
+            336,
+            256
+          ],
+          "shadowLights": 1,
+          "shadowMapSize": 1024
+        },
+        "world": {
+          "objects": 128,
+          "meshes": 70,
+          "instances": 48,
+          "shadowCasterMeshes": 27,
+          "triangles": 91060,
+          "geometries": 81,
+          "materials": 21,
+          "platforms": 8,
+          "hazards": 1,
+          "ambientParticles": 48,
+          "floor": 2,
+          "theme": "storm",
+          "quality": "high",
+          "disposed": false,
+          "surfaceTexture": {
+            "state": "ready",
+            "ownedTextures": 1,
+            "width": 1254,
+            "height": 1254
+          },
+          "platformTransforms": [
+            {
+              "id": "f2:cap",
+              "x": 115200,
+              "y": 1052000,
+              "width": 249600,
+              "height": 12000,
+              "angle": 0,
+              "yWorld": 33.2
+            },
+            {
+              "id": "f2:ground",
+              "x": 0,
+              "y": 720000,
+              "width": 480000,
+              "height": 12000,
+              "angle": 0,
+              "yWorld": 0
+            },
+            {
+              "id": "f2:p1",
+              "x": 279665,
+              "y": 770000,
+              "width": 135000,
+              "height": 10000,
+              "angle": 0.4911729166666666,
+              "yWorld": 5
+            },
+            {
+              "id": "f2:p2",
+              "x": 56933,
+              "y": 820000,
+              "width": 125000,
+              "height": 10000,
+              "angle": -0.5525987500000001,
+              "yWorld": 10
+            },
+            {
+              "id": "f2:p3",
+              "x": 280649,
+              "y": 870000,
+              "width": 115000,
+              "height": 10000,
+              "angle": 0.4498495833333334,
+              "yWorld": 15
+            },
+            {
+              "id": "f2:p4",
+              "x": 54158,
+              "y": 920000,
+              "width": 115000,
+              "height": 10000,
+              "angle": -0.5882341666666667,
+              "yWorld": 20
+            },
+            {
+              "id": "f2:p5",
+              "x": 272840,
+              "y": 970000,
+              "width": 115000,
+              "height": 10000,
+              "angle": 0.4140583333333333,
+              "yWorld": 25
+            },
+            {
+              "id": "f2:p6",
+              "x": 36532,
+              "y": 1020000,
+              "width": 125000,
+              "height": 10000,
+              "angle": -0.6461033333333333,
+              "yWorld": 30
+            }
+          ]
+        },
+        "cameraPosition": [
+          29.340458035771427,
+          39,
+          106.01479860024796
+        ],
+        "climberPosition": [
+          -19.699172742915565,
+          1.2,
+          15.392939720689238
+        ]
+      }
+    }
+  ],
+  "appearance": [
+    {
+      "label": "foundry-follow",
+      "width": 960,
+      "height": 600,
+      "diagnostics": {
+        "renderer": "three-webgl",
+        "frames": 23,
+        "tick": 118,
+        "floor": 0,
+        "theme": "foundry",
+        "camera": "follow",
+        "quality": "high",
+        "reducedMotion": true,
+        "stale": false,
+        "contextLost": false,
+        "renderErrors": 0,
+        "renderProgress": {
+          "state": "stalled",
+          "visibleIdleMs": 3644,
+          "staleAfterMs": 3000,
+          "submittedFrames": 23,
+          "lastSubmitted": {
+            "tick": 118,
+            "floor": 0,
+            "runToken": "4c6dcd02",
+            "atMs": 36933.900000002235
+          }
+        },
+        "calls": 118,
+        "triangles": 264656,
+        "geometries": 77,
+        "textures": 7,
+        "programs": 13,
+        "characters": 2,
+        "activeParticles": 0,
+        "frameMs": {
+          "p50": 1400.6,
+          "p95": 3727.3,
+          "p99": 3727.3,
+          "max": 3727.3,
+          "samples": 15
+        },
+        "lighting": {
+          "environmentReady": true,
+          "environmentState": "ready",
+          "environmentBuilds": 1,
+          "environmentFailures": 0,
+          "environmentLastError": null,
+          "environmentSize": [
+            336,
+            256
+          ],
+          "shadowLights": 1,
+          "shadowMapSize": 1024
+        },
+        "world": {
+          "objects": 115,
+          "meshes": 56,
+          "instances": 48,
+          "shadowCasterMeshes": 23,
+          "triangles": 124732,
+          "geometries": 67,
+          "materials": 21,
+          "platforms": 8,
+          "hazards": 1,
+          "ambientParticles": 48,
+          "floor": 0,
+          "theme": "foundry",
+          "quality": "high",
+          "disposed": false,
+          "surfaceTexture": {
+            "state": "ready",
+            "ownedTextures": 1,
+            "width": 1254,
+            "height": 1254
+          },
+          "platformTransforms": [
+            {
+              "id": "f0:cap",
+              "x": 115200,
+              "y": 332000,
+              "width": 249600,
+              "height": 12000,
+              "angle": 0,
+              "yWorld": 33.2
+            },
+            {
+              "id": "f0:ground",
+              "x": 0,
+              "y": 0,
+              "width": 480000,
+              "height": 12000,
+              "angle": 0,
+              "yWorld": 0
+            },
+            {
+              "id": "f0:p1",
+              "x": 274038,
+              "y": 50000,
+              "width": 125000,
+              "height": 10000,
+              "angle": 0.4424658333333333,
+              "yWorld": 5
+            },
+            {
+              "id": "f0:p2",
+              "x": 38030,
+              "y": 100000,
+              "width": 135000,
+              "height": 10000,
+              "angle": -0.6163208333333333,
+              "yWorld": 10
+            },
+            {
+              "id": "f0:p3",
+              "x": 267422,
+              "y": 150000,
+              "width": 125000,
+              "height": 10000,
+              "angle": 0.41214250000000013,
+              "yWorld": 15
+            },
+            {
+              "id": "f0:p4",
+              "x": 54081,
+              "y": 200000,
+              "width": 135000,
+              "height": 10000,
+              "angle": -0.54275375,
+              "yWorld": 20
+            },
+            {
+              "id": "f0:p5",
+              "x": 271171,
+              "y": 250000,
+              "width": 125000,
+              "height": 10000,
+              "angle": 0.4293254166666666,
+              "yWorld": 25
+            },
+            {
+              "id": "f0:p6",
+              "x": 47824,
+              "y": 300000,
+              "width": 125000,
+              "height": 10000,
+              "angle": -0.5943483333333334,
+              "yWorld": 30
+            }
+          ]
+        },
+        "cameraPosition": [
+          -6.012833568797774,
+          11.7,
+          55.67625914583287
+        ],
+        "climberPosition": [
+          -7.894809840292803,
+          11,
+          23.720707780030846
+        ],
+        "soundEnabled": false,
+        "soundPending": false,
+        "voices": 0,
+        "context": "not-started",
+        "requestsInFlight": 0
+      }
+    },
+    {
+      "label": "foundry-phone",
+      "width": 390,
+      "height": 844,
+      "diagnostics": {
+        "renderer": "three-webgl",
+        "frames": 38,
+        "tick": 118,
+        "floor": 0,
+        "theme": "foundry",
+        "camera": "follow",
+        "quality": "high",
+        "reducedMotion": true,
+        "stale": false,
+        "contextLost": false,
+        "renderErrors": 0,
+        "renderProgress": {
+          "state": "current",
+          "visibleIdleMs": 231,
+          "staleAfterMs": 3000,
+          "submittedFrames": 38,
+          "lastSubmitted": {
+            "tick": 118,
+            "floor": 0,
+            "runToken": "4c6dcd02",
+            "atMs": 74380.70000000298
+          }
+        },
+        "calls": 118,
+        "triangles": 264656,
+        "geometries": 77,
+        "textures": 7,
+        "programs": 13,
+        "characters": 2,
+        "activeParticles": 0,
+        "frameMs": {
+          "p50": 1762.9,
+          "p95": 5987,
+          "p99": 6193.6,
+          "max": 6193.6,
+          "samples": 30
+        },
+        "lighting": {
+          "environmentReady": true,
+          "environmentState": "ready",
+          "environmentBuilds": 1,
+          "environmentFailures": 0,
+          "environmentLastError": null,
+          "environmentSize": [
+            336,
+            256
+          ],
+          "shadowLights": 1,
+          "shadowMapSize": 1024
+        },
+        "world": {
+          "objects": 115,
+          "meshes": 56,
+          "instances": 48,
+          "shadowCasterMeshes": 23,
+          "triangles": 124732,
+          "geometries": 67,
+          "materials": 21,
+          "platforms": 8,
+          "hazards": 1,
+          "ambientParticles": 48,
+          "floor": 0,
+          "theme": "foundry",
+          "quality": "high",
+          "disposed": false,
+          "surfaceTexture": {
+            "state": "ready",
+            "ownedTextures": 1,
+            "width": 1254,
+            "height": 1254
+          },
+          "platformTransforms": [
+            {
+              "id": "f0:cap",
+              "x": 115200,
+              "y": 332000,
+              "width": 249600,
+              "height": 12000,
+              "angle": 0,
+              "yWorld": 33.2
+            },
+            {
+              "id": "f0:ground",
+              "x": 0,
+              "y": 0,
+              "width": 480000,
+              "height": 12000,
+              "angle": 0,
+              "yWorld": 0
+            },
+            {
+              "id": "f0:p1",
+              "x": 274038,
+              "y": 50000,
+              "width": 125000,
+              "height": 10000,
+              "angle": 0.4424658333333333,
+              "yWorld": 5
+            },
+            {
+              "id": "f0:p2",
+              "x": 38030,
+              "y": 100000,
+              "width": 135000,
+              "height": 10000,
+              "angle": -0.6163208333333333,
+              "yWorld": 10
+            },
+            {
+              "id": "f0:p3",
+              "x": 267422,
+              "y": 150000,
+              "width": 125000,
+              "height": 10000,
+              "angle": 0.41214250000000013,
+              "yWorld": 15
+            },
+            {
+              "id": "f0:p4",
+              "x": 54081,
+              "y": 200000,
+              "width": 135000,
+              "height": 10000,
+              "angle": -0.54275375,
+              "yWorld": 20
+            },
+            {
+              "id": "f0:p5",
+              "x": 271171,
+              "y": 250000,
+              "width": 125000,
+              "height": 10000,
+              "angle": 0.4293254166666666,
+              "yWorld": 25
+            },
+            {
+              "id": "f0:p6",
+              "x": 47824,
+              "y": 300000,
+              "width": 125000,
+              "height": 10000,
+              "angle": -0.5943483333333334,
+              "yWorld": 30
+            }
+          ]
+        },
+        "cameraPosition": [
+          -8.375018185111184,
+          11.7,
+          77.54907523883864
+        ],
+        "climberPosition": [
+          -7.894809840292803,
+          11,
+          23.720707780030846
+        ],
+        "soundEnabled": false,
+        "soundPending": false,
+        "voices": 0,
+        "context": "not-started",
+        "requestsInFlight": 0
+      }
+    }
+  ]
+}

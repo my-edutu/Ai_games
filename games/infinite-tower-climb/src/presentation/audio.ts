@@ -12,6 +12,7 @@ export class TowerAudioDirector{
   private voices:TowerAudioVoice[]=[];private captions:TowerCaption[]=[];private tick=0;private readonly maxVoices:number;private muted:boolean;
   constructor(options:{maxVoices?:number;muted?:boolean}={}){this.maxVoices=options.maxVoices??6;this.muted=!!options.muted}
   setMuted(muted:boolean){this.muted=muted}
+  reset(){this.voices=[];this.captions=[];this.tick=0}
   consume(events:TowerEvent[],context:{danger?:number;guardian?:boolean;result?:boolean}={}):TowerAudioFrame{
     for(const event of events){this.tick=Math.max(this.tick,event.tick);const spec=mapping[event.type];if(!spec)continue;const id=`${event.seq}:${event.type}`;this.captions.push({id,text:spec.text,priority:spec.priority,expiresTick:event.tick+spec.ttl});if(!this.muted)this.voices.push({id,cue:spec.cue,priority:spec.priority,expiresTick:event.tick+Math.min(spec.ttl,36)})}
     this.voices=this.voices.filter(v=>v.expiresTick>=this.tick).sort((a,b)=>b.priority-a.priority||a.id.localeCompare(b.id)).slice(0,this.maxVoices);

@@ -1,0 +1,99 @@
+{
+  "updated": "2026-10-30T22:08:07.856083+00:00",
+  "verdict": "3D implementation · reference still preferred",
+  "nextGap": "Final desktop materials and repeated WebGL recovery now have real image evidence. The fresh critic still prefers ASTRO BOT: the climber and next action need more emphasis, the sentinel needs a clearer hostile role, and the final high-quality portrait capture shows a delayed-view recovery card. Complete moving gameplay remains unverified.",
+  "capture": "/tower/gauntlet/evidence/11-foundry-final.webp",
+  "captureLabel": "FINAL SOURCE · ACTUAL FOUNDRY OUTPUT · AUTHORITATIVE TICK 118 HELD FOR APPEARANCE",
+  "iterations": [
+    {
+      "number": "00",
+      "date": "2026-10-30",
+      "title": "Establish the real starting point",
+      "finding": "The existing game is an autonomous 2D platformer. Its simulation already covers generation, combat, upgrades, guardians, restart and replay. The visual presentation is the main transformation target.",
+      "checks": "All 14 original tower test files passed before implementation. Baseline screenshot captured in Chromium.",
+      "capture": "/tower/gauntlet/evidence/00-baseline.webp"
+    },
+    {
+      "number": "01",
+      "date": "2026-10-30",
+      "title": "Make moving platforms tell the truth",
+      "finding": "The old render snapshot showed the base position of a moving platform while collision used its tick-adjusted position. Corrected the snapshot to use the same effective platform position.",
+      "checks": "Regression reproduced the mismatch, then passed across four tick positions; authoritative checksum unchanged."
+    },
+    {
+      "number": "02",
+      "date": "2026-10-30",
+      "title": "Build the cast and the tower in parallel",
+      "finding": "Separate builders produced articulated original characters, five tower biomes and a full-screen spectator HUD. The lead is integrating them with the running simulation before independent visual review.",
+      "checks": "Character geometry, pose transforms and owned disposal checked; environment geometry and floor lifecycle checked. Integrated visual verdict remains open."
+    },
+    {
+      "number": "03",
+      "date": "2026-10-30",
+      "title": "Run the integrated 3D expedition",
+      "finding": "The actual AI game now renders the modeled tower, articulated cast, pickups, projectiles and camera in WebGL. Independent review is opening; no reference win is claimed.",
+      "checks": "Chromium: no page or shader errors; simulation and rendering advance; camera controls work. Host self-test passes authority, privacy, recovery and restart checks. Software GPU render cost remains high.",
+      "capture": "/tower/gauntlet/evidence/03-overview.webp"
+    },
+    {
+      "number": "04",
+      "date": "2026-10-30",
+      "title": "Improve shapes, action cues and render cost",
+      "finding": "Added articulated strikes, recoil and collapse; weathered facade masses, biome ledges and distant citadels; closer follow camera and more readable HUD. A fresh critic inspected four real viewport captures and still preferred the reference. Large geometry and mobile composition need another pass.",
+      "checks": "Captured desktop follow/overview and both phone orientations with no page or shader errors. Rigid world batching preserves every triangle and reduces fixture color meshes from roughly 200 to 69–79. Software GPU frame times remain too slow for a performance pass.",
+      "capture": "/tower/gauntlet/evidence/04-phone-portrait.webp"
+    },
+    {
+      "number": "05",
+      "date": "2026-10-30",
+      "title": "Repair continuous-run contracts",
+      "finding": "Independent correctness review reproduced rejected intermission snapshots, stale new-run audio, consumed event accumulation, recovery that remained latched, and malformed request handling. Those server-side defects are fixed; browser cache restoration and audio races are being fixed separately.",
+      "checks": "Six regression cases failed before their fixes and pass afterward. Moving-platform/action snapshot checks and the stream host authority, privacy, bounded replay, recovery and restart self-test pass."
+    },
+    {
+      "number": "06",
+      "date": "2026-10-30",
+      "title": "Rebuild the main forms and reveal the climber",
+      "finding": "Replaced the broad cylinder with an asymmetric fortress, framed the current sector, and moved the follow camera toward the climber’s eye line. The fresh critic now finds the desktop hero coherent and readable, while still preferring the reference for world and cast finish. Phone captions and vitals have measured clearance.",
+      "checks": "All 73 Tower tests pass. Character batching preserves articulated geometry and reduces the climber from 53 to 10 mesh draws, enemies from 52–54 to 7. Actual desktop/phone captures render without shader errors. Stronger WebGL context-restoration testing exposed a remaining stall; investigation is active.",
+      "capture": "/tower/gauntlet/evidence/07-phone-portrait.webp"
+    },
+    {
+      "number": "07",
+      "date": "2026-10-30",
+      "title": "Repair graphics restoration and client lifecycle",
+      "finding": "The independent correctness findings are fixed, including browser-cache restoration, sound races, run-boundary audio reset and lifecycle revisions. A stronger real-WebGL test reproduced invalid old GPU handles after context restoration; resources now retire before the context generation changes.",
+      "checks": "Eight independent correctness probes passed. The two strengthened WebGL tests passed after the repair, including repeated context loss, intervening floor changes, preference preservation and zero GL errors. These results precede the later reflection-lighting pass."
+    },
+    {
+      "number": "08",
+      "date": "2026-10-30",
+      "title": "Give the Foundry a working industrial identity",
+      "finding": "Rebuilt the sector around unequal tapered pylons, a recessed furnace iris, ceramic shells, metal ribs and curved open platform brackets. Finished the cast with rounded armor and articulated poses. The separate critic finds the route clearer, while the commercial reference still wins.",
+      "checks": "Structural clearance and real collider-aligned hazard geometry are covered by focused tests. The displayed image is actual game output from an unmodified authoritative tick-118 snapshot held for appearance review; it does not demonstrate live motion.",
+      "capture": "/tower/gauntlet/evidence/08-foundry-held-frame.webp"
+    },
+    {
+      "number": "09",
+      "date": "2026-10-30",
+      "title": "Expose the remaining motion gap",
+      "finding": "The autonomous host and browser DOM progressed through genuine results, intermissions and restarts, but the inspected recordings remained on early gameplay images. No visual action, guardian performance, lifecycle or smoothness pass is awarded.",
+      "checks": "The critic retained failed recordings and source hashes. Long frame intervals are no longer discarded by diagnostics. Original stone textures and bounded reflection lighting are being reviewed, and a separate builder is investigating render freshness and pacing."
+    },
+    {
+      "number": "10",
+      "date": "2026-10-30",
+      "title": "Make recovery and measurements honest",
+      "finding": "A fresh critic found and rechecked final shadow cleanup and partial reflection-conversion failures. Optional reflection failure now keeps direct lighting available. HTTP updates no longer claim live graphics when renderer submissions stop; accepted and submitted snapshots are distinguished.",
+      "checks": "Final build, all 103 Tower logical tests and the stream-host self-test pass. Empty frame statistics are unknown rather than zero; real long visible intervals are retained. A bounded GPU-pacing experiment still produced no usable pixels, so no unproven pacing policy was shipped."
+    },
+    {
+      "number": "11",
+      "date": "2026-10-30",
+      "title": "Inspect the final source without hiding the gaps",
+      "finding": "Both strong WebGL recovery tests pass, with ready stone and reflection resources after two lost-context floor changes and no final GL error. Final Foundry and restored Storm output were captured. A fresh critic still prefers the reference; the portrait image visibly reports a graphics delay and covers the play area.",
+      "checks": "103 logical tests, build and host self-test pass. Final desktop/portrait captures report no browser errors. The portrait used explicit high quality at DPR 1. Stills and recovery checks do not prove continuous motion, successful phone play or a commercial-benchmark win.",
+      "capture": "/tower/gauntlet/evidence/11-phone-final.webp"
+    }
+  ]
+}
