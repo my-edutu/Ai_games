@@ -83,24 +83,27 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
   const depthSamples = Array.from(gl.getInternalformatParameter(gl.RENDERBUFFER, gl.DEPTH_COMPONENT24, gl.SAMPLES));
   const cacheSamples = colorSamples.filter(count => count <= 4 && depthSamples.includes(count)).sort((a, b) => b - a)[0] || 0;
   let staticTarget = null;
+  let displayTarget = null;
   let staticKey = '';
   let staticMeshCount = 0;
   let cacheHits = 0;
   let cacheBuilds = 0;
   let cacheActive = false;
-  // Preserve HDR lighting until the same final tone mapping as a direct draw.
-  // The copied depth lets animated objects pass behind the cached ruins normally.
+  // Keep HDR/MSAA color and depth for cache rebuilds. Bake display color once,
+  // then copy only color/depth each frame while animated geometry stays live.
   const cacheGeometry = new THREE.BufferGeometry();
   cacheGeometry.setAttribute('position', new THREE.Float32BufferAttribute([-1, -1, 0, 3, -1, 0, -1, 3, 0], 3));
   cacheGeometry.setAttribute('uv', new THREE.Float32BufferAttribute([0, 0, 2, 0, 0, 2], 2));
-  const cacheMaterial = new THREE.ShaderMaterial({
+  const cacheBakeMaterial = new THREE.ShaderMaterial({
     uniforms: {
       cachedColor: { value: null }, cachedDepth: { value: null },
+      toneMappingExposure: { value: renderer.toneMappingExposure },
       cameraRange: { value: new THREE.Vector2(camera.near, camera.far) },
       fogRange: { value: new THREE.Vector2() }, fogColor: { value: new THREE.Color() },
     },
     vertexShader: 'varying vec2 cacheUv; void main() { cacheUv = uv; gl_Position = vec4(position, 1.0); }',
     fragmentShader: `
+      #include <tonemapping_pars_fragment>
       uniform sampler2D cachedColor;
       uniform sampler2D cachedDepth;
       uniform vec2 cameraRange;
@@ -110,16 +113,35 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
       void main() {
         float depth = texture2D(cachedDepth, cacheUv).r;
         if (depth >= 1.0) discard;
-        gl_FragDepth = depth;
         gl_FragColor = texture2D(cachedColor, cacheUv);
-        #include <tonemapping_fragment>
-        #include <colorspace_fragment>
+        // Offscreen targets disable automatic tone mapping/output conversion.
+        // Use the pinned renderer's exact ACES and SRGB functions explicitly.
+        gl_FragColor.rgb = ACESFilmicToneMapping(gl_FragColor.rgb);
+        gl_FragColor = sRGBTransferOETF(gl_FragColor);
         float viewDepth = cameraRange.x * cameraRange.y / (cameraRange.y - depth * (cameraRange.y - cameraRange.x));
         float fogFactor = smoothstep(fogRange.x, fogRange.y, viewDepth);
         gl_FragColor.rgb = mix(gl_FragColor.rgb, fogColor, fogFactor);
       }
     `,
-    depthTest: true, depthWrite: true, depthFunc: THREE.AlwaysDepth,
+    toneMapped: false, depthTest: false, depthWrite: false,
+    blending: THREE.NoBlending,
+  });
+  const cacheMaterial = new THREE.ShaderMaterial({
+    uniforms: { cachedColor: { value: null }, cachedDepth: { value: null } },
+    vertexShader: cacheBakeMaterial.vertexShader,
+    fragmentShader: `
+      uniform sampler2D cachedColor;
+      uniform sampler2D cachedDepth;
+      varying vec2 cacheUv;
+      void main() {
+        float depth = texture2D(cachedDepth, cacheUv).r;
+        if (depth >= 1.0) discard;
+        gl_FragDepth = depth;
+        gl_FragColor = texture2D(cachedColor, cacheUv);
+      }
+    `,
+    // cachedColor already contains display bytes; do not tone map or encode twice.
+    toneMapped: false, depthTest: true, depthWrite: true, depthFunc: THREE.AlwaysDepth,
     blending: THREE.NoBlending,
   });
   const cacheScene = new THREE.Scene();
@@ -144,13 +166,23 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
     renderer.getDrawingBufferSize(cacheSize);
     if (!staticTarget || staticTarget.width !== cacheSize.x || staticTarget.height !== cacheSize.y) {
       staticTarget?.dispose();
+      displayTarget?.dispose();
       staticTarget = new THREE.WebGLRenderTarget(cacheSize.x, cacheSize.y, {
         type: THREE.HalfFloatType, minFilter: THREE.NearestFilter, magFilter: THREE.NearestFilter,
         depthBuffer: true, stencilBuffer: false,
         depthTexture: new THREE.DepthTexture(cacheSize.x, cacheSize.y, THREE.UnsignedIntType),
         samples: cacheSamples,
       });
-      cacheMaterial.uniforms.cachedColor.value = staticTarget.texture;
+      // Raw encoded bytes deliberately use NoColorSpace so sampling never decodes
+      // them back to linear. RGBA8 matches the displayed canvas precision.
+      displayTarget = new THREE.WebGLRenderTarget(cacheSize.x, cacheSize.y, {
+        type: THREE.UnsignedByteType, colorSpace: THREE.NoColorSpace,
+        minFilter: THREE.NearestFilter, magFilter: THREE.NearestFilter,
+        depthBuffer: false, stencilBuffer: false, samples: 0,
+      });
+      cacheBakeMaterial.uniforms.cachedColor.value = staticTarget.texture;
+      cacheBakeMaterial.uniforms.cachedDepth.value = staticTarget.depthTexture;
+      cacheMaterial.uniforms.cachedColor.value = displayTarget.texture;
       cacheMaterial.uniforms.cachedDepth.value = staticTarget.depthTexture;
       invalidateStaticCache();
     }
@@ -160,9 +192,10 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
     const oldLayers = camera.layers.mask;
     const oldBackground = scene.background;
     const oldFog = scene.fog;
-    cacheMaterial.uniforms.cameraRange.value.set(camera.near, camera.far);
-    cacheMaterial.uniforms.fogRange.value.set(oldFog.near, oldFog.far);
-    cacheMaterial.uniforms.fogColor.value.copy(oldFog.color).convertLinearToSRGB();
+    cacheBakeMaterial.uniforms.cameraRange.value.set(camera.near, camera.far);
+    cacheBakeMaterial.uniforms.fogRange.value.set(oldFog.near, oldFog.far);
+    cacheBakeMaterial.uniforms.fogColor.value.copy(oldFog.color).convertLinearToSRGB();
+    cacheBakeMaterial.uniforms.toneMappingExposure.value = renderer.toneMappingExposure;
     const oldAutoClear = renderer.autoClear;
     try {
       if (key !== staticKey || renderer.shadowMap.needsUpdate) {
@@ -170,10 +203,14 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
         renderer.setRenderTarget(staticTarget);
         renderer.autoClear = true;
         // Three applies fog after tone mapping/output conversion in the direct path.
-        // Defer it to the composite so distant scenery keeps that same ordering.
+        // Defer it to the display-color bake so distant scenery keeps that ordering.
         scene.fog = null;
         renderer.render(scene, camera);
         scene.fog = oldFog;
+        renderer.setRenderTarget(displayTarget);
+        cacheQuad.material = cacheBakeMaterial;
+        renderer.render(cacheScene, cacheCamera);
+        cacheQuad.material = cacheMaterial;
         staticKey = key;
         cacheBuilds++;
       } else cacheHits++;
@@ -187,6 +224,7 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
       renderer.render(scene, camera);
       cacheActive = true;
     } finally {
+      cacheQuad.material = cacheMaterial;
       renderer.setRenderTarget(null);
       camera.layers.mask = oldLayers;
       scene.background = oldBackground;
@@ -340,8 +378,11 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
     contactMaterial.dispose();
     contacts.dispose();
     staticTarget?.dispose();
+    displayTarget?.dispose();
     staticTarget = null;
+    displayTarget = null;
     cacheGeometry.dispose();
+    cacheBakeMaterial.dispose();
     cacheMaterial.dispose();
     cacheScene.clear();
     sun.shadow.map?.dispose();

@@ -1,29 +1,29 @@
 {
-  "updatedAt": "2026-10-30T19:56:24Z",
-  "status": "Round 5 · browser correctness and frame pacing",
-  "detail": "Draft PR52 preserves the 3D game and review evidence. The full Node regression suite passes515/515. Static scenery reuse is implemented; independent review and actual browser checks are underway.",
-  "latestImage": "/progress/evidence/round-4-overview.jpg",
-  "latestCaption": "Round 4 · rendered from a frozen real public replay frame; current code has further expression and scene fixes",
+  "updatedAt": "2026-10-30T20:13:55Z",
+  "status": "Round 5 \u00b7 real browser evidence and rendering speed",
+  "detail": "Draft PR 52 contains the working 3D game. The isolated browser run passes 11 of 12 checks; full-HD frame rate is the remaining failure. Latest character, portrait and matched cache captures are now available for independent review.",
+  "latestImage": "/progress/evidence/round-5-overview.jpg",
+  "latestCaption": "Round 5 \u00b7 cached 3D scene from a frozen real public replay frame, captured in isolated CI",
   "reviews": [
     {
       "area": "Character and motion",
-      "verdict": "LOSE · independent round 4 review",
-      "gap": "Now clearly beyond a placeholder. Eye-led expression and integrated brow volumes remain the biggest gap; a 45% eye enlargement and unified skull/jaw pass is ready for capture. Animation remains open."
+      "verdict": "Round 5 captured \u00b7 review in progress",
+      "gap": "Larger forward-facing eyes, continuous brow volumes and unified jaw now have a real runtime capture. The previous independent comparison still favored Snake Pass; the new character is under review."
     },
     {
       "area": "World and composition",
-      "verdict": "Improved · benchmark not beaten",
-      "gap": "Floor repetition, scenery depth, water cutoff and dormant-trap shapes have been improved. A static3D cache preserves depth and dynamic objects; colour/fog ordering received independent code review and is awaiting matched runtime captures."
+      "verdict": "Content preserved \u00b7 edge-quality gap remains",
+      "gap": "Independent inspection finds the same scene and gameplay objects in direct/cached images. Fine flowers, foliage and stone silhouettes look harder/brighter in the cache; this is recorded as a cosmetic gap. Full-HD frame pacing remains open."
     },
     {
       "area": "Whole experience",
-      "verdict": "Portrait fixed · runtime review continues",
-      "gap": "The real portrait capture now shows the board clearly along its long axis. Operator toolbar overlap was found and corrected. Code review findings are closed; full browser validation is pending."
+      "verdict": "11/12 browser checks pass",
+      "gap": "Portrait controls, cameras, lifecycle, reconnect, cache resize and context-loss recovery pass on an isolated runner. The remaining failure is the unchanged full-HD frame-rate gate."
     }
   ],
   "rounds": [
     {
-      "title": "Baseline · flat 2D broadcast",
+      "title": "Baseline \u00b7 flat 2D broadcast",
       "summary": "Recorded the existing running game before the 3D transformation.",
       "captures": [
         {
@@ -37,7 +37,7 @@
       ]
     },
     {
-      "title": "First construction · verdant ruins",
+      "title": "First construction \u00b7 verdant ruins",
       "summary": "Original procedural serpent and rich environment, responsive broadcast shell, safe WebGL fallback and motion handling. Visual review is still open.",
       "captures": [
         {
@@ -47,7 +47,7 @@
       ]
     },
     {
-      "title": "Round 2 · scene cleanup and performance",
+      "title": "Round 2 \u00b7 scene cleanup and performance",
       "summary": "Quiet weathered stone, deeper background, more visible fruit, correct occupancy and public-friendly intent. Capture exposed a shadow-map quality-switch bug; fixed and tested in the next round.",
       "captures": [
         {
@@ -61,7 +61,7 @@
       ]
     },
     {
-      "title": "Round 3 · direct character comparison",
+      "title": "Round 3 \u00b7 direct character comparison",
       "summary": "Shadow-map rendering is valid after resizing (GL error 0). Blind A/B reference won; character anatomy and close framing are being rebuilt. Portrait distance fog still needed correction.",
       "captures": [
         {
@@ -79,8 +79,8 @@
       ]
     },
     {
-      "title": "Round 4 · continuous skull and portrait framing",
-      "summary": "A frozen real public replay frame makes the character and camera evidence reproducible. The reference still wins facial expression. Static world merging improved measured throughput from2.29 to3.88FPS without removing scenery; the performance gate remains open.",
+      "title": "Round 4 \u00b7 continuous skull and portrait framing",
+      "summary": "A frozen real public replay frame makes the character and camera evidence reproducible. The reference still wins facial expression. Static world merging improved measured throughput from 2.29 to 3.88 FPS without removing scenery; the performance gate remains open.",
       "captures": [
         {
           "label": "Character close-up",
@@ -95,14 +95,36 @@
           "path": "/progress/evidence/round-4-portrait.jpg"
         }
       ]
+    },
+    {
+      "title": "Round 5 \u00b7 character expression and independent browser evidence",
+      "summary": "The new face is rendered and the portrait controls no longer overlap. Independent CI passes 11 of 12 checks. Matched cache captures show the same real replay frame; speed at full HD is still below the required gate.",
+      "captures": [
+        {
+          "label": "Character close-up",
+          "path": "/progress/evidence/round-5-character.jpg"
+        },
+        {
+          "label": "Portrait",
+          "path": "/progress/evidence/round-5-portrait.jpg"
+        },
+        {
+          "label": "Direct rendering",
+          "path": "/progress/evidence/round-5-cache-before.jpg"
+        },
+        {
+          "label": "Cached rendering",
+          "path": "/progress/evidence/round-5-overview.jpg"
+        }
+      ]
     }
   ],
   "checks": [
-    "Full repository Node regression:515 passed,0 failed/skipped/cancelled, on published checkpoint40bc6cc.",
-    "12 focused presentation and model checks pass: portal motion, restart, numeric safety, copy, camera fit, fallback visibility, timing and bounded model resources.",
-    "Independent code review's three P2 findings are closed after fix re-review and reproduction checks.",
-    "Original sandbox-dependent Eko and candidate failures were reproduced as environment restrictions; their escalated focused runs pass 2/2 and 3/3.",
-    "Static material merging improved the isolated software-rendered dense-scene comparison from2.29 to3.88FPS, below the unchanged17FPS gate. A subsequent rendering cache is under validation; concurrent test runs currently prevent a clean new throughput claim.",
+    "Full repository Node regression: 515 passed, 0 failed/skipped/cancelled on checkpoint 40bc6cc; the repository CI also passed its Node and authority gates.",
+    "Isolated real-browser run on c07c412: 11 passed, 1 failed. Cameras, portrait controls, fallback, lifecycle/reconnect, cache resizing and context loss pass.",
+    "Full-HD frame-rate gate remains open: 5 frames observed in the one-second measurement, below the unchanged 17 FPS requirement. The next cache optimization is underway.",
+    "Matched cache frames show 74,935 \u2192 11,498 steady-frame triangles. Initial-frame timings are not treated as a sustained speed claim.",
+    "12 focused presentation/model checks and independent code-review corrections are retained.",
     "The commercial visual benchmark and external production R5 gates remain open."
   ]
 }

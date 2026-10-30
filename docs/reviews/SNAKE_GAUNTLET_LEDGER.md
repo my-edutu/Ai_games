@@ -54,3 +54,13 @@ Baseline test diagnosis: subprocess capture returns EPERM/empty stdout in the de
 Published checkpoint `40bc6cc1f204d843a1bbd4b2658495ad3ffab069` contains the code covered by the completed full Node regression run: **515 tests passed, zero failed/skipped/cancelled**, duration 324,994 ms. Command: `npm run build && node --test --test-concurrency=4 tests/foundation/*.test.cjs tests/phase2/*.test.cjs tests/phase3/*.test.cjs tests/phase4/*.test.cjs tests/phase5/*.test.cjs tests/phase6/*.test.cjs`. The environment required normal subprocess permissions; the sandbox-only failures were not product failures.
 
 Twelve focused presentation/model checks cover motion continuity, teleport/restart safety, public copy, perspective framing, singleton fallback, visible timing, finite geometry, detail switching, resource bounds and disposal. Browser lifecycle fixtures now come from the real deterministic runtime and include result, intermission and restart. Final browser/cache validation remains open; this Node result does not establish visual or production readiness.
+
+## Isolated browser evidence — round 5
+
+Commit `c07c4123d3a28e505c1f089465c07f455cbe3486` was exercised by the dedicated Snake browser runner: [run 41120340705](https://github.com/my-edutu/Ai_games/actions/runs/41120340705). **11 of 12 checks passed.** Real WebGL/camera behavior, bounded resources, portrait controls, both fallback paths, real runtime lifecycle/reconnect, adaptive shadows, local asset routing, cache resize/context loss, matched direct/cached rendering, landscape and viewer settings pass.
+
+The remaining failure is the unchanged full-HD frame-rate gate: five RAF frames were observed in the one-second measurement, below 18 frames and 17 FPS. This is a real performance failure on the isolated software-rendered runner, not a passing result attributed to local resource contention. The next renderer experiment preprocesses cached display color at cache rebuild instead of repeating tone mapping, color conversion and fog calculations every frame.
+
+Actual new character and portrait captures plus matched cache images are retained in the progress page. The matched captures use the same real public replay frame: steady-frame geometry falls from 74,935 to 11,498 triangles and draw calls from 63 to 51. Their short initial-frame timing samples are insufficient for a sustained speed claim. Exact CI provenance and counts are in `snake-gauntlet/round-5-browser-verification.json`.
+
+Independent visual review of these captures is underway. The commercial reference has not been beaten. The session's agent-thread limit prevents starting another fresh context; the existing separate critic is reused without labeling that review as a fully fresh-context comparison.

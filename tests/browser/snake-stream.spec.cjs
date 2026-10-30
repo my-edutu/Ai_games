@@ -77,15 +77,17 @@ test('desktop broadcast source is readable, animated and privacy-safe', async ({
     requestAnimationFrame(step);
   }));
 
+  // Retain the actual scene/cadence evidence even when the performance gate fails.
+  const presentation = await page.evaluate(() => window.__snakePresentation.stats());
+  writeJson('desktop-metrics.json', { layout, animation, presentation, scene: snapshot.scene, tick: snapshot.tick });
+  await page.screenshot({ path: path.join(artifactDir, 'desktop-1920x1080.png'), fullPage: true });
+
   // Headless Chromium on shared CI is CPU-throttled; this gate detects a frozen or
   // severely starved presentation while recording the measured cadence for review.
   expect(animation.frames).toBeGreaterThanOrEqual(18);
   expect(animation.averageFps).toBeGreaterThanOrEqual(17);
   expect(animation.actualDraws).toBeGreaterThanOrEqual(17);
   expect(animation.maxGapMs).toBeLessThan(250);
-  writeJson('desktop-metrics.json', { layout, animation, scene: snapshot.scene, tick: snapshot.tick });
-
-  await page.screenshot({ path: path.join(artifactDir, 'desktop-1920x1080.png'), fullPage: true });
   expect(failures).toEqual([]);
 });
 
