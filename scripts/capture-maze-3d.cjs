@@ -13,7 +13,8 @@ const directory = path.resolve(__dirname, '../evidence/maze-3d/captures');
 const config = { width: 17, height: 11, profile: 'chambers', level: 4, intermissionTicks: 12, maxTicks: 18000, visibilityRadius: 3, loopChancePermille: 170, keyCount: 2, trapCount: 5, threatCount: 1, memoryTtl: 400, noProgressTicks: 3000, repairAttempts: 3 };
 
 function scenarios() {
-  let exploration, danger, result, score = -Infinity;
+  let exploration, danger, result, encounter, score = -Infinity;
+  let encounterDistanceCells = Infinity;
   const sequences = [];
   for (const attempt of [3,13,5,0,1,2]) {
     const seed = `maze-visual-reference-${attempt}`;
@@ -32,13 +33,24 @@ function scenarios() {
       const candidateScore = centered * 12 + Math.min(snapshot.cells.length, 105) * .1 + snapshot.keys.filter(k => !k.collected).length * 3;
       if (snapshot.lifecycle === 'running' && snapshot.cells.length > 30 && snapshot.threats.length === 0 && candidateScore > score) { score = candidateScore; exploration = sample; }
       if (!danger && snapshot.lifecycle === 'running' && snapshot.threats.length) danger = sample;
+      // Only public, already-disclosed warden cells count. Prefer a genuine
+      // adjacent-but-distinct actor pair over a far-away warning or collision.
+      if (snapshot.lifecycle === 'running' && snapshot.threats.length) {
+        const distanceCells = Math.min(...snapshot.threats.map(threat =>
+          Math.hypot((threat.cell % snapshot.width) - col,
+            Math.floor(threat.cell / snapshot.width) - row)));
+        if (distanceCells >= 1 && distanceCells <= 2.25 && distanceCells < encounterDistanceCells) {
+          encounterDistanceCells = distanceCells;
+          encounter = { ...sample, distanceCells };
+        }
+      }
       if (snapshot.result) { if (!result || snapshot.result.reason === 'escape') result = sample; break; }
       runtime.step();
     }
     sequences.push(sequence);
-    if (exploration && danger && result?.frame.snapshot.result?.reason === 'escape') break;
+    if (exploration && danger && encounter && result?.frame.snapshot.result?.reason === 'escape') break;
   }
-  return { exploration, danger, result, sequences };
+  return { exploration, danger, result, encounter, encounterDistanceCells: encounter ? encounterDistanceCells : null, sequences };
 }
 
 module.exports = { scenarios, config };
@@ -68,6 +80,7 @@ if (require.main === module) (async () => {
       ['mobile-landscape', 844, 390, samples.exploration, ''],
       ['overview', 1280, 900, samples.exploration, '?camera=overview'],
       ['danger', 1280, 900, samples.danger, '?camera=detail'],
+      ['encounter', 1280, 900, samples.encounter, '?camera=detail&reducedMotion=1'],
       ['result', 1280, 900, samples.result, ''],
     ];
     for (const [name, width, height, sample, query] of cases) {
@@ -82,7 +95,7 @@ if (require.main === module) (async () => {
         await page.waitForFunction(() => window.__MAZE_3D__?.frames >= 5, null, { timeout: 45000 });
         const diagnostic = await page.evaluate(() => ({ render: window.__MAZE_3D__, overlay: !document.getElementById('scene-card').hidden, scrollWidth: document.documentElement.scrollWidth, viewport: innerWidth }));
         await page.screenshot({ path: path.join(directory, `${name}.png`) });
-        record({ name, captured: true, capturedAt: new Date().toISOString(), seed: sample.seed, tick: sample.frame.snapshot.tick, result: sample.frame.snapshot.result, errors, diagnostic });
+        record({ name, captured: true, capturedAt: new Date().toISOString(), seed: sample.seed, tick: sample.frame.snapshot.tick, publicThreatDistanceCells: sample.distanceCells ?? null, result: sample.frame.snapshot.result, errors, diagnostic });
         if (name === 'full-quality') await page.locator('#maze').screenshot({path: path.join(directory, 'full-quality-scene.png')});
       } catch (error) {
         if (!reports.some(item => item.name === name && item.captured)) record({ name, captured: false, attemptedAt: new Date().toISOString(), seed: sample.seed, tick: sample.frame.snapshot.tick, reason: error.message, errors });
