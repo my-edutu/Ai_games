@@ -1,0 +1,113 @@
+{
+  "version": 1,
+  "updatedAt": "2026-10-30T19:10:28.524276+00:00",
+  "benchmark": {
+    "status": "Not yet passed",
+    "summary": "No independent review has yet established that the integrated 3D game reaches the fixed reference quality. Implementation and passing software checks alone do not establish visual parity."
+  },
+  "captures": [
+    {
+      "title": "Where we began",
+      "src": "/maze/evidence/baseline-desktop.png",
+      "capturedAt": null,
+      "alt": "Original flat maze before the 3D rebuild",
+      "note": "The original live presentation, retained for comparison."
+    },
+    {
+      "title": "First 3D integration",
+      "src": "/maze/evidence/round-01-desktop.png",
+      "capturedAt": null,
+      "alt": "First integrated 3D maze view",
+      "note": "The initial real output. The first critic identified flat repetitive architecture and an obstructing recovery overlay."
+    },
+    {
+      "title": "The second environment pass",
+      "src": "/maze/evidence/round-02-desktop.png",
+      "capturedAt": "2026-10-30T18:58:22.779Z",
+      "alt": "Second 3D garden pass with original explorer and ruins",
+      "note": "Actual production public frame. Critics still favour the reference: repetitive water, shallow composition and weak character contrast are being revised."
+    },
+    {
+      "title": "A closer look at the explorer",
+      "src": "/maze/evidence/round-02-character.png",
+      "capturedAt": "2026-10-30T18:58:36.461Z",
+      "alt": "Original robot explorer in the running game",
+      "note": "The character critic requested a stronger teal silhouette, simpler face hierarchy and visible animation evidence."
+    }
+  ],
+  "changes": [
+    "The flat map has become a real 3D sandstone garden with original articulated explorer and warden models, disclosed keys, gates, traps and an exit portal.",
+    "Follow, close and overview cameras, a true public-data minimap, optional original audio, captions, reduced motion, high contrast and clean feed are integrated.",
+    "Lost graphics now reveal a live map immediately, offer a retry and restore 3D after the graphics context returns. Actual run results remain visible in map mode.",
+    "Cumulative steps now come from the public snapshot rather than a truncated trail. Garden discovered reflects the actual disclosed area, including after escape.",
+    "A new revision is replacing the water pattern, enlarging ruin landmarks and strengthening the explorer silhouette. Fresh captures and reviews are underway."
+  ],
+  "nextGaps": [
+    "Compare the latest environment and character revisions against the same fixed references.",
+    "Inspect the warden in a real encounter and review movement, turns, celebration and loss reactions.",
+    "Verify terminal-state labels, repeated-run resource stability and the complete regression suite.",
+    "Measure graphics performance on a hardware GPU; current captures use software WebGL."
+  ],
+  "reviews": [
+    {
+      "title": "Environment comparison \u00b7 first pass",
+      "reviewer": "Independent environment critic",
+      "verdict": "Reference wins",
+      "date": "2026-10-30T18:57:29.362181+00:00",
+      "summary": "The scene still reads as a repetitive flat maze board. Improve architectural hierarchy, focal landmarks, garden scale and material richness. The fixed bar has not been lowered."
+    },
+    {
+      "title": "Environment comparison \u00b7 second pass",
+      "reviewer": "Fresh environment critic",
+      "verdict": "Reference wins",
+      "summary": "The candidate remains a shallow corridor network. Substantial architecture, quieter water, stronger material separation and grouped foliage are the highest-value changes."
+    },
+    {
+      "title": "Character comparison \u00b7 first pass",
+      "reviewer": "Fresh character critic",
+      "verdict": "Reference wins",
+      "summary": "The 3D explorer has a distinct identity, but the amber/ivory body merges into sandstone at gameplay scale. Broader colour masses, simpler facial detail and clearer pose are needed; warden and motion evidence pending."
+    }
+  ],
+  "verification": [
+    {
+      "name": "Public snapshot and route motion",
+      "status": "8 targeted checks passed",
+      "detail": "Cumulative steps remain accurate after 240 trail entries; skipped turns, missing continuity, walls, unknown cells and run boundaries are covered."
+    },
+    {
+      "name": "Browser recovery and progress truth",
+      "status": "3 targeted checks passed",
+      "detail": "Forced context loss retains a live map, restoration returns to 3D, unavailable WebGL preserves an actual escape result, and the journal displays critic verdicts."
+    },
+    {
+      "name": "Desktop and mobile presentation",
+      "status": "Existing browser checks passed",
+      "detail": "The running view, public-data boundary, serialized polling, controls, portrait and landscape remain usable. New UI refinements are under review."
+    },
+    {
+      "name": "Independent visual comparison",
+      "status": "Reference still wins",
+      "detail": "Environment and character critics have not established parity. Stills do not establish animation or audio quality."
+    },
+    {
+      "name": "Performance",
+      "status": "Software WebGL measured; hardware unverified",
+      "detail": "The capture manifest contains measured frame times and resource counts. No console-quality or 60 fps claim is being made."
+    }
+  ],
+  "references": [
+    {
+      "title": "Captain Toad: Treasure Tracker \u2014 primary reference",
+      "url": "https://www.nintendo.com/us/store/products/captain-toad-treasure-tracker-switch/"
+    },
+    {
+      "title": "Luigi\u2019s Mansion 3 \u2014 supporting reference",
+      "url": "https://www.nintendo.com/us/store/products/luigis-mansion-3-switch/"
+    },
+    {
+      "title": "ASTRO BOT \u2014 supporting reference",
+      "url": "https://www.playstation.com/en-us/games/astro-bot/"
+    }
+  ]
+}
