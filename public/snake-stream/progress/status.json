@@ -1,0 +1,108 @@
+{
+  "updatedAt": "2026-10-30T19:21:25Z",
+  "status": "Round 5 · expression and smoothness",
+  "detail": "The portrait camera and continuous snake anatomy are improved. Independent review still favors Snake Pass. A stronger eye/brow pass and a measured rendering optimization are under test.",
+  "latestImage": "/progress/evidence/round-4-overview.jpg",
+  "latestCaption": "Round 4 · rendered from a frozen real public replay frame; current code has further expression and scene fixes",
+  "reviews": [
+    {
+      "area": "Character and motion",
+      "verdict": "LOSE · independent round 4 review",
+      "gap": "Now clearly beyond a placeholder. Eye-led expression and integrated brow volumes remain the biggest gap; a 45% eye enlargement and unified skull/jaw pass is ready for capture. Animation remains open."
+    },
+    {
+      "area": "World and composition",
+      "verdict": "Improved · benchmark not beaten",
+      "gap": "Floor repetition reduced, distant layers added and world triangles reduced 84.5%. Stronger character emphasis and smoother rendering remain open."
+    },
+    {
+      "area": "Whole experience",
+      "verdict": "Portrait fixed · runtime review continues",
+      "gap": "The real portrait capture now shows the board clearly along its long axis. Operator toolbar overlap was found and corrected. Code review findings are closed; full browser validation is pending."
+    }
+  ],
+  "rounds": [
+    {
+      "title": "Baseline · flat 2D broadcast",
+      "summary": "Recorded the existing running game before the 3D transformation.",
+      "captures": [
+        {
+          "label": "Desktop capture",
+          "path": "/progress/evidence/baseline-desktop.jpg"
+        },
+        {
+          "label": "Mobile capture",
+          "path": "/progress/evidence/baseline-mobile.jpg"
+        }
+      ]
+    },
+    {
+      "title": "First construction · verdant ruins",
+      "summary": "Original procedural serpent and rich environment, responsive broadcast shell, safe WebGL fallback and motion handling. Visual review is still open.",
+      "captures": [
+        {
+          "label": "First 3D overview",
+          "path": "/progress/evidence/round-1-overview.jpg"
+        }
+      ]
+    },
+    {
+      "title": "Round 2 · scene cleanup and performance",
+      "summary": "Quiet weathered stone, deeper background, more visible fruit, correct occupancy and public-friendly intent. Capture exposed a shadow-map quality-switch bug; fixed and tested in the next round.",
+      "captures": [
+        {
+          "label": "Overview",
+          "path": "/progress/evidence/round-2-overview.jpg"
+        },
+        {
+          "label": "Follow view",
+          "path": "/progress/evidence/round-2-follow.jpg"
+        }
+      ]
+    },
+    {
+      "title": "Round 3 · direct character comparison",
+      "summary": "Shadow-map rendering is valid after resizing (GL error 0). Blind A/B reference won; character anatomy and close framing are being rebuilt. Portrait distance fog still needed correction.",
+      "captures": [
+        {
+          "label": "Overview",
+          "path": "/progress/evidence/round-3-overview.jpg"
+        },
+        {
+          "label": "Character evidence",
+          "path": "/progress/evidence/round-3-character-clean.jpg"
+        },
+        {
+          "label": "Portrait issue",
+          "path": "/progress/evidence/round-3-portrait.jpg"
+        }
+      ]
+    },
+    {
+      "title": "Round 4 · continuous skull and portrait framing",
+      "summary": "A frozen real public replay frame makes the character and camera evidence reproducible. The reference still wins facial expression. Static world merging improved measured throughput from2.29 to3.88FPS without removing scenery; the performance gate remains open.",
+      "captures": [
+        {
+          "label": "Character close-up",
+          "path": "/progress/evidence/round-4-character.jpg"
+        },
+        {
+          "label": "Overview",
+          "path": "/progress/evidence/round-4-overview.jpg"
+        },
+        {
+          "label": "Readable portrait",
+          "path": "/progress/evidence/round-4-portrait.jpg"
+        }
+      ]
+    }
+  ],
+  "checks": [
+    "Deterministic host checks pass 5/5, including restart, recovery, privacy and authority isolation.",
+    "12 focused presentation and model checks pass: portal motion, restart, numeric safety, copy, camera fit, fallback visibility, timing and bounded model resources.",
+    "Independent code review's three P2 findings are closed after fix re-review and reproduction checks.",
+    "Original sandbox-dependent Eko and candidate failures were reproduced as environment restrictions; their escalated focused runs pass 2/2 and 3/3.",
+    "Software-rendered cadence remains below the existing 17fps gate. A single-browser profile is separating scene, character and shader cost; no hardware-performance claim is made.",
+    "The commercial visual benchmark and external production R5 gates remain open."
+  ]
+}

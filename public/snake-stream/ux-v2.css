@@ -1,122 +1,124 @@
-:root{
-  --color-bg:#04070c;
-  --color-surface:rgba(9,16,25,.86);
-  --color-surface-strong:rgba(5,10,17,.96);
-  --color-text:#f7fff9;
-  --color-muted:#9db1aa;
-  --color-progress:#57f7a5;
-  --color-warning:#ffd166;
-  --color-danger:#ff5f72;
-  --color-focus:#a6f7ff;
-  --snake-board:#07110e;
-  --snake-grid:rgba(103,255,186,.055);
-  --snake-glow:rgba(87,247,165,.16);
+/* Responsive broadcast composition. The garden always gets the remaining space. */
+@media (min-width: 1600px) {
+  #broadcast { grid-template-rows: 122px minmax(0, 1fr) 67px 30px; padding: 0 38px 17px; }
+  .hud { gap: 38px; }
+  .brand-mark { width: 47px; height: 54px; }
+  .brand-name .eyebrow { font-size: 10px; }
+  .eyebrow { font-size: 11px; }
+  #secondary { font-size: 14px; }
+  #record { font-size: 25px; }
+  #intent { font-size: 16px; }
+  .captions { font-size: 18px; }
+  .audience { font-size: 11px; }
+  .world-label { font-size: 11px; }
+  .live-label { font-size: 9px; }
+  .viewer-tools button { font-size: 12px; min-height: 37px; }
 }
-
-#broadcast[data-ux-revision="2"]{
-  padding:clamp(10px,1.5vw,28px);
-  gap:clamp(7px,.85vh,13px);
-  grid-template-rows:minmax(54px,8.5vh) minmax(0,1fr) minmax(40px,5.5vh) minmax(32px,4.5vh);
-  background:
-    radial-gradient(circle at 50% 42%,rgba(27,121,79,.14),transparent 38%),
-    radial-gradient(circle at 15% 8%,rgba(68,136,166,.1),transparent 28%),
-    var(--color-bg);
+@media (max-width: 1150px) {
+  #broadcast { grid-template-rows: 92px minmax(0, 1fr) 53px 26px; padding: 0 19px 10px; }
+  .hud { grid-template-columns: minmax(225px, 1.1fr) minmax(220px, 1fr) minmax(115px, .6fr); gap: 20px; padding: 0 4px; }
+  .intent-block { display: none; }
+  .run-metrics { padding-left: 20px; }
+  h1 { font-size: 25px; }
+  #primary { font-size: 28px; }
+  #record { font-size: 20px; }
+  .eyebrow { font-size: 9px; letter-spacing: .12em; }
 }
-
-#broadcast[data-ux-revision="2"]::before{
-  background-image:linear-gradient(var(--snake-grid) 1px,transparent 1px),linear-gradient(90deg,var(--snake-grid) 1px,transparent 1px);
-  background-size:46px 46px;
-  opacity:.72;
+@media (max-width: 760px) {
+  #broadcast { grid-template-rows: 83px minmax(0, 1fr) 48px 25px; padding: 0 12px 7px; }
+  .hud { grid-template-columns: minmax(180px, 1fr) minmax(180px, 1fr); gap: 12px; }
+  .brand-block { gap: 10px; }
+  .brand-mark { width: 31px; height: 39px; }
+  .brand-name .eyebrow { font-size: 7px; letter-spacing: .13em; }
+  h1 { font-size: 22px; }
+  .run-metrics { padding-left: 17px; gap: 5px; }
+  #primary { font-size: 25px; }
+  #secondary { font-size: 10px; }
+  .record-block { display: none; }
+  .stage { border-radius: 13px; }
+  .world-label { top: 21px; left: 20px; gap: 8px; font-size: 8px; }
+  .world-rule, .live-label { display: none; }
+  .viewer-tools { top: 10px; right: 10px; padding: 3px; gap: 2px; }
+  .viewer-tools button { padding: 5px 8px; gap: 5px; font-size: 10px; min-height: 32px; }
+  .viewer-tools button svg { width: 16px; height: 16px; }
+  .captions { padding: 7px 10px; font-size: 13px; gap: 9px; }
+  .caption-icon { width: 17px; height: 17px; }
+  .audience { font-size: 9px; }
+  .controls { right: 22px; bottom: 63px; }
 }
-
-#broadcast[data-ux-revision="2"] .hud,
-#broadcast[data-ux-revision="2"] .captions,
-#broadcast[data-ux-revision="2"] .audience{
-  background:var(--color-surface);
-  border-color:rgba(143,199,177,.16);
-  box-shadow:0 18px 55px rgba(0,0,0,.34);
+@media (max-width: 480px) and (min-height: 521px) {
+  #broadcast { grid-template-rows: 139px minmax(0, 1fr) 66px 32px; padding: 0 10px 7px; }
+  .hud { grid-template-columns: 1fr auto; grid-template-rows: 66px 66px; gap: 0 12px; padding: 0 7px; }
+  .brand-block { grid-column: 1 / -1; }
+  .brand-mark { width: 32px; height: 39px; }
+  .brand-name .eyebrow { font-size: 7px; letter-spacing: .19em; margin-bottom: 5px; }
+  h1 { font-size: 25px; }
+  .run-metrics { grid-column: 1; padding: 0; border: 0; gap: 4px; }
+  #run-goal { font-size: 8px; letter-spacing: .09em; }
+  #primary { font-size: 27px; }
+  #secondary { font-size: 10px; }
+  .record-block { display: flex; align-items: flex-end; gap: 6px; padding-left: 12px; border-left: 1px solid var(--line); }
+  .record-block .eyebrow { font-size: 7px; letter-spacing: .04em; }
+  #record { font-size: 16px; }
+  .world-label { top: 17px; left: 17px; font-size: 8px; letter-spacing: .13em; }
+  .world-ornament { font-size: 17px; }
+  .viewer-tools { top: auto; bottom: 12px; right: 12px; left: 12px; width: max-content; margin-left: auto; }
+  .viewer-tools button { min-height: 38px; padding: 5px 11px; font-size: 11px; }
+  .captions { font-size: 13px; padding: 8px 10px; text-align: left; justify-content: flex-start; }
+  #caption { -webkit-line-clamp: 3; }
+  .audience-note { max-width: 45%; }
+  .audience { font-size: 8px; gap: 8px; }
+  .scene-card { padding: 25px 21px 21px; gap: 13px; width: 85%; }
+  .scene-card strong { font-size: 25px; }
+  .scene-card > span:not(.scene-flourish) { font-size: 12px; line-height: 1.5; }
+  .scene-emblem { width: 29px; height: 29px; }
+  .controls { bottom: 109px; right: 20px; left: 20px; justify-content: center; }
+  #broadcast.show-controls .viewer-tools { bottom: 65px; }
+  #broadcast.show-controls .board-overview { bottom: 115px; }
 }
-
-#broadcast[data-ux-revision="2"] .hud{
-  grid-template-columns:minmax(250px,1.35fr) minmax(180px,.7fr) minmax(240px,1fr);
-  padding:clamp(9px,1vw,17px) clamp(14px,1.5vw,25px);
-  border-radius:18px;
+@media (max-height: 520px) {
+  #broadcast { grid-template-rows: 61px minmax(0, 1fr) 38px; padding: 0 9px 4px; }
+  .hud { grid-template-columns: minmax(170px, 1fr) minmax(180px, 1fr) auto; gap: 15px; padding: 0 5px; }
+  .brand-block { gap: 9px; }
+  .brand-mark { width: 25px; height: 32px; }
+  .brand-name .eyebrow { font-size: 6px; letter-spacing: .13em; margin-bottom: 4px; }
+  h1 { font-size: 20px; }
+  .run-metrics { padding-left: 15px; gap: 3px; }
+  #run-goal { font-size: 7px; letter-spacing: .09em; }
+  #primary { font-size: 23px; }
+  #secondary { font-size: 9px; }
+  .record-block { display: flex; gap: 4px; }
+  .record-block .eyebrow { font-size: 6px; letter-spacing: .03em; }
+  #record { font-size: 15px; }
+  .intent-block, .audience { display: none; }
+  .stage { border-radius: 10px; }
+  .world-label { top: 14px; left: 17px; font-size: 7px; gap: 7px; }
+  .world-rule, .live-label { display: none; }
+  .world-ornament { font-size: 15px; }
+  .viewer-tools { top: 7px; right: 8px; padding: 2px; }
+  .viewer-tools button { min-height: 28px; padding: 3px 7px; font-size: 9px; }
+  .viewer-tools button svg { width: 14px; height: 14px; }
+  .captions { padding: 5px 10px; font-size: 12px; gap: 9px; }
+  .caption-icon { width: 16px; height: 16px; }
+  .scene-card { width: min(400px, 70%); padding: 16px 22px 13px; gap: 9px; border-radius: 11px; }
+  .scene-emblem { display: none; }
+  .scene-card strong { font-size: 23px; }
+  .scene-card > span:not(.scene-flourish) { font-size: 11px; line-height: 1.4; }
+  .scene-flourish { margin-top: 0; }
+  .controls { right: 19px; bottom: 48px; padding: 4px; }
+  .controls button { min-height: 30px; padding: 4px 9px; font-size: 10px; }
+  #broadcast.show-controls .board-overview { bottom: 55px; }
 }
-
-#broadcast[data-ux-revision="2"] #primary{
-  color:var(--color-text);
-  font-size:clamp(22px,1.8vw,35px);
+@media (max-width: 570px) and (max-height: 520px) {
+  .hud { grid-template-columns: minmax(155px, 1fr) minmax(165px, 1fr); gap: 10px; }
+  .record-block { display: none; }
+  h1 { font-size: 18px; }
+  .brand-mark { width: 22px; }
+  .run-metrics { padding-left: 10px; }
+  #primary { font-size: 21px; }
+  .viewer-tools button span { display: none; }
+  .viewer-tools button { min-width: 31px; min-height: 29px; }
 }
-
-#broadcast[data-ux-revision="2"] .eyebrow,
-#broadcast[data-ux-revision="2"] #secondary,
-#broadcast[data-ux-revision="2"] .audience{
-  color:var(--color-muted);
-}
-
-#broadcast[data-ux-revision="2"] #record,
-#broadcast[data-ux-revision="2"] #integrity{
-  color:var(--color-progress);
-}
-
-#broadcast[data-ux-revision="2"] .stage{
-  border-radius:24px;
-  border-color:rgba(108,178,147,.2);
-  background:var(--snake-board);
-  box-shadow:0 24px 70px rgba(0,0,0,.46),0 0 0 1px rgba(87,247,165,.03) inset;
-}
-
-#broadcast[data-ux-revision="2"][data-scene="danger"] .stage{
-  border-color:rgba(255,95,114,.8);
-  box-shadow:0 24px 70px rgba(0,0,0,.46),0 0 42px rgba(255,95,114,.13);
-}
-
-#broadcast[data-ux-revision="2"][data-scene="milestone"] .stage{
-  border-color:rgba(255,209,102,.72);
-  box-shadow:0 24px 70px rgba(0,0,0,.46),0 0 42px rgba(255,209,102,.1);
-}
-
-#broadcast[data-ux-revision="2"] .scene-card{
-  max-width:min(640px,78%);
-  min-width:min(460px,72%);
-  border-radius:20px;
-  background:var(--color-surface-strong);
-  border-color:rgba(255,255,255,.18);
-}
-
-#broadcast[data-ux-revision="2"] .captions{
-  min-height:40px;
-  border-radius:12px;
-  font-size:clamp(14px,1vw,19px);
-  font-weight:650;
-}
-
-#broadcast[data-ux-revision="2"] .audience{
-  min-height:32px;
-  border-radius:10px;
-  font-size:clamp(10px,.7vw,13px);
-  letter-spacing:.055em;
-}
-
-#broadcast[data-ux-revision="2"] .controls button{
-  min-height:40px;
-  border-color:rgba(166,247,255,.22);
-  background:rgba(4,10,14,.96);
-}
-
-#broadcast[data-ux-revision="2"] .controls button:hover{border-color:rgba(166,247,255,.58)}
-#broadcast[data-ux-revision="2"] .controls button:focus-visible{outline:3px solid var(--color-focus);outline-offset:3px}
-#broadcast[data-ux-revision="2"] .controls button[aria-pressed="true"]{background:var(--color-progress);color:#03120a;border-color:transparent}
-
-@media(max-width:900px),(max-height:520px){
-  #broadcast[data-ux-revision="2"]{padding:7px;gap:5px;grid-template-rows:minmax(44px,11vh) minmax(0,1fr) minmax(32px,7vh)}
-  #broadcast[data-ux-revision="2"] .hud{grid-template-columns:1fr auto;padding:7px 10px;border-radius:11px}
-  #broadcast[data-ux-revision="2"] .brand-block .eyebrow{display:none}
-  #broadcast[data-ux-revision="2"] #primary{font-size:clamp(17px,3vw,24px)}
-  #broadcast[data-ux-revision="2"] .stage{border-radius:13px}
-  #broadcast[data-ux-revision="2"] .captions{border-radius:9px;padding:5px 10px}
-}
-
-@media(prefers-reduced-motion:reduce){
-  #broadcast[data-ux-revision="2"] *,#broadcast[data-ux-revision="2"] *::before,#broadcast[data-ux-revision="2"] *::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; }
 }

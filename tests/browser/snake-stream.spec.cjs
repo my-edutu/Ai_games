@@ -52,8 +52,13 @@ test('desktop broadcast source is readable, animated and privacy-safe', async ({
   expect(layout.canvas.height).toBeGreaterThan(500);
   expect(layout.primary.height).toBeGreaterThanOrEqual(20);
 
+  // Measure the working 3D scene after its first uploads and shader compilation,
+  // rather than accidentally timing an empty loading canvas.
+  await page.waitForFunction(() => window.__snakePresentation?.stats().frameCount >= 20, {}, { timeout: 40000 });
+  expect((await page.evaluate(() => window.__snakePresentation.stats())).renderer).toBe('webgl');
   const animation = await page.evaluate(() => new Promise(resolve => {
     const frameTimes = [];
+    const initialDraws = window.__snakePresentation.stats().frameCount;
     const started = performance.now();
     function step(now) {
       frameTimes.push(now);
@@ -64,6 +69,7 @@ test('desktop broadcast source is readable, animated and privacy-safe', async ({
           elapsedMs: now - started,
           maxGapMs: gaps.length ? Math.max(...gaps) : 0,
           averageFps: frameTimes.length / ((now - started) / 1000),
+          actualDraws: window.__snakePresentation.stats().frameCount - initialDraws,
         });
       } else requestAnimationFrame(step);
     }
@@ -74,6 +80,7 @@ test('desktop broadcast source is readable, animated and privacy-safe', async ({
   // severely starved presentation while recording the measured cadence for review.
   expect(animation.frames).toBeGreaterThanOrEqual(18);
   expect(animation.averageFps).toBeGreaterThanOrEqual(17);
+  expect(animation.actualDraws).toBeGreaterThanOrEqual(17);
   expect(animation.maxGapMs).toBeLessThan(250);
   writeJson('desktop-metrics.json', { layout, animation, scene: snapshot.scene, tick: snapshot.tick });
 

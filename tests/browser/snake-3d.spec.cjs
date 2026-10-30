@@ -1,0 +1,140 @@
+'use strict';
+const { test, expect } = require('@playwright/test');
+
+function lifecycleFrames() {
+  const { SnakeRuntime } = require('../../dist/games/autonomous-snake/src/runtime/run.js');
+  const { buildRenderSnapshot } = require('../../dist/games/autonomous-snake/src/presentation/snapshot.js');
+  const { BroadcastExperience } = require('../../dist/games/autonomous-snake/src/presentation/experience.js');
+  const runtime = SnakeRuntime.create({ width: 8, height: 8, targetLength: 4, initialLength: 3, intermissionTicks: 2, profile: 'open', hazardCount: 0, hazardPeriod: 8, hazardActiveTicks: 8, specialFoodEvery: 4, specialFoodLifetime: 30, noProgressTicks: 80 }, '3d-lifecycle-browser-check');
+  const experience = new BroadcastExperience({ replayCapacity: 30, bestLength: 0, maxActiveVfx: 32, maxAudioVoices: 8, muted: true });
+  experience.accept(buildRenderSnapshot(runtime.state), runtime.events);
+  let cursor = runtime.events.length;
+  const frames = { initial: experience.frame() };
+  for (let i = 0; i < 200 && !frames.restarted; i++) {
+    runtime.step();
+    experience.accept(buildRenderSnapshot(runtime.state), runtime.events.slice(cursor));
+    cursor = runtime.events.length;
+    const frame = experience.frame();
+    if (frame.scene === 'result') frames.result = frame;
+    if (frame.scene === 'intermission') frames.intermission = frame;
+    if (frame.snapshot.runToken !== frames.initial.snapshot.runToken) frames.restarted = frame;
+  }
+  if (!frames.result || !frames.intermission || !frames.restarted) throw new Error('Real runtime did not produce a complete lifecycle');
+  return frames;
+}
+
+test('real WebGL scene advances and camera controls preserve the authoritative run', async ({ page }) => {
+  const errors = [];
+  page.on('pageerror', error => errors.push(error.message));
+  await page.setViewportSize({ width: 1280, height: 720 });
+  await page.goto('/');
+  await expect(page.locator('#game')).toHaveAttribute('data-renderer', 'webgl');
+  await page.waitForFunction(() => window.__snakePresentation?.stats().frameCount > 4);
+  const before = await page.evaluate(() => window.__snakePresentation.stats());
+  expect(before.triangles).toBeGreaterThan(2000);
+  await page.locator('[data-control="camera"]').click();
+  await expect(page.locator('[data-control="camera"]')).toHaveAttribute('aria-pressed', 'true');
+  await page.waitForFunction(() => window.__snakePresentation.stats().cameraMode === 'follow');
+  await expect(page.locator('#board-overview')).toBeVisible();
+  await page.locator('[data-control="camera"]').click();
+  await page.waitForFunction(() => window.__snakePresentation.stats().cameraMode === 'detail');
+  await page.locator('#board-overview').click();
+  await page.waitForFunction(() => window.__snakePresentation.stats().cameraMode === 'overview');
+  const after = await page.evaluate(() => window.__snakePresentation.stats());
+  expect(after.frameCount).toBeGreaterThan(before.frameCount);
+  expect(after.geometries).toBeLessThan(90);
+  expect(after.textures).toBeLessThan(24);
+  expect(errors).toEqual([]);
+});
+
+test('WebGL failure presents a working safety view while snapshots keep advancing', async ({ page }) => {
+  await page.addInitScript(() => {
+    const original = HTMLCanvasElement.prototype.getContext;
+    HTMLCanvasElement.prototype.getContext = function(type, ...args) {
+      if (String(type).startsWith('webgl')) return null;
+      return original.call(this, type, ...args);
+    };
+  });
+  await page.goto('/');
+  await expect(page.locator('#game')).toHaveAttribute('data-renderer', 'canvas-fallback');
+  await expect(page.locator('#primary')).toContainText('LENGTH');
+  const first = await page.evaluate(async () => (await (await fetch('/snapshot')).json()).tick);
+  await page.waitForFunction(async first => (await (await fetch('/snapshot')).json()).tick !== first, first);
+  await expect(page.locator('#game')).toBeVisible();
+});
+
+test('portrait layout and viewer settings retain accessible controls and progression', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto('/?controls=1');
+  await expect(page.locator('#primary')).toContainText('LENGTH');
+  await expect(page.locator('[data-control="reduced-motion"]')).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.locator('[data-control="muted"]')).toHaveAttribute('aria-pressed', 'true');
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(390);
+  await expect(page.locator('#captions')).toBeVisible();
+  const viewer = await page.locator('.viewer-tools').boundingBox();
+  const operator = await page.locator('.controls').boundingBox();
+  expect(viewer.y + viewer.height).toBeLessThan(operator.y);
+});
+
+test('unavailable drawing contexts retain the recovery explanation across successful polls', async ({ page }) => {
+  await page.addInitScript(() => { HTMLCanvasElement.prototype.getContext = () => null; });
+  let polls = 0;
+  page.on('response', response => { if (response.url().endsWith('/snapshot') && response.ok()) polls++; });
+  await page.goto('/');
+  await expect(page.locator('#scene-copy')).toContainText('cannot draw');
+  await expect.poll(() => polls).toBeGreaterThan(3);
+  await expect(page.locator('#broadcast')).toHaveAttribute('data-scene', 'recovery');
+  await expect(page.locator('#scene-copy')).toBeVisible();
+});
+
+test('real runtime result, intermission, restart and reconnect frames retain a working view', async ({ page }) => {
+  const frames = lifecycleFrames();
+  let current = frames.initial, disconnected = false;
+  await page.route('**/snapshot', route => disconnected ? route.abort() : route.fulfill({ json: current }));
+  await page.setViewportSize({ width: 960, height: 640 });
+  await page.goto('/');
+  await page.waitForFunction(() => window.__snakePresentation?.stats().frameCount > 2);
+  current = frames.result;
+  await expect(page.locator('#broadcast')).toHaveAttribute('data-scene', 'result');
+  await expect(page.locator('#scene-title')).toBeVisible();
+  current = frames.intermission;
+  await expect(page.locator('#broadcast')).toHaveAttribute('data-scene', 'intermission');
+  current = frames.restarted;
+  await expect(page.locator('#broadcast')).toHaveAttribute('data-scene', 'normal');
+  await expect(page.locator('#primary')).toContainText('LENGTH 3 / 4');
+  disconnected = true;
+  await expect(page.locator('#broadcast')).toHaveAttribute('data-scene', 'recovery');
+  disconnected = false;
+  await expect(page.locator('#broadcast')).toHaveAttribute('data-scene', 'normal');
+  await expect(page.locator('#game')).toHaveAttribute('data-renderer', 'webgl');
+  expect((await page.evaluate(() => window.__snakePresentation.stats())).textures).toBeLessThan(30);
+});
+
+test('adaptive quality retains a valid shadow map and visible 3D after resizing', async ({ page }) => {
+  await page.addInitScript(() => {
+    const request = window.requestAnimationFrame.bind(window);
+    window.requestAnimationFrame = callback => request(time => setTimeout(() => callback(performance.now()), 45));
+  });
+  await page.setViewportSize({width:640,height:360});
+  await page.goto('/');
+  await page.waitForFunction(() => window.__snakePresentation?.stats().quality === 'low', {}, {timeout:40000});
+  const frames = await page.evaluate(() => window.__snakePresentation.stats().frameCount);
+  await page.setViewportSize({width:390,height:844});
+  await page.waitForFunction(frames => window.__snakePresentation.stats().frameCount > frames + 3, frames);
+  const error = await page.locator('#game').evaluate(canvas => canvas.getContext('webgl2').getError());
+  expect(error).toBe(0);
+  expect((await page.evaluate(() => window.__snakePresentation.stats())).textures).toBeGreaterThanOrEqual(8);
+});
+
+test('progress page and local renderer dependencies are available with safe MIME types', async ({ request }) => {
+  for (const route of ['/renderer.mjs', '/serpent.mjs', '/world.mjs', '/camera.mjs', '/overview.mjs', '/view-copy.mjs', '/vendor/three.module.js', '/vendor/three.core.js']) {
+    const response = await request.get(route);
+    expect(response.ok()).toBeTruthy();
+    expect(response.headers()['content-type']).toContain('javascript');
+  }
+  const progress = await request.get('/progress');
+  expect(progress.ok()).toBeTruthy();
+  expect(await progress.text()).toContain('Gauntlet');
+  expect((await request.get('/vendor/package.json')).status()).toBe(404);
+});
