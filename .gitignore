@@ -1,0 +1,9 @@
+node_modules/
+dist/
+dist-browser/
+test-results/
+playwright-report/
+.superpowers/
+*.log
+# Intermediate full-size capture encodings; review JPEGs and the motion clip are committed.
+evidence/thousand-floors/captures/*.png

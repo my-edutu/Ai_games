@@ -24,10 +24,21 @@ async function refresh() {
     }));
     document.querySelector('#iterations').replaceChildren(...data.iterations.slice().reverse().map(iteration => {
       const card = node('article', 'iteration');
-      if (iteration.image) { const image = node('img'); image.src = iteration.image; image.alt = iteration.title; image.loading = 'lazy'; card.append(image); }
+      if (iteration.video) {
+        const video = node('video'); video.poster = iteration.image || '';
+        const primary = node('source'); primary.src = iteration.video; primary.type = 'video/mp4'; video.append(primary);
+        if (iteration.videoWebm) {const fallback = node('source'); fallback.src = iteration.videoWebm; fallback.type = 'video/webm'; video.append(fallback);}
+        video.controls = true; video.muted = true; video.playsInline = true; video.preload = 'metadata';
+        video.setAttribute('aria-label', iteration.title + ' — actual recorded gameplay'); card.append(video);
+      } else if (iteration.image) { const image = node('img'); image.src = iteration.image; image.alt = iteration.title; image.loading = 'lazy'; card.append(image); }
       const body = node('div', 'iteration-body');
       body.append(node('div', 'meta', iteration.label), node('h3', '', iteration.title), node('p', '', iteration.summary));
       if (iteration.verdict) body.append(node('div', 'review', iteration.verdict));
+      if (iteration.links?.length) {
+        const links = node('div', 'capture-links');
+        for (const link of iteration.links) {const anchor = node('a', '', link.label + ' ↗'); anchor.href = link.url; links.append(anchor);}
+        body.append(links);
+      }
       card.append(body); return card;
     }));
     document.querySelector('#references').replaceChildren(...data.references.map(reference => {

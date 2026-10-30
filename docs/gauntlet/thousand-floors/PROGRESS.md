@@ -1,33 +1,37 @@
-# AI vs 1,000 Floors — live Gauntlet progress
+# Game 4 — THOUSAND: Gauntlet progress
 
-## Current verdict: third scene pass underway; benchmark not passed
+## Current verdict: playable review candidate; reference preferred
 
-Baseline commit: `d1678cd`. Game 4 appears in the catalogue as a finite campaign with checkpoints; there is no Game 4 runtime or scene to capture at this baseline. The first screenshot will therefore be a new implementation, not a before/after improvement to an existing playable game.
+The branch now contains an executable finite 1,000-floor 3D game, an original explorer and companion, ten district themes, saved checkpoints, viewer controls and a live evidence page. **ASTRO BOT remains preferred in the latest independent visual comparison. This is not a benchmark win or production approval.**
 
-The fixed main reference is ASTRO BOT gameplay, with Luigi's Mansion 3 for floor identity and Returnal's Tower of Sisyphus for tower presentation. Sources and criteria are in the design specification. No reference assets will be shipped as original work.
+Baseline `d1678cd` named Game 4 in the catalogue but had no playable Game 4 runtime. These captures therefore show the development of a new implementation from that verified starting point.
 
-## Work in progress
+![Actual current Game 4 capture](../../../evidence/thousand-floors/captures/iteration-4-desktop.jpg)
 
-| Piece | State | Evidence / next gate |
+## Current evidence
+
+| Piece | Result | Evidence |
 |---|---|---|
-| Finite campaign, deterministic movement, checkpoints | Review round 3 | Focused core/server checks pass; recovery-state edge case corrected and awaiting independent verification |
-| Original articulated character and 3D environments | Scene pass 3 | First actual visual comparison prefers ASTRO BOT; architecture, materials, character and camera are being rebuilt |
-| Responsive spectator experience and sound | Integrated | Mobile settings and progress-page checks pass; transport/reload tests hit rendering delays and remain unresolved |
-| Independent critic loop | Active | Three campaign reviews and one actual visual/motion comparison; reports linked below |
+| Campaign and persistence | Focused checks pass; no remaining P1 found in the final bounded campaign review | [Campaign review 4](campaign-critic-round-4.md) |
+| Character, environment and camera | Implemented; sampled exit-clipping defect corrected; reference still preferred | [Visual review 3](visual-critic-round-3.md) |
+| Viewer controls and saved progress | Six Chromium functional checks pass in the supported low tier | [Verification record](VERIFICATION.md) |
+| Resource lifecycle | Ten real generated district snapshots return to the exact initial 50 geometries / 13 textures | [Machine-readable evidence](../../../evidence/thousand-floors/verification.json) |
+| High-quality performance and production operation | Unverified; high-tier capture is slow on this host | No hardware FPS or long-soak claim |
 
 ## Iteration history
 
-- **Baseline:** verified no playable Game 4 in current main. Created isolated implementation branch, approved goal, fixed references and shared builder interfaces.
-- **Iteration 1:** implemented a real worker-driven 3D campaign. [Desktop capture](../../../evidence/thousand-floors/captures/iteration-1-desktop.jpg), [mobile capture](../../../evidence/thousand-floors/captures/iteration-1-mobile.jpg). The [visual critic](visual-critic-round-1.md) inspected moving gameplay and the exact official ASTRO BOT clips. Reference preferred: environment depth, materials, articulation and portrait camera were the largest gaps.
-- **Iteration 2:** improved platform dressing, compact mobile HUD, interpolation and exit visibility. [Desktop capture](../../../evidence/thousand-floors/captures/iteration-2-desktop.jpg), [mobile capture](../../../evidence/thousand-floors/captures/iteration-2-mobile.jpg). [Campaign review 1](campaign-critic-round-1.md) exposed hazard contact and impossible saves; [review 2](campaign-critic-round-2.md) verified contact fixes and found reward/phase inconsistencies. Builder corrected both and added independently timed double crossings on selected floors.
-- **Iteration 3 in progress:** procedural stone/brick/copper surfaces, hollow architecture and district landmarks; articulated character, camera fitting and geometry batching in progress. Twelve focused core tests passed before the newest independent review. Browser trace shows delayed queries during heavy rendering; no performance pass is claimed. Fresh critic found a forged recovering state with zero retries that is accepted but becomes invalid after one tick; the builder corrected it with a regression test, and independent verification is in progress.
+1. **Baseline:** isolated branch, fixed references and shared interfaces. No existing runtime was passed off as a previous playable version.
+2. **Iteration 1:** worker-driven campaign, original first cast and 3D platforms. [Desktop](../../../evidence/thousand-floors/captures/iteration-1-desktop.jpg), [portrait](../../../evidence/thousand-floors/captures/iteration-1-mobile.jpg). The [first visual critic](visual-critic-round-1.md) preferred the reference and returned environment depth, material distinction, articulation and mobile framing. [Campaign review 1](campaign-critic-round-1.md) found hazard-contact and impossible-save defects.
+3. **Iteration 2:** stronger platform dressing, compact portrait HUD, interpolation and low exit beacon. [Desktop](../../../evidence/thousand-floors/captures/iteration-2-desktop.jpg), [portrait](../../../evidence/thousand-floors/captures/iteration-2-mobile.jpg). [Campaign review 2](campaign-critic-round-2.md) verified the contact fix and exposed reward/phase inconsistencies; [review 3](campaign-critic-round-3.md) found the final recovery-expiry invariant. Builders corrected each with regression evidence.
+4. **Iteration 3:** a skinned articulated explorer, richer architecture/materials and geometry batching. [Desktop](../../../evidence/thousand-floors/captures/iteration-3-desktop.jpg), [portrait](../../../evidence/thousand-floors/captures/iteration-3-mobile.jpg). The [second visual critic](visual-critic-round-2.md) found an upcoming exit entering view too late and a world still dominated by isolated slabs.
+5. **Iteration 4:** connected cliff terraces, lower galleries and distant settlements; anticipatory framing uses the authoritative route cursor and a stable scale. [Desktop](../../../evidence/thousand-floors/captures/iteration-4-desktop.jpg), [portrait](../../../evidence/thousand-floors/captures/iteration-4-mobile.jpg), [motion excerpt](../../../evidence/thousand-floors/captures/iteration-4-motion.mp4). Actual later-district captures: [Aqueduct, floor 102](../../../evidence/thousand-floors/captures/district-2-aqueduct.jpg), [Coral Archive, floor 403](../../../evidence/thousand-floors/captures/district-5-coral.jpg), [Crown, floor 902](../../../evidence/thousand-floors/captures/district-10-crown.jpg). The latest critic no longer reproduced the prior exit clipping in the sampled traversal and found no new actor/next-landing obstruction in the inspected material.
 
-## Reproduce the live review
+## Remaining gaps
 
-Run `npm ci`, then `npm run floors:stream`. Open `http://localhost:4184/floors/` for the game and `/floors/progress` for the page, which refreshes this iteration record every five seconds. `npm run test:floors` exercises core/server behaviour; `npm run test:floors:browser` exercises the real browser.
+The largest presentation gap is district-specific primary architecture and material finish: repeated square caps, brick towers and regular surface treatment remain prominent. The agent follows one generated route per floor; alternative route selection is not implemented. The high-quality recordings are slow on this shared host, so real-time animation quality and hardware frame rate require further evidence. Broader accessibility, audio listening quality, context-loss recovery and production soak remain open.
 
-The [reference manifest](reference-evidence.md) records official sources, exact clip times and comparison limits. Reviews use matched viewing sizes where feasible; the known characters and HUDs prevent a credible fully blind comparison, so no blind preference study is claimed.
+No blind study is claimed: recognizable characters and HUDs reveal the sources. The [reference manifest](reference-evidence.md) records official clips, exact timestamps and comparison limits. Reference assets are not shipped as original game art. `ultracode` is unavailable in this environment; independent builder/fresh-critic roles were executed with the available subagents.
 
-## Honest limitations
+## Run and inspect
 
-No visual comparison has passed yet. `ultracode` is not installed in this environment; the explicit builder/fresh-critic workflow runs using the available subagent tools. Production operations and live audience providers are outside this implementation's evidence.
+From the repository root: `npm ci`, then `npm run floors:stream`. Open **http://localhost:4184/floors/** and **http://localhost:4184/floors/progress**. The latter refreshes its evidence record every five seconds while open; it does not itself launch builders or create new iterations. See the [game README](../../../games/ai-vs-1000-floors/README.md) for controls, review URLs and validation commands.

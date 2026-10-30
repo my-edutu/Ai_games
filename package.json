@@ -4,6 +4,10 @@
   "private": true,
   "engines": { "node": ">=22.0.0" },
   "scripts": {
+    "floors:build": "tsc -p games/ai-vs-1000-floors/tsconfig.browser.json",
+    "floors:stream": "npm run floors:build && node scripts/serve-thousand-floors.cjs",
+    "test:floors": "npm run build && node --test tests/foundation/thousand-floors-*.test.cjs",
+    "test:floors:browser": "npm run floors:build && playwright test -c playwright.floors.config.cjs",
     "clean": "rm -rf dist",
     "build": "tsc -p tsconfig.json",
     "test": "npm run build && node --test tests/foundation/*.test.cjs tests/phase2/*.test.cjs tests/phase3/*.test.cjs tests/phase4/*.test.cjs tests/phase5/*.test.cjs tests/phase6/*.test.cjs",

@@ -31,34 +31,38 @@
 **Files:** games/ai-vs-1000-floors/src/{types,content,simulation,persistence,index}.ts; tests/foundation/thousand-floors-core.test.cjs.
 **Interfaces:** Produce the core API and snapshot defined in the interface contract. Renderer and worker consume snapshots, never mutable state.
 
-- [ ] Write failing behavioural tests for seed reproducibility, all-floor content validation, finite completion, safe hazard decisions, checkpoint recovery, immutable snapshots, save corruption and restore equivalence.
-- [ ] Implement the TypeScript core and run focused tests; record actual commands/results.
-- [ ] Hand off the actual core and test evidence to a fresh specification/quality critic; fix material findings.
+- [x] Write failing behavioural tests for seed reproducibility, all-floor content validation, finite completion, safe hazard decisions, checkpoint recovery, immutable snapshots, save corruption and restore equivalence.
+- [x] Implement the TypeScript core and run focused tests; record actual commands/results.
+- [x] Hand off the actual core and test evidence to a fresh specification/quality critic; fix material findings.
 
 ## Task 2: Character and 3D environment
 
 **Files:** public/ai-vs-1000-floors/{scene,character,environment,materials}.js.
 **Interfaces:** createFloorScene(canvas, options) and renderer methods in the interface contract; import Three.js through the supplied import map. Consume immutable snapshots only.
 
-- [ ] Build an original articulated protagonist, companion, rich dimensional room/sky composition, ten differentiated districts, readable hazards, restrained effects and continuous animation.
-- [ ] Inspect real running frames and a moving sequence; exercise resize, reduced motion, context failure and repeated disposal.
-- [ ] Give a fresh critic matched reference/gameplay evidence; fix the largest visual gap and recapture.
+- [x] Build an original articulated protagonist, companion, rich dimensional room/sky composition, ten differentiated districts, readable hazards, restrained effects and continuous animation.
+- [ ] Finish the broader presentation failure/accessibility gate. Real frames, moving sequences, resize and repeated disposal have evidence; context-loss recovery and complete reduced-motion interaction review remain open.
+- [x] Give a fresh critic matched reference/gameplay evidence; fix the largest visual gap and recapture.
 
 ## Task 3: Browser experience and progress page
 
 **Files:** public/ai-vs-1000-floors/{index.html,styles.css,app.js,worker.js,audio.js,progress.html,progress.js,progress.css,progress.json}; scripts/serve-thousand-floors.cjs; games/ai-vs-1000-floors/tsconfig.browser.json; package.json; tsconfig.json; tests/browser/thousand-floors.spec.cjs; playwright.floors.config.cjs.
 **Interfaces:** Worker owns simulation; app sends bounded settings/transport messages and receives snapshots/checkpoints. Server serves /floors/ and /floors/progress with a strict static path map.
 
-- [ ] Write focused browser behaviour assertions for initial render, autonomous progress, pause/resume, camera/speed/sound/settings, save/reload and mobile layout.
-- [ ] Implement responsive HUD, worker bridge, opt-in event audio, validated saves, reduced motion/clean feed, error states and the live progress page.
-- [ ] Run browser checks and inspect desktop/mobile screenshots; fix real usability and rendering failures.
+- [x] Write focused browser behaviour assertions for initial render, autonomous progress, pause/resume, camera/speed/sound/settings, save/reload and mobile layout.
+- [x] Implement responsive HUD, worker bridge, opt-in event audio, validated saves, reduced motion/clean feed, error states and the live progress page.
+- [x] Run browser checks and inspect desktop/mobile screenshots; fix real usability and rendering failures.
 
 ## Task 4: Integrated Gauntlet and reviewable delivery
 
 **Files:** docs/gauntlet/thousand-floors/*; game documentation; evidence/thousand-floors/*; progress.json.
 
-- [ ] Freeze references and record the honest empty-runtime baseline.
-- [ ] Run all-floor and multi-seed campaign checks; validate restart/save and browser memory/resource behaviour.
-- [ ] Dispatch independent critics for core, character/environment, HUD and the integrated moving game. Preserve evidence and fix their highest-impact gaps in further rounds.
-- [ ] Update the progress page with every meaningful iteration. Complete required game documentation and running instructions.
-- [ ] Verify build, focused tests, catalogue tests and actual browser output. Commit to the isolated branch and create a reviewable draft PR. Record the current benchmark verdict without inventing parity.
+- [x] Freeze references and record the honest empty-runtime baseline.
+- [x] Run all-floor and multi-seed campaign checks; validate restart/save and browser memory/resource behaviour.
+- [x] Dispatch independent critics for core, character/environment, HUD and the integrated moving game. Preserve evidence and fix their highest-impact gaps in further rounds.
+- [x] Update the progress page with every meaningful iteration. Complete required game documentation and running instructions.
+- [x] Verify build, focused tests, catalogue tests and actual browser output. Commit to the isolated branch and create a reviewable draft PR. Record the current benchmark verdict without inventing parity.
+
+## Execution disposition
+
+A playable review candidate is implemented and independently reviewed. The core, server and camera test files pass; six browser functional checks pass in the explicitly selected low-quality tier. Actual high-quality desktop/portrait/later-district evidence and a ten-district resource cycle are recorded in docs/gauntlet/thousand-floors/VERIFICATION.md. Four visual iterations and three independent visual reviews still prefer the fixed reference. The benchmark criterion therefore remains open; checked implementation/delivery tasks are not a claim of parity or production readiness.

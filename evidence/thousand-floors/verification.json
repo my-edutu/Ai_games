@@ -1,0 +1,448 @@
+{
+  "captures": [
+    {
+      "name": "iteration-4-desktop",
+      "state": {
+        "initialized": true,
+        "paused": true,
+        "speed": 1,
+        "camera": "follow",
+        "review": true,
+        "quality": "high",
+        "presentation": {
+          "frameGapMs": 0,
+          "maxFrameGapMs": 2650,
+          "slowSeconds": 0,
+          "qualitySource": "manual",
+          "adaptationReason": null
+        },
+        "storageAvailable": true,
+        "snapshot": {
+          "floor": 6,
+          "tick": 1306,
+          "status": "running",
+          "checkpointFloor": 1,
+          "action": "jump"
+        },
+        "renderer": {
+          "geometries": 78,
+          "textures": 15,
+          "drawCalls": 125,
+          "triangles": 195336,
+          "batching": {
+            "sourceMeshes": 1910,
+            "batches": 20,
+            "removedMeshes": 1910,
+            "retainedMeshes": 68
+          },
+          "renderedFrames": 23,
+          "skippedFrames": 11,
+          "cameraDistance": 23.701644279486118
+        },
+        "audio": {
+          "enabled": false,
+          "voices": 0,
+          "context": "uninitialized"
+        }
+      }
+    },
+    {
+      "name": "district-2-aqueduct",
+      "state": {
+        "initialized": true,
+        "paused": true,
+        "speed": 1,
+        "camera": "follow",
+        "review": true,
+        "quality": "high",
+        "presentation": {
+          "frameGapMs": 0,
+          "maxFrameGapMs": 2267,
+          "slowSeconds": 0,
+          "qualitySource": "manual",
+          "adaptationReason": null
+        },
+        "storageAvailable": true,
+        "snapshot": {
+          "floor": 102,
+          "tick": 22540,
+          "status": "running",
+          "checkpointFloor": 101,
+          "action": "wait"
+        },
+        "renderer": {
+          "geometries": 107,
+          "textures": 15,
+          "drawCalls": 187,
+          "triangles": 184456,
+          "batching": {
+            "sourceMeshes": 1693,
+            "batches": 20,
+            "removedMeshes": 1692,
+            "retainedMeshes": 97
+          },
+          "renderedFrames": 12,
+          "skippedFrames": 15,
+          "cameraDistance": 26.853914066252003
+        },
+        "audio": {
+          "enabled": false,
+          "voices": 0,
+          "context": "uninitialized"
+        }
+      }
+    },
+    {
+      "name": "district-5-coral",
+      "state": {
+        "initialized": true,
+        "paused": true,
+        "speed": 1,
+        "camera": "follow",
+        "review": true,
+        "quality": "high",
+        "presentation": {
+          "frameGapMs": 0,
+          "maxFrameGapMs": 3317,
+          "slowSeconds": 0,
+          "qualitySource": "manual",
+          "adaptationReason": null
+        },
+        "storageAvailable": true,
+        "snapshot": {
+          "floor": 403,
+          "tick": 87882,
+          "status": "running",
+          "checkpointFloor": 401,
+          "action": "jump"
+        },
+        "renderer": {
+          "geometries": 50,
+          "textures": 15,
+          "drawCalls": 87,
+          "triangles": 178032,
+          "batching": {
+            "sourceMeshes": 1574,
+            "batches": 21,
+            "removedMeshes": 1574,
+            "retainedMeshes": 40
+          },
+          "renderedFrames": 12,
+          "skippedFrames": 6,
+          "cameraDistance": 26.848524971709995
+        },
+        "audio": {
+          "enabled": false,
+          "voices": 0,
+          "context": "uninitialized"
+        }
+      }
+    },
+    {
+      "name": "district-10-crown",
+      "state": {
+        "initialized": true,
+        "paused": true,
+        "speed": 1,
+        "camera": "follow",
+        "review": true,
+        "quality": "high",
+        "presentation": {
+          "frameGapMs": 0,
+          "maxFrameGapMs": 2583,
+          "slowSeconds": 0,
+          "qualitySource": "manual",
+          "adaptationReason": null
+        },
+        "storageAvailable": true,
+        "snapshot": {
+          "floor": 902,
+          "tick": 194901,
+          "status": "running",
+          "checkpointFloor": 901,
+          "action": "jump"
+        },
+        "renderer": {
+          "geometries": 52,
+          "textures": 15,
+          "drawCalls": 89,
+          "triangles": 178816,
+          "batching": {
+            "sourceMeshes": 1664,
+            "batches": 21,
+            "removedMeshes": 1664,
+            "retainedMeshes": 42
+          },
+          "renderedFrames": 13,
+          "skippedFrames": 11,
+          "cameraDistance": 25.762105432067496
+        },
+        "audio": {
+          "enabled": false,
+          "voices": 0,
+          "context": "uninitialized"
+        }
+      }
+    }
+  ],
+  "resources": {
+    "rows": [
+      {
+        "floor": 1,
+        "geometries": 50,
+        "textures": 13,
+        "drawCalls": 50,
+        "triangles": 97141,
+        "batching": {
+          "sourceMeshes": 1910,
+          "batches": 20,
+          "removedMeshes": 1910,
+          "retainedMeshes": 49
+        },
+        "renderedFrames": 1,
+        "skippedFrames": 0,
+        "cameraDistance": 23.701644279486118
+      },
+      {
+        "floor": 101,
+        "geometries": 77,
+        "textures": 13,
+        "drawCalls": 77,
+        "triangles": 91213,
+        "batching": {
+          "sourceMeshes": 1693,
+          "batches": 20,
+          "removedMeshes": 1692,
+          "retainedMeshes": 75
+        },
+        "renderedFrames": 2,
+        "skippedFrames": 0,
+        "cameraDistance": 23.91131757415946
+      },
+      {
+        "floor": 201,
+        "geometries": 46,
+        "textures": 13,
+        "drawCalls": 46,
+        "triangles": 86729,
+        "batching": {
+          "sourceMeshes": 1578,
+          "batches": 20,
+          "removedMeshes": 1578,
+          "retainedMeshes": 38
+        },
+        "renderedFrames": 3,
+        "skippedFrames": 0,
+        "cameraDistance": 24.793452913670627
+      },
+      {
+        "floor": 301,
+        "geometries": 51,
+        "textures": 13,
+        "drawCalls": 51,
+        "triangles": 86085,
+        "batching": {
+          "sourceMeshes": 1586,
+          "batches": 21,
+          "removedMeshes": 1586,
+          "retainedMeshes": 50
+        },
+        "renderedFrames": 4,
+        "skippedFrames": 0,
+        "cameraDistance": 25.698644238172555
+      },
+      {
+        "floor": 401,
+        "geometries": 47,
+        "textures": 13,
+        "drawCalls": 47,
+        "triangles": 89501,
+        "batching": {
+          "sourceMeshes": 1574,
+          "batches": 21,
+          "removedMeshes": 1574,
+          "retainedMeshes": 39
+        },
+        "renderedFrames": 5,
+        "skippedFrames": 0,
+        "cameraDistance": 22.08188643390946
+      },
+      {
+        "floor": 501,
+        "geometries": 50,
+        "textures": 13,
+        "drawCalls": 50,
+        "triangles": 95789,
+        "batching": {
+          "sourceMeshes": 1857,
+          "batches": 20,
+          "removedMeshes": 1857,
+          "retainedMeshes": 49
+        },
+        "renderedFrames": 6,
+        "skippedFrames": 0,
+        "cameraDistance": 24.581117897596194
+      },
+      {
+        "floor": 601,
+        "geometries": 46,
+        "textures": 13,
+        "drawCalls": 46,
+        "triangles": 87101,
+        "batching": {
+          "sourceMeshes": 1586,
+          "batches": 20,
+          "removedMeshes": 1586,
+          "retainedMeshes": 41
+        },
+        "renderedFrames": 7,
+        "skippedFrames": 0,
+        "cameraDistance": 25.028843914735816
+      },
+      {
+        "floor": 701,
+        "geometries": 44,
+        "textures": 13,
+        "drawCalls": 44,
+        "triangles": 84273,
+        "batching": {
+          "sourceMeshes": 1501,
+          "batches": 20,
+          "removedMeshes": 1501,
+          "retainedMeshes": 38
+        },
+        "renderedFrames": 8,
+        "skippedFrames": 0,
+        "cameraDistance": 26.927217106689106
+      },
+      {
+        "floor": 801,
+        "geometries": 46,
+        "textures": 13,
+        "drawCalls": 46,
+        "triangles": 84409,
+        "batching": {
+          "sourceMeshes": 1506,
+          "batches": 20,
+          "removedMeshes": 1506,
+          "retainedMeshes": 41
+        },
+        "renderedFrames": 9,
+        "skippedFrames": 0,
+        "cameraDistance": 25.888382901091852
+      },
+      {
+        "floor": 901,
+        "geometries": 52,
+        "textures": 13,
+        "drawCalls": 52,
+        "triangles": 86505,
+        "batching": {
+          "sourceMeshes": 1547,
+          "batches": 21,
+          "removedMeshes": 1547,
+          "retainedMeshes": 44
+        },
+        "renderedFrames": 10,
+        "skippedFrames": 0,
+        "cameraDistance": 28.830636691248333
+      }
+    ],
+    "returned": {
+      "geometries": 50,
+      "textures": 13,
+      "drawCalls": 50,
+      "triangles": 97141,
+      "batching": {
+        "sourceMeshes": 1910,
+        "batches": 20,
+        "removedMeshes": 1910,
+        "retainedMeshes": 49
+      },
+      "renderedFrames": 11,
+      "skippedFrames": 0,
+      "cameraDistance": 23.701644279486118
+    },
+    "bounded": true,
+    "seed": "resource-cycle"
+  },
+  "faults": [],
+  "video": "captures/iteration-4-motion.mp4",
+  "capture_note": "Actual running high-quality manual review captures. Requested entrance floors continue naturally while browser automation runs; the captured state is authoritative. The exported clip is a 28-second 960x540, 12fps encoding excerpt of the slow host recording, not an FPS benchmark.",
+  "functional_browser": {
+    "command": "FLOORS_TEST_QUALITY=low npx playwright test -c playwright.floors.config.cjs --trace off",
+    "passed": 6,
+    "failed": 0,
+    "duration_note": "1.8 minutes; 90-second per-test functional budget, 15-second assertion budget; supported low tier, not a high-tier performance pass."
+  },
+  "focused_tests": {
+    "command": "npm run test:floors",
+    "passed_files": 3,
+    "failed_files": 0,
+    "cases": {
+      "campaign": 15,
+      "camera": 4,
+      "server": 3
+    },
+    "duration_ms": 9243.278354
+  },
+  "catalogue_baseline": {
+    "command": "npm test",
+    "passed_files": 120,
+    "failed_files": 3,
+    "failures": [
+      "tests/foundation/eko-run-headless.test.cjs",
+      "tests/phase3/stream-host.test.cjs",
+      "tests/phase6/candidate-script.test.cjs"
+    ],
+    "followup": "The first two files passed all7 checks with appropriate process permissions after sandbox child-process errors were identified. The phase6 candidate-script failure remains undiagnosed; no full-suite green claim."
+  },
+  "capture_hashes": {
+    "iteration-3-desktop.jpg": "328ccc3fd646056a7cc7c98fe154f18021c7c083bdcc3c40fe4e284e1b53e9f4",
+    "iteration-2-mobile.jpg": "121b6d7c0d9f925a4db3ee0242ee972022b355dcac212e4debea2c2bcc82093e",
+    "iteration-1-desktop.jpg": "3b13695c14dc8e19d0e946b2bd03a62b62e009798a23a3baf297b52344948c1b",
+    "iteration-1-mobile.jpg": "bf78205fa9bfdc513ccf398998169bb902112656c7ceb47f9598523a9cfefdfb",
+    "iteration-3-mobile.jpg": "77a41a2fb184ccbec2e9284cb2be0ec1cb0f0c437cac945d6f4e457e580ee693",
+    "district-2-aqueduct.jpg": "ea6bd40cf60a1292597da82efcec81b4790e17f54af7ce5761db192be74ea0cd",
+    "district-5-coral.jpg": "76f301dc89cb907523bab5bad2f74a05e71502055084eff04dc3abdff8995c93",
+    "iteration-2-desktop.jpg": "b970470efc06a00f7cf68d88f46be15900fcdab27af40ae544fdc8551b3ded1f",
+    "iteration-4-mobile.jpg": "a8730ff6f1d98cc9355960ba59ee05837e230d6801f2e2421524c0baab184e57",
+    "iteration-4-desktop.jpg": "513ebb5013f93c6ee88f82c719f6bd32eb1e7c4cec18bbed768759cd24e949ad",
+    "district-10-crown.jpg": "497c7aae1c8d0a32c99ca518ac392fb78febfc6c8e0fffdff20e42c195188390"
+  },
+  "seed": "thousand-dawn-2026",
+  "graphics_backend": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+  "motion_exports": {
+    "iteration-4-motion.mp4": {
+      "sha256": "380f12b3db98a28460316a7e542452d2271bc3cddd7c72199e7122e70651404d",
+      "bytes": 662389,
+      "durationSeconds": 28,
+      "width": 960,
+      "height": 540,
+      "encodingFps": 12
+    },
+    "iteration-4-motion-fallback.webm": {
+      "sha256": "67d5617a9592d4e0a248cf511d7f64f20f5f949903969c9b7b511e16561e5c47",
+      "bytes": 902323,
+      "durationSeconds": 28,
+      "width": 960,
+      "height": 540,
+      "encodingFps": 12
+    }
+  },
+  "progress_page": {
+    "verdict": "Playable review candidate · reference benchmark not passed",
+    "iterations": 5,
+    "references": 3,
+    "captureLinks": 4,
+    "video": {
+      "readyState": 4,
+      "duration": 28,
+      "currentSource": "http://127.0.0.1:4184/floors/evidence/iteration-4-motion-fallback.webm",
+      "error": null,
+      "played": true
+    },
+    "graphics": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+    "pageErrors": []
+  }
+}

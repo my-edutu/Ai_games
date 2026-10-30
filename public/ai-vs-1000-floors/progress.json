@@ -1,21 +1,21 @@
 {
-  "updated": "30 October 2026 · campaign review 3 / scene pass 3 underway",
-  "verdict": "Reference benchmark not passed · substantial rebuild in progress",
+  "updated": "30 October 2026 · playable review candidate / four visual iterations",
+  "verdict": "Playable review candidate · reference benchmark not passed",
   "pieces": [
     {
       "name": "The 1,000-floor campaign",
-      "state": "In review",
-      "evidence": "Deterministic finite campaign, ten districts, timed hazards and saved checkpoints implemented. Focused core/server checks pass. The latest recovery-state edge case is corrected and awaiting independent verification."
+      "state": "Verified",
+      "evidence": "Finite completion, seeded content, real hazard contact and recoverable checkpoints. Four independent campaign reviews corrected persistence defects; no remaining P1 was found in the final bounded review. The policy follows one route per floor."
     },
     {
       "name": "Character & living tower",
-      "state": "Building",
-      "evidence": "The first independent visual comparison preferred ASTRO BOT. A new architectural, material, character and camera pass addresses the largest observed gaps."
+      "state": "In review",
+      "evidence": "Original articulated explorer and companion; ten district themes, textured architecture and connected cliff terraces. The sampled late-landing camera defect is corrected. ASTRO BOT remains the preferred visual reference."
     },
     {
-      "name": "The spectator experience",
-      "state": "In review",
-      "evidence": "Desktop/mobile controls, pause, speed, camera, opt-in audio and saved progress implemented. Mobile/settings and progress-page browser checks pass; transport and restore checks hit rendering delays and remain unresolved."
+      "name": "Viewer controls & saves",
+      "state": "Verified",
+      "evidence": "All six Chromium functional checks pass in the supported low-quality mode. High-quality captures have no page errors, but this headless host is slow; hardware frame-rate and long-duration operation remain unverified."
     }
   ],
   "iterations": [
@@ -40,10 +40,38 @@
       "verdict": "Benchmark remains not passed. The scene still needs authored depth, stronger character animation, safe camera framing and fewer draw calls."
     },
     {
-      "label": "Iteration 3 · work in progress",
-      "title": "Architecture, character and performance",
-      "summary": "Builders are replacing the flat surrounding disk with a hollow citadel, textured surfaces and district landmarks. A separate character/renderer builder is adding limb articulation, camera fitting and static geometry batching.",
-      "verdict": "No new visual verdict until the integrated running build is captured and independently reviewed."
+      "label": "Iteration 3 · actual gameplay",
+      "title": "An articulated explorer in a more developed tower",
+      "image": "/floors/evidence/iteration-3-desktop.jpg",
+      "summary": "Added a skinned character with expressive joint poses, layered materials, botanical architecture and static geometry batching. Portrait framing improved; a fresh moving review found an upcoming exit entering view too late.",
+      "verdict": "Reference preferred. The critic returned late landing visibility and thin environmental context for another build."
+    },
+    {
+      "label": "Iteration 4 · inspected review candidate",
+      "title": "A connected world, with the next landing in view",
+      "image": "/floors/evidence/iteration-4-desktop.jpg",
+      "video": "/floors/evidence/iteration-4-motion.mp4",
+      "summary": "Added terraced cliff islands, lower galleries and distant settlements. The camera uses the real route cursor, anticipates the following landing and keeps a stable scale. Actual captures include floors 006, 102, 403 and 902. The clip is a compressed recording from a slow software-rendered session; it does not establish hardware frame rate.",
+      "verdict": "The fresh critic no longer reproduced the earlier exit clipping in sampled floor-004 traversal. The benchmark remains not passed: district composition, surface finish and expressive motion still trail the reference.",
+      "links": [
+        {
+          "label": "Portrait view",
+          "url": "/floors/evidence/iteration-4-mobile.jpg"
+        },
+        {
+          "label": "Sunlit Aqueduct",
+          "url": "/floors/evidence/district-2-aqueduct.jpg"
+        },
+        {
+          "label": "Coral Archive",
+          "url": "/floors/evidence/district-5-coral.jpg"
+        },
+        {
+          "label": "Crown of Dawn",
+          "url": "/floors/evidence/district-10-crown.jpg"
+        }
+      ],
+      "videoWebm": "/floors/evidence/iteration-4-motion-fallback.webm"
     }
   ],
   "references": [
@@ -64,10 +92,10 @@
     }
   ],
   "gaps": [
-    "The inspected visual result still loses to the fixed ASTRO BOT gameplay references.",
-    "The latest recovery-state fix needs independent confirmation; focused regression tests pass.",
-    "Transport and reload browser checks must pass after rendering overhead is reduced; an advancing HUD is not sufficient evidence.",
-    "Representative later districts, moving character poses and bounded resource behaviour need current-build inspection.",
-    "The campaign currently follows one generated route per floor; alternative route decisions are not implemented."
+    "The fixed ASTRO BOT gameplay reference remains preferred; improvements to this build do not constitute a benchmark win.",
+    "Districts need more distinct large-scale composition and surface treatment; repeated square platforms and brick towers remain prominent.",
+    "The campaign has one generated route per floor. Alternative route selection remains an explicit design gap.",
+    "High-quality motion was slow on this shared headless graphics host. Real-hardware frame-rate, audio listening quality and broader accessibility review remain open.",
+    "The ten-district resource cycle returned to its exact initial geometry/texture counts; a long production soak and live audience operation have not been established."
   ]
 }

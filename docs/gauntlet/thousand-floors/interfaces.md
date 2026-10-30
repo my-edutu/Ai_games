@@ -74,3 +74,7 @@ Root owns the worker. The worker imports the browser build of the core at `/floo
 ## Ownership
 
 Campaign builder owns `games/ai-vs-1000-floors/src/` and its core tests. Scene builder owns `scene.js`, `character.js`, `environment.js`, `materials.js`. Lead owns HTML/CSS/app/worker/audio/progress/server/build config, review evidence and integration. Do not edit another owner's files without coordination.
+
+## Additive presentation cursor
+
+Render snapshot schema 1 also includes `traversal: { segment: number, progress: number }`, where segment is the authoritative current route-link index and progress is normalized to [0, 1). At a landing the segment advances and progress resets to zero. The final segment index identifies the last node at completion. This read-only, deep-frozen cursor lets the camera anticipate upcoming landings without inferring route position from intersecting geometry. It does not change campaign state, rules or save version.
