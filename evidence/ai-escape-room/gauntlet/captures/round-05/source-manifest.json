@@ -1,0 +1,17 @@
+{
+  "date": "2026-10-30T21:24:23.019Z",
+  "sourceUnchangedDuringCapture": true,
+  "files": {
+    "public/ai-escape-room/app.js": "df403474932905c3f1b7cefebf45c424b84c304c3b52cc33ed12fbb4db176c57",
+    "public/ai-escape-room/network.js": "7afe7958e6fa5742acb60f349ac833d949a6318c954ea35fd6589725c1b4c424",
+    "public/ai-escape-room/archivist3d.js": "9c35ccae91ca8e7ec9228774888255a28b161fceb3092c8f7c4509e6faf4270f",
+    "public/ai-escape-room/bootstrap.js": "a90df5ee6e69ba2ed66bf59f43a8f37e458a0919ff844a70195ca38fe97ac674",
+    "public/ai-escape-room/room3d.js": "97d88b3e16d73e3b1673bb554abb2f03d4bc7a9c2ee0d56a332e6c36d3b4c702",
+    "public/ai-escape-room/room3d-polish.js": "26e7e8224ca976c6bf166e7c8cf8fd53a7edc5d1cf906aa5b923585192b5ff4b",
+    "public/ai-escape-room/mechanisms3d.js": "8648cdbe0c8b6664862e266c140fd69fff059d8151cb15cd9efc2e87aca7b7c6",
+    "public/ai-escape-room/scenery3d.js": "48521c084b27ed7f9b86698b6a463d43f904b742388759bb5cba5b8a365bf494",
+    "public/ai-escape-room/index.html": "1492643e52e55105d8113c44d507ed61bb378ea8f1efc13d4ef6d3e9c51e8d50",
+    "public/ai-escape-room/styles.css": "e0e6f70cf82f479915ed95666d852d5e03b384e79db42dec0fafe167d1297d75",
+    "public/ai-escape-room/ux-v2.css": "d4b41a7de0ab0695a024e8b99051b8b2de05a86b0b441e0bbf86819abd9a4018"
+  }
+}

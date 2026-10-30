@@ -1,0 +1,200 @@
+{
+  "calls": [
+    {
+      "method": "waitForFunction",
+      "start": 18995.503,
+      "end": 29262.361,
+      "params": null,
+      "result": {
+        "handle": "<JSHandle>"
+      },
+      "error": null
+    },
+    {
+      "method": "evaluateExpression",
+      "start": 32175.189,
+      "end": 36646.126,
+      "params": null,
+      "result": {
+        "runToken": "f01a1778",
+        "roomIndex": 239,
+        "tick": 4,
+        "scene": "danger"
+      },
+      "error": null
+    },
+    {
+      "method": "textContent",
+      "start": 45547.819,
+      "end": 47541.858,
+      "params": {
+        "selector": "[data-testid=\"tick\"]",
+        "strict": true,
+        "timeout": 0
+      },
+      "result": "4",
+      "error": null
+    },
+    {
+      "method": "waitForTimeout",
+      "start": 49072.313,
+      "end": 50793.375,
+      "params": {
+        "waitTimeout": 700
+      },
+      "result": null,
+      "error": null
+    },
+    {
+      "method": "textContent",
+      "start": 51442.696,
+      "end": 53866.357,
+      "params": {
+        "selector": "[data-testid=\"tick\"]",
+        "strict": true,
+        "timeout": 0
+      },
+      "result": "4",
+      "error": null
+    }
+  ],
+  "states": [
+    {
+      "at": 6377.306,
+      "networkMs": 23.884,
+      "status": 200,
+      "runToken": "64c31d33",
+      "roomIndex": 235,
+      "tick": 66,
+      "scene": "intermission",
+      "bodySaved": true
+    },
+    {
+      "at": 12924.465,
+      "networkMs": 34.902,
+      "status": 200,
+      "runToken": "fa4f6a26",
+      "roomIndex": 236,
+      "tick": 45,
+      "scene": "intermission",
+      "bodySaved": true
+    },
+    {
+      "at": 17773.755,
+      "networkMs": 5.007,
+      "status": 200,
+      "runToken": "2e6933aa",
+      "roomIndex": 237,
+      "tick": 18,
+      "scene": "danger",
+      "bodySaved": true
+    },
+    {
+      "at": 22539.054,
+      "networkMs": 8.396,
+      "status": 200,
+      "runToken": "2e6933aa",
+      "roomIndex": 237,
+      "tick": 54,
+      "scene": "intermission",
+      "bodySaved": true
+    },
+    {
+      "at": 25768.299,
+      "networkMs": 4.449,
+      "status": 200,
+      "runToken": "6e385da4",
+      "roomIndex": 238,
+      "tick": 15,
+      "scene": "danger",
+      "bodySaved": true
+    },
+    {
+      "at": 32165.889,
+      "networkMs": 5.05,
+      "status": 200,
+      "runToken": "f01a1778",
+      "roomIndex": 239,
+      "tick": 4,
+      "scene": "danger",
+      "bodySaved": true
+    },
+    {
+      "at": 36650.799,
+      "networkMs": 8.1,
+      "status": 200,
+      "runToken": "f01a1778",
+      "roomIndex": 239,
+      "tick": 38,
+      "scene": "result",
+      "bodySaved": true
+    },
+    {
+      "at": 43179.688,
+      "networkMs": 11.094,
+      "status": 200,
+      "runToken": "bbf6a1f7",
+      "roomIndex": 240,
+      "tick": 24,
+      "scene": "danger",
+      "bodySaved": true
+    },
+    {
+      "at": 47541.45,
+      "networkMs": 3.739,
+      "status": 200,
+      "runToken": "bbf6a1f7",
+      "roomIndex": 240,
+      "tick": 57,
+      "scene": "intermission",
+      "bodySaved": true
+    },
+    {
+      "at": 52815.382,
+      "networkMs": 27.671,
+      "status": 200,
+      "runToken": null,
+      "roomIndex": null,
+      "tick": null,
+      "scene": null,
+      "bodySaved": false
+    }
+  ],
+  "console": [
+    {
+      "time": 6453.384,
+      "messageType": "warning",
+      "text": "THREE.WebGLShadowMap: PCFSoftShadowMap has been removed. Using PCFShadowMap instead."
+    },
+    {
+      "time": 9654.885,
+      "messageType": "warning",
+      "text": "[.WebGL-0x2b2c012fa300]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels"
+    },
+    {
+      "time": 10814.292,
+      "messageType": "warning",
+      "text": "Escape Room state reconnect The user aborted a request."
+    },
+    {
+      "time": 11098.886,
+      "messageType": "warning",
+      "text": "[.WebGL-0x2b2c012fa300]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels"
+    },
+    {
+      "time": 12928.996,
+      "messageType": "warning",
+      "text": "[.WebGL-0x2b2c012fa300]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels"
+    },
+    {
+      "time": 14067.98,
+      "messageType": "warning",
+      "text": "[.WebGL-0x2b2c012fa300]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)"
+    },
+    {
+      "time": 40865.476,
+      "messageType": "warning",
+      "text": "Escape Room state reconnect The user aborted a request."
+    }
+  ]
+}

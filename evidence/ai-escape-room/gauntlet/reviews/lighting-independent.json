@@ -1,0 +1,121 @@
+{
+  "reviewer": "independent-rendered-output-critic",
+  "phase": "Complete; X/Y locked before A/B; mapping undisclosed to reviewer",
+  "locked_at_utc": "2026-10-30T21:21:35.750101+00:00",
+  "scope": "Visible physical grounding, local light, material distinction and room completeness; excludes surrounding 2D UI, source, tests, runtime constraints, animation and gameplay.",
+  "xy": {
+    "verdict": "X",
+    "confidence": "high",
+    "locked_before_ab": true,
+    "evidence": [
+      "Stronger contact/shadow integration around the central table, floor transitions and shelf contents.",
+      "Locally motivated light reveals adjacent wood, metal, glass, framed artwork and bone with distinguishable surface response.",
+      "Layered trim, joinery, overlapping objects and varied prop placement fill the room with a consistent authored environment.",
+      "Y is readable and coherent, but broad repeated wood/plaster, uniform prop silhouettes and simpler material/contact response leave it visibly less finished.",
+      "The advantage persists in the brighter wall-sconce and central-table areas; the decision is not based on darker exposure."
+    ],
+    "blindness_limits": "The source labels are concealed, but visible branding, crop, resolution, format and potentially recognizable imagery can compromise full identity blindness. No identity lookup or source inspection was performed."
+  },
+  "images": {
+    "X": {
+      "path": "/tmp/escape-lighting-blind/X.jpg",
+      "sha256": "85765fd1db9683606de7964984443a45490597ff7f5b986f2c3ebd1e2fc4819d"
+    },
+    "Y": {
+      "path": "/tmp/escape-lighting-blind/Y.png",
+      "sha256": "4463ae908fc1af234d92c05d8c718204e6f55413f5e8f6d9154ee021211e10af"
+    },
+    "A_room": {
+      "path": "/tmp/escape-lighting-blind/A/room.png",
+      "sha256": "4463ae908fc1af234d92c05d8c718204e6f55413f5e8f6d9154ee021211e10af"
+    },
+    "A_furniture": {
+      "path": "/tmp/escape-lighting-blind/A/furniture.png",
+      "sha256": "669c1ba46092e7f598b299f0d467bd72f1e8c9774c5515bfb256f974c86991ac"
+    },
+    "B_room": {
+      "path": "/tmp/escape-lighting-blind/B/room.png",
+      "sha256": "ba03d32fa1f663872202590a044bbb45deb76d494cdef9952f2a0c8500ccf6b8"
+    },
+    "B_furniture": {
+      "path": "/tmp/escape-lighting-blind/B/furniture.png",
+      "sha256": "7ae776da35dd08de49d871d4701b2a8bfa515fddacdb2ed532fcee8092a7591f"
+    }
+  },
+  "ab": {
+    "lighting_material_verdict": "A",
+    "overall_room_finish_verdict": "A",
+    "asset_environment_completeness_verdict": "tie",
+    "confidence": "medium-high",
+    "criteria": [
+      {
+        "criterion": "Local lighting",
+        "winner": "A",
+        "evidence": "A shapes the tabletop with a broad warm highlight, keeps shelf recesses and chair undercuts shaded, and concentrates brightness near the left wall sconce. B spreads similar brightness across large wood areas and adds conspicuous warm/cool ceiling spots that feel less integrated."
+      },
+      {
+        "criterion": "Material distinction",
+        "winner": "A",
+        "evidence": "A separates polished dark desk wood, brass edging and mechanisms, green upholstery and rug, pale arch stone and mottled wall more convincingly. B reveals wood grain, but the desk, floor, shelves and wall panels share a similar pale, uniform response and repeated texture."
+      },
+      {
+        "criterion": "Physical grounding",
+        "winner": "A",
+        "evidence": "The furniture view gives A stronger readable depth beneath the desk, between chair seat and arms, and around shelf contents. Floor/furniture relationships in B read more diagrammatically because broad fill reduces these occlusion cues."
+      },
+      {
+        "criterion": "Visibility",
+        "winner": "B",
+        "evidence": "B makes the grain and smaller floor/wainscot details easier to inspect. This is a real readability benefit but does not by itself make the room more physically convincing."
+      },
+      {
+        "criterion": "Asset and room completeness",
+        "winner": "tie",
+        "evidence": "The paired views show essentially the same room arrangement, sparse shelves, symmetrical architecture, repeated furniture forms and simple mascot. Lighting changes do not add environmental depth or authored detail."
+      }
+    ],
+    "not_a_darkness_preference": "A wins in directly lit regions too: its tabletop highlight, chair trim and brass objects separate materials more convincingly. Its shadowed regions are not automatically counted as better; some left-wall and shelf detail is too subdued.",
+    "remaining_lighting_limits": [
+      "A still leaves some side-wall and shelf detail hard to read.",
+      "Contact and material cues remain much simpler than X, especially at small shelf props and large flat wood surfaces.",
+      "These images alone cannot establish whether a particular light or material implementation is physically accurate."
+    ]
+  },
+  "completed_at_utc": "2026-10-30T21:22:57.330529+00:00",
+  "biggest_remaining_visible_gap": {
+    "title": "Authored environmental completeness and material diversity",
+    "evidence": "Compared with X, the reviewed room relies on large repeated wood/plaster regions, evenly spaced sparse shelves and clean uniform prop silhouettes. X sustains variation in joinery, geometry, object scale, wear, overlap and surface response from floor to ceiling. That gap remains in both A and B.",
+    "actionable_outcome": "Keep the visual qualities of A as the lighting/material direction, then complete one representative room section to a much higher asset-finish standard: detailed shelf construction and varied books/objects; believable wood grain direction and finish variation; clearly separate cloth, leather, painted metal, brass, glass and stone; grounded clutter and overlaps that fit the room narrative. Carry that density and quality across the room rather than filling only the central hero area. Re-review the same room and furniture cameras against X at comparable 3D viewport scale.",
+    "acceptance_signals": [
+      "Furniture and shelf props feel seated with visible local contact and reflected-light cues.",
+      "At least the principal material families read distinctly in both lit and shadowed regions without relying only on color.",
+      "No large architectural region feels like a repeated generic surface next to one finished hero prop.",
+      "Object variety and room dressing feel intentionally inhabited and functionally plausible.",
+      "Room-wide finish meets or exceeds X in grounded materials and authored environmental detail, not merely exposure or UI polish."
+    ],
+    "character_limit": "The visible simple floating mascot supports a style direction but does not establish complete character quality. Static images cannot establish animation, acting, interaction, or gameplay completeness; those are outside this review."
+  },
+  "method": {
+    "order": [
+      "Viewed only X.jpg and Y.png",
+      "Sent X verdict to parent and wrote locked MD/JSON before opening A/B",
+      "Viewed A/room.png, B/room.png, A/furniture.png and B/furniture.png",
+      "Completed this report while mapping remained undisclosed"
+    ],
+    "exclusions": [
+      "No source inspection",
+      "No filenames outside assigned input folder inspected",
+      "No mapping key inspected",
+      "No prior reviews inspected",
+      "No git inspection",
+      "No Chromium",
+      "No runtime changes",
+      "No credit for tests, source, platform constraints, or surrounding 2D UI"
+    ],
+    "limits": [
+      "Different image formats, resolutions and crops are a comparison confound.",
+      "Visible branding and potentially recognizable imagery mean full source-identity blindness cannot be guaranteed.",
+      "The final X/Y choice is about visible room finish, not inferred budget, engine, chronology, or source."
+    ]
+  }
+}

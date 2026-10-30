@@ -1,0 +1,82 @@
+COMMAND: node tests/escape-room/gauntlet-network-deadline.test.cjs
+✔ a completed state body survives delayed main-thread message delivery without an abort (14.21398ms)
+✔ missing response headers are aborted by the worker at 1800 ms and the next request recovers (3.840746ms)
+✔ successful headers do not exempt an incomplete body from the worker deadline (2.632642ms)
+✔ an earlier completed request cannot exempt the next incomplete request (3.154738ms)
+✔ the worker rejects other origins and non-state endpoints without making a request (3.365403ms)
+✔ the worker rejects a second concurrent request and cancellation retires its deadline (2.181288ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 42.648859
+EXIT: 0
+
+COMMAND: node tests/escape-room/gauntlet-network-worker.test.cjs
+✔ live public-state requests use a worker without a main-thread request deadline (6.503111ms)
+✔ only one client request can be pending, and abort allows a fresh request without accepting stale replies (6.205333ms)
+✔ a failed ready worker is terminated and the next request creates one replacement (4.715301ms)
+✔ repeated worker crashes stop replacement churn and disclose the bounded fallback (6.237342ms)
+✔ a worker startup error falls back without sending a state request to the failed worker (3.622811ms)
+✔ a silent worker startup is bounded separately from the state network deadline (3.605262ms)
+✔ cancelling startup clears its watchdog, terminates the worker and leaves no fallback request (3.114378ms)
+✔ evidence mode preserves the explicit window fetch fixture and clears its bounded fallback timer (1.965168ms)
+✔ unsupported workers use a disclosed fallback whose hung request is still cancelled (3.073771ms)
+✔ a blocked Worker constructor uses the same explicit fallback (1.602274ms)
+✔ invalid public-state addresses are rejected before starting either transport (1.822983ms)
+✔ disposal rejects pending delivery, releases handlers and prevents transport resurrection (3.176598ms)
+ℹ tests 12
+ℹ suites 0
+ℹ pass 12
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 57.943981
+EXIT: 0
+
+COMMAND: node tests/escape-room/gauntlet-network-presentation.test.cjs
+✔ pinning evidence rejects a queued live result without overwriting the replay or recording a reconnect (11.377269ms)
+✔ immediate Resume Live cancels the old epoch and fetches one fresh frame (5.262772ms)
+✔ full page exit stops polling, aborts the worker and prevents a late retry while BFCache preserves the session (6.014741ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 34.820545
+EXIT: 0
+
+COMMAND: node tests/escape-room/gauntlet-network-capabilities.test.cjs
+✔ fallback timing accepts a positive zero-duration completed resource entry (5.137242ms)
+✔ fallback without Resource Timing still has a bounded deadline and safe cleanup (1.520964ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 2
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 21.780172
+EXIT: 0
+
+COMMAND: node tests/escape-room/gauntlet-server.test.cjs
+✔ malformed network-path request targets fail closed without destroying the server handler (57.580029ms)
+✔ all upgraded browser modules and physical texture assets are served with correct MIME types (174.316981ms)
+✔ evidence routes serve only allowlisted public files and reject traversal into repository data (5.428722ms)
+✔ public state and replay endpoints never return the private server seed or hidden payloads (13.381875ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 286.558034
+EXIT: 0
+

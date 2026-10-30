@@ -1,0 +1,600 @@
+{
+  "started": "2026-10-30T21:00:55.828Z",
+  "console": [
+    {
+      "time": 1793394056479,
+      "type": "warning",
+      "text": "THREE.WebGLShadowMap: PCFSoftShadowMap has been removed. Using PCFShadowMap instead."
+    },
+    {
+      "time": 1793394057839,
+      "type": "warning",
+      "text": "[.WebGL-0x2d6c016c8d00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels"
+    },
+    {
+      "time": 1793394058266,
+      "type": "warning",
+      "text": "[.WebGL-0x2d6c016c8d00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels"
+    },
+    {
+      "time": 1793394058267,
+      "type": "warning",
+      "text": "Escape Room state reconnect The user aborted a request."
+    },
+    {
+      "time": 1793394059847,
+      "type": "warning",
+      "text": "[.WebGL-0x2d6c016c8d00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels"
+    },
+    {
+      "time": 1793394060505,
+      "type": "warning",
+      "text": "[.WebGL-0x2d6c016c8d00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)"
+    },
+    {
+      "time": 1793394066522,
+      "type": "warning",
+      "text": "Escape Room state reconnect The user aborted a request."
+    }
+  ],
+  "first": {
+    "runToken": "2fe09256",
+    "tick": 49,
+    "roomIndex": 35,
+    "at": 10534.099999999627,
+    "diagnostics": {
+      "renderer": "three-physical-room-v2",
+      "engine": "three",
+      "threeRevision": "186",
+      "webgl": true,
+      "roomSurfaces": 5,
+      "physicalProps": 1140,
+      "materialFamilies": 18,
+      "visibleClues": 9,
+      "visibleMechanisms": 11,
+      "exitPresent": true,
+      "mechanismVariants": 8,
+      "meshFamilies": 18,
+      "character": {
+        "identity": "archivist-a07",
+        "state": "celebrating",
+        "meshCount": 39,
+        "triangles": 12526,
+        "geometryCount": 27,
+        "materialCount": 12,
+        "textureCount": 3,
+        "articulatedJoints": 17,
+        "reducedMotion": false,
+        "disposed": false
+      },
+      "scenery": {
+        "style": "crafted-archive",
+        "details": 1113,
+        "materialBatches": 21,
+        "textureCount": 16
+      },
+      "themedDressing": 64,
+      "hazardVisuals": 3,
+      "cameraPosition": [
+        0,
+        3.65,
+        8.9
+      ],
+      "cameraLook": [
+        0,
+        1.55,
+        -2.1
+      ],
+      "cameraTarget": [
+        0,
+        3.65,
+        8.9
+      ],
+      "cameraSettled": true,
+      "characterPosition": [
+        0,
+        1.85,
+        -0.28603335010988584
+      ],
+      "cameraMode": "room",
+      "inspectObjectId": null,
+      "drawCalls": 238,
+      "triangles": 153040,
+      "activeLights": 4,
+      "shadowMode": "bounded-pcf",
+      "particleCount": 54,
+      "qualityTier": "high",
+      "adaptiveQuality": true,
+      "fps": 2,
+      "rendererMemoryModel": "shared cached geometry + shared PBR materials + bounded dynamic groups",
+      "inspectSurface": null,
+      "cameraWithinBounds": false,
+      "inspectTargetVisible": false,
+      "cameraTargetDistance": null,
+      "cameraClearance": -4.2,
+      "cameraRig": "bounded-surface-aware-v1"
+    }
+  },
+  "progressWithin10s": true,
+  "last": {
+    "runToken": "994d4e6f",
+    "tick": 31,
+    "roomIndex": 37,
+    "at": 25579.5,
+    "diagnostics": {
+      "renderer": "three-physical-room-v2",
+      "engine": "three",
+      "threeRevision": "186",
+      "webgl": true,
+      "roomSurfaces": 5,
+      "physicalProps": 1138,
+      "materialFamilies": 18,
+      "visibleClues": 8,
+      "visibleMechanisms": 11,
+      "exitPresent": true,
+      "mechanismVariants": 8,
+      "meshFamilies": 18,
+      "character": {
+        "identity": "archivist-a07",
+        "state": "alert",
+        "meshCount": 39,
+        "triangles": 12526,
+        "geometryCount": 27,
+        "materialCount": 12,
+        "textureCount": 3,
+        "articulatedJoints": 17,
+        "reducedMotion": false,
+        "disposed": false
+      },
+      "scenery": {
+        "style": "crafted-archive",
+        "details": 1112,
+        "materialBatches": 18,
+        "textureCount": 16
+      },
+      "themedDressing": 64,
+      "hazardVisuals": 1,
+      "cameraPosition": [
+        0,
+        3.65,
+        8.9
+      ],
+      "cameraLook": [
+        0,
+        1.55,
+        -2.1
+      ],
+      "cameraTarget": [
+        0,
+        3.65,
+        8.9
+      ],
+      "cameraSettled": true,
+      "characterPosition": [
+        -3.117109118955888,
+        1.9824410572835292,
+        -0.9364313591581009
+      ],
+      "cameraMode": "room",
+      "inspectObjectId": null,
+      "drawCalls": 230,
+      "triangles": 140336,
+      "activeLights": 4,
+      "shadowMode": "disabled-quality-tier",
+      "particleCount": 18,
+      "qualityTier": "low",
+      "adaptiveQuality": true,
+      "fps": 2,
+      "rendererMemoryModel": "shared cached geometry + shared PBR materials + bounded dynamic groups",
+      "inspectSurface": null,
+      "cameraWithinBounds": false,
+      "inspectTargetVisible": false,
+      "cameraTargetDistance": null,
+      "cameraClearance": -4.2,
+      "cameraRig": "bounded-surface-aware-v1"
+    },
+    "events": [
+      {
+        "at": 121,
+        "event": "longtask",
+        "start": 41.69999999925494,
+        "duration": 77
+      },
+      {
+        "at": 467.69999999925494,
+        "id": 1,
+        "event": "fetch-start"
+      },
+      {
+        "at": 1861.699999999255,
+        "event": "longtask",
+        "start": 202.5,
+        "duration": 267
+      },
+      {
+        "at": 1861.699999999255,
+        "event": "longtask",
+        "start": 488.19999999925494,
+        "duration": 1363
+      },
+      {
+        "at": 1862.2999999988824,
+        "id": 1,
+        "event": "headers",
+        "status": 200
+      },
+      {
+        "at": 1862.5999999996275,
+        "id": 1,
+        "event": "body-start"
+      },
+      {
+        "at": 2292.7999999988824,
+        "event": "longtask",
+        "start": 1863.9000000003725,
+        "duration": 426
+      },
+      {
+        "at": 2293.0999999996275,
+        "id": 1,
+        "event": "abort"
+      },
+      {
+        "at": 2293.199999999255,
+        "id": 1,
+        "event": "body-error",
+        "name": "AbortError",
+        "message": "The user aborted a request."
+      },
+      {
+        "at": 4530.699999999255,
+        "event": "longtask",
+        "start": 2299.0999999996275,
+        "duration": 1571
+      },
+      {
+        "at": 4530.699999999255,
+        "event": "longtask",
+        "start": 3870.5,
+        "duration": 659
+      },
+      {
+        "at": 4531,
+        "id": 2,
+        "event": "fetch-start"
+      },
+      {
+        "at": 5166,
+        "id": 2,
+        "event": "headers",
+        "status": 200
+      },
+      {
+        "at": 5166,
+        "id": 2,
+        "event": "body-start"
+      },
+      {
+        "at": 5791,
+        "event": "longtask",
+        "start": 4531.9000000003725,
+        "duration": 633
+      },
+      {
+        "at": 5791,
+        "event": "longtask",
+        "start": 5166.199999999255,
+        "duration": 624
+      },
+      {
+        "at": 6369.5,
+        "id": 2,
+        "event": "body-complete",
+        "runToken": "2fe09256",
+        "roomIndex": 35,
+        "tick": 49
+      },
+      {
+        "at": 8612.299999998882,
+        "event": "longtask",
+        "start": 5791.799999998882,
+        "duration": 577
+      },
+      {
+        "at": 8612.400000000373,
+        "event": "longtask",
+        "start": 6904.4000000003725,
+        "duration": 1707
+      },
+      {
+        "at": 8612.599999999627,
+        "id": 3,
+        "event": "fetch-start"
+      },
+      {
+        "at": 10533.299999998882,
+        "id": 3,
+        "event": "headers",
+        "status": 200
+      },
+      {
+        "at": 10533.400000000373,
+        "id": 3,
+        "event": "body-start"
+      },
+      {
+        "at": 10539.400000000373,
+        "event": "longtask",
+        "start": 8615.799999998882,
+        "duration": 1906
+      },
+      {
+        "at": 10539.599999999627,
+        "id": 3,
+        "event": "abort"
+      },
+      {
+        "at": 10539.599999999627,
+        "id": 3,
+        "event": "body-error",
+        "name": "AbortError",
+        "message": "The user aborted a request."
+      },
+      {
+        "at": 12453.299999998882,
+        "event": "longtask",
+        "start": 10540.699999999255,
+        "duration": 772
+      },
+      {
+        "at": 12453.299999998882,
+        "event": "longtask",
+        "start": 11315.199999999255,
+        "duration": 1137
+      },
+      {
+        "at": 12454.699999999255,
+        "id": 4,
+        "event": "fetch-start"
+      },
+      {
+        "at": 13809.299999998882,
+        "id": 4,
+        "event": "headers",
+        "status": 200
+      },
+      {
+        "at": 13809.299999998882,
+        "id": 4,
+        "event": "body-start"
+      },
+      {
+        "at": 14316.699999999255,
+        "event": "longtask",
+        "start": 12455.900000000373,
+        "duration": 1352
+      },
+      {
+        "at": 14316.699999999255,
+        "event": "longtask",
+        "start": 13811.699999999255,
+        "duration": 504
+      },
+      {
+        "at": 14808.099999999627,
+        "id": 4,
+        "event": "abort"
+      },
+      {
+        "at": 14808.099999999627,
+        "id": 4,
+        "event": "body-error",
+        "name": "AbortError",
+        "message": "The user aborted a request."
+      },
+      {
+        "at": 14808.299999998882,
+        "event": "longtask",
+        "start": 14317.900000000373,
+        "duration": 489
+      },
+      {
+        "at": 14808.599999999627,
+        "id": 5,
+        "event": "fetch-start"
+      },
+      {
+        "at": 15566.699999999255,
+        "id": 5,
+        "event": "headers",
+        "status": 200
+      },
+      {
+        "at": 15566.699999999255,
+        "id": 5,
+        "event": "body-start"
+      },
+      {
+        "at": 16217,
+        "event": "longtask",
+        "start": 14809.199999999255,
+        "duration": 755
+      },
+      {
+        "at": 16217,
+        "event": "longtask",
+        "start": 15567,
+        "duration": 649
+      },
+      {
+        "at": 16720.5,
+        "id": 5,
+        "event": "body-complete",
+        "runToken": "ed38bd7b",
+        "roomIndex": 36,
+        "tick": 55
+      },
+      {
+        "at": 18040.199999999255,
+        "event": "longtask",
+        "start": 16222.599999999627,
+        "duration": 496
+      },
+      {
+        "at": 18040.299999998882,
+        "event": "longtask",
+        "start": 17107.099999999627,
+        "duration": 932
+      },
+      {
+        "at": 18040.699999999255,
+        "id": 6,
+        "event": "fetch-start"
+      },
+      {
+        "at": 18450.599999999627,
+        "id": 6,
+        "event": "headers",
+        "status": 200
+      },
+      {
+        "at": 18450.599999999627,
+        "id": 6,
+        "event": "body-start"
+      },
+      {
+        "at": 18451,
+        "event": "longtask",
+        "start": 18042.199999999255,
+        "duration": 406
+      },
+      {
+        "at": 18451.599999999627,
+        "id": 6,
+        "event": "body-complete",
+        "runToken": "994d4e6f",
+        "roomIndex": 37,
+        "tick": 7
+      },
+      {
+        "at": 21209.900000000373,
+        "id": 7,
+        "event": "fetch-start"
+      },
+      {
+        "at": 21211.599999999627,
+        "event": "longtask",
+        "start": 18886.400000000373,
+        "duration": 2322
+      },
+      {
+        "at": 22429.400000000373,
+        "id": 7,
+        "event": "headers",
+        "status": 200
+      },
+      {
+        "at": 22429.5,
+        "id": 7,
+        "event": "body-start"
+      },
+      {
+        "at": 22429.799999998882,
+        "event": "longtask",
+        "start": 21211.699999999255,
+        "duration": 1216
+      },
+      {
+        "at": 22430.599999999627,
+        "id": 7,
+        "event": "body-complete",
+        "runToken": "994d4e6f",
+        "roomIndex": 37,
+        "tick": 31
+      },
+      {
+        "at": 24256.900000000373,
+        "event": "longtask",
+        "start": 22600.900000000373,
+        "duration": 1209
+      },
+      {
+        "at": 24256.900000000373,
+        "event": "longtask",
+        "start": 23810.299999998882,
+        "duration": 446
+      },
+      {
+        "at": 24262.599999999627,
+        "id": 8,
+        "event": "fetch-start"
+      },
+      {
+        "at": 24834.199999999255,
+        "id": 8,
+        "event": "headers",
+        "status": 200
+      },
+      {
+        "at": 24834.299999998882,
+        "id": 8,
+        "event": "body-start"
+      },
+      {
+        "at": 25573.699999999255,
+        "event": "longtask",
+        "start": 24264.099999999627,
+        "duration": 569
+      },
+      {
+        "at": 25573.699999999255,
+        "event": "longtask",
+        "start": 24834.5,
+        "duration": 738
+      }
+    ],
+    "resources": [
+      {
+        "start": 469.40000000037253,
+        "responseEnd": 477.69999999925494,
+        "duration": 8.299999998882413
+      },
+      {
+        "start": 4531.5,
+        "responseEnd": 4537.5,
+        "duration": 6
+      },
+      {
+        "start": 8612.900000000373,
+        "responseEnd": 8620,
+        "duration": 7.099999999627471
+      },
+      {
+        "start": 12455.099999999627,
+        "responseEnd": 12460,
+        "duration": 4.900000000372529
+      },
+      {
+        "start": 14808.900000000373,
+        "responseEnd": 14818.199999999255,
+        "duration": 9.299999998882413
+      },
+      {
+        "start": 18041.400000000373,
+        "responseEnd": 18052,
+        "duration": 10.599999999627471
+      },
+      {
+        "start": 21210.699999999255,
+        "responseEnd": 21223.599999999627,
+        "duration": 12.900000000372529
+      },
+      {
+        "start": 24263.299999998882,
+        "responseEnd": 24272.099999999627,
+        "duration": 8.800000000745058
+      }
+    ]
+  },
+  "finished": "2026-10-30T21:01:21.726Z"
+}

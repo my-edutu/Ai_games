@@ -1,0 +1,39 @@
+(node:5) [THREE_CJS_DEPRECATED] DeprecationWarning: `require("three")` is deprecated and will be removed.
+Replace `const THREE = require("three")` with `import * as THREE from "three"`.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+✔ inspection keeps complete real mechanism above the HUD at 1256x862 (1552.657386ms)
+✔ inspection keeps complete real mechanism above the HUD at 364x576 (170.920506ms)
+✔ inspection exposes the side of the physical housing instead of a frontal elevation (166.73131ms)
+✔ all eight real mechanism families fit desktop and portrait at both wall boundaries without mutating public objects (1882.97586ms)
+✔ an already inspected mechanism stays clear of the HUD after a portrait resize (103.292614ms)
+✖ portrait inspection reserves the danger caption area before the hazard appears (81.252302ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 5
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4043.040651
+
+✖ failing tests:
+
+test at ../../../../tmp/escape-inspection-builder/gauntlet-inspection-framing.test.cjs:77:1
+✖ portrait inspection reserves the danger caption area before the hazard appears (81.252302ms)
+  AssertionError [ERR_ASSERTION]: final-vault-back-wall-0 364x576: complete height 163.1..441.9 must clear HUD 140..432
+      at assertFrame (/tmp/escape-inspection-builder/gauntlet-inspection-framing.test.cjs:47:10)
+      at TestContext.<anonymous> (/tmp/escape-inspection-builder/gauntlet-inspection-framing.test.cjs:81:49)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }

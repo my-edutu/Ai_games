@@ -3,6 +3,8 @@
   const T = window.THREE;
   if (!T) return;
   const textures = new Map();
+  const lightPosition = Object.freeze([-3.8, 6.5, 4.4]);
+  const lightingCache = { archive: null, laboratory: null };
   const noise = n => { const x = Math.sin(n * 127.1 + 311.7) * 43758.5453; return x - Math.floor(x); };
   function photoTexture(name, color = false) {
     const key = `photo:${name}`;
@@ -54,24 +56,166 @@
     });
   }
 
+  // A finite construction-time visibility bake keeps shelf recesses and contact
+  // shadows on every quality tier. It owns no textures, render targets or RAFs.
+  // The room's solid timber parts are oriented box occluders; thin decoration,
+  // windows and the open-front shell do not invent large directional shadows.
+  function bakeLighting(batch, layout) {
+    const previousBake = lightingCache[layout];
+    if (previousBake) {
+      let index = 0;
+      for (const [material, parts] of batch.parts) {
+        if (!material.isMeshStandardMaterial || material.transparent || (material.emissiveIntensity > .5 && material.emissive.getHex() !== 0)) continue;
+        installLighting(material);
+        for (const part of parts) part.setAttribute('archiveLight', new T.BufferAttribute(previousBake.values[index++], 2, true));
+      }
+      return { ...previousBake.stats, cacheHit: true };
+    }
+    const leafSize = 6, radius = .82, key = new T.Vector3(...lightPosition).normalize();
+    const occluders = batch.occluders;
+    function node(items) {
+      const bounds = new T.Box3(); for (const item of items) bounds.union(item.bounds);
+      if (items.length <= leafSize) return { bounds, items };
+      const size = bounds.getSize(new T.Vector3()), axis = size.x > size.y && size.x > size.z ? 'x' : size.y > size.z ? 'y' : 'z';
+      items.sort((a, b) => a.bounds.min[axis] + a.bounds.max[axis] - b.bounds.min[axis] - b.bounds.max[axis]);
+      const split = items.length >> 1;
+      return { bounds, left: node(items.slice(0, split)), right: node(items.slice(split)) };
+    }
+    const tree = node(occluders.slice()), keyTree = node(occluders.filter(item => item.directional));
+    const origin = new T.Vector3(), direction = new T.Vector3(), ray = new T.Ray(origin, direction), hit = new T.Vector3();
+    const localOrigin = new T.Vector3(), localDirection = new T.Vector3(), localRay = new T.Ray(localOrigin, localDirection), localHit = new T.Vector3();
+    function distanceTo(box, limit) {
+      if (box.containsPoint(origin)) return true;
+      const point = ray.intersectBox(box, hit);
+      return point && origin.distanceToSquared(point) <= limit * limit;
+    }
+    function nearest(branch, limit, direct) {
+      if (limit < .001) return 0;
+      if (!distanceTo(branch.bounds, limit)) return limit;
+      if (branch.items) {
+        for (const item of branch.items) {
+          if (direct && !item.directional) continue;
+          if (!distanceTo(item.bounds, limit)) continue;
+          localOrigin.copy(origin).applyMatrix4(item.inverse);
+          // Transform without normalization: the ray parameter remains in world units.
+          const e = item.inverse.elements, x = direction.x, y = direction.y, z = direction.z;
+          localDirection.set(e[0] * x + e[4] * y + e[8] * z, e[1] * x + e[5] * y + e[9] * z, e[2] * x + e[6] * y + e[10] * z);
+          if (item.localBounds.containsPoint(localOrigin)) return 0;
+          if (localRay.intersectBox(item.localBounds, localHit)) {
+            localHit.applyMatrix4(item.matrix);
+            limit = Math.min(limit, origin.distanceTo(localHit));
+          }
+        }
+        return limit;
+      }
+      return nearest(branch.right, nearest(branch.left, limit, direct), direct);
+    }
+    const normal = new T.Vector3(), tangent = new T.Vector3(), bitangent = new T.Vector3();
+    const samples = Array.from({ length: 12 }, (_, index) => {
+      const r = Math.sqrt((index + .5) / 12), a = index * 2.399963229728653;
+      return [Math.cos(a) * r, Math.sin(a) * r, Math.sqrt(1 - r * r)];
+    });
+    const keyTangent = new T.Vector3().crossVectors(key, new T.Vector3(0, 1, 0)).normalize();
+    const keyBitangent = new T.Vector3().crossVectors(keyTangent, key).normalize();
+    const keyRays = [[-.075, -.075], [.075, -.075], [-.075, .075], [.075, .075]].map(([a, b]) => key.clone().addScaledVector(keyTangent, a).addScaledVector(keyBitangent, b).normalize());
+    const cache = new Map(), values = []; let vertices = 0;
+    for (const [material, parts] of batch.parts) {
+      if (!material.isMeshStandardMaterial || material.transparent || (material.emissiveIntensity > .5 && material.emissive.getHex() !== 0)) continue;
+      installLighting(material);
+      for (const part of parts) {
+        const positions = part.getAttribute('position'), normals = part.getAttribute('normal');
+        const data = new Uint8Array(positions.count * 2);
+        for (let index = 0; index < positions.count; index++) {
+          const x = positions.getX(index), y = positions.getY(index), z = positions.getZ(index);
+          normal.fromBufferAttribute(normals, index).normalize();
+          const stamp = [Math.round(x * 24), Math.round(y * 24), Math.round(z * 24), Math.round(normal.x * 12), Math.round(normal.y * 12), Math.round(normal.z * 12)].join(':');
+          let visibility = cache.get(stamp);
+          if (!visibility) {
+            origin.set(x, y, z).addScaledVector(normal, .009);
+            tangent.set(Math.abs(normal.y) < .9 ? 0 : 1, Math.abs(normal.y) < .9 ? 1 : 0, 0).cross(normal).normalize();
+            bitangent.crossVectors(normal, tangent);
+            let obstruction = 0;
+            for (const sample of samples) {
+              direction.copy(tangent).multiplyScalar(sample[0]).addScaledVector(bitangent, sample[1]).addScaledVector(normal, sample[2]);
+              const range = nearest(tree, radius, false), falloff = 1 - range / radius;
+              obstruction += falloff * falloff;
+            }
+            let lit = 0;
+            if (normal.dot(key) > -.12) for (const sample of keyRays) {
+              direction.copy(sample); lit += nearest(keyTree, 8, true) >= 7.99 ? 1 : 0;
+            } else lit = 4;
+            visibility = [Math.round(255 * Math.max(.15, 1 - obstruction / samples.length * .98)), Math.round(255 * (.12 + .88 * lit / keyRays.length))];
+            cache.set(stamp, visibility);
+          }
+          data[index * 2] = visibility[0]; data[index * 2 + 1] = visibility[1]; vertices++;
+        }
+        part.setAttribute('archiveLight', new T.BufferAttribute(data, 2, true)); values.push(data);
+      }
+    }
+    const stats = { samples: samples.length, occluders: occluders.length, uniqueVertices: cache.size, vertices, attributeBytes: vertices * 2 };
+    lightingCache[layout] = { values, stats };
+    return { ...stats, cacheHit: false };
+  }
+
+  function installLighting(material) {
+    if (material.userData.archiveLighting) return;
+    const previous = material.onBeforeCompile, previousKey = material.customProgramCacheKey();
+    material.defaultAttributeValues = { ...material.defaultAttributeValues, archiveLight: [1, 1] };
+    material.onBeforeCompile = (shader, renderer) => {
+      previous.call(material, shader, renderer);
+      shader.vertexShader = 'attribute vec2 archiveLight;\nvarying vec2 vArchiveLight;\n' + shader.vertexShader;
+      shader.vertexShader = shader.vertexShader.replace('#include <begin_vertex>', '#include <begin_vertex>\nvArchiveLight = archiveLight;');
+      shader.fragmentShader = 'varying vec2 vArchiveLight;\n' + shader.fragmentShader;
+      shader.fragmentShader = shader.fragmentShader.replace('#include <lights_fragment_begin>', T.ShaderChunk.lights_fragment_begin.replace('getDirectionalLightInfo( directionalLight, directLight );', 'getDirectionalLightInfo( directionalLight, directLight );\n directLight.color *= vArchiveLight.y;'));
+      shader.fragmentShader = shader.fragmentShader.replace('#include <aomap_fragment>', '#include <aomap_fragment>\nreflectedLight.indirectDiffuse *= vArchiveLight.x;\nreflectedLight.indirectSpecular *= vArchiveLight.x;');
+    };
+    material.customProgramCacheKey = () => previousKey + ':archive-static-visibility-v1';
+    material.userData.archiveLighting = true; material.needsUpdate = true;
+  }
+
+  function timberUV(geometry, seed, scale) {
+    geometry.computeBoundingBox(); const bounds = geometry.boundingBox, size = bounds.getSize(new T.Vector3()).multiply(new T.Vector3(...scale));
+    const major = size.x >= size.y && size.x >= size.z ? 0 : size.y >= size.z ? 1 : 2;
+    const positions = geometry.getAttribute('position'), normals = geometry.getAttribute('normal'), uv = geometry.getAttribute('uv');
+    // Crop one uninterrupted board of the source photo. Each physical timber
+    // member receives grain, rather than a miniature photograph of a whole floor.
+    const centers = [.026, .073, .15, .229, .305, .381, .46, .535, .618, .693, .77, .849, .925];
+    const center = centers[seed % centers.length], offset = noise(seed + 17), p = new T.Vector3(), n = new T.Vector3();
+    for (let index = 0; index < positions.count; index++) {
+      p.fromBufferAttribute(positions, index); n.fromBufferAttribute(normals, index);
+      const normalAxis = Math.abs(n.x) >= Math.abs(n.y) && Math.abs(n.x) >= Math.abs(n.z) ? 0 : Math.abs(n.y) >= Math.abs(n.z) ? 1 : 2;
+      const across = [0, 1, 2].find(axis => axis !== major && axis !== normalAxis) ?? (major + 1) % 3;
+      const acrossSize = Math.max(.01, size.getComponent(across));
+      uv.setXY(index, p.getComponent(major) * scale[major] * .55 + offset, center + p.getComponent(across) * scale[across] / acrossSize * .028);
+    }
+  }
+
   // Static details are combined by material. A carved room can contain thousands
   // of details without submitting one draw call per book, screw or floorboard.
   class Batch {
-    constructor(root) { this.root = root; this.parts = new Map(); this.count = 0; }
+    constructor(root, lighting = false) { this.root = root; this.parts = new Map(); this.count = 0; this.lighting = lighting; this.occluders = []; }
     add(geometry, material, position = [0, 0, 0], rotation = [0, 0, 0], scale = [1, 1, 1]) {
       const matrix = new T.Matrix4().compose(new T.Vector3(...position), new T.Quaternion().setFromEuler(new T.Euler(...rotation)), new T.Vector3(...scale));
-      const g = geometry.index ? geometry.toNonIndexed() : geometry.clone(); g.applyMatrix4(matrix);
+      const g = geometry.index ? geometry.toNonIndexed() : geometry.clone();
+      if (this.lighting && material.userData.archiveTimber) timberUV(g, this.count, scale);
+      if (this.lighting && (geometry.type === 'BoxGeometry' || geometry.userData.archiveSolid) && !material.transparent && !((material.emissiveIntensity > .5 && material.emissive.getHex() !== 0))) {
+        geometry.computeBoundingBox();
+        const localBounds = geometry.boundingBox.clone(), bounds = localBounds.clone().applyMatrix4(matrix), size = bounds.getSize(new T.Vector3());
+        if (size.x * size.y * size.z > .0002) this.occluders.push({ bounds, localBounds, matrix, inverse: matrix.clone().invert(), directional: Math.max(size.x, size.z) < 5.6 && bounds.max.y < 5.2 && bounds.max.y > .08 });
+      }
+      g.applyMatrix4(matrix);
       if (!this.parts.has(material)) this.parts.set(material, []); this.parts.get(material).push(g); this.count++;
     }
     finish() {
       for (const [material, parts] of this.parts) {
         const geometry = new T.BufferGeometry();
-        for (const key of ['position', 'normal', 'uv']) {
-          const size = key === 'uv' ? 2 : 3;
+        const keys = ['position', 'normal', 'uv']; if (parts.some(part => part.hasAttribute('archiveLight'))) keys.push('archiveLight');
+        for (const key of keys) {
+          const size = key === 'uv' || key === 'archiveLight' ? 2 : 3;
           const length = parts.reduce((n, g) => n + g.getAttribute('position').count * size, 0);
-          const data = new Float32Array(length); let offset = 0;
+          const data = key === 'archiveLight' ? new Uint8Array(length).fill(255) : new Float32Array(length); let offset = 0;
           for (const g of parts) { const attr = g.getAttribute(key); if (attr) data.set(attr.array, offset); offset += g.getAttribute('position').count * size; }
-          geometry.setAttribute(key, new T.BufferAttribute(data, size));
+          geometry.setAttribute(key, new T.BufferAttribute(data, size, key === 'archiveLight'));
         }
         geometry.computeBoundingSphere(); const mesh = new T.Mesh(geometry, material);
         mesh.castShadow = material.opacity === 1 || !material.transparent; mesh.receiveShadow = true; mesh.userData.sceneryBatch = true; this.root.add(mesh);
@@ -83,28 +227,38 @@
   function build(room, theme) {
     room.staticRoot.traverse(n => { if (n.userData.sceneryBatch) n.geometry.dispose(); }); room.staticRoot.clear();
     for (const m of room.sceneryMaterials || []) m.dispose(); room.sceneryMaterials = [];
-    const m = room.materials, batch = new Batch(room.staticRoot);
+    const m = room.materials, batch = new Batch(room.staticRoot, true);
     const extra = (color, metalness = 0, roughness = .7, options = {}) => { const mat = new T.MeshStandardMaterial({ color, metalness, roughness, ...options }); room.sceneryMaterials.push(mat); return mat; };
     const warmWood = extra(theme === 'clockwork-study' ? 0x855039 : 0x634632, .05, .52, { map: grain('wood') });
     const honeyWood = extra(0x987555, .05, .55, { map: grain('wood') });
     const cream = extra(0xc2af8b, .04, .75, { map: grain('plaster') });
+    const ceilingPaint = extra(0x1b2324, 0, .98, { map: grain('plaster') });
     const leather = extra(0x31504b, .04, .68, { map: grain('plaster') });
     const rust = extra(0x734638, .06, .8); const midnight = extra(0x294148, .08, .65);
     const glow = extra(0xffd49a, .05, .32, { emissive: 0xffb65f, emissiveIntensity: 1.2 });
     const blueGlow = extra(0x8abac2, .05, .4, { emissive: 0x6faabb, emissiveIntensity: .55 });
     for (const mat of [warmWood, honeyWood, m.wood]) {
-      mat.map = photoTexture('wood-color', true); mat.normalMap = photoTexture('wood-normal'); mat.normalScale = new T.Vector2(.35, .35);
-      mat.roughness = .93; mat.roughnessMap = photoTexture('wood-roughness');
+      mat.userData.archiveTimber = true; mat.map = photoTexture('wood-color', true); mat.normalMap = photoTexture('wood-normal'); mat.normalScale = new T.Vector2(.35, .35);
+      mat.roughness = mat === honeyWood ? .78 : .87; mat.roughnessMap = photoTexture('wood-roughness');
       mat.onBeforeCompile = shader => {
         shader.fragmentShader = shader.fragmentShader.replace('#include <map_fragment>', '#include <map_fragment>\nfloat woodLuma = dot(diffuseColor.rgb, vec3(0.2126, 0.7152, 0.0722));\ndiffuseColor.rgb = mix(vec3(woodLuma) * vec3(1.08, 1.0, 0.88), diffuseColor.rgb, 0.38);');
-        shader.fragmentShader = shader.fragmentShader.replace('#include <roughnessmap_fragment>', '#include <roughnessmap_fragment>\nroughnessFactor = max(roughnessFactor, 0.72);');
+        shader.fragmentShader = shader.fragmentShader.replace('#include <roughnessmap_fragment>', '#include <roughnessmap_fragment>\nroughnessFactor = clamp(roughnessFactor, 0.43, 0.82);');
       };
-      mat.customProgramCacheKey = () => 'weathered-archive-wood-v1'; mat.needsUpdate = true;
+      mat.customProgramCacheKey = () => 'scaled-archive-timber-v2'; mat.needsUpdate = true;
     }
-    warmWood.color.setHex(0xd4ad83); honeyWood.color.setHex(0xffdfad);
-    m.wall.map = photoTexture('plaster-color', true); m.wall.normalMap = photoTexture('plaster-normal'); m.wall.normalScale = new T.Vector2(.4, .4); m.wall.roughnessMap = photoTexture('plaster-arm'); m.wall.needsUpdate = true;
+    warmWood.color.setHex(0xa67b55); honeyWood.color.setHex(0xc8a779);
+    m.brass.roughnessMap = photoTexture('metal-roughness'); m.brass.roughness = .68; m.brass.metalness = .82; m.brass.needsUpdate = true;
+    m.wall.metalness = 0; m.wall.roughness = .94; m.wall.map = photoTexture('plaster-color', true); m.wall.normalMap = photoTexture('plaster-normal'); m.wall.normalScale = new T.Vector2(.4, .4); m.wall.roughnessMap = photoTexture('plaster-arm'); m.wall.needsUpdate = true;
     m.metal.map = photoTexture('metal-color', true); m.metal.normalMap = photoTexture('metal-normal'); m.metal.normalScale = new T.Vector2(.2, .2); m.metal.roughnessMap = photoTexture('metal-roughness'); m.metal.needsUpdate = true;
-    const box = (x, y, z) => room.geom(`box:${x}:${y}:${z}`, () => new T.BoxGeometry(x, y, z));
+    const box = (x, y, z) => room.geom(`box:${x}:${y}:${z}`, () => {
+      // Only broad receivers need interpolation vertices. Narrow mouldings,
+      // scaled unit bars, the hidden floor slab and ceiling retain their topology.
+      const broad = [x, y, z].filter(size => size > .45).length >= 2;
+      const segment = broad && !(x > 10 && z > 8) && !(x === 1 && y === 1 && z === 1);
+      const step = y < .08 && x < 1.1 && z < .6 ? .5 : .9;
+      const count = size => segment ? Math.min(10, Math.max(1, Math.ceil(size / step))) : 1;
+      return new T.BoxGeometry(x, y, z, count(x), count(y), count(z));
+    });
     const cylinder = (r, h, sides = 24, top = r) => room.geom(`sc-c:${r}:${h}:${sides}:${top}`, () => new T.CylinderGeometry(top, r, h, sides));
     const torus = (r, t, arc = Math.PI * 2) => room.geom(`sc-t:${r}:${t}:${arc}`, () => new T.TorusGeometry(r, t, 8, 48, arc));
     const sphere = (r, a = 20, b = 12) => room.geom(`sc-s:${r}:${a}:${b}`, () => new T.SphereGeometry(r, a, b));
@@ -118,7 +272,7 @@
         shape.lineTo(x + radius, y + h); shape.quadraticCurveTo(x, y + h, x, y + h - radius);
         shape.lineTo(x, y + radius); shape.quadraticCurveTo(x, y, x + radius, y);
         const result = new T.ExtrudeGeometry(shape, { depth: d, steps: 1, bevelEnabled: true, bevelSize: .012, bevelThickness: .012, bevelSegments: 2, curveSegments: 4 });
-        result.translate(0, 0, -d / 2); return result;
+        result.translate(0, 0, -d / 2); result.userData.archiveSolid = true; return result;
       });
       put(geometry, mat, p, rotation);
     };
@@ -182,7 +336,7 @@
       cube(2.15, .12, .12, m.brass, [0, 3.4, z]);
     }
     for (const side of [-1, 1]) cube(.22, 5.4, 10, m.wall, [side * 6, 2.7, -1.7]);
-    cube(12, .14, 10, m.dark, [0, 5.42, -1.7]);
+    cube(12, .14, 10, ceilingPaint, [0, 5.42, -1.7]);
     for (const y of [.13, .32, 1.5, 1.63, 4.88, 5.05, 5.22]) {
       const thickness = y > 4.8 ? .12 : .06;
       if (y < 3.5) for (const side of [-1, 1]) cube(4.75, thickness, .16, y === 1.63 ? m.brass : warmWood, [side * 3.6, y, -6.47]);
@@ -472,12 +626,13 @@
     } else {
       for (let i = 0; i < 9; i++) cube(.68, .08, .42, [rust, midnight, leather][i % 3], [-3.8 + (i % 3) * 3.8, .1 + Math.floor(i / 3) * .09, -4.91], [0, noise(i) * .3, 0]);
     }
+    const lighting = bakeLighting(batch, theme === 'chromatic-lab' ? 'laboratory' : 'archive');
     batch.finish();
-    // The ceiling never blocks the motivated front/window key. Large furniture
-    // casts stable shadows; small decorative elements use the same merged draw.
-    room.staticRoot.traverse(n => { if (n.isMesh) n.castShadow = n.material === warmWood || n.material === honeyWood || n.material === m.wood; });
+    // Static key visibility is baked on every tier. Only the moving Archivist
+    // uses the live high-tier shadow map; static timber is never rendered twice.
+    room.staticRoot.traverse(n => { if (n.isMesh) n.castShadow = false; });
     room.staticPropCount = batch.count; room.themedDressing = 64;
-    room.sceneryStats = { style: 'crafted-archive', details: batch.count, materialBatches: batch.parts.size, textureCount: textures.size };
+    room.sceneryStats = { style: 'crafted-archive', details: batch.count, materialBatches: batch.parts.size, textureCount: textures.size, lighting };
   }
   function merge(group) {
     group.updateMatrixWorld(true);
@@ -489,5 +644,5 @@
     group.traverse(node => { if (node.userData.sceneryBatch) node.userData.dynamicBatch = true; });
     return group;
   }
-  window.EscapeScenery = Object.freeze({ build, Batch, merge, textureCount: () => textures.size });
+  window.EscapeScenery = Object.freeze({ build, Batch, merge, lightPosition, textureCount: () => textures.size });
 })();

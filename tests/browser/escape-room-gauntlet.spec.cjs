@@ -5,8 +5,8 @@ const {
 }=require('../../dist/games/ai-escape-room/src/index.js');
 const base=process.env.ESCAPE_GAUNTLET_BASE_URL||'http://127.0.0.1:4177';
 
-function productionFrames(theme='cipher-vault',seed='gauntlet-vault-reference-v1',depth=8,tail=0){
-  const config=parseEscapeRoomConfig({...DEFAULT_ESCAPE_ROOM_CONFIG,theme,difficulty:8,puzzleDepth:depth,objectCount:48,decoyCount:5,hazardCount:2,maxTicks:2400,noProgressTicks:360,intermissionTicks:24});
+function productionFrames(theme='cipher-vault',seed='gauntlet-vault-reference-v1',depth=8,tail=0,difficulty=8){
+  const config=parseEscapeRoomConfig({...DEFAULT_ESCAPE_ROOM_CONFIG,theme,difficulty,puzzleDepth:depth,objectCount:48,decoyCount:5,hazardCount:2,maxTicks:2400,noProgressTicks:360,intermissionTicks:24});
   const runtime=EscapeRuntime.create({config,seed,runId:'gauntlet-private-browser-fixture',policy:'autonomous'});
   const frames=[buildEscapeRenderSnapshot(runtime.state,runtime.presentationSignals(),runtime.drainEvents())];
   while(runtime.state.lifecycle==='running'&&runtime.state.tick<config.maxTicks){
@@ -249,6 +249,63 @@ test('replacing animated mechanisms releases GPU instance buffers as well as geo
   }
   await testInfo.attach('gpu-buffer-samples',{body:JSON.stringify(samples,null,2),contentType:'application/json'});
   expect(samples.at(-1).outstanding,JSON.stringify(samples)).toBeLessThanOrEqual(samples[1].outstanding+1);
+});
+
+test('late eleven and twelve puzzle rooms meet both GPU budgets and release rebuilt batch buffers',async({page},testInfo)=>{
+  await page.addInitScript(()=>{
+    const counts={created:0,deleted:0},created=new WeakSet(),deleted=new WeakSet();window.__GAUNTLET_GL_BUFFERS__=counts;
+    for(const proto of [window.WebGLRenderingContext?.prototype,window.WebGL2RenderingContext?.prototype].filter(Boolean)){
+      const create=proto.createBuffer,dispose=proto.deleteBuffer;
+      proto.createBuffer=function(...args){const value=create.apply(this,args);if(value&&!created.has(value)){created.add(value);counts.created++;}return value;};
+      proto.deleteBuffer=function(value){if(value&&created.has(value)&&!deleted.has(value)){deleted.add(value);counts.deleted++;}return dispose.call(this,value);};
+    }
+  });
+  const runs=[11,12].map(depth=>productionFrames('cipher-vault','gauntlet-vault-reference-v1',depth,1,20));
+  const cases=runs.flatMap(run=>[
+    run.find(frame=>frame.progress.permille===1000&&frame.scene!=='result'),
+    run.find(frame=>frame.scene==='result'),run.at(-1),
+  ]);
+  expect(cases.every(Boolean)).toBe(true);
+  await page.setViewportSize({width:1920,height:1080});await openRoom(page,cases[0]);
+  const budgets=await page.evaluate(async frames=>{
+    const room=window.__GAUNTLET_ROOM__,samples=[];cancelAnimationFrame(room.frameRequest);
+    try{
+      for(const frame of frames)for(const quality of ['high','low']){
+        window.__ESCAPE_PRESENT_FRAME__(frame);room.roomView();room.frameSamples.length=0;room.setQuality(quality);
+        room.frame(performance.now());cancelAnimationFrame(room.frameRequest);
+        samples.push({puzzles:frame.progress.totalPuzzles,scene:frame.scene,tick:frame.tick,quality,checksumUnchanged:room.state.authorityChecksum===frame.authorityChecksum,diagnostics:{...window.__ESCAPE_RENDER_DIAGNOSTICS__}});
+        await new Promise(resolve=>requestAnimationFrame(resolve));
+      }
+    }finally{room.frameRequest=requestAnimationFrame(time=>room.frame(time));}
+    return samples;
+  },cases);
+  await testInfo.attach('late-room-gpu-budgets',{body:JSON.stringify(budgets,null,2),contentType:'application/json'});
+  for(const sample of budgets){
+    expect(sample.diagnostics.visibleMechanisms,JSON.stringify(sample)).toBe(sample.puzzles);
+    expect(sample.diagnostics.qualityTier).toBe(sample.quality);
+    expect(sample.diagnostics.drawCalls,JSON.stringify(sample)).toBeLessThan(190);
+    expect(sample.diagnostics.triangles,JSON.stringify(sample)).toBeLessThan(150000);
+    expect(sample.checksumUnchanged).toBe(true);
+  }
+  await page.setViewportSize({width:800,height:600});
+  const lab=productionFrames('chromatic-lab','gauntlet-vault-reference-v1',12,0,20);
+  const cycleFrames=[lab[0],lab.at(-1),runs[1].find(frame=>frame.scene==='result'),runs[1][0]];
+  const resources=await page.evaluate(async frames=>{
+    const room=window.__GAUNTLET_ROOM__,samples=[];cancelAnimationFrame(room.frameRequest);room.setQuality('low');
+    try{
+      for(let cycle=0;cycle<6;cycle++){
+        for(const frame of frames){
+          window.__ESCAPE_PRESENT_FRAME__(frame);room.frameSamples.length=0;room.frame(performance.now());cancelAnimationFrame(room.frameRequest);
+          await new Promise(resolve=>requestAnimationFrame(resolve));
+        }
+        const counts=window.__GAUNTLET_GL_BUFFERS__;
+        samples.push({cycle,...counts,outstanding:counts.created-counts.deleted,...room.renderer.info.memory,programs:room.renderer.info.programs.length,cachedGeometry:room.geo.size,sceneryTextures:window.EscapeScenery.textureCount()});
+      }
+    }finally{room.frameRequest=requestAnimationFrame(time=>room.frame(time));}
+    return samples;
+  },cycleFrames);
+  await testInfo.attach('late-room-batch-resources',{body:JSON.stringify(resources,null,2),contentType:'application/json'});
+  for(const sample of resources.slice(2))for(const key of ['outstanding','geometries','textures','programs','cachedGeometry','sceneryTextures'])expect(sample[key],key+': '+JSON.stringify(resources)).toBe(resources[1][key]);
 });
 
 test('renderer disposal stops callbacks and retires its context while shared assets keep another renderer alive',async({page},testInfo)=>{

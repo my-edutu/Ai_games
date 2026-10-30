@@ -1,0 +1,54 @@
+{
+  "time": "2026-10-30T21:32:00.797780+00:00",
+  "scope": "Builder Node tests of actual public worker/client protocol and actual app polling lifecycle; no native-browser acceptance claim",
+  "commands": [
+    {
+      "command": [
+        "node",
+        "tests/escape-room/gauntlet-network-deadline.test.cjs"
+      ],
+      "exitCode": 0
+    },
+    {
+      "command": [
+        "node",
+        "tests/escape-room/gauntlet-network-worker.test.cjs"
+      ],
+      "exitCode": 0
+    },
+    {
+      "command": [
+        "node",
+        "tests/escape-room/gauntlet-network-presentation.test.cjs"
+      ],
+      "exitCode": 0
+    },
+    {
+      "command": [
+        "node",
+        "tests/escape-room/gauntlet-network-capabilities.test.cjs"
+      ],
+      "exitCode": 0
+    },
+    {
+      "command": [
+        "node",
+        "tests/escape-room/gauntlet-server.test.cjs"
+      ],
+      "exitCode": 0
+    }
+  ],
+  "sourceHashes": {
+    "public/ai-escape-room/app.js": "bffac0ff7c775c6e2984624a58ac276f69f06c7e1cce8c9b7ad06b8572386c69",
+    "public/ai-escape-room/network.js": "9548ed81b84c17dae7315d45561df80a11e170d24d0c90e37526135dcc87db20",
+    "public/ai-escape-room/state-worker.js": "a8185b01a99562da45fc5213aec721d666ee7204cf6b939149c2a85dc2d773e6",
+    "public/ai-escape-room/bootstrap.js": "a90df5ee6e69ba2ed66bf59f43a8f37e458a0919ff844a70195ca38fe97ac674",
+    "scripts/serve-escape-room-stream.cjs": "69e31a00cae3c23b7d5c511205d80e2b62d6806c43a9023dc38792ecff4e064a",
+    "tests/escape-room/network-harness.cjs": "820ad5ba7b6132a6c260ff883c99ef206e12359478a2bc6c06997e4a1df4a4f1",
+    "tests/escape-room/gauntlet-network-deadline.test.cjs": "580f56c60afdd79d8cb0954c080ecb7bcc5900df38524cc1847b1a0502ff2830",
+    "tests/escape-room/gauntlet-network-worker.test.cjs": "4fda1f7ca3369f80c136058008c35555d00bef4e1eb0a4350b9e5b26ee52515c",
+    "tests/escape-room/gauntlet-network-presentation.test.cjs": "b7d8a87007874db25762c1215dbc8f3bf502b597e1d09fab6f4e205bc842fd98",
+    "tests/escape-room/gauntlet-network-capabilities.test.cjs": "65e6a02c1040ee541d55b2c343b705b7b477cab7da013c1dd0b2a109a85ad082",
+    "tests/escape-room/gauntlet-server.test.cjs": "c80b5047f8d70e9f4f2a31bed2f42c99a25c35f00cb3978269b18ad0fde18c38"
+  }
+}

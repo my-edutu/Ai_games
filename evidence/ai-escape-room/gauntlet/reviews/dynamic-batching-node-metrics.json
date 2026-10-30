@@ -1,0 +1,54 @@
+{
+  "three": "186",
+  "method": "Real Three geometry and production autoplay snapshots; color-pass counts without frustum culling; no GPU or FPS claim",
+  "rows": [
+    {
+      "puzzleDepth": 11,
+      "batched": false,
+      "visibleMechanisms": 11,
+      "submissions": 165,
+      "triangles": 81584,
+      "retainedGeometryBytes": 7496576,
+      "visibleGeometryBytes": 7496576,
+      "sourceMeshCount": 0,
+      "sharedMaterialBatches": 0,
+      "batchBytes": 0
+    },
+    {
+      "puzzleDepth": 11,
+      "batched": true,
+      "visibleMechanisms": 11,
+      "submissions": 77,
+      "triangles": 81584,
+      "retainedGeometryBytes": 10781696,
+      "visibleGeometryBytes": 7496576,
+      "sourceMeshCount": 95,
+      "sharedMaterialBatches": 7,
+      "batchBytes": 3285120
+    },
+    {
+      "puzzleDepth": 12,
+      "batched": false,
+      "visibleMechanisms": 12,
+      "submissions": 179,
+      "triangles": 87096,
+      "retainedGeometryBytes": 8025728,
+      "visibleGeometryBytes": 8025728,
+      "sourceMeshCount": 0,
+      "sharedMaterialBatches": 0,
+      "batchBytes": 0
+    },
+    {
+      "puzzleDepth": 12,
+      "batched": true,
+      "visibleMechanisms": 12,
+      "submissions": 81,
+      "triangles": 87096,
+      "retainedGeometryBytes": 11752448,
+      "visibleGeometryBytes": 8025728,
+      "sourceMeshCount": 105,
+      "sharedMaterialBatches": 7,
+      "batchBytes": 3726720
+    }
+  ]
+}

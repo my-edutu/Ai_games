@@ -1,0 +1,14 @@
+{
+  "time": "2026-10-30T21:14:59.916609+00:00",
+  "scope": "Actual local runtime; defer first real response body consumption1900ms, then throttle actual subsequent network to256bytes/s; no fabricated responses",
+  "sourceHashes": {
+    "public/ai-escape-room/app.js": "df403474932905c3f1b7cefebf45c424b84c304c3b52cc33ed12fbb4db176c57",
+    "public/ai-escape-room/network.js": "7afe7958e6fa5742acb60f349ac833d949a6318c954ea35fd6589725c1b4c424",
+    "public/ai-escape-room/bootstrap.js": "a90df5ee6e69ba2ed66bf59f43a8f37e458a0919ff844a70195ca38fe97ac674",
+    "public/ai-escape-room/room3d.js": "29340c54ade87e688d9700ad42578d0e3edc288f662c83f555cb9907b1493b64",
+    "public/ai-escape-room/scenery3d.js": "46d1fe0b81224549c2082ca75d5f8c939c1393807e69f48bd17aa7478417b644",
+    "public/ai-escape-room/archivist3d.js": "9c35ccae91ca8e7ec9228774888255a28b161fceb3092c8f7c4509e6faf4270f",
+    "scripts/serve-escape-room-stream.cjs": "d822614c54298fa7055f0c2932b2523ee79eaaf88afe05421c93d6a856d776a9",
+    "evidence/ai-escape-room/gauntlet/reviews/desktop-poll-probe.cjs": "bb74dd65e5e9b9a5e759329837c4d1166cf3ae9c029c4810f0e5a6d939f085d8"
+  }
+}

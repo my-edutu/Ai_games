@@ -13,7 +13,7 @@ async function refresh() {
     for (const round of [...data.rounds].reverse()) {
       const article = node('article', '', 'round'); const header = node('header'); header.append(node('span', round.label), node('span', round.verdict, 'verdict')); article.append(header, node('h3', round.title), node('p', round.summary));
       const gallery = node('div', '', 'gallery');
-      const captions = { room: 'Room view', furniture: 'Furniture construction', mechanism: 'Mechanism inspection', character: 'The Archivist', result: 'Confirmed escape', mobile: 'Portrait on a phone' };
+      const captions = { room: 'Room view', furniture: 'Furniture construction', mechanism: 'Mechanism inspection', character: 'The Archivist', result: 'Confirmed escape', mobile: 'Portrait on a phone', 'mobile-inspect': 'Complete phone inspection' };
       for (const file of round.views || ['room', 'mechanism']) {
         if (!Object.hasOwn(captions, file)) continue;
         const caption = `${captions[file]} · actual renderer capture`;

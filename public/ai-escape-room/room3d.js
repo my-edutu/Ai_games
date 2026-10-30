@@ -8,11 +8,11 @@
   class EscapeRoom3D{
     constructor(canvas,options={}){
       this.canvas=canvas;this.reducedMotion=Boolean(options.reducedMotion);this.highContrast=Boolean(options.highContrast);this.state=null;this.followFocus=false;this.mode='room';this.inspectId=null;this.objectWorld=new Map();this.interactive=[];this.lastEventSeq=0;this.lastSignature='';this.lastHazardSignature='';this.lastTheme='';this.qualityTier='high';this.frameSamples=[];this.effectBursts=[];this.lastSolved=new Set();this.geo=new Map();this.materials={};this.staticPropCount=0;this.themedDressing=0;
-      this.renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:false,powerPreference:'high-performance',preserveDrawingBuffer:true});this.renderer.outputColorSpace=THREE.SRGBColorSpace;this.renderer.toneMapping=THREE.ACESFilmicToneMapping;this.renderer.toneMappingExposure=1.24;this.renderer.shadowMap.type=THREE.PCFSoftShadowMap;canvas.dataset.renderer=RENDERER;
+      this.renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:false,powerPreference:'high-performance',preserveDrawingBuffer:true});this.renderer.outputColorSpace=THREE.SRGBColorSpace;this.renderer.toneMapping=THREE.ACESFilmicToneMapping;this.renderer.toneMappingExposure=1.18;this.renderer.shadowMap.type=THREE.PCFSoftShadowMap;canvas.dataset.renderer=RENDERER;
       this.scene=new THREE.Scene();this.scene.fog=new THREE.Fog(0x091317,9,25);this.camera=new THREE.PerspectiveCamera(Polish.camera.fov,1,Polish.camera.near,Polish.camera.far);this.targetCamera=new THREE.Vector3(...Polish.camera.room);this.targetLook=new THREE.Vector3(...Polish.camera.look);this.currentLook=this.targetLook.clone();this.camera.position.copy(this.targetCamera);
       this.staticRoot=new THREE.Group();this.dynamicRoot=new THREE.Group();this.hazardRoot=new THREE.Group();this.effectRoot=new THREE.Group();this.scene.add(this.staticRoot,this.dynamicRoot,this.hazardRoot,this.effectRoot);
       this.raycaster=new THREE.Raycaster();this.pointer=new THREE.Vector2();this.archivist=window.EscapeArchivist.create();this.aiRoot=this.archivist.group;this.scene.add(this.aiRoot);let shadowMeshes=0;this.aiRoot.traverse(n=>{if(n.isMesh){n.castShadow=shadowMeshes++<4;}});
-      this.keyLight=new THREE.DirectionalLight(0xffe4c7,3.2);this.keyLight.position.set(2.5,7,5);this.keyLight.castShadow=true;this.keyLight.shadow.mapSize.set(1024,1024);this.keyLight.shadow.bias=-.0004;this.keyLight.shadow.normalBias=.035;this.keyLight.shadow.camera.left=-7;this.keyLight.shadow.camera.right=7;this.keyLight.shadow.camera.top=7;this.keyLight.shadow.camera.bottom=-7;this.keyLight.shadow.camera.near=.5;this.keyLight.shadow.camera.far=22;this.fillLight=new THREE.HemisphereLight(0xc5dbe0,0x64513b,2.05);this.warmLight=new THREE.PointLight(0xffc28b,32,10,2);this.warmLight.position.set(-2.6,3.35,-5.7);this.coolLight=new THREE.PointLight(0x9dc5d6,24,10,2);this.coolLight.position.set(4.2,3.8,.4);this.scene.add(this.keyLight,this.fillLight,this.warmLight,this.coolLight);
+      this.keyLight=new THREE.DirectionalLight(0xd7e4ed,2.85);this.keyLight.position.set(...window.EscapeScenery.lightPosition);this.keyLight.castShadow=true;this.keyLight.shadow.mapSize.set(1024,1024);this.keyLight.shadow.bias=-.0004;this.keyLight.shadow.normalBias=.035;this.keyLight.shadow.camera.left=-7;this.keyLight.shadow.camera.right=7;this.keyLight.shadow.camera.top=7;this.keyLight.shadow.camera.bottom=-7;this.keyLight.shadow.camera.near=.5;this.keyLight.shadow.camera.far=22;this.fillLight=new THREE.HemisphereLight(0xb5c4ce,0x4b3323,.72);this.warmLight=new THREE.PointLight(0xffbc78,37,10,2);this.warmLight.position.set(-2.6,3.35,-5.7);this.pendantLight=new THREE.PointLight(0xffd8a1,34,11,2);this.pendantLight.position.set(0,4.36,-3.2);this.scene.add(this.keyLight,this.fillLight,this.warmLight,this.pendantLight);
       this.setQuality('high');this.rebuildTheme('cipher-vault');this.createDust();this.resize();this.roomView();
       this.onPointerDown=event=>{if(!this.disposed)this.pick(event)};
       this.onKeyDown=event=>{if(this.disposed)return;if(event.key.toLowerCase()==='i'&&this.state?.focusObjectId)this.inspect(this.state.focusObjectId);if(event.key==='Escape')this.roomView()};
@@ -42,7 +42,17 @@
       group.userData.exitHinge=hinge;group.userData.motion={progress:0,target:escaped(this.state)?1:0};
       const geometry=(key,factory)=>this.geom(key,factory);
       const panel=(w,h,d,mat,p)=>this.add(hinge,geometry(`door:${w}:${h}:${d}`,()=>new THREE.BoxGeometry(w,h,d)),mat,p);
+      const fixed=(w,h,d,mat,p)=>this.add(staticRoot,geometry(`jamb:${w}:${h}:${d}`,()=>new THREE.BoxGeometry(w,h,d)),mat,p);
+      // The closed leaf seals the actual 2.2 m passage. Fixed rebates fill the
+      // decorative arch's side clearances while leaving the opened center free.
+      for(const side of[-1,1]){
+        fixed(.24,3.6,.40,this.materials.dark,[side*1.04,-.15,-.02]);
+        fixed(.045,3.5,.08,this.materials.metal,[side*.94,-.12,.22]);
+      }
+      fixed(2.2,.12,.60,this.materials.dark,[0,-1.99,.01]);
       panel(1.84,3.25,.22,this.materials.dark,[.92,0,0]);
+      panel(1.84,.32,.22,this.materials.dark,[.92,-1.765,0]);
+      panel(1.64,.26,.045,this.materials.metal,[.92,-1.75,.15]);
       panel(1.66,3.05,.08,this.materials.metal,[.92,0,.15]);
       panel(1.40,2.78,.045,this.materials.dark,[.92,0,.21]);
       for(const x of[.17,1.67])panel(.035,2.95,.055,this.materials.brass,[x,0,.245]);
@@ -64,7 +74,33 @@
       for(const object of this.state.objects.slice(0,Polish.budgets.maxDynamicObjects)){if(object.carried)continue;let group=null;if(object.kind==='exit')group=this.makeExit(object);else if(object.mechanismKind){group=Mechanisms.build(object.mechanismKind,object,ctx);mechanisms++;}else if(object.kind==='clue'){group=Mechanisms.makeClue(object,ctx);clues++;}else if(object.kind==='tool'){group=Mechanisms.makeTool(object,ctx);}else group=Mechanisms.makeDecoy(object,ctx);if(!group)continue;if(group.userData.preserveArticulation){if(group.userData.staticRoot)window.EscapeScenery.merge(group.userData.staticRoot);}else window.EscapeScenery.merge(group);if(group.userData.motion&&this.renderRun===this.state.runToken&&this.state.tick>=this.renderTick&&oldMotions.get(object.id)!==undefined)group.userData.motion.progress=oldMotions.get(object.id);
         const transform=this.placementTransform(object);group.position.set(...transform.pos);group.rotation.set(...transform.rot);group.userData.objectId=object.id;group.userData.kind=object.kind;group.traverse(node=>{if(node.isMesh){node.castShadow=false;node.userData.objectId=object.id;this.interactive.push(node);}});this.dynamicRoot.add(group);this.objectWorld.set(object.id,group.position.clone());count++;
       }
+      this.batchStableObjects();
       this.renderRun=this.state.runToken;this.renderTick=this.state.tick;this.dynamicStats={physicalProps:count+this.staticPropCount,visibleClues:clues,visibleMechanisms:mechanisms,exitPresent:this.state.objects.some(object=>object.kind==='exit'&&!object.carried),mechanismVariants:Mechanisms.supported.length};
+    }
+    batchStableObjects(){
+      // Material batches span stable objects, while their source meshes remain
+      // attached for complete inspection bounds and object-specific ray picking.
+      const root=new THREE.Group(),batch=new window.EscapeScenery.Batch(root);
+      root.userData.sharedStaticBatch=true;
+      this.dynamicRoot.updateMatrixWorld(true);
+      const inverse=this.dynamicRoot.matrixWorld.clone().invert(),matrix=new THREE.Matrix4();
+      for(const group of this.dynamicRoot.children){
+        // The whole vault rides on the exit hinge; none of it is room-static.
+        if(group.userData.exitHinge||group.userData.mechanismKind==='final-vault')continue;
+        const stable=group.userData.staticRoot||group;
+        stable.traverseVisible(node=>{
+          if(!node.isMesh||node.isInstancedMesh||Array.isArray(node.material)||node.material.transparent)return;
+          // seal() has already applied the inspected housing offset. A public
+          // inspection/solve/reveal change rebuilds these baked transforms.
+          matrix.multiplyMatrices(inverse,node.matrixWorld);
+          const geometry=node.geometry.clone().applyMatrix4(matrix);
+          batch.add(geometry,node.material);geometry.dispose();
+          node.visible=false;
+        });
+      }
+      batch.finish();
+      root.traverse(node=>{if(node.isMesh){node.castShadow=false;node.userData.dynamicBatch=true;}});
+      this.dynamicRoot.add(root);
     }
     rebuildHazards(){this.hazardRoot.clear();if(!this.state)return;for(const [index,hazard] of this.state.hazards.slice(0,Polish.budgets.maxHazards).entries()){const group=new THREE.Group();group.userData.kind=hazard.kind;group.userData.phase=hazard.phase;group.userData.index=index;group.visible=hazard.phase!=='idle';if(hazard.kind==='laser-sweep'){for(let i=0;i<3;i++){const beam=this.add(group,this.geom('laser',()=>new THREE.CylinderGeometry(.025,.025,9.8,8)),this.materials.hazardRed,[0,.55+i*.7,-1.8],[0,0,Math.PI/2],undefined,false);beam.userData.beam=true;}}
         else if(hazard.kind==='steam-burst'){for(let i=0;i<7;i++){const cloud=this.add(group,this.geom(`steam:${i%3}`,()=>new THREE.SphereGeometry(.24+i%3*.08,12,8)),this.materials.hazardSteam,[-3.2+i*1.05,.35+(i%2)*.25,-2.2-(i%3)*.55],undefined,undefined,false);cloud.userData.cloud=true;}}

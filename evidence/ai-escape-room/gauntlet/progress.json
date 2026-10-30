@@ -1,7 +1,7 @@
 {
-  "updated": "2026-10-30T20:56:07.135565+00:00",
+  "updated": "2026-10-30T21:47:25.380467+00:00",
   "verdict": "Reference wins \u00b7 work continues",
-  "currentGap": "The latest furniture and staging pass wins the blind comparison with the previous build. The Room 4 still wins the fixed comparison. The next pass targets contact grounding, localized light and physical material depth.",
+  "currentGap": "The fixed commercial bar still wins on authored environmental and asset finish. New map storage, specimen displays and finer brass/iron/enamel finishes are in scratch review. The real state worker passed the completed-body/main-thread-stall regression; remaining native acceptance is running.",
   "rounds": [
     {
       "id": "baseline",
@@ -57,18 +57,37 @@
         "result",
         "mobile"
       ]
+    },
+    {
+      "id": "round-05",
+      "label": "ITERATION 05",
+      "title": "Grounded materials and complete inspection",
+      "verdict": "REFERENCE WINS",
+      "summary": "Baked contact lighting, corrected timber scale and a diffuse ceiling give the room depth. Shared stable-object submissions preserve geometry while reducing the opening capture from 171 to 112 calls. The complete mechanism now fits clear of the interface in oblique desktop and phone views. Independent image critics accept these improvements; the fixed reference still wins on authored room and asset finish.",
+      "gap": "Sparse repetitive room dressing, coarse hardware finish and the plain exit reveal remain. A network observer candidate was rejected by native evidence; its dedicated-worker replacement is undergoing acceptance.",
+      "views": [
+        "room",
+        "furniture",
+        "mechanism",
+        "character",
+        "result",
+        "mobile",
+        "mobile-inspect"
+      ]
     }
   ],
   "checks": [
-    "TypeScript build passed; 67 Escape Room unit and contract tests passed at the Round 04 checkpoint.",
-    "The real autonomous capture run escaped at tick 25 with all eight puzzles solved; no browser console/page errors were captured.",
-    "Nine independent browser scenarios passed at Round 03. The four-theme resource stress test passed separately on Round 04 with all 65 real renderer frames and unchanged assertions.",
-    "Five theme/replay cycles retained exactly 158 WebGL geometries, 21 textures and 13 shader programs. A separate raw-buffer regression held 348 outstanding buffers across six cycles.",
-    "Renderer teardown stops callbacks, removes listeners and retires its context while preserving shared assets used by a surviving renderer.",
-    "The existing desktop broadcast check failed its fixed 700 ms tick-change assertion before reaching rendering budget assertions; the failure is retained for investigation.",
-    "The Round 04 low-tier stills measured 170 draw calls / 111,128 triangles for the opening room and 180 / 113,612 for confirmed escape. These are capture measurements, not native-GPU performance proof.",
-    "Commercial comparisons remain unblinded; visual parity has not been established. Independent chronology-blinded comparisons prefer the new builds over their predecessors.",
-    "Character mesh submissions reduced from 61 to 39 with all 12,526 triangles and articulation retained.",
-    "Stream self-test passed: deterministic authority, public privacy, recovery, next-room restart and browser assets."
+    "All 102 Game 8 unit and contract tests pass after lighting, batching, inspection, sealed exit and worker integration. The worker-inclusive stream self-test also passes.",
+    "A genuine worker response finished parsing during a 2,600 ms main-thread stall and was delivered after the former timeout without aborting. Remaining native timeout, recovery, live desktop and full-room budget checks are in progress.",
+    "Native evidence rejected the earlier Resource Timing observer candidate despite passing synthetic tests. Its failed probes remain alongside the dedicated-worker replacement; an unsupported CDP fault-injection command is recorded as a harness failure, not a product pass.",
+    "Round 05 actual low-tier stills: opening 112 draw calls / 115,832 triangles; confirmed escape 120 / 118,316. These images precede the sealed-jamb and worker changes. Still captures do not establish FPS.",
+    "The active circular vault mechanism is independently accepted in oblique desktop and 390-pixel phone views. The whole casing and tiny mobile markings remain qualified.",
+    "Exact eleven/twelve-puzzle geometry tests reduce dynamic submissions from 165/179 to 77/81 before the small jamb addition, with unchanged triangles. Larger combined bounds can submit more offscreen geometry in closeups; the full live budget gate remains open.",
+    "The real autonomous capture run escaped at tick 25 with all eight puzzles solved and no captured browser console/page errors.",
+    "Historical browser evidence: nine scenarios passed at Round 03; a separate Round 04 resource test passed all 65 real frames across four themes. These are separate source checkpoints, not one current green run.",
+    "Historical raw-buffer cleanup held 348 outstanding buffers across six cycles. Renderer teardown retired one context while a surviving renderer kept shared assets and continued drawing.",
+    "The original desktop fixed-700 ms check failed. Its replacement waits for actual public state advancement and matching UI; the existing 190-call and 150,000-triangle limits remain unchanged.",
+    "The new lighting wins its concealed-source predecessor comparison; The Room 4 wins the separate concealed-source commercial comparison. Visual parity has not been established.",
+    "Character batching preserves 12,526 triangles and all sampled articulation while reducing mesh submissions from 61 to 39."
   ]
 }

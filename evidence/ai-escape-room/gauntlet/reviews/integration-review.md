@@ -1,5 +1,7 @@
 # AI Escape Room gauntlet — independent integration review
 
+**Additional existing compatibility gate remains open.** After the focused scenarios below completed, the original desktop broadcast test failed its fixed 700 ms tick comparison. Follow-up native tracing identified a real fetch/body watchdog race and measured 230–238 draw calls against the preserved limit of fewer than 190. A Resource Timing observer fix is now **rejected by representative native evidence**, including an ordinary non-injected request that still aborted after a 7.4 ms completed network transfer. See `desktop-compatibility-review.md`; no full existing-desktop pass is claimed.
+
 Status: **all ten focused browser scenarios have passing evidence across two explicit source checkpoints; the twelve focused Node assertions also pass**. Round03 completed with nine browser cases passed and one broad resource-stress case timed out before its assertions. The targeted resource rerun then passed against the frozen round04 renderer in 95.7 seconds. It uses the same 65 real public frames and unchanged resource assertions, but pauses the renderer's successor RAF between scripted calls to its actual frame method so redundant software-GPU draws do not consume the test budget. This is not represented as one ten-case green run against the same source revision.
 
 | Checkpoint | Result | Evidence |

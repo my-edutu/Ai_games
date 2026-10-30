@@ -1,0 +1,17 @@
+✔ a completed transfer with a positive zero-duration resource timing is not aborted (6.618779ms)
+✔ without Resource Timing observation the network deadline remains bounded and cleanup is safe (2.754562ms)
+✔ completed state transfer survives a renderer-delayed JSON continuation (4.542659ms)
+✔ an incomplete state transfer remains bounded by the network deadline (3.979167ms)
+✔ unrelated and earlier completed responses cannot exempt a stuck request (4.567384ms)
+✔ malformed network-path request targets fail closed without destroying the server handler (56.161268ms)
+✔ all upgraded browser modules and physical texture assets are served with correct MIME types (209.324414ms)
+✔ evidence routes serve only allowlisted public files and reject traversal into repository data (10.994896ms)
+✔ public state and replay endpoints never return the private server seed or hidden payloads (5.483175ms)
+ℹ tests 9
+ℹ suites 0
+ℹ pass 9
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 369.458749

@@ -1,0 +1,31 @@
+✖ a completed transfer with a positive zero-duration resource timing is not aborted (5.351716ms)
+✔ without Resource Timing observation the network deadline remains bounded and cleanup is safe (1.188659ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 1
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 29.301261
+
+✖ failing tests:
+
+test at tests/escape-room/gauntlet-network-capabilities.test.cjs:24:1
+✖ a completed transfer with a positive zero-duration resource timing is not aborted (5.351716ms)
+  AssertionError [ERR_ASSERTION]: timer precision can round a completed transfer to equal positive start/end times
+  
+  true !== false
+  
+      at TestContext.<anonymous> (/workspace/scratch/4b9cf76baf7a/ai-escape-room/tests/escape-room/gauntlet-network-capabilities.test.cjs:29:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.start (node:internal/test_runner/test:1262:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: true,
+    expected: false,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

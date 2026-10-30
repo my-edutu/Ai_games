@@ -2,11 +2,11 @@
 
 **The Cipher Vault** is an autonomous escape-room game with a Three.js presentation. The Archivist investigates clues, collects tools, opens mechanisms and attempts to escape while viewers control the camera and presentation. The upgrade adds one developed 3D clockwork protagonist, furnished rooms, physical mechanisms, material maps and a game-focused interface. The authoritative rules and autonomous policy remain in the existing game runtime.
 
-This is the **Round 04 source checkpoint** of an active Gauntlet iteration, preserved in [draft PR #54](https://github.com/my-edutu/Ai_games/pull/54), stacked on [base PR #40](https://github.com/my-edutu/Ai_games/pull/40). The remote branch is `agent/escape-room-gauntlet-3d-20261030`; its recorded source commit is `2bff8c4`.
+This is an active Gauntlet implementation, preserved in [draft PR #54](https://github.com/my-edutu/Ai_games/pull/54), stacked on [base PR #40](https://github.com/my-edutu/Ai_games/pull/40). The branch is `agent/escape-room-gauntlet-3d-20261030`. Round 05 adds grounded lighting, efficient stable-object batching, full mechanism inspection and a dedicated worker for live state transport. Capture and test manifests identify the exact source each result covers.
 
-**The fixed quality bar from The Room 4: Old Sins remains unmet.** The completed [Round 04 review](../../evidence/ai-escape-room/gauntlet/reviews/round-04-independent.md) prefers the new build over Round 03 for room, character, result and mobile; the mechanism images are byte-identical and tie. The [locked-review unblinding](../../evidence/ai-escape-room/gauntlet/reviews/round-04-unblinding.json) confirms A = Round 04 and B = Round 03. The separate reference comparison still favors the commercial games. Its largest actionable gap is now physical grounding and material depth; furniture construction is no longer the dominant blocker. The work does not establish commercial visual parity, production readiness or a performance target.
+**The fixed quality bar from The Room 4: Old Sins remains unmet.** The [independent lighting critic](../../evidence/ai-escape-room/gauntlet/reviews/lighting-independent.md) preferred the new lighting over Round 04 in a concealed-source A/B comparison, but chose the commercial reference in a separate concealed-source comparison. A [separate inspection critic](../../evidence/ai-escape-room/gauntlet/reviews/inspection-independent.md) accepts the complete active vault mechanism in desktop and phone views. Authored room dressing and fine material/construction detail remain the largest visual gaps. These are accepted improvements, not a commercial-quality victory.
 
-The latest Escape Room unit checkpoint is **67 passed, 0 failed**, and the retained server self-test reports `ok: true`. All ten focused browser scenarios now have passing evidence **across two explicit source checkpoints**: nine cases passed on Round 03, and the broad resource scenario passed separately on the frozen Round 04 renderer after its earlier timeout. This is not one ten-case green run on a single revision. A separate original desktop broadcast check currently fails its 700 ms tick-progress assertion before reaching the rendering-budget gate; investigation is ongoing. The [Gauntlet ledger](../../docs/gauntlet/escape-room.md) records these separate outcomes and source boundaries.
+The latest Escape Room unit checkpoint is **102 passed, 0 failed**, and the worker-inclusive server self-test reports `ok: true`. Native Chromium evidence exposed false request timeouts when software rendering blocked the main thread; the replacement worker has passed the decisive completed-body/main-thread-stall regression. Remaining recovery, live desktop and full-room rendering-budget checks are undergoing independent acceptance. Historical browser results retain their original source boundaries in the [Gauntlet ledger](../../docs/gauntlet/escape-room.md).
 
 ## Run locally
 
@@ -58,7 +58,9 @@ The existing progression rotates through these theme variants. Seeds determine g
 | `chromatic-lab` | Chromatic Lab |
 | `archive-zero` | Archive Zero |
 
-The 3D presentation includes paneled architecture, shelving, books, work surfaces, consoles, pedestals, lighting and an exit. Round 04 integrates a more individually constructed writing bench, upholstered chair, differentiated mechanism stands and varied bookcases; the [furniture capture](../../evidence/ai-escape-room/gauntlet/captures/round-04/furniture.png) records the actual result. Mechanisms and clues occupy physical surfaces derived from the public presentation layout. The placement correction reserves stable slots before filtering visibility so revealing a clue does not move objects already in view.
+The 3D presentation includes paneled architecture, shelving, books, work surfaces, consoles, pedestals, lighting and an exit. The shaped writing bench, upholstered chair, differentiated mechanism stands and varied bookcases are visible in the [Round 05 furniture capture](../../evidence/ai-escape-room/gauntlet/captures/round-05/furniture.png). The lighting pass adds bounded cached static visibility/contact shading, corrects the timber grain scale and removes shiny ceiling patches. Mechanisms and clues occupy physical surfaces derived from the public presentation layout. Placement reserves stable slots before filtering visibility so revealing a clue does not move objects already in view.
+
+Stable opaque components share material batches while their original transforms, bounds and picking surfaces remain available. Articulated components and the complete final-vault/exit assembly remain independent. This reduces submissions while preserving geometry; larger shared bounds can submit more offscreen triangles in closeups. The tradeoff is measured in the ledger.
 
 ### Eight mechanism families
 
@@ -88,7 +90,7 @@ Buttons support keyboard activation and expose their current state. Preference c
 http://127.0.0.1:4177/escape-room?muted=1&reducedMotion=1
 ```
 
-The `evidence=1` flag identifies an evidence view. It does not pause the simulation by itself. Capture tooling pins a sanitized frame through `window.__ESCAPE_PRESENT_FRAME__(frame)` and returns through `window.__ESCAPE_RESUME_LIVE__()`. Pinned frames are marked **REPLAY** and stale in-flight live responses cannot replace them.
+The `evidence=1` flag identifies an evidence view and explicitly selects the main-thread transport used by capture fixtures. It does not pause the simulation by itself. Capture tooling pins a sanitized frame through `window.__ESCAPE_PRESENT_FRAME__(frame)` and returns through `window.__ESCAPE_RESUME_LIVE__()`. Pinned frames are marked **REPLAY** and stale in-flight live responses cannot replace them. Normal live viewing uses a dedicated worker to fetch and parse state under a 1,800 ms network deadline; completed transfers are not discarded because the renderer later blocks the main thread. Unsupported or blocked workers have a disclosed main-thread fallback. That fallback cannot provide the same isolation from rendering stalls.
 
 ## Autonomous authority and public privacy
 
@@ -96,7 +98,7 @@ The server owns the seeded simulation, legal actions, hazards, progression and r
 
 Public frames expose visible objects, inventory labels, progress, hazard presentation, a concise intent summary and sanitized event labels. They exclude private seeds and run IDs, hidden facts, puzzle solutions, oracle actions and internal decision traces. The replay route returns the same public contract rather than private engine checkpoints. The progress routes allowlist metadata and named PNG captures rather than serving the repository wholesale.
 
-The renderer exposes an explicit `dispose()` lifecycle for its animation frame, event listeners, resize observer and owned rendering resources. On a full page exit, the `pagehide` handler stops polling, aborts the active request, disposes the renderer and closes audio. The exact Node contract and the Round 03 two-renderer browser lifecycle case pass: callbacks stop, registered listeners are removed, the retired context is lost and shared assets remain usable by the surviving renderer. The later Round 04 resource stress run is recorded separately.
+The renderer exposes an explicit `dispose()` lifecycle for its animation frame, event listeners, resize observer and owned rendering resources. On a full page exit, the `pagehide` handler stops polling, aborts the active request, retires the state worker, disposes the renderer and closes audio. The exact Node contracts pass. The Round 03 two-renderer browser lifecycle case verifies stopped callbacks, removed listeners, a lost retired context and shared assets remaining usable by the surviving renderer; that result predates the worker. Later resource and worker checks retain separate source manifests.
 
 The focused public-contract tests compare deterministic runs with and without arbitrary presentation reads and output recovery. The server tests cover state/replay privacy, asset MIME types, malformed request targets and evidence-route traversal. Their retained results and limits are linked in the [ledger](../../docs/gauntlet/escape-room.md#recorded-validation).
 
@@ -112,7 +114,7 @@ Build first, then run the Escape Room unit and contract suite and server self-te
 
 ```sh
 npm run build
-node --test tests/escape-room/*.test.cjs
+node --test --test-concurrency=1 tests/escape-room/*.test.cjs
 node scripts/serve-escape-room-stream.cjs --self-test
 ```
 
@@ -137,9 +139,9 @@ npx playwright test --config=playwright.escape.config.cjs tests/browser/escape-r
 
 The ten-case file checks real autonomous snapshots, batched Follow/escape events, manual viewing controls, maximum mechanism counts, the WebGL fallback, repeated theme changes, character framing, raw WebGL buffer cleanup, skipped-result intermission and renderer disposal. The [integration review](../../evidence/ai-escape-room/gauntlet/reviews/integration-review.md) records nine Round 03 passes and the separate successful Round 04 resource rerun. The original ten-case report retains its one timeout. The wider game-specific configuration also runs the original stream, camera and evidence-pinning checks; the added cases do not establish a pass for all those separate gates.
 
-The retained [original desktop broadcast failure](../../evidence/ai-escape-room/gauntlet/reviews/browser-round04-desktop-red.txt) reads the same tick value before and after its 700 ms wait. It stops before its draw-submission and triangle-budget assertions. The cause is under investigation; neither a rendering-budget pass nor a diagnosis follows from that failure.
+The retained [original desktop broadcast failure](../../evidence/ai-escape-room/gauntlet/reviews/browser-round04-desktop-red.txt) reads the same tick value after a fixed 700 ms wait. Subsequent native probes established a real main-thread request-timeout race and separately measured an over-budget late room before batching. The test now waits for actual public run-token/tick advancement and matching UI instead of assuming a 700 ms wall-clock cadence. Its 190-submission/150,000-triangle gates are unchanged. A worker and geometry-preserving batching address the measured defects; independent acceptance is in progress.
 
-The latest full Node run is [67/67](../../evidence/ai-escape-room/gauntlet/reviews/unit-regression-round04.txt). The independent [four-file Node rerun](../../evidence/ai-escape-room/gauntlet/reviews/node-focused-final.txt) is 12/12, and the earlier focused model/lifecycle run is 15/15. These are overlapping checks, not additive totals. The [server self-test](../../evidence/ai-escape-room/gauntlet/reviews/server-self-test-green.json) remains a separately scoped result.
+The latest full Node run is [102/102](../../evidence/ai-escape-room/gauntlet/reviews/unit-regression-round05-worker.txt). It includes exact geometry batching, full inspection bounds, sealed-door geometry, worker deadlines, cancellation, startup failure and cleanup. The [worker-inclusive server self-test](../../evidence/ai-escape-room/gauntlet/reviews/server-self-test-round05-worker.json) is separately scoped. Earlier 67-test, focused and browser runs remain historical evidence; overlapping totals are not added.
 
 The Round 04 resource scenario renders **65 actual frames across five cycles and four themes**. Its samples stay flat at **158 geometries, 21 textures and 13 programs**. The earlier Round 03 raw-buffer test separately stays at **348 outstanding buffers in each of six cycles**. The resource rerun pauses successor animation frames between scripted calls to the real frame method; the full lifecycle case exercises a live animation-frame loop. These checks assess within-run growth and cleanup, not native-GPU throughput or a production soak.
 
@@ -149,17 +151,19 @@ To reproduce comparison captures, keep the game server running on port 4177 and 
 node scripts/capture-escape-gauntlet.cjs local-review
 ```
 
-The script runs the autonomous engine, pins its actual public opening/mechanism/result frames and saves room, character, mechanism, result and mobile captures plus a report under `evidence/ai-escape-room/gauntlet/captures/<label>/`. It uses reduced-motion poses and the renderer's low quality tier, calls the real frame method and pauses the animation-frame loop for each stable SwiftShader still. **FPS is deliberately not measured.** Reusing a label overwrites its captures, so retain reviewed evidence under its original label.
+The script runs the autonomous engine, pins its actual public opening/mechanism/result frames and saves room, furniture, character, mechanism, result, mobile and mobile-inspection captures plus a report under `evidence/ai-escape-room/gauntlet/captures/<label>/`. It uses reduced-motion poses and the renderer's low quality tier, calls the real frame method and pauses the animation-frame loop for each stable SwiftShader still. **FPS is deliberately not measured.** Reusing a label overwrites its captures, so retain reviewed evidence under its original label.
 
-The retained [Round 04 report](../../evidence/ai-escape-room/gauntlet/captures/round-04/report.json) records an actual eight-puzzle escape at tick 25, score 5,240 and an empty captured-error list. The [source manifest](../../evidence/ai-escape-room/gauntlet/captures/round-04/source-manifest.json) records the presentation hashes and confirms they did not change during capture. Room, character, mechanism, result and mobile images are retained alongside the supplementary furniture view.
+The retained [Round 05 report](../../evidence/ai-escape-room/gauntlet/captures/round-05/report.json) records an actual eight-puzzle escape at tick 25, score 5,240 and an empty captured-error list. Its [source manifest](../../evidence/ai-escape-room/gauntlet/captures/round-05/source-manifest.json) binds the captured lighting, batching and inspection revision. Those images precede the sealed-jamb and dedicated-worker changes, so they do not certify those later changes.
 
-| Round 04 still | Draw submissions | Triangles | Quality tier |
+| Round 05 still | Draw submissions | Triangles | Quality tier |
 | --- | ---: | ---: | --- |
-| Room | 170 | 111,128 | Low |
-| Result | 180 | 113,612 | Low |
+| Room | 112 | 115,832 | Low |
+| Result | 120 | 118,316 | Low |
+| Desktop mechanism | 41 | 89,234 | Low |
+| Phone mechanism | 40 | 89,202 | Low |
 
 These are the actual renderer counters for the captured views, not FPS measurements. Review verdicts bind to image hashes. These captures and software-rendered checks do not establish continuous animation quality, native-GPU frame rate, GPU memory bytes, long-run stability or production capacity.
 
 ## Continue the Gauntlet
 
-The lead agent maintains the [ledger](../../docs/gauntlet/escape-room.md), live progress metadata and [draft PR #54](https://github.com/my-edutu/Ai_games/pull/54). Independent builders and critics work on separately judgeable pieces. Each critic inspects real output against the fixed reference, uses blind A/B comparison when feasible and returns the largest remaining gap for another iteration. Round 04's completed review directs the next pass toward local lighting falloff, contact grounding and distinct surface response while preserving the improved furniture. A **Round 05 lighting proposal is in development and has not been captured**; it is outside this checkpoint. The commercial bar remains unmet. No Ultracode tool was available in this session; subagents performed the builder and critic work.
+The lead agent maintains the [ledger](../../docs/gauntlet/escape-room.md), live progress metadata and [draft PR #54](https://github.com/my-edutu/Ai_games/pull/54). Independent builders and critics work on separately judgeable pieces. Each critic inspects real output against the fixed reference, uses blind A/B comparison when feasible and returns the largest remaining gap for another iteration. Round 05's accepted lighting and inspection improvements are retained. New map-storage/specimen-cabinet dressing and finer asset finish are in scratch review and remain outside the captured checkpoint until integrated and rendered. The commercial bar remains unmet. No Ultracode tool was available in this session; subagents performed the builder and critic work.

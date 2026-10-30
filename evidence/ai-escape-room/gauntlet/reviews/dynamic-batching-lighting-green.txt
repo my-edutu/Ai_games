@@ -1,0 +1,40 @@
+TAP version 13
+# Subtest: real eleven and twelve puzzle rooms reserve draw-call headroom for scenery, actor, hazards and effects
+ok 1 - real eleven and twelve puzzle rooms reserve draw-call headroom for scenery, actor, hazards and effects
+  ---
+  duration_ms: 1606.405542
+  type: 'test'
+  ...
+# Subtest: shared submissions preserve every stable world-space position, normal, UV and material
+ok 2 - shared submissions preserve every stable world-space position, normal, UV and material
+  ---
+  duration_ms: 1577.355173
+  type: 'test'
+  ...
+# Subtest: inspection retains the original complete object bounds and picking uses the retained meshes
+ok 3 - inspection retains the original complete object bounds and picking uses the retained meshes
+  ---
+  duration_ms: 327.895597
+  type: 'test'
+  ...
+# Subtest: mechanism articulation and the full final vault keep following the opening exit
+ok 4 - mechanism articulation and the full final vault keep following the opening exit
+  ---
+  duration_ms: 848.452188
+  type: 'test'
+  ...
+# Subtest: rebuild and disposal release every shared batch and instance exactly once without disposing pooled mechanism geometry
+ok 5 - rebuild and disposal release every shared batch and instance exactly once without disposing pooled mechanism geometry
+  ---
+  duration_ms: 605.872856
+  type: 'test'
+  ...
+1..5
+# tests 5
+# suites 0
+# pass 5
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 5072.115742

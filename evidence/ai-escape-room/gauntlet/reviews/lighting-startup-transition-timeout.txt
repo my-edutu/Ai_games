@@ -1,0 +1,2 @@
+page.waitForFunction: Timeout 90000ms exceeded.
+    at main (/tmp/escape-lighting-proposal/capture.cjs:34:16)

@@ -37,7 +37,7 @@ test('malformed network-path request targets fail closed without destroying the 
 
 test('all upgraded browser modules and physical texture assets are served with correct MIME types',()=>{
   const handler=serverHandler();
-  const modules=['bootstrap.js','app.js','room3d.js','room3d-polish.js','mechanisms3d.js','archivist3d.js','scenery3d.js','progress.js','vendor/three.module.js','vendor/three.core.js'];
+  const modules=['bootstrap.js','network.js','state-worker.js','app.js','room3d.js','room3d-polish.js','mechanisms3d.js','archivist3d.js','scenery3d.js','progress.js','vendor/three.module.js','vendor/three.core.js'];
   for(const file of modules){const response=request(handler,`/escape-room/${file}`);assert.equal(response.status,200,file);assert.match(response.headers['content-type'],/javascript/,file);assert.ok(response.body.length>128,file);assert.equal(response.headers['x-content-type-options'],'nosniff');}
   for(const file of ['wood-color','wood-normal','wood-roughness','plaster-color','plaster-normal','plaster-arm','metal-color','metal-normal','metal-roughness']){
     const response=request(handler,`/escape-room/textures/${file}.jpg`);assert.equal(response.status,200,file);assert.equal(response.headers['content-type'],'image/jpeg',file);assert.ok(response.body.length>128,file);

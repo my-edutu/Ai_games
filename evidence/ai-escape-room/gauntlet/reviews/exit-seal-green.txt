@@ -1,0 +1,21 @@
+✔ real eleven and twelve puzzle rooms reserve draw-call headroom for scenery, actor, hazards and effects (928.37165ms)
+✔ shared submissions preserve every stable world-space position, normal, UV and material (1850.625207ms)
+✔ inspection retains the original complete object bounds and picking uses the retained meshes (333.375169ms)
+✔ mechanism articulation and the full final vault keep following the opening exit (755.533147ms)
+✔ rebuild and disposal release every shared batch and instance exactly once without disposing pooled mechanism geometry (329.9101ms)
+(node:205993) [THREE_CJS_DEPRECATED] DeprecationWarning: `require("three")` is deprecated and will be removed.
+Replace `const THREE = require("three")` with `import * as THREE from "three"`.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+✔ the physical exit stays open through the actual successful intermission and is closed before the exit action (136.208031ms)
+(node:205994) [THREE_CJS_DEPRECATED] DeprecationWarning: `require("three")` is deprecated and will be removed.
+Replace `const THREE = require("three")` with `import * as THREE from "three"`.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+✔ the closed physical vault seals the passage aperture and an open door clears its center (65.96832ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4472.427964

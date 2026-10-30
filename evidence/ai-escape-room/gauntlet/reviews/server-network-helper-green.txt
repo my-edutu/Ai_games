@@ -1,0 +1,12 @@
+✔ malformed network-path request targets fail closed without destroying the server handler (37.46226ms)
+✔ all upgraded browser modules and physical texture assets are served with correct MIME types (147.012495ms)
+✔ evidence routes serve only allowlisted public files and reject traversal into repository data (3.011487ms)
+✔ public state and replay endpoints never return the private server seed or hidden payloads (3.070262ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 212.985943

@@ -10,7 +10,7 @@ async function main() {
   if (!/^[a-z0-9-]+$/.test(label)) throw new Error('Use a simple capture label');
   const out = path.resolve(__dirname, '../evidence/ai-escape-room/gauntlet/captures', label);
   fs.mkdirSync(out, { recursive: true });
-  const sourceFiles = ['app.js','archivist3d.js','bootstrap.js','room3d.js','room3d-polish.js','mechanisms3d.js','scenery3d.js','index.html','styles.css','ux-v2.css'];
+  const sourceFiles = ['app.js','network.js','state-worker.js','archivist3d.js','bootstrap.js','room3d.js','room3d-polish.js','mechanisms3d.js','scenery3d.js','index.html','styles.css','ux-v2.css'];
   const sourceHashes = () => Object.fromEntries(sourceFiles.map(file => [`public/ai-escape-room/${file}`, crypto.createHash('sha256').update(fs.readFileSync(path.resolve(__dirname,'../public/ai-escape-room',file))).digest('hex')]));
   const before = sourceHashes();
   const config = parseEscapeRoomConfig({ ...DEFAULT_ESCAPE_ROOM_CONFIG, theme: 'cipher-vault', difficulty: 8, puzzleDepth: 8, objectCount: 36, decoyCount: 5, hazardCount: 2, maxTicks: 2400, noProgressTicks: 360, intermissionTicks: 24 });
@@ -82,7 +82,8 @@ async function main() {
   await page.setViewportSize({ width: 390, height: 844 });
   await capture('mobile', opening);
   const mobile = await page.evaluate(() => ({ viewport: innerWidth, scrollWidth: document.documentElement.scrollWidth, canvas: document.querySelector('canvas').getBoundingClientRect().toJSON() }));
-  const report = { label, date: new Date().toISOString(), captureMode: 'Real production snapshots; reduced-motion poses; real frame method with RAF paused for still capture; low quality tier; Chromium SwiftShader WebGL; FPS deliberately not measured', engineResult: runtime.state.result, ending: { tick: ending.tick, scene: ending.scene, progress: ending.progress }, room, detail, result, mobile, errors };
+  const mobileInspection = await capture('mobile-inspect', mechanismFrame, mechanism?.id);
+  const report = { label, date: new Date().toISOString(), captureMode: 'Real production snapshots; reduced-motion poses; real frame method with RAF paused for still capture; low quality tier; Chromium SwiftShader WebGL; FPS deliberately not measured', engineResult: runtime.state.result, ending: { tick: ending.tick, scene: ending.scene, progress: ending.progress }, room, detail, result, mobile, mobileInspection, errors };
   fs.writeFileSync(path.join(out, 'report.json'), JSON.stringify(report, null, 2));
   fs.writeFileSync(path.join(out, 'opening-frame.json'), JSON.stringify(opening));
   const after = sourceHashes();

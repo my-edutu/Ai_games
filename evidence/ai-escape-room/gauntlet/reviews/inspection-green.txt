@@ -1,0 +1,17 @@
+✔ inspection keeps complete real mechanism above the HUD at 1256x862 (208.008258ms)
+✔ inspection keeps complete real mechanism above the HUD at 364x576 (134.701412ms)
+✔ inspection exposes the side of the physical housing instead of a frontal elevation (436.221807ms)
+✔ all eight real mechanism families fit desktop and portrait across solved states and wall placements without mutating public objects (3352.39495ms)
+✔ an already inspected mechanism stays clear of the HUD after a portrait resize (57.645403ms)
+✔ portrait inspection reserves the danger caption area before the hazard appears (205.727364ms)
+(node:6) [THREE_CJS_DEPRECATED] DeprecationWarning: `require("three")` is deprecated and will be removed.
+Replace `const THREE = require("three")` with `import * as THREE from "three"`.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4518.644835

@@ -1,0 +1,13 @@
+✔ a completed transfer with a positive zero-duration resource timing is not aborted (5.4868ms)
+✔ without Resource Timing observation the network deadline remains bounded and cleanup is safe (2.334577ms)
+✔ completed state transfer survives a renderer-delayed JSON continuation (7.092055ms)
+✔ an incomplete state transfer remains bounded by the network deadline (3.596491ms)
+✔ unrelated and earlier completed responses cannot exempt a stuck request (2.020384ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 152.584929
