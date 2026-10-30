@@ -1,0 +1,82 @@
+{
+  "updated": "2026-10-30T21:50:52+01:00",
+  "status": "REVIEW CANDIDATE \u2014 commercial and sustained-rendering gates open",
+  "summary": "Game 6 now has a complete autonomous match, twelve articulated 3D contenders, an original coastal outpost and spectator controls. Multiple independent review/repair cycles improved authority, recovery, characters, architecture and camera framing. Latest stills pass selected-character and phone-HUD readability; the full commercial benchmark still fails.",
+  "verified": [
+    "TypeScript build and all 25 focused authority/presentation tests passed on the current candidate.",
+    "All four browser checks passed on the current candidate: actual WebGL scene, read-only API, controls, independent authority, phone framing and progress page.",
+    "Fresh independent engineering reviews accepted checkpoint, renderer/lifecycle and material-ownership repairs.",
+    "Actual high-tier gameplay, character and phone captures saved with match/tick metadata and zero page errors.",
+    "Latest independent visual gate confirmed selected characters are unobstructed and the phone panels do not collide in the supplied frames."
+  ],
+  "gaps": [
+    "FAIL: character anatomy, hands/weapon contact, clothing construction, facial forms and material separation remain below the fixed commercial bar.",
+    "FAIL: environment still needs richer surface detail, foliage masses, varied scenery and deeper architectural finish.",
+    "FAIL: sustained software rendering remains poor; still-frame/control passes are not a frame-rate or motion-quality pass. No physical GPU is exposed in this environment.",
+    "Actual full-match motion, target-device performance and all-character/all-state visual inspection remain unverified.",
+    "Selected reference video asset endpoint unavailable; official Fortnite stills inspected directly. No blind commercial gameplay win established.",
+    "Durable host recovery, real broadcast integration and production soak/canary remain open.",
+    "ultracode unavailable; native builder/critic subagents performed the review loops."
+  ],
+  "captures": [
+    {
+      "url": "/royale/dev/captures/round-4-game.png",
+      "caption": "Current high-tier actual match \u2014 new architecture, coherent street layout and clear selected-contender framing."
+    },
+    {
+      "url": "/royale/dev/captures/round-4-character.png",
+      "caption": "Current original combatant \u2014 revised stock, grip, fore-end and stance. Commercial character fidelity still FAILS."
+    },
+    {
+      "url": "/royale/dev/captures/round-4-phone.png",
+      "caption": "Current phone frame \u2014 selected body/feet clear of HUD; storm and minimap no longer overlap."
+    },
+    {
+      "url": "/royale/dev/captures/build-revised.png",
+      "caption": "Earlier revision \u2014 improved camera and ground, before distinct roof/facade/road pass."
+    },
+    {
+      "url": "/royale/dev/captures/character-revised.png",
+      "caption": "Earlier character revision \u2014 improved anatomy; critic still rejected weapon/shoulder/grip coherence."
+    },
+    {
+      "url": "/royale/dev/captures/build-camera.png",
+      "caption": "Rejected camera revision \u2014 wall obscured the observed fighter."
+    },
+    {
+      "url": "/royale/dev/captures/character-initial.png",
+      "caption": "Rejected initial character \u2014 disconnected block silhouette and unclear grip."
+    },
+    {
+      "url": "/royale/dev/captures/build-initial.png",
+      "caption": "Rejected first gameplay capture \u2014 empty ground and clipped fighters."
+    }
+  ],
+  "reviews": [
+    {
+      "piece": "Authority",
+      "verdict": "SCOPED ENGINEERING PASS",
+      "finding": "Two independent critiques exposed checkpoint yaw, action/resource, lifecycle and strict-schema defects. Repairs and 11 authority regression checks pass."
+    },
+    {
+      "piece": "Presentation recovery",
+      "verdict": "SCOPED ENGINEERING PASS",
+      "finding": "Independent review reproduced and verified repair of render freezes, context-loss status, late fetch/JSON races, BFCache restoration, restart cursors and an early-recovery deadlock."
+    },
+    {
+      "piece": "Software graphics materials",
+      "verdict": "SCOPED ENGINEERING PASS / PERFORMANCE OPEN",
+      "finding": "Independent review accepted material sharing, animation, restoration and disposal. Actual continuous software rendering remains too slow."
+    },
+    {
+      "piece": "Blind internal version comparison",
+      "verdict": "REVISED VERSIONS PREFERRED",
+      "finding": "Fresh critics picked the revised world and character captures with version labels concealed. This comparison did not beat the commercial references and was not a controlled gameplay A/B."
+    },
+    {
+      "piece": "Current integrated visual gate",
+      "verdict": "FULL BAR FAILS",
+      "finding": "Selected-character readability and phone panel placement pass in the latest stills. Character construction and environment finish remain substantially below the reference; motion and completeness require further evidence."
+    }
+  ]
+}
