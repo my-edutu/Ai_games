@@ -208,7 +208,10 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
       // threats in the sanitized public snapshot, and staging is cosmetic.
       const towardExplorerX=pose.x-threatPose.x, towardExplorerZ=pose.z-threatPose.z;
       const separation=Math.hypot(towardExplorerX,towardExplorerZ);
-      const attentionStrength=result?0:clamp((6.6-separation)/4.4,0,1);
+      // Read at native gameplay scale: a disclosed warden one or two cells
+      // away must provoke a visible head/lantern/mask reaction, not just HUD copy.
+      // Keep the same 6.6-world-unit disclosure radius and never consult AI truth.
+      const attentionStrength=result?0:clamp((6.6-separation)/2.2,0,1);
       if (attentionStrength>(closestThreat?.strength??0))
         closestThreat={x:threatPose.x,z:threatPose.z,strength:attentionStrength};
       entry.model.update({
