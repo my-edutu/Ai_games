@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-10-30T21:30:00Z",
+  "updatedAt": "2026-10-30T22:33:29Z",
   "benchmark": {
     "status": "Not yet passed",
     "summary": "Fresh critics preferred the fourth pass in blind mobile and desktop version comparisons. Captain Toad still wins overall: the next gap is a more expressive, clearly staged encounter that connects the explorer, guardian, objective and route."
@@ -99,9 +99,11 @@
     "Pip now has a coral scarf and bedroll, clearer eyes and directional gaze; Thornback has a broader bronze face and brighter eyes. Fresh actual portrait, desktop, detail and encounter captures are recorded.",
     "Keys have a thicker silhouette and readable sway; the exit has a mint opening and diamond crown. Quieter trim, grouped planting and shoreline contacts are implemented. The mobile critic still wants stronger objective contrast and clearer local intent.",
     "Map and Path notes expand on demand, while the goal and immediate intent stay visible. Natural captions replace internal object IDs, and the camera label says Detail. Browser checks verify disclosure drawing, Escape/focus and terminal reconnect; a fresh blind critic preferred the compact mobile layout.",
-    "A fifth-pass encounter-staging candidate now gives Pip threat-directed head, gaze and lantern poses, and Thornback anticipatory mask/mandible poses, using only disclosed nearby threats. Fresh render and independent critique are still pending."
+    "A fifth-pass encounter-staging candidate now gives Pip threat-directed head, gaze and lantern poses, and Thornback anticipatory mask/mandible poses, using only disclosed nearby threats. Fresh render and independent critique are still pending.",
+    "Sixth pass: real production snapshots now select an actually close, already-disclosed Thornback/Pip encounter; actual browser evidence records both actors on screen, source/image SHA-256 hashes and seed/tick. An amplified public-threat-only head/gaze/lantern/mask response is tested without changing deterministic game authority."
   ],
   "nextGaps": [
+    "Obtain a fresh-context critic for a blinded same-seed/tick A/B of the two current real 1280×900 encounter captures, then compare the winner to both pinned Nintendo Captain Toad gameplay images. The actor-to-actor reaction, legal refuge and meaningful route must read at native gameplay size without HUD narration.",
     "Capture the new public-threat encounter poses and shared framing in real running desktop and mobile output; a fresh independent critic must compare label-masked round-04 versus this candidate and then judge Captain Toad directly.",
     "Make the immediate objective, obstacle and route more legible in the world; increase key contrast and clarify why another key is needed when one has already been collected.",
     "Develop a more distinctive landmark or encounter and the explorer’s target-directed expression at normal viewing size.",
@@ -156,6 +158,13 @@
       "verdict": "No new fixed-bar verdict; encounter staging remains open",
       "date": "2026-10-30T21:30:00Z",
       "summary": "The current-source 1920×1080 and 1280×720 views show an original terraced garden, Pip, a disclosed beetle guardian and a stage route, but the actors are widely separated. These frames do not show proximity-triggered attention or an actionable encounter moment. Prior independent fourth-pass critics still prefer the official Nintendo reference. A separate blind A/B critic is required."
+    },
+    {
+      "title": "Sixth-pass real close-encounter comparison — lead inspection only",
+      "reviewer": "Lead direct inspection of actual source-bound CI captures; fresh-context independent critic unavailable",
+      "verdict": "Actual near encounter visible; not enough expressiveness to pass Captain Toad bar",
+      "date": "2026-10-30T22:33:29Z",
+      "summary": "Aligned production run maze-visual-reference-13 at tick 13 and public 2.236-cell separation: both Pip and Thornback fit inside the actual camera. Increasing disclosure-only reaction strength 0.28033 to 0.56065 changes only about 1.24% of the 1280x900 image pixels, concentrated around the actors. At gameplay size the characters and intervening walls are visible but the threat response, escape decision and refuge/route are not independently obvious. This is not a fresh-context critic or a blind verdict. The latest real capture is in GitHub CI artifact 13018455473; source and image hashes are in docs/reviews/maze-3d/encounter-pass-06-review.md."
     }
   ],
   "verification": [
@@ -231,6 +240,13 @@
       "detail": "GitHub browser capture artifact 13013835284 contains desktop (1920×1080), clean feed (1280×720), and landscape (844×390) images from CI on 2026-10-30 around 21:28–21:29 UTC. The captured wide view shows Pip and a distinct Thornback on the same disclosed garden stage but far apart; the guardian interaction, reaction pose, and connected refuge are not legible enough to close the encounter gate. Pinned hashes and review limits: docs/reviews/maze-3d/ci-artifact-05.md.",
       "sourceCommit": "7d7671ccdd56d77ae05e7a7c2fa05e997348c81a",
       "sourceUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41130491285/artifacts/13013835284"
+    },
+    {
+      "name": "Sixth-pass authentic close encounter — production browser proof",
+      "status": "516/516 unit, 25/25 browser passed; reference still wins; independent A/B pending",
+      "detail": "Source 2c2ae6937b31dec46bf4cf2f841e0a4e8f2c19ad passed all Autonomous Games CI stages on 2026-10-30, including public-only actual near-warden camera test, and emitted a dated 1280x900 browser PNG plus source-bound SHA-256 manifest. The screenshot captures both real actors, no synthetic entities. The new pose response is stronger but not obviously expressive enough at gameplay scale; latest independent fourth-pass reference verdict remains Captain Toad wins. Software CI frame time is not representative hardware FPS; the independent workspace/Ultracode tunnel is unavailable.",
+      "sourceCommit": "2c2ae6937b31dec46bf4cf2f841e0a4e8f2c19ad",
+      "sourceUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41138125715/artifacts/13018455473"
     }
   ],
   "references": [
