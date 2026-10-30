@@ -1,0 +1,39 @@
+name: Tiny Kingdom recoverable checkpoint
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [feat/tiny-kingdom-pagonia-recovery]
+    paths:
+      - '.github/workflows/tiny-kingdom-checkpoint.yml'
+      - 'public/tiny-kingdom/**'
+      - 'tests/tiny-kingdom/**'
+      - 'scripts/tiny-kingdom-*.cjs'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: tiny-kingdom-checkpoint-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  checkpoint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Archive exact tracked source, without credentials or working-tree files
+        run: |
+          git rev-parse HEAD > tiny-kingdom-source-sha.txt
+          git archive --format=tar HEAD | gzip > tiny-kingdom-source.tar.gz
+      - uses: actions/upload-artifact@v4
+        with:
+          name: tiny-kingdom-source-${{ github.sha }}
+          path: |
+            tiny-kingdom-source.tar.gz
+            tiny-kingdom-source-sha.txt
+          retention-days: 7
+          if-no-files-found: error
