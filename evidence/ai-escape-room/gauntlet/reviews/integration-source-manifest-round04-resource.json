@@ -26,5 +26,5 @@
     "scripts/serve-escape-room-stream.cjs": "1213d7926ce80de239031ed0b85b020c547f8d3735e93c769b5522e3597fbc79",
     "tests/browser/escape-room-gauntlet.spec.cjs": "93d17ae57f1c9d963c45dd39e3f325eaed2aa520e84dbf59bf51a7cfb184d62f"
   },
-  "scope": "Only the65-state replay/theme resource stress case; same state transitions and assertions, one actual renderer.frame() call per state with successor RAF paused between steps"
+  "scope": "Only the 65-state replay/theme resource stress case; same state transitions and assertions, one actual renderer.frame() call per state with successor RAF paused between steps"
 }

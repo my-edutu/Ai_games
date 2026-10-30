@@ -1,15 +1,15 @@
-✔ the physical exit stays open through the actual successful intermission and is closed before the exit action (270.715679ms)
-✔ full cipher-vault runs preserve public privacy and complete mechanism counts at the maximum depth (621.452696ms)
-✔ full clockwork-study runs preserve public privacy and complete mechanism counts at the maximum depth (868.84511ms)
-✔ full chromatic-lab runs preserve public privacy and complete mechanism counts at the maximum depth (745.779686ms)
-✔ full archive-zero runs preserve public privacy and complete mechanism counts at the maximum depth (647.88789ms)
-✔ arbitrary presentation reads, accessibility layouts and output recovery do not change autonomous replay (1177.447034ms)
-✔ revealing a hidden object cannot move already placed clues and mechanisms (63.755831ms)
-✔ the real room renderer exposes an explicit disposal lifecycle for its owned resources (4.254884ms)
-✔ malformed network-path request targets fail closed without destroying the server handler (7.40841ms)
-✔ all upgraded browser modules and physical texture assets are served with correct MIME types (241.1245ms)
-✔ evidence routes serve only allowlisted public files and reject traversal into repository data (4.694109ms)
-✔ public state and replay endpoints never return the private server seed or hidden payloads (6.041361ms)
+✔ the physical exit stays open through the actual successful intermission and is closed before the exit action (245.196758ms)
+✔ full cipher-vault runs preserve public privacy and complete mechanism counts at the maximum depth (982.347809ms)
+✔ full clockwork-study runs preserve public privacy and complete mechanism counts at the maximum depth (1082.247203ms)
+✔ full chromatic-lab runs preserve public privacy and complete mechanism counts at the maximum depth (1074.917472ms)
+✔ full archive-zero runs preserve public privacy and complete mechanism counts at the maximum depth (947.910012ms)
+✔ arbitrary presentation reads, accessibility layouts and output recovery do not change autonomous replay (1473.57181ms)
+✔ revealing a hidden object cannot move already placed clues and mechanisms (63.523752ms)
+✔ the real room renderer exposes an explicit disposal lifecycle for its owned resources (4.191803ms)
+✔ malformed network-path request targets fail closed without destroying the server handler (13.758395ms)
+✔ all upgraded browser modules and physical texture assets are served with correct MIME types (344.879937ms)
+✔ evidence routes serve only allowlisted public files and reject traversal into repository data (16.222009ms)
+✔ public state and replay endpoints never return the private server seed or hidden payloads (7.864833ms)
 (node:5) [THREE_CJS_DEPRECATED] DeprecationWarning: `require("three")` is deprecated and will be removed.
 Replace `const THREE = require("three")` with `import * as THREE from "three"`.
 (Use `node --trace-deprecation ...` to show where the warning was created)
@@ -20,4 +20,4 @@ Replace `const THREE = require("three")` with `import * as THREE from "three"`.
 ℹ cancelled 0
 ℹ skipped 0
 ℹ todo 0
-ℹ duration_ms 4848.760742
+ℹ duration_ms 6598.131552

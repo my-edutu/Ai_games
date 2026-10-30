@@ -64,178 +64,8 @@
       "line": 0,
       "specs": [
         {
-          "title": "Follow follows the next real focus even when a reveal follows puzzle-solved in the same tick",
-          "ok": true,
-          "tags": [],
-          "tests": [
-            {
-              "timeout": 120000,
-              "annotations": [],
-              "expectedStatus": "passed",
-              "projectId": "",
-              "projectName": "",
-              "results": [
-                {
-                  "workerIndex": 0,
-                  "parallelIndex": 0,
-                  "status": "passed",
-                  "duration": 108683,
-                  "errors": [],
-                  "stdout": [],
-                  "stderr": [],
-                  "retry": 0,
-                  "startTime": "2026-10-30T20:23:50.468Z",
-                  "annotations": [],
-                  "attachments": []
-                }
-              ],
-              "status": "expected"
-            }
-          ],
-          "id": "16c049a0815064222754-444b99a7eec63c1df784",
-          "file": "escape-room-gauntlet.spec.cjs",
-          "line": 59,
-          "column": 1
-        },
-        {
-          "title": "manual inspection, character view and room controls affect only the presentation",
-          "ok": true,
-          "tags": [],
-          "tests": [
-            {
-              "timeout": 120000,
-              "annotations": [],
-              "expectedStatus": "passed",
-              "projectId": "",
-              "projectName": "",
-              "results": [
-                {
-                  "workerIndex": 0,
-                  "parallelIndex": 0,
-                  "status": "passed",
-                  "duration": 118988,
-                  "errors": [],
-                  "stdout": [],
-                  "stderr": [],
-                  "retry": 0,
-                  "startTime": "2026-10-30T20:25:40.496Z",
-                  "annotations": [],
-                  "attachments": []
-                }
-              ],
-              "status": "expected"
-            }
-          ],
-          "id": "16c049a0815064222754-f4d2eaaecd24bf6e9798",
-          "file": "escape-room-gauntlet.spec.cjs",
-          "line": 73,
-          "column": 1
-        },
-        {
-          "title": "100 percent unlocked is distinct from escape and all twelve mechanisms remain inspectable",
-          "ok": true,
-          "tags": [],
-          "tests": [
-            {
-              "timeout": 120000,
-              "annotations": [],
-              "expectedStatus": "passed",
-              "projectId": "",
-              "projectName": "",
-              "results": [
-                {
-                  "workerIndex": 0,
-                  "parallelIndex": 0,
-                  "status": "passed",
-                  "duration": 74971,
-                  "errors": [],
-                  "stdout": [],
-                  "stderr": [],
-                  "retry": 0,
-                  "startTime": "2026-10-30T20:27:39.705Z",
-                  "annotations": [],
-                  "attachments": []
-                }
-              ],
-              "status": "expected"
-            }
-          ],
-          "id": "16c049a0815064222754-53b8a89fddb02fb0656d",
-          "file": "escape-room-gauntlet.spec.cjs",
-          "line": 106,
-          "column": 1
-        },
-        {
-          "title": "a real escape batch returns the Follow camera to the room even when result is the final event",
-          "ok": true,
-          "tags": [],
-          "tests": [
-            {
-              "timeout": 120000,
-              "annotations": [],
-              "expectedStatus": "passed",
-              "projectId": "",
-              "projectName": "",
-              "results": [
-                {
-                  "workerIndex": 0,
-                  "parallelIndex": 0,
-                  "status": "passed",
-                  "duration": 34261,
-                  "errors": [],
-                  "stdout": [],
-                  "stderr": [],
-                  "retry": 0,
-                  "startTime": "2026-10-30T20:28:54.788Z",
-                  "annotations": [],
-                  "attachments": []
-                }
-              ],
-              "status": "expected"
-            }
-          ],
-          "id": "16c049a0815064222754-d787800e0d32509acae7",
-          "file": "escape-room-gauntlet.spec.cjs",
-          "line": 134,
-          "column": 1
-        },
-        {
-          "title": "WebGL unavailable keeps authoritative snapshots and textual completion alive in the safe scene",
-          "ok": true,
-          "tags": [],
-          "tests": [
-            {
-              "timeout": 120000,
-              "annotations": [],
-              "expectedStatus": "passed",
-              "projectId": "",
-              "projectName": "",
-              "results": [
-                {
-                  "workerIndex": 0,
-                  "parallelIndex": 0,
-                  "status": "passed",
-                  "duration": 779,
-                  "errors": [],
-                  "stdout": [],
-                  "stderr": [],
-                  "retry": 0,
-                  "startTime": "2026-10-30T20:29:29.221Z",
-                  "annotations": [],
-                  "attachments": []
-                }
-              ],
-              "status": "expected"
-            }
-          ],
-          "id": "16c049a0815064222754-cc77e3dc6c48c0c30386",
-          "file": "escape-room-gauntlet.spec.cjs",
-          "line": 145,
-          "column": 1
-        },
-        {
           "title": "WebGL geometry, textures and programs stay bounded through replay and theme rebuilds",
-          "ok": false,
+          "ok": true,
           "tags": [],
           "tests": [
             {
@@ -248,198 +78,29 @@
                 {
                   "workerIndex": 0,
                   "parallelIndex": 0,
-                  "status": "timedOut",
-                  "duration": 122243,
-                  "error": {
-                    "message": "\u001b[31mTest timeout of 120000ms exceeded.\u001b[39m",
-                    "stack": "\u001b[31mTest timeout of 120000ms exceeded.\u001b[39m"
-                  },
-                  "errors": [
-                    {
-                      "message": "\u001b[31mTest timeout of 120000ms exceeded.\u001b[39m"
-                    },
-                    {
-                      "location": {
-                        "file": "/workspace/scratch/4b9cf76baf7a/ai-escape-room/tests/browser/escape-room-gauntlet.spec.cjs",
-                        "column": 28,
-                        "line": 169
-                      },
-                      "message": "Error: page.evaluate: Test timeout of 120000ms exceeded.\n\n  167 |     return [run[0],run[Math.floor(run.length/2)],run.at(-1)];\n  168 |   });\n> 169 |   const samples=await page.evaluate(async rounds=>{\n      |                            ^\n  170 |     const room=window.__GAUNTLET_ROOM__,samples=[];\n  171 |     for(let cycle=0;cycle<5;cycle++){\n  172 |       for(const run of rounds)for(const frame of run){\n    at /workspace/scratch/4b9cf76baf7a/ai-escape-room/tests/browser/escape-room-gauntlet.spec.cjs:169:28"
-                    }
-                  ],
+                  "status": "passed",
+                  "duration": 95692,
+                  "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-10-30T20:29:30.078Z",
+                  "startTime": "2026-10-30T20:44:27.317Z",
                   "annotations": [],
                   "attachments": [
                     {
-                      "name": "error-context",
-                      "contentType": "text/markdown",
-                      "path": "/workspace/scratch/4b9cf76baf7a/ai-escape-room/evidence/ai-escape-room/gauntlet/reviews/browser-test-results/escape-room-gauntlet-WebGL-a133a-h-replay-and-theme-rebuilds/error-context.md"
-                    },
-                    {
-                      "name": "trace",
-                      "contentType": "application/zip",
-                      "path": "/workspace/scratch/4b9cf76baf7a/ai-escape-room/evidence/ai-escape-room/gauntlet/reviews/browser-test-results/escape-room-gauntlet-WebGL-a133a-h-replay-and-theme-rebuilds/trace.zip"
+                      "name": "webgl-resource-samples",
+                      "contentType": "application/json",
+                      "body": "WwogIHsKICAgICJjeWNsZSI6IDAsCiAgICAiZ2VvbWV0cmllcyI6IDE1OCwKICAgICJ0ZXh0dXJlcyI6IDIxLAogICAgInByb2dyYW1zIjogMTMsCiAgICAiY2FjaGVkR2VvbWV0cnkiOiAyNDYsCiAgICAic2NlbmVyeVRleHR1cmVzIjogMTYsCiAgICAiZ3JvdXBzIjogMjAKICB9LAogIHsKICAgICJjeWNsZSI6IDEsCiAgICAiZ2VvbWV0cmllcyI6IDE1OCwKICAgICJ0ZXh0dXJlcyI6IDIxLAogICAgInByb2dyYW1zIjogMTMsCiAgICAiY2FjaGVkR2VvbWV0cnkiOiAyNDYsCiAgICAic2NlbmVyeVRleHR1cmVzIjogMTYsCiAgICAiZ3JvdXBzIjogMjAKICB9LAogIHsKICAgICJjeWNsZSI6IDIsCiAgICAiZ2VvbWV0cmllcyI6IDE1OCwKICAgICJ0ZXh0dXJlcyI6IDIxLAogICAgInByb2dyYW1zIjogMTMsCiAgICAiY2FjaGVkR2VvbWV0cnkiOiAyNDYsCiAgICAic2NlbmVyeVRleHR1cmVzIjogMTYsCiAgICAiZ3JvdXBzIjogMjAKICB9LAogIHsKICAgICJjeWNsZSI6IDMsCiAgICAiZ2VvbWV0cmllcyI6IDE1OCwKICAgICJ0ZXh0dXJlcyI6IDIxLAogICAgInByb2dyYW1zIjogMTMsCiAgICAiY2FjaGVkR2VvbWV0cnkiOiAyNDYsCiAgICAic2NlbmVyeVRleHR1cmVzIjogMTYsCiAgICAiZ3JvdXBzIjogMjAKICB9LAogIHsKICAgICJjeWNsZSI6IDQsCiAgICAiZ2VvbWV0cmllcyI6IDE1OCwKICAgICJ0ZXh0dXJlcyI6IDIxLAogICAgInByb2dyYW1zIjogMTMsCiAgICAiY2FjaGVkR2VvbWV0cnkiOiAyNDYsCiAgICAic2NlbmVyeVRleHR1cmVzIjogMTYsCiAgICAiZ3JvdXBzIjogMjAKICB9Cl0="
                     }
                   ]
                 }
               ],
-              "status": "unexpected"
+              "status": "expected"
             }
           ],
           "id": "16c049a0815064222754-24a5361cc246053edd25",
           "file": "escape-room-gauntlet.spec.cjs",
           "line": 161,
-          "column": 1
-        },
-        {
-          "title": "character view keeps the entire Archivist visible beside real wall mechanisms",
-          "ok": true,
-          "tags": [],
-          "tests": [
-            {
-              "timeout": 120000,
-              "annotations": [],
-              "expectedStatus": "passed",
-              "projectId": "",
-              "projectName": "",
-              "results": [
-                {
-                  "workerIndex": 1,
-                  "parallelIndex": 0,
-                  "status": "passed",
-                  "duration": 69064,
-                  "errors": [],
-                  "stdout": [],
-                  "stderr": [],
-                  "retry": 0,
-                  "startTime": "2026-10-30T20:31:35.589Z",
-                  "annotations": [],
-                  "attachments": []
-                }
-              ],
-              "status": "expected"
-            }
-          ],
-          "id": "16c049a0815064222754-1e4575e1e6f121bb67e7",
-          "file": "escape-room-gauntlet.spec.cjs",
-          "line": 194,
-          "column": 1
-        },
-        {
-          "title": "replacing animated mechanisms releases GPU instance buffers as well as geometries",
-          "ok": true,
-          "tags": [],
-          "tests": [
-            {
-              "timeout": 120000,
-              "annotations": [],
-              "expectedStatus": "passed",
-              "projectId": "",
-              "projectName": "",
-              "results": [
-                {
-                  "workerIndex": 1,
-                  "parallelIndex": 0,
-                  "status": "passed",
-                  "duration": 108241,
-                  "errors": [],
-                  "stdout": [],
-                  "stderr": [],
-                  "retry": 0,
-                  "startTime": "2026-10-30T20:32:44.893Z",
-                  "annotations": [],
-                  "attachments": [
-                    {
-                      "name": "gpu-buffer-samples",
-                      "contentType": "application/json",
-                      "body": "WwogIHsKICAgICJjcmVhdGVkIjogNzUxLAogICAgImRlbGV0ZWQiOiA0MDMsCiAgICAib3V0c3RhbmRpbmciOiAzNDgsCiAgICAiZ2VvbWV0cmllcyI6IDEwNwogIH0sCiAgewogICAgImNyZWF0ZWQiOiAxMTU0LAogICAgImRlbGV0ZWQiOiA4MDYsCiAgICAib3V0c3RhbmRpbmciOiAzNDgsCiAgICAiZ2VvbWV0cmllcyI6IDEwNwogIH0sCiAgewogICAgImNyZWF0ZWQiOiAxNTU3LAogICAgImRlbGV0ZWQiOiAxMjA5LAogICAgIm91dHN0YW5kaW5nIjogMzQ4LAogICAgImdlb21ldHJpZXMiOiAxMDcKICB9LAogIHsKICAgICJjcmVhdGVkIjogMTk2MCwKICAgICJkZWxldGVkIjogMTYxMiwKICAgICJvdXRzdGFuZGluZyI6IDM0OCwKICAgICJnZW9tZXRyaWVzIjogMTA3CiAgfSwKICB7CiAgICAiY3JlYXRlZCI6IDIzNjMsCiAgICAiZGVsZXRlZCI6IDIwMTUsCiAgICAib3V0c3RhbmRpbmciOiAzNDgsCiAgICAiZ2VvbWV0cmllcyI6IDEwNwogIH0sCiAgewogICAgImNyZWF0ZWQiOiAyNzY2LAogICAgImRlbGV0ZWQiOiAyNDE4LAogICAgIm91dHN0YW5kaW5nIjogMzQ4LAogICAgImdlb21ldHJpZXMiOiAxMDcKICB9Cl0="
-                    }
-                  ]
-                }
-              ],
-              "status": "expected"
-            }
-          ],
-          "id": "16c049a0815064222754-0c73871ee57d4f4adb48",
-          "file": "escape-room-gauntlet.spec.cjs",
-          "line": 221,
-          "column": 1
-        },
-        {
-          "title": "renderer disposal stops callbacks and retires its context while shared assets keep another renderer alive",
-          "ok": true,
-          "tags": [],
-          "tests": [
-            {
-              "timeout": 120000,
-              "annotations": [],
-              "expectedStatus": "passed",
-              "projectId": "",
-              "projectName": "",
-              "results": [
-                {
-                  "workerIndex": 1,
-                  "parallelIndex": 0,
-                  "status": "passed",
-                  "duration": 17784,
-                  "errors": [],
-                  "stdout": [],
-                  "stderr": [],
-                  "retry": 0,
-                  "startTime": "2026-10-30T20:34:33.220Z",
-                  "annotations": [],
-                  "attachments": [
-                    {
-                      "name": "renderer-lifecycle",
-                      "contentType": "application/json",
-                      "body": "ewogICJiZWZvcmUiOiB7CiAgICAiZnJhbWUiOiAyLAogICAgInBpY2siOiAwLAogICAgInJlc2l6ZSI6IDEsCiAgICAicm9vbVZpZXciOiAwLAogICAgIm9ic2VydmVyIjogMQogIH0sCiAgInN0b3BwZWQiOiB7CiAgICAiZnJhbWUiOiAyLAogICAgInBpY2siOiAwLAogICAgInJlc2l6ZSI6IDEsCiAgICAicm9vbVZpZXciOiAwLAogICAgIm9ic2VydmVyIjogMQogIH0sCiAgImFmdGVyIjogewogICAgImZyYW1lIjogMiwKICAgICJwaWNrIjogMCwKICAgICJyZXNpemUiOiAxLAogICAgInJvb21WaWV3IjogMCwKICAgICJvYnNlcnZlciI6IDEKICB9LAogICJkcmF3biI6IDg3LAogICJyZXRpcmVkQ29udGV4dCI6IHRydWUsCiAgInNoYXJlZEFzc2V0cyI6IDIwLAogICJkaXNwb3NlZFNoYXJlZCI6IDAsCiAgInN1cnZpdm9yIjogewogICAgImNvbnRleHRMb3N0IjogZmFsc2UsCiAgICAiZHJhd0NhbGxzIjogODcKICB9LAogICJyZWdpc3RlcmVkTGlzdGVuZXJzIjogNiwKICAicmVtYWluaW5nTGlzdGVuZXJzIjogW10KfQ=="
-                    }
-                  ]
-                }
-              ],
-              "status": "expected"
-            }
-          ],
-          "id": "16c049a0815064222754-d23d4fe01fa5c1d47598",
-          "file": "escape-room-gauntlet.spec.cjs",
-          "line": 245,
-          "column": 1
-        },
-        {
-          "title": "a poll that skips the single result frame still shows the confirmed escape during intermission",
-          "ok": true,
-          "tags": [],
-          "tests": [
-            {
-              "timeout": 120000,
-              "annotations": [],
-              "expectedStatus": "passed",
-              "projectId": "",
-              "projectName": "",
-              "results": [
-                {
-                  "workerIndex": 1,
-                  "parallelIndex": 0,
-                  "status": "passed",
-                  "duration": 23002,
-                  "errors": [],
-                  "stdout": [],
-                  "stderr": [],
-                  "retry": 0,
-                  "startTime": "2026-10-30T20:34:51.031Z",
-                  "annotations": [],
-                  "attachments": []
-                }
-              ],
-              "status": "expected"
-            }
-          ],
-          "id": "16c049a0815064222754-e60f0742febb903e564e",
-          "file": "escape-room-gauntlet.spec.cjs",
-          "line": 301,
           "column": 1
         }
       ]
@@ -447,11 +108,11 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-10-30T20:23:40.010Z",
-    "duration": 694294.007,
-    "expected": 9,
+    "startTime": "2026-10-30T20:44:25.085Z",
+    "duration": 98799.86499999999,
+    "expected": 1,
     "skipped": 0,
-    "unexpected": 1,
+    "unexpected": 0,
     "flaky": 0
   }
 }

@@ -1,0 +1,90 @@
+(node:163862) [THREE_CJS_DEPRECATED] DeprecationWarning: `require("three")` is deprecated and will be removed.
+Replace `const THREE = require("three")` with `import * as THREE from "three"`.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+✔ confirmed success stages the Archivist by the opened exit instead of an unrelated remaining clue (313.272639ms)
+✔ archivist remains inside the physical room for extreme focus positions and does not mutate snapshots (353.482375ms)
+✔ solve animation consumes each event once and new runs reset event identity (433.461678ms)
+✔ reduced-motion removes idle oscillation while preserving semantic pose and world location (182.574211ms)
+✔ resource count stays bounded across state changes and dispose is idempotent (209.168917ms)
+✔ character stays within its color-pass submission budget (182.239931ms)
+✔ dispose releases owned instance buffers and all resources once without releasing foreign attachments (190.780266ms)
+(node:163863) [THREE_CJS_DEPRECATED] DeprecationWarning: `require("three")` is deprecated and will be removed.
+Replace `const THREE = require("three")` with `import * as THREE from "three"`.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+✔ the physical exit stays open through the actual successful intermission and is closed before the exit action (252.679923ms)
+(node:163869) [THREE_CJS_DEPRECATED] DeprecationWarning: `require("three")` is deprecated and will be removed.
+Replace `const THREE = require("three")` with `import * as THREE from "three"`.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+✔ desktop overview contains the complete actor at both wall workstations (427.961468ms)
+✔ full cipher-vault runs preserve public privacy and complete mechanism counts at the maximum depth (443.786926ms)
+✔ full clockwork-study runs preserve public privacy and complete mechanism counts at the maximum depth (493.996135ms)
+✔ full chromatic-lab runs preserve public privacy and complete mechanism counts at the maximum depth (452.56061ms)
+✔ full archive-zero runs preserve public privacy and complete mechanism counts at the maximum depth (324.928813ms)
+✔ arbitrary presentation reads, accessibility layouts and output recovery do not change autonomous replay (718.072511ms)
+✔ revealing a hidden object cannot move already placed clues and mechanisms (46.746556ms)
+(node:163871) [THREE_CJS_DEPRECATED] DeprecationWarning: `require("three")` is deprecated and will be removed.
+Replace `const THREE = require("three")` with `import * as THREE from "three"`.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+✔ the real room renderer exposes an explicit disposal lifecycle for its owned resources (10.425217ms)
+✔ malformed network-path request targets fail closed without destroying the server handler (132.040222ms)
+✔ all upgraded browser modules and physical texture assets are served with correct MIME types (307.930386ms)
+✔ evidence routes serve only allowlisted public files and reject traversal into repository data (16.435009ms)
+✔ public state and replay endpoints never return the private server seed or hidden payloads (50.532651ms)
+(node:163884) [THREE_CJS_DEPRECATED] DeprecationWarning: `require("three")` is deprecated and will be removed.
+Replace `const THREE = require("three")` with `import * as THREE from "three"`.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+✔ every mechanism has a distinct physical artifact and isolated articulation (753.149842ms)
+✔ all solved poses mechanically differ from closed poses and finish immediately in reduced motion (636.737174ms)
+✔ copied presentation motion interpolates to authoritative solved state without changing object data (72.859253ms)
+✔ public clue, tool, and decoy geometry accepts absent optional placement safely (5.491747ms)
+✔ vault pinions counter-rotate at the drive ratio and remain deterministic across presentation clocks (142.587688ms)
+✔ vault drawbars stay attached to their fixed pivot and moving bolt through the full opening travel (94.927155ms)
+✔ batched vault resources stay inside the room allocation and reuse shared materials on rebuild (663.468155ms)
+✔ parseEscapeRoomConfig enforces exact production bounds (6.080846ms)
+✔ same seed and configuration produce identical room and diagnostics (6.3409ms)
+✔ cosmetic random draws do not perturb authoritative generation streams (2.93794ms)
+✔ generated room has stable unique IDs, constructively ordered prerequisites and a solver route (1.214943ms)
+✔ deep rooms use deterministic branch-and-merge dependencies instead of one linear chain (0.782348ms)
+✔ mandatory clue families have non-color redundant cues and hazards preserve response windows (0.909097ms)
+✔ validator reports typed diagnostics for duplicate IDs and broken prerequisites (1.003388ms)
+✔ bounded failed attempts use the versioned known-good fallback with observable diagnostics (0.778707ms)
+✔ initial state is bounded, valid and exposes only currently legal atomic actions (33.104568ms)
+✔ inspect reveals one fact, take carries portable tools and rejected actions are atomic (4.850495ms)
+✔ combine is deterministic and bounded when two carried items are present (2.764103ms)
+✔ oracle action sequence exercises puzzle actions and reaches an explainable escape result (51.326724ms)
+✔ result advances to intermission and automatically starts the next deterministic room (6.55443ms)
+✔ snapshot checksum and compatibility failures are typed and restore exactly (76.699667ms)
+✔ headless execution reuses production rules and reproduces final checksum (70.924508ms)
+✔ manual solution route remains legal step by step without duplicate rules (130.204053ms)
+✔ observation, public belief and decision exclude undiscovered solution truth and oracle fields (44.320998ms)
+✔ inspection makes a fact available to belief without exposing raw code in public intent (6.572802ms)
+✔ planner selects information gain, prerequisite actions and deterministic puzzle execution (2.609843ms)
+✔ planner reacts safely to an active hazard and uses a stable tie-break under equal utility (14.085554ms)
+✔ belief is bounded and contradictory facts lower confidence deterministically (1.408946ms)
+✔ pathology detector classifies repeated actions and no-progress with bounded recovery (1.132988ms)
+✔ autonomous runtime completes varied rooms without oracle policy or remote model (342.634361ms)
+✔ planner falls back to a legal wait when no public affordance can progress (0.547373ms)
+✔ difficulty and theme progression are deterministic, bounded and add decisions before raw pressure (14.266672ms)
+✔ hazards always telegraph before active, expose phase transitions and honor suppression (32.554407ms)
+✔ autonomous runtime waits through live hazards while unsafe manual action has a causal fair failure (224.656782ms)
+✔ continuous runtime applies declared progression at the next-room boundary (46.331431ms)
+✔ stratified campaign is deterministic and separates technical evidence from fair outcomes (2128.623187ms)
+✔ campaign explicitly records fallback content without counting it as a legitimate game loss (6.230919ms)
+✔ render projection is immutable, bounded and private (96.536206ms)
+✔ render objects expose safe puzzle types and deterministic physical placement without leaking solutions (8.505844ms)
+✔ public snapshot explains objective, progress, danger and concise AI intent (39.390913ms)
+✔ desktop, phone landscape and clean feed remain in safe bounds (0.638438ms)
+✔ camera and semantic audio are deterministic and cosmetic (4.551878ms)
+✔ controller rejects stale frames, bounds replay and restores latest valid frame (51.568707ms)
+✔ output health distinguishes stale, black, frozen and muted output (0.418343ms)
+✔ browser source is self-hosted, accessible and avoids unsafe DOM injection (1.633016ms)
+✔ stream readiness remains healthy before any viewer has requested a frame (3700.957758ms)
+✔ vendored Three.js entrypoint serves every relative module dependency (228.111431ms)
+ℹ tests 67
+ℹ suites 0
+ℹ pass 67
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 5288.501544

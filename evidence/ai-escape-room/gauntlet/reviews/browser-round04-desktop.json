@@ -1,0 +1,145 @@
+{
+  "config": {
+    "configFile": "/workspace/scratch/4b9cf76baf7a/ai-escape-room/playwright.escape.config.cjs",
+    "rootDir": "/workspace/scratch/4b9cf76baf7a/ai-escape-room/tests/browser",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "reporter": [
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "/workspace/scratch/4b9cf76baf7a/ai-escape-room/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "/workspace/scratch/4b9cf76baf7a/ai-escape-room/tests/browser",
+        "testIgnore": [],
+        "testMatch": [
+          "escape-room-*.spec.cjs"
+        ],
+        "timeout": 120000
+      }
+    ],
+    "shard": null,
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.55.0",
+    "workers": 1,
+    "webServer": {
+      "command": "node scripts/serve-escape-room-stream.cjs --port=4177",
+      "url": "http://127.0.0.1:4177/escape-room/health",
+      "timeout": 30000,
+      "reuseExistingServer": true
+    }
+  },
+  "suites": [
+    {
+      "title": "escape-room-stream.spec.cjs",
+      "file": "escape-room-stream.spec.cjs",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "escape room desktop broadcast is a physical Three.js room, readable and privacy safe",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 51972,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mnot\u001b[2m.\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: not \u001b[32m\"4\"\u001b[39m",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mnot\u001b[2m.\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: not \u001b[32m\"4\"\u001b[39m\n    at /workspace/scratch/4b9cf76baf7a/ai-escape-room/tests/browser/escape-room-stream.spec.cjs:14:192",
+                    "location": {
+                      "file": "/workspace/scratch/4b9cf76baf7a/ai-escape-room/tests/browser/escape-room-stream.spec.cjs",
+                      "column": 192,
+                      "line": 14
+                    },
+                    "snippet": "  12 |   const canvas=page.locator('[data-testid=\"escape-canvas\"]');await expect(canvas).toBeVisible();await expect(canvas).toHaveAttribute('data-renderer','three-physical-room-v2');\n  13 |   await expect(page.locator('[data-testid=\"objective\"]')).toContainText(/escape/i);await expect(page.locator('[data-testid=\"ai-intent\"]')).not.toBeEmpty();await page.waitForFunction(()=>Boolean(window.__ESCAPE_PUBLIC_STATE__));const titleState=await page.evaluate(()=>window.__ESCAPE_PUBLIC_STATE__);await expect(page.locator('[data-testid=\"room-title-index\"]')).toHaveText(`ROOM ${String(titleState.roomIndex).padStart(2,'0')}`);await expect(page.locator('[data-testid=\"room-title-name\"]')).not.toBeEmpty();\n> 14 |   const first=await page.locator('[data-testid=\"tick\"]').textContent();await page.waitForTimeout(700);const second=await page.locator('[data-testid=\"tick\"]').textContent();expect(second).not.toBe(first);\n     |                                                                                                                                                                                                ^\n  15 |   const state=await page.evaluate(()=>window.__ESCAPE_PUBLIC_STATE__);expect(state).toBeTruthy();expect(state.renderVersion).toBe('escape-render-v2');expect(state.seed).toBeUndefined();expect(state.runId).toBeUndefined();expect(state.roomSeed).toBeUndefined();expect(JSON.stringify(state)).not.toMatch(/hiddenFact|solution|oracle/i);expect(state.objects.every(object=>object.placement&&typeof object.placement.surface==='string')).toBe(true);\n  16 |   await page.waitForFunction(()=>window.__ESCAPE_RENDER_DIAGNOSTICS__?.renderer==='three-physical-room-v2');const diagnostics=await page.evaluate(()=>window.__ESCAPE_RENDER_DIAGNOSTICS__);expect(diagnostics.renderer).toBe('three-physical-room-v2');expect(diagnostics.engine).toBe('three');expect(diagnostics.webgl).toBe(true);expect(diagnostics.roomSurfaces).toBeGreaterThanOrEqual(5);expect(diagnostics.physicalProps).toBeGreaterThan(20);expect(diagnostics.materialFamilies).toBeGreaterThanOrEqual(12);expect(diagnostics.meshFamilies).toBeGreaterThanOrEqual(8);expect(diagnostics.themedDressing).toBeGreaterThan(0);expect(diagnostics.adaptiveQuality).toBe(true);expect(['high','medium','low']).toContain(diagnostics.qualityTier);expect(['bounded-pcf','disabled-quality-tier']).toContain(diagnostics.shadowMode);expect([18,36,54]).toContain(diagnostics.particleCount);expect(diagnostics.fps).toBeGreaterThan(0);expect(diagnostics.drawCalls).toBeLessThan(190);expect(diagnostics.triangles).toBeLessThan(150000);fs.writeFileSync(path.join(artifacts,'runtime-diagnostics.json'),JSON.stringify(diagnostics,null,2));\n  17 |   const layout=await page.evaluate(()=>({viewport:document.documentElement.clientWidth,scroll:document.documentElement.scrollWidth,canvas:document.querySelector('[data-testid=\"escape-canvas\"]').getBoundingClientRect().toJSON()}));expect(layout.scroll).toBe(layout.viewport);expect(layout.canvas.width).toBeGreaterThan(1300);expect(layout.canvas.height).toBeGreaterThan(650);"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/workspace/scratch/4b9cf76baf7a/ai-escape-room/tests/browser/escape-room-stream.spec.cjs",
+                        "column": 192,
+                        "line": 14
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mnot\u001b[2m.\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: not \u001b[32m\"4\"\u001b[39m\n\n  12 |   const canvas=page.locator('[data-testid=\"escape-canvas\"]');await expect(canvas).toBeVisible();await expect(canvas).toHaveAttribute('data-renderer','three-physical-room-v2');\n  13 |   await expect(page.locator('[data-testid=\"objective\"]')).toContainText(/escape/i);await expect(page.locator('[data-testid=\"ai-intent\"]')).not.toBeEmpty();await page.waitForFunction(()=>Boolean(window.__ESCAPE_PUBLIC_STATE__));const titleState=await page.evaluate(()=>window.__ESCAPE_PUBLIC_STATE__);await expect(page.locator('[data-testid=\"room-title-index\"]')).toHaveText(`ROOM ${String(titleState.roomIndex).padStart(2,'0')}`);await expect(page.locator('[data-testid=\"room-title-name\"]')).not.toBeEmpty();\n> 14 |   const first=await page.locator('[data-testid=\"tick\"]').textContent();await page.waitForTimeout(700);const second=await page.locator('[data-testid=\"tick\"]').textContent();expect(second).not.toBe(first);\n     |                                                                                                                                                                                                ^\n  15 |   const state=await page.evaluate(()=>window.__ESCAPE_PUBLIC_STATE__);expect(state).toBeTruthy();expect(state.renderVersion).toBe('escape-render-v2');expect(state.seed).toBeUndefined();expect(state.runId).toBeUndefined();expect(state.roomSeed).toBeUndefined();expect(JSON.stringify(state)).not.toMatch(/hiddenFact|solution|oracle/i);expect(state.objects.every(object=>object.placement&&typeof object.placement.surface==='string')).toBe(true);\n  16 |   await page.waitForFunction(()=>window.__ESCAPE_RENDER_DIAGNOSTICS__?.renderer==='three-physical-room-v2');const diagnostics=await page.evaluate(()=>window.__ESCAPE_RENDER_DIAGNOSTICS__);expect(diagnostics.renderer).toBe('three-physical-room-v2');expect(diagnostics.engine).toBe('three');expect(diagnostics.webgl).toBe(true);expect(diagnostics.roomSurfaces).toBeGreaterThanOrEqual(5);expect(diagnostics.physicalProps).toBeGreaterThan(20);expect(diagnostics.materialFamilies).toBeGreaterThanOrEqual(12);expect(diagnostics.meshFamilies).toBeGreaterThanOrEqual(8);expect(diagnostics.themedDressing).toBeGreaterThan(0);expect(diagnostics.adaptiveQuality).toBe(true);expect(['high','medium','low']).toContain(diagnostics.qualityTier);expect(['bounded-pcf','disabled-quality-tier']).toContain(diagnostics.shadowMode);expect([18,36,54]).toContain(diagnostics.particleCount);expect(diagnostics.fps).toBeGreaterThan(0);expect(diagnostics.drawCalls).toBeLessThan(190);expect(diagnostics.triangles).toBeLessThan(150000);fs.writeFileSync(path.join(artifacts,'runtime-diagnostics.json'),JSON.stringify(diagnostics,null,2));\n  17 |   const layout=await page.evaluate(()=>({viewport:document.documentElement.clientWidth,scroll:document.documentElement.scrollWidth,canvas:document.querySelector('[data-testid=\"escape-canvas\"]').getBoundingClientRect().toJSON()}));expect(layout.scroll).toBe(layout.viewport);expect(layout.canvas.width).toBeGreaterThan(1300);expect(layout.canvas.height).toBeGreaterThan(650);\n    at /workspace/scratch/4b9cf76baf7a/ai-escape-room/tests/browser/escape-room-stream.spec.cjs:14:192"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-30T20:53:10.930Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/workspace/scratch/4b9cf76baf7a/ai-escape-room/test-results/escape-room-stream-escape--618f4-m-readable-and-privacy-safe/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/workspace/scratch/4b9cf76baf7a/ai-escape-room/test-results/escape-room-stream-escape--618f4-m-readable-and-privacy-safe/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/workspace/scratch/4b9cf76baf7a/ai-escape-room/tests/browser/escape-room-stream.spec.cjs",
+                    "column": 192,
+                    "line": 14
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "fcff9453e6b9f3dbb3e5-6ac540553fb9ee389ffd",
+          "file": "escape-room-stream.spec.cjs",
+          "line": 9,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-30T20:53:09.193Z",
+    "duration": 55332.242,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  }
+}

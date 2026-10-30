@@ -1,7 +1,7 @@
 {
-  "updated": "2026-10-30T20:28:34.730481+00:00",
+  "updated": "2026-10-30T20:56:07.135565+00:00",
   "verdict": "Reference wins \u00b7 work continues",
-  "currentGap": "The new build wins the blind comparison with baseline; The Room 4 still wins the fixed comparison. Next target: authored furniture construction and staging, with the Archivist fully visible in the overview.",
+  "currentGap": "The latest furniture and staging pass wins the blind comparison with the previous build. The Room 4 still wins the fixed comparison. The next pass targets contact grounding, localized light and physical material depth.",
   "rounds": [
     {
       "id": "baseline",
@@ -41,16 +41,34 @@
         "result",
         "mobile"
       ]
+    },
+    {
+      "id": "round-04",
+      "label": "ITERATION 04",
+      "title": "Constructed furniture and complete staging",
+      "verdict": "REFERENCE WINS",
+      "summary": "A shaped writing bench, upholstered chair, differentiated instrument stands and bookcase crowns are now visible. The overview keeps the whole Archivist in frame; confirmed escape stages the character at the open doorway. A fresh blind critic preferred this pass in four views, with the unchanged mechanism tied.",
+      "gap": "Broad fill light, weak contact grounding and repeated wood/gold surface treatment still fall behind the fixed commercial reference.",
+      "views": [
+        "room",
+        "furniture",
+        "mechanism",
+        "character",
+        "result",
+        "mobile"
+      ]
     }
   ],
   "checks": [
-    "TypeScript build passed.",
-    "65 Escape Room unit and contract tests passed after the latest runtime, character, mechanism and teardown corrections.",
-    "A real autonomous capture run escaped at tick 25 with all eight puzzles solved.",
-    "Independent critics found and reproduced batched camera-event errors, shifting props, character clipping and an instance-buffer leak. Corrections are undergoing the original regression checks.",
-    "Commercial reference comparisons remain unblinded. Visual parity has not been established.",
-    "Character render submissions reduced from 61 to 39. Nine semantic poses preserve all 12,526 triangles and articulation; exact geometry comparison retained.",
-    "The real exit stays open through successful intermission. The focused mesh regression passed after a recorded failure.",
-    "Stream self-test passed: deterministic authority, public privacy, recovery, next-room restart and all browser assets."
+    "TypeScript build passed; 67 Escape Room unit and contract tests passed at the Round 04 checkpoint.",
+    "The real autonomous capture run escaped at tick 25 with all eight puzzles solved; no browser console/page errors were captured.",
+    "Nine independent browser scenarios passed at Round 03. The four-theme resource stress test passed separately on Round 04 with all 65 real renderer frames and unchanged assertions.",
+    "Five theme/replay cycles retained exactly 158 WebGL geometries, 21 textures and 13 shader programs. A separate raw-buffer regression held 348 outstanding buffers across six cycles.",
+    "Renderer teardown stops callbacks, removes listeners and retires its context while preserving shared assets used by a surviving renderer.",
+    "The existing desktop broadcast check failed its fixed 700 ms tick-change assertion before reaching rendering budget assertions; the failure is retained for investigation.",
+    "The Round 04 low-tier stills measured 170 draw calls / 111,128 triangles for the opening room and 180 / 113,612 for confirmed escape. These are capture measurements, not native-GPU performance proof.",
+    "Commercial comparisons remain unblinded; visual parity has not been established. Independent chronology-blinded comparisons prefer the new builds over their predecessors.",
+    "Character mesh submissions reduced from 61 to 39 with all 12,526 triangles and articulation retained.",
+    "Stream self-test passed: deterministic authority, public privacy, recovery, next-room restart and browser assets."
   ]
 }

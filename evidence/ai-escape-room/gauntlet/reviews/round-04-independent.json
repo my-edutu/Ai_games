@@ -1,0 +1,289 @@
+{
+  "review": "round-04-independent",
+  "review_date": "2026-10-30",
+  "blind_verdict_locked_before_reference_or_supplemental_inspection": true,
+  "inspection_scope": "Rendered images only. No source, git history, chronology key, tests or runtime inspection. No Chromium launched.",
+  "blind_comparison": {
+    "overall_winner": "A",
+    "overall_reason": "A improves visible furniture construction, full-room coverage and the completion tableau without degrading the core vault mechanism. This is a real but bounded visual improvement; the fixed-reference quality verdict is evaluated separately.",
+    "views": {
+      "room": {
+        "winner": "A",
+        "reason": "A gives a complete room view, keeping the side-wall locks and the Archivist in frame. The asymmetric desk has a modeled drawer pedestal and turned exposed legs; the curved upholstered chair and shaped bookcase crowns read as more authored furniture. B gives the vault a larger scale but clips the character at the right edge and repeats boxier furniture forms. A still leaves excessive empty ceiling and foreground."
+      },
+      "mechanism": {
+        "winner": "tie",
+        "reason": "The visible vault mechanism, framing, material treatment and interface appear the same. Both show a convincing layered ring, bolts, rods and gears; neither offers a visible polish advantage in this view. SHA256 hashing confirms that the two mechanism PNG files are byte-identical."
+      },
+      "character": {
+        "winner": "A",
+        "reason": "The robot itself appears substantially unchanged and has a clear, friendly silhouette in both. A has cleaner underside presentation; B adds a conspicuous gray triangular exhaust cone that reads as an unblended primitive against the wood paneling."
+      },
+      "result": {
+        "winner": "A",
+        "reason": "A places the robot at the newly opened doorway, giving the escape state an intelligible spatial outcome. B places it high in front of the right bookcase. A also retains the more finished furniture and more complete room framing. The success interface is otherwise effectively the same."
+      },
+      "mobile": {
+        "winner": "A",
+        "reason": "The interface and portrait composition are essentially identical. A improves the central chair silhouette and replaces some repeated barrel-like furnishings with more differentiated stools and a cabinet. The crop still excludes the character and most side-wall mechanisms in both."
+      }
+    }
+  },
+  "image_hashes": [
+    {
+      "set": "A",
+      "view": "room",
+      "path": "/tmp/escape-gauntlet-round04-blind/A/room.png",
+      "sha256": "ba03d32fa1f663872202590a044bbb45deb76d494cdef9952f2a0c8500ccf6b8",
+      "dimensions": [
+        1600,
+        1000
+      ]
+    },
+    {
+      "set": "A",
+      "view": "mechanism",
+      "path": "/tmp/escape-gauntlet-round04-blind/A/mechanism.png",
+      "sha256": "85c23aac51e827b73e216f4e3172b64641335ef7e9d324557ba0f983c37f854f",
+      "dimensions": [
+        1600,
+        1000
+      ]
+    },
+    {
+      "set": "A",
+      "view": "character",
+      "path": "/tmp/escape-gauntlet-round04-blind/A/character.png",
+      "sha256": "2b2ca908f59ffc35ebae4aa05a4d286f3945227294be04d6e43e2048e1c838be",
+      "dimensions": [
+        1600,
+        1000
+      ]
+    },
+    {
+      "set": "A",
+      "view": "result",
+      "path": "/tmp/escape-gauntlet-round04-blind/A/result.png",
+      "sha256": "00dfaadbbf3719e7c5fb823a21ee36bc61494ea2ae7a7fd0424d9996be507e1b",
+      "dimensions": [
+        1600,
+        1000
+      ]
+    },
+    {
+      "set": "A",
+      "view": "mobile",
+      "path": "/tmp/escape-gauntlet-round04-blind/A/mobile.png",
+      "sha256": "15569356e17a6fef3cc2c67a079df317e10e78a13e0d9dd0ba257024ae5981a8",
+      "dimensions": [
+        390,
+        844
+      ]
+    },
+    {
+      "set": "B",
+      "view": "room",
+      "path": "/tmp/escape-gauntlet-round04-blind/B/room.png",
+      "sha256": "77076dffac670c11c3e6173aa2d56025ef7a898d166c69a49e4457d0b54c6a2c",
+      "dimensions": [
+        1600,
+        1000
+      ]
+    },
+    {
+      "set": "B",
+      "view": "mechanism",
+      "path": "/tmp/escape-gauntlet-round04-blind/B/mechanism.png",
+      "sha256": "85c23aac51e827b73e216f4e3172b64641335ef7e9d324557ba0f983c37f854f",
+      "dimensions": [
+        1600,
+        1000
+      ]
+    },
+    {
+      "set": "B",
+      "view": "character",
+      "path": "/tmp/escape-gauntlet-round04-blind/B/character.png",
+      "sha256": "9a6aab346ce813f034f8b3c473fd8f1176ba32134ec3cbfc946a95ddf24de333",
+      "dimensions": [
+        1600,
+        1000
+      ]
+    },
+    {
+      "set": "B",
+      "view": "result",
+      "path": "/tmp/escape-gauntlet-round04-blind/B/result.png",
+      "sha256": "473a3d0072873f0750ce30a200a03c7e07b0eb0c32a0da91b27a4a65c91b58e6",
+      "dimensions": [
+        1600,
+        1000
+      ]
+    },
+    {
+      "set": "B",
+      "view": "mobile",
+      "path": "/tmp/escape-gauntlet-round04-blind/B/mobile.png",
+      "sha256": "599dfe2b5c08201aadde5d1a4889c15560046beb3b31780e40553f18d311c435",
+      "dimensions": [
+        390,
+        844
+      ]
+    },
+    {
+      "set": "fixed_reference",
+      "view": "room",
+      "path": "/workspace/scratch/4b9cf76baf7a/ai-escape-room/evidence/ai-escape-room/gauntlet/references/room4-library-wide.jpg",
+      "sha256": "85765fd1db9683606de7964984443a45490597ff7f5b986f2c3ebd1e2fc4819d",
+      "dimensions": [
+        1920,
+        1080
+      ]
+    },
+    {
+      "set": "fixed_reference",
+      "view": "mechanism",
+      "path": "/workspace/scratch/4b9cf76baf7a/ai-escape-room/evidence/ai-escape-room/gauntlet/references/room4-workbench-mechanism.jpg",
+      "sha256": "3586ed5100854cd1177a5699d748cd64ec34b16c1bc8449ff467d7ef4e855b7a",
+      "dimensions": [
+        1920,
+        1080
+      ]
+    },
+    {
+      "set": "fixed_reference",
+      "view": "mechanism",
+      "path": "/workspace/scratch/4b9cf76baf7a/ai-escape-room/evidence/ai-escape-room/gauntlet/references/room4-safe-mechanism.jpg",
+      "sha256": "d6dc7b30b72ff67fa404bc6af67dd83e6cda7ba9f97e4b42438a4acd332b6bda",
+      "dimensions": [
+        1920,
+        1080
+      ]
+    },
+    {
+      "set": "fixed_reference",
+      "view": "character_and_scene",
+      "path": "/workspace/scratch/4b9cf76baf7a/ai-escape-room/evidence/ai-escape-room/gauntlet/references/escape-simulator-egypt-avatar-wide.jpg",
+      "sha256": "a41470c3ac30d83d754e61ea9becadd28044d2dbf832560e26239a8de4f9c601",
+      "dimensions": [
+        1920,
+        1080
+      ]
+    },
+    {
+      "set": "supplemental_after_blind",
+      "view": "furniture",
+      "path": "/workspace/scratch/4b9cf76baf7a/ai-escape-room/evidence/ai-escape-room/gauntlet/captures/round-04/furniture.png",
+      "sha256": "7ae776da35dd08de49d871d4701b2a8bfa515fddacdb2ed532fcee8092a7591f",
+      "dimensions": [
+        1600,
+        1000
+      ]
+    }
+  ],
+  "reference_comparison_status": "complete",
+  "supplemental_furniture_status": "complete_after_blind_verdict",
+  "reference_comparisons": [
+    {
+      "file": "room4-library-wide.jpg",
+      "category": "room",
+      "verdict": "reference_wins",
+      "observations": [
+        "A has a legible central vault, coordinated green/wood/brass palette and a useful whole-room composition.",
+        "The reference has deeply modeled architectural recesses, varied book and artifact arrangements, layered foreground/middle/background objects, and purposeful asymmetry. A has sparse repeated bookshelves, large undecorated ceiling and floor areas, and a row-like presentation of furniture.",
+        "The reference separates lamp-lit surfaces from deep recesses and shows stronger contact grounding and wood/metal surface distinction. A reads more evenly lit, with repeated wood grain and broad blurry light pools."
+      ],
+      "scope": "Compare the 3D viewport, not the amount of app interface around it."
+    },
+    {
+      "file": "room4-workbench-mechanism.jpg",
+      "category": "mechanism",
+      "verdict": "reference_wins",
+      "observations": [
+        "A\u2019s vault provides real overlapping rings, rods, plates, bolts and gears; it is substantially more resolved than a symbolic puzzle icon.",
+        "The reference combines a much broader range of component silhouettes and material responses: coils, pipes, brackets, worn copper, dark steel, differently lit rounded and machined surfaces.",
+        "A\u2019s gold parts are relatively uniform and the dark mottled base does not create the same convincing roughness, wear and recess depth. The close-up also places the lower edge of the main mechanism behind the progress overlay."
+      ]
+    },
+    {
+      "file": "room4-safe-mechanism.jpg",
+      "category": "mechanism",
+      "verdict": "reference_wins",
+      "observations": [
+        "The reference shows a constructed volume, convincing edge fittings and feet, side mechanisms, a heavy housing, and hardware grounded on a worn work surface.",
+        "A\u2019s frontal image communicates the radial lock assembly clearly but does not provide the oblique evidence needed to judge the entire housing, rear attachments, side depth or joinery. Those features should be treated as unverified, not assumed absent.",
+        "The reference\u2019s varied aged metal, wood grain, small-scale wear and directional highlights make its surfaces read as different physical materials; A\u2019s broad gold/black treatment is less rich."
+      ]
+    },
+    {
+      "file": "escape-simulator-egypt-avatar-wide.jpg",
+      "category": "character_and_scene",
+      "verdict": "reference_wins_on_finish",
+      "observations": [
+        "A\u2019s Archivist has a memorable one-eye silhouette, a coherent brass/cream palette, readable name plate and charming proportions. It does not need to become a human character to succeed.",
+        "The reference demonstrates a more unified stylized finish: smoother shape transitions, richer edge shading, varied material responses and scene light wrapping around the character and nearby objects.",
+        "A\u2019s arms, shoulder balls, torso and rings still read as separately assembled primitive forms, and the eye/belly transitions are abrupt. Removing B\u2019s hard triangular hover cone helps but does not close this finish gap."
+      ],
+      "scope": "This is a supporting reference for character/scene integration; human anatomy and Egyptian subject matter are not requirements."
+    }
+  ],
+  "fixed_reference_verdict": {
+    "winner": "references",
+    "candidate_passes": false,
+    "summary": "A is a real improvement over B but does not yet meet or surpass the fixed references in actual visual polish and completeness. The mechanism is the strongest modeled focal asset; room lighting/material depth and environmental authorship remain substantially behind. No browser-platform allowance or test-pass credit is applied."
+  },
+  "biggest_actionable_remaining_gap": {
+    "title": "Physical grounding and material depth across the room",
+    "evidence": [
+      "Furniture and small objects have weak visible contact grounding on the floor, rug and desktop.",
+      "The ceiling has broad soft light blobs while much of the rest of the room is lit to a similar level.",
+      "Wood surfaces share a repetitive grain treatment and the metal often reads as a nearly uniform gold color."
+    ],
+    "requested_visual_outcomes": [
+      "Make lamp and window illumination produce clear local falloff and directional form shading, with darker recesses and preserved puzzle readability.",
+      "Create soft contact shadows at chair legs, desk feet, rug edges, books and hardware, so the assemblies feel seated in the same space.",
+      "Give wood, brass, painted metal, upholstery and glass visibly distinct roughness/highlight behavior; correct wood-grain scale and direction at visible furniture parts."
+    ],
+    "verification": "Inspect the same room, mechanism and oblique furniture views after the change. The improvement must be visible at normal screenshot size, not only detectable in source or tests."
+  },
+  "other_remaining_gaps": [
+    {
+      "priority": 2,
+      "gap": "Purposeful room dressing and composition",
+      "action": "Develop two or three asymmetric clusters of authored objects near the central activity: stacked and leaning books, a task lamp, diagrams, tools and personal artifacts with enough silhouette variation to read at room scale. Reduce the sense of a sparse row of props without obstructing locks."
+    },
+    {
+      "priority": 3,
+      "gap": "Mechanism finish and inspectable depth",
+      "action": "Provide an oblique close-up with the full mechanism visible clear of the HUD, and strengthen material/edge/attachment definition. Do not claim side depth or functional mechanical connections from the current frontal image."
+    },
+    {
+      "priority": 4,
+      "gap": "Portrait view coverage",
+      "action": "The portrait capture shows the central door, desk and chair but omits the character and almost all side-wall locks. Supply a portrait inspection/interaction state if full puzzle accessibility is claimed."
+    }
+  ],
+  "supplemental_furniture": {
+    "path": "/workspace/scratch/4b9cf76baf7a/ai-escape-room/evidence/ai-escape-room/gauntlet/captures/round-04/furniture.png",
+    "assessment_scope": "Construction only; this named latest capture was inspected only after the blind choices were recorded. It did not retroactively change those choices.",
+    "strengths": [
+      "The desk visibly has a shaped/beveled top edge, apron, inset drawer faces, hardware, turned legs and lower braces. This is an actual construction improvement.",
+      "The chair has a shaped upholstered back and seat with arms and a distinct frame.",
+      "The foreground cabinet/stool forms are differentiated rather than all repeating the same barrel shape.",
+      "Bookcase crowns and side supports give shelving a clearer designed silhouette."
+    ],
+    "remaining_construction_issues": [
+      "Many contours and transitions remain faceted or read as stacked separate pieces, especially the chair/frame and decorative furniture profiles.",
+      "The far-right side table remains a thin slab on straight brass-colored posts with black puck feet; its construction language is noticeably simpler than the main desk.",
+      "Visible wood-grain scale and direction do little to distinguish separate boards, edge trim or end grain, reducing the impression of actual joinery."
+    ],
+    "conclusion": "Furniture geometry is no longer the dominant blocker. Preserve these improvements while addressing physical grounding and surface finish; another wholesale furniture rebuild would have lower value than that pass."
+  },
+  "evidence_limits": [
+    "Static images establish visible appearance only; no animation, audio, puzzle solvability, accessibility or runtime behavior was evaluated.",
+    "No source, chronology mapping, prior review narrative, git history or tests were read.",
+    "All ten blind images were viewed before recording per-view and overall A/B choices.",
+    "Only the expressly authorized supplemental furniture capture path was opened after locking the blind verdict.",
+    "An oblique mechanism view, mobile inspection state and dynamic exit/character sequence are not included in this evidence set."
+  ]
+}

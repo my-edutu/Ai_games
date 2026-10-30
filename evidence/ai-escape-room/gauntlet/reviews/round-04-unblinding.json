@@ -1,0 +1,11 @@
+{
+  "unblinded_at": "2026-10-30T20:56:07.135565+00:00",
+  "mapping": {
+    "A": "round-04",
+    "B": "round-03"
+  },
+  "blind_review_sha256": "f46b0a19025ac9c7cc600482450379fdc35c6e361d7829ce7f5ca54727bd0e7d",
+  "blind_winner": "A",
+  "winner_round": "round-04",
+  "fixed_reference_winner": "references"
+}
