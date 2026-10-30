@@ -10,7 +10,7 @@ module.exports = defineConfig({
     headless: true,
     trace: 'retain-on-failure',
     baseURL: 'http://127.0.0.1:4176',
-    launchOptions: { args: process.env.TOWER_SOFTWARE_GL === '1' ? ['--enable-unsafe-swiftshader', '--use-angle=swiftshader'] : [] },
+    launchOptions: { args: process.env.CI || process.env.TOWER_SOFTWARE_GL === '1' ? ['--enable-unsafe-swiftshader', '--use-angle=swiftshader'] : [] },
   },
   webServer: {
     command: 'node scripts/serve-tower-stream.cjs --port=4176',

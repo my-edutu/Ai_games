@@ -91,6 +91,8 @@ TOWER_SOFTWARE_GL=1 npx playwright test --config=playwright.tower.config.cjs \
 
 The live host continued during loss. The fixed-snapshot test restored across two actual lost-context floor changes, retained preferences, produced a real canvas image and finished with GL error zero. After both restorations, the stone asset was ready at 1254 × 1254 with one owner, the reflection target was ready at 336 × 256 with zero environment failures, and render submissions resumed. The final small sample included a 3,120.7 ms interval; these checks do not establish smooth playback or a hardware frame rate.
 
+Catalogue CI now selects Tower browser files in a dedicated `tower` project with the correct port-4176 base URL; the existing `catalogue` project excludes those files and retains its prior defaults. Both Tower configurations explicitly enable software WebGL in CI. The Playwright collection check resolves all 12 Tower browser cases to that project. This corrects the inherited Snake base URL for the new relative-URL tests without changing game behavior or test time limits.
+
 ## Earlier actual-output failures retained for comparison
 
 The independent critic tested real autonomous hosts in headless Chromium with SwiftShader. Other CPU-consuming browser processes were observed on the shared host and left untouched. Contention is a possible contributor; sole causality has not been established.
