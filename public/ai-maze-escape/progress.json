@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-10-30T20:37:17.909185+00:00",
+  "updatedAt": "2026-10-30T20:54:28.862751+00:00",
   "benchmark": {
     "status": "Not yet passed",
     "summary": "Fresh critics preferred the fourth pass in blind mobile and desktop version comparisons. Captain Toad still wins overall: the next gap is a more expressive, clearly staged encounter that connects the explorer, guardian, objective and route."
@@ -98,7 +98,7 @@
     "Cumulative steps and discovered area reflect the public snapshot. Character feet, route marks, lights and camera targets follow the same stair heights.",
     "Pip now has a coral scarf and bedroll, clearer eyes and directional gaze; Thornback has a broader bronze face and brighter eyes. Fresh actual portrait, desktop, detail and encounter captures are recorded.",
     "Keys have a thicker silhouette and readable sway; the exit has a mint opening and diamond crown. Quieter trim, grouped planting and shoreline contacts are implemented. The mobile critic still wants stronger objective contrast and clearer local intent.",
-    "Map and Path notes now expand on demand, while the goal and immediate intent stay visible. Friendly captions replace internal object IDs, and the camera label now says Detail. Real browser checks confirm disclosure drawing, Escape/focus behavior and terminal reconnect; current mobile visual comparison remains pending."
+    "Map and Path notes expand on demand, while the goal and immediate intent stay visible. Natural captions replace internal object IDs, and the camera label says Detail. Browser checks verify disclosure drawing, Escape/focus and terminal reconnect; a fresh blind critic preferred the compact mobile layout."
   ],
   "nextGaps": [
     "Return the observed guardian-encounter gap to a builder, then have a fresh critic inspect actual gaze, pose, threat and route staging against the same fixed bar.",
@@ -106,7 +106,7 @@
     "Develop a more distinctive landmark or encounter and the explorer’s target-directed expression at normal viewing size.",
     "Review fresh real motion for gait, turns, stair contact and reactions, and independently listen to the audio mix.",
     "Capture current full-quality output and measure representative hardware performance; retain the existing test budgets and fixed bar.",
-    "Verify the next CI run after making experimental compositor flags opt-in, then continue the builder/critic loop without a fixed round count."
+    "Continue the builder and fresh-critic loop from the largest observed gap, using the pinned reference images; no fixed round count and no benchmark reduction."
   ],
   "reviews": [
     {
@@ -163,8 +163,10 @@
     },
     {
       "name": "Latest completed browser suite",
-      "status": "14 of 14 Game 2 checks passed in GitHub CI",
-      "detail": "On 6ea0adf, all real 3D, camera, responsive, disclosure/reconnect, context recovery, user-activated audio, public-state and repeated-run resource checks passed. The full catalogue browser step was 23/24; the remaining failure was the unchanged Snake animation-cadence gate."
+      "status": "24 of 24 catalogue checks passed",
+      "detail": "The full browser suite passed on functional checkpoint 474b657, including all 14 Game 2 checks for real 3D, camera, layout, disclosures, reconnect, context recovery, audio and resource cleanup. The earlier Snake cadence failure is resolved with compositor experiments kept opt-in.",
+      "sourceCommit": "474b65774883e466766ce5b671a8a3a978cc4654",
+      "sourceUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41125382514"
     },
     {
       "name": "Current disclosures and reconnect browser check",
@@ -178,8 +180,10 @@
     },
     {
       "name": "Full catalogue regression",
-      "status": "515 of 515 passed in GitHub CI",
-      "detail": "Build and all 515 unit tests passed on 6ea0adf. The earlier local run was 513/515: the repaired old Maze revision assertion and an unchanged Eko p99 budget under host contention. All four host self-tests, nondeterminism scanning and evidence-generation steps also passed in that CI run."
+      "status": "515 of 515 passed; complete CI successful",
+      "detail": "Build, all 515 unit tests, all four stream-host self-tests, the nondeterminism scan and evidence generation passed on the same verified functional checkpoint. Earlier local timing and revision failures are retained in the history.",
+      "sourceCommit": "474b65774883e466766ce5b671a8a3a978cc4654",
+      "sourceUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41125382514"
     },
     {
       "name": "Independent visual comparison",
@@ -200,6 +204,11 @@
       "name": "Gauntlet continuation",
       "status": "Hourly continuation enabled",
       "detail": "The first scheduled continuation is October 30 at 21:10 UTC, then hourly. No scheduled run has yet been observed. Work continues on the existing branch until an independently verified win or the user stops it, without automatic merge or deployment."
+    },
+    {
+      "name": "Fixed comparison-image provenance",
+      "status": "2 of 2 official images verified",
+      "detail": "The exact Nintendo gallery URLs, request header, dimensions, byte lengths and SHA-256 hashes are pinned in reference-manifest.json. Both fresh downloads matched the already-reviewed images byte for byte; future comparisons use this same bar."
     }
   ],
   "references": [
@@ -214,6 +223,14 @@
     {
       "title": "ASTRO BOT — supporting reference",
       "url": "https://www.playstation.com/en-us/games/astro-bot/"
+    },
+    {
+      "title": "Fixed comparison image · sandstone scene",
+      "url": "https://assets.nintendo.com/image/upload/q_auto/f_auto/dpr_2.0/store/software/switch/70010000002722/72a7b70a3161a757d40571a9264444e307bdcd83a851978510ed8fa31e762a6d"
+    },
+    {
+      "title": "Fixed comparison image · water and explorer scene",
+      "url": "https://assets.nintendo.com/image/upload/q_auto/f_auto/dpr_2.0/store/software/switch/70010000002722/bc357ae2086f43bbcaf6cef34a8caad0ddfcd739d0ea25db236a0a4b71bc81a8"
     }
   ]
 }

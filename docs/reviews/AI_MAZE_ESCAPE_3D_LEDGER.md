@@ -105,3 +105,11 @@
 - Fresh scene critic 4 locked a narrow preference for anonymous A (fourth/current) over B (third/prior) before identity disclosure, then retained Captain Toad as the overall winner. The clearer key and face and quieter planting help; the guardian encounter is nearly tied. The next builder priorities are a readable reaction/escape relationship in actual guardian encounters, a distinctive navigable landmark, and stronger character/material separation. See `docs/reviews/maze-3d/scene-visual-critic-4.md`. The next iteration is queued through the enabled hourly continuation; no benchmark win is claimed.
 
 - Final live-journal capture at 20:40:33 UTC verified all 12 dated image sources decoded and the visible benchmark remained Not yet passed. The 5265px full-page capture and progress-manifest.json pin its JSON source and image hashes.
+
+
+## Verified functional checkpoint and fixed reference recovery
+
+- Functional checkpoint `474b65774883e466766ce5b671a8a3a978cc4654` passed the complete Autonomous Games CI run `41125382514`: build, **515/515 unit tests**, all four host self-tests, nondeterminism scan, evidence generation and **24/24 browser tests**, including all **14 Game 2 checks**. All three Eko workflows also passed. The earlier Snake cadence failure is resolved with compositor experiments kept opt-in; no threshold was relaxed.
+- A separate provenance researcher recovered both exact image URLs from the official Nintendo product page and freshly downloaded byte-identical 1280×720 JPEGs. `docs/reviews/maze-3d/reference-manifest.json` pins the URLs, Accept header, hashes, byte lengths and frame identities so continuation uses the same bar. The lead independently matched the manifest hashes and byte lengths to the reviewed local references. Nintendo image bytes are not part of the game or repository.
+- This evidence follow-up updates journal status, reference links and review records only. Gameplay, world, characters, renderer, controls and test configuration remain unchanged from the verified functional checkpoint.
+- The benchmark remains unpassed. The enabled continuation resumes the actual guardian-encounter, landmark and character-material gaps recorded by the fresh critics; passing engineering checks do not close those visual goals.

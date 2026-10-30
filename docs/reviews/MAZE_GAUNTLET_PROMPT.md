@@ -1,10 +1,10 @@
 # Game 2 Gauntlet
 
-**Bar:** Actual [Captain Toad: Treasure Tracker](https://www.nintendo.com/us/store/products/captain-toad-treasure-tracker-switch/) gameplay and screenshots set the fixed standard for expressive original 3D characters, readable miniature environments, lighting and encounter staging at comparable viewing sizes.
+**Bar:** The two [pinned Captain Toad: Treasure Tracker screenshots](maze-3d/reference-manifest.json) set the fixed standard for expressive original 3D characters, readable miniature environments, lighting and encounter staging at comparable viewing sizes.
 
 ## Lead prompt
 
-Massively improve Game 2, AI Maze Escape, into a complete, polished 3D adventure: every character, scene, animation, effect, sound and interface should feel fully developed. Use actual Captain Toad gameplay and screenshots as the fixed quality bar while keeping our own identity.
+Massively improve Game 2, AI Maze Escape, into a complete, polished 3D adventure: every character, scene, animation, effect, sound and interface should feel fully developed. Use the pinned Captain Toad references as the fixed quality bar while keeping our own identity.
 
 Use subagents and ultracode. Choose the approach. Divide the goal into the smallest pieces that can be improved and judged independently. For every important piece, fan out a builder and a separate critic with fresh context. Each critic must inspect the real running output, compare it directly with the bar—blind A/B when possible—identify the biggest remaining gap and return it to the builder. Keep looping until our output wins or I stop the run. Do not lower the bar or substitute passing tests for a visual win.
 
