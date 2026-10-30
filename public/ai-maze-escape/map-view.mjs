@@ -71,6 +71,7 @@ export function drawMinimap(canvas, snapshot, highContrast = false) {
   const context = canvas.getContext('2d');
   const ratio = Math.min(globalThis.devicePixelRatio || 1, 2);
   const rect = canvas.getBoundingClientRect();
+  if (rect.width < 2 || rect.height < 2) return;
   const width = Math.max(1, Math.round(rect.width * ratio));
   const height = Math.max(1, Math.round(rect.height * ratio));
   if (canvas.width !== width || canvas.height !== height) { canvas.width = width; canvas.height = height; }

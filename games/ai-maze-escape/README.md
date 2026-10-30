@@ -2,6 +2,29 @@
 
 AI Maze Escape is the catalogue’s second implemented autonomous livestream game. A partially observed explorer discovers procedurally generated mazes, builds a bounded belief map, plans around keys and doors, survives traps and moving threats, reaches a hidden exit, presents a route/result replay, and automatically begins the next deterministic challenge.
 
+## 3D garden presentation
+
+The `/maze` viewer now renders an original three-dimensional ruin garden. Pip, an articulated expedition robot, explores sandstone terraces while Thornback wardens patrol the disclosed maze. Keys, gates, traps, shrines and the exit have distinct modeled forms. Only known passages produce geometry or stairs; the 3D presentation preserves the existing deterministic maze rules.
+
+```bash
+npm ci
+npm run maze:stream
+```
+
+Open `http://localhost:4174/maze` for the game and `http://localhost:4174/maze/progress` for the live development journal. Camera, sound, fullscreen, reduced motion, high contrast and clean-feed controls affect presentation only. Audio begins after activation. A live map and retry action remain available when WebGL fails.
+
+The viewer chooses reduced tessellation and simpler broad-surface materials on software renderers. `?quality=high` selects the full geometry, lighting, shadows and environment-reflection path. Software-renderer captures do not establish hardware frame-rate performance.
+
+The fixed visual reference is Captain Toad: Treasure Tracker. Independent critiques, their fixes and real captures are recorded in `../../docs/reviews/AI_MAZE_ESCAPE_3D_LEDGER.md` and `../../evidence/maze-3d/captures/`. The reference-quality Gauntlet remains open; a working 3D renderer and passing software checks do not establish visual parity or change production-readiness gates.
+
+Focused verification and reproducible evidence:
+
+```bash
+npx playwright test -c playwright.maze-3d.config.cjs
+node scripts/capture-maze-3d.cjs --base=http://localhost:4174
+node scripts/capture-maze-motion.cjs --base=http://localhost:4174
+```
+
 ## Current readiness
 
 | Phase | Target | Software status |

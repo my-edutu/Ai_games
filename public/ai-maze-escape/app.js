@@ -46,6 +46,14 @@ function refreshSceneCard(){
 function formatTime(ticks,interval=360){const seconds=Math.ceil(ticks*interval/1000);return `${Math.floor(seconds/60)}:${String(seconds%60).padStart(2,'0')}`}
 const intentLabels={'exploring':'Finding a new path','returning-key':'Following a key','unlocking-route':'Opening the way','searching-exit':'Looking for home','evading-threat':'Keeping a safe distance','revising-map':'Rethinking the route','fallback':'Finding another way','escaped':'Home at last'};
 const goals={'exploring':'Find a passage','returning-key':'Find the key','unlocking-route':'Open the way','searching-exit':'Find the exit','evading-threat':'Avoid the warden','revising-map':'Find another route','fallback':'Explore safely','escaped':'Home at last'};
+function viewerCaption(value){
+  if(/^Key collected:/i.test(value))return 'Pip found a key.';
+  if(/^Route unlocked:/i.test(value))return 'A locked passage opened.';
+  if(/^Run ended: capture/i.test(value))return 'A warden caught the explorer.';
+  if(/^Run ended: trap-death/i.test(value))return 'The explorer was caught by a trap.';
+  if(/^Run ended: timer-expired/i.test(value))return 'Time ran out. A new garden awaits.';
+  return value;
+}
 function update(value){
   if(!value?.snapshot)return;
   frame=value;
@@ -74,7 +82,7 @@ function update(value){
   elements.integrity.textContent=snapshot.authorityChecksum?'Live view connected':'Connecting';
   if(lastRunToken!==snapshot.runToken){lastRunToken=snapshot.runToken;lastCaption='A new garden. An unknown way home.'}
   const captions=value.audio?.captions??[];
-  if(captions.length)lastCaption=captions.at(-1);
+  if(captions.length)lastCaption=viewerCaption(captions.at(-1));
   elements.caption.textContent=lastCaption;
   elements.broadcast.dataset.scene=value.scene;
   try{scene?.update(value)}catch(error){stopGraphics(error)}
@@ -128,12 +136,13 @@ async function poll(){
   finally{clearTimeout(timeout);requestController=null;if(!stopped)pollTimer=setTimeout(poll,POLL_DELAY_MS)}
 }
 function animate(now){if(stopped)return;try{scene?.render(now)}catch(error){stopGraphics(error)}raf=requestAnimationFrame(animate)}
-function setCamera(mode){cameraMode=mode;scene?.setCameraMode(mode);press('camera-toggle',mode!=='follow',mode==='follow'?'Switch to overview camera':mode==='overview'?'Switch to close camera':'Follow the explorer');const label=byId('camera-toggle')?.querySelector('.button-label');if(label)label.textContent=mode==='follow'?'Follow':mode==='overview'?'Overview':'Close';if(frame)window.__MAZE_VIEW__=computePublicView(frame.snapshot,frame.camera,mode==='overview')}
+function setCamera(mode){cameraMode=mode;scene?.setCameraMode(mode);press('camera-toggle',mode!=='follow',mode==='follow'?'Switch to overview camera':mode==='overview'?'Switch to detail camera':'Follow the explorer');const label=byId('camera-toggle')?.querySelector('.button-label');if(label)label.textContent=mode==='follow'?'Follow':mode==='overview'?'Overview':'Detail';if(frame)window.__MAZE_VIEW__=computePublicView(frame.snapshot,frame.camera,mode==='overview')}
 byId('camera-toggle')?.addEventListener('click',()=>setCamera(cameraMode==='follow'?'overview':cameraMode==='overview'?'detail':'follow'));
 byId('sound-toggle')?.addEventListener('click',async event=>{const button=event.currentTarget;if(button.disabled)return;button.disabled=true;try{const enable=settings.muted;await audio.setEnabled(enable);settings.muted=!enable;applySettings()}catch{settings.muted=true;elements.caption.textContent='Sound could not start. The adventure is still fully captioned.';applySettings()}finally{button.disabled=false}});
 byId('motion-toggle')?.addEventListener('click',()=>{settings.reducedMotion=!settings.reducedMotion;applySettings()});
 byId('contrast-toggle')?.addEventListener('click',()=>{settings.highContrast=!settings.highContrast;applySettings()});
 byId('feed-toggle')?.addEventListener('click',()=>{settings.cleanFeed=!settings.cleanFeed;applySettings()});
+byId('map-panel')?.addEventListener('toggle',event=>{if(event.currentTarget.open)requestAnimationFrame(()=>{if(!stopped&&frame)drawMinimap(elements.minimap,frame.snapshot,settings.highContrast)})});
 byId('retry-3d').addEventListener('click',()=>{
   if(initialising||stopped)return;
   clearTimeout(recoveryTimer);scene?.dispose();scene=null;
@@ -143,7 +152,7 @@ byId('retry-3d').addEventListener('click',()=>{
 byId('fullscreen-toggle')?.addEventListener('click',async()=>{try{if(document.fullscreenElement)await document.exitFullscreen();else await elements.broadcast.requestFullscreen()}catch{elements.caption.textContent='Fullscreen is unavailable in this viewer. The adventure continues here.'}});
 addEventListener('fullscreenchange',()=>press('fullscreen-toggle',!!document.fullscreenElement,document.fullscreenElement?'Exit fullscreen':'Enter fullscreen'));
 addEventListener('resize',()=>{scene?.resize();if(frame){drawMinimap(elements.minimap,frame.snapshot,settings.highContrast);drawFallback()}},{passive:true});
-addEventListener('keydown',event=>{const panel=byId('settings-panel');if(event.key==='Escape'&&panel?.open){panel.open=false;panel.querySelector('summary')?.focus()}});
+addEventListener('keydown',event=>{if(event.key!=='Escape')return;const panel=document.activeElement?.closest('details[open]')||['settings-panel','map-panel','intent-details'].map(byId).find(element=>element?.open);if(panel){panel.open=false;panel.querySelector('summary')?.focus()}});
 addEventListener('pagehide',()=>{stopped=true;clearTimeout(pollTimer);clearTimeout(recoveryTimer);requestController?.abort();cancelAnimationFrame(raf);scene?.dispose();audio.dispose()},{once:true});
 // A page restored from the back-forward cache needs a fresh graphics/audio host.
 addEventListener('pageshow',event=>{if(event.persisted)location.reload()});

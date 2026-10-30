@@ -12,7 +12,7 @@ const base = process.argv.find(arg => arg.startsWith('--base='))?.slice(7) || 'h
   const sequence = samples.sequences.find(items => items[0]?.seed === seed);
   const dangerIndex = sequence.findIndex(item => item.frame.snapshot.threats.length);
   const startIndex = Math.max(0, dangerIndex - 5), startTick = sequence[startIndex].frame.snapshot.tick;
-  const browser = await chromium.launch({args: ['--no-sandbox', '--enable-unsafe-swiftshader']});
+  const browser = await chromium.launch({args: ['--no-sandbox', '--enable-gpu', '--use-angle=swiftshader', '--enable-unsafe-swiftshader']});
   fs.mkdirSync(output, {recursive: true});
   const reports = [], errors = [];
   try {

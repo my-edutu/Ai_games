@@ -33,7 +33,8 @@ function render(data) {
     const source = capture.src && safeUrl(capture.src, true);
     if (source) {
       const img = document.createElement('img');
-      img.src = source; img.alt = String(capture.alt || capture.title || 'Game capture'); img.loading = 'lazy';
+      const versioned = new URL(source); if (capture.capturedAt) versioned.searchParams.set('captured', capture.capturedAt);
+      img.src = versioned.href; img.alt = String(capture.alt || capture.title || 'Game capture'); img.loading = 'lazy';
       img.addEventListener('error', () => media.replaceChildren(text('span', '◇'), text('span', 'Capture unavailable')), { once: true });
       media.append(img);
     } else media.append(text('span', '◇'), text('span', 'Awaiting a real capture'));

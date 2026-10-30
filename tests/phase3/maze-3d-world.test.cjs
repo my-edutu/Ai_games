@@ -44,6 +44,8 @@ test('successive real runs retain only disclosed geometry and fixed shared resou
   const { createMazeWorld } = await modulePromise;
   for (const balanced of [false, true]) {
     const world = createMazeWorld({balanced});
+    const budget = world.stats();
+    assert.ok(budget.geometryCount <= 12 && budget.materialCount <= 24 && budget.textureCount <= 4);
     for (let run = 0; run < 6; run++) {
       const runtime = MazeRuntime.create({width: 13, height: 9, profile: 'loops', keyCount: 1, threatCount: 1, visibilityRadius: 3}, `3d-resources-${run}`);
       for (let tick = 0; tick < 18; tick++) {
@@ -52,9 +54,9 @@ test('successive real runs retain only disclosed geometry and fixed shared resou
         const stats = world.stats(), known = new Map(snapshot.cells.map(cell => [cell.cell, cell]));
         assert.deepEqual(stats.renderedCells, snapshot.cells.map(cell => cell.cell));
         for (const [low, high] of stats.stairEdges) assert.ok(known.has(low) && known.has(high) && known.get(low).neighbors.includes(high));
-        assert.equal(stats.geometryCount, 7);
-        assert.equal(stats.materialCount, 17);
-        assert.equal(stats.textureCount, 2);
+        assert.equal(stats.geometryCount, budget.geometryCount);
+        assert.equal(stats.materialCount, budget.materialCount);
+        assert.equal(stats.textureCount, budget.textureCount);
         assert.equal(JSON.stringify(snapshot), before);
         if (snapshot.result) break;
         runtime.step();

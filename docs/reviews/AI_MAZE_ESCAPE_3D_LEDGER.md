@@ -6,7 +6,8 @@
 - Work branch: `feat/maze-3d-gauntlet`.
 - User authorization: implement the proposed 3D Gauntlet here.
 - Benchmark: fixed official Captain Toad water/character and maze/hazard screenshots, plus real gameplay clips; supporting Luigi's Mansion 3 and ASTRO BOT.
-- Status: implementation in progress; benchmark not passed.
+- Status: implementation in progress; benchmark not passed. Draft review: https://github.com/my-edutu/Ai_games/pull/53.
+- Saved checkpoint: `c7eddc13574b3964c9149a15c5f3b2ced99ee113`; this subsequent checkpoint records the fourth-pass refinements, fresh engineering review and dated third-pass evidence. Fresh fourth-pass visual judgment is still required.
 
 ## Preflight
 
@@ -31,7 +32,7 @@
 ## Evidence and reviews
 
 - Baseline test suite and original 2D capture started before edits to product code.
-- All critic verdicts remain pending until real output has been inspected.
+- Critic verdicts are recorded only after real output is inspected. The latest completed visual review still prefers the fixed reference.
 
 ## First integration and critique
 
@@ -53,4 +54,40 @@
 - Ten focused checks pass for public movement, cumulative steps, legal/hidden stair boundaries, exact tread sampling and fixed shared resources over real runs.
 - Engineering critic 2 caught stale route replay after WebGL restoration and camera loss on long-gap snaps. Both were fixed and independently reprobed against real public snapshots. The remaining terminal reconnect indication is now explicit in the visible status strip; its browser regression is being exercised.
 - Real danger footage uses maze-visual-reference-13, not fabricated entities. Captures and the movement recording are made with the actual application renderer. Software WebGL timings are recorded honestly and are not a hardware-frame-rate claim.
-- A balanced character tessellation path retains every part/pivot but reduces explorer triangles26,064→7,728 and warden22,744→7,448. Full-quality geometry and shadows remain available; the benchmark has not been lowered.
+- A balanced character tessellation path retains every part and pivot. The third pass reduced explorer triangles from 26,064 to 7,728 and warden triangles from 22,744 to 7,448. The later face and cloth refinement changes the explorer count as recorded below. Full-quality geometry and shadows remain available; the benchmark has not been lowered.
+
+## Third-pass evidence and independent verdict
+
+- Actual production public frames were captured through the application renderer on 2026-10-30: desktop at 19:21:46.689 UTC, character detail at 19:21:53.406, portrait at 19:21:57.514, landscape at 19:22:00.888, overview at 19:22:06.017, danger at 19:22:11.403 and result at 19:22:17.155. The capture manifest records the exact frames, quality, diagnostics and capture timestamps. The lead preserved `round-03-manifest.json` plus stable `round-03-desktop.png`, `round-03-character-detail.png`, `round-03-mobile-portrait.png` and `round-03-danger.png` copies before the next capture; the dated journal uses those stable image names.
+- Fresh visual critic 3 read no prior builder or critic notes. It inspected six current stills and decoded the real 16.8-second recording, then compared them directly with the same two Nintendo references. See `docs/reviews/maze-3d/visual-critic-3.md` for pinned image hashes and the comparison criteria.
+- Verdict: **reference wins**. The captures establish a coherent terraced 3D garden and developed explorer and beetle models. The largest remaining gaps are scene-specific landmark composition, material and shoreline integration, expression and facing direction at gameplay size, actionable-object hierarchy and persistent UI weight.
+- The comparison is explicitly **unblinded** because the Nintendo characters and HUD are recognizable. The critic excluded brand familiarity from its stated criteria. No blind-test claim is made.
+- The old `full-quality.png` predates this terrace pass and was excluded. It must not be shown as evidence of the current build. New overwrites of capture filenames must not be attributed to the old pinned verdict without another review.
+- The recording supports actual movement, changing orientation, camera framing and an escape result. It does not establish smooth gait, consistent stair foot planting, reaction timing, audio mix quality or sustained rendering performance. A nominal encoded 25 fps is not a rendered frame-rate result.
+
+## Fourth pass returned to the builders
+
+- Character builder: Pip now has quieter goggle frames, larger eye whites and dark pupils, directional gaze, a coral collar and side scarf, and a matching rear bedroll. Thornback has a broader bronze mask forward of its shell, a dark eye band and larger bright eyes. All named pivots, production loss states and reduced-motion support remain. Current balanced geometry is 8,064 explorer triangles and 7,448 warden triangles; full geometry is 27,104 and 22,744 respectively.
+- World builder: thicker octagonal key bows and broader shafts keep a readable sway; a dark pedestal and quieter decorative trim reserve contrast for actionable items. Known exits gain a mint opening, halo and diamond crown. Plant growth forms public-coordinate patches with root contact pads; disclosed shoreline edges gain contact accents and occasional structural buttresses. No undisclosed topology or object is introduced.
+- UI builder: native Map and Path notes disclosures start closed, leaving the main goal and immediate intent visible. Compact portrait layout reduces persistent explanation weight. Host wiring redraws the map after opening and closes focused disclosures with Escape. `Detail` replaces the ambiguous camera label `Close`, and viewer captions replace internal key/door identifiers.
+- These refinements are implemented, but **fresh rendered evidence and an independent visual verdict remain pending**. The third-pass screenshots are labeled as such; the live journal includes an uncaptured fourth-pass card instead of substituting older images.
+
+## Current verification and performance boundary
+
+- Fresh focused command: `node --test tests/phase3/catalogue-frontend-quality.test.cjs tests/phase3/maze-3d-characters.test.cjs tests/phase3/maze-3d-world.test.cjs tests/phase3/maze-3d-presentation.test.cjs` — **16/16 passed**, exit 0. This comprises four catalogue UI contract, two character, two world and eight public snapshot/motion checks. `git diff --check` is clean.
+- The latest completed browser suite reports **13 passed, 1 failed**. The real-3D test exceeded its unchanged 60-second budget; its initial rendered-frame wait consumed about 52.74 seconds. Passed checks include graphics fallback/restoration, real terminal results without WebGL, user-activated audio and mute, repeated-run resource bounds, 320px controls and the existing responsive/public-state checks. A subsequent targeted real-browser check passes for drawn Map disclosure, Path notes visibility, Escape/focus restoration and reconnect status during a preserved real terminal result. That probe intentionally disables WebGL to exercise recovery; it does not establish current 3D performance.
+- The full local catalogue Node run is in progress. The earlier saved-checkpoint CI has successful Eko Phase 2/3/4 workflows. Its main Autonomous Games build/test workflow failed exactly one check: the Maze frontend revision marker. That fix passes in the current focused suite, but the older CI result is not a result for the latest source. Do not describe the whole regression suite as green.
+- Independent performance diagnosis is retained in `docs/reviews/maze-3d/performance-review.md`. Measured scene/world rebuilds are small relative to the dominant native software graphics/compositor delay. The host had an eight-CPU quota, load around 67 and throttling in about 97% of sampled quota periods. No unrelated process was stopped.
+- Combined Chromium flags enable its graphics compositor path while retaining SwiftShader. That feature-status change does not prove an actual speed improvement. The next real capture attempt still exceeded its 45-second frame wait under continuing contention. Performance remains open; neither the browser-test deadline nor the quality bar is being relaxed.
+- The next useful evidence is an actual current-source browser/capture result after contention permits it, followed by a fresh critic and a hardware-rendering measurement. Repeating a blocked software capture or increasing the timeout alone does not satisfy the quality or performance gate.
+
+- The fresh refinement reviewer found a clipped keyboard focus outline on the collapsed Map summary. The summary now uses an inset focus outline; the reviewer confirmed the source correction. The reviewer also reproduced Path notes overlapping captions in844×390 landscape. The repaired upward popup stays above the caption band with both ordinary and longer production copy (popup bottom245.06px; captions begin351px). The reviewer inspected the visible inset Map focus ring and marked both findings repaired. See `docs/reviews/maze-3d/refinement-review.md`.
+
+- Fresh stream self-test exits0 with `ok`, `authorityStable`, `browserAssets`, `boundedSource`, `snapshotPrivacySafe`, `recoveryVerified` and `restartObserved` all true. Changed browser modules and the capture script pass syntax checks.
+- Capture reporting now records each completed image immediately with current source-file hashes; a later failed case cannot silently misattribute a newly overwritten image to an older manifest.
+
+## Persistent continuation
+
+- Hourly Gauntlet continuation is enabled for the existing branch and draft PR. Its first scheduled run is **2026-10-30 at 21:10 UTC** (22:10 Africa/Lagos), then hourly. No scheduled run has yet been observed at this checkpoint.
+- Each continuation resumes the ledger and evidence, chooses the smallest independently judgeable gap, pairs a builder with a fresh separate critic, inspects real output against the fixed bar and updates the progress page. Ultracode should be used if it becomes available; its current absence must remain explicit.
+- There is no fixed round count. Continue until a supported independent win or the user stops the run; pause continuation on a verified win. Scheduled work must not merge or deploy, overwrite concurrent changes, or report queued checks as completed evidence.

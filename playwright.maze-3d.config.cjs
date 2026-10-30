@@ -10,7 +10,9 @@ module.exports = defineConfig({
   use: {
     headless: true,
     trace: 'retain-on-failure',
-    launchOptions: { args: ['--enable-unsafe-swiftshader'] },
+    // Use a consistent software compositor/WebGL path for headless captures.
+    // Measured frame times, rather than these flags, determine performance.
+    launchOptions: { args: ['--enable-gpu', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'] },
   },
   webServer: {
     command: 'node scripts/serve-maze-stream.cjs',

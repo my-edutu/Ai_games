@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-10-30T19:10:28.524276+00:00",
+  "updatedAt": "2026-10-30T20:24:41.826516+00:00",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "No independent review has yet established that the integrated 3D game reaches the fixed reference quality. Implementation and passing software checks alone do not establish visual parity."
+    "summary": "Captain Toad remains ahead on composition, material integration and character expression in the latest independently reviewed captures; the new readability and mobile-space refinements await a fresh capture and critic."
   },
   "captures": [
     {
@@ -33,80 +33,151 @@
       "capturedAt": "2026-10-30T18:58:36.461Z",
       "alt": "Original robot explorer in the running game",
       "note": "The character critic requested a stronger teal silhouette, simpler face hierarchy and visible animation evidence."
+    },
+    {
+      "title": "Terraced garden · third pass",
+      "src": "/maze/evidence/round-03-desktop.png",
+      "capturedAt": "2026-10-30T19:21:46.689Z",
+      "alt": "Actual terraced 3D garden in the normal follow camera",
+      "note": "Three terrace heights, disclosed stairs and deeper architecture now read as a miniature place. The independent critic still prefers the reference."
+    },
+    {
+      "title": "Pip · third-pass detail",
+      "src": "/maze/evidence/round-03-character-detail.png",
+      "capturedAt": "2026-10-30T19:21:53.406Z",
+      "alt": "Original equipped robot explorer in the terraced maze",
+      "note": "The inspected explorer has readable modeled equipment and volume. The later coral accent, larger eyes and directional gaze are not shown in this capture."
+    },
+    {
+      "title": "Thornback · real encounter",
+      "src": "/maze/evidence/round-03-danger.png",
+      "capturedAt": "2026-10-30T19:22:11.403Z",
+      "alt": "Original armored beetle threat and explorer in an actual disclosed encounter",
+      "note": "A real production public frame shows both characters. The later bronze mask and clearer eyes await a new capture."
+    },
+    {
+      "title": "Portrait · third pass",
+      "src": "/maze/evidence/round-03-mobile-portrait.png",
+      "capturedAt": "2026-10-30T19:21:57.514Z",
+      "alt": "Third-pass maze presentation on a portrait mobile viewport",
+      "note": "The critic requested more room for the world. The new collapsible Map and Path notes controls are implemented after this capture and await browser review."
+    },
+    {
+      "title": "Fourth pass · awaiting capture",
+      "src": null,
+      "capturedAt": null,
+      "alt": "Fresh capture of the latest readability and mobile layout refinements is pending",
+      "note": "Coral character accents, clearer faces, stronger key and exit silhouettes, grounded planting and compact mobile explanations are implemented. The latest capture attempt exceeded its 45-second startup limit; no new visual verdict is claimed."
     }
   ],
   "changes": [
-    "The flat map has become a real 3D sandstone garden with original articulated explorer and warden models, disclosed keys, gates, traps and an exit portal.",
-    "Follow, close and overview cameras, a true public-data minimap, optional original audio, captions, reduced motion, high contrast and clean feed are integrated.",
-    "Lost graphics now reveal a live map immediately, offer a retry and restore 3D after the graphics context returns. Actual run results remain visible in map mode.",
-    "Cumulative steps now come from the public snapshot rather than a truncated trail. Garden discovered reflects the actual disclosed area, including after escape.",
-    "A new revision is replacing the water pattern, enlarging ruin landmarks and strengthening the explorer silhouette. Fresh captures and reviews are underway."
+    "The flat map is now a real 3D sandstone garden with three terrace heights, visible stairs on disclosed legal passages, original articulated Pip and Thornback models, keys, gates, traps and an exit portal.",
+    "Follow, Detail and Overview cameras, a public-data map, optional original audio, captions, reduced motion, high contrast and clean feed are integrated.",
+    "Graphics loss reveals a live map, offers a retry and returns to the current public position after restoration. Real results remain visible in map mode; reconnecting is now explicit during terminal states.",
+    "Cumulative steps and discovered area reflect the public snapshot. Character feet, route marks, lights and camera targets follow the same stair heights.",
+    "The fourth pass gives Pip a coral scarf and bedroll, clearer eyes and directional gaze; Thornback gains a broader bronze face and brighter eyes. These changes await actual render review.",
+    "Keys have a thicker silhouette and readable sway; the exit has a mint opening and diamond crown. Quieter decorative trim, grouped planting and shoreline contacts are implemented and await comparison.",
+    "Map and Path notes now expand on demand, while the goal and immediate intent stay visible. Friendly captions replace internal object IDs, and the camera label now says Detail. Real browser checks confirm disclosure drawing, Escape/focus behavior and terminal reconnect; current mobile visual comparison remains pending."
   ],
   "nextGaps": [
-    "Compare the latest environment and character revisions against the same fixed references.",
-    "Inspect the warden in a real encounter and review movement, turns, celebration and loss reactions.",
-    "Verify terminal-state labels, repeated-run resource stability and the complete regression suite.",
-    "Measure graphics performance on a hardware GPU; current captures use software WebGL."
+    "Capture the latest build in normal desktop, detail, danger, portrait and landscape views, then give a fresh critic the real output and the same fixed references.",
+    "Resolve the remaining reference advantage in landmark composition, material transitions and character expression at native gameplay size; judge the actual key and exit readability.",
+    "Review a fresh real recording for gait, turns, stair contact, threat reactions and the timing of arrival and result presentation. Current footage does not establish smooth movement.",
+    "Finish the full catalogue regression run and capture the current 3D desktop and mobile presentation for fresh comparison.",
+    "Measure actual rendering again when shared-host contention permits, and on a hardware GPU. Enabling a software compositor is not evidence of a frame-rate improvement.",
+    "Continue the builder and fresh-critic loop from the largest observed gap; no fixed round count and no benchmark reduction."
   ],
   "reviews": [
     {
-      "title": "Environment comparison \u00b7 first pass",
+      "title": "Environment comparison · first pass",
       "reviewer": "Independent environment critic",
       "verdict": "Reference wins",
       "date": "2026-10-30T18:57:29.362181+00:00",
       "summary": "The scene still reads as a repetitive flat maze board. Improve architectural hierarchy, focal landmarks, garden scale and material richness. The fixed bar has not been lowered."
     },
     {
-      "title": "Environment comparison \u00b7 second pass",
+      "title": "Environment comparison · second pass",
       "reviewer": "Fresh environment critic",
       "verdict": "Reference wins",
       "summary": "The candidate remains a shallow corridor network. Substantial architecture, quieter water, stronger material separation and grouped foliage are the highest-value changes."
     },
     {
-      "title": "Character comparison \u00b7 first pass",
+      "title": "Character comparison · first pass",
       "reviewer": "Fresh character critic",
       "verdict": "Reference wins",
       "summary": "The 3D explorer has a distinct identity, but the amber/ivory body merges into sandstone at gameplay scale. Broader colour masses, simpler facial detail and clearer pose are needed; warden and motion evidence pending."
+    },
+    {
+      "title": "Integrated terraced scene · third pass",
+      "reviewer": "Fresh independent visual critic 3",
+      "verdict": "Reference wins",
+      "date": "2026-10-30",
+      "summary": "Real 3D world and developed explorer/beetle characters are supported by the inspected captures. Captain Toad still wins on landmark composition, connected materials, expression and use of screen space. The comparison was explicitly unblinded because the reference is recognizable; the later fourth-pass changes have not been judged."
     }
   ],
   "verification": [
     {
-      "name": "Public snapshot and route motion",
-      "status": "8 targeted checks passed",
-      "detail": "Cumulative steps remain accurate after 240 trail entries; skipped turns, missing continuity, walls, unknown cells and run boundaries are covered."
+      "name": "Current focused source checks",
+      "status": "16 of 16 passed",
+      "detail": "Four catalogue UI contract checks, two character checks, two world checks and eight public-snapshot/motion checks passed on the latest source. Whitespace validation is clean."
     },
     {
-      "name": "Browser recovery and progress truth",
-      "status": "3 targeted checks passed",
-      "detail": "Forced context loss retains a live map, restoration returns to 3D, unavailable WebGL preserves an actual escape result, and the journal displays critic verdicts."
+      "name": "Current stream host self-test",
+      "status": "Passed",
+      "detail": "The fresh self-test confirms served browser assets, bounded source, sanitized snapshots, stable deterministic authority, verified recovery and an observed restart."
     },
     {
-      "name": "Desktop and mobile presentation",
-      "status": "Existing browser checks passed",
-      "detail": "The running view, public-data boundary, serialized polling, controls, portrait and landscape remain usable. New UI refinements are under review."
+      "name": "Latest completed browser suite",
+      "status": "13 passed; 1 timed out",
+      "detail": "Recovery, real-result fallback, audio activation, repeated-run resources, controls and responsive checks passed. The real-3D startup test exceeded its 60-second budget after a roughly 53-second frame wait. Later UI and terminal reconnect changes still need a fresh browser result."
+    },
+    {
+      "name": "Current disclosures and reconnect browser check",
+      "status": "Passed",
+      "detail": "The real browser verified a drawn discovered map, expandable Path notes, Escape with focus restoration, and a visible reconnect status that preserves the actual terminal result. The check ran with WebGL unavailable to exercise the live-map recovery path; this is not a fresh 3D performance result."
+    },
+    {
+      "name": "Independent compact-layout repair verification",
+      "status": "Passed after two repairs",
+      "detail": "A fresh reviewer reproduced a clipped Map focus ring and landscape Path notes overlapping captions. The repaired upward popup fits both ordinary and longer production copy at844×390; the real keyboard focus ring was visibly inspected. All eight dated journal images decoded in the same browser."
+    },
+    {
+      "name": "Full catalogue regression",
+      "status": "Run in progress",
+      "detail": "The full local Node suite has not finished. The earlier saved-checkpoint CI had exactly one failure: the Maze frontend revision marker. That fix passes the latest focused suite; Eko Phase 2/3/4 workflows succeeded."
     },
     {
       "name": "Independent visual comparison",
       "status": "Reference still wins",
-      "detail": "Environment and character critics have not established parity. Stills do not establish animation or audio quality."
+      "detail": "Critic 3 inspected the actual third-pass stills and decoded real recording frames. The latest source changes have not been captured and reviewed. Stills and a nominal video frame rate do not establish animation or audio quality."
     },
     {
-      "name": "Performance",
-      "status": "Software WebGL measured; hardware unverified",
-      "detail": "The capture manifest contains measured frame times and resource counts. No console-quality or 60 fps claim is being made."
+      "name": "Rendering performance",
+      "status": "Open; software graphics heavily contended",
+      "detail": "Independent probes locate the dominant measured stall at native software graphics/compositing, with severe shared CPU contention. New launch flags enable the software compositor, but an actual speed improvement is unverified; the next capture attempt timed out after 45 seconds. Hardware performance is unmeasured."
+    },
+    {
+      "name": "Saved implementation checkpoint",
+      "status": "Draft PR #53",
+      "detail": "The 3D implementation and the fourth-pass character, world and mobile refinements are on feat/maze-3d-gauntlet for review in draft PR #53. The visual benchmark remains open."
+    },
+    {
+      "name": "Gauntlet continuation",
+      "status": "Hourly continuation enabled",
+      "detail": "The first scheduled continuation is October 30 at 21:10 UTC, then hourly. No scheduled run has yet been observed. Work continues on the existing branch until an independently verified win or the user stops it, without automatic merge or deployment."
     }
   ],
   "references": [
     {
-      "title": "Captain Toad: Treasure Tracker \u2014 primary reference",
+      "title": "Captain Toad: Treasure Tracker — primary reference",
       "url": "https://www.nintendo.com/us/store/products/captain-toad-treasure-tracker-switch/"
     },
     {
-      "title": "Luigi\u2019s Mansion 3 \u2014 supporting reference",
+      "title": "Luigi’s Mansion 3 — supporting reference",
       "url": "https://www.nintendo.com/us/store/products/luigis-mansion-3-switch/"
     },
     {
-      "title": "ASTRO BOT \u2014 supporting reference",
+      "title": "ASTRO BOT — supporting reference",
       "url": "https://www.playstation.com/en-us/games/astro-bot/"
     }
   ]

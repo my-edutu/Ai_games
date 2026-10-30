@@ -98,7 +98,8 @@ export function createExplorer(options = {}) {
   const r = rig('Pip · garden expedition robot', options), {group,material,ball,tube,ring,rounded,pivot,bar}=r;
   const amber=material('#e6a532',.2,.48), brass=material('#927340',.55,.48), ivory=material('#eee6cb',.08,.65);
   const dark=material('#263e43',.55,.38), rubber=material('#1c3037',.02,.92), teal=material('#127f89',.08,.72);
-  const leather=material('#8a5436',.05,.86), glass=material('#112b39',.45,.16);
+  const leather=material('#8a5436',.05,.86), glass=material('#112b39',.1,.58);
+  const scarfCloth=material('#db6256',.01,.91);
   const glow=material('#ffdf83',.12,.26,{emissive:'#ffb52d',emissiveIntensity:1.45});
   const eye=material('#d5fff1',.08,.18,{emissive:'#a4ffe5',emissiveIntensity:.65});
   const body=pivot(group,'breathing torso',[0,.78,0]);
@@ -118,24 +119,26 @@ export function createExplorer(options = {}) {
   rounded(body,amber,[0,.22,-.31],[.45,.12,.24],.04);
   rounded(body,leather,[0,-.02,-.417],[.25,.2,.05],.025);
   rounded(body,brass,[0,.07,-.45],[.067,.08,.02],.01);
-  const bedroll=tube(body,teal,[0,.29,-.31],.09,.4); bedroll.rotation.z=Math.PI/2;
-  for (const side of [-1,1]) { const tie=ring(body,leather,[side*.13,.29,-.31],.091,.013); tie.rotation.y=Math.PI/2; }
+  const bedroll=tube(body,scarfCloth,[0,.29,-.31],.115,.46); bedroll.rotation.z=Math.PI/2;
+  for (const side of [-1,1]) { const tie=ring(body,leather,[side*.15,.29,-.31],.116,.013); tie.rotation.y=Math.PI/2; }
   const map=tube(body,ivory,[-.29,.03,-.27],.045,.35); map.rotation.z=-.18;
   // Soft neckerchief with an asymmetrical tail, its pivot can lag behind the body.
-  const scarf=tube(body,ivory,[0,.29,0],.216,.105); scarf.scale.z=.91;
-  ball(body,ivory,[.17,.265,.165],[.075,.065,.06]);
-  const tail=pivot(body,'scarf tail',[.18,.24,.16]);
-  const flap=rounded(tail,ivory,[.025,-.13,.015],[.105,.26,.034],.025); flap.rotation.z=.25;
+  const scarf=tube(body,scarfCloth,[0,.29,0],.23,.12); scarf.scale.z=.91;
+  ball(body,scarfCloth,[.21,.265,.135],[.085,.075,.07]);
+  const tail=pivot(body,'scarf tail',[.25,.24,.065]);
+  const flap=rounded(tail,scarfCloth,[.035,-.12,-.045],[.15,.3,.045],.03); flap.rotation.z=.35;
   const head=pivot(body,'curious head',[0,.54,0]);
   ball(head,amber,[0,.025,0],[.335,.3,.285]);
   const helmetRim=tube(head,amber,[0,-.06,0],.354,.055); helmetRim.scale.z=.9;
   rounded(head,dark,[0,-.015,.234],[.54,.235,.11],.07);
   const eyes=[];
   for (const side of [-1,1]) {
-    ring(head,brass,[side*.145,.015,.302],.113,.014);
+    ring(head,dark,[side*.145,.015,.302],.113,.011);
     ball(head,glass,[side*.145,.015,.303],[.102,.106,.06]);
     const pupil=pivot(head,`eye ${side}`,[side*.145,.017,.358]);
-    ball(pupil,eye,[0,0,0],[.06,.073,.014]); eyes.push(pupil);
+    ball(pupil,eye,[0,0,0],[.073,.081,.016]);
+    // Large dark centers establish gaze; avoid competing glass pin highlights.
+    ball(pupil,dark,[.006,-.002,.016],[.031,.045,.009]); eyes.push(pupil);
     const ear=tube(head,brass,[side*.34,0,-.035],.074,.055); ear.rotation.z=Math.PI/2;
     const screw=tube(head,dark,[side*.37,0,-.035],.032,.015); screw.rotation.z=Math.PI/2;
   }
@@ -204,6 +207,7 @@ export function createExplorer(options = {}) {
       arms[i].shoulder.rotation.x=-step*sign*(i===1?.2:.4)-(s.win?.9:0)-(i===1?.16:0);
       arms[i].shoulder.rotation.z=(i===0?-1:1)*(s.win?.95:i===1?.34:.15);
       arms[i].elbow.rotation.x=-.16-(i===1?.22:0)-(s.danger*.3);
+      eyes[i].position.x=(i===0?-1:1)*.145+(s.reduced?0:Math.max(-.016,Math.min(.016,turn*.045))+.006*rest);
       eyes[i].scale.y=s.lose?.32:s.danger>.45?1.13:(s.reduced?1:Math.pow(Math.max(0,Math.cos(s.time*.83)),60)>.88?.12:1);
     }
     if (s.win) body.position.y += amount*Math.max(0,Math.sin(s.time*5))*.075;
@@ -235,12 +239,13 @@ export function createWarden(options = {}) {
   for (let i=0;i<4;i++) {
     const thorn=tube(body,claw,[0,.48,-.36+i*.21],.063,.15,0); thorn.rotation.x=-.3;
   }
-  const head=pivot(body,'warden mask',[0,.03,.54]);
-  ball(head,dark,[0,0,0],[.35,.225,.25]);
-  rounded(head,plates,[0,.075,.16],[.57,.16,.12],.045);
+  const head=pivot(body,'warden mask',[0,.08,.62]);
+  // A broad forward bronze mask makes approach direction distinct from the dark elytra.
+  ball(head,bronze,[0,0,0],[.37,.245,.27]);
+  rounded(head,dark,[0,.035,.205],[.62,.19,.1],.045);
   for (const side of [-1,1]) {
-    const brow=rounded(head,bronze,[side*.17,.095,.229],[.215,.055,.045],.012); brow.rotation.z=-side*.2;
-    const lens=rounded(head,red,[side*.17,.033,.238],[.17,.057,.04],.02); lens.rotation.z=-side*.13;
+    const brow=rounded(head,claw,[side*.17,.119,.254],[.23,.055,.04],.012); brow.rotation.z=-side*.2;
+    const lens=rounded(head,red,[side*.17,.032,.268],[.205,.095,.035],.025); lens.rotation.z=-side*.13;
     ring(head,bronze,[side*.275,-.05,.13],.057,.014);
   }
   const jaws=[];

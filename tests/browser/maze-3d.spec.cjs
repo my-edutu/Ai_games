@@ -9,8 +9,8 @@ test('the autonomous maze renders a real 3D world from public knowledge', async 
   await page.goto(`${base}/maze`);
   await expect(page.locator('#maze')).toHaveAttribute('data-renderer', 'webgl');
   await page.waitForFunction(() => window.__MAZE_3D__?.frames > 2);
-  const before = await page.evaluate(() => window.__MAZE_PUBLIC_STATE__.tick);
-  await page.waitForFunction(tick => window.__MAZE_PUBLIC_STATE__.tick > tick, before);
+  const before = await page.evaluate(() => ({tick: window.__MAZE_PUBLIC_STATE__.tick, token: window.__MAZE_PUBLIC_STATE__.runToken}));
+  await page.waitForFunction(({tick, token}) => window.__MAZE_PUBLIC_STATE__.runToken !== token || window.__MAZE_PUBLIC_STATE__.tick > tick, before);
   const evidence = await page.evaluate(() => ({
     render: window.__MAZE_3D__,
     known: window.__MAZE_PUBLIC_STATE__.discoveredCells,
@@ -115,11 +115,40 @@ test('unavailable WebGL retains the real result and a usable retry action', asyn
   await expect(page.locator('#run-phase')).toHaveText('JOURNEY COMPLETE');
   await expect(page.locator('#intent-label')).toHaveText('The final decision');
   await expect(page.locator('#progress')).toHaveText(`${Math.floor(frame.snapshot.discoveredCells.length * 100 / (frame.snapshot.width * frame.snapshot.height))}%`);
+  const map = page.locator('#map-panel');
+  await expect(map).not.toHaveAttribute('open', '');
+  await map.locator('summary').click();
+  await expect(page.locator('#minimap')).toBeVisible();
+  await page.waitForFunction(() => {
+    const canvas = document.getElementById('minimap');
+    const pixels = canvas.getContext('2d').getImageData(0, 0, canvas.width, canvas.height).data;
+    return pixels.some((value, index) => index % 4 === 3 && value > 0);
+  });
+  await page.keyboard.press('Escape');
+  await expect(map).not.toHaveAttribute('open', '');
+  await expect(map.locator('summary')).toBeFocused();
+  const notes = page.locator('#intent-details');
+  await notes.locator('summary').click();
+  await expect(page.locator('#intent-copy')).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(notes).not.toHaveAttribute('open', '');
+  await expect(notes.locator('summary')).toBeFocused();
   sourceAvailable = false;
   await expect(page.locator('#run-phase')).toHaveText('RECONNECTING');
   await expect(page.locator('#scene-title')).toHaveText('A way through.');
   sourceAvailable = true;
   await expect(page.locator('#run-phase')).toHaveText('JOURNEY COMPLETE');
+  await page.setViewportSize({width: 844, height: 390});
+  await notes.locator('summary').click();
+  const expanded = await page.evaluate(() => ({
+    copy: document.querySelector('.intent-explanation').getBoundingClientRect().toJSON(),
+    captions: document.getElementById('captions').getBoundingClientRect().toJSON(),
+    viewport: {width: innerWidth, height: innerHeight},
+  }));
+  expect(expanded.copy.top).toBeGreaterThanOrEqual(0);
+  expect(expanded.copy.bottom).toBeLessThanOrEqual(expanded.captions.top);
+  expect(expanded.copy.left).toBeGreaterThanOrEqual(0);
+  expect(expanded.copy.right).toBeLessThanOrEqual(expanded.viewport.width);
 });
 
 test('sound starts through a user action and mute suspends the audio context', async ({ page }) => {

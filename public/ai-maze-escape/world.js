@@ -69,6 +69,8 @@ export function createMazeWorld(options = {}) {
   const leafDark = material('#326e43', { side: THREE.DoubleSide, roughness: .72 });
   const flower = material('#f2b765');
   const gold = material('#efb946', { roughness: .28, metalness: .65 });
+  const keyLight = material('#ffe6a0', {emissive: '#efac25', emissiveIntensity: .48, roughness: .3, metalness: .45});
+  const portalVeil = material('#84f5ce', {emissive: '#47bfa5', emissiveIntensity: .65, transparent: true, opacity: .19, depthWrite: false, side: THREE.DoubleSide});
   const darkMetal = material('#334a46', { roughness: .55, metalness: .42 });
   const danger = material('#bf6449', { emissive: '#73220b', emissiveIntensity: .2 });
   const glow = material('#d5ffda', { emissive: '#7adcc6', emissiveIntensity: .8, roughness: .4 });
@@ -115,6 +117,8 @@ export function createMazeWorld(options = {}) {
   const cone = geometry(new THREE.ConeGeometry(1, 1, 8));
   const sphere = geometry(new THREE.IcosahedronGeometry(1, 1));
   const ring = geometry(new THREE.TorusGeometry(1, .08, 6, 32));
+  const keyBow = geometry(new THREE.TorusGeometry(.27, .075, 6, 8));
+  const portalDisc = geometry(new THREE.CircleGeometry(1, 24));
   const leafShape = new THREE.Shape();
   leafShape.moveTo(0, 0); leafShape.quadraticCurveTo(-.22, .45, 0, 1); leafShape.quadraticCurveTo(.22, .45, 0, 0);
   const leafGeometry = geometry(new THREE.ShapeGeometry(leafShape, 5));
@@ -142,7 +146,7 @@ export function createMazeWorld(options = {}) {
     batches = [];
     for (const { geo, mat, entries } of batchData.values()) {
       const mesh = new THREE.InstancedMesh(geo, mat, entries.length);
-      mesh.castShadow = ![leaf, leafDark, moss, flower].includes(mat); mesh.receiveShadow = true;
+      mesh.castShadow = ![leaf, leafDark, moss, flower, rippleMaterial].includes(mat); mesh.receiveShadow = true;
       entries.forEach((entry, i) => { mesh.setMatrixAt(i, entry.matrix); mesh.setColorAt(i, new THREE.Color(0xffffff)); });
       mesh.instanceMatrix.needsUpdate = true; mesh.computeBoundingSphere();
       terrain.add(mesh); batches.push({ mesh, entries });
@@ -153,7 +157,13 @@ export function createMazeWorld(options = {}) {
     const item = new THREE.Mesh(geo, mat); item.position.set(x, y, z); item.scale.set(sx, sy, sz); item.rotation.set(rx, ry, rz);
     item.castShadow = true; item.receiveShadow = true; parent.add(item); return item;
   };
+  function gardenPatch(cell) {
+    const width = snapshot?.width || 1;
+    return variation(Math.floor((cell % width) / 3) + Math.floor(cell / width / 3) * 17);
+  }
   function plant(x, y, z, seed, cell, size = 1) {
+    // A dark root pad joins the plant to moss/stone without a shadow-map pass.
+    add(cylinder, darkJade, x, y + .009, z, .29 * size, .018, .24 * size, cell);
     if (variation(seed + 11) > .34) {
       add(sphere, leafDark, x, y + .13 * size, z, .31 * size, .24 * size, .24 * size, cell);
       add(sphere, moss, x + .18 * size, y + .12 * size, z - .07 * size, .26 * size, .18 * size, .23 * size, cell);
@@ -196,7 +206,7 @@ export function createMazeWorld(options = {}) {
         }
       }
     }
-    if (variation(id) > .58) {
+    if (gardenPatch(cell) > .46 && variation(id) > .25) {
       slab(moss, (variation(id + 1) - .5) * .3, h + .09, 0, 1.2 + variation(id + 5) * .8, .06, .34);
       const p = point((variation(id + 7) - .5) * 1.5, h + .08, 0);
       plant(p.x, p.y, p.z, id, cell, 1.1);
@@ -231,7 +241,7 @@ export function createMazeWorld(options = {}) {
       block(jade, x + sign * span, height / 2 + .34, z, .5, height, .42, cell);
       for (let j = 0; j < 3; j++) block(lightStone, x + sign * span, .46 + j * .86, z, .57, .13, .49, cell);
       block(lightStone, x + sign * span, height + .4, z, .73, .18, .61, cell);
-      add(ring, gold, x + sign * span, 1.5, z + .23, .17, .27, .17, cell);
+      add(ring, inlay, x + sign * span, 1.5, z + .23, .17, .27, .17, cell);
       plant(x + sign * span, height + .5, z, seed + sign, cell, 1.7);
     }
     const count = wide ? 15 : 6;
@@ -245,8 +255,8 @@ export function createMazeWorld(options = {}) {
       // Broad central crest and hanging bronze medallion give the ruin identity.
       block(jade, x, 4.2, z, .6, .46, .5, cell);
       block(lightStone, x, 4.47, z, .86, .15, .64, cell);
-      add(ring, gold, x, 3.65, z + .27, .26, .31, .26, cell);
-      add(box, gold, x, 3.95, z + .27, .035, .36, .035, cell);
+      add(ring, darkMetal, x, 3.65, z + .27, .26, .31, .26, cell);
+      add(box, darkMetal, x, 3.95, z + .27, .035, .36, .035, cell);
     }
     for (let j = 0; j < 3; j++) plant(x - span + j * .08, 2.8 - j * .42, z + .17, seed + j * 5, cell, 1.4 - j * .15);
   }
@@ -294,7 +304,13 @@ export function createMazeWorld(options = {}) {
       for (let side = 0; side < 4; side++) {
         const { dx, dz, n } = sides[side];
         if (!knownByCell.has(n)) {
-          add(box, jade, x + dx * 1.24, -1.59 - floorY, z + dz * 1.24, dz ? 2.28 : .13, .12, dx ? 2.28 : .13, c.cell);
+          add(box, darkJade, x + dx * 1.24, -1.59 - floorY, z + dz * 1.24, dz ? 2.28 : .13, .12, dx ? 2.28 : .13, c.cell);
+          const drift = (variation(c.cell * 4 + side) - .5) * 1.1;
+          add(box, rippleMaterial, x + dx * 1.32 + dz * drift, -1.665 - floorY, z + dz * 1.32 + dx * drift, dz ? .65 : .025, .006, dx ? .65 : .025, c.cell);
+          if (variation(c.cell * 13 + side) > .83) {
+            const depth = floorY + 1.63;
+            block(jade, x + dx * 1.16 + dz * .82, -.05 - depth / 2, z + dz * 1.16 + dx * .82, dz ? .3 : .38, depth, dx ? .3 : .38, c.cell);
+          }
         }
         if (c.neighbors.includes(n)) {
           if (knownByCell.has(n)) {
@@ -327,7 +343,7 @@ export function createMazeWorld(options = {}) {
           const ck = `${px.toFixed(2)}:${pz.toFixed(2)}`;
           if (!columns.has(ck)) { column(px, pz, c.cell, c.cell * 6 + side); columns.add(ck); }
         }
-        if (variation(c.cell + side * 41) > .52) plant(x + dx * .98 + dz * .64, .015, z + dz * .98 + dx * .64, c.cell * 17 + side, c.cell, 1.05);
+        if (gardenPatch(c.cell) > .65 && variation(c.cell + side * 41) > .55) plant(x + dx * .98 + dz * .64, .015, z + dz * .98 + dx * .64, c.cell * 17 + side, c.cell, 1.05);
       }
       if (c.blocked) {
         for (let j = 0; j < 5; j++) block(j % 2 ? jade : deepStone, x + (variation(c.cell + j) - .5), .22 + j * .11, z + (variation(c.cell + j + 9) - .5), .7, .5, .65, c.cell, j * .7);
@@ -354,14 +370,20 @@ export function createMazeWorld(options = {}) {
   };
   function keyProp(key, s) {
     if (key.collected || !s.cells.some(c => c.cell === key.cell)) return;
-    const p = propGroup(key.cell, s); pedestal(p, jade, .34);
-    const keyMesh = new THREE.Group(); keyMesh.position.y = .96; p.add(keyMesh);
-    mesh(keyMesh, ring, gold, 0, .24, 0, .25, .25, .25);
-    mesh(keyMesh, bevel, gold, 0, -.1, 0, .115, .46, .12);
-    mesh(keyMesh, bevel, gold, .12, -.25, 0, .2, .09, .12);
-    mesh(keyMesh, bevel, gold, .12, -.09, 0, .2, .09, .12);
-    mesh(p, ring, amber, 0, .245, 0, .39, .39, .39, Math.PI / 2);
-    animations.push({ type: 'key', object: keyMesh, baseY: .96, phase: key.cell });
+    const p = propGroup(key.cell, s); p.name = 'Disclosed golden key'; pedestal(p, darkJade, .43);
+    const keyMesh = new THREE.Group(); keyMesh.position.y = 1.14; keyMesh.scale.setScalar(1.35); keyMesh.rotation.y = .55; p.add(keyMesh);
+    // A thick octagonal bow and bold two-tooth shaft survive normal/mobile views.
+    mesh(keyMesh, keyBow, keyLight, 0, .29, 0, 1, 1, 1);
+    mesh(keyMesh, bevel, keyLight, 0, -.16, 0, .17, .59, .17);
+    mesh(keyMesh, bevel, keyLight, .14, -.36, 0, .28, .13, .17);
+    mesh(keyMesh, bevel, keyLight, .14, -.15, 0, .28, .13, .17);
+    mesh(p, ring, amber, 0, .245, 0, .48, .48, .48, Math.PI / 2);
+    // Sparse rays belong only to a disclosed collectible, never generic scenery.
+    for (let i = 0; i < 4; i++) {
+      const a = i * Math.PI / 2;
+      mesh(p, bevel, keyLight, Math.cos(a) * .62, .035, Math.sin(a) * .62, .14, .03, .14, 0, Math.PI / 4);
+    }
+    animations.push({ type: 'key', object: keyMesh, baseY: 1.14, phase: key.cell });
   }
   function doorProp(door, s) {
     if (!s.cells.some(c => c.cell === door.a || c.cell === door.b)) return;
@@ -379,7 +401,7 @@ export function createMazeWorld(options = {}) {
     const gate = new THREE.Group(); p.add(gate);
     // The raised gate is withdrawn into the lintel, leaving a fully clear opening.
     gate.visible = !door.open;
-    for (let j = 0; j < 5; j++) mesh(gate, cylinder, gold, -.64 + j * .32, .79, 0, .035, 1.45, .035);
+    for (let j = 0; j < 5; j++) mesh(gate, cylinder, darkMetal, -.64 + j * .32, .79, 0, .035, 1.45, .035);
     for (const y of [.22, 1.37]) mesh(gate, bevel, darkMetal, 0, y, 0, 1.6, .1, .12);
     if (!door.open) {
       mesh(gate, ring, gold, 0, 1.1, -.13, .21, .25, .21);
@@ -401,12 +423,12 @@ export function createMazeWorld(options = {}) {
   }
   function checkpointProp(c, s) {
     const p = propGroup(c.cell, s); pedestal(p, jade, .48);
-    mesh(p, ring, gold, 0, .245, 0, .38, .38, .38, Math.PI / 2);
+    mesh(p, ring, inlay, 0, .245, 0, .38, .38, .38, Math.PI / 2);
     // A wayfinding shrine kept to a small footprint at the cell edge.
     const shrine = new THREE.Group(); shrine.position.set(.65, sampleGroundHeight(p.position.x + .65, p.position.z - .64, s) - p.position.y, -.64); p.add(shrine);
     mesh(shrine, bevel, lightStone, 0, .18, 0, .38, .36, .38);
     mesh(shrine, cylinder, jade, 0, .58, 0, .1, .64, .1);
-    mesh(shrine, bevel, gold, 0, .88, 0, .35, .08, .35);
+    mesh(shrine, bevel, inlay, 0, .88, 0, .35, .08, .35);
     const crystal = mesh(shrine, sphere, glow, 0, 1.06, 0, .17, .27, .17);
     animations.push({ type: 'crystal', object: crystal, baseY: 1.06, phase: c.cell });
   }
@@ -419,7 +441,7 @@ export function createMazeWorld(options = {}) {
   }
   function exitProp(cell, s) {
     if (!s.cells.some(c => c.cell === cell)) return;
-    const p = propGroup(cell, s);
+    const p = propGroup(cell, s); p.name = 'Disclosed exit portal';
     mesh(p, cylinder, deepStone, 0, .04, 0, 1.01, .08, 1.01);
     mesh(p, cylinder, jade, 0, .09, 0, .9, .06, .9);
     mesh(p, ring, gold, 0, .14, 0, .75, .75, .75, Math.PI / 2);
@@ -433,10 +455,14 @@ export function createMazeWorld(options = {}) {
       const a = Math.PI * j / 8;
       mesh(p, bevel, j % 2 ? stone : lightStone, Math.cos(a) * .78, 1.57 + Math.sin(a) * .78, -.54, .3, .33, .4, 0, 0, a - Math.PI / 2);
     }
-    const halo = mesh(p, ring, glow, 0, 1.18, -.53, .64, .82, .64);
+    const veil = mesh(p, portalDisc, portalVeil, 0, 1.18, -.53, .65, .84, 1);
+    veil.castShadow = false; veil.receiveShadow = false;
+    const halo = mesh(p, ring, glow, 0, 1.18, -.51, .68, .86, .68);
+    // A radiant diamond crown distinguishes the exit from all ruined arches.
+    for (const sign of [-1, 1]) mesh(p, bevel, glow, sign * .22, 2.62, -.54, .12, .48, .13, 0, 0, sign * -.65);
     animations.push({ type: 'halo', object: halo, baseY: 1.18, phase: cell });
-    const gem = mesh(p, sphere, amber, 0, 2.47, -.54, .17, .25, .17);
-    animations.push({ type: 'crystal', object: gem, baseY: 2.47, phase: cell });
+    const gem = mesh(p, sphere, glow, 0, 2.79, -.54, .25, .34, .25);
+    animations.push({ type: 'crystal', object: gem, baseY: 2.79, phase: cell });
   }
   function rebuildObjects(s) {
     clear(objects); animations = [];
@@ -484,7 +510,8 @@ export function createMazeWorld(options = {}) {
     for (const a of animations) {
       const wave = reduced ? 0 : Math.sin(t * 1.8 + a.phase) * .045;
       a.object.position.y = a.baseY + wave;
-      if (a.type === 'key' || a.type === 'crystal') a.object.rotation.y = reduced ? -.25 : t * .42 + a.phase;
+      if (a.type === 'key') a.object.rotation.y = reduced ? .55 : .55 + Math.sin(t * .65 + a.phase) * .2;
+      if (a.type === 'crystal') a.object.rotation.y = reduced ? -.25 : t * .42 + a.phase;
     }
     for (let i = 0; i < ripples.length; i++) ripples[i].position.x = ripples[i].userData.baseX + (reduced ? 0 : Math.sin(t * .4 + i) * .12);
   }
