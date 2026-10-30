@@ -1,0 +1,15 @@
+# Installed dependencies and generated build/test output.
+node_modules/
+dist/
+test-results/
+playwright-report/
+
+# Commercial reference downloads are local evaluation inputs.
+# Retain provenance JSON; keep our captures and reviews outside this rule.
+/evidence/ai-escape-room/gauntlet/references/*
+!/evidence/ai-escape-room/gauntlet/references/*.json
+
+# Browser trace archives are reproducible local diagnostics; retain review summaries.
+/evidence/ai-escape-room/gauntlet/reviews/browser-test-results/
+/evidence/ai-escape-room/gauntlet/reviews/*.zip
+/artifacts/

@@ -1,0 +1,58 @@
+(node:146829) [THREE_CJS_DEPRECATED] DeprecationWarning: `require("three")` is deprecated and will be removed.
+Replace `const THREE = require("three")` with `import * as THREE from "three"`.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+✖ confirmed success stages the Archivist by the opened exit instead of an unrelated remaining clue (348.258134ms)
+✔ archivist remains inside the physical room for extreme focus positions and does not mutate snapshots (278.924756ms)
+✔ solve animation consumes each event once and new runs reset event identity (288.857987ms)
+✔ reduced-motion removes idle oscillation while preserving semantic pose and world location (293.320554ms)
+✔ resource count stays bounded across state changes and dispose is idempotent (331.633641ms)
+✔ character stays within its color-pass submission budget (289.350288ms)
+✔ dispose releases owned instance buffers and all resources once without releasing foreign attachments (328.041643ms)
+(node:146830) [THREE_CJS_DEPRECATED] DeprecationWarning: `require("three")` is deprecated and will be removed.
+Replace `const THREE = require("three")` with `import * as THREE from "three"`.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+✖ desktop overview contains the complete actor at both wall workstations (283.297835ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 6
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2821.730772
+
+✖ failing tests:
+
+test at tests/escape-room/archivist3d.test.cjs:18:1
+✖ confirmed success stages the Archivist by the opened exit instead of an unrelated remaining clue (348.258134ms)
+  AssertionError [ERR_ASSERTION]: success staging is centered at the exit
+      at TestContext.<anonymous> (/workspace/scratch/4b9cf76baf7a/ai-escape-room/tests/escape-room/archivist3d.test.cjs:23:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.start (node:internal/test_runner/test:1262:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/escape-room/gauntlet-overview-framing.test.cjs:4:1
+✖ desktop overview contains the complete actor at both wall workstations (283.297835ms)
+  AssertionError [ERR_ASSERTION]: aspect 1.39, wall -1, horizontal -1.2118660908069057
+      at TestContext.<anonymous> (/workspace/scratch/4b9cf76baf7a/ai-escape-room/tests/escape-room/gauntlet-overview-framing.test.cjs:17:16)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.start (node:internal/test_runner/test:1262:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }

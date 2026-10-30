@@ -1,0 +1,289 @@
+{
+  "config": {
+    "configFile": "/tmp/escape-gauntlet-playwright.config.cjs",
+    "rootDir": "/workspace/scratch/4b9cf76baf7a/ai-escape-room/tests/browser",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "/workspace/scratch/4b9cf76baf7a/ai-escape-room/evidence/ai-escape-room/gauntlet/reviews/browser-results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "/workspace/scratch/4b9cf76baf7a/ai-escape-room/evidence/ai-escape-room/gauntlet/reviews/browser-test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "/workspace/scratch/4b9cf76baf7a/ai-escape-room/tests/browser",
+        "testIgnore": [],
+        "testMatch": [
+          "escape-room-gauntlet.spec.cjs"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "shard": null,
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.55.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "escape-room-gauntlet.spec.cjs",
+      "file": "escape-room-gauntlet.spec.cjs",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "Follow follows the next real focus even when a reveal follows puzzle-solved in the same tick",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 7734,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-30T19:47:08.593Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "16c049a0815064222754-444b99a7eec63c1df784",
+          "file": "escape-room-gauntlet.spec.cjs",
+          "line": 49,
+          "column": 1
+        },
+        {
+          "title": "a real escape batch returns the Follow camera to the room even when result is the final event",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 7081,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-30T19:47:16.491Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "16c049a0815064222754-d787800e0d32509acae7",
+          "file": "escape-room-gauntlet.spec.cjs",
+          "line": 124,
+          "column": 1
+        },
+        {
+          "title": "character view keeps the entire Archivist visible beside real wall mechanisms",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 16533,
+                  "error": {
+                    "message": "Error: left-wall: {\"points\":[[-0.0037388711396519605,-3.419155902409734,0.815001362282248],[0.7525431550467533,-1.3287858094062264,0.9098984730325008],[-0.009904810393095643,3.3104393643587553,0.5036174076231893],[1.090083483414832,1.4391230405993511,0.8677730206242522],[-0.8904222743154877,-1.600982430392251,0.8975414875522688],[-0.023434005579691396,-0.7522808313375904,0.9360702293807962],[-1.3706964636412107,1.5807175327808718,0.8402189249092377],[-0.030173524732834033,1.1882806494410096,0.9165866089840269]],\"position\":[-5.55,2.45,1.0342726233009234],\"character\":[-4.720000000000001,1.85,2],\"focus\":\"target-05\"}\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: < \u001b[32m0.98\u001b[39m\nReceived:   \u001b[31m3.419155902409734\u001b[39m",
+                    "stack": "Error: left-wall: {\"points\":[[-0.0037388711396519605,-3.419155902409734,0.815001362282248],[0.7525431550467533,-1.3287858094062264,0.9098984730325008],[-0.009904810393095643,3.3104393643587553,0.5036174076231893],[1.090083483414832,1.4391230405993511,0.8677730206242522],[-0.8904222743154877,-1.600982430392251,0.8975414875522688],[-0.023434005579691396,-0.7522808313375904,0.9360702293807962],[-1.3706964636412107,1.5807175327808718,0.8402189249092377],[-0.030173524732834033,1.1882806494410096,0.9165866089840269]],\"position\":[-5.55,2.45,1.0342726233009234],\"character\":[-4.720000000000001,1.85,2],\"focus\":\"target-05\"}\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: < \u001b[32m0.98\u001b[39m\nReceived:   \u001b[31m3.419155902409734\u001b[39m\n    at /workspace/scratch/4b9cf76baf7a/ai-escape-room/tests/browser/escape-room-gauntlet.spec.cjs:200:75",
+                    "location": {
+                      "file": "/workspace/scratch/4b9cf76baf7a/ai-escape-room/tests/browser/escape-room-gauntlet.spec.cjs",
+                      "column": 75,
+                      "line": 200
+                    },
+                    "snippet": "  198 |     for(const point of framing.points){\n  199 |       expect(Math.abs(point[0]),`${surface}: ${JSON.stringify(framing)}`).toBeLessThan(.98);\n> 200 |       expect(Math.abs(point[1]),`${surface}: ${JSON.stringify(framing)}`).toBeLessThan(.98);\n      |                                                                           ^\n  201 |       expect(point[2]).toBeGreaterThan(-1);expect(point[2]).toBeLessThan(1);\n  202 |     }\n  203 |   }"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/workspace/scratch/4b9cf76baf7a/ai-escape-room/tests/browser/escape-room-gauntlet.spec.cjs",
+                        "column": 75,
+                        "line": 200
+                      },
+                      "message": "Error: left-wall: {\"points\":[[-0.0037388711396519605,-3.419155902409734,0.815001362282248],[0.7525431550467533,-1.3287858094062264,0.9098984730325008],[-0.009904810393095643,3.3104393643587553,0.5036174076231893],[1.090083483414832,1.4391230405993511,0.8677730206242522],[-0.8904222743154877,-1.600982430392251,0.8975414875522688],[-0.023434005579691396,-0.7522808313375904,0.9360702293807962],[-1.3706964636412107,1.5807175327808718,0.8402189249092377],[-0.030173524732834033,1.1882806494410096,0.9165866089840269]],\"position\":[-5.55,2.45,1.0342726233009234],\"character\":[-4.720000000000001,1.85,2],\"focus\":\"target-05\"}\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: < \u001b[32m0.98\u001b[39m\nReceived:   \u001b[31m3.419155902409734\u001b[39m\n\n  198 |     for(const point of framing.points){\n  199 |       expect(Math.abs(point[0]),`${surface}: ${JSON.stringify(framing)}`).toBeLessThan(.98);\n> 200 |       expect(Math.abs(point[1]),`${surface}: ${JSON.stringify(framing)}`).toBeLessThan(.98);\n      |                                                                           ^\n  201 |       expect(point[2]).toBeGreaterThan(-1);expect(point[2]).toBeLessThan(1);\n  202 |     }\n  203 |   }\n    at /workspace/scratch/4b9cf76baf7a/ai-escape-room/tests/browser/escape-room-gauntlet.spec.cjs:200:75"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-30T19:47:23.607Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/workspace/scratch/4b9cf76baf7a/ai-escape-room/evidence/ai-escape-room/gauntlet/reviews/browser-test-results/escape-room-gauntlet-chara-c535a-beside-real-wall-mechanisms/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/workspace/scratch/4b9cf76baf7a/ai-escape-room/evidence/ai-escape-room/gauntlet/reviews/browser-test-results/escape-room-gauntlet-chara-c535a-beside-real-wall-mechanisms/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/workspace/scratch/4b9cf76baf7a/ai-escape-room/tests/browser/escape-room-gauntlet.spec.cjs",
+                    "column": 75,
+                    "line": 200
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "16c049a0815064222754-1e4575e1e6f121bb67e7",
+          "file": "escape-room-gauntlet.spec.cjs",
+          "line": 184,
+          "column": 1
+        },
+        {
+          "title": "replacing animated mechanisms releases GPU instance buffers as well as geometries",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 26050,
+                  "error": {
+                    "message": "Error: [{\"created\":737,\"deleted\":393,\"outstanding\":344,\"geometries\":106},{\"created\":1132,\"deleted\":786,\"outstanding\":346,\"geometries\":106},{\"created\":1527,\"deleted\":1179,\"outstanding\":348,\"geometries\":106},{\"created\":1922,\"deleted\":1572,\"outstanding\":350,\"geometries\":106},{\"created\":2317,\"deleted\":1965,\"outstanding\":352,\"geometries\":106},{\"created\":2712,\"deleted\":2358,\"outstanding\":354,\"geometries\":106}]\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: <= \u001b[32m347\u001b[39m\nReceived:    \u001b[31m354\u001b[39m",
+                    "stack": "Error: [{\"created\":737,\"deleted\":393,\"outstanding\":344,\"geometries\":106},{\"created\":1132,\"deleted\":786,\"outstanding\":346,\"geometries\":106},{\"created\":1527,\"deleted\":1179,\"outstanding\":348,\"geometries\":106},{\"created\":1922,\"deleted\":1572,\"outstanding\":350,\"geometries\":106},{\"created\":2317,\"deleted\":1965,\"outstanding\":352,\"geometries\":106},{\"created\":2712,\"deleted\":2358,\"outstanding\":354,\"geometries\":106}]\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: <= \u001b[32m347\u001b[39m\nReceived:    \u001b[31m354\u001b[39m\n    at /workspace/scratch/4b9cf76baf7a/ai-escape-room/tests/browser/escape-room-gauntlet.spec.cjs:227:62",
+                    "location": {
+                      "file": "/workspace/scratch/4b9cf76baf7a/ai-escape-room/tests/browser/escape-room-gauntlet.spec.cjs",
+                      "column": 62,
+                      "line": 227
+                    },
+                    "snippet": "  225 |   }\n  226 |   await testInfo.attach('gpu-buffer-samples',{body:JSON.stringify(samples,null,2),contentType:'application/json'});\n> 227 |   expect(samples.at(-1).outstanding,JSON.stringify(samples)).toBeLessThanOrEqual(samples[1].outstanding+1);\n      |                                                              ^\n  228 | });\n  229 |"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/workspace/scratch/4b9cf76baf7a/ai-escape-room/tests/browser/escape-room-gauntlet.spec.cjs",
+                        "column": 62,
+                        "line": 227
+                      },
+                      "message": "Error: [{\"created\":737,\"deleted\":393,\"outstanding\":344,\"geometries\":106},{\"created\":1132,\"deleted\":786,\"outstanding\":346,\"geometries\":106},{\"created\":1527,\"deleted\":1179,\"outstanding\":348,\"geometries\":106},{\"created\":1922,\"deleted\":1572,\"outstanding\":350,\"geometries\":106},{\"created\":2317,\"deleted\":1965,\"outstanding\":352,\"geometries\":106},{\"created\":2712,\"deleted\":2358,\"outstanding\":354,\"geometries\":106}]\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: <= \u001b[32m347\u001b[39m\nReceived:    \u001b[31m354\u001b[39m\n\n  225 |   }\n  226 |   await testInfo.attach('gpu-buffer-samples',{body:JSON.stringify(samples,null,2),contentType:'application/json'});\n> 227 |   expect(samples.at(-1).outstanding,JSON.stringify(samples)).toBeLessThanOrEqual(samples[1].outstanding+1);\n      |                                                              ^\n  228 | });\n  229 |\n    at /workspace/scratch/4b9cf76baf7a/ai-escape-room/tests/browser/escape-room-gauntlet.spec.cjs:227:62"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-30T19:47:47.032Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "gpu-buffer-samples",
+                      "contentType": "application/json",
+                      "body": "WwogIHsKICAgICJjcmVhdGVkIjogNzM3LAogICAgImRlbGV0ZWQiOiAzOTMsCiAgICAib3V0c3RhbmRpbmciOiAzNDQsCiAgICAiZ2VvbWV0cmllcyI6IDEwNgogIH0sCiAgewogICAgImNyZWF0ZWQiOiAxMTMyLAogICAgImRlbGV0ZWQiOiA3ODYsCiAgICAib3V0c3RhbmRpbmciOiAzNDYsCiAgICAiZ2VvbWV0cmllcyI6IDEwNgogIH0sCiAgewogICAgImNyZWF0ZWQiOiAxNTI3LAogICAgImRlbGV0ZWQiOiAxMTc5LAogICAgIm91dHN0YW5kaW5nIjogMzQ4LAogICAgImdlb21ldHJpZXMiOiAxMDYKICB9LAogIHsKICAgICJjcmVhdGVkIjogMTkyMiwKICAgICJkZWxldGVkIjogMTU3MiwKICAgICJvdXRzdGFuZGluZyI6IDM1MCwKICAgICJnZW9tZXRyaWVzIjogMTA2CiAgfSwKICB7CiAgICAiY3JlYXRlZCI6IDIzMTcsCiAgICAiZGVsZXRlZCI6IDE5NjUsCiAgICAib3V0c3RhbmRpbmciOiAzNTIsCiAgICAiZ2VvbWV0cmllcyI6IDEwNgogIH0sCiAgewogICAgImNyZWF0ZWQiOiAyNzEyLAogICAgImRlbGV0ZWQiOiAyMzU4LAogICAgIm91dHN0YW5kaW5nIjogMzU0LAogICAgImdlb21ldHJpZXMiOiAxMDYKICB9Cl0="
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/workspace/scratch/4b9cf76baf7a/ai-escape-room/evidence/ai-escape-room/gauntlet/reviews/browser-test-results/escape-room-gauntlet-repla-5982c-ffers-as-well-as-geometries/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/workspace/scratch/4b9cf76baf7a/ai-escape-room/evidence/ai-escape-room/gauntlet/reviews/browser-test-results/escape-room-gauntlet-repla-5982c-ffers-as-well-as-geometries/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/workspace/scratch/4b9cf76baf7a/ai-escape-room/tests/browser/escape-room-gauntlet.spec.cjs",
+                    "column": 62,
+                    "line": 227
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "16c049a0815064222754-0c73871ee57d4f4adb48",
+          "file": "escape-room-gauntlet.spec.cjs",
+          "line": 206,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-30T19:47:07.095Z",
+    "duration": 68731.865,
+    "expected": 2,
+    "skipped": 0,
+    "unexpected": 2,
+    "flaky": 0
+  }
+}

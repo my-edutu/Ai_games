@@ -1,0 +1,29 @@
+{
+  "time": "2026-10-30T20:27:05.821786+00:00",
+  "server": "http://127.0.0.1:4177",
+  "browser": "Chromium via installed Playwright",
+  "workers": 1,
+  "launchArgs": [
+    "--no-sandbox",
+    "--use-gl=angle",
+    "--use-angle=swiftshader-webgl",
+    "--enable-unsafe-swiftshader"
+  ],
+  "fixtureTransport": "in-page fetch response for state only, real EscapeRuntime frames",
+  "sourceHashes": {
+    "public/ai-escape-room/app.js": "b530fb61724004a9c9022555efc04909cb6122ce9736a45eeb5e69acf902e8d8",
+    "public/ai-escape-room/bootstrap.js": "87ee7189f2ab644d52af81e9d59b93004ab09aaecb048c9073e2c8468c368a89",
+    "public/ai-escape-room/room3d.js": "ba577cba5fae9d12ebefd099beaac11394bdeffb09f8db3d6e5980a8b48d350b",
+    "public/ai-escape-room/scenery3d.js": "d36862d119bc9053a6e325d99328e90c5ea6fb2ac4a1fc35493e1a71c8b37dd1",
+    "public/ai-escape-room/archivist3d.js": "b86e9425e89c6060c9607e570c3924e278b1dd25a90d2ec793cd8b8505b40b3a",
+    "public/ai-escape-room/mechanisms3d.js": "8648cdbe0c8b6664862e266c140fd69fff059d8151cb15cd9efc2e87aca7b7c6",
+    "public/ai-escape-room/room3d-polish.js": "26e7e8224ca976c6bf166e7c8cf8fd53a7edc5d1cf906aa5b923585192b5ff4b",
+    "public/ai-escape-room/index.html": "1492643e52e55105d8113c44d507ed61bb378ea8f1efc13d4ef6d3e9c51e8d50",
+    "public/ai-escape-room/styles.css": "e0e6f70cf82f479915ed95666d852d5e03b384e79db42dec0fafe167d1297d75",
+    "public/ai-escape-room/ux-v2.css": "d4b41a7de0ab0695a024e8b99051b8b2de05a86b0b441e0bbf86819abd9a4018",
+    "games/ai-escape-room/src/presentation/snapshot.ts": "edcc04ec15d1caceef9a1f7e87abc2a81f8a10b1bb4817f96e9120f604ae324d",
+    "dist/games/ai-escape-room/src/presentation/snapshot.js": "10a6e0be4be036c4bbe29cf11e1316ff0c4afcc5bd3a0a87815a19756805daff",
+    "scripts/serve-escape-room-stream.cjs": "1213d7926ce80de239031ed0b85b020c547f8d3735e93c769b5522e3597fbc79",
+    "tests/browser/escape-room-gauntlet.spec.cjs": "5e8d9e2cb0edf0c8faf1a2472cdf5d6abb2d36d7fe0f23582aaed33017ca9999"
+  }
+}

@@ -1,0 +1,45 @@
+✔ full cipher-vault runs preserve public privacy and complete mechanism counts at the maximum depth (424.246265ms)
+✔ full clockwork-study runs preserve public privacy and complete mechanism counts at the maximum depth (319.079557ms)
+✔ full chromatic-lab runs preserve public privacy and complete mechanism counts at the maximum depth (253.240774ms)
+✔ full archive-zero runs preserve public privacy and complete mechanism counts at the maximum depth (266.91926ms)
+✔ arbitrary presentation reads, accessibility layouts and output recovery do not change autonomous replay (552.34421ms)
+✖ revealing a hidden object cannot move already placed clues and mechanisms (15.478265ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 5
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1848.745147
+
+✖ failing tests:
+
+test at tests/escape-room/gauntlet-public-contract.test.cjs:51:1
+✖ revealing a hidden object cannot move already placed clues and mechanisms (15.478265ms)
+  AssertionError [ERR_ASSERTION]: stationary object clue-03 moved at tick 4; events puzzle-solved, object-revealed
+  + actual - expected
+  
+    {
+  +   slot: 2,
+  -   slot: 1,
+      stage: 3,
+      surface: 'desk',
+      variant: 2
+    }
+  
+      at inspect (/workspace/scratch/4b9cf76baf7a/ai-escape-room/tests/escape-room/gauntlet-public-contract.test.cjs:57:39)
+      at TestContext.<anonymous> (/workspace/scratch/4b9cf76baf7a/ai-escape-room/tests/escape-room/gauntlet-public-contract.test.cjs:64:5)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: [Object],
+    expected: [Object],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }

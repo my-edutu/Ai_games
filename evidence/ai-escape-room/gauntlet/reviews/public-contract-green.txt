@@ -1,0 +1,14 @@
+✔ full cipher-vault runs preserve public privacy and complete mechanism counts at the maximum depth (382.119908ms)
+✔ full clockwork-study runs preserve public privacy and complete mechanism counts at the maximum depth (308.041282ms)
+✔ full chromatic-lab runs preserve public privacy and complete mechanism counts at the maximum depth (293.144126ms)
+✔ full archive-zero runs preserve public privacy and complete mechanism counts at the maximum depth (350.392548ms)
+✔ arbitrary presentation reads, accessibility layouts and output recovery do not change autonomous replay (673.923643ms)
+✔ revealing a hidden object cannot move already placed clues and mechanisms (62.649321ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2087.805163

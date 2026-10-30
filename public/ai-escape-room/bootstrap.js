@@ -3,6 +3,8 @@ import * as THREE from '/escape-room/vendor/three.module.js';
 window.THREE=THREE;
 await import('/escape-room/room3d-polish.js');
 await import('/escape-room/mechanisms3d.js');
+await import('/escape-room/scenery3d.js');
+await import('/escape-room/archivist3d.js');
 await import('/escape-room/room3d.js');
 
 const Room=window.EscapeRoom3D,Polish=window.EscapeRoomPolish;
@@ -49,7 +51,7 @@ if(Room&&Polish){
   Room.prototype.inspect=function(id,automatic=false){
     const point=this.objectWorld.get(id);if(!point)return;
     const object=this.state?.objects.find(item=>item.id===id),pose=safePose(object,point);
-    this.inspectId=id;this.mode='inspect';this.inspectPose=pose;this.targetCamera.copy(pose.eye);this.targetLook.copy(pose.look);
+    this.inspectId=id;this.mode='inspect';this.updateCameraLens();this.inspectPose=pose;this.targetCamera.copy(pose.eye);this.targetLook.copy(pose.look);
     document.body.dataset.cameraMode='inspect';document.body.dataset.inspectAutomatic=String(automatic);
     const label=document.getElementById('inspect-label');if(label){label.textContent=object?`${object.solved?'OPEN':'INSPECT'} · ${human(object.mechanismKind||object.labelKey).toUpperCase()}`:'INSPECT';label.classList.add('active');}
   };

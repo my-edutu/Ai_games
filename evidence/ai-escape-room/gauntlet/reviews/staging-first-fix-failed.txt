@@ -1,0 +1,41 @@
+(node:150280) [THREE_CJS_DEPRECATED] DeprecationWarning: `require("three")` is deprecated and will be removed.
+Replace `const THREE = require("three")` with `import * as THREE from "three"`.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+✔ confirmed success stages the Archivist by the opened exit instead of an unrelated remaining clue (512.622943ms)
+✔ archivist remains inside the physical room for extreme focus positions and does not mutate snapshots (462.1061ms)
+✔ solve animation consumes each event once and new runs reset event identity (258.84549ms)
+✔ reduced-motion removes idle oscillation while preserving semantic pose and world location (237.986044ms)
+✔ resource count stays bounded across state changes and dispose is idempotent (201.117491ms)
+✔ character stays within its color-pass submission budget (177.175411ms)
+✔ dispose releases owned instance buffers and all resources once without releasing foreign attachments (132.97361ms)
+(node:150281) [THREE_CJS_DEPRECATED] DeprecationWarning: `require("three")` is deprecated and will be removed.
+Replace `const THREE = require("three")` with `import * as THREE from "three"`.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+✖ desktop overview contains the complete actor at both wall workstations (169.57802ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 7
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3116.893951
+
+✖ failing tests:
+
+test at tests/escape-room/gauntlet-overview-framing.test.cjs:4:1
+✖ desktop overview contains the complete actor at both wall workstations (169.57802ms)
+  AssertionError [ERR_ASSERTION]: aspect 1.39, wall -1, horizontal -1.0269517746967634
+      at TestContext.<anonymous> (/workspace/scratch/4b9cf76baf7a/ai-escape-room/tests/escape-room/gauntlet-overview-framing.test.cjs:17:16)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.start (node:internal/test_runner/test:1262:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }

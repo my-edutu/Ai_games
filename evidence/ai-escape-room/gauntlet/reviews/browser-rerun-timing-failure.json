@@ -1,0 +1,190 @@
+{
+  "config": {
+    "configFile": "/tmp/escape-gauntlet-playwright.config.cjs",
+    "rootDir": "/workspace/scratch/4b9cf76baf7a/ai-escape-room/tests/browser",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "/workspace/scratch/4b9cf76baf7a/ai-escape-room/evidence/ai-escape-room/gauntlet/reviews/browser-results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "/workspace/scratch/4b9cf76baf7a/ai-escape-room/evidence/ai-escape-room/gauntlet/reviews/browser-test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "/workspace/scratch/4b9cf76baf7a/ai-escape-room/tests/browser",
+        "testIgnore": [],
+        "testMatch": [
+          "escape-room-gauntlet.spec.cjs"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "shard": null,
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.55.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "escape-room-gauntlet.spec.cjs",
+      "file": "escape-room-gauntlet.spec.cjs",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "character view keeps the entire Archivist visible beside real wall mechanisms",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "timedOut",
+                  "duration": 64157,
+                  "error": {
+                    "message": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m",
+                    "stack": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m"
+                  },
+                  "errors": [
+                    {
+                      "message": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m"
+                    },
+                    {
+                      "location": {
+                        "file": "/workspace/scratch/4b9cf76baf7a/ai-escape-room/tests/browser/escape-room-gauntlet.spec.cjs",
+                        "column": 50,
+                        "line": 190
+                      },
+                      "message": "Error: locator.click: Test timeout of 60000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#view-settings summary')\u001b[22m\n\n\n  188 |     expect(frame,`the production run must include ${surface}`).toBeTruthy();\n  189 |     await present(page,frame);\n> 190 |     await page.locator('#view-settings summary').click();\n      |                                                  ^\n  191 |     await page.locator('#character-button').click();\n  192 |     await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));\n  193 |     const framing=await page.evaluate(()=>{\n    at /workspace/scratch/4b9cf76baf7a/ai-escape-room/tests/browser/escape-room-gauntlet.spec.cjs:190:50"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-30T19:51:17.179Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/workspace/scratch/4b9cf76baf7a/ai-escape-room/evidence/ai-escape-room/gauntlet/reviews/browser-test-results/escape-room-gauntlet-chara-c535a-beside-real-wall-mechanisms/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/workspace/scratch/4b9cf76baf7a/ai-escape-room/evidence/ai-escape-room/gauntlet/reviews/browser-test-results/escape-room-gauntlet-chara-c535a-beside-real-wall-mechanisms/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "16c049a0815064222754-1e4575e1e6f121bb67e7",
+          "file": "escape-room-gauntlet.spec.cjs",
+          "line": 184,
+          "column": 1
+        },
+        {
+          "title": "replacing animated mechanisms releases GPU instance buffers as well as geometries",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "timedOut",
+                  "duration": 68055,
+                  "error": {
+                    "message": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m",
+                    "stack": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m"
+                  },
+                  "errors": [
+                    {
+                      "message": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m"
+                    },
+                    {
+                      "message": "Error: Object with guid handle@f895b3fbcab7b9b1f5efcb00f4078eb5 was not bound in the connection"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-30T19:53:06.504Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/workspace/scratch/4b9cf76baf7a/ai-escape-room/evidence/ai-escape-room/gauntlet/reviews/browser-test-results/escape-room-gauntlet-repla-5982c-ffers-as-well-as-geometries/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "16c049a0815064222754-0c73871ee57d4f4adb48",
+          "file": "escape-room-gauntlet.spec.cjs",
+          "line": 207,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-30T19:51:10.325Z",
+    "duration": 222427.377,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 2,
+    "flaky": 0
+  }
+}

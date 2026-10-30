@@ -1,0 +1,30 @@
+{
+  "time": "2026-10-30T20:44:14.286067+00:00",
+  "server": "http://127.0.0.1:4177",
+  "browser": "Chromium via installed Playwright",
+  "workers": 1,
+  "launchArgs": [
+    "--no-sandbox",
+    "--use-gl=angle",
+    "--use-angle=swiftshader-webgl",
+    "--enable-unsafe-swiftshader"
+  ],
+  "fixtureTransport": "in-page fetch response for state only, real EscapeRuntime frames",
+  "sourceHashes": {
+    "public/ai-escape-room/app.js": "b530fb61724004a9c9022555efc04909cb6122ce9736a45eeb5e69acf902e8d8",
+    "public/ai-escape-room/bootstrap.js": "ae33462fa69cc1e2b007cca87492dbb325d9c8d9cc172e704407e55c5492c6a4",
+    "public/ai-escape-room/room3d.js": "29340c54ade87e688d9700ad42578d0e3edc288f662c83f555cb9907b1493b64",
+    "public/ai-escape-room/scenery3d.js": "46d1fe0b81224549c2082ca75d5f8c939c1393807e69f48bd17aa7478417b644",
+    "public/ai-escape-room/archivist3d.js": "9c35ccae91ca8e7ec9228774888255a28b161fceb3092c8f7c4509e6faf4270f",
+    "public/ai-escape-room/mechanisms3d.js": "8648cdbe0c8b6664862e266c140fd69fff059d8151cb15cd9efc2e87aca7b7c6",
+    "public/ai-escape-room/room3d-polish.js": "26e7e8224ca976c6bf166e7c8cf8fd53a7edc5d1cf906aa5b923585192b5ff4b",
+    "public/ai-escape-room/index.html": "1492643e52e55105d8113c44d507ed61bb378ea8f1efc13d4ef6d3e9c51e8d50",
+    "public/ai-escape-room/styles.css": "e0e6f70cf82f479915ed95666d852d5e03b384e79db42dec0fafe167d1297d75",
+    "public/ai-escape-room/ux-v2.css": "d4b41a7de0ab0695a024e8b99051b8b2de05a86b0b441e0bbf86819abd9a4018",
+    "games/ai-escape-room/src/presentation/snapshot.ts": "edcc04ec15d1caceef9a1f7e87abc2a81f8a10b1bb4817f96e9120f604ae324d",
+    "dist/games/ai-escape-room/src/presentation/snapshot.js": "10a6e0be4be036c4bbe29cf11e1316ff0c4afcc5bd3a0a87815a19756805daff",
+    "scripts/serve-escape-room-stream.cjs": "1213d7926ce80de239031ed0b85b020c547f8d3735e93c769b5522e3597fbc79",
+    "tests/browser/escape-room-gauntlet.spec.cjs": "93d17ae57f1c9d963c45dd39e3f325eaed2aa520e84dbf59bf51a7cfb184d62f"
+  },
+  "scope": "Only the65-state replay/theme resource stress case; same state transitions and assertions, one actual renderer.frame() call per state with successor RAF paused between steps"
+}

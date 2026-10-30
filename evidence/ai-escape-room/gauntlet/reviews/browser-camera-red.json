@@ -1,0 +1,214 @@
+{
+  "config": {
+    "configFile": "/tmp/escape-gauntlet-playwright.config.cjs",
+    "rootDir": "/workspace/scratch/4b9cf76baf7a/ai-escape-room/tests/browser",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "/workspace/scratch/4b9cf76baf7a/ai-escape-room/evidence/ai-escape-room/gauntlet/reviews/browser-results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "/workspace/scratch/4b9cf76baf7a/ai-escape-room/evidence/ai-escape-room/gauntlet/reviews/browser-test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "/workspace/scratch/4b9cf76baf7a/ai-escape-room/tests/browser",
+        "testIgnore": [],
+        "testMatch": [
+          "escape-room-gauntlet.spec.cjs"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "shard": null,
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.55.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "escape-room-gauntlet.spec.cjs",
+      "file": "escape-room-gauntlet.spec.cjs",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "Follow follows the next real focus even when a reveal follows puzzle-solved in the same tick",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 7362,
+                  "error": {
+                    "message": "Error: focus changed at tick 4; events puzzle-solved, object-revealed\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"target-0\u001b[7m2\u001b[27m\"\u001b[39m\nReceived: \u001b[31m\"target-0\u001b[7m1\u001b[27m\"\u001b[39m",
+                    "stack": "Error: focus changed at tick 4; events puzzle-solved, object-revealed\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"target-0\u001b[7m2\u001b[27m\"\u001b[39m\nReceived: \u001b[31m\"target-0\u001b[7m1\u001b[27m\"\u001b[39m\n    at /workspace/scratch/4b9cf76baf7a/ai-escape-room/tests/browser/escape-room-gauntlet.spec.cjs:59:122",
+                    "location": {
+                      "file": "/workspace/scratch/4b9cf76baf7a/ai-escape-room/tests/browser/escape-room-gauntlet.spec.cjs",
+                      "column": 122,
+                      "line": 59
+                    },
+                    "snippet": "  57 |   const pose=await actualPose(page);\n  58 |   expect(pose.follow).toBe(true);\n> 59 |   expect(pose.inspectId,`focus changed at tick ${after.tick}; events ${after.events.map(event=>event.type).join(', ')}`).toBe(after.focusObjectId);\n     |                                                                                                                          ^\n  60 |   expect(pose.authority).toBe(after.authorityChecksum);\n  61 | });\n  62 |"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/workspace/scratch/4b9cf76baf7a/ai-escape-room/tests/browser/escape-room-gauntlet.spec.cjs",
+                        "column": 122,
+                        "line": 59
+                      },
+                      "message": "Error: focus changed at tick 4; events puzzle-solved, object-revealed\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"target-0\u001b[7m2\u001b[27m\"\u001b[39m\nReceived: \u001b[31m\"target-0\u001b[7m1\u001b[27m\"\u001b[39m\n\n  57 |   const pose=await actualPose(page);\n  58 |   expect(pose.follow).toBe(true);\n> 59 |   expect(pose.inspectId,`focus changed at tick ${after.tick}; events ${after.events.map(event=>event.type).join(', ')}`).toBe(after.focusObjectId);\n     |                                                                                                                          ^\n  60 |   expect(pose.authority).toBe(after.authorityChecksum);\n  61 | });\n  62 |\n    at /workspace/scratch/4b9cf76baf7a/ai-escape-room/tests/browser/escape-room-gauntlet.spec.cjs:59:122"
+                    },
+                    {
+                      "message": "Error: End of central directory record signature not found. Either not a zip file, or file is truncated."
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-30T19:40:07.281Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/workspace/scratch/4b9cf76baf7a/ai-escape-room/evidence/ai-escape-room/gauntlet/reviews/browser-test-results/escape-room-gauntlet-Follo-3a6aa-zle-solved-in-the-same-tick/error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/workspace/scratch/4b9cf76baf7a/ai-escape-room/tests/browser/escape-room-gauntlet.spec.cjs",
+                    "column": 122,
+                    "line": 59
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "16c049a0815064222754-444b99a7eec63c1df784",
+          "file": "escape-room-gauntlet.spec.cjs",
+          "line": 49,
+          "column": 1
+        },
+        {
+          "title": "a real escape batch returns the Follow camera to the room even when result is the final event",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 15904,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveAttribute\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('body')\nExpected string: \u001b[32m\"room\"\u001b[39m\nReceived string: \u001b[31m\"inspect\"\u001b[39m\nTimeout: 8000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveAttribute\" with timeout 8000ms\u001b[22m\n\u001b[2m  - waiting for locator('body')\u001b[22m\n\u001b[2m    11 × locator resolved to <body data-muted=\"true\" data-replay=\"true\" data-ux-revision=\"4\" data-evidence=\"true\" data-clean-feed=\"false\" data-reduced-motion=\"true\" data-high-contrast=\"false\" data-camera-mode=\"inspect\" data-inspect-automatic=\"true\">…</body>\u001b[22m\n\u001b[2m       - unexpected value \"inspect\"\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveAttribute\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('body')\nExpected string: \u001b[32m\"room\"\u001b[39m\nReceived string: \u001b[31m\"inspect\"\u001b[39m\nTimeout: 8000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveAttribute\" with timeout 8000ms\u001b[22m\n\u001b[2m  - waiting for locator('body')\u001b[22m\n\u001b[2m    11 × locator resolved to <body data-muted=\"true\" data-replay=\"true\" data-ux-revision=\"4\" data-evidence=\"true\" data-clean-feed=\"false\" data-reduced-motion=\"true\" data-high-contrast=\"false\" data-camera-mode=\"inspect\" data-inspect-automatic=\"true\">…</body>\u001b[22m\n\u001b[2m       - unexpected value \"inspect\"\u001b[22m\n\n    at /workspace/scratch/4b9cf76baf7a/ai-escape-room/tests/browser/escape-room-gauntlet.spec.cjs:131:38",
+                    "location": {
+                      "file": "/workspace/scratch/4b9cf76baf7a/ai-escape-room/tests/browser/escape-room-gauntlet.spec.cjs",
+                      "column": 38,
+                      "line": 131
+                    },
+                    "snippet": "  129 |   expect(escaped.events.at(-1).type).toBe('result');\n  130 |   await present(page,escaped);\n> 131 |   await expect(page.locator('body')).toHaveAttribute('data-camera-mode','room');\n      |                                      ^\n  132 |   expect((await actualPose(page)).authority).toBe(escaped.authorityChecksum);\n  133 | });\n  134 |"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/workspace/scratch/4b9cf76baf7a/ai-escape-room/tests/browser/escape-room-gauntlet.spec.cjs",
+                        "column": 38,
+                        "line": 131
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveAttribute\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('body')\nExpected string: \u001b[32m\"room\"\u001b[39m\nReceived string: \u001b[31m\"inspect\"\u001b[39m\nTimeout: 8000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveAttribute\" with timeout 8000ms\u001b[22m\n\u001b[2m  - waiting for locator('body')\u001b[22m\n\u001b[2m    11 × locator resolved to <body data-muted=\"true\" data-replay=\"true\" data-ux-revision=\"4\" data-evidence=\"true\" data-clean-feed=\"false\" data-reduced-motion=\"true\" data-high-contrast=\"false\" data-camera-mode=\"inspect\" data-inspect-automatic=\"true\">…</body>\u001b[22m\n\u001b[2m       - unexpected value \"inspect\"\u001b[22m\n\n\n  129 |   expect(escaped.events.at(-1).type).toBe('result');\n  130 |   await present(page,escaped);\n> 131 |   await expect(page.locator('body')).toHaveAttribute('data-camera-mode','room');\n      |                                      ^\n  132 |   expect((await actualPose(page)).authority).toBe(escaped.authorityChecksum);\n  133 | });\n  134 |\n    at /workspace/scratch/4b9cf76baf7a/ai-escape-room/tests/browser/escape-room-gauntlet.spec.cjs:131:38"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-30T19:40:17.765Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/workspace/scratch/4b9cf76baf7a/ai-escape-room/evidence/ai-escape-room/gauntlet/reviews/browser-test-results/escape-room-gauntlet-a-rea-383ac-n-result-is-the-final-event/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/workspace/scratch/4b9cf76baf7a/ai-escape-room/evidence/ai-escape-room/gauntlet/reviews/browser-test-results/escape-room-gauntlet-a-rea-383ac-n-result-is-the-final-event/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/workspace/scratch/4b9cf76baf7a/ai-escape-room/tests/browser/escape-room-gauntlet.spec.cjs",
+                    "column": 38,
+                    "line": 131
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "16c049a0815064222754-d787800e0d32509acae7",
+          "file": "escape-room-gauntlet.spec.cjs",
+          "line": 124,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-30T19:40:05.613Z",
+    "duration": 32282.183000000005,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 2,
+    "flaky": 0
+  }
+}

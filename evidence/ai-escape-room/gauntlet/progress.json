@@ -1,0 +1,56 @@
+{
+  "updated": "2026-10-30T20:28:34.730481+00:00",
+  "verdict": "Reference wins \u00b7 work continues",
+  "currentGap": "The new build wins the blind comparison with baseline; The Room 4 still wins the fixed comparison. Next target: authored furniture construction and staging, with the Archivist fully visible in the overview.",
+  "rounds": [
+    {
+      "id": "baseline",
+      "label": "BASELINE",
+      "title": "The existing physical room",
+      "verdict": "REFERENCE WINS",
+      "summary": "The working autonomous engine is retained. The initial visual review found a primitive room, a tiny probe, flat mechanisms and weak focal lighting.",
+      "gap": "Crafted architecture, a developed protagonist and tactile mechanisms."
+    },
+    {
+      "id": "round-01",
+      "label": "ITERATION 01",
+      "title": "The archive takes shape",
+      "verdict": "REFERENCE WINS",
+      "summary": "A furnished archive, physical materials, an articulated archivist and a game-focused interface are now rendered. An independent critic inspected the actual captures.",
+      "gap": "The central lock still reads as a ring on a blank door. Repetitive shiny wood and limited shadowing remain visible."
+    },
+    {
+      "id": "round-02",
+      "label": "ITERATION 02",
+      "title": "Physical mechanisms and a real escape",
+      "verdict": "REFERENCE WINS",
+      "summary": "All eight mechanism families now contain moving parts; the vault opens onto a passage. Real screenshots received another independent comparison with the fixed commercial reference.",
+      "gap": "Nested rings still dominate the hero lock; character close-up was clipped, and portrait room framing was too distant. These findings are driving the next iteration."
+    },
+    {
+      "id": "round-03",
+      "label": "ITERATION 03",
+      "title": "Crafted vault, developed Archivist",
+      "verdict": "REFERENCE WINS",
+      "summary": "The vault now has meshing gears, connected drawbars and guided bolts. A complete character portrait, stronger portrait scene framing, furniture detail and a real exit passage are captured from the running renderer. A fresh chronology-blinded A/B critic preferred this build over baseline in every view and accepted the developed character; the separate commercial benchmark still wins.",
+      "gap": "Repeated furniture silhouettes and staging, a clipped overview character, and the hard hover cone remain visible.",
+      "views": [
+        "room",
+        "mechanism",
+        "character",
+        "result",
+        "mobile"
+      ]
+    }
+  ],
+  "checks": [
+    "TypeScript build passed.",
+    "65 Escape Room unit and contract tests passed after the latest runtime, character, mechanism and teardown corrections.",
+    "A real autonomous capture run escaped at tick 25 with all eight puzzles solved.",
+    "Independent critics found and reproduced batched camera-event errors, shifting props, character clipping and an instance-buffer leak. Corrections are undergoing the original regression checks.",
+    "Commercial reference comparisons remain unblinded. Visual parity has not been established.",
+    "Character render submissions reduced from 61 to 39. Nine semantic poses preserve all 12,526 triangles and articulation; exact geometry comparison retained.",
+    "The real exit stays open through successful intermission. The focused mesh regression passed after a recorded failure.",
+    "Stream self-test passed: deterministic authority, public privacy, recovery, next-room restart and all browser assets."
+  ]
+}

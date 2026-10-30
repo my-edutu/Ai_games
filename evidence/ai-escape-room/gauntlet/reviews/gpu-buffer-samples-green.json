@@ -1,0 +1,38 @@
+[
+  {
+    "created": 751,
+    "deleted": 403,
+    "outstanding": 348,
+    "geometries": 107
+  },
+  {
+    "created": 1154,
+    "deleted": 806,
+    "outstanding": 348,
+    "geometries": 107
+  },
+  {
+    "created": 1557,
+    "deleted": 1209,
+    "outstanding": 348,
+    "geometries": 107
+  },
+  {
+    "created": 1960,
+    "deleted": 1612,
+    "outstanding": 348,
+    "geometries": 107
+  },
+  {
+    "created": 2363,
+    "deleted": 2015,
+    "outstanding": 348,
+    "geometries": 107
+  },
+  {
+    "created": 2766,
+    "deleted": 2418,
+    "outstanding": 348,
+    "geometries": 107
+  }
+]
