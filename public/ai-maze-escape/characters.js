@@ -175,6 +175,19 @@ export function createExplorer(options = {}) {
     ball(hand,ivory,[-side*.065,.005,.028],[.035,.05,.038]);
     arms.push({shoulder,elbow,hand});
   }
+  // An expedition signal crest is legible in a wide, silent stream frame.
+  // It is suppressed by default and receives only disclosed-threat attention;
+  // it is not a detection radius, navigation instruction or hidden game event.
+  const flareGold=material('#fff1ad',.08,.26,{emissive:'#ffd069',emissiveIntensity:1.35});
+  const flareCoral=material('#f07b43',.07,.33,{emissive:'#e35021',emissiveIntensity:.9});
+  const alertFlare=pivot(group,'disclosed threat flare',[0,1.83,0]);
+  ring(alertFlare,flareGold,[0,.11,0],.3,.039);
+  rounded(alertFlare,flareCoral,[0,.17,.02],[.14,.27,.12],.035);
+  ball(alertFlare,flareGold,[0,-.075,.02],[.085,.083,.085]);
+  for (const side of [-1,1]) {
+    bar(alertFlare,flareGold,[side*.345,.28,0],[side*.43,.39,0],.025);
+  }
+  alertFlare.visible=false;
   // A cage lantern with a solid emissive crystal: no per-character dynamic lights.
   const lantern=pivot(arms[1].hand,'swinging lantern',[.045,-.045,.06]);
   ring(lantern,brass,[0,-.055,0],.073,.013);
@@ -200,6 +213,12 @@ export function createExplorer(options = {}) {
     const alert=reacting?Math.max(0,Math.min(1,finite(options.attentionStrength))):0;
     const relativeLook=reacting?Math.atan2(Math.sin(options.attentionHeading-group.rotation.y),Math.cos(options.attentionHeading-group.rotation.y)):0;
     const lookYaw=Math.max(-.72,Math.min(.72,relativeLook))*alert;
+    // Shape, not color or blinking alone, communicates a real nearby warden.
+    // Reduced-motion keeps the same static visual cue.
+    alertFlare.visible=alert>.24;
+    alertFlare.position.y=1.83+(s.reduced?0:Math.sin(s.time*4)*.035);
+    alertFlare.rotation.y=.7-group.rotation.y;
+    alertFlare.scale.setScalar(.85+alert*.27);
     body.position.x=-.025*rest;
     body.position.y=.78+Math.abs(step)*.035+(s.lose?0:idle*.008);
     body.rotation.set(s.lose?.22:stride*.065-s.danger*.035,lookYaw*.14,.035*rest-step*.05-Math.sign(lookYaw)*alert*.035);
@@ -246,6 +265,17 @@ export function createWarden(options = {}) {
   for (let i=0;i<4;i++) {
     const thorn=tube(body,claw,[0,.48,-.36+i*.21],.063,.15,0); thorn.rotation.x=-.3;
   }
+  // A wardens' raised ember crest makes the aggressor recognizable even
+  // when the camera sees its armored back. Only an observed nearby explorer
+  // activates it; the material is cosmetic and never reveals hidden threats.
+  const ember=material('#ff9b59',.08,.3,{emissive:'#f25a1c',emissiveIntensity:1.55});
+  const warningSpines=pivot(body,'activated warden spines',[0,.48,-.13]);
+  for (const side of [-1,0,1]) {
+    const height=side===0?.32:.21;
+    bar(warningSpines,ember,[side*.23,0,-.01],[side*.23,height,.1],.043);
+    ball(warningSpines,ember,[side*.23,height,.1],[.095,.105,.084]);
+  }
+  warningSpines.visible=false;
   const head=pivot(body,'warden mask',[0,.08,.62]);
   // A broad forward bronze mask makes approach direction distinct from the dark elytra.
   ball(head,bronze,[0,0,0],[.37,.245,.27]);
@@ -289,9 +319,12 @@ export function createWarden(options = {}) {
     const alert=reacting?Math.max(0,Math.min(1,finite(options.attentionStrength))):0;
     const relativeLook=reacting?Math.atan2(Math.sin(options.attentionHeading-group.rotation.y),Math.cos(options.attentionHeading-group.rotation.y)):0;
     const lookYaw=Math.max(-.58,Math.min(.58,relativeLook))*alert;
+    warningSpines.visible=alert>.24;
+    warningSpines.scale.y=1+alert*.4+(s.reduced?0:Math.sin(s.time*4.1)*.04);
     stride=approach(stride,s.moving?1:0,12,s.delta); gait+=s.delta*(10+s.danger*3)*stride;
     body.position.y=.79-(s.win?.07:0)+amount*(Math.sin(s.time*2)*.012+Math.sin(gait*2)*stride*.018);
     body.rotation.x=-s.danger*.055-alert*.11;
+    body.rotation.y=lookYaw*.4;
     body.rotation.z=Math.sin(relativeLook)*alert*.06;
     for (const leg of legs) {
       const phase=gait+(leg.index%2===0?0:Math.PI)+(leg.side===1?Math.PI:0);
@@ -302,6 +335,6 @@ export function createWarden(options = {}) {
     head.rotation.x=s.win?.16:s.lose?-.13:-.045-s.danger*.065;
     head.rotation.y=Math.sin(s.time*.8)*.08*(1-stride)*amount*(1-alert)+lookYaw;
     for (let i=0;i<2;i++) jaws[i].rotation.y=(i===0?-1:1)*(.06+s.danger*.13+alert*.16+Math.sin(s.time*3)*.025*amount);
-    red.emissiveIntensity=s.win?.45:s.lose?1.6:1.1+s.danger*.4;
+    red.emissiveIntensity=s.win?.45:s.lose?1.6:1.1+s.danger*.4+alert*1.25;
   }};
 }

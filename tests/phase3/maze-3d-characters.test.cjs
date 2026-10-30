@@ -80,3 +80,35 @@ test('disclosed-threat attention turns heads and lantern without affecting termi
     explorer.dispose(); warden.dispose();
   }
 });
+
+test('observed-threat cues read in silhouette and clear on neutral or terminal frames', async () => {
+  const { createExplorer, createWarden } = await modulePromise;
+  for (const balanced of [false, true]) {
+    const pip=createExplorer({ balanced }), thornback=createWarden({ balanced });
+    const flare=pip.group.getObjectByName('disclosed threat flare');
+    const spines=thornback.group.getObjectByName('activated warden spines');
+    assert.ok(flare && spines, 'each character has an independently modeled attention cue');
+    assert.equal(flare.visible, false);
+    assert.equal(spines.visible, false);
+    for (const reducedMotion of [false, true]) {
+      const attention={heading:0, attentionHeading:Math.PI/2, attentionStrength:.56065, danger:1, time:1, delta:.1, reducedMotion};
+      pip.update(attention);
+      thornback.update(attention);
+      assert.equal(flare.visible, true, 'Pip signals an actually disclosed close guardian');
+      assert.equal(spines.visible, true, 'Thornback signals a real nearby encounter');
+      assert.ok(thornback.group.getObjectByName('armored body').rotation.y>.06, 'body participates in threat-facing direction');
+      assert.ok(flare.scale.x>1, 'cue reads beyond the character silhouette at encounter strength');
+      pip.update({...attention,attentionStrength:0});
+      thornback.update({...attention,attentionStrength:0});
+      assert.equal(flare.visible, false, 'a stale guardian never leaves a persistent threat marker');
+      assert.equal(spines.visible, false);
+      for (const result of ['escape','capture']) {
+        pip.update({...attention,result});
+        thornback.update({...attention,result});
+        assert.equal(flare.visible, false, 'terminal precedence suppresses the floating cue');
+        assert.equal(spines.visible, false, 'terminal precedence suppresses the warden cue');
+      }
+    }
+    pip.dispose(); thornback.dispose();
+  }
+});
