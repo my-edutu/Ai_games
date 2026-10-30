@@ -263,6 +263,12 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
       geometryPeak = Math.max(geometryPeak, renderer.info.memory.geometries);
       const stats = world.stats();
       const projected = explorer.group.position.clone().add(new THREE.Vector3(0, .8, 0)).project(camera);
+      // Public presentation-only screen-space evidence: a threat is not
+      // visually staged just because its HUD warning is present.
+      const wardensInFrame = [...wardens.values()].filter(({ model }) => {
+        const p = model.group.position.clone().add(new THREE.Vector3(0, .75, 0)).project(camera);
+        return Math.abs(p.x) < .95 && Math.abs(p.y) < .95 && p.z > -1 && p.z < 1;
+      }).length;
       window.__MAZE_3D__ = {
         renderer: 'webgl', frames, cameraMode, runToken: s.runToken, tick: s.tick, quality: balanced ? 'balanced' : 'full',
         triangles: renderer.info.render.triangles, drawCalls: renderer.info.render.calls,
@@ -272,7 +278,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
         frameP50Ms: sorted[Math.floor(sorted.length * .5)] || 0,
         frameP95Ms: sorted[Math.floor(sorted.length * .95)] || 0,
         routeQueue: cells.length, world: stats, contextLost: false,
-        disclosedThreats: wardens.size, encounterAttention: closestThreat?.strength ?? 0,
+        disclosedThreats: wardens.size, wardensInFrame, encounterAttention: closestThreat?.strength ?? 0,
         explorerPosition: {x: pose.x, y: ground, z: pose.z},
       };
     }
