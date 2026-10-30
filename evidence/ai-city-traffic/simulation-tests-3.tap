@@ -1,0 +1,115 @@
+TAP version 13
+# Subtest: city traffic creates connected trips, completes them, and replenishes a diverse fleet
+ok 1 - city traffic creates connected trips, completes them, and replenishes a diverse fleet
+  ---
+  duration_ms: 2646.861637
+  type: 'test'
+  ...
+# Subtest: fixed-step outcomes and immutable snapshots do not depend on render-read frequency
+ok 2 - fixed-step outcomes and immutable snapshots do not depend on render-read frequency
+  ---
+  duration_ms: 1127.153687
+  type: 'test'
+  ...
+# Subtest: normalized command history reproduces a run from its recorded initial configuration
+ok 3 - normalized command history reproduces a run from its recorded initial configuration
+  ---
+  duration_ms: 187.461939
+  type: 'test'
+  ...
+# Subtest: dense traffic obeys reservations and safe walk phases without physical overlaps
+ok 4 - dense traffic obeys reservations and safe walk phases without physical overlaps
+  ---
+  duration_ms: 20641.088331
+  type: 'test'
+  ...
+# Subtest: commands are validated atomically, normalized, recorded, and bounded
+ok 5 - commands are validated atomically, normalized, recorded, and bounded
+  ---
+  duration_ms: 129.802452
+  type: 'test'
+  ...
+# Subtest: verified checkpoints resume the exact same authority and reject corruption
+ok 6 - verified checkpoints resume the exact same authority and reject corruption
+  ---
+  duration_ms: 1538.455011
+  type: 'test'
+  ...
+# Subtest: restore rejects impossible overlapping bodies even when a checkpoint checksum is valid
+ok 7 - restore rejects impossible overlapping bodies even when a checkpoint checksum is valid
+  ---
+  duration_ms: 24.761217
+  type: 'test'
+  ...
+# Subtest: restore rejects a completion window that contradicts lifetime trip totals
+ok 8 - restore rejects a completion window that contradicts lifetime trip totals
+  ---
+  duration_ms: 280.454765
+  type: 'test'
+  ...
+# Subtest: restore rejects a vehicle reservation granted to the opposing signal phase
+ok 9 - restore rejects a vehicle reservation granted to the opposing signal phase
+  ---
+  duration_ms: 225.445089
+  type: 'test'
+  ...
+# Subtest: citizens keep physical space at shared corners and complete safe crossings
+ok 10 - citizens keep physical space at shared corners and complete safe crossings
+  ---
+  duration_ms: 1814.231781
+  type: 'test'
+  ...
+# Subtest: an older eligible citizen gets a shared landing before a later lower-ID arrival
+ok 11 - an older eligible citizen gets a shared landing before a later lower-ID arrival
+  ---
+  duration_ms: 64.885192
+  type: 'test'
+  ...
+# Subtest: equal-age corner requests clear an occupied far-side refuge before reserving a new landing
+ok 12 - equal-age corner requests clear an occupied far-side refuge before reserving a new landing
+  ---
+  duration_ms: 19.920196
+  type: 'test'
+  ...
+# Subtest: yielding a blocked far-side corner preserves request age through restore and later service
+ok 13 - yielding a blocked far-side corner preserves request age through restore and later service
+  ---
+  duration_ms: 1739.249807
+  type: 'test'
+  ...
+# Subtest: restore validates pending citizen request ages and approach relationships atomically
+ok 14 - restore validates pending citizen request ages and approach relationships atomically
+  ---
+  duration_ms: 128.157204
+  type: 'test'
+  ...
+# Subtest: palette random draws are isolated from traffic and citizen decisions
+ok 15 - palette random draws are isolated from traffic and citizen decisions
+  ---
+  duration_ms: 624.757819
+  type: 'test'
+  ...
+# Subtest: demand, policy and a localized road incident have actual bounded effects
+ok 16 - demand, policy and a localized road incident have actual bounded effects
+  ---
+  duration_ms: 5392.689261
+  type: 'test'
+  ...
+# Subtest: sustained excess demand keeps completing trips and recovers blocked receiving lanes
+ok 17 - sustained excess demand keeps completing trips and recovers blocked receiving lanes
+  ---
+  duration_ms: 26445.883101
+  type: 'test'
+  ...
+# {"seed":1,"completed":252,"reroutes":33,"maxStallSeconds":50.03333333333333,"active":84,"pending":95,"flow":21}
+# {"seed":42,"completed":243,"reroutes":39,"maxStallSeconds":48.833333333333336,"active":84,"pending":96,"flow":28}
+# {"seed":4294967295,"completed":242,"reroutes":38,"maxStallSeconds":66.2,"active":84,"pending":96,"flow":19}
+1..17
+# tests 17
+# suites 0
+# pass 17
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 63118.45792

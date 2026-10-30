@@ -1,0 +1,19 @@
+✔ capture succeeds only with complete, stable, error-free evidence (50.279789ms)
+✔ capture rejects error and retains diagnostics (9.720533ms)
+✔ capture rejects failed-diagnostics and retains diagnostics (9.255234ms)
+✔ capture rejects drift and retains diagnostics (13.425116ms)
+✔ interrupted capture retains partial evidence and closes the browser (9.370521ms)
+✔ missing source fingerprint cannot leak a launched browser (3.441927ms)
+✔ traffic page serves the actual local game and local Three.js modules (187.877117ms)
+✔ traffic server rejects mutations and repository-file exposure (33.234749ms)
+✔ traffic health reports build availability without claiming production readiness (6.10367ms)
+✔ traffic server handles missing and malformed paths without process failure (8.9913ms)
+✔ traffic readiness rejects a partial or empty required-asset build (19.06327ms)
+ℹ tests 11
+ℹ suites 0
+ℹ pass 11
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 573.840319

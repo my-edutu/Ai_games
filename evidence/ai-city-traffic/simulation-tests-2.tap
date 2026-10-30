@@ -1,0 +1,91 @@
+TAP version 13
+# Subtest: city traffic creates connected trips, completes them, and replenishes a diverse fleet
+ok 1 - city traffic creates connected trips, completes them, and replenishes a diverse fleet
+  ---
+  duration_ms: 6075.995278
+  type: 'test'
+  ...
+# Subtest: fixed-step outcomes and immutable snapshots do not depend on render-read frequency
+ok 2 - fixed-step outcomes and immutable snapshots do not depend on render-read frequency
+  ---
+  duration_ms: 3189.431657
+  type: 'test'
+  ...
+# Subtest: normalized command history reproduces a run from its recorded initial configuration
+ok 3 - normalized command history reproduces a run from its recorded initial configuration
+  ---
+  duration_ms: 685.188309
+  type: 'test'
+  ...
+# Subtest: dense traffic obeys reservations and safe walk phases without physical overlaps
+ok 4 - dense traffic obeys reservations and safe walk phases without physical overlaps
+  ---
+  duration_ms: 43427.66503
+  type: 'test'
+  ...
+# Subtest: commands are validated atomically, normalized, recorded, and bounded
+ok 5 - commands are validated atomically, normalized, recorded, and bounded
+  ---
+  duration_ms: 248.84173
+  type: 'test'
+  ...
+# Subtest: verified checkpoints resume the exact same authority and reject corruption
+ok 6 - verified checkpoints resume the exact same authority and reject corruption
+  ---
+  duration_ms: 2366.619949
+  type: 'test'
+  ...
+# Subtest: restore rejects impossible overlapping bodies even when a checkpoint checksum is valid
+ok 7 - restore rejects impossible overlapping bodies even when a checkpoint checksum is valid
+  ---
+  duration_ms: 57.734975
+  type: 'test'
+  ...
+# Subtest: restore rejects a completion window that contradicts lifetime trip totals
+ok 8 - restore rejects a completion window that contradicts lifetime trip totals
+  ---
+  duration_ms: 254.400734
+  type: 'test'
+  ...
+# Subtest: restore rejects a vehicle reservation granted to the opposing signal phase
+ok 9 - restore rejects a vehicle reservation granted to the opposing signal phase
+  ---
+  duration_ms: 317.989079
+  type: 'test'
+  ...
+# Subtest: citizens keep physical space at shared corners and complete safe crossings
+ok 10 - citizens keep physical space at shared corners and complete safe crossings
+  ---
+  duration_ms: 2496.016736
+  type: 'test'
+  ...
+# Subtest: palette random draws are isolated from traffic and citizen decisions
+ok 11 - palette random draws are isolated from traffic and citizen decisions
+  ---
+  duration_ms: 455.329173
+  type: 'test'
+  ...
+# Subtest: demand, policy and a localized road incident have actual bounded effects
+ok 12 - demand, policy and a localized road incident have actual bounded effects
+  ---
+  duration_ms: 6439.418861
+  type: 'test'
+  ...
+# Subtest: sustained excess demand keeps completing trips and recovers blocked receiving lanes
+ok 13 - sustained excess demand keeps completing trips and recovers blocked receiving lanes
+  ---
+  duration_ms: 18724.773301
+  type: 'test'
+  ...
+# {"seed":1,"completed":252,"reroutes":33,"maxStallSeconds":50.03333333333333,"active":84,"pending":95,"flow":21}
+# {"seed":42,"completed":243,"reroutes":39,"maxStallSeconds":48.833333333333336,"active":84,"pending":96,"flow":28}
+# {"seed":4294967295,"completed":242,"reroutes":38,"maxStallSeconds":66.2,"active":84,"pending":96,"flow":19}
+1..13
+# tests 13
+# suites 0
+# pass 13
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 84851.711231

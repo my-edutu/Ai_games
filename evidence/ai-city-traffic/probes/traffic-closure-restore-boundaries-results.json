@@ -1,0 +1,242 @@
+{
+  "environment": {
+    "node": "v24.22.1"
+  },
+  "malformed": [
+    {
+      "name": "exact_100_legacy_completion_entries_with_3_total",
+      "accepted": false,
+      "code": "INVALID_STATE",
+      "error": "Invalid traffic state: completion window exceeds lifetime completed trips",
+      "atomic": true
+    },
+    {
+      "name": "100_current_schema_completion_entries_with_3_total",
+      "accepted": false,
+      "code": "INVALID_STATE",
+      "error": "Invalid traffic state: completion window exceeds lifetime completed trips",
+      "atomic": true
+    },
+    {
+      "name": "duplicate_completed_trip_id_with_valid_count",
+      "accepted": false,
+      "code": "INVALID_STATE",
+      "error": "Invalid traffic state: completion duplicates a live or completed trip",
+      "atomic": true
+    },
+    {
+      "name": "zero_travel_time_current_schema",
+      "accepted": false,
+      "code": "INVALID_STATE",
+      "error": "Invalid traffic state: numeric range",
+      "atomic": true
+    },
+    {
+      "name": "wait_time_exceeds_trip_lifetime",
+      "accepted": false,
+      "code": "INVALID_STATE",
+      "error": "Invalid traffic state: numeric range",
+      "atomic": true
+    },
+    {
+      "name": "birth_time_disagrees_with_duration",
+      "accepted": false,
+      "code": "INVALID_STATE",
+      "error": "Invalid traffic state: completion duration disagrees with trip lifetime",
+      "atomic": true
+    },
+    {
+      "name": "window_travel_sum_exceeds_lifetime_total",
+      "accepted": false,
+      "code": "INVALID_STATE",
+      "error": "Invalid traffic state: completion window contradicts cumulative travel or waiting time",
+      "atomic": true
+    },
+    {
+      "name": "initial_window_underaccounts_lifetime_travel",
+      "accepted": false,
+      "code": "INVALID_STATE",
+      "error": "Invalid traffic state: completion history must fully account for the initial window",
+      "atomic": true
+    },
+    {
+      "name": "completed_id_still_active",
+      "accepted": false,
+      "code": "INVALID_STATE",
+      "error": "Invalid traffic state: completion duplicates a live or completed trip",
+      "atomic": true
+    },
+    {
+      "name": "incoming_reservation_under_opposing_green",
+      "accepted": false,
+      "code": "INVALID_STATE",
+      "error": "Invalid traffic state: reservation conflicts with signal phase",
+      "atomic": true
+    }
+  ],
+  "genuine": [
+    {
+      "name": "genuine_incoming_green_reservation",
+      "tick": 1,
+      "accepted": true,
+      "identicalAtRestore": true,
+      "continuationTicks": 90,
+      "reservations": 2,
+      "cornerOwners": 0,
+      "completionWindow": 0,
+      "lifetimeCompleted": 0,
+      "originalSha256": "9f5c2624579c737d26f0c0c5d35bee538bb9c3a63a69e54f33c32f42362b0ac6",
+      "identicalAfterContinuation": true,
+      "continuedSha256": "68823c1c5c26bd58340fd2cea9c826a4a8f75394d19639f02e5fef9658a29daf"
+    },
+    {
+      "name": "genuine_junction_green_reservation",
+      "tick": 58,
+      "accepted": true,
+      "identicalAtRestore": true,
+      "continuationTicks": 90,
+      "reservations": 8,
+      "cornerOwners": 3,
+      "completionWindow": 0,
+      "lifetimeCompleted": 0,
+      "originalSha256": "991e8fdf0b8231e43c1af84d65312282112e288a61adcf6670e7c66dd7b7dae7",
+      "identicalAfterContinuation": true,
+      "continuedSha256": "d428d21fb67a167e2c23f726e2ddba36a3a937ecdb87d38b6840cd832f136f1a"
+    },
+    {
+      "name": "genuine_occupied_corner",
+      "tick": 63,
+      "accepted": true,
+      "identicalAtRestore": true,
+      "continuationTicks": 90,
+      "reservations": 8,
+      "cornerOwners": 3,
+      "completionWindow": 0,
+      "lifetimeCompleted": 0,
+      "originalSha256": "6e504326d5bcadc5c8c26c5bd69645597752d95fc58cd0910be4b9b30b4a0309",
+      "identicalAfterContinuation": true,
+      "continuedSha256": "7d69e253660c2f71041d8cd07ea05b7402a81497e2899fdbabb2643e930657b9"
+    },
+    {
+      "name": "genuine_outgoing_tail_green_reservation",
+      "tick": 113,
+      "accepted": true,
+      "identicalAtRestore": true,
+      "continuationTicks": 90,
+      "reservations": 8,
+      "cornerOwners": 6,
+      "completionWindow": 0,
+      "lifetimeCompleted": 0,
+      "originalSha256": "b8956f9071254fd09b2c74659ca746bfef401a0a20ee84f82039ff13209f0ac7",
+      "identicalAfterContinuation": true,
+      "continuedSha256": "0cd6458a1037ef22681c24596bce7f18e354a9974aca958549aaf1fdd8e984fd"
+    },
+    {
+      "name": "genuine_junction_clearance_reservation",
+      "tick": 210,
+      "accepted": true,
+      "identicalAtRestore": true,
+      "continuationTicks": 90,
+      "reservations": 6,
+      "cornerOwners": 7,
+      "completionWindow": 0,
+      "lifetimeCompleted": 0,
+      "originalSha256": "293d5d2ca58c069c17cf1e5939855808e20ac80dc2c7a0633e7609fef6c90894",
+      "identicalAfterContinuation": true,
+      "continuedSha256": "e9976e5757199318c3b8bf7b544e826cb10b88aee8799868758d25ccc642ce73"
+    },
+    {
+      "name": "genuine_incoming_clearance_reservation",
+      "tick": 210,
+      "accepted": true,
+      "identicalAtRestore": true,
+      "continuationTicks": 90,
+      "reservations": 6,
+      "cornerOwners": 7,
+      "completionWindow": 0,
+      "lifetimeCompleted": 0,
+      "originalSha256": "293d5d2ca58c069c17cf1e5939855808e20ac80dc2c7a0633e7609fef6c90894",
+      "identicalAfterContinuation": true,
+      "continuedSha256": "e9976e5757199318c3b8bf7b544e826cb10b88aee8799868758d25ccc642ce73"
+    },
+    {
+      "name": "genuine_pedestrian_in_road",
+      "tick": 255,
+      "accepted": true,
+      "identicalAtRestore": true,
+      "continuationTicks": 90,
+      "reservations": 10,
+      "cornerOwners": 8,
+      "completionWindow": 0,
+      "lifetimeCompleted": 0,
+      "originalSha256": "28bdd71215801b361ad4500d3e81bca3e5ef99488d2426f0aac391d868a17be5",
+      "identicalAfterContinuation": true,
+      "continuedSha256": "dde4d671096d076999f6178e2603dd798e8318b10400f6454fe99fb809498fc5"
+    },
+    {
+      "name": "genuine_outgoing_tail_clearance_reservation",
+      "tick": 281,
+      "accepted": true,
+      "identicalAtRestore": true,
+      "continuationTicks": 90,
+      "reservations": 11,
+      "cornerOwners": 7,
+      "completionWindow": 0,
+      "lifetimeCompleted": 0,
+      "originalSha256": "b212d617d633a8108955ac591cb44925c0e40c23bcb562910b185f1db6019caa",
+      "identicalAfterContinuation": true,
+      "continuedSha256": "898ca07342e24778d717dd2a78009d495af5883f2f277b8e45a6083317875b6c"
+    },
+    {
+      "name": "genuine_early_completion_window",
+      "tick": 600,
+      "accepted": true,
+      "identicalAtRestore": true,
+      "continuationTicks": 90,
+      "reservations": 4,
+      "cornerOwners": 11,
+      "completionWindow": 3,
+      "lifetimeCompleted": 3,
+      "originalSha256": "87168569807d85c092609db6637f3c872b7f24e83370ce60988a2904fdfa43df",
+      "identicalAfterContinuation": true,
+      "continuedSha256": "697be9203ac79b05c0aecdb65cbcb5be47dd2fd0f8e060f63f11839bb699c4a0"
+    },
+    {
+      "name": "genuine_truncated_completion_window",
+      "tick": 3600,
+      "accepted": true,
+      "identicalAtRestore": true,
+      "continuationTicks": 90,
+      "reservations": 11,
+      "cornerOwners": 6,
+      "completionWindow": 16,
+      "lifetimeCompleted": 22,
+      "originalSha256": "deb06ea729daf1b12f68cfa028c2c8225c6825cab9b5817a6b1826f64fe32b32",
+      "identicalAfterContinuation": true,
+      "continuedSha256": "8f30942affde3f5582a770fc7fae2545ff92343a6cb56dae354aefcee97c3af1"
+    }
+  ],
+  "scan": {
+    "seed": 17,
+    "ticks": 3690,
+    "finalMetrics": {
+      "active": 84,
+      "waiting": 51,
+      "pending": 9,
+      "queued": 60,
+      "completed": 25,
+      "generated": 118,
+      "rejected": 0,
+      "meanSpeed": 1.60955875,
+      "meanWait": 48.85158730158729,
+      "flow": 18,
+      "meanTripTime": 74.608,
+      "pedestrianCompleted": 18,
+      "pedestrianCrossings": 64,
+      "turns": 79,
+      "reroutes": 2,
+      "maxWait": 108.36666666666666
+    }
+  },
+  "pass": true
+}

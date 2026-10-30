@@ -1,0 +1,48 @@
+{
+  "reviewedAt": "2026-10-30T21:15:58.735Z",
+  "scope": "Unmodified capture-driver gate and cleanup behavior with a controlled browser interface; no actual browser or screenshot was created.",
+  "results": [
+    {
+      "mode": "clean",
+      "exitCode": 0,
+      "browserLaunched": true,
+      "browserClosed": true,
+      "reportSaved": true,
+      "recordedErrors": [],
+      "sourceStable": true,
+      "recordedFailedDiagnostics": false,
+      "scenes": 6
+    },
+    {
+      "mode": "browser-error",
+      "exitCode": 0,
+      "browserLaunched": true,
+      "browserClosed": true,
+      "reportSaved": true,
+      "recordedErrors": [
+        "Injected rendering error for evidence-gate test"
+      ],
+      "sourceStable": true,
+      "recordedFailedDiagnostics": true,
+      "scenes": 6
+    },
+    {
+      "mode": "source-drift",
+      "exitCode": 0,
+      "browserLaunched": true,
+      "browserClosed": true,
+      "reportSaved": true,
+      "recordedErrors": [],
+      "sourceStable": false,
+      "recordedFailedDiagnostics": false,
+      "scenes": 6
+    },
+    {
+      "mode": "initial-hash-error",
+      "exitCode": 1,
+      "browserLaunched": true,
+      "browserClosed": false,
+      "reportSaved": false
+    }
+  ]
+}

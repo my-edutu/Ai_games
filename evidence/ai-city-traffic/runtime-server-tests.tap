@@ -1,0 +1,12 @@
+✔ traffic page serves the actual local game and local Three.js modules (202.250181ms)
+✔ traffic server rejects mutations and repository-file exposure (47.007638ms)
+✔ traffic health reports build availability without claiming production readiness (10.044131ms)
+✔ traffic server handles missing and malformed paths without process failure (17.801496ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 637.298944

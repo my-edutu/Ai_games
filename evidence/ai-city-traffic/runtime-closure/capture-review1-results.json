@@ -1,0 +1,2128 @@
+{
+  "capturedAt": "2026-10-30T21:26:12.750Z",
+  "reviewer": "runtime_closure_review",
+  "scope": "Controlled browser interface only; no browser, screenshots, pixels, audio, or performance measurements",
+  "source": "scripts/capture-city-traffic.cjs",
+  "sourceSha256": "eebb974b752a2d1a4091265942f2e16eb8cffc026ccdd6bc6adb5333bf00fcdd",
+  "node": "v24.22.1",
+  "cases": [
+    {
+      "mode": "clean",
+      "details": false,
+      "expectedExit": 0,
+      "exitCode": 0,
+      "launched": true,
+      "closeCalls": 1,
+      "reportAttempted": true,
+      "screenshotCalls": 6,
+      "screenshotNames": [
+        "closure-fixture-aerial.png",
+        "closure-fixture-street.png",
+        "closure-fixture-follow.png",
+        "closure-fixture-night.png",
+        "closure-fixture-mobile.png",
+        "closure-fixture-mobile-experiment.png"
+      ],
+      "sceneNames": [
+        "aerial",
+        "street",
+        "follow",
+        "night",
+        "mobile",
+        "mobile-experiment"
+      ],
+      "checks": {
+        "exitCode": true,
+        "cleanup": true,
+        "complete": true,
+        "stable": true,
+        "errorFree": true,
+        "exactScenes": true,
+        "reportRetained": true
+      },
+      "pass": true,
+      "logs": [],
+      "driverReport": {
+        "capturedAt": "2026-10-30T21:26:12.756Z",
+        "label": "closure-fixture",
+        "complete": true,
+        "errors": [],
+        "scenes": [
+          {
+            "scene": "aerial",
+            "file": "closure-fixture-aerial.png",
+            "diagnostics": {
+              "cameraMode": "aerial",
+              "paused": true,
+              "failed": false,
+              "webgl": true,
+              "pixelRatio": 1
+            },
+            "snapshot": {
+              "tick": 360,
+              "metrics": {
+                "completedTrips": 2
+              },
+              "signals": 16,
+              "pedestrians": 3
+            }
+          },
+          {
+            "scene": "street",
+            "file": "closure-fixture-street.png",
+            "diagnostics": {
+              "cameraMode": "street",
+              "paused": true,
+              "failed": false,
+              "webgl": true,
+              "pixelRatio": 1
+            },
+            "snapshot": {
+              "tick": 360,
+              "metrics": {
+                "completedTrips": 2
+              },
+              "signals": 16,
+              "pedestrians": 3
+            }
+          },
+          {
+            "scene": "follow",
+            "file": "closure-fixture-follow.png",
+            "diagnostics": {
+              "cameraMode": "follow",
+              "paused": true,
+              "failed": false,
+              "webgl": true,
+              "pixelRatio": 1
+            },
+            "snapshot": {
+              "tick": 360,
+              "metrics": {
+                "completedTrips": 2
+              },
+              "signals": 16,
+              "pedestrians": 3
+            }
+          },
+          {
+            "scene": "night",
+            "file": "closure-fixture-night.png",
+            "diagnostics": {
+              "cameraMode": "aerial",
+              "paused": true,
+              "failed": false,
+              "webgl": true,
+              "pixelRatio": 1
+            },
+            "snapshot": {
+              "tick": 360,
+              "metrics": {
+                "completedTrips": 2
+              },
+              "signals": 16,
+              "pedestrians": 3
+            }
+          },
+          {
+            "scene": "mobile",
+            "file": "closure-fixture-mobile.png",
+            "diagnostics": {
+              "cameraMode": "aerial",
+              "paused": true,
+              "failed": false,
+              "webgl": true,
+              "pixelRatio": 1
+            },
+            "snapshot": {
+              "tick": 360,
+              "metrics": {
+                "completedTrips": 2
+              },
+              "signals": 16,
+              "pedestrians": 3
+            }
+          },
+          {
+            "scene": "mobile-experiment",
+            "file": "closure-fixture-mobile-experiment.png",
+            "diagnostics": {
+              "cameraMode": "aerial",
+              "paused": true,
+              "failed": false,
+              "webgl": true,
+              "pixelRatio": 1
+            },
+            "snapshot": {
+              "tick": 360,
+              "metrics": {
+                "completedTrips": 2
+              },
+              "signals": 16,
+              "pedestrians": 3
+            }
+          }
+        ],
+        "sourcesBefore": {
+          "public/ai-city-traffic/index.html": "09e5e31da56dc46a97cdeadac1e6ae029b9bee7cfb0e39dfd9ddefc2bee52bdd",
+          "public/ai-city-traffic/styles.css": "41d8d8313313059f5578df05e956ae3415d3fc4abcfc6827fc2d10a893db18d5",
+          "public/ai-city-traffic/main.mjs": "f049a496982483ab70b2b77eadc8f5768b86c46a6ff3c207563b985244365d6f",
+          "public/ai-city-traffic/world.mjs": "549980ee6c365d8a5cb03eb0b9ed232bc7a5a6b438e7a62150cfe9879e84b09e",
+          "public/ai-city-traffic/world-assets.mjs": "b06b3a8af08990aab5a1cb4a49295b38794e2fcd3eb1e19c0fae2feec7c66524",
+          "public/ai-city-traffic/audio.mjs": "9b797345abccb9b2a86bf4f49b9f8173349a88315ed0896361e22a7391d87eac",
+          "dist/city-traffic-browser/simulation.js": "eaf9310053ada75e204b30a05c614d06d4ed601170d7630c556b1ae6ff066e48",
+          "dist/city-traffic-browser/traffic-network.js": "cdc8d092dd9f8c28dfb433a2b16982107c97aaf5c136b56172977f3cfabe2a69"
+        },
+        "method": "Actual browser output. Reduced-motion preference. Paused via the public operator command. Desktop 1920×1080; mobile 390×844. Internal pixel ratio is recorded per view.",
+        "sourcesAfter": {
+          "public/ai-city-traffic/index.html": "09e5e31da56dc46a97cdeadac1e6ae029b9bee7cfb0e39dfd9ddefc2bee52bdd",
+          "public/ai-city-traffic/styles.css": "41d8d8313313059f5578df05e956ae3415d3fc4abcfc6827fc2d10a893db18d5",
+          "public/ai-city-traffic/main.mjs": "f049a496982483ab70b2b77eadc8f5768b86c46a6ff3c207563b985244365d6f",
+          "public/ai-city-traffic/world.mjs": "549980ee6c365d8a5cb03eb0b9ed232bc7a5a6b438e7a62150cfe9879e84b09e",
+          "public/ai-city-traffic/world-assets.mjs": "b06b3a8af08990aab5a1cb4a49295b38794e2fcd3eb1e19c0fae2feec7c66524",
+          "public/ai-city-traffic/audio.mjs": "9b797345abccb9b2a86bf4f49b9f8173349a88315ed0896361e22a7391d87eac",
+          "dist/city-traffic-browser/simulation.js": "eaf9310053ada75e204b30a05c614d06d4ed601170d7630c556b1ae6ff066e48",
+          "dist/city-traffic-browser/traffic-network.js": "cdc8d092dd9f8c28dfb433a2b16982107c97aaf5c136b56172977f3cfabe2a69"
+        },
+        "sourceStable": true
+      }
+    },
+    {
+      "mode": "console-warning",
+      "details": false,
+      "expectedExit": 0,
+      "exitCode": 0,
+      "launched": true,
+      "closeCalls": 1,
+      "reportAttempted": true,
+      "screenshotCalls": 6,
+      "screenshotNames": [
+        "closure-fixture-aerial.png",
+        "closure-fixture-street.png",
+        "closure-fixture-follow.png",
+        "closure-fixture-night.png",
+        "closure-fixture-mobile.png",
+        "closure-fixture-mobile-experiment.png"
+      ],
+      "sceneNames": [
+        "aerial",
+        "street",
+        "follow",
+        "night",
+        "mobile",
+        "mobile-experiment"
+      ],
+      "checks": {
+        "exitCode": true,
+        "cleanup": true,
+        "complete": true,
+        "stable": true,
+        "errorFree": true,
+        "exactScenes": true,
+        "reportRetained": true
+      },
+      "pass": true,
+      "logs": [],
+      "driverReport": {
+        "capturedAt": "2026-10-30T21:26:12.762Z",
+        "label": "closure-fixture",
+        "complete": true,
+        "errors": [],
+        "scenes": [
+          {
+            "scene": "aerial",
+            "file": "closure-fixture-aerial.png",
+            "diagnostics": {
+              "cameraMode": "aerial",
+              "paused": true,
+              "failed": false,
+              "webgl": true,
+              "pixelRatio": 1
+            },
+            "snapshot": {
+              "tick": 360,
+              "metrics": {
+                "completedTrips": 2
+              },
+              "signals": 16,
+              "pedestrians": 3
+            }
+          },
+          {
+            "scene": "street",
+            "file": "closure-fixture-street.png",
+            "diagnostics": {
+              "cameraMode": "street",
+              "paused": true,
+              "failed": false,
+              "webgl": true,
+              "pixelRatio": 1
+            },
+            "snapshot": {
+              "tick": 360,
+              "metrics": {
+                "completedTrips": 2
+              },
+              "signals": 16,
+              "pedestrians": 3
+            }
+          },
+          {
+            "scene": "follow",
+            "file": "closure-fixture-follow.png",
+            "diagnostics": {
+              "cameraMode": "follow",
+              "paused": true,
+              "failed": false,
+              "webgl": true,
+              "pixelRatio": 1
+            },
+            "snapshot": {
+              "tick": 360,
+              "metrics": {
+                "completedTrips": 2
+              },
+              "signals": 16,
+              "pedestrians": 3
+            }
+          },
+          {
+            "scene": "night",
+            "file": "closure-fixture-night.png",
+            "diagnostics": {
+              "cameraMode": "aerial",
+              "paused": true,
+              "failed": false,
+              "webgl": true,
+              "pixelRatio": 1
+            },
+            "snapshot": {
+              "tick": 360,
+              "metrics": {
+                "completedTrips": 2
+              },
+              "signals": 16,
+              "pedestrians": 3
+            }
+          },
+          {
+            "scene": "mobile",
+            "file": "closure-fixture-mobile.png",
+            "diagnostics": {
+              "cameraMode": "aerial",
+              "paused": true,
+              "failed": false,
+              "webgl": true,
+              "pixelRatio": 1
+            },
+            "snapshot": {
+              "tick": 360,
+              "metrics": {
+                "completedTrips": 2
+              },
+              "signals": 16,
+              "pedestrians": 3
+            }
+          },
+          {
+            "scene": "mobile-experiment",
+            "file": "closure-fixture-mobile-experiment.png",
+            "diagnostics": {
+              "cameraMode": "aerial",
+              "paused": true,
+              "failed": false,
+              "webgl": true,
+              "pixelRatio": 1
+            },
+            "snapshot": {
+              "tick": 360,
+              "metrics": {
+                "completedTrips": 2
+              },
+              "signals": 16,
+              "pedestrians": 3
+            }
+          }
+        ],
+        "sourcesBefore": {
+          "public/ai-city-traffic/index.html": "09e5e31da56dc46a97cdeadac1e6ae029b9bee7cfb0e39dfd9ddefc2bee52bdd",
+          "public/ai-city-traffic/styles.css": "41d8d8313313059f5578df05e956ae3415d3fc4abcfc6827fc2d10a893db18d5",
+          "public/ai-city-traffic/main.mjs": "f049a496982483ab70b2b77eadc8f5768b86c46a6ff3c207563b985244365d6f",
+          "public/ai-city-traffic/world.mjs": "549980ee6c365d8a5cb03eb0b9ed232bc7a5a6b438e7a62150cfe9879e84b09e",
+          "public/ai-city-traffic/world-assets.mjs": "b06b3a8af08990aab5a1cb4a49295b38794e2fcd3eb1e19c0fae2feec7c66524",
+          "public/ai-city-traffic/audio.mjs": "9b797345abccb9b2a86bf4f49b9f8173349a88315ed0896361e22a7391d87eac",
+          "dist/city-traffic-browser/simulation.js": "eaf9310053ada75e204b30a05c614d06d4ed601170d7630c556b1ae6ff066e48",
+          "dist/city-traffic-browser/traffic-network.js": "cdc8d092dd9f8c28dfb433a2b16982107c97aaf5c136b56172977f3cfabe2a69"
+        },
+        "method": "Actual browser output. Reduced-motion preference. Paused via the public operator command. Desktop 1920×1080; mobile 390×844. Internal pixel ratio is recorded per view.",
+        "sourcesAfter": {
+          "public/ai-city-traffic/index.html": "09e5e31da56dc46a97cdeadac1e6ae029b9bee7cfb0e39dfd9ddefc2bee52bdd",
+          "public/ai-city-traffic/styles.css": "41d8d8313313059f5578df05e956ae3415d3fc4abcfc6827fc2d10a893db18d5",
+          "public/ai-city-traffic/main.mjs": "f049a496982483ab70b2b77eadc8f5768b86c46a6ff3c207563b985244365d6f",
+          "public/ai-city-traffic/world.mjs": "549980ee6c365d8a5cb03eb0b9ed232bc7a5a6b438e7a62150cfe9879e84b09e",
+          "public/ai-city-traffic/world-assets.mjs": "b06b3a8af08990aab5a1cb4a49295b38794e2fcd3eb1e19c0fae2feec7c66524",
+          "public/ai-city-traffic/audio.mjs": "9b797345abccb9b2a86bf4f49b9f8173349a88315ed0896361e22a7391d87eac",
+          "dist/city-traffic-browser/simulation.js": "eaf9310053ada75e204b30a05c614d06d4ed601170d7630c556b1ae6ff066e48",
+          "dist/city-traffic-browser/traffic-network.js": "cdc8d092dd9f8c28dfb433a2b16982107c97aaf5c136b56172977f3cfabe2a69"
+        },
+        "sourceStable": true
+      }
+    },
+    {
+      "mode": "console-error",
+      "details": false,
+      "expectedExit": 1,
+      "exitCode": 1,
+      "launched": true,
+      "closeCalls": 1,
+      "reportAttempted": true,
+      "screenshotCalls": 6,
+      "screenshotNames": [
+        "closure-fixture-aerial.png",
+        "closure-fixture-street.png",
+        "closure-fixture-follow.png",
+        "closure-fixture-night.png",
+        "closure-fixture-mobile.png",
+        "closure-fixture-mobile-experiment.png"
+      ],
+      "sceneNames": [
+        "aerial",
+        "street",
+        "follow",
+        "night",
+        "mobile",
+        "mobile-experiment"
+      ],
+      "checks": {
+        "exitCode": true,
+        "cleanup": true,
+        "reportRetained": true,
+        "errorRecorded": true
+      },
+      "pass": true,
+      "logs": [
+        "Console error: Injected rendering error",
+        "Capture evidence rejected: incomplete views, rendering errors, failed graphics, or changed source. Diagnostic report retained."
+      ],
+      "driverReport": {
+        "capturedAt": "2026-10-30T21:26:12.767Z",
+        "label": "closure-fixture",
+        "complete": true,
+        "errors": [
+          "Injected rendering error"
+        ],
+        "scenes": [
+          {
+            "scene": "aerial",
+            "file": "closure-fixture-aerial.png",
+            "diagnostics": {
+              "cameraMode": "aerial",
+              "paused": true,
+              "failed": false,
+              "webgl": true,
+              "pixelRatio": 1
+            },
+            "snapshot": {
+              "tick": 360,
+              "metrics": {
+                "completedTrips": 2
+              },
+              "signals": 16,
+              "pedestrians": 3
+            }
+          },
+          {
+            "scene": "street",
+            "file": "closure-fixture-street.png",
+            "diagnostics": {
+              "cameraMode": "street",
+              "paused": true,
+              "failed": false,
+              "webgl": true,
+              "pixelRatio": 1
+            },
+            "snapshot": {
+              "tick": 360,
+              "metrics": {
+                "completedTrips": 2
+              },
+              "signals": 16,
+              "pedestrians": 3
+            }
+          },
+          {
+            "scene": "follow",
+            "file": "closure-fixture-follow.png",
+            "diagnostics": {
+              "cameraMode": "follow",
+              "paused": true,
+              "failed": false,
+              "webgl": true,
+              "pixelRatio": 1
+            },
+            "snapshot": {
+              "tick": 360,
+              "metrics": {
+                "completedTrips": 2
+              },
+              "signals": 16,
+              "pedestrians": 3
+            }
+          },
+          {
+            "scene": "night",
+            "file": "closure-fixture-night.png",
+            "diagnostics": {
+              "cameraMode": "aerial",
+              "paused": true,
+              "failed": false,
+              "webgl": true,
+              "pixelRatio": 1
+            },
+            "snapshot": {
+              "tick": 360,
+              "metrics": {
+                "completedTrips": 2
+              },
+              "signals": 16,
+              "pedestrians": 3
+            }
+          },
+          {
+            "scene": "mobile",
+            "file": "closure-fixture-mobile.png",
+            "diagnostics": {
+              "cameraMode": "aerial",
+              "paused": true,
+              "failed": false,
+              "webgl": true,
+              "pixelRatio": 1
+            },
+            "snapshot": {
+              "tick": 360,
+              "metrics": {
+                "completedTrips": 2
+              },
+              "signals": 16,
+              "pedestrians": 3
+            }
+          },
+          {
+            "scene": "mobile-experiment",
+            "file": "closure-fixture-mobile-experiment.png",
+            "diagnostics": {
+              "cameraMode": "aerial",
+              "paused": true,
+              "failed": false,
+              "webgl": true,
+              "pixelRatio": 1
+            },
+            "snapshot": {
+              "tick": 360,
+              "metrics": {
+                "completedTrips": 2
+              },
+              "signals": 16,
+              "pedestrians": 3
+            }
+          }
+        ],
+        "sourcesBefore": {
+          "public/ai-city-traffic/index.html": "09e5e31da56dc46a97cdeadac1e6ae029b9bee7cfb0e39dfd9ddefc2bee52bdd",
+          "public/ai-city-traffic/styles.css": "41d8d8313313059f5578df05e956ae3415d3fc4abcfc6827fc2d10a893db18d5",
+          "public/ai-city-traffic/main.mjs": "f049a496982483ab70b2b77eadc8f5768b86c46a6ff3c207563b985244365d6f",
+          "public/ai-city-traffic/world.mjs": "549980ee6c365d8a5cb03eb0b9ed232bc7a5a6b438e7a62150cfe9879e84b09e",
+          "public/ai-city-traffic/world-assets.mjs": "b06b3a8af08990aab5a1cb4a49295b38794e2fcd3eb1e19c0fae2feec7c66524",
+          "public/ai-city-traffic/audio.mjs": "9b797345abccb9b2a86bf4f49b9f8173349a88315ed0896361e22a7391d87eac",
+          "dist/city-traffic-browser/simulation.js": "eaf9310053ada75e204b30a05c614d06d4ed601170d7630c556b1ae6ff066e48",
+          "dist/city-traffic-browser/traffic-network.js": "cdc8d092dd9f8c28dfb433a2b16982107c97aaf5c136b56172977f3cfabe2a69"
+        },
+        "method": "Actual browser output. Reduced-motion preference. Paused via the public operator command. Desktop 1920×1080; mobile 390×844. Internal pixel ratio is recorded per view.",
+        "sourcesAfter": {
+          "public/ai-city-traffic/index.html": "09e5e31da56dc46a97cdeadac1e6ae029b9bee7cfb0e39dfd9ddefc2bee52bdd",
+          "public/ai-city-traffic/styles.css": "41d8d8313313059f5578df05e956ae3415d3fc4abcfc6827fc2d10a893db18d5",
+          "public/ai-city-traffic/main.mjs": "f049a496982483ab70b2b77eadc8f5768b86c46a6ff3c207563b985244365d6f",
+          "public/ai-city-traffic/world.mjs": "549980ee6c365d8a5cb03eb0b9ed232bc7a5a6b438e7a62150cfe9879e84b09e",
+          "public/ai-city-traffic/world-assets.mjs": "b06b3a8af08990aab5a1cb4a49295b38794e2fcd3eb1e19c0fae2feec7c66524",
+          "public/ai-city-traffic/audio.mjs": "9b797345abccb9b2a86bf4f49b9f8173349a88315ed0896361e22a7391d87eac",
+          "dist/city-traffic-browser/simulation.js": "eaf9310053ada75e204b30a05c614d06d4ed601170d7630c556b1ae6ff066e48",
+          "dist/city-traffic-browser/traffic-network.js": "cdc8d092dd9f8c28dfb433a2b16982107c97aaf5c136b56172977f3cfabe2a69"
+        },
+        "sourceStable": true
+      }
+    },
+    {
+      "mode": "page-error",
+      "details": false,
+      "expectedExit": 1,
+      "exitCode": 1,
+      "launched": true,
+      "closeCalls": 1,
+      "reportAttempted": true,
+      "screenshotCalls": 6,
+      "screenshotNames": [
+        "closure-fixture-aerial.png",
+        "closure-fixture-street.png",
+        "closure-fixture-follow.png",
+        "closure-fixture-night.png",
+        "closure-fixture-mobile.png",
+        "closure-fixture-mobile-experiment.png"
+      ],
+      "sceneNames": [
+        "aerial",
+        "street",
+        "follow",
+        "night",
+        "mobile",
+        "mobile-experiment"
+      ],
+      "checks": {
+        "exitCode": true,
+        "cleanup": true,
+        "reportRetained": true,
+        "errorRecorded": true
+      },
+      "pass": true,
+      "logs": [
+        "Page error: Injected page exception",
+        "Capture evidence rejected: incomplete views, rendering errors, failed graphics, or changed source. Diagnostic report retained."
+      ],
+      "driverReport": {
+        "capturedAt": "2026-10-30T21:26:12.770Z",
+        "label": "closure-fixture",
+        "complete": true,
+        "errors": [
+          "Injected page exception"
+        ],
+        "scenes": [
+          {
+            "scene": "aerial",
+            "file": "closure-fixture-aerial.png",
+            "diagnostics": {
+              "cameraMode": "aerial",
+              "paused": true,
+              "failed": false,
+              "webgl": true,
+              "pixelRatio": 1
+            },
+            "snapshot": {
+              "tick": 360,
+              "metrics": {
+                "completedTrips": 2
+              },
+              "signals": 16,
+              "pedestrians": 3
+            }
+          },
+          {
+            "scene": "street",
+            "file": "closure-fixture-street.png",
+            "diagnostics": {
+              "cameraMode": "street",
+              "paused": true,
+              "failed": false,
+              "webgl": true,
+              "pixelRatio": 1
+            },
+            "snapshot": {
+              "tick": 360,
+              "metrics": {
+                "completedTrips": 2
+              },
+              "signals": 16,
+              "pedestrians": 3
+            }
+          },
+          {
+            "scene": "follow",
+            "file": "closure-fixture-follow.png",
+            "diagnostics": {
+              "cameraMode": "follow",
+              "paused": true,
+              "failed": false,
+              "webgl": true,
+              "pixelRatio": 1
+            },
+            "snapshot": {
+              "tick": 360,
+              "metrics": {
+                "completedTrips": 2
+              },
+              "signals": 16,
+              "pedestrians": 3
+            }
+          },
+          {
+            "scene": "night",
+            "file": "closure-fixture-night.png",
+            "diagnostics": {
+              "cameraMode": "aerial",
+              "paused": true,
+              "failed": false,
+              "webgl": true,
+              "pixelRatio": 1
+            },
+            "snapshot": {
+              "tick": 360,
+              "metrics": {
+                "completedTrips": 2
+              },
+              "signals": 16,
+              "pedestrians": 3
+            }
+          },
+          {
+            "scene": "mobile",
+            "file": "closure-fixture-mobile.png",
+            "diagnostics": {
+              "cameraMode": "aerial",
+              "paused": true,
+              "failed": false,
+              "webgl": true,
+              "pixelRatio": 1
+            },
+            "snapshot": {
+              "tick": 360,
+              "metrics": {
+                "completedTrips": 2
+              },
+              "signals": 16,
+              "pedestrians": 3
+            }
+          },
+          {
+            "scene": "mobile-experiment",
+            "file": "closure-fixture-mobile-experiment.png",
+            "diagnostics": {
+              "cameraMode": "aerial",
+              "paused": true,
+              "failed": false,
+              "webgl": true,
+              "pixelRatio": 1
+            },
+            "snapshot": {
+              "tick": 360,
+              "metrics": {
+                "completedTrips": 2
+              },
+              "signals": 16,
+              "pedestrians": 3
+            }
+          }
+        ],
+        "sourcesBefore": {
+          "public/ai-city-traffic/index.html": "09e5e31da56dc46a97cdeadac1e6ae029b9bee7cfb0e39dfd9ddefc2bee52bdd",
+          "public/ai-city-traffic/styles.css": "41d8d8313313059f5578df05e956ae3415d3fc4abcfc6827fc2d10a893db18d5",
+          "public/ai-city-traffic/main.mjs": "f049a496982483ab70b2b77eadc8f5768b86c46a6ff3c207563b985244365d6f",
+          "public/ai-city-traffic/world.mjs": "549980ee6c365d8a5cb03eb0b9ed232bc7a5a6b438e7a62150cfe9879e84b09e",
+          "public/ai-city-traffic/world-assets.mjs": "b06b3a8af08990aab5a1cb4a49295b38794e2fcd3eb1e19c0fae2feec7c66524",
+          "public/ai-city-traffic/audio.mjs": "9b797345abccb9b2a86bf4f49b9f8173349a88315ed0896361e22a7391d87eac",
+          "dist/city-traffic-browser/simulation.js": "eaf9310053ada75e204b30a05c614d06d4ed601170d7630c556b1ae6ff066e48",
+          "dist/city-traffic-browser/traffic-network.js": "cdc8d092dd9f8c28dfb433a2b16982107c97aaf5c136b56172977f3cfabe2a69"
+        },
+        "method": "Actual browser output. Reduced-motion preference. Paused via the public operator command. Desktop 1920×1080; mobile 390×844. Internal pixel ratio is recorded per view.",
+        "sourcesAfter": {
+          "public/ai-city-traffic/index.html": "09e5e31da56dc46a97cdeadac1e6ae029b9bee7cfb0e39dfd9ddefc2bee52bdd",
+          "public/ai-city-traffic/styles.css": "41d8d8313313059f5578df05e956ae3415d3fc4abcfc6827fc2d10a893db18d5",
+          "public/ai-city-traffic/main.mjs": "f049a496982483ab70b2b77eadc8f5768b86c46a6ff3c207563b985244365d6f",
+          "public/ai-city-traffic/world.mjs": "549980ee6c365d8a5cb03eb0b9ed232bc7a5a6b438e7a62150cfe9879e84b09e",
+          "public/ai-city-traffic/world-assets.mjs": "b06b3a8af08990aab5a1cb4a49295b38794e2fcd3eb1e19c0fae2feec7c66524",
+          "public/ai-city-traffic/audio.mjs": "9b797345abccb9b2a86bf4f49b9f8173349a88315ed0896361e22a7391d87eac",
+          "dist/city-traffic-browser/simulation.js": "eaf9310053ada75e204b30a05c614d06d4ed601170d7630c556b1ae6ff066e48",
+          "dist/city-traffic-browser/traffic-network.js": "cdc8d092dd9f8c28dfb433a2b16982107c97aaf5c136b56172977f3cfabe2a69"
+        },
+        "sourceStable": true
+      }
+    },
+    {
+      "mode": "failed-diagnostics",
+      "details": false,
+      "expectedExit": 1,
+      "exitCode": 1,
+      "launched": true,
+      "closeCalls": 1,
+      "reportAttempted": true,
+      "screenshotCalls": 6,
+      "screenshotNames": [
+        "closure-fixture-aerial.png",
+        "closure-fixture-street.png",
+        "closure-fixture-follow.png",
+        "closure-fixture-night.png",
+        "closure-fixture-mobile.png",
+        "closure-fixture-mobile-experiment.png"
+      ],
+      "sceneNames": [
+        "aerial",
+        "street",
+        "follow",
+        "night",
+        "mobile",
+        "mobile-experiment"
+      ],
+      "checks": {
+        "exitCode": true,
+        "cleanup": true,
+        "reportRetained": true,
+        "failureRecorded": true
+      },
+      "pass": true,
+      "logs": [
+        "Capture evidence rejected: incomplete views, rendering errors, failed graphics, or changed source. Diagnostic report retained."
+      ],
+      "driverReport": {
+        "capturedAt": "2026-10-30T21:26:12.774Z",
+        "label": "closure-fixture",
+        "complete": true,
+        "errors": [],
+        "scenes": [
+          {
+            "scene": "aerial",
+            "file": "closure-fixture-aerial.png",
+            "diagnostics": {
+              "cameraMode": "aerial",
+              "paused": true,
+              "failed": true,
+              "webgl": true,
+              "pixelRatio": 1
+            },
+            "snapshot": {
+              "tick": 360,
+              "metrics": {
+                "completedTrips": 2
+              },
+              "signals": 16,
+              "pedestrians": 3
+            }
+          },
+          {
+            "scene": "street",
+            "file": "closure-fixture-street.png",
+            "diagnostics": {
+              "cameraMode": "street",
+              "paused": true,
+              "failed": true,
+              "webgl": true,
+              "pixelRatio": 1
+            },
+            "snapshot": {
+              "tick": 360,
+              "metrics": {
+                "completedTrips": 2
+              },
+              "signals": 16,
+              "pedestrians": 3
+            }
+          },
+          {
+            "scene": "follow",
+            "file": "closure-fixture-follow.png",
+            "diagnostics": {
+              "cameraMode": "follow",
+              "paused": true,
+              "failed": true,
+              "webgl": true,
+              "pixelRatio": 1
+            },
+            "snapshot": {
+              "tick": 360,
+              "metrics": {
+                "completedTrips": 2
+              },
+              "signals": 16,
+              "pedestrians": 3
+            }
+          },
+          {
+            "scene": "night",
+            "file": "closure-fixture-night.png",
+            "diagnostics": {
+              "cameraMode": "aerial",
+              "paused": true,
+              "failed": true,
+              "webgl": true,
+              "pixelRatio": 1
+            },
+            "snapshot": {
+              "tick": 360,
+              "metrics": {
+                "completedTrips": 2
+              },
+              "signals": 16,
+              "pedestrians": 3
+            }
+          },
+          {
+            "scene": "mobile",
+            "file": "closure-fixture-mobile.png",
+            "diagnostics": {
+              "cameraMode": "aerial",
+              "paused": true,
+              "failed": true,
+              "webgl": true,
+              "pixelRatio": 1
+            },
+            "snapshot": {
+              "tick": 360,
+              "metrics": {
+                "completedTrips": 2
+              },
+              "signals": 16,
+              "pedestrians": 3
+            }
+          },
+          {
+            "scene": "mobile-experiment",
+            "file": "closure-fixture-mobile-experiment.png",
+            "diagnostics": {
+              "cameraMode": "aerial",
+              "paused": true,
+              "failed": true,
+              "webgl": true,
+              "pixelRatio": 1
+            },
+            "snapshot": {
+              "tick": 360,
+              "metrics": {
+                "completedTrips": 2
+              },
+              "signals": 16,
+              "pedestrians": 3
+            }
+          }
+        ],
+        "sourcesBefore": {
+          "public/ai-city-traffic/index.html": "09e5e31da56dc46a97cdeadac1e6ae029b9bee7cfb0e39dfd9ddefc2bee52bdd",
+          "public/ai-city-traffic/styles.css": "41d8d8313313059f5578df05e956ae3415d3fc4abcfc6827fc2d10a893db18d5",
+          "public/ai-city-traffic/main.mjs": "f049a496982483ab70b2b77eadc8f5768b86c46a6ff3c207563b985244365d6f",
+          "public/ai-city-traffic/world.mjs": "549980ee6c365d8a5cb03eb0b9ed232bc7a5a6b438e7a62150cfe9879e84b09e",
+          "public/ai-city-traffic/world-assets.mjs": "b06b3a8af08990aab5a1cb4a49295b38794e2fcd3eb1e19c0fae2feec7c66524",
+          "public/ai-city-traffic/audio.mjs": "9b797345abccb9b2a86bf4f49b9f8173349a88315ed0896361e22a7391d87eac",
+          "dist/city-traffic-browser/simulation.js": "eaf9310053ada75e204b30a05c614d06d4ed601170d7630c556b1ae6ff066e48",
+          "dist/city-traffic-browser/traffic-network.js": "cdc8d092dd9f8c28dfb433a2b16982107c97aaf5c136b56172977f3cfabe2a69"
+        },
+        "method": "Actual browser output. Reduced-motion preference. Paused via the public operator command. Desktop 1920×1080; mobile 390×844. Internal pixel ratio is recorded per view.",
+        "sourcesAfter": {
+          "public/ai-city-traffic/index.html": "09e5e31da56dc46a97cdeadac1e6ae029b9bee7cfb0e39dfd9ddefc2bee52bdd",
+          "public/ai-city-traffic/styles.css": "41d8d8313313059f5578df05e956ae3415d3fc4abcfc6827fc2d10a893db18d5",
+          "public/ai-city-traffic/main.mjs": "f049a496982483ab70b2b77eadc8f5768b86c46a6ff3c207563b985244365d6f",
+          "public/ai-city-traffic/world.mjs": "549980ee6c365d8a5cb03eb0b9ed232bc7a5a6b438e7a62150cfe9879e84b09e",
+          "public/ai-city-traffic/world-assets.mjs": "b06b3a8af08990aab5a1cb4a49295b38794e2fcd3eb1e19c0fae2feec7c66524",
+          "public/ai-city-traffic/audio.mjs": "9b797345abccb9b2a86bf4f49b9f8173349a88315ed0896361e22a7391d87eac",
+          "dist/city-traffic-browser/simulation.js": "eaf9310053ada75e204b30a05c614d06d4ed601170d7630c556b1ae6ff066e48",
+          "dist/city-traffic-browser/traffic-network.js": "cdc8d092dd9f8c28dfb433a2b16982107c97aaf5c136b56172977f3cfabe2a69"
+        },
+        "sourceStable": true
+      }
+    },
+    {
+      "mode": "no-webgl",
+      "details": false,
+      "expectedExit": 1,
+      "exitCode": 1,
+      "launched": true,
+      "closeCalls": 1,
+      "reportAttempted": true,
+      "screenshotCalls": 6,
+      "screenshotNames": [
+        "closure-fixture-aerial.png",
+        "closure-fixture-street.png",
+        "closure-fixture-follow.png",
+        "closure-fixture-night.png",
+        "closure-fixture-mobile.png",
+        "closure-fixture-mobile-experiment.png"
+      ],
+      "sceneNames": [
+        "aerial",
+        "street",
+        "follow",
+        "night",
+        "mobile",
+        "mobile-experiment"
+      ],
+      "checks": {
+        "exitCode": true,
+        "cleanup": true,
+        "reportRetained": true,
+        "failureRecorded": true
+      },
+      "pass": true,
+      "logs": [
+        "Capture evidence rejected: incomplete views, rendering errors, failed graphics, or changed source. Diagnostic report retained."
+      ],
+      "driverReport": {
+        "capturedAt": "2026-10-30T21:26:12.778Z",
+        "label": "closure-fixture",
+        "complete": true,
+        "errors": [],
+        "scenes": [
+          {
+            "scene": "aerial",
+            "file": "closure-fixture-aerial.png",
+            "diagnostics": {
+              "cameraMode": "aerial",
+              "paused": true,
+              "failed": false,
+              "webgl": false,
+              "pixelRatio": 1
+            },
+            "snapshot": {
+              "tick": 360,
+              "metrics": {
+                "completedTrips": 2
+              },
+              "signals": 16,
+              "pedestrians": 3
+            }
+          },
+          {
+            "scene": "street",
+            "file": "closure-fixture-street.png",
+            "diagnostics": {
+              "cameraMode": "street",
+              "paused": true,
+              "failed": false,
+              "webgl": false,
+              "pixelRatio": 1
+            },
+            "snapshot": {
+              "tick": 360,
+              "metrics": {
+                "completedTrips": 2
+              },
+              "signals": 16,
+              "pedestrians": 3
+            }
+          },
+          {
+            "scene": "follow",
+            "file": "closure-fixture-follow.png",
+            "diagnostics": {
+              "cameraMode": "follow",
+              "paused": true,
+              "failed": false,
+              "webgl": false,
+              "pixelRatio": 1
+            },
+            "snapshot": {
+              "tick": 360,
+              "metrics": {
+                "completedTrips": 2
+              },
+              "signals": 16,
+              "pedestrians": 3
+            }
+          },
+          {
+            "scene": "night",
+            "file": "closure-fixture-night.png",
+            "diagnostics": {
+              "cameraMode": "aerial",
+              "paused": true,
+              "failed": false,
+              "webgl": false,
+              "pixelRatio": 1
+            },
+            "snapshot": {
+              "tick": 360,
+              "metrics": {
+                "completedTrips": 2
+              },
+              "signals": 16,
+              "pedestrians": 3
+            }
+          },
+          {
+            "scene": "mobile",
+            "file": "closure-fixture-mobile.png",
+            "diagnostics": {
+              "cameraMode": "aerial",
+              "paused": true,
+              "failed": false,
+              "webgl": false,
+              "pixelRatio": 1
+            },
+            "snapshot": {
+              "tick": 360,
+              "metrics": {
+                "completedTrips": 2
+              },
+              "signals": 16,
+              "pedestrians": 3
+            }
+          },
+          {
+            "scene": "mobile-experiment",
+            "file": "closure-fixture-mobile-experiment.png",
+            "diagnostics": {
+              "cameraMode": "aerial",
+              "paused": true,
+              "failed": false,
+              "webgl": false,
+              "pixelRatio": 1
+            },
+            "snapshot": {
+              "tick": 360,
+              "metrics": {
+                "completedTrips": 2
+              },
+              "signals": 16,
+              "pedestrians": 3
+            }
+          }
+        ],
+        "sourcesBefore": {
+          "public/ai-city-traffic/index.html": "09e5e31da56dc46a97cdeadac1e6ae029b9bee7cfb0e39dfd9ddefc2bee52bdd",
+          "public/ai-city-traffic/styles.css": "41d8d8313313059f5578df05e956ae3415d3fc4abcfc6827fc2d10a893db18d5",
+          "public/ai-city-traffic/main.mjs": "f049a496982483ab70b2b77eadc8f5768b86c46a6ff3c207563b985244365d6f",
+          "public/ai-city-traffic/world.mjs": "549980ee6c365d8a5cb03eb0b9ed232bc7a5a6b438e7a62150cfe9879e84b09e",
+          "public/ai-city-traffic/world-assets.mjs": "b06b3a8af08990aab5a1cb4a49295b38794e2fcd3eb1e19c0fae2feec7c66524",
+          "public/ai-city-traffic/audio.mjs": "9b797345abccb9b2a86bf4f49b9f8173349a88315ed0896361e22a7391d87eac",
+          "dist/city-traffic-browser/simulation.js": "eaf9310053ada75e204b30a05c614d06d4ed601170d7630c556b1ae6ff066e48",
+          "dist/city-traffic-browser/traffic-network.js": "cdc8d092dd9f8c28dfb433a2b16982107c97aaf5c136b56172977f3cfabe2a69"
+        },
+        "method": "Actual browser output. Reduced-motion preference. Paused via the public operator command. Desktop 1920×1080; mobile 390×844. Internal pixel ratio is recorded per view.",
+        "sourcesAfter": {
+          "public/ai-city-traffic/index.html": "09e5e31da56dc46a97cdeadac1e6ae029b9bee7cfb0e39dfd9ddefc2bee52bdd",
+          "public/ai-city-traffic/styles.css": "41d8d8313313059f5578df05e956ae3415d3fc4abcfc6827fc2d10a893db18d5",
+          "public/ai-city-traffic/main.mjs": "f049a496982483ab70b2b77eadc8f5768b86c46a6ff3c207563b985244365d6f",
+          "public/ai-city-traffic/world.mjs": "549980ee6c365d8a5cb03eb0b9ed232bc7a5a6b438e7a62150cfe9879e84b09e",
+          "public/ai-city-traffic/world-assets.mjs": "b06b3a8af08990aab5a1cb4a49295b38794e2fcd3eb1e19c0fae2feec7c66524",
+          "public/ai-city-traffic/audio.mjs": "9b797345abccb9b2a86bf4f49b9f8173349a88315ed0896361e22a7391d87eac",
+          "dist/city-traffic-browser/simulation.js": "eaf9310053ada75e204b30a05c614d06d4ed601170d7630c556b1ae6ff066e48",
+          "dist/city-traffic-browser/traffic-network.js": "cdc8d092dd9f8c28dfb433a2b16982107c97aaf5c136b56172977f3cfabe2a69"
+        },
+        "sourceStable": true
+      }
+    },
+    {
+      "mode": "source-drift",
+      "details": false,
+      "expectedExit": 1,
+      "exitCode": 1,
+      "launched": true,
+      "closeCalls": 1,
+      "reportAttempted": true,
+      "screenshotCalls": 6,
+      "screenshotNames": [
+        "closure-fixture-aerial.png",
+        "closure-fixture-street.png",
+        "closure-fixture-follow.png",
+        "closure-fixture-night.png",
+        "closure-fixture-mobile.png",
+        "closure-fixture-mobile-experiment.png"
+      ],
+      "sceneNames": [
+        "aerial",
+        "street",
+        "follow",
+        "night",
+        "mobile",
+        "mobile-experiment"
+      ],
+      "checks": {
+        "exitCode": true,
+        "cleanup": true,
+        "reportRetained": true,
+        "sourceRejected": true
+      },
+      "pass": true,
+      "logs": [
+        "Capture evidence rejected: incomplete views, rendering errors, failed graphics, or changed source. Diagnostic report retained."
+      ],
+      "driverReport": {
+        "capturedAt": "2026-10-30T21:26:12.782Z",
+        "label": "closure-fixture",
+        "complete": true,
+        "errors": [],
+        "scenes": [
+          {
+            "scene": "aerial",
+            "file": "closure-fixture-aerial.png",
+            "diagnostics": {
+              "cameraMode": "aerial",
+              "paused": true,
+              "failed": false,
+              "webgl": true,
+              "pixelRatio": 1
+            },
+            "snapshot": {
+              "tick": 360,
+              "metrics": {
+                "completedTrips": 2
+              },
+              "signals": 16,
+              "pedestrians": 3
+            }
+          },
+          {
+            "scene": "street",
+            "file": "closure-fixture-street.png",
+            "diagnostics": {
+              "cameraMode": "street",
+              "paused": true,
+              "failed": false,
+              "webgl": true,
+              "pixelRatio": 1
+            },
+            "snapshot": {
+              "tick": 360,
+              "metrics": {
+                "completedTrips": 2
+              },
+              "signals": 16,
+              "pedestrians": 3
+            }
+          },
+          {
+            "scene": "follow",
+            "file": "closure-fixture-follow.png",
+            "diagnostics": {
+              "cameraMode": "follow",
+              "paused": true,
+              "failed": false,
+              "webgl": true,
+              "pixelRatio": 1
+            },
+            "snapshot": {
+              "tick": 360,
+              "metrics": {
+                "completedTrips": 2
+              },
+              "signals": 16,
+              "pedestrians": 3
+            }
+          },
+          {
+            "scene": "night",
+            "file": "closure-fixture-night.png",
+            "diagnostics": {
+              "cameraMode": "aerial",
+              "paused": true,
+              "failed": false,
+              "webgl": true,
+              "pixelRatio": 1
+            },
+            "snapshot": {
+              "tick": 360,
+              "metrics": {
+                "completedTrips": 2
+              },
+              "signals": 16,
+              "pedestrians": 3
+            }
+          },
+          {
+            "scene": "mobile",
+            "file": "closure-fixture-mobile.png",
+            "diagnostics": {
+              "cameraMode": "aerial",
+              "paused": true,
+              "failed": false,
+              "webgl": true,
+              "pixelRatio": 1
+            },
+            "snapshot": {
+              "tick": 360,
+              "metrics": {
+                "completedTrips": 2
+              },
+              "signals": 16,
+              "pedestrians": 3
+            }
+          },
+          {
+            "scene": "mobile-experiment",
+            "file": "closure-fixture-mobile-experiment.png",
+            "diagnostics": {
+              "cameraMode": "aerial",
+              "paused": true,
+              "failed": false,
+              "webgl": true,
+              "pixelRatio": 1
+            },
+            "snapshot": {
+              "tick": 360,
+              "metrics": {
+                "completedTrips": 2
+              },
+              "signals": 16,
+              "pedestrians": 3
+            }
+          }
+        ],
+        "sourcesBefore": {
+          "public/ai-city-traffic/index.html": "09e5e31da56dc46a97cdeadac1e6ae029b9bee7cfb0e39dfd9ddefc2bee52bdd",
+          "public/ai-city-traffic/styles.css": "41d8d8313313059f5578df05e956ae3415d3fc4abcfc6827fc2d10a893db18d5",
+          "public/ai-city-traffic/main.mjs": "f049a496982483ab70b2b77eadc8f5768b86c46a6ff3c207563b985244365d6f",
+          "public/ai-city-traffic/world.mjs": "549980ee6c365d8a5cb03eb0b9ed232bc7a5a6b438e7a62150cfe9879e84b09e",
+          "public/ai-city-traffic/world-assets.mjs": "b06b3a8af08990aab5a1cb4a49295b38794e2fcd3eb1e19c0fae2feec7c66524",
+          "public/ai-city-traffic/audio.mjs": "9b797345abccb9b2a86bf4f49b9f8173349a88315ed0896361e22a7391d87eac",
+          "dist/city-traffic-browser/simulation.js": "eaf9310053ada75e204b30a05c614d06d4ed601170d7630c556b1ae6ff066e48",
+          "dist/city-traffic-browser/traffic-network.js": "cdc8d092dd9f8c28dfb433a2b16982107c97aaf5c136b56172977f3cfabe2a69"
+        },
+        "method": "Actual browser output. Reduced-motion preference. Paused via the public operator command. Desktop 1920×1080; mobile 390×844. Internal pixel ratio is recorded per view.",
+        "sourcesAfter": {
+          "public/ai-city-traffic/index.html": "29defec8195ef4ff5bbaff531aff2081dbd07bfe1fafe7bf87d0b143224ae052",
+          "public/ai-city-traffic/styles.css": "a159335e7b7bc2d4b948d1501155f3899d0555f6f2c8e1549e72854b3c3fda7c",
+          "public/ai-city-traffic/main.mjs": "4eaa22bb003889284069b5130bd2d75e4f1945a2ecfc786d4dc5b91fb9a9b130",
+          "public/ai-city-traffic/world.mjs": "d80a9858c01d6324b6da39ea53ce5ff81983c8f79719c1442bb2dc48570176f0",
+          "public/ai-city-traffic/world-assets.mjs": "8fd18984d7a5db266006f288dd867d324cb86924abe800b8be19cabc4eb6dccd",
+          "public/ai-city-traffic/audio.mjs": "f00b94c727d7f21e833bf4b10d6e74f6f05e01e838ed2c7921f7f5ceb9d1f9c0",
+          "dist/city-traffic-browser/simulation.js": "b9db6ccc3be7b35731c3e4862304c70d04d92ec179f06972842771c82293c97b",
+          "dist/city-traffic-browser/traffic-network.js": "6ba2a3e57c6733479ecf2f241b41a80656310d13ba0b7cb8c756477f64cd394d"
+        },
+        "sourceStable": false
+      }
+    },
+    {
+      "mode": "initial-fingerprint-failure",
+      "details": false,
+      "expectedExit": 1,
+      "exitCode": 1,
+      "launched": false,
+      "closeCalls": 0,
+      "reportAttempted": false,
+      "screenshotCalls": 0,
+      "screenshotNames": [],
+      "sceneNames": [],
+      "checks": {
+        "exitCode": true,
+        "cleanup": true,
+        "noLaunch": true
+      },
+      "pass": true,
+      "logs": [
+        "Injected initial ENOENT"
+      ]
+    },
+    {
+      "mode": "final-fingerprint-failure",
+      "details": false,
+      "expectedExit": 1,
+      "exitCode": 1,
+      "launched": true,
+      "closeCalls": 1,
+      "reportAttempted": true,
+      "screenshotCalls": 6,
+      "screenshotNames": [
+        "closure-fixture-aerial.png",
+        "closure-fixture-street.png",
+        "closure-fixture-follow.png",
+        "closure-fixture-night.png",
+        "closure-fixture-mobile.png",
+        "closure-fixture-mobile-experiment.png"
+      ],
+      "sceneNames": [
+        "aerial",
+        "street",
+        "follow",
+        "night",
+        "mobile",
+        "mobile-experiment"
+      ],
+      "checks": {
+        "exitCode": true,
+        "cleanup": true,
+        "reportRetained": true,
+        "sourceRejected": true,
+        "fingerprintErrorRecorded": true
+      },
+      "pass": true,
+      "logs": [
+        "Capture evidence rejected: incomplete views, rendering errors, failed graphics, or changed source. Diagnostic report retained."
+      ],
+      "driverReport": {
+        "capturedAt": "2026-10-30T21:26:12.788Z",
+        "label": "closure-fixture",
+        "complete": true,
+        "errors": [
+          "Source fingerprint failed: Injected final ENOENT"
+        ],
+        "scenes": [
+          {
+            "scene": "aerial",
+            "file": "closure-fixture-aerial.png",
+            "diagnostics": {
+              "cameraMode": "aerial",
+              "paused": true,
+              "failed": false,
+              "webgl": true,
+              "pixelRatio": 1
+            },
+            "snapshot": {
+              "tick": 360,
+              "metrics": {
+                "completedTrips": 2
+              },
+              "signals": 16,
+              "pedestrians": 3
+            }
+          },
+          {
+            "scene": "street",
+            "file": "closure-fixture-street.png",
+            "diagnostics": {
+              "cameraMode": "street",
+              "paused": true,
+              "failed": false,
+              "webgl": true,
+              "pixelRatio": 1
+            },
+            "snapshot": {
+              "tick": 360,
+              "metrics": {
+                "completedTrips": 2
+              },
+              "signals": 16,
+              "pedestrians": 3
+            }
+          },
+          {
+            "scene": "follow",
+            "file": "closure-fixture-follow.png",
+            "diagnostics": {
+              "cameraMode": "follow",
+              "paused": true,
+              "failed": false,
+              "webgl": true,
+              "pixelRatio": 1
+            },
+            "snapshot": {
+              "tick": 360,
+              "metrics": {
+                "completedTrips": 2
+              },
+              "signals": 16,
+              "pedestrians": 3
+            }
+          },
+          {
+            "scene": "night",
+            "file": "closure-fixture-night.png",
+            "diagnostics": {
+              "cameraMode": "aerial",
+              "paused": true,
+              "failed": false,
+              "webgl": true,
+              "pixelRatio": 1
+            },
+            "snapshot": {
+              "tick": 360,
+              "metrics": {
+                "completedTrips": 2
+              },
+              "signals": 16,
+              "pedestrians": 3
+            }
+          },
+          {
+            "scene": "mobile",
+            "file": "closure-fixture-mobile.png",
+            "diagnostics": {
+              "cameraMode": "aerial",
+              "paused": true,
+              "failed": false,
+              "webgl": true,
+              "pixelRatio": 1
+            },
+            "snapshot": {
+              "tick": 360,
+              "metrics": {
+                "completedTrips": 2
+              },
+              "signals": 16,
+              "pedestrians": 3
+            }
+          },
+          {
+            "scene": "mobile-experiment",
+            "file": "closure-fixture-mobile-experiment.png",
+            "diagnostics": {
+              "cameraMode": "aerial",
+              "paused": true,
+              "failed": false,
+              "webgl": true,
+              "pixelRatio": 1
+            },
+            "snapshot": {
+              "tick": 360,
+              "metrics": {
+                "completedTrips": 2
+              },
+              "signals": 16,
+              "pedestrians": 3
+            }
+          }
+        ],
+        "sourcesBefore": {
+          "public/ai-city-traffic/index.html": "09e5e31da56dc46a97cdeadac1e6ae029b9bee7cfb0e39dfd9ddefc2bee52bdd",
+          "public/ai-city-traffic/styles.css": "41d8d8313313059f5578df05e956ae3415d3fc4abcfc6827fc2d10a893db18d5",
+          "public/ai-city-traffic/main.mjs": "f049a496982483ab70b2b77eadc8f5768b86c46a6ff3c207563b985244365d6f",
+          "public/ai-city-traffic/world.mjs": "549980ee6c365d8a5cb03eb0b9ed232bc7a5a6b438e7a62150cfe9879e84b09e",
+          "public/ai-city-traffic/world-assets.mjs": "b06b3a8af08990aab5a1cb4a49295b38794e2fcd3eb1e19c0fae2feec7c66524",
+          "public/ai-city-traffic/audio.mjs": "9b797345abccb9b2a86bf4f49b9f8173349a88315ed0896361e22a7391d87eac",
+          "dist/city-traffic-browser/simulation.js": "eaf9310053ada75e204b30a05c614d06d4ed601170d7630c556b1ae6ff066e48",
+          "dist/city-traffic-browser/traffic-network.js": "cdc8d092dd9f8c28dfb433a2b16982107c97aaf5c136b56172977f3cfabe2a69"
+        },
+        "method": "Actual browser output. Reduced-motion preference. Paused via the public operator command. Desktop 1920×1080; mobile 390×844. Internal pixel ratio is recorded per view.",
+        "sourceStable": false
+      }
+    },
+    {
+      "mode": "launch-failure",
+      "details": false,
+      "expectedExit": 1,
+      "exitCode": 1,
+      "launched": false,
+      "closeCalls": 0,
+      "reportAttempted": false,
+      "screenshotCalls": 0,
+      "screenshotNames": [],
+      "sceneNames": [],
+      "checks": {
+        "exitCode": true,
+        "cleanup": true
+      },
+      "pass": true,
+      "logs": [
+        "Injected launch-failure"
+      ]
+    },
+    {
+      "mode": "new-page-failure",
+      "details": false,
+      "expectedExit": 1,
+      "exitCode": 1,
+      "launched": true,
+      "closeCalls": 1,
+      "reportAttempted": true,
+      "screenshotCalls": 0,
+      "screenshotNames": [],
+      "sceneNames": [],
+      "checks": {
+        "exitCode": true,
+        "cleanup": true,
+        "reportRetained": true,
+        "incomplete": true,
+        "executionError": true
+      },
+      "pass": true,
+      "logs": [
+        "Injected new-page-failure"
+      ],
+      "driverReport": {
+        "capturedAt": "2026-10-30T21:26:12.796Z",
+        "label": "closure-fixture",
+        "complete": false,
+        "errors": [],
+        "scenes": [],
+        "sourcesBefore": {
+          "public/ai-city-traffic/index.html": "09e5e31da56dc46a97cdeadac1e6ae029b9bee7cfb0e39dfd9ddefc2bee52bdd",
+          "public/ai-city-traffic/styles.css": "41d8d8313313059f5578df05e956ae3415d3fc4abcfc6827fc2d10a893db18d5",
+          "public/ai-city-traffic/main.mjs": "f049a496982483ab70b2b77eadc8f5768b86c46a6ff3c207563b985244365d6f",
+          "public/ai-city-traffic/world.mjs": "549980ee6c365d8a5cb03eb0b9ed232bc7a5a6b438e7a62150cfe9879e84b09e",
+          "public/ai-city-traffic/world-assets.mjs": "b06b3a8af08990aab5a1cb4a49295b38794e2fcd3eb1e19c0fae2feec7c66524",
+          "public/ai-city-traffic/audio.mjs": "9b797345abccb9b2a86bf4f49b9f8173349a88315ed0896361e22a7391d87eac",
+          "dist/city-traffic-browser/simulation.js": "eaf9310053ada75e204b30a05c614d06d4ed601170d7630c556b1ae6ff066e48",
+          "dist/city-traffic-browser/traffic-network.js": "cdc8d092dd9f8c28dfb433a2b16982107c97aaf5c136b56172977f3cfabe2a69"
+        },
+        "method": "Actual browser output. Reduced-motion preference. Paused via the public operator command. Desktop 1920×1080; mobile 390×844. Internal pixel ratio is recorded per view.",
+        "executionError": "Error: Injected new-page-failure",
+        "sourcesAfter": {
+          "public/ai-city-traffic/index.html": "09e5e31da56dc46a97cdeadac1e6ae029b9bee7cfb0e39dfd9ddefc2bee52bdd",
+          "public/ai-city-traffic/styles.css": "41d8d8313313059f5578df05e956ae3415d3fc4abcfc6827fc2d10a893db18d5",
+          "public/ai-city-traffic/main.mjs": "f049a496982483ab70b2b77eadc8f5768b86c46a6ff3c207563b985244365d6f",
+          "public/ai-city-traffic/world.mjs": "549980ee6c365d8a5cb03eb0b9ed232bc7a5a6b438e7a62150cfe9879e84b09e",
+          "public/ai-city-traffic/world-assets.mjs": "b06b3a8af08990aab5a1cb4a49295b38794e2fcd3eb1e19c0fae2feec7c66524",
+          "public/ai-city-traffic/audio.mjs": "9b797345abccb9b2a86bf4f49b9f8173349a88315ed0896361e22a7391d87eac",
+          "dist/city-traffic-browser/simulation.js": "eaf9310053ada75e204b30a05c614d06d4ed601170d7630c556b1ae6ff066e48",
+          "dist/city-traffic-browser/traffic-network.js": "cdc8d092dd9f8c28dfb433a2b16982107c97aaf5c136b56172977f3cfabe2a69"
+        },
+        "sourceStable": true
+      }
+    },
+    {
+      "mode": "navigation-failure",
+      "details": false,
+      "expectedExit": 1,
+      "exitCode": 1,
+      "launched": true,
+      "closeCalls": 1,
+      "reportAttempted": true,
+      "screenshotCalls": 0,
+      "screenshotNames": [],
+      "sceneNames": [],
+      "checks": {
+        "exitCode": true,
+        "cleanup": true,
+        "reportRetained": true,
+        "incomplete": true,
+        "executionError": true
+      },
+      "pass": true,
+      "logs": [
+        "Injected navigation-failure"
+      ],
+      "driverReport": {
+        "capturedAt": "2026-10-30T21:26:12.799Z",
+        "label": "closure-fixture",
+        "complete": false,
+        "errors": [],
+        "scenes": [],
+        "sourcesBefore": {
+          "public/ai-city-traffic/index.html": "09e5e31da56dc46a97cdeadac1e6ae029b9bee7cfb0e39dfd9ddefc2bee52bdd",
+          "public/ai-city-traffic/styles.css": "41d8d8313313059f5578df05e956ae3415d3fc4abcfc6827fc2d10a893db18d5",
+          "public/ai-city-traffic/main.mjs": "f049a496982483ab70b2b77eadc8f5768b86c46a6ff3c207563b985244365d6f",
+          "public/ai-city-traffic/world.mjs": "549980ee6c365d8a5cb03eb0b9ed232bc7a5a6b438e7a62150cfe9879e84b09e",
+          "public/ai-city-traffic/world-assets.mjs": "b06b3a8af08990aab5a1cb4a49295b38794e2fcd3eb1e19c0fae2feec7c66524",
+          "public/ai-city-traffic/audio.mjs": "9b797345abccb9b2a86bf4f49b9f8173349a88315ed0896361e22a7391d87eac",
+          "dist/city-traffic-browser/simulation.js": "eaf9310053ada75e204b30a05c614d06d4ed601170d7630c556b1ae6ff066e48",
+          "dist/city-traffic-browser/traffic-network.js": "cdc8d092dd9f8c28dfb433a2b16982107c97aaf5c136b56172977f3cfabe2a69"
+        },
+        "method": "Actual browser output. Reduced-motion preference. Paused via the public operator command. Desktop 1920×1080; mobile 390×844. Internal pixel ratio is recorded per view.",
+        "executionError": "Error: Injected navigation-failure",
+        "sourcesAfter": {
+          "public/ai-city-traffic/index.html": "09e5e31da56dc46a97cdeadac1e6ae029b9bee7cfb0e39dfd9ddefc2bee52bdd",
+          "public/ai-city-traffic/styles.css": "41d8d8313313059f5578df05e956ae3415d3fc4abcfc6827fc2d10a893db18d5",
+          "public/ai-city-traffic/main.mjs": "f049a496982483ab70b2b77eadc8f5768b86c46a6ff3c207563b985244365d6f",
+          "public/ai-city-traffic/world.mjs": "549980ee6c365d8a5cb03eb0b9ed232bc7a5a6b438e7a62150cfe9879e84b09e",
+          "public/ai-city-traffic/world-assets.mjs": "b06b3a8af08990aab5a1cb4a49295b38794e2fcd3eb1e19c0fae2feec7c66524",
+          "public/ai-city-traffic/audio.mjs": "9b797345abccb9b2a86bf4f49b9f8173349a88315ed0896361e22a7391d87eac",
+          "dist/city-traffic-browser/simulation.js": "eaf9310053ada75e204b30a05c614d06d4ed601170d7630c556b1ae6ff066e48",
+          "dist/city-traffic-browser/traffic-network.js": "cdc8d092dd9f8c28dfb433a2b16982107c97aaf5c136b56172977f3cfabe2a69"
+        },
+        "sourceStable": true
+      }
+    },
+    {
+      "mode": "readiness-failure",
+      "details": false,
+      "expectedExit": 1,
+      "exitCode": 1,
+      "launched": true,
+      "closeCalls": 1,
+      "reportAttempted": true,
+      "screenshotCalls": 0,
+      "screenshotNames": [],
+      "sceneNames": [],
+      "checks": {
+        "exitCode": true,
+        "cleanup": true,
+        "reportRetained": true,
+        "incomplete": true,
+        "executionError": true
+      },
+      "pass": true,
+      "logs": [
+        "Injected readiness-failure"
+      ],
+      "driverReport": {
+        "capturedAt": "2026-10-30T21:26:12.805Z",
+        "label": "closure-fixture",
+        "complete": false,
+        "errors": [],
+        "scenes": [],
+        "sourcesBefore": {
+          "public/ai-city-traffic/index.html": "09e5e31da56dc46a97cdeadac1e6ae029b9bee7cfb0e39dfd9ddefc2bee52bdd",
+          "public/ai-city-traffic/styles.css": "41d8d8313313059f5578df05e956ae3415d3fc4abcfc6827fc2d10a893db18d5",
+          "public/ai-city-traffic/main.mjs": "f049a496982483ab70b2b77eadc8f5768b86c46a6ff3c207563b985244365d6f",
+          "public/ai-city-traffic/world.mjs": "549980ee6c365d8a5cb03eb0b9ed232bc7a5a6b438e7a62150cfe9879e84b09e",
+          "public/ai-city-traffic/world-assets.mjs": "b06b3a8af08990aab5a1cb4a49295b38794e2fcd3eb1e19c0fae2feec7c66524",
+          "public/ai-city-traffic/audio.mjs": "9b797345abccb9b2a86bf4f49b9f8173349a88315ed0896361e22a7391d87eac",
+          "dist/city-traffic-browser/simulation.js": "eaf9310053ada75e204b30a05c614d06d4ed601170d7630c556b1ae6ff066e48",
+          "dist/city-traffic-browser/traffic-network.js": "cdc8d092dd9f8c28dfb433a2b16982107c97aaf5c136b56172977f3cfabe2a69"
+        },
+        "method": "Actual browser output. Reduced-motion preference. Paused via the public operator command. Desktop 1920×1080; mobile 390×844. Internal pixel ratio is recorded per view.",
+        "executionError": "Error: Injected readiness-failure",
+        "sourcesAfter": {
+          "public/ai-city-traffic/index.html": "09e5e31da56dc46a97cdeadac1e6ae029b9bee7cfb0e39dfd9ddefc2bee52bdd",
+          "public/ai-city-traffic/styles.css": "41d8d8313313059f5578df05e956ae3415d3fc4abcfc6827fc2d10a893db18d5",
+          "public/ai-city-traffic/main.mjs": "f049a496982483ab70b2b77eadc8f5768b86c46a6ff3c207563b985244365d6f",
+          "public/ai-city-traffic/world.mjs": "549980ee6c365d8a5cb03eb0b9ed232bc7a5a6b438e7a62150cfe9879e84b09e",
+          "public/ai-city-traffic/world-assets.mjs": "b06b3a8af08990aab5a1cb4a49295b38794e2fcd3eb1e19c0fae2feec7c66524",
+          "public/ai-city-traffic/audio.mjs": "9b797345abccb9b2a86bf4f49b9f8173349a88315ed0896361e22a7391d87eac",
+          "dist/city-traffic-browser/simulation.js": "eaf9310053ada75e204b30a05c614d06d4ed601170d7630c556b1ae6ff066e48",
+          "dist/city-traffic-browser/traffic-network.js": "cdc8d092dd9f8c28dfb433a2b16982107c97aaf5c136b56172977f3cfabe2a69"
+        },
+        "sourceStable": true
+      }
+    },
+    {
+      "mode": "screenshot-failure",
+      "details": false,
+      "expectedExit": 1,
+      "exitCode": 1,
+      "launched": true,
+      "closeCalls": 1,
+      "reportAttempted": true,
+      "screenshotCalls": 3,
+      "screenshotNames": [
+        "closure-fixture-aerial.png",
+        "closure-fixture-street.png"
+      ],
+      "sceneNames": [
+        "aerial",
+        "street"
+      ],
+      "checks": {
+        "exitCode": true,
+        "cleanup": true,
+        "reportRetained": true,
+        "incomplete": true,
+        "executionError": true,
+        "partialScenes": true
+      },
+      "pass": true,
+      "logs": [
+        "Injected screenshot interruption"
+      ],
+      "driverReport": {
+        "capturedAt": "2026-10-30T21:26:12.808Z",
+        "label": "closure-fixture",
+        "complete": false,
+        "errors": [],
+        "scenes": [
+          {
+            "scene": "aerial",
+            "file": "closure-fixture-aerial.png",
+            "diagnostics": {
+              "cameraMode": "aerial",
+              "paused": true,
+              "failed": false,
+              "webgl": true,
+              "pixelRatio": 1
+            },
+            "snapshot": {
+              "tick": 360,
+              "metrics": {
+                "completedTrips": 2
+              },
+              "signals": 16,
+              "pedestrians": 3
+            }
+          },
+          {
+            "scene": "street",
+            "file": "closure-fixture-street.png",
+            "diagnostics": {
+              "cameraMode": "street",
+              "paused": true,
+              "failed": false,
+              "webgl": true,
+              "pixelRatio": 1
+            },
+            "snapshot": {
+              "tick": 360,
+              "metrics": {
+                "completedTrips": 2
+              },
+              "signals": 16,
+              "pedestrians": 3
+            }
+          }
+        ],
+        "sourcesBefore": {
+          "public/ai-city-traffic/index.html": "09e5e31da56dc46a97cdeadac1e6ae029b9bee7cfb0e39dfd9ddefc2bee52bdd",
+          "public/ai-city-traffic/styles.css": "41d8d8313313059f5578df05e956ae3415d3fc4abcfc6827fc2d10a893db18d5",
+          "public/ai-city-traffic/main.mjs": "f049a496982483ab70b2b77eadc8f5768b86c46a6ff3c207563b985244365d6f",
+          "public/ai-city-traffic/world.mjs": "549980ee6c365d8a5cb03eb0b9ed232bc7a5a6b438e7a62150cfe9879e84b09e",
+          "public/ai-city-traffic/world-assets.mjs": "b06b3a8af08990aab5a1cb4a49295b38794e2fcd3eb1e19c0fae2feec7c66524",
+          "public/ai-city-traffic/audio.mjs": "9b797345abccb9b2a86bf4f49b9f8173349a88315ed0896361e22a7391d87eac",
+          "dist/city-traffic-browser/simulation.js": "eaf9310053ada75e204b30a05c614d06d4ed601170d7630c556b1ae6ff066e48",
+          "dist/city-traffic-browser/traffic-network.js": "cdc8d092dd9f8c28dfb433a2b16982107c97aaf5c136b56172977f3cfabe2a69"
+        },
+        "method": "Actual browser output. Reduced-motion preference. Paused via the public operator command. Desktop 1920×1080; mobile 390×844. Internal pixel ratio is recorded per view.",
+        "executionError": "Error: Injected screenshot interruption",
+        "sourcesAfter": {
+          "public/ai-city-traffic/index.html": "09e5e31da56dc46a97cdeadac1e6ae029b9bee7cfb0e39dfd9ddefc2bee52bdd",
+          "public/ai-city-traffic/styles.css": "41d8d8313313059f5578df05e956ae3415d3fc4abcfc6827fc2d10a893db18d5",
+          "public/ai-city-traffic/main.mjs": "f049a496982483ab70b2b77eadc8f5768b86c46a6ff3c207563b985244365d6f",
+          "public/ai-city-traffic/world.mjs": "549980ee6c365d8a5cb03eb0b9ed232bc7a5a6b438e7a62150cfe9879e84b09e",
+          "public/ai-city-traffic/world-assets.mjs": "b06b3a8af08990aab5a1cb4a49295b38794e2fcd3eb1e19c0fae2feec7c66524",
+          "public/ai-city-traffic/audio.mjs": "9b797345abccb9b2a86bf4f49b9f8173349a88315ed0896361e22a7391d87eac",
+          "dist/city-traffic-browser/simulation.js": "eaf9310053ada75e204b30a05c614d06d4ed601170d7630c556b1ae6ff066e48",
+          "dist/city-traffic-browser/traffic-network.js": "cdc8d092dd9f8c28dfb433a2b16982107c97aaf5c136b56172977f3cfabe2a69"
+        },
+        "sourceStable": true
+      }
+    },
+    {
+      "mode": "report-write-failure",
+      "details": false,
+      "expectedExit": 1,
+      "exitCode": 1,
+      "launched": true,
+      "closeCalls": 1,
+      "reportAttempted": true,
+      "screenshotCalls": 6,
+      "screenshotNames": [
+        "closure-fixture-aerial.png",
+        "closure-fixture-street.png",
+        "closure-fixture-follow.png",
+        "closure-fixture-night.png",
+        "closure-fixture-mobile.png",
+        "closure-fixture-mobile-experiment.png"
+      ],
+      "sceneNames": [],
+      "checks": {
+        "exitCode": true,
+        "cleanup": true
+      },
+      "pass": true,
+      "logs": [
+        "Injected report-write-failure"
+      ]
+    },
+    {
+      "mode": "clean",
+      "details": true,
+      "expectedExit": 0,
+      "exitCode": 0,
+      "launched": true,
+      "closeCalls": 1,
+      "reportAttempted": true,
+      "screenshotCalls": 14,
+      "screenshotNames": [
+        "closure-fixture-aerial.png",
+        "closure-fixture-street.png",
+        "closure-fixture-follow.png",
+        "closure-fixture-citizen-p1.png",
+        "closure-fixture-citizen-p2.png",
+        "closure-fixture-citizen-p3.png",
+        "closure-fixture-vehicle-car.png",
+        "closure-fixture-vehicle-bus.png",
+        "closure-fixture-vehicle-van.png",
+        "closure-fixture-night.png",
+        "closure-fixture-mobile.png",
+        "closure-fixture-mobile-experiment.png",
+        "closure-fixture-junction-390.png",
+        "closure-fixture-junction-320.png"
+      ],
+      "sceneNames": [
+        "aerial",
+        "street",
+        "follow",
+        "citizen-p1",
+        "citizen-p2",
+        "citizen-p3",
+        "vehicle-car",
+        "vehicle-bus",
+        "vehicle-van",
+        "night",
+        "mobile",
+        "mobile-experiment",
+        "junction-390",
+        "junction-320"
+      ],
+      "checks": {
+        "exitCode": true,
+        "cleanup": true,
+        "complete": true,
+        "stable": true,
+        "errorFree": true,
+        "exactScenes": true,
+        "reportRetained": true
+      },
+      "pass": true,
+      "logs": [],
+      "driverReport": {
+        "capturedAt": "2026-10-30T21:26:12.815Z",
+        "label": "closure-fixture",
+        "complete": true,
+        "errors": [],
+        "scenes": [
+          {
+            "scene": "aerial",
+            "file": "closure-fixture-aerial.png",
+            "diagnostics": {
+              "cameraMode": "aerial",
+              "paused": true,
+              "failed": false,
+              "webgl": true,
+              "pixelRatio": 1
+            },
+            "snapshot": {
+              "tick": 360,
+              "metrics": {
+                "completedTrips": 2
+              },
+              "signals": 16,
+              "pedestrians": 3
+            }
+          },
+          {
+            "scene": "street",
+            "file": "closure-fixture-street.png",
+            "diagnostics": {
+              "cameraMode": "street",
+              "paused": true,
+              "failed": false,
+              "webgl": true,
+              "pixelRatio": 1
+            },
+            "snapshot": {
+              "tick": 360,
+              "metrics": {
+                "completedTrips": 2
+              },
+              "signals": 16,
+              "pedestrians": 3
+            }
+          },
+          {
+            "scene": "follow",
+            "file": "closure-fixture-follow.png",
+            "diagnostics": {
+              "cameraMode": "follow",
+              "paused": true,
+              "failed": false,
+              "webgl": true,
+              "pixelRatio": 1
+            },
+            "snapshot": {
+              "tick": 360,
+              "metrics": {
+                "completedTrips": 2
+              },
+              "signals": 16,
+              "pedestrians": 3
+            }
+          },
+          {
+            "scene": "citizen-p1",
+            "file": "closure-fixture-citizen-p1.png",
+            "diagnostics": {
+              "cameraMode": "follow",
+              "paused": true,
+              "failed": false,
+              "webgl": true,
+              "pixelRatio": 1
+            },
+            "snapshot": {
+              "tick": 360,
+              "metrics": {
+                "completedTrips": 2
+              },
+              "signals": 16,
+              "pedestrians": 3
+            }
+          },
+          {
+            "scene": "citizen-p2",
+            "file": "closure-fixture-citizen-p2.png",
+            "diagnostics": {
+              "cameraMode": "follow",
+              "paused": true,
+              "failed": false,
+              "webgl": true,
+              "pixelRatio": 1
+            },
+            "snapshot": {
+              "tick": 360,
+              "metrics": {
+                "completedTrips": 2
+              },
+              "signals": 16,
+              "pedestrians": 3
+            }
+          },
+          {
+            "scene": "citizen-p3",
+            "file": "closure-fixture-citizen-p3.png",
+            "diagnostics": {
+              "cameraMode": "follow",
+              "paused": true,
+              "failed": false,
+              "webgl": true,
+              "pixelRatio": 1
+            },
+            "snapshot": {
+              "tick": 360,
+              "metrics": {
+                "completedTrips": 2
+              },
+              "signals": 16,
+              "pedestrians": 3
+            }
+          },
+          {
+            "scene": "vehicle-car",
+            "file": "closure-fixture-vehicle-car.png",
+            "diagnostics": {
+              "cameraMode": "follow",
+              "paused": true,
+              "failed": false,
+              "webgl": true,
+              "pixelRatio": 1
+            },
+            "snapshot": {
+              "tick": 360,
+              "metrics": {
+                "completedTrips": 2
+              },
+              "signals": 16,
+              "pedestrians": 3
+            }
+          },
+          {
+            "scene": "vehicle-bus",
+            "file": "closure-fixture-vehicle-bus.png",
+            "diagnostics": {
+              "cameraMode": "follow",
+              "paused": true,
+              "failed": false,
+              "webgl": true,
+              "pixelRatio": 1
+            },
+            "snapshot": {
+              "tick": 360,
+              "metrics": {
+                "completedTrips": 2
+              },
+              "signals": 16,
+              "pedestrians": 3
+            }
+          },
+          {
+            "scene": "vehicle-van",
+            "file": "closure-fixture-vehicle-van.png",
+            "diagnostics": {
+              "cameraMode": "follow",
+              "paused": true,
+              "failed": false,
+              "webgl": true,
+              "pixelRatio": 1
+            },
+            "snapshot": {
+              "tick": 360,
+              "metrics": {
+                "completedTrips": 2
+              },
+              "signals": 16,
+              "pedestrians": 3
+            }
+          },
+          {
+            "scene": "night",
+            "file": "closure-fixture-night.png",
+            "diagnostics": {
+              "cameraMode": "aerial",
+              "paused": true,
+              "failed": false,
+              "webgl": true,
+              "pixelRatio": 1
+            },
+            "snapshot": {
+              "tick": 360,
+              "metrics": {
+                "completedTrips": 2
+              },
+              "signals": 16,
+              "pedestrians": 3
+            }
+          },
+          {
+            "scene": "mobile",
+            "file": "closure-fixture-mobile.png",
+            "diagnostics": {
+              "cameraMode": "aerial",
+              "paused": true,
+              "failed": false,
+              "webgl": true,
+              "pixelRatio": 1
+            },
+            "snapshot": {
+              "tick": 360,
+              "metrics": {
+                "completedTrips": 2
+              },
+              "signals": 16,
+              "pedestrians": 3
+            }
+          },
+          {
+            "scene": "mobile-experiment",
+            "file": "closure-fixture-mobile-experiment.png",
+            "diagnostics": {
+              "cameraMode": "aerial",
+              "paused": true,
+              "failed": false,
+              "webgl": true,
+              "pixelRatio": 1
+            },
+            "snapshot": {
+              "tick": 360,
+              "metrics": {
+                "completedTrips": 2
+              },
+              "signals": 16,
+              "pedestrians": 3
+            }
+          },
+          {
+            "scene": "junction-390",
+            "file": "closure-fixture-junction-390.png",
+            "diagnostics": {
+              "cameraMode": "aerial",
+              "paused": true,
+              "failed": false,
+              "webgl": true,
+              "pixelRatio": 1
+            },
+            "snapshot": {
+              "tick": 360,
+              "metrics": {
+                "completedTrips": 2
+              },
+              "signals": 16,
+              "pedestrians": 3
+            }
+          },
+          {
+            "scene": "junction-320",
+            "file": "closure-fixture-junction-320.png",
+            "diagnostics": {
+              "cameraMode": "aerial",
+              "paused": true,
+              "failed": false,
+              "webgl": true,
+              "pixelRatio": 1
+            },
+            "snapshot": {
+              "tick": 360,
+              "metrics": {
+                "completedTrips": 2
+              },
+              "signals": 16,
+              "pedestrians": 3
+            }
+          }
+        ],
+        "sourcesBefore": {
+          "public/ai-city-traffic/index.html": "09e5e31da56dc46a97cdeadac1e6ae029b9bee7cfb0e39dfd9ddefc2bee52bdd",
+          "public/ai-city-traffic/styles.css": "41d8d8313313059f5578df05e956ae3415d3fc4abcfc6827fc2d10a893db18d5",
+          "public/ai-city-traffic/main.mjs": "f049a496982483ab70b2b77eadc8f5768b86c46a6ff3c207563b985244365d6f",
+          "public/ai-city-traffic/world.mjs": "549980ee6c365d8a5cb03eb0b9ed232bc7a5a6b438e7a62150cfe9879e84b09e",
+          "public/ai-city-traffic/world-assets.mjs": "b06b3a8af08990aab5a1cb4a49295b38794e2fcd3eb1e19c0fae2feec7c66524",
+          "public/ai-city-traffic/audio.mjs": "9b797345abccb9b2a86bf4f49b9f8173349a88315ed0896361e22a7391d87eac",
+          "dist/city-traffic-browser/simulation.js": "eaf9310053ada75e204b30a05c614d06d4ed601170d7630c556b1ae6ff066e48",
+          "dist/city-traffic-browser/traffic-network.js": "cdc8d092dd9f8c28dfb433a2b16982107c97aaf5c136b56172977f3cfabe2a69"
+        },
+        "method": "Actual browser output. Reduced-motion preference. Paused via the public operator command. Desktop 1920×1080; mobile 390×844. Internal pixel ratio is recorded per view.",
+        "sourcesAfter": {
+          "public/ai-city-traffic/index.html": "09e5e31da56dc46a97cdeadac1e6ae029b9bee7cfb0e39dfd9ddefc2bee52bdd",
+          "public/ai-city-traffic/styles.css": "41d8d8313313059f5578df05e956ae3415d3fc4abcfc6827fc2d10a893db18d5",
+          "public/ai-city-traffic/main.mjs": "f049a496982483ab70b2b77eadc8f5768b86c46a6ff3c207563b985244365d6f",
+          "public/ai-city-traffic/world.mjs": "549980ee6c365d8a5cb03eb0b9ed232bc7a5a6b438e7a62150cfe9879e84b09e",
+          "public/ai-city-traffic/world-assets.mjs": "b06b3a8af08990aab5a1cb4a49295b38794e2fcd3eb1e19c0fae2feec7c66524",
+          "public/ai-city-traffic/audio.mjs": "9b797345abccb9b2a86bf4f49b9f8173349a88315ed0896361e22a7391d87eac",
+          "dist/city-traffic-browser/simulation.js": "eaf9310053ada75e204b30a05c614d06d4ed601170d7630c556b1ae6ff066e48",
+          "dist/city-traffic-browser/traffic-network.js": "cdc8d092dd9f8c28dfb433a2b16982107c97aaf5c136b56172977f3cfabe2a69"
+        },
+        "sourceStable": true
+      }
+    }
+  ],
+  "sourceStable": true,
+  "allExpectedOutcomes": true
+}

@@ -1,0 +1,114 @@
+{
+  "reviewDate": "2026-10-30",
+  "packagedAtUtc": "2026-10-30T20:51:34.428504+00:00",
+  "reviewer": "independent traffic_sim_closure_critic",
+  "sourceHead": "d1678cd4ac5c3cb8e4817570d6b001cf5f436f31",
+  "headAloneIdentifiesCandidate": false,
+  "sourceHashes": {
+    "games/ai-city-traffic/src/simulation.ts": "05c0bb42ad5d3d1b476289c8e9ce8cddbfe06f86df5fcbd47860a1ae58904d0b",
+    "games/ai-city-traffic/src/traffic-network.ts": "1211706ca0504ed1f2699a807eb4f8798affd019a6692c02da4cd42a3c95ef32",
+    "tests/foundation/city-traffic-simulation.test.cjs": "43020977eb627e12db94903a2c52430b9cd98352ce45861e1490590727a2d767"
+  },
+  "runtime": {
+    "node": "v24.22.1",
+    "typescript": "5.8.3",
+    "stepSeconds": 0.03333333333333333,
+    "schemaVersion": 1,
+    "deterministicVersion": "city-traffic-1",
+    "configHash": "4127a5e0"
+  },
+  "compiledHashes": {
+    "simulation.js": "8c36be2c49ec88f7b1fb02fe8aa8eb16bb43e9eac74bf0d9429ae649b542d859",
+    "traffic-network.js": "c199422e53514df5fb2855d257dfd2a833e2a2d7ab5eb9736c4a6cfbeb6aeed4"
+  },
+  "executedCompileCommand": "node node_modules/typescript/bin/tsc --target ES2022 --module commonjs --moduleResolution node --strict --skipLibCheck --rootDir games/ai-city-traffic/src --outDir /workspace/scratch/f951d9074684/traffic-closure-compiled games/ai-city-traffic/src/simulation.ts games/ai-city-traffic/src/traffic-network.ts",
+  "compileOutcome": "Fresh strict compilation completed and emitted the matching candidate binaries.",
+  "executedProbeDirectory": "/workspace/scratch/f951d9074684",
+  "executedImportDirectory": "/workspace/scratch/f951d9074684/traffic-closure-compiled",
+  "oldCriticBuildReused": false,
+  "repositoryProbeChanges": "Only import and output path substitutions; reverse transformations compared exactly against executed script bytes.",
+  "commands": [
+    {
+      "command": "node traffic-closure-probes.cjs",
+      "exitCode": 0
+    },
+    {
+      "command": "node traffic-closure-replay-fairness.cjs",
+      "exitCode": 0
+    },
+    {
+      "command": "node traffic-closure-restore-boundaries.cjs",
+      "exitCode": 0
+    },
+    {
+      "command": "node traffic-closure-pedestrian-latency.cjs high",
+      "exitCode": 0
+    },
+    {
+      "command": "node traffic-closure-pedestrian-latency.cjs default",
+      "exitCode": 0
+    },
+    {
+      "command": "node traffic-closure-corner-fairness.cjs high",
+      "exitCode": 0
+    },
+    {
+      "command": "node traffic-closure-corner-fairness.cjs default",
+      "exitCode": 0
+    }
+  ],
+  "specificationVerdict": {
+    "value": "PASS",
+    "scope": "Original C1-C3 closure and exercised deterministic authority/progress/recovery requirements"
+  },
+  "qualityVerdict": {
+    "value": "FAIL",
+    "finding": "Q1",
+    "severity": "P2",
+    "summary": "Fixed-order corner and landing reservation allocation repeatedly bypasses older waiting pedestrians; default and high demand exhibit multi-minute stops."
+  },
+  "originalFindings": {
+    "C1": "CLOSED",
+    "C2": "CLOSED",
+    "C3": "CLOSED"
+  },
+  "qualityEvidence": {
+    "highStationaryStartTick": 7032,
+    "highStationaryEndTick": 18387,
+    "highStationaryTicks": 11356,
+    "highResumedTick": 18388,
+    "defaultCitizensWithStopsOver60Seconds": 45,
+    "defaultIntervalsOver60Seconds": 89,
+    "defaultIntervalsOver120Seconds": 15,
+    "defaultLongestSampledStopSeconds": 238,
+    "defaultCitizen44ResumedTick": 19686
+  },
+  "report": {
+    "path": "../simulation-closure-review.md",
+    "sha256": "fc7f865c4d7b5233ca213fcf41e9b25929b1e54b4167eaa7911f3c19ba72ff81"
+  },
+  "artifacts": {
+    "README.md": "e1b0d767d0631ca1c9d62962b35e2df46edb20456447a3f93e10fbc1eaa1b06c",
+    "reviewed-source/simulation.ts": "05c0bb42ad5d3d1b476289c8e9ce8cddbfe06f86df5fcbd47860a1ae58904d0b",
+    "reviewed-source/traffic-network.ts": "1211706ca0504ed1f2699a807eb4f8798affd019a6692c02da4cd42a3c95ef32",
+    "traffic-closure-corner-fairness-default.json": "8c625d4764ca180a0c2f9e4fd0c1144d67b4b818509e780fd9ff3cda5bb8ef30",
+    "traffic-closure-corner-fairness-high.json": "dbe9341aa5ec27717c5c1b34fb20b382fa196f8bc0e47d021c8f35a47f40d8b6",
+    "traffic-closure-corner-fairness.cjs": "868d3b2576f5dd8ef84c9e084531e2c1e2cde00d2509a45f4ea499b08f9cb8e1",
+    "traffic-closure-pedestrian-latency-default.json": "2d5946a68decb418fa3eeb9d5f9e40f05572deb945be9e1640116cb4369bbdd5",
+    "traffic-closure-pedestrian-latency-high.json": "b830d685769a473c2cd9112ce4089732fa98bee2642e49a213f0427c019133e7",
+    "traffic-closure-pedestrian-latency.cjs": "3bb86b183c22631f1efc4b12203a010623427152779e223e472408d5a8796105",
+    "traffic-closure-probe-results.json": "f5f7d813eceeb90ad38477806deaf3b4ed0ca72014a7f0c7f8ac68baf26a6b9e",
+    "traffic-closure-probes.cjs": "fc1ff4a3343e4206283fa32d34c48bfbf5c8b5316b493bcae4b129034255462e",
+    "traffic-closure-replay-fairness-results.json": "19aacecfc7e3829fa4bd5dac7f92ec8a81cefbc8bd913d7624c495ce77bf45bf",
+    "traffic-closure-replay-fairness.cjs": "6ab34b5f1e98a89208e4880ab1965f6718e403626ce1ce8ee2c6456b8fff8a75",
+    "traffic-closure-restore-boundaries-results.json": "0ce236ec763b61c4fab505e90517192bdef6cd5a2d53f2a9d10277856902c1f5",
+    "traffic-closure-restore-boundaries.cjs": "b2a31873907cd17d6d88e77a37f66dae16bb7128677136abfd8a6ef09459ec27"
+  },
+  "limitations": [
+    "No browser rendering/mesh-footprint verdict",
+    "No commercial superiority or AI benchmark claim",
+    "No R5/production readiness claim",
+    "No universal starvation or unbounded-operation proof",
+    "No full catalogue test rerun"
+  ]
+}
