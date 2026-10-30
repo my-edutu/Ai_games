@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-10-30T20:54:28.862751+00:00",
+  "updatedAt": "2026-10-30T21:18:10Z",
   "benchmark": {
     "status": "Not yet passed",
     "summary": "Fresh critics preferred the fourth pass in blind mobile and desktop version comparisons. Captain Toad still wins overall: the next gap is a more expressive, clearly staged encounter that connects the explorer, guardian, objective and route."
@@ -98,10 +98,11 @@
     "Cumulative steps and discovered area reflect the public snapshot. Character feet, route marks, lights and camera targets follow the same stair heights.",
     "Pip now has a coral scarf and bedroll, clearer eyes and directional gaze; Thornback has a broader bronze face and brighter eyes. Fresh actual portrait, desktop, detail and encounter captures are recorded.",
     "Keys have a thicker silhouette and readable sway; the exit has a mint opening and diamond crown. Quieter trim, grouped planting and shoreline contacts are implemented. The mobile critic still wants stronger objective contrast and clearer local intent.",
-    "Map and Path notes expand on demand, while the goal and immediate intent stay visible. Natural captions replace internal object IDs, and the camera label says Detail. Browser checks verify disclosure drawing, Escape/focus and terminal reconnect; a fresh blind critic preferred the compact mobile layout."
+    "Map and Path notes expand on demand, while the goal and immediate intent stay visible. Natural captions replace internal object IDs, and the camera label says Detail. Browser checks verify disclosure drawing, Escape/focus and terminal reconnect; a fresh blind critic preferred the compact mobile layout.",
+    "A fifth-pass encounter-staging candidate now gives Pip threat-directed head, gaze and lantern poses, and Thornback anticipatory mask/mandible poses, using only disclosed nearby threats. Fresh render and independent critique are still pending."
   ],
   "nextGaps": [
-    "Return the observed guardian-encounter gap to a builder, then have a fresh critic inspect actual gaze, pose, threat and route staging against the same fixed bar.",
+    "Capture the new public-threat encounter poses and shared framing in real running desktop and mobile output; a fresh independent critic must compare label-masked round-04 versus this candidate and then judge Captain Toad directly.",
     "Make the immediate objective, obstacle and route more legible in the world; increase key contrast and clarify why another key is needed when one has already been collected.",
     "Develop a more distinctive landmark or encounter and the explorer’s target-directed expression at normal viewing size.",
     "Review fresh real motion for gait, turns, stair contact and reactions, and independently listen to the audio mix.",
@@ -209,6 +210,11 @@
       "name": "Fixed comparison-image provenance",
       "status": "2 of 2 official images verified",
       "detail": "The exact Nintendo gallery URLs, request header, dimensions, byte lengths and SHA-256 hashes are pinned in reference-manifest.json. Both fresh downloads matched the already-reviewed images byte for byte; future comparisons use this same bar."
+    },
+    {
+      "name": "Fifth-pass encounter pose source candidate",
+      "status": "Unverified visually; current-source CI pending",
+      "detail": "The changes target disclosed guardian proximity only. There is no new rendered capture, blind verdict, hardware performance result or benchmark win from this update."
     }
   ],
   "references": [

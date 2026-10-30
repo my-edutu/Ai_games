@@ -58,3 +58,25 @@ test('balanced character meshes retain all articulation while reducing vertex co
     assert.ok([...releases.values()].every(count => count === 1));
   }
 });
+
+test('disclosed-threat attention turns heads and lantern without affecting terminal poses', async () => {
+  const { createExplorer, createWarden } = await modulePromise;
+  for (const balanced of [false, true]) {
+    const explorer = createExplorer({ balanced }), warden = createWarden({ balanced });
+    const head = explorer.group.getObjectByName('curious head');
+    const lantern = explorer.group.getObjectByName('swinging lantern');
+    const mask = warden.group.getObjectByName('warden mask');
+    explorer.update({heading: 0, attentionHeading: Math.PI / 2, attentionStrength: 1, danger: 1, reducedMotion: true});
+    assert.ok(head.rotation.y > .6, 'Pip looks toward a publicly observed nearby threat');
+    assert.ok(lantern.rotation.y > .2, 'the lantern and gaze share the attention direction');
+    explorer.update({heading: 0, attentionStrength: 0, reducedMotion: true});
+    assert.equal(head.rotation.y, 0, 'attention releases when the public threat is absent');
+    explorer.update({heading: 0, attentionHeading: Math.PI / 2, attentionStrength: 1, result: 'capture', reducedMotion: true});
+    assert.equal(head.rotation.x, .28, 'actual loss overrides cosmetic attention');
+    warden.update({heading: 0, attentionHeading: -Math.PI / 2, attentionStrength: 1, danger: 1, reducedMotion: true});
+    assert.ok(mask.rotation.y < -.5, 'Thornback follows the observed explorer');
+    warden.update({heading: 0, attentionStrength: 0, reducedMotion: true});
+    assert.equal(mask.rotation.y, 0, 'the guardian resets rather than remembering a hidden target');
+    explorer.dispose(); warden.dispose();
+  }
+});

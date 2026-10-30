@@ -194,27 +194,34 @@ export function createExplorer(options = {}) {
     const step=Math.sin(gait)*stride*amount, idle=Math.sin(s.time*2.4)*amount;
     const turn=Number.isFinite(options.heading)?Math.atan2(Math.sin(options.heading-group.rotation.y),Math.cos(options.heading-group.rotation.y)):0;
     const rest=(1-stride)*amount;
+    // Attention is presentation-only and comes exclusively from a nearby,
+    // already-disclosed threat. Without it, Pip continues to face the route.
+    const reacting=!s.win&&!s.lose&&Number.isFinite(options.attentionHeading);
+    const alert=reacting?Math.max(0,Math.min(1,finite(options.attentionStrength))):0;
+    const relativeLook=reacting?Math.atan2(Math.sin(options.attentionHeading-group.rotation.y),Math.cos(options.attentionHeading-group.rotation.y)):0;
+    const lookYaw=Math.max(-.72,Math.min(.72,relativeLook))*alert;
     body.position.x=-.025*rest;
     body.position.y=.78+Math.abs(step)*.035+(s.lose?0:idle*.008);
-    body.rotation.set(s.lose?.22:stride*.065-s.danger*.035,0,.035*rest-step*.05);
-    head.rotation.set(s.lose?.28:-.04-s.danger*.08+idle*.018,
-      s.reduced?0:Math.max(-.42,Math.min(.42,turn*.7))+(Math.sin(s.time*.73)*.08+.12)*rest,
+    body.rotation.set(s.lose?.22:stride*.065-s.danger*.035,lookYaw*.14,.035*rest-step*.05-Math.sign(lookYaw)*alert*.035);
+    head.rotation.set(s.lose?.28:-.04-s.danger*.08+idle*.018+alert*.10,
+      (s.reduced?0:Math.max(-.42,Math.min(.42,turn*.7))+(Math.sin(s.time*.73)*.08+.12)*rest)*(1-alert)+lookYaw,
       s.win?-.13:s.lose?.07:-.065*rest+step*.035);
     for (let i=0;i<2;i++) {
       const sign=i===0?1:-1;
       legs[i].hip.rotation.x=step*sign*.62;
       legs[i].knee.rotation.x=Math.max(0,-step*sign)*.58;
-      arms[i].shoulder.rotation.x=-step*sign*(i===1?.2:.4)-(s.win?.9:0)-(i===1?.16:0);
+      arms[i].shoulder.rotation.x=-step*sign*(i===1?.2:.4)-(s.win?.9:0)-(i===1?.16:0)-alert*(i===1?.42:.12);
       arms[i].shoulder.rotation.z=(i===0?-1:1)*(s.win?.95:i===1?.34:.15);
       arms[i].elbow.rotation.x=-.16-(i===1?.22:0)-(s.danger*.3);
-      eyes[i].position.x=(i===0?-1:1)*.145+(s.reduced?0:Math.max(-.016,Math.min(.016,turn*.045))+.006*rest);
-      eyes[i].scale.y=s.lose?.32:s.danger>.45?1.13:(s.reduced?1:Math.pow(Math.max(0,Math.cos(s.time*.83)),60)>.88?.12:1);
+      eyes[i].position.x=(i===0?-1:1)*.145+Math.max(-.024,Math.min(.024,lookYaw*.032+(s.reduced?0:(Math.max(-.016,Math.min(.016,turn*.045))+.006*rest)*(1-alert))));
+      eyes[i].scale.y=s.lose?.32:s.danger>.45||alert>.4?1.13:(s.reduced?1:Math.pow(Math.max(0,Math.cos(s.time*.83)),60)>.88?.12:1);
     }
     if (s.win) body.position.y += amount*Math.max(0,Math.sin(s.time*5))*.075;
     tail.rotation.x=-stride*.28+step*.1;
     // Keep the hanging cage upright beneath the outward arm; let it trail the stride.
     lantern.rotation.z=-arms[1].shoulder.rotation.z-step*.17;
     lantern.rotation.x=-(arms[1].shoulder.rotation.x+arms[1].elbow.rotation.x)+step*.18;
+    lantern.rotation.y=lookYaw*.38;
     glow.emissiveIntensity=s.lose?.45:1.45;
   }};
 }
@@ -278,9 +285,14 @@ export function createWarden(options = {}) {
     if (r.isDisposed()) return;
     const s=motionState(options), amount=s.reduced?0:1;
     face(group,options.heading,s.delta,s.reduced);
+    const reacting=!s.win&&!s.lose&&Number.isFinite(options.attentionHeading);
+    const alert=reacting?Math.max(0,Math.min(1,finite(options.attentionStrength))):0;
+    const relativeLook=reacting?Math.atan2(Math.sin(options.attentionHeading-group.rotation.y),Math.cos(options.attentionHeading-group.rotation.y)):0;
+    const lookYaw=Math.max(-.58,Math.min(.58,relativeLook))*alert;
     stride=approach(stride,s.moving?1:0,12,s.delta); gait+=s.delta*(10+s.danger*3)*stride;
     body.position.y=.79-(s.win?.07:0)+amount*(Math.sin(s.time*2)*.012+Math.sin(gait*2)*stride*.018);
-    body.rotation.x=-s.danger*.055;
+    body.rotation.x=-s.danger*.055-alert*.11;
+    body.rotation.z=Math.sin(relativeLook)*alert*.06;
     for (const leg of legs) {
       const phase=gait+(leg.index%2===0?0:Math.PI)+(leg.side===1?Math.PI:0);
       leg.hip.rotation.y=Math.sin(phase)*stride*.24*amount;
@@ -288,8 +300,8 @@ export function createWarden(options = {}) {
       leg.knee.rotation.z=-leg.side*Math.max(0,Math.cos(phase))*stride*.16*amount;
     }
     head.rotation.x=s.win?.16:s.lose?-.13:-.045-s.danger*.065;
-    head.rotation.y=Math.sin(s.time*.8)*.08*(1-stride)*amount;
-    for (let i=0;i<2;i++) jaws[i].rotation.y=(i===0?-1:1)*(.06+s.danger*.13+Math.sin(s.time*3)*.025*amount);
+    head.rotation.y=Math.sin(s.time*.8)*.08*(1-stride)*amount*(1-alert)+lookYaw;
+    for (let i=0;i<2;i++) jaws[i].rotation.y=(i===0?-1:1)*(.06+s.danger*.13+alert*.16+Math.sin(s.time*3)*.025*amount);
     red.emissiveIntensity=s.win?.45:s.lose?1.6:1.1+s.danger*.4;
   }};
 }

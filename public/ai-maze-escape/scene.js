@@ -193,7 +193,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     explorer.group.position.set(pose.x, ground, pose.z);
     if (pose.moving) heading = pose.heading;
     const result = frame.scene === 'result' || frame.scene === 'intermission' ? s.result?.reason ?? 'failure' : null;
-    explorer.update({ time: elapsed, delta, moving: pose.moving && !result, heading, danger: s.dangerPermille / 1000, result, reducedMotion: settings.reducedMotion });
+    let closestThreat = null;
     for (const entry of wardens.values()) {
       if (settings.reducedMotion || result) { entry.cells = [entry.cell]; entry.progress = 0; }
       else if (entry.cells.length > 1) {
@@ -204,8 +204,25 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
       const threatPose = samplePublicPath(entry.cells.slice(0, 2), entry.progress, s.width, s.height, CELL_SIZE);
       entry.model.group.position.set(threatPose.x, sampleGroundHeight(threatPose.x, threatPose.z, s), threatPose.z);
       if (threatPose.moving) entry.heading = threatPose.heading;
-      entry.model.update({ time: elapsed, delta, moving: threatPose.moving && !result, heading: entry.heading, danger: 1, result, reducedMotion: settings.reducedMotion });
+      // No hidden threat positions are queried. Wardens exists solely for
+      // threats in the sanitized public snapshot, and staging is cosmetic.
+      const towardExplorerX=pose.x-threatPose.x, towardExplorerZ=pose.z-threatPose.z;
+      const separation=Math.hypot(towardExplorerX,towardExplorerZ);
+      const attentionStrength=result?0:clamp((6.6-separation)/4.4,0,1);
+      if (attentionStrength>(closestThreat?.strength??0))
+        closestThreat={x:threatPose.x,z:threatPose.z,strength:attentionStrength};
+      entry.model.update({
+        time:elapsed,delta,moving:threatPose.moving&&!result,heading:entry.heading,
+        attentionHeading:attentionStrength?Math.atan2(towardExplorerX,towardExplorerZ):undefined,
+        attentionStrength,danger:1,result,reducedMotion:settings.reducedMotion,
+      });
     }
+    explorer.update({
+      time:elapsed,delta,moving:pose.moving&&!result,heading,
+      attentionHeading:closestThreat?Math.atan2(closestThreat.x-pose.x,closestThreat.z-pose.z):undefined,
+      attentionStrength:closestThreat?.strength??0,
+      danger:s.dangerPermille/1000,result,reducedMotion:settings.reducedMotion,
+    });
     world.animate(elapsed, settings);
     marker.position.set(pose.x, ground + .025, pose.z);
     marker.material.opacity = settings.highContrast ? 1 : .55;
@@ -223,7 +240,10 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
       desiredTarget.set((minX + maxX) / 2, (Math.min(...levels) + Math.max(...levels)) / 2, (minZ + maxZ) / 2);
       targetHeight = Math.max(7.5, ((maxX - minX) * .65 + (maxZ - minZ) * .75 + 8) / (2 * Math.min(aspect, 1.45)));
     } else {
-      desiredTarget.set(pose.x, ground + .25, pose.z);
+      // Nudge a follow camera toward the *observed* nearby warden, keeping
+      // Pip prominent while giving the encounter a shared screen space.
+      const frameThreat=cameraMode==='follow'&&!result&&closestThreat?closestThreat.strength*.22:0;
+      desiredTarget.set(pose.x+(closestThreat?.x-pose.x||0)*frameThreat,ground+.25,pose.z+(closestThreat?.z-pose.z||0)*frameThreat);
       targetHeight = cameraMode === 'detail' ? 4.6 : height < 340 ? 5.4 : aspect < .9 ? 6.2 : 7.3;
     }
     const blend = settings.reducedMotion ? 1 : 1 - Math.exp(-delta * 4.5);
@@ -252,6 +272,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
         frameP50Ms: sorted[Math.floor(sorted.length * .5)] || 0,
         frameP95Ms: sorted[Math.floor(sorted.length * .95)] || 0,
         routeQueue: cells.length, world: stats, contextLost: false,
+        disclosedThreats: wardens.size, encounterAttention: closestThreat?.strength ?? 0,
         explorerPosition: {x: pose.x, y: ground, z: pose.z},
       };
     }
