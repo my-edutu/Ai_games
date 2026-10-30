@@ -8,19 +8,27 @@ export function createWorld(THREE, {width, height}) {
   let seed = 827621;
   const random = () => ((seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0) / 4294967296);
   const noise = (x,y) => { const n = Math.sin(x * 127.1 + y * 311.7) * 43758.5453; return n - Math.floor(n); };
-  // Shared procedural microdetail; all random draws here are cosmetic and local.
+  const smoothNoise = (x,y) => {
+    const ix=Math.floor(x),iy=Math.floor(y),fx=x-ix,fy=y-iy,tx=fx*fx*(3-2*fx),ty=fy*fy*(3-2*fy);
+    return (noise(ix,iy)*(1-tx)+noise(ix+1,iy)*tx)*(1-ty)+(noise(ix,iy+1)*(1-tx)+noise(ix+1,iy+1)*tx)*ty;
+  };
+  const fade = (a,b,v) => { const t=Math.max(0,Math.min(1,(v-a)/(b-a)));return t*t*(3-2*t); };
+  // Limestone color lives at the scale of worn blocks, with restrained grain.
+  // All detail is baked once into the existing maps; no extra shader channels.
   function stoneTexture(moss = false) {
     const size = 256, data = new Uint8Array(size * size * 4);
     for (let y=0;y<size;y++) for (let x=0;x<size;x++) {
-      const a = noise(x,y), b = noise(Math.floor(x/9),Math.floor(y/9));
-      const field = Math.sin(x*.041 + Math.sin(y*.027)*2) * Math.cos(y*.038) + b*.35;
-      const fleck = a > .96 ? -.15 : 0;
-      const value = .78 + a*.16 + b*.05 + fleck;
-      const green = moss && field > .25;
+      const u=(x+.5)/size,v=(y+.5)/size,edge=Math.min(u,1-u,v,1-v);
+      const cloud=smoothNoise(x/46,y/58),mineral=smoothNoise(x/14+17,y/17+51);
+      const warmth=(smoothNoise(x/96+7,y/83+31)-.5)*.12;
+      const recess=(1-fade(.008,.055,edge))*.09;
+      const chalk=(fade(.012,.04,edge)-fade(.04,.11,edge))*(.018+fade(.35,.65,mineral)*.04);
+      const value=.65+cloud*.23+mineral*.09+(noise(x,y)-.5)*.018-recess+chalk;
+      const patina=moss?fade(.42,.67,smoothNoise(x/65+51,y/65+31))*.8:0;
       const i = (y*size+x)*4;
-      data[i] = 255 * value * (green ? .64 : 1);
-      data[i+1] = 255 * value * (green ? .76 : .98);
-      data[i+2] = 255 * value * (green ? .40 : .87);
+      data[i] = Math.min(255,255 * (value+warmth) * (1-patina*.36));
+      data[i+1] = Math.min(255,255 * (value*.99-warmth*.13) * (1-patina*.18));
+      data[i+2] = Math.min(255,255 * (value*.92-warmth*.48) * (1-patina*.56));
       data[i+3] = 255;
     }
     const t = new THREE.DataTexture(data,size,size); t.wrapS=t.wrapT=THREE.RepeatWrapping;
@@ -33,17 +41,34 @@ export function createWorld(THREE, {width, height}) {
   // Field UVs are baked in world coordinates when static geometry is merged below.
   function fieldTexture(){
     const w=1024,h=512,data=new Uint8Array(w*h*4);
-    const smooth=(x,y)=>{const ix=Math.floor(x),iy=Math.floor(y),fx=x-ix,fy=y-iy,tx=fx*fx*(3-2*fx),ty=fy*fy*(3-2*fy);return (noise(ix,iy)*(1-tx)+noise(ix+1,iy)*tx)*(1-ty)+(noise(ix,iy+1)*(1-tx)+noise(ix+1,iy+1)*tx)*ty;};
-    for(let y=0;y<h;y++)for(let x=0;x<w;x++){
-      const coarse=smooth(x/150,y/150),fine=smooth(x/18,y/18),grain=noise(x,y),edge=Math.pow(Math.abs(y/h-.5)*2,3);
-      const m=Math.max(0,coarse-.46)*.75+edge*.04;
-      const value=.88+grain*.055+fine*.055;
-      const i=(y*w+x)*4;data[i]=255*(value-m*.43);data[i+1]=255*(value-m*.27);data[i+2]=255*(value*.94-m*.55);data[i+3]=255;
+    const slabTones=new Float32Array(width*height*2);
+    for(let z=0;z<height;z++)for(let x=0;x<width;x++){
+      const i=(z*width+x)*2;
+      // Correlated quarry tones prevent a random checkerboard of pale/dark cells.
+      slabTones[i]=(noise(x+41,z+37)-.5)*.075+(smoothNoise(x*.54+11,z*.54+9)-.5)*.16;
+      slabTones[i+1]=(smoothNoise(x*.5+117,z*.5+53)-.5)*.09+(noise(x+117,z+53)-.5)*.025;
     }
-    // Sparse hairline fractures and chipped corners, varied across the whole field.
-    for(let c=0;c<110;c++){
+    for(let y=0;y<h;y++)for(let x=0;x<w;x++){
+      const gx=(x+.5)/w*width,gz=(y+.5)/h*height,cx=Math.floor(gx),cz=Math.floor(gz),u=gx-cx,v=gz-cz;
+      const edge=Math.min(u,1-u,v,1-v),border=Math.min(gx,width-gx,gz,height-gz);
+      // Warm/cool slabs share a broad mineral field, keeping color variation
+      // larger than grain without implying a different playable elevation.
+      const toneIndex=(cz*width+cx)*2,cloud=smoothNoise(gx*.19+5,gz*.20+17);
+      const mineral=smoothNoise(gx*2.8+23,gz*2.8+41),warmth=slabTones[toneIndex+1];
+      const recess=(1-fade(.006,.045,edge))*.045;
+      const chalk=(fade(.018,.05,edge)-fade(.05,.095,edge))*(.012+fade(.35,.7,mineral)*.03);
+      const patina=(1-fade(.25,2,border))*(.025+smoothNoise(gx*.8+60,gz*.8+80)*.055);
+      const value=.84+slabTones[toneIndex]+(cloud-.5)*.10+(mineral-.5)*.035+(noise(x,y)-.5)*.007-recess+chalk;
+      const i=(y*w+x)*4;
+      data[i]=Math.min(255,255*(value+warmth*.46-patina*.45));
+      data[i+1]=Math.min(255,255*(value-warmth*.08-patina*.24));
+      data[i+2]=Math.min(255,255*(value*.94-warmth*.62-patina*.57));
+      data[i+3]=255;
+    }
+    // Sparse hairline fractures stay subordinate to the broad slab treatment.
+    for(let c=0;c<38;c++){
       let x=noise(c,52)*(w-2),y=noise(c,98)*(h-2),angle=noise(c,12)*6.28;
-      for(let n=0;n<5+noise(c,22)*16;n++){x+=Math.cos(angle);y+=Math.sin(angle);angle+=(noise(c,n)-.5)*.75;const px=Math.floor(x),py=Math.floor(y);if(px>0&&px<w&&py>0&&py<h){const i=(py*w+px)*4;data[i]*=.72;data[i+1]*=.75;data[i+2]*=.76;}}
+      for(let n=0;n<5+noise(c,22)*16;n++){x+=Math.cos(angle);y+=Math.sin(angle);angle+=(noise(c,n)-.5)*.75;const px=Math.floor(x),py=Math.floor(y);if(px>0&&px<w&&py>0&&py<h){const i=(py*w+px)*4;data[i]*=.82;data[i+1]*=.84;data[i+2]*=.85;}}
     }
     const t=new THREE.DataTexture(data,w,h);t.colorSpace=THREE.SRGBColorSpace;t.magFilter=THREE.LinearFilter;t.minFilter=THREE.LinearMipmapLinearFilter;t.generateMipmaps=true;t.needsUpdate=true;textures.add(t);return t;
   }
@@ -66,7 +91,17 @@ export function createWorld(THREE, {width, height}) {
     for(const {r,y} of levels)for(const [x,z] of [[-r,-r],[-r,r],[r,r],[r,-r]]){p.push(x,y,z);uv.push(x+.5,z+.5);}
     indices.push(0,1,2,0,2,3);
     for(let l=0;l<2;l++)for(let i=0;i<4;i++){const a=l*4+i,b=l*4+(i+1)%4;indices.push(a,a+4,b,b,a+4,b+4);}
-    const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(p,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));g.setIndex(indices);const flat=g.toNonIndexed();g.dispose();flat.computeVertexNormals();return flat;
+    const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(p,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));g.setIndex(indices);const flat=g.toNonIndexed();g.dispose();flat.computeVertexNormals();
+    // The visible side courses need their full stone face, not the single
+    // stretched texture row produced by a top-only planar projection.
+    const pos=flat.attributes.position,norm=flat.attributes.normal,tex=flat.attributes.uv;
+    for(let i=0;i<pos.count;i++){
+      const nx=Math.abs(norm.getX(i)),ny=Math.abs(norm.getY(i)),nz=Math.abs(norm.getZ(i));
+      if(ny>=nx&&ny>=nz)tex.setXY(i,pos.getX(i)+.5,pos.getZ(i)+.5);
+      else if(nx>nz)tex.setXY(i,pos.getZ(i)+.5,pos.getY(i)+.5);
+      else tex.setXY(i,pos.getX(i)+.5,pos.getY(i)+.5);
+    }
+    return flat;
   }
   const rock=geometry(new THREE.IcosahedronGeometry(1,1));
   const sphere=geometry(new THREE.SphereGeometry(1,12,8));

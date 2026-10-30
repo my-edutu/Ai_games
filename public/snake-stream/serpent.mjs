@@ -90,7 +90,6 @@ export function createSerpent(THREE) {
   const skullMaterial = ownMaterial(new THREE.MeshStandardMaterial({ map: headSkin.color, bumpMap: headSkin.bump, bumpScale: 0.023, roughnessMap: headSkin.bump, roughness: 0.76 }));
   const jade = ownMaterial(new THREE.MeshStandardMaterial({ color: 0x4da64e, roughness: 0.4, bumpMap: skin.bump, bumpScale: 0.009 }));
   const darkJade = ownMaterial(new THREE.MeshStandardMaterial({ color: 0x20573b, roughness: 0.47 }));
-  const gold = ownMaterial(new THREE.MeshStandardMaterial({ color: 0xeac24e, roughness: 0.44, bumpMap: skin.bump, bumpScale: 0.006 }));
   const cream = ownMaterial(new THREE.MeshStandardMaterial({ color: 0xffe8a5, roughness: 0.47, bumpMap: skin.bump, bumpScale: 0.005 }));
   const mouthMaterial = ownMaterial(new THREE.MeshStandardMaterial({ color: 0x1d1119, roughness: 0.88 }));
   const tongueMaterial = ownMaterial(new THREE.MeshStandardMaterial({ color: 0xe56c83, roughness: 0.38 }));
@@ -218,10 +217,11 @@ export function createSerpent(THREE) {
   const skull = new THREE.Mesh(skullGeometry, skullMaterial);
   lodBindings.push([skull,skullGeometry,lowSkullGeometry]);
   skull.name='Continuous tapered skull and neck'; skull.castShadow=skull.receiveShadow=true; headPose.add(skull);
-  // The lower jaw follows the actual section where the skull meets the mouth
-  // surface. Its round front cap tapers in BOTH width and thickness, avoiding a
-  // pointed vertical flap. A dark recessed palate supplies the smile itself.
-  const jawRear=-.17,neutralGap=.006;
+  // The rear of the jaw is buried inside the uncut cheek, so its rounded shell
+  // joins a solid neck instead of exposing a thin open cross-section. The front
+  // still tapers in both width and thickness around the recessed palate.
+  const jawRear=-.24,neutralGap=.006;
+  const jawWidthScale=z=>.93+.055*smooth(jawRear,-.12,z);
   let mouthEndLow=.44,mouthEndHigh=.49;
   for(let i=0;i<32;i++){const z=(mouthEndLow+mouthEndHigh)*.5;if(skullSection(z)[3]<mouthSurfaceY(z))mouthEndLow=z;else mouthEndHigh=z;}
   const mouthEnd=(mouthEndLow+mouthEndHigh)*.5;
@@ -230,8 +230,8 @@ export function createSerpent(THREE) {
     const p=[],uv=[],ind=[],columns=interior?sides+1:sides+3;
     for(let r=0;r<rows;r++){
       const z=jawRear+(mouthEnd-jawRear)*Math.sin(r/(rows-1)*Math.PI/2),section=mouthSection(z);
-      const width=r===rows-1?0:section.width*.985,top=section.y-neutralGap-jaw.position.y;
-      const rounding=Math.sqrt(width/.27),thickness=.043*rounding,inset=.006*rounding;
+      const width=r===rows-1?0:section.width*jawWidthScale(z),top=section.y-neutralGap-jaw.position.y;
+      const rounding=Math.sqrt(width/.27),thickness=.060*rounding,inset=.010*rounding;
       for(let j=0;j<columns;j++){
         let x,y;
         if(interior){const t=j/sides;x=(1-t*2)*width*.90;y=top-inset-Math.sin(t*Math.PI)*.012*rounding;}
@@ -257,21 +257,21 @@ export function createSerpent(THREE) {
   const cheekGeometry=ownGeometry(new THREE.BufferGeometry());cheekGeometry.setAttribute('position',new THREE.BufferAttribute(cheekPositions,3).setUsage(THREE.DynamicDrawUsage));cheekGeometry.setIndex(cheekIndices);
   const cheekMaterial=ownMaterial(new THREE.MeshStandardMaterial({color:0x72934d,roughness:.76,side:THREE.DoubleSide}));
   const cheekBridge=new THREE.Mesh(cheekGeometry,cheekMaterial);cheekBridge.name='Attached mouth corners';cheekBridge.frustumCulled=false;cheekBridge.castShadow=cheekBridge.receiveShadow=true;headPose.add(cheekBridge);
-  const jawCornerAnchors=[jawRear,-.08,.03].map(z=>({z:z-jawRear,...mouthSection(z)}));
+  const jawCornerAnchors=[jawRear,-.08,.03].map(z=>({z:z-jawRear,...mouthSection(z),jawScale:jawWidthScale(z)}));
   function updateJawCorners(angle){
     const cosine=Math.cos(angle),sine=Math.sin(angle);
     for(let side=0;side<2;side++)for(let j=0;j<3;j++){
       const sign=side?1:-1,anchor=jawCornerAnchors[j],z=anchor.z,y=anchor.y-neutralGap-jaw.position.y;
       let i=(side*6+j)*3;cheekPositions[i]=sign*anchor.width;cheekPositions[i+1]=anchor.y+.002;cheekPositions[i+2]=jaw.position.z+z;
-      i=(side*6+j+3)*3;cheekPositions[i]=sign*anchor.width*.985;cheekPositions[i+1]=jaw.position.y+y*cosine-z*sine;cheekPositions[i+2]=jaw.position.z+y*sine+z*cosine;
+      i=(side*6+j+3)*3;cheekPositions[i]=sign*anchor.width*anchor.jawScale;cheekPositions[i+1]=jaw.position.y+y*cosine-z*sine;cheekPositions[i+2]=jaw.position.z+y*sine+z*cosine;
     }
     cheekGeometry.attributes.position.needsUpdate=true;cheekGeometry.computeVertexNormals();
   }
   updateJawCorners(0);
-  // No independent smile tube: the narrow actual mouth opening supplies the line.
+  // The actual mouth opening supplies one lip contour; no separate cheek stroke
+  // ends above it and competes with the attached mouth corner.
   for(const sign of [-1,1]) {
     ellipsoid(headPose,darkJade,sign*0.116,0.081,0.415,0.018,0.012,0.010,'Recessed nostril');
-    curveTube(headPose,gold,[[sign*0.31,0.015,-0.19],[sign*0.308,0.0,-0.08],[sign*0.292,-0.012,0.07]],0.012,'Swept cheek marking');
   }
   const eyes = [], pupils = [], brows = [];
   for (const sign of [-1, 1]) {
@@ -387,9 +387,10 @@ export function createSerpent(THREE) {
       if (path.length === 1) {
         // Isolated portal fragments are capped, never connected to another path.
         const dx = options.direction?.x || 0, dz = options.direction?.z || 1;
-        writeRing(lastX, lastZ, -dx, -dz, 0.01, distance, 0.4, false);
-        writeRing(lastX - dx * 0.12, lastZ - dz * 0.12, -dx, -dz, isTail ? 0.20 : 0.30, distance + 0.12, 0.4, true);
-        writeRing(lastX - dx * 0.27, lastZ - dz * 0.27, -dx, -dz, 0.008, distance + 0.27, 0.4, true);
+        const fragmentY=p===0?0.42:0.4;
+        writeRing(lastX, lastZ, -dx, -dz, 0.01, distance, fragmentY, false);
+        writeRing(lastX - dx * 0.12, lastZ - dz * 0.12, -dx, -dz, p === 0 ? 0.012 : isTail ? 0.20 : 0.30, distance + 0.12, fragmentY, true);
+        writeRing(lastX - dx * 0.27, lastZ - dz * 0.27, -dx, -dz, 0.008, distance + 0.27, fragmentY, true);
         distance += 0.27;
         continue;
       }
@@ -404,11 +405,15 @@ export function createSerpent(THREE) {
           const tailRemaining = path.length - 1 - s - k / subdivisions;
           const taper = isTail ? smooth(0, Math.min(2.7, (path.length - 1) * 0.72), tailRemaining) : 1;
           let radius = 0.319 * (isTail ? 0.025 + 0.975 * Math.pow(taper, 0.63) : 1);
-          if (p === 0 && s === 0) radius *= 0.62 + 0.38 * smooth(0, 0.58, k / subdivisions);
+          // Hide the tube's open head-end inside the skull. A large first ring
+          // protrudes below the mouth as a pointed neck flap in three-quarter
+          // views. Recover full body girth before the skull's rear neck seam.
+          const neckBlend=p===0&&s===0?1-smooth(0.16,0.46,distance):0;
+          radius *= 1-0.986*neckBlend;
           // A subtle swallow travels down the neck without altering its path.
           radius *= 1 + eaten * 0.13 * Math.exp(-Math.pow(distance - 0.68, 2) * 3);
           const lift = reduced ? 0 : Math.sin(distance * 2.1 - time * 3) * 0.007 * Math.min(1, tailRemaining);
-          if (!writeRing(sample.x, sample.z, sample.dx, sample.dz, radius, distance, 0.4 + lift, connected)) break;
+          if (!writeRing(sample.x, sample.z, sample.dx, sample.dz, radius, distance, 0.4 + lift + neckBlend*0.02, connected)) break;
           connected = true;
         }
         if (truncated) break;

@@ -1,24 +1,24 @@
 {
-  "updatedAt": "2026-10-30T21:06:47Z",
-  "status": "Round 9 · shared mouth anatomy and isolated render profiling",
-  "detail": "The next character candidate derives the upper muzzle, rounded jaw and cheek joins from the same surface, removing the floating smile tube. Actual visual validation is pending. Full repository regression on round 8 passes 518 tests. A controlled isolated experiment now measures real renderer submission, GPU completion and presentation cost; the production pacing gate is unchanged.",
-  "latestImage": "/progress/evidence/round-8-overview.jpg",
-  "latestCaption": "Round 8 · actual 1920 × 1080 browser capture; software-rendered pacing remains below the required gate",
+  "updatedAt": "2026-10-30T21:25:10Z",
+  "status": "Round 10 candidate · stone finish and a connected mouth corner",
+  "detail": "The pale pointed cheek defect was traced to the open front of the body mesh protruding under the skull. The candidate buries that overlap, supports the jaw root and simplifies the lip contour. Existing stone surfaces gain worn slab variation and corrected side mapping. Actual visual acceptance is pending; corrected GPU-fence profiling will select the next speed change.",
+  "latestImage": "/progress/evidence/round-9-overview.jpg",
+  "latestCaption": "Round 9 · actual running-game capture from checkpoint bf4a523; visual and pacing gates remain open",
   "reviews": [
     {
       "area": "Character and motion",
-      "verdict": "LOSE against reference · improved over round 7",
-      "gap": "Independent actual-image and motion review confirms that the hanging oval is reduced, but the mouth line and pointed chin still read as attached parts. The face is being corrected at the existing lip surface. The comparison was nonblind; no blind win is claimed."
+      "verdict": "LOSE · anonymous A/B still comparison",
+      "gap": "A fresh critic chose the official reference over the current character. The largest remaining gap is a pale pointed shape at the jaw’s rear cheek/neck attachment. The front cap and floating smile tube were improved, but this local junction still looks assembled."
     },
     {
       "area": "World and composition",
-      "verdict": "LOSE · independent whole-game comparison",
-      "gap": "The game and surrounding garden are readable, but the official reference has more natural lighting, stronger environmental depth and richer material surfaces. Current changes do not establish a commercial-quality win."
+      "verdict": "Stone finish candidate · actual review pending",
+      "gap": "A fresh critic selected the dominant pale courtyard and rim as the largest scene gap. The candidate adds coherent slab variation, restrained edge wear and properly mapped masonry sides within the same meshes, materials and textures. Actual before/after review is pending."
     },
     {
       "area": "Whole experience",
-      "verdict": "518/518 repository tests · 11/12 focused browser checks",
-      "gap": "Exact published checkpoint 46ff9a8 passes all 518 Node tests. Isolated full-HD rendering records 4.837 FPS, six actual draws over 1240.5 ms and a 283.4 ms maximum gap. The unchanged 17 FPS / below-250 ms gate still fails."
+      "verdict": "518/518 repository tests · 12/13 focused browser checks",
+      "gap": "Checkpoint bf4a523 passes all 518 Node tests. The isolated browser run still fails full-HD pacing at 5.442 FPS with a 316.7 ms maximum gap. An independent reviewer found a GPU-completion assumption in the diagnostic that must be corrected; partial-scene measurements are not treated as a passing result."
     }
   ],
   "rounds": [
@@ -162,12 +162,26 @@
           "path": "/progress/evidence/round-8-overview.jpg"
         }
       ]
+    },
+    {
+      "title": "Round 9 · shared mouth surface and independent measurement review",
+      "summary": "Actual captures show the revised muzzle/jaw boundary. A fresh anonymous character comparison still favors the reference and pinpoints the rear mouth junction. Twelve of thirteen browser checks pass; pacing still fails. Independent technical review caught an invalid GPU-completion assumption, which is being corrected before interpreting totals.",
+      "captures": [
+        {
+          "label": "Actual character close-up",
+          "path": "/progress/evidence/round-9-character.jpg"
+        },
+        {
+          "label": "Actual overview",
+          "path": "/progress/evidence/round-9-overview.jpg"
+        }
+      ]
     }
   ],
   "checks": [
-    "Full repository Node regression on 46ff9a8: 518 passed, 0 failed/skipped/cancelled. Repository CI also passes its build, stream-host, authority, chaos and release-validation steps.",
-    "Isolated real-browser run 41126688384 on 46ff9a8: 11 passed, 1 failed. Cameras, portrait controls, fallback, lifecycle/reconnect, local assets, cache resizing and context loss pass.",
-    "Full-HD gate on 46ff9a8 remains failed: 4.837 FPS, 6 actual draws over 1240.5 ms, maximum gap 283.4 ms. Requirements remain at least 17 FPS and gaps below 250 ms.",
+    "Full repository Node regression on bf4a523: 518 passed, 0 failed/skipped/cancelled. Full repository browser stage: 24 passed, 1 failed, with the Snake pacing gate the sole failure.",
+    "Isolated real-browser run 41128720595 on bf4a523: 12 passed, 1 failed. Cameras, portrait controls, fallback, lifecycle/reconnect, local assets, cache resizing and context loss pass.",
+    "Full-HD gate on bf4a523 remains failed: 5.442 FPS, 7 actual submitted draws over 1286.4 ms, maximum gap 316.7 ms. Requirements remain at least 17 FPS and gaps below 250 ms.",
     "Display-cache visual regression on c953c64: all 614,400 pixels match the preceding cached fixture. The prior fine-edge antialiasing difference is unchanged.",
     "Matched cache frames show 74,935 → 11,498 steady-frame triangles. Initial-frame timings are not treated as a sustained speed claim.",
     "12 focused presentation/model checks and independent code-review corrections are retained.",
