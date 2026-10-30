@@ -6,7 +6,7 @@
   --color-danger: #e79b7e;
   --bg: var(--color-bg);
   --panel: #14251f;
-  --panel-strong: rgba(15, 29, 23, .96);
+  --panel-strong: #0f1d17;
   --text: #f1eedb;
   --muted: #a5b2a1;
   --accent: #dac17d;
@@ -62,14 +62,15 @@ h1 em { color: var(--accent); font-weight: 400; }
 .intent-block .eyebrow { display: flex; align-items: center; gap: 7px; }
 .intent-dot, .footer-dot, .live-label i { display: inline-block; width: 5px; height: 5px; border-radius: 50%; background: #b7cf8b; }
 #intent { color: #d3d8c6; font-size: 14px; line-height: 1.4; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
-.stage { z-index: 1; position: relative; min-height: 0; overflow: hidden; border: 1px solid var(--line); border-radius: 17px; background: #152c26; box-shadow: 0 12px 50px rgba(0, 0, 0, .16); }
+.stage { z-index: 1; position: relative; min-height: 0; overflow: hidden; border: 1px solid var(--line); border-radius: 17px; background: #152c26; }
 #game { width: 100%; height: 100%; display: block; }
 .world-label { position: absolute; top: 23px; left: 27px; display: flex; align-items: center; gap: 10px; color: #e4dfbb; font-size: 10px; font-weight: 650; letter-spacing: .18em; text-shadow: 0 1px 7px #10231c; pointer-events: none; }
 .world-ornament { color: #dfcc8e; font-size: 21px; line-height: .5; }
 .world-rule { width: 21px; height: 1px; background: #bac1a18c; margin: 0 3px; }
 .live-label { display: flex; align-items: center; gap: 6px; color: #c4cfb9; font-size: 8px; letter-spacing: .13em; }
 .live-label i { width: 4px; height: 4px; }
-.viewer-tools { position: absolute; right: 19px; top: 15px; display: flex; gap: 5px; padding: 4px; background: rgba(16, 34, 26, .7); border: 1px solid rgba(222, 223, 183, .16); border-radius: 10px; backdrop-filter: blur(12px); }
+/* Solid panels keep controls legible without filtering the animated canvas. */
+.viewer-tools { position: absolute; right: 19px; top: 15px; display: flex; gap: 5px; padding: 4px; background: #10221a; border: 1px solid rgba(222, 223, 183, .16); border-radius: 10px; }
 .viewer-tools button { display: flex; align-items: center; justify-content: center; gap: 7px; min-height: 34px; padding: 5px 11px; border: 0; border-radius: 6px; background: transparent; color: #eee9ce; font-size: 11px; cursor: pointer; white-space: nowrap; }
 .viewer-tools button svg { width: 18px; height: 18px; flex-shrink: 0; }
 .viewer-tools button:hover { background: rgba(238, 227, 183, .12); }
@@ -77,7 +78,7 @@ h1 em { color: var(--accent); font-weight: 400; }
 .stage-corner { position: absolute; width: 30px; height: 30px; pointer-events: none; opacity: .65; border-color: var(--accent); border-style: solid; }
 .corner-tl { top: 7px; left: 7px; border-width: 1px 0 0 1px; border-radius: 9px 0 0; }
 .corner-br { bottom: 7px; right: 7px; border-width: 0 1px 1px 0; border-radius: 0 0 9px; }
-.scene-card { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); display: none; flex-direction: column; align-items: center; gap: 16px; width: min(510px, 82%); padding: 33px 36px 26px; border: 1px solid rgba(222, 198, 130, .5); border-radius: 16px; background: var(--panel-strong); text-align: center; box-shadow: 0 20px 80px #08190fc9, inset 0 0 0 5px rgba(219, 205, 156, .035); backdrop-filter: blur(18px); }
+.scene-card { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); display: none; flex-direction: column; align-items: center; gap: 16px; width: min(510px, 82%); padding: 33px 36px 26px; border: 1px solid rgba(222, 198, 130, .5); border-radius: 16px; background: var(--panel-strong); text-align: center; box-shadow: inset 0 0 0 5px rgba(219, 205, 156, .035); }
 .scene-emblem { width: 37px; height: 37px; color: var(--accent); }
 .scene-card strong { font: 400 31px/1.16 Georgia, "Times New Roman", serif; color: var(--text); letter-spacing: -.02em; text-wrap: balance; }
 .scene-card > span:not(.scene-flourish) { max-width: 360px; color: #b6c2ac; font-size: 14px; line-height: 1.6; text-wrap: balance; }
@@ -87,7 +88,7 @@ h1 em { color: var(--accent); font-weight: 400; }
 #broadcast[data-scene="danger"] .stage { border-color: var(--danger); box-shadow: 0 0 0 2px rgba(231,155,126,.13); }
 #broadcast[data-scene="milestone"] .stage { border-color: var(--accent); }
 #broadcast[data-scene="recovery"] .scene-emblem { color: #bad0b0; }
-#broadcast[data-scene="result"] .scene-card { border-color: var(--accent); background: rgba(21, 40, 29, .97); }
+#broadcast[data-scene="result"] .scene-card { border-color: var(--accent); background: #15281d; }
 #broadcast[data-scene="emergency"] .scene-card { border-color: var(--danger); }
 .captions { display: flex; align-items: center; justify-content: center; min-width: 0; gap: 13px; padding: 8px 20px; color: #e2e4cd; font-size: 16px; line-height: 1.4; font-weight: 450; text-align: center; }
 .caption-icon { width: 20px; height: 20px; flex-shrink: 0; color: var(--accent); }

@@ -92,7 +92,7 @@ export function createSerpent(THREE) {
   const darkJade = ownMaterial(new THREE.MeshStandardMaterial({ color: 0x20573b, roughness: 0.47 }));
   const gold = ownMaterial(new THREE.MeshStandardMaterial({ color: 0xeac24e, roughness: 0.44, bumpMap: skin.bump, bumpScale: 0.006 }));
   const cream = ownMaterial(new THREE.MeshStandardMaterial({ color: 0xffe8a5, roughness: 0.47, bumpMap: skin.bump, bumpScale: 0.005 }));
-  const mouthMaterial = ownMaterial(new THREE.MeshStandardMaterial({ color: 0x493039, roughness: 0.65 }));
+  const mouthMaterial = ownMaterial(new THREE.MeshStandardMaterial({ color: 0x1d1119, roughness: 0.88 }));
   const tongueMaterial = ownMaterial(new THREE.MeshStandardMaterial({ color: 0xe56c83, roughness: 0.38 }));
   const white = ownMaterial(new THREE.MeshStandardMaterial({ color: 0xfff7d9, roughness: 0.24 }));
   const iris = ownMaterial(new THREE.MeshStandardMaterial({ color: 0xdb8b20, roughness: 0.28, metalness: 0.08 }));
@@ -203,9 +203,51 @@ export function createSerpent(THREE) {
   const skull = new THREE.Mesh(skullGeometry, skullMaterial);
   lodBindings.push([skull,skullGeometry,lowSkullGeometry]);
   skull.name='Continuous tapered skull and neck'; skull.castShadow=skull.receiveShadow=true; headPose.add(skull);
-  const jaw = new THREE.Group(); jaw.position.set(0,-0.133,-0.18); headPose.add(jaw);
-  const mouthCavity = ellipsoid(jaw,mouthMaterial,0,0.009,0.299,0.253,0.014,0.337,'Inset mouth cavity');
-  ellipsoid(jaw,cream,0,-0.021,0.305,0.263,0.060,0.345,'Unified cream lower jaw');
+  // The pivot sits at the rear mouth corners. A tapered lower-jaw shell and
+  // recessed palate share its profile, so the bite reads as anatomy, not an oval
+  // plate hanging below a closed muzzle.
+  const jaw = new THREE.Group();jaw.name='Attached lower jaw pivot';jaw.position.set(0,-0.105,-0.17);headPose.add(jaw);
+  const jawProfile=[[-.02,.20,.002],[.07,.235,.002],[.20,.25,0],[.34,.235,-.003],[.46,.185,-.007],[.56,.105,-.01],[.62,.003,-.012]];
+  function makeJawSurface(interior,sides){
+    const p=[],uv=[],ind=[],columns=interior?sides+1:sides+3;
+    for(let r=0;r<jawProfile.length;r++){
+      const [z,width,top]=jawProfile[r];
+      for(let j=0;j<columns;j++){
+        let x,y;
+        if(interior){const t=j/sides;x=(1-t*2)*width*.86;y=top-.009-Math.sin(t*Math.PI)*.014;}
+        else if(j===0){x=width*.86;y=top-.009;}
+        else if(j===columns-1){x=-width*.86;y=top-.009;}
+        else {const angle=(j-1)/sides*Math.PI;x=Math.cos(angle)*width;y=top-Math.sin(angle)*.047;}
+        p.push(x,y,z);uv.push(r/(jawProfile.length-1),j/(columns-1));
+        if(r>0&&j<columns-1){const c=r*columns+j,a=c-columns;
+          if(interior)ind.push(a,a+1,c,c,a+1,c+1);else ind.push(a,c,a+1,c,c+1,a+1);
+        }
+      }
+    }
+    const g=ownGeometry(new THREE.BufferGeometry());g.setAttribute('position',new THREE.Float32BufferAttribute(p,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));g.setIndex(ind);g.computeVertexNormals();return g;
+  }
+  for(const interior of [false,true]){
+    const high=makeJawSurface(interior,16),low=makeJawSurface(interior,8);
+    const mesh=new THREE.Mesh(high,interior?mouthMaterial:cream);mesh.name=interior?'Recessed oral interior':'Unified cream lower jaw';mesh.castShadow=mesh.receiveShadow=true;jaw.add(mesh);lodBindings.push([mesh,high,low]);
+  }
+  // One small flexible cheek mesh joins both upper corners to the jaw. Its top
+  // edge stays attached to the skull while the lower edge follows the pivot.
+  const cheekPositions=new Float32Array(36),cheekIndices=[];
+  for(let side=0;side<2;side++)for(let j=0;j<2;j++){const a=side*6+j;cheekIndices.push(a,a+3,a+1,a+1,a+3,a+4);}
+  const cheekGeometry=ownGeometry(new THREE.BufferGeometry());cheekGeometry.setAttribute('position',new THREE.BufferAttribute(cheekPositions,3).setUsage(THREE.DynamicDrawUsage));cheekGeometry.setIndex(cheekIndices);
+  const cheekMaterial=ownMaterial(new THREE.MeshStandardMaterial({color:0x72934d,roughness:.76,side:THREE.DoubleSide}));
+  const cheekBridge=new THREE.Mesh(cheekGeometry,cheekMaterial);cheekBridge.name='Attached mouth corners';cheekBridge.frustumCulled=false;cheekBridge.castShadow=cheekBridge.receiveShadow=true;headPose.add(cheekBridge);
+  const jawCornerAnchors=[[-.01,.20],[.07,.235],[.20,.25]];
+  function updateJawCorners(angle){
+    const cosine=Math.cos(angle),sine=Math.sin(angle);
+    for(let side=0;side<2;side++)for(let j=0;j<3;j++){
+      const sign=side?1:-1,[z,x]=jawCornerAnchors[j],y=.001;
+      let i=(side*6+j)*3;cheekPositions[i]=sign*(x+.012);cheekPositions[i+1]=-.087-j*.012;cheekPositions[i+2]=jaw.position.z+z;
+      i=(side*6+j+3)*3;cheekPositions[i]=sign*x;cheekPositions[i+1]=jaw.position.y+y*cosine-z*sine;cheekPositions[i+2]=jaw.position.z+y*sine+z*cosine;
+    }
+    cheekGeometry.attributes.position.needsUpdate=true;cheekGeometry.computeVertexNormals();
+  }
+  updateJawCorners(0);
   curveTube(headPose,mouthMaterial,[[-0.282,-0.09,-0.17],[-0.283,-0.11,0.02],[-0.25,-0.12,0.20],[-0.18,-0.119,0.36],[0,-0.105,0.476],[0.18,-0.119,0.36],[0.25,-0.12,0.20],[0.283,-0.11,0.02],[0.282,-0.09,-0.17]],0.006,'Long sculpted smile');
   // The mouth has one fine crease and one cream jaw, without stacked lip bands.
   for(const sign of [-1,1]) {
@@ -373,9 +415,9 @@ export function createSerpent(THREE) {
     head.rotation.y = heading;
     headPose.rotation.x = reduced ? 0 : -eaten * 0.11 + dangerEase * 0.025;
     headPose.rotation.z = reduced ? 0 : clamp(-angleDifference * 0.045, -0.06, 0.06);
-    jaw.rotation.x = reduced ? 0 : eaten * 0.29;
-    // Keep a slim neutral opening, restoring the prior cavity height for a bite.
-    mouthCavity.scale.y = 0.014 + (reduced ? 0 : eaten * 0.017);
+    // Keep a shallow six-degree bite until the full upper palate supports more.
+    jaw.rotation.x = reduced ? 0 : eaten * 0.105;
+    updateJawCorners(jaw.rotation.x);
     headPose.scale.set(1 + eaten * 0.035, 1 + eaten * 0.025, 1);
     const blinkPhase = ((time + 1.73) % 4.7);
     const blink = reduced ? 1 : 1 - 0.94 * Math.exp(-Math.pow((blinkPhase - 4.4) / 0.075, 2));

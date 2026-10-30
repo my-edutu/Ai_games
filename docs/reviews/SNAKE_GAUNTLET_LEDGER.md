@@ -72,3 +72,11 @@ Commit `c953c64d21059fe6eb2dc9f7cb094655ddaba48e`, [isolated run 41121933969](ht
 Independent actual-image review finds the new and preceding cached PNGs byte-for-byte identical, including all 614,400 decoded pixels. The prior fine static-edge difference against direct rendering persists without a new color/quantization regression. Exact report and desktop metrics are retained in this review directory.
 
 The next candidate follows the character critic: keep the large eyes, blend their outer support into the lid green, remove redundant gold mouth rims and slim the neutral cavity while retaining the eating pose. A lower detail camera preserves the tested facial size while opening the upper frame to scenery. Water now uses one original procedural flowing texture instead of the visible analytic plaid pattern. A measured rendering-budget response replaces the fixed slow-device resolution reduction. These changes require new actual captures; no win is claimed.
+
+## Round 7 diagnosis and round 8 candidate
+
+Actual round-seven images and a 28.72-second browser recording show better context and eye integration but a detached-looking eating jaw. The independent critic retained a LOSE verdict. The next bounded character change uses a connected tapered lower jaw, recessed palate, flexible cheek joins and a maximum opening of 0.105 radians. It adds one small draw call; model/expression/resource checks pass, but actual appearance is pending.
+
+Pacing remains below target: the first combined run records 7.619 FPS, and a repeat records 5.604 FPS. The same frozen real frame at fixed DPR 0.4 produces 9.3589 FPS with dynamic shadow reception versus 9.3580 FPS without it, ruling out shadow filtering as the primary cost in that pair. The unchanged gate remains failed.
+
+A bounded local full-app A/B/A comparison then removed CSS filters and box shadows while retaining rounded clipping and identical geometry. Cadence was 3.248 → 5.419 → 2.393 FPS under shared host load. Every condition submitted real draws, retained its active cache and returned GL error zero. This supports a relative compositing-cost correction, not a 17 FPS pass. The next candidate replaces blur/translucent overlays with opaque green panels and removes blurred stage shadows; layout, clipping, borders and focus behavior are preserved. Exact local data and parser verification are retained.

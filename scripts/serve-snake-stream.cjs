@@ -145,6 +145,7 @@ function contentType(file) {
   if (file.endsWith('.jpg')) return 'image/jpeg';
   if (file.endsWith('.png')) return 'image/png';
   if (file.endsWith('.webm')) return 'video/webm';
+  if (file.endsWith('.mp4')) return 'video/mp4';
   return 'application/octet-stream';
 }
 
@@ -226,7 +227,7 @@ function serve() {
       '/vendor/three.core.js': 'three.core.js',
     }[requestUrl.pathname];
     if (vendor) { sendFile(response, path.join(ROOT, 'node_modules', 'three', 'build', vendor)); return; }
-    const evidence = /^\/progress\/evidence\/([a-z0-9-]+\.(?:jpg|png|webm))$/.exec(requestUrl.pathname);
+    const evidence = /^\/progress\/evidence\/([a-z0-9-]+\.(?:jpg|png|webm|mp4))$/.exec(requestUrl.pathname);
     if (evidence) { sendFile(response, path.join(PUBLIC_ROOT, 'progress', 'evidence', evidence[1])); return; }
 
     const fileByRoute = {

@@ -168,6 +168,9 @@ test('progress page and local renderer dependencies are available with safe MIME
   expect(progress.ok()).toBeTruthy();
   expect(await progress.text()).toContain('Gauntlet');
   expect((await request.get('/vendor/package.json')).status()).toBe(404);
+  const motionClip = await request.get('/progress/evidence/round-7-motion.mp4');
+  expect(motionClip.ok()).toBeTruthy();
+  expect(motionClip.headers()['content-type']).toContain('video/mp4');
   await page.setViewportSize({ width: 1440, height: 1100 });
   await page.goto('/progress');
   await expect(page.locator('#status-title')).not.toHaveText('Loading progress');

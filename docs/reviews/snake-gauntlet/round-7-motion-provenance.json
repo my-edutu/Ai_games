@@ -1,0 +1,11 @@
+{
+  "sourceCommit": "f3be8b70f6efc5d5ca5870423a62e922a9d15925",
+  "sourceRun": "https://github.com/my-edutu/Ai_games/actions/runs/41123922104",
+  "sourceArtifact": 13009876544,
+  "sourceFile": "artifacts/phase3/character-motion.webm",
+  "sourceDurationSeconds": 28.72,
+  "excerptStartSeconds": 14,
+  "excerptDurationSeconds": 12,
+  "transcode": "H264,768x576,20fps,CRF25; original timeline, no speedup or generated frames",
+  "note": "Real browser recording. Source run fails the frame-pacing gate; the video is evidence of current motion, not a smoothness claim."
+}

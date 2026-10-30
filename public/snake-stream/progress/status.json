@@ -1,24 +1,24 @@
 {
-  "updatedAt": "2026-10-30T20:30:00Z",
-  "status": "Round 6 \u00b7 face, scene context and measured rendering budget",
-  "detail": "The display-color cache is visually unchanged in the matched scene. Isolated browser checks remain 11/12; measured full-HD speed is 5.24 FPS. The next candidate simplifies the face, lowers the close camera, softens the water pattern and adapts resolution to measured device speed.",
-  "latestImage": "/progress/evidence/round-5-overview.jpg",
-  "latestCaption": "Round 5 \u00b7 cached 3D scene from a frozen real public replay frame, captured in isolated CI",
+  "updatedAt": "2026-10-30T20:51:00Z",
+  "status": "Round 8 \u00b7 attached jaw and cheaper interface compositing",
+  "detail": "Independent review found a detached-looking eating jaw. The next candidate connects the jaw at the cheeks and recesses its interior. A controlled local comparison also isolated expensive interface blur/shadows; solid readable panels now replace them. Actual next-candidate browser validation is pending.",
+  "latestImage": "/progress/evidence/round-7-overview.jpg",
+  "latestCaption": "Round 7 \u00b7 actual full-HD browser capture with measured adaptive resolution; real 3D scenery and gameplay",
   "reviews": [
     {
       "area": "Character and motion",
-      "verdict": "LOSE \u00b7 independent round 5 review",
-      "gap": "The reference still wins facial integration and expression. A simpler mouth, blended eye supports and a lower close camera are implemented for the next actual capture; motion recording is included in the next browser run."
+      "verdict": "LOSE \u00b7 round 7 review; correction ready",
+      "gap": "Camera context and eye integration improved, but the eating mouth read as a separate plate. The jaw now has connected cheek surfaces, recessed interior and a supported shallow gape; new actual capture is pending."
     },
     {
       "area": "World and composition",
-      "verdict": "Display cache visually unchanged",
-      "gap": "Independent review finds the new and previous cached screenshots byte-for-byte identical. The known fine-edge difference versus direct rendering remains. Organic water replaces the plaid pattern in the next candidate; its visual result is pending."
+      "verdict": "Organic water and scene context captured",
+      "gap": "The repeating water grid is replaced by restrained flowing detail and distance fog. The close camera now includes surrounding plants, portals and ruins. Environment craft still requires independent comparison."
     },
     {
       "area": "Whole experience",
       "verdict": "11/12 checks pass \u00b7 speed still fails",
-      "gap": "Full-HD software rendering measures 5.24 FPS with a 266.6 ms maximum gap. Responsive controls, lifecycle, fallback and cache checks pass. Measured resolution adaptation is the next performance correction."
+      "gap": "The first combined run records 7.619 FPS at DPR 0.469; a repeat records 5.604 FPS. Fixed 0.4-scale diagnostics with/without dynamic shadow reception both record 9.358 FPS. The pacing failure persists and shadow filtering is not the main cost."
     }
   ],
   "rounds": [
@@ -122,6 +122,32 @@
       "title": "Round 6 \u00b7 verified cache color and targeted visual corrections",
       "summary": "The display-color bake is pixel-identical to the preceding cache in the matched fixture, but full-HD speed remains 5.24 FPS. The next candidate keeps the large eyes while simplifying mouth layers, lowers the character camera, replaces plaid water and uses measured resolution adaptation. New actual captures and motion review are pending.",
       "captures": []
+    },
+    {
+      "title": "Round 7 \u00b7 the character in its garden",
+      "summary": "Actual captures show the lower camera, simplified facial outlines and organic water. A real 28.72-second motion recording exposes neutral, turning and eating states. Functional checks remain 11/12; pacing remains below 17 FPS and is being diagnosed further.",
+      "captures": [
+        {
+          "label": "Character and eating pose",
+          "path": "/progress/evidence/round-7-character.jpg"
+        },
+        {
+          "label": "Full-HD overview",
+          "path": "/progress/evidence/round-7-overview.jpg"
+        },
+        {
+          "label": "Portrait",
+          "path": "/progress/evidence/round-7-portrait.jpg"
+        },
+        {
+          "label": "Live progress page",
+          "path": "/progress/evidence/round-7-progress.jpg"
+        },
+        {
+          "label": "Actual gameplay motion \u00b7 12-second excerpt",
+          "path": "/progress/evidence/round-7-motion.mp4"
+        }
+      ]
     }
   ],
   "checks": [
