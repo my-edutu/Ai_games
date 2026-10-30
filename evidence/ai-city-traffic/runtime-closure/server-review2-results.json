@@ -1,0 +1,454 @@
+{
+  "capturedAt": "2026-10-30T21:26:18.014Z",
+  "reviewer": "runtime_closure_review",
+  "source": "scripts/serve-city-traffic.cjs",
+  "sourceSha256": "a6e2292541f25c5ae40802b1eaed14b155a94b1d956c3792390994188d7784fc",
+  "node": "v24.22.1",
+  "scope": "Isolated HTTP asset readiness; no rendering",
+  "cases": [
+    {
+      "name": "original two-file partial build",
+      "expectedBuildReady": false,
+      "actualBuildReady": false,
+      "productionReady": false,
+      "healthStatus": 200,
+      "route": "/traffic/main.mjs",
+      "asset": {
+        "status": 404,
+        "length": 9
+      },
+      "pass": true
+    },
+    {
+      "name": "all eleven nonempty required files",
+      "expectedBuildReady": true,
+      "actualBuildReady": true,
+      "productionReady": false,
+      "healthStatus": 200,
+      "pass": true
+    },
+    {
+      "name": "missing public/ai-city-traffic/index.html",
+      "expectedBuildReady": false,
+      "actualBuildReady": false,
+      "productionReady": false,
+      "healthStatus": 200,
+      "route": "/traffic/",
+      "asset": {
+        "status": 404,
+        "length": 9
+      },
+      "pass": true
+    },
+    {
+      "name": "missing public/ai-city-traffic/styles.css",
+      "expectedBuildReady": false,
+      "actualBuildReady": false,
+      "productionReady": false,
+      "healthStatus": 200,
+      "route": "/traffic/styles.css",
+      "asset": {
+        "status": 404,
+        "length": 9
+      },
+      "pass": true
+    },
+    {
+      "name": "missing public/ai-city-traffic/main.mjs",
+      "expectedBuildReady": false,
+      "actualBuildReady": false,
+      "productionReady": false,
+      "healthStatus": 200,
+      "route": "/traffic/main.mjs",
+      "asset": {
+        "status": 404,
+        "length": 9
+      },
+      "pass": true
+    },
+    {
+      "name": "missing public/ai-city-traffic/world.mjs",
+      "expectedBuildReady": false,
+      "actualBuildReady": false,
+      "productionReady": false,
+      "healthStatus": 200,
+      "route": "/traffic/world.mjs",
+      "asset": {
+        "status": 404,
+        "length": 9
+      },
+      "pass": true
+    },
+    {
+      "name": "missing public/ai-city-traffic/world-assets.mjs",
+      "expectedBuildReady": false,
+      "actualBuildReady": false,
+      "productionReady": false,
+      "healthStatus": 200,
+      "route": "/traffic/world-assets.mjs",
+      "asset": {
+        "status": 404,
+        "length": 9
+      },
+      "pass": true
+    },
+    {
+      "name": "missing public/ai-city-traffic/audio.mjs",
+      "expectedBuildReady": false,
+      "actualBuildReady": false,
+      "productionReady": false,
+      "healthStatus": 200,
+      "route": "/traffic/audio.mjs",
+      "asset": {
+        "status": 404,
+        "length": 9
+      },
+      "pass": true
+    },
+    {
+      "name": "missing dist/city-traffic-browser/simulation.js",
+      "expectedBuildReady": false,
+      "actualBuildReady": false,
+      "productionReady": false,
+      "healthStatus": 200,
+      "route": "/traffic/runtime/simulation.js",
+      "asset": {
+        "status": 404,
+        "length": 9
+      },
+      "pass": true
+    },
+    {
+      "name": "missing dist/city-traffic-browser/traffic-network.js",
+      "expectedBuildReady": false,
+      "actualBuildReady": false,
+      "productionReady": false,
+      "healthStatus": 200,
+      "route": "/traffic/runtime/traffic-network.js",
+      "asset": {
+        "status": 404,
+        "length": 9
+      },
+      "pass": true
+    },
+    {
+      "name": "missing node_modules/three/build/three.module.js",
+      "expectedBuildReady": false,
+      "actualBuildReady": false,
+      "productionReady": false,
+      "healthStatus": 200,
+      "route": "/traffic/vendor/three.module.js",
+      "asset": {
+        "status": 404,
+        "length": 9
+      },
+      "pass": true
+    },
+    {
+      "name": "missing node_modules/three/build/three.core.js",
+      "expectedBuildReady": false,
+      "actualBuildReady": false,
+      "productionReady": false,
+      "healthStatus": 200,
+      "route": "/traffic/vendor/three.core.js",
+      "asset": {
+        "status": 404,
+        "length": 9
+      },
+      "pass": true
+    },
+    {
+      "name": "missing node_modules/three/examples/jsm/controls/OrbitControls.js",
+      "expectedBuildReady": false,
+      "actualBuildReady": false,
+      "productionReady": false,
+      "healthStatus": 200,
+      "route": "/traffic/vendor/addons/controls/OrbitControls.js",
+      "asset": {
+        "status": 404,
+        "length": 9
+      },
+      "pass": true
+    },
+    {
+      "name": "empty public/ai-city-traffic/index.html",
+      "expectedBuildReady": false,
+      "actualBuildReady": false,
+      "productionReady": false,
+      "healthStatus": 200,
+      "route": "/traffic/",
+      "asset": {
+        "status": 200,
+        "length": 0
+      },
+      "pass": true
+    },
+    {
+      "name": "empty public/ai-city-traffic/styles.css",
+      "expectedBuildReady": false,
+      "actualBuildReady": false,
+      "productionReady": false,
+      "healthStatus": 200,
+      "route": "/traffic/styles.css",
+      "asset": {
+        "status": 200,
+        "length": 0
+      },
+      "pass": true
+    },
+    {
+      "name": "empty public/ai-city-traffic/main.mjs",
+      "expectedBuildReady": false,
+      "actualBuildReady": false,
+      "productionReady": false,
+      "healthStatus": 200,
+      "route": "/traffic/main.mjs",
+      "asset": {
+        "status": 200,
+        "length": 0
+      },
+      "pass": true
+    },
+    {
+      "name": "empty public/ai-city-traffic/world.mjs",
+      "expectedBuildReady": false,
+      "actualBuildReady": false,
+      "productionReady": false,
+      "healthStatus": 200,
+      "route": "/traffic/world.mjs",
+      "asset": {
+        "status": 200,
+        "length": 0
+      },
+      "pass": true
+    },
+    {
+      "name": "empty public/ai-city-traffic/world-assets.mjs",
+      "expectedBuildReady": false,
+      "actualBuildReady": false,
+      "productionReady": false,
+      "healthStatus": 200,
+      "route": "/traffic/world-assets.mjs",
+      "asset": {
+        "status": 200,
+        "length": 0
+      },
+      "pass": true
+    },
+    {
+      "name": "empty public/ai-city-traffic/audio.mjs",
+      "expectedBuildReady": false,
+      "actualBuildReady": false,
+      "productionReady": false,
+      "healthStatus": 200,
+      "route": "/traffic/audio.mjs",
+      "asset": {
+        "status": 200,
+        "length": 0
+      },
+      "pass": true
+    },
+    {
+      "name": "empty dist/city-traffic-browser/simulation.js",
+      "expectedBuildReady": false,
+      "actualBuildReady": false,
+      "productionReady": false,
+      "healthStatus": 200,
+      "route": "/traffic/runtime/simulation.js",
+      "asset": {
+        "status": 200,
+        "length": 0
+      },
+      "pass": true
+    },
+    {
+      "name": "empty dist/city-traffic-browser/traffic-network.js",
+      "expectedBuildReady": false,
+      "actualBuildReady": false,
+      "productionReady": false,
+      "healthStatus": 200,
+      "route": "/traffic/runtime/traffic-network.js",
+      "asset": {
+        "status": 200,
+        "length": 0
+      },
+      "pass": true
+    },
+    {
+      "name": "empty node_modules/three/build/three.module.js",
+      "expectedBuildReady": false,
+      "actualBuildReady": false,
+      "productionReady": false,
+      "healthStatus": 200,
+      "route": "/traffic/vendor/three.module.js",
+      "asset": {
+        "status": 200,
+        "length": 0
+      },
+      "pass": true
+    },
+    {
+      "name": "empty node_modules/three/build/three.core.js",
+      "expectedBuildReady": false,
+      "actualBuildReady": false,
+      "productionReady": false,
+      "healthStatus": 200,
+      "route": "/traffic/vendor/three.core.js",
+      "asset": {
+        "status": 200,
+        "length": 0
+      },
+      "pass": true
+    },
+    {
+      "name": "empty node_modules/three/examples/jsm/controls/OrbitControls.js",
+      "expectedBuildReady": false,
+      "actualBuildReady": false,
+      "productionReady": false,
+      "healthStatus": 200,
+      "route": "/traffic/vendor/addons/controls/OrbitControls.js",
+      "asset": {
+        "status": 200,
+        "length": 0
+      },
+      "pass": true
+    },
+    {
+      "name": "required path is a directory",
+      "expectedBuildReady": false,
+      "actualBuildReady": false,
+      "productionReady": false,
+      "healthStatus": 200,
+      "route": "/traffic/main.mjs",
+      "asset": {
+        "status": 404,
+        "length": 9
+      },
+      "pass": true
+    },
+    {
+      "name": "required symlink escapes allowed root",
+      "expectedBuildReady": false,
+      "actualBuildReady": false,
+      "productionReady": false,
+      "healthStatus": 200,
+      "route": "/traffic/main.mjs",
+      "asset": {
+        "status": 403,
+        "length": 9
+      },
+      "pass": true
+    },
+    {
+      "name": "required file exceeds serving size limit",
+      "expectedBuildReady": false,
+      "actualBuildReady": false,
+      "productionReady": false,
+      "healthStatus": 200,
+      "route": "/traffic/main.mjs",
+      "asset": {
+        "status": 404,
+        "length": 9
+      },
+      "pass": true
+    },
+    {
+      "name": "required file is not readable by the server uid",
+      "expectedBuildReady": false,
+      "actualBuildReady": false,
+      "productionReady": false,
+      "healthStatus": 200,
+      "route": "/traffic/main.mjs",
+      "asset": {
+        "status": 500,
+        "length": 17
+      },
+      "pass": true
+    },
+    {
+      "name": "recovered complete fixture",
+      "expectedBuildReady": true,
+      "actualBuildReady": true,
+      "productionReady": false,
+      "healthStatus": 200,
+      "route": "/traffic/main.mjs",
+      "asset": {
+        "status": 200,
+        "length": 20
+      },
+      "pass": true
+    }
+  ],
+  "fixtureUid": 65534,
+  "completeBuildAssets": [
+    {
+      "route": "/traffic/",
+      "file": "public/ai-city-traffic/index.html",
+      "status": 200,
+      "length": 20
+    },
+    {
+      "route": "/traffic/styles.css",
+      "file": "public/ai-city-traffic/styles.css",
+      "status": 200,
+      "length": 20
+    },
+    {
+      "route": "/traffic/main.mjs",
+      "file": "public/ai-city-traffic/main.mjs",
+      "status": 200,
+      "length": 20
+    },
+    {
+      "route": "/traffic/world.mjs",
+      "file": "public/ai-city-traffic/world.mjs",
+      "status": 200,
+      "length": 20
+    },
+    {
+      "route": "/traffic/world-assets.mjs",
+      "file": "public/ai-city-traffic/world-assets.mjs",
+      "status": 200,
+      "length": 20
+    },
+    {
+      "route": "/traffic/audio.mjs",
+      "file": "public/ai-city-traffic/audio.mjs",
+      "status": 200,
+      "length": 20
+    },
+    {
+      "route": "/traffic/runtime/simulation.js",
+      "file": "dist/city-traffic-browser/simulation.js",
+      "status": 200,
+      "length": 20
+    },
+    {
+      "route": "/traffic/runtime/traffic-network.js",
+      "file": "dist/city-traffic-browser/traffic-network.js",
+      "status": 200,
+      "length": 20
+    },
+    {
+      "route": "/traffic/vendor/three.module.js",
+      "file": "node_modules/three/build/three.module.js",
+      "status": 200,
+      "length": 20
+    },
+    {
+      "route": "/traffic/vendor/three.core.js",
+      "file": "node_modules/three/build/three.core.js",
+      "status": 200,
+      "length": 20
+    },
+    {
+      "route": "/traffic/vendor/addons/controls/OrbitControls.js",
+      "file": "node_modules/three/examples/jsm/controls/OrbitControls.js",
+      "status": 200,
+      "length": 20
+    }
+  ],
+  "fixtureStderr": "[city-traffic] Asset unavailable { code: 'EACCES' }\n",
+  "sourceStable": true,
+  "allExpectedOutcomes": true
+}

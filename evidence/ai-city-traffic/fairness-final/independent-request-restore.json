@@ -1,0 +1,291 @@
+{
+  "buildDirectory": "/workspace/scratch/f951d9074684/traffic-fairness-final-compiled",
+  "malformed": [
+    {
+      "name": "missing_edge_entered_tick",
+      "expectedCode": "INVALID_STATE",
+      "accepted": false,
+      "code": "INVALID_STATE",
+      "error": "Invalid traffic state: numeric range",
+      "atomic": true
+    },
+    {
+      "name": "missing_request_tick",
+      "expectedCode": "INVALID_STATE",
+      "accepted": false,
+      "code": "INVALID_STATE",
+      "error": "Invalid traffic state: numeric range",
+      "atomic": true
+    },
+    {
+      "name": "negative_edge_entered_tick",
+      "expectedCode": "INVALID_STATE",
+      "accepted": false,
+      "code": "INVALID_STATE",
+      "error": "Invalid traffic state: numeric range",
+      "atomic": true
+    },
+    {
+      "name": "future_edge_entered_tick",
+      "expectedCode": "INVALID_STATE",
+      "accepted": false,
+      "code": "INVALID_STATE",
+      "error": "Invalid traffic state: numeric range",
+      "atomic": true
+    },
+    {
+      "name": "fractional_edge_entered_tick",
+      "expectedCode": "INVALID_STATE",
+      "accepted": false,
+      "code": "INVALID_STATE",
+      "error": "Invalid traffic state: numeric range",
+      "atomic": true
+    },
+    {
+      "name": "nonnumeric_edge_entered_tick",
+      "expectedCode": "INVALID_STATE",
+      "accepted": false,
+      "code": "INVALID_STATE",
+      "error": "Invalid traffic state: numeric range",
+      "atomic": true
+    },
+    {
+      "name": "future_request_tick",
+      "expectedCode": "INVALID_STATE",
+      "accepted": false,
+      "code": "INVALID_STATE",
+      "error": "Invalid traffic state: numeric range",
+      "atomic": true
+    },
+    {
+      "name": "negative_request_tick",
+      "expectedCode": "INVALID_STATE",
+      "accepted": false,
+      "code": "INVALID_STATE",
+      "error": "Invalid traffic state: numeric range",
+      "atomic": true
+    },
+    {
+      "name": "fractional_request_tick",
+      "expectedCode": "INVALID_STATE",
+      "accepted": false,
+      "code": "INVALID_STATE",
+      "error": "Invalid traffic state: numeric range",
+      "atomic": true
+    },
+    {
+      "name": "nonnumeric_request_tick",
+      "expectedCode": "INVALID_STATE",
+      "accepted": false,
+      "code": "INVALID_STATE",
+      "error": "Invalid traffic state: numeric range",
+      "atomic": true
+    },
+    {
+      "name": "request_predates_current_edge",
+      "expectedCode": "INVALID_STATE",
+      "accepted": false,
+      "code": "INVALID_STATE",
+      "error": "Invalid traffic state: numeric range",
+      "atomic": true
+    },
+    {
+      "name": "edge_entered_after_request",
+      "expectedCode": "INVALID_STATE",
+      "accepted": false,
+      "code": "INVALID_STATE",
+      "error": "Invalid traffic state: numeric range",
+      "atomic": true
+    },
+    {
+      "name": "pending_approach_has_no_age",
+      "expectedCode": "INVALID_STATE",
+      "accepted": false,
+      "code": "INVALID_STATE",
+      "error": "Invalid traffic state: missing pedestrian request age",
+      "atomic": true
+    },
+    {
+      "name": "unrelated_walking_edge_has_request",
+      "expectedCode": "INVALID_STATE",
+      "accepted": false,
+      "code": "INVALID_STATE",
+      "error": "Invalid traffic state: pedestrian request is unrelated to its approach",
+      "atomic": true
+    },
+    {
+      "name": "connector_has_previous_approach_request",
+      "expectedCode": "INVALID_STATE",
+      "accepted": false,
+      "code": "INVALID_STATE",
+      "error": "Invalid traffic state: pedestrian request is unrelated to its approach",
+      "atomic": true
+    },
+    {
+      "name": "old_pre_fairness_config_is_incompatible",
+      "expectedCode": "VERSION_MISMATCH",
+      "accepted": false,
+      "code": "VERSION_MISMATCH",
+      "error": "Traffic snapshot version or configuration is incompatible",
+      "atomic": true
+    }
+  ],
+  "genuine": [
+    {
+      "name": "initial_null_ages_are_valid",
+      "tick": 0,
+      "accepted": true,
+      "equalAtRestore": true,
+      "continuationTicks": 180,
+      "equalAfterContinuation": true
+    },
+    {
+      "name": "connector_enters_new_approach_with_reset_age",
+      "tick": 71,
+      "accepted": true,
+      "equalAtRestore": true,
+      "continuationTicks": 180,
+      "id": 9,
+      "edgeEnteredTick": 71,
+      "equalAfterContinuation": true
+    },
+    {
+      "name": "persisted_near_curb_request",
+      "tick": 121,
+      "accepted": true,
+      "equalAtRestore": true,
+      "continuationTicks": 180,
+      "id": 24,
+      "requestTick": 121,
+      "equalAfterContinuation": true
+    },
+    {
+      "name": "competing_distinct_persistent_request_ages",
+      "tick": 146,
+      "accepted": true,
+      "equalAtRestore": true,
+      "continuationTicks": 180,
+      "id": 12,
+      "requestTick": 146,
+      "corner": 2,
+      "equalAfterContinuation": true
+    },
+    {
+      "name": "in_road_request_and_landing",
+      "tick": 270,
+      "accepted": true,
+      "equalAtRestore": true,
+      "continuationTicks": 180,
+      "id": 18,
+      "requestTick": 269,
+      "equalAfterContinuation": true
+    },
+    {
+      "name": "safely_released_far_refuge_keeps_age",
+      "tick": 4184,
+      "accepted": true,
+      "equalAtRestore": true,
+      "continuationTicks": 180,
+      "id": 40,
+      "requestTick": 3883,
+      "corner": 30,
+      "equalAfterContinuation": true
+    }
+  ],
+  "fixtures": {
+    "waiting": {
+      "color": 6261670,
+      "cornerFrom": null,
+      "cornerProgress": 0,
+      "desiredSpeed": 1.569004,
+      "edge": 1,
+      "edgeEnteredTick": 203,
+      "id": 3,
+      "nextRoute": [
+        17,
+        20,
+        7,
+        4,
+        5
+      ],
+      "position": 1.4,
+      "requestTick": 230,
+      "route": [
+        47,
+        42,
+        43,
+        40,
+        37,
+        22,
+        23,
+        18,
+        17
+      ],
+      "speed": 0,
+      "waiting": true,
+      "walkPhase": 1.7502037547771006
+    },
+    "walking": {
+      "color": 14252137,
+      "cornerFrom": null,
+      "cornerProgress": 0,
+      "desiredSpeed": 1.489949,
+      "edge": 1,
+      "edgeEnteredTick": 180,
+      "id": 1,
+      "nextRoute": [
+        30,
+        29,
+        28,
+        25
+      ],
+      "position": 19.915665,
+      "requestTick": null,
+      "route": [
+        38,
+        53,
+        38,
+        43,
+        42,
+        41,
+        44,
+        45,
+        30
+      ],
+      "speed": 1.489949,
+      "waiting": false,
+      "walkPhase": 4.711686709674904
+    },
+    "connecting": {
+      "color": 6261670,
+      "cornerFrom": 7,
+      "cornerProgress": 0,
+      "desiredSpeed": 1.470355,
+      "edge": 2,
+      "edgeEnteredTick": 600,
+      "id": 18,
+      "nextRoute": [
+        27,
+        26,
+        31,
+        30
+      ],
+      "position": 0,
+      "requestTick": null,
+      "route": [
+        20,
+        7,
+        6,
+        21,
+        22,
+        27
+      ],
+      "speed": 0.7812,
+      "waiting": false,
+      "walkPhase": 4.960552734160162
+    },
+    "tick": 600
+  },
+  "scannedTicks": 4364,
+  "pass": true
+}

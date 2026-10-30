@@ -1,0 +1,90 @@
+{
+  "valid": {
+    "version": "city-traffic-1",
+    "seed": 11026,
+    "ticks": 900,
+    "simulatedSeconds": 30,
+    "demand": 1,
+    "matching": true,
+    "metrics": {
+      "active": 49,
+      "waiting": 40,
+      "pending": 0,
+      "queued": 40,
+      "completed": 1,
+      "generated": 50,
+      "rejected": 0,
+      "meanSpeed": 0.7006495918367346,
+      "meanWait": 14.297278911564632,
+      "flow": 2,
+      "meanTripTime": 12.666666666666666,
+      "pedestrianCompleted": 1,
+      "pedestrianCrossings": 10,
+      "turns": 15,
+      "reroutes": 0,
+      "maxWait": 25.833333333333332
+    },
+    "vehicles": 49,
+    "pedestrians": 48,
+    "signals": 16,
+    "productionReady": false
+  },
+  "invalidArguments": [
+    {
+      "args": [
+        "--ticks=-1"
+      ],
+      "exitCode": 1,
+      "rejected": true
+    },
+    {
+      "args": [
+        "--ticks=1.5"
+      ],
+      "exitCode": 1,
+      "rejected": true
+    },
+    {
+      "args": [
+        "--ticks=1080001"
+      ],
+      "exitCode": 1,
+      "rejected": true
+    },
+    {
+      "args": [
+        "--seed=-1"
+      ],
+      "exitCode": 1,
+      "rejected": true
+    },
+    {
+      "args": [
+        "--seed=4294967296"
+      ],
+      "exitCode": 1,
+      "rejected": true
+    },
+    {
+      "args": [
+        "--seed=NaN"
+      ],
+      "exitCode": 1,
+      "rejected": true
+    },
+    {
+      "args": [
+        "--demand=0"
+      ],
+      "exitCode": 1,
+      "rejected": true
+    },
+    {
+      "args": [
+        "--demand=2.1"
+      ],
+      "exitCode": 1,
+      "rejected": true
+    }
+  ]
+}

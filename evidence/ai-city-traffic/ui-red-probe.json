@@ -1,0 +1,169 @@
+{
+  "date": "2026-10-30T20:40:38.713Z",
+  "toast": "Simulation running at 2× speed.",
+  "paused": true,
+  "legendVisibleWithPanel": false,
+  "escapeClosedFromSlider": false,
+  "bounds": [
+    {
+      "id": "reset-view",
+      "width": 35,
+      "height": 51,
+      "x": 338,
+      "y": 226,
+      "visible": true
+    },
+    {
+      "id": "overlay-toggle",
+      "width": 36,
+      "height": 36,
+      "x": 16,
+      "y": 232,
+      "visible": true
+    },
+    {
+      "id": "night-toggle",
+      "width": 36,
+      "height": 36,
+      "x": 59,
+      "y": 232,
+      "visible": true
+    },
+    {
+      "id": "sound-toggle",
+      "width": 36,
+      "height": 36,
+      "x": 102,
+      "y": 232,
+      "visible": true
+    },
+    {
+      "id": "help-open",
+      "width": 36,
+      "height": 36,
+      "x": 145,
+      "y": 232,
+      "visible": true
+    },
+    {
+      "id": "next-vehicle",
+      "width": 0,
+      "height": 0,
+      "x": 0,
+      "y": 0,
+      "visible": false
+    },
+    {
+      "id": "experiment-close",
+      "width": 23,
+      "height": 23,
+      "x": 342,
+      "y": 318.3125,
+      "visible": true
+    },
+    {
+      "id": "demand-range",
+      "width": 326,
+      "height": 20,
+      "x": 32,
+      "y": 420.5,
+      "visible": true
+    },
+    {
+      "id": "rush-toggle",
+      "width": 326,
+      "height": 36,
+      "x": 32,
+      "y": 463.5,
+      "visible": true
+    },
+    {
+      "id": "Adaptive",
+      "width": 157.5,
+      "height": 31,
+      "x": 36,
+      "y": 559.5,
+      "visible": true
+    },
+    {
+      "id": "Fixed cycle",
+      "width": 157.5,
+      "height": 31,
+      "x": 196.5,
+      "y": 559.5,
+      "visible": true
+    },
+    {
+      "id": "roadworks-toggle",
+      "width": 326,
+      "height": 48,
+      "x": 32,
+      "y": 609.5,
+      "visible": true
+    },
+    {
+      "id": "Aerial",
+      "width": 113.328125,
+      "height": 36,
+      "x": 21,
+      "y": 736,
+      "visible": true
+    },
+    {
+      "id": "Street",
+      "width": 113.328125,
+      "height": 36,
+      "x": 138.328125,
+      "y": 736,
+      "visible": true
+    },
+    {
+      "id": "Follow",
+      "width": 113.328125,
+      "height": 36,
+      "x": 255.65625,
+      "y": 736,
+      "visible": true
+    },
+    {
+      "id": "pause-toggle",
+      "width": 34,
+      "height": 34,
+      "x": 24,
+      "y": 787,
+      "visible": true
+    },
+    {
+      "id": "1×",
+      "width": 30,
+      "height": 32,
+      "x": 64,
+      "y": 788,
+      "visible": true
+    },
+    {
+      "id": "2×",
+      "width": 30,
+      "height": 32,
+      "x": 95,
+      "y": 788,
+      "visible": true
+    },
+    {
+      "id": "4×",
+      "width": 30,
+      "height": 32,
+      "x": 126,
+      "y": 788,
+      "visible": true
+    },
+    {
+      "id": "experiment-toggle",
+      "width": 112.15625,
+      "height": 34,
+      "x": 256.84375,
+      "y": 787,
+      "visible": true
+    }
+  ]
+}

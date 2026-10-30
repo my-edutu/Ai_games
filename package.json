@@ -54,7 +54,12 @@
     "tower:stream": "npm run build && node scripts/serve-tower-stream.cjs",
     "tower:stream:self-test": "npm run build && node scripts/serve-tower-stream.cjs --self-test",
     "tower:phase5:chaos": "npm run build && node scripts/run-tower-phase5-chaos.cjs",
-    "tower:phase6:validate": "npm run build && node scripts/run-tower-phase6-validation.cjs"
+    "tower:phase6:validate": "npm run build && node scripts/run-tower-phase6-validation.cjs",
+    "traffic:build": "npm run build && tsc -p tsconfig.city-traffic-browser.json",
+    "traffic:stream": "npm run traffic:build && node scripts/serve-city-traffic.cjs",
+    "traffic:headless": "npm run build && node scripts/run-city-traffic-headless.cjs",
+    "test:traffic": "npm run traffic:build && node --test tests/foundation/city-traffic*.test.cjs",
+    "test:traffic:browser": "npm run traffic:build && playwright test --config playwright.city-traffic.config.cjs"
   },
   "dependencies": { "three": "0.186.0" },
   "devDependencies": { "@playwright/test": "1.55.0", "typescript": "5.8.3" }

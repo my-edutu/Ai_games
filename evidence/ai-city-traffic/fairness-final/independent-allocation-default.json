@@ -1,0 +1,3777 @@
+{
+  "scenario": "default",
+  "options": {
+    "seed": 2026
+  },
+  "buildDirectory": "/workspace/scratch/f951d9074684/traffic-fairness-final-compiled",
+  "ticks": 27000,
+  "method": "Read-only runtime observer wraps moveCitizens and records every non-null corner-owner write, including same-tick release/regrant; independent eligibility oracle reads actual pre-movement geometry and post-signal-update state. A second uninstrumented production run must serialize identically each minute.",
+  "grants": 1130,
+  "contestedGrants": 120,
+  "sameTickReleaseAndGrants": 0,
+  "contestedSameTickReleaseAndGrants": 0,
+  "olderHigherIdWins": 59,
+  "tieClearanceWins": 0,
+  "releasesWithPendingAge": 7,
+  "preservedAgesAcrossTicks": 912191,
+  "preservedAgesAcrossRelease": 7,
+  "newApproaches": 1117,
+  "olderEligibleBypasses": [],
+  "wrongTieBreaks": [],
+  "invalidGrants": [],
+  "unexpectedAgeChanges": [],
+  "examples": {
+    "olderHigherId": [
+      {
+        "tick": 929,
+        "corner": 18,
+        "served": {
+          "id": 34,
+          "since": 786,
+          "entered": 179,
+          "from": 23,
+          "to": 18,
+          "position": 29,
+          "cornerFrom": null,
+          "next": 33
+        },
+        "eligible": [
+          {
+            "id": 34,
+            "since": 786,
+            "entered": 179,
+            "from": 23,
+            "to": 18,
+            "position": 29,
+            "cornerFrom": null,
+            "next": 33
+          },
+          {
+            "id": 6,
+            "since": 911,
+            "entered": 256,
+            "from": 33,
+            "to": 18,
+            "position": 29,
+            "cornerFrom": null,
+            "next": 17
+          }
+        ],
+        "previousOwner": null
+      },
+      {
+        "tick": 1740,
+        "corner": 19,
+        "served": {
+          "id": 48,
+          "since": 1143,
+          "entered": 1114,
+          "from": 18,
+          "to": 19,
+          "position": 1.4,
+          "cornerFrom": null,
+          "next": 16
+        },
+        "eligible": [
+          {
+            "id": 48,
+            "since": 1143,
+            "entered": 1114,
+            "from": 18,
+            "to": 19,
+            "position": 1.4,
+            "cornerFrom": null,
+            "next": 16
+          },
+          {
+            "id": 12,
+            "since": 1730,
+            "entered": 1701,
+            "from": 16,
+            "to": 19,
+            "position": 1.4,
+            "cornerFrom": null,
+            "next": 16
+          }
+        ],
+        "previousOwner": null
+      },
+      {
+        "tick": 1824,
+        "corner": 33,
+        "served": {
+          "id": 47,
+          "since": 326,
+          "entered": 294,
+          "from": 34,
+          "to": 33,
+          "position": 1.4,
+          "cornerFrom": null,
+          "next": 18
+        },
+        "eligible": [
+          {
+            "id": 47,
+            "since": 326,
+            "entered": 294,
+            "from": 34,
+            "to": 33,
+            "position": 1.4,
+            "cornerFrom": null,
+            "next": 18
+          },
+          {
+            "id": 35,
+            "since": 696,
+            "entered": 651,
+            "from": 32,
+            "to": 33,
+            "position": 1.4,
+            "cornerFrom": null,
+            "next": 18
+          }
+        ],
+        "previousOwner": null
+      },
+      {
+        "tick": 1850,
+        "corner": 24,
+        "served": {
+          "id": 37,
+          "since": 823,
+          "entered": 795,
+          "from": 25,
+          "to": 24,
+          "position": 1.4,
+          "cornerFrom": null,
+          "next": 27
+        },
+        "eligible": [
+          {
+            "id": 37,
+            "since": 823,
+            "entered": 795,
+            "from": 25,
+            "to": 24,
+            "position": 1.4,
+            "cornerFrom": null,
+            "next": 27
+          },
+          {
+            "id": 30,
+            "since": 847,
+            "entered": 807,
+            "from": 27,
+            "to": 24,
+            "position": 1.4,
+            "cornerFrom": null,
+            "next": 25
+          }
+        ],
+        "previousOwner": null
+      },
+      {
+        "tick": 2910,
+        "corner": 15,
+        "served": {
+          "id": 45,
+          "since": 836,
+          "entered": 783,
+          "from": 14,
+          "to": 15,
+          "position": 1.4,
+          "cornerFrom": null,
+          "next": 28
+        },
+        "eligible": [
+          {
+            "id": 45,
+            "since": 836,
+            "entered": 783,
+            "from": 14,
+            "to": 15,
+            "position": 1.4,
+            "cornerFrom": null,
+            "next": 28
+          },
+          {
+            "id": 36,
+            "since": 1709,
+            "entered": 1663,
+            "from": 12,
+            "to": 15,
+            "position": 1.4,
+            "cornerFrom": null,
+            "next": 28
+          }
+        ],
+        "previousOwner": null
+      },
+      {
+        "tick": 2963,
+        "corner": 33,
+        "served": {
+          "id": 35,
+          "since": 696,
+          "entered": 651,
+          "from": 32,
+          "to": 33,
+          "position": 1.4,
+          "cornerFrom": null,
+          "next": 18
+        },
+        "eligible": [
+          {
+            "id": 35,
+            "since": 696,
+            "entered": 651,
+            "from": 32,
+            "to": 33,
+            "position": 1.4,
+            "cornerFrom": null,
+            "next": 18
+          },
+          {
+            "id": 19,
+            "since": 2219,
+            "entered": 2169,
+            "from": 34,
+            "to": 33,
+            "position": 1.4,
+            "cornerFrom": null,
+            "next": 32
+          }
+        ],
+        "previousOwner": null
+      },
+      {
+        "tick": 2995,
+        "corner": 24,
+        "served": {
+          "id": 30,
+          "since": 847,
+          "entered": 807,
+          "from": 27,
+          "to": 24,
+          "position": 1.4,
+          "cornerFrom": null,
+          "next": 25
+        },
+        "eligible": [
+          {
+            "id": 30,
+            "since": 847,
+            "entered": 807,
+            "from": 27,
+            "to": 24,
+            "position": 1.4,
+            "cornerFrom": null,
+            "next": 25
+          },
+          {
+            "id": 2,
+            "since": 2644,
+            "entered": 2610,
+            "from": 25,
+            "to": 24,
+            "position": 1.4,
+            "cornerFrom": null,
+            "next": 21
+          }
+        ],
+        "previousOwner": null
+      },
+      {
+        "tick": 3038,
+        "corner": 6,
+        "served": {
+          "id": 24,
+          "since": 1642,
+          "entered": 1615,
+          "from": 7,
+          "to": 6,
+          "position": 1.4,
+          "cornerFrom": null,
+          "next": 21
+        },
+        "eligible": [
+          {
+            "id": 24,
+            "since": 1642,
+            "entered": 1615,
+            "from": 7,
+            "to": 6,
+            "position": 1.4,
+            "cornerFrom": null,
+            "next": 21
+          },
+          {
+            "id": 23,
+            "since": 2836,
+            "entered": 2791,
+            "from": 5,
+            "to": 6,
+            "position": 1.4,
+            "cornerFrom": null,
+            "next": 21
+          }
+        ],
+        "previousOwner": null
+      },
+      {
+        "tick": 3197,
+        "corner": 56,
+        "served": {
+          "id": 13,
+          "since": 2219,
+          "entered": 2179,
+          "from": 57,
+          "to": 56,
+          "position": 1.4,
+          "cornerFrom": null,
+          "next": 53
+        },
+        "eligible": [
+          {
+            "id": 13,
+            "since": 2219,
+            "entered": 2179,
+            "from": 57,
+            "to": 56,
+            "position": 1.4,
+            "cornerFrom": null,
+            "next": 53
+          },
+          {
+            "id": 7,
+            "since": 2488,
+            "entered": 2444,
+            "from": 59,
+            "to": 56,
+            "position": 1.4,
+            "cornerFrom": null,
+            "next": 57
+          }
+        ],
+        "previousOwner": null
+      },
+      {
+        "tick": 3342,
+        "corner": 27,
+        "served": {
+          "id": 39,
+          "since": 1571,
+          "entered": 980,
+          "from": 40,
+          "to": 27,
+          "position": 29,
+          "cornerFrom": null,
+          "next": 24
+        },
+        "eligible": [
+          {
+            "id": 39,
+            "since": 1571,
+            "entered": 980,
+            "from": 40,
+            "to": 27,
+            "position": 29,
+            "cornerFrom": null,
+            "next": 24
+          },
+          {
+            "id": 18,
+            "since": 2339,
+            "entered": 1735,
+            "from": 22,
+            "to": 27,
+            "position": 29,
+            "cornerFrom": null,
+            "next": 26
+          }
+        ],
+        "previousOwner": null
+      },
+      {
+        "tick": 3908,
+        "corner": 22,
+        "served": {
+          "id": 21,
+          "since": 2622,
+          "entered": 2593,
+          "from": 21,
+          "to": 22,
+          "position": 1.4,
+          "cornerFrom": null,
+          "next": 37
+        },
+        "eligible": [
+          {
+            "id": 21,
+            "since": 2622,
+            "entered": 2593,
+            "from": 21,
+            "to": 22,
+            "position": 1.4,
+            "cornerFrom": null,
+            "next": 37
+          },
+          {
+            "id": 17,
+            "since": 3184,
+            "entered": 3150,
+            "from": 23,
+            "to": 22,
+            "position": 1.4,
+            "cornerFrom": null,
+            "next": 27
+          }
+        ],
+        "previousOwner": null
+      },
+      {
+        "tick": 4122,
+        "corner": 40,
+        "served": {
+          "id": 41,
+          "since": 3360,
+          "entered": 3312,
+          "from": 43,
+          "to": 40,
+          "position": 1.4,
+          "cornerFrom": null,
+          "next": 27
+        },
+        "eligible": [
+          {
+            "id": 41,
+            "since": 3360,
+            "entered": 3312,
+            "from": 43,
+            "to": 40,
+            "position": 1.4,
+            "cornerFrom": null,
+            "next": 27
+          },
+          {
+            "id": 27,
+            "since": 3399,
+            "entered": 3365,
+            "from": 41,
+            "to": 40,
+            "position": 1.4,
+            "cornerFrom": null,
+            "next": 43
+          }
+        ],
+        "previousOwner": null
+      },
+      {
+        "tick": 4351,
+        "corner": 6,
+        "served": {
+          "id": 23,
+          "since": 2836,
+          "entered": 2791,
+          "from": 5,
+          "to": 6,
+          "position": 1.4,
+          "cornerFrom": null,
+          "next": 21
+        },
+        "eligible": [
+          {
+            "id": 23,
+            "since": 2836,
+            "entered": 2791,
+            "from": 5,
+            "to": 6,
+            "position": 1.4,
+            "cornerFrom": null,
+            "next": 21
+          },
+          {
+            "id": 4,
+            "since": 3830,
+            "entered": 3785,
+            "from": 7,
+            "to": 6,
+            "position": 1.4,
+            "cornerFrom": null,
+            "next": 21
+          }
+        ],
+        "previousOwner": null
+      },
+      {
+        "tick": 5767,
+        "corner": 33,
+        "served": {
+          "id": 31,
+          "since": 3049,
+          "entered": 3010,
+          "from": 32,
+          "to": 33,
+          "position": 1.4,
+          "cornerFrom": null,
+          "next": 36
+        },
+        "eligible": [
+          {
+            "id": 31,
+            "since": 3049,
+            "entered": 3010,
+            "from": 32,
+            "to": 33,
+            "position": 1.4,
+            "cornerFrom": null,
+            "next": 36
+          },
+          {
+            "id": 25,
+            "since": 4453,
+            "entered": 4419,
+            "from": 34,
+            "to": 33,
+            "position": 1.4,
+            "cornerFrom": null,
+            "next": 36
+          }
+        ],
+        "previousOwner": null
+      },
+      {
+        "tick": 5767,
+        "corner": 32,
+        "served": {
+          "id": 34,
+          "since": 4735,
+          "entered": 4693,
+          "from": 35,
+          "to": 32,
+          "position": 1.4,
+          "cornerFrom": null,
+          "next": 33
+        },
+        "eligible": [
+          {
+            "id": 34,
+            "since": 4735,
+            "entered": 4693,
+            "from": 35,
+            "to": 32,
+            "position": 1.4,
+            "cornerFrom": null,
+            "next": 33
+          },
+          {
+            "id": 19,
+            "since": 4754,
+            "entered": 4710,
+            "from": 33,
+            "to": 32,
+            "position": 1.4,
+            "cornerFrom": null,
+            "next": 19
+          }
+        ],
+        "previousOwner": null
+      },
+      {
+        "tick": 6126,
+        "corner": 31,
+        "served": {
+          "id": 45,
+          "since": 4272,
+          "entered": 4240,
+          "from": 28,
+          "to": 31,
+          "position": 1.4,
+          "cornerFrom": null,
+          "next": 30
+        },
+        "eligible": [
+          {
+            "id": 45,
+            "since": 4272,
+            "entered": 4240,
+            "from": 28,
+            "to": 31,
+            "position": 1.4,
+            "cornerFrom": null,
+            "next": 30
+          },
+          {
+            "id": 40,
+            "since": 5424,
+            "entered": 5382,
+            "from": 30,
+            "to": 31,
+            "position": 1.4,
+            "cornerFrom": null,
+            "next": 44
+          }
+        ],
+        "previousOwner": null
+      },
+      {
+        "tick": 6201,
+        "corner": 20,
+        "served": {
+          "id": 35,
+          "since": 5143,
+          "entered": 5098,
+          "from": 23,
+          "to": 20,
+          "position": 1.4,
+          "cornerFrom": null,
+          "next": 17
+        },
+        "eligible": [
+          {
+            "id": 35,
+            "since": 5143,
+            "entered": 5098,
+            "from": 23,
+            "to": 20,
+            "position": 1.4,
+            "cornerFrom": null,
+            "next": 17
+          },
+          {
+            "id": 2,
+            "since": 5233,
+            "entered": 5199,
+            "from": 21,
+            "to": 20,
+            "position": 1.4,
+            "cornerFrom": null,
+            "next": 21
+          }
+        ],
+        "previousOwner": null
+      },
+      {
+        "tick": 7246,
+        "corner": 31,
+        "served": {
+          "id": 40,
+          "since": 5424,
+          "entered": 5382,
+          "from": 30,
+          "to": 31,
+          "position": 1.4,
+          "cornerFrom": null,
+          "next": 44
+        },
+        "eligible": [
+          {
+            "id": 40,
+            "since": 5424,
+            "entered": 5382,
+            "from": 30,
+            "to": 31,
+            "position": 1.4,
+            "cornerFrom": null,
+            "next": 44
+          },
+          {
+            "id": 29,
+            "since": 6488,
+            "entered": 6447,
+            "from": 28,
+            "to": 31,
+            "position": 1.4,
+            "cornerFrom": null,
+            "next": 26
+          }
+        ],
+        "previousOwner": null
+      },
+      {
+        "tick": 7341,
+        "corner": 22,
+        "served": {
+          "id": 48,
+          "since": 6353,
+          "entered": 6324,
+          "from": 23,
+          "to": 22,
+          "position": 1.4,
+          "cornerFrom": null,
+          "next": 37
+        },
+        "eligible": [
+          {
+            "id": 48,
+            "since": 6353,
+            "entered": 6324,
+            "from": 23,
+            "to": 22,
+            "position": 1.4,
+            "cornerFrom": null,
+            "next": 37
+          },
+          {
+            "id": 4,
+            "since": 6860,
+            "entered": 6829,
+            "from": 21,
+            "to": 22,
+            "position": 1.4,
+            "cornerFrom": null,
+            "next": 37
+          }
+        ],
+        "previousOwner": null
+      },
+      {
+        "tick": 8327,
+        "corner": 33,
+        "served": {
+          "id": 34,
+          "since": 6137,
+          "entered": 6095,
+          "from": 32,
+          "to": 33,
+          "position": 1.4,
+          "cornerFrom": null,
+          "next": 18
+        },
+        "eligible": [
+          {
+            "id": 34,
+            "since": 6137,
+            "entered": 6095,
+            "from": 32,
+            "to": 33,
+            "position": 1.4,
+            "cornerFrom": null,
+            "next": 18
+          },
+          {
+            "id": 13,
+            "since": 7108,
+            "entered": 7068,
+            "from": 34,
+            "to": 33,
+            "position": 1.4,
+            "cornerFrom": null,
+            "next": 34
+          }
+        ],
+        "previousOwner": null
+      }
+    ],
+    "releaseAndGrant": [],
+    "tieClearance": [],
+    "trackedCitizens": [
+      {
+        "tick": 86,
+        "corner": 40,
+        "served": {
+          "id": 20,
+          "since": 85,
+          "entered": 0,
+          "from": 37,
+          "to": 40,
+          "position": 28.97095,
+          "cornerFrom": null,
+          "next": 37
+        },
+        "eligible": [
+          {
+            "id": 20,
+            "since": 85,
+            "entered": 0,
+            "from": 37,
+            "to": 40,
+            "position": 28.97095,
+            "cornerFrom": null,
+            "next": 37
+          }
+        ],
+        "previousOwner": null
+      },
+      {
+        "tick": 134,
+        "corner": 43,
+        "served": {
+          "id": 44,
+          "since": 101,
+          "entered": 0,
+          "from": 38,
+          "to": 43,
+          "position": 29,
+          "cornerFrom": null,
+          "next": 40
+        },
+        "eligible": [
+          {
+            "id": 44,
+            "since": 101,
+            "entered": 0,
+            "from": 38,
+            "to": 43,
+            "position": 29,
+            "cornerFrom": null,
+            "next": 40
+          }
+        ],
+        "previousOwner": null
+      },
+      {
+        "tick": 356,
+        "corner": 19,
+        "served": {
+          "id": 31,
+          "since": 355,
+          "entered": 0,
+          "from": 32,
+          "to": 19,
+          "position": 28.999229,
+          "cornerFrom": null,
+          "next": 32
+        },
+        "eligible": [
+          {
+            "id": 31,
+            "since": 355,
+            "entered": 0,
+            "from": 32,
+            "to": 19,
+            "position": 28.999229,
+            "cornerFrom": null,
+            "next": 32
+          }
+        ],
+        "previousOwner": null
+      },
+      {
+        "tick": 620,
+        "corner": 40,
+        "served": {
+          "id": 44,
+          "since": 197,
+          "entered": 159,
+          "from": 43,
+          "to": 40,
+          "position": 1.4,
+          "cornerFrom": null,
+          "next": 41
+        },
+        "eligible": [
+          {
+            "id": 44,
+            "since": 197,
+            "entered": 159,
+            "from": 43,
+            "to": 40,
+            "position": 1.4,
+            "cornerFrom": null,
+            "next": 41
+          }
+        ],
+        "previousOwner": null
+      },
+      {
+        "tick": 692,
+        "corner": 37,
+        "served": {
+          "id": 20,
+          "since": 691,
+          "entered": 113,
+          "from": 40,
+          "to": 37,
+          "position": 28.962579,
+          "cornerFrom": null,
+          "next": 36
+        },
+        "eligible": [
+          {
+            "id": 20,
+            "since": 691,
+            "entered": 113,
+            "from": 40,
+            "to": 37,
+            "position": 28.962579,
+            "cornerFrom": null,
+            "next": 36
+          }
+        ],
+        "previousOwner": null
+      },
+      {
+        "tick": 1797,
+        "corner": 41,
+        "served": {
+          "id": 44,
+          "since": 952,
+          "entered": 914,
+          "from": 40,
+          "to": 41,
+          "position": 1.4,
+          "cornerFrom": null,
+          "next": 26
+        },
+        "eligible": [
+          {
+            "id": 44,
+            "since": 952,
+            "entered": 914,
+            "from": 40,
+            "to": 41,
+            "position": 1.4,
+            "cornerFrom": null,
+            "next": 26
+          }
+        ],
+        "previousOwner": null
+      },
+      {
+        "tick": 2506,
+        "corner": 36,
+        "served": {
+          "id": 20,
+          "since": 747,
+          "entered": 719,
+          "from": 37,
+          "to": 36,
+          "position": 1.4,
+          "cornerFrom": null,
+          "next": 39
+        },
+        "eligible": [
+          {
+            "id": 20,
+            "since": 747,
+            "entered": 719,
+            "from": 37,
+            "to": 36,
+            "position": 1.4,
+            "cornerFrom": null,
+            "next": 39
+          }
+        ],
+        "previousOwner": null
+      },
+      {
+        "tick": 2632,
+        "corner": 26,
+        "served": {
+          "id": 44,
+          "since": 2631,
+          "entered": 2091,
+          "from": 41,
+          "to": 26,
+          "position": 28.998288,
+          "cornerFrom": null,
+          "next": 25
+        },
+        "eligible": [
+          {
+            "id": 44,
+            "since": 2631,
+            "entered": 2091,
+            "from": 41,
+            "to": 26,
+            "position": 28.998288,
+            "cornerFrom": null,
+            "next": 25
+          }
+        ],
+        "previousOwner": null
+      },
+      {
+        "tick": 2984,
+        "corner": 32,
+        "served": {
+          "id": 31,
+          "since": 939,
+          "entered": 382,
+          "from": 19,
+          "to": 32,
+          "position": 29,
+          "cornerFrom": null,
+          "next": 33
+        },
+        "eligible": [
+          {
+            "id": 31,
+            "since": 939,
+            "entered": 382,
+            "from": 19,
+            "to": 32,
+            "position": 29,
+            "cornerFrom": null,
+            "next": 33
+          }
+        ],
+        "previousOwner": null
+      },
+      {
+        "tick": 2995,
+        "corner": 25,
+        "served": {
+          "id": 44,
+          "since": 2683,
+          "entered": 2657,
+          "from": 26,
+          "to": 25,
+          "position": 1.4,
+          "cornerFrom": null,
+          "next": 10
+        },
+        "eligible": [
+          {
+            "id": 44,
+            "since": 2683,
+            "entered": 2657,
+            "from": 26,
+            "to": 25,
+            "position": 1.4,
+            "cornerFrom": null,
+            "next": 10
+          }
+        ],
+        "previousOwner": null
+      },
+      {
+        "tick": 3651,
+        "corner": 39,
+        "served": {
+          "id": 20,
+          "since": 2860,
+          "entered": 2819,
+          "from": 36,
+          "to": 39,
+          "position": 1.4,
+          "cornerFrom": null,
+          "next": 52
+        },
+        "eligible": [
+          {
+            "id": 20,
+            "since": 2860,
+            "entered": 2819,
+            "from": 36,
+            "to": 39,
+            "position": 1.4,
+            "cornerFrom": null,
+            "next": 52
+          }
+        ],
+        "previousOwner": null
+      },
+      {
+        "tick": 3818,
+        "corner": 10,
+        "served": {
+          "id": 44,
+          "since": 3817,
+          "entered": 3289,
+          "from": 25,
+          "to": 10,
+          "position": 28.998288,
+          "cornerFrom": null,
+          "next": 9
+        },
+        "eligible": [
+          {
+            "id": 44,
+            "since": 3817,
+            "entered": 3289,
+            "from": 25,
+            "to": 10,
+            "position": 28.998288,
+            "cornerFrom": null,
+            "next": 9
+          }
+        ],
+        "previousOwner": null
+      },
+      {
+        "tick": 3971,
+        "corner": 9,
+        "served": {
+          "id": 44,
+          "since": 3869,
+          "entered": 3843,
+          "from": 10,
+          "to": 9,
+          "position": 1.4,
+          "cornerFrom": null,
+          "next": 12
+        },
+        "eligible": [
+          {
+            "id": 44,
+            "since": 3869,
+            "entered": 3843,
+            "from": 10,
+            "to": 9,
+            "position": 1.4,
+            "cornerFrom": null,
+            "next": 12
+          }
+        ],
+        "previousOwner": null
+      },
+      {
+        "tick": 4525,
+        "corner": 52,
+        "served": {
+          "id": 20,
+          "since": 4524,
+          "entered": 3964,
+          "from": 39,
+          "to": 52,
+          "position": 28.962579,
+          "cornerFrom": null,
+          "next": 49
+        },
+        "eligible": [
+          {
+            "id": 20,
+            "since": 4524,
+            "entered": 3964,
+            "from": 39,
+            "to": 52,
+            "position": 28.962579,
+            "cornerFrom": null,
+            "next": 49
+          }
+        ],
+        "previousOwner": null
+      },
+      {
+        "tick": 4806,
+        "corner": 12,
+        "served": {
+          "id": 44,
+          "since": 4805,
+          "entered": 4265,
+          "from": 9,
+          "to": 12,
+          "position": 28.998288,
+          "cornerFrom": null,
+          "next": 13
+        },
+        "eligible": [
+          {
+            "id": 44,
+            "since": 4805,
+            "entered": 4265,
+            "from": 9,
+            "to": 12,
+            "position": 28.998288,
+            "cornerFrom": null,
+            "next": 13
+          }
+        ],
+        "previousOwner": null
+      },
+      {
+        "tick": 5126,
+        "corner": 49,
+        "served": {
+          "id": 20,
+          "since": 5125,
+          "entered": 4552,
+          "from": 52,
+          "to": 49,
+          "position": 28.962579,
+          "cornerFrom": null,
+          "next": 34
+        },
+        "eligible": [
+          {
+            "id": 20,
+            "since": 5125,
+            "entered": 4552,
+            "from": 52,
+            "to": 49,
+            "position": 28.962579,
+            "cornerFrom": null,
+            "next": 34
+          }
+        ],
+        "previousOwner": null
+      },
+      {
+        "tick": 5727,
+        "corner": 34,
+        "served": {
+          "id": 20,
+          "since": 5726,
+          "entered": 5153,
+          "from": 49,
+          "to": 34,
+          "position": 28.962579,
+          "cornerFrom": null,
+          "next": 39
+        },
+        "eligible": [
+          {
+            "id": 20,
+            "since": 5726,
+            "entered": 5153,
+            "from": 49,
+            "to": 34,
+            "position": 28.962579,
+            "cornerFrom": null,
+            "next": 39
+          }
+        ],
+        "previousOwner": null
+      },
+      {
+        "tick": 5767,
+        "corner": 33,
+        "served": {
+          "id": 31,
+          "since": 3049,
+          "entered": 3010,
+          "from": 32,
+          "to": 33,
+          "position": 1.4,
+          "cornerFrom": null,
+          "next": 36
+        },
+        "eligible": [
+          {
+            "id": 31,
+            "since": 3049,
+            "entered": 3010,
+            "from": 32,
+            "to": 33,
+            "position": 1.4,
+            "cornerFrom": null,
+            "next": 36
+          },
+          {
+            "id": 25,
+            "since": 4453,
+            "entered": 4419,
+            "from": 34,
+            "to": 33,
+            "position": 1.4,
+            "cornerFrom": null,
+            "next": 36
+          }
+        ],
+        "previousOwner": null
+      },
+      {
+        "tick": 6022,
+        "corner": 13,
+        "served": {
+          "id": 44,
+          "since": 4857,
+          "entered": 4831,
+          "from": 12,
+          "to": 13,
+          "position": 1.4,
+          "cornerFrom": null,
+          "next": 14
+        },
+        "eligible": [
+          {
+            "id": 44,
+            "since": 4857,
+            "entered": 4831,
+            "from": 12,
+            "to": 13,
+            "position": 1.4,
+            "cornerFrom": null,
+            "next": 14
+          }
+        ],
+        "previousOwner": null
+      },
+      {
+        "tick": 6403,
+        "corner": 39,
+        "served": {
+          "id": 20,
+          "since": 6327,
+          "entered": 5754,
+          "from": 34,
+          "to": 39,
+          "position": 29,
+          "cornerFrom": null,
+          "next": 38
+        },
+        "eligible": [
+          {
+            "id": 20,
+            "since": 6327,
+            "entered": 5754,
+            "from": 34,
+            "to": 39,
+            "position": 29,
+            "cornerFrom": null,
+            "next": 38
+          }
+        ],
+        "previousOwner": null
+      },
+      {
+        "tick": 6609,
+        "corner": 36,
+        "served": {
+          "id": 31,
+          "since": 6608,
+          "entered": 6068,
+          "from": 33,
+          "to": 36,
+          "position": 28.97856,
+          "cornerFrom": null,
+          "next": 39
+        },
+        "eligible": [
+          {
+            "id": 31,
+            "since": 6608,
+            "entered": 6068,
+            "from": 33,
+            "to": 36,
+            "position": 28.97856,
+            "cornerFrom": null,
+            "next": 39
+          }
+        ],
+        "previousOwner": null
+      },
+      {
+        "tick": 7247,
+        "corner": 38,
+        "served": {
+          "id": 20,
+          "since": 6458,
+          "entered": 6430,
+          "from": 39,
+          "to": 38,
+          "position": 1.4,
+          "cornerFrom": null,
+          "next": 37
+        },
+        "eligible": [
+          {
+            "id": 20,
+            "since": 6458,
+            "entered": 6430,
+            "from": 39,
+            "to": 38,
+            "position": 1.4,
+            "cornerFrom": null,
+            "next": 37
+          }
+        ],
+        "previousOwner": null
+      },
+      {
+        "tick": 7247,
+        "corner": 39,
+        "served": {
+          "id": 31,
+          "since": 6674,
+          "entered": 6635,
+          "from": 36,
+          "to": 39,
+          "position": 1.4,
+          "cornerFrom": null,
+          "next": 38
+        },
+        "eligible": [
+          {
+            "id": 31,
+            "since": 6674,
+            "entered": 6635,
+            "from": 36,
+            "to": 39,
+            "position": 1.4,
+            "cornerFrom": null,
+            "next": 38
+          }
+        ],
+        "previousOwner": null
+      },
+      {
+        "tick": 7477,
+        "corner": 14,
+        "served": {
+          "id": 44,
+          "since": 6354,
+          "entered": 6316,
+          "from": 13,
+          "to": 14,
+          "position": 1.4,
+          "cornerFrom": null,
+          "next": 29
+        },
+        "eligible": [
+          {
+            "id": 44,
+            "since": 6354,
+            "entered": 6316,
+            "from": 13,
+            "to": 14,
+            "position": 1.4,
+            "cornerFrom": null,
+            "next": 29
+          }
+        ],
+        "previousOwner": null
+      },
+      {
+        "tick": 8300,
+        "corner": 29,
+        "served": {
+          "id": 44,
+          "since": 8299,
+          "entered": 7771,
+          "from": 14,
+          "to": 29,
+          "position": 28.998288,
+          "cornerFrom": null,
+          "next": 28
+        },
+        "eligible": [
+          {
+            "id": 44,
+            "since": 8299,
+            "entered": 7771,
+            "from": 14,
+            "to": 29,
+            "position": 28.998288,
+            "cornerFrom": null,
+            "next": 28
+          }
+        ],
+        "previousOwner": null
+      },
+      {
+        "tick": 8313,
+        "corner": 37,
+        "served": {
+          "id": 20,
+          "since": 7601,
+          "entered": 7560,
+          "from": 38,
+          "to": 37,
+          "position": 1.4,
+          "cornerFrom": null,
+          "next": 40
+        },
+        "eligible": [
+          {
+            "id": 20,
+            "since": 7601,
+            "entered": 7560,
+            "from": 38,
+            "to": 37,
+            "position": 1.4,
+            "cornerFrom": null,
+            "next": 40
+          },
+          {
+            "id": 25,
+            "since": 8169,
+            "entered": 8135,
+            "from": 36,
+            "to": 37,
+            "position": 1.4,
+            "cornerFrom": null,
+            "next": 40
+          }
+        ],
+        "previousOwner": null
+      },
+      {
+        "tick": 8448,
+        "corner": 28,
+        "served": {
+          "id": 44,
+          "since": 8363,
+          "entered": 8325,
+          "from": 29,
+          "to": 28,
+          "position": 1.4,
+          "cornerFrom": null,
+          "next": 25
+        },
+        "eligible": [
+          {
+            "id": 44,
+            "since": 8363,
+            "entered": 8325,
+            "from": 29,
+            "to": 28,
+            "position": 1.4,
+            "cornerFrom": null,
+            "next": 25
+          }
+        ],
+        "previousOwner": null
+      },
+      {
+        "tick": 9200,
+        "corner": 40,
+        "served": {
+          "id": 20,
+          "since": 9199,
+          "entered": 8626,
+          "from": 37,
+          "to": 40,
+          "position": 28.962579,
+          "cornerFrom": null,
+          "next": 41
+        },
+        "eligible": [
+          {
+            "id": 20,
+            "since": 9199,
+            "entered": 8626,
+            "from": 37,
+            "to": 40,
+            "position": 28.962579,
+            "cornerFrom": null,
+            "next": 41
+          }
+        ],
+        "previousOwner": null
+      },
+      {
+        "tick": 9271,
+        "corner": 25,
+        "served": {
+          "id": 44,
+          "since": 9270,
+          "entered": 8742,
+          "from": 28,
+          "to": 25,
+          "position": 28.998288,
+          "cornerFrom": null,
+          "next": 10
+        },
+        "eligible": [
+          {
+            "id": 44,
+            "since": 9270,
+            "entered": 8742,
+            "from": 28,
+            "to": 25,
+            "position": 28.998288,
+            "cornerFrom": null,
+            "next": 10
+          }
+        ],
+        "previousOwner": null
+      },
+      {
+        "tick": 9543,
+        "corner": 38,
+        "served": {
+          "id": 31,
+          "since": 7587,
+          "entered": 7548,
+          "from": 39,
+          "to": 38,
+          "position": 1.4,
+          "cornerFrom": null,
+          "next": 53
+        },
+        "eligible": [
+          {
+            "id": 31,
+            "since": 7587,
+            "entered": 7548,
+            "from": 39,
+            "to": 38,
+            "position": 1.4,
+            "cornerFrom": null,
+            "next": 53
+          },
+          {
+            "id": 48,
+            "since": 8725,
+            "entered": 8696,
+            "from": 37,
+            "to": 38,
+            "position": 1.4,
+            "cornerFrom": null,
+            "next": 53
+          }
+        ],
+        "previousOwner": null
+      },
+      {
+        "tick": 9754,
+        "corner": 41,
+        "served": {
+          "id": 20,
+          "since": 9255,
+          "entered": 9227,
+          "from": 40,
+          "to": 41,
+          "position": 1.4,
+          "cornerFrom": null,
+          "next": 44
+        },
+        "eligible": [
+          {
+            "id": 20,
+            "since": 9255,
+            "entered": 9227,
+            "from": 40,
+            "to": 41,
+            "position": 1.4,
+            "cornerFrom": null,
+            "next": 44
+          }
+        ],
+        "previousOwner": null
+      },
+      {
+        "tick": 9837,
+        "corner": 10,
+        "served": {
+          "id": 44,
+          "since": 9836,
+          "entered": 9296,
+          "from": 25,
+          "to": 10,
+          "position": 28.998288,
+          "cornerFrom": null,
+          "next": 9
+        },
+        "eligible": [
+          {
+            "id": 44,
+            "since": 9836,
+            "entered": 9296,
+            "from": 25,
+            "to": 10,
+            "position": 28.998288,
+            "cornerFrom": null,
+            "next": 9
+          }
+        ],
+        "previousOwner": null
+      },
+      {
+        "tick": 10399,
+        "corner": 9,
+        "served": {
+          "id": 44,
+          "since": 9888,
+          "entered": 9862,
+          "from": 10,
+          "to": 9,
+          "position": 1.4,
+          "cornerFrom": null,
+          "next": 8
+        },
+        "eligible": [
+          {
+            "id": 44,
+            "since": 9888,
+            "entered": 9862,
+            "from": 10,
+            "to": 9,
+            "position": 1.4,
+            "cornerFrom": null,
+            "next": 8
+          }
+        ],
+        "previousOwner": null
+      },
+      {
+        "tick": 10446,
+        "corner": 53,
+        "served": {
+          "id": 31,
+          "since": 10396,
+          "entered": 9844,
+          "from": 38,
+          "to": 53,
+          "position": 29,
+          "cornerFrom": null,
+          "next": 54
+        },
+        "eligible": [
+          {
+            "id": 31,
+            "since": 10396,
+            "entered": 9844,
+            "from": 38,
+            "to": 53,
+            "position": 29,
+            "cornerFrom": null,
+            "next": 54
+          }
+        ],
+        "previousOwner": null
+      },
+      {
+        "tick": 10500,
+        "corner": 54,
+        "served": {
+          "id": 31,
+          "since": 10499,
+          "entered": 10472,
+          "from": 53,
+          "to": 54,
+          "position": 1.4,
+          "cornerFrom": null,
+          "next": 59
+        },
+        "eligible": [
+          {
+            "id": 31,
+            "since": 10499,
+            "entered": 10472,
+            "from": 53,
+            "to": 54,
+            "position": 1.4,
+            "cornerFrom": null,
+            "next": 59
+          }
+        ],
+        "previousOwner": null
+      },
+      {
+        "tick": 10628,
+        "corner": 44,
+        "served": {
+          "id": 20,
+          "since": 10627,
+          "entered": 10067,
+          "from": 41,
+          "to": 44,
+          "position": 28.962579,
+          "cornerFrom": null,
+          "next": 31
+        },
+        "eligible": [
+          {
+            "id": 20,
+            "since": 10627,
+            "entered": 10067,
+            "from": 41,
+            "to": 44,
+            "position": 28.962579,
+            "cornerFrom": null,
+            "next": 31
+          }
+        ],
+        "previousOwner": null
+      },
+      {
+        "tick": 11342,
+        "corner": 31,
+        "served": {
+          "id": 20,
+          "since": 11228,
+          "entered": 10655,
+          "from": 44,
+          "to": 31,
+          "position": 29,
+          "cornerFrom": null,
+          "next": 28
+        },
+        "eligible": [
+          {
+            "id": 20,
+            "since": 11228,
+            "entered": 10655,
+            "from": 44,
+            "to": 31,
+            "position": 29,
+            "cornerFrom": null,
+            "next": 28
+          }
+        ],
+        "previousOwner": null
+      },
+      {
+        "tick": 11354,
+        "corner": 59,
+        "served": {
+          "id": 31,
+          "since": 11353,
+          "entered": 10801,
+          "from": 54,
+          "to": 59,
+          "position": 28.97856,
+          "cornerFrom": null,
+          "next": 58
+        },
+        "eligible": [
+          {
+            "id": 31,
+            "since": 11353,
+            "entered": 10801,
+            "from": 54,
+            "to": 59,
+            "position": 28.97856,
+            "cornerFrom": null,
+            "next": 58
+          }
+        ],
+        "previousOwner": null
+      },
+      {
+        "tick": 11449,
+        "corner": 8,
+        "served": {
+          "id": 44,
+          "since": 10731,
+          "entered": 10693,
+          "from": 9,
+          "to": 8,
+          "position": 1.4,
+          "cornerFrom": null,
+          "next": 5
+        },
+        "eligible": [
+          {
+            "id": 44,
+            "since": 10731,
+            "entered": 10693,
+            "from": 9,
+            "to": 8,
+            "position": 1.4,
+            "cornerFrom": null,
+            "next": 5
+          }
+        ],
+        "previousOwner": null
+      },
+      {
+        "tick": 11979,
+        "corner": 58,
+        "served": {
+          "id": 31,
+          "since": 11407,
+          "entered": 11380,
+          "from": 59,
+          "to": 58,
+          "position": 1.4,
+          "cornerFrom": null,
+          "next": 59
+        },
+        "eligible": [
+          {
+            "id": 31,
+            "since": 11407,
+            "entered": 11380,
+            "from": 59,
+            "to": 58,
+            "position": 1.4,
+            "cornerFrom": null,
+            "next": 59
+          }
+        ],
+        "previousOwner": null
+      },
+      {
+        "tick": 12272,
+        "corner": 5,
+        "served": {
+          "id": 44,
+          "since": 12271,
+          "entered": 11743,
+          "from": 8,
+          "to": 5,
+          "position": 28.998288,
+          "cornerFrom": null,
+          "next": 4
+        },
+        "eligible": [
+          {
+            "id": 44,
+            "since": 12271,
+            "entered": 11743,
+            "from": 8,
+            "to": 5,
+            "position": 28.998288,
+            "cornerFrom": null,
+            "next": 4
+          }
+        ],
+        "previousOwner": null
+      },
+      {
+        "tick": 12354,
+        "corner": 28,
+        "served": {
+          "id": 20,
+          "since": 11397,
+          "entered": 11369,
+          "from": 31,
+          "to": 28,
+          "position": 1.4,
+          "cornerFrom": null,
+          "next": 29
+        },
+        "eligible": [
+          {
+            "id": 20,
+            "since": 11397,
+            "entered": 11369,
+            "from": 31,
+            "to": 28,
+            "position": 1.4,
+            "cornerFrom": null,
+            "next": 29
+          }
+        ],
+        "previousOwner": null
+      },
+      {
+        "tick": 12650,
+        "corner": 4,
+        "served": {
+          "id": 44,
+          "since": 12323,
+          "entered": 12297,
+          "from": 5,
+          "to": 4,
+          "position": 1.4,
+          "cornerFrom": null,
+          "next": 1
+        },
+        "eligible": [
+          {
+            "id": 44,
+            "since": 12323,
+            "entered": 12297,
+            "from": 5,
+            "to": 4,
+            "position": 1.4,
+            "cornerFrom": null,
+            "next": 1
+          }
+        ],
+        "previousOwner": null
+      },
+      {
+        "tick": 13251,
+        "corner": 59,
+        "served": {
+          "id": 31,
+          "since": 12324,
+          "entered": 12280,
+          "from": 58,
+          "to": 59,
+          "position": 1.4,
+          "cornerFrom": null,
+          "next": 56
+        },
+        "eligible": [
+          {
+            "id": 31,
+            "since": 12324,
+            "entered": 12280,
+            "from": 58,
+            "to": 59,
+            "position": 1.4,
+            "cornerFrom": null,
+            "next": 56
+          },
+          {
+            "id": 29,
+            "since": 12341,
+            "entered": 12300,
+            "from": 56,
+            "to": 59,
+            "position": 1.4,
+            "cornerFrom": null,
+            "next": 54
+          }
+        ],
+        "previousOwner": null
+      },
+      {
+        "tick": 13473,
+        "corner": 1,
+        "served": {
+          "id": 44,
+          "since": 13472,
+          "entered": 12944,
+          "from": 4,
+          "to": 1,
+          "position": 28.998288,
+          "cornerFrom": null,
+          "next": 2
+        },
+        "eligible": [
+          {
+            "id": 44,
+            "since": 13472,
+            "entered": 12944,
+            "from": 4,
+            "to": 1,
+            "position": 28.998288,
+            "cornerFrom": null,
+            "next": 2
+          }
+        ],
+        "previousOwner": null
+      },
+      {
+        "tick": 13644,
+        "corner": 2,
+        "served": {
+          "id": 44,
+          "since": 13536,
+          "entered": 13498,
+          "from": 1,
+          "to": 2,
+          "position": 1.4,
+          "cornerFrom": null,
+          "next": 17
+        },
+        "eligible": [
+          {
+            "id": 44,
+            "since": 13536,
+            "entered": 13498,
+            "from": 1,
+            "to": 2,
+            "position": 1.4,
+            "cornerFrom": null,
+            "next": 17
+          }
+        ],
+        "previousOwner": null
+      },
+      {
+        "tick": 13825,
+        "corner": 29,
+        "served": {
+          "id": 20,
+          "since": 12708,
+          "entered": 12667,
+          "from": 28,
+          "to": 29,
+          "position": 1.4,
+          "cornerFrom": null,
+          "next": 28
+        },
+        "eligible": [
+          {
+            "id": 20,
+            "since": 12708,
+            "entered": 12667,
+            "from": 28,
+            "to": 29,
+            "position": 1.4,
+            "cornerFrom": null,
+            "next": 28
+          }
+        ],
+        "previousOwner": null
+      },
+      {
+        "tick": 14467,
+        "corner": 17,
+        "served": {
+          "id": 44,
+          "since": 14466,
+          "entered": 13938,
+          "from": 2,
+          "to": 17,
+          "position": 28.998288,
+          "cornerFrom": null,
+          "next": 16
+        },
+        "eligible": [
+          {
+            "id": 44,
+            "since": 14466,
+            "entered": 13938,
+            "from": 2,
+            "to": 17,
+            "position": 28.998288,
+            "cornerFrom": null,
+            "next": 16
+          }
+        ],
+        "previousOwner": null
+      },
+      {
+        "tick": 14500,
+        "corner": 56,
+        "served": {
+          "id": 31,
+          "since": 13591,
+          "entered": 13552,
+          "from": 59,
+          "to": 56,
+          "position": 1.4,
+          "cornerFrom": null,
+          "next": 53
+        },
+        "eligible": [
+          {
+            "id": 31,
+            "since": 13591,
+            "entered": 13552,
+            "from": 59,
+            "to": 56,
+            "position": 1.4,
+            "cornerFrom": null,
+            "next": 53
+          },
+          {
+            "id": 39,
+            "since": 14020,
+            "entered": 13992,
+            "from": 57,
+            "to": 56,
+            "position": 1.4,
+            "cornerFrom": null,
+            "next": 53
+          }
+        ],
+        "previousOwner": null
+      },
+      {
+        "tick": 15037,
+        "corner": 16,
+        "served": {
+          "id": 44,
+          "since": 14530,
+          "entered": 14492,
+          "from": 17,
+          "to": 16,
+          "position": 1.4,
+          "cornerFrom": null,
+          "next": 19
+        },
+        "eligible": [
+          {
+            "id": 44,
+            "since": 14530,
+            "entered": 14492,
+            "from": 17,
+            "to": 16,
+            "position": 1.4,
+            "cornerFrom": null,
+            "next": 19
+          }
+        ],
+        "previousOwner": null
+      },
+      {
+        "tick": 15295,
+        "corner": 28,
+        "served": {
+          "id": 20,
+          "since": 14184,
+          "entered": 14138,
+          "from": 29,
+          "to": 28,
+          "position": 1.4,
+          "cornerFrom": null,
+          "next": 31
+        },
+        "eligible": [
+          {
+            "id": 20,
+            "since": 14184,
+            "entered": 14138,
+            "from": 29,
+            "to": 28,
+            "position": 1.4,
+            "cornerFrom": null,
+            "next": 31
+          }
+        ],
+        "previousOwner": null
+      },
+      {
+        "tick": 15354,
+        "corner": 53,
+        "served": {
+          "id": 31,
+          "since": 15353,
+          "entered": 14801,
+          "from": 56,
+          "to": 53,
+          "position": 28.97856,
+          "cornerFrom": null,
+          "next": 52
+        },
+        "eligible": [
+          {
+            "id": 31,
+            "since": 15353,
+            "entered": 14801,
+            "from": 56,
+            "to": 53,
+            "position": 28.97856,
+            "cornerFrom": null,
+            "next": 52
+          }
+        ],
+        "previousOwner": null
+      },
+      {
+        "tick": 16689,
+        "corner": 31,
+        "served": {
+          "id": 20,
+          "since": 15649,
+          "entered": 15608,
+          "from": 28,
+          "to": 31,
+          "position": 1.4,
+          "cornerFrom": null,
+          "next": 44
+        },
+        "eligible": [
+          {
+            "id": 20,
+            "since": 15649,
+            "entered": 15608,
+            "from": 28,
+            "to": 31,
+            "position": 1.4,
+            "cornerFrom": null,
+            "next": 44
+          }
+        ],
+        "previousOwner": null
+      },
+      {
+        "tick": 17078,
+        "corner": 52,
+        "served": {
+          "id": 31,
+          "since": 15407,
+          "entered": 15380,
+          "from": 53,
+          "to": 52,
+          "position": 1.4,
+          "cornerFrom": null,
+          "next": 39
+        },
+        "eligible": [
+          {
+            "id": 31,
+            "since": 15407,
+            "entered": 15380,
+            "from": 53,
+            "to": 52,
+            "position": 1.4,
+            "cornerFrom": null,
+            "next": 39
+          }
+        ],
+        "previousOwner": null
+      },
+      {
+        "tick": 17563,
+        "corner": 44,
+        "served": {
+          "id": 20,
+          "since": 17562,
+          "entered": 17002,
+          "from": 31,
+          "to": 44,
+          "position": 28.962579,
+          "cornerFrom": null,
+          "next": 47
+        },
+        "eligible": [
+          {
+            "id": 20,
+            "since": 17562,
+            "entered": 17002,
+            "from": 31,
+            "to": 44,
+            "position": 28.962579,
+            "cornerFrom": null,
+            "next": 47
+          }
+        ],
+        "previousOwner": null
+      },
+      {
+        "tick": 17901,
+        "corner": 16,
+        "served": {
+          "id": 44,
+          "since": 14530,
+          "entered": 14492,
+          "from": 17,
+          "to": 16,
+          "position": 16.22867,
+          "cornerFrom": null,
+          "next": 19
+        },
+        "eligible": [
+          {
+            "id": 44,
+            "since": 14530,
+            "entered": 14492,
+            "from": 17,
+            "to": 16,
+            "position": 16.22867,
+            "cornerFrom": null,
+            "next": 19
+          }
+        ],
+        "previousOwner": null
+      },
+      {
+        "tick": 17903,
+        "corner": 47,
+        "served": {
+          "id": 20,
+          "since": 17618,
+          "entered": 17590,
+          "from": 44,
+          "to": 47,
+          "position": 1.4,
+          "cornerFrom": null,
+          "next": 42
+        },
+        "eligible": [
+          {
+            "id": 20,
+            "since": 17618,
+            "entered": 17590,
+            "from": 44,
+            "to": 47,
+            "position": 1.4,
+            "cornerFrom": null,
+            "next": 42
+          }
+        ],
+        "previousOwner": null
+      },
+      {
+        "tick": 17932,
+        "corner": 39,
+        "served": {
+          "id": 31,
+          "since": 17931,
+          "entered": 17379,
+          "from": 52,
+          "to": 39,
+          "position": 28.97856,
+          "cornerFrom": null,
+          "next": 34
+        },
+        "eligible": [
+          {
+            "id": 31,
+            "since": 17931,
+            "entered": 17379,
+            "from": 52,
+            "to": 39,
+            "position": 28.97856,
+            "cornerFrom": null,
+            "next": 34
+          }
+        ],
+        "previousOwner": null
+      },
+      {
+        "tick": 18511,
+        "corner": 34,
+        "served": {
+          "id": 31,
+          "since": 18510,
+          "entered": 17958,
+          "from": 39,
+          "to": 34,
+          "position": 28.97856,
+          "cornerFrom": null,
+          "next": 33
+        },
+        "eligible": [
+          {
+            "id": 31,
+            "since": 18510,
+            "entered": 17958,
+            "from": 39,
+            "to": 34,
+            "position": 28.97856,
+            "cornerFrom": null,
+            "next": 33
+          }
+        ],
+        "previousOwner": null
+      },
+      {
+        "tick": 18790,
+        "corner": 42,
+        "served": {
+          "id": 20,
+          "since": 18789,
+          "entered": 18216,
+          "from": 47,
+          "to": 42,
+          "position": 28.962579,
+          "cornerFrom": null,
+          "next": 41
+        },
+        "eligible": [
+          {
+            "id": 20,
+            "since": 18789,
+            "entered": 18216,
+            "from": 47,
+            "to": 42,
+            "position": 28.962579,
+            "cornerFrom": null,
+            "next": 41
+          }
+        ],
+        "previousOwner": null
+      },
+      {
+        "tick": 18889,
+        "corner": 41,
+        "served": {
+          "id": 20,
+          "since": 18858,
+          "entered": 18817,
+          "from": 42,
+          "to": 41,
+          "position": 1.4,
+          "cornerFrom": null,
+          "next": 40
+        },
+        "eligible": [
+          {
+            "id": 20,
+            "since": 18858,
+            "entered": 18817,
+            "from": 42,
+            "to": 41,
+            "position": 1.4,
+            "cornerFrom": null,
+            "next": 40
+          }
+        ],
+        "previousOwner": null
+      },
+      {
+        "tick": 19118,
+        "corner": 19,
+        "served": {
+          "id": 44,
+          "since": 17963,
+          "entered": 17925,
+          "from": 16,
+          "to": 19,
+          "position": 1.4,
+          "cornerFrom": null,
+          "next": 32
+        },
+        "eligible": [
+          {
+            "id": 44,
+            "since": 17963,
+            "entered": 17925,
+            "from": 16,
+            "to": 19,
+            "position": 1.4,
+            "cornerFrom": null,
+            "next": 32
+          }
+        ],
+        "previousOwner": null
+      },
+      {
+        "tick": 19209,
+        "corner": 33,
+        "served": {
+          "id": 31,
+          "since": 18576,
+          "entered": 18537,
+          "from": 34,
+          "to": 33,
+          "position": 1.4,
+          "cornerFrom": null,
+          "next": 18
+        },
+        "eligible": [
+          {
+            "id": 31,
+            "since": 18576,
+            "entered": 18537,
+            "from": 34,
+            "to": 33,
+            "position": 1.4,
+            "cornerFrom": null,
+            "next": 18
+          }
+        ],
+        "previousOwner": null
+      },
+      {
+        "tick": 20051,
+        "corner": 18,
+        "served": {
+          "id": 31,
+          "since": 20050,
+          "entered": 19510,
+          "from": 33,
+          "to": 18,
+          "position": 28.97856,
+          "cornerFrom": null,
+          "next": 17
+        },
+        "eligible": [
+          {
+            "id": 31,
+            "since": 20050,
+            "entered": 19510,
+            "from": 33,
+            "to": 18,
+            "position": 28.97856,
+            "cornerFrom": null,
+            "next": 17
+          }
+        ],
+        "previousOwner": null
+      },
+      {
+        "tick": 20053,
+        "corner": 40,
+        "served": {
+          "id": 20,
+          "since": 19243,
+          "entered": 19202,
+          "from": 41,
+          "to": 40,
+          "position": 1.4,
+          "cornerFrom": null,
+          "next": 27
+        },
+        "eligible": [
+          {
+            "id": 20,
+            "since": 19243,
+            "entered": 19202,
+            "from": 41,
+            "to": 40,
+            "position": 1.4,
+            "cornerFrom": null,
+            "next": 27
+          }
+        ],
+        "previousOwner": null
+      },
+      {
+        "tick": 20517,
+        "corner": 17,
+        "served": {
+          "id": 31,
+          "since": 20104,
+          "entered": 20077,
+          "from": 18,
+          "to": 17,
+          "position": 1.4,
+          "cornerFrom": null,
+          "next": 2
+        },
+        "eligible": [
+          {
+            "id": 31,
+            "since": 20104,
+            "entered": 20077,
+            "from": 18,
+            "to": 17,
+            "position": 1.4,
+            "cornerFrom": null,
+            "next": 2
+          }
+        ],
+        "previousOwner": null
+      },
+      {
+        "tick": 20521,
+        "corner": 32,
+        "served": {
+          "id": 44,
+          "since": 19940,
+          "entered": 19412,
+          "from": 19,
+          "to": 32,
+          "position": 29,
+          "cornerFrom": null,
+          "next": 35
+        },
+        "eligible": [
+          {
+            "id": 44,
+            "since": 19940,
+            "entered": 19412,
+            "from": 19,
+            "to": 32,
+            "position": 29,
+            "cornerFrom": null,
+            "next": 35
+          }
+        ],
+        "previousOwner": null
+      },
+      {
+        "tick": 20940,
+        "corner": 27,
+        "served": {
+          "id": 20,
+          "since": 20939,
+          "entered": 20366,
+          "from": 40,
+          "to": 27,
+          "position": 28.962579,
+          "cornerFrom": null,
+          "next": 22
+        },
+        "eligible": [
+          {
+            "id": 20,
+            "since": 20939,
+            "entered": 20366,
+            "from": 40,
+            "to": 27,
+            "position": 28.962579,
+            "cornerFrom": null,
+            "next": 22
+          }
+        ],
+        "previousOwner": null
+      },
+      {
+        "tick": 21359,
+        "corner": 2,
+        "served": {
+          "id": 31,
+          "since": 21358,
+          "entered": 20818,
+          "from": 17,
+          "to": 2,
+          "position": 28.97856,
+          "cornerFrom": null,
+          "next": 1
+        },
+        "eligible": [
+          {
+            "id": 31,
+            "since": 21358,
+            "entered": 20818,
+            "from": 17,
+            "to": 2,
+            "position": 28.97856,
+            "cornerFrom": null,
+            "next": 1
+          }
+        ],
+        "previousOwner": null
+      },
+      {
+        "tick": 21826,
+        "corner": 35,
+        "served": {
+          "id": 44,
+          "since": 20572,
+          "entered": 20546,
+          "from": 32,
+          "to": 35,
+          "position": 1.4,
+          "cornerFrom": null,
+          "next": 48
+        },
+        "eligible": [
+          {
+            "id": 44,
+            "since": 20572,
+            "entered": 20546,
+            "from": 32,
+            "to": 35,
+            "position": 1.4,
+            "cornerFrom": null,
+            "next": 48
+          }
+        ],
+        "previousOwner": null
+      },
+      {
+        "tick": 22451,
+        "corner": 1,
+        "served": {
+          "id": 31,
+          "since": 21412,
+          "entered": 21385,
+          "from": 2,
+          "to": 1,
+          "position": 1.4,
+          "cornerFrom": null,
+          "next": 0
+        },
+        "eligible": [
+          {
+            "id": 31,
+            "since": 21412,
+            "entered": 21385,
+            "from": 2,
+            "to": 1,
+            "position": 1.4,
+            "cornerFrom": null,
+            "next": 0
+          }
+        ],
+        "previousOwner": null
+      },
+      {
+        "tick": 22649,
+        "corner": 48,
+        "served": {
+          "id": 44,
+          "since": 22648,
+          "entered": 22120,
+          "from": 35,
+          "to": 48,
+          "position": 28.998288,
+          "cornerFrom": null,
+          "next": 51
+        },
+        "eligible": [
+          {
+            "id": 44,
+            "since": 22648,
+            "entered": 22120,
+            "from": 35,
+            "to": 48,
+            "position": 28.998288,
+            "cornerFrom": null,
+            "next": 51
+          }
+        ],
+        "previousOwner": null
+      },
+      {
+        "tick": 23816,
+        "corner": 0,
+        "served": {
+          "id": 31,
+          "since": 22791,
+          "entered": 22752,
+          "from": 1,
+          "to": 0,
+          "position": 1.4,
+          "cornerFrom": null,
+          "next": 3
+        },
+        "eligible": [
+          {
+            "id": 31,
+            "since": 22791,
+            "entered": 22752,
+            "from": 1,
+            "to": 0,
+            "position": 1.4,
+            "cornerFrom": null,
+            "next": 3
+          }
+        ],
+        "previousOwner": null
+      },
+      {
+        "tick": 23846,
+        "corner": 51,
+        "served": {
+          "id": 44,
+          "since": 22700,
+          "entered": 22674,
+          "from": 48,
+          "to": 51,
+          "position": 1.4,
+          "cornerFrom": null,
+          "next": 50
+        },
+        "eligible": [
+          {
+            "id": 44,
+            "since": 22700,
+            "entered": 22674,
+            "from": 48,
+            "to": 51,
+            "position": 1.4,
+            "cornerFrom": null,
+            "next": 50
+          }
+        ],
+        "previousOwner": null
+      },
+      {
+        "tick": 25076,
+        "corner": 50,
+        "served": {
+          "id": 44,
+          "since": 24178,
+          "entered": 24140,
+          "from": 51,
+          "to": 50,
+          "position": 1.4,
+          "cornerFrom": null,
+          "next": 49
+        },
+        "eligible": [
+          {
+            "id": 44,
+            "since": 24178,
+            "entered": 24140,
+            "from": 51,
+            "to": 50,
+            "position": 1.4,
+            "cornerFrom": null,
+            "next": 49
+          }
+        ],
+        "previousOwner": null
+      },
+      {
+        "tick": 25272,
+        "corner": 3,
+        "served": {
+          "id": 31,
+          "since": 24156,
+          "entered": 24117,
+          "from": 0,
+          "to": 3,
+          "position": 1.4,
+          "cornerFrom": null,
+          "next": 2
+        },
+        "eligible": [
+          {
+            "id": 31,
+            "since": 24156,
+            "entered": 24117,
+            "from": 0,
+            "to": 3,
+            "position": 1.4,
+            "cornerFrom": null,
+            "next": 2
+          }
+        ],
+        "previousOwner": null
+      },
+      {
+        "tick": 25418,
+        "corner": 22,
+        "served": {
+          "id": 20,
+          "since": 22125,
+          "entered": 20967,
+          "from": 27,
+          "to": 22,
+          "position": 29,
+          "cornerFrom": null,
+          "next": 21
+        },
+        "eligible": [
+          {
+            "id": 20,
+            "since": 22125,
+            "entered": 20967,
+            "from": 27,
+            "to": 22,
+            "position": 29,
+            "cornerFrom": null,
+            "next": 21
+          },
+          {
+            "id": 46,
+            "since": 25180,
+            "entered": 24588,
+            "from": 37,
+            "to": 22,
+            "position": 29,
+            "cornerFrom": null,
+            "next": 21
+          }
+        ],
+        "previousOwner": null
+      },
+      {
+        "tick": 26413,
+        "corner": 49,
+        "served": {
+          "id": 44,
+          "since": 25408,
+          "entered": 25370,
+          "from": 50,
+          "to": 49,
+          "position": 1.4,
+          "cornerFrom": null,
+          "next": 34
+        },
+        "eligible": [
+          {
+            "id": 44,
+            "since": 25408,
+            "entered": 25370,
+            "from": 50,
+            "to": 49,
+            "position": 1.4,
+            "cornerFrom": null,
+            "next": 34
+          }
+        ],
+        "previousOwner": null
+      },
+      {
+        "tick": 26497,
+        "corner": 21,
+        "served": {
+          "id": 20,
+          "since": 25486,
+          "entered": 25445,
+          "from": 22,
+          "to": 21,
+          "position": 1.4,
+          "cornerFrom": null,
+          "next": 6
+        },
+        "eligible": [
+          {
+            "id": 20,
+            "since": 25486,
+            "entered": 25445,
+            "from": 22,
+            "to": 21,
+            "position": 1.4,
+            "cornerFrom": null,
+            "next": 6
+          }
+        ],
+        "previousOwner": null
+      },
+      {
+        "tick": 26707,
+        "corner": 2,
+        "served": {
+          "id": 31,
+          "since": 25612,
+          "entered": 25573,
+          "from": 3,
+          "to": 2,
+          "position": 1.4,
+          "cornerFrom": null,
+          "next": 17
+        },
+        "eligible": [
+          {
+            "id": 31,
+            "since": 25612,
+            "entered": 25573,
+            "from": 3,
+            "to": 2,
+            "position": 1.4,
+            "cornerFrom": null,
+            "next": 17
+          }
+        ],
+        "previousOwner": null
+      }
+    ]
+  },
+  "serializationChecks": [
+    {
+      "tick": 1800,
+      "identical": true
+    },
+    {
+      "tick": 3600,
+      "identical": true
+    },
+    {
+      "tick": 5400,
+      "identical": true
+    },
+    {
+      "tick": 7200,
+      "identical": true
+    },
+    {
+      "tick": 9000,
+      "identical": true
+    },
+    {
+      "tick": 10800,
+      "identical": true
+    },
+    {
+      "tick": 12600,
+      "identical": true
+    },
+    {
+      "tick": 14400,
+      "identical": true
+    },
+    {
+      "tick": 16200,
+      "identical": true
+    },
+    {
+      "tick": 18000,
+      "identical": true
+    },
+    {
+      "tick": 19800,
+      "identical": true
+    },
+    {
+      "tick": 21600,
+      "identical": true
+    },
+    {
+      "tick": 23400,
+      "identical": true
+    },
+    {
+      "tick": 25200,
+      "identical": true
+    },
+    {
+      "tick": 27000,
+      "identical": true
+    }
+  ],
+  "longestStationary": [
+    {
+      "id": 22,
+      "start": 4464,
+      "end": 8768,
+      "seconds": 143.5,
+      "ongoing": false
+    },
+    {
+      "id": 17,
+      "start": 22361,
+      "end": 26648,
+      "seconds": 142.93333333333334,
+      "ongoing": false
+    },
+    {
+      "id": 27,
+      "start": 7503,
+      "end": 11240,
+      "seconds": 124.6,
+      "ongoing": false
+    },
+    {
+      "id": 7,
+      "start": 23126,
+      "end": 26648,
+      "seconds": 117.43333333333334,
+      "ongoing": false
+    },
+    {
+      "id": 25,
+      "start": 1091,
+      "end": 4385,
+      "seconds": 109.83333333333333,
+      "ongoing": false
+    },
+    {
+      "id": 20,
+      "start": 22127,
+      "end": 25417,
+      "seconds": 109.7,
+      "ongoing": false
+    },
+    {
+      "id": 36,
+      "start": 5516,
+      "end": 8768,
+      "seconds": 108.43333333333334,
+      "ongoing": false
+    },
+    {
+      "id": 12,
+      "start": 10551,
+      "end": 13782,
+      "seconds": 107.73333333333333,
+      "ongoing": false
+    },
+    {
+      "id": 33,
+      "start": 5635,
+      "end": 8769,
+      "seconds": 104.5,
+      "ongoing": false
+    },
+    {
+      "id": 34,
+      "start": 11989,
+      "end": 14941,
+      "seconds": 98.43333333333334,
+      "ongoing": false
+    },
+    {
+      "id": 38,
+      "start": 11308,
+      "end": 14206,
+      "seconds": 96.63333333333334,
+      "ongoing": false
+    },
+    {
+      "id": 21,
+      "start": 16898,
+      "end": 19769,
+      "seconds": 95.73333333333333,
+      "ongoing": false
+    },
+    {
+      "id": 6,
+      "start": 24154,
+      "end": 27000,
+      "seconds": 94.9,
+      "ongoing": true
+    },
+    {
+      "id": 42,
+      "start": 18266,
+      "end": 20990,
+      "seconds": 90.83333333333333,
+      "ongoing": false
+    },
+    {
+      "id": 31,
+      "start": 3050,
+      "end": 5766,
+      "seconds": 90.56666666666666,
+      "ongoing": false
+    },
+    {
+      "id": 44,
+      "start": 15307,
+      "end": 17900,
+      "seconds": 86.46666666666667,
+      "ongoing": false
+    },
+    {
+      "id": 13,
+      "start": 7109,
+      "end": 9691,
+      "seconds": 86.1,
+      "ongoing": false
+    },
+    {
+      "id": 9,
+      "start": 11263,
+      "end": 13833,
+      "seconds": 85.7,
+      "ongoing": false
+    },
+    {
+      "id": 43,
+      "start": 15410,
+      "end": 17963,
+      "seconds": 85.13333333333334,
+      "ongoing": false
+    },
+    {
+      "id": 41,
+      "start": 10519,
+      "end": 13034,
+      "seconds": 83.86666666666666,
+      "ongoing": false
+    },
+    {
+      "id": 46,
+      "start": 19824,
+      "end": 22339,
+      "seconds": 83.86666666666666,
+      "ongoing": false
+    },
+    {
+      "id": 15,
+      "start": 9625,
+      "end": 12127,
+      "seconds": 83.43333333333334,
+      "ongoing": false
+    },
+    {
+      "id": 19,
+      "start": 15697,
+      "end": 18177,
+      "seconds": 82.7,
+      "ongoing": false
+    },
+    {
+      "id": 16,
+      "start": 8792,
+      "end": 11262,
+      "seconds": 82.36666666666666,
+      "ongoing": false
+    },
+    {
+      "id": 5,
+      "start": 19280,
+      "end": 21736,
+      "seconds": 81.9,
+      "ongoing": false
+    },
+    {
+      "id": 2,
+      "start": 11305,
+      "end": 13758,
+      "seconds": 81.8,
+      "ongoing": false
+    },
+    {
+      "id": 18,
+      "start": 7343,
+      "end": 9717,
+      "seconds": 79.16666666666667,
+      "ongoing": false
+    },
+    {
+      "id": 28,
+      "start": 18578,
+      "end": 20893,
+      "seconds": 77.2,
+      "ongoing": false
+    },
+    {
+      "id": 40,
+      "start": 15903,
+      "end": 18215,
+      "seconds": 77.1,
+      "ongoing": false
+    },
+    {
+      "id": 8,
+      "start": 12861,
+      "end": 15161,
+      "seconds": 76.7,
+      "ongoing": false
+    },
+    {
+      "id": 10,
+      "start": 13845,
+      "end": 16130,
+      "seconds": 76.2,
+      "ongoing": false
+    },
+    {
+      "id": 32,
+      "start": 20981,
+      "end": 23256,
+      "seconds": 75.86666666666666,
+      "ongoing": false
+    },
+    {
+      "id": 35,
+      "start": 697,
+      "end": 2962,
+      "seconds": 75.53333333333333,
+      "ongoing": false
+    },
+    {
+      "id": 11,
+      "start": 16370,
+      "end": 18619,
+      "seconds": 75,
+      "ongoing": false
+    },
+    {
+      "id": 26,
+      "start": 23989,
+      "end": 26234,
+      "seconds": 74.86666666666666,
+      "ongoing": false
+    },
+    {
+      "id": 3,
+      "start": 9130,
+      "end": 11314,
+      "seconds": 72.83333333333333,
+      "ongoing": false
+    },
+    {
+      "id": 47,
+      "start": 13955,
+      "end": 16130,
+      "seconds": 72.53333333333333,
+      "ongoing": false
+    },
+    {
+      "id": 23,
+      "start": 8717,
+      "end": 10885,
+      "seconds": 72.3,
+      "ongoing": false
+    },
+    {
+      "id": 14,
+      "start": 17503,
+      "end": 19668,
+      "seconds": 72.2,
+      "ongoing": false
+    },
+    {
+      "id": 48,
+      "start": 8726,
+      "end": 10885,
+      "seconds": 72,
+      "ongoing": false
+    },
+    {
+      "id": 29,
+      "start": 12342,
+      "end": 14499,
+      "seconds": 71.93333333333334,
+      "ongoing": false
+    },
+    {
+      "id": 30,
+      "start": 848,
+      "end": 2994,
+      "seconds": 71.56666666666666,
+      "ongoing": false
+    },
+    {
+      "id": 4,
+      "start": 11346,
+      "end": 13434,
+      "seconds": 69.63333333333334,
+      "ongoing": false
+    },
+    {
+      "id": 45,
+      "start": 837,
+      "end": 2909,
+      "seconds": 69.1,
+      "ongoing": false
+    },
+    {
+      "id": 37,
+      "start": 22384,
+      "end": 24290,
+      "seconds": 63.56666666666667,
+      "ongoing": false
+    },
+    {
+      "id": 39,
+      "start": 3398,
+      "end": 5242,
+      "seconds": 61.5,
+      "ongoing": false
+    },
+    {
+      "id": 1,
+      "start": 22817,
+      "end": 24516,
+      "seconds": 56.666666666666664,
+      "ongoing": false
+    },
+    {
+      "id": 24,
+      "start": 18825,
+      "end": 20479,
+      "seconds": 55.166666666666664,
+      "ongoing": false
+    }
+  ],
+  "stationaryOver60": 111,
+  "stationaryOver120": 3,
+  "sampledStationaryOver60": 105,
+  "sampledStationaryOver120": 3,
+  "sampledLongest": [
+    {
+      "id": 22,
+      "start": 150,
+      "end": 292,
+      "seconds": 143,
+      "ongoing": false
+    },
+    {
+      "id": 17,
+      "start": 747,
+      "end": 888,
+      "seconds": 142,
+      "ongoing": false
+    },
+    {
+      "id": 27,
+      "start": 252,
+      "end": 374,
+      "seconds": 123,
+      "ongoing": false
+    },
+    {
+      "id": 7,
+      "start": 772,
+      "end": 888,
+      "seconds": 117,
+      "ongoing": false
+    },
+    {
+      "id": 20,
+      "start": 739,
+      "end": 847,
+      "seconds": 109,
+      "ongoing": false
+    },
+    {
+      "id": 25,
+      "start": 38,
+      "end": 146,
+      "seconds": 109,
+      "ongoing": false
+    },
+    {
+      "id": 36,
+      "start": 185,
+      "end": 292,
+      "seconds": 108,
+      "ongoing": false
+    },
+    {
+      "id": 12,
+      "start": 353,
+      "end": 459,
+      "seconds": 107,
+      "ongoing": false
+    },
+    {
+      "id": 33,
+      "start": 189,
+      "end": 292,
+      "seconds": 104,
+      "ongoing": false
+    },
+    {
+      "id": 34,
+      "start": 401,
+      "end": 498,
+      "seconds": 98,
+      "ongoing": false
+    },
+    {
+      "id": 38,
+      "start": 378,
+      "end": 473,
+      "seconds": 96,
+      "ongoing": false
+    },
+    {
+      "id": 6,
+      "start": 807,
+      "end": 900,
+      "seconds": 94,
+      "ongoing": true
+    },
+    {
+      "id": 21,
+      "start": 565,
+      "end": 658,
+      "seconds": 94,
+      "ongoing": false
+    },
+    {
+      "id": 31,
+      "start": 103,
+      "end": 192,
+      "seconds": 90,
+      "ongoing": false
+    },
+    {
+      "id": 42,
+      "start": 610,
+      "end": 699,
+      "seconds": 90,
+      "ongoing": false
+    },
+    {
+      "id": 13,
+      "start": 238,
+      "end": 323,
+      "seconds": 86,
+      "ongoing": false
+    },
+    {
+      "id": 9,
+      "start": 377,
+      "end": 461,
+      "seconds": 85,
+      "ongoing": false
+    },
+    {
+      "id": 44,
+      "start": 512,
+      "end": 596,
+      "seconds": 85,
+      "ongoing": false
+    },
+    {
+      "id": 43,
+      "start": 515,
+      "end": 598,
+      "seconds": 84,
+      "ongoing": false
+    },
+    {
+      "id": 15,
+      "start": 322,
+      "end": 404,
+      "seconds": 83,
+      "ongoing": false
+    },
+    {
+      "id": 41,
+      "start": 352,
+      "end": 434,
+      "seconds": 83,
+      "ongoing": false
+    },
+    {
+      "id": 46,
+      "start": 662,
+      "end": 744,
+      "seconds": 83,
+      "ongoing": false
+    },
+    {
+      "id": 2,
+      "start": 378,
+      "end": 458,
+      "seconds": 81,
+      "ongoing": false
+    },
+    {
+      "id": 5,
+      "start": 644,
+      "end": 724,
+      "seconds": 81,
+      "ongoing": false
+    },
+    {
+      "id": 16,
+      "start": 295,
+      "end": 375,
+      "seconds": 81,
+      "ongoing": false
+    },
+    {
+      "id": 19,
+      "start": 525,
+      "end": 605,
+      "seconds": 81,
+      "ongoing": false
+    },
+    {
+      "id": 18,
+      "start": 246,
+      "end": 323,
+      "seconds": 78,
+      "ongoing": false
+    },
+    {
+      "id": 8,
+      "start": 430,
+      "end": 505,
+      "seconds": 76,
+      "ongoing": false
+    },
+    {
+      "id": 28,
+      "start": 621,
+      "end": 696,
+      "seconds": 76,
+      "ongoing": false
+    },
+    {
+      "id": 40,
+      "start": 532,
+      "end": 607,
+      "seconds": 76,
+      "ongoing": false
+    },
+    {
+      "id": 10,
+      "start": 463,
+      "end": 537,
+      "seconds": 75,
+      "ongoing": false
+    },
+    {
+      "id": 32,
+      "start": 701,
+      "end": 775,
+      "seconds": 75,
+      "ongoing": false
+    },
+    {
+      "id": 11,
+      "start": 547,
+      "end": 620,
+      "seconds": 74,
+      "ongoing": false
+    },
+    {
+      "id": 26,
+      "start": 627,
+      "end": 700,
+      "seconds": 74,
+      "ongoing": false
+    },
+    {
+      "id": 35,
+      "start": 25,
+      "end": 98,
+      "seconds": 74,
+      "ongoing": false
+    },
+    {
+      "id": 3,
+      "start": 306,
+      "end": 377,
+      "seconds": 72,
+      "ongoing": false
+    },
+    {
+      "id": 14,
+      "start": 585,
+      "end": 655,
+      "seconds": 71,
+      "ongoing": false
+    },
+    {
+      "id": 23,
+      "start": 292,
+      "end": 362,
+      "seconds": 71,
+      "ongoing": false
+    },
+    {
+      "id": 29,
+      "start": 413,
+      "end": 483,
+      "seconds": 71,
+      "ongoing": false
+    },
+    {
+      "id": 47,
+      "start": 467,
+      "end": 537,
+      "seconds": 71,
+      "ongoing": false
+    },
+    {
+      "id": 48,
+      "start": 292,
+      "end": 362,
+      "seconds": 71,
+      "ongoing": false
+    },
+    {
+      "id": 30,
+      "start": 30,
+      "end": 99,
+      "seconds": 70,
+      "ongoing": false
+    },
+    {
+      "id": 4,
+      "start": 380,
+      "end": 447,
+      "seconds": 68,
+      "ongoing": false
+    },
+    {
+      "id": 45,
+      "start": 29,
+      "end": 96,
+      "seconds": 68,
+      "ongoing": false
+    },
+    {
+      "id": 37,
+      "start": 748,
+      "end": 809,
+      "seconds": 62,
+      "ongoing": false
+    },
+    {
+      "id": 39,
+      "start": 115,
+      "end": 174,
+      "seconds": 60,
+      "ongoing": false
+    },
+    {
+      "id": 1,
+      "start": 762,
+      "end": 817,
+      "seconds": 56,
+      "ongoing": false
+    },
+    {
+      "id": 24,
+      "start": 629,
+      "end": 682,
+      "seconds": 54,
+      "ongoing": false
+    }
+  ],
+  "oldHighCitizen20Interval": {
+    "start": 7032,
+    "end": 18387,
+    "movedDuring": false,
+    "longestStop": {
+      "id": 20,
+      "start": 22127,
+      "end": 25417,
+      "seconds": 109.7,
+      "ongoing": false
+    }
+  },
+  "oldDefaultCitizen44Interval": {
+    "start": 12570,
+    "end": 19680,
+    "movedDuring": true,
+    "longestStop": {
+      "id": 44,
+      "start": 15307,
+      "end": 17900,
+      "seconds": 86.46666666666667,
+      "ongoing": false
+    }
+  },
+  "finalMetrics": {
+    "active": 84,
+    "waiting": 68,
+    "pending": 96,
+    "queued": 164,
+    "completed": 316,
+    "generated": 687,
+    "rejected": 191,
+    "meanSpeed": 0.8877751190476189,
+    "meanWait": 94.90753968253966,
+    "flow": 23,
+    "meanTripTime": 196.59177215189874,
+    "pedestrianCompleted": 186,
+    "pedestrianCrossings": 571,
+    "turns": 675,
+    "reroutes": 40,
+    "maxWait": 327.3
+  },
+  "configHash": "e630d7fa",
+  "pass": true
+}

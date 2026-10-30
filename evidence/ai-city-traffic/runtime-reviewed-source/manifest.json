@@ -1,0 +1,14 @@
+{
+  "reviewedAt": "2026-10-30T21:16:18.949Z",
+  "hashes": {
+    "scripts/serve-city-traffic.cjs": "eb52c22767c471ae9f5c24a8ac357ac9678f0e7dc869e618b3632fa34303462e",
+    "scripts/capture-city-traffic.cjs": "5c64467b051dbc68fd1dd5acf5751dba19e29e1567676a5cf29120ef1167aaa8",
+    "scripts/run-city-traffic-headless.cjs": "0e5d824fd1ef3b77cc5669e0430e1f7a8a25962e20d47cef2554903a02908047",
+    "package.json": "b7f0041e32b29a8278278fcfc73aa7dd85c7ab8dff3e4c4f03cfc929909928f3",
+    "tsconfig.json": "324e11e571aa98f689f66f70cbbc3881c3ae7d718aae4d7a5b3810bb41df9090",
+    "tsconfig.city-traffic-browser.json": "80fab16bd72355451c7e2641ffb4c4de66483698f89246b633e0145375bb18df",
+    "public/ai-city-traffic/main.mjs": "0c8210d1e7d78d256f3e62961280835c961900d93bf5ac5db377aa6a12623f78",
+    "public/ai-city-traffic/progress/progress.mjs": "6471294271c4932f623672a91373f36f7ea034f289d2d693b1e9099f3f254bd3",
+    "public/ai-city-traffic/progress/data.json": "1ec666817d108b9bc36f657d6a223b017dd6dfc60a41df16c1135a2dc4b6bded"
+  }
+}

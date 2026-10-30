@@ -1,0 +1,79 @@
+{
+  "benchmark": "Actual Cities: Skylines II gameplay; supporting references are Transport Fever 2 and Mini Motorways.",
+  "pinnedAt": "2026-10-30T20:34:10.032084+00:00",
+  "comparisonProtocol": "Compare real running output at matched view scale and resolution where possible. Record density, camera and internal pixel ratio. These stills cannot verify motion, audio, performance or AI behavior. A blind review hides provenance only where the images remain meaningfully comparable; disclose recognizability and framing differences.",
+  "references": [
+    {
+      "id": "cities-skylines-ii-1",
+      "sourcePage": "https://store.steampowered.com/app/949230/Cities_Skylines_II/",
+      "url": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/949230/fcc6a62a3b53c6f76ae1a7ce0cc5a4b8a0e1f022/ss_fcc6a62a3b53c6f76ae1a7ce0cc5a4b8a0e1f022.1920x1080.jpg?t=1793116151",
+      "retrievedAt": "2026-10-30T20:30:04.622122+00:00",
+      "sha256": "09d737790a1f43739f7d4b655e6e186cfb920cc19437f80d90fc8770e5be413a",
+      "width": 1920,
+      "height": 1080,
+      "role": "road geometry",
+      "reviewNotes": "Road editing overlay visible; do not use the preview buildings to judge normal materials.",
+      "inspected": true
+    },
+    {
+      "id": "cities-skylines-ii-3",
+      "sourcePage": "https://store.steampowered.com/app/949230/Cities_Skylines_II/",
+      "url": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/949230/c2092a2047a684f24faaaa47e58dc1dc1d3a57e6/ss_c2092a2047a684f24faaaa47e58dc1dc1d3a57e6.1920x1080.jpg?t=1793116151",
+      "retrievedAt": "2026-10-30T20:30:04.669080+00:00",
+      "sha256": "9c2fb55b950fa23fd201b0df1103633e21f637b665fecf53bc94f24541e326f8",
+      "width": 1920,
+      "height": 1080,
+      "role": "traffic/city information hierarchy",
+      "reviewNotes": "Information overlay visible; compare readable hierarchy rather than normal building colors.",
+      "inspected": true
+    },
+    {
+      "id": "cities-skylines-ii-4",
+      "sourcePage": "https://store.steampowered.com/app/949230/Cities_Skylines_II/",
+      "url": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/949230/c5bc1c21dfa34627c31ea78a61fa906df2f62ae1/ss_c5bc1c21dfa34627c31ea78a61fa906df2f62ae1.1920x1080.jpg?t=1793116151",
+      "retrievedAt": "2026-10-30T20:30:04.677543+00:00",
+      "sha256": "20c3cd8090fe17baf7be1679b0e1a92075d66edd1e27466c245f542abbdf84ce",
+      "width": 1920,
+      "height": 1080,
+      "role": "district scene",
+      "reviewNotes": "Oblique neighborhood view: sidewalks, crossings, trees, building variation and surface grounding.",
+      "inspected": true
+    },
+    {
+      "id": "cities-skylines-ii-5",
+      "sourcePage": "https://store.steampowered.com/app/949230/Cities_Skylines_II/",
+      "url": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/949230/59be27be2d94f0078b3e5e234011894ecee21357/ss_59be27be2d94f0078b3e5e234011894ecee21357.1920x1080.jpg?t=1793116151",
+      "retrievedAt": "2026-10-30T20:30:04.727634+00:00",
+      "sha256": "92c9d8030842bd5091c1d95719ee970f2835948218e06132a0b17fa6ee67838e",
+      "width": 1920,
+      "height": 1080,
+      "role": "citizens and vehicles",
+      "reviewNotes": "Actual citizen inspector gameplay: compare cars, body silhouettes, clothing, material definition and shadows.",
+      "inspected": true
+    },
+    {
+      "id": "transport-fever-2-1",
+      "sourcePage": "https://store.steampowered.com/app/1066780/Transport_Fever_2/",
+      "url": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/1066780/ss_df1b847fe1ad0282cc78caae5694cfa4d6581868.1920x1080.jpg?t=1727104059",
+      "retrievedAt": "2026-10-30T20:30:04.827019+00:00",
+      "sha256": "f84f22dc93ae1717ea31a9782c14ec7b8136b7a178236ca8beab1db1ba221260",
+      "width": 1920,
+      "height": 1080,
+      "role": "supporting vehicle and street detail",
+      "reviewNotes": "Busy urban avenue with signals, several vehicle types, people, markings and streetscape.",
+      "inspected": true
+    },
+    {
+      "id": "mini-motorways-1",
+      "sourcePage": "https://dinopoloclub.com/games/mini-motorways/",
+      "url": "https://dinopoloclub.com/wp-content/uploads/2021/07/MiniMotorways_image_01-scaled.jpg",
+      "retrievedAt": "2026-10-30T20:34:10.032084+00:00",
+      "sha256": "cc40bbe1124c7c308d8e1a412e25df94d6297660b497e40d990b9db459528fcc",
+      "role": "supporting congestion and route readability",
+      "reviewNotes": "Official gameplay scene with clear colored destinations and road hierarchy; no control panel is visible, so this does not establish control usability.",
+      "width": 2048,
+      "height": 1152,
+      "inspected": true
+    }
+  ]
+}

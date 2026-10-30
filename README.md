@@ -36,7 +36,8 @@ Seeded authoritative simulation
 |---|---:|---:|---|---|
 | Autonomous Snake | 6 / 6 | R4 evidence-gated candidate | R4 | External R5 evidence blocked |
 | AI Maze Escape | 6 / 6 | **88 / 100** | R4 | External R5 evidence blocked |
-| Games 3–12 | Documentation/specification packages | Not scored | Pre-implementation | Not production ready |
+| AI City Traffic Experiment (11) | 3D development build; independent gauntlet review in progress | Not scored | Development prototype | Not production ready |
+| Games 3–10, 12 | Documentation/specification packages | Not scored | Pre-implementation | Not production ready |
 
 No game is labelled R5 merely because code merged or CI passed. Production readiness requires exact-candidate primary evidence, real elapsed operation, current credentialed providers, external review, independently witnessed drills, and a guarded canary.
 
@@ -45,6 +46,10 @@ No game is labelled R5 merely because code merged or CI passed. Production readi
 Game 2 implements deterministic generation and oracle validation, partial-observation belief and planning, keys/doors/traps/threats, responsive broadcast UI, safe audience influence, durable commands/events/snapshots/audit, verified restore and quarantine, operations/chaos, release governance, and an evidence-based readiness assessor.
 
 The reviewed runtime candidate passed 251 / 251 Node tests and 8 / 8 catalogue Chromium tests. Internal architecture, gameplay, UI, interaction, durability and release-governance review closed all load-bearing software findings. Its score remains 88 / 100 because the final 12 points require real production evidence.
+
+## AI City Traffic Experiment
+
+Game 11 now has a dedicated 3D city, deterministic traffic and pedestrian simulation, experiment controls, camera modes, local audio and a live review journal. Run `npm ci`, then `npm run traffic:stream`; open `http://127.0.0.1:4311/traffic/` and `/traffic/progress/`. See [the game README](games/ai-city-traffic/README.md) for controls and evidence. Commercial comparison and production readiness remain explicit review gates.
 
 ## Documentation contract
 

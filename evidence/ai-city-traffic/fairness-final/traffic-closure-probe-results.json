@@ -1,0 +1,53 @@
+{
+  "environment": {
+    "node": "v24.22.1"
+  },
+  "cases": {
+    "default_pedestrian_and_vehicle_separation": {
+      "seed": 2026,
+      "ticks": 1800,
+      "citizenBody": {
+        "length": 0.55,
+        "width": 0.55
+      },
+      "collisionTicks": 0,
+      "collisionPairs": 0,
+      "first": null,
+      "vehicleVehicleOverlap": null,
+      "vehicleCitizenOverlap": null,
+      "observedCrossings": 7314,
+      "final": {
+        "active": 58,
+        "waiting": 45,
+        "pending": 5,
+        "queued": 50,
+        "completed": 11,
+        "generated": 74,
+        "rejected": 0,
+        "meanSpeed": 0.9226218620689653,
+        "meanWait": 23.379310344827584,
+        "flow": 11,
+        "meanTripTime": 42.74545454545454,
+        "pedestrianCompleted": 4,
+        "pedestrianCrossings": 18,
+        "turns": 48,
+        "reroutes": 0,
+        "maxWait": 42.233333333333334
+      }
+    },
+    "restore_impossible_completion_history": {
+      "accepted": false,
+      "code": "INVALID_STATE",
+      "error": "Invalid traffic state: completion window exceeds lifetime completed trips"
+    },
+    "restore_conflicting_reservation_phase": {
+      "accepted": false,
+      "code": "INVALID_STATE",
+      "error": "Invalid traffic state: reservation conflicts with signal phase"
+    },
+    "invalid_restore_is_atomic": {
+      "rejected": true,
+      "unchanged": true
+    }
+  }
+}

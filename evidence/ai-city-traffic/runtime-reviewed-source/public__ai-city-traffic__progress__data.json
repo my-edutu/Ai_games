@@ -1,0 +1,250 @@
+{
+  "game": "AI City Traffic Experiment",
+  "title": "City / Flow",
+  "updatedAt": "2026-10-30T20:58:04.185887+00:00",
+  "branch": "codex/game11-city-traffic-gauntlet",
+  "status": "Integration and independent review",
+  "benchmark": {
+    "status": "REFERENCE LEADS",
+    "bar": "Beat representative actual Cities: Skylines II gameplay at matched aerial/street views, resolution, scene scale and traffic density.",
+    "reason": "A fresh critic inspected the actual aerial, street, night and mobile captures beside the pinned Cities: Skylines II references. Repeated architectural massing and simplified foreground assets remain the largest visual gap. The commercial benchmark has not been met."
+  },
+  "references": [
+    {
+      "name": "Cities: Skylines II",
+      "role": "Main city, traffic and scene benchmark",
+      "url": "https://store.steampowered.com/app/949230/Cities_Skylines_II/",
+      "status": "Official gameplay stills inspected"
+    },
+    {
+      "name": "Transport Fever 2",
+      "role": "Vehicle and infrastructure detail",
+      "url": "https://store.steampowered.com/app/1066780/Transport_Fever_2/",
+      "status": "Official gameplay stills inspected"
+    },
+    {
+      "name": "Mini Motorways",
+      "role": "Interface and congestion readability",
+      "url": "https://dinopoloclub.com/games/mini-motorways/",
+      "status": "Official gameplay stills inspected"
+    }
+  ],
+  "captures": [
+    {
+      "file": "iteration-2-aerial.png",
+      "title": "Iteration 2 \u00b7 Aerial",
+      "date": "2026-10-30T20:34:25.485Z"
+    },
+    {
+      "file": "iteration-2-street.png",
+      "title": "Iteration 2 \u00b7 Street",
+      "date": "2026-10-30T20:34:25.485Z"
+    },
+    {
+      "file": "iteration-2-night.png",
+      "title": "Iteration 2 \u00b7 Night",
+      "date": "2026-10-30T20:34:25.485Z"
+    },
+    {
+      "file": "iteration-2-mobile.png",
+      "title": "Iteration 2 \u00b7 Mobile",
+      "date": "2026-10-30T20:34:25.485Z"
+    },
+    {
+      "file": "iteration-2-mobile-experiment.png",
+      "title": "Iteration 2 \u00b7 Mobile experiment (critic finding)",
+      "date": "2026-10-30T20:41:33.559370+00:00"
+    },
+    {
+      "file": "iteration-3-aerial.jpg",
+      "title": "Iteration 3 \u00b7 Aerial",
+      "date": "2026-10-30T20:49:43.771Z"
+    },
+    {
+      "file": "iteration-3-street.jpg",
+      "title": "Iteration 3 \u00b7 Street",
+      "date": "2026-10-30T20:49:43.771Z"
+    },
+    {
+      "file": "iteration-3-follow.jpg",
+      "title": "Iteration 3 \u00b7 Follow",
+      "date": "2026-10-30T20:49:43.771Z"
+    },
+    {
+      "file": "iteration-3-night.jpg",
+      "title": "Iteration 3 \u00b7 Night",
+      "date": "2026-10-30T20:49:43.771Z"
+    },
+    {
+      "file": "iteration-3-mobile.jpg",
+      "title": "Iteration 3 \u00b7 Mobile",
+      "date": "2026-10-30T20:49:43.771Z"
+    },
+    {
+      "file": "iteration-3-mobile-experiment.jpg",
+      "title": "Iteration 3 \u00b7 Mobile Experiment",
+      "date": "2026-10-30T20:49:43.771Z"
+    }
+  ],
+  "checks": [
+    {
+      "name": "Production and browser authority compile",
+      "status": "PASS",
+      "detail": "The same TypeScript simulation compiles for Node and browser ES modules."
+    },
+    {
+      "name": "Local server and asset boundaries",
+      "status": "PASS",
+      "detail": "4 HTTP tests passed, including local Three.js assets, method rejection and repository path isolation."
+    },
+    {
+      "name": "Deterministic traffic and dense intersections",
+      "status": "IN REVIEW",
+      "detail": "Fresh critic independently closed the three original P1 defects. Quality remains in revision: fixed-ID corner allocation can repeatedly bypass older pedestrians; a fairness fix is underway."
+    },
+    {
+      "name": "Integrated browser controls and recovery",
+      "status": "PASS / ART IN REVISION",
+      "detail": "All 8 Chromium checks passed on stable iteration 3: visible traffic, pause/speed, demand/policy/roadworks, cameras/night/overlay/sound, mobile targets and Escape, WebGL failure, actual context-loss recovery and live journal. Further vehicle, mobile queue-cue and pedestrian-fairness changes will receive affected checks."
+    },
+    {
+      "name": "Unchanged catalogue baseline",
+      "status": "PRE-EXISTING FAILURES",
+      "detail": "Before feature changes, the baseline suite reported120 passed and3 failed: eko-run-headless, stream-host and candidate-script. This is not reported as a green full suite."
+    }
+  ],
+  "iterations": [
+    {
+      "id": "baseline",
+      "date": "2026-10-30T20:22:05.447Z",
+      "title": "Repository baseline established",
+      "detail": "Game 11 was present in the catalogue but had no dedicated implementation. The source snapshot was verified against 1,300 repository blob hashes.",
+      "findings": [
+        "No traffic-game runtime to inspect at baseline."
+      ],
+      "changes": [],
+      "verdict": "Baseline recorded"
+    },
+    {
+      "id": "build-1",
+      "date": "2026-10-30T20:22:05.447Z",
+      "title": "First integrated city",
+      "detail": "Independent builders implemented the traffic authority, city models and interface. The live build uses local assets and real simulation metrics.",
+      "findings": [
+        "High-demand long-tail testing exposed gridlock after sustained operation.",
+        "External reference media remain unavailable."
+      ],
+      "changes": [
+        "Connected road network, vehicle and pedestrian routes, junction reservations and signals.",
+        "Coastal district, dressed buildings, park, waterfront and animated agent models.",
+        "Working controls, camera modes, day/night presentation and optional sound."
+      ],
+      "verdict": "Awaiting independent running-game review"
+    },
+    {
+      "id": "critic-1",
+      "date": "2026-10-30T20:28:50.505057+00:00",
+      "title": "Independent authority and rendering review",
+      "detail": "Fresh headless probes reproduced failures that the initial builder tests missed. The actual browser reached its first rendered frame, but software-GPU throughput and screenshot capture were too slow.",
+      "findings": [
+        "Citizens20 and30 occupied the same corner in a default seed2026 run at tick232.",
+        "A malformed restored completion history could inflate flow without completed trips.",
+        "A malformed restored reservation could admit a vehicle against the displayed green.",
+        "Actual first render reported238 calls and2,214,204 triangles;0.4fps on the shared software renderer, with interaction/capture timeouts."
+      ],
+      "changes": [
+        "Entry metering and bounded rerouting closed the original high-demand gridlock regression."
+      ],
+      "verdict": "REVISE \u2014 correctness and rendering fixes required"
+    },
+    {
+      "id": "references-pinned",
+      "date": "2026-10-30T20:34:10.032084+00:00",
+      "title": "Commercial reference evidence retrieved",
+      "detail": "The permitted network route made actual reference images available. The fixed benchmark now has inspected neighborhood and citizen/vehicle views; supporting streetscape and route-readability images are pinned too.",
+      "findings": [
+        "Still images cannot establish motion, AI, audio or performance parity."
+      ],
+      "changes": [
+        "Recorded original source URLs, dimensions, SHA-256 hashes and comparison limitations."
+      ],
+      "verdict": "References available \u2014 candidate comparison pending"
+    },
+    {
+      "id": "render-2",
+      "date": "2026-10-30T20:36:03.265911+00:00",
+      "title": "Real city captures complete",
+      "detail": "The revised running build produced aerial, street, night and mobile screenshots without recorded browser errors. Captures use the actual application, paused through its operator command; desktop images are 1920\u00d71080.",
+      "findings": [
+        "Independent visual review still places the commercial reference ahead; repeated facades and simplified close assets are the next art gaps.",
+        "Paused screenshots do not prove a running frame-rate target."
+      ],
+      "changes": [
+        "Distance detail preserves near models while reducing distant geometry.",
+        "Static shadow caching and on-demand paused rendering make capture and inspection practical.",
+        "First revised browser frame: 71 draw calls and 267,166 triangles at pixel ratio 1."
+      ],
+      "verdict": "Captured \u2014 fresh critic review in progress"
+    },
+    {
+      "id": "visual-ui-2",
+      "date": "2026-10-30T20:40:33.129495+00:00",
+      "title": "Fresh visual and interface verdicts",
+      "detail": "Independent critics inspected the real captured city and pinned reference images. The commercial reference remains ahead; the next builder round follows the largest concrete gaps.",
+      "findings": [
+        "Repeated box massing, window grids and roof rhythms dominate both aerial and street scenes.",
+        "The mobile HUD leaves too little unobstructed city; several touch targets are small.",
+        "The mobile queue legend disappears when Experiment is open.",
+        "Camera and night transitions stretched substantially under slow rendering."
+      ],
+      "changes": [
+        "Returned architecture/frontage work to the world builder and mobile/control work to a separate UI builder."
+      ],
+      "verdict": "REVISE \u2014 reference leads"
+    },
+    {
+      "id": "ui-runtime-red",
+      "date": "2026-10-30T20:41:33.559370+00:00",
+      "title": "UI critique reproduced in the running game",
+      "detail": "Direct browser interaction confirmed the source-backed findings before revision.",
+      "findings": [
+        "Changing speed while paused announced \u201cSimulation running at 2\u00d7 speed.\u201d",
+        "The queue legend disappeared with the mobile Experiment panel open.",
+        "Escape from the focused demand slider did not close the panel."
+      ],
+      "changes": [
+        "Recorded actual control bounds and mobile experiment screenshot.",
+        "Builder now has a concrete red case for each usability defect."
+      ],
+      "verdict": "REVISE \u2014 runtime findings confirmed"
+    },
+    {
+      "id": "revision-3",
+      "date": "2026-10-30T20:55:59.174449+00:00",
+      "title": "Architecture and phone layout improve",
+      "detail": "A fresh critic chose the revised aerial image in a blind comparison before the iteration mapping was revealed. Both candidates were also compared directly with the pinned Cities reference. All six current captures have stable before/after source hashes.",
+      "findings": [
+        "The commercial reference still leads. Near-camera cars, vans and buses are the largest next asset-quality gap.",
+        "Mobile city visibility is substantially improved, but the numerical queue cue can hide behind Experiment.",
+        "Default-demand pedestrian review found older corner requests repeatedly bypassed by lower-ID citizens, causing avoidable long stops."
+      ],
+      "changes": [
+        "Added distinct arcade, stepped-apartment and commercial building families and connected the background district.",
+        "Condensed mobile HUD and enlarged principal touch controls; kept the queue legend in Experiment.",
+        "Corrected paused feedback and focused-control Escape handling; camera transitions now use presentation time."
+      ],
+      "verdict": "Improved \u2014 continue with vehicle assets, queue readability and pedestrian fairness"
+    }
+  ],
+  "next": [
+    "Remove deterministic corner-allocation unfairness while retaining separation, valid restore and meaningful journey progress.",
+    "Improve near-camera moving and parked vehicles, then compare the actual result against the same fixed references.",
+    "Keep queue information visible during mobile experiments; verify all controls and recovery on the integrated revision."
+  ],
+  "tooling": {
+    "builders": "Separate simulation, world and UI agents",
+    "critics": "Fresh independent reviews",
+    "ultracode": "Unavailable in this environment"
+  },
+  "productionReady": false
+}

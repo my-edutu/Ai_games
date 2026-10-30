@@ -1,0 +1,16 @@
+✔ tests/foundation/city-traffic-capture.test.cjs (160.534301ms)
+✖ tests/foundation/city-traffic-server.test.cjs (152.604754ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 1
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 174.260045
+
+✖ failing tests:
+
+test at tests/foundation/city-traffic-server.test.cjs:1:1
+✖ tests/foundation/city-traffic-server.test.cjs (152.604754ms)
+  'test failed'

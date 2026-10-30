@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#e9ede5" />
+    <meta name="description" content="A living coastal city. Watch autonomous traffic, explore its streets, and experiment with the signals that keep it moving." />
+    <title>City / Flow — AI City Traffic</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%231f6f5c'/%3E%3Cpath d='M15 50V14h10v36m14 0V14h10v36M10 32h44' stroke='%23faf9f1' stroke-width='5' fill='none'/%3E%3C/svg%3E" />
+    <link rel="stylesheet" href="./styles.css" />
+    <script type="importmap">
+      { "imports": { "three": "/traffic/vendor/three.module.js", "three/addons/": "/traffic/vendor/addons/" } }
+    </script>
+  </head>
+  <body>
+    <svg class="icon-library" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+      <symbol id="icon-aerial" viewBox="0 0 24 24"><path d="m12 3 9 5-9 5-9-5 9-5Z"/><path d="m3 12 9 5 9-5M3 16l9 5 9-5"/></symbol>
+      <symbol id="icon-street" viewBox="0 0 24 24"><path d="m8 3-5 18m13-18 5 18M12 4v3m0 4v3m0 4v3"/></symbol>
+      <symbol id="icon-follow" viewBox="0 0 24 24"><path d="m7 7 2-4h6l2 4m-11 3h12l2 4v5H4v-5l2-4Z"/><path d="M4 15h16M7 18v3m10-3v3M7 12h1m8 0h1"/></symbol>
+      <symbol id="icon-pause" viewBox="0 0 24 24"><path d="M8 5v14M16 5v14" stroke-width="3.5"/></symbol>
+      <symbol id="icon-play" viewBox="0 0 24 24"><path d="m8 4 12 8-12 8V4Z" fill="currentColor" stroke="none"/></symbol>
+      <symbol id="icon-sliders" viewBox="0 0 24 24"><path d="M4 7h7m4 0h5M4 17h3m4 0h9"/><circle cx="13" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></symbol>
+      <symbol id="icon-close" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></symbol>
+      <symbol id="icon-night" viewBox="0 0 24 24"><path d="M20.7 14.5A9 9 0 0 1 9.5 3.3a9 9 0 1 0 11.2 11.2Z"/></symbol>
+      <symbol id="icon-day" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol>
+      <symbol id="icon-overlay" viewBox="0 0 24 24"><path d="m3 5 6-2 6 2 6-2v16l-6 2-6-2-6 2V5Zm6-2v16m6-14v16"/><path d="m5.5 11 3 2 4-3 3 2 3-4"/></symbol>
+      <symbol id="icon-sound-off" viewBox="0 0 24 24"><path d="m11 4-6 5H2v6h3l6 5V4Zm5 5 6 6m0-6-6 6"/></symbol>
+      <symbol id="icon-sound-on" viewBox="0 0 24 24"><path d="m11 4-6 5H2v6h3l6 5V4Zm5 4a6 6 0 0 1 0 8m3-11a10 10 0 0 1 0 14"/></symbol>
+      <symbol id="icon-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.2 9a2.8 2.8 0 1 1 4.5 2.2c-1.1.8-1.7 1.2-1.7 2.8m0 3h.01"/></symbol>
+      <symbol id="icon-arrow" viewBox="0 0 24 24"><path d="M5 12h14m-6-6 6 6-6 6"/></symbol>
+      <symbol id="icon-external" viewBox="0 0 24 24"><path d="M13 4h7v7m0-7L10 14M9 5H5v15h15v-5"/></symbol>
+      <symbol id="icon-signal" viewBox="0 0 24 24"><rect x="7" y="2" width="10" height="17" rx="4"/><path d="M12 19v3"/><circle cx="12" cy="7" r="1"/><circle cx="12" cy="12" r="1"/></symbol>
+      <symbol id="icon-roadworks" viewBox="0 0 24 24"><path d="m9 3-5 17h16L15 3H9ZM7.5 8h9m-10.5 6h12M2 21h20"/></symbol>
+      <symbol id="icon-reset" viewBox="0 0 24 24"><path d="M4 10a8 8 0 1 1 1 8M4 3v7h7"/></symbol>
+      <symbol id="icon-chevron" viewBox="0 0 24 24"><path d="m9 5 7 7-7 7"/></symbol>
+    </svg>
+
+    <a class="skip-link" href="#city-controls">Skip to city controls</a>
+    <main id="app" aria-label="City Flow traffic simulation">
+      <div id="viewport" aria-label="Live three-dimensional city view"></div>
+      <div class="scene-shade" aria-hidden="true"></div>
+
+      <div class="hud" id="hud" data-panel-open="false" data-overlay="false">
+        <header class="masthead">
+          <div class="brand-row">
+            <svg class="brand-mark" viewBox="0 0 36 36" aria-hidden="true"><rect x="0" y="0" width="36" height="36" rx="10"/><path d="M11 7v22M25 7v22M5 18h26"/><path class="brand-lane" d="M18 5v7m0 12v7"/></svg>
+            <h1>CITY<span>/</span>FLOW</h1>
+            <span class="game-number" aria-label="Game 11">11</span>
+          </div>
+          <p class="masthead-kicker">AI CITY TRAFFIC EXPERIMENT</p>
+          <div class="district-label"><span class="district-line" aria-hidden="true"></span><span>NORTHSHORE</span><span class="district-type">COASTAL DISTRICT</span></div>
+        </header>
+
+        <section class="stats-panel glass" aria-label="Live traffic statistics">
+          <div class="stat"><span class="stat-label">On the road</span><strong id="stat-active">—</strong><span class="stat-unit">vehicles</span></div>
+          <div class="stat stat-primary"><span class="stat-label">Arrived</span><strong id="stat-completed">—</strong><span class="stat-unit">trips completed</span></div>
+          <div class="stat"><span class="stat-label">Avg. speed</span><strong id="stat-speed">—</strong><span class="stat-unit">km/h</span></div>
+          <div class="stat" title="Stopped vehicles and vehicles waiting to enter the district"><span class="stat-label">In a queue</span><strong id="stat-queued">—</strong><span class="stat-unit">vehicles</span></div>
+        </section>
+
+        <div class="session-info">
+          <span class="live-state" id="live-state"><span class="live-dot" aria-hidden="true"></span><span id="live-label">LIVE</span></span>
+          <span class="session-separator" aria-hidden="true"></span>
+          <span id="simulation-clock" aria-label="Simulation elapsed time">00:00</span>
+          <span class="session-label">SIMULATION TIME</span>
+        </div>
+
+        <button class="compass glass" id="reset-view" aria-label="Reset aerial camera view" title="Reset view · R">
+          <span>N</span><svg id="compass-arrow" viewBox="0 0 32 32" aria-hidden="true"><path d="m16 3 6 22-6-4-6 4 6-22Z" fill="currentColor"/><path d="m16 3 0 18 6 4-6-22Z" fill="currentColor" opacity=".28"/></svg>
+        </button>
+
+        <nav class="scene-tools" aria-label="View and sound">
+          <button class="icon-button glass" id="overlay-toggle" aria-label="Show traffic overlay" aria-pressed="false" title="Traffic overlay · O"><svg class="icon"><use href="#icon-overlay"/></svg><span class="tool-label">Traffic</span></button>
+          <button class="icon-button glass" id="night-toggle" aria-label="Switch to night" aria-pressed="false" title="Day / night · N"><svg class="icon"><use href="#icon-night"/></svg><span class="tool-label">Night</span></button>
+          <button class="icon-button glass" id="sound-toggle" aria-label="Enable city sounds" aria-pressed="false" title="City sounds · M"><svg class="icon"><use href="#icon-sound-off"/></svg><span class="tool-label">Sound</span></button>
+          <button class="icon-button glass" id="help-open" aria-label="How to play and keyboard controls" aria-haspopup="dialog" title="How to explore · ?"><svg class="icon"><use href="#icon-help"/></svg><span class="tool-label">Help</span></button>
+        </nav>
+
+        <div class="tracking-chip glass" id="tracking-chip" hidden>
+          <span class="tracking-dot" aria-hidden="true"></span><span id="tracking-label">Following a vehicle</span>
+          <button id="next-vehicle" class="small-icon" aria-label="Follow next vehicle" title="Follow next vehicle · F"><svg class="icon"><use href="#icon-arrow"/></svg></button>
+        </div>
+
+        <section class="intent-card glass" aria-label="Current city activity">
+          <div class="intent-heading"><span class="signal-icon"><svg class="icon"><use href="#icon-signal"/></svg></span><span id="intent-policy">ADAPTIVE SIGNALS</span><span class="intent-live">AI ACTIVE</span></div>
+          <h2 id="intent-title">Keep a city moving.</h2>
+          <p id="intent-message">Drivers are heading into Northshore.</p>
+          <div class="flow-caption"><span class="flow-mark" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span><span><strong id="stat-flow">—</strong> trips / min</span><span class="flow-window">rolling flow</span></div>
+        </section>
+
+        <aside class="experiment-panel glass" id="experiment-panel" aria-labelledby="experiment-title" hidden>
+          <div class="panel-heading"><div><span class="eyebrow">SMALL CHANGES. CITYWIDE EFFECTS.</span><h2 id="experiment-title">Shape the city.</h2></div><button class="small-icon panel-close" id="experiment-close" aria-label="Close city experiment controls"><svg class="icon"><use href="#icon-close"/></svg></button></div>
+          <div class="experiment-legend-anchor" id="experiment-legend-anchor"></div>
+          <div class="control-section demand-control">
+            <div class="control-label"><label for="demand-range">Traffic demand</label><output for="demand-range" id="demand-value">1.0×</output></div>
+            <input id="demand-range" type="range" min="0.25" max="2" step="0.05" value="1" aria-label="Traffic demand" aria-valuetext="Everyday demand, 1 times normal" />
+            <div class="range-labels"><span>Quiet</span><span>Rush hour</span></div>
+            <button class="rush-button" id="rush-toggle" aria-pressed="false"><span class="rush-dot" aria-hidden="true"></span><span>Bring on rush hour</span><svg class="icon"><use href="#icon-arrow"/></svg></button>
+          </div>
+          <div class="control-section policy-control">
+            <div class="control-label"><span id="policy-label">Signal timing</span><span class="control-note" id="policy-note">Responds to queues</span></div>
+            <div class="segmented policy-options" role="group" aria-labelledby="policy-label"><button data-policy="adaptive" aria-pressed="true">Adaptive</button><button data-policy="fixed" aria-pressed="false">Fixed cycle</button></div>
+          </div>
+          <button class="roadworks-button" id="roadworks-toggle" aria-pressed="false"><span class="roadworks-icon"><svg class="icon"><use href="#icon-roadworks"/></svg></span><span><strong>Roadworks</strong><small id="roadworks-state">All roads are open</small></span><span class="switch-track" aria-hidden="true"><span></span></span></button>
+          <p class="experiment-note">Watch the queues. Let the city find its rhythm.</p>
+        </aside>
+
+        <p class="explore-hint"><span class="drag-icon" aria-hidden="true">↔</span> Drag to orbit <span>·</span> Scroll to explore</p>
+        <div class="control-dock glass" id="city-controls" tabindex="-1">
+          <nav class="camera-controls segmented" aria-label="Camera perspective"><button data-camera="aerial" aria-pressed="true" title="Aerial view · 1"><svg class="icon"><use href="#icon-aerial"/></svg><span>Aerial</span></button><button data-camera="street" aria-pressed="false" title="Street view · 2"><svg class="icon"><use href="#icon-street"/></svg><span>Street</span></button><button data-camera="follow" aria-pressed="false" title="Follow a vehicle · 3"><svg class="icon"><use href="#icon-follow"/></svg><span>Follow</span></button></nav>
+          <div class="dock-divider" aria-hidden="true"></div>
+          <div class="playback-controls"><button class="play-button" id="pause-toggle" aria-label="Pause simulation" aria-pressed="false" title="Pause / resume · Space"><svg class="icon"><use href="#icon-pause"/></svg></button><div class="speed-controls" role="group" aria-label="Simulation speed"><button data-speed="1" aria-pressed="true">1×</button><button data-speed="2" aria-pressed="false">2×</button><button data-speed="4" aria-pressed="false">4×</button></div></div>
+          <div class="dock-divider" aria-hidden="true"></div>
+          <button class="experiment-toggle" id="experiment-toggle" aria-label="Experiment with city traffic" aria-expanded="false" aria-controls="experiment-panel"><svg class="icon"><use href="#icon-sliders"/></svg><span class="experiment-label">Experiment</span><span class="experiment-indicator" aria-hidden="true"></span></button>
+        </div>
+        <div class="queue-callout" id="queue-callout" hidden><small id="queue-callout-location"></small><strong id="queue-callout-value">0</strong><span>queued</span></div>
+        <div class="overlay-legend glass" id="overlay-legend" hidden>
+          <div class="legend-scale"><span class="legend-title">JUNCTION QUEUES</span><span class="legend-stop">Clear</span><span class="legend-gradient" aria-hidden="true"></span><span>Busy</span></div>
+          <section class="queue-summary" id="queue-summary" aria-label="Busiest junction">
+            <div class="queue-summary-place"><span class="queue-summary-label">BUSIEST JUNCTION</span><strong id="queue-summary-location">Junctions clear</strong></div>
+            <div class="queue-summary-total"><strong id="queue-summary-count">0</strong><span>queued</span></div>
+            <button id="queue-focus" class="queue-focus" aria-label="View the busiest junction"><span>View</span><svg class="icon"><use href="#icon-arrow"/></svg></button>
+          </section>
+        </div>
+      </div>
+
+      <div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
+      <div class="loading-state" id="loading-state" role="status"><div class="loading-brand">CITY<span>/</span>FLOW</div><div class="loading-line" aria-hidden="true"></div><p>Preparing Northshore…</p></div>
+      <section class="fatal-state" id="fatal-state" role="alert" hidden><div class="fatal-card"><span class="eyebrow">CITY / FLOW</span><h1 id="fatal-title">The city couldn’t start.</h1><p id="fatal-message">The 3D view could not load. Please reload to try again.</p><button id="reload-city">Reload city <span aria-hidden="true">↗</span></button><a href="/traffic/progress/">Project progress</a></div></section>
+      <noscript><div class="noscript-message">City / Flow needs JavaScript to run its live traffic simulation. Enable JavaScript and reload this page.</div></noscript>
+    </main>
+
+    <dialog id="help-dialog" aria-labelledby="help-title">
+      <div class="help-header"><span class="eyebrow">WELCOME TO NORTHSHORE</span><button class="small-icon" id="help-close" aria-label="Close help"><svg class="icon"><use href="#icon-close"/></svg></button></div>
+      <h2 id="help-title">Every journey<br/>changes the city.</h2>
+      <p class="help-intro">Watch autonomous drivers cross a living coastal district. They follow their routes, wait at junctions, and make their way home. Your goal: keep the city moving.</p>
+      <div class="help-steps"><div><span>01</span><p><strong>Find your perspective.</strong> Orbit from above, drop to street level, or follow a vehicle. Click a vehicle to ride along.</p></div><div><span>02</span><p><strong>Change the rhythm.</strong> Increase traffic demand, compare adaptive signals with a fixed cycle, or slow a lane with roadworks.</p></div><div><span>03</span><p><strong>Watch what happens.</strong> Completed trips, speed, and queues come directly from the simulation. Let each change play out.</p></div></div>
+      <div class="help-shortcuts"><h3>A few shortcuts</h3><dl><div><dt><kbd>Space</kbd></dt><dd>Pause / resume</dd></div><div><dt><kbd>1</kbd><kbd>2</kbd><kbd>3</kbd></dt><dd>Camera views</dd></div><div><dt><kbd>F</kbd></dt><dd>Follow next vehicle</dd></div><div><dt><kbd>N</kbd><kbd>O</kbd><kbd>M</kbd></dt><dd>Night, traffic, sound</dd></div><div><dt><kbd>R</kbd></dt><dd>Reset the view</dd></div><div><dt><kbd>?</kbd></dt><dd>This guide</dd></div></dl><p>Drag to orbit · Scroll or pinch to zoom · Right-drag or two fingers to pan. With the city view focused, use arrow keys to orbit and + / − to zoom.</p></div>
+      <div class="help-footer"><a href="/traffic/progress/">Project progress <svg class="icon"><use href="#icon-external"/></svg></a><button id="restart-simulation">Restart simulation</button></div>
+    </dialog>
+
+    <script type="module">
+      const loading = document.getElementById('loading-state');
+      const fatal = document.getElementById('fatal-state');
+      window.showCityFailure = (message, title = 'The city couldn’t start.') => {
+        loading.hidden = true;
+        document.getElementById('fatal-title').textContent = title;
+        document.getElementById('fatal-message').textContent = message;
+        fatal.hidden = false;
+        document.getElementById('reload-city').focus();
+      };
+      document.getElementById('reload-city').addEventListener('click', () => location.reload());
+      import('./main.mjs').then(module => module.startCityTraffic()).catch(error => {
+        console.error('[City Flow] Startup failed', error);
+        window.showCityFailure('The 3D city could not load. Check your connection, make sure WebGL is available, and try reloading.');
+      });
+    </script>
+  </body>
+</html>
