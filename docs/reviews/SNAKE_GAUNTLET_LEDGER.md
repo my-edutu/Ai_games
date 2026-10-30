@@ -64,3 +64,11 @@ The remaining failure is the unchanged full-HD frame-rate gate: five RAF frames 
 Actual new character and portrait captures plus matched cache images are retained in the progress page. The matched captures use the same real public replay frame: steady-frame geometry falls from 74,935 to 11,498 triangles and draw calls from 63 to 51. Their short initial-frame timing samples are insufficient for a sustained speed claim. Exact CI provenance and counts are in `snake-gauntlet/round-5-browser-verification.json`.
 
 Independent visual review of these captures is underway. The commercial reference has not been beaten. The session's agent-thread limit prevents starting another fresh context; the existing separate critic is reused without labeling that review as a fully fresh-context comparison.
+
+## Round 6 — display-cache evidence and next correction
+
+Commit `c953c64d21059fe6eb2dc9f7cb094655ddaba48e`, [isolated run 41121933969](https://github.com/my-edutu/Ai_games/actions/runs/41121933969), again passes 11/12 browser checks. Complete desktop metrics now record **5.242 FPS**, six actual draws over 1144.6 ms, and a maximum gap of 266.6 ms. The cache is active (22 hits / four builds), so stale-cache bypass is not the cause. The unchanged 17 FPS / below-250 ms gate remains failed.
+
+Independent actual-image review finds the new and preceding cached PNGs byte-for-byte identical, including all 614,400 decoded pixels. The prior fine static-edge difference against direct rendering persists without a new color/quantization regression. Exact report and desktop metrics are retained in this review directory.
+
+The next candidate follows the character critic: keep the large eyes, blend their outer support into the lid green, remove redundant gold mouth rims and slim the neutral cavity while retaining the eating pose. A lower detail camera preserves the tested facial size while opening the upper frame to scenery. Water now uses one original procedural flowing texture instead of the visible analytic plaid pattern. A measured rendering-budget response replaces the fixed slow-device resolution reduction. These changes require new actual captures; no win is claimed.

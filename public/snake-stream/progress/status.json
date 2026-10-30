@@ -1,24 +1,24 @@
 {
-  "updatedAt": "2026-10-30T20:13:55Z",
-  "status": "Round 5 \u00b7 real browser evidence and rendering speed",
-  "detail": "Draft PR 52 contains the working 3D game. The isolated browser run passes 11 of 12 checks; full-HD frame rate is the remaining failure. Latest character, portrait and matched cache captures are now available for independent review.",
+  "updatedAt": "2026-10-30T20:30:00Z",
+  "status": "Round 6 \u00b7 face, scene context and measured rendering budget",
+  "detail": "The display-color cache is visually unchanged in the matched scene. Isolated browser checks remain 11/12; measured full-HD speed is 5.24 FPS. The next candidate simplifies the face, lowers the close camera, softens the water pattern and adapts resolution to measured device speed.",
   "latestImage": "/progress/evidence/round-5-overview.jpg",
   "latestCaption": "Round 5 \u00b7 cached 3D scene from a frozen real public replay frame, captured in isolated CI",
   "reviews": [
     {
       "area": "Character and motion",
-      "verdict": "Round 5 captured \u00b7 review in progress",
-      "gap": "Larger forward-facing eyes, continuous brow volumes and unified jaw now have a real runtime capture. The previous independent comparison still favored Snake Pass; the new character is under review."
+      "verdict": "LOSE \u00b7 independent round 5 review",
+      "gap": "The reference still wins facial integration and expression. A simpler mouth, blended eye supports and a lower close camera are implemented for the next actual capture; motion recording is included in the next browser run."
     },
     {
       "area": "World and composition",
-      "verdict": "Content preserved \u00b7 edge-quality gap remains",
-      "gap": "Independent inspection finds the same scene and gameplay objects in direct/cached images. Fine flowers, foliage and stone silhouettes look harder/brighter in the cache; this is recorded as a cosmetic gap. Full-HD frame pacing remains open."
+      "verdict": "Display cache visually unchanged",
+      "gap": "Independent review finds the new and previous cached screenshots byte-for-byte identical. The known fine-edge difference versus direct rendering remains. Organic water replaces the plaid pattern in the next candidate; its visual result is pending."
     },
     {
       "area": "Whole experience",
-      "verdict": "11/12 browser checks pass",
-      "gap": "Portrait controls, cameras, lifecycle, reconnect, cache resize and context-loss recovery pass on an isolated runner. The remaining failure is the unchanged full-HD frame-rate gate."
+      "verdict": "11/12 checks pass \u00b7 speed still fails",
+      "gap": "Full-HD software rendering measures 5.24 FPS with a 266.6 ms maximum gap. Responsive controls, lifecycle, fallback and cache checks pass. Measured resolution adaptation is the next performance correction."
     }
   ],
   "rounds": [
@@ -117,14 +117,21 @@
           "path": "/progress/evidence/round-5-overview.jpg"
         }
       ]
+    },
+    {
+      "title": "Round 6 \u00b7 verified cache color and targeted visual corrections",
+      "summary": "The display-color bake is pixel-identical to the preceding cache in the matched fixture, but full-HD speed remains 5.24 FPS. The next candidate keeps the large eyes while simplifying mouth layers, lowers the character camera, replaces plaid water and uses measured resolution adaptation. New actual captures and motion review are pending.",
+      "captures": []
     }
   ],
   "checks": [
     "Full repository Node regression: 515 passed, 0 failed/skipped/cancelled on checkpoint 40bc6cc; the repository CI also passed its Node and authority gates.",
     "Isolated real-browser run on c07c412: 11 passed, 1 failed. Cameras, portrait controls, fallback, lifecycle/reconnect, cache resizing and context loss pass.",
-    "Full-HD frame-rate gate remains open: 5 frames observed in the one-second measurement, below the unchanged 17 FPS requirement. The next cache optimization is underway.",
+    "Full-HD gate on c953c64 remains open: 5.242 FPS, 6 actual draws over 1144.6 ms, maximum gap 266.6 ms. Requirements remain at least 17 FPS and gaps below 250 ms.",
+    "Display-cache visual regression on c953c64: all 614,400 pixels match the preceding cached fixture. The prior fine-edge antialiasing difference is unchanged.",
     "Matched cache frames show 74,935 \u2192 11,498 steady-frame triangles. Initial-frame timings are not treated as a sustained speed claim.",
     "12 focused presentation/model checks and independent code-review corrections are retained.",
-    "The commercial visual benchmark and external production R5 gates remain open."
+    "The commercial visual benchmark and external production R5 gates remain open.",
+    "Measured-resolution regression checks: 4/4 pass, including isolated-hitch resistance and all requested draws submitted. Camera/model/resource checks: 4/4 pass. Actual next-candidate GPU performance remains pending."
   ]
 }

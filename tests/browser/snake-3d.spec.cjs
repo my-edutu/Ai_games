@@ -31,7 +31,13 @@ function lifecycleFrames() {
   return frames;
 }
 
-test('real WebGL scene advances and camera controls preserve the authoritative run', async ({ page }) => {
+test('real WebGL scene advances and camera controls preserve the authoritative run', async ({ browser, baseURL }) => {
+  test.setTimeout(60000);
+  const context = await browser.newContext({ baseURL, recordVideo: { dir: path.dirname(evidence('character-motion.webm')), size: { width: 1280, height: 960 } } });
+  let video;
+  try {
+  const page = await context.newPage();
+  video = page.video();
   const errors = [];
   page.on('pageerror', error => errors.push(error.message));
   await page.setViewportSize({ width: 1280, height: 720 });
@@ -49,6 +55,9 @@ test('real WebGL scene advances and camera controls preserve the authoritative r
   await page.setViewportSize({ width: 1440, height: 1200 });
   await page.waitForTimeout(1500);
   await page.screenshot({ path: evidence('character-current.png') });
+  // Retain actual motion for the independent critic, including turns and the
+  // character's live reactions. Save the actual video alongside the stills.
+  await page.waitForTimeout(3500);
   await page.locator('#board-overview').click();
   await page.waitForFunction(() => window.__snakePresentation.stats().cameraMode === 'overview');
   const after = await page.evaluate(() => window.__snakePresentation.stats());
@@ -56,6 +65,15 @@ test('real WebGL scene advances and camera controls preserve the authoritative r
   expect(after.geometries).toBeLessThan(90);
   expect(after.textures).toBeLessThan(24);
   expect(errors).toEqual([]);
+  } finally {
+    await context.close();
+    if (video) {
+      const original = await video.path();
+      const saved = evidence('character-motion.webm');
+      await video.saveAs(saved);
+      if (original !== saved) fs.unlinkSync(original);
+    }
+  }
 });
 
 test('WebGL failure presents a working safety view while snapshots keep advancing', async ({ page }) => {
@@ -140,7 +158,7 @@ test('adaptive quality retains a valid shadow map and visible 3D after resizing'
   expect((await page.evaluate(() => window.__snakePresentation.stats())).textures).toBeGreaterThanOrEqual(8);
 });
 
-test('progress page and local renderer dependencies are available with safe MIME types', async ({ request }) => {
+test('progress page and local renderer dependencies are available with safe MIME types', async ({ request, page }) => {
   for (const route of ['/renderer.mjs', '/serpent.mjs', '/world.mjs', '/camera.mjs', '/overview.mjs', '/view-copy.mjs', '/vendor/three.module.js', '/vendor/three.core.js']) {
     const response = await request.get(route);
     expect(response.ok()).toBeTruthy();
@@ -150,6 +168,12 @@ test('progress page and local renderer dependencies are available with safe MIME
   expect(progress.ok()).toBeTruthy();
   expect(await progress.text()).toContain('Gauntlet');
   expect((await request.get('/vendor/package.json')).status()).toBe(404);
+  await page.setViewportSize({ width: 1440, height: 1100 });
+  await page.goto('/progress');
+  await expect(page.locator('#status-title')).not.toHaveText('Loading progress');
+  await expect(page.locator('#rounds li')).not.toHaveCount(0);
+  await page.waitForFunction(() => [...document.images].every(image => image.complete && image.naturalWidth > 0));
+  await page.screenshot({ path: evidence('progress-page.png') });
 });
 
 test('static cache retains depth and dynamic geometry through resize and context loss', async ({ page }) => {

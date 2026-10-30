@@ -204,12 +204,11 @@ export function createSerpent(THREE) {
   lodBindings.push([skull,skullGeometry,lowSkullGeometry]);
   skull.name='Continuous tapered skull and neck'; skull.castShadow=skull.receiveShadow=true; headPose.add(skull);
   const jaw = new THREE.Group(); jaw.position.set(0,-0.133,-0.18); headPose.add(jaw);
-  ellipsoid(jaw,mouthMaterial,0,0.009,0.299,0.253,0.031,0.337,'Inset mouth cavity');
+  const mouthCavity = ellipsoid(jaw,mouthMaterial,0,0.009,0.299,0.253,0.014,0.337,'Inset mouth cavity');
   ellipsoid(jaw,cream,0,-0.021,0.305,0.263,0.060,0.345,'Unified cream lower jaw');
-  curveTube(headPose,darkJade,[[-0.282,-0.09,-0.17],[-0.283,-0.11,0.02],[-0.25,-0.12,0.20],[-0.18,-0.119,0.36],[0,-0.105,0.476],[0.18,-0.119,0.36],[0.25,-0.12,0.20],[0.283,-0.11,0.02],[0.282,-0.09,-0.17]],0.009,'Long sculpted smile');
-  // Pale labial scales follow the upper lip, with individually readable plates.
+  curveTube(headPose,mouthMaterial,[[-0.282,-0.09,-0.17],[-0.283,-0.11,0.02],[-0.25,-0.12,0.20],[-0.18,-0.119,0.36],[0,-0.105,0.476],[0.18,-0.119,0.36],[0.25,-0.12,0.20],[0.283,-0.11,0.02],[0.282,-0.09,-0.17]],0.006,'Long sculpted smile');
+  // The mouth has one fine crease and one cream jaw, without stacked lip bands.
   for(const sign of [-1,1]) {
-    curveTube(headPose,gold,[[sign*0.279,-0.101,-0.12],[sign*0.277,-0.115,0.06],[sign*0.239,-0.124,0.235],[sign*0.156,-0.115,0.39],[0,-0.106,0.475]],0.008,'Subtle upper lip edge');
     ellipsoid(headPose,darkJade,sign*0.116,0.081,0.415,0.018,0.012,0.010,'Recessed nostril');
     curveTube(headPose,gold,[[sign*0.31,0.015,-0.19],[sign*0.308,0.0,-0.08],[sign*0.292,-0.012,0.07]],0.012,'Swept cheek marking');
   }
@@ -220,7 +219,7 @@ export function createSerpent(THREE) {
     socket.rotation.y=sign*0.40; socket.rotation.x=-0.20;
     socket.scale.setScalar(1.45);
     headPose.add(socket);
-    ellipsoid(socket,darkJade,0,0,-0.014,0.111,0.113,0.070,'Inset eye rim');
+    ellipsoid(socket,jade,0,0,-0.014,0.111,0.113,0.070,'Inset eye rim');
     const eye=new THREE.Group(); socket.add(eye); eyes.push(eye);
     ellipsoid(eye,white,0,0,0,0.100,0.103,0.063,'Ivory eye');
     const look=new THREE.Group(); look.position.set(-sign*0.012,-0.005,0.054); eye.add(look); pupils.push(look);
@@ -375,6 +374,8 @@ export function createSerpent(THREE) {
     headPose.rotation.x = reduced ? 0 : -eaten * 0.11 + dangerEase * 0.025;
     headPose.rotation.z = reduced ? 0 : clamp(-angleDifference * 0.045, -0.06, 0.06);
     jaw.rotation.x = reduced ? 0 : eaten * 0.29;
+    // Keep a slim neutral opening, restoring the prior cavity height for a bite.
+    mouthCavity.scale.y = 0.014 + (reduced ? 0 : eaten * 0.017);
     headPose.scale.set(1 + eaten * 0.035, 1 + eaten * 0.025, 1);
     const blinkPhase = ((time + 1.73) % 4.7);
     const blink = reduced ? 1 : 1 - 0.94 * Math.exp(-Math.pow((blinkPhase - 4.4) / 0.075, 2));

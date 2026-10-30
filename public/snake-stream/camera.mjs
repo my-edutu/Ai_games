@@ -12,8 +12,11 @@ export function cameraComposition({ width, height, aspect, mode = 'overview', he
   const target = mode === 'overview' ? { x: 0, y: 0.4, z: 0 } : { x: head.x, y: 0.4, z: head.z };
   let distance;
   if (mode === 'detail') {
-    outward = normalize({ x: direction.x * 0.82 - direction.z * 0.34, y: 0.45, z: direction.z * 0.82 + direction.x * 0.34 });
-    distance = portrait ? 5.2 : 4.4;
+    // A 12.7-degree pitch lets the upper frame see the garden horizon instead
+    // of intersecting only the floor. Keep the exact head target and frontal
+    // three-quarter azimuth; 4.55 units retains >200px facial diameter at 900px.
+    outward = normalize({ x: direction.x * 0.82 - direction.z * 0.34, y: 0.20, z: direction.z * 0.82 + direction.x * 0.34 });
+    distance = portrait ? 5.2 : 4.55;
   } else if (mode === 'follow') {
     distance = portrait ? 14 : 16;
   } else {

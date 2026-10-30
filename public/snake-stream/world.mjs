@@ -254,11 +254,61 @@ export function createWorld(THREE, {width, height}) {
   }
   materialBatches.clear();
   batches.clear();
-  // Restrained rippling turquoise water. Waves affect scenery only, never board height.
-  const waterMaterial=new THREE.ShaderMaterial({uniforms:{time:{value:0}},vertexShader:`varying vec3 p; void main(){ p=position; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0); }`,fragmentShader:`varying vec3 p; uniform float time; void main(){ float a=sin(p.x*1.5+p.z*.5+time*.36),b=sin(p.z*2.2-p.x*.25-time*.27); float caustic=pow(max(0.,sin(p.x*.8+p.z*.7+a*.3)+sin(p.z*.9-p.x*.3+b*.4)-1.25),3.); vec3 col=mix(vec3(.045,.28,.29),vec3(.12,.49,.45),.5+.15*(a+b)); col+=vec3(.21,.35,.23)*caustic; float d=length(p.xz*vec2(.035,.045)); col=mix(col,vec3(.055,.20,.23),smoothstep(.65,1.9,d)); gl_FragColor=vec4(col,1.); }`});materials.add(waterMaterial);
-  const water=new THREE.Mesh(geometry(new THREE.PlaneGeometry(240,240)),waterMaterial);water.rotation.x=-Math.PI/2;water.position.y=-3.62;
-  // Shader coordinates remain in the water plane's local XY space.
-  waterMaterial.vertexShader=waterMaterial.vertexShader.replace('p=position','p=vec3(position.x,0.,position.y)');group.add(water);
+  // Original seamless water detail is baked once. Slow sampling of two warped
+  // fields replaces per-fragment sine interference (which read as a plaid grid).
+  function waterTexture(){
+    const size=256,data=new Uint8Array(size*size*4);
+    const periodicNoise=(u,v,period)=>{
+      const x=u*period,y=v*period,ix=Math.floor(x),iy=Math.floor(y),fx=x-ix,fy=y-iy;
+      const tx=fx*fx*(3-2*fx),ty=fy*fy*(3-2*fy),wrap=n=>((n%period)+period)%period;
+      const a=noise(wrap(ix)+71,wrap(iy)+29),b=noise(wrap(ix+1)+71,wrap(iy)+29);
+      const c=noise(wrap(ix)+71,wrap(iy+1)+29),d=noise(wrap(ix+1)+71,wrap(iy+1)+29);
+      return (a+(b-a)*tx)*(1-ty)+(c+(d-c)*tx)*ty;
+    };
+    for(let y=0;y<size;y++)for(let x=0;x<size;x++){
+      const u=x/size,v=y/size;
+      const warpU=u+(periodicNoise(u+.31,v+.17,4)-.5)*.16;
+      const warpV=v+(periodicNoise(u+.63,v+.47,5)-.5)*.16;
+      const broad=periodicNoise(warpU,warpV,5)*.62+periodicNoise(warpU,warpV,11)*.28+periodicNoise(warpU,warpV,23)*.1;
+      const ripple=periodicNoise(warpU,warpV,13)*.7+periodicNoise(warpU+.2,warpV-.1,7)*.3;
+      const contour=Math.max(0,1-Math.abs(ripple-.52)/.032);
+      const i=(y*size+x)*4;data[i]=Math.round(broad*255);data[i+1]=Math.round(contour*contour*255);data[i+2]=0;data[i+3]=255;
+    }
+    const t=new THREE.DataTexture(data,size,size);t.name='Original flowing water field';t.wrapS=t.wrapT=THREE.RepeatWrapping;
+    t.magFilter=THREE.LinearFilter;t.minFilter=THREE.LinearMipmapLinearFilter;t.generateMipmaps=true;t.needsUpdate=true;textures.add(t);return t;
+  }
+  const waterMap=waterTexture();
+  const waterMaterial=new THREE.ShaderMaterial({
+    uniforms:{...THREE.UniformsUtils.clone(THREE.UniformsLib.fog),time:{value:0},waterField:{value:waterMap}},
+    fog:true,
+    vertexShader:`
+      #include <fog_pars_vertex>
+      varying vec2 waterUv;
+      void main(){
+        waterUv=position.xy*.018;
+        vec4 mvPosition=modelViewMatrix*vec4(position,1.0);
+        gl_Position=projectionMatrix*mvPosition;
+        #include <fog_vertex>
+      }`,
+    fragmentShader:`
+      #include <fog_pars_fragment>
+      varying vec2 waterUv;
+      uniform float time;
+      uniform sampler2D waterField;
+      void main(){
+        vec2 flow=vec2(time*.0014,time*.00065);
+        vec2 a=texture2D(waterField,waterUv+flow).rg;
+        vec2 b=texture2D(waterField,mat2(.8,-.6,.6,.8)*waterUv-flow*.63+vec2(.37,.19)).rg;
+        float depth=.2+(a.r+b.r)*.3;
+        vec3 col=mix(vec3(.035,.24,.27),vec3(.09,.37,.36),depth);
+        col+=vec3(.035,.065,.045)*max(0.,a.g+b.g-.55);
+        gl_FragColor=vec4(col,1.);
+        #include <fog_fragment>
+      }`,
+  });materials.add(waterMaterial);
+  // Extend beyond the renderer's 180-unit far plane even in low-angle head views.
+  const waterExtent=Math.max(1024,width*3,height*3);
+  const water=new THREE.Mesh(geometry(new THREE.PlaneGeometry(waterExtent,waterExtent)),waterMaterial);water.name='Flowing water';water.rotation.x=-Math.PI/2;water.position.y=-3.62;group.add(water);
   const foamMat=material({color:0xb4e1c5,transparent:true,opacity:.28,roughness:.6,depthWrite:false});
   const foam=new THREE.Group();group.add(foam);
   for(let i=0;i<6;i++){

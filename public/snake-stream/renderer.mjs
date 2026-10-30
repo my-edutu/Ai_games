@@ -69,14 +69,18 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
   let eatingUntil = 0;
   let cameraMode = 'overview';
   let quality = new URLSearchParams(location.search).get('quality') === 'low' ? 'low' : 'balanced';
-  let framesForQuality = 0;
-  let elapsedForQuality = 0;
+  const scaleSamples = [];
+  const targetFrameMs = 33;
+  let scaleWarmupFrames = 3;
+  let scaleAdjusted = false;
+  let scaleSampleMs = 0;
   const frameTimes = [];
   const cameraTarget = new THREE.Vector3(0, 0, 0);
   const desiredTarget = new THREE.Vector3();
   const desiredPosition = new THREE.Vector3();
   const cameraOffset = new THREE.Vector3();
   const cacheSize = new THREE.Vector2();
+  const statsSize = new THREE.Vector2();
   const cacheSupported = renderer.extensions.has('EXT_color_buffer_float');
   const gl = renderer.getContext();
   const colorSamples = cacheSupported ? Array.from(gl.getInternalformatParameter(gl.RENDERBUFFER, gl.RGBA16F, gl.SAMPLES)) : [];
@@ -253,13 +257,16 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
     invalidateStaticCache();
   }
 
-  function applyQuality() {
+  function applyQuality(pixelRatio = Math.min(window.devicePixelRatio || 1, 0.75)) {
     if (quality !== 'low') return;
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 0.75));
-    sun.shadow.mapSize.set(1024, 1024);
-    sun.shadow.map?.dispose();
-    sun.shadow.map = null;
-    renderer.shadowMap.needsUpdate = true;
+    renderer.setPixelRatio(pixelRatio);
+    // Refining an already-low render scale does not invalidate its shadow map.
+    if (sun.shadow.mapSize.x !== 1024 || sun.shadow.mapSize.y !== 1024) {
+      sun.shadow.mapSize.set(1024, 1024);
+      sun.shadow.map?.dispose();
+      sun.shadow.map = null;
+      renderer.shadowMap.needsUpdate = true;
+    }
     invalidateStaticCache();
     dirty = true;
   }
@@ -277,13 +284,28 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
     frameCount++;
     frameTimes.push(measuredDelta * 1000);
     if (frameTimes.length > 240) frameTimes.shift();
-    // This tier changes only presentation resolution, never authoritative cadence.
-    if (quality === 'balanced' && frameCount > 3) {
-      elapsedForQuality += measuredDelta;
-      framesForQuality++;
-      if (framesForQuality >= 8 && elapsedForQuality / framesForQuality > 0.036) {
-        quality = 'low';
-        applyQuality();
+    // Measure steady presentation cost, excluding startup/resume and isolated
+    // stalls. One area-based scale adjustment keeps the resulting cache stable.
+    if (!scaleAdjusted) {
+      if (scaleWarmupFrames > 0) scaleWarmupFrames--;
+      else {
+        scaleSamples.push(measuredDelta * 1000);
+        if (scaleSamples.length === 8) {
+          const ordered = [...scaleSamples].sort((a, b) => a - b);
+          scaleSampleMs = (ordered[3] + ordered[4]) / 2;
+          scaleSamples.length = 0;
+          if (scaleSampleMs > 36) {
+            const currentRatio = renderer.getPixelRatio();
+            const deviceRatio = window.devicePixelRatio || 1;
+            const minimumRatio = Math.min(currentRatio, deviceRatio, 0.4);
+            const maximumRatio = Math.min(currentRatio, deviceRatio, 0.75);
+            const measuredRatio = currentRatio * Math.sqrt(targetFrameMs / scaleSampleMs);
+            quality = 'low';
+            scaleAdjusted = true;
+            applyQuality(Math.max(minimumRatio, Math.min(maximumRatio, measuredRatio)));
+            resize();
+          }
+        }
       }
     }
     const key = `${snapshot.width}x${snapshot.height}`;
@@ -346,10 +368,13 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
   }
 
   function stats() {
+    renderer.getDrawingBufferSize(statsSize);
     const sorted = [...frameTimes].sort((a, b) => a - b);
     const percentile = p => sorted.length ? sorted[Math.min(sorted.length - 1, Math.floor(sorted.length * p))] : 0;
     return {
       renderer: 'webgl', frameCount, quality, cameraMode,
+      pixelRatio: renderer.getPixelRatio(), drawingBuffer: { width: statsSize.x, height: statsSize.y },
+      renderScale: { adjusted: scaleAdjusted, sampleFrameMs: scaleSampleMs, targetFrameMs },
       drawCalls: renderer.info.render.calls, triangles: renderer.info.render.triangles,
       geometries: renderer.info.memory.geometries, textures: renderer.info.memory.textures,
       frameMs: { p50: percentile(0.5), p95: percentile(0.95), p99: percentile(0.99) },
@@ -361,8 +386,8 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
 
   function resetTiming() {
     lastTime = 0;
-    elapsedForQuality = 0;
-    framesForQuality = 0;
+    scaleSamples.length = 0;
+    scaleWarmupFrames = 3;
     frameTimes.length = 0;
   }
 
