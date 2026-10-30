@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-10-30T22:33:29Z",
+  "updatedAt": "2026-10-30T23:01:54Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Fresh critics preferred the fourth pass in blind mobile and desktop version comparisons. Captain Toad still wins overall: the next gap is a more expressive, clearly staged encounter that connects the explorer, guardian, objective and route."
+    "summary": "Sixth-to-seventh-pass same-production-frame comparison shows clearer disclosed-threat actor signals (Pip's amber/coral rune and Thornback's glowing raised spines), but the true legal route/refuge and next objective still do not read unaided. The latest independent critics still prefer the fixed Captain Toad bar; no new independent A/B has been possible."
   },
   "captures": [
     {
@@ -100,11 +100,12 @@
     "Keys have a thicker silhouette and readable sway; the exit has a mint opening and diamond crown. Quieter trim, grouped planting and shoreline contacts are implemented. The mobile critic still wants stronger objective contrast and clearer local intent.",
     "Map and Path notes expand on demand, while the goal and immediate intent stay visible. Natural captions replace internal object IDs, and the camera label says Detail. Browser checks verify disclosure drawing, Escape/focus and terminal reconnect; a fresh blind critic preferred the compact mobile layout.",
     "A fifth-pass encounter-staging candidate now gives Pip threat-directed head, gaze and lantern poses, and Thornback anticipatory mask/mandible poses, using only disclosed nearby threats. Fresh render and independent critique are still pending.",
-    "Sixth pass: real production snapshots now select an actually close, already-disclosed Thornback/Pip encounter; actual browser evidence records both actors on screen, source/image SHA-256 hashes and seed/tick. An amplified public-threat-only head/gaze/lantern/mask response is tested without changing deterministic game authority."
+    "Sixth pass: real production snapshots now select an actually close, already-disclosed Thornback/Pip encounter; actual browser evidence records both actors on screen, source/image SHA-256 hashes and seed/tick. An amplified public-threat-only head/gaze/lantern/mask response is tested without changing deterministic game authority.",
+    "Seventh pass: two original model-level silhouette cues now make nearby already-disclosed guardian encounters clearer, using Pip's gold/coral exclamation signal and Thornback's raised glowing spines. Real current-source CI captures prove both actors share the frame; terminal and undisclosed-threat states suppress the cues without changing AI/game authority."
   ],
   "nextGaps": [
-    "Obtain a fresh-context critic for a blinded same-seed/tick A/B of the two current real 1280×900 encounter captures, then compare the winner to both pinned Nintendo Captain Toad gameplay images. The actor-to-actor reaction, legal refuge and meaningful route must read at native gameplay size without HUD narration.",
-    "Capture the new public-threat encounter poses and shared framing in real running desktop and mobile output; a fresh independent critic must compare label-masked round-04 versus this candidate and then judge Captain Toad directly.",
+    "Independent fresh-context blinded, same-production-seed/tick sixth-versus-seventh 1280×900 comparison, then direct inspection against the two exact pinned Nintendo Captain Toad images. Test whether the golden alert rune is correctly understood as threat—not collectible—at native and mobile sizes; do not infer a win from test totals.",
+    "Visually distinguish a genuinely disclosed legal onward route/refuge from ambient tiles. Use only public known cells, legal neighbors and actual public planned routes; no invented safe passage, extra hints about undisclosed entities or gameplay-rule changes. The rendered shot still fails this criterion.",
     "Make the immediate objective, obstacle and route more legible in the world; increase key contrast and clarify why another key is needed when one has already been collected.",
     "Develop a more distinctive landmark or encounter and the explorer’s target-directed expression at normal viewing size.",
     "Review fresh real motion for gait, turns, stair contact and reactions, and independently listen to the audio mix.",
@@ -165,6 +166,13 @@
       "verdict": "Actual near encounter visible; not enough expressiveness to pass Captain Toad bar",
       "date": "2026-10-30T22:33:29Z",
       "summary": "Aligned production run maze-visual-reference-13 at tick 13 and public 2.236-cell separation: both Pip and Thornback fit inside the actual camera. Increasing disclosure-only reaction strength 0.28033 to 0.56065 changes only about 1.24% of the 1280x900 image pixels, concentrated around the actors. At gameplay size the characters and intervening walls are visible but the threat response, escape decision and refuge/route are not independently obvious. This is not a fresh-context critic or a blind verdict. The latest real capture is in GitHub CI artifact 13018455473; source and image hashes are in docs/reviews/maze-3d/encounter-pass-06-review.md."
+    },
+    {
+      "title": "Seventh-pass authentic actor-silhouette encounter — lead inspection only",
+      "reviewer": "Lead inspection of two actual same-seed, same-tick CI 1280×900 screenshots; separate fresh-context critic unavailable",
+      "verdict": "Readable reaction cues added; reference still wins; independent A/B and route/refuge gates OPEN",
+      "date": "2026-10-30T23:00:59.792Z",
+      "summary": "Production screenshot SHA-256 6da5918ded4c87e74905cb44020dcc211cc7169bb4c1644f0ab014022d2c5bb0 shows Pip's new gold/coral overhead rune and Thornback's raised glowing spines from public disclosed state; 1.115% of exact-aligned pixels change versus sixth pass. The actor encounter is more readable, but an uninstructed viewer still cannot identify an actionable safe route/refuge from the image. This is lead observation only, not a blind independent verdict. Actual dated browser artifact: https://github.com/my-edutu/Ai_games/actions/runs/41141142748/artifacts/13018794986. Room still CPU-throttled for software graphics; no hardware FPS evidence."
     }
   ],
   "verification": [
@@ -247,6 +255,13 @@
       "detail": "Source 2c2ae6937b31dec46bf4cf2f841e0a4e8f2c19ad passed all Autonomous Games CI stages on 2026-10-30, including public-only actual near-warden camera test, and emitted a dated 1280x900 browser PNG plus source-bound SHA-256 manifest. The screenshot captures both real actors, no synthetic entities. The new pose response is stronger but not obviously expressive enough at gameplay scale; latest independent fourth-pass reference verdict remains Captain Toad wins. Software CI frame time is not representative hardware FPS; the independent workspace/Ultracode tunnel is unavailable.",
       "sourceCommit": "2c2ae6937b31dec46bf4cf2f841e0a4e8f2c19ad",
       "sourceUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41138125715/artifacts/13018455473"
+    },
+    {
+      "name": "Seventh-pass real 3D guardian screenshot and full CI checkpoint",
+      "status": "517/517 Node tests, 25/25 browser checks; reference not passed; independent critic unavailable",
+      "detail": "Gameplay commit 5bf3a024815c8bee6a494ebec6706b60c8863425 passed Autonomous Games CI 41141142748, and three Eko companion workflows. The dated 2026-10-30 23:00:59.792 UTC authentic 1280×900 browser PNG from seed maze-visual-reference-13/tick13 has two observed public actors in frame, shows new native-scale threat cues, and its SHA-256 is 6da5918ded4c87e74905cb44020dcc211cc7169bb4c1644f0ab014022d2c5bb0. Current screenshot and manifest are in artifact 13018794986; neither image nor reviewer verdict is fabricated. No separate subagents, Ultracode, blind critic or real hardware FPS measurement were available; route/refuge and Nintendo quality gates remain open.",
+      "sourceCommit": "5bf3a024815c8bee6a494ebec6706b60c8863425",
+      "sourceUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41141142748/artifacts/13018794986"
     }
   ],
   "references": [
