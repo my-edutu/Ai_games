@@ -12,7 +12,12 @@ const crypto=require('node:crypto');
 const ROOT=path.resolve(__dirname,'..','public','tiny-kingdom');
 const FILES=new Map([
  ['/tiny','index.html'],['/tiny/','index.html'],['/tiny/index.html','index.html'],
- ['/tiny/progress','progress.html'],['/tiny/progress.html','progress.html']
+ ['/tiny/progress','progress.html'],['/tiny/progress.html','progress.html'],
+ ['/tiny/recovery','recovery.html'],['/tiny/recovery.html','recovery.html'],
+ ...['before','after'].flatMap(phase=>[
+  ...['market','cottage','citizen'].map(view=>['/tiny/recovery-'+phase+'-'+view+'.png','recovery-'+phase+'-'+view+'.png']),
+  ['/tiny/recovery-'+phase+'-manifest.json','recovery-'+phase+'-manifest.json']
+ ])
 ]);
 function safeFile(name){const file=path.resolve(ROOT,name);if(path.dirname(file)!==ROOT)throw Error('invalid asset path');return file}
 function isReady(){return ['index.html','progress.html'].every(name=>{const file=safeFile(name);return fs.existsSync(file)&&fs.statSync(file).size>2048})}
@@ -55,6 +60,8 @@ function createServer(){return http.createServer((req,res)=>{
    if(pathname==='/'){res.writeHead(307,{'location':'/tiny/','cache-control':'no-store'});res.end();return}
    const name=FILES.get(pathname);
    if(!name){reply(res,404,'Not found');return}
+   if(name.endsWith('.png')){reply(res,200,fs.readFileSync(safeFile(name)),'image/png',{'cross-origin-resource-policy':'same-origin'});return}
+   if(name.endsWith('.json')){reply(res,200,fs.readFileSync(safeFile(name)),'application/json; charset=utf-8');return}
    const body=fs.readFileSync(safeFile(name),'utf8'),extra=headers(body);
    reply(res,200,body,'text/html; charset=utf-8',extra);
  }catch(error){console.error('tiny-kingdom http error',error?.message);reply(res,503,'Source temporarily unavailable')}
