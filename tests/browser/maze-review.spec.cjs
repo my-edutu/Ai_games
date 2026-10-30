@@ -62,6 +62,7 @@ test('a real close public encounter frames both autonomous actors and saves date
   const diagnostics = await page.evaluate(() => window.__MAZE_3D__);
   expect(diagnostics.disclosedThreats).toBeGreaterThan(0);
   expect(diagnostics.characterCount).toBeGreaterThan(1);
+  expect(diagnostics.wardensInFrame, 'At least one disclosed guardian must actually share the camera with Pip').toBeGreaterThan(0);
   expect(diagnostics.encounterAttention).toBeGreaterThan(0);
   expect(diagnostics.explorerInFrame).toBe(true);
   expect(errors).toEqual([]);
@@ -88,6 +89,7 @@ test('a real close public encounter frames both autonomous actors and saves date
       triangles: diagnostics.triangles,
       characterCount: diagnostics.characterCount,
       disclosedThreats: diagnostics.disclosedThreats,
+      wardensInFrame: diagnostics.wardensInFrame,
       encounterAttention: diagnostics.encounterAttention,
       explorerInFrame: diagnostics.explorerInFrame,
       frameP50Ms: diagnostics.frameP50Ms,
