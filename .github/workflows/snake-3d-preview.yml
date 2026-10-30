@@ -40,6 +40,23 @@ jobs:
           name: snake-3d-preview-evidence
           path: |
             artifacts/phase3
+            !artifacts/phase3/*.webm
             test-results
+          if-no-files-found: warn
+          retention-days: 30
+      - name: Retain motion evidence separately
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: snake-3d-motion-evidence
+          path: artifacts/phase3/*.webm
+          if-no-files-found: warn
+          retention-days: 30
+      - name: Retain small diagnostic metrics independently
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: snake-3d-metrics
+          path: artifacts/phase3/*.json
           if-no-files-found: warn
           retention-days: 30

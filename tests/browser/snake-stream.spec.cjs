@@ -20,6 +20,25 @@ function writeJson(name, value) {
   fs.writeFileSync(path.join(artifactDir, name), `${JSON.stringify(value, null, 2)}\n`);
 }
 
+async function measureCadence(page) {
+  return page.evaluate(() => new Promise(resolve => {
+    const frameTimes = [];
+    const initialDraws = window.__snakePresentation.stats().frameCount;
+    const started = performance.now();
+    function step(now) {
+      frameTimes.push(now);
+      if (now - started >= 1000) {
+        const gaps = frameTimes.slice(1).map((value, index) => value - frameTimes[index]);
+        resolve({ frames: frameTimes.length, elapsedMs: now - started,
+          maxGapMs: gaps.length ? Math.max(...gaps) : 0,
+          averageFps: frameTimes.length / ((now - started) / 1000),
+          actualDraws: window.__snakePresentation.stats().frameCount - initialDraws });
+      } else requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  }));
+}
+
 test.beforeAll(() => {
   fs.mkdirSync(artifactDir, { recursive: true });
 });
@@ -57,30 +76,36 @@ test('desktop broadcast source is readable, animated and privacy-safe', async ({
   // rather than accidentally timing an empty loading canvas.
   await page.waitForFunction(() => window.__snakePresentation?.stats().frameCount >= 20, {}, { timeout: 40000 });
   expect((await page.evaluate(() => window.__snakePresentation.stats())).renderer).toBe('webgl');
-  const animation = await page.evaluate(() => new Promise(resolve => {
-    const frameTimes = [];
-    const initialDraws = window.__snakePresentation.stats().frameCount;
-    const started = performance.now();
-    function step(now) {
-      frameTimes.push(now);
-      if (now - started >= 1000) {
-        const gaps = frameTimes.slice(1).map((value, index) => value - frameTimes[index]);
-        resolve({
-          frames: frameTimes.length,
-          elapsedMs: now - started,
-          maxGapMs: gaps.length ? Math.max(...gaps) : 0,
-          averageFps: frameTimes.length / ((now - started) / 1000),
-          actualDraws: window.__snakePresentation.stats().frameCount - initialDraws,
-        });
-      } else requestAnimationFrame(step);
-    }
-    requestAnimationFrame(step);
-  }));
+  const animation = await measureCadence(page);
 
   // Retain the actual scene/cadence evidence even when the performance gate fails.
   const presentation = await page.evaluate(() => window.__snakePresentation.stats());
   writeJson('desktop-metrics.json', { layout, animation, presentation, scene: snapshot.scene, tick: snapshot.tick });
+  console.log('SNAKE_DESKTOP_METRICS', JSON.stringify({ animation, presentation }));
   await page.screenshot({ path: path.join(artifactDir, 'desktop-1920x1080.png'), fullPage: true });
+
+  if (animation.averageFps < 17) {
+    // Controlled diagnostics only: these modified-source runs never satisfy the
+    // production gate below. They isolate raster scale and dynamic shadow cost.
+    const frame = await page.evaluate(async () => (await fetch('/snapshot')).json());
+    const source = fs.readFileSync(path.resolve(__dirname, '../../public/snake-stream/renderer.mjs'), 'utf8');
+    const diagnostics = [];
+    await page.route('**/snapshot', route => route.fulfill({ json: frame }));
+    for (const shadows of [true, false]) {
+      let body = source.replace('renderer.setPixelRatio(pixelRatio);', 'renderer.setPixelRatio(0.4);');
+      if (!shadows) body = body.replaceAll('object.castShadow = false;', 'object.castShadow = false; object.receiveShadow = false;');
+      await page.unroute('**/renderer.mjs');
+      await page.route('**/renderer.mjs', route => route.fulfill({ contentType: 'text/javascript', body }));
+      await page.goto('/?quality=low');
+      await page.waitForFunction(() => window.__snakePresentation?.stats().frameCount >= 20, {}, { timeout: 25000 });
+      const cadence = await measureCadence(page);
+      const state = await page.evaluate(() => window.__snakePresentation.stats());
+      const result = { diagnosticOnly: true, fixedPixelRatio: 0.4, dynamicShadowReception: shadows, cadence, state };
+      diagnostics.push(result);
+      console.log('SNAKE_RENDER_DIAGNOSTIC', JSON.stringify(result));
+    }
+    writeJson('desktop-render-diagnostics.json', diagnostics);
+  }
 
   // Headless Chromium on shared CI is CPU-throttled; this gate detects a frozen or
   // severely starved presentation while recording the measured cadence for review.
