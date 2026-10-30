@@ -47,7 +47,7 @@ if (require.main === module) (async () => {
   fs.mkdirSync(directory, { recursive: true });
   const samples = scenarios();
   if (!samples.exploration) throw new Error('No production exploration frame found');
-  const browser = await chromium.launch({ args: ['--no-sandbox', '--enable-gpu', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'] });
+  const browser = await chromium.launch({ args: ['--no-sandbox', '--enable-unsafe-swiftshader', ...(process.env.MAZE_SOFTWARE_COMPOSITOR === '1' ? ['--enable-gpu', '--use-angle=swiftshader'] : [])] });
   const reports = [];
   const manifestFile = path.join(directory, 'manifest.json');
   const prior = fs.existsSync(manifestFile) ? JSON.parse(fs.readFileSync(manifestFile, 'utf8')).reports : [];

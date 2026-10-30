@@ -10,9 +10,8 @@ module.exports = defineConfig({
   use: {
     headless: true,
     trace: 'retain-on-failure',
-    // Use a consistent software compositor/WebGL path for headless captures.
-    // Measured frame times, rather than these flags, determine performance.
-    launchOptions: { args: ['--enable-gpu', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'] },
+    // Keep compositor experiments opt-in until an actual speed improvement is measured.
+    launchOptions: { args: ['--enable-unsafe-swiftshader', ...(process.env.MAZE_SOFTWARE_COMPOSITOR === '1' ? ['--enable-gpu', '--use-angle=swiftshader'] : [])] },
   },
   webServer: {
     command: 'node scripts/serve-maze-stream.cjs',

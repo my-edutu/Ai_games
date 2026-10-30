@@ -20,21 +20,22 @@
     {
       "name": "desktop",
       "captured": true,
-      "capturedAt": "2026-10-30T19:21:46.689Z",
+      "capturedAt": "2026-10-30T20:30:36.152Z",
       "seed": "maze-visual-reference-3",
       "tick": 10,
       "errors": [],
       "diagnostic": {
         "render": {
           "renderer": "webgl",
-          "frames": 16,
+          "frames": 5,
           "cameraMode": "follow",
           "runToken": "b19f1ec7",
+          "tick": 10,
           "quality": "balanced",
-          "triangles": 102530,
-          "drawCalls": 112,
-          "geometries": 35,
-          "geometryPeak": 35,
+          "triangles": 84302,
+          "drawCalls": 122,
+          "geometries": 37,
+          "geometryPeak": 37,
           "textures": 4,
           "characterCount": 1,
           "renderedCells": [
@@ -95,8 +96,8 @@
             131
           ],
           "explorerInFrame": true,
-          "frameP50Ms": 300,
-          "frameP95Ms": 1516.6,
+          "frameP50Ms": 1100,
+          "frameP95Ms": 2783.2999999999997,
           "routeQueue": 1,
           "world": {
             "renderedCells": [
@@ -178,15 +179,15 @@
                 62
               ]
             ],
-            "geometryCount": 7,
-            "materialCount": 17,
+            "geometryCount": 9,
+            "materialCount": 19,
             "textureCount": 2,
             "knownCells": 55,
-            "meshes": 80,
-            "batches": 21,
-            "instances": 2976,
-            "geometries": 7,
-            "materials": 17,
+            "meshes": 87,
+            "batches": 24,
+            "instances": 2970,
+            "geometries": 9,
+            "materials": 19,
             "animatedObjects": 2,
             "disposed": false
           },
@@ -200,26 +201,37 @@
         "overlay": false,
         "scrollWidth": 1600,
         "viewport": 1600
+      },
+      "sourceFiles": {
+        "index.html": "bb7d7ad21902625c2df308e917ec4964960ecbb103d7cc86409a9530cfd13c8e",
+        "app.js": "d906f590818e95a0eab3d23ddf6d7dee8fc91d919c7afe08b37b2e7bf2d90381",
+        "scene.js": "e5f72218da421dc59af4dbe8618ac0828206386cd3f2e15dcb669621ffd34ae5",
+        "world.js": "43992b65a9a93663c63ad3f0eec3b20b02c92569c0c10aa219582a0fceaaff6c",
+        "characters.js": "618d0a9bd4d3f8c741dd2519de1d31050b812bbf7444afe992088e09cfb2ba42",
+        "map-view.mjs": "6363a6ef173db6e8f389b18466b67ecfb901e5f22c2eb51ab4bb00bc164aac10",
+        "styles.css": "b42dc70386b431b87f9bd8b6da9e2e612398ef983dd8cb6491e85f690ca7f1ca",
+        "ux-v2.css": "7c01d2ab080cdb33cc246fd5c21f181e984469811af060518fc20648a97eeb50"
       }
     },
     {
       "name": "character-detail",
       "captured": true,
-      "capturedAt": "2026-10-30T19:21:53.406Z",
+      "capturedAt": "2026-10-30T20:31:01.882Z",
       "seed": "maze-visual-reference-3",
       "tick": 10,
       "errors": [],
       "diagnostic": {
         "render": {
           "renderer": "webgl",
-          "frames": 15,
+          "frames": 5,
           "cameraMode": "detail",
           "runToken": "b19f1ec7",
+          "tick": 10,
           "quality": "balanced",
-          "triangles": 101818,
-          "drawCalls": 97,
-          "geometries": 35,
-          "geometryPeak": 35,
+          "triangles": 83590,
+          "drawCalls": 107,
+          "geometries": 37,
+          "geometryPeak": 37,
           "textures": 4,
           "characterCount": 1,
           "renderedCells": [
@@ -280,8 +292,8 @@
             131
           ],
           "explorerInFrame": true,
-          "frameP50Ms": 316.70000000000005,
-          "frameP95Ms": 1033.3,
+          "frameP50Ms": 1399.999999999999,
+          "frameP95Ms": 3083.1,
           "routeQueue": 1,
           "world": {
             "renderedCells": [
@@ -363,15 +375,15 @@
                 62
               ]
             ],
-            "geometryCount": 7,
-            "materialCount": 17,
+            "geometryCount": 9,
+            "materialCount": 19,
             "textureCount": 2,
             "knownCells": 55,
-            "meshes": 80,
-            "batches": 21,
-            "instances": 2976,
-            "geometries": 7,
-            "materials": 17,
+            "meshes": 87,
+            "batches": 24,
+            "instances": 2970,
+            "geometries": 9,
+            "materials": 19,
             "animatedObjects": 2,
             "disposed": false
           },
@@ -385,26 +397,37 @@
         "overlay": false,
         "scrollWidth": 1280,
         "viewport": 1280
+      },
+      "sourceFiles": {
+        "index.html": "bb7d7ad21902625c2df308e917ec4964960ecbb103d7cc86409a9530cfd13c8e",
+        "app.js": "d906f590818e95a0eab3d23ddf6d7dee8fc91d919c7afe08b37b2e7bf2d90381",
+        "scene.js": "e5f72218da421dc59af4dbe8618ac0828206386cd3f2e15dcb669621ffd34ae5",
+        "world.js": "43992b65a9a93663c63ad3f0eec3b20b02c92569c0c10aa219582a0fceaaff6c",
+        "characters.js": "618d0a9bd4d3f8c741dd2519de1d31050b812bbf7444afe992088e09cfb2ba42",
+        "map-view.mjs": "6363a6ef173db6e8f389b18466b67ecfb901e5f22c2eb51ab4bb00bc164aac10",
+        "styles.css": "b42dc70386b431b87f9bd8b6da9e2e612398ef983dd8cb6491e85f690ca7f1ca",
+        "ux-v2.css": "7c01d2ab080cdb33cc246fd5c21f181e984469811af060518fc20648a97eeb50"
       }
     },
     {
       "name": "mobile-portrait",
       "captured": true,
-      "capturedAt": "2026-10-30T19:21:57.514Z",
+      "capturedAt": "2026-10-30T20:29:03.500Z",
       "seed": "maze-visual-reference-3",
       "tick": 10,
       "errors": [],
       "diagnostic": {
         "render": {
           "renderer": "webgl",
-          "frames": 14,
+          "frames": 5,
           "cameraMode": "follow",
           "runToken": "b19f1ec7",
+          "tick": 10,
           "quality": "balanced",
-          "triangles": 102398,
-          "drawCalls": 106,
-          "geometries": 35,
-          "geometryPeak": 35,
+          "triangles": 84274,
+          "drawCalls": 121,
+          "geometries": 37,
+          "geometryPeak": 37,
           "textures": 4,
           "characterCount": 1,
           "renderedCells": [
@@ -465,8 +488,8 @@
             131
           ],
           "explorerInFrame": true,
-          "frameP50Ms": 150,
-          "frameP95Ms": 1133.2,
+          "frameP50Ms": 2016.6000000000004,
+          "frameP95Ms": 5966.4,
           "routeQueue": 1,
           "world": {
             "renderedCells": [
@@ -548,15 +571,15 @@
                 62
               ]
             ],
-            "geometryCount": 7,
-            "materialCount": 17,
+            "geometryCount": 9,
+            "materialCount": 19,
             "textureCount": 2,
             "knownCells": 55,
-            "meshes": 80,
-            "batches": 21,
-            "instances": 2976,
-            "geometries": 7,
-            "materials": 17,
+            "meshes": 87,
+            "batches": 24,
+            "instances": 2970,
+            "geometries": 9,
+            "materials": 19,
             "animatedObjects": 2,
             "disposed": false
           },
@@ -567,9 +590,19 @@
             "z": 0
           }
         },
-        "overlay": false,
+        "overlay": true,
         "scrollWidth": 390,
         "viewport": 390
+      },
+      "sourceFiles": {
+        "index.html": "bb7d7ad21902625c2df308e917ec4964960ecbb103d7cc86409a9530cfd13c8e",
+        "app.js": "d906f590818e95a0eab3d23ddf6d7dee8fc91d919c7afe08b37b2e7bf2d90381",
+        "scene.js": "e5f72218da421dc59af4dbe8618ac0828206386cd3f2e15dcb669621ffd34ae5",
+        "world.js": "43992b65a9a93663c63ad3f0eec3b20b02c92569c0c10aa219582a0fceaaff6c",
+        "characters.js": "618d0a9bd4d3f8c741dd2519de1d31050b812bbf7444afe992088e09cfb2ba42",
+        "map-view.mjs": "6363a6ef173db6e8f389b18466b67ecfb901e5f22c2eb51ab4bb00bc164aac10",
+        "styles.css": "b42dc70386b431b87f9bd8b6da9e2e612398ef983dd8cb6491e85f690ca7f1ca",
+        "ux-v2.css": "7c01d2ab080cdb33cc246fd5c21f181e984469811af060518fc20648a97eeb50"
       }
     },
     {
@@ -945,21 +978,22 @@
     {
       "name": "danger",
       "captured": true,
-      "capturedAt": "2026-10-30T19:22:11.403Z",
+      "capturedAt": "2026-10-30T20:31:29.367Z",
       "seed": "maze-visual-reference-13",
       "tick": 13,
       "errors": [],
       "diagnostic": {
         "render": {
           "renderer": "webgl",
-          "frames": 13,
+          "frames": 5,
           "cameraMode": "detail",
           "runToken": "5e87cabf",
+          "tick": 13,
           "quality": "balanced",
-          "triangles": 125818,
-          "drawCalls": 144,
-          "geometries": 50,
-          "geometryPeak": 50,
+          "triangles": 92774,
+          "drawCalls": 150,
+          "geometries": 52,
+          "geometryPeak": 52,
           "textures": 4,
           "characterCount": 2,
           "renderedCells": [
@@ -1024,8 +1058,8 @@
             149
           ],
           "explorerInFrame": true,
-          "frameP50Ms": 283.2999999999997,
-          "frameP95Ms": 1183.3,
+          "frameP50Ms": 1550,
+          "frameP95Ms": 7699.6,
           "routeQueue": 1,
           "world": {
             "renderedCells": [
@@ -1123,15 +1157,15 @@
                 132
               ]
             ],
-            "geometryCount": 7,
-            "materialCount": 17,
+            "geometryCount": 9,
+            "materialCount": 19,
             "textureCount": 2,
             "knownCells": 59,
-            "meshes": 66,
-            "batches": 21,
-            "instances": 3187,
-            "geometries": 7,
-            "materials": 17,
+            "meshes": 69,
+            "batches": 24,
+            "instances": 3176,
+            "geometries": 9,
+            "materials": 19,
             "animatedObjects": 1,
             "disposed": false
           },
@@ -1142,9 +1176,19 @@
             "z": -7.199999999999999
           }
         },
-        "overlay": false,
+        "overlay": true,
         "scrollWidth": 1280,
         "viewport": 1280
+      },
+      "sourceFiles": {
+        "index.html": "bb7d7ad21902625c2df308e917ec4964960ecbb103d7cc86409a9530cfd13c8e",
+        "app.js": "d906f590818e95a0eab3d23ddf6d7dee8fc91d919c7afe08b37b2e7bf2d90381",
+        "scene.js": "e5f72218da421dc59af4dbe8618ac0828206386cd3f2e15dcb669621ffd34ae5",
+        "world.js": "43992b65a9a93663c63ad3f0eec3b20b02c92569c0c10aa219582a0fceaaff6c",
+        "characters.js": "618d0a9bd4d3f8c741dd2519de1d31050b812bbf7444afe992088e09cfb2ba42",
+        "map-view.mjs": "6363a6ef173db6e8f389b18466b67ecfb901e5f22c2eb51ab4bb00bc164aac10",
+        "styles.css": "b42dc70386b431b87f9bd8b6da9e2e612398ef983dd8cb6491e85f690ca7f1ca",
+        "ux-v2.css": "7c01d2ab080cdb33cc246fd5c21f181e984469811af060518fc20648a97eeb50"
       }
     },
     {
@@ -1408,6 +1452,25 @@
         "overlay": true,
         "scrollWidth": 1280,
         "viewport": 1280
+      }
+    },
+    {
+      "name": "full-quality",
+      "captured": false,
+      "attemptedAt": "2026-10-30T20:34:15.927Z",
+      "seed": "maze-visual-reference-3",
+      "tick": 10,
+      "reason": "page.screenshot: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - taking page screenshot\u001b[22m\n\u001b[2m  - waiting for fonts to load...\u001b[22m\n\u001b[2m  - fonts loaded\u001b[22m\n",
+      "errors": [],
+      "sourceFiles": {
+        "index.html": "bb7d7ad21902625c2df308e917ec4964960ecbb103d7cc86409a9530cfd13c8e",
+        "app.js": "d906f590818e95a0eab3d23ddf6d7dee8fc91d919c7afe08b37b2e7bf2d90381",
+        "scene.js": "e5f72218da421dc59af4dbe8618ac0828206386cd3f2e15dcb669621ffd34ae5",
+        "world.js": "43992b65a9a93663c63ad3f0eec3b20b02c92569c0c10aa219582a0fceaaff6c",
+        "characters.js": "618d0a9bd4d3f8c741dd2519de1d31050b812bbf7444afe992088e09cfb2ba42",
+        "map-view.mjs": "6363a6ef173db6e8f389b18466b67ecfb901e5f22c2eb51ab4bb00bc164aac10",
+        "styles.css": "b42dc70386b431b87f9bd8b6da9e2e612398ef983dd8cb6491e85f690ca7f1ca",
+        "ux-v2.css": "7c01d2ab080cdb33cc246fd5c21f181e984469811af060518fc20648a97eeb50"
       }
     }
   ]

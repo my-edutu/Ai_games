@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-10-30T20:24:41.826516+00:00",
+  "updatedAt": "2026-10-30T20:37:17.909185+00:00",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Captain Toad remains ahead on composition, material integration and character expression in the latest independently reviewed captures; the new readability and mobile-space refinements await a fresh capture and critic."
+    "summary": "Fresh critics preferred the fourth pass in blind mobile and desktop version comparisons. Captain Toad still wins overall: the next gap is a more expressive, clearly staged encounter that connects the explorer, guardian, objective and route."
   },
   "captures": [
     {
@@ -63,11 +63,32 @@
       "note": "The critic requested more room for the world. The new collapsible Map and Path notes controls are implemented after this capture and await browser review."
     },
     {
-      "title": "Fourth pass · awaiting capture",
-      "src": null,
-      "capturedAt": null,
-      "alt": "Fresh capture of the latest readability and mobile layout refinements is pending",
-      "note": "Coral character accents, clearer faces, stronger key and exit silhouettes, grounded planting and compact mobile explanations are implemented. The latest capture attempt exceeded its 45-second startup limit; no new visual verdict is claimed."
+      "title": "Fourth pass · current garden",
+      "src": "/maze/evidence/round-04-desktop.png",
+      "capturedAt": "2026-10-30T20:30:36.152Z",
+      "alt": "Current real 3D garden with clearer keys, quieter decoration and Map on demand",
+      "note": "The fresh scene critic narrowly preferred this version in a blind A/B with the prior pass. The fixed Captain Toad reference still wins."
+    },
+    {
+      "title": "Pip · clearer face and equipment",
+      "src": "/maze/evidence/round-04-character-detail.png",
+      "capturedAt": "2026-10-30T20:31:01.882Z",
+      "alt": "Current robot explorer with clearer eyes and coral cloth accents",
+      "note": "A real close view of the latest original character model. Motion and expression quality still need direct animation review."
+    },
+    {
+      "title": "Thornback · current encounter",
+      "src": "/maze/evidence/round-04-danger.png",
+      "capturedAt": "2026-10-30T20:31:29.367Z",
+      "alt": "Current original beetle warden and explorer in a real threat encounter",
+      "note": "A real disclosed encounter with both current characters. The critic wants a visible reaction and clearer relationship between guardian, explorer and route."
+    },
+    {
+      "title": "Portrait · blind A/B winner",
+      "src": "/maze/evidence/round-04-mobile-portrait.png",
+      "capturedAt": "2026-10-30T20:29:03.500Z",
+      "alt": "Latest portrait game layout with a larger 3D scene and compact status controls",
+      "note": "A fresh critic preferred this version without knowing which was newer. It remains below the fixed Captain Toad quality bar."
     }
   ],
   "changes": [
@@ -75,17 +96,17 @@
     "Follow, Detail and Overview cameras, a public-data map, optional original audio, captions, reduced motion, high contrast and clean feed are integrated.",
     "Graphics loss reveals a live map, offers a retry and returns to the current public position after restoration. Real results remain visible in map mode; reconnecting is now explicit during terminal states.",
     "Cumulative steps and discovered area reflect the public snapshot. Character feet, route marks, lights and camera targets follow the same stair heights.",
-    "The fourth pass gives Pip a coral scarf and bedroll, clearer eyes and directional gaze; Thornback gains a broader bronze face and brighter eyes. These changes await actual render review.",
-    "Keys have a thicker silhouette and readable sway; the exit has a mint opening and diamond crown. Quieter decorative trim, grouped planting and shoreline contacts are implemented and await comparison.",
+    "Pip now has a coral scarf and bedroll, clearer eyes and directional gaze; Thornback has a broader bronze face and brighter eyes. Fresh actual portrait, desktop, detail and encounter captures are recorded.",
+    "Keys have a thicker silhouette and readable sway; the exit has a mint opening and diamond crown. Quieter trim, grouped planting and shoreline contacts are implemented. The mobile critic still wants stronger objective contrast and clearer local intent.",
     "Map and Path notes now expand on demand, while the goal and immediate intent stay visible. Friendly captions replace internal object IDs, and the camera label now says Detail. Real browser checks confirm disclosure drawing, Escape/focus behavior and terminal reconnect; current mobile visual comparison remains pending."
   ],
   "nextGaps": [
-    "Capture the latest build in normal desktop, detail, danger, portrait and landscape views, then give a fresh critic the real output and the same fixed references.",
-    "Resolve the remaining reference advantage in landmark composition, material transitions and character expression at native gameplay size; judge the actual key and exit readability.",
-    "Review a fresh real recording for gait, turns, stair contact, threat reactions and the timing of arrival and result presentation. Current footage does not establish smooth movement.",
-    "Finish the full catalogue regression run and capture the current 3D desktop and mobile presentation for fresh comparison.",
-    "Measure actual rendering again when shared-host contention permits, and on a hardware GPU. Enabling a software compositor is not evidence of a frame-rate improvement.",
-    "Continue the builder and fresh-critic loop from the largest observed gap; no fixed round count and no benchmark reduction."
+    "Return the observed guardian-encounter gap to a builder, then have a fresh critic inspect actual gaze, pose, threat and route staging against the same fixed bar.",
+    "Make the immediate objective, obstacle and route more legible in the world; increase key contrast and clarify why another key is needed when one has already been collected.",
+    "Develop a more distinctive landmark or encounter and the explorer’s target-directed expression at normal viewing size.",
+    "Review fresh real motion for gait, turns, stair contact and reactions, and independently listen to the audio mix.",
+    "Capture current full-quality output and measure representative hardware performance; retain the existing test budgets and fixed bar.",
+    "Verify the next CI run after making experimental compositor flags opt-in, then continue the builder/critic loop without a fixed round count."
   ],
   "reviews": [
     {
@@ -113,6 +134,20 @@
       "verdict": "Reference wins",
       "date": "2026-10-30",
       "summary": "Real 3D world and developed explorer/beetle characters are supported by the inspected captures. Captain Toad still wins on landmark composition, connected materials, expression and use of screen space. The comparison was explicitly unblinded because the reference is recognizable; the later fourth-pass changes have not been judged."
+    },
+    {
+      "title": "Portrait composition · blind A/B",
+      "reviewer": "Fresh independent mobile critic 4",
+      "verdict": "Latest version wins A/B; reference still wins",
+      "date": "2026-10-30T20:29:03.500Z",
+      "summary": "The critic selected anonymous B, the fourth pass, before seeing version identity: more scene height, larger explorer, clearer objective and less persistent interface. Remaining gaps are distinctive local staging, expressive action, key contrast and an explicit relationship between the current goal and collected inventory."
+    },
+    {
+      "title": "Current world and characters · blind A/B",
+      "reviewer": "Fresh independent scene critic 4",
+      "verdict": "Latest version wins narrowly; reference still wins",
+      "date": "2026-10-30T20:37:17.909199+00:00",
+      "summary": "Anonymous A, the fourth pass, has a clearer key, explorer face, quieter planting and more natural captions. The guardian encounter is nearly tied with the prior version. The fixed reference still leads in expressive encounter staging, distinctive landmarks and character/material separation."
     }
   ],
   "verification": [
@@ -128,8 +163,8 @@
     },
     {
       "name": "Latest completed browser suite",
-      "status": "13 passed; 1 timed out",
-      "detail": "Recovery, real-result fallback, audio activation, repeated-run resources, controls and responsive checks passed. The real-3D startup test exceeded its 60-second budget after a roughly 53-second frame wait. Later UI and terminal reconnect changes still need a fresh browser result."
+      "status": "14 of 14 Game 2 checks passed in GitHub CI",
+      "detail": "On 6ea0adf, all real 3D, camera, responsive, disclosure/reconnect, context recovery, user-activated audio, public-state and repeated-run resource checks passed. The full catalogue browser step was 23/24; the remaining failure was the unchanged Snake animation-cadence gate."
     },
     {
       "name": "Current disclosures and reconnect browser check",
@@ -139,22 +174,22 @@
     {
       "name": "Independent compact-layout repair verification",
       "status": "Passed after two repairs",
-      "detail": "A fresh reviewer reproduced a clipped Map focus ring and landscape Path notes overlapping captions. The repaired upward popup fits both ordinary and longer production copy at844×390; the real keyboard focus ring was visibly inspected. All eight dated journal images decoded in the same browser."
+      "detail": "A fresh reviewer reproduced a clipped Map focus ring and landscape Path notes overlapping captions. The repaired upward popup fits both ordinary and longer production copy at 844×390; the real keyboard focus ring was visibly inspected. All eight dated journal images decoded in the same browser."
     },
     {
       "name": "Full catalogue regression",
-      "status": "Run in progress",
-      "detail": "The full local Node suite has not finished. The earlier saved-checkpoint CI had exactly one failure: the Maze frontend revision marker. That fix passes the latest focused suite; Eko Phase 2/3/4 workflows succeeded."
+      "status": "515 of 515 passed in GitHub CI",
+      "detail": "Build and all 515 unit tests passed on 6ea0adf. The earlier local run was 513/515: the repaired old Maze revision assertion and an unchanged Eko p99 budget under host contention. All four host self-tests, nondeterminism scanning and evidence-generation steps also passed in that CI run."
     },
     {
       "name": "Independent visual comparison",
-      "status": "Reference still wins",
-      "detail": "Critic 3 inspected the actual third-pass stills and decoded real recording frames. The latest source changes have not been captured and reviewed. Stills and a nominal video frame rate do not establish animation or audio quality."
+      "status": "Fourth mobile pass wins version comparison; reference still wins",
+      "detail": "Fresh mobile and scene critics chose the fourth pass in anonymous version comparisons, while both retained the Captain Toad reference as the overall winner. The guardian encounter remains a priority. Stills do not establish motion, audio or hardware performance."
     },
     {
       "name": "Rendering performance",
-      "status": "Open; software graphics heavily contended",
-      "detail": "Independent probes locate the dominant measured stall at native software graphics/compositing, with severe shared CPU contention. New launch flags enable the software compositor, but an actual speed improvement is unverified; the next capture attempt timed out after 45 seconds. Hardware performance is unmeasured."
+      "status": "Open; actual software graphics remain slow",
+      "detail": "Four current balanced captures succeeded after the long local suite ended, with measured median frame times around 1.1–2.0 seconds on this contended software host. The current full-quality render reached its frame check but screenshot capture exceeded30 seconds. Hardware frame rate remains unmeasured. Experimental compositor flags are now opt-in; no speed gain is claimed."
     },
     {
       "name": "Saved implementation checkpoint",
