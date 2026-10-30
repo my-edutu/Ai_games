@@ -1,0 +1,73 @@
+{
+  "updated": "30 October 2026 · campaign review 3 / scene pass 3 underway",
+  "verdict": "Reference benchmark not passed · substantial rebuild in progress",
+  "pieces": [
+    {
+      "name": "The 1,000-floor campaign",
+      "state": "In review",
+      "evidence": "Deterministic finite campaign, ten districts, timed hazards and saved checkpoints implemented. Focused core/server checks pass. The latest recovery-state edge case is corrected and awaiting independent verification."
+    },
+    {
+      "name": "Character & living tower",
+      "state": "Building",
+      "evidence": "The first independent visual comparison preferred ASTRO BOT. A new architectural, material, character and camera pass addresses the largest observed gaps."
+    },
+    {
+      "name": "The spectator experience",
+      "state": "In review",
+      "evidence": "Desktop/mobile controls, pause, speed, camera, opt-in audio and saved progress implemented. Mobile/settings and progress-page browser checks pass; transport and restore checks hit rendering delays and remain unresolved."
+    }
+  ],
+  "iterations": [
+    {
+      "label": "Baseline · d1678cd",
+      "title": "From a catalogue entry to a real expedition",
+      "summary": "The existing repository named AI vs 1,000 Floors and specified a finite campaign with checkpoints, but had no playable Game 4 runtime. This is the honest starting point.",
+      "verdict": "No visual benchmark result is claimed. First runtime and captures are being prepared."
+    },
+    {
+      "label": "Iteration 1 · actual gameplay",
+      "title": "A working climb, an honest first comparison",
+      "image": "/floors/evidence/iteration-1-desktop.jpg",
+      "summary": "The first real 3D campaign introduced an explorer, companion, seeded platforms, timed hazards and checkpoint progress. The independent critic inspected actual frames and moving traversal beside official ASTRO BOT clips.",
+      "verdict": "Reference preferred. Main gaps: floating primitive scenery, weak material distinction, limited articulation, hazard clarity and portrait framing."
+    },
+    {
+      "label": "Iteration 2 · actual gameplay",
+      "title": "Stronger platform dressing and a clearer portrait HUD",
+      "image": "/floors/evidence/iteration-2-desktop.jpg",
+      "summary": "Added terracotta edging, vegetation, movement interpolation and a low exit beacon; compressed the mobile HUD. Campaign reviews corrected live hazard contact and accepted-save inconsistencies.",
+      "verdict": "Benchmark remains not passed. The scene still needs authored depth, stronger character animation, safe camera framing and fewer draw calls."
+    },
+    {
+      "label": "Iteration 3 · work in progress",
+      "title": "Architecture, character and performance",
+      "summary": "Builders are replacing the flat surrounding disk with a hollow citadel, textured surfaces and district landmarks. A separate character/renderer builder is adding limb articulation, camera fitting and static geometry batching.",
+      "verdict": "No new visual verdict until the integrated running build is captured and independently reviewed."
+    }
+  ],
+  "references": [
+    {
+      "name": "ASTRO BOT",
+      "url": "https://www.playstation.com/en-us/games/astro-bot/",
+      "role": "Primary: fully realized characters, animation, environments, camera clarity and feedback. Actual Spring-Loaded Run and Rising Heat gameplay clips are the comparison sources."
+    },
+    {
+      "name": "Luigi’s Mansion 3",
+      "url": "https://www.nintendo.com/us/store/products/luigis-mansion-3-switch/",
+      "role": "Distinct floor identities through architecture, dressing, staging and light."
+    },
+    {
+      "name": "Returnal · Tower of Sisyphus",
+      "url": "https://store.steampowered.com/app/1649240/Returnal/",
+      "role": "Tower presentation, spatial depth and readable action."
+    }
+  ],
+  "gaps": [
+    "The inspected visual result still loses to the fixed ASTRO BOT gameplay references.",
+    "The latest recovery-state fix needs independent confirmation; focused regression tests pass.",
+    "Transport and reload browser checks must pass after rendering overhead is reduced; an advancing HUD is not sufficient evidence.",
+    "Representative later districts, moving character poses and bounded resource behaviour need current-build inspection.",
+    "The campaign currently follows one generated route per floor; alternative route decisions are not implemented."
+  ]
+}
