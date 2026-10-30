@@ -17,3 +17,7 @@ Capture the same real public seed and scene at the previous fourth-pass source a
 ## Capability / evidence status
 
 No fifth-pass screenshot, fresh independent critic, motion/audio verification, or hardware frame-rate measurement exists at this entry. The live workspace tunnel and its worker/browser tools were unreachable. This document is an acceptance plan, not a completed review. Ultracode did not run.
+
+## CI verification and observed output
+
+Source `7d7671ccdd56d77ae05e7a7c2fa05e997348c81a` passed Autonomous Games CI 41130491285 on 2026-10-30: 516/516 unit and 24/24 browser. The run supplied three real image artifacts, inspected and hashed in `ci-artifact-05.md`. The images show original Pip and the disclosed beetle on a coherent stage, but not a near enough interaction to judge the new attention behavior at gameplay size. The “Warden nearby” label alone is not a visible threat–response relationship. An independent actual proximity capture and blind A/B remain required. These findings are a lead artifact inspection, **not** a separate critic verdict.
