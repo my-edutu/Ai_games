@@ -231,6 +231,12 @@ const path = require('node:path');
     });
     // Inspect both original high-detail civic landmarks at fixed, repeatable cameras.
     // These are real browser captures, not authored screenshot mockups.
+    evidence.forest=await page.evaluate(()=>window.__tinyKingdom.getForestVisualStats());
+    if(evidence.forest.broadleafLobes<evidence.forest.deciduous*4||
+       evidence.forest.individualLeaves<evidence.forest.deciduous*15||
+       evidence.forest.broadleafSpecies.filter(n=>n>0).length!==3||
+       evidence.geometry.totalTriangles>=134000)
+      throw Error('Gauntlet 047 authored broadleaf forest or GPU budget gate failed: '+JSON.stringify(evidence.forest));
     evidence.farmstead=await page.evaluate(()=>window.__tinyKingdom.getFarmsteadStats());
     if(evidence.farmstead.stalks!==668||evidence.farmstead.rows!==22||
        evidence.farmstead.granaries!==1||evidence.farmstead.bundles!==4)
@@ -253,6 +259,7 @@ const path = require('node:path');
       {name:'guild-forge.png',camera:{focus:[19,-15],yaw:.78,pitch:.57,zoom:23}},
       {name:'cottage-facades.png',camera:{focus:[10,-5],yaw:1.50,pitch:.40,zoom:14}},
       {name:'forest-boughs.png',camera:{focus:[-32,-9],yaw:.65,pitch:.50,zoom:15}},
+      {name:'broadleaf-crown.png',camera:{focus:[-29,4],yaw:.95,pitch:.49,zoom:19}},
       {name:'farmstead-wide.png',camera:{focus:[23,1],yaw:3.86,pitch:.56,zoom:25}},
       {name:'granary-close.png',camera:{focus:[29,-5],yaw:3.05,pitch:.50,zoom:18}},
     ]){
