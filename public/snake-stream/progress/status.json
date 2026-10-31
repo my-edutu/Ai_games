@@ -1,10 +1,15 @@
 {
-  "updatedAt": "2026-10-31T11:10:09.941Z",
-  "status": "Round 22 · saturated-fog lake lookup bypass: focused 17/17 and desktop actual-submission gate PASS once; general browser FAIL 7/17",
-  "detail": "Production 7fabb967, world blob c0fff224; far-fog opaque water now skips filtered texture only when water fog fully saturates, retaining full lake, animated near water and 4,232 triangles. Frozen cached/direct 960x640 actual WebGL pixel-identical; synthetic fruit stress differs 17 pixels max 1/255. Focused CI 41194996851 17/17, actual desktop 17/1008.2ms >=17; full CI 41194996867 551/551 Node, build/host/authority/ops green, browser 28/29 at 7 actual submissions/1003.2ms <17. No controlled causal GPU/frame win, and submitted != display-present FPS. Snake Pass craft/independent critic/device soak/R5 still open. PR draft, not merged/deployed.",
+  "updatedAt": "2026-10-31T12:18:05.371Z",
+  "status": "Round 23 · facial micro-accents batched; 3 actual draw calls saved at frozen WebGL parity; desktop pace still fails",
+  "detail": "Exact production 39d08705, final test-audit head 8d676056: 2 nostrils and both paired eye catchlights instanced with unchanged motion, appearance and snapshot authority. Same frozen 690x342 WebGL: 52→49 direct calls, 36→33 cached calls, triangles unchanged; all 3 matched 960x640 screenshots pixel-identical. General 41199749900 552/552 Node and 28/29 browser; 9 actual renders/1012.6ms <17. Focused 41199749902 16/17 browser; 10/1009.7ms <17. No causal FPS or visual benchmark win. Snake Pass quality, independent critic, device soak/R5 still open. Draft/unmerged/undeployed.",
   "latestImage": "/progress/evidence/round-9-overview.jpg",
-  "latestCaption": "Most recent Round22 real WebGL screenshots and 10.44s real gameplay recording are linked in Round22 captures. Embedded image remains historical Round9, NOT Round22.",
+  "latestCaption": "Most recent Round23 exact-source WebGL captures and 19.88s motion are linked in Round23 captures. Embedded latestImage remains a historical Round9 image, not current Round23.",
   "reviews": [
+    {
+      "area": "Round 23 · instanced facial accents and exact WebGL draw preservation",
+      "verdict": "24→21 SERPENT MESHES · SAME-FRAME WEBGL DIRECT 52→49 / CACHED 36→33 DRAWS · 3 MATCHED PNGS PIXEL-IDENTICAL · 552/552 NODE · DESKTOP PACE FAIL",
+      "gap": "Focused CI 41199749902 16/17 browser at 10 actual submissions/1009.7ms; general 41199749900 28/29 at 9/1012.6ms, unchanged minimum 17. No sustained FPS claim. Reference-quality face/world/motion, independent critic and real-device/R5 remain open."
+    },
     {
       "area": "Round 22 · saturated distance-fog water texture bypass",
       "verdict": "FOCUSED 17/17 AND ACTUAL DRAW GATE 17/17 PASSED ONCE · GENERAL 551/551 NODE BUT 7/17 DRAW GATE FAILED · NEAR-EXACT WEBGL PIXELS",
@@ -62,8 +67,8 @@
     },
     {
       "area": "Frame delivery and reliability",
-      "verdict": "FAILED unchanged desktop actual-draw gate; structural draw-call reduction proven",
-      "gap": "Round19 exact-source focused 41182634973 16/17 browser at 11 actual submissions/1013.7ms (<17), general 41182634899 28/29 at 10/1005ms; 546/546 Node pass. 42→36 WebGL draw calls, 39→33 objects; frozen screenshots pixel identical. Distinct run buffers forbid inferring 11 vs 9 submissions as a causal throughput win."
+      "verdict": "FAILED unchanged desktop 17-actual-submission gate; 3 frozen-frame draw-call reductions verified",
+      "gap": "Round23 focused 10 actual draws/1009.7ms, general 9/1012.6ms (minimum 17), both failed. Same-frozen-frame direct 52→49/cached 36→33 calls at 690x342, three real WebGL 960x640 PNGs pixel-identical. No proved throughput/display FPS gain, device soak or R5 signoff."
     }
   ],
   "rounds": [
@@ -407,6 +412,32 @@
         {
           "label": "Round22 source and evidence review",
           "path": "https://github.com/my-edutu/Ai_games/blob/feat/autonomous-snake-3d-gauntlet/docs/reviews/snake-gauntlet/round22-fog-saturated-water.md"
+        }
+      ]
+    },
+    {
+      "title": "Round 23 · three fewer actual facial draw calls with preserved original character pixels",
+      "summary": "Original nostrils and four moving eye highlights preserved as three small two-instance batches with exact transforms and preallocated LOD. Final 552/552 Node tests; strict physical floor audit corrected for instance matrices. Real frozen WebGL 52→49 direct, 36→33 cached calls, 3 matched PNGs pixel-identical, and 19.88-second motion inspected. Focused desktop 10/1009.7ms and general 9/1012.6ms fail unchanged >=17 actual-render threshold. Snake Pass overall craft still loses; independent critic/real-device/R5 outstanding.",
+      "captures": [
+        {
+          "label": "Round23 actual exact-head WebGL screenshots, trace, frozen replay and character",
+          "path": "https://github.com/my-edutu/Ai_games/actions/runs/41199749902/artifacts/13041719112"
+        },
+        {
+          "label": "Round23 actual autonomous motion (19.88 seconds; recording fps is not rendered fps)",
+          "path": "https://github.com/my-edutu/Ai_games/actions/runs/41199749902/artifacts/13042002895"
+        },
+        {
+          "label": "Round23 actual focused pacing/GPU diagnostics",
+          "path": "https://github.com/my-edutu/Ai_games/actions/runs/41199749902/artifacts/13041983232"
+        },
+        {
+          "label": "Round22 exact same frozen frame before batching",
+          "path": "https://github.com/my-edutu/Ai_games/actions/runs/41194996851/artifacts/13039404793"
+        },
+        {
+          "label": "Round23 general CI, full build/Node and strict browser results",
+          "path": "https://github.com/my-edutu/Ai_games/actions/runs/41199749900"
         }
       ]
     }
