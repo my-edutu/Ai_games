@@ -21,22 +21,19 @@ jobs:
           node-version: '22'
           cache: npm
       - run: npm ci
-      - name: Build and logical tests
-        run: npm test
-      - name: Tower host contract
-        run: node scripts/serve-tower-stream.cjs --self-test
-      - name: Prepare reproducible review workspace
-        if: always()
+      - name: Prepare reproducible review inputs (not a pass verdict)
         run: |
           mkdir -p /tmp/tower-review
           git rev-parse HEAD > /tmp/tower-review/source-sha.txt
           git archive HEAD | tar -x -C /tmp/tower-review
-          if [ -d node_modules ]; then cp -a node_modules /tmp/tower-review/; fi
-          if [ -d dist ]; then cp -a dist /tmp/tower-review/; fi
+          cp -a node_modules /tmp/tower-review/
           tar -czf /tmp/tower-review.tar.gz -C /tmp/tower-review .
       - uses: actions/upload-artifact@v4
-        if: always()
         with:
-          name: tower-review-${{ github.sha }}
+          name: tower-review-inputs-${{ github.sha }}
           path: /tmp/tower-review.tar.gz
           retention-days: 1
+      - name: Build and logical tests
+        run: npm test
+      - name: Tower host contract
+        run: node scripts/serve-tower-stream.cjs --self-test
