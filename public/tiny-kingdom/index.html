@@ -1123,7 +1123,7 @@ function cottageSideFacades(x,z,scale,variant){
 // households remain present with original material classes and readable roofs;
 // collision and civilization authority continue to use the full city list.
 const VILLAGE_LOD_LIMIT=8;
-const villageVisualLod={detailedHomes:0,compactHomes:0,detailedCitizens:0,compactCitizens:0};
+const villageVisualLod={detailedHomes:0,compactHomes:0,detailedCitizens:0,compactCitizens:0,compactRoofTiles:0,compactFramedWindows:0,compactGableBraces:0};
 function detailedHomeSet(){
  if(city.length<=12)return new Set(city.map((_,i)=>i));
  return new Set(city.map(([x,z],i)=>({i,d:x*x+z*z}))
@@ -1133,26 +1133,73 @@ function compactHouse(x,z,variant){
  const y=terrain(x,z),w=2.4+variant*.42,d=2.1+variant*.18,h=1.9;
  const plaster=rgb(variant%2?0xe0c7aa:0xd1bc97);
  const timber=rgb(0x634e3c),roof=rgb(variant%2?0x725046:0x976047);
+ const eave=y+h,peak=eave+1.13,halfW=w/2+.15;
+ const roofFront=z-d/2-.13,roofBack=z+d/2+.13;
  materialScope(MATERIAL.STONE,()=>box(x,y-.05,z,w+.12,.23,d+.12,rgb(0x918977)));
  materialScope(MATERIAL.PLASTER,()=>{
   box(x,y+.18,z,w,h-.18,d,plaster);
-  const peak=y+h+1.13,left=x-w/2-.15,right=x+w/2+.15,
-    front=z-d/2-.13,back=z+d/2+.13;
-  tri([left,y+h,front],[right,y+h,front],[x,peak,front],plaster);
-  tri([right,y+h,back],[left,y+h,back],[x,peak,back],plaster);
+  tri([x-halfW,eave,roofFront],[x+halfW,eave,roofFront],[x,peak,roofFront],plaster);
+  tri([x+halfW,eave,roofBack],[x-halfW,eave,roofBack],[x,peak,roofBack],plaster);
  });
  materialScope(MATERIAL.ROOF,()=>{
-  const peak=y+h+1.13,left=x-w/2-.15,right=x+w/2+.15;
-  const front=z-d/2-.13,back=z+d/2+.13;
-  quad([left,y+h,front],[x,peak,front],[x,peak,back],[left,y+h,back],roof);
-  quad([x,peak,front],[right,y+h,front],[right,y+h,back],[x,peak,back],roof);
+  quad([x-halfW,eave,roofFront],[x,peak,roofFront],[x,peak,roofBack],[x-halfW,eave,roofBack],roof);
+  quad([x,peak,roofFront],[x+halfW,eave,roofFront],[x+halfW,eave,roofBack],[x,peak,roofBack],roof);
+  // G066: actual lightweight pitched shingle surfaces, not a decorative
+  // texture or a dense full-detail copy. 2 faces * 3 courses * 4 tiles.
+  // Stable variant-driven colour, no random stream or state mutation.
+  const palette=variant%2?
+   [0x745247,0x926450,0x815847,0xaa7256]:
+   [0x986447,0xb58056,0x8b634e,0xc08b60];
+  for(const side of [-1,1]){
+   for(let course=0;course<3;course++){
+    const t0=course/3,t1=(course+1)/3;
+    const x0=x+side*halfW*(1-t0),x1=x+side*halfW*(1-t1);
+    const y0=eave+1.13*t0+.035,y1=eave+1.13*t1+.035;
+    for(let col=0;col<4;col++){
+     const z0=roofFront+(roofBack-roofFront)*col/4;
+     const z1=roofFront+(roofBack-roofFront)*(col+1)/4;
+     const tile=rgb(palette[(variant*3+course*5+col*7+(side+1))%4]);
+     if(side<0)quad([x0,y0,z0],[x0,y0,z1],[x1,y1,z1],[x1,y1,z0],tile);
+     else quad([x0,y0,z0],[x1,y1,z0],[x1,y1,z1],[x0,y0,z1],tile);
+     villageVisualLod.compactRoofTiles++;
+    }
+   }
+  }
  });
  materialScope(MATERIAL.WOOD,()=>{
-  box(x,y+.20,z+d/2+.05,.51,1.11,.12,timber);
+  // The eaves and ridge break the formerly flat low-LOD silhouette.
+  box(x,peak+.01,z,.13,.095,d+.35,rgb(0xb18b63));
   for(const side of [-1,1]){
-   box(x+side*w*.26,y+.89,z+d/2+.075,.38,.42,.07,rgb(0x53636b));
-   box(x+side*w*.26,y+1.08,z+d/2+.10,.41,.055,.09,rgb(0xb6a18a));
+   box(x+side*(halfW-.02),eave-.07,z,.10,.12,d+.43,timber);
   }
+  // Both gable ends stay legible when camera orbit changes. Previous LOD
+  // put all windows and the only door on the reverse face.
+  for(const faceSide of [-1,1]){
+   const face=z+faceSide*(d/2+.085);
+   box(x,y+.20,face,.51,1.11,.12,timber);
+   for(const side of [-1,1]){
+    const wx=x+side*w*.26;
+    box(wx,y+.89,face+faceSide*.018,.38,.42,.07,rgb(0x53636b));
+    box(wx,y+1.08,face+faceSide*.045,.41,.055,.09,rgb(0xb6a18a));
+    villageVisualLod.compactFramedWindows++;
+    // Two unmistakable exposed gable braces on each end. Kept flat so
+    // readable timber silhouettes cost only two triangles each.
+    const ax=x+side*w*.45,bx=x+side*w*.13,zf=face+faceSide*.054;
+    if(faceSide<0)quad([ax,y+.24,zf],[ax-side*.065,y+.24,zf],
+       [bx-side*.065,y+h*.74,zf],[bx,y+h*.74,zf],timber);
+    else quad([ax-side*.065,y+.24,zf],[ax,y+.24,zf],
+       [bx,y+h*.74,zf],[bx-side*.065,y+h*.74,zf],timber);
+    villageVisualLod.compactGableBraces++;
+   }
+  }
+ });
+ // The short stone flue is a real silhouette above the roof pitch.
+ // This is still LOD geometry: it adds 24 triangles, not detailed masonry.
+ const chimneyX=x+(variant%2?-.23:.23)*w;
+ const chimneyBase=eave+1.13*(1-Math.abs(chimneyX-x)/halfW)-.12;
+ materialScope(MATERIAL.STONE,()=>{
+  box(chimneyX,chimneyBase,z+d*.16,.32,.75,.35,rgb(0xb1a393));
+  box(chimneyX,chimneyBase+.67,z+d*.16,.40,.12,.43,rgb(0x746f66));
  });
 }
 function cottageDetails(x,z,scale,variant){
@@ -2943,6 +2990,7 @@ currentMaterial=MATERIAL.FOLIAGE;
  }highlandOutcrops();for(const flower of wildflora)wildflower(flower);for(let i=0;i<meadowUnderstory.length;i++)meadowTuft(meadowUnderstory[i],i);currentMaterial=MATERIAL.STONE;
  const fullHomes=detailedHomeSet();
 villageVisualLod.detailedHomes=0;villageVisualLod.compactHomes=0;
+villageVisualLod.compactRoofTiles=0;villageVisualLod.compactFramedWindows=0;villageVisualLod.compactGableBraces=0;
 for(let i=0;i<city.length;i++){
  const [x,z,k]=city[i];
  if(fullHomes.has(i)){
