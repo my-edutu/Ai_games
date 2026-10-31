@@ -229,9 +229,11 @@ export function createExplorer(options = {}) {
     // gate pair; a static readable pose remains in reduced-motion mode.
     const keyReach=!s.win&&!s.lose&&alert<.1&&Number.isFinite(options.keyHeading)
       ?Math.max(0,Math.min(1,finite(options.keyStrength))):0;
-    const keyYaw=keyReach*Math.max(-.7,Math.min(.7,
+    // Guard the absent heading explicitly: 0 * NaN still yields NaN, which
+    // would corrupt neutral/guardian head rotations after a key cue clears.
+    const keyYaw=keyReach>0?keyReach*Math.max(-.7,Math.min(.7,
       Math.atan2(Math.sin(options.keyHeading-group.rotation.y),
-        Math.cos(options.keyHeading-group.rotation.y))));
+        Math.cos(options.keyHeading-group.rotation.y)))):0;
     heldKey.visible=keyReach>.2;
     heldKey.rotation.z=s.reduced?0:Math.sin(s.time*2.2)*.045*keyReach;
     // Shape, not color or blinking alone, communicates a real nearby warden.
