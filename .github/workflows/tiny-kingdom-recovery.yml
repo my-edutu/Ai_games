@@ -1,106 +1,27 @@
-name: Tiny Kingdom recovery validation
+name: Tiny Kingdom read-only verification
 on:
   workflow_dispatch:
-  push:
-    branches: [feat/tiny-kingdom-pagonia-recovery]
-    paths:
-      - '.github/workflows/tiny-kingdom-recovery.yml'
-      - 'scripts/tiny-kingdom-recovery-build.py'
-      - 'tests/tiny-kingdom/**'
 permissions:
   contents: read
-concurrency:
-  group: tiny-kingdom-recovery-validation
-  cancel-in-progress: true
 jobs:
-  validate:
-    if: github.ref == 'refs/heads/feat/tiny-kingdom-pagonia-recovery'
+  verify:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
-    permissions:
-      contents: write
+    timeout-minutes: 20
+    defaults:
+      run:
+        shell: bash
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
           cache: npm
       - run: npm ci
       - run: npx playwright install --with-deps chromium
-      - name: Capture the recovered baseline
-        run: |
-          mkdir -p artifacts/recovery
-          node scripts/tiny-kingdom-capture.cjs artifacts/recovery before > artifacts/recovery/before.log
-      - name: Apply only the exact locally tested source
-        run: python scripts/tiny-kingdom-recovery-build.py
-      - name: Verify focused behavior and geometry
-        run: node --test tests/tiny-kingdom/refinement.test.cjs | tee artifacts/recovery/focused-tests.log
-      - name: Compile the catalogue
-        run: npm run build | tee artifacts/recovery/build.log
-      - name: Capture actual candidate output
-        run: node scripts/tiny-kingdom-capture.cjs artifacts/recovery after > artifacts/recovery/after.log
-      - name: Publish only allowlisted evidence routes
-        run: |
-          python - <<'PY'
-          from pathlib import Path
-          import shutil
-          p=Path('scripts/serve-tiny-kingdom-stream.cjs');s=p.read_text()
-          if "['/tiny/recovery','recovery.html']" not in s:
-            s=s.replace("['/tiny/progress','progress.html'],['/tiny/progress.html','progress.html']", """['/tiny/progress','progress.html'],['/tiny/progress.html','progress.html'],
-           ['/tiny/recovery','recovery.html'],['/tiny/recovery.html','recovery.html'],
-           ...['before','after'].flatMap(phase=>[
-            ...['market','cottage','citizen'].map(view=>['/tiny/recovery-'+phase+'-'+view+'.png','recovery-'+phase+'-'+view+'.png']),
-            ['/tiny/recovery-'+phase+'-manifest.json','recovery-'+phase+'-manifest.json']
-           ])""")
-            s=s.replace("const body=fs.readFileSync(safeFile(name),'utf8'),extra=headers(body);", """if(name.endsWith('.png')){reply(res,200,fs.readFileSync(safeFile(name)),'image/png',{'cross-origin-resource-policy':'same-origin'});return}
-             if(name.endsWith('.json')){reply(res,200,fs.readFileSync(safeFile(name)),'application/json; charset=utf-8');return}
-             const body=fs.readFileSync(safeFile(name),'utf8'),extra=headers(body);""")
-            p.write_text(s)
-          p=Path('public/tiny-kingdom/progress.html');s=p.read_text()
-          banner='<p><a href="recovery">Latest recoverable citizen and architecture pass — benchmark NOT PASSED</a></p>'
-          if banner not in s:s=s.replace('<body>','<body>\n'+banner+'\n',1);p.write_text(s)
-          for phase in ['before','after']:
-            for f in Path('artifacts/recovery').glob(phase+'-*'):
-              if f.suffix in ['.png','.json']:shutil.copyfile(f,Path('public/tiny-kingdom')/('recovery-'+f.name))
-          PY
-          npm run tiny:stream:self-test | tee artifacts/recovery/server.log
-      - name: Save verified candidate on the isolated branch only
-        run: |
-          test "$GITHUB_REF" = refs/heads/feat/tiny-kingdom-pagonia-recovery
-          git add public/tiny-kingdom/index.html public/tiny-kingdom/progress.html public/tiny-kingdom/recovery-* scripts/serve-tiny-kingdom-stream.cjs
-          git diff --cached --check
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          if ! git diff --cached --quiet; then
-            git commit -m 'feat(tiny-kingdom): verified work cycles, equipment grips and cottage geometry'
-            git push origin HEAD:refs/heads/feat/tiny-kingdom-pagonia-recovery
-          fi
-          git rev-parse HEAD > artifacts/recovery/verified-commit.txt
-          git archive --format=tar HEAD | gzip > artifacts/recovery/source.tar.gz
-      - name: Existing Tiny Kingdom browser regressions
-        id: browser
-        continue-on-error: true
-        run: timeout 300 npx playwright test --config playwright.tiny.config.cjs > artifacts/recovery/browser-regressions.log 2>&1
-      - name: Full catalogue diagnostic
-        id: catalogue
-        continue-on-error: true
-        run: timeout 150 npm test > artifacts/recovery/catalogue.log 2>&1
-      - name: Record exact verification boundaries
-        if: always()
-        env:
-          BROWSER_OUTCOME: ${{ steps.browser.outcome }}
-          CATALOGUE_OUTCOME: ${{ steps.catalogue.outcome }}
-        run: |
-          mkdir -p artifacts/recovery
-          python - <<'PY'
-          import json,os
-          from pathlib import Path
-          Path('artifacts/recovery/verification-boundaries.json').write_text(json.dumps({'browserRegressionOutcome':os.environ['BROWSER_OUTCOME'],'catalogueOutcome':os.environ['CATALOGUE_OUTCOME'],'commercialBenchmarkPassed':False,'independentCriticPerformed':False,'productionReady':False},indent=2))
-          PY
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: tiny-kingdom-recovery-validation-${{ github.run_id }}
-          path: artifacts/recovery
-          retention-days: 14
-          if-no-files-found: error
+      - run: node --test tests/tiny-kingdom/*.test.cjs
+      - run: npm run build
+      - run: npm run tiny:stream:self-test
+      - run: npx playwright test --config playwright.tiny.config.cjs
+      - run: npm test
