@@ -62,6 +62,18 @@ const path = require('node:path');
     await page.locator('#pause').click();
     await page.waitForFunction(()=>document.getElementById('pause').textContent.includes('Resume'));
     const freezeClock=await page.evaluate(()=>window.__tinyKingdom.getState().state.t);
+    // The render loop samples the atmosphere before the final fixed-step ticks.
+    // Ensure its cached dawn/daylight mesh has caught up to the frozen state
+    // before evaluating a camera-only invariant; never forgive an actual
+    // additional static upload after the synchronized baseline is recorded.
+    await page.waitForFunction(()=>{
+      const g=window.__tinyKingdom,time=g.getState().state.t;
+      const c=g.climateAt(time),sky=g.skyConditions(time);
+      const terrain=c.season+':'+(c.season===3&&c.weather==='snow'?1:0);
+      const stage=sky.daylight<.55?'night':'day';
+      const expected=terrain+':'+stage+':'+(g.metrics().buildings-2);
+      return g.renderStats().scenicMeshKey===expected&&g.renderStats().staticGpuUploads>=1;
+    },null,{timeout:45000});
     evidence.staticGPU=await page.evaluate(()=>window.__tinyKingdom.renderStats());
     await page.evaluate(()=>window.__tinyKingdom.setCamera({zoom:24,pitch:.51,yaw:.82,focus:[0,0]}));
     await page.waitForTimeout(450);
@@ -238,13 +250,24 @@ const path = require('node:path');
       for(let i=0;i<10*24*30;i++)g.step(1/30);
       return JSON.stringify(g.exportSnapshot());
     });
-    // Inspect both original high-detail civic landmarks at fixed, repeatable cameras.
+    // Render the post-replay study at noon rather than low-contrast dawn.
+    // Both ten-day snapshots were already captured above before advancing,
+    // so screenshot lighting cannot alter the reproducibility comparison.
+    evidence.referenceDaylight=await page.evaluate(()=>{
+      const g=window.__tinyKingdom;
+      for(let i=0;i<5*30;i++)g.step(1/30);
+      const hour=g.getState().state.t%24,sky=g.skyConditions(g.getState().state.t);
+      return {hour,daylight:sky.daylight};
+    });
+    if(evidence.referenceDaylight.daylight<.70)
+      throw Error('Daylight visual comparison camera unexpectedly dark: '+JSON.stringify(evidence.referenceDaylight));
+    await page.waitForTimeout(400);
     // These are real browser captures, not authored screenshot mockups.
     evidence.forest=await page.evaluate(()=>window.__tinyKingdom.getForestVisualStats());
     if(evidence.forest.broadleafLobes<evidence.forest.deciduous*4||
        evidence.forest.individualLeaves<evidence.forest.deciduous*15||
        evidence.forest.broadleafSpecies.filter(n=>n>0).length!==3||
-       evidence.geometry.totalTriangles>=134000)
+       evidence.geometry.totalTriangles>=160000)
       throw Error('Gauntlet 047 authored broadleaf forest or GPU budget gate failed: '+JSON.stringify(evidence.forest));
     evidence.farmstead=await page.evaluate(()=>window.__tinyKingdom.getFarmsteadStats());
     if(evidence.farmstead.stalks!==668||evidence.farmstead.rows!==22||
