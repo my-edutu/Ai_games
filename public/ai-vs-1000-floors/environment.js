@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import {createPlatformArchitecture} from './platform-architecture.js';
+import {createPlatformFinish} from './platform-surface.js';
 
 const TAU=Math.PI*2;
 const mesh=(geometry,material,x=0,y=0,z=0)=>{const o=new THREE.Mesh(geometry,material);o.position.set(x,y,z);o.castShadow=true;o.receiveShadow=true;return o;};
@@ -52,6 +53,7 @@ function platform(parent,p,m,index,district){
  g.add(box(w,.12,d,m.tile,0,-.06,0));
  g.add(bevel(w+.06,.24,d+.06,m.stone,0,-.24,0));
  g.add(createPlatformArchitecture(p,m,district,index));
+ g.add(createPlatformFinish(p,m,district,index));
  // Large inset corner tiles and shallow cut seams, not floating trim rails.
  for(const side of [-1,1]){
   g.add(box(w-.28,.015,.055,m.edge,0,.008,side*(d/2-.3)));
