@@ -82,8 +82,26 @@ const path = require('node:path');
     if(f.homes!==13||f.styles.length!==4||Math.max(...f.styles.map(style=>style.count))>5||f.plasterPanels!==f.homes*2||
        f.sideWindows!==f.homes*4||f.diagonalBraces<f.homes*4||
        f.meshTriangles<=f.homes*100||f.meshTriangles>=f.homes*450||
-       !f.authorityUnchanged||evidence.geometry.totalTriangles>=134000)
+       !f.authorityUnchanged||evidence.geometry.totalTriangles>=160000)
       throw Error('Gauntlet 046 facade geometry budget or identity failed: '+JSON.stringify(f));
+    // G047: real emitted boughs and needles, no decorative CSS/metadata substitute.
+    // The checks are tied to the actual uploaded static mesh and camera-invariant save.
+    evidence.forestVisual=await page.evaluate(()=>{
+      const g=window.__tinyKingdom,before=JSON.stringify(g.exportSnapshot());
+      return {...g.getForestVisualStats(),
+        sourceClearance:g.getFarmTreeClearanceStats(),
+        authorityUnchanged:before===JSON.stringify(g.exportSnapshot())};
+    });
+    const forest=evidence.forestVisual;
+    if(forest.conifers<=15||forest.deciduous<=15||forest.renderedTrees!==forest.conifers+forest.deciduous||
+       forest.sourceTrees!==forest.sourceClearance.forestSourceCount||
+       forest.renderedTrees!==forest.sourceClearance.renderedForestCount||
+       forest.needleBoughs!==forest.conifers*32||
+       forest.needleFanTriangles!==forest.needleBoughs*8||
+       forest.branchTriangles!==forest.needleBoughs*8||
+       forest.crownColors<4||!forest.authorityUnchanged||
+       evidence.geometry.totalTriangles>=160000)
+      throw Error('Gauntlet 047 forest volume, replay or triangle budget failed: '+JSON.stringify(forest));
     evidence.water=await page.evaluate(()=>window.__tinyKingdom.waterStats());
     if(evidence.water.model!=='fresnel-ripple-shorefoam-v1'||evidence.water.waterTriangles!==1260||evidence.water.bankTriangles!==840)
       throw Error('River material or shoreline geometry gate failed');
@@ -234,6 +252,7 @@ const path = require('node:path');
       {name:'riverbank-close.png',camera:{focus:[-12,19],yaw:.66,pitch:.48,zoom:17}},
       {name:'guild-forge.png',camera:{focus:[19,-15],yaw:.78,pitch:.57,zoom:23}},
       {name:'cottage-facades.png',camera:{focus:[10,-5],yaw:1.50,pitch:.40,zoom:14}},
+      {name:'forest-boughs.png',camera:{focus:[-32,-9],yaw:.65,pitch:.50,zoom:15}},
       {name:'farmstead-wide.png',camera:{focus:[23,1],yaw:3.86,pitch:.56,zoom:25}},
       {name:'granary-close.png',camera:{focus:[29,-5],yaw:3.05,pitch:.50,zoom:18}},
     ]){
