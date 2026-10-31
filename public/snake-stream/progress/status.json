@@ -1,14 +1,14 @@
 {
   "updatedAt": "2026-10-31",
-  "status": "ROUND37 ORIGINAL EYELID ANIMATION CANDIDATE · R36 CHROMIUM 25/26 PASS · STRICT 9/17 ACTUAL SUBMISSIONS FAIL",
-  "detail": "R36 SHA-controlled real WebGL proof re-passed 41242552317; 9 actual draw submissions / 1009.3ms versus unchanged 17 minimum; only 1/29 live index reuse. Round37 attached upper-lid motion, safe danger/reduced-motion and exact-source regressions committed for Node/real WebGL verification; no art/performance victory or release approval yet.",
+  "status": "ROUND37 REAL CHROMIUM 26/27 PASS · ORIGINAL TWO-LID GESTURE VERIFIED · STRICT 11/17 ACTUAL SUBMISSIONS FAIL",
+  "detail": "Exact-source d3cd3b8: Chromium/SwiftShader Round37 WebGL blink A/B pass, detail 1,377 localized changed pixels, overview 76; 26/27 focused browser checks. Desktop 11 actual submitted frames/1003.5ms < unchanged 17 minimum. General CI failed only a signed-zero Node assertion (visual-neutral); corrected and 69/69 focused Node tests locally pass; updated CI pending. Original Snake Pass reference still loses; independent critic, device present FPS, soak/R5 pending.",
   "latestImage": "/progress/evidence/round-9-overview.jpg",
   "latestCaption": "Historical Round9 image (not R35). Real Round35 Chromium/WebGL same synthetic public-frame overview/detail before/after: https://github.com/my-edutu/Ai_games/actions/runs/41239708262/artifacts/13056688120; not live gameplay frame pacing.",
   "reviews": [
     {
       "area": "Round 37 · original attached upper-lid articulation",
-      "verdict": "EXACT-SOURCE NODE/WEBGL CANDIDATE · R36 25/26 VERIFIED · STRICT 9/17 FAIL · WHOLE-GAME LOSE",
-      "gap": "Both existing lids animate during a bounded slow blink, freeze for reduced-motion and high danger; real browser captures and exact-source tests pending. No new GPU objects; performance gate 9/1009.3ms <17, independent art and device-present FPS/soak/R5 absent."
+      "verdict": "ACTUAL WEBGL SHA-CONTROL PASS · 26/27 BROWSER · STRICT 11/17 FAIL · WHOLE-GAME LOSE",
+      "gap": "Measured 1,377 close-up changed pixels across the moving original lids, 76 overview; character eyes remain bulky/hooded versus Snake Pass. General CI signed-zero Node regression corrected after local 69/69 pass, corrected-head CI pending. No performance win, independent review, real-device presents, soak/R5."
     },
     {
       "area": "Round 36 · live serpent index topology transfer",
@@ -623,6 +623,28 @@
         {
           "label": "Round36 live GPU queue and index upload request diagnostics on corrected-history run",
           "path": "https://github.com/my-edutu/Ai_games/actions/runs/41241932464/artifacts/13058022009"
+        }
+      ]
+    },
+    {
+      "title": "Round 37 · articulated attached upper lids, measured in real WebGL",
+      "summary": "Exact-source d3cd3b8 real Chromium/SwiftShader/Playwright peak-blink A/B PASS (new test); 1,377 localized detail pixels / 76 overview changed, GL/resource budgets fixed, 26/27 browser checks passed. Self-review: clearer closing lid but bulky cartoon eye, much below Snake Pass and ASTRO BOT craft. Strict actual submissions 11 in 1003.5ms <17 FAIL; signed-zero Node test correction locally passed 69/69 and exact corrected-head CI pending. Snapshot/danger/portal/reduced-motion unchanged; no independent critic, device present, soak/R5. Draft/unmerged/undeployed.",
+      "captures": [
+        {
+          "label": "R37 true Chromium/WebGL exact-prior upper-lid A/B PNGs, trace and synthetic frozen public fixture",
+          "path": "https://github.com/my-edutu/Ai_games/actions/runs/41243738720/artifacts/13059110314"
+        },
+        {
+          "label": "R37 actual live motion WebM, encoding FPS is not presented game FPS",
+          "path": "https://github.com/my-edutu/Ai_games/actions/runs/41243738720/artifacts/13058184508"
+        },
+        {
+          "label": "R37 strict 11 actual render submissions/1003.5ms (fail) and GPU profiler",
+          "path": "https://github.com/my-edutu/Ai_games/actions/runs/41243738720/artifacts/13058373604"
+        },
+        {
+          "label": "R37 exact-source written visual critique, strong remaining gaps",
+          "path": "https://github.com/my-edutu/Ai_games/blob/feat/autonomous-snake-3d-gauntlet/docs/reviews/snake-gauntlet/round37-attached-upper-eyelids.md"
         }
       ]
     }

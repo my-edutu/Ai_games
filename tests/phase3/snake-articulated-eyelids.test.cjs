@@ -51,9 +51,9 @@ test('Round37 old-source red control: slower attached blink closes both actual u
       }
     }
     after.update(frozenPaths,{...options,time:2.67,reducedMotion:true});
-    for(const lid of newLids){assert.equal(lid.position.y,0,'reduced-motion never sweeps eyelids');assert.equal(lid.position.z,0);}
+    for(const lid of newLids){assert.ok(lid.position.y===0,'reduced-motion never sweeps eyelids');assert.equal(lid.position.z,0);}
     after.update(frozenPaths,{...options,time:2.67,danger:1});
-    for(const lid of newLids){assert.equal(lid.position.y,0,'danger keeps the original eyebrow cue clear');assert.equal(lid.position.z,0);}
+    for(const lid of newLids){assert.ok(lid.position.y===0,'danger keeps the original eyebrow cue clear');assert.equal(lid.position.z,0);}
     after.update([[{x:15,z:8},{x:15,z:7}]],{...options,time:2.67,runToken:'restart'});
     assert.equal(after.stats().paths,1,'restarts do not create portal links');
     after.update(frozenPaths,{...options,detail:'low',time:2.67,runToken:'restart'});
