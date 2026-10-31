@@ -137,6 +137,29 @@ export function createSerpent(THREE) {
   const lodBindings = [];
   const sphere = ownGeometry(new THREE.SphereGeometry(1, 32, 24));
   const lowSphere = ownGeometry(new THREE.SphereGeometry(1, 12, 8));
+  // The tiny paired facial accents share one shader, unit-sphere geometry,
+  // and a common animated parent. Static instance transforms preserve each
+  // original ellipsoid exactly while avoiding three redundant draw submissions.
+  // This cannot batch iris/pupils because their materials or gaze differ.
+  const facialAccentBatches = [];
+  function pairedAccents(parent, material, poses, name) {
+    const mesh = new THREE.InstancedMesh(sphere, material, poses.length);
+    const pose = new THREE.Object3D();
+    mesh.name = name;
+    mesh.castShadow = mesh.receiveShadow = true;
+    for (let i = 0; i < poses.length; i++) {
+      const [x, y, z, sx, sy, sz] = poses[i];
+      pose.position.set(x, y, z);
+      pose.scale.set(sx, sy, sz);
+      pose.updateMatrix();
+      mesh.setMatrixAt(i, pose.matrix);
+    }
+    mesh.instanceMatrix.needsUpdate = true;
+    lodBindings.push([mesh, sphere, lowSphere]);
+    facialAccentBatches.push(mesh);
+    parent.add(mesh);
+    return mesh;
+  }
   function ellipsoid(parent, material, x, y, z, sx, sy, sz, name) {
     const mesh = new THREE.Mesh(sphere, material);
     lodBindings.push([mesh, sphere, lowSphere]);
@@ -277,9 +300,10 @@ export function createSerpent(THREE) {
   updateJawCorners(0);
   // The actual mouth opening supplies one lip contour; no separate cheek stroke
   // ends above it and competes with the attached mouth corner.
-  for(const sign of [-1,1]) {
-    ellipsoid(headPose,darkJade,sign*0.116,0.081,0.415,0.018,0.012,0.010,'Recessed nostril');
-  }
+  pairedAccents(headPose, darkJade, [
+    [-0.116, 0.081, 0.415, 0.018, 0.012, 0.010],
+    [ 0.116, 0.081, 0.415, 0.018, 0.012, 0.010],
+  ], 'Paired recessed nostrils');
   const eyes = [], pupils = [], brows = [];
   for (const sign of [-1, 1]) {
     const socket = new THREE.Group();
@@ -295,8 +319,10 @@ export function createSerpent(THREE) {
     const look=new THREE.Group(); look.position.set(-sign*0.012,-0.005,0.054); eye.add(look); pupils.push(look);
     ellipsoid(look,iris,0,0,0,0.059,0.073,0.022,'Amber iris');
     ellipsoid(look,pupilMaterial,0,0,0.017,0.025,0.052,0.012,'Deep pupil');
-    ellipsoid(look,glintMaterial,-0.017,0.025,0.027,0.014,0.017,0.006,'Eye catchlight');
-    ellipsoid(look,glintMaterial,0.017,-0.024,0.027,0.006,0.007,0.004,'Secondary eye catchlight');
+    pairedAccents(look, glintMaterial, [
+      [-0.017,  0.025, 0.027, 0.014, 0.017, 0.006],
+      [ 0.017, -0.024, 0.027, 0.006, 0.007, 0.004],
+    ], 'Paired eye catchlights');
     // A broad upper eyelid surface rolls back into the sculpted orbital mass;
     // unlike a tubular eyebrow it has no separate sausage-like silhouette.
     function lidGeometry(steps) {
@@ -490,6 +516,10 @@ export function createSerpent(THREE) {
   function dispose() {
     if (disposed) return;
     disposed = true;
+    // InstancedMesh owns separate GPU instance buffers in addition to its
+    // shared sphere geometry. Dispose both without retaining detached eyes.
+    for (const mesh of facialAccentBatches) mesh.dispose();
+    facialAccentBatches.length = 0;
     for (const value of geometries) value.dispose();
     for (const value of materials) value.dispose();
     for (const value of textures) value.dispose();
