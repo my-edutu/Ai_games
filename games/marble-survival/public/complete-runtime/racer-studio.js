@@ -14,7 +14,7 @@
     for(const button of roster.children){const chosen=Number(button.dataset.id)===id;button.setAttribute('aria-pressed',String(chosen));button.tabIndex=chosen?0:-1;if(chosen&&focus)button.focus();}
   }
   function reconcileRoster(next){
-    const key=JSON.stringify(next.map(c=>[c.id,c.number,c.name,c.role,c.status]));if(key===lastRosterKey)return;lastRosterKey=key;
+    const key=JSON.stringify([selectedId,next.map(c=>[c.id,c.number,c.name,c.role,c.status])]);if(key===lastRosterKey)return;lastRosterKey=key;
     const nodes=new Map([...roster.children].map(b=>[Number(b.dataset.id),b]));
     for(const [index,c] of next.entries()){
       let button=nodes.get(c.id);

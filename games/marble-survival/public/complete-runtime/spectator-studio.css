@@ -23,7 +23,7 @@
 .arena-title-eyebrow {font-size:8px;}
 .broadcast-shell:not(.stage-entering) .arena-title-card strong {font-size:17px;}
 .broadcast-shell:not(.stage-entering) .arena-title-card>span:last-of-type,
-.broadcast-shell:not(.stage-entering) .arena-title-line {display:none;}
+.broadcast-shell:not(.stage-entering) .arena-title-card .arena-title-line {display:none;}
 .broadcast-shell:not(.stage-entering) .arena-title-card {padding:8px 12px;}
 .leaderboard-panel.broadcast-overlay {width:190px;max-height:50%;padding:9px;background:#0a1429e8;border-color:#8aa4cb44;box-shadow:0 8px 24px #0003;}
 .leaderboard-panel.broadcast-overlay .panel-heading h2 {font-size:14px;}
@@ -105,13 +105,13 @@
   #sound-toggle::after {content:'♪';font-size:16px;}
   #open-racer-studio {padding:6px 7px;font-size:10px;min-height:30px;}
   .broadcast-shell[data-layout="arena-first"] .tournament-strip {grid-template-columns:minmax(0,1fr) 60px minmax(0,1.1fr);gap:4px;}
-  .broadcast-shell[data-layout="arena-first"] .strip-cell {min-height:51px;padding:6px 7px;}
+  .broadcast-shell[data-layout="arena-first"] .strip-cell {min-height:51px;padding:4px 7px;font-size:11px;line-height:1.2;}
   .broadcast-shell .strip-cell:nth-child(3) {display:none;}
   .broadcast-shell .strip-cell strong {font-size:18px;}
   .broadcast-shell .strip-cell #round-name {font-size:12px;line-height:1.25;}
   .broadcast-shell .strip-label {font-size:7px;letter-spacing:.04em;}
   .broadcast-shell .qualification-cell {grid-column:auto;}
-  .broadcast-shell .qualification-cell strong {font-size:11px;line-height:1.3;}
+  .broadcast-shell[data-layout="arena-first"] .qualification-cell #qualification-value {font-size:12px;line-height:1.25;}
   .qualification-meter {margin-top:3px;height:3px;}
   .broadcast-shell[data-layout="arena-first"] .stage-grid {height:var(--spectator-stage-height,calc(100dvh - 124px));min-height:180px;}
   .broadcast-shell[data-layout="arena-first"] .arena-card,.broadcast-shell[data-layout="arena-first"] #arena-webgl,.broadcast-shell[data-layout="arena-first"] #arena-canvas {height:100%;min-height:0;max-height:100%;}
