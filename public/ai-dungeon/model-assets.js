@@ -5,7 +5,7 @@ import {planAuthoredMotion} from '/dungeon/character-motion-plan.js';
 import {planWardenRegalia} from '/dungeon/warden-regalia-plan.js';
 import {planRoleSilhouette} from '/dungeon/role-silhouette-plan.js';
 import {planDrapePanels,planDrapeSwing,planDrapeVertexBend,DRAPE_ROWS,DRAPE_COLUMNS} from '/dungeon/fabric-drape-plan.js';
-import {rigWeaponParts,selectHandBone,rigGripAnchor,boundedGripOffset,selectUpperArmBone,planRigArmGesture} from '/dungeon/rig-attachment-plan.js';
+import {rigWeaponParts,selectHandBone,rigGripAnchor,boundedGripOffset,selectUpperArmBone,planRigArmGesture,selectLegBone,advanceRigGait,planRigLegGesture} from '/dungeon/rig-attachment-plan.js';
 
 // Optional locally vendored CC0 characters. Offline / missing-asset fallback is the
 // fully autonomous procedural 3D rig, not a blank screen. No third-party runtime calls.
@@ -286,12 +286,30 @@ function bindRigArmGestures(actor){
   });
  }
  actor.rigGesturePeak=0;
+ // Bind only genuine cloned thigh, calf and ankle joints. Missing joints
+ // are a graceful no-op; there are no new animation assets or skeletons.
+ actor.rigGaitBones=[];
+ for(const side of ['left','right'])for(const part of ['upper','lower','foot']){
+  const bone=selectLegBone(bones,side,part);
+  if(bone)actor.rigGaitBones.push({
+   side,part,bone,last:new THREE.Quaternion(),inverse:new THREE.Quaternion(),
+   next:new THREE.Quaternion(),euler:new THREE.Euler()
+  });
+ }
+ actor.rigGaitPosition=actor.root?.position?.clone?.()??null;
+ actor.rigGaitPhase=0;actor.rigGaitWeight=0;actor.rigGaitPeak=0;
 }
 function restoreRigArmsBeforeMixer(actor){
  for(const mount of actor.rigUpperArms||[]){
   // Undo our own previous pose BEFORE AnimationMixer writes this frame.
   // Essential for idle/attack GLBs whose clips omit an arm joint: otherwise
   // additive quaternion edits accumulate into permanent limb distortion.
+  mount.bone.quaternion.multiply(mount.inverse.copy(mount.last).invert());
+  mount.last.identity();
+ }
+}
+function restoreRigLegsBeforeMixer(actor){
+ for(const mount of actor.rigGaitBones||[]){
   mount.bone.quaternion.multiply(mount.inverse.copy(mount.last).invert());
   mount.last.identity();
  }
@@ -306,6 +324,25 @@ function stageRigArmsAfterMixer(actor,since,reducedMotion){
   mount.bone.quaternion.multiply(mount.next);
   mount.last.copy(mount.next);
   actor.rigGesturePeak=Math.max(actor.rigGesturePeak||0,Math.abs(joint.pitch),Math.abs(joint.roll));
+ }
+}
+
+// Distance-paced cosmetic stride: idle actors settle; teleports reset.
+function stageRigLegsAfterMixer(actor,reducedMotion){
+ if(!actor.rigGaitBones?.length)return;
+ const current=actor.root?.position,previous=actor.rigGaitPosition;
+ const travel=current&&previous?Math.hypot(current.x-previous.x,current.z-previous.z):0;
+ if(current&&previous)previous.copy(current);
+ const gait=advanceRigGait(actor.rigGaitPhase,actor.rigGaitWeight,travel,
+  reducedMotion||actor.u.hp<=0);
+ actor.rigGaitPhase=gait.phase;actor.rigGaitWeight=gait.weight;
+ const pose=planRigLegGesture(gait.phase,gait.weight,reducedMotion||actor.u.hp<=0);
+ for(const mount of actor.rigGaitBones){
+  const angle=pose[mount.side][mount.part];
+  mount.next.setFromEuler(mount.euler.set(angle,0,0,'XYZ'));
+  mount.bone.quaternion.multiply(mount.next);
+  mount.last.copy(mount.next);
+  actor.rigGaitPeak=Math.max(actor.rigGaitPeak||0,Math.abs(angle));
  }
 }
 
@@ -327,7 +364,7 @@ function attachCharacter(actor){
    instance.position.set(-center.x*sourceScale,-bounds.min.y*sourceScale,-center.z*sourceScale);
   }
   const pivot=new THREE.Group();actor.root.add(pivot);pivot.add(instance);
-  actor.visualPivot=pivot;actor.motionPeak=0;actor.assetRoot=instance;actor.assetMaterials=owned;actor.assetGeometries=[];actor.regaliaParts=0;actor.roleSilhouetteParts=0;actor.rigBoundAccessoryParts=0;actor.rigHandBoneName=null;actor.rigGripAligned=false;actor.rigGripShiftMeters=0;actor.rigGripCandidateMeters=null;actor.rigUpperArms=[];actor.rigGesturePeak=0;actor.draperyPanels=[];actor.draperyTriangles=0;actor.draperyPeakDeformationMeters=0;
+  actor.visualPivot=pivot;actor.motionPeak=0;actor.assetRoot=instance;actor.assetMaterials=owned;actor.assetGeometries=[];actor.regaliaParts=0;actor.roleSilhouetteParts=0;actor.rigBoundAccessoryParts=0;actor.rigHandBoneName=null;actor.rigGripAligned=false;actor.rigGripShiftMeters=0;actor.rigGripCandidateMeters=null;actor.rigUpperArms=[];actor.rigGesturePeak=0;actor.rigGaitBones=[];actor.rigGaitPosition=null;actor.rigGaitPhase=0;actor.rigGaitWeight=0;actor.rigGaitPeak=0;actor.draperyPanels=[];actor.draperyTriangles=0;actor.draperyPeakDeformationMeters=0;
   actor.body.visible=false;actor.authored=true;actor.detail?.setAuthored?.(true);actor.mixer=new THREE.AnimationMixer(instance);
   actor.availableClips=gltf.animations||[];actor.currentAction='';actor.currentActionTick=null;
   actor.textureReadiness=textureReadiness.get(gltf);
@@ -367,8 +404,10 @@ function updateActor(actor,dt,since=0,reducedMotion=false){
  if(!actor.authored||!actor.mixer)return;
  changeAction(actor,actor.u.action||'idle');
  restoreRigArmsBeforeMixer(actor);
+ restoreRigLegsBeforeMixer(actor);
  actor.mixer.update(Math.min(.05,Math.max(0,dt)));
  stageRigArmsAfterMixer(actor,since,reducedMotion);
+ stageRigLegsAfterMixer(actor,reducedMotion);
  if(actor.visualPivot){
   const pose=planAuthoredMotion(actor.u.kind,actor.u.action||'idle',since,reducedMotion);
   actor.visualPivot.position.set(pose.x,pose.y,pose.z);
@@ -407,7 +446,7 @@ function disposeActorAsset(actor){
  else if(actor.assetRoot){actor.root.remove(actor.assetRoot)}
  for(const m of actor.assetMaterials||[])m.dispose();
  for(const g of actor.assetGeometries||[])g.dispose();
- actor.mixer=null;actor.assetRoot=null;actor.visualPivot=null;actor.motionPeak=0;actor.assetMaterials=[];actor.assetGeometries=[];actor.regaliaParts=0;actor.roleSilhouetteParts=0;actor.rigBoundAccessoryParts=0;actor.rigHandBoneName=null;actor.rigGripAligned=false;actor.rigGripShiftMeters=0;actor.rigGripCandidateMeters=null;actor.rigUpperArms=[];actor.rigGesturePeak=0;actor.draperyPanels=[];actor.draperyTriangles=0;actor.draperyPeakDeformationMeters=0;actor.authored=false;actor.textureReadiness=null;
+ actor.mixer=null;actor.assetRoot=null;actor.visualPivot=null;actor.motionPeak=0;actor.assetMaterials=[];actor.assetGeometries=[];actor.regaliaParts=0;actor.roleSilhouetteParts=0;actor.rigBoundAccessoryParts=0;actor.rigHandBoneName=null;actor.rigGripAligned=false;actor.rigGripShiftMeters=0;actor.rigGripCandidateMeters=null;actor.rigUpperArms=[];actor.rigGesturePeak=0;actor.rigGaitBones=[];actor.rigGaitPosition=null;actor.rigGaitPhase=0;actor.rigGaitWeight=0;actor.rigGaitPeak=0;actor.draperyPanels=[];actor.draperyTriangles=0;actor.draperyPeakDeformationMeters=0;actor.authored=false;actor.textureReadiness=null;
 }
 function putEnvironment(world,sceneKey,map){
  // Authored GLB masonry and prop dressing complements the instanced procedural
@@ -444,7 +483,7 @@ function putEnvironment(world,sceneKey,map){
 }
 function stats(actors){
  const all=[...actors.values()],authored=all.filter(a=>a.authored);
- return{authoredBosses:authored.filter(a=>a.u.kind==='warden').length,bossRegaliaParts:all.reduce((n,a)=>n+(a.regaliaParts||0),0),roleSilhouetteActors:authored.filter(a=>(a.roleSilhouetteParts||0)>0).length,roleSilhouetteParts:all.reduce((n,a)=>n+(a.roleSilhouetteParts||0),0),draperyActors:authored.filter(a=>(a.draperyPanels?.length||0)>0).length,draperyPanels:all.reduce((n,a)=>n+(a.draperyPanels?.length||0),0),draperyTriangles:all.reduce((n,a)=>n+(a.draperyTriangles||0),0),draperyPeakDeformationMeters:Math.max(0,...all.map(a=>a.draperyPeakDeformationMeters||0)),rigGestureBones:authored.reduce((n,a)=>n+(a.rigUpperArms?.length||0),0),rigGesturePeakRad:Math.max(0,...authored.map(a=>a.rigGesturePeak||0)),rigBoundAccessoryActors:authored.filter(a=>(a.rigBoundAccessoryParts||0)>0).length,rigBoundAccessoryParts:all.reduce((n,a)=>n+(a.rigBoundAccessoryParts||0),0),
+ return{authoredBosses:authored.filter(a=>a.u.kind==='warden').length,bossRegaliaParts:all.reduce((n,a)=>n+(a.regaliaParts||0),0),roleSilhouetteActors:authored.filter(a=>(a.roleSilhouetteParts||0)>0).length,roleSilhouetteParts:all.reduce((n,a)=>n+(a.roleSilhouetteParts||0),0),draperyActors:authored.filter(a=>(a.draperyPanels?.length||0)>0).length,draperyPanels:all.reduce((n,a)=>n+(a.draperyPanels?.length||0),0),draperyTriangles:all.reduce((n,a)=>n+(a.draperyTriangles||0),0),draperyPeakDeformationMeters:Math.max(0,...all.map(a=>a.draperyPeakDeformationMeters||0)),rigGestureBones:authored.reduce((n,a)=>n+(a.rigUpperArms?.length||0),0),rigGesturePeakRad:Math.max(0,...authored.map(a=>a.rigGesturePeak||0)),rigGaitBones:authored.reduce((n,a)=>n+(a.rigGaitBones?.length||0),0),rigGaitPeakRad:Math.max(0,...authored.map(a=>a.rigGaitPeak||0)),rigBoundAccessoryActors:authored.filter(a=>(a.rigBoundAccessoryParts||0)>0).length,rigBoundAccessoryParts:all.reduce((n,a)=>n+(a.rigBoundAccessoryParts||0),0),
  hiddenFallbackOrnamentActors:authored.filter(a=>(a.detail?.hiddenProceduralOrnamentCount||0)>0).length,
  hiddenFallbackOrnamentMeshes:authored.reduce((n,a)=>n+(a.detail?.hiddenProceduralOrnamentCount||0),0),rigGripAlignedActors:authored.filter(a=>a.rigGripAligned).length,rigGripMaxShiftMeters:Math.max(0,...authored.map(a=>a.rigGripShiftMeters||0)),rigGripCandidates:authored.filter(a=>a.rigGripCandidateMeters!==null).map(a=>({kind:a.u.kind,meters:a.rigGripCandidateMeters})).slice(0,3),rigHandBoneNames:authored.filter(a=>a.rigHandBoneName).map(a=>a.rigHandBoneName).slice(0,8),authoredCharacters:authored.length,proceduralFallbacks:all.length-authored.length,uniqueAssets:cache.size,missingAssets:failures.size,incompleteAssets:incompleteAssets.size,texturedCharacters:authored.filter(a=>a.textureReadiness?.decodedColorMaps>0).length,decodedColorMaps:authored.reduce((n,a)=>n+(a.textureReadiness?.decodedColorMaps||0),0)};
 }
