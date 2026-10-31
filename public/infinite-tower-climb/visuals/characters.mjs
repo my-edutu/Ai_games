@@ -4,6 +4,40 @@ import * as THREE from '/tower/vendor/three.module.js';
 // Only the articulated child rig is animated; scene placement remains host-owned.
 const clamp = THREE.MathUtils.clamp;
 const mix = THREE.MathUtils.lerp;
+// Presentation-only two-link IK, no authoritative state changes.
+
+export function groundedFootTargets(phase,speed,reducedMotion=false){
+  const neutral=()=>({hip:0,knee:0,ankle:0,lift:0,forward:0,stance:true,swing:false});
+  if(!Number.isFinite(phase)||!Number.isFinite(speed)||speed<=.02||reducedMotion)return{bodyDip:0,legs:[neutral(),neutral()]};
+  const intensity=clamp(speed,0,1),bodyDip=-.08*intensity,stride=.2*intensity,stanceShare=.62;
+  const legs=[0,1].map(index=>{
+    const u=((phase+index*Math.PI)%(2*Math.PI)+2*Math.PI)%(2*Math.PI)/(2*Math.PI);
+    const stance=u<=stanceShare,t=stance?u/stanceShare:(u-stanceShare)/(1-stanceShare);
+    const eased=t*t*(3-2*t),forward=stance?stride*(1-2*t):stride*(2*eased-1);
+    const lift=stance?0:Math.sin(Math.PI*t)*.14*intensity;
+    const down=1+bodyDip-(.21+lift),upper=.4,shin=.39,pivotZ=.055;
+    const lower=Math.hypot(shin,pivotZ),pivotAngle=-Math.atan2(pivotZ,shin);
+    const reach=clamp(Math.hypot(forward,down),.011,upper+lower-.000001);
+    const flex=Math.acos(clamp((reach*reach-upper*upper-lower*lower)/(2*upper*lower),-1,1));
+    const hip=Math.atan2(-forward,down)-Math.atan2(lower*Math.sin(flex),upper+lower*Math.cos(flex));
+    const knee=flex-pivotAngle;
+    return{hip,knee,ankle:-hip-knee,lift,forward,stance,swing:!stance};
+  });
+  return{bodyDip,legs};
+}
+function createFootfallGate(){
+  let previous=[true,true],ready=false;
+  return{
+    next(pose,active){
+      if(!active||!pose?.legs||pose.legs.length!==2){previous=[true,true];ready=false;return[];}
+      const stance=pose.legs.map(leg=>leg.stance===true);
+      const events=ready?stance.flatMap((s,i)=>s&&!previous[i]?[i===0?-1:1]:[]):[];
+      previous=stance;ready=true;return events;
+    },
+    reset(){previous=[true,true];ready=false;}
+  };
+}
+
 
 function roundedShape(w, h, r = Math.min(w, h) * .22) {
   const s = new THREE.Shape(), x = -w / 2, y = -h / 2;
@@ -30,13 +64,61 @@ function smoothShellNormals(geometry) {
   return geometry;
 }
 
+
+function createCharacterSurfaceDetail(){
+  // Original 128-square ceramic/oxide patina. Three small CPU/GPU-owned atlases
+  // are shared across every non-emissive skinned material in one hero or boss.
+  const size=128;
+  function hash(x,y,salt){
+    let h=Math.imul(x+salt*31337,374761393)^Math.imul(y+salt*101,668265263);
+    h=Math.imul(h^(h>>>13),1274126177);
+    return(h^(h>>>16))>>>0;
+  }
+  const pixels={color:new Uint8Array(size*size*4),normal:new Uint8Array(size*size*4),roughness:new Uint8Array(size*size*4)};
+  for(let y=0;y<size;y++)for(let x=0;x<size;x++){
+    const offset=(y*size+x)*4,n=hash(x,y,1),n2=hash(x,y,2),edge=hash(x>>2,y>>2,3);
+    // Fine brushed directional scratches and localized oxidized chips.
+    const scratch=n%89===0&&x%17<10,chip=edge%137===0&&(n2%9<4);
+    const wear=chip?155:scratch?188:236+n%20;
+    pixels.color.set([wear,chip?wear-8:wear,chip?wear-14:wear,255],offset);
+    const nx=127+(n%13)-6+(scratch?12:0),ny=127+(n2%13)-6;
+    pixels.normal.set([nx,ny,253,255],offset);
+    const grain=205+(n%50);
+    pixels.roughness.set([255,grain,255,255],offset);
+  }
+  const make=(data,color)=>{
+    const map=new THREE.DataTexture(data,size,size,THREE.RGBAFormat);
+    map.wrapS=map.wrapT=THREE.RepeatWrapping;
+    map.magFilter=THREE.LinearFilter;
+    map.minFilter=THREE.LinearMipmapLinearFilter;
+    map.generateMipmaps=true;
+    map.colorSpace=color?THREE.SRGBColorSpace:THREE.NoColorSpace;
+    map.needsUpdate=true;
+    return map;
+  };
+  const map=make(pixels.color,true),normal=make(pixels.normal,false),roughness=make(pixels.roughness,false);
+  let disposed=false;
+  return {map,normal,roughness,dispose(){
+    if(disposed)return;disposed=true;
+    map.dispose();normal.dispose();roughness.dispose();
+  }};
+}
+
 function workshop(name) {
   const group = new THREE.Group(); group.name = name;
   const geometrySet = new Set(), materialSet = new Set();
+  const surfaceDetail=name==='expedition-climber'||name==='guardian-automaton'?createCharacterSurfaceDetail():null;
   let disposed = false;
   const geo = value => { geometrySet.add(value); return value; };
   const mat = (color, metalness = .2, roughness = .42, emissive = 0, intensity = 0) => {
     const m = new THREE.MeshStandardMaterial({color, metalness, roughness, emissive, emissiveIntensity:intensity});
+    if(surfaceDetail&&intensity===0){
+      m.map=surfaceDetail.map;
+      m.normalMap=surfaceDetail.normal;
+      m.roughnessMap=surfaceDetail.roughness;
+      m.normalScale.set(metalness>.55?.24:.11,metalness>.55?.24:.11);
+      m.needsUpdate=true;
+    }
     materialSet.add(m); return m;
   };
   const node = (parent, name, x = 0, y = 0, z = 0) => {
@@ -159,6 +241,7 @@ function workshop(name) {
       if(disposed)return;disposed=true;
       skeleton.dispose();
       for(const g of geometrySet)g.dispose();for(const m of materialSet)m.dispose();
+      surfaceDetail?.dispose();
       geometrySet.clear();materialSet.clear();group.clear();
     }};
   }
@@ -242,6 +325,9 @@ export function createClimber() {
   w.barrel(body,.2,.22,.19,p.dark,0,1.93,0);
 
   const head=w.node(body,'expressive-helmet',0,2.31,.025);
+  // Reduce toy-like helmet width while keeping the visible visor and reach clear.
+  // The rig remains fully articulated: scale acts on the actual helmet bone.
+  head.scale.set(.78,.9,.92);
   w.shell(head,1.28,.8,.74,p.armor,0,.03,0,.18,.025,.09);
   w.plate(head,.12,.68,.07,p.color,0,.01,-.36,.025);
   // The visor follows the ceramic crown instead of reading as a flat panel
@@ -264,8 +350,9 @@ export function createClimber() {
   const fistLight=w.mat(0x3abdd9,.3,.32,0x2898cb,.12);
   w.plate(arms[1].lower,.24,.075,.04,fistLight,0,-.445,.125,.018);
   let phase=0,attackAge=1,wasAttacking=false,landingAge=1,previousState='standing',reachSide=null;
+  const footfalls=createFootfallGate();
   const rest=body.position.y;
-  return w.finish((state,dt,time,{reducedMotion=false,viewAzimuth}={})=>{
+  return w.finish((state,dt,time,{reducedMotion=false,viewAzimuth,onFootPlant}={})=>{
     const vx=Number(state.vx??state.velocity?.x)||0,vy=Number(state.vy??state.velocity?.y)||0;
     const speed=clamp(Math.abs(vx)/4300,0,1),dead=state.state==='dead'||state.health===0;
     const airborne=state.state==='airborne',dash=state.state==='dashing',hurt=state.state==='hurt';
@@ -286,11 +373,19 @@ export function createClimber() {
       arm.upper.rotation.set(-step*.6*speed,0,(i?1:-1)*.09);arm.lower.rotation.x=-.18-Math.max(0,step)*.24*speed;
     }
     if(!airborne&&!dash&&!hurt&&!dead){
-      body.position.y+=reducedMotion?0:Math.abs(gait)*.045*speed;
-      body.rotation.x=speed*.07;
+      const grounded=groundedFootTargets(phase,speed,reducedMotion);
+      body.position.y+=grounded.bodyDip;
+      for(let i=0;i<2;i++){
+        legs[i].upper.rotation.x=grounded.legs[i].hip;
+        legs[i].lower.rotation.x=grounded.legs[i].knee;
+        legs[i].foot.rotation.x=grounded.legs[i].ankle;
+      }
+      for(const side of footfalls.next(grounded,speed>.1&&!reducedMotion))onFootPlant?.(side);
+      body.rotation.x=speed*.018;
       head.rotation.x=-speed*.05;
       if(speed<.05&&!reducedMotion){head.rotation.y=Math.sin(time*.75)*.075;arms[0].lower.rotation.x-=.035*Math.sin(time*1.5);}
     }
+    if(airborne||dash||hurt||dead)footfalls.reset();
     if(airborne){
       const rising=vy>0;
       const travelSide=((state.facing??Math.sign(vx))||1)>0?1:-1;
@@ -517,13 +612,14 @@ export function createEnemy(kind='sentinel') {
       const blend = reducedMotion ? 1 : Math.min(1, dt * 15);
       head.position.y = mix(head.position.y, 2.27 - tuck, blend);
     }
+    const groundPose=groundedFootTargets(phase,speed,reducedMotion||dead);
     for(let i=0;i<2;i++){
-      const leg=legs[i],arm=arms[i],step=Math.sin(phase+i*Math.PI);
+      const leg=legs[i],arm=arms[i],step=Math.sin(phase+i*Math.PI),pose=groundPose.legs[i];
       const brace=(i?1:-1)*.045;
-      leg.upper.rotation.set(step*.4*speed,0,brace);leg.lower.rotation.x=Math.max(0,-step)*.55*speed;leg.foot.rotation.set(0,0,-brace);
+      leg.upper.rotation.set(pose.hip,0,brace);leg.lower.rotation.x=pose.knee;leg.foot.rotation.set(pose.ankle,0,-brace);
       arm.upper.rotation.set(-step*.27*speed,0,(i?1:-1)*.14);arm.lower.rotation.x=-.22;
     }
-    if(!reducedMotion&&!dead)rig.position.y=Math.abs(Math.sin(phase))*.025*speed;
+    if(!dead)rig.position.y=groundPose.bodyDip;
     if(shooter){
       // The barrel has a purposeful +Z aim in the resting guard. Its receiver
       // stays on the articulated forearm; no detached cosmetic gun animation.

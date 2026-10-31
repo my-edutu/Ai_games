@@ -499,12 +499,12 @@ export function createTowerScene(canvas, settings = {}) {
   particles.frustumCulled = false;
   scene.add(particles);
   let particleCursor = 0;
-  function burst(position, color, count = 12) {
+  function burst(position, color, count = 12, height = .8) {
     if (options.reducedMotion || options.quality === 'low') return;
     const c = new THREE.Color(color);
     for (let n = 0; n < count; n++) {
       const i = particleCursor++ % MAX_PARTICLES, b = i * 3, phase = i + (snapshot?.tick || 0);
-      particlePositions.set([position.x, position.y + .8, position.z], b);
+      particlePositions.set([position.x, position.y + height, position.z], b);
       particleColors.set([c.r, c.g, c.b], b);
       particleVelocity.set([(seeded(phase) - .5) * 4, 1 + seeded(phase + 17) * 3, (seeded(phase + 36) - .5) * 3], b);
       particleLife[i] = .45 + seeded(phase + 8) * .4;
@@ -519,6 +519,15 @@ export function createTowerScene(canvas, settings = {}) {
   const guardianSightPoints=[];
   const lookAt = new THREE.Vector3();
   let actorYaw = 0;
+  // The foot contact rig emits at most two alternating events per stride.
+  // This adapter is purely cosmetic and leaves authoritative movement alone.
+  const gaitView=Object.create(options);
+  gaitView.onFootPlant=side=>{
+    if(options.quality==='low'||options.reducedMotion)return;
+    const p=climber.group.position;
+    const landing=new THREE.Vector3(p.x+Math.cos(actorYaw)*side*.28,p.y,p.z-Math.sin(actorYaw)*side*.28);
+    burst(landing,0xb7a995,3,.08);
+  };
   const visibilityChanged = () => {
     lastTime = 0;
     renderProgress.setVisible(document.visibilityState === 'visible', performance.now());
@@ -708,7 +717,7 @@ export function createTowerScene(canvas, settings = {}) {
     climber.animate({ ...p,
       targetDx: targetPlatform ? targetPlatform.x + targetPlatform.width / 2 - p.x : 0,
       targetDy: targetPlatform ? targetPlatform.y + targetPlatform.height - p.y : 0,
-    }, dt, elapsed, options);
+    }, dt, elapsed, gaitView);
     attackArc.visible = !!p.attacking && p.health > 0;
     attackArc.position.copy(climber.group.position);
     attackArc.position.y += 1.45;

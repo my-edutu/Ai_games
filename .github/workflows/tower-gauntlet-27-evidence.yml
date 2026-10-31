@@ -1,0 +1,31 @@
+name: Tower Gauntlet 27 Exact-Source Evidence
+on:
+  push:
+    branches:
+      - feat/infinite-tower-contact-realism-20261031
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: tower-gauntlet-27-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  tower-evidence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Install locked toolchain
+        run: npm ci --no-audit --no-fund
+      - name: Focused grounded foot and PBR resource tests
+        run: node --test tests/phase3/tower-ground-contact-aaa.test.cjs tests/phase3/tower-character-surface-aaa.test.cjs
+      - name: Full repository build and logical suite
+        run: npm test
+      - name: Tower authority and presentation host contract
+        run: npm run tower:stream:self-test
