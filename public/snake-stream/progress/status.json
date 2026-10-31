@@ -1,10 +1,15 @@
 {
-  "updatedAt": "2026-10-31T12:18:05.371Z",
-  "status": "Round 23 · facial micro-accents batched; 3 actual draw calls saved at frozen WebGL parity; desktop pace still fails",
-  "detail": "Exact production 39d08705, final test-audit head 8d676056: 2 nostrils and both paired eye catchlights instanced with unchanged motion, appearance and snapshot authority. Same frozen 690x342 WebGL: 52→49 direct calls, 36→33 cached calls, triangles unchanged; all 3 matched 960x640 screenshots pixel-identical. General 41199749900 552/552 Node and 28/29 browser; 9 actual renders/1012.6ms <17. Focused 41199749902 16/17 browser; 10/1009.7ms <17. No causal FPS or visual benchmark win. Snake Pass quality, independent critic, device soak/R5 still open. Draft/unmerged/undeployed.",
+  "updatedAt": "2026-10-31T13:02:17.083Z",
+  "status": "Round 24 · jade-to-cream lower-jaw shading refined in actual 3D WebGL; 553/553 Node; strict desktop submissions still fail",
+  "detail": "Production fba35b794, serpent blob b8325de: two preallocated jaw LODs bake jade cheek-to-cream ventral tint without topology/meshes or gameplay changes; new regression passed 50/50 focused Snake Node. Full CI 41202987425 553/553 Node and 28/29 browser (10 real submissions/1002.2ms vs min17). Focused 41202987351 16/17 browser (8/1005.6ms vs min17). Frozen 960x640 actual WebGL direct/cached comparisons change 6/9 pixels; synthetic near-head fruit changes 705 localized mouth-border pixels. 18.44s live WebM inspected. No causal FPS claim, independent critic, real-device/R5, or Snake Pass benchmark win. Draft/unmerged/undeployed.",
   "latestImage": "/progress/evidence/round-9-overview.jpg",
-  "latestCaption": "Most recent Round23 exact-source WebGL captures and 19.88s motion are linked in Round23 captures. Embedded latestImage remains a historical Round9 image, not current Round23.",
+  "latestCaption": "Embedded latestImage remains a historical Round9 picture, not Round24. Exact current Round24 WebGL character/overview/portrait screenshots and 18.44s real motion are linked in Round24 review / CI artifact 13043540234; do not mistake old image for current output.",
   "reviews": [
+    {
+      "area": "Round 24 · original mouth/cheek chromatic integration",
+      "verdict": "NEW FACE TINT + BOTH LODS VERIFIED · 50/50 SNAKE NODE · 553/553 GENERAL NODE · TRUE WEBGL JAW-LOCALIZED PIXELS · STRICT DESKTOP GATE FAIL",
+      "gap": "Focused 41202987351 16/17 browser (8 actual submissions/1005.6ms; minimum 17). General 41202987425 28/29 browser (10/1002.2ms). Fixed Snake Pass face/world/motion comparison still LOSE, no independent critic/device R5, brief occlusion in motion, no FPS causal win."
+    },
     {
       "area": "Round 23 · instanced facial accents and exact WebGL draw preservation",
       "verdict": "24→21 SERPENT MESHES · SAME-FRAME WEBGL DIRECT 52→49 / CACHED 36→33 DRAWS · 3 MATCHED PNGS PIXEL-IDENTICAL · 552/552 NODE · DESKTOP PACE FAIL",
@@ -440,6 +445,11 @@
           "path": "https://github.com/my-edutu/Ai_games/actions/runs/41199749900"
         }
       ]
+    },
+    {
+      "title": "Round 24 · attached cream chin and jade cheeks",
+      "summary": "Existing high/low lower-jaw vertices now blend jade cheek roots into cream underside; no geometry, public gameplay or cue changes. New test and 553/553 Node green; real WebGL synthetic stress changes only local mouth pixels. Real 18.44s motion and current close-up inspected. Desktop actual-submission gates still fail focused 8/17 and general 10/17, and whole-game Snake Pass bar remains unmet. New evidence: GitHub CI 41202987351, Round24 written review. Embedded historical images are not current.",
+      "captures": []
     }
   ],
   "checks": [
