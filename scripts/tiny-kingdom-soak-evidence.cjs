@@ -48,6 +48,32 @@ const assert=require('node:assert/strict');
   assert.equal(start.renderer,'webgl','Real WebGL unavailable');
   assert.equal(start.quality.tier,'software-webgl','Expected measured SwiftShader renderer');
   assert(start.initialSnapshot&&start.initialSnapshot.checksum);
+  // G068: use the SAME literal camera, viewport, HUD state and renderer for
+  // first-settlement vs Day-121 evidence. Lighting/season deliberately remain
+  // actual simulated values, so this is NOT a lighting-matched commercial A/B.
+  const fixedShot={focus:[0,0],yaw:.85,pitch:.52,zoom:23};
+  evidence.fixedShot={camera:fixedShot,viewport:{width:1024,height:640},
+    dayOneFile:'day-1-world-only.png',
+    grownFile:'day-'+days+'-world-only.png',
+    hud:'cinema',lightingAndSeasonMatched:false};
+  await page.evaluate(camera=>{
+    const game=window.__tinyKingdom;
+    game.setCamera(camera);
+    game.setHudMode('cinema');
+  },fixedShot);
+  await page.waitForTimeout(1100);
+  const initialCamera=await page.evaluate(()=>window.__tinyKingdom.getCamera());
+  assert.deepEqual(initialCamera.focus,fixedShot.focus,'Day-1 inspection focus drifted');
+  assert.equal(initialCamera.yaw,fixedShot.yaw);
+  assert.equal(initialCamera.pitch,fixedShot.pitch);
+  assert.equal(initialCamera.zoom,fixedShot.zoom);
+  assert.equal(initialCamera.follow,false);
+  assert.equal(initialCamera.cinematic,false);
+  await page.screenshot({path:path.join(dir,evidence.fixedShot.dayOneFile)});
+  await page.evaluate(()=>window.__tinyKingdom.setHudMode('full'));
+  evidence.fixedShot.initialSnapshotChecksum=start.initialSnapshot.checksum;
+  assert.equal((await page.evaluate(()=>window.__tinyKingdom.exportSnapshot())).checksum,
+    start.initialSnapshot.checksum,'Day-1 camera/HUD capture changed authority');
   const chunkDays=10;
   const runChunk=async(count)=>page.evaluate(n=>{
     const game=window.__tinyKingdom;
@@ -91,10 +117,9 @@ const assert=require('node:assert/strict');
   evidence.replayByteIdentical=JSON.stringify(replay)===JSON.stringify(last.snapshot);
   assert(evidence.replayByteIdentical,'Deterministic checkpoint replay diverged');
   // Force actual presentation of the grown settlement; do not use stale mesh stats.
-  await page.evaluate(()=>{
-    const g=window.__tinyKingdom;
-    g.setCamera({focus:[0,0],yaw:.85,pitch:.52,zoom:23});
-  });
+  await page.evaluate(camera=>{
+    window.__tinyKingdom.setCamera(camera);
+  },fixedShot);
   await page.waitForTimeout(1500);
   const grown=await page.evaluate(()=>{
     const g=window.__tinyKingdom,gl=document.getElementById('world').getContext('webgl');
@@ -106,6 +131,23 @@ const assert=require('node:assert/strict');
   assert.equal(grown.glError,0,'Real WebGL error in grown settlement');
   assert.equal(grown.authority,last.checksum,'Camera changed the authoritative world');
   assert(grown.geometry.totalTriangles<160000,'Grown settlement exceeded strict 160000 triangle cap');
+  // An unobstructed, strict camera-matched grown capture exposes house/citizen
+  // shortcomings that the original crowded command HUD hid. Restore controls
+  // before exercising the real pause/resume frame-performance sample.
+  await page.evaluate(()=>window.__tinyKingdom.setHudMode('cinema'));
+  const grownCamera=await page.evaluate(()=>window.__tinyKingdom.getCamera());
+  assert.deepEqual(grownCamera.focus,fixedShot.focus,'Day-121 inspection focus drifted');
+  assert.equal(grownCamera.yaw,fixedShot.yaw);
+  assert.equal(grownCamera.pitch,fixedShot.pitch);
+  assert.equal(grownCamera.zoom,fixedShot.zoom);
+  assert.equal(grownCamera.follow,false);
+  assert.equal(grownCamera.cinematic,false);
+  evidence.fixedShot.grownAuthorityChecksum=grown.authority;
+  evidence.fixedShot.grownCamera=grownCamera;
+  await page.screenshot({path:path.join(dir,evidence.fixedShot.grownFile)});
+  await page.evaluate(()=>window.__tinyKingdom.setHudMode('full'));
+  assert.equal((await page.evaluate(()=>window.__tinyKingdom.exportSnapshot())).checksum,
+    grown.authority,'Grown camera/HUD capture changed authority');
   const before=await page.evaluate(()=>window.__tinyKingdom.renderQuality());
   const frameStart=Date.now();
   await page.locator('#pause').click();
