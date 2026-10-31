@@ -87,5 +87,5 @@ test('new bounded bloom module resolves through the same-origin dungeon route wh
  const server=fs.readFileSync(path.join(ROOT,'scripts/serve-dungeon-stream.cjs'),'utf8');
  assert.ok(server.includes("['/dungeon/postfx-budget.js','postfx-budget.js']"));
  const app=fs.readFileSync(path.join(ROOT,'public/ai-dungeon/app.js'),'utf8');
- assert.ok(app.includes("import {planPostFXBudget} from '/dungeon/postfx-budget.js';"));
+ assert.match(app,/import \\{[^}]*planPostFXBudget[^}]*\\} from '\\/dungeon\\/postfx-budget\\.js';/);
 });
