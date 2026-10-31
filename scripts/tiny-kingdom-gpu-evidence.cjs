@@ -313,6 +313,24 @@ const path = require('node:path');
        evidence.orchard.fruit!==45||evidence.orchard.meshTriangles!==3726||
        !evidence.orchard.authorityUnchanged||evidence.geometry.totalTriangles>=160000)
       throw Error('Orchard geometry, camera authority or GPU budget regression: '+JSON.stringify(evidence.orchard));
+    // G062: assert the active GPU static mesh includes 22 nondegenerate
+    // tapered end-reach sections, under the unchanged strict 160k budget.
+    evidence.outerRiverReach=await page.evaluate(()=>{
+      const g=window.__tinyKingdom,before=JSON.stringify(g.exportSnapshot());
+      return {...g.getOuterRiverReachStats(),
+        authorityUnchanged:before===JSON.stringify(g.exportSnapshot())};
+    });
+    if(evidence.outerRiverReach.sides!==2||
+       evidence.outerRiverReach.segmentsPerSide!==11||
+       evidence.outerRiverReach.waterTriangles!==264||
+       evidence.outerRiverReach.bankTriangles!==176||
+       evidence.outerRiverReach.totalTriangles!==440||
+       Math.abs(evidence.outerRiverReach.centerWidth-1.8)>1e-12||
+       Math.abs(evidence.outerRiverReach.tipWidth-.08)>1e-10||
+       !evidence.outerRiverReach.authorityUnchanged||
+       evidence.geometry.totalTriangles>=160000)
+      throw Error('G062 real GPU river reach / triangle / replay gate failed: '+
+        JSON.stringify(evidence.outerRiverReach));
     evidence.water=await page.evaluate(()=>window.__tinyKingdom.waterStats());
     if(evidence.water.model!=='fresnel-ripple-shorefoam-v1'||evidence.water.waterTriangles!==1260||evidence.water.bankTriangles!==840)
       throw Error('River material or shoreline geometry gate failed');
@@ -553,6 +571,8 @@ const path = require('node:path');
       {name:'riverbank-close.png',camera:{focus:[-12,19],yaw:.66,pitch:.48,zoom:17}},
       {name:'upland-ecoregions.png',camera:{focus:[33,29],yaw:.91,pitch:.52,zoom:24}},
       {name:'ridge-outcrops.png',camera:{focus:[-34,24],yaw:.78,pitch:.50,zoom:22}},
+      {name:'river-source-g062.png',camera:{focus:[-44,23],yaw:.78,pitch:.50,zoom:22}},
+      {name:'river-outlet-g062.png',camera:{focus:[44,17],yaw:.91,pitch:.52,zoom:22}},
       {name:'guild-forge.png',camera:{focus:[19,-15],yaw:.78,pitch:.57,zoom:23}},
       {name:'cottage-facades.png',camera:{focus:[10,-5],yaw:1.50,pitch:.40,zoom:14}},
       {name:'forest-boughs.png',camera:{focus:[-32,-9],yaw:.65,pitch:.50,zoom:15}},

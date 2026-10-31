@@ -788,6 +788,66 @@ function generateHorizonTerrain(){
 }
 
 
+// G062: source and outlet no longer end at an exposed square at x=+/-42.
+// Two deterministic, tapered winding extensions continue into the low-LOD
+// outer landscape. The playable river, navigation and seeded simulation remain
+// untouched. This is intentionally <=440 extra triangles, no external assets.
+const RIVER_REACH_SEGMENTS=11,RIVER_REACH_STEP=1.8;
+let outerRiverReachStats={sides:0,segmentsPerSide:0,waterTriangles:0,bankTriangles:0,totalTriangles:0};
+function outerRiverReachWidth(x){
+ const t=Math.max(0,Math.min(1,(Math.abs(x)-42)/(RIVER_REACH_SEGMENTS*RIVER_REACH_STEP)));
+ const fade=t*t*(3-2*t);
+ return 1.8*(1-fade)+.08*fade;
+}
+function appendOuterRiverReaches(){
+ const before=data.length;
+ let waterTriangles=0,bankTriangles=0;
+ const banks=[-1.8,-1.38,-.75,0,.75,1.38,1.8];
+ const strips=[
+  [1.8,2.14,.081,.102,rgb(0x908e78)],
+  [2.14,2.72,.102,.036,rgb(0xaaa082)]
+ ];
+ for(const reachSide of [-1,1])for(let segment=0;segment<RIVER_REACH_SEGMENTS;segment++){
+  // Use increasing x on both sides so every triangle has the original river
+  // winding. End cross-sections match the 105-segment playable stream exactly.
+  const x=reachSide<0?-42-(RIVER_REACH_SEGMENTS-segment)*RIVER_REACH_STEP:
+    42+segment*RIVER_REACH_STEP;
+  const nx=x+RIVER_REACH_STEP;
+  const z=20+3*Math.sin(x*.13),nz=20+3*Math.sin(nx*.13);
+  const w=outerRiverReachWidth(x)/1.8,nw=outerRiverReachWidth(nx)/1.8;
+  const point=(px,center,off)=>[px,terrain(px,center+off)+.08,center+off];
+  currentMaterial=MATERIAL.WATER;
+  for(let i=0;i<RIVER_BANDS;i++){
+   const a=banks[i],b=banks[i+1];
+   const tone=i===0||i===5?rgb(0x719ca0):i===1||i===4?rgb(0x5cabb3):rgb(0x368f9d);
+   quad(point(x,z,a*w),point(x,z,b*w),point(nx,nz,b*nw),point(nx,nz,a*nw),tone);
+   waterTriangles+=2;
+  }
+  currentMaterial=MATERIAL.ROAD;
+  for(const side of [-1,1])for(const [inner,outer,y0,y1,tone] of strips){
+   const bankPoint=(px,center,depth,rise)=>{
+    const size=outerRiverReachWidth(px)/1.8;
+    const edge=depth===1.8?1.8:depth+.055*Math.sin(px*.39+side*1.4);
+    const pz=center+side*edge*size;
+    return [px,terrain(px,pz)+rise,pz];
+   };
+   const a=bankPoint(x,z,inner,y0),b=bankPoint(x,z,outer,y1);
+   const c=bankPoint(nx,nz,outer,y1),d=bankPoint(nx,nz,inner,y0);
+   if(side===1)quad(a,b,c,d,tone);else quad(b,a,d,c,tone);
+   bankTriangles+=2;
+  }
+ }
+ currentMaterial=MATERIAL.WATER;
+ outerRiverReachStats={
+  sides:2,segmentsPerSide:RIVER_REACH_SEGMENTS,
+  waterTriangles,bankTriangles,totalTriangles:(data.length-before)/30,
+  westernTip:-42-RIVER_REACH_SEGMENTS*RIVER_REACH_STEP,
+  easternTip:42+RIVER_REACH_SEGMENTS*RIVER_REACH_STEP,
+  centerWidth:outerRiverReachWidth(42),
+  tipWidth:outerRiverReachWidth(42+RIVER_REACH_SEGMENTS*RIVER_REACH_STEP)
+ };
+}
+
 // Gauntlet 032: low-cost sun-synchronous 3D contact and cast-shadow silhouettes.
 // No shadow bitmap, external texture, random stream or save-state mutation.
 // Geometry follows terrain and is appended to the *dynamic* mesh rather than
@@ -2745,6 +2805,9 @@ for(let segment=0;segment<RIVER_SEGMENTS;segment++){
  }
  currentMaterial=MATERIAL.WATER;
 }
+// Complete both formerly exposed ends of the playable stream before roads and
+// forest props are assembled into the same cached WebGL static mesh.
+appendOuterRiverReaches();
 currentMaterial=MATERIAL.ROAD;
  path([[-16,-7],[-8,-4],[-4,-4],[-4,3],[6,2],[14,2]],1.5);path([[0,-15],[0,-9],[-4,-4],[-4,3],[0,9],[4,15]],1.3);path([[-13,9],[-7,4],[-4,3],[7,-5],[15,-10]],1.1);
 currentMaterial=MATERIAL.FOLIAGE;
@@ -2782,7 +2845,7 @@ bindGeometry(buffer);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(data),gl.DYN
  // Only a completed presentation may become the reusable frozen frame.
  lastFrozenFrameKey=frozenViewKey;
 }
-requestAnimationFrame(render);window.__tinyKingdom={getState:()=>JSON.parse(JSON.stringify({state,people:people.map(({name,job,x,z,target})=>({name,job,x,z,target}))})),setSpeed:x=>{speed=x},step,reset:start,renderer:()=>canvas.getContext('webgl')?'webgl':'software',metrics:()=>({citizens:people.length,buildings:city.length+2,day:Math.floor(state.t/24)+1,food:state.food,wood:state.wood,gold:state.gold,relationships:people.filter(p=>p.friend).length}),route:(a,b)=>routeBetween(a[0],a[1],b[0],b[1]),walkable:(p)=>walkable(p[0],p[1]),getNavigation:()=>people.map(p=>({name:p.name,position:[p.x,p.z],target:p.target,remaining:p.path?.length||0,path:p.path,activity:p.activity,hunger:p.hunger,energy:p.energy})),exportSnapshot,restoreSnapshot,saveWorld,restoreWorld,climateAt,skyConditions,getCitizenProfiles:()=>cloneData(people.map(({name,job,trait,friend,bonds,energy,hunger,activity})=>({name,job,trait,friend,bonds,energy,hunger,activity}))),getRigPose:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(citizenRigPose(people[index])):null,getGarmentProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(garmentProfile(people[index],index,citizenRigPose(people[index]))):null,getFaceProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(faceProfile(people[index],index)):null,getFaceNormalProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(faceNormalField(faceProfile(people[index],index))):null,getSelectedCitizen:()=>people[selectedCitizen]?.name,routeCacheMetrics:()=>({entries:routeCache.size,hits:cacheHits,misses:cacheMisses}),getCamera:()=>({yaw,pitch,zoom,focus:focusPoint.slice(),follow,cinematic}),getCitizenCameraPlan:()=>lastFollowShot?{...lastFollowShot,eye:lastFollowShot.eye.slice(),target:lastFollowShot.target.slice()}:null,getTerrainHeight:(x,z)=>terrain(x,z),getTerrainBiomeSample:terrainBiomeSample,getHorizonStats:()=>({triangles:terrainHorizonTriangles,outerBands:2,segmentsPerSide:HORIZON_SEGMENTS,extent:HORIZON_MAX+HORIZON_OFFSETS[2]}),getHighlandRockStats:()=>({...highlandRockStats,heights:highlandRockStats.heights.slice()}),getClimateMaterialProfile:climateMaterialProfile,getWildfloraCount:()=>wildflora.length,getMeadowStats:()=>({clusters:meadowUnderstory.length,triangles:meadowUnderstory.length*8,season:climateAt(state.t).season,cached:true}),getMaterialSystem:()=>({vertexStride:10,surfaceShaderVersion:'procedural-060',materials:Object.keys(MATERIAL),gpuRenderValidated:false}),getMaterialSwatchAudit:materialSwatchAudit,waterStats:()=>({model:'fresnel-ripple-shorefoam-v1',segments:RIVER_SEGMENTS,waterTriangles:RIVER_SEGMENTS*RIVER_BANDS*2,bankTriangles:RIVER_SEGMENTS*2*RIVER_BANK_BANDS*2}),getScenicSites:scenicSiteMetrics,getFestivalVisualStats:()=>({season:festivalSeason,cacheBuilds:festivalCacheBuilds,vertices:festivalGeometry?.length||0}),getOrchardVisualStats:()=>({...orchardVisualStats}),getGeometryAudit:geometryAudit,getFarmsteadStats:()=>({...farmScene,granary:FARMSTEAD.granary.slice(),season:climateAt(state.t).season}),getFarmTreeClearanceStats:farmTreeClearanceStats,getForestVisualStats:()=>({
+requestAnimationFrame(render);window.__tinyKingdom={getState:()=>JSON.parse(JSON.stringify({state,people:people.map(({name,job,x,z,target})=>({name,job,x,z,target}))})),setSpeed:x=>{speed=x},step,reset:start,renderer:()=>canvas.getContext('webgl')?'webgl':'software',metrics:()=>({citizens:people.length,buildings:city.length+2,day:Math.floor(state.t/24)+1,food:state.food,wood:state.wood,gold:state.gold,relationships:people.filter(p=>p.friend).length}),route:(a,b)=>routeBetween(a[0],a[1],b[0],b[1]),walkable:(p)=>walkable(p[0],p[1]),getNavigation:()=>people.map(p=>({name:p.name,position:[p.x,p.z],target:p.target,remaining:p.path?.length||0,path:p.path,activity:p.activity,hunger:p.hunger,energy:p.energy})),exportSnapshot,restoreSnapshot,saveWorld,restoreWorld,climateAt,skyConditions,getCitizenProfiles:()=>cloneData(people.map(({name,job,trait,friend,bonds,energy,hunger,activity})=>({name,job,trait,friend,bonds,energy,hunger,activity}))),getRigPose:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(citizenRigPose(people[index])):null,getGarmentProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(garmentProfile(people[index],index,citizenRigPose(people[index]))):null,getFaceProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(faceProfile(people[index],index)):null,getFaceNormalProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(faceNormalField(faceProfile(people[index],index))):null,getSelectedCitizen:()=>people[selectedCitizen]?.name,routeCacheMetrics:()=>({entries:routeCache.size,hits:cacheHits,misses:cacheMisses}),getCamera:()=>({yaw,pitch,zoom,focus:focusPoint.slice(),follow,cinematic}),getCitizenCameraPlan:()=>lastFollowShot?{...lastFollowShot,eye:lastFollowShot.eye.slice(),target:lastFollowShot.target.slice()}:null,getTerrainHeight:(x,z)=>terrain(x,z),getTerrainBiomeSample:terrainBiomeSample,getOuterRiverReachStats:()=>({...outerRiverReachStats}),getHorizonStats:()=>({triangles:terrainHorizonTriangles,outerBands:2,segmentsPerSide:HORIZON_SEGMENTS,extent:HORIZON_MAX+HORIZON_OFFSETS[2]}),getHighlandRockStats:()=>({...highlandRockStats,heights:highlandRockStats.heights.slice()}),getClimateMaterialProfile:climateMaterialProfile,getWildfloraCount:()=>wildflora.length,getMeadowStats:()=>({clusters:meadowUnderstory.length,triangles:meadowUnderstory.length*8,season:climateAt(state.t).season,cached:true}),getMaterialSystem:()=>({vertexStride:10,surfaceShaderVersion:'procedural-060',materials:Object.keys(MATERIAL),gpuRenderValidated:false}),getMaterialSwatchAudit:materialSwatchAudit,waterStats:()=>({model:'fresnel-ripple-shorefoam-v1',segments:RIVER_SEGMENTS,waterTriangles:RIVER_SEGMENTS*RIVER_BANDS*2,bankTriangles:RIVER_SEGMENTS*2*RIVER_BANK_BANDS*2}),getScenicSites:scenicSiteMetrics,getFestivalVisualStats:()=>({season:festivalSeason,cacheBuilds:festivalCacheBuilds,vertices:festivalGeometry?.length||0}),getOrchardVisualStats:()=>({...orchardVisualStats}),getGeometryAudit:geometryAudit,getFarmsteadStats:()=>({...farmScene,granary:FARMSTEAD.granary.slice(),season:climateAt(state.t).season}),getFarmTreeClearanceStats:farmTreeClearanceStats,getForestVisualStats:()=>({
  sourceTrees:trees.length,
  renderedTrees:forestVisualStats.deciduous+forestVisualStats.conifers,
  conifers:forestVisualStats.conifers,deciduous:forestVisualStats.deciduous,
