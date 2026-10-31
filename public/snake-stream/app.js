@@ -34,8 +34,8 @@ function syncControls() {
         : control === 'camera' ? cameraMode !== 'overview' : cleanFeed;
     button.setAttribute('aria-pressed', String(active));
   }
-  if ($('view-label')) $('view-label').textContent = cameraMode === 'overview' ? 'Follow snake' : cameraMode === 'follow' ? 'Meet the snake' : 'Garden view';
-  if ($('audio-label')) $('audio-label').textContent = muted ? 'Sound off' : 'Sound on';
+  if ($('view-label')) setText('view-label', cameraMode === 'overview' ? 'Follow snake' : cameraMode === 'follow' ? 'Meet the snake' : 'Garden view');
+  if ($('audio-label')) setText('audio-label', muted ? 'Sound off' : 'Sound on');
   broadcast.dataset.camera = cameraMode;
   if (frame?.snapshot) overview.update(frame.snapshot, cameraMode !== 'overview');
 }
@@ -59,34 +59,45 @@ document.addEventListener('keydown', event => {
 });
 syncControls();
 
+// Polling may return the same public view many times. Rewriting identical text
+// still creates DOM mutations and can invalidate the full-page composition.
+function setText(id, value) {
+  const element = $(id);
+  if (element.textContent !== value) element.textContent = value;
+}
+
+function setScene(value) {
+  if (broadcast.dataset.scene !== value) broadcast.dataset.scene = value;
+}
+
 function updateText(next) {
   const snapshot = next.snapshot;
   const hud = next.hud;
   const copy = snapshot ? spectatorCopy(snapshot) : null;
-  broadcast.dataset.scene = loading ? 'maintenance' : (reconnecting || drawFailed) ? 'recovery' : next.scene || 'normal';
-  $('primary').textContent = snapshot ? `LENGTH ${snapshot.length} / ${snapshot.goal}` : 'LENGTH — / —';
-  $('secondary').textContent = copy?.occupancy || 'The garden is waking';
-  $('record').textContent = hud?.recordLabel || 'BEST —';
-  $('intent').textContent = copy?.intent || 'Finding a way forward';
-  $('caption').textContent = hud?.caption || (snapshot?.dangerLevel === 2 ? 'Finding a safe route away from danger.' : 'Collect fruit. Grow longer. Keep a path open.');
-  $('audience-copy').textContent = snapshot ? `${snapshot.foodsCollected} fruit collected · Each new run finds its own path` : 'A new path, every run';
-  $('integrity').textContent = snapshot ? 'INTEGRITY: VERIFIED' : 'INTEGRITY: PREPARING';
-  if ($('run-goal')) $('run-goal').textContent = snapshot ? `THE GOAL · GROW TO ${snapshot.goal}` : 'GROW THROUGH THE GARDEN';
+  setScene(loading ? 'maintenance' : (reconnecting || drawFailed) ? 'recovery' : next.scene || 'normal');
+  setText('primary', snapshot ? `LENGTH ${snapshot.length} / ${snapshot.goal}` : 'LENGTH — / —');
+  setText('secondary', copy?.occupancy || 'The garden is waking');
+  setText('record', hud?.recordLabel || 'BEST —');
+  setText('intent', copy?.intent || 'Finding a way forward');
+  setText('caption', hud?.caption || (snapshot?.dangerLevel === 2 ? 'Finding a safe route away from danger.' : 'Collect fruit. Grow longer. Keep a path open.'));
+  setText('audience-copy', snapshot ? `${snapshot.foodsCollected} fruit collected · Each new run finds its own path` : 'A new path, every run');
+  setText('integrity', snapshot ? 'INTEGRITY: VERIFIED' : 'INTEGRITY: PREPARING');
+  if ($('run-goal')) setText('run-goal', snapshot ? `THE GOAL · GROW TO ${snapshot.goal}` : 'GROW THROUGH THE GARDEN');
   if (drawFailed) {
-    $('scene-title').textContent = 'The game is still growing';
-    $('scene-copy').textContent = 'This browser cannot draw the game view. Try reloading or another browser.';
+    setText('scene-title', 'The game is still growing');
+    setText('scene-copy', 'This browser cannot draw the game view. Try reloading or another browser.');
   } else if (loading) {
-    $('scene-title').textContent = 'The garden is waking';
-    $('scene-copy').textContent = 'Preparing your view of a living little world.';
+    setText('scene-title', 'The garden is waking');
+    setText('scene-copy', 'Preparing your view of a living little world.');
   } else if (next.scene === 'result') {
-    $('scene-title').textContent = snapshot?.result?.reason === 'victory' ? 'A garden conquered' : 'Every path tells a story';
-    $('scene-copy').textContent = `${hud?.resultLabel || 'Run complete'} · Length ${snapshot?.length || 0} · A new adventure follows.`;
+    setText('scene-title', snapshot?.result?.reason === 'victory' ? 'A garden conquered' : 'Every path tells a story');
+    setText('scene-copy', `${hud?.resultLabel || 'Run complete'} · Length ${snapshot?.length || 0} · A new adventure follows.`);
   } else if (next.scene === 'intermission') {
-    $('scene-title').textContent = 'Another path awaits';
-    $('scene-copy').textContent = 'The next autonomous run begins in a moment.';
+    setText('scene-title', 'Another path awaits');
+    setText('scene-copy', 'The next autonomous run begins in a moment.');
   } else if (next.scene === 'recovery') {
-    $('scene-title').textContent = 'Finding our way back';
-    $('scene-copy').textContent = 'Restoring the latest verified view.';
+    setText('scene-title', 'Finding our way back');
+    setText('scene-copy', 'Restoring the latest verified view.');
   }
 }
 
@@ -104,9 +115,9 @@ function useFallback(error) {
   } catch {
     drawFailed = true;
     loading = false;
-    broadcast.dataset.scene = 'recovery';
-    $('scene-title').textContent = 'The game is still growing';
-    $('scene-copy').textContent = 'This browser cannot draw the game view. Try reloading or another browser.';
+    setScene('recovery');
+    setText('scene-title', 'The game is still growing');
+    setText('scene-copy', 'This browser cannot draw the game view. Try reloading or another browser.');
   }
   broadcast.dataset.rendererStatus = error ? 'safe-view' : 'ready';
 }
@@ -141,10 +152,10 @@ async function poll() {
       if (next.snapshot) overview.update(next.snapshot, cameraMode !== 'overview');
     } catch {
       reconnecting = true;
-      broadcast.dataset.scene = 'recovery';
-      $('scene-title').textContent = 'Reconnecting to the garden';
-      $('scene-copy').textContent = 'Waiting for the latest game view.';
-      $('caption').textContent = 'Connection interrupted · reconnecting automatically';
+      setScene('recovery');
+      setText('scene-title', 'Reconnecting to the garden');
+      setText('scene-copy', 'Waiting for the latest game view.');
+      setText('caption', 'Connection interrupted · reconnecting automatically');
     }
     if (polling) await new Promise(resolve => setTimeout(resolve, POLL_MS));
   }

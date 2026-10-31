@@ -10,7 +10,7 @@ export function createOverview(stage, onOverview) {
   button.addEventListener('click', onOverview);
   const context = canvas.getContext('2d');
   function update(snapshot, visible) {
-    button.hidden = !visible;
+    if (button.hidden !== !visible) button.hidden = !visible;
     if (!visible || !snapshot || !context) return;
     const size = Math.min(216 / snapshot.width, 120 / snapshot.height);
     const left = (224 - snapshot.width * size) / 2, top = (128 - snapshot.height * size) / 2;
