@@ -677,7 +677,7 @@ function solidWallBrace(faceX,side,y0,z0,y1,z1,thickness,tone){
 function cottageSideFacades(x,z,scale,variant){
  const first=data.length,y=terrain(x,z),h=1.9*scale;
  const w=(2.4+variant*.42)*scale,d=(2.1+variant*.18)*scale;
- const style=(variant+Math.abs(Math.round(x*.37+z*.29)))%4;
+ const style=(variant+Math.floor(biomeHash(Math.round(x*17+z*31+variant*53))*4))%4;
  const plaster=[rgb(0xd9c4a1),rgb(0xcbbda5),rgb(0xb3b5a6),rgb(0xe0c39b)][style];
  const timber=[rgb(0x614532),rgb(0x483c30),rgb(0x4f5d56),rgb(0x74513b)][style];
  const shutter=[rgb(0x5c7c6b),rgb(0x79503e),rgb(0x3c6274),rgb(0x83764b)][style];
