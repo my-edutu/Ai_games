@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-10-30T23:01:54Z",
+  "updatedAt": "2026-10-31T00:36:53Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Sixth-to-seventh-pass same-production-frame comparison shows clearer disclosed-threat actor signals (Pip's amber/coral rune and Thornback's glowing raised spines), but the true legal route/refuge and next objective still do not read unaided. The latest independent critics still prefer the fixed Captain Toad bar; no new independent A/B has been possible."
+    "summary": "Eighth-pass same-production-frame evidence shows real, disclosed floor passage choices and a clearer triangular guardian warning. Known passages are not promises of refuge, and locked doors are excluded. The selected screenshot has no uniquely identified safe next step, goal or landmark; the latest independent critics still prefer Nintendo's fixed Captain Toad reference. No new blind independent verdict."
   },
   "captures": [
     {
@@ -101,16 +101,16 @@
     "Map and Path notes expand on demand, while the goal and immediate intent stay visible. Natural captions replace internal object IDs, and the camera label says Detail. Browser checks verify disclosure drawing, Escape/focus and terminal reconnect; a fresh blind critic preferred the compact mobile layout.",
     "A fifth-pass encounter-staging candidate now gives Pip threat-directed head, gaze and lantern poses, and Thornback anticipatory mask/mandible poses, using only disclosed nearby threats. Fresh render and independent critique are still pending.",
     "Sixth pass: real production snapshots now select an actually close, already-disclosed Thornback/Pip encounter; actual browser evidence records both actors on screen, source/image SHA-256 hashes and seed/tick. An amplified public-threat-only head/gaze/lantern/mask response is tested without changing deterministic game authority.",
-    "Seventh pass: two original model-level silhouette cues now make nearby already-disclosed guardian encounters clearer, using Pip's gold/coral exclamation signal and Thornback's raised glowing spines. Real current-source CI captures prove both actors share the frame; terminal and undisclosed-threat states suppress the cues without changing AI/game authority."
+    "Seventh pass: two original model-level silhouette cues now make nearby already-disclosed guardian encounters clearer, using Pip's gold/coral exclamation signal and Thornback's raised glowing spines. Real current-source CI captures prove both actors share the frame; terminal and undisclosed-threat states suppress the cues without changing AI/game authority.",
+    "Eighth pass: a reuse-only pool of in-world ivory direction arrows marks genuinely known, reciprocally legal neighboring corridors; teal is reserved for a current disclosed AI-plan step. Closed gate edges and stale/nonreciprocal plans are suppressed, while the misleading gold threat halo is now a triangular warning signal. This changes only presentation; current-source CI and authentic dated evidence were captured."
   ],
   "nextGaps": [
-    "Independent fresh-context blinded, same-production-seed/tick sixth-versus-seventh 1280×900 comparison, then direct inspection against the two exact pinned Nintendo Captain Toad images. Test whether the golden alert rune is correctly understood as threat—not collectible—at native and mobile sizes; do not infer a win from test totals.",
-    "Visually distinguish a genuinely disclosed legal onward route/refuge from ambient tiles. Use only public known cells, legal neighbors and actual public planned routes; no invented safe passage, extra hints about undisclosed entities or gameplay-rule changes. The rendered shot still fails this criterion.",
-    "Make the immediate objective, obstacle and route more legible in the world; increase key contrast and clarify why another key is needed when one has already been collected.",
-    "Develop a more distinctive landmark or encounter and the explorer’s target-directed expression at normal viewing size.",
-    "Review fresh real motion for gait, turns, stair contact and reactions, and independently listen to the audio mix.",
-    "Capture current full-quality output and measure representative hardware performance; retain the existing test budgets and fixed bar.",
-    "Continue the builder and fresh-critic loop from the largest observed gap, using the pinned reference images; no fixed round count and no benchmark reduction."
+    "Independent fresh-context label-blind same-seed/tick seventh-vs-eighth comprehension and visual comparison, followed by direct A/B against both exact Nintendo 1280×720 fixed references and no lowered quality bar. The shared workspace critic tunnel remains unreachable.",
+    "Clarify a genuinely known and legally reachable immediate goal, blocked gate or exit in the scene using only public facts. Current screenshot exposes local branches but does not prove a safe refuge or a single current AI-plan arrow.",
+    "Check actual current full-size scene, mobile and a disclosed closed-door frame for arrow placement, landmark hierarchy, depth and objective prominence; never infer safety from a drawn passage.",
+    "Develop more distinctive architectural landmarks and expressive danger-to-response staging; test whether actors, hazard, and destination are unmistakable without HUD copy.",
+    "Obtain independent full-motion, stair/gait, audio and representative non-throttled hardware performance critique; CI software frame time is not hardware FPS.",
+    "Continue builder plus separate fresh-context critics in no-fixed-limit Gauntlet cycles as workspace returns; the PR remains draft and no merge or deployment is authorized."
   ],
   "reviews": [
     {
@@ -173,6 +173,13 @@
       "verdict": "Readable reaction cues added; reference still wins; independent A/B and route/refuge gates OPEN",
       "date": "2026-10-30T23:00:59.792Z",
       "summary": "Production screenshot SHA-256 6da5918ded4c87e74905cb44020dcc211cc7169bb4c1644f0ab014022d2c5bb0 shows Pip's new gold/coral overhead rune and Thornback's raised glowing spines from public disclosed state; 1.115% of exact-aligned pixels change versus sixth pass. The actor encounter is more readable, but an uninstructed viewer still cannot identify an actionable safe route/refuge from the image. This is lead observation only, not a blind independent verdict. Actual dated browser artifact: https://github.com/my-edutu/Ai_games/actions/runs/41141142748/artifacts/13018794986. Room still CPU-throttled for software graphics; no hardware FPS evidence."
+    },
+    {
+      "title": "Eighth-pass authentic corridor/guardian screenshot — lead review, not blind independent critic",
+      "reviewer": "Lead inspected two authentic same-production-frame PNGs; independent critic and Ultracode unavailable",
+      "verdict": "Known local passages more legible; no confirmed safe route; Nintendo reference still wins",
+      "date": "2026-10-31T00:35:43.336Z",
+      "summary": "Actual CI source 5762284, same seed maze-visual-reference-13/tick 13, two public actors in frame. Pip now has a triangular warning sign and three pale local known-corridor arrows; no single planned teal choice or safe refuge is demonstrated. Same-frame pass7/pass8 RGB changed 0.3273% of pixels, which does not imply perceptual parity. Actual screenshot SHA-256 7e811af06d90c87a0d0f7c3f79bc156d758d44f886907e4b8caad0a9b522f379; CI artifact https://github.com/my-edutu/Ai_games/actions/runs/41150638243/artifacts/13022687590 . An independent blind verdict and hardware FPS remain unverified."
     }
   ],
   "verification": [
@@ -262,6 +269,13 @@
       "detail": "Gameplay commit 5bf3a024815c8bee6a494ebec6706b60c8863425 passed Autonomous Games CI 41141142748, and three Eko companion workflows. The dated 2026-10-30 23:00:59.792 UTC authentic 1280×900 browser PNG from seed maze-visual-reference-13/tick13 has two observed public actors in frame, shows new native-scale threat cues, and its SHA-256 is 6da5918ded4c87e74905cb44020dcc211cc7169bb4c1644f0ab014022d2c5bb0. Current screenshot and manifest are in artifact 13018794986; neither image nor reviewer verdict is fabricated. No separate subagents, Ultracode, blind critic or real hardware FPS measurement were available; route/refuge and Nintendo quality gates remain open.",
       "sourceCommit": "5bf3a024815c8bee6a494ebec6706b60c8863425",
       "sourceUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41141142748/artifacts/13018794986"
+    },
+    {
+      "name": "Eighth-pass current-source real capture, locked-door legal corridor and full CI",
+      "status": "518/518 Node; 25/25 browser passed. Lead image inspected; benchmark NOT passed",
+      "detail": "Gameplay commits 8519543 and 5762284 add public-only floor arrows and triangular warning, then exclude closed doors from waypoint and dashed legal-route visuals. CI on final gameplay SHA 5762284 succeeded Oct 31 2026; real seed maze-visual-reference-13/tick13 screenshot captured 2026-10-31T00:35:43.336Z, source and image SHA-256 preserved in docs/reviews/maze-3d/encounter-pass-08-review.md and CI artifact 13022687590. Critic subagents/Ultracode unavailable; images do not establish independent Nintendo bar victory or hardware FPS.",
+      "sourceCommit": "576228474471fa2f4295a98ec152f7d4b68c5c06",
+      "sourceUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41150638243"
     }
   ],
   "references": [
