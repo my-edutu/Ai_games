@@ -40,10 +40,19 @@ export function createSerpent(THREE) {
         // Two leaf-shaped sunlight saddles per repeat; each curves towards the flanks.
         const bandPhase = along * 2 + 0.095 * Math.cos(around * 6.283);
         const bandDistance = Math.abs(bandPhase - Math.floor(bandPhase) - 0.5);
+        // Original gold leaf saddles are broad over the sunlit spine, then
+        // taper into darker green shoulders instead of encircling the serpent
+        // as flat toy-like horizontal stripes. All pigment stays in the
+        // existing seamless atlas; the head map and normal relief are untouched.
+        const dorsalSweep = smooth(-0.32, 0.83, Math.sin(around * Math.PI * 2));
+        const saddleWidth = 0.045 + 0.116 * dorsalSweep;
+        const feather = 0.014 + 0.015 * (1 - dorsalSweep);
         const saddle = isHead
           ? Math.max(smooth(0.60, 0.85, along) * 0.94, Math.exp(-Math.pow((around - 0.25) * 22, 2)) * smooth(0.08, 0.3, along) * (1 - smooth(0.58, 0.80, along)) * 0.80) * (1 - underside)
-          : (1 - smooth(0.105, 0.145, bandDistance + mottling * 0.009)) * (1 - underside);
-        const border = isHead ? 0 : (1 - smooth(0.145, 0.180, bandDistance)) * (1 - saddle) * (1 - underside);
+          : (1 - smooth(saddleWidth - feather, saddleWidth + feather, bandDistance + mottling * 0.009))
+            * (0.18 + 0.82 * dorsalSweep) * (1 - underside);
+        const border = isHead ? 0 : (1 - smooth(saddleWidth + feather, saddleWidth + feather + 0.036, bandDistance))
+          * (1 - saddle) * (1 - underside) * (0.38 + 0.62 * dorsalSweep);
         const backLight = 0.89 + Math.max(0, Math.sin(around * 6.283)) * 0.11;
         let r = (50 + mottling * 12 - edge * 16) * backLight;
         let g = (139 + mottling * 16 - edge * 23) * backLight;

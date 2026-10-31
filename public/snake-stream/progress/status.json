@@ -1,10 +1,15 @@
 {
-  "updatedAt": "2026-10-31T15:23:55.022Z",
-  "status": "Round 29 · rear-ruins detail-camera foreground occlusion guard; real WebGL A/B pending",
-  "detail": "Actual scene's pillars/arch/trees now supply bounded camera-only foreground volumes. On blocked detail views the existing face-target/zoom and food correction are retained while the camera eases toward a clearer azimuth/elevation. Three isolated local pure-camera regressions passed after a red baseline; exact-head broad Node/browser, true WebGL A/B and 17 actual-submission pacing remain pending. Earlier visual benchmark LOSE remains in force.",
+  "updatedAt": "2026-10-31T16:52:33.000Z",
+  "status": "Round 30 · original 3D serpent dorsal leaf saddle pattern; exact-head WebGL A/B pending",
+  "detail": "Existing procedural body pigment now tapers the two gold markings toward green shoulders rather than producing full-width toy-like rings. The cream belly, head, motion, all cues and rendering budgets are unchanged by design. A targeted Node atlas/resource regression and real Chromium frozen-synthetic old/new screenshot test are added; CI evidence and review pending. Preceding focused 41214727111: 8 actual submissions/1005.1ms vs minimum 17, fail. General 41214727146: 13/1005.4ms and unrelated Tiny Kingdom failures. Visual Snake Pass benchmark still LOSE; no real-device/R5 or independent critic clearance.",
   "latestImage": "/progress/evidence/round-9-overview.jpg",
-  "latestCaption": "Historical real WebGL capture; new Round 29 rear-arch A/B screenshot pair is awaiting exact-head browser CI. No new screenshot or FPS claim is fabricated.",
+  "latestCaption": "Historical real WebGL image, not the newly modified round-30 body atlas. Current actual WebGL before/after is pending in CI; no render-performance or commercial-art win claimed.",
   "reviews": [
+    {
+      "area": "Round 30 · living serpent dorsal gold leaf markings",
+      "verdict": "PRODUCTION CANDIDATE · NODE AND TRUE WEBGL A/B PENDING · WHOLE-GAME LOSE",
+      "gap": "The earlier gold bands encircled the tube. Tapered bright dorsal centers fade into jade flanks with the same four original texture resources. Test the exact atlas pixels and the real-WebGL frozen frame; the unchanged >=17 actual-submission desktop gate, independent Snake Pass review, real-device soak and R5 are all open."
+    },
     {
       "area": "Round 29 · live 3D character sightline beside ruins",
       "verdict": "PURE CAMERA RED→GREEN 3/3 · SAME-FRAME WEBGL A/B + WORLD TEST PENDING · WHOLE-GAME LOSE",
@@ -490,6 +495,11 @@
     {
       "title": "Round 27 · living muscular serpent",
       "summary": "An articulated travelling lateral wave makes the continuous snake tube flex subtly as it moves instead of looking rigid along grid cells. It fades at head, tail and each portal-separated fragment, stays within 0.083 cell of the authoritative path and turns off for reduced motion. No new assets or GPU draw calls. Actual CI video/reference review pending.",
+      "captures": []
+    },
+    {
+      "title": "Round 30 · leaf-shaped saddle pigment, no extra GPU work",
+      "summary": "Body gold bands are reshaped in the existing procedural 1024x512 pigment to remain broad across the spine and taper organically at the flanks, without new GPU resources or gameplay changes. Targeted Node test and same-frozen-frame real-WebGL A/B are awaiting exact-head CI and visual criticism. Commercial Snake Pass/motion/throughput benchmarks remain unmet.",
       "captures": []
     }
   ],
