@@ -21,8 +21,8 @@ async function main() {
       dispatch(k, e = {}) { for (const cb of listeners.get(k) || []) cb(e); },
     };
   }
-  function harness(failEnvironment = false) {
-    const lights = [], raf = new Map(), logs = [], statuses = [], targets = [];
+  function harness(failEnvironment = false, quality = 'high') {
+    const lights = [], raf = new Map(), logs = [], statuses = [], targets = [], renderEvents = [];
     let now = 0, sequence = 0, renderCount = 0, pmremCalls = 0, generatorDisposes = 0;
     const canvas = { ...events(), dataset: {}, getBoundingClientRect: () => ({ width: 640, height: 360 }) };
     const document = { ...events(), visibilityState: 'visible' };
@@ -31,12 +31,12 @@ async function main() {
       setPixelRatio() {} setSize() {} dispose() {}
       getRenderTarget() { return this.target; } getActiveCubeFace() { return 0; } getActiveMipmapLevel() { return 0; }
       setRenderTarget(target) { this.target = target; }
-      render() { renderCount++; }
+      render() { renderCount++; renderEvents.push('scene-render'); }
     }
     class DirectionalLight extends real.DirectionalLight { constructor(...args) { super(...args); lights.push(this); } }
     class PMREMGenerator {
       fromEquirectangular() {
-        pmremCalls++;
+        pmremCalls++; renderEvents.push('reflection-conversion');
         if (failEnvironment) throw new Error('Injected PMREM conversion failure');
         const target = new real.WebGLRenderTarget(336, 256);
         target.disposeCount = 0;
@@ -65,11 +65,11 @@ async function main() {
     };
     context.window = context;
     vm.runInNewContext(source.replace(/^import .*;\n/gm, '').replace('export function createTowerScene', 'function createTowerScene'), context, { filename: 'shipped-scene.mjs' });
-    const view = context.createTowerScene(canvas, { quality: 'high', onStatus: (...args) => statuses.push(args) });
+    const view = context.createTowerScene(canvas, { quality, onStatus: (...args) => statuses.push(args) });
     const snapshot = { runToken: 'resource-review', revision: 1, publicChecksum: 'a', floor: 0, theme: 'foundry', tick: 1,
       chunkBaseY: 0, chunkHeight: 360000, worldWidth: 480000, platforms: [], hazards: [], enemies: [], pickups: [], projectiles: [], intent: {},
       player: { x: 240000, y: 28000, halfHeight: 14000, vx: 0, vy: 0, facing: 1, state: 'standing', health: 100 } };
-    return { lights, view, targets, statuses, logs, canvas, snapshot,
+    return { lights, view, targets, statuses, logs, canvas, snapshot, renderEvents,
       frame(time) { now = time; const entry = raf.entries().next().value; assert.ok(entry, 'one scheduled frame'); raf.delete(entry[0]); entry[1](time); },
       counts: () => ({ renderCount, pmremCalls, generatorDisposes, scheduledFrames: raf.size }) };
   }
@@ -85,8 +85,10 @@ async function main() {
   sun.shadow.mapPass = shadowPass;
   ordinary.view.accept({ snapshot: ordinary.snapshot });
   ordinary.frame(16);
+  const firstFrame = { ...ordinary.counts(), events: [...ordinary.renderEvents], environment: ordinary.view.diagnostics().lighting.environmentState };
+  ordinary.frame(32);
   ordinary.view.dispose(); ordinary.view.dispose();
-  const normalResult = { shadowDisposes, shadowPassDisposes, shadowCleared: sun.shadow.map === null && sun.shadow.mapPass === null, environmentDisposes: ordinary.targets.map(t => t.disposeCount), ...ordinary.counts() };
+  const normalResult = { firstFrame, events: [...ordinary.renderEvents], shadowDisposes, shadowPassDisposes, shadowCleared: sun.shadow.map === null && sun.shadow.mapPass === null, environmentDisposes: ordinary.targets.map(t => t.disposeCount), ...ordinary.counts() };
 
   const failure = harness(true);
   failure.view.accept({ snapshot: failure.snapshot });
@@ -95,6 +97,23 @@ async function main() {
   failure.view.setQuality('low'); failure.frame(96);
   failureResult.afterLowQuality = { ...failure.counts(), contextLost: failure.view.diagnostics().contextLost };
   failure.view.dispose();
+
+  const low = harness(false, 'low');
+  low.view.accept({ snapshot: low.snapshot });
+  for (let n = 1; n <= 4; n++) low.frame(n * 16);
+  const lowResult = { ...low.counts(), state: low.view.diagnostics().lighting.environmentState };
+  low.view.setQuality('high');
+  low.frame(80);
+  const highFirst = { ...low.counts(), state: low.view.diagnostics().lighting.environmentState };
+  low.frame(96);
+  const highAfter = { ...low.counts(), state: low.view.diagnostics().lighting.environmentState };
+  low.view.setQuality('low');
+  low.frame(112);
+  const lowAgain = { ...low.counts(), state: low.view.diagnostics().lighting.environmentState, retired: low.targets.map(target => target.disposeCount) };
+  low.view.setQuality('high');
+  low.frame(128); low.frame(144);
+  const restoredHigh = { ...low.counts(), state: low.view.diagnostics().lighting.environmentState };
+  low.view.dispose();
 
   // Execute the actual PMREM implementation with a CPU renderer boundary that
   // throws only when its first conversion render starts, after target allocation.
@@ -129,6 +148,28 @@ async function main() {
     partialFailures.push({ failAt, allocations, sourceDisposes, previousDisposes, restoredTarget: activeTarget === previous, activeFace, activeMip, xr: renderer.xr.enabled, autoClear: renderer.autoClear });
     previous.dispose();
   }
+  test('first scene render call precedes expensive optional reflection conversion', () => {
+    assert.equal(normalResult.firstFrame.renderCount, 1);
+    assert.equal(normalResult.firstFrame.pmremCalls, 0);
+    assert.equal(normalResult.firstFrame.environment, 'pending');
+    assert.deepEqual(normalResult.firstFrame.events, ['scene-render']);
+    assert.deepEqual(normalResult.events, ['scene-render', 'reflection-conversion', 'scene-render']);
+  });
+  test('low tier never samples PMREM; toggling high restores its owned reflections', () => {
+    assert.equal(lowResult.renderCount, 4);
+    assert.equal(lowResult.pmremCalls, 0);
+    assert.equal(lowResult.state, 'direct');
+    assert.equal(highFirst.pmremCalls, 0, 'first high frame must remain visible without conversion');
+    assert.equal(highFirst.state, 'pending');
+    assert.equal(highAfter.pmremCalls, 1);
+    assert.equal(highAfter.state, 'ready');
+    assert.equal(lowAgain.pmremCalls, 1, 'low tier stops sampling without new conversion');
+    assert.equal(lowAgain.state, 'direct');
+    assert.deepEqual(lowAgain.retired, [1], 'a retired high-tier target must be freed once');
+    assert.equal(restoredHigh.pmremCalls, 2, 'restored high tier rebuilds its correct reflection');
+    assert.equal(restoredHigh.state, 'ready');
+    assert.deepEqual(low.targets.map(target => target.disposeCount), [1, 1]);
+  });
   test('final disposal releases exact-owned shadow targets and reflection once', () => {
     assert.equal(normalResult.shadowDisposes, 1);
     assert.equal(normalResult.shadowPassDisposes, 1);

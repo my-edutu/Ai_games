@@ -411,7 +411,7 @@ export function createTowerScene(canvas, settings = {}) {
   const sky = new THREE.Mesh(skyGeometry, skyMaterial);
   sky.renderOrder = -100;
   scene.add(sky);
-  let reflectionTarget = null, reflectionDirty = true, reflectionBuilds = 0;
+  let reflectionTarget = null, reflectionDirty = true, reflectionFirstFrame = true, reflectionBuilds = 0;
   let reflectionFailures = 0, reflectionLastError = null;
   function releaseEnvironment() {
     scene.environment = null;
@@ -424,6 +424,10 @@ export function createTowerScene(canvas, settings = {}) {
     // Optional reflections get one attempt for this theme/context generation.
     // Failure keeps the direct-light scene alive; it is not a lost GL context.
     reflectionDirty = false;
+    // Low tier deliberately uses direct lighting, avoiding the PMREM shader
+    // sampling cost measured in the software-renderer probe. High retains the
+    // complete reference look once its first direct-lit frame is submitted.
+    if (options.quality === 'low') return;
     try {
       reflectionTarget = createReflectionEnvironment(renderer, THEMES[themeKey] || THEMES.foundry, LIGHTING[themeKey] || LIGHTING.foundry);
       scene.environment = reflectionTarget.texture;
@@ -563,6 +567,7 @@ export function createTowerScene(canvas, settings = {}) {
     // retain old-context buffers and VAOs after its restore handler resets caches.
     // Rebuild resource owners, including their detached/cached geometries.
     releaseEnvironment();
+    reflectionFirstFrame = true;
     clearActors();
     scene.remove(world.group, climber.group);
     world.dispose(); climber.dispose();
@@ -681,6 +686,7 @@ export function createTowerScene(canvas, settings = {}) {
       scene.environmentIntensity = lighting.reflection;
       renderer.toneMappingExposure = lighting.exposure;
       reflectionDirty = true;
+      reflectionFirstFrame = true;
     }
   }
 
@@ -688,7 +694,18 @@ export function createTowerScene(canvas, settings = {}) {
     if (!snapshot) return;
     // update() runs only with a valid context. Snapshot/theme changes accepted
     // during interruption therefore cannot allocate replacement GPU resources.
-    if (reflectionDirty) refreshEnvironment();
+    if (reflectionDirty) {
+      if (options.quality !== 'low' && reflectionFirstFrame) {
+        // Never make the very first visible frame wait for the costly PMREM
+        // conversion. Retire prior-biome reflections immediately; direct lights
+        // still show the truthful scene. Conversion may run next submission.
+        releaseEnvironment();
+        reflectionFirstFrame = false;
+      } else {
+        refreshEnvironment();
+        reflectionFirstFrame = false;
+      }
+    }
     world.update(snapshot, dt, elapsed, options);
     const p = snapshot.player;
     const targetPlatform = intendedLanding(snapshot);
@@ -866,7 +883,12 @@ export function createTowerScene(canvas, settings = {}) {
   function setMotion(reduced) { options.reducedMotion = !!reduced; }
   function setStale(stale) { options.stale = !!stale; }
   function setQuality(quality) {
-    options.quality = quality === 'low' ? 'low' : 'high';
+    const nextQuality = quality === 'low' ? 'low' : 'high';
+    if (options.quality !== nextQuality) {
+      options.quality = nextQuality;
+      reflectionDirty = true;
+      reflectionFirstFrame = true;
+    }
     renderer.shadowMap.enabled = options.quality === 'high';
     renderer.shadowMap.needsUpdate = true;
     resize();
