@@ -19,3 +19,16 @@ export function planPostFXBudget(cssWidth,cssHeight,deviceScale,offscreenCap=MAX
   const renderPixels=Math.max(1,Math.floor(width*pixelRatio))*Math.max(1,Math.floor(height*pixelRatio));
   return {width,height,pixelRatio,renderPixels,maxPixels};
 }
+
+/**
+ * Presentation-only feedback from an ACTUALLY measured bloom render.
+ * Bypass optional compositor work after a devastating single stall or two
+ * sustained slow frames. Direct scene rendering and authority are unchanged.
+ * Never switch on invalid timings, and never auto-reenable to oscillate.
+ */
+export function postFXStallAction(renderMs,previousSlow=0){
+ if(!Number.isFinite(renderMs)||renderMs<=0)return {slowStreak:0,disable:false};
+ const before=Number.isSafeInteger(previousSlow)&&previousSlow>=0?Math.min(3,previousSlow):0;
+ const slowStreak=renderMs>650?Math.min(3,before+1):0;
+ return {slowStreak,disable:renderMs>=2500||(slowStreak>=2&&renderMs>650)};
+}
