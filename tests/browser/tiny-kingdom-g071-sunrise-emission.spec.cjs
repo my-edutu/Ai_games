@@ -25,6 +25,13 @@ test('G071 daylight transition preserves scenic VBO and replay with emissive gla
     activeVertexShader:vertex?gl.getShaderSource(vertex):'',
     gl:Boolean(gl)};
  });
+ // A new material ID is invalid until the real mesh auditor accepts it;
+ // zero malformed components is a hard GPU and 120-day resource invariant.
+ for(const mesh of [before.geometry.static,before.geometry.dynamic]){
+  expect(mesh.invalidComponents).toBe(0);
+  expect(mesh.invalidNormals).toBe(0);
+  expect(mesh.invalidColors).toBe(0);
+ }
  expect(before.materials).toContain('WINDOW_GLOW');
  expect(before.materials).toContain('LANTERN_GLOW');
  if(before.gl){
@@ -56,6 +63,11 @@ test('G071 daylight transition preserves scenic VBO and replay with emissive gla
  if(before.gl)expect(after.cache.staticGpuUploads).toBe(before.cache.staticGpuUploads);
  expect(after.geometry.totalTriangles).toBe(before.geometry.totalTriangles);
  expect(after.geometry.totalTriangles).toBeLessThan(160000);
+ for(const mesh of [after.geometry.static,after.geometry.dynamic]){
+  expect(mesh.invalidComponents).toBe(0);
+  expect(mesh.invalidNormals).toBe(0);
+  expect(mesh.invalidColors).toBe(0);
+ }
  expect(after.glError).toBe(0);
  await page.evaluate(s=>window.__tinyKingdom.restoreSnapshot(s),before.snapshot);
  await page.evaluate(n=>{for(let i=0;i<n;i++)window.__tinyKingdom.step(1/30);},crossed.steps);
