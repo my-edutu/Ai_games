@@ -211,7 +211,17 @@ export function createWorld(THREE, {width, height}) {
       // Patchy green patina follows incised joins and natural mineral clouds;
       // it never changes board height or the location of any hazard/food.
       const lichen=fade(.43,.70,cloud*.61+mineral*.39)*(.25+.75*(1-fade(.01,.16,edge)))*.085;
-      const value=.795+slabTones[toneIndex]+(cloud-.5)*.135+(mineral-.5)*.055+(noise(x,y)-.5)*.007-recess+chalk-fracture;
+      // Bake a directional grazing-light contour into each existing stone slab.
+      // It reveals its raised, unevenly worn lip without raising the playable
+      // surface, altering collision truth or adding a shader/texture/pass.
+      // The tiny mineral modulation keeps long rows from forming flat stripes.
+      const lipGrain=mineral-.5;
+      const rim=(distance,center,spread)=>Math.exp(-Math.pow((distance-center)/spread,2));
+      const grazingLight=(rim(u,.075,.052)*(.067+lipGrain*.014)
+        +rim(v,.075,.052)*(.056+lipGrain*.014)
+        -rim(u,.925,.054)*(.066-lipGrain*.012)
+        -rim(v,.925,.054)*(.059-lipGrain*.012));
+      const value=.795+slabTones[toneIndex]+(cloud-.5)*.135+(mineral-.5)*.055+(noise(x,y)-.5)*.007-recess+chalk-fracture+grazingLight;
       const i=(y*w+x)*4;
       data[i]=Math.min(255,255*(value+warmth*.46-patina*.45-lichen*.55));
       data[i+1]=Math.min(255,255*(value-warmth*.08-patina*.24+lichen*.08));

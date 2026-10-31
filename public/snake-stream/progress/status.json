@@ -1,10 +1,15 @@
 {
-  "updatedAt": "2026-10-31T16:52:33.000Z",
-  "status": "Round 30 · original 3D serpent dorsal leaf saddle pattern; exact-head WebGL A/B pending",
-  "detail": "Existing procedural body pigment now tapers the two gold markings toward green shoulders rather than producing full-width toy-like rings. The cream belly, head, motion, all cues and rendering budgets are unchanged by design. A targeted Node atlas/resource regression and real Chromium frozen-synthetic old/new screenshot test are added; CI evidence and review pending. Preceding focused 41214727111: 8 actual submissions/1005.1ms vs minimum 17, fail. General 41214727146: 13/1005.4ms and unrelated Tiny Kingdom failures. Visual Snake Pass benchmark still LOSE; no real-device/R5 or independent critic clearance.",
+  "updatedAt": "2026-10-31T17:20:00.000Z",
+  "status": "Round 31 · original quarry-slab raking light; controlled WebGL A/B pending",
+  "detail": "After the verified Round30 serpent-atlas A/B (19/20 focused browser; 6 actual submissions/1001.2ms vs ≥17 FAILED), the large flat stone playing court remains the highest-impact visible scene gap. Round31 bakes original mineral-modulated north/west rim highlights and south/east stone-lip shadows into the existing texture without changing gameplay, geometry, draw calls, materials or texture counts. Local RED→GREEN, 61/61 focused Snake Node, TypeScript build and syntax pass; new SHA-verified exact-parent true-WebGL before/after browser test awaits CI. Commercial Snake Pass craft, strict actual-render acceptance, independent critique, real-device present FPS, soak and R5 all OPEN.",
   "latestImage": "/progress/evidence/round-9-overview.jpg",
-  "latestCaption": "Historical real WebGL image, not the newly modified round-30 body atlas. Current actual WebGL before/after is pending in CI; no render-performance or commercial-art win claimed.",
+  "latestCaption": "Historical real WebGL image, not Round31's new slab-light atlas. Exact new-source frozen-frame WebGL PNGs will be linked only after CI verifies the before/after; no claimed performance or commercial benchmark win.",
   "reviews": [
+    {
+      "area": "Round 31 · full garden scene and quarry slab texture",
+      "verdict": "RED→GREEN MODEL VALIDATED · real WebGL/visual verdict PENDING · overall Snake Pass LOSE",
+      "gap": "A mineral-modulated directional raised-lip shading pattern is baked into the existing original field color map. Identical frozen WebGL A/B, any stripe artifacts, sustained frame-delivery and independent full-game still/motion review remain open; 13 static material batches/4 textures held in source tests."
+    },
     {
       "area": "Round 30 · living serpent dorsal gold leaf markings",
       "verdict": "PRODUCTION CANDIDATE · NODE AND TRUE WEBGL A/B PENDING · WHOLE-GAME LOSE",
@@ -499,11 +504,31 @@
     },
     {
       "title": "Round 30 · leaf-shaped saddle pigment, no extra GPU work",
-      "summary": "Body gold bands are reshaped in the existing procedural 1024x512 pigment to remain broad across the spine and taper organically at the flanks, without new GPU resources or gameplay changes. Targeted Node test and same-frozen-frame real-WebGL A/B are awaiting exact-head CI and visual criticism. Commercial Snake Pass/motion/throughput benchmarks remain unmet.",
+      "summary": "Exact source 3ad6b8c: 19/20 focused browser PASS including frozen true-WebGL procedural body-color A/B. Two 960×640 current PNGs changed 4,064 pixels on jade tube (x193–430/y269–361); no new GPU resources. Strict desktop 6 actual render submissions/1001.2ms versus >=17 FAILED. Official Snake Pass whole-game visual/motion still LOSE; independent critic, real-device, soak and R5 absent.",
+      "captures": [
+        {
+          "label": "Exact-head real WebGL old/new body-pigment captures",
+          "path": "https://github.com/my-edutu/Ai_games/actions/runs/41222574598/artifacts/13050083830"
+        },
+        {
+          "label": "Real gameplay motion",
+          "path": "https://github.com/my-edutu/Ai_games/actions/runs/41222574598/artifacts/13049829293"
+        },
+        {
+          "label": "Focused metrics and actual submissions",
+          "path": "https://github.com/my-edutu/Ai_games/actions/runs/41222574598/artifacts/13050063910"
+        }
+      ]
+    },
+    {
+      "title": "Round 31 · original directional quarry-slab rims",
+      "summary": "Exact-source local RED→GREEN and 61/61 focused Snake Node PASS, TypeScript build PASS. New mineral-modulated warm west/north slab lips and shaded south/east recesses bake into existing 1024×512 texture, 13 static batches/4 maps, unchanged geometry, gameplay authority and cues. Frozen real-WebGL identical-snapshot A/B and current strict FPS pending CI; whole-game Snake Pass and device/R5 remain LOSE/OPEN.",
       "captures": []
     }
   ],
   "checks": [
+    "Round30 source 3ad6b8c focused run 41222574598: 19/20 browser PASS including true-WebGL saddle A/B; strict desktop FAIL 6 actual submissions/1001.2ms vs >=17, ~60.93 RAF callbacks/s not drawn/display-present FPS. Frozen 960x640 before/after 4064 pixels changed, x193–430/y269–361; small body-pigment change only. General run 41222574536 in progress at last check.",
+    "Round31 original world 97039edc: new quarry-light regression RED on original; GREEN on edited source. 61/61 focused Snake Node PASS and TypeScript build PASS; browser test SHA-verifies old world and captures real Chromium WebGL before/after on exact public frame, pending live CI. No visual acceptance or strict-performance win claimed.",
     "Round 27 local actual browser recording unavailable: Chromium policy blocked 127.0.0.1 navigation, and Playwright's pinned headless shell is not installed. GitHub isolated CI will evaluate actual updated 3D scene, browser FPS, mobile and reduced-motion. No browser success yet.",
     "Round 27 local red→green: node --test tests/phase3/snake-body-undulation.test.cjs failed on original (observed 0 muscle wave), passed after implementation. Latest exact source TypeScript build and all 53 focused Snake tests pass. Whole local npm test timed out after 452 tests in unrelated campaigns; no full-suite pass claim.",
     "Round25 true WebGL frozen 960x640 vs Round24: direct 87,065 and cached 86,800 changed pixels, exclusively floor-region differences, max channel 23/24 out of 255. Current general and focused PNGs identical on fixed snapshot. Real 18.32s gameplay inspected. Character, garden depth, motion and performance still below reference.",
