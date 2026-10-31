@@ -2,9 +2,7 @@
   "name": "ai-games",
   "version": "0.6.0",
   "private": true,
-  "engines": {
-    "node": ">=22.0.0"
-  },
+  "engines": { "node": ">=22.0.0" },
   "scripts": {
     "clean": "rm -rf dist",
     "build": "tsc -p tsconfig.json",
@@ -58,8 +56,6 @@
     "tower:phase5:chaos": "npm run build && node scripts/run-tower-phase5-chaos.cjs",
     "tower:phase6:validate": "npm run build && node scripts/run-tower-phase6-validation.cjs"
   },
-  "devDependencies": {
-    "@playwright/test": "1.55.0",
-    "typescript": "5.8.3"
-  }
+  "dependencies": { "three": "0.186.0" },
+  "devDependencies": { "@playwright/test": "1.55.0", "typescript": "5.8.3" }
 }

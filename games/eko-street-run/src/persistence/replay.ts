@@ -72,14 +72,11 @@ export function replayRun(initial: EkoRunState, steps: readonly ReplayStep[]): R
   const checkpointChecksums: string[] = [];
   for (const step of steps) {
     const canRestart = state.lifecycle === "failed" && step.commands.some(command => command.type === "restart");
-    if (state.lifecycle !== "running" && !canRestart) break;
+    const canAdvance = state.lifecycle === "intermission" && step.commands.some(command => command.type === "advance");
+    if (state.lifecycle !== "running" && !canRestart && !canAdvance) break;
     const result = stepSimulation(state, step.commands);
     state = result.state;
     if (result.events.some(event => event.type === "checkpoint.reached")) checkpointChecksums.push(result.checksum);
   }
-  return {
-    state,
-    finalChecksum: checksumState(state),
-    checkpointChecksums,
-  };
+  return { state, finalChecksum: checksumState(state), checkpointChecksums };
 }

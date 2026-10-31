@@ -20,3 +20,6 @@ Stalled GPU frames must not show labels from a newer authority frame. No project
 
 ## Executed evidence
 Identity regressions first failed 7/8 on the unmodified source, then passed 8/8 after removing the independent camera/polling fallback. The complete Marble foundation suite passed 143/143 locally. This is executable Node/Canvas-stub evidence, not native GPU parity or independent art approval.
+
+## Integration ruling
+PR #60 exposed a conflicting automatic main-to-feature merge. Resolve from exact main tree 3ac76d4741e43701a8ee4176a26b4c39d2aa92dd, retain the complete Marble subtree and only the Marble-specific workflow/test/script/plan additions from feature head 911b69e3, and retain the additive Marble TypeScript include. Main's package lock, dependencies, Eko code, evidence, types and every other unrelated file remain byte-identical to main. Record both main d1678cd4 and feature 911b69e3 as parents; do not rewrite either branch's history. Validate the resulting integrated candidate before any release claim.
