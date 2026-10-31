@@ -1210,3 +1210,46 @@ test('Gauntlet 046 architectural identity is actual varied 3D cottage geometry a
   expect(result.unchanged).toBe(true);
   expect(errors).toEqual([]);
 });
+
+
+test('Gauntlet 047 broadleaf geometry has independent native leaf blades and three crown silhouettes without replay drift',async({page})=>{
+ const errors=[];page.on('pageerror',e=>errors.push(e.message));
+ await page.setContent(html);
+ await page.waitForFunction(()=>window.__tinyKingdom?.getForestVisualStats().broadleafLobes>0);
+ await page.locator('#pause').click();
+ const before=await page.evaluate(()=>{
+  const g=window.__tinyKingdom;return {
+   forest:g.getForestVisualStats(),
+   geometry:g.getGeometryAudit(),
+   world:JSON.stringify(g.exportSnapshot())
+  };
+ });
+ const a=before.forest;
+ expect(a.deciduous).toBeGreaterThan(20);
+ expect(a.conifers).toBeGreaterThan(5);
+ expect(a.broadleafLobes).toBeGreaterThanOrEqual(a.deciduous*4);
+ expect(a.individualLeaves).toBeGreaterThanOrEqual(a.deciduous*15);
+ expect(a.broadleafAddedTriangles).toBeGreaterThan(1000);
+ expect(a.broadleafSpecies).toHaveLength(3);
+ expect(a.broadleafSpecies.reduce((sum,n)=>sum+n,0)).toBe(a.deciduous);
+ expect(a.broadleafSpecies.filter(n=>n>0).length).toBe(3);
+ expect(before.geometry.totalTriangles).toBeLessThan(134000);
+ for(const mesh of [before.geometry.static,before.geometry.dynamic]){
+  expect(mesh.aligned).toBe(true);
+  expect(mesh.invalidComponents).toBe(0);
+  expect(mesh.invalidNormals).toBe(0);
+  expect(mesh.invalidColors).toBe(0);
+  expect(mesh.outOfBounds).toBe(0);
+ }
+ await page.evaluate(()=>window.__tinyKingdom.setCamera({focus:[-24,15],zoom:28,pitch:.56,yaw:1.17}));
+ await page.waitForTimeout(240);
+ const after=await page.evaluate(()=>({
+  forest:window.__tinyKingdom.getForestVisualStats(),
+  world:JSON.stringify(window.__tinyKingdom.exportSnapshot()),
+  geometry:window.__tinyKingdom.getGeometryAudit()
+ }));
+ expect(after.forest).toEqual(before.forest);
+ expect(after.world).toBe(before.world);
+ expect(after.geometry.totalTriangles).toBe(before.geometry.totalTriangles);
+ expect(errors).toEqual([]);
+});
