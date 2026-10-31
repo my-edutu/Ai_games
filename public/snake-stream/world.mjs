@@ -415,9 +415,16 @@ export function createWorld(THREE, {width, height}) {
       const crestA=Math.max(0,1-Math.abs(rippleA-.52)/.032)**2;
       const crestB=Math.max(0,1-Math.abs(rippleB-.52)/.04)**2;
       const i=(y*size+x)*4;
-      data[i]=Math.round((broadA+broadB)*127.5);
-      data[i+1]=Math.round(Math.min(1,Math.max(0,crestA+crestB-.55))*255);
-      data[i+2]=0;data[i+3]=255;
+      // The source shader's color formula is affine in the two filtered
+      // fields. Quantize those fields first, then bake the same palette once
+      // at world creation rather than redoing it for every screen pixel.
+      const broadByte=Math.round((broadA+broadB)*127.5);
+      const foamByte=Math.round(Math.min(1,Math.max(0,crestA+crestB-.55))*255);
+      const depth=.2+(broadByte/255)*.6,foam=foamByte/255;
+      data[i]=Math.round(255*(.035+.055*depth+.035*foam));
+      data[i+1]=Math.round(255*(.24+.13*depth+.065*foam));
+      data[i+2]=Math.round(255*(.27+.09*depth+.045*foam));
+      data[i+3]=255;
     }
     const t=new THREE.DataTexture(data,size,size);t.name='Original flowing water field';t.wrapS=t.wrapT=THREE.RepeatWrapping;
     t.magFilter=THREE.LinearFilter;t.minFilter=THREE.LinearMipmapLinearFilter;t.generateMipmaps=true;t.needsUpdate=true;textures.add(t);return t;
@@ -442,11 +449,9 @@ export function createWorld(THREE, {width, height}) {
       uniform sampler2D waterField;
       void main(){
         vec2 flow=vec2(time*.0014,time*.00065);
-        vec2 field=texture2D(waterField,waterUv+flow).rg;
-        float depth=.2+field.r*.6;
-        vec3 col=mix(vec3(.035,.24,.27),vec3(.09,.37,.36),depth);
-        col+=vec3(.035,.065,.045)*field.g;
-        gl_FragColor=vec4(col,1.);
+        // One filtered color fetch, followed by the original distance fog.
+        // UV flow and reduced-motion time freezing are unchanged.
+        gl_FragColor=texture2D(waterField,waterUv+flow);
         #include <fog_fragment>
       }`,
   });materials.add(waterMaterial);

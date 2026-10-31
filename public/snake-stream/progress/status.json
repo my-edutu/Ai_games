@@ -1,10 +1,15 @@
 {
-  "updatedAt": "2026-10-31T05:29:00Z",
-  "status": "Round 16 revision 2 · tilted weathered rock, visual recheck pending",
-  "detail": "Round 16's first real WebGL capture found overly regular overhangs that read like stacked discs. That first art pass is rejected. The replacement reduces radial steps and adds small angular elevation changes to fracture horizontal bedding, with clean UV seams, the existing static batches and no new textures. Node checks pass; revised screenshots, performance and independent comparison remain open.",
+  "updatedAt": "2026-10-31T05:31:01.768Z",
+  "status": "Round 17 candidate · deterministic precomposed water colors; exact-head CI pending",
+  "detail": "Precomposes the previous two-channel aquatic color transfer into the same original 256×256 RGBA8 procedural texture. Every live fragment now samples one baked RGB color and retains fog, animated flow and reduced-motion freeze. Unchanged desktop ≥17 actual submitted-frame gate and fresh runtime capture remain pending; no claimed FPS or reference win.",
   "latestImage": "/progress/evidence/round-9-overview.jpg",
   "latestCaption": "Historical Round 9 image (not a Round 15 screenshot). Current exact-head real WebGL captures are linked in Round 15 below; CI artifact bundles cannot be embedded as images.",
   "reviews": [
+    {
+      "area": "Round 17 · original water palette and runtime rendering",
+      "verdict": "SOURCE ARITHMETIC AND TDD EXPECTATION CHECKED · EXACT-SOURCE CI PENDING",
+      "gap": "One filtered water lookup and unchanged full surface; per-pixel RGB color blending moved to one-time preparation. Real screenshots and actual submitted frame gate must confirm equivalence and speed; official Snake Pass still wins water richness."
+    },
     {
       "area": "Round 16 · world composition and cliff silhouettes",
       "verdict": "ROUND 16 INITIAL CAPTURE: REJECTED · revision 2 pending",
@@ -247,9 +252,15 @@
       "title": "Round 16 · weathered headland strata",
       "summary": "First source candidate passed model checks but its real browser capture looked like regular stacked saucers, so it was rejected. Revision 2 uses softer radial steps and irregularly tilted strata while preserving UV seam normals, stone materials, static cache, and gameplay. Exact-head browser comparison pending.",
       "captures": []
+    },
+    {
+      "title": "Round 17 · baked original water palette",
+      "summary": "Small targeted rendering-cost candidate: retain the original animated opaque water and geometric world while moving per-fragment color/foam mixing to one deterministic texture bake. A dedicated regression is included; exact-source browser pacing, image comparison and independent reference critique remain open.",
+      "captures": []
     }
   ],
   "checks": [
+    "Round 17 prior exact-head run 41172211493: focused browser 15/16, desktop 16 actual draw submissions over 1003.5ms vs >=17; ~60.79 RAF callbacks/s are not rendered FPS. Frozen minimal page water-on vs omitted is diagnostic only. New palette regression and exact-head CI pending.",
     "Round 16 revision 2 TDD: anti-saucer/tilted-bedding test failed as expected on initial 15-ring candidate; updated profile passed 39 focused Snake Node tests, no failures. New CI screenshot and full suite pending.",
     "Round 16 initial focused CI 41172211493: 15/16 browser checks passed; desktop actual renders 16/1003.5ms (<17 required). Actual screenshot shows regular plate-like strata: visual FAIL for initial silhouette. Image evidence: https://github.com/my-edutu/Ai_games/actions/runs/41172211493/artifacts/13031403527",
     "Round 16 TDD: missing geometry factory failed as expected, new closed/UV-seam/normal/ledge geometry passed. All 39 focused Snake Node tests passed. Existing horizon and playable-court SHA fixtures passed. Real browser capture/pacing and fresh independent review pending.",
