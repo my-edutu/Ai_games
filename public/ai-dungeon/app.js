@@ -3,6 +3,7 @@ import {encounterTarget,isSceneAlert,installSpectatorUI} from '/dungeon/spectato
 import {enrichEnvironment} from '/dungeon/environment.js';
 import {planDungeonWallProfiles} from '/dungeon/wall-profile-plan.js';
 import {planEncounterSightlines} from '/dungeon/encounter-sightlines.js';
+import {advancePresentationActionAge} from '/dungeon/character-motion-plan.js';
 import {planPostFXBudget,adaptPostFXPixelCap} from '/dungeon/postfx-budget.js';
 import {planCombatFacing,planMovementFacing,approachCharacterYaw,shortestYawDelta} from '/dungeon/facing-plan.js';
 import {enrichCharacter} from '/dungeon/characters.js';
@@ -480,7 +481,7 @@ function update(s){const firstSnapshot=!received,sceneChanged=worldFloor!==s.run
  const seen=new Set(s.units.map(u=>u.id));
  for(const [id,a] of actors)if(!seen.has(id)){disposeActor(a);actors.delete(id)}
  for(const u of s.units){let a=actors.get(u.id);if(!a){a=rig(u);a.ground=addContactProjection(a);actors.set(u.id,a);a.root.position.set(u.x-9,0,u.z-9);attachCharacter(a)}
-  if(a.u.actionTick!==u.actionTick||a.u.action!==u.action){a.actionStarted=timeNow();}a.u=u;a.combatFacing=planCombatFacing(u,s.units,s.map);a.at.set(u.x-9,0,u.z-9);if(sceneChanged)a.root.position.copy(a.at);a.root.visible=u.hp>0;if(a.telegraph){
+  if(a.u.actionTick!==u.actionTick||a.u.action!==u.action){a.actionStarted=timeNow();a.visualActionAge=0;}a.u=u;a.combatFacing=planCombatFacing(u,s.units,s.map);a.at.set(u.x-9,0,u.z-9);if(sceneChanged)a.root.position.copy(a.at);a.root.visible=u.hp>0;if(a.telegraph){
    const interval=s.bossPhase==='ECLIPSE'?4:6;
    a.telegraph.visible=u.hp>0&&s.tick%interval>=interval-2;
    a.telegraph.material.color.set(s.bossPhase==='ECLIPSE'?'#c97aff':s.bossPhase==='RUPTURE'?'#ff9f62':'#ff7049');
@@ -571,7 +572,12 @@ function animate(t){requestAnimationFrame(animate);const time=t/1000,dt=Math.min
  const w=canvas.clientWidth,h=canvas.clientHeight;if(w&&h&&(canvas.width!==Math.round(w*renderer.getPixelRatio())||canvas.height!==Math.round(h*renderer.getPixelRatio()))){renderer.setSize(w,h,false);if(composer){const budget=planPostFXBudget(w,h,renderer.getPixelRatio(),bloomPixelCap);if(budget.pixelRatio!==postFXBudget?.pixelRatio)composer.setPixelRatio(budget.pixelRatio);composer.setSize(w,h);postFXBudget=budget;}camera.aspect=w/h;camera.updateProjectionMatrix()}
  const leader=(actors.get(focusedHeroId)?.u.hp>0?actors.get(focusedHeroId):null)||[...actors.values()].find(a=>a.u.faction==='party'&&a.u.hp>0),target=leader?.at??new THREE.Vector3(0,0,0);
  for(const a of actors.values()){const moving=a.root.position.distanceTo(a.at)>.07;a.root.position.lerp(a.at,reduced?1:.17);const bounce=reduced?0:Math.sin(time*5+a.at.x)*.028;a.body.position.y=bounce;a.leftLeg.rotation.x=moving?Math.sin(time*10)*.35:0;a.rightLeg.rotation.x=-a.leftLeg.rotation.x;a.leftArm.rotation.x=moving?Math.sin(time*10)*.22:0;a.rightArm.rotation.x=-a.leftArm.rotation.x;
-  const since=time-(a.actionStarted??time),phase=Math.max(0,Math.min(1,since/.32));
+  // One-shots age by actual rendered frames; a stalled software WebGL frame must
+  // not skip the attack, spell or impact before the spectator sees its first pose.
+  const oneShot=['attack','cast','hurt'].includes(a.u.action);
+  const since=oneShot?(a.visualActionAge??0):time-(a.actionStarted??time);
+  if(oneShot)a.visualActionAge=advancePresentationActionAge(since,dt);
+  const phase=Math.max(0,Math.min(1,since/.32));
   if(a.u.action==='attack'&&since<.32){a.rightArm.rotation.x=-1.5*Math.sin(phase*Math.PI);a.body.rotation.z=.16*Math.sin(phase*Math.PI)}
   else if(a.u.action==='cast'&&since<.45){a.rightArm.rotation.x=-1.55*Math.sin(Math.min(1,since/.45)*Math.PI);a.leftArm.rotation.x=-.85;a.body.rotation.z=0}
   else if(a.u.action==='guard'&&since<.42){a.rightArm.rotation.x=-.85;a.leftArm.rotation.x=-1.1;a.body.rotation.x=-.16;}
