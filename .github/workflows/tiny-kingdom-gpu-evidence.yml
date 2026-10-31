@@ -5,6 +5,7 @@ on:
     paths:
       - 'public/tiny-kingdom/**'
       - 'tests/browser/tiny-kingdom*.spec.cjs'
+      - 'scripts/tiny-kingdom-gpu-evidence.cjs'
       - '.github/workflows/tiny-kingdom-gpu-evidence.yml'
   workflow_dispatch:
 
