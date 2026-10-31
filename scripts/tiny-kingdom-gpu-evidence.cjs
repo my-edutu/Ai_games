@@ -89,6 +89,18 @@ const path = require('node:path');
     }
     evidence.renderBudget=softwareRendererRenderBudget;
     evidence.geometry=await page.evaluate(()=>window.__tinyKingdom.getGeometryAudit());
+    // G055: read the exact live WebGL shadow mesh vertices, not a marker.
+    // A zero-interpolation or wrong-material shadow must fail the GPU gate.
+    evidence.shadowPenumbra=await page.evaluate(()=>{
+      const g=window.__tinyKingdom,before=JSON.stringify(g.exportSnapshot());
+      return {...g.getShadowGradientAudit(),
+        authorityUnchanged:before===JSON.stringify(g.exportSnapshot())};
+    });
+    if(evidence.shadowPenumbra.triangles<1000||
+       evidence.shadowPenumbra.inspected!==evidence.shadowPenumbra.triangles||
+       evidence.shadowPenumbra.gradientTriangles<evidence.shadowPenumbra.triangles*.95||
+       evidence.shadowPenumbra.wrongMaterials!==0||!evidence.shadowPenumbra.authorityUnchanged)
+      throw Error('G055 real GPU gradient shadow/authority gate failed: '+JSON.stringify(evidence.shadowPenumbra));
     // G054b: vertex-level material classification on the same actual SwiftShader
     // buffers used to render the screenshots. This catches stone joints on silk.
     evidence.materialSwatches=await page.evaluate(()=>{

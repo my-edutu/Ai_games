@@ -613,6 +613,14 @@ function materialSwatchAudit(){
  return rows;
 }
 function tri(a,b,c,col){let ux=b[0]-a[0],uy=b[1]-a[1],uz=b[2]-a[2],vx=c[0]-a[0],vy=c[1]-a[1],vz=c[2]-a[2];let nx=uy*vz-uz*vy,ny=uz*vx-ux*vz,nz=ux*vy-uy*vx,len=Math.hypot(nx,ny,nz)||1;for(const v of [a,b,c])data.push(...v,nx/len,ny/len,nz/len,...col,currentMaterial)}
+// G055: WebGL interpolates RGB per vertex across a shadow triangle, giving
+// a genuine gradient penumbra instead of the former flat green decal.
+function triGradient(a,b,c,ca,cb,cc){
+ let ux=b[0]-a[0],uy=b[1]-a[1],uz=b[2]-a[2],vx=c[0]-a[0],vy=c[1]-a[1],vz=c[2]-a[2];
+ let nx=uy*vz-uz*vy,ny=uz*vx-ux*vz,nz=ux*vy-uy*vx,len=Math.hypot(nx,ny,nz)||1;
+ for(const [point,shade] of [[a,ca],[b,cb],[c,cc]])
+  data.push(...point,nx/len,ny/len,nz/len,...shade,currentMaterial);
+}
 function quad(a,b,c,d,col){tri(a,b,c,col);tri(a,c,d,col)}
 function box(x,y,z,w,h,d,col){let xa=x-w/2,xb=x+w/2,za=z-d/2,zb=z+d/2,ya=y,yb=y+h;quad([xa,ya,za],[xa,yb,za],[xb,yb,za],[xb,ya,za],col);quad([xb,ya,zb],[xb,yb,zb],[xa,yb,zb],[xa,ya,zb],col);quad([xa,ya,zb],[xa,yb,zb],[xa,yb,za],[xa,ya,za],col);quad([xb,ya,za],[xb,yb,za],[xb,yb,zb],[xb,ya,zb],col);quad([xa,yb,za],[xa,yb,zb],[xb,yb,zb],[xb,yb,za],col);quad([xa,ya,zb],[xa,ya,za],[xb,ya,za],[xb,ya,zb],col)}
 function cylinder(x,y,z,r,h,col,sides=8){for(let i=0;i<sides;i++){let a=i*Math.PI*2/sides,b=(i+1)*Math.PI*2/sides;let v=[x+Math.cos(a)*r,y,z+Math.sin(a)*r],w=[x+Math.cos(b)*r,y,z+Math.sin(b)*r],vv=[v[0],y+h,v[2]],ww=[w[0],y+h,w[2]];quad(v,w,ww,vv,col);tri([x,y+h,z],vv,ww,col)}}
@@ -698,7 +706,21 @@ function generateHorizonTerrain(){
 // No shadow bitmap, external texture, random stream or save-state mutation.
 // Geometry follows terrain and is appended to the *dynamic* mesh rather than
 // invalidating 50k triangles of static architecture each simulated hour.
-let castShadowTriangles=0;
+let castShadowTriangles=0,castShadowStart=0;
+// Read-only: inspect the real dynamic vertex buffer; no shader metadata fiction.
+function shadowGradientAudit(){
+ let gradientTriangles=0,wrongMaterials=0,inspected=0;
+ const end=Math.min(data.length,castShadowStart+castShadowTriangles*30);
+ for(let i=castShadowStart;i+29<end;i+=30){
+  inspected++;
+  if(data[i+9]!==MATERIAL.GRASS||data[i+19]!==MATERIAL.GRASS||data[i+29]!==MATERIAL.GRASS)wrongMaterials++;
+  const gradient=Math.abs(data[i+6]-data[i+16])+Math.abs(data[i+7]-data[i+17])+
+   Math.abs(data[i+8]-data[i+18])+Math.abs(data[i+6]-data[i+26])+
+   Math.abs(data[i+7]-data[i+27])+Math.abs(data[i+8]-data[i+28]);
+  if(gradient>1e-4)gradientTriangles++;
+ }
+ return {triangles:castShadowTriangles,inspected,gradientTriangles,wrongMaterials};
+}
 function sunShadow(time){
  const hour=((time%24)+24)%24,atmosphere=skyConditions(time);
  const sunElevation=.30+atmosphere.daylight*.9;
@@ -719,12 +741,14 @@ function canopyShadowVariation(x,z,a){return 1+.145*Math.sin(3*a+x*.37+z*.18)+.0
 function shadowPatch(cx,cz,radiusX,radiusZ,height,sun,isDense=false){
  if(!sun.strength||Math.abs(cx)>40||Math.abs(cz)>40)return 0;
  const [px,,pz]=dropShadowPoint(cx,cz,height,sun);
- const grassShade=turfColor(px,pz);
- const dark=grassShade.map((v,i)=>Math.max(.025,v*(1-(isDense?.57:.22)*sun.strength)*(i===0?.86:1)));
- const mid=grassShade.map(v=>Math.max(.03,v*(1-(isDense?.28:.105)*sun.strength)));
+ // The outer ring has native turf RGB, the middle a partial occlusion,
+ // and the centre a deeper solar-dependent occlusion. The GRASS shader then
+ // applies precisely the same riparian/rain/soil treatment as the ground.
+ const turf=turfColor(px,pz);
+ const dark=turf.map(v=>Math.max(.025,v*(1-(isDense?.50:.24)*sun.strength)));
  const center=[px,terrain(px,pz)+.077,pz];
  const segments=8;
- const outer=[],inner=[];
+ const outer=[],inner=[],outerColors=[],innerColors=[];
  for(let i=0;i<=segments;i++){
   const a=i*Math.PI*2/segments,c=Math.cos(a),d=Math.sin(a);
   const variation=isDense?1:canopyShadowVariation(cx,cz,a);
@@ -732,17 +756,20 @@ function shadowPatch(cx,cz,radiusX,radiusZ,height,sun,isDense=false){
   const ix=px+c*radiusX*.75*variation,iz=pz+d*radiusZ*.75*variation;
   outer.push([ox,terrain(ox,oz)+.075,oz]);
   inner.push([ix,terrain(ix,iz)+.077,iz]);
+  outerColors.push(turfColor(ox,oz));
+  innerColors.push(turfColor(ix,iz).map(v=>Math.max(.025,v*(1-(isDense?.28:.12)*sun.strength))));
  }
  for(let i=0;i<segments;i++){
-  quad(outer[i],inner[i],inner[i+1],outer[i+1],mid);
-  tri(center,inner[i+1],inner[i],dark);
+  triGradient(outer[i],inner[i],inner[i+1],outerColors[i],innerColors[i],innerColors[i+1]);
+  triGradient(outer[i],inner[i+1],outer[i+1],outerColors[i],innerColors[i+1],outerColors[i+1]);
+  triGradient(center,inner[i+1],inner[i],dark,innerColors[i+1],innerColors[i]);
  }
  return segments*3;
 }
 function directionalCastShadows(time){
- const sun=sunShadow(time);castShadowTriangles=0;
+ const sun=sunShadow(time);castShadowTriangles=0;castShadowStart=data.length;
  if(sun.strength<=.01)return;
- const old=currentMaterial;currentMaterial=MATERIAL.GENERAL;
+ const old=currentMaterial;currentMaterial=MATERIAL.GRASS;
  try{
   // Built structures cast a long roof shadow; cottages grow with the village.
   for(const [x,z,k] of city){
@@ -765,11 +792,10 @@ function directionalCastShadows(time){
  }finally{currentMaterial=old}
 }
 
-function shadow(x,z,rx,rz){const y=terrain(x,z)+.013,col=rgb(0x4b6549);for(let i=0;i<10;i++){const a=i*Math.PI/5,b=(i+1)*Math.PI/5;tri([x,y,z],[x+Math.cos(a)*rx,y,z+Math.sin(a)*rz],[x+Math.cos(b)*rx,y,z+Math.sin(b)*rz],col)}}
+// G055: remove permanent opaque green house/windmill floor decals.
 function house(x,z,scale=1,variant=0){let y=terrain(x,z);let w=(2.4+variant*.42)*scale,d=(2.1+variant*.18)*scale,h=1.9*scale;
  // G054c: plaster is not stacked granite. Preserve stone in the footings,
  // make roof planes roof material, and preserve all original mesh triangles.
- materialScope(MATERIAL.GENERAL,()=>shadow(x+.28,z+.20,w*.77,d*.74));
  materialScope(MATERIAL.STONE,()=>box(x,y-.04,z,w+.14,.23*scale,d+.14,rgb(0x908978)));
  materialScope(MATERIAL.GENERAL,()=>box(x,y+.19*scale,z,w,h-.19*scale,d,variant%2?rgb(0xe1c7a0):rgb(0xd1bc97)));
  let ridge=h+1.25*scale,zy=z-d/2-.18*scale,zz=z+d/2+.18*scale,xx=x-w/2-.25*scale,xr=x+w/2+.25*scale;let col=variant%2?rgb(0x725046):rgb(0x976047);
@@ -2147,7 +2173,7 @@ function forgeSmoke(time){
  }
 }
 
-function windmill(x,z,time){const y=terrain(x,z),stone=rgb(0xf0d5ac),roof=rgb(0x966347),cloth=rgb(0xf7e7c5);shadow(x+.55,z+.55,2.2,1.4);cylinder(x,y,z,1.48,5.3,stone,12);cone(x,y+5.15,z,2.0,1.9,roof,12);box(x,y+.2,z+1.50,.72,1.65,.12,rgb(0x68483c));for(let j=0;j<3;j++){const yy=y+2.1+j*.90;box(x,yy,z+1.52,.46,.48,.1,rgb(0x406568))}const center=[x,y+4.25,z+1.68],span=2.35,theta=time*.11;for(let i=0;i<4;i++){const a=theta+i*Math.PI/2,c=Math.cos(a),u=Math.sin(a),nx=-u*.33,ny=c*.33;const pa=[center[0]+c*.50,center[1]+u*.50,center[2]+.02],pb=[center[0]+c*span,center[1]+u*span,center[2]+.02];box((pa[0]+pb[0])/2,(pa[1]+pb[1])/2,center[2],.08,.09,.09,rgb(0x916b52));quad([pa[0]+nx,pa[1]+ny,center[2]+.07],[pb[0]+nx,pb[1]+ny,center[2]+.07],[pb[0]-nx,pb[1]-ny,center[2]+.07],[pa[0]-nx,pa[1]-ny,center[2]+.07],cloth)}cylinder(x,y+4.25,z+1.71,.29,.25,rgb(0x654a35),10)}
+function windmill(x,z,time){const y=terrain(x,z),stone=rgb(0xf0d5ac),roof=rgb(0x966347),cloth=rgb(0xf7e7c5);cylinder(x,y,z,1.48,5.3,stone,12);cone(x,y+5.15,z,2.0,1.9,roof,12);box(x,y+.2,z+1.50,.72,1.65,.12,rgb(0x68483c));for(let j=0;j<3;j++){const yy=y+2.1+j*.90;box(x,yy,z+1.52,.46,.48,.1,rgb(0x406568))}const center=[x,y+4.25,z+1.68],span=2.35,theta=time*.11;for(let i=0;i<4;i++){const a=theta+i*Math.PI/2,c=Math.cos(a),u=Math.sin(a),nx=-u*.33,ny=c*.33;const pa=[center[0]+c*.50,center[1]+u*.50,center[2]+.02],pb=[center[0]+c*span,center[1]+u*span,center[2]+.02];box((pa[0]+pb[0])/2,(pa[1]+pb[1])/2,center[2],.08,.09,.09,rgb(0x916b52));quad([pa[0]+nx,pa[1]+ny,center[2]+.07],[pb[0]+nx,pb[1]+ny,center[2]+.07],[pb[0]-nx,pb[1]-ny,center[2]+.07],[pa[0]-nx,pa[1]-ny,center[2]+.07],cloth)}cylinder(x,y+4.25,z+1.71,.29,.25,rgb(0x654a35),10)}
 const names=['Alina','Rowan','Edric','Mira','Oren','Selene','Bram','Elowen','Tarin','Nora','Finn','Isolde','Lysa','Cador','Maeve','Oswin','Adela','Hugo','Idris','Rhea','Silas','Faye'];const jobs=['farmer','forester','builder','merchant','craftsperson','gatherer'];const colors=[0x8f6653,0x58788c,0x907048,0x65754a,0x8c6b7c,0x8d8c67].map(rgb);let state,people,stories=[],frozen=false,speed=1,follow=false,cinematic=false,timer=0,accumulator=0,selectedCitizen=0;const FIXED_STEP=1/30;
 function renderStories(){const feed=document.getElementById('feed');feed.replaceChildren();for(const e of stories.slice(0,4)){const item=document.createElement('div'),label=document.createElement('span');item.className='feeditem';label.textContent='Day '+e.day+' · Kingdom chronicle';item.append(label,document.createTextNode(e.text));feed.appendChild(item)}}
 function uniqueCitizenName(index){const given=names[index%names.length];const generation=Math.floor(index/names.length);return generation?given+' '+(generation===1?'II':String(generation+1)):given}
@@ -2627,6 +2653,6 @@ requestAnimationFrame(render);window.__tinyKingdom={getState:()=>JSON.parse(JSON
  branchTriangles:forestVisualStats.branchTriangles,
  broadleafLobes:forestVisualStats.broadleafLobes,microCrownLobes:forestVisualStats.microCrownLobes,rimLeafSprays:forestVisualStats.rimLeafSprays,individualLeaves:forestVisualStats.individualLeaves,broadleafSpecies:forestVisualStats.broadleafSpecies.slice(),broadleafAddedTriangles:forestVisualStats.broadleafAddedTriangles,
  crownColors:forestVisualStats.crownPalette.size
-}),getCottageFacadeStats:()=>({...cottageFacadeStats,styles:cottageFacadeStats.styles.map((count,style)=>({style,count})).filter(row=>row.count>0)}),getLightingProfile:lightingProfile,getCraftDistrictStats:()=>({...CRAFT_DISTRICT,...craftCounters}),getCottageEffects:()=>({activeChimneys,smokePuffs,smokeTriangles,smokeMaxRadius}),renderStats:()=>({terrainRebuilds,terrainCacheKey,terrainCacheTriangles,terrainHorizonTriangles,lastFrameTriangles,scenicMeshRebuilds,scenicMeshTriangles,scenicMeshKey,staticGpuUploads,dualBufferGPU:gpuAvailable}),renderQuality,setRenderQuality,shadowStats:()=>({triangles:castShadowTriangles,...sunShadow(state.t)}),sampleSunShadow:(time)=>sunShadow(time),sampleCanopyShadow:(x,z)=>Array.from({length:9},(_,i)=>canopyShadowVariation(x,z,i*Math.PI/4)),getEconomyHistory:()=>cloneData(uiHistory),getHudMode:()=>cinematicHud?'cinema':'full',setHudMode:setCinematicHud,getCommandView:()=>commandView,setCommandView,skyStats:()=>({enabled:gpuAvailable,passes:skyPassCount,model:'day-night-atmosphere-v1',palette:skyColorProfile(state.t)}),getSkyPalette:skyColorProfile,setCamera:o=>{yaw=Number.isFinite(o.yaw)?o.yaw:yaw;pitch=Number.isFinite(o.pitch)?Math.max(.25,Math.min(1.45,o.pitch)):pitch;zoom=Number.isFinite(o.zoom)?Math.max(9,Math.min(85,o.zoom)):zoom;if(Array.isArray(o.focus)&&o.focus.length===2)focusPoint=o.focus.slice(0,2)}};
+}),getCottageFacadeStats:()=>({...cottageFacadeStats,styles:cottageFacadeStats.styles.map((count,style)=>({style,count})).filter(row=>row.count>0)}),getLightingProfile:lightingProfile,getCraftDistrictStats:()=>({...CRAFT_DISTRICT,...craftCounters}),getCottageEffects:()=>({activeChimneys,smokePuffs,smokeTriangles,smokeMaxRadius}),renderStats:()=>({terrainRebuilds,terrainCacheKey,terrainCacheTriangles,terrainHorizonTriangles,lastFrameTriangles,scenicMeshRebuilds,scenicMeshTriangles,scenicMeshKey,staticGpuUploads,dualBufferGPU:gpuAvailable}),renderQuality,setRenderQuality,shadowStats:()=>({triangles:castShadowTriangles,...sunShadow(state.t)}),getShadowGradientAudit:shadowGradientAudit,sampleSunShadow:(time)=>sunShadow(time),sampleCanopyShadow:(x,z)=>Array.from({length:9},(_,i)=>canopyShadowVariation(x,z,i*Math.PI/4)),getEconomyHistory:()=>cloneData(uiHistory),getHudMode:()=>cinematicHud?'cinema':'full',setHudMode:setCinematicHud,getCommandView:()=>commandView,setCommandView,skyStats:()=>({enabled:gpuAvailable,passes:skyPassCount,model:'day-night-atmosphere-v1',palette:skyColorProfile(state.t)}),getSkyPalette:skyColorProfile,setCamera:o=>{yaw=Number.isFinite(o.yaw)?o.yaw:yaw;pitch=Number.isFinite(o.pitch)?Math.max(.25,Math.min(1.45,o.pitch)):pitch;zoom=Number.isFinite(o.zoom)?Math.max(9,Math.min(85,o.zoom)):zoom;if(Array.isArray(o.focus)&&o.focus.length===2)focusPoint=o.focus.slice(0,2)}};
 })();
 </script></body></html>
