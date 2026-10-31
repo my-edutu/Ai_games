@@ -1380,3 +1380,34 @@ test('Gauntlet 051 upland rock outcrops create safe, bounded terrain sculpture w
  }
  expect(errors).toEqual([]);
 });
+
+
+test('Gauntlet 052 horizon terrain extends the visible valley while preserving existing central terrain cache and simulation',async({page})=>{
+ const errors=[];page.on('pageerror',e=>errors.push(e.message));
+ await page.setContent(html);
+ await page.waitForFunction(()=>Boolean(window.__tinyKingdom?.getHorizonStats?.()?.triangles));
+ await page.locator('#pause').click();
+ const result=await page.evaluate(()=>{
+  const g=window.__tinyKingdom,before=JSON.stringify(g.exportSnapshot());
+  const terrain=g.renderStats(),horizon=g.getHorizonStats();
+  g.setCamera({focus:[33,29],yaw:.91,pitch:.52,zoom:24});
+  const after=JSON.stringify(g.exportSnapshot());
+  return {before,after,terrain,horizon,audit:g.getGeometryAudit()};
+ });
+ expect(result.horizon.triangles).toBe(656);
+ expect(result.horizon.extent).toBeGreaterThan(91);
+ expect(result.horizon.extent).toBeLessThan(95);
+ expect(result.horizon.outerBands).toBe(2);
+ expect(result.terrain.terrainCacheTriangles).toBe(3362);
+ expect(result.terrain.terrainHorizonTriangles).toBe(656);
+ expect(result.audit.totalTriangles).toBeLessThan(160000);
+ for(const m of [result.audit.static,result.audit.dynamic]){
+  expect(m.aligned).toBe(true);
+  expect(m.invalidComponents).toBe(0);
+  expect(m.invalidNormals).toBe(0);
+  expect(m.invalidColors).toBe(0);
+  expect(m.outOfBounds).toBe(0);
+ }
+ expect(result.after).toEqual(result.before);
+ expect(errors).toEqual([]);
+});
