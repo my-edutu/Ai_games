@@ -292,6 +292,25 @@ const path = require('node:path');
     });
     await page.waitForTimeout(450);
     await page.screenshot({path:path.join(out,'face-study.png'),fullPage:true,timeout:90000});
+
+    // G053: real GPU capture of the selected citizen using the in-game Follow
+    // control rather than a debug camera. The comparison is source-bound.
+    evidence.citizenFollow=await page.evaluate(()=>{
+      const g=window.__tinyKingdom,before=JSON.stringify(g.exportSnapshot());
+      g.setCamera({focus:[0,0],zoom:43,pitch:.88,yaw:.7});
+      document.getElementById('focus').click();
+      const plan=g.getCitizenCameraPlan(),camera=g.getCamera();
+      const after=JSON.stringify(g.exportSnapshot());
+      return {camera,plan,authorityUnchanged:before===after};
+    });
+    if(!evidence.citizenFollow.authorityUnchanged||!evidence.citizenFollow.camera.follow||
+       evidence.citizenFollow.camera.zoom>14||!evidence.citizenFollow.plan||
+       evidence.citizenFollow.plan.blockers>evidence.citizenFollow.plan.originalBlockers||
+       evidence.citizenFollow.plan.blockers!==0)
+       throw Error('G053 real focus camera is obscured or mutates authority: '+JSON.stringify(evidence.citizenFollow));
+    await page.waitForTimeout(350);
+    await page.screenshot({path:path.join(out,'citizen-follow-clear.png'),fullPage:true,timeout:90000});
+    await page.evaluate(()=>document.getElementById('focus').click());
     await page.evaluate(()=>window.__tinyKingdom.setHudMode('full'));
     const replay=await page.evaluate(() => {
       const g=window.__tinyKingdom;
