@@ -4,6 +4,7 @@ import { createClimber, createEnemy } from './characters.mjs';
 import { SCALE, pointFor, angleFor } from './coordinates.mjs';
 import { snapshotVelocity } from './motion.mjs';
 import { createRenderProgress } from './render-progress.mjs';
+import { followClimberContact } from './contact-follow.mjs';
 
 const MAX_PARTICLES=96;
 const TAU = Math.PI * 2;
@@ -757,7 +758,7 @@ export function createTowerScene(canvas, settings = {}) {
     const desiredYaw = mapped.angle + (moving || p.state === 'dashing' ? p.facing * Math.PI / 2 : p.facing * .32);
     const blend = 1 - Math.exp(-dt * 17);
     if (!initialized) { climber.group.position.copy(actorTarget); actorYaw = desiredYaw; }
-    else { climber.group.position.lerp(actorTarget, blend); actorYaw += Math.atan2(Math.sin(desiredYaw - actorYaw), Math.cos(desiredYaw - actorYaw)) * blend; }
+    else { followClimberContact(climber.group.position, actorTarget, blend, p.state); actorYaw += Math.atan2(Math.sin(desiredYaw - actorYaw), Math.cos(desiredYaw - actorYaw)) * blend; }
     climber.group.rotation.y = actorYaw;
     climber.group.scale.setScalar(p.halfHeight * 2 / SCALE / 2.8);
     const followComposition = options.camera === 'overview' ? null : composeFollowView(snapshot, climber.group.position, camera.aspect, orbit, zoom);
