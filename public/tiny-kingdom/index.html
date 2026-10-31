@@ -462,6 +462,16 @@ void main(){
   float soot=noise3(vWorld*vec3(2.9,3.2,2.8));
   c*=mix(.51,1.,joint)*mix(.79,1.17,tileTone)*(.79+.23*soot+.09*overlap);
   c=mix(c,c*vec3(.79,.83,.81),max(0.,soot-.65)*.24);
+ }else if(vMaterial>7.5&&vMaterial<8.5){
+  // G057: limewashed Tudor plaster is neither bare stone nor woven cloth.
+  // Fine aggregate, imperfect trowel colour and vertical rain runoff are
+  // stable in world space. Only explicitly tagged plaster receives these.
+  float chalkGrain=noise3(vWorld*vec3(6.1,8.3,6.1));
+  float rainStreak=noise3(vWorld*vec3(1.95,.12,1.95));
+  float limePores=hash3(vec3(floor(vWorld.xz*13.),floor(vWorld.y*11.)));
+  float runoff=smoothstep(.60,.83,rainStreak)*(.22+.38*weatherWetness);
+  c*=mix(.86,1.11,chalkGrain)*mix(.96,1.04,limePores);
+  c*=mix(vec3(1.),vec3(.73,.79,.74),runoff);
  }
  c=mix(c,fogColor,vFog);
  vec3 mapped=c/(c+vec3(.34));
@@ -557,7 +567,7 @@ function drawAtmosphere(a){
  skyPassCount++;
 }
 
-const MATERIAL=Object.freeze({GENERAL:0,GRASS:1,WATER:2,ROAD:3,FOLIAGE:4,STONE:5,WOOD:6,ROOF:7});
+const MATERIAL=Object.freeze({GENERAL:0,GRASS:1,WATER:2,ROAD:3,FOLIAGE:4,STONE:5,WOOD:6,ROOF:7,PLASTER:8});
 const RIVER_SEGMENTS=105,RIVER_SPAN=84,RIVER_BANDS=6,RIVER_BANK_BANDS=2;
 let currentMaterial=MATERIAL.GENERAL;
 function materialScope(id,make){const old=currentMaterial;currentMaterial=id;try{return make()}finally{currentMaterial=old}}
@@ -577,7 +587,7 @@ function inspectMeshGeometry(vertices){
   for(let j=6;j<=8;j++)if(!Number.isFinite(vertices[i+j])||
      vertices[i+j]<0||vertices[i+j]>1.001)invalidColors++;
   const material=vertices[i+9];
-  if(!Number.isInteger(material)||material<0||material>7)invalidComponents++;
+  if(!Number.isInteger(material)||material<0||material>8)invalidComponents++;
  }
  return {floats:vertices.length,vertices:vertices.length/stride,
   triangles:vertices.length/(stride*3),aligned,invalidComponents,
@@ -599,7 +609,7 @@ function materialSwatchAudit(){
   sidePlasterOak:0xd9c4a1,sidePlasterAsh:0xcbbda5,
   sidePlasterLime:0xb3b5a6,sidePlasterSand:0xe0c39b};
  const rows=Object.fromEntries(Object.keys(targets).map(k=>[k,
-  {general:0,stone:0,roof:0,total:0}]));
+  {general:0,stone:0,roof:0,plaster:0,total:0}]));
  // Canvas2D fallback holds the static mesh inside data, whereas WebGL keeps
  // static and dynamic buffers separate; never count static triangles twice.
  const meshes=gpuAvailable?[scenicMeshCache||[],data]:[data];
@@ -611,6 +621,7 @@ function materialSwatchAudit(){
    if(mesh[i+9]===MATERIAL.GENERAL)row.general++;
    if(mesh[i+9]===MATERIAL.STONE)row.stone++;
    if(mesh[i+9]===MATERIAL.ROOF)row.roof++;
+   if(mesh[i+9]===MATERIAL.PLASTER)row.plaster++;
   }
  }
  return rows;
@@ -800,14 +811,14 @@ function house(x,z,scale=1,variant=0){let y=terrain(x,z);let w=(2.4+variant*.42)
  // G054c: plaster is not stacked granite. Preserve stone in the footings,
  // make roof planes roof material, and preserve all original mesh triangles.
  materialScope(MATERIAL.STONE,()=>box(x,y-.04,z,w+.14,.23*scale,d+.14,rgb(0x908978)));
- materialScope(MATERIAL.GENERAL,()=>box(x,y+.19*scale,z,w,h-.19*scale,d,variant%2?rgb(0xe1c7a0):rgb(0xd1bc97)));
+ materialScope(MATERIAL.PLASTER,()=>box(x,y+.19*scale,z,w,h-.19*scale,d,variant%2?rgb(0xe1c7a0):rgb(0xd1bc97)));
  let ridge=h+1.25*scale,zy=z-d/2-.18*scale,zz=z+d/2+.18*scale,xx=x-w/2-.25*scale,xr=x+w/2+.25*scale;let col=variant%2?rgb(0x725046):rgb(0x976047);
 // Both slopes, proper triangular end gables, visible eaves and offset ridge trim.
 materialScope(MATERIAL.ROOF,()=>{
  quad([xx,y+h,zy],[x,y+ridge,zy],[x,y+ridge,zz],[xx,y+h,zz],col);
  quad([x,y+ridge,zy],[xr,y+h,zy],[xr,y+h,zz],[x,y+ridge,zz],col);
 });
-materialScope(MATERIAL.GENERAL,()=>{
+materialScope(MATERIAL.PLASTER,()=>{
  tri([xx,y+h,zy],[xr,y+h,zy],[x,y+ridge,zy],rgb(0xd1bf9e));
  tri([xr,y+h,zz],[xx,y+h,zz],[x,y+ridge,zz],rgb(0xd1bf9e));
 });
@@ -871,7 +882,7 @@ function cottageSideFacades(x,z,scale,variant){
   const z0=z-d*.485,z1=z+d*.485,y0=y+.215*scale,y1=y+h-.025*scale;
   // Two outward-facing plaster panels cover the formerly empty house long wall.
   // Correct winding exposes both +X and -X facades under back-face culling.
-  materialScope(MATERIAL.GENERAL,()=>{
+  materialScope(MATERIAL.PLASTER,()=>{
    for(let bay=0;bay<2;bay++){
     const za=z0+(z1-z0)*bay/2,zb=z0+(z1-z0)*(bay+1)/2;
     const a=[fx,y0,za],b=[fx,y0,zb],c=[fx,y1,zb],d0=[fx,y1,za];
@@ -2666,7 +2677,7 @@ bindGeometry(buffer);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(data),gl.DYN
  // Only a completed presentation may become the reusable frozen frame.
  lastFrozenFrameKey=frozenViewKey;
 }
-requestAnimationFrame(render);window.__tinyKingdom={getState:()=>JSON.parse(JSON.stringify({state,people:people.map(({name,job,x,z,target})=>({name,job,x,z,target}))})),setSpeed:x=>{speed=x},step,reset:start,renderer:()=>canvas.getContext('webgl')?'webgl':'software',metrics:()=>({citizens:people.length,buildings:city.length+2,day:Math.floor(state.t/24)+1,food:state.food,wood:state.wood,gold:state.gold,relationships:people.filter(p=>p.friend).length}),route:(a,b)=>routeBetween(a[0],a[1],b[0],b[1]),walkable:(p)=>walkable(p[0],p[1]),getNavigation:()=>people.map(p=>({name:p.name,position:[p.x,p.z],target:p.target,remaining:p.path?.length||0,path:p.path,activity:p.activity,hunger:p.hunger,energy:p.energy})),exportSnapshot,restoreSnapshot,saveWorld,restoreWorld,climateAt,skyConditions,getCitizenProfiles:()=>cloneData(people.map(({name,job,trait,friend,bonds,energy,hunger,activity})=>({name,job,trait,friend,bonds,energy,hunger,activity}))),getRigPose:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(citizenRigPose(people[index])):null,getGarmentProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(garmentProfile(people[index],index,citizenRigPose(people[index]))):null,getFaceProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(faceProfile(people[index],index)):null,getSelectedCitizen:()=>people[selectedCitizen]?.name,routeCacheMetrics:()=>({entries:routeCache.size,hits:cacheHits,misses:cacheMisses}),getCamera:()=>({yaw,pitch,zoom,focus:focusPoint.slice(),follow,cinematic}),getCitizenCameraPlan:()=>lastFollowShot?{...lastFollowShot,eye:lastFollowShot.eye.slice(),target:lastFollowShot.target.slice()}:null,getTerrainHeight:(x,z)=>terrain(x,z),getTerrainBiomeSample:terrainBiomeSample,getHorizonStats:()=>({triangles:terrainHorizonTriangles,outerBands:2,segmentsPerSide:HORIZON_SEGMENTS,extent:HORIZON_MAX+HORIZON_OFFSETS[2]}),getHighlandRockStats:()=>({...highlandRockStats,heights:highlandRockStats.heights.slice()}),getClimateMaterialProfile:climateMaterialProfile,getWildfloraCount:()=>wildflora.length,getMeadowStats:()=>({clusters:meadowUnderstory.length,triangles:meadowUnderstory.length*8,season:climateAt(state.t).season,cached:true}),getMaterialSystem:()=>({vertexStride:10,surfaceShaderVersion:'procedural-054',materials:Object.keys(MATERIAL),gpuRenderValidated:false}),getMaterialSwatchAudit:materialSwatchAudit,waterStats:()=>({model:'fresnel-ripple-shorefoam-v1',segments:RIVER_SEGMENTS,waterTriangles:RIVER_SEGMENTS*RIVER_BANDS*2,bankTriangles:RIVER_SEGMENTS*2*RIVER_BANK_BANDS*2}),getScenicSites:scenicSiteMetrics,getFestivalVisualStats:()=>({season:festivalSeason,cacheBuilds:festivalCacheBuilds,vertices:festivalGeometry?.length||0}),getOrchardVisualStats:()=>({...orchardVisualStats}),getGeometryAudit:geometryAudit,getFarmsteadStats:()=>({...farmScene,granary:FARMSTEAD.granary.slice(),season:climateAt(state.t).season}),getFarmTreeClearanceStats:farmTreeClearanceStats,getForestVisualStats:()=>({
+requestAnimationFrame(render);window.__tinyKingdom={getState:()=>JSON.parse(JSON.stringify({state,people:people.map(({name,job,x,z,target})=>({name,job,x,z,target}))})),setSpeed:x=>{speed=x},step,reset:start,renderer:()=>canvas.getContext('webgl')?'webgl':'software',metrics:()=>({citizens:people.length,buildings:city.length+2,day:Math.floor(state.t/24)+1,food:state.food,wood:state.wood,gold:state.gold,relationships:people.filter(p=>p.friend).length}),route:(a,b)=>routeBetween(a[0],a[1],b[0],b[1]),walkable:(p)=>walkable(p[0],p[1]),getNavigation:()=>people.map(p=>({name:p.name,position:[p.x,p.z],target:p.target,remaining:p.path?.length||0,path:p.path,activity:p.activity,hunger:p.hunger,energy:p.energy})),exportSnapshot,restoreSnapshot,saveWorld,restoreWorld,climateAt,skyConditions,getCitizenProfiles:()=>cloneData(people.map(({name,job,trait,friend,bonds,energy,hunger,activity})=>({name,job,trait,friend,bonds,energy,hunger,activity}))),getRigPose:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(citizenRigPose(people[index])):null,getGarmentProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(garmentProfile(people[index],index,citizenRigPose(people[index]))):null,getFaceProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(faceProfile(people[index],index)):null,getSelectedCitizen:()=>people[selectedCitizen]?.name,routeCacheMetrics:()=>({entries:routeCache.size,hits:cacheHits,misses:cacheMisses}),getCamera:()=>({yaw,pitch,zoom,focus:focusPoint.slice(),follow,cinematic}),getCitizenCameraPlan:()=>lastFollowShot?{...lastFollowShot,eye:lastFollowShot.eye.slice(),target:lastFollowShot.target.slice()}:null,getTerrainHeight:(x,z)=>terrain(x,z),getTerrainBiomeSample:terrainBiomeSample,getHorizonStats:()=>({triangles:terrainHorizonTriangles,outerBands:2,segmentsPerSide:HORIZON_SEGMENTS,extent:HORIZON_MAX+HORIZON_OFFSETS[2]}),getHighlandRockStats:()=>({...highlandRockStats,heights:highlandRockStats.heights.slice()}),getClimateMaterialProfile:climateMaterialProfile,getWildfloraCount:()=>wildflora.length,getMeadowStats:()=>({clusters:meadowUnderstory.length,triangles:meadowUnderstory.length*8,season:climateAt(state.t).season,cached:true}),getMaterialSystem:()=>({vertexStride:10,surfaceShaderVersion:'procedural-057',materials:Object.keys(MATERIAL),gpuRenderValidated:false}),getMaterialSwatchAudit:materialSwatchAudit,waterStats:()=>({model:'fresnel-ripple-shorefoam-v1',segments:RIVER_SEGMENTS,waterTriangles:RIVER_SEGMENTS*RIVER_BANDS*2,bankTriangles:RIVER_SEGMENTS*2*RIVER_BANK_BANDS*2}),getScenicSites:scenicSiteMetrics,getFestivalVisualStats:()=>({season:festivalSeason,cacheBuilds:festivalCacheBuilds,vertices:festivalGeometry?.length||0}),getOrchardVisualStats:()=>({...orchardVisualStats}),getGeometryAudit:geometryAudit,getFarmsteadStats:()=>({...farmScene,granary:FARMSTEAD.granary.slice(),season:climateAt(state.t).season}),getFarmTreeClearanceStats:farmTreeClearanceStats,getForestVisualStats:()=>({
  sourceTrees:trees.length,
  renderedTrees:forestVisualStats.deciduous+forestVisualStats.conifers,
  conifers:forestVisualStats.conifers,deciduous:forestVisualStats.deciduous,
