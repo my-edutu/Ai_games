@@ -1,10 +1,15 @@
 {
-  "updatedAt": "2026-10-31T08:37:34.296Z",
-  "status": "Round 20 · original water fog source/near-image parity verified; desktop pacing STILL FAILED",
-  "detail": "Exact source 7fd68eae (production d0795164), CI merge b2968cd: 548/548 Node tests pass, build/host/authority/operations pass. Corrected focused browser 16/17 at 12 actual submissions/1011.2ms; general browser 28/29 at 8/1013.6ms, both below unchanged 17. Matched frozen real WebGL screenshots differ at most 1–3/255 per channel. No demonstrated GPU/pacing improvement; 8190 extra water triangles need same-run A/B or reversal. Official Snake Pass visual/motion bar, independent critic, device soak and R5 unachieved. Draft PR remains unmerged/undeployed.",
+  "updatedAt": "2026-10-31T09:52:05Z",
+  "status": "Round 21 · fog-aware water grid 48.3% fewer triangles, exact frozen WebGL parity; desktop pacing STILL FAILED",
+  "detail": "Production 9369be3 + strict browser regression 93b1a93, world blob 34f48beb: water triangles 8192→4232 on ordinary boards, original lake/animation/fog intact; 3 matched 960×640 real WebGL frozen images pixel-identical. Corrected focused browser 16/17 at 14 actual submissions/1015ms; corrected general 549/549 Node, build/host/authority/ops green, browser 28/29 at 8/1004.2ms. Both below unchanged minimum 17. Real 11.80s gameplay inspected. No controlled FPS win; official Snake Pass visual/motion and independent critic/device soak/R5 remain OPEN. Draft PR unmerged/undeployed.",
   "latestImage": "/progress/evidence/round-9-overview.jpg",
-  "latestCaption": "Historical Round 9 local image (NOT current Round 20). Round 20 current real WebGL stills, diagnostic trace and 18.72s motion are linked as GitHub Actions artifacts below.",
+  "latestCaption": "Latest current Round 21 screenshots and 11.80s gameplay are linked as true GitHub Actions artifacts in Round 21 below. The embedded image remains historical Round 9, NOT Round 21.",
   "reviews": [
+    {
+      "area": "Round 21 · sparse fog-aware distant lake",
+      "verdict": "GEOMETRY COUNT VERIFIED (-48.34%) · 3 MATCHED WEBGL PNGS PIXEL-IDENTICAL · 549/549 NODE · DESKTOP FPS GATE FAILED",
+      "gap": "Focused 16/17 at 14 actual draws/1015ms, general 28/29 at 8/1004.2ms against unchanged >=17. Cache prop regression corrected for separately traced adaptive resize without lowering exact topology invalidation. No causal GPU/frame improvement, real-device/soak or independent Snake Pass visual win."
+    },
     {
       "area": "Round 20 · vertex-interpolated live water fog",
       "verdict": "SOURCE/NEAR-PIXEL PARITY VERIFIED · 548/548 NODE GREEN · NO PROVEN SPEED WIN · DESKTOP GATE FAILED",
@@ -347,9 +352,38 @@
           "path": "https://github.com/my-edutu/Ai_games/actions/runs/41184684128/artifacts/13035967867"
         }
       ]
+    },
+    {
+      "title": "Round 21 · sparse fog-aware lake tessellation",
+      "summary": "Exact source 9369be3, corrected strict trace-based cache regression 93b1a93. Full 512-unit live fogged lake retained with near 8-unit grid; only fully fogged distant water cells coarsened. 8192→4232 triangles (-48.34%). Matched 3 real WebGL frozen 960×640 images: 0 pixel changes; latest 11.80s real motion inspected. 549/549 Node; focused 16/17 browser at 14 actual submissions/1015ms, general 28/29 at 8/1004.2ms, both below unchanged 17. No proven FPS improvement or independent commercial visual parity; Gauntlet OPEN.",
+      "captures": [
+        {
+          "label": "Final exact-source focused real WebGL screenshots/trace and frozen pixel comparison",
+          "path": "https://github.com/my-edutu/Ai_games/actions/runs/41189911300/artifacts/13038407096"
+        },
+        {
+          "label": "Final 11.80-second actual game motion WebM",
+          "path": "https://github.com/my-edutu/Ai_games/actions/runs/41189911300/artifacts/13038471874"
+        },
+        {
+          "label": "Actual focused browser pacing and GPU diagnostic metrics",
+          "path": "https://github.com/my-edutu/Ai_games/actions/runs/41189911300/artifacts/13038397086"
+        },
+        {
+          "label": "Final-source general browser captures",
+          "path": "https://github.com/my-edutu/Ai_games/actions/runs/41189911307/artifacts/13038672130"
+        },
+        {
+          "label": "Round 21 review and source code",
+          "path": "https://github.com/my-edutu/Ai_games/blob/feat/autonomous-snake-3d-gauntlet/docs/reviews/snake-gauntlet/round21-water-fog-grid.md"
+        }
+      ]
     }
   ],
   "checks": [
+    "Round 21 first-source browser prop-cache test exact-build assertion (expected4, observed5) traced to one independent legitimate adaptive resolution change ratio 0.75→0.667; fixed regression attributes exactly one cache rebuild per topology change, plus exactly one only upon actual scale transition; final browser test passes. No release gate weakened.",
+    "Round 21 corrected source 93b1a93: 549/549 Node tests, build/host/authority/operations green, focused 16/17 browser with 14 actual submissions/1015ms and general 28/29 with 8/1004.2ms. Both FAIL unchanged ≥17 actual-draw gate. RAF callbacks and recorded WebM frame rate are NOT rendered/present FPS.",
+    "Round 21 three matched frozen actual WebGL PNGs (cached, direct, explicitly synthetic food stress): each 0/614,400 changed pixels vs Round20. 512-unit fully visible animated lake retained, 8192→4232 triangles (-48.34%) by coarsening already-fogged fringe, no proven GPU FPS win.",
     "Round 20 actual matched frozen WebGL direct prior/new 960x640: 34,099/614,400 pixels changed, mean RGB abs 0.02491/255, max 2/255. Cached max 1/255, synthetic near-fruit stress max 3/255; original moving water/cues remain. Source-level fog change NOT a proven throughput win and added water geometry could hurt SwiftShader.",
     "Round 20 exact-source 7fd68eae (production d0795164, checkout merge b2968cd): 548/548 Node tests, TypeScript/host/authority/operations pass; focused 16/17 browser at 12 actual draw submissions/1011.2ms, general 28/29 at 8/1013.6ms. Both FAIL unchanged 17 gate; RAF callback rate/video FPS are not rendered or display-present FPS.",
     "Round 19 real WebGL: six fewer draw calls (42→36), six fewer world draw objects (39→33), six fewer world geometries (37→31). Three matched frozen 960x640 actual WebGL PNGs pixel-identical. Archived previous world blob fails new test; candidate passes. Commercial visual bar still LOSE; no independent critic.",
