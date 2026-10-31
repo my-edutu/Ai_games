@@ -1026,6 +1026,76 @@ for(let k=-1;k<=1;k+=2){box(x+k*w*.32,y+h*.43,z-d/2-.082,.40*scale,.51*scale,.07
 for(let k of [-1,1])box(x+k*(w/2-.12),y+.14,z-d/2-.09,.13*scale,h-.15,.12*scale,wood);
 box(x+w*.31,y+h*.72,z,.28*scale,.81*scale,.28*scale,rgb(0x9d8c77));box(x+w*.31,y+h*1.13,z,.38*scale,.12*scale,.38*scale,rgb(0x736f64));} 
 
+// G064 expanded-settlement graphics budget. Initial thirteen Tudor homes
+// keep every authored roof tile, casement and brace; autonomous expansion uses
+// a semantically shaded 3D shell with roof shingles supplied by the shader.
+let growthLodStats={detailedHomes:0,compactHomes:0,heroCitizens:0,proxyCitizens:0,heroTriangles:0,proxyTriangles:0};
+function compactGrowthHouse(x,z,variant){
+ const y=terrain(x,z),w=2.4+variant*.42,d=2.1+variant*.18,h=1.9;
+ const plaster=rgb(variant%2?0xe1c7a0:0xd1bc97),beam=rgb(0x6e513d),roof=rgb(0x976047),stone=rgb(0x908978);
+ materialScope(MATERIAL.STONE,()=>box(x,y-.04,z,w+.14,.23,d+.14,stone));
+ materialScope(MATERIAL.PLASTER,()=>{
+  box(x,y+.19,z,w,h-.19,d,plaster);
+  tri([x-w*.5-.20,y+h,z-d*.5-.18],[x+w*.5+.20,y+h,z-d*.5-.18],[x,y+h+1.25,z-d*.5-.18],plaster);
+  tri([x+w*.5+.20,y+h,z+d*.5+.18],[x-w*.5-.20,y+h,z+d*.5+.18],[x,y+h+1.25,z+d*.5+.18],plaster);
+ });
+ materialScope(MATERIAL.ROOF,()=>{
+  const lo=x-w*.5-.25,hi=x+w*.5+.25,front=z-d*.5-.18,back=z+d*.5+.18;
+  quad([lo,y+h,front],[x,y+h+1.25,front],[x,y+h+1.25,back],[lo,y+h,back],roof);
+  quad([x,y+h+1.25,front],[hi,y+h,front],[hi,y+h,back],[x,y+h+1.25,back],roof);
+ });
+ materialScope(MATERIAL.WOOD,()=>{
+  for(const side of [-1,1])for(const back of [-1,1])
+   box(x+side*w*.46,y+.18,z+back*(d*.5+.09),.105,h-.20,.10,beam);
+  for(const side of [-1,1])
+   box(x,y+h*.75,z+side*(d*.5+.09),w,.10,.10,beam);
+  box(x,y,z-d*.5-.09,.69,1.23,.07,rgb(0x78523b));
+ });
+ for(const side of [-1,1]){
+  const wx=x+side*w*.28;
+  materialScope(MATERIAL.GENERAL,()=>box(wx,y+h*.47,z-d*.5-.115,.44,.48,.065,rgb(0x527779)));
+  materialScope(MATERIAL.WOOD,()=>{
+   box(wx,y+h*.47,z-d*.5-.15,.045,.5,.06,rgb(0xc5ad85));
+   box(wx,y+h*.47,z-d*.5-.15,.46,.045,.06,rgb(0xc5ad85));
+  });
+ }
+ const chimneyX=x+(variant%2?-.25:.25)*w;
+ materialScope(MATERIAL.STONE,()=>{
+  box(chimneyX,y+h+.7,z+d*.22,.36,.85,.41,rgb(0xb5a591));
+  box(chimneyX,y+h+1.52,z+d*.22,.49,.10,.52,rgb(0x7f7368));
+ });
+}
+// The backdrop still has real walking, clothed, role-identifiable 3D citizens.
+// Hero characters nearest the camera retain original authored faces/rigs.
+function budgetVillager(p){
+ const first=data.length,x=p.x,z=p.z,y=terrain(x,z),idx=Math.max(0,people.indexOf(p));
+ const size=.92+(idx%5)*.045,coat=colors[jobs.indexOf(p.job)]||colors[0],
+  skin=rgb([0xd5a781,0x95654b,0xefc19c,0xbe8968,0x9a6a48][(idx+names.length)%5]),
+  hair=rgb([0x4c3228,0x342f29,0x8b633f,0x664b36,0xa18b65][(idx+4)%5]);
+ const swing=Math.sin(p.phase*2.7)*.12,old=currentMaterial;
+ currentMaterial=MATERIAL.GENERAL;
+ cone(x,y+.25*size,z,.24*size,.86*size,coat,7);
+ cylinder(x,y+1.13*size,z,.17*size,.31*size,skin,7);
+ ellipsoid(x,y+1.44*size,z-.03*size,.19*size,.085*size,.17*size,hair,6);
+ for(const side of [-1,1]){
+  taperedBranch([x+side*.13*size,y+.29*size,z],
+   [x+side*.14*size,y+.09*size,z+side*swing*size],.07*size,.05*size,rgb(0x4f4033),4);
+  taperedBranch([x+side*.22*size,y+1.03*size,z],
+   [x+side*.28*size,y+.60*size,z-side*swing*size],.075*size,.052*size,coat,4);
+ }
+ if(p.job==='farmer'||p.job==='gatherer')cone(x,y+1.49*size,z,.28*size,.15*size,rgb(0xc4a36c),6);
+ else if(p.job==='forester')cone(x,y+1.49*size,z,.22*size,.19*size,rgb(0x526a49),6);
+ else if(p.job==='builder')box(x,y+1.51*size,z,.39*size,.07*size,.38*size,rgb(0xa78a5e));
+ const look=p.path?.length?p.path[0]:p.target;
+ const angle=look?Math.atan2(look[0]-x,look[1]-z):0,co=Math.cos(angle),si=Math.sin(angle);
+ for(let i=first;i<data.length;i+=10){
+  const dx=data[i]-x,dz=data[i+2]-z,nx=data[i+3],nz=data[i+5];
+  data[i]=x+co*dx+si*dz;data[i+2]=z-si*dx+co*dz;
+  data[i+3]=co*nx+si*nz;data[i+5]=-si*nx+co*nz;
+ }
+ currentMaterial=old;
+}
+
 // Gauntlet 046: varied side-facing Tudor timberwork, modeled as real 3D
 // geometry rather than an image-plane facade. Identical saves produce identical
 // houses; no seeded simulation RNG or citizen state is consumed.
