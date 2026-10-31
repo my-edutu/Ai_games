@@ -1,6 +1,7 @@
 import * as THREE from '/dungeon/vendor/three.module.js';
 import {combatCueDelay,MAX_PENDING_COMBAT_CUES} from '/dungeon/combat-cue-plan.js';
-import {isHealingCast} from '/dungeon/combat-intent-plan.js';
+import {isHealingCast,isDisarmCast} from '/dungeon/combat-intent-plan.js';
+import {planVisualContact} from '/dungeon/facing-plan.js';
 import {advancePresentationActionAge} from '/dungeon/character-motion-plan.js';
 
 /**
@@ -15,12 +16,8 @@ const color=(kind)=>TINT[kind]||'#83fff0';
 function material(hex,opacity=.95){
  return new THREE.MeshBasicMaterial({color:hex,transparent:true,opacity,depthWrite:false,side:THREE.DoubleSide,blending:THREE.AdditiveBlending});
 }
-function closest(units,subject,faction){
- return units.filter(u=>u.faction===faction&&u.hp>0)
- .sort((a,b)=>(Math.abs(a.x-subject.x)+Math.abs(a.z-subject.z))-(Math.abs(b.x-subject.x)+Math.abs(b.z-subject.z))||a.id.localeCompare(b.id))[0]||null;
-}
 export function createCombatDirector(scene,{reducedMotion=false}={}){
- const projectiles=[],impacts=[],pendingCues=[],previous=new Map();let floorKey='',shots=0,bursts=0,releasedCues=0,droppedCues=0,healingCues=0;
+ const projectiles=[],impacts=[],pendingCues=[],previous=new Map();let floorKey='',shots=0,bursts=0,releasedCues=0,droppedCues=0,healingCues=0,disarmCues=0,contactLockedCues=0,suppressedUnmatchedCues=0;
  const cleanup=e=>{scene.remove(e.mesh);e.mesh.material.dispose()};
  function ensureBound(){
   while(projectiles.length>PROJECTILE_LIMIT)cleanup(projectiles.shift());
@@ -30,9 +27,13 @@ export function createCombatDirector(scene,{reducedMotion=false}={}){
   const src=V3(source.x,kind==='mystic'?1.37:1.21,source.z),dst=V3(target.x,1.18,target.z);
   // Melee strikes need a crescent rather than an arrow teleporting through armour.
   if(src.distanceTo(dst)<1.8&&kind!=='mystic'&&kind!=='cultist'){
-   const mesh=new THREE.Mesh(shared.slash,material(color(kind)));mesh.position.copy(src.clone().lerp(dst,.65));
-   mesh.rotation.x=Math.PI/2;mesh.rotation.y=Math.atan2(dst.x-src.x,dst.z-src.z);
-   mesh.scale.setScalar(kind==='warden'?1.65:.85);scene.add(mesh);
+   // An upright, contact-localized blade arc, not a horizontal glowing disk.
+   // Aim along the authentic one-cell combat lane and keep the foreground
+   // character unobscured. No extra geometry or unbounded emitters.
+   const mesh=new THREE.Mesh(shared.slash,material(color(kind),.82));
+   mesh.position.copy(src.clone().lerp(dst,.79));mesh.position.y=1.10;
+   mesh.rotation.set(0,Math.atan2(src.z-dst.z,dst.x-src.x),-.15);
+   mesh.scale.setScalar(kind==='warden'?1.20:.74);scene.add(mesh);
    impacts.push({mesh,life:0,duration:.35,mode:'slash'});bursts++;ensureBound();return;
   }
   const mesh=new THREE.Mesh(shared.orb,material(color(kind),.95));mesh.position.copy(src);mesh.scale.setScalar(kind==='warden'?1.8:kind==='mystic'?1.35:1);
@@ -71,8 +72,21 @@ export function createCombatDirector(scene,{reducedMotion=false}={}){
      healingCues=Math.min(1000000,healingCues+1);
      return;
     }
-    const target=closest(s.units,u,u.faction==='party'?'enemy':'party');
-    if(!target&&!(u.kind==='warden'&&u.action==='cast'))return;
+    // Trap utility spells produce no hostile bolt, even with nearby enemies.
+    if(isDisarmCast(u,s)){
+     flashAt(u,'#9fe6b1');
+     disarmCues=Math.min(1000000,disarmCues+1);
+     return;
+    }
+    const aim=planVisualContact(u,s);
+    const target=aim?s.units.find(v=>v.id===aim.targetId):null;
+    // The Warden's authority-backed nova is radial, never a guessed arrow
+    // to the closest living hero. Other hostile cues require a real grid lane.
+    if(!target&&!(u.kind==='warden'&&u.action==='cast')){
+     suppressedUnmatchedCues=Math.min(1000000,suppressedUnmatchedCues+1);
+     return;
+    }
+    if(target)contactLockedCues=Math.min(1000000,contactLockedCues+1);
     const cue={source:{x:u.x,z:u.z,kind:u.kind,action:u.action},target:target?{x:target.x,z:target.z}:null,age:0,
      delay:combatCueDelay(u.kind,u.action,reducedMotion)};
     if(cue.delay===0){releaseCue(cue);return;}
@@ -140,5 +154,5 @@ export function createCombatDirector(scene,{reducedMotion=false}={}){
   for(const p of projectiles)cleanup(p);for(const p of impacts)cleanup(p);
   projectiles.length=impacts.length=pendingCues.length=0;previous.clear();
  }
- return{accept,animate,reset,stats:()=>({activeProjectiles:projectiles.length,activeImpacts:impacts.length,pendingCues:pendingCues.length,healingCues:healingCues,releasedCues:releasedCues,droppedCues:droppedCues,activeGroundRings:impacts.filter(e=>e.mode==='ring').length,activeHitFlashes:impacts.filter(e=>e.mode==='spark').length,totalShots:shots,totalBursts:bursts}),dispose(){reset();for(const geometry of Object.values(shared))geometry.dispose()}};
+ return{accept,animate,reset,stats:()=>({activeProjectiles:projectiles.length,activeImpacts:impacts.length,pendingCues:pendingCues.length,healingCues:healingCues,disarmCues:disarmCues,contactLockedCues:contactLockedCues,suppressedUnmatchedCues:suppressedUnmatchedCues,releasedCues:releasedCues,droppedCues:droppedCues,activeGroundRings:impacts.filter(e=>e.mode==='ring').length,activeHitFlashes:impacts.filter(e=>e.mode==='spark').length,totalShots:shots,totalBursts:bursts}),dispose(){reset();for(const geometry of Object.values(shared))geometry.dispose()}};
 }
