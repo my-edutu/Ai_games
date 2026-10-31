@@ -810,23 +810,47 @@
     {
       "round": 36,
       "at": "2026-10-31",
-      "commit": null,
-      "status": "TDD FEATURE PUSHED; EXACT-HEAD BROWSER, REPO CI AND VISUAL JUDGEMENT PENDING; DIABLO IV BAR NOT MET",
-      "visualVerdict": "Cloth deformation is a small presentation-only hypothesis; actual matched Chromium frame not yet inspected for this commit. No AAA parity or independent A/B.",
+      "commit": "9c395523c866e8c688fc427cfa98bd7443469a95",
+      "status": "VERIFIED EXACT CODE: 79/79 DUNGEON FOUNDATION, 17/17 PRESENTATION, 55/55 GENUINE CHROMIUM; 24×900 AUTHORITY REPLAY; FULL CATALOGUE CI PENDING; DIABLO IV BAR NOT MET",
+      "visualVerdict": "Inspected real exact-code Chromium desktop, mobile, raw-world screenshots and browser playback. Textured actors stay visible with no gross cape geometry defects; actual cloth-hem movement is asserted in real browser, but subtle at spectator framing and not independently judged as more lifelike. Dark blocky walls and low-detail actors still dominate. Diablo IV quality bar NOT MET; no blind A/B.",
       "evidenceMetrics": {
         "newFocusedDeformationTests": 3,
         "shaderChanges": 0,
         "authoritativeChanges": 0,
         "maximumPlannedClothDisplacementMeters": 0.16,
-        "independentBlindComparison": false
+        "independentBlindComparison": false,
+        "localIndependentCritic": false,
+        "newFocusedDeformationTestsPassed": 3,
+        "dungeonFoundationTestsPassed": 79,
+        "presentationTestsPassed": 17,
+        "dedicatedChromiumTestsPassed": 55,
+        "dedicatedChromiumTestsFailed": 0,
+        "sampleSeeds": 24,
+        "ticksPerSeed": 900,
+        "determinismFailures": 0,
+        "highestFloor": 9,
+        "realBrowserDrapeMetricLowerBound": 0.005,
+        "realBrowserDrapeMetricUpperBound": 0.19,
+        "mobileWebGLScreenshotReviewed": true
       },
       "verification": {
-        "freshBrowserRun": null,
-        "freshRepoCI": null,
+        "exactCodeSha": "9c395523c866e8c688fc427cfa98bd7443469a95",
+        "realBrowserRun": 41217522937,
+        "visualReviewRun": 41217522922,
+        "realDrapeArtifact": 13048709176,
+        "visualScreenshotsArtifact": 13048484151,
+        "headlessArtifact": 13048887364,
+        "globalCIRun": 41217522923,
+        "globalCIStatus": "in progress at evidence commit",
         "independentReview": false,
         "productionReady": false
       },
-      "nextLargestGap": "True high-detail rigged character meshes with contact-aligned weapon animation and material richness; still requires real multi-seed camera/screenshot critique and GPU percentile/soak."
+      "nextLargestGap": "True high-detail rigged character meshes with contact-aligned weapon animation and material richness; still requires real multi-seed camera/screenshot critique and GPU percentile/soak.",
+      "sampleSeeds": 24,
+      "ticksPerSeed": 900,
+      "highestFloor": 9,
+      "determinismFailures": 0,
+      "artifactUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41217522937/artifacts/13048709176"
     }
   ]
 }
