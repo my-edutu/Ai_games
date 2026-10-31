@@ -2966,9 +2966,16 @@ const visiblePeople=grown?people.slice().sort((a,b)=>{
   bd=Math.hypot(b.x-focusPoint[0],b.z-focusPoint[1]);
  return ad-bd||people.indexOf(a)-people.indexOf(b);
 }):people;
-for(const p of visiblePeople){
- const begin=data.length;villager(p);
- if(grown&&(scenicMeshCache.length+data.length)/30>159700){
+for(let index=0;index<visiblePeople.length;index++){
+ const p=visiblePeople[index],begin=data.length;
+ villager(p);
+ // G064b real day-120 GPU review: checking only the current citizen spent
+ // the entire budget before remaining background citizens were appended.
+ // Reserve measured upper bounds for each future proxy and for weather VFX.
+ const remainingProxyReserve=(visiblePeople.length-index-1)*155;
+ const weatherReserve=512;
+ if(grown&&(scenicMeshCache.length+data.length)/30+
+   remainingProxyReserve+weatherReserve>=160000){
   data.length=begin;budgetVillager(p);
   growthLodStats.proxyCitizens++;
   growthLodStats.proxyTriangles+=(data.length-begin)/30;
