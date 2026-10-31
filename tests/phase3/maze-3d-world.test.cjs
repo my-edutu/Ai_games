@@ -66,3 +66,39 @@ test('successive real runs retain only disclosed geometry and fixed shared resou
     assert.equal(world.group.children.length, 0);
   }
 });
+
+
+test('a publicly observed locked gate has an unmistakable seal and an open gate clears the passage', async () => {
+  const { createMazeWorld } = await modulePromise;
+  const world = createMazeWorld({balanced: true});
+  const cells = [{cell: 24, neighbors: [25]}, {cell: 25, neighbors: [24]}];
+  const door = {id: 'public-gate', a: 24, b: 25, open: false, requiredKeyId: 'observed-key'};
+  const closed = {...fixture(cells), doors: [door]};
+  const original = JSON.stringify(closed);
+  const initialBudget = world.stats();
+  world.update(closed);
+  const barrier = world.group.getObjectByName('Disclosed sealed gate');
+  assert.ok(barrier, 'a disclosed closed door must have a modeled blockage');
+  const bars = barrier.getObjectByName('Withdrawable gate bars');
+  const seal = barrier.getObjectByName('Closed crossed barrier');
+  assert.equal(bars.visible, true);
+  assert.equal(seal.children.length, 2, 'two crossing braces should read as a closed gate from the follow camera');
+  assert.ok(seal.children.every(child => child.isMesh && child.visible));
+
+  world.update({...closed, doors: [{...door, open: true}]});
+  assert.equal(world.group.getObjectByName('Disclosed sealed gate'), undefined);
+  const opened = world.group.getObjectByName('Disclosed open gate');
+  assert.ok(opened, 'opened doors preserve their architectural frame');
+  assert.equal(opened.getObjectByName('Withdrawable gate bars').visible, false);
+  assert.equal(opened.getObjectByName('Closed crossed barrier'), undefined,
+    'the warning obstruction must disappear when authority reports the gate open');
+
+  world.update({...closed, cells: [{cell: 26, neighbors: []}]});
+  assert.equal(world.group.getObjectByName('Disclosed sealed gate'), undefined,
+    'a door that is absent from public knowledge cannot gain a world-space marker');
+  const finalBudget = world.stats();
+  assert.equal(finalBudget.geometryCount, initialBudget.geometryCount);
+  assert.equal(finalBudget.materialCount, initialBudget.materialCount);
+  assert.equal(JSON.stringify(closed), original, 'presentation must never mutate public state');
+  world.dispose();
+});
