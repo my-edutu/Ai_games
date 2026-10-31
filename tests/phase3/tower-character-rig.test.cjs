@@ -399,3 +399,23 @@ test('enemy telegraph, firing and defeat poses remain distinct and reset for act
     }
   }
 });
+
+
+test('guardian crouches its rendered crown below the upper cap and restores full-height profile in open air', async t => {
+  const [api, THREE] = await loadCharacters();
+  const model = api.createEnemy('guardian'); t.after(() => model.dispose());
+  model.group.scale.setScalar(3.6 / 5.6);
+  const head = joint(model, 'armored-head');
+  const enclosed = Object.freeze({ ...standing, halfHeight: 18000, canopyClearance: 3.28 });
+  const open = Object.freeze({ ...enclosed, canopyClearance: Infinity });
+  for (const reducedMotion of [true, false]) {
+    const options = Object.freeze({ reducedMotion });
+    for (let frame = 0; frame < 45; frame++) model.animate(enclosed, 1 / 60, frame / 60, options);
+    const crown = posedRegion(model, 'armored-head', THREE, () => true);
+    const highest = Math.max(...crown.map(point => point.y));
+    assert.ok(highest < 3.25, 'the guardian skinned crest must clear the 3.28-unit visible cap underside: ' + highest);
+    assert.ok(head.position.y < 2.04, 'the head has visibly crouched without moving the authoritative root');
+    for (let frame = 0; frame < 45; frame++) model.animate(open, 1 / 60, frame / 60, options);
+    assert.ok(Math.abs(head.position.y - 2.27) < .002, 'guardian opens its original tall silhouette away from the cap');
+  }
+});

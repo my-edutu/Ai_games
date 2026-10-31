@@ -212,3 +212,21 @@ test('the nearby guardian face is not buried inside the upper cap beam', async (
     }
   } finally { world.dispose(); }
 });
+
+
+test('active guardian has a finite overhead cap clearance only inside its true horizontal span', async () => {
+  const { context } = await loaded;
+  const frame = snapshot({ floor: 8, theme: 'clockwork',
+    platforms: [{ id: 'f8:cap', kind: 'oneway', x: 115200, y: 332000, width: 249600, height: 12000 }],
+    enemies: [{ id: 'f8:guardian', kind: 'guardian', x: 149387, y: 328000,
+      halfWidth: 16000, halfHeight: 18000, active: true }],
+  });
+  const before = JSON.stringify(frame), enemy = frame.enemies[0];
+  const clearance = context.guardianCanopyClearance(frame, enemy);
+  assert.ok(clearance > 3.1 && clearance < 3.34, 'one-way cap clearance includes the real visible underside, not just its collision top');
+  assert.equal(context.guardianCanopyClearance({ ...frame, platforms: [] }, enemy), Infinity);
+  assert.equal(context.guardianCanopyClearance(frame, { ...enemy, kind: 'sentinel' }), Infinity);
+  assert.equal(context.guardianCanopyClearance(frame, { ...enemy, active: false }), Infinity);
+  assert.equal(context.guardianCanopyClearance(frame, { ...enemy, x: 400000 }), Infinity);
+  assert.equal(JSON.stringify(frame), before, 'the presentation rule never mutates authoritative facts');
+});
