@@ -162,6 +162,12 @@ test('Pip turns the actual presenting glove toward either public lock bearing an
     const pip = createExplorer({balanced});
     const arm = pip.group.getObjectByName('shoulder -1');
     const key = pip.group.getObjectByName('presented matching key');
+    const head = pip.group.getObjectByName('curious head');
+    const {Vector3} = await import(three);
+    const keyHeightFromHead = () => {
+      pip.group.updateMatrixWorld(true);
+      return key.getWorldPosition(new Vector3()).y - head.getWorldPosition(new Vector3()).y;
+    };
     // The gate is already disclosed and its exact key already carried when
     // the presentation adapter supplies these values. This unit test checks
     // articulation only; the pure public-state selector has separate tests.
@@ -169,10 +175,12 @@ test('Pip turns the actual presenting glove toward either public lock bearing an
     assert.equal(key.visible, true);
     assert.ok(arm.rotation.y > .75, 'the left glove aims toward a right-hand lock');
     assert.ok(arm.rotation.z > 0, 'the arm reaches across the chest instead of hanging below the key');
+    assert.ok(keyHeightFromHead() > -.12, 'rightward key bearing retains the existing helmet-height silhouette');
     const rightwardYaw = arm.rotation.y;
     pip.update({heading: 0, keyHeading: -Math.PI / 2, keyStrength: 1, reducedMotion: true});
     assert.ok(arm.rotation.y < -.75, 'the left glove also aims toward a left-hand lock');
     assert.ok(arm.rotation.z < -.25, 'the arm reaches outward toward that side');
+    assert.ok(keyHeightFromHead() > -.12, 'leftward key bearing must not drop the real prop below the helmet');
     pip.update({heading: 0, keyHeading: Math.PI / 2, keyStrength: .4, reducedMotion: true});
     assert.ok(arm.rotation.y > 0 && arm.rotation.y < rightwardYaw,
       'weaker real proximity creates a proportionately smaller presentation');
