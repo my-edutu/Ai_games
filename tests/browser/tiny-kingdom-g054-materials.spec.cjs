@@ -28,12 +28,14 @@ test('G054 material relief is compiled, render-only, bounded and preserves the w
   return {materials,mesh,liveFragment,hasGPU:!!gl,
    authorityUnchanged:before===JSON.stringify(game.exportSnapshot())};
  });
- expect(evidence.materials.surfaceShaderVersion).toBe('procedural-054');
+ expect(evidence.materials.surfaceShaderVersion).toBe('procedural-057');
+ expect(evidence.materials.materials).toContain('PLASTER');
  expect(evidence.materials.vertexStride).toBe(10);
  if(evidence.hasGPU){
   expect(evidence.liveFragment).toContain('G054 terrain relief');
   expect(evidence.liveFragment).toContain('G054 dressed stone');
   expect(evidence.liveFragment).toContain('G054 roof tiling');
+  expect(evidence.liveFragment).toContain('G057: limewashed Tudor plaster');
  }
  expect(evidence.mesh.totalTriangles).toBeLessThan(160000);
  for(const part of [evidence.mesh.static,evidence.mesh.dynamic]){
