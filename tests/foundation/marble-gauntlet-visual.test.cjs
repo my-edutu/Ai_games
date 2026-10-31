@@ -397,7 +397,7 @@ test('Gauntlet 48 camera opens the actual stadium instead of occluding the live 
     'Only the FAR grandstand wall belongs in the camera-facing picture',
     'for(const end of [-1])',
     "shell.dataset.cameraPitch='stadium-broadcast'",
-    'const distance=Math.max(15.0,width*0.90,depth*1.03)',
+    'const distance=Math.max(13.0,width*0.80,packDepth*1.35+7.2)',
     'shell.dataset.cameraFraming',
   ]) assert.ok(renderer.includes(fragment),'missing low-angle stadium camera improvement: '+fragment);
   assert.ok(index.includes('id="mobile-standings-toggle"'));
