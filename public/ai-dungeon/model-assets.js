@@ -4,7 +4,7 @@ import {clone as cloneSkeleton} from '/dungeon/vendor/addons/utils/SkeletonUtils
 import {planAuthoredMotion} from '/dungeon/character-motion-plan.js';
 import {planWardenRegalia} from '/dungeon/warden-regalia-plan.js';
 import {planRoleSilhouette} from '/dungeon/role-silhouette-plan.js';
-import {rigWeaponParts,selectHandBone} from '/dungeon/rig-attachment-plan.js';
+import {rigWeaponParts,selectHandBone,rigGripAnchor,boundedGripOffset} from '/dungeon/rig-attachment-plan.js';
 
 // Optional locally vendored CC0 characters. Offline / missing-asset fallback is the
 // fully autonomous procedural 3D rig, not a blank screen. No third-party runtime calls.
@@ -193,7 +193,29 @@ function bindRigWeaponAccessories(actor){
  if(parts.some(part=>!part?.isMesh))return;
  actor.visualPivot.updateWorldMatrix(true,true);
  actor.assetRoot.updateWorldMatrix(true,true);
- for(const mesh of parts)handBone.attach(mesh);
+ const anchor=rigGripAnchor(actor.u.kind);
+ const gripPosition=anchor&&actor.visualPivot.localToWorld(new THREE.Vector3(anchor.x,anchor.y,anchor.z));
+ const handPosition=handBone.getWorldPosition(new THREE.Vector3());
+ const delta=gripPosition&&handPosition.sub(gripPosition);
+ const shift=delta&&boundedGripOffset(delta.x,delta.y,delta.z);
+ if(shift!==null&&shift!==undefined){
+  // Preserve the full original bow/staff assembly around its known contact
+  // point. Reparent it as ONE object: no splitting curved limbs/string/gems.
+  // The hand bone becomes the grip origin, while the captured rest-pose
+  // orientation is retained relative to that bone's authored animation.
+  const mount=new THREE.Group();mount.name='Original '+actor.u.kind+' hand grip';
+  mount.position.set(anchor.x,anchor.y,anchor.z);
+  costume.add(mount);
+  costume.updateWorldMatrix(true,true);
+  for(const mesh of parts)mount.attach(mesh);
+  handBone.attach(mount);
+  mount.position.set(0,0,0);
+  actor.rigGripAligned=true;
+  actor.rigGripShiftMeters=Number(shift.toFixed(4));
+ }else{
+  // Unrecognised or distant hand joints retain R27's safe animated binding.
+  for(const mesh of parts)handBone.attach(mesh);
+ }
  actor.rigBoundAccessoryParts=parts.length;
  actor.rigHandBoneName=handBone.name;
 }
@@ -216,7 +238,7 @@ function attachCharacter(actor){
    instance.position.set(-center.x*sourceScale,-bounds.min.y*sourceScale,-center.z*sourceScale);
   }
   const pivot=new THREE.Group();actor.root.add(pivot);pivot.add(instance);
-  actor.visualPivot=pivot;actor.motionPeak=0;actor.assetRoot=instance;actor.assetMaterials=owned;actor.assetGeometries=[];actor.regaliaParts=0;actor.roleSilhouetteParts=0;actor.rigBoundAccessoryParts=0;actor.rigHandBoneName=null;
+  actor.visualPivot=pivot;actor.motionPeak=0;actor.assetRoot=instance;actor.assetMaterials=owned;actor.assetGeometries=[];actor.regaliaParts=0;actor.roleSilhouetteParts=0;actor.rigBoundAccessoryParts=0;actor.rigHandBoneName=null;actor.rigGripAligned=false;actor.rigGripShiftMeters=0;
   actor.body.visible=false;actor.authored=true;actor.mixer=new THREE.AnimationMixer(instance);
   actor.availableClips=gltf.animations||[];actor.currentAction='';actor.currentActionTick=null;
   actor.textureReadiness=textureReadiness.get(gltf);
@@ -268,7 +290,7 @@ function disposeActorAsset(actor){
  else if(actor.assetRoot){actor.root.remove(actor.assetRoot)}
  for(const m of actor.assetMaterials||[])m.dispose();
  for(const g of actor.assetGeometries||[])g.dispose();
- actor.mixer=null;actor.assetRoot=null;actor.visualPivot=null;actor.motionPeak=0;actor.assetMaterials=[];actor.assetGeometries=[];actor.regaliaParts=0;actor.roleSilhouetteParts=0;actor.rigBoundAccessoryParts=0;actor.rigHandBoneName=null;actor.authored=false;actor.textureReadiness=null;
+ actor.mixer=null;actor.assetRoot=null;actor.visualPivot=null;actor.motionPeak=0;actor.assetMaterials=[];actor.assetGeometries=[];actor.regaliaParts=0;actor.roleSilhouetteParts=0;actor.rigBoundAccessoryParts=0;actor.rigHandBoneName=null;actor.rigGripAligned=false;actor.rigGripShiftMeters=0;actor.authored=false;actor.textureReadiness=null;
 }
 function putEnvironment(world,sceneKey,map){
  // Authored GLB masonry and prop dressing complements the instanced procedural
@@ -305,6 +327,6 @@ function putEnvironment(world,sceneKey,map){
 }
 function stats(actors){
  const all=[...actors.values()],authored=all.filter(a=>a.authored);
- return{authoredBosses:authored.filter(a=>a.u.kind==='warden').length,bossRegaliaParts:all.reduce((n,a)=>n+(a.regaliaParts||0),0),roleSilhouetteActors:authored.filter(a=>(a.roleSilhouetteParts||0)>0).length,roleSilhouetteParts:all.reduce((n,a)=>n+(a.roleSilhouetteParts||0),0),rigBoundAccessoryActors:authored.filter(a=>(a.rigBoundAccessoryParts||0)>0).length,rigBoundAccessoryParts:all.reduce((n,a)=>n+(a.rigBoundAccessoryParts||0),0),rigHandBoneNames:authored.filter(a=>a.rigHandBoneName).map(a=>a.rigHandBoneName).slice(0,8),authoredCharacters:authored.length,proceduralFallbacks:all.length-authored.length,uniqueAssets:cache.size,missingAssets:failures.size,incompleteAssets:incompleteAssets.size,texturedCharacters:authored.filter(a=>a.textureReadiness?.decodedColorMaps>0).length,decodedColorMaps:authored.reduce((n,a)=>n+(a.textureReadiness?.decodedColorMaps||0),0)};
+ return{authoredBosses:authored.filter(a=>a.u.kind==='warden').length,bossRegaliaParts:all.reduce((n,a)=>n+(a.regaliaParts||0),0),roleSilhouetteActors:authored.filter(a=>(a.roleSilhouetteParts||0)>0).length,roleSilhouetteParts:all.reduce((n,a)=>n+(a.roleSilhouetteParts||0),0),rigBoundAccessoryActors:authored.filter(a=>(a.rigBoundAccessoryParts||0)>0).length,rigBoundAccessoryParts:all.reduce((n,a)=>n+(a.rigBoundAccessoryParts||0),0),rigGripAlignedActors:authored.filter(a=>a.rigGripAligned).length,rigGripMaxShiftMeters:Math.max(0,...authored.map(a=>a.rigGripShiftMeters||0)),rigHandBoneNames:authored.filter(a=>a.rigHandBoneName).map(a=>a.rigHandBoneName).slice(0,8),authoredCharacters:authored.length,proceduralFallbacks:all.length-authored.length,uniqueAssets:cache.size,missingAssets:failures.size,incompleteAssets:incompleteAssets.size,texturedCharacters:authored.filter(a=>a.textureReadiness?.decodedColorMaps>0).length,decodedColorMaps:authored.reduce((n,a)=>n+(a.textureReadiness?.decodedColorMaps||0),0)};
 }
 export {attachCharacter,updateActor,disposeActorAsset,putEnvironment,stats};

@@ -8,6 +8,21 @@ const ROLE_WEAPONS=Object.freeze({
  mystic:Object.freeze(['staff-shaft','staff-crescent','staff-heart'])
 });
 const EMPTY=Object.freeze([]);
+// Original prop coordinates in the external normalized 1.82m visual pivot.
+// Each marks the hand-contact point, not an actor position or collision point.
+const GRIP_ANCHORS=Object.freeze({
+ ranger:Object.freeze({x:.43,y:1.18,z:.37}),
+ mystic:Object.freeze({x:.53,y:1.12,z:.39})
+});
+export function rigGripAnchor(kind){
+ return typeof kind==='string'&&Object.hasOwn(GRIP_ANCHORS,kind)?GRIP_ANCHORS[kind]:null;
+}
+/** Return a safe world-space correction length, or null for bad/misaligned rigs. */
+export function boundedGripOffset(dx,dy,dz,max=.72){
+ if(![dx,dy,dz,max].every(Number.isFinite)||max<=0||max>.72)return null;
+ const distance=Math.hypot(dx,dy,dz);
+ return Number.isFinite(distance)&&distance<=max?distance:null;
+}
 export function rigWeaponParts(kind){
  return typeof kind==='string'&&Object.hasOwn(ROLE_WEAPONS,kind)?ROLE_WEAPONS[kind]:EMPTY;
 }
