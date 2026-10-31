@@ -1,0 +1,12 @@
+{
+  "focusedPassed": 35,
+  "focusedFailed": 0,
+  "browserPassed": 54,
+  "cataloguePassed": 503,
+  "catalogueFailed": 0,
+  "sourceSha256": "42e1dc44ab68c1fafefc31365aca0d1c563b5a4bde52a4df75595063978324d9",
+  "runId": "41167708396",
+  "independentCritic": false,
+  "benchmarkPassed": false,
+  "productionReady": false
+}

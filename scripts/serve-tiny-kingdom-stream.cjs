@@ -13,6 +13,10 @@ const ROOT=path.resolve(__dirname,'..','public','tiny-kingdom');
 const FILES=new Map([
  ['/tiny','index.html'],['/tiny/','index.html'],['/tiny/index.html','index.html'],
  ['/tiny/progress','progress.html'],['/tiny/progress.html','progress.html'],
+ ['/tiny/living','living.html'],['/tiny/living.html','living.html'],
+ ...['baseline-village.png','baseline-woodland.png','baseline-manifest.json','living-village.png','living-woodland.png',
+ 'living-citizen-0.png','living-citizen-1.png','living-citizen-2.png','living-citizen-3.png','living-citizen-4.png','living-citizen-5.png',
+ 'living-mobile.png','living-night.png','living-live.webm','living-manifest.json','living-verification.json'].map(name=>['/tiny/'+name,name]),
  ['/tiny/hd','hd.html'],['/tiny/hd.html','hd.html'],
  ...['hd-before.png','hd-village.png','hd-market.png','hd-dusk.png','hd-night.png','hd-mobile.png','hd-live.webm','hd-manifest.json','hd-verification.json'].map(name=>['/tiny/'+name,name]),
  ['/tiny/recovery','recovery.html'],['/tiny/recovery.html','recovery.html'],

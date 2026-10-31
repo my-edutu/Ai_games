@@ -1,0 +1,138 @@
+{
+  "label": "baseline",
+  "capturedAt": "2026-10-31T04:26:53.276Z",
+  "sourceSha256": "b729a47541cf68509420bb685a9bdff4045f5a4461767d80f42b90a2d194d4e5",
+  "captures": [
+    {
+      "name": "village",
+      "camera": {
+        "focus": [
+          0,
+          3
+        ],
+        "zoom": 30,
+        "pitch": 0.68,
+        "yaw": 2.65
+      },
+      "hud": "full",
+      "file": "baseline-village.png",
+      "time": 12,
+      "resolution": [
+        1920,
+        1080
+      ]
+    },
+    {
+      "name": "woodland",
+      "camera": {
+        "focus": [
+          -25,
+          9
+        ],
+        "zoom": 17,
+        "pitch": 0.52,
+        "yaw": 1.02
+      },
+      "hud": "cinema",
+      "file": "baseline-woodland.png",
+      "time": 12,
+      "resolution": [
+        1920,
+        1080
+      ]
+    }
+  ],
+  "errors": [],
+  "benchmarkPassed": false,
+  "independentCritic": false,
+  "renderer": {
+    "tier": "software-webgl",
+    "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+    "scale": 1,
+    "targetFps": 12,
+    "framesDrawn": 2,
+    "framesSkipped": 0
+  },
+  "geometry": {
+    "static": {
+      "floats": 2384550,
+      "vertices": 238455,
+      "triangles": 79485,
+      "aligned": true,
+      "invalidComponents": 0,
+      "invalidNormals": 0,
+      "invalidColors": 0,
+      "outOfBounds": 0
+    },
+    "dynamic": {
+      "floats": 1052340,
+      "vertices": 105234,
+      "triangles": 35078,
+      "aligned": true,
+      "invalidComponents": 0,
+      "invalidNormals": 0,
+      "invalidColors": 0,
+      "outOfBounds": 0
+    },
+    "totalTriangles": 114563
+  },
+  "foliage": null,
+  "presentation": null,
+  "meshBenchmark": {
+    "samplesMs": [
+      36.59999999997672,
+      28.400000000023283,
+      28.599999999976717,
+      28.800000000046566,
+      28.099999999976717,
+      29.79999999993015,
+      28,
+      29.300000000046566,
+      28.400000000023283,
+      27,
+      28.29999999993015,
+      28.400000000023283,
+      27,
+      28.599999999976717,
+      28.400000000023283,
+      27,
+      28.20000000006985,
+      28.79999999993015,
+      26.800000000046566,
+      28.699999999953434,
+      26.900000000023283,
+      28.300000000046566,
+      28.5,
+      26.79999999993015
+    ],
+    "warmup": 4,
+    "p50": 28.300000000046566,
+    "p95": 29.79999999993015,
+    "citizens": 12,
+    "trianglesPerBatch": 23972
+  },
+  "live": {
+    "begin": {
+      "clock": 1902.2000000000698,
+      "frames": 11,
+      "time": 8.599999999999994
+    },
+    "end": {
+      "clock": 9908.100000000093,
+      "frames": 22,
+      "time": 11.066666666666652
+    },
+    "elapsedMs": 8005.900000000023,
+    "observedFps": 1.3739866848199414,
+    "renderer": {
+      "tier": "software-webgl",
+      "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+      "scale": 0.8,
+      "targetFps": 12,
+      "framesDrawn": 22,
+      "framesSkipped": 14
+    },
+    "note": "Actual eight-second observation at 1280x720 Balanced, same camera for baseline and candidate. Software WebGL is not hardware performance.",
+    "video": "baseline-live.webm"
+  }
+}

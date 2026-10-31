@@ -1,0 +1,597 @@
+{
+  "label": "living",
+  "capturedAt": "2026-10-31T04:27:13.577Z",
+  "sourceSha256": "42e1dc44ab68c1fafefc31365aca0d1c563b5a4bde52a4df75595063978324d9",
+  "captures": [
+    {
+      "name": "village",
+      "camera": {
+        "focus": [
+          0,
+          3
+        ],
+        "zoom": 30,
+        "pitch": 0.68,
+        "yaw": 2.65
+      },
+      "hud": "full",
+      "file": "living-village.png",
+      "time": 12,
+      "resolution": [
+        1920,
+        1080
+      ]
+    },
+    {
+      "name": "woodland",
+      "camera": {
+        "focus": [
+          -25,
+          9
+        ],
+        "zoom": 17,
+        "pitch": 0.52,
+        "yaw": 1.02
+      },
+      "hud": "cinema",
+      "file": "living-woodland.png",
+      "time": 12,
+      "resolution": [
+        1920,
+        1080
+      ]
+    },
+    {
+      "file": "living-citizen-0.png",
+      "inspection": {
+        "active": true,
+        "index": 0,
+        "name": "Alina",
+        "distance": 4.8,
+        "eye": [
+          -5.219999299581654,
+          2.0707157039777626,
+          1.106550417087517
+        ],
+        "blocked": false
+      }
+    },
+    {
+      "file": "living-citizen-1.png",
+      "inspection": {
+        "active": true,
+        "index": 1,
+        "name": "Rowan",
+        "distance": 4.8,
+        "eye": [
+          -5.100407760465014,
+          2.059274226392048,
+          2.538120149219666
+        ],
+        "blocked": false
+      }
+    },
+    {
+      "file": "living-citizen-2.png",
+      "inspection": {
+        "active": true,
+        "index": 2,
+        "name": "Edric",
+        "distance": 4.8,
+        "eye": [
+          4.329273009516491,
+          2.1886105809685543,
+          -1.6819147156534227
+        ],
+        "blocked": false
+      }
+    },
+    {
+      "file": "living-citizen-3.png",
+      "inspection": {
+        "active": true,
+        "index": 3,
+        "name": "Mira",
+        "distance": 4.8,
+        "eye": [
+          -1.9172861497686862,
+          2.1586979828536172,
+          3.192554734839818
+        ],
+        "blocked": false
+      }
+    },
+    {
+      "file": "living-citizen-4.png",
+      "inspection": {
+        "active": true,
+        "index": 4,
+        "name": "Oren",
+        "distance": 4.8,
+        "eye": [
+          -0.7994902931349017,
+          2.1305266637870073,
+          -6.336121720446652
+        ],
+        "blocked": false
+      }
+    },
+    {
+      "file": "living-citizen-5.png",
+      "inspection": {
+        "active": true,
+        "index": 5,
+        "name": "Selene",
+        "distance": 4.8,
+        "eye": [
+          -4.621157138203129,
+          2.016612662463859,
+          0.93485630743871
+        ],
+        "blocked": false
+      }
+    }
+  ],
+  "errors": [],
+  "benchmarkPassed": false,
+  "independentCritic": false,
+  "renderer": {
+    "tier": "software-webgl",
+    "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+    "scale": 1,
+    "targetFps": 12,
+    "framesDrawn": 2,
+    "framesSkipped": 0
+  },
+  "geometry": {
+    "static": {
+      "floats": 3227310,
+      "vertices": 322731,
+      "triangles": 107577,
+      "aligned": true,
+      "invalidComponents": 0,
+      "invalidNormals": 0,
+      "invalidColors": 0,
+      "outOfBounds": 0
+    },
+    "dynamic": {
+      "floats": 863940,
+      "vertices": 86394,
+      "triangles": 28798,
+      "aligned": true,
+      "invalidComponents": 0,
+      "invalidNormals": 0,
+      "invalidColors": 0,
+      "outOfBounds": 0
+    },
+    "totalTriangles": 136375
+  },
+  "foliage": {
+    "supported": true,
+    "textureWidth": 512,
+    "textureHeight": 256,
+    "cards": 3840,
+    "triangles": 7680,
+    "uploads": 1,
+    "draws": 2,
+    "shadowDraws": 1,
+    "invalidComponents": 0,
+    "bytes": 1013760,
+    "source": "original-procedural-leaf-atlas-v1",
+    "alphaTested": true,
+    "error": 0
+  },
+  "presentation": {
+    "forestTrees": 76,
+    "canopyLobes": 1280,
+    "understoryPatches": 137,
+    "forestTriangles": 25996,
+    "rigidBuilds": 12,
+    "rigidHits": 12,
+    "rigidEntries": 12,
+    "rigidBytes": 1951200,
+    "rigidLimit": 32,
+    "topologyEntries": 5
+  },
+  "meshBenchmark": {
+    "samplesMs": [
+      18.400000000023283,
+      18.800000000046566,
+      23.599999999976717,
+      14.699999999953434,
+      17.600000000093132,
+      17.199999999953434,
+      17.300000000046566,
+      14.29999999993015,
+      16.900000000023283,
+      17.199999999953434,
+      17.20000000006985,
+      14.199999999953434,
+      17.300000000046566,
+      17.199999999953434,
+      17.300000000046566,
+      14.199999999953434,
+      17.099999999976717,
+      17.5,
+      17.5,
+      14.100000000093132,
+      17.29999999993015,
+      17.20000000006985,
+      17.29999999993015,
+      14.400000000023283
+    ],
+    "warmup": 4,
+    "p50": 17.20000000006985,
+    "p95": 17.600000000093132,
+    "citizens": 12,
+    "trianglesPerBatch": 26852
+  },
+  "mobile": {
+    "width": 390,
+    "scrollWidth": 390,
+    "inspection": {
+      "active": true,
+      "index": 0,
+      "name": "Alina",
+      "distance": 4.8,
+      "eye": [
+        -5.219999299581654,
+        2.0707157039777626,
+        1.106550417087517
+      ],
+      "blocked": false
+    }
+  },
+  "live": {
+    "begin": {
+      "clock": 1966.8000000000466,
+      "frames": 11,
+      "time": 8.599999999999994
+    },
+    "end": {
+      "clock": 9974.800000000047,
+      "frames": 21,
+      "time": 10.93333333333332
+    },
+    "elapsedMs": 8008,
+    "observedFps": 1.2487512487512487,
+    "renderer": {
+      "tier": "software-webgl",
+      "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+      "scale": 0.8,
+      "targetFps": 12,
+      "framesDrawn": 21,
+      "framesSkipped": 21
+    },
+    "note": "Actual eight-second observation at 1280x720 Balanced, same camera for baseline and candidate. Software WebGL is not hardware performance.",
+    "video": "living-live.webm"
+  },
+  "workPreroll": {
+    "ticks": 1186,
+    "time": 46.53333333333327,
+    "position": {
+      "name": "Alina",
+      "position": [
+        18.094963210577813,
+        2.1686597560386787
+      ],
+      "target": [
+        17.97726762969978,
+        1.9197866113390774
+      ],
+      "remaining": 1,
+      "path": [
+        [
+          17.97726762969978,
+          1.9197866113390774
+        ]
+      ],
+      "activity": "Traveling to farmer work",
+      "hunger": 14.31932093286807,
+      "energy": 86.13018762983711
+    },
+    "note": "Deterministic simulation pre-roll to just before real arrival; no citizen teleport. Live clip then runs at the existing 4x speed."
+  },
+  "citizenSequence": [
+    {
+      "time": 47.49999999999988,
+      "activity": "Harvesting grain",
+      "inspection": {
+        "active": true,
+        "index": 0,
+        "name": "Alina",
+        "distance": 4.8,
+        "eye": [
+          14.74794633882459,
+          2.163614931918061,
+          -1.160233144052567
+        ],
+        "blocked": false
+      },
+      "resources": {
+        "citizens": 12,
+        "buildings": 17,
+        "day": 2,
+        "food": 197.8143999999837,
+        "wood": 26.900000000000016,
+        "gold": 46.300000000000054,
+        "relationships": 5
+      }
+    },
+    {
+      "time": 48.46666666666649,
+      "activity": "Harvesting grain",
+      "inspection": {
+        "active": true,
+        "index": 0,
+        "name": "Alina",
+        "distance": 4.8,
+        "eye": [
+          14.74794633882459,
+          2.163614931918061,
+          -1.160233144052567
+        ],
+        "blocked": false
+      },
+      "resources": {
+        "citizens": 12,
+        "buildings": 17,
+        "day": 3,
+        "food": 197.5287999999833,
+        "wood": 28.30000000000002,
+        "gold": 47.95000000000006,
+        "relationships": 5
+      }
+    },
+    {
+      "time": 49.4333333333331,
+      "activity": "Traveling to farmer work",
+      "inspection": {
+        "active": true,
+        "index": 0,
+        "name": "Alina",
+        "distance": 4.8,
+        "eye": [
+          14.915613307579367,
+          2.1706391779037886,
+          -1.3102757632931712
+        ],
+        "blocked": false
+      },
+      "resources": {
+        "citizens": 12,
+        "buildings": 17,
+        "day": 3,
+        "food": 203.39119999998292,
+        "wood": 28.30000000000002,
+        "gold": 47.95000000000006,
+        "relationships": 5
+      }
+    },
+    {
+      "time": 49.4333333333331,
+      "activity": "Traveling to farmer work",
+      "inspection": {
+        "active": true,
+        "index": 0,
+        "name": "Alina",
+        "distance": 4.8,
+        "eye": [
+          14.915613307579367,
+          2.1706391779037886,
+          -1.3102757632931712
+        ],
+        "blocked": false
+      },
+      "resources": {
+        "citizens": 12,
+        "buildings": 17,
+        "day": 3,
+        "food": 203.39119999998292,
+        "wood": 28.30000000000002,
+        "gold": 47.95000000000006,
+        "relationships": 5
+      }
+    },
+    {
+      "time": 50.399999999999714,
+      "activity": "Harvesting grain",
+      "inspection": {
+        "active": true,
+        "index": 0,
+        "name": "Alina",
+        "distance": 4.8,
+        "eye": [
+          15.269576908283902,
+          2.1868996475798745,
+          -1.6270324039122197
+        ],
+        "blocked": false
+      },
+      "resources": {
+        "citizens": 12,
+        "buildings": 17,
+        "day": 3,
+        "food": 201.60559999998253,
+        "wood": 28.30000000000002,
+        "gold": 50.350000000000065,
+        "relationships": 5
+      }
+    },
+    {
+      "time": 51.366666666666326,
+      "activity": "Harvesting grain",
+      "inspection": {
+        "active": true,
+        "index": 0,
+        "name": "Alina",
+        "distance": 4.8,
+        "eye": [
+          15.269576908283902,
+          2.1868996475798745,
+          -1.6270324039122197
+        ],
+        "blocked": false
+      },
+      "resources": {
+        "citizens": 12,
+        "buildings": 17,
+        "day": 3,
+        "food": 201.41999999998214,
+        "wood": 27.60000000000002,
+        "gold": 50.80000000000007,
+        "relationships": 5
+      }
+    },
+    {
+      "time": 54.29999999999949,
+      "activity": "Traveling to farmer work",
+      "inspection": {
+        "active": true,
+        "index": 0,
+        "name": "Alina",
+        "distance": 4.8,
+        "eye": [
+          14.29202497918305,
+          2.1335717402309324,
+          -2.445578203431767
+        ],
+        "blocked": false
+      },
+      "resources": {
+        "citizens": 12,
+        "buildings": 18,
+        "day": 3,
+        "food": 208.20479999998096,
+        "wood": 3.1000000000000227,
+        "gold": 52.450000000000074,
+        "relationships": 6
+      }
+    },
+    {
+      "time": 56.26666666666605,
+      "activity": "Harvesting grain",
+      "inspection": {
+        "active": true,
+        "index": 0,
+        "name": "Alina",
+        "distance": 4.8,
+        "eye": [
+          14.272857294298717,
+          2.1325890617465455,
+          -2.4616281210694044
+        ],
+        "blocked": false
+      },
+      "resources": {
+        "citizens": 12,
+        "buildings": 18,
+        "day": 3,
+        "food": 209.22719999998017,
+        "wood": 5.200000000000022,
+        "gold": 52.450000000000074,
+        "relationships": 6
+      }
+    },
+    {
+      "time": 59.16666666666588,
+      "activity": "Harvesting grain",
+      "inspection": {
+        "active": true,
+        "index": 0,
+        "name": "Alina",
+        "distance": 4.8,
+        "eye": [
+          14.795760379731473,
+          2.1644519668103572,
+          -1.3538387172362816
+        ],
+        "blocked": false
+      },
+      "resources": {
+        "citizens": 12,
+        "buildings": 18,
+        "day": 3,
+        "food": 216.118399999979,
+        "wood": 13.200000000000022,
+        "gold": 49.80000000000008,
+        "relationships": 6
+      }
+    },
+    {
+      "time": 61.566666666665746,
+      "activity": "Traveling to farmer work",
+      "inspection": {
+        "active": true,
+        "index": 0,
+        "name": "Alina",
+        "distance": 4.8,
+        "eye": [
+          14.408582983143855,
+          2.145227540364526,
+          -1.4543059435921994
+        ],
+        "blocked": false
+      },
+      "resources": {
+        "citizens": 12,
+        "buildings": 18,
+        "day": 3,
+        "food": 221.60559999997804,
+        "wood": 14.600000000000023,
+        "gold": 51.45000000000009,
+        "relationships": 6
+      }
+    },
+    {
+      "time": 63.79999999999895,
+      "activity": "Harvesting grain",
+      "inspection": {
+        "active": true,
+        "index": 0,
+        "name": "Alina",
+        "distance": 4.8,
+        "eye": [
+          13.51323525353499,
+          2.1047376603424586,
+          -1.6866364045402704
+        ],
+        "blocked": false
+      },
+      "resources": {
+        "citizens": 12,
+        "buildings": 18,
+        "day": 3,
+        "food": 222.57679999997714,
+        "wood": 18.100000000000026,
+        "gold": 51.90000000000009,
+        "relationships": 6
+      }
+    },
+    {
+      "time": 66.19999999999882,
+      "activity": "Traveling to farmer work",
+      "inspection": {
+        "active": true,
+        "index": 0,
+        "name": "Alina",
+        "distance": 4.8,
+        "eye": [
+          14.124264409515877,
+          2.1322580079796953,
+          -1.464953363823729
+        ],
+        "blocked": false
+      },
+      "resources": {
+        "citizens": 12,
+        "buildings": 18,
+        "day": 3,
+        "food": 229.56399999997618,
+        "wood": 17.400000000000027,
+        "gold": 52.350000000000094,
+        "relationships": 6
+      }
+    }
+  ]
+}
