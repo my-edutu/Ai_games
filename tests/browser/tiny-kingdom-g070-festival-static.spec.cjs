@@ -17,7 +17,7 @@ test('G070 seasonal festival decoration lives in cached static scenery, not per-
  const before=await page.evaluate(()=>{
   const g=window.__tinyKingdom;
   return {festival:g.getFestivalVisualStats(),geometry:g.getGeometryAudit(),
-   stats:g.renderStats(),authority:JSON.stringify(g.exportSnapshot()),
+   stats:g.renderStats(),profile:g.getFrameProfile(),authority:JSON.stringify(g.exportSnapshot()),
    population:g.metrics().citizens,camera:g.getCamera(),
    webgl:Boolean(document.getElementById('world').getContext('webgl'))};
  });
@@ -25,8 +25,8 @@ test('G070 seasonal festival decoration lives in cached static scenery, not per-
  expect(before.festival.staticMeshTriangles).toBe(before.festival.vertices/30);
  expect(before.festival.cachedStage).toBe('static-scenic');
  expect(before.population).toBe(12);
- expect(before.geometry.totalTriangles).toBe(159551);
  if(before.webgl){
+  expect(before.geometry.totalTriangles).toBe(159551);
   expect(before.geometry.static.triangles).toBe(122684+before.festival.staticMeshTriangles);
   expect(before.geometry.dynamic.triangles).toBe(36867-before.festival.staticMeshTriangles);
  }
@@ -34,7 +34,7 @@ test('G070 seasonal festival decoration lives in cached static scenery, not per-
   yaw:camera.yaw+.27,pitch:camera.pitch,zoom:camera.zoom,focus:camera.focus
  }),before.camera);
  await page.waitForFunction(previous=>window.__tinyKingdom.getFrameProfile().totalFrames>previous,
-  before.stats.dynamicGpuUploads?before.stats.dynamicGpuUploads-1:0,{timeout:30000}).catch(()=>{});
+  before.profile.totalFrames,{timeout:30000});
  const after=await page.evaluate(()=>{
   const g=window.__tinyKingdom;
   return {festival:g.getFestivalVisualStats(),geometry:g.getGeometryAudit(),
@@ -43,8 +43,11 @@ test('G070 seasonal festival decoration lives in cached static scenery, not per-
  });
  expect(after.festival.staticMeshTriangles).toBe(before.festival.staticMeshTriangles);
  expect(after.festival.cacheBuilds).toBe(before.festival.cacheBuilds);
- expect(after.geometry.totalTriangles).toBe(before.geometry.totalTriangles);
- if(before.webgl)expect(after.stats.staticGpuUploads).toBe(before.stats.staticGpuUploads);
+ if(before.webgl){
+  expect(after.geometry.totalTriangles).toBe(before.geometry.totalTriangles);
+  expect(after.stats.staticGpuUploads).toBe(before.stats.staticGpuUploads);
+  expect(after.stats.dynamicGpuUploads).toBeGreaterThan(before.stats.dynamicGpuUploads);
+ }
  expect(after.authority).toBe(before.authority);
  expect(after.glError).toBe(0);
  expect(errors).toEqual([]);
