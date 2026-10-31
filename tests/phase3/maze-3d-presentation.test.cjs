@@ -231,6 +231,12 @@ test('publicNearbySealedGate framing selects only disclosed adjacent sealed obst
   assert.ok(Math.hypot(portrait.x, portrait.z) <= 1.100001, 'portrait framing is more restrained');
   assert.ok(desktop.x > portrait.x,
     'desktop grants visibly more room to discovered terrain than narrow portrait');
+  assert.ok(desktop.x < 2.75 * 1.05 - 2.4 * .23,
+    'previous terrain-heavy shot left the genuine gate and hero at the screen edge');
+  assert.ok(portrait.x < 2.75 * .48 - 2.4 * .24,
+    'portrait must also pull back from the old gate/hero edge-biased framing');
+  assert.ok(desktop.x > 0 && portrait.x > 0,
+    'coastal context is retained rather than replacing it with a gate-only camera');
   const gateOnly = composePublicSealedGateFocus({x: 0, z: 0}, gate, 1.32);
   assert.ok(gateOnly.x < 0, 'a genuine disclosed gate still contributes without a stage bias');
   assert.deepEqual(composePublicSealedGateFocus({x: NaN, z: Infinity}, {x: Infinity, z: NaN}), {x: 0, z: 0});
