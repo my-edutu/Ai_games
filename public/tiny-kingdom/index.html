@@ -2552,7 +2552,11 @@ function render(now){requestAnimationFrame(render);
   canvas.clientWidth,canvas.clientHeight,window.devicePixelRatio||1,
   qualityOverride===null?'auto':qualityOverride
  ].join('|'):null;
- if(staticView&&frozenViewKey===lastFrozenFrameKey){idleFrames++;return}
+ if(staticView&&frozenViewKey===lastFrozenFrameKey){
+  // Keep wall-clock origin fresh while frozen, or resuming falsely advances
+  // up to an entire capped frame of simulation after a long paused interval.
+  timer=now;idleFrames++;return
+ }
  if(!staticView)lastFrozenFrameKey=null;
  const minFrameMs=(swiftGpu||!gpuAvailable)?1000/12:0;
  if(minFrameMs&&frameGateTime&&now-frameGateTime<minFrameMs){framesSkipped++;return}
