@@ -1,0 +1,14 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#172016"><title>Ant Colony · 3D Observatory</title><link rel="stylesheet" href="/ant/colony-3d.css"><script defer src="/ant/colony-3d-core.js"></script><script defer src="/ant/colony-3d-renderer.js"></script><script defer src="/ant/colony-3d-app.js"></script></head>
+<body>
+<main id="observatory">
+  <canvas id="colony-scene" tabindex="0" aria-label="3D colony. Drag to orbit. Use arrow keys to rotate, plus and minus to zoom, or the camera buttons below."></canvas>
+  <header class="masthead"><div><p class="eyebrow">AI GAMES / 12</p><h1>ANT COLONY<span>ECOSYSTEM OBSERVATORY</span></h1></div><div class="live-state"><span id="connection" role="status">Connecting to the colony…</span><span id="environment">Waiting for verified state</span></div></header>
+  <section class="stakes" aria-label="Colony condition"><span id="queen">Queen —</span><span id="food">Food —</span><span id="brood">Brood —</span><span id="danger">Threat —</span></section>
+  <aside id="render-fallback" class="fallback" hidden><p class="eyebrow">3D VIEW INTERRUPTED</p><h2>Your colony is still available.</h2><p id="fallback-message">This device could not start the 3D renderer.</p><a href="/ant">Open the classic colony view</a><button id="retry-view" type="button">Retry this view</button></aside>
+  <section class="objective" aria-label="Run objective"><p class="eyebrow">ECOLOGICAL ASCENSION</p><p class="population"><strong id="population">—</strong><span>ants <small id="target">/ — target</small></span></p><div class="progress" role="progressbar" aria-label="Population goal" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="progress-fill"></span></div><p id="strategy">The autonomous colony is preparing.</p></section>
+  <section class="camera-dock" aria-label="Camera controls"><p id="shot-label">INSIDE THE NEST</p><div class="shots"><button type="button" data-shot="nest" aria-pressed="true">Nest</button><button type="button" data-shot="forest" aria-pressed="false">Forest</button><button type="button" data-shot="world" aria-pressed="false">World</button><button type="button" data-shot="threat" aria-pressed="false">Threat</button></div><div class="tools"><button id="reduce-motion" type="button" aria-pressed="false">Reduce motion</button><button id="fullscreen" type="button">Fullscreen</button><a href="/ant">Classic view</a></div></section>
+  <footer><p id="caption">This view displays confirmed simulation snapshots. Camera controls do not alter the colony.</p><span class="interaction-hint">DRAG TO ORBIT · SCROLL TO EXPLORE</span></footer>
+</main>
+</body></html>

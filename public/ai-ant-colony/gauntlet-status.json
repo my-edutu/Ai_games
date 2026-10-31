@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "updated": "2026-10-31",
+  "benchmarkPassed": false,
+  "reviewMethod": "Author self-review; independent workers unavailable",
+  "summary": "First true-3D presentation increment implemented on top of the existing 2.5D branch. The simulation and classic view are preserved. This is not a completed AAA game or a benchmark victory.",
+  "rounds": [
+    {"date":"2026-10-31","title":"Recover the existing implementation","change":"Created feat/ant-colony-gauntlet-3d from the saved Ant Colony 2.5D rebuild, without changing main or other games.","evidence":"Base commit 84c065b3fb8b59f1686e025f34276221bae4b3b4.","verdict":"Recovered; not a visual pass."},
+    {"date":"2026-10-31","title":"Build the read-only 3D scene","change":"Added articulated caste-specific ants, queen, brood stages, beetle/spider rigs, forest dressing, cutaway terrain, shadows, cameras and responsive HUD.","evidence":"13 Node tests passed, including red-to-green snapshot, geometry and winding regression checks. Local software-WebGL fixtures exercise the real renderer; authoritative runtime and host CSP require separate integration validation.","verdict":"Functional increment; geometry and material fidelity remain below the reference target."},
+    {"date":"2026-10-31","title":"Critique the first capture and revise","change":"Visual inspection exposed flat creature shading. A winding regression test failed, then passed after correcting sphere, leaf and cap faces. Replaced square tunnel-boundary faces with rounded soil forms and preserved camera selection after context restoration.","evidence":"Matched before/after fixture thumbnails above. Self-review is not blind or independent.","verdict":"Improved light response; still NOT PASSED against the commercial reference games."}
+  ],
+  "openGates": [
+    "Fresh independent builder/critic workers and ultracode are unavailable: the connected coding workspace is offline. No worker review is fabricated.",
+    "Freeze and inspect exact benchmark gameplay captures; run equivalent-view blind A/B reviews. No benchmark win has been measured.",
+    "Authored high-detail creature meshes, more natural locomotion and contact animation, richer terrain, vegetation and materials.",
+    "The new 3D view has no integrated soundscape yet. Brood placement is a visual arrangement of public stage counts, not simulated individual positions.",
+    "Run the full repository suite, the real stream-host self-test and real-host Playwright/CSP checks on the published commit.",
+    "Measure peak 360-ant behavior, GPU/frame percentiles, physical mobile devices, context recovery under load and long-session resource stability.",
+    "Main-branch reconciliation remains separate: the preserved 2.5D base has diverged from main. No merge or production deployment performed."
+  ]
+}
