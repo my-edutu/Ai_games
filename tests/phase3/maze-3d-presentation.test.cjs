@@ -242,6 +242,28 @@ test('publicNearbySealedGate framing selects only disclosed adjacent sealed obst
   assert.deepEqual(composePublicSealedGateFocus({x: NaN, z: Infinity}, {x: Infinity, z: NaN}), {x: 0, z: 0});
 });
 
+test('matched-key camera prioritizes the real glove/socket pair without inventing a path or non-finite target', async () => {
+  const {composePublicSealedGateFocus, composePublicKeyLockFocus} = await load();
+  const stage = {x: 2.75, z: -1};
+  const gate = {x: -2.4, z: .5};
+  const before = JSON.stringify({stage,gate});
+  const ordinaryPortrait = composePublicSealedGateFocus(stage, gate, .65);
+  const portrait = composePublicKeyLockFocus(stage, gate, .65);
+  const desktop = composePublicKeyLockFocus(stage, gate, 1.32);
+  assert.ok(portrait.x < ordinaryPortrait.x - .5,
+    'the real key/socket pairing moves away from the old left-edge, terrain-biased shot');
+  assert.ok(Math.hypot(portrait.x, portrait.z) <= 1.500001,
+    'native portrait shift stays bounded so the actor and gate cannot disappear');
+  assert.ok(Math.hypot(desktop.x, desktop.z) <= 2.450001,
+    'desktop stage and actual gate remain inside a finite camera bound');
+  assert.ok(desktop.x < composePublicSealedGateFocus(stage, gate, 1.32).x,
+    'the interaction also earns more center stage on desktop');
+  assert.deepEqual(composePublicKeyLockFocus({x: NaN, z: Infinity}, {x: -Infinity, z: NaN}, .65),
+    {x: 0, z: 0}, 'invalid input cannot corrupt the render camera');
+  assert.equal(JSON.stringify({stage,gate}), before,
+    'camera presentation must not mutate the sanitized public snapshot');
+});
+
 test('key-to-lock gesture is driven only by an already public matching inventory and near sealed gate', async () => {
   const {publicCarriedGateCue} = await load();
   const state = {
