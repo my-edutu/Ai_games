@@ -582,7 +582,7 @@ export function createTowerScene(canvas, settings = {}) {
     const impact = new THREE.Mesh(ringGeometry, impactMaterial);
     impact.name = 'ObservedEnemyImpact'; impact.visible = false; impact.renderOrder = 22;
     scene.add(model.group, bar, warning, impact);
-    const entry = { model, bar, fill, back, warning, impact, initialized: false, x: entity.x, direction: entity.facing || -1, state: entity, deadUntil: 0, fireUntil: 0, impactUntil: 0 };
+    const entry = { model, bar, fill, back, warning, impact, initialized: false, x: entity.x, direction: entity.facing || -1, state: entity, deadUntil: 0, fireUntil: 0, impactUntil: 0, impactFramesRemaining: 0 };
     enemies.set(entity.id, entry);
     return entry;
   }
@@ -599,7 +599,13 @@ export function createTowerScene(canvas, settings = {}) {
       // presentation-only: the host already resolved all authoritative combat.
       if (elapsedTicks > 0 && entry.state.active
         && Number.isFinite(entity.health) && Number.isFinite(entry.state.health)
-        && entity.health < entry.state.health) entry.impactUntil = elapsed + .6;
+        && entity.health < entry.state.health) {
+        entry.impactUntil = elapsed + .6;
+        // Real software GL can take seconds between render submissions. Keep
+        // three attempted frames, then retire after ordinary 600ms on devices
+        // that can actually display that many frames in time.
+        entry.impactFramesRemaining = 3;
+      }
       if (entity.active && entity.attackCooldown > (entry.state.attackCooldown ?? entity.attackCooldown)) entry.fireUntil = elapsed + .2;
       const delta = entity.x - entry.x;
       if (entity.facing) entry.direction = entity.facing;
@@ -733,7 +739,8 @@ export function createTowerScene(canvas, settings = {}) {
       entry.warning.position.copy(model.position); entry.warning.position.y += .08;
       entry.warning.visible = e.active && e.telegraph;
       const impact = entry.impact;
-      impact.visible = (e.active || elapsed < entry.deadUntil) && elapsed < entry.impactUntil;
+      impact.visible = (e.active || elapsed < entry.deadUntil)
+        && (elapsed < entry.impactUntil || entry.impactFramesRemaining > 0);
       if (impact.visible) {
         impact.position.copy(model.position);
         impact.position.y += e.halfHeight * 2 / SCALE * .62;
@@ -802,6 +809,12 @@ export function createTowerScene(canvas, settings = {}) {
     elapsed += motionDt;
     try {
       update(motionDt); renderer.render(scene, camera);
+      // Count a contact frame only after Three has submitted it. Delayed
+      // software rendering must not consume an unseen cue on elapsed time
+      // alone; submissions are NOT proof of displayed hardware FPS.
+      for (const entry of enemies.values()) {
+        if (entry.impact.visible && entry.impactFramesRemaining > 0) entry.impactFramesRemaining--;
+      }
       renderProgress.submitted(snapshot, performance.now());
     } catch (error) {
       renderErrors++; options.onStatus?.('The 3D view is recovering', 'error');

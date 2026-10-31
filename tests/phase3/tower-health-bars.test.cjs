@@ -59,14 +59,17 @@ test('enemy health fill stays correctly layered and actual combat damage has a l
       assert.equal(impact.material.depthTest, true, 'contact feedback must respect real tower occlusion');
       assert.equal(impact.material.depthWrite, false, 'transient feedback must not write phantom depth');
     }
-    // Repeated frames of unchanged public state must expire the contact cue.
-    for (let time = 200; time <= 1100; time += 100) callback(time);
-    assert.equal(renderedScene.getObjectByName('ObservedEnemyImpact').visible, false, 'one hit decays rather than replaying forever');
+    // Under slow but valid software GL, seconds can pass between submitted
+    // frames. Do not lose contact feedback before its third real submission.
+    callback(2800); callback(5600);
+    assert.equal(renderedScene.getObjectByName('ObservedEnemyImpact').visible, true, 'a delayed third renderer submission still includes the authenticated contact');
+    callback(5800);
+    assert.equal(renderedScene.getObjectByName('ObservedEnemyImpact').visible, false, 'contact retires after the bounded minimum submissions and time expiry');
     const nextRun = { ...snapshot, runToken: 'new-run', tick: 10, revision: 10, publicChecksum: 'reset', enemies: [{ ...snapshot.enemies[0], health: 1 }] };
-    view.accept({ snapshot: nextRun }); callback(1200);
+    view.accept({ snapshot: nextRun }); callback(6000);
     assert.equal(renderedScene.getObjectByName('ObservedEnemyImpact').visible, false, 'a new run at lower health does not invent damage');
     const fatal = { ...nextRun, tick: 11, revision: 11, publicChecksum: 'fatal', enemies: [{ ...nextRun.enemies[0], health: 0, active: false }] };
-    view.accept({ snapshot: fatal }); callback(1300);
+    view.accept({ snapshot: fatal }); callback(6200);
     assert.equal(renderedScene.getObjectByName('ObservedEnemyImpact').visible, true, 'fatal damage is confirmed during the real model death hold');
   } finally { view.dispose(); }
 });
