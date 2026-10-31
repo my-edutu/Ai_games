@@ -80,8 +80,8 @@ jobs:
           server=Path('scripts/serve-tiny-kingdom-stream.cjs')
           s=server.read_text();anchor=" ['/tiny/living','living.html'],['/tiny/living.html','living.html'],"
           insert=""" ['/tiny/g38','g38.html'],['/tiny/g38.html','g38.html'],
- ...['g38-before-market.png','g38-after-market.png','g38-evidence.json','g38-verification.json'].map(name=>['/tiny/'+name,name]),
-""" + anchor
+          ...['g38-before-market.png','g38-after-market.png','g38-evidence.json','g38-verification.json'].map(name=>['/tiny/'+name,name]),
+          """ + anchor
           if anchor not in s:raise RuntimeError('Server routing contract changed')
           server.write_text(s.replace(anchor,insert,1))
           progress=dest/'progress.html';s=progress.read_text()
