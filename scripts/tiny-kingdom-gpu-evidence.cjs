@@ -332,8 +332,42 @@ const path = require('node:path');
       throw Error('G062 real GPU river reach / triangle / replay gate failed: '+
         JSON.stringify(evidence.outerRiverReach));
     evidence.water=await page.evaluate(()=>window.__tinyKingdom.waterStats());
-    if(evidence.water.model!=='fresnel-ripple-shorefoam-v1'||evidence.water.waterTriangles!==1260||evidence.water.bankTriangles!==840)
+    if(evidence.water.model!=='channel-depth-sediment-fresnel-v2'||evidence.water.waterTriangles!==1260||evidence.water.bankTriangles!==840)
       throw Error('River material or shoreline geometry gate failed');
+    // G063: verify compiled/attached SwiftShader water optics, not a source
+    // promise or shader version flag. Check CPU sampling and immutable authority.
+    evidence.riverOptics=await page.evaluate(()=>{
+      const g=window.__tinyKingdom,before=JSON.stringify(g.exportSnapshot());
+      const gl=document.getElementById('world').getContext('webgl');
+      const program=gl?.getParameter(gl.CURRENT_PROGRAM);
+      const fragment=program?(gl.getAttachedShaders(program)||[]).find(shader=>
+        gl.getShaderParameter(shader,gl.SHADER_TYPE)===gl.FRAGMENT_SHADER):null;
+      const source=fragment?gl.getShaderSource(fragment):'';
+      const water=source.split('}else if(vMaterial>1.5&&vMaterial<2.5)')[1]?.split('}else if(vMaterial>2.5&&vMaterial<3.5)')[0]||'';
+      const grass=source.split('if(vMaterial>0.5&&vMaterial<1.5)')[1]?.split('}else if(vMaterial>1.5&&vMaterial<2.5)')[0]||'';
+      const road=source.split('}else if(vMaterial>2.5&&vMaterial<3.5)')[1]?.split('}else if(vMaterial>3.5&&vMaterial<4.5)')[0]||'';
+      const center=g.sampleRiverOptics(0,20),bank=g.sampleRiverOptics(0,21.8);
+      const x=44,reach=g.sampleRiverOptics(x,20+3*Math.sin(x*.13));
+      return {
+        active:water.includes('float channelDepth=')&&
+          water.includes('float sedimentGrain=noise3(')&&
+          water.includes('vec2 riverCurrent=normalize(')&&
+          water.includes('float bankFoam=smoothstep(')&&
+          water.includes('worldTime*.76')&&water.includes('worldTime*1.24')&&
+          water.includes('vec3 deepBed='),
+        materialIsolated:!grass.includes('float channelDepth=')&&!road.includes('float channelDepth='),
+        center,bank,reach,
+        authorityUnchanged:before===JSON.stringify(g.exportSnapshot())
+      };
+    });
+    if(!evidence.riverOptics.active||!evidence.riverOptics.materialIsolated||
+       !evidence.riverOptics.authorityUnchanged||
+       Math.abs(evidence.riverOptics.center.channelDepth-1)>1e-8||
+       Math.abs(evidence.riverOptics.bank.bankFoam-1)>1e-8||
+       !(evidence.riverOptics.reach.riverWidth<1.8)||
+       !(evidence.riverOptics.reach.riverWidth>.08))
+      throw Error('G063 active GPU channel-depth/sediment/flow optics gate failed: '+
+        JSON.stringify(evidence.riverOptics));
     evidence.garments=await page.evaluate(()=>{
       const g=window.__tinyKingdom;
       const profiles=g.getCitizenProfiles().map((_,i)=>g.getGarmentProfile(i));
@@ -569,6 +603,7 @@ const path = require('node:path');
       {name:'sanctuary-landmark.png',camera:{focus:[29,10],yaw:.75,pitch:.48,zoom:27}},
       {name:'stone-bridge.png',camera:{focus:[-6,18.1],yaw:.84,pitch:.64,zoom:26}},
       {name:'riverbank-close.png',camera:{focus:[-12,19],yaw:.66,pitch:.48,zoom:17}},
+      {name:'river-surface-g063.png',camera:{focus:[-12,19],yaw:.66,pitch:.37,zoom:12}},
       {name:'upland-ecoregions.png',camera:{focus:[33,29],yaw:.91,pitch:.52,zoom:24}},
       {name:'ridge-outcrops.png',camera:{focus:[-34,24],yaw:.78,pitch:.50,zoom:22}},
       {name:'river-source-g062.png',camera:{focus:[-44,23],yaw:.78,pitch:.50,zoom:22}},
