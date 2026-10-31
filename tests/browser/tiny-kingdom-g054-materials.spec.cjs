@@ -28,7 +28,7 @@ test('G054 material relief is compiled, render-only, bounded and preserves the w
   return {materials,mesh,liveFragment,hasGPU:!!gl,
    authorityUnchanged:before===JSON.stringify(game.exportSnapshot())};
  });
- expect(evidence.materials.surfaceShaderVersion).toBe('procedural-060');
+ expect(evidence.materials.surfaceShaderVersion).toBe('procedural-063');
  expect(evidence.materials.materials).toContain('PLASTER');
  expect(evidence.materials.vertexStride).toBe(10);
  if(evidence.hasGPU){
