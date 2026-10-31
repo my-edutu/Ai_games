@@ -194,3 +194,39 @@ test('close-goal composition preserves known coastal stage, without pushing the 
   assert.deepEqual(composePublicCameraFocus({x: Infinity, z: NaN}, null, true, 1), {x: 0, z: 0},
     'invalid camera offsets cannot turn into non-finite projections');
 });
+
+
+test('publicNearbySealedGate framing selects only disclosed adjacent sealed obstacles', async () => {
+  const {publicNearbySealedGate, composePublicSealedGateFocus} = await load();
+  const state = {
+    width: 7, height: 5, currentCell: 8,
+    cells: [{cell: 8, neighbors: [9]}, {cell: 9, neighbors: [8]}],
+    doors: [{id: 'visible-seal', a: 8, b: 9, open: false}],
+    result: null,
+  };
+  const original = JSON.stringify(state);
+  assert.deepEqual(publicNearbySealedGate(state), {a: 8, b: 9, steps: 0},
+    'a public blocked passage may be framed, never suggested as traversable');
+  assert.equal(JSON.stringify(state), original, 'camera selection cannot mutate public authority');
+  assert.equal(publicNearbySealedGate({...state, doors: [{...state.doors[0], open: true}]}), null);
+  assert.equal(publicNearbySealedGate({...state, cells: [{cell: 15}], currentCell: 15}), null,
+    'a door outside the observed local stage is not a camera target');
+  assert.equal(publicNearbySealedGate({...state, doors: [{a: 16, b: 17, open: false}]}), null,
+    'an undisclosed obstruction must not steer the camera');
+  assert.equal(publicNearbySealedGate({...state, doors: [{a: 13, b: 14, open: false}]}), null,
+    'a wrapped, non-adjacent pair cannot become a gate focal point');
+  assert.equal(publicNearbySealedGate({...state, result: {reason: 'escape'}}), null);
+  assert.equal(publicNearbySealedGate({...state, currentCell: -1}), null);
+  assert.equal(publicNearbySealedGate({...state, cells: [{cell: 8}], doors: [
+    {id: 'half-known', a: 8, b: 9, open: false}]}).a, 8,
+    'a visibly modeled public gate with one disclosed side remains eligible');
+
+  const stage = {x: 2.75, z: -1};
+  const gate = {x: -2.4, z: .5};
+  const desktop = composePublicSealedGateFocus(stage, gate, 1.32);
+  const portrait = composePublicSealedGateFocus(stage, gate, .65);
+  assert.ok(desktop.x < 0, 'an adjacent visible gate should counter an opposing coastal-stage pull');
+  assert.ok(Math.hypot(desktop.x, desktop.z) <= 1.600001, 'camera drift is bounded');
+  assert.ok(Math.hypot(portrait.x, portrait.z) <= 1.100001, 'portrait framing is more restrained');
+  assert.deepEqual(composePublicSealedGateFocus({x: NaN, z: Infinity}, {x: Infinity, z: NaN}), {x: 0, z: 0});
+});
