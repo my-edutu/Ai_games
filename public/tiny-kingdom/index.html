@@ -456,7 +456,7 @@ void main(){
  float glow=exp(-dist*dist*85.)*smoothstep(.12,.83,skyDaylight);
  color+=vec3(.36,.24,.11)*glow;
  float star=fract(sin(dot(floor(skyUv*vec2(212.,117.)),vec2(12.9898,78.233)))*43758.5453);
- color+=vec3(.23,.31,.43)*step(.997,star)*(1.-skyDaylight)*smoothstep(.52,.75,skyUv.y);
+ color+=vec3(.23,.31,.43)*step(.997,star)*(1.-smoothstep(.21,.32,skyDaylight))*smoothstep(.52,.75,skyUv.y);
  gl_FragColor=vec4(clamp(color,vec3(0.),vec3(1.)),1.);
 }`;
 let skyAtmosphereProgram=null,skyAtmosphereBuffer=null,skyAttrib=-1,skyUniforms=null,skyPassCount=0;
@@ -478,6 +478,22 @@ if(gpuAvailable){
  gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,3,-1,-1,3]),gl.STATIC_DRAW);
  gl.useProgram(program);
 }
+// Gauntlet 048: sky palette coherence. The first settled frame begins at 07:00
+// and must show warm *daybreak*, not a moonlit dark-blue sky full of stars.
+function skyColorProfile(time){
+ const a=skyConditions(time),hour=((time%24)+24)%24;
+ const exposure=Math.max(0,Math.min(1,(a.daylight-.20)/.42));
+ const sunrise=Math.max(0,1-Math.abs(hour-7.0)/2.3);
+ const sunset=Math.max(0,1-Math.abs(hour-18.4)/2.2);
+ const warm=Math.max(sunrise,sunset);
+ const darkHorizon=a.fog.map(v=>v*.52),litHorizon=a.fog.map(v=>v*1.17);
+ const horizon=darkHorizon.map((v,i)=>v*(1-exposure)+litHorizon[i]*exposure);
+ const sunriseTint=[.71,.46,.31],warmMix=warm*(.43+.15*exposure);
+ for(let i=0;i<3;i++)horizon[i]=Math.max(0,Math.min(1,horizon[i]*(1-warmMix)+sunriseTint[i]*warmMix));
+ const nightZenith=[.037,.064,.13],dayZenith=[.30,.53,.78];
+ const zenith=nightZenith.map((v,i)=>v*(1-exposure)+dayZenith[i]*exposure);
+ return {horizon,zenith,exposure,nightStars:1-Math.max(0,Math.min(1,(a.daylight-.21)/.11)),sunrise:warm};
+}
 function drawAtmosphere(a){
  if(!gpuAvailable)return;
  gl.useProgram(skyAtmosphereProgram);
@@ -485,9 +501,9 @@ function drawAtmosphere(a){
  gl.bindBuffer(gl.ARRAY_BUFFER,skyAtmosphereBuffer);
  gl.enableVertexAttribArray(skyAttrib);
  gl.vertexAttribPointer(skyAttrib,2,gl.FLOAT,false,0,0);
- const h=a.fog;
- gl.uniform3f(skyUniforms.horizon,h[0]*1.05,h[1]*1.06,h[2]*1.04);
- gl.uniform3f(skyUniforms.zenith,.047+a.daylight*.14,.082+a.daylight*.29,.17+a.daylight*.49);
+ const colors=skyColorProfile(state.t);
+ gl.uniform3f(skyUniforms.horizon,...colors.horizon);
+ gl.uniform3f(skyUniforms.zenith,...colors.zenith);
  gl.uniform1f(skyUniforms.daylight,a.daylight);
  gl.uniform1f(skyUniforms.cloud,.25+a.cloud*1.35);
  gl.uniform1f(skyUniforms.time,state.t);
@@ -2250,6 +2266,6 @@ requestAnimationFrame(render);window.__tinyKingdom={getState:()=>JSON.parse(JSON
  branchTriangles:forestVisualStats.branchTriangles,
  broadleafLobes:forestVisualStats.broadleafLobes,individualLeaves:forestVisualStats.individualLeaves,broadleafSpecies:forestVisualStats.broadleafSpecies.slice(),broadleafAddedTriangles:forestVisualStats.broadleafAddedTriangles,
  crownColors:forestVisualStats.crownPalette.size
-}),getCottageFacadeStats:()=>({...cottageFacadeStats,styles:cottageFacadeStats.styles.map((count,style)=>({style,count})).filter(row=>row.count>0)}),getLightingProfile:lightingProfile,getCraftDistrictStats:()=>({...CRAFT_DISTRICT,...craftCounters}),getCottageEffects:()=>({activeChimneys,smokePuffs,smokeTriangles,smokeMaxRadius}),renderStats:()=>({terrainRebuilds,terrainCacheKey,terrainCacheTriangles,lastFrameTriangles,scenicMeshRebuilds,scenicMeshTriangles,scenicMeshKey,staticGpuUploads,dualBufferGPU:gpuAvailable}),renderQuality,setRenderQuality,shadowStats:()=>({triangles:castShadowTriangles,...sunShadow(state.t)}),sampleSunShadow:(time)=>sunShadow(time),getEconomyHistory:()=>cloneData(uiHistory),getHudMode:()=>cinematicHud?'cinema':'full',setHudMode:setCinematicHud,getCommandView:()=>commandView,setCommandView,skyStats:()=>({enabled:gpuAvailable,passes:skyPassCount,model:'day-night-atmosphere-v1'}),setCamera:o=>{yaw=Number.isFinite(o.yaw)?o.yaw:yaw;pitch=Number.isFinite(o.pitch)?Math.max(.25,Math.min(1.45,o.pitch)):pitch;zoom=Number.isFinite(o.zoom)?Math.max(9,Math.min(85,o.zoom)):zoom;if(Array.isArray(o.focus)&&o.focus.length===2)focusPoint=o.focus.slice(0,2)}};
+}),getCottageFacadeStats:()=>({...cottageFacadeStats,styles:cottageFacadeStats.styles.map((count,style)=>({style,count})).filter(row=>row.count>0)}),getLightingProfile:lightingProfile,getCraftDistrictStats:()=>({...CRAFT_DISTRICT,...craftCounters}),getCottageEffects:()=>({activeChimneys,smokePuffs,smokeTriangles,smokeMaxRadius}),renderStats:()=>({terrainRebuilds,terrainCacheKey,terrainCacheTriangles,lastFrameTriangles,scenicMeshRebuilds,scenicMeshTriangles,scenicMeshKey,staticGpuUploads,dualBufferGPU:gpuAvailable}),renderQuality,setRenderQuality,shadowStats:()=>({triangles:castShadowTriangles,...sunShadow(state.t)}),sampleSunShadow:(time)=>sunShadow(time),getEconomyHistory:()=>cloneData(uiHistory),getHudMode:()=>cinematicHud?'cinema':'full',setHudMode:setCinematicHud,getCommandView:()=>commandView,setCommandView,skyStats:()=>({enabled:gpuAvailable,passes:skyPassCount,model:'day-night-atmosphere-v1',palette:skyColorProfile(state.t)}),getSkyPalette:skyColorProfile,setCamera:o=>{yaw=Number.isFinite(o.yaw)?o.yaw:yaw;pitch=Number.isFinite(o.pitch)?Math.max(.25,Math.min(1.45,o.pitch)):pitch;zoom=Number.isFinite(o.zoom)?Math.max(9,Math.min(85,o.zoom)):zoom;if(Array.isArray(o.focus)&&o.focus.length===2)focusPoint=o.focus.slice(0,2)}};
 })();
 </script></body></html>
