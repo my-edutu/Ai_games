@@ -225,3 +225,37 @@ export function planRigForearmGesture(kind,action,elapsed=0,reducedMotion=false)
  }
  return FOREARM_REST;
 }
+
+/**
+ * Truth-gated melee weight transfer on actual imported thigh/knee/ankle bones.
+ * Only an adjacent, wall-cleared public contact from planCombatFacing can
+ * authorize a visibly braced strike. This never moves feet in the simulation,
+ * extends hit reach, selects victims, or perturbs seeded replay.
+ */
+const CONTACT_BRACE_REST=Object.freeze({
+ left:Object.freeze({upper:0,lower:0,foot:0}),
+ right:Object.freeze({upper:0,lower:0,foot:0})
+});
+export function planRigContactBrace(kind,action,elapsed=0,contactDistance=null,reducedMotion=false){
+ if(reducedMotion||action!=='attack'||contactDistance!==1||
+    !['vanguard','revenant','warden'].includes(kind)||!Number.isFinite(elapsed)||elapsed<0||elapsed>=.58)
+  return CONTACT_BRACE_REST;
+ // The rear leg receives the weight on wind-up, then extends into contact
+ // as the leading knee flexes and the ankle counter-rotates.
+ const prepare=elapsed<.12?smooth(elapsed/.12):
+  elapsed<.20?1-smooth((elapsed-.12)/.08):0;
+ const drive=elapsed<=.14?0:elapsed<.28?smooth((elapsed-.14)/.14):
+  1-smooth((elapsed-.28)/.30);
+ return {
+  left:{
+   upper:-.13*prepare+.16*drive,
+   lower:.12*prepare+.075*drive,
+   foot:-.095*prepare-.07*drive
+  },
+  right:{
+   upper:.095*prepare-.145*drive,
+   lower:.06*prepare+.05*drive,
+   foot:-.075*prepare+.098*drive
+  }
+ };
+}
