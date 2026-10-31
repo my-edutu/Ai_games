@@ -1191,7 +1191,8 @@ test('Gauntlet 046 architectural identity is actual varied 3D cottage geometry a
     return {facades,geometry,uploads,unchanged:snapshot===JSON.stringify(game.exportSnapshot())};
   });
   expect(result.facades.homes).toBe(13);
-  expect(result.facades.styles.length).toBeGreaterThanOrEqual(3);
+  expect(result.facades.styles.length).toBe(4);
+  expect(Math.max(...result.facades.styles.map(style=>style.count))).toBeLessThanOrEqual(5);
   expect(result.facades.plasterPanels).toBe(result.facades.homes*2);
   expect(result.facades.sideWindows).toBe(result.facades.homes*4);
   expect(result.facades.diagonalBraces).toBeGreaterThanOrEqual(result.facades.homes*4);
