@@ -10,11 +10,11 @@ The actual pass-eleven `observed-landmark.png` in [CI artifact 13026233263](http
 
 - Preserve the larger hero and uncluttered portal.
 - In follow mode, when not showing an already disclosed guardian, blend the publicly computed coastline stage offset (0.58) with an already disclosed reachable nearby objective displacement (0.24) and cap the vector magnitude at 2.5 world units. The ordinary follow and mobile framing remain less shifted; overview, danger and detail are untouched. No private geometry or new safe-route statement.
-- The new pure regression checks stage direction, nearby-goal combination, max offset, portrait and invalid input; standalone numeric invariants passed. [CI 41163986082](https://github.com/my-edutu/Ai_games/actions/runs/41163986082) **in progress** at review creation; browser image and functional verification not yet claimed.
+- The new pure regression checks stage direction, nearby-goal combination, max offset, portrait and invalid input; standalone numeric invariants passed. [CI 41163986082](https://github.com/my-edutu/Ai_games/actions/runs/41163986082) was **in progress at the original candidate note**; it later passed, with the real render inspected and documented below.
 
-## Required fresh evidence
+## Candidate-stage evidence protocol (subsequently completed for the lead comparison)
 
-Inspect the *real new* `observed-landmark.png` only after its source-bound CI artifact is available. Verify seed/tick/source hashes, visually compare hero, portal, objective first step, shoreline and architecture at native size; mask version labels for fresh critics if possible. Do not fabricate a screenshot, materialize secret exits, assert image parity from unit tests or call shared SwiftShader CPU-throttled frame times hardware FPS.
+The twelfth-pass native-size image, timestamp, manifest SHA and visual observations are verified in the section below. A **fresh independent** A/B and key/closed-gate screenshots remain outstanding. Do not fabricate a screenshot, materialize secret exits, assert parity from unit tests or call SwiftShader CPU-throttled frame times hardware FPS.
 
 Shared-workspace subagent/Ultracode access failed again with the explicit disconnected tunnel error. No fresh independent visual comparison has occurred; the last independent verdict remains **Nintendo wins**. Draft PR stays unmerged and undeployed.
 
