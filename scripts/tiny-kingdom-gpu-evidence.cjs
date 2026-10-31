@@ -98,7 +98,7 @@ const path = require('node:path');
         grass.includes('float exposedBedrock=')&&
         grass.includes('float screeGrain=')&&
         grass.includes('vec3 exposedStone=')&&
-        grass.includes('smoothstep(.045,.18,slope)')&&
+        grass.includes('smoothstep(.035,.15,slope)')&&
         grass.includes('vWorld.y'),
         materialIsolated:!road.includes('rockShelfNoise')&&
           !road.includes('exposedBedrock'),
