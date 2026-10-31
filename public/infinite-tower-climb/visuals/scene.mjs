@@ -30,6 +30,25 @@ function intendedLanding(snapshot) {
   return onTarget ? null : target;
 }
 
+// An armored guardian can stand under the final one-way cap with less vertical
+// space than its full visible crest. Let only the presentation rig tuck its head;
+// the cap, hitboxes, authored height, replay and public state remain unchanged.
+function guardianCanopyClearance(snapshot, enemy) {
+  if (enemy.kind !== 'guardian' || !enemy.active) return Infinity;
+  const feet = enemy.y - enemy.halfHeight;
+  const fullHeight = enemy.halfHeight * 2 / SCALE;
+  let clearance = Infinity;
+  for (const deck of snapshot.platforms || []) {
+    if (!deck.id.endsWith(':cap') || deck.x > enemy.x + enemy.halfWidth
+      || deck.x + deck.width < enemy.x - enemy.halfWidth) continue;
+    // The cap's curved walking surface stays at collision height. Its thin
+    // visual underside and a margin reserve 0.12 world units above the crest.
+    const room = (deck.y + deck.height - feet) / SCALE - .12;
+    if (room > 0 && room < fullHeight + .25) clearance = Math.min(clearance, room);
+  }
+  return clearance;
+}
+
 // Fit a small local encounter, preserving the hero's 18%-high baseline whenever
 // the actual route fits. A long portrait crossing may require a wider view;
 // that tradeoff is preferable to cropping the real destination or opponent.
@@ -660,7 +679,7 @@ export function createTowerScene(canvas, settings = {}) {
       else { model.position.lerp(destination, blend); entry.yaw += Math.atan2(Math.sin(enemyYaw - entry.yaw), Math.cos(enemyYaw - entry.yaw)) * blend; }
       model.rotation.y = entry.yaw;
       model.scale.setScalar(e.halfHeight * 2 / SCALE / (e.kind === 'guardian' ? 5.6 : 2.8));
-      entry.model.animate({ ...e, firing: elapsed < entry.fireUntil }, dt, elapsed, options);
+      entry.model.animate({ ...e, canopyClearance: guardianCanopyClearance(snapshot, e), firing: elapsed < entry.fireUntil }, dt, elapsed, options);
       model.visible = e.active || elapsed < entry.deadUntil;
       entry.bar.visible = e.active;
       entry.bar.position.copy(model.position); entry.bar.position.y += e.halfHeight * 2 / SCALE + .6;

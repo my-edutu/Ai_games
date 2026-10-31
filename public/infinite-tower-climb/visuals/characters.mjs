@@ -507,6 +507,16 @@ export function createEnemy(kind='sentinel') {
     telegraphBlend=mix(telegraphBlend,telegraph?1:0,Math.min(1,dt*12));
     phase+=dt*7*speed;
     rig.position.y=0;rig.rotation.set(0,0,0);head.rotation.set(shooter?.065:guardian?.14:.11,0,0);
+    if (guardian) {
+      // At a cap, tuck the actual skinned crest below the visible underside
+      // instead of cutting the tower or shrinking the guardian everywhere.
+      // 5.6 is this original rig's native height; its armored core stays tall.
+      const bodyHeight = Number.isFinite(state.halfHeight) ? state.halfHeight * 2 / 10000 : 3.6;
+      const available = Number.isFinite(state.canopyClearance) ? state.canopyClearance : Infinity;
+      const tuck = clamp((bodyHeight - available + .14) / (2 * bodyHeight / 5.6), 0, .43);
+      const blend = reducedMotion ? 1 : Math.min(1, dt * 15);
+      head.position.y = mix(head.position.y, 2.27 - tuck, blend);
+    }
     for(let i=0;i<2;i++){
       const leg=legs[i],arm=arms[i],step=Math.sin(phase+i*Math.PI);
       const brace=(i?1:-1)*.045;
