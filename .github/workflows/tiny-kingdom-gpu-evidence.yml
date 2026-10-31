@@ -4,7 +4,7 @@ on:
   pull_request:
     paths:
       - 'public/tiny-kingdom/**'
-      - 'tests/browser/tiny-kingdom.spec.cjs'
+      - 'tests/browser/tiny-kingdom*.spec.cjs'
       - '.github/workflows/tiny-kingdom-gpu-evidence.yml'
   workflow_dispatch:
 
@@ -35,3 +35,9 @@ jobs:
           name: tiny-kingdom-gpu-evidence
           path: artifacts/tiny-kingdom/
           retention-days: 14
+      - name: Focused G066 compact-house growth browser contract
+        env:
+          CI: '1'
+        run: |
+          npm run build
+          npx playwright test tests/browser/tiny-kingdom-g066-compact-houses.spec.cjs --workers=1
