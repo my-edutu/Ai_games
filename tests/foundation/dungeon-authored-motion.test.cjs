@@ -48,15 +48,15 @@ test('motion envelope uses only read-only action and elapsed time; no RNG or ren
  const b=planAuthoredMotion(before.kind,before.action,before.elapsed);
  assert.deepEqual(a,b);assert.equal(before.elapsed,.25);
  const code=fs.readFileSync(source,'utf8');
- assert.doesNotMatch(code,/Math\\.random|performance\\.now|requestAnimationFrame|fetch\\(/);
+ assert.doesNotMatch(code,/Math\.random|performance\.now|requestAnimationFrame|fetch\(/);
 });
 test('the real authored GLB renderer stages the rig through an isolated pivot, not authoritative coordinates',()=>{
  const assets=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
  const app=fs.readFileSync(path.join(root,'public/ai-dungeon/app.js'),'utf8');
  const server=fs.readFileSync(path.join(root,'scripts/serve-dungeon-stream.cjs'),'utf8');
- assert.match(assets,/import \\{planAuthoredMotion\\} from '\\/dungeon\\/character-motion-plan\\.js'/);
- assert.match(assets,/actor\\.visualPivot/);
- assert.match(assets,/planAuthoredMotion\\(actor\\.u\\.kind,actor\\.u\\.action/);
- assert.match(app,/updateActor\\(a,dt,since,reduced\\)/);
+ assert.match(assets,/import \{planAuthoredMotion\} from '\/dungeon\/character-motion-plan\.js'/);
+ assert.match(assets,/actor\.visualPivot/);
+ assert.match(assets,/planAuthoredMotion\(actor\.u\.kind,actor\.u\.action/);
+ assert.match(app,/updateActor\(a,dt,since,reduced\)/);
  assert.ok(server.includes("['/dungeon/character-motion-plan.js','character-motion-plan.js']"));
 });
