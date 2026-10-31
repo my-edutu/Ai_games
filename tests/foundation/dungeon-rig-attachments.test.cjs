@@ -206,3 +206,63 @@ test('actual cloned GLB renderer keeps lower limb overlays reversible and report
  assert.match(src,/rigGaitPeakRad:/);
  assert.match(src,/actor\.mixer\.update[\s\S]*?stageRigLegsAfterMixer/);
 });
+
+
+test('only true cloned forearm joints are eligible for original elbow posing',async()=>{
+ const {selectForearmBone}=await load();
+ const bones=[
+  {name:'mixamorig:LeftForeArm',isBone:true},
+  {name:'mixamorig:RightForeArm',isBone:true},
+  {name:'mixamorig:RightForeArmTwist',isBone:true},
+  {name:'mixamorig:RightArm',isBone:true},
+  {name:'mixamorig:RightHand',isBone:true},
+  {name:'LeftLowerArm',isBone:true}
+ ];
+ assert.equal(selectForearmBone(bones,'right'),bones[1]);
+ assert.equal(selectForearmBone(bones,'left'),bones[0]);
+ assert.equal(selectForearmBone([{name:'ForeArm.R',isBone:true}],'right')?.name,'ForeArm.R');
+ assert.equal(selectForearmBone([{name:'Bip001 R ForeArm',isBone:true}],'right')?.name,'Bip001 R ForeArm');
+ assert.equal(selectForearmBone([{name:'LeftLowerArm',isBone:true}],'left')?.name,'LeftLowerArm');
+ for(const name of ['RightHand','RightArm','RightForeArmTwist','LeftForeArm','RightFinger','RightElbowEnd'])
+  assert.equal(selectForearmBone([{name,isBone:true}],'right'),null,name);
+ assert.equal(selectForearmBone([{name:'RightForeArm',isBone:false}],'right'),null);
+ assert.equal(selectForearmBone(bones,'unknown'),null);
+});
+
+test('spectator elbow flex stages real attack/cast/guard and fully recovers with safe finite bounds',async()=>{
+ const {planRigForearmGesture}=await load();
+ const windup=planRigForearmGesture('vanguard','attack',.11);
+ const strike=planRigForearmGesture('vanguard','attack',.25);
+ assert.ok(windup.right>.20,'strong readable elbow windup');
+ assert.ok(strike.right<-.10,'elbow opens through contact rather than staying rigid');
+ assert.ok(planRigForearmGesture('ranger','attack',.11).left>.22,'archer supports a different two-arm draw silhouette');
+ const cast=planRigForearmGesture('mystic','cast',.29);
+ assert.ok(cast.left>.19&&cast.right>.19,'two elbows take part in the spell gesture');
+ const guard=planRigForearmGesture('vanguard','guard',.35);
+ assert.ok(guard.left>.20&&guard.right>.20,'guard flexes both elbow joints');
+ const rest=planRigForearmGesture('vanguard','idle',0);
+ assert.deepEqual(rest,{left:0,right:0});
+ assert.deepEqual(planRigForearmGesture('vanguard','attack',.60),rest);
+ for(const kind of ['vanguard','ranger','mystic','revenant','cultist','warden'])
+  for(const action of ['idle','move','attack','cast','hurt','guard'])
+   for(const t of [-Infinity,NaN,-3,0,.05,.11,.18,.25,.39,.58,1,5,Infinity]){
+    const pose=planRigForearmGesture(kind,action,t);
+    for(const side of ['left','right'])assert.ok(Number.isFinite(pose[side])&&Math.abs(pose[side])<=.46);
+    assert.deepEqual(planRigForearmGesture(kind,action,t,true),rest);
+    assert.deepEqual(planRigForearmGesture(kind,action,t),pose);
+   }
+ const source=fs.readFileSync(planPath,'utf8');
+ assert.doesNotMatch(source,/Math\.random|performance\.now|Date\.|DungeonRuntime|fetch\(/);
+});
+
+test('actual cloned GLB rig stages and restores forearm bone rotation around the imported mixer',()=>{
+ const source=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(source,/selectForearmBone/);
+ assert.match(source,/planRigForearmGesture/);
+ assert.match(source,/restoreRigForearmsBeforeMixer/);
+ assert.match(source,/stageRigForearmsAfterMixer/);
+ assert.match(source,/actor\.mixer\.update[\s\S]*?stageRigForearmsAfterMixer/);
+ assert.match(source,/rigForearmBones:/);
+ assert.match(source,/rigForearmPeakRad:/);
+ assert.match(source,/actor\.rigForearms=\[\]/);
+});
