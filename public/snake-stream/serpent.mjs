@@ -97,7 +97,8 @@ export function createSerpent(THREE) {
   const skullOverviewMaterial = ownMaterial(new THREE.MeshLambertMaterial({ map: headSkin.color, color: 0xffffff }));
   const jade = ownMaterial(new THREE.MeshStandardMaterial({ color: 0x4da64e, roughness: 0.4, bumpMap: skin.bump, bumpScale: 0.009 }));
   const darkJade = ownMaterial(new THREE.MeshStandardMaterial({ color: 0x20573b, roughness: 0.47 }));
-  const cream = ownMaterial(new THREE.MeshStandardMaterial({ color: 0xffe8a5, roughness: 0.47, bumpMap: skin.bump, bumpScale: 0.005 }));
+  // Integrate the underside with the cheeks in both preallocated jaw LODs.
+  const cream = ownMaterial(new THREE.MeshStandardMaterial({ color: 0xffffff, vertexColors: true, roughness: 0.47, bumpMap: skin.bump, bumpScale: 0.005 }));
   const mouthMaterial = ownMaterial(new THREE.MeshStandardMaterial({ color: 0x1d1119, roughness: 0.88 }));
   const tongueMaterial = ownMaterial(new THREE.MeshStandardMaterial({ color: 0xe56c83, roughness: 0.38 }));
   const white = ownMaterial(new THREE.MeshStandardMaterial({ color: 0xfff7d9, roughness: 0.24 }));
@@ -256,8 +257,11 @@ export function createSerpent(THREE) {
   for(let i=0;i<32;i++){const z=(mouthEndLow+mouthEndHigh)*.5;if(skullSection(z)[3]<mouthSurfaceY(z))mouthEndLow=z;else mouthEndHigh=z;}
   const mouthEnd=(mouthEndLow+mouthEndHigh)*.5;
   const jaw = new THREE.Group();jaw.name='Attached lower jaw pivot';jaw.position.set(0,mouthSurfaceY(jawRear)-neutralGap,jawRear);headPose.add(jaw);
+  const jawCheekTint = new THREE.Color(0x4b9052);
+  const jawChinTint = new THREE.Color(0xffe8a5);
+  const jawTint = new THREE.Color();
   function makeJawSurface(interior,sides,rows){
-    const p=[],uv=[],ind=[],columns=interior?sides+1:sides+3;
+    const p=[],uv=[],ind=[],jawColors=[],columns=interior?sides+1:sides+3;
     for(let r=0;r<rows;r++){
       const z=jawRear+(mouthEnd-jawRear)*Math.sin(r/(rows-1)*Math.PI/2),section=mouthSection(z);
       const width=r===rows-1?0:section.width*jawWidthScale(z),top=section.y-neutralGap-jaw.position.y;
@@ -269,12 +273,21 @@ export function createSerpent(THREE) {
         else if(j===columns-1){x=-width*.90;y=top-inset;}
         else {const angle=(j-1)/sides*Math.PI;x=Math.cos(angle)*width;y=top-Math.sin(angle)*thickness;}
         p.push(x,y,z-jawRear);uv.push(r/(rows-1),j/(columns-1));
+        if(!interior){
+          // Previously the entire ivory shell formed a detached bright lip
+          // along both cheek seams. Keep the warm chin below a jade upper edge.
+          const underside=j===0||j===columns-1?0:Math.sin((j-1)/sides*Math.PI);
+          jawTint.copy(jawCheekTint).lerp(jawChinTint,smooth(.16,.88,underside));
+          jawColors.push(jawTint.r,jawTint.g,jawTint.b);
+        }
         if(r>0&&j<columns-1){const c=r*columns+j,a=c-columns;
           if(interior)ind.push(a,a+1,c,c,a+1,c+1);else ind.push(a,c,a+1,c,c+1,a+1);
         }
       }
     }
-    const g=ownGeometry(new THREE.BufferGeometry());g.setAttribute('position',new THREE.Float32BufferAttribute(p,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));g.setIndex(ind);g.computeVertexNormals();return g;
+    const g=ownGeometry(new THREE.BufferGeometry());g.setAttribute('position',new THREE.Float32BufferAttribute(p,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));
+    if(!interior)g.setAttribute('color',new THREE.Float32BufferAttribute(jawColors,3));
+    g.setIndex(ind);g.computeVertexNormals();return g;
   }
   for(const interior of [false,true]){
     const high=makeJawSurface(interior,16,19),low=makeJawSurface(interior,8,10);
