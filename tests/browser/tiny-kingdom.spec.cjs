@@ -1198,7 +1198,8 @@ test('Gauntlet 046 architectural identity is actual varied 3D cottage geometry a
   expect(result.facades.diagonalBraces).toBeGreaterThanOrEqual(result.facades.homes*4);
   expect(result.facades.meshTriangles).toBeGreaterThan(result.facades.homes*100);
   expect(result.facades.meshTriangles).toBeLessThan(result.facades.homes*450);
-  expect(result.geometry.totalTriangles).toBeLessThan(134000);
+  // G047 bounds the whole forest-silhouette addition while retaining per-facade budget.
+  expect(result.geometry.totalTriangles).toBeLessThan(160000);
   for(const mesh of [result.geometry.static,result.geometry.dynamic]){
     expect(mesh.aligned).toBe(true);
     expect(mesh.invalidComponents).toBe(0);
