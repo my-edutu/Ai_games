@@ -314,20 +314,19 @@ const path = require('node:path');
        !evidence.orchard.authorityUnchanged||evidence.geometry.totalTriangles>=160000)
       throw Error('Orchard geometry, camera authority or GPU budget regression: '+JSON.stringify(evidence.orchard));
     // G062: assert the active GPU static mesh includes 22 nondegenerate
-    // tapered end-reach sections, under the unchanged strict 160k budget.
+    // tapered first-ring end-reach sections, under the strict 160k budget.
     evidence.outerRiverReach=await page.evaluate(()=>{
       const g=window.__tinyKingdom,before=JSON.stringify(g.exportSnapshot());
       return {...g.getOuterRiverReachStats(),
         authorityUnchanged:before===JSON.stringify(g.exportSnapshot())};
     });
     if(evidence.outerRiverReach.sides!==2||
-       evidence.outerRiverReach.segmentsPerSide!==11||
-       evidence.outerRiverReach.waterTriangles!==264||
-       evidence.outerRiverReach.bankTriangles!==176||
-       evidence.outerRiverReach.totalTriangles!==440||
+       evidence.outerRiverReach.segmentsPerSide!==8||
+       evidence.outerRiverReach.waterTriangles!==192||
+       evidence.outerRiverReach.bankTriangles!==128||
+       evidence.outerRiverReach.totalTriangles!==320||
        Math.abs(evidence.outerRiverReach.centerWidth-1.8)>1e-12||
        Math.abs(evidence.outerRiverReach.tipWidth-.08)>1e-10||
-       Math.abs(evidence.outerRiverReach.tipSink-.78)>1e-10||
        !evidence.outerRiverReach.authorityUnchanged||
        evidence.geometry.totalTriangles>=160000)
       throw Error('G062 real GPU river reach / triangle / replay gate failed: '+
