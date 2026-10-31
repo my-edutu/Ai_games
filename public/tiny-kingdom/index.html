@@ -1119,6 +1119,42 @@ function cottageSideFacades(x,z,scale,variant){
 }
 
 // Gauntlet 015: original modeled settlement details, independent of simulation state.
+// G065: only eight detailed homes after the first growth milestone. New
+// households remain present with original material classes and readable roofs;
+// collision and civilization authority continue to use the full city list.
+const VILLAGE_LOD_LIMIT=8;
+const villageVisualLod={detailedHomes:0,compactHomes:0,detailedCitizens:0,compactCitizens:0};
+function detailedHomeSet(){
+ if(city.length<=12)return new Set(city.map((_,i)=>i));
+ return new Set(city.map(([x,z],i)=>({i,d:x*x+z*z}))
+  .sort((a,b)=>a.d-b.d||a.i-b.i).slice(0,VILLAGE_LOD_LIMIT).map(row=>row.i));
+}
+function compactHouse(x,z,variant){
+ const y=terrain(x,z),w=2.4+variant*.42,d=2.1+variant*.18,h=1.9;
+ const plaster=rgb(variant%2?0xe0c7aa:0xd1bc97);
+ const timber=rgb(0x634e3c),roof=rgb(variant%2?0x725046:0x976047);
+ materialScope(MATERIAL.STONE,()=>box(x,y-.05,z,w+.12,.23,d+.12,rgb(0x918977)));
+ materialScope(MATERIAL.PLASTER,()=>{
+  box(x,y+.18,z,w,h-.18,d,plaster);
+  const peak=y+h+1.13,left=x-w/2-.15,right=x+w/2+.15,
+    front=z-d/2-.13,back=z+d/2+.13;
+  tri([left,y+h,front],[right,y+h,front],[x,peak,front],plaster);
+  tri([right,y+h,back],[left,y+h,back],[x,peak,back],plaster);
+ });
+ materialScope(MATERIAL.ROOF,()=>{
+  const peak=y+h+1.13,left=x-w/2-.15,right=x+w/2+.15;
+  const front=z-d/2-.13,back=z+d/2+.13;
+  quad([left,y+h,front],[x,peak,front],[x,peak,back],[left,y+h,back],roof);
+  quad([x,peak,front],[right,y+h,front],[right,y+h,back],[x,peak,back],roof);
+ });
+ materialScope(MATERIAL.WOOD,()=>{
+  box(x,y+.20,z+d/2+.05,.51,1.11,.12,timber);
+  for(const side of [-1,1]){
+   box(x+side*w*.26,y+.89,z+d/2+.075,.38,.42,.07,rgb(0x53636b));
+   box(x+side*w*.26,y+1.08,z+d/2+.10,.41,.055,.09,rgb(0xb6a18a));
+  }
+ });
+}
 function cottageDetails(x,z,scale,variant){
  const y=terrain(x,z),w=(2.4+variant*.42)*scale,d=(2.1+variant*.18)*scale,h=1.9*scale;
  const beam=rgb(0x594536),stone=rgb(0xa5a091),iron=rgb(0x3b4545);
@@ -1617,6 +1653,28 @@ function sculptedFace(x,y,z,size,skin,hair,profile){
    .034*size,.092*size,.033*size,hair,7);
  }
  currentMaterial=previousMaterial;
+}
+// G065: keep every citizen visible, but reserve the detailed articulated
+// renderer for the eight nearest people and the selected citizen as the town
+// grows. Distant agents still carry job color, head, gait and directional legs.
+function compactVillager(p){
+ const i=Math.max(0,people.indexOf(p)),s=.92+(i%5)*.045,
+  x=p.x,z=p.z,y=terrain(x,z),cloth=colors[jobs.indexOf(p.job)]||colors[0],
+  skin=rgb([0xd5a781,0x95654b,0xefc19c,0xbe8968,0x9a6a48][(i+names.length)%5]),
+  hair=rgb([0x4c3228,0x342f29,0x8b633f,0x664b36,0xa18b65][(i+4)%5]);
+ const traveling=/Travel|Explor/.test(p.activity),stride=traveling?.13:0,
+  phase=Math.sin(p.phase*2.7)*stride;
+ materialScope(MATERIAL.WOOD,()=>{
+  box(x,y+.48*s,z,.42*s,.76*s,.31*s,cloth);
+  for(const side of [-1,1]){
+   box(x+side*.125*s,y+.02*s,z+side*phase*s,.14*s,.49*s,.18*s,rgb(0x534637));
+   box(x+side*.125*s,y-.01*s,z+(.07+side*phase)*s,.19*s,.11*s,.27*s,rgb(0x40382e));
+   box(x+side*.29*s,y+.78*s,z-side*phase*s,.14*s,.48*s,.15*s,cloth);
+  }
+  ellipsoid(x,y+1.35*s,z,.22*s,.25*s,.21*s,skin,6);
+  box(x,y+1.50*s,z-.02*s,.34*s,.12*s,.32*s,hair);
+  box(x,y+.40*s,z+.22*s,.22*s,.29*s,.06*s,rgb(0x785b43));
+ });
 }
 function villager(p){const vertexStart=data.length;let x=p.x,z=p.z,y=terrain(x,z),u=p.phase,idx=Math.max(0,people.indexOf(p)),size=.92+(idx%5)*.045;let c=colors[jobs.indexOf(p.job)]||colors[0],skin=rgb([0xd5a781,0x95654b,0xefc19c,0xbe8968,0x9a6a48][(idx+names.length)%5]),hair=rgb([0x4c3228,0x342f29,0x8b633f,0x664b36,0xa18b65][(idx+4)%5]);const busy=p.activity.toLowerCase().includes('harvest')||p.activity.toLowerCase().includes('cutting')||p.activity.toLowerCase().includes('craft')||p.activity.toLowerCase().includes('construct');let pace=p.activity.includes('Traveling')||p.activity.includes('Explor')?1:.23,step=Math.sin(u*2.7)*.21*pace;
 // Individual fitted wool coats: flared hem, waist, chest, collar, gait sway.
@@ -2883,7 +2941,18 @@ currentMaterial=MATERIAL.FOLIAGE;
    tree(t.x,t.z,t.s);
   }
  }highlandOutcrops();for(const flower of wildflora)wildflower(flower);for(let i=0;i<meadowUnderstory.length;i++)meadowTuft(meadowUnderstory[i],i);currentMaterial=MATERIAL.STONE;
- for(const [x,z,k] of city){house(x,z,1,k);cottageDetails(x,z,1,k)}hall(0,-1);cottageDetails(0,-1,1.85,2);
+ const fullHomes=detailedHomeSet();
+villageVisualLod.detailedHomes=0;villageVisualLod.compactHomes=0;
+for(let i=0;i<city.length;i++){
+ const [x,z,k]=city[i];
+ if(fullHomes.has(i)){
+  house(x,z,1,k);cottageDetails(x,z,1,k);
+  villageVisualLod.detailedHomes++;
+ }else{
+  compactHouse(x,z,k);villageVisualLod.compactHomes++;
+ }
+}
+hall(0,-1);cottageDetails(0,-1,1.85,2);
 // The worked spaces have identifiable props and readable boundaries.
 farmstead();fenceLine(16,-2,6);fenceLine(16,4,6);fenceLine(16,-2,4,true);fenceLine(25,-2,4,true);
 riverBridge();hillsideSanctuary();forgeWorkshop();market(0,5);well(-15,4);villageGarden(12,11);villageGarden(-17,-3);guildBanner(-2,3);guildBanner(5,-2);lantern(-5,-7,1.7);lantern(6,9,1.45);lantern(2,6,1.7);lantern(-14,6,1.45);for(let i=0;i<7;i++)stoneBoulder(-23+(i*1.8),5+Math.sin(i*3)*1.3,.65+(i%3)*.18);
@@ -2898,7 +2967,16 @@ directionalCastShadows(state.t);
 currentMaterial=MATERIAL.FOLIAGE;
 windmill(-27,-18,state.t);forgeSmoke(state.t);activeChimneys=0;smokePuffs=0;smokeTriangles=0;smokeMaxRadius=0;for(const [x,z,k] of city)chimneySmoke(x,z,k,state.t);villageFestival();
 currentMaterial=MATERIAL.WOOD;
- for(const p of people)villager(p);currentMaterial=MATERIAL.GENERAL;weatherParticles(atmosphere);
+ const nearPeople=people.length<=12?new Set(people.map((_,i)=>i)):
+ new Set(people.map((p,i)=>({i,d:(p.x-focusPoint[0])**2+(p.z-focusPoint[1])**2}))
+  .sort((a,b)=>a.d-b.d||a.i-b.i).slice(0,VILLAGE_LOD_LIMIT).map(row=>row.i));
+nearPeople.add(Math.min(selectedCitizen,people.length-1));
+villageVisualLod.detailedCitizens=0;villageVisualLod.compactCitizens=0;
+for(let i=0;i<people.length;i++){
+ if(nearPeople.has(i)){villager(people[i]);villageVisualLod.detailedCitizens++}
+ else{compactVillager(people[i]);villageVisualLod.compactCitizens++}
+}
+currentMaterial=MATERIAL.GENERAL;weatherParticles(atmosphere);
 const elevation=Math.sin(pitch)*zoom,rad=Math.cos(pitch)*zoom,focusHeight=follow?terrain(focusPoint[0],focusPoint[1])+1.02:.25,eye=[focusPoint[0]+Math.sin(yaw)*rad,elevation+focusHeight,focusPoint[1]+Math.cos(yaw)*rad];let m=mat4multiply(perspective(Math.PI/3.2,w/h,.1,190),lookAt(eye,[focusPoint[0],focusHeight,focusPoint[1]],[0,1,0]));gl.uniformMatrix4fv(uniforms.viewProjection,false,m);gl.uniform3f(uniforms.fogColor,...atmosphere.fog);gl.uniform3f(uniforms.sunTint,...atmosphere.light);const radiance=lightingProfile(state.t);gl.uniform1f(uniforms.sunStrength,radiance.solar);gl.uniform1f(uniforms.ambientBlend,radiance.ambientBlend);gl.uniform1f(uniforms.worldTime,state.t);gl.uniform1f(uniforms.weatherWetness,climateMaterialProfile(state.t).precipitation);gl.uniform3f(uniforms.eyePosition,eye[0],eye[1],eye[2]);gl.uniform3f(uniforms.sunDirection,Math.cos(state.t/24*6.283),.3+atmosphere.daylight*.9,Math.sin(state.t/24*6.283));lastFrameTriangles=(gpuAvailable?scenicMeshCache.length+data.length:data.length)/30;
 if(gpuAvailable){bindGeometry(staticBuffer);gl.drawArrays(gl.TRIANGLES,0,scenicMeshCache.length/10);}
 bindGeometry(buffer);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(data),gl.DYNAMIC_DRAW);gl.drawArrays(gl.TRIANGLES,0,data.length/10);if((frames++%14)===0){updateUI();drawAtlas();updateRealmSignal();updateWorldRibbon()}
@@ -2914,6 +2992,6 @@ requestAnimationFrame(render);window.__tinyKingdom={getState:()=>JSON.parse(JSON
  branchTriangles:forestVisualStats.branchTriangles,
  broadleafLobes:forestVisualStats.broadleafLobes,microCrownLobes:forestVisualStats.microCrownLobes,rimLeafSprays:forestVisualStats.rimLeafSprays,individualLeaves:forestVisualStats.individualLeaves,broadleafSpecies:forestVisualStats.broadleafSpecies.slice(),broadleafAddedTriangles:forestVisualStats.broadleafAddedTriangles,
  crownColors:forestVisualStats.crownPalette.size
-}),getCottageFacadeStats:()=>({...cottageFacadeStats,styles:cottageFacadeStats.styles.map((count,style)=>({style,count})).filter(row=>row.count>0)}),getLightingProfile:lightingProfile,getCraftDistrictStats:()=>({...CRAFT_DISTRICT,...craftCounters}),getCottageEffects:()=>({activeChimneys,smokePuffs,smokeTriangles,smokeMaxRadius}),renderStats:()=>({terrainRebuilds,terrainCacheKey,terrainCacheTriangles,terrainHorizonTriangles,lastFrameTriangles,scenicMeshRebuilds,scenicMeshTriangles,scenicMeshKey,staticGpuUploads,dualBufferGPU:gpuAvailable}),renderQuality,setRenderQuality,shadowStats:()=>({triangles:castShadowTriangles,...sunShadow(state.t)}),getShadowGradientAudit:shadowGradientAudit,sampleSunShadow:(time)=>sunShadow(time),sampleCanopyShadow:(x,z)=>Array.from({length:9},(_,i)=>canopyShadowVariation(x,z,i*Math.PI/4)),getEconomyHistory:()=>cloneData(uiHistory),getHudMode:()=>cinematicHud?'cinema':'full',setHudMode:setCinematicHud,getCommandView:()=>commandView,setCommandView,skyStats:()=>({enabled:gpuAvailable,passes:skyPassCount,model:'day-night-atmosphere-v1',palette:skyColorProfile(state.t)}),getSkyPalette:skyColorProfile,getFoliageWindProbe:(x,y,z,time=state.t)=>foliageWindProbe(x,y,z,time),setCamera:o=>{yaw=Number.isFinite(o.yaw)?o.yaw:yaw;pitch=Number.isFinite(o.pitch)?Math.max(.25,Math.min(1.45,o.pitch)):pitch;zoom=Number.isFinite(o.zoom)?Math.max(9,Math.min(85,o.zoom)):zoom;if(Array.isArray(o.focus)&&o.focus.length===2)focusPoint=o.focus.slice(0,2)}};
+}),getCottageFacadeStats:()=>({...cottageFacadeStats,styles:cottageFacadeStats.styles.map((count,style)=>({style,count})).filter(row=>row.count>0)}),getLightingProfile:lightingProfile,getCraftDistrictStats:()=>({...CRAFT_DISTRICT,...craftCounters}),getCottageEffects:()=>({activeChimneys,smokePuffs,smokeTriangles,smokeMaxRadius}),renderStats:()=>({terrainRebuilds,terrainCacheKey,terrainCacheTriangles,terrainHorizonTriangles,lastFrameTriangles,scenicMeshRebuilds,scenicMeshTriangles,scenicMeshKey,staticGpuUploads,dualBufferGPU:gpuAvailable}),renderQuality,setRenderQuality,shadowStats:()=>({triangles:castShadowTriangles,...sunShadow(state.t)}),getShadowGradientAudit:shadowGradientAudit,sampleSunShadow:(time)=>sunShadow(time),sampleCanopyShadow:(x,z)=>Array.from({length:9},(_,i)=>canopyShadowVariation(x,z,i*Math.PI/4)),getEconomyHistory:()=>cloneData(uiHistory),getHudMode:()=>cinematicHud?'cinema':'full',setHudMode:setCinematicHud,getCommandView:()=>commandView,setCommandView,skyStats:()=>({enabled:gpuAvailable,passes:skyPassCount,model:'day-night-atmosphere-v1',palette:skyColorProfile(state.t)}),getSkyPalette:skyColorProfile,getFoliageWindProbe:(x,y,z,time=state.t)=>foliageWindProbe(x,y,z,time),getVillageVisualLod:()=>({...villageVisualLod,fullDetailLimit:VILLAGE_LOD_LIMIT,population:people.length,homes:city.length}),setCamera:o=>{yaw=Number.isFinite(o.yaw)?o.yaw:yaw;pitch=Number.isFinite(o.pitch)?Math.max(.25,Math.min(1.45,o.pitch)):pitch;zoom=Number.isFinite(o.zoom)?Math.max(9,Math.min(85,o.zoom)):zoom;if(Array.isArray(o.focus)&&o.focus.length===2)focusPoint=o.focus.slice(0,2)}};
 })();
 </script></body></html>
