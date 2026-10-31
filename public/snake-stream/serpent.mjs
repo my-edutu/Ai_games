@@ -368,6 +368,30 @@ export function createSerpent(THREE) {
   curveTube(tongue, tongueMaterial, [[0,0,0.19],[0.027,0.008,0.24],[0.048,0.014,0.28]], 0.009, 'Tongue right fork');
   tongue.visible = false;
 
+  // The overview shows the face at a few dozen pixels, where individual
+  // roughness/bump/specular probes cannot resolve but still shade on every
+  // submitted GPU frame. Keep every original sculpt/texture and the exact
+  // detailed PBR palette for close shots; preallocate a diffuse-only palette
+  // for the face in the existing low-detail view. No new draw calls or maps.
+  const faceOverviewMaterials = new Map();
+  const faceMaterialBindings = [];
+  head.traverse(object => {
+    if (!object.isMesh || object === skull || !object.material?.isMeshStandardMaterial) return;
+    const detailed = object.material;
+    let overview = faceOverviewMaterials.get(detailed);
+    if (!overview) {
+      overview = ownMaterial(new THREE.MeshLambertMaterial({
+        color: detailed.color, map: detailed.map,
+        vertexColors: detailed.vertexColors, side: detailed.side,
+        emissive: detailed.emissive, transparent: detailed.transparent,
+        opacity: detailed.opacity, depthTest: detailed.depthTest,
+        depthWrite: detailed.depthWrite,
+      }));
+      faceOverviewMaterials.set(detailed, overview);
+    }
+    faceMaterialBindings.push([object, detailed, overview]);
+  });
+
   let ringCount = 0, indexCount = 0, pathCount = 0, truncated = false;
   let previousHeadX = NaN, previousHeadZ = NaN, heading = 0;
   let eaten = 0, dangerEase = 0, curveLean = 0;
@@ -427,6 +451,8 @@ export function createSerpent(THREE) {
       // Preallocated material LOD never allocates per tick or changes snapshots.
       body.material = lowDetail ? bodyOverviewMaterial : bodyMaterial;
       skull.material = lowDetail ? skullOverviewMaterial : skullMaterial;
+      for (const [mesh, detailed, overview] of faceMaterialBindings)
+        mesh.material = lowDetail ? overview : detailed;
     }
     const time = Number.isFinite(options.time) ? options.time : 0;
     const dt = clamp(Number.isFinite(options.delta) ? options.delta : 1 / 60, 0, 0.1);
