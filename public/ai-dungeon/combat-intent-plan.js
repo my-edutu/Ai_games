@@ -11,3 +11,14 @@ export function isHealingCast(unit,snapshot){
   Number.isSafeInteger(snapshot?.tick)&&Array.isArray(snapshot.events)&&
   snapshot.events.some(event=>event?.kind==='healing'&&event.tick===snapshot.tick);
 }
+
+/**
+ * A ranger's real trap-disarm utility cast has no enemy target. Only the
+ * same-tick public disarm event is evidence; the text is not a rule contract.
+ * The combat director may show a restrained friendly cue, never a bolt.
+ */
+export function isDisarmCast(unit,snapshot){
+ return unit?.kind==='ranger'&&unit.faction==='party'&&unit.action==='cast'&&
+  Number.isSafeInteger(snapshot?.tick)&&Array.isArray(snapshot.events)&&
+  snapshot.events.some(event=>event?.kind==='disarm'&&event.tick===snapshot.tick);
+}
