@@ -1586,23 +1586,32 @@ function limbSegment(a,b,radius,col,sides=7){
 // Low-poly but individually proportioned citizens with articulated walk cycles, faces, tools and roles.
 // Gauntlet 032: avoid zero-area pole quads and give curved surfaces analytic
 // outward-facing normals. Fixed 10-float layout remains position/normal/RGB/material.
+// G073: mobile/WebGL citizen ellipsoids retain exactly their original
+// five-latitude geometry and analytic normals. Reuse the latitude/azimuth
+// trigonometry for all four corners and append a triangle in one 30-float
+// batch, avoiding three iterator/array-spread pushes per animated face.
 function ellipsoid(x,y,z,rx,ry,rz,col,segments=9){
  if(!(rx>0&&ry>0&&rz>0)||!Number.isInteger(segments)||segments<3)return;
- const vertex=(latitude,azimuth)=>{
-  const st=latitude===0||latitude===Math.PI?0:Math.sin(latitude);
-  const ct=Math.cos(latitude),ca=Math.cos(azimuth),sa=Math.sin(azimuth);
+ const vertex=(st,ct,ca,sa)=>{
   const normal=[st*ca/rx,ct/ry,st*sa/rz],size=Math.hypot(...normal)||1;
   return {p:[x+st*ca*rx,y+ct*ry,z+st*sa*rz],n:normal.map(v=>v/size)};
  };
  const emit=(a,b,c)=>{
-  for(const point of [a,b,c])data.push(...point.p,...point.n,...col,currentMaterial);
+  const ap=a.p,an=a.n,bp=b.p,bn=b.n,cp=c.p,cn=c.n;
+  const r=col[0],g=col[1],blue=col[2],material=currentMaterial;
+  data.push(ap[0],ap[1],ap[2],an[0],an[1],an[2],r,g,blue,material,
+   bp[0],bp[1],bp[2],bn[0],bn[1],bn[2],r,g,blue,material,
+   cp[0],cp[1],cp[2],cn[0],cn[1],cn[2],r,g,blue,material);
  };
  for(let ring=0;ring<5;ring++){
   const lat0=Math.PI*ring/5,lat1=Math.PI*(ring+1)/5;
+  const st0=lat0===0||lat0===Math.PI?0:Math.sin(lat0),st1=lat1===0||lat1===Math.PI?0:Math.sin(lat1);
+  const ct0=Math.cos(lat0),ct1=Math.cos(lat1);
   for(let slice=0;slice<segments;slice++){
    const az0=slice*Math.PI*2/segments,az1=(slice+1)*Math.PI*2/segments;
-   const a=vertex(lat0,az0),b=vertex(lat0,az1);
-   const c=vertex(lat1,az0),d=vertex(lat1,az1);
+   const ca0=Math.cos(az0),sa0=Math.sin(az0),ca1=Math.cos(az1),sa1=Math.sin(az1);
+   const a=vertex(st0,ct0,ca0,sa0),b=vertex(st0,ct0,ca1,sa1);
+   const c=vertex(st1,ct1,ca0,sa0),d=vertex(st1,ct1,ca1,sa1);
    if(ring===0)emit(a,d,c);
    else if(ring===4)emit(a,b,c);
    else {emit(a,b,d);emit(a,d,c)}
