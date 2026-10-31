@@ -416,3 +416,13 @@ test('Gauntlet 49 low-power race still renders real competitors in a single WebG
   ]) assert.ok(renderer.includes(fragment),'missing genuine one-draw low-power roster: '+fragment);
   assert.ok(!renderer.includes('Math.random('),'render path must not change simulation RNG');
 });
+
+
+test('G65 cinematic opening shot keeps the full grid close instead of retreating into empty sky', () => {
+  assert.ok(renderer.includes("const cinemaDistance=Math.max(12.6,width*.76,cinemaPackDepth*1.28+6.8)"),
+    'cinematic full-grid shot must be pack-sized rather than arena-depth-sized');
+  assert.ok(renderer.includes("shell.dataset.cameraCinema='pack-close'"),
+    'renderer must expose the close cinematic framing for browser evidence');
+  assert.equal(renderer.includes('const height=Math.max(13.5,width*.96,depth*.54)'),false,
+    'old high crane made racers tiny and filled the frame with empty sky');
+});

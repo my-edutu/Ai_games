@@ -1154,10 +1154,17 @@
       target=[target[0]+clamp(avgVX*WORLD_SCALE*3,-0.8,0.8),
         target[1],target[2]+clamp(avgVY*WORLD_SCALE*3,-0.8,0.8)];
       if(widePack){
-        // Cinema must not accidentally undo full-grid coverage.
-        const width=arena.width*WORLD_SCALE,depth=arena.height*WORLD_SCALE;
-        const height=Math.max(13.5,width*.96,depth*.54);
-        eye=[target[0]+height*.12/zoom,height/zoom,target[2]+height*1.12/zoom];
+        // Cinema must not accidentally undo full-grid coverage, but the old
+        // high crane turned the racers into dots and filled the frame with sky.
+        const width=arena.width*WORLD_SCALE;
+        const cinemaMinY=Math.min(...active.map(m=>m.y));
+        const cinemaMaxY=Math.max(...active.map(m=>m.y));
+        const cinemaPackDepth=Math.max(0,(cinemaMaxY-cinemaMinY)*WORLD_SCALE);
+        const cinemaDistance=Math.max(12.6,width*.76,cinemaPackDepth*1.28+6.8);
+        eye=[target[0]+cinemaDistance*.14/zoom,
+          Math.max(5.1,width*.255)/zoom,
+          target[2]+cinemaDistance*.92/zoom];
+        shell.dataset.cameraCinema='pack-close';
       }else if(directive.mode==='overview'){
         eye=[target[0]+4.8/zoom,6.8/zoom,target[2]+7.9/zoom];
       }else{

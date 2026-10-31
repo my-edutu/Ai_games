@@ -144,6 +144,27 @@ test('Marble WebGL broadcast renders authoritative tournament and captures runti
   await expect(shell).toHaveAttribute('data-view', 'cinematic');
   await expect(page.locator('.leaderboard-panel.broadcast-overlay')).toBeHidden();
   await expect(page.locator('#arena-webgl')).toBeVisible();
+  await expect(shell).toHaveAttribute('data-camera-cinema','pack-close',{timeout:5_000});
+  const cinemaFraming=await page.evaluate(()=>{
+    const frame=window.marbleRenderFrame,root=document.querySelector('.broadcast-shell');
+    const marbles=(frame?.marbles||[]).filter(m=>m.status!=='eliminated'&&m.status!=='qualified');
+    const matrix=frame?.viewProjection||[];
+    let visible=0;
+    for(const marble of marbles){
+      const x=(marble.x-frame.snapshot.arena.width/2)/1000;
+      const y=(marble.elevation||0)/1000+.28;
+      const z=(marble.y-frame.snapshot.arena.height/2)/1000;
+      const w=matrix[3]*x+matrix[7]*y+matrix[11]*z+matrix[15];
+      if(w<=.08)continue;
+      const nx=(matrix[0]*x+matrix[4]*y+matrix[8]*z+matrix[12])/w;
+      const ny=(matrix[1]*x+matrix[5]*y+matrix[9]*z+matrix[13])/w;
+      if(Math.abs(nx)<=.95&&Math.abs(ny)<=.95)visible++;
+    }
+    return {visible,total:marbles.length,distance:Number(root?.dataset.cameraDistance)};
+  });
+  expect(cinemaFraming.total).toBeGreaterThanOrEqual(12);
+  expect(cinemaFraming.visible).toBeGreaterThanOrEqual(Math.ceil(cinemaFraming.total*.9));
+  expect(cinemaFraming.distance).toBeLessThan(17);
   await page.screenshot({path:path.join(artifacts,'00d-cinematic-view.png'),fullPage:true});
   await page.locator('#view-toggle').click();
   await expect(shell).toHaveAttribute('data-view', 'broadcast');
