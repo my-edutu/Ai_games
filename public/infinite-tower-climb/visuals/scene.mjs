@@ -4,7 +4,14 @@ import { createClimber, createEnemy } from './characters.mjs';
 import { SCALE, pointFor, angleFor } from './coordinates.mjs';
 import { snapshotVelocity } from './motion.mjs';
 import { createRenderProgress } from './render-progress.mjs';
-import { followClimberContact } from './contact-follow.mjs';
+// Position-only correction runs inside the real scene module. The scene's
+// CPU/VM fixtures intentionally remove ESM imports to test WebGL boundaries;
+// keeping this pure helper local also makes those fixtures exercise actual code.
+function followClimberContact(position, target, blend, state) {
+  position.lerp(target, blend);
+  if (state === 'standing') position.y = target.y;
+  return position;
+}
 
 const MAX_PARTICLES=96;
 const TAU = Math.PI * 2;
