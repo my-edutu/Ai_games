@@ -14,7 +14,8 @@ test('G054c Tudor rendered plaster and gables are not mislabeled as coursed ston
   const materials=game.getMaterialSwatchAudit(),geometry=game.getGeometryAudit();
   return {materials,geometry,sameSave:JSON.stringify(game.exportSnapshot())===before};
  });
- for(const name of ['housePlasterCream','housePlasterWarm','houseGablePlaster']){
+ for(const name of ['housePlasterCream','housePlasterWarm','houseGablePlaster',
+                    'sidePlasterOak','sidePlasterAsh','sidePlasterLime','sidePlasterSand']){
   const row=result.materials[name];
   expect(row).toBeTruthy();
   expect(row.general).toBeGreaterThan(0);
