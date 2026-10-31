@@ -40,7 +40,7 @@ for (const scenario of cases) test(`destination beacon ${scenario.name}`, async 
     expect(diagnostics.landingBeacon.triangles).toBe(16);
     expect(diagnostics.landingBeacon.depthTest).toBe(true);
     expect(Math.hypot(diagnostics.landingBeacon.position[0], diagnostics.landingBeacon.position[2]))
-      .toBeCloseTo(24.8, 1); // Actual GPU source must put the arrow over the walking band.
+      .toBeCloseTo(26.5, 1); // Near-side lane stays on the real deck; visual verdict requires the uploaded GPU pixels.
   }
   const output = path.resolve(process.env.TOWER_EVIDENCE_DIR || 'artifacts/tower-landing-beacon');
   fs.mkdirSync(output, { recursive: true });

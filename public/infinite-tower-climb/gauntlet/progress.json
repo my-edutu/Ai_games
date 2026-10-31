@@ -1,7 +1,7 @@
 {
-  "updated": "2026-10-31T06:30:00+00:00",
-  "verdict": "SCOPED PASS (local): catalogue UX revision red/green 4/4, TS build and Tower host contract · FULL REMOTE CI PENDING · Overall Gauntlet FAIL/open: desktop landing obstruction, independent commercial/motion/accessibility/device performance/stability gates",
-  "nextGap": "Verify the full Autonomous Games CI and Tower Realism Evidence workflows for this exact source before declaring suite recovery; next independent visual failure is partially occluded desktop landing beacon and guardian crown. Then obtain complete normal-speed climbing/combat/run-transition and intended-device frame-time evidence against official Jusant and ASTRO BOT.",
+  "updated": "2026-10-31T07:43:39.346Z",
+  "verdict": "SCOPED PASS (local): 16/16 Tower landing/composition/lighting, build and stream host; previous source full Realism + catalogue 581/581. New GPU visual/complete-motion/device performance NOT VERIFIED. Overall Gauntlet FAIL/open.",
+  "nextGap": "Download and inspect the new Tower Landing Evidence GPU artifact for all three source-pinned viewports; if desktop arm remains occluded, revise from real pixels. Then fix guardian crown obscuration and capture continuous normal-speed climbing/combat/restart plus real intended-device frame-time/soak and independent Jusant/ASTRO BOT comparisons.",
   "capture": "/tower/gauntlet/evidence/14-foundry-follow.webp",
   "captureLabel": "Actual tick 118 · compact HUD and clearer hostile equipment",
   "iterations": [
@@ -139,6 +139,13 @@
       "title": "Repair stale catalogue frontend revision contract",
       "finding": "Direct inspection of Tower Landing Evidence GPU artifact 13031761634 (d9ab916, six actual baseline/candidate PNGs) reconfirmed portrait route improvement and partial desktop occlusion; no motion/FPS conclusion. The two completed CI runs 41172970019 and 41173326408 each failed 1/581 tests on tests/phase3/catalogue-frontend-quality.test.cjs because the catalogue asserted UX revision 2 for every game although the Tower shell intentionally declares 3. Updated only the test's per-game expected revisions (Tower 3; Snake/Maze/Ant 2), preserving the ux-v2.css contract and the shipped UI.",
       "checks": "Downloaded exact d9ab916 CI review-source artifact 13031926865; baseline node --test tests/phase3/catalogue-frontend-quality.test.cjs FAIL (3/4; Tower marker), changed test PASS (4/4). Negative mutation reverting Tower HTML revision 3→2 correctly FAILS (3/4), then restoring actual HTML PASS (4/4). npm run build PASS; Tower stream-host self-test PASS authority/assets/privacy/recovery/restart. Local full npm test exceeded 300 s after case 489 without completed summary, hence NOT a full pass. Source-linked new remote CI PENDING; earlier exact-head run 41173326408 is FAIL (580/581). Separate critic workspace disconnected, self-review only. Gameplay authority, rendering and visual pixels unchanged; no overall gate pass."
+    },
+    {
+      "number": "18",
+      "date": "2026-10-31",
+      "title": "Clear the desktop landing glyph without floating beyond its deck",
+      "finding": "Verified completed exact-head Gauntlet 17 Tower Realism run 41176930239 and Autonomous Games CI 41176933452, both successful with 581/581 tests and Tower host checks. Downloaded and directly inspected GPU artifacts 13031761634 (d9ab916 held before/after) and 13033057696 (9dd1fcb current broad Tower capture). In the pinned 960×600 Ruins traversal, the centered glyph's right chevron overlapped the foreground upright; 27.24 was visible but off the physical deck. Changed only the presentation beacon from radial 24.8 to 26.5 and compressed outlined arms from outer 1.02 to .9, inner .76 to .68 so each source-projected glyph vertex remains over the 22.4–27.18 top while the desktop arrow projects left of the inspected obstruction. Portrait left/right routes remain in the view. This is a projection-bound correction awaiting *new* GPU pixel inspection, not a claimed independent visual win.",
+      "checks": "Red/green on 9dd1fcb extracted source: 3/5 focused checks PASS, 2/5 expected FAIL before fix (moving radius and pinned desktop silhouette); after source fix 5/5 PASS. Landing/composition/lighting 16/16 PASS, npm run build PASS, Tower host self-test ok:true (authority, privacy, recovery, restart). Local Playwright launched system Chromium, but page.goto failed ERR_BLOCKED_BY_ADMINISTRATOR; no local GPU PASS. New source-bound workflow PENDING. Fresh-context workers unavailable (disconnected tunnel), explicit self-review. Overall visual/motion/performance/stability Gauntlet FAIL/open."
     }
   ],
   "captures": [

@@ -193,7 +193,7 @@ function createLandingBeaconGeometry() {
   }
   for (const level of [0, 1]) for (const inner of [false, true]) {
     const color = new THREE.Color(inner ? 0xb4f6ff : 0x102832);
-    const width = inner ? .76 : 1.02, thickness = inner ? .18 : .38;
+    const width = inner ? .68 : .9, thickness = inner ? .18 : .38;
     const bottom = level * .95 + (inner ? .15 : 0), z = inner ? .012 : 0;
     for (const side of [-1, 1]) quad([
       [0, bottom, z], [side * width, bottom + .62, z],
@@ -210,11 +210,13 @@ function updateLandingBeacon(beacon, platform, snapshot, camera) {
   beacon.visible = !!platform;
   beacon.userData.targetPlatformId = platform?.id || null;
   if (!platform) return;
-  // Deck tops span radius 22.4..27.18. The former 27.24 anchor put the
-  // glyph *outside* the deck, visibly floating past its outer edge on phones.
-  // Center the arrow over the real walking surface, without changing collision.
+  // Put the glyph on the camera-facing walking lane of the real deck
+  // (physical radial span 22.4..27.18). The central 24.8 anchor was behind
+  // the foreground upright in the source-pinned left-desktop view; the prior
+  // 27.24 anchor floated outside the rim. Compact arms keep all glyph vertices
+  // above the actual deck while retaining depth testing and target identity.
   const anchor = pointFor(platform.x + platform.width / 2, platform.y + platform.height,
-    snapshot.chunkBaseY, snapshot.worldWidth, 24.8);
+    snapshot.chunkBaseY, snapshot.worldWidth, 26.5);
   beacon.position.set(anchor.x, anchor.y + .65, anchor.z);
   beacon.quaternion.copy(camera.quaternion);
 }
