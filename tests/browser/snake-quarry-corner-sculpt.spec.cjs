@@ -17,7 +17,7 @@ test('true WebGL frozen public frame A/B: contained quarry chips versus SHA-veri
   const normals='\n    if (sourceMaterial === tileMat) merged.computeVertexNormals();';
   expect(current.split(normals).length).toBe(2);
   const prior=(current.slice(0,a)+current.slice(b+end.length)).replace(normals,'');
-  const gitBlob=s=>crypto.createHash('sha1').update('blob '+Buffer.byteLength(s)+'\\0').update(s).digest('hex');
+  const gitBlob=s=>crypto.createHash('sha1').update('blob '+Buffer.byteLength(s)+'\0').update(s).digest('hex');
   expect(gitBlob(prior)).toBe('4c50160ffb9c78b822cf2cb8d670e29baf994fea');
   const captures={};
   for(const mode of ['overview','detail']){
