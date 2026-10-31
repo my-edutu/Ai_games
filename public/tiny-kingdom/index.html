@@ -691,6 +691,9 @@ const riverWaterTint=rgb(0x658c82);
 // Each vertex is position(3), normal(3), RGB(3), materialId(1): 10 floats.
 function inspectMeshGeometry(vertices){
  const stride=10,aligned=vertices.length%(stride*3)===0;
+ // Material IDs extend past plaster for shader-lit windows and lanterns;
+ // validate against the actual declared palette, not a stale literal 8.
+ const maxMaterialId=Math.max(...Object.values(MATERIAL));
  let invalidComponents=0,invalidNormals=0,invalidColors=0,outOfBounds=0;
  for(let i=0;i<vertices.length;i+=stride){
   const x=vertices[i],y=vertices[i+1],z=vertices[i+2];
@@ -702,7 +705,7 @@ function inspectMeshGeometry(vertices){
   for(let j=6;j<=8;j++)if(!Number.isFinite(vertices[i+j])||
      vertices[i+j]<0||vertices[i+j]>1.001)invalidColors++;
   const material=vertices[i+9];
-  if(!Number.isInteger(material)||material<0||material>8)invalidComponents++;
+  if(!Number.isInteger(material)||material<0||material>maxMaterialId)invalidComponents++;
  }
  return {floats:vertices.length,vertices:vertices.length/stride,
   triangles:vertices.length/(stride*3),aligned,invalidComponents,
