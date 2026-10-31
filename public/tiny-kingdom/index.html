@@ -593,7 +593,10 @@ function materialSwatchAudit(){
   marketCanvas:0xcaa768,festivalGoldSilk:0xffc56a};
  const rows=Object.fromEntries(Object.keys(targets).map(k=>[k,
   {general:0,stone:0,roof:0,total:0}]));
- for(const mesh of [scenicMeshCache||[],data])for(let i=0;i<mesh.length;i+=30){
+ // Canvas2D fallback holds the static mesh inside data, whereas WebGL keeps
+ // static and dynamic buffers separate; never count static triangles twice.
+ const meshes=gpuAvailable?[scenicMeshCache||[],data]:[data];
+ for(const mesh of meshes)for(let i=0;i<mesh.length;i+=30){
   const rgbHex=(Math.round(mesh[i+6]*255)<<16)|
    (Math.round(mesh[i+7]*255)<<8)|Math.round(mesh[i+8]*255);
   for(const [name,hex] of Object.entries(targets))if(rgbHex===hex){
