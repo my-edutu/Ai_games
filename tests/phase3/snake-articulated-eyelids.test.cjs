@@ -6,6 +6,7 @@ const path=require('node:path');
 const crypto=require('node:crypto');
 const sourcePath=path.resolve(__dirname,'../../public/snake-stream/serpent.mjs');
 const blocks=/^[ \t]*\/\/ BEGIN R37 [^\n]*\n[\s\S]*?^[ \t]*\/\/ END R37 [^\n]*\n/gm;
+const r39Blocks=/^[ \t]*\/\/ BEGIN R39 [^\n]*\n[\s\S]*?^[ \t]*\/\/ END R39 [^\n]*\n/gm;
 const blob=s=>crypto.createHash('sha1').update('blob '+Buffer.byteLength(s)+'\0').update(s).digest('hex');
 const frozenPaths=Object.freeze([
   Object.freeze([{x:0,z:0},{x:0,z:-1},{x:0,z:-2},{x:0,z:-3}].map(Object.freeze)),
@@ -22,7 +23,8 @@ test('Round37 old-source red control: slower attached blink closes both actual u
   const content=fs.readFileSync(sourcePath,'utf8');
   assert.equal((content.match(blocks)||[]).length,2,'exact two bounded new additions');
   const predecessor=content.replace(blocks,'');
-  assert.equal(blob(predecessor),'636d51031c6e3f1b6d304d66ab2a34534f9fe506','exact Git predecessor');
+  assert.equal((content.match(r39Blocks) || []).length, 3, 'three new feeding blocks');
+  assert.equal(blob(predecessor.replace(r39Blocks, '')),'636d51031c6e3f1b6d304d66ab2a34534f9fe506','exact Git predecessor');
   const {createSerpent:makeOld}=await import('data:text/javascript;base64,'+Buffer.from(predecessor).toString('base64'));
   const {createSerpent:makeNew}=await import('../../public/snake-stream/serpent.mjs');
   const before=makeOld(THREE),after=makeNew(THREE),untouched=JSON.stringify(frozenPaths);

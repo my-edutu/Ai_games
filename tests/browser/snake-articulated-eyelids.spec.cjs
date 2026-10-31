@@ -4,6 +4,7 @@ const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypt
 test.use({launchOptions:{args:['--use-angle=swiftshader','--enable-unsafe-swiftshader']}});
 const repo=path.resolve(__dirname,'../..');
 const blocks=/^[ \t]*\/\/ BEGIN R37 [^\n]*\n[\s\S]*?^[ \t]*\/\/ END R37 [^\n]*\n/gm;
+const r39Blocks=/^[ \t]*\/\/ BEGIN R39 [^\n]*\n[\s\S]*?^[ \t]*\/\/ END R39 [^\n]*\n/gm;
 const blob=s=>crypto.createHash('sha1').update('blob '+Buffer.byteLength(s)+'\0').update(s).digest('hex');
 const evidence=name=>{const dir=path.join(repo,'artifacts/phase3');fs.mkdirSync(dir,{recursive:true});return path.join(dir,name);};
 test('real Chromium WebGL: articulated upper lids cover original eye during fixed synthetic blink without extra GPU resources',async({browser,baseURL})=>{
@@ -14,8 +15,9 @@ test('real Chromium WebGL: articulated upper lids cover original eye during fixe
   const saved=JSON.stringify(frame);
   const current=fs.readFileSync(path.join(repo,'public/snake-stream/serpent.mjs'),'utf8');
   const old=current.replace(blocks,'');
+  expect((current.match(r39Blocks) || []).length).toBe(3);
   expect((current.match(blocks)||[]).length).toBe(2);
-  expect(blob(old)).toBe('636d51031c6e3f1b6d304d66ab2a34534f9fe506');
+  expect(blob(old.replace(r39Blocks, ''))).toBe('636d51031c6e3f1b6d304d66ab2a34534f9fe506');
   const renderer=fs.readFileSync(path.join(repo,'public/snake-stream/renderer.mjs'),'utf8');
   const anchor='    const time = timestamp / 1000;';
   expect(renderer.split(anchor).length).toBe(2);

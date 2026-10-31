@@ -405,6 +405,10 @@ export function createSerpent(THREE) {
   // Presentation-only eye tracking. The target comes exclusively from the
   // current immutable public food location, never a private AI path.
   let gazeX = 0, gazeY = 0, previousRunToken, focusYaw = 0;
+  // BEGIN R39 FEEDING ANTICIPATION STATE
+  // Presentation-only, reset by public restarts and portal discontinuities.
+  let feedingAnticipation = 0;
+  // END R39 FEEDING ANTICIPATION STATE
 
   const sample = { x: 0, z: 0, dx: 0, dz: 1 };
   function evaluate(path, segment, t) {
@@ -476,6 +480,9 @@ export function createSerpent(THREE) {
     currentBreaks.length = 0;
     // END R36 RESET BREAKS
     const first = paths?.[0]?.[0];
+    // BEGIN R39 EMPTY PATH RESET
+    if (!first) feedingAnticipation = 0;
+    // END R39 EMPTY PATH RESET
     group.visible = Boolean(first);
     if (!first) { bodyGeometry.setDrawRange(0, 0); return; }
     const finalPath = paths[paths.length - 1];
@@ -643,6 +650,31 @@ export function createSerpent(THREE) {
       : focusYaw + (targetFocusYaw - focusYaw) * (1 - Math.exp(-dt * 9));
     headPose.rotation.y = focusYaw;
     // END R34 PUBLIC FOOD ATTENTION
+    // BEGIN R39 PUBLIC FOOD FEEDING POSE
+    // Opening the existing attached jaw tells the viewer that fruit is close.
+    // Only a forward, genuinely nearby PUBLIC fruit triggers this movement;
+    // private AI intentions and authoritative body paths are never consulted.
+    let feedingTarget = 0;
+    if (Number.isFinite(targetFood?.x) && Number.isFinite(targetFood?.z)
+        && danger < 0.6 && eaten < 0.3) {
+      const toX = targetFood.x - first.x, toZ = targetFood.z - first.z;
+      const distance = Math.hypot(toX, toZ);
+      if (distance > 0.15 && distance < 3.7) {
+        const ahead = (toX * Math.sin(heading) + toZ * Math.cos(heading)) / distance;
+        feedingTarget = smooth(0.45, 0.9, ahead) * (1 - smooth(1.1, 3.7, distance));
+      }
+    }
+    // Snap to the current public situation at restarts and teleports; otherwise
+    // approach and release are continuous under irregular render submission.
+    feedingAnticipation = danger >= 0.6 || eaten >= 0.3 ? 0
+      : teleported || reduced ? feedingTarget
+        : feedingAnticipation + (feedingTarget - feedingAnticipation) * (1 - Math.exp(-dt * 9));
+    if (!reduced && feedingAnticipation > 0.001) {
+      jaw.rotation.x = Math.max(jaw.rotation.x, feedingAnticipation * 0.105);
+      // This is the existing shared cheek bridge, not a detached fake lip.
+      updateJawCorners(jaw.rotation.x);
+    }
+    // END R39 PUBLIC FOOD FEEDING POSE
     const gazeMix = reduced || teleported ? 1 : 1 - Math.exp(-dt * 12);
     gazeX += (targetGazeX - gazeX) * gazeMix;
     gazeY += (targetGazeY - gazeY) * gazeMix;
