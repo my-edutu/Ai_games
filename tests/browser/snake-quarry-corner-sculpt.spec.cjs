@@ -20,7 +20,7 @@ test('true WebGL frozen public frame A/B: contained quarry chips versus SHA-veri
   const end='          // END R32 ORIGINAL QUARRY CORNER SCULPT\n';
   const a=historicWorld.indexOf(begin), b=historicWorld.indexOf(end);
   expect(a).toBeGreaterThan(-1);expect(b).toBeGreaterThan(a);
-  expect(current.indexOf(begin,a+1)).toBe(-1);
+  expect(historicWorld.indexOf(begin,a+1)).toBe(-1);
   const normals='\n    if (sourceMaterial === tileMat) merged.computeVertexNormals();';
   expect(historicWorld.split(normals).length).toBe(2);
   const prior=(historicWorld.slice(0,a)+historicWorld.slice(b+end.length)).replace(normals,'');
