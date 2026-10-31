@@ -1,5 +1,6 @@
 import * as THREE from '/dungeon/vendor/three.module.js';
 import {combatCueDelay,MAX_PENDING_COMBAT_CUES} from '/dungeon/combat-cue-plan.js';
+import {isHealingCast} from '/dungeon/combat-intent-plan.js';
 import {advancePresentationActionAge} from '/dungeon/character-motion-plan.js';
 
 /**
@@ -19,7 +20,7 @@ function closest(units,subject,faction){
  .sort((a,b)=>(Math.abs(a.x-subject.x)+Math.abs(a.z-subject.z))-(Math.abs(b.x-subject.x)+Math.abs(b.z-subject.z))||a.id.localeCompare(b.id))[0]||null;
 }
 export function createCombatDirector(scene,{reducedMotion=false}={}){
- const projectiles=[],impacts=[],pendingCues=[],previous=new Map();let floorKey='',shots=0,bursts=0,releasedCues=0,droppedCues=0;
+ const projectiles=[],impacts=[],pendingCues=[],previous=new Map();let floorKey='',shots=0,bursts=0,releasedCues=0,droppedCues=0,healingCues=0;
  const cleanup=e=>{scene.remove(e.mesh);e.mesh.material.dispose()};
  function ensureBound(){
   while(projectiles.length>PROJECTILE_LIMIT)cleanup(projectiles.shift());
@@ -62,6 +63,14 @@ export function createCombatDirector(scene,{reducedMotion=false}={}){
  function signalAction(u,s){
   switch(u.action){
    case 'attack':case 'cast':{
+    // A real mystic heal is a friendly cast, not damage. The public same-tick
+    // semantic healing event is the only authority; no guess from HP, text or RNG.
+    // Never fire a hostile bolt because an enemy happens to be nearby.
+    if(isHealingCast(u,s)){
+     flashAt(u,'#8fe6ad');
+     healingCues=Math.min(1000000,healingCues+1);
+     return;
+    }
     const target=closest(s.units,u,u.faction==='party'?'enemy':'party');
     if(!target&&!(u.kind==='warden'&&u.action==='cast'))return;
     const cue={source:{x:u.x,z:u.z,kind:u.kind,action:u.action},target:target?{x:target.x,z:target.z}:null,age:0,
@@ -131,5 +140,5 @@ export function createCombatDirector(scene,{reducedMotion=false}={}){
   for(const p of projectiles)cleanup(p);for(const p of impacts)cleanup(p);
   projectiles.length=impacts.length=pendingCues.length=0;previous.clear();
  }
- return{accept,animate,reset,stats:()=>({activeProjectiles:projectiles.length,activeImpacts:impacts.length,pendingCues:pendingCues.length,releasedCues:releasedCues,droppedCues:droppedCues,activeGroundRings:impacts.filter(e=>e.mode==='ring').length,activeHitFlashes:impacts.filter(e=>e.mode==='spark').length,totalShots:shots,totalBursts:bursts}),dispose(){reset();for(const geometry of Object.values(shared))geometry.dispose()}};
+ return{accept,animate,reset,stats:()=>({activeProjectiles:projectiles.length,activeImpacts:impacts.length,pendingCues:pendingCues.length,healingCues:healingCues,releasedCues:releasedCues,droppedCues:droppedCues,activeGroundRings:impacts.filter(e=>e.mode==='ring').length,activeHitFlashes:impacts.filter(e=>e.mode==='spark').length,totalShots:shots,totalBursts:bursts}),dispose(){reset();for(const geometry of Object.values(shared))geometry.dispose()}};
 }
