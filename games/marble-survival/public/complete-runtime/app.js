@@ -530,6 +530,9 @@ function updateRotation(next, previous) {
 }
 
 function renderArena(now) {
+  // CSS hides this canvas after WebGL takeover, but does not stop Canvas2D work.
+  // Keep the fallback available for context loss without painting two games.
+  if (document.hidden || shell.classList.contains('webgl-ready')) return;
   resizeCanvas();
   const preset = QUALITY_PRESETS[quality];
   drawBackdrop(preset);
