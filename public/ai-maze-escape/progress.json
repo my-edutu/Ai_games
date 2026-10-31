@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-10-31T21:29:00Z",
+  "updatedAt": "2026-10-31T21:51:25Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass28 original production seed13 tick21 closed-door-2 browser captures from CI artifact 13055687573 were downloaded and SHA-256 checked: desktop 2026-10-31T19:37:28.999Z SHA 082665cb594fd50a638667be6525ad67d1b49bd31cd8efa4c5d45038c6e89b90; 390×844 portrait 19:37:32.346Z SHA 142ad23b78bf89792764c2511a1b0e9c1be278599aecbd320ad3803107cda1da. The small camera aim change preserves some desktop arch visibility but not mobile glove/keyhole readability or lagoon hierarchy. Nintendo Captain Toad fixed bar still wins. CI run 41234490759 cancelled after captures, not a full pass; no independent blind critic/Ultracode because shared-workspace tunnel disconnected; CPU-throttled SwiftShader not hardware GPU FPS. Review docs/reviews/maze-3d/arch-preservation-pass-28-review.md."
+    "summary": "Pass 29 source-only candidate rotates Pip's actual left glove toward the public matched closed-gate bearing (test ccf0689, code 5c37549); exact gameplay-head CI 41245527570 started but final CI/native pass29 screenshots/independent blind critics are NOT verified. Last authentic SHA-checked desktop and 390×844 portrait images are pass28 from artifact 13055687573 (2026-10-31T19:37:28/32Z) where the key-to-lock action remains tiny, upper-right portrait arch is clipped and lagoon dominates. Fixed Captain Toad bar still wins. Shared workspace/subagents/Ultracode unavailable; SwiftShader CPU data not GPU FPS. See docs/reviews/maze-3d/glove-bearing-pass-29-review-gate.md."
   },
   "captures": [
     {
@@ -122,10 +122,11 @@
     "Pass 26 genuine render review: extracted CI artifact 13050431503 and independently recomputed dated desktop/portrait PNG hashes (seed13 tick21, blocked door-2), compared pixel-for-pixel against authentic pass25. Right-stile lock is marginally clearer/closer but glove→socket causality remains too small at 390px; fixed Captain Toad bar not passed. Both code/review-head CI runs cancelled after image generation, therefore not green. Full evidence: docs/reviews/maze-3d/lock-stile-pass-26-review-gate.md.",
     "Pass 27 source candidate: an exactly carried public matching key beside its truly closed disclosed gate now selects a more intimate camera frame (portrait half-height 4.70; desktop 4.55) and shifts its focus toward Pip and the actual lock, retaining finite bounds, threat precedence and truthful barrier. New map-view composition contract and source-bound browser diagnostics keep Pip and gate in-frame without relaxing original margins. Render screenshots/independent critic and exact-head CI are pending, not a Nintendo benchmark pass. See docs/reviews/maze-3d/key-lock-framing-pass-27-review-gate.md.",
     "Pass27 original actual rendered screenshot review: true seed13 tick21 public still-closed gate desktop and native 390×844 captured 18:45:44/48 UTC on October 31, 2026; screenshot SHA-256 hashes independently match the Actions artifact 13054098156 manifests. The genuine key/lock presentation is larger and more centered than pass26, yet upper arch clips and native physical action remains ambiguous. Lead still favors Captain Toad; pass27 CI was cancelled after evidence. Pass28 staged source changes only keyed follow-camera vertical aim to protect arch; real renders pending.",
-    "Pass 28 genuine matching-key follow-camera lift was evaluated on same-seed real desktop and 390×844 browser captures. Hash-verified screenshots show slightly better desktop arch clearance but persistent small glove-to-socket interaction, right-edge portrait arch clipping and empty lagoon; benchmark open, full CI cancelled. No gameplay changes in the evidence update."
+    "Pass 28 genuine matching-key follow-camera lift was evaluated on same-seed real desktop and 390×844 browser captures. Hash-verified screenshots show slightly better desktop arch clearance but persistent small glove-to-socket interaction, right-edge portrait arch clipping and empty lagoon; benchmark open, full CI cancelled. No gameplay changes in the evidence update.",
+    "Pass29 source-only physical-arm gesture candidate: Pip's existing key-carrying left shoulder rotates in Y/Z toward the exact disclosed nearby closed-gate bearing, bounded by the same public-key cue, with neutral/guardian/terminal and reduced-motion precedence. Test ccf0689; source 5c37549. No authority, hidden map, camera, mesh creation or gate-open changes; actual pass29 source-bound render and full CI remain pending and must be separately compared with pass28 and pinned Nintendo Captain Toad images."
   ],
   "nextGaps": [
-    "Verify pass28 source 84e1dd7 against current genuine production seed maze-visual-reference-13 tick21 closed-door-2 1280×900/390×844 screenshots, hashes and source manifests from exact-source CI; compare arch clearance and Pip/glove/lock screen-space against authentic pass27 artifact 13054098156. Do not claim a pass28 improvement until real images have been judged at native scale and prior framing regression avoided.",
+    "Verify pass29 exact source 5c37549 with complete CI, authentic current-seed tick21 closed-door-2 native 1280×900 and 390×844 PNG captures, original UTC timestamps and SHA-matched manifests. Blind A/B against pass28 artifact 13055687573 and both frozen official Nintendo references. Check left glove points toward the true recessed lock without becoming detached/occluded or worsening arch crop; no source-only visual acceptance.",
     "Recover fresh-context independent builder and blind A/B critic when shared-workspace tunnel returns; the present lead-only review cannot establish a Nintendo benchmark win. Reduce left-biased empty lagoon while preserving disclosed legal approach and actual gate/character visibility.",
     "Establish stronger gameplay-scale Pip/Thornback expression, gate/key/exit differentiation, environmental material variety and a camera view which preserves both the obstacle and the next *disclosed* action.",
     "Run separate fresh-context visual critics and blind A/B against both unchanged SHA-pinned official Nintendo Captain Toad frames; last independent verdict still favors the reference. Do not claim benchmark parity from CI or lead-only visual judgment.",
@@ -319,6 +320,13 @@
       "verdict": "Genuine pass27 framing improvement over pass26, but fixed Captain Toad reference wins",
       "date": "2026-10-31T18:45:48.161Z",
       "summary": "Original Actions artifact 13054098156 downloaded and SHA-256-verified both real 1280×900 and 390×844 public seed13 tick21 still-closed door-2 captures. Larger/more centered Pip and lock, but sandstone arch clipped and real glove-to-recess act remains tiny at native size; open lagoon persists. Pass27 full CI cancelled after screenshot capture. No independent blind A/B/Ultracode or representative GPU-FPS verdict."
+    },
+    {
+      "title": "Pass 29 glove-bearing source candidate — render acceptance required",
+      "reviewer": "Lead source review only; fresh-context visual and engineering critics unavailable",
+      "verdict": "NOT VISUALLY VERIFIED; fixed Nintendo reference still wins latest real pass28 output",
+      "date": "2026-10-31T21:51:25Z",
+      "summary": "The existing public matched carried-key cue now yaws/sweeps Pip's modeled left shoulder toward the real disclosed sealed lock, test/source commits ccf0689/5c37549. No new screenshots or full CI result verified; latest authentic pass28 native portrait/desktop images still lose to Nintendo. Remote workspace/subagent tunnel disconnected; separate critic and Ultracode unavailable; CPU SwiftShader is not hardware FPS."
     }
   ],
   "verification": [
@@ -499,6 +507,13 @@
       "detail": "Original production seed maze-visual-reference-13 tick21 genuinely closed door-2. Pass27 desktop 2026-10-31T18:45:44.784Z SHA256 22945f73afd22dce543f7ccaa1f815bfefd2f1f4483c97666d9a74a84bbe7afe and 390x844 18:45:48.161Z SHA256 057437b5ab323b72158b6abd42912417ac414c510f8ac03f25f3009930688d76. Exact source manifest matching key in public inventory, camera closeup and blocked door. Portrait hero/gate more prominent but upper arch clipped and gesture still ambiguous; Captain Toad remains bar winner. Next source-only vertical camera aim +.46 to +.80 for real matching public gate. No source-bound new render, independent critic or GPU performance result claimed.",
       "sourceCommit": "84e1dd74a47753b5d60b173c18c5d20643d36ef9",
       "sourceUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41234490759"
+    },
+    {
+      "name": "Pass 29 physical glove bearing toward public matching sealed lock — exact source CI/render open",
+      "status": "Source and test commits on draft branch; CI run 41245527570 IN PROGRESS at first check; no rendered screenshot inspected; fixed benchmark NOT PASSED",
+      "detail": "Source 5c37549 changes only articulated left shoulder Y/Z aiming, based on finite bounded keyYaw from publicCarriedGateCue; test-first ccf0689 covers bearing direction, proportionate reach, missing cue, guardian/terminal priority and both model LODs. No private map, simulation, door opening, resource or camera change. Full CI, real dated and hash-checked production desktop/portrait screenshots, fresh separate visual critics and blind comparison pending. Last verified pass28 PNG artifact 13055687573 still loses to Nintendo. Shared workspace tunnel unavailable, Ultracode inaccessible, no representative GPU FPS claim.",
+      "sourceCommit": "5c37549f8752eaf5bd9620b271d69b043162ebd1",
+      "sourceUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41245527570"
     }
   ],
   "references": [
