@@ -36,6 +36,9 @@ test('G058 real grass normal relief is world-anchored, range-faded, material-iso
   expect(grass).toContain('vec3 microNormal=normalize(');
   expect(grass).toContain('detailFade=1.-smoothstep(');
   expect(grass).toContain('fineLight/baseLight');
+  expect(grass).toContain('tuftMask=1.-smoothstep(');
+  expect(grass).toContain('hash3(vec3(cellID,11.))');
+  expect(grass).not.toContain('strandX=sin(');
   expect(grass).toContain('vWorld.xz');
   expect(road).not.toContain('microNormal');
  }

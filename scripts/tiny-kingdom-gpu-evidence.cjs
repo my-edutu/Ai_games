@@ -71,7 +71,10 @@ const path = require('node:path');
       return {active:grass.includes('vec3 microNormal=normalize(')&&
         grass.includes('detailFade=1.-smoothstep(')&&
         grass.includes('fineLight/baseLight')&&
+        grass.includes('tuftMask=1.-smoothstep(')&&
+        grass.includes('hash3(vec3(cellID,11.))')&&
         grass.includes('vWorld.xz')&&
+        !grass.includes('strandX=sin(')&&
         !road.includes('microNormal'),
         authorityUnchanged:before===JSON.stringify(game.exportSnapshot())};
     });

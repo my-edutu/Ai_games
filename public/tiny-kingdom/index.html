@@ -401,11 +401,19 @@ void main(){
   // G058: deterministic grass micro-relief. World-space fibre normals
   // correct diffuse response only for near grass, without new triangles.
   // Far-field fade prevents moving-camera pixel shimmer on ridgelines.
-  float detailFade=1.-smoothstep(15.,59.,length(eyePosition.xz-vWorld.xz));
-  vec2 grassDomain=vWorld.xz*vec2(8.3,9.1)+vec2(meadow,blades)*1.7;
-  float strandX=sin(grassDomain.x+sin(grassDomain.y*.57)*.8);
-  float strandZ=sin(grassDomain.y-sin(grassDomain.x*.43)*.7);
-  vec3 microNormal=normalize(n+vec3(strandX,0.,strandZ)*(.21*detailFade*(1.-rock*.68)));
+  float detailFade=1.-smoothstep(10.,38.,length(eyePosition.xz-vWorld.xz));
+  // First GPU review exposed regular sinusoidal stripes on bare hillsides.
+  // Jitter individual tuft centres instead: zero contribution at each cell
+  // boundary, no repeated wave ridges and no cross-cell colour seams.
+  vec2 cellUV=vWorld.xz*4.1;
+  vec2 cellID=floor(cellUV);
+  vec2 cellLocal=fract(cellUV)-.5;
+  vec2 tuftOffset=cellLocal-(vec2(hash3(vec3(cellID,11.)),
+     hash3(vec3(cellID,17.)))-.5)*.22;
+  float tuftRadius=length(tuftOffset);
+  float tuftMask=1.-smoothstep(.06,.38,tuftRadius);
+  vec2 tuftTilt=tuftOffset/(tuftRadius+.15);
+  vec3 microNormal=normalize(n+vec3(tuftTilt.x,0.,tuftTilt.y)*(.31*detailFade*tuftMask*(1.-rock*.68)));
   vec3 lightDirection=normalize(sunDirection);
   float baseLight=.34+.66*max(dot(n,lightDirection),0.);
   float fineLight=.34+.66*max(dot(microNormal,lightDirection),0.);
