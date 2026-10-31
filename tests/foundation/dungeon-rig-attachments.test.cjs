@@ -124,7 +124,7 @@ test('real cloned GLB skeleton receives reversible gesture overlays after animat
  assert.match(src,/selectUpperArmBone/);
  assert.match(src,/planRigArmGesture/);
  assert.match(src,/actor\.rigUpperArms/);
- assert.match(src,/actor\.mixer\.update[\s\S]*?planRigArmGesture/);
+ assert.match(src,/actor\.mixer\.update[\s\S]*?stageRigArmsAfterMixer/);
  assert.match(src,/rigGesturePeakRad:/);
  assert.match(src,/rigGestureBones:/);
 });
