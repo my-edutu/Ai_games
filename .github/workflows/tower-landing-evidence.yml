@@ -1,0 +1,55 @@
+name: Tower Landing Evidence
+on:
+  push:
+    branches: [codex/infinite-tower-climb-3d-gauntlet]
+    paths:
+      - public/infinite-tower-climb/visuals/**
+      - tests/browser/tower-landing-beacon.spec.cjs
+      - tests/phase3/tower-landing-beacon.test.cjs
+      - .github/workflows/tower-landing-evidence.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: tower-landing-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - name: Focused logical regressions
+        run: node --test tests/phase3/tower-landing-beacon.test.cjs tests/phase3/tower-encounter-composition.test.cjs tests/phase3/tower-lighting-resource.test.cjs
+      - run: npx playwright install --with-deps chromium
+      - name: Retrieve pinned comparison source
+        run: |
+          git fetch --no-tags --depth=1 origin 05d3633d9f194eef6a5522d14298bc3eafeef9a1
+          git show 05d3633d9f194eef6a5522d14298bc3eafeef9a1:public/infinite-tower-climb/visuals/scene.mjs > "$RUNNER_TEMP/tower-before.mjs"
+          mkdir -p artifacts/tower-landing-beacon
+          git rev-parse HEAD > artifacts/tower-landing-beacon/source-sha.txt
+          sha256sum public/infinite-tower-climb/visuals/scene.mjs "$RUNNER_TEMP/tower-before.mjs" > artifacts/tower-landing-beacon/source-hashes.txt
+      - name: Capture same-state baseline
+        env:
+          TOWER_BEACON_BASELINE: ${{ runner.temp }}/tower-before.mjs
+        run: npx playwright test --config=playwright.tower.config.cjs tests/browser/tower-landing-beacon.spec.cjs
+      - name: Verify candidate pixels and real intent retirement
+        if: ${{ !cancelled() }}
+        run: npx playwright test --config=playwright.tower.config.cjs tests/browser/tower-landing-beacon.spec.cjs tests/browser/tower-webgl-recovery.spec.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tower-landing-${{ github.sha }}
+          path: |
+            artifacts/tower-landing-beacon/
+            test-results/
+          retention-days: 7

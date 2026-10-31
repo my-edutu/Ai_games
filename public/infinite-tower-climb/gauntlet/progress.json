@@ -1,9 +1,9 @@
 {
-  "updated": "2026-10-31T04:11:58.939148+00:00",
-  "verdict": "Blind comparisons prefer the revision · commercial reference still ahead",
-  "nextGap": "Give the actual landing priority over competing decks and expose more of the guardian crown. Current stills show clearer reaching hands and a separated hammer; full motion and hardware performance remain unverified.",
+  "updated": "2026-10-31T04:23:27.414677+00:00",
+  "verdict": "PASS: 130 logical tests + host contract \u00b7 FAIL: visual win not yet evidenced",
+  "nextGap": "Verify the new landing beacon in actual same-state phone/desktop GPU captures, then address the guardian crown occlusion and continuous-motion evidence. No commercial-reference win or hardware frame-rate pass is claimed.",
   "capture": "/tower/gauntlet/evidence/14-foundry-follow.webp",
-  "captureLabel": "Actual tick 118 · compact HUD and clearer hostile equipment",
+  "captureLabel": "Actual tick 118 \u00b7 compact HUD and clearer hostile equipment",
   "iterations": [
     {
       "number": "00",
@@ -40,7 +40,7 @@
       "date": "2026-10-30",
       "title": "Improve shapes, action cues and render cost",
       "finding": "Added articulated strikes, recoil and collapse; weathered facade masses, biome ledges and distant citadels; closer follow camera and more readable HUD. A fresh critic inspected four real viewport captures and still preferred the reference. Large geometry and mobile composition need another pass.",
-      "checks": "Captured desktop follow/overview and both phone orientations with no page or shader errors. Rigid world batching preserves every triangle and reduces fixture color meshes from roughly 200 to 69–79. Software GPU frame times remain too slow for a performance pass.",
+      "checks": "Captured desktop follow/overview and both phone orientations with no page or shader errors. Rigid world batching preserves every triangle and reduces fixture color meshes from roughly 200 to 69\u201379. Software GPU frame times remain too slow for a performance pass.",
       "capture": "/tower/gauntlet/evidence/04-phone-portrait.webp"
     },
     {
@@ -54,8 +54,8 @@
       "number": "06",
       "date": "2026-10-30",
       "title": "Rebuild the main forms and reveal the climber",
-      "finding": "Replaced the broad cylinder with an asymmetric fortress, framed the current sector, and moved the follow camera toward the climber’s eye line. The fresh critic now finds the desktop hero coherent and readable, while still preferring the reference for world and cast finish. Phone captions and vitals have measured clearance.",
-      "checks": "All 73 Tower tests pass. Character batching preserves articulated geometry and reduces the climber from 53 to 10 mesh draws, enemies from 52–54 to 7. Actual desktop/phone captures render without shader errors. Stronger WebGL context-restoration testing exposed a remaining stall; investigation is active.",
+      "finding": "Replaced the broad cylinder with an asymmetric fortress, framed the current sector, and moved the follow camera toward the climber\u2019s eye line. The fresh critic now finds the desktop hero coherent and readable, while still preferring the reference for world and cast finish. Phone captions and vitals have measured clearance.",
+      "checks": "All 73 Tower tests pass. Character batching preserves articulated geometry and reduces the climber from 53 to 10 mesh draws, enemies from 52\u201354 to 7. Actual desktop/phone captures render without shader errors. Stronger WebGL context-restoration testing exposed a remaining stall; investigation is active.",
       "capture": "/tower/gauntlet/evidence/07-phone-portrait.webp"
     },
     {
@@ -118,43 +118,50 @@
       "finding": "Fresh blind review prefers the new phone frame and correctly reads upward-left movement. The raised hand now separates from the hero at both jump directions; a correctly timed 100 ms strike reads as a forward jab. The guardian hammer has a distinct grip, shaft and head. Exact landing certainty and crown clearance remain open.",
       "checks": "All 129 Tower logical tests and 19 browser cases pass, including repeated real graphics recovery across floor changes. Build and host self-test pass. Six final images have matching source hashes and zero page/GL errors. No full motion or commercial-bar win.",
       "capture": "/tower/gauntlet/evidence/14-leftward-jump-phone.webp"
+    },
+    {
+      "number": "15",
+      "date": "2026-10-31",
+      "title": "Separate the intended landing from competing decks",
+      "finding": "Preserved concurrent camera/HUD/cast work from 05d3633. Added one depth-tested, outlined double-chevron above the real intended landing. It follows effective moving-platform coordinates, is not a pickup or collision surface, and clears when traversal intent ends. The earlier local camera replacement was discarded rather than overwriting concurrent work.",
+      "checks": "Two focused regressions failed before implementation; 13 focused composition/resource tests, build, all 130 Tower logical tests and host authority/privacy/recovery/restart self-test pass. Local managed Chromium blocks navigation; GitHub same-state before/after captures and real traversal-retirement/recovery checks are added but not yet verified. Self-review only: connected subagent workspace unavailable. Overall visual gate FAIL/unverified."
     }
   ],
   "captures": [
     {
       "src": "/tower/gauntlet/evidence/14-foundry-follow.webp",
       "label": "Encounter",
-      "description": "Actual tick 118 · compact HUD and clearer hostile equipment"
+      "description": "Actual tick 118 \u00b7 compact HUD and clearer hostile equipment"
     },
     {
       "src": "/tower/gauntlet/evidence/14-leftward-jump-phone.webp",
       "label": "Left jump",
-      "description": "Actual tick 379 · distinct landing corners and separated reaching hand"
+      "description": "Actual tick 379 \u00b7 distinct landing corners and separated reaching hand"
     },
     {
       "src": "/tower/gauntlet/evidence/14-rightward-jump-phone.webp",
       "label": "Right jump",
-      "description": "Actual tick 234 · the opposite direction remains readable"
+      "description": "Actual tick 234 \u00b7 the opposite direction remains readable"
     },
     {
       "src": "/tower/gauntlet/evidence/14-guardian-phone.webp",
       "label": "Guardian",
-      "description": "Real nearby guardian · separated hammer, crown still partly obscured"
+      "description": "Real nearby guardian \u00b7 separated hammer, crown still partly obscured"
     },
     {
       "src": "/tower/gauntlet/evidence/14-strike-100ms.webp",
       "label": "Strike",
-      "description": "Real tick 118→119 edge · one 100 ms model step, held pose"
+      "description": "Real tick 118\u2192119 edge \u00b7 one 100 ms model step, held pose"
     },
     {
       "src": "/tower/gauntlet/evidence/13-caption-clear.webp",
       "label": "Upgrade",
-      "description": "Actual upgrade and caption · separate readable space"
+      "description": "Actual upgrade and caption \u00b7 separate readable space"
     },
     {
       "src": "/tower/gauntlet/evidence/14-ruins-desktop-low.webp",
       "label": "Ruins",
-      "description": "Actual tick 379 · desktop at explicit low quality"
+      "description": "Actual tick 379 \u00b7 desktop at explicit low quality"
     }
   ]
 }

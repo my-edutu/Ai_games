@@ -182,6 +182,40 @@ function updateLandingCueGeometry(geometry, platform, snapshot) {
   geometry.computeBoundingSphere();
 }
 
+// A navigation glyph, not a collectible or extra collision surface. Its dark
+// silhouette and two downward chevrons remain distinct from the gold shards.
+function createLandingBeaconGeometry() {
+  const geometry = new THREE.BufferGeometry(), vertices = [], colors = [], indices = [];
+  function quad(points, color) {
+    const start = vertices.length / 3;
+    for (const [x, y, z] of points) { vertices.push(x, y, z); colors.push(color.r, color.g, color.b); }
+    indices.push(start, start + 1, start + 2, start, start + 2, start + 3);
+  }
+  for (const level of [0, 1]) for (const inner of [false, true]) {
+    const color = new THREE.Color(inner ? 0xb4f6ff : 0x102832);
+    const width = inner ? .76 : 1.02, thickness = inner ? .18 : .38;
+    const bottom = level * .95 + (inner ? .15 : 0), z = inner ? .012 : 0;
+    for (const side of [-1, 1]) quad([
+      [0, bottom, z], [side * width, bottom + .62, z],
+      [side * width, bottom + .62 + thickness, z], [0, bottom + thickness, z],
+    ], color);
+  }
+  geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+  geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+  geometry.setIndex(indices); geometry.computeBoundingSphere();
+  return geometry;
+}
+
+function updateLandingBeacon(beacon, platform, snapshot, camera) {
+  beacon.visible = !!platform;
+  beacon.userData.targetPlatformId = platform?.id || null;
+  if (!platform) return;
+  const anchor = pointFor(platform.x + platform.width / 2, platform.y + platform.height,
+    snapshot.chunkBaseY, snapshot.worldWidth, 27.24);
+  beacon.position.set(anchor.x, anchor.y + .65, anchor.z);
+  beacon.quaternion.copy(camera.quaternion);
+}
+
 // The sky carries the biome; the broad reflected sources reveal the authored
 // roughness of ceramic, stone and metal without a screen-space glow pass.
 const LIGHTING = Object.freeze({
@@ -377,6 +411,11 @@ export function createTowerScene(canvas, settings = {}) {
   landingCue.visible = false;
   scene.add(landingCue);
   let landingCueKey = '';
+  const landingBeacon = new THREE.Mesh(ownGeometry(createLandingBeaconGeometry()), ownMaterial(new THREE.MeshBasicMaterial({
+    vertexColors: true, side: THREE.DoubleSide, toneMapped: false, depthTest: true, depthWrite: false,
+  })));
+  landingBeacon.name = 'IntendedLandingBeacon'; landingBeacon.visible = false;
+  scene.add(landingBeacon);
   const attackArc = new THREE.Mesh(ownGeometry(new THREE.TorusGeometry(1.55, .055, 6, 24, Math.PI * .9)), ownMaterial(new THREE.MeshBasicMaterial({ color: 0xabf5ff, transparent: true, opacity: .7, depthWrite: false })));
   attackArc.visible = false;
   scene.add(attackArc);
@@ -663,6 +702,7 @@ export function createTowerScene(canvas, settings = {}) {
     if (!initialized) { camera.position.copy(destination); lookAt.copy(focus); initialized = true; }
     else { camera.position.lerp(destination, cameraBlend); lookAt.lerp(focus, cameraBlend); }
     camera.lookAt(lookAt);
+    updateLandingBeacon(landingBeacon, targetPlatform, snapshot, camera);
     sky.position.copy(camera.position);
     sun.target.position.set(0, targetY, 0);
     sun.position.set(-40, targetY + 55, 52);
@@ -733,6 +773,8 @@ export function createTowerScene(canvas, settings = {}) {
       renderProgress: submissionProgress,
       calls: renderer.info.render.calls, triangles: renderer.info.render.triangles, geometries: renderer.info.memory.geometries,
       textures: renderer.info.memory.textures, programs: renderer.info.programs.length, characters: 1 + enemies.size,
+      landingBeacon: { visible: landingBeacon.visible, targetId: landingBeacon.userData.targetPlatformId || null,
+        position: landingBeacon.position.toArray(), triangles: landingBeacon.geometry.index.count / 3, depthTest: landingBeacon.material.depthTest },
       activeParticles: particleLife.filter(life => life > 0).length, frameMs,
       lighting: { environmentReady: !!reflectionTarget, environmentState: disposed ? 'disposed' : reflectionDirty ? 'pending' : reflectionTarget ? 'ready' : 'direct', environmentBuilds: reflectionBuilds,
         environmentFailures: reflectionFailures, environmentLastError: reflectionLastError,
