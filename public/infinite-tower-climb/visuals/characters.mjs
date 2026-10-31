@@ -263,17 +263,24 @@ export function createClimber() {
   // A dedicated knuckle insert makes the real attack readable without a flash.
   const fistLight=w.mat(0x3abdd9,.3,.32,0x2898cb,.12);
   w.plate(arms[1].lower,.24,.075,.04,fistLight,0,-.445,.125,.018);
-  let phase=0,attackAge=1,wasAttacking=false,landingAge=1,previousState='standing',reachSide=null;
+  let phase=0,attackAge=1,wasAttacking=false,landingAge=1,previousState='standing',reachSide=null,lastPoseTime=null;
   const rest=body.position.y;
   return w.finish((state,dt,time,{reducedMotion=false,viewAzimuth}={})=>{
     const vx=Number(state.vx??state.velocity?.x)||0,vy=Number(state.vy??state.velocity?.y)||0;
     const speed=clamp(Math.abs(vx)/4300,0,1),dead=state.state==='dead'||state.health===0;
     const airborne=state.state==='airborne',dash=state.state==='dashing',hurt=state.state==='hurt';
     const attacking=Boolean(state.attacking)&&!dead&&!hurt;
+    // The workshop caps its animation step at 100ms to prevent giant gait and
+    // camera-induced limb jumps. That cap must NOT keep an obsolete 260ms punch
+    // alive over multiple seconds of slow rendering after authority has stopped
+    // attacking. Preserve the first real observed strike pose, then catch up
+    // its recovery from the presentation clock when the attack flag is gone.
+    const poseGap=lastPoseTime===null||time<lastPoseTime?0:time-lastPoseTime;
+    lastPoseTime=time;
     if(attacking&&!wasAttacking)attackAge=0;
     wasAttacking=attacking;
     if(dead||hurt)attackAge=1;
-    else attackAge=Math.min(1,attackAge+dt);
+    else attackAge=Math.min(1,attackAge+(!attacking&&poseGap>.26?poseGap:dt));
     if(state.state==='standing'&&(previousState==='airborne'||previousState==='dashing'))landingAge=0;
     else landingAge=Math.min(1,landingAge+dt);
     previousState=state.state;

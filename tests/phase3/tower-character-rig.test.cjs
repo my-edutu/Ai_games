@@ -419,3 +419,45 @@ test('guardian crouches its rendered crown below the upper cap and restores full
     assert.ok(Math.abs(head.position.y - 2.27) < .002, 'guardian opens its original tall silhouette away from the cap');
   }
 });
+
+test('a real strike displays a skinned contact pose after a 500ms frame gap, then clears obsolete recovery', async t => {
+  const [api, THREE] = await loadCharacters();
+  for (const reducedMotion of [false, true]) {
+    const model = api.createClimber(); t.after(() => model.dispose());
+    const options = Object.freeze({ reducedMotion });
+    model.animate(standing, 1 / 60, 0, options);
+    const shoulder = joint(model, '1-shoulder');
+    const restAngle = shoulder.rotation.x;
+    const idleFist = posedVertices(model, '1-elbow', THREE);
+    const initialRoot = rootTransform(model.group);
+    model.animate(Object.freeze({ ...standing, attacking: true }), .5, .5, options);
+    assert.ok(shoulder.rotation.x < -1.25,
+      'the first genuine attack snapshot must display an extended arm even when rendering was stalled');
+    const strikeFist = posedVertices(model, '1-elbow', THREE);
+    assert.ok(strikeFist.some((point, index) => point.distanceTo(idleFist[index]) > .35),
+      'the rendered skinned fist, not just an indicator, conveys the action');
+    assert.deepEqual(rootTransform(model.group), initialRoot,
+      'presentation cannot move the authoritative player root');
+    model.animate(standing, .5, 1, options);
+    assert.ok(Math.abs(shoulder.rotation.x - restAngle) < .01,
+      'stalled rendering must not leave an obsolete attack pose latched');
+    model.animate(Object.freeze({ ...standing, state: 'dead', health: 0, attacking: true }), .5, 1.5, options);
+    assert.ok(shoulder.rotation.x > -1.25, 'death overrides any buffered attack pose');
+  }
+});
+
+test('normal-cadence attacks retain their existing recoil and recovery timeline', async t => {
+  const [api] = await loadCharacters();
+  const model = api.createClimber(); t.after(() => model.dispose());
+  const shoulder = joint(model, '1-shoulder');
+  model.animate(standing, 1 / 60, 0, {});
+  const neutral = shoulder.rotation.x;
+  model.animate(Object.freeze({ ...standing, attacking: true }), 1 / 60, 1 / 60, {});
+  model.animate(standing, 1 / 60, 2 / 60, {});
+  const earlyRecovery = shoulder.rotation.x;
+  assert.ok(Math.abs(earlyRecovery - neutral) > .025,
+    'real-time frames still display the anticipation/strike after the attack flag falls');
+  for (let i = 3; i < 25; i++) model.animate(standing, 1 / 60, i / 60, {});
+  assert.ok(Math.abs(shoulder.rotation.x - neutral) < .01,
+    'normal cadence still returns the shoulder to its actual locomotion pose');
+});
