@@ -32,6 +32,22 @@ test('distant cliff strata form a closed, irregular, smoothly shaded single mesh
       assert.ok(Math.max(...radii) - Math.min(...radii) > 0.08,
         'rock profile is eroded across each stratum, not a featureless cone');
     }
+    // The first capture exposed uniform horizontal saucer bands. A geological
+    // edge must rise/fall around its circumference rather than forming plates.
+    let irregularStrata = 0, largestRadialStep = 0;
+    for (let k = 1; k < rings - 1; k++) {
+      const elevations = [];
+      for (let i = 0; i < sides; i++) {
+        const index = k * (sides + 1) + i;
+        elevations.push(p.getY(index));
+        const previous = (k - 1) * (sides + 1) + i;
+        largestRadialStep = Math.max(largestRadialStep,
+          Math.abs(Math.hypot(p.getX(index), p.getZ(index)) - Math.hypot(p.getX(previous), p.getZ(previous))));
+      }
+      if (Math.max(...elevations) - Math.min(...elevations) >= .016) irregularStrata++;
+    }
+    assert.ok(irregularStrata >= 7, 'fractured strata must not render as flat stacked saucers');
+    assert.ok(largestRadialStep < .24, `rock shelves may project but cannot become thin discs (max deltaRadius ${largestRadialStep})`);
     const profile = Array.from({length:rings},(_,k)=>Math.hypot(p.getX(k*(sides+1)),p.getZ(k*(sides+1))));
     const ledges = profile.slice(1,-1).filter((r,i)=>r>profile[i]+0.075 && r>profile[i+2]+0.075);
     assert.ok(ledges.length >= 2,'two non-repeating eroded ledges show physical rock bedding');

@@ -7,9 +7,9 @@
 export function buildHeadlandGeometry(THREE) {
   const sides = 28;
   const rings = [
-    [0, .44], [.09, .69], [.16, .87], [.22, 1.06], [.29, .88],
-    [.36, 1.05], [.42, .78], [.49, .84], [.56, .75], [.63, .95],
-    [.70, .78], [.76, .86], [.85, .70], [.92, .66], [1, .58],
+    [0, .48], [.09, .68], [.16, .83], [.22, .98], [.29, .90],
+    [.36, 1.00], [.42, .84], [.49, .86], [.56, .80], [.63, .96],
+    [.70, .86], [.76, .89], [.85, .75], [.92, .69], [1, .60],
   ];
   const positions = [], uv = [], indices = [];
   for (let k = 0; k < rings.length; k++) {
@@ -23,7 +23,13 @@ export function buildHeadlandGeometry(THREE) {
         + .027 * Math.sin(a * 9 + .7 + y * 4)
         + .014 * Math.cos(a * 13 - y * 8);
       const radius = width * erosion;
-      positions.push(Math.cos(a) * radius, y, Math.sin(a) * radius);
+      // Break horizontal ring artifacts. Bedding is locally tilted, with the
+      // highest irregularity in the cliff body and grounded/level endpoints.
+      const strataFactor = Math.sin(Math.PI * k / (rings.length - 1));
+      const unevenY = y + strataFactor * (
+        .022 * Math.sin(a * 3 + y * 5) + .008 * Math.sin(a * 7 - y * 8)
+      );
+      positions.push(Math.cos(a) * radius, unevenY, Math.sin(a) * radius);
       uv.push(i / sides * 3, y * 2.5);
       if (k && i < sides) {
         const current = k * (sides + 1) + i;
