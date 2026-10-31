@@ -1,24 +1,24 @@
 {
-  "updatedAt": "2026-10-30T21:25:10Z",
-  "status": "Round 10 candidate · stone finish and a connected mouth corner",
-  "detail": "The pale pointed cheek defect was traced to the open front of the body mesh protruding under the skull. The candidate buries that overlap, supports the jaw root and simplifies the lip contour. Existing stone surfaces gain worn slab variation and corrected side mapping. Actual visual acceptance is pending; corrected GPU-fence profiling will select the next speed change.",
+  "updatedAt": "2026-10-31T04:49:00Z",
+  "status": "Round 13 · flowing-water render candidate; Gauntlet open",
+  "detail": "Grounded serpent, distant groves and stable prop cache are published at ffe44de. Round 13 now precomposes organic water and foam into one filtered fragment lookup instead of two, with focused regression and real offline WebGL capture. Last live-host browser pacing still failed: 8 actual draws over 1008.2ms versus unchanged minimum 17. Current-head CI and an independent whole-game verdict remain pending.",
   "latestImage": "/progress/evidence/round-9-overview.jpg",
-  "latestCaption": "Round 9 · actual running-game capture from checkpoint bf4a523; visual and pacing gates remain open",
+  "latestCaption": "Historical Round 9 actual WebGL capture; not a Round 13 image. New water screenshots are offline evidence and are not misrepresented here.",
   "reviews": [
     {
       "area": "Character and motion",
-      "verdict": "LOSE · anonymous A/B still comparison",
-      "gap": "A fresh critic chose the official reference over the current character. The largest remaining gap is a pale pointed shape at the jaw’s rear cheek/neck attachment. The front cap and floating smile tube were improved, but this local junction still looks assembled."
+      "verdict": "Grounded geometry verified · visual LOSE still open",
+      "gap": "Round 12 grounds the tapered body and skull. The last blind character comparison favored the official Snake Pass reference. New whole-game expressive motion review remains open."
     },
     {
-      "area": "World and composition",
-      "verdict": "Stone finish candidate · actual review pending",
-      "gap": "A fresh critic selected the dominant pale courtyard and rim as the largest scene gap. The candidate adds coherent slab variation, restrained edge wear and properly mapped masonry sides within the same meshes, materials and textures. Actual before/after review is pending."
+      "area": "World and water",
+      "verdict": "One shader texture lookup proven · visual win unproven",
+      "gap": "Round 13 precomposes periodic water and foam; the real offline WebGL captures retain clear gameplay. The pale courtyard and opaque water remain less materially rich than the official reference. No independent reviewer available."
     },
     {
-      "area": "Whole experience",
-      "verdict": "518/518 repository tests · 12/13 focused browser checks",
-      "gap": "Checkpoint bf4a523 passes all 518 Node tests. The isolated browser run still fails full-HD pacing at 5.442 FPS with a 316.7 ms maximum gap. An independent reviewer found a GPU-completion assumption in the diagnostic that must be corrected; partial-scene measurements are not treated as a passing result."
+      "area": "Frame delivery and reliability",
+      "verdict": "Live-host focused CI 15/16; pacing failed",
+      "gap": "At ffe44de the browser submitted 8 actual frames over 1008.2ms against an unchanged required minimum 17. Round 13's focused Snake tests 37/37 and TypeScript build passed; current-head live-host and production readiness are pending."
     }
   ],
   "rounds": [
@@ -176,16 +176,38 @@
           "path": "/progress/evidence/round-9-overview.jpg"
         }
       ]
+    },
+    {
+      "title": "Round 11 · stable public HUD",
+      "summary": "Identical public frames no longer rewrite the HUD. Captions and reconnect updates remain live. Browser pace was still below the gate.",
+      "captures": []
+    },
+    {
+      "title": "Round 12 · grounded serpent and distant groves",
+      "summary": "Tapered body meets the ground; layered groves/cliffs improve background depth; stable props share a correctly invalidated cache. Browser 15/16, pacing failed.",
+      "captures": [
+        {
+          "label": "Actual last live-host screenshots and trace archive",
+          "path": "https://github.com/my-edutu/Ai_games/actions/runs/41167550976/artifacts/13029722241"
+        },
+        {
+          "label": "18-second live-host gameplay recording",
+          "path": "https://github.com/my-edutu/Ai_games/actions/runs/41167550976/artifacts/13030190849"
+        }
+      ]
+    },
+    {
+      "title": "Round 13 · single-sample organic water",
+      "summary": "Two periodic water fields and foam crests now share one filtered lookup. Focused TDD and local real WebGL capture passed; no new live-host or independent whole-game verdict was yet available.",
+      "captures": []
     }
   ],
   "checks": [
-    "Full repository Node regression on bf4a523: 518 passed, 0 failed/skipped/cancelled. Full repository browser stage: 24 passed, 1 failed, with the Snake pacing gate the sole failure.",
-    "Isolated real-browser run 41128720595 on bf4a523: 12 passed, 1 failed. Cameras, portrait controls, fallback, lifecycle/reconnect, local assets, cache resizing and context loss pass.",
-    "Full-HD gate on bf4a523 remains failed: 5.442 FPS, 7 actual submitted draws over 1286.4 ms, maximum gap 316.7 ms. Requirements remain at least 17 FPS and gaps below 250 ms.",
-    "Display-cache visual regression on c953c64: all 614,400 pixels match the preceding cached fixture. The prior fine-edge antialiasing difference is unchanged.",
-    "Matched cache frames show 74,935 → 11,498 steady-frame triangles. Initial-frame timings are not treated as a sustained speed claim.",
-    "12 focused presentation/model checks and independent code-review corrections are retained.",
-    "The commercial visual benchmark and external production R5 gates remain open.",
-    "Measured-resolution regression: 4/4 pass, including isolated-hitch resistance and real draw submission. Camera/model/resource checks: 4/4 pass. Passing these checks does not establish acceptable GPU performance."
+    "Round 13 exact-source isolated focused Snake Node suite 37/37 passed; TypeScript build passed. New one-fetch regression failed on the original two-fetch shader and passed on candidate.",
+    "Round 13 local frozen-frame WebGL 1440×900, fixed scale 0.5, untraced: before 42/40 vs after 42/44 actual submitted draws over 2.6s each. Inconclusive short diagnostic, not a live-host win.",
+    "Last live-host focused browser run ffe44de passed 15/16; desktop pacing failed with 8 actual submissions in 1008.2ms versus unchanged minimum 17. RAF cadence is not render FPS.",
+    "General CI on ffe44de passed build/Node/host/authority/operations stages but failed browser verification. No all-green CI claim.",
+    "Last full catalogue verification (ffe44de) 539/539 passed; Round 13 fresh entire-suite completion and current-head live-host validation remain open.",
+    "Independent whole-game visual/motion comparison, sustained device performance, accessibility throughout transitions and R5 production/soak are not complete."
   ]
 }

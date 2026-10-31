@@ -338,8 +338,9 @@ export function createWorld(THREE, {width, height}) {
   }
   materialBatches.clear();
   batches.clear();
-  // Original seamless water detail is baked once. Slow sampling of two warped
-  // fields replaces per-fragment sine interference (which read as a plaid grid).
+  // Bake two periodic, differently warped organic fields into one texture.
+  // The water still flows in the fragment shader, but only one filtered lookup
+  // is required per pixel (important for the large software-rendered horizon).
   function waterTexture(){
     const size=256,data=new Uint8Array(size*size*4);
     const periodicNoise=(u,v,period)=>{
@@ -353,10 +354,18 @@ export function createWorld(THREE, {width, height}) {
       const u=x/size,v=y/size;
       const warpU=u+(periodicNoise(u+.31,v+.17,4)-.5)*.16;
       const warpV=v+(periodicNoise(u+.63,v+.47,5)-.5)*.16;
-      const broad=periodicNoise(warpU,warpV,5)*.62+periodicNoise(warpU,warpV,11)*.28+periodicNoise(warpU,warpV,23)*.1;
-      const ripple=periodicNoise(warpU,warpV,13)*.7+periodicNoise(warpU+.2,warpV-.1,7)*.3;
-      const contour=Math.max(0,1-Math.abs(ripple-.52)/.032);
-      const i=(y*size+x)*4;data[i]=Math.round(broad*255);data[i+1]=Math.round(contour*contour*255);data[i+2]=0;data[i+3]=255;
+      const broadA=periodicNoise(warpU,warpV,5)*.62+periodicNoise(warpU,warpV,11)*.28+periodicNoise(warpU,warpV,23)*.1;
+      // Both layers wrap on the original UV domain; a rotated, baked second
+      // layer would create an abrupt repeat seam at tile boundaries.
+      const broadB=periodicNoise(warpU+.37,warpV-.19,7)*.65+periodicNoise(warpU-.14,warpV+.37,17)*.35;
+      const rippleA=periodicNoise(warpU,warpV,13)*.7+periodicNoise(warpU+.2,warpV-.1,7)*.3;
+      const rippleB=periodicNoise(warpU+.22,warpV+.39,13)*.7+periodicNoise(warpU-.18,warpV+.27,9)*.3;
+      const crestA=Math.max(0,1-Math.abs(rippleA-.52)/.032)**2;
+      const crestB=Math.max(0,1-Math.abs(rippleB-.52)/.04)**2;
+      const i=(y*size+x)*4;
+      data[i]=Math.round((broadA+broadB)*127.5);
+      data[i+1]=Math.round(Math.min(1,Math.max(0,crestA+crestB-.55))*255);
+      data[i+2]=0;data[i+3]=255;
     }
     const t=new THREE.DataTexture(data,size,size);t.name='Original flowing water field';t.wrapS=t.wrapT=THREE.RepeatWrapping;
     t.magFilter=THREE.LinearFilter;t.minFilter=THREE.LinearMipmapLinearFilter;t.generateMipmaps=true;t.needsUpdate=true;textures.add(t);return t;
@@ -381,11 +390,10 @@ export function createWorld(THREE, {width, height}) {
       uniform sampler2D waterField;
       void main(){
         vec2 flow=vec2(time*.0014,time*.00065);
-        vec2 a=texture2D(waterField,waterUv+flow).rg;
-        vec2 b=texture2D(waterField,mat2(.8,-.6,.6,.8)*waterUv-flow*.63+vec2(.37,.19)).rg;
-        float depth=.2+(a.r+b.r)*.3;
+        vec2 field=texture2D(waterField,waterUv+flow).rg;
+        float depth=.2+field.r*.6;
         vec3 col=mix(vec3(.035,.24,.27),vec3(.09,.37,.36),depth);
-        col+=vec3(.035,.065,.045)*max(0.,a.g+b.g-.55);
+        col+=vec3(.035,.065,.045)*field.g;
         gl_FragColor=vec4(col,1.);
         #include <fog_fragment>
       }`,

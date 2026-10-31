@@ -104,3 +104,17 @@ Independent performance review caught an invalid completion assumption in the di
 The next world candidate finishes the existing stone family and corrects collapsed masonry side UVs. Model verification preserves all position/normal/index buffers, dynamic prop transforms, and resource counts across three board dimensions; actual visual acceptance remains pending.
 
 Round 10 character diagnosis: a fresh builder used actual still/motion inspection plus a CPU mesh-ID projection to identify the persistent pale prong as the open first body ring beneath the head. The candidate buries that overlap within the skull, attaches the jaw root farther inside the cheek, thickens the shell slightly and removes the competing gold cheek stroke. The projection is diagnostic geometry evidence, not a substitute for actual WebGL visual review. Corrected renderer profiling is independently source-reviewed; actual next-candidate visual and pacing checks remain pending.
+
+## Round 11: idempotent HUD (earlier published checkpoint)
+
+`3f23e6` removed 50 redundant DOM mutations during 650ms of an unchanged public frame without hiding changed captions or recovery copy. Browser CI passed 14/15; actual submitted-frame pacing still failed (10 draws in about a second). See `docs/reviews/snake-gauntlet/round11-hud-stability.md`.
+
+## Round 12: grounded serpent, horizons and stable props (earlier published checkpoint)
+
+`ffe44de` ground-corrected the body's tapered belly and head/neck, filled distant empty headings with continuous cliff/grove geometry and cached stable portals/obstacles with topology invalidation while active traps remained live. Focused CI [41167550976](https://github.com/my-edutu/Ai_games/actions/runs/41167550976) passed 15/16; the unchanged pacing gate failed at **8 actual submitted frames in 1008.2ms**, requiring 17. General CI [41167551002](https://github.com/my-edutu/Ai_games/actions/runs/41167551002) failed browser verification; full local tests for that checkpoint passed 539/539. See `docs/reviews/snake-gauntlet/round12-grounded-landscape.md`.
+
+## Round 13: one-sample flowing water candidate
+
+Base exact branch head `ffe44de2ca27997c260d8a4ce261fe09fc0866a2` with original `world.mjs` Git blob `639b5918bb1135de93178d841182d85f2d0e9614`. Precompose two periodic broad fields and two foam contours in the existing 256×256 map, reducing water fragment reads from **two to one** without changing fog, motion freeze, color, resources, gameplay authority or recovery. A new regression was red on the original two-lookup implementation then green after this change; isolated Snake tests **37/37 passed** and TypeScript build passed. Real Chromium/SwiftShader WebGL stills from a retained public snapshot were visually inspected; no errors. Fixed-scale 0.5 local software-rendering samples submitted 42/40 frames before and 42/44 after over 2.6s per run. These are not a sustained performance improvement or a live-host gate pass. Separate independent review was unavailable (worker tunnel offline). Reference water realism, full-game material depth and hero expression still **LOSE** against Snake Pass. See `docs/reviews/snake-gauntlet/round13-flowing-water.md`.
+
+**Open:** live-host 17-actual-draw acceptance gate, fresh exact-head CI, full catalogue current-source tests, sustained device pacing, independent whole-game visual/motion verdict, and production R5/soak. PR 52 remains draft; no merge or deploy.
