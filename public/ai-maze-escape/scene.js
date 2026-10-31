@@ -385,8 +385,14 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
         desiredTarget.x += focus.x;
         desiredTarget.z += focus.z;
       }
+      // A *source-disclosed* locked obstacle and Pip should occupy a clear
+      // shared gameplay shot. The former ordering always selected the generic
+      // portrait height before reaching the gate branch, so portrait never
+      // received the gate-specific composition. Keep small-height layouts
+      // protected, and use a less aggressive zoom in narrow portrait.
       targetHeight = cameraMode === 'detail' ? 4.6 : height < 340 ? 5.4
-        : aspect < .9 ? 6.2 : nearObservedGoal ? 6.25 : nearObservedGate ? 6.55 : 7.3;
+        : nearObservedGate ? (aspect < .9 ? 5.8 : 5.65)
+        : aspect < .9 ? 6.2 : nearObservedGoal ? 6.25 : 7.3;
     }
     const blend = settings.reducedMotion ? 1 : 1 - Math.exp(-delta * 4.5);
     cameraTarget.lerp(desiredTarget, blend);
@@ -447,6 +453,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
         // Camera evidence is derived only from the source-disclosed gate,
         // with projected coordinates in normalized device space [-1,+1].
         nearbySealedGate: nearObservedGate ? {...nearObservedGate} : null,
+        cameraHalfHeight: halfHeight,
         cameraOffset: {x: cameraOffset.x, y: cameraOffset.y, z: cameraOffset.z},
         nearbySealedGateProjection: nearObservedGate ? (() => {
           const a = cellPosition(nearObservedGate.a, s.width, s.height);
