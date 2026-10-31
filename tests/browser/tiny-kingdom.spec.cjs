@@ -361,14 +361,14 @@ test('Tiny Kingdom scenic hills rise without changing world state or seeded repl
 });
 
 
-test('Gauntlet 018 camera tour provides six semantic views without affecting authoritative world', async ({page}) => {
+test('Gauntlet 018 camera tour provides seven semantic views without affecting authoritative world', async ({page}) => {
   const errors=[];page.on('pageerror', e=>errors.push(e.message));
   await page.setContent(html);
   await page.waitForFunction(()=>Boolean(window.__tinyKingdom));
   await page.locator('#pause').click();
   const before=await page.evaluate(()=>JSON.stringify(window.__tinyKingdom.exportSnapshot()));
-  expect(await page.locator('.tour-btn').count()).toBe(6);
-  for(const [scene,x,z] of [['market',0,5],['mill',-27,-18],['orchard',-26,9],['river',-6,18.1],['valley',0,0]]){
+  expect(await page.locator('.tour-btn').count()).toBe(7);
+  for(const [scene,x,z] of [['market',0,5],['mill',-27,-18],['orchard',-26,9],['farm',23,1],['river',-6,18.1],['valley',0,0]]){
     await page.locator('[data-scenic="'+scene+'"]').click();
     await expect(page.locator('[data-scenic="'+scene+'"]')).toHaveAttribute('aria-pressed','true');
     const camera=await page.evaluate(()=>window.__tinyKingdom.getCamera());
@@ -508,7 +508,7 @@ test('Tiny Kingdom sanctuary camera does not change the authoritative simulation
   await expect(page.locator('[data-scenic="sanctuary"]')).toHaveAttribute('aria-pressed','true');
 });
 
-test('Tiny Kingdom six-view mobile tour stays within viewport', async ({browser}) => {
+test('Tiny Kingdom seven-view mobile tour stays within viewport', async ({browser}) => {
   const page=await browser.newPage({viewport:{width:390,height:844}});
   const faults=[];
   page.on('pageerror',e=>faults.push(e.message));
@@ -804,7 +804,7 @@ test('Gauntlet 033 cinematic UI grade is readable, responsive, accessible and pr
  expect(desktop.worldFilter).toBe('none');
  expect(desktop.headingSize).toBeGreaterThanOrEqual(25);
  expect(desktop.panelBackground).toContain('gradient');
- expect(desktop.tourButtons).toBe(6);
+ expect(desktop.tourButtons).toBe(7);
  expect(desktop.selected).toBe(1);
  expect(desktop.overflow).toBeLessThanOrEqual(1);
  await page.setViewportSize({width:390,height:844});
