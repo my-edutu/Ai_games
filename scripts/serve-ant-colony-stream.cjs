@@ -20,7 +20,9 @@ const MAX_EVIDENCE_ADVANCE_TICKS=10_000;
 const EVIDENCE_TARGETS=new Set(['brood','foraging','excavation','predator','combat','weather','night','milestone']);
 const BROWSER_ASSETS = Object.freeze([
   'index.html','styles.css','ux-v2.css','director.js','organic-presenter.js',
-  'world-renderer.js','entity-renderer.js','soundscape.js','app.js'
+  'world-renderer.js','entity-renderer.js','soundscape.js','app.js',
+  'colony-3d.html','colony-3d.css','colony-3d-core.js','colony-3d-renderer.js','colony-3d-app.js',
+  'gauntlet.html','gauntlet.css','gauntlet.js','gauntlet-status.json'
 ]);
 
 const STREAM_CONFIG = Object.freeze({
@@ -142,6 +144,8 @@ function contentType(file) {
   if (file.endsWith('.html')) return 'text/html; charset=utf-8';
   if (file.endsWith('.css')) return 'text/css; charset=utf-8';
   if (file.endsWith('.js')) return 'text/javascript; charset=utf-8';
+  if (file.endsWith('.json')) return 'application/json; charset=utf-8';
+  if (file.endsWith('.jpg')) return 'image/jpeg';
   return 'application/octet-stream';
 }
 
@@ -162,7 +166,7 @@ function sendJson(response,status,value) {
 function sendFile(response,file) {
   if (!fs.existsSync(file)) { response.writeHead(404); response.end('Not found'); return; }
   const body = fs.readFileSync(file);
-  response.writeHead(200,headers(contentType(file),body.length,file.endsWith('.html')));
+  response.writeHead(200,headers(contentType(file),body.length,file.endsWith('.html')||file.endsWith('.json')));
   response.end(body);
 }
 
@@ -195,7 +199,10 @@ function serve() {
   interval.unref();
 
   const files = Object.freeze({
+    ...Object.fromEntries(BROWSER_ASSETS.map(name=>['/ant/'+name,name])),
     '/':'index.html','/ant':'index.html','/ant/':'index.html','/ant/index.html':'index.html',
+    '/ant/3d':'colony-3d.html','/ant/3d/':'colony-3d.html','/ant/gauntlet':'gauntlet.html',
+    '/ant/gauntlet-before.jpg':'gauntlet-before.jpg','/ant/gauntlet-after.jpg':'gauntlet-after.jpg',
     '/ant/styles.css':'styles.css','/ant/ux-v2.css':'ux-v2.css','/ant/director.js':'director.js',
     '/ant/organic-presenter.js':'organic-presenter.js','/ant/world-renderer.js':'world-renderer.js',
     '/ant/entity-renderer.js':'entity-renderer.js','/ant/soundscape.js':'soundscape.js','/ant/app.js':'app.js'
