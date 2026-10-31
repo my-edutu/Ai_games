@@ -128,6 +128,13 @@ export function createSerpent(THREE) {
   const normalAttribute = new THREE.BufferAttribute(normals, 3).setUsage(THREE.DynamicDrawUsage);
   const uvAttribute = new THREE.BufferAttribute(uvs, 2).setUsage(THREE.DynamicDrawUsage);
   const indexAttribute = new THREE.BufferAttribute(indices, 1).setUsage(THREE.DynamicDrawUsage);
+  // BEGIN R36 INDEX STATE
+  // A changing pose need not re-upload an unchanged body index topology.
+  // Break positions preserve separated portal fragments and ring cap boundaries.
+  const currentBreaks = [], uploadedBreaks = [];
+  let uploadedIndexCount = -1, uploadedRadial = -1;
+  let indexUploadRequests = 0, indexReuseFrames = 0;
+  // END R36 INDEX STATE
   bodyGeometry.setAttribute('position', positionAttribute);
   bodyGeometry.setAttribute('normal', normalAttribute);
   bodyGeometry.setAttribute('uv', uvAttribute);
@@ -416,6 +423,9 @@ export function createSerpent(THREE) {
   }
   function writeRing(x, z, dx, dz, radius, distance, y, connect, lateral = 0) {
     if (ringCount >= MAX_RINGS) { truncated = true; return false; }
+    // BEGIN R36 CONTINUITY MARK
+    if (!connect) currentBreaks.push(ringCount);
+    // END R36 CONTINUITY MARK
     const tangentLength = Math.hypot(dx, dz) || 1;
     const nx = dz / tangentLength, nz = -dx / tangentLength;
     const base = ringCount * activeRing;
@@ -462,6 +472,9 @@ export function createSerpent(THREE) {
     eaten = Math.max(eating, eaten * Math.exp(-dt * 9));
     dangerEase += (danger - dangerEase) * (1 - Math.exp(-dt * 10));
     ringCount = indexCount = pathCount = 0; truncated = false;
+    // BEGIN R36 RESET BREAKS
+    currentBreaks.length = 0;
+    // END R36 RESET BREAKS
     const first = paths?.[0]?.[0];
     group.visible = Boolean(first);
     if (!first) { bodyGeometry.setDrawRange(0, 0); return; }
@@ -525,11 +538,33 @@ export function createSerpent(THREE) {
       if (truncated) break;
     }
     bodyGeometry.setDrawRange(0, indexCount);
+    // BEGIN R36 COMPARE TOPOLOGY
+    let topologyUnchanged = indexCount === uploadedIndexCount && activeRadial === uploadedRadial
+      && currentBreaks.length === uploadedBreaks.length;
+    if (topologyUnchanged) for (let i = 0; i < currentBreaks.length; i++) {
+      if (currentBreaks[i] !== uploadedBreaks[i]) { topologyUnchanged = false; break; }
+    }
+    // END R36 COMPARE TOPOLOGY
     for (const attribute of [positionAttribute, normalAttribute, uvAttribute, indexAttribute]) {
+      // BEGIN R36 SKIP STABLE UPLOAD
+      if (attribute === indexAttribute && topologyUnchanged) {
+        indexReuseFrames++;
+        continue;
+      }
+      // END R36 SKIP STABLE UPLOAD
       attribute.clearUpdateRanges();
       attribute.addUpdateRange(0, attribute === indexAttribute ? indexCount : ringCount * activeRing * attribute.itemSize);
       attribute.needsUpdate = true;
     }
+    // BEGIN R36 SAVE TOPOLOGY
+    if (!topologyUnchanged) {
+      uploadedIndexCount = indexCount;
+      uploadedRadial = activeRadial;
+      uploadedBreaks.length = 0;
+      for (const ring of currentBreaks) uploadedBreaks.push(ring);
+      indexUploadRequests++;
+    }
+    // END R36 SAVE TOPOLOGY
     let dx = options.direction?.x, dz = options.direction?.z;
     if (!Number.isFinite(dx) || !Number.isFinite(dz) || Math.hypot(dx, dz) < 0.001) {
       const next = paths[0][1]; dx = next ? first.x - next.x : 0; dz = next ? first.z - next.z : 1;
@@ -635,6 +670,9 @@ export function createSerpent(THREE) {
       bodyRings: ringCount, bodyVertices: ringCount * activeRing, detail: lowDetail ? 'low' : 'high', bodyTriangles: indexCount / 3,
       paths: pathCount, maxBodyRings: MAX_RINGS, truncated, disposed,
       gaze: { horizontal: gazeX, vertical: gazeY },
+      // BEGIN R36 DIAGNOSTIC COUNTERS
+      indexUploadRequests, indexReuseFrames,
+      // END R36 DIAGNOSTIC COUNTERS
       bufferBytes: positions.byteLength + normals.byteLength + uvs.byteLength + indices.byteLength,
     };
   }

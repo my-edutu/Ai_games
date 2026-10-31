@@ -1,10 +1,15 @@
 {
-  "updatedAt": "2026-10-31T20:41:00Z",
-  "status": "Round 35 · real Chromium/WebGL overview/detail lichen A/B verified; focused 23/25 (historical R32 test fix pending CI, strict desktop 15/17 FAIL); whole-game Snake Pass LOSE",
-  "detail": "R35 verified exact-source Chromium/SwiftShader 41239708262 23/25 PASS, including new same-public-frame before/after world-only A/B. Actual 960x640 overview: 26137/614400 changed output pixels 4.254%; detail 12809/614400 2.085%; GL and budgets PASS, visually subtle lichen only, whole-game LOSE. Two failures: desktop 15 actual render submissions/1000.3ms vs unchanged >=17 (61 RAF callbacks do NOT prove render/display FPS), and historical R32 test source-index false duplicate, now corrected using historicWorld.indexOf and locally SHA-verified; fix CI PENDING. General CI 41239708335 running. Original asset/provenance, central board, authority, portal, cue, recovery, captions, reduced motion intact; independent critic, reliable device display FPS, soak, R5 missing. Draft, unmerged, undeployed.",
+  "updatedAt": "2026-10-31",
+  "status": "GAUNTLET IN PROGRESS — Round36 candidate index topology transfer optimization; strict rendered-frame and benchmark gates open",
+  "detail": "Original scene and game authority preserved. Frozen exact-prior-source real WebGL screenshots and CI pending; CPU index transfer requests are not measured GPU or displayed FPS. Official Snake Pass still wins; independent critic/device soak/R5 absent.",
   "latestImage": "/progress/evidence/round-9-overview.jpg",
   "latestCaption": "Historical Round9 image (not R35). Real Round35 Chromium/WebGL same synthetic public-frame overview/detail before/after: https://github.com/my-edutu/Ai_games/actions/runs/41239708262/artifacts/13056688120; not live gameplay frame pacing.",
   "reviews": [
+    {
+      "area": "Round 36 · live serpent index topology transfer",
+      "verdict": "PRODUCTION OPTIMIZATION CANDIDATE · EXACT-SOURCE NODE AND TRUE WEBGL CAPTURES PENDING · WHOLE-GAME LOSE",
+      "gap": "Reduce redundant dynamic index-buffer upload requests only for unchanged contiguous/portal topology, while preserving byte-identical body buffers and both LODs. New Node and real-WebGL regression pending. No independent reviewer, verified causal FPS/device presents/soak/R5."
+    },
     {
       "area": "Round 35 · original inhabited-garden lichen at perimeter",
       "verdict": "R35 ACTUAL CHROMIUM WEBGL A/B PASS · 23/25 FOCUSED · HISTORICAL R32 COMPARATOR FIX PENDING CI · STRICT 15/17 FAIL · WHOLE-GAME LOSE",
@@ -593,9 +598,15 @@
           "path": "https://github.com/my-edutu/Ai_games/blob/feat/autonomous-snake-3d-gauntlet/docs/reviews/snake-gauntlet/round34-public-head-attention.md"
         }
       ]
+    },
+    {
+      "title": "Round 36 · preserve body frames while avoiding redundant GPU index uploads",
+      "summary": "A bounded candidate optimizes live serpent index-buffer uploads using exact portal breaks, radial LOD and active triangles. Exact prior-source Node and synthetic real-WebGL before/after verification pending; whole-game Snake Pass and strict ≥17-submission performance requirements remain open.",
+      "captures": []
     }
   ],
   "checks": [
+    "Round36 candidate on parent fd9c8e5e26b021fc6211bac4dde73652400da1f1: original serpent index topology uploads skipped when portal break positions/LOD/count unchanged; Node exact predecessor parity and true WebGL frozen PNG regression added, NEW CI PENDING. Latest prior-head focused 41240251761 24/25; actual desktop 10 submissions/<approx 1s against minimum 17; no performance win claimed.",
     "Round35 actual 41239708262 23/25 focused; same synthetic WebGL world A/B overview 26137/614400 visible changed pixels and detail 12809/614400; strict desktop 15 real render submissions/1000.3ms FAIL vs >=17; historic R32 comparator fix locally validated, CI pending.",
     "Round35: model-only original courtyard lichen 66/66 focused Snake Node on verified R34 offline tree, TypeScript and host self-test pass; real R35 Chromium/WebGL screenshot and strict pacing pending. Previous-head 41238291500 23/24 focused; 10 actual draws/1013.2ms, min17, fail.",
     "Round33 current true Chromium SwiftShader focused 41228769206 22/23 browser PASS, exact SHA1 before/after low-detail face PASS. Overview 84/614400 changed face pixels (max4/255), detail 0, original geometry/maps preserved. Strict desktop 10 actual submitted WebGL frames/1013.6ms <17 FAIL (~61 RAF not FPS). Local exact SHA verified build+63/63 Node+host self-test PASS. General run 41228769294 browser pending.",
