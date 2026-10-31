@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-10-31T12:05:39.877Z",
+  "updatedAt": "2026-10-31T13:14:38.054Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass 23 (2026-10-31): original matching-key gesture and physical prop implemented; source aaf96f3 exact CI 41199011079 PASSED 526/526 Node and 25/25 browser, build/determinism/hosts; actual production seed maze-visual-reference-13 tick21 captured at 12:04:51.888Z desktop PNG SHA 80209adb5eec1a7b99755c4ae73513e151dc8c776e0eceece69f278e8eebab38 and 12:04:55.569Z portrait SHA a95676e71b8273f7088e95fb13b9b2cff9929c16e6f8223cd643ca1aeb726c64 in original artifact 13041484155, independently hash verified. Lead visual inspection: Pip turns toward lock, but key partly hidden by foreground gate masonry; fixed Nintendo Captain Toad bar NOT PASSED, independent critics/Ultracode unavailable. CPU software rendering is not hardware GPU FPS."
+    "summary": "Pass 24 (2026-10-31): Pip raises and counter-rotates its original physical matching key clear of the foreground gate post. Exact-source e0237ec CI 41204087109 succeeded (526/526 Node, 25/25 browser, build/hosts/determinism); original production seed13/tick21 desktop and portrait PNG hashes verified in artifact 13043996998. Key bow is visibly clearer in real images; physical key-to-lock causality and scene scale remain below fixed Captain Toad. No independent blind critic/Ultracode (workspace tunnel disconnected); CPU software frame times are not GPU FPS."
   },
   "captures": [
     {
@@ -114,10 +114,11 @@
     "Pass 19: source-only public sealed-gate composition rebalances stage and truly known closed gate in the follow camera, with original bounds and deterministic rules unchanged. CI 41189735556 passed 524 Node and 25 Playwright checks and emitted real seed13/tick21 1280×900 desktop and 390×844 portrait gate shots (SHA-pinned in artifact 13038422543). Subjects shifted modestly right; some blank lagoon returned. Review docs/reviews/maze-3d/gate-composition-pass-19-review.md. Fixed Nintendo quality bar NOT PASSED; no independent fresh critic, Ultracode or hardware-FPS conclusion.",
     "Passes 20–21: the follow-camera view of a real public, actually sealed gate moves closer on desktop/portrait while preserving source-only authority. Pass 20 made Pip and crossed lock larger but cropped the arch; pass 21 raises the actual camera target 0.36 to restore the arch. Final source CI 41193675854 passed all 524 Node and 25 browser checks and produced real dated 1280×900/390×844 captures (artifact 13039268530, SHA-pinned in gate-framing-pass-20-21-review.md). Fixed Captain Toad bar NOT PASSED; independent critics/Ultracode unavailable.",
     "Pass 22 source-verified: a physically modeled matching octagonal key emblem appears above a genuinely sealed gate only for the exact already-disclosed key or public inventory; a mint crest indicates key carried, while the crossed barrier persists until authority opens. Real same-seed/tick21 1280×900 and 390×844 production browser captures from CI 41197086460 inspected and SHA-pinned (artifact 13040969661), exact-source CI 41197217318 passed 524 Node/25 browser checks. The visual bar is still unpassed.",
-    "Pass 23: an exact public carried-key match and actually near sealed gate triggers Pip's real original modeled glove key and head/torso/arm gesture, with reduced-motion, guardian and terminal precedence. Initial no-key NaN defect failed 2 tests and was corrected. New genuine desktop+portrait production captures and full 526 Node/25 browser CI passed. Key remains partly occluded at native scale; benchmark unpassed."
+    "Pass 23: an exact public carried-key match and actually near sealed gate triggers Pip's real original modeled glove key and head/torso/arm gesture, with reduced-motion, guardian and terminal precedence. Initial no-key NaN defect failed 2 tests and was corrected. New genuine desktop+portrait production captures and full 526 Node/25 browser CI passed. Key remains partly occluded at native scale; benchmark unpassed.",
+    "Pass 24: Pip's real left-glove key now rises beside the helmet and faces upright instead of being hidden behind the sealed-gate masonry, while the exact public matching-key requirement and deterministic simulation remain untouched. Exact-source 526 Node/25 browser CI succeeded; actual native desktop+portrait PNGs independently hash-matched artifact 13043996998. Both improve key silhouette but Nintendo benchmark remains unpassed; see key-visibility-pass-24-review.md."
   ],
   "nextGaps": [
-    "Pass 23 actual gameplay shows Pip turn toward the matching carried-key seal, but the physical held key is partly hidden by foreground gate masonry and is hard to recognize on 390px portrait. Make the hand, key silhouette, gate lock, and still-closed barrier visually legible together at the fixed seed/tick; keep public-state triggers and reduced-motion truth. Inspect current-source actual screenshots and seek fresh independent blind A/B before any benchmark victory.",
+    "Pass 24 actual desktop and portrait show the mint key bow above the sandstone post, but Pip's hand-to-lock action is still hard to understand at native size and the gate stays blocked (correct public authority). Improve the physical interaction's causality, actor/gate scale and composition, then inspect genuine seeded images against fixed Nintendo references with separate fresh critics when available; no hidden hints or scripted fake unlock.",
     "Establish stronger gameplay-scale Pip/Thornback expression, gate/key/exit differentiation, environmental material variety and a camera view which preserves both the obstacle and the next *disclosed* action.",
     "Run separate fresh-context visual critics and blind A/B against both unchanged SHA-pinned official Nintendo Captain Toad frames; last independent verdict still favors the reference. Do not claim benchmark parity from CI or lead-only visual judgment.",
     "Review actual animated stair/gait/guardian motion, original game audio, accessibility and true GPU performance on less CPU-throttled hardware; SwiftShader frame times do not establish hardware FPS.",
@@ -268,6 +269,13 @@
       "verdict": "Physical head/arm reaction now visible; key occluded, fixed Captain Toad reference still wins",
       "date": "2026-10-31T12:04:55.569Z",
       "summary": "Genuine 1280×900 and 390×844 seed maze-visual-reference-13 tick21 still-closed door-2 screenshots are hashed in CI artifact 13041484155. Pip turns toward lock, but key partially hides behind close masonry, native-scale portrait cannot express key-to-lock cause; no independent A/B or representative GPU measurement. CI passed after fixing neutral-gaze NaN."
+    },
+    {
+      "title": "Pass 24 genuine carried-key height and occlusion review",
+      "reviewer": "Lead actual-image review; independent critic unavailable",
+      "verdict": "Source improvement; fixed reference still wins",
+      "date": "2026-10-31",
+      "summary": "The already-carried key is now visibly raised above the gate post on authentic same-seed desktop and portrait WebGL captures (artifact 13043996998; SHA-verified). Hand/lock storytelling and miniature stage composition remain weaker than Captain Toad. This is not independent A/B or a quality win."
     }
   ],
   "verification": [
