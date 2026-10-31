@@ -80,6 +80,9 @@ export function publicWayfinding(snapshot) {
   if (!origin || origin.blocked || !Array.isArray(origin.neighbors)) return [];
   const planned = Array.isArray(snapshot.plannedRoute) && snapshot.plannedRoute[0] === current
     ? snapshot.plannedRoute[1] : null;
+  // The objective first step is derived only from disclosed reciprocal legal edges.
+  // It describes a known connection, never an agent command or safe escape.
+  const goal = publicObjective(snapshot);
   return [...new Set(origin.neighbors)].filter(next => {
     const cell = known.get(next);
     const distance = Math.abs((next % width) - (current % width))
@@ -88,7 +91,10 @@ export function publicWayfinding(snapshot) {
       && ((door.a === current && door.b === next) || (door.b === current && door.a === next)));
     return Number.isInteger(next) && next >= 0 && next < width * height && distance === 1
       && cell && !cell.blocked && Array.isArray(cell.neighbors) && cell.neighbors.includes(current) && !locked;
-  }).slice(0, 4).map(next => ({from: current, to: next, kind: next === planned ? 'planned' : 'known'}));
+  }).slice(0, 4).map(next => ({
+    from: current, to: next, kind: next === planned ? 'planned' : 'known',
+    ...(next === goal?.firstStep ? {goal: goal.kind} : {}),
+  }));
 }
 
 
@@ -107,6 +113,7 @@ export function publicObjective(snapshot) {
   if (!known.has(currentCell) || known.get(currentCell).blocked) return null;
   const doors = Array.isArray(snapshot.doors) ? snapshot.doors : [];
   const distance = new Map([[currentCell, 0]]);
+  const firstStep = new Map();
   const queue = [currentCell];
   for (let i = 0; i < queue.length; i++) {
     const from = queue[i], origin = known.get(from);
@@ -119,15 +126,16 @@ export function publicObjective(snapshot) {
       if (doors.some(door => !door.open
         && ((door.a === from && door.b === to) || (door.a === to && door.b === from)))) continue;
       distance.set(to, distance.get(from) + 1);
+      firstStep.set(to, from === currentCell ? to : firstStep.get(from));
       queue.push(to);
     }
   }
   const keys = (Array.isArray(snapshot.keys) ? snapshot.keys : [])
     .filter(key => !key.collected && distance.has(key.cell))
     .sort((a, b) => distance.get(a.cell) - distance.get(b.cell) || a.cell - b.cell);
-  if (keys.length) return {kind: 'key', cell: keys[0].cell, steps: distance.get(keys[0].cell)};
+  if (keys.length) return {kind: 'key', cell: keys[0].cell, steps: distance.get(keys[0].cell), firstStep: firstStep.get(keys[0].cell) ?? null};
   if (Number.isInteger(snapshot.exitCell) && distance.has(snapshot.exitCell))
-    return {kind: 'exit', cell: snapshot.exitCell, steps: distance.get(snapshot.exitCell)};
+    return {kind: 'exit', cell: snapshot.exitCell, steps: distance.get(snapshot.exitCell), firstStep: firstStep.get(snapshot.exitCell) ?? null};
   return null;
 }
 
