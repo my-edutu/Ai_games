@@ -75,16 +75,16 @@ test('round 40 scenic rim rejects invalid floor/map inputs and never consumes au
  for(const floor of [0,-1,NaN,Infinity,1.5])assert.deepEqual(planCavernRim(floor,19),empty);
  for(const size of [0,4,18,130,NaN])assert.deepEqual(planCavernRim(1,size),empty);
  assert.notDeepEqual(planCavernRim(1,19),planCavernRim(2,19),'different floors deserve distinct scenic geography');
- assert.doesNotMatch(code,/Math\\.random|Date\\.|performance\\.|DungeonRuntime|fetch\\(/);
+ assert.doesNotMatch(code,/Math\.random|Date\.|performance\.|DungeonRuntime|fetch\(/);
 });
 test('round 40 genuine Three.js atmosphere includes two bounded instanced rock families with full disposal',()=>{
  const atmosphere=fs.readFileSync(path.join(__dirname,'../../public/ai-dungeon/biome-atmosphere.js'),'utf8');
  const host=fs.readFileSync(path.join(__dirname,'../../scripts/serve-dungeon-stream.cjs'),'utf8');
- assert.match(atmosphere,/import \\{planCavernRim\\} from '\\/dungeon\\/cavern-rim-plan\\.js'/);
- assert.match(atmosphere,/planCavernRim\\(floor,size\\)/);
+ assert.match(atmosphere,/import \{planCavernRim\} from '\/dungeon\/cavern-rim-plan\.js'/);
+ assert.match(atmosphere,/planCavernRim\(floor,size\)/);
  assert.match(atmosphere,/rimNear:/);
  assert.match(atmosphere,/rimFar:/);
- assert.match(atmosphere,/new THREE\\.DodecahedronGeometry/);
- assert.match(host,/\\['\\/dungeon\\/cavern-rim-plan\\.js','cavern-rim-plan\\.js'\\]/);
- assert.match(atmosphere,/for\\(const g of geometries\\)g\\.dispose\\(\\)/);
+ assert.match(atmosphere,/new THREE\.DodecahedronGeometry/);
+ assert.match(host,/\['\/dungeon\/cavern-rim-plan\.js','cavern-rim-plan\.js'\]/);
+ assert.match(atmosphere,/for\(const g of geometries\)g\.dispose\(\)/);
 });
