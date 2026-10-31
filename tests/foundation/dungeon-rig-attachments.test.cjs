@@ -192,7 +192,7 @@ test('bounded leg gait is mirrored, deterministic, frame independent and rests c
    assert.deepEqual(planRigLegGesture(phase,weight),pose);
   }
  const src=fs.readFileSync(planPath,'utf8');
- assert.doesNotMatch(src,/Math\\.random|performance\\.now|Date\\.|DungeonRuntime|fetch\\(/);
+ assert.doesNotMatch(src,/Math\.random|performance\.now|Date\.|DungeonRuntime|fetch\(/);
 });
 
 test('actual cloned GLB renderer keeps lower limb overlays reversible and reports real joint counts',()=>{
@@ -204,5 +204,5 @@ test('actual cloned GLB renderer keeps lower limb overlays reversible and report
  assert.match(src,/stageRigLegsAfterMixer/);
  assert.match(src,/rigGaitBones:/);
  assert.match(src,/rigGaitPeakRad:/);
- assert.match(src,/actor\\.mixer\\.update[\\s\\S]*?stageRigLegsAfterMixer/);
+ assert.match(src,/actor\.mixer\.update[\s\S]*?stageRigLegsAfterMixer/);
 });
