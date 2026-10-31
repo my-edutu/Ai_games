@@ -1,0 +1,64 @@
+name: Thousand Floors review
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/thousand-floors.yml'
+      - 'public/ai-vs-1000-floors/**'
+      - 'games/ai-vs-1000-floors/**'
+      - 'scripts/*thousand-floors*'
+      - 'tests/**/thousand-floors*'
+      - 'playwright.floors.config.cjs'
+      - 'package*.json'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: thousand-floors-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - name: Compile authoritative and browser runtimes
+        run: npm run build && npm run floors:build
+      - name: Package reproducible review input
+        run: |
+          mkdir -p review-bundle
+          git rev-parse HEAD > review-bundle/SOURCE_COMMIT.txt
+          git archive --format=tar.gz HEAD > review-bundle/source.tar.gz
+          tar -czf review-bundle/runtime.tar.gz node_modules dist dist-browser
+      - uses: actions/upload-artifact@v4
+        with:
+          name: thousand-floors-review-input
+          path: review-bundle/
+          retention-days: 7
+      - name: Campaign, camera and serving checks
+        run: node --test tests/foundation/thousand-floors-*.test.cjs
+      - name: Install browser
+        run: npx playwright install --with-deps chromium
+      - name: Actual-game browser checks
+        env:
+          FLOORS_TEST_QUALITY: low
+        run: npx playwright test -c playwright.floors.config.cjs --trace off
+      - name: Retain failing browser evidence
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: thousand-floors-browser-failure
+          path: test-results/
+          if-no-files-found: ignore
+          retention-days: 7
