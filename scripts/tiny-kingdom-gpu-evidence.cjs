@@ -52,8 +52,13 @@ const path = require('node:path');
       return program?gl.getAttribLocation(program,'materialId'):-1;
     });
     if(evidence.webglVerified&&evidence.materialVertexAttribute<0)throw Error('GPU material attribute was optimized away or omitted');
-    if(evidence.materials.vertexStride!==10||evidence.materials.materials.length!==9)
-      throw Error('GPU material layout mismatch');
+    // G071: preserve the original nine IDs/stride and assert both new emissive
+    // glass classes; fixed length nine would reject a valid additive material.
+    const expectedMaterials=['GENERAL','GRASS','WATER','ROAD','FOLIAGE','STONE',
+      'WOOD','ROOF','PLASTER','WINDOW_GLOW','LANTERN_GLOW'];
+    if(evidence.materials.vertexStride!==10||
+       JSON.stringify(evidence.materials.materials)!==JSON.stringify(expectedMaterials))
+      throw Error('GPU material layout mismatch: '+JSON.stringify(evidence.materials));
     // G058: inspect the active fragment shader on real SwiftShader, not just
     // the source file or a fake feature flag. The new lighting is grass-only.
     evidence.terrainMicroRelief=await page.evaluate(()=>{
@@ -123,8 +128,9 @@ const path = require('node:path');
       const g=window.__tinyKingdom,time=g.getState().state.t;
       const c=g.climateAt(time),sky=g.skyConditions(time);
       const terrain=c.season+':'+(c.season===3&&c.weather==='snow'?1:0);
-      const stage=sky.daylight<.55?'night':'day';
-      const expected=terrain+':'+stage+':'+(g.metrics().buildings-2);
+      // G071 WebGL static geometry no longer bakes day/night lighting.
+      // Sunlight and glass emission use time-varying shader uniforms.
+      const expected=terrain+':shader-light:'+(g.metrics().buildings-2);
       return g.renderStats().scenicMeshKey===expected&&g.renderStats().staticGpuUploads>=1;
     },null,{timeout:45000});
     evidence.staticGPU=await page.evaluate(()=>window.__tinyKingdom.renderStats());
