@@ -80,6 +80,33 @@ const path = require('node:path');
     });
     if(!evidence.terrainMicroRelief.active||!evidence.terrainMicroRelief.authorityUnchanged)
       throw Error('G058 active GPU grass normal/fade/isolation gate failed: '+JSON.stringify(evidence.terrainMicroRelief));
+    // G060: evidence from the *attached* fragment program on the real GPU.
+    // No terrain mesh growth, no changed authoritative snapshot, no stone
+    // weathering accidentally bleeding onto footpaths, roofs or plaster.
+    evidence.highlandBedrock=await page.evaluate(()=>{
+      const game=window.__tinyKingdom,before=JSON.stringify(game.exportSnapshot());
+      const gl=document.getElementById('world').getContext('webgl');
+      if(!gl)return {active:false,materialIsolated:false,authorityUnchanged:false};
+      const program=gl.getParameter(gl.CURRENT_PROGRAM);
+      const fragment=(gl.getAttachedShaders(program)||[]).find(shader=>
+        gl.getShaderParameter(shader,gl.SHADER_TYPE)===gl.FRAGMENT_SHADER);
+      const source=fragment?gl.getShaderSource(fragment):'';
+      const grass=source.split('if(vMaterial>0.5&&vMaterial<1.5)')[1]?.split('}else if(vMaterial>1.5&&vMaterial<2.5)')[0]||'';
+      const road=source.split('}else if(vMaterial>2.5&&vMaterial<3.5)')[1]?.split('}else if(vMaterial>3.5&&vMaterial<4.5)')[0]||'';
+      return {active:grass.includes('float rockShelfNoise=')&&
+        grass.includes('float mineralBedding=')&&
+        grass.includes('float exposedBedrock=')&&
+        grass.includes('float screeGrain=')&&
+        grass.includes('vec3 exposedStone=')&&
+        grass.includes('smoothstep(.045,.18,slope)')&&
+        grass.includes('vWorld.y'),
+        materialIsolated:!road.includes('rockShelfNoise')&&
+          !road.includes('exposedBedrock'),
+        authorityUnchanged:before===JSON.stringify(game.exportSnapshot())};
+    });
+    if(!evidence.highlandBedrock.active||!evidence.highlandBedrock.materialIsolated||
+       !evidence.highlandBedrock.authorityUnchanged)
+      throw Error('G060 active WebGL highland-bedrock gate failed: '+JSON.stringify(evidence.highlandBedrock));
     // GPU static vertex upload invariant: camera motion must never re-upload
     // dense terrain and village meshes; only moving agents update per frame.
     // G047: stop authoritative clock before checking static GPU upload count.
