@@ -6,7 +6,7 @@ const crypto = require('node:crypto');
 
 const ROOT = path.resolve(__dirname, '..');
 const PUBLIC = path.join(ROOT, 'public', 'ai-vs-1000-floors');
-const STATIC = new Set(['index.html', 'styles.css', 'app.js', 'interface.js', 'worker.js', 'audio.js', 'scene.js', 'character.js', 'environment.js', 'materials.js', 'static-batching.js', 'progress.html', 'progress.css', 'progress.js', 'progress.json']);
+const STATIC = new Set(['index.html', 'styles.css', 'app.js', 'interface.js', 'worker.js', 'audio.js', 'scene.js', 'character.js', 'environment.js', 'skyline.js', 'materials.js', 'static-batching.js', 'progress.html', 'progress.css', 'progress.js', 'progress.json']);
 
 function contained(base, relative) {
   const target = path.resolve(base, relative);

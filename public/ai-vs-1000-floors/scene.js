@@ -1,7 +1,8 @@
 import * as THREE from 'three';
-import {palette,disposeTree} from './materials.js';
+import {palette,disposeTree,districtStyle,createSkyTexture} from './materials.js';
 import {createCharacter} from './character.js';
 import {createEnvironment} from './environment.js';
+import {createDistrictSkyline} from './skyline.js';
 import {batchStaticMeshes} from './static-batching.js';
 
 const UP=new THREE.Vector3(0,1,0);
@@ -154,18 +155,27 @@ export function createFloorScene(canvas,options={}){
  const sun=new THREE.DirectionalLight('#fff0d0',2.65);sun.castShadow=true;sun.shadow.mapSize.set(1024,1024);sun.shadow.normalBias=.035;sun.shadow.bias=-.00012;
  Object.assign(sun.shadow.camera,{left:-17,right:17,top:17,bottom:-17,near:1,far:65});scene.add(sun,sun.target);
  const rim=new THREE.DirectionalLight('#b5e8ee',.65);rim.position.set(12,9,-13);scene.add(rim);
+ let skyTexture=null,skyline=null;
  let snapshot=null,floorKey='',floorRoot=null,environment=null,character=null,materials=null,followCamera=null;
  let mode='follow',quality='high',reduced=!!options.reducedMotion,first=true,dirty=true,aspect=1,blend=1,fromHeading=0,toHeading=0;
  let viewWidth=1,viewHeight=1,pixelRatio=1,cameraDistance=16,cameraYaw=.55,renderedFrames=0,skippedFrames=0,batching=null;
  const from=new THREE.Vector3(),to=new THREE.Vector3(),anchor=new THREE.Vector3(),bounds=new THREE.Box3(),center=new THREE.Vector3(),direction=new THREE.Vector3();
  function releaseFloor(){
+  skyTexture?.dispose();skyTexture=null;
   if(!floorRoot)return;
   const used=new Set();floorRoot.traverse(o=>{if(o.material)(Array.isArray(o.material)?o.material:[o.material]).forEach(m=>used.add(m))});
   character?.dispose?.();scene.remove(floorRoot);disposeTree(floorRoot);disposeUnusedPalette(materials,used);
-  floorRoot=null;environment=null;character=null;materials=null;
+  floorRoot=null;environment=null;character=null;materials=null;skyline=null;
  }
  function rebuild(s){
-  releaseFloor();materials=palette(s.layout.district);environment=createEnvironment(s.layout,materials);
+  releaseFloor();
+  const style=districtStyle(s.layout.district.index);
+  skyTexture=createSkyTexture(s.layout.district.index);scene.background=skyTexture;
+  scene.fog.color.set(style.horizon);scene.fog.near=38;scene.fog.far=110;
+  hemi.color.set(style.horizon);hemi.groundColor.set(style.ground);hemi.intensity=1.45;
+  sun.color.set(style.sun);sun.intensity=2.5;renderer.toneMappingExposure=style.exposure;
+  materials=palette(s.layout.district);environment=createEnvironment(s.layout,materials);
+  skyline=createDistrictSkyline(s.layout,materials);environment.root.add(skyline.root);skyline.setQuality(quality);
   batching=batchStaticMeshes(environment.root);character=createCharacter(materials);
   floorRoot=new THREE.Group();floorRoot.add(environment.root,character.root);scene.add(floorRoot);
   followCamera=createFollowCamera(s.layout,aspect,camera.fov);
@@ -220,9 +230,9 @@ export function createFloorScene(canvas,options={}){
   },
   resize(w,h,ratio){if(!w||!h)return;viewWidth=w;viewHeight=h;pixelRatio=ratio||1;aspect=w/h;camera.aspect=aspect;camera.updateProjectionMatrix();if(snapshot)followCamera=createFollowCamera(snapshot.layout,aspect,camera.fov);renderer.setPixelRatio(Math.min(pixelRatio,quality==='high'?1.5:1));renderer.setSize(w,h,false);first=true;dirty=true},
   setCamera(value){if(['follow','wide','orbit'].includes(value)){mode=value;first=true;dirty=true}},
-  setQuality(value){quality=value==='low'?'low':'high';renderer.shadowMap.enabled=quality==='high';renderer.setPixelRatio(Math.min(pixelRatio,quality==='high'?1.5:1));renderer.setSize(viewWidth,viewHeight,false);dirty=true},
+  setQuality(value){quality=value==='low'?'low':'high';skyline?.setQuality(quality);renderer.shadowMap.enabled=quality==='high';renderer.setPixelRatio(Math.min(pixelRatio,quality==='high'?1.5:1));renderer.setSize(viewWidth,viewHeight,false);dirty=true},
   setReducedMotion(value){reduced=!!value;dirty=true},
   dispose(){canvas.removeEventListener('webglcontextlost',lost);releaseFloor();renderer.dispose()},
-  getDiagnostics(){return {geometries:renderer.info.memory.geometries,textures:renderer.info.memory.textures,drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,batching,renderedFrames,skippedFrames,cameraDistance}}
+  getDiagnostics(){return {districtStyle:districtStyle(snapshot?.layout.district.index).silhouette,geometries:renderer.info.memory.geometries,textures:renderer.info.memory.textures,drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,batching,renderedFrames,skippedFrames,cameraDistance}}
  };
 }
