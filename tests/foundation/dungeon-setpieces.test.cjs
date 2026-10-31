@@ -88,3 +88,13 @@ test('round 40 genuine Three.js atmosphere includes two bounded instanced rock f
  assert.match(host,/\['\/dungeon\/cavern-rim-plan\.js','cavern-rim-plan\.js'\]/);
  assert.match(atmosphere,/for\(const g of geometries\)g\.dispose\(\)/);
 });
+
+test('round 40 real exterior rocks are grounded at full mesh radius rather than hovering above the dungeon',async()=>{
+ const {planCavernRim}=await import('data:text/javascript;base64,'+Buffer.from(fs.readFileSync(path.join(__dirname,'../../public/ai-dungeon/cavern-rim-plan.js'),'utf8')).toString('base64'));
+ for(const rock of [...planCavernRim(1,19).near,...planCavernRim(1,19).far]){
+  const [,y,, ,height]=rock;
+  assert.ok(Math.abs(y-(height/2-.18))<1e-10,'rock centre matches a unit-radius mesh ground intersection');
+ }
+ const atmosphere=fs.readFileSync(path.join(__dirname,'../../public/ai-dungeon/biome-atmosphere.js'),'utf8');
+ assert.match(atmosphere,/new THREE\.DodecahedronGeometry\(1,1\)/,'the actual mesh must use unit radius so rocks reach the cavern floor');
+});
