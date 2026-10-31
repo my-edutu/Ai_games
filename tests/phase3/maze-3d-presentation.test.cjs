@@ -97,6 +97,10 @@ test('wayfinding marks only reciprocally disclosed legal edges beside the real c
     {from: 1, to: 0, kind: 'known'},
     {from: 1, to: 8, kind: 'known'},
   ], 'an old planned path must not be re-anchored');
+  assert.deepEqual(publicWayfinding({...state, doors: [{id: 'lock', a: 1, b: 8, open: false}]}),
+    [{from: 1, to: 0, kind: 'known'}], 'a disclosed locked door blocks the otherwise known corridor');
+  assert.deepEqual(publicWayfinding({...state, doors: [{id: 'lock', a: 1, b: 8, open: true}]}),
+    publicWayfinding(state), 'opening an observed door restores its legal corridor');
   assert.deepEqual(publicWayfinding({...state, result: {reason: 'capture'}}), []);
   assert.deepEqual(publicWayfinding({...state, cells: state.cells.filter(c => c.cell !== 8)}),
     [{from: 1, to: 0, kind: 'known'}], 'undisclosed destinations must remain unmarked');

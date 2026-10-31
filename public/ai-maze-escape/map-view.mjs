@@ -84,8 +84,10 @@ export function publicWayfinding(snapshot) {
     const cell = known.get(next);
     const distance = Math.abs((next % width) - (current % width))
       + Math.abs(Math.floor(next / width) - Math.floor(current / width));
+    const locked = (Array.isArray(snapshot.doors) ? snapshot.doors : []).some(door => !door.open
+      && ((door.a === current && door.b === next) || (door.b === current && door.a === next)));
     return Number.isInteger(next) && next >= 0 && next < width * height && distance === 1
-      && cell && !cell.blocked && Array.isArray(cell.neighbors) && cell.neighbors.includes(current);
+      && cell && !cell.blocked && Array.isArray(cell.neighbors) && cell.neighbors.includes(current) && !locked;
   }).slice(0, 4).map(next => ({from: current, to: next, kind: next === planned ? 'planned' : 'known'}));
 }
 

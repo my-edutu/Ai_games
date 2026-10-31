@@ -130,7 +130,13 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     const points = [];
     for (let i = 1; i < snapshot.plannedRoute.length; i++) {
       const a = snapshot.plannedRoute[i - 1], b = snapshot.plannedRoute[i];
-      if (!known.has(a) || !known.has(b) || !known.get(a).neighbors.includes(b)) continue;
+      const current = known.get(a), next = known.get(b);
+      if (!current || !next || current.blocked || next.blocked
+        || !current.neighbors.includes(b) || !next.neighbors.includes(a)) continue;
+      if (Math.abs(a % snapshot.width - b % snapshot.width)
+        + Math.abs(Math.floor(a / snapshot.width) - Math.floor(b / snapshot.width)) !== 1) continue;
+      if (snapshot.doors.some(door => !door.open
+        && ((door.a === a && door.b === b) || (door.a === b && door.b === a)))) continue;
       const pa = cellPosition(a, snapshot.width, snapshot.height), pb = cellPosition(b, snapshot.width, snapshot.height);
       for (let step = 0; step < 20; step++) {
         for (const part of [step / 20, (step + 1) / 20]) {
