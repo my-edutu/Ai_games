@@ -1,6 +1,7 @@
 'use strict';
 const fs = require('node:fs'), path = require('node:path');
 const { test, expect } = require('@playwright/test');
+const { captureTowerViewport } = require('./tower-viewport-capture.cjs');
 const artifacts = path.resolve(__dirname, '../../artifacts/tower-phase3');
 test.beforeAll(() => fs.mkdirSync(artifacts, { recursive: true }));
 
@@ -32,7 +33,7 @@ test('tower desktop broadcast is animated readable and privacy safe', async ({ p
   expect(layout.scroll).toBe(layout.viewport);
   expect(layout.canvas.width).toBeGreaterThan(1000);
   expect(layout.canvas.height).toBeGreaterThan(500);
-  await page.screenshot({ path: path.join(artifacts, 'desktop.png'), fullPage: true });
+  await captureTowerViewport(page, path.join(artifacts, 'desktop.png'));
   expect(failures).toEqual([]);
 });
 
