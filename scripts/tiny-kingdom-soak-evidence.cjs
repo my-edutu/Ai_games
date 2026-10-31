@@ -132,6 +132,16 @@ const assert=require('node:assert/strict');
   assert.equal(grown.glError,0,'Real WebGL error in grown settlement');
   assert.equal(grown.authority,last.checksum,'Camera changed the authoritative world');
   assert(grown.geometry.totalTriangles<160000,'Grown settlement exceeded strict 160000 triangle cap');
+  // G071: malformed material IDs were previously recorded but NOT enforced:
+  // the 9/10 emissive glass IDs surfaced as 1704 invalidComponents in GPU
+  // evidence while an older 120-day harness incorrectly reported PASS.
+  // A real long-soak gate must fail on *any* corrupt geometry component.
+  for(const kind of ['static','dynamic']){
+    const mesh=grown.geometry[kind];
+    assert.equal(mesh.aligned,true,kind+' mesh stride/triangle alignment');
+    for(const field of ['invalidComponents','invalidNormals','invalidColors','outOfBounds'])
+      assert.equal(mesh[field],0,kind+' mesh has invalid '+field);
+  }
   // An unobstructed, strict camera-matched grown capture exposes house/citizen
   // shortcomings that the original crowded command HUD hid. Restore controls
   // before exercising the real pause/resume frame-performance sample.
