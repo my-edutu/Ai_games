@@ -24,6 +24,33 @@ const tempA = new THREE.Vector3();
 const tempB = new THREE.Vector3();
 function noise(i){const x=Math.sin(i*127.13+78.9)*43758.5453;return x-Math.floor(x);}
 
+// A physically tapered stone wedge, rather than a rotated rectangular block.
+// The same original mesh is instanced eleven times around the Ruins portal:
+// open mortar joints, curved intrados, a genuine keystone and depth behind
+// the front face. The primitive is independent of gameplay/collision geometry.
+export function createCarvedVoussoirGeometry(THREE) {
+  const stones = 11, inner = 1.87, outer = 2.52;
+  const half = Math.PI / (stones * 2), joint = .012;
+  const shape = new THREE.Shape();
+  const start = -half + joint, end = half - joint;
+  for (let i = 0; i <= 5; i++) {
+    const angle = start + (end - start) * i / 5;
+    const x = Math.cos(angle) * outer, y = Math.sin(angle) * outer;
+    if (i === 0) shape.moveTo(x, y); else shape.lineTo(x, y);
+  }
+  for (let i = 5; i >= 0; i--) {
+    const angle = start + (end - start) * i / 5;
+    shape.lineTo(Math.cos(angle) * inner, Math.sin(angle) * inner);
+  }
+  shape.closePath();
+  const geometry = new THREE.ExtrudeGeometry(shape, {
+    depth: .78, steps: 1, bevelEnabled: true, bevelSegments: 2,
+    bevelSize: .025, bevelThickness: .035, curveSegments: 5,
+  });
+  geometry.translate(0, 0, -.39);
+  return geometry;
+}
+
 /** A bounded, floor-owned Three.js environment. The host owns lights, fog and camera. */
 export function createTowerWorld(){
   const group=new THREE.Group();group.name='InfiniteTowerWorld';
@@ -31,7 +58,7 @@ export function createTowerWorld(){
   let floorGroup=null,key='',theme='foundry',disposed=false,lastSnapshot=null;
   let materials={}, floorGeometries=new Set(),floorMaterials=new Set();
   const primitives=new Map(),platforms=new Map(),hazards=new Map(),rotors=[],floaters=[];
-  let particles=null,quality='normal',occludedGuardianCaps=0;
+  let particles=null,quality='normal',occludedGuardianCaps=0,ruinsPortalVoussoirs=0;
   const canopyRay = new THREE.Raycaster(), canopyDirection = new THREE.Vector3();
   function geometry(name,build){if(!primitives.has(name))primitives.set(name,build());return primitives.get(name);}
   const box=()=>geometry('box',()=>new THREE.BoxGeometry(1,1,1));
@@ -181,12 +208,38 @@ export function createTowerWorld(){
     for(let i=0;i<4;i++)block(root,m,[0,0,0],[r*1.42,r*.13,thickness],[0,0,i*Math.PI/4]);return root;
   }
   function arch(parent,a,y,size=1){const root=new THREE.Group();radial(root,a,22.65,y);parent.add(root);
-    // Recessed dark interior and individually modeled voussoirs, all behind the climb radius.
-    block(root,materials.dark,[0,2.8*size,-.26],[3.8*size,5.7*size,.3]);
-    const pieces=[];for(let i=0;i<9;i++){const t=i/8*Math.PI;pieces.push({p:[Math.cos(t)*2.15*size,3.7*size+Math.sin(t)*2.15*size,.12],r:[0,0,t-Math.PI/2],s:[.74*size,.9*size,.65]});}
-    for(const sign of [-1,1])for(let i=0;i<4;i++)pieces.push({p:[sign*2.15*size,(.4+i*.85)*size,.12],s:[.82*size,.8*size,.65]});
-    instanced(root,bevel(),materials.edge,pieces);
-    for(const x of [-1.05,0,1.05])block(root,materials.metal,[x*size,2.6*size,.16],[.09,4.9*size,.12]);
+    root.name = 'ruins-carved-portal';
+    // True curved aperture. The darkness follows the intrados instead of
+    // leaving a rectangular void behind a row of large rounded cubes.
+    const opening=new THREE.Shape();
+    opening.moveTo(-1.80,.06); opening.lineTo(1.80,.06); opening.lineTo(1.80,3.72);
+    for(let i=0;i<=24;i++){
+      const angle=Math.PI*i/24;
+      opening.lineTo(Math.cos(angle)*1.80,3.72+Math.sin(angle)*1.80);
+    }
+    opening.closePath();
+    const recess=own(new THREE.ExtrudeGeometry(opening,{depth:.22,bevelEnabled:false,steps:1,curveSegments:24}));
+    mesh(root,recess,materials.dark,[0,0,-.28],[size,size,1]);
+
+    // Eleven identical, actual tapered stone wedges. A narrow radial joint
+    // separates neighboring stones; no box corners cut into the opening.
+    // The existing rigid batching folds them into the floor's material batch.
+    const wedges=[];
+    for(let i=0;i<11;i++) wedges.push({
+      p:[0,3.72*size,.12],r:[0,0,(i+.5)*Math.PI/11],s:[size,size,size],
+    });
+    instanced(root,geometry('ruins-carved-voussoir',()=>createCarvedVoussoirGeometry(THREE)),materials.portalStone,wedges);
+    ruinsPortalVoussoirs=wedges.length;
+
+    // Irregular eroded pier stones keep the spring lines load-bearing while
+    // sharing the same quiet, weathered limestone as the arch, not Lego caps.
+    const jamb=[];
+    for(const side of [-1,1])for(let i=0;i<5;i++)jamb.push({
+      p:[side*2.13*size,(.39+i*.74)*size,.12],
+      r:[0,0,side*(i%3-1)*.008],s:[.73*size,.69*size,.78*size],
+    });
+    instanced(root,chipped(2),materials.portalStone,jamb);
+    for(const x of [-1.05,0,1.05])block(root,materials.metal,[x*size,2.6*size,.10],[.07,4.9*size,.09]);
     return root;
   }
   function buildTower(height){
@@ -536,11 +589,12 @@ export function createTowerWorld(){
   function clearFloor(){
     if(floorGroup){group.remove(floorGroup);floorGroup.traverse(o=>{if(o.isInstancedMesh)o.dispose();});}
     for(const g of floorGeometries)g.dispose();for(const m of floorMaterials)m.dispose();
-    floorGeometries.clear();floorMaterials.clear();platforms.clear();hazards.clear();rotors.length=0;floaters.length=0;particles=null;floorGroup=null;occludedGuardianCaps=0;
+    floorGeometries.clear();floorMaterials.clear();platforms.clear();hazards.clear();rotors.length=0;floaters.length=0;particles=null;floorGroup=null;occludedGuardianCaps=0;ruinsPortalVoussoirs=0;
   }
   function rebuild(snapshot){
     clearFloor();theme=THEMES[snapshot.theme]?snapshot.theme:'foundry';const p=PALETTES[theme];
     materials={stone:weather(mat(p.stone,.04,.86)),dark:mat(p.dark,.28,.58),metal:mat(p.metal,.48,.39),copper:mat(theme==='foundry'?0xc88c57:p.metal,.55,.32),edge:mat(p.edge,.12,.68),
+      portalStone:theme==='ruins'?applyStoneSurface(mat(p.edge,.035,.90),stoneSurface,{scale:.11,strength:.56,relief:.013}):mat(p.edge,.12,.68),
       ceramic:applyStoneSurface(mat(theme==='foundry'?0xb6b5a0:p.stone,.08,.4),stoneSurface,{scale:.085,strength:.36,relief:.01}),furnaceCore:mat(0x7d301b,.1,.72,{emissive:0xf25a13,emissiveIntensity:.72}),
       glow:mat(p.glow,.1,.4,{emissive:p.glow,emissiveIntensity:.85}),mint:mat(0xb6ffdc,.1,.35,{emissive:0x63e4ad,emissiveIntensity:.7}),warning:mat(0xf2ad4e,.3,.62),
       fire:mat(0xffa835,0,.5,{emissive:0xff7021,emissiveIntensity:1.5}),hot:mat(0xffe7a3,0,.5,{emissive:0xffb83c,emissiveIntensity:1}),electric:mat(0xc6f8ff,0,.3,{emissive:0x83dfff,emissiveIntensity:1.2}),
@@ -607,7 +661,7 @@ export function createTowerWorld(){
     }
     occludedGuardianCaps=faded;
   }
-  function diagnostics(){let objects=0,meshes=0,instances=0,shadowCasterMeshes=0,triangles=0;group.traverse(o=>{objects++;if(o.isMesh){meshes++;if(o.castShadow)shadowCasterMeshes++;triangles+=(o.geometry.index?o.geometry.index.count:o.geometry.attributes.position.count)/3*(o.isInstancedMesh?o.count:1);}if(o.isInstancedMesh)instances+=o.count;});return{objects,meshes,instances,shadowCasterMeshes,triangles,geometries:floorGeometries.size+primitives.size,materials:floorMaterials.size,platforms:platforms.size,hazards:hazards.size,ambientParticles:particles?.visible?48:0,floor:lastSnapshot?.floor??null,theme,quality,disposed,occludedGuardianCaps,surfaceTexture:stoneSurface.diagnostics(),platformTransforms:[...platforms.entries()].map(([id,e])=>({id,...e.root.userData.authority,angle:e.root.rotation.y,yWorld:e.root.position.y}))};}
+  function diagnostics(){let objects=0,meshes=0,instances=0,shadowCasterMeshes=0,triangles=0;group.traverse(o=>{objects++;if(o.isMesh){meshes++;if(o.castShadow)shadowCasterMeshes++;triangles+=(o.geometry.index?o.geometry.index.count:o.geometry.attributes.position.count)/3*(o.isInstancedMesh?o.count:1);}if(o.isInstancedMesh)instances+=o.count;});return{objects,meshes,instances,shadowCasterMeshes,triangles,geometries:floorGeometries.size+primitives.size,materials:floorMaterials.size,platforms:platforms.size,hazards:hazards.size,ambientParticles:particles?.visible?48:0,floor:lastSnapshot?.floor??null,theme,quality,disposed,occludedGuardianCaps,ruinsPortalVoussoirs,surfaceTexture:stoneSurface.diagnostics(),platformTransforms:[...platforms.entries()].map(([id,e])=>({id,...e.root.userData.authority,angle:e.root.rotation.y,yWorld:e.root.position.y}))};}
   function dispose(){if(disposed)return;clearFloor();for(const g of primitives.values())g.dispose();primitives.clear();stoneSurface.dispose();group.clear();lastSnapshot=null;disposed=true;}
   return{group,update,revealGuardianSightlines,dispose,diagnostics};
 }

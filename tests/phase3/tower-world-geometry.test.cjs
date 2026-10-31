@@ -74,6 +74,40 @@ function vertices(THREE, root, visit) {
   });
 }
 
+test('Ruins portal uses true curved wedge masonry and a bounded eleven-stone arch', async () => {
+  const [THREE, { createTowerWorld, createCarvedVoussoirGeometry }] = await loaded;
+  assert.equal(typeof createCarvedVoussoirGeometry, 'function', 'a reusable true-wedge arch primitive is required');
+  const wedge = createCarvedVoussoirGeometry(THREE);
+  try {
+    const a = wedge.attributes.position;
+    assert.ok(a.count >= 70, 'curved inner and outer contours need real geometry, not a box');
+    const radii = [];
+    for (let i = 0; i < a.count; i++) radii.push(Math.hypot(a.getX(i), a.getY(i)));
+    assert.ok(Math.min(...radii) < 1.9 && Math.max(...radii) > 2.4,
+      'each wedge has distinct inner and outer stone radii');
+    const world = createTowerWorld();
+    try {
+      world.update(fixture('ruins', 0, false), 0, 0, {});
+      const metrics = world.diagnostics();
+      assert.equal(metrics.ruinsPortalVoussoirs, 11, 'each visible arch requires eleven tapered stones');
+      let weatheredArchBatch = 0;
+      world.group.traverse(object => {
+        if (!object.isMesh) return;
+        if (object.material?.color?.getHex() === 0xa99f7d
+          && object.material.customProgramCacheKey?.() === 'tower-original-triplanar-stone-v1') {
+          weatheredArchBatch++;
+          assert.ok(object.geometry.attributes.position.count > 100,
+            'the textured arch must have real batched geometry');
+        }
+      });
+      assert.equal(weatheredArchBatch, 1, 'the portal uses one textured masonry batch');
+      assert.ok(metrics.meshes + metrics.shadowCasterMeshes <= 100, 'retain world draw budget');
+      world.update(fixture('foundry', 1, false), 0, 0, {});
+      assert.equal(world.diagnostics().ruinsPortalVoussoirs, 0, 'portal state must not leak across biomes');
+    } finally { world.dispose(); }
+  } finally { wedge.dispose(); }
+});
+
 test('tower architecture keeps the complete cylindrical traversal corridor clear', async () => {
   const [THREE, { createTowerWorld, THEMES }] = await loaded;
   const world = createTowerWorld();
