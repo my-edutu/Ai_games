@@ -61,8 +61,8 @@ test('actual 3D renderer binds owned mesh props to a cloned animated bone and re
  assert.match(model,/function bindRigWeaponAccessories\(actor/);
  assert.match(model,/handBone\.attach\(mesh\)/);
  assert.match(model,/rigBoundAccessoryActors:/);
- assert.match(model,/handBone\\.attach\\(mount\\)/);
- assert.match(model,/mount\\.position\\.set\\(0,0,0\\)/);
+ assert.match(model,/handBone\.attach\(mount\)/);
+ assert.match(model,/mount\.position\.set\(0,0,0\)/);
  assert.match(model,/rigGripAlignedActors:/);
  assert.match(model,/rigGripMaxShiftMeters:/);
  assert.match(model,/rigBoundAccessoryParts:/);
