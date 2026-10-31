@@ -1,10 +1,15 @@
 {
-  "updatedAt": "2026-10-31T08:08:12.628Z",
-  "status": "Round 19 · six live water-edge draws removed; pixel-equivalent, but actual-draw pacing FAILED",
-  "detail": "Exact-source 6b5cf573: 42→36 WebGL draw calls, 39→33 world render objects, 37→31 world geometries; three real 960×640 matched WebGL captures are pixel-identical. Offline baseline red/candidate green, focused 6/6 Node, general CI 546/546 Node passed. Focused browser 16/17 (11 actual draws/1013.7ms); general browser 28/29 (10 actual draws/1005ms), both below unchanged 17 gate. Actual 16.6s gameplay capture inspected; commercial reference and independent R5 not achieved. PR still draft.",
+  "updatedAt": "2026-10-31T08:37:34.296Z",
+  "status": "Round 20 · original water fog source/near-image parity verified; desktop pacing STILL FAILED",
+  "detail": "Exact source 7fd68eae (production d0795164), CI merge b2968cd: 548/548 Node tests pass, build/host/authority/operations pass. Corrected focused browser 16/17 at 12 actual submissions/1011.2ms; general browser 28/29 at 8/1013.6ms, both below unchanged 17. Matched frozen real WebGL screenshots differ at most 1–3/255 per channel. No demonstrated GPU/pacing improvement; 8190 extra water triangles need same-run A/B or reversal. Official Snake Pass visual/motion bar, independent critic, device soak and R5 unachieved. Draft PR remains unmerged/undeployed.",
   "latestImage": "/progress/evidence/round-9-overview.jpg",
-  "latestCaption": "Historical Round 9 image (not Round 19). Actual new Round 19 WebGL gameplay, matched overview, synthetic clearly labeled sightline stress, portrait and 16.6s motion are linked below in CI artifacts.",
+  "latestCaption": "Historical Round 9 local image (NOT current Round 20). Round 20 current real WebGL stills, diagnostic trace and 18.72s motion are linked as GitHub Actions artifacts below.",
   "reviews": [
+    {
+      "area": "Round 20 · vertex-interpolated live water fog",
+      "verdict": "SOURCE/NEAR-PIXEL PARITY VERIFIED · 548/548 NODE GREEN · NO PROVEN SPEED WIN · DESKTOP GATE FAILED",
+      "gap": "Real frozen WebGL images differ <=3/255 color channel; 8,190 added water triangles. Focused browser 16/17 at 12 actual submissions/1011.2ms, general browser 28/29 at 8/1013.6ms, unchanged minimum 17. Different CI runners make GPU delta inconclusive. Official Snake Pass still wins face, world and motion; independent critic offline."
+    },
     {
       "area": "Round 18 · close-up food/face occlusion",
       "verdict": "FOCUSED WEBGL CAPTURE VERIFIED · 545/545 NODE GREEN · ACTUAL-DRAW GATE FAILED · WHOLE-GAME LOSE",
@@ -316,9 +321,37 @@
           "path": "https://github.com/my-edutu/Ai_games/actions/runs/41182634899/artifacts/13035359425"
         }
       ]
+    },
+    {
+      "title": "Round 20 · live water vertex-fog experiment and critical speed review",
+      "summary": "Exact-source 7fd68eae: fully present original animated single-texture water now interpolates fog in the vertex stage over an 8-unit tessellation; frozen real-WebGL color changes at most 3/255 per channel. Node 548/548 green; focused browser 16/17 at 12 actual submitted draws/1011.2ms, general 28/29 at 8/1013.6ms versus unchanged >=17. No verified speed win and 8190 extra water triangles need controlled A/B or rollback. Real 18.72s motion inspected. Official Snake Pass visual bar, fresh independent critic and device production signoff remain OPEN.",
+      "captures": [
+        {
+          "label": "Current corrected exact-source focused real WebGL screenshots/trace",
+          "path": "https://github.com/my-edutu/Ai_games/actions/runs/41184684110/artifacts/13036161941"
+        },
+        {
+          "label": "Current corrected exact-source real gameplay motion",
+          "path": "https://github.com/my-edutu/Ai_games/actions/runs/41184684110/artifacts/13036126907"
+        },
+        {
+          "label": "Current actual browser metrics and GPU diagnostic",
+          "path": "https://github.com/my-edutu/Ai_games/actions/runs/41184684110/artifacts/13036386539"
+        },
+        {
+          "label": "Source-matched frozen A/B (candidate captured at earlier code commit)",
+          "path": "https://github.com/my-edutu/Ai_games/actions/runs/41184331543/artifacts/13036107521"
+        },
+        {
+          "label": "General exact-source actual game and UI captures",
+          "path": "https://github.com/my-edutu/Ai_games/actions/runs/41184684128/artifacts/13035967867"
+        }
+      ]
     }
   ],
   "checks": [
+    "Round 20 actual matched frozen WebGL direct prior/new 960x640: 34,099/614,400 pixels changed, mean RGB abs 0.02491/255, max 2/255. Cached max 1/255, synthetic near-fruit stress max 3/255; original moving water/cues remain. Source-level fog change NOT a proven throughput win and added water geometry could hurt SwiftShader.",
+    "Round 20 exact-source 7fd68eae (production d0795164, checkout merge b2968cd): 548/548 Node tests, TypeScript/host/authority/operations pass; focused 16/17 browser at 12 actual draw submissions/1011.2ms, general 28/29 at 8/1013.6ms. Both FAIL unchanged 17 gate; RAF callback rate/video FPS are not rendered or display-present FPS.",
     "Round 19 real WebGL: six fewer draw calls (42→36), six fewer world draw objects (39→33), six fewer world geometries (37→31). Three matched frozen 960x640 actual WebGL PNGs pixel-identical. Archived previous world blob fails new test; candidate passes. Commercial visual bar still LOSE; no independent critic.",
     "Round 19 exact 6b5cf573 and PR merge bf174c9: 546/546 Node tests pass, all host/authority/operational checks pass. General browser 28/29: 10 actual renders/1005ms < unchanged 17. Focused browser 16/17: 11 actual renders/1013.7ms <17. RAF callbacks and capture video FPS are not display-present FPS.",
     "Round17 4bfef71 general 41172921698: build and 543/544 Node pass. Old raw-red-water diversity test fails on new RGB representation, while new palette test passes. Corrected old test now evaluates visible RGB tuples and GB contour combinations at unchanged >30 and >12 counts. New CI pending.",
