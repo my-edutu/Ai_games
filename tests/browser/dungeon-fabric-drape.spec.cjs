@@ -22,6 +22,8 @@ test('real Chromium WebGL shows original rigged fabric, with bounded GPU detail 
  expect(d.authored3D.draperyPanels).toBeLessThanOrEqual(48);
  expect(d.authored3D.draperyTriangles).toBeGreaterThanOrEqual(576);
  expect(d.authored3D.draperyTriangles).toBeLessThanOrEqual(4608);
+ expect(d.authored3D.draperyPeakDeformationMeters).toBeGreaterThan(.005);
+ expect(d.authored3D.draperyPeakDeformationMeters).toBeLessThanOrEqual(.19);
  expect(d.composition.visibleHeroes).toBeGreaterThan(0);
  expect(d.visibility.unoccludedHeroes).toBeGreaterThan(0);
  expect(d.drawCalls).toBeLessThan(1600);
