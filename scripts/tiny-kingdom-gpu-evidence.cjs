@@ -120,6 +120,9 @@ const path = require('node:path');
        forest.needleBoughs!==forest.conifers*32||
        forest.needleFanTriangles!==forest.needleBoughs*8||
        forest.branchTriangles!==forest.needleBoughs*8||
+       forest.microCrownLobes<forest.deciduous*6||
+       forest.rimLeafSprays<forest.deciduous*3||
+       forest.individualLeaves<forest.deciduous*35||
        forest.crownColors<4||!forest.authorityUnchanged||
        evidence.geometry.totalTriangles>=160000)
       throw Error('Gauntlet 047 forest volume, replay or triangle budget failed: '+JSON.stringify(forest));
@@ -305,6 +308,7 @@ const path = require('node:path');
       {name:'cottage-facades.png',camera:{focus:[10,-5],yaw:1.50,pitch:.40,zoom:14}},
       {name:'forest-boughs.png',camera:{focus:[-32,-9],yaw:.65,pitch:.50,zoom:15}},
       {name:'broadleaf-crown.png',camera:{focus:[-29,4],yaw:.95,pitch:.49,zoom:19}},
+      {name:'broadleaf-detail.png',camera:{focus:[-29,4],yaw:.95,pitch:.49,zoom:12}},
       {name:'farmstead-wide.png',camera:{focus:[23,1],yaw:3.86,pitch:.56,zoom:25}},
       {name:'granary-close.png',camera:{focus:[29,-5],yaw:3.05,pitch:.50,zoom:18}},
     ]){

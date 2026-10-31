@@ -854,7 +854,7 @@ function branchFrame(a,b){
 }
 // Gauntlet 047: render-only, budgeted, individually oriented conifer boughs.
 // Neither tree species nor needle orientation uses authoritative game RNG.
-const forestVisualStats={deciduous:0,conifers:0,needleBoughs:0,needleFanTriangles:0,branchTriangles:0,crownPalette:new Set(),broadleafLobes:0,individualLeaves:0,originalLeafTriangles:0,broadleafSpecies:[0,0,0],broadleafAddedTriangles:0};
+const forestVisualStats={deciduous:0,conifers:0,needleBoughs:0,needleFanTriangles:0,branchTriangles:0,crownPalette:new Set(),broadleafLobes:0,individualLeaves:0,originalLeafTriangles:0,broadleafSpecies:[0,0,0],broadleafAddedTriangles:0,microCrownLobes:0,rimLeafSprays:0};
 function coniferNeedleSpray(root,tip,width,dark,light){
  const dx=tip[0]-root[0],dy=tip[1]-root[1],dz=tip[2]-root[2];
  const len=Math.hypot(dx,dz)||1,perpX=-dz/len,perpZ=dx/len;
@@ -874,8 +874,10 @@ function coniferNeedleSpray(root,tip,width,dark,light){
 /* Gauntlet 047: authored broadleaf forest silhouettes.
    Original 3D foliage with elliptical but non-spherical lobes and individually
    articulated leaf blades. All shape variation is derived only from position. */
-function crownLobe(cx,cy,cz,rx,ry,rz,col,seed){
- const segments=9,latitudes=[.23,.54,.81].map(t=>t*Math.PI),rings=[];
+// G050: small offset leaf clusters give each crown a tiered, broken silhouette.
+// Real 3D geometry is bounded and derived from tree positions, not simulation RNG.
+function crownLobe(cx,cy,cz,rx,ry,rz,col,seed,fine=false){
+ const segments=fine?6:9,latitudes=(fine?[.32,.74]:[.23,.54,.81]).map(t=>t*Math.PI),rings=[];
  const pt=(lat,i)=>{
   const az=i*Math.PI*2/segments,ripple=1+.13*Math.sin(3*az+seed)+.07*Math.cos(5*az-seed*.7);
   return [cx+Math.sin(lat)*Math.cos(az)*rx*ripple,
@@ -890,8 +892,9 @@ function crownLobe(cx,cy,cz,rx,ry,rz,col,seed){
   const j=(i+1)%segments,a=rings[r][i],b=rings[r][j],c=rings[r+1][j],d=rings[r+1][i];
   tri(a,b,c,colors[(r+i)%3]);tri(a,c,d,colors[(r+i+1)%3]);
  }
- for(let i=0;i<segments;i++){const j=(i+1)%segments;tri(rings[2][i],rings[2][j],bottom,colors[2]);}
+ for(let i=0;i<segments;i++){const j=(i+1)%segments;tri(rings[rings.length-1][i],rings[rings.length-1][j],bottom,colors[2]);}
  forestVisualStats.broadleafLobes++;
+ if(fine)forestVisualStats.microCrownLobes++;
 }
 function leafBlade(base,tip,width,col,seed){
  const dx=tip[0]-base[0],dz=tip[2]-base[2],len=Math.hypot(dx,dz)||1;
@@ -947,10 +950,26 @@ function tree(x,z,s=1){
    const center=[tip[0],tip[1]+(.25+.03*Math.sin(i*1.7))*s,tip[2]];
    const radius=(style===2?.56:.70)*s*(.89+.10*Math.sin(signature+i));
    materialScope(MATERIAL.FOLIAGE,()=>{
-    crownLobe(center[0],center[1],center[2],radius*speciesWidth,
-     (.59+.065*i)*s*speciesHeight,radius, rgb(leafPalette[i%3]),x*.31+z*.19+i*2.1);
+    crownLobe(center[0],center[1],center[2],radius*.89*speciesWidth,
+     (.55+.058*i)*s*speciesHeight,radius*.90, rgb(leafPalette[i%3]),x*.31+z*.19+i*2.1);
+    // Smaller outlying crowns are attached to branch tips. The position,
+    // material and orientation are derived only from persistent coordinates.
+    for(let rim=0;rim<2;rim++){
+     const a=angle+(rim===0?.89:-1.06)+signature*.17,
+       far=radius*(rim===0?.69:.64);
+     crownLobe(center[0]+Math.cos(a)*far*speciesWidth,
+       center[1]+(rim===0?.17:-.22)*s*speciesHeight,
+       center[2]+Math.sin(a)*far,
+       radius*.35*speciesWidth,radius*.38*speciesHeight,radius*.39,
+       rgb(leafPalette[(i+rim+1)%3]),x*.24-z*.18+i*1.7+rim*.83,true);
+    }
     leafWhorl([center[0]+.15*s,center[1]+.27*s,center[2]],radius*.83,season,style,
       x*.17+z*.11+i);
+    leafWhorl([center[0]+Math.cos(angle)*radius*.72*speciesWidth,
+       center[1]+.10*s*speciesHeight,
+       center[2]+Math.sin(angle)*radius*.72],radius*.69,season,style,
+      x*.23-z*.13+i*1.9);
+    forestVisualStats.rimLeafSprays++;
    });
   }
   // The central crown binds the irregular secondary masses into one tree.
@@ -2234,7 +2253,7 @@ currentMaterial=MATERIAL.FOLIAGE;
  farmForestRendered=0;farmForestRenderedOverlap=0;
  forestVisualStats.deciduous=0;forestVisualStats.conifers=0;
  forestVisualStats.needleBoughs=0;forestVisualStats.needleFanTriangles=0;
- forestVisualStats.branchTriangles=0;forestVisualStats.crownPalette.clear();forestVisualStats.broadleafLobes=0;forestVisualStats.individualLeaves=0;forestVisualStats.broadleafAddedTriangles=0;forestVisualStats.broadleafSpecies=[0,0,0];
+ forestVisualStats.branchTriangles=0;forestVisualStats.crownPalette.clear();forestVisualStats.broadleafLobes=0;forestVisualStats.individualLeaves=0;forestVisualStats.broadleafAddedTriangles=0;forestVisualStats.broadleafSpecies=[0,0,0];forestVisualStats.microCrownLobes=0;forestVisualStats.rimLeafSprays=0;
  for(const t of trees){
   const overlapsFarm=farmTreeClearance(t.x,t.z);
   if(!overlapsFarm&&Math.hypot(t.x-SCENIC_SITES.sanctuary.x,t.z-SCENIC_SITES.sanctuary.z)>8){
@@ -2269,7 +2288,7 @@ requestAnimationFrame(render);window.__tinyKingdom={getState:()=>JSON.parse(JSON
  needleBoughs:forestVisualStats.needleBoughs,
  needleFanTriangles:forestVisualStats.needleFanTriangles,
  branchTriangles:forestVisualStats.branchTriangles,
- broadleafLobes:forestVisualStats.broadleafLobes,individualLeaves:forestVisualStats.individualLeaves,broadleafSpecies:forestVisualStats.broadleafSpecies.slice(),broadleafAddedTriangles:forestVisualStats.broadleafAddedTriangles,
+ broadleafLobes:forestVisualStats.broadleafLobes,microCrownLobes:forestVisualStats.microCrownLobes,rimLeafSprays:forestVisualStats.rimLeafSprays,individualLeaves:forestVisualStats.individualLeaves,broadleafSpecies:forestVisualStats.broadleafSpecies.slice(),broadleafAddedTriangles:forestVisualStats.broadleafAddedTriangles,
  crownColors:forestVisualStats.crownPalette.size
 }),getCottageFacadeStats:()=>({...cottageFacadeStats,styles:cottageFacadeStats.styles.map((count,style)=>({style,count})).filter(row=>row.count>0)}),getLightingProfile:lightingProfile,getCraftDistrictStats:()=>({...CRAFT_DISTRICT,...craftCounters}),getCottageEffects:()=>({activeChimneys,smokePuffs,smokeTriangles,smokeMaxRadius}),renderStats:()=>({terrainRebuilds,terrainCacheKey,terrainCacheTriangles,lastFrameTriangles,scenicMeshRebuilds,scenicMeshTriangles,scenicMeshKey,staticGpuUploads,dualBufferGPU:gpuAvailable}),renderQuality,setRenderQuality,shadowStats:()=>({triangles:castShadowTriangles,...sunShadow(state.t)}),sampleSunShadow:(time)=>sunShadow(time),sampleCanopyShadow:(x,z)=>Array.from({length:9},(_,i)=>canopyShadowVariation(x,z,i*Math.PI/4)),getEconomyHistory:()=>cloneData(uiHistory),getHudMode:()=>cinematicHud?'cinema':'full',setHudMode:setCinematicHud,getCommandView:()=>commandView,setCommandView,skyStats:()=>({enabled:gpuAvailable,passes:skyPassCount,model:'day-night-atmosphere-v1',palette:skyColorProfile(state.t)}),getSkyPalette:skyColorProfile,setCamera:o=>{yaw=Number.isFinite(o.yaw)?o.yaw:yaw;pitch=Number.isFinite(o.pitch)?Math.max(.25,Math.min(1.45,o.pitch)):pitch;zoom=Number.isFinite(o.zoom)?Math.max(9,Math.min(85,o.zoom)):zoom;if(Array.isArray(o.focus)&&o.focus.length===2)focusPoint=o.focus.slice(0,2)}};
 })();
