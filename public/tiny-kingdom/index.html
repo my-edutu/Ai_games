@@ -405,14 +405,19 @@ void main(){
   if(rock>.20)rockShelfNoise=noise3(vec3(
     vWorld.x*.46+vWorld.y*.14,vWorld.y*1.73,
     vWorld.z*.46-vWorld.y*.10));
-  float mineralBedding=smoothstep(.32,.69,rockShelfNoise);
-  float exposedBedrock=rock*smoothstep(.045,.18,slope)*
-    smoothstep(.36,.64,rockShelfNoise);
-  float screeGrain=smoothstep(.80,.97,grit)*
-    smoothstep(.085,.25,slope)*rock;
-  vec3 exposedStone=c*mix(vec3(.69,.79,.82),vec3(.99,.88,.71),mineralBedding);
-  exposedStone*=.78+.26*blades+.11*screeGrain;
-  c=mix(c,exposedStone,clamp(exposedBedrock*1.18+screeGrain*.16,0.,.82));
+  // G060b image review: multiplying green grass by an earth tint left
+  // the slope uniformly green. Stone must instead use a neutral mineral
+  // albedo under the *already lit* world luminance, with irregular shelves.
+  float mineralBedding=smoothstep(.31,.70,rockShelfNoise);
+  float exposedBedrock=rock*smoothstep(.035,.15,slope)*
+    smoothstep(.39,.62,rockShelfNoise);
+  float screeGrain=smoothstep(.82,.98,grit)*
+    smoothstep(.07,.22,slope)*rock;
+  float mineralLight=dot(c,vec3(.299,.587,.114));
+  vec3 exposedStone=mineralLight*mix(vec3(.75,.80,.78),
+    vec3(1.12,1.01,.90),mineralBedding);
+  exposedStone*=.82+.29*blades+.10*screeGrain;
+  c=mix(c,exposedStone,clamp(exposedBedrock*1.42+screeGrain*.23,0.,.84));
   // G058: deterministic grass micro-relief. World-space fibre normals
   // correct diffuse response only for near grass, without new triangles.
   // Far-field fade prevents moving-camera pixel shimmer on ridgelines.
