@@ -12,11 +12,19 @@ function encounter(w,h) {
     const frame=session.controller.frame(w,h,{reducedMotion:true,muted:true}), s=frame.snapshot;
     const guardian=s.enemies?.find(e=>e.active&&e.kind==='guardian');
     const cap=s.platforms?.find(p=>p.id.endsWith(':cap'));
-    if(s.lifecycle==='running'&&guardian&&cap){
-      const dx=Math.abs(s.player.x-guardian.x),dy=Math.abs(s.player.y-guardian.y);
-      const score=dx+1.4*dy;
-      if(!best||score<best.score)best={frame,score,guardianId:guardian.id,capId:cap.id};
-      if(dx<90000&&dy<65000)break;
+    if(i>=250&&s.lifecycle==='running'&&guardian&&cap){
+      const feet=guardian.y-guardian.halfHeight;
+      const clearance=(cap.y+cap.height-feet)/10000-.12;
+      const needsTuck=guardian.halfHeight*2/10000-clearance;
+      const spansCap=guardian.x+guardian.halfWidth>=cap.x&&guardian.x-guardian.halfWidth<=cap.x+cap.width;
+      // This screenshot must actually show the canopy defect being corrected,
+      // not merely any early active guardian under a distant overhead platform.
+      if(spansCap&&clearance>0&&needsTuck>.08) {
+        const dx=Math.abs(s.player.x-guardian.x),dy=Math.abs(s.player.y-guardian.y);
+        const score=dx+1.4*dy;
+        if(!best||score<best.score)best={frame,score,guardianId:guardian.id,capId:cap.id,clearance,needsTuck};
+        if(dx<90000&&dy<65000)break;
+      }
     }
     advance(session);
   }
@@ -55,7 +63,7 @@ for(const v of [{name:'portrait',w:390,h:844},{name:'desktop',w:960,h:600}])
       method:'Actual seeded public snapshot held for WebGL appearance; not continuous motion or GPU FPS',
       sourceSha:process.env.GITHUB_SHA||null,viewport:v,tick:frame.snapshot.tick,
       checksum,guardianId:match.guardianId,capId:match.capId,score:match.score,
-      baseline:!!a,diagnostics,errors
+      baseline:!!a,clearance:match.clearance,needsTuck:match.needsTuck,diagnostics,errors
     },null,2));
     expect(errors).toEqual([]);
   });
