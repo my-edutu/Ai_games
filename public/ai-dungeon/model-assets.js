@@ -1,6 +1,7 @@
 import * as THREE from '/dungeon/vendor/three.module.js';
 import {GLTFLoader} from '/dungeon/vendor/addons/loaders/GLTFLoader.js';
 import {clone as cloneSkeleton} from '/dungeon/vendor/addons/utils/SkeletonUtils.js';
+import {planAuthoredMotion} from '/dungeon/character-motion-plan.js';
 
 // Optional locally vendored CC0 characters. Offline / missing-asset fallback is the
 // fully autonomous procedural 3D rig, not a blank screen. No third-party runtime calls.
@@ -99,7 +100,8 @@ function attachCharacter(actor){
    instance.scale.setScalar(sourceScale);
    instance.position.set(-center.x*sourceScale,-bounds.min.y*sourceScale,-center.z*sourceScale);
   }
-  actor.root.add(instance);actor.assetRoot=instance;actor.assetMaterials=owned;
+  const pivot=new THREE.Group();actor.root.add(pivot);pivot.add(instance);
+  actor.visualPivot=pivot;actor.motionPeak=0;actor.assetRoot=instance;actor.assetMaterials=owned;
   actor.body.visible=false;actor.authored=true;actor.mixer=new THREE.AnimationMixer(instance);
   actor.availableClips=gltf.animations||[];actor.currentAction='';actor.currentActionTick=null;
   actor.textureReadiness=textureReadiness.get(gltf);
@@ -112,6 +114,7 @@ function changeAction(actor,action){
  const oneShot=['attack','cast','hurt'].includes(action);
  const tick=actor.u.actionTick??null;
  const newEvent=oneShot&&actor.currentActionTick!==tick;
+ if(actor.currentAction!==action||newEvent)actor.motionPeak=0;
  if(!actor.mixer||(actor.currentAction===action&&!newEvent))return;
  const clip=chooseClip(actor.availableClips,action);
  if(!clip)return;
@@ -129,17 +132,24 @@ function changeAction(actor,action){
  }
  actor.currentAction=action;actor.currentActionTick=tick;
 }
-function updateActor(actor,dt){
+function updateActor(actor,dt,since=0,reducedMotion=false){
  if(!actor.authored||!actor.mixer)return;
  changeAction(actor,actor.u.action||'idle');
  actor.mixer.update(Math.min(.05,Math.max(0,dt)));
+ if(actor.visualPivot){
+  const pose=planAuthoredMotion(actor.u.kind,actor.u.action||'idle',since,reducedMotion);
+  actor.visualPivot.position.set(pose.x,pose.y,pose.z);
+  actor.visualPivot.rotation.set(pose.pitch,0,pose.roll);
+  actor.motionPeak=Math.max(actor.motionPeak||0,Math.abs(pose.x),Math.abs(pose.y),Math.abs(pose.z));
+ }
 }
 function disposeActorAsset(actor){
  actor.detached=true;
  if(actor.mixer){actor.mixer.stopAllAction();if(actor.assetRoot)actor.mixer.uncacheRoot(actor.assetRoot)}
- if(actor.assetRoot){actor.root.remove(actor.assetRoot)}
+ if(actor.visualPivot){actor.root.remove(actor.visualPivot);actor.visualPivot.clear()}
+ else if(actor.assetRoot){actor.root.remove(actor.assetRoot)}
  for(const m of actor.assetMaterials||[])m.dispose();
- actor.mixer=null;actor.assetRoot=null;actor.assetMaterials=[];actor.authored=false;actor.textureReadiness=null;
+ actor.mixer=null;actor.assetRoot=null;actor.visualPivot=null;actor.motionPeak=0;actor.assetMaterials=[];actor.authored=false;actor.textureReadiness=null;
 }
 function putEnvironment(world,sceneKey,map){
  // Authored GLB masonry and prop dressing complements the instanced procedural
