@@ -89,6 +89,24 @@ const path = require('node:path');
     }
     evidence.renderBudget=softwareRendererRenderBudget;
     evidence.geometry=await page.evaluate(()=>window.__tinyKingdom.getGeometryAudit());
+    // G054b: vertex-level material classification on the same actual SwiftShader
+    // buffers used to render the screenshots. This catches stone joints on silk.
+    evidence.materialSwatches=await page.evaluate(()=>{
+      const game=window.__tinyKingdom,before=JSON.stringify(game.exportSnapshot());
+      return {swatches:game.getMaterialSwatchAudit(),
+        authorityUnchanged:before===JSON.stringify(game.exportSnapshot())};
+    });
+    for(const [name,expected] of [['guildCloth',24],['guildGoldTrim',1],
+                                   ['marketCanvas',2],['festivalGoldSilk',1]]){
+      const row=evidence.materialSwatches.swatches[name];
+      if(!row||row.general<expected||row.stone!==0||row.roof!==0)
+        throw Error('G054b real GPU cloth material inherited masonry: '+name+' '+JSON.stringify(row));
+    }
+    if(evidence.materialSwatches.swatches.guildCloth.total!==24||
+       evidence.materialSwatches.swatches.marketCanvas.total!==2||
+       !evidence.materialSwatches.authorityUnchanged)
+      throw Error('G054b actual GPU colored cloth triangle audit/replay failed: '+JSON.stringify(evidence.materialSwatches));
+
     for(const mesh of [evidence.geometry.static,evidence.geometry.dynamic]){
       if(!mesh.aligned||mesh.invalidComponents||mesh.invalidNormals||mesh.invalidColors||mesh.outOfBounds)throw Error('Malformed 3D geometry: '+JSON.stringify(mesh));
     }
