@@ -20,6 +20,23 @@ test('cached portals and obstacles refresh on visible changes while trap countdo
   const stats = () => page.evaluate(() => window.__snakePresentation.stats());
   const initial = await stats();
   expect(initial.staticCache.active).toBe(true);
+  // The renderer can make its one permitted adaptive resolution adjustment
+  // while these live snapshots are being exercised. A resolution change must
+  // rebuild the stationary-scene cache once independently of prop topology.
+  // Keep the *exactly one* topology rebuild gate; attribute an additional
+  // build only to a separately observed, bounded render-scale transition.
+  function expectTopologyCacheBuilds(before, after, topologyChanges) {
+    expect(before.renderScale.adjusted && !after.renderScale.adjusted).toBe(false);
+    const scaled = !before.renderScale.adjusted && after.renderScale.adjusted;
+    if (scaled) {
+      expect(after.pixelRatio).toBeLessThan(before.pixelRatio);
+      expect(after.drawingBuffer.width).toBeLessThan(before.drawingBuffer.width);
+    } else {
+      expect(after.pixelRatio).toBe(before.pixelRatio);
+      expect(after.drawingBuffer).toEqual(before.drawingBuffer);
+    }
+    expect(after.staticCache.builds).toBe(before.staticCache.builds + topologyChanges + Number(scaled));
+  }
   async function settle() {
     const lastPoll = polls, count = (await stats()).frameCount;
     await expect.poll(() => polls).toBeGreaterThan(lastPoll + 1);
@@ -28,22 +45,22 @@ test('cached portals and obstacles refresh on visible changes while trap countdo
   }
   current.snapshot.hazards[0].phase = 2;
   const countdown = await settle();
-  expect(countdown.staticCache.builds).toBe(initial.staticCache.builds);
+  expectTopologyCacheBuilds(initial, countdown, 0);
   expect(countdown.triangles).toBe(initial.triangles);
   current.snapshot.hazards[0].active = true;
   const active = await settle();
-  expect(active.staticCache.builds).toBe(initial.staticCache.builds);
+  expectTopologyCacheBuilds(countdown, active, 0);
   expect(active.triangles).not.toBe(initial.triangles);
   current.snapshot.obstacles = [18, 24];
   current.snapshot.portals = [{ entry: 46, exit: 380 }];
   const added = await settle();
-  expect(added.staticCache.builds).toBe(active.staticCache.builds + 1);
+  expectTopologyCacheBuilds(active, added, 1);
   expect(added.world.obstacles).toBe(2);
   expect(added.world.portalEnds).toBe(2);
   current.snapshot.obstacles = [];
   current.snapshot.portals = [];
   const removed = await settle();
-  expect(removed.staticCache.builds).toBe(added.staticCache.builds + 1);
+  expectTopologyCacheBuilds(added, removed, 1);
   expect(removed.world.obstacles).toBe(0);
   expect(removed.world.portalEnds).toBe(0);
   expect(removed.textures).toBe(added.textures);
