@@ -231,8 +231,8 @@
       "round": 23,
       "at": "2026-10-31",
       "commit": "a1c7891665b9548e55d4a70a76c2ab09c2952fea",
-      "status": "IMPLEMENTED; TEST-FIRST LOCAL PLANNER 2/2 PASS; EXACT-HEAD CI/BROWSER NOT YET VERIFIED",
-      "visualVerdict": "Prior genuine matched R19/R20 WebGL proves original boss silhouette remains generic. R23 adds 24 original PBR Warden adornments to the actual model but a new browser capture, independent critical review and any perceived-quality gain are NOT YET VERIFIED; Diablo IV quality bar NOT MET.",
+      "status": "VERIFIED: 46/46 DEDICATED CHROMIUM, 36/36 DUNGEON CORE, 17/17 PRESENTATION, 558/558 REPO SOFTWARE, 15/15 SHARED BROWSER, 24x900 DETERMINISTIC; VISUAL BAR NOT MET",
+      "visualVerdict": "Real Chromium/SwiftShader Warden encounter screenshot for visual-room-art-18 seed at tick 30 inspected. Original giant horns, back spines and breastplate now make the authored Warden visually distinct from the ordinary swordsman. However a large dark foreground wall cuts through boss/party combat and covers substantial screen area, the oversized costume is stylized/low-poly, and stone architecture remains repetitive. No blind A/B or Diablo IV parity.",
       "evidenceMetrics": {
         "originalProceduralRegaliaPieces": 24,
         "addedPBRMaterialsPerAuthoredBoss": 4,
@@ -241,20 +241,41 @@
         "realEncounterBrowserTestAdded": true,
         "independentBlindComparison": false,
         "frameTimeDeltaMeasured": false,
-        "liveBrowserScreenshotInspected": false
+        "liveBrowserScreenshotInspected": false,
+        "exactTestedCodeHead": "27cdd5708eb6587f2f347464405e6e55e021c4d0",
+        "coreTestsPassed": 36,
+        "otherPresentationTestsPassed": 17,
+        "repositorySoftwareTestsPassed": 558,
+        "repositorySharedBrowserTestsPassed": 15,
+        "dedicatedBrowserTestsPassed": 46,
+        "dedicatedBrowserTestsFailed": 0,
+        "headlessSeeds": 24,
+        "ticksPerSeed": 900,
+        "determinismFailures": 0,
+        "highestFloor": 9,
+        "floorAdvances": 401,
+        "restarts": 89,
+        "realWebGLWardenScreenshotInspected": true,
+        "renderedSceneHadForegroundOcclusion": true
       },
       "verification": {
         "testFirstRedObservedLocally": true,
         "unitPlanGreenObservedLocally": true,
-        "fullLocalRepositoryTests": "NOT_RUN; workbench tunnel offline",
-        "exactHeadBrowser": "PENDING",
-        "exactHeadIntegratedCI": "PENDING",
-        "deterministicCampaign": "PENDING",
+        "fullLocalRepositoryTests": "TIMED OUT locally after some tests; exact tested-code-head GitHub catalogue run PASSED 558/558",
+        "exactHeadBrowser": "VERIFIED 46/46 3 SHARDS",
+        "exactHeadIntegratedCI": "VERIFIED 558/558 + SHARED BROWSER 15/15",
+        "deterministicCampaign": "VERIFIED 24 x 900; 0 mismatches; floor 9",
         "independentReview": false,
         "productionReady": false,
-        "documentation": "docs/reviews/AI_DUNGEON_GAUNTLET_ROUND_023.md"
+        "documentation": "docs/reviews/AI_DUNGEON_GAUNTLET_ROUND_023.md",
+        "browserRun": 41186488821,
+        "integratedCIRun": 41186488818,
+        "visualReviewRun": 41186488846,
+        "screenshotArtifact": 13037166421,
+        "screenshotName": "dungeon-warden-regalia-round23-world-only.png"
       },
-      "nextLargestGap": "Review real authored Warden rendering and moving boss clips for regalia clipping; invest in unique sculpted/rigged hero and enemy models, materials and richer environment geometry."
+      "nextLargestGap": "Foreground boss-encounter occlusion and camera cutaway in genuine tick-30 capture; then high-fidelity original rigged heroes/enemies, skeletal combat animations, unique material and wall geometry, frame-time evidence and blind preference tests.",
+      "artifactUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41186488821/artifacts/13037166421"
     }
   ]
 }
