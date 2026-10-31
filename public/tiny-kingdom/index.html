@@ -1219,13 +1219,16 @@ function granaryArchitecture(){
  materialScope(MATERIAL.ROOF,()=>{
   for(let side of [-1,1]){
    const edge=x+side*(w*.55);
-   quad([edge,eave,z-d*.58],[x,peak,z-d*.58],[x,peak,z+d*.58],[edge,eave,z+d*.58],slate);
+   const roofA=[edge,eave,z-d*.58],roofB=[x,peak,z-d*.58],roofC=[x,peak,z+d*.58],roofD=[edge,eave,z+d*.58];
+   if(side<0)quad(roofD,roofC,roofB,roofA,slate);else quad(roofA,roofB,roofC,roofD,slate);
    const tileColors=[rgb(0x886a58),rgb(0x9b8066),rgb(0x725e53),rgb(0xb18e6d)];
    for(let r=0;r<7;r++)for(let c=0;c<9;c++){
     const a=r/7,b=(r+1)/7,zA=z-d*.58+(d*1.16)*c/9,zB=z-d*.58+(d*1.16)*(c+1)/9;
     const px=edge+(x-edge)*a,qx=edge+(x-edge)*b;
     const ya=eave+(peak-eave)*a+.024,yb=eave+(peak-eave)*b+.024;
-    quad([px,ya,zA],[qx,yb,zA],[qx,yb,zB],[px,ya,zB],tileColors[(r*11+c*7+side+99)%4]);
+    const vA=[px,ya,zA],vB=[qx,yb,zA],vC=[qx,yb,zB],vD=[px,ya,zB];
+    if(side<0)quad(vD,vC,vB,vA,tileColors[(r*11+c*7+side+99)%4]);
+    else quad(vA,vB,vC,vD,tileColors[(r*11+c*7+side+99)%4]);
    }
   }
  });
