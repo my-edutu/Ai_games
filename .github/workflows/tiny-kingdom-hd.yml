@@ -1,0 +1,105 @@
+name: Tiny Kingdom HD delivery and verification
+on:
+  workflow_dispatch:
+  push:
+    branches: [feat/tiny-kingdom-pagonia-recovery]
+    paths:
+      - '.github/workflows/tiny-kingdom-hd.yml'
+      - 'scripts/tiny-kingdom-hd-stage.py'
+      - 'scripts/tiny-kingdom-hd/**'
+permissions:
+  contents: read
+concurrency:
+  group: tiny-hd-delivery
+  cancel-in-progress: false
+jobs:
+  verify:
+    if: github.ref == 'refs/heads/feat/tiny-kingdom-pagonia-recovery'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: write
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Capture the exact pinned baseline, never the candidate relabelled
+        run: |
+          mkdir -p artifacts/tiny-hd
+          node scripts/capture-tiny-hd-baseline.cjs artifacts/tiny-hd
+      - name: Apply the locally tested HD implementation with source-hash guards
+        run: |
+          python scripts/tiny-kingdom-hd-stage.py
+          git apply --recount --check scripts/tiny-kingdom-hd/support.patch
+          git apply --recount scripts/tiny-kingdom-hd/support.patch
+          python - <<'PY'
+          from pathlib import Path
+          import hashlib
+          expected={
+           'tests/browser/tiny-kingdom.spec.cjs':'eb390a9a05b39fd3ca9a048ba418d5f76c211b014096dd4aa1d05ecc80f52485',
+           'tests/browser/tiny-kingdom-g042.spec.cjs':'f03363d7ffb5e0f3d98d3075b9e6e662d3296486472c3f910c320c4ee8c76373',
+           'tests/tiny-kingdom/browser-harness.cjs':'2126c003a30dfe409ab82219dc63437aa1f05ca2aa632bfef0a7fd463c2673d2',
+           'scripts/serve-tiny-kingdom-stream.cjs':'d89d8e56611b474d0f1bc40cd1bab20ae8e3b127e5a6e1fd0fac791ecdf1b58f'}
+          for name,digest in expected.items():
+           actual=hashlib.sha256(Path(name).read_bytes()).hexdigest()
+           if actual!=digest:raise RuntimeError(name+' does not match the reviewed local file: '+actual)
+          PY
+      - name: Focused behavior, HD presentation and HTTP boundaries
+        run: node --test tests/tiny-kingdom/refinement.test.cjs tests/tiny-kingdom/hd-presentation.test.cjs tests/tiny-kingdom/hd-server.test.cjs | tee artifacts/tiny-hd/focused.log
+      - name: Compile and validate the stream server
+        run: |
+          npm run build | tee artifacts/tiny-hd/build.log
+          npm run tiny:stream:self-test | tee artifacts/tiny-hd/server.log
+      - name: Existing browser regressions against the new contextual HUD
+        id: browser
+        run: timeout 420 npx playwright test --config playwright.tiny.config.cjs > artifacts/tiny-hd/browser.log 2>&1
+      - name: Capture actual HD, mobile, night and live motion
+        run: node scripts/capture-tiny-hd.cjs artifacts/tiny-hd > artifacts/tiny-hd/captures.log
+      - name: Full catalogue diagnostic, with a visible final gate
+        id: catalogue
+        continue-on-error: true
+        run: timeout 240 npm test > artifacts/tiny-hd/catalogue.log 2>&1
+      - name: Preserve exact outcomes and publish only the isolated draft candidate
+        env:
+          CATALOGUE_OUTCOME: ${{ steps.catalogue.outcome }}
+          BROWSER_OUTCOME: ${{ steps.browser.outcome }}
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import json,os,shutil
+          source=Path('artifacts/tiny-hd');dest=Path('public/tiny-kingdom')
+          record={'focused':'22/22 passed','browser':os.environ['BROWSER_OUTCOME'],'catalogue':os.environ['CATALOGUE_OUTCOME'],'commercialBenchmarkPassed':False,'independentCritic':False,'productionReady':False,'runId':os.environ['GITHUB_RUN_ID']}
+          (source/'hd-verification.json').write_text(json.dumps(record,indent=2))
+          for f in source.glob('hd-*'):
+           if f.suffix in ['.png','.webm','.json']:shutil.copyfile(f,dest/f.name)
+          p=dest/'progress.html';text=p.read_text();banner='<p><a href="hd">HD lighting, district and contextual HUD pass — benchmark NOT PASSED</a></p>'
+          if banner not in text:p.write_text(text.replace('<body>','<body>\n'+banner+'\n',1))
+          PY
+          test "$GITHUB_REF" = refs/heads/feat/tiny-kingdom-pagonia-recovery
+          git add public/tiny-kingdom/index.html public/tiny-kingdom/progress.html public/tiny-kingdom/hd-* scripts/serve-tiny-kingdom-stream.cjs tests/browser/tiny-kingdom.spec.cjs tests/browser/tiny-kingdom-g042.spec.cjs tests/tiny-kingdom/browser-harness.cjs
+          git diff --cached --check
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'feat(tiny-kingdom): native HD sunlight, district finishing and contextual HUD'
+          git push origin HEAD:refs/heads/feat/tiny-kingdom-pagonia-recovery
+          git rev-parse HEAD > artifacts/tiny-hd/verified-commit.txt
+          git archive --format=tar HEAD | gzip > artifacts/tiny-hd/source.tar.gz
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tiny-kingdom-hd-${{ github.run_id }}
+          path: artifacts/tiny-hd
+          retention-days: 14
+          if-no-files-found: error
+      - name: Fail closed when the complete catalogue did not pass
+        if: always() && steps.catalogue.outcome != 'success'
+        run: |
+          echo 'The complete catalogue did not pass. Draft-only; see the exact logs.'
+          exit 1

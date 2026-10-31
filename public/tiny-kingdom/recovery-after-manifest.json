@@ -1,0 +1,76 @@
+{
+  "label": "after",
+  "sourceSha256": "f7ae295be845aaa45d885e80d75b3820d69ca3838acd81f2ac4c425f0988c44a",
+  "capturedAt": "2026-10-30T22:27:17.545Z",
+  "captures": [
+    {
+      "file": "after-market.png",
+      "camera": {
+        "focus": [
+          0,
+          3
+        ],
+        "zoom": 27,
+        "pitch": 0.68,
+        "yaw": 2.65
+      }
+    },
+    {
+      "file": "after-cottage.png",
+      "camera": {
+        "focus": [
+          -10,
+          -7
+        ],
+        "zoom": 10,
+        "pitch": 0.48,
+        "yaw": 3.45
+      }
+    },
+    {
+      "file": "after-citizen.png",
+      "camera": {
+        "focus": [
+          -5.75,
+          5.75
+        ],
+        "zoom": 9,
+        "pitch": 0.46,
+        "yaw": 0.65
+      }
+    }
+  ],
+  "note": "Controlled noon lighting and seeded initial population. Actual browser output; renderer capability recorded below. Manually advanced frames are not a real-time performance test.",
+  "renderer": {
+    "tier": "software-webgl",
+    "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+    "scale": 1,
+    "targetFps": 12,
+    "framesDrawn": 3,
+    "framesSkipped": 0
+  },
+  "geometry": {
+    "static": {
+      "floats": 1741530,
+      "vertices": 174153,
+      "triangles": 58051,
+      "aligned": true,
+      "invalidComponents": 0,
+      "invalidNormals": 0,
+      "invalidColors": 0,
+      "outOfBounds": 0
+    },
+    "dynamic": {
+      "floats": 1116450,
+      "vertices": 111645,
+      "triangles": 37215,
+      "aligned": true,
+      "invalidComponents": 0,
+      "invalidNormals": 0,
+      "invalidColors": 0,
+      "outOfBounds": 0
+    },
+    "totalTriangles": 95266
+  },
+  "errors": []
+}

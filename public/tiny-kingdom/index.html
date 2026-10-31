@@ -625,8 +625,8 @@ function directionalCastShadows(time){
 function shadow(x,z,rx,rz){const y=terrain(x,z)+.013,col=rgb(0x4b6549);for(let i=0;i<10;i++){const a=i*Math.PI/5,b=(i+1)*Math.PI/5;tri([x,y,z],[x+Math.cos(a)*rx,y,z+Math.sin(a)*rz],[x+Math.cos(b)*rx,y,z+Math.sin(b)*rz],col)}}
 function house(x,z,scale=1,variant=0){let y=terrain(x,z);let w=(2.4+variant*.42)*scale,d=(2.1+variant*.18)*scale,h=1.9*scale;shadow(x+.28,z+.20,w*.77,d*.74);box(x,y-.04,z,w+.14,.23*scale,d+.14,rgb(0x908978));box(x,y+.19*scale,z,w,h-.19*scale,d,variant%2?rgb(0xe1c7a0):rgb(0xd1bc97));let ridge=h+1.25*scale,zy=z-d/2-.18*scale,zz=z+d/2+.18*scale,xx=x-w/2-.25*scale,xr=x+w/2+.25*scale;let col=variant%2?rgb(0x725046):rgb(0x976047);
 // Both slopes, proper triangular end gables, visible eaves and offset ridge trim.
-quad([xx,y+h,zy],[x,y+ridge,zy],[x,y+ridge,zz],[xx,y+h,zz],col);quad([x,y+ridge,zy],[xr,y+h,zy],[xr,y+h,zz],[x,y+ridge,zz],col);
-tri([xx,y+h,zy],[xr,y+h,zy],[x,y+ridge,zy],rgb(0xd1bf9e));tri([xr,y+h,zz],[xx,y+h,zz],[x,y+ridge,zz],rgb(0xd1bf9e));
+quad([xx,y+h,zz],[x,y+ridge,zz],[x,y+ridge,zy],[xx,y+h,zy],col);quad([x,y+ridge,zz],[xr,y+h,zz],[xr,y+h,zy],[x,y+ridge,zy],col);
+tri([xx,y+h,zy],[x,y+ridge,zy],[xr,y+h,zy],rgb(0xd1bf9e));tri([xr,y+h,zz],[x,y+ridge,zz],[xx,y+h,zz],rgb(0xd1bf9e));
 // Gauntlet 017: overlapping individual roof tiles, built as actual 3D geometry.
 // Each row is staggered; subtle raised edges catch directional sunlight. The
 // deterministic pattern depends only on building variant and tile coordinates.
@@ -645,7 +645,9 @@ for(let slope=0;slope<2;slope++){
    const z0=zy+(zz-zy)*v0,z1=zy+(zz-zy)*v1;
    const color=roofTileColors[(row*7+col*3+variant*5)%roofTileColors.length];
    const lift=.022*scale+row*.001*scale;
-   materialScope(MATERIAL.ROOF,()=>quad([outer0[0],outer0[1]+lift,z0],[outer1[0],outer1[1]+lift,z0],[outer1[0],outer1[1]+lift,z1],[outer0[0],outer0[1]+lift,z1],color));
+   const corners=[[outer0[0],outer0[1]+lift,z0],[outer1[0],outer1[1]+lift,z0],[outer1[0],outer1[1]+lift,z1],[outer0[0],outer0[1]+lift,z1]];
+   if(slope===0)corners.reverse();
+   materialScope(MATERIAL.ROOF,()=>quad(...corners,color));
   }
  }
 }
@@ -805,9 +807,9 @@ function wheat(x,z){let y=terrain(x,z);for(let i=0;i<6;i++)for(let j=0;j<5;j++){
 // lifted swing foot and counter-swing arms; render-only, no simulation RNG.
 function citizenRigPose(p){
  const action=p.activity.toLowerCase();
- const working=/harvest|cutting|craft|construct|making|forag/.test(action);
- const traveling=/travel|explor/.test(action);
- const intensity=traveling?.72:working?.34:.11;
+ const traveling=/^travel|^explor/.test(action);
+ const working=!traveling&&/harvest|cutting|construct|making|forag|barter|tending|importing/.test(action);
+ const intensity=traveling?.72:0;
  const phase=p.phase*2.7,workBeat=working?Math.sin(p.phase*4.1):0;
  // The two bones have fixed lengths; each foot follows the actual terrain
  // under its forward-facing boot rather than floating at the pelvis height.
@@ -834,17 +836,59 @@ function citizenRigPose(p){
   return {hip,knee,ankle,lift,groundOffset};
  });
  const arms=[-1,1].map(side=>{
-  // Opposite arm to the same-side foot; previous sign moved them together.
+  // Walking counter-swing; working feet stay planted while hands perform the job.
   const swing=-Math.sin(phase+(side<0?0:Math.PI))*intensity*.27;
-  const toolArm=working&&side===1,beat=toolArm?workBeat*.10:0;
-  return {
-   shoulder:[side*.30,1.015,0],
-   elbow:[side*.325,.795+beat*.28,swing*.53+beat*.62],
-   wrist:[side*.33,.565+beat,swing+beat]
-  };
+  const shoulder=[side*.30,1.015,0];
+  let wrist=[side*.33,.565,swing];
+  if(working){
+   const beat=Math.sin(p.phase*4.1),reach=(beat+1)*.5;
+   if(p.job==='farmer')wrist=[side*.22,.61+reach*.17,.28+reach*.15];
+   else if(p.job==='forester')wrist=[side*.23,.71+reach*.39,.26+reach*.12];
+   else if(p.job==='builder'||p.job==='craftsperson')wrist=side>0?[.31,.65+reach*.35,.24]:[-.27,.68,.27];
+   else if(p.job==='merchant')wrist=[side*.30,.67+reach*.07,.24+side*beat*.06];
+   else if(p.job==='gatherer')wrist=side>0?[.32,.42+reach*.18,.22+reach*.09]:[-.28,.67,.26];
+  }
+  const elbow=[side*.36,(shoulder[1]+wrist[1])*.5-.04,wrist[2]*.53];
+  return {shoulder,elbow,wrist};
  });
  return {legs,arms,working,traveling,stride:Math.sin(phase)*intensity};
 }
+// Equipment and mesh construction share these joints. No world-space props
+// masquerade as a held tool, and baskets do not imply a simulated cargo inventory.
+function citizenEquipment(p,rig=citizenRigPose(p)){
+ const kind={farmer:'hoe',forester:'axe',builder:'mallet',merchant:'coin-pouch',craftsperson:'hammer',gatherer:'basket'}[p.job];
+ const hand=p.job==='merchant'?0:1,grip=rig.arms[hand].wrist.slice();
+ const length=p.job==='farmer'?.64:p.job==='forester'?.43:.31;
+ const angle=rig.working?Math.sin(p.phase*4.1)*.55:.15;
+ const direction=[0,Math.cos(angle),Math.sin(angle)];
+ const tip=grip.map((v,k)=>v+direction[k]*length);
+ return {kind,hand,grip,tip,direction};
+}
+function renderCitizenEquipment(p,rig,worldJoint,size){
+ const item=citizenEquipment(p,rig),grip=worldJoint(item.grip),tip=worldJoint(item.tip);
+ const woodColor=rgb(0x795035),metal=rgb(0xa9b4b0),leather=rgb(0x8a633d);
+ if(item.kind==='coin-pouch'){
+  const center=worldJoint([item.grip[0],item.grip[1]-.15,item.grip[2]]);
+  ellipsoid(...center,.105*size,.15*size,.09*size,leather,8);
+  limbSegment(grip,[grip[0],grip[1]-.06*size,grip[2]],.032*size,rgb(0xd8b874),6);
+ }else if(item.kind==='basket'){
+  const center=worldJoint([item.grip[0],item.grip[1]-.25,item.grip[2]]);
+  cylinder(...center,.16*size,.22*size,rgb(0xb89960),9);
+  for(const side of [-1,1])limbSegment(grip,[center[0]+side*.14*size,center[1]+.2*size,center[2]],.018*size,woodColor,5);
+  for(let ring=0;ring<3;ring++)cylinder(center[0],center[1]+(.04+ring*.07)*size,center[2],.165*size,.018*size,woodColor,9);
+ }else{
+  const heel=worldJoint(item.grip.map((v,k)=>v-item.direction[k]*.17));
+  limbSegment(heel,tip,.025*size,woodColor,7);
+  const width=item.kind==='hoe'?.27:item.kind==='axe'?.21:.24;
+  const left=[tip[0]-width*size/2,tip[1],tip[2]],right=[tip[0]+width*size/2,tip[1],tip[2]];
+  limbSegment(left,right,(item.kind==='mallet'?.085:.05)*size,item.kind==='mallet'?woodColor:metal,6);
+  if(item.kind==='axe'||item.kind==='hoe'){
+   const edge=[tip[0]+width*.65*size,tip[1]-.11*size,tip[2]];
+   limbSegment(right,edge,.055*size,metal,5);
+  }
+ }
+}
+
 function limbSegment(a,b,radius,col,sides=7){
  const dx=b[0]-a[0],dy=b[1]-a[1],dz=b[2]-a[2],length=Math.hypot(dx,dy,dz);if(length<.00001)return;
  const d=[dx/length,dy/length,dz/length],ref=Math.abs(d[1])>.88?[1,0,0]:[0,1,0];
@@ -998,7 +1042,7 @@ for(let sideIndex=0;sideIndex<2;sideIndex++){
  limbSegment(worldJoint(leg.hip),worldJoint(leg.knee),.091*size,rgb(0x534637));
  limbSegment(worldJoint(leg.knee),worldJoint(leg.ankle),.076*size,rgb(0x534637));
  ellipsoid(...worldJoint(leg.knee),.096*size,.094*size,.097*size,rgb(0x534637),7);
- const foot=worldJoint(leg.ankle);box(foot[0],foot[1]-.045*size,foot[2]+.095*size,.19*size,.13*size,.30*size,rgb(0x40382e));
+ const foot=worldJoint(leg.ankle);box(foot[0],foot[1]-.11*size,foot[2]+.095*size,.19*size,.13*size,.30*size,rgb(0x40382e));
  limbSegment(worldJoint(arm.shoulder),worldJoint(arm.elbow),.091*size,c);
  limbSegment(worldJoint(arm.elbow),worldJoint(arm.wrist),.077*size,c);
  ellipsoid(...worldJoint(arm.elbow),.084*size,.084*size,.084*size,c,7);
@@ -1037,11 +1081,9 @@ if(idx%2===1){
 }
 // Jobs are identifiable even without UI: hats, satchels and useful objects.
 if(p.job==='farmer'||p.job==='gatherer'){cylinder(x,y+1.655*size,z,.34*size,.06*size,rgb(0xb89a61),10);cone(x,y+1.66*size,z,.19*size,.19*size,rgb(0xc4a36c),8)}
-if(p.job==='forester'){cone(x,y+1.65*size,z,.255*size,.25*size,rgb(0x526a49),8);box(x+.35*size,y+.48*size,z+.03,.05*size,.52*size,.06*size,rgb(0x826449));box(x+.35*size,y+.83*size,z+.03,.24*size,.14*size,.045*size,rgb(0xa5a6a0))}
-if(p.job==='builder'){box(x,y+1.73*size,z,.48*size,.10*size,.43*size,rgb(0xa78a5e));box(x-.37*size,y+.54*size,z,.12*size,.28*size,.17*size,rgb(0x9b7850))}
-if(p.job==='merchant'){box(x-.31*size,y+.55*size,z+.13,.20*size,.36*size,.18*size,rgb(0x7d5433));box(x-.31*size,y+.86*size,z+.13,.13*size,.045*size,.16*size,rgb(0xe0be74))}
-if(p.job==='craftsperson'){box(x+.33*size,y+.48*size,z,.10*size,.48*size,.1*size,rgb(0x6e5140));box(x+.33*size,y+.81*size,z,.23*size,.12*size,.17*size,rgb(0xa3a9a1))}
-if(busy){box(x,y+.1*size,z-.30*size,.10*size,.04*size,.14*size,rgb(0x68533a))}
+if(p.job==='forester')cone(x,y+1.65*size,z,.255*size,.25*size,rgb(0x526a49),8);
+if(p.job==='builder')box(x,y+1.73*size,z,.48*size,.10*size,.43*size,rgb(0xa78a5e));
+renderCitizenEquipment(p,rig,worldJoint,size);
 // Every character actually faces the next waypoint. Rotate their assembled 3D
 // geometry and vertex normals, not the underlying authoritative positions.
 const look=p.path?.length?p.path[0]:p.target;
@@ -1734,17 +1776,42 @@ function routeBetween(x,z,tx,tz){
   return null;
 }
 function routeCitizen(p){const route=routeBetween(p.x,p.z,...p.target);p.path=route||[];if(route&&route.length)p.target=route[route.length-1].slice();else{p.activity='Waiting for a safe route';p.target=[p.x,p.z]}}
-function choose(p){let dest;if(p.energy<30||p.hunger>88){dest=[-3,2];p.activity='Resting and gathering food'}else{dest=p.job==='farmer'?[18,1]:p.job==='forester'?[-21,12]:p.job==='merchant'?[0,5]:p.job==='builder'?[7,-4]:p.job==='craftsperson'?[-4,4]:[-8,7];p.activity='Traveling to '+p.job+' work'}p.target=[dest[0]+(rand()-.5)*3,dest[1]+(rand()-.5)*3];routeCitizen(p)}
+function choose(p){let dest;if(p.energy<30||p.hunger>88){dest=[-3,2];p.activity='Traveling home to rest'}else{dest=p.job==='farmer'?[18,1]:p.job==='forester'?[-21,12]:p.job==='merchant'?[0,5]:p.job==='builder'?[7,-4]:p.job==='craftsperson'?[-4,4]:[-8,7];p.activity='Traveling to '+p.job+' work'}p.target=[dest[0]+(rand()-.5)*3,dest[1]+(rand()-.5)*3];routeCitizen(p)}
 function recount(p){if(state.t-state.lastStory<5)return;state.lastStory=state.t;const actions={farmer:`${p.name} gathered grain from the eastern fields.`,forester:`${p.name} delivered timber from the forest.`,builder:`${p.name} is repairing the village dwellings.`,merchant:`${p.name} bartered surplus food for coin in the market.`,craftsperson:`${p.name} crafted household supplies for local families.`,gatherer:`${p.name} returned with wild herbs and food.`};report(actions[p.job])}
+function citizenWorkActivity(p,time=state.t){
+ if(p.energy<30||p.hunger>88)return 'Resting at home';
+ return p.job==='farmer'?(climateAt(time).season===3?'Tending winter stores':'Harvesting grain'):
+  p.job==='forester'?'Cutting timber':p.job==='merchant'?'Bartering at market':
+  p.job==='builder'?'Constructing cottages':p.job==='craftsperson'?'Making household goods':'Foraging the hillside';
+}
+function beginCitizenWork(p){p.workTimer=0;p.activity=citizenWorkActivity(p)}
 function work(p){if(p.energy<30||p.hunger>88){p.energy=Math.min(100,p.energy+6);p.hunger=Math.max(0,p.hunger-9);p.activity='Resting at home';return}p.activity=p.job==='farmer'?(climateAt(state.t).season===3?'Tending winter stores':'Harvesting grain'):p.job==='forester'?'Cutting timber':p.job==='merchant'?'Bartering at market':p.job==='builder'?'Constructing cottages':p.job==='craftsperson'?'Making household goods':'Foraging the hillside';if(p.job==='farmer')state.food+=2.8*climateAt(state.t).yieldMultiplier;if(p.job==='gatherer')state.food+=1.4;if(p.job==='forester')state.wood+=2.1;if(p.job==='merchant'&&state.wood<people.length*.8&&state.gold>=4){
  state.gold-=4;state.wood+=8;p.activity='Importing timber for village repairs';
  if(state.t-state.lastStory>5){state.lastStory=state.t;report(`${p.name} arranged a timber shipment for the village workshops.`)}
  }else if(p.job==='merchant'&&state.food>people.length*5){state.food-=1.5;state.gold+=1.2}else if(p.job==='merchant'&&state.food<people.length*3&&state.gold>=2){state.gold-=2;state.food+=5;if(state.t-state.lastStory>5){state.lastStory=state.t;report(`${p.name} imported grain to protect the village food reserve.`)}}if(p.job==='craftsperson'&&state.wood>=.7){state.wood-=.7;state.gold+=.45}if(p.job==='builder'&&state.wood>=28&&city.length<35){state.wood-=28;state.buildCount++;let i=city.length-12,x=-17-Math.floor(i/3)*3.1,z=-14+(i%3)*6.5;if(people.some(v=>Math.hypot(v.x-x,v.z-z)<4)){state.wood+=28;return}city.push([x,z,i%3]);report(`${p.name} finished a new cottage for the growing village.`)}p.energy=Math.max(0,p.energy-3.5);p.hunger=Math.min(100,p.hunger+2);recount(p)}
-function step(dt){state.t+=dt;for(let i=0;i<people.length;i++){const p=people[i],dx=p.target[0]-p.x,dz=p.target[1]-p.z,dist=Math.hypot(dx,dz);p.phase+=dt*2.2;p.workTimer+=dt;p.hunger=Math.min(100,p.hunger+dt*.14);
-const wp=p.path&&p.path.length?p.path[0]:p.target,wx=wp[0]-p.x,wz=wp[1]-p.z,remaining=Math.hypot(wx,wz);
-if(remaining>.24){const move=Math.min(remaining,dt*(.75+i%4*.09));const nx=p.x+wx/remaining*move,nz=p.z+wz/remaining*move;if(move<=.04?walkable(nx,nz):clearSegment([p.x,p.z],[nx,nz])){p.x=nx;p.z=nz;p.energy=Math.max(0,p.energy-dt*.10)}else if(p.workTimer>1){routeCitizen(p);p.workTimer=0}}
-else if(p.path&&p.path.length){p.path.shift()}
-else if(p.workTimer>=2.5){work(p);p.workTimer=0;choose(p)}}
+function step(dt){state.t+=dt;for(let i=0;i<people.length;i++){
+ const p=people[i];p.phase+=dt*2.2;p.hunger=Math.min(100,p.hunger+dt*.14);
+ // A failed path is not arrival. Retry with a bounded interval and never pay
+ // a work reward at the accidental position where navigation failed.
+ if(p.activity==='Waiting for a safe route'){
+  p.workTimer+=dt;if(p.workTimer>=1){p.workTimer=0;choose(p)}continue;
+ }
+ const wp=p.path&&p.path.length?p.path[0]:p.target;
+ const wx=wp[0]-p.x,wz=wp[1]-p.z,remaining=Math.hypot(wx,wz);
+ if(remaining>.24){
+  const move=Math.min(remaining,dt*(.75+i%4*.09));
+  const nx=p.x+wx/remaining*move,nz=p.z+wz/remaining*move;
+  if(move<=.04?walkable(nx,nz):clearSegment([p.x,p.z],[nx,nz])){
+   p.x=nx;p.z=nz;p.energy=Math.max(0,p.energy-dt*.10);p.workTimer=0;
+  }else{p.workTimer+=dt;if(p.workTimer>=1){routeCitizen(p);p.workTimer=0}}
+ }else if(p.path&&p.path.length){
+  p.path.shift();if(!p.path.length)beginCitizenWork(p);
+ }else if(/^Traveling|^Exploring|^Finding/.test(p.activity)){
+  beginCitizenWork(p);
+ }else{
+  p.workTimer+=dt;if(p.workTimer>=2.5){work(p);p.workTimer=0;choose(p)}
+ }
+}
 // Relationships are generated only by real proximity between villagers, not invented stories.
 for(let i=0;i<people.length;i++)for(let j=i+1;j<people.length;j++){let a=people[i],b=people[j];if(Math.abs(a.x-b.x)<1.3&&Math.abs(a.z-b.z)<1.3&&(a.x-b.x)**2+(a.z-b.z)**2<1.69){const inc=dt*.65;a.bonds[b.name]=(a.bonds[b.name]||0)+inc;b.bonds[a.name]=(b.bonds[a.name]||0)+inc;if(a.bonds[b.name]>3&&!a.friend){a.friend=b.name;if(state.t-state.lastStory>2){report(`${a.name} and ${b.name} became friends after meeting in the village.`);state.lastStory=state.t}}}}
 state.food=Math.max(0,state.food-dt*people.length*.016);if(state.food<1)for(const p of people)p.hunger=Math.min(100,p.hunger+dt*.38);
@@ -1794,12 +1861,12 @@ function updateUI(){const day=Math.floor(state.t/24)+1; const time=state.t%24;co
 const SAVE_KEY='tiny-kingdom:living-valley:v1',SNAPSHOT_SCHEMA=1;
 function cloneData(value){return JSON.parse(JSON.stringify(value))}
 function checksum(value){let hash=2166136261;const str=JSON.stringify(value);for(let i=0;i<str.length;i++){hash^=str.charCodeAt(i);hash=Math.imul(hash,16777619)}return (hash>>>0).toString(16).padStart(8,'0')}
-function exportSnapshot(){const payload={seed:seed>>>0,state:cloneData(state),city:cloneData(city),people:cloneData(people),stories:cloneData(stories)};return {schema:SNAPSHOT_SCHEMA,game:'tiny-ai-civilization',algorithm:'seeded-v1',payload,checksum:checksum(payload)}}
+function exportSnapshot(){const payload={seed:seed>>>0,state:cloneData(state),city:cloneData(city),people:cloneData(people),stories:cloneData(stories)};return {schema:SNAPSHOT_SCHEMA,game:'tiny-ai-civilization',algorithm:'seeded-work-v2',payload,checksum:checksum(payload)}}
 function validScalar(n,min,max){return typeof n==='number'&&Number.isFinite(n)&&n>=min&&n<=max}
 function validPoint(v){return Array.isArray(v)&&v.length===2&&v.every(n=>validScalar(n,-40,40))}
 function validText(s,max=160){return typeof s==='string'&&s.length>0&&s.length<=max&&![...s].some(c=>c.charCodeAt(0)<32)}
 function validateSnapshot(snapshot){
- if(!snapshot||typeof snapshot!=='object'||snapshot.schema!==SNAPSHOT_SCHEMA||snapshot.game!=='tiny-ai-civilization'||snapshot.algorithm!=='seeded-v1'||!snapshot.payload||checksum(snapshot.payload)!==snapshot.checksum)throw Error('Invalid, incompatible, or damaged save');
+ if(!snapshot||typeof snapshot!=='object'||snapshot.schema!==SNAPSHOT_SCHEMA||snapshot.game!=='tiny-ai-civilization'||!['seeded-v1','seeded-work-v2'].includes(snapshot.algorithm)||!snapshot.payload||checksum(snapshot.payload)!==snapshot.checksum)throw Error('Invalid, incompatible, or damaged save');
  const q=snapshot.payload,s=q.state;
  if(!validScalar(q.seed,0,4294967295)||!s||!validScalar(s.t,0,1e8)||!validScalar(s.food,0,1e8)||!validScalar(s.wood,0,1e8)||!validScalar(s.gold,0,1e8)||!validScalar(s.happiness,0,100)||!validScalar(s.buildCount,0,100)||!validScalar(s.lastStory,0,1e8))throw Error('Save contains invalid game state');
  if(!Array.isArray(q.city)||q.city.length<12||q.city.length>35||!q.city.every(c=>Array.isArray(c)&&c.length===3&&validScalar(c[0],-40,40)&&validScalar(c[1],-40,40)&&Number.isInteger(c[2])&&c[2]>=0&&c[2]<=2)||s.buildCount!==q.city.length+2)throw Error('Save contains invalid buildings');
@@ -1809,7 +1876,15 @@ function validateSnapshot(snapshot){
  }))throw Error('Save contains invalid citizens');
  if(!Array.isArray(q.stories)||q.stories.length>6||!q.stories.every(e=>e&&Number.isInteger(e.day)&&e.day>0&&validText(e.text,240)))throw Error('Save contains invalid chronicles');
 }
-function restoreSnapshot(snapshot){validateSnapshot(snapshot);uiHistory.length=0;scenicMeshCache=null;scenicMeshKey='';const q=cloneData(snapshot.payload);selectedCitizen=Math.min(selectedCitizen,q.people.length-1);routeCache.clear();routeCacheRevision=-1;cacheHits=0;cacheMisses=0;seed=q.seed>>>0;state=q.state;city.splice(0,city.length,...q.city);people=q.people;stories=q.stories;accumulator=0;renderStories();updateUI();return true}
+function restoreSnapshot(snapshot){validateSnapshot(snapshot);uiHistory.length=0;scenicMeshCache=null;scenicMeshKey='';const q=cloneData(snapshot.payload);
+ // v1 accumulated travel time as work. Migrate once without touching resources
+ // or RNG; v2 saves preserve a partially completed work interval exactly.
+ if(snapshot.algorithm==='seeded-v1')for(const person of q.people){
+  person.workTimer=0;
+  if(person.activity!=='Waiting for a safe route'&&!person.path.length&&Math.hypot(person.target[0]-person.x,person.target[1]-person.z)<=.24)
+   person.activity=citizenWorkActivity(person,q.state.t);
+ }
+ selectedCitizen=Math.min(selectedCitizen,q.people.length-1);routeCache.clear();routeCacheRevision=-1;cacheHits=0;cacheMisses=0;seed=q.seed>>>0;state=q.state;city.splice(0,city.length,...q.city);people=q.people;stories=q.stories;accumulator=0;renderStories();updateUI();return true}
 function saveWorld(){try{localStorage.setItem(SAVE_KEY,JSON.stringify(exportSnapshot()));showToast('World saved — Day '+(Math.floor(state.t/24)+1))}catch(error){showToast('Save unavailable: '+error.message)}}
 function restoreWorld(){try{const stored=localStorage.getItem(SAVE_KEY);if(!stored)throw Error('No stored civilization yet');restoreSnapshot(JSON.parse(stored));showToast('The valley has been restored')}catch(error){showToast(error.message)}}
 function showToast(message){const node=document.getElementById('toast');node.textContent=message;node.style.opacity='1';clearTimeout(showToast.timer);showToast.timer=setTimeout(()=>node.style.opacity='0',3600)}
