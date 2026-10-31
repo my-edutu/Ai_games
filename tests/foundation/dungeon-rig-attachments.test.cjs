@@ -266,3 +266,45 @@ test('actual cloned GLB rig stages and restores forearm bone rotation around the
  assert.match(source,/rigForearmPeakRad:/);
  assert.match(source,/actor\.rigForearms=\[\]/);
 });
+
+test('contact-aware lower-body bracing stages only real adjacent melee strikes and settles cleanly',async()=>{
+ const {planRigContactBrace}=await load();
+ const neutral=planRigContactBrace('vanguard','idle',0,1);
+ assert.deepEqual(neutral,{
+  left:{upper:0,lower:0,foot:0},
+  right:{upper:0,lower:0,foot:0}
+ });
+ const windup=planRigContactBrace('vanguard','attack',.11,1);
+ const contact=planRigContactBrace('vanguard','attack',.25,1);
+ assert.ok(windup.left.upper<-.06&&windup.right.upper>.045,'wind-up staggers the real legs instead of marching in place');
+ assert.ok(contact.left.upper>.09&&contact.right.upper<-.075,'contact reverses the stance to commit weight forward');
+ assert.ok(contact.left.lower>.035&&contact.right.foot>.05,'contact includes knees and counter-rotating ankle');
+ assert.deepEqual(planRigContactBrace('vanguard','attack',.60,1),neutral,'recovery leaves no accumulated gesture');
+ for(const kind of ['vanguard','ranger','mystic','revenant','cultist','warden'])
+  for(const action of ['idle','move','attack','cast','hurt','guard'])
+   for(const age of [-1,NaN,Infinity,0,.05,.11,.18,.25,.35,.57,.6,5])
+    for(const distance of [undefined,0,1,2,NaN,Infinity]){
+     const pose=planRigContactBrace(kind,action,age,distance);
+     for(const side of ['left','right'])for(const part of ['upper','lower','foot']){
+      assert.ok(Number.isFinite(pose[side][part]));
+      assert.ok(Math.abs(pose[side][part])<=.19,'bounded original GLB leg rotation');
+     }
+     assert.deepEqual(pose,planRigContactBrace(kind,action,age,distance),'frame independent');
+     assert.deepEqual(planRigContactBrace(kind,action,age,distance,true),neutral);
+     if(action!=='attack'||!['vanguard','revenant','warden'].includes(kind)||distance!==1||
+       !Number.isFinite(age)||age<0||age>=.58)assert.deepEqual(pose,neutral);
+    }
+ const source=fs.readFileSync(planPath,'utf8');
+ assert.doesNotMatch(source,/Math\.random|performance\.now|Date\.|DungeonRuntime|fetch\(/);
+});
+
+test('real GLB shins receive contact braces only from validated public grid facing, not display guesses',()=>{
+ const model=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ const app=fs.readFileSync(path.join(root,'public/ai-dungeon/app.js'),'utf8');
+ assert.match(model,/planRigContactBrace/);
+ assert.match(model,/actor\.combatFacing\?\.distance/);
+ assert.match(model,/stageRigLegsAfterMixer\(actor,since,reducedMotion\)/);
+ assert.match(model,/actor\.mixer\.update[\s\S]*?stageRigLegsAfterMixer/);
+ assert.match(model,/rigContactBracePeakRad:/);
+ assert.match(app,/a\.combatFacing=planCombatFacing\(u,s\.units,s\.map\)/);
+});
