@@ -23,11 +23,29 @@
     {
       "round": 15,
       "at": "2026-10-09",
-      "status": "BUILDER REVISION — AWAITING NEW SCREENSHOT CRITIC",
-      "sampleSeeds": "pending",
-      "highestFloor": "pending",
-      "visualVerdict": "Source fixes: hero-to-camera 9-tile coordinate mismatch, boss framing, foreground parapet cutaways, closer camera and readable HUD. Runtime visual comparison PENDING.",
-      "artifactUrl": null
+      "commit": "3200f6ed8b10fcb58fbf6ee17e21f6044ff0fabb",
+      "status": "AUTHORITY PASS; BROWSER FAIL; REAL CAPTURES REVIEWED",
+      "sampleSeeds": "not restated",
+      "highestFloor": "not restated",
+      "visualVerdict": "Run 37869902202: real trace rejects GLB blob textures under CSP; captures show white authored characters. Camera check expected chase but rendered diagnostic remained tactical. No visual-bar pass.",
+      "artifactUrl": "https://github.com/my-edutu/Ai_games/actions/runs/37869902202/artifacts/11590757749"
+    },
+    {
+      "round": 16,
+      "at": "2026-10-31",
+      "status": "LOCAL REGRESSIONS PASS; INTEGRATED CI AND VISUAL REVIEW PENDING",
+      "sampleSeeds": "not rerun",
+      "highestFloor": "not measured",
+      "visualVerdict": "Repair embedded-texture CSP, reject incomplete authored models, replay repeated action ticks. 10/10 focused Node tests; actual 1024x1024 GLB image decoded by bitmap and image paths in isolated Chromium. Not a new full-game screenshot or blind comparison. Diablo IV primary bar remains NOT MET.",
+      "artifactUrl": null,
+      "evidenceMetrics": {
+        "focusedTestsPassed": 10,
+        "focusedTestsFailed": 0,
+        "embeddedImageWidth": 1024,
+        "embeddedImageHeight": 1024,
+        "newFullGameCapture": false,
+        "independentBlindComparison": false
+      }
     }
   ]
 }

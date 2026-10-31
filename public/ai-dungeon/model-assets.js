@@ -4,7 +4,8 @@ import {clone as cloneSkeleton} from '/dungeon/vendor/addons/utils/SkeletonUtils
 
 // Optional locally vendored CC0 characters. Offline / missing-asset fallback is the
 // fully autonomous procedural 3D rig, not a blank screen. No third-party runtime calls.
-const loader=new GLTFLoader(),cache=new Map(),failures=new Set();
+const cache=new Map(),failures=new Set(),incompleteAssets=new Set();
+const textureReadiness=new WeakMap();
 const selection={
  vanguard:'player/player_swordsman.glb',
  ranger:'player/player_archer.glb',
@@ -22,9 +23,41 @@ const clips={
  guard:[/block/i,/shield/i,/defend/i,/idle/i]
 };
 const assetUrl=path=>'/dungeon/assets/'+path;
+function inspectTextures(gltf){
+ const materials=new Set(),textures=new Set();let missing=0;
+ gltf.scene.traverse(obj=>{
+  if(!obj.isMesh)return;
+  for(const material of Array.isArray(obj.material)?obj.material:[obj.material]){
+   if(!material||materials.has(material))continue;
+   materials.add(material);
+   const index=gltf.parser?.associations?.get(material)?.materials;
+   const definition=gltf.parser?.json?.materials?.[index];
+   if(definition?.pbrMetallicRoughness?.baseColorTexture&&!material.map){missing++;continue}
+   if(!material.map)continue;
+   const image=material.map.source?.data||material.map.image;
+   if(image?.width>0&&image?.height>0)textures.add(material.map);else missing++;
+  }
+ });
+ return {materials:materials.size,decodedColorMaps:textures.size,missingColorMaps:missing};
+}
 function load(path){
  if(!cache.has(path)){
-  cache.set(path,loader.loadAsync(assetUrl(path)).catch(e=>{failures.add(path);return null}));
+  // GLTFLoader may resolve after an embedded image failed. A mesh alone is not
+  // a ready asset: keep the coloured procedural rig rather than show white art.
+  const manager=new THREE.LoadingManager();let resourceFailed=false;
+  manager.onError=()=>{resourceFailed=true};
+  const loader=new GLTFLoader(manager);
+  cache.set(path,loader.loadAsync(assetUrl(path)).then(gltf=>{
+   const readiness=inspectTextures(gltf);
+   if(resourceFailed||readiness.missingColorMaps){
+    failures.add(path);incompleteAssets.add(path);
+    console.warn('[DUNGEON] incomplete textures; keeping procedural fallback:',path);
+    return null;
+   }
+   textureReadiness.set(gltf,readiness);return gltf;
+  }).catch(error=>{
+   failures.add(path);console.warn('[DUNGEON] asset unavailable; keeping procedural fallback:',path,String(error));return null;
+  }));
  }
  return cache.get(path);
 }
@@ -68,31 +101,36 @@ function attachCharacter(actor){
   }
   actor.root.add(instance);actor.assetRoot=instance;actor.assetMaterials=owned;
   actor.body.visible=false;actor.authored=true;actor.mixer=new THREE.AnimationMixer(instance);
-  actor.availableClips=gltf.animations||[];actor.currentAction='';
+  actor.availableClips=gltf.animations||[];actor.currentAction='';actor.currentActionTick=null;
+  actor.textureReadiness=textureReadiness.get(gltf);
   changeAction(actor,actor.u.action||'idle');
   return true;
  }).catch(e=>{failures.add(asset);return false});
  return request;
 }
 function changeAction(actor,action){
- if(!actor.mixer||actor.currentAction===action)return;
+ const oneShot=['attack','cast','hurt'].includes(action);
+ const tick=actor.u.actionTick??null;
+ const newEvent=oneShot&&actor.currentActionTick!==tick;
+ if(!actor.mixer||(actor.currentAction===action&&!newEvent))return;
  const clip=chooseClip(actor.availableClips,action);
  if(!clip)return;
- const next=actor.mixer.clipAction(clip);
- if(next!==actor.activeClip){
+ const next=actor.mixer.clipAction(clip),previous=actor.activeClip;
+ // Consecutive attacks and different actions may use the same AnimationAction.
+ // Restart on a new authoritative action, never on every presentation frame.
+ if(next!==previous||newEvent||actor.currentAction!==action){
   next.reset().setEffectiveTimeScale(1).setEffectiveWeight(1);
   next.enabled=true;
-  const oneShot=['attack','cast','hurt'].includes(action);
   next.setLoop(oneShot?THREE.LoopOnce:THREE.LoopRepeat,oneShot?1:Infinity);
   next.clampWhenFinished=oneShot;
   next.play();
-  if(actor.activeClip)next.crossFadeFrom(actor.activeClip,oneShot?.12:.23,true);
+  if(previous&&previous!==next)next.crossFadeFrom(previous,oneShot?.12:.23,true);
   actor.activeClip=next;
  }
- actor.currentAction=action;
+ actor.currentAction=action;actor.currentActionTick=tick;
 }
 function updateActor(actor,dt){
- if(!actor.authored)return;
+ if(!actor.authored||!actor.mixer)return;
  changeAction(actor,actor.u.action||'idle');
  actor.mixer.update(Math.min(.05,Math.max(0,dt)));
 }
@@ -101,7 +139,7 @@ function disposeActorAsset(actor){
  if(actor.mixer){actor.mixer.stopAllAction();if(actor.assetRoot)actor.mixer.uncacheRoot(actor.assetRoot)}
  if(actor.assetRoot){actor.root.remove(actor.assetRoot)}
  for(const m of actor.assetMaterials||[])m.dispose();
- actor.mixer=null;actor.assetRoot=null;actor.assetMaterials=[];
+ actor.mixer=null;actor.assetRoot=null;actor.assetMaterials=[];actor.authored=false;actor.textureReadiness=null;
 }
 function putEnvironment(world,sceneKey,map){
  // Authored GLB masonry and prop dressing complements the instanced procedural
@@ -137,6 +175,7 @@ function putEnvironment(world,sceneKey,map){
  return{group,count:placements.length};
 }
 function stats(actors){
- return{authoredCharacters:[...actors.values()].filter(a=>a.authored).length,proceduralFallbacks:[...actors.values()].filter(a=>!a.authored).length,uniqueAssets:cache.size,missingAssets:failures.size};
+ const all=[...actors.values()],authored=all.filter(a=>a.authored);
+ return{authoredCharacters:authored.length,proceduralFallbacks:all.length-authored.length,uniqueAssets:cache.size,missingAssets:failures.size,incompleteAssets:incompleteAssets.size,texturedCharacters:authored.filter(a=>a.textureReadiness?.decodedColorMaps>0).length,decodedColorMaps:authored.reduce((n,a)=>n+(a.textureReadiness?.decodedColorMaps||0),0)};
 }
 export {attachCharacter,updateActor,disposeActorAsset,putEnvironment,stats};

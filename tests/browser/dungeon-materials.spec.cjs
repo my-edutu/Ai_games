@@ -1,0 +1,75 @@
+'use strict';
+const {test,expect}=require('@playwright/test');
+
+// These are renderer/material gates, not a visual-quality score. Do not treat a
+// loaded GLB with missing textures as an authored-art success.
+test('authored characters decode embedded colour maps under the real server policy',async({page,request})=>{
+ const source=await request.get('/dungeon');
+ expect(source.ok()).toBe(true);
+ const policy=source.headers()['content-security-policy'];
+ expect(policy).toMatch(/connect-src[^;]*blob:/);
+ expect(policy).toMatch(/img-src[^;]*blob:/);
+ const failures=[];
+ page.on('console',message=>{
+  const text=message.text();
+  if(/Couldn't load texture|incomplete textures|Refused to (connect|load).*blob:/i.test(text))failures.push(text);
+ });
+ page.on('pageerror',error=>failures.push(String(error)));
+ await page.goto('/dungeon');
+ await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.authored3D?.texturedCharacters??0),{timeout:45000}).toBeGreaterThanOrEqual(3);
+ const diagnostics=await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__.authored3D);
+ expect(diagnostics.incompleteAssets).toBe(0);
+ expect(diagnostics.missingAssets).toBe(0);
+ expect(diagnostics.decodedColorMaps).toBeGreaterThanOrEqual(3);
+ expect(failures).toEqual([]);
+ await test.info().attach('decoded-material-diagnostics',{body:Buffer.from(JSON.stringify(diagnostics,null,2)),contentType:'application/json'});
+});
+
+test('camera selection reaches the actual renderer before the next switch',async({page})=>{
+ test.setTimeout(120000);
+ await page.goto('/dungeon');
+ const modes=['cinematic','tactical','chase','cinematic'];
+ for(let index=0;index<modes.length;index++){
+  const mode=modes[index];
+  if(index>0)await page.locator('#view-toggle').click();
+  await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.camera),{timeout:30000}).toBe(mode);
+ }
+});
+
+// Small, independently reproducible browser check: real GLB bytes and the real
+// server policy, without paying for a full renderer or accepting white meshes.
+test('embedded GLB image decodes in both browser texture loading paths',async({page,request})=>{
+ const documentResponse=await request.get('/dungeon');
+ const modelResponse=await request.get('/dungeon/assets/player/player_swordsman.glb');
+ expect(documentResponse.ok()).toBe(true);expect(modelResponse.ok()).toBe(true);
+ const policy=documentResponse.headers()['content-security-policy'];
+ expect(policy).toBeTruthy();
+ const escaped=policy.replaceAll('&','&amp;').replaceAll('"','&quot;');
+ await page.setContent('<meta http-equiv="Content-Security-Policy" content="'+escaped+'">');
+ const bytes=[...await modelResponse.body()];
+ const dimensions=await page.evaluate(async bytes=>{
+  const data=new Uint8Array(bytes),view=new DataView(data.buffer);
+  if(view.getUint32(0,true)!==0x46546c67)throw Error('Not a GLB asset');
+  let definition=null,binary=null;
+  for(let offset=12;offset<data.length;){
+   const length=view.getUint32(offset,true),type=view.getUint32(offset+4,true);
+   const chunk=data.slice(offset+8,offset+8+length);offset+=8+length;
+   if(type===0x4e4f534a)definition=JSON.parse(new TextDecoder().decode(chunk));
+   if(type===0x004e4942)binary=chunk;
+  }
+  const source=definition?.images?.find(image=>Number.isInteger(image.bufferView));
+  if(!source||!binary)throw Error('Model has no embedded image');
+  const range=definition.bufferViews[source.bufferView],offset=range.byteOffset||0;
+  const url=URL.createObjectURL(new Blob([binary.slice(offset,offset+range.byteLength)],{type:source.mimeType}));
+  try{
+   const response=await fetch(url),bitmap=await createImageBitmap(await response.blob());
+   const image=new Image();image.src=url;await image.decode();
+   const result={bitmap:[bitmap.width,bitmap.height],image:[image.naturalWidth,image.naturalHeight]};
+   bitmap.close();return result;
+  }finally{URL.revokeObjectURL(url)}
+ },bytes);
+ expect(dimensions.bitmap[0]).toBeGreaterThan(0);
+ expect(dimensions.bitmap[1]).toBeGreaterThan(0);
+ expect(dimensions.image).toEqual(dimensions.bitmap);
+ await test.info().attach('embedded-image-decode',{body:Buffer.from(JSON.stringify(dimensions)),contentType:'application/json'});
+});
