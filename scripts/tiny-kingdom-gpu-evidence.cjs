@@ -126,6 +126,26 @@ const path = require('node:path');
        forest.crownColors<4||!forest.authorityUnchanged||
        evidence.geometry.totalTriangles>=160000)
       throw Error('Gauntlet 047 forest volume, replay or triangle budget failed: '+JSON.stringify(forest));
+    // G050: the climate-aware material is bound to the ACTUAL active WebGL
+    // program and receives precipitation from authoritative climateAt().
+    evidence.ecoregions=await page.evaluate(()=>{
+      const g=window.__tinyKingdom,gl=document.getElementById('world').getContext('webgl');
+      const program=gl.getParameter(gl.CURRENT_PROGRAM);
+      const uniform=program?gl.getUniformLocation(program,'weatherWetness'):null;
+      return {
+        river:g.getTerrainBiomeSample(0,20,7),upland:g.getTerrainBiomeSample(38,33,7),
+        meadow:g.getTerrainBiomeSample(0,-18,7),clear:g.getClimateMaterialProfile(24*2+7),
+        shaderUniformActive:!!uniform,
+        boundWetness:uniform?gl.getUniform(program,uniform):null
+      };
+    });
+    if(!evidence.ecoregions.shaderUniformActive||
+       evidence.ecoregions.boundWetness===null||
+       Math.abs(evidence.ecoregions.boundWetness-1)>.11||
+       evidence.ecoregions.river.riparianMoisture<.95||
+       evidence.ecoregions.upland.highlandExposure<.2||
+       evidence.ecoregions.meadow.riparianMoisture>.05)
+      throw Error('G050 rainfall/upland terrain shader binding gate failed: '+JSON.stringify(evidence.ecoregions));
     evidence.water=await page.evaluate(()=>window.__tinyKingdom.waterStats());
     if(evidence.water.model!=='fresnel-ripple-shorefoam-v1'||evidence.water.waterTriangles!==1260||evidence.water.bankTriangles!==840)
       throw Error('River material or shoreline geometry gate failed');
@@ -304,6 +324,7 @@ const path = require('node:path');
       {name:'sanctuary-landmark.png',camera:{focus:[29,10],yaw:.75,pitch:.48,zoom:27}},
       {name:'stone-bridge.png',camera:{focus:[-6,18.1],yaw:.84,pitch:.64,zoom:26}},
       {name:'riverbank-close.png',camera:{focus:[-12,19],yaw:.66,pitch:.48,zoom:17}},
+      {name:'upland-ecoregions.png',camera:{focus:[33,29],yaw:.91,pitch:.52,zoom:24}},
       {name:'guild-forge.png',camera:{focus:[19,-15],yaw:.78,pitch:.57,zoom:23}},
       {name:'cottage-facades.png',camera:{focus:[10,-5],yaw:1.50,pitch:.40,zoom:14}},
       {name:'forest-boughs.png',camera:{focus:[-32,-9],yaw:.65,pitch:.50,zoom:15}},
