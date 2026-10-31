@@ -1281,3 +1281,37 @@ test('Gauntlet 048 sky palette shows a natural sunrise and no daytime stars with
  }
  expect(errors).toEqual([]);
 });
+
+
+test('Gauntlet 049 shaded forest has irregular seamless canopies and no presentation impact on replay',async({page})=>{
+ const errors=[];page.on('pageerror',e=>errors.push(e.message));
+ await page.setContent(html);
+ await page.waitForFunction(()=>Boolean(window.__tinyKingdom?.sampleCanopyShadow));
+ await page.locator('#pause').click();
+ const before=await page.evaluate(()=>{
+  const g=window.__tinyKingdom;
+  const world=JSON.stringify(g.exportSnapshot());
+  const a=g.sampleCanopyShadow(-25,13),b=g.sampleCanopyShadow(18,-23);
+  return {world,profiles:[a,b],audit:g.getGeometryAudit(),shadow:g.shadowStats()};
+ });
+ for(const a of before.profiles){
+  expect(a).toHaveLength(9);
+  expect(a[0]).toBeCloseTo(a[8],6);
+  expect(Math.max(...a)-Math.min(...a)).toBeGreaterThan(.12);
+  for(const radius of a){expect(radius).toBeGreaterThan(.70);expect(radius).toBeLessThan(1.30);}
+ }
+ expect(before.profiles[0]).not.toEqual(before.profiles[1]);
+ expect(before.shadow.triangles).toBeGreaterThan(1000);
+ for(const m of [before.audit.static,before.audit.dynamic]){
+  expect(m.aligned).toBe(true);
+  expect(m.invalidComponents).toBe(0);
+  expect(m.invalidNormals).toBe(0);
+  expect(m.invalidColors).toBe(0);
+  expect(m.outOfBounds).toBe(0);
+ }
+ await page.evaluate(()=>window.__tinyKingdom.setCamera({focus:[-32,-9],yaw:.65,pitch:.50,zoom:15}));
+ await page.waitForTimeout(240);
+ const after=await page.evaluate(()=>JSON.stringify(window.__tinyKingdom.exportSnapshot()));
+ expect(after).toBe(before.world);
+ expect(errors).toEqual([]);
+});
