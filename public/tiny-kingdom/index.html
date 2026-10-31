@@ -344,12 +344,30 @@ function setRenderQuality(scale){if(!Number.isFinite(scale)||scale<.35||scale>1.
 
 // Accessible no-WebGL preview for constrained machines. Real browsers use the WebGL path.
 if(!gl){const ctx=canvas.getContext('2d');let projection=null,sky=[.4,.55,.52],sunTint=[1,1,1],sunDirection=[-.55,.82,.25],vertices=null;const noop=()=>{};gl={VERTEX_SHADER:1,FRAGMENT_SHADER:2,ARRAY_BUFFER:3,FLOAT:4,DYNAMIC_DRAW:5,COLOR_BUFFER_BIT:6,DEPTH_BUFFER_BIT:7,DEPTH_TEST:8,CULL_FACE:9,BACK:10,TRIANGLES:11,COMPILE_STATUS:12,LINK_STATUS:13,createShader:()=>({}),shaderSource:noop,compileShader:noop,getShaderParameter:()=>true,createProgram:()=>({}),attachShader:noop,linkProgram:noop,getProgramParameter:()=>true,useProgram:noop,getUniformLocation:(_,k)=>k,createBuffer:()=>({}),bindBuffer:noop,getAttribLocation:()=>0,enableVertexAttribArray:noop,vertexAttribPointer:noop,uniformMatrix4fv:(_,__,m)=>{projection=m},uniform1f:noop,uniform3f:(key,r,g,b)=>{if(key==='fogColor')sky=[r,g,b];if(key==='sunTint')sunTint=[r,g,b];if(key==='sunDirection')sunDirection=[r,g,b]},clearColor:(r,g,b)=>{sky=[r,g,b]},clear:()=>{ctx.fillStyle=`rgb(${sky.map(v=>Math.round(v*255)).join(',')})`;ctx.fillRect(0,0,canvas.width,canvas.height)},viewport:noop,enable:noop,cullFace:noop,bufferData:(_,v)=>{vertices=v},drawArrays:()=>{if(!vertices||!projection)return;const polys=[];const m=projection;function convert(i){const x=vertices[i],y=vertices[i+1],z=vertices[i+2],w=m[3]*x+m[7]*y+m[11]*z+m[15];if(w<=.05)return null;return [(m[0]*x+m[4]*y+m[8]*z+m[12])/w,(m[1]*x+m[5]*y+m[9]*z+m[13])/w,w]}for(let i=0;i<vertices.length;i+=30){let a=convert(i),b=convert(i+10),c=convert(i+20);if(!a||!b||!c)continue;let depth=(a[2]+b[2]+c[2])/3;let col=[vertices[i+6],vertices[i+7],vertices[i+8]],dir=Math.hypot(...sunDirection)||1,lit=Math.max(0,(vertices[i+3]*sunDirection[0]+vertices[i+4]*sunDirection[1]+vertices[i+5]*sunDirection[2])/dir);let fog=Math.max(0,Math.min(.82,(depth-24)/105));col=col.map((v,k)=>Math.min(255,Math.round(255*(v*(.46+lit*.56)*sunTint[k]*(1-fog)+sky[k]*fog))));polys.push({a,b,c,depth,fill:`rgb(${col.join(',')})`})}polys.sort((a,b)=>b.depth-a.depth);for(let p of polys){ctx.beginPath();ctx.moveTo((p.a[0]+1)*canvas.width/2,(1-p.a[1])*canvas.height/2);ctx.lineTo((p.b[0]+1)*canvas.width/2,(1-p.b[1])*canvas.height/2);ctx.lineTo((p.c[0]+1)*canvas.width/2,(1-p.c[1])*canvas.height/2);ctx.closePath();ctx.fillStyle=p.fill;ctx.fill()}}};}
+// G064: CPU mirror of the render-only wind envelope for bounded regression
+// probes; simulation RNG and saved-world state are never read or modified.
+function foliageWindProbe(x,y,z,time){
+ if(![x,y,z,time].every(Number.isFinite))throw Error('Invalid foliage wind probe');
+ const u=Math.max(0,Math.min(1,(y-1.2)/3.2));
+ const crown=u*u*(3-2*u);
+ const dx=Math.sin(time*.38+x*.71+z*.24)*.055*crown;
+ const dz=Math.cos(time*.27-z*.62+x*.18)*.033*crown;
+ return {dx,dz,crown,displacement:Math.hypot(dx,dz)};
+}
 const vs=`attribute vec3 position;attribute vec3 normal;attribute vec3 color;attribute float materialId;
 uniform mat4 viewProjection;uniform vec3 sunDirection;uniform vec3 sunTint;
-uniform float sunStrength;uniform float ambientBlend;
+uniform float sunStrength;uniform float ambientBlend;uniform float worldTime;
 varying vec3 vColor;varying vec3 vWorld;varying vec3 vNormal;varying float vFog;varying float vMaterial;
 void main(){
- vec4 p=viewProjection*vec4(position,1.);gl_Position=p;
+ // G064: deterministic GPU foliage drift, with no static-mesh rebuild.
+ // Structural timber, stone, ground and citizens retain original positions.
+ vec3 world=position;
+ if(materialId>3.5&&materialId<4.5){
+  float crown=smoothstep(1.2,4.4,position.y);
+  world.x+=sin(worldTime*.38+position.x*.71+position.z*.24)*.055*crown;
+  world.z+=cos(worldTime*.27-position.z*.62+position.x*.18)*.033*crown;
+ }
+ vec4 p=viewProjection*vec4(world,1.);gl_Position=p;
  vec3 n=normalize(normal);vec3 sun=normalize(sunDirection);
  float lit=max(dot(n,sun),0.);float hemi=.5+.5*n.y;
  float bounce=max(dot(n,normalize(vec3(-sun.x,.28,-sun.z))),0.);
@@ -359,7 +377,7 @@ void main(){
  vec3 moonAmbient=mix(vec3(.10,.15,.23),vec3(.14,.19,.26),hemi);
  vec3 ambient=mix(moonAmbient,noonAmbient,ambientBlend);
  vColor=color*(ambient+lit*.67*sunTint*sunStrength+bounce*.11*sunStrength);
- vWorld=position;vNormal=n;vMaterial=materialId;vFog=clamp((p.w-24.)/105.,0.,.82);
+ vWorld=world;vNormal=n;vMaterial=materialId;vFog=clamp((p.w-24.)/105.,0.,.82);
 }`;
 // Gauntlet 023 — world-space GPU materials. Original procedural detail; not full PBR.
 const fs=`precision mediump float;
@@ -2896,6 +2914,6 @@ requestAnimationFrame(render);window.__tinyKingdom={getState:()=>JSON.parse(JSON
  branchTriangles:forestVisualStats.branchTriangles,
  broadleafLobes:forestVisualStats.broadleafLobes,microCrownLobes:forestVisualStats.microCrownLobes,rimLeafSprays:forestVisualStats.rimLeafSprays,individualLeaves:forestVisualStats.individualLeaves,broadleafSpecies:forestVisualStats.broadleafSpecies.slice(),broadleafAddedTriangles:forestVisualStats.broadleafAddedTriangles,
  crownColors:forestVisualStats.crownPalette.size
-}),getCottageFacadeStats:()=>({...cottageFacadeStats,styles:cottageFacadeStats.styles.map((count,style)=>({style,count})).filter(row=>row.count>0)}),getLightingProfile:lightingProfile,getCraftDistrictStats:()=>({...CRAFT_DISTRICT,...craftCounters}),getCottageEffects:()=>({activeChimneys,smokePuffs,smokeTriangles,smokeMaxRadius}),renderStats:()=>({terrainRebuilds,terrainCacheKey,terrainCacheTriangles,terrainHorizonTriangles,lastFrameTriangles,scenicMeshRebuilds,scenicMeshTriangles,scenicMeshKey,staticGpuUploads,dualBufferGPU:gpuAvailable}),renderQuality,setRenderQuality,shadowStats:()=>({triangles:castShadowTriangles,...sunShadow(state.t)}),getShadowGradientAudit:shadowGradientAudit,sampleSunShadow:(time)=>sunShadow(time),sampleCanopyShadow:(x,z)=>Array.from({length:9},(_,i)=>canopyShadowVariation(x,z,i*Math.PI/4)),getEconomyHistory:()=>cloneData(uiHistory),getHudMode:()=>cinematicHud?'cinema':'full',setHudMode:setCinematicHud,getCommandView:()=>commandView,setCommandView,skyStats:()=>({enabled:gpuAvailable,passes:skyPassCount,model:'day-night-atmosphere-v1',palette:skyColorProfile(state.t)}),getSkyPalette:skyColorProfile,setCamera:o=>{yaw=Number.isFinite(o.yaw)?o.yaw:yaw;pitch=Number.isFinite(o.pitch)?Math.max(.25,Math.min(1.45,o.pitch)):pitch;zoom=Number.isFinite(o.zoom)?Math.max(9,Math.min(85,o.zoom)):zoom;if(Array.isArray(o.focus)&&o.focus.length===2)focusPoint=o.focus.slice(0,2)}};
+}),getCottageFacadeStats:()=>({...cottageFacadeStats,styles:cottageFacadeStats.styles.map((count,style)=>({style,count})).filter(row=>row.count>0)}),getLightingProfile:lightingProfile,getCraftDistrictStats:()=>({...CRAFT_DISTRICT,...craftCounters}),getCottageEffects:()=>({activeChimneys,smokePuffs,smokeTriangles,smokeMaxRadius}),renderStats:()=>({terrainRebuilds,terrainCacheKey,terrainCacheTriangles,terrainHorizonTriangles,lastFrameTriangles,scenicMeshRebuilds,scenicMeshTriangles,scenicMeshKey,staticGpuUploads,dualBufferGPU:gpuAvailable}),renderQuality,setRenderQuality,shadowStats:()=>({triangles:castShadowTriangles,...sunShadow(state.t)}),getShadowGradientAudit:shadowGradientAudit,sampleSunShadow:(time)=>sunShadow(time),sampleCanopyShadow:(x,z)=>Array.from({length:9},(_,i)=>canopyShadowVariation(x,z,i*Math.PI/4)),getEconomyHistory:()=>cloneData(uiHistory),getHudMode:()=>cinematicHud?'cinema':'full',setHudMode:setCinematicHud,getCommandView:()=>commandView,setCommandView,skyStats:()=>({enabled:gpuAvailable,passes:skyPassCount,model:'day-night-atmosphere-v1',palette:skyColorProfile(state.t)}),getSkyPalette:skyColorProfile,getFoliageWindProbe:(x,y,z,time=state.t)=>foliageWindProbe(x,y,z,time),setCamera:o=>{yaw=Number.isFinite(o.yaw)?o.yaw:yaw;pitch=Number.isFinite(o.pitch)?Math.max(.25,Math.min(1.45,o.pitch)):pitch;zoom=Number.isFinite(o.zoom)?Math.max(9,Math.min(85,o.zoom)):zoom;if(Array.isArray(o.focus)&&o.focus.length===2)focusPoint=o.focus.slice(0,2)}};
 })();
 </script></body></html>
