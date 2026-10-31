@@ -54,6 +54,16 @@ jobs:
         env:
           FLOORS_TEST_QUALITY: low
         run: npx playwright test -c playwright.floors.config.cjs --trace off
+      - name: Capture actual district views
+        run: node scripts/capture-thousand-floors.cjs --label=review
+      - name: Retain actual scene captures
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: thousand-floors-scene-captures
+          path: evidence/thousand-floors/captures/review-*
+          if-no-files-found: ignore
+          retention-days: 7
       - name: Retain failing browser evidence
         if: failure()
         uses: actions/upload-artifact@v4
