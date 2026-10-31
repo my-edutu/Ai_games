@@ -85,7 +85,19 @@ export function enrichCharacter(u,{root,body,leftArm,rightArm,leftLeg,rightLeg})
   for(let i=0;i<3;i++){const shard=cone(body,ornate,-.36+i*.36,2.13,.1,[.11,.4,.11]);add(shard)}
   greaves();
  }
+ // Root-level effects belong to the procedural fallback. Once an authored
+ // textured rig is ready, retaining these stationary orbitals duplicates its
+ // costume and can obscure the Warden. Real boss danger telegraphs are owned
+ // separately by app.js and stay visible when the authority requests them.
+ const proceduralOrnaments=[...aura,...articulatedOrbs];
  return{
+  setAuthored(enabled){
+   enabled=Boolean(enabled);
+   for(const ornament of proceduralOrnaments)ornament.visible=!enabled;
+  },
+  get hiddenProceduralOrnamentCount(){
+   return proceduralOrnaments.reduce((count,ornament)=>count+Number(!ornament.visible),0);
+  },
   update(time,action){
    if(cape){cape.rotation.x=.07+Math.sin(time*2.6+u.x)*.035+(action==='move'?.12:0)}
    if(halo)halo.rotation.z=Math.sin(time*.7)*.14;
