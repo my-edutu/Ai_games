@@ -83,6 +83,7 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
   const statsSize = new THREE.Vector2();
   const cacheSupported = renderer.extensions.has('EXT_color_buffer_float');
   const gl = renderer.getContext();
+  const frameGate = createGpuFrameGate(gl);
   const colorSamples = cacheSupported ? Array.from(gl.getInternalformatParameter(gl.RENDERBUFFER, gl.RGBA16F, gl.SAMPLES)) : [];
   const depthSamples = Array.from(gl.getInternalformatParameter(gl.RENDERBUFFER, gl.DEPTH_COMPONENT24, gl.SAMPLES));
   const cacheSamples = colorSamples.filter(count => count <= 4 && depthSamples.includes(count)).sort((a, b) => b - a)[0] || 0;
@@ -241,6 +242,7 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
   observer.observe(canvas);
   const contextLost = event => {
     event.preventDefault();
+    frameGate.dispose();
     onFailure?.('The 3D context was interrupted.');
   };
   canvas.addEventListener('webglcontextlost', contextLost);
@@ -273,17 +275,17 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
   applyQuality();
 
   function draw(frame, previousFrame, alpha, timestamp, settings = {}) {
-    if (disposed) return;
+    if (disposed || !frame?.snapshot) return false;
+    // Leave the latest snapshot in the app; do not build a queue of stale poses.
+    // Check before resize or uploads, which also enqueue GPU work.
+    if (!frameGate.canDraw()) return false;
     resize();
-    const snapshot = frame?.snapshot;
-    if (!snapshot) return;
+    const snapshot = frame.snapshot;
     const time = timestamp / 1000;
     const measuredDelta = lastTime ? Math.max(0.001, time - lastTime) : 1 / 60;
     const delta = Math.min(0.08, measuredDelta);
     lastTime = time;
-    frameCount++;
-    frameTimes.push(measuredDelta * 1000);
-    if (frameTimes.length > 240) frameTimes.shift();
+
     // Measure steady presentation cost, excluding startup/resume and isolated
     // stalls. One area-based scale adjustment keeps the resulting cache stable.
     if (!scaleAdjusted) {
@@ -352,7 +354,7 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
     const composition = cameraComposition({ width: snapshot.width, height: snapshot.height, aspect: camera.aspect, mode: cameraMode, head, direction: motion.direction });
     desiredTarget.set(composition.target.x, composition.target.y, composition.target.z);
     desiredPosition.set(composition.offset.x, composition.offset.y, composition.offset.z);
-    const mix = settings.reducedMotion || frameCount < 2 ? 1 : 1 - Math.exp(-Math.min(measuredDelta, 0.5) * 5);
+    const mix = settings.reducedMotion || frameCount === 0 ? 1 : 1 - Math.exp(-Math.min(measuredDelta, 0.5) * 5);
     // Track the current interpolated head exactly; only the view offset eases.
     // Easing both world position and target made a fast head drift off screen.
     cameraTarget.copy(desiredTarget);
@@ -365,6 +367,11 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
     scene.fog.far = scene.fog.near + 65;
     renderer.info.reset();
     renderPresentation();
+    frameCount++;
+    frameTimes.push(measuredDelta * 1000);
+    if (frameTimes.length > 240) frameTimes.shift();
+    frameGate.submitted();
+    return true;
   }
 
   function stats() {
@@ -373,6 +380,7 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
     const percentile = p => sorted.length ? sorted[Math.min(sorted.length - 1, Math.floor(sorted.length * p))] : 0;
     return {
       renderer: 'webgl', frameCount, quality, cameraMode,
+      gpuQueue: frameGate.stats(),
       pixelRatio: renderer.getPixelRatio(), drawingBuffer: { width: statsSize.x, height: statsSize.y },
       renderScale: { adjusted: scaleAdjusted, sampleFrameMs: scaleSampleMs, targetFrameMs },
       drawCalls: renderer.info.render.calls, triangles: renderer.info.render.triangles,
@@ -394,6 +402,7 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
   function dispose() {
     if (disposed) return;
     disposed = true;
+    frameGate.dispose();
     observer.disconnect();
     canvas.removeEventListener('webglcontextlost', contextLost);
     world?.dispose();
@@ -414,4 +423,54 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
     renderer.dispose();
   }
   return { draw, stats, resetTiming, dispose };
+}
+
+/** Bounded presentation-only backpressure. Never waits on the browser thread. */
+export function createGpuFrameGate(gl, { maxFrames = 2, timeoutMs = 5000, now = () => performance.now() } = {}) {
+  if (!Number.isInteger(maxFrames) || maxFrames < 1 || maxFrames > 2) throw new RangeError('maxFrames must be 1 or 2');
+  if (!Number.isFinite(timeoutMs) || timeoutMs <= 0) throw new RangeError('timeoutMs must be positive and finite');
+  const supported = ['fenceSync', 'clientWaitSync', 'deleteSync', 'flush', 'isContextLost'].every(name => typeof gl[name] === 'function');
+  const pending = [];
+  let disposed = false, failed = false, submittedCount = 0, completed = 0, skipped = 0, maxObservedLatencyMs = 0;
+  function clear() {
+    const lost = gl.isContextLost?.();
+    for (const item of pending) if (!lost) gl.deleteSync(item.sync);
+    pending.length = 0;
+  }
+  function fail(message) {
+    failed = true;
+    clear();
+    throw new Error(message);
+  }
+  function canDraw() {
+    if (disposed || failed) return false;
+    if (gl.isContextLost?.()) { failed = true; clear(); return false; }
+    if (!supported) return true;
+    while (pending.length) {
+      const item = pending[0];
+      const status = gl.clientWaitSync(item.sync, 0, 0);
+      if (status === gl.ALREADY_SIGNALED || status === gl.CONDITION_SATISFIED) {
+        maxObservedLatencyMs = Math.max(maxObservedLatencyMs, now() - item.at);
+        gl.deleteSync(item.sync); pending.shift(); completed++;
+      } else if (status === gl.TIMEOUT_EXPIRED) {
+        if (now() - item.at >= timeoutMs) fail('GPU presentation fence timed out');
+        break;
+      } else fail('GPU presentation fence wait failed');
+    }
+    if (pending.length >= maxFrames) { skipped++; return false; }
+    return true;
+  }
+  function submitted() {
+    if (disposed || failed || !supported) return;
+    if (gl.isContextLost()) { failed = true; clear(); return; }
+    if (pending.length >= maxFrames) fail('GPU presentation queue capacity exceeded');
+    const sync = gl.fenceSync(gl.SYNC_GPU_COMMANDS_COMPLETE, 0);
+    if (!sync) fail('GPU presentation fence could not be created');
+    pending.push({ sync, at: now() });
+    submittedCount++;
+    gl.flush();
+  }
+  function dispose() { if (disposed) return; disposed = true; clear(); }
+  function stats() { return { supported, maxFrames, pending: pending.length, submitted: submittedCount, completed, skipped, maxObservedLatencyMs, failed, disposed }; }
+  return { canDraw, submitted, dispose, stats };
 }

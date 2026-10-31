@@ -75,11 +75,20 @@ function installProfiler(canvas, renderer) {
     }
     submissionMs = 0;
     const started = performance.now();
-    try { const result = renderer.draw(...args); lastArgs = args; return result; }
-    finally {
+    let didDraw = false;
+    try {
+      const result = renderer.draw(...args);
+      didDraw = result !== false;
+      if (didDraw) lastArgs = args;
+      return result;
+    } finally {
       const elapsed = performance.now() - started;
-      if (query) { gl.endQuery(timer.TIME_ELAPSED_EXT); pending.push({ query, owner }); }
-      if (owner) {
+      if (query) {
+        gl.endQuery(timer.TIME_ELAPSED_EXT);
+        if (didDraw) pending.push({ query, owner });
+        else { gl.deleteQuery(query); owner.queriesIssued--; }
+      }
+      if (owner && didDraw) {
         owner.drawWallMs.push(elapsed);
         owner.renderSubmissionMs.push(submissionMs);
         owner.updateAndOrchestrationMs.push(Math.max(0, elapsed - submissionMs));
@@ -126,7 +135,7 @@ function installProfiler(canvas, renderer) {
           submissionMs = 0;
           const begin = performance.now();
           const args = [...lastArgs]; args[3] = performance.now();
-          renderer.draw(...args);
+          if (renderer.draw(...args) === false) throw new Error('Diagnostic completion probe did not submit a frame');
           lastArgs = args;
           const submitted = performance.now();
           const fence = await waitForGpuFence(gl);
