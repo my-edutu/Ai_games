@@ -14,7 +14,10 @@ test('water moves fog smoothing off the full-screen fragment while retaining the
       const segments = Math.max(64, Math.ceil(size / 8));
       assert.equal(geometry.attributes.position.count, (segments + 1) ** 2);
       assert.equal(geometry.index.count, segments * segments * 6);
-      assert.equal(geometry.boundingSphere?.radius > 180, true, 'far horizon stays covered');
+      // Three computes a procedural plane's bounds on demand during rendering;
+      // explicitly request the same lazy calculation in a headless Node test.
+      geometry.computeBoundingSphere();
+      assert.ok(geometry.boundingSphere.radius > 180, 'far horizon stays covered');
       assert.equal(water.material.fog, true);
       for (const name of ['fogColor', 'fogNear', 'fogFar', 'time', 'waterField'])
         assert.ok(water.material.uniforms[name], 'retain original fog and animation uniform: ' + name);
