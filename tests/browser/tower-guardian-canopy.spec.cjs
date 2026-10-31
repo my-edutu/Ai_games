@@ -57,6 +57,10 @@ for(const v of [{name:'portrait',w:390,h:844},{name:'desktop',w:960,h:600}])
     const diagnostics=await page.evaluate(()=>window.__TOWER_RENDER_DIAGNOSTICS__());
     expect(diagnostics.renderErrors).toBe(0);
     expect(await page.evaluate(()=>window.__TOWER_PUBLIC_STATE__.publicChecksum)).toBe(checksum);
+    if (!a && v.name === 'desktop') {
+      expect(diagnostics.world?.occludedGuardianCaps,
+        'real desktop GPU pose must soften the cap in front of the guardian helmet contour').toBeGreaterThan(0);
+    }
     const dir=path.resolve('artifacts/tower-guardian-canopy');
     fs.mkdirSync(dir,{recursive:true});
     const label=(a&&b?'before':'after')+'-'+v.name;

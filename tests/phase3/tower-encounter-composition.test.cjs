@@ -26,7 +26,11 @@ const loaded = (async () => {
     .replace("'./world-surface.mjs'", JSON.stringify(localURL('public/infinite-tower-climb/visuals/world-surface.mjs')));
   fs.writeFileSync(path.join(scratch, 'world.mjs'), worldSource);
   const { createTowerWorld } = await import(pathToFileURL(path.join(scratch, 'world.mjs')).href);
-  return { THREE, ...coordinates, context, createTowerWorld };
+  const castSource = fs.readFileSync(path.join(ROOT, 'public/infinite-tower-climb/visuals/characters.mjs'), 'utf8')
+    .replace("'/tower/vendor/three.module.js'", JSON.stringify(localURL('node_modules/three/build/three.module.js')));
+  fs.writeFileSync(path.join(scratch, 'characters.mjs'), castSource);
+  const { createEnemy } = await import(pathToFileURL(path.join(scratch, 'characters.mjs')).href);
+  return { THREE, ...coordinates, context, createTowerWorld, createEnemy };
 })();
 
 function snapshot(overrides = {}) {
@@ -276,4 +280,56 @@ test('guardian cap sightline softens a real occluding deck and restores its soli
     assert.equal(new THREE.Box3().setFromObject(cap).max.y,capTop,'the cap collision-aligned walking top cannot move');
     assert.equal(JSON.stringify(frame),before,'the entire public authoritative snapshot stays immutable');
   } finally { world.dispose(); }
+});
+
+
+test('guardian crown contour detects the actual desktop cap interruption, not only its unobstructed center', async () => {
+  const { THREE, pointFor, context, createTowerWorld, createEnemy } = await loaded;
+  // Exact Gauntlet 20 GPU witness: floor 8, tick 258, desktop 960×600,
+  // checksum 87440ff6. The old center and center+.24 rays miss this cap.
+  const frame = snapshot({ runToken: 'guardian-desktop-87440ff6', floor: 8, theme: 'clockwork',
+    chunkBaseY: 2880000, chunkHeight: 360000,
+    platforms: [{ id: 'f8:cap', kind: 'oneway', x: 115200, y: 3212000, width: 249600, height: 12000 }],
+    enemies: [{ id: 'f8:guardian', kind: 'guardian', x: 151973, y: 3208000,
+      halfWidth: 16000, halfHeight: 18000, health: 8, maxHealth: 8,
+      active: true, telegraph: true, facing: 1 }],
+  });
+  const original = JSON.stringify(frame), enemy = frame.enemies[0];
+  const world = createTowerWorld(), guardian = createEnemy('guardian');
+  try {
+    world.update(frame, 0, 0, { quality: 'low', reducedMotion: true });
+    world.group.updateWorldMatrix(true, true);
+    const cap = world.group.getObjectByName('platform:f8:cap');
+    const foot = pointFor(enemy.x, enemy.y - enemy.halfHeight, frame.chunkBaseY, frame.worldWidth);
+    guardian.group.position.set(foot.x, foot.y, foot.z);
+    guardian.group.rotation.y = foot.angle + enemy.facing * 1.12;
+    guardian.group.scale.setScalar(enemy.halfHeight * 2 / 10000 / 5.6);
+    guardian.animate({ ...enemy, canopyClearance: 3.28, firing: false }, 0, 0, { reducedMotion: true });
+    const head = guardian.group.getObjectByName('armored-head');
+    assert.ok(head, 'use the real articulated skinned guardian, not a stand-in cube');
+    const camera = new THREE.PerspectiveCamera(42, 960 / 600, .2, 1200);
+    camera.position.set(-6.025937139491097, 37.390183939171564, 44.97943390483519);
+    camera.updateWorldMatrix(true, true);
+    const intersectsCap = (point) => {
+      const direction = point.clone().sub(camera.position), distance = direction.length();
+      return new THREE.Raycaster(camera.position, direction.normalize(), 0, distance - .05)
+        .intersectObject(cap, true).length > 0;
+    };
+    const center = head.getWorldPosition(new THREE.Vector3());
+    assert.ok(!intersectsCap(center) && !intersectsCap(center.clone().add(new THREE.Vector3(0, .24, 0))),
+      'this precise desktop viewport must reproduce the previously undetected obstruction');
+    world.revealGuardianSightlines(camera, [center, center.clone().add(new THREE.Vector3(0, .24, 0))]);
+    assert.equal(world.diagnostics().occludedGuardianCaps, 0, 'the old two-point sightline really misses');
+    const samples = context.sampleGuardianCrownSightlines(head, []);
+    assert.ok(samples.length >= 7 && samples.length <= 12, 'bounded contour samples, not a new mesh or per-pixel pass');
+    assert.ok(samples.some(intersectsCap), 'the real desktop camera must hit the physical cap ahead of a crown contour');
+    world.revealGuardianSightlines(camera, samples);
+    assert.equal(world.diagnostics().occludedGuardianCaps, 1, 'the cap becomes see-through only on real crown occlusion');
+    const reused = context.sampleGuardianCrownSightlines(head, samples);
+    assert.strictEqual(reused, samples, 'sample array is reused every frame');
+    assert.equal(reused.length, samples.length);
+    world.revealGuardianSightlines(camera, []);
+    assert.equal(world.diagnostics().occludedGuardianCaps, 0, 'no visible guardian restores solid deck');
+    assert.equal(JSON.stringify(frame), original, 'camera visibility cannot mutate gameplay authority');
+  } finally { guardian.dispose(); world.dispose(); }
 });

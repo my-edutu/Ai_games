@@ -66,6 +66,20 @@ jobs:
           cp "$RUNNER_TEMP/current-scene-sight.mjs" public/infinite-tower-climb/visuals/scene.mjs
       - name: Cap-sightline regression must pass on this source
         run: node --test --test-name-pattern='guardian cap sightline' tests/phase3/tower-encounter-composition.test.cjs
+      - name: Prove desktop crown contour fails on the exact Gauntlet 20 source
+        run: |
+          cp public/infinite-tower-climb/visuals/scene.mjs "$RUNNER_TEMP/crown-current-scene.mjs"
+          git show fd6d035a516b7d435bdaab6d41d6ad4da29f319f:public/infinite-tower-climb/visuals/scene.mjs > public/infinite-tower-climb/visuals/scene.mjs
+          set +e
+          node --test --test-name-pattern='guardian crown contour' tests/phase3/tower-encounter-composition.test.cjs > "$RUNNER_TEMP/crown-red.log" 2>&1
+          status=$?
+          set -e
+          cat "$RUNNER_TEMP/crown-red.log"
+          test "$status" -ne 0
+          grep -q 'not ok.*guardian crown contour' "$RUNNER_TEMP/crown-red.log"
+          cp "$RUNNER_TEMP/crown-current-scene.mjs" public/infinite-tower-climb/visuals/scene.mjs
+      - name: Desktop crown contour must pass on candidate source
+        run: node --test --test-name-pattern='guardian crown contour' tests/phase3/tower-encounter-composition.test.cjs
       - name: All affected cast, scene and world geometry cases
         run: node --test tests/phase3/tower-character-rig.test.cjs tests/phase3/tower-encounter-composition.test.cjs tests/phase3/tower-world-geometry.test.cjs
       - run: npx playwright install --with-deps chromium

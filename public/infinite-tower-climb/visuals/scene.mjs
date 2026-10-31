@@ -49,6 +49,27 @@ function guardianCanopyClearance(snapshot, enemy) {
   return clearance;
 }
 
+// Sample the visible helmet's outer contour in the animated bone's own local
+// coordinates, not a center-only ray. At desktop width the cap crosses the
+// upper right edge while both center rays remain clear. The 0.05-unit rim guard
+// accommodates the armored extrusion bevel. Nine fixed rays per visible
+// guardian reuse their Vector3s and never alter the skinned rig or authority.
+const GUARDIAN_CROWN_CONTOUR = [
+  [0, 0, .43], [0, .34, .24],
+  [-.5, .38, .2], [.5, .38, .2],
+  [-.5, .12, .2], [.5, .12, .2],
+  [-.45, -.24, .3], [.45, -.24, .3], [0, -.22, .48],
+];
+function sampleGuardianCrownSightlines(head, reuse) {
+  for (let i = 0; i < GUARDIAN_CROWN_CONTOUR.length; i++) {
+    const target = reuse[i] ||= new THREE.Vector3();
+    target.set(...GUARDIAN_CROWN_CONTOUR[i]);
+    head.localToWorld(target);
+  }
+  reuse.length = GUARDIAN_CROWN_CONTOUR.length;
+  return reuse;
+}
+
 // Fit a small local encounter, preserving the hero's 18%-high baseline whenever
 // the actual route fits. A long portrait crossing may require a wider view;
 // that tradeoff is preferable to cropping the real destination or opponent.
@@ -685,11 +706,8 @@ export function createTowerScene(canvas, settings = {}) {
       if(e.active&&e.kind==='guardian'){
         const crest=model.getObjectByName('armored-head');
         if(crest){
-          entry.crestSightPoints ||= [new THREE.Vector3(),new THREE.Vector3()];
-          crest.getWorldPosition(entry.crestSightPoints[0]);
-          entry.crestSightPoints[1].copy(entry.crestSightPoints[0]);
-          entry.crestSightPoints[1].y+=.24;
-          guardianSightPoints.push(...entry.crestSightPoints);
+          entry.crestSightPoints ||= [];
+          guardianSightPoints.push(...sampleGuardianCrownSightlines(crest, entry.crestSightPoints));
         }
       }
       model.visible = e.active || elapsed < entry.deadUntil;
