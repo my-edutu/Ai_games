@@ -40,7 +40,11 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
   const camera = new THREE.OrthographicCamera(-18, 18, 12, -12, .1, 180);
   const cameraTarget = new THREE.Vector3();
   const desiredTarget = new THREE.Vector3();
-  const cameraOffset = new THREE.Vector3(15, 21, 18);
+  const followCameraOffset = new THREE.Vector3(15, 21, 18);
+  // A near closed gate can cover Pip from the normal +Z-heavy isometric view.
+  // A mild +X-side view keeps the same raised diorama and visible front seal.
+  const sealedGateCameraOffset = new THREE.Vector3(20, 21, 14);
+  const cameraOffset = followCameraOffset.clone();
   const world = createMazeWorld({ balanced });
   scene.add(world.group);
 
@@ -390,6 +394,9 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     camera.left = -halfHeight * aspect; camera.right = halfHeight * aspect;
     camera.top = halfHeight; camera.bottom = -halfHeight;
     camera.updateProjectionMatrix();
+    // Rotate only the visual camera toward the side of a disclosed obstruction.
+    // Smooth it back after leaving; never alter the simulation or private map.
+    cameraOffset.lerp(nearObservedGate ? sealedGateCameraOffset : followCameraOffset, blend);
     camera.position.copy(cameraTarget).add(cameraOffset); camera.lookAt(cameraTarget);
     const background = settings.highContrast ? '#50665f' : '#b2c6b6';
     scene.background.set(background); scene.fog.color.set(background);
@@ -440,6 +447,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
         // Camera evidence is derived only from the source-disclosed gate,
         // with projected coordinates in normalized device space [-1,+1].
         nearbySealedGate: nearObservedGate ? {...nearObservedGate} : null,
+        cameraOffset: {x: cameraOffset.x, y: cameraOffset.y, z: cameraOffset.z},
         nearbySealedGateProjection: nearObservedGate ? (() => {
           const a = cellPosition(nearObservedGate.a, s.width, s.height);
           const b = cellPosition(nearObservedGate.b, s.width, s.height);
