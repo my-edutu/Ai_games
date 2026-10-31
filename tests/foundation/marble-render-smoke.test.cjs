@@ -314,3 +314,14 @@ test('Low saves actual WebGL work, not just palette brightness or a fabricated F
   assert.equal(low.shell.dataset.postprocess,'direct');
   assert.equal(balanced.shell.dataset.postprocess,'neon-glow');
 });
+
+
+test('G61 Low batches static course geometry instead of redrawing deck rails and finish piece-by-piece',async()=>{
+  const low=await simulateStage('seeding-sprint','low');
+  assert.equal(low.shell.dataset.lowCourseBatch,'active');
+  assert.ok(low.counters.drawElements<70,
+    'Low static course batching must keep mesh draws below 70, saw '+low.counters.drawElements);
+  assert.equal(low.shell.dataset.cutoutCount,'1','real pit opening remains represented');
+  assert.ok(Number(low.shell.dataset.deckTileCount)>1,'deck cutout topology remains visible');
+  assert.ok(Number(low.shell.dataset.rampServicePanels)>0,'ramp service opening remains visible');
+});
