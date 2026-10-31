@@ -74,3 +74,33 @@ test('round 32 genuine seeded WebGL walls show bounded eroded 3D stone relief wi
   floor:pinned.floor,metrics:diag.dressing,composition:diag.composition,drawCalls:diag.drawCalls,triangles:diag.triangles
  },null,2)),contentType:'application/json'});
 });
+
+test('round 40 real seeded WebGL cavern rims fill exterior depth without hiding autonomous heroes',async({page,request})=>{
+ test.setTimeout(120000);
+ expect((await request.get('/dungeon/cavern-rim-plan.js')).status()).toBe(200);
+ const snapshot=sample(),errors=[];page.on('pageerror',error=>errors.push(error.message));
+ await page.route('**/dungeon/state',route=>route.fulfill({json:snapshot}));
+ await page.goto('/dungeon');
+ await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.atmosphere?.rimNear??0),{timeout:45000}).toBe(48);
+ const desktop=await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__);
+ expect(desktop.atmosphere.rimFar).toBe(32);
+ expect(desktop.atmosphere.backgroundStructures).toBe(80);
+ expect(desktop.atmosphere.lightShafts).toBe(0);
+ expect(desktop.composition.visibleHeroes).toBeGreaterThan(0);
+ expect(desktop.visibility.unoccludedHeroes).toBeGreaterThan(0);
+ expect(desktop.drawCalls).toBeLessThan(1600);
+ await page.locator('.arena').evaluate(el=>el.classList.add('world-only-audit'));
+ await page.locator('#world').screenshot({path:'artifacts/dungeon-cavern-rim-round40-desktop-world-only.png'});
+ await page.setViewportSize({width:390,height:844});
+ await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.composition?.visibleHeroes??0),{timeout:30000}).toBeGreaterThan(0);
+ const mobile=await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__);
+ expect(mobile.atmosphere.rimNear+mobile.atmosphere.rimFar).toBe(80);
+ expect(mobile.visibility.unoccludedHeroes).toBeGreaterThan(0);
+ await page.locator('#world').screenshot({path:'artifacts/dungeon-cavern-rim-round40-mobile-world-only.png'});
+ expect(errors).toEqual([]);
+ await test.info().attach('real-floor-cavern-depth',{body:Buffer.from(JSON.stringify({
+  authority:'unmodified DungeonRuntime publicState',seed:'visual-room-art-18',
+  tick:snapshot.tick,floor:snapshot.floor,desktop:{atmosphere:desktop.atmosphere,composition:desktop.composition,visibility:desktop.visibility,drawCalls:desktop.drawCalls,triangles:desktop.triangles},
+  mobile:{composition:mobile.composition,visibility:mobile.visibility,drawCalls:mobile.drawCalls,triangles:mobile.triangles}
+ },null,2)),contentType:'application/json'});
+});
