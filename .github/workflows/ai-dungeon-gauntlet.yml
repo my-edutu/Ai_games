@@ -25,7 +25,7 @@ jobs:
         with: {node-version: '22', cache: 'npm'}
       - run: npm ci
       - run: npm run dungeon:test
-      - run: node --test tests/foundation/dungeon-presentation.test.cjs tests/foundation/dungeon-interface.test.cjs
+      - run: node --test tests/foundation/dungeon-presentation.test.cjs tests/foundation/dungeon-interface.test.cjs tests/foundation/dungeon-progress.test.cjs
       - run: npm run dungeon:gauntlet
       - name: Upload actual headless evidence
         if: always()
@@ -35,6 +35,10 @@ jobs:
           path: evidence/dungeon/gauntlet-latest.json
           if-no-files-found: warn
   browser:
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3]
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -44,14 +48,14 @@ jobs:
       - run: npm ci
       - run: npm run dungeon:assets:strict
       - run: npx playwright install --with-deps chromium
-      - run: npm run dungeon:visual
+      - run: npm run dungeon:visual -- --shard=${{ matrix.shard }}/3
         env:
           DUNGEON_REQUIRE_MODELS: '1'
       - name: Upload screenshot proof
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: dungeon-browser-captures
+          name: dungeon-browser-captures-${{ matrix.shard }}
           path: |
             artifacts/dungeon-*.png
             artifacts/dungeon-visual-metrics.json
@@ -61,7 +65,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: dungeon-world-only-review
+          name: dungeon-world-only-review-${{ matrix.shard }}
           path: |
             artifacts/dungeon-3d-world-only.png
             artifacts/dungeon-scene-visual-metrics.json

@@ -23,6 +23,7 @@ test('clean view is reversible and does not change authoritative state',async({p
  await expect(page.locator('#battle-overlay')).toBeHidden();
  await expect(toggle).toHaveAccessibleName(/show interface/i);
  expect(await page.evaluate(()=>window.__DUNGEON_PUBLIC_STATE__.checksum)).toBe(snapshot.checksum);
+ await page.screenshot({path:'artifacts/dungeon-immersive-clean.png'});
  await page.keyboard.press('h');await expect(page.locator('body')).toHaveAttribute('data-hud','visible');
  await expect(page.locator('#battle-overlay')).toBeVisible();
 });
@@ -31,6 +32,7 @@ test('journal shows real bounded events and Escape restores keyboard focus',asyn
  const dialog=page.locator('#journal-dialog');await expect(dialog).toBeVisible();
  expect(await page.locator('#journal-events li').count()).toBe(Math.min(9,snapshot.events.length));
  await expect(page.locator('#journal-events')).toContainText(snapshot.events.at(-1).text);
+ await page.screenshot({path:'artifacts/dungeon-immersive-journal.png'});
  await page.keyboard.press('Escape');await expect(dialog).toBeHidden();
  await expect(page.locator('#journal-toggle')).toBeFocused();
 });
@@ -42,7 +44,9 @@ test('mobile keeps full-width party cards, large controls and an optional map',a
   const box=await page.locator('#'+id).boundingBox();expect(box.width,id).toBeGreaterThanOrEqual(44);expect(box.height,id).toBeGreaterThanOrEqual(44);
  }
  for(const card of await page.locator('.hero-card').all())expect((await card.boundingBox()).width).toBeGreaterThan(340);
- await expect(page.locator('.map-panel')).toBeHidden();await page.locator('#map-toggle').click();
+ await expect(page.locator('.map-panel')).toBeHidden();
+ await page.screenshot({path:'artifacts/dungeon-immersive-mobile-default.png',fullPage:true});
+ await page.locator('#map-toggle').click();
  await expect(page.locator('.map-panel')).toBeVisible();await expect(page.locator('#map-toggle')).toHaveAttribute('aria-expanded','true');
  await page.screenshot({path:'artifacts/dungeon-immersive-mobile.png',fullPage:true});
 });
@@ -82,4 +86,13 @@ test('raw-world audit hides sibling HUD layers as well as scene overlays',async(
  await page.locator('#world').screenshot({path:'artifacts/dungeon-immersive-world-only.png'});
  await page.locator('.arena').evaluate(el=>el.classList.remove('world-only-audit'));
  await expect(page.locator('.squad-panel')).toBeVisible();
+});
+
+test('development progress page has permitted styling and the approved benchmark',async({page,request})=>{
+ const css=await request.get('/dungeon/gauntlet.css');expect(css.status()).toBe(200);
+ await page.goto('/dungeon/gauntlet');
+ expect(await page.locator('.grid').evaluate(el=>getComputedStyle(el).display)).toBe('grid');
+ await expect(page.locator('body')).toContainText('Diablo IV');
+ await expect(page.locator('body')).toContainText('NOT AAA CERTIFIED');
+ await page.screenshot({path:'artifacts/dungeon-immersive-progress.png',fullPage:true});
 });

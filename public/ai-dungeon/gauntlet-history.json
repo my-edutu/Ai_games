@@ -53,18 +53,27 @@
     {
       "round": 17,
       "at": "2026-10-31",
-      "status": "UI IMPLEMENTED; LOCAL SOFTWARE/COMPONENT PASS; NEW 3D CAPTURES PENDING",
-      "sampleSeeds": "unchanged authority",
-      "highestFloor": "not re-scored",
-      "visualVerdict": "Original immersive fantasy HUD, full-stage canvas, clean view, optional mobile map and real-event journal. Boss coordinates corrected. Local 528/528 software and 14/14 focused tests passed; isolated DOM/layout tests passed five viewport sizes. Actual integrated 3D and independent visual verdict remain pending. Diablo IV bar NOT MET.",
-      "artifactUrl": null,
+      "commit": "96c44f22d8b77ea762ea0752dd1cef56a91bf1a3",
+      "status": "9/9 NEW UI GATES PASS; FULL BROWSER 38/39; FOLLOW-UP PENDING",
+      "sampleSeeds": 24,
+      "ticksPerSeed": 900,
+      "highestFloor": 9,
+      "determinismFailures": 0,
+      "visualVerdict": "Real desktop/mobile/raw-world captures inspected. Immersive HUD, clean view, optional map, journal and corrected boss camera passed actual WebGL tests. One older close-camera test timed out during its redundant second capture after assertions passed. Follow-up removes only duplicate capture and restores CSP-compliant progress styling. Diablo IV bar NOT MET; no independent A/B.",
+      "artifactUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41165715310/artifacts/13029252721",
       "evidenceMetrics": {
         "desktopCanvasFractionBefore": 0.52885,
         "desktopCanvasFractionAfter": 0.92444,
         "componentViewports": 5,
         "softwareTestsPassed": 528,
         "focusedTestsPassed": 14,
-        "independentBlindComparison": false
+        "newInterfaceBrowserTestsPassed": 9,
+        "fullBrowserTestsPassed": 38,
+        "fullBrowserTestsFailed": 1,
+        "independentBlindComparison": false,
+        "followUpLocalSoftwareTestsPassed": 530,
+        "followUpLocalFocusedTestsPassed": 16,
+        "followUpIntegratedBrowserVerdict": "PENDING"
       }
     }
   ]

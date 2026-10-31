@@ -168,7 +168,9 @@ test('actual class footprints, spells and character-close camera are inspectable
  await page.locator('#view-toggle').click();await page.locator('#view-toggle').click();
  await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.camera),{timeout:12000}).toBe('chase');
  await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_PUBLIC_STATE__?.tick??0),{timeout:20000}).toBeGreaterThan(12);
- await page.locator('canvas#world').screenshot({path:'artifacts/dungeon-ranger-close-world.png'});
+ // One full-frame capture preserves the real close-camera evidence. A separate
+ // world-only test already captures the scene without overlays. Two consecutive
+ // software-WebGL captures previously exhausted this test's 60s total budget.
  await page.screenshot({path:'artifacts/dungeon-ranger-close-ui.png',fullPage:true});
  expect(errors).toEqual([]);
 });
