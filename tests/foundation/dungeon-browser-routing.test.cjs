@@ -15,5 +15,5 @@ test('shared browser discovery does not schedule Dungeon tests against the Snake
 });
 test('dedicated Dungeon browser config retains interface, materials, setpieces and runtime coverage',()=>{
  const output=discovered('tests/browser/dungeon.playwright.config.cjs');
- for(const file of ['dungeon-authored-motion.spec.cjs','dungeon-facing.spec.cjs','dungeon-interface.spec.cjs','dungeon-materials.spec.cjs','dungeon-setpieces.spec.cjs','dungeon-stream.spec.cjs'])assert.ok(output.includes(file),file+' missing from dedicated suite');
+ for(const file of ['dungeon-authored-motion.spec.cjs','dungeon-warden-regalia.spec.cjs','dungeon-facing.spec.cjs','dungeon-interface.spec.cjs','dungeon-materials.spec.cjs','dungeon-setpieces.spec.cjs','dungeon-stream.spec.cjs'])assert.ok(output.includes(file),file+' missing from dedicated suite');
 });
