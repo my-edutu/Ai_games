@@ -26,3 +26,26 @@ test('postFX budget only depends on viewport geometry and scale',async()=>{
  const {planPostFXBudget}=await load();
  assert.deepEqual(planPostFXBudget(1440,900,1.6),planPostFXBudget(1440,900,1.6));
 });
+
+test('optional bloom reduces its own offscreen workload after genuine slow render frames',async()=>{
+ const {planPostFXBudget,adaptPostFXPixelCap}=await load();
+ const full=850000;
+ assert.equal(adaptPostFXPixelCap(full,28),full,'fast GPU keeps original fidelity cap');
+ assert.equal(adaptPostFXPixelCap(full,0),full,'invalid or absent frame duration cannot downshift');
+ const slow=adaptPostFXPixelCap(full,1800);
+ assert.ok(slow>=180000&&slow<400000,'software-WebGL stall must substantially cut bloom work');
+ const next=planPostFXBudget(1440,900,1.6,slow);
+ assert.equal(next.maxPixels,slow);
+ assert.ok(next.renderPixels>0&&next.renderPixels<=slow);
+ assert.ok(adaptPostFXPixelCap(slow,1800)<slow,'repeated stalls should step down again');
+ assert.equal(adaptPostFXPixelCap(180000,1800),180000,'minimum GPU texture budget is finite');
+ assert.equal(adaptPostFXPixelCap(slow,20),slow,'recovery never causes resolution oscillation');
+});
+test('browser scene really measures expensive composer frames and applies downshift without misreporting bloom',()=>{
+ const app=fs.readFileSync(path.join(__dirname,'../../public/ai-dungeon/app.js'),'utf8');
+ assert.match(app,/adaptPostFXPixelCap/);
+ assert.match(app,/postFXFrameStart\s*=\s*performance\.now\(\)/);
+ assert.match(app,/composer\.render\(\)/);
+ assert.match(app,/adaptPostFXPixelCap\(bloomPixelCap,performance\.now\(\)-postFXFrameStart\)/);
+ assert.match(app,/planPostFXBudget\(w,h,renderer\.getPixelRatio\(\),bloomPixelCap\)/);
+});
