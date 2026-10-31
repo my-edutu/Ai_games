@@ -590,19 +590,23 @@ function dropShadowPoint(x,z,height,sun){
  const px=x+sun.dx*scale,pz=z+sun.dz*scale;
  return [px,terrain(px,pz)+.075,pz];
 }
+// Gauntlet 049: irregular contact shadows replace stamped dark-green octagons.
+// The same deterministic angle maps to the same radius at the 2pi seam.
+function canopyShadowVariation(x,z,a){return 1+.145*Math.sin(3*a+x*.37+z*.18)+.09*Math.sin(5*a-z*.41)}
 function shadowPatch(cx,cz,radiusX,radiusZ,height,sun,isDense=false){
  if(!sun.strength||Math.abs(cx)>40||Math.abs(cz)>40)return 0;
  const [px,,pz]=dropShadowPoint(cx,cz,height,sun);
  const grassShade=turfColor(px,pz);
- const dark=grassShade.map((v,i)=>Math.max(.025,v*(1-(isDense?.57:.42)*sun.strength)*(i===0?.86:1)));
- const mid=grassShade.map(v=>Math.max(.03,v*(1-.28*sun.strength)));
+ const dark=grassShade.map((v,i)=>Math.max(.025,v*(1-(isDense?.57:.22)*sun.strength)*(i===0?.86:1)));
+ const mid=grassShade.map(v=>Math.max(.03,v*(1-(isDense?.28:.105)*sun.strength)));
  const center=[px,terrain(px,pz)+.077,pz];
  const segments=8;
  const outer=[],inner=[];
  for(let i=0;i<=segments;i++){
   const a=i*Math.PI*2/segments,c=Math.cos(a),d=Math.sin(a);
-  const ox=px+c*radiusX*1.15,oz=pz+d*radiusZ*1.15;
-  const ix=px+c*radiusX*.75,iz=pz+d*radiusZ*.75;
+  const variation=isDense?1:canopyShadowVariation(cx,cz,a);
+  const ox=px+c*radiusX*1.15*variation,oz=pz+d*radiusZ*1.15*variation;
+  const ix=px+c*radiusX*.75*variation,iz=pz+d*radiusZ*.75*variation;
   outer.push([ox,terrain(ox,oz)+.075,oz]);
   inner.push([ix,terrain(ix,iz)+.077,iz]);
  }
@@ -921,7 +925,8 @@ function tree(x,z,s=1){
  const leanX=.12*Math.sin(x*3.2+z)*s,leanZ=.11*Math.cos(z*2.7-x)*s;
  const bark=rgb(signature>.2?0x70583d:0x62523e);
  const fork=[x+leanX,y+(1.58+.18*signature)*s,z+leanZ];
- shadow(x+.37*s,z+.4*s,.95*s,.56*s);
+ // The moving sun already projects a terrain-following canopy shadow; an
+ // additional permanent circular decal made two concentric fake shadow rings.
  taperedBranch([x,y,z],fork,.20*s,.105*s,bark,8);
  if(deciduous){
   forestVisualStats.deciduous++;
@@ -2266,6 +2271,6 @@ requestAnimationFrame(render);window.__tinyKingdom={getState:()=>JSON.parse(JSON
  branchTriangles:forestVisualStats.branchTriangles,
  broadleafLobes:forestVisualStats.broadleafLobes,individualLeaves:forestVisualStats.individualLeaves,broadleafSpecies:forestVisualStats.broadleafSpecies.slice(),broadleafAddedTriangles:forestVisualStats.broadleafAddedTriangles,
  crownColors:forestVisualStats.crownPalette.size
-}),getCottageFacadeStats:()=>({...cottageFacadeStats,styles:cottageFacadeStats.styles.map((count,style)=>({style,count})).filter(row=>row.count>0)}),getLightingProfile:lightingProfile,getCraftDistrictStats:()=>({...CRAFT_DISTRICT,...craftCounters}),getCottageEffects:()=>({activeChimneys,smokePuffs,smokeTriangles,smokeMaxRadius}),renderStats:()=>({terrainRebuilds,terrainCacheKey,terrainCacheTriangles,lastFrameTriangles,scenicMeshRebuilds,scenicMeshTriangles,scenicMeshKey,staticGpuUploads,dualBufferGPU:gpuAvailable}),renderQuality,setRenderQuality,shadowStats:()=>({triangles:castShadowTriangles,...sunShadow(state.t)}),sampleSunShadow:(time)=>sunShadow(time),getEconomyHistory:()=>cloneData(uiHistory),getHudMode:()=>cinematicHud?'cinema':'full',setHudMode:setCinematicHud,getCommandView:()=>commandView,setCommandView,skyStats:()=>({enabled:gpuAvailable,passes:skyPassCount,model:'day-night-atmosphere-v1',palette:skyColorProfile(state.t)}),getSkyPalette:skyColorProfile,setCamera:o=>{yaw=Number.isFinite(o.yaw)?o.yaw:yaw;pitch=Number.isFinite(o.pitch)?Math.max(.25,Math.min(1.45,o.pitch)):pitch;zoom=Number.isFinite(o.zoom)?Math.max(9,Math.min(85,o.zoom)):zoom;if(Array.isArray(o.focus)&&o.focus.length===2)focusPoint=o.focus.slice(0,2)}};
+}),getCottageFacadeStats:()=>({...cottageFacadeStats,styles:cottageFacadeStats.styles.map((count,style)=>({style,count})).filter(row=>row.count>0)}),getLightingProfile:lightingProfile,getCraftDistrictStats:()=>({...CRAFT_DISTRICT,...craftCounters}),getCottageEffects:()=>({activeChimneys,smokePuffs,smokeTriangles,smokeMaxRadius}),renderStats:()=>({terrainRebuilds,terrainCacheKey,terrainCacheTriangles,lastFrameTriangles,scenicMeshRebuilds,scenicMeshTriangles,scenicMeshKey,staticGpuUploads,dualBufferGPU:gpuAvailable}),renderQuality,setRenderQuality,shadowStats:()=>({triangles:castShadowTriangles,...sunShadow(state.t)}),sampleSunShadow:(time)=>sunShadow(time),sampleCanopyShadow:(x,z)=>Array.from({length:8},(_,i)=>canopyShadowVariation(x,z,i*Math.PI/4)),getEconomyHistory:()=>cloneData(uiHistory),getHudMode:()=>cinematicHud?'cinema':'full',setHudMode:setCinematicHud,getCommandView:()=>commandView,setCommandView,skyStats:()=>({enabled:gpuAvailable,passes:skyPassCount,model:'day-night-atmosphere-v1',palette:skyColorProfile(state.t)}),getSkyPalette:skyColorProfile,setCamera:o=>{yaw=Number.isFinite(o.yaw)?o.yaw:yaw;pitch=Number.isFinite(o.pitch)?Math.max(.25,Math.min(1.45,o.pitch)):pitch;zoom=Number.isFinite(o.zoom)?Math.max(9,Math.min(85,o.zoom)):zoom;if(Array.isArray(o.focus)&&o.focus.length===2)focusPoint=o.focus.slice(0,2)}};
 })();
 </script></body></html>
