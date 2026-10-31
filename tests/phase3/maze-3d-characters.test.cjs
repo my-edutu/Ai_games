@@ -124,10 +124,21 @@ test('Pip presents a modeled carried key to a real nearby lock and clears it for
     assert.equal(key.visible,false);
     pip.update({heading:0,keyHeading:Math.PI/2,keyStrength:1,reducedMotion:true});
     assert.equal(key.visible,true,'real matching carried-key cue shows a physical key in Pip’s glove');
-    assert.ok(arm.rotation.x<-.6 && arm.rotation.z<-.6,'left hand reaches toward the lock');
+    assert.ok(arm.rotation.x<-1.7 && arm.rotation.z>-.4,
+      'left glove rises beside Pip instead of reaching behind foreground masonry');
+    assert.ok(key.rotation.x>2.5 && key.scale.x>1.2,
+      'key is counter-rotated upright and enlarged at gameplay scale');
+    const {Vector3}=await import(three);
+    pip.group.updateMatrixWorld(true);
+    const keyPosition=key.getWorldPosition(new Vector3());
+    const facePosition=head.getWorldPosition(new Vector3());
+    assert.ok(keyPosition.y>facePosition.y-.12 && keyPosition.x>facePosition.x-.48,
+      'key rises beside the face instead of below the gate post');
     assert.ok(head.rotation.y>.6,'Pip visibly looks toward the disclosed lock');
     pip.update({heading:0,keyStrength:0,reducedMotion:true});
     assert.equal(key.visible,false,'hidden/unmatched/open gate cannot leave a stale key');
+    assert.equal(key.rotation.x,0,'cleared cue resets the presentation rotation');
+    assert.equal(key.scale.x,1,'cleared cue resets presentation scale');
     assert.equal(head.rotation.y,0);
     pip.update({heading:0,keyHeading:Math.PI/2,keyStrength:1,attentionHeading:-Math.PI/2,attentionStrength:1,reducedMotion:true});
     assert.equal(key.visible,false,'a real warden encounter takes priority over the cosmetic lock gesture');

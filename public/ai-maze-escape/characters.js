@@ -235,7 +235,12 @@ export function createExplorer(options = {}) {
       Math.atan2(Math.sin(options.keyHeading-group.rotation.y),
         Math.cos(options.keyHeading-group.rotation.y)))):0;
     heldKey.visible=keyReach>.2;
+    // Raise the already modeled key into Pip's silhouette, above the foreground
+    // gate post; counter-rotate the held prop so its bow stays above its teeth.
+    // No new information, simulation action or frame-time allocation is used.
+    heldKey.rotation.x=keyReach*2.7;
     heldKey.rotation.z=s.reduced?0:Math.sin(s.time*2.2)*.045*keyReach;
+    heldKey.scale.setScalar(1+keyReach*.25);
     // Shape, not color or blinking alone, communicates a real nearby warden.
     // Reduced-motion keeps the same static visual cue.
     alertFlare.visible=alert>.24;
@@ -252,9 +257,9 @@ export function createExplorer(options = {}) {
       const sign=i===0?1:-1;
       legs[i].hip.rotation.x=step*sign*.62;
       legs[i].knee.rotation.x=Math.max(0,-step*sign)*.58;
-      arms[i].shoulder.rotation.x=-step*sign*(i===1?.2:.4)-(s.win?.9:0)-(i===1?.16:0)-alert*(i===1?.42:.12)-(i===0?keyReach*.72:0);
-      arms[i].shoulder.rotation.z=(i===0?-1:1)*(s.win?.95:i===1?.34:.15)-(i===0?keyReach*.78:0);
-      arms[i].elbow.rotation.x=-.16-(i===1?.22:0)-(s.danger*.3)-(i===0?keyReach*.32:0);
+      arms[i].shoulder.rotation.x=-step*sign*(i===1?.2:.4)-(s.win?.9:0)-(i===1?.16:0)-alert*(i===1?.42:.12)-(i===0?keyReach*1.9:0);
+      arms[i].shoulder.rotation.z=(i===0?-1:1)*(s.win?.95:i===1?.34:.15)-(i===0?keyReach*.06:0);
+      arms[i].elbow.rotation.x=-.16-(i===1?.22:0)-(s.danger*.3)-(i===0?keyReach*.7:0);
       eyes[i].position.x=(i===0?-1:1)*.145+Math.max(-.024,Math.min(.024,(lookYaw+keyYaw)*.032+(s.reduced?0:(Math.max(-.016,Math.min(.016,turn*.045))+.006*rest)*(1-alert))));
       eyes[i].scale.y=s.lose?.32:s.danger>.45||alert>.4?1.13:(s.reduced?1:Math.pow(Math.max(0,Math.cos(s.time*.83)),60)>.88?.12:1);
     }
