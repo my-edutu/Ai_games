@@ -387,8 +387,13 @@ void main(){
   float slope=1.-max(n.y,0.);
   float rock=clamp(smoothstep(.035,.21,slope)*.70+
      smoothstep(1.4,4.7,vWorld.y)*.45,0.,.90);
-  float exposed=smoothstep(.54,.86,meadow)*.20;
-  c=mix(c,c*vec3(1.13,.99,.81),exposed*(1.-riparian));
+  // G054 terrain relief: broad native soil patches, short grass clumps and
+  // sub-metre mineral grit are stable in world space across camera moves.
+  // The low-cost cell hash reuses the existing two terrain noise samples.
+  float grit=hash3(vec3(floor(vWorld.xz*9.),2.));
+  float soilPatch=smoothstep(.49,.76,meadow)*(1.-riparian*.78);
+  c=mix(c,c*vec3(1.42,1.06,.72),soilPatch*(.36+.12*grit));
+  c*=mix(.92,1.06,blades*.6+grit*.4);
   c=mix(c,c*vec3(1.22,.93,1.16),rock);
   float damp=clamp(weatherWetness*.63+riparian*.64,0.,1.);
   c*=mix(vec3(1.035,1.015,.97),vec3(.76,.93,.87),damp);
@@ -413,25 +418,46 @@ void main(){
   float whiteWater=smoothstep(.15,.79,waveA*.35+waveB*.27+.47);
   c=mix(c,vec3(.67,.79,.74),shoreWash*whiteWater*.30);
  }else if(vMaterial>2.5&&vMaterial<3.5){
-  // Damp footpaths lose their powdery lightness during rainfall.
-  c*=.79+.27*noise3(vWorld*5.5)-.12*step(.8,noise3(vWorld*10.));
+  // G054 washed footpaths: contiguous earth, mineral grit and sparse
+  // hard pebbles read at pedestrian height without changing walkable paths.
+  float dust=noise3(vWorld*vec3(.71,1.,.71));
+  float gravel=noise3(vWorld*vec3(7.4,1.5,7.4));
+  float pebble=hash3(vec3(floor(vWorld.xz*15.),3.));
+  c*=.66+.28*dust+.18*gravel+.09*step(.88,pebble);
   c*=mix(vec3(1.0),vec3(.71,.81,.82),weatherWetness*.67);
  }else if(vMaterial>3.5&&vMaterial<4.5){
   c*=.75+.38*noise3(vWorld*3.5);
   c+=vec3(.018,.052,.016)*pow(max(dot(n,normalize(sunDirection)),0.),2.);
  }else if(vMaterial>4.5&&vMaterial<5.5){
+  // G054 dressed stone: offset rectangular courses, recessed mortar,
+  // block-to-block mineral tint and bevel-lit edges rather than flat chalk.
   vec2 uv=abs(n.y)>.67?vWorld.xz:(abs(n.x)>abs(n.z)?vWorld.zy:vWorld.xy);
-  vec2 brick=uv*vec2(1.2,2.2);brick.x+=floor(brick.y)*.5;
-  vec2 seam=abs(fract(brick)-.5);
-  float mortar=1.-smoothstep(.45,.499,max(seam.x,seam.y));
-  c*=.86+.28*noise3(vWorld*5.);
-  c*=mix(.69,1.,mortar);
+  vec2 brick=uv*vec2(1.65,2.25);
+  brick.x+=.5*mod(floor(brick.y),2.);
+  vec2 cell=fract(brick);
+  vec2 edges=min(cell,1.-cell);
+  float edge=min(edges.x,edges.y);
+  float mortar=smoothstep(.018,.082,edge);
+  float bevel=smoothstep(.04,.20,edge);
+  float blockShade=hash3(vec3(floor(brick),1.3));
+  float pores=noise3(vWorld*7.);
+  c*=mix(.42,.93,mortar)*(.84+.20*bevel);
+  c*=mix(.79,1.19,blockShade)*mix(.92,1.08,pores);
  }else if(vMaterial>5.5&&vMaterial<6.5){
   float fibers=.5+.5*sin(vWorld.y*45.+noise3(vWorld*2.5)*3.);
   c*=.90+.16*mix(fibers,noise3(vWorld*7.),.45);
  }else if(vMaterial>6.5&&vMaterial<7.5){
-  float soot=noise3(vWorld*vec3(2.5,3.2,2.1));
-  c*=.76+.35*soot;
+  // G054 roof tiling: staggered overlapping earthen shingles with distinct
+  // tile pigment and sunken seams; procedural and copyright-clean.
+  vec2 shingle=vWorld.xz*vec2(2.35,3.25);
+  shingle.x+=.5*mod(floor(shingle.y),2.);
+  vec2 tile=fract(shingle);
+  float joint=smoothstep(.016,.085,
+    min(min(tile.x,1.-tile.x),min(tile.y,1.-tile.y)));
+  float overlap=1.-smoothstep(.14,.85,tile.y);
+  float tileTone=hash3(vec3(floor(shingle),4.));
+  float soot=noise3(vWorld*vec3(2.9,3.2,2.8));
+  c*=mix(.51,1.,joint)*mix(.79,1.17,tileTone)*(.79+.23*soot+.09*overlap);
   c=mix(c,c*vec3(.79,.83,.81),max(0.,soot-.65)*.24);
  }
  c=mix(c,fogColor,vFog);
@@ -2525,7 +2551,7 @@ currentMaterial=MATERIAL.WOOD;
 const elevation=Math.sin(pitch)*zoom,rad=Math.cos(pitch)*zoom,focusHeight=follow?terrain(focusPoint[0],focusPoint[1])+1.02:.25,eye=[focusPoint[0]+Math.sin(yaw)*rad,elevation+focusHeight,focusPoint[1]+Math.cos(yaw)*rad];let m=mat4multiply(perspective(Math.PI/3.2,w/h,.1,190),lookAt(eye,[focusPoint[0],focusHeight,focusPoint[1]],[0,1,0]));gl.uniformMatrix4fv(uniforms.viewProjection,false,m);gl.uniform3f(uniforms.fogColor,...atmosphere.fog);gl.uniform3f(uniforms.sunTint,...atmosphere.light);const radiance=lightingProfile(state.t);gl.uniform1f(uniforms.sunStrength,radiance.solar);gl.uniform1f(uniforms.ambientBlend,radiance.ambientBlend);gl.uniform1f(uniforms.worldTime,state.t);gl.uniform1f(uniforms.weatherWetness,climateMaterialProfile(state.t).precipitation);gl.uniform3f(uniforms.eyePosition,eye[0],eye[1],eye[2]);gl.uniform3f(uniforms.sunDirection,Math.cos(state.t/24*6.283),.3+atmosphere.daylight*.9,Math.sin(state.t/24*6.283));lastFrameTriangles=(gpuAvailable?scenicMeshCache.length+data.length:data.length)/30;
 if(gpuAvailable){bindGeometry(staticBuffer);gl.drawArrays(gl.TRIANGLES,0,scenicMeshCache.length/10);}
 bindGeometry(buffer);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(data),gl.DYNAMIC_DRAW);gl.drawArrays(gl.TRIANGLES,0,data.length/10);if((frames++%14)===0){updateUI();drawAtlas();updateRealmSignal();updateWorldRibbon()}}
-requestAnimationFrame(render);window.__tinyKingdom={getState:()=>JSON.parse(JSON.stringify({state,people:people.map(({name,job,x,z,target})=>({name,job,x,z,target}))})),setSpeed:x=>{speed=x},step,reset:start,renderer:()=>canvas.getContext('webgl')?'webgl':'software',metrics:()=>({citizens:people.length,buildings:city.length+2,day:Math.floor(state.t/24)+1,food:state.food,wood:state.wood,gold:state.gold,relationships:people.filter(p=>p.friend).length}),route:(a,b)=>routeBetween(a[0],a[1],b[0],b[1]),walkable:(p)=>walkable(p[0],p[1]),getNavigation:()=>people.map(p=>({name:p.name,position:[p.x,p.z],target:p.target,remaining:p.path?.length||0,path:p.path,activity:p.activity,hunger:p.hunger,energy:p.energy})),exportSnapshot,restoreSnapshot,saveWorld,restoreWorld,climateAt,skyConditions,getCitizenProfiles:()=>cloneData(people.map(({name,job,trait,friend,bonds,energy,hunger,activity})=>({name,job,trait,friend,bonds,energy,hunger,activity}))),getRigPose:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(citizenRigPose(people[index])):null,getGarmentProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(garmentProfile(people[index],index,citizenRigPose(people[index]))):null,getFaceProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(faceProfile(people[index],index)):null,getSelectedCitizen:()=>people[selectedCitizen]?.name,routeCacheMetrics:()=>({entries:routeCache.size,hits:cacheHits,misses:cacheMisses}),getCamera:()=>({yaw,pitch,zoom,focus:focusPoint.slice(),follow,cinematic}),getCitizenCameraPlan:()=>lastFollowShot?{...lastFollowShot,eye:lastFollowShot.eye.slice(),target:lastFollowShot.target.slice()}:null,getTerrainHeight:(x,z)=>terrain(x,z),getTerrainBiomeSample:terrainBiomeSample,getHorizonStats:()=>({triangles:terrainHorizonTriangles,outerBands:2,segmentsPerSide:HORIZON_SEGMENTS,extent:HORIZON_MAX+HORIZON_OFFSETS[2]}),getHighlandRockStats:()=>({...highlandRockStats,heights:highlandRockStats.heights.slice()}),getClimateMaterialProfile:climateMaterialProfile,getWildfloraCount:()=>wildflora.length,getMeadowStats:()=>({clusters:meadowUnderstory.length,triangles:meadowUnderstory.length*8,season:climateAt(state.t).season,cached:true}),getMaterialSystem:()=>({vertexStride:10,surfaceShaderVersion:'procedural-023',materials:Object.keys(MATERIAL),gpuRenderValidated:false}),waterStats:()=>({model:'fresnel-ripple-shorefoam-v1',segments:RIVER_SEGMENTS,waterTriangles:RIVER_SEGMENTS*RIVER_BANDS*2,bankTriangles:RIVER_SEGMENTS*2*RIVER_BANK_BANDS*2}),getScenicSites:scenicSiteMetrics,getFestivalVisualStats:()=>({season:festivalSeason,cacheBuilds:festivalCacheBuilds,vertices:festivalGeometry?.length||0}),getOrchardVisualStats:()=>({...orchardVisualStats}),getGeometryAudit:geometryAudit,getFarmsteadStats:()=>({...farmScene,granary:FARMSTEAD.granary.slice(),season:climateAt(state.t).season}),getFarmTreeClearanceStats:farmTreeClearanceStats,getForestVisualStats:()=>({
+requestAnimationFrame(render);window.__tinyKingdom={getState:()=>JSON.parse(JSON.stringify({state,people:people.map(({name,job,x,z,target})=>({name,job,x,z,target}))})),setSpeed:x=>{speed=x},step,reset:start,renderer:()=>canvas.getContext('webgl')?'webgl':'software',metrics:()=>({citizens:people.length,buildings:city.length+2,day:Math.floor(state.t/24)+1,food:state.food,wood:state.wood,gold:state.gold,relationships:people.filter(p=>p.friend).length}),route:(a,b)=>routeBetween(a[0],a[1],b[0],b[1]),walkable:(p)=>walkable(p[0],p[1]),getNavigation:()=>people.map(p=>({name:p.name,position:[p.x,p.z],target:p.target,remaining:p.path?.length||0,path:p.path,activity:p.activity,hunger:p.hunger,energy:p.energy})),exportSnapshot,restoreSnapshot,saveWorld,restoreWorld,climateAt,skyConditions,getCitizenProfiles:()=>cloneData(people.map(({name,job,trait,friend,bonds,energy,hunger,activity})=>({name,job,trait,friend,bonds,energy,hunger,activity}))),getRigPose:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(citizenRigPose(people[index])):null,getGarmentProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(garmentProfile(people[index],index,citizenRigPose(people[index]))):null,getFaceProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(faceProfile(people[index],index)):null,getSelectedCitizen:()=>people[selectedCitizen]?.name,routeCacheMetrics:()=>({entries:routeCache.size,hits:cacheHits,misses:cacheMisses}),getCamera:()=>({yaw,pitch,zoom,focus:focusPoint.slice(),follow,cinematic}),getCitizenCameraPlan:()=>lastFollowShot?{...lastFollowShot,eye:lastFollowShot.eye.slice(),target:lastFollowShot.target.slice()}:null,getTerrainHeight:(x,z)=>terrain(x,z),getTerrainBiomeSample:terrainBiomeSample,getHorizonStats:()=>({triangles:terrainHorizonTriangles,outerBands:2,segmentsPerSide:HORIZON_SEGMENTS,extent:HORIZON_MAX+HORIZON_OFFSETS[2]}),getHighlandRockStats:()=>({...highlandRockStats,heights:highlandRockStats.heights.slice()}),getClimateMaterialProfile:climateMaterialProfile,getWildfloraCount:()=>wildflora.length,getMeadowStats:()=>({clusters:meadowUnderstory.length,triangles:meadowUnderstory.length*8,season:climateAt(state.t).season,cached:true}),getMaterialSystem:()=>({vertexStride:10,surfaceShaderVersion:'procedural-054',materials:Object.keys(MATERIAL),gpuRenderValidated:false}),waterStats:()=>({model:'fresnel-ripple-shorefoam-v1',segments:RIVER_SEGMENTS,waterTriangles:RIVER_SEGMENTS*RIVER_BANDS*2,bankTriangles:RIVER_SEGMENTS*2*RIVER_BANK_BANDS*2}),getScenicSites:scenicSiteMetrics,getFestivalVisualStats:()=>({season:festivalSeason,cacheBuilds:festivalCacheBuilds,vertices:festivalGeometry?.length||0}),getOrchardVisualStats:()=>({...orchardVisualStats}),getGeometryAudit:geometryAudit,getFarmsteadStats:()=>({...farmScene,granary:FARMSTEAD.granary.slice(),season:climateAt(state.t).season}),getFarmTreeClearanceStats:farmTreeClearanceStats,getForestVisualStats:()=>({
  sourceTrees:trees.length,
  renderedTrees:forestVisualStats.deciduous+forestVisualStats.conifers,
  conifers:forestVisualStats.conifers,deciduous:forestVisualStats.deciduous,
