@@ -61,7 +61,7 @@ test('round 40 cavern rim is original, deterministic, safely outside the real ma
     assert.equal(t.length,7);
     assert.ok(t.every(Number.isFinite),'no invalid GPU instance matrices');
     const [x,y,z,sx,sy,sz]=t;
-    assert.ok(Math.hypot(x,z)-Math.max(sx,sz)/2>corner+3.5,'no non-playable rim enters the square authority map or its cutaway');
+    assert.ok(Math.hypot(x,z)-Math.max(sx,sz)>corner+2,'even the rotated unit-radius rock bounding sphere remains well outside the authority map');
     assert.ok(y>0&&y<12&&sx>1&&sx<6&&sy>3&&sy<21&&sz>1&&sz<6,'bounded physical silhouettes');
    }
   }
