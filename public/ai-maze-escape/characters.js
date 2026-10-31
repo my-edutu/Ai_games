@@ -179,11 +179,16 @@ export function createExplorer(options = {}) {
   // nearby sealed gate matches public inventory. The held physical model is
   // always built once and toggled; no props are allocated per frame.
   const keyMint=material('#a5ffdc',.22,.3,{emissive:'#50d5ae',emissiveIntensity:.65});
+  // The warm solid blade makes this read as a held *key*, rather than a
+  // floating mint loop. A dark grip collar overlaps the existing glove so
+  // its shaft has a visible physical connection at normal game scale.
+  const keyBlade=material('#ffe2a1',.43,.34,{emissive:'#e7a64c',emissiveIntensity:.3});
   const heldKey=pivot(arms[0].hand,'presented matching key',[0,-.12,.11]);
-  ring(heldKey,keyMint,[0,.18,0],.17,.045);
-  rounded(heldKey,keyMint,[0,-.095,0],[.115,.38,.11],.028);
-  rounded(heldKey,keyMint,[.12,-.235,0],[.23,.105,.11],.026);
-  rounded(heldKey,keyMint,[.12,-.09,0],[.23,.095,.11],.023);
+  ring(heldKey,keyMint,[0,.18,0],.17,.05);
+  rounded(heldKey,keyBlade,[0,-.095,0],[.14,.40,.13],.028);
+  rounded(heldKey,keyBlade,[.14,-.235,0],[.25,.12,.13],.026);
+  rounded(heldKey,keyBlade,[.14,-.09,0],[.25,.105,.13],.023);
+  rounded(heldKey,dark,[0,-.025,-.047],[.20,.135,.18],.032);
   heldKey.visible=false;
 
   // An expedition signal crest is legible in a wide, silent stream frame.
