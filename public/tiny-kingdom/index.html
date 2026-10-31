@@ -356,7 +356,7 @@ function foliageWindProbe(x,y,z,time){
 }
 const vs=`attribute vec3 position;attribute vec3 normal;attribute vec3 color;attribute float materialId;
 uniform mat4 viewProjection;uniform vec3 sunDirection;uniform vec3 sunTint;
-uniform float sunStrength;uniform float ambientBlend;uniform float worldTime;
+uniform float sunStrength;uniform float ambientBlend;uniform highp float worldTime;
 varying vec3 vColor;varying vec3 vWorld;varying vec3 vNormal;varying float vFog;varying float vMaterial;
 void main(){
  // G064: deterministic GPU foliage drift, with no static-mesh rebuild.
@@ -382,7 +382,7 @@ void main(){
 // Gauntlet 023 — world-space GPU materials. Original procedural detail; not full PBR.
 const fs=`precision mediump float;
 varying vec3 vColor;varying vec3 vWorld;varying vec3 vNormal;varying float vFog;varying float vMaterial;
-uniform vec3 fogColor;uniform highp vec3 sunDirection;uniform highp vec3 eyePosition;uniform float worldTime;uniform float weatherWetness;
+uniform vec3 fogColor;uniform highp vec3 sunDirection;uniform highp vec3 eyePosition;uniform highp float worldTime;uniform float weatherWetness;
 float hash3(vec3 p){p=fract(p*.1031);p+=dot(p,p.yxz+33.33);return fract((p.x+p.y)*p.z);}
 float noise3(vec3 p){
  vec3 i=floor(p),f=fract(p);f=f*f*(3.0-2.0*f);

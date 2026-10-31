@@ -4,7 +4,9 @@ const fs=require('node:fs'),path=require('node:path');
 const html=fs.readFileSync(path.join(__dirname,'../../public/tiny-kingdom/index.html'),'utf8');
 test('G064 wind displaces foliage vertices only, with deterministic bounded probes and no simulation changes',async({page})=>{
  const shader=html.split('const vs=`')[1]?.split('`;\n// Gauntlet 023')[0]||'';
- expect(shader).toContain('uniform float worldTime;');
+ expect(shader).toContain('uniform highp float worldTime;');
+ const fragment=html.split('const fs=\`')[1]?.split('\`;\nfunction shader')[0]||'';
+ expect(fragment).toContain('uniform highp float worldTime;');
  expect(shader).toContain('if(materialId>3.5&&materialId<4.5)');
  expect(shader).toContain('world.x+=');
  expect(shader).toContain('world.z+=');
