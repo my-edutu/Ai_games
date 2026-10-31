@@ -1095,6 +1095,67 @@
       "highestFloor": 9,
       "determinismFailures": 0,
       "artifactUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41237249652/artifacts/13055817256"
+    },
+    {
+      "round": 41,
+      "at": "2026-10-31",
+      "commit": "6155d7d5f907b844faaacfbead7e27c6531ca684",
+      "status": "EXACT CODE: 97/97 DUNGEON FOUNDATION; 17/17 PRESENTATION; 24×900 AUTHORITY PASS; 10/10 GENUINE CHROMIUM INTERFACE; REAL WEBGL BEFORE/AFTER REVIEWED; FULL BROWSER/CATALOGUE NOT YET GREEN; DIABLO IV NOT MET",
+      "visualVerdict": "Real 1440×832 screenshot from exact-code Chromium review run 41241462019, matched against actual Round 40 review world-only frame, reveals that previously dark, untextured original instanced wall tops now show visible masonry courses and mortar. Single-image mean weighted sRGB luma changed from 35.40 to 51.85 /255 (+16.45), NOT a physical luminance metric, tick-matched reference comparison, or multi-seed art-quality proof. Box-like corridors, low-detail overlapping figures and cyan glows remain; no blind Diablo IV A/B or independent art critic. Below AAA/production.",
+      "evidenceMetrics": {
+        "newFoundationTestsWrittenBeforeCode": 3,
+        "testOnlyRedRunArchived": false,
+        "foundationTestsPassed": 97,
+        "presentationTestsPassed": 17,
+        "dedicatedChromiumInterfaceTestsPassed": 10,
+        "threeShardBrowserTestsPassed": null,
+        "threeShardCodeRunCancelledOnEvidencePush": true,
+        "sampleSeeds": 24,
+        "ticksPerSeed": 900,
+        "determinismFailures": 0,
+        "highestFloor": 9,
+        "totalFloorAdvances": 401,
+        "totalRestarts": 89,
+        "textureSize": [
+          128,
+          128
+        ],
+        "bytesBeforeMipmaps": 65536,
+        "textureBatchCount": 1,
+        "additionalWallDrawBatches": 0,
+        "externalAssetsAdded": 0,
+        "authorityChanged": false,
+        "genuineBeforeAfterInspected": true,
+        "beforeScreenshotRun": 41238225762,
+        "afterScreenshotRun": 41241462019,
+        "beforeSingleFrameSRGBLuma": 35.4,
+        "afterSingleFrameSRGBLuma": 51.85,
+        "notTickMatchedAB": true,
+        "independentFreshCritic": false,
+        "blindMatchedReferenceAB": false,
+        "gpuFrameP95Measured": false,
+        "soakTested": false,
+        "productionReady": false
+      },
+      "verification": {
+        "exactRendererCodeSha": "6155d7d5f907b844faaacfbead7e27c6531ca684",
+        "dedicatedAuthorityAndBrowserRun": 41241462011,
+        "authorityJob": 124656121464,
+        "separateExactCodeVisualReviewRun": 41241462019,
+        "genuineVisualArtifact": 13058060909,
+        "previousRoundWorldVisualArtifact": 13056715554,
+        "originalCatalogueCIRun": 41241462006,
+        "initialBrowserRunStatus": "three browser shards cancelled on subsequent evidence push, not accepted as a full pass",
+        "documentation": "docs/reviews/AI_DUNGEON_GAUNTLET_ROUND_041.md",
+        "independentReview": false,
+        "productionReady": false
+      },
+      "nextLargestGap": "Detailed original hero/enemy meshes with planted-foot hand-to-weapon impact and combat attribution legible from broadcast camera, organic wall geometry and balanced light; blind real-gameplay reference critique and actual GPU p95/soak.",
+      "sampleSeeds": 24,
+      "ticksPerSeed": 900,
+      "highestFloor": 9,
+      "determinismFailures": 0,
+      "artifactUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41241462019/artifacts/13058060909"
     }
   ]
 }
