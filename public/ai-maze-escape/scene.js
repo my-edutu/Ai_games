@@ -397,6 +397,25 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
         const p = model.group.position.clone().add(new THREE.Vector3(0, .75, 0)).project(camera);
         return Math.abs(p.x) < .95 && Math.abs(p.y) < .95 && p.z > -1 && p.z < 1;
       }).length;
+      // Capture evidence must prove the actual modeled key/gate is in the
+      // camera, not just a HUD caption. Only observed public props qualify.
+      const knownCells = new Set(s.cells.map(cell => cell.cell));
+      const insideCamera = (x, y, z) => {
+        const p = new THREE.Vector3(x, y, z).project(camera);
+        return Math.abs(p.x) < .95 && Math.abs(p.y) < .95 && p.z > -1 && p.z < 1;
+      };
+      const keysInFrame = s.keys.filter(key => !key.collected && knownCells.has(key.cell)
+        && (() => { const p = cellPosition(key.cell, s.width, s.height);
+          return insideCamera(p.x, cellHeight(key.cell, s.width, s.height) + 1.14, p.z); })()).length;
+      const closedGatesInFrame = s.doors.filter(door => !door.open
+        && (() => {
+          const ends = [door.a, door.b].filter(cell => knownCells.has(cell));
+          if (!ends.length) return false;
+          const a = cellPosition(door.a, s.width, s.height);
+          const b = cellPosition(door.b, s.width, s.height);
+          const height = Math.max(...ends.map(cell => cellHeight(cell, s.width, s.height)));
+          return insideCamera((a.x + b.x) / 2, height + .88, (a.z + b.z) / 2);
+        })()).length;
       window.__MAZE_3D__ = {
         renderer: 'webgl', frames, cameraMode, runToken: s.runToken, tick: s.tick, quality: balanced ? 'balanced' : 'full',
         triangles: renderer.info.render.triangles, drawCalls: renderer.info.render.calls,
@@ -407,6 +426,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
         frameP95Ms: sorted[Math.floor(sorted.length * .95)] || 0,
         routeQueue: cells.length, world: stats, contextLost: false,
         disclosedThreats: wardens.size, wardensInFrame, encounterAttention: closestThreat?.strength ?? 0,
+        keysInFrame, closedGatesInFrame,
         wayfindingCues: wayfindingCues.map(cue => ({...cue})),
         objectiveCue: objectiveCue ? {...objectiveCue} : null,
         objectiveInFrame: objectiveCue ? (() => {
