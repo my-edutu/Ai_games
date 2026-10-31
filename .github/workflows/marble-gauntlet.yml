@@ -23,8 +23,7 @@ permissions:
   contents: read
 
 concurrency:
-  # Push and draft-PR events on the same head branch now share one live run.
-  # This saves scarce runners and makes iterative screenshot feedback faster.
+  # Push and draft-PR events on the same head branch share one live run.
   group: marble-gauntlet-${{ github.head_ref || github.ref_name }}
   cancel-in-progress: true
 
@@ -35,6 +34,19 @@ jobs:
     steps:
       - name: Checkout Gauntlet branch
         uses: actions/checkout@v6
+      - name: Archive exact tracked source for reproducible review
+        run: |
+          git archive --format=tar HEAD > "$RUNNER_TEMP/marble-source.tar"
+          git rev-parse HEAD > "$RUNNER_TEMP/marble-source-commit.txt"
+      - name: Retain tracked source without Git credentials or untracked files
+        uses: actions/upload-artifact@v7
+        with:
+          name: marble-gauntlet-source
+          path: |
+            ${{ runner.temp }}/marble-source.tar
+            ${{ runner.temp }}/marble-source-commit.txt
+          if-no-files-found: error
+          retention-days: 7
       - name: Setup Node 22
         uses: actions/setup-node@v6
         with:
