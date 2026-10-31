@@ -1,10 +1,15 @@
 {
-  "updatedAt": "2026-10-31T14:23:40.214Z",
-  "status": "Round 27 candidate · live muscular serpent body (TDD); exact-head browser proof pending",
-  "detail": "Round 27 introduces an original bounded travelling lateral muscle wave inside the existing snake tube, attenuated at the skull, tail and every separate portal fragment; reduced-motion freezes it. Authoritative cells and deterministic AI remain unchanged. TypeScript build and 53 focused Snake Node tests pass. Whole-game motion/visual and 17 actual-render gate are not yet verified on this head.",
+  "updatedAt": "2026-10-31T15:23:55.022Z",
+  "status": "Round 29 · rear-ruins detail-camera foreground occlusion guard; real WebGL A/B pending",
+  "detail": "Actual scene's pillars/arch/trees now supply bounded camera-only foreground volumes. On blocked detail views the existing face-target/zoom and food correction are retained while the camera eases toward a clearer azimuth/elevation. Three isolated local pure-camera regressions passed after a red baseline; exact-head broad Node/browser, true WebGL A/B and 17 actual-submission pacing remain pending. Earlier visual benchmark LOSE remains in force.",
   "latestImage": "/progress/evidence/round-9-overview.jpg",
-  "latestCaption": "Historical Round 25 real-WebGL still. Round 27 motion capture and independent reference verdict must come from the new exact-head browser run; no render has been fabricated.",
+  "latestCaption": "Historical real WebGL capture; new Round 29 rear-arch A/B screenshot pair is awaiting exact-head browser CI. No new screenshot or FPS claim is fabricated.",
   "reviews": [
+    {
+      "area": "Round 29 · live 3D character sightline beside ruins",
+      "verdict": "PURE CAMERA RED→GREEN 3/3 · SAME-FRAME WEBGL A/B + WORLD TEST PENDING · WHOLE-GAME LOSE",
+      "gap": "Old frontal three-quarter close shot intersects authored rear column when snake is near the board's north boundary. New bounded camera-only occluders from the actual ruin geometry choose a clear stable shot without moving head/food or affecting overview, fallback, authority, portals or quality gates. Real Chromium screenshots and performance must still be verified."
+    },
     {
       "area": "Round 27 · live body motion",
       "verdict": "TDD RED→GREEN · 53/53 FOCUSED NODE · BROWSER EVIDENCE PENDING",

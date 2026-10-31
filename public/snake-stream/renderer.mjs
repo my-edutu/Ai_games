@@ -367,7 +367,7 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
     world.update(snapshot, { ...shared, maxParticles });
     const head = motion.paths[0]?.[0] || { x: 0, z: 0 };
     const food = cameraMode === 'detail' ? foodPoint : null;
-    const composition = cameraComposition({ width: snapshot.width, height: snapshot.height, aspect: camera.aspect, mode: cameraMode, head, direction: motion.direction, food });
+    const composition = cameraComposition({ width: snapshot.width, height: snapshot.height, aspect: camera.aspect, mode: cameraMode, head, direction: motion.direction, food, occluders: world.cameraOccluders });
     desiredTarget.set(composition.target.x, composition.target.y, composition.target.z);
     desiredPosition.set(composition.offset.x, composition.offset.y, composition.offset.z);
     const mix = settings.reducedMotion || frameCount === 0 ? 1 : 1 - Math.exp(-Math.min(measuredDelta, 0.5) * 5);

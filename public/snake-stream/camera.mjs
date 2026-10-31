@@ -46,9 +46,65 @@ function clearFoodSightline(outward, distance, head, food) {
   return bestScore >= originalClearance + 0.025 ? best : outward;
 }
 
+/*
+ * Architectural occlusion guard for the close character shot. The world supplies
+ * fixed, bounded volumes for its columns and foreground trees; only the camera
+ * moves. This is deliberately not raycasting the full high-poly environment
+ * on each tick. It has no authority over gameplay or movement and allocates no
+ * GPU resources. A volume behind the head must never affect the shot.
+ */
+export function cameraOcclusionCost(outward, distance, head, occluders = []) {
+  let cost = 0;
+  for (const volume of occluders) {
+    const { x, y, z, radius } = volume;
+    if (![x, y, z, radius].every(Number.isFinite) || radius <= 0) continue;
+    const dx = x - head.x, dy = y - 0.4, dz = z - head.z;
+    const along = dx * outward.x + dy * outward.y + dz * outward.z;
+    if (along <= 0.55 || along > distance + radius) continue;
+    const at = Math.min(distance, along);
+    const gap = Math.hypot(dx - outward.x * at, dy - outward.y * at, dz - outward.z * at);
+    // A small clearance prevents close silhouettes from touching the eyes.
+    cost += Math.max(0, radius + 0.12 - gap) / (radius + 0.12);
+  }
+  return cost;
+}
+
+function avoidForegroundOcclusion(outward, distance, head, food, occluders) {
+  if (!occluders?.length) return outward;
+  const baseline = cameraOcclusionCost(outward, distance, head, occluders);
+  if (baseline === 0) return outward;
+  const foodCost = candidate => {
+    if (!food || !Number.isFinite(food.x) || !Number.isFinite(food.z)) return 0;
+    const dx = food.x - head.x, dz = food.z - head.z;
+    if (Math.hypot(dx, dz) > 3.5 || dx * candidate.x + dz * candidate.z + 0.2 * candidate.y <= 0.15) return 0;
+    return Math.max(0, 0.025 - foodSilhouetteClearance(candidate, distance, head, food));
+  };
+  let best = outward, bestCost = baseline * 3 + foodCost(outward) * 2;
+  // Prefer a modest pivot before a higher angle or a strong swing. Candidates
+  // keep the same 3D face target and distance, so no crop/zoom discontinuity.
+  for (const lift of [0, 0.13, 0.28, 0.43]) {
+    for (const degrees of [0, -25, 25, -40, 40, -55, 55]) {
+      if (!lift && !degrees) continue;
+      const angle = degrees * Math.PI / 180, cos = Math.cos(angle), sin = Math.sin(angle);
+      const candidate = normalize({
+        x: outward.x * cos - outward.z * sin,
+        y: outward.y + lift,
+        z: outward.x * sin + outward.z * cos,
+      });
+      const penalty = cameraOcclusionCost(candidate, distance, head, occluders);
+      const cost = 3 * penalty + 2 * foodCost(candidate)
+        + Math.abs(degrees) * 0.0009 + lift * 0.13;
+      if (cost < bestCost) { best = candidate; bestCost = cost; }
+    }
+  }
+  // Deliberately avoid flutter for tiny improvements around a stone edge;
+  // the existing renderer smoothly eases meaningful presentation changes.
+  return bestCost + 0.055 < baseline * 3 + foodCost(outward) * 2 ? best : outward;
+}
+
 // Fit the world in perspective instead of moving a landscape composition far
 // away on phones. Portrait looks across the short side of the same real board.
-export function cameraComposition({ width, height, aspect, mode = 'overview', head = { x: 0, z: 0 }, direction = { x: 0, z: 1 }, food = null }) {
+export function cameraComposition({ width, height, aspect, mode = 'overview', head = { x: 0, z: 0 }, direction = { x: 0, z: 1 }, food = null, occluders = [] }) {
   const portrait = aspect < 1;
   let outward = normalize(portrait ? { x: 0.52, y: 0.85, z: 0.02 } : { x: 0.12, y: 0.77, z: 0.67 });
   const target = mode === 'overview' ? { x: 0, y: 0.4, z: 0 } : { x: head.x, y: 0.4, z: head.z };
@@ -60,6 +116,7 @@ export function cameraComposition({ width, height, aspect, mode = 'overview', he
     outward = normalize({ x: direction.x * 0.82 - direction.z * 0.34, y: 0.20, z: direction.z * 0.82 + direction.x * 0.34 });
     distance = portrait ? 5.2 : 4.55;
     outward = clearFoodSightline(outward, distance, head, food);
+    outward = avoidForegroundOcclusion(outward, distance, head, food, occluders);
   } else if (mode === 'follow') {
     distance = portrait ? 14 : 16;
   } else {

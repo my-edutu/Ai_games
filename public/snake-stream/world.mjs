@@ -136,6 +136,10 @@ export function bakeWaterEdgeGeometry(THREE, source, transforms) {
 export function createWorld(THREE, {width, height}) {
   if (!Number.isInteger(width) || !Number.isInteger(height) || width < 2 || height < 2) throw new Error('World requires integer board dimensions');
   const group = new THREE.Group(); group.name = 'Verdant ruins';
+  // Camera-only foreground occluders are authored at the same coordinates as
+  // the actual stone and vegetation below. They never enter collision or AI.
+  const cameraOccluders = [];
+  const markCameraOccluder = (x, y, z, radius) => cameraOccluders.push(Object.freeze({ x, y, z, radius }));
   const geometries = new Set(), materials = new Set(), textures = new Set();
   const geometry = g => (geometries.add(g), g);
   const material = p => { const m = new THREE.MeshStandardMaterial(p); materials.add(m); return m; };
@@ -343,6 +347,8 @@ export function createWorld(THREE, {width, height}) {
   // Two aged guardians frame the garden. Their irregular courses and capitals are
   // deliberately behind the playable surface, never over the snake's route.
   function column(x,z,h,lean=0){
+    markCameraOccluder(x+lean,1.25,z,1.05);
+    markCameraOccluder(x+h/.56*lean,h+.43,z,.87);
     add(cube,stone,x,.13,z,1.7,.42,1.65);
     for(let j=0;j<Math.ceil(h/.57);j++)add(cube,j%3?stone:darkStone,x+j*lean,.5+j*.56,z,1.05+(j%2)*.07,.54,1.05,0,j%2*.035,lean);
     add(cube,stone,x+h/.56*lean,h+.43,z,1.48,.32,1.43);
@@ -354,12 +360,19 @@ export function createWorld(THREE, {width, height}) {
   const rz=-H-2.05;
   column(-4.8,rz,3.05,.006);column(1.4,rz,3.05,-.008);
   // A real voussoir arch, with a broken upper silhouette rather than a flat lintel.
-  for(let j=0;j<11;j++){const a=Math.PI*j/10;add(cube,stone,-1.7+Math.cos(a)*3.1,3.2+Math.sin(a)*1.62,rz,.88,.67,1.05,0,0,a-Math.PI/2);}
+  for(let j=0;j<11;j++){
+    const a=Math.PI*j/10,x=-1.7+Math.cos(a)*3.1,y=3.2+Math.sin(a)*1.62;
+    add(cube,stone,x,y,rz,.88,.67,1.05,0,0,a-Math.PI/2);
+    markCameraOccluder(x,y,rz,.65);
+  }
   for(let j=0;j<7;j++)rosette(-4.3+j*.83,3.7+Math.sin(j/6*Math.PI)*1.1,rz,.37);
   column(W+1.7,-H+.5,2.1,.05);
   add(cube,stone,-W-1.8,-.2,H-1.7,1.6,.67,2.1,0,.25,.1);
   add(cube,stone,-W-1.9,.2,H-1.9,.9,.45,1.3,0,.4,-.1);
+  markCameraOccluder(-W-1.8,.05,H-1.7,1.15);
   function tree(x,z,h,orientation=1){
+    markCameraOccluder(x+orientation*.22,1.35,z-.08,.8);
+    markCameraOccluder(x+orientation*.5,h-.1,z-.3,2.4);
     const base=new THREE.Vector3(x,-.3,z), mid=new THREE.Vector3(x+orientation*.35,h*.53,z-.12),top=new THREE.Vector3(x+orientation*.5,h,z-.3);
     branch(base,mid,.48);branch(mid,top,.31);
     for(let r=0;r<7;r++){const a=r*.9,tip=new THREE.Vector3(x+Math.sin(a)*1.25,-.33,z+Math.cos(a)*1.05);branch(tip,new THREE.Vector3(x+Math.sin(a)*.25,.5,z+Math.cos(a)*.25),.16);}
@@ -645,5 +658,6 @@ export function createWorld(THREE, {width, height}) {
   }
   function dispose(){if(disposed)return;disposed=true;group.traverse(o=>{if(o.isInstancedMesh)o.dispose();});for(const g of geometries)g.dispose();for(const m of materials)m.dispose();for(const t of textures)t.dispose();group.clear();}
   function stats(){return{staticInstances,staticMeshes,drawObjects:group.children.reduce((n,o)=>n+(o.isMesh?1:o.children.filter(c=>c.isMesh).length),0),geometries:geometries.size,materials:materials.size,textures:textures.size,obstacles:obstacles.count,hazards:hazardBed.count,portalEnds:portalBases.count,disposed};}
-  return{group,update,dispose,stats,propRevision:()=>revision};
+  return{group,update,dispose,stats,propRevision:()=>revision,
+    cameraOccluders:Object.freeze(cameraOccluders)};
 }
