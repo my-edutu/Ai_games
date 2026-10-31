@@ -7,7 +7,7 @@ const smooth=t=>{t=clamp(t,0,1);return t*t*(3-2*t)};
 function roundedGeometry(w,h,d,r=.05){
  const x=w/2-r,y=h/2-r,s=new THREE.Shape();
  s.moveTo(-x,-h/2);s.lineTo(x,-h/2);s.quadraticCurveTo(w/2,-h/2,w/2,-y);s.lineTo(w/2,y);s.quadraticCurveTo(w/2,h/2,x,h/2);s.lineTo(-x,h/2);s.quadraticCurveTo(-w/2,h/2,-w/2,y);s.lineTo(-w/2,-y);s.quadraticCurveTo(-w/2,-h/2,-x,-h/2);
- const bevel=Math.min(r*.45,d*.24),g=new THREE.ExtrudeGeometry(s,{depth:d-bevel*2,bevelEnabled:true,bevelThickness:bevel,bevelSize:bevel,bevelSegments:2,curveSegments:3,steps:1});
+ const refined=w>=.60&&h>=.32,bevel=Math.min(r*.45,d*.24),g=new THREE.ExtrudeGeometry(s,{depth:d-bevel*2,bevelEnabled:true,bevelThickness:bevel,bevelSize:bevel,bevelSegments:refined?4:2,curveSegments:refined?8:3,steps:1});
  g.translate(0,0,-d/2+bevel);return g;
 }
 function leafGeometry(){const s=new THREE.Shape();s.moveTo(0,0);s.bezierCurveTo(.1,.12,.39,.14,.49,.02);s.bezierCurveTo(.3,-.13,.1,-.13,0,0);return new THREE.ExtrudeGeometry(s,{depth:.025,bevelEnabled:true,bevelThickness:.015,bevelSize:.015,bevelSegments:1,curveSegments:5})}
@@ -134,8 +134,11 @@ export function createCharacter(){
   for(const {finger,tip,index} of digits){finger.rotation.x=-performance.fingerCurl*.95;finger.rotation.z=(index-1)*(1-performance.fingerCurl)*.09;tip.rotation.x=-performance.fingerCurl*.75}
   for(const {thumb,side} of thumbs){thumb.rotation.set(-performance.fingerCurl*.45,side*performance.fingerCurl*.30,-side*.25)}
   scarf.rotation.x=performance.scarfBase;scarfMid.rotation.x=performance.scarfMid;scarfTip.rotation.x=performance.scarfTip;
-  drone.position.set(-.72,1.85+performance.companionBob+performance.rewardLift,-.48-(moving?.12:0));
-  drone.rotation.set(performance.companionPitch,.2+performance.gaze*.65,performance.companionBank);
+  // Camera-space separation makes the complete companion readable during turns.
+  // Only its presentation pose changes; the explorer's authority is untouched.
+  const companionAngle=Number.isFinite(motion.companionAngle)?motion.companionAngle:0;
+  drone.position.set(-.86*Math.cos(companionAngle)+.20*Math.sin(companionAngle),1.80+performance.companionBob+performance.rewardLift,.86*Math.sin(companionAngle)+.20*Math.cos(companionAngle));
+  drone.rotation.set(performance.companionPitch,companionAngle,performance.companionBank);
   lanternEye.scale.y=performance.companionEye;lanternLid.position.y=.107-(1-performance.companionEye)*.045;
   fins.forEach((f,i)=>{f.rotation.z=(i?1:-1)*performance.companionFin});
   const supportVisible=Number.isFinite(motion.groundOffset??0),ground=supportVisible?(motion.groundOffset??0):0,height=Math.max(0,-ground);shadow.visible=supportVisible;shadow.position.y=ground+.024;shadow.scale.setScalar(1+height*.16);shadowMaterial.opacity=.32/(1+height*.65);

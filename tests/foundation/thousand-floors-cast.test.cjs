@@ -63,3 +63,20 @@ test('posed cast stays inside the existing horizontal and upper camera envelope'
   c.root.traverse(o=>{if(o.isSkinnedMesh){o.skeleton.update();o.computeBoundingBox();const b=o.boundingBox;assert.ok(b.min.x>=-1.36&&b.max.x<=1.36,action+' x');assert.ok(b.min.z>=-1.36&&b.max.z<=1.36,action+' z');assert.ok(b.max.y<=2.30,action+' y');}});
  }}finally{c.dispose();disposeTree(c.root);}
 });
+
+test('companion stays beside and forward of the explorer from each camera heading',async()=>{
+ const {createCharacter}=await load('character.js');const {disposeTree}=await load('materials.js');const c=createCharacter();
+ try{for(let i=0;i<12;i++){
+  const a=i*Math.PI/6;c.animate('idle',0,true,{companionAngle:a});const p=c.root.getObjectByName('seed-lantern').position;
+  const screenRight=p.x*Math.cos(a)-p.z*Math.sin(a),towardCamera=p.x*Math.sin(a)+p.z*Math.cos(a);
+  assert.ok(screenRight<-.80,'companion hidden behind central silhouette');assert.ok(towardCamera>.15,'companion is behind the face plane');
+  c.root.updateMatrixWorld(true);c.root.traverse(o=>{if(o.isSkinnedMesh){o.skeleton.update();o.computeBoundingBox();const b=o.boundingBox;assert.ok(b.min.x>=-1.36&&b.max.x<=1.36&&b.min.z>=-1.36&&b.max.z<=1.36,'camera envelope');}});
+ }}finally{c.dispose();disposeTree(c.root);}
+});
+test('helmet profile has refined curvature while cast stays within its triangle budget',async()=>{
+ const {createCharacter}=await load('character.js');const {disposeTree}=await load('materials.js');const c=createCharacter();
+ try{const mesh=c.root.getObjectByName('explorer:glazed-ivory'),g=mesh.geometry,index=mesh.skeleton.bones.findIndex(b=>b.name==='head'),normals=new Set();
+  for(let i=0;i<g.attributes.position.count;i++)if(g.attributes.skinIndex.getX(i)===index)normals.add([g.attributes.normal.getX(i),g.attributes.normal.getY(i),g.attributes.normal.getZ(i)].map(x=>x.toFixed(3)).join(','));
+  assert.ok(normals.size>=140,`${normals.size} distinct helmet surface normals: broad faceting remains`);
+ }finally{c.dispose();disposeTree(c.root);}
+});

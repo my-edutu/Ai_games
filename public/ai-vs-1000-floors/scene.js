@@ -211,7 +211,6 @@ export function createFloorScene(canvas,options={}){
    const nextLook=snapshot.layout.route[Math.min(location.index+1,snapshot.layout.route.length-1)]||snapshot.layout.exit;
    const lookHeading=Math.atan2(nextLook.x-position.x,nextLook.z-position.z)-character.root.rotation.y;
    let lastReward=-Infinity;for(const event of snapshot.events||[])if(event.floor===snapshot.floor&&event.type==='collect')lastReward=Math.max(lastReward,event.tick);
-   character.animate(h.action,simulationTime,reduced,{jumpProgress:segmentProgress(position,snapshot.layout.route,location.index),landAge:simulationTime-lastLand/30,groundOffset:Number.isFinite(support)?support-position.y:-Infinity,lookYaw:Math.atan2(Math.sin(lookHeading),Math.cos(lookHeading)),rewardAge:simulationTime-lastReward/30});
    environment.update(snapshot,simulationTime,reduced);
    if(mode==='follow'){
     const fitted=followCamera.update(snapshot,position,dt,first||reduced||delta<=0);
@@ -232,6 +231,7 @@ export function createFloorScene(canvas,options={}){
    const finalFrame=fitCameraToPoints(framing.points,{center:anchor,direction,fov:camera.fov,aspect,safe,minimumDistance:13.5,distanceFloor:cameraDistance});
    camera.position.copy(finalFrame.position);camera.lookAt(finalFrame.target);
    }
+   character.animate(h.action,simulationTime,reduced,{jumpProgress:segmentProgress(position,snapshot.layout.route,location.index),landAge:simulationTime-lastLand/30,groundOffset:Number.isFinite(support)?support-position.y:-Infinity,lookYaw:Math.atan2(Math.sin(lookHeading),Math.cos(lookHeading)),rewardAge:simulationTime-lastReward/30,companionAngle:Math.atan2(camera.position.x-position.x,camera.position.z-position.z)-character.root.rotation.y});
    first=false;
    sun.position.set(position.x-12,position.y+23,position.z+10);sun.target.position.set(position.x,position.y,position.z);
    renderer.render(scene,camera);renderedFrames++;dirty=false;
