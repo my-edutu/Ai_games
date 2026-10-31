@@ -54,3 +54,61 @@ export function selectHandBone(bones,side='right'){
  }
  return best;
 }
+
+/**
+ * Read-only, local additive upper-arm poses for cloned, licensed CC0 GLB rigs.
+ * The original AnimationMixer remains the base motion. These tiny shoulder
+ * offsets are reversible cosmetics (radians) rather than combat authority.
+ */
+function scoreUpperArmBone(bone,side){
+ if(!bone?.isBone||typeof bone.name!=='string')return -1;
+ const raw=bone.name.toLowerCase(),name=raw.replace(/[^a-z0-9]/g,'');
+ if(!name.includes('arm')||/forearm|lowerarm|shoulder|clavicle|twist|roll|hand|finger|elbow/.test(name))return -1;
+ const right=name.includes('right')||/(?:^|[0-9])r(?:upper)?arm/.test(name)||/(?:upper)?armr$/.test(name);
+ const left=name.includes('left')||/(?:^|[0-9])l(?:upper)?arm/.test(name)||/(?:upper)?arml$/.test(name);
+ if(right===left||(side==='right'&&!right)||(side==='left'&&!left))return -1;
+ return (name.includes('upperarm')?120:100)-Math.min(50,name.length)*.01;
+}
+export function selectUpperArmBone(bones,side='right'){
+ if(!Array.isArray(bones)||!['left','right'].includes(side))return null;
+ let best=null,score=-1;
+ for(const bone of bones){const next=scoreUpperArmBone(bone,side);if(next>score){best=bone;score=next;}}
+ return best;
+}
+const ARM_REST=Object.freeze({
+ left:Object.freeze({pitch:0,roll:0}),
+ right:Object.freeze({pitch:0,roll:0})
+});
+const smooth=n=>{const x=Math.max(0,Math.min(1,n));return x*x*(3-2*x)};
+export function planRigArmGesture(kind,action,elapsed=0,reducedMotion=false){
+ if(reducedMotion)return ARM_REST;
+ const t=Number.isFinite(elapsed)?Math.max(0,Math.min(5,elapsed)):0;
+ if(action==='attack'&&t<.58){
+  // Hold the blade for a readable wind-up, accelerate through contact, recover.
+  const wave=t<.12?smooth(t/.12):t<.28?1-1.8*smooth((t-.12)/.16):-.8*(1-smooth((t-.28)/.30));
+  const bow=kind==='ranger';
+  return {
+   left:{pitch:(bow?.17:.10)*wave,roll:.075*wave},
+   right:{pitch:(bow?-.23:.29)*wave,roll:-.11*wave}
+  };
+ }
+ if(action==='cast'&&t<.64){
+  const wave=Math.sin(Math.PI*t/.64);
+  return {
+   left:{pitch:-.30*wave,roll:-.13*wave},
+   right:{pitch:-.36*wave,roll:.13*wave}
+  };
+ }
+ if(action==='hurt'&&t<.38){
+  const wave=Math.sin(Math.PI*t/.38);
+  return {
+   left:{pitch:.08*wave,roll:.12*wave},
+   right:{pitch:.13*wave,roll:-.16*wave}
+  };
+ }
+ if(action==='guard'){
+  const p=smooth(t/.17);
+  return {left:{pitch:.21*p,roll:-.10*p},right:{pitch:.26*p,roll:.10*p}};
+ }
+ return ARM_REST;
+}
