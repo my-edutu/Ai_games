@@ -10,6 +10,18 @@ const clamp01=x=>Math.min(1,Math.max(0,x));
 const ease=x=>{const n=clamp01(x);return n*n*(3-2*n)};
 const REACH=Object.freeze({vanguard:.145,ranger:.055,mystic:.075,revenant:.12,cultist:.06,warden:.13});
 
+/**
+ * Accumulate the authored one-shot's age in *rendered* frames, not elapsed
+ * wall time. A slow software-WebGL/compositor frame must not consume a whole
+ * strike before the camera can show it. Authority ticks and real actions
+ * remain unchanged, and the presentation age cannot exceed five seconds.
+ */
+export function advancePresentationActionAge(elapsed,frameDelta){
+ const current=Number.isFinite(elapsed)?Math.min(5,Math.max(0,elapsed)):0;
+ const step=Number.isFinite(frameDelta)?Math.min(.05,Math.max(0,frameDelta)):0;
+ return Math.min(5,current+step);
+}
+
 export function planAuthoredMotion(kind,action,elapsed=0,reducedMotion=false){
  if(reducedMotion)return rest();
  const t=Number.isFinite(elapsed)?Math.max(0,Math.min(60,elapsed)):0;
