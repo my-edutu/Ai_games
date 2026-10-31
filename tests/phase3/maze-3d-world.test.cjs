@@ -90,6 +90,11 @@ test('a publicly observed locked gate has an unmistakable seal and an open gate 
   assert.ok(lock, 'the gate must have a modeled physical socket, not just a floating key crest');
   assert.equal(lock.userData.keyState, 'unknown', 'an undisclosed key cannot appear to be carried');
   assert.equal(lock.children.length, 6, 'the face is a layered frame, inset and keyhole');
+  assert.ok(lock.position.x >= .5 && lock.position.z >= .14,
+    'the accessible socket sits on the camera-facing side stile, away from the crossed barrier');
+  const keyholeRing = lock.children.find(part => part.geometry?.type === 'TorusGeometry');
+  assert.ok(keyholeRing?.scale.x >= .22,
+    'the physical keyhole must retain enough modeled silhouette for the portrait encounter');
   assert.ok(lock.children.some(part => part.position.z > .7),
     'the readable lock socket must be in front of the crossed seal, facing the camera');
   assert.equal(barrier.getObjectByName('Disclosed matching key emblem'), undefined,
