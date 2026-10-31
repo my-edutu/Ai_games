@@ -73,3 +73,26 @@ test('embedded GLB image decodes in both browser texture loading paths',async({p
  expect(dimensions.image).toEqual(dimensions.bitmap);
  await test.info().attach('embedded-image-decode',{body:Buffer.from(JSON.stringify(dimensions)),contentType:'application/json'});
 });
+
+test('actual live 3D masonry base walls use a shared stone albedo and bounded bump map',async({page})=>{
+ test.setTimeout(120000);
+ const errors=[];page.on('pageerror',error=>errors.push(String(error)));
+ await page.goto('/dungeon');
+ await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.wallMasonry?.mapped??false),{timeout:45000}).toBe(true);
+ const evidence=await page.evaluate(()=>({
+  wallMasonry:window.__DUNGEON_RENDER_DIAGNOSTICS__?.wallMasonry,
+  wallProfiles:window.__DUNGEON_RENDER_DIAGNOSTICS__?.wallProfiles,
+  webgl:window.__DUNGEON_RENDER_DIAGNOSTICS__?.webgl,
+  drawCalls:window.__DUNGEON_RENDER_DIAGNOSTICS__?.drawCalls,
+  triangles:window.__DUNGEON_RENDER_DIAGNOSTICS__?.triangles
+ }));
+ expect(evidence.webgl).toBe(true);
+ expect(evidence.wallMasonry).toMatchObject({size:128,mapped:true,bump:true,bumpScale:.04});
+ expect(evidence.wallProfiles?.totalWalls).toBeGreaterThan(0);
+ expect(evidence.drawCalls).toBeGreaterThan(0);
+ expect(evidence.triangles).toBeGreaterThan(0);
+ expect(errors).toEqual([]);
+ // Genuine running WebGL frame, not a mockup or synthetic image.
+ await page.locator('#world').screenshot({path:'artifacts/dungeon-wall-masonry-round41-world-only.png',timeout:60000});
+ await test.info().attach('round41-masonry-live-diagnostics',{body:Buffer.from(JSON.stringify(evidence,null,2)),contentType:'application/json'});
+});
