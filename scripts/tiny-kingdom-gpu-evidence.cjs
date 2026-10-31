@@ -54,6 +54,29 @@ const path = require('node:path');
     if(evidence.webglVerified&&evidence.materialVertexAttribute<0)throw Error('GPU material attribute was optimized away or omitted');
     if(evidence.materials.vertexStride!==10||evidence.materials.materials.length!==9)
       throw Error('GPU material layout mismatch');
+    // G058: inspect the active fragment shader on real SwiftShader, not just
+    // the source file or a fake feature flag. The new lighting is grass-only.
+    evidence.terrainMicroRelief=await page.evaluate(()=>{
+      const game=window.__tinyKingdom,before=JSON.stringify(game.exportSnapshot());
+      const gl=document.getElementById('world').getContext('webgl');
+      if(!gl)return {active:false,authorityUnchanged:false};
+      const program=gl.getParameter(gl.CURRENT_PROGRAM);
+      const fragment=(gl.getAttachedShaders(program)||[]).find(s=>
+        gl.getShaderParameter(s,gl.SHADER_TYPE)===gl.FRAGMENT_SHADER);
+      const src=fragment?gl.getShaderSource(fragment):'';
+      const grass=src.slice(src.indexOf('if(vMaterial>0.5&&vMaterial<1.5)'),
+        src.indexOf('}else if(vMaterial>1.5&&vMaterial<2.5)'));
+      const road=src.slice(src.indexOf('}else if(vMaterial>2.5&&vMaterial<3.5)'),
+        src.indexOf('}else if(vMaterial>3.5&&vMaterial<4.5)'));
+      return {active:grass.includes('vec3 microNormal=normalize(')&&
+        grass.includes('detailFade=1.-smoothstep(')&&
+        grass.includes('fineLight/baseLight')&&
+        grass.includes('vWorld.xz')&&
+        !road.includes('microNormal'),
+        authorityUnchanged:before===JSON.stringify(game.exportSnapshot())};
+    });
+    if(!evidence.terrainMicroRelief.active||!evidence.terrainMicroRelief.authorityUnchanged)
+      throw Error('G058 active GPU grass normal/fade/isolation gate failed: '+JSON.stringify(evidence.terrainMicroRelief));
     // GPU static vertex upload invariant: camera motion must never re-upload
     // dense terrain and village meshes; only moving agents update per frame.
     // G047: stop authoritative clock before checking static GPU upload count.

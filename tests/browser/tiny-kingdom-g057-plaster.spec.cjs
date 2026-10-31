@@ -28,7 +28,7 @@ test('G057 plaster has its own real GPU material and rain-streak shader without 
  expect(result.surface.vertexStride).toBe(10);
  expect(result.surface.materials).toHaveLength(9);
  expect(result.surface.materials[8]).toBe('PLASTER');
- expect(result.surface.surfaceShaderVersion).toBe('procedural-057');
+ expect(result.surface.surfaceShaderVersion).toBe('procedural-058');
  for(const name of ['housePlasterCream','housePlasterWarm','houseGablePlaster',
   'sidePlasterOak','sidePlasterAsh','sidePlasterLime','sidePlasterSand']){
   const row=result.swatches[name];

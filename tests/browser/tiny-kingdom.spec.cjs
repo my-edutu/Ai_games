@@ -540,7 +540,7 @@ test('Tiny Kingdom material channels allocate exactly ten floats per vertex with
     auth:JSON.stringify(window.__tinyKingdom.exportSnapshot()),
     render:window.__tinyKingdom.renderStats()
   }));
-  expect(a.materials.surfaceShaderVersion).toBe('procedural-057');
+  expect(a.materials.surfaceShaderVersion).toBe('procedural-058');
   expect(a.materials.vertexStride).toBe(10);
   expect(a.materials.materials).toHaveLength(9);
   expect(a.scene.count).toBe(2);
