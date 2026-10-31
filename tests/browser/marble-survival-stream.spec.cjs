@@ -481,7 +481,6 @@ test('Marble WebGL broadcast renders authoritative tournament and captures runti
     const biomeName = state.arena.archetype;
     const biomeCapture = '11-biome-' + biomeName;
     if (!biomeEvidence.has(biomeName)) {
-      biomeEvidence.add(biomeName);
       captures.push(biomeCapture);
     }
     if (state.round.remaining >= 20 && !captured.has('02-large-marble-pack')) captures.push('02-large-marble-pack');
@@ -501,15 +500,31 @@ test('Marble WebGL broadcast renders authoritative tournament and captures runti
     // recording evidence so expensive capture work cannot make Playwright skip entire legal rounds.
     if (captures.length > 0 && state.lifecycle !== 'tournament-result') {
       await operator('pause');
+      const frozenState=await snapshot();
+      // The authority can advance between the pre-pause read and the pause command.
+      // Evidence must never label a newer arena with an older round's name.
+      if (frozenState.arena.id!==state.arena.id ||
+          frozenState.round.index!==state.round.index ||
+          frozenState.lifecycle!==state.lifecycle) {
+        await operator('resume');
+        await page.waitForTimeout(10);
+        continue;
+      }
+      await page.waitForFunction(({arenaId,tick})=>{
+        const root=document.querySelector('.broadcast-shell');
+        return root?.dataset.webglArena===arenaId &&
+          Number(root?.dataset.webglTick)>=tick;
+      },{arenaId:frozenState.arena.id,tick:frozenState.tick},{timeout:5_000});
       if (captures.includes('08-semifinal-final')) await waitForHudRoundAtLeast(4);
       if (captures.includes('11-biome-' + biomeName)) {
         await expect(shell).toHaveAttribute('data-biome', biomeName, { timeout: 3_000 });
         await expect(page.locator('#arena-biome-title')).not.toBeEmpty();
       }
-      if (biomeName==='hazard-circuit' && Array.isArray(state.arena.windZones) && state.arena.windZones.length>0){
-        await expect(shell).toHaveAttribute('data-public-wind-zones', String(state.arena.windZones.length));
+      if (biomeName==='hazard-circuit' && Array.isArray(frozenState.arena.windZones) && frozenState.arena.windZones.length>0){
+        await expect(shell).toHaveAttribute('data-public-wind-zones', String(frozenState.arena.windZones.length));
       }
       for (const name of captures) await capture(name);
+      if (captures.includes(biomeCapture)) biomeEvidence.add(biomeName);
       await operator('resume');
     }
 
