@@ -1174,3 +1174,37 @@ test('Gauntlet 044 farms seasonally rebuild but exclude granary wall from autono
   expect(after.mesh.static.invalidNormals).toBe(0);
   expect(after.mesh.static.invalidColors).toBe(0);
 });
+
+test('Gauntlet 046 architectural identity is actual varied 3D cottage geometry and presentation-only',async({page})=>{
+  const errors=[];page.on('pageerror',e=>errors.push(e.message));
+  await page.setContent(html);
+  await page.waitForFunction(()=>typeof window.__tinyKingdom?.getCottageFacadeStats==='function'&&
+    window.__tinyKingdom.getCottageFacadeStats().homes>=13);
+  await page.locator('#pause').click();
+  const result=await page.evaluate(()=>{
+    const game=window.__tinyKingdom;
+    const snapshot=JSON.stringify(game.exportSnapshot());
+    const facades=game.getCottageFacadeStats();
+    const geometry=game.getGeometryAudit();
+    const uploads=game.renderStats().staticGpuUploads;
+    game.setCamera({focus:[-6,-7],yaw:1.1,pitch:.6,zoom:21});
+    return {facades,geometry,uploads,unchanged:snapshot===JSON.stringify(game.exportSnapshot())};
+  });
+  expect(result.facades.homes).toBe(13);
+  expect(result.facades.styles.length).toBeGreaterThanOrEqual(3);
+  expect(result.facades.plasterPanels).toBe(result.facades.homes*2);
+  expect(result.facades.sideWindows).toBe(result.facades.homes*4);
+  expect(result.facades.diagonalBraces).toBeGreaterThanOrEqual(result.facades.homes*4);
+  expect(result.facades.meshTriangles).toBeGreaterThan(result.facades.homes*100);
+  expect(result.facades.meshTriangles).toBeLessThan(result.facades.homes*450);
+  expect(result.geometry.totalTriangles).toBeLessThan(134000);
+  for(const mesh of [result.geometry.static,result.geometry.dynamic]){
+    expect(mesh.aligned).toBe(true);
+    expect(mesh.invalidComponents).toBe(0);
+    expect(mesh.invalidNormals).toBe(0);
+    expect(mesh.invalidColors).toBe(0);
+    expect(mesh.outOfBounds).toBe(0);
+  }
+  expect(result.unchanged).toBe(true);
+  expect(errors).toEqual([]);
+});
