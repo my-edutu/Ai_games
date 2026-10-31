@@ -171,7 +171,7 @@ test('actual class footprints, spells and character-close camera are inspectable
  // One full-frame capture preserves the real close-camera evidence. A separate
  // world-only test already captures the scene without overlays. Two consecutive
  // software-WebGL captures previously exhausted this test's 60s total budget.
- await page.screenshot({path:'artifacts/dungeon-ranger-close-ui.png',fullPage:true});
+ await page.screenshot({path:'artifacts/dungeon-ranger-close-ui.png',fullPage:false});
  expect(errors).toEqual([]);
 });
 

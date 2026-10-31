@@ -135,7 +135,7 @@
       "round": 19,
       "at": "2026-10-31",
       "commit": "8c29d54cb886f12ba4fd602d57cea078feb6ea6e",
-      "status": "FIRST R19 BROWSER 42/43: 1 SCREENSHOT TIMEOUT; RECHECK PENDING; VISUAL BAR NOT MET",
+      "status": "TWO R19 BROWSER RUNS 42/43, DIFFERENT SOFTWARE-WEBGL SCREENSHOT TIMEOUTS; THIRD RERUN PENDING; VISUAL BAR NOT MET",
       "sampleSeeds": 24,
       "ticksPerSeed": 900,
       "highestFloor": 9,
@@ -152,7 +152,10 @@
         "fullBrowserFailureType": "Playwright second full-page screenshot exceeded 60s test timeout",
         "dedicatedInterfaceTestsPassed": 10,
         "repoSoftwareTestsPassed": 538,
-        "repoBrowserTestsPassed": 15
+        "repoBrowserTestsPassed": 15,
+        "browserRetest2Pass": 42,
+        "browserRetest2Fail": 1,
+        "browserRetest2Issue": "full-page ranger screenshot began ~46s into 60s test budget"
       },
       "verification": {
         "browserRun": null,
@@ -161,7 +164,10 @@
         "firstBrowserRun": 41175209773,
         "visualReviewRun": 41175209789,
         "integratedCIRun": 41175209778,
-        "secondBrowserRun": null
+        "secondBrowserRun": 41175823238,
+        "integratedCIRun2": 41175823240,
+        "visualReviewRun2": 41175823332,
+        "thirdBrowserRun": null
       },
       "nextLargestGap": "Original higher-detail hero/enemy models and authored material/animation quality; actual matched WebGL scene critique required.",
       "artifactUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41175209789/artifacts/13032609012"
