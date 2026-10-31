@@ -297,6 +297,8 @@ function restoreRigArmsBeforeMixer(actor){
  }
 }
 function stageRigArmsAfterMixer(actor,since,reducedMotion){
+ // Keep legacy/no-bone rigs lightweight and compatible with offline fallback.
+ if(!actor.rigUpperArms?.length)return;
  const pose=planRigArmGesture(actor.u.kind,actor.u.action||'idle',since,reducedMotion);
  for(const mount of actor.rigUpperArms||[]){
   const joint=pose[mount.side];
