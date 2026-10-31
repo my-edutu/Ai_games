@@ -1,0 +1,232 @@
+{
+  "updated": "31 October 2026 · iteration 8 / two inspected 3D builds",
+  "verdict": "Iteration 8 · 50 focused + 8 browser checks passed · ASTRO BOT benchmark not passed",
+  "pieces": [
+    {
+      "name": "The 1,000-floor campaign",
+      "state": "Verified",
+      "evidence": "The completed local catalogue run passed 549 tests; all 46 focused Game 4 checks pass locally and in CI. Finite completion, save validation and collision authority are unchanged. The policy still follows one route per floor. A later redundant full-suite rerun timed out; see gaps."
+    },
+    {
+      "name": "Character & living tower",
+      "state": "In review",
+      "evidence": "Iteration 8: two visual revisions, ten bounded inlays and district-specific worn paving. Both game versions have real WebGL screenshots; the final exact-source run 61ba5ec passed 50 Game 4 checks and eight Chromium functional checks. The screen still shows regular square pads and a small character; reference finish remains unmet."
+    },
+    {
+      "name": "Viewer controls & saves",
+      "state": "Verified",
+      "evidence": "Iteration 8 final game source 61ba5ec: 50/50 Game 4 Node tests plus 8/8 actual Chromium functional checks passed in the exact-source Game 4 workflow. Builds passed. High-quality stills from the real replay are available for desktop floors 006/102/403/902 and portrait floor 006. Software-host tests do not establish hardware FPS."
+    }
+  ],
+  "iterations": [
+    {
+      "label": "Baseline · d1678cd",
+      "title": "From a catalogue entry to a real expedition",
+      "summary": "The existing repository named AI vs 1,000 Floors and specified a finite campaign with checkpoints, but had no playable Game 4 runtime. This is the honest starting point.",
+      "verdict": "No visual benchmark result is claimed. First runtime and captures are being prepared."
+    },
+    {
+      "label": "Iteration 1 · actual gameplay",
+      "title": "A working climb, an honest first comparison",
+      "image": "/floors/evidence/iteration-1-desktop.jpg",
+      "summary": "The first real 3D campaign introduced an explorer, companion, seeded platforms, timed hazards and checkpoint progress. The independent critic inspected actual frames and moving traversal beside official ASTRO BOT clips.",
+      "verdict": "Reference preferred. Main gaps: floating primitive scenery, weak material distinction, limited articulation, hazard clarity and portrait framing."
+    },
+    {
+      "label": "Iteration 2 · actual gameplay",
+      "title": "Stronger platform dressing and a clearer portrait HUD",
+      "image": "/floors/evidence/iteration-2-desktop.jpg",
+      "summary": "Added terracotta edging, vegetation, movement interpolation and a low exit beacon; compressed the mobile HUD. Campaign reviews corrected live hazard contact and accepted-save inconsistencies.",
+      "verdict": "Benchmark remains not passed. The scene still needs authored depth, stronger character animation, safe camera framing and fewer draw calls."
+    },
+    {
+      "label": "Iteration 3 · actual gameplay",
+      "title": "An articulated explorer in a more developed tower",
+      "image": "/floors/evidence/iteration-3-desktop.jpg",
+      "summary": "Added a skinned character with expressive joint poses, layered materials, botanical architecture and static geometry batching. Portrait framing improved; a fresh moving review found an upcoming exit entering view too late.",
+      "verdict": "Reference preferred. The critic returned late landing visibility and thin environmental context for another build."
+    },
+    {
+      "label": "Iteration 4 · inspected review candidate",
+      "title": "A connected world, with the next landing in view",
+      "image": "/floors/evidence/iteration-4-desktop.jpg",
+      "video": "/floors/evidence/iteration-4-motion.mp4",
+      "summary": "Added terraced cliff islands, lower galleries and distant settlements. The camera uses the real route cursor, anticipates the following landing and keeps a stable scale. Actual captures include floors 006, 102, 403 and 902. The clip is a compressed recording from a slow software-rendered session; it does not establish hardware frame rate.",
+      "verdict": "The fresh critic no longer reproduced the earlier exit clipping in sampled floor-004 traversal. The benchmark remains not passed: district composition, surface finish and expressive motion still trail the reference.",
+      "links": [
+        {
+          "label": "Portrait view",
+          "url": "/floors/evidence/iteration-4-mobile.jpg"
+        },
+        {
+          "label": "Sunlit Aqueduct",
+          "url": "/floors/evidence/district-2-aqueduct.jpg"
+        },
+        {
+          "label": "Coral Archive",
+          "url": "/floors/evidence/district-5-coral.jpg"
+        },
+        {
+          "label": "Crown of Dawn",
+          "url": "/floors/evidence/district-10-crown.jpg"
+        }
+      ],
+      "videoWebm": "/floors/evidence/iteration-4-motion-fallback.webm"
+    },
+    {
+      "label": "Iteration 5 · interface-only verification",
+      "title": "A quieter HUD, a clearer expedition",
+      "summary": "Replaced the pale full-frame wash with compact dark-green panels and gold progress, improved portrait/short-landscape layouts and added a keyboard-safe Journey dialog. Current floor, cleared floors, district and checkpoint read only the live application output. Settings now have accessible switches. Ten UI-harness checks and six Node server/asset checks pass; the new module is explicitly allowlisted.",
+      "verdict": "Self-reviewed only. The coding workspace was offline; the actual 3D game and independent reference comparison were not rerun. No ASTRO BOT win or production claim.",
+      "links": [
+        {
+          "label": "Scope, tests and remaining gaps",
+          "url": "https://github.com/my-edutu/Ai_games/blob/feat/game4-thousand-floors-gauntlet/docs/gauntlet/thousand-floors/UI-ITERATION-5.md"
+        }
+      ]
+    },
+    {
+      "label": "Iteration 6 · actual WebGL captures",
+      "title": "A different skyline for every district",
+      "summary": "Ten material and lighting palettes, generated surface relief and original district landmarks replace uniform presentation with conservatories, aqueducts, coral vaults and a golden crown. Actual captures cover floors 006, 102, 403 and 902, plus portrait. 535 local catalogue tests, 32 focused checks and six real-game browser tests pass.",
+      "verdict": "Self-reviewed only. Repeated square-pad geometry, distant terrain and character expression remain below the fixed quality bar. The benchmark is not passed.",
+      "links": [
+        {
+          "label": "Inspect current Verdant Atrium",
+          "url": "/floors/?review=6"
+        },
+        {
+          "label": "Inspect current Sunlit Aqueduct",
+          "url": "/floors/?review=102"
+        },
+        {
+          "label": "Inspect current Coral Archive",
+          "url": "/floors/?review=403"
+        },
+        {
+          "label": "Inspect current Crown of Dawn",
+          "url": "/floors/?review=902"
+        },
+        {
+          "label": "Actual screenshots and source record (7-day CI retention)",
+          "url": "https://github.com/my-edutu/Ai_games/actions/runs/41164336812/artifacts/13029195358"
+        },
+        {
+          "label": "Verification and visual self-review",
+          "url": "https://github.com/my-edutu/Ai_games/blob/feat/game4-thousand-floors-gauntlet/docs/gauntlet/thousand-floors/ITERATION-6.md"
+        }
+      ]
+    },
+    {
+      "label": "Iteration 7.1 · cast and stage",
+      "title": "Articulated hands, a living scarf, ten different supports",
+      "summary": "Source 9e2b387 adds distinct face/hand/companion poses and replaces repeated solid pillars with district-specific architectural forms. The original landing rectangles and authoritative route remain unchanged. Actual game capture and isolated cast inspection exposed flat metal response.",
+      "verdict": "Self-review returned material lighting for another build. No independent benchmark judgment.",
+      "links": [
+        {
+          "label": "Actual-game check and capture run",
+          "url": "https://github.com/my-edutu/Ai_games/actions/runs/41167096967"
+        }
+      ]
+    },
+    {
+      "label": "Iteration 7.2 · material correction",
+      "title": "Giving copper and enamel a readable light response",
+      "summary": "Source 726e570 adds one original bounded HDR reflection field per active district. New actual-game and cast captures showed better material response, but still exposed a faceted helmet and a companion partly hidden behind it.",
+      "verdict": "Self-review returned helmet curvature and companion separation. Reference bar unchanged.",
+      "links": [
+        {
+          "label": "Reflection-pass browser run",
+          "url": "https://github.com/my-edutu/Ai_games/actions/runs/41167680491"
+        }
+      ]
+    },
+    {
+      "label": "Iteration 7.3 · inspected current source",
+      "title": "Both characters readable, without sacrificing the next landing",
+      "summary": "Source 99f4131 smooths large cast forms and places the companion beside the explorer in camera space. 549 local tests, 46 focused checks and eight actual-game Chromium checks pass. Inspected actual captures include floors 006, 102, 403, 902 and portrait; separate studio cast images are fixtures, not gameplay. The raw software recording is slow and includes viewport changes.",
+      "verdict": "Benchmark not passed. Self-review only; no fresh independent critic or blind reference preference score. Repeated square tops, sparse terrain, cast scale and continuous-motion finish remain substantial gaps.",
+      "links": [
+        {
+          "label": "Open current running game",
+          "url": "/floors/"
+        },
+        {
+          "label": "Full-resolution captures and recording (retained to 7 Nov)",
+          "url": "https://github.com/my-edutu/Ai_games/actions/runs/41168794874/artifacts/13030193138"
+        },
+        {
+          "label": "Exact-source browser checks",
+          "url": "https://github.com/my-edutu/Ai_games/actions/runs/41168794874"
+        },
+        {
+          "label": "Scope, review decisions and reproduction",
+          "url": "https://github.com/my-edutu/Ai_games/blob/feat/game4-thousand-floors-gauntlet/docs/gauntlet/thousand-floors/ITERATION-7.md"
+        }
+      ]
+    },
+    {
+      "label": "Iteration 8.1 · actual WebGL surfaces",
+      "title": "Distinct inlaid landings across ten districts",
+      "summary": "Commit 480ed03 adds ten deterministic, bounded inlay ornaments, colored frames and contextual engravings on existing landing rectangles. All 48 focused Game 4 checks passed locally. GitHub Actions ran the actual Game 4 build and WebGL capture, including desktop floors 006/102/403/902 and portrait floor 006. The central hazard and route zones remain unobscured in the inspected first-district sample.",
+      "verdict": "Self-review: the engravings are visible, but stone interiors still repeated the same square grid. Returned the paving textures to the builder for another pass. ASTRO BOT benchmark still not passed.",
+      "links": [
+        {
+          "label": "Actual WebGL captures and motion (7-day CI retention)",
+          "url": "https://github.com/my-edutu/Ai_games/actions/runs/41171538178/artifacts/13031328311"
+        },
+        {
+          "label": "Exact-source Game 4 CI run",
+          "url": "https://github.com/my-edutu/Ai_games/actions/runs/41171538178"
+        }
+      ]
+    },
+    {
+      "label": "Iteration 8.2 · authored paving texture",
+      "title": "Weathered masonry instead of repeated white squares",
+      "summary": "Final source 61ba5ec adds ten deterministic masonry cuts, worn stone patina, darker grout, and seam-matched relief/roughness without new texture allocations or campaign changes. The final exact-source Game 4 workflow passed 50 focused Node checks and eight actual-game Chromium checks. High-quality WebGL screenshots were captured for floors 006, 102, 403 and 902 plus portrait floor 006; they are actual game frames, not a texture-only mockup.",
+      "verdict": "Author self-review compared final real game frames with iteration 7 and the first inlay pass. District paving and borders are more distinct, but square platforms, distant scene density, character screen scale and animation finish still trail ASTRO BOT. The comparisons were not blind and the hero ticks differ. Fixed benchmark NOT passed.",
+      "links": [
+        {
+          "label": "Final actual gameplay captures and recorded motion (7-day retention)",
+          "url": "https://github.com/my-edutu/Ai_games/actions/runs/41172411299/artifacts/13031476963"
+        },
+        {
+          "label": "50 focused tests + 8 real Chromium tests (exact source)",
+          "url": "https://github.com/my-edutu/Ai_games/actions/runs/41172411299"
+        },
+        {
+          "label": "Iteration-8 source, review and limitations",
+          "url": "https://github.com/my-edutu/Ai_games/blob/feat/game4-thousand-floors-gauntlet/docs/gauntlet/thousand-floors/ITERATION-8.md"
+        }
+      ]
+    }
+  ],
+  "references": [
+    {
+      "name": "ASTRO BOT",
+      "url": "https://www.playstation.com/en-us/games/astro-bot/",
+      "role": "Primary: fully realized characters, animation, environments, camera clarity and feedback. Actual Spring-Loaded Run and Rising Heat gameplay clips are the comparison sources."
+    },
+    {
+      "name": "Luigi’s Mansion 3",
+      "url": "https://www.nintendo.com/us/store/products/luigis-mansion-3-switch/",
+      "role": "Distinct floor identities through architecture, dressing, staging and light."
+    },
+    {
+      "name": "Returnal · Tower of Sisyphus",
+      "url": "https://store.steampowered.com/app/1649240/Returnal/",
+      "role": "Tower presentation, spatial depth and readable action."
+    }
+  ],
+  "gaps": [
+    "The fixed ASTRO BOT gameplay bar remains not passed. No blind A/B preference win or independent critic is claimed.",
+    "The 3D character is still small in the follow camera; larger scale risks hiding landings. Camera-size versus route visibility requires a new independent review.",
+    "Despite differentiated paving, landing footprints are still square and distant architecture and terrain remain sparse. Full environments and continuous animation are below the reference finish.",
+    "Ultracode and independent fresh-context workers were unavailable in the connected workspace; this iteration is explicitly author self-review.",
+    "The final Game 4 source passed 50 focused Node tests and eight real Chromium browser tests, and both builds passed. Local npm test for the entire games catalogue timed out after 175 passing subtests without a summary, so no new full-catalogue pass is claimed.",
+    "On the shared software GPU, a captured diagnostic frame gap reached 2,483ms. Final stills report 31 textures and 101–211 scene draw calls. These are not hardware FPS or performance readiness measurements.",
+    "Hardware FPS, long production GPU-memory soak, comprehensive accessibility/audio listening and full live audience operation remain unverified. The toolchain previously reported two high-severity npm audit findings.",
+    "Progress data automatically refreshes every five seconds while the page is open; it is not an unattended agent/builder scheduler. PR #55 remains draft and no deployment or merge is claimed."
+  ]
+}

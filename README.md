@@ -7,7 +7,7 @@ This monorepo builds a catalogue of autonomous games for uninterrupted YouTube a
 1. Autonomous Snake
 2. AI Maze Escape
 3. Infinite Tower Climb
-4. AI vs 1,000 Floors
+4. [AI vs 1,000 Floors — THOUSAND](games/ai-vs-1000-floors/README.md)
 5. AI Civilization / Tiny Kingdom
 6. AI Battle Royale
 7. Marble Survival Tournament
@@ -36,7 +36,8 @@ Seeded authoritative simulation
 |---|---:|---:|---|---|
 | Autonomous Snake | 6 / 6 | R4 evidence-gated candidate | R4 | External R5 evidence blocked |
 | AI Maze Escape | 6 / 6 | **88 / 100** | R4 | External R5 evidence blocked |
-| Games 3–12 | Documentation/specification packages | Not scored | Pre-implementation | Not production ready |
+| AI vs 1,000 Floors (Game 4) | Playable 3D Gauntlet candidate | Reference benchmark not passed | Under active review | Not production ready |
+| Other catalogue games | See each game's implementation evidence | Not scored here | Game-specific | See each game's readiness record |
 
 No game is labelled R5 merely because code merged or CI passed. Production readiness requires exact-candidate primary evidence, real elapsed operation, current credentialed providers, external review, independently witnessed drills, and a guarded canary.
 
@@ -48,7 +49,7 @@ The reviewed runtime candidate passed 251 / 251 Node tests and 8 / 8 catalogue C
 
 ## Documentation contract
 
-Every game has product requirements, game design, autonomous AI, viewer interaction, audiovisual direction, technical architecture, testing strategy, production-readiness gates, and six executable implementation phases. Reusable specialist skills live under `skills/`; shared architecture and standards live under `docs/`; reproducible phase evidence lives under `evidence/`.
+Every game has product requirements, game design, autonomous AI, viewer interaction, audiovisual direction, technical architecture, testing strategy, production-readiness gates, and executable implementation phase plans. Reusable specialist skills live under `skills/`; shared architecture and standards live under `docs/`; reproducible phase evidence lives under `evidence/`.
 
 ## Safe audience influence
 

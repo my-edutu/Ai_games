@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#102629">
+  <meta name="description" content="One small explorer. One thousand floors. Watch an autonomous ascent through a living sky tower.">
+  <title>THOUSAND · AI vs 1,000 Floors</title>
+  <link rel="stylesheet" href="./styles.css">
+  <script type="importmap">{"imports":{"three":"/floors/vendor/three.module.js"}}</script>
+</head>
+<body>
+  <canvas id="game-canvas" aria-label="Live three-dimensional view of an autonomous explorer climbing the tower"></canvas>
+  <div class="screen-wash" aria-hidden="true"></div>
+  <main id="hud" aria-label="Ascent progress">
+    <header class="masthead">
+      <div class="wordmark"><span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M5 27 16 5l11 22M10 21h12M13 15h6"/></svg></span><div><h1>THOUSAND<span class="brand-period">.</span></h1><p>AI vs 1,000 Floors</p></div></div>
+      <div class="header-actions"><div class="live-label"><span class="live-dot"></span><span id="run-state">AUTONOMOUS ASCENT</span></div>
+        <button id="journey-button" type="button" aria-haspopup="dialog" aria-controls="journey-dialog" disabled><svg aria-hidden="true" viewBox="0 0 24 24"><path d="m3 5 6-2 6 2 6-2v16l-6 2-6-2-6 2ZM9 3v16M15 5v16"/></svg><span>Journey</span></button>
+      </div>
+    </header>
+    <section class="progress" aria-label="Floor progress">
+      <p class="eyebrow">DISTRICT <span id="district-index">01 — 10</span></p>
+      <div class="floor-display"><span class="floor-unit">FLOOR</span><strong id="floor-number">001</strong><span class="floor-total">/ 1,000</span></div>
+      <h2 id="district-name">Verdant Atrium</h2>
+      <p class="goal">One explorer. A thousand floors.</p>
+      <div class="progress-track" role="progressbar" aria-label="Floors cleared" aria-valuemin="0" aria-valuemax="1000" aria-valuenow="0"><span id="progress-fill"></span></div>
+      <p class="checkpoint"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M6 21V3m0 1h12l-3 4 3 4H6"/></svg> <span id="checkpoint-label">Checkpoint · Floor 001</span></p>
+    </section>
+    <div id="milestone" class="milestone" role="status" hidden></div>
+    <footer class="bottom-hud">
+      <section class="intent-block" aria-label="Explorer status"><span class="agent-orb" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="4" y="6" width="16" height="13" rx="5"/><path d="M12 6V3M9 12v2m6-2v2"/></svg></span><div><p class="eyebrow" id="intent-caption">EXPLORER / LIVE INTENT</p><p id="intent">Finding a way up.</p></div></section>
+      <nav class="controls" aria-label="Playback controls">
+        <button id="pause-button" type="button" aria-label="Pause ascent" title="Pause ascent (Space)"><span id="pause-icon" aria-hidden="true">Ⅱ</span><span id="pause-label">Pause</span></button>
+        <button id="speed-button" type="button" aria-label="Playback speed: 1 times" title="Change playback speed"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="m4 6 8 6-8 6Zm9 0 8 6-8 6Z"/></svg><span id="speed-label">1×</span></button>
+        <button id="camera-button" type="button" aria-label="Camera: follow" title="Change camera (C)"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M8 6 10 3h4l2 3h4v14H4V6Z"/><circle cx="12" cy="12" r="4"/></svg><span id="camera-label">Follow</span></button>
+        <button id="sound-button" type="button" aria-pressed="false" aria-label="Enable sound" title="Toggle sound (M)"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="m11 4-6 5H2v6h3l6 5Z"/><path id="sound-waves" d="m17 9 5 6m0-6-5 6"/></svg><span id="sound-label">Sound off</span></button>
+        <button id="settings-button" type="button" aria-label="Open settings" title="Settings"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M4 7h16M4 17h16"/><circle cx="9" cy="7" r="3"/><circle cx="15" cy="17" r="3"/></svg><span class="settings-text">Settings</span></button>
+      </nav>
+    </footer>
+    <p id="save-note" class="save-note" role="status"></p>
+  </main>
+  <section id="loading-state" class="state-overlay" aria-live="polite">
+    <div class="state-card"><span class="state-mark" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M5 27 16 5l11 22M10 21h12M13 15h6"/></svg></span><p class="eyebrow">EXPEDITION / THOUSAND</p><h2 id="state-title">The ascent is waking.</h2><p id="state-message">Preparing your explorer and a little piece of sky.</p><button id="retry-button" type="button" hidden>Try again</button><button id="fresh-button" type="button" hidden>Start fresh</button></div>
+  </section>
+  <dialog id="settings-dialog" aria-labelledby="settings-title">
+    <form method="dialog" class="dialog-header"><div><p class="eyebrow">VIEWING PREFERENCES</p><h2 id="settings-title">Ascent settings</h2></div><button type="submit" class="close-button" aria-label="Close settings">×</button></form>
+    <label class="setting-row"><span><strong>Reduced motion</strong><small>Gentler movement and effects.</small></span><input id="reduced-motion" type="checkbox" role="switch"></label>
+    <label class="setting-row"><span><strong>Scene quality</strong><small>Lower detail uses less graphics power.</small></span><select id="quality-select"><option value="high">High</option><option value="low">Low</option></select></label>
+    <label class="setting-row"><span><strong>Clean feed</strong><small>Let the world fill the screen.</small></span><input id="clean-feed" type="checkbox" role="switch"></label>
+    <div class="recovery-settings"><h3>A fresh footing</h3><p id="recovery-description">Return to your last checkpoint to retrace the route.</p><button id="recover-button" type="button">Return to checkpoint</button><button id="restart-button" class="quiet-button" type="button">Restart ascent…</button></div>
+    <div id="restart-confirmation" class="confirmation" hidden><p>Start again at Floor 001? This replaces your saved ascent.</p><div><button id="cancel-restart" type="button">Keep climbing</button><button id="confirm-restart" class="danger-button" type="button">Start fresh</button></div></div>
+    <p class="keyboard-help">Space · pause &nbsp; C · camera &nbsp; M · sound &nbsp; Esc · close</p>
+  </dialog>
+  <dialog id="journey-dialog" aria-labelledby="journey-title" aria-describedby="journey-summary">
+    <form method="dialog" class="dialog-header"><div><p class="eyebrow">YOUR EXPEDITION</p><h2 id="journey-title">The way to the crown.</h2></div><button type="submit" class="close-button" aria-label="Close journey">×</button></form>
+    <p id="journey-summary">Follow the explorer through ten districts and 1,000 floors.</p>
+    <div class="journey-overview">
+      <div class="journey-ring" aria-hidden="true"><svg viewBox="0 0 100 100"><circle class="ring-track" cx="50" cy="50" r="43"/><circle id="journey-ring-fill" cx="50" cy="50" r="43" pathLength="100"/></svg><strong id="journey-percent">—</strong></div>
+      <div><p class="eyebrow">CURRENT FLOOR</p><p class="journey-floor"><strong id="journey-floor">—</strong><span>/ 1,000</span></p><p id="journey-district">Waiting for the explorer.</p></div>
+    </div>
+    <dl class="journey-stats"><div><dt>Floors cleared</dt><dd id="journey-cleared">—</dd></div><div><dt>Recovery point</dt><dd id="journey-checkpoint">—</dd></div></dl>
+    <h3 class="route-title">Ten districts. One summit.</h3>
+    <ol id="district-route" class="district-route" aria-label="District progress"></ol>
+    <p id="journey-save" class="journey-save"></p>
+    <form method="dialog" class="journey-footer"><button type="submit">Back to the ascent <span aria-hidden="true">↗</span></button></form>
+  </dialog>
+  <noscript><div class="noscript">This ascent needs JavaScript. Enable it and reload to meet your explorer.</div></noscript>
+  <script type="module" src="./app.js"></script>
+  <script type="module" src="./interface.js"></script>
+</body>
+</html>
