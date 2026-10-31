@@ -806,6 +806,27 @@
         "documentation": "docs/reviews/AI_DUNGEON_GAUNTLET_ROUND_032.md"
       },
       "nextLargestGap": "Anatomically convincing high-resolution hero/enemy 3D models and hand/weapon animation, large dark empty composition, too-bright ring effects; independently measured mobile GPU p95/soak and blind matched reference gameplay."
+    },
+    {
+      "round": 36,
+      "at": "2026-10-31",
+      "commit": null,
+      "status": "TDD FEATURE PUSHED; EXACT-HEAD BROWSER, REPO CI AND VISUAL JUDGEMENT PENDING; DIABLO IV BAR NOT MET",
+      "visualVerdict": "Cloth deformation is a small presentation-only hypothesis; actual matched Chromium frame not yet inspected for this commit. No AAA parity or independent A/B.",
+      "evidenceMetrics": {
+        "newFocusedDeformationTests": 3,
+        "shaderChanges": 0,
+        "authoritativeChanges": 0,
+        "maximumPlannedClothDisplacementMeters": 0.16,
+        "independentBlindComparison": false
+      },
+      "verification": {
+        "freshBrowserRun": null,
+        "freshRepoCI": null,
+        "independentReview": false,
+        "productionReady": false
+      },
+      "nextLargestGap": "True high-detail rigged character meshes with contact-aligned weapon animation and material richness; still requires real multi-seed camera/screenshot critique and GPU percentile/soak."
     }
   ]
 }

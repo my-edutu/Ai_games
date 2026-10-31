@@ -64,3 +64,34 @@ export function planDrapeSwing(action,elapsed=0,reducedMotion=false){
  }
  return STILL;
 }
+
+/**
+ * A bounded cloth-vertex displacement, evaluated only by the renderer.
+ * Pin the shoulder seam. The hem lags an authoritative action and then
+ * settles; never integrates velocity or alters imported GLB skeletons.
+ * Pure and replay-independent: no RNG, timer, allocation of world objects.
+ */
+const REST_BEND=Object.freeze({x:0,y:0,z:0});
+export function planDrapeVertexBend(row,column,action,elapsed=0,reducedMotion=false){
+ if(reducedMotion||!Number.isFinite(row)||!Number.isFinite(column))return REST_BEND;
+ const r=Math.max(0,Math.min(1,row)),u=Math.max(0,Math.min(1,column));
+ if(r===0)return REST_BEND;
+ const t=Number.isFinite(elapsed)?Math.max(0,Math.min(60,elapsed)):0;
+ let amplitude=0,frequency=2;
+ switch(action){
+  case 'idle':amplitude=.014;frequency=1.9;break;
+  case 'move':amplitude=.115;frequency=8;break;
+  case 'attack':amplitude=t<.62?.145*Math.sin(Math.PI*t/.62):0;frequency=7;break;
+  case 'cast':amplitude=t<.68?-.098*Math.sin(Math.PI*t/.68):0;frequency=5;break;
+  case 'hurt':amplitude=t<.42?-.118*Math.sin(Math.PI*t/.42):0;frequency=9;break;
+  case 'guard':amplitude=t<.48?.039*Math.sin(Math.PI*t/.48):0;frequency=4;break;
+  default:return REST_BEND;
+ }
+ if(amplitude===0)return REST_BEND;
+ const weight=r*r,phase=t*frequency-r*1.4+u*2.4;
+ return{
+  x:weight*amplitude*.19*Math.sin(phase*.81),
+  y:-weight*Math.abs(amplitude)*.09*(.6+.4*Math.cos(phase)),
+  z:weight*amplitude*(.64+.36*Math.sin(phase))
+ };
+}
