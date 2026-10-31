@@ -1,14 +1,14 @@
 {
-  "updatedAt": "2026-10-31T18:18:13.582Z",
-  "status": "Round 33 · bounded diffuse overview facial palette staged; WebGL A/B, full CI and 17-real-render gate pending",
-  "detail": "Exact Round32 parent 1cd9df8. Original detailed face retains all materials and geometry; preallocated Lambert material variants for overview reduce unnecessary far-shot PBR. New 140-view-toggle Node and SHA1 baseline true-WebGL screenshot regressions added; they are not yet verified by CI. Round32 actual focused 21/22 with 8 submitted frames/1003.9ms < unchanged 17 gate. Whole-game official Snake Pass art/motion remains LOSE; no independent critic, real-device presents, soak or R5. Never merge/deploy.",
+  "updatedAt": "2026-10-31T18:24:39.556Z",
+  "status": "Round 33 · exact-source Node/host and true WebGL overview/detail A/B verified; strict desktop pacing FAIL 10/17",
+  "detail": "Exact serpent blob 6d0dd9003 matching PR #52 commit 36a03e1, offline workflow source checksum verified. Local build, all 63 focused Snake Node, host authority/recovery self-test PASS; real Chromium/SwiftShader 22/23 browser PASS incl. new SHA1 baseline overview/detail A/B. Overview only 84/614400 face pixels changed (max 4/255), close detail PNG byte-identical. Strict actual submitted render 10/1013.6ms <17 FAIL; ~61 RAF and encoded video fps do not count. General CI 41228769294 still running. Whole-game visual and motion reference LOSE; independent critic, sustained display present, soak, R5 outstanding.",
   "latestImage": "/progress/evidence/round-9-overview.jpg",
-  "latestCaption": "Historical prior-round WebGL image, NOT Round33. True before/after Round33 screenshots are pending from exact-source browser CI.",
+  "latestCaption": "Historical older-round real WebGL image, not Round33. For exact current Round33 old/new PNGs, use its source artifact link in the chronological round.",
   "reviews": [
     {
       "area": "Round 33 · existing sculpted face diffuse overview LOD",
-      "verdict": "EXACT SOURCE STAGED · TESTS/BROWSER A/B PENDING · STRICT 8/17 PRIOR FAIL · COMMERCIAL WHOLE-GAME LOSE",
-      "gap": "Current eye/cheek/jaw geometry is unchanged and original detail PBR returns in close view. New low-detail shader palette must prove its actual WebGL picture and stable resource counts in CI; strict 17 actual frame-submissions threshold and independent visual/motion critique still open."
+      "verdict": "EXACT SOURCE NODE 63/63 + HOST SELF-TEST + TRUE WEBGL A/B VERIFIED · STRICT 10/17 FAIL · WHOLE-GAME REFERENCE LOSE",
+      "gap": "Actual focused Chromium 22/23; controlled previous-source same frozen 960x640 comparison shows only 84 changed tiny overview face pixels, 0 detailed pixels. No causal speedup, performance gate 10/1013.6ms vs >=17; general CI ongoing, independent reference critique, device present frames, soak/R5 absent."
     },
     {
       "area": "Round 32 · physical courtyard slab corner geometry",
@@ -542,11 +542,29 @@
     },
     {
       "title": "Round 33 · bounded low-detail facial-surface shader palette",
-      "summary": "Preallocated original-color Lambert equivalents for overview face, leaving cinematic PBR, geometry, jade/cream cheeks, glints, authoritative snake path and accessibility untouched. Exact-parent SHA1 frozen Chromium/SwiftShader visual A/B and 140-switch Node regressions authored; pending new CI/runtime capture. Previous strict pacing 8 actual render submissions/1003.9ms <17. No measured speedup, fresh independent critic or whole-game Snake Pass win yet.",
-      "captures": []
+      "summary": "Exact SHA256 verified source: build + 63/63 Snake Node + host authority/recovery PASS. Real Chromium focused 22/23, old/new overview 84 tiny face pixels change, detail byte-identical; original PBR intact. 10 actual render submissions/1013.6ms < 17 FAIL; no causal FPS or official Snake Pass win. General CI browser pending, independent/device/soak/R5 open.",
+      "captures": [
+        {
+          "label": "Actual 960x640 frozen overview/detail true WebGL before/after, real live screenshots, traces and 22/23 results",
+          "path": "https://github.com/my-edutu/Ai_games/actions/runs/41228769206/artifacts/13052866911"
+        },
+        {
+          "label": "Actual 18.64-second gameplay motion WebM (25fps encoding not render FPS)",
+          "path": "https://github.com/my-edutu/Ai_games/actions/runs/41228769206/artifacts/13053051679"
+        },
+        {
+          "label": "Actual submitted-frame / GPU metrics from same real browser run",
+          "path": "https://github.com/my-edutu/Ai_games/actions/runs/41228769206/artifacts/13053131620"
+        },
+        {
+          "label": "Full Round33 written verification and visual critique",
+          "path": "https://github.com/my-edutu/Ai_games/blob/feat/autonomous-snake-3d-gauntlet/docs/reviews/snake-gauntlet/round33-face-overview-diffuse.md"
+        }
+      ]
     }
   ],
   "checks": [
+    "Round33 current true Chromium SwiftShader focused 41228769206 22/23 browser PASS, exact SHA1 before/after low-detail face PASS. Overview 84/614400 changed face pixels (max4/255), detail 0, original geometry/maps preserved. Strict desktop 10 actual submitted WebGL frames/1013.6ms <17 FAIL (~61 RAF not FPS). Local exact SHA verified build+63/63 Node+host self-test PASS. General run 41228769294 browser pending.",
     "Round33 exact-parent 1cd9df8 new low-detail facial shader palette/test candidate. Current Node/full-build/browser screenshot/strict 17-real-render FPS pending exact-source CI. Round32 focused 41227381849 passed 21/22, strict desktop 8 actual WebGL submits/1003.9ms FAIL. Do not count ~61 RAF callbacks or captured-video fps as GPU/display presents.",
     "Round30 source 3ad6b8c focused run 41222574598: 19/20 browser PASS including true-WebGL saddle A/B; strict desktop FAIL 6 actual submissions/1001.2ms vs >=17, ~60.93 RAF callbacks/s not drawn/display-present FPS. Frozen 960x640 before/after 4064 pixels changed, x193–430/y269–361; small body-pigment change only. General run 41222574536 in progress at last check.",
     "Round31 original world 97039edc: new quarry-light regression RED on original; GREEN on edited source. 61/61 focused Snake Node PASS and TypeScript build PASS; browser test SHA-verifies old world and captures real Chromium WebGL before/after on exact public frame, pending live CI. No visual acceptance or strict-performance win claimed.",
