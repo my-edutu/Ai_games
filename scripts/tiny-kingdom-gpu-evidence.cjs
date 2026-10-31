@@ -107,7 +107,7 @@ const path = require('node:path');
     if(evidence.meadow.clusters<240||evidence.meadow.triangles!==evidence.meadow.clusters*8||!evidence.meadow.cached)
       throw Error('Gauntlet 034 meadow budget or static-cache contract failed');
     if(evidence.visualHud.worldFilter!=='none'||evidence.visualHud.headingPx<25||
-       !evidence.visualHud.panelGradient||evidence.visualHud.navigationChoices!==6)
+       !evidence.visualHud.panelGradient||evidence.visualHud.navigationChoices!==7)
       throw Error('Gauntlet 033 visual HUD contract failed');
     evidence.errors=errors;
     await page.screenshot({path:path.join(out,'day1.png'),fullPage:true,timeout:90000});
@@ -220,8 +220,8 @@ const path = require('node:path');
       {name:'stone-bridge.png',camera:{focus:[-6,18.1],yaw:.84,pitch:.64,zoom:26}},
       {name:'riverbank-close.png',camera:{focus:[-12,19],yaw:.66,pitch:.48,zoom:17}},
       {name:'guild-forge.png',camera:{focus:[19,-15],yaw:.78,pitch:.57,zoom:23}},
-      {name:'farmstead-wide.png',camera:{focus:[23,1],yaw:.72,pitch:.54,zoom:27}},
-      {name:'granary-close.png',camera:{focus:[29,-5],yaw:.68,pitch:.40,zoom:17}},
+      {name:'farmstead-wide.png',camera:{focus:[23,1],yaw:3.86,pitch:.56,zoom:25}},
+      {name:'granary-close.png',camera:{focus:[29,-5],yaw:3.05,pitch:.50,zoom:18}},
     ]){
       await page.evaluate(camera=>window.__tinyKingdom.setCamera(camera),shot.camera);
       await page.waitForTimeout(400);
