@@ -128,4 +128,65 @@ test('a real close public encounter frames both autonomous actors and saves date
       quality: observedDiagnostic.quality, frameP50Ms: observedDiagnostic.frameP50Ms},
     caveat: 'Known connection only, not safety; CPU-throttled CI software rendering; independent visual acceptance pending.',
   }, null, 2));
+
+  // Render and preserve the *actual props* still missing from the visual
+  // review. Both samples are selected from the same deterministic production
+  // exploration sequences above; neither is a staged/invented world state.
+  const keySample = objectiveSamples.find(sample => sample.goal.kind === 'key'
+    && sample.frame.snapshot.keys.some(key => key.cell === sample.goal.cell && !key.collected));
+  expect(keySample, 'Production public exploration must reveal an uncollected reachable key').toBeTruthy();
+  activeFrame = keySample.frame;
+  await page.goto(base + '/maze?reducedMotion=1', { waitUntil: 'domcontentloaded' });
+  await page.waitForFunction(({tick, token}) => window.__MAZE_3D__?.frames >= 3
+    && window.__MAZE_3D__?.tick === tick && window.__MAZE_3D__?.runToken === token,
+    {tick: activeFrame.snapshot.tick, token: activeFrame.snapshot.runToken});
+  const keyDiagnostic = await page.evaluate(() => window.__MAZE_3D__);
+  expect(keyDiagnostic.keysInFrame, 'The actual uncollected key mesh must be inside the camera').toBeGreaterThan(0);
+  expect(keyDiagnostic.objectiveCue?.kind).toBe('key');
+  const keyImage = path.join(dir, 'known-key.png');
+  await page.screenshot({path: keyImage, fullPage: true});
+  fs.writeFileSync(path.join(dir, 'known-key.json'), JSON.stringify({
+    capturedAt: new Date().toISOString(), seed: keySample.seed,
+    source: 'Unaltered production MazeRuntime public frame rendered in the actual browser',
+    tick: activeFrame.snapshot.tick, publicKey: keySample.goal,
+    imageSha256: hash(keyImage),
+    sourceSha256: Object.fromEntries(['app.js', 'map-view.mjs', 'scene.js', 'world.js'].map(name => [name, hash(path.join(sourceDir, name))])),
+    diagnostic: {keysInFrame: keyDiagnostic.keysInFrame, objectiveCue: keyDiagnostic.objectiveCue,
+      quality: keyDiagnostic.quality, frameP50Ms: keyDiagnostic.frameP50Ms},
+    caveat: 'No disclosed path guarantees safety; CPU-throttled software render, not independent benchmark acceptance.',
+  }, null, 2));
+
+  const sealedSamples = sequences.flat().map(sample => {
+    const s = sample.frame.snapshot, known = new Set(s.cells.map(cell => cell.cell));
+    const doors = s.doors.filter(door => !door.open && (known.has(door.a) || known.has(door.b)));
+    const distance = doors.length ? Math.min(...doors.map(door => Math.min(...[door.a, door.b]
+      .filter(cell => known.has(cell)).map(cell =>
+        Math.abs(cell % s.width - s.currentCell % s.width)
+        + Math.abs(Math.floor(cell / s.width) - Math.floor(s.currentCell / s.width))))))
+      : Infinity;
+    return {...sample, distance, doors};
+  }).filter(sample => sample.frame.snapshot.lifecycle === 'running' && sample.distance <= 2)
+    .sort((a, b) => a.frame.snapshot.threats.length - b.frame.snapshot.threats.length
+      || a.distance - b.distance || b.frame.snapshot.cells.length - a.frame.snapshot.cells.length);
+  expect(sealedSamples.length, 'A real public run must reveal a nearby *closed* gate').toBeGreaterThan(0);
+  const sealed = sealedSamples[0];
+  activeFrame = sealed.frame;
+  await page.goto(base + '/maze?reducedMotion=1', { waitUntil: 'domcontentloaded' });
+  await page.waitForFunction(({tick, token}) => window.__MAZE_3D__?.frames >= 3
+    && window.__MAZE_3D__?.tick === tick && window.__MAZE_3D__?.runToken === token,
+    {tick: activeFrame.snapshot.tick, token: activeFrame.snapshot.runToken});
+  const gateDiagnostic = await page.evaluate(() => window.__MAZE_3D__);
+  expect(gateDiagnostic.closedGatesInFrame, 'The disclosed sealed gate must actually appear in the camera').toBeGreaterThan(0);
+  const gateImage = path.join(dir, 'sealed-gate.png');
+  await page.screenshot({path: gateImage, fullPage: true});
+  fs.writeFileSync(path.join(dir, 'sealed-gate.json'), JSON.stringify({
+    capturedAt: new Date().toISOString(), seed: sealed.seed,
+    source: 'Unaltered production MazeRuntime public frame and actual WebGL gate mesh',
+    tick: activeFrame.snapshot.tick, disclosedClosedGateIds: sealed.doors.map(door => door.id),
+    imageSha256: hash(gateImage),
+    sourceSha256: Object.fromEntries(['app.js', 'map-view.mjs', 'scene.js', 'world.js'].map(name => [name, hash(path.join(sourceDir, name))])),
+    diagnostic: {closedGatesInFrame: gateDiagnostic.closedGatesInFrame,
+      quality: gateDiagnostic.quality, frameP50Ms: gateDiagnostic.frameP50Ms},
+    caveat: 'Closed gate is an observed obstruction, not a hint of a hidden passage; hardware FPS and independent visual quality remain unverified.',
+  }, null, 2));
 });
