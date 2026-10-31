@@ -1,0 +1,76 @@
+{
+  "schema": 1,
+  "date": "2026-10-31",
+  "branch": "agent/marble-gauntlet-2026-10-08",
+  "pullRequest": 45,
+  "runtimeCommit": "6a753bd1370358d730465940172d64ba6c4db500",
+  "nativeVerifiedCommit": "cdc332fce36fa4c0ff906272cd2be8cec9cb1e10",
+  "nativeRun": 41166953232,
+  "nativeBrowserArtifact": 13028584338,
+  "catalogueArtifact": 13029531262,
+  "local": {
+    "build": "pass",
+    "marbleTests": {
+      "pass": 159,
+      "fail": 0
+    },
+    "authoritySelfTest": "pass",
+    "webgl": "unavailable; not claimed",
+    "mobileLayoutOnly": {
+      "viewport": [
+        390,
+        844
+      ],
+      "statusStripHeight": 62.0625,
+      "standingsHeight": 47,
+      "arenaHeight": 705.9375
+    },
+    "selectionRegression": "RED: dossier 2 / roster 32; GREEN: both 2"
+  },
+  "nativeVerified": {
+    "build": "pass",
+    "marbleTests": {
+      "pass": 159,
+      "fail": 0
+    },
+    "catalogueTests": {
+      "pass": 662,
+      "fail": 0
+    },
+    "browserTests": {
+      "pass": 4,
+      "fail": 1
+    },
+    "studioTests": {
+      "pass": 2,
+      "fail": 0
+    },
+    "roleCaptures": [
+      "navigator",
+      "sprinter",
+      "bruiser",
+      "survivor"
+    ],
+    "softwareLowFrameMs": {
+      "p50": 183.3,
+      "p95": 250,
+      "requiredP95LessThan": 140,
+      "accepted": false
+    }
+  },
+  "followUpNative": {
+    "run": 41167731966,
+    "status": "queued",
+    "recoveryAndMotionVerified": false
+  },
+  "review": {
+    "kind": "author self-review",
+    "independent": false,
+    "commercialAB": "not performed",
+    "verdict": "continue: arena composition, mobile camera and frame time remain below bar"
+  },
+  "gauntletAchieved": false,
+  "productionReady": false,
+  "physicsChanged": false,
+  "otherGamesChanged": false
+}

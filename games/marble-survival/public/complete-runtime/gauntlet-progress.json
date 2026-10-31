@@ -1,11 +1,26 @@
 {
   "schema": 1,
-  "iteration": "Loops 55–58 · full-frame rendering, attached identities and main reintegration",
+  "iteration": "Loops 59–60 · original 3D racer studio and game-first spectator layout",
   "lastUpdated": "2026-10-31",
   "historyArchive": "/gauntlet-history-2026-10-09.json",
-  "criticTarget": "Inspect the real desktop/mobile captures, not concept art. Improve software-renderer p95 below the unchanged 140ms limit; inspect mobile camera coverage and richer arena lighting. Repeat matching-resolution reference comparisons. Author self-review is not an independent blind A/B win.",
-  "comparisonStatus": "NOT YET VERIFIED: commercial parity and production readiness remain blocked. At ae2eaeb0, build, 152 Marble tests, the native GLSL pixel test, native compositor checks and the whole-catalogue regression job pass. Real desktop/mobile screenshots show the full arena and aligned identities. SwiftShader Low p95 improved from baseline 400ms to 266.6ms and then 216.7ms in separate CI runs, but still fails the unchanged <140ms limit. These are not controlled hardware-FPS comparisons.",
+  "criticTarget": "Inspect the real four-role studio and mobile/desktop race captures. The studio is a read-only character viewer, not proof that the race itself meets the commercial bar. Next gaps: main-course camera coverage, dimensional lighting and unmodified Low p95 <140ms. Independent blind comparison remains outstanding.",
+  "comparisonStatus": "NOT YET VERIFIED: no commercial-reference or production win. At cdc332fc, 159 Marble and 662 catalogue tests pass; native Chromium renders the four role representatives and passes desktop/mobile studio, fullscreen pixels and compositor checks. The integrated race still fails: SwiftShader Low p50 183.3ms, p95 250ms against <140ms. Follow-up 6a753bd1 fixes roster selection and mobile header size; local checks pass, expanded native recovery/video checks are queued in run 41167731966. Separate runners are not a controlled performance A/B.",
   "goals": [
+    {
+      "name": "32-racer original 3D studio",
+      "detail": "Native WebGL2 portraits with four role silhouettes, identity patterns, original materials, number badges and controllable rotation. All 32 public roster entries are selectable; native CI exercised four role representatives and the last racer. No operator requests or authority changes.",
+      "status": "verified"
+    },
+    {
+      "name": "Game-first mobile and desktop HUD",
+      "detail": "Compact live standings, expandable ranks, smaller headers and event ticker. First native desktop/mobile checks pass. Follow-up local 390×844 layout measures a 47px standings strip, 62px status strip and 706px arena. Follow-up native checks are queued.",
+      "status": "implemented"
+    },
+    {
+      "name": "Studio accessibility and recovery",
+      "detail": "Native dialog, Escape/focus return, reduced motion and stopped closed-dialog animation verified in initial CI. Reopening selection mismatch fixed with a reproduced DOM regression. Added native context-loss/restoration, no-WebGL fallback, keyboard and video checks await current CI.",
+      "status": "in-progress"
+    },
     {
       "name": "Full-frame 3D image and sky",
       "detail": "Correct oversized fullscreen-triangle UVs; native GLSL pixels match all five expected samples, while the old shader deliberately fails the negative control.",
@@ -23,7 +38,7 @@
     },
     {
       "name": "Low-tier compositor budget",
-      "detail": "Removed live backdrop blur and full-arena blend pass only on Low. Actual Chromium CSS checks pass locally and in CI; Balanced/High/Ultra retain their normal optics. Latest software p95 is still 216.7ms.",
+      "detail": "Low removes six blur surfaces and the full-arena blend pass; higher tiers retain their styling. Native compositor checks still pass. Latest measured Low p95 250ms is not accepted.",
       "status": "implemented"
     },
     {
@@ -33,12 +48,12 @@
     },
     {
       "name": "Real browser and catalogue checks",
-      "detail": "Run 41162317097: build, 152 Marble tests, authority self-test, native fullscreen pixels, native compositor checks and catalogue regressions pass; integrated browser suite still fails its performance gate.",
+      "detail": "Run 41166953232: build, authority self-test, 159 Marble and 662 catalogue tests pass. Four native browser checks pass, including both new studio tests; existing integrated test fails its unchanged frame-time gate. Expanded follow-up checks remain queued.",
       "status": "in-progress"
     },
     {
       "name": "Responsive spectator scene and performance",
-      "detail": "Actual desktop/mobile screenshots are captured. Software Low p95 216.7ms exceeds 140ms. Mobile camera framing, smoother playback and less obstructive overlays still need work.",
+      "detail": "Real screenshots show much less persistent overlay coverage. Main-course mobile framing and dimensional lighting still need development. Software Low p95 250ms exceeds 140ms; no performance improvement claimed.",
       "status": "in-progress"
     },
     {
@@ -53,6 +68,16 @@
     }
   ],
   "history": [
+    {
+      "title": "60 · Fix selection reconciliation and mobile strip sizing",
+      "note": "A dossier reopening originally showed racer 2 while the roster still highlighted 32. Include selection in the reconciliation key, preserving keyed buttons/focus. Fix inherited mobile typography so status essentials no longer consume 81px.",
+      "proof": "6a753bd1: actual offline Chromium DOM regression RED → GREEN; header 62.06px, standings 47px, arena 705.94px at 390×844. 159 local foundation tests and server self-test pass. Added native recovery, keyboard and video checks: run 41167731966 is queued, not passed."
+    },
+    {
+      "title": "59 · Inspect every competitor in an original 3D studio",
+      "note": "Add a lazy WebGL2 turntable using only the completed frame public snapshot, four independent role silhouettes, numbered materials, 32-racer roster, reduced-motion controls and an arena-first HUD.",
+      "proof": "cdc332fc / run 41166953232: build, 159 Marble and 662 catalogue tests pass. Native GL compiles and four role screenshots are inspected. Desktop/mobile studio tests pass, including no authority mutations, closed-frame stop and reduced motion. Existing performance gate fails at 250ms p95. No independent or commercial-reference win."
+    },
     {
       "title": "58 · Budget the Low-quality compositor",
       "note": "Remove six background-blur surfaces and the full-arena screen-blend overlay only on Low. Higher tiers retain their normal styling.",
