@@ -86,6 +86,9 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
   const arrowGeometry = new THREE.ShapeGeometry(arrowShape);
   const plannedArrowMaterial = new THREE.MeshBasicMaterial({color: '#6cf4d8', transparent: true, opacity: .96, side: THREE.DoubleSide, depthWrite: false});
   const knownArrowMaterial = new THREE.MeshBasicMaterial({color: '#e4f0df', transparent: true, opacity: .73, side: THREE.DoubleSide, depthWrite: false});
+  // An observed landmark's known first passage is NOT an AI command or safe path.
+  const keyGoalArrowMaterial = new THREE.MeshBasicMaterial({color: '#ffc96c', transparent: true, opacity: .98, side: THREE.DoubleSide, depthWrite: false});
+  const exitGoalArrowMaterial = new THREE.MeshBasicMaterial({color: '#8ffff0', transparent: true, opacity: .98, side: THREE.DoubleSide, depthWrite: false});
   const wayfindingArrows = Array.from({length: 4}, () => {
     const pivot = new THREE.Group();
     const glyph = new THREE.Mesh(arrowGeometry, knownArrowMaterial);
@@ -190,8 +193,10 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
       const z = from.z + (to.z - from.z) * .39;
       pivot.position.set(x, sampleGroundHeight(x, z, snapshot) + .065, z);
       pivot.rotation.y = Math.atan2(to.x - from.x, to.z - from.z);
-      pivot.scale.setScalar(cue.kind === 'planned' ? 1.18 : .8);
-      glyph.material = cue.kind === 'planned' ? plannedArrowMaterial : knownArrowMaterial;
+      pivot.scale.setScalar(cue.goal ? 1.48 : cue.kind === 'planned' ? 1.18 : .8);
+      glyph.material = cue.goal === 'key' ? keyGoalArrowMaterial
+        : cue.goal === 'exit' ? exitGoalArrowMaterial
+        : cue.kind === 'planned' ? plannedArrowMaterial : knownArrowMaterial;
     }
   }
 
@@ -221,6 +226,8 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     if (objectiveCue) {
       const pos = cellPosition(objectiveCue.cell, snapshot.width, snapshot.height);
       objectiveBeacon.position.set(pos.x, cellHeight(objectiveCue.cell, snapshot.width, snapshot.height), pos.z);
+      // Keep an actually observed nearby objective legible without new data.
+      objectiveBeacon.scale.setScalar(objectiveCue.steps <= 2 ? 1.18 : 1);
       const tint = objectiveCue.kind === 'key' ? beaconAmber : beaconMint;
       beaconGem.material = tint;
       beaconRing.material = tint;
@@ -382,7 +389,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
         frameP95Ms: sorted[Math.floor(sorted.length * .95)] || 0,
         routeQueue: cells.length, world: stats, contextLost: false,
         disclosedThreats: wardens.size, wardensInFrame, encounterAttention: closestThreat?.strength ?? 0,
-        wayfindingCues: wayfindingCues.map(cue => ({from: cue.from, to: cue.to, kind: cue.kind})),
+        wayfindingCues: wayfindingCues.map(cue => ({...cue})),
         objectiveCue: objectiveCue ? {...objectiveCue} : null,
         objectiveInFrame: objectiveCue ? (() => {
           const p = objectiveBeacon.position.clone().add(new THREE.Vector3(0, 3.18, 0)).project(camera);
@@ -420,6 +427,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     for (const entry of wardens.values()) entry.model.dispose();
     wardens.clear(); guide.geometry.dispose(); guideMaterial.dispose(); markerGeometry.dispose(); markerMaterial.dispose();
     arrowGeometry.dispose(); plannedArrowMaterial.dispose(); knownArrowMaterial.dispose();
+    keyGoalArrowMaterial.dispose(); exitGoalArrowMaterial.dispose();
     beaconGemGeometry.dispose(); beaconRingGeometry.dispose(); beaconFootGeometry.dispose();
     beaconAmber.dispose(); beaconMint.dispose(); scene.remove(objectiveBeacon); objectiveCue = null;
     for (const {pivot} of wayfindingArrows) scene.remove(pivot);
