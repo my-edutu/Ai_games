@@ -29,6 +29,10 @@ test('true Chromium WebGL has recognisable locally authored Warden regalia, rend
  await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.bossCutawayActive??false),{timeout:20000}).toBe(true);
  await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.visibility?.unoccludedBosses??0),{timeout:20000}).toBe(1);
  const diag=await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__);
+ // Round 29: the fallback-only Warden halo and mystic satellites must not
+ // sit visibly atop the real textured GLB rigs. Keep true boss telegraphs.
+ expect(diag.authored3D.hiddenFallbackOrnamentActors).toBeGreaterThanOrEqual(2);
+ expect(diag.authored3D.hiddenFallbackOrnamentMeshes).toBeGreaterThanOrEqual(5);
  expect(diag.authored3D.incompleteAssets).toBe(0);
  expect(diag.authored3D.missingAssets).toBe(0);
  expect(diag.webgl).toBe(true);expect(diag.drawCalls).toBeLessThan(1600);
@@ -49,6 +53,7 @@ test('true Chromium WebGL has recognisable locally authored Warden regalia, rend
  expect(errors).toEqual([]);
  await page.locator('.arena').evaluate(node=>node.classList.add('world-only-audit'));
  await page.locator('#world').screenshot({path:'artifacts/dungeon-warden-regalia-round25-world-only.png'});
+ await page.locator('#world').screenshot({path:'artifacts/dungeon-ornament-hierarchy-round29-world-only.png'});
  await test.info().attach('actual-warden-encounter',{body:Buffer.from(JSON.stringify({
   seed:'visual-room-art-18',tick:snapshot.tick,floor:snapshot.floor,run:snapshot.run,
   warden:snapshot.units.find(u=>u.kind==='warden')?.id,source:'real DungeonRuntime publicState; no hand-set actors',
