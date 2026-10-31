@@ -112,3 +112,60 @@ export function planRigArmGesture(kind,action,elapsed=0,reducedMotion=false){
  }
  return ARM_REST;
 }
+
+/**
+ * Match actual left/right lower-body joints on the cloned CC0 rigs.
+ * Reject toes, twist helpers, opposite sides and unrelated limbs. Never
+ * synthesize a joint or allow a display animation to alter gameplay.
+ */
+export function selectLegBone(bones,side='left',part='upper'){
+ if(!Array.isArray(bones)||!['left','right'].includes(side)||!['upper','lower','foot'].includes(part))return null;
+ let best=null,score=-1;
+ for(const bone of bones){
+  if(!bone?.isBone||typeof bone.name!=='string')continue;
+  const raw=bone.name.toLowerCase(),name=raw.replace(/[^a-z0-9]/g,'');
+  if(/toe|twist|roll|nub|end|helper|pole|finger|hand|arm|spine|pelvis|hip/.test(name))continue;
+  const l=name.includes('left')||/(?:^|[\s._:-])l[\s._:-]*(?:up|upper|lower|leg|thigh|calf|shin|foot|ankle)/.test(raw)||/(?:leg|foot|thigh|calf|shin|ankle)l$/.test(name);
+  const r=name.includes('right')||/(?:^|[\s._:-])r[\s._:-]*(?:up|upper|lower|leg|thigh|calf|shin|foot|ankle)/.test(raw)||/(?:leg|foot|thigh|calf|shin|ankle)r$/.test(name);
+  if(l===r||(side==='left'&&!l)||(side==='right'&&!r))continue;
+  const upper=/upleg|upperleg|thigh|femur/.test(name);
+  const lower=/lowerleg|calf|shin|tibia/.test(name)||(!upper&&/leg$/.test(name));
+  const foot=/foot|ankle/.test(name);
+  if((part==='upper'&&!upper)||(part==='lower'&&!lower)||(part==='foot'&&!foot))continue;
+  const n=(part==='upper'&&/upleg|upperleg/.test(name)?120:100)-name.length*.01;
+  if(n>score){score=n;best=bone}
+ }
+ return best;
+}
+
+const TAU=Math.PI*2;
+const clampWeight=n=>Number.isFinite(n)?Math.max(0,Math.min(1,n)):0;
+/**
+ * Distance-paced spectator gait. A slow software renderer cannot make an
+ * otherwise stationary dungeon actor march in place. Teleports and corrupt
+ * numerical inputs reset rather than generating unbounded joint rotation.
+ */
+export function advanceRigGait(phase=0,weight=0,travelMeters=0,reducedMotion=false){
+ if(reducedMotion||!Number.isFinite(travelMeters)||travelMeters<0||travelMeters>.32)
+  return {phase:0,weight:0};
+ const p=Number.isFinite(phase)?((phase%TAU)+TAU)%TAU:0;
+ const w=clampWeight(weight);
+ if(travelMeters<=.0015)return {phase:p,weight:Math.max(0,w-.14)};
+ return {phase:(p+Math.min(travelMeters,.24)*TAU/1.05)%TAU,weight:Math.min(1,w+.24)};
+}
+const LEG_REST=Object.freeze({
+ left:Object.freeze({upper:0,lower:0,foot:0}),
+ right:Object.freeze({upper:0,lower:0,foot:0})
+});
+/** Small mirrored thigh/knee/ankle arcs layered over the imported animation. */
+export function planRigLegGesture(phase=0,weight=0,reducedMotion=false){
+ if(reducedMotion)return LEG_REST;
+ const p=Number.isFinite(phase)?((phase%TAU)+TAU)%TAU:0;
+ const w=clampWeight(weight);
+ if(w===0)return LEG_REST;
+ const left=Math.sin(p)*w,right=-left;
+ return {
+  left:{upper:.235*left,lower:.165*Math.max(0,-left),foot:-.075*left},
+  right:{upper:.235*right,lower:.165*Math.max(0,-right),foot:-.075*right}
+ };
+}
