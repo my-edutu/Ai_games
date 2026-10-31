@@ -27,6 +27,10 @@ test('real Chromium GLB ranger bow and mystic staff remain attached to animated 
  expect(d.authored3D.rigBoundAccessoryParts).toBeGreaterThanOrEqual(5);
  expect(d.authored3D.rigBoundAccessoryParts).toBeLessThanOrEqual(5);
  // Genuine GLB skeletons must move the authored grip origins onto their hands.
+ console.log('DUNGEON R28 actual GLB rig grip candidates:',JSON.stringify({names:d.authored3D.rigHandBoneNames,candidates:d.authored3D.rigGripCandidates}));
+ await page.locator('.arena').evaluate(node=>node.classList.add('world-only-audit'));
+ await page.locator('#world').screenshot({path:'artifacts/dungeon-grip-alignment-round28-world-only.png'});
+
  expect(d.authored3D.rigGripAlignedActors).toBeGreaterThanOrEqual(2);
  expect(d.authored3D.rigGripMaxShiftMeters).toBeGreaterThan(0.001);
  expect(d.authored3D.rigGripMaxShiftMeters).toBeLessThanOrEqual(.72);
