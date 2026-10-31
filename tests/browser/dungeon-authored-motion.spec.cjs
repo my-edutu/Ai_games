@@ -58,3 +58,44 @@ test('actual WebGL GLB rigs have bounded secondary attack staging, without inven
    authored3D:diag.authored3D,combatStage:diag.combatStage,composition:diag.composition,drawCalls:diag.drawCalls,triangles:diag.triangles}
  },null,2)),contentType:'application/json'});
 });
+
+
+function witnessedMovement(){
+ const game=DungeonRuntime.create('visual-room-art-18');
+ let before=game.publicState();
+ for(let i=0;i<900;i++){
+  const after=game.step();
+  const walker=after.units.find(u=>u.faction==='party'&&u.hp>0&&
+   before.units.some(old=>old.id===u.id&&(old.x!==u.x||old.z!==u.z)));
+  if(walker)return {before,after,walker:walker.id};
+  before=after;
+ }
+ throw Error('No actual authoritative hero movement occurred in the seeded campaign');
+}
+
+test('real WebGL movement animates distance-paced imported thigh and ankle bones',async({page,request})=>{
+ test.setTimeout(120000);
+ expect((await request.get('/dungeon/rig-attachment-plan.js')).status()).toBe(200);
+ const frames=witnessedMovement();let current=frames.before;
+ const errors=[];page.on('pageerror',e=>errors.push(String(e)));
+ await page.route('**/dungeon/state',route=>route.fulfill({json:current}));
+ await page.goto('/dungeon');
+ await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.authored3D?.texturedCharacters??0),{timeout:60000}).toBeGreaterThanOrEqual(3);
+ await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.authored3D?.rigGaitBones??0),{timeout:30000}).toBeGreaterThanOrEqual(4);
+ current=frames.after;
+ await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.authored3D?.rigGaitPeakRad??0),{timeout:20000}).toBeGreaterThan(.07);
+ const diag=await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__);
+ expect(diag.authored3D.rigGaitPeakRad).toBeLessThanOrEqual(.30);
+ expect(diag.authored3D.rigGaitBones).toBeLessThanOrEqual(diag.authored3D.authoredCharacters*6);
+ expect(diag.authored3D.missingAssets).toBe(0);
+ expect(diag.composition.visibleHeroes).toBeGreaterThan(0);
+ expect(errors).toEqual([]);
+ await page.locator('.arena').evaluate(node=>node.classList.add('world-only-audit'));
+ await page.locator('#world').screenshot({path:'artifacts/dungeon-rig-gait-round39-world-only.png'});
+ await test.info().attach('real-distance-paced-gait-review',{body:Buffer.from(JSON.stringify({
+  seed:'visual-room-art-18',tick:frames.after.tick,walker:frames.walker,
+  sourcedFrom:'actual DungeonRuntime.step publicState position change',
+  rigGaitBones:diag.authored3D.rigGaitBones,rigGaitPeakRad:diag.authored3D.rigGaitPeakRad,
+  composition:diag.composition,drawCalls:diag.drawCalls,triangles:diag.triangles
+ },null,2)),contentType:'application/json'});
+});
