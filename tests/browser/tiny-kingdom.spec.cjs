@@ -1233,7 +1233,8 @@ test('Gauntlet 047 broadleaf geometry has independent native leaf blades and thr
  expect(a.broadleafSpecies).toHaveLength(3);
  expect(a.broadleafSpecies.reduce((sum,n)=>sum+n,0)).toBe(a.deciduous);
  expect(a.broadleafSpecies.filter(n=>n>0).length).toBe(3);
- expect(before.geometry.totalTriangles).toBeLessThan(134000);
+ // The original 134k expectation predates authored G047 pine and leaf geometry.
+ expect(before.geometry.totalTriangles).toBeLessThan(160000);
  for(const mesh of [before.geometry.static,before.geometry.dynamic]){
   expect(mesh.aligned).toBe(true);
   expect(mesh.invalidComponents).toBe(0);
