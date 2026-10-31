@@ -4,6 +4,7 @@ import {clone as cloneSkeleton} from '/dungeon/vendor/addons/utils/SkeletonUtils
 import {planAuthoredMotion} from '/dungeon/character-motion-plan.js';
 import {planWardenRegalia} from '/dungeon/warden-regalia-plan.js';
 import {planRoleSilhouette} from '/dungeon/role-silhouette-plan.js';
+import {planDrapePanels,planDrapeSwing,DRAPE_ROWS,DRAPE_COLUMNS} from '/dungeon/fabric-drape-plan.js';
 import {rigWeaponParts,selectHandBone,rigGripAnchor,boundedGripOffset} from '/dungeon/rig-attachment-plan.js';
 
 // Optional locally vendored CC0 characters. Offline / missing-asset fallback is the
@@ -170,6 +171,49 @@ function addRoleSilhouette(actor){
  actor.assetGeometries.push(...geometries);
 }
 
+
+// Shoulder-pivoted original sculpted textile panels. Polygon folds are built
+// once per loaded rig. No procedural asset requests or authoritative state.
+function addFabricDrape(actor){
+ const recipe=planDrapePanels(actor.u.kind);
+ if(!recipe.length||!actor.visualPivot)return;
+ const material=new THREE.MeshStandardMaterial({
+  color:'#ffffff',vertexColors:true,side:THREE.DoubleSide,
+  roughness:.94,metalness:.025
+ });
+ actor.assetMaterials.push(material);
+ const panels=[];
+ for(const part of recipe){
+  const positions=[],colors=[],indices=[],pigment=new THREE.Color(part.color);
+  for(let row=0;row<=DRAPE_ROWS;row++)for(let col=0;col<=DRAPE_COLUMNS;col++){
+   const t=row/DRAPE_ROWS,u=col/DRAPE_COLUMNS;
+   // Curved hanging hem, irregular split mantle, and ridged weave normals.
+   const x=part.side*.235+(u-.5)*part.width*(1+part.flare*t)+part.side*.035*t+.016*Math.sin(u*Math.PI*3)*t;
+   const y=-part.length*t-.029*Math.abs(Math.sin(u*2*Math.PI))*t;
+   const z=.025+.17*t*t+.022*Math.cos(u*4*Math.PI)*(.15+.85*t);
+   positions.push(x,y,z);
+   const shade=.91+.085*Math.cos(u*4*Math.PI)-.055*(t>.90?1:0);
+   colors.push(pigment.r*shade,pigment.g*shade,pigment.b*shade);
+  }
+  for(let row=0;row<DRAPE_ROWS;row++)for(let col=0;col<DRAPE_COLUMNS;col++){
+   const a=row*(DRAPE_COLUMNS+1)+col,b=a+1,c=a+DRAPE_COLUMNS+1,d=c+1;
+   indices.push(a,c,b,b,c,d);
+  }
+  const geometry=new THREE.BufferGeometry();
+  geometry.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));
+  geometry.setAttribute('color',new THREE.Float32BufferAttribute(colors,3));
+  geometry.setIndex(indices);geometry.computeVertexNormals();
+  const mesh=new THREE.Mesh(geometry,material);
+  mesh.name=part.id;mesh.position.set(0,part.shoulderY,.30);
+  mesh.castShadow=false;mesh.receiveShadow=true;
+  actor.visualPivot.add(mesh);
+  actor.assetGeometries.push(geometry);
+  panels.push({mesh,side:part.side});
+ }
+ actor.draperyPanels=panels;
+ actor.draperyTriangles=panels.length*DRAPE_ROWS*DRAPE_COLUMNS*2;
+}
+
 // Move only original visible weapon fittings onto a genuine CLONED GLB
 // hand bone. Object3D.attach preserves their world pose while authored
 // skeletal animation subsequently moves the accessory with the limb.
@@ -239,13 +283,14 @@ function attachCharacter(actor){
    instance.position.set(-center.x*sourceScale,-bounds.min.y*sourceScale,-center.z*sourceScale);
   }
   const pivot=new THREE.Group();actor.root.add(pivot);pivot.add(instance);
-  actor.visualPivot=pivot;actor.motionPeak=0;actor.assetRoot=instance;actor.assetMaterials=owned;actor.assetGeometries=[];actor.regaliaParts=0;actor.roleSilhouetteParts=0;actor.rigBoundAccessoryParts=0;actor.rigHandBoneName=null;actor.rigGripAligned=false;actor.rigGripShiftMeters=0;actor.rigGripCandidateMeters=null;
+  actor.visualPivot=pivot;actor.motionPeak=0;actor.assetRoot=instance;actor.assetMaterials=owned;actor.assetGeometries=[];actor.regaliaParts=0;actor.roleSilhouetteParts=0;actor.rigBoundAccessoryParts=0;actor.rigHandBoneName=null;actor.rigGripAligned=false;actor.rigGripShiftMeters=0;actor.rigGripCandidateMeters=null;actor.draperyPanels=[];actor.draperyTriangles=0;
   actor.body.visible=false;actor.authored=true;actor.detail?.setAuthored?.(true);actor.mixer=new THREE.AnimationMixer(instance);
   actor.availableClips=gltf.animations||[];actor.currentAction='';actor.currentActionTick=null;
   actor.textureReadiness=textureReadiness.get(gltf);
   addWardenRegalia(actor);
   addRoleSilhouette(actor);
   bindRigWeaponAccessories(actor);
+  addFabricDrape(actor);
   changeAction(actor,actor.u.action||'idle');
   return true;
  }).catch(e=>{failures.add(asset);return false});
@@ -283,6 +328,10 @@ function updateActor(actor,dt,since=0,reducedMotion=false){
   actor.visualPivot.rotation.set(pose.pitch,0,pose.roll);
   actor.motionPeak=Math.max(actor.motionPeak||0,Math.abs(pose.x),Math.abs(pose.y),Math.abs(pose.z));
  }
+ if(actor.draperyPanels?.length){
+  const sway=planDrapeSwing(actor.u.action||'idle',since,reducedMotion);
+  for(const p of actor.draperyPanels){p.mesh.rotation.x=sway.pitch;p.mesh.rotation.z=sway.roll*p.side;}
+ }
 }
 function disposeActorAsset(actor){
  actor.detached=true;
@@ -294,7 +343,7 @@ function disposeActorAsset(actor){
  else if(actor.assetRoot){actor.root.remove(actor.assetRoot)}
  for(const m of actor.assetMaterials||[])m.dispose();
  for(const g of actor.assetGeometries||[])g.dispose();
- actor.mixer=null;actor.assetRoot=null;actor.visualPivot=null;actor.motionPeak=0;actor.assetMaterials=[];actor.assetGeometries=[];actor.regaliaParts=0;actor.roleSilhouetteParts=0;actor.rigBoundAccessoryParts=0;actor.rigHandBoneName=null;actor.rigGripAligned=false;actor.rigGripShiftMeters=0;actor.rigGripCandidateMeters=null;actor.authored=false;actor.textureReadiness=null;
+ actor.mixer=null;actor.assetRoot=null;actor.visualPivot=null;actor.motionPeak=0;actor.assetMaterials=[];actor.assetGeometries=[];actor.regaliaParts=0;actor.roleSilhouetteParts=0;actor.rigBoundAccessoryParts=0;actor.rigHandBoneName=null;actor.rigGripAligned=false;actor.rigGripShiftMeters=0;actor.rigGripCandidateMeters=null;actor.draperyPanels=[];actor.draperyTriangles=0;actor.authored=false;actor.textureReadiness=null;
 }
 function putEnvironment(world,sceneKey,map){
  // Authored GLB masonry and prop dressing complements the instanced procedural
@@ -331,7 +380,7 @@ function putEnvironment(world,sceneKey,map){
 }
 function stats(actors){
  const all=[...actors.values()],authored=all.filter(a=>a.authored);
- return{authoredBosses:authored.filter(a=>a.u.kind==='warden').length,bossRegaliaParts:all.reduce((n,a)=>n+(a.regaliaParts||0),0),roleSilhouetteActors:authored.filter(a=>(a.roleSilhouetteParts||0)>0).length,roleSilhouetteParts:all.reduce((n,a)=>n+(a.roleSilhouetteParts||0),0),rigBoundAccessoryActors:authored.filter(a=>(a.rigBoundAccessoryParts||0)>0).length,rigBoundAccessoryParts:all.reduce((n,a)=>n+(a.rigBoundAccessoryParts||0),0),
+ return{authoredBosses:authored.filter(a=>a.u.kind==='warden').length,bossRegaliaParts:all.reduce((n,a)=>n+(a.regaliaParts||0),0),roleSilhouetteActors:authored.filter(a=>(a.roleSilhouetteParts||0)>0).length,roleSilhouetteParts:all.reduce((n,a)=>n+(a.roleSilhouetteParts||0),0),draperyActors:authored.filter(a=>(a.draperyPanels?.length||0)>0).length,draperyPanels:all.reduce((n,a)=>n+(a.draperyPanels?.length||0),0),draperyTriangles:all.reduce((n,a)=>n+(a.draperyTriangles||0),0),rigBoundAccessoryActors:authored.filter(a=>(a.rigBoundAccessoryParts||0)>0).length,rigBoundAccessoryParts:all.reduce((n,a)=>n+(a.rigBoundAccessoryParts||0),0),
  hiddenFallbackOrnamentActors:authored.filter(a=>(a.detail?.hiddenProceduralOrnamentCount||0)>0).length,
  hiddenFallbackOrnamentMeshes:authored.reduce((n,a)=>n+(a.detail?.hiddenProceduralOrnamentCount||0),0),rigGripAlignedActors:authored.filter(a=>a.rigGripAligned).length,rigGripMaxShiftMeters:Math.max(0,...authored.map(a=>a.rigGripShiftMeters||0)),rigGripCandidates:authored.filter(a=>a.rigGripCandidateMeters!==null).map(a=>({kind:a.u.kind,meters:a.rigGripCandidateMeters})).slice(0,3),rigHandBoneNames:authored.filter(a=>a.rigHandBoneName).map(a=>a.rigHandBoneName).slice(0,8),authoredCharacters:authored.length,proceduralFallbacks:all.length-authored.length,uniqueAssets:cache.size,missingAssets:failures.size,incompleteAssets:incompleteAssets.size,texturedCharacters:authored.filter(a=>a.textureReadiness?.decodedColorMaps>0).length,decodedColorMaps:authored.reduce((n,a)=>n+(a.textureReadiness?.decodedColorMaps||0),0)};
 }
