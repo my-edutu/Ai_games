@@ -19,3 +19,11 @@ Extracted source-pinned [Tower Realism review inputs 13041454331](https://github
 ## Gate and follow-up
 
 **Scoped redundant buffer update PASS; overall Gauntlet NOT ACHIEVED.** No sustained hardware FPS, measured memory slope, independent environment/climbing comparison, attack anticipation/contact/recovery review, accessibility or full soak is proven. Next check exact new-commit CI and real GPU impact artifacts before any new visual claim. No merge, force-push or deployment; PR #58 stays draft.
+
+## Post-commit exact-source GPU and CI checkpoint
+
+[Combat Impact Evidence 41204654198](https://github.com/my-edutu/Ai_games/actions/runs/41204654198) completed **SUCCESS** at source `9f00b66`. Downloaded its [artifact 13044256868](https://github.com/my-edutu/Ai_games/actions/runs/41204654198/artifacts/13044256868) and inspected all four original desktop (960×600) and portrait (390×844) WebGL PNGs, not just diagnostics. JSON establishes an authentic consecutive authoritative tick **268→269**, guardian health **8→7**, `observedEnemyImpacts=1` and no reported page errors in each view. The focused GitHub test and build steps passed.
+
+**Important new visual failure:** in both portrait screenshots the guardian itself is outside the 390px canvas, despite the Guardian HUD and combat contact telemetry. A ring-like cue is partly clipped along the left edge; the capture cannot prove the guardian hit is readable. Desktop includes the guardian below and left of the climber. Therefore capture integrity **PASS**, portrait encounter/contact readability **FAIL/open**. Treating the successful workflow as a portrait visual-quality pass would be incorrect. The particle-buffer cleanup itself is non-visual; screenshots do not prove reduced memory traffic, hardware FPS or full-speed animation.
+
+**Automatically selected next priority:** camera-to-guardian/contact visibility on portrait at source-matched damage tick, with a failing regression and actual GPU before/after inspection, preserving the guardian's authoritative position and the Jusant/ASTRO BOT quality bars. Independent critic, full-speed combat recovery, accessibility, intended-device presented frame times and soak remain open.
