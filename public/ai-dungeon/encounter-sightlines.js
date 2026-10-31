@@ -19,6 +19,6 @@ export function planEncounterSightlines(state,focus,encounter=false){
   const warden=units.find(u=>u?.kind==='warden'&&valid(u));
   if(warden)subjects.push({x:warden.x-origin,z:warden.z-origin});
  }
- if(!subjects.length)subjects.push({x:Number.isFinite(focus?.x)?focus.x:0,z:Number.isFinite(focus?.z)?focus.z:0});
+ if(!subjects.length)subjects.push(Number.isFinite(focus?.x)&&Number.isFinite(focus?.z)?{x:focus.x,z:focus.z}:{x:0,z:0});
  return subjects;
 }
