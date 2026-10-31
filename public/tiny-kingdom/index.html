@@ -1103,8 +1103,9 @@ function wheat(x,z){let y=terrain(x,z);for(let i=0;i<6;i++)for(let j=0;j<5;j++){
 // lifted swing foot and counter-swing arms; render-only, no simulation RNG.
 function citizenRigPose(p){
  const action=p.activity.toLowerCase();
- const working=/harvest|cutting|craft|construct|making|forag/.test(action);
+ // Movement overrides job-name matches: 'Traveling to craftsperson work' is not crafting.
  const traveling=/travel|explor/.test(action);
+ const working=!traveling&&/harvest|cutting|craft|construct|making|forag/.test(action);
  const intensity=traveling?.72:working?.34:.11;
  const phase=p.phase*2.7,workBeat=working?Math.sin(p.phase*4.1):0;
  // The two bones have fixed lengths; each foot follows the actual terrain
