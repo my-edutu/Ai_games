@@ -241,3 +241,44 @@ test('real WebGL close camera captures a near-head fruit occlusion stress fixtur
     await page.close();
   }
 });
+
+test('real WebGL eyes aim at opposite public-fruit locations without altering the snake path', async ({ browser, baseURL }) => {
+  test.setTimeout(60000);
+  // Deliberately synthetic presentation fixture. The head, grid, run and
+  // position stream are frozen; only public fruit changes sides. These are
+  // not live-autonomous-performance samples or separately authenticated runs.
+  const frame = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../../docs/reviews/snake-gauntlet/round-4-public-frame.json'), 'utf8'));
+  expect(frame.snapshot.snake[0].cell).toBe(250);
+  expect(frame.snapshot.snake[1].cell).toBe(222);
+  const originalSnake = JSON.stringify(frame.snapshot.snake);
+  frame.snapshot.food = { ...frame.snapshot.food, cell: 249 };
+  const page = await browser.newPage({ viewport: { width: 960, height: 640 }, reducedMotion: 'reduce' });
+  const errors = [];
+  page.on('pageerror', error => errors.push(error.message));
+  try {
+    await page.route('**/snapshot', route => route.fulfill({ json: frame }));
+    await page.goto(`${baseURL}/?camera=detail&quality=low`);
+    await page.waitForFunction(() => window.__snakePresentation?.stats().frameCount >= 3);
+    await expect.poll(async () => (await page.evaluate(() => window.__snakePresentation.stats())).serpent.gaze.horizontal,
+      { timeout: 20000 }).toBeLessThan(-0.018);
+    const west = await page.evaluate(() => window.__snakePresentation.stats());
+    expect(west.cameraMode).toBe('detail');
+    expect(west.serpent.paths).toBeGreaterThan(0);
+    await page.screenshot({ path: evidence('character-public-fruit-west-synthetic.png') });
+
+    frame.snapshot = { ...frame.snapshot, revision: frame.snapshot.revision + 1,
+      food: { ...frame.snapshot.food, cell: 251 } };
+    await expect.poll(async () => (await page.evaluate(() => window.__snakePresentation.stats())).serpent.gaze.horizontal,
+      { timeout: 20000 }).toBeGreaterThan(0.018);
+    const east = await page.evaluate(() => window.__snakePresentation.stats());
+    for (const key of ['geometries', 'materials', 'textures', 'bufferBytes'])
+      expect(east.serpent[key]).toBe(west.serpent[key]);
+    expect(east.serpent.paths).toBe(west.serpent.paths);
+    expect(JSON.stringify(frame.snapshot.snake)).toBe(originalSnake);
+    expect(await page.locator('#game').evaluate(canvas => canvas.getContext('webgl2').getError())).toBe(0);
+    await page.screenshot({ path: evidence('character-public-fruit-east-synthetic.png') });
+    expect(errors).toEqual([]);
+  } finally {
+    await page.close();
+  }
+});

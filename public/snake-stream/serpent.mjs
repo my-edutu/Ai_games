@@ -362,6 +362,10 @@ export function createSerpent(THREE) {
   let ringCount = 0, indexCount = 0, pathCount = 0, truncated = false;
   let previousHeadX = NaN, previousHeadZ = NaN, heading = 0;
   let eaten = 0, dangerEase = 0;
+  // Presentation-only eye tracking. The target comes exclusively from the
+  // current immutable public food location, never a private AI path.
+  let gazeX = 0, gazeY = 0, previousRunToken;
+
   const sample = { x: 0, z: 0, dx: 0, dz: 1 };
   function evaluate(path, segment, t) {
     const p1 = path[segment], p2 = path[Math.min(segment + 1, path.length - 1)];
@@ -489,7 +493,9 @@ export function createSerpent(THREE) {
       const next = paths[0][1]; dx = next ? first.x - next.x : 0; dz = next ? first.z - next.z : 1;
     }
     const targetHeading = Math.atan2(dx, dz);
-    const teleported = !Number.isFinite(previousHeadX) || Math.hypot(first.x - previousHeadX, first.z - previousHeadZ) > 1.6;
+    const restarted = options.runToken !== undefined && options.runToken !== previousRunToken;
+    if (options.runToken !== undefined) previousRunToken = options.runToken;
+    const teleported = restarted || !Number.isFinite(previousHeadX) || Math.hypot(first.x - previousHeadX, first.z - previousHeadZ) > 1.6;
     const angleDifference = Math.atan2(Math.sin(targetHeading - heading), Math.cos(targetHeading - heading));
     heading = teleported || reduced ? targetHeading : heading + angleDifference * (1 - Math.exp(-dt * 19));
     previousHeadX = first.x; previousHeadZ = first.z;
@@ -503,11 +509,33 @@ export function createSerpent(THREE) {
     jaw.rotation.x = reduced ? 0 : eaten * 0.07;
     updateJawCorners(jaw.rotation.x);
     headPose.scale.set(1 + eaten * 0.035, 1 + eaten * 0.025, 1);
+    // Find the fruit with the eyes before the mouth follows it. The gaze is
+    // bounded inside the existing white sockets, animated without new geometry,
+    // and snaps on teleports/restarts rather than sweeping across portals.
+    const targetFood = options.food;
+    let targetGazeX = 0, targetGazeY = 0;
+    if (Number.isFinite(targetFood?.x) && Number.isFinite(targetFood?.z)) {
+      const fx = targetFood.x - first.x, fz = targetFood.z - first.z;
+      const distance = Math.hypot(fx, fz);
+      if (distance > 0.001) {
+        const side = (fx * Math.cos(heading) - fz * Math.sin(heading)) / distance;
+        const ahead = (fx * Math.sin(heading) + fz * Math.cos(heading)) / distance;
+        const focus = 0.70 + 0.30 * Math.min(1, 7 / distance);
+        targetGazeX = clamp(side * 0.027 * focus, -0.027, 0.027);
+        targetGazeY = clamp(-0.009 + 0.006 * ahead, -0.015, -0.003);
+      }
+    }
+    const gazeMix = reduced || teleported ? 1 : 1 - Math.exp(-dt * 12);
+    gazeX += (targetGazeX - gazeX) * gazeMix;
+    gazeY += (targetGazeY - gazeY) * gazeMix;
     const blinkPhase = ((time + 1.73) % 4.7);
     const blink = reduced ? 1 : 1 - 0.94 * Math.exp(-Math.pow((blinkPhase - 4.4) / 0.075, 2));
     for (let i = 0; i < eyes.length; i++) {
       eyes[i].scale.y = blink * (1 - dangerEase * 0.12);
-      pupils[i].position.x = (i === 0 ? 0.012 : -0.012) + clamp(angleDifference * 0.018, -0.022, 0.022);
+      // Keep the entire iris/pupil/catchlight cluster together; the highlight
+      // stays attached through blinks, LOD switches and all fruit positions.
+      pupils[i].position.x = (i === 0 ? 0.012 : -0.012) + clamp(gazeX + angleDifference * 0.010, -0.028, 0.028);
+      pupils[i].position.y = -0.005 + gazeY;
       pupils[i].scale.x = 1 - dangerEase * 0.16;
       brows[i].rotation.z = (i === 0 ? -1 : 1) * dangerEase * 0.13;
     }
@@ -523,6 +551,7 @@ export function createSerpent(THREE) {
       geometries: geometries.size, materials: materials.size, textures: textures.size,
       bodyRings: ringCount, bodyVertices: ringCount * activeRing, detail: lowDetail ? 'low' : 'high', bodyTriangles: indexCount / 3,
       paths: pathCount, maxBodyRings: MAX_RINGS, truncated, disposed,
+      gaze: { horizontal: gazeX, vertical: gazeY },
       bufferBytes: positions.byteLength + normals.byteLength + uvs.byteLength + indices.byteLength,
     };
   }

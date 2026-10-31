@@ -67,6 +67,9 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
   let lastRun = '';
   let lastFoods = -1;
   let eatingUntil = 0;
+  // Cache the public food coordinate until it changes; head-led gaze adds no
+  // extra cell conversion/allocation to the frequently submitted overview.
+  let lastFoodCell = -1, foodPoint = null;
   let cameraMode = 'overview';
   let quality = new URLSearchParams(location.search).get('quality') === 'low' ? 'low' : 'balanced';
   const scaleSamples = [];
@@ -327,6 +330,8 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
       invalidateStaticCache();
       scene.add(world.group);
       dimensions = key;
+      lastFoodCell = -1;
+      foodPoint = null;
       renderer.shadowMap.needsUpdate = true;
     }
     if (lastRun !== snapshot.runToken) {
@@ -338,6 +343,11 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
       eatingUntil = time + 0.55;
     }
     const motion = buildMotion(snapshot, previousFrame?.snapshot, settings.reducedMotion ? 1 : alpha);
+    const nextFoodCell = Number.isInteger(snapshot.food?.cell) ? snapshot.food.cell : -1;
+    if (nextFoodCell !== lastFoodCell) {
+      lastFoodCell = nextFoodCell;
+      foodPoint = nextFoodCell >= 0 ? cellPoint(nextFoodCell, snapshot.width, snapshot.height) : null;
+    }
     cameraMode = settings.cameraMode || 'overview';
     contacts.count = 0;
     for (const path of motion.paths) for (const point of path) {
@@ -351,12 +361,12 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
     serpent.update(motion.paths, {
       ...shared, direction: motion.direction, danger: snapshot.dangerLevel,
       eating: Math.max(0, (eatingUntil - time) / 0.55),
+      food: foodPoint, runToken: snapshot.runToken,
       detail: cameraMode === 'detail' ? 'high' : 'low',
     });
     world.update(snapshot, { ...shared, maxParticles });
     const head = motion.paths[0]?.[0] || { x: 0, z: 0 };
-    const food = cameraMode === 'detail' && Number.isInteger(snapshot.food?.cell)
-      ? cellPoint(snapshot.food.cell, snapshot.width, snapshot.height) : null;
+    const food = cameraMode === 'detail' ? foodPoint : null;
     const composition = cameraComposition({ width: snapshot.width, height: snapshot.height, aspect: camera.aspect, mode: cameraMode, head, direction: motion.direction, food });
     desiredTarget.set(composition.target.x, composition.target.y, composition.target.z);
     desiredPosition.set(composition.offset.x, composition.offset.y, composition.offset.z);
