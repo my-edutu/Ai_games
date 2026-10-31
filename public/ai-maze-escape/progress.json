@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-10-31T03:27:20.959Z",
+  "updatedAt": "2026-10-31T04:51:30.100Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Twelfth pass (2026-10-31T03:25:44.217Z actual browser capture): the bounded public-stage/known-exit camera blend preserves a visible Pip and exit and makes the terraced scene fill more of the frame. Identical-view color occupancy falls from about 44.6% to 35.7% water-colored pixels; that is a rough composition measure, not an aesthetic score. Source 5395d5f passed 522/522 Node and 25/25 browser checks; last independent critics still prefer Nintendo and no fresh blind review is available."
+    "summary": "Thirteenth pass (2026-10-31 real browser capture): a key is visibly modeled and a publicly disclosed locked gate has new physical coral cross-braces and lock plate. All four screenshot SHA-256 manifests were checked against the actual source-bound CI artifact. The gate is still oblique and too small at the left edge; Nintendo Captain Toad remains the stronger bar. Source c072f0a passed 523/523 Node and 25/25 browser checks; no fresh independent blind visual critic or hardware FPS."
   },
   "captures": [
     {
@@ -105,11 +105,12 @@
     "Eighth pass: a reuse-only pool of in-world ivory direction arrows marks genuinely known, reciprocally legal neighboring corridors; teal is reserved for a current disclosed AI-plan step. Closed gate edges and stale/nonreciprocal plans are suppressed, while the misleading gold threat halo is now a triangular warning signal. This changes only presentation; current-source CI and authentic dated evidence were captured.",
     "Ninth and tenth passes: a known, connected public key/exit now gets a distinctive in-world beacon and a separate first-step floor arrow (amber for key, mint for exit), while turquoise continues to denote only the disclosed AI plan. Tests exclude closed gates, blocked/nonreciprocal/unknown cells, hidden goals and terminal states. One native 1280×900 current-source image authenticates the known exit cue; visual bar remains unpassed.",
     "Eleventh pass: a known exit's modeled arch is no longer crowded by a redundant hovering beacon; its low ground marker and truthful first-step glyph remain. Nearby already-observed objectives receive closer follow framing without altering AI state. Real dated 1280×900 evidence shows a larger Pip but also a less balanced water/stage composition, now the next visual gap.",
-    "Twelfth pass: the follow camera now keeps some nearby disclosed stage context while still pointing toward an already observed reachable landmark, with a single 2.5-world-unit cap when the goal is close. Original 3D geometry, public-only route semantics, character expressions and deterministic rules remain unchanged; browser evidence is pending."
+    "Twelfth pass: the follow camera now keeps some nearby disclosed stage context while still pointing toward an already observed reachable landmark, with a single 2.5-world-unit cap when the goal is close. Original 3D geometry, public-only route semantics, character expressions and deterministic rules remain unchanged; browser evidence is pending.",
+    "Thirteenth pass: disclosed closed doors gain original coral crossed physical barriers and larger lock plates while opened/undisclosed doors render no warning obstruction. Public-knowledge tests and real key/sealed-gate camera evidence were added; four genuine same-seed screenshots have dated verified SHA-256 manifests in GitHub CI artifact 13030701894. This is not benchmark parity."
   ],
   "nextGaps": [
-    "Visually inspect authentic publicly disclosed key and closed-gate scenes; keep route arrows off unknown, blocked or shut edges and avoid implying safety.",
-    "Improve framing for a nearby known exit on narrow portrait screens without sacrificing Pip visibility; judge actual rendered screenshots, not code assertions alone.",
+    "Make the actual publicly disclosed locked gate the clear primary obstacle when Pip is nearby: improve its physically modeled crossed brace foreground/size and camera context, then inspect a new authentic native-size image. Never suggest a traversable locked or undisclosed edge.",
+    "Capture and inspect actual narrow portrait key and closed-gate frames with Pip legible and all controls accessible; do not infer screenshot quality from DOM tests alone.",
     "Increase character-at-gameplay-scale expression, exit/obstacle differentiation and level-specific architecture while maintaining the original 3D characters.",
     "Obtain fresh independent blind A/B from native-size real gameplay against both SHA-pinned official Nintendo references; no parity verdict yet.",
     "Verify moving stair/gait and audio behavior plus non-throttled GPU performance separately; SwiftShader CPU timing is not hardware FPS. Leave PR draft, unmerged and undeployed."
@@ -196,6 +197,13 @@
       "verdict": "Portal/hero clarity improved, world composition still weaker than Nintendo; benchmark NOT PASSED",
       "date": "2026-10-31T02:07:46.806Z",
       "summary": "Actual 1280×900 browser output source 12d32cb, public seed maze-visual-reference-13 tick26, source-bound PNG SHA-256 4f00eca791ef87e343008e4f781e809c58342220a511254d371521d6fb549998; current artifact https://github.com/my-edutu/Ai_games/actions/runs/41157967040/artifacts/13026233263. Floating extra gem/ring no longer crowds exit, explorer larger. But greater empty water and stage crop remain. This is not a blind fresh-context critic win."
+    },
+    {
+      "title": "Thirteenth-pass key and sealed-gate source-bound 3D screenshots — lead visual review, independent verdict outstanding",
+      "reviewer": "Lead inspected actual native-size CI images; fresh independent subagents and Ultracode unavailable (shared workspace tunnel)",
+      "verdict": "Known golden key legible; sealed-gate cross visible but small and obliquely staged; fixed Captain Toad reference still wins",
+      "date": "2026-10-31T04:49:08.171Z",
+      "summary": "Actual 1280×900 browser PNGs from production seed maze-visual-reference-13: key tick16 SHA256 6cdc984a165b036c20fc090f5abc0d7aad5d2a610fb616bf691c1394a1434b55; sealed gate tick21 SHA256 157d9127446bd49abbda53a2f0183309596a50e5b36d5fb6727dfccf26088613. Both source-bound to gameplay commit c072f0a, real key/gate projected on screen, no fake props. CI artifact https://github.com/my-edutu/Ai_games/actions/runs/41169676492/artifacts/13030701894. Lead compared to existing fixed Nintendo screenshots; no independent A/B win or hardware-FPS evidence."
     }
   ],
   "verification": [
@@ -306,6 +314,13 @@
       "detail": "Gameplay source 12d32cb CI completed successfully with all technical checks and a real 1280×900 production public frame dated 2026-10-31T02:07:46.806Z. Exit visibility and hero scale improved, while the scene shifts too far right. Genuine screenshot SHA-256 4f00eca791ef87e343008e4f781e809c58342220a511254d371521d6fb549998; no independent A/B or hardware FPS.",
       "sourceCommit": "12d32cbec9c089608ac77b6df73dbe7914cc180f",
       "sourceUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41157967040/artifacts/13026233263"
+    },
+    {
+      "name": "Thirteenth-pass sealed-gate/known-key genuine browser evidence",
+      "status": "523/523 Node and 25/25 browser checks passed; visual Nintendo bar NOT passed",
+      "detail": "Gameplay source c072f0a passed all Autonomous Games CI jobs, including new observed/open/unknown gate resource and privacy regression and actual 1280x900 key and sealed-gate dated PNGs. Key source cell37 tick16 and gate door-2 tick21 were selected from unaltered real public frames, inspected and their PNG SHA256 verified. Gate still too small/edge-staged; no fresh independent critic. Software CI rendering samples are not hardware performance.",
+      "sourceCommit": "c072f0a95204010cb178d9193bb2aedba231c7f4",
+      "sourceUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41169676492"
     }
   ],
   "references": [
