@@ -443,25 +443,48 @@ void main(){
   float damp=clamp(weatherWetness*.63+riparian*.64,0.,1.);
   c*=mix(vec3(1.035,1.015,.97),vec3(.76,.93,.87),damp);
  }else if(vMaterial>1.5&&vMaterial<2.5){
-  // Gauntlet 030: view-dependent Fresnel and physically motivated sun reflection.
-  // Water normals are optical ripple normals, not the stepped bank mesh normals.
-  float flowA=vWorld.x*2.45+vWorld.z*1.09-worldTime*.86;
-  float flowB=vWorld.z*5.25-vWorld.x*1.61+worldTime*1.33;
-  float waveA=sin(flowA),waveB=sin(flowB);
-  vec3 rippleNormal=normalize(vec3(-.078*cos(flowA)-.042*cos(flowB),1.,
-                                  -.041*cos(flowA)+.075*cos(flowB)));
+  // G063: genuine channel optical structure rather than a flat cyan ribbon.
+  // Recover bathymetry from the same curving axis and tapered outer reaches
+  // as the mesh. All optics are GPU-only: no new geometry, RNG or saved state.
+  float streamMid=20.+3.*sin(vWorld.x*.13);
+  float lateral=vWorld.z-streamMid;
+  float reachT=clamp((abs(vWorld.x)-42.)/4.,0.,1.);
+  float reachFade=1.-pow(1.-reachT*reachT,4.);
+  float riverWidth=mix(1.8,.08,reachFade);
+  float crossChannel=clamp(abs(lateral)/riverWidth,0.,1.);
+  float channelDepth=1.-smoothstep(.18,.96,crossChannel);
+  vec2 riverCurrent=normalize(vec2(1.,.39*cos(vWorld.x*.13)));
+  vec2 riverAcross=vec2(-riverCurrent.y,riverCurrent.x);
+  float along=dot(vWorld.xz,riverCurrent),across=dot(vWorld.xz,riverAcross);
+  // World-anchored sediment does not swim with the current: only the tiny
+  // surface ripple normals move. This avoids huge repeating diagonal waves.
+  float sedimentGrain=noise3(vec3(vWorld.x*.53,lateral*1.35,4.));
+  float phaseA=along*2.65+across*.54+sedimentGrain*1.1-worldTime*.76;
+  float phaseB=along*5.4-across*1.83+sedimentGrain*2.5-worldTime*1.24;
+  float rippleAlong=.05*cos(phaseA)+.025*cos(phaseB);
+  float rippleAcross=.016*cos(phaseB);
+  vec3 rippleNormal=normalize(vec3(
+   -riverCurrent.x*rippleAlong-riverAcross.x*rippleAcross,1.,
+   -riverCurrent.y*rippleAlong-riverAcross.y*rippleAcross));
   vec3 viewDir=normalize(eyePosition-vWorld);
-  float face=max(dot(rippleNormal,viewDir),0.);
-  float fresnel=.034+.966*pow(1.-face,5.);
-  vec3 bedColor=c*vec3(.63,.99,1.03);
-  vec3 skyReflect=mix(fogColor*vec3(1.10,1.08,1.05),vec3(.48,.64,.70),.38);
-  c=mix(bedColor,skyReflect,clamp(.08+fresnel*.72,.08,.75));
-  float sunGlint=pow(max(dot(reflect(-normalize(sunDirection),rippleNormal),viewDir),0.),32.);
-  c+=vec3(1.,.86,.67)*sunGlint*.54;
-  float shoreDistance=abs(vWorld.z-(20.+3.*sin(vWorld.x*.13)));
-  float shoreWash=smoothstep(1.21,1.79,shoreDistance);
-  float whiteWater=smoothstep(.15,.79,waveA*.35+waveB*.27+.47);
-  c=mix(c,vec3(.67,.79,.74),shoreWash*whiteWater*.30);
+  float fresnel=.045+.955*pow(1.-max(dot(rippleNormal,viewDir),0.),5.);
+  // The deeper middle absorbs more light; muddy gravel and silty shallows
+  // remain visible near banks even under clear midday illumination.
+  vec3 shallowBed=c*vec3(.68,.72,.60);
+  vec3 deepBed=c*vec3(.34,.52,.55);
+  vec3 riverbed=mix(shallowBed,deepBed,channelDepth);
+  riverbed*=.83+.25*sedimentGrain;
+  vec3 skyReflect=mix(fogColor*vec3(.85,.88,.89),vec3(.31,.46,.49),.55);
+  c=mix(riverbed,skyReflect,clamp(.075+fresnel*.56,.075,.65));
+  float sunGlint=pow(max(dot(reflect(-normalize(sunDirection),rippleNormal),viewDir),0.),48.);
+  c+=vec3(.92,.84,.66)*sunGlint*.33;
+  // Constrain low-contrast broken foam only to narrow shorelines. Avoid
+  // painted full-width horizontal stripes and the G062 detached water patch.
+  float bankFoam=smoothstep(.63,.97,crossChannel);
+  float foamBreak=smoothstep(.49,.82,.47+.20*sin(phaseA)+
+    .16*sin(phaseB)+.15*(sedimentGrain-.5));
+  c=mix(c,vec3(.60,.68,.60),bankFoam*foamBreak*(.13+.08*weatherWetness));
+  c*=1.-weatherWetness*.06;
  }else if(vMaterial>2.5&&vMaterial<3.5){
   // G054 washed footpaths: contiguous earth, mineral grit and sparse
   // hard pebbles read at pedestrian height without changing walkable paths.
@@ -798,6 +821,19 @@ function outerRiverReachWidth(x){
  const t=Math.max(0,Math.min(1,(Math.abs(x)-42)/(RIVER_REACH_SEGMENTS*RIVER_REACH_STEP)));
  const fade=1-Math.pow(1-t*t,4);
  return 1.8*(1-fade)+.08*fade;
+}
+// Read-only CPU twin of G063's shader shoreline/depth response. Use this
+// for semantic tests; the real attached GLSL is validated separately on GPU.
+function riverOpticsSample(x,z){
+ if(!Number.isFinite(x)||!Number.isFinite(z))throw Error('Invalid river optics coordinate');
+ const riverWidth=outerRiverReachWidth(x);
+ const bankRatio=Math.min(1,Math.abs(z-(20+3*Math.sin(x*.13)))/riverWidth);
+ const smooth=(lo,hi,value)=>{
+  const t=Math.max(0,Math.min(1,(value-lo)/(hi-lo)));
+  return t*t*(3-2*t);
+ };
+ return {riverWidth,bankRatio,channelDepth:1-smooth(.18,.96,bankRatio),
+  bankFoam:smooth(.63,.97,bankRatio)};
 }
 // G062c critic: terminate within four metres of the playable boundary;
 // a 20m overland ribbon and its submerged/disconnected successor both failed.
@@ -2847,7 +2883,7 @@ bindGeometry(buffer);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(data),gl.DYN
  // Only a completed presentation may become the reusable frozen frame.
  lastFrozenFrameKey=frozenViewKey;
 }
-requestAnimationFrame(render);window.__tinyKingdom={getState:()=>JSON.parse(JSON.stringify({state,people:people.map(({name,job,x,z,target})=>({name,job,x,z,target}))})),setSpeed:x=>{speed=x},step,reset:start,renderer:()=>canvas.getContext('webgl')?'webgl':'software',metrics:()=>({citizens:people.length,buildings:city.length+2,day:Math.floor(state.t/24)+1,food:state.food,wood:state.wood,gold:state.gold,relationships:people.filter(p=>p.friend).length}),route:(a,b)=>routeBetween(a[0],a[1],b[0],b[1]),walkable:(p)=>walkable(p[0],p[1]),getNavigation:()=>people.map(p=>({name:p.name,position:[p.x,p.z],target:p.target,remaining:p.path?.length||0,path:p.path,activity:p.activity,hunger:p.hunger,energy:p.energy})),exportSnapshot,restoreSnapshot,saveWorld,restoreWorld,climateAt,skyConditions,getCitizenProfiles:()=>cloneData(people.map(({name,job,trait,friend,bonds,energy,hunger,activity})=>({name,job,trait,friend,bonds,energy,hunger,activity}))),getRigPose:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(citizenRigPose(people[index])):null,getGarmentProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(garmentProfile(people[index],index,citizenRigPose(people[index]))):null,getFaceProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(faceProfile(people[index],index)):null,getFaceNormalProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(faceNormalField(faceProfile(people[index],index))):null,getSelectedCitizen:()=>people[selectedCitizen]?.name,routeCacheMetrics:()=>({entries:routeCache.size,hits:cacheHits,misses:cacheMisses}),getCamera:()=>({yaw,pitch,zoom,focus:focusPoint.slice(),follow,cinematic}),getCitizenCameraPlan:()=>lastFollowShot?{...lastFollowShot,eye:lastFollowShot.eye.slice(),target:lastFollowShot.target.slice()}:null,getTerrainHeight:(x,z)=>terrain(x,z),getTerrainBiomeSample:terrainBiomeSample,getOuterRiverReachStats:()=>({...outerRiverReachStats}),getHorizonStats:()=>({triangles:terrainHorizonTriangles,outerBands:2,segmentsPerSide:HORIZON_SEGMENTS,extent:HORIZON_MAX+HORIZON_OFFSETS[2]}),getHighlandRockStats:()=>({...highlandRockStats,heights:highlandRockStats.heights.slice()}),getClimateMaterialProfile:climateMaterialProfile,getWildfloraCount:()=>wildflora.length,getMeadowStats:()=>({clusters:meadowUnderstory.length,triangles:meadowUnderstory.length*8,season:climateAt(state.t).season,cached:true}),getMaterialSystem:()=>({vertexStride:10,surfaceShaderVersion:'procedural-060',materials:Object.keys(MATERIAL),gpuRenderValidated:false}),getMaterialSwatchAudit:materialSwatchAudit,waterStats:()=>({model:'fresnel-ripple-shorefoam-v1',segments:RIVER_SEGMENTS,waterTriangles:RIVER_SEGMENTS*RIVER_BANDS*2,bankTriangles:RIVER_SEGMENTS*2*RIVER_BANK_BANDS*2}),getScenicSites:scenicSiteMetrics,getFestivalVisualStats:()=>({season:festivalSeason,cacheBuilds:festivalCacheBuilds,vertices:festivalGeometry?.length||0}),getOrchardVisualStats:()=>({...orchardVisualStats}),getGeometryAudit:geometryAudit,getFarmsteadStats:()=>({...farmScene,granary:FARMSTEAD.granary.slice(),season:climateAt(state.t).season}),getFarmTreeClearanceStats:farmTreeClearanceStats,getForestVisualStats:()=>({
+requestAnimationFrame(render);window.__tinyKingdom={getState:()=>JSON.parse(JSON.stringify({state,people:people.map(({name,job,x,z,target})=>({name,job,x,z,target}))})),setSpeed:x=>{speed=x},step,reset:start,renderer:()=>canvas.getContext('webgl')?'webgl':'software',metrics:()=>({citizens:people.length,buildings:city.length+2,day:Math.floor(state.t/24)+1,food:state.food,wood:state.wood,gold:state.gold,relationships:people.filter(p=>p.friend).length}),route:(a,b)=>routeBetween(a[0],a[1],b[0],b[1]),walkable:(p)=>walkable(p[0],p[1]),getNavigation:()=>people.map(p=>({name:p.name,position:[p.x,p.z],target:p.target,remaining:p.path?.length||0,path:p.path,activity:p.activity,hunger:p.hunger,energy:p.energy})),exportSnapshot,restoreSnapshot,saveWorld,restoreWorld,climateAt,skyConditions,getCitizenProfiles:()=>cloneData(people.map(({name,job,trait,friend,bonds,energy,hunger,activity})=>({name,job,trait,friend,bonds,energy,hunger,activity}))),getRigPose:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(citizenRigPose(people[index])):null,getGarmentProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(garmentProfile(people[index],index,citizenRigPose(people[index]))):null,getFaceProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(faceProfile(people[index],index)):null,getFaceNormalProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(faceNormalField(faceProfile(people[index],index))):null,getSelectedCitizen:()=>people[selectedCitizen]?.name,routeCacheMetrics:()=>({entries:routeCache.size,hits:cacheHits,misses:cacheMisses}),getCamera:()=>({yaw,pitch,zoom,focus:focusPoint.slice(),follow,cinematic}),getCitizenCameraPlan:()=>lastFollowShot?{...lastFollowShot,eye:lastFollowShot.eye.slice(),target:lastFollowShot.target.slice()}:null,getTerrainHeight:(x,z)=>terrain(x,z),getTerrainBiomeSample:terrainBiomeSample,getOuterRiverReachStats:()=>({...outerRiverReachStats}),sampleRiverOptics:riverOpticsSample,getHorizonStats:()=>({triangles:terrainHorizonTriangles,outerBands:2,segmentsPerSide:HORIZON_SEGMENTS,extent:HORIZON_MAX+HORIZON_OFFSETS[2]}),getHighlandRockStats:()=>({...highlandRockStats,heights:highlandRockStats.heights.slice()}),getClimateMaterialProfile:climateMaterialProfile,getWildfloraCount:()=>wildflora.length,getMeadowStats:()=>({clusters:meadowUnderstory.length,triangles:meadowUnderstory.length*8,season:climateAt(state.t).season,cached:true}),getMaterialSystem:()=>({vertexStride:10,surfaceShaderVersion:'procedural-063',materials:Object.keys(MATERIAL),gpuRenderValidated:false}),getMaterialSwatchAudit:materialSwatchAudit,waterStats:()=>({model:'channel-depth-sediment-fresnel-v2',segments:RIVER_SEGMENTS,waterTriangles:RIVER_SEGMENTS*RIVER_BANDS*2,bankTriangles:RIVER_SEGMENTS*2*RIVER_BANK_BANDS*2}),getScenicSites:scenicSiteMetrics,getFestivalVisualStats:()=>({season:festivalSeason,cacheBuilds:festivalCacheBuilds,vertices:festivalGeometry?.length||0}),getOrchardVisualStats:()=>({...orchardVisualStats}),getGeometryAudit:geometryAudit,getFarmsteadStats:()=>({...farmScene,granary:FARMSTEAD.granary.slice(),season:climateAt(state.t).season}),getFarmTreeClearanceStats:farmTreeClearanceStats,getForestVisualStats:()=>({
  sourceTrees:trees.length,
  renderedTrees:forestVisualStats.deciduous+forestVisualStats.conifers,
  conifers:forestVisualStats.conifers,deciduous:forestVisualStats.deciduous,
