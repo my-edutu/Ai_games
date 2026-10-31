@@ -1,0 +1,27 @@
+# Game 2 Gauntlet — pass 27: public key–lock encounter camera
+
+**Date:** 2026-10-31. **Status:** source candidate committed; actual pass-27 render and independent criticism **PENDING**. Fixed Captain Toad quality bar **NOT PASSED**. PR #53 stays draft, unmerged and undeployed.
+
+## Fixed benchmark and honest baseline
+
+The unaltered official *Captain Toad: Treasure Tracker* screenshots are the primary visual bar: sandstone frame SHA-256 `b33003efa5e943e27ddc9daa9d1c9a396313d5f0ee7bd836c731c4cbfc286d9b`, water/explorer frame `4c6a3e171ebd4125cf16de29db54f22089f1ba6f3ae85cd5d6059f30f262e8b7`, from the [official Nintendo store](https://www.nintendo.com/us/store/products/captain-toad-treasure-tracker-switch/). *Luigi's Mansion 3* and *ASTRO BOT* remain supporting references; they are not substitutes for this bar.
+
+The latest inspected candidate remains the **real pass-26 capture** from [CI artifact 13050431503](https://github.com/my-edutu/Ai_games/actions/runs/41219370680/artifacts/13050431503): actual public seed `maze-visual-reference-13`, tick 21, genuinely **closed** `door-2`. Original 390×844 portrait captured 2026-10-31T16:31:01.249Z, PNG SHA-256 `7829f8afb4d8dcd9ad5abfe9436e3c39d3fa6973cc610f15c06638ae3ffbec76`; desktop 1280×900 16:30:57.650Z, SHA-256 `7442e73aac03526ff9b39705776706135eca52e28a89e8e12723bf7af7baa5aa`. Both source-bound PNG hashes were verified in pass 26. **These are the before images, not images of pass 27.**
+
+At *actual portrait size* Pip's lifted key and the recessed right-stile socket remain too tiny, both huddled left of the frame. The larger known stage dominates the right while water dominates the background; the wordless key-to-lock connection is not clear enough. Nintendo wins on immediately readable player/action hierarchy and richly staged physical interaction.
+
+## Small independently judgeable pass-27 slices
+
+1. **True matched-key framing.** [Camera-source commits 83b14f8 and b303f2b](https://github.com/my-edutu/Ai_games/commit/b303f2b96c8219cb2af4bf8e223b6c9116a68fe7) add `composePublicKeyLockFocus` and use it **only** when the source-disclosed sealed gate is also the one next to a genuinely carried exact matching key and there is no nearby disclosed threat or terminal state. On portrait, the visual target now weights the actual gate rather than nearby coastal floor, with a finite 1.5-world-unit cap. No secret-map access, AI command, gameplay movement, gate opening or hidden passage is implied.
+2. **Readable native scale.** The real keyed encounter alone receives a narrower orthographic half-height (4.70 portrait, 4.55 desktop; previously 5.42 and 5.05 for generic sealed-gate shots). Its aim lifts slightly to protect the true observed arch. Ordinary unkeyed closed gates, result screens, threats and small-height viewports keep their previous presentation rules.
+3. **Separate verification contracts.** [Source tests 08333c6](https://github.com/my-edutu/Ai_games/commit/08333c6e44d988b66a6eea775494a1aae1ebd2b6) check focus direction, finite bounds, public-snapshot immutability, and unchanged ordinary framing. [Browser checks 46d5f02](https://github.com/my-edutu/Ai_games/commit/46d5f022a0ff42b71356ad4fbcd9585b2d2f86d2) keep existing source-disclosed gate/Pip in-frame and margin assertions, and distinguish **honest exact-key close-up** from the existing wider shot. They record `keyLockCloseup` and the real `carriedKeyGateGesture` in dated manifests. There is no fabricated gate, key, hero pose or unlocked transition in the evidence path.
+
+## Render and independent acceptance still required
+
+- Inspect **actual** current-source 1280×900 and native 390×844 screenshots from the same unaltered production seed/tick and *closed* door. Verify each manifest's source SHA, precise UTC capture timestamp and recomputed image SHA-256. Avoid pixel-compositing a fictional interaction or presenting previous captures as new evidence.
+- Compare pass 27 against authentic pass 26 **at original native size**, with full-frame and a labeled 1:1 detail crop: are Pip's glove/key, lock recess, crossed bars and reachable stage now simultaneously legible and free of occlusion? Do the whole frame and especially mobile composition actually improve, or does closer cropping sacrifice the arch?
+- Have a *fresh-context separate critic* judge against both fixed Nintendo images, preferably blind on candidate order for pass26 vs pass27 (the branded reference comparison cannot reliably be blinded). No independent win until that critic personally inspects actual renders.
+- Verify the exact-head CI build, strict focused/Node/browser results, host and determinism; preserve all existing safety assertions. If browser capture remains blocked by CPU-throttled SwiftShader, record the limitation, not a false product FPS failure or a green CI.
+- If the close-up does not improve real outputs, return to camera-builder slice; if successful locally but benchmark still wins, next independently judgeable slice is a physically clearer glove-to-socket pose and richer foreground staging from disclosed terrain only.
+
+**Current verdict:** NEW SOURCE CANDIDATE, VISUAL REVIEW OPEN. No pass-27 screenshot, independent A/B victory, GPU FPS or complete CI pass claimed. The workspace tunnel returned `Tunnel-client has not been seen for 300 seconds` during this run, so subagent builders/critics and Ultracode were not accessible; a direct tool attempt failed. Do not merge/deploy.
