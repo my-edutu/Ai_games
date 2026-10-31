@@ -28,7 +28,7 @@ jobs:
       - name: Record exact source revision
         run: git rev-parse HEAD > review-source-revision.txt
       - name: Package only public source and installed dependencies
-        run: tar -czf dungeon-review-workspace.tar.gz AGENTS.md skills docs games packages scripts tests public dist node_modules package.json package-lock.json tsconfig.json playwright.config.cjs review-source-revision.txt
+        run: tar -czf dungeon-review-workspace.tar.gz AGENTS.md .github skills docs games packages services types fixtures evidence scripts tests public dist node_modules package.json package-lock.json tsconfig.json playwright.config.cjs review-source-revision.txt
       - uses: actions/upload-artifact@v4
         with:
           name: dungeon-review-workspace
