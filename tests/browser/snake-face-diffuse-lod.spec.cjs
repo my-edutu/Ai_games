@@ -28,7 +28,21 @@ test('real WebGL: diffuse distance face retains sculpt and PBR close-up against 
   expect(source.split(marker).length).toBe(2);
   expect(source.split(materialSwitch).length).toBe(2);
   const priorSource = (source.slice(0, start) + source.slice(end)).replace(materialSwitch, '');
-  expect(blobHash(priorSource)).toBe('5a4d1c1e3f6fd2874c8984313fc24de190e608d5');
+  // R34's valid new attention gesture must be present in BOTH R33 visual
+  // comparison branches. Remove it ONLY for the exact historical R33 parent
+  // SHA guard, so future expression cannot taint this old material review.
+  const attentionBegin = '    // BEGIN R34 PUBLIC FOOD ATTENTION\n';
+  const attentionEnd = '    // END R34 PUBLIC FOOD ATTENTION\n';
+  const attentionStart = priorSource.indexOf(attentionBegin);
+  const attentionFinish = priorSource.indexOf(attentionEnd);
+  expect(attentionStart).toBeGreaterThan(0);
+  expect(attentionFinish).toBeGreaterThan(attentionStart);
+  const oldAttentionDeclaration = '  let gazeX = 0, gazeY = 0, previousRunToken;';
+  const newAttentionDeclaration = '  let gazeX = 0, gazeY = 0, previousRunToken, focusYaw = 0;';
+  const historicalPrior = (priorSource.slice(0, attentionStart)
+    + priorSource.slice(attentionFinish + attentionEnd.length))
+    .replace(newAttentionDeclaration, oldAttentionDeclaration);
+  expect(blobHash(historicalPrior)).toBe('5a4d1c1e3f6fd2874c8984313fc24de190e608d5');
   const captures = {};
   for (const mode of ['overview', 'detail']) {
     captures[mode] = {};

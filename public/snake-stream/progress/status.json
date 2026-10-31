@@ -1,14 +1,14 @@
 {
-  "updatedAt": "2026-10-31T19:54:59Z",
-  "status": "Round 34 · bounded public-food original skull attention candidate, real WebGL capture and CI pending",
-  "detail": "Exact predecessor f38b1020 / serpent blob 6d0dd900. The original skull now gives a <=9.17-degree forward-only local glance at nearby public fruit, with normal easing, restart/portal snap and fixed reduced-motion pose. Gameplay AI, score, public authority, portals, goals/hazards, UI, captions, recovery and GPU budgets unchanged. New focused Node and exact-old-source true Chromium/WebGL synthetic public-frame A/B tests staged; new CI not yet observed. Latest PRIOR focused 41229330381 passed 22/23 real browser but desktop failed 8 actual WebGL submissions/1006ms vs required >=17. General browser cancelled after build/Node/authority passed. Full Snake Pass visual/motion benchmark LOSE; independent critic, real display-present FPS, soak/R5 absent. Draft, unmerged, undeployed.",
+  "updatedAt": "2026-10-31T20:10:00Z",
+  "status": "Round 34 · original 3D public-fruit head glance verified in real WebGL; strict desktop FAIL 9/17; historical R33 comparator correction pending",
+  "detail": "Exact SHA source feb317e2 verified; locally 66/66 focused Snake Node including all four directional headings, build and host authority/recovery PASS, predecessor red 0/3 and new green 3/3. Focused actual Chromium/SwiftShader 41237168587 passed 22/24, including new exact-parent-SHA 960x640 overview/detail A/B. Real detail changed 10396 pixels (1.692%) showing a small visible head glance, overview 190 pixels (0.031%), still below official Snake Pass. Two failures: existing strict desktop 9 actual WebGL renders/1005.7ms vs unchanged >=17; legacy R33 historical SHA assertion now needs to exclude valid later R34 code ONLY in hash baseline while keeping visual A/B sources equal. Correction locally SHA-verified but CI rerun PENDING. General CI running at latest check. Independent critic, reliable device display-present FPS, soak and R5 missing. Draft, unmerged, undeployed.",
   "latestImage": "/progress/evidence/round-9-overview.jpg",
-  "latestCaption": "This is an older Round9 real WebGL image, NOT Round34. Exact new Round34 old/new real WebGL PNGs remain pending CI.",
+  "latestCaption": "Historical Round9 image, NOT current Round34. Current true Chromium/WebGL original PNGs: https://github.com/my-edutu/Ai_games/actions/runs/41237168587/artifacts/13055723760",
   "reviews": [
     {
-      "area": "Round 34 · public-food skull look-ahead",
-      "verdict": "SOURCE CANDIDATE / NODE AND WEBGL EVIDENCE PENDING / WHOLE-GAME SNAKE PASS LOSE",
-      "gap": "New bounded forward-only original 3D skull swivel, normal ease, portal/restart reset and fixed reduced-motion pose. Prior focused CI 22/23, strict 8 actual submitted frames/1006ms <17; exact-source new node/PNG evidence, independent critic, displayed-device FPS, soak/R5 still open."
+      "area": "Round 34 · original near-public-fruit skull look",
+      "verdict": "REAL WEBGL A/B AND 65/65 FOCUSED NODE PASS · DESKTOP 9/17 FAIL · HISTORIC R33 SHA REGRESSION FIX PENDING · WHOLE-GAME LOSE",
+      "gap": "Actual close-up before/after 10396/614400 changed pixels, overview 190; head glance visible, unchanged resources. Focused browser 22/24; historical R33 guard needs prior-source isolation, strict FPS 9/1005.7ms <17. No independent visual approval, real display FPS, soak or R5. An extra all-four-heading regression locally increases focused Snake Node to 66/66; exact-parent Node 0/3 RED vs 3/3 GREEN. Remote fix CI PENDING."
     },
     {
       "area": "Round 33 · existing sculpted face diffuse overview LOD",
@@ -569,14 +569,22 @@
     },
     {
       "title": "Round 34 · original skull follows near public fruit",
-      "summary": "Adds a small no-new-GPU-cost original 3D head-attention gesture to existing eye gaze, with forward/range limit, normal easing, portal/restart reset and fixed reduced motion. New Node and same-frozen-frame true WebGL synthetic before/after comparator require exact-head CI. Prior run 41229330381 22/23 but 8 actual render submissions/1006ms <17. Commercial character, world, motion and production gates remain unmet.",
+      "summary": "Exact offline source SHA verifies build, 65/65 focused Node, host authority/recovery PASS; new two-case genuine prior RED (0/2) / new GREEN (2/2). Real Chromium focused 22/24: Round34 SHA1-prior WebGL synthetic public food before/after PASS, 10396 close-up changed pixels (1.692%) and 190 overview (0.031%); older R33 historical SHA guard needs a correction; desktop 9 actual WebGL submissions /1005.7ms vs minimum 17 FAIL. Commercial quality, independent device/soak/R5 gates remain open. Following targeted historical SHA isolation, additional all-four-heading Node case locally RED 0/3 on predecessor, GREEN 3/3 on production, and 66/66 focused Snake Node PASS; remote browser rerun pending.",
       "captures": [
         {
-          "label": "Prior-head real Chromium screenshots/traces (not Round34)",
-          "path": "https://github.com/my-edutu/Ai_games/actions/runs/41229330381/artifacts/13053380789"
+          "label": "Round34 exact-prior true WebGL overview/detail before/after and browser trace; test PASS",
+          "path": "https://github.com/my-edutu/Ai_games/actions/runs/41237168587/artifacts/13055723760"
         },
         {
-          "label": "Round34 critical source review and pending capture protocol",
+          "label": "Current gameplay motion WebM (encoded frames are not rendered/display FPS)",
+          "path": "https://github.com/my-edutu/Ai_games/actions/runs/41237168587/artifacts/13056367200"
+        },
+        {
+          "label": "Current actual render submissions and GPU diagnostics",
+          "path": "https://github.com/my-edutu/Ai_games/actions/runs/41237168587/artifacts/13056232714"
+        },
+        {
+          "label": "Round34 written measured visual critique, legacy baseline correction pending",
           "path": "https://github.com/my-edutu/Ai_games/blob/feat/autonomous-snake-3d-gauntlet/docs/reviews/snake-gauntlet/round34-public-head-attention.md"
         }
       ]

@@ -60,3 +60,28 @@ test('head attention eases in motion and instantly resets across public portal j
     assert.equal(serpent.stats().truncated,false);
   }finally{serpent.dispose();}
 });
+
+test('same original skull look works in all four public travel headings without altering path truth',async()=>{
+  const THREE=await import('three');
+  const {createSerpent}=await import('../../public/snake-stream/serpent.mjs');
+  const dirs=[{x:0,z:1},{x:1,z:0},{x:0,z:-1},{x:-1,z:0}];
+  for(const direction of dirs){
+    const serpent=createSerpent(THREE);
+    const pose=serpent.group.getObjectByName('Expressive head').children[0];
+    const path=Object.freeze(Array.from({length:4},(_,i)=>Object.freeze({x:-i*direction.x,z:-i*direction.z})));
+    const original=JSON.stringify(path);
+    const options={detail:'low',direction,reducedMotion:true,runToken:'cardinal'};
+    const target=side=>({x:3*direction.x+side*3*direction.z,z:3*direction.z-side*3*direction.x});
+    try{
+      serpent.update([path],{...options,food:target(1)});
+      const right=pose.rotation.y;
+      serpent.update([path],{...options,food:target(-1)});
+      const left=pose.rotation.y;
+      assert.ok(right>.1&&right<=.16,'right food heading '+JSON.stringify(direction));
+      assert.ok(left<-.1&&left>=-.16,'left food heading '+JSON.stringify(direction));
+      assert.ok(Math.abs(right+left)<1e-10,'all headings mirror symmetrically');
+      assert.equal(JSON.stringify(path),original,'public path unchanged');
+      assert.equal(serpent.stats().paths,1);
+    }finally{serpent.dispose();}
+  }
+});
