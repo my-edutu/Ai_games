@@ -1,0 +1,37 @@
+{
+  "schema": 1,
+  "runtimeCommit": "9f35ae0a3839b80c2729e8d58f59827e2d264f58",
+  "run": 41168955206,
+  "browserArtifact": 13029914014,
+  "catalogueArtifact": 13029849150,
+  "build": "pass",
+  "authoritySelfTest": "pass",
+  "marble": {
+    "pass": 159,
+    "fail": 0,
+    "skip": 0
+  },
+  "catalogue": {
+    "pass": 662,
+    "fail": 0,
+    "skip": 0
+  },
+  "studioBrowser": {
+    "pass": 3,
+    "fail": 0
+  },
+  "allBrowser": {
+    "pass": 5,
+    "fail": 1
+  },
+  "focusRegression": "native PASS after reproduced failure",
+  "softwareLowFrameMs": {
+    "p50": 250,
+    "p95": 299.9,
+    "requiredP95LessThan": 140,
+    "accepted": false
+  },
+  "review": "author self-review; no independent commercial A/B",
+  "gauntletAchieved": false,
+  "productionReady": false
+}

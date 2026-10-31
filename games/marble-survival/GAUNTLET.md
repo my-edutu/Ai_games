@@ -1,5 +1,13 @@
 # Marble Survival — current Gauntlet status
 
+## Final native verification — runtime `9f35ae0a`
+
+[Run 41168955206](https://github.com/my-edutu/Ai_games/actions/runs/41168955206) has completed and supersedes the queued checkpoint below. **All three racer-studio browser tests now PASS**, including the previously failing dossier Escape/focus regression, keyboard navigation, rotation, immutable authority, mobile reduced motion, native context loss/restoration and unavailable-portrait fallback. Together with compositor and fullscreen-pixel checks, the native suite is **5 PASS / 1 FAIL**. The remaining failure is the existing main-race performance gate: Low SwiftShader **p50 250ms, p95 299.9ms**, against unchanged p95 <140ms. No speedup is claimed from separate runner samples.
+
+This exact runtime passes TypeScript compilation, **159/159 Marble tests**, authority self-test and **662/662 catalogue tests** (no skips). Browser artifact `13029914014` contains actual current screenshots, videos and the performance record; catalogue artifact `13029849150` contains the complete test output. The corrected native studio screenshot and recorded rotation were inspected. Runtime is unchanged by this evidence-only update. The overall Gauntlet remains incomplete, PR #45 remains draft, and main remains unchanged.
+
+The following sections preserve the earlier candidate-by-candidate investigation; their queued statements are historical and are superseded by this final result.
+
 ## October 31, 2026: loops 59–61
 
 **NOT visually accepted. NOT production ready.** Current runtime: `9f35ae0a`; draft PR #45. No production merge or deployment.

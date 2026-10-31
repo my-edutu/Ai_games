@@ -1,10 +1,10 @@
 {
   "schema": 1,
-  "iteration": "Loops 59–61 · 3D racer studio, clearer HUD and modal repair",
+  "iteration": "Loops 59\u201361 \u00b7 3D racer studio, clearer HUD and modal repair",
   "lastUpdated": "2026-10-31",
   "historyArchive": "/gauntlet-history-2026-10-31-studio.json",
   "criticTarget": "Inspect real role portraits, recorded motion and mobile race captures. Improve the main arena lighting, course composition, mobile camera coverage and unchanged p95 <140ms gate. Independent commercial-reference comparison remains open.",
-  "comparisonStatus": "NOT YET VERIFIED as a complete game. Native studio graphics, mobile reduced motion and graphics recovery pass. Expanded run 41167731966 finds Escape focus loss and p95 250.1ms. Loop 61 fixes Escape locally; its native rerun 41168955206 is queued. No independent A/B win or speedup claimed.",
+  "comparisonStatus": "NOT YET VERIFIED as a complete game. Exact runtime 9f35ae0a / run 41168955206 passes all 3 studio browser tests, including dossier focus, keyboard, motion, mobile and native graphics recovery. Full native suite: 5 passed, 1 failed. Build, 159 Marble and 662 catalogue tests pass. Main race still fails Low SwiftShader p95 299.9ms against <140ms. No independent A/B win or speedup claimed.",
   "goals": [
     {
       "name": "Original 3D competitor portraits",
@@ -18,17 +18,17 @@
     },
     {
       "name": "Studio recovery and modal focus",
-      "detail": "Native context loss/restoration, no-WebGL fallback and reduced motion pass. Escape bubbling defect fixed with local RED → GREEN; native rerun queued.",
-      "status": "in-progress"
+      "detail": "Native run 41168955206 verifies corrected dossier Escape/focus return, keyboard navigation, stopped closed animation, reduced motion, context loss/restoration and explicit no-WebGL fallback.",
+      "status": "verified"
     },
     {
       "name": "Build, authority and catalogue integrity",
-      "detail": "159 Marble tests and 662 catalogue tests pass in initial studio CI; expanded catalogue job also passes. Main, physics, RNG and other games are unchanged.",
+      "detail": "Exact runtime 9f35ae0a passes build, authority self-test, 159 Marble and 662 catalogue regressions. Main, physics, RNG and other games remain unchanged.",
       "status": "verified"
     },
     {
       "name": "Main arena performance and composition",
-      "detail": "Native Low SwiftShader p95 250.1ms fails the unchanged <140ms gate. Camera coverage, lighting, environment composition and all-stage evidence remain open.",
+      "detail": "Latest native Low SwiftShader p50 250ms, p95 299.9ms fails unchanged <140ms. Main camera, dimensional lighting, course composition and all-stage/device evidence remain open.",
       "status": "in-progress"
     },
     {
@@ -39,17 +39,17 @@
   ],
   "history": [
     {
-      "title": "61 · Modal keyboard isolation",
+      "title": "61 \u00b7 Modal keyboard isolation",
       "note": "Escape closed both the studio and its underlying dossier. Stop keyboard bubbling inside the modal, retaining native browser Escape/cancel.",
-      "proof": "9f35ae0a: reproduced native failure in run 41167731966 and local DOM; local RED → GREEN, 159 tests pass. Native rerun 41168955206 queued."
+      "proof": "9f35ae0a / run 41168955206: original focus failure repaired and native desktop regression passes unchanged. All 3 studio tests pass; full browser suite 5 pass / 1 performance failure. Build, 159 Marble and 662 catalogue tests pass. Latest p95 299.9ms is not accepted."
     },
     {
-      "title": "60 · Selection, compact mobile essentials and recovery proof",
+      "title": "60 \u00b7 Selection, compact mobile essentials and recovery proof",
       "note": "Synchronize dossier and roster selection. Reduce inherited mobile typography. Add native recovery, keyboard and motion tests.",
       "proof": "6a753bd1 / run 41167731966: mobile/reduced-motion, context loss/restoration, fallback, compositor and UV checks pass. Desktop focus and p95 250.1ms fail; loop 61 repairs the focus cause. Four passed, two failed."
     },
     {
-      "title": "59 · Original 32-racer 3D studio",
+      "title": "59 \u00b7 Original 32-racer 3D studio",
       "note": "Read-only lazy WebGL2 portraits and four role silhouettes, full roster, rotation controls and clearer race HUD.",
       "proof": "cdc332fc / run 41166953232: 159 Marble / 662 catalogue tests pass. Both initial studio browser tests pass; four role screenshots inspected. Main performance still fails. Earlier iterations retained in the linked archive."
     }
