@@ -283,6 +283,47 @@ const path = require('node:path');
     if(evidence.faces.citizens<12||evidence.faces.distinctMorphologies<12||
        evidence.faces.segments!==12||evidence.faces.meshTriangles!==156||!evidence.faces.finite)
       throw Error('G041 face topology or individuality regression: '+JSON.stringify(evidence.faces));
+    // G059: prove the running game exposes finite, continuous facial normals
+    // with jaw/crown taper and that this read-only inspection cannot mutate replay.
+    evidence.faceSurfaceNormals=await page.evaluate(()=>{
+      const g=window.__tinyKingdom,before=JSON.stringify(g.exportSnapshot());
+      const citizenCount=g.getCitizenProfiles().length;
+      let sampled=0,maxLengthError=0,minAdjacentDot=1,minFrontNormal=1;
+      let jawSlope=true,crownSlope=true;
+      const dot=(a,b)=>a.reduce((s,v,i)=>s+v*b[i],0);
+      for(let idx=0;idx<citizenCount;idx++){
+        const profile=g.getFaceProfile(idx),field=g.getFaceNormalProfile(idx);
+        if(!Array.isArray(field)||field.length!==profile.rings.length)
+          return {error:'missing face normal rings',idx};
+        for(const ring of field){
+          if(!Array.isArray(ring)||ring.length!==profile.segments)
+            return {error:'missing normal sectors',idx};
+          for(let j=0;j<ring.length;j++){
+            const n=ring[j],next=ring[(j+1)%ring.length];
+            if(!Array.isArray(n)||n.length!==3||!n.every(Number.isFinite))
+              return {error:'nonfinite normal',idx};
+            sampled++;
+            maxLengthError=Math.max(maxLengthError,Math.abs(Math.hypot(...n)-1));
+            minAdjacentDot=Math.min(minAdjacentDot,dot(n,next));
+          }
+        }
+        jawSlope=jawSlope&&field[0][0][1]<-.05;
+        crownSlope=crownSlope&&field.at(-1)[0][1]>.05;
+        minFrontNormal=Math.min(minFrontNormal,field[3][0][2]);
+      }
+      return {citizenCount,sampled,maxLengthError,minAdjacentDot,
+        minFrontNormal,jawSlope,crownSlope,
+        authorityUnchanged:before===JSON.stringify(g.exportSnapshot())};
+    });
+    if(evidence.faceSurfaceNormals.error||evidence.faceSurfaceNormals.citizenCount<12||
+       evidence.faceSurfaceNormals.sampled<1000||
+       evidence.faceSurfaceNormals.maxLengthError>1e-5||
+       evidence.faceSurfaceNormals.minAdjacentDot<.70||
+       evidence.faceSurfaceNormals.minFrontNormal<.7||
+       !evidence.faceSurfaceNormals.jawSlope||
+       !evidence.faceSurfaceNormals.crownSlope||
+       !evidence.faceSurfaceNormals.authorityUnchanged)
+      throw Error('G059 live smooth facial normal gate: '+JSON.stringify(evidence.faceSurfaceNormals));
     evidence.meadow=await page.evaluate(()=>window.__tinyKingdom.getMeadowStats());
     evidence.visualHud=await page.evaluate(()=>({
       worldFilter:getComputedStyle(document.querySelector('#world')).filter,
