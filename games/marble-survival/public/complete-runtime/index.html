@@ -10,6 +10,7 @@
   <link rel="stylesheet" href="/visual-3d.css">
   <link rel="stylesheet" href="/spectator-polish.css">
   <link rel="stylesheet" href="/arena-reborn.css">
+  <link rel="stylesheet" href="/spectator-studio.css">
 </head>
 <body>
   <a class="skip-link" href="#arena">Skip to arena</a>
@@ -32,6 +33,7 @@
           </select>
         </label>
         <a class="utility-button" href="/gauntlet.html" aria-label="View live Gauntlet improvement progress">Gauntlet Lab ↗</a>
+        <button id="open-racer-studio" class="utility-button" type="button" aria-label="Explore all racers" aria-haspopup="dialog" aria-controls="racer-studio">Racers</button>
         <button id="view-toggle" class="utility-button view-toggle" type="button" aria-pressed="false" aria-keyshortcuts="C" title="Toggle cinematic view (C)">Cinema ◇</button>
         <button id="sound-toggle" class="utility-button" type="button" aria-pressed="false">Sound off</button>
       </div>
@@ -97,6 +99,7 @@
         </div>
         <div class="spotlight-progress" role="progressbar" id="spotlight-progress" aria-label="Selected marble route progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="spotlight-progress-fill"></span></div>
         <div class="spotlight-stats"><div><span>COURSE</span><strong id="spotlight-percent">0%</strong></div><div><span>ELEVATION</span><strong id="spotlight-elevation">0.0m</strong></div><div><span>SPEED INDEX</span><strong id="spotlight-speed">0</strong></div></div>
+        <button id="spotlight-studio" class="utility-button" type="button" aria-haspopup="dialog" aria-controls="racer-studio">Explore in 3D ↗</button>
         <p>Live competitor data · camera and race authority unchanged.</p>
       </aside>
 
@@ -138,10 +141,33 @@
       <span id="system-health">Health pending</span>
     </footer>
   </main>
+  <dialog id="racer-studio" aria-labelledby="studio-heading">
+    <header class="studio-header"><div><span class="studio-kicker">THE CONTENDERS</span><h2 id="studio-heading">Racer studio</h2></div><button id="studio-close" type="button" aria-label="Close racer studio" autofocus>✕</button></header>
+    <div class="studio-body">
+      <section class="studio-hero" aria-label="Selected competitor portrait">
+        <div class="studio-identity"><span id="studio-number">—</span><div><p id="studio-role">AUTONOMOUS RACER</p><h3 id="studio-name">Waiting for race</h3></div></div>
+        <canvas id="studio-canvas" width="640" height="480" aria-label="Rotatable three-dimensional marble character preview"></canvas>
+        <p id="studio-fallback" role="status">Loading 3D portrait…</p>
+        <div class="studio-controls"><button id="studio-left" type="button" aria-label="Rotate racer left">↶</button><button id="studio-spin" type="button" aria-pressed="true">Pause rotation</button><button id="studio-right" type="button" aria-label="Rotate racer right">↷</button></div>
+        <span class="studio-caption">COSMETIC TURNTABLE · RACE UNAFFECTED</span>
+      </section>
+      <section class="studio-details" aria-label="Competitor data and roster">
+        <div class="studio-live"><span id="studio-feed">Public race snapshot</span><strong id="studio-status">—</strong></div>
+        <div class="studio-stats"><div><span>Course</span><strong id="studio-distance">—</strong></div><div><span>Elevation</span><strong id="studio-altitude">—</strong></div></div>
+        <div id="studio-progress" role="progressbar" aria-label="Selected racer course progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span></span></div>
+        <div class="studio-roster-heading"><h3 id="studio-roster-title">Choose your racer</h3><span id="studio-roster-count">0 racers</span></div>
+        <div id="studio-roster" role="group" aria-labelledby="studio-roster-title"></div>
+        <p class="studio-help">Arrow keys browse racers. Escape returns to the race.</p>
+      </section>
+    </div>
+  </dialog>
   <script src="/arena-geometry.js" defer></script>
   <script src="/renderer3d.js" defer></script>
   <script src="/identity-overlay.js" defer></script>
   <script src="/audio-director.js" defer></script>
   <script src="/app.js" defer></script>
+  <script src="/racer-studio-model.js" defer></script>
+  <script src="/racer-portrait.js" defer></script>
+  <script src="/racer-studio.js" defer></script>
 </body>
 </html>

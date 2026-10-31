@@ -74,6 +74,7 @@ jobs:
           name: marble-gauntlet-browser-evidence
           path: |
             artifacts/marble-visual-rebuild/
+            artifacts/marble-racer-studio/
             test-results/
             playwright-report/
           if-no-files-found: warn
