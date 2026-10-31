@@ -11,8 +11,10 @@ test('water moves fog smoothing off the full-screen fragment while retaining the
       const water = world.group.getObjectByName('Flowing water');
       assert.ok(water?.isMesh, 'the live opaque water remains');
       const geometry = water.geometry, size = Math.max(512, width * 3, height * 3);
-      const segments = Math.max(64, Math.ceil(size / 8));
-      assert.equal(geometry.attributes.position.count, (segments + 1) ** 2);
+      const segments = Math.sqrt(geometry.attributes.position.count) - 1;
+      assert.ok(Number.isInteger(segments), 'adaptive water grid remains a regular indexed mesh');
+      assert.ok(segments < Math.max(64, Math.ceil(size / 8)),
+        'far-fogged regions must not waste uniform near-field vertices');
       assert.equal(geometry.index.count, segments * segments * 6);
       // Three computes a procedural plane's bounds on demand during rendering;
       // explicitly request the same lazy calculation in a headless Node test.

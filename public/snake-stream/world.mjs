@@ -71,6 +71,34 @@ export function buildHeadlandGeometry(THREE) {
  * The resulting single mesh stays in the live layer: transparent foam must
  * composite AFTER the animated water rather than enter the opaque static cache.
  */
+// Keep exact eight-unit fog interpolation in the whole camera-relevant
+// garden, but one large strip beyond each dense edge. The water UV is derived
+// from world position in the vertex shader, so stretched outer quads neither
+// stretch the authored texture nor change the terrain/board silhouettes.
+// Use a wider dense radius for larger boards; do not shorten the lake.
+export function createFogAwareWaterPlane(THREE, extent, boardWidth, boardHeight) {
+  const half=extent/2, step=8;
+  const denseHalf=Math.min(Math.floor((half-step)/step)*step,
+    Math.max(176,Math.ceil((Math.max(boardWidth,boardHeight)+136)/step)*step));
+  const coordinates=[-half];
+  for(let x=-denseHalf;x<=denseHalf;x+=step) coordinates.push(x);
+  coordinates.push(half);
+  const segments=coordinates.length-1;
+  const surface=new THREE.PlaneGeometry(extent,extent,segments,segments);
+  const positions=surface.getAttribute('position');
+  // PlaneGeometry's rows descend in Y; retain its front-facing indices, UVs
+  // and normals. With the existing -PI/2 rotation this is the same lake.
+  for(let row=0;row<=segments;row++){
+    for(let column=0;column<=segments;column++){
+      positions.setXY(row*(segments+1)+column,
+        coordinates[column],coordinates[segments-row]);
+    }
+  }
+  positions.needsUpdate=true;
+  surface.computeBoundingSphere();
+  return surface;
+}
+
 export function bakeWaterEdgeGeometry(THREE, source, transforms) {
   const p = source.getAttribute('position'), n = source.getAttribute('normal'), uv = source.getAttribute('uv');
   if (!p || !n || !uv || !Array.isArray(transforms) || !transforms.length) throw new Error('Water edge bake needs indexed visual geometry and transforms');
@@ -501,14 +529,13 @@ export function createWorld(THREE, {width, height}) {
         gl_FragColor.rgb+=(fogColor-gl_FragColor.rgb)*waterFogFactor;
       }`,
   });materials.add(waterMaterial);
-  // Extend beyond the renderer's 180-unit far plane even in low-angle head views.
-  // Subdivide the portion of the water that lies inside the 180-unit camera
-  // far plane. Approximately eight world units between vertices bounds the
-  // visual interpolation error while removing per-pixel fog curve work.
-  // The 512-unit minimum remains beyond all visible head/overview horizons.
+  // The moving water uses eight-unit fog interpolation wherever the camera
+  // can see the 48..110-unit fog transition. The exterior still reaches the
+  // original horizon, but is already fully fogged when visible. Coarsen only
+  // those distant cells: the prior uniform 64x64 plane spent most vertices
+  // outside the playable/camera region without improving a visible texel.
   const waterExtent=Math.max(512,width*3,height*3);
-  const waterSegments=Math.max(64,Math.ceil(waterExtent/8));
-  const water=new THREE.Mesh(geometry(new THREE.PlaneGeometry(waterExtent,waterExtent,waterSegments,waterSegments)),waterMaterial);water.name='Flowing water';water.rotation.x=-Math.PI/2;water.position.y=-3.62;group.add(water);
+  const water=new THREE.Mesh(geometry(createFogAwareWaterPlane(THREE,waterExtent,width,height)),waterMaterial);water.name='Flowing water';water.rotation.x=-Math.PI/2;water.position.y=-3.62;group.add(water);
   const foamMat=material({color:0xb4e1c5,transparent:true,opacity:.28,roughness:.6,depthWrite:false});
   // Each ripple retains its exact original world-space position, scale,
   // orientation, normals and UVs, now as one transparent live-layer draw.
