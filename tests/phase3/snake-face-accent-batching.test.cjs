@@ -49,14 +49,18 @@ test('facial micro-details preserve both ellipsoids with three fewer live draw o
       for (let i = 0; i < 2; i++) expectPose(mesh, i, expected[i]);
     }
     const high = accents.map(node => node.geometry);
-    const budget = serpent.stats();
     const paths = [[{x:5,z:5}, {x:4,z:5}, {x:3,z:5}, {x:2,z:5}], [{x:10,z:8}]];
+    serpent.update(paths, {detail:'low',time:0,delta:1/60,direction:{x:1,z:0}});
+    const low = accents.map(node => node.geometry);
+    for (let i = 0; i < accents.length; i++)
+      assert.notStrictEqual(low[i], high[i], 'low-detail instances must use the preallocated lower-poly sphere');
+    const budget = serpent.stats();
     for (let i = 0; i < 120; i++) {
       const detail = i % 2 ? 'high' : 'low';
       serpent.update(paths, {detail, time:i/60, delta:1/60, direction:{x:1,z:0}, reducedMotion:i%7===0});
       for (let j = 0; j < accents.length; j++) {
         const mesh = accents[j];
-        assert.strictEqual(mesh.geometry, detail === 'high' ? high[j] : low,
+        assert.strictEqual(mesh.geometry, detail === 'high' ? high[j] : low[j],
           'LODs must use preallocated shared accent geometry');
         const expected = mesh.name === 'Paired recessed nostrils' ? nostrilPoses : glintPoses;
         for (let k = 0; k < 2; k++) expectPose(mesh, k, expected[k]);
