@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-10-31T02:08:28.464Z",
+  "updatedAt": "2026-10-31T03:24:57.739Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Eleventh pass has real production-seed browser evidence (2026-10-31T02:07:46.806Z) showing a larger Pip and a less obstructed disclosed exit arch after redundant beacon geometry was suppressed. The same frame exposes a new camera-composition tradeoff: too much empty water at left and clipped right-hand stage. Source 12d32cb passed 521/521 Node and 25/25 browser checks, with no adjusted timing threshold. The last independent critics still prefer the fixed Captain Toad reference; fresh blind A/B and hardware performance review remain unavailable."
+    "summary": "Twelfth-pass source adds a bounded public stage-plus-known-goal camera blend to address the eleventh-pass empty-water and cropped-stage tradeoff. New browser capture and fresh independent A/B are pending; the last independently completed critics prefer the fixed Captain Toad gameplay bar. Source 5395d5f is undergoing CI run 41163986082; no visual win is claimed."
   },
   "captures": [
     {
@@ -104,14 +104,15 @@
     "Seventh pass: two original model-level silhouette cues now make nearby already-disclosed guardian encounters clearer, using Pip's gold/coral exclamation signal and Thornback's raised glowing spines. Real current-source CI captures prove both actors share the frame; terminal and undisclosed-threat states suppress the cues without changing AI/game authority.",
     "Eighth pass: a reuse-only pool of in-world ivory direction arrows marks genuinely known, reciprocally legal neighboring corridors; teal is reserved for a current disclosed AI-plan step. Closed gate edges and stale/nonreciprocal plans are suppressed, while the misleading gold threat halo is now a triangular warning signal. This changes only presentation; current-source CI and authentic dated evidence were captured.",
     "Ninth and tenth passes: a known, connected public key/exit now gets a distinctive in-world beacon and a separate first-step floor arrow (amber for key, mint for exit), while turquoise continues to denote only the disclosed AI plan. Tests exclude closed gates, blocked/nonreciprocal/unknown cells, hidden goals and terminal states. One native 1280×900 current-source image authenticates the known exit cue; visual bar remains unpassed.",
-    "Eleventh pass: a known exit's modeled arch is no longer crowded by a redundant hovering beacon; its low ground marker and truthful first-step glyph remain. Nearby already-observed objectives receive closer follow framing without altering AI state. Real dated 1280×900 evidence shows a larger Pip but also a less balanced water/stage composition, now the next visual gap."
+    "Eleventh pass: a known exit's modeled arch is no longer crowded by a redundant hovering beacon; its low ground marker and truthful first-step glyph remain. Nearby already-observed objectives receive closer follow framing without altering AI state. Real dated 1280×900 evidence shows a larger Pip but also a less balanced water/stage composition, now the next visual gap.",
+    "Twelfth pass: the follow camera now keeps some nearby disclosed stage context while still pointing toward an already observed reachable landmark, with a single 2.5-world-unit cap when the goal is close. Original 3D geometry, public-only route semantics, character expressions and deterministic rules remain unchanged; browser evidence is pending."
   ],
   "nextGaps": [
-    "Restore a strong stage-versus-water balance around the now larger explorer and clearer modeled exit, without sacrificing an in-frame lawful first-step cue. Use only a bounded, publicly derived stage camera bias and judge the genuine same-seed/tick screenshot.",
-    "Capture a real publicly disclosed key goal and closed-gate case so key pins and legal-arrow suppression can be judged visually, not only by source assertions.",
-    "Obtain separate fresh-context, source-blind A/B reviews of authentic latest/previous scenes versus the same two SHA-pinned official Nintendo frames; no independent parity verdict yet.",
-    "Inspect true full-motion gait/stair movement, audio and representative non-throttled GPU performance; software WebGL p50 times cannot establish hardware FPS.",
-    "Keep each subsequent slice builder/critic-separated when the shared-workspace tunnel returns, preserving public knowledge, determinism, no merge/deploy and draft PR."
+    "Inspect a real same-seed/tick twelfth-pass browser screenshot and compare actual amount of empty sea, Pip/exit scale and cropped architecture against the eleventh-pass render; revert or refine if no real compositional gain.",
+    "Capture a real publicly disclosed key and closed-gate case and examine world-space goal cues without revealing undisclosed or impassable cells.",
+    "Obtain fresh separate source-blind reviewers for a genuine A/B with the unchanged SHA-pinned official Nintendo images. Last independent verdict still favors Captain Toad.",
+    "Check motion/audio and representative hardware GPU performance separately; CPU-throttled shared software rendering is not a hardware FPS measure.",
+    "Keep the PR draft, no merge/deploy; use builder/critic workers and Ultracode only when the shared workspace is truly available."
   ],
   "reviews": [
     {
