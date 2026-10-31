@@ -81,3 +81,11 @@ test('CSP still blocks blob scripts, remote connections, eval and objects',()=>{
  const p=policy();assert.deepEqual(p['script-src'],["'self'"]);assert.deepEqual(p['default-src'],["'self'"]);
  assert.deepEqual(p['object-src'],["'none'"]);assert.ok(!p['connect-src'].some(s=>s==='*'||s==='https:'));
 });
+
+// An unlisted module silently prevents ALL scene startup under the strict stream server.
+test('new bounded bloom module resolves through the same-origin dungeon route whitelist',()=>{
+ const server=fs.readFileSync(path.join(ROOT,'scripts/serve-dungeon-stream.cjs'),'utf8');
+ assert.ok(server.includes("['/dungeon/postfx-budget.js','postfx-budget.js']"));
+ const app=fs.readFileSync(path.join(ROOT,'public/ai-dungeon/app.js'),'utf8');
+ assert.ok(app.includes("import {planPostFXBudget} from '/dungeon/postfx-budget.js';"));
+});

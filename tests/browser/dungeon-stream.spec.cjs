@@ -138,6 +138,7 @@ test('public stream exposes authentic boss phase and a health/checkpoint monitor
 });
 
 test('optional cinematic glow uses locally served Three.js postprocessing and remains reversible',async({page,request})=>{
+ expect((await request.get('/dungeon/postfx-budget.js')).status()).toBe(200);
  for(const path of ['/dungeon/vendor/addons/postprocessing/EffectComposer.js','/dungeon/vendor/addons/postprocessing/UnrealBloomPass.js','/dungeon/vendor/addons/shaders/LuminosityHighPassShader.js'])
   expect((await request.get(path)).status()).toBe(200);
  await page.goto('/dungeon');
