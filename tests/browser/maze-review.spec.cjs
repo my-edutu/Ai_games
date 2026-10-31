@@ -204,6 +204,9 @@ test('a real close public encounter frames both autonomous actors and saves date
     imageSha256: hash(gateImage),
     sourceSha256: Object.fromEntries(['app.js', 'map-view.mjs', 'scene.js', 'world.js'].map(name => [name, hash(path.join(sourceDir, name))])),
     diagnostic: {closedGatesInFrame: gateDiagnostic.closedGatesInFrame,
+      nearbySealedGate: gateDiagnostic.nearbySealedGate,
+      nearbySealedGateProjection: gateDiagnostic.nearbySealedGateProjection,
+      explorerProjection: gateDiagnostic.explorerProjection,
       quality: gateDiagnostic.quality, frameP50Ms: gateDiagnostic.frameP50Ms},
     caveat: 'Closed gate is an observed obstruction, not a hint of a hidden passage; hardware FPS and independent visual quality remain unverified.',
   }, null, 2));
