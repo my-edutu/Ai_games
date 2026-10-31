@@ -89,6 +89,34 @@ test('a publicly observed locked gate has an unmistakable seal and an open gate 
   const lock = bars.children.find(child => child.isMesh && Math.abs(child.position.x) < .01
     && Math.abs(child.position.y - .85) < .01 && child.position.z > .5);
   assert.ok(lock, 'the lock face must be in front of the crossed seal rather than hidden by the bars');
+  assert.equal(barrier.getObjectByName('Disclosed matching key emblem'), undefined,
+    'the modeled lock cannot advertise a matching collectible that remains undisclosed');
+
+  // Wordless key/lock causality must reflect *only* a public matching key.
+  // The collectible's octagonal bow reappears on the gate, without revealing
+  // any hidden key or declaring the barrier open before authoritative state.
+  const knownKey = {...closed, keys: [{id: 'observed-key', cell: 24, collected: false}]};
+  world.update(knownKey);
+  const observedCrest = world.group.getObjectByName('Disclosed matching key emblem');
+  assert.ok(observedCrest, 'an already observed matching key may appear on its lock crest');
+  assert.equal(observedCrest.userData.keyState, 'observed');
+  assert.ok(observedCrest.position.z > .2, 'the shared key icon faces the actual camera');
+  assert.ok(observedCrest.children.length >= 6, 'the emblem is fully modeled, not a placeholder');
+  world.update({...knownKey, keys: [{id: 'unrelated', cell: 24, collected: false}]});
+  assert.equal(world.group.getObjectByName('Disclosed matching key emblem'), undefined,
+    'a different observed key must not be linked to this gate');
+
+  const carriedKey = {...knownKey,
+    keys: [{id: 'observed-key', cell: 24, collected: true}], inventory: ['observed-key']};
+  world.update(carriedKey);
+  const carriedCrest = world.group.getObjectByName('Disclosed matching key emblem');
+  assert.ok(carriedCrest, 'public inventory may show that the exact gate key is carried');
+  assert.equal(carriedCrest.userData.keyState, 'carried');
+  assert.ok(world.group.getObjectByName('Closed crossed barrier'),
+    'possessing the key must NEVER withdraw a gate that authority still reports closed');
+  world.update({...carriedKey, inventory: []});
+  assert.equal(world.group.getObjectByName('Disclosed matching key emblem'), undefined,
+    'inventory-only changes must invalidate the crest rather than leaving a stale hint');
 
   // The same local near face is +Z for north/south openings and rotates to +X
   // for east/west openings, matching the fixed isometric camera offset.
