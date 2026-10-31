@@ -46,6 +46,11 @@ test('actual WebGL GLB rigs have bounded secondary attack staging, without inven
  expect(diag.authored3D.rigGestureBones).toBeGreaterThanOrEqual(3);
  expect(diag.authored3D.rigGesturePeakRad).toBeGreaterThan(.15);
  expect(diag.authored3D.rigGesturePeakRad).toBeLessThanOrEqual(.43);
+ // Actual imported forearm bones now have their own independently bounded
+ // elbow arcs, never a second cosmetic mesh pretending to be an animated arm.
+ expect(diag.authored3D.rigForearmBones).toBeGreaterThanOrEqual(3);
+ expect(diag.authored3D.rigForearmPeakRad).toBeGreaterThan(.12);
+ expect(diag.authored3D.rigForearmPeakRad).toBeLessThanOrEqual(.46);
  expect(diag.composition.visibleHeroes).toBeGreaterThan(0);
  expect(errors).toEqual([]);
  await page.locator('.arena').evaluate(node=>node.classList.add('world-only-audit'));
