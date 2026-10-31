@@ -41,6 +41,11 @@ test('actual WebGL GLB rigs have bounded secondary attack staging, without inven
  expect(diag.combatStage.activeHitFlashes).toBeLessThanOrEqual(24);
  expect(diag.authoredMotionMaxOffset).toBeLessThanOrEqual(.20);
  expect(diag.authoredMotionPeak).toBeLessThanOrEqual(.20);
+ // Genuine imported arm bones must move under one real authoritative attack,
+ // with bounded local joint angles, not a screenshot-only faux model.
+ expect(diag.authored3D.rigGestureBones).toBeGreaterThanOrEqual(3);
+ expect(diag.authored3D.rigGesturePeakRad).toBeGreaterThan(.15);
+ expect(diag.authored3D.rigGesturePeakRad).toBeLessThanOrEqual(.43);
  expect(diag.composition.visibleHeroes).toBeGreaterThan(0);
  expect(errors).toEqual([]);
  await page.locator('.arena').evaluate(node=>node.classList.add('world-only-audit'));
