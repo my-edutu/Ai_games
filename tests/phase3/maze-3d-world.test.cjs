@@ -117,6 +117,9 @@ test('a publicly observed locked gate has an unmistakable seal and an open gate 
   world.update({...carriedKey, inventory: []});
   assert.equal(world.group.getObjectByName('Disclosed matching key emblem'), undefined,
     'inventory-only changes must invalidate the crest rather than leaving a stale hint');
+  world.update({...carriedKey, doors: [{...door, open: true}]});
+  assert.equal(world.group.getObjectByName('Disclosed matching key emblem'), undefined,
+    'the key motif and obstruction both disappear when the real gate opens');
 
   // The same local near face is +Z for north/south openings and rotates to +X
   // for east/west openings, matching the fixed isometric camera offset.
