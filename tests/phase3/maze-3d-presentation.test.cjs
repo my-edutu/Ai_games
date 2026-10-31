@@ -114,9 +114,9 @@ test('disclosed landmark selector never marks hidden, locked, blocked or unreach
     keys: [{id: 'shown', cell: 9, collected: false}, {id: 'hidden', cell: 21, collected: false}],
     doors: [], exitCell: 2,
   });
-  assert.deepEqual(publicObjective(base), {kind: 'key', cell: 9, steps: 2});
+  assert.deepEqual(publicObjective(base), {kind: 'key', cell: 9, steps: 2, firstStep: 8});
   assert.deepEqual(publicObjective({...base, keys: [{id: 'shown', cell: 9, collected: true}]}),
-    {kind: 'exit', cell: 2, steps: 3}, 'known exits stay distinct from guaranteed safe escapes');
+    {kind: 'exit', cell: 2, steps: 3, firstStep: 8}, 'known exits stay distinct from guaranteed safe escapes');
   assert.equal(publicObjective({...base, doors: [{a: 1, b: 8, open: false}], exitCell: null}), null);
   assert.deepEqual(publicObjective({...base, doors: [{a: 1, b: 8, open: true}]}),
     publicObjective(base), 'an opened public gate restores the observed chain');
@@ -126,6 +126,38 @@ test('disclosed landmark selector never marks hidden, locked, blocked or unreach
   assert.equal(publicObjective({...base, keys: [{id: 'hidden', cell: 21, collected: false}], exitCell: null}), null);
   assert.equal(publicObjective({...base, result: {reason: 'capture'}}), null);
   assert.equal(publicObjective({...base, currentCell: 11}), null);
+});
+
+
+
+test('observed goal arrows follow only public legal first steps without rewriting AI intent', async () => {
+  const {publicWayfinding, publicObjective} = await load();
+  const base = snapshot([1], {
+    currentCell: 1, plannedRoute: [1, 0],
+    keys: [{id: 'visible', cell: 9, collected: false}],
+    doors: [], exitCell: 2,
+  });
+  assert.deepEqual(publicWayfinding(base), [
+    {from: 1, to: 0, kind: 'planned'},
+    {from: 1, to: 8, kind: 'known', goal: 'key'},
+  ], 'a known landmark direction is not mislabeled as the AI plan');
+  assert.deepEqual(publicWayfinding({...base, plannedRoute: [1, 8]}), [
+    {from: 1, to: 0, kind: 'known'},
+    {from: 1, to: 8, kind: 'planned', goal: 'key'},
+  ], 'a known first step may also coincide with disclosed AI intent');
+  const exit = {...base, keys: [{id: 'visible', cell: 9, collected: true}], plannedRoute: []};
+  assert.deepEqual(publicWayfinding(exit), [
+    {from: 1, to: 0, kind: 'known'},
+    {from: 1, to: 8, kind: 'known', goal: 'exit'},
+  ]);
+  const shut = {...base, doors: [{a: 1, b: 8, open: false}], exitCell: null};
+  assert.equal(publicObjective(shut), null);
+  assert.deepEqual(publicWayfinding(shut), [{from: 1, to: 0, kind: 'planned'}],
+    'a locked public gate removes the landmark and its suggested first step');
+  assert.deepEqual(publicWayfinding({...base, keys: [{id: 'secret', cell: 21, collected: false}], exitCell: null}),
+    [{from: 1, to: 0, kind: 'planned'}, {from: 1, to: 8, kind: 'known'}],
+    'undisclosed goals cannot create goal-colored directions');
+  assert.deepEqual(publicWayfinding({...base, result: {reason: 'escape'}}), []);
 });
 
 
