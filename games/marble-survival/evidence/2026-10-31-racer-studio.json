@@ -3,7 +3,7 @@
   "date": "2026-10-31",
   "branch": "agent/marble-gauntlet-2026-10-08",
   "pullRequest": 45,
-  "runtimeCommit": "6a753bd1370358d730465940172d64ba6c4db500",
+  "runtimeCommit": "9f35ae0a3839b80c2729e8d58f59827e2d264f58",
   "nativeVerifiedCommit": "cdc332fce36fa4c0ff906272cd2be8cec9cb1e10",
   "nativeRun": 41166953232,
   "nativeBrowserArtifact": 13028584338,
@@ -25,7 +25,37 @@
       "standingsHeight": 47,
       "arenaHeight": 705.9375
     },
-    "selectionRegression": "RED: dossier 2 / roster 32; GREEN: both 2"
+    "selectionRegression": "RED: dossier 2 / roster 32; GREEN: both 2",
+    "viewportLayoutChecks": [
+      [
+        320,
+        568
+      ],
+      [
+        360,
+        640
+      ],
+      [
+        390,
+        844
+      ],
+      [
+        768,
+        1024
+      ],
+      [
+        844,
+        390
+      ],
+      [
+        1280,
+        720
+      ],
+      [
+        1920,
+        1080
+      ]
+    ]
   },
   "nativeVerified": {
     "build": "pass",
@@ -60,8 +90,18 @@
   },
   "followUpNative": {
     "run": 41167731966,
-    "status": "queued",
-    "recoveryAndMotionVerified": false
+    "commit": "6a753bd1370358d730465940172d64ba6c4db500",
+    "status": "completed",
+    "browserTests": {
+      "pass": 4,
+      "fail": 2
+    },
+    "mobileReducedMotion": "pass",
+    "nativeContextRecoveryAndFallback": "pass",
+    "desktopFocusReturn": "fail; repaired by 9f35ae0a",
+    "softwareLowP95ms": 250.1,
+    "artifact": 13029693472,
+    "catalogueJob": "pass"
   },
   "review": {
     "kind": "author self-review",
@@ -72,5 +112,12 @@
   "gauntletAchieved": false,
   "productionReady": false,
   "physicsChanged": false,
-  "otherGamesChanged": false
+  "otherGamesChanged": false,
+  "modalFix": {
+    "commit": "9f35ae0a3839b80c2729e8d58f59827e2d264f58",
+    "localRegression": "RED to GREEN: Escape preserves underlying dossier and returns focus",
+    "nativeRun": 41168955206,
+    "nativeStatus": "queued",
+    "gateUnchanged": true
+  }
 }
