@@ -2,7 +2,7 @@
 const path=require('node:path');
 const {defineConfig}=require('@playwright/test');
 module.exports=defineConfig({
- testDir:'.',testMatch:['dungeon-stream.spec.cjs','dungeon-materials.spec.cjs','dungeon-interface.spec.cjs','dungeon-setpieces.spec.cjs'],
+ testDir:'.',testMatch:['dungeon-stream.spec.cjs','dungeon-materials.spec.cjs','dungeon-interface.spec.cjs','dungeon-setpieces.spec.cjs','dungeon-facing.spec.cjs'],
  // One renderer per runner; fullyParallel distributes individual tests across CI shards.
  workers:1,fullyParallel:true,
  // Shared software WebGL runners can spend 40-60s on live scene/screenshot setup;
