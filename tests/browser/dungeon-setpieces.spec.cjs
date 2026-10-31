@@ -46,3 +46,31 @@ test('round 19 wall masonry has different physical crown heights in a genuine li
  await page.locator('#world').screenshot({path:'artifacts/dungeon-wall19-world-only.png'});
  await test.info().attach('physical-wall-profile-diagnostics',{body:Buffer.from(JSON.stringify(diagnostic.wallProfiles,null,2)),contentType:'application/json'});
 });
+
+
+test('round 32 genuine seeded WebGL walls show bounded eroded 3D stone relief without hiding heroes',async({page,request})=>{
+ test.setTimeout(120000);
+ expect((await request.get('/dungeon/stone-relief-plan.js')).status()).toBe(200);
+ const pinned=sample();await page.route('**/dungeon/state',route=>route.fulfill({json:pinned}));
+ const errors=[];page.on('pageerror',error=>errors.push(error.message));
+ await page.goto('/dungeon');
+ await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.dressing?.weatheredSpalls??0),{timeout:45000}).toBeGreaterThanOrEqual(12);
+ const diag=await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__);
+ expect(diag.webgl).toBe(true);
+ expect(diag.dressing.weatheredSpalls).toBeLessThanOrEqual(96);
+ expect(diag.dressing.brokenCopingStones).toBeGreaterThanOrEqual(3);
+ expect(diag.dressing.brokenCopingStones).toBeLessThanOrEqual(48);
+ expect(diag.dressing.weatheredBatches).toBe(2);
+ expect(diag.dressing.clearedWeatheredPieces).toBeGreaterThanOrEqual(0);
+ expect(diag.dressing.clearedWeatheredPieces).toBeLessThanOrEqual(diag.dressing.weatheredSpalls+diag.dressing.brokenCopingStones);
+ expect(diag.composition.visibleHeroes).toBeGreaterThan(0);
+ expect(diag.visibility.unoccludedHeroes).toBeGreaterThan(0);
+ expect(diag.drawCalls).toBeLessThan(1600);
+ expect(errors).toEqual([]);
+ await page.locator('.arena').evaluate(node=>node.classList.add('world-only-audit'));
+ await page.locator('#world').screenshot({path:'artifacts/dungeon-weathered-stone-round32-world-only.png'});
+ await test.info().attach('real-seeded-stone-relief',{body:Buffer.from(JSON.stringify({
+  authority:'untouched DungeonRuntime.step real snapshot',seed:'visual-room-art-18',tick:pinned.tick,
+  floor:pinned.floor,metrics:diag.dressing,composition:diag.composition,drawCalls:diag.drawCalls,triangles:diag.triangles
+ },null,2)),contentType:'application/json'});
+});
