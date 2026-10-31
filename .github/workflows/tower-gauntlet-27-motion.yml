@@ -1,0 +1,48 @@
+name: Tower Gauntlet 27 Real-Motion Capture
+on:
+  push:
+    branches:
+      - feat/infinite-tower-contact-realism-20261031
+    paths:
+      - .github/workflows/tower-gauntlet-27-motion.yml
+      - public/infinite-tower-climb/visuals/characters.mjs
+      - public/infinite-tower-climb/visuals/scene.mjs
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: tower-gauntlet-27-motion-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      TOWER_LAUNCH_FLOOR: '0'
+      TOWER_MOTION_SCENARIO: climb
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - name: Verify capture assessor distinguishes real motion from frozen frames
+        run: node --test tests/phase3/tower-motion-evidence.test.cjs
+      - run: npx playwright install --with-deps chromium
+      - name: Record continuous real authority and WebGL output
+        run: |
+          mkdir -p artifacts/tower-motion
+          git rev-parse HEAD > artifacts/tower-motion/source-sha.txt
+          npx playwright test --config=playwright.tower.config.cjs tests/browser/tower-live-motion.spec.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tower-gauntlet-27-motion-${{ github.sha }}
+          path: |
+            artifacts/tower-motion/
+            test-results/
+          retention-days: 7
