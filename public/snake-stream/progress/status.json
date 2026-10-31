@@ -1,10 +1,15 @@
 {
-  "updatedAt": "2026-10-31T09:52:05Z",
-  "status": "Round 21 · fog-aware water grid 48.3% fewer triangles, exact frozen WebGL parity; desktop pacing STILL FAILED",
-  "detail": "Production 9369be3 + strict browser regression 93b1a93, world blob 34f48beb: water triangles 8192→4232 on ordinary boards, original lake/animation/fog intact; 3 matched 960×640 real WebGL frozen images pixel-identical. Corrected focused browser 16/17 at 14 actual submissions/1015ms; corrected general 549/549 Node, build/host/authority/ops green, browser 28/29 at 8/1004.2ms. Both below unchanged minimum 17. Real 11.80s gameplay inspected. No controlled FPS win; official Snake Pass visual/motion and independent critic/device soak/R5 remain OPEN. Draft PR unmerged/undeployed.",
+  "updatedAt": "2026-10-31T11:10:09.941Z",
+  "status": "Round 22 · saturated-fog lake lookup bypass: focused 17/17 and desktop actual-submission gate PASS once; general browser FAIL 7/17",
+  "detail": "Production 7fabb967, world blob c0fff224; far-fog opaque water now skips filtered texture only when water fog fully saturates, retaining full lake, animated near water and 4,232 triangles. Frozen cached/direct 960x640 actual WebGL pixel-identical; synthetic fruit stress differs 17 pixels max 1/255. Focused CI 41194996851 17/17, actual desktop 17/1008.2ms >=17; full CI 41194996867 551/551 Node, build/host/authority/ops green, browser 28/29 at 7 actual submissions/1003.2ms <17. No controlled causal GPU/frame win, and submitted != display-present FPS. Snake Pass craft/independent critic/device soak/R5 still open. PR draft, not merged/deployed.",
   "latestImage": "/progress/evidence/round-9-overview.jpg",
-  "latestCaption": "Latest current Round 21 screenshots and 11.80s gameplay are linked as true GitHub Actions artifacts in Round 21 below. The embedded image remains historical Round 9, NOT Round 21.",
+  "latestCaption": "Most recent Round22 real WebGL screenshots and 10.44s real gameplay recording are linked in Round22 captures. Embedded image remains historical Round9, NOT Round22.",
   "reviews": [
+    {
+      "area": "Round 22 · saturated distance-fog water texture bypass",
+      "verdict": "FOCUSED 17/17 AND ACTUAL DRAW GATE 17/17 PASSED ONCE · GENERAL 551/551 NODE BUT 7/17 DRAW GATE FAILED · NEAR-EXACT WEBGL PIXELS",
+      "gap": "Two matched frozen 960x640 actual WebGL PNGs pixel-identical, synthetic sightline 17 pixels max 1/255. Focused desktop 17 submissions/1008.2ms (min17); general desktop 7/1003.2ms (min17). Different host load and adaptive resolution make causal speed claim invalid. Snake Pass visual/motion, independent critic and device/soak/R5 remain open."
+    },
     {
       "area": "Round 21 · sparse fog-aware distant lake",
       "verdict": "GEOMETRY COUNT VERIFIED (-48.34%) · 3 MATCHED WEBGL PNGS PIXEL-IDENTICAL · 549/549 NODE · DESKTOP FPS GATE FAILED",
@@ -376,6 +381,32 @@
         {
           "label": "Round 21 review and source code",
           "path": "https://github.com/my-edutu/Ai_games/blob/feat/autonomous-snake-3d-gauntlet/docs/reviews/snake-gauntlet/round21-water-fog-grid.md"
+        }
+      ]
+    },
+    {
+      "title": "Round 22 · saturated water fog skips invisible far-field texture fetch",
+      "summary": "Production 7fabb967 and two shader/regression Node tests. Full live water and near-field animation preserved, far saturated fog exits before filtered lookup. Focused 17/17 browser with 17 actual render submissions/1008.2ms (minimum 17), first sample gate PASS; general 551/551 Node and 28/29 browser with only 7/1003.2ms, overall FAIL. Two frozen 960x640 actual WebGL captures pixel-identical, synthetic sightline differs 17 pixels max 1/255. Different scale/CI load: no verified causal FPS gain. 10.44-second actual motion inspected. Snake Pass character/world/motion, independent critic and real-device/R5 still open.",
+      "captures": [
+        {
+          "label": "Actual Round22 focused WebGL screenshots, overview, head, portrait, stress and trace",
+          "path": "https://github.com/my-edutu/Ai_games/actions/runs/41194996851/artifacts/13039404793"
+        },
+        {
+          "label": "10.44-second actual Snake gameplay motion recording",
+          "path": "https://github.com/my-edutu/Ai_games/actions/runs/41194996851/artifacts/13039299984"
+        },
+        {
+          "label": "Actual focused pacing and GPU diagnostic data",
+          "path": "https://github.com/my-edutu/Ai_games/actions/runs/41194996851/artifacts/13040260738"
+        },
+        {
+          "label": "General CI browser captures (strict pacing failed)",
+          "path": "https://github.com/my-edutu/Ai_games/actions/runs/41194996867/artifacts/13040760777"
+        },
+        {
+          "label": "Round22 source and evidence review",
+          "path": "https://github.com/my-edutu/Ai_games/blob/feat/autonomous-snake-3d-gauntlet/docs/reviews/snake-gauntlet/round22-fog-saturated-water.md"
         }
       ]
     }
