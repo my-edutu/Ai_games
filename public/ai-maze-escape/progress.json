@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-10-31T03:24:57.739Z",
+  "updatedAt": "2026-10-31T03:27:20.959Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Twelfth-pass source adds a bounded public stage-plus-known-goal camera blend to address the eleventh-pass empty-water and cropped-stage tradeoff. New browser capture and fresh independent A/B are pending; the last independently completed critics prefer the fixed Captain Toad gameplay bar. Source 5395d5f is undergoing CI run 41163986082; no visual win is claimed."
+    "summary": "Twelfth pass (2026-10-31T03:25:44.217Z actual browser capture): the bounded public-stage/known-exit camera blend preserves a visible Pip and exit and makes the terraced scene fill more of the frame. Identical-view color occupancy falls from about 44.6% to 35.7% water-colored pixels; that is a rough composition measure, not an aesthetic score. Source 5395d5f passed 522/522 Node and 25/25 browser checks; last independent critics still prefer Nintendo and no fresh blind review is available."
   },
   "captures": [
     {
@@ -108,11 +108,11 @@
     "Twelfth pass: the follow camera now keeps some nearby disclosed stage context while still pointing toward an already observed reachable landmark, with a single 2.5-world-unit cap when the goal is close. Original 3D geometry, public-only route semantics, character expressions and deterministic rules remain unchanged; browser evidence is pending."
   ],
   "nextGaps": [
-    "Inspect a real same-seed/tick twelfth-pass browser screenshot and compare actual amount of empty sea, Pip/exit scale and cropped architecture against the eleventh-pass render; revert or refine if no real compositional gain.",
-    "Capture a real publicly disclosed key and closed-gate case and examine world-space goal cues without revealing undisclosed or impassable cells.",
-    "Obtain fresh separate source-blind reviewers for a genuine A/B with the unchanged SHA-pinned official Nintendo images. Last independent verdict still favors Captain Toad.",
-    "Check motion/audio and representative hardware GPU performance separately; CPU-throttled shared software rendering is not a hardware FPS measure.",
-    "Keep the PR draft, no merge/deploy; use builder/critic workers and Ultracode only when the shared workspace is truly available."
+    "Visually inspect authentic publicly disclosed key and closed-gate scenes; keep route arrows off unknown, blocked or shut edges and avoid implying safety.",
+    "Improve framing for a nearby known exit on narrow portrait screens without sacrificing Pip visibility; judge actual rendered screenshots, not code assertions alone.",
+    "Increase character-at-gameplay-scale expression, exit/obstacle differentiation and level-specific architecture while maintaining the original 3D characters.",
+    "Obtain fresh independent blind A/B from native-size real gameplay against both SHA-pinned official Nintendo references; no parity verdict yet.",
+    "Verify moving stair/gait and audio behavior plus non-throttled GPU performance separately; SwiftShader CPU timing is not hardware FPS. Leave PR draft, unmerged and undeployed."
   ],
   "reviews": [
     {
