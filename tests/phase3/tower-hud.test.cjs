@@ -239,3 +239,16 @@ test('control feedback owns one replaceable dwell timer and survives transport a
   assert.equal(node('control-feedback').hidden, true);
   assert.equal(timers.size, 0);
 });
+
+
+test('desktop framebuffer adaptation is disclosed only in the graphics detail, not the live HUD', t => {
+  const { hud, node } = harness(); t.after(() => hud.dispose());
+  hud.update(frame(), { ...currentView, resolution: { scale: .6, pixelRatio: .9, basePixelRatio: 1.5 } });
+  assert.equal(node('quality-label').textContent, 'High · adaptive 60% render');
+  assert.equal(node('provider-state').textContent, '');
+  hud.update(frame(), { ...currentView, resolution: { scale: 1 } });
+  assert.equal(node('quality-label').textContent, 'High');
+  node('quality-toggle').dispatch('click');
+  hud.update(frame(), { ...currentView, resolution: { scale: .8 } });
+  assert.equal(node('quality-label').textContent, 'Low · adaptive 80% render');
+});

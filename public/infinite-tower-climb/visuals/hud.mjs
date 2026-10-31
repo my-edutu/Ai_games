@@ -113,6 +113,12 @@ export function createHUD({ initialQuality, onCamera, onSound, onMotion, onQuali
 
   function update(frame, diagnostics = {}) {
     if (disposed || !frame) return;
+    // Only the details drawer changes; never add performance prose to the
+    // quiet spectator HUD or mislabel a reduced framebuffer as native pixels.
+    const scale = diagnostics.resolution?.scale;
+    const tier = quality === 'low' ? 'Low' : 'High';
+    text(byId('quality-label'), Number.isFinite(scale) && scale < .995
+      ? `${tier} · adaptive ${Math.round(scale * 100)}% render` : tier);
     if (!diagnostics.soundPending && typeof diagnostics.soundEnabled === 'boolean' && sound !== diagnostics.soundEnabled) {
       sound = diagnostics.soundEnabled;
       controls();

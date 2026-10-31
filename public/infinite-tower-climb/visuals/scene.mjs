@@ -366,6 +366,42 @@ function createReflectionEnvironment(renderer, theme, lighting) {
   }
 }
 
+// GPU submission duration is an overload signal, NOT a presented-frame/FPS
+// measurement. Keep every art/lighting feature from the chosen quality tier;
+// only reduce the drawing-buffer pixel count when repeated submissions stall.
+// Independently reviewed hardware performance remains a separate release gate.
+function createTowerResolutionPolicy() {
+  const floor = .6;
+  let scale = 1, overload = 0, healthy = 0, cooldown = 0, adaptations = 0;
+  let lastSubmissionMs = null;
+  return {
+    get scale() { return scale; }, get adaptations() { return adaptations; },
+    get lastSubmissionMs() { return lastSubmissionMs; },
+    record(durationMs, visible) {
+      if (!visible || !Number.isFinite(durationMs) || durationMs < 0) {
+        overload = 0; healthy = 0; return false;
+      }
+      lastSubmissionMs = Math.round(durationMs * 10) / 10;
+      if (cooldown) cooldown--;
+      if (durationMs >= 180) { overload++; healthy = 0; }
+      else if (durationMs <= 35) { healthy++; overload = 0; }
+      else { overload = 0; healthy = 0; }
+      if (overload >= 2 && cooldown === 0 && scale > floor) {
+        scale = Math.max(floor, Math.round(scale * 80) / 100);
+        overload = 0; healthy = 0; cooldown = 2; adaptations++;
+        return true;
+      }
+      if (healthy >= 90 && cooldown === 0 && scale < 1) {
+        scale = Math.min(1, Math.round((scale + .1) * 100) / 100);
+        overload = 0; healthy = 0; cooldown = 12; adaptations++;
+        return true;
+      }
+      return false;
+    },
+    reset() { scale = 1; overload = 0; healthy = 0; cooldown = 0; adaptations = 0; lastSubmissionMs = null; },
+  };
+}
+
 export function createTowerScene(canvas, settings = {}) {
   const options = { camera: 'follow', quality: innerWidth < 700 ? 'low' : 'high', reducedMotion: false, ...settings };
   const scene = new THREE.Scene();
@@ -379,6 +415,8 @@ export function createTowerScene(canvas, settings = {}) {
   renderer.shadowMap.enabled = options.quality === 'high';
   renderer.shadowMap.type = THREE.PCFShadowMap;
   canvas.dataset.renderer = 'three-webgl';
+  const resolutionPolicy = createTowerResolutionPolicy();
+  let renderPixelRatio = 1, basePixelRatio = 1, resolutionDirty = false;
 
   const hemi = new THREE.HemisphereLight(0xe8e0d3, 0x442a32, .72);
   scene.add(hemi);
@@ -540,7 +578,11 @@ export function createTowerScene(canvas, settings = {}) {
     if (disposed) return;
     const rect = canvas.getBoundingClientRect();
     const w = Math.max(1, Math.round(rect.width)), h = Math.max(1, Math.round(rect.height));
-    renderer.setPixelRatio(options.quality === 'low' || innerWidth < 700 ? 1 : Math.min(devicePixelRatio || 1, 1.5));
+    basePixelRatio = options.quality === 'low' || innerWidth < 700 ? 1 : Math.min(devicePixelRatio || 1, 1.5);
+    // Protect 390px mobile readability and the existing one-pixel-per-CSS-pixel
+    // phone contract. Desktop overload can adapt without changing the art tier.
+    renderPixelRatio = Math.round(basePixelRatio * (innerWidth >= 700 ? resolutionPolicy.scale : 1) * 1000) / 1000;
+    renderer.setPixelRatio(renderPixelRatio);
     renderer.setSize(w, h, false);
     camera.aspect = w / h;
     camera.updateProjectionMatrix();
@@ -841,7 +883,13 @@ export function createTowerScene(canvas, settings = {}) {
     const motionDt = options.stale ? 0 : dt;
     elapsed += motionDt;
     try {
+      // A drawing-buffer resize invalidates its previous contents. Always
+      // resize BEFORE the next render, never immediately after submission.
+      if (resolutionDirty) { resize(); resolutionDirty = false; }
+      const submissionStart = performance.now();
       update(motionDt); renderer.render(scene, camera);
+      if (innerWidth >= 700 && resolutionPolicy.record(performance.now() - submissionStart,
+        document.visibilityState === 'visible' && !options.stale)) resolutionDirty = true;
       // Count a contact frame only after Three has submitted it. Delayed
       // software rendering must not consume an unseen cue on elapsed time
       // alone; submissions are NOT proof of displayed hardware FPS.
@@ -864,6 +912,7 @@ export function createTowerScene(canvas, settings = {}) {
   const restored = () => {
     contextLost = false; renderErrors = 0; lastTime = 0;
     renderProgress.reset(performance.now());
+    resolutionPolicy.reset(); resolutionDirty = false;
     resize(); options.onStatus?.('Preparing the 3D view', 'recovering');
   };
   canvas.addEventListener('webglcontextlost', lost);
@@ -886,6 +935,7 @@ export function createTowerScene(canvas, settings = {}) {
     const nextQuality = quality === 'low' ? 'low' : 'high';
     if (options.quality !== nextQuality) {
       options.quality = nextQuality;
+      resolutionPolicy.reset(); resolutionDirty = false;
       reflectionDirty = true;
       reflectionFirstFrame = true;
     }
@@ -900,6 +950,9 @@ export function createTowerScene(canvas, settings = {}) {
     // GPU completion or visibility in a captured/composited output.
     return { renderer: 'three-webgl', frames: submissionProgress.submittedFrames, tick: snapshot?.tick ?? 0, floor: snapshot?.floor ?? 0, theme: snapshot?.theme ?? '',
       camera: options.camera, quality: options.quality, reducedMotion: options.reducedMotion, stale: !!options.stale, contextLost, renderErrors,
+      resolution: { basePixelRatio, pixelRatio: renderPixelRatio, scale: innerWidth >= 700 ? resolutionPolicy.scale : 1,
+        adaptations: resolutionPolicy.adaptations, submissionMs: resolutionPolicy.lastSubmissionMs,
+        measurement: 'JS scene-update-and-render-call duration; not presented FPS' },
       renderProgress: submissionProgress,
       calls: renderer.info.render.calls, triangles: renderer.info.render.triangles, geometries: renderer.info.memory.geometries,
       textures: renderer.info.memory.textures, programs: renderer.info.programs.length, characters: 1 + enemies.size,
