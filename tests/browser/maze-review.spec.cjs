@@ -195,6 +195,11 @@ test('a real close public encounter frames both autonomous actors and saves date
     {tick: activeFrame.snapshot.tick, token: activeFrame.snapshot.runToken});
   const gateDiagnostic = await page.evaluate(() => window.__MAZE_3D__);
   expect(gateDiagnostic.closedGatesInFrame, 'The disclosed sealed gate must actually appear in the camera').toBeGreaterThan(0);
+  expect(gateDiagnostic.nearbySealedGate, 'A nearby publicly observed gate should be camera-framed').toBeTruthy();
+  expect(gateDiagnostic.nearbySealedGateProjection?.inFrame).toBe(true);
+  expect(gateDiagnostic.explorerInFrame).toBe(true);
+  expect(gateDiagnostic.cameraHalfHeight, 'Desktop gate framing should enlarge the physical obstacle').toBeLessThan(6.05);
+  expect(gateDiagnostic.cameraHalfHeight).toBeGreaterThan(5.3);
   const gateImage = path.join(dir, 'sealed-gate.png');
   await page.screenshot({path: gateImage, fullPage: true});
   fs.writeFileSync(path.join(dir, 'sealed-gate.json'), JSON.stringify({
@@ -204,6 +209,7 @@ test('a real close public encounter frames both autonomous actors and saves date
     imageSha256: hash(gateImage),
     sourceSha256: Object.fromEntries(['app.js', 'map-view.mjs', 'scene.js', 'world.js'].map(name => [name, hash(path.join(sourceDir, name))])),
     diagnostic: {closedGatesInFrame: gateDiagnostic.closedGatesInFrame,
+      cameraHalfHeight: gateDiagnostic.cameraHalfHeight,
       nearbySealedGate: gateDiagnostic.nearbySealedGate,
       nearbySealedGateProjection: gateDiagnostic.nearbySealedGateProjection,
       explorerProjection: gateDiagnostic.explorerProjection,
@@ -216,6 +222,11 @@ test('a real close public encounter frames both autonomous actors and saves date
   await page.setViewportSize({width: 390, height: 844});
   await page.waitForFunction(() => window.__MAZE_3D__?.frames > 4);
   const gatePortraitDiagnostic = await page.evaluate(() => window.__MAZE_3D__);
+  expect(gatePortraitDiagnostic.closedGatesInFrame).toBeGreaterThan(0);
+  expect(gatePortraitDiagnostic.nearbySealedGateProjection?.inFrame).toBe(true);
+  expect(gatePortraitDiagnostic.explorerInFrame).toBe(true);
+  expect(gatePortraitDiagnostic.cameraHalfHeight, 'Portrait gate framing must not fall through to generic zoom').toBeLessThan(6.18);
+  expect(gatePortraitDiagnostic.cameraHalfHeight).toBeGreaterThan(5.35);
   const portraitGateImage = path.join(dir, 'sealed-gate-portrait.png');
   await page.screenshot({path: portraitGateImage, fullPage: true});
   fs.writeFileSync(path.join(dir, 'sealed-gate-portrait.json'), JSON.stringify({
@@ -224,6 +235,7 @@ test('a real close public encounter frames both autonomous actors and saves date
     viewport: {width: 390, height: 844}, imageSha256: hash(portraitGateImage),
     sourceSha256: Object.fromEntries(['app.js', 'map-view.mjs', 'scene.js', 'world.js'].map(name => [name, hash(path.join(sourceDir, name))])),
     diagnostic: {closedGatesInFrame: gatePortraitDiagnostic.closedGatesInFrame,
+      cameraHalfHeight: gatePortraitDiagnostic.cameraHalfHeight,
       nearbySealedGate: gatePortraitDiagnostic.nearbySealedGate,
       nearbySealedGateProjection: gatePortraitDiagnostic.nearbySealedGateProjection,
       explorerProjection: gatePortraitDiagnostic.explorerProjection,
