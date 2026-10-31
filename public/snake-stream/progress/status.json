@@ -1,14 +1,14 @@
 {
   "updatedAt": "2026-10-31",
-  "status": "GAUNTLET IN PROGRESS — Round36 candidate index topology transfer optimization; strict rendered-frame and benchmark gates open",
-  "detail": "Original scene and game authority preserved. Frozen exact-prior-source real WebGL screenshots and CI pending; CPU index transfer requests are not measured GPU or displayed FPS. Official Snake Pass still wins; independent critic/device soak/R5 absent.",
+  "status": "ROUND36 TRUE WEBGL PIXEL PARITY VERIFIED · STRICT REAL SUBMISSION GATE FAIL · HISTORICAL GUARD FIX PENDING",
+  "detail": "Actual Round36 Chromium/SwiftShader frozen overview/detail captures identical to exact prior source. 1 CPU index upload and 3 reuse frames per four-frame fixture, but 11 actual desktop render submissions/1006.8ms fails >=17. Old R33/R34 historical SHA-only comparisons corrected pending recheck. Commercial Snake Pass still wins; independent/device/soak/R5 open.",
   "latestImage": "/progress/evidence/round-9-overview.jpg",
   "latestCaption": "Historical Round9 image (not R35). Real Round35 Chromium/WebGL same synthetic public-frame overview/detail before/after: https://github.com/my-edutu/Ai_games/actions/runs/41239708262/artifacts/13056688120; not live gameplay frame pacing.",
   "reviews": [
     {
       "area": "Round 36 · live serpent index topology transfer",
-      "verdict": "PRODUCTION OPTIMIZATION CANDIDATE · EXACT-SOURCE NODE AND TRUE WEBGL CAPTURES PENDING · WHOLE-GAME LOSE",
-      "gap": "Reduce redundant dynamic index-buffer upload requests only for unchanged contiguous/portal topology, while preserving byte-identical body buffers and both LODs. New Node and real-WebGL regression pending. No independent reviewer, verified causal FPS/device presents/soak/R5."
+      "verdict": "TRUE WEBGL EXACT-PRIOR SOURCE A/B PASS · IDENTICAL 960×640 PIXELS · 23/26 BROWSER · STRICT 11/17 FAIL · HISTORIC HASH FIX PENDING · WHOLE-GAME LOSE",
+      "gap": "Real overview/detail screenshots byte-identical, 1 index upload/3 reused per four frames (CPU counts, not speedup). 2 R33/R34 source-hash guards affected by new R36 additions; targeted corrections pending CI. Desktop 11 actual submissions/1006.8ms (61 RAF callbacks) vs min17, independent critic/device present rate/soak/R5 absent."
     },
     {
       "area": "Round 35 · original inhabited-garden lichen at perimeter",
@@ -601,11 +601,21 @@
     },
     {
       "title": "Round 36 · preserve body frames while avoiding redundant GPU index uploads",
-      "summary": "A bounded candidate optimizes live serpent index-buffer uploads using exact portal breaks, radial LOD and active triangles. Exact prior-source Node and synthetic real-WebGL before/after verification pending; whole-game Snake Pass and strict ≥17-submission performance requirements remain open.",
-      "captures": []
+      "summary": "New exact-source real Chromium/WebGL before/after overview and detail PASS, byte-identical 960×640 PNGs; one CPU index upload request and three reused per four frame fixture. Browser 23/26, strict 11 actual draws/1006.8ms vs required 17 FAIL, two historic hash guards corrected pending CI. Snake Pass benchmark, independent critic, real-device/soak/R5 open.",
+      "captures": [
+        {
+          "label": "Round36 true WebGL exact-source before/after overview/detail PNG and traces; synthetic public frame",
+          "path": "https://github.com/my-edutu/Ai_games/actions/runs/41241205012/artifacts/13057816137"
+        },
+        {
+          "label": "Round36 actual desktop performance metrics (11 real draws fail strict 17 threshold)",
+          "path": "https://github.com/my-edutu/Ai_games/actions/runs/41241205012/artifacts/13058115295"
+        }
+      ]
     }
   ],
   "checks": [
+    "Round36 exact-source focused browser 41241205012: 23/26, NEW real WebGL A/B PASS in overview and detail, pixel and PNG byte identical, 1 index-upload request/3 reused per four frames, unchanged 33/44 draw calls. Desktop 11 actual submissions/1006.8ms FAIL vs >=17. Two legacy R33/R34 historical SHA-only guard defects fixed in tests; corrected new-head CI pending. General workflow 41241204899 browser pending.",
     "Round36 candidate on parent fd9c8e5e26b021fc6211bac4dde73652400da1f1: original serpent index topology uploads skipped when portal break positions/LOD/count unchanged; Node exact predecessor parity and true WebGL frozen PNG regression added, NEW CI PENDING. Latest prior-head focused 41240251761 24/25; actual desktop 10 submissions/<approx 1s against minimum 17; no performance win claimed.",
     "Round35 actual 41239708262 23/25 focused; same synthetic WebGL world A/B overview 26137/614400 visible changed pixels and detail 12809/614400; strict desktop 15 real render submissions/1000.3ms FAIL vs >=17; historic R32 comparator fix locally validated, CI pending.",
     "Round35: model-only original courtyard lichen 66/66 focused Snake Node on verified R34 offline tree, TypeScript and host self-test pass; real R35 Chromium/WebGL screenshot and strict pacing pending. Previous-head 41238291500 23/24 focused; 10 actual draws/1013.2ms, min17, fail.",
