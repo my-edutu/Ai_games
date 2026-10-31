@@ -175,28 +175,43 @@ export function createWorld(THREE, {width, height}) {
   // Field UVs are baked in world coordinates when static geometry is merged below.
   function fieldTexture(){
     const w=1024,h=512,data=new Uint8Array(w*h*4);
-    const slabTones=new Float32Array(width*height*2);
+    // Each original slab has a fixed quarry tone plus one optional incised
+    // mineral fracture. This is generated once in the existing field map;
+    // no new geometry, textures, fragment work or mutable gameplay state.
+    const slabTones=new Float32Array(width*height*5);
     for(let z=0;z<height;z++)for(let x=0;x<width;x++){
-      const i=(z*width+x)*2;
+      const i=(z*width+x)*5;
       // Correlated quarry tones prevent a random checkerboard of pale/dark cells.
       slabTones[i]=(noise(x+41,z+37)-.5)*.075+(smoothNoise(x*.54+11,z*.54+9)-.5)*.16;
       slabTones[i+1]=(smoothNoise(x*.5+117,z*.5+53)-.5)*.09+(noise(x+117,z+53)-.5)*.025;
+      slabTones[i+2]=noise(x+127,z+97);
+      slabTones[i+3]=.2+noise(x+14,z+72)*.6;
+      slabTones[i+4]=(noise(x+81,z+20)-.5)*.28;
     }
     for(let y=0;y<h;y++)for(let x=0;x<w;x++){
       const gx=(x+.5)/w*width,gz=(y+.5)/h*height,cx=Math.floor(gx),cz=Math.floor(gz),u=gx-cx,v=gz-cz;
       const edge=Math.min(u,1-u,v,1-v),border=Math.min(gx,width-gx,gz,height-gz);
       // Warm/cool slabs share a broad mineral field, keeping color variation
       // larger than grain without implying a different playable elevation.
-      const toneIndex=(cz*width+cx)*2,cloud=smoothNoise(gx*.19+5,gz*.20+17);
+      const toneIndex=(cz*width+cx)*5,cloud=smoothNoise(gx*.19+5,gz*.20+17);
       const mineral=smoothNoise(gx*2.8+23,gz*2.8+41),warmth=slabTones[toneIndex+1];
       const recess=(1-fade(.006,.045,edge))*.045;
       const chalk=(fade(.018,.05,edge)-fade(.05,.095,edge))*(.012+fade(.35,.7,mineral)*.03);
       const patina=(1-fade(.25,2,border))*(.025+smoothNoise(gx*.8+60,gz*.8+80)*.055);
-      const value=.84+slabTones[toneIndex]+(cloud-.5)*.10+(mineral-.5)*.035+(noise(x,y)-.5)*.007-recess+chalk;
+      // Short wandering seams end before the slab edge. Scar placement and
+      // bending are stable per cell and use the already sampled mineral field.
+      const crackPath=slabTones[toneIndex+3]+(u-.5)*slabTones[toneIndex+4]+(mineral-.5)*.045;
+      const fracture=slabTones[toneIndex+2]>.54
+        ? (1-fade(.007,.044,Math.abs(v-crackPath)))*.105*fade(.04,.13,u)*(1-fade(.74,.91,u))
+        : 0;
+      // Patchy green patina follows incised joins and natural mineral clouds;
+      // it never changes board height or the location of any hazard/food.
+      const lichen=fade(.43,.70,cloud*.61+mineral*.39)*(.25+.75*(1-fade(.01,.16,edge)))*.085;
+      const value=.795+slabTones[toneIndex]+(cloud-.5)*.135+(mineral-.5)*.055+(noise(x,y)-.5)*.007-recess+chalk-fracture;
       const i=(y*w+x)*4;
-      data[i]=Math.min(255,255*(value+warmth*.46-patina*.45));
-      data[i+1]=Math.min(255,255*(value-warmth*.08-patina*.24));
-      data[i+2]=Math.min(255,255*(value*.94-warmth*.62-patina*.57));
+      data[i]=Math.min(255,255*(value+warmth*.46-patina*.45-lichen*.55));
+      data[i+1]=Math.min(255,255*(value-warmth*.08-patina*.24+lichen*.08));
+      data[i+2]=Math.min(255,255*(value*.94-warmth*.62-patina*.57-lichen*.48));
       data[i+3]=255;
     }
     // Sparse hairline fractures stay subordinate to the broad slab treatment.
