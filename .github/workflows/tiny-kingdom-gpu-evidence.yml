@@ -35,9 +35,9 @@ jobs:
           name: tiny-kingdom-gpu-evidence
           path: artifacts/tiny-kingdom/
           retention-days: 14
-      - name: Focused Tiny Kingdom G066 / G067 / G068 render contracts
+      - name: Focused Tiny Kingdom G066 / G067 / G068 / G069 render contracts
         env:
           CI: '1'
         run: |
           npm run build
-          npx playwright test tests/browser/tiny-kingdom-g066-compact-houses.spec.cjs tests/browser/tiny-kingdom-g067-dynamic-gpu-buffer.spec.cjs tests/browser/tiny-kingdom-g068-camera-lock.spec.cjs --workers=1
+          npx playwright test tests/browser/tiny-kingdom-g066-compact-houses.spec.cjs tests/browser/tiny-kingdom-g067-dynamic-gpu-buffer.spec.cjs tests/browser/tiny-kingdom-g068-camera-lock.spec.cjs tests/browser/tiny-kingdom-g069-render-profile.spec.cjs --workers=1
