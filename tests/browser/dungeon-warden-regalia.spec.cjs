@@ -34,10 +34,21 @@ test('true Chromium WebGL has recognisable locally authored Warden regalia, rend
  expect(diag.webgl).toBe(true);expect(diag.drawCalls).toBeLessThan(1600);
  expect(diag.composition.visibleHeroes).toBeGreaterThan(0);
  expect(diag.composition.bossOnscreen).toBe(true);
+ // Round 25: audit the ACTUAL WebGL camera chosen around this genuine Warden encounter.
+ // A cinematic offset that leaves the authored dungeon perimeter exposes dead-black space.
+ expect(diag.cameraRig?.mode).toBe('cinematic');
+ expect(diag.cameraRig?.desiredPosition).toBeTruthy();
+ const mapHalf=(snapshot.map.length-1)/2;
+ for(const axis of ['x','z']){
+  expect(Math.abs(diag.cameraRig.desiredPosition[axis])).toBeLessThanOrEqual(mapHalf-.65+1e-6);
+  expect(diag.cameraRig.turn[axis]).toBeGreaterThanOrEqual(0);
+  expect(diag.cameraRig.turn[axis]).toBeLessThanOrEqual(1);
+ }
+ expect(diag.cameraRig.desiredPosition.y).toBeGreaterThan(5);
  expect(diag.visibility.occludedBosses).toBe(0);
  expect(errors).toEqual([]);
  await page.locator('.arena').evaluate(node=>node.classList.add('world-only-audit'));
- await page.locator('#world').screenshot({path:'artifacts/dungeon-warden-regalia-round24-world-only.png'});
+ await page.locator('#world').screenshot({path:'artifacts/dungeon-warden-regalia-round25-world-only.png'});
  await test.info().attach('actual-warden-encounter',{body:Buffer.from(JSON.stringify({
   seed:'visual-room-art-18',tick:snapshot.tick,floor:snapshot.floor,run:snapshot.run,
   warden:snapshot.units.find(u=>u.kind==='warden')?.id,source:'real DungeonRuntime publicState; no hand-set actors',
