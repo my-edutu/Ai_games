@@ -361,7 +361,7 @@ export function createSerpent(THREE) {
 
   let ringCount = 0, indexCount = 0, pathCount = 0, truncated = false;
   let previousHeadX = NaN, previousHeadZ = NaN, heading = 0;
-  let eaten = 0, dangerEase = 0;
+  let eaten = 0, dangerEase = 0, curveLean = 0;
   // Presentation-only eye tracking. The target comes exclusively from the
   // current immutable public food location, never a private AI path.
   let gazeX = 0, gazeY = 0, previousRunToken;
@@ -505,13 +505,33 @@ export function createSerpent(THREE) {
     const teleported = restarted || !Number.isFinite(previousHeadX) || Math.hypot(first.x - previousHeadX, first.z - previousHeadZ) > 1.6;
     const angleDifference = Math.atan2(Math.sin(targetHeading - heading), Math.cos(targetHeading - heading));
     heading = teleported || reduced ? targetHeading : heading + angleDifference * (1 - Math.exp(-dt * 19));
+    // The first three points are in the same public, portal-contiguous path.
+    // Their signed bend gives the skull a sustained, grounded lean at corners.
+    // The old heading-error-only roll vanished as soon as yaw caught up, even
+    // while the neck remained curled. Never infer a turn across a portal seam.
+    const neck = paths[0]?.[1], shoulder = paths[0]?.[2];
+    let curvature = 0;
+    if (neck && shoulder) {
+      const forwardX = first.x - neck.x, forwardZ = first.z - neck.z;
+      const incomingX = neck.x - shoulder.x, incomingZ = neck.z - shoulder.z;
+      const forwardLength = Math.hypot(forwardX, forwardZ);
+      const incomingLength = Math.hypot(incomingX, incomingZ);
+      if (forwardLength > 0.25 && incomingLength > 0.25
+          && forwardLength <= 1.5 && incomingLength <= 1.5) {
+        curvature = clamp((incomingX * forwardZ - incomingZ * forwardX)
+          / (forwardLength * incomingLength), -1, 1);
+      }
+    }
+    const targetLean = curvature * 0.085;
+    curveLean = teleported || reduced ? (reduced ? 0 : targetLean)
+      : curveLean + (targetLean - curveLean) * (1 - Math.exp(-dt * 10));
     previousHeadX = first.x; previousHeadZ = first.z;
     // Keep the rear skull aligned with the grounded neck. Compensate for the
     // chewing pitch so the low rear cheek cannot rotate through the stone.
     head.position.set(first.x, fullBodyHeight + 0.065 + (reduced ? 0 : eaten * 0.065 + Math.sin(time * 3.1) * 0.009), first.z);
     head.rotation.y = heading;
     headPose.rotation.x = reduced ? 0 : -eaten * 0.11 + dangerEase * 0.025;
-    headPose.rotation.z = reduced ? 0 : clamp(-angleDifference * 0.045, -0.06, 0.06);
+    headPose.rotation.z = reduced ? 0 : clamp(curveLean - angleDifference * 0.045, -0.105, 0.105);
     // A shallow four-degree chew keeps the rounded jaw supported at both corners.
     jaw.rotation.x = reduced ? 0 : eaten * 0.07;
     updateJawCorners(jaw.rotation.x);
