@@ -1,0 +1,28 @@
+name: Tiny Kingdom source review snapshot
+on:
+  push:
+    branches: [feat/tiny-kingdom-gauntlet-3d]
+    paths:
+      - '.github/workflows/tiny-kingdom-source-snapshot.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Archive exact reviewed source
+        run: |
+          git rev-parse HEAD > source-sha.txt
+          git archive --format=tar HEAD | gzip -1 > tiny-kingdom-source.tgz
+      - uses: actions/upload-artifact@v4
+        with:
+          name: tiny-kingdom-source-${{ github.sha }}
+          path: |
+            source-sha.txt
+            tiny-kingdom-source.tgz
+          retention-days: 3

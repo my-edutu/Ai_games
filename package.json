@@ -50,6 +50,8 @@
     "ant:stream:self-test": "npm run build && node scripts/serve-ant-colony-stream.cjs --self-test",
     "ant:phase5:chaos": "npm run build && node scripts/run-ant-colony-phase5-chaos.cjs",
     "ant:phase6:validate": "npm run build && node scripts/run-ant-colony-phase6-validation.cjs",
+    "tiny:stream": "node scripts/serve-tiny-kingdom-stream.cjs",
+    "tiny:stream:self-test": "node scripts/serve-tiny-kingdom-stream.cjs --self-test",
     "tower:headless": "npm run build && node scripts/run-tower-headless.cjs",
     "tower:stream": "npm run build && node scripts/serve-tower-stream.cjs",
     "tower:stream:self-test": "npm run build && node scripts/serve-tower-stream.cjs --self-test",

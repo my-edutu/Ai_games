@@ -1,0 +1,37 @@
+name: Tiny Kingdom GPU Evidence
+
+on:
+  pull_request:
+    paths:
+      - 'public/tiny-kingdom/**'
+      - 'tests/browser/tiny-kingdom.spec.cjs'
+      - '.github/workflows/tiny-kingdom-gpu-evidence.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Capture WebGL capability and frame
+        env:
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: |
+          mkdir -p artifacts/tiny-kingdom
+          node scripts/tiny-kingdom-gpu-evidence.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tiny-kingdom-gpu-evidence
+          path: artifacts/tiny-kingdom/
+          retention-days: 14

@@ -1,0 +1,38 @@
+name: Tiny Kingdom Long-Soak Evidence
+
+on:
+  pull_request:
+    paths:
+      - 'public/tiny-kingdom/index.html'
+      - 'scripts/tiny-kingdom-soak-evidence.cjs'
+      - '.github/workflows/tiny-kingdom-long-soak.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deterministic-soak:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npx playwright install --with-deps chromium
+      - name: Real WebGL 120-day settlement and replay soak
+        env:
+          LIBGL_ALWAYS_SOFTWARE: '1'
+          TINY_KINGDOM_SOAK_DAYS: '120'
+        run: node scripts/tiny-kingdom-soak-evidence.cjs
+      - name: Publish evidence even when acceptance fails
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tiny-kingdom-long-soak
+          path: artifacts/tiny-kingdom-soak/
+          if-no-files-found: warn
+          retention-days: 14
