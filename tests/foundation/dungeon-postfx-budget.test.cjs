@@ -49,3 +49,24 @@ test('browser scene really measures expensive composer frames and applies downsh
  assert.match(app,/adaptPostFXPixelCap\(bloomPixelCap,performance\.now\(\)-postFXFrameStart\)/);
  assert.match(app,/planPostFXBudget\(w,h,renderer\.getPixelRatio\(\),bloomPixelCap\)/);
 });
+
+test('optional bloom bypasses persistent measured software-WebGL stalls but never disables a fast frame',async()=>{
+ const {postFXStallAction}=await load();
+ assert.deepEqual(postFXStallAction(24,2),{slowStreak:0,disable:false});
+ assert.deepEqual(postFXStallAction(0,2),{slowStreak:0,disable:false});
+ assert.deepEqual(postFXStallAction(NaN,2),{slowStreak:0,disable:false});
+ assert.deepEqual(postFXStallAction(1800,0),{slowStreak:1,disable:false});
+ assert.deepEqual(postFXStallAction(1800,1),{slowStreak:2,disable:true});
+ assert.deepEqual(postFXStallAction(2900,0),{slowStreak:1,disable:true});
+ assert.deepEqual(postFXStallAction(700,999999),{slowStreak:3,disable:true});
+ for(const ms of [1,60,349,649,650])assert.equal(postFXStallAction(ms,0).disable,false);
+ for(const ms of [-1,NaN,Infinity,-Infinity])assert.equal(postFXStallAction(ms,3).disable,false);
+});
+test('real WebGL renderer uses measured stall protection and exposes honest direct-3D fallback',()=>{
+ const app=fs.readFileSync(path.join(__dirname,'../../public/ai-dungeon/app.js'),'utf8');
+ assert.match(app,/postFXStallAction\(bloomRenderMs,bloomSlowStreak\)/);
+ assert.match(app,/postFXStatus='performance-fallback'/);
+ assert.match(app,/bloomAutoDisabled=true/);
+ assert.match(app,/postFXEnabled=false/);
+ assert.match(app,/postFXAutoDisabled:bloomAutoDisabled/);
+});
