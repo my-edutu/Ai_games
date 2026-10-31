@@ -73,6 +73,9 @@
   });
   document.getElementById('studio-close').addEventListener('click',()=>dialog.close());
   dialog.addEventListener('close',stop);
+  // Modal keys must not close the underlying dossier or toggle its camera.
+  // Stop bubbling only: retain the browser's native Escape/cancel behavior.
+  dialog.addEventListener('keydown',event=>event.stopPropagation());
   roster.addEventListener('click',event=>{const b=event.target.closest('button[data-id]');if(b&&roster.contains(b))select(Number(b.dataset.id));});
   roster.addEventListener('keydown',event=>{
     if(!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Home','End'].includes(event.key)||!characters.length)return;
