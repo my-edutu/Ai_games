@@ -339,6 +339,22 @@ let qualityOverride=null,framesDrawn=0,framesSkipped=0,frameGateTime=0;
 // G056: presentation-only frame signature. Paused, still cameras need no further
 // CPU mesh reconstruction or GPU draw until a visual input/state revision occurs.
 let presentationEpoch=0,lastFrozenFrameKey=null,idleFrames=0;
+// G069: fixed-size CPU phase timings for actual presented frames, not fake GPU
+// timestamps. Sampling never touches authoritative state or named RNG streams.
+const FRAME_PROFILE_LIMIT=48,frameProfileSamples=[];
+const FRAME_PROFILE_KEYS=['simulationAndSky','staticGeometry','dynamicGeometry','drawSubmission','total'];
+let frameProfileCount=0;
+function getFrameProfile(){
+ const stages={};
+ for(const key of FRAME_PROFILE_KEYS){
+  const sorted=frameProfileSamples.map(sample=>sample[key]).sort((a,b)=>a-b);
+  const at=p=>sorted.length?sorted[Math.ceil(sorted.length*p)-1]:0;
+  stages[key]={p50:at(.5),p95:at(.95),p99:at(.99),worst:sorted.length?sorted[sorted.length-1]:0};
+ }
+ return {kind:'cpu-wall-submission',units:'ms',sampleLimit:FRAME_PROFILE_LIMIT,
+  totalFrames:frameProfileCount,samples:frameProfileSamples.length,
+  latest:frameProfileSamples.length?{...frameProfileSamples[frameProfileSamples.length-1]}:null,stages};
+}
 function renderQuality(){const automated=swiftGpu||!gpuAvailable;return {tier:graphicsTier,renderer:gpuName,scale:qualityOverride??(automated?.65:1),targetFps:automated?12:60,framesDrawn,framesSkipped,idleFrames}}
 function setRenderQuality(scale){if(!Number.isFinite(scale)||scale<.35||scale>1.5)throw Error('Render scale must be between 0.35 and 1.5');qualityOverride=scale;return renderQuality()}
 
@@ -2904,8 +2920,8 @@ function render(now){requestAnimationFrame(render);
  if(!staticView)lastFrozenFrameKey=null;
  const minFrameMs=(swiftGpu||!gpuAvailable)?1000/12:0;
  if(minFrameMs&&frameGateTime&&now-frameGateTime<minFrameMs){framesSkipped++;return}
- frameGateTime=now;framesDrawn++;
- const dt=Math.min(.18,(now-(timer||now))/1000);timer=now;const atmosphere=skyConditions(state.t);gl.clearColor(...atmosphere.fog,1);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);if(!frozen){accumulator+=dt*speed*1.35;let ticks=0;while(accumulator>=FIXED_STEP&&ticks++<64){step(FIXED_STEP);accumulator-=FIXED_STEP}if(ticks>=64)accumulator=0;}if(follow){const citizen=people[Math.min(selectedCitizen,people.length-1)];focusPoint[0]+=(citizen.x-focusPoint[0])*.18;focusPoint[1]+=(citizen.z-focusPoint[1])*.18}if(cinematic)yaw+=dt*.05;const w=canvas.clientWidth,h=canvas.clientHeight,dpr=Math.min(window.devicePixelRatio||1,1.6)*renderQuality().scale;if(canvas.width!==Math.floor(w*dpr)||canvas.height!==Math.floor(h*dpr)){canvas.width=Math.floor(w*dpr);canvas.height=Math.floor(h*dpr);gl.viewport(0,0,canvas.width,canvas.height)}gl.enable(gl.DEPTH_TEST);gl.enable(gl.CULL_FACE);gl.cullFace(gl.BACK);drawAtmosphere(atmosphere);
+ frameGateTime=now;framesDrawn++;const frameProfileStart=performance.now();
+ const dt=Math.min(.18,(now-(timer||now))/1000);timer=now;const atmosphere=skyConditions(state.t);gl.clearColor(...atmosphere.fog,1);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);if(!frozen){accumulator+=dt*speed*1.35;let ticks=0;while(accumulator>=FIXED_STEP&&ticks++<64){step(FIXED_STEP);accumulator-=FIXED_STEP}if(ticks>=64)accumulator=0;}if(follow){const citizen=people[Math.min(selectedCitizen,people.length-1)];focusPoint[0]+=(citizen.x-focusPoint[0])*.18;focusPoint[1]+=(citizen.z-focusPoint[1])*.18}if(cinematic)yaw+=dt*.05;const w=canvas.clientWidth,h=canvas.clientHeight,dpr=Math.min(window.devicePixelRatio||1,1.6)*renderQuality().scale;if(canvas.width!==Math.floor(w*dpr)||canvas.height!==Math.floor(h*dpr)){canvas.width=Math.floor(w*dpr);canvas.height=Math.floor(h*dpr);gl.viewport(0,0,canvas.width,canvas.height)}gl.enable(gl.DEPTH_TEST);gl.enable(gl.CULL_FACE);gl.cullFace(gl.BACK);drawAtmosphere(atmosphere);const frameStaticStart=performance.now();
 // Cache seasonal ground geometry: camera and citizens cannot change it.
 // Winter snow affects colour; ordinary rain does not.
 const groundClimate=climateAt(state.t);
@@ -3013,7 +3029,7 @@ for(let i=0;i<5;i++){let xx=-17+i*1.3,zz=-14+(i%2)*1.4;box(xx,terrain(xx,zz),zz,
  if(gpuAvailable){bindGeometry(staticBuffer);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(scenicMeshCache),gl.STATIC_DRAW);staticGpuUploads++;}
 
 }
-data=gpuAvailable?[]:scenicMeshCache.slice();
+data=gpuAvailable?[]:scenicMeshCache.slice();const frameDynamicStart=performance.now();
 directionalCastShadows(state.t);
 currentMaterial=MATERIAL.FOLIAGE;
 windmill(-27,-18,state.t);forgeSmoke(state.t);activeChimneys=0;smokePuffs=0;smokeTriangles=0;smokeMaxRadius=0;for(const [x,z,k] of city)chimneySmoke(x,z,k,state.t);villageFestival();
@@ -3027,7 +3043,7 @@ for(let i=0;i<people.length;i++){
  if(nearPeople.has(i)){villager(people[i]);villageVisualLod.detailedCitizens++}
  else{compactVillager(people[i]);villageVisualLod.compactCitizens++}
 }
-currentMaterial=MATERIAL.GENERAL;weatherParticles(atmosphere);
+currentMaterial=MATERIAL.GENERAL;weatherParticles(atmosphere);const frameSubmitStart=performance.now();
 const elevation=Math.sin(pitch)*zoom,rad=Math.cos(pitch)*zoom,focusHeight=follow?terrain(focusPoint[0],focusPoint[1])+1.02:.25,eye=[focusPoint[0]+Math.sin(yaw)*rad,elevation+focusHeight,focusPoint[1]+Math.cos(yaw)*rad];let m=mat4multiply(perspective(Math.PI/3.2,w/h,.1,190),lookAt(eye,[focusPoint[0],focusHeight,focusPoint[1]],[0,1,0]));gl.uniformMatrix4fv(uniforms.viewProjection,false,m);gl.uniform3f(uniforms.fogColor,...atmosphere.fog);gl.uniform3f(uniforms.sunTint,...atmosphere.light);const radiance=lightingProfile(state.t);gl.uniform1f(uniforms.sunStrength,radiance.solar);gl.uniform1f(uniforms.ambientBlend,radiance.ambientBlend);gl.uniform1f(uniforms.worldTime,state.t);gl.uniform1f(uniforms.weatherWetness,climateMaterialProfile(state.t).precipitation);gl.uniform3f(uniforms.eyePosition,eye[0],eye[1],eye[2]);gl.uniform3f(uniforms.sunDirection,Math.cos(state.t/24*6.283),.3+atmosphere.daylight*.9,Math.sin(state.t/24*6.283));lastFrameTriangles=(gpuAvailable?scenicMeshCache.length+data.length:data.length)/30;
 if(gpuAvailable){bindGeometry(staticBuffer);gl.drawArrays(gl.TRIANGLES,0,scenicMeshCache.length/10);}
 bindGeometry(buffer);
@@ -3048,6 +3064,18 @@ if(gpuAvailable){
  gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(data),gl.DYNAMIC_DRAW);
 }
 gl.drawArrays(gl.TRIANGLES,0,data.length/10);if((frames++%14)===0){updateUI();drawAtlas();updateRealmSignal();updateWorldRibbon()}
+ // These are synchronous CPU wall phases and may include WebGL driver stalls;
+ // they are not GPU elapsed queries, frame presentation timestamps or FPS.
+ const frameProfileEnd=performance.now();
+ frameProfileSamples.push({
+  simulationAndSky:Math.max(0,frameStaticStart-frameProfileStart),
+  staticGeometry:Math.max(0,frameDynamicStart-frameStaticStart),
+  dynamicGeometry:Math.max(0,frameSubmitStart-frameDynamicStart),
+  drawSubmission:Math.max(0,frameProfileEnd-frameSubmitStart),
+  total:Math.max(0,frameProfileEnd-frameProfileStart)
+ });
+ if(frameProfileSamples.length>FRAME_PROFILE_LIMIT)frameProfileSamples.shift();
+ frameProfileCount++;
  // Only a completed presentation may become the reusable frozen frame.
  lastFrozenFrameKey=frozenViewKey;
 }
@@ -3060,7 +3088,7 @@ requestAnimationFrame(render);window.__tinyKingdom={getState:()=>JSON.parse(JSON
  branchTriangles:forestVisualStats.branchTriangles,
  broadleafLobes:forestVisualStats.broadleafLobes,microCrownLobes:forestVisualStats.microCrownLobes,rimLeafSprays:forestVisualStats.rimLeafSprays,individualLeaves:forestVisualStats.individualLeaves,broadleafSpecies:forestVisualStats.broadleafSpecies.slice(),broadleafAddedTriangles:forestVisualStats.broadleafAddedTriangles,
  crownColors:forestVisualStats.crownPalette.size
-}),getCottageFacadeStats:()=>({...cottageFacadeStats,styles:cottageFacadeStats.styles.map((count,style)=>({style,count})).filter(row=>row.count>0)}),getLightingProfile:lightingProfile,getCraftDistrictStats:()=>({...CRAFT_DISTRICT,...craftCounters}),getCottageEffects:()=>({activeChimneys,smokePuffs,smokeTriangles,smokeMaxRadius}),renderStats:()=>({terrainRebuilds,terrainCacheKey,terrainCacheTriangles,terrainHorizonTriangles,lastFrameTriangles,scenicMeshRebuilds,scenicMeshTriangles,scenicMeshKey,staticGpuUploads,dynamicGpuAllocations,dynamicGpuUploads,dynamicGpuCapacityFloats,dualBufferGPU:gpuAvailable}),renderQuality,setRenderQuality,shadowStats:()=>({triangles:castShadowTriangles,...sunShadow(state.t)}),getShadowGradientAudit:shadowGradientAudit,sampleSunShadow:(time)=>sunShadow(time),sampleCanopyShadow:(x,z)=>Array.from({length:9},(_,i)=>canopyShadowVariation(x,z,i*Math.PI/4)),getEconomyHistory:()=>cloneData(uiHistory),getHudMode:()=>cinematicHud?'cinema':'full',setHudMode:setCinematicHud,getCommandView:()=>commandView,setCommandView,skyStats:()=>({enabled:gpuAvailable,passes:skyPassCount,model:'day-night-atmosphere-v1',palette:skyColorProfile(state.t)}),getSkyPalette:skyColorProfile,getFoliageWindProbe:(x,y,z,time=state.t)=>foliageWindProbe(x,y,z,time),getVillageVisualLod:()=>({...villageVisualLod,fullDetailLimit:VILLAGE_LOD_LIMIT,population:people.length,homes:city.length}),setCamera:o=>{// G068: a manually specified inspection shot must not drift as Follow or Cinematic keeps ticking.
+}),getCottageFacadeStats:()=>({...cottageFacadeStats,styles:cottageFacadeStats.styles.map((count,style)=>({style,count})).filter(row=>row.count>0)}),getLightingProfile:lightingProfile,getCraftDistrictStats:()=>({...CRAFT_DISTRICT,...craftCounters}),getCottageEffects:()=>({activeChimneys,smokePuffs,smokeTriangles,smokeMaxRadius}),renderStats:()=>({terrainRebuilds,terrainCacheKey,terrainCacheTriangles,terrainHorizonTriangles,lastFrameTriangles,scenicMeshRebuilds,scenicMeshTriangles,scenicMeshKey,staticGpuUploads,dynamicGpuAllocations,dynamicGpuUploads,dynamicGpuCapacityFloats,dualBufferGPU:gpuAvailable}),renderQuality,setRenderQuality,getFrameProfile,shadowStats:()=>({triangles:castShadowTriangles,...sunShadow(state.t)}),getShadowGradientAudit:shadowGradientAudit,sampleSunShadow:(time)=>sunShadow(time),sampleCanopyShadow:(x,z)=>Array.from({length:9},(_,i)=>canopyShadowVariation(x,z,i*Math.PI/4)),getEconomyHistory:()=>cloneData(uiHistory),getHudMode:()=>cinematicHud?'cinema':'full',setHudMode:setCinematicHud,getCommandView:()=>commandView,setCommandView,skyStats:()=>({enabled:gpuAvailable,passes:skyPassCount,model:'day-night-atmosphere-v1',palette:skyColorProfile(state.t)}),getSkyPalette:skyColorProfile,getFoliageWindProbe:(x,y,z,time=state.t)=>foliageWindProbe(x,y,z,time),getVillageVisualLod:()=>({...villageVisualLod,fullDetailLimit:VILLAGE_LOD_LIMIT,population:people.length,homes:city.length}),setCamera:o=>{// G068: a manually specified inspection shot must not drift as Follow or Cinematic keeps ticking.
 if(follow)setCitizenFollow(false);cinematic=false;document.getElementById('camera').classList.remove('active');
 yaw=Number.isFinite(o.yaw)?o.yaw:yaw;pitch=Number.isFinite(o.pitch)?Math.max(.25,Math.min(1.45,o.pitch)):pitch;zoom=Number.isFinite(o.zoom)?Math.max(9,Math.min(85,o.zoom)):zoom;if(Array.isArray(o.focus)&&o.focus.length===2&&o.focus.every(Number.isFinite))focusPoint=o.focus.slice(0,2)}};
 })();
