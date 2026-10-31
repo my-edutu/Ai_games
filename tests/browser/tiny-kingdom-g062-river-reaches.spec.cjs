@@ -26,6 +26,7 @@ test('G062 original river source/outlet continue as tapered geometry without alt
  expect(actual.reach.easternTip).toBeCloseTo(61.8,10);
  expect(actual.reach.centerWidth).toBeCloseTo(1.8,10);
  expect(actual.reach.tipWidth).toBeCloseTo(.08,10);
+ expect(actual.reach.tipSink).toBeCloseTo(.78,10);
  expect(actual.original.segments).toBe(105);
  expect(actual.original.waterTriangles).toBe(1260);
  expect(actual.original.bankTriangles).toBe(840);

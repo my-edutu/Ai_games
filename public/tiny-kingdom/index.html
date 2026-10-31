@@ -796,8 +796,14 @@ const RIVER_REACH_SEGMENTS=11,RIVER_REACH_STEP=1.8;
 let outerRiverReachStats={sides:0,segmentsPerSide:0,waterTriangles:0,bankTriangles:0,totalTriangles:0};
 function outerRiverReachWidth(x){
  const t=Math.max(0,Math.min(1,(Math.abs(x)-42)/(RIVER_REACH_SEGMENTS*RIVER_REACH_STEP)));
- const fade=t*t*(3-2*t);
+ const fade=1-Math.pow(1-t*t,4);
  return 1.8*(1-fade)+.08*fade;
+}
+// Visual-only: gradually submerge the narrowing stream under its host
+// hillside rather than draping a bright turquoise flume across the upland.
+function outerRiverReachSinkAt(x){
+ const t=Math.max(0,Math.min(1,(Math.abs(x)-42)/(RIVER_REACH_SEGMENTS*RIVER_REACH_STEP)));
+ return .78*t*t*(3-2*t);
 }
 function appendOuterRiverReaches(){
  const before=data.length;
@@ -815,7 +821,7 @@ function appendOuterRiverReaches(){
   const nx=x+RIVER_REACH_STEP;
   const z=20+3*Math.sin(x*.13),nz=20+3*Math.sin(nx*.13);
   const w=outerRiverReachWidth(x)/1.8,nw=outerRiverReachWidth(nx)/1.8;
-  const point=(px,center,off)=>[px,terrain(px,center+off)+.08,center+off];
+  const point=(px,center,off)=>[px,terrain(px,center+off)+.08-outerRiverReachSinkAt(px),center+off];
   currentMaterial=MATERIAL.WATER;
   for(let i=0;i<RIVER_BANDS;i++){
    const a=banks[i],b=banks[i+1];
@@ -829,7 +835,7 @@ function appendOuterRiverReaches(){
     const size=outerRiverReachWidth(px)/1.8;
     const edge=depth===1.8?1.8:depth+.055*Math.sin(px*.39+side*1.4);
     const pz=center+side*edge*size;
-    return [px,terrain(px,pz)+rise,pz];
+    return [px,terrain(px,pz)+rise-outerRiverReachSinkAt(px),pz];
    };
    const a=bankPoint(x,z,inner,y0),b=bankPoint(x,z,outer,y1);
    const c=bankPoint(nx,nz,outer,y1),d=bankPoint(nx,nz,inner,y0);
@@ -844,7 +850,8 @@ function appendOuterRiverReaches(){
   westernTip:-42-RIVER_REACH_SEGMENTS*RIVER_REACH_STEP,
   easternTip:42+RIVER_REACH_SEGMENTS*RIVER_REACH_STEP,
   centerWidth:outerRiverReachWidth(42),
-  tipWidth:outerRiverReachWidth(42+RIVER_REACH_SEGMENTS*RIVER_REACH_STEP)
+  tipWidth:outerRiverReachWidth(42+RIVER_REACH_SEGMENTS*RIVER_REACH_STEP),
+  tipSink:outerRiverReachSinkAt(42+RIVER_REACH_SEGMENTS*RIVER_REACH_STEP)
  };
 }
 

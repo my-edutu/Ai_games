@@ -327,6 +327,7 @@ const path = require('node:path');
        evidence.outerRiverReach.totalTriangles!==440||
        Math.abs(evidence.outerRiverReach.centerWidth-1.8)>1e-12||
        Math.abs(evidence.outerRiverReach.tipWidth-.08)>1e-10||
+       Math.abs(evidence.outerRiverReach.tipSink-.78)>1e-10||
        !evidence.outerRiverReach.authorityUnchanged||
        evidence.geometry.totalTriangles>=160000)
       throw Error('G062 real GPU river reach / triangle / replay gate failed: '+
