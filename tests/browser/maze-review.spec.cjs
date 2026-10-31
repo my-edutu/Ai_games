@@ -198,8 +198,14 @@ test('a real close public encounter frames both autonomous actors and saves date
   expect(gateDiagnostic.nearbySealedGate, 'A nearby publicly observed gate should be camera-framed').toBeTruthy();
   expect(gateDiagnostic.nearbySealedGateProjection?.inFrame).toBe(true);
   expect(gateDiagnostic.explorerInFrame).toBe(true);
-  expect(gateDiagnostic.cameraHalfHeight, 'Desktop gate framing should enlarge the physical obstacle').toBeLessThan(5.2);
-  expect(gateDiagnostic.cameraHalfHeight).toBeGreaterThan(4.95);
+  if (gateDiagnostic.keyLockCloseup) {
+    expect(gateDiagnostic.carriedKeyGateGesture, 'Only a real matching key may trigger the close-up').toBeGreaterThan(.2);
+    expect(gateDiagnostic.cameraHalfHeight, 'The visible key/socket encounter earns a genuinely closer shot').toBeLessThan(4.62);
+    expect(gateDiagnostic.cameraHalfHeight).toBeGreaterThan(4.48);
+  } else {
+    expect(gateDiagnostic.cameraHalfHeight, 'Other sealed gates retain the previous truthful wide shot').toBeLessThan(5.2);
+    expect(gateDiagnostic.cameraHalfHeight).toBeGreaterThan(4.95);
+  }
   expect(Math.abs(gateDiagnostic.nearbySealedGateProjection.x), 'The gate must retain horizontal edge breathing room').toBeLessThan(.8);
   expect(Math.abs(gateDiagnostic.explorerProjection.x), 'Pip must not be pushed toward the horizontal edge').toBeLessThan(.8);
   const gateImage = path.join(dir, 'sealed-gate.png');
@@ -212,6 +218,8 @@ test('a real close public encounter frames both autonomous actors and saves date
     sourceSha256: Object.fromEntries(['app.js', 'map-view.mjs', 'scene.js', 'world.js'].map(name => [name, hash(path.join(sourceDir, name))])),
     diagnostic: {closedGatesInFrame: gateDiagnostic.closedGatesInFrame,
       cameraHalfHeight: gateDiagnostic.cameraHalfHeight,
+      keyLockCloseup: gateDiagnostic.keyLockCloseup,
+      carriedKeyGateGesture: gateDiagnostic.carriedKeyGateGesture,
       nearbySealedGate: gateDiagnostic.nearbySealedGate,
       nearbySealedGateProjection: gateDiagnostic.nearbySealedGateProjection,
       explorerProjection: gateDiagnostic.explorerProjection,
@@ -227,8 +235,14 @@ test('a real close public encounter frames both autonomous actors and saves date
   expect(gatePortraitDiagnostic.closedGatesInFrame).toBeGreaterThan(0);
   expect(gatePortraitDiagnostic.nearbySealedGateProjection?.inFrame).toBe(true);
   expect(gatePortraitDiagnostic.explorerInFrame).toBe(true);
-  expect(gatePortraitDiagnostic.cameraHalfHeight, 'Portrait gate must receive readable close framing').toBeLessThan(5.57);
-  expect(gatePortraitDiagnostic.cameraHalfHeight).toBeGreaterThan(5.37);
+  if (gatePortraitDiagnostic.keyLockCloseup) {
+    expect(gatePortraitDiagnostic.carriedKeyGateGesture, 'The portrait close-up must have a real carried key').toBeGreaterThan(.2);
+    expect(gatePortraitDiagnostic.cameraHalfHeight, 'A true key/lock interaction is now larger at 390px').toBeLessThan(4.76);
+    expect(gatePortraitDiagnostic.cameraHalfHeight).toBeGreaterThan(4.64);
+  } else {
+    expect(gatePortraitDiagnostic.cameraHalfHeight, 'A gate without a matched key retains its known environment').toBeLessThan(5.57);
+    expect(gatePortraitDiagnostic.cameraHalfHeight).toBeGreaterThan(5.37);
+  }
   expect(Math.abs(gatePortraitDiagnostic.nearbySealedGateProjection.x), 'Portrait gate must keep a margin').toBeLessThan(.8);
   expect(Math.abs(gatePortraitDiagnostic.explorerProjection.x), 'Portrait Pip must keep a margin').toBeLessThan(.8);
   const portraitGateImage = path.join(dir, 'sealed-gate-portrait.png');
@@ -240,6 +254,8 @@ test('a real close public encounter frames both autonomous actors and saves date
     sourceSha256: Object.fromEntries(['app.js', 'map-view.mjs', 'scene.js', 'world.js'].map(name => [name, hash(path.join(sourceDir, name))])),
     diagnostic: {closedGatesInFrame: gatePortraitDiagnostic.closedGatesInFrame,
       cameraHalfHeight: gatePortraitDiagnostic.cameraHalfHeight,
+      keyLockCloseup: gatePortraitDiagnostic.keyLockCloseup,
+      carriedKeyGateGesture: gatePortraitDiagnostic.carriedKeyGateGesture,
       nearbySealedGate: gatePortraitDiagnostic.nearbySealedGate,
       nearbySealedGateProjection: gatePortraitDiagnostic.nearbySealedGateProjection,
       explorerProjection: gatePortraitDiagnostic.explorerProjection,
