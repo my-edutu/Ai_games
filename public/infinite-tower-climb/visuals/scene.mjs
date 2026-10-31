@@ -762,7 +762,12 @@ export function createTowerScene(canvas, settings = {}) {
       group.position.set(mapped.x, mapped.y, mapped.z);
       group.rotation.y = mapped.angle + (p.vx < 0 ? Math.PI : 0);
     }
+    let particlesChanged = false;
     for (let i = 0; i < MAX_PARTICLES; i++) {
+      // A previous size can remain after clearActors() retired a run. Flush it
+      // once; idle frames must not re-upload 96 unchanged GPU particles.
+      if (particleLife[i] <= 0 && particleSizes[i] <= 0) continue;
+      particlesChanged = true;
       particleLife[i] = Math.max(0, particleLife[i] - dt);
       particleSizes[i] = particleLife[i] * 8;
       if (!particleLife[i]) continue;
@@ -770,7 +775,7 @@ export function createTowerScene(canvas, settings = {}) {
       particleVelocity[b + 1] -= dt * 4;
       for (let a = 0; a < 3; a++) particlePositions[b + a] += particleVelocity[b + a] * dt;
     }
-    for (const attribute of Object.values(particleGeometry.attributes)) attribute.needsUpdate = true;
+    if (particlesChanged) for (const attribute of Object.values(particleGeometry.attributes)) attribute.needsUpdate = true;
     const portrait = camera.aspect < .85;
     const overview = options.camera === 'overview';
     let targetY;

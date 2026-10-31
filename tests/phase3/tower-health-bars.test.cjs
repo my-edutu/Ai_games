@@ -71,5 +71,24 @@ test('enemy health fill stays correctly layered and actual combat damage has a l
     const fatal = { ...nextRun, tick: 11, revision: 11, publicChecksum: 'fatal', enemies: [{ ...nextRun.enemies[0], health: 0, active: false }] };
     view.accept({ snapshot: fatal }); callback(6200);
     assert.equal(renderedScene.getObjectByName('ObservedEnemyImpact').visible, true, 'fatal damage is confirmed during the real model death hold');
+    // In Low/reduced mode every burst is suppressed; submitting an idle frame
+    // must not increment Three BufferAttribute versions (GPU upload requests).
+    const points = renderedScene.children.find(object => object.isPoints && object.geometry?.attributes?.size);
+    assert.ok(points, 'inspect the real fixed-size particle geometry');
+    const versions = () => Object.values(points.geometry.attributes).map(attribute => attribute.version);
+    const idle = versions();
+    callback(6300); callback(6400);
+    assert.deepEqual(versions(), idle, 'idle low-quality frames cannot re-upload unchanged particles');
+    // Positive control: a real same-run player-health decrement still uploads
+    // the animated burst in High quality, including its terminal zero size.
+    view.setMotion(false); view.setQuality('high');
+    view.accept({ snapshot: { ...fatal, tick: 12, revision: 12, publicChecksum: 'player-hit-burst',
+      player: { ...fatal.player, health: 4 } } });
+    callback(6500);
+    assert.ok(versions().some((version, index) => version > idle[index]), 'active damage particles still send changing buffers');
+    for (let now = 6600; now <= 8000; now += 100) callback(now);
+    const settled = versions();
+    callback(8100); callback(8200);
+    assert.deepEqual(versions(), settled, 'fully retired particles stop re-uploading buffers');
   } finally { view.dispose(); }
 });
