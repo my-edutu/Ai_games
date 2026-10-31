@@ -31,13 +31,46 @@ export function createSkyTexture(index) {
  return texture;
 }
 
+// Cut lines are presentation-only. Same topology drives color and relief so the
+// engraved joints align. Each district uses a distinct masonry grammar instead
+// of recoloring one strict square grid. Analytic warps are periodic at 128 px.
+export function tileTopology(x,y,index=0){
+ const d=Number.isInteger(index)&&index>=0&&index<10?index:0;
+ const px=Number.isFinite(x)?x:0,py=Number.isFinite(y)?y:0;
+ const pi2=Math.PI*2,sin=Math.sin,angle=pi2/8;
+ if(d===7){
+  const dx=px-64,dy=py-64,r=Math.hypot(dx,dy),theta=(Math.atan2(dy,dx)+pi2)%pi2;
+  const ring=r%24,sector=theta%angle;
+  const edge=Math.min(ring,24-ring,r*Math.min(sector,angle-sector));
+  return {seam:edge<2,edge,cell:Math.floor(r/24)*17+Math.floor(theta/angle)};
+ }
+ let u=px,v=py,sx=32,sy=32,offset=0;
+ const warpX=sin(pi2*py/128*2),warpY=sin(pi2*px/128*2);
+ switch(d){
+  case 0:u+=warpX*4;v+=warpY*3;break;
+  case 1:sx=64;sy=32;u+=sin(pi2*py/128)*1.1;break;
+  case 2:break;
+  case 3:u+=py*.5;v-=px*.5;break;
+  case 4:u+=warpX*6;v+=sin(pi2*px/128*3)*4;break;
+  case 5:u+=warpX*8;v+=warpY*6;break;
+  case 6:sy=16;break;
+  case 8:u+=py;v-=px;break;
+  case 9:sx=64;sy=64;u+=sin(pi2*py/128)*2;break;
+ }
+ const row=Math.floor(v/sy);
+ if(d===0||d===1||d===4||d===5||d===9)offset=(row&1)*sx*.5;
+ const column=Math.floor((u+offset)/sx),ux=((u+offset)%sx+sx)%sx,vy=((v%sy)+sy)%sy;
+ const edge=Math.min(ux,sx-ux,vy,sy-vy);
+ return {seam:edge<2,edge,cell:Math.imul(column+37,251)+Math.imul(row+43,733)};
+}
+
 // Red is relief, green is roughness. Sharing the map avoids a second texture.
-function detailTexture(kind) {
+function detailTexture(kind, districtIndex=0) {
  const size=128,data=new Uint8Array(size*size*4);
  for(let y=0;y<size;y++)for(let x=0;x<size;x++){
   const grain=(Math.sin(x*1.71+y*3.19)+Math.sin(x*.31-y*.53))*.5;
   const brick=kind==='brick'&&(y%32<2||(x+(Math.floor(y/32)%2)*32)%64<2);
-  const joint=brick||(kind==='tile'&&(x%32<1||y%32<1));
+  const joint=brick||(kind==='tile'&&tileTopology(x,y,districtIndex).seam);
   const height=joint?65:184+grain*10+Math.sin(x*.13)*Math.cos(y*.11)*8;
   const i=(y*size+x)*4;data[i]=height;data[i+1]=joint?245:210+grain*14;data[i+2]=data[i];data[i+3]=255;
  }
@@ -49,7 +82,7 @@ function detailTexture(kind) {
 
 
 // Original, deterministic material studies. No image downloads or random rule state.
-function surfaceTexture(kind, color) {
+function surfaceTexture(kind, color, districtIndex = 0) {
  const size=128, data=new Uint8Array(size*size*4), base=new THREE.Color(color);
  let state=173;
  const noise=()=>{state=(Math.imul(state,1664525)+1013904223)>>>0;return state/4294967296;};
@@ -60,7 +93,17 @@ function surfaceTexture(kind, color) {
   if(kind==='moss')v+=Math.sin(x*.13)*Math.sin(y*.19)*.12;
   if(kind==='brick') {const row=Math.floor(y/32), seam=y%32<2 || (x+(row%2)*32)%64<2;v=seam?.75:v;}
   if(kind==='copper')v+=Math.sin(x*.13)*Math.cos(y*.08)*.1;
-  if(kind==='tile'){const seam=x%32<1||y%32<1;v=seam?.64:v;}
+  if(kind==='tile'){
+   // Deterministic per-block patina and worn, incised grout. Unlike the old
+   // 1-pixel white grid, this remains visible from the gameplay camera.
+   const {cell,edge,seam}=tileTopology(x,y,districtIndex);
+   let hash=Math.imul(cell+11,0x45d9f3b)^Math.imul(districtIndex+5,0x165667b1);
+   hash=Math.imul(hash^(hash>>>16),0x45d9f3b);
+   const patina=((hash>>>0)&255)/255;
+   v=.67+patina*.33+(noise()-.5)*.065+.025*Math.sin(x*.45+Math.sin(y*.17)*1.7);
+   if(seam)v=.4+patina*.075;
+   else if(edge<5)v*=.88;
+  }
   const i=(y*size+x)*4;
   data[i]=Math.min(255,base.r*255*v);data[i+1]=Math.min(255,base.g*255*v);data[i+2]=Math.min(255,base.b*255*v);data[i+3]=255;
  }
@@ -71,10 +114,11 @@ function surfaceTexture(kind, color) {
 }
 export function palette(district) {
  const style=districtStyle(district?.index),accent=style.metal;
+ const districtIndex=Number.isInteger(district?.index)&&district.index>=0&&district.index<10?district.index:0;
  const mat=(color,roughness=.64,metalness=0)=>new THREE.MeshStandardMaterial({color,roughness,metalness});
  const textured=(kind,color,roughness=.9,metalness=0)=>{
-  const detail=detailTexture(kind);
-  return new THREE.MeshStandardMaterial({map:surfaceTexture(kind,color),bumpMap:detail,roughnessMap:detail,bumpScale:kind==='brick'?.085:kind==='tile'?.025:.045,roughness,metalness});
+  const detail=detailTexture(kind,districtIndex);
+  return new THREE.MeshStandardMaterial({map:surfaceTexture(kind,color,districtIndex),bumpMap:detail,roughnessMap:detail,bumpScale:kind==='brick'?.085:kind==='tile'?.025:.045,roughness,metalness});
  };
  return {
   terracotta:textured('brick',style.masonry), clay:textured('stone',style.ground), shadow:mat('#3b645d'),
