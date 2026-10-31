@@ -6,8 +6,8 @@ const crypto = require('node:crypto');
 
 test.use({launchOptions:{args:['--use-angle=swiftshader','--enable-unsafe-swiftshader']}});
 const repo=path.resolve(__dirname,'../..');
-const blocks=/^[ \\t]*\\/\\/ BEGIN R36 [^\\n]*\\n[\\s\\S]*?^[ \\t]*\\/\\/ END R36 [^\\n]*\\n/gm;
-const blob = s => crypto.createHash('sha1').update('blob '+Buffer.byteLength(s)+'\\0').update(s).digest('hex');
+const blocks=/^[ \t]*\/\/ BEGIN R36 [^\n]*\n[\s\S]*?^[ \t]*\/\/ END R36 [^\n]*\n/gm;
+const blob = s => crypto.createHash('sha1').update('blob '+Buffer.byteLength(s)+'\0').update(s).digest('hex');
 const evidence = name => { const directory=path.join(repo,'artifacts/phase3');fs.mkdirSync(directory,{recursive:true});return path.join(directory,name);};
 
 test('real WebGL overview and detail preserve exact prior pixels while unnecessary body index reuploads are avoided', async ({browser,baseURL}) => {
@@ -51,6 +51,6 @@ test('real WebGL overview and detail preserve exact prior pixels while unnecessa
     expect(captures[1].measure.stats.serpent.indexUploadRequests).toBeGreaterThan(0);
   }
   fs.writeFileSync(evidence('snake-index-topology-comparison.json'),JSON.stringify({controlledSyntheticFrame:true,
-    notDevicePresentFps:true,notActualDisplayedFps:true,rows:evidenceRows},null,2)+'\\n');
+    notDevicePresentFps:true,notActualDisplayedFps:true,rows:evidenceRows},null,2)+'\n');
   expect(JSON.stringify(frame)).toBe(publicBytes);
 });

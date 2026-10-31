@@ -6,8 +6,8 @@ const path = require('node:path');
 const crypto = require('node:crypto');
 
 const sourcePath = path.resolve(__dirname, '../../public/snake-stream/serpent.mjs');
-const blocks = /^[ \\t]*\\/\\/ BEGIN R36 [^\\n]*\\n[\\s\\S]*?^[ \\t]*\\/\\/ END R36 [^\\n]*\\n/gm;
-const blob = source => crypto.createHash('sha1').update('blob ' + Buffer.byteLength(source) + '\\0').update(source).digest('hex');
+const blocks = /^[ \t]*\/\/ BEGIN R36 [^\n]*\n[\s\S]*?^[ \t]*\/\/ END R36 [^\n]*\n/gm;
+const blob = source => crypto.createHash('sha1').update('blob ' + Buffer.byteLength(source) + '\0').update(source).digest('hex');
 const usedBytes = (array, count) => Buffer.from(array.buffer, array.byteOffset, count * array.BYTES_PER_ELEMENT);
 
 test('living serpent reuses unchanged GPU index topology without dropping portal breaks, poses, or LOD transitions', async () => {
