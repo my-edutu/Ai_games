@@ -426,14 +426,21 @@ export function createMazeWorld(options = {}) {
       const observed = typeof required === 'string' && s.keys.some(key =>
         key.id === required && !key.collected && s.cells.some(c => c.cell === key.cell));
       const lock = new THREE.Group(); lock.name = 'Physical recessed keyhole'; gate.add(lock);
+      // Mount the real lock on the camera-facing right stile, beside the coral
+      // crossed bars. A central socket sat directly over the obstruction and
+      // hid Pip's raised matching key at native portrait scale. This is still
+      // decorative hardware on a publicly disclosed, actually CLOSED door.
+      // Local +X faces screen-right in both permitted cardinal orientations;
+      // it cannot disclose the cell beyond the gate or grant passage.
+      lock.position.set(.56, .06, .18);
       lock.userData.keyState = carried ? 'carried' : observed ? 'observed' : 'unknown';
-      mesh(lock, bevel, darkMetal, 0, .9, .43, .76, .75, .18);
-      mesh(lock, bevel, gold, 0, .9, .55, .65, .64, .14);
-      mesh(lock, bevel, darkMetal, 0, .9, .65, .51, .5, .14);
+      mesh(lock, bevel, darkMetal, 0, .9, .43, .88, .85, .18);
+      mesh(lock, bevel, gold, 0, .9, .55, .75, .72, .14);
+      mesh(lock, bevel, darkMetal, 0, .9, .65, .61, .59, .14);
       const socketTint = carried ? glow : gold;
-      mesh(lock, ring, socketTint, 0, 1.02, .76, .18, .18, .12);
-      mesh(lock, bevel, socketTint, 0, .78, .76, .11, .24, .10);
-      mesh(lock, bevel, darkMetal, 0, .79, .825, .045, .14, .035);
+      mesh(lock, ring, socketTint, 0, 1.02, .76, .23, .23, .12);
+      mesh(lock, bevel, socketTint, 0, .78, .76, .13, .27, .10);
+      mesh(lock, bevel, darkMetal, 0, .79, .825, .05, .16, .035);
       // The raised crest shows the same carved key motif only once this exact
       // key is disclosed. A mint lock is a match, never a passable passage.
       if (carried || observed) {
