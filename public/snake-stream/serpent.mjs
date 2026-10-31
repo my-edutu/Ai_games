@@ -278,9 +278,11 @@ export function createSerpent(THREE) {
   const eyes = [], pupils = [], brows = [];
   for (const sign of [-1, 1]) {
     const socket = new THREE.Group();
-    socket.position.set(sign*0.184,0.202,0.098);
-    socket.rotation.y=sign*0.40; socket.rotation.x=-0.20;
-    socket.scale.setScalar(1.45);
+    // Keep the eyes nestled in the existing cranial swell. The previous
+    // oversized raised sockets read like frog stalks in gameplay close-ups.
+    socket.position.set(sign*0.184,0.191,0.148);
+    socket.rotation.y=sign*0.33; socket.rotation.x=-0.15;
+    socket.scale.setScalar(1.23);
     headPose.add(socket);
     ellipsoid(socket,jade,0,0,-0.014,0.111,0.113,0.070,'Inset eye rim');
     const eye=new THREE.Group(); socket.add(eye); eyes.push(eye);

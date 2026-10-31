@@ -1,10 +1,15 @@
 {
-  "updatedAt": "2026-10-31T04:49:00Z",
-  "status": "Round 13 · flowing-water render candidate; Gauntlet open",
-  "detail": "Grounded serpent, distant groves and stable prop cache are published at ffe44de. Round 13 now precomposes organic water and foam into one filtered fragment lookup instead of two, with focused regression and real offline WebGL capture. Last live-host browser pacing still failed: 8 actual draws over 1008.2ms versus unchanged minimum 17. Current-head CI and an independent whole-game verdict remain pending.",
+  "updatedAt": "2026-10-31T04:52:37Z",
+  "status": "Round 14 candidate · more integrated snake eyes; benchmark remains open",
+  "detail": "After the Round 13 flowing-water pass, the next character pass lowered oversized eye sockets. The first revision hid the pupils behind the muzzle and was rejected from real browser captures. The revised forward-set eyes are visibly open and better nested into the skull. The overall Snake Pass visual and frame-rate bars are still not achieved.",
   "latestImage": "/progress/evidence/round-9-overview.jpg",
-  "latestCaption": "Historical Round 9 actual WebGL capture; not a Round 13 image. New water screenshots are offline evidence and are not misrepresented here.",
+  "latestCaption": "Older verified Round 9 browser still; newer Round 14 local eye A/B remains outside the site until exact-head capture is published.",
   "reviews": [
+    {
+      "area": "Round 14 · snake face and eye supports",
+      "verdict": "SELF-REVIEW: narrow improvement, overall LOSE",
+      "gap": "Previous eye rims protruded 0.36585 relative to the head; the revised rims peak around 0.330. First closer-set trial hid pupils and was discarded; the accepted local real-render close-up restores visible pupils. Commercial Snake Pass reference remains stronger in facial anatomy, pose and materials."
+    },
     {
       "area": "Character and motion",
       "verdict": "Grounded geometry verified · visual LOSE still open",
@@ -200,9 +205,16 @@
       "title": "Round 13 · single-sample organic water",
       "summary": "Two periodic water fields and foam crests now share one filtered lookup. Focused TDD and local real WebGL capture passed; no new live-host or independent whole-game verdict was yet available.",
       "captures": []
+    },
+    {
+      "title": "Round 14 · attached eye anatomy",
+      "summary": "Red→green geometry regression caps protruding sockets and requires pupils to sit forward of the skull. The first WebGL capture hid the gaze, so that revision was rejected. The corrected version retains blinking and both detailed/overview meshes. This is a small, self-reviewed character improvement, not an independent benchmark victory.",
+      "captures": []
     }
   ],
   "checks": [
+    "Round 14: 38/38 focused local Snake Node tests pass on combined candidate (current water + eyes); TypeScript build passed. Full local repository suite attempts timed out during other-game campaigns; latest full CI must be checked independently.",
+    "Round 14: facial eye-support regression red on original geometry (0.36585 head-relative crown), green on revised 0.330 geometry; local real WebGL detail A/B inspected, first occluding attempt rejected.",
     "Round 13 exact-source isolated focused Snake Node suite 37/37 passed; TypeScript build passed. New one-fetch regression failed on the original two-fetch shader and passed on candidate.",
     "Round 13 local frozen-frame WebGL 1440×900, fixed scale 0.5, untraced: before 42/40 vs after 42/44 actual submitted draws over 2.6s each. Inconclusive short diagnostic, not a live-host win.",
     "Last live-host focused browser run ffe44de passed 15/16; desktop pacing failed with 8 actual submissions in 1008.2ms versus unchanged minimum 17. RAF cadence is not render FPS.",
