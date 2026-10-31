@@ -86,9 +86,12 @@ test('a publicly observed locked gate has an unmistakable seal and an open gate 
   assert.ok(seal.children.every(child => child.isMesh && child.visible));
   assert.ok(seal.children.every(child => child.position.z > .2),
     'both warning diagonals must sit ahead of the bars, toward the +X/+Z follow camera');
-  const lock = bars.children.find(child => child.isMesh && Math.abs(child.position.x) < .01
-    && Math.abs(child.position.y - .85) < .01 && child.position.z > .5);
-  assert.ok(lock, 'the lock face must be in front of the crossed seal rather than hidden by the bars');
+  const lock = bars.getObjectByName('Physical recessed keyhole');
+  assert.ok(lock, 'the gate must have a modeled physical socket, not just a floating key crest');
+  assert.equal(lock.userData.keyState, 'unknown', 'an undisclosed key cannot appear to be carried');
+  assert.equal(lock.children.length, 6, 'the face is a layered frame, inset and keyhole');
+  assert.ok(lock.children.some(part => part.position.z > .7),
+    'the readable lock socket must be in front of the crossed seal, facing the camera');
   assert.equal(barrier.getObjectByName('Disclosed matching key emblem'), undefined,
     'the modeled lock cannot advertise a matching collectible that remains undisclosed');
 
@@ -100,6 +103,8 @@ test('a publicly observed locked gate has an unmistakable seal and an open gate 
   const observedCrest = world.group.getObjectByName('Disclosed matching key emblem');
   assert.ok(observedCrest, 'an already observed matching key may appear on its lock crest');
   assert.equal(observedCrest.userData.keyState, 'observed');
+  assert.equal(world.group.getObjectByName('Physical recessed keyhole').userData.keyState, 'observed',
+    'an observed but uncollected key has the ordinary gold keyhole');
   assert.ok(observedCrest.position.z > .2, 'the shared key icon faces the actual camera');
   assert.ok(observedCrest.children.length >= 6, 'the emblem is fully modeled, not a placeholder');
   world.update({...knownKey, keys: [{id: 'unrelated', cell: 24, collected: false}]});
@@ -112,6 +117,11 @@ test('a publicly observed locked gate has an unmistakable seal and an open gate 
   const carriedCrest = world.group.getObjectByName('Disclosed matching key emblem');
   assert.ok(carriedCrest, 'public inventory may show that the exact gate key is carried');
   assert.equal(carriedCrest.userData.keyState, 'carried');
+  const carriedLock = world.group.getObjectByName('Physical recessed keyhole');
+  assert.equal(carriedLock.userData.keyState, 'carried');
+  const socketRing = carriedLock.children.find(child => child.geometry?.type === 'TorusGeometry');
+  assert.ok(socketRing && socketRing.material.emissive.g > .4,
+    'only the correctly carried matching key turns the physical keyhole mint');
   assert.ok(world.group.getObjectByName('Closed crossed barrier'),
     'possessing the key must NEVER withdraw a gate that authority still reports closed');
   world.update({...carriedKey, inventory: []});
@@ -137,6 +147,8 @@ test('a publicly observed locked gate has an unmistakable seal and an open gate 
   assert.equal(opened.getObjectByName('Withdrawable gate bars').visible, false);
   assert.equal(opened.getObjectByName('Closed crossed barrier'), undefined,
     'the warning obstruction must disappear when authority reports the gate open');
+  assert.equal(opened.getObjectByName('Physical recessed keyhole'), undefined,
+    'an actually opened gate must not keep the locked socket visible');
 
   world.update({...closed, cells: [{cell: 26, neighbors: []}]});
   assert.equal(world.group.getObjectByName('Disclosed sealed gate'), undefined,
