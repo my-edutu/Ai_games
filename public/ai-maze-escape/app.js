@@ -76,7 +76,7 @@ function update(value){
   byId('goal-label').textContent=ended?'Journey result':landmark?'Discovered landmark':'Current goal';
   byId('goal-title').textContent=ended?(escaped?'Home at last':'A new beginning'):landmark?(landmark.kind==='key'?'A known golden key':'The exit is discovered'):goals[snapshot.intent.mode]||'Find the exit';
   byId('intent-label').textContent=ended?'The final decision':"The explorer’s next move";
-  byId('objective').textContent=ended?(escaped?'The explorer reached the exit. A new garden awaits.':'This attempt has ended. The next adventure begins automatically.'):landmark?(`An observed ${landmark.kind} lies ${landmark.steps===0?'here':`${landmark.steps} known passage${landmark.steps===1?'':'s'} away`}. This does not guarantee a safe route.`):'Find the keys. Discover the exit. Escape before time runs out.';
+  byId('objective').textContent=ended?(escaped?'The explorer reached the exit. A new garden awaits.':'This attempt has ended. The next adventure begins automatically.'):landmark?(`An observed ${landmark.kind} lies ${landmark.steps===0?'here':`${landmark.steps} known passage${landmark.steps===1?'':'s'} away`}. Escape is the goal; this does not guarantee a safe route.`):'Find the keys. Discover the exit. Escape before time runs out.';
   elements.confidence.style.width=`${Math.round(snapshot.intent.confidence*100)}%`;
   elements.inventory.textContent=snapshot.inventory.length?`${snapshot.inventory.length} ${snapshot.inventory.length===1?'key':'keys'} collected`:'Still looking for a key';
   elements.profile.textContent=`${snapshot.profile} · Expedition ${snapshot.level}`;
