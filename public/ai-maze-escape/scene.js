@@ -1,7 +1,7 @@
 import * as THREE from './vendor/three.module.js';
 import { createExplorer, createWarden } from './characters.js';
 import { createMazeWorld, cellPosition, cellHeight, sampleGroundHeight, CELL_SIZE } from './world.js';
-import { planPublicMotion, samplePublicPath, publicWayfinding, publicObjective, publicStageBias, composePublicCameraFocus } from './map-view.mjs';
+import { planPublicMotion, samplePublicPath, publicWayfinding, publicObjective, publicStageBias, composePublicCameraFocus, publicNearbySealedGate, composePublicSealedGateFocus } from './map-view.mjs';
 
 const TAU = Math.PI * 2;
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
@@ -342,6 +342,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
 
     const aspect = width / Math.max(1, height);
     let targetHeight;
+    let nearObservedGate = null;
     if (cameraMode === 'overview') {
       const positions = s.cells.map(cell => cellPosition(cell.cell, s.width, s.height));
       const minX = Math.min(...positions.map(p => p.x)), maxX = Math.max(...positions.map(p => p.x));
@@ -360,19 +361,28 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
       const nearObservedGoal = cameraMode === 'follow' && !result
         && objectiveCue && objectiveCue.steps <= 2 && !closestThreat?.strength;
       if (cameraMode === 'follow' && !result && !closestThreat?.strength) {
-        // A near, already-observed goal does not erase the public coastline
-        // correction. Blend a bounded stage pull with the known landmark to
-        // keep Pip, its legitimate first step and the surrounding diorama
-        // in the same shot without introducing hidden geometry or guidance.
-        const goal = nearObservedGoal
-          ? cellPosition(objectiveCue.cell, s.width, s.height) : null;
-        const focus = composePublicCameraFocus(stageBias, goal
-          ? {x: goal.x - pose.x, z: goal.z - pose.z} : null, nearObservedGoal, aspect);
+        // The visual obstruction is never promoted to a movement objective:
+        // it is only a currently rendered, source-disclosed *closed* gate.
+        nearObservedGate = !nearObservedGoal ? publicNearbySealedGate(s) : null;
+        let focus;
+        if (nearObservedGate) {
+          const a = cellPosition(nearObservedGate.a, s.width, s.height);
+          const b = cellPosition(nearObservedGate.b, s.width, s.height);
+          focus = composePublicSealedGateFocus(stageBias,
+            {x: (a.x + b.x) / 2 - pose.x, z: (a.z + b.z) / 2 - pose.z}, aspect);
+        } else {
+          // A near, already-observed goal does not erase the public coastline
+          // correction. Keep Pip and its legitimate first step in the diorama.
+          const goal = nearObservedGoal
+            ? cellPosition(objectiveCue.cell, s.width, s.height) : null;
+          focus = composePublicCameraFocus(stageBias, goal
+            ? {x: goal.x - pose.x, z: goal.z - pose.z} : null, nearObservedGoal, aspect);
+        }
         desiredTarget.x += focus.x;
         desiredTarget.z += focus.z;
       }
       targetHeight = cameraMode === 'detail' ? 4.6 : height < 340 ? 5.4
-        : aspect < .9 ? 6.2 : nearObservedGoal ? 6.25 : 7.3;
+        : aspect < .9 ? 6.2 : nearObservedGoal ? 6.25 : nearObservedGate ? 6.55 : 7.3;
     }
     const blend = settings.reducedMotion ? 1 : 1 - Math.exp(-delta * 4.5);
     cameraTarget.lerp(desiredTarget, blend);
@@ -427,6 +437,19 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
         routeQueue: cells.length, world: stats, contextLost: false,
         disclosedThreats: wardens.size, wardensInFrame, encounterAttention: closestThreat?.strength ?? 0,
         keysInFrame, closedGatesInFrame,
+        // Camera evidence is derived only from the source-disclosed gate,
+        // with projected coordinates in normalized device space [-1,+1].
+        nearbySealedGate: nearObservedGate ? {...nearObservedGate} : null,
+        nearbySealedGateProjection: nearObservedGate ? (() => {
+          const a = cellPosition(nearObservedGate.a, s.width, s.height);
+          const b = cellPosition(nearObservedGate.b, s.width, s.height);
+          const known = new Set(s.cells.map(cell => cell.cell));
+          const y = Math.max(...[nearObservedGate.a, nearObservedGate.b]
+            .filter(cell => known.has(cell)).map(cell => cellHeight(cell, s.width, s.height))) + .88;
+          const p = new THREE.Vector3((a.x + b.x) / 2, y, (a.z + b.z) / 2).project(camera);
+          return {x: p.x, y: p.y, inFrame: Math.abs(p.x) < .95 && Math.abs(p.y) < .95};
+        })() : null,
+        explorerProjection: {x: projected.x, y: projected.y},
         wayfindingCues: wayfindingCues.map(cue => ({...cue})),
         objectiveCue: objectiveCue ? {...objectiveCue} : null,
         objectiveInFrame: objectiveCue ? (() => {
