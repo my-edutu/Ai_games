@@ -75,3 +75,29 @@ test('identical public routes have no spurious movement', async () => {
   const state = snapshot([0, 1, 8]);
   assert.deepEqual(planPublicMotion(state, state), { cells: [8], snap: false });
 });
+
+test('wayfinding marks only reciprocally disclosed legal edges beside the real current cell', async () => {
+  const {publicWayfinding} = await load();
+  const state = snapshot([0, 1, 8], {
+    currentCell: 1, plannedRoute: [1, 8, 9],
+    cells: [
+      {cell: 0, neighbors: [1]},
+      {cell: 1, neighbors: [0, 8, 2, 15, 4]},
+      {cell: 8, neighbors: [1, 9]},
+      {cell: 2, neighbors: [9]}, // No reciprocal passage through the wall.
+      {cell: 4, neighbors: [1], blocked: true},
+      {cell: 15, neighbors: [1]}, // Farther than one grid step.
+    ],
+  });
+  assert.deepEqual(publicWayfinding(state), [
+    {from: 1, to: 0, kind: 'known'},
+    {from: 1, to: 8, kind: 'planned'},
+  ]);
+  assert.deepEqual(publicWayfinding({...state, plannedRoute: [0, 1, 8]}), [
+    {from: 1, to: 0, kind: 'known'},
+    {from: 1, to: 8, kind: 'known'},
+  ], 'an old planned path must not be re-anchored');
+  assert.deepEqual(publicWayfinding({...state, result: {reason: 'capture'}}), []);
+  assert.deepEqual(publicWayfinding({...state, cells: state.cells.filter(c => c.cell !== 8)}),
+    [{from: 1, to: 0, kind: 'known'}], 'undisclosed destinations must remain unmarked');
+});

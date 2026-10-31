@@ -66,6 +66,29 @@ export function samplePublicPath(cells, progress, width, height, cellSize = 2.4)
   return { x: ax + (bx - ax) * t, z: az + (bz - az) * t, heading: Math.atan2(bx - ax, bz - az), cell: a, moving: a !== b };
 }
 
+/**
+ * Only marks legal, already-disclosed corridors adjacent to the explorer.
+ * 'planned' reflects public AI intent, NOT a guarantee of safety or refuge.
+ * The renderer performs no pathfinding or undisclosed-map inference.
+ */
+export function publicWayfinding(snapshot) {
+  const {currentCell: current, width, height} = snapshot ?? {};
+  if (!Number.isInteger(current) || !Number.isInteger(width) || !Number.isInteger(height)
+    || width < 1 || height < 1 || current < 0 || current >= width * height || snapshot.result) return [];
+  const known = new Map((Array.isArray(snapshot.cells) ? snapshot.cells : []).map(item => [item.cell, item]));
+  const origin = known.get(current);
+  if (!origin || origin.blocked || !Array.isArray(origin.neighbors)) return [];
+  const planned = Array.isArray(snapshot.plannedRoute) && snapshot.plannedRoute[0] === current
+    ? snapshot.plannedRoute[1] : null;
+  return [...new Set(origin.neighbors)].filter(next => {
+    const cell = known.get(next);
+    const distance = Math.abs((next % width) - (current % width))
+      + Math.abs(Math.floor(next / width) - Math.floor(current / width));
+    return Number.isInteger(next) && next >= 0 && next < width * height && distance === 1
+      && cell && !cell.blocked && Array.isArray(cell.neighbors) && cell.neighbors.includes(current);
+  }).slice(0, 4).map(next => ({from: current, to: next, kind: next === planned ? 'planned' : 'known'}));
+}
+
 export function drawMinimap(canvas, snapshot, highContrast = false) {
   if (!canvas || !snapshot) return;
   const context = canvas.getContext('2d');

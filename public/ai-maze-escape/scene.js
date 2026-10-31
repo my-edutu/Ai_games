@@ -1,7 +1,7 @@
 import * as THREE from './vendor/three.module.js';
 import { createExplorer, createWarden } from './characters.js';
 import { createMazeWorld, cellPosition, cellHeight, sampleGroundHeight, CELL_SIZE } from './world.js';
-import { planPublicMotion, samplePublicPath } from './map-view.mjs';
+import { planPublicMotion, samplePublicPath, publicWayfinding } from './map-view.mjs';
 
 const TAU = Math.PI * 2;
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
@@ -72,6 +72,29 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
   const marker = new THREE.Mesh(markerGeometry, markerMaterial);
   marker.rotation.x = -Math.PI / 2; marker.position.y = .035; scene.add(marker);
 
+  // Low-profile passage glyphs remain distinct from golden keys and red danger.
+  // Each arrow is valid only while its destination is already publicly known.
+  const arrowShape = new THREE.Shape();
+  arrowShape.moveTo(0, -.42);
+  arrowShape.lineTo(-.29, -.03);
+  arrowShape.lineTo(-.13, -.03);
+  arrowShape.lineTo(-.13, .28);
+  arrowShape.lineTo(.13, .28);
+  arrowShape.lineTo(.13, -.03);
+  arrowShape.lineTo(.29, -.03);
+  arrowShape.closePath();
+  const arrowGeometry = new THREE.ShapeGeometry(arrowShape);
+  const plannedArrowMaterial = new THREE.MeshBasicMaterial({color: '#6cf4d8', transparent: true, opacity: .96, side: THREE.DoubleSide, depthWrite: false});
+  const knownArrowMaterial = new THREE.MeshBasicMaterial({color: '#e4f0df', transparent: true, opacity: .73, side: THREE.DoubleSide, depthWrite: false});
+  const wayfindingArrows = Array.from({length: 4}, () => {
+    const pivot = new THREE.Group();
+    const glyph = new THREE.Mesh(arrowGeometry, knownArrowMaterial);
+    glyph.rotation.x = -Math.PI / 2;
+    pivot.add(glyph); pivot.visible = false; scene.add(pivot);
+    return {pivot, glyph};
+  });
+  let wayfindingCues = [];
+
   // One reusable soft contact shadow makes the explorer sit on the floor.
   const shadowCanvas = document.createElement('canvas'); shadowCanvas.width = 64; shadowCanvas.height = 64;
   const shadowContext = shadowCanvas.getContext('2d');
@@ -122,6 +145,24 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     guide.computeLineDistances();
   }
 
+  function updateWayfinding(snapshot) {
+    wayfindingCues = publicWayfinding(snapshot);
+    for (let i = 0; i < wayfindingArrows.length; i++) {
+      const {pivot, glyph} = wayfindingArrows[i], cue = wayfindingCues[i];
+      pivot.visible = Boolean(cue);
+      if (!cue) continue;
+      const from = cellPosition(cue.from, snapshot.width, snapshot.height);
+      const to = cellPosition(cue.to, snapshot.width, snapshot.height);
+      // The indicator occupies the existing tile, never an assumed corridor.
+      const x = from.x + (to.x - from.x) * .39;
+      const z = from.z + (to.z - from.z) * .39;
+      pivot.position.set(x, sampleGroundHeight(x, z, snapshot) + .065, z);
+      pivot.rotation.y = Math.atan2(to.x - from.x, to.z - from.z);
+      pivot.scale.setScalar(cue.kind === 'planned' ? 1.18 : .8);
+      glyph.material = cue.kind === 'planned' ? plannedArrowMaterial : knownArrowMaterial;
+    }
+  }
+
   function update(value) {
     if (disposed || !value?.snapshot) return;
     frame = value;
@@ -141,6 +182,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     previous = snapshot;
     world.update(snapshot);
     updateRoutes(snapshot);
+    updateWayfinding(snapshot);
     const seen = new Set(snapshot.threats.map(threat => threat.id));
     for (const [id, entry] of wardens) {
       if (!seen.has(id)) { scene.remove(entry.model.group); entry.model.dispose(); wardens.delete(id); }
@@ -282,6 +324,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
         frameP95Ms: sorted[Math.floor(sorted.length * .95)] || 0,
         routeQueue: cells.length, world: stats, contextLost: false,
         disclosedThreats: wardens.size, wardensInFrame, encounterAttention: closestThreat?.strength ?? 0,
+        wayfindingCues: wayfindingCues.map(cue => ({from: cue.from, to: cue.to, kind: cue.kind})),
         explorerPosition: {x: pose.x, y: ground, z: pose.z},
       };
     }
@@ -312,6 +355,9 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     world.dispose(); explorer.dispose();
     for (const entry of wardens.values()) entry.model.dispose();
     wardens.clear(); guide.geometry.dispose(); guideMaterial.dispose(); markerGeometry.dispose(); markerMaterial.dispose();
+    arrowGeometry.dispose(); plannedArrowMaterial.dispose(); knownArrowMaterial.dispose();
+    for (const {pivot} of wayfindingArrows) scene.remove(pivot);
+    wayfindingCues = [];
     contactGeometry.dispose(); contactMaterial.dispose(); contactTexture.dispose();
     sun.shadow.map?.dispose(); environmentTexture?.dispose(); renderer.dispose(); scene.clear();
     cells = []; frameTimes.length = 0; frame = null; previous = null;

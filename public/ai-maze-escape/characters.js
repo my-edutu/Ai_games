@@ -180,13 +180,13 @@ export function createExplorer(options = {}) {
   // it is not a detection radius, navigation instruction or hidden game event.
   const flareGold=material('#fff1ad',.08,.26,{emissive:'#ffd069',emissiveIntensity:1.35});
   const flareCoral=material('#f07b43',.07,.33,{emissive:'#e35021',emissiveIntensity:.9});
+  // A triangle with a bold exclamation is a warning, not a collectible halo.
   const alertFlare=pivot(group,'disclosed threat flare',[0,1.83,0]);
-  ring(alertFlare,flareGold,[0,.11,0],.3,.039);
-  rounded(alertFlare,flareCoral,[0,.17,.02],[.14,.27,.12],.035);
-  ball(alertFlare,flareGold,[0,-.075,.02],[.085,.083,.085]);
-  for (const side of [-1,1]) {
-    bar(alertFlare,flareGold,[side*.345,.28,0],[side*.43,.39,0],.025);
-  }
+  bar(alertFlare,flareGold,[-.34,-.13,0],[0,.4,0],.049);
+  bar(alertFlare,flareGold,[0,.4,0],[.34,-.13,0],.049);
+  bar(alertFlare,flareGold,[.34,-.13,0],[-.34,-.13,0],.049);
+  rounded(alertFlare,flareCoral,[0,.13,.025],[.105,.235,.075],.026);
+  ball(alertFlare,flareGold,[0,-.07,.038],[.069,.073,.07]);
   alertFlare.visible=false;
   // A cage lantern with a solid emissive crystal: no per-character dynamic lights.
   const lantern=pivot(arms[1].hand,'swinging lantern',[.045,-.045,.06]);
