@@ -2,7 +2,7 @@
 const path=require('node:path');
 const {defineConfig}=require('@playwright/test');
 module.exports=defineConfig({
- testDir:'.',testMatch:['dungeon-stream.spec.cjs','dungeon-materials.spec.cjs'],
+ testDir:'.',testMatch:['dungeon-stream.spec.cjs','dungeon-materials.spec.cjs','dungeon-interface.spec.cjs'],
  // Software WebGL captures must not compete with several full dungeon renderers.
  workers:1,
  timeout:60000,expect:{timeout:15000},

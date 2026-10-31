@@ -1,4 +1,5 @@
 import * as THREE from '/dungeon/vendor/three.module.js';
+import {encounterTarget,isSceneAlert,installSpectatorUI} from '/dungeon/spectator-ui.js';
 import {enrichEnvironment} from '/dungeon/environment.js';
 import {enrichCharacter} from '/dungeon/characters.js';
 import {createBiomeAtmosphere} from '/dungeon/biome-atmosphere.js';
@@ -8,6 +9,7 @@ import {addContactProjection} from '/dungeon/contact-projection.js';
 import {createLivingWorld} from '/dungeon/living-world.js';
 import {attachCharacter,updateActor,disposeActorAsset,putEnvironment,stats as assetStats} from '/dungeon/model-assets.js';
 const $=id=>document.getElementById(id),canvas=$('world'),reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const spectatorUI=installSpectatorUI();
 let focusedHeroId='vanguard',autoDirector=true,lastAutoSwitch=0;
 function directCamera(s){
  const alive=s.units.filter(u=>u.faction==='party'&&u.hp>0);
@@ -38,7 +40,7 @@ fxButton.setAttribute('aria-pressed',String(postFXEnabled));
 fxButton.addEventListener('click',()=>{
  postFXEnabled=!postFXEnabled;
  fxButton.setAttribute('aria-pressed',String(postFXEnabled));
- fxButton.querySelector('span').textContent=postFXEnabled?'MAGIC GLOW ON':'MAGIC GLOW OFF';
+ fxButton.querySelector('span').textContent=postFXEnabled?'Glow on':'Glow off';
 });
 async function initializePostFX(){
  try{
@@ -340,7 +342,7 @@ function rig(u){const colors=palette[u.kind],main=mat(colors[0],.5,.4),light=mat
  scene.add(root);return {root,body,leftLeg,rightLeg,leftArm,rightArm,detail,telegraph,u,at:new THREE.Vector3(u.x-9,0,u.z-9)};
 }
 const timeNow=()=>performance.now()/1000;
-// Broadcast command centre: projections never mutate simulation state.
+// Read-only spectator projections never mutate simulation state.
 const minimap=$('minimap'),mini=minimap.getContext('2d',{alpha:false}),mapPalette={wall:'#273653',floor:'#15233e',traced:'#477091',hero:'#5bf9e2',enemy:'#ff6f9c',exit:'#65baff',loot:'#ffd277'};
 let previousEventKey='',alertTimer=null,ambience=null,splashTimer=null,lastBiome='';
 const classMeta={vanguard:{name:'ASHEN VANGUARD',title:'FRONT-LINE KNIGHT',icon:'⚔'},ranger:{name:'WILDSHADOW',title:'PHANTOM ARCHER',icon:'➶'},mystic:{name:'STARWEAVER',title:'ARCANE HEALER',icon:'✧'}};
@@ -362,7 +364,7 @@ function drawMinimap(s){
  mini.strokeStyle='#72d5e860';mini.lineWidth=1;mini.strokeRect(.5,.5,W-1,H-1);
 }
 function notifyDungeon(event){
- if(!['telegraph','floor','kill','defeat','loot','trap','disarm','phase','guard','evade','block'].includes(event.kind))return;
+ if(event.kind!=='floor'&&!isSceneAlert(event))return;
  if(event.kind==='floor'){const splash=$('floor-splash');clearTimeout(splashTimer);splash.hidden=false;const match=event.text.match(/^FLOOR (\d+) · (.+)$/);$('splash-floor').textContent=match?match[1].padStart(2,'0'):String(state?.floor??'02').padStart(2,'0');$('splash-name').textContent=match?match[2]:state?.theme??'THE NEXT CHAPTER';splashTimer=setTimeout(()=>{splash.hidden=true},reduced?800:2400)}
  const banner=$('alert-flash');clearTimeout(alertTimer);banner.hidden=false;
  banner.textContent=event.kind==='telegraph'?'⚠  '+event.text.toUpperCase():event.kind==='floor'?'✦  '+event.text.toUpperCase():event.kind==='defeat'?'☠  '+event.text.toUpperCase():event.text.toUpperCase();
@@ -381,7 +383,7 @@ const settleAudio=(promise,timeout=1400)=>new Promise((resolve,reject)=>{
 });
 $('audio-toggle').addEventListener('click',async()=>{
  const button=$('audio-toggle'),label=button.querySelector('span');
- const setEnabled=enabled=>{button.setAttribute('aria-pressed',String(enabled));label.textContent=enabled?'AUDIO ON':'AUDIO OFF'};
+ const setEnabled=enabled=>{button.setAttribute('aria-pressed',String(enabled));label.textContent=enabled?'Sound on':'Sound off'};
  if(!ambience){
   const Audio=window.AudioContext||window.webkitAudioContext;
   if(!Audio){setEnabled(false);button.title='Audio unavailable in this browser';return}
@@ -440,15 +442,15 @@ function renderDashboard(s){
    const bar=document.createElement('div');bar.className='life';bar.append(document.createElement('i'));
    info.append(head,sub,bar);card.append(icon,info);
   }
-  card.classList.toggle('down',u.hp===0);
-  card.dataset.class=u.kind;card.dataset.action=u.action||'idle';card.dataset.focused=String(u.id===focusedHeroId);
+  card.classList.toggle('down',u.hp<=0);card.setAttribute('aria-disabled',String(u.hp<=0));
+  card.dataset.class=u.kind;card.dataset.action=u.action||'idle';card.dataset.focused=String(u.hp>0&&u.id===focusedHeroId);
   card.setAttribute('aria-label','Follow '+meta.name+' in the cinematic camera');
-  card.setAttribute('aria-pressed',String(u.id===focusedHeroId));
+  card.setAttribute('aria-pressed',String(u.hp>0&&u.id===focusedHeroId));
   card.querySelector('.hero-icon').textContent=meta.icon;
   card.querySelector('.hero-heading b').textContent=meta.name;
   card.querySelector('.hero-heading small').textContent=u.hp+'/'+u.maxHp+' HP';
   card.querySelector('.hero-sub span').textContent=meta.title;
-  card.querySelector('.hero-sub b').textContent=(u.action||'idle').toUpperCase();
+  card.querySelector('.hero-sub b').textContent=u.hp<=0?'FALLEN':(u.action||'idle').toUpperCase();
   card.querySelector('.life i').style.width=(u.hp/u.maxHp*100)+'%';
   if(party.children[i]!==card)party.insertBefore(card,party.children[i]||null);
  });
@@ -462,13 +464,16 @@ function renderDashboard(s){
  drawMinimap(s);
 }
 
-function update(s){combatOverlay.record(s,timeNow());state=s;received=true;errorAt=0;$('recovery').hidden=true;
- for(const e of s.events){const id=s.run+':'+e.tick+':'+e.kind+':'+e.text;if(!seenEventIds.has(id)){seenEventIds.add(id);if(seenEventIds.size>150)seenEventIds.delete(seenEventIds.values().next().value);cue(e,s);notifyDungeon(e);playEffect(e.kind)}}
- if(worldFloor!==s.run+'-'+s.floor)buildWorld(s);
+function update(s){const firstSnapshot=!received,sceneChanged=worldFloor!==s.run+'-'+s.floor;combatOverlay.record(s,timeNow());state=s;received=true;errorAt=0;$('recovery').hidden=true;
+ const selected=s.units.find(u=>u.id===focusedHeroId&&u.hp>0);
+ if(!selected){const survivor=s.units.find(u=>u.faction==='party'&&u.hp>0);if(survivor)focusedHeroId=survivor.id;}
+ spectatorUI.render(s);
+ for(const e of s.events){const id=s.run+':'+e.tick+':'+e.kind+':'+e.text;if(!seenEventIds.has(id)){seenEventIds.add(id);if(seenEventIds.size>150)seenEventIds.delete(seenEventIds.values().next().value);if(!firstSnapshot){cue(e,s);notifyDungeon(e);playEffect(e.kind)}}}
+ if(sceneChanged){buildWorld(s);camera.userData.dungeonInitialized=false;lastRayAuditAt=-Infinity;}
  const seen=new Set(s.units.map(u=>u.id));
  for(const [id,a] of actors)if(!seen.has(id)){disposeActor(a);actors.delete(id)}
  for(const u of s.units){let a=actors.get(u.id);if(!a){a=rig(u);a.ground=addContactProjection(a);actors.set(u.id,a);a.root.position.set(u.x-9,0,u.z-9);attachCharacter(a)}
-  if(a.u.actionTick!==u.actionTick||a.u.action!==u.action){a.actionStarted=timeNow();}a.u=u;a.at.set(u.x-9,0,u.z-9);a.root.visible=u.hp>0;if(a.telegraph){
+  if(a.u.actionTick!==u.actionTick||a.u.action!==u.action){a.actionStarted=timeNow();}a.u=u;a.at.set(u.x-9,0,u.z-9);if(sceneChanged)a.root.position.copy(a.at);a.root.visible=u.hp>0;if(a.telegraph){
    const interval=s.bossPhase==='ECLIPSE'?4:6;
    a.telegraph.visible=u.hp>0&&s.tick%interval>=interval-2;
    a.telegraph.material.color.set(s.bossPhase==='ECLIPSE'?'#c97aff':s.bossPhase==='RUPTURE'?'#ff9f62':'#ff7049');
@@ -587,9 +592,10 @@ function animate(t){requestAnimationFrame(animate);const time=t/1000,dt=Math.min
   cameraType==='chase'?[4.15+margin*.45,7.8+margin,5.1+margin*.55]:
   [6.25+margin*.57,10.5+margin,7.2+margin*.68];
  const boss=state?.units.find(u=>u.kind==='warden'&&u.hp>0),bossDistance=boss&&state?.units.some(u=>u.faction==='party'&&u.hp>0&&Math.abs(u.x-boss.x)+Math.abs(u.z-boss.z)<=5);
- const look=new THREE.Vector3(target.x,0,target.z);
+ const shot=encounterTarget(target,boss,state?.map.length??19,Boolean(bossDistance&&cameraType==='cinematic'));
+ const look=new THREE.Vector3(shot.x,0,shot.z);
  // Frame the actual encounter midpoint, not a fabricated nine-tile offset that pushes the boss and heroes offscreen.
- if(boss&&bossDistance&&cameraType==='cinematic')look.lerp(new THREE.Vector3(boss.x,0,boss.z),.28);
+ // encounterTarget already converted the boss grid coordinates to world space.
  const cam=new THREE.Vector3(look.x+offsets[0],offsets[1],look.z+offsets[2]);
  // Avoid flying through walls on first frame before the cinematic camera settles.
  if(!camera.userData.dungeonInitialized){camera.position.copy(cam);camera.userData.dungeonInitialized=true;}
@@ -612,21 +618,21 @@ function animate(t){requestAnimationFrame(animate);const time=t/1000,dt=Math.min
  renderer.info.reset();
  try{if(composer&&postFXEnabled){bloomPass.strength=innerWidth<680?.16:.30;composer.render()}else renderer.render(scene,camera)}
  catch(error){console.warn('[DUNGEON] post effect fault, restoring WebGL:',String(error));composer=null;postFXStatus='fallback';renderer.info.reset();renderer.render(scene,camera)}
- combatOverlay.render(state,actors,camera,time);if(state)window.__DUNGEON_RENDER_DIAGNOSTICS__={composition:inspectComposition(state),visibility:actualHeroVisibility(state,time),frame:renderer.info.render.frame,drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,camera:cameraModes[cameraIndex],cameraSpread:spread,cameraMargin:margin,focusedHeroId,autoDirector,cutawayWalls:world.userData.cutawayWalls??0,cutawayParapets:world.userData.cutawayParapets??0,hiddenForegroundProps:world.userData.hiddenForegroundProps??0,postFX:composer&&postFXEnabled?'bloom':'direct',postFXStatus,heroKeyIntensity:heroKey.intensity,bossFramed:Boolean(bossDistance),activeUnits:[...actors.values()].filter(x=>x.root.visible).length,characterDetails:[...actors.values()].reduce((sum,x)=>sum+(x.detail?.parts||0),0),webgl:true,theme:state.theme,dressing:world.userData.dressing?.metrics??null,atmosphere:world.userData.atmosphere?.metrics??null,livingWorld:world.userData.livingWorld?.metrics??null,overlay:combatOverlay.metrics(),combatStage:combatDirector.stats(),groundedActors:[...actors.values()].filter(x=>Boolean(x.ground)).length,authored3D:assetStats(actors)};
+ combatOverlay.render(state,actors,camera,time);if(state)window.__DUNGEON_RENDER_DIAGNOSTICS__={composition:inspectComposition(state),visibility:actualHeroVisibility(state,time),frame:renderer.info.render.frame,drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,camera:cameraModes[cameraIndex],cameraSpread:spread,cameraMargin:margin,focusedHeroId,autoDirector,cutawayWalls:world.userData.cutawayWalls??0,cutawayParapets:world.userData.cutawayParapets??0,hiddenForegroundProps:world.userData.hiddenForegroundProps??0,postFX:composer&&postFXEnabled?'bloom':'direct',postFXStatus,heroKeyIntensity:heroKey.intensity,bossFramed:Boolean(bossDistance),cameraLook:{x:look.x,z:look.z},activeUnits:[...actors.values()].filter(x=>x.root.visible).length,characterDetails:[...actors.values()].reduce((sum,x)=>sum+(x.detail?.parts||0),0),webgl:true,theme:state.theme,dressing:world.userData.dressing?.metrics??null,atmosphere:world.userData.atmosphere?.metrics??null,livingWorld:world.userData.livingWorld?.metrics??null,overlay:combatOverlay.metrics(),combatStage:combatDirector.stats(),groundedActors:[...actors.values()].filter(x=>Boolean(x.ground)).length,authored3D:assetStats(actors)};
 }
 async function poll(){try{const r=await fetch('/dungeon/state',{cache:'no-store'});if(!r.ok)throw Error('State '+r.status);const data=await r.json();if(data.tick!==lastTick||data.run!==state?.run){lastTick=data.tick;update(data)}}catch(e){errorAt++;if(errorAt>=3){$('recovery').hidden=false;$('status').textContent='VIEW DEGRADED — RETRYING';console.warn('Dungeon view recovery',String(e))}}finally{setTimeout(poll,190)}}
 $('party').addEventListener('click',e=>{
  const node=e.target.closest('[data-hero-id]');if(!node)return;
  const unit=state?.units.find(u=>u.id===node.dataset.heroId&&u.faction==='party'&&u.hp>0);
  if(!unit)return;
- focusedHeroId=unit.id;autoDirector=false;$('director-toggle').setAttribute('aria-pressed','false');$('director-toggle').querySelector('span').textContent='DIRECTOR PAUSED';$('focus-label').textContent='FOLLOWING '+(classMeta[unit.kind]?.name||unit.kind).toUpperCase();
+ focusedHeroId=unit.id;autoDirector=false;$('director-toggle').setAttribute('aria-pressed','false');$('director-toggle').querySelector('span').textContent='Manual follow';$('focus-label').textContent='FOLLOWING '+(classMeta[unit.kind]?.name||unit.kind).toUpperCase();
  for(const el of document.querySelectorAll('.hero-card')){el.dataset.focused=String(el.dataset.heroId===focusedHeroId);el.setAttribute('aria-pressed',String(el.dataset.heroId===focusedHeroId))}
 });
 $('party').addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){const card=e.target.closest('[data-hero-id]');if(card){e.preventDefault();card.click()}}});
 $('director-toggle').addEventListener('click',()=>{
  autoDirector=!autoDirector;
  $('director-toggle').setAttribute('aria-pressed',String(autoDirector));
- $('director-toggle').querySelector('span').textContent=autoDirector?'AUTO DIRECTOR':'DIRECTOR PAUSED';
+ $('director-toggle').querySelector('span').textContent=autoDirector?'Director':'Manual follow';
  lastAutoSwitch=0;
 });
 const cameraModes=['cinematic','tactical','chase'];let cameraIndex=0;const viewButton=$('view-toggle');

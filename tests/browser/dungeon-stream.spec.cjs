@@ -1,4 +1,5 @@
 'use strict';const {test,expect}=require('@playwright/test');const fs=require('node:fs');fs.mkdirSync('artifacts',{recursive:true});
+const {pinDungeonScene}=require('./dungeon-fixtures.cjs');
 test('actual 3D autonomous dungeon scene renders and advances',async({page})=>{
  const errors=[];page.on('pageerror',e=>errors.push(e.message));
  await page.goto('/dungeon',{waitUntil:'domcontentloaded'});
@@ -27,18 +28,18 @@ test('mobile viewport retains usable 3D scene',async({page})=>{
  await page.screenshot({path:'artifacts/dungeon-mobile.png',fullPage:true});
 });
 
-test('redesigned command centre exposes vivid UI, tactical radar and independent scene dressing',async({page,request})=>{
+test('immersive interface exposes tactical radar and independent scene dressing',async({page,request})=>{
  const shader=await request.get('/dungeon/environment.js');expect(shader.ok()).toBe(true);
  await page.goto('/dungeon',{waitUntil:'domcontentloaded'});
- await expect(page.locator('[data-visual-revision="4"]')).toBeVisible();
+ await expect(page.locator('[data-visual-revision="17"]')).toBeVisible();
  await expect(page.getByTestId('dungeon-minimap')).toBeVisible();
  await expect(page.locator('#audio-toggle')).toHaveAttribute('aria-pressed','false');
  await expect(page.locator('#party-count')).toContainText('3');
  await expect(page.locator('#theme')).not.toBeEmpty();
  await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.dressing?.decorInstances??0),{timeout:15000}).toBeGreaterThan(80);
- const colors=await page.locator('.gauntlet-link').evaluate(el=>({bg:getComputedStyle(el).backgroundImage,color:getComputedStyle(el).color}));
- expect(colors.bg).toContain('linear-gradient');
- expect(colors.color).not.toBe('rgb(0, 0, 0)');
+ const stage=await page.locator('#world').boundingBox();
+ expect(stage.width*stage.height/(1440*900)).toBeGreaterThan(.85);
+ await expect(page.locator('.gauntlet-link')).toHaveAccessibleName('Open development progress');
  await page.locator('#audio-toggle').click();
  const available=await expect.poll(async()=>{
   const b=page.locator('#audio-toggle');
@@ -53,6 +54,8 @@ test('redesigned command centre exposes vivid UI, tactical radar and independent
 });
 test('compact mobile viewport preserves full controls and semantic minimap',async({page})=>{
  await page.setViewportSize({width:360,height:740});await page.goto('/dungeon');
+ await expect(page.getByTestId('dungeon-minimap')).toBeHidden();
+ await page.locator('#map-toggle').click();
  await expect(page.getByTestId('dungeon-minimap')).toBeVisible();
  await expect.poll(async()=>page.evaluate(()=>window.__DUNGEON_PUBLIC_STATE__?.tick??0),{timeout:15000}).toBeGreaterThan(3);
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
@@ -171,6 +174,7 @@ test('actual class footprints, spells and character-close camera are inspectable
 });
 
 test('autonomous spectator director can be overridden without changing the AI simulation',async({page})=>{
+ await pinDungeonScene(page);
  await page.goto('/dungeon');
  await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.frame??0),{timeout:20000}).toBeGreaterThan(3);
  const before=await page.evaluate(()=>window.__DUNGEON_PUBLIC_STATE__.checksum);
@@ -183,7 +187,7 @@ test('autonomous spectator director can be overridden without changing the AI si
  await expect(director).toHaveAttribute('aria-pressed','true');
  await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.autoDirector),{timeout:8000}).toBe(true);
  const after=await page.evaluate(()=>window.__DUNGEON_PUBLIC_STATE__.checksum);
- expect(before).toBeTruthy();expect(after).toBeTruthy();
+ expect(before).toBeTruthy();expect(after).toBe(before);
 });
 
 test('camera and environment expose real sightlines instead of foreground wall slabs',async({page})=>{
@@ -202,6 +206,7 @@ test('camera and environment expose real sightlines instead of foreground wall s
 });
 
 test('camera Gauntlet uses actual projected 3D heroes rather than counting HUD cards',async({page})=>{
+ await pinDungeonScene(page);
  await page.setViewportSize({width:1440,height:900});
  await page.goto('/dungeon');
  await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.composition?.visibleHeroes??0),{timeout:25000}).toBeGreaterThan(0);
@@ -214,6 +219,7 @@ test('camera Gauntlet uses actual projected 3D heroes rather than counting HUD c
  await page.screenshot({path:'artifacts/dungeon-3d-composition-gauntlet.png',fullPage:true});
 });
 test('compact mobile view keeps at least one physically visible 3D protagonist',async({page})=>{
+ await pinDungeonScene(page);
  await page.setViewportSize({width:390,height:844});
  await page.goto('/dungeon');
  await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.composition?.visibleHeroes??0),{timeout:25000}).toBeGreaterThan(0);
@@ -262,9 +268,11 @@ test('all fantasy biomes contain animated living inhabitants rather than static 
 });
 
 test('stream updates preserve clickable hero cards instead of detaching them each tick',async({page})=>{
+ const fixture=await pinDungeonScene(page);
  await page.goto('/dungeon');
  await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_PUBLIC_STATE__?.tick??0),{timeout:15000}).toBeGreaterThan(3);
  const start=await page.evaluate(()=>{window.__DUNGEON_HERO_DOM_PROBE__=document.querySelector('.hero-card[data-hero-id="ranger"]');return window.__DUNGEON_PUBLIC_STATE__.tick});
+ fixture.advance(6); // Real authority advances; then hold this living frame during the click.
  await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_PUBLIC_STATE__?.tick??0),{timeout:15000}).toBeGreaterThan(start+3);
  expect(await page.evaluate(()=>window.__DUNGEON_HERO_DOM_PROBE__?.isConnected&&window.__DUNGEON_HERO_DOM_PROBE__===document.querySelector('.hero-card[data-hero-id="ranger"]'))).toBe(true);
  // The probe intentionally tracks the ranger even when the autonomous AI
@@ -294,6 +302,7 @@ test('mobile gameplay has a dominant 3D stage and legible full-width hero cards'
 });
 
 test('world-only screenshot audits actual WebGL light, chroma and hero visibility',async({page})=>{
+ await pinDungeonScene(page);
  await page.setViewportSize({width:1440,height:900});
  await page.goto('/dungeon');
  await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.composition?.visibleHeroes??0),{timeout:25000}).toBeGreaterThan(0);
@@ -344,6 +353,7 @@ test('Gauntlet desktop header remains collision-free and all masonry layers repo
 });
 
 test('Gauntlet framing keeps the autonomous protagonist large enough to inspect in actual 3D',async({page})=>{
+ await pinDungeonScene(page);
  await page.setViewportSize({width:1440,height:900});
  await page.goto('/dungeon');
  await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.composition?.minHeroPixels??0),{timeout:25000}).toBeGreaterThan(53);

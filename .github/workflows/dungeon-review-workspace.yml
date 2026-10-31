@@ -14,7 +14,7 @@ concurrency:
 jobs:
   workspace:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
         with:
@@ -35,3 +35,17 @@ jobs:
           path: dungeon-review-workspace.tar.gz
           retention-days: 7
           if-no-files-found: error
+      - run: npx playwright install --with-deps chromium
+      - name: Exercise actual immersive interface and capture real 3D
+        run: npx playwright test -c tests/browser/dungeon.playwright.config.cjs dungeon-interface.spec.cjs
+        env:
+          DUNGEON_REQUIRE_MODELS: '1'
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: dungeon-immersive-interface
+          path: |
+            artifacts/dungeon-immersive-*.png
+            test-results/**
+          retention-days: 14
+          if-no-files-found: warn

@@ -33,17 +33,37 @@
     {
       "round": 16,
       "at": "2026-10-31",
-      "status": "LOCAL REGRESSIONS PASS; INTEGRATED CI AND VISUAL REVIEW PENDING",
-      "sampleSeeds": "not rerun",
-      "highestFloor": "not measured",
-      "visualVerdict": "Repair embedded-texture CSP, reject incomplete authored models, replay repeated action ticks. 10/10 focused Node tests; actual 1024x1024 GLB image decoded by bitmap and image paths in isolated Chromium. Not a new full-game screenshot or blind comparison. Diablo IV primary bar remains NOT MET.",
-      "artifactUrl": null,
+      "status": "AUTHORITY PASS; BROWSER 26/30; TEXTURED GAME CAPTURES INSPECTED",
+      "sampleSeeds": 24,
+      "highestFloor": 9,
+      "visualVerdict": "Real textured characters confirmed. Four failures remain around live-tick selection/framing. Dashboard consumes nearly half the desktop viewport. Diablo IV bar NOT MET; no independent A/B.",
+      "artifactUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41160245577/artifacts/13027390711",
       "evidenceMetrics": {
         "focusedTestsPassed": 10,
         "focusedTestsFailed": 0,
         "embeddedImageWidth": 1024,
         "embeddedImageHeight": 1024,
-        "newFullGameCapture": false,
+        "newFullGameCapture": true,
+        "independentBlindComparison": false,
+        "browserTestsPassed": 26,
+        "browserTestsFailed": 4
+      },
+      "commit": "cc91f24acaf97c8a6e49f44867b1e7aee2f33636"
+    },
+    {
+      "round": 17,
+      "at": "2026-10-31",
+      "status": "UI IMPLEMENTED; LOCAL SOFTWARE/COMPONENT PASS; NEW 3D CAPTURES PENDING",
+      "sampleSeeds": "unchanged authority",
+      "highestFloor": "not re-scored",
+      "visualVerdict": "Original immersive fantasy HUD, full-stage canvas, clean view, optional mobile map and real-event journal. Boss coordinates corrected. Local 528/528 software and 14/14 focused tests passed; isolated DOM/layout tests passed five viewport sizes. Actual integrated 3D and independent visual verdict remain pending. Diablo IV bar NOT MET.",
+      "artifactUrl": null,
+      "evidenceMetrics": {
+        "desktopCanvasFractionBefore": 0.52885,
+        "desktopCanvasFractionAfter": 0.92444,
+        "componentViewports": 5,
+        "softwareTestsPassed": 528,
+        "focusedTestsPassed": 14,
         "independentBlindComparison": false
       }
     }
