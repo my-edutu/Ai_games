@@ -64,13 +64,61 @@ function smoothShellNormals(geometry) {
   return geometry;
 }
 
+
+function createCharacterSurfaceDetail(){
+  // Original 128-square ceramic/oxide patina. Three small CPU/GPU-owned atlases
+  // are shared across every non-emissive skinned material in one hero or boss.
+  const size=128;
+  function hash(x,y,salt){
+    let h=Math.imul(x+salt*31337,374761393)^Math.imul(y+salt*101,668265263);
+    h=Math.imul(h^(h>>>13),1274126177);
+    return(h^(h>>>16))>>>0;
+  }
+  const pixels={color:new Uint8Array(size*size*4),normal:new Uint8Array(size*size*4),roughness:new Uint8Array(size*size*4)};
+  for(let y=0;y<size;y++)for(let x=0;x<size;x++){
+    const offset=(y*size+x)*4,n=hash(x,y,1),n2=hash(x,y,2),edge=hash(x>>2,y>>2,3);
+    // Fine brushed directional scratches and localized oxidized chips.
+    const scratch=n%89===0&&x%17<10,chip=edge%137===0&&(n2%9<4);
+    const wear=chip?155:scratch?188:236+n%20;
+    pixels.color.set([wear,chip?wear-8:wear,chip?wear-14:wear,255],offset);
+    const nx=127+(n%13)-6+(scratch?12:0),ny=127+(n2%13)-6;
+    pixels.normal.set([nx,ny,253,255],offset);
+    const grain=205+(n%50);
+    pixels.roughness.set([255,grain,255,255],offset);
+  }
+  const make=(data,color)=>{
+    const map=new THREE.DataTexture(data,size,size,THREE.RGBAFormat);
+    map.wrapS=map.wrapT=THREE.RepeatWrapping;
+    map.magFilter=THREE.LinearFilter;
+    map.minFilter=THREE.LinearMipmapLinearFilter;
+    map.generateMipmaps=true;
+    map.colorSpace=color?THREE.SRGBColorSpace:THREE.NoColorSpace;
+    map.needsUpdate=true;
+    return map;
+  };
+  const map=make(pixels.color,true),normal=make(pixels.normal,false),roughness=make(pixels.roughness,false);
+  let disposed=false;
+  return {map,normal,roughness,dispose(){
+    if(disposed)return;disposed=true;
+    map.dispose();normal.dispose();roughness.dispose();
+  }};
+}
+
 function workshop(name) {
   const group = new THREE.Group(); group.name = name;
   const geometrySet = new Set(), materialSet = new Set();
+  const surfaceDetail=name==='expedition-climber'||name==='guardian-automaton'?createCharacterSurfaceDetail():null;
   let disposed = false;
   const geo = value => { geometrySet.add(value); return value; };
   const mat = (color, metalness = .2, roughness = .42, emissive = 0, intensity = 0) => {
     const m = new THREE.MeshStandardMaterial({color, metalness, roughness, emissive, emissiveIntensity:intensity});
+    if(surfaceDetail&&intensity===0){
+      m.map=surfaceDetail.map;
+      m.normalMap=surfaceDetail.normal;
+      m.roughnessMap=surfaceDetail.roughness;
+      m.normalScale.set(metalness>.55?.24:.11,metalness>.55?.24:.11);
+      m.needsUpdate=true;
+    }
     materialSet.add(m); return m;
   };
   const node = (parent, name, x = 0, y = 0, z = 0) => {
@@ -193,6 +241,7 @@ function workshop(name) {
       if(disposed)return;disposed=true;
       skeleton.dispose();
       for(const g of geometrySet)g.dispose();for(const m of materialSet)m.dispose();
+      surfaceDetail?.dispose();
       geometrySet.clear();materialSet.clear();group.clear();
     }};
   }
