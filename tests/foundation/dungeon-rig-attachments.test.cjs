@@ -128,3 +128,81 @@ test('real cloned GLB skeleton receives reversible gesture overlays after animat
  assert.match(src,/rigGesturePeakRad:/);
  assert.match(src,/rigGestureBones:/);
 });
+
+test('real rig lower-limb selection chooses original thigh, calf and ankle without hands, twist or other side',async()=>{
+ const {selectLegBone}=await load();
+ const bones=[
+  {name:'mixamorig:LeftUpLeg',isBone:true},
+  {name:'mixamorig:RightUpLeg',isBone:true},
+  {name:'mixamorig:LeftLeg',isBone:true},
+  {name:'mixamorig:RightLeg',isBone:true},
+  {name:'mixamorig:LeftFoot',isBone:true},
+  {name:'mixamorig:RightFoot',isBone:true},
+  {name:'RightLegTwist',isBone:true},
+  {name:'RightToeBase',isBone:true},
+  {name:'RightArm',isBone:true}
+ ];
+ assert.equal(selectLegBone(bones,'left','upper'),bones[0]);
+ assert.equal(selectLegBone(bones,'right','upper'),bones[1]);
+ assert.equal(selectLegBone(bones,'left','lower'),bones[2]);
+ assert.equal(selectLegBone(bones,'right','lower'),bones[3]);
+ assert.equal(selectLegBone(bones,'left','foot'),bones[4]);
+ assert.equal(selectLegBone(bones,'right','foot'),bones[5]);
+ assert.equal(selectLegBone([{name:'Bip001 R Thigh',isBone:true}],'right','upper')?.name,'Bip001 R Thigh');
+ assert.equal(selectLegBone([{name:'Bip001 L Calf',isBone:true}],'left','lower')?.name,'Bip001 L Calf');
+ assert.equal(selectLegBone([{name:'Foot.L',isBone:true}],'left','foot')?.name,'Foot.L');
+ for(const name of ['RightHand','RightArm','RightToe','RightLegTwist','LeftUpLeg'])
+  assert.equal(selectLegBone([{name,isBone:true}],'right','lower'),null);
+ assert.equal(selectLegBone([{name:'RightLeg',isBone:false}],'right','lower'),null);
+ assert.equal(selectLegBone(bones,'unknown','lower'),null);
+});
+
+test('presentation gait advances by actual travelled distance, settles when standing, rejects teleports and reduced motion',async()=>{
+ const {advanceRigGait}=await load();
+ const first=advanceRigGait(0,0,.17);
+ assert.ok(first.phase>.7&&first.phase<1.3,'one visible real-world step advances the stride phase');
+ assert.ok(first.weight>0&&first.weight<=1);
+ const second=advanceRigGait(first.phase,first.weight,.12);
+ assert.ok(second.phase>first.phase&&second.weight>first.weight);
+ let stopped=second;
+ for(let i=0;i<20;i++)stopped=advanceRigGait(stopped.phase,stopped.weight,0);
+ assert.equal(stopped.weight,0,'stopped actors cannot continue marching on the spot');
+ for(const bad of [NaN,Infinity,-.2,.40])assert.deepEqual(advanceRigGait(second.phase,1,bad),{phase:0,weight:0});
+ assert.deepEqual(advanceRigGait(second.phase,1,.12,true),{phase:0,weight:0});
+ assert.deepEqual(advanceRigGait(NaN,NaN,0),{phase:0,weight:0});
+});
+
+test('bounded leg gait is mirrored, deterministic, frame independent and rests completely for accessibility',async()=>{
+ const {planRigLegGesture}=await load();
+ const neutral=planRigLegGesture(0,0);
+ const stride=planRigLegGesture(Math.PI/2,1);
+ assert.equal(stride.left.upper,-stride.right.upper);
+ assert.ok(Math.abs(stride.left.upper)>.16);
+ assert.ok(stride.right.lower>.05,'the recovery knee bends on the contralateral leg');
+ for(const phase of [-Infinity,NaN,-5,0,.25,1,Math.PI,5,1e8,Infinity])
+  for(const weight of [-1,NaN,0,.1,.7,1,4,Infinity]){
+   const pose=planRigLegGesture(phase,weight);
+   for(const side of ['left','right']){
+    for(const part of ['upper','lower','foot']){
+     assert.ok(Number.isFinite(pose[side][part]),side+':'+part);
+     assert.ok(Math.abs(pose[side][part])<=.30);
+    }
+   }
+   assert.deepEqual(planRigLegGesture(phase,weight,true),neutral);
+   assert.deepEqual(planRigLegGesture(phase,weight),pose);
+  }
+ const src=fs.readFileSync(planPath,'utf8');
+ assert.doesNotMatch(src,/Math\\.random|performance\\.now|Date\\.|DungeonRuntime|fetch\\(/);
+});
+
+test('actual cloned GLB renderer keeps lower limb overlays reversible and reports real joint counts',()=>{
+ const src=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(src,/selectLegBone/);
+ assert.match(src,/advanceRigGait/);
+ assert.match(src,/planRigLegGesture/);
+ assert.match(src,/restoreRigLegsBeforeMixer/);
+ assert.match(src,/stageRigLegsAfterMixer/);
+ assert.match(src,/rigGaitBones:/);
+ assert.match(src,/rigGaitPeakRad:/);
+ assert.match(src,/actor\\.mixer\\.update[\\s\\S]*?stageRigLegsAfterMixer/);
+});
