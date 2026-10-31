@@ -62,3 +62,8 @@ test('real GLB renderer owns disposable class regalia and exposes truthful WebGL
  assert.match(assets,/for\(const g of actor\.assetGeometries\|\|\[\]\)g\.dispose\(\)/);
  assert.ok(server.includes("['/dungeon/role-silhouette-plan.js','role-silhouette-plan.js']"));
 });
+
+test('the dedicated Chromium suite actually discovers this class-silhouette browser audit',()=>{
+ const config=fs.readFileSync(path.join(ROOT,'tests/browser/dungeon.playwright.config.cjs'),'utf8');
+ assert.ok(config.includes("'dungeon-role-silhouettes.spec.cjs'"),'new browser contract must not silently disappear from the explicit testMatch whitelist');
+});
