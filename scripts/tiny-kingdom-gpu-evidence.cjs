@@ -146,6 +146,11 @@ const path = require('node:path');
        evidence.ecoregions.upland.highlandExposure<.2||
        evidence.ecoregions.meadow.riparianMoisture>.05)
       throw Error('G050 rainfall/upland terrain shader binding gate failed: '+JSON.stringify(evidence.ecoregions));
+    evidence.horizon=await page.evaluate(()=>window.__tinyKingdom.getHorizonStats());
+    if(evidence.horizon.triangles!==656||evidence.horizon.outerBands!==2||
+       evidence.horizon.extent<91||evidence.horizon.extent>95||
+       evidence.geometry.totalTriangles>=160000)
+      throw Error('Gauntlet 052 seamless low-LOD horizon budget gate failed: '+JSON.stringify(evidence.horizon));
     evidence.highlandRocks=await page.evaluate(()=>window.__tinyKingdom.getHighlandRockStats());
     if(evidence.highlandRocks.clusters!==32||
        evidence.highlandRocks.stones!==96||
