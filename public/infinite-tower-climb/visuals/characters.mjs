@@ -325,6 +325,9 @@ export function createClimber() {
   w.barrel(body,.2,.22,.19,p.dark,0,1.93,0);
 
   const head=w.node(body,'expressive-helmet',0,2.31,.025);
+  // Reduce toy-like helmet width while keeping the visible visor and reach clear.
+  // The rig remains fully articulated: scale acts on the actual helmet bone.
+  head.scale.set(.78,.9,.92);
   w.shell(head,1.28,.8,.74,p.armor,0,.03,0,.18,.025,.09);
   w.plate(head,.12,.68,.07,p.color,0,.01,-.36,.025);
   // The visor follows the ceramic crown instead of reading as a flat panel
