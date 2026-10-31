@@ -1350,3 +1350,33 @@ test('Gauntlet 050 terrain biomes distinguish riparian ground, upland stone and 
  expect(result.same).toBe(true);
  expect(errors).toEqual([]);
 });
+
+
+test('Gauntlet 051 upland rock outcrops create safe, bounded terrain sculpture with deterministic world state',async({page})=>{
+ const errors=[];page.on('pageerror',e=>errors.push(e.message));
+ await page.setContent(html);
+ await page.waitForFunction(()=>Boolean(window.__tinyKingdom?.getHighlandRockStats?.()?.clusters>0));
+ await page.locator('#pause').click();
+ const result=await page.evaluate(()=>{
+  const g=window.__tinyKingdom,before=JSON.stringify(g.exportSnapshot());
+  const rocks=g.getHighlandRockStats(),audit=g.getGeometryAudit();
+  g.setCamera({focus:[-32,23],pitch:.57,yaw:.78,zoom:22});
+  return {rocks,audit,worldUnchanged:before===JSON.stringify(g.exportSnapshot())};
+ });
+ expect(result.rocks.clusters).toBeGreaterThanOrEqual(24);
+ expect(result.rocks.clusters).toBeLessThanOrEqual(40);
+ expect(result.rocks.stones).toBe(result.rocks.clusters*3);
+ expect(result.rocks.triangles).toBeGreaterThan(1300);
+ expect(result.rocks.triangles).toBeLessThan(3000);
+ expect(result.rocks.heights.every(h=>Number.isFinite(h)&&h>.78)).toBe(true);
+ expect(result.audit.totalTriangles).toBeLessThan(160000);
+ expect(result.worldUnchanged).toBe(true);
+ for(const m of [result.audit.static,result.audit.dynamic]){
+  expect(m.aligned).toBe(true);
+  expect(m.invalidComponents).toBe(0);
+  expect(m.invalidNormals).toBe(0);
+  expect(m.invalidColors).toBe(0);
+  expect(m.outOfBounds).toBe(0);
+ }
+ expect(errors).toEqual([]);
+});
