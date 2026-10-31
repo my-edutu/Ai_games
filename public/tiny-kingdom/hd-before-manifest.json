@@ -1,0 +1,13 @@
+{
+  "sourceSha256": "f7ae295be845aaa45d885e80d75b3820d69ca3838acd81f2ac4c425f0988c44a",
+  "capturedAt": "2026-10-31T02:42:03.202Z",
+  "renderer": {
+    "tier": "software-webgl",
+    "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+    "scale": 1,
+    "targetFps": 12,
+    "framesDrawn": 1,
+    "framesSkipped": 0
+  },
+  "errors": []
+}

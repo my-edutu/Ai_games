@@ -7,8 +7,10 @@ function markup() {
  let html = fs.readFileSync(path.join(root, 'public/tiny-kingdom/index.html'), 'utf8');
  const hook = `window.__tkInspection={citizens:()=>people,world:()=>state,pose:citizenRigPose,
  equipment:p=>typeof citizenEquipment==='function'?citizenEquipment(p,citizenRigPose(p)):null,
+ capturePrimitive:kind=>{const old=data;try{data=[];if(kind==='cylinder')cylinder(0,0,0,1,2,[.5,.5,.5],8);else cone(0,0,0,1,2,[.5,.5,.5],8);return data.slice()}finally{data=old}},
  captureHouse:()=>{const old=data;try{data=[];house(0,0,1,0);return data.slice()}finally{data=old}},
  captureCitizen:index=>{const old=data;try{data=[];villager(people[index]);return data.slice()}finally{data=old}},
+ captureFinish:()=>{const old=data;try{data=[];cottageFinish(0,0,1,0);return data.slice()}finally{data=old}},
  checksum,ground:terrain};`;
  const marker = 'requestAnimationFrame(render);window.__tinyKingdom=';
  if (!html.includes(marker)) throw new Error('Game inspection anchor changed; update the test harness.');

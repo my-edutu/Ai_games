@@ -11,6 +11,7 @@ test('Gauntlet 042 world-first command HUD exposes the scene without hiding esse
  await page.waitForFunction(()=>Boolean(window.__tinyKingdom));
  await page.locator('#pause').click();
  const before=await page.evaluate(()=>JSON.stringify(window.__tinyKingdom.exportSnapshot()));
+ await page.locator('[data-panel="settings"]').click();
  await page.locator('#command-toggle').click();
  await expect(page.locator('body')).toHaveAttribute('data-command','world');
  await expect(page.locator('.sidebar')).toBeHidden();
@@ -38,11 +39,11 @@ test('Gauntlet 042 world-first command HUD exposes the scene without hiding esse
  for(const key of ['food','wood','gold','population'])
   expect(Number(evidence[key])).toBeGreaterThan(0);
  await page.locator('#world-open-command').click();
- await expect(page.locator('body')).toHaveAttribute('data-command','command');
+ await expect(page.locator('body')).toHaveAttribute('data-inspector','overview');
  await expect(page.locator('.sidebar')).toBeVisible();
- await expect(page.locator('.atlas')).toBeVisible();
- await expect(page.locator('.feed')).toBeVisible();
- await expect(page.locator('#world-ribbon')).toBeHidden();
+ await expect(page.locator('.atlas')).toBeHidden();
+ await expect(page.locator('.feed')).toBeHidden();
+ await expect(page.locator('#world-ribbon')).toBeVisible();
  expect(await page.evaluate(()=>JSON.stringify(window.__tinyKingdom.exportSnapshot()))).toBe(before);
  expect(errors).toEqual([]);
 });

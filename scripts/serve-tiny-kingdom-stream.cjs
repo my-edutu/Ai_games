@@ -13,6 +13,8 @@ const ROOT=path.resolve(__dirname,'..','public','tiny-kingdom');
 const FILES=new Map([
  ['/tiny','index.html'],['/tiny/','index.html'],['/tiny/index.html','index.html'],
  ['/tiny/progress','progress.html'],['/tiny/progress.html','progress.html'],
+ ['/tiny/hd','hd.html'],['/tiny/hd.html','hd.html'],
+ ...['hd-before.png','hd-village.png','hd-market.png','hd-dusk.png','hd-night.png','hd-mobile.png','hd-live.webm','hd-manifest.json','hd-verification.json'].map(name=>['/tiny/'+name,name]),
  ['/tiny/recovery','recovery.html'],['/tiny/recovery.html','recovery.html'],
  ...['before','after'].flatMap(phase=>[
   ...['market','cottage','citizen'].map(view=>['/tiny/recovery-'+phase+'-'+view+'.png','recovery-'+phase+'-'+view+'.png']),
@@ -37,6 +39,7 @@ function headers(markup){return {
   "style-src 'self' "+hashInline(markup,'style').join(' '),
   "img-src 'self' data:",
   "font-src 'self'",
+  "media-src 'self'",
   "connect-src 'self'",
   "object-src 'none'",
   "base-uri 'none'",
@@ -60,6 +63,7 @@ function createServer(){return http.createServer((req,res)=>{
    if(pathname==='/'){res.writeHead(307,{'location':'/tiny/','cache-control':'no-store'});res.end();return}
    const name=FILES.get(pathname);
    if(!name){reply(res,404,'Not found');return}
+   if(name.endsWith('.webm')){reply(res,200,fs.readFileSync(safeFile(name)),'video/webm',{'cross-origin-resource-policy':'same-origin'});return}
    if(name.endsWith('.png')){reply(res,200,fs.readFileSync(safeFile(name)),'image/png',{'cross-origin-resource-policy':'same-origin'});return}
    if(name.endsWith('.json')){reply(res,200,fs.readFileSync(safeFile(name)),'application/json; charset=utf-8');return}
    const body=fs.readFileSync(safeFile(name),'utf8'),extra=headers(body);

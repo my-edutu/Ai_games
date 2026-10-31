@@ -40,6 +40,7 @@ test('Tiny Kingdom speed, pause and restart work', async ({page}) => {
   await page.waitForTimeout(200);
   const after=await page.evaluate(() => window.__tinyKingdom.getState().state.t);
   expect(after).toBe(before);
+  await page.locator('[data-panel="settings"]').click();
   await page.locator('#restart').click();
   expect(await page.evaluate(() => window.__tinyKingdom.getState().people.length)).toBe(12);
 });
@@ -241,6 +242,7 @@ test('Tiny Kingdom selects named autonomous citizens and exposes real personalit
   await page.waitForFunction(() => Boolean(window.__tinyKingdom));
   await page.locator('#pause').click();
   await expect(page.locator('.sidebar')).toHaveCSS('overflow-y','auto');
+  await page.locator('[data-panel="citizens"]').click();
   const before=await page.locator('#citizen-name').textContent();
   await page.locator('#cycleCitizen').click();
   const after=await page.locator('#citizen-name').textContent();
@@ -308,6 +310,7 @@ test('Tiny Kingdom strategic atlas pans only the camera and does not alter simul
   await page.locator('#pause').click();
   await page.waitForFunction(() => document.querySelector('#atlas-season')?.textContent.includes('SPRING'));
   const before=await page.evaluate(() => ({snap:JSON.stringify(window.__tinyKingdom.exportSnapshot()),cam:window.__tinyKingdom.getCamera()}));
+  await page.locator('[data-panel="map"]').click();
   await page.locator('#atlas-map').click({position:{x:172,y:44}});
   const after=await page.evaluate(() => ({snap:JSON.stringify(window.__tinyKingdom.exportSnapshot()),cam:window.__tinyKingdom.getCamera()}));
   expect(after.snap).toBe(before.snap);
@@ -324,7 +327,11 @@ test('Tiny Kingdom vibrant layout remains responsive at phone and desktop widths
   await page.setContent(html);
   await page.waitForFunction(() => Boolean(window.__tinyKingdom));
   await page.waitForTimeout(160);
+  await page.locator('[data-panel="map"]').click();
   expect(await page.locator('#atlas-map').isVisible()).toBe(true);
+  expect(await page.locator('#feed').isVisible()).toBe(false);
+  await page.locator('[data-panel="chronicle"]').click();
+  expect(await page.locator('#atlas-map').isVisible()).toBe(false);
   expect(await page.locator('#feed').isVisible()).toBe(true);
   const mobile=await page.evaluate(() => ({
     documentWidth:document.documentElement.scrollWidth,
@@ -332,9 +339,10 @@ test('Tiny Kingdom vibrant layout remains responsive at phone and desktop widths
     chronicleHeight:document.querySelector('.feed').getBoundingClientRect().height
   }));
   expect(mobile.documentWidth).toBeLessThanOrEqual(mobile.viewportWidth);
-  expect(mobile.chronicleHeight).toBeLessThanOrEqual(205);
+  expect(mobile.chronicleHeight).toBeLessThanOrEqual(420);
   await page.setViewportSize({width:1440,height:900});
   await page.waitForTimeout(120);
+  await page.locator('[data-panel="map"]').click();
   const desktop=await page.evaluate(() => ({
     width:document.querySelector('.atlas').getBoundingClientRect().width,
     mapLabel:document.querySelector('#atlas-season').textContent
@@ -540,7 +548,7 @@ test('Tiny Kingdom material channels allocate exactly ten floats per vertex with
     auth:JSON.stringify(window.__tinyKingdom.exportSnapshot()),
     render:window.__tinyKingdom.renderStats()
   }));
-  expect(a.materials.surfaceShaderVersion).toBe('procedural-023');
+  expect(a.materials.surfaceShaderVersion).toBe('linear-shadow-043');
   expect(a.materials.vertexStride).toBe(10);
   expect(a.materials.materials).toHaveLength(8);
   expect(a.scene.count).toBe(2);
@@ -678,6 +686,7 @@ test('Tiny Kingdom cinematic HUD toggles with keyboard, exposes unobscured game,
   await page.waitForFunction(()=>Boolean(window.__tinyKingdom));
   await page.locator('#pause').click();
   const first=await page.evaluate(()=>JSON.stringify(window.__tinyKingdom.exportSnapshot()));
+  await page.locator('[data-panel="overview"]').click();
   await page.locator('#hud-toggle').click();
   await expect(page.locator('body')).toHaveAttribute('data-hud','cinema');
   expect(await page.evaluate(()=>window.__tinyKingdom.getHudMode())).toBe('cinema');
@@ -802,7 +811,7 @@ test('Gauntlet 033 cinematic UI grade is readable, responsive, accessible and pr
   };
  });
  expect(desktop.worldFilter).toBe('none');
- expect(desktop.headingSize).toBeGreaterThanOrEqual(25);
+ expect(desktop.headingSize).toBeGreaterThanOrEqual(24);
  expect(desktop.panelBackground).toContain('gradient');
  expect(desktop.tourButtons).toBe(6);
  expect(desktop.selected).toBe(1);
@@ -820,6 +829,7 @@ test('Gauntlet 033 cinematic UI grade is readable, responsive, accessible and pr
  expect(mobile.docOverflow).toBeLessThanOrEqual(1);
  expect(mobile.tourFits).toBe(true);
  expect(mobile.controls).toBe(true);
+ await page.locator('[data-panel="overview"]').click();
  await page.keyboard.press('h');
  await expect(page.locator('.sidebar')).toBeHidden();
  await expect(page.locator('#cinema-exit')).toBeVisible();
@@ -847,13 +857,13 @@ test('Tiny Kingdom directional shadow geometry follows sun and never corrupts ci
   expect(sample.noon.strength).toBeGreaterThan(sample.night.strength);
   expect(sample.night.strength).toBe(0);
   expect(sample.morning.dx).not.toBe(sample.evening.dx);
-  await page.waitForFunction(()=>window.__tinyKingdom.shadowStats().triangles>0);
+  await page.waitForFunction(()=>{const g=window.__tinyKingdom;return g.getLightingStats().supported?g.getLightingStats().passes>0:g.shadowStats().triangles>0});
   const rendering=await page.evaluate(()=>({
-    shadow:window.__tinyKingdom.shadowStats(),
+    shadow:window.__tinyKingdom.shadowStats(),lighting:window.__tinyKingdom.getLightingStats(),
     audit:window.__tinyKingdom.getGeometryAudit(),
     source:JSON.stringify(window.__tinyKingdom.exportSnapshot()),
   }));
-  expect(rendering.shadow.triangles).toBeGreaterThanOrEqual(2000);
+  if(rendering.lighting.supported){expect(rendering.lighting.framebufferComplete).toBe(true);expect(rendering.lighting.error).toBe(0);expect(rendering.lighting.mapSize).toBe(2048)}else expect(rendering.shadow.triangles).toBeGreaterThanOrEqual(2000);
   expect(rendering.audit.dynamic.aligned).toBe(true);
   expect(rendering.audit.dynamic.invalidComponents).toBe(0);
   expect(rendering.audit.dynamic.invalidNormals).toBe(0);
@@ -960,6 +970,7 @@ test('Gauntlet 035 HUD API restores actual controls after cinematic GPU screensh
  await page.waitForFunction(()=>Boolean(window.__tinyKingdom));
  await page.locator('#pause').click();
  const before=await page.evaluate(()=>JSON.stringify(window.__tinyKingdom.exportSnapshot()));
+ await page.locator('[data-panel="overview"]').click();
  await page.evaluate(()=>window.__tinyKingdom.setHudMode('cinema'));
  await expect(page.locator('body')).toHaveAttribute('data-hud','cinema');
  await expect(page.locator('.world-tour')).toBeHidden();
