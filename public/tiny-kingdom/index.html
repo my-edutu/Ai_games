@@ -361,7 +361,7 @@ void main(){
 // Gauntlet 023 — world-space GPU materials. Original procedural detail; not full PBR.
 const fs=`precision mediump float;
 varying vec3 vColor;varying vec3 vWorld;varying vec3 vNormal;varying float vFog;varying float vMaterial;
-uniform vec3 fogColor;uniform highp vec3 sunDirection;uniform highp vec3 eyePosition;uniform float worldTime;
+uniform vec3 fogColor;uniform highp vec3 sunDirection;uniform highp vec3 eyePosition;uniform float worldTime;uniform float weatherWetness;
 float hash3(vec3 p){p=fract(p*.1031);p+=dot(p,p.yxz+33.33);return fract((p.x+p.y)*p.z);}
 float noise3(vec3 p){
  vec3 i=floor(p),f=fract(p);f=f*f*(3.0-2.0*f);
@@ -375,10 +375,23 @@ void main(){
  vec3 c=vColor;
  vec3 n=normalize(vNormal);
  if(vMaterial>0.5&&vMaterial<1.5){
+  // Gauntlet 050 — shader-consistent ecological terrain: layered meadow,
+  // wet streambanks, dry hillside exposure, and rainfall-darkened ground.
+  // Uses the existing two coherent noise fields, no extra texture fetches.
   float meadow=noise3(vWorld*vec3(.29,1.1,.29));
   float blades=noise3(vWorld*vec3(5.2,1.4,5.2));
   c*=mix(.82,1.17,meadow)*mix(.92,1.10,blades);
-  c=mix(c,c*vec3(.83,1.05,.76),smoothstep(.48,.8,meadow)*.2);
+  c*=vec3(.88,1.065,.92);
+  float bankDist=abs(vWorld.z-(20.+3.*sin(vWorld.x*.13)));
+  float riparian=1.-smoothstep(1.8,7.0,bankDist);
+  float slope=1.-max(n.y,0.);
+  float rock=clamp(smoothstep(.035,.21,slope)*.70+
+     smoothstep(1.4,4.7,vWorld.y)*.45,0.,.90);
+  float exposed=smoothstep(.54,.86,meadow)*.20;
+  c=mix(c,c*vec3(1.13,.99,.81),exposed*(1.-riparian));
+  c=mix(c,c*vec3(1.22,.93,1.16),rock);
+  float damp=clamp(weatherWetness*.63+riparian*.64,0.,1.);
+  c*=mix(vec3(1.035,1.015,.97),vec3(.76,.93,.87),damp);
  }else if(vMaterial>1.5&&vMaterial<2.5){
   // Gauntlet 030: view-dependent Fresnel and physically motivated sun reflection.
   // Water normals are optical ripple normals, not the stepped bank mesh normals.
@@ -400,7 +413,9 @@ void main(){
   float whiteWater=smoothstep(.15,.79,waveA*.35+waveB*.27+.47);
   c=mix(c,vec3(.67,.79,.74),shoreWash*whiteWater*.30);
  }else if(vMaterial>2.5&&vMaterial<3.5){
+  // Damp footpaths lose their powdery lightness during rainfall.
   c*=.79+.27*noise3(vWorld*5.5)-.12*step(.8,noise3(vWorld*10.));
+  c*=mix(vec3(1.0),vec3(.71,.81,.82),weatherWetness*.67);
  }else if(vMaterial>3.5&&vMaterial<4.5){
   c*=.75+.38*noise3(vWorld*3.5);
   c+=vec3(.018,.052,.016)*pow(max(dot(n,normalize(sunDirection)),0.),2.);
@@ -426,7 +441,7 @@ void main(){
 }`;
 function shader(type,src){const s=gl.createShader(type);gl.shaderSource(s,src);gl.compileShader(s);if(!gl.getShaderParameter(s,gl.COMPILE_STATUS))throw Error(gl.getShaderInfoLog(s));return s}
 const program=gl.createProgram();gl.attachShader(program,shader(gl.VERTEX_SHADER,vs));gl.attachShader(program,shader(gl.FRAGMENT_SHADER,fs));gl.linkProgram(program);if(!gl.getProgramParameter(program,gl.LINK_STATUS))throw Error(gl.getProgramInfoLog(program));gl.useProgram(program);
-const uniforms={viewProjection:gl.getUniformLocation(program,'viewProjection'),fogColor:gl.getUniformLocation(program,'fogColor'),sunDirection:gl.getUniformLocation(program,'sunDirection'),sunTint:gl.getUniformLocation(program,'sunTint'),sunStrength:gl.getUniformLocation(program,'sunStrength'),ambientBlend:gl.getUniformLocation(program,'ambientBlend'),worldTime:gl.getUniformLocation(program,'worldTime'),eyePosition:gl.getUniformLocation(program,'eyePosition')};const buffer=gl.createBuffer();const staticBuffer=gl.createBuffer();let staticGpuUploads=0;
+const uniforms={viewProjection:gl.getUniformLocation(program,'viewProjection'),fogColor:gl.getUniformLocation(program,'fogColor'),sunDirection:gl.getUniformLocation(program,'sunDirection'),sunTint:gl.getUniformLocation(program,'sunTint'),sunStrength:gl.getUniformLocation(program,'sunStrength'),ambientBlend:gl.getUniformLocation(program,'ambientBlend'),worldTime:gl.getUniformLocation(program,'worldTime'),weatherWetness:gl.getUniformLocation(program,'weatherWetness'),eyePosition:gl.getUniformLocation(program,'eyePosition')};const buffer=gl.createBuffer();const staticBuffer=gl.createBuffer();let staticGpuUploads=0;
 const stride=40,attributes=[['position',3,0],['normal',3,12],['color',3,24],['materialId',1,36]].map(([name,size,offset])=>({loc:gl.getAttribLocation(program,name),size,offset}));
 function bindGeometry(target){gl.bindBuffer(gl.ARRAY_BUFFER,target);for(const {loc,size,offset} of attributes){if(loc<0)continue;gl.enableVertexAttribArray(loc);gl.vertexAttribPointer(loc,size,gl.FLOAT,false,stride,offset)}}
 bindGeometry(buffer);
@@ -565,6 +580,28 @@ function climateAt(time){
 }
 function terrain(x,z){const d=Math.hypot(x,z),edge=Math.max(0,Math.min(1,(d-24)/18));const upland=edge*edge*(2.8+1.8*Math.sin(x*.18+z*.11)*Math.cos(z*.24));return .13*Math.sin(x*.32)*Math.cos(z*.24)+.7*Math.pow(Math.abs(x)/40,2)+.25*Math.pow(Math.abs(z)/38,2)+upland}
 // Continuous grass vertex colours and normals remove the obvious checkerboard mesh.
+// G050 ecological material factors are pure presentation parameters; neither
+// these functions nor the GPU shader can touch authoritative seeded RNG.
+function climateMaterialProfile(time){
+ if(!Number.isFinite(time))throw Error('Invalid climate time');
+ const weather=climateAt(time).weather;
+ return {weather,precipitation:weather==='rain'?1:weather==='snow'?.35:weather==='cloudy'?.10:0};
+}
+function terrainBiomeSample(x,z,time=state.t){
+ if(![x,z,time].every(Number.isFinite))throw Error('Invalid terrain coordinate or time');
+ const height=terrain(x,z);
+ const dx=(terrain(x+.16,z)-terrain(x-.16,z))/.32;
+ const dz=(terrain(x,z+.16)-terrain(x,z-.16))/.32;
+ const slope=Math.hypot(dx,dz);
+ const highlandExposure=Math.max(0,Math.min(1,Math.max(0,height-1.1)/2.5+
+    Math.max(0,slope-.14)*.8));
+ const bankDist=Math.abs(z-(20+3*Math.sin(x*.13)));
+ const t=Math.max(0,Math.min(1,(bankDist-1.8)/5.2));
+ const riparianMoisture=1-t*t*(3-2*t);
+ const precipitation=climateMaterialProfile(time).precipitation;
+ const surfaceDampness=Math.max(0,Math.min(1,precipitation*.63+riparianMoisture*.64));
+ return {height,slope,highlandExposure,riparianMoisture,surfaceDampness};
+}
 function turfColor(x,z){const moss=Math.sin(x*.17+z*.065)*Math.cos(z*.23)*.045+Math.sin(x*.73-z*.61)*.012;const ridge=Math.max(0,terrain(x,z)-.6)*.033;const season=climateAt(state?.t??7).season;
  const snowy=season===3&&climateAt(state.t).weather==='snow',scale=[1,1.06,.80,.83][season];
  return snowy?[.63+moss*.3,.68+moss*.3,.69+moss*.3]:[(.305+moss+ridge)*(season===2?1.22:scale),(.425+moss*1.05+ridge)*scale,(.291+moss*.8+ridge)*(season===3?.90:scale)]}
@@ -2278,10 +2315,10 @@ currentMaterial=MATERIAL.FOLIAGE;
 windmill(-27,-18,state.t);forgeSmoke(state.t);activeChimneys=0;smokePuffs=0;smokeTriangles=0;smokeMaxRadius=0;for(const [x,z,k] of city)chimneySmoke(x,z,k,state.t);villageFestival();
 currentMaterial=MATERIAL.WOOD;
  for(const p of people)villager(p);currentMaterial=MATERIAL.GENERAL;weatherParticles(atmosphere);
-const elevation=Math.sin(pitch)*zoom,rad=Math.cos(pitch)*zoom,eye=[focusPoint[0]+Math.sin(yaw)*rad,elevation,focusPoint[1]+Math.cos(yaw)*rad];let m=mat4multiply(perspective(Math.PI/3.2,w/h,.1,190),lookAt(eye,[focusPoint[0],.25,focusPoint[1]],[0,1,0]));gl.uniformMatrix4fv(uniforms.viewProjection,false,m);gl.uniform3f(uniforms.fogColor,...atmosphere.fog);gl.uniform3f(uniforms.sunTint,...atmosphere.light);const radiance=lightingProfile(state.t);gl.uniform1f(uniforms.sunStrength,radiance.solar);gl.uniform1f(uniforms.ambientBlend,radiance.ambientBlend);gl.uniform1f(uniforms.worldTime,state.t);gl.uniform3f(uniforms.eyePosition,eye[0],eye[1],eye[2]);gl.uniform3f(uniforms.sunDirection,Math.cos(state.t/24*6.283),.3+atmosphere.daylight*.9,Math.sin(state.t/24*6.283));lastFrameTriangles=(gpuAvailable?scenicMeshCache.length+data.length:data.length)/30;
+const elevation=Math.sin(pitch)*zoom,rad=Math.cos(pitch)*zoom,eye=[focusPoint[0]+Math.sin(yaw)*rad,elevation,focusPoint[1]+Math.cos(yaw)*rad];let m=mat4multiply(perspective(Math.PI/3.2,w/h,.1,190),lookAt(eye,[focusPoint[0],.25,focusPoint[1]],[0,1,0]));gl.uniformMatrix4fv(uniforms.viewProjection,false,m);gl.uniform3f(uniforms.fogColor,...atmosphere.fog);gl.uniform3f(uniforms.sunTint,...atmosphere.light);const radiance=lightingProfile(state.t);gl.uniform1f(uniforms.sunStrength,radiance.solar);gl.uniform1f(uniforms.ambientBlend,radiance.ambientBlend);gl.uniform1f(uniforms.worldTime,state.t);gl.uniform1f(uniforms.weatherWetness,climateMaterialProfile(state.t).precipitation);gl.uniform3f(uniforms.eyePosition,eye[0],eye[1],eye[2]);gl.uniform3f(uniforms.sunDirection,Math.cos(state.t/24*6.283),.3+atmosphere.daylight*.9,Math.sin(state.t/24*6.283));lastFrameTriangles=(gpuAvailable?scenicMeshCache.length+data.length:data.length)/30;
 if(gpuAvailable){bindGeometry(staticBuffer);gl.drawArrays(gl.TRIANGLES,0,scenicMeshCache.length/10);}
 bindGeometry(buffer);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(data),gl.DYNAMIC_DRAW);gl.drawArrays(gl.TRIANGLES,0,data.length/10);if((frames++%14)===0){updateUI();drawAtlas();updateRealmSignal();updateWorldRibbon()}}
-requestAnimationFrame(render);window.__tinyKingdom={getState:()=>JSON.parse(JSON.stringify({state,people:people.map(({name,job,x,z,target})=>({name,job,x,z,target}))})),setSpeed:x=>{speed=x},step,reset:start,renderer:()=>canvas.getContext('webgl')?'webgl':'software',metrics:()=>({citizens:people.length,buildings:city.length+2,day:Math.floor(state.t/24)+1,food:state.food,wood:state.wood,gold:state.gold,relationships:people.filter(p=>p.friend).length}),route:(a,b)=>routeBetween(a[0],a[1],b[0],b[1]),walkable:(p)=>walkable(p[0],p[1]),getNavigation:()=>people.map(p=>({name:p.name,position:[p.x,p.z],target:p.target,remaining:p.path?.length||0,path:p.path,activity:p.activity,hunger:p.hunger,energy:p.energy})),exportSnapshot,restoreSnapshot,saveWorld,restoreWorld,climateAt,skyConditions,getCitizenProfiles:()=>cloneData(people.map(({name,job,trait,friend,bonds,energy,hunger,activity})=>({name,job,trait,friend,bonds,energy,hunger,activity}))),getRigPose:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(citizenRigPose(people[index])):null,getGarmentProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(garmentProfile(people[index],index,citizenRigPose(people[index]))):null,getFaceProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(faceProfile(people[index],index)):null,getSelectedCitizen:()=>people[selectedCitizen]?.name,routeCacheMetrics:()=>({entries:routeCache.size,hits:cacheHits,misses:cacheMisses}),getCamera:()=>({yaw,pitch,zoom,focus:focusPoint.slice(),follow,cinematic}),getTerrainHeight:(x,z)=>terrain(x,z),getWildfloraCount:()=>wildflora.length,getMeadowStats:()=>({clusters:meadowUnderstory.length,triangles:meadowUnderstory.length*8,season:climateAt(state.t).season,cached:true}),getMaterialSystem:()=>({vertexStride:10,surfaceShaderVersion:'procedural-023',materials:Object.keys(MATERIAL),gpuRenderValidated:false}),waterStats:()=>({model:'fresnel-ripple-shorefoam-v1',segments:RIVER_SEGMENTS,waterTriangles:RIVER_SEGMENTS*RIVER_BANDS*2,bankTriangles:RIVER_SEGMENTS*2*RIVER_BANK_BANDS*2}),getScenicSites:scenicSiteMetrics,getFestivalVisualStats:()=>({season:festivalSeason,cacheBuilds:festivalCacheBuilds,vertices:festivalGeometry?.length||0}),getGeometryAudit:geometryAudit,getFarmsteadStats:()=>({...farmScene,granary:FARMSTEAD.granary.slice(),season:climateAt(state.t).season}),getFarmTreeClearanceStats:farmTreeClearanceStats,getForestVisualStats:()=>({
+requestAnimationFrame(render);window.__tinyKingdom={getState:()=>JSON.parse(JSON.stringify({state,people:people.map(({name,job,x,z,target})=>({name,job,x,z,target}))})),setSpeed:x=>{speed=x},step,reset:start,renderer:()=>canvas.getContext('webgl')?'webgl':'software',metrics:()=>({citizens:people.length,buildings:city.length+2,day:Math.floor(state.t/24)+1,food:state.food,wood:state.wood,gold:state.gold,relationships:people.filter(p=>p.friend).length}),route:(a,b)=>routeBetween(a[0],a[1],b[0],b[1]),walkable:(p)=>walkable(p[0],p[1]),getNavigation:()=>people.map(p=>({name:p.name,position:[p.x,p.z],target:p.target,remaining:p.path?.length||0,path:p.path,activity:p.activity,hunger:p.hunger,energy:p.energy})),exportSnapshot,restoreSnapshot,saveWorld,restoreWorld,climateAt,skyConditions,getCitizenProfiles:()=>cloneData(people.map(({name,job,trait,friend,bonds,energy,hunger,activity})=>({name,job,trait,friend,bonds,energy,hunger,activity}))),getRigPose:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(citizenRigPose(people[index])):null,getGarmentProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(garmentProfile(people[index],index,citizenRigPose(people[index]))):null,getFaceProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(faceProfile(people[index],index)):null,getSelectedCitizen:()=>people[selectedCitizen]?.name,routeCacheMetrics:()=>({entries:routeCache.size,hits:cacheHits,misses:cacheMisses}),getCamera:()=>({yaw,pitch,zoom,focus:focusPoint.slice(),follow,cinematic}),getTerrainHeight:(x,z)=>terrain(x,z),getTerrainBiomeSample:terrainBiomeSample,getClimateMaterialProfile:climateMaterialProfile,getWildfloraCount:()=>wildflora.length,getMeadowStats:()=>({clusters:meadowUnderstory.length,triangles:meadowUnderstory.length*8,season:climateAt(state.t).season,cached:true}),getMaterialSystem:()=>({vertexStride:10,surfaceShaderVersion:'procedural-023',materials:Object.keys(MATERIAL),gpuRenderValidated:false}),waterStats:()=>({model:'fresnel-ripple-shorefoam-v1',segments:RIVER_SEGMENTS,waterTriangles:RIVER_SEGMENTS*RIVER_BANDS*2,bankTriangles:RIVER_SEGMENTS*2*RIVER_BANK_BANDS*2}),getScenicSites:scenicSiteMetrics,getFestivalVisualStats:()=>({season:festivalSeason,cacheBuilds:festivalCacheBuilds,vertices:festivalGeometry?.length||0}),getGeometryAudit:geometryAudit,getFarmsteadStats:()=>({...farmScene,granary:FARMSTEAD.granary.slice(),season:climateAt(state.t).season}),getFarmTreeClearanceStats:farmTreeClearanceStats,getForestVisualStats:()=>({
  sourceTrees:trees.length,
  renderedTrees:forestVisualStats.deciduous+forestVisualStats.conifers,
  conifers:forestVisualStats.conifers,deciduous:forestVisualStats.deciduous,
