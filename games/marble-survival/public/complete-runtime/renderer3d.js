@@ -267,7 +267,7 @@
     out vec2 vUV;
     void main(){
       vec2 p=vec2((gl_VertexID << 1) & 2,gl_VertexID & 2);
-      vUV=p*0.5;
+      vUV=p;
       gl_Position=vec4(p*2.0-1.0,0.9999,1.0);
     }
   `;
@@ -887,7 +887,7 @@
     const width=arena.width*WORLD_SCALE,depth=arena.height*WORLD_SCALE;
     const data=[];
     // Entire spectator formation is a PURE function of arena and quality.
-    // No mutable PRNG, gameplay RNG or unpredictable live data is consumed.
+    // No mutable PRNG, gameplay RNG or unpredictable live data is consumeded.
     const wave=i=>{const x=Math.sin(i*127.1+arena.archetype.length*31.7)*43758.5453;return x-Math.floor(x);};
     for(let i=0;i<limit;i++){
       const side=i%2===0?1:-1;

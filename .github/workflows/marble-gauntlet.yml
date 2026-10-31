@@ -7,15 +7,16 @@ on:
     paths:
       - 'games/marble-survival/**'
       - 'tests/foundation/marble-*.test.cjs'
-      - 'tests/browser/marble-survival-stream.spec.cjs'
+      - 'tests/browser/marble-*.spec.cjs'
       - '.github/workflows/marble-gauntlet.yml'
   pull_request:
     branches:
+      - main
       - agent/marble-survival-2-5d-mainline
     paths:
       - 'games/marble-survival/**'
       - 'tests/foundation/marble-*.test.cjs'
-      - 'tests/browser/marble-survival-stream.spec.cjs'
+      - 'tests/browser/marble-*.spec.cjs'
       - '.github/workflows/marble-gauntlet.yml'
   workflow_dispatch:
 
@@ -63,7 +64,7 @@ jobs:
       - name: Install Chromium for actual WebGL screenshots
         run: npx playwright install --with-deps chromium
       - name: Run visual smoke, camera/label parity and tournament evidence capture
-        run: npx playwright test tests/browser/marble-survival-stream.spec.cjs --workers=1
+        run: npx playwright test --config games/marble-survival/playwright.config.cjs
         env:
           CI: 'true'
       - name: Upload real screenshots, renderer stats and browser traces
@@ -77,3 +78,26 @@ jobs:
             playwright-report/
           if-no-files-found: warn
           retention-days: 30
+
+  catalogue-regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - name: Verify all catalogue regressions after main reintegration
+        run: |
+          set -o pipefail
+          npm test 2>&1 | tee catalogue-regressions.log
+      - name: Retain complete catalogue test results
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: marble-integration-catalogue-tests
+          path: catalogue-regressions.log
+          if-no-files-found: warn
+          retention-days: 14
