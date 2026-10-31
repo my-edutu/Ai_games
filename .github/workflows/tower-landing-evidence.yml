@@ -31,10 +31,10 @@ jobs:
       - name: Focused logical regressions
         run: node --test tests/phase3/tower-landing-beacon.test.cjs tests/phase3/tower-encounter-composition.test.cjs tests/phase3/tower-lighting-resource.test.cjs
       - run: npx playwright install --with-deps chromium
-      - name: Retrieve pinned comparison source
+      - name: Retrieve pinned pre-alignment source
         run: |
-          git fetch --no-tags --depth=1 origin 05d3633d9f194eef6a5522d14298bc3eafeef9a1
-          git show 05d3633d9f194eef6a5522d14298bc3eafeef9a1:public/infinite-tower-climb/visuals/scene.mjs > "$RUNNER_TEMP/tower-before.mjs"
+          git fetch --no-tags --depth=1 origin 687b662367855b5aa928a10d65117e7ed25183f8
+          git show 687b662367855b5aa928a10d65117e7ed25183f8:public/infinite-tower-climb/visuals/scene.mjs > "$RUNNER_TEMP/tower-before.mjs"
           mkdir -p artifacts/tower-landing-beacon
           git rev-parse HEAD > artifacts/tower-landing-beacon/source-sha.txt
           sha256sum public/infinite-tower-climb/visuals/scene.mjs "$RUNNER_TEMP/tower-before.mjs" > artifacts/tower-landing-beacon/source-hashes.txt

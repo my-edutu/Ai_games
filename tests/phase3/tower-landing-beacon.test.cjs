@@ -38,6 +38,21 @@ test('landing beacon is a bounded double-chevron rather than another collectible
   geometry.dispose();
 });
 
+test('navigation glyph is anchored above the walking-band center, not in the air beyond the outer rim', async () => {
+  const { THREE, context } = await loaded;
+  const deck = snapshot().platforms[1], frame = snapshot();
+  const beacon = new THREE.Mesh(), camera = new THREE.PerspectiveCamera();
+  // Production decks occupy the radial band 22.4..27.18; a marker at 27.24
+  // floats beyond the rim in the actual pinned portrait captures.
+  const physicalDeckMidpoint = (22.4 + 27.18) / 2;
+  for (const offset of [0, 12000, -9000]) {
+    context.updateLandingBeacon(beacon, { ...deck, x: deck.x + offset }, frame, camera);
+    const radius = Math.hypot(beacon.position.x, beacon.position.z);
+    assert.ok(Math.abs(radius - physicalDeckMidpoint) < .3,
+      `beacon is outside the central landing band (radius ${radius}, center ${physicalDeckMidpoint})`);
+  }
+});
+
 test('one landing beacon follows effective moving-deck positions and clears stale intentions', async () => {
   const { THREE, pointFor, context } = await loaded;
   assert.equal(typeof context.updateLandingBeacon, 'function');
@@ -46,7 +61,7 @@ test('one landing beacon follows effective moving-deck positions and clears stal
   const frame = snapshot(), original = JSON.stringify(frame);
   for (const offset of [0, 12000, -9000]) {
     const platform = { ...frame.platforms[1], x: frame.platforms[1].x + offset, width: offset ? 1000 : 125000 };
-    const expected = pointFor(platform.x + platform.width/2, platform.y + platform.height, frame.chunkBaseY, frame.worldWidth, 27.24);
+    const expected = pointFor(platform.x + platform.width/2, platform.y + platform.height, frame.chunkBaseY, frame.worldWidth, 24.8);
     context.updateLandingBeacon(beacon, platform, frame, camera);
     assert.equal(beacon.visible, true);
     assert.equal(beacon.userData.targetPlatformId, platform.id);

@@ -210,8 +210,11 @@ function updateLandingBeacon(beacon, platform, snapshot, camera) {
   beacon.visible = !!platform;
   beacon.userData.targetPlatformId = platform?.id || null;
   if (!platform) return;
+  // Deck tops span radius 22.4..27.18. The former 27.24 anchor put the
+  // glyph *outside* the deck, visibly floating past its outer edge on phones.
+  // Center the arrow over the real walking surface, without changing collision.
   const anchor = pointFor(platform.x + platform.width / 2, platform.y + platform.height,
-    snapshot.chunkBaseY, snapshot.worldWidth, 27.24);
+    snapshot.chunkBaseY, snapshot.worldWidth, 24.8);
   beacon.position.set(anchor.x, anchor.y + .65, anchor.z);
   beacon.quaternion.copy(camera.quaternion);
 }
