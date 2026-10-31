@@ -3,6 +3,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { test, expect } = require('@playwright/test');
 const { createSession, advance } = require('../../scripts/serve-tower-stream.cjs');
+const { waitForSettledTowerStone } = require('../../scripts/tower-capture-ready.cjs');
 
 // Real production snapshots, not edited poses. Stills explicitly do not prove
 // normal-speed motion or presented-frame performance.
@@ -31,7 +32,9 @@ for (const scenario of cases) test(`destination beacon ${scenario.name}`, async 
     const d = window.__TOWER_RENDER_DIAGNOSTICS__?.();
     return d?.frames >= 4 && d.lighting?.environmentState !== 'pending';
   }, null, { timeout: 60000 });
-  const diagnostics = await page.evaluate(() => window.__TOWER_RENDER_DIAGNOSTICS__());
+  // A captured landing material comparison is invalid while stone is loading.
+  // Require two submitted frames after a successful image decode.
+  const diagnostics = await waitForSettledTowerStone(page);
   expect(diagnostics.renderErrors).toBe(0);
   expect(await page.evaluate(() => window.__TOWER_PUBLIC_STATE__.publicChecksum)).toBe(originalChecksum);
   if (!baseline) {
