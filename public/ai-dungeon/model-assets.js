@@ -4,6 +4,7 @@ import {clone as cloneSkeleton} from '/dungeon/vendor/addons/utils/SkeletonUtils
 import {planAuthoredMotion} from '/dungeon/character-motion-plan.js';
 import {planWardenRegalia} from '/dungeon/warden-regalia-plan.js';
 import {planRoleSilhouette} from '/dungeon/role-silhouette-plan.js';
+import {rigWeaponParts,selectHandBone} from '/dungeon/rig-attachment-plan.js';
 
 // Optional locally vendored CC0 characters. Offline / missing-asset fallback is the
 // fully autonomous procedural 3D rig, not a blank screen. No third-party runtime calls.
@@ -169,6 +170,34 @@ function addRoleSilhouette(actor){
  actor.assetGeometries.push(...geometries);
 }
 
+// Move only original visible weapon fittings onto a genuine CLONED GLB
+// hand bone. Object3D.attach preserves their world pose while authored
+// skeletal animation subsequently moves the accessory with the limb.
+// Models without named hand joints retain their safe static fitting.
+function bindRigWeaponAccessories(actor){
+ const names=rigWeaponParts(actor.u.kind);
+ if(!names.length||!actor.assetRoot||!actor.visualPivot)return;
+ const rigBones=[];
+ actor.assetRoot.traverse(obj=>{
+  if(!obj.isSkinnedMesh||!obj.skeleton)return;
+  for(const bone of obj.skeleton.bones){
+   if(bone?.isBone&&!rigBones.includes(bone))rigBones.push(bone);
+  }
+ });
+ const handBone=selectHandBone(rigBones,'right');
+ if(!handBone)return;
+ const costume=actor.visualPivot.children.find(child=>child.name==='Original '+actor.u.kind+' class details');
+ if(!costume)return;
+ const parts=names.map(name=>costume.getObjectByName(name));
+ // Never split a bow or staff between rigid and animated parents.
+ if(parts.some(part=>!part?.isMesh))return;
+ actor.visualPivot.updateWorldMatrix(true,true);
+ actor.assetRoot.updateWorldMatrix(true,true);
+ for(const mesh of parts)handBone.attach(mesh);
+ actor.rigBoundAccessoryParts=parts.length;
+ actor.rigHandBoneName=handBone.name;
+}
+
 function attachCharacter(actor){
  const asset=selection[actor.u.kind];if(!asset)return Promise.resolve(false);
  const id=actor.u.id;
@@ -187,12 +216,13 @@ function attachCharacter(actor){
    instance.position.set(-center.x*sourceScale,-bounds.min.y*sourceScale,-center.z*sourceScale);
   }
   const pivot=new THREE.Group();actor.root.add(pivot);pivot.add(instance);
-  actor.visualPivot=pivot;actor.motionPeak=0;actor.assetRoot=instance;actor.assetMaterials=owned;actor.assetGeometries=[];actor.regaliaParts=0;actor.roleSilhouetteParts=0;
+  actor.visualPivot=pivot;actor.motionPeak=0;actor.assetRoot=instance;actor.assetMaterials=owned;actor.assetGeometries=[];actor.regaliaParts=0;actor.roleSilhouetteParts=0;actor.rigBoundAccessoryParts=0;actor.rigHandBoneName=null;
   actor.body.visible=false;actor.authored=true;actor.mixer=new THREE.AnimationMixer(instance);
   actor.availableClips=gltf.animations||[];actor.currentAction='';actor.currentActionTick=null;
   actor.textureReadiness=textureReadiness.get(gltf);
   addWardenRegalia(actor);
   addRoleSilhouette(actor);
+  bindRigWeaponAccessories(actor);
   changeAction(actor,actor.u.action||'idle');
   return true;
  }).catch(e=>{failures.add(asset);return false});
@@ -238,7 +268,7 @@ function disposeActorAsset(actor){
  else if(actor.assetRoot){actor.root.remove(actor.assetRoot)}
  for(const m of actor.assetMaterials||[])m.dispose();
  for(const g of actor.assetGeometries||[])g.dispose();
- actor.mixer=null;actor.assetRoot=null;actor.visualPivot=null;actor.motionPeak=0;actor.assetMaterials=[];actor.assetGeometries=[];actor.regaliaParts=0;actor.roleSilhouetteParts=0;actor.authored=false;actor.textureReadiness=null;
+ actor.mixer=null;actor.assetRoot=null;actor.visualPivot=null;actor.motionPeak=0;actor.assetMaterials=[];actor.assetGeometries=[];actor.regaliaParts=0;actor.roleSilhouetteParts=0;actor.rigBoundAccessoryParts=0;actor.rigHandBoneName=null;actor.authored=false;actor.textureReadiness=null;
 }
 function putEnvironment(world,sceneKey,map){
  // Authored GLB masonry and prop dressing complements the instanced procedural
@@ -275,6 +305,6 @@ function putEnvironment(world,sceneKey,map){
 }
 function stats(actors){
  const all=[...actors.values()],authored=all.filter(a=>a.authored);
- return{authoredBosses:authored.filter(a=>a.u.kind==='warden').length,bossRegaliaParts:all.reduce((n,a)=>n+(a.regaliaParts||0),0),roleSilhouetteActors:authored.filter(a=>(a.roleSilhouetteParts||0)>0).length,roleSilhouetteParts:all.reduce((n,a)=>n+(a.roleSilhouetteParts||0),0),authoredCharacters:authored.length,proceduralFallbacks:all.length-authored.length,uniqueAssets:cache.size,missingAssets:failures.size,incompleteAssets:incompleteAssets.size,texturedCharacters:authored.filter(a=>a.textureReadiness?.decodedColorMaps>0).length,decodedColorMaps:authored.reduce((n,a)=>n+(a.textureReadiness?.decodedColorMaps||0),0)};
+ return{authoredBosses:authored.filter(a=>a.u.kind==='warden').length,bossRegaliaParts:all.reduce((n,a)=>n+(a.regaliaParts||0),0),roleSilhouetteActors:authored.filter(a=>(a.roleSilhouetteParts||0)>0).length,roleSilhouetteParts:all.reduce((n,a)=>n+(a.roleSilhouetteParts||0),0),rigBoundAccessoryActors:authored.filter(a=>(a.rigBoundAccessoryParts||0)>0).length,rigBoundAccessoryParts:all.reduce((n,a)=>n+(a.rigBoundAccessoryParts||0),0),rigHandBoneNames:authored.filter(a=>a.rigHandBoneName).map(a=>a.rigHandBoneName).slice(0,8),authoredCharacters:authored.length,proceduralFallbacks:all.length-authored.length,uniqueAssets:cache.size,missingAssets:failures.size,incompleteAssets:incompleteAssets.size,texturedCharacters:authored.filter(a=>a.textureReadiness?.decodedColorMaps>0).length,decodedColorMaps:authored.reduce((n,a)=>n+(a.textureReadiness?.decodedColorMaps||0),0)};
 }
 export {attachCharacter,updateActor,disposeActorAsset,putEnvironment,stats};
