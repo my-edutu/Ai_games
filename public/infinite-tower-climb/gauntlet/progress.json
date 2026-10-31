@@ -1,7 +1,7 @@
 {
-  "updated": "2026-10-31T05:36:55+00:00",
-  "verdict": "PASS (scoped): physical beacon placement, 14 focused logical checks, remote GPU evidence and transition checks · FAIL: desktop visibility, full catalogue CI (580/581), independent commercial/motion/performance gates",
-  "nextGap": "Fix the independently reproduced stale frontend revision-marker catalogue CI assertion (expects v2 while shipped Tower declares v3), then evaluate beacon occlusion in desktop and guardian crown clearance using new same-state GPU comparisons. Continuous motion, independent Jusant/ASTRO BOT comparisons and intended-device FPS remain unverified.",
+  "updated": "2026-10-31T06:30:00+00:00",
+  "verdict": "SCOPED PASS (local): catalogue UX revision red/green 4/4, TS build and Tower host contract · FULL REMOTE CI PENDING · Overall Gauntlet FAIL/open: desktop landing obstruction, independent commercial/motion/accessibility/device performance/stability gates",
+  "nextGap": "Verify the full Autonomous Games CI and Tower Realism Evidence workflows for this exact source before declaring suite recovery; next independent visual failure is partially occluded desktop landing beacon and guardian crown. Then obtain complete normal-speed climbing/combat/run-transition and intended-device frame-time evidence against official Jusant and ASTRO BOT.",
   "capture": "/tower/gauntlet/evidence/14-foundry-follow.webp",
   "captureLabel": "Actual tick 118 · compact HUD and clearer hostile equipment",
   "iterations": [
@@ -132,6 +132,13 @@
       "title": "Bring the destination glyph back onto the real landing",
       "finding": "Downloaded and directly inspected the successful Gauntlet 15 Tower Landing Evidence artifact (run 41168718432, ID 13029769123). Six actual PNGs show a visible two-chevron marker, but in both portrait directions it hovers near/past the outer ledge rather than over the deck: the code placed it at radius 27.24 while the physical walking top spans 22.4–27.18. Moved only its presentation anchor to radial center 24.8, preserving the target ID, effective moving position, depth testing, fixed sixteen-triangle geometry and authority checksums. Actual evidence shows the trade-off: a more central, physically grounded beacon on both phones, but partial right-side obstruction by the tower upright in the desktop leftward screenshot. No complete desktop clearance is claimed.",
       "checks": "New GPU run 41172970087 at source d9ab916 succeeded and downloadable artifact 13031761634 contains six 390×844/960×600 held baseline/candidate PNGs and diagnostics: pinned checksums unchanged (tick379 cdb269d8, tick234 7a87ca02), zero page/GL errors, 16-triangle depth-tested beacon at radius 24.8. Direct self-inspection: both portrait destinations are more centrally identified; desktop leftward glyph is partly occluded by a tower upright. SCOPED PASS: geometry, movement retirement, screenshots present. SCOPED FAIL: full desktop occlusion-free target readability not proved. Tower Realism run 41172970019 is FAIL, 580/581 logical tests, stale catalogue frontend revision-marker expectation; no overall Gauntlet or performance pass. Original local focused 14/14 tests, build, host contract pass; wider local Tower suite timed out after case 122."
+    },
+    {
+      "number": "17",
+      "date": "2026-10-31",
+      "title": "Repair stale catalogue frontend revision contract",
+      "finding": "Direct inspection of Tower Landing Evidence GPU artifact 13031761634 (d9ab916, six actual baseline/candidate PNGs) reconfirmed portrait route improvement and partial desktop occlusion; no motion/FPS conclusion. The two completed CI runs 41172970019 and 41173326408 each failed 1/581 tests on tests/phase3/catalogue-frontend-quality.test.cjs because the catalogue asserted UX revision 2 for every game although the Tower shell intentionally declares 3. Updated only the test's per-game expected revisions (Tower 3; Snake/Maze/Ant 2), preserving the ux-v2.css contract and the shipped UI.",
+      "checks": "Downloaded exact d9ab916 CI review-source artifact 13031926865; baseline node --test tests/phase3/catalogue-frontend-quality.test.cjs FAIL (3/4; Tower marker), changed test PASS (4/4). Negative mutation reverting Tower HTML revision 3→2 correctly FAILS (3/4), then restoring actual HTML PASS (4/4). npm run build PASS; Tower stream-host self-test PASS authority/assets/privacy/recovery/restart. Local full npm test exceeded 300 s after case 489 without completed summary, hence NOT a full pass. Source-linked new remote CI PENDING; earlier exact-head run 41173326408 is FAIL (580/581). Separate critic workspace disconnected, self-review only. Gameplay authority, rendering and visual pixels unchanged; no overall gate pass."
     }
   ],
   "captures": [
