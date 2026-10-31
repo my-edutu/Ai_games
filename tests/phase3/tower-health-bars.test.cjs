@@ -23,7 +23,7 @@ test('enemy health fill is drawn after its background and retains the actual rem
   const actor = () => ({ group: new real.Group(), animate() {}, dispose() {} });
   const context = { THREE: { ...real, WebGLRenderer: Renderer, PMREMGenerator: class { fromEquirectangular() { throw new Error('CPU fixture'); } dispose() {} } },
     ...coordinates, createRenderProgress, snapshotVelocity: () => 0, createClimber: actor, createEnemy: actor,
-    createTowerWorld: () => ({ group: new real.Group(), update() {}, dispose() {} }),
+    createTowerWorld: () => ({ group: new real.Group(), update() {}, revealGuardianSightlines() {}, dispose() {} }),
     THEMES: { foundry: { sun: 0xffdfbc, ambient: 0xe8e0d3, fog: 0x99796d } },
     innerWidth: 960, devicePixelRatio: 1, performance: { now: () => 100 },
     document: { visibilityState: 'visible', addEventListener() {}, removeEventListener() {} },
