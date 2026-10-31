@@ -14,6 +14,25 @@ test('G071 daylight transition preserves scenic VBO and replay with emissive gla
  await page.waitForFunction(()=>window.__tinyKingdom?.renderStats().lastFrameTriangles>0);
  await page.locator('#pause').click();
  await page.waitForFunction(()=>window.__tinyKingdom.renderQuality().idleFrames>0);
+ // Advance canonical simulation to ONE tick before a lighting threshold.
+ // A builder may legitimately add cottages over the preceding hours; record
+ // the cached baseline only *after* those autonomous city revisions render.
+ const prephase=await page.evaluate(()=>{
+  const g=window.__tinyKingdom,lit=t=>g.getLightingProfile(t).solar>=.4375;
+  let steps=0;
+  while(steps<720){
+   const t=g.getState().state.t;
+   if(lit(t)!==lit(t+1/30))break;
+   g.step(1/30);steps++;
+  }
+  const t=g.getState().state.t;
+  return {steps,willCross:lit(t)!==lit(t+1/30),time:t};
+ });
+ expect(prephase.steps).toBeLessThan(720);
+ expect(prephase.willCross).toBe(true);
+ const prephaseProfile=await page.evaluate(()=>window.__tinyKingdom.getFrameProfile().totalFrames);
+ await page.waitForFunction(prev=>window.__tinyKingdom.getFrameProfile().totalFrames>prev,
+   prephaseProfile,{timeout:30000});
  const before=await page.evaluate(()=>{
   const g=window.__tinyKingdom,gl=document.querySelector('#world').getContext('webgl');
   const program=gl?.getParameter(gl.CURRENT_PROGRAM);
@@ -39,15 +58,12 @@ test('G071 daylight transition preserves scenic VBO and replay with emissive gla
   expect(before.activeVertexShader).toContain('float afterDusk=');
  }
  const crossed=await page.evaluate(()=>{
-  const g=window.__tinyKingdom,lit=()=>g.getLightingProfile(g.getState().state.t).solar>=.4375;
-  const initiallyLit=lit();
-  let steps=0;
-  // No special test-time rules: use the real authoritative fixed-step engine.
-  do{g.step(1/30);steps++;}while(lit()===initiallyLit&&steps<720);
-  return {steps,initiallyLit,finallyLit:lit()};
+  const g=window.__tinyKingdom;
+  const initiallyLit=g.getLightingProfile(g.getState().state.t).solar>=.4375;
+  g.step(1/30);
+  return {steps:1,initiallyLit,finallyLit:
+    g.getLightingProfile(g.getState().state.t).solar>=.4375};
  });
- expect(crossed.steps).toBeGreaterThan(0);
- expect(crossed.steps).toBeLessThan(720);
  expect(crossed.finallyLit).not.toBe(crossed.initiallyLit);
  await page.waitForFunction(prev=>window.__tinyKingdom.getFrameProfile().totalFrames>prev,
    before.profile.totalFrames,{timeout:30000});
