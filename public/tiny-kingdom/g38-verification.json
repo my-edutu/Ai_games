@@ -1,0 +1,10 @@
+{
+  "focusedPassed": 38,
+  "browserPassed": 54,
+  "cataloguePassed": 503,
+  "catalogueFailed": 0,
+  "sourceSha256": "1a32bee1f33be8cb5cfd8a848ef9e3bcfea7b1fdc7b2af00d71ed02e7579f3fb",
+  "benchmarkPassed": false,
+  "independentCritic": false,
+  "productionReady": false
+}

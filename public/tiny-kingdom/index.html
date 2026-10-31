@@ -172,7 +172,24 @@ function bindGeometry(target){gl.bindBuffer(gl.ARRAY_BUFFER,target);for(const {l
 bindGeometry(buffer);
 // A single bounded depth texture. Unsupported devices retain the old geometry
 // fallback; no simulation state, randomness, provider or asset fetch is involved.
-const sunMap={supported:false,complete:false,size:0,passes:0,key:'',matrix:new Float32Array(16),reason:gpuAvailable?'Depth texture extension unavailable':'WebGL unavailable'};
+const sunMap={supported:false,complete:false,size:0,passes:0,key:'',matrix:new Float32Array(16),reason:gpuAvailable?'Depth texture extension unavailable':'WebGL unavailable',lastMs:-Infinity,lastT:null,lastScenic:-1,reusedPasses:0,cadenceMs:180};
+// Cosmetic sun shadows have their own budget. Simulation events, navigation and
+// authoritative ticks never wait for, or consult, a shadow refresh.
+function shadowBudgetMs(){const q=renderQuality().scale;return q>=.95?180:q>=.7?350:650;}
+function resizeSunMap(){
+ if(!sunMap.supported)return;
+ const q=renderQuality().scale,target=Math.min(q>=.95?2048:q>=.7?1024:512,gl.getParameter(gl.MAX_TEXTURE_SIZE));
+ if(target===sunMap.size)return;
+ gl.bindTexture(gl.TEXTURE_2D,sunMap.depth);
+ gl.texImage2D(gl.TEXTURE_2D,0,gl.DEPTH_COMPONENT,target,target,0,gl.DEPTH_COMPONENT,gl.UNSIGNED_INT,null);
+ gl.bindRenderbuffer(gl.RENDERBUFFER,sunMap.color);gl.renderbufferStorage(gl.RENDERBUFFER,gl.RGBA4,target,target);
+ gl.bindFramebuffer(gl.FRAMEBUFFER,sunMap.fb);
+ const complete=gl.checkFramebufferStatus(gl.FRAMEBUFFER)===gl.FRAMEBUFFER_COMPLETE;
+ gl.bindFramebuffer(gl.FRAMEBUFFER,null);gl.bindRenderbuffer(gl.RENDERBUFFER,null);gl.bindTexture(gl.TEXTURE_2D,null);
+ if(!complete)throw Error('Shadow framebuffer failed after graphics preset change');
+ sunMap.size=target;sunMap.complete=true;sunMap.lastScenic=-1;sunMap.lastMs=-Infinity;
+}
+
 if(gpuAvailable&&gl.getExtension('WEBGL_depth_texture')){
  const size=Math.min(2048,gl.getParameter(gl.MAX_TEXTURE_SIZE));
  const fb=gl.createFramebuffer(),depth=gl.createTexture(),color=gl.createRenderbuffer();
@@ -192,10 +209,15 @@ if(gpuAvailable&&gl.getExtension('WEBGL_depth_texture')){
  }else{gl.deleteFramebuffer(fb);gl.deleteTexture(depth);gl.deleteRenderbuffer(color);sunMap.reason='Depth framebuffer unavailable';}
  gl.bindFramebuffer(gl.FRAMEBUFFER,null);gl.bindRenderbuffer(gl.RENDERBUFFER,null);gl.bindTexture(gl.TEXTURE_2D,null);
 }
-function drawSunMap(staticCount,dynamicCount,atmosphere){
+function drawSunMap(staticCount,dynamicCount,atmosphere,now){
  if(!sunMap.supported)return;
- const key=scenicMeshRebuilds+':'+state.t+':'+people.map(p=>[p.x,p.z,p.phase,p.activity].join(',')).join(';');
- if(sunMap.key===key)return;
+ resizeSunMap();
+ sunMap.cadenceMs=shadowBudgetMs();
+ const unchanged=sunMap.lastT===state.t&&sunMap.lastScenic===scenicMeshRebuilds;
+ const elapsed=Number.isFinite(now)?now-sunMap.lastMs:Infinity;
+ if(unchanged||(sunMap.lastScenic===scenicMeshRebuilds&&elapsed>=0&&elapsed<sunMap.cadenceMs)){
+  sunMap.reusedPasses++;return;
+ }
  const az=state.t/24*Math.PI*2,light=[Math.cos(az),.30+atmosphere.daylight*.9,Math.sin(az)],length=Math.hypot(...light);
  const eye=light.map(v=>v/length*95);const projection=new Float32Array([1/54,0,0,0,0,1/54,0,0,0,0,-2/190,0,0,0,-1-2/190,1]);
  sunMap.matrix=mat4multiply(projection,lookAt(eye,[0,0,0],[0,1,0]));
@@ -209,9 +231,9 @@ function drawSunMap(staticCount,dynamicCount,atmosphere){
  drawFoliageShadow();
  gl.colorMask(true,true,true,true);gl.enable(gl.CULL_FACE);gl.cullFace(gl.BACK);
  gl.bindFramebuffer(gl.FRAMEBUFFER,null);gl.viewport(0,0,canvas.width,canvas.height);gl.useProgram(program);
- sunMap.key=key;sunMap.passes++;
+ sunMap.key=String(scenicMeshRebuilds);sunMap.lastMs=now;sunMap.lastT=state.t;sunMap.lastScenic=scenicMeshRebuilds;sunMap.passes++;
 }
-function lightingStats(){return {model:'directional-depth-pcf3',supported:sunMap.supported,framebufferComplete:sunMap.complete,mapSize:sunMap.size,passes:sunMap.passes,fallbackReason:sunMap.reason,error:gpuAvailable?gl.getError():null};}
+function lightingStats(){return {model:'directional-depth-pcf3',supported:sunMap.supported,framebufferComplete:sunMap.complete,mapSize:sunMap.size,passes:sunMap.passes,reusedPasses:sunMap.reusedPasses,cadenceMs:sunMap.cadenceMs,fallbackReason:sunMap.reason,error:gpuAvailable?gl.getError():null};}
 
 // Gauntlet 027 — atmospheric sky. A separate full-screen GPU render pass creates
 // moving cloud bands and changing daylight without adding world polygons.
@@ -819,20 +841,68 @@ function woodlandFloor(){
   }
  });livingForest.forestTriangles+=(data.length-begin)/30;
 }
-function path(points,width=1){for(let i=0;i<points.length-1;i++){
- const a=points[i],b=points[i+1],dx=b[0]-a[0],dz=b[1]-a[1],length=Math.hypot(dx,dz);
- if(length<.001)continue;
- const nx=dz/length*width*.5,nz=-dx/length*width*.5;
- // Short terrain-following road strips avoid the huge near-camera triangles that
- // made paths cut through buildings in software and hover over sloping land in WebGL.
- const n=Math.ceil(length/.9),road=rgb(0xb09d7a);
- for(let j=0;j<n;j++){
-  const t=j/n,u=(j+1)/n,x0=a[0]+dx*t,z0=a[1]+dz*t,x1=a[0]+dx*u,z1=a[1]+dz*u;
-  const p=[x0+nx,terrain(x0+nx,z0+nz)+.028,z0+nz],q=[x0-nx,terrain(x0-nx,z0-nz)+.028,z0-nz];
-  const r=[x1-nx,terrain(x1-nx,z1-nz)+.028,z1-nz],v=[x1+nx,terrain(x1+nx,z1+nz)+.028,z1+nz];
-  quad(p,q,r,v,road);
+// Decorative roads never alter A* corridors or collision footprints.
+// Subdivided, slightly irregular shoulders and scattered cobbles give broad
+// paths a believable worn edge without making an expensive decal atlas.
+const roadStats={routes:0,segments:0,shoulderSegments:0,cobblestones:0,plazaStones:0,triangles:0};
+function roadSurfacePoint(x,z,offset,nx,nz,rise){
+ const xx=x+nx*offset,zz=z+nz*offset;return [xx,terrain(xx,zz)+rise,zz];
+}
+function path(points,width=1){
+ const before=data.length;roadStats.routes++;
+ for(let i=0;i<points.length-1;i++){
+  const a=points[i],b=points[i+1],dx=b[0]-a[0],dz=b[1]-a[1],length=Math.hypot(dx,dz);
+  if(length<.001)continue;
+  const nx=dz/length,nz=-dx/length,n=Math.ceil(length/.55);
+  for(let j=0;j<n;j++){
+   const t=j/n,u=(j+1)/n;
+   const cx0=a[0]+dx*t,cz0=a[1]+dz*t,cx1=a[0]+dx*u,cz1=a[1]+dz*u;
+   const wav=(x,z)=>.055*Math.sin(x*1.7+z*.83)+.025*Math.cos(x*.53-z*2.1);
+   const half0=width*(.48+wav(cx0,cz0)),half1=width*(.48+wav(cx1,cz1));
+   const r=(x,z,k,rise=.033)=>roadSurfacePoint(x,z,k,nx,nz,rise);
+   const l0=r(cx0,cz0,half0),r0=r(cx0,cz0,-half0),r1=r(cx1,cz1,-half1),l1=r(cx1,cz1,half1);
+   const tone=rgb([0xb4a083,0xb4a78c,0xa99c80,0xb8a88b][Math.abs(Math.floor(cx0*3+cz0*7))%4]);
+   quad(l0,r0,r1,l1,tone);roadStats.segments++;
+   const shoulder0=.19+wav(cx0,cz0)*.4,shoulder1=.19+wav(cx1,cz1)*.4;
+   const outerL0=r(cx0,cz0,half0+shoulder0,.024),outerL1=r(cx1,cz1,half1+shoulder1,.024);
+   const outerR0=r(cx0,cz0,-half0-shoulder0,.024),outerR1=r(cx1,cz1,-half1-shoulder1,.024);
+   const verge=rgb(j%3===0?0x857e60:0x8c8666);
+   quad(outerL0,l0,l1,outerL1,verge);quad(r0,outerR0,outerR1,r1,verge);roadStats.shoulderSegments+=2;
+   if(j%3===0){
+    // Two wheel-worn lines; purely visual. Variation is world-position based.
+    for(const side of [-1,1]){
+     const k=side*width*.26,span=width*.048;
+     quad(r(cx0,cz0,k+span,.038),r(cx0,cz0,k-span,.038),r(cx1,cz1,k-span,.038),r(cx1,cz1,k+span,.038),rgb(0x8f8167));
+    }
+   }
+   if(j%2===0){
+    // A single shallow embedded cobble, with consistent upward winding.
+    const q=Math.sin(cx0*11.7+cz0*4.3),along=.24+.25*Math.abs(q),offset=width*.30*Math.cos(cx0*2.9+cz0*6.7);
+    const xx=cx0+dx/length*along,zz=cz0+dz/length*along,radial=width*(.13+.04*Math.abs(q)),long=.22;
+    const p=(fw,across)=>{const px=xx+(dx/length)*fw+nx*(offset+across),pz=zz+(dz/length)*fw+nz*(offset+across);return [px,terrain(px,pz)+.046,pz]};
+    quad(p(-long,-radial),p(long,-radial),p(long,radial),p(-long,radial),rgb(j%4===0?0xada791:0x9f9a83));roadStats.cobblestones++;
+   }
+  }
  }
-}}
+ roadStats.triangles+=(data.length-before)/30;
+}
+// Honest visual plaza paving around the existing market. No new buildings,
+// population, navigation obstructions, physics or simulated resources.
+function marketCourtyard(x,z){
+ const before=data.length;const accents=[0x9f9985,0xb6aa90,0x9e9d88,0xb4a997];
+ materialScope(MATERIAL.STONE,()=>{
+  for(let ring=0;ring<3;ring++){
+   const radius=1.95+ring*.53,count=24+ring*12;
+   for(let i=0;i<count;i++){
+    const a=2*Math.PI*(i+.03*Math.sin(i*7+ring))/count,r=[Math.cos(a),Math.sin(a)],t=[-r[1],r[0]];
+    const halfR=.18,halfT=radius*Math.PI/count*.64;
+    function pos(lateral,longitudinal){const px=x+r[0]*(radius+lateral)+t[0]*longitudinal,pz=z+r[1]*(radius+lateral)+t[1]*longitudinal;return [px,terrain(px,pz)+.057,pz]}
+    quad(pos(-halfR,-halfT),pos(-halfR,halfT),pos(halfR,halfT),pos(halfR,-halfT),rgb(accents[(i+ring)%accents.length]));
+    roadStats.plazaStones++;
+   }
+  }
+ });roadStats.triangles+=(data.length-before)/30;
+}
 function wheat(x,z){let y=terrain(x,z);for(let i=0;i<6;i++)for(let j=0;j<5;j++){let xx=x+(i-2.5)*.43,zz=z+(j-2)*.48,yy=terrain(xx,zz);cylinder(xx,yy,zz,.022,.6,rgb(0xbc9c56),4);cone(xx,yy+.39,zz,.12,.34,rgb([0x82b45b,0xe4c47c,0xcca45c,0xc2c9b9][climateAt(state.t).season]),4)}}
 /* Gauntlet 020: render-only deterministic joint hierarchy. */
 // Gauntlet 036: bounded human gait, shorter anatomically plausible stride,
@@ -1951,7 +2021,7 @@ const staticClimate=climateAt(state.t);
 const daylightStage=atmosphere.daylight<.55?'night':'day';
 const staticKey=nextTerrainKey+':'+daylightStage+':'+city.length;
 if(!scenicMeshCache||scenicMeshKey!==staticKey){
-data=terrainCache.slice();leafLayer.vertices=[];leafLayer.cards=0;Object.assign(livingForest,{forestTrees:0,canopyLobes:0,understoryPatches:0,forestTriangles:0});districtStats.plantedBorders=0;districtStats.plants=0;districtStats.dormers=0;distantLandscape();currentMaterial=MATERIAL.WATER;
+data=terrainCache.slice();Object.keys(roadStats).forEach(k=>roadStats[k]=0);leafLayer.vertices=[];leafLayer.cards=0;Object.assign(livingForest,{forestTrees:0,canopyLobes:0,understoryPatches:0,forestTriangles:0});districtStats.plantedBorders=0;districtStats.plants=0;districtStats.dormers=0;distantLandscape();currentMaterial=MATERIAL.WATER;
 // A winding stream through the southern side.
 // Sample each cross-section at its own river centre to eliminate jagged joins.
 for(let segment=0;segment<RIVER_SEGMENTS;segment++){
@@ -1995,7 +2065,7 @@ for(let segment=0;segment<RIVER_SEGMENTS;segment++){
 }
 currentMaterial=MATERIAL.ROAD;
  path([[-16,-7],[-8,-4],[-4,-4],[-4,3],[6,2],[14,2]],1.5);path([[0,-15],[0,-9],[-4,-4],[-4,3],[0,9],[4,15]],1.3);path([[-13,9],[-7,4],[-4,3],[7,-5],[15,-10]],1.1);
-currentMaterial=MATERIAL.FOLIAGE;
+marketCourtyard(0,5);currentMaterial=MATERIAL.FOLIAGE;
  for(const t of trees){if(Math.hypot(t.x-SCENIC_SITES.sanctuary.x,t.z-SCENIC_SITES.sanctuary.z)>8)tree(t.x,t.z,t.s);}for(const flower of wildflora)wildflower(flower);for(let i=0;i<meadowUnderstory.length;i++)meadowTuft(meadowUnderstory[i],i);currentMaterial=MATERIAL.STONE;
  for(const [x,z,k] of city){house(x,z,1,k);cottageDetails(x,z,1,k);cottageFinish(x,z,1,k)}hall(0,-1);cottageDetails(0,-1,1.85,2);cottageFinish(0,-1,1.85,2);
 // The worked spaces have identifiable props and readable boundaries.
@@ -2016,7 +2086,7 @@ currentMaterial=MATERIAL.WOOD;
 const lookHeight=citizenInspectionActive?terrain(focusPoint[0],focusPoint[1])+.98:.25;const elevation=Math.sin(pitch)*zoom+(citizenInspectionActive?lookHeight:0),rad=Math.cos(pitch)*zoom,eye=[focusPoint[0]+Math.sin(yaw)*rad,elevation,focusPoint[1]+Math.cos(yaw)*rad];let m=mat4multiply(perspective(Math.PI/3.2,w/h,.1,190),lookAt(eye,[focusPoint[0],lookHeight,focusPoint[1]],[0,1,0]));gl.uniformMatrix4fv(uniforms.viewProjection,false,m);gl.uniform3f(uniforms.fogColor,...atmosphere.fog);gl.uniform3f(uniforms.sunTint,...atmosphere.light);gl.uniform1f(uniforms.worldTime,state.t);gl.uniform3f(uniforms.eyePosition,eye[0],eye[1],eye[2]);gl.uniform3f(uniforms.sunDirection,Math.cos(state.t/24*6.283),.3+atmosphere.daylight*.9,Math.sin(state.t/24*6.283));lastFrameTriangles=(gpuAvailable?scenicMeshCache.length+data.length:data.length)/30;
 bindGeometry(buffer);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(data),gl.DYNAMIC_DRAW);
 if(gpuAvailable){
- drawSunMap(scenicMeshCache.length/10,data.length/10,atmosphere);
+ drawSunMap(scenicMeshCache.length/10,data.length/10,atmosphere,now);
  gl.uniformMatrix4fv(uniforms.lightViewProjection,false,sunMap.matrix);
  gl.uniform1f(uniforms.daylight,atmosphere.daylight);
  gl.uniform1f(uniforms.shadowEnabled,sunMap.supported?1:0);gl.uniform1f(uniforms.shadowTexel,sunMap.size?1/sunMap.size:0);
@@ -2073,6 +2143,6 @@ function initPresentation(){
 }
 
 initPresentation();
-requestAnimationFrame(render);window.__tinyKingdom={getState:()=>JSON.parse(JSON.stringify({state,people:people.map(({name,job,x,z,target})=>({name,job,x,z,target}))})),setSpeed:x=>{speed=x},step,reset:start,renderer:()=>canvas.getContext('webgl')?'webgl':'software',metrics:()=>({citizens:people.length,buildings:city.length+2,day:Math.floor(state.t/24)+1,food:state.food,wood:state.wood,gold:state.gold,relationships:people.filter(p=>p.friend).length}),route:(a,b)=>routeBetween(a[0],a[1],b[0],b[1]),walkable:(p)=>walkable(p[0],p[1]),getNavigation:()=>people.map(p=>({name:p.name,position:[p.x,p.z],target:p.target,remaining:p.path?.length||0,path:p.path,activity:p.activity,hunger:p.hunger,energy:p.energy})),exportSnapshot,restoreSnapshot,saveWorld,restoreWorld,climateAt,skyConditions,getCitizenProfiles:()=>cloneData(people.map(({name,job,trait,friend,bonds,energy,hunger,activity})=>({name,job,trait,friend,bonds,energy,hunger,activity}))),getRigPose:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(citizenRigPose(people[index])):null,getGarmentProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(garmentProfile(people[index],index,citizenRigPose(people[index]))):null,getFaceProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(faceProfile(people[index],index)):null,getSelectedCitizen:()=>people[selectedCitizen]?.name,routeCacheMetrics:()=>({entries:routeCache.size,hits:cacheHits,misses:cacheMisses}),getCamera:()=>({yaw,pitch,zoom,focus:focusPoint.slice(),follow,cinematic}),getTerrainHeight:(x,z)=>terrain(x,z),getWildfloraCount:()=>wildflora.length,getMeadowStats:()=>({clusters:meadowUnderstory.length,triangles:meadowUnderstory.length*8,season:climateAt(state.t).season,cached:true}),getMaterialSystem:()=>({vertexStride:10,surfaceShaderVersion:'linear-shadow-043',materials:Object.keys(MATERIAL),gpuRenderValidated:false}),waterStats:()=>({model:'fresnel-ripple-shorefoam-v1',segments:RIVER_SEGMENTS,waterTriangles:RIVER_SEGMENTS*RIVER_BANDS*2,bankTriangles:RIVER_SEGMENTS*2*RIVER_BANK_BANDS*2}),getScenicSites:scenicSiteMetrics,getFestivalVisualStats:()=>({season:festivalSeason,cacheBuilds:festivalCacheBuilds,vertices:festivalGeometry?.length||0}),getGeometryAudit:geometryAudit,getCraftDistrictStats:()=>({...CRAFT_DISTRICT,...craftCounters}),getCottageEffects:()=>({activeChimneys,smokePuffs,smokeTriangles,smokeMaxRadius}),renderStats:()=>({terrainRebuilds,terrainCacheKey,terrainCacheTriangles,lastFrameTriangles,scenicMeshRebuilds,scenicMeshTriangles,scenicMeshKey,staticGpuUploads,dualBufferGPU:gpuAvailable}),getFoliageStats:foliageStats,getLivingPresentationStats:livingPresentationStats,inspectCitizen,getCitizenInspection:citizenInspection,getPresentationStats:presentationStats,setInspector,setGraphicsPreset,getDistrictStats:()=>({...districtStats}),getLightingStats:lightingStats,renderQuality,setRenderQuality,shadowStats:()=>({triangles:castShadowTriangles,...sunShadow(state.t)}),sampleSunShadow:(time)=>sunShadow(time),getEconomyHistory:()=>cloneData(uiHistory),getHudMode:()=>cinematicHud?'cinema':'full',setHudMode:setCinematicHud,getCommandView:()=>commandView,setCommandView,skyStats:()=>({enabled:gpuAvailable,passes:skyPassCount,model:'day-night-atmosphere-v1'}),setCamera:o=>{exitCitizenInspection();yaw=Number.isFinite(o.yaw)?o.yaw:yaw;pitch=Number.isFinite(o.pitch)?Math.max(.25,Math.min(1.45,o.pitch)):pitch;zoom=Number.isFinite(o.zoom)?Math.max(9,Math.min(85,o.zoom)):zoom;if(Array.isArray(o.focus)&&o.focus.length===2)focusPoint=o.focus.slice(0,2)}};
+requestAnimationFrame(render);window.__tinyKingdom={getState:()=>JSON.parse(JSON.stringify({state,people:people.map(({name,job,x,z,target})=>({name,job,x,z,target}))})),setSpeed:x=>{speed=x},step,reset:start,renderer:()=>canvas.getContext('webgl')?'webgl':'software',metrics:()=>({citizens:people.length,buildings:city.length+2,day:Math.floor(state.t/24)+1,food:state.food,wood:state.wood,gold:state.gold,relationships:people.filter(p=>p.friend).length}),route:(a,b)=>routeBetween(a[0],a[1],b[0],b[1]),walkable:(p)=>walkable(p[0],p[1]),getNavigation:()=>people.map(p=>({name:p.name,position:[p.x,p.z],target:p.target,remaining:p.path?.length||0,path:p.path,activity:p.activity,hunger:p.hunger,energy:p.energy})),exportSnapshot,restoreSnapshot,saveWorld,restoreWorld,climateAt,skyConditions,getCitizenProfiles:()=>cloneData(people.map(({name,job,trait,friend,bonds,energy,hunger,activity})=>({name,job,trait,friend,bonds,energy,hunger,activity}))),getRigPose:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(citizenRigPose(people[index])):null,getGarmentProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(garmentProfile(people[index],index,citizenRigPose(people[index]))):null,getFaceProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(faceProfile(people[index],index)):null,getSelectedCitizen:()=>people[selectedCitizen]?.name,routeCacheMetrics:()=>({entries:routeCache.size,hits:cacheHits,misses:cacheMisses}),getCamera:()=>({yaw,pitch,zoom,focus:focusPoint.slice(),follow,cinematic}),getTerrainHeight:(x,z)=>terrain(x,z),getWildfloraCount:()=>wildflora.length,getMeadowStats:()=>({clusters:meadowUnderstory.length,triangles:meadowUnderstory.length*8,season:climateAt(state.t).season,cached:true}),getMaterialSystem:()=>({vertexStride:10,surfaceShaderVersion:'linear-shadow-043',materials:Object.keys(MATERIAL),gpuRenderValidated:false}),waterStats:()=>({model:'fresnel-ripple-shorefoam-v1',segments:RIVER_SEGMENTS,waterTriangles:RIVER_SEGMENTS*RIVER_BANDS*2,bankTriangles:RIVER_SEGMENTS*2*RIVER_BANK_BANDS*2}),getScenicSites:scenicSiteMetrics,getFestivalVisualStats:()=>({season:festivalSeason,cacheBuilds:festivalCacheBuilds,vertices:festivalGeometry?.length||0}),getGeometryAudit:geometryAudit,getCraftDistrictStats:()=>({...CRAFT_DISTRICT,...craftCounters}),getCottageEffects:()=>({activeChimneys,smokePuffs,smokeTriangles,smokeMaxRadius}),renderStats:()=>({terrainRebuilds,terrainCacheKey,terrainCacheTriangles,lastFrameTriangles,scenicMeshRebuilds,scenicMeshTriangles,scenicMeshKey,staticGpuUploads,dualBufferGPU:gpuAvailable}),getFoliageStats:foliageStats,getLivingPresentationStats:livingPresentationStats,inspectCitizen,getCitizenInspection:citizenInspection,getPresentationStats:presentationStats,setInspector,setGraphicsPreset,getDistrictStats:()=>({...districtStats}),getRoadStats:()=>({...roadStats}),getLightingStats:lightingStats,renderQuality,setRenderQuality,shadowStats:()=>({triangles:castShadowTriangles,...sunShadow(state.t)}),sampleSunShadow:(time)=>sunShadow(time),getEconomyHistory:()=>cloneData(uiHistory),getHudMode:()=>cinematicHud?'cinema':'full',setHudMode:setCinematicHud,getCommandView:()=>commandView,setCommandView,skyStats:()=>({enabled:gpuAvailable,passes:skyPassCount,model:'day-night-atmosphere-v1'}),setCamera:o=>{exitCitizenInspection();yaw=Number.isFinite(o.yaw)?o.yaw:yaw;pitch=Number.isFinite(o.pitch)?Math.max(.25,Math.min(1.45,o.pitch)):pitch;zoom=Number.isFinite(o.zoom)?Math.max(9,Math.min(85,o.zoom)):zoom;if(Array.isArray(o.focus)&&o.focus.length===2)focusPoint=o.focus.slice(0,2)}};
 })();
 </script></body></html>

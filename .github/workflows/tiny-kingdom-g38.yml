@@ -1,0 +1,134 @@
+name: Tiny Kingdom Gauntlet 038 verification
+on:
+  workflow_dispatch:
+  push:
+    branches: [feat/tiny-kingdom-g38-road-shadow-budget]
+    paths:
+      - '.github/workflows/tiny-kingdom-g38.yml'
+      - 'scripts/gauntlet38-*'
+      - 'scripts/tiny-kingdom-g38-stage.py'
+      - 'scripts/capture-tiny-g38.cjs'
+      - 'tests/tiny-kingdom/scenic-budget.test.cjs'
+permissions:
+  contents: read
+concurrency:
+  group: tiny-kingdom-g38
+  cancel-in-progress: false
+jobs:
+  verify:
+    if: github.ref == 'refs/heads/feat/tiny-kingdom-g38-road-shadow-budget'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: write
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Apply exact patch to known prior game
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/g38
+          echo '42e1dc44ab68c1fafefc31365aca0d1c563b5a4bde52a4df75595063978324d9  public/tiny-kingdom/index.html' | sha256sum -c -
+          python scripts/tiny-kingdom-g38-stage.py | tee artifacts/g38/stage.log
+          echo '1a32bee1f33be8cb5cfd8a848ef9e3bcfea7b1fdc7b2af00d71ed02e7579f3fb  public/tiny-kingdom/index.html' | sha256sum -c -
+          git diff --check
+      - name: Focused Tiny Kingdom tests, including new road and shadow checks
+        run: |
+          set -euo pipefail
+          node --test tests/tiny-kingdom/*.test.cjs | tee artifacts/g38/focused.log
+      - name: Compile and check stream server
+        run: |
+          set -euo pipefail
+          npm run build | tee artifacts/g38/build.log
+          npm run tiny:stream:self-test | tee artifacts/g38/stream.log
+      - name: Existing Tiny Kingdom browser suite
+        run: |
+          timeout 480 npx playwright test --config playwright.tiny.config.cjs > artifacts/g38/browser.log 2>&1
+          tail -25 artifacts/g38/browser.log
+      - name: Full catalogue regression gate
+        run: |
+          timeout 360 npm test > artifacts/g38/catalogue.log 2>&1
+          tail -28 artifacts/g38/catalogue.log
+      - name: Reproducible WebGL baseline and candidate captures
+        run: |
+          set -euo pipefail
+          node scripts/capture-tiny-g38.cjs artifacts/g38 | tee artifacts/g38/capture.log
+      - name: Publish reviewed candidate on isolated branch only
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import hashlib,json,re,shutil
+          from pathlib import Path
+          work=Path('artifacts/g38');dest=Path('public/tiny-kingdom')
+          ev=json.loads((work/'g38-evidence.json').read_text())
+          h=hashlib.sha256((dest/'index.html').read_bytes()).hexdigest()
+          assert ev['candidate']['sha256']==h
+          assert ev['baseline']['sha256']=='42e1dc44ab68c1fafefc31365aca0d1c563b5a4bde52a4df75595063978324d9'
+          assert not ev['candidate']['pageErrors'] and not ev['baseline']['pageErrors']
+          for name in ['g38-before-market.png','g38-after-market.png','g38-evidence.json']:
+              shutil.copyfile(work/name,dest/name)
+          server=Path('scripts/serve-tiny-kingdom-stream.cjs')
+          s=server.read_text();anchor=" ['/tiny/living','living.html'],['/tiny/living.html','living.html'],"
+          insert=""" ['/tiny/g38','g38.html'],['/tiny/g38.html','g38.html'],
+          ...['g38-before-market.png','g38-after-market.png','g38-evidence.json','g38-verification.json'].map(name=>['/tiny/'+name,name]),
+          """ + anchor
+          if anchor not in s:raise RuntimeError('Server routing contract changed')
+          server.write_text(s.replace(anchor,insert,1))
+          progress=dest/'progress.html';s=progress.read_text()
+          banner='<p><a href="g38">New: real village road surfacing and shadow budget — benchmark NOT PASSED</a></p>'
+          if banner not in s:progress.write_text(s.replace('<body>','<body>\n'+banner+'\n',1))
+          living=dest/'living.html';s=living.read_text()
+          link='<p><a href="g38">Next Gauntlet checkpoint: road and shadow optimization</a></p>'
+          if link not in s:living.write_text(s.replace('<h1>Leaves, faces and daily life.</h1>','<h1>Leaves, faces and daily life.</h1>'+link,1))
+          focused=(work/'focused.log').read_text()
+          catalogue=(work/'catalogue.log').read_text()
+          browser=(work/'browser.log').read_text()
+          def count(s,name):
+              m=re.search(r'^# '+name+r' (\d+)$',s,re.M)
+              if not m:raise RuntimeError('No final '+name+' test total')
+              return int(m.group(1))
+          if count(focused,'fail') or count(catalogue,'fail'):raise RuntimeError('Tests failed')
+          m=re.search(r'(\d+) passed',browser)
+          if not m:raise RuntimeError('Browser summary missing')
+          record={'focusedPassed':count(focused,'pass'),'browserPassed':int(m.group(1)),'cataloguePassed':count(catalogue,'pass'),'catalogueFailed':0,
+                  'sourceSha256':h,'benchmarkPassed':False,'independentCritic':False,'productionReady':False}
+          (work/'g38-verification.json').write_text(json.dumps(record,indent=2))
+          shutil.copyfile(work/'g38-verification.json',dest/'g38-verification.json')
+          PY
+          npm run tiny:stream:self-test | tee artifacts/g38/final-stream.log
+          node - <<'NODE'
+          const {createServer}=require('./scripts/serve-tiny-kingdom-stream.cjs');
+          (async()=>{let s=createServer();await new Promise(r=>s.listen(0,'127.0.0.1',r));try{
+          const url='http://127.0.0.1:'+s.address().port;
+          for(const [p,type] of [['/tiny/g38','text/html'],['/tiny/g38-after-market.png','image/png'],['/tiny/g38-evidence.json','application/json']]){
+           const r=await fetch(url+p);if(r.status!==200||!r.headers.get('content-type').includes(type))throw Error(p+' broken');
+          }if((await fetch(url+'/tiny/.env')).status===200)throw Error('Unsafe path');console.log('G38 routes PASS');
+          }finally{await new Promise(r=>s.close(r))}})().catch(e=>{console.error(e);process.exitCode=1});
+          NODE
+          test "$GITHUB_REF" = refs/heads/feat/tiny-kingdom-g38-road-shadow-budget
+          test "$(git ls-remote origin refs/heads/feat/tiny-kingdom-g38-road-shadow-budget | cut -f1)" = "$GITHUB_SHA"
+          git add public/tiny-kingdom/index.html public/tiny-kingdom/g38-* public/tiny-kingdom/living.html public/tiny-kingdom/progress.html scripts/serve-tiny-kingdom-stream.cjs
+          git diff --cached --check
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'feat(tiny-kingdom): verify terrain roads and shadow update budgeting'
+          git push origin HEAD:refs/heads/feat/tiny-kingdom-g38-road-shadow-budget
+          git rev-parse HEAD > artifacts/g38/verified-commit.txt
+          git archive --format=tar HEAD | gzip > artifacts/g38/verified-source.tar.gz
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tiny-kingdom-g38-evidence
+          path: artifacts/g38
+          retention-days: 14
+          if-no-files-found: error
