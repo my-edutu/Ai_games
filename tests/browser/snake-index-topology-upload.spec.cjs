@@ -13,6 +13,12 @@ const evidence = name => { const directory=path.join(repo,'artifacts/phase3');fs
 test('real WebGL overview and detail preserve exact prior pixels while unnecessary body index reuploads are avoided', async ({browser,baseURL}) => {
   test.setTimeout(150000);
   const frame=JSON.parse(fs.readFileSync(path.join(repo,'docs/reviews/snake-gauntlet/round-4-public-frame.json'),'utf8'));
+  // This is a controlled *synthetic* screenshot fixture, not live gameplay.
+  // Its original dangerLevel=1 drives eased eye/face poses: captures at 4 vs 5
+  // rendered frames differ by nine 1/255 face pixels independently of indices.
+  // Freeze this unrelated easing stimulus to preserve the exact-zero pixel
+  // parity threshold; separate danger/active-trap tests use their own fixtures.
+  frame.snapshot.dangerLevel=0;
   const publicBytes=JSON.stringify(frame);
   const current=fs.readFileSync(path.join(repo,'public/snake-stream/serpent.mjs'),'utf8');
   expect((current.match(blocks)||[]).length).toBe(7);
