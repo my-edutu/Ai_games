@@ -81,10 +81,12 @@ const actors=new Map(),world=new THREE.Group();scene.add(world);
 const combatOverlay=createCombatOverlay($('battle-overlay'));
 const combatDirector=createCombatDirector(scene,{reducedMotion:reduced});
 const floorThemes=[
- {sky:'#0b2032',fog:'#143047',torch:'#ffb45c',accent:'#5cf1d2',fill:'#75adcf'},
- {sky:'#291324',fog:'#341b2e',torch:'#ffaf55',accent:'#fe806f',fill:'#a66d9a'},
- {sky:'#101b3b',fog:'#1a2452',torch:'#82f7ef',accent:'#72bbff',fill:'#648ed5'},
- {sky:'#251343',fog:'#2f1b4d',torch:'#d39bff',accent:'#fc91c8',fill:'#aa8ae2'}
+ // Slightly lifted shadow backdrop keeps camera-wide empty corners
+ // legible without adding full-screen bloom or false glow sources.
+ {sky:'#152a3b',fog:'#143047',torch:'#ffb45c',accent:'#5cf1d2',fill:'#75adcf'},
+ {sky:'#311c2d',fog:'#341b2e',torch:'#ffaf55',accent:'#fe806f',fill:'#a66d9a'},
+ {sky:'#1a2543',fog:'#1a2452',torch:'#82f7ef',accent:'#72bbff',fill:'#648ed5'},
+ {sky:'#321e50',fog:'#2f1b4d',torch:'#d39bff',accent:'#fc91c8',fill:'#aa8ae2'}
 ];let lastCutawayKey='';
 const cachedVec=new THREE.Vector3(),cachedQuat=new THREE.Quaternion(),cachedScale=new THREE.Vector3(),cachedMatrix=new THREE.Matrix4();
 // The camera follows one hero, but every living party member needs a clear view.
@@ -203,7 +205,7 @@ function disposeActor(a){
 }
 function clearWorld(){combatDirector.reset();world.userData.livingWorld?.dispose();world.userData.livingWorld=null;world.userData.atmosphere?.dispose();world.userData.atmosphere=null;world.userData.dressing?.dispose();world.userData.dressing=null;while(world.children.length){const obj=world.children[0];world.remove(obj);obj.traverse(o=>{if(o.geometry&&!o.userData.sharedAssetGeometry&&!Object.values(geo).includes(o.geometry))o.geometry.dispose();if(o.material&&!o.userData.sharedAssetGeometry&&!Object.values({stone,stoneEdge,floorMat,gold,black,tealGlow,dangerGlow}).includes(o.material)){const mats=Array.isArray(o.material)?o.material:[o.material];for(const m of mats)m.dispose()}})}for(const a of actors.values())disposeActor(a);actors.clear()}
 function buildWorld(s){clearWorld();worldFloor=s.run+'-'+s.floor;world.userData.sceneKey=worldFloor;world.userData.foregroundProps=[];lastCutawayKey='';
- const theme=floorThemes[(s.floor-1)%floorThemes.length];scene.background=new THREE.Color(theme.sky);scene.fog.color.set(theme.fog);moon.color.set(theme.fill);ambient.intensity=1.7;
+ const theme=floorThemes[(s.floor-1)%floorThemes.length];scene.background=new THREE.Color(theme.sky);scene.fog.color.set(theme.fog);moon.color.set(theme.fill);ambient.intensity=1.95;
  const floors=[],walls=[],trim=[];const size=s.map.length,offset=Math.floor(size/2);
   const wallProfiles=planDungeonWallProfiles(s.map,s.floor),wallHeights=wallProfiles.map(p=>p.height);
  for(let z=0;z<size;z++)for(let x=0;x<size;x++){
