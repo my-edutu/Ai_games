@@ -694,7 +694,30 @@ function climateAt(time){
  const yieldMultiplier=([1.08,1.34,1.13,.68][season])*(weather==='rain'?1.17:weather==='snow'?.89:1);
  return {day,year:Math.floor((day-1)/YEAR_DAYS)+1,season,seasonName:SEASONS[season],weather,yieldMultiplier,temperature:[15,26,13,-2][season]+(weather==='clear'?2:weather==='snow'?-4:0)};
 }
-function terrain(x,z){const d=Math.hypot(x,z),edge=Math.max(0,Math.min(1,(d-24)/18));const upland=edge*edge*(2.8+1.8*Math.sin(x*.18+z*.11)*Math.cos(z*.24));return .13*Math.sin(x*.32)*Math.cos(z*.24)+.7*Math.pow(Math.abs(x)/40,2)+.25*Math.pow(Math.abs(z)/38,2)+upland}
+// G061: world-anchored highland folds and weathered drainage channels.
+// This is *real elevation geometry*, sampled by the terrain VBO, normals,
+// roads, trees and villagers; it adds zero triangles or seeded RNG draws.
+// Inhabited basin (radius <=24) is bitwise unchanged. Smooth radial onset
+// prevents a circular terrain seam at the crest of the playable valley.
+function highlandRidgeRelief(x,z){
+ const e=Math.max(0,Math.min(1,(Math.hypot(x,z)-24)/18));
+ if(e===0)return 0;
+ const fade=e*e*(3-2*e);
+ // Two differently directed, domain-warped systems avoid concentric hills.
+ const warped=x*.137-z*.094+.36*Math.sin(z*.116-x*.047)+.23*Math.sin(x*.063+z*.082);
+ const crest=Math.pow(1-Math.abs(Math.sin(warped)),3.2);
+ const drainage=x*.112+z*.147+.43*Math.sin(z*.073-x*.051);
+ const eroded=Math.pow(1-Math.abs(Math.sin(drainage)),3.5);
+ const strata=Math.sin(x*.18-z*.12+.6*Math.sin(z*.075));
+ return fade*(1.45*(crest-.25)-.63*(eroded-.25)+.29*strata);
+}
+function terrain(x,z){
+ const d=Math.hypot(x,z),edge=Math.max(0,Math.min(1,(d-24)/18));
+ const upland=edge*edge*(2.8+1.8*Math.sin(x*.18+z*.11)*Math.cos(z*.24));
+ return .13*Math.sin(x*.32)*Math.cos(z*.24)+
+  .7*Math.pow(Math.abs(x)/40,2)+.25*Math.pow(Math.abs(z)/38,2)+upland+
+  highlandRidgeRelief(x,z);
+}
 // Continuous grass vertex colours and normals remove the obvious checkerboard mesh.
 // G050 ecological material factors are pure presentation parameters; neither
 // these functions nor the GPU shader can touch authoritative seeded RNG.
