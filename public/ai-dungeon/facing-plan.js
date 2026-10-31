@@ -51,3 +51,23 @@ export function approachCharacterYaw(current,desired,dt,reducedMotion=false){
  const changed=from+Math.sign(difference)*Math.min(Math.abs(difference),limit);
  return Math.atan2(Math.sin(changed),Math.cos(changed));
 }
+
+/**
+ * Resolve a combat CONTACT from one immutable public authority snapshot.
+ * Never infer a projectile from proximity alone: the target must be the
+ * same nearest opponent eligible under the real grid, range and wall rules.
+ * Ordinary mystic casts may be offensive; an authoritative healing event
+ * rules those out without guessing from localized event text.
+ * Radial Warden casts and ranger trap-disarms have no hostile contact.
+ */
+export function planVisualContact(unit,snapshot){
+ if(!unit||!snapshot||!Array.isArray(snapshot.units))return null;
+ if(unit.action==='attack')return planCombatFacing(unit,snapshot.units,snapshot.map);
+ if(unit.action!=='cast'||(unit.kind!=='mystic'&&unit.kind!=='cultist'))return null;
+ if(unit.kind==='mystic'&&unit.faction==='party'&&Number.isSafeInteger(snapshot.tick)&&
+    Array.isArray(snapshot.events)&&snapshot.events.some(e=>e?.kind==='healing'&&e.tick===snapshot.tick))return null;
+ // Mystic offensive casts use the authoritative 3-cell attack lane.
+ // Cultist shadow-bolt casts use the planner's existing 3-cell cast lane.
+ const aimed=unit.kind==='mystic'?{...unit,action:'attack'}:unit;
+ return planCombatFacing(aimed,snapshot.units,snapshot.map);
+}
