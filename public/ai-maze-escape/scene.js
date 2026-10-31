@@ -398,10 +398,11 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
         }
         desiredTarget.x += focus.x;
         desiredTarget.z += focus.z;
-        // At tighter sealed-gate scale, lift the camera's aim slightly so
-        // the already-disclosed masonry arch is not clipped by the top rim.
+        // Actual pass-27 portrait and desktop captures show the arch cut by the
+        // tighter key/lock shot. Raise only that truthful encounter's aim,
+        // retaining Pip and the physical barrier within the existing frame.
         // Only presentation moves; no secret topology or AI state is read.
-        if (nearObservedGate) desiredTarget.y += keyLockCloseup ? .46 : .36;
+        if (nearObservedGate) desiredTarget.y += keyLockCloseup ? .80 : .36;
       }
       // A *source-disclosed* locked obstacle and Pip should occupy a clear
       // shared gameplay shot. The former ordering always selected the generic
