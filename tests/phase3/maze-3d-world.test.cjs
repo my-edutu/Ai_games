@@ -84,6 +84,20 @@ test('a publicly observed locked gate has an unmistakable seal and an open gate 
   assert.equal(bars.visible, true);
   assert.equal(seal.children.length, 2, 'two crossing braces should read as a closed gate from the follow camera');
   assert.ok(seal.children.every(child => child.isMesh && child.visible));
+  assert.ok(seal.children.every(child => child.position.z > .2),
+    'both warning diagonals must sit ahead of the bars, toward the +X/+Z follow camera');
+  const lock = bars.children.find(child => child.isMesh && Math.abs(child.position.x) < .01
+    && Math.abs(child.position.y - .85) < .01 && child.position.z > .5);
+  assert.ok(lock, 'the lock face must be in front of the crossed seal rather than hidden by the bars');
+
+  // The same local near face is +Z for north/south openings and rotates to +X
+  // for east/west openings, matching the fixed isometric camera offset.
+  const northSouth = {...fixture([{cell: 24, neighbors: [31]}, {cell: 31, neighbors: [24]}]),
+    doors: [{...door, a: 24, b: 31}]};
+  world.update(northSouth);
+  const vertical = world.group.getObjectByName('Disclosed sealed gate');
+  assert.ok(vertical, 'the other gate orientation stays source-disclosed and modeled');
+  assert.ok(vertical.getObjectByName('Closed crossed barrier').children.every(child => child.position.z > .2));
 
   world.update({...closed, doors: [{...door, open: true}]});
   assert.equal(world.group.getObjectByName('Disclosed sealed gate'), undefined);

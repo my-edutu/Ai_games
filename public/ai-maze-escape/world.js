@@ -409,14 +409,17 @@ export function createMazeWorld(options = {}) {
       // at the normal isometric camera scale. Nothing is created for open
       // gates or undisclosed doors; the actual movement rules do not change.
       const seal = new THREE.Group(); seal.name = 'Closed crossed barrier'; gate.add(seal);
+      // Both axis-aligned gate normals point toward the fixed follow camera
+      // (+X/+Z). Keep the crossed seal and lock on that near face rather than
+      // behind the physical bars, where a normal isometric view hid them.
       for (const tilt of [-.72, .72]) {
-        mesh(seal, bevel, danger, 0, .79, -.16, 1.66, .16, .18, 0, 0, tilt);
+        mesh(seal, bevel, danger, 0, .79, .24, 1.8, .2, .2, 0, 0, tilt);
       }
-      mesh(gate, bevel, darkMetal, 0, .88, -.32, .49, .48, .14);
-      mesh(gate, ring, gold, 0, 1.1, -.40, .21, .25, .21);
-      mesh(gate, bevel, gold, 0, .85, -.42, .43, .4, .17);
-      mesh(gate, cylinder, darkMetal, 0, .9, -.53, .055, .014, .055, Math.PI / 2);
-      mesh(gate, box, darkMetal, 0, .83, -.54, .045, .1, .012);
+      mesh(gate, bevel, darkMetal, 0, .88, .43, .49, .48, .14);
+      mesh(gate, ring, gold, 0, 1.1, .51, .21, .25, .21);
+      mesh(gate, bevel, gold, 0, .85, .53, .43, .4, .17);
+      mesh(gate, cylinder, darkMetal, 0, .9, .65, .055, .014, .055, Math.PI / 2);
+      mesh(gate, box, darkMetal, 0, .83, .66, .045, .1, .012);
     }
   }
   function trapProp(c, s) {
