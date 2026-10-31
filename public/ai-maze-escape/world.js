@@ -388,7 +388,8 @@ export function createMazeWorld(options = {}) {
   function doorProp(door, s) {
     if (!s.cells.some(c => c.cell === door.a || c.cell === door.b)) return;
     const a = cellPosition(door.a, s.width, s.height), b = cellPosition(door.b, s.width, s.height);
-    const p = new THREE.Group(); const disclosedEnds = [door.a, door.b].filter(cell => s.cells.some(c => c.cell === cell));
+    const p = new THREE.Group(); p.name = door.open ? 'Disclosed open gate' : 'Disclosed sealed gate';
+    const disclosedEnds = [door.a, door.b].filter(cell => s.cells.some(c => c.cell === cell));
     p.position.set((a.x + b.x) / 2, Math.max(...disclosedEnds.map(cell => cellHeight(cell, s.width, s.height))), (a.z + b.z) / 2); p.rotation.y = a.x === b.x ? 0 : Math.PI / 2; objects.add(p);
     for (const sign of [-1, 1]) {
       mesh(p, bevel, deepStone, sign * .91, .1, 0, .43, .2, .51);
@@ -398,16 +399,24 @@ export function createMazeWorld(options = {}) {
     }
     mesh(p, bevel, stone, 0, 1.83, 0, 2.24, .23, .47);
     mesh(p, bevel, darkJade, 0, 1.68, 0, 1.5, .08, .35);
-    const gate = new THREE.Group(); p.add(gate);
+    const gate = new THREE.Group(); gate.name = 'Withdrawable gate bars'; p.add(gate);
     // The raised gate is withdrawn into the lintel, leaving a fully clear opening.
     gate.visible = !door.open;
     for (let j = 0; j < 5; j++) mesh(gate, cylinder, darkMetal, -.64 + j * .32, .79, 0, .035, 1.45, .035);
     for (const y of [.22, 1.37]) mesh(gate, bevel, darkMetal, 0, y, 0, 1.6, .1, .12);
     if (!door.open) {
-      mesh(gate, ring, gold, 0, 1.1, -.13, .21, .25, .21);
-      mesh(gate, bevel, gold, 0, .85, -.16, .43, .4, .17);
-      mesh(gate, cylinder, darkMetal, 0, .9, -.255, .055, .014, .055, Math.PI / 2);
-      mesh(gate, box, darkMetal, 0, .83, -.265, .045, .1, .012);
+      // A broad coral X makes a *known closed* passage visibly impassable
+      // at the normal isometric camera scale. Nothing is created for open
+      // gates or undisclosed doors; the actual movement rules do not change.
+      const seal = new THREE.Group(); seal.name = 'Closed crossed barrier'; gate.add(seal);
+      for (const tilt of [-.72, .72]) {
+        mesh(seal, bevel, danger, 0, .79, -.16, 1.66, .16, .18, 0, 0, tilt);
+      }
+      mesh(gate, bevel, darkMetal, 0, .88, -.32, .49, .48, .14);
+      mesh(gate, ring, gold, 0, 1.1, -.40, .21, .25, .21);
+      mesh(gate, bevel, gold, 0, .85, -.42, .43, .4, .17);
+      mesh(gate, cylinder, darkMetal, 0, .9, -.53, .055, .014, .055, Math.PI / 2);
+      mesh(gate, box, darkMetal, 0, .83, -.54, .045, .1, .012);
     }
   }
   function trapProp(c, s) {
