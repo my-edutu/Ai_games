@@ -214,9 +214,9 @@ function buildWorld(s){clearWorld();worldFloor=s.run+'-'+s.floor;world.userData.
     const image=ctx.createImageData(128,128);image.data.set(pixels);ctx.putImageData(image,0,0);
     const next=new THREE.CanvasTexture(canvas);
     next.colorSpace=THREE.SRGBColorSpace;next.wrapS=next.wrapT=THREE.RepeatWrapping;next.anisotropy=4;
-    stone.map=next;stone.bumpMap=next;stone.bumpScale=.04;
-    stone.color.set('#e4e9eb');stone.needsUpdate=true;
     wallMasonryTexture?.dispose();wallMasonryTexture=next;
+    stone.map=wallMasonryTexture;stone.bumpMap=wallMasonryTexture;stone.bumpScale=.04;
+    stone.color.set('#e4e9eb');stone.needsUpdate=true;
    }
   }
  }catch(error){console.warn('[DUNGEON] original masonry texture unavailable, retaining simple wall material:',String(error))}
