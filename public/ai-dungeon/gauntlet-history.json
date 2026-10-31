@@ -134,25 +134,37 @@
     {
       "round": 19,
       "at": "2026-10-31",
-      "commit": null,
-      "status": "IMPLEMENTED; ACTUAL WEBGL/CI PENDING; VISUAL BAR NOT MET",
-      "sampleSeeds": 0,
-      "ticksPerSeed": 0,
-      "highestFloor": 0,
-      "determinismFailures": null,
-      "visualVerdict": "Added deterministic visual-only exposed-wall crown variation and integrated the existing hero cutaway; local pure-map red/green tests 3/3. No new matched screenshot or browser evidence yet. Repetitive masonry and simple hero rigs still below Diablo IV reference.",
+      "commit": "8c29d54cb886f12ba4fd602d57cea078feb6ea6e",
+      "status": "FIRST R19 BROWSER 42/43: 1 SCREENSHOT TIMEOUT; RECHECK PENDING; VISUAL BAR NOT MET",
+      "sampleSeeds": 24,
+      "ticksPerSeed": 900,
+      "highestFloor": 9,
+      "determinismFailures": 0,
+      "visualVerdict": "Genuine matched seeded R18/R19 WebGL inspected: changed irregular masonry top contours, but scene remains visibly dark, repetitive and low-detail relative to Diablo IV. Unblinded inspection only. Initial 43 browser test run has 1 screenshot-timeout failure; full gate not passed.",
       "evidenceMetrics": {
         "localWallProfileTestsPassed": 3,
         "distinctHeightBandsPlanned": 5,
-        "fullBrowserTestsPassed": null,
-        "independentBlindComparison": false
+        "fullBrowserTestsPassed": 42,
+        "independentBlindComparison": false,
+        "headlessSeeds": 24,
+        "ticksPerSeed": 900,
+        "fullBrowserTestsFailed": 1,
+        "fullBrowserFailureType": "Playwright second full-page screenshot exceeded 60s test timeout",
+        "dedicatedInterfaceTestsPassed": 10,
+        "repoSoftwareTestsPassed": 538,
+        "repoBrowserTestsPassed": 15
       },
       "verification": {
         "browserRun": null,
         "independentReview": false,
-        "productionReady": false
+        "productionReady": false,
+        "firstBrowserRun": 41175209773,
+        "visualReviewRun": 41175209789,
+        "integratedCIRun": 41175209778,
+        "secondBrowserRun": null
       },
-      "nextLargestGap": "Original higher-detail hero/enemy models and authored material/animation quality; actual matched WebGL scene critique required."
+      "nextLargestGap": "Original higher-detail hero/enemy models and authored material/animation quality; actual matched WebGL scene critique required.",
+      "artifactUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41175209789/artifacts/13032609012"
     }
   ]
 }

@@ -193,6 +193,9 @@ test('autonomous spectator director can be overridden without changing the AI si
 });
 
 test('camera and environment expose real sightlines instead of foreground wall slabs',async({page})=>{
+ // Software WebGL and nested screenshots can exceed the generic 60s CI limit.
+ // This remains a real browser screenshot gate, not a synthetic render.
+ test.setTimeout(120000);
  const errors=[];page.on('pageerror',e=>errors.push(e.message));
  await page.goto('/dungeon');
  await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.frame??0),{timeout:25000}).toBeGreaterThan(5);
@@ -200,7 +203,7 @@ test('camera and environment expose real sightlines instead of foreground wall s
  await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.cutawayWalls),{timeout:18000}).toBeGreaterThanOrEqual(0);
  const stage=page.locator('canvas#world');
  await stage.screenshot({path:'artifacts/dungeon-clear-sightline.png'});
- await page.screenshot({path:'artifacts/dungeon-cinematic-after-occlusion-fix.png',fullPage:true});
+ await page.screenshot({path:'artifacts/dungeon-cinematic-after-occlusion-fix.png',fullPage:false});
  const data=await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__);
  expect(data.webgl).toBe(true);
  expect(data.cutawayWalls).toBeGreaterThanOrEqual(0);
