@@ -165,6 +165,25 @@ export function publicStageBias(snapshot) {
   return {x: rightX * shift, z: rightZ * shift};
 }
 
+/**
+ * Camera-only offset. Callers pass the sanitized/public stage bias and a
+ * world-space delta to an already-disclosed reachable landmark. It says
+ * nothing about safety, AI intent or hidden geometry. Keep the near-goal
+ * hero/landmark framing, but give the known stage room beside open water.
+ */
+export function composePublicCameraFocus(stageBias, goalDelta, nearGoal = false, aspect = 1) {
+  const finite = value => Number.isFinite(value) ? value : 0;
+  const stageWeight = nearGoal ? .58 : aspect < .9 ? .23 : 1;
+  const goalWeight = nearGoal ? .24 : 0;
+  const x = finite(stageBias?.x) * stageWeight + finite(goalDelta?.x) * goalWeight;
+  const z = finite(stageBias?.z) * stageWeight + finite(goalDelta?.z) * goalWeight;
+  // In close framing the explorer must remain in view: bound both combined
+  // pulls rather than separately clipping components into a diagonal drift.
+  const limit = nearGoal ? 2.5 : 2.75;
+  const scale = Math.min(1, limit / (Math.hypot(x, z) || 1));
+  return {x: x * scale, z: z * scale};
+}
+
 export function drawMinimap(canvas, snapshot, highContrast = false) {
   if (!canvas || !snapshot) return;
   const context = canvas.getContext('2d');
