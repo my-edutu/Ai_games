@@ -449,6 +449,11 @@ export function createTowerScene(canvas, settings = {}) {
   const healthBarDark = ownMaterial(new THREE.MeshBasicMaterial({ color: 0x172329, transparent: true, opacity: .88, depthTest: false, depthWrite: false }));
   const healthBarRed = ownMaterial(new THREE.MeshBasicMaterial({ color: 0xff9867, transparent: true, opacity: 1, depthTest: false, depthWrite: false }));
   const warningMaterial = ownMaterial(new THREE.MeshBasicMaterial({ color: 0xffcb75, transparent: true, opacity: .65, depthWrite: false }));
+  // A restrained, depth-tested contact outline survives low quality and reduced
+  // motion, where expensive particle bursts are intentionally disabled.
+  const impactMaterial = ownMaterial(new THREE.MeshBasicMaterial({
+    color: 0xfff0bd, transparent: true, opacity: .92, depthTest: true, depthWrite: false, toneMapped: false,
+  }));
   const landingCue = new THREE.Mesh(ownGeometry(createLandingCueGeometry()), ownMaterial(new THREE.MeshBasicMaterial({ color: 0xffffff, vertexColors: true, depthWrite: false, side: THREE.DoubleSide, toneMapped: false,
     polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 })));
   landingCue.name = 'IntendedLandingEdge';
@@ -530,7 +535,7 @@ export function createTowerScene(canvas, settings = {}) {
   resize();
 
   function removeEnemy(entry) {
-    scene.remove(entry.model.group, entry.bar, entry.warning);
+    scene.remove(entry.model.group, entry.bar, entry.warning, entry.impact);
     entry.model.dispose();
   }
   function clearActors() {
@@ -574,8 +579,10 @@ export function createTowerScene(canvas, settings = {}) {
     const warning = new THREE.Mesh(ringGeometry, warningMaterial);
     warning.rotation.x = -Math.PI / 2;
     warning.scale.setScalar(entity.kind === 'guardian' ? 3.5 : 2.2);
-    scene.add(model.group, bar, warning);
-    const entry = { model, bar, fill, back, warning, initialized: false, x: entity.x, direction: entity.facing || -1, state: entity, deadUntil: 0, fireUntil: 0 };
+    const impact = new THREE.Mesh(ringGeometry, impactMaterial);
+    impact.name = 'ObservedEnemyImpact'; impact.visible = false; impact.renderOrder = 22;
+    scene.add(model.group, bar, warning, impact);
+    const entry = { model, bar, fill, back, warning, impact, initialized: false, x: entity.x, direction: entity.facing || -1, state: entity, deadUntil: 0, fireUntil: 0, impactUntil: 0 };
     enemies.set(entity.id, entry);
     return entry;
   }
@@ -587,6 +594,12 @@ export function createTowerScene(canvas, settings = {}) {
       let entry = enemies.get(entity.id);
       if (!entry) entry = addEnemy(entity);
       if (entry.state.active && !entity.active) { burst(entry.model.group.position, 0xffbc6a, 18); entry.deadUntil = elapsed + .65; }
+      // Only real same-run, same-floor health loss triggers a contact cue. A new
+      // enemy, stale poll, heal or new run cannot fabricate a hit. The cue is
+      // presentation-only: the host already resolved all authoritative combat.
+      if (elapsedTicks > 0 && entry.state.active
+        && Number.isFinite(entity.health) && Number.isFinite(entry.state.health)
+        && entity.health < entry.state.health) entry.impactUntil = elapsed + .6;
       if (entity.active && entity.attackCooldown > (entry.state.attackCooldown ?? entity.attackCooldown)) entry.fireUntil = elapsed + .2;
       const delta = entity.x - entry.x;
       if (entity.facing) entry.direction = entity.facing;
@@ -719,6 +732,17 @@ export function createTowerScene(canvas, settings = {}) {
       entry.fill.position.x = (entry.fill.scale.x - width) / 2;
       entry.warning.position.copy(model.position); entry.warning.position.y += .08;
       entry.warning.visible = e.active && e.telegraph;
+      const impact = entry.impact;
+      impact.visible = (e.active || elapsed < entry.deadUntil) && elapsed < entry.impactUntil;
+      if (impact.visible) {
+        impact.position.copy(model.position);
+        impact.position.y += e.halfHeight * 2 / SCALE * .62;
+        // Place the cue just in front of the actual armor, not through the deck.
+        scratch.copy(camera.position).sub(impact.position).normalize();
+        impact.position.addScaledVector(scratch, e.kind === 'guardian' ? .85 : .5);
+        impact.quaternion.copy(camera.quaternion);
+        impact.scale.setScalar(e.kind === 'guardian' ? 1.5 : .95);
+      }
     }
     for (const pick of snapshot.pickups) {
       const group = pickups.get(pick.id);
@@ -830,7 +854,8 @@ export function createTowerScene(canvas, settings = {}) {
       textures: renderer.info.memory.textures, programs: renderer.info.programs.length, characters: 1 + enemies.size,
       landingBeacon: { visible: landingBeacon.visible, targetId: landingBeacon.userData.targetPlatformId || null,
         position: landingBeacon.position.toArray(), triangles: landingBeacon.geometry.index.count / 3, depthTest: landingBeacon.material.depthTest },
-      activeParticles: particleLife.filter(life => life > 0).length, frameMs,
+      activeParticles: particleLife.filter(life => life > 0).length,
+      observedEnemyImpacts: [...enemies.values()].filter(entry => entry.impact.visible).length, frameMs,
       lighting: { environmentReady: !!reflectionTarget, environmentState: disposed ? 'disposed' : reflectionDirty ? 'pending' : reflectionTarget ? 'ready' : 'direct', environmentBuilds: reflectionBuilds,
         environmentFailures: reflectionFailures, environmentLastError: reflectionLastError,
         environmentSize: reflectionTarget ? [reflectionTarget.width, reflectionTarget.height] : [0, 0], shadowLights: 1, shadowMapSize: sun.shadow.mapSize.x },

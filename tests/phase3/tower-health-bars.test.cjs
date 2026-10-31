@@ -7,7 +7,7 @@ const { pathToFileURL } = require('node:url');
 const { test } = require('node:test');
 const ROOT = path.resolve(__dirname, '../..');
 
-test('enemy health fill is drawn after its background and retains the actual remaining fraction', async () => {
+test('enemy health fill stays correctly layered and actual combat damage has a low-quality non-flashing contact cue', async () => {
   const url = file => pathToFileURL(path.join(ROOT, file)).href;
   const real = await import(url('node_modules/three/build/three.module.js'));
   const { WebGLRenderList } = await import(url('node_modules/three/src/renderers/webgl/WebGLRenderLists.js'));
@@ -41,7 +41,7 @@ test('enemy health fill is drawn after its background and retains the actual rem
   };
   try {
     for (const health of [3, 1]) {
-      view.accept({ snapshot: { ...snapshot, tick: health, revision: health, publicChecksum: `health-${health}`, enemies: [{ ...snapshot.enemies[0], health }] } });
+      view.accept({ snapshot: { ...snapshot, tick: 104 - health, revision: 104 - health, publicChecksum: `health-${health}`, enemies: [{ ...snapshot.enemies[0], health }] } });
       callback(100);
       const bar = renderedScene.children.find(object => object.isGroup && object.children.length === 2 && object.children.every(child => child.geometry?.type === 'PlaneGeometry'));
       assert.ok(bar, 'inspect the actual shipped health-bar meshes');
@@ -53,6 +53,20 @@ test('enemy health fill is drawn after its background and retains the actual rem
       assert.ok(drawOrder.indexOf(fill) > drawOrder.indexOf(background), 'the transparent background must not cover the colored fill');
       assert.equal(fill.scale.x / background.scale.x, health / 3);
       assert.equal(fill.material.depthWrite, false, 'overlay fills must not write phantom scene depth');
+      const impact = renderedScene.getObjectByName('ObservedEnemyImpact');
+      assert.ok(impact, 'a reusable damage contact cue is available without high-quality particles');
+      assert.equal(impact.visible, health === 1, 'health loss produces contact feedback, not initial spawning');
+      assert.equal(impact.material.depthTest, true, 'contact feedback must respect real tower occlusion');
+      assert.equal(impact.material.depthWrite, false, 'transient feedback must not write phantom depth');
     }
+    // Repeated frames of unchanged public state must expire the contact cue.
+    for (let time = 200; time <= 1100; time += 100) callback(time);
+    assert.equal(renderedScene.getObjectByName('ObservedEnemyImpact').visible, false, 'one hit decays rather than replaying forever');
+    const nextRun = { ...snapshot, runToken: 'new-run', tick: 10, revision: 10, publicChecksum: 'reset', enemies: [{ ...snapshot.enemies[0], health: 1 }] };
+    view.accept({ snapshot: nextRun }); callback(1200);
+    assert.equal(renderedScene.getObjectByName('ObservedEnemyImpact').visible, false, 'a new run at lower health does not invent damage');
+    const fatal = { ...nextRun, tick: 11, revision: 11, publicChecksum: 'fatal', enemies: [{ ...nextRun.enemies[0], health: 0, active: false }] };
+    view.accept({ snapshot: fatal }); callback(1300);
+    assert.equal(renderedScene.getObjectByName('ObservedEnemyImpact').visible, true, 'fatal damage is confirmed during the real model death hold');
   } finally { view.dispose(); }
 });
