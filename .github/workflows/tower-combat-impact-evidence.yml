@@ -5,6 +5,7 @@ on:
     paths:
       - public/infinite-tower-climb/visuals/scene.mjs
       - tests/phase3/tower-health-bars.test.cjs
+      - tests/phase3/tower-guardian-contact-framing.test.cjs
       - tests/browser/tower-combat-impact.spec.cjs
       - .github/workflows/tower-combat-impact-evidence.yml
   workflow_dispatch:
@@ -28,7 +29,7 @@ jobs:
       - run: npm ci
       - run: npm run build
       - name: Focused low-quality hit/regression contract
-        run: node --test tests/phase3/tower-health-bars.test.cjs
+        run: node --test tests/phase3/tower-health-bars.test.cjs tests/phase3/tower-guardian-contact-framing.test.cjs
       - run: npx playwright install --with-deps chromium
       - name: Capture real same-run guardian damage before and after
         run: npx playwright test --config=playwright.tower.config.cjs tests/browser/tower-combat-impact.spec.cjs

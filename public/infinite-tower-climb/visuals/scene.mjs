@@ -82,19 +82,22 @@ function composeFollowView(snapshot, hero, aspect, orbit = 0, zoom = 1) {
   if (target) landing = pointFor(target.x + target.width / 2,
     target.y + target.height, snapshot.chunkBaseY, snapshot.worldWidth, 26.7);
   let threat = null, nearest = Infinity;
-  function consider(x, y, halfWidth, halfHeight, priority = 1) {
+  function consider(x, y, halfWidth, halfHeight, priority = 1, guardian = false) {
     const dx = Math.abs(x - player.x), dy = Math.abs(y - player.y);
     if (dx > 90000 || dy > 60000) return;
     const score = (dx + dy * 1.4) / priority;
     if (score >= nearest) return;
     nearest = score;
     threat = { ...pointFor(x, y, snapshot.chunkBaseY, snapshot.worldWidth),
-      halfWidth: halfWidth / SCALE, halfHeight: halfHeight / SCALE };
+      halfWidth: halfWidth / SCALE, halfHeight: halfHeight / SCALE, guardian };
   }
   if (player.health > 0) {
-    for (const enemy of snapshot.enemies || []) if (enemy.active) consider(enemy.x, enemy.y, enemy.halfWidth, enemy.halfHeight, enemy.telegraph ? 1.5 : 1);
+    for (const enemy of snapshot.enemies || []) if (enemy.active) consider(enemy.x, enemy.y, enemy.halfWidth, enemy.halfHeight, enemy.telegraph ? 1.5 : 1, enemy.kind === 'guardian');
     for (const hazard of snapshot.hazards || []) if (hazard.active) consider(hazard.x + hazard.width / 2, hazard.y + hazard.height / 2, hazard.width / 2, hazard.height / 2, 1.2);
-    for (const bolt of snapshot.projectiles || []) if (bolt.owner === 'enemy') consider(bolt.x, bolt.y, 3000, 3000, 1.7);
+    // A fired bolt already moving farther from the climber is no longer an
+    // immediate tactical threat; do not let it crop the contact source.
+    for (const bolt of snapshot.projectiles || []) if (bolt.owner === 'enemy'
+      && (bolt.x - player.x) * bolt.vx <= 0) consider(bolt.x, bolt.y, 3000, 3000, 1.7);
   }
   const center = { ...body };
   if (landing) {
@@ -168,6 +171,14 @@ function composeFollowView(snapshot, hero, aspect, orbit = 0, zoom = 1) {
       if (candidate.clear && candidate.heroFraction > best.heroFraction) best = candidate;
       if (best.heroFraction >= preferredFraction) break;
     }
+  }
+  // A narrow phone needs extra clearance for the guardian's shield and
+  // swinging maul beyond its physics hitbox. A bounded oblique look keeps the
+  // live source and attacker together without shrinking them or moving either.
+  // Do not apply the orbit to traversal, non-guardian fights or incoming bolts.
+  if (aspect < .85 && threat?.guardian && snapshot.intent?.mode === 'engaging-enemy') {
+    const contactView = solve(direction * .75);
+    if (contactView.clear && contactView.heroFraction >= .15) best = contactView;
   }
   return best;
 }
