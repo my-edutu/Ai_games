@@ -226,8 +226,16 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     if (objectiveCue) {
       const pos = cellPosition(objectiveCue.cell, snapshot.width, snapshot.height);
       objectiveBeacon.position.set(pos.x, cellHeight(objectiveCue.cell, snapshot.width, snapshot.height), pos.z);
-      // Keep an actually observed nearby objective legible without new data.
+      // The discovered exit already has a modeled, glowing diamond arch.
+      // Repeating a floating gem/ring over that arch makes its opening illegible.
+      // Retain only a low, forward floor cue for the exit; keys keep their
+      // separate floating pin, because their world props are much smaller.
+      const exitArch = objectiveCue.kind === 'exit';
       objectiveBeacon.scale.setScalar(objectiveCue.steps <= 2 ? 1.18 : 1);
+      beaconGem.visible = !exitArch;
+      beaconRing.visible = !exitArch;
+      beaconFoot.position.z = exitArch ? .48 : 0;
+      beaconFoot.scale.setScalar(exitArch ? .86 : 1);
       const tint = objectiveCue.kind === 'key' ? beaconAmber : beaconMint;
       beaconGem.material = tint;
       beaconRing.material = tint;
@@ -349,12 +357,22 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
       // On a public coastline, a hero-only camera can leave half the screen
       // empty water. Rebalance toward the *known nearby stage* but keep Pip
       // visible, and avoid fighting the threat-encounter framing.
-      if (cameraMode === 'follow' && !result && !closestThreat?.strength) {
+      const nearObservedGoal = cameraMode === 'follow' && !result
+        && objectiveCue && objectiveCue.steps <= 2 && !closestThreat?.strength;
+      if (nearObservedGoal) {
+        // Frame Pip and the genuinely known, nearby landmark together.
+        // This is purely a camera composition of public coordinates, not
+        // guidance, a declaration of safety or a change to AI movement.
+        const goal = cellPosition(objectiveCue.cell, s.width, s.height);
+        desiredTarget.x += (goal.x - pose.x) * .30;
+        desiredTarget.z += (goal.z - pose.z) * .30;
+      } else if (cameraMode === 'follow' && !result && !closestThreat?.strength) {
         const narrow = aspect < .9 ? .23 : 1;
         desiredTarget.x += stageBias.x * narrow;
         desiredTarget.z += stageBias.z * narrow;
       }
-      targetHeight = cameraMode === 'detail' ? 4.6 : height < 340 ? 5.4 : aspect < .9 ? 6.2 : 7.3;
+      targetHeight = cameraMode === 'detail' ? 4.6 : height < 340 ? 5.4
+        : aspect < .9 ? 6.2 : nearObservedGoal ? 6.25 : 7.3;
     }
     const blend = settings.reducedMotion ? 1 : 1 - Math.exp(-delta * 4.5);
     cameraTarget.lerp(desiredTarget, blend);
@@ -392,7 +410,10 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
         wayfindingCues: wayfindingCues.map(cue => ({...cue})),
         objectiveCue: objectiveCue ? {...objectiveCue} : null,
         objectiveInFrame: objectiveCue ? (() => {
-          const p = objectiveBeacon.position.clone().add(new THREE.Vector3(0, 3.18, 0)).project(camera);
+          // The exit's floating beacon is suppressed; project its actual
+          // arch opening rather than an invisible marker above the portal.
+          const visibleHeight = objectiveCue.kind === 'exit' ? 1.25 : 3.18;
+          const p = objectiveBeacon.position.clone().add(new THREE.Vector3(0, visibleHeight, 0)).project(camera);
           return Math.abs(p.x) < .95 && Math.abs(p.y) < .95 && p.z > -1 && p.z < 1;
         })() : false,
         verifiedRouteVertices: guide.geometry.getAttribute('position')?.count ?? 0,
