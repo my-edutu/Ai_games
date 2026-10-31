@@ -1,5 +1,5 @@
 /**
- * Read-only spell semantics for real DungeonRuntime publicState snapshots.
+ * Read-only spell semantics for real authoritative public snapshots.
  *
  * One Mystic may heal a teammate instead of attacking. Its existing cast action
  * is ambiguous until the SAME authoritative tick includes a 'healing' event.
