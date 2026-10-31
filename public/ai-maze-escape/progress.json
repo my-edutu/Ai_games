@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-10-31T09:46:13.638Z",
+  "updatedAt": "2026-10-31T09:49:42.604Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass 19 camera-rebalance candidate 396ceb6 / regression 384f7b2 gives a genuine disclosed sealed gate more framing weight without discarding known stage or altering AI rules. Source CI 41189735556 and actual native desktop/portrait render comparison are pending; pass 18 CI 41184813290 remains the latest verified screenshot, and its left-edge Pip/gate composition still loses to Nintendo Captain Toad. Independent blind critic and Ultracode unavailable (workspace tunnel), hardware GPU FPS unmeasured. Do not mistake the candidate for a benchmark win."
+    "summary": "Pass 19, 2026-10-31: source 396ceb6 and test 384f7b2 passed exact-source CI 41189735556 (524/524 Node, 25/25 browser); genuine production seed maze-visual-reference-13 tick21 closed door-2 desktop/portrait captured 09:49:38/09:49:42 UTC with SHA-256 manifests in artifact 13038422543. Gate and Pip moved modestly toward screen center (desktop +.07049 normalized x, portrait +.02808), while a crude fixed viewport water-like color mask increased desktop 46.413%→47.064% and portrait 26.449%→27.030%. This is a trade-off, not a benchmark win. Nintendo Captain Toad remains stronger; independent critic/Ultracode unavailable because workspace tunnel disconnected; GPU hardware FPS unmeasured."
   },
   "captures": [
     {
@@ -111,10 +111,10 @@
     "Fifteenth/sixteenth passes: near disclosed closed gates receive a bounded public-only follow-camera composition and a restrained side angle so Pip is less obscured by the gate lintel; open or undisclosed doors cannot cause this framing. Native 1280×900 and 390×844 browser evidence includes actual seeded closed-gate and key states with SHA-256. Final source ff31870 passed 524 Node and 25 browser tests. Review: docs/reviews/maze-3d/gate-framing-pass-15-16-review.md; genuine artifact: https://github.com/my-edutu/Ai_games/actions/runs/41175973975/artifacts/13033176303. Nintendo benchmark not passed.",
     "Seventeenth pass: a genuine publicly disclosed sealed-gate camera shot now uses a closer bounded view (desktop half-height 5.65, portrait 5.8 rather than 6.55/6.2), with real gate and Pip retained on screen. Browser-source regression tests and same-seed/tick 1280×900 and 390×844 dated, hash-matched images verify the candidate. Successful source CI 41180638308: 524 Node and 25 browser checks; review docs/reviews/maze-3d/gate-scale-pass-17-review.md. The Nintendo benchmark remains unpassed.",
     "Pass 18: real closed-door camera prioritizes already-public terrain rather than blank lagoon; source 4b74885, CI 41184813290 green 524 Node/25 browser, genuine seed13 tick21 desktop/portrait screenshot hashes in artifact 13037025673, direct image inspection. Desktop waterlike mask 53.059% to 46.457% (not aesthetic score). Portrait nearly unchanged and Pip/gate still left of center. Review: docs/reviews/maze-3d/gate-stage-pass-18-review.md. Nintendo NOT passed.",
-    "Pass 19 candidate: a source-disclosed closed gate now counterbalances the known-terrain camera pull more strongly, addressing pass18 screenshots where Pip and the coral X were left-shifted. Original stage and gate camera limits remain unchanged; focused regression asserts both stage retention and reduced over-shift. GitHub source CI 41189735556 is in progress; no candidate image or independent verdict is asserted yet. Review gate: docs/reviews/maze-3d/gate-composition-pass-19-review-gate.md."
+    "Pass 19: source-only public sealed-gate composition rebalances stage and truly known closed gate in the follow camera, with original bounds and deterministic rules unchanged. CI 41189735556 passed 524 Node and 25 Playwright checks and emitted real seed13/tick21 1280×900 desktop and 390×844 portrait gate shots (SHA-pinned in artifact 13038422543). Subjects shifted modestly right; some blank lagoon returned. Review docs/reviews/maze-3d/gate-composition-pass-19-review.md. Fixed Nintendo quality bar NOT PASSED; no independent fresh critic, Ultracode or hardware-FPS conclusion."
   ],
   "nextGaps": [
-    "Pass-19 source candidate needs exact-source CI and genuine same-seed/tick21 1280x900 and 390x844 browser PNGs, source/image SHA-256 hashes and direct before/after comparison for Pip/gate centering versus retained coastal stage. The latest independently inspected images remain pass18 and Nintendo still wins. Do not replace actual render critique with source-side checks.",
+    "Pass19 genuine same-seed/tick21 native screenshots modestly recenter Pip and a physically crossed, already-disclosed closed gate, but trade away some coastal stage occupancy. Retain this improved hero/gate relationship while increasing gameplay-scale subject clarity and authored known terrain without more empty water; judge actual desktop and narrow portrait output rather than assuming source changes solve it.",
     "Establish stronger gameplay-scale Pip/Thornback expression, gate/key/exit differentiation, environmental material variety and a camera view which preserves both the obstacle and the next *disclosed* action.",
     "Run separate fresh-context visual critics and blind A/B against both unchanged SHA-pinned official Nintendo Captain Toad frames; last independent verdict still favors the reference. Do not claim benchmark parity from CI or lead-only visual judgment.",
     "Review actual animated stair/gait/guardian motion, original game audio, accessibility and true GPU performance on less CPU-throttled hardware; SwiftShader frame times do not establish hardware FPS.",
@@ -237,6 +237,13 @@
       "verdict": "Local known-stage occupancy improved; original pinned Captain Toad benchmark still wins",
       "date": "2026-10-31T08:37:13.673Z",
       "summary": "Source commit 4b74885 passed CI 41184813290: 524/524 Node, 25/25 browser. Actual same production seed tick21 door-2 desktop PNG hash cea444431f35ff409c32b67aefe447c4231fca9aad73dfa3722d601d8f16c9b6 and portrait 3cca0e4f13367a5b8ec4c5fb1622c7419c841016aeebf662fc347d5c402ed058 matched artifact 13037025673. Visually less empty left lagoon, but subjects leftward and physical action unclear. No independent A/B or hardware GPU FPS."
+    },
+    {
+      "title": "Pass 19 · authentic sealed-gate camera and coastal-stage trade-off",
+      "reviewer": "Lead native-image comparison and SHA-256 verification of real browser PNGs; independent critic unavailable",
+      "verdict": "Small Pip/gate recentering observed with some water-occupancy regression; fixed Captain Toad bar NOT PASSED",
+      "date": "2026-10-31T09:49:42.604Z",
+      "summary": "Source 396ceb6/test 384f7b2 exact-source CI 41189735556 passed 524/524 Node and 25/25 browser. Real seed maze-visual-reference-13 tick21 closed door-2 desktop 09:49:38.913Z PNG sha256 3b1fe041889964c3699f7ecb2d5622c52ba17437a2764a73c0de220c1b2627e3; portrait 09:49:42.604Z sha256 02549d09399f24c55ef5bab262103065e1ea5fb589ad6b7fa70fd7957bb075ac, verified against original CI artifact 13038422543. Screen x gate/Pip desktop -0.45917/-0.32761→-0.38868/-0.25713; portrait -0.48518/-0.24304→-0.45710/-0.21496. Crude desktop waterlike proxy increased 46.413%→47.064%; objective clarity still below Nintendo. No fresh independent blind A/B, Ultracode or representative hardware FPS."
     }
   ],
   "verification": [
@@ -370,11 +377,11 @@
       "sourceUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41184813290"
     },
     {
-      "name": "Pass-19 public sealed-gate camera rebalancing (candidate only)",
-      "status": "Source camera and focused regression committed; CI and real image review pending; Nintendo bar NOT PASSED",
-      "detail": "Gameplay commit 396ceb6 and test commit 384f7b2 rebalance purely visual sealed-gate stage/gate weights on desktop and portrait. Actual gate, public knowledge, deterministic authority and motion are unchanged. Source CI run 41189735556 was in progress at preparation. Prior verified pass18 shots (CI 41184813290) are NOT current-source candidate captures. Separate fresh-context critics and Ultracode unavailable through disconnected shared workspace; software SwiftShader timing is not representative GPU FPS.",
+      "name": "Pass-19 authentic sealed-gate camera and exact-source CI",
+      "status": "CI PASSED 524/524 Node and 25/25 browser; native desktop/portrait PNGs SHA-verified; Nintendo bar NOT PASSED",
+      "detail": "Source gameplay 396ceb6, focused test 384f7b2, CI 41189735556 success including build/host self-tests/determinism. Genuine seed13/tick21 disclosed closed door-2 screenshot artifact 13038422543: desktop at 09:49:38.913Z image SHA 3b1fe041889964c3699f7ecb2d5622c52ba17437a2764a73c0de220c1b2627e3, portrait 09:49:42.604Z image SHA 02549d09399f24c55ef5bab262103065e1ea5fb589ad6b7fa70fd7957bb075ac, decoded and verified. Small shift of subjects toward center with more waterlike pixels, not sufficient for visual benchmark. Fresh independent critics/Ultracode blocked by disconnected shared workspace; software SwiftShader timings are not representative hardware FPS.",
       "sourceCommit": "384f7b25917d08bc8abf7e2daa5c1b730bfb07a6",
-      "sourceUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41189735556"
+      "sourceUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41189735556/artifacts/13038422543"
     }
   ],
   "references": [
