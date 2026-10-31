@@ -192,7 +192,7 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
       invalidateStaticCache();
     }
     camera.updateMatrixWorld();
-    const key = [dimensions, quality, cacheSize.x, cacheSize.y, scene.fog.near, scene.fog.far,
+    const key = [dimensions, quality, world.propRevision?.() || 0, cacheSize.x, cacheSize.y, scene.fog.near, scene.fog.far,
       renderer.toneMappingExposure, ...camera.matrixWorld.elements, ...camera.projectionMatrix.elements].join('|');
     const oldLayers = camera.layers.mask;
     const oldBackground = scene.background;
@@ -317,7 +317,11 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
       staticMeshCount = 0;
       world.group.traverse(object => {
         if (!object.isMesh) return;
-        if (object.userData.staticWorld) { object.layers.enable(STATIC_LAYER); staticMeshCount++; }
+        if (object.userData.staticWorld || object.userData.cachedProp) {
+          object.layers.enable(STATIC_LAYER); staticMeshCount++;
+          // The reusable shadow map contains decorative scenery only.
+          if (object.userData.cachedProp) object.castShadow = false;
+        }
         else { object.castShadow = false; object.layers.enable(DYNAMIC_LAYER); }
       });
       invalidateStaticCache();

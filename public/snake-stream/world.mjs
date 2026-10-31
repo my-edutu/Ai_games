@@ -234,14 +234,63 @@ export function createWorld(THREE, {width, height}) {
   for(let i=0;i<4;i++)add(cube,stone,0,-.5-i*.4,H+1+i*.4,3.9-i*.36,.45,.8);
   // Atmospheric islets establish depth beyond the formal garden. Their off-center
   // composition and cool material keep the gameplay rectangle as the bright stage.
-  const distantRock=material({color:0x3c6967,roughness:1,flatShading:true});
-  const distantGreen=material({color:0x447967,roughness:1});
+  const distantRock=material({color:0x658777,map:stoneMap,roughness:1});
+  const distantGreen=material({color:0x447967,map:mossMap,roughness:1});
+  const headlandShape=geometry(makeHeadland());
+  function makeHeadland(){
+    const p=[],uv=[],indices=[],sides=18;
+    const levels=[[0,.48],[.12,.9],[.28,1],[.46,.84],[.58,.94],[.77,.74],[.9,.78],[1,.65]];
+    for(let k=0;k<levels.length;k++){
+      const [y,r]=levels[k];
+      for(let i=0;i<=sides;i++){
+        const a=i/sides*Math.PI*2,shape=1+.065*Math.sin(a*3+.4)+.035*Math.cos(a*5);
+        p.push(Math.cos(a)*r*shape,y,Math.sin(a)*r*shape);uv.push(i/sides*3,y*2);
+        if(k&&i<sides){const b=k*(sides+1)+i,c=b-sides-1;indices.push(c,b,c+1,c+1,b,b+1);}
+      }
+    }
+    const center=p.length/3;p.push(0,1,0);uv.push(1.5,1);
+    for(let i=0;i<sides;i++){const a=(levels.length-1)*(sides+1)+i;indices.push(center,a+1,a);}
+    const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(p,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));g.setIndex(indices);g.computeVertexNormals();return g;
+  }
   for(const [x,z,s,h] of [[-21,-28,4.4,2.4],[-15,-33,4.2,3.8],[-9,-35,2.9,1.8],[18,-32,5.2,2.6],[25,-37,4.4,3.2]]){
     // Broad layered banks sit in the water, rather than towering beside the stage.
-    add(rock,distantRock,x,-3.5+h*.43,z,s,h*.60,s*.6,0,.4,0);
-    add(rock,distantRock,x+s*.55,-3.5+h*.29,z+.4,s*.68,h*.42,s*.55,0,.9,.08);
-    add(rock,distantGreen,x,-3.5+h*.97,z,s*.72,.12,s*.47);
+    add(headlandShape,distantRock,x,-3.65,z,s,h,s*.75,0,.4,0);
+    add(headlandShape,distantRock,x+s*.55,-3.65,z+.4,s*.68,h*.72,s*.55,0,.9,0);
+    add(rock,distantGreen,x,-3.65+h+.06,z,s*.59,.12,s*.44);
     for(let b=0;b<5;b++)add(leaf,distantGreen,x+(random()-.5)*s,-3.4+h*.97,z+(random()-.5)*s*.6,s*.18,s*.27,s*.19,.65,b*1.25,0);
+  }
+  // The close camera can face any compass direction. Layered headlands and
+  // wind-shaped groves replace the empty horizon without touching the board.
+  // They reuse the existing stone/leaf batches: no extra textures or draw calls.
+  const headlands=[
+    [-W-13,-H-17,5.2,5.5,-.35], [W+14,-H-22,6.8,6.1,.48],
+    [-W-22,1,5.3,5.7,.2], [W+22,3,5.9,5.1,-.3],
+    [-W-12,H+30,6.2,5.6,-.48], [W+15,H+33,7.0,6.3,.35],
+    [-2,-H-34,5.6,5.8,-.2],
+  ];
+  for(const [x,z,rise,altitude,turn] of headlands){
+    const top=-3.5+altitude;
+    // Broad submerged foot, recessed middle stratum and an asymmetric grassy
+    // shelf create a weighted landform, rather than disconnected floating rocks.
+    add(headlandShape,distantRock,x,-3.5,z,rise,altitude,rise*.78,0,turn,0);
+    add(headlandShape,distantRock,x+rise*.58,-3.5,z+.3,rise*.51,altitude*.68,rise*.49,0,turn-.24,0);
+    add(rock,distantGreen,x,top+.07,z,rise*.59,.18,rise*.45,0,turn,0);
+    add(rock,distantGreen,x+rise*.58,-3.5+altitude*.68+.05,z+.3,rise*.30,.14,rise*.29,0,turn-.24,0);
+    for(let t=0;t<3;t++){
+      const tx=x+(t-1)*rise*.37,tz=z+(t%2?-.5:.4),height=1.6+(t===1?1.1:.3),bend=.25+(t-1)*.12;
+      add(stem,distantRock,tx+bend*.5,top+height*.48,tz,.15,height,.15,0,0,-bend*.25);
+      // A high, off-centre crown and a lower side branch give each grove a
+      // readable botanical silhouette even after distance fog and downsampling.
+      for(let b=0;b<3;b++){
+        const bx=tx+bend+(b-1)*.54,by=top+height+(b===1?.25:-.23),bz=tz+(b-1)*.3;
+        add(stem,distantRock,(tx+bx)*.5,by-.35,(tz+bz)*.5,.075,.8,.075,0,0,(b-1)*.55);
+        for(let l=0;l<16;l++){
+          const angle=l*2.399,spread=.2+Math.sqrt(l/16)*.8;
+          add(leaf,distantGreen,bx+Math.sin(angle)*spread,by+noise(l+t*19,b+37)*.24,bz+Math.cos(angle)*spread*.7,
+            .83,.95,.84,1.1+noise(l+4,t+3)*.55,angle,.13);
+        }
+      }
+    }
   }
   // Bake the original transforms into indexed geometry once. Thousands of tiny
   // hardware instances are particularly expensive on software WebGL backends;
@@ -374,33 +423,45 @@ export function createWorld(THREE, {width, height}) {
   const fruitStem=new THREE.Mesh(stem,wood);fruitStem.position.y=.88;fruitStem.scale.set(.04,.17,.04);fruit.add(fruitStem);
   const fruitRing=new THREE.Mesh(ring,gold);fruitRing.rotation.x=-Math.PI/2;fruitRing.position.y=.06;fruitRing.scale.set(1.2,1.2,1.2);fruit.add(fruitRing);
   const crown=new THREE.Mesh(geometry(new THREE.OctahedronGeometry(.13)),gold);crown.position.y=1.19;fruit.add(crown);
-  const dynamicPools=[obstacles,obstacleCaps,hazardBed,hazardWarning,hazardSpikes,hazardSymbols,hazardSlots,portalRings,portalInner,portalBases,portalGlyph];
+  // Obstacles and portals do not animate between public topology changes.
+  // Trap countdowns and activation remain independent of this cached subset.
+  const stablePools=[obstacles,obstacleCaps,portalRings,portalInner,portalBases,portalGlyph];
+  const hazardPools=[hazardBed,hazardWarning,hazardSpikes,hazardSymbols,hazardSlots];
+  for(const mesh of stablePools){mesh.userData.cachedProp=true;mesh.castShadow=false;}
+  function upload(pools){for(const mesh of pools){mesh.instanceMatrix.needsUpdate=true;if(mesh.instanceColor)mesh.instanceColor.needsUpdate=true;}}
   const point=cell=>({x:cell%width-(width-1)/2,z:Math.floor(cell/width)-(height-1)/2});
   function put(mesh,x,y,z,sx=1,sy=sx,sz=sx,rx=0,ry=0,rz=0,tint=null){const i=mesh.count;if(i>=mesh.instanceMatrix.count)return;obj.position.set(x,y,z);obj.rotation.set(rx,ry,rz);obj.scale.set(sx,sy,sz);obj.updateMatrix();mesh.setMatrixAt(i,obj.matrix);if(tint)mesh.setColorAt(i,tint);mesh.count++;}
-  let lastSignature='',disposed=false;
+  let lastStableSignature='',lastHazardSignature='',revision=0,disposed=false;
   function update(snapshot,{time=0,reducedMotion=false}={}){
     if(disposed)return;
     waterMaterial.uniforms.time.value=reducedMotion?0:time;
-    const signature=JSON.stringify([snapshot.obstacles,snapshot.hazards,snapshot.portals]);
-    if(signature!==lastSignature){
-      lastSignature=signature;for(const p of dynamicPools)p.count=0;
+    // Only fields used by the geometry belong in these signatures. Public
+    // hazard phase advances every tick even when its visible state is unchanged.
+    const stableSignature=JSON.stringify([snapshot.obstacles||[],(snapshot.portals||[]).map(pair=>[pair.entry,pair.exit])]);
+    if(stableSignature!==lastStableSignature){
+      lastStableSignature=stableSignature;revision++;
+      for(const mesh of stablePools)mesh.count=0;
       for(const cell of snapshot.obstacles||[]){const p=point(cell);put(obstacles,p.x,.28,p.z,.83,.56,.83,0,noise(cell,2)*.12,0);put(obstacleCaps,p.x,.57,p.z,.73,.045,.70);}
-      for(const hazard of snapshot.hazards||[]){const p=point(hazard.cell);put(hazardBed,p.x,.05,p.z);put(hazardWarning,p.x,.11,p.z,1,1,1,-Math.PI/2);
-        // A solid triangular caution plate and three retracted slots distinguish
-        // dormant traps from circular teleport pools without relying on color.
-        if(!hazard.active){put(hazardSymbols,p.x,.102,p.z);for(let n=0;n<3;n++)put(hazardSlots,p.x+(n-1)*.115,.108,p.z+.04,.045,.025,.12);}
-        if(hazard.active)for(let n=0;n<3;n++){const a=n*2.094;put(hazardSpikes,p.x+Math.sin(a)*.19,.4,p.z+Math.cos(a)*.19,1,1,1,0,a,0);}}
       (snapshot.portals||[]).forEach((pair,i)=>{
         const tint=new THREE.Color().setHSL((.56+i*.19)%1,.85,.67);
         for(const cell of [pair.entry,pair.exit]){const p=point(cell);put(portalBases,p.x,.07,p.z);put(portalRings,p.x,.16,p.z,1.12,1.12,1.12,-Math.PI/2,0,0,tint);put(portalInner,p.x,.12,p.z,.67,.67,.67,-Math.PI/2,0,0,tint);
           for(let n=0;n<4;n++){const a=n*Math.PI/2;put(portalGlyph,p.x+Math.sin(a)*.36,.33,p.z+Math.cos(a)*.36,1,1,1,0,0,0,tint);}}
       });
-      for(const p of dynamicPools){p.instanceMatrix.needsUpdate=true;if(p.instanceColor)p.instanceColor.needsUpdate=true;}
+      upload(stablePools);
+    }
+    const hazardSignature=JSON.stringify((snapshot.hazards||[]).map(hazard=>[hazard.cell,!!hazard.active]));
+    if(hazardSignature!==lastHazardSignature){
+      lastHazardSignature=hazardSignature;for(const mesh of hazardPools)mesh.count=0;
+      for(const hazard of snapshot.hazards||[]){const p=point(hazard.cell);put(hazardBed,p.x,.05,p.z);put(hazardWarning,p.x,.11,p.z,1,1,1,-Math.PI/2);
+        // Dormant traps retain their triangular caution plate and retracted slots.
+        if(!hazard.active){put(hazardSymbols,p.x,.102,p.z);for(let n=0;n<3;n++)put(hazardSlots,p.x+(n-1)*.115,.108,p.z+.04,.045,.025,.12);}
+        if(hazard.active)for(let n=0;n<3;n++){const a=n*2.094;put(hazardSpikes,p.x+Math.sin(a)*.19,.4,p.z+Math.cos(a)*.19,1,1,1,0,a,0);}}
+      upload(hazardPools);
     }
     fruit.visible=!!snapshot.food;
     if(snapshot.food){const p=point(snapshot.food.cell),bonus=snapshot.food.kind==='bonus';fruit.position.set(p.x,reducedMotion?0:Math.sin(time*2.3)*.055,p.z);fruit.rotation.y=reducedMotion?0:Math.sin(time*.7)*.25;fruitMat.color.setHex(bonus?0xffcc55:0xf06c46);fruitMat.emissive.setHex(bonus?0x653008:0x210702);fruitMat.emissiveIntensity=.18;crown.visible=bonus;}
   }
   function dispose(){if(disposed)return;disposed=true;group.traverse(o=>{if(o.isInstancedMesh)o.dispose();});for(const g of geometries)g.dispose();for(const m of materials)m.dispose();for(const t of textures)t.dispose();group.clear();}
   function stats(){return{staticInstances,staticMeshes,drawObjects:group.children.reduce((n,o)=>n+(o.isMesh?1:o.children.filter(c=>c.isMesh).length),0),geometries:geometries.size,materials:materials.size,textures:textures.size,obstacles:obstacles.count,hazards:hazardBed.count,portalEnds:portalBases.count,disposed};}
-  return{group,update,dispose,stats};
+  return{group,update,dispose,stats,propRevision:()=>revision};
 }

@@ -14,6 +14,8 @@ export function createSerpent(THREE) {
   const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
   const smooth = (a, b, n) => { const t = clamp((n - a) / (b - a), 0, 1); return t * t * (3 - 2 * t); };
   let disposed = false;
+  const bellyClearance = 0.03;
+  const fullBodyHeight = 0.319 * 0.88 + bellyClearance;
 
   // Seamless authored pigment and tiny overlapping scale relief. A DataTexture
   // keeps both browser and headless use independent of canvas or image loading.
@@ -387,10 +389,12 @@ export function createSerpent(THREE) {
       if (path.length === 1) {
         // Isolated portal fragments are capped, never connected to another path.
         const dx = options.direction?.x || 0, dz = options.direction?.z || 1;
-        const fragmentY=p===0?0.42:0.4;
-        writeRing(lastX, lastZ, -dx, -dz, 0.01, distance, fragmentY, false);
-        writeRing(lastX - dx * 0.12, lastZ - dz * 0.12, -dx, -dz, p === 0 ? 0.012 : isTail ? 0.20 : 0.30, distance + 0.12, fragmentY, true);
-        writeRing(lastX - dx * 0.27, lastZ - dz * 0.27, -dx, -dz, 0.008, distance + 0.27, fragmentY, true);
+        const fragmentHeight = radius => p === 0
+          ? fullBodyHeight + 0.02 + eaten * 0.08 : radius * 0.88 + bellyClearance;
+        const middleRadius = p === 0 ? 0.012 : isTail ? 0.20 : 0.30;
+        writeRing(lastX, lastZ, -dx, -dz, 0.01, distance, fragmentHeight(0.01), false);
+        writeRing(lastX - dx * 0.12, lastZ - dz * 0.12, -dx, -dz, middleRadius, distance + 0.12, fragmentHeight(middleRadius), true);
+        writeRing(lastX - dx * 0.27, lastZ - dz * 0.27, -dx, -dz, 0.008, distance + 0.27, fragmentHeight(0.008), true);
         distance += 0.27;
         continue;
       }
@@ -413,7 +417,12 @@ export function createSerpent(THREE) {
           // A subtle swallow travels down the neck without altering its path.
           radius *= 1 + eaten * 0.13 * Math.exp(-Math.pow(distance - 0.68, 2) * 3);
           const lift = reduced ? 0 : Math.sin(distance * 2.1 - time * 3) * 0.007 * Math.min(1, tailRemaining);
-          if (!writeRing(sample.x, sample.z, sample.dx, sample.dz, radius, distance, 0.4 + lift + neckBlend*0.02, connected)) break;
+          // Follow the local belly radius all the way into the tapered tail.
+          // A fixed centre height made small tail rings float high above the floor.
+          const groundedHeight = radius * 0.88 + bellyClearance;
+          const neckHeight = fullBodyHeight + 0.02 + eaten * 0.08;
+          const centreHeight = groundedHeight + (neckHeight - groundedHeight) * neckBlend;
+          if (!writeRing(sample.x, sample.z, sample.dx, sample.dz, radius, distance, centreHeight + lift, connected)) break;
           connected = true;
         }
         if (truncated) break;
@@ -435,7 +444,9 @@ export function createSerpent(THREE) {
     const angleDifference = Math.atan2(Math.sin(targetHeading - heading), Math.cos(targetHeading - heading));
     heading = teleported || reduced ? targetHeading : heading + angleDifference * (1 - Math.exp(-dt * 19));
     previousHeadX = first.x; previousHeadZ = first.z;
-    head.position.set(first.x, 0.465 + (reduced ? 0 : Math.sin(time * 3.1) * 0.009), first.z);
+    // Keep the rear skull aligned with the grounded neck. Compensate for the
+    // chewing pitch so the low rear cheek cannot rotate through the stone.
+    head.position.set(first.x, fullBodyHeight + 0.065 + (reduced ? 0 : eaten * 0.065 + Math.sin(time * 3.1) * 0.009), first.z);
     head.rotation.y = heading;
     headPose.rotation.x = reduced ? 0 : -eaten * 0.11 + dangerEase * 0.025;
     headPose.rotation.z = reduced ? 0 : clamp(-angleDifference * 0.045, -0.06, 0.06);
