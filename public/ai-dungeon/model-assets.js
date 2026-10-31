@@ -3,6 +3,7 @@ import {GLTFLoader} from '/dungeon/vendor/addons/loaders/GLTFLoader.js';
 import {clone as cloneSkeleton} from '/dungeon/vendor/addons/utils/SkeletonUtils.js';
 import {planAuthoredMotion} from '/dungeon/character-motion-plan.js';
 import {planWardenRegalia} from '/dungeon/warden-regalia-plan.js';
+import {planRoleSilhouette} from '/dungeon/role-silhouette-plan.js';
 
 // Optional locally vendored CC0 characters. Offline / missing-asset fallback is the
 // fully autonomous procedural 3D rig, not a blank screen. No third-party runtime calls.
@@ -125,6 +126,49 @@ function addWardenRegalia(actor){
  actor.assetGeometries.push(...ownedGeometries);
 }
 
+// Class-identifying original accessories for all ordinary textured GLB rigs.
+// They share the presentation pivot, never the imported skeleton or authority.
+// Mesh/material allocations occur only on attach, with disposal on actor removal.
+function addRoleSilhouette(actor){
+ const plan=planRoleSilhouette(actor.u.kind);
+ if(!plan.length||!actor.visualPivot)return;
+ const group=new THREE.Group();group.name='Original '+actor.u.kind+' class details';
+ const finishes={
+  iron:new THREE.MeshStandardMaterial({color:'#586772',metalness:.72,roughness:.48}),
+  antique:new THREE.MeshStandardMaterial({color:'#a7875b',metalness:.59,roughness:.46}),
+  leather:new THREE.MeshStandardMaterial({color:'#44383e',metalness:.04,roughness:.89}),
+  arcane:new THREE.MeshStandardMaterial({color:'#72a4a9',emissive:'#285d65',emissiveIntensity:.30,metalness:.21,roughness:.42})
+ };
+ const forms={
+  plate:new THREE.SphereGeometry(.5,10,7),
+  lamella:new THREE.BoxGeometry(1,1,1),
+  spike:new THREE.ConeGeometry(.5,1,8),
+  gem:new THREE.OctahedronGeometry(.5,0),
+  rod:new THREE.CylinderGeometry(.5,.5,1,8)
+ };
+ const geometries=Object.values(forms);
+ for(const part of plan){
+  let geometry=forms[part.shape];
+  if(part.shape==='arc'){
+   const curve=new THREE.CatmullRomCurve3(part.points.map(p=>new THREE.Vector3(...p)));
+   geometry=new THREE.TubeGeometry(curve,12,.027,6,false);
+   geometries.push(geometry);
+  }
+  const mesh=new THREE.Mesh(geometry,finishes[part.finish]);
+  mesh.name=part.id;mesh.castShadow=true;mesh.receiveShadow=true;
+  if(part.shape!=='arc'){
+   mesh.position.set(part.x,part.y,part.z);
+   mesh.scale.set(part.sx,part.sy,part.sz);
+   mesh.rotation.z=part.rz;
+  }
+  group.add(mesh);
+ }
+ actor.visualPivot.add(group);
+ actor.roleSilhouetteParts=plan.length;
+ actor.assetMaterials.push(...Object.values(finishes));
+ actor.assetGeometries.push(...geometries);
+}
+
 function attachCharacter(actor){
  const asset=selection[actor.u.kind];if(!asset)return Promise.resolve(false);
  const id=actor.u.id;
@@ -143,11 +187,12 @@ function attachCharacter(actor){
    instance.position.set(-center.x*sourceScale,-bounds.min.y*sourceScale,-center.z*sourceScale);
   }
   const pivot=new THREE.Group();actor.root.add(pivot);pivot.add(instance);
-  actor.visualPivot=pivot;actor.motionPeak=0;actor.assetRoot=instance;actor.assetMaterials=owned;actor.assetGeometries=[];actor.regaliaParts=0;
+  actor.visualPivot=pivot;actor.motionPeak=0;actor.assetRoot=instance;actor.assetMaterials=owned;actor.assetGeometries=[];actor.regaliaParts=0;actor.roleSilhouetteParts=0;
   actor.body.visible=false;actor.authored=true;actor.mixer=new THREE.AnimationMixer(instance);
   actor.availableClips=gltf.animations||[];actor.currentAction='';actor.currentActionTick=null;
   actor.textureReadiness=textureReadiness.get(gltf);
   addWardenRegalia(actor);
+  addRoleSilhouette(actor);
   changeAction(actor,actor.u.action||'idle');
   return true;
  }).catch(e=>{failures.add(asset);return false});
@@ -193,7 +238,7 @@ function disposeActorAsset(actor){
  else if(actor.assetRoot){actor.root.remove(actor.assetRoot)}
  for(const m of actor.assetMaterials||[])m.dispose();
  for(const g of actor.assetGeometries||[])g.dispose();
- actor.mixer=null;actor.assetRoot=null;actor.visualPivot=null;actor.motionPeak=0;actor.assetMaterials=[];actor.assetGeometries=[];actor.regaliaParts=0;actor.authored=false;actor.textureReadiness=null;
+ actor.mixer=null;actor.assetRoot=null;actor.visualPivot=null;actor.motionPeak=0;actor.assetMaterials=[];actor.assetGeometries=[];actor.regaliaParts=0;actor.roleSilhouetteParts=0;actor.authored=false;actor.textureReadiness=null;
 }
 function putEnvironment(world,sceneKey,map){
  // Authored GLB masonry and prop dressing complements the instanced procedural
@@ -230,6 +275,6 @@ function putEnvironment(world,sceneKey,map){
 }
 function stats(actors){
  const all=[...actors.values()],authored=all.filter(a=>a.authored);
- return{authoredBosses:authored.filter(a=>a.u.kind==='warden').length,bossRegaliaParts:all.reduce((n,a)=>n+(a.regaliaParts||0),0),authoredCharacters:authored.length,proceduralFallbacks:all.length-authored.length,uniqueAssets:cache.size,missingAssets:failures.size,incompleteAssets:incompleteAssets.size,texturedCharacters:authored.filter(a=>a.textureReadiness?.decodedColorMaps>0).length,decodedColorMaps:authored.reduce((n,a)=>n+(a.textureReadiness?.decodedColorMaps||0),0)};
+ return{authoredBosses:authored.filter(a=>a.u.kind==='warden').length,bossRegaliaParts:all.reduce((n,a)=>n+(a.regaliaParts||0),0),roleSilhouetteActors:authored.filter(a=>(a.roleSilhouetteParts||0)>0).length,roleSilhouetteParts:all.reduce((n,a)=>n+(a.roleSilhouetteParts||0),0),authoredCharacters:authored.length,proceduralFallbacks:all.length-authored.length,uniqueAssets:cache.size,missingAssets:failures.size,incompleteAssets:incompleteAssets.size,texturedCharacters:authored.filter(a=>a.textureReadiness?.decodedColorMaps>0).length,decodedColorMaps:authored.reduce((n,a)=>n+(a.textureReadiness?.decodedColorMaps||0),0)};
 }
 export {attachCharacter,updateActor,disposeActorAsset,putEnvironment,stats};
