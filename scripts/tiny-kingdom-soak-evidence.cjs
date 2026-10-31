@@ -17,7 +17,8 @@ const assert=require('node:assert/strict');
    wallClockStart:new Date().toISOString(),status:'INCOMPLETE',
    limitations:['SwiftShader is a software renderer, not consumer GPU FPS',
      'Accelerated rules replay is not an unattended real-time 24-hour soak',
-     'No independent comparison or AAA visual parity assessed']
+     'No independent comparison or AAA visual parity assessed',
+     'G069 CPU submission timing includes JS/WebGL driver work, not GPU duration']
  };
  let browser;
  const write=()=>fs.writeFileSync(path.join(dir,'evidence.json'),JSON.stringify(evidence,null,2)+'\n');
@@ -160,6 +161,13 @@ const assert=require('node:assert/strict');
     skipped:after.framesSkipped-before.framesSkipped,
     observedFps:(after.framesDrawn-before.framesDrawn)/elapsed,
     targetFps:after.targetFps};
+  // G069: actual bounded frame-phase wall-clock evidence on the grown scene.
+  // The latest 48 completed frames may include earlier camera shots; it is
+  // deliberately not marketed as isolated Day-121 GPU p95 or hardware FPS.
+  evidence.cpuFramePhases=await page.evaluate(()=>window.__tinyKingdom.getFrameProfile());
+  assert.equal(evidence.cpuFramePhases.kind,'cpu-wall-submission');
+  assert(evidence.cpuFramePhases.samples>=1&&evidence.cpuFramePhases.samples<=48);
+  assert(evidence.cpuFramePhases.stages.total.p95>=0);
   evidence.browserMemory=await page.evaluate(()=>performance.memory?
    {usedJSHeapSize:performance.memory.usedJSHeapSize,
     totalJSHeapSize:performance.memory.totalJSHeapSize}:null);
