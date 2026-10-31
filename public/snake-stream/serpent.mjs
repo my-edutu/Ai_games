@@ -397,7 +397,7 @@ export function createSerpent(THREE) {
   let eaten = 0, dangerEase = 0, curveLean = 0;
   // Presentation-only eye tracking. The target comes exclusively from the
   // current immutable public food location, never a private AI path.
-  let gazeX = 0, gazeY = 0, previousRunToken;
+  let gazeX = 0, gazeY = 0, previousRunToken, focusYaw = 0;
 
   const sample = { x: 0, z: 0, dx: 0, dz: 1 };
   function evaluate(path, segment, t) {
@@ -587,6 +587,27 @@ export function createSerpent(THREE) {
         targetGazeY = clamp(-0.009 + 0.006 * ahead, -0.015, -0.003);
       }
     }
+    // BEGIN R34 PUBLIC FOOD ATTENTION
+    // A small, purely presentational skull swivel acknowledges nearby
+    // public fruit before the body turns; AI/physics are never consulted.
+    let targetFocusYaw = 0;
+    if (Number.isFinite(targetFood?.x) && Number.isFinite(targetFood?.z)) {
+      const foodX = targetFood.x - first.x, foodZ = targetFood.z - first.z;
+      const foodDistance = Math.hypot(foodX, foodZ);
+      if (foodDistance > 0.001 && foodDistance < 11) {
+        const side = (foodX * Math.cos(heading) - foodZ * Math.sin(heading)) / foodDistance;
+        const ahead = (foodX * Math.sin(heading) + foodZ * Math.cos(heading)) / foodDistance;
+        // Forward-only sightline and range falloff; never twist backwards.
+        const visibility = smooth(-0.2, 0.35, ahead) * (1 - smooth(5, 11, foodDistance));
+        targetFocusYaw = clamp(Math.atan2(side, ahead) * 0.16, -0.16, 0.16) * visibility;
+      }
+    }
+    // Snap to current public state after restart/teleport. Reduced motion
+    // retains a time-invariant meaningful pose instead of a tween.
+    focusYaw = teleported || reduced ? targetFocusYaw
+      : focusYaw + (targetFocusYaw - focusYaw) * (1 - Math.exp(-dt * 9));
+    headPose.rotation.y = focusYaw;
+    // END R34 PUBLIC FOOD ATTENTION
     const gazeMix = reduced || teleported ? 1 : 1 - Math.exp(-dt * 12);
     gazeX += (targetGazeX - gazeX) * gazeMix;
     gazeY += (targetGazeY - gazeY) * gazeMix;

@@ -1,10 +1,15 @@
 {
-  "updatedAt": "2026-10-31T18:24:39.556Z",
-  "status": "Round 33 · exact-source Node/host and true WebGL overview/detail A/B verified; strict desktop pacing FAIL 10/17",
-  "detail": "Exact serpent blob 6d0dd9003 matching PR #52 commit 36a03e1, offline workflow source checksum verified. Local build, all 63 focused Snake Node, host authority/recovery self-test PASS; real Chromium/SwiftShader 22/23 browser PASS incl. new SHA1 baseline overview/detail A/B. Overview only 84/614400 face pixels changed (max 4/255), close detail PNG byte-identical. Strict actual submitted render 10/1013.6ms <17 FAIL; ~61 RAF and encoded video fps do not count. General CI 41228769294 still running. Whole-game visual and motion reference LOSE; independent critic, sustained display present, soak, R5 outstanding.",
+  "updatedAt": "2026-10-31T19:54:59Z",
+  "status": "Round 34 · bounded public-food original skull attention candidate, real WebGL capture and CI pending",
+  "detail": "Exact predecessor f38b1020 / serpent blob 6d0dd900. The original skull now gives a <=9.17-degree forward-only local glance at nearby public fruit, with normal easing, restart/portal snap and fixed reduced-motion pose. Gameplay AI, score, public authority, portals, goals/hazards, UI, captions, recovery and GPU budgets unchanged. New focused Node and exact-old-source true Chromium/WebGL synthetic public-frame A/B tests staged; new CI not yet observed. Latest PRIOR focused 41229330381 passed 22/23 real browser but desktop failed 8 actual WebGL submissions/1006ms vs required >=17. General browser cancelled after build/Node/authority passed. Full Snake Pass visual/motion benchmark LOSE; independent critic, real display-present FPS, soak/R5 absent. Draft, unmerged, undeployed.",
   "latestImage": "/progress/evidence/round-9-overview.jpg",
-  "latestCaption": "Historical older-round real WebGL image, not Round33. For exact current Round33 old/new PNGs, use its source artifact link in the chronological round.",
+  "latestCaption": "This is an older Round9 real WebGL image, NOT Round34. Exact new Round34 old/new real WebGL PNGs remain pending CI.",
   "reviews": [
+    {
+      "area": "Round 34 · public-food skull look-ahead",
+      "verdict": "SOURCE CANDIDATE / NODE AND WEBGL EVIDENCE PENDING / WHOLE-GAME SNAKE PASS LOSE",
+      "gap": "New bounded forward-only original 3D skull swivel, normal ease, portal/restart reset and fixed reduced-motion pose. Prior focused CI 22/23, strict 8 actual submitted frames/1006ms <17; exact-source new node/PNG evidence, independent critic, displayed-device FPS, soak/R5 still open."
+    },
     {
       "area": "Round 33 · existing sculpted face diffuse overview LOD",
       "verdict": "EXACT SOURCE NODE 63/63 + HOST SELF-TEST + TRUE WEBGL A/B VERIFIED · STRICT 10/17 FAIL · WHOLE-GAME REFERENCE LOSE",
@@ -559,6 +564,20 @@
         {
           "label": "Full Round33 written verification and visual critique",
           "path": "https://github.com/my-edutu/Ai_games/blob/feat/autonomous-snake-3d-gauntlet/docs/reviews/snake-gauntlet/round33-face-overview-diffuse.md"
+        }
+      ]
+    },
+    {
+      "title": "Round 34 · original skull follows near public fruit",
+      "summary": "Adds a small no-new-GPU-cost original 3D head-attention gesture to existing eye gaze, with forward/range limit, normal easing, portal/restart reset and fixed reduced motion. New Node and same-frozen-frame true WebGL synthetic before/after comparator require exact-head CI. Prior run 41229330381 22/23 but 8 actual render submissions/1006ms <17. Commercial character, world, motion and production gates remain unmet.",
+      "captures": [
+        {
+          "label": "Prior-head real Chromium screenshots/traces (not Round34)",
+          "path": "https://github.com/my-edutu/Ai_games/actions/runs/41229330381/artifacts/13053380789"
+        },
+        {
+          "label": "Round34 critical source review and pending capture protocol",
+          "path": "https://github.com/my-edutu/Ai_games/blob/feat/autonomous-snake-3d-gauntlet/docs/reviews/snake-gauntlet/round34-public-head-attention.md"
         }
       ]
     }
