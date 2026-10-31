@@ -150,8 +150,15 @@ test('optional cinematic glow uses locally served Three.js postprocessing and re
  await page.locator('#fx-toggle').click();
  await expect(page.locator('#fx-toggle')).toHaveAttribute('aria-pressed','false');
  await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.postFX),{timeout:10000}).toBe('direct');
+ const directFrame=await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.frame);
  await page.locator('#fx-toggle').click();
- await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.postFX),{timeout:10000}).toBe('bloom');
+ // Software WebGL trace 41201505995 showed a pressed, enabled toggle while
+ // its next real compositor frame had not yet arrived within 10 seconds.
+ // Require a NEW, genuinely rendered bloom frame, not a synthetic UI state.
+ await expect.poll(()=>page.evaluate(previous=>{
+  const d=window.__DUNGEON_RENDER_DIAGNOSTICS__;
+  return Boolean(d&&d.postFX==='bloom'&&d.frame>previous);
+ },directFrame),{timeout:30000}).toBe(true);
 });
 
 test('Three.js core module resolves and startup watchdog detects a real 3D frame',async({page,request})=>{
