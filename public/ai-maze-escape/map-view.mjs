@@ -226,11 +226,13 @@ export function publicNearbySealedGate(snapshot) {
 export function composePublicSealedGateFocus(stageBias, gateDelta, aspect = 1) {
   const finite = value => Number.isFinite(value) ? value : 0;
   const portrait = aspect < .9;
-  // Both vectors are derived from disclosed public cells/doors; they are
-  // presentation-only. Give known floor greater weight than a boundary gate
-  // so a sealed coastal encounter does not float in half a frame of water.
-  const stageWeight = portrait ? .48 : 1.05;
-  const gateWeight = portrait ? .24 : .23;
+  // Both vectors are derived from disclosed public cells/doors. Preserve
+  // coastal floor context, but let the *actually visible* closed obstruction
+  // counter the stage pull: stage-heavy framing pushed both Pip and the gate
+  // into the left edge of the real pass-18 desktop/portrait captures.
+  // This is a camera target only, never an AI route or a traversal hint.
+  const stageWeight = portrait ? .44 : .85;
+  const gateWeight = portrait ? .30 : .34;
   const x = finite(stageBias?.x) * stageWeight + finite(gateDelta?.x) * gateWeight;
   const z = finite(stageBias?.z) * stageWeight + finite(gateDelta?.z) * gateWeight;
   const limit = portrait ? 1.1 : 2.6;
