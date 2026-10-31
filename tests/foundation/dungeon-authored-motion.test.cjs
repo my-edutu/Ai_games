@@ -50,6 +50,28 @@ test('motion envelope uses only read-only action and elapsed time; no RNG or ren
  const code=fs.readFileSync(source,'utf8');
  assert.doesNotMatch(code,/Math\.random|performance\.now|requestAnimationFrame|fetch\(/);
 });
+test('a delayed WebGL frame cannot silently skip the first authored attack poses',async()=>{
+ const {advancePresentationActionAge,planAuthoredMotion}=await motion();
+ let age=0;
+ // Browser software WebGL may render only a few frames even when a second
+ // of wall-clock time passes; the first visible strike must still be staged.
+ for(const wallClockGap of [2.5,3,4,.8,.3]){
+  age=advancePresentationActionAge(age,Math.min(.05,wallClockGap));
+ }
+ assert.ok(age>=.24&&age<=.251);
+ assert.ok(planAuthoredMotion('vanguard','attack',age).z<-.08);
+ assert.equal(advancePresentationActionAge(0,Infinity),0);
+ assert.equal(advancePresentationActionAge(0,-1),0);
+ assert.equal(advancePresentationActionAge(Infinity,.05),.05);
+ assert.equal(advancePresentationActionAge(5,.05),5);
+});
+test('actual render loop uses bounded visual action age for one-shot authored strikes',()=>{
+ const app=fs.readFileSync(path.join(root,'public/ai-dungeon/app.js'),'utf8');
+ assert.match(app,/advancePresentationActionAge\(since,dt\)/);
+ assert.match(app,/a\.visualActionAge=0/);
+ assert.match(app,/a\.visualActionAge\?\?0/);
+ assert.match(app,/updateActor\(a,dt,since,reduced\)/);
+});
 test('the real authored GLB renderer stages the rig through an isolated pivot, not authoritative coordinates',()=>{
  const assets=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
  const app=fs.readFileSync(path.join(root,'public/ai-dungeon/app.js'),'utf8');
