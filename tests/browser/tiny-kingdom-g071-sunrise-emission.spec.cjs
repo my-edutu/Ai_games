@@ -58,9 +58,17 @@ test('G071 daylight transition preserves scenic VBO and replay with emissive gla
     glError:gl?.getError()??0};
  });
  expect(after.time-before.time).toBeCloseTo(crossed.steps/30,5);
- expect(after.cache.scenicMeshKey).toBe(before.cache.scenicMeshKey);
- expect(after.cache.scenicMeshRebuilds).toBe(before.cache.scenicMeshRebuilds);
- if(before.gl)expect(after.cache.staticGpuUploads).toBe(before.cache.staticGpuUploads);
+ if(before.gl){
+  // The WebGL presentation shader owns light and should not upload scenery.
+  expect(after.cache.scenicMeshKey).toBe(before.cache.scenicMeshKey);
+  expect(after.cache.scenicMeshRebuilds).toBe(before.cache.scenicMeshRebuilds);
+  expect(after.cache.staticGpuUploads).toBe(before.cache.staticGpuUploads);
+ }else{
+  // Canvas2D cannot execute GPU material shaders and intentionally preserves
+  // the original baked day/night glass palette and scene invalidation.
+  expect(after.cache.scenicMeshKey).not.toBe(before.cache.scenicMeshKey);
+  expect(after.cache.scenicMeshRebuilds).toBeGreaterThan(before.cache.scenicMeshRebuilds);
+ }
  expect(after.geometry.totalTriangles).toBe(before.geometry.totalTriangles);
  expect(after.geometry.totalTriangles).toBeLessThan(160000);
  for(const mesh of [after.geometry.static,after.geometry.dynamic]){
