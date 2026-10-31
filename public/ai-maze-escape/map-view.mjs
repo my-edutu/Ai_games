@@ -184,6 +184,55 @@ export function composePublicCameraFocus(stageBias, goalDelta, nearGoal = false,
   return {x: x * scale, z: z * scale};
 }
 
+/**
+ * Select a nearby sealed gate that the public snapshot ALREADY exposes.
+ * This is a visual obstacle, not a reachable waypoint or safe route. A gate
+ * with one known endpoint is rendered by the world, so its camera framing may
+ * use the same already-public door record. No undisclosed cell is traversed.
+ */
+export function publicNearbySealedGate(snapshot) {
+  const {currentCell, width, height} = snapshot ?? {};
+  if (!Number.isInteger(currentCell) || !Number.isInteger(width) || !Number.isInteger(height)
+    || width < 1 || height < 1 || currentCell < 0 || currentCell >= width * height
+    || snapshot.result) return null;
+  const known = new Set((Array.isArray(snapshot.cells) ? snapshot.cells : [])
+    .filter(cell => Number.isInteger(cell.cell) && !cell.blocked)
+    .map(cell => cell.cell));
+  if (!known.has(currentCell)) return null;
+  const gridDistance = (a, b) => Math.abs(a % width - b % width)
+    + Math.abs(Math.floor(a / width) - Math.floor(b / width));
+  const eligible = (Array.isArray(snapshot.doors) ? snapshot.doors : [])
+    .filter(door => !door.open && Number.isInteger(door.a) && Number.isInteger(door.b)
+      && door.a >= 0 && door.b >= 0 && door.a < width * height && door.b < width * height
+      && gridDistance(door.a, door.b) === 1)
+    .map(door => {
+      const sides = [door.a, door.b].filter(cell => known.has(cell));
+      return sides.length ? {a: door.a, b: door.b,
+        steps: Math.min(...sides.map(cell => gridDistance(currentCell, cell)))} : null;
+    })
+    .filter(gate => gate && gate.steps <= 1)
+    .sort((a, b) => a.steps - b.steps || a.a - b.a || a.b - b.b);
+  return eligible[0] ?? null;
+}
+
+/**
+ * Let Pip and an actually modeled closed gate share the shot. Since a sealed
+ * gate is NOT a legal route, it takes no role in publicObjective/AI guidance.
+ * A bounded screen-space center shift counters coastline bias; portrait pulls
+ * are weaker to keep the hero inside the narrow viewport.
+ */
+export function composePublicSealedGateFocus(stageBias, gateDelta, aspect = 1) {
+  const finite = value => Number.isFinite(value) ? value : 0;
+  const portrait = aspect < .9;
+  const stageWeight = portrait ? .10 : .15;
+  const gateWeight = portrait ? .32 : .45;
+  const x = finite(stageBias?.x) * stageWeight + finite(gateDelta?.x) * gateWeight;
+  const z = finite(stageBias?.z) * stageWeight + finite(gateDelta?.z) * gateWeight;
+  const limit = portrait ? 1.1 : 1.6;
+  const scale = Math.min(1, limit / (Math.hypot(x, z) || 1));
+  return {x: x * scale, z: z * scale};
+}
+
 export function drawMinimap(canvas, snapshot, highContrast = false) {
   if (!canvas || !snapshot) return;
   const context = canvas.getContext('2d');
