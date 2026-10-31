@@ -145,6 +145,10 @@ test('Marble WebGL broadcast renders authoritative tournament and captures runti
   await expect(page.locator('.leaderboard-panel.broadcast-overlay')).toBeHidden();
   await expect(page.locator('#arena-webgl')).toBeVisible();
   await expect(shell).toHaveAttribute('data-camera-cinema','pack-close',{timeout:5_000});
+  // Camera motion is deliberately eased; judge the settled composition rather
+  // than the first transitional frame after switching view modes.
+  await page.waitForFunction(()=>Number(document.querySelector('.broadcast-shell')?.dataset.cameraDistance)<17,
+    null,{timeout:5_000});
   const cinemaFraming=await page.evaluate(()=>{
     const frame=window.marbleRenderFrame,root=document.querySelector('.broadcast-shell');
     const marbles=(frame?.marbles||[]).filter(m=>m.status!=='eliminated'&&m.status!=='qualified');
