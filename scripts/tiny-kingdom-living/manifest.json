@@ -1,0 +1,33 @@
+{
+  "schema": 1,
+  "baseCommit": "6a1ed848c6fde2885af9c13d962dfb9edf6e18eb",
+  "files": [
+    {
+      "path": "public/tiny-kingdom/index.html",
+      "before": "b729a47541cf68509420bb685a9bdff4045f5a4461767d80f42b90a2d194d4e5",
+      "after": "42e1dc44ab68c1fafefc31365aca0d1c563b5a4bde52a4df75595063978324d9"
+    },
+    {
+      "path": "tests/tiny-kingdom/browser-harness.cjs",
+      "before": "2126c003a30dfe409ab82219dc63437aa1f05ca2aa632bfef0a7fd463c2673d2",
+      "after": "dd3fb2263e1bd76c69a5433a7bc7db19091bab447ec88ebdc3aa1c425a724c81"
+    },
+    {
+      "path": "scripts/serve-tiny-kingdom-stream.cjs",
+      "before": "d89d8e56611b474d0f1bc40cd1bab20ae8e3b127e5a6e1fd0fac791ecdf1b58f",
+      "after": "97588314b628bb666b33563e7307337dec1af550cb642f9d9b99a71dba41c4b8"
+    },
+    {
+      "path": "tests/tiny-kingdom/hd-server.test.cjs",
+      "before": "34208f4e366d5c7b6e53b9848cc0acddaeb60a870a1f00f3994295da89ef351d",
+      "after": "b6257a99f11dfc180daf69df714b923aa4f5e2835558aa9c6e3be606b32d094e"
+    }
+  ],
+  "parts": [
+    {"file":"edit-1.json","sha256":"9d6e1dd38089257d0c65ca38e2812fa48e0e7caee7e4ae88834ee754808896ff"},
+    {"file":"edit-2.json","sha256":"1e897f9987a3fe06116bb228e6a650162df819989d9019fb4f412181545e4ebe"},
+    {"file":"edit-3.json","sha256":"5622cc85dac1bad0b2a209332c51fb3f4d29446298b780dc79186e3a17dc18a6"},
+    {"file":"edit-4.json","sha256":"0ee58026c0c1286f945672a4fb072fdc5ff51e595ef1e07a3d67f8a4358e6357"},
+    {"file":"edit-5.json","sha256":"070571ac7d87ac7a659cb7719f07529b791efe3bfc79a5445bb59f1a7f6b2b6a"}
+  ]
+}

@@ -1,0 +1,99 @@
+name: Tiny Kingdom living district validation
+on:
+  workflow_dispatch:
+  push:
+    branches: [feat/tiny-kingdom-pagonia-recovery]
+    paths:
+      - '.github/workflows/tiny-kingdom-living.yml'
+      - 'scripts/tiny-kingdom-living/**'
+      - 'scripts/tiny-kingdom-living-stage.py'
+permissions:
+  contents: read
+concurrency:
+  group: tiny-living-draft
+  cancel-in-progress: false
+jobs:
+  verify:
+    if: github.ref == 'refs/heads/feat/tiny-kingdom-pagonia-recovery'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: write
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 20
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Materialize only the tested source and verify pinned baseline
+        run: |
+          mkdir -p artifacts/tiny-living
+          git show 6a1ed848c6fde2885af9c13d962dfb9edf6e18eb:public/tiny-kingdom/index.html > artifacts/tiny-living/baseline-source.html
+          echo 'b729a47541cf68509420bb685a9bdff4045f5a4461767d80f42b90a2d194d4e5  artifacts/tiny-living/baseline-source.html' | sha256sum -c -
+          python scripts/tiny-kingdom-living-stage.py
+      - name: Focused behavior, geometry, camera, mobile and HTTP boundaries
+        run: node --test tests/tiny-kingdom/*.test.cjs | tee artifacts/tiny-living/focused.log
+      - name: Compile and check the allowlisted stream server
+        run: |
+          npm run build | tee artifacts/tiny-living/build.log
+          npm run tiny:stream:self-test | tee artifacts/tiny-living/server.log
+      - name: Existing Tiny Kingdom browser regressions
+        run: timeout 480 npx playwright test --config playwright.tiny.config.cjs > artifacts/tiny-living/browser.log 2>&1
+      - name: Complete catalogue suite, fail closed
+        run: timeout 300 npm test > artifacts/tiny-living/catalogue.log 2>&1
+      - name: Sequential matched baseline and candidate, plus real work motion
+        run: |
+          node scripts/capture-tiny-living.cjs artifacts/tiny-living baseline artifacts/tiny-living/baseline-source.html > artifacts/tiny-living/baseline-capture.log
+          node scripts/capture-tiny-living.cjs artifacts/tiny-living living > artifacts/tiny-living/living-capture.log
+      - name: Record exact evidence and publish only this isolated draft
+        run: |
+          python - <<'PY'
+          import json,hashlib,re,shutil,os
+          from pathlib import Path
+          root=Path('artifacts/tiny-living');dest=Path('public/tiny-kingdom')
+          focused=(root/'focused.log').read_text();catalogue=(root/'catalogue.log').read_text();browser=(root/'browser.log').read_text()
+          def count(text,key):
+           found=re.search(r'^# '+key+r' (\d+)$',text,re.M)
+           if not found:raise RuntimeError('Missing final test count '+key)
+           return int(found.group(1))
+          if count(focused,'fail') or count(catalogue,'fail'):raise RuntimeError('A suite failed')
+          n=re.search(r'(\d+) passed',browser)
+          if not n:raise RuntimeError('Missing browser summary')
+          candidate=json.loads((root/'living-manifest.json').read_text())
+          if candidate['errors'] or candidate['sourceSha256']!=hashlib.sha256((dest/'index.html').read_bytes()).hexdigest():raise RuntimeError('Capture source mismatch or page error')
+          if candidate['renderer']['tier']=='canvas2d':raise RuntimeError('WebGL evidence required')
+          record={'focusedPassed':count(focused,'pass'),'focusedFailed':count(focused,'fail'),'browserPassed':int(n.group(1)),'cataloguePassed':count(catalogue,'pass'),'catalogueFailed':count(catalogue,'fail'),'sourceSha256':candidate['sourceSha256'],'runId':os.environ['GITHUB_RUN_ID'],'independentCritic':False,'benchmarkPassed':False,'productionReady':False}
+          (root/'living-verification.json').write_text(json.dumps(record,indent=2))
+          for file in root.iterdir():
+           if file.name.startswith(('baseline-','living-')) and file.suffix in ['.png','.json','.webm']:
+            if file.name=='baseline-live.webm':continue
+            shutil.copyfile(file,dest/file.name)
+          p=dest/'progress.html';s=p.read_text();banner='<p><a href="living">Living district, citizen close-ups and foliage — benchmark NOT PASSED</a></p>'
+          if banner not in s:p.write_text(s.replace('<body>','<body>\n'+banner+'\n',1))
+          PY
+          test "$GITHUB_REF" = refs/heads/feat/tiny-kingdom-pagonia-recovery
+          test "$(git ls-remote origin refs/heads/feat/tiny-kingdom-pagonia-recovery | cut -f1)" = "$GITHUB_SHA"
+          git add public/tiny-kingdom/index.html public/tiny-kingdom/progress.html public/tiny-kingdom/baseline-* public/tiny-kingdom/living-* scripts/serve-tiny-kingdom-stream.cjs tests/tiny-kingdom/browser-harness.cjs tests/tiny-kingdom/hd-server.test.cjs
+          git diff --cached --check
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          if ! git diff --cached --quiet; then
+            git commit -m 'feat(tiny-kingdom): verified living foliage, citizen close-ups and mesh caching'
+            git push origin HEAD:refs/heads/feat/tiny-kingdom-pagonia-recovery
+          fi
+          git rev-parse HEAD > artifacts/tiny-living/verified-commit.txt
+          git archive --format=tar HEAD | gzip > artifacts/tiny-living/source.tar.gz
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tiny-kingdom-living-${{ github.run_id }}
+          path: artifacts/tiny-living
+          retention-days: 14
+          if-no-files-found: error
