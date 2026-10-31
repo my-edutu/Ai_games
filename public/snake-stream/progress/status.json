@@ -1,14 +1,14 @@
 {
-  "updatedAt": "2026-10-31T06:50:00.000Z",
-  "status": "Round 18 · foreground fruit sightline candidate; exact-source CI pending",
-  "detail": "Near-head food can occlude the serpent in detail view. A deterministic camera-only ±45° bounded sightline selection preserves the original public food/face/world geometry and overview/follow views; new Node projection and real WebGL stress-image checks require CI. Latest base 41173330039: 15/16; 9 actual renders /1002ms vs unchanged minimum 17. No independent visual win or production readiness.",
+  "updatedAt": "2026-10-31T06:53:34.373Z",
+  "status": "Round 18 · actual WebGL sightline capture verified; desktop actual-draw gate remains FAILED",
+  "detail": "Exact-source 035216c: synthetic near-food stress WebGL screenshot passed and shows the face unoccluded; two normal real WebGL frozen overview images are pixel-identical to the prior source (0 different pixels). Focused browser 16/17 (8 actual submissions/1010.3ms vs minimum 17); general 545/545 Node green, browser 28/29 (8 actual submissions/1007.6ms vs minimum 17). Whole-game visual, motion, R5 and performance remain unapproved.",
   "latestImage": "/progress/evidence/round-9-overview.jpg",
-  "latestCaption": "Historical Round 9 image (not Round 18). Round 18 authentic WebGL stress-fixture screenshot is pending GitHub Actions, and must not be mislabeled live gameplay.",
+  "latestCaption": "Historical Round 9 image (not Round 18). Current true WebGL Round 18 character, overview, portrait, synthetic fruit-sightline stress images and 19.08s motion are available in actual CI artifacts, linked below.",
   "reviews": [
     {
       "area": "Round 18 · close-up food/face occlusion",
-      "verdict": "CANDIDATE · exact-head CI and actual stress screenshot PENDING · overall LOSE",
-      "gap": "One near-head fruit can block the serpent face. Detail-only camera azimuth selection is now covered by projected-separation regression. No authority, food, UI or view fallback changes; base desktop pace 9 actual renders/1002ms vs 17. Independent critic unavailable."
+      "verdict": "FOCUSED WEBGL CAPTURE VERIFIED · 545/545 NODE GREEN · ACTUAL-DRAW GATE FAILED · WHOLE-GAME LOSE",
+      "gap": "Synthetic near-head food fixture (real WebGL capture) shows face clearly beside fruit. Matched normal cached/direct 960x640 overview screenshots are pixel-identical against prior source. Focused browser 16/17 with 8 actual renders/1010.3ms; general browser 28/29 with 8/1007.6ms (min 17). Independent critic and device soak unavailable; official Snake Pass still wins character/world/motion."
     },
     {
       "area": "Round 17 · actual WebGL color equivalence and quality",
@@ -279,8 +279,21 @@
     },
     {
       "title": "Round 18 · foreground fruit sightline",
-      "summary": "Candidate camera-only correction for fruit hiding the serpent face. Four-heading desktop/portrait projection regressions and a separately labeled synthetic WebGL stress capture; CI and visual judgment still pending. Food, gameplay, safety view and existing pacing gate remain unchanged.",
-      "captures": []
+      "summary": "Exact source 035216c: new real WebGL synthetic foreground-food stress capture passed and exposes the serpent face, while normal frozen overview before/after images are pixel-identical to prior source. General 545/545 Node green; focused 16/17 and general browser 28/29 fail unchanged 17 actual-draw cadence at 8/1010.3ms and 8/1007.6ms. Commercial visual benchmark still LOSE; independent critic unavailable.",
+      "captures": [
+        {
+          "label": "Actual WebGL character, overview, portrait and labeled synthetic food-sightline stress fixture",
+          "path": "https://github.com/my-edutu/Ai_games/actions/runs/41177849409/artifacts/13034200025"
+        },
+        {
+          "label": "Real 19.08-second gameplay motion recording",
+          "path": "https://github.com/my-edutu/Ai_games/actions/runs/41177849409/artifacts/13033895958"
+        },
+        {
+          "label": "Exact-head browser metrics and real submitted-frame results",
+          "path": "https://github.com/my-edutu/Ai_games/actions/runs/41177849409/artifacts/13033534430"
+        }
+      ]
     }
   ],
   "checks": [
