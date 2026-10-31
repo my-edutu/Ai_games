@@ -1,0 +1,30 @@
+'use strict';
+const {test,expect}=require('@playwright/test');
+const fs=require('node:fs');fs.mkdirSync('artifacts',{recursive:true});
+const {DungeonRuntime}=require('../../dist/games/ai-dungeon/src/index.js');
+const sample=()=>{const game=DungeonRuntime.create('visual-room-art-18');for(let i=0;i<18;i++)game.step();return game.publicState()};
+test('genuine seeded dungeon renders distinct sculptural wall niches without covering heroes',async({page,request})=>{
+ for(const route of ['/dungeon/setpiece-plan.js','/dungeon/dungeon-setpieces.js'])expect((await request.get(route)).status()).toBe(200);
+ const state=sample();await page.route('**/dungeon/state',route=>route.fulfill({json:state}));
+ const errors=[];page.on('pageerror',error=>errors.push(error.message));await page.goto('/dungeon');
+ await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.frame??0),{timeout:30000}).toBeGreaterThan(3);
+ const diag=await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__);
+ expect(diag.atmosphere.roomArt.motif).toBe('ossuary');
+ expect(diag.atmosphere.roomArt.landmarks).toBeGreaterThanOrEqual(4);
+ expect(diag.atmosphere.roomArt.wallReliefs).toBe(diag.atmosphere.roomArt.landmarks);
+ expect(diag.atmosphere.roomArt.uniqueSculptureFamilies).toBe(4);
+ expect(diag.composition.visibleHeroes).toBeGreaterThan(0);
+ expect(diag.visibility.unoccludedHeroes).toBeGreaterThan(0);
+ expect(errors).toEqual([]);
+ await page.screenshot({path:'artifacts/dungeon-room18-desktop.png'});
+ await page.locator('.arena').evaluate(node=>node.classList.add('world-only-audit'));
+ await page.locator('#world').screenshot({path:'artifacts/dungeon-room18-world-only.png'});
+});
+test('mobile biome artwork loads without losing the hero or overflowing controls',async({page})=>{
+ const state=sample();await page.setViewportSize({width:390,height:844});
+ await page.route('**/dungeon/state',route=>route.fulfill({json:state}));await page.goto('/dungeon');
+ await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.atmosphere?.roomArt?.landmarks??0),{timeout:30000}).toBeGreaterThan(3);
+ await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.composition?.visibleHeroes??0),{timeout:15000}).toBeGreaterThan(0);
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
+ await page.screenshot({path:'artifacts/dungeon-room18-mobile.png',fullPage:true});
+});

@@ -2,7 +2,7 @@
 const path=require('node:path');
 const {defineConfig}=require('@playwright/test');
 module.exports=defineConfig({
- testDir:'.',testMatch:['dungeon-stream.spec.cjs','dungeon-materials.spec.cjs','dungeon-interface.spec.cjs'],
+ testDir:'.',testMatch:['dungeon-stream.spec.cjs','dungeon-materials.spec.cjs','dungeon-interface.spec.cjs','dungeon-setpieces.spec.cjs'],
  // One renderer per runner; fullyParallel distributes individual tests across CI shards.
  workers:1,fullyParallel:true,
  timeout:60000,expect:{timeout:15000},

@@ -1,4 +1,5 @@
 import * as THREE from '/dungeon/vendor/three.module.js';
+import {createDungeonSetpieces} from '/dungeon/dungeon-setpieces.js';
 
 /**
  * Broadcast-grade procedural set dressing that is never authoritative.
@@ -29,13 +30,13 @@ function gradientTexture(biome,floor){
 }
 export function createBiomeAtmosphere(root,map,floor,exit){
  const f=(floor-1)%BIOMES.length,biome=BIOMES[f],size=map.length,offset=(size-1)/2,objects=new THREE.Group();root.add(objects);
- const material=[],geometries=[],textures=[],floaters=[],lights=[],animation=[];
+ const material=[],geometries=[],textures=[],lights=[],animation=[];
  const register=(mat)=>{material.push(mat);return mat},geometry=(geo)=>{geometries.push(geo);return geo};
- const emissive=register(new THREE.MeshStandardMaterial({color:biome.glow,emissive:biome.glow,emissiveIntensity:2.6,metalness:.38,roughness:.25}));
- const pale=register(new THREE.MeshStandardMaterial({color:biome.bright,emissive:biome.secondary,emissiveIntensity:.7,metalness:.28,roughness:.42}));
+ const emissive=register(new THREE.MeshStandardMaterial({color:biome.glow,emissive:biome.glow,emissiveIntensity:1.15,metalness:.38,roughness:.25}));
+ const pale=register(new THREE.MeshStandardMaterial({color:biome.bright,emissive:biome.secondary,emissiveIntensity:.32,metalness:.28,roughness:.42}));
  const dark=register(new THREE.MeshStandardMaterial({color:biome.shadow,metalness:.68,roughness:.41}));
  const plant=register(new THREE.MeshStandardMaterial({color:biome.plant,roughness:.9,side:THREE.DoubleSide}));
- const glimmer=register(new THREE.MeshBasicMaterial({color:biome.bright,transparent:true,opacity:.62,depthWrite:false,blending:THREE.AdditiveBlending,side:THREE.DoubleSide}));
+ const glimmer=register(new THREE.MeshBasicMaterial({color:biome.bright,transparent:true,opacity:.38,depthWrite:false,blending:THREE.AdditiveBlending,side:THREE.DoubleSide}));
  const glowTexture=gradientTexture(biome,floor);textures.push(glowTexture);glimmer.map=glowTexture;glimmer.needsUpdate=true;
  const pools=[],innerPools=[],spires=[],spikeCaps=[],growth=[],mushroomHeads=[],plinths=[],runes=[],ceilingDrops=[];
  const stoneGeo=geometry(new THREE.BoxGeometry(1,1,1)),spearGeo=geometry(new THREE.ConeGeometry(.5,1,7));
@@ -103,32 +104,18 @@ export function createBiomeAtmosphere(root,map,floor,exit){
   if(safe(x,z)&&walk(x-1,z)&&walk(x+1,z)&&walk(x,z-1)&&walk(x,z+1))spotlightLocations.push([x,z,hash(x,z,floor)]);
  }
  spotlightLocations.sort((a,b)=>a[2]-b[2]);
- for(const [x,z,h] of spotlightLocations.slice(0,4)){
+ for(const [x,z,h] of spotlightLocations.slice(0,2)){
   const ray=new THREE.Mesh(shaftGeo,shaftMaterial);ray.position.set(x-offset,1.85,z-offset);ray.scale.set(1,3.85,1);
   ray.rotation.z=((h%9)-4)*.025;objects.add(ray);shafts.push(ray);
  }
  
- // A few monumental handcrafted-feeling landmarks on walkable larger chambers.
- const candidates=[];
- for(let z=3;z<size-3;z++)for(let x=3;x<size-3;x++){
-  if(!safe(x,z)||!(walk(x-1,z)&&walk(x+1,z)&&walk(x,z-1)&&walk(x,z+1)))continue;
-  candidates.push({x,z,score:hash(x,z,floor)});
- }
- if(!candidates.length){for(let z=2;z<size-2;z++)for(let x=2;x<size-2;x++)if(safe(x,z)){candidates.push({x,z,score:hash(x,z,floor)})}}
- candidates.sort((a,b)=>a.score-b.score);
- for(const tile of candidates.slice(0,4)){
-  const wx=tile.x-offset,wz=tile.z-offset,g=new THREE.Group();g.position.set(wx,0,wz);
-  const bottom=new THREE.Mesh(geometry(new THREE.CylinderGeometry(.39,.52,.24,10)),dark);bottom.position.y=.10;g.add(bottom);
-  const shaft=new THREE.Mesh(geometry(new THREE.CylinderGeometry(.13,.26,1.45,10)),pale);shaft.position.y=.90;g.add(shaft);
-  const crown=new THREE.Mesh(geometry(new THREE.IcosahedronGeometry(.28,1)),emissive);crown.position.y=1.86;g.add(crown);
-  const halo=new THREE.Mesh(ringGeo,glimmer);halo.position.y=1.85;halo.rotation.x=Math.PI/2;g.add(halo);
-  for(let k=0;k<4;k++){const angle=k*Math.PI/2,shard=new THREE.Mesh(crystalGeo,pale);shard.position.set(Math.cos(angle)*.49,1.46,Math.sin(angle)*.49);shard.scale.set(.2,.44,.2);g.add(shard)}
-  objects.add(g);floaters.push({g,halo,phase:tile.score%1024});
- }
+ // A small number of floor-specific sculpted reliefs replaces four repeated
+ // giant white-glowing obelisks. Render-only anchors hug real wall tiles.
+ const setpieces=createDungeonSetpieces(root,map,floor,exit);
  // Five animated pools at most; every other source of intensity is stable.
  const selected=pools.slice(0,5);
  selected.forEach(([x,,z],i)=>{
-  const light=new THREE.PointLight(biome.glow,1.8,4.2,2);light.position.set(x,1.15,z);objects.add(light);lights.push(light);
+  const light=new THREE.PointLight(biome.glow,1.1,3.4,2);light.position.set(x,1.15,z);objects.add(light);lights.push(light);
  });
  const moteGeo=geometry(new THREE.IcosahedronGeometry(.03,0)),moteMat=register(new THREE.MeshBasicMaterial({color:biome.bright,transparent:true,opacity:.6,depthWrite:false}));
  const count=48,particle=new THREE.InstancedMesh(moteGeo,moteMat,count);
@@ -145,13 +132,13 @@ export function createBiomeAtmosphere(root,map,floor,exit){
    matrix.compose(p,q,scale);particle.setMatrixAt(i,matrix);
   }
   particle.instanceMatrix.needsUpdate=true;
-  for(const w of floaters){w.halo.rotation.z=time*.25;w.g.children[2].position.y=1.86+Math.sin(time*.9+w.phase)*.07}
-  for(let i=0;i<lights.length;i++)lights[i].intensity=1.7+Math.sin(time*2+i)*.35;
+  setpieces.update(time);
+  for(let i=0;i<lights.length;i++)lights[i].intensity=1.05+Math.sin(time*2+i)*.16;
   shaftMaterial.opacity=.05+Math.sin(time*.55)*.012;
  };
- const metrics={biome:biome.name,landmarks:floaters.length,glowSources:lights.length,particles:count,liquidOrRifts:pools.length,crystalClusters:spires.length,backgroundStructures:distantColumns.length,lightShafts:shafts.length};
+ const metrics={biome:biome.name,landmarks:setpieces.metrics.landmarks,roomArt:setpieces.metrics,glowSources:lights.length,particles:count,liquidOrRifts:pools.length,crystalClusters:spires.length,backgroundStructures:distantColumns.length,lightShafts:shafts.length};
  return{update,metrics,dispose(){
-  objects.parent?.remove(objects);
+  setpieces.dispose();objects.parent?.remove(objects);
   for(const m of material)m.dispose();for(const t of textures)t.dispose();for(const g of geometries)g.dispose();
  }};
 }
