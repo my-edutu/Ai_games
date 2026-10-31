@@ -33,23 +33,31 @@ Look at jump-to-land resets, recovered-state stale poses, landing visibility in 
 
 Files: public/ai-vs-1000-floors/character-performance.js (new pure pose modulation), character.js, scene.js; tests/foundation/thousand-floors-cast.test.cjs.
 Interface: samplePerformance(action, time, reduced, motion) returns finite bounded gaze, breathing, finger, scarf, face and companion parameters. createCharacter API stays root/animate/dispose.
-- [ ] Add failing tests: deterministic input, finite invalid-input fallback, action distinctions, reduced ambient motion, articulated digits/scarf/jaw/companion parts, no stale state on action changes, bounded geometry and disposal.
-- [ ] Implement performance module, articulated glove digits, segmented scarf, facial expression, surface microdetail and semantic companion reactions. Feed look direction/reward age from existing snapshots only.
-- [ ] Run focused tests, actual-game capture and inspect ordinary/jump/wait/landing/celebration poses. Fix findings before moving on.
+- [x] Add failing tests: deterministic input, finite invalid-input fallback, action distinctions, reduced ambient motion, articulated digits/scarf/mouth/companion parts, no stale state on action changes, bounded geometry and disposal.
+- [x] Implement performance module, articulated glove digits, segmented scarf, facial expression, surface microdetail and semantic companion reactions. Feed look direction/reward age from existing snapshots only.
+- [x] Run focused tests, actual-game capture and inspect ordinary/jump/wait/landing/celebration poses. Fix findings before moving on.
 
 ## Task 2 — differentiated platform architecture
 
 Files: public/ai-vs-1000-floors/platform-architecture.js (new), environment.js, static server allowlist; tests/foundation/thousand-floors-platform-art.test.cjs.
 Interface: createPlatformArchitecture(platform, materials, districtIndex, variant) returns local-space Group below y=-.12. Source layout never mutated; materials remain palette-owned.
-- [ ] Add failing tests: ten distinct geometry signatures, fixed footprint, below-contact bounds, finite vertex data, hard triangle budget, deterministic builds, missing/invalid district fallback, explicit server routes.
-- [ ] Replace repeated understructure with bounded district-specific colonnades, ribs, bracing, root/astral/crown forms. Reuse palette materials and static batching.
-- [ ] Run focused, campaign/camera and actual-game checks; inspect desktop/portrait and four districts. Confirm route arrows/hazards remain visible.
+- [x] Add failing tests: ten distinct geometry signatures, fixed footprint, below-contact bounds, finite vertex data, hard triangle budget, deterministic builds, missing/invalid district fallback, explicit server routes.
+- [x] Replace repeated understructure with bounded district-specific colonnades, ribs, bracing, root/astral/crown forms. Reuse palette materials and static batching.
+- [x] Run focused, campaign/camera and actual-game checks; inspect desktop/portrait and four districts. Confirm route arrows/hazards remain visible.
 
 ## Task 3 — evidence, iteration and integration
 
 Files: tests/browser/thousand-floors.spec.cjs, scripts/capture-thousand-floors.cjs, docs/gauntlet/thousand-floors/ITERATION-7.md, PROGRESS.md, public/ai-vs-1000-floors/progress.json, evidence.
-- [ ] Expand real-game coverage for Journey, modal shortcuts and clean-feed restore.
-- [ ] Run npm test, npm run floors:build, focused test:floors and actual browser suite; record exact source and environment.
-- [ ] Capture real worker-driven motion/stills; create separate labeled cast inspection material only if necessary (never substitute it for gameplay).
-- [ ] Self-review specification then visual quality, fix material regressions, publish coherent commit to existing branch using expected-head compare-and-swap.
-- [ ] Update live progress page with images, notes, test scope and open gaps. Do not claim benchmark victory, production readiness, independent review, or background execution.
+- [x] Expand real-game coverage for Journey, modal shortcuts and clean-feed restore.
+- [x] Run npm test, npm run floors:build, focused test:floors and actual browser suite; record exact source and environment.
+- [x] Capture real worker-driven motion/stills; create separate labeled cast inspection material only if necessary (never substitute it for gameplay).
+- [x] Self-review specification then visual quality, fix material regressions, publish coherent commit to existing branch using expected-head compare-and-swap.
+- [x] Update live progress page with verified capture links, notes, test scope and open gaps. Do not claim benchmark victory, production readiness, independent review, or background execution.
+
+## Execution record
+
+Completed as a source increment, not a benchmark win: local 549/549, focused 46/46, real-game Chromium 8/8 at source 99f4131. Three observed self-review corrections and exact evidence scope are in docs/gauntlet/thousand-floors/ITERATION-7.md. No fresh independent agent was available.
+
+Rulings: add bounded reflection lighting after the first visual finding; refine only large helmet/body curves after the next finding; use camera-relative companion presentation without changing authority; retain existing contact rectangles and conservative camera. Added GPU texture cost, a camera-relative rather than independently simulated companion, and remaining small cast scale are explicit tradeoffs.
+
+A redundant final catalogue run hit the 200-second command limit without a summary; it is not counted as a pass. The earlier completed 549/549 log is retained. A later focused rerun completed 46/46 and the browser build passed.

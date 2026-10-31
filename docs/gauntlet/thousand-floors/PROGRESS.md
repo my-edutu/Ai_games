@@ -1,16 +1,22 @@
 # Game 4 — THOUSAND: Gauntlet progress
 
-## Current verdict: iteration 6 reviewed in the real game; benchmark not passed
+## Current verdict: iteration 7 reviewed in the real game; benchmark not passed
 
-Product source `bfa34ec1fb93d478d5ddb87c051ef8d8f602bd5d` adds ten distinct district material/light palettes, surface relief, gradient skies and original architectural landmarks. The compact iteration-5 HUD runs with the real campaign again. **535 local catalogue tests, 32 focused checks and six actual-game browser tests pass.** Five new high-quality WebGL stills were inspected across four districts and portrait, without recorded page/HTTP errors.
+Product source `99f4131d7c4510c5a38893bd0602633367643a82` adds a 43-bone expressive cast, ten distinct platform understructures, original district reflection lighting, smoother helmet curvature and camera-readable companion placement. **549 local catalogue tests, 46 focused Game 4 checks and eight actual-game browser tests pass.** Five high-quality WebGL scene stills, four separately labeled isolated-cast shots and an actual worker-driven recording were inspected.
 
-Read [iteration 6: exact evidence, costs and visual self-review](ITERATION-6.md). [Actual screenshot artifact](https://github.com/my-edutu/Ai_games/actions/runs/41164336812/artifacts/13029195358) is retained by CI for seven days; the capture script is committed for reproduction. The running progress page links directly to current district review routes.
+A redundant pre-publication catalogue-wide rerun was stopped by the 200-second command timeout after printing 457 passing subtests and no summary. It is incomplete, not a second full-suite pass; the completed 549/549 result above is retained with its log. A subsequent focused rerun completed 46/46 and the browser build passed.
 
-The benchmark remains **not passed**. This retry was self-reviewed because the worker service stayed offline, not independently judged against ASTRO BOT. Character models and campaign rules were deliberately preserved. Repeated square platforms, sparse distant scenery and stronger expressive motion remain the largest gaps. The toolchain's two high-severity audit warnings also remain a release concern.
+Read [iteration 7: evidence, corrections and remaining gaps](ITERATION-7.md). [Actual capture artifact](https://github.com/my-edutu/Ai_games/actions/runs/41168794874/artifacts/13030193138) is retained for seven days, to 7 November 2026; scripts are committed for reproduction. The running progress page records each correction and links to the captures and source-specific tests.
+
+**The benchmark remains not passed.** This increment was self-reviewed because the worker service remained offline; no new independent or blind ASTRO BOT judgment is claimed. The fixed camera, contact footprint, campaign and saves remain unchanged. Square landing tops, sparse scenery, small in-game cast scale and motion polish remain open. The recorded software-renderer frame gap reached 2,733 ms; hardware performance, long GPU soak and the two prior high-severity toolchain audit findings are unresolved.
+
+## Historical iteration 6
+
+Source `bfa34ec1fb93d478d5ddb87c051ef8d8f602bd5d` introduced ten district palettes, relief maps, skies and architectural landmarks, with 535 local tests, 32 focused checks and six actual-game browser tests. Its captures reported 26 textures. These are historical counts, not iteration-7 performance. See [iteration 6](ITERATION-6.md).
 
 ## Historical evidence through iteration 4
 
-The image, counts and independent reviews below are the historical iteration-4 record, not current iteration-6 performance measurements. Current high-quality desktop stills report 26 textures and 102–205 draw calls; no hardware FPS or long-soak result is claimed.
+The image, counts and independent reviews below are the historical iteration-4 record, not current iteration-7 performance measurements. Iteration-7 high-quality desktop stills report 31 textures and 102–205 draw calls; no hardware FPS or long-soak result is claimed.
 
 Baseline `d1678cd` named Game 4 in the catalogue but had no playable Game 4 runtime. These captures therefore show the development of a new implementation from that verified starting point.
 
@@ -48,3 +54,14 @@ No blind study is claimed: recognizable characters and HUDs reveal the sources. 
 ## Run and inspect
 
 From the repository root: `npm ci`, then `npm run floors:stream`. Open **http://localhost:4184/floors/** and **http://localhost:4184/floors/progress**. The latter refreshes its evidence record every five seconds while open; it does not itself launch builders or create new iterations. See the [game README](../../../games/ai-vs-1000-floors/README.md) for controls, review URLs and validation commands.
+
+
+## 31 October 2026 — iteration 7: cast, stage and visual corrections
+
+Source `99f4131d7c4510c5a38893bd0602633367643a82` completes three implemented/self-reviewed revisions: articulated cast and district platform geometry (`9e2b387`), original reflection lighting after a flat-material finding (`726e570`), and smoother helmet plus camera-readable companion (`99f4131`). No campaign/save/landing-footprint changes.
+
+Fresh results: **549/549 local catalogue tests**, **46/46 focused Game 4 tests**, **8/8 actual-game low-tier Chromium tests**, and both runtime builds. Five actual high-quality scene stills and a worker-driven recording were inspected; four additional cast shots are explicitly isolated fixtures, not gameplay. Final scene diagnostics report 31 textures, and the software motion session shows a 2,733ms maximum observed frame gap. Hardware performance/soak are not established.
+
+[Iteration record and rulings](ITERATION-7.md) · [Exact-source browser run](https://github.com/my-edutu/Ai_games/actions/runs/41168794874) · [Capture artifact, seven-day retention](https://github.com/my-edutu/Ai_games/actions/runs/41168794874/artifacts/13030193138) · [Short continuation prompt](CONTINUE_PROMPT.md).
+
+**Reference benchmark not passed.** The independent worker/ultracode path remains unavailable, and no fresh blind reference judgment was run. Self-review found improved silhouette separation and platform diversity, but square tops, sparse terrain, conservative cast scale and continuous-motion polish remain open. This is a draft review increment, not a merge, deployment or unattended loop.
