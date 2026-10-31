@@ -135,7 +135,7 @@
       "round": 19,
       "at": "2026-10-31",
       "commit": "8c29d54cb886f12ba4fd602d57cea078feb6ea6e",
-      "status": "TWO R19 BROWSER RUNS 42/43, DIFFERENT SOFTWARE-WEBGL SCREENSHOT TIMEOUTS; THIRD RERUN PENDING; VISUAL BAR NOT MET",
+      "status": "THREE R19 BROWSER RUNS 42/43; LAST VERIFIED FAILURE FX RE-ENABLE; SUPERSEDED BY R20",
       "sampleSeeds": 24,
       "ticksPerSeed": 900,
       "highestFloor": 9,
@@ -155,7 +155,10 @@
         "repoBrowserTestsPassed": 15,
         "browserRetest2Pass": 42,
         "browserRetest2Fail": 1,
-        "browserRetest2Issue": "full-page ranger screenshot began ~46s into 60s test budget"
+        "browserRetest2Issue": "full-page ranger screenshot began ~46s into 60s test budget",
+        "browserRetest3Pass": 42,
+        "browserRetest3Fail": 1,
+        "browserRetest3Issue": "Actual browser bloom re-enable remained direct after 10 seconds (not a screenshot-only timeout)."
       },
       "verification": {
         "browserRun": null,
@@ -167,7 +170,7 @@
         "secondBrowserRun": 41175823238,
         "integratedCIRun2": 41175823240,
         "visualReviewRun2": 41175823332,
-        "thirdBrowserRun": null
+        "thirdBrowserRun": 41176391945
       },
       "nextLargestGap": "Original higher-detail hero/enemy models and authored material/animation quality; actual matched WebGL scene critique required.",
       "artifactUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41175209789/artifacts/13032609012"
@@ -175,26 +178,54 @@
     {
       "round": 20,
       "at": "2026-10-31",
-      "commit": null,
-      "status": "CANDIDATE: ROUND 20 BROWSER / CI ACCEPTANCE PENDING",
-      "sampleSeeds": null,
-      "ticksPerSeed": null,
-      "highestFloor": null,
-      "determinismFailures": null,
-      "visualVerdict": "Tighter real cinematic camera and bounded bloom offscreen pixels implemented. New post-change WebGL comparison and independent review not yet performed. Diablo IV benchmark NOT MET.",
+      "commit": "c5f2cccd5de4509541c75b7f8b19a192a1d66055",
+      "status": "VERIFIED 43/43 REAL BROWSER; 542/542 SOFTWARE; 15/15 SHARED BROWSER; 24×900 REPLAY; AAA BAR NOT MET",
+      "sampleSeeds": 24,
+      "ticksPerSeed": 900,
+      "highestFloor": 9,
+      "determinismFailures": 0,
+      "visualVerdict": "Inspected actual Round 19 and Round 20 software-WebGL screenshots from identical visual-room-art-18 seed, 18 authority ticks, 1440×832 canvas. R20 camera makes existing textured characters visibly larger, but reduces context and reveals repetitive blocky walls; not Diablo IV/No Rest for the Wicked/PoE2 fidelity. Video of real autonomous boss combat and floor transition inspected; no mockups or blind reference judging.",
       "evidenceMetrics": {
         "offscreenBloomMaxPixels": 850000,
         "localPureBudgetTestsPassed": 3,
-        "independentBlindComparison": false
+        "independentBlindComparison": false,
+        "matchedSeed": "visual-room-art-18",
+        "matchedTicks": 18,
+        "webglWidth": 1440,
+        "webglHeight": 832,
+        "previousMeanLuminance": 22.64,
+        "currentMeanLuminance": 23.01,
+        "previousLitFraction": 0.294,
+        "currentLitFraction": 0.286,
+        "previousColourFraction": 0.269,
+        "currentColourFraction": 0.277,
+        "measurement": "Computed from same-size real raw-WebGL PNGs resized to 160×100 with Pillow bilinear resampling; not a quality score.",
+        "focussedBudgetTestsPassed": 3,
+        "coreDungeonTestsPassed": 20,
+        "otherDungeonPresentationTestsPassed": 17,
+        "repoSoftwareTestsPassed": 542,
+        "repoSharedBrowserTestsPassed": 15,
+        "realDedicatedBrowserPassed": 43,
+        "realDedicatedBrowserFailed": 0,
+        "headlessSeedRuns": 24,
+        "headlessTicksPerSeed": 900,
+        "headlessHighestFloor": 9,
+        "headlessDeterminismFailures": 0,
+        "previousRealBrowserFXToggleFailed": true,
+        "currentRealBrowserFXTogglePassed": true,
+        "playbackProofSeconds": 14.84
       },
       "verification": {
-        "browserRun": null,
-        "integratedCIRun": null,
-        "headlessRun": null,
+        "browserRun": 41178964343,
+        "integratedCIRun": 41178964256,
+        "headlessRun": 41178964343,
+        "visualReviewRun": 41178964252,
+        "browserShard2Artifact": 13033044879,
         "independentReview": false,
         "productionReady": false
       },
-      "nextLargestGap": "Original artist-quality hero/enemy models and rigs, combat animations, material and environment realism."
+      "nextLargestGap": "Original artist-quality hero/enemy models and rigs, combat animations, material and environment realism.",
+      "artifactUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41178964343/artifacts/13033044879"
     }
   ]
 }
