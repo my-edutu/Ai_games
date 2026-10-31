@@ -29,8 +29,8 @@ test('real WebGL: original public-food skull attention is visible against exact 
   const r36Blocks = /^[ \t]*\/\/ BEGIN R36 [^\n]*\n[\s\S]*?^[ \t]*\/\/ END R36 [^\n]*\n/gm;
   expect((previous.match(r36Blocks) || []).length).toBe(7);
   const r37Blocks = /^[ \t]*\/\/ BEGIN R37 [^\n]*\n[\s\S]*?^[ \t]*\/\/ END R37 [^\n]*\n/gm;
-  expect((previous.match(r39Blocks) || []).length).toBe(3);
   const r39Blocks = /^[ \t]*\/\/ BEGIN R39 [^\n]*\n[\s\S]*?^[ \t]*\/\/ END R39 [^\n]*\n/gm;
+  expect((previous.match(r39Blocks) || []).length).toBe(3);
   expect((previous.match(r37Blocks) || []).length).toBe(2);
   expect(hash(previous.replace(r36Blocks, '').replace(r37Blocks, '').replace(r39Blocks, ''))).toBe('6d0dd900301c5f684567ab94a185f9535ee6d69c');
   const captures={};
