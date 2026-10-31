@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-10-31T01:49:30.210Z",
+  "updatedAt": "2026-10-31T02:08:28.464Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Tenth pass visually distinguishes a legal publicly known first passage to an observed exit/key from the AI's own planned movement. Actual 2026-10-31 production-source browser image confirms the mint known-exit cue at seed maze-visual-reference-13, tick 26. The landmark/portal remains cramped and the hero small compared with fixed Captain Toad imagery. Last independent critics favored Nintendo; fresh independent critics unavailable. Final-source Node tests passed, but CI browser suite has one 600ms tick-cadence failure under heavily CPU-throttled rendering, so full engineering clearance is not claimed."
+    "summary": "Eleventh pass has real production-seed browser evidence (2026-10-31T02:07:46.806Z) showing a larger Pip and a less obstructed disclosed exit arch after redundant beacon geometry was suppressed. The same frame exposes a new camera-composition tradeoff: too much empty water at left and clipped right-hand stage. Source 12d32cb passed 521/521 Node and 25/25 browser checks, with no adjusted timing threshold. The last independent critics still prefer the fixed Captain Toad reference; fresh blind A/B and hardware performance review remain unavailable."
   },
   "captures": [
     {
@@ -103,16 +103,15 @@
     "Sixth pass: real production snapshots now select an actually close, already-disclosed Thornback/Pip encounter; actual browser evidence records both actors on screen, source/image SHA-256 hashes and seed/tick. An amplified public-threat-only head/gaze/lantern/mask response is tested without changing deterministic game authority.",
     "Seventh pass: two original model-level silhouette cues now make nearby already-disclosed guardian encounters clearer, using Pip's gold/coral exclamation signal and Thornback's raised glowing spines. Real current-source CI captures prove both actors share the frame; terminal and undisclosed-threat states suppress the cues without changing AI/game authority.",
     "Eighth pass: a reuse-only pool of in-world ivory direction arrows marks genuinely known, reciprocally legal neighboring corridors; teal is reserved for a current disclosed AI-plan step. Closed gate edges and stale/nonreciprocal plans are suppressed, while the misleading gold threat halo is now a triangular warning signal. This changes only presentation; current-source CI and authentic dated evidence were captured.",
-    "Ninth and tenth passes: a known, connected public key/exit now gets a distinctive in-world beacon and a separate first-step floor arrow (amber for key, mint for exit), while turquoise continues to denote only the disclosed AI plan. Tests exclude closed gates, blocked/nonreciprocal/unknown cells, hidden goals and terminal states. One native 1280×900 current-source image authenticates the known exit cue; visual bar remains unpassed."
+    "Ninth and tenth passes: a known, connected public key/exit now gets a distinctive in-world beacon and a separate first-step floor arrow (amber for key, mint for exit), while turquoise continues to denote only the disclosed AI plan. Tests exclude closed gates, blocked/nonreciprocal/unknown cells, hidden goals and terminal states. One native 1280×900 current-source image authenticates the known exit cue; visual bar remains unpassed.",
+    "Eleventh pass: a known exit's modeled arch is no longer crowded by a redundant hovering beacon; its low ground marker and truthful first-step glyph remain. Nearby already-observed objectives receive closer follow framing without altering AI state. Real dated 1280×900 evidence shows a larger Pip but also a less balanced water/stage composition, now the next visual gap."
   ],
   "nextGaps": [
-    "Separate, native-size blind critique of the real current known-exit scene versus the fixed Nintendo frames; make explorer/portal legible without overlapping beacon and without implying any path is safe. Verify a real key/closed-door case and distinguish the one CI 600ms tick-stall from a product defect.",
-    "Independent fresh-context label-blind same-seed/tick seventh-vs-eighth comprehension and visual comparison, followed by direct A/B against both exact Nintendo 1280×720 fixed references and no lowered quality bar. The shared workspace critic tunnel remains unreachable.",
-    "Clarify a genuinely known and legally reachable immediate goal, blocked gate or exit in the scene using only public facts. Current screenshot exposes local branches but does not prove a safe refuge or a single current AI-plan arrow.",
-    "Check actual current full-size scene, mobile and a disclosed closed-door frame for arrow placement, landmark hierarchy, depth and objective prominence; never infer safety from a drawn passage.",
-    "Develop more distinctive architectural landmarks and expressive danger-to-response staging; test whether actors, hazard, and destination are unmistakable without HUD copy.",
-    "Obtain independent full-motion, stair/gait, audio and representative non-throttled hardware performance critique; CI software frame time is not hardware FPS.",
-    "Continue builder plus separate fresh-context critics in no-fixed-limit Gauntlet cycles as workspace returns; the PR remains draft and no merge or deployment is authorized."
+    "Restore a strong stage-versus-water balance around the now larger explorer and clearer modeled exit, without sacrificing an in-frame lawful first-step cue. Use only a bounded, publicly derived stage camera bias and judge the genuine same-seed/tick screenshot.",
+    "Capture a real publicly disclosed key goal and closed-gate case so key pins and legal-arrow suppression can be judged visually, not only by source assertions.",
+    "Obtain separate fresh-context, source-blind A/B reviews of authentic latest/previous scenes versus the same two SHA-pinned official Nintendo frames; no independent parity verdict yet.",
+    "Inspect true full-motion gait/stair movement, audio and representative non-throttled GPU performance; software WebGL p50 times cannot establish hardware FPS.",
+    "Keep each subsequent slice builder/critic-separated when the shared-workspace tunnel returns, preserving public knowledge, determinism, no merge/deploy and draft PR."
   ],
   "reviews": [
     {
@@ -189,11 +188,18 @@
       "verdict": "Lawful known-exit floor cue visible, crowded exit/hero hierarchy; Nintendo fixed bar NOT PASSED",
       "date": "2026-10-31T01:45:30.284Z",
       "summary": "Observed production seed maze-visual-reference-13 tick26, exit cell69 one disclosed passage away. New mint glyph is visible, independently distinct from optional turquoise AI plan, but the portal/beacon overlap and very small hero still weaken frame hierarchy. PNG SHA-256 ca2faf27d9abc369a68af0a42ec05f28b195b286929969fadb6da154d3f3829e. Previous same-seed frame SHA-256 54ef5abe89fef5a6d7a1ba524d42518ecd247b1f3e67cf71593abd2bd9bb8ff4. Artifact https://github.com/my-edutu/Ai_games/actions/runs/41156437915/artifacts/13025591289. 0.2687% aligned pixel delta is NOT a perceptual quality score. No blind A/B nor hardware performance evidence."
+    },
+    {
+      "title": "Eleventh-pass real exit and closer Pip — lead native-size inspection",
+      "reviewer": "Lead inspected same-seed/tick genuine CI browser frames; independent critic tunnel unavailable",
+      "verdict": "Portal/hero clarity improved, world composition still weaker than Nintendo; benchmark NOT PASSED",
+      "date": "2026-10-31T02:07:46.806Z",
+      "summary": "Actual 1280×900 browser output source 12d32cb, public seed maze-visual-reference-13 tick26, source-bound PNG SHA-256 4f00eca791ef87e343008e4f781e809c58342220a511254d371521d6fb549998; current artifact https://github.com/my-edutu/Ai_games/actions/runs/41157967040/artifacts/13026233263. Floating extra gem/ring no longer crowds exit, explorer larger. But greater empty water and stage crop remain. This is not a blind fresh-context critic win."
     }
   ],
   "verification": [
     {
-      "name": "Current focused source checks",
+      "name": "Historical fourth-pass focused source checks",
       "status": "16 of 16 passed",
       "detail": "Four catalogue UI contract checks, two character checks, two world checks and eight public-snapshot/motion checks passed on the latest source. Whitespace validation is clean."
     },
@@ -203,7 +209,7 @@
       "detail": "The fresh self-test confirms served browser assets, bounded source, sanitized snapshots, stable deterministic authority, verified recovery and an observed restart."
     },
     {
-      "name": "Latest completed browser suite",
+      "name": "Historical fifth-pass completed browser suite",
       "status": "24 of 24 passed, including Game 2",
       "detail": "The complete browser suite passed on fifth-pass source 7d7671c; prior 474b657's 24/24 success is historical. This confirms app operation but does not independently assess encounter staging.",
       "sourceCommit": "7d7671ccdd56d77ae05e7a7c2fa05e997348c81a",
@@ -220,7 +226,7 @@
       "detail": "A fresh reviewer reproduced a clipped Map focus ring and landscape Path notes overlapping captions. The repaired upward popup fits both ordinary and longer production copy at 844×390; the real keyboard focus ring was visibly inspected. All eight dated journal images decoded in the same browser."
     },
     {
-      "name": "Full catalogue regression",
+      "name": "Historical fifth-pass full catalogue regression",
       "status": "516 of 516 passed; complete CI successful",
       "detail": "Source checkpoint 7d7671c passed the build, all 516 unit tests, four stream-host self-tests, nondeterminism scan, evidence generation, and 24/24 browser checks. This is functional validation, not a visual benchmark win.",
       "sourceCommit": "7d7671ccdd56d77ae05e7a7c2fa05e997348c81a",
@@ -243,8 +249,8 @@
     },
     {
       "name": "Gauntlet continuation",
-      "status": "Hourly continuation enabled",
-      "detail": "The first scheduled continuation is October 30 at 21:10 UTC, then hourly. No scheduled run has yet been observed. Work continues on the existing branch until an independently verified win or the user stops it, without automatic merge or deployment."
+      "status": "Active; eleventh-pass evidence captured",
+      "detail": "Repeated continuation has reached eleventh-pass candidate 12d32cb, with genuine dated CI artifact and an open fixed visual benchmark. No independent win or authorized deployment; next visual slice is the stage/water balance."
     },
     {
       "name": "Fixed comparison-image provenance",
@@ -292,6 +298,13 @@
       "detail": "Gameplay commits 31e4114, f057935, 735d835 add only known legal public first-step goal cues, distinct from AI intent and safety guarantees. Current genuine 1280×900 screenshot 2026-10-31T01:45:30.284Z seed maze-visual-reference-13 tick26 confirmed source hashes and image SHA-256 ca2faf27d9abc369a68af0a42ec05f28b195b286929969fadb6da154d3f3829e in https://github.com/my-edutu/Ai_games/actions/runs/41156437915/artifacts/13025591289. Full CI https://github.com/my-edutu/Ai_games/actions/runs/41156437915 passed 521 Node, build, deterministic host/self tests, 24 browser checks but FAILED desktop tick changed-in-600ms test (155 unchanged); do not call CI wholly green. Shared workspace/subagents/Ultracode unavailable; existing Nintendo comparison still favors Nintendo; no hardware FPS claim.",
       "sourceCommit": "735d8352fcd2f36694b21670c4d41ac57f6faa0e",
       "sourceUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41156437915"
+    },
+    {
+      "name": "Eleventh-pass current-source build and native observed-exit screenshot",
+      "status": "521/521 Node and 25/25 browser checks passed; Nintendo bar not passed",
+      "detail": "Gameplay source 12d32cb CI completed successfully with all technical checks and a real 1280×900 production public frame dated 2026-10-31T02:07:46.806Z. Exit visibility and hero scale improved, while the scene shifts too far right. Genuine screenshot SHA-256 4f00eca791ef87e343008e4f781e809c58342220a511254d371521d6fb549998; no independent A/B or hardware FPS.",
+      "sourceCommit": "12d32cbec9c089608ac77b6df73dbe7914cc180f",
+      "sourceUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41157967040/artifacts/13026233263"
     }
   ],
   "references": [
