@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#171714">
+  <title>Marble Survival Tournament</title>
+  <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="/ux-v2.css">
+  <link rel="stylesheet" href="/visual-3d.css">
+  <link rel="stylesheet" href="/spectator-polish.css">
+  <link rel="stylesheet" href="/arena-reborn.css">
+  <link rel="stylesheet" href="/spectator-studio.css">
+</head>
+<body>
+  <a class="skip-link" href="#arena">Skip to arena</a>
+  <main class="broadcast-shell" data-clean="false" data-quality="balanced" data-ux-revision="6" data-layout="arena-first" data-view="broadcast" data-biome="seeding-sprint">
+    <header class="topbar" aria-label="Tournament status">
+      <div class="brand-lockup">
+        <div class="brand-emblem" aria-hidden="true"><span></span></div>
+        <div class="brand-type"><span class="eyebrow">Game 07 &nbsp; / &nbsp; Autonomous 3D survival</span>
+        <h1>MARBLE <span>SURVIVAL</span><small> / TOURNAMENT</small></h1></div>
+      </div>
+      <div class="status-cluster">
+        <span id="connection" class="status-pill" role="status">Connecting</span>
+        <label class="quality-control" for="quality-select">
+          <span>Visual quality</span>
+          <select id="quality-select" aria-label="Visual quality preset">
+            <option value="low">Low</option>
+            <option value="balanced" selected>Balanced</option>
+            <option value="high">High</option>
+            <option value="ultra">Ultra</option>
+          </select>
+        </label>
+        <a class="utility-button" href="/gauntlet.html" aria-label="View live Gauntlet improvement progress">Gauntlet Lab ↗</a>
+        <button id="open-racer-studio" class="utility-button" type="button" aria-label="Explore all racers" aria-haspopup="dialog" aria-controls="racer-studio">Racers</button>
+        <button id="view-toggle" class="utility-button view-toggle" type="button" aria-pressed="false" aria-keyshortcuts="C" title="Toggle cinematic view (C)">Cinema ◇</button>
+        <button id="sound-toggle" class="utility-button" type="button" aria-pressed="false">Sound off</button>
+      </div>
+    </header>
+
+    <section class="tournament-strip" aria-label="Tournament essentials">
+      <div class="strip-cell round-cell">
+        <span class="strip-label">Round</span>
+        <strong id="round-name">Loading arena…</strong>
+        <span id="round-index">Round —</span>
+      </div>
+      <div class="strip-cell">
+        <span class="strip-label">Remaining</span>
+        <strong id="remaining-value">—</strong>
+      </div>
+      <div class="strip-cell">
+        <span class="strip-label">Qualified</span>
+        <strong id="qualified-value">—</strong>
+      </div>
+      <div class="strip-cell qualification-cell">
+        <span class="strip-label">Cut line</span>
+        <strong id="qualification-value">Awaiting authority</strong>
+        <div class="qualification-meter" id="qualification-meter" role="progressbar" aria-label="Round qualification progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="qualification-meter-fill"></span></div>
+      </div>
+      <div class="strip-cell compact-cell">
+        <span class="strip-label">Tick</span>
+        <strong id="tick-value">0</strong>
+      </div>
+    </section>
+
+    <section class="stage-grid">
+      <section id="arena" class="arena-card" aria-label="Live marble arena">
+        <canvas id="arena-webgl" width="1600" height="900" aria-label="Live three-dimensional authoritative marble tournament arena"></canvas>
+        <canvas id="arena-identity-overlay" width="1600" height="900" aria-hidden="true"></canvas>
+        <canvas id="arena-canvas" width="1600" height="900" aria-label="Live authoritative marble tournament arena fallback"></canvas>
+        <div class="arena-title-card" aria-hidden="true"><span class="arena-title-eyebrow"><span class="beacon-dot"></span> NOW ENTERING / STAGE <span id="arena-stage-number">01</span></span><strong id="arena-biome-title">AURORA SPEEDWAY</strong><span id="arena-biome-subtitle">The race begins under electric skies.</span><div class="arena-title-line"></div></div>
+        <div class="stage-journey" id="stage-journey" role="group" aria-label="Official five-stage tournament progress">
+          <span class="stage-journey-kicker">THE SURVIVAL ROAD</span>
+          <ol class="stage-journey-steps" id="stage-journey-steps">
+            <li data-stage-step="1" data-state="active" aria-current="step"><b>01</b><span>Aurora</span></li>
+            <li data-stage-step="2" data-state="locked"><b>02</b><span>Ironworks</span></li>
+            <li data-stage-step="3" data-state="locked"><b>03</b><span>Inferno</span></li>
+            <li data-stage-step="4" data-state="locked"><b>04</b><span>Showdown</span></li>
+            <li data-stage-step="5" data-state="locked"><b>05</b><span>Crown</span></li>
+          </ol>
+        </div>
+        <div class="arena-threat-badge" aria-live="off" aria-hidden="true"><span class="threat-pulse"></span><span id="arena-threat">AWAITING RACE DATA</span></div>
+        <div class="arena-topline" aria-hidden="true">
+          <span id="camera-value">Overview</span>
+          <span id="feed-value">AUTHORITY LIVE</span>
+        </div>
+        <div id="champion-card" class="champion-card" hidden aria-live="polite">
+          <span>Champion</span>
+          <strong id="champion-name"></strong>
+          <small>Official result · authority adjudicated</small>
+        </div>
+      </section>
+
+      <aside class="spotlight-card" id="spotlight-card" aria-label="Selected competitor live dossier" hidden>
+        <div class="spotlight-heading"><span>COMPETITOR DOSSIER</span><button type="button" id="spotlight-close" aria-label="Close competitor dossier">✕</button></div>
+        <div class="spotlight-identity"><span class="spotlight-orb" id="spotlight-orb" aria-hidden="true"><b id="spotlight-number">—</b></span>
+          <div><small id="spotlight-archetype">AUTONOMOUS MARBLE</small><strong id="spotlight-name">No competitor selected</strong><span id="spotlight-status">AWAITING AUTHORITY</span></div>
+        </div>
+        <div class="spotlight-progress" role="progressbar" id="spotlight-progress" aria-label="Selected marble route progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="spotlight-progress-fill"></span></div>
+        <div class="spotlight-stats"><div><span>COURSE</span><strong id="spotlight-percent">0%</strong></div><div><span>ELEVATION</span><strong id="spotlight-elevation">0.0m</strong></div><div><span>SPEED INDEX</span><strong id="spotlight-speed">0</strong></div></div>
+        <button id="spotlight-studio" class="utility-button" type="button" aria-haspopup="dialog" aria-controls="racer-studio">Explore in 3D ↗</button>
+        <p>Live competitor data · camera and race authority unchanged.</p>
+      </aside>
+
+      <aside class="leaderboard-panel broadcast-overlay" aria-label="Live standings">
+        <div class="panel-heading">
+          <div>
+            <span class="panel-label">Live standings</span>
+            <h2>Race order</h2>
+          </div>
+          <span class="live-dot">LIVE</span>
+        </div>
+        <ol id="leaderboard" class="leaderboard"></ol>
+        <button id="mobile-standings-toggle" class="mobile-standings-toggle" type="button"
+          aria-expanded="false" aria-controls="leaderboard" aria-label="Show more live standings">All ranks <span aria-hidden="true">▾</span></button>
+        <div class="identity-note">Numbers and surface patterns remain visible in every quality preset.</div>
+      </aside>
+
+      <section class="lower-grid broadcast-lower-overlay">
+        <section class="event-panel" aria-labelledby="event-title">
+          <div class="panel-heading">
+            <div>
+              <span class="panel-label">Race control</span>
+              <h2 id="event-title">Official events</h2>
+            </div>
+          </div>
+          <ul id="event-list" class="event-list" aria-live="polite"></ul>
+        </section>
+
+        <section class="influence-panel" aria-labelledby="influence-title">
+          <span class="panel-label">Audience influence</span>
+          <h2 id="influence-title">Deterministic voting</h2>
+          <p id="influence-status" role="status">Checking authority support…</p>
+        </section>
+      </section>
+    </section>
+
+    <footer>
+      <span><span class="footer-led"></span> MARBLE SURVIVAL <span class="footer-divider">/</span> Fixed-step authority · 3D graphics · Replay-safe results</span>
+      <span id="system-health">Health pending</span>
+    </footer>
+  </main>
+  <dialog id="racer-studio" aria-labelledby="studio-heading">
+    <header class="studio-header"><div><span class="studio-kicker">THE CONTENDERS</span><h2 id="studio-heading">Racer studio</h2></div><button id="studio-close" type="button" aria-label="Close racer studio" autofocus>✕</button></header>
+    <div class="studio-body">
+      <section class="studio-hero" aria-label="Selected competitor portrait">
+        <div class="studio-identity"><span id="studio-number">—</span><div><p id="studio-role">AUTONOMOUS RACER</p><h3 id="studio-name">Waiting for race</h3></div></div>
+        <canvas id="studio-canvas" width="640" height="480" aria-label="Rotatable three-dimensional marble character preview"></canvas>
+        <p id="studio-fallback" role="status">Loading 3D portrait…</p>
+        <div class="studio-controls"><button id="studio-left" type="button" aria-label="Rotate racer left">↶</button><button id="studio-spin" type="button" aria-pressed="true">Pause rotation</button><button id="studio-right" type="button" aria-label="Rotate racer right">↷</button></div>
+        <span class="studio-caption">COSMETIC TURNTABLE · RACE UNAFFECTED</span>
+      </section>
+      <section class="studio-details" aria-label="Competitor data and roster">
+        <div class="studio-live"><span id="studio-feed">Public race snapshot</span><strong id="studio-status">—</strong></div>
+        <div class="studio-stats"><div><span>Course</span><strong id="studio-distance">—</strong></div><div><span>Elevation</span><strong id="studio-altitude">—</strong></div></div>
+        <div id="studio-progress" role="progressbar" aria-label="Selected racer course progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span></span></div>
+        <div class="studio-roster-heading"><h3 id="studio-roster-title">Choose your racer</h3><span id="studio-roster-count">0 racers</span></div>
+        <div id="studio-roster" role="group" aria-labelledby="studio-roster-title"></div>
+        <p class="studio-help">Arrow keys browse racers. Escape returns to the race.</p>
+      </section>
+    </div>
+  </dialog>
+  <script src="/arena-geometry.js" defer></script>
+  <script src="/renderer3d.js" defer></script>
+  <script src="/identity-overlay.js" defer></script>
+  <script src="/audio-director.js" defer></script>
+  <script src="/app.js" defer></script>
+  <script src="/racer-studio-model.js" defer></script>
+  <script src="/racer-portrait.js" defer></script>
+  <script src="/racer-studio.js" defer></script>
+</body>
+</html>

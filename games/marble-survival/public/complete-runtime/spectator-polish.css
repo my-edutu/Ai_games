@@ -1,0 +1,279 @@
+/* Arena-first spectator hierarchy. Presentation only: never alters authority. */
+.broadcast-shell[data-layout="arena-first"] {
+  position: relative;
+  width: min(1920px, 100%);
+  padding: clamp(.45rem, .8vw, .85rem);
+}
+
+.broadcast-shell[data-layout="arena-first"] .topbar {
+  min-height: 54px;
+  margin-bottom: .4rem;
+  padding: .45rem .7rem;
+}
+
+.broadcast-shell[data-layout="arena-first"] .brand-lockup h1 {
+  font-size: clamp(1.15rem, 1.65vw, 1.75rem);
+}
+
+.broadcast-shell[data-layout="arena-first"] .tournament-strip {
+  margin-bottom: .4rem;
+}
+
+.broadcast-shell[data-layout="arena-first"] .strip-cell {
+  min-height: 50px;
+  padding: .45rem .65rem;
+}
+
+.broadcast-shell[data-layout="arena-first"] .stage-grid {
+  position: relative;
+  display: block;
+  height: clamp(620px, calc(100dvh - 174px), 930px);
+  min-height: 0;
+}
+
+.broadcast-shell[data-layout="arena-first"] .arena-card,
+.broadcast-shell[data-layout="arena-first"] #arena-canvas,
+.broadcast-shell[data-layout="arena-first"] #arena-webgl {
+  height: 100%;
+  min-height: 0;
+  max-height: 100%;
+}
+
+#arena-identity-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  display: block;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  opacity: 0;
+}
+
+.webgl-ready #arena-identity-overlay {
+  opacity: 1;
+}
+
+.leaderboard-panel.broadcast-overlay {
+  position: absolute;
+  top: .65rem;
+  right: .65rem;
+  z-index: 8;
+  width: min(230px, 16vw);
+  max-height: 57%;
+  padding: .65rem;
+  overflow: hidden;
+  border-color: rgba(240, 234, 215, .2);
+  background: rgba(18, 18, 16, .72);
+  box-shadow: 0 14px 40px rgba(0, 0, 0, .3);
+  backdrop-filter: blur(12px) saturate(.9);
+  pointer-events: none;
+}
+
+.leaderboard-panel.broadcast-overlay .leaderboard {
+  gap: .26rem;
+  margin-top: .5rem;
+}
+
+.leaderboard-panel.broadcast-overlay .leaderboard li {
+  min-height: 34px;
+  grid-template-columns: 1.2rem 1.65rem minmax(0, 1fr) auto;
+  padding: .28rem .32rem;
+  background: rgba(10, 10, 9, .34);
+}
+
+.leaderboard-panel.broadcast-overlay .identity-note {
+  display: none;
+}
+
+.broadcast-lower-overlay {
+  position: absolute;
+  left: .65rem;
+  right: .65rem;
+  bottom: .65rem;
+  z-index: 8;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(220px, 300px);
+  gap: .45rem;
+  margin: 0;
+  pointer-events: none;
+}
+
+.broadcast-lower-overlay .event-panel,
+.broadcast-lower-overlay .influence-panel {
+  min-height: 0;
+  padding: .48rem .62rem;
+  border-color: rgba(240, 234, 215, .16);
+  background: rgba(17, 17, 15, .68);
+  box-shadow: 0 12px 36px rgba(0, 0, 0, .28);
+  backdrop-filter: blur(12px) saturate(.9);
+}
+
+.broadcast-lower-overlay .panel-heading h2,
+.broadcast-lower-overlay .influence-panel h2 {
+  margin: .05rem 0 .2rem;
+  font-size: .78rem;
+}
+
+.broadcast-lower-overlay .event-list {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: .32rem;
+  margin-top: .32rem;
+}
+
+.broadcast-lower-overlay .event-list li {
+  min-height: 30px;
+  padding: .34rem .42rem;
+  background: rgba(255, 252, 242, .035);
+  font-size: .64rem;
+}
+
+.broadcast-lower-overlay #influence-status {
+  font-size: .64rem;
+  line-height: 1.35;
+}
+
+.broadcast-shell[data-layout="arena-first"] .champion-card {
+  top: auto;
+  bottom: 1rem;
+  width: min(430px, 68%);
+  padding: .9rem 1.15rem;
+  background: rgba(18, 17, 14, .88);
+  backdrop-filter: blur(14px);
+  pointer-events: none;
+}
+
+.broadcast-shell[data-layout="arena-first"] .champion-card strong {
+  margin: .18rem 0 .08rem;
+  font-size: clamp(1.55rem, 3.2vw, 2.65rem);
+}
+
+.stage-grid:has(.champion-card:not([hidden])) .broadcast-lower-overlay {
+  display: none;
+}
+
+.broadcast-shell[data-layout="arena-first"] footer {
+  min-height: 22px;
+  padding: .3rem .15rem 0;
+  font-size: .6rem;
+}
+
+.broadcast-shell[data-clean="true"] {
+  height: 100dvh;
+  min-height: 100dvh;
+  overflow: hidden;
+}
+
+.broadcast-shell[data-clean="true"] .stage-grid,
+.broadcast-shell[data-clean="true"] .arena-card,
+.broadcast-shell[data-clean="true"] #arena-canvas,
+.broadcast-shell[data-clean="true"] #arena-webgl {
+  height: 100dvh;
+  min-height: 100dvh;
+  max-height: 100dvh;
+}
+
+.broadcast-shell[data-clean="true"] .leaderboard-panel.broadcast-overlay,
+.broadcast-shell[data-clean="true"] .broadcast-lower-overlay,
+.broadcast-shell[data-clean="true"] #arena-identity-overlay {
+  display: none !important;
+}
+
+@media (max-width: 1050px) {
+  .leaderboard-panel.broadcast-overlay {
+    width: min(210px, 23vw);
+  }
+
+  .broadcast-lower-overlay {
+    grid-template-columns: minmax(0, 1fr) 230px;
+  }
+}
+
+@media (max-width: 760px) {
+  .broadcast-shell[data-layout="arena-first"] {
+    padding: .35rem;
+  }
+
+  .broadcast-shell[data-layout="arena-first"] .topbar {
+    min-height: 46px;
+  }
+
+  .broadcast-shell[data-layout="arena-first"] .stage-grid {
+    height: auto;
+    min-height: 66vh;
+  }
+
+  .broadcast-shell[data-layout="arena-first"] .arena-card,
+  .broadcast-shell[data-layout="arena-first"] #arena-canvas,
+  .broadcast-shell[data-layout="arena-first"] #arena-webgl {
+    height: 66vh;
+    min-height: 66vh;
+    max-height: none;
+  }
+
+  .leaderboard-panel.broadcast-overlay {
+    top: .4rem;
+    right: .4rem;
+    width: min(178px, 44vw);
+    max-height: 45%;
+    padding: .45rem;
+  }
+
+  .leaderboard-panel.broadcast-overlay .leaderboard li:nth-child(n+5) {
+    display: none;
+  }
+
+  .broadcast-lower-overlay {
+    left: .4rem;
+    right: .4rem;
+    bottom: .4rem;
+    grid-template-columns: 1fr;
+  }
+
+  .broadcast-lower-overlay .influence-panel {
+    display: none;
+  }
+
+  .broadcast-lower-overlay .event-list {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .broadcast-lower-overlay .event-list li:nth-child(n+3) {
+    display: none;
+  }
+
+  .broadcast-shell[data-layout="arena-first"] .champion-card {
+    bottom: .55rem;
+    width: min(84%, 360px);
+  }
+
+  .broadcast-shell[data-clean="true"],
+  .broadcast-shell[data-clean="true"] .stage-grid,
+  .broadcast-shell[data-clean="true"] .arena-card,
+  .broadcast-shell[data-clean="true"] #arena-canvas,
+  .broadcast-shell[data-clean="true"] #arena-webgl {
+    height: 100dvh;
+    min-height: 100dvh;
+    max-height: 100dvh;
+  }
+}
+
+@media (prefers-contrast: more) {
+  .leaderboard-panel.broadcast-overlay,
+  .broadcast-lower-overlay .event-panel,
+  .broadcast-lower-overlay .influence-panel,
+  .broadcast-shell[data-layout="arena-first"] .champion-card {
+    border-color: rgba(255, 255, 255, .62);
+    background: rgba(8, 8, 7, .94);
+    backdrop-filter: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .leaderboard-panel.broadcast-overlay,
+  .broadcast-lower-overlay .event-panel,
+  .broadcast-lower-overlay .influence-panel,
+  .broadcast-shell[data-layout="arena-first"] .champion-card {
+    backdrop-filter: none;
+  }
+}

@@ -1,0 +1,51 @@
+{
+  "date": "2026-10-31",
+  "candidate": "ae2eaeb0070c7c79dcdbd6b22c9c2d30dd565f10",
+  "workflowRun": 41162317097,
+  "browserArtifact": 13027587548,
+  "catalogueArtifact": 13028001627,
+  "fullFrameReferenceRun": 41161679813,
+  "sourceCodeValidatedAgainstMain": "d1678cd4ac5c3cb8e4817570d6b001cf5f436f31",
+  "authorSelfReview": true,
+  "independentBlindReview": false,
+  "gauntletAccepted": false,
+  "performance": {
+    "renderer": "webgl2",
+    "benchmarkClass": "software-fallback",
+    "benchmarkQuality": "low",
+    "gpu": {
+      "vendor": "Google Inc. (Google)",
+      "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+      "drawingBufferWidth": 1115,
+      "drawingBufferHeight": 511,
+      "devicePixelRatio": 1
+    },
+    "drawingBuffer": {"width": 907, "height": 416},
+    "viewport": {"width": 1920, "height": 1080},
+    "visibleArenaCoverage": 0.7889574893904321,
+    "sampleCount": 90,
+    "frameMs": {"p50": 166.6999999999971, "p95": 216.6999999999971, "p99": 250, "max": 250}
+  },
+  "fullScreenPixels": {
+    "proof": "fullscreen-uv-regression.json in browser artifact 13027587548",
+    "actualRGBA": [[4,4,0,255],[251,4,0,255],[4,251,0,255],[251,251,0,255],[131,131,0,255]],
+    "oldShaderNegativeControlRGBA": [[2,2,0,255],[126,2,0,255],[2,126,0,255],[126,126,0,255],[66,66,0,255]],
+    "allFiveExpectedSamplesExact": true,
+    "glErrors": 0
+  },
+  "compositor": {
+    "low": {"blurPanelsDisabled": 6, "fullArenaBlendLayer": "none"},
+    "balancedHighUltra": {"blurPreserved": true, "fullArenaBlendLayer": "block"},
+    "proof": "compositor-budget.json in browser artifact 13027587548"
+  },
+  "localHeadlessRepeat": {
+    "ok": true,
+    "seed": "marble-reintegration-20261031",
+    "tournaments": 25,
+    "steps": 6001,
+    "champions": 25,
+    "quarantines": 0,
+    "finalChecksum": "da6f57ed",
+    "finalRunIndex": 25
+  }
+}

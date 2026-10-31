@@ -1,0 +1,163 @@
+/* Broadcast hierarchy: the course first, details on demand. */
+.broadcast-shell[data-layout="arena-first"] {padding:8px;}
+.broadcast-shell[data-layout="arena-first"] .topbar {min-height:46px;padding:6px 10px;margin-bottom:6px;box-shadow:none;background:#0b1428;border:1px solid #7186a633;}
+.broadcast-shell[data-layout="arena-first"] .brand-lockup h1 {font-size:20px;}
+.broadcast-shell .brand-emblem {width:30px;height:30px;border-radius:10px;}
+.brand-type .eyebrow,.brand-type h1 small {display:none;}
+.broadcast-shell[data-layout="arena-first"] .tournament-strip {grid-template-columns:minmax(200px,1.5fr) 100px 100px minmax(220px,1fr);gap:6px;margin-bottom:6px;}
+.broadcast-shell[data-layout="arena-first"] .strip-cell {min-height:48px;padding:6px 12px;border-radius:8px;box-shadow:none;background:#0b1428;}
+.broadcast-shell .strip-cell strong {font-size:20px;}
+.broadcast-shell .strip-label {font-size:8px;letter-spacing:.12em;}
+.broadcast-shell .strip-cell #round-name {font-size:17px;}
+.broadcast-shell .strip-cell #round-index {font-size:9px;}
+.broadcast-shell .qualification-cell strong {font-size:16px;}
+.broadcast-shell .compact-cell {position:absolute!important;width:1px!important;height:1px!important;min-height:0!important;padding:0!important;overflow:hidden;clip-path:inset(50%);}
+.broadcast-shell[data-layout="arena-first"] .stage-grid {height:var(--spectator-stage-height,calc(100dvh - 122px));min-height:180px;max-height:none;}
+.broadcast-shell[data-layout="arena-first"] .arena-card,
+.broadcast-shell[data-layout="arena-first"] #arena-webgl,
+.broadcast-shell[data-layout="arena-first"] #arena-canvas {height:100%;min-height:0;max-height:100%;}
+.broadcast-shell[data-layout="arena-first"] .arena-card {border-radius:12px;}
+.broadcast-shell footer {position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);}
+.arena-title-card {top:46px;left:14px;width:auto;max-width:240px;padding:10px 14px;background:linear-gradient(90deg,#071326dc,#07132600);}
+.arena-title-card strong {font-size:22px;letter-spacing:-.035em;}
+.arena-title-eyebrow {font-size:8px;}
+.broadcast-shell:not(.stage-entering) .arena-title-card strong {font-size:17px;}
+.broadcast-shell:not(.stage-entering) .arena-title-card>span:last-of-type,
+.broadcast-shell:not(.stage-entering) .arena-title-card .arena-title-line {display:none;}
+.broadcast-shell:not(.stage-entering) .arena-title-card {padding:8px 12px;}
+.leaderboard-panel.broadcast-overlay {width:190px;max-height:50%;padding:9px;background:#0a1429e8;border-color:#8aa4cb44;box-shadow:0 8px 24px #0003;}
+.leaderboard-panel.broadcast-overlay .panel-heading h2 {font-size:14px;}
+.leaderboard-panel.broadcast-overlay .leaderboard li {min-height:31px;grid-template-columns:17px 24px minmax(0,1fr);padding:3px 5px;}
+.leaderboard-panel.broadcast-overlay .leaderboard .status {display:none;}
+.leaderboard-panel.broadcast-overlay .leaderboard .name {font-size:10px;}
+.arena-threat-badge {right:220px;top:16px;padding:5px 8px;}
+.stage-journey {bottom:42px!important;padding:5px 12px!important;width:min(390px,70%)!important;border-radius:9px!important;}
+.stage-journey-kicker {display:none!important;}
+.stage-journey-steps {margin:0!important;}
+.stage-journey-steps li b {width:23px!important;height:23px!important;font-size:8px!important;}
+.stage-journey-steps li span {font-size:8px!important;}
+.broadcast-lower-overlay {left:12px;right:12px;bottom:8px;display:block;}
+.broadcast-lower-overlay .event-panel {padding:3px 10px;border:0;background:#091429d9;box-shadow:none;border-radius:6px;}
+.broadcast-lower-overlay .panel-heading,.broadcast-lower-overlay .influence-panel {display:none;}
+.broadcast-lower-overlay .event-list {display:block;margin:0;}
+.broadcast-lower-overlay .event-list li {min-height:0;padding:4px 6px;font-size:10px;border:0;background:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.broadcast-lower-overlay .event-list li:nth-child(n+2) {display:none;}
+.broadcast-shell[data-view="cinematic"] .arena-title-card,
+.broadcast-shell[data-view="cinematic"] .arena-threat-badge,
+.broadcast-shell[data-view="cinematic"] .stage-journey {display:none!important;}
+.broadcast-shell[data-clean="true"] .stage-grid {height:100dvh;min-height:100dvh;}
+#open-racer-studio {border-color:#5bd6ed80;color:#a1f3ff;}
+#spotlight-studio {margin-top:10px;width:100%;}
+/* Inspectors are intentionally separate from the racing canvas. */
+#racer-studio {--racer:#4bdcff;box-sizing:border-box;width:min(1050px,calc(100vw - 32px));max-height:calc(100dvh - 32px);padding:0;border:1px solid #7185a65c;border-radius:22px;overflow:auto;background:#0b1220;color:#f1f5fb;box-shadow:0 35px 120px #0009;font-family:Inter,system-ui,sans-serif;}
+#racer-studio::backdrop {background:#020714cf;}
+#racer-studio * {box-sizing:border-box;}
+#racer-studio button {font:inherit;cursor:pointer;}
+#racer-studio button:focus-visible {outline:3px solid #e3faff;outline-offset:3px;}
+.studio-header {display:flex;align-items:center;justify-content:space-between;padding:20px 25px;border-bottom:1px solid #7e99b72b;}
+.studio-kicker {font-size:9px;letter-spacing:.2em;color:#9cafc6;}
+.studio-header h2 {margin:3px 0 0;font-size:25px;letter-spacing:-.04em;}
+#studio-close {width:38px;height:38px;border:1px solid #8aa4c746;border-radius:50%;color:#f1f5fb;background:#172237;}
+.studio-body {display:grid;grid-template-columns:minmax(0,1.12fr) minmax(300px,1fr);}
+.studio-hero {position:relative;min-height:480px;display:flex;flex-direction:column;align-items:center;background:radial-gradient(ellipse at 48% 45%,#24435b 0%,#152334 44%,#0d1726 75%);overflow:hidden;border-radius:0 0 0 22px;}
+.studio-hero::before {content:'';position:absolute;inset:0;pointer-events:none;background:linear-gradient(#7799bd08 1px,transparent 1px),linear-gradient(90deg,#7799bd08 1px,transparent 1px);background-size:40px 40px;mask-image:linear-gradient(transparent,#0005);}
+.studio-identity {display:flex;gap:14px;align-items:center;align-self:stretch;padding:25px 27px 0;z-index:1;}
+#studio-number {font-size:40px;letter-spacing:-.07em;color:var(--racer);font-weight:900;font-variant-numeric:tabular-nums;}
+#studio-role {margin:0 0 4px;color:#a2b7cc;font-size:10px;text-transform:uppercase;letter-spacing:.15em;}
+#studio-name {margin:0;font-size:29px;letter-spacing:-.045em;line-height:1.1;overflow-wrap:anywhere;}
+#studio-canvas {display:block;width:100%;height:330px;min-height:260px;position:relative;z-index:1;}
+#studio-canvas[hidden] {display:none;}
+#studio-fallback {max-width:300px;margin:auto;padding:30px;text-align:center;color:#b6c9dc;line-height:1.6;}
+.studio-controls {position:relative;z-index:1;display:flex;gap:8px;margin:0 auto 12px;}
+.studio-controls button {padding:8px 13px;background:#1a2b41;border:1px solid #809cb544;color:#d7e6f8;border-radius:9px;font-size:11px;}
+.studio-controls button:first-child,.studio-controls button:last-child {font-size:18px;padding:3px 13px;}
+.studio-caption {position:relative;margin:0 12px 20px;color:#758fa9;letter-spacing:.13em;font-size:8px;text-align:center;}
+.studio-details {padding:26px;min-width:0;}
+.studio-live {display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:10px;color:#a5b8cc;}
+#studio-status {padding:5px 8px;text-transform:uppercase;font-size:9px;letter-spacing:.1em;border:1px solid #80c6b847;border-radius:5px;color:#a2efda;}
+.studio-stats {display:flex;gap:50px;margin:22px 0 12px;}
+.studio-stats div {display:flex;flex-direction:column;gap:4px;}
+.studio-stats span {font-size:10px;color:#90a8c2;}
+.studio-stats strong {font-size:22px;font-variant-numeric:tabular-nums;}
+#studio-progress {height:4px;border-radius:3px;background:#243147;overflow:hidden;}
+#studio-progress span {display:block;height:100%;background:var(--racer);}
+.studio-roster-heading {display:flex;align-items:center;justify-content:space-between;margin:27px 0 12px;}
+.studio-roster-heading h3 {margin:0;font-size:13px;}
+#studio-roster-count {font-size:10px;color:#7f99b5;}
+#studio-roster {display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;max-height:230px;overflow:auto;padding:4px;scrollbar-width:thin;scrollbar-color:#45617c #121c2c;}
+#studio-roster button {display:flex;flex-direction:column;align-items:flex-start;gap:3px;min-height:49px;padding:7px;background:#141f31;color:#94a9bf;border:1px solid #59738f3b;border-radius:7px;min-width:0;}
+#studio-roster button b {color:var(--racer);font-size:13px;font-variant-numeric:tabular-nums;}
+#studio-roster button span {max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:9px;}
+#studio-roster button[aria-pressed="true"] {background:#24374c;border-color:var(--racer);color:#fff;box-shadow:inset 0 -2px var(--racer);}
+#studio-roster button[data-status="eliminated"] {opacity:.56;}
+.studio-help {font-size:9px;color:#8499b1;line-height:1.5;margin:12px 0 0;}
+@media(max-width:760px){
+  .broadcast-shell[data-layout="arena-first"] {padding:6px;}
+  .broadcast-shell[data-layout="arena-first"] .topbar {min-height:46px;padding:5px 7px;gap:5px;flex-wrap:nowrap;}
+  .broadcast-shell[data-layout="arena-first"] .brand-lockup h1 {font-size:14px;letter-spacing:-.04em;}
+  .brand-lockup {gap:5px;}
+  .broadcast-shell .brand-emblem {width:22px;height:22px;min-width:22px;}
+  .status-cluster {gap:4px;flex-wrap:nowrap;}
+  .quality-control select {width:72px;min-width:0;padding:5px 1px;font-size:10px;}
+  .quality-control {padding:0;}
+  .quality-control>span,#connection,.status-cluster>a,#view-toggle {display:none!important;}
+  #sound-toggle {font-size:0;width:30px;height:30px;min-width:30px;padding:0;}
+  #sound-toggle::after {content:'♪';font-size:16px;}
+  #open-racer-studio {padding:6px 7px;font-size:10px;min-height:30px;}
+  .broadcast-shell[data-layout="arena-first"] .tournament-strip {grid-template-columns:minmax(0,1fr) 60px minmax(0,1.1fr);gap:4px;}
+  .broadcast-shell[data-layout="arena-first"] .strip-cell {min-height:51px;padding:4px 7px;font-size:11px;line-height:1.2;}
+  .broadcast-shell .strip-cell:nth-child(3) {display:none;}
+  .broadcast-shell .strip-cell strong {font-size:18px;}
+  .broadcast-shell .strip-cell #round-name {font-size:12px;line-height:1.25;}
+  .broadcast-shell .strip-label {font-size:7px;letter-spacing:.04em;}
+  .broadcast-shell .qualification-cell {grid-column:auto;}
+  .broadcast-shell[data-layout="arena-first"] .qualification-cell #qualification-value {font-size:12px;line-height:1.25;}
+  .qualification-meter {margin-top:3px;height:3px;}
+  .broadcast-shell[data-layout="arena-first"] .stage-grid {height:var(--spectator-stage-height,calc(100dvh - 124px));min-height:180px;}
+  .broadcast-shell[data-layout="arena-first"] .arena-card,.broadcast-shell[data-layout="arena-first"] #arena-webgl,.broadcast-shell[data-layout="arena-first"] #arena-canvas {height:100%;min-height:0;max-height:100%;}
+  .arena-title-card,.broadcast-shell:not(.stage-entering) .arena-title-card {top:40px;left:9px;padding:6px 9px;max-width:180px;}
+  .arena-title-card strong,.broadcast-shell:not(.stage-entering) .arena-title-card strong {font-size:16px;}
+  .arena-title-card>span:last-of-type,.arena-title-line,.arena-title-eyebrow {display:none;}
+  .arena-topline {left:8px!important;right:8px!important;top:8px!important;}
+  .arena-topline span {font-size:8px;padding:4px 6px;}
+  .arena-threat-badge {display:none;}
+  .leaderboard-panel.broadcast-overlay {left:8px;right:8px;top:auto;bottom:38px;width:auto;max-height:none;padding:6px;display:flex;gap:6px;align-items:center;border-radius:9px;}
+  .leaderboard-panel.broadcast-overlay .panel-heading {display:none;}
+  .leaderboard-panel.broadcast-overlay .leaderboard {flex:1;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;margin:0;min-width:0;}
+  .leaderboard-panel.broadcast-overlay .leaderboard li {display:grid;grid-template-columns:20px minmax(0,1fr);gap:4px;padding:4px 5px;min-height:33px;}
+  .leaderboard-panel.broadcast-overlay .leaderboard .rank {display:none;}
+  .leaderboard-panel.broadcast-overlay .leaderboard .number {width:20px;height:20px;font-size:9px;}
+  .leaderboard-panel.broadcast-overlay .leaderboard .name {font-size:9px;}
+  .leaderboard-panel.broadcast-overlay .leaderboard li:nth-child(n+4) {display:none;}
+  #mobile-standings-toggle {width:43px;min-width:43px;margin:0;padding:5px 2px;font-size:8px;min-height:33px;pointer-events:auto;}
+  .leaderboard-panel.broadcast-overlay[data-mobile-expanded="true"] {align-items:flex-start;max-height:40%;}
+  .leaderboard-panel.broadcast-overlay[data-mobile-expanded="true"] .leaderboard {grid-template-columns:1fr 1fr;max-height:230px;overflow:auto;}
+  .leaderboard-panel.broadcast-overlay[data-mobile-expanded="true"] .leaderboard li {display:grid;}
+  .stage-journey {top:8px;bottom:auto!important;left:50%!important;transform:translateX(-50%);width:120px!important;padding:3px!important;}
+  .stage-journey-steps li b {width:15px!important;height:15px!important;font-size:6px!important;}
+  .stage-journey-steps li span {display:none!important;}
+  .stage-journey-steps li::before {top:7px!important;}
+  .broadcast-lower-overlay {left:8px;right:8px;bottom:7px;}
+  .broadcast-lower-overlay .event-panel {padding:2px 5px;}
+  .broadcast-lower-overlay .event-list li {font-size:9px;}
+  #racer-studio {width:calc(100vw - 16px);max-height:calc(100dvh - 16px);border-radius:15px;}
+  .studio-header {padding:12px 16px;}
+  .studio-header h2 {font-size:19px;}
+  .studio-body {display:block;}
+  .studio-hero {min-height:0;border-radius:0;}
+  .studio-identity {padding:15px 20px 0;gap:12px;}
+  #studio-name {font-size:23px;}
+  #studio-number {font-size:32px;}
+  #studio-role {font-size:8px;}
+  #studio-canvas {height:225px;min-height:190px;}
+  .studio-controls {margin:0 0 8px;}
+  .studio-caption {font-size:7px;margin-bottom:12px;}
+  .studio-details {padding:14px 18px;}
+  .studio-stats {margin:12px 0 8px;gap:35px;}
+  .studio-stats strong {font-size:18px;}
+  .studio-roster-heading {margin:15px 0 8px;}
+  #studio-roster {max-height:166px;grid-template-columns:repeat(4,minmax(0,1fr));}
+  #studio-roster button {min-height:44px;}
+}
+@media(prefers-reduced-motion:reduce){#racer-studio *,#racer-studio *::before {animation:none!important;transition:none!important;}}
+@media(prefers-contrast:more){#racer-studio button,.leaderboard-panel.broadcast-overlay {border-color:#d9eaff;background:#071120;}}
