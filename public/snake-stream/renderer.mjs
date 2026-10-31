@@ -4,6 +4,37 @@ import { createSerpent } from './serpent.mjs';
 import { buildMotion, cellPoint } from './motion.mjs';
 import { cameraComposition } from './camera.mjs';
 
+// BEGIN R38 CONTACT HELPER
+/**
+ * Preserve every visible ground contact while updating only the instance
+ * matrices the current public motion actually uses. The backing capacity
+ * remains 2048, so a later long snake never requires a new GPU allocation.
+ * Three.js makes the initial complete buffer allocation; subsequent changes
+ * use the bounded prefix in float components, not a 128 KiB full-buffer upload.
+ * Returns requested subrange bytes, not measured GPU transfer or FPS.
+ */
+export function syncContactShadowInstances(contacts, transform, paths) {
+  const capacity = contacts.instanceMatrix.count;
+  contacts.count = 0;
+  for (const path of paths) {
+    for (const point of path) {
+      if (contacts.count === capacity) break;
+      transform.position.set(point.x + 0.07, 0.022, point.z + 0.08);
+      transform.updateMatrix();
+      contacts.setMatrixAt(contacts.count++, transform.matrix);
+    }
+    if (contacts.count === capacity) break;
+  }
+  // Zero visible instances require no GPU upload. The first later non-empty
+  // pose refreshes the whole visible prefix and all portal fragments.
+  if (contacts.count === 0) return 0;
+  const attribute = contacts.instanceMatrix;
+  attribute.clearUpdateRanges();
+  attribute.addUpdateRange(0, contacts.count * 16);
+  attribute.needsUpdate = true;
+  return contacts.count * 16 * attribute.array.BYTES_PER_ELEMENT;
+}
+// END R38 CONTACT HELPER
 export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = {}) {
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false, powerPreference: 'high-performance' });
   renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -71,6 +102,9 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
   // extra cell conversion/allocation to the frequently submitted overview.
   let lastFoodCell = -1, foodPoint = null;
   let cameraMode = 'overview';
+  // BEGIN R38 CONTACT COUNTERS
+  let contactLastRequestedBytes = 0, contactTotalRequestedBytes = 0;
+  // END R38 CONTACT COUNTERS
   let quality = new URLSearchParams(location.search).get('quality') === 'low' ? 'low' : 'balanced';
   const scaleSamples = [];
   const targetFrameMs = 33;
@@ -349,14 +383,10 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
       foodPoint = nextFoodCell >= 0 ? cellPoint(nextFoodCell, snapshot.width, snapshot.height) : null;
     }
     cameraMode = settings.cameraMode || 'overview';
-    contacts.count = 0;
-    for (const path of motion.paths) for (const point of path) {
-      if (contacts.count === 2048) break;
-      contactTransform.position.set(point.x + 0.07, 0.022, point.z + 0.08);
-      contactTransform.updateMatrix();
-      contacts.setMatrixAt(contacts.count++, contactTransform.matrix);
-    }
-    contacts.instanceMatrix.needsUpdate = true;
+    // BEGIN R38 CONTACT SUBRANGE
+    contactLastRequestedBytes = syncContactShadowInstances(contacts, contactTransform, motion.paths);
+    contactTotalRequestedBytes += contactLastRequestedBytes;
+    // END R38 CONTACT SUBRANGE
     const shared = { time, delta, reducedMotion: !!settings.reducedMotion };
     serpent.update(motion.paths, {
       ...shared, direction: motion.direction, danger: snapshot.dangerLevel,
@@ -396,6 +426,11 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
     const percentile = p => sorted.length ? sorted[Math.min(sorted.length - 1, Math.floor(sorted.length * p))] : 0;
     return {
       renderer: 'webgl', frameCount, quality, cameraMode,
+      // BEGIN R38 CONTACT STATS
+      contactShadowUpload: { instances: contacts.count, capacityBytes: contacts.instanceMatrix.array.byteLength,
+        requestedSubrangeBytes: contactLastRequestedBytes, accumulatedRequestedBytes: contactTotalRequestedBytes,
+        firstAllocationUploadsWholeBuffer: true },
+      // END R38 CONTACT STATS
       gpuQueue: frameGate.stats(),
       pixelRatio: renderer.getPixelRatio(), drawingBuffer: { width: statsSize.x, height: statsSize.y },
       renderScale: { adjusted: scaleAdjusted, sampleFrameMs: scaleSampleMs, targetFrameMs },

@@ -1,10 +1,15 @@
 {
   "updatedAt": "2026-10-31",
-  "status": "ROUND37 REAL CHROMIUM 26/27 PASS · ORIGINAL TWO-LID GESTURE VERIFIED · STRICT 11/17 ACTUAL SUBMISSIONS FAIL",
-  "detail": "Exact-source d3cd3b8: Chromium/SwiftShader Round37 WebGL blink A/B pass, detail 1,377 localized changed pixels, overview 76; 26/27 focused browser checks. Desktop 11 actual submitted frames/1003.5ms < unchanged 17 minimum. General CI failed only a signed-zero Node assertion (visual-neutral); corrected and 69/69 focused Node tests locally pass; updated CI pending. Original Snake Pass reference still loses; independent critic, device present FPS, soak/R5 pending.",
+  "status": "ROUND38 EXACT-SOURCE NODE 70/70 PASS · CONTACT SHADOW PREFIX UPDATE REQUESTS · TRUE WEBGL CI PENDING · STRICT 17 ACTUAL SUBMISSION GATE STILL OPEN",
+  "detail": "Exact predecessor renderer SHA 14d5f7dc verified. One original 2048-instance contact-shadow buffer keeps 131072 bytes allocation but requests 64 bytes per visible contact after first allocation; matrix transforms unchanged on Node portal/empty/cap fixtures. Build and 70/70 focused Snake Node pass; no causal GPU/display FPS claim. Last verified source Round37 Chromium focused 41244333141 26/27, strict desktop 10 actual submissions/1010.9ms <17; general browser pending. R38 real Chromium A/B and new strict cadence pending. Whole Snake Pass character/world/motion verdict LOSE, no independent critic, device/soak/R5 open; draft PR.",
   "latestImage": "/progress/evidence/round-9-overview.jpg",
   "latestCaption": "Historical Round9 image (not R35). Real Round35 Chromium/WebGL same synthetic public-frame overview/detail before/after: https://github.com/my-edutu/Ai_games/actions/runs/41239708262/artifacts/13056688120; not live gameplay frame pacing.",
   "reviews": [
+    {
+      "area": "Round 38 · live ground-contact instance-buffer subrange",
+      "verdict": "EXACT-SOURCE NODE 70/70 · TRUE WEBGL SOURCE CAPTURES PENDING · ≥17 ACTUAL SUBMISSIONS NOT VERIFIED · WHOLE-GAME LOSE",
+      "gap": "Single original 2048 contact-shadow transform buffer now requests only 64 bytes per used instance, unchanged total capacity and visible transforms; CPU range requests are not GPU speed. New exact prior-source true Chromium overview/detail screenshot gate pending, preserve strict 17. Fixed Snake Pass/ASTRO BOT reference, independent critic, device-present FPS and R5/soak remain open."
+    },
     {
       "area": "Round 37 · original attached upper-lid articulation",
       "verdict": "ACTUAL WEBGL SHA-CONTROL PASS · 26/27 BROWSER · STRICT 11/17 FAIL · WHOLE-GAME LOSE",
@@ -647,9 +652,15 @@
           "path": "https://github.com/my-edutu/Ai_games/blob/feat/autonomous-snake-3d-gauntlet/docs/reviews/snake-gauntlet/round37-attached-upper-eyelids.md"
         }
       ]
+    },
+    {
+      "title": "Round 38 · dynamic grounded shadow update transfers",
+      "summary": "Actual Three.js SHA-controlled old/new transforms and portal/empty/cap behavior pass locally, 70/70 focused Snake Node and build green. Preserve the one existing 2048-instance shadow buffer but mark only visible instance-matrix prefix for GPU upload. Real frozen Chromium/WebGL before/after, full CI and strict ≥17 actual submissions pending. No FPS, independence, visual reference or R5 win claimed.",
+      "captures": []
     }
   ],
   "checks": [
+    "Round38 candidate on SHA 339b4d58: build and focused 70/70 Snake Node PASS; exact previous-world controller & real Three.js contact buffers byte-identical while request range covers 64 bytes per visible instance. Full local test timed out, new true-WebGL before/after and strict ≥17 real draw gate PENDING. Previous corrected Round37 run 41244333141 26/27; desktop 10 actual/1010.9ms FAIL (61 RAF != draws/presents).",
     "Round36 corrected-history focused 41241932464 24/26: older R33/R34 real WebGL tests PASS; strict desktop 10 real render submissions/1015ms FAIL >=17, 61 RAF irrelevant. R36 prior exact pixel test now 9 changed overview face pixels (max1/255), detail untested in that run; isolate synthetic danger=0 only, exact-zero tolerance unchanged, fresh CI pending. Real gameplay index uploadRequests29 / reuseFrames1 over 30 renders: negligible live efficiency gain, no FPS win.",
     "Round36 exact-source focused browser 41241205012: 23/26, NEW real WebGL A/B PASS in overview and detail, pixel and PNG byte identical, 1 index-upload request/3 reused per four frames, unchanged 33/44 draw calls. Desktop 11 actual submissions/1006.8ms FAIL vs >=17. Two legacy R33/R34 historical SHA-only guard defects fixed in tests; corrected new-head CI pending. General workflow 41241204899 browser pending.",
     "Round36 candidate on parent fd9c8e5e26b021fc6211bac4dde73652400da1f1: original serpent index topology uploads skipped when portal break positions/LOD/count unchanged; Node exact predecessor parity and true WebGL frozen PNG regression added, NEW CI PENDING. Latest prior-head focused 41240251761 24/25; actual desktop 10 submissions/<approx 1s against minimum 17; no performance win claimed.",
