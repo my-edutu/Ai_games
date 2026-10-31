@@ -420,6 +420,31 @@ export function createMazeWorld(options = {}) {
       mesh(gate, bevel, gold, 0, .85, .53, .43, .4, .17);
       mesh(gate, cylinder, darkMetal, 0, .9, .65, .055, .014, .055, Math.PI / 2);
       mesh(gate, box, darkMetal, 0, .83, .66, .045, .1, .012);
+      // A key and its lock share one carved, octagonal symbol ONLY when the
+      // matching key has already been disclosed or is publicly in inventory.
+      // The coral obstruction stays in place until door.open says otherwise.
+      // No private key location, unlocked route or premature opening is implied.
+      const required = door.requiredKeyId;
+      const carried = typeof required === 'string' && Array.isArray(s.inventory)
+        && s.inventory.includes(required);
+      const observed = typeof required === 'string' && s.keys.some(key =>
+        key.id === required && !key.collected && s.cells.some(c => c.cell === key.cell));
+      if (carried || observed) {
+        const crest = new THREE.Group();
+        crest.name = 'Disclosed matching key emblem';
+        crest.userData.keyState = carried ? 'carried' : 'observed';
+        crest.position.set(0, 2.12, .43); gate.add(crest);
+        // Reuse the actual collectible's octagonal bow and two-tooth profile.
+        // Raised ivory/amber means known key; mint means that exact key is
+        // carried, NOT that the still-crossed gate is already traversable.
+        const tint = carried ? glow : keyLight;
+        mesh(crest, bevel, darkMetal, 0, 0, 0, 1.02, .49, .14);
+        mesh(crest, bevel, carried ? glow : gold, 0, .19, .095, 1.02, .05, .05);
+        mesh(crest, keyBow, tint, -.19, .06, .14, .7, .7, .7);
+        mesh(crest, bevel, tint, -.19, -.14, .14, .08, .24, .08);
+        mesh(crest, bevel, tint, -.10, -.23, .14, .16, .07, .08);
+        mesh(crest, bevel, tint, -.10, -.11, .14, .16, .07, .08);
+      }
     }
   }
   function trapProp(c, s) {
@@ -509,7 +534,7 @@ export function createMazeWorld(options = {}) {
     if (backgroundKey !== backdropSignature) { rebuildBackdrop(s); backdropSignature = backgroundKey; }
     const terrainKey = s.cells.map(c => `${c.cell}/${c.neighbors.join('.')}/${+c.blocked}`).join('|');
     if (terrainKey !== terrainSignature) { rebuildTerrain(s); terrainSignature = terrainKey; }
-    const objectKey = JSON.stringify([s.keys, s.doors, s.exitCell, s.cells.map(c => [c.cell, c.trap, c.checkpoint, c.clue])]);
+    const objectKey = JSON.stringify([s.keys, s.doors, s.inventory, s.exitCell, s.cells.map(c => [c.cell, c.trap, c.checkpoint, c.clue])]);
     if (objectKey !== objectSignature) { rebuildObjects(s); objectSignature = objectKey; }
     refreshVisibility(s);
   }
