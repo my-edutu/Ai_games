@@ -161,6 +161,7 @@ test('Pip turns the actual presenting glove toward either public lock bearing an
   for (const balanced of [false, true]) {
     const pip = createExplorer({balanced});
     const arm = pip.group.getObjectByName('shoulder -1');
+    const elbow = pip.group.getObjectByName('elbow -1');
     const key = pip.group.getObjectByName('presented matching key');
     const head = pip.group.getObjectByName('curious head');
     const {Vector3} = await import(three);
@@ -175,24 +176,29 @@ test('Pip turns the actual presenting glove toward either public lock bearing an
     assert.equal(key.visible, true);
     assert.ok(arm.rotation.y > .75, 'the left glove aims toward a right-hand lock');
     assert.ok(arm.rotation.z > 0, 'the arm reaches across the chest instead of hanging below the key');
+    assert.ok(elbow.rotation.y < -.4, 'the connected wrist counters rightward shoulder twist to expose the key bow');
     assert.ok(keyHeightFromHead() > -.12, 'rightward key bearing retains the existing helmet-height silhouette');
     const rightwardYaw = arm.rotation.y;
     pip.update({heading: 0, keyHeading: -Math.PI / 2, keyStrength: 1, reducedMotion: true});
     assert.ok(arm.rotation.y < -.75, 'the left glove also aims toward a left-hand lock');
     assert.ok(arm.rotation.z < -.25, 'the arm reaches outward toward that side');
+    assert.ok(elbow.rotation.y > .4, 'leftward bearing counter-turns the connected wrist, not a detached sprite');
     assert.ok(keyHeightFromHead() > -.12, 'leftward key bearing must not drop the real prop below the helmet');
     pip.update({heading: 0, keyHeading: Math.PI / 2, keyStrength: .4, reducedMotion: true});
     assert.ok(arm.rotation.y > 0 && arm.rotation.y < rightwardYaw,
       'weaker real proximity creates a proportionately smaller presentation');
     pip.update({heading: 0, keyStrength: 0, reducedMotion: true});
     assert.equal(arm.rotation.y, 0, 'no public matching key means no lingering bearing');
+    assert.equal(elbow.rotation.y, 0, 'absence of a public matching key clears the wrist counter-turn');
     assert.equal(key.visible, false);
     pip.update({heading: 0, keyHeading: Math.PI / 2, keyStrength: 1,
       attentionHeading: -Math.PI / 2, attentionStrength: 1, reducedMotion: true});
     assert.equal(arm.rotation.y, 0, 'a disclosed guardian takes priority');
+    assert.equal(elbow.rotation.y, 0, 'a disclosed guardian clears the wrist counter-turn');
     pip.update({heading: 0, keyHeading: Math.PI / 2, keyStrength: 1,
       result: 'capture', reducedMotion: true});
     assert.equal(arm.rotation.y, 0, 'a real terminal result takes priority');
+    assert.equal(elbow.rotation.y, 0, 'a terminal result clears the wrist counter-turn');
     pip.dispose();
   }
 });
