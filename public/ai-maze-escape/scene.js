@@ -1,7 +1,7 @@
 import * as THREE from './vendor/three.module.js';
 import { createExplorer, createWarden } from './characters.js';
 import { createMazeWorld, cellPosition, cellHeight, sampleGroundHeight, CELL_SIZE } from './world.js';
-import { planPublicMotion, samplePublicPath, publicWayfinding, publicObjective, publicStageBias } from './map-view.mjs';
+import { planPublicMotion, samplePublicPath, publicWayfinding, publicObjective, publicStageBias, composePublicCameraFocus } from './map-view.mjs';
 
 const TAU = Math.PI * 2;
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
@@ -359,17 +359,17 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
       // visible, and avoid fighting the threat-encounter framing.
       const nearObservedGoal = cameraMode === 'follow' && !result
         && objectiveCue && objectiveCue.steps <= 2 && !closestThreat?.strength;
-      if (nearObservedGoal) {
-        // Frame Pip and the genuinely known, nearby landmark together.
-        // This is purely a camera composition of public coordinates, not
-        // guidance, a declaration of safety or a change to AI movement.
-        const goal = cellPosition(objectiveCue.cell, s.width, s.height);
-        desiredTarget.x += (goal.x - pose.x) * .30;
-        desiredTarget.z += (goal.z - pose.z) * .30;
-      } else if (cameraMode === 'follow' && !result && !closestThreat?.strength) {
-        const narrow = aspect < .9 ? .23 : 1;
-        desiredTarget.x += stageBias.x * narrow;
-        desiredTarget.z += stageBias.z * narrow;
+      if (cameraMode === 'follow' && !result && !closestThreat?.strength) {
+        // A near, already-observed goal does not erase the public coastline
+        // correction. Blend a bounded stage pull with the known landmark to
+        // keep Pip, its legitimate first step and the surrounding diorama
+        // in the same shot without introducing hidden geometry or guidance.
+        const goal = nearObservedGoal
+          ? cellPosition(objectiveCue.cell, s.width, s.height) : null;
+        const focus = composePublicCameraFocus(stageBias, goal
+          ? {x: goal.x - pose.x, z: goal.z - pose.z} : null, nearObservedGoal, aspect);
+        desiredTarget.x += focus.x;
+        desiredTarget.z += focus.z;
       }
       targetHeight = cameraMode === 'detail' ? 4.6 : height < 340 ? 5.4
         : aspect < .9 ? 6.2 : nearObservedGoal ? 6.25 : 7.3;
