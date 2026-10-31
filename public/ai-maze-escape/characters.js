@@ -175,6 +175,17 @@ export function createExplorer(options = {}) {
     ball(hand,ivory,[-side*.065,.005,.028],[.035,.05,.038]);
     arms.push({shoulder,elbow,hand});
   }
+  // Pip reveals the matching key in the *left glove* only when a disclosed
+  // nearby sealed gate matches public inventory. The held physical model is
+  // always built once and toggled; no props are allocated per frame.
+  const keyMint=material('#a5ffdc',.22,.3,{emissive:'#50d5ae',emissiveIntensity:.65});
+  const heldKey=pivot(arms[0].hand,'presented matching key',[0,-.12,.11]);
+  ring(heldKey,keyMint,[0,.18,0],.17,.045);
+  rounded(heldKey,keyMint,[0,-.095,0],[.115,.38,.11],.028);
+  rounded(heldKey,keyMint,[.12,-.235,0],[.23,.105,.11],.026);
+  rounded(heldKey,keyMint,[.12,-.09,0],[.23,.095,.11],.023);
+  heldKey.visible=false;
+
   // An expedition signal crest is legible in a wide, silent stream frame.
   // It is suppressed by default and receives only disclosed-threat attention;
   // it is not a detection radius, navigation instruction or hidden game event.
@@ -213,6 +224,16 @@ export function createExplorer(options = {}) {
     const alert=reacting?Math.max(0,Math.min(1,finite(options.attentionStrength))):0;
     const relativeLook=reacting?Math.atan2(Math.sin(options.attentionHeading-group.rotation.y),Math.cos(options.attentionHeading-group.rotation.y)):0;
     const lookYaw=Math.max(-.72,Math.min(.72,relativeLook))*alert;
+    // The key gesture has lower priority than a genuine nearby warden. Its
+    // heading and strength are sourced only from a public carried-key/closed-
+    // gate pair; a static readable pose remains in reduced-motion mode.
+    const keyReach=!s.win&&!s.lose&&alert<.1&&Number.isFinite(options.keyHeading)
+      ?Math.max(0,Math.min(1,finite(options.keyStrength))):0;
+    const keyYaw=keyReach*Math.max(-.7,Math.min(.7,
+      Math.atan2(Math.sin(options.keyHeading-group.rotation.y),
+        Math.cos(options.keyHeading-group.rotation.y))));
+    heldKey.visible=keyReach>.2;
+    heldKey.rotation.z=s.reduced?0:Math.sin(s.time*2.2)*.045*keyReach;
     // Shape, not color or blinking alone, communicates a real nearby warden.
     // Reduced-motion keeps the same static visual cue.
     alertFlare.visible=alert>.24;
@@ -221,18 +242,18 @@ export function createExplorer(options = {}) {
     alertFlare.scale.setScalar(.85+alert*.27);
     body.position.x=-.025*rest;
     body.position.y=.78+Math.abs(step)*.035+(s.lose?0:idle*.008);
-    body.rotation.set(s.lose?.22:stride*.065-s.danger*.035,lookYaw*.14,.035*rest-step*.05-Math.sign(lookYaw)*alert*.035);
-    head.rotation.set(s.lose?.28:-.04-s.danger*.08+idle*.018+alert*.10,
-      (s.reduced?0:Math.max(-.42,Math.min(.42,turn*.7))+(Math.sin(s.time*.73)*.08+.12)*rest)*(1-alert)+lookYaw,
+    body.rotation.set(s.lose?.22:stride*.065-s.danger*.035-keyReach*.07,lookYaw*.14+keyYaw*.08,.035*rest-step*.05-Math.sign(lookYaw)*alert*.035);
+    head.rotation.set(s.lose?.28:-.04-s.danger*.08+idle*.018+alert*.10-keyReach*.06,
+      (s.reduced?0:Math.max(-.42,Math.min(.42,turn*.7))+(Math.sin(s.time*.73)*.08+.12)*rest)*(1-alert-keyReach*.7)+lookYaw+keyYaw,
       s.win?-.13:s.lose?.07:-.065*rest+step*.035);
     for (let i=0;i<2;i++) {
       const sign=i===0?1:-1;
       legs[i].hip.rotation.x=step*sign*.62;
       legs[i].knee.rotation.x=Math.max(0,-step*sign)*.58;
-      arms[i].shoulder.rotation.x=-step*sign*(i===1?.2:.4)-(s.win?.9:0)-(i===1?.16:0)-alert*(i===1?.42:.12);
-      arms[i].shoulder.rotation.z=(i===0?-1:1)*(s.win?.95:i===1?.34:.15);
-      arms[i].elbow.rotation.x=-.16-(i===1?.22:0)-(s.danger*.3);
-      eyes[i].position.x=(i===0?-1:1)*.145+Math.max(-.024,Math.min(.024,lookYaw*.032+(s.reduced?0:(Math.max(-.016,Math.min(.016,turn*.045))+.006*rest)*(1-alert))));
+      arms[i].shoulder.rotation.x=-step*sign*(i===1?.2:.4)-(s.win?.9:0)-(i===1?.16:0)-alert*(i===1?.42:.12)-(i===0?keyReach*.72:0);
+      arms[i].shoulder.rotation.z=(i===0?-1:1)*(s.win?.95:i===1?.34:.15)-(i===0?keyReach*.78:0);
+      arms[i].elbow.rotation.x=-.16-(i===1?.22:0)-(s.danger*.3)-(i===0?keyReach*.32:0);
+      eyes[i].position.x=(i===0?-1:1)*.145+Math.max(-.024,Math.min(.024,(lookYaw+keyYaw)*.032+(s.reduced?0:(Math.max(-.016,Math.min(.016,turn*.045))+.006*rest)*(1-alert))));
       eyes[i].scale.y=s.lose?.32:s.danger>.45||alert>.4?1.13:(s.reduced?1:Math.pow(Math.max(0,Math.cos(s.time*.83)),60)>.88?.12:1);
     }
     if (s.win) body.position.y += amount*Math.max(0,Math.sin(s.time*5))*.075;

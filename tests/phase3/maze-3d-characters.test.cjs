@@ -112,3 +112,31 @@ test('observed-threat cues read in silhouette and clear on neutral or terminal f
     pip.dispose(); thornback.dispose();
   }
 });
+
+test('Pip presents a modeled carried key to a real nearby lock and clears it for unobserved or terminal states', async () => {
+  const {createExplorer} = await modulePromise;
+  for (const balanced of [false,true]) {
+    const pip=createExplorer({balanced});
+    const key=pip.group.getObjectByName('presented matching key');
+    const arm=pip.group.getObjectByName('shoulder -1');
+    const head=pip.group.getObjectByName('curious head');
+    assert.ok(key && arm && head, 'a reusable 3D prop and articulated arm, not a sprite or HUD');
+    assert.equal(key.visible,false);
+    pip.update({heading:0,keyHeading:Math.PI/2,keyStrength:1,reducedMotion:true});
+    assert.equal(key.visible,true,'real matching carried-key cue shows a physical key in Pip’s glove');
+    assert.ok(arm.rotation.x<-.6 && arm.rotation.z<-.6,'left hand reaches toward the lock');
+    assert.ok(head.rotation.y>.6,'Pip visibly looks toward the disclosed lock');
+    pip.update({heading:0,keyStrength:0,reducedMotion:true});
+    assert.equal(key.visible,false,'hidden/unmatched/open gate cannot leave a stale key');
+    assert.equal(head.rotation.y,0);
+    pip.update({heading:0,keyHeading:Math.PI/2,keyStrength:1,attentionHeading:-Math.PI/2,attentionStrength:1,reducedMotion:true});
+    assert.equal(key.visible,false,'a real warden encounter takes priority over the cosmetic lock gesture');
+    pip.update({heading:0,keyHeading:Math.PI/2,keyStrength:1,result:'capture',reducedMotion:true});
+    assert.equal(key.visible,false,'terminal truth overrides the presentation gesture');
+    assert.equal(head.rotation.x,.28);
+    pip.update({heading:0,keyHeading:Math.PI/2,keyStrength:1,result:'escape',reducedMotion:true});
+    assert.equal(key.visible,false);
+    pip.dispose();
+    assert.equal(pip.group.children.length,0);
+  }
+});

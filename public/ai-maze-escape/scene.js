@@ -1,7 +1,7 @@
 import * as THREE from './vendor/three.module.js';
 import { createExplorer, createWarden } from './characters.js';
 import { createMazeWorld, cellPosition, cellHeight, sampleGroundHeight, CELL_SIZE } from './world.js';
-import { planPublicMotion, samplePublicPath, publicWayfinding, publicObjective, publicStageBias, composePublicCameraFocus, publicNearbySealedGate, composePublicSealedGateFocus } from './map-view.mjs';
+import { planPublicMotion, samplePublicPath, publicWayfinding, publicObjective, publicStageBias, composePublicCameraFocus, publicNearbySealedGate, composePublicSealedGateFocus, publicCarriedGateCue } from './map-view.mjs';
 
 const TAU = Math.PI * 2;
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
@@ -324,10 +324,16 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
         attentionStrength,danger:1,result,reducedMotion:settings.reducedMotion,
       });
     }
+    // A physical key-to-lock presentation is allowed only for a genuinely
+    // disclosed *closed* gate and its exact carried key. Public, cosmetic and
+    // lower-priority than a real guardian. This cannot move or open anything.
+    const keyGateCue=cameraMode==='follow'&&!result&&!closestThreat?.strength
+      ? publicCarriedGateCue(s,pose) : null;
     explorer.update({
       time:elapsed,delta,moving:pose.moving&&!result,heading,
       attentionHeading:closestThreat?Math.atan2(closestThreat.x-pose.x,closestThreat.z-pose.z):undefined,
       attentionStrength:closestThreat?.strength??0,
+      keyHeading:keyGateCue?.heading,keyStrength:keyGateCue?.strength??0,
       danger:s.dangerPermille/1000,result,reducedMotion:settings.reducedMotion,
     });
     world.animate(elapsed, settings);
@@ -456,6 +462,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
         routeQueue: cells.length, world: stats, contextLost: false,
         disclosedThreats: wardens.size, wardensInFrame, encounterAttention: closestThreat?.strength ?? 0,
         keysInFrame, closedGatesInFrame,
+        carriedKeyGateGesture: keyGateCue?.strength??0,
         // Camera evidence is derived only from the source-disclosed gate,
         // with projected coordinates in normalized device space [-1,+1].
         nearbySealedGate: nearObservedGate ? {...nearObservedGate} : null,

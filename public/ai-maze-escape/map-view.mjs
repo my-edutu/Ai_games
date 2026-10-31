@@ -240,6 +240,39 @@ export function composePublicSealedGateFocus(stageBias, gateDelta, aspect = 1) {
   return {x: x * scale, z: z * scale};
 }
 
+
+/**
+ * A *cosmetic* key-in-hand response to the gate immediately beside Pip.
+ * This requires three independent, public facts: a disclosed nearby closed
+ * door, its exact public requiredKeyId in inventory, and actual visual
+ * proximity. It never opens the door, invents a route, or consults hidden map
+ * cells. The octagonal key/crest uses the same disclosed authority snapshot.
+ */
+export function publicCarriedGateCue(snapshot, pose) {
+  const gate = publicNearbySealedGate(snapshot);
+  if (!gate || !Number.isFinite(pose?.x) || !Number.isFinite(pose?.z)) return null;
+  const door = (Array.isArray(snapshot.doors) ? snapshot.doors : []).find(item =>
+    !item.open && ((item.a === gate.a && item.b === gate.b)
+      || (item.a === gate.b && item.b === gate.a)));
+  const keyId = door?.requiredKeyId;
+  if (typeof keyId !== 'string' || !keyId || !Array.isArray(snapshot.inventory)
+    || !snapshot.inventory.includes(keyId)) return null;
+  const cellPosition = cell => ({
+    x: (cell % snapshot.width - (snapshot.width - 1) / 2) * 2.4,
+    z: (Math.floor(cell / snapshot.width) - (snapshot.height - 1) / 2) * 2.4,
+  });
+  const a = cellPosition(gate.a), b = cellPosition(gate.b);
+  const dx = (a.x + b.x) / 2 - pose.x;
+  const dz = (a.z + b.z) / 2 - pose.z;
+  const distance = Math.hypot(dx, dz);
+  // The key must be visible only at a real nearby lock, never as a remote
+  // navigation instruction. Keep reduced motion free to show a static pose.
+  if (!Number.isFinite(distance) || distance >= 3.6) return null;
+  const strength = clamp((3.6 - distance) / 2.4, 0, 1);
+  if (strength < .2) return null;
+  return {heading: Math.atan2(dx, dz), strength, a: gate.a, b: gate.b};
+}
+
 export function drawMinimap(canvas, snapshot, highContrast = false) {
   if (!canvas || !snapshot) return;
   const context = canvas.getContext('2d');

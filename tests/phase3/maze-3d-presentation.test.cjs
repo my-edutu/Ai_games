@@ -241,3 +241,34 @@ test('publicNearbySealedGate framing selects only disclosed adjacent sealed obst
   assert.ok(gateOnly.x < 0, 'a genuine disclosed gate still contributes without a stage bias');
   assert.deepEqual(composePublicSealedGateFocus({x: NaN, z: Infinity}, {x: Infinity, z: NaN}), {x: 0, z: 0});
 });
+
+test('key-to-lock gesture is driven only by an already public matching inventory and near sealed gate', async () => {
+  const {publicCarriedGateCue} = await load();
+  const state = {
+    width: 7, height: 5, currentCell: 8, result: null,
+    cells: [{cell: 8, neighbors: [9]}, {cell: 9, neighbors: [8]}],
+    doors: [{id: 'seen', a: 8, b: 9, open: false, requiredKeyId: 'copper'}],
+    keys: [{id: 'copper', cell: 8, collected: true}],
+    inventory: ['copper'],
+  };
+  const position={x:-4.8,z:-2.4};
+  const before=JSON.stringify(state);
+  const cue=publicCarriedGateCue(state,position);
+  assert.ok(cue && cue.strength>.9);
+  assert.ok(Math.abs(cue.heading-Math.PI/2)<1e-8, 'Pip looks at the real gate, not a hidden path');
+  assert.equal(JSON.stringify(state),before,'presentation never mutates authoritative snapshots');
+  assert.equal(publicCarriedGateCue({...state, inventory: []},position),null);
+  assert.equal(publicCarriedGateCue({...state,inventory:['other']},position),null);
+  assert.equal(publicCarriedGateCue({...state,keys:[]},position)?.strength,cue.strength,
+    'public inventory alone establishes that the key is truly carried');
+  assert.equal(publicCarriedGateCue({...state,doors:[{...state.doors[0],requiredKeyId:'other'}]},position),null);
+  assert.equal(publicCarriedGateCue({...state,doors:[{...state.doors[0],open:true}]},position),null);
+  assert.equal(publicCarriedGateCue({...state,cells:[{cell:16,neighbors:[]}],currentCell:16},position),null);
+  assert.equal(publicCarriedGateCue({...state,result:{reason:'escape'}},position),null);
+  assert.equal(publicCarriedGateCue(state,{x:100,z:100}),null);
+  assert.equal(publicCarriedGateCue(state,{x:NaN,z:0}),null);
+  assert.equal(publicCarriedGateCue({...state,doors:[{...state.doors[0],a:13,b:14}]},position),null,
+    'row-wrapped nonadjacent gates must never trigger a reach');
+  assert.equal(publicCarriedGateCue({...state,doors:[{...state.doors[0],a:16,b:17}]},position),null,
+    'an undisclosed gate cannot reveal a gesture');
+});
