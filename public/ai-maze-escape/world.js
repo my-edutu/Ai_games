@@ -415,20 +415,27 @@ export function createMazeWorld(options = {}) {
       for (const tilt of [-.72, .72]) {
         mesh(seal, bevel, danger, 0, .79, .24, 1.8, .2, .2, 0, 0, tilt);
       }
-      mesh(gate, bevel, darkMetal, 0, .88, .43, .49, .48, .14);
-      mesh(gate, ring, gold, 0, 1.1, .51, .21, .25, .21);
-      mesh(gate, bevel, gold, 0, .85, .53, .43, .4, .17);
-      mesh(gate, cylinder, darkMetal, 0, .9, .65, .055, .014, .055, Math.PI / 2);
-      mesh(gate, box, darkMetal, 0, .83, .66, .045, .1, .012);
-      // A key and its lock share one carved, octagonal symbol ONLY when the
-      // matching key has already been disclosed or is publicly in inventory.
-      // The coral obstruction stays in place until door.open says otherwise.
-      // No private key location, unlocked route or premature opening is implied.
+      // The near-face lock reads as an actual, recessed keyhole instead of
+      // several small gold blobs. Its mint socket appears ONLY when Pip truly
+      // carries this exact key in the public inventory. The crossed bars stay
+      // physically closed until the authoritative door.open state changes.
+      // No hidden key position or future unlock is represented here.
       const required = door.requiredKeyId;
       const carried = typeof required === 'string' && Array.isArray(s.inventory)
         && s.inventory.includes(required);
       const observed = typeof required === 'string' && s.keys.some(key =>
         key.id === required && !key.collected && s.cells.some(c => c.cell === key.cell));
+      const lock = new THREE.Group(); lock.name = 'Physical recessed keyhole'; gate.add(lock);
+      lock.userData.keyState = carried ? 'carried' : observed ? 'observed' : 'unknown';
+      mesh(lock, bevel, darkMetal, 0, .9, .43, .76, .75, .18);
+      mesh(lock, bevel, gold, 0, .9, .55, .65, .64, .14);
+      mesh(lock, bevel, darkMetal, 0, .9, .65, .51, .5, .14);
+      const socketTint = carried ? glow : gold;
+      mesh(lock, ring, socketTint, 0, 1.02, .76, .18, .18, .12);
+      mesh(lock, bevel, socketTint, 0, .78, .76, .11, .24, .10);
+      mesh(lock, bevel, darkMetal, 0, .79, .825, .045, .14, .035);
+      // The raised crest shows the same carved key motif only once this exact
+      // key is disclosed. A mint lock is a match, never a passable passage.
       if (carried || observed) {
         const crest = new THREE.Group();
         crest.name = 'Disclosed matching key emblem';
