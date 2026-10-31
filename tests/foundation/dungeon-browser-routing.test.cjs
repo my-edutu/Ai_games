@@ -9,7 +9,7 @@ function discovered(config){
 }
 test('shared browser discovery does not schedule Dungeon tests against the Snake baseURL',()=>{
  const output=discovered('playwright.config.cjs');
- assert.doesNotMatch(output,/dungeon-(?:authored-motion|facing|interface|materials|setpieces|stream)\.spec\.cjs/);
+ assert.doesNotMatch(output,/dungeon-(?:authored-motion|facing|interface|materials|setpieces|stream|warden-regalia)\.spec\.cjs/);
  assert.match(output,/snake|maze|ant|tower/);
  assert.ok(require('../../playwright.config.cjs').webServer.every(server=>!server.url.includes(':4181/')),'dedicated Dungeon server must not start in the shared suite');
 });
