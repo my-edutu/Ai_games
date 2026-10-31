@@ -96,13 +96,13 @@ const path = require('node:path');
       return {swatches:game.getMaterialSwatchAudit(),
         authorityUnchanged:before===JSON.stringify(game.exportSnapshot())};
     });
-    for(const [name,expected] of [['guildCloth',24],['guildGoldTrim',1],
+    for(const [name,expected] of [['guildCloth',48],['guildGoldTrim',1],
                                    ['marketCanvas',2],['festivalGoldSilk',1]]){
       const row=evidence.materialSwatches.swatches[name];
       if(!row||row.general<expected||row.stone!==0||row.roof!==0)
         throw Error('G054b real GPU cloth material inherited masonry: '+name+' '+JSON.stringify(row));
     }
-    if(evidence.materialSwatches.swatches.guildCloth.total!==24||
+    if(evidence.materialSwatches.swatches.guildCloth.total!==48||
        evidence.materialSwatches.swatches.marketCanvas.total!==2||
        !evidence.materialSwatches.authorityUnchanged)
       throw Error('G054b actual GPU colored cloth triangle audit/replay failed: '+JSON.stringify(evidence.materialSwatches));
