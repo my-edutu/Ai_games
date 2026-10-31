@@ -1039,6 +1039,62 @@
       "highestFloor": 9,
       "determinismFailures": 0,
       "artifactUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41231867091/artifacts/13053709185"
+    },
+    {
+      "round": 40,
+      "at": "2026-10-31",
+      "commit": "cb5b4e5f90908f299460cd9301874fa7daf2cb52",
+      "status": "RENDERER/TEST CODE BUILT; 94/94 DUNGEON, 17/17 PRESENTATION, 24×900 DETERMINISTIC LOCAL PASS; INDEPENDENT 10/10 CHROMIUM AT FIRST PASS; FINAL THREE-SHARD BROWSER/CI PENDING; DIABLO IV BAR NOT MET",
+      "visualVerdict": "Previous genuine Round 39 frame exposes near-black empty cavern skyline, small overlapping GLB heroes and flat cuboid walls. First-pass Round 40 actual WebGL interface screenshots inspected and run 10/10; final grounded-rock scene screenshot not yet available. New original exterior ridges are rendered in 48 near + 32 far instances across two draw batches, replacing 34 thin skyline cylinders. TDD found floating rocks due .5 mesh radius; RED 6/7, fixed to radius1 and GREEN 7/7; test also now validates full rotated physical bounds. No verified aesthetic preference improvement, blind matched A/B, fresh independent artist, GPU p95 or soak. NOT AAA/production ready.",
+      "evidenceMetrics": {
+        "newFoundationTests": 4,
+        "redProofLocal": true,
+        "redFailureCounts": {
+          "pass": 6,
+          "fail": 1
+        },
+        "correctedFocusedTestsPassed": 7,
+        "correctedDungeonFoundationTestsPassed": 94,
+        "correctedPresentationTestsPassed": 17,
+        "correctedHeadlessSamples": 24,
+        "correctedTicksPerSeed": 900,
+        "correctedReplayDiscrepancies": 0,
+        "highestFloor": 9,
+        "originalNonPlayableRimNearInstances": 48,
+        "originalNonPlayableRimFarInstances": 32,
+        "addedGPUInstanceBatches": 2,
+        "exactRuntimeHostChanged": true,
+        "authoritativeSimulationChanged": false,
+        "localSourceAssetLicensesUnchanged": true,
+        "verifiedFirstPassInterfaceChromiumTestsPassed": 10,
+        "finalCorrectedChromiumScreenshotInspected": false,
+        "independentFreshCritic": false,
+        "blindMatchedReferenceAB": false,
+        "gpuFrameP95Measured": false,
+        "productionReady": false
+      },
+      "verification": {
+        "originalCodeSha": "4e5cbb204e2cdb1fd73aaaaba65dc167cd4ac416",
+        "correctedRendererSha": "cb5b4e5f90908f299460cd9301874fa7daf2cb52",
+        "finalCodeAndTestSha": "c6c030a6b5b5a07be2935bd282f6810005bcc177",
+        "initialAuthorityRun": 41237249497,
+        "initialInterfaceRun": 41237249652,
+        "initialInterfaceArtifact": 13055817256,
+        "initialBrowserShardState": "cancelled after subsequent commits, not a complete browser pass",
+        "finalCodeDedicatedRun": 41238043932,
+        "finalCodeVisualReviewRun": 41238044017,
+        "finalCodeFullCatalogueRun": 41238043977,
+        "finalCodeWorkflowStatusAtReview": "queued; outcomes unverified",
+        "documentation": "docs/reviews/AI_DUNGEON_GAUNTLET_ROUND_040.md",
+        "independentReview": false,
+        "productionReady": false
+      },
+      "nextLargestGap": "Original high-detail hero/enemy anatomy with distinguishable weapon-to-victim alignment and foot-planted combat visible at actual spectator camera scale; organic cave/stone material breakup, verified corrected WebGL screenshots and blinded frame-matched visual comparison; GPU p95/soak.",
+      "sampleSeeds": 24,
+      "ticksPerSeed": 900,
+      "highestFloor": 9,
+      "determinismFailures": 0,
+      "artifactUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41237249652/artifacts/13055817256"
     }
   ]
 }
