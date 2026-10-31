@@ -19,6 +19,10 @@ test('G071 daylight transition preserves scenic VBO and replay with emissive gla
  // the cached baseline only *after* those autonomous city revisions render.
  const prephase=await page.evaluate(()=>{
   const g=window.__tinyKingdom,lit=t=>g.getLightingProfile(t).solar>=.4375;
+  // Read the frame counter in the SAME task, before changing authority.
+  // Otherwise rAF can render the only required frame between evaluate calls,
+  // leaving a paused, clean scene and causing waitForFunction to time out.
+  const frameBeforeAdvance=g.getFrameProfile().totalFrames;
   let steps=0;
   while(steps<720){
    const t=g.getState().state.t;
@@ -26,13 +30,14 @@ test('G071 daylight transition preserves scenic VBO and replay with emissive gla
    g.step(1/30);steps++;
   }
   const t=g.getState().state.t;
-  return {steps,willCross:lit(t)!==lit(t+1/30),time:t};
+  return {steps,willCross:lit(t)!==lit(t+1/30),time:t,frameBeforeAdvance};
  });
  expect(prephase.steps).toBeLessThan(720);
  expect(prephase.willCross).toBe(true);
- const prephaseProfile=await page.evaluate(()=>window.__tinyKingdom.getFrameProfile().totalFrames);
+ // A paused scene intentionally renders only once per mutation. The baseline
+ // count must predate the mutation even on a fast event loop.
  await page.waitForFunction(prev=>window.__tinyKingdom.getFrameProfile().totalFrames>prev,
-   prephaseProfile,{timeout:30000});
+   prephase.frameBeforeAdvance,{timeout:30000});
  const before=await page.evaluate(()=>{
   const g=window.__tinyKingdom,gl=document.querySelector('#world').getContext('webgl');
   const program=gl?.getParameter(gl.CURRENT_PROGRAM);
