@@ -75,3 +75,56 @@ test('bone-bound real WebGL audit is discoverable by the dedicated browser suite
  const config=fs.readFileSync(path.join(root,'tests/browser/dungeon.playwright.config.cjs'),'utf8');
  assert.ok(config.includes("'dungeon-rig-attachments.spec.cjs'"));
 });
+
+test('real rig upper-arm selection never mistakes hand, twist, shoulder or forearm joints',async()=>{
+ const {selectUpperArmBone}=await load();
+ const bones=[
+  {name:'mixamorig:LeftArm',isBone:true},
+  {name:'mixamorig:RightHand',isBone:true},
+  {name:'mixamorig:RightForeArm',isBone:true},
+  {name:'mixamorig:RightArm',isBone:true},
+  {name:'RightArmTwist',isBone:true},
+  {name:'RightShoulder',isBone:true}
+ ];
+ assert.equal(selectUpperArmBone(bones,'right'),bones[3]);
+ assert.equal(selectUpperArmBone(bones,'left'),bones[0]);
+ assert.equal(selectUpperArmBone([{name:'Bip001 R UpperArm',isBone:true}],'right')?.name,'Bip001 R UpperArm');
+ assert.equal(selectUpperArmBone([{name:'UpperArm.R',isBone:true}],'right')?.name,'UpperArm.R');
+ assert.equal(selectUpperArmBone([{name:'RightForeArm',isBone:true}],'right'),null);
+ assert.equal(selectUpperArmBone([{name:'RightArm',isBone:false}],'right'),null);
+ assert.equal(selectUpperArmBone([{name:'LeftArm',isBone:true}],'right'),null);
+});
+
+test('original action-directed shoulder arcs anticipate, strike and recover without drift or unsafe displacement',async()=>{
+ const {planRigArmGesture}=await load();
+ const windup=planRigArmGesture('vanguard','attack',.11);
+ const contact=planRigArmGesture('vanguard','attack',.25);
+ const recovery=planRigArmGesture('vanguard','attack',.61);
+ assert.ok(windup.right.pitch>.16,'visible right-hand anticipation');
+ assert.ok(contact.right.pitch<-.13,'the right arm drives through attack contact');
+ assert.deepEqual(recovery,planRigArmGesture('vanguard','idle',0));
+ const ranger=planRigArmGesture('ranger','attack',.11);
+ assert.ok(ranger.right.pitch<-.11,'bow draw uses a differentiated shoulder silhouette');
+ const spell=planRigArmGesture('mystic','cast',.27);
+ assert.ok(spell.left.pitch<-.15&&spell.right.pitch<-.18,'spell raises both arms');
+ for(const kind of ['vanguard','ranger','mystic','revenant','cultist','warden'])
+  for(const action of ['idle','move','attack','cast','hurt','guard'])
+   for(const t of [0,.04,.11,.18,.25,.42,.58,.8,5,Infinity,NaN,-2]){
+    const pose=planRigArmGesture(kind,action,t);
+    for(const side of ['left','right']){
+     assert.ok(Number.isFinite(pose[side].pitch)&&Number.isFinite(pose[side].roll));
+     assert.ok(Math.abs(pose[side].pitch)<=.43&&Math.abs(pose[side].roll)<=.19);
+    }
+    assert.deepEqual(planRigArmGesture(kind,action,t,true),planRigArmGesture(kind,'idle',0));
+   }
+});
+
+test('real cloned GLB skeleton receives reversible gesture overlays after animation mixer updates',()=>{
+ const src=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(src,/selectUpperArmBone/);
+ assert.match(src,/planRigArmGesture/);
+ assert.match(src,/actor\.rigUpperArms/);
+ assert.match(src,/actor\.mixer\.update[\s\S]*?planRigArmGesture/);
+ assert.match(src,/rigGesturePeakRad:/);
+ assert.match(src,/rigGestureBones:/);
+});
