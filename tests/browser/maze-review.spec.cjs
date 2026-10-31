@@ -156,6 +156,24 @@ test('a real close public encounter frames both autonomous actors and saves date
     caveat: 'No disclosed path guarantees safety; CPU-throttled software render, not independent benchmark acceptance.',
   }, null, 2));
 
+  // Reuse the same Chromium page and exactly the same genuine public key
+  // snapshot for narrow portrait evidence; do not synthesize a key position.
+  await page.setViewportSize({width: 390, height: 844});
+  await page.waitForFunction(() => window.__MAZE_3D__?.frames > 4);
+  const portraitKeyDiagnostic = await page.evaluate(() => window.__MAZE_3D__);
+  const portraitKeyImage = path.join(dir, 'known-key-portrait.png');
+  await page.screenshot({path: portraitKeyImage, fullPage: true});
+  fs.writeFileSync(path.join(dir, 'known-key-portrait.json'), JSON.stringify({
+    capturedAt: new Date().toISOString(), seed: keySample.seed, tick: keySample.frame.snapshot.tick,
+    source: 'Same production public key snapshot and browser, 390px CSS viewport; not a synthetic scene',
+    viewport: {width: 390, height: 844}, imageSha256: hash(portraitKeyImage),
+    sourceSha256: Object.fromEntries(['app.js', 'map-view.mjs', 'scene.js', 'world.js'].map(name => [name, hash(path.join(sourceDir, name))])),
+    diagnostic: {keysInFrame: portraitKeyDiagnostic.keysInFrame,
+      explorerProjection: portraitKeyDiagnostic.explorerProjection, quality: portraitKeyDiagnostic.quality},
+    caveat: 'Portrait composition needs native-size independent review; software-rendered CI is not hardware FPS.',
+  }, null, 2));
+  await page.setViewportSize({width: 1280, height: 900});
+
   const sealedSamples = sequences.flat().map(sample => {
     const s = sample.frame.snapshot, known = new Set(s.cells.map(cell => cell.cell));
     const doors = s.doors.filter(door => !door.open && (known.has(door.a) || known.has(door.b)));
@@ -188,5 +206,25 @@ test('a real close public encounter frames both autonomous actors and saves date
     diagnostic: {closedGatesInFrame: gateDiagnostic.closedGatesInFrame,
       quality: gateDiagnostic.quality, frameP50Ms: gateDiagnostic.frameP50Ms},
     caveat: 'Closed gate is an observed obstruction, not a hint of a hidden passage; hardware FPS and independent visual quality remain unverified.',
+  }, null, 2));
+
+  // A single additional portrait capture uses the same actually disclosed
+  // gate and actor positions. This is visual evidence, not a passing A/B.
+  await page.setViewportSize({width: 390, height: 844});
+  await page.waitForFunction(() => window.__MAZE_3D__?.frames > 4);
+  const gatePortraitDiagnostic = await page.evaluate(() => window.__MAZE_3D__);
+  const portraitGateImage = path.join(dir, 'sealed-gate-portrait.png');
+  await page.screenshot({path: portraitGateImage, fullPage: true});
+  fs.writeFileSync(path.join(dir, 'sealed-gate-portrait.json'), JSON.stringify({
+    capturedAt: new Date().toISOString(), seed: sealed.seed, tick: sealed.frame.snapshot.tick,
+    source: 'Same public sealed gate and running Chromium page as desktop evidence, not invented state',
+    viewport: {width: 390, height: 844}, imageSha256: hash(portraitGateImage),
+    sourceSha256: Object.fromEntries(['app.js', 'map-view.mjs', 'scene.js', 'world.js'].map(name => [name, hash(path.join(sourceDir, name))])),
+    diagnostic: {closedGatesInFrame: gatePortraitDiagnostic.closedGatesInFrame,
+      nearbySealedGate: gatePortraitDiagnostic.nearbySealedGate,
+      nearbySealedGateProjection: gatePortraitDiagnostic.nearbySealedGateProjection,
+      explorerProjection: gatePortraitDiagnostic.explorerProjection,
+      quality: gatePortraitDiagnostic.quality},
+    caveat: 'An actually closed gate; camera framing is not a safe-route promise or independent quality win.',
   }, null, 2));
 });
