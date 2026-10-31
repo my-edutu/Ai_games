@@ -36,7 +36,14 @@ export function syncContactShadowInstances(contacts, transform, paths) {
 }
 // END R38 CONTACT HELPER
 export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = {}) {
-  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false, powerPreference: 'high-performance' });
+  // BEGIN R40 FINAL FRAMEBUFFER SAMPLES
+  // The cached static garden already owns a multisampled offscreen target.
+  // Requesting canvas MSAA as well increases work on every live foreground
+  // pixel, especially the broad translucent water and animated characters.
+  // Keep the original offscreen samples, geometry, materials and all cues.
+  // Quality and throughput must still be established by real WebGL evidence.
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: false, alpha: false, powerPreference: 'high-performance' });
+  // END R40 FINAL FRAMEBUFFER SAMPLES
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.12;

@@ -1,10 +1,15 @@
 {
-  "updatedAt": "2026-10-31",
-  "status": "ROUND39 NEW JAW EXPRESSION VERIFIED IN REAL CHROMIUM/WEBGL · 26/29 INITIAL BROWSER CHECKS · 2 ARCHIVE-TEST GUARD ORDERS CORRECTED · STRICT 8/17 LIVE SUBMISSIONS FAIL",
-  "detail": "Exact current R39 parent 7306e62: new forward-public-fruit original jaw+cheek WebGL screenshot A/B confirmed a nonzero detail PNG change without added GPU objects, draw calls or altered authoritative gameplay. Initial focused Chromium 41249642441 passed 26/29, including new A/B; two historical R33/R34 test-only ReferenceErrors are corrected by local declaration ordering in next commit, unchanged visual/hash assertions. Live desktop pace still fails: 8 actual submitted frames / 1004.4ms, required ≥17 (RAF61 not FPS). General CI build/Node stage passed; comprehensive browser/general status and follow-up exact-source recheck PENDING. Whole-game quality still LOSE versus official Snake Pass; independent fresh visual critic and device-present/soak/R5 open. Draft only; not merged or deployed.",
+  "updatedAt": "2026-11-01",
+  "status": "ROUND40 FINAL CANVAS SAMPLING EXPERIMENT · EXACT PREDECESSOR VERIFIED · LIVE ≥17 REAL SUBMISSIONS & REAL WEBGL A/B CI PENDING",
+  "detail": "Exact current source parent 6b60b95. Latest corrected R39 focused Chromium 41250129839 passed 28/29; sole failure strict 9 ACTUAL WebGL submissions/1000.5ms versus unchanged minimum17, despite 61 RAF callbacks (not FPS). R40 tries one-sample native canvas while retaining existing 4-sample static-garden cache and all cues, authority, deterministic gameplay, portal breaks, captions, motion options and recovery. SHA-verified new Node and real Chromium before/after 960×640 both cameras tests added, new CI pending; dynamic edge quality or FPS gain NOT proven. Snake Pass whole-game still LOSE, ASTRO BOT secondary, independent critic, device-present FPS, soak/R5 open. Draft/unmerged/undeployed.",
   "latestImage": "/progress/evidence/round-9-overview.jpg",
   "latestCaption": "Historical thumbnail only, not the new R39. Actual new R39 WebGL synthetic screenshot/trace artifact (not live FPS or independent critique): https://github.com/my-edutu/Ai_games/actions/runs/41249642441/artifacts/13061195617 . Companion motion: https://github.com/my-edutu/Ai_games/actions/runs/41249642441/artifacts/13060793905 .",
   "reviews": [
+    {
+      "area": "Round 40 · single-sample final canvas with original static-world MSAA",
+      "verdict": "EXACT PARENT SOURCE + NEW NODE/BROWSER TESTS ADDED · NEW WEBGL CAPTURES / GATE PENDING · REFERENCE LOSE",
+      "gap": "Corrected prior Round39 28/29 browser; strict desktop 9/17 real submissions failed. New policy may trade edge AA for GPU cost; must inspect actual output and unchanged strict production gate; no independent art/device-present FPS or R5/soak evidence."
+    },
     {
       "area": "Round 39 · public-fruit original jaw/cheek anticipation",
       "verdict": "R39 REAL WEBGL SYNTHETIC A/B CONFIRMED · 26/29 INITIAL FOCUSED PASS · ARCHIVAL TEST-ONLY TDZ CORRECTED · STRICT 8 OF REQUIRED 17 ACTUAL SUBMISSIONS FAIL",
