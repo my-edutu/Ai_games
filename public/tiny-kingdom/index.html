@@ -590,7 +590,11 @@ function geometryAudit(){
 // unverified labels. This is intentionally not evaluated in the render loop.
 function materialSwatchAudit(){
  const targets={guildCloth:0x9d3f43,guildGoldTrim:0xf0c77d,
-  marketCanvas:0xcaa768,festivalGoldSilk:0xffc56a};
+  marketCanvas:0xcaa768,festivalGoldSilk:0xffc56a,
+  housePlasterCream:0xd1bc97,housePlasterWarm:0xe1c7a0,
+  houseGablePlaster:0xd1bf9e,houseFoundation:0x908978,
+  sidePlasterOak:0xd9c4a1,sidePlasterAsh:0xcbbda5,
+  sidePlasterLime:0xb3b5a6,sidePlasterSand:0xe0c39b};
  const rows=Object.fromEntries(Object.keys(targets).map(k=>[k,
   {general:0,stone:0,roof:0,total:0}]));
  // Canvas2D fallback holds the static mesh inside data, whereas WebGL keeps
@@ -762,10 +766,22 @@ function directionalCastShadows(time){
 }
 
 function shadow(x,z,rx,rz){const y=terrain(x,z)+.013,col=rgb(0x4b6549);for(let i=0;i<10;i++){const a=i*Math.PI/5,b=(i+1)*Math.PI/5;tri([x,y,z],[x+Math.cos(a)*rx,y,z+Math.sin(a)*rz],[x+Math.cos(b)*rx,y,z+Math.sin(b)*rz],col)}}
-function house(x,z,scale=1,variant=0){let y=terrain(x,z);let w=(2.4+variant*.42)*scale,d=(2.1+variant*.18)*scale,h=1.9*scale;shadow(x+.28,z+.20,w*.77,d*.74);box(x,y-.04,z,w+.14,.23*scale,d+.14,rgb(0x908978));box(x,y+.19*scale,z,w,h-.19*scale,d,variant%2?rgb(0xe1c7a0):rgb(0xd1bc97));let ridge=h+1.25*scale,zy=z-d/2-.18*scale,zz=z+d/2+.18*scale,xx=x-w/2-.25*scale,xr=x+w/2+.25*scale;let col=variant%2?rgb(0x725046):rgb(0x976047);
+function house(x,z,scale=1,variant=0){let y=terrain(x,z);let w=(2.4+variant*.42)*scale,d=(2.1+variant*.18)*scale,h=1.9*scale;
+ // G054c: plaster is not stacked granite. Preserve stone in the footings,
+ // make roof planes roof material, and preserve all original mesh triangles.
+ materialScope(MATERIAL.GENERAL,()=>shadow(x+.28,z+.20,w*.77,d*.74));
+ materialScope(MATERIAL.STONE,()=>box(x,y-.04,z,w+.14,.23*scale,d+.14,rgb(0x908978)));
+ materialScope(MATERIAL.GENERAL,()=>box(x,y+.19*scale,z,w,h-.19*scale,d,variant%2?rgb(0xe1c7a0):rgb(0xd1bc97)));
+ let ridge=h+1.25*scale,zy=z-d/2-.18*scale,zz=z+d/2+.18*scale,xx=x-w/2-.25*scale,xr=x+w/2+.25*scale;let col=variant%2?rgb(0x725046):rgb(0x976047);
 // Both slopes, proper triangular end gables, visible eaves and offset ridge trim.
-quad([xx,y+h,zy],[x,y+ridge,zy],[x,y+ridge,zz],[xx,y+h,zz],col);quad([x,y+ridge,zy],[xr,y+h,zy],[xr,y+h,zz],[x,y+ridge,zz],col);
-tri([xx,y+h,zy],[xr,y+h,zy],[x,y+ridge,zy],rgb(0xd1bf9e));tri([xr,y+h,zz],[xx,y+h,zz],[x,y+ridge,zz],rgb(0xd1bf9e));
+materialScope(MATERIAL.ROOF,()=>{
+ quad([xx,y+h,zy],[x,y+ridge,zy],[x,y+ridge,zz],[xx,y+h,zz],col);
+ quad([x,y+ridge,zy],[xr,y+h,zy],[xr,y+h,zz],[x,y+ridge,zz],col);
+});
+materialScope(MATERIAL.GENERAL,()=>{
+ tri([xx,y+h,zy],[xr,y+h,zy],[x,y+ridge,zy],rgb(0xd1bf9e));
+ tri([xr,y+h,zz],[xx,y+h,zz],[x,y+ridge,zz],rgb(0xd1bf9e));
+});
 // Gauntlet 017: overlapping individual roof tiles, built as actual 3D geometry.
 // Each row is staggered; subtle raised edges catch directional sunlight. The
 // deterministic pattern depends only on building variant and tile coordinates.
@@ -826,11 +842,13 @@ function cottageSideFacades(x,z,scale,variant){
   const z0=z-d*.485,z1=z+d*.485,y0=y+.215*scale,y1=y+h-.025*scale;
   // Two outward-facing plaster panels cover the formerly empty house long wall.
   // Correct winding exposes both +X and -X facades under back-face culling.
-  for(let bay=0;bay<2;bay++){
-   const za=z0+(z1-z0)*bay/2,zb=z0+(z1-z0)*(bay+1)/2;
-   const a=[fx,y0,za],b=[fx,y0,zb],c=[fx,y1,zb],d0=[fx,y1,za];
-   if(side<0)quad(a,b,c,d0,plaster);else quad(d0,c,b,a,plaster);
-  }
+  materialScope(MATERIAL.GENERAL,()=>{
+   for(let bay=0;bay<2;bay++){
+    const za=z0+(z1-z0)*bay/2,zb=z0+(z1-z0)*(bay+1)/2;
+    const a=[fx,y0,za],b=[fx,y0,zb],c=[fx,y1,zb],d0=[fx,y1,za];
+    if(side<0)quad(a,b,c,d0,plaster);else quad(d0,c,b,a,plaster);
+   }
+  });
   cottageFacadeStats.plasterPanels++;
   materialScope(MATERIAL.WOOD,()=>{
    const trimX=fx+side*.050*scale;
