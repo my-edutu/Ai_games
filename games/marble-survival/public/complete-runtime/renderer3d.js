@@ -1121,9 +1121,13 @@
       // flat, empty-looking blue floor in actual 1920×1080 screenshots.
       // Lower the camera, retain enough horizontal FOV to see the live pack,
       // and expose the genuine skyline/finish gantries behind the race.
-      const distance=Math.max(15.0,width*0.90,depth*1.03);
+      const packDepth=Math.max(0,(maxY-minY)*WORLD_SCALE);
+      // Frame the live field plus near-future track, not the full empty arena.
+      // A packed starting grid can therefore read as characters instead of dots,
+      // while a stretched-out field naturally pulls the camera back.
+      const distance=Math.max(13.0,width*0.80,packDepth*1.35+7.2);
       eye=[target[0]+distance*0.095/zoom,
-        Math.max(7.4,width*0.47)/zoom,
+        Math.max(5.8,width*0.29)/zoom,
         target[2]+distance/zoom];
       shell.dataset.cameraPitch='stadium-broadcast';
       shell.dataset.cameraWideCompetitors=String(active.length);

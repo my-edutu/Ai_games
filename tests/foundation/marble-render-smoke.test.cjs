@@ -65,10 +65,10 @@ function makeMockGL(counters,rendererName='ANGLE Hardware GPU'){
   return gl;
 }
 
-async function simulateStage(stage,quality,champion=false,focusIds=[0],rendererName='ANGLE Hardware GPU'){
+async function simulateStage(stage,quality,champion=false,focusIds=[0],rendererName='ANGLE Hardware GPU',view='broadcast',marbleCount=4){
   const counters={drawElements:0,drawArrays:0,uploads:0,pointCloudDraws:0,maximumMeshIndices:0,instancedDraws:0,instancedCompetitors:0};
   const gl=makeMockGL(counters,rendererName);
-  const shell={dataset:{},classList:{add(){},remove(){}}};
+  const shell={dataset:{view},classList:{add(){},remove(){}}};
   const canvas={getContext:()=>gl,getBoundingClientRect:()=>({width:1600,height:900}),width:1600,height:900,addEventListener(){}};
   const ctx={
     createLinearGradient:()=>({addColorStop(){}}),
@@ -90,7 +90,21 @@ async function simulateStage(stage,quality,champion=false,focusIds=[0],rendererN
   let currentStage=stage,currentChampion=champion,requestPoll=()=>{};
   const sandbox={
     window,document,performance:{now:()=>12},
-    fetch:async()=>({ok:true,json:async()=>makeSnapshot(currentStage,currentChampion,focusIds)}),
+    fetch:async()=>({ok:true,json:async()=>{
+      const next=makeSnapshot(currentStage,currentChampion,focusIds);
+      if(marbleCount>4){
+        next.round.remaining=marbleCount;
+        const templates=next.marbles.slice();
+        next.marbles=Array.from({length:marbleCount},(_,i)=>{
+          const base=templates[i%templates.length];
+          const col=i%8,row=Math.floor(i/8);
+          return {...base,id:i,number:i+1,name:'Grid '+(i+1),status:'racing',
+            x:1100+col*(17800/7),y:10800+row*650,
+            elevation:0,progressPermille:250+row*30};
+        });
+      }
+      return next;
+    }}),
     requestAnimationFrame:callback=>{frames.push(callback);},
     setInterval(callback){requestPoll=callback;},
     BroadcastChannel:undefined,
@@ -351,4 +365,29 @@ test('G63 software WebGL Low uses measured 0.30 scale while hardware Low keeps 0
     'real GPU Low retains the sharper existing internal resolution');
   assert.equal(Number(software.shell.dataset.renderScale),0.30,
     'SwiftShader uses the measured scale that cleared the 140ms p95 gate');
+});
+
+
+test('G64 opening full-grid camera keeps the pack visible while making racers larger in frame',async()=>{
+  const result=await simulateStage('seeding-sprint','balanced',false,[],
+    'ANGLE NVIDIA GeForce','broadcast',32);
+  assert.equal(result.shell.dataset.cameraFraming,'full-grid');
+  assert.equal(result.shell.dataset.cameraWideCompetitors,'32');
+  const distance=Number(result.shell.dataset.cameraDistance);
+  assert.ok(distance<17,
+    `opening full-grid camera should be closer than 17 world units, saw ${distance}`);
+  const m=result.frame.viewProjection;
+  let visible=0;
+  for(const marble of result.frame.marbles){
+    const x=(marble.x-result.frame.snapshot.arena.width/2)/1000;
+    const y=(marble.elevation||0)/1000+.28;
+    const z=(marble.y-result.frame.snapshot.arena.height/2)/1000;
+    const w=m[3]*x+m[7]*y+m[11]*z+m[15];
+    if(w<=.08)continue;
+    const nx=(m[0]*x+m[4]*y+m[8]*z+m[12])/w;
+    const ny=(m[1]*x+m[5]*y+m[9]*z+m[13])/w;
+    if(Math.abs(nx)<=.95&&Math.abs(ny)<=.95)visible++;
+  }
+  assert.ok(visible>=Math.ceil(result.frame.marbles.length*.9),
+    `closer camera must still show 90% of racers, saw ${visible}/${result.frame.marbles.length}`);
 });
