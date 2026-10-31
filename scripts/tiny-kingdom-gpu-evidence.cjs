@@ -56,10 +56,19 @@ const path = require('node:path');
       throw Error('GPU material layout mismatch');
     // GPU static vertex upload invariant: camera motion must never re-upload
     // dense terrain and village meshes; only moving agents update per frame.
+    // G047: stop authoritative clock before checking static GPU upload count.
+    // The previous harness raced the night/daylight static-mesh key at dawn
+    // and falsely attributed a legitimate sky-stage rebuild to camera motion.
+    await page.locator('#pause').click();
+    await page.waitForFunction(()=>document.getElementById('pause').textContent.includes('Resume'));
+    const freezeClock=await page.evaluate(()=>window.__tinyKingdom.getState().state.t);
     evidence.staticGPU=await page.evaluate(()=>window.__tinyKingdom.renderStats());
     await page.evaluate(()=>window.__tinyKingdom.setCamera({zoom:24,pitch:.51,yaw:.82,focus:[0,0]}));
     await page.waitForTimeout(450);
     evidence.staticGPUAfterCamera=await page.evaluate(()=>window.__tinyKingdom.renderStats());
+    const stillClock=await page.evaluate(()=>window.__tinyKingdom.getState().state.t);
+    if(stillClock!==freezeClock)throw Error('Pausing authority failed during camera-only GPU test');
+
     if(evidence.webglVerified){
       if(!evidence.staticGPU.dualBufferGPU||evidence.staticGPU.staticGpuUploads<1)
         throw Error('Static GPU vertex buffer was not uploaded');
