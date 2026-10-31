@@ -6,12 +6,25 @@ function lowestHeadPoint(THREE, serpent) {
   serpent.group.updateMatrixWorld(true);
   let bottom = Infinity;
   const point = new THREE.Vector3();
+  const instanceLocal = new THREE.Matrix4();
+  const instanceWorld = new THREE.Matrix4();
   serpent.group.getObjectByName('Expressive head').traverseVisible(mesh => {
     if (!mesh.isMesh) return;
     const p = mesh.geometry.attributes.position;
-    for (let i = 0; i < p.count; i++) {
-      point.fromBufferAttribute(p, i).applyMatrix4(mesh.matrixWorld);
-      bottom = Math.min(bottom, point.y);
+    // An InstancedMesh's geometry is a shared unit sphere. Its visible vertex
+    // positions include the per-instance matrix before mesh.matrixWorld.
+    // Checking only mesh.matrixWorld treats all batches as giant unscaled balls
+    // at their parent origin and falsely reports underground eye highlights.
+    const instances = mesh.isInstancedMesh ? mesh.count : 1;
+    for (let instance = 0; instance < instances; instance++) {
+      if (mesh.isInstancedMesh) {
+        mesh.getMatrixAt(instance, instanceLocal);
+        instanceWorld.multiplyMatrices(mesh.matrixWorld, instanceLocal);
+      } else instanceWorld.copy(mesh.matrixWorld);
+      for (let i = 0; i < p.count; i++) {
+        point.fromBufferAttribute(p, i).applyMatrix4(instanceWorld);
+        bottom = Math.min(bottom, point.y);
+      }
     }
   });
   return bottom;
