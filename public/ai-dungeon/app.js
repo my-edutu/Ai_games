@@ -1,6 +1,7 @@
 import * as THREE from '/dungeon/vendor/three.module.js';
 import {encounterTarget,isSceneAlert,installSpectatorUI} from '/dungeon/spectator-ui.js';
 import {enrichEnvironment} from '/dungeon/environment.js';
+import {planDungeonWallProfiles} from '/dungeon/wall-profile-plan.js';
 import {enrichCharacter} from '/dungeon/characters.js';
 import {createBiomeAtmosphere} from '/dungeon/biome-atmosphere.js';
 import {createCombatOverlay} from '/dungeon/combat-overlay.js';
@@ -105,7 +106,7 @@ function cutawayWalls(target,subjects){
  for(let i=0;i<positions.length;i++){
   const point=positions[i];
   const hidden=sightlineClearance(point[0],point[1],subjects,camera.position,2.1);
-  const height=hidden?.16:2.6;
+  const height=hidden?.16:(world.userData.wallHeights?.[i]??2.6);
   if(hidden)cut++;
   cachedVec.set(point[0],height/2-.03,point[1]);cachedScale.set(1.015,height,1.015);
   cachedMatrix.compose(cachedVec,cachedQuat,cachedScale);mesh.setMatrixAt(i,cachedMatrix);
@@ -120,7 +121,7 @@ function cutawayWalls(target,subjects){
   for(let i=0;i<parapetPositions.length;i++){
    const [px,pz]=parapetPositions[i],hidden=sightlineClearance(px,pz,subjects,camera.position,2.15);
    if(hidden)clearedParapets++;
-   cachedVec.set(px,hidden?.08:2.53,pz);
+   cachedVec.set(px,hidden?.08:(world.userData.parapetHeights?.[i]??2.53),pz);
    cachedScale.set(1.04,hidden?.025:.12,1.04);
    cachedMatrix.compose(cachedVec,cachedQuat,cachedScale);
    parapets.setMatrixAt(i,cachedMatrix);
@@ -200,24 +201,28 @@ function clearWorld(){combatDirector.reset();world.userData.livingWorld?.dispose
 function buildWorld(s){clearWorld();worldFloor=s.run+'-'+s.floor;world.userData.sceneKey=worldFloor;world.userData.foregroundProps=[];lastCutawayKey='';
  const theme=floorThemes[(s.floor-1)%floorThemes.length];scene.background=new THREE.Color(theme.sky);scene.fog.color.set(theme.fog);moon.color.set(theme.fill);ambient.intensity=1.7;
  const floors=[],walls=[],trim=[];const size=s.map.length,offset=Math.floor(size/2);
+  const wallProfiles=planDungeonWallProfiles(s.map,s.floor),wallHeights=wallProfiles.map(p=>p.height);
  for(let z=0;z<size;z++)for(let x=0;x<size;x++){
   const px=x-offset,pz=z-offset;
   if(s.map[z][x]==='.'){floors.push([px,-.10,pz]);if((x*13+z*7)%11===0)trim.push([px,-.028,pz])}
   else walls.push([px,1.27,pz]);
  }
- const instance=(geometry,material,data,scale)=>{const mesh=new THREE.InstancedMesh(geometry,material,data.length);const matrix=new THREE.Matrix4(),position=new THREE.Vector3(),quaternion=new THREE.Quaternion(),scaling=new THREE.Vector3(...scale);for(let i=0;i<data.length;i++){position.set(...data[i]);matrix.compose(position,quaternion,scaling);mesh.setMatrixAt(i,matrix)}mesh.instanceMatrix.needsUpdate=true;mesh.castShadow=!reduced;mesh.receiveShadow=true;world.add(mesh)};
+ const instance=(geometry,material,data,scale,heights=null)=>{const mesh=new THREE.InstancedMesh(geometry,material,data.length);const matrix=new THREE.Matrix4(),position=new THREE.Vector3(),quaternion=new THREE.Quaternion(),scaling=new THREE.Vector3(...scale);for(let i=0;i<data.length;i++){position.set(...data[i]);if(heights){position.y=heights[i]/2-.03;scaling.y=heights[i]}matrix.compose(position,quaternion,scaling);mesh.setMatrixAt(i,matrix)}mesh.instanceMatrix.needsUpdate=true;mesh.castShadow=!reduced;mesh.receiveShadow=true;world.add(mesh)};
  instance(geo.cube,floorMat,floors,[.99,.16,.99]);
- instance(geo.cube,stone,walls,[1.015,2.6,1.015]);world.userData.walls=world.children[world.children.length-1];world.userData.wallPositions=walls.map(([x,,z])=>[x,z]);
+ instance(geo.cube,stone,walls,[1.015,2.6,1.015],wallHeights);world.userData.walls=world.children[world.children.length-1];world.userData.wallPositions=walls.map(([x,,z])=>[x,z]);world.userData.wallHeights=wallHeights;
+  const exposedProfiles=wallProfiles.filter(profile=>profile.exposedFaces>0);
+  world.userData.wallProfileMetrics={totalWalls:wallProfiles.length,exposedWalls:exposedProfiles.length,distinctHeights:new Set(exposedProfiles.map(profile=>profile.height)).size,minHeight:exposedProfiles.length?Math.min(...exposedProfiles.map(profile=>profile.height)):0,maxHeight:exposedProfiles.length?Math.max(...exposedProfiles.map(profile=>profile.height)):0};
  instance(geo.cube,stoneEdge,trim,[.86,.02,.86]);
  // Multiple architecturally distinct layers: foundation courses, arches, broken stone tiles and inlaid runes.
  const topBricks=[],footBricks=[],runes=[],stonePavers=[],shards=[],caps=[];
  const fracture=(x,z)=>((x*73+z*139+s.floor*41+4096)&1023);
+  const wallHeightAt=new Map(wallProfiles.map(profile=>[profile.z*size+profile.x,profile.height]));
  for(let z=1;z<size-1;z++)for(let x=1;x<size-1;x++){
   const wx=x-offset,wz=z-offset,f=fracture(x,z);
   if(s.map[z][x]==='#'){
-   if(f%3===0)topBricks.push([wx,2.53,wz]);
+   if(f%3===0)topBricks.push([wx,(wallHeightAt.get(z*size+x)??2.6)-.07,wz]);
    if(f%4===0)footBricks.push([wx,.1,wz]);
-   if(s.map[z-1][x]==='.'&&f%7===0)caps.push([wx,2.6,wz-.34]);
+   if(s.map[z-1][x]==='.'&&f%7===0)caps.push([wx,(wallHeightAt.get(z*size+x)??2.6)+.03,wz-.34]);
   }else{
    if(f%4===0)stonePavers.push([wx,-.005,wz]);
    if(f%17===0)runes.push([wx,.008,wz]);
@@ -227,7 +232,7 @@ function buildWorld(s){clearWorld();worldFloor=s.run+'-'+s.floor;world.userData.
  const ornament=mat(theme.accent,.5,.5),blackStone=mat('#171c29',.15,.98),runeMat=new THREE.MeshStandardMaterial({color:theme.torch,emissive:theme.torch,emissiveIntensity:1.6,roughness:.35});
  const garnish=(material,data,scale)=>{if(!data.length)return null;const mesh=new THREE.InstancedMesh(geo.cube,material,data.length);const m=new THREE.Matrix4(),p=new THREE.Vector3(),sc=new THREE.Vector3(...scale),rot=new THREE.Quaternion();
   for(let i=0;i<data.length;i++){p.set(...data[i]);m.compose(p,rot,sc);mesh.setMatrixAt(i,m)}mesh.receiveShadow=true;mesh.instanceMatrix.needsUpdate=true;world.add(mesh);return mesh};
- world.userData.parapets=garnish(stoneEdge,topBricks,[1.04,.12,1.04]);world.userData.parapetPositions=topBricks.map(([x,,z])=>[x,z]);garnish(blackStone,footBricks,[1.035,.21,1.035]);
+ world.userData.parapets=garnish(stoneEdge,topBricks,[1.04,.12,1.04]);world.userData.parapetPositions=topBricks.map(([x,,z])=>[x,z]);world.userData.parapetHeights=topBricks.map(([,y])=>y);garnish(blackStone,footBricks,[1.035,.21,1.035]);
  garnish(stoneEdge,stonePavers,[.86,.025,.86]);garnish(runeMat,runes,[.52,.009,.10]);
  garnish(ornament,caps,[.30,.23,.35]);garnish(blackStone,shards,[.16,.17,.20]);
  // Decorated arches are constructed only at certain long corridors; avoid hiding characters.
@@ -618,7 +623,7 @@ function animate(t){requestAnimationFrame(animate);const time=t/1000,dt=Math.min
  renderer.info.reset();
  try{if(composer&&postFXEnabled){bloomPass.strength=innerWidth<680?.16:.30;composer.render()}else renderer.render(scene,camera)}
  catch(error){console.warn('[DUNGEON] post effect fault, restoring WebGL:',String(error));composer=null;postFXStatus='fallback';renderer.info.reset();renderer.render(scene,camera)}
- combatOverlay.render(state,actors,camera,time);if(state)window.__DUNGEON_RENDER_DIAGNOSTICS__={composition:inspectComposition(state),visibility:actualHeroVisibility(state,time),frame:renderer.info.render.frame,drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,camera:cameraModes[cameraIndex],cameraSpread:spread,cameraMargin:margin,focusedHeroId,autoDirector,cutawayWalls:world.userData.cutawayWalls??0,cutawayParapets:world.userData.cutawayParapets??0,hiddenForegroundProps:world.userData.hiddenForegroundProps??0,postFX:composer&&postFXEnabled?'bloom':'direct',postFXStatus,heroKeyIntensity:heroKey.intensity,bossFramed:Boolean(bossDistance),cameraLook:{x:look.x,z:look.z},activeUnits:[...actors.values()].filter(x=>x.root.visible).length,characterDetails:[...actors.values()].reduce((sum,x)=>sum+(x.detail?.parts||0),0),webgl:true,theme:state.theme,dressing:world.userData.dressing?.metrics??null,atmosphere:world.userData.atmosphere?.metrics??null,livingWorld:world.userData.livingWorld?.metrics??null,overlay:combatOverlay.metrics(),combatStage:combatDirector.stats(),groundedActors:[...actors.values()].filter(x=>Boolean(x.ground)).length,authored3D:assetStats(actors)};
+ combatOverlay.render(state,actors,camera,time);if(state)window.__DUNGEON_RENDER_DIAGNOSTICS__={composition:inspectComposition(state),visibility:actualHeroVisibility(state,time),frame:renderer.info.render.frame,drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,camera:cameraModes[cameraIndex],cameraSpread:spread,cameraMargin:margin,focusedHeroId,autoDirector,cutawayWalls:world.userData.cutawayWalls??0,cutawayParapets:world.userData.cutawayParapets??0,wallProfiles:world.userData.wallProfileMetrics??null,hiddenForegroundProps:world.userData.hiddenForegroundProps??0,postFX:composer&&postFXEnabled?'bloom':'direct',postFXStatus,heroKeyIntensity:heroKey.intensity,bossFramed:Boolean(bossDistance),cameraLook:{x:look.x,z:look.z},activeUnits:[...actors.values()].filter(x=>x.root.visible).length,characterDetails:[...actors.values()].reduce((sum,x)=>sum+(x.detail?.parts||0),0),webgl:true,theme:state.theme,dressing:world.userData.dressing?.metrics??null,atmosphere:world.userData.atmosphere?.metrics??null,livingWorld:world.userData.livingWorld?.metrics??null,overlay:combatOverlay.metrics(),combatStage:combatDirector.stats(),groundedActors:[...actors.values()].filter(x=>Boolean(x.ground)).length,authored3D:assetStats(actors)};
 }
 async function poll(){try{const r=await fetch('/dungeon/state',{cache:'no-store'});if(!r.ok)throw Error('State '+r.status);const data=await r.json();if(data.tick!==lastTick||data.run!==state?.run){lastTick=data.tick;update(data)}}catch(e){errorAt++;if(errorAt>=3){$('recovery').hidden=false;$('status').textContent='VIEW DEGRADED — RETRYING';console.warn('Dungeon view recovery',String(e))}}finally{setTimeout(poll,190)}}
 $('party').addEventListener('click',e=>{

@@ -29,3 +29,20 @@ test('mobile biome artwork loads without losing the hero or overflowing controls
  expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
  await page.screenshot({path:'artifacts/dungeon-room18-mobile.png',fullPage:true});
 });
+
+test('round 19 wall masonry has different physical crown heights in a genuine live WebGL scene',async({page,request})=>{
+ expect((await request.get('/dungeon/wall-profile-plan.js')).status()).toBe(200);
+ const state=sample();await page.route('**/dungeon/state',route=>route.fulfill({json:state}));
+ const errors=[];page.on('pageerror',error=>errors.push(error.message));await page.goto('/dungeon');
+ await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.wallProfiles?.exposedWalls??0),{timeout:30000}).toBeGreaterThan(20);
+ const diagnostic=await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__);
+ expect(diagnostic.wallProfiles.distinctHeights).toBeGreaterThanOrEqual(3);
+ expect(diagnostic.wallProfiles.minHeight).toBeGreaterThanOrEqual(2.5);
+ expect(diagnostic.wallProfiles.maxHeight).toBeLessThanOrEqual(3.02);
+ expect(diagnostic.composition.visibleHeroes).toBeGreaterThan(0);
+ expect(diagnostic.visibility.unoccludedHeroes).toBeGreaterThan(0);
+ expect(errors).toEqual([]);
+ await page.locator('.arena').evaluate(node=>node.classList.add('world-only-audit'));
+ await page.locator('#world').screenshot({path:'artifacts/dungeon-wall19-world-only.png'});
+ await test.info().attach('physical-wall-profile-diagnostics',{body:Buffer.from(JSON.stringify(diagnostic.wallProfiles,null,2)),contentType:'application/json'});
+});

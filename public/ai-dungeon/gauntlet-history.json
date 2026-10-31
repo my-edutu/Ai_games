@@ -130,6 +130,29 @@
         "globalCIFix": "Test discovery excludes all Dungeon specs and no longer starts redundant 4181 server; focused red-green routing tests 2/2. Fresh integrated CI result pending."
       },
       "nextLargestGap": "Blocky repeating corridors; detailed character rigs, armor materials and encounter animation"
+    },
+    {
+      "round": 19,
+      "at": "2026-10-31",
+      "commit": null,
+      "status": "IMPLEMENTED; ACTUAL WEBGL/CI PENDING; VISUAL BAR NOT MET",
+      "sampleSeeds": 0,
+      "ticksPerSeed": 0,
+      "highestFloor": 0,
+      "determinismFailures": null,
+      "visualVerdict": "Added deterministic visual-only exposed-wall crown variation and integrated the existing hero cutaway; local pure-map red/green tests 3/3. No new matched screenshot or browser evidence yet. Repetitive masonry and simple hero rigs still below Diablo IV reference.",
+      "evidenceMetrics": {
+        "localWallProfileTestsPassed": 3,
+        "distinctHeightBandsPlanned": 5,
+        "fullBrowserTestsPassed": null,
+        "independentBlindComparison": false
+      },
+      "verification": {
+        "browserRun": null,
+        "independentReview": false,
+        "productionReady": false
+      },
+      "nextLargestGap": "Original higher-detail hero/enemy models and authored material/animation quality; actual matched WebGL scene critique required."
     }
   ]
 }
