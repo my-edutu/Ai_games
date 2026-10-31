@@ -99,6 +99,7 @@ const assert=require('node:assert/strict');
   const grown=await page.evaluate(()=>{
     const g=window.__tinyKingdom,gl=document.getElementById('world').getContext('webgl');
     return {geometry:g.getGeometryAudit(),stats:g.renderStats(),
+      growthLod:g.getGrowthLodStats(),
       glError:gl.getError(),authority:g.exportSnapshot().checksum};
   });
   evidence.grownScene=grown;
