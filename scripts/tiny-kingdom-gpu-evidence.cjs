@@ -161,6 +161,14 @@ const path = require('node:path');
     if(evidence.visualHud.worldFilter!=='none'||evidence.visualHud.headingPx<25||
        !evidence.visualHud.panelGradient||evidence.visualHud.navigationChoices!==7)
       throw Error('Gauntlet 033 visual HUD contract failed');
+    evidence.skyDaybreak=await page.evaluate(()=>{
+      const g=window.__tinyKingdom;
+      return {night:g.getSkyPalette(1),dawn:g.getSkyPalette(7),noon:g.getSkyPalette(13)};
+    });
+    if(evidence.skyDaybreak.dawn.nightStars!==0||
+       evidence.skyDaybreak.dawn.horizon[0]<=evidence.skyDaybreak.dawn.horizon[2]||
+       evidence.skyDaybreak.noon.zenith[2]<=evidence.skyDaybreak.noon.zenith[0])
+      throw Error('Gauntlet 048 sunrise/sky color coherence gate failed');
     evidence.errors=errors;
     await page.screenshot({path:path.join(out,'day1.png'),fullPage:true,timeout:90000});
     // Matched camera framing and a deterministic later-day sample are essential
