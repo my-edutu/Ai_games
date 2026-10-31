@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-10-31T14:56:55.149Z",
+  "updatedAt": "2026-10-31T16:22:05.013Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass 25 authentic source-bound desktop and 390×844 portrait screenshots verified and lead-inspected (artifact 13046850726; captured 2026-10-31 14:38 UTC). Original recessed keyhole and two-tone held key are visibly present, but Pip/slot action remains too tiny, left-biased lagoon still dominates and the fixed Nintendo Captain Toad reference still wins. Actions 41210379937 is RED: 526/526 Node, host/build/determinism passed, 103/107 browser passed; one Maze 600ms unchanged tick (135→135) under shared CI contention and three separate Tiny Kingdom expectation failures. Fresh independent critics and Ultracode unavailable due disconnected workspace; SwiftShader timings are not hardware GPU FPS."
+    "summary": "Pass 26 source candidate (right-stile, camera-facing closed-gate keyhole) has been committed, but it has NOT yet been inspected in an authentic current-source browser image or reviewed by an independent critic. Latest source-verified images remain pass 25, whose 390×844 presentation still loses to fixed Captain Toad imagery. CI 41218924644 for pass 26 remains in progress at this entry. Earlier CI 41212489803 on prior head had 104 browser checks passed and three *Tiny Kingdom* source-expectation failures; no Maze browser failure, making prior 600ms tick stall unconfirmed as a product defect. Shared-workspace subagents and Ultracode inaccessible, and CPU-throttled software graphics cannot be reported as hardware FPS."
   },
   "captures": [
     {
@@ -117,10 +117,11 @@
     "Pass 23: an exact public carried-key match and actually near sealed gate triggers Pip's real original modeled glove key and head/torso/arm gesture, with reduced-motion, guardian and terminal precedence. Initial no-key NaN defect failed 2 tests and was corrected. New genuine desktop+portrait production captures and full 526 Node/25 browser CI passed. Key remains partly occluded at native scale; benchmark unpassed.",
     "Pass 24: Pip's real left-glove key now rises beside the helmet and faces upright instead of being hidden behind the sealed-gate masonry, while the exact public matching-key requirement and deterministic simulation remain untouched. Exact-source 526 Node/25 browser CI succeeded; actual native desktop+portrait PNGs independently hash-matched artifact 13043996998. Both improve key silhouette but Nintendo benchmark remains unpassed; see key-visibility-pass-24-review.md.",
     "Pass 25 source candidate (not yet screenshot-verified): a physically recessed gold/mint keyhole uses only disclosed exact-key inventory while its coral crossed bars obey authoritative closed/open state. Pip's existing matching-key gesture now shows a two-tone modeled bow and warm blade with a dark glove grip, not a floating uniform mint loop. Regressions added for socket states, 3D material silhouette and open-door absence. See lock-grip-pass-25-review.md; exact-source CI 41210379937 was queued; Nintendo benchmark NOT passed.",
-    "Pass 25 rendered evidence: downloaded authentic Actions 41210379937 Maze artifact 13046850726, verified real public seed maze-visual-reference-13 tick21 observed closed door-2 desktop/portrait PNG SHA-256, directly inspected new keyhole and glove-key detail, and compared exact same-frame pass24. Visual quality still below fixed Captain Toad; browser CI red (Maze 600ms unchanged tick plus 3 Tiny Kingdom regression expectations). Documented details in lock-grip-pass-25-review.md, no gameplay authority or deterministic changes."
+    "Pass 25 rendered evidence: downloaded authentic Actions 41210379937 Maze artifact 13046850726, verified real public seed maze-visual-reference-13 tick21 observed closed door-2 desktop/portrait PNG SHA-256, directly inspected new keyhole and glove-key detail, and compared exact same-frame pass24. Visual quality still below fixed Captain Toad; browser CI red (Maze 600ms unchanged tick plus 3 Tiny Kingdom regression expectations). Documented details in lock-grip-pass-25-review.md, no gameplay authority or deterministic changes.",
+    "Pass 26 source candidate: move a genuinely public, still-closed gate's recessed 3D socket from center of the crossed seal to its camera-facing right stile and enlarge its physical ring/frame. Changes are only scene geometry (world.js), with a new exact-location/size regression (maze-3d-world.test.cjs). CI 41218924644 and native real screenshot review are pending; no new capture or benchmark win claimed. See lock-stile-pass-26-review-gate.md."
   ],
   "nextGaps": [
-    "Pass 25 original same-seed desktop+portrait screenshots are now SHA-verified. Next local visual slice is a glove-to-keyblade-to-actual-keyway interaction readable at 390px native width, with the gate truly closed until authority changes it; compare real renders against fixed Nintendo without weakening tests.",
+    "Verify pass 26 native 390×844 and desktop 1280×900 production-seed tick21 captures against pass 25 and both fixed Nintendo Captain Toad frames. Specifically judge physical glove→key→side-stile socket legibility and ensure crossing bars remain unmistakably closed; do not claim a win without a separate fresh-context critic.",
     "Recover fresh-context independent builder and blind A/B critic when shared-workspace tunnel returns; the present lead-only review cannot establish a Nintendo benchmark win. Reduce left-biased empty lagoon while preserving disclosed legal approach and actual gate/character visibility.",
     "Establish stronger gameplay-scale Pip/Thornback expression, gate/key/exit differentiation, environmental material variety and a camera view which preserves both the obstacle and the next *disclosed* action.",
     "Run separate fresh-context visual critics and blind A/B against both unchanged SHA-pinned official Nintendo Captain Toad frames; last independent verdict still favors the reference. Do not claim benchmark parity from CI or lead-only visual judgment.",
@@ -286,6 +287,13 @@
       "verdict": "Local lock/key detail improved, entire scene remains below fixed Captain Toad; no independent blind A/B or CI pass",
       "date": "2026-10-31T14:38:41.987Z",
       "summary": "Authentic original PNGs from Actions artifact 13046850726, seed maze-visual-reference-13 tick21 and known blocked door-2: desktop 1280x900 14:38:39.941Z SHA 223fe47e9d443a6d83a0860746433f2d1bd2638318327ed600117541f46586f4; portrait 390x844 14:38:41.987Z SHA 99ef106b256cbc347887de25c755c38a22b95e8123208ce98a383e6b53dc2401. Compared exact pass24 original screenshots. New physical lock/key colors are present but tiny hand/slot interaction and empty water still fail Nintendo bar. Browser suite 103/107 due one Maze cadence and three unrelated Tiny Kingdom source-expectation failures."
+    },
+    {
+      "title": "Pass 26 right-stile recessed lock candidate — image evidence required",
+      "reviewer": "Lead source-only review; fresh-context image critic unavailable",
+      "verdict": "Pending authentic pass-26 render; fixed benchmark still NOT PASSED",
+      "date": "2026-10-31T16:22:05.013Z",
+      "summary": "Source fd2f0f7 moves the 3D lock to the camera-facing stile and enlarges the socket, preserving authority. Contract test 2e1443c added. Exact-head CI 41218924644 still in progress; no actual post-change screenshot exists yet in this review. Last inspected authentic desktop/portrait reference remains pass 25 (Actions artifact 13046850726), where key/lock relation was tiny. CI 41212489803 on previous head failed only three separate Tiny Kingdom expectation checks, with 104 browser checks passed. Independent critics/Ultracode unavailable via workspace tunnel; cannot judge new visual quality or hardware GPU FPS."
     }
   ],
   "verification": [
@@ -445,6 +453,13 @@
       "detail": "Original actual Maze browser artifact 13046850726, observed closed door-2 real public seed maze-visual-reference-13 tick21, desktop captured 2026-10-31T14:38:39.941Z PNG SHA256 223fe47e9d443a6d83a0860746433f2d1bd2638318327ed600117541f46586f4 and portrait 14:38:41.987Z SHA256 99ef106b256cbc347887de25c755c38a22b95e8123208ce98a383e6b53dc2401; hashes recomputed from ZIP and match JSON. Strict pass24→25 differences 0.354% desktop and 0.603% portrait, localized to key/lock; only local detail improved, fixed Captain Toad still wins. CI shared CPU contention makes 600ms tick failure inconclusive as product diagnosis, not a pass. Three Tiny Kingdom failures are separate shader/river tests. Fresh critic/Ultracode unavailable due workspace tunnel; software renderer not hardware GPU FPS.",
       "sourceCommit": "aff967baa6fe90c5e71722cac50163b82b0df378",
       "sourceUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41210379937/artifacts/13046850726"
+    },
+    {
+      "name": "Pass 26 staged closed-gate keyhole source and view regression",
+      "status": "Source and test commits present; exact-head CI 41218924644 IN PROGRESS; genuine new captures NOT yet inspected; Nintendo bar NOT PASSED",
+      "detail": "World source commit fd2f0f7, focused 3D socket test 2e1443c. No gameplay authority, public-key disclosure, deterministic behavior, hidden traversal or gate-open semantics changed. Prior pass25 genuine screenshot artifact 13046850726 remains latest inspected render; independent critic unavailable.",
+      "sourceCommit": "2e1443cb5ce1a87d55ef6e2252bead8092969b85",
+      "sourceUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41218924644"
     }
   ],
   "references": [
