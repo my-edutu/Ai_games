@@ -85,7 +85,7 @@ export function createBiomeAtmosphere(root,map,floor,exit){
  // strata sit past all four map corners, so they cannot block actor sightlines.
  // This replaces the thin 34-column silhouette that disappeared into the sky.
  const rim=planCavernRim(floor,size);
- const ridgeGeo=geometry(new THREE.DodecahedronGeometry(.5,1));
+ const ridgeGeo=geometry(new THREE.DodecahedronGeometry(1,1));
  const nearStone=register(new THREE.MeshStandardMaterial({
   color:new THREE.Color(biome.shadow).lerp(new THREE.Color('#77818a'),.62),
   roughness:.97,metalness:.02,flatShading:true
