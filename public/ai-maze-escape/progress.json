@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-10-31T00:36:53Z",
+  "updatedAt": "2026-10-31T01:49:30.210Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Eighth-pass same-production-frame evidence shows real, disclosed floor passage choices and a clearer triangular guardian warning. Known passages are not promises of refuge, and locked doors are excluded. The selected screenshot has no uniquely identified safe next step, goal or landmark; the latest independent critics still prefer Nintendo's fixed Captain Toad reference. No new blind independent verdict."
+    "summary": "Tenth pass visually distinguishes a legal publicly known first passage to an observed exit/key from the AI's own planned movement. Actual 2026-10-31 production-source browser image confirms the mint known-exit cue at seed maze-visual-reference-13, tick 26. The landmark/portal remains cramped and the hero small compared with fixed Captain Toad imagery. Last independent critics favored Nintendo; fresh independent critics unavailable. Final-source Node tests passed, but CI browser suite has one 600ms tick-cadence failure under heavily CPU-throttled rendering, so full engineering clearance is not claimed."
   },
   "captures": [
     {
@@ -102,9 +102,11 @@
     "A fifth-pass encounter-staging candidate now gives Pip threat-directed head, gaze and lantern poses, and Thornback anticipatory mask/mandible poses, using only disclosed nearby threats. Fresh render and independent critique are still pending.",
     "Sixth pass: real production snapshots now select an actually close, already-disclosed Thornback/Pip encounter; actual browser evidence records both actors on screen, source/image SHA-256 hashes and seed/tick. An amplified public-threat-only head/gaze/lantern/mask response is tested without changing deterministic game authority.",
     "Seventh pass: two original model-level silhouette cues now make nearby already-disclosed guardian encounters clearer, using Pip's gold/coral exclamation signal and Thornback's raised glowing spines. Real current-source CI captures prove both actors share the frame; terminal and undisclosed-threat states suppress the cues without changing AI/game authority.",
-    "Eighth pass: a reuse-only pool of in-world ivory direction arrows marks genuinely known, reciprocally legal neighboring corridors; teal is reserved for a current disclosed AI-plan step. Closed gate edges and stale/nonreciprocal plans are suppressed, while the misleading gold threat halo is now a triangular warning signal. This changes only presentation; current-source CI and authentic dated evidence were captured."
+    "Eighth pass: a reuse-only pool of in-world ivory direction arrows marks genuinely known, reciprocally legal neighboring corridors; teal is reserved for a current disclosed AI-plan step. Closed gate edges and stale/nonreciprocal plans are suppressed, while the misleading gold threat halo is now a triangular warning signal. This changes only presentation; current-source CI and authentic dated evidence were captured.",
+    "Ninth and tenth passes: a known, connected public key/exit now gets a distinctive in-world beacon and a separate first-step floor arrow (amber for key, mint for exit), while turquoise continues to denote only the disclosed AI plan. Tests exclude closed gates, blocked/nonreciprocal/unknown cells, hidden goals and terminal states. One native 1280×900 current-source image authenticates the known exit cue; visual bar remains unpassed."
   ],
   "nextGaps": [
+    "Separate, native-size blind critique of the real current known-exit scene versus the fixed Nintendo frames; make explorer/portal legible without overlapping beacon and without implying any path is safe. Verify a real key/closed-door case and distinguish the one CI 600ms tick-stall from a product defect.",
     "Independent fresh-context label-blind same-seed/tick seventh-vs-eighth comprehension and visual comparison, followed by direct A/B against both exact Nintendo 1280×720 fixed references and no lowered quality bar. The shared workspace critic tunnel remains unreachable.",
     "Clarify a genuinely known and legally reachable immediate goal, blocked gate or exit in the scene using only public facts. Current screenshot exposes local branches but does not prove a safe refuge or a single current AI-plan arrow.",
     "Check actual current full-size scene, mobile and a disclosed closed-door frame for arrow placement, landmark hierarchy, depth and objective prominence; never infer safety from a drawn passage.",
@@ -180,6 +182,13 @@
       "verdict": "Known local passages more legible; no confirmed safe route; Nintendo reference still wins",
       "date": "2026-10-31T00:35:43.336Z",
       "summary": "Actual CI source 5762284, same seed maze-visual-reference-13/tick 13, two public actors in frame. Pip now has a triangular warning sign and three pale local known-corridor arrows; no single planned teal choice or safe refuge is demonstrated. Same-frame pass7/pass8 RGB changed 0.3273% of pixels, which does not imply perceptual parity. Actual screenshot SHA-256 7e811af06d90c87a0d0f7c3f79bc156d758d44f886907e4b8caad0a9b522f379; CI artifact https://github.com/my-edutu/Ai_games/actions/runs/41150638243/artifacts/13022687590 . An independent blind verdict and hardware FPS remain unverified."
+    },
+    {
+      "title": "Tenth-pass known-landmark wayfinding — real output, lead inspection only",
+      "reviewer": "Lead inspected two authentic same-production-frame 1280×900 screenshots; fresh-context independent visual critics unavailable",
+      "verdict": "Lawful known-exit floor cue visible, crowded exit/hero hierarchy; Nintendo fixed bar NOT PASSED",
+      "date": "2026-10-31T01:45:30.284Z",
+      "summary": "Observed production seed maze-visual-reference-13 tick26, exit cell69 one disclosed passage away. New mint glyph is visible, independently distinct from optional turquoise AI plan, but the portal/beacon overlap and very small hero still weaken frame hierarchy. PNG SHA-256 ca2faf27d9abc369a68af0a42ec05f28b195b286929969fadb6da154d3f3829e. Previous same-seed frame SHA-256 54ef5abe89fef5a6d7a1ba524d42518ecd247b1f3e67cf71593abd2bd9bb8ff4. Artifact https://github.com/my-edutu/Ai_games/actions/runs/41156437915/artifacts/13025591289. 0.2687% aligned pixel delta is NOT a perceptual quality score. No blind A/B nor hardware performance evidence."
     }
   ],
   "verification": [
@@ -276,6 +285,13 @@
       "detail": "Gameplay commits 8519543 and 5762284 add public-only floor arrows and triangular warning, then exclude closed doors from waypoint and dashed legal-route visuals. CI on final gameplay SHA 5762284 succeeded Oct 31 2026; real seed maze-visual-reference-13/tick13 screenshot captured 2026-10-31T00:35:43.336Z, source and image SHA-256 preserved in docs/reviews/maze-3d/encounter-pass-08-review.md and CI artifact 13022687590. Critic subagents/Ultracode unavailable; images do not establish independent Nintendo bar victory or hardware FPS.",
       "sourceCommit": "576228474471fa2f4295a98ec152f7d4b68c5c06",
       "sourceUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41150638243"
+    },
+    {
+      "name": "Tenth-pass public-goal floor cue and current dated render; CI contains one timing failure",
+      "status": "521/521 Node passed; 24/25 browser; 600ms unchanged-tick assertion failed; benchmark NOT passed",
+      "detail": "Gameplay commits 31e4114, f057935, 735d835 add only known legal public first-step goal cues, distinct from AI intent and safety guarantees. Current genuine 1280×900 screenshot 2026-10-31T01:45:30.284Z seed maze-visual-reference-13 tick26 confirmed source hashes and image SHA-256 ca2faf27d9abc369a68af0a42ec05f28b195b286929969fadb6da154d3f3829e in https://github.com/my-edutu/Ai_games/actions/runs/41156437915/artifacts/13025591289. Full CI https://github.com/my-edutu/Ai_games/actions/runs/41156437915 passed 521 Node, build, deterministic host/self tests, 24 browser checks but FAILED desktop tick changed-in-600ms test (155 unchanged); do not call CI wholly green. Shared workspace/subagents/Ultracode unavailable; existing Nintendo comparison still favors Nintendo; no hardware FPS claim.",
+      "sourceCommit": "735d8352fcd2f36694b21670c4d41ac57f6faa0e",
+      "sourceUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41156437915"
     }
   ],
   "references": [
