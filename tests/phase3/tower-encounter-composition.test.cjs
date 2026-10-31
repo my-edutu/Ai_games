@@ -230,3 +230,50 @@ test('active guardian has a finite overhead cap clearance only inside its true h
   assert.equal(context.guardianCanopyClearance(frame, { ...enemy, x: 400000 }), Infinity);
   assert.equal(JSON.stringify(frame), before, 'the presentation rule never mutates authoritative facts');
 });
+
+test('guardian cap sightline softens a real occluding deck and restores its solid appearance when clear', async () => {
+  const { THREE, pointFor, createTowerWorld } = await loaded;
+  const frame = snapshot({ runToken: 'cap-sightline', floor: 8, theme: 'clockwork',
+    player: { x: 205800, y: 358000, halfWidth: 9000, halfHeight: 14000, health: 3, vx: 0, vy: 0, state: 'airborne' },
+    intent: { mode: 'recovering', targetPlatformId: 'f8:p6' },
+    platforms: [
+      { id: 'f8:cap', kind: 'oneway', x: 115200, y: 332000, width: 249600, height: 12000 },
+      { id: 'f8:p6', kind: 'oneway', x: 40387, y: 300000, width: 125000, height: 10000 },
+    ],
+    enemies: [{ id: 'f8:guardian', kind: 'guardian', x: 149387, y: 328000,
+      halfWidth: 16000, halfHeight: 18000, active: true }],
+  });
+  const before = JSON.stringify(frame), world=createTowerWorld();
+  try {
+    world.update(frame, 0, 0, { quality: 'low', reducedMotion: true });
+    world.group.updateMatrixWorld(true,true);
+    const cap=world.group.getObjectByName('platform:f8:cap');
+    const capTop=new THREE.Box3().setFromObject(cap).max.y;
+    const resources=world.diagnostics().materials;
+    const enemy=frame.enemies[0],feet=pointFor(enemy.x, enemy.y-enemy.halfHeight, 0, frame.worldWidth,25);
+    const crest=new THREE.Vector3(feet.x, feet.y+2.9, feet.z);
+    const outer=pointFor(enemy.x, 0, 0, frame.worldWidth,36);
+    const camera=new THREE.PerspectiveCamera(42, 390/844, .2, 1200);
+    camera.position.set(outer.x,41.8,outer.z);camera.lookAt(crest);camera.updateMatrixWorld(true);
+    const ray=new THREE.Raycaster(camera.position,crest.clone().sub(camera.position).normalize(),
+      0,camera.position.distanceTo(crest)-.05);
+    assert.ok(ray.intersectObject(cap,true).length>0, 'this witness ray genuinely crosses the physical cap in front of the guardian crest');
+    assert.equal(typeof world.revealGuardianSightlines,'function');
+    world.revealGuardianSightlines(camera,[crest]);
+    const faded=new Set();
+    cap.traverse(mesh=>{if(mesh.isMesh&&mesh.material.opacity<.75)faded.add(mesh.material);});
+    assert.ok(faded.size>=2, 'cap face and trim soften rather than hiding or moving the platform');
+    assert.ok([...faded].every(material=>material.transparent&&!material.depthWrite),
+      'transparent cap pixels do not overwrite the guardian depth surface');
+    assert.equal(world.diagnostics().occludedGuardianCaps,1);
+    world.revealGuardianSightlines(camera,[]);
+    for(const material of faded){
+      assert.equal(material.opacity,1,'an unobstructed cap returns to full opacity');
+      assert.equal(material.depthWrite,true,'normal solid cap depth writes return');
+    }
+    assert.equal(world.diagnostics().occludedGuardianCaps,0);
+    assert.equal(world.diagnostics().materials,resources,'ray checks allocate no new floor materials');
+    assert.equal(new THREE.Box3().setFromObject(cap).max.y,capTop,'the cap collision-aligned walking top cannot move');
+    assert.equal(JSON.stringify(frame),before,'the entire public authoritative snapshot stays immutable');
+  } finally { world.dispose(); }
+});

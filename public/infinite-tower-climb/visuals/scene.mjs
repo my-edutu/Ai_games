@@ -479,6 +479,7 @@ export function createTowerScene(canvas, settings = {}) {
   let baseY = 0, themeKey = '', cameraAngle = .15, lastRevision = '', orbit = 0, zoom = 1;
   const renderProgress = createRenderProgress();
   const actorTarget = new THREE.Vector3();
+  const guardianSightPoints=[];
   const lookAt = new THREE.Vector3();
   let actorYaw = 0;
   const visibilityChanged = () => {
@@ -669,6 +670,7 @@ export function createTowerScene(canvas, settings = {}) {
       const key = `${snapshot.worldWidth}:${snapshot.chunkBaseY}:${targetPlatform.id}:${targetPlatform.x}:${targetPlatform.y}:${targetPlatform.width}:${targetPlatform.height}`;
       if (landingCueKey !== key) { updateLandingCueGeometry(landingCue.geometry, targetPlatform, snapshot); landingCueKey = key; }
     }
+    guardianSightPoints.length=0;
     for (const entry of enemies.values()) {
       const e = entry.state;
       const position = pointFor(e.x, e.y - e.halfHeight, snapshot.chunkBaseY, snapshot.worldWidth);
@@ -680,6 +682,16 @@ export function createTowerScene(canvas, settings = {}) {
       model.rotation.y = entry.yaw;
       model.scale.setScalar(e.halfHeight * 2 / SCALE / (e.kind === 'guardian' ? 5.6 : 2.8));
       entry.model.animate({ ...e, canopyClearance: guardianCanopyClearance(snapshot, e), firing: elapsed < entry.fireUntil }, dt, elapsed, options);
+      if(e.active&&e.kind==='guardian'){
+        const crest=model.getObjectByName('armored-head');
+        if(crest){
+          entry.crestSightPoints ||= [new THREE.Vector3(),new THREE.Vector3()];
+          crest.getWorldPosition(entry.crestSightPoints[0]);
+          entry.crestSightPoints[1].copy(entry.crestSightPoints[0]);
+          entry.crestSightPoints[1].y+=.24;
+          guardianSightPoints.push(...entry.crestSightPoints);
+        }
+      }
       model.visible = e.active || elapsed < entry.deadUntil;
       entry.bar.visible = e.active;
       entry.bar.position.copy(model.position); entry.bar.position.y += e.halfHeight * 2 / SCALE + .6;
@@ -726,6 +738,7 @@ export function createTowerScene(canvas, settings = {}) {
     if (!initialized) { camera.position.copy(destination); lookAt.copy(focus); initialized = true; }
     else { camera.position.lerp(destination, cameraBlend); lookAt.lerp(focus, cameraBlend); }
     camera.lookAt(lookAt);
+    world.revealGuardianSightlines(camera,guardianSightPoints);
     updateLandingBeacon(landingBeacon, targetPlatform, snapshot, camera);
     sky.position.copy(camera.position);
     sun.target.position.set(0, targetY, 0);

@@ -31,7 +31,8 @@ export function createTowerWorld(){
   let floorGroup=null,key='',theme='foundry',disposed=false,lastSnapshot=null;
   let materials={}, floorGeometries=new Set(),floorMaterials=new Set();
   const primitives=new Map(),platforms=new Map(),hazards=new Map(),rotors=[],floaters=[];
-  let particles=null,quality='normal';
+  let particles=null,quality='normal',occludedGuardianCaps=0;
+  const canopyRay = new THREE.Raycaster(), canopyDirection = new THREE.Vector3();
   function geometry(name,build){if(!primitives.has(name))primitives.set(name,build());return primitives.get(name);}
   const box=()=>geometry('box',()=>new THREE.BoxGeometry(1,1,1));
   const sphere=()=>geometry('sphere',()=>new THREE.SphereGeometry(1,10,7));
@@ -467,6 +468,7 @@ export function createTowerWorld(){
       instanced(root,geometry('void-undercroft',()=>new THREE.OctahedronGeometry(1,0)),materials.crystal,shards);
       mesh(root,sector(27.04,27.17,angle,.05),materials.glow,[0,h-.37,0]);
     }
+    let capMaterials = [];
     if(p.id.endsWith(':cap')){
       // The last route gap is shorter than the guardian's body. A thick
       // decorative box beam buries its face inside a one-way platform. Keep
@@ -475,9 +477,26 @@ export function createTowerWorld(){
       for(const child of root.children)if(child!==mount){
         child.position.y=h+(child.position.y-h)*.12;child.scale.y*=.12;
       }
+      // A cap may cross the line of sight to its own guardian. Give only its
+      // traversable face and trim floor-owned alpha materials; keep rear supports
+      // and every collision-aligned vertex untouched. Precompile transparency
+      // once so visibility transitions cannot cause per-frame shader churn.
+      const owned = new Map();
+      for(const child of root.children)if(child!==mount)child.traverse(object=>{
+        if(!object.isMesh)return;
+        const original=object.material;
+        if(!owned.has(original)){
+          const material=original.clone();
+          material.transparent=true;material.opacity=1;material.depthWrite=true;
+          material.name='guardian-sightline-cap';
+          owned.set(original,material);floorMaterials.add(material);
+        }
+        object.material=owned.get(original);
+      });
+      capMaterials=[...owned.values()];
     }
     root.traverse(o=>{if(o.isMesh&&o.material===bodyMaterial)o.userData.structural=true;});
-    platforms.set(p.id,{root,angle,width:p.width,height:p.height});return root;
+    platforms.set(p.id,{root,angle,width:p.width,height:p.height,capMaterials});return root;
   }
   function buildHazard(h,width){
     const root=new THREE.Group();root.name=`hazard:${h.id}`;floorGroup.add(root);
@@ -517,7 +536,7 @@ export function createTowerWorld(){
   function clearFloor(){
     if(floorGroup){group.remove(floorGroup);floorGroup.traverse(o=>{if(o.isInstancedMesh)o.dispose();});}
     for(const g of floorGeometries)g.dispose();for(const m of floorMaterials)m.dispose();
-    floorGeometries.clear();floorMaterials.clear();platforms.clear();hazards.clear();rotors.length=0;floaters.length=0;particles=null;floorGroup=null;
+    floorGeometries.clear();floorMaterials.clear();platforms.clear();hazards.clear();rotors.length=0;floaters.length=0;particles=null;floorGroup=null;occludedGuardianCaps=0;
   }
   function rebuild(snapshot){
     clearFloor();theme=THEMES[snapshot.theme]?snapshot.theme:'foundry';const p=PALETTES[theme];
@@ -561,7 +580,34 @@ export function createTowerWorld(){
       const items=particles.userData.items;for(let i=0;i<items.length;i++){const s=items[i];dummy.position.set(s.p[0]+Math.sin(time*.13+i)*.2,s.p[1]+Math.sin(time*.19+i*.5)*.7,s.p[2]);dummy.rotation.set(0,0,0);dummy.scale.set(...s.s);dummy.updateMatrix();particles.setMatrixAt(i,dummy.matrix);}particles.instanceMatrix.needsUpdate=true;
     }}
   }
-  function diagnostics(){let objects=0,meshes=0,instances=0,shadowCasterMeshes=0,triangles=0;group.traverse(o=>{objects++;if(o.isMesh){meshes++;if(o.castShadow)shadowCasterMeshes++;triangles+=(o.geometry.index?o.geometry.index.count:o.geometry.attributes.position.count)/3*(o.isInstancedMesh?o.count:1);}if(o.isInstancedMesh)instances+=o.count;});return{objects,meshes,instances,shadowCasterMeshes,triangles,geometries:floorGeometries.size+primitives.size,materials:floorMaterials.size,platforms:platforms.size,hazards:hazards.size,ambientParticles:particles?.visible?48:0,floor:lastSnapshot?.floor??null,theme,quality,disposed,surfaceTexture:stoneSurface.diagnostics(),platformTransforms:[...platforms.entries()].map(([id,e])=>({id,...e.root.userData.authority,angle:e.root.rotation.y,yWorld:e.root.position.y}))};}
+  function revealGuardianSightlines(camera, crestPoints=[]) {
+    if(disposed||!camera)return;
+    let faded=0;
+    for(const entry of platforms.values()){
+      if(!entry.capMaterials.length)continue;
+      entry.root.updateWorldMatrix(true,true);
+      let blocked=false;
+      for(const crest of crestPoints){
+        canopyDirection.copy(crest).sub(camera.position);
+        const distance=canopyDirection.length();
+        if(!Number.isFinite(distance)||distance<=.1)continue;
+        canopyRay.set(camera.position,canopyDirection.multiplyScalar(1/distance));
+        canopyRay.near=0;canopyRay.far=distance-.05;
+        if(canopyRay.intersectObject(entry.root,true).length){blocked=true;break;}
+      }
+      // The guarded enemy remains behind the physical cap. Only the cap's
+      // camera-obstructing pixels soften, preserving the drawn deck/rim as a
+      // translucent climbable surface, depth-tested against other obstacles.
+      // No overlays, x-ray characters, authoring edits or renderer allocations.
+      for(const material of entry.capMaterials){
+        material.opacity=blocked?.32:1;
+        material.depthWrite=!blocked;
+      }
+      if(blocked)faded++;
+    }
+    occludedGuardianCaps=faded;
+  }
+  function diagnostics(){let objects=0,meshes=0,instances=0,shadowCasterMeshes=0,triangles=0;group.traverse(o=>{objects++;if(o.isMesh){meshes++;if(o.castShadow)shadowCasterMeshes++;triangles+=(o.geometry.index?o.geometry.index.count:o.geometry.attributes.position.count)/3*(o.isInstancedMesh?o.count:1);}if(o.isInstancedMesh)instances+=o.count;});return{objects,meshes,instances,shadowCasterMeshes,triangles,geometries:floorGeometries.size+primitives.size,materials:floorMaterials.size,platforms:platforms.size,hazards:hazards.size,ambientParticles:particles?.visible?48:0,floor:lastSnapshot?.floor??null,theme,quality,disposed,occludedGuardianCaps,surfaceTexture:stoneSurface.diagnostics(),platformTransforms:[...platforms.entries()].map(([id,e])=>({id,...e.root.userData.authority,angle:e.root.rotation.y,yWorld:e.root.position.y}))};}
   function dispose(){if(disposed)return;clearFloor();for(const g of primitives.values())g.dispose();primitives.clear();stoneSurface.dispose();group.clear();lastSnapshot=null;disposed=true;}
-  return{group,update,dispose,diagnostics};
+  return{group,update,revealGuardianSightlines,dispose,diagnostics};
 }

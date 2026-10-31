@@ -38,7 +38,9 @@ for(const v of [{name:'portrait',w:390,h:844},{name:'desktop',w:960,h:600}])
     expect(match.score).toBeLessThan(145000);
     const frame=match.frame,checksum=frame.snapshot.publicChecksum;
     const a=process.env.TOWER_GUARDIAN_BASELINE_SCENE,b=process.env.TOWER_GUARDIAN_BASELINE_CAST;
+    const baselineWorld=process.env.TOWER_GUARDIAN_BASELINE_WORLD;
     if(a&&b){
+      if(baselineWorld)await page.route('**/tower/visuals/world.mjs',route=>route.fulfill({contentType:'text/javascript',body:fs.readFileSync(baselineWorld,'utf8')}));
       await page.route('**/tower/visuals/scene.mjs',route=>route.fulfill({contentType:'text/javascript',body:fs.readFileSync(a,'utf8')}));
       await page.route('**/tower/visuals/characters.mjs',route=>route.fulfill({contentType:'text/javascript',body:fs.readFileSync(b,'utf8')}));
     }
