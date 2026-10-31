@@ -174,3 +174,23 @@ test('coastal stage camera bias uses only nearby public cells, stays bounded and
   assert.deepEqual(publicStageBias({...coast, result: {reason: 'escape'}}), {x: 0, z: 0});
   assert.deepEqual(publicStageBias({...coast, currentCell: -1}), {x: 0, z: 0});
 });
+
+
+test('close-goal composition preserves known coastal stage, without pushing the explorer out of the shot', async () => {
+  const {publicStageBias, composePublicCameraFocus} = await load();
+  const coast = {width: 7, height: 5, currentCell: 1,
+    cells: [{cell: 1}, {cell: 2}, {cell: 3}, {cell: 4}, {cell: 5}]};
+  const stage = publicStageBias(coast);
+  const near = composePublicCameraFocus(stage, {x: 4.8, z: 0}, true, 1.32);
+  const goalOnly = composePublicCameraFocus({x: 0, z: 0}, {x: 4.8, z: 0}, true, 1.32);
+  assert.ok(near.x > goalOnly.x, 'known local stage should counter empty water even when an exit is close');
+  assert.ok(near.z < 0, 'retain disclosed stage depth rather than panning solely to the goal');
+  assert.ok(Math.hypot(near.x, near.z) <= 2.500001, 'combine both camera pulls with a single finite bound');
+  assert.deepEqual(composePublicCameraFocus(stage, {x: 4.8, z: 0}, false, 1.32), stage,
+    'ordinary desktop follow framing retains existing stage composition');
+  const portrait = composePublicCameraFocus(stage, null, false, .65);
+  assert.ok(Math.hypot(portrait.x, portrait.z) < Math.hypot(stage.x, stage.z),
+    'portrait framing preserves hero visibility with a weaker lateral stage pull');
+  assert.deepEqual(composePublicCameraFocus({x: Infinity, z: NaN}, null, true, 1), {x: 0, z: 0},
+    'invalid camera offsets cannot turn into non-finite projections');
+});
