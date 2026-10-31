@@ -242,6 +242,30 @@ export function composePublicSealedGateFocus(stageBias, gateDelta, aspect = 1) {
 
 
 /**
+ * Camera-only punctuation for Pip presenting the exact carried key to an
+ * already-disclosed closed gate. The ordinary sealed-gate camera continues to
+ * favour surrounding architecture; this variant puts the small physical
+ * glove/lock pairing closer to the middle of the frame on a narrow screen.
+ *
+ * Callers must first establish publicCarriedGateCue. Neither a door's secret
+ * requirements nor a route or game action is inferred by this pure helper.
+ */
+export function composePublicKeyLockFocus(stageBias, gateDelta, aspect = 1) {
+  const finite = value => Number.isFinite(value) ? value : 0;
+  const portrait = aspect < .9;
+  // The ordinary camera pulls strongly toward known coastal floor. When a
+  // real key is held beside its lock, the pair becomes the visual subject.
+  const stageWeight = portrait ? .22 : .52;
+  const gateWeight = portrait ? .49 : .46;
+  const x = finite(stageBias?.x) * stageWeight + finite(gateDelta?.x) * gateWeight;
+  const z = finite(stageBias?.z) * stageWeight + finite(gateDelta?.z) * gateWeight;
+  const limit = portrait ? 1.5 : 2.45;
+  const scale = Math.min(1, limit / (Math.hypot(x, z) || 1));
+  return {x: x * scale, z: z * scale};
+}
+
+
+/**
  * A *cosmetic* key-in-hand response to the gate immediately beside Pip.
  * This requires three independent, public facts: a disclosed nearby closed
  * door, its exact public requiredKeyId in inventory, and actual visual
