@@ -289,9 +289,9 @@ function makeLimb(w,parent,palette,side,{heavy=false,leg=false}={}) {
 
 export function createClimber() {
   const w=workshop('expedition-climber');
-  const p={color:w.mat(0x1858be,.26,.25),armor:w.mat(0xf2efe2,.08,.25),dark:w.mat(0x111e2b,.08,.76),metal:w.mat(0x697b8d,.66,.42)};
+  const p={color:w.mat(0x35596a,.3,.35),armor:w.mat(0xb3bdb7,.16,.42),dark:w.mat(0x111b24,.08,.78),metal:w.mat(0x697b8d,.66,.42)};
   const copper=w.mat(0xbb7143,.72,.29),packDark=w.mat(0x513e32,.18,.67);
-  const face=w.mat(0x06121c,.22,.18),eye=w.mat(0xa1fff0,.2,.25,0x7be9eb,1.6),shine=w.mat(0x234359,.4,.24);
+  const face=w.mat(0x06121c,.22,.18),eye=w.mat(0x70b8b3,.2,.3,0x54aaa4,.7),shine=w.mat(0x234359,.4,.24);
   const body=w.node(w.group,'articulated-body');
   w.lathe(body,[[.26,.99],[.36,1.08],[.44,1.48],[.43,1.7],[.32,1.86]],p.dark).scale.z=.52;
   w.shell(body,1.02,.78,.5,p.armor,0,1.49,.035,.15,.035,.22);
@@ -327,7 +327,7 @@ export function createClimber() {
   const head=w.node(body,'expressive-helmet',0,2.31,.025);
   // Reduce toy-like helmet width while keeping the visible visor and reach clear.
   // The rig remains fully articulated: scale acts on the actual helmet bone.
-  head.scale.set(.78,.9,.92);
+  head.scale.set(.57,.80,.87);
   w.shell(head,1.28,.8,.74,p.armor,0,.03,0,.18,.025,.09);
   w.plate(head,.12,.68,.07,p.color,0,.01,-.36,.025);
   // The visor follows the ceramic crown instead of reading as a flat panel
@@ -335,7 +335,8 @@ export function createClimber() {
   w.shell(head,1.045,.45,.14,p.color,0,-.018,.345,.062,.012,.02);
   w.shell(head,.96,.37,.12,face,0,-.012,.417,.052,.014,.01);
   const eyes=[w.node(head,'left-eye',-.225,0,.51),w.node(head,'right-eye',.225,0,.51)];
-  for(const e of eyes){w.plate(e,.18,.235,.025,eye,0,0,0,.045);w.plate(e,.033,.05,.01,p.armor,-.025,.055,.018,.01);}
+  for(const e of eyes){w.plate(e,.18,.235,.025,eye,0,0,0,.045);w.plate(e,.033,.05,.01,p.armor,-.025,.055,.018,.01);e.scale.set(.5,.33,.8);}
+  w.plate(head,.58,.038,.014,eye,0,-.022,.535,.009);
   w.plate(head,.41,.022,.018,shine,0,.139,.501,.008);
   w.plate(head,.25,.045,.035,p.metal,0,-.274,.34,.016);
   for(const side of [-1,1]){
