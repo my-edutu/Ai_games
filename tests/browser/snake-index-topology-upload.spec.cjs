@@ -23,7 +23,10 @@ test('real WebGL overview and detail preserve exact prior pixels while unnecessa
   const current=fs.readFileSync(path.join(repo,'public/snake-stream/serpent.mjs'),'utf8');
   expect((current.match(blocks)||[]).length).toBe(7);
   const original=current.replace(blocks,'');
-  expect(blob(original)).toBe('feb317e2c4f8465ff77f33f4d400a4292a795330');
+  const r37Blocks = /^[ \t]*\/\/ BEGIN R37 [^\n]*\n[\s\S]*?^[ \t]*\/\/ END R37 [^\n]*\n/gm;
+  expect((original.match(r37Blocks) || []).length).toBe(2);
+  // Both visual arms retain R37. Only the archived R36-parent SHA is stripped.
+  expect(blob(original.replace(r37Blocks, ''))).toBe('feb317e2c4f8465ff77f33f4d400a4292a795330');
   const evidenceRows=[];
   for(const mode of ['overview','detail']){
     const captures=[];

@@ -648,6 +648,14 @@ export function createSerpent(THREE) {
     gazeY += (targetGazeY - gazeY) * gazeMix;
     const blinkPhase = ((time + 1.73) % 4.7);
     const blink = reduced ? 1 : 1 - 0.94 * Math.exp(-Math.pow((blinkPhase - 4.4) / 0.075, 2));
+    // BEGIN R37 BROAD LID ENVELOPE
+    // Slow the visible lid travel without altering the existing eye-blink,
+    // public hazard posture, seeded movement or reduced-motion stillness.
+    // At low submitted-frame cadence the old <0.15s eye-squash blink could
+    // disappear entirely. The lid now travels for about 0.4s.
+    const lidClosure = reduced || danger >= 0.6 ? 0
+      : Math.exp(-Math.pow((blinkPhase - 4.4) / 0.18, 2));
+    // END R37 BROAD LID ENVELOPE
     for (let i = 0; i < eyes.length; i++) {
       eyes[i].scale.y = blink * (1 - dangerEase * 0.12);
       // Keep the entire iris/pupil/catchlight cluster together; the highlight
@@ -656,6 +664,12 @@ export function createSerpent(THREE) {
       pupils[i].position.y = -0.005 + gazeY;
       pupils[i].scale.x = 1 - dangerEase * 0.16;
       brows[i].rotation.z = (i === 0 ? -1 : 1) * dangerEase * 0.13;
+      // BEGIN R37 ATTACHED LID SWEEP
+      // Move the existing sculpted upper eyelid across its own socket, not
+      // the eyeball or the gaze. Preserve hazard-furrow cues and both LODs.
+      brows[i].position.y = -0.105 * lidClosure;
+      brows[i].position.z = 0.044 * lidClosure;
+      // END R37 ATTACHED LID SWEEP
     }
     const tonguePhase = (time + 0.9) % 3.8;
     const flick = tonguePhase > 3.35 ? Math.pow(Math.sin((tonguePhase - 3.35) / 0.45 * Math.PI), 0.65) : 0;

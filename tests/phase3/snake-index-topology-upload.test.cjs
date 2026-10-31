@@ -16,7 +16,11 @@ test('living serpent reuses unchanged GPU index topology without dropping portal
   const blocksFound = source.match(blocks) || [];
   assert.equal(blocksFound.length, 7, 'exactly seven bounded production additions');
   const original = source.replace(blocks, '');
-  assert.equal(blob(original), 'feb317e2c4f8465ff77f33f4d400a4292a795330', 'control is the verified prior Git blob');
+  const r37Blocks = /^[ \t]*\/\/ BEGIN R37 [^\n]*\n[\s\S]*?^[ \t]*\/\/ END R37 [^\n]*\n/gm;
+  assert.equal((original.match(r37Blocks) || []).length, 2);
+  // The previous R36 implementation shares the later eyelid choreography:
+  // removing R37 is ONLY for its exact archived Git hash, never visual/model A/B.
+  assert.equal(blob(original.replace(r37Blocks, '')), 'feb317e2c4f8465ff77f33f4d400a4292a795330', 'control is the verified prior Git blob');
   const { createSerpent: createPrior } = await import('data:text/javascript;base64,' + Buffer.from(original).toString('base64'));
   const { createSerpent } = await import('../../public/snake-stream/serpent.mjs');
   const previous = createPrior(THREE), current = createSerpent(THREE);

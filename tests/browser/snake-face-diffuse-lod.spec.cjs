@@ -46,7 +46,9 @@ test('real WebGL: diffuse distance face retains sculpt and PBR close-up against 
   // Remove R36 additions only for the exact archived R33 predecessor Git hash.
   const r36Blocks = /^[ \t]*\/\/ BEGIN R36 [^\n]*\n[\s\S]*?^[ \t]*\/\/ END R36 [^\n]*\n/gm;
   expect((historicalPrior.match(r36Blocks) || []).length).toBe(7);
-  expect(blobHash(historicalPrior.replace(r36Blocks, ''))).toBe('5a4d1c1e3f6fd2874c8984313fc24de190e608d5');
+  const r37Blocks = /^[ \t]*\/\/ BEGIN R37 [^\n]*\n[\s\S]*?^[ \t]*\/\/ END R37 [^\n]*\n/gm;
+  expect((historicalPrior.match(r37Blocks) || []).length).toBe(2);
+  expect(blobHash(historicalPrior.replace(r36Blocks, '').replace(r37Blocks, ''))).toBe('5a4d1c1e3f6fd2874c8984313fc24de190e608d5');
   const captures = {};
   for (const mode of ['overview', 'detail']) {
     captures[mode] = {};

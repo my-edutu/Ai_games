@@ -1,10 +1,15 @@
 {
   "updatedAt": "2026-10-31",
-  "status": "ROUND36 CURRENT WEBGL TEST 24/26 · STRICT 10/17 REAL-SUBMISSION FAIL · ZERO-DIFF FIXTURE RECHECK PENDING",
-  "detail": "Historical SHA/browser R33/R34 corrections now pass. Exact R36 parity pass was unstable across runs (9 pixels ±1 in overview), synthetic neutral-danger fixture retest pending. Actual live index requests 29/30 renders (only 1 reuse), no proven FPS benefit. Snake Pass visual and device/soak/R5 gates open.",
+  "status": "ROUND37 ORIGINAL EYELID ANIMATION CANDIDATE · R36 CHROMIUM 25/26 PASS · STRICT 9/17 ACTUAL SUBMISSIONS FAIL",
+  "detail": "R36 SHA-controlled real WebGL proof re-passed 41242552317; 9 actual draw submissions / 1009.3ms versus unchanged 17 minimum; only 1/29 live index reuse. Round37 attached upper-lid motion, safe danger/reduced-motion and exact-source regressions committed for Node/real WebGL verification; no art/performance victory or release approval yet.",
   "latestImage": "/progress/evidence/round-9-overview.jpg",
   "latestCaption": "Historical Round9 image (not R35). Real Round35 Chromium/WebGL same synthetic public-frame overview/detail before/after: https://github.com/my-edutu/Ai_games/actions/runs/41239708262/artifacts/13056688120; not live gameplay frame pacing.",
   "reviews": [
+    {
+      "area": "Round 37 · original attached upper-lid articulation",
+      "verdict": "EXACT-SOURCE NODE/WEBGL CANDIDATE · R36 25/26 VERIFIED · STRICT 9/17 FAIL · WHOLE-GAME LOSE",
+      "gap": "Both existing lids animate during a bounded slow blink, freeze for reduced-motion and high danger; real browser captures and exact-source tests pending. No new GPU objects; performance gate 9/1009.3ms <17, independent art and device-present FPS/soak/R5 absent."
+    },
     {
       "area": "Round 36 · live serpent index topology transfer",
       "verdict": "R33/R34 HISTORY FIXED · 24/26 CURRENT BROWSER · R36 PIXEL-RACE RECHECK PENDING · REAL-LIVE 1/30 REUSE · STRICT 10/17 FAIL · WHOLE GAME LOSE",

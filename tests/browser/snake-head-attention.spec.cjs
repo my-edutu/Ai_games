@@ -28,7 +28,9 @@ test('real WebGL: original public-food skull attention is visible against exact 
   // Strip R36 only for the prior-R34 historical blob guard.
   const r36Blocks = /^[ \t]*\/\/ BEGIN R36 [^\n]*\n[\s\S]*?^[ \t]*\/\/ END R36 [^\n]*\n/gm;
   expect((previous.match(r36Blocks) || []).length).toBe(7);
-  expect(hash(previous.replace(r36Blocks, ''))).toBe('6d0dd900301c5f684567ab94a185f9535ee6d69c');
+  const r37Blocks = /^[ \t]*\/\/ BEGIN R37 [^\n]*\n[\s\S]*?^[ \t]*\/\/ END R37 [^\n]*\n/gm;
+  expect((previous.match(r37Blocks) || []).length).toBe(2);
+  expect(hash(previous.replace(r36Blocks, '').replace(r37Blocks, ''))).toBe('6d0dd900301c5f684567ab94a185f9535ee6d69c');
   const captures={};
   for(const mode of ['overview','detail']){
     captures[mode]={};
