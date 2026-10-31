@@ -121,6 +121,9 @@ test('Pip presents a modeled carried key to a real nearby lock and clears it for
     const arm=pip.group.getObjectByName('shoulder -1');
     const head=pip.group.getObjectByName('curious head');
     assert.ok(key && arm && head, 'a reusable 3D prop and articulated arm, not a sprite or HUD');
+    const propColors=new Set(key.children.filter(part => part.isMesh).map(part => part.material.color.getHexString()));
+    assert.ok(['a5ffdc','ffe2a1','263e43'].every(color => propColors.has(color)),
+      'the held object has a mint bow, warm key teeth and dark hand-grip contact');
     assert.equal(key.visible,false);
     pip.update({heading:0,keyHeading:Math.PI/2,keyStrength:1,reducedMotion:true});
     assert.equal(key.visible,true,'real matching carried-key cue shows a physical key in Pip’s glove');
