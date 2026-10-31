@@ -198,8 +198,10 @@ test('a real close public encounter frames both autonomous actors and saves date
   expect(gateDiagnostic.nearbySealedGate, 'A nearby publicly observed gate should be camera-framed').toBeTruthy();
   expect(gateDiagnostic.nearbySealedGateProjection?.inFrame).toBe(true);
   expect(gateDiagnostic.explorerInFrame).toBe(true);
-  expect(gateDiagnostic.cameraHalfHeight, 'Desktop gate framing should enlarge the physical obstacle').toBeLessThan(6.05);
-  expect(gateDiagnostic.cameraHalfHeight).toBeGreaterThan(5.3);
+  expect(gateDiagnostic.cameraHalfHeight, 'Desktop gate framing should enlarge the physical obstacle').toBeLessThan(5.2);
+  expect(gateDiagnostic.cameraHalfHeight).toBeGreaterThan(4.95);
+  expect(Math.abs(gateDiagnostic.nearbySealedGateProjection.x), 'The gate must retain horizontal edge breathing room').toBeLessThan(.8);
+  expect(Math.abs(gateDiagnostic.explorerProjection.x), 'Pip must not be pushed toward the horizontal edge').toBeLessThan(.8);
   const gateImage = path.join(dir, 'sealed-gate.png');
   await page.screenshot({path: gateImage, fullPage: true});
   fs.writeFileSync(path.join(dir, 'sealed-gate.json'), JSON.stringify({
@@ -225,8 +227,10 @@ test('a real close public encounter frames both autonomous actors and saves date
   expect(gatePortraitDiagnostic.closedGatesInFrame).toBeGreaterThan(0);
   expect(gatePortraitDiagnostic.nearbySealedGateProjection?.inFrame).toBe(true);
   expect(gatePortraitDiagnostic.explorerInFrame).toBe(true);
-  expect(gatePortraitDiagnostic.cameraHalfHeight, 'Portrait gate framing must not fall through to generic zoom').toBeLessThan(6.18);
-  expect(gatePortraitDiagnostic.cameraHalfHeight).toBeGreaterThan(5.35);
+  expect(gatePortraitDiagnostic.cameraHalfHeight, 'Portrait gate must receive readable close framing').toBeLessThan(5.57);
+  expect(gatePortraitDiagnostic.cameraHalfHeight).toBeGreaterThan(5.37);
+  expect(Math.abs(gatePortraitDiagnostic.nearbySealedGateProjection.x), 'Portrait gate must keep a margin').toBeLessThan(.8);
+  expect(Math.abs(gatePortraitDiagnostic.explorerProjection.x), 'Portrait Pip must keep a margin').toBeLessThan(.8);
   const portraitGateImage = path.join(dir, 'sealed-gate-portrait.png');
   await page.screenshot({path: portraitGateImage, fullPage: true});
   fs.writeFileSync(path.join(dir, 'sealed-gate-portrait.json'), JSON.stringify({

@@ -389,9 +389,11 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
       // shared gameplay shot. The former ordering always selected the generic
       // portrait height before reaching the gate branch, so portrait never
       // received the gate-specific composition. Keep small-height layouts
-      // protected, and use a less aggressive zoom in narrow portrait.
+      // protected. On a real nearby sealed-gate frame, close in enough that
+      // the Pip/barrier relationship reads without HUD text, with a wider
+      // portrait margin so the known arch remains visible.
       targetHeight = cameraMode === 'detail' ? 4.6 : height < 340 ? 5.4
-        : nearObservedGate ? (aspect < .9 ? 5.8 : 5.65)
+        : nearObservedGate ? (aspect < .9 ? 5.42 : 5.05)
         : aspect < .9 ? 6.2 : nearObservedGoal ? 6.25 : 7.3;
     }
     const blend = settings.reducedMotion ? 1 : 1 - Math.exp(-delta * 4.5);
