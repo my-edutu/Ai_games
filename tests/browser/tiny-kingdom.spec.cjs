@@ -1254,3 +1254,30 @@ test('Gauntlet 047 broadleaf geometry has independent native leaf blades and thr
  expect(after.geometry.totalTriangles).toBe(before.geometry.totalTriangles);
  expect(errors).toEqual([]);
 });
+
+
+test('Gauntlet 048 sky palette shows a natural sunrise and no daytime stars without touching civilization',async({page})=>{
+ const errors=[];page.on('pageerror',e=>errors.push(e.message));
+ await page.setContent(html);
+ await page.waitForFunction(()=>Boolean(window.__tinyKingdom?.getSkyPalette));
+ await page.locator('#pause').click();
+ const values=await page.evaluate(()=>{
+  const g=window.__tinyKingdom,world=JSON.stringify(g.exportSnapshot());
+  const night=g.getSkyPalette(1),dawn=g.getSkyPalette(7),noon=g.getSkyPalette(13);
+  return {night,dawn,noon,worldUnchanged:world===JSON.stringify(g.exportSnapshot())};
+ });
+ expect(values.night.nightStars).toBeGreaterThan(.98);
+ expect(values.dawn.nightStars).toBe(0);
+ expect(values.noon.nightStars).toBe(0);
+ expect(values.noon.exposure).toBeGreaterThan(values.dawn.exposure);
+ expect(values.dawn.exposure).toBeGreaterThan(values.night.exposure);
+ expect(values.noon.zenith[2]).toBeGreaterThan(values.noon.zenith[0]);
+ expect(values.dawn.horizon[0]).toBeGreaterThan(values.dawn.horizon[2]);
+ expect(values.dawn.sunrise).toBeGreaterThan(.95);
+ expect(values.worldUnchanged).toBe(true);
+ for(const view of [values.night,values.dawn,values.noon]){
+  for(const c of [...view.horizon,...view.zenith])expect(c).toBeGreaterThanOrEqual(0);
+  for(const c of [...view.horizon,...view.zenith])expect(c).toBeLessThanOrEqual(1);
+ }
+ expect(errors).toEqual([]);
+});
