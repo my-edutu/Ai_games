@@ -834,7 +834,7 @@ function branchFrame(a,b){
 }
 // Gauntlet 047: render-only, budgeted, individually oriented conifer boughs.
 // Neither tree species nor needle orientation uses authoritative game RNG.
-const forestVisualStats={deciduous:0,conifers:0,needleBoughs:0,needleFanTriangles:0,branchTriangles:0,crownPalette:new Set()};
+const forestVisualStats={deciduous:0,conifers:0,needleBoughs:0,needleFanTriangles:0,branchTriangles:0,crownPalette:new Set(),broadleafLobes:0,individualLeaves:0,originalLeafTriangles:0,broadleafSpecies:[0,0,0],broadleafAddedTriangles:0};
 function coniferNeedleSpray(root,tip,width,dark,light){
  const dx=tip[0]-root[0],dy=tip[1]-root[1],dz=tip[2]-root[2];
  const len=Math.hypot(dx,dz)||1,perpX=-dz/len,perpZ=dx/len;
@@ -851,6 +851,54 @@ function coniferNeedleSpray(root,tip,width,dark,light){
  tri(c,mid,droop,light);tri(droop,mid,d,dark);
  forestVisualStats.needleFanTriangles+=8;
 }
+/* Gauntlet 047: authored broadleaf forest silhouettes.
+   Original 3D foliage with elliptical but non-spherical lobes and individually
+   articulated leaf blades. All shape variation is derived only from position. */
+function crownLobe(cx,cy,cz,rx,ry,rz,col,seed){
+ const segments=9,latitudes=[.21,.44,.68,.84].map(t=>t*Math.PI),rings=[];
+ const pt=(lat,i)=>{
+  const az=i*Math.PI*2/segments,ripple=1+.13*Math.sin(3*az+seed)+.07*Math.cos(5*az-seed*.7);
+  return [cx+Math.sin(lat)*Math.cos(az)*rx*ripple,
+   cy+Math.cos(lat)*ry+.035*Math.sin(az*2+seed)*Math.sin(lat)*ry,
+   cz+Math.sin(lat)*Math.sin(az)*rz*ripple];
+ };
+ for(const lat of latitudes){const ring=[];for(let i=0;i<segments;i++)ring.push(pt(lat,i));rings.push(ring)}
+ const colors=[col,col.map(v=>Math.min(1,v*1.07)),col.map(v=>Math.max(0,v*.88))];
+ const top=[cx,cy+ry,cz],bottom=[cx,cy-ry,cz];
+ for(let i=0;i<segments;i++){const j=(i+1)%segments;tri(top,rings[0][j],rings[0][i],colors[0]);}
+ for(let r=0;r<rings.length-1;r++)for(let i=0;i<segments;i++){
+  const j=(i+1)%segments,a=rings[r][i],b=rings[r][j],c=rings[r+1][j],d=rings[r+1][i];
+  tri(a,b,c,colors[(r+i)%3]);tri(a,c,d,colors[(r+i+1)%3]);
+ }
+ for(let i=0;i<segments;i++){const j=(i+1)%segments;tri(rings[3][i],rings[3][j],bottom,colors[2]);}
+ forestVisualStats.broadleafLobes++;
+}
+function leafBlade(base,tip,width,col,seed){
+ const dx=tip[0]-base[0],dz=tip[2]-base[2],len=Math.hypot(dx,dz)||1;
+ const bx=-dz/len*width,bz=dx/len*width;
+ const middle=[(base[0]+tip[0])*.5,(base[1]+tip[1])*.5+.04*width,(base[2]+tip[2])*.5];
+ const a=base,b=[middle[0]+bx,middle[1],middle[2]+bz],c=tip,d=[middle[0]-bx,middle[1],middle[2]-bz];
+ // Two-sided waxy leaf surface avoids losing entire branches at oblique cameras.
+ const reverse=col.map(v=>Math.max(0,v*.75));
+ tri(a,b,c,col);tri(a,c,d,col);tri(c,b,a,reverse);tri(d,c,a,reverse);
+ forestVisualStats.individualLeaves++;
+}
+function leafWhorl(tip,spread,season,style,seed){
+ const palettes=[
+  [0x4f8758,0x6f9e64,0x849c57],
+  [0x4c8a63,0x719e7a,0x5d886d],
+  [0x679264,0x86a575,0x9aae89]
+ ];
+ const aut=[0xa08c49,0xa98c56,0x9d7146],win=[0x7a867f,0x8a928b,0x86958f];
+ const colors=season===3?win:season===2?aut:palettes[style];
+ for(let i=0;i<5;i++){
+  const a=i*2.39996+seed*.5,span=spread*(.65+.15*Math.sin(i*3.7+seed));
+  const base=[tip[0]+Math.cos(a)*span*.20,tip[1]-.06*span,tip[2]+Math.sin(a)*span*.20];
+  const end=[tip[0]+Math.cos(a)*span,tip[1]+.24*span*Math.sin(a+seed),tip[2]+Math.sin(a)*span];
+  leafBlade(base,end,(.21+.04*(i%2))*spread,rgb(colors[i%colors.length]),seed+i);
+ }
+}
+
 function tree(x,z,s=1){
  const y=terrain(x,z),v=Math.sin(x*1.71+z*3.14),season=climateAt(state.t).season;
  const deciduous=v>.12,signature=Math.sin(x*2.73-z*1.81);
@@ -861,15 +909,33 @@ function tree(x,z,s=1){
  taperedBranch([x,y,z],fork,.20*s,.105*s,bark,8);
  if(deciduous){
   forestVisualStats.deciduous++;
-  const leaf=rgb(season===2?0x987e42:season===3?0x879184:(Math.sin(z*3.2)>.2?0x577f4b:0x53754a));
-  const accent=rgb(season===2?0xb1a05b:season===3?0x9ba69d:0x78975e);
-  for(let i=0;i<3;i++){
-   const angle=i*2.39996+signature*.43,reach=(.73+.15*Math.sin(x*.81+i))*s;
-   const tip=[fork[0]+Math.cos(angle)*reach,fork[1]+(.45+.14*i)*s,fork[2]+Math.sin(angle)*reach];
-   taperedBranch([fork[0],fork[1]-.19*s,fork[2]],tip,.105*s,.036*s,bark,6);
-   ellipsoid(tip[0],tip[1]+.26*s,tip[2],(.65+.1*i)*s,(.60+.06*i)*s,(.68+.04*i)*s,i%2?accent:leaf,7);
+  const style=Math.floor(biomeHash(Math.floor((x+43)*17+(z+43)*29))*3);
+  forestVisualStats.broadleafSpecies[style]++;
+  const speciesWidth=[1.16,.91,.74][style],speciesHeight=[.80,1.12,1.34][style];
+  const barkColor=style===2?rgb(0xa8a99a):bark;
+  const leafPalette=season===3?[0x89938c,0x9aa29b,0x8a968e]:
+   season===2?[0x97834d,0xb6a36b,0x977547]:
+   [[0x547f50,0x688e55,0x718c58],[0x567f5a,0x608f62,0x769765],[0x6b8b58,0x819764,0x86a875]][style];
+  const startFloats=data.length;
+  const lobeCount=style===1?5:style===2?3:4;
+  for(let i=0;i<lobeCount;i++){
+   const angle=i*2.39996+signature*.36,reach=(.75+.12*Math.sin(x*.81+i))*speciesWidth*s;
+   const lift=(.42+.14*i)*speciesHeight*s;
+   const tip=[fork[0]+Math.cos(angle)*reach,fork[1]+lift,fork[2]+Math.sin(angle)*reach];
+   materialScope(MATERIAL.WOOD,()=>taperedBranch([fork[0],fork[1]-.16*s,fork[2]],tip,.092*s,.027*s,barkColor,6));
+   const center=[tip[0],tip[1]+(.25+.03*Math.sin(i*1.7))*s,tip[2]];
+   const radius=(style===2?.56:.70)*s*(.89+.10*Math.sin(signature+i));
+   materialScope(MATERIAL.FOLIAGE,()=>{
+    crownLobe(center[0],center[1],center[2],radius*speciesWidth,
+     (.59+.065*i)*s*speciesHeight,radius, rgb(leafPalette[i%3]),x*.31+z*.19+i*2.1);
+    leafWhorl([center[0]+.15*s,center[1]+.27*s,center[2]],radius*.83,season,style,
+      x*.17+z*.11+i);
+   });
   }
-  ellipsoid(fork[0],fork[1]+.64*s,fork[2],.88*s,.87*s,.82*s,leaf,8);
+  // The central crown binds the irregular secondary masses into one tree.
+  materialScope(MATERIAL.FOLIAGE,()=>crownLobe(fork[0],fork[1]+.61*s*speciesHeight,fork[2],
+    .62*s*speciesWidth,.69*s*speciesHeight,.67*s,rgb(leafPalette[(style+1)%3]),x*.71-z*.13));
+  forestVisualStats.broadleafAddedTriangles+=(data.length-startFloats)/30;
  }else{
   forestVisualStats.conifers++;
   const palettes=[
@@ -2147,7 +2213,7 @@ currentMaterial=MATERIAL.FOLIAGE;
  farmForestRendered=0;farmForestRenderedOverlap=0;
  forestVisualStats.deciduous=0;forestVisualStats.conifers=0;
  forestVisualStats.needleBoughs=0;forestVisualStats.needleFanTriangles=0;
- forestVisualStats.branchTriangles=0;forestVisualStats.crownPalette.clear();
+ forestVisualStats.branchTriangles=0;forestVisualStats.crownPalette.clear();forestVisualStats.broadleafLobes=0;forestVisualStats.individualLeaves=0;forestVisualStats.broadleafAddedTriangles=0;forestVisualStats.broadleafSpecies=[0,0,0];
  for(const t of trees){
   const overlapsFarm=farmTreeClearance(t.x,t.z);
   if(!overlapsFarm&&Math.hypot(t.x-SCENIC_SITES.sanctuary.x,t.z-SCENIC_SITES.sanctuary.z)>8){
@@ -2182,6 +2248,7 @@ requestAnimationFrame(render);window.__tinyKingdom={getState:()=>JSON.parse(JSON
  needleBoughs:forestVisualStats.needleBoughs,
  needleFanTriangles:forestVisualStats.needleFanTriangles,
  branchTriangles:forestVisualStats.branchTriangles,
+ broadleafLobes:forestVisualStats.broadleafLobes,individualLeaves:forestVisualStats.individualLeaves,broadleafSpecies:forestVisualStats.broadleafSpecies.slice(),broadleafAddedTriangles:forestVisualStats.broadleafAddedTriangles,
  crownColors:forestVisualStats.crownPalette.size
 }),getCottageFacadeStats:()=>({...cottageFacadeStats,styles:cottageFacadeStats.styles.map((count,style)=>({style,count})).filter(row=>row.count>0)}),getLightingProfile:lightingProfile,getCraftDistrictStats:()=>({...CRAFT_DISTRICT,...craftCounters}),getCottageEffects:()=>({activeChimneys,smokePuffs,smokeTriangles,smokeMaxRadius}),renderStats:()=>({terrainRebuilds,terrainCacheKey,terrainCacheTriangles,lastFrameTriangles,scenicMeshRebuilds,scenicMeshTriangles,scenicMeshKey,staticGpuUploads,dualBufferGPU:gpuAvailable}),renderQuality,setRenderQuality,shadowStats:()=>({triangles:castShadowTriangles,...sunShadow(state.t)}),sampleSunShadow:(time)=>sunShadow(time),getEconomyHistory:()=>cloneData(uiHistory),getHudMode:()=>cinematicHud?'cinema':'full',setHudMode:setCinematicHud,getCommandView:()=>commandView,setCommandView,skyStats:()=>({enabled:gpuAvailable,passes:skyPassCount,model:'day-night-atmosphere-v1'}),setCamera:o=>{yaw=Number.isFinite(o.yaw)?o.yaw:yaw;pitch=Number.isFinite(o.pitch)?Math.max(.25,Math.min(1.45,o.pitch)):pitch;zoom=Number.isFinite(o.zoom)?Math.max(9,Math.min(85,o.zoom)):zoom;if(Array.isArray(o.focus)&&o.focus.length===2)focusPoint=o.focus.slice(0,2)}};
 })();
