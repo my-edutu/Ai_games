@@ -123,9 +123,6 @@ test('WebGL competitor identity is projected from authoritative marble positions
     'identity-overlay.js',
   ]);
   includesAll(identity, [
-    "fetch('/api/snapshot'",
-    'cameraFromDirective',
-    'projectToScreen',
     'marble.number',
     'activeSnapshot.leaderboard',
     'activeSnapshot.camera.directive',
@@ -135,7 +132,7 @@ test('WebGL competitor identity is projected from authoritative marble positions
     "shell.dataset.identityTick",
     'status !== \'eliminated\'',
   ]);
-  for (const forbidden of ['Math.random(', 'forceWinner', 'winnerOverride', 'teleportMarble']) {
+  for (const forbidden of ['fetch(', 'cameraFromDirective', 'Math.random(', 'forceWinner', 'winnerOverride', 'teleportMarble']) {
     assert.equal(identity.includes(forbidden), false, `identity layer must remain presentation-only: ${forbidden}`);
   }
   execFileSync(process.execPath, ['--check', identityPath], { stdio: 'pipe' });
@@ -148,7 +145,8 @@ test('identity labels use exactly the same WebGL projection and authoritative ti
     'frame.viewProjection',
     'frame.marbles',
     'frame.snapshot',
-    "shell.dataset.identitySource = synced ? 'webgl-frame' : 'independent-snapshot'",
+    "shell.dataset.identitySource = 'webgl-frame'",
+    "shell.dataset.identitySource = 'unavailable'",
   ]);
   includesAll(app, ['shell.dataset.hudTick', 'shell.dataset.hudArena', 'shell.dataset.hudArchetype']);
 });

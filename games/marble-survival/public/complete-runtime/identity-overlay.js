@@ -8,60 +8,16 @@
   if (!context) return;
 
   const WORLD_SCALE = 1 / 1000;
-  const POLL_MS = 120;
   const PALETTE = Object.freeze({
-    aurora: '#57b892', coral: '#db4f38', cyan: '#2faed1', gold: '#dba32e',
-    lime: '#85b82e', magenta: '#c23d94', orchid: '#8a59b8', ruby: '#c21f29',
-    sky: '#4d94d6', violet: '#6150b8', amber: '#d16e1f', mint: '#4daf84',
+    aurora: '#2ef0bd', coral: '#ff6b54', cyan: '#21dbff', gold: '#ffc730',
+    lime: '#b8f73d', magenta: '#ff3bb8', orchid: '#b06eff', ruby: '#ff3052',
+    sky: '#5cb0ff', violet: '#7857ff', amber: '#ff8f21', mint: '#2bf2c4',
   });
-
-  let snapshot = null;
-  let previousSnapshot = null;
-  let snapshotReceivedAt = performance.now();
-  let cameraState = null;
-  let cameraArenaId = null;
-  let requestInFlight = false;
-  let stopped = false;
   let width = 1;
   let height = 1;
   let dpr = 1;
-
-  function clamp(value, minimum, maximum) {
-    return Math.max(minimum, Math.min(maximum, value));
-  }
-
-  function lerp(start, end, amount) {
-    return start + (end - start) * amount;
-  }
-
-  function lerp3(left, right, amount) {
-    return [
-      lerp(left[0], right[0], amount),
-      lerp(left[1], right[1], amount),
-      lerp(left[2], right[2], amount),
-    ];
-  }
-
-  function subtract3(left, right) {
-    return [left[0] - right[0], left[1] - right[1], left[2] - right[2]];
-  }
-
-  function dot3(left, right) {
-    return left[0] * right[0] + left[1] * right[1] + left[2] * right[2];
-  }
-
-  function cross3(left, right) {
-    return [
-      left[1] * right[2] - left[2] * right[1],
-      left[2] * right[0] - left[0] * right[2],
-      left[0] * right[1] - left[1] * right[0],
-    ];
-  }
-
-  function normalize3(vector) {
-    const length = Math.hypot(vector[0], vector[1], vector[2]) || 1;
-    return [vector[0] / length, vector[1] / length, vector[2] / length];
-  }
+  let lastFrame = null;
+  let lastPaintKey = '';
 
   function toWorld(x, y, arena) {
     return [
@@ -89,85 +45,7 @@
     return true;
   }
 
-  function interpolatedMarbles(now) {
-    if (!snapshot) return [];
-    const blend = clamp((now - snapshotReceivedAt) / 110, 0, 1);
-    const previousById = new Map((previousSnapshot?.marbles || []).map((marble) => [marble.id, marble]));
-    return snapshot.marbles.map((marble) => {
-      const before = previousById.get(marble.id) || marble;
-      return {
-        ...marble,
-        x: lerp(before.x, marble.x, blend),
-        y: lerp(before.y, marble.y, blend),
-      };
-    });
-  }
-
-  function cameraFromDirective(currentSnapshot, marbles) {
-    const arena = currentSnapshot.arena;
-    const directive = currentSnapshot.camera.directive || { mode: 'overview', focusIds: [], zoomPermille: 1000 };
-    const byId = new Map(marbles.map((marble) => [marble.id, marble]));
-    const focus = (directive.focusIds || []).map((id) => byId.get(id)).filter(Boolean);
-    let target = [0, 0.25, 0];
-    if (focus.length) {
-      const averageX = focus.reduce((sum, marble) => sum + marble.x, 0) / focus.length;
-      const averageY = focus.reduce((sum, marble) => sum + marble.y, 0) / focus.length;
-      const point = toWorld(averageX, averageY, arena);
-      target = [point[0], 0.30, point[2]];
-    }
-
-    const zoom = clamp((directive.zoomPermille || 1000) / 1000, 0.9, 1.8);
-    let eye = [0, 13.5 / zoom, 18 / zoom];
-    if (directive.mode === 'danger') eye = [target[0] + 4.8 / zoom, 7.2 / zoom, target[2] + 8.5 / zoom];
-    if (directive.mode === 'cut-line') eye = [target[0] + 3.2 / zoom, 8.4 / zoom, target[2] + 10.5 / zoom];
-    if (directive.mode === 'finish') {
-      const finish = toWorld(arena.width / 2, arena.finishY, arena);
-      target = [lerp(target[0], finish[0], 0.55), 0.25, lerp(target[2], finish[2], 0.55)];
-      eye = [target[0] + 5.8 / zoom, 6.4 / zoom, target[2] + 7.4 / zoom];
-    }
-    if (directive.mode === 'victory') eye = [target[0] + 3.4 / zoom, 4.0 / zoom, target[2] + 5.0 / zoom];
-    return { eye, target, mode: directive.mode };
-  }
-
-  function smoothedCamera(currentSnapshot, marbles) {
-    const next = cameraFromDirective(currentSnapshot, marbles);
-    if (!cameraState || cameraArenaId !== currentSnapshot.arena.id) {
-      cameraArenaId = currentSnapshot.arena.id;
-      cameraState = next;
-      return next;
-    }
-    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const amount = reduced ? 1 : 0.075;
-    cameraState = {
-      eye: lerp3(cameraState.eye, next.eye, amount),
-      target: lerp3(cameraState.target, next.target, amount),
-      mode: next.mode,
-    };
-    return cameraState;
-  }
-
-  function projectToScreen(point, camera) {
-    const forward = normalize3(subtract3(camera.target, camera.eye));
-    const right = normalize3(cross3(forward, [0, 1, 0]));
-    const up = normalize3(cross3(right, forward));
-    const relative = subtract3(point, camera.eye);
-    const depth = dot3(relative, forward);
-    if (depth <= 0.08) return null;
-
-    const fov = Math.PI * 0.245;
-    const focal = 1 / Math.tan(fov / 2);
-    const aspect = width / Math.max(1, height);
-    const ndcX = (dot3(relative, right) * focal / aspect) / depth;
-    const ndcY = (dot3(relative, up) * focal) / depth;
-    if (Math.abs(ndcX) > 1.12 || Math.abs(ndcY) > 1.12) return null;
-    return {
-      x: (ndcX * 0.5 + 0.5) * width,
-      y: (0.5 - ndcY * 0.5) * height,
-      depth,
-    };
-  }
-
-  function selectedMarbles(marbles, activeSnapshot = snapshot) {
+  function selectedMarbles(marbles, activeSnapshot) {
     if (!activeSnapshot) return [];
     const visible = marbles.filter((marble) => marble.status !== 'eliminated');
     const selectedIds = new Set((activeSnapshot.leaderboard || []).slice(0, activeSnapshot.round.remaining <= 8 ? 8 : 6).map((entry) => entry.id));
@@ -188,7 +66,7 @@
     context.closePath();
   }
 
-  function drawIdentity(marble, position, focused, lateRound, activeSnapshot = snapshot) {
+  function drawIdentity(marble, position, focused, lateRound, activeSnapshot) {
     const champion = marble.status === 'champion';
     const threatened = marble.status === 'threatened' || marble.status === 'recovering';
     const showName = focused || champion || (lateRound && activeSnapshot.round.remaining <= 4);
@@ -259,78 +137,50 @@
   }
 
   function render(now) {
-    if (!resize()) {
-      requestAnimationFrame(render);
-      return;
-    }
-    context.clearRect(0, 0, width, height);
-    if (!snapshot || !shell.classList.contains('webgl-ready')) {
-      requestAnimationFrame(render);
+    requestAnimationFrame(render);
+    if (document.hidden || !resize()) return;
+
+    // The last completed WebGL frame is exactly what remains on screen when
+    // a GPU is slow. Its age does not make a different camera more accurate.
+    // Never combine newer polled positions with an older displayed 3D image.
+    const frame = window.marbleRenderFrame;
+    const valid = shell.classList.contains('webgl-ready') && frame &&
+      frame.snapshot?.version === 1 &&
+      frame.snapshot.arena?.id === frame.arenaId &&
+      frame.snapshot.camera?.directive && frame.snapshot.round &&
+      frame.viewProjection?.length === 16 &&
+      Array.from(frame.viewProjection).every(Number.isFinite) &&
+      Array.isArray(frame.marbles);
+    if (!valid) {
+      context.clearRect(0, 0, width, height);
+      lastFrame = null;
+      lastPaintKey = '';
+      shell.dataset.identitySource = 'unavailable';
+      delete shell.dataset.identityTick;
       return;
     }
 
-    // Keep the independent snapshot path as a fallback if the renderer stalls.
-    const frame = window.marbleRenderFrame;
-    const synced = frame &&
-      frame.snapshot?.version === 1 &&
-      frame.snapshot.arena?.id === frame.arenaId &&
-      frame.viewProjection?.length === 16 &&
-      Array.isArray(frame.marbles) &&
-      now - frame.renderedAt >= 0 &&
-      now - frame.renderedAt < 200;
-    const activeSnapshot = synced ? frame.snapshot : snapshot;
-    const marbles = synced ? frame.marbles : interpolatedMarbles(now);
-    const camera = synced ? null : smoothedCamera(activeSnapshot, marbles);
-    const selected = selectedMarbles(marbles, activeSnapshot);
-    const focusIds = new Set(activeSnapshot.camera.directive?.focusIds || []);
+    shell.dataset.identity = 'projected';
+    shell.dataset.identitySource = 'webgl-frame';
+    shell.dataset.identityTick = String(frame.snapshot.tick);
+    shell.dataset.identityFrameAgeMs = String(Math.max(0, Math.round(now - frame.renderedAt)));
+    const paintKey = `${width}:${height}:${dpr}`;
+    if (frame === lastFrame && paintKey === lastPaintKey) return;
+    context.clearRect(0, 0, width, height);
+    const activeSnapshot = frame.snapshot;
+    const selected = selectedMarbles(frame.marbles, activeSnapshot);
+    const focusIds = new Set(activeSnapshot.camera.directive.focusIds || []);
     const lateRound = activeSnapshot.round.index >= 3;
-    shell.dataset.identitySource = synced ? 'webgl-frame' : 'independent-snapshot';
-    shell.dataset.identityTick = String(activeSnapshot.tick);
     for (const marble of selected) {
       const world = toWorld(marble.x, marble.y, activeSnapshot.arena);
       world[1] = (marble.elevation || 0) * WORLD_SCALE + 0.56;
-      const position = synced
-        ? projectWithWebglMatrix(world, frame.viewProjection)
-        : projectToScreen(world, camera);
-      if (!position) continue;
-      drawIdentity(marble, position, focusIds.has(marble.id), lateRound, activeSnapshot);
+      const position = projectWithWebglMatrix(world, frame.viewProjection);
+      if (position) drawIdentity(marble, position, focusIds.has(marble.id), lateRound, activeSnapshot);
     }
-    requestAnimationFrame(render);
+    lastFrame = frame;
+    lastPaintKey = paintKey;
   }
 
-  function acceptSnapshot(next) {
-    if (!next || next.version !== 1 || !next.arena || !Array.isArray(next.marbles) || !next.camera?.directive) return;
-    const discontinuity = snapshot && (next.tick < snapshot.tick || next.arena.id !== snapshot.arena.id);
-    previousSnapshot = discontinuity ? null : snapshot;
-    snapshot = next;
-    snapshotReceivedAt = performance.now();
-    if (discontinuity) {
-      cameraState = null;
-      cameraArenaId = null;
-    }
-    shell.dataset.identity = 'projected';
-  }
-
-  async function refresh() {
-    if (requestInFlight || stopped || document.hidden) return;
-    requestInFlight = true;
-    try {
-      const response = await fetch('/api/snapshot', { cache: 'no-store' });
-      if (!response.ok) throw new Error(`identity snapshot ${response.status}`);
-      acceptSnapshot(await response.json());
-    } catch {
-      // Main runtime owns connection reporting; identity overlay fails closed.
-    } finally {
-      requestInFlight = false;
-    }
-  }
-
-  document.addEventListener('visibilitychange', () => {
-    stopped = document.hidden;
-    if (!stopped) refresh();
-  });
   window.addEventListener('resize', resize, { passive: true });
-  refresh();
-  setInterval(refresh, POLL_MS);
   requestAnimationFrame(render);
 })();
