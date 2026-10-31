@@ -525,6 +525,13 @@ export function createWorld(THREE, {width, height}) {
         // Preserve the existing water palette, opacity, flow, fog color and
         // near/far distances. Only the smoothstep's evaluation moves to the
         // tessellated vertex stage; blending remains in the fragment.
+        // Beyond the far fog plane, water is exactly the opaque fog
+        // colour. Avoid the costly filtered mipmap fetch for those fragments
+        // while retaining the original animated lake and all near-field flow.
+        if(waterFogFactor>=1.0){
+          gl_FragColor=vec4(fogColor,1.0);
+          return;
+        }
         gl_FragColor=texture2D(waterField,waterUv+flow);
         gl_FragColor.rgb+=(fogColor-gl_FragColor.rgb)*waterFogFactor;
       }`,
