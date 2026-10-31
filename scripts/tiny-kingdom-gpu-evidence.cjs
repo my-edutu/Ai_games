@@ -200,6 +200,10 @@ const path = require('node:path');
     });
     // Inspect both original high-detail civic landmarks at fixed, repeatable cameras.
     // These are real browser captures, not authored screenshot mockups.
+    evidence.farmstead=await page.evaluate(()=>window.__tinyKingdom.getFarmsteadStats());
+    if(evidence.farmstead.stalks!==668||evidence.farmstead.rows!==22||
+       evidence.farmstead.granaries!==1||evidence.farmstead.bundles!==4)
+      throw Error('Gauntlet 044 real 3D farmstead contract failed: '+JSON.stringify(evidence.farmstead));
     evidence.craftDistrict=await page.evaluate(()=>window.__tinyKingdom.getCraftDistrictStats());
     if(evidence.craftDistrict.cartWheels!==4||evidence.craftDistrict.smokePuffs!==3||
        evidence.craftDistrict.pieces<75)throw Error('Craft district scene contract failed: '+JSON.stringify(evidence.craftDistrict));
@@ -216,6 +220,8 @@ const path = require('node:path');
       {name:'stone-bridge.png',camera:{focus:[-6,18.1],yaw:.84,pitch:.64,zoom:26}},
       {name:'riverbank-close.png',camera:{focus:[-12,19],yaw:.66,pitch:.48,zoom:17}},
       {name:'guild-forge.png',camera:{focus:[19,-15],yaw:.78,pitch:.57,zoom:23}},
+      {name:'farmstead-wide.png',camera:{focus:[23,1],yaw:.72,pitch:.54,zoom:27}},
+      {name:'granary-close.png',camera:{focus:[29,-5],yaw:.68,pitch:.40,zoom:17}},
     ]){
       await page.evaluate(camera=>window.__tinyKingdom.setCamera(camera),shot.camera);
       await page.waitForTimeout(400);
