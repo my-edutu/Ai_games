@@ -1,7 +1,7 @@
 import * as THREE from './vendor/three.module.js';
 import { createExplorer, createWarden } from './characters.js';
 import { createMazeWorld, cellPosition, cellHeight, sampleGroundHeight, CELL_SIZE } from './world.js';
-import { planPublicMotion, samplePublicPath, publicWayfinding, publicObjective, publicStageBias, composePublicCameraFocus, publicNearbySealedGate, composePublicSealedGateFocus, publicCarriedGateCue } from './map-view.mjs';
+import { planPublicMotion, samplePublicPath, publicWayfinding, publicObjective, publicStageBias, composePublicCameraFocus, publicNearbySealedGate, composePublicSealedGateFocus, composePublicKeyLockFocus, publicCarriedGateCue } from './map-view.mjs';
 
 const TAU = Math.PI * 2;
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
@@ -353,6 +353,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     const aspect = width / Math.max(1, height);
     let targetHeight;
     let nearObservedGate = null;
+    let keyLockCloseup = false;
     if (cameraMode === 'overview') {
       const positions = s.cells.map(cell => cellPosition(cell.cell, s.width, s.height));
       const minX = Math.min(...positions.map(p => p.x)), maxX = Math.max(...positions.map(p => p.x));
@@ -378,8 +379,15 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
         if (nearObservedGate) {
           const a = cellPosition(nearObservedGate.a, s.width, s.height);
           const b = cellPosition(nearObservedGate.b, s.width, s.height);
-          focus = composePublicSealedGateFocus(stageBias,
-            {x: (a.x + b.x) / 2 - pose.x, z: (a.z + b.z) / 2 - pose.z}, aspect);
+          // A *real* carried matching key earns a tighter encounter camera.
+          // Ordinary known closed gates retain the wider stage-first framing.
+          keyLockCloseup = keyGateCue?.strength > .2
+            && ((nearObservedGate.a === keyGateCue.a && nearObservedGate.b === keyGateCue.b)
+              || (nearObservedGate.a === keyGateCue.b && nearObservedGate.b === keyGateCue.a));
+          const gateDelta = {x: (a.x + b.x) / 2 - pose.x, z: (a.z + b.z) / 2 - pose.z};
+          focus = keyLockCloseup
+            ? composePublicKeyLockFocus(stageBias, gateDelta, aspect)
+            : composePublicSealedGateFocus(stageBias, gateDelta, aspect);
         } else {
           // A near, already-observed goal does not erase the public coastline
           // correction. Keep Pip and its legitimate first step in the diorama.
@@ -393,7 +401,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
         // At tighter sealed-gate scale, lift the camera's aim slightly so
         // the already-disclosed masonry arch is not clipped by the top rim.
         // Only presentation moves; no secret topology or AI state is read.
-        if (nearObservedGate) desiredTarget.y += .36;
+        if (nearObservedGate) desiredTarget.y += keyLockCloseup ? .46 : .36;
       }
       // A *source-disclosed* locked obstacle and Pip should occupy a clear
       // shared gameplay shot. The former ordering always selected the generic
@@ -403,7 +411,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
       // the Pip/barrier relationship reads without HUD text, with a wider
       // portrait margin so the known arch remains visible.
       targetHeight = cameraMode === 'detail' ? 4.6 : height < 340 ? 5.4
-        : nearObservedGate ? (aspect < .9 ? 5.42 : 5.05)
+        : nearObservedGate ? (keyLockCloseup ? (aspect < .9 ? 4.70 : 4.55) : (aspect < .9 ? 5.42 : 5.05))
         : aspect < .9 ? 6.2 : nearObservedGoal ? 6.25 : 7.3;
     }
     const blend = settings.reducedMotion ? 1 : 1 - Math.exp(-delta * 4.5);
@@ -463,6 +471,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
         disclosedThreats: wardens.size, wardensInFrame, encounterAttention: closestThreat?.strength ?? 0,
         keysInFrame, closedGatesInFrame,
         carriedKeyGateGesture: keyGateCue?.strength??0,
+        keyLockCloseup,
         // Camera evidence is derived only from the source-disclosed gate,
         // with projected coordinates in normalized device space [-1,+1].
         nearbySealedGate: nearObservedGate ? {...nearObservedGate} : null,
