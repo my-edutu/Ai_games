@@ -1369,21 +1369,54 @@ function faceProfile(p,idx){
    {y:1.704,rx:cheekWidth*.75,rz:.122,z:-.026}
   ]};
 }
+// G059: reuse analytic normals at each shared face-ring vertex. Previously
+// quad() independently computed a flat normal for each triangular facet,
+// making twelve-sided jaws and cheekbones look like slabs under the sun.
+// This is presentation-only: exact original 156 triangles and seeded state.
+function faceNormalField(profile){
+ const rings=profile.rings,n=profile.segments;
+ return rings.map((ring,j)=>{
+  const low=rings[Math.max(0,j-1)],high=rings[Math.min(rings.length-1,j+1)];
+  const rise=Math.max(1e-6,high.y-low.y);
+  return Array.from({length:n},(_,i)=>{
+   const a=i*Math.PI*2/n,sa=Math.sin(a),ca=Math.cos(a);
+   // Tangents follow both the elliptical ring and the jaw-to-cranium taper.
+   const around=[ca*ring.rx,0,-sa*ring.rz];
+   const ascending=[sa*(high.rx-low.rx)/rise,1,
+    (ca*(high.rz-low.rz)+high.z-low.z)/rise];
+   const cross=[
+    around[1]*ascending[2]-around[2]*ascending[1],
+    around[2]*ascending[0]-around[0]*ascending[2],
+    around[0]*ascending[1]-around[1]*ascending[0]
+   ];
+   const length=Math.hypot(...cross)||1;
+   return cross.map(v=>v/length);
+  });
+ });
+}
 function sculptedFace(x,y,z,size,skin,hair,profile){
  const previousMaterial=currentMaterial;currentMaterial=MATERIAL.GENERAL;
- const n=profile.segments,rings=profile.rings;
- const vertex=(r,i)=>{
-  const angle=i*2*Math.PI/n;
-  return [x+Math.sin(angle)*r.rx*size,y+r.y*size,z+(Math.cos(angle)*r.rz+r.z)*size];
+ const n=profile.segments,rings=profile.rings,normals=faceNormalField(profile);
+ const vertex=(j,i)=>{
+  const k=i%n,r=rings[j],angle=k*2*Math.PI/n;
+  return {position:[x+Math.sin(angle)*r.rx*size,y+r.y*size,
+      z+(Math.cos(angle)*r.rz+r.z)*size],normal:normals[j][k]};
  };
- // Jaw, cheekbones, orbital brow, temples and cranium share a continuous mesh.
+ const emitFace=(a,b,c,color)=>{
+  for(const v of [a,b,c])
+   data.push(...v.position,...v.normal,...color,currentMaterial);
+ };
+ const quadFace=(a,b,c,d,color)=>{emitFace(a,b,c,color);emitFace(a,c,d,color)};
+ // Identical closed topology, now with one shared continuous normal per
+ // sculpted ring vertex instead of a discontinuous per-triangle face normal.
  for(let j=0;j<rings.length-1;j++)for(let i=0;i<n;i++){
   const shade=j===0?.90:j===3?1.035:j===4?.96:1;
   const color=skin.map(v=>Math.min(1,v*shade));
-  quad(vertex(rings[j],i),vertex(rings[j],i+1),vertex(rings[j+1],i+1),vertex(rings[j+1],i),color);
+  quadFace(vertex(j,i),vertex(j,i+1),vertex(j+1,i+1),vertex(j+1,i),color);
  }
- const crown=rings[rings.length-1],apex=[x,y+1.735*size,z-.026*size];
- for(let i=0;i<n;i++)tri(apex,vertex(crown,i),vertex(crown,i+1),skin);
+ const apex={position:[x,y+1.735*size,z-.026*size],normal:[0,1,0]};
+ for(let i=0;i<n;i++)emitFace(apex,vertex(rings.length-1,i),
+  vertex(rings.length-1,i+1),skin);
  const eyeWhite=rgb(0xc9bba9),iris=rgb(0x49493e),mouth=rgb(0x845c51);
  for(const side of [-1,1]){
   // Ears have inner folds; eyes sit on the front (+Z) facial plane.
@@ -2699,7 +2732,7 @@ bindGeometry(buffer);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(data),gl.DYN
  // Only a completed presentation may become the reusable frozen frame.
  lastFrozenFrameKey=frozenViewKey;
 }
-requestAnimationFrame(render);window.__tinyKingdom={getState:()=>JSON.parse(JSON.stringify({state,people:people.map(({name,job,x,z,target})=>({name,job,x,z,target}))})),setSpeed:x=>{speed=x},step,reset:start,renderer:()=>canvas.getContext('webgl')?'webgl':'software',metrics:()=>({citizens:people.length,buildings:city.length+2,day:Math.floor(state.t/24)+1,food:state.food,wood:state.wood,gold:state.gold,relationships:people.filter(p=>p.friend).length}),route:(a,b)=>routeBetween(a[0],a[1],b[0],b[1]),walkable:(p)=>walkable(p[0],p[1]),getNavigation:()=>people.map(p=>({name:p.name,position:[p.x,p.z],target:p.target,remaining:p.path?.length||0,path:p.path,activity:p.activity,hunger:p.hunger,energy:p.energy})),exportSnapshot,restoreSnapshot,saveWorld,restoreWorld,climateAt,skyConditions,getCitizenProfiles:()=>cloneData(people.map(({name,job,trait,friend,bonds,energy,hunger,activity})=>({name,job,trait,friend,bonds,energy,hunger,activity}))),getRigPose:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(citizenRigPose(people[index])):null,getGarmentProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(garmentProfile(people[index],index,citizenRigPose(people[index]))):null,getFaceProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(faceProfile(people[index],index)):null,getSelectedCitizen:()=>people[selectedCitizen]?.name,routeCacheMetrics:()=>({entries:routeCache.size,hits:cacheHits,misses:cacheMisses}),getCamera:()=>({yaw,pitch,zoom,focus:focusPoint.slice(),follow,cinematic}),getCitizenCameraPlan:()=>lastFollowShot?{...lastFollowShot,eye:lastFollowShot.eye.slice(),target:lastFollowShot.target.slice()}:null,getTerrainHeight:(x,z)=>terrain(x,z),getTerrainBiomeSample:terrainBiomeSample,getHorizonStats:()=>({triangles:terrainHorizonTriangles,outerBands:2,segmentsPerSide:HORIZON_SEGMENTS,extent:HORIZON_MAX+HORIZON_OFFSETS[2]}),getHighlandRockStats:()=>({...highlandRockStats,heights:highlandRockStats.heights.slice()}),getClimateMaterialProfile:climateMaterialProfile,getWildfloraCount:()=>wildflora.length,getMeadowStats:()=>({clusters:meadowUnderstory.length,triangles:meadowUnderstory.length*8,season:climateAt(state.t).season,cached:true}),getMaterialSystem:()=>({vertexStride:10,surfaceShaderVersion:'procedural-058',materials:Object.keys(MATERIAL),gpuRenderValidated:false}),getMaterialSwatchAudit:materialSwatchAudit,waterStats:()=>({model:'fresnel-ripple-shorefoam-v1',segments:RIVER_SEGMENTS,waterTriangles:RIVER_SEGMENTS*RIVER_BANDS*2,bankTriangles:RIVER_SEGMENTS*2*RIVER_BANK_BANDS*2}),getScenicSites:scenicSiteMetrics,getFestivalVisualStats:()=>({season:festivalSeason,cacheBuilds:festivalCacheBuilds,vertices:festivalGeometry?.length||0}),getOrchardVisualStats:()=>({...orchardVisualStats}),getGeometryAudit:geometryAudit,getFarmsteadStats:()=>({...farmScene,granary:FARMSTEAD.granary.slice(),season:climateAt(state.t).season}),getFarmTreeClearanceStats:farmTreeClearanceStats,getForestVisualStats:()=>({
+requestAnimationFrame(render);window.__tinyKingdom={getState:()=>JSON.parse(JSON.stringify({state,people:people.map(({name,job,x,z,target})=>({name,job,x,z,target}))})),setSpeed:x=>{speed=x},step,reset:start,renderer:()=>canvas.getContext('webgl')?'webgl':'software',metrics:()=>({citizens:people.length,buildings:city.length+2,day:Math.floor(state.t/24)+1,food:state.food,wood:state.wood,gold:state.gold,relationships:people.filter(p=>p.friend).length}),route:(a,b)=>routeBetween(a[0],a[1],b[0],b[1]),walkable:(p)=>walkable(p[0],p[1]),getNavigation:()=>people.map(p=>({name:p.name,position:[p.x,p.z],target:p.target,remaining:p.path?.length||0,path:p.path,activity:p.activity,hunger:p.hunger,energy:p.energy})),exportSnapshot,restoreSnapshot,saveWorld,restoreWorld,climateAt,skyConditions,getCitizenProfiles:()=>cloneData(people.map(({name,job,trait,friend,bonds,energy,hunger,activity})=>({name,job,trait,friend,bonds,energy,hunger,activity}))),getRigPose:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(citizenRigPose(people[index])):null,getGarmentProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(garmentProfile(people[index],index,citizenRigPose(people[index]))):null,getFaceProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(faceProfile(people[index],index)):null,getFaceNormalProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(faceNormalField(faceProfile(people[index],index))):null,getSelectedCitizen:()=>people[selectedCitizen]?.name,routeCacheMetrics:()=>({entries:routeCache.size,hits:cacheHits,misses:cacheMisses}),getCamera:()=>({yaw,pitch,zoom,focus:focusPoint.slice(),follow,cinematic}),getCitizenCameraPlan:()=>lastFollowShot?{...lastFollowShot,eye:lastFollowShot.eye.slice(),target:lastFollowShot.target.slice()}:null,getTerrainHeight:(x,z)=>terrain(x,z),getTerrainBiomeSample:terrainBiomeSample,getHorizonStats:()=>({triangles:terrainHorizonTriangles,outerBands:2,segmentsPerSide:HORIZON_SEGMENTS,extent:HORIZON_MAX+HORIZON_OFFSETS[2]}),getHighlandRockStats:()=>({...highlandRockStats,heights:highlandRockStats.heights.slice()}),getClimateMaterialProfile:climateMaterialProfile,getWildfloraCount:()=>wildflora.length,getMeadowStats:()=>({clusters:meadowUnderstory.length,triangles:meadowUnderstory.length*8,season:climateAt(state.t).season,cached:true}),getMaterialSystem:()=>({vertexStride:10,surfaceShaderVersion:'procedural-058',materials:Object.keys(MATERIAL),gpuRenderValidated:false}),getMaterialSwatchAudit:materialSwatchAudit,waterStats:()=>({model:'fresnel-ripple-shorefoam-v1',segments:RIVER_SEGMENTS,waterTriangles:RIVER_SEGMENTS*RIVER_BANDS*2,bankTriangles:RIVER_SEGMENTS*2*RIVER_BANK_BANDS*2}),getScenicSites:scenicSiteMetrics,getFestivalVisualStats:()=>({season:festivalSeason,cacheBuilds:festivalCacheBuilds,vertices:festivalGeometry?.length||0}),getOrchardVisualStats:()=>({...orchardVisualStats}),getGeometryAudit:geometryAudit,getFarmsteadStats:()=>({...farmScene,granary:FARMSTEAD.granary.slice(),season:climateAt(state.t).season}),getFarmTreeClearanceStats:farmTreeClearanceStats,getForestVisualStats:()=>({
  sourceTrees:trees.length,
  renderedTrees:forestVisualStats.deciduous+forestVisualStats.conifers,
  conifers:forestVisualStats.conifers,deciduous:forestVisualStats.deciduous,
