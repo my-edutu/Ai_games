@@ -18,8 +18,11 @@ export function rigGripAnchor(kind){
  return typeof kind==='string'&&Object.hasOwn(GRIP_ANCHORS,kind)?GRIP_ANCHORS[kind]:null;
 }
 /** Return a safe world-space correction length, or null for bad/misaligned rigs. */
-export function boundedGripOffset(dx,dy,dz,max=.72){
- if(![dx,dy,dz,max].every(Number.isFinite)||max<=0||max>.72)return null;
+export function boundedGripOffset(dx,dy,dz,max=1.14){
+ if(![dx,dy,dz,max].every(Number.isFinite)||max<=0||max>1.14)return null;
+ // R28 real GLB inspection: current CC0 right-hand bones require 0.798m
+ // (archer) and 1.054m (priest) correction from legacy pivot fittings.
+ // Cap remains < normalized hero height; never snap an arbitrary distant rig.
  const distance=Math.hypot(dx,dy,dz);
  return Number.isFinite(distance)&&distance<=max?distance:null;
 }

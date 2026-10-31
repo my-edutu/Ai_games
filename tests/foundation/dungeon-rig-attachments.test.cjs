@@ -38,7 +38,9 @@ test('class grips are immutable and only finite, bounded hand offsets may align'
  assert.equal(rigGripAnchor(undefined),null);
  assert.equal(boundedGripOffset(.3,.4,0),.5);
  assert.equal(boundedGripOffset(.72,0,0),.72);
- for(const invalid of [[.73,0,0],[Infinity,0,0],[NaN,0,0],[0,0,NaN]])
+ assert.equal(boundedGripOffset(1.054,0,0),1.054);
+ assert.equal(boundedGripOffset(1.14,0,0),1.14);
+ for(const invalid of [[1.15,0,0],[Infinity,0,0],[NaN,0,0],[0,0,NaN]])
   assert.equal(boundedGripOffset(...invalid),null);
  assert.equal(boundedGripOffset(.2,0,0,0),null);
  assert.equal(boundedGripOffset(.2,0,0,10),null);
