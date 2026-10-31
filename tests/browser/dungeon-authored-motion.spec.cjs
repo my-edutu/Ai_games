@@ -32,6 +32,9 @@ test('actual WebGL GLB rigs have bounded secondary attack staging, without inven
  // actor's visible anticipation, not at the start of the action snapshot.
  await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.combatStage?.releasedCues??0),{timeout:18000}).toBeGreaterThan(0);
  const diag=await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__);
+ expect(diag.combatStage.contactLockedCues).toBeGreaterThan(0);
+ expect(diag.combatStage.disarmCues).toBeGreaterThanOrEqual(0);
+ expect(diag.combatStage.suppressedUnmatchedCues).toBeGreaterThanOrEqual(0);
  expect(diag.combatStage.pendingCues).toBeGreaterThanOrEqual(0);
  expect(diag.combatStage.pendingCues).toBeLessThanOrEqual(24);
  expect(diag.combatStage.droppedCues).toBe(0);
@@ -47,6 +50,6 @@ test('actual WebGL GLB rigs have bounded secondary attack staging, without inven
   sourcedFrom:'actual DungeonRuntime.step publicState',diagnostic:{
    authoredMotionPivots:diag.authoredMotionPivots,authoredCombatPoseActors:diag.authoredCombatPoseActors,
    authoredMotionPeak:diag.authoredMotionPeak,authoredMotionMaxOffset:diag.authoredMotionMaxOffset,
-   authored3D:diag.authored3D,composition:diag.composition,drawCalls:diag.drawCalls,triangles:diag.triangles}
+   authored3D:diag.authored3D,combatStage:diag.combatStage,composition:diag.composition,drawCalls:diag.drawCalls,triangles:diag.triangles}
  },null,2)),contentType:'application/json'});
 });
