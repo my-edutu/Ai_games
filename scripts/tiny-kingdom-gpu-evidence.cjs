@@ -146,6 +146,13 @@ const path = require('node:path');
        evidence.ecoregions.upland.highlandExposure<.2||
        evidence.ecoregions.meadow.riparianMoisture>.05)
       throw Error('G050 rainfall/upland terrain shader binding gate failed: '+JSON.stringify(evidence.ecoregions));
+    evidence.highlandRocks=await page.evaluate(()=>window.__tinyKingdom.getHighlandRockStats());
+    if(evidence.highlandRocks.clusters!==32||
+       evidence.highlandRocks.stones!==96||
+       evidence.highlandRocks.triangles!==2304||
+       evidence.highlandRocks.heights.some(h=>!Number.isFinite(h)||h<.84)||
+       evidence.geometry.totalTriangles>=160000)
+      throw Error('Gauntlet 051 terrain-rock sculpture or full-scene GPU budget gate failed: '+JSON.stringify(evidence.highlandRocks));
     evidence.water=await page.evaluate(()=>window.__tinyKingdom.waterStats());
     if(evidence.water.model!=='fresnel-ripple-shorefoam-v1'||evidence.water.waterTriangles!==1260||evidence.water.bankTriangles!==840)
       throw Error('River material or shoreline geometry gate failed');
@@ -325,6 +332,7 @@ const path = require('node:path');
       {name:'stone-bridge.png',camera:{focus:[-6,18.1],yaw:.84,pitch:.64,zoom:26}},
       {name:'riverbank-close.png',camera:{focus:[-12,19],yaw:.66,pitch:.48,zoom:17}},
       {name:'upland-ecoregions.png',camera:{focus:[33,29],yaw:.91,pitch:.52,zoom:24}},
+      {name:'ridge-outcrops.png',camera:{focus:[-34,24],yaw:.78,pitch:.50,zoom:22}},
       {name:'guild-forge.png',camera:{focus:[19,-15],yaw:.78,pitch:.57,zoom:23}},
       {name:'cottage-facades.png',camera:{focus:[10,-5],yaw:1.50,pitch:.40,zoom:14}},
       {name:'forest-boughs.png',camera:{focus:[-32,-9],yaw:.65,pitch:.50,zoom:15}},
