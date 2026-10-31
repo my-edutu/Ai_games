@@ -709,7 +709,14 @@ function highlandRidgeRelief(x,z){
  const drainage=x*.112+z*.147+.43*Math.sin(z*.073-x*.051);
  const eroded=Math.pow(1-Math.abs(Math.sin(drainage)),3.5);
  const strata=Math.sin(x*.18-z*.12+.6*Math.sin(z*.075));
- return fade*(1.45*(crest-.25)-.63*(eroded-.25)+.29*strata);
+ // G061b first real GPU screenshot review: unmasked relief bent the
+ // terrain-following river into an angular broken bank. Leave the actual
+ // navigable 105-segment stream and 2.72m shore gravel at original elevation,
+ // then reintroduce upland folds smoothly beyond the riparian corridor.
+ const streamDistance=Math.abs(z-(20+3*Math.sin(x*.13)));
+ const streamBlend=Math.max(0,Math.min(1,(streamDistance-3.2)/8.8));
+ const riverSafe=streamBlend*streamBlend*(3-2*streamBlend);
+ return fade*riverSafe*(1.45*(crest-.25)-.63*(eroded-.25)+.29*strata);
 }
 function terrain(x,z){
  const d=Math.hypot(x,z),edge=Math.max(0,Math.min(1,(d-24)/18));
