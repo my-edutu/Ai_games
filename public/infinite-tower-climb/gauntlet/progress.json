@@ -1,6 +1,6 @@
 {
-  "updated": "2026-10-31T14:29:19.141Z",
-  "verdict": "Gauntlet Round 27: planted locomotion and character wear added; exact-source math/syntax/resource checks passed, full CI and browser validation pending. Independent Returnal benchmark comparison and intended-device performance NOT PASSED.",
+  "updated": "2026-10-31T14:53:33.196Z",
+  "verdict": "Gauntlet Round 28: true WebGL2 isolated character render improves helmet proportion and material, 28 local focused tests and authority self-test PASS; full CI/real-host motion/Returnal visual win PENDING. GAUNTLET NOT ACHIEVED. SELF-REVIEW only.",
   "nextGap": "First inspect new PR-head Autonomous Games CI and its real 1920x1080 desktop screenshot; the previous two fullPage captures timed out and viewport capture is an unverified correction. If still failing, profile software GL readback without lowering quality. Then obtain independent full-speed guardian attack/contact/recovery, accessible UI, real-device sustained FPS and soak evidence; compare against official Jusant and ASTRO BOT Rising Heat.",
   "capture": "/tower/gauntlet/evidence/14-foundry-follow.webp",
   "captureLabel": "Actual tick 118 · compact HUD and clearer hostile equipment",
@@ -209,6 +209,13 @@
       "title": "Plant weight-bearing feet and add original weathered character materials",
       "finding": "Built an isolated feature branch from PR #58 current head. Replaced the climber and sentinel's sinusoidal floating steps with bounded two-link plant/swing gait. Real step transitions produce small presentation-only dust events; running, reduced-motion, airborne and death gates prevent invented impacts. Added original 128×128 PBR albedo/normal/roughness wear atlases to the climber and guardian, with one actor-owned set and exact disposal. No authoritative physics, AI decisions, collisions, scoring, RNG, or replay state changed. Gameplay HUD remains minimal; the Gauntlet evidence page remains separate. Returnal benchmark remains NOT PASSED.",
       "checks": "TDD local standalone math contract observed RED 0/4 (missing solver) then GREEN 4/4. Exact committed GitHub characters/scene code parsed in JavaScript V8. 120 different gait phases: 150 planted leg observations, 46 swing-lift observations, ankle target error < 3e-16. Atlas generated deterministically, 196,608 bytes for all 3 128² maps per actor, dispose called exactly once in isolated texture harness. Four new live Three.js rig tests and three character PBR resource tests are committed but full CI, true screenshots, physical GPU, strict frame budget and independent commercial A/B review are PENDING. This is SELF-REVIEW; original progress history and open gates remain."
+    },
+    {
+      "number": "28",
+      "date": "2026-10-31",
+      "title": "Mature expedition-suit silhouette and visible WebGL comparison",
+      "finding": "Inspected actual isolated WebGL2 render of the hero and guardian, not a concept image. Hero still read like a toy: bright uniform white/blue paint, oversized cartoon sensor eyes and helmet. TDD tightened the real rendered helmet-to-torso width gate from 1.12 to 0.82; RED failed on previous proportions (1.078). Rescaled the true articulated helmet bone, desaturated worn armor, reduced eye glare and added a restrained unified scanner slit. GREEN true SkinnedMesh width ratio 0.788; all existing jump/attack/guardian rig checks remain green. Captured identical-camera original and revised actor renders, 35 draw calls and 11 live textures. This is an improvement, NOT Returnal-class fidelity.",
+      "checks": "Rendered real model on actual Chromium software WebGL2 (isolated scene harness, NOT the live simulation): no page errors, 35 draw calls, approximately 93k triangles incl. guardian and test stage, 11 live textures. Exact GitHub characters.mjs blob 975631699c550f02890fe02fcf01006194ec5867 matched local test source. After changes npm run build PASS, 28 focused local tests PASS, tower stream --self-test ok:true (authority/recovery/privacy/restart). Full npm test attempted on parent source but timed out after 500 reported subtests; no full-suite PASS. GitHub exact-source CI and continuous real-host motion queued/pending, actual graphics navigation blocked in local browser. Self-review only; AAA A/B and device FPS FAIL/open."
     }
   ],
   "captures": [
