@@ -1,5 +1,11 @@
 # Game 4 — THOUSAND: Gauntlet progress
 
+## Current iteration 8 — authored route surface and weathered paving (31 October 2026)
+
+Continuation after iteration 7. Build 1 commit `480ed03` adds ten district-specific landing inlays, tested in the actual-game Chromium/WebGL workflow ([completed run](https://github.com/my-edutu/Ai_games/actions/runs/41171538178), [actual captures](https://github.com/my-edutu/Ai_games/actions/runs/41171538178/artifacts/13031328311)). The self-review found that inlays render, but their stone interiors retained a repeated bright-white grid. Build 2 commit `61ba5ec` replaces it with ten deterministic worn masonry/topology grammars, joint-aligned relief and preserved resource counts. **50/50 focused Game 4 tests and 8/8 actual-game Chromium checks pass on the exact final source**, with both builds passing. [Completed runner](https://github.com/my-edutu/Ai_games/actions/runs/41172411299) and [final WebGL captures](https://github.com/my-edutu/Ai_games/actions/runs/41172411299/artifacts/13031476963).
+
+**Benchmark NOT passed.** Independent subagents/ultracode unavailable. The explorer is small in follow mode; geometric pad tops and distant scenery remain simplified. The local full-catalogue test run timed out after 175 passing subtests without a complete summary. High-quality captures still show repeated square contact pads and a small hero, although the stone cuts and border treatments are more distinct. See [iteration-8 evidence and review](ITERATION-8.md). The progress page refreshes evidence but is not an autonomous worker scheduler.
+
 ## Current verdict: iteration 7 reviewed in the real game; benchmark not passed
 
 Product source `99f4131d7c4510c5a38893bd0602633367643a82` adds a 43-bone expressive cast, ten distinct platform understructures, original district reflection lighting, smoother helmet curvature and camera-readable companion placement. **549 local catalogue tests, 46 focused Game 4 checks and eight actual-game browser tests pass.** Five high-quality WebGL scene stills, four separately labeled isolated-cast shots and an actual worker-driven recording were inspected.
