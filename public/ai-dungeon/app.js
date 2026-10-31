@@ -2,6 +2,7 @@ import * as THREE from '/dungeon/vendor/three.module.js';
 import {encounterTarget,isSceneAlert,installSpectatorUI} from '/dungeon/spectator-ui.js';
 import {enrichEnvironment} from '/dungeon/environment.js';
 import {planDungeonWallProfiles} from '/dungeon/wall-profile-plan.js';
+import {planEncounterSightlines} from '/dungeon/encounter-sightlines.js';
 import {planPostFXBudget,adaptPostFXPixelCap} from '/dungeon/postfx-budget.js';
 import {planCombatFacing,planMovementFacing,approachCharacterYaw,shortestYawDelta} from '/dungeon/facing-plan.js';
 import {enrichCharacter} from '/dungeon/characters.js';
@@ -97,10 +98,6 @@ function sightlineClearance(x,z,subjects,cameraPosition,pad=2.1){
   if(progress>-.55&&progress<distance+.7&&sideways<pad+progress*.13)return true;
  }
  return false;
-}
-function visibleSubjects(s,target){
- const party=s?.units?.filter(u=>u.faction==='party'&&u.hp>0).map(u=>({x:u.x-9,z:u.z-9}))||[];
- return party.length?party:[{x:target.x,z:target.z}];
 }
 function cutawayWalls(target,subjects){
  const positions=world.userData.wallPositions,mesh=world.userData.walls;
@@ -507,7 +504,7 @@ let lastFrameTime=0;
 // Actual 3D subject framing metrics, independent from overlay/card brightness.
 const compositionHead=new THREE.Vector3(),compositionFoot=new THREE.Vector3();
 const raycaster=new THREE.Raycaster(),rayStart=new THREE.Vector3(),rayEnd=new THREE.Vector3(),rayDirection=new THREE.Vector3();
-let lastRayAuditAt=-Infinity,rayAudit={testedHeroes:0,unoccludedHeroes:0,occludedHeroes:0,samples:0};
+let lastRayAuditAt=-Infinity,rayAudit={testedHeroes:0,unoccludedHeroes:0,occludedHeroes:0,testedBosses:0,unoccludedBosses:0,occludedBosses:0,samples:0};
 function actualHeroVisibility(s,at){
  if(at-lastRayAuditAt<1.25)return rayAudit;
  lastRayAuditAt=at;
@@ -517,11 +514,11 @@ function actualHeroVisibility(s,at){
    ...(world.userData.dressing?.occluders||[]),
    ...(world.userData.authoredProps?.group?.children||[])
  ].filter(o=>o?.visible!==false);
- let tested=0,clear=0,blocked=0,samples=0;
+ let tested=0,clear=0,blocked=0,bosses=0,clearBosses=0,blockedBosses=0,samples=0;
  camera.getWorldPosition(rayStart);
- for(const hero of s.units.filter(u=>u.hp>0&&u.faction==='party')){
+ for(const hero of s.units.filter(u=>u.hp>0&&(u.faction==='party'||u.kind==='warden'))){
   const actor=actors.get(hero.id);if(!actor||actor.root.visible===false)continue;
-  tested++;
+  if(hero.kind==='warden')bosses++;else tested++;
   // Two ray tests let one partially visible shoulder/upper body count as visible.
   let good=false;
   for(const y of [1.85,1.05]){
@@ -533,17 +530,18 @@ function actualHeroVisibility(s,at){
    const hits=raycaster.intersectObjects(obstacles,true);
    if(!hits.length){good=true;break}
   }
-  if(good)clear++;else blocked++;
+  if(hero.kind==='warden'){if(good)clearBosses++;else blockedBosses++;}
+  else if(good)clear++;else blocked++;
  }
- rayAudit={testedHeroes:tested,unoccludedHeroes:clear,occludedHeroes:blocked,samples};
+ rayAudit={testedHeroes:tested,unoccludedHeroes:clear,occludedHeroes:blocked,testedBosses:bosses,unoccludedBosses:clearBosses,occludedBosses:blockedBosses,samples};
  return rayAudit;
 }
 
 function inspectComposition(s){
- if(!s)return {visibleHeroes:0,minHeroPixels:0,activeEnemies:0,subjectOnscreen:false};
+ if(!s)return {visibleHeroes:0,minHeroPixels:0,activeEnemies:0,subjectOnscreen:false,bossOnscreen:false};
  camera.updateMatrixWorld();
  const w=Math.max(1,canvas.clientWidth),h=Math.max(1,canvas.clientHeight);
- let visibleHeroes=0,minHeroPixels=1e9,activeEnemies=0,subjectOnscreen=false;
+ let visibleHeroes=0,minHeroPixels=1e9,activeEnemies=0,subjectOnscreen=false,bossOnscreen=false;
  for(const u of s.units){
   if(u.hp<=0)continue;
   const a=actors.get(u.id);if(!a||!a.root.visible)continue;
@@ -556,8 +554,9 @@ function inspectComposition(s){
    if(u.id===focusedHeroId)subjectOnscreen=true;
   }
   if(u.faction==='enemy'&&within)activeEnemies++;
+  if(u.kind==='warden'&&within)bossOnscreen=true;
  }
- return {visibleHeroes,minHeroPixels:minHeroPixels===1e9?0:Math.round(minHeroPixels),activeEnemies,subjectOnscreen,viewport:{width:w,height:h}};
+ return {visibleHeroes,minHeroPixels:minHeroPixels===1e9?0:Math.round(minHeroPixels),activeEnemies,subjectOnscreen,bossOnscreen,viewport:{width:w,height:h}};
 }
 function animate(t){requestAnimationFrame(animate);const time=t/1000,dt=Math.min(.05,Math.max(0,time-lastFrameTime));lastFrameTime=time;
  combatDirector.animate(dt);
@@ -615,7 +614,12 @@ function animate(t){requestAnimationFrame(animate);const time=t/1000,dt=Math.min
  camera.lookAt(look.x,0,look.z);
  // The camera must settle before the cutaway is measured. Previous frames culled
  // props using stale view angles during cinematic shot switches.
- const partySightlines=visibleSubjects(state,target);
+ const partySightlines=planEncounterSightlines(state,target,Boolean(bossDistance));
+ // Clear the real Warden-to-camera corridor during actual boss combat;
+ // ordinary traversal retains the narrower party-only sightlines.
+ const origin=state?.map?.length?(state.map.length-1)/2:9;
+ world.userData.cutawaySubjectCount=partySightlines.length;
+ world.userData.bossCutawayActive=Boolean(bossDistance&&boss&&partySightlines.some(({x,z})=>x===boss.x-origin&&z===boss.z-origin));
  cutawayWalls(target,partySightlines);world.userData.dressing?.cutaway(partySightlines,camera.position);
  if(world.userData.authoredProps?.group){
   for(const prop of world.userData.authoredProps.group.children){
@@ -644,7 +648,7 @@ function animate(t){requestAnimationFrame(animate);const time=t/1000,dt=Math.min
   }
  }else renderer.render(scene,camera)}
  catch(error){console.warn('[DUNGEON] post effect fault, restoring WebGL:',String(error));try{composer?.dispose()}catch{}composer=null;bloomPass=null;postFXStatus='fallback';postFXEnabled=false;fxButton.title='Glow unavailable: direct rendering remains active';fxButton.setAttribute('aria-pressed','false');fxButton.querySelector('span').textContent='DIRECT 3D';renderer.info.reset();renderer.render(scene,camera)}
- combatOverlay.render(state,actors,camera,time);if(state)window.__DUNGEON_RENDER_DIAGNOSTICS__={composition:inspectComposition(state),visibility:actualHeroVisibility(state,time),frame:renderer.info.render.frame,drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,camera:cameraModes[cameraIndex],cameraSpread:spread,cameraMargin:margin,focusedHeroId,autoDirector,cutawayWalls:world.userData.cutawayWalls??0,cutawayParapets:world.userData.cutawayParapets??0,wallProfiles:world.userData.wallProfileMetrics??null,hiddenForegroundProps:world.userData.hiddenForegroundProps??0,postFX:composer&&postFXEnabled?'bloom':'direct',postFXStatus,postFXBudget,bloomRenderMs,bloomDownshifts,heroKeyIntensity:heroKey.intensity,bossFramed:Boolean(bossDistance),cameraLook:{x:look.x,z:look.z},activeUnits:[...actors.values()].filter(x=>x.root.visible).length,characterDetails:[...actors.values()].reduce((sum,x)=>sum+(x.detail?.parts||0),0),combatFacingActors:[...actors.values()].filter(x=>x.combatFacing&&x.root.visible).length,alignedCombatActors:[...actors.values()].filter(x=>x.combatFacing&&x.root.visible&&Math.abs(shortestYawDelta(x.root.rotation.y,x.combatFacing.yaw))<.18).length,webgl:true,theme:state.theme,dressing:world.userData.dressing?.metrics??null,atmosphere:world.userData.atmosphere?.metrics??null,livingWorld:world.userData.livingWorld?.metrics??null,overlay:combatOverlay.metrics(),combatStage:combatDirector.stats(),groundedActors:[...actors.values()].filter(x=>Boolean(x.ground)).length,authoredMotionPivots:[...actors.values()].filter(x=>x.authored&&x.visualPivot).length,authoredCombatPoseActors:[...actors.values()].filter(x=>x.authored&&['attack','cast','hurt'].includes(x.u.action)).length,authoredMotionMaxOffset:[...actors.values()].reduce((m,x)=>Math.max(m,x.visualPivot?.position.length()||0),0),authoredMotionPeak:[...actors.values()].reduce((m,x)=>Math.max(m,x.motionPeak||0),0),authored3D:assetStats(actors)};
+ combatOverlay.render(state,actors,camera,time);if(state)window.__DUNGEON_RENDER_DIAGNOSTICS__={composition:inspectComposition(state),visibility:actualHeroVisibility(state,time),frame:renderer.info.render.frame,drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,camera:cameraModes[cameraIndex],cameraSpread:spread,cameraMargin:margin,focusedHeroId,autoDirector,cutawayWalls:world.userData.cutawayWalls??0,cutawaySubjects:world.userData.cutawaySubjectCount??0,bossCutawayActive:world.userData.bossCutawayActive??false,cutawayParapets:world.userData.cutawayParapets??0,wallProfiles:world.userData.wallProfileMetrics??null,hiddenForegroundProps:world.userData.hiddenForegroundProps??0,postFX:composer&&postFXEnabled?'bloom':'direct',postFXStatus,postFXBudget,bloomRenderMs,bloomDownshifts,heroKeyIntensity:heroKey.intensity,bossFramed:Boolean(bossDistance),cameraLook:{x:look.x,z:look.z},activeUnits:[...actors.values()].filter(x=>x.root.visible).length,characterDetails:[...actors.values()].reduce((sum,x)=>sum+(x.detail?.parts||0),0),combatFacingActors:[...actors.values()].filter(x=>x.combatFacing&&x.root.visible).length,alignedCombatActors:[...actors.values()].filter(x=>x.combatFacing&&x.root.visible&&Math.abs(shortestYawDelta(x.root.rotation.y,x.combatFacing.yaw))<.18).length,webgl:true,theme:state.theme,dressing:world.userData.dressing?.metrics??null,atmosphere:world.userData.atmosphere?.metrics??null,livingWorld:world.userData.livingWorld?.metrics??null,overlay:combatOverlay.metrics(),combatStage:combatDirector.stats(),groundedActors:[...actors.values()].filter(x=>Boolean(x.ground)).length,authoredMotionPivots:[...actors.values()].filter(x=>x.authored&&x.visualPivot).length,authoredCombatPoseActors:[...actors.values()].filter(x=>x.authored&&['attack','cast','hurt'].includes(x.u.action)).length,authoredMotionMaxOffset:[...actors.values()].reduce((m,x)=>Math.max(m,x.visualPivot?.position.length()||0),0),authoredMotionPeak:[...actors.values()].reduce((m,x)=>Math.max(m,x.motionPeak||0),0),authored3D:assetStats(actors)};
 }
 async function poll(){try{const r=await fetch('/dungeon/state',{cache:'no-store'});if(!r.ok)throw Error('State '+r.status);const data=await r.json();if(data.tick!==lastTick||data.run!==state?.run){lastTick=data.tick;update(data)}}catch(e){errorAt++;if(errorAt>=3){$('recovery').hidden=false;$('status').textContent='VIEW DEGRADED — RETRYING';console.warn('Dungeon view recovery',String(e))}}finally{setTimeout(poll,190)}}
 $('party').addEventListener('click',e=>{
