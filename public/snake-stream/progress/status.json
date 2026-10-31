@@ -1,10 +1,15 @@
 {
-  "updatedAt": "2026-10-31T17:20:00.000Z",
-  "status": "Round 31 · original quarry-slab raking light; controlled WebGL A/B pending",
-  "detail": "After the verified Round30 serpent-atlas A/B (19/20 focused browser; 6 actual submissions/1001.2ms vs ≥17 FAILED), the large flat stone playing court remains the highest-impact visible scene gap. Round31 bakes original mineral-modulated north/west rim highlights and south/east stone-lip shadows into the existing texture without changing gameplay, geometry, draw calls, materials or texture counts. Local RED→GREEN, 61/61 focused Snake Node, TypeScript build and syntax pass; new SHA-verified exact-parent true-WebGL before/after browser test awaits CI. Commercial Snake Pass craft, strict actual-render acceptance, independent critique, real-device present FPS, soak and R5 all OPEN.",
+  "updatedAt": "2026-10-31T17:47:20.000Z",
+  "status": "Round 32 · actual sculpted quarry stone corners; controlled browser evidence pending",
+  "detail": "Round31 Chromium before/after stone-light pixel change passed (20/21 real-browser checks) but strict desktop 15 actual render submissions/1015.4ms versus minimum 17 failed. Round32 physically sculpts selected original courtyard tile top lips, all inside each grid cell, bounded flat heights under belly clearance; no additional GPU passes/mesh batches/textures or gameplay changes. Exact-parent source, actual-world node regression and four before/after same-public-frame Chromium WebGL captures need CI. Snake Pass visual/motion parity, ≥17 gate, independent critic, display-present real-device FPS, soak and R5 remain open.",
   "latestImage": "/progress/evidence/round-9-overview.jpg",
-  "latestCaption": "Historical real WebGL image, not Round31's new slab-light atlas. Exact new-source frozen-frame WebGL PNGs will be linked only after CI verifies the before/after; no claimed performance or commercial benchmark win.",
+  "latestCaption": "Historical real WebGL image, not Round32. Exact current 3D-slab before/after captures will be linked only after CI verifies them.",
   "reviews": [
+    {
+      "area": "Round 32 · physical courtyard slab corner geometry",
+      "verdict": "SOURCE CANDIDATE · ACTUAL WORLD NODE/WEBGL PENDING · WHOLE SNAKE PASS BAR LOSE",
+      "gap": "Selected corners of original stone tile geometry are sculpted within exact original board cells, with flat ±0.009 slab tops. Verify Chromium before/after overview/detail and unchanged 17 actual-render frame gate; no independent reviewer, device present FPS, soak or R5 yet."
+    },
     {
       "area": "Round 31 · full garden scene and quarry slab texture",
       "verdict": "RED→GREEN MODEL VALIDATED · real WebGL/visual verdict PENDING · overall Snake Pass LOSE",
@@ -523,6 +528,11 @@
     {
       "title": "Round 31 · original directional quarry-slab rims",
       "summary": "Exact-source local RED→GREEN and 61/61 focused Snake Node PASS, TypeScript build PASS. New mineral-modulated warm west/north slab lips and shaded south/east recesses bake into existing 1024×512 texture, 13 static batches/4 maps, unchanged geometry, gameplay authority and cues. Frozen real-WebGL identical-snapshot A/B and current strict FPS pending CI; whole-game Snake Pass and device/R5 remain LOSE/OPEN.",
+      "captures": []
+    },
+    {
+      "title": "Round 32 · original sculpted quarry slab corners",
+      "summary": "Presentation-only physical corner variations and safe flat slab height diversification in the already static-batched stone court; same-public-frame WebGL and performance evidence pending.",
       "captures": []
     }
   ],

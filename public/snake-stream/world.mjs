@@ -473,6 +473,25 @@ export function createWorld(THREE, {width, height}) {
         normalMatrix.getNormalMatrix(item.matrix);
         for(let v=0;v<p.count;v++){
           positionTemp.fromBufferAttribute(p,v).applyMatrix4(item.matrix);
+          // BEGIN R32 ORIGINAL QUARRY CORNER SCULPT
+          // Presentation only: break the straight mortar at selected stone
+          // corners without moving the public board, food or hazard anchors.
+          // Keep every top rim inside its original cell and use no game RNG.
+          if (sourceMaterial === tileMat && p.getY(v) > .499) {
+            const cellX = Math.round(item.matrix.elements[12] + W - .5);
+            const cellZ = Math.round(item.matrix.elements[14] + H - .5);
+            const localX = p.getX(v), localZ = p.getZ(v);
+            if (Math.abs(localX) > .45 && Math.abs(localZ) > .45) {
+              const corner = (localX > 0 ? 1 : 0) + (localZ > 0 ? 2 : 0);
+              const worn = noise(cellX * 17 + corner * 31, cellZ * 13 + 29) > .38;
+              const chip = worn ? .02 + .055 * noise(cellX * 7 + corner + 103, cellZ * 11 + 67) : .003;
+              positionTemp.x -= Math.sign(localX) * chip;
+              positionTemp.z -= Math.sign(localZ) * chip * .76;
+            }
+            // Keep each slab flat and above the original safety clearance.
+            positionTemp.y += (noise(cellX + 211, cellZ + 43) - .5) * .018;
+          }
+          // END R32 ORIGINAL QUARRY CORNER SCULPT
           normalTemp.fromBufferAttribute(n,v).applyMatrix3(normalMatrix).normalize();
           const vi=vertexOffset+v,pi=vi*3,ui=vi*2;
           positions[pi]=positionTemp.x;positions[pi+1]=positionTemp.y;positions[pi+2]=positionTemp.z;
@@ -488,6 +507,7 @@ export function createWorld(THREE, {width, height}) {
     }
     const merged=geometry(new THREE.BufferGeometry());
     merged.setAttribute('position',new THREE.BufferAttribute(positions,3));merged.setAttribute('normal',new THREE.BufferAttribute(normals,3));merged.setAttribute('uv',new THREE.BufferAttribute(uvs,2));merged.setIndex(new THREE.BufferAttribute(indices,1));
+    if (sourceMaterial === tileMat) merged.computeVertexNormals();
     let mergedMaterial=sourceMaterial;
     if(colors){merged.setAttribute('color',new THREE.BufferAttribute(colors,3));mergedMaterial=sourceMaterial.clone();mergedMaterial.vertexColors=true;materials.add(mergedMaterial);}
     merged.computeBoundingBox();merged.computeBoundingSphere();
