@@ -1,10 +1,15 @@
 {
-  "updatedAt": "2026-10-31T05:31:01.768Z",
-  "status": "Round 17 candidate · deterministic precomposed water colors; exact-head CI pending",
-  "detail": "Precomposes the previous two-channel aquatic color transfer into the same original 256×256 RGBA8 procedural texture. Every live fragment now samples one baked RGB color and retains fog, animated flow and reduced-motion freeze. Unchanged desktop ≥17 actual submitted-frame gate and fresh runtime capture remain pending; no claimed FPS or reference win.",
+  "updatedAt": "2026-10-31T05:36:59.747Z",
+  "status": "Round 17 · water screenshot parity verified; legacy diversity test repaired, CI pending",
+  "detail": "Exact-head runtime capture of the deterministic precomposed water palette is pixel-near-identical to the prior frozen 960×640 public frame (max RGB channel delta 1/255). The desktop ≥17 actual draw gate is still FAILED (10 in 1005ms). Existing old-RG-channel diversity test is being adapted without weakening its >30 color and >12 contour thresholds; general CI 543/544 before correction. Fresh tests and independent visual review are pending.",
   "latestImage": "/progress/evidence/round-9-overview.jpg",
   "latestCaption": "Historical Round 9 image (not a Round 15 screenshot). Current exact-head real WebGL captures are linked in Round 15 below; CI artifact bundles cannot be embedded as images.",
   "reviews": [
+    {
+      "area": "Round 17 · actual WebGL color equivalence and quality",
+      "verdict": "FROZEN COLOR PARITY VERIFIED · ACTUAL FPS GATE FAILED · FULL TEST RECHECK PENDING",
+      "gap": "Matched 960×640 screenshot mean RGB delta 0.031249/255, maximum 1/255. Focused CI 15/16, actual desktop 10/1005ms vs >=17. Large foreground fruit can occlude hero. No independent Snake Pass win."
+    },
     {
       "area": "Round 17 · original water palette and runtime rendering",
       "verdict": "SOURCE ARITHMETIC AND TDD EXPECTATION CHECKED · EXACT-SOURCE CI PENDING",
@@ -255,11 +260,22 @@
     },
     {
       "title": "Round 17 · baked original water palette",
-      "summary": "Small targeted rendering-cost candidate: retain the original animated opaque water and geometric world while moving per-fragment color/foam mixing to one deterministic texture bake. A dedicated regression is included; exact-source browser pacing, image comparison and independent reference critique remain open.",
-      "captures": []
+      "summary": "Small targeted rendering-cost candidate: retain the original animated opaque water and geometric world while moving per-fragment color/foam mixing to one deterministic texture bake. A dedicated regression is included; exact-source browser pacing, image comparison and independent reference critique remain open. First exact-head WebGL captures verify frozen RGB parity to within 1/255, but actual desktop pacing still fails and the original RG-only diversity check needed an equivalent displayed-color representation. New test verification pending.",
+      "captures": [
+        {
+          "label": "Round 17 actual browser screenshots and trace",
+          "path": "https://github.com/my-edutu/Ai_games/actions/runs/41172921802/artifacts/13032375781"
+        },
+        {
+          "label": "Round 17 14.8-second actual gameplay motion capture",
+          "path": "https://github.com/my-edutu/Ai_games/actions/runs/41172921802/artifacts/13032430669"
+        }
+      ]
     }
   ],
   "checks": [
+    "Round17 4bfef71 general 41172921698: build and 543/544 Node pass. Old raw-red-water diversity test fails on new RGB representation, while new palette test passes. Corrected old test now evaluates visible RGB tuples and GB contour combinations at unchanged >30 and >12 counts. New CI pending.",
+    "Round17 4bfef71 exact-head browser 41172921802: 15/16, actual desktop 10 submissions in 1005ms (<17); 60.70 RAF callbacks/s are not renders. 960x640 before image vs 418d495 source changed at most 1/255 per RGB channel, mean 0.031249/255.",
     "Round 17 prior exact-head run 41172211493: focused browser 15/16, desktop 16 actual draw submissions over 1003.5ms vs >=17; ~60.79 RAF callbacks/s are not rendered FPS. Frozen minimal page water-on vs omitted is diagnostic only. New palette regression and exact-head CI pending.",
     "Round 16 revision 2 TDD: anti-saucer/tilted-bedding test failed as expected on initial 15-ring candidate; updated profile passed 39 focused Snake Node tests, no failures. New CI screenshot and full suite pending.",
     "Round 16 initial focused CI 41172211493: 15/16 browser checks passed; desktop actual renders 16/1003.5ms (<17 required). Actual screenshot shows regular plate-like strata: visual FAIL for initial silhouette. Image evidence: https://github.com/my-edutu/Ai_games/actions/runs/41172211493/artifacts/13031403527",
