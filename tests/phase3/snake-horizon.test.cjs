@@ -42,13 +42,20 @@ test('horizon and sculpt preserve the exact historic court baseline and all othe
   // Preserve the old baseline's exact previous model and fixed historical
   // digests instead of weakening the original provenance assertion.
   const latest = fs.readFileSync(path.resolve(__dirname, '../../public/snake-stream/world.mjs'), 'utf8');
+  // The later R35 color-atlas patina is deliberately absent from the
+  // historical geometry source hash; it changes no vertex and is separately tested.
+  const lichenBegin='      // BEGIN R35 PERIMETER LICHEN\n';
+  const lichenEnd='      // END R35 PERIMETER LICHEN\n';
+  const la=latest.indexOf(lichenBegin),lb=latest.indexOf(lichenEnd);
+  assert.ok(la>=0&&lb>la,'isolated later texture treatment');
+  const historic=latest.slice(0,la)+latest.slice(lb+lichenEnd.length);
   const startMarker = '          // BEGIN R32 ORIGINAL QUARRY CORNER SCULPT\n';
   const endMarker = '          // END R32 ORIGINAL QUARRY CORNER SCULPT\n';
-  const a = latest.indexOf(startMarker), b = latest.indexOf(endMarker);
-  assert.ok(a >= 0 && b > a && latest.indexOf(startMarker,a + 1) < 0, 'one bounded cosmetic geometry insertion');
+  const a = historic.indexOf(startMarker), b = historic.indexOf(endMarker);
+  assert.ok(a >= 0 && b > a && historic.indexOf(startMarker,a + 1) < 0, 'one bounded cosmetic geometry insertion');
   const normalInsert = '\n    if (sourceMaterial === tileMat) merged.computeVertexNormals();';
-  assert.equal(latest.split(normalInsert).length, 2, 'matching normal update must be stripped from the historical model');
-  const original = (latest.slice(0, a) + latest.slice(b + endMarker.length)).replace(normalInsert,'');
+  assert.equal(historic.split(normalInsert).length, 2, 'matching normal update must be stripped from the historical model');
+  const original = (historic.slice(0, a) + historic.slice(b + endMarker.length)).replace(normalInsert,'');
   const sourceGitBlob = createHash('sha1').update('blob ' + Buffer.byteLength(original))
     .update(Buffer.from([0])).update(original).digest('hex');
   assert.equal(sourceGitBlob, '4c50160ffb9c78b822cf2cb8d670e29baf994fea', 'historical model is exact parent Git blob');

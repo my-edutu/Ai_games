@@ -9,20 +9,29 @@ test('true WebGL frozen public frame A/B: contained quarry chips versus SHA-veri
   const frame=JSON.parse(fs.readFileSync(path.join(repo,'docs/reviews/snake-gauntlet/round-4-public-frame.json'),'utf8'));
   const frozen=JSON.stringify(frame);
   const current=fs.readFileSync(path.join(repo,'public/snake-stream/world.mjs'),'utf8');
+  // Later R35 foliage tint must not contaminate historic R31/R32 source SHAs,
+  // but must remain equally present on both A/B rendered visual candidates.
+  const lichenBegin='      // BEGIN R35 PERIMETER LICHEN\n';
+  const lichenEnd='      // END R35 PERIMETER LICHEN\n';
+  const lichenA=current.indexOf(lichenBegin),lichenB=current.indexOf(lichenEnd);
+  expect(lichenA).toBeGreaterThan(-1);expect(lichenB).toBeGreaterThan(lichenA);
+  const historicWorld=current.slice(0,lichenA)+current.slice(lichenB+lichenEnd.length);
   const begin='          // BEGIN R32 ORIGINAL QUARRY CORNER SCULPT\n';
   const end='          // END R32 ORIGINAL QUARRY CORNER SCULPT\n';
-  const a=current.indexOf(begin), b=current.indexOf(end);
+  const a=historicWorld.indexOf(begin), b=historicWorld.indexOf(end);
   expect(a).toBeGreaterThan(-1);expect(b).toBeGreaterThan(a);
   expect(current.indexOf(begin,a+1)).toBe(-1);
   const normals='\n    if (sourceMaterial === tileMat) merged.computeVertexNormals();';
-  expect(current.split(normals).length).toBe(2);
-  const prior=(current.slice(0,a)+current.slice(b+end.length)).replace(normals,'');
+  expect(historicWorld.split(normals).length).toBe(2);
+  const prior=(historicWorld.slice(0,a)+historicWorld.slice(b+end.length)).replace(normals,'');
   const gitBlob=s=>crypto.createHash('sha1').update('blob '+Buffer.byteLength(s)+'\0').update(s).digest('hex');
   expect(gitBlob(prior)).toBe('4c50160ffb9c78b822cf2cb8d670e29baf994fea');
+  const matchedLichen=current.slice(lichenA,lichenB+lichenEnd.length);
+  const priorWithLichen=prior.replace('      data[i+3]=255;\n','      data[i+3]=255;\n'+matchedLichen);
   const captures={};
   for(const mode of ['overview','detail']){
     captures[mode]={};
-    for(const [label,source] of [['before',prior],['after',current]]){
+    for(const [label,source] of [['before',priorWithLichen],['after',current]]){
       const page=await browser.newPage({viewport:{width:960,height:640},reducedMotion:'reduce'});
       const errors=[];page.on('pageerror',e=>errors.push(e.message));
       try {

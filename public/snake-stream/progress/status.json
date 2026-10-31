@@ -1,10 +1,15 @@
 {
-  "updatedAt": "2026-10-31T20:10:00Z",
-  "status": "Round 34 · original 3D public-fruit head glance verified in real WebGL; strict desktop FAIL 9/17; historical R33 comparator correction pending",
-  "detail": "Exact SHA source feb317e2 verified; locally 66/66 focused Snake Node including all four directional headings, build and host authority/recovery PASS, predecessor red 0/3 and new green 3/3. Focused actual Chromium/SwiftShader 41237168587 passed 22/24, including new exact-parent-SHA 960x640 overview/detail A/B. Real detail changed 10396 pixels (1.692%) showing a small visible head glance, overview 190 pixels (0.031%), still below official Snake Pass. Two failures: existing strict desktop 9 actual WebGL renders/1005.7ms vs unchanged >=17; legacy R33 historical SHA assertion now needs to exclude valid later R34 code ONLY in hash baseline while keeping visual A/B sources equal. Correction locally SHA-verified but CI rerun PENDING. General CI running at latest check. Independent critic, reliable device display-present FPS, soak and R5 missing. Draft, unmerged, undeployed.",
+  "updatedAt": "2026-10-31T20:36:00Z",
+  "status": "Round 35 · original living lichen on aged courtyard perimeter: 66/66 focused offline Node, actual WebGL A/B pending; strict 10/17 previous-head pacing FAIL",
+  "detail": "New R35 original pigment is confined to existing stone atlas near board perimeter. 28x16 baked atlas has 129331 changed texels, 8x8 247126, with ZERO change for all texels >=3 cells from board edge. Static material and draw budgets unchanged; host authority/recovery self-test and 66/66 focused tests pass on exact R34 production blobs in verified offline reproduction. New true Chromium/SwiftShader old/new overview/detail capture regression is committed but actual R35 browser artifacts and reference-quality visual verdict remain PENDING. Last corrected R34 actual focused CI 41238291500 passed 23/24, sole fail unchanged desktop at 10 actual submitted renders /1013.2ms vs min 17 despite ~61 RAF. Previous-head general CI running at last check. Shared reviewer tunnel offline, local Chromium loopback blocked by policy; independent art verdict, sustained device display-present FPS, soak, R5 absent. No merge/deploy.",
   "latestImage": "/progress/evidence/round-9-overview.jpg",
-  "latestCaption": "Historical Round9 image, NOT current Round34. Current true Chromium/WebGL original PNGs: https://github.com/my-edutu/Ai_games/actions/runs/41237168587/artifacts/13055723760",
+  "latestCaption": "Historical Round9 still, NOT current R35. R35 true Chromium/WebGL synthetic before/after captures are pending GitHub CI. Prior R34 actual captures: https://github.com/my-edutu/Ai_games/actions/runs/41238291500/artifacts/13056926610",
   "reviews": [
+    {
+      "area": "Round 35 · original inhabited-garden lichen at perimeter",
+      "verdict": "ATLAS TDD RED→GREEN, 66/66 FOCUSED NODE + HOST PASS · R35 TRUE WEBGL & FPS PENDING · WHOLE-GAME SNAKE PASS LOSE",
+      "gap": "1024x512 source atlas 28x16 has 129331 changed texels, 8x8 has 247126 changed, protected central region 0 changed. Existing 13 static meshes/4 textures and all public cues unchanged. New Chromium overview/detail exact-old-source A/B pending; local browser blocked by host policy. Previous-head focus 23/24; strict 10 actual WebGL submissions/1013.2ms vs min17 FAIL. No independent critic/device presents/soak/R5."
+    },
     {
       "area": "Round 34 · original near-public-fruit skull look",
       "verdict": "REAL WEBGL A/B AND 65/65 FOCUSED NODE PASS · DESKTOP 9/17 FAIL · HISTORIC R33 SHA REGRESSION FIX PENDING · WHOLE-GAME LOSE",
@@ -591,6 +596,7 @@
     }
   ],
   "checks": [
+    "Round35: model-only original courtyard lichen 66/66 focused Snake Node on verified R34 offline tree, TypeScript and host self-test pass; real R35 Chromium/WebGL screenshot and strict pacing pending. Previous-head 41238291500 23/24 focused; 10 actual draws/1013.2ms, min17, fail.",
     "Round33 current true Chromium SwiftShader focused 41228769206 22/23 browser PASS, exact SHA1 before/after low-detail face PASS. Overview 84/614400 changed face pixels (max4/255), detail 0, original geometry/maps preserved. Strict desktop 10 actual submitted WebGL frames/1013.6ms <17 FAIL (~61 RAF not FPS). Local exact SHA verified build+63/63 Node+host self-test PASS. General run 41228769294 browser pending.",
     "Round33 exact-parent 1cd9df8 new low-detail facial shader palette/test candidate. Current Node/full-build/browser screenshot/strict 17-real-render FPS pending exact-source CI. Round32 focused 41227381849 passed 21/22, strict desktop 8 actual WebGL submits/1003.9ms FAIL. Do not count ~61 RAF callbacks or captured-video fps as GPU/display presents.",
     "Round30 source 3ad6b8c focused run 41222574598: 19/20 browser PASS including true-WebGL saddle A/B; strict desktop FAIL 6 actual submissions/1001.2ms vs >=17, ~60.93 RAF callbacks/s not drawn/display-present FPS. Frozen 960x640 before/after 4064 pixels changed, x193–430/y269–361; small body-pigment change only. General run 41222574536 in progress at last check.",

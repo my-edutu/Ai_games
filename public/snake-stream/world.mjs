@@ -227,6 +227,22 @@ export function createWorld(THREE, {width, height}) {
       data[i+1]=Math.min(255,255*(value-warmth*.08-patina*.24+lichen*.08));
       data[i+2]=Math.min(255,255*(value*.94-warmth*.62-patina*.57-lichen*.48));
       data[i+3]=255;
+      // BEGIN R35 PERIMETER LICHEN
+      // The old ruins' wet joints seed patchy, uneven moss from the outer
+      // terrace inward. Work entirely in the existing atlas; central cells,
+      // prop silhouettes, public hazards and floor geometry stay untouched.
+      const edgeReach=1-fade(.72,2.9,border);
+      if(edgeReach>0){
+        const patch=fade(.39,.67,cloud*.59+mineral*.41);
+        const joint=1-fade(.02,.19,edge);
+        const coverage=Math.min(.48,edgeReach*patch*(.36+.64*joint)*.58);
+        if(coverage>0){
+          data[i]=Math.round(data[i]*(1-coverage)+89*coverage);
+          data[i+1]=Math.round(data[i+1]*(1-coverage)+122*coverage);
+          data[i+2]=Math.round(data[i+2]*(1-coverage)+63*coverage);
+        }
+      }
+      // END R35 PERIMETER LICHEN
     }
     // Sparse hairline fractures stay subordinate to the broad slab treatment.
     for(let c=0;c<38;c++){

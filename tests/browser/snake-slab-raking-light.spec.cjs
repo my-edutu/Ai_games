@@ -16,6 +16,13 @@ test('real Chromium WebGL: directional slab relief versus exact prior world blob
   const frame = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../../docs/reviews/snake-gauntlet/round-4-public-frame.json'), 'utf8'));
   const original = JSON.stringify(frame);
   const current = fs.readFileSync(path.resolve(__dirname, '../../public/snake-stream/world.mjs'), 'utf8');
+  // Later R35 foliage tint must not contaminate historic R31/R32 source SHAs,
+  // but must remain equally present on both A/B rendered visual candidates.
+  const lichenBegin='      // BEGIN R35 PERIMETER LICHEN\n';
+  const lichenEnd='      // END R35 PERIMETER LICHEN\n';
+  const lichenA=current.indexOf(lichenBegin),lichenB=current.indexOf(lichenEnd);
+  expect(lichenA).toBeGreaterThan(-1);expect(lichenB).toBeGreaterThan(lichenA);
+  const historicWorld=current.slice(0,lichenA)+current.slice(lichenB+lichenEnd.length);
   const insert = [
     '      // Bake a directional grazing-light contour into each existing stone slab.',
     '      // It reveals its raised, unevenly worn lip without raising the playable',
@@ -37,18 +44,20 @@ test('real Chromium WebGL: directional slab relief versus exact prior world blob
   // isolated rather than attributing later sculpted geometry to its pigment.
   const cornerStart = '          // BEGIN R32 ORIGINAL QUARRY CORNER SCULPT\n';
   const cornerEnd = '          // END R32 ORIGINAL QUARRY CORNER SCULPT\n';
-  const a = current.indexOf(cornerStart), b = current.indexOf(cornerEnd);
+  const a = historicWorld.indexOf(cornerStart), b = historicWorld.indexOf(cornerEnd);
   expect(a).toBeGreaterThan(-1);
   expect(b).toBeGreaterThan(a);
   const sculptNormals = '\n    if (sourceMaterial === tileMat) merged.computeVertexNormals();';
-  expect(current.split(sculptNormals).length).toBe(2);
-  const round31 = (current.slice(0,a) + current.slice(b + cornerEnd.length)).replace(sculptNormals,'');
+  expect(historicWorld.split(sculptNormals).length).toBe(2);
+  const round31 = (historicWorld.slice(0,a) + historicWorld.slice(b + cornerEnd.length)).replace(sculptNormals,'');
   const baseline = round31.replace(insert, '').replace(changed, prior);
   const gitBlob = source => crypto.createHash('sha1').update('blob ' + Buffer.byteLength(source) + '\0').update(source).digest('hex');
   expect(gitBlob(round31)).toBe('4c50160ffb9c78b822cf2cb8d670e29baf994fea');
   expect(gitBlob(baseline)).toBe('97039edc7512080b8f369483c3b4800e7180625e');
+  const matchedLichen = current.slice(lichenA,lichenB+lichenEnd.length);
+  const insertLichen = source => source.replace('      data[i+3]=255;\n', '      data[i+3]=255;\n' + matchedLichen);
   const capture = [];
-  for (const [label, source] of [['before', baseline], ['after', round31]]) {
+  for (const [label, source] of [['before', insertLichen(baseline)], ['after', insertLichen(round31)]]) {
     const page = await browser.newPage({ viewport: { width: 960, height: 640 }, reducedMotion: 'reduce' });
     const errors = [];
     page.on('pageerror', error => errors.push(error.message));
