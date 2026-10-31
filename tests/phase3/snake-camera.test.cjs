@@ -38,3 +38,42 @@ test('character framing centers the moving head in each direction and exposes fa
     assert.ok(diameterPixels >= 200, 'facial model needs enough pixels to judge at 900px stage height');
   }
 });
+
+test('close camera clears a foreground fruit without moving authoritative head/food', async () => {
+  THREE = await import('three');
+  const { cameraComposition } = await load();
+  const head = Object.freeze({ x: 0, z: 0 });
+  const directions = [
+    { x: 1, z: 0 }, { x: -1, z: 0 }, { x: 0, z: 1 }, { x: 0, z: -1 },
+  ];
+  const gap = (camera, fruit) => {
+    const center = new THREE.Vector3(head.x, 0.4, head.z).project(camera);
+    const marker = new THREE.Vector3(fruit.x, 0.6, fruit.z).project(camera);
+    return Math.hypot(marker.x - center.x, marker.y - center.y);
+  };
+  for (const aspect of [16 / 9, 390 / 844]) {
+    for (const direction of directions) {
+      const food = Object.freeze({ x: head.x + direction.x, z: head.z + direction.z });
+      const argumentsWithoutFood = { width: 28, height: 16, aspect, mode: 'detail', head, direction };
+      const before = cameraComposition(argumentsWithoutFood);
+      const after = cameraComposition({ ...argumentsWithoutFood, food });
+      const beforeCamera = cameraFor(before, aspect);
+      const afterCamera = cameraFor(after, aspect);
+      assert.ok(gap(afterCamera, food) > gap(beforeCamera, food) * 1.4,
+        'foreground fruit should move visibly clear of the face in every heading and aspect');
+      assert.deepEqual(after.target, before.target, 'authoritative face remains the camera target');
+      const beforeDistance = Math.hypot(...Object.values(before.offset));
+      const afterDistance = Math.hypot(...Object.values(after.offset));
+      assert.ok(Math.abs(beforeDistance - afterDistance) < 1e-9, 'detail framing size must stay constant');
+      const projectedFace = new THREE.Vector3(head.x, 0.4, head.z).project(afterCamera);
+      assert.ok(Math.abs(projectedFace.x) < 0.01 && Math.abs(projectedFace.y) < 0.01);
+      assert.deepEqual(cameraComposition({ ...argumentsWithoutFood, food: { x: -direction.x, z: -direction.z } }), before,
+        'fruit behind the head must not redirect the camera');
+      for (const mode of ['overview', 'follow']) {
+        const args = { ...argumentsWithoutFood, mode };
+        assert.deepEqual(cameraComposition({ ...args, food }), cameraComposition(args),
+          'overview and follow cameras must stay stable for all food positions');
+      }
+    }
+  }
+});

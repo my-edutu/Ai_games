@@ -1,10 +1,15 @@
 {
-  "updatedAt": "2026-10-31T05:36:59.747Z",
-  "status": "Round 17 · water screenshot parity verified; legacy diversity test repaired, CI pending",
-  "detail": "Exact-head runtime capture of the deterministic precomposed water palette is pixel-near-identical to the prior frozen 960×640 public frame (max RGB channel delta 1/255). The desktop ≥17 actual draw gate is still FAILED (10 in 1005ms). Existing old-RG-channel diversity test is being adapted without weakening its >30 color and >12 contour thresholds; general CI 543/544 before correction. Fresh tests and independent visual review are pending.",
+  "updatedAt": "2026-10-31T06:50:00.000Z",
+  "status": "Round 18 · foreground fruit sightline candidate; exact-source CI pending",
+  "detail": "Near-head food can occlude the serpent in detail view. A deterministic camera-only ±45° bounded sightline selection preserves the original public food/face/world geometry and overview/follow views; new Node projection and real WebGL stress-image checks require CI. Latest base 41173330039: 15/16; 9 actual renders /1002ms vs unchanged minimum 17. No independent visual win or production readiness.",
   "latestImage": "/progress/evidence/round-9-overview.jpg",
-  "latestCaption": "Historical Round 9 image (not a Round 15 screenshot). Current exact-head real WebGL captures are linked in Round 15 below; CI artifact bundles cannot be embedded as images.",
+  "latestCaption": "Historical Round 9 image (not Round 18). Round 18 authentic WebGL stress-fixture screenshot is pending GitHub Actions, and must not be mislabeled live gameplay.",
   "reviews": [
+    {
+      "area": "Round 18 · close-up food/face occlusion",
+      "verdict": "CANDIDATE · exact-head CI and actual stress screenshot PENDING · overall LOSE",
+      "gap": "One near-head fruit can block the serpent face. Detail-only camera azimuth selection is now covered by projected-separation regression. No authority, food, UI or view fallback changes; base desktop pace 9 actual renders/1002ms vs 17. Independent critic unavailable."
+    },
     {
       "area": "Round 17 · actual WebGL color equivalence and quality",
       "verdict": "FROZEN COLOR PARITY VERIFIED · ACTUAL FPS GATE FAILED · FULL TEST RECHECK PENDING",
@@ -271,6 +276,11 @@
           "path": "https://github.com/my-edutu/Ai_games/actions/runs/41172921802/artifacts/13032430669"
         }
       ]
+    },
+    {
+      "title": "Round 18 · foreground fruit sightline",
+      "summary": "Candidate camera-only correction for fruit hiding the serpent face. Four-heading desktop/portrait projection regressions and a separately labeled synthetic WebGL stress capture; CI and visual judgment still pending. Food, gameplay, safety view and existing pacing gate remain unchanged.",
+      "captures": []
     }
   ],
   "checks": [

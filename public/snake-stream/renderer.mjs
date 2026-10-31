@@ -1,7 +1,7 @@
 import * as THREE from '/vendor/three.module.js';
 import { createWorld } from './world.mjs';
 import { createSerpent } from './serpent.mjs';
-import { buildMotion } from './motion.mjs';
+import { buildMotion, cellPoint } from './motion.mjs';
 import { cameraComposition } from './camera.mjs';
 
 export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = {}) {
@@ -355,7 +355,9 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
     });
     world.update(snapshot, { ...shared, maxParticles });
     const head = motion.paths[0]?.[0] || { x: 0, z: 0 };
-    const composition = cameraComposition({ width: snapshot.width, height: snapshot.height, aspect: camera.aspect, mode: cameraMode, head, direction: motion.direction });
+    const food = cameraMode === 'detail' && Number.isInteger(snapshot.food?.cell)
+      ? cellPoint(snapshot.food.cell, snapshot.width, snapshot.height) : null;
+    const composition = cameraComposition({ width: snapshot.width, height: snapshot.height, aspect: camera.aspect, mode: cameraMode, head, direction: motion.direction, food });
     desiredTarget.set(composition.target.x, composition.target.y, composition.target.z);
     desiredPosition.set(composition.offset.x, composition.offset.y, composition.offset.z);
     const mix = settings.reducedMotion || frameCount === 0 ? 1 : 1 - Math.exp(-Math.min(measuredDelta, 0.5) * 5);

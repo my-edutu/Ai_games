@@ -215,3 +215,29 @@ test('matched real replay frames record cached and direct 3D output for independ
     } finally { await page.close(); }
   }
 });
+
+test('real WebGL close camera captures a near-head fruit occlusion stress fixture', async ({ browser, baseURL }) => {
+  // Presentation-only frozen-frame stress case, not a claim of real gameplay:
+  // move only the food in an existing public snapshot one cell ahead of its
+  // existing head to exercise a visually plausible but difficult sightline.
+  const frame = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../../docs/reviews/snake-gauntlet/round-4-public-frame.json'), 'utf8'));
+  expect(frame.snapshot.snake[0].cell).toBe(250);
+  expect(frame.snapshot.snake[1].cell).toBe(222);
+  frame.snapshot.food = { ...frame.snapshot.food, cell: 278 };
+  const page = await browser.newPage({ viewport: { width: 960, height: 640 }, reducedMotion: 'reduce' });
+  const errors = [];
+  page.on('pageerror', error => errors.push(error.message));
+  try {
+    await page.route('**/snapshot', route => route.fulfill({ json: frame }));
+    await page.goto(`${baseURL}/?camera=detail&quality=low`);
+    await page.waitForFunction(() => window.__snakePresentation?.stats().frameCount >= 3);
+    const stats = await page.evaluate(() => window.__snakePresentation.stats());
+    expect(stats.renderer).toBe('webgl');
+    expect(stats.cameraMode).toBe('detail');
+    expect(await page.locator('#game').evaluate(canvas => canvas.getContext('webgl2').getError())).toBe(0);
+    await page.screenshot({ path: evidence('character-fruit-sightline-stress.png') });
+    expect(errors).toEqual([]);
+  } finally {
+    await page.close();
+  }
+});
