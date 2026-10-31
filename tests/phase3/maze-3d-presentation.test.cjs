@@ -225,8 +225,13 @@ test('publicNearbySealedGate framing selects only disclosed adjacent sealed obst
   const gate = {x: -2.4, z: .5};
   const desktop = composePublicSealedGateFocus(stage, gate, 1.32);
   const portrait = composePublicSealedGateFocus(stage, gate, .65);
-  assert.ok(desktop.x < 0, 'an adjacent visible gate should counter an opposing coastal-stage pull');
-  assert.ok(Math.hypot(desktop.x, desktop.z) <= 1.600001, 'camera drift is bounded');
+  assert.ok(desktop.x > 0 && desktop.z < 0,
+    'observed walkable stage, not empty lagoon, should dominate the coastal camera');
+  assert.ok(Math.hypot(desktop.x, desktop.z) <= 2.600001, 'desktop stage pull remains bounded');
   assert.ok(Math.hypot(portrait.x, portrait.z) <= 1.100001, 'portrait framing is more restrained');
+  assert.ok(desktop.x > portrait.x,
+    'desktop grants visibly more room to discovered terrain than narrow portrait');
+  const gateOnly = composePublicSealedGateFocus({x: 0, z: 0}, gate, 1.32);
+  assert.ok(gateOnly.x < 0, 'a genuine disclosed gate still contributes without a stage bias');
   assert.deepEqual(composePublicSealedGateFocus({x: NaN, z: Infinity}, {x: Infinity, z: NaN}), {x: 0, z: 0});
 });

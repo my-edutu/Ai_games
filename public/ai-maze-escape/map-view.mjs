@@ -218,17 +218,22 @@ export function publicNearbySealedGate(snapshot) {
 /**
  * Let Pip and an actually modeled closed gate share the shot. Since a sealed
  * gate is NOT a legal route, it takes no role in publicObjective/AI guidance.
- * A bounded screen-space center shift counters coastline bias; portrait pulls
- * are weaker to keep the hero inside the narrow viewport.
+ * The nearby, already-disclosed terrain must occupy more of the frame than
+ * empty lagoon. Keep the modeled gate in view, but do not let a fringe gate
+ * drag the whole camera away from known walkable stage. Portrait still limits
+ * the lateral shift so the hero and obstruction stay legible together.
  */
 export function composePublicSealedGateFocus(stageBias, gateDelta, aspect = 1) {
   const finite = value => Number.isFinite(value) ? value : 0;
   const portrait = aspect < .9;
-  const stageWeight = portrait ? .10 : .15;
-  const gateWeight = portrait ? .32 : .45;
+  // Both vectors are derived from disclosed public cells/doors; they are
+  // presentation-only. Give known floor greater weight than a boundary gate
+  // so a sealed coastal encounter does not float in half a frame of water.
+  const stageWeight = portrait ? .48 : 1.05;
+  const gateWeight = portrait ? .24 : .23;
   const x = finite(stageBias?.x) * stageWeight + finite(gateDelta?.x) * gateWeight;
   const z = finite(stageBias?.z) * stageWeight + finite(gateDelta?.z) * gateWeight;
-  const limit = portrait ? 1.1 : 1.6;
+  const limit = portrait ? 1.1 : 2.6;
   const scale = Math.min(1, limit / (Math.hypot(x, z) || 1));
   return {x: x * scale, z: z * scale};
 }
