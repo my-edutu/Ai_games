@@ -28,9 +28,7 @@ function predecessor(source){
   const call=/^.*\/\/ BEGIN R38 CONTACT SUBRANGE\n[\s\S]*?^.*\/\/ END R38 CONTACT SUBRANGE\n/gm;
   expect((previous.match(call)||[]).length).toBe(1);
   previous=previous.replace(call,oldLoop);
-  // Archive SHA only: both live R38 visual arms retain the current R40 canvas.
-  const archived=previous.replace(/^.*\/\/ BEGIN R40 FINAL FRAMEBUFFER SAMPLES\n[\s\S]*?^.*\/\/ END R40 FINAL FRAMEBUFFER SAMPLES\n/gm,"  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false, powerPreference: 'high-performance' });\n");
-  expect(blob(archived)).toBe('14d5f7dc3e344e9850ac325b768928eba9546c60');
+  expect(blob(previous)).toBe('14d5f7dc3e344e9850ac325b768928eba9546c60');
   return previous;
 }
 test('actual Chromium WebGL retains exact shadows and gameplay on smaller grounded contact uploads',async({browser,baseURL})=>{

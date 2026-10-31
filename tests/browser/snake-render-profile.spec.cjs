@@ -224,7 +224,7 @@ test('diagnostic only: split real renderer submission, GPU work and presentation
     assumptions: [
       'First two phases use real live snapshots. The last actually drawn public frame is then saved and reused by every frozen phase; no simulation changes.',
       'Default startup retains native initial resolution and adaptation timing, with the eventual low ratio fixed to0.4. Initial-low controls lock adaptation from construction.',
-      'Full app and minimal frozen page share canvas dimensions, viewport, DPR, camera, single-sample final framebuffer and renderer source.',
+      'Full app and minimal frozen page share canvas dimensions, viewport, DPR, camera, native antialiasing and renderer source.',
       'Public draw wall time includes updates and submission; Three render wall time can include driver backpressure.',
       'Chromium WebGL finish is not a completion boundary. WebGL2 fenceSync/flush/clientWaitSync establishes completion while actual draws are paused outside cadence.',
       'Only complete non-disjoint timer-query sets represent GPU timing; fallback fence-probe wall times include CPU and async polling latency.',
@@ -323,7 +323,7 @@ test('diagnostic only: split real renderer submission, GPU work and presentation
     expect(result.final.drawCalls).toBeGreaterThan(0);
     expect(result.glError).toBe(0);
     expect(result.errors).toEqual([]);
-    expect(result.contextAttributes.antialias).toBe(false);
+    expect(result.contextAttributes.antialias).toBe(true);
     expect(result.boundaries.afterFence.completed).toBe(true);
     if (!result.startup) {
       expect(result.final.pixelRatio).toBe(0.4);
