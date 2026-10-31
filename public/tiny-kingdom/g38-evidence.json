@@ -1,0 +1,37 @@
+{
+  "capturedAt": "2026-10-31T05:03:13.716Z",
+  "baseline": {
+    "sha256": "42e1dc44ab68c1fafefc31365aca0d1c563b5a4bde52a4df75595063978324d9",
+    "p50ms": 70.9,
+    "p95ms": 79,
+    "meanMs": 70.6,
+    "shadowPasses": 11,
+    "mapSize": 2048,
+    "renderer": "software-webgl",
+    "pageErrors": [],
+    "n": 10
+  },
+  "candidate": {
+    "sha256": "1a32bee1f33be8cb5cfd8a848ef9e3bcfea7b1fdc7b2af00d71ed02e7579f3fb",
+    "p50ms": 84.6,
+    "p95ms": 129.1,
+    "meanMs": 86.1,
+    "shadowPasses": 5,
+    "mapSize": 1024,
+    "road": {
+      "routes": 3,
+      "segments": 199,
+      "shoulderSegments": 398,
+      "cobblestones": 103,
+      "plazaStones": 108,
+      "triangles": 1900
+    },
+    "renderer": "software-webgl",
+    "pageErrors": [],
+    "n": 10
+  },
+  "reference": "Pioneers of Pagonia — benchmark NOT PASSED",
+  "environment": "GitHub Actions Chromium ANGLE/SwiftShader, 1280x720 Balanced, 10 manual 30Hz world ticks per source; wall clock includes browser overhead; not real hardware performance",
+  "independentCritic": false,
+  "productionReady": false
+}

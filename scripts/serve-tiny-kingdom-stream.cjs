@@ -13,6 +13,8 @@ const ROOT=path.resolve(__dirname,'..','public','tiny-kingdom');
 const FILES=new Map([
  ['/tiny','index.html'],['/tiny/','index.html'],['/tiny/index.html','index.html'],
  ['/tiny/progress','progress.html'],['/tiny/progress.html','progress.html'],
+ ['/tiny/g38','g38.html'],['/tiny/g38.html','g38.html'],
+...['g38-before-market.png','g38-after-market.png','g38-evidence.json','g38-verification.json'].map(name=>['/tiny/'+name,name]),
  ['/tiny/living','living.html'],['/tiny/living.html','living.html'],
  ...['baseline-village.png','baseline-woodland.png','baseline-manifest.json','living-village.png','living-woodland.png',
  'living-citizen-0.png','living-citizen-1.png','living-citizen-2.png','living-citizen-3.png','living-citizen-4.png','living-citizen-5.png',
