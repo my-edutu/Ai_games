@@ -282,7 +282,14 @@ export function createClimber() {
     if(dead||hurt)attackAge=1;
     else attackAge=Math.min(1,attackAge+(!attacking&&poseGap>.26?poseGap:dt));
     if(state.state==='standing'&&(previousState==='airborne'||previousState==='dashing'))landingAge=0;
-    else landingAge=Math.min(1,landingAge+dt);
+    else {
+      // Keep the first true landing-compression frame, but retire its 200ms
+      // follow-through when the next GPU submission arrives much later. The
+      // model's 100ms gait cap must not stretch contact into multiple seconds.
+      // At ordinary cadence retain precisely the original contact envelope.
+      const contactDelta=state.state==='standing'&&poseGap>.2?poseGap:dt;
+      landingAge=Math.min(1,landingAge+contactDelta);
+    }
     previousState=state.state;
     phase+=dt*(5+speed*8)*speed;
     const gait=Math.sin(phase),counter=Math.sin(phase+Math.PI);

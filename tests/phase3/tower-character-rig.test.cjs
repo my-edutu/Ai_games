@@ -461,3 +461,41 @@ test('normal-cadence attacks retain their existing recoil and recovery timeline'
   assert.ok(Math.abs(shoulder.rotation.x - neutral) < .01,
     'normal cadence still returns the shoulder to its actual locomotion pose');
 });
+
+test('landed climber shows real first contact but releases obsolete knee compression after a rendering stall', async t => {
+  const [api, THREE] = await loadCharacters();
+  for (const reducedMotion of [false, true]) {
+    const model = api.createClimber(); t.after(() => model.dispose());
+    const options = Object.freeze({ reducedMotion });
+    const approaching = Object.freeze({ ...standing, state: 'airborne', vy: -3000 });
+    model.animate(approaching, 1 / 60, 0, options);
+    const root = rootTransform(model.group);
+    const knee = joint(model, '-1-knee');
+    const fallingVertices = posedVertices(model, '-1-knee', THREE);
+    // This is the first real authoritative standing sample after a long GPU gap:
+    // it must still show one deliberate contact frame, not skip the landing.
+    model.animate(standing, .5, .5, options);
+    assert.ok(knee.rotation.x > .6, 'first grounded view compresses the articulated knee');
+    const contactVertices = posedVertices(model, '-1-knee', THREE);
+    assert.ok(contactVertices.some((v, i) => v.distanceTo(fallingVertices[i]) > .1),
+      'the first landing affects actual skinned leg geometry');
+    model.animate(standing, .5, 1, options);
+    assert.ok(Math.abs(knee.rotation.x) < .01,
+      'a later half-second normal-standing view must not retain a contact squat');
+    assert.deepEqual(rootTransform(model.group), root, 'presentation never displaces the authoritative climber root');
+  }
+});
+
+test('normal 60Hz landings retain compression then recover without a delayed-frame shortcut', async t => {
+  const [api] = await loadCharacters();
+  const model = api.createClimber(); t.after(() => model.dispose());
+  const options = Object.freeze({ reducedMotion: false });
+  model.animate(Object.freeze({ ...standing, state: 'airborne', vy: -3000 }), 1 / 60, 0, options);
+  model.animate(standing, 1 / 60, 1 / 60, options);
+  const knee = joint(model, '-1-knee');
+  assert.ok(knee.rotation.x > .6, 'grounded transition begins with compression');
+  model.animate(standing, 1 / 60, 2 / 60, options);
+  assert.ok(knee.rotation.x > .5, 'regular frame spacing preserves the animated recovery interval');
+  for (let i = 3; i <= 25; i++) model.animate(standing, 1 / 60, i / 60, options);
+  assert.ok(Math.abs(knee.rotation.x) < .01, 'regular recovery finishes by the original deadline');
+});
