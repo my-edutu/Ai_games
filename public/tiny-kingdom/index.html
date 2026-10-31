@@ -637,6 +637,10 @@ const RIVER_SEGMENTS=105,RIVER_SPAN=84,RIVER_BANDS=6,RIVER_BANK_BANDS=2;
 let currentMaterial=MATERIAL.GENERAL;
 function materialScope(id,make){const old=currentMaterial;currentMaterial=id;try{return make()}finally{currentMaterial=old}}
 let data=[];let scenicMeshCache=null,scenicMeshKey='',scenicMeshRebuilds=0,scenicMeshTriangles=0;let terrainCache=null,terrainCacheKey='',terrainRebuilds=0,terrainCacheTriangles=0,lastFrameTriangles=0;const rgb=hex=>[(hex>>16&255)/255,(hex>>8&255)/255,(hex&255)/255];let grass=rgb(0x67865c),ground=rgb(0x789260),stone=rgb(0xc4ad81),wood=rgb(0x987451),roofColor=rgb(0x855448),water=rgb(0x497b83);
+// G063b GPU-image critic: keep one neutral riverbed albedo. Previous six
+// per-band turquoise colors formed artificial candy stripes across the stream;
+// the fragment shader now supplies continuous bathymetry and bank foam.
+const riverWaterTint=rgb(0x658c82);
 // Gauntlet 031 — on-demand mesh audit; never scans buffers during normal frames.
 // Each vertex is position(3), normal(3), RGB(3), materialId(1): 10 floats.
 function inspectMeshGeometry(vertices){
@@ -857,7 +861,7 @@ function appendOuterRiverReaches(){
   currentMaterial=MATERIAL.WATER;
   for(let i=0;i<RIVER_BANDS;i++){
    const a=banks[i],b=banks[i+1];
-   const tone=i===0||i===5?rgb(0x719ca0):i===1||i===4?rgb(0x5cabb3):rgb(0x368f9d);
+   const tone=riverWaterTint;
    quad(point(x,z,a*w),point(x,z,b*w),point(nx,nz,b*nw),point(nx,nz,a*nw),tone);
    waterTriangles+=2;
   }
@@ -2810,7 +2814,7 @@ for(let segment=0;segment<RIVER_SEGMENTS;segment++){
  const z=20+Math.sin(x*.13)*3,nz=20+Math.sin(nx*.13)*3;
  const banks=[-1.8,-1.38,-.75,0,.75,1.38,1.8];
  for(let i=0;i<RIVER_BANDS;i++){
-  const a=banks[i],b=banks[i+1],tone=i===0||i===5?rgb(0x719ca0):i===1||i===4?rgb(0x5cabb3):rgb(0x368f9d);
+  const a=banks[i],b=banks[i+1],tone=riverWaterTint;
   const v=(px,pz,off)=>[px,terrain(px,pz+off)+.08,pz+off];
   quad(v(x,z,a),v(x,z,b),v(nx,nz,b),v(nx,nz,a),tone);
  }
