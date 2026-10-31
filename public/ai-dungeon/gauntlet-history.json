@@ -53,27 +53,38 @@
     {
       "round": 17,
       "at": "2026-10-31",
-      "commit": "96c44f22d8b77ea762ea0752dd1cef56a91bf1a3",
-      "status": "9/9 NEW UI GATES PASS; FULL BROWSER 38/39; FOLLOW-UP PENDING",
+      "commit": "fa3d80c591e4f6c3fdef24bbf8b8f12dc64a6978",
+      "status": "VERIFIED: 40/40 BROWSER + 10/10 DEDICATED UI; VISUAL BAR NOT MET",
       "sampleSeeds": 24,
       "ticksPerSeed": 900,
       "highestFloor": 9,
       "determinismFailures": 0,
-      "visualVerdict": "Real desktop/mobile/raw-world captures inspected. Immersive HUD, clean view, optional map, journal and corrected boss camera passed actual WebGL tests. One older close-camera test timed out during its redundant second capture after assertions passed. Follow-up removes only duplicate capture and restores CSP-compliant progress styling. Diablo IV bar NOT MET; no independent A/B.",
-      "artifactUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41165715310/artifacts/13029252721",
+      "visualVerdict": "Actual desktop, mobile-default, clean-view, journal and raw-world captures inspected at fa3d80c. All 40 browser tests passed across three isolated runners; the dedicated interface job passed all 10 tests again. Inspected raw frame has 3/3 unoccluded heroes and 85px minimum hero height. Diablo IV quality bar remains NOT MET; repeated corridors, bright oversized fixtures and simple character detail remain. No independent blind A/B.",
+      "artifactUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41167163965/artifacts/13029359753",
       "evidenceMetrics": {
         "desktopCanvasFractionBefore": 0.52885,
         "desktopCanvasFractionAfter": 0.92444,
         "componentViewports": 5,
-        "softwareTestsPassed": 528,
-        "focusedTestsPassed": 14,
-        "newInterfaceBrowserTestsPassed": 9,
-        "fullBrowserTestsPassed": 38,
-        "fullBrowserTestsFailed": 1,
+        "softwareTestsPassed": 530,
+        "focusedTestsPassed": 16,
+        "newInterfaceBrowserTestsPassed": 10,
+        "fullBrowserTestsPassed": 40,
+        "fullBrowserTestsFailed": 0,
         "independentBlindComparison": false,
         "followUpLocalSoftwareTestsPassed": 530,
         "followUpLocalFocusedTestsPassed": 16,
-        "followUpIntegratedBrowserVerdict": "PENDING"
+        "followUpIntegratedBrowserVerdict": "PASS",
+        "unoccludedHeroes": 3,
+        "occludedHeroes": 0,
+        "minHeroPixels": 85
+      },
+      "verification": {
+        "fullBrowserRun": 41167163945,
+        "dedicatedUIRun": 41167163965,
+        "rawWorldArtifact": 13030005522,
+        "headlessArtifact": 13028514393,
+        "independentReview": false,
+        "productionReady": false
       }
     }
   ]
