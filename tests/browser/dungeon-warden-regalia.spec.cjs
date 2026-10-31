@@ -52,7 +52,6 @@ test('true Chromium WebGL has recognisable locally authored Warden regalia, rend
  expect(diag.visibility.occludedBosses).toBe(0);
  expect(errors).toEqual([]);
  await page.locator('.arena').evaluate(node=>node.classList.add('world-only-audit'));
- await page.locator('#world').screenshot({path:'artifacts/dungeon-warden-regalia-round25-world-only.png'});
  await page.locator('#world').screenshot({path:'artifacts/dungeon-ornament-hierarchy-round29-world-only.png'});
  await test.info().attach('actual-warden-encounter',{body:Buffer.from(JSON.stringify({
   seed:'visual-room-art-18',tick:snapshot.tick,floor:snapshot.floor,run:snapshot.run,

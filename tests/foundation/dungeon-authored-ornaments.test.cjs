@@ -5,6 +5,11 @@ const fs=require('node:fs');
 const path=require('node:path');
 const root=path.resolve(__dirname,'../..');
 const read=file=>fs.readFileSync(path.join(root,file),'utf8');
+test('the focused dungeon test command includes this regression suite',()=>{
+ const p=JSON.parse(read('package.json'));
+ assert.match(p.scripts['dungeon:test'],/tests\/foundation\/dungeon-authored-ornaments\.test\.cjs/);
+});
+
 
 test('authored model hides procedural-only root halo and satellites; fallback can restore them',()=>{
  const characters=read('public/ai-dungeon/characters.js');
