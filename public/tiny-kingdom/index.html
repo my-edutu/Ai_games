@@ -947,7 +947,7 @@ function coniferNeedleSpray(root,tip,width,dark,light){
    articulated leaf blades. All shape variation is derived only from position. */
 // G050: small offset leaf clusters give each crown a tiered, broken silhouette.
 // Real 3D geometry is bounded and derived from tree positions, not simulation RNG.
-function crownLobe(cx,cy,cz,rx,ry,rz,col,seed,fine=false){
+function crownLobe(cx,cy,cz,rx,ry,rz,col,seed,fine=false,countAsForest=true){
  const segments=fine?6:9,latitudes=(fine?[.32,.74]:[.23,.54,.81]).map(t=>t*Math.PI),rings=[];
  const pt=(lat,i)=>{
   const az=i*Math.PI*2/segments,ripple=1+.13*Math.sin(3*az+seed)+.07*Math.cos(5*az-seed*.7);
@@ -964,8 +964,8 @@ function crownLobe(cx,cy,cz,rx,ry,rz,col,seed,fine=false){
   tri(a,b,c,colors[(r+i)%3]);tri(a,c,d,colors[(r+i+1)%3]);
  }
  for(let i=0;i<segments;i++){const j=(i+1)%segments;tri(rings[rings.length-1][i],rings[rings.length-1][j],bottom,colors[2]);}
- forestVisualStats.broadleafLobes++;
- if(fine)forestVisualStats.microCrownLobes++;
+ if(countAsForest){forestVisualStats.broadleafLobes++;
+  if(fine)forestVisualStats.microCrownLobes++;}
 }
 function leafBlade(base,tip,width,col,seed){
  const dx=tip[0]-base[0],dz=tip[2]-base[2],len=Math.hypot(dx,dz)||1;
@@ -1673,20 +1673,65 @@ function farmstead(){
  grainShocks();fieldScarecrow();farmIrrigation();
 }
 
+// Original orchard: independently budgeted forks, twigs and seasonal foliage.
+let orchardVisualStats={trees:0,forks:0,tipTwigs:0,crownLobes:0,fruit:0,season:-1,meshTriangles:0};
 function orchardTrees(){
- const soil=rgb(0x8b6d45),flowers=[rgb(0xffd69c),rgb(0xffb7af),rgb(0xf9e6bf)];
+ const season=climateAt(state.t).season;
+ const bark=rgb(0x765b3e),palettes=[
+  [0x6a9d5b,0x84ae70,0x729d63,0x88ae74],
+  [0x448451,0x599363,0x75a071,0x5f9362],
+  [0xb69a5c,0x9d8750,0xbc9c68,0x988450],
+  []
+ ],foliage=palettes[season];
+ const produce=season===0?[0xffd4ad,0xffb4a3,0xf3e3c1]:
+  season===1?[0x86aa55,0xb4c86d,0xa9c55c]:[0xb96e4b,0xe2aa62,0xc67e50];
+ orchardVisualStats={trees:0,forks:0,tipTwigs:0,crownLobes:0,fruit:0,season,meshTriangles:0};
  for(let row=0;row<3;row++)for(let col=0;col<3;col++){
   const x=-28+col*2.9,z=6+row*3.2,y=terrain(x,z);
-  cylinder(x,y,z,.15,1.45,soil,8);
-  const season=climateAt(state.t).season,leaves=rgb(season===3?0xc4d7ca:season===2?0xd0a455:row%2?0x519c5e:0x69a757);
-  ellipsoid(x,y+2.0,z,1.07,.83,.91,leaves,9);
-  ellipsoid(x+.55,y+1.75,z-.24,.60,.60,.58,rgb(climateAt(state.t).season===3?0xe4e7db:climateAt(state.t).season===2?0xd2a963:0x7bb65a),8);
-  for(let i=0;i<(season===3?0:5);i++){const a=i*2.39996+col*.5,fx=x+Math.sin(a)*.64,fz=z+Math.cos(a)*.55;
-   ellipsoid(fx,y+1.82+.19*Math.cos(a),fz,.13,.13,.13,flowers[(i+row)%3],6);
-  }
+  orchardVisualStats.trees++;
+  materialScope(MATERIAL.WOOD,()=>{
+   cylinder(x,y,z,.15,1.45,bark,8);
+   orchardVisualStats.meshTriangles+=24;
+   for(let arm=0;arm<3;arm++){
+    const angle=arm*Math.PI*2/3+row*.31+col*.19;
+    const root=[x,y+1.19,z];
+    const shoulder=[x+Math.cos(angle)*.52,y+1.89+(arm%2)*.13,z+Math.sin(angle)*.49];
+    const tip=[x+Math.cos(angle)*.83,y+2.15+(arm%2)*.16,z+Math.sin(angle)*.80];
+    taperedBranch(root,shoulder,.105,.053,bark,5);
+    taperedBranch(shoulder,tip,.047,.013,bark,4);
+    orchardVisualStats.forks++;orchardVisualStats.tipTwigs++;
+    orchardVisualStats.meshTriangles+=18;
+   }
+  });
+  if(season!==3)materialScope(MATERIAL.FOLIAGE,()=>{
+   for(let lobe=0;lobe<4;lobe++){
+    const angle=lobe*2.399963+row*.37+col*.23;
+    const radius=lobe===3?.25:.57;
+    const cx=x+Math.cos(angle)*radius,cz=z+Math.sin(angle)*radius;
+    const cy=y+2.08+((lobe+row)%3)*.17;
+    crownLobe(cx,cy,cz,lobe===3?.54:.56+(col%2)*.06,
+      .42+(lobe%2)*.07,.52+(row%2)*.05,
+      rgb(foliage[(lobe+row+col)%4]),row*31+col*7+lobe*13,true,false);
+    orchardVisualStats.crownLobes++;
+    orchardVisualStats.meshTriangles+=24;
+   }
+  });
+  materialScope(MATERIAL.GENERAL,()=>{
+   for(let fruit=0;fruit<(season===3?0:5);fruit++){
+    const angle=fruit*2.399963+col*.5+row*.23;
+    const fx=x+Math.sin(angle)*.64,fz=z+Math.cos(angle)*.55;
+    ellipsoid(fx,y+1.82+.19*Math.cos(angle),fz,.105,.105,.105,
+      rgb(produce[(fruit+row)%3]),6);
+    orchardVisualStats.fruit++;
+    orchardVisualStats.meshTriangles+=48;
+   }
+  });
  }
- box(-28,terrain(-28,4.0),4.0,1.5,.54,.7,rgb(0xa9845e));
- for(let i=0;i<3;i++){const x=-28.5+i*.45,z=3.7,y=terrain(x,z);ellipsoid(x,y+.57,z,.21,.20,.18,rgb(0xffb553),6)}
+ materialScope(MATERIAL.WOOD,()=>box(-28,terrain(-28,4.0),4.0,1.5,.54,.7,rgb(0xa9845e)));
+ for(let i=0;i<3;i++){
+  const x=-28.5+i*.45,z=3.7,y=terrain(x,z);
+  ellipsoid(x,y+.57,z,.21,.20,.18,rgb(0xffb553),6);
+ }
 }
 function riverReeds(){
  const leaf=rgb(0x709a57),seedhead=rgb(0xb7a079);
@@ -2419,7 +2464,7 @@ currentMaterial=MATERIAL.WOOD;
 const elevation=Math.sin(pitch)*zoom,rad=Math.cos(pitch)*zoom,eye=[focusPoint[0]+Math.sin(yaw)*rad,elevation,focusPoint[1]+Math.cos(yaw)*rad];let m=mat4multiply(perspective(Math.PI/3.2,w/h,.1,190),lookAt(eye,[focusPoint[0],.25,focusPoint[1]],[0,1,0]));gl.uniformMatrix4fv(uniforms.viewProjection,false,m);gl.uniform3f(uniforms.fogColor,...atmosphere.fog);gl.uniform3f(uniforms.sunTint,...atmosphere.light);const radiance=lightingProfile(state.t);gl.uniform1f(uniforms.sunStrength,radiance.solar);gl.uniform1f(uniforms.ambientBlend,radiance.ambientBlend);gl.uniform1f(uniforms.worldTime,state.t);gl.uniform1f(uniforms.weatherWetness,climateMaterialProfile(state.t).precipitation);gl.uniform3f(uniforms.eyePosition,eye[0],eye[1],eye[2]);gl.uniform3f(uniforms.sunDirection,Math.cos(state.t/24*6.283),.3+atmosphere.daylight*.9,Math.sin(state.t/24*6.283));lastFrameTriangles=(gpuAvailable?scenicMeshCache.length+data.length:data.length)/30;
 if(gpuAvailable){bindGeometry(staticBuffer);gl.drawArrays(gl.TRIANGLES,0,scenicMeshCache.length/10);}
 bindGeometry(buffer);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(data),gl.DYNAMIC_DRAW);gl.drawArrays(gl.TRIANGLES,0,data.length/10);if((frames++%14)===0){updateUI();drawAtlas();updateRealmSignal();updateWorldRibbon()}}
-requestAnimationFrame(render);window.__tinyKingdom={getState:()=>JSON.parse(JSON.stringify({state,people:people.map(({name,job,x,z,target})=>({name,job,x,z,target}))})),setSpeed:x=>{speed=x},step,reset:start,renderer:()=>canvas.getContext('webgl')?'webgl':'software',metrics:()=>({citizens:people.length,buildings:city.length+2,day:Math.floor(state.t/24)+1,food:state.food,wood:state.wood,gold:state.gold,relationships:people.filter(p=>p.friend).length}),route:(a,b)=>routeBetween(a[0],a[1],b[0],b[1]),walkable:(p)=>walkable(p[0],p[1]),getNavigation:()=>people.map(p=>({name:p.name,position:[p.x,p.z],target:p.target,remaining:p.path?.length||0,path:p.path,activity:p.activity,hunger:p.hunger,energy:p.energy})),exportSnapshot,restoreSnapshot,saveWorld,restoreWorld,climateAt,skyConditions,getCitizenProfiles:()=>cloneData(people.map(({name,job,trait,friend,bonds,energy,hunger,activity})=>({name,job,trait,friend,bonds,energy,hunger,activity}))),getRigPose:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(citizenRigPose(people[index])):null,getGarmentProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(garmentProfile(people[index],index,citizenRigPose(people[index]))):null,getFaceProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(faceProfile(people[index],index)):null,getSelectedCitizen:()=>people[selectedCitizen]?.name,routeCacheMetrics:()=>({entries:routeCache.size,hits:cacheHits,misses:cacheMisses}),getCamera:()=>({yaw,pitch,zoom,focus:focusPoint.slice(),follow,cinematic}),getTerrainHeight:(x,z)=>terrain(x,z),getTerrainBiomeSample:terrainBiomeSample,getHorizonStats:()=>({triangles:terrainHorizonTriangles,outerBands:2,segmentsPerSide:HORIZON_SEGMENTS,extent:HORIZON_MAX+HORIZON_OFFSETS[2]}),getHighlandRockStats:()=>({...highlandRockStats,heights:highlandRockStats.heights.slice()}),getClimateMaterialProfile:climateMaterialProfile,getWildfloraCount:()=>wildflora.length,getMeadowStats:()=>({clusters:meadowUnderstory.length,triangles:meadowUnderstory.length*8,season:climateAt(state.t).season,cached:true}),getMaterialSystem:()=>({vertexStride:10,surfaceShaderVersion:'procedural-023',materials:Object.keys(MATERIAL),gpuRenderValidated:false}),waterStats:()=>({model:'fresnel-ripple-shorefoam-v1',segments:RIVER_SEGMENTS,waterTriangles:RIVER_SEGMENTS*RIVER_BANDS*2,bankTriangles:RIVER_SEGMENTS*2*RIVER_BANK_BANDS*2}),getScenicSites:scenicSiteMetrics,getFestivalVisualStats:()=>({season:festivalSeason,cacheBuilds:festivalCacheBuilds,vertices:festivalGeometry?.length||0}),getGeometryAudit:geometryAudit,getFarmsteadStats:()=>({...farmScene,granary:FARMSTEAD.granary.slice(),season:climateAt(state.t).season}),getFarmTreeClearanceStats:farmTreeClearanceStats,getForestVisualStats:()=>({
+requestAnimationFrame(render);window.__tinyKingdom={getState:()=>JSON.parse(JSON.stringify({state,people:people.map(({name,job,x,z,target})=>({name,job,x,z,target}))})),setSpeed:x=>{speed=x},step,reset:start,renderer:()=>canvas.getContext('webgl')?'webgl':'software',metrics:()=>({citizens:people.length,buildings:city.length+2,day:Math.floor(state.t/24)+1,food:state.food,wood:state.wood,gold:state.gold,relationships:people.filter(p=>p.friend).length}),route:(a,b)=>routeBetween(a[0],a[1],b[0],b[1]),walkable:(p)=>walkable(p[0],p[1]),getNavigation:()=>people.map(p=>({name:p.name,position:[p.x,p.z],target:p.target,remaining:p.path?.length||0,path:p.path,activity:p.activity,hunger:p.hunger,energy:p.energy})),exportSnapshot,restoreSnapshot,saveWorld,restoreWorld,climateAt,skyConditions,getCitizenProfiles:()=>cloneData(people.map(({name,job,trait,friend,bonds,energy,hunger,activity})=>({name,job,trait,friend,bonds,energy,hunger,activity}))),getRigPose:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(citizenRigPose(people[index])):null,getGarmentProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(garmentProfile(people[index],index,citizenRigPose(people[index]))):null,getFaceProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(faceProfile(people[index],index)):null,getSelectedCitizen:()=>people[selectedCitizen]?.name,routeCacheMetrics:()=>({entries:routeCache.size,hits:cacheHits,misses:cacheMisses}),getCamera:()=>({yaw,pitch,zoom,focus:focusPoint.slice(),follow,cinematic}),getTerrainHeight:(x,z)=>terrain(x,z),getTerrainBiomeSample:terrainBiomeSample,getHorizonStats:()=>({triangles:terrainHorizonTriangles,outerBands:2,segmentsPerSide:HORIZON_SEGMENTS,extent:HORIZON_MAX+HORIZON_OFFSETS[2]}),getHighlandRockStats:()=>({...highlandRockStats,heights:highlandRockStats.heights.slice()}),getClimateMaterialProfile:climateMaterialProfile,getWildfloraCount:()=>wildflora.length,getMeadowStats:()=>({clusters:meadowUnderstory.length,triangles:meadowUnderstory.length*8,season:climateAt(state.t).season,cached:true}),getMaterialSystem:()=>({vertexStride:10,surfaceShaderVersion:'procedural-023',materials:Object.keys(MATERIAL),gpuRenderValidated:false}),waterStats:()=>({model:'fresnel-ripple-shorefoam-v1',segments:RIVER_SEGMENTS,waterTriangles:RIVER_SEGMENTS*RIVER_BANDS*2,bankTriangles:RIVER_SEGMENTS*2*RIVER_BANK_BANDS*2}),getScenicSites:scenicSiteMetrics,getFestivalVisualStats:()=>({season:festivalSeason,cacheBuilds:festivalCacheBuilds,vertices:festivalGeometry?.length||0}),getOrchardVisualStats:()=>({...orchardVisualStats}),getGeometryAudit:geometryAudit,getFarmsteadStats:()=>({...farmScene,granary:FARMSTEAD.granary.slice(),season:climateAt(state.t).season}),getFarmTreeClearanceStats:farmTreeClearanceStats,getForestVisualStats:()=>({
  sourceTrees:trees.length,
  renderedTrees:forestVisualStats.deciduous+forestVisualStats.conifers,
  conifers:forestVisualStats.conifers,deciduous:forestVisualStats.deciduous,

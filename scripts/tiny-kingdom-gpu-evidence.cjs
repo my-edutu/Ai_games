@@ -158,6 +158,15 @@ const path = require('node:path');
        evidence.highlandRocks.heights.some(h=>!Number.isFinite(h)||h<.84)||
        evidence.geometry.totalTriangles>=160000)
       throw Error('Gauntlet 051 terrain-rock sculpture or full-scene GPU budget gate failed: '+JSON.stringify(evidence.highlandRocks));
+    evidence.orchard=await page.evaluate(()=>{
+      const g=window.__tinyKingdom,before=JSON.stringify(g.exportSnapshot());
+      return {...g.getOrchardVisualStats(),authorityUnchanged:before===JSON.stringify(g.exportSnapshot())};
+    });
+    if(evidence.orchard.trees!==9||evidence.orchard.forks!==27||
+       evidence.orchard.tipTwigs!==27||evidence.orchard.crownLobes!==36||
+       evidence.orchard.fruit!==45||evidence.orchard.meshTriangles!==3726||
+       !evidence.orchard.authorityUnchanged||evidence.geometry.totalTriangles>=160000)
+      throw Error('Orchard geometry, camera authority or GPU budget regression: '+JSON.stringify(evidence.orchard));
     evidence.water=await page.evaluate(()=>window.__tinyKingdom.waterStats());
     if(evidence.water.model!=='fresnel-ripple-shorefoam-v1'||evidence.water.waterTriangles!==1260||evidence.water.bankTriangles!==840)
       throw Error('River material or shoreline geometry gate failed');
@@ -343,6 +352,7 @@ const path = require('node:path');
       {name:'forest-boughs.png',camera:{focus:[-32,-9],yaw:.65,pitch:.50,zoom:15}},
       {name:'broadleaf-crown.png',camera:{focus:[-29,4],yaw:.95,pitch:.49,zoom:19}},
       {name:'broadleaf-detail.png',camera:{focus:[-29,4],yaw:.95,pitch:.49,zoom:12}},
+      {name:'orchard-branch-anatomy.png',camera:{focus:[-27,10],yaw:1.08,pitch:.44,zoom:11}},
       {name:'farmstead-wide.png',camera:{focus:[23,1],yaw:3.86,pitch:.56,zoom:25}},
       {name:'granary-close.png',camera:{focus:[29,-5],yaw:3.05,pitch:.50,zoom:18}},
     ]){
