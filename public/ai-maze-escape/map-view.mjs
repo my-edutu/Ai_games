@@ -131,6 +131,32 @@ export function publicObjective(snapshot) {
   return null;
 }
 
+
+/**
+ * Keep a known coastal garden in the composition when Pip stands on its edge.
+ * The bias is screen-lateral only and based on nearby DISCLOSED public cells;
+ * it reveals no hidden corridors and affects no authoritative AI decision.
+ * Values are world-space offsets for the fixed isometric camera.
+ */
+export function publicStageBias(snapshot) {
+  const {currentCell, width, height} = snapshot ?? {};
+  if (!Number.isInteger(currentCell) || !Number.isInteger(width) || !Number.isInteger(height)
+    || width < 1 || height < 1 || currentCell < 0 || currentCell >= width * height || snapshot.result)
+    return {x: 0, z: 0};
+  const col = currentCell % width, row = Math.floor(currentCell / width);
+  const nearby = (Array.isArray(snapshot.cells) ? snapshot.cells : []).filter(c =>
+    Number.isInteger(c.cell) && c.cell >= 0 && c.cell < width * height && !c.blocked
+    && Math.abs(c.cell % width - col) + Math.abs(Math.floor(c.cell / width) - row) <= 4);
+  if (nearby.length < 2) return {x: 0, z: 0};
+  const avgCol = nearby.reduce((sum, c) => sum + c.cell % width, 0) / nearby.length;
+  const avgRow = nearby.reduce((sum, c) => sum + Math.floor(c.cell / width), 0) / nearby.length;
+  // Camera offset is (15,21,18); its screen-right vector is (18,0,-15).
+  const rightX = 18 / Math.hypot(18, 15), rightZ = -15 / Math.hypot(18, 15);
+  const lateral = ((avgCol - col) * rightX + (avgRow - row) * rightZ) * 2.4;
+  const shift = clamp(lateral * .9, -2.75, 2.75);
+  return {x: rightX * shift, z: rightZ * shift};
+}
+
 export function drawMinimap(canvas, snapshot, highContrast = false) {
   if (!canvas || !snapshot) return;
   const context = canvas.getContext('2d');

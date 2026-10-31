@@ -127,3 +127,18 @@ test('disclosed landmark selector never marks hidden, locked, blocked or unreach
   assert.equal(publicObjective({...base, result: {reason: 'capture'}}), null);
   assert.equal(publicObjective({...base, currentCell: 11}), null);
 });
+
+
+test('coastal stage camera bias uses only nearby public cells, stays bounded and vanishes for results', async () => {
+  const {publicStageBias} = await load();
+  const coast = {width: 7, height: 5, currentCell: 1,
+    cells: [{cell: 1}, {cell: 2}, {cell: 3}, {cell: 4}, {cell: 5}]};
+  const offset = publicStageBias(coast);
+  assert.ok(offset.x > 0 && offset.z < 0, 'focus moves into the known stage instead of empty water');
+  assert.ok(Math.hypot(offset.x, offset.z) <= 2.750001, 'hero-relative bias has a hard cap');
+  assert.deepEqual(publicStageBias({...coast, cells: [{cell: 1}]}), {x: 0, z: 0});
+  assert.deepEqual(publicStageBias({...coast, cells: [{cell: 1}, {cell: 33}]}), {x: 0, z: 0},
+    'unrelated distant discoveries cannot pull the local camera');
+  assert.deepEqual(publicStageBias({...coast, result: {reason: 'escape'}}), {x: 0, z: 0});
+  assert.deepEqual(publicStageBias({...coast, currentCell: -1}), {x: 0, z: 0});
+});

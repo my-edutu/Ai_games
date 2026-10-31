@@ -1,7 +1,7 @@
 import * as THREE from './vendor/three.module.js';
 import { createExplorer, createWarden } from './characters.js';
 import { createMazeWorld, cellPosition, cellHeight, sampleGroundHeight, CELL_SIZE } from './world.js';
-import { planPublicMotion, samplePublicPath, publicWayfinding, publicObjective } from './map-view.mjs';
+import { planPublicMotion, samplePublicPath, publicWayfinding, publicObjective, publicStageBias } from './map-view.mjs';
 
 const TAU = Math.PI * 2;
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
@@ -94,6 +94,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     return {pivot, glyph};
   });
   let wayfindingCues = [];
+  let stageBias = {x: 0, z: 0};
 
   // One reusable 3D landmark pin. It appears only when the *public* map
   // already contains an open, reciprocal corridor chain to an observed key/exit.
@@ -198,6 +199,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     if (disposed || !value?.snapshot) return;
     frame = value;
     const snapshot = value.snapshot;
+    stageBias = publicStageBias(snapshot);
     const motion = planPublicMotion(previous, snapshot);
     if (runToken !== snapshot.runToken) {
       for (const entry of wardens.values()) { scene.remove(entry.model.group); entry.model.dispose(); }
@@ -337,6 +339,14 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
       // Pip prominent while giving the encounter a shared screen space.
       const frameThreat=cameraMode==='follow'&&!result&&closestThreat?closestThreat.strength*.22:0;
       desiredTarget.set(pose.x+(closestThreat?.x-pose.x||0)*frameThreat,ground+.25,pose.z+(closestThreat?.z-pose.z||0)*frameThreat);
+      // On a public coastline, a hero-only camera can leave half the screen
+      // empty water. Rebalance toward the *known nearby stage* but keep Pip
+      // visible, and avoid fighting the threat-encounter framing.
+      if (cameraMode === 'follow' && !result && !closestThreat?.strength) {
+        const narrow = aspect < .9 ? .23 : 1;
+        desiredTarget.x += stageBias.x * narrow;
+        desiredTarget.z += stageBias.z * narrow;
+      }
       targetHeight = cameraMode === 'detail' ? 4.6 : height < 340 ? 5.4 : aspect < .9 ? 6.2 : 7.3;
     }
     const blend = settings.reducedMotion ? 1 : 1 - Math.exp(-delta * 4.5);
@@ -416,7 +426,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     wayfindingCues = [];
     contactGeometry.dispose(); contactMaterial.dispose(); contactTexture.dispose();
     sun.shadow.map?.dispose(); environmentTexture?.dispose(); renderer.dispose(); scene.clear();
-    cells = []; frameTimes.length = 0; frame = null; previous = null;
+    cells = []; frameTimes.length = 0; frame = null; previous = null; stageBias = {x: 0, z: 0};
   }
   return { update, render, resize, setSettings, setCameraMode, dispose };
 }
