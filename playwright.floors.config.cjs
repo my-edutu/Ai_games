@@ -10,7 +10,7 @@ module.exports = defineConfig({
   workers: 1,
   // Keep action timing evidence without copying a software-rendered WebGL
   // canvas on every assertion. Visual evidence is captured separately.
-  use: { baseURL: 'http://127.0.0.1:4184', headless: true, trace: { mode: 'retain-on-failure', screenshots: false, snapshots: false }, launchOptions: { args: ['--no-sandbox', '--enable-unsafe-swiftshader'] } },
+  use: { baseURL: 'http://127.0.0.1:4184', headless: true, trace: { mode: 'retain-on-failure', screenshots: false, snapshots: false }, launchOptions: { executablePath: process.env.CHROMIUM_PATH || undefined, args: ['--no-sandbox', '--enable-unsafe-swiftshader'] } },
   webServer: { command: 'node scripts/serve-thousand-floors.cjs', url: 'http://127.0.0.1:4184/floors/health', reuseExistingServer: true, timeout: 30000 },
   reporter: [['list']]
 });

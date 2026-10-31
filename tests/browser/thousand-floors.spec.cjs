@@ -87,3 +87,37 @@ test('later-floor scene review leaves the normal saved expedition untouched', as
   expect(await page.evaluate(() => window.__FLOORS_DIAGNOSTICS__().snapshot.floor)).toBeGreaterThanOrEqual(11);
   expect(await page.evaluate(() => localStorage.getItem('thousand-floors-save-v1'))).toBe('normal-progress-preserved');
 });
+
+test('Journey shows real campaign progress and isolates modal camera shortcuts', async ({ page }) => {
+  await openCampaign(page);
+  await page.locator('#pause-button').click();
+  await expect(page.locator('#pause-button')).toHaveAccessibleName(/resume/i);
+  await page.locator('#journey-button').click();
+  await expect(page.locator('#journey-dialog')).toBeVisible();
+  const floor = await page.locator('#floor-number').textContent();
+  await expect(page.locator('#journey-floor')).toHaveText(floor);
+  const before = await page.evaluate(() => window.__FLOORS_DIAGNOSTICS__().camera);
+  await page.keyboard.press('c');
+  expect(await page.evaluate(() => window.__FLOORS_DIAGNOSTICS__().camera)).toBe(before);
+  await page.keyboard.press('Escape');
+  await expect(page.locator('#journey-button')).toBeFocused();
+  await expect(page.locator('#journey-dialog')).not.toBeVisible();
+});
+
+test('real portrait clean-feed and reduced-motion settings restore a usable HUD', async ({ page }) => {
+  await page.setViewportSize({width:390,height:844});
+  await openCampaign(page);
+  await page.locator('#settings-button').click();
+  await page.locator('#reduced-motion').check();
+  await page.locator('#clean-feed').check();
+  await page.keyboard.press('Escape');
+  await expect(page.locator('.progress')).not.toBeVisible();
+  await expect(page.locator('#settings-button')).toBeVisible();
+  await page.locator('#settings-button').click();
+  await page.locator('#clean-feed').uncheck();
+  await page.keyboard.press('Escape');
+  await expect(page.locator('.progress')).toBeVisible();
+  await page.locator('#journey-button').click();
+  await expect(page.locator('#journey-dialog')).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+});

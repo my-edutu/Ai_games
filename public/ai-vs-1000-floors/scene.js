@@ -203,7 +203,10 @@ export function createFloorScene(canvas,options={}){
    let lastLand=-Infinity;for(const event of snapshot.events||[])if(event.floor===snapshot.floor&&event.type==='land')lastLand=Math.max(lastLand,event.tick);
    let support=-Infinity;
    for(const p of snapshot.layout.platforms)if(Math.abs(position.x-p.x)<=p.width/2&&Math.abs(position.z-p.z)<=p.depth/2&&p.y<=position.y+.08)support=Math.max(support,p.y);
-   character.animate(h.action,simulationTime,reduced,{jumpProgress:segmentProgress(position,snapshot.layout.route,location.index),landAge:simulationTime-lastLand/30,groundOffset:Number.isFinite(support)?support-position.y:-Infinity});
+   const nextLook=snapshot.layout.route[Math.min(location.index+1,snapshot.layout.route.length-1)]||snapshot.layout.exit;
+   const lookHeading=Math.atan2(nextLook.x-position.x,nextLook.z-position.z)-character.root.rotation.y;
+   let lastReward=-Infinity;for(const event of snapshot.events||[])if(event.floor===snapshot.floor&&event.type==='collect')lastReward=Math.max(lastReward,event.tick);
+   character.animate(h.action,simulationTime,reduced,{jumpProgress:segmentProgress(position,snapshot.layout.route,location.index),landAge:simulationTime-lastLand/30,groundOffset:Number.isFinite(support)?support-position.y:-Infinity,lookYaw:Math.atan2(Math.sin(lookHeading),Math.cos(lookHeading)),rewardAge:simulationTime-lastReward/30});
    environment.update(snapshot,simulationTime,reduced);
    if(mode==='follow'){
     const fitted=followCamera.update(snapshot,position,dt,first||reduced||delta<=0);

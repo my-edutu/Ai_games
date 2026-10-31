@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import {createPlatformArchitecture} from './platform-architecture.js';
 
 const TAU=Math.PI*2;
 const mesh=(geometry,material,x=0,y=0,z=0)=>{const o=new THREE.Mesh(geometry,material);o.position.set(x,y,z);o.castShadow=true;o.receiveShadow=true;return o;};
@@ -50,9 +51,7 @@ function platform(parent,p,m,index,district){
  // The entire rectangular authoritative contact surface is exactly y=0.
  g.add(box(w,.12,d,m.tile,0,-.06,0));
  g.add(bevel(w+.06,.24,d+.06,m.stone,0,-.24,0));
- g.add(bevel(w-.12,.62,d-.12,m.terracotta,0,-.65,0));
- g.add(bevel(w+.04,.13,d+.04,m.edge,0,-1.02,0));
- g.add(bevel(w-.65,.22,d-.65,m.copper,0,-1.18,0));
+ g.add(createPlatformArchitecture(p,m,district,index));
  // Large inset corner tiles and shallow cut seams, not floating trim rails.
  for(const side of [-1,1]){
   g.add(box(w-.28,.015,.055,m.edge,0,.008,side*(d/2-.3)));
@@ -62,16 +61,6 @@ function platform(parent,p,m,index,district){
  }
  // Paving joints stop at the central circulation field.
  for(const side of [-1,1])for(let j=0;j<3;j++){g.add(box(.018,.012,.64,m.edge,side*(w*.27),.008,(j-1)*d*.27));}
- const supportHeight=5.2+(index%3)*1.2;
- g.add(cyl(w*.29,w*.18,supportHeight,m.terracotta,0,-1.24-supportHeight/2,0,8));
- g.add(cyl(w*.36,w*.29,.5,m.stone,0,-1.5,0,8));
- for(const side of [-1,1]){
-  const bracket=bevel(.35,2.3,.45,m.edge,side*w*.3,-2.12,0);bracket.rotation.z=-side*.25;g.add(bracket);
-  g.add(box(.42,1.1,.04,m.dark,side*.5,-2.5,w*.255));
-  g.add(box(.16,.7,.045,m.glow,side*.5,-2.5,w*.26));
- }
- // Roots disappear into the fog instead of a flat roof closing the holes.
- for(let j=0;j<3;j++){const rock=mesh(new THREE.IcosahedronGeometry(.7,0),m.clay,(j-1)*.55,-supportHeight-1.15,.1);rock.scale.set(.8,1.6+(j%2)*.6,.75);g.add(rock);}
  if(index%2===0){vine(g,m,-w/2+.1,-.32,-d/2+.25,2.0,index);vine(g,m,-w/2+.2,-.4,d/2-.3,1.35,index+1);}
  // Exterior planting is below the foot plane, preserving the full landing rectangle.
  if(index%2===1||p.kind==='rest'){
@@ -146,8 +135,8 @@ function armillary(parent,m,x,y,z,size=1){
  for(let i=0;i<5;i++){const q=i*TAU/5;g.add(mesh(new THREE.OctahedronGeometry(.1),m.glow,Math.cos(q)*1.9,Math.sin(q)*1.9,0));}
  return g;
 }
-// Broad, eroded landforms support the city. Each has an irregular rim, sloping strata
-// and a narrow root, so the centre reads as a deep ravine instead of a second floor.
+// Broad, eroded landforms support the city. Each has an irregular footprint and
+// tiered silhouette, not a central roof that would cover the genuine route gaps.
 function landform(parent,m,x,y,z,rx,rz,height,seed=0,distant=false){
  const g=group(parent,x,y,z),n=13,vertices=[],uv=[],idx=[];
  const widths=[1,.98,.81,.85,.52,.16],levels=[0,-.55,-height*.26,-height*.44,-height*.8,-height];
