@@ -33,28 +33,63 @@ test('the 3D garden has bounded raised landscape silhouettes in every camera hea
   }
 });
 
-test('horizon dressing preserves every existing vertex in the playable court and coping', async () => {
+test('horizon and sculpt preserve the exact historic court baseline and all other stonework vertices', async () => {
   const THREE = await import('three');
+  const fs = require('node:fs'), path = require('node:path');
   const { createHash } = require('node:crypto');
   const { createWorld } = await import('../../public/snake-stream/world.mjs');
-  // Captured from c086716's actual model before adding the distant landscape.
+  // R32 intentionally sculpts only bounded original court top corners.
+  // Preserve the old baseline's exact previous model and fixed historical
+  // digests instead of weakening the original provenance assertion.
+  const latest = fs.readFileSync(path.resolve(__dirname, '../../public/snake-stream/world.mjs'), 'utf8');
+  const startMarker = '          // BEGIN R32 ORIGINAL QUARRY CORNER SCULPT\n';
+  const endMarker = '          // END R32 ORIGINAL QUARRY CORNER SCULPT\n';
+  const a = latest.indexOf(startMarker), b = latest.indexOf(endMarker);
+  assert.ok(a >= 0 && b > a && latest.indexOf(startMarker,a + 1) < 0, 'one bounded cosmetic geometry insertion');
+  const normalInsert = '\n    if (sourceMaterial === tileMat) merged.computeVertexNormals();';
+  assert.equal(latest.split(normalInsert).length, 2, 'matching normal update must be stripped from the historical model');
+  const original = (latest.slice(0, a) + latest.slice(b + endMarker.length)).replace(normalInsert,'');
+  const sourceGitBlob = createHash('sha1').update('blob ' + Buffer.byteLength(original))
+    .update(Buffer.from([0])).update(original).digest('hex');
+  assert.equal(sourceGitBlob, '4c50160ffb9c78b822cf2cb8d670e29baf994fea', 'historical model is exact parent Git blob');
+  const { createWorld: baselineWorld } = await import('data:text/javascript;base64,' + Buffer.from(original).toString('base64'));
+  // Captured from c086716's actual model before distant landscape construction.
   const fixtures = [[8, 8, '04f2ae8f27ea38d45ca700bd0a582475be0b90c9d9eb67cfdb228643c80f3977'],
     [28, 16, '277c7d660f88c2c90a9956b096919d5a1e3c5eaede155d0bd4642acd8ea8f55b'],
     [40, 24, '587de9395e35166688cbdc109be5509b2c733e45f3dfe0dbd1c47b2b11f238c5']];
-  for (const [width, height, expected] of fixtures) {
-    const world = createWorld(THREE, { width, height });
+  for (const [width,height,expected] of fixtures) {
+    const baseline = baselineWorld(THREE,{width,height});
+    const world = createWorld(THREE,{width,height});
     try {
       const values = [];
-      world.group.traverse(mesh => {
+      baseline.group.traverse(mesh => {
         if (!mesh.isMesh || !mesh.userData.staticWorld) return;
-        const p = mesh.geometry.attributes.position;
-        for (let i = 0; i < p.count; i++) {
-          if (Math.abs(p.getX(i)) <= width / 2 + 1 && Math.abs(p.getZ(i)) <= height / 2 + 1)
-            values.push(p.getX(i), p.getY(i), p.getZ(i));
-        }
+        const p=mesh.geometry.attributes.position;
+        for(let i=0;i<p.count;i++)
+          if(Math.abs(p.getX(i))<=width/2+1 && Math.abs(p.getZ(i))<=height/2+1)
+            values.push(p.getX(i),p.getY(i),p.getZ(i));
       });
-      const digest = createHash('sha256').update(Buffer.from(new Float32Array(values).buffer)).digest('hex');
-      assert.equal(digest, expected, 'no changed gameplay-plane or coping geometry');
-    } finally { world.dispose(); }
+      const digest=createHash('sha256').update(Buffer.from(new Float32Array(values).buffer)).digest('hex');
+      assert.equal(digest,expected,'original playable court and coping remain exact to historical fixture');
+      const oldMeshes=baseline.group.children.filter(mesh=>mesh.isMesh&&mesh.userData.staticWorld);
+      const newMeshes=world.group.children.filter(mesh=>mesh.isMesh&&mesh.userData.staticWorld);
+      assert.equal(oldMeshes.length,13);
+      assert.equal(newMeshes.length,oldMeshes.length,'original static material batches remain');
+      let compared=0,foundCourt=false;
+      for(let i=0;i<oldMeshes.length;i++){
+        const previous=oldMeshes[i],current=newMeshes[i];
+        assert.equal(current.name,previous.name,'static material batch and order unchanged');
+        const before=previous.geometry.attributes.position.array;
+        const after=current.geometry.attributes.position.array;
+        assert.equal(after.length,before.length,'no extra vertex allocations');
+        const isCourt=previous.material?.map?.image?.width===1024&&previous.material.map.image.height===512;
+        if(isCourt){foundCourt=true;continue;}
+        assert.equal(Buffer.compare(Buffer.from(before.buffer,before.byteOffset,before.byteLength),
+          Buffer.from(after.buffer,after.byteOffset,after.byteLength)),0,
+          'all non-court cliffs, coping and flora retain exact geometry bytes: '+current.name);
+        compared++;
+      }
+      assert.ok(foundCourt&&compared===12,'only the individually tested playable slab corners may move');
+    } finally {baseline.dispose();world.dispose();}
   }
 });

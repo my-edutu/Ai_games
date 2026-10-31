@@ -32,17 +32,29 @@ test('real Chromium WebGL: directional slab relief versus exact prior world blob
   const prior = changed.replace('+grazingLight;', ';');
   expect(current).toContain(insert);
   expect(current).toContain(changed);
-  const baseline = current.replace(insert, '').replace(changed, prior);
+  // Later Round32 changed real corner geometry. Reconstruct the exact
+  // Round31 source first so this older light-only A/B remains strictly
+  // isolated rather than attributing later sculpted geometry to its pigment.
+  const cornerStart = '          // BEGIN R32 ORIGINAL QUARRY CORNER SCULPT\n';
+  const cornerEnd = '          // END R32 ORIGINAL QUARRY CORNER SCULPT\n';
+  const a = current.indexOf(cornerStart), b = current.indexOf(cornerEnd);
+  expect(a).toBeGreaterThan(-1);
+  expect(b).toBeGreaterThan(a);
+  const sculptNormals = '\n    if (sourceMaterial === tileMat) merged.computeVertexNormals();';
+  expect(current.split(sculptNormals).length).toBe(2);
+  const round31 = (current.slice(0,a) + current.slice(b + cornerEnd.length)).replace(sculptNormals,'');
+  const baseline = round31.replace(insert, '').replace(changed, prior);
   const gitBlob = source => crypto.createHash('sha1').update('blob ' + Buffer.byteLength(source) + '\0').update(source).digest('hex');
+  expect(gitBlob(round31)).toBe('4c50160ffb9c78b822cf2cb8d670e29baf994fea');
   expect(gitBlob(baseline)).toBe('97039edc7512080b8f369483c3b4800e7180625e');
   const capture = [];
-  for (const [label, source] of [['before', baseline], ['after', current]]) {
+  for (const [label, source] of [['before', baseline], ['after', round31]]) {
     const page = await browser.newPage({ viewport: { width: 960, height: 640 }, reducedMotion: 'reduce' });
     const errors = [];
     page.on('pageerror', error => errors.push(error.message));
     try {
       await page.route('**/snapshot', route => route.fulfill({ json: frame }));
-      if (label === 'before') await page.route('**/world.mjs', route => route.fulfill({ contentType: 'text/javascript', body: source }));
+      await page.route('**/world.mjs', route => route.fulfill({ contentType: 'text/javascript', body: source }));
       await page.goto(baseURL + '/?camera=overview&quality=low', { waitUntil: 'domcontentloaded' });
       await page.waitForFunction(() => window.__snakePresentation?.stats().frameCount >= 3);
       const results = await page.evaluate(() => {

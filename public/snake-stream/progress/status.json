@@ -1,14 +1,14 @@
 {
-  "updatedAt": "2026-10-31T17:47:20.000Z",
-  "status": "Round 32 · actual sculpted quarry stone corners; controlled browser evidence pending",
-  "detail": "Round31 Chromium before/after stone-light pixel change passed (20/21 real-browser checks) but strict desktop 15 actual render submissions/1015.4ms versus minimum 17 failed. Round32 physically sculpts selected original courtyard tile top lips, all inside each grid cell, bounded flat heights under belly clearance; no additional GPU passes/mesh batches/textures or gameplay changes. Exact-parent source, actual-world node regression and four before/after same-public-frame Chromium WebGL captures need CI. Snake Pass visual/motion parity, ≥17 gate, independent critic, display-present real-device FPS, soak and R5 remain open.",
+  "updatedAt": "2026-10-31T17:58:20.000Z",
+  "status": "Round 32 · real WebGL quarry-corner A/B verified; old historical tests isolated; strict render gate remains failed",
+  "detail": "Round32 current exact 3D sculpt passed new live Chromium/SwiftShader same-frozen-frame overview/detail comparisons and new actual-world geometry Node test. In source c093197b focused 20/22 (old Round31 exact parent SHA test needed historical isolation; actual desktop 15 WebGL submissions/1014ms versus unchanged minimum 17 FAIL); general 564/565 Node (old horizon baseline demanded unmodified stone after intentional sculpt). Both old tests now preserve historic exact previous-source fixtures while accepting *only* bounded original per-tile cosmetic deformation. Corrective exact-head CI pending. Pixel differences subtle, official Snake Pass/ASTRO BOT full-game bar LOSE; independent critic, device display-present FPS, soak and R5 OPEN.",
   "latestImage": "/progress/evidence/round-9-overview.jpg",
   "latestCaption": "Historical real WebGL image, not Round32. Exact current 3D-slab before/after captures will be linked only after CI verifies them.",
   "reviews": [
     {
       "area": "Round 32 · physical courtyard slab corner geometry",
-      "verdict": "SOURCE CANDIDATE · ACTUAL WORLD NODE/WEBGL PENDING · WHOLE SNAKE PASS BAR LOSE",
-      "gap": "Selected corners of original stone tile geometry are sculpted within exact original board cells, with flat ±0.009 slab tops. Verify Chromium before/after overview/detail and unchanged 17 actual-render frame gate; no independent reviewer, device present FPS, soak or R5 yet."
+      "verdict": "TRUE WEBGL OVERVIEW/DETAIL A/B VERIFIED · REAL MODEL NODE VERIFIED · LEGACY BASELINE ISOLATION PENDING CI · STRICT 15/17 FAIL · WHOLE-GAME LOSE",
+      "gap": "Round32 focused real-WebGL A/B 20/22 (new sculpt test PASS, historic R31 SHA conflict and unchanged strict desktop 15/1014ms FAIL). General 564/565 Node incl. new R32 geometry PASS, old horizon exact-court hash conflict. Two legacy tests now maintain SHA/historic fixture/other-mesh byte parity with carefully scoped new top corners; run exact-source CI again. Frozen viewport pixel difference small; independent Snake Pass comparison and device-present FPS/soak/R5 still missing."
     },
     {
       "area": "Round 31 · full garden scene and quarry slab texture",
@@ -532,7 +532,7 @@
     },
     {
       "title": "Round 32 · original sculpted quarry slab corners",
-      "summary": "Presentation-only physical corner variations and safe flat slab height diversification in the already static-batched stone court; same-public-frame WebGL and performance evidence pending.",
+      "summary": "Original 3D quarry corner sculpt verified by real Chromium/SwiftShader frozen public-frame overview/detail A/B (artifact 13052176221), and actual merged-world Node geometry test. Pixel delta modest and limited to field; strict desktop 15 actual renders/1014ms < 17 failed. Historical previous-round tests have been made source-specific, pending CI.",
       "captures": []
     }
   ],
