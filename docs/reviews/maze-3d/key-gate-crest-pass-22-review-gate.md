@@ -1,0 +1,18 @@
+# Game 2 Gauntlet — pass 22: observed key ↔ physically sealed gate
+
+**2026-10-31. Status: implementation and regression committed; exact-source CI and NEW rendered visual evidence pending. The fixed Captain Toad benchmark is NOT PASSED.**
+
+## Largest remaining gap and independent slices
+
+The actual pass-21 captures make Pip and the crossed gate larger but still do not explain their physical relationship to the collected key without the HUD. The latest genuinely inspected output is the [pass 20–21 evidence review](./gate-framing-pass-20-21-review.md), seed `maze-visual-reference-13`, tick 21, captured 2026-10-31 at 10:44:14/10:44:16 UTC in [artifact 13039268530](https://github.com/my-edutu/Ai_games/actions/runs/41193675854/artifacts/13039268530). Those screenshots are **not** evidence of pass 22.
+
+1. **Matching-key silhouette (builder implemented):** [source 47d28b4](https://github.com/my-edutu/Ai_games/commit/47d28b463b2e515b6072656a6ba559db7ffec91d) reuses the collectible's real octagonal key bow and teeth on a broad in-world lock crest above the physically crossed barrier, only if that exact gate's `requiredKeyId` matches an already disclosed key. The still-closed passage remains blocked.
+2. **Truthful collected-key transition:** only the exact public inventory entry changes the crest from gold/amber to mint. A mint crest means **key carried**, never **door open**. The crossed coral seal can disappear only from `door.open` in the authoritative public snapshot. A hidden, unmatched or unrelated key cannot create a hint.
+3. **Lifecycle and leak regressions:** [test commits f1f3aa0](https://github.com/my-edutu/Ai_games/commit/f1f3aa0cbe1f56c2b4d2e63e9728685ece41ab5c) and [02816e6](https://github.com/my-edutu/Ai_games/commit/02816e6837fc676ceeb4b5b82ee6a23f21e2c1ae) check undisclosed and unrelated keys, observed matching key, inventory-only updates, actual door opening, visible still-crossed barrier, existing geometry budgets and teardown. World-object signature now includes public inventory, so no stale crest is retained. There are no new geometries, textures, game rules or hidden pathfinding.
+4. **Actual output and independent judgment (NOT yet met):** CI must pass at the exact candidate SHA; its genuine production same-seed/tick desktop and portrait images must be captured, dated, source-hash checked and visually inspected. A fresh-context separate critic must then compare with the fixed byte-pinned [Nintendo reference manifest](./reference-manifest.json) and, if possible, do anonymous A/B against pass 21. None of these new visual verifications is claimed here.
+
+## Fixed visual bar / decision
+
+Nintendo's real Captain Toad: Treasure Tracker gameplay images (IDs `toad-scene`, `toad-maze` in [reference-manifest.json](./reference-manifest.json)) remain unchanged. The inspected pass-21 scene loses on instant cause/effect legibility, focal-scale storytelling and authored visual hierarchy despite functioning as a 3D environment. A tiny key/lock crest by itself cannot establish a benchmark win. If the rendered crest is occluded or too small, the builder must revise *that specific slice* rather than merely change global camera zoom again.
+
+**Capabilities/limits:** the shared-workspace connector returned `Tunnel-client has not been seen for 300 seconds` when invoking both commands and the subagent roster. No fresh separate builder/critic or Ultracode could run. No fresh browser render was claimed and the CPU-throttled SwiftShader environment is not representative GPU performance. Source-only work used the GitHub connector with exact blob-SHA updates and preserved the existing branch. PR #53 stays draft; do not merge or deploy.
