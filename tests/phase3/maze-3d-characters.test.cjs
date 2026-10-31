@@ -154,3 +154,37 @@ test('Pip presents a modeled carried key to a real nearby lock and clears it for
     assert.equal(pip.group.children.length,0);
   }
 });
+
+
+test('Pip turns the actual presenting glove toward either public lock bearing and clears the pose', async () => {
+  const {createExplorer} = await modulePromise;
+  for (const balanced of [false, true]) {
+    const pip = createExplorer({balanced});
+    const arm = pip.group.getObjectByName('shoulder -1');
+    const key = pip.group.getObjectByName('presented matching key');
+    // The gate is already disclosed and its exact key already carried when
+    // the presentation adapter supplies these values. This unit test checks
+    // articulation only; the pure public-state selector has separate tests.
+    pip.update({heading: 0, keyHeading: Math.PI / 2, keyStrength: 1, reducedMotion: true});
+    assert.equal(key.visible, true);
+    assert.ok(arm.rotation.y > .75, 'the left glove aims toward a right-hand lock');
+    assert.ok(arm.rotation.z > 0, 'the arm reaches across the chest instead of hanging below the key');
+    const rightwardYaw = arm.rotation.y;
+    pip.update({heading: 0, keyHeading: -Math.PI / 2, keyStrength: 1, reducedMotion: true});
+    assert.ok(arm.rotation.y < -.75, 'the left glove also aims toward a left-hand lock');
+    assert.ok(arm.rotation.z < -.25, 'the arm reaches outward toward that side');
+    pip.update({heading: 0, keyHeading: Math.PI / 2, keyStrength: .4, reducedMotion: true});
+    assert.ok(arm.rotation.y > 0 && arm.rotation.y < rightwardYaw,
+      'weaker real proximity creates a proportionately smaller presentation');
+    pip.update({heading: 0, keyStrength: 0, reducedMotion: true});
+    assert.equal(arm.rotation.y, 0, 'no public matching key means no lingering bearing');
+    assert.equal(key.visible, false);
+    pip.update({heading: 0, keyHeading: Math.PI / 2, keyStrength: 1,
+      attentionHeading: -Math.PI / 2, attentionStrength: 1, reducedMotion: true});
+    assert.equal(arm.rotation.y, 0, 'a disclosed guardian takes priority');
+    pip.update({heading: 0, keyHeading: Math.PI / 2, keyStrength: 1,
+      result: 'capture', reducedMotion: true});
+    assert.equal(arm.rotation.y, 0, 'a real terminal result takes priority');
+    pip.dispose();
+  }
+});
