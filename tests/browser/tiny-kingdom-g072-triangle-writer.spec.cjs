@@ -49,10 +49,11 @@ test('G072 live WebGL geometry and replay remain valid after fast triangle writi
  await page.locator('#pause').click();
  const result=await page.evaluate(()=>{
   const game=window.__tinyKingdom;
+  const audit=game.getGeometryAudit(),stats=game.renderStats();
   const snapshot=game.exportSnapshot();
   const before=JSON.stringify(snapshot);
   game.restoreSnapshot(snapshot);
-  return {audit:game.getGeometryAudit(),stats:game.renderStats(),
+  return {audit,stats,
    authorityIdentical:before===JSON.stringify(game.exportSnapshot()),
    glError:document.getElementById('world').getContext('webgl')?.getError()||0};
  });
