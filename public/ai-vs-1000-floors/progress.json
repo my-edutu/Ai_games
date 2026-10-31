@@ -1,6 +1,6 @@
 {
-  "updated": "30 October 2026 · playable review candidate / four visual iterations",
-  "verdict": "Playable review candidate · reference benchmark not passed",
+  "updated": "31 October 2026 · four gameplay iterations + interface iteration 5",
+  "verdict": "Interface iteration 5 · full-game rerun pending · benchmark not passed",
   "pieces": [
     {
       "name": "The 1,000-floor campaign",
@@ -14,8 +14,8 @@
     },
     {
       "name": "Viewer controls & saves",
-      "state": "Verified",
-      "evidence": "All six Chromium functional checks pass in the supported low-quality mode. High-quality captures have no page errors, but this headless host is slow; hardware frame-rate and long-duration operation remain unverified."
+      "state": "UI review",
+      "evidence": "Iteration 5: ten local Chromium UI-harness tests and six Node server/asset tests pass. The earlier six full-game checks belong to iteration 4; current WebGL, worker, audio and full campaign behavior were not rerun. The new UI consumes existing rendered outputs without changing save or simulation authority."
     }
   ],
   "iterations": [
@@ -72,6 +72,18 @@
         }
       ],
       "videoWebm": "/floors/evidence/iteration-4-motion-fallback.webm"
+    },
+    {
+      "label": "Iteration 5 · interface-only verification",
+      "title": "A quieter HUD, a clearer expedition",
+      "summary": "Replaced the pale full-frame wash with compact dark-green panels and gold progress, improved portrait/short-landscape layouts and added a keyboard-safe Journey dialog. Current floor, cleared floors, district and checkpoint read only the live application output. Settings now have accessible switches. Ten UI-harness checks and six Node server/asset checks pass; the new module is explicitly allowlisted.",
+      "verdict": "Self-reviewed only. The coding workspace was offline; the actual 3D game and independent reference comparison were not rerun. No ASTRO BOT win or production claim.",
+      "links": [
+        {
+          "label": "Scope, tests and remaining gaps",
+          "url": "https://github.com/my-edutu/Ai_games/blob/feat/game4-thousand-floors-gauntlet/docs/gauntlet/thousand-floors/UI-ITERATION-5.md"
+        }
+      ]
     }
   ],
   "references": [
@@ -93,6 +105,7 @@
   ],
   "gaps": [
     "The fixed ASTRO BOT gameplay reference remains preferred; improvements to this build do not constitute a benchmark win.",
+    "Iteration 5 changes only the interface. Re-run the actual moving game with this HUD to inspect character/landing occlusion, persistence, audio, input and GPU performance; UI fixture tests do not establish these.",
     "Districts need more distinct large-scale composition and surface treatment; repeated square platforms and brick towers remain prominent.",
     "The campaign has one generated route per floor. Alternative route selection remains an explicit design gap.",
     "High-quality motion was slow on this shared headless graphics host. Real-hardware frame-rate, audio listening quality and broader accessibility review remain open.",
