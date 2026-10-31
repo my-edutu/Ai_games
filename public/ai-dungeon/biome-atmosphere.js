@@ -1,5 +1,6 @@
 import * as THREE from '/dungeon/vendor/three.module.js';
 import {createDungeonSetpieces} from '/dungeon/dungeon-setpieces.js';
+import {planCavernRim} from '/dungeon/cavern-rim-plan.js';
 
 /**
  * Broadcast-grade procedural set dressing that is never authoritative.
@@ -79,22 +80,22 @@ export function createBiomeAtmosphere(root,map,floor,exit){
   makeInstanced(objects,poolGeo,dark,pools);
   makeInstanced(objects,poolGeo,emissive,innerPools);
  }
- // A surrounding cavern skyline is part of the 3D set, not an invisible map border.
- // Tall silhouettes, distinctive glowing crowns and varied depths give every tracking shot a horizon.
- const distantColumns=[],distantCrowns=[],distantRock=[];
- for(let i=0;i<34;i++){
-  // The scenic perimeter MUST remain outside all gameplay camera offsets;
-  // older radius-12 skyline columns occluded most real Chromium screenshots.
-  const angle=i*Math.PI*2/34,range=32+pick(i,52,floor)*10,x=Math.cos(angle)*range,z=Math.sin(angle)*range;
-  const h=3.5+pick(i,53,floor)*8.4,w=.72+pick(i,54,floor)*1.55;
-  distantColumns.push([x,h/2-.2,z,w,h,w,(i%6)*Math.PI/6]);
-  distantCrowns.push([x,h-.1,z,w*1.2,.18,w*1.2]);
-  if(i%4===0)distantRock.push([x+1.7,.6,z-1.4,1.6,1.1,1.8]);
- }
- const horizonGeo=geometry(new THREE.CylinderGeometry(.68,1,1,7));
- makeInstanced(objects,horizonGeo,dark,distantColumns);
- makeInstanced(objects,stoneGeo,pale,distantCrowns);
- makeInstanced(objects,crystalGeo,dark,distantRock);
+ // The distant cavern is an authored *non-playable* rock rim, not more walkable
+ // tiles or a painted 2D panorama. Two deterministic, fully instanced low-poly
+ // strata sit past all four map corners, so they cannot block actor sightlines.
+ // This replaces the thin 34-column silhouette that disappeared into the sky.
+ const rim=planCavernRim(floor,size);
+ const ridgeGeo=geometry(new THREE.DodecahedronGeometry(.5,1));
+ const nearStone=register(new THREE.MeshStandardMaterial({
+  color:new THREE.Color(biome.shadow).lerp(new THREE.Color('#77818a'),.62),
+  roughness:.97,metalness:.02,flatShading:true
+ }));
+ const farStone=register(new THREE.MeshStandardMaterial({
+  color:new THREE.Color(biome.shadow).lerp(new THREE.Color('#566a77'),.44),
+  roughness:1,metalness:0,flatShading:true
+ }));
+ makeInstanced(objects,ridgeGeo,nearStone,rim.near);
+ makeInstanced(objects,ridgeGeo,farStone,rim.far);
  // No full-height translucent light cones: the measured real render showed that
  // even two shafts create a glaring green triangle across the hero encounter.
  // Small physically shaded ornaments, pools and key lights convey magic instead.
@@ -125,7 +126,7 @@ export function createBiomeAtmosphere(root,map,floor,exit){
   setpieces.update(time);
   for(let i=0;i<lights.length;i++)lights[i].intensity=1.05+Math.sin(time*2+i)*.16;
  };
- const metrics={biome:biome.name,landmarks:setpieces.metrics.landmarks,roomArt:setpieces.metrics,glowSources:lights.length,particles:count,liquidOrRifts:pools.length,crystalClusters:spires.length,backgroundStructures:distantColumns.length,lightShafts:shafts.length};
+ const metrics={biome:biome.name,landmarks:setpieces.metrics.landmarks,roomArt:setpieces.metrics,glowSources:lights.length,particles:count,liquidOrRifts:pools.length,crystalClusters:spires.length,backgroundStructures:rim.near.length+rim.far.length,rimNear:rim.near.length,rimFar:rim.far.length,lightShafts:shafts.length};
  return{update,metrics,dispose(){
   setpieces.dispose();objects.parent?.remove(objects);
   for(const m of material)m.dispose();for(const t of textures)t.dispose();for(const g of geometries)g.dispose();
