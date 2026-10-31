@@ -1,3 +1,64 @@
+/**
+ * Original distant rock formation, authored as irregular weathered bedding.
+ * Deterministic, closed at the angular seam and shared by every scenery
+ * island. Extra shape detail is baked into the existing 13 static batches:
+ * no extra materials, draw calls or frame-time geometry creation.
+ */
+export function buildHeadlandGeometry(THREE) {
+  const sides = 28;
+  const rings = [
+    [0, .44], [.09, .69], [.16, .87], [.22, 1.06], [.29, .88],
+    [.36, 1.05], [.42, .78], [.49, .84], [.56, .75], [.63, .95],
+    [.70, .78], [.76, .86], [.85, .70], [.92, .66], [1, .58],
+  ];
+  const positions = [], uv = [], indices = [];
+  for (let k = 0; k < rings.length; k++) {
+    const [y, width] = rings[k];
+    for (let i = 0; i <= sides; i++) {
+      const a = i / sides * Math.PI * 2;
+      // Worn ledges and clefts are not a repeating conical profile. The
+      // higher angular frequencies fracture otherwise smooth silhouettes.
+      const erosion = 1 + .075 * Math.sin(a * 3 + .2)
+        + .052 * Math.cos(a * 5 - .6)
+        + .027 * Math.sin(a * 9 + .7 + y * 4)
+        + .014 * Math.cos(a * 13 - y * 8);
+      const radius = width * erosion;
+      positions.push(Math.cos(a) * radius, y, Math.sin(a) * radius);
+      uv.push(i / sides * 3, y * 2.5);
+      if (k && i < sides) {
+        const current = k * (sides + 1) + i;
+        const previous = current - sides - 1;
+        indices.push(previous, current, previous + 1, previous + 1, current, current + 1);
+      }
+    }
+  }
+  const center = positions.length / 3;
+  positions.push(0, 1, 0); uv.push(1.5, 2.5);
+  for (let i = 0; i < sides; i++) {
+    const edge = (rings.length - 1) * (sides + 1) + i;
+    indices.push(center, edge + 1, edge);
+  }
+  const geometry = new THREE.BufferGeometry();
+  geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+  geometry.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2));
+  geometry.setIndex(indices);
+  geometry.computeVertexNormals();
+  // The first and last angular vertices share position, but their UVs differ
+  // by exactly three wraps. Smooth their normals to remove a vertical scar.
+  const normals = geometry.attributes.normal;
+  const seam = new THREE.Vector3(), first = new THREE.Vector3(), last = new THREE.Vector3();
+  for (let k = 0; k < rings.length; k++) {
+    const a = k * (sides + 1), b = a + sides;
+    first.fromBufferAttribute(normals, a);
+    last.fromBufferAttribute(normals, b);
+    seam.copy(first).add(last).normalize();
+    normals.setXYZ(a, seam.x, seam.y, seam.z);
+    normals.setXYZ(b, seam.x, seam.y, seam.z);
+  }
+  normals.needsUpdate = true;
+  return geometry;
+}
+
 /** Original procedural verdant-ruins diorama. No simulation state is retained or changed. */
 export function createWorld(THREE, {width, height}) {
   if (!Number.isInteger(width) || !Number.isInteger(height) || width < 2 || height < 2) throw new Error('World requires integer board dimensions');
@@ -236,22 +297,7 @@ export function createWorld(THREE, {width, height}) {
   // composition and cool material keep the gameplay rectangle as the bright stage.
   const distantRock=material({color:0x658777,map:stoneMap,roughness:1});
   const distantGreen=material({color:0x447967,map:mossMap,roughness:1});
-  const headlandShape=geometry(makeHeadland());
-  function makeHeadland(){
-    const p=[],uv=[],indices=[],sides=18;
-    const levels=[[0,.48],[.12,.9],[.28,1],[.46,.84],[.58,.94],[.77,.74],[.9,.78],[1,.65]];
-    for(let k=0;k<levels.length;k++){
-      const [y,r]=levels[k];
-      for(let i=0;i<=sides;i++){
-        const a=i/sides*Math.PI*2,shape=1+.065*Math.sin(a*3+.4)+.035*Math.cos(a*5);
-        p.push(Math.cos(a)*r*shape,y,Math.sin(a)*r*shape);uv.push(i/sides*3,y*2);
-        if(k&&i<sides){const b=k*(sides+1)+i,c=b-sides-1;indices.push(c,b,c+1,c+1,b,b+1);}
-      }
-    }
-    const center=p.length/3;p.push(0,1,0);uv.push(1.5,1);
-    for(let i=0;i<sides;i++){const a=(levels.length-1)*(sides+1)+i;indices.push(center,a+1,a);}
-    const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(p,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));g.setIndex(indices);g.computeVertexNormals();return g;
-  }
+  const headlandShape=geometry(buildHeadlandGeometry(THREE));
   for(const [x,z,s,h] of [[-21,-28,4.4,2.4],[-15,-33,4.2,3.8],[-9,-35,2.9,1.8],[18,-32,5.2,2.6],[25,-37,4.4,3.2]]){
     // Broad layered banks sit in the water, rather than towering beside the stage.
     add(headlandShape,distantRock,x,-3.65,z,s,h,s*.75,0,.4,0);

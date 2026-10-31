@@ -1,10 +1,15 @@
 {
-  "updatedAt": "2026-10-31T05:16:16.064Z",
-  "status": "Round 15 verified · 542 Node tests green; real 3D pacing still fails",
-  "detail": "The camera-distance serpent shader LOD has exact-head browser and Node evidence. General CI passed 542/542 Node tests and all host/authority/operations checks; only browser pacing failed. Focused browser 15/16, actual renders 10 in 1015ms versus required 17. Close-up PBR and original color maps are intact; frozen overview is nearly identical, but commercial Snake Pass look/motion and performance gates remain unmet.",
+  "updatedAt": "2026-10-31T05:29:00Z",
+  "status": "Round 16 candidate · weathered irregular rock bedding; browser review pending",
+  "detail": "The rounded identical distant cliffs were a major staging gap. A new single shared deterministic 3D cliff mesh uses fifteen eroded ledges, angular fractures and continuous normals at UV seams, retaining the original stone materials and static batching. The gameplay court is unchanged. Node tests pass; actual new browser images, frame pacing and independent comparison remain open.",
   "latestImage": "/progress/evidence/round-9-overview.jpg",
   "latestCaption": "Historical Round 9 image (not a Round 15 screenshot). Current exact-head real WebGL captures are linked in Round 15 below; CI artifact bundles cannot be embedded as images.",
   "reviews": [
+    {
+      "area": "Round 16 · world composition and cliff silhouettes",
+      "verdict": "SOURCE + MODEL CHECKS · REAL BROWSER REVIEW PENDING",
+      "gap": "Previously repeated smooth cylindrical rocks now contain shaped ledges and fracture variations, with no additional materials/textures/draw calls. The actual camera images must be inspected before any visual win claim."
+    },
     {
       "area": "Round 15 · original pigment and camera-distance shading",
       "verdict": "VERIFIED CODE + CAPTURES · overall LOSE",
@@ -237,9 +242,15 @@
           "path": "https://github.com/my-edutu/Ai_games/actions/runs/41170386701/artifacts/13030936791"
         }
       ]
+    },
+    {
+      "title": "Round 16 · weathered headland strata",
+      "summary": "Replaces the nearly cylindrical distant cliff primitive with an original 15-level, 28-facet terrain rock with eroded ledges, deterministic fracture detail and a smoothed seam. Shared cached static batches, board rules and textures remain unchanged. New actual renders and performance review are pending.",
+      "captures": []
     }
   ],
   "checks": [
+    "Round 16 TDD: missing geometry factory failed as expected, new closed/UV-seam/normal/ledge geometry passed. All 39 focused Snake Node tests passed. Existing horizon and playable-court SHA fixtures passed. Real browser capture/pacing and fresh independent review pending.",
     "Round 15 source commit 2e4fe40: general CI 41171326786 build + 542/542 Node tests, all four host self-tests, authority scan and operations/release checks pass. Overall general CI still FAILED browser (27/28).",
     "Round 15 focused browser CI 41171326788 15/16. Desktop gate FAILED: 10 actual render submissions /1015ms versus unchanged minimum 17; 60.10 RAF callbacks/s not rendered frames. No FPS win.",
     "Round 15 matched 960×640 real WebGL frozen snapshot differs on 1.912% of pixels, mean RGB-channel absolute delta 0.0843; detail, mobile portrait and 18.48s actual motion inspected. This is not visual parity or display-present FPS.",
