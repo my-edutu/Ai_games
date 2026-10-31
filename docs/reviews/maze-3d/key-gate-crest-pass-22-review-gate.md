@@ -1,6 +1,6 @@
 # Game 2 Gauntlet — pass 22: observed key ↔ physically sealed gate
 
-**2026-10-31. Status: implementation and regression committed; exact-source CI and NEW rendered visual evidence pending. The fixed Captain Toad benchmark is NOT PASSED.**
+**2026-10-31. Status: exact-source CI PASSED and new original browser imagery verified; independent Captain Toad benchmark remains NOT PASSED.**
 
 ## Largest remaining gap and independent slices
 
@@ -16,3 +16,15 @@ The actual pass-21 captures make Pip and the crossed gate larger but still do no
 Nintendo's real Captain Toad: Treasure Tracker gameplay images (IDs `toad-scene`, `toad-maze` in [reference-manifest.json](./reference-manifest.json)) remain unchanged. The inspected pass-21 scene loses on instant cause/effect legibility, focal-scale storytelling and authored visual hierarchy despite functioning as a 3D environment. A tiny key/lock crest by itself cannot establish a benchmark win. If the rendered crest is occluded or too small, the builder must revise *that specific slice* rather than merely change global camera zoom again.
 
 **Capabilities/limits:** the shared-workspace connector returned `Tunnel-client has not been seen for 300 seconds` when invoking both commands and the subagent roster. No fresh separate builder/critic or Ultracode could run. No fresh browser render was claimed and the CPU-throttled SwiftShader environment is not representative GPU performance. Source-only work used the GitHub connector with exact blob-SHA updates and preserved the existing branch. PR #53 stays draft; do not merge or deploy.
+
+
+## Post-build: actual pass-22 rendered output and exact-source validation (2026-10-31)
+
+- [Renderer-source CI 41197086460](https://github.com/my-edutu/Ai_games/actions/runs/41197086460) **completed SUCCESS**, recording a real `maze-visual-reference-13` tick **21** blocked `door-2` frame. [Original screenshot artifact 13040969661](https://github.com/my-edutu/Ai_games/actions/runs/41197086460/artifacts/13040969661) was downloaded, extracted, decoded and visually inspected. No synthetic run states or composited objects were substituted.
+- **Desktop capture:** `2026-10-31T11:35:54.061Z`, 1280×900; SHA-256 `b6012dba20c0227ee0048dcdd31eac7f224f952c08bf86904889286bc75aba5b`. **Portrait capture:** `2026-10-31T11:35:56.592Z`, 390×844; SHA-256 `23bf59973f46c9c242e9fe8ce8480b56b2538eb61d226dd591c11b7e942deab7`. Each recomputed PNG hash exactly matched its adjacent original CI manifest.
+- **Source identity:** both original manifests list `world.js` SHA-256 `bf28fc96a1a5c172d2622caac5a3ca5ae17fde82fe1d0e829a94530fa473b0eb`, `scene.js` SHA-256 `becab989a6882262d522e083ea76fbc90f6383ffd75b03a4f0dd65f3e953d97a`. The prior pass-21 source lists `world.js` SHA-256 `76970e2a38badaf8edcd7cb8639f2a6a86f26bdc4df3f0cfc709bb371218f002`. App/scene/camera sources did not change.
+- **Same-frame comparison:** both pass-21 and pass-22 original artifacts were unpacked and SHA-256 verified. At the same seed/tick, desktop and portrait `cameraHalfHeight`, `nearbySealedGateProjection`, `explorerProjection` and `closedGatesInFrame` diagnostics are identical. The new mint octagonal key-shaped crest is visibly attached above the genuine crossed gate. Pip and the gate are still left-biased with a large lagoon, and there is no acted-out key-to-lock gesture or immediately readable next move without the HUD. **This is a useful localized improvement, NOT a Captain Toad win.**
+- [Final focused-source tests CI 41197217318](https://github.com/my-edutu/Ai_games/actions/runs/41197217318) **completed SUCCESS**, exact commit `02816e6`: **524/524 Node tests; 25/25 browser checks**, build, all four host self-tests, nondeterminism scan and real screenshot capture. The tests validate legal source transitions; they cannot determine artistic parity.
+- Fresh independent critics and Ultracode remained inaccessible because the workspace tunnel rejects calls; the comparison above is explicitly **lead-only**, not a blind A/B or independent victory. The observed software-renderer P50 timing of ~217ms in this CPU-throttled capture is not representative GPU FPS or proof of a product defect. The fixed byte-pinned Nintendo images remain unchanged and visibly stronger in action readability, focused staging and expressive animation.
+
+**Next largest independently judgeable slice:** make Pip visibly respond to this actually carried matching key and closed lock (without implying the barrier opened); check both actual key-in-inventory and undisclosed/unrelated-key cases. Then stage a real same-seed/tick desktop/portrait blind A/B with a fresh critic when the workspace is accessible. Do not zoom the whole camera merely to compensate for a tiny action cue.

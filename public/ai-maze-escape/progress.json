@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-10-31T11:34:47.277Z",
+  "updatedAt": "2026-10-31T11:40:19.537Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass 22 (2026-10-31): source 47d28b4 models a public-matching key crest on an actually sealed gate; f1f3aa0 and 02816e6 add exact-match, undisclosed-key, inventory and open-door regressions. CI/current real screenshots/independent critic remain pending, so this is NOT a verified visual checkpoint. Last inspected authentic pass21 seed maze-visual-reference-13 tick21 screenshots were captured 10:44:14/10:44:16 UTC in CI artifact 13039268530. The unchanged SHA-pinned Captain Toad bar remains unpassed; subagents/Ultracode unavailable through disconnected shared workspace; software rendering is not hardware-FPS evidence."
+    "summary": "Pass 22 (2026-10-31): actual source 47d28b4, exact test 02816e6. Renderer-source CI 41197086460 and exact-source CI 41197217318 both PASSED; final Node 524/524 and browser 25/25. Authentic production seed maze-visual-reference-13 tick21 closed door-2 captured desktop 11:35:54 UTC SHA b6012dba20c0227ee0048dcdd31eac7f224f952c08bf86904889286bc75aba5b and portrait 11:35:56 UTC SHA 23bf59973f46c9c242e9fe8ce8480b56b2538eb61d226dd591c11b7e942deab7, hashes verified against GitHub artifact 13040969661. A real matching-key crest now appears on the still sealed gate; camera projections unchanged. This localized rendering improvement DOES NOT beat Captain Toad. No independent fresh critic/Ultracode due disconnected workspace, no representative GPU FPS."
   },
   "captures": [
     {
@@ -113,10 +113,10 @@
     "Pass 18: real closed-door camera prioritizes already-public terrain rather than blank lagoon; source 4b74885, CI 41184813290 green 524 Node/25 browser, genuine seed13 tick21 desktop/portrait screenshot hashes in artifact 13037025673, direct image inspection. Desktop waterlike mask 53.059% to 46.457% (not aesthetic score). Portrait nearly unchanged and Pip/gate still left of center. Review: docs/reviews/maze-3d/gate-stage-pass-18-review.md. Nintendo NOT passed.",
     "Pass 19: source-only public sealed-gate composition rebalances stage and truly known closed gate in the follow camera, with original bounds and deterministic rules unchanged. CI 41189735556 passed 524 Node and 25 Playwright checks and emitted real seed13/tick21 1280×900 desktop and 390×844 portrait gate shots (SHA-pinned in artifact 13038422543). Subjects shifted modestly right; some blank lagoon returned. Review docs/reviews/maze-3d/gate-composition-pass-19-review.md. Fixed Nintendo quality bar NOT PASSED; no independent fresh critic, Ultracode or hardware-FPS conclusion.",
     "Passes 20–21: the follow-camera view of a real public, actually sealed gate moves closer on desktop/portrait while preserving source-only authority. Pass 20 made Pip and crossed lock larger but cropped the arch; pass 21 raises the actual camera target 0.36 to restore the arch. Final source CI 41193675854 passed all 524 Node and 25 browser checks and produced real dated 1280×900/390×844 captures (artifact 13039268530, SHA-pinned in gate-framing-pass-20-21-review.md). Fixed Captain Toad bar NOT PASSED; independent critics/Ultracode unavailable.",
-    "Pass 22 candidate: a real public-matching, octagonal key emblem now pairs the observed collectible with its genuinely sealed gate; gold depicts known key and mint only the exact key in public inventory, while the crossed barrier persists until authority opens the door. Focused leak, lifecycle and inventory regressions added. Current-source CI and real visual evidence are pending; pass21 remains latest independently inspected imagery."
+    "Pass 22 source-verified: a physically modeled matching octagonal key emblem appears above a genuinely sealed gate only for the exact already-disclosed key or public inventory; a mint crest indicates key carried, while the crossed barrier persists until authority opens. Real same-seed/tick21 1280×900 and 390×844 production browser captures from CI 41197086460 inspected and SHA-pinned (artifact 13040969661), exact-source CI 41197217318 passed 524 Node/25 browser checks. The visual bar is still unpassed."
   ],
   "nextGaps": [
-    "Verify pass22 exact-source CI and genuine same-seed/tick21 desktop/portrait captures; determine whether the physical matching key crest is legible at actual gameplay scale, without text. Compare directly with pass21 and the unchanged pinned Nintendo references. If too small/occluded, correct only the observed local key–lock/action silhouette. The 3D benchmark remains unpassed and separate critics are pending reconnection.",
+    "The newly visible physical key crest is not enough: make Pip's real modeled key/lock interaction and the closed gate's blocking response readable without HUD, exclusively when the matching key is publicly carried. Keep camera/source boundaries intact, capture real current-source desktop+portrait frames, and compare blind A/B with separate fresh-context critics after reconnect. Fixed Captain Toad bar remains unpassed.",
     "Establish stronger gameplay-scale Pip/Thornback expression, gate/key/exit differentiation, environmental material variety and a camera view which preserves both the obstacle and the next *disclosed* action.",
     "Run separate fresh-context visual critics and blind A/B against both unchanged SHA-pinned official Nintendo Captain Toad frames; last independent verdict still favors the reference. Do not claim benchmark parity from CI or lead-only visual judgment.",
     "Review actual animated stair/gait/guardian motion, original game audio, accessibility and true GPU performance on less CPU-throttled hardware; SwiftShader frame times do not establish hardware FPS.",
@@ -253,6 +253,13 @@
       "verdict": "Larger Pip/gate, restored arch but more water; Nintendo Captain Toad fixed bar NOT PASSED",
       "date": "2026-10-31T10:44:16.172Z",
       "summary": "Original actual public seed maze-visual-reference-13 tick21 disclosed sealed door-2. Pass20 CI 41192941034 source 9130a35 passed 524/524 Node,25/25 browser; pass21 CI 41193675854 source 2d3e08d passed same. Final genuine artifact 13039268530: desktop 10:44:14.289Z SHA 175dbe92880684723408b93a717c681095099b546c79b9fc66cfc05d923b9d9e, portrait 10:44:16.172Z SHA 49579cd2af952d74ea1da6f50ed4f6779ca1ebc06afe9f246182fcb1a7c99f18, both verified original PNG. More arch and same larger game-scale hero/barrier but left-biased and large lagoon. Source-bound review docs/reviews/maze-3d/gate-framing-pass-20-21-review.md; no independent A/B or hardware FPS."
+    },
+    {
+      "title": "Pass 22 · observed key crest and still-sealed gate",
+      "reviewer": "Lead inspection of genuine CI capture (NOT independent)",
+      "verdict": "Key crest visibly improved; fixed Nintendo reference still wins",
+      "date": "2026-10-31T11:35:56.592Z",
+      "summary": "Genuine same-seed/tick21 desktop and portrait renders in CI artifact 13040969661 show an extra mint key emblem above a real closed gate, with unchanged camera projections and verified screenshot/source hashes. Pip/lock action remains ambiguous and Nintendo wins. A separate fresh blind critic was unavailable due disconnected workspace."
     }
   ],
   "verification": [
