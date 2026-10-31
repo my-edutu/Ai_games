@@ -1,14 +1,22 @@
 # Game 4 — THOUSAND: Gauntlet progress
 
-## Current verdict: playable review candidate; reference preferred
+## Current verdict: iteration 6 reviewed in the real game; benchmark not passed
 
-The branch now contains an executable finite 1,000-floor 3D game, an original explorer and companion, ten district themes, saved checkpoints, viewer controls and a live evidence page. **ASTRO BOT remains preferred in the latest independent visual comparison. This is not a benchmark win or production approval.**
+Product source `bfa34ec1fb93d478d5ddb87c051ef8d8f602bd5d` adds ten distinct district material/light palettes, surface relief, gradient skies and original architectural landmarks. The compact iteration-5 HUD runs with the real campaign again. **535 local catalogue tests, 32 focused checks and six actual-game browser tests pass.** Five new high-quality WebGL stills were inspected across four districts and portrait, without recorded page/HTTP errors.
+
+Read [iteration 6: exact evidence, costs and visual self-review](ITERATION-6.md). [Actual screenshot artifact](https://github.com/my-edutu/Ai_games/actions/runs/41164336812/artifacts/13029195358) is retained by CI for seven days; the capture script is committed for reproduction. The running progress page links directly to current district review routes.
+
+The benchmark remains **not passed**. This retry was self-reviewed because the worker service stayed offline, not independently judged against ASTRO BOT. Character models and campaign rules were deliberately preserved. Repeated square platforms, sparse distant scenery and stronger expressive motion remain the largest gaps. The toolchain's two high-severity audit warnings also remain a release concern.
+
+## Historical evidence through iteration 4
+
+The image, counts and independent reviews below are the historical iteration-4 record, not current iteration-6 performance measurements. Current high-quality desktop stills report 26 textures and 102–205 draw calls; no hardware FPS or long-soak result is claimed.
 
 Baseline `d1678cd` named Game 4 in the catalogue but had no playable Game 4 runtime. These captures therefore show the development of a new implementation from that verified starting point.
 
-![Actual current Game 4 capture](../../../evidence/thousand-floors/captures/iteration-4-desktop.jpg)
+![Historical iteration-4 Game 4 capture](../../../evidence/thousand-floors/captures/iteration-4-desktop.jpg)
 
-## Current evidence
+## Historical iteration-4 evidence
 
 | Piece | Result | Evidence |
 |---|---|---|
@@ -26,11 +34,16 @@ Baseline `d1678cd` named Game 4 in the catalogue but had no playable Game 4 runt
 4. **Iteration 3:** a skinned articulated explorer, richer architecture/materials and geometry batching. [Desktop](../../../evidence/thousand-floors/captures/iteration-3-desktop.jpg), [portrait](../../../evidence/thousand-floors/captures/iteration-3-mobile.jpg). The [second visual critic](visual-critic-round-2.md) found an upcoming exit entering view too late and a world still dominated by isolated slabs.
 5. **Iteration 4:** connected cliff terraces, lower galleries and distant settlements; anticipatory framing uses the authoritative route cursor and a stable scale. [Desktop](../../../evidence/thousand-floors/captures/iteration-4-desktop.jpg), [portrait](../../../evidence/thousand-floors/captures/iteration-4-mobile.jpg), [motion excerpt](../../../evidence/thousand-floors/captures/iteration-4-motion.mp4). Actual later-district captures: [Aqueduct, floor 102](../../../evidence/thousand-floors/captures/district-2-aqueduct.jpg), [Coral Archive, floor 403](../../../evidence/thousand-floors/captures/district-5-coral.jpg), [Crown, floor 902](../../../evidence/thousand-floors/captures/district-10-crown.jpg). The latest critic no longer reproduced the prior exit clipping in the sampled traversal and found no new actor/next-landing obstruction in the inspected material.
 
-## Remaining gaps
+## Historical iteration-4 gaps
 
 The largest presentation gap is district-specific primary architecture and material finish: repeated square caps, brick towers and regular surface treatment remain prominent. The agent follows one generated route per floor; alternative route selection is not implemented. The high-quality recordings are slow on this shared host, so real-time animation quality and hardware frame rate require further evidence. Broader accessibility, audio listening quality, context-loss recovery and production soak remain open.
 
 No blind study is claimed: recognizable characters and HUDs reveal the sources. The [reference manifest](reference-evidence.md) records official clips, exact timestamps and comparison limits. Reference assets are not shipped as original game art. `ultracode` is unavailable in this environment; independent builder/fresh-critic roles were executed with the available subagents.
+
+## Later iterations
+
+6. **Iteration 5:** [compact UI and Journey panel](UI-ITERATION-5.md), originally verified through UI fixtures.
+7. **Iteration 6:** [distinct district architecture and real-game verification](ITERATION-6.md), actual browser checks and captures, author self-review. No benchmark win claimed.
 
 ## Run and inspect
 

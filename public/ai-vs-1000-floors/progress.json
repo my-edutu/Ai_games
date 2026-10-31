@@ -1,21 +1,21 @@
 {
-  "updated": "31 October 2026 · four gameplay iterations + interface iteration 5",
-  "verdict": "Interface iteration 5 · full-game rerun pending · benchmark not passed",
+  "updated": "31 October 2026 · iteration 6 / actual-game district review",
+  "verdict": "Distinct district architecture and materials · real-game checks passed · benchmark not passed",
   "pieces": [
     {
       "name": "The 1,000-floor campaign",
       "state": "Verified",
-      "evidence": "Finite completion, seeded content, real hazard contact and recoverable checkpoints. Four independent campaign reviews corrected persistence defects; no remaining P1 was found in the final bounded review. The policy follows one route per floor."
+      "evidence": "535 local catalogue tests pass; 32 focused Game 4 tests pass locally and in CI. Finite campaign, save validation and collision authority are unchanged. The policy still follows one route per floor."
     },
     {
       "name": "Character & living tower",
       "state": "In review",
-      "evidence": "Original articulated explorer and companion; ten district themes, textured architecture and connected cliff terraces. The sampled late-landing camera defect is corrected. ASTRO BOT remains the preferred visual reference."
+      "evidence": "Ten district palettes, generated relief/roughness, gradient skies and original architectural landmarks. Five actual WebGL captures were self-reviewed across four districts and portrait. Character models/rigging are unchanged; no fresh independent benchmark win."
     },
     {
       "name": "Viewer controls & saves",
-      "state": "UI review",
-      "evidence": "Iteration 5: ten local Chromium UI-harness tests and six Node server/asset tests pass. The earlier six full-game checks belong to iteration 4; current WebGL, worker, audio and full campaign behavior were not rerun. The new UI consumes existing rendered outputs without changing save or simulation authority."
+      "state": "Verified",
+      "evidence": "Iteration 6: six actual-game Chromium functional tests pass in supported low quality. The previous compact HUD and Journey panel now run with the real renderer/worker. High-quality stills have no recorded page/HTTP errors; hardware FPS remains unverified."
     }
   ],
   "iterations": [
@@ -84,6 +84,38 @@
           "url": "https://github.com/my-edutu/Ai_games/blob/feat/game4-thousand-floors-gauntlet/docs/gauntlet/thousand-floors/UI-ITERATION-5.md"
         }
       ]
+    },
+    {
+      "label": "Iteration 6 · actual WebGL captures",
+      "title": "A different skyline for every district",
+      "summary": "Ten material and lighting palettes, generated surface relief and original district landmarks replace uniform presentation with conservatories, aqueducts, coral vaults and a golden crown. Actual captures cover floors 006, 102, 403 and 902, plus portrait. 535 local catalogue tests, 32 focused checks and six real-game browser tests pass.",
+      "verdict": "Self-reviewed only. Repeated square-pad geometry, distant terrain and character expression remain below the fixed quality bar. The benchmark is not passed.",
+      "links": [
+        {
+          "label": "Inspect current Verdant Atrium",
+          "url": "/floors/?review=6"
+        },
+        {
+          "label": "Inspect current Sunlit Aqueduct",
+          "url": "/floors/?review=102"
+        },
+        {
+          "label": "Inspect current Coral Archive",
+          "url": "/floors/?review=403"
+        },
+        {
+          "label": "Inspect current Crown of Dawn",
+          "url": "/floors/?review=902"
+        },
+        {
+          "label": "Actual screenshots and source record (7-day CI retention)",
+          "url": "https://github.com/my-edutu/Ai_games/actions/runs/41164336812/artifacts/13029195358"
+        },
+        {
+          "label": "Verification and visual self-review",
+          "url": "https://github.com/my-edutu/Ai_games/blob/feat/game4-thousand-floors-gauntlet/docs/gauntlet/thousand-floors/ITERATION-6.md"
+        }
+      ]
     }
   ],
   "references": [
@@ -104,11 +136,10 @@
     }
   ],
   "gaps": [
-    "The fixed ASTRO BOT gameplay reference remains preferred; improvements to this build do not constitute a benchmark win.",
-    "Iteration 5 changes only the interface. Re-run the actual moving game with this HUD to inspect character/landing occlusion, persistence, audio, input and GPU performance; UI fixture tests do not establish these.",
-    "Districts need more distinct large-scale composition and surface treatment; repeated square platforms and brick towers remain prominent.",
-    "The campaign has one generated route per floor. Alternative route selection remains an explicit design gap.",
-    "High-quality motion was slow on this shared headless graphics host. Real-hardware frame-rate, audio listening quality and broader accessibility review remain open.",
-    "The ten-district resource cycle returned to its exact initial geometry/texture counts; a long production soak and live audience operation have not been established."
+    "The fixed ASTRO BOT quality bar is not passed; this increment has a visual self-review, not a fresh independent comparison.",
+    "Repeated square platforms, sparse distant terrain and expressive character presentation still need substantial work. Main landmark roofs are cropped on desktop and less visible in portrait follow framing.",
+    "Alternative route selection remains absent: the campaign follows one generated route per floor.",
+    "26 textures and 102–205 draw calls were recorded across the four new desktop stills. Real hardware frame-rate, audio listening quality, broad accessibility and long GPU-memory soak are unverified.",
+    "The pinned toolchain reports two high-severity audit findings. No dependency/security-clean or production-ready claim is made."
   ]
 }
