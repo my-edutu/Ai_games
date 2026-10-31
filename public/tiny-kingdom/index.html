@@ -1643,6 +1643,8 @@ function walkable(x,z){
   if(Math.hypot(x+15,z-4)<1.1)return false;
   // Guild forge walls are solid; the outdoor trade path remains accessible.
   if(Math.abs(x-CRAFT_DISTRICT.x)<CRAFT_DISTRICT.width*.5-.10&&Math.abs(z-CRAFT_DISTRICT.z)<CRAFT_DISTRICT.depth*.5-.12)return false;
+  // Raised granary stonework is also solid; harvested fields remain walkable.
+  if(Math.abs(x-FARMSTEAD.granary[0])<2.34&&Math.abs(z-FARMSTEAD.granary[1])<2.06)return false;
   if(Math.abs(x-SCENIC_SITES.sanctuary.x)<3.8&&Math.abs(z-SCENIC_SITES.sanctuary.z)<5.35)return false;
   const waterline=20+Math.sin(x*.13)*3;
   if(Math.abs(z-waterline)<1.7&&Math.abs(x+17)>2.1&&Math.abs(x-10)>2.1&&Math.abs(x-SCENIC_SITES.bridge.x)>1.65)return false;
@@ -1903,6 +1905,13 @@ ctx.globalAlpha=.2;ctx.strokeStyle='#e0f9b6';for(let i=1;i<7;i++){ctx.beginPath(
 ctx.strokeStyle='#dbbe8b';ctx.lineWidth=5;for(const points of [[[-16,-7],[-8,-4],[-4,3],[6,2],[14,2]],[[0,-15],[0,-9],[-4,3],[4,15]]]){ctx.beginPath();points.forEach((p,i)=>i?ctx.lineTo(...map(...p)):ctx.moveTo(...map(...p)));ctx.stroke()}
 // Clearly differentiated, navigable public landmarks — these do not inflate population or building totals.
  for(const site of Object.values(SCENIC_SITES)){const q=map(site.x,site.z);ctx.beginPath();ctx.arc(q[0],q[1],site.kind==='stone sanctuary'?8:6,0,Math.PI*2);ctx.fillStyle=site.kind==='stone sanctuary'?'#ffe5ba':'#83fff2';ctx.fill();ctx.strokeStyle='#163e4d';ctx.lineWidth=2;ctx.stroke()}
+ // Seasonal farm's grain-store marker; this does not inflate economic building totals.
+ {const [fx,fz]=FARMSTEAD.granary,[sx,sy]=map(fx,fz);
+  ctx.fillStyle='#2a5444';ctx.beginPath();ctx.arc(sx,sy,10,0,Math.PI*2);ctx.fill();
+  ctx.strokeStyle='#c9e887';ctx.lineWidth=2;ctx.stroke();
+  ctx.font='bold 13px system-ui';ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.fillStyle='#fff3b1';ctx.fillText('✣',sx,sy+1);
+ }
  // Craft guild atlas marker: a warm-amber working district, distinct from homes.
  {const [sx,sy]=map(CRAFT_DISTRICT.x,CRAFT_DISTRICT.z);
   ctx.fillStyle='#382c3c';ctx.fillRect(sx-9,sy-9,18,18);
