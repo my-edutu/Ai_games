@@ -744,7 +744,20 @@ function materialSwatchAudit(){
  }
  return rows;
 }
-function tri(a,b,c,col){let ux=b[0]-a[0],uy=b[1]-a[1],uz=b[2]-a[2],vx=c[0]-a[0],vy=c[1]-a[1],vz=c[2]-a[2];let nx=uy*vz-uz*vy,ny=uz*vx-ux*vz,nz=ux*vy-uy*vx,len=Math.hypot(nx,ny,nz)||1;for(const v of [a,b,c])data.push(...v,nx/len,ny/len,nz/len,...col,currentMaterial)}
+// G072: one array append per triangle rather than allocating a vertex
+// iterator and spreading three vertices/colours on every dynamic frame.
+// Keep the original cross-product/division sequence, material and vertex
+// order byte-equivalent for render-only snapshots and shader inputs.
+function tri(a,b,c,col){
+ const ux=b[0]-a[0],uy=b[1]-a[1],uz=b[2]-a[2];
+ const vx=c[0]-a[0],vy=c[1]-a[1],vz=c[2]-a[2];
+ const nx=uy*vz-uz*vy,ny=uz*vx-ux*vz,nz=ux*vy-uy*vx,len=Math.hypot(nx,ny,nz)||1;
+ const normalX=nx/len,normalY=ny/len,normalZ=nz/len;
+ const r=col[0],g=col[1],blue=col[2],material=currentMaterial;
+ data.push(a[0],a[1],a[2],normalX,normalY,normalZ,r,g,blue,material,
+  b[0],b[1],b[2],normalX,normalY,normalZ,r,g,blue,material,
+  c[0],c[1],c[2],normalX,normalY,normalZ,r,g,blue,material);
+}
 // G055: WebGL interpolates RGB per vertex across a shadow triangle, giving
 // a genuine gradient penumbra instead of the former flat green decal.
 function triGradient(a,b,c,ca,cb,cc){
