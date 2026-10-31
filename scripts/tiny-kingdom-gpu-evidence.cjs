@@ -78,6 +78,28 @@ const path = require('node:path');
     await page.evaluate(()=>window.__tinyKingdom.setCamera({zoom:24,pitch:.51,yaw:.82,focus:[0,0]}));
     await page.waitForTimeout(450);
     evidence.staticGPUAfterCamera=await page.evaluate(()=>window.__tinyKingdom.renderStats());
+    // G056 real-renderer idle gate: with simulation paused and an unchanged
+    // camera, expensive scene regeneration/draws must stop. Count actual
+    // completed engine frames (not rAF callbacks) on the same SwiftShader GPU.
+    const frozenBaseline=await page.evaluate(()=>{
+      const g=window.__tinyKingdom;
+      return {quality:g.renderQuality(),authority:JSON.stringify(g.exportSnapshot())};
+    });
+    await page.waitForFunction(previous=>
+      window.__tinyKingdom.renderQuality().idleFrames>=previous+6,
+      frozenBaseline.quality.idleFrames,{timeout:20000});
+    evidence.pausedFrameReuse=await page.evaluate(before=>{
+      const g=window.__tinyKingdom,q=g.renderQuality();
+      return {idleSkips:q.idleFrames-before.quality.idleFrames,
+        submittedFrames:q.framesDrawn-before.quality.framesDrawn,
+        authorityUnchanged:before.authority===JSON.stringify(g.exportSnapshot()),
+        tier:q.tier};
+    },frozenBaseline);
+    if(evidence.pausedFrameReuse.idleSkips<6||
+       evidence.pausedFrameReuse.submittedFrames>1||
+       !evidence.pausedFrameReuse.authorityUnchanged)
+      throw Error('G056 frozen-frame GPU performance/replay gate failed: '+
+        JSON.stringify(evidence.pausedFrameReuse));
     const stillClock=await page.evaluate(()=>window.__tinyKingdom.getState().state.t);
     if(stillClock!==freezeClock)throw Error('Pausing authority failed during camera-only GPU test');
 
