@@ -71,6 +71,19 @@ const path = require('node:path');
     for(const mesh of [evidence.geometry.static,evidence.geometry.dynamic]){
       if(!mesh.aligned||mesh.invalidComponents||mesh.invalidNormals||mesh.invalidColors||mesh.outOfBounds)throw Error('Malformed 3D geometry: '+JSON.stringify(mesh));
     }
+    // G046: exact emitted side-façade triangles, not just a static file marker.
+    // This also keeps the screenshot workload bounded on SwiftShader.
+    evidence.cottageFacades=await page.evaluate(()=>{
+      const g=window.__tinyKingdom,authority=JSON.stringify(g.exportSnapshot());
+      const details=g.getCottageFacadeStats();
+      return {...details,authorityUnchanged:authority===JSON.stringify(g.exportSnapshot())};
+    });
+    const f=evidence.cottageFacades;
+    if(f.homes!==13||f.styles.length<3||f.plasterPanels!==f.homes*2||
+       f.sideWindows!==f.homes*4||f.diagonalBraces<f.homes*4||
+       f.meshTriangles<=f.homes*100||f.meshTriangles>=f.homes*450||
+       !f.authorityUnchanged||evidence.geometry.totalTriangles>=134000)
+      throw Error('Gauntlet 046 facade geometry budget or identity failed: '+JSON.stringify(f));
     evidence.water=await page.evaluate(()=>window.__tinyKingdom.waterStats());
     if(evidence.water.model!=='fresnel-ripple-shorefoam-v1'||evidence.water.waterTriangles!==1260||evidence.water.bankTriangles!==840)
       throw Error('River material or shoreline geometry gate failed');
@@ -220,6 +233,7 @@ const path = require('node:path');
       {name:'stone-bridge.png',camera:{focus:[-6,18.1],yaw:.84,pitch:.64,zoom:26}},
       {name:'riverbank-close.png',camera:{focus:[-12,19],yaw:.66,pitch:.48,zoom:17}},
       {name:'guild-forge.png',camera:{focus:[19,-15],yaw:.78,pitch:.57,zoom:23}},
+      {name:'cottage-facades.png',camera:{focus:[10,-5],yaw:1.50,pitch:.40,zoom:14}},
       {name:'farmstead-wide.png',camera:{focus:[23,1],yaw:3.86,pitch:.56,zoom:25}},
       {name:'granary-close.png',camera:{focus:[29,-5],yaw:3.05,pitch:.50,zoom:18}},
     ]){
