@@ -21,7 +21,7 @@ test('G058 real grass normal relief is world-anchored, range-faded, material-iso
   return {materials:game.getMaterialSystem(),mesh:game.getGeometryAudit(),
    before,after:JSON.stringify(game.exportSnapshot()),hasGPU:!!gl,source};
  });
- expect(r.materials.surfaceShaderVersion).toBe('procedural-060');
+ expect(r.materials.surfaceShaderVersion).toBe('procedural-063');
  expect(r.materials.materials).toEqual(['GENERAL','GRASS','WATER','ROAD','FOLIAGE','STONE','WOOD','ROOF','PLASTER']);
  expect(r.mesh.totalTriangles).toBeGreaterThan(150000);
  expect(r.mesh.totalTriangles).toBeLessThan(160000);

@@ -9,7 +9,7 @@ test('G063 river shader shades coherent deep channel, silty shallows and flow-re
  // G063b first GPU critic: mesh tint banding still looked like candy stripes.
  // A single base tint must be shared by the playable water and tapered ends.
  expect(html).toContain('const riverWaterTint=rgb(0x658c82);');
- expect((html.match(/const tone=riverWaterTint;/g)||[])).toHaveLength(2);
+ expect((html.match(/\btone=riverWaterTint;/g)||[])).toHaveLength(2);
  expect(html).not.toContain('i===0||i===5?rgb(0x719ca0)');
  expect(waterSource).toContain('float sedimentGrain=');
  expect(waterSource).toContain('vec2 riverCurrent=');

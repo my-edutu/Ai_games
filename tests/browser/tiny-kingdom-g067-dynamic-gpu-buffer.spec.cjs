@@ -17,6 +17,10 @@ test('G067 live and camera-only frames reuse bounded GPU dynamic vertex storage 
   return {stats:g.renderStats(),geometry:g.getGeometryAudit(),
    authority:JSON.stringify(g.exportSnapshot()),camera:g.getCamera()};
  });
+ // Fail immediately on absent counters, rather than polling undefined values.
+ expect(before.stats.dynamicGpuAllocations).toBeGreaterThanOrEqual(1);
+ expect(before.stats.dynamicGpuUploads).toBeGreaterThanOrEqual(3);
+ expect(before.stats.dynamicGpuCapacityFloats).toBeGreaterThanOrEqual(before.geometry.dynamic.floats);
  // Camera rotation must draw a new scene but must not rebuild static geometry.
  await page.evaluate(camera=>window.__tinyKingdom.setCamera({
   yaw:camera.yaw+.28,pitch:camera.pitch,zoom:camera.zoom,focus:camera.focus
