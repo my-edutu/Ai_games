@@ -1,9 +1,9 @@
 {
-  "updatedAt": "2026-10-31T06:53:34.373Z",
-  "status": "Round 18 · actual WebGL sightline capture verified; desktop actual-draw gate remains FAILED",
-  "detail": "Exact-source 035216c: synthetic near-food stress WebGL screenshot passed and shows the face unoccluded; two normal real WebGL frozen overview images are pixel-identical to the prior source (0 different pixels). Focused browser 16/17 (8 actual submissions/1010.3ms vs minimum 17); general 545/545 Node green, browser 28/29 (8 actual submissions/1007.6ms vs minimum 17). Whole-game visual, motion, R5 and performance remain unapproved.",
+  "updatedAt": "2026-10-31T08:08:12.628Z",
+  "status": "Round 19 · six live water-edge draws removed; pixel-equivalent, but actual-draw pacing FAILED",
+  "detail": "Exact-source 6b5cf573: 42→36 WebGL draw calls, 39→33 world render objects, 37→31 world geometries; three real 960×640 matched WebGL captures are pixel-identical. Offline baseline red/candidate green, focused 6/6 Node, general CI 546/546 Node passed. Focused browser 16/17 (11 actual draws/1013.7ms); general browser 28/29 (10 actual draws/1005ms), both below unchanged 17 gate. Actual 16.6s gameplay capture inspected; commercial reference and independent R5 not achieved. PR still draft.",
   "latestImage": "/progress/evidence/round-9-overview.jpg",
-  "latestCaption": "Historical Round 9 image (not Round 18). Current true WebGL Round 18 character, overview, portrait, synthetic fruit-sightline stress images and 19.08s motion are available in actual CI artifacts, linked below.",
+  "latestCaption": "Historical Round 9 image (not Round 19). Actual new Round 19 WebGL gameplay, matched overview, synthetic clearly labeled sightline stress, portrait and 16.6s motion are linked below in CI artifacts.",
   "reviews": [
     {
       "area": "Round 18 · close-up food/face occlusion",
@@ -47,8 +47,8 @@
     },
     {
       "area": "Frame delivery and reliability",
-      "verdict": "FAILED unchanged desktop gate, regression tests GREEN",
-      "gap": "Exact-source focused run 41171326788 15/16: 10 actual draws/1015ms vs 17. General run 41171326786 542/542 Node, host/authority/operations all passed; browser 27/28 pace failed at 10 real renders/1004.9ms."
+      "verdict": "FAILED unchanged desktop actual-draw gate; structural draw-call reduction proven",
+      "gap": "Round19 exact-source focused 41182634973 16/17 browser at 11 actual submissions/1013.7ms (<17), general 41182634899 28/29 at 10/1005ms; 546/546 Node pass. 42→36 WebGL draw calls, 39→33 objects; frozen screenshots pixel identical. Distinct run buffers forbid inferring 11 vs 9 submissions as a causal throughput win."
     }
   ],
   "rounds": [
@@ -294,9 +294,33 @@
           "path": "https://github.com/my-edutu/Ai_games/actions/runs/41177849409/artifacts/13033534430"
         }
       ]
+    },
+    {
+      "title": "Round 19 · merged live water-edge ornaments",
+      "summary": "Exact source 6b5cf573: six fixed foam + two fixed falls are now two real transparent live draw objects with exact vertex/UV/normal/index parity. Real WebGL 42→36 draw calls, world geometry 37→31; three frozen screenshots unchanged pixel-for-pixel. General 546/546 Node green and focused 16/17 browser, general 28/29 browser; actual desktop pacing remains FAILED at 11/1013.7ms and 10/1005ms (<17). Official Snake Pass craft/motion LOSE, independent critic unavailable.",
+      "captures": [
+        {
+          "label": "Current actual WebGL screenshot/trace captures, including labeled synthetic sightline fixture",
+          "path": "https://github.com/my-edutu/Ai_games/actions/runs/41182634973/artifacts/13035199108"
+        },
+        {
+          "label": "Current 16.6s actual WebGL gameplay motion recording",
+          "path": "https://github.com/my-edutu/Ai_games/actions/runs/41182634973/artifacts/13035667493"
+        },
+        {
+          "label": "Current focused raw metrics and diagnostic profiles",
+          "path": "https://github.com/my-edutu/Ai_games/actions/runs/41182634973/artifacts/13035657602"
+        },
+        {
+          "label": "Current general browser scene captures",
+          "path": "https://github.com/my-edutu/Ai_games/actions/runs/41182634899/artifacts/13035359425"
+        }
+      ]
     }
   ],
   "checks": [
+    "Round 19 real WebGL: six fewer draw calls (42→36), six fewer world draw objects (39→33), six fewer world geometries (37→31). Three matched frozen 960x640 actual WebGL PNGs pixel-identical. Archived previous world blob fails new test; candidate passes. Commercial visual bar still LOSE; no independent critic.",
+    "Round 19 exact 6b5cf573 and PR merge bf174c9: 546/546 Node tests pass, all host/authority/operational checks pass. General browser 28/29: 10 actual renders/1005ms < unchanged 17. Focused browser 16/17: 11 actual renders/1013.7ms <17. RAF callbacks and capture video FPS are not display-present FPS.",
     "Round17 4bfef71 general 41172921698: build and 543/544 Node pass. Old raw-red-water diversity test fails on new RGB representation, while new palette test passes. Corrected old test now evaluates visible RGB tuples and GB contour combinations at unchanged >30 and >12 counts. New CI pending.",
     "Round17 4bfef71 exact-head browser 41172921802: 15/16, actual desktop 10 submissions in 1005ms (<17); 60.70 RAF callbacks/s are not renders. 960x640 before image vs 418d495 source changed at most 1/255 per RGB channel, mean 0.031249/255.",
     "Round 17 prior exact-head run 41172211493: focused browser 15/16, desktop 16 actual draw submissions over 1003.5ms vs >=17; ~60.79 RAF callbacks/s are not rendered FPS. Frozen minimal page water-on vs omitted is diagnostic only. New palette regression and exact-head CI pending.",
