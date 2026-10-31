@@ -1,10 +1,15 @@
 {
-  "updatedAt": "2026-10-31T17:58:20.000Z",
-  "status": "Round 32 · real WebGL quarry-corner A/B verified; old historical tests isolated; strict render gate remains failed",
-  "detail": "Round32 current exact 3D sculpt passed new live Chromium/SwiftShader same-frozen-frame overview/detail comparisons and new actual-world geometry Node test. In source c093197b focused 20/22 (old Round31 exact parent SHA test needed historical isolation; actual desktop 15 WebGL submissions/1014ms versus unchanged minimum 17 FAIL); general 564/565 Node (old horizon baseline demanded unmodified stone after intentional sculpt). Both old tests now preserve historic exact previous-source fixtures while accepting *only* bounded original per-tile cosmetic deformation. Corrective exact-head CI pending. Pixel differences subtle, official Snake Pass/ASTRO BOT full-game bar LOSE; independent critic, device display-present FPS, soak and R5 OPEN.",
+  "updatedAt": "2026-10-31T18:18:13.582Z",
+  "status": "Round 33 · bounded diffuse overview facial palette staged; WebGL A/B, full CI and 17-real-render gate pending",
+  "detail": "Exact Round32 parent 1cd9df8. Original detailed face retains all materials and geometry; preallocated Lambert material variants for overview reduce unnecessary far-shot PBR. New 140-view-toggle Node and SHA1 baseline true-WebGL screenshot regressions added; they are not yet verified by CI. Round32 actual focused 21/22 with 8 submitted frames/1003.9ms < unchanged 17 gate. Whole-game official Snake Pass art/motion remains LOSE; no independent critic, real-device presents, soak or R5. Never merge/deploy.",
   "latestImage": "/progress/evidence/round-9-overview.jpg",
-  "latestCaption": "Historical real WebGL image, not Round32. Exact current 3D-slab before/after captures will be linked only after CI verifies them.",
+  "latestCaption": "Historical prior-round WebGL image, NOT Round33. True before/after Round33 screenshots are pending from exact-source browser CI.",
   "reviews": [
+    {
+      "area": "Round 33 · existing sculpted face diffuse overview LOD",
+      "verdict": "EXACT SOURCE STAGED · TESTS/BROWSER A/B PENDING · STRICT 8/17 PRIOR FAIL · COMMERCIAL WHOLE-GAME LOSE",
+      "gap": "Current eye/cheek/jaw geometry is unchanged and original detail PBR returns in close view. New low-detail shader palette must prove its actual WebGL picture and stable resource counts in CI; strict 17 actual frame-submissions threshold and independent visual/motion critique still open."
+    },
     {
       "area": "Round 32 · physical courtyard slab corner geometry",
       "verdict": "TRUE WEBGL OVERVIEW/DETAIL A/B VERIFIED · REAL MODEL NODE VERIFIED · LEGACY BASELINE ISOLATION PENDING CI · STRICT 15/17 FAIL · WHOLE-GAME LOSE",
@@ -534,9 +539,15 @@
       "title": "Round 32 · original sculpted quarry slab corners",
       "summary": "Original 3D quarry corner sculpt verified by real Chromium/SwiftShader frozen public-frame overview/detail A/B (artifact 13052176221), and actual merged-world Node geometry test. Pixel delta modest and limited to field; strict desktop 15 actual renders/1014ms < 17 failed. Historical previous-round tests have been made source-specific, pending CI.",
       "captures": []
+    },
+    {
+      "title": "Round 33 · bounded low-detail facial-surface shader palette",
+      "summary": "Preallocated original-color Lambert equivalents for overview face, leaving cinematic PBR, geometry, jade/cream cheeks, glints, authoritative snake path and accessibility untouched. Exact-parent SHA1 frozen Chromium/SwiftShader visual A/B and 140-switch Node regressions authored; pending new CI/runtime capture. Previous strict pacing 8 actual render submissions/1003.9ms <17. No measured speedup, fresh independent critic or whole-game Snake Pass win yet.",
+      "captures": []
     }
   ],
   "checks": [
+    "Round33 exact-parent 1cd9df8 new low-detail facial shader palette/test candidate. Current Node/full-build/browser screenshot/strict 17-real-render FPS pending exact-source CI. Round32 focused 41227381849 passed 21/22, strict desktop 8 actual WebGL submits/1003.9ms FAIL. Do not count ~61 RAF callbacks or captured-video fps as GPU/display presents.",
     "Round30 source 3ad6b8c focused run 41222574598: 19/20 browser PASS including true-WebGL saddle A/B; strict desktop FAIL 6 actual submissions/1001.2ms vs >=17, ~60.93 RAF callbacks/s not drawn/display-present FPS. Frozen 960x640 before/after 4064 pixels changed, x193–430/y269–361; small body-pigment change only. General run 41222574536 in progress at last check.",
     "Round31 original world 97039edc: new quarry-light regression RED on original; GREEN on edited source. 61/61 focused Snake Node PASS and TypeScript build PASS; browser test SHA-verifies old world and captures real Chromium WebGL before/after on exact public frame, pending live CI. No visual acceptance or strict-performance win claimed.",
     "Round 27 local actual browser recording unavailable: Chromium policy blocked 127.0.0.1 navigation, and Playwright's pinned headless shell is not installed. GitHub isolated CI will evaluate actual updated 3D scene, browser FPS, mobile and reduced-motion. No browser success yet.",
