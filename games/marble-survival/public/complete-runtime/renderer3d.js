@@ -1448,6 +1448,97 @@
     batch.meshes.forEach((mesh,index)=>{if(mesh)drawMesh(mesh,identity,surfaces[index],viewProjection,cameraPosition);});
   }
 
+
+  // G62: software/WebGL fallback cannot afford dozens of decorative draws per
+  // physical mechanism. Low keeps collision-faithful silhouettes by baking
+  // static ramps, pit interiors, obstacles and bumpers into three cached
+  // material groups. Higher tiers retain the complete authored assemblies.
+  let lowMechanicsCache=null;
+  function prepareLowMechanicsBatch(arena){
+    const key=[arena.id,arena.width,arena.height,(arena.ramps||[]).length,(arena.hazards||[]).length,(arena.obstacles||[]).length,(arena.bumpers||[]).length].join(':');
+    if(lowMechanicsCache?.key===key)return lowMechanicsCache;
+    if(lowMechanicsCache){
+      for(const mesh of lowMechanicsCache.meshes){
+        if(!mesh)continue;
+        gl.deleteVertexArray?.(mesh.vao);
+        for(const buffer of mesh.buffers||[])gl.deleteBuffer?.(buffer);
+      }
+    }
+    const groups=Array.from({length:3},()=>({positions:[],normals:[],indices:[],modules:0}));
+    const box=(group,x,y,z,w,h,d)=>appendArchitecturalBox(groups,group,x,y,z,w,h,d);
+
+    for(const ramp of arena.ramps||[]){
+      if(![ramp.x,ramp.y,ramp.width,ramp.height,ramp.startElevation,ramp.endElevation].every(Number.isFinite))continue;
+      const steps=4;
+      for(let i=0;i<steps;i++){
+        const t=(i+0.5)/steps;
+        const elevation=lerp(ramp.startElevation,ramp.endElevation,t)*WORLD_SCALE;
+        const footprintX=ramp.axis==='x'?ramp.width/steps:ramp.width;
+        const footprintY=ramp.axis==='y'?ramp.height/steps:ramp.height;
+        const worldX=(ramp.x+(ramp.axis==='x'?(i+0.5)*ramp.width/steps:ramp.width/2)-arena.width/2)*WORLD_SCALE;
+        const worldZ=(ramp.y+(ramp.axis==='y'?(i+0.5)*ramp.height/steps:ramp.height/2)-arena.height/2)*WORLD_SCALE;
+        const slabHeight=Math.max(0.08,elevation+0.08);
+        box(0,worldX,slabHeight/2,worldZ,footprintX*WORLD_SCALE,slabHeight,footprintY*WORLD_SCALE);
+      }
+    }
+
+    for(const hazard of arena.hazards||[]){
+      if(hazard.kind!=='pit'||![hazard.x,hazard.y,hazard.width,hazard.height].every(Number.isFinite))continue;
+      const cx=(hazard.x+hazard.width/2-arena.width/2)*WORLD_SCALE;
+      const cz=(hazard.y+hazard.height/2-arena.height/2)*WORLD_SCALE;
+      const w=hazard.width*WORLD_SCALE,d=hazard.height*WORLD_SCALE,wall=0.08,depth=0.78;
+      box(0,cx,-depth/2,cz-d/2+wall/2,w,depth,wall);
+      box(0,cx,-depth/2,cz+d/2-wall/2,w,depth,wall);
+      box(0,cx-w/2+wall/2,-depth/2,cz,wall,depth,d);
+      box(0,cx+w/2-wall/2,-depth/2,cz,wall,depth,d);
+      box(1,cx,-depth-0.035,cz,Math.max(0.05,w-wall*2),0.07,Math.max(0.05,d-wall*2));
+    }
+
+    for(const obstacle of arena.obstacles||[]){
+      if(![obstacle.x,obstacle.y,obstacle.width,obstacle.height].every(Number.isFinite))continue;
+      const cx=(obstacle.x+obstacle.width/2-arena.width/2)*WORLD_SCALE;
+      const cz=(obstacle.y+obstacle.height/2-arena.height/2)*WORLD_SCALE;
+      const w=Math.max(0.12,obstacle.width*WORLD_SCALE),d=Math.max(0.12,obstacle.height*WORLD_SCALE);
+      box(0,cx,0.34,cz,w,0.68,d);
+      box(2,cx,0.70,cz,w*0.78,0.045,Math.max(0.05,d*0.78));
+    }
+
+    for(const bumper of arena.bumpers||[]){
+      if(![bumper.x,bumper.y,bumper.radius].every(Number.isFinite))continue;
+      const p=toWorld(bumper.x,bumper.y,arena),r=Math.max(0.10,bumper.radius*WORLD_SCALE);
+      box(0,p[0],0.18,p[2],r*1.55,0.36,r*1.55);
+      box(2,p[0],0.39,p[2],r*1.08,0.06,r*1.08);
+    }
+
+    const meshes=groups.map(group=>group.indices.length?createMesh(group.positions,group.normals,group.indices):null);
+    lowMechanicsCache={key,meshes};
+    shell.dataset.lowMechanicsBatch='active';
+    shell.dataset.lowMechanicsDraws=String(meshes.filter(Boolean).length);
+    return lowMechanicsCache;
+  }
+  function drawLowMechanicsBatch(arena,theme,viewProjection,cameraPosition){
+    const batch=prepareLowMechanicsBatch(arena);
+    const surfaces=[
+      material(theme.structure,0.52,0.72),
+      material(theme.hazard,0.34,0.45,0.13),
+      material(theme.secondary,0.24,0.48,0.24),
+    ];
+    const identity=modelMatrix([0,0,0],[0,0,0],[1,1,1]);
+    batch.meshes.forEach((mesh,index)=>{if(mesh)drawMesh(mesh,identity,surfaces[index],viewProjection,cameraPosition);});
+  }
+  function drawLowSweepers(arena,theme,tick,viewProjection,cameraPosition){
+    let draws=0;
+    for(const sweeper of arena.sweepers||[]){
+      if(![sweeper.baseX,sweeper.baseY,sweeper.width,sweeper.height,sweeper.periodTicks,sweeper.amplitude,sweeper.phaseTicks].every(Number.isFinite))continue;
+      const offset=triangleWave(tick,sweeper.periodTicks,sweeper.amplitude,sweeper.phaseTicks);
+      const x=sweeper.baseX+(sweeper.axis==='x'?offset:0),y=sweeper.baseY+(sweeper.axis==='y'?offset:0);
+      const origin=toWorld(x,y,arena),width=Math.max(0.16,sweeper.width*WORLD_SCALE),depth=Math.max(0.16,sweeper.height*WORLD_SCALE);
+      drawBox([origin[0]+width/2,0.34,origin[2]+depth/2],[width,0.34,depth],material(theme.hazard,0.34,0.70,0.08),viewProjection,cameraPosition);
+      draws++;
+    }
+    shell.dataset.lowSweeperDraws=String(draws);
+  }
+
   let architecturalCache=null;
   function prepareGrandArchitecture(arena,quality){
     // Cache against archetype/dimensions rather than runId to avoid a GPU
@@ -2536,7 +2627,7 @@
   function spawnEffects(next){for(const event of next.events||[]){if(event.seq<=lastEventSeq)continue;lastEventSeq=Math.max(lastEventSeq,event.seq);if(!['marble-eliminated','shield-recovery','marble-launched','marble-pit-falling','marble-qualified','tournament-champion'].includes(event.type))continue;const marbleId=Number(event.data?.marbleId??event.data?.championId),marble=next.marbles.find((candidate)=>candidate.id===marbleId);if(!marble)continue;const point=toWorld(marble.x,marble.y,next.arena),count=event.type==='tournament-champion'?28:event.type==='marble-eliminated'?16:event.type==='marble-pit-falling'?20:event.type==='marble-launched'?14:10,color=event.type==='marble-eliminated'||event.type==='marble-pit-falling'?[0.96,0.22,0.08]:event.type==='shield-recovery'||event.type==='marble-launched'?[0.34,0.78,1.0]:[1.0,0.72,0.20],elevation=(marble.elevation||0)*WORLD_SCALE;for(let index=0;index<count;index+=1){const unitA=deterministicUnit(event.seq*4099+index*193),unitB=deterministicUnit(event.seq*8191+index*389),angle=unitA*Math.PI*2,speed=0.7+unitB*1.7;effects.push({position:[point[0],elevation+0.30,point[2]],velocity:[Math.cos(angle)*speed,0.7+unitA*1.6,Math.sin(angle)*speed],color,age:0,lifetime:0.65+unitB*0.75});}}if(effects.length>160)effects.splice(0,effects.length-160);}
   function drawEffects(dt,viewProjection,cameraPosition){const quality=document.getElementById('quality-select')?.value||'balanced',cap=quality==='low'?8:quality==='balanced'?72:140;let drawn=0;for(const effect of effects){effect.age+=dt;if(effect.age>=effect.lifetime)continue;effect.velocity[1]-=2.7*dt;effect.position[0]+=effect.velocity[0]*dt;effect.position[1]+=effect.velocity[1]*dt;effect.position[2]+=effect.velocity[2]*dt;if(drawn<cap){const life=1-effect.age/effect.lifetime,size=0.035+life*0.045;drawMesh(sphereMesh,modelMatrix(effect.position,[0,0,0],[size,size,size]),material(effect.color,0.4,0.15,0.7,life),viewProjection,cameraPosition);drawn+=1;}}for(let index=effects.length-1;index>=0;index-=1)if(effects[index].age>=effects[index].lifetime)effects.splice(index,1);}
 
-  function drawScene(now,dt){if(!resize()||!snapshot)return;frameDrawCalls=0;frameTriangles=0;const arena=snapshot.arena,theme=THEMES[arena.archetype]||THEMES['seeding-sprint'],quality=document.getElementById('quality-select')?.value||'balanced';currentRenderDetail=quality==='low'?0:1;currentFogColor=theme.fog;currentStageAccent=theme.secondary;const postActive=beginStagePostprocess();gl.clearColor(...theme.clear,1);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);drawSkyAtmosphere(theme,now);const marbles=interpolatedMarbles(now),camera=smoothedCamera(snapshot,marbles,dt),projection=perspective4(Math.PI*(shell.dataset.view==='cinematic'?0.270:0.245),canvas.width/Math.max(1,canvas.height),0.08,120),view=lookAt4(camera.eye,camera.target),viewProjection=multiply4(projection,view),focusIds=new Set(snapshot.camera.directive?.focusIds||[]);if((document.getElementById('quality-select')?.value||'balanced')!=='low')drawDistantLandscape(arena,theme,viewProjection,camera.eye);if(quality==='low')drawLowCourseBatch(arena,theme,viewProjection,camera.eye);else drawArenaDeck(arena,theme,viewProjection,camera.eye);drawRacewayArt(arena,theme,viewProjection,camera.eye);drawAuthoritativeWindFields(arena,theme,snapshot.tick,viewProjection,camera.eye);if((document.getElementById('quality-select')?.value||'balanced')!=='low')drawEpicBackdrop(arena,theme,viewProjection,camera.eye,snapshot.tick,now);if((document.getElementById('quality-select')?.value||'balanced')!=='low')drawStageLandmark(arena,theme,viewProjection,camera.eye,now);drawGrandArchitecture(arena,theme,viewProjection,camera.eye);drawCinematicLightVolumes(arena,theme,viewProjection,camera.eye,now);drawArenaBillboards(arena,theme,viewProjection,camera.eye);if((document.getElementById('quality-select')?.value||'balanced')!=='low')drawStadiumScenery(arena,theme,viewProjection,camera.eye,snapshot.tick);drawLivingCrowd(arena,theme,viewProjection,now,snapshot);if(quality!=='low')drawGuardRails(arena,theme,viewProjection,camera.eye);for(const ramp of arena.ramps||[])drawRampStructure(ramp,arena,theme,viewProjection,camera.eye);for(const hazard of arena.hazards)drawHazardPit(hazard,arena,theme,viewProjection,camera.eye,snapshot.tick);drawIndustrialContactShadows(arena,viewProjection);for(const obstacle of arena.obstacles)drawObstacle(obstacle,arena,theme,viewProjection,camera.eye);for(const bumper of arena.bumpers)drawBumper(bumper,arena,theme,viewProjection,camera.eye);for(const sweeper of arena.sweepers)drawSweeperMachine(sweeper,arena,theme,snapshot.tick,viewProjection,camera.eye);if(quality!=='low')drawFinishGate(arena,theme,viewProjection,camera.eye,snapshot.tick);if(quality!=='low')for(const marble of marbles)if(marble.status!=='eliminated')drawContactShadow(marble,arena,viewProjection,camera.eye);drawPitFallBeacons(arena,marbles,theme,viewProjection,camera.eye,now);drawMarbleSpeedTrails(marbles,arena,theme,focusIds,viewProjection,camera.eye,now);if(quality==='low')drawInstancedLowMarbles(marbles,arena,focusIds,viewProjection,camera.eye,now);else for(const marble of marbles)drawMarble(marble,arena,viewProjection,camera.eye,now/1000,focusIds.has(marble.id));drawVictoryCeremony(snapshot,marbles,arena,viewProjection,camera.eye,now);drawEffects(dt,viewProjection,camera.eye);
+  function drawScene(now,dt){if(!resize()||!snapshot)return;frameDrawCalls=0;frameTriangles=0;const arena=snapshot.arena,theme=THEMES[arena.archetype]||THEMES['seeding-sprint'],quality=document.getElementById('quality-select')?.value||'balanced';currentRenderDetail=quality==='low'?0:1;currentFogColor=theme.fog;currentStageAccent=theme.secondary;const postActive=beginStagePostprocess();gl.clearColor(...theme.clear,1);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);drawSkyAtmosphere(theme,now);const marbles=interpolatedMarbles(now),camera=smoothedCamera(snapshot,marbles,dt),projection=perspective4(Math.PI*(shell.dataset.view==='cinematic'?0.270:0.245),canvas.width/Math.max(1,canvas.height),0.08,120),view=lookAt4(camera.eye,camera.target),viewProjection=multiply4(projection,view),focusIds=new Set(snapshot.camera.directive?.focusIds||[]);if((document.getElementById('quality-select')?.value||'balanced')!=='low')drawDistantLandscape(arena,theme,viewProjection,camera.eye);if(quality==='low')drawLowCourseBatch(arena,theme,viewProjection,camera.eye);else drawArenaDeck(arena,theme,viewProjection,camera.eye);if(quality!=='low')drawRacewayArt(arena,theme,viewProjection,camera.eye);drawAuthoritativeWindFields(arena,theme,snapshot.tick,viewProjection,camera.eye);if((document.getElementById('quality-select')?.value||'balanced')!=='low')drawEpicBackdrop(arena,theme,viewProjection,camera.eye,snapshot.tick,now);if((document.getElementById('quality-select')?.value||'balanced')!=='low')drawStageLandmark(arena,theme,viewProjection,camera.eye,now);drawGrandArchitecture(arena,theme,viewProjection,camera.eye);drawCinematicLightVolumes(arena,theme,viewProjection,camera.eye,now);drawArenaBillboards(arena,theme,viewProjection,camera.eye);if((document.getElementById('quality-select')?.value||'balanced')!=='low')drawStadiumScenery(arena,theme,viewProjection,camera.eye,snapshot.tick);drawLivingCrowd(arena,theme,viewProjection,now,snapshot);if(quality==='low'){drawLowMechanicsBatch(arena,theme,viewProjection,camera.eye);drawLowSweepers(arena,theme,snapshot.tick,viewProjection,camera.eye);}else{drawGuardRails(arena,theme,viewProjection,camera.eye);for(const ramp of arena.ramps||[])drawRampStructure(ramp,arena,theme,viewProjection,camera.eye);for(const hazard of arena.hazards)drawHazardPit(hazard,arena,theme,viewProjection,camera.eye,snapshot.tick);drawIndustrialContactShadows(arena,viewProjection);for(const obstacle of arena.obstacles)drawObstacle(obstacle,arena,theme,viewProjection,camera.eye);for(const bumper of arena.bumpers)drawBumper(bumper,arena,theme,viewProjection,camera.eye);for(const sweeper of arena.sweepers)drawSweeperMachine(sweeper,arena,theme,snapshot.tick,viewProjection,camera.eye);}if(quality!=='low')drawFinishGate(arena,theme,viewProjection,camera.eye,snapshot.tick);if(quality!=='low')for(const marble of marbles)if(marble.status!=='eliminated')drawContactShadow(marble,arena,viewProjection,camera.eye);drawPitFallBeacons(arena,marbles,theme,viewProjection,camera.eye,now);drawMarbleSpeedTrails(marbles,arena,theme,focusIds,viewProjection,camera.eye,now);if(quality==='low')drawInstancedLowMarbles(marbles,arena,focusIds,viewProjection,camera.eye,now);else for(const marble of marbles)drawMarble(marble,arena,viewProjection,camera.eye,now/1000,focusIds.has(marble.id));drawVictoryCeremony(snapshot,marbles,arena,viewProjection,camera.eye,now);drawEffects(dt,viewProjection,camera.eye);
     // The identity canvas must use exactly the WebGL projection and marble positions:
     // independently smoothed cameras can detach spectator labels from competitors.
     window.marbleRenderFrame={snapshot,marbles,viewProjection,renderedAt:now,arenaId:arena.id};

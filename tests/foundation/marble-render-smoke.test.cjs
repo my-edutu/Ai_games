@@ -142,7 +142,7 @@ for(const biome of BIOMES){
 test('low graphics tier removes expensive effects but keeps a real 3D race scene',async()=>{
   const {counters,shell}=await simulateStage('seeding-sprint','low');
   assert.equal(shell.dataset.renderer,'webgl2');
-  assert.ok(counters.drawElements>20);
+  assert.ok(counters.drawElements>10,'Low still renders a genuine multi-mesh 3D race scene');
   assert.ok(counters.drawArrays>=2);
   assert.equal(shell.dataset.postprocess,'direct','low tier must skip offscreen effects');
   assert.equal(counters.instancedDraws,1,'Low must render the entire authoritative roster in one draw');
@@ -324,4 +324,18 @@ test('G61 Low batches static course geometry instead of redrawing deck rails and
   assert.equal(low.shell.dataset.cutoutCount,'1','real pit opening remains represented');
   assert.ok(Number(low.shell.dataset.deckTileCount)>1,'deck cutout topology remains visible');
   assert.ok(Number(low.shell.dataset.rampServicePanels)>0,'ramp service opening remains visible');
+});
+
+
+test('G62 Low batches static course mechanics instead of spending dozens of mesh draws per frame',async()=>{
+  const low=await simulateStage('seeding-sprint','low');
+  const balanced=await simulateStage('seeding-sprint','balanced');
+  assert.equal(low.shell.dataset.lowMechanicsBatch,'active');
+  assert.ok(Number(low.shell.dataset.lowMechanicsDraws)<=4,
+    `Low mechanics batch must stay within four static material draws, saw ${low.shell.dataset.lowMechanicsDraws}`);
+  assert.ok(low.counters.drawElements<=28,
+    `Low full scene must stay within 28 mesh draws, saw ${low.counters.drawElements}`);
+  assert.ok(balanced.counters.drawElements>low.counters.drawElements*5,
+    'Balanced must retain the detailed individual mechanical treatment');
+  assert.equal(low.shell.dataset.lowSweeperDraws,'1','one live sweeper remains visible as one moving mesh');
 });
