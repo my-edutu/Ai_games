@@ -52,7 +52,7 @@ const path = require('node:path');
       return program?gl.getAttribLocation(program,'materialId'):-1;
     });
     if(evidence.webglVerified&&evidence.materialVertexAttribute<0)throw Error('GPU material attribute was optimized away or omitted');
-    if(evidence.materials.vertexStride!==10||evidence.materials.materials.length!==8)
+    if(evidence.materials.vertexStride!==10||evidence.materials.materials.length!==9)
       throw Error('GPU material layout mismatch');
     // GPU static vertex upload invariant: camera motion must never re-upload
     // dense terrain and village meshes; only moving agents update per frame.
@@ -133,7 +133,7 @@ const path = require('node:path');
     for(const [name,expected] of [['guildCloth',48],['guildGoldTrim',1],
                                    ['marketCanvas',2],['festivalGoldSilk',1]]){
       const row=evidence.materialSwatches.swatches[name];
-      if(!row||row.general<expected||row.stone!==0||row.roof!==0)
+      if(!row||row.general<expected||row.stone!==0||row.roof!==0||row.plaster!==0)
         throw Error('G054b real GPU cloth material inherited masonry: '+name+' '+JSON.stringify(row));
     }
     // G054c: timbered houses are lime plaster and exposed timber rather than
@@ -141,11 +141,12 @@ const path = require('node:path');
     for(const name of ['housePlasterCream','housePlasterWarm','houseGablePlaster',
                        'sidePlasterOak','sidePlasterAsh','sidePlasterLime','sidePlasterSand']){
       const row=evidence.materialSwatches.swatches[name];
-      if(!row||row.general<1||row.stone!==0||row.roof!==0)
-        throw Error('G054c real GPU plaster misclassified as stone/roof: '+name+' '+JSON.stringify(row));
+      if(!row||row.plaster<1||row.general!==0||row.stone!==0||row.roof!==0)
+        throw Error('G057 plaster material leaked into general/stone/roof: '+name+' '+JSON.stringify(row));
     }
     if(evidence.materialSwatches.swatches.houseFoundation.stone<1||
-       evidence.materialSwatches.swatches.houseFoundation.general!==0)
+       evidence.materialSwatches.swatches.houseFoundation.general!==0||
+        evidence.materialSwatches.swatches.houseFoundation.plaster!==0)
       throw Error('G054c foundation is not real stone: '+JSON.stringify(evidence.materialSwatches.swatches.houseFoundation));
     if(evidence.materialSwatches.swatches.guildCloth.total!==48||
        evidence.materialSwatches.swatches.marketCanvas.total!==2||
