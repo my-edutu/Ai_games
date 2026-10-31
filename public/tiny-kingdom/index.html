@@ -657,10 +657,83 @@ for(let k=-1;k<=1;k+=2){box(x+k*w*.32,y+h*.43,z-d/2-.082,.40*scale,.51*scale,.07
 for(let k of [-1,1])box(x+k*(w/2-.12),y+.14,z-d/2-.09,.13*scale,h-.15,.12*scale,wood);
 box(x+w*.31,y+h*.72,z,.28*scale,.81*scale,.28*scale,rgb(0x9d8c77));box(x+w*.31,y+h*1.13,z,.38*scale,.12*scale,.38*scale,rgb(0x736f64));} 
 
+// Gauntlet 046: varied side-facing Tudor timberwork, modeled as real 3D
+// geometry rather than an image-plane facade. Identical saves produce identical
+// houses; no seeded simulation RNG or citizen state is consumed.
+let cottageFacadeStats={homes:0,styles:[0,0,0,0],plasterPanels:0,sideWindows:0,diagonalBraces:0,meshTriangles:0};
+function solidWallBrace(faceX,side,y0,z0,y1,z1,thickness,tone){
+ const dy=y1-y0,dz=z1-z0,len=Math.hypot(dy,dz);
+ if(len<.01)return;
+ const ny=dz/len*thickness*.5,nz=-dy/len*thickness*.5;
+ const shape=xx=>[
+  [xx,y0+ny,z0+nz],[xx,y1+ny,z1+nz],
+  [xx,y1-ny,z1-nz],[xx,y0-ny,z0-nz]
+ ];
+ const front=shape(faceX+side*.045),back=shape(faceX);
+ if(side>0)quad(front[0],front[1],front[2],front[3],tone);
+ else quad(front[3],front[2],front[1],front[0],tone);
+ for(let i=0;i<4;i++)quad(front[i],back[i],back[(i+1)%4],front[(i+1)%4],tone);
+}
+function cottageSideFacades(x,z,scale,variant){
+ const first=data.length,y=terrain(x,z),h=1.9*scale;
+ const w=(2.4+variant*.42)*scale,d=(2.1+variant*.18)*scale;
+ const style=(variant+Math.abs(Math.round(x*.37+z*.29)))%4;
+ const plaster=[rgb(0xd9c4a1),rgb(0xcbbda5),rgb(0xb3b5a6),rgb(0xe0c39b)][style];
+ const timber=[rgb(0x614532),rgb(0x483c30),rgb(0x4f5d56),rgb(0x74513b)][style];
+ const shutter=[rgb(0x5c7c6b),rgb(0x79503e),rgb(0x3c6274),rgb(0x83764b)][style];
+ const mullion=rgb(0xdac7a5),glass=rgb(0x456b71);
+ for(const side of [-1,1]){
+  const fx=x+side*(w/2+.019*scale);
+  const z0=z-d*.485,z1=z+d*.485,y0=y+.215*scale,y1=y+h-.025*scale;
+  // Two outward-facing plaster panels cover the formerly empty house long wall.
+  // Correct winding exposes both +X and -X facades under back-face culling.
+  for(let bay=0;bay<2;bay++){
+   const za=z0+(z1-z0)*bay/2,zb=z0+(z1-z0)*(bay+1)/2;
+   const a=[fx,y0,za],b=[fx,y0,zb],c=[fx,y1,zb],d0=[fx,y1,za];
+   if(side<0)quad(a,b,c,d0,plaster);else quad(d0,c,b,a,plaster);
+  }
+  cottageFacadeStats.plasterPanels++;
+  materialScope(MATERIAL.WOOD,()=>{
+   const trimX=fx+side*.050*scale;
+   for(const elevation of [y+.22*scale,y+h*.78]){
+    box(trimX,elevation,z,.12*scale,.11*scale,d*.98,timber);
+   }
+   for(const sign of [-1,1]){
+    box(trimX,y+.20*scale,z+sign*d*.464,.13*scale,h-.24*scale,.13*scale,timber);
+   }
+   for(const bay of [-1,1]){
+    const wz=z+bay*d*.245;
+    // Deep inset casement: real frame, dark glass, ivory mullion, hinged
+    // shutters and stone sill. Distinct style and shutter colours per house.
+    box(fx+side*.075*scale,y+h*.46,wz,.13*scale,.58*scale,.55*scale,timber);
+    box(fx+side*.154*scale,y+h*.505,wz,.058*scale,.47*scale,.42*scale,glass);
+    box(fx+side*.199*scale,y+h*.505,wz,.042*scale,.48*scale,.035*scale,mullion);
+    for(const hinge of [-1,1])
+     box(fx+side*.122*scale,y+h*.48,wz+hinge*.350*scale,
+      .105*scale,.55*scale,.135*scale,shutter);
+    box(fx+side*.128*scale,y+h*.445,wz,.19*scale,.085*scale,.74*scale,mullion);
+    cottageFacadeStats.sideWindows++;
+    // Visible half-timber chevrons occupy the plaster BELOW the windows,
+    // not across the casement: avoid toy-like window occlusion.
+    const outer=z+bay*d*.445,inner=z+bay*d*.075;
+    const reverse=(style===1||style===3);
+    solidWallBrace(fx+side*.052*scale,side,
+      y+h*(reverse?.425:.225),outer,
+      y+h*(reverse?.225:.425),inner,.113*scale,timber);
+    cottageFacadeStats.diagonalBraces++;
+   }
+  });
+ }
+ cottageFacadeStats.homes++;
+ cottageFacadeStats.styles[style]++;
+ cottageFacadeStats.meshTriangles+=(data.length-first)/30;
+}
+
 // Gauntlet 015: original modeled settlement details, independent of simulation state.
 function cottageDetails(x,z,scale,variant){
  const y=terrain(x,z),w=(2.4+variant*.42)*scale,d=(2.1+variant*.18)*scale,h=1.9*scale;
  const beam=rgb(0x594536),stone=rgb(0xa5a091),iron=rgb(0x3b4545);
+ cottageSideFacades(x,z,scale,variant);
  // Layered stone foundations and timber framing on both gable ends.
  for(let side of [-1,1]){
    let face=z+side*(d/2+.09*scale);
@@ -1977,6 +2050,7 @@ const staticClimate=climateAt(state.t);
 const daylightStage=atmosphere.daylight<.55?'night':'day';
 const staticKey=nextTerrainKey+':'+daylightStage+':'+city.length;
 if(!scenicMeshCache||scenicMeshKey!==staticKey){
+cottageFacadeStats={homes:0,styles:[0,0,0,0],plasterPanels:0,sideWindows:0,diagonalBraces:0,meshTriangles:0};
 data=terrainCache.slice();currentMaterial=MATERIAL.WATER;
 // A winding stream through the southern side.
 // Sample each cross-section at its own river centre to eliminate jagged joins.
@@ -2050,6 +2124,6 @@ currentMaterial=MATERIAL.WOOD;
 const elevation=Math.sin(pitch)*zoom,rad=Math.cos(pitch)*zoom,eye=[focusPoint[0]+Math.sin(yaw)*rad,elevation,focusPoint[1]+Math.cos(yaw)*rad];let m=mat4multiply(perspective(Math.PI/3.2,w/h,.1,190),lookAt(eye,[focusPoint[0],.25,focusPoint[1]],[0,1,0]));gl.uniformMatrix4fv(uniforms.viewProjection,false,m);gl.uniform3f(uniforms.fogColor,...atmosphere.fog);gl.uniform3f(uniforms.sunTint,...atmosphere.light);const radiance=lightingProfile(state.t);gl.uniform1f(uniforms.sunStrength,radiance.solar);gl.uniform1f(uniforms.ambientBlend,radiance.ambientBlend);gl.uniform1f(uniforms.worldTime,state.t);gl.uniform3f(uniforms.eyePosition,eye[0],eye[1],eye[2]);gl.uniform3f(uniforms.sunDirection,Math.cos(state.t/24*6.283),.3+atmosphere.daylight*.9,Math.sin(state.t/24*6.283));lastFrameTriangles=(gpuAvailable?scenicMeshCache.length+data.length:data.length)/30;
 if(gpuAvailable){bindGeometry(staticBuffer);gl.drawArrays(gl.TRIANGLES,0,scenicMeshCache.length/10);}
 bindGeometry(buffer);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(data),gl.DYNAMIC_DRAW);gl.drawArrays(gl.TRIANGLES,0,data.length/10);if((frames++%14)===0){updateUI();drawAtlas();updateRealmSignal();updateWorldRibbon()}}
-requestAnimationFrame(render);window.__tinyKingdom={getState:()=>JSON.parse(JSON.stringify({state,people:people.map(({name,job,x,z,target})=>({name,job,x,z,target}))})),setSpeed:x=>{speed=x},step,reset:start,renderer:()=>canvas.getContext('webgl')?'webgl':'software',metrics:()=>({citizens:people.length,buildings:city.length+2,day:Math.floor(state.t/24)+1,food:state.food,wood:state.wood,gold:state.gold,relationships:people.filter(p=>p.friend).length}),route:(a,b)=>routeBetween(a[0],a[1],b[0],b[1]),walkable:(p)=>walkable(p[0],p[1]),getNavigation:()=>people.map(p=>({name:p.name,position:[p.x,p.z],target:p.target,remaining:p.path?.length||0,path:p.path,activity:p.activity,hunger:p.hunger,energy:p.energy})),exportSnapshot,restoreSnapshot,saveWorld,restoreWorld,climateAt,skyConditions,getCitizenProfiles:()=>cloneData(people.map(({name,job,trait,friend,bonds,energy,hunger,activity})=>({name,job,trait,friend,bonds,energy,hunger,activity}))),getRigPose:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(citizenRigPose(people[index])):null,getGarmentProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(garmentProfile(people[index],index,citizenRigPose(people[index]))):null,getFaceProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(faceProfile(people[index],index)):null,getSelectedCitizen:()=>people[selectedCitizen]?.name,routeCacheMetrics:()=>({entries:routeCache.size,hits:cacheHits,misses:cacheMisses}),getCamera:()=>({yaw,pitch,zoom,focus:focusPoint.slice(),follow,cinematic}),getTerrainHeight:(x,z)=>terrain(x,z),getWildfloraCount:()=>wildflora.length,getMeadowStats:()=>({clusters:meadowUnderstory.length,triangles:meadowUnderstory.length*8,season:climateAt(state.t).season,cached:true}),getMaterialSystem:()=>({vertexStride:10,surfaceShaderVersion:'procedural-023',materials:Object.keys(MATERIAL),gpuRenderValidated:false}),waterStats:()=>({model:'fresnel-ripple-shorefoam-v1',segments:RIVER_SEGMENTS,waterTriangles:RIVER_SEGMENTS*RIVER_BANDS*2,bankTriangles:RIVER_SEGMENTS*2*RIVER_BANK_BANDS*2}),getScenicSites:scenicSiteMetrics,getFestivalVisualStats:()=>({season:festivalSeason,cacheBuilds:festivalCacheBuilds,vertices:festivalGeometry?.length||0}),getGeometryAudit:geometryAudit,getFarmsteadStats:()=>({...farmScene,granary:FARMSTEAD.granary.slice(),season:climateAt(state.t).season}),getFarmTreeClearanceStats:farmTreeClearanceStats,getLightingProfile:lightingProfile,getCraftDistrictStats:()=>({...CRAFT_DISTRICT,...craftCounters}),getCottageEffects:()=>({activeChimneys,smokePuffs,smokeTriangles,smokeMaxRadius}),renderStats:()=>({terrainRebuilds,terrainCacheKey,terrainCacheTriangles,lastFrameTriangles,scenicMeshRebuilds,scenicMeshTriangles,scenicMeshKey,staticGpuUploads,dualBufferGPU:gpuAvailable}),renderQuality,setRenderQuality,shadowStats:()=>({triangles:castShadowTriangles,...sunShadow(state.t)}),sampleSunShadow:(time)=>sunShadow(time),getEconomyHistory:()=>cloneData(uiHistory),getHudMode:()=>cinematicHud?'cinema':'full',setHudMode:setCinematicHud,getCommandView:()=>commandView,setCommandView,skyStats:()=>({enabled:gpuAvailable,passes:skyPassCount,model:'day-night-atmosphere-v1'}),setCamera:o=>{yaw=Number.isFinite(o.yaw)?o.yaw:yaw;pitch=Number.isFinite(o.pitch)?Math.max(.25,Math.min(1.45,o.pitch)):pitch;zoom=Number.isFinite(o.zoom)?Math.max(9,Math.min(85,o.zoom)):zoom;if(Array.isArray(o.focus)&&o.focus.length===2)focusPoint=o.focus.slice(0,2)}};
+requestAnimationFrame(render);window.__tinyKingdom={getState:()=>JSON.parse(JSON.stringify({state,people:people.map(({name,job,x,z,target})=>({name,job,x,z,target}))})),setSpeed:x=>{speed=x},step,reset:start,renderer:()=>canvas.getContext('webgl')?'webgl':'software',metrics:()=>({citizens:people.length,buildings:city.length+2,day:Math.floor(state.t/24)+1,food:state.food,wood:state.wood,gold:state.gold,relationships:people.filter(p=>p.friend).length}),route:(a,b)=>routeBetween(a[0],a[1],b[0],b[1]),walkable:(p)=>walkable(p[0],p[1]),getNavigation:()=>people.map(p=>({name:p.name,position:[p.x,p.z],target:p.target,remaining:p.path?.length||0,path:p.path,activity:p.activity,hunger:p.hunger,energy:p.energy})),exportSnapshot,restoreSnapshot,saveWorld,restoreWorld,climateAt,skyConditions,getCitizenProfiles:()=>cloneData(people.map(({name,job,trait,friend,bonds,energy,hunger,activity})=>({name,job,trait,friend,bonds,energy,hunger,activity}))),getRigPose:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(citizenRigPose(people[index])):null,getGarmentProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(garmentProfile(people[index],index,citizenRigPose(people[index]))):null,getFaceProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(faceProfile(people[index],index)):null,getSelectedCitizen:()=>people[selectedCitizen]?.name,routeCacheMetrics:()=>({entries:routeCache.size,hits:cacheHits,misses:cacheMisses}),getCamera:()=>({yaw,pitch,zoom,focus:focusPoint.slice(),follow,cinematic}),getTerrainHeight:(x,z)=>terrain(x,z),getWildfloraCount:()=>wildflora.length,getMeadowStats:()=>({clusters:meadowUnderstory.length,triangles:meadowUnderstory.length*8,season:climateAt(state.t).season,cached:true}),getMaterialSystem:()=>({vertexStride:10,surfaceShaderVersion:'procedural-023',materials:Object.keys(MATERIAL),gpuRenderValidated:false}),waterStats:()=>({model:'fresnel-ripple-shorefoam-v1',segments:RIVER_SEGMENTS,waterTriangles:RIVER_SEGMENTS*RIVER_BANDS*2,bankTriangles:RIVER_SEGMENTS*2*RIVER_BANK_BANDS*2}),getScenicSites:scenicSiteMetrics,getFestivalVisualStats:()=>({season:festivalSeason,cacheBuilds:festivalCacheBuilds,vertices:festivalGeometry?.length||0}),getGeometryAudit:geometryAudit,getFarmsteadStats:()=>({...farmScene,granary:FARMSTEAD.granary.slice(),season:climateAt(state.t).season}),getFarmTreeClearanceStats:farmTreeClearanceStats,getCottageFacadeStats:()=>({...cottageFacadeStats,styles:cottageFacadeStats.styles.map((count,style)=>({style,count})).filter(row=>row.count>0)}),getLightingProfile:lightingProfile,getCraftDistrictStats:()=>({...CRAFT_DISTRICT,...craftCounters}),getCottageEffects:()=>({activeChimneys,smokePuffs,smokeTriangles,smokeMaxRadius}),renderStats:()=>({terrainRebuilds,terrainCacheKey,terrainCacheTriangles,lastFrameTriangles,scenicMeshRebuilds,scenicMeshTriangles,scenicMeshKey,staticGpuUploads,dualBufferGPU:gpuAvailable}),renderQuality,setRenderQuality,shadowStats:()=>({triangles:castShadowTriangles,...sunShadow(state.t)}),sampleSunShadow:(time)=>sunShadow(time),getEconomyHistory:()=>cloneData(uiHistory),getHudMode:()=>cinematicHud?'cinema':'full',setHudMode:setCinematicHud,getCommandView:()=>commandView,setCommandView,skyStats:()=>({enabled:gpuAvailable,passes:skyPassCount,model:'day-night-atmosphere-v1'}),setCamera:o=>{yaw=Number.isFinite(o.yaw)?o.yaw:yaw;pitch=Number.isFinite(o.pitch)?Math.max(.25,Math.min(1.45,o.pitch)):pitch;zoom=Number.isFinite(o.zoom)?Math.max(9,Math.min(85,o.zoom)):zoom;if(Array.isArray(o.focus)&&o.focus.length===2)focusPoint=o.focus.slice(0,2)}};
 })();
 </script></body></html>
