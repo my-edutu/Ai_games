@@ -108,6 +108,48 @@ test('Ruins portal uses true curved wedge masonry and a bounded eleven-stone arc
   } finally { wedge.dispose(); }
 });
 
+test('Ruins portal has two physically inset arched gate leaves and subdued architectural relief', async () => {
+  const [THREE, { createTowerWorld, createRuinsGateLeafGeometry }] = await loaded;
+  assert.equal(typeof createRuinsGateLeafGeometry, 'function', 'gate must be genuine curved solid geometry');
+  for (const side of [-1, 1]) {
+    const leaf = createRuinsGateLeafGeometry(THREE, side);
+    try {
+      leaf.computeBoundingBox();
+      const box = leaf.boundingBox;
+      assert.ok(box.max.y > 5.2 && box.min.y >= .08, 'the door reaches the curved intrados');
+      assert.ok(box.max.z - box.min.z >= .15, 'gate leaves need actual physical depth');
+      assert.ok(side * box.min.x > 0 || side * box.max.x > 0, 'leaf must be on its intended side');
+      const elevations = new Set();
+      const a = leaf.attributes.position;
+      for (let i = 0; i < a.count; i++) if (a.getY(i) > 3.75) {
+        elevations.add(Math.round(a.getY(i) * 100));
+        const x = a.getX(i), y = a.getY(i);
+        assert.ok(y < 3.72 + Math.sqrt(Math.max(0, 1.8 ** 2 - x ** 2)) + .01,
+          'gate crest may not protrude through the curved stone aperture');
+      }
+      assert.ok(elevations.size >= 6, 'upper door contour needs a curved profile, not a box');
+    } finally { leaf.dispose(); }
+  }
+  const world = createTowerWorld();
+  try {
+    world.update(fixture('ruins', 0, false), 0, 0, {});
+    const metrics = world.diagnostics();
+    assert.equal(metrics.ruinsGateLeaves, 2, 'two gate leaves form one inset door');
+    const materials = new Map();
+    world.group.traverse(object => {
+      if (object.isMesh && object.material?.name?.startsWith('ruins-gate-')) {
+        materials.set(object.material.name, (materials.get(object.material.name) || 0) + 1);
+        assert.equal(object.material.emissive.getHex(), 0, 'subdued gate trim must not become a glowing gameplay marker');
+      }
+    });
+    assert.equal(materials.get('ruins-gate-leaves'), 1, 'door panels share one rigid batch');
+    assert.equal(materials.get('ruins-gate-relief'), 1, 'relief shares one rigid batch');
+    assert.ok(metrics.meshes + metrics.shadowCasterMeshes <= 100, 'architectural detail must stay inside world submission budget');
+    world.update(fixture('storm', 1, false), 0, 0, {});
+    assert.equal(world.diagnostics().ruinsGateLeaves, 0, 'door bookkeeping must reset on biome change');
+  } finally { world.dispose(); }
+});
+
 test('tower architecture keeps the complete cylindrical traversal corridor clear', async () => {
   const [THREE, { createTowerWorld, THEMES }] = await loaded;
   const world = createTowerWorld();
