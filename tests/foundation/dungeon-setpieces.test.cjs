@@ -46,3 +46,45 @@ test('degenerate grids, all-open spaces, and strict budgets do not create props'
  assert.ok(planDungeonSetpieces(map,2,exit,3).length<=3);
  assert.ok(planDungeonSetpieces(map,2,exit,100).length<=8);
 });
+
+test('round 40 cavern rim is original, deterministic, safely outside the real map and strictly bounded',async()=>{
+ const source=path.join(__dirname,'../../public/ai-dungeon/cavern-rim-plan.js');
+ const {planCavernRim}=await import('data:text/javascript;base64,'+Buffer.from(fs.readFileSync(source,'utf8')).toString('base64'));
+ for(const mapSize of [13,19,21]){
+  const half=(mapSize-1)/2,corner=Math.SQRT2*half;
+  for(const floor of [1,2,4,9]){
+   const plan=planCavernRim(floor,mapSize);
+   assert.equal(plan.near.length,48,'one finite low-poly foreground ridge batch');
+   assert.equal(plan.far.length,32,'one finite low-poly distance ridge batch');
+   assert.deepEqual(plan,planCavernRim(floor,mapSize),'identical inputs must preserve cosmetic replay');
+   for(const t of [...plan.near,...plan.far]){
+    assert.equal(t.length,7);
+    assert.ok(t.every(Number.isFinite),'no invalid GPU instance matrices');
+    const [x,y,z,sx,sy,sz]=t;
+    assert.ok(Math.hypot(x,z)-Math.max(sx,sz)/2>corner+3.5,'no non-playable rim enters the square authority map or its cutaway');
+    assert.ok(y>0&&y<12&&sx>1&&sx<6&&sy>3&&sy<21&&sz>1&&sz<6,'bounded physical silhouettes');
+   }
+  }
+ }
+});
+test('round 40 scenic rim rejects invalid floor/map inputs and never consumes authoritative randomness',async()=>{
+ const source=path.join(__dirname,'../../public/ai-dungeon/cavern-rim-plan.js');
+ const code=fs.readFileSync(source,'utf8');
+ const {planCavernRim}=await import('data:text/javascript;base64,'+Buffer.from(code).toString('base64'));
+ const empty={near:[],far:[]};
+ for(const floor of [0,-1,NaN,Infinity,1.5])assert.deepEqual(planCavernRim(floor,19),empty);
+ for(const size of [0,4,18,130,NaN])assert.deepEqual(planCavernRim(1,size),empty);
+ assert.notDeepEqual(planCavernRim(1,19),planCavernRim(2,19),'different floors deserve distinct scenic geography');
+ assert.doesNotMatch(code,/Math\\.random|Date\\.|performance\\.|DungeonRuntime|fetch\\(/);
+});
+test('round 40 genuine Three.js atmosphere includes two bounded instanced rock families with full disposal',()=>{
+ const atmosphere=fs.readFileSync(path.join(__dirname,'../../public/ai-dungeon/biome-atmosphere.js'),'utf8');
+ const host=fs.readFileSync(path.join(__dirname,'../../scripts/serve-dungeon-stream.cjs'),'utf8');
+ assert.match(atmosphere,/import \\{planCavernRim\\} from '\\/dungeon\\/cavern-rim-plan\\.js'/);
+ assert.match(atmosphere,/planCavernRim\\(floor,size\\)/);
+ assert.match(atmosphere,/rimNear:/);
+ assert.match(atmosphere,/rimFar:/);
+ assert.match(atmosphere,/new THREE\\.DodecahedronGeometry/);
+ assert.match(host,/\\['\\/dungeon\\/cavern-rim-plan\\.js','cavern-rim-plan\\.js'\\]/);
+ assert.match(atmosphere,/for\\(const g of geometries\\)g\\.dispose\\(\\)/);
+});
