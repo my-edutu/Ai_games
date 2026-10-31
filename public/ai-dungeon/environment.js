@@ -1,5 +1,6 @@
 import * as THREE from '/dungeon/vendor/three.module.js';
 import {addDungeonWindows} from '/dungeon/architecture.js';
+import {planStoneRelief} from '/dungeon/stone-relief-plan.js';
 
 // Purely cosmetic, reproducible procedural dressing. This code never touches game authority.
 // All geometry is batched or tightly budgeted so a streaming run can regenerate indefinitely.
@@ -184,6 +185,33 @@ export function enrichEnvironment(world,map,floor){
   batched(world,box,floorSurface,floorDetails,{variation:true,floor});
  // Wall trims stand slightly proud to create depth; avoid overdraw covering actors.
  const facadeMesh=batched(world,box,wallSurface,wallFaces,{variation:true,floor});
+ const stoneWeather=planStoneRelief(wallFaces,floor);
+ // Original bevel-chipped stone plates and fractured parapet rubble. Both
+ // types are instanced: two shared draws, fixed resource budget and no lights.
+ const scar=new THREE.Shape();
+ scar.moveTo(-.48,-.32);
+ scar.lineTo(-.32,-.49);scar.lineTo(.34,-.47);
+ scar.lineTo(.49,-.27);scar.lineTo(.45,.31);
+ scar.lineTo(.26,.47);scar.lineTo(-.40,.42);scar.closePath();
+ const spallGeometry=new THREE.ExtrudeGeometry(scar,{
+  depth:.18,steps:1,bevelEnabled:true,bevelThickness:.035,bevelSize:.042,
+  bevelSegments:1,curveSegments:1
+ });
+ spallGeometry.translate(0,0,-.09);
+ const copingGeometry=new THREE.DodecahedronGeometry(.5,0);
+ const spallMaterial=new THREE.MeshStandardMaterial({color:biome.edge,roughness:.96,metalness:.015,flatShading:true});
+ const copingMaterial=new THREE.MeshStandardMaterial({color:biome.stone,roughness:.98,metalness:.02,flatShading:true});
+ geometries.push(spallGeometry,copingGeometry);materials.push(spallMaterial,copingMaterial);
+ const placements=items=>items.map(item=>[item.x,item.y,item.z,item.sx,item.sy,item.sz,item.yaw]);
+ const spallMesh=batched(world,spallGeometry,spallMaterial,placements(stoneWeather.spalls));
+ const copingMesh=batched(world,copingGeometry,copingMaterial,placements(stoneWeather.coping));
+ for(const [mesh,items] of [[spallMesh,stoneWeather.spalls],[copingMesh,stoneWeather.coping]]){
+  if(!mesh)continue;
+  for(let i=0;i<items.length;i++){
+   const tint=items[i].shade;mesh.setColorAt(i,new THREE.Color().setRGB(tint,tint,tint));
+  }
+  if(mesh.instanceColor)mesh.instanceColor.needsUpdate=true;
+ }
  batched(world,box,chrome,columnCap,{floor});
  batched(world,box,moss,mossPatches,{floor});
  batched(world,box,jade,runeInlays,{floor});
@@ -224,8 +252,9 @@ export function enrichEnvironment(world,map,floor){
  const pillarsCount=pillars.length,bannersCount=banners.length,ruins=worldAnchors.length;
  const totalDecor=floorDetails.length+wallFaces.length+columnCap.length+mossPatches.length+runeInlays.length+rubble.length+pillarsCount+bannersCount+ruins;
  // Same 3D visibility policy as the base walls: rich wall cladding must not hide the AI.
- let previousCutaway='';const sceneMetrics={clearedForeground:0};
+ let previousCutaway='';const sceneMetrics={clearedForeground:0,clearedWeatheredPieces:0};
  const matrix=new THREE.Matrix4(),p=new THREE.Vector3(),q=new THREE.Quaternion(),scale=new THREE.Vector3();
+ const yAxis=new THREE.Vector3(0,1,0),blockedFaces=new Uint8Array(wallFaces.length);
  function cutaway(subjects,camera){
   if(!facadeMesh)return;
   // World cladding, banners, stained-glass windows and statuary share the
@@ -240,14 +269,35 @@ export function enrichEnvironment(world,map,floor){
    const lateral=Math.abs(dx*vz-dz*vx)/len;
    return forward>-.55&&forward<len+.7&&lateral<pad+forward*.13;
   });
-  let cleared=0;
+  let cleared=0;q.identity();
   for(let i=0;i<wallFaces.length;i++){
    const f=wallFaces[i],blocked=obscures(f[0],f[2],2.1);
+   blockedFaces[i]=Number(blocked);
    const h=blocked?.15:f[4];
    p.set(f[0],blocked?.13:f[1],f[2]);scale.set(f[3],h,f[5]);matrix.compose(p,q,scale);
    facadeMesh.setMatrixAt(i,matrix);
   }
   facadeMesh.instanceMatrix.needsUpdate=true;
+  // The two original stone batches use the same real camera occlusion mask as
+  // their parent wall faces; they never leave opaque rubble over a living hero.
+  let weatheringCleared=0;
+  function cutPieces(mesh,pieces){
+   if(!mesh)return;
+   for(let i=0;i<pieces.length;i++){
+    const item=pieces[i],blocked=Boolean(blockedFaces[item.faceIndex]);
+    if(blocked)weatheringCleared++;
+    p.set(item.x,blocked?.018:item.y,item.z);
+    scale.set(blocked?.001:item.sx,blocked?.001:item.sy,blocked?.001:item.sz);
+    q.setFromAxisAngle(yAxis,item.yaw);
+    matrix.compose(p,q,scale);mesh.setMatrixAt(i,matrix);
+   }
+  }
+  cutPieces(spallMesh,stoneWeather.spalls);
+  cutPieces(copingMesh,stoneWeather.coping);
+  if(spallMesh)spallMesh.instanceMatrix.needsUpdate=true;
+  if(copingMesh)copingMesh.instanceMatrix.needsUpdate=true;
+  q.identity();
+  sceneMetrics.clearedWeatheredPieces=weatheringCleared;
   for(const group of foregroundGroups){
    const blocked=obscures(group.position.x,group.position.z,2.1);
    group.visible=!blocked;if(blocked)cleared++;
@@ -256,6 +306,6 @@ export function enrichEnvironment(world,map,floor){
  }
 
  const animate=time=>{for(const p of flames){const t=time*5+p.phase,scale=1+Math.sin(t)*.13;p.fire.scale.y=scale;p.inner.scale.setScalar(.91+Math.sin(t+1.3)*.14)}};
- return {animate,cutaway,occluders:[facadeMesh,...foregroundGroups].filter(Boolean),metrics:Object.assign(sceneMetrics,{biome:floor,decorInstances:totalDecor+archWindows,archWindows,torches:flames.length,banners:bannersCount,landmarks:ruins,wovenRugs:rugs.length,texturedSurfaces:floorDetails.length+wallFaces.length}),dispose:()=>{for(const g of geometries)g.dispose();for(const m of materials)m.dispose();for(const t of textures)t.dispose();for(const f of flames){f.inner.material.dispose()}}};
+ return {animate,cutaway,occluders:[facadeMesh,...foregroundGroups].filter(Boolean),metrics:Object.assign(sceneMetrics,{biome:floor,decorInstances:totalDecor+archWindows,archWindows,torches:flames.length,banners:bannersCount,landmarks:ruins,wovenRugs:rugs.length,texturedSurfaces:floorDetails.length+wallFaces.length,weatheredSpalls:stoneWeather.spalls.length,brokenCopingStones:stoneWeather.coping.length,weatheredBatches:Number(Boolean(spallMesh))+Number(Boolean(copingMesh))}),dispose:()=>{for(const g of geometries)g.dispose();for(const m of materials)m.dispose();for(const t of textures)t.dispose();for(const f of flames){f.inner.material.dispose()}}};
 }
 
