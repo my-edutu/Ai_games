@@ -23,6 +23,19 @@ jobs:
           cache: npm
       - name: Install locked toolchain
         run: npm ci --no-audit --no-fund
+      - name: Preserve exact candidate and Node toolchain for independent review
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/tower-gauntlet27
+          git rev-parse HEAD > /tmp/tower-gauntlet27/source-sha.txt
+          git archive HEAD | tar -x -C /tmp/tower-gauntlet27
+          cp -a node_modules /tmp/tower-gauntlet27/
+          tar -czf /tmp/tower-gauntlet27-inputs.tar.gz -C /tmp/tower-gauntlet27 .
+      - uses: actions/upload-artifact@v4
+        with:
+          name: tower-gauntlet-27-review-inputs-${{ github.sha }}
+          path: /tmp/tower-gauntlet27-inputs.tar.gz
+          retention-days: 2
       - name: Focused grounded foot and PBR resource tests
         run: node --test tests/phase3/tower-ground-contact-aaa.test.cjs tests/phase3/tower-character-surface-aaa.test.cjs
       - name: Full repository build and logical suite
