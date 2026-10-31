@@ -1,6 +1,6 @@
 # Game 2 pass 29 — modeled glove bearing toward the actual disclosed lock (2026-10-31)
 
-**Status: source candidate committed; visual acceptance OPEN.** This is a prospective review gate, **not** a claim that pass 29 screenshots were captured, that full CI passed, or that Captain Toad is beaten. The last actual inspected screenshots are pass 28 (see below).
+**Status: pass29 authentic native render inspected and visually rejected; pass30 source OPEN.** This is a prospective review gate, **not** a claim that pass 29 screenshots were captured, that full CI passed, or that Captain Toad is beaten. The last actual inspected screenshots are pass 28 (see below).
 
 ## Why this independently judgeable slice
 
@@ -31,3 +31,22 @@ At native portrait scale pass28 still suffers small actor/key/socket hierarchy, 
 The \`mcp__chat_on_steriod__exec_command\` and \`agents\` operations both returned \`Tunnel-client has not been seen for 300 seconds\`; no remote source-workspace rendering, subagent pair or Ultracode was available at implementation time. GitHub source commits succeeded, but local red/green and native pass29 rendering could not be run here; [CI 41245527570](https://github.com/my-edutu/Ai_games/actions/runs/41245527570) started on the current gameplay head and is **not** presumed green. The lead's code analysis is not an independent blinded visual review.
 
 **Fixed bar: NOT PASSED. PR #53: DRAFT, unmerged, undeployed. Continue Gauntlet.**
+
+## Pass 29 genuine render verdict — October 31, 2026
+
+The corrected pass-29 head `542ebb8` generated [original production browser artifact 13059797608](https://github.com/my-edutu/Ai_games/actions/runs/41245936937/artifacts/13059797608). I downloaded the original ZIP and independently checked the untouched PNG SHA-256 against each adjacent JSON manifest. Both show real public seed `maze-visual-reference-13`, tick 21, the genuinely **closed**, disclosed `door-2` and a legitimately carried matching key.
+
+| Native capture | UTC date/time | SHA-256 |
+| --- | --- | --- |
+| 1280×900 desktop | 2026-10-31T22:04:18.531Z | `f0e6361da42e73f11d57150af5305a0a488931abd5e5c2a511c167bd37a00694` |
+| 390×844 portrait | 2026-10-31T22:04:21.583Z | `00eb1308fd182c07d86f87c13fc6a0ccd6b582520e36b2f7930d8dea622ebc87` |
+
+**Lead screenshot critique, not an independent blind verdict:** same-seed/tick original pass28 vs pass29 imagery changes **0.181% desktop / 0.329% portrait** of pixels by more than 12 in any RGB channel (change extent, **not** an artistic score). The directional shoulder turn pushes the mint key bow **partly behind the foreground sandstone** at actual 390px portrait scale. The physical hand→key→keyhole gesture is still ambiguous; upper-right arch crop and excess lagoon also persist. Pass29 is **NOT VISUALLY ACCEPTED**. The fixed official Nintendo *Captain Toad* benchmark still wins.
+
+[Exact-head CI 41245936937](https://github.com/my-edutu/Ai_games/actions/runs/41245936937) **FAILED** overall despite successful build/Node, Maze and other stream hosts, determinism scan and original browser capture. Browser results: **104 passed / 3 failed** — Tiny Kingdom G057 plaster, G058 grass and G063 river-source assertions. No Maze browser failures were recorded. These are separate cross-game checks; do not relax them or claim the suite passed. Software SwiftShader desktop `frameP50Ms≈416.7` is CPU-throttled and **not** hardware GPU FPS.
+
+## Pass 30 connected-wrist counter-turn — source committed, visual gate OPEN
+
+- [Source 1a6fe8a](https://github.com/my-edutu/Ai_games/commit/1a6fe8a7bc09e46d63d9044de8a3eef3d689c072) counter-rotates **the actual modeled left elbow**, `elbow.rotation.y = -keyYaw * .9`, as the shoulder aims toward a legitimately known closed gate. Its key prop remains attached to the glove. Existing public-state cue suppression for neutral, guardian and terminal frames remains; no hidden route, simulation rule, gate opening, detached overlay, new geometry or draw call.
+- [Focused test f1da826](https://github.com/my-edutu/Ai_games/commit/f1da82677df3aa6448f6f5e2121eada145142368) checks connected wrist direction for both public bearings and its reset on missing key, nearby guardian and terminal state, without deleting the original bearing/key-height contracts.
+- **Pass30 source has not yet passed its authentic visual gate.** Run exact-source build/Node/host/determinism/browser tests; compare dated, hash-verified 1280×900/390×844 images blindly against pass28/29 and both unchanged Nintendo frames using a separate critic. Fail if the bow remains behind masonry, the glove looks disconnected, the arch crop worsens or the reference still wins. No independent victory is claimed. The workspace tunnel returned `Tunnel-client has not been seen for 300 seconds`; fresh-context subagents and Ultracode could not be used. Keep draft PR #53 unmerged/undeployed and the Gauntlet active.
