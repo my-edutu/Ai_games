@@ -204,6 +204,34 @@ function makeLimb(w,parent,palette,side,{heavy=false,leg=false}={}) {
   return {upper,lower};
 }
 
+function solveLedgeReach(shoulder, tip) {
+  const upperLength = .38, lowerLength = Math.hypot(.802, .108);
+  const dx = tip.x - shoulder.x, dy = tip.y - shoulder.y, dz = tip.z - shoulder.z;
+  const distance = Math.hypot(dx, dy, dz);
+  if (!Number.isFinite(distance) || distance < Math.abs(lowerLength - upperLength) + .01 ||
+    distance > upperLength + lowerLength - .01 || tip.y < shoulder.y - .08) return null;
+  const direction = { x: dx / distance, y: dy / distance, z: dz / distance };
+  const along = (upperLength ** 2 + distance ** 2 - lowerLength ** 2) / (2 * distance);
+  const perpendicular = Math.sqrt(Math.max(0, upperLength ** 2 - along ** 2));
+  // Fold the elbow away from the tower, retaining a readable contact silhouette.
+  let bx = -direction.x * direction.z, by = -direction.y * direction.z,
+    bz = 1 - direction.z * direction.z;
+  let length = Math.hypot(bx, by, bz);
+  if (length < .0001) {
+    bx = 1 - direction.x * direction.x;
+    by = -direction.x * direction.y;
+    bz = -direction.x * direction.z;
+    length = Math.hypot(bx, by, bz);
+  }
+  if (length < .0001) return null;
+  const elbow = {
+    x: shoulder.x + direction.x * along + bx / length * perpendicular,
+    y: shoulder.y + direction.y * along + by / length * perpendicular,
+    z: shoulder.z + direction.z * along + bz / length * perpendicular,
+  };
+  return { elbow, tip: { x: tip.x, y: tip.y, z: tip.z } };
+}
+
 export function createClimber() {
   const w=workshop('expedition-climber');
   const p={color:w.mat(0x1858be,.26,.25),armor:w.mat(0xf2efe2,.08,.25),dark:w.mat(0x111e2b,.08,.76),metal:w.mat(0x697b8d,.66,.42)};
@@ -265,6 +293,9 @@ export function createClimber() {
   w.plate(arms[1].lower,.24,.075,.04,fistLight,0,-.445,.125,.018);
   let phase=0,attackAge=1,wasAttacking=false,landingAge=1,previousState='standing',reachSide=null,lastPoseTime=null;
   const rest=body.position.y;
+  const ledgeWorld=new THREE.Vector3(), ledgeElbow=new THREE.Vector3(),
+    ledgeAim=new THREE.Vector3(), ledgeInverse=new THREE.Quaternion();
+  const armRest=new THREE.Vector3(0,-1,0), fingertipRest=new THREE.Vector3(0,-.802,.108).normalize();
   return w.finish((state,dt,time,{reducedMotion=false,viewAzimuth}={})=>{
     const vx=Number(state.vx??state.velocity?.x)||0,vy=Number(state.vy??state.velocity?.y)||0;
     const speed=clamp(Math.abs(vx)/4300,0,1),dead=state.state==='dead'||state.health===0;
@@ -334,6 +365,25 @@ export function createClimber() {
       backLeg.foot.rotation.x=rising?.05:-.12;
       head.rotation.x=rising?-.29:.28;
       head.rotation.y=-((state.facing??Math.sign(vx))||1)*.22;
+    }
+    // The platformer's physics remains unchanged. Only a nearby genuine deck
+    // can pull the raised fingertip into physical contact during an ascent.
+    const touch=state.ledgeTarget;
+    if(airborne&&vy>0&&!attacking&&!dead&&!hurt&&touch &&
+      [touch.x,touch.y,touch.z].every(Number.isFinite)){
+      ledgeWorld.set(touch.x,touch.y,touch.z);
+      body.updateWorldMatrix(true,false);
+      body.worldToLocal(ledgeWorld);
+      const arm=arms[ledgeWorld.x>=0?1:0];
+      const reach=solveLedgeReach(arm.upper.position,ledgeWorld);
+      if(reach){
+        ledgeElbow.set(reach.elbow.x,reach.elbow.y,reach.elbow.z).sub(arm.upper.position).normalize();
+        arm.upper.quaternion.setFromUnitVectors(armRest,ledgeElbow);
+        ledgeInverse.copy(arm.upper.quaternion).invert();
+        ledgeAim.copy(ledgeWorld).sub(arm.upper.position).applyQuaternion(ledgeInverse)
+          .sub(arm.lower.position).normalize();
+        arm.lower.quaternion.setFromUnitVectors(fingertipRest,ledgeAim);
+      }
     }
     if(state.state==='standing'&&landingAge<.2){
       const plant=1-THREE.MathUtils.smoothstep(landingAge,0,.2);

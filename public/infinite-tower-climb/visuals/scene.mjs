@@ -50,6 +50,25 @@ function intendedLanding(snapshot) {
   return onTarget ? null : target;
 }
 
+function ledgeContactPoint(snapshot, platform) {
+  const player = snapshot?.player;
+  if (!platform || !player || player.state !== 'airborne' || player.vy <= 0 ||
+    player.health <= 0 || player.attacking) return null;
+  const values = [player.x, player.y, player.halfHeight, player.halfWidth, player.facing,
+    platform.x, platform.y, platform.width, platform.height];
+  if (!values.every(Number.isFinite) || player.halfHeight <= 0 ||
+    player.halfWidth <= 0 || platform.width <= 0) return null;
+  const top = platform.y + platform.height;
+  const aboveFeet = top - (player.y - player.halfHeight);
+  const fullHeight = player.halfHeight * 2;
+  // Contact is possible only around upper-torso/raised-arm height.
+  if (aboveFeet < fullHeight * .59 || aboveFeet > fullHeight * .93) return null;
+  const intendedX = player.x + Math.sign(player.facing) * player.halfWidth * .65;
+  const touchX = Math.max(platform.x, Math.min(intendedX, platform.x + platform.width));
+  if (Math.abs(touchX - player.x) > player.halfWidth * 1.2) return null;
+  return { x: touchX, y: top };
+}
+
 // An armored guardian can stand under the final one-way cap with less vertical
 // space than its full visible crest. Let only the presentation rig tuck its head;
 // the cap, hitboxes, authored height, replay and public state remain unchanged.
@@ -771,6 +790,7 @@ export function createTowerScene(canvas, settings = {}) {
     world.update(snapshot, dt, elapsed, options);
     const p = snapshot.player;
     const targetPlatform = intendedLanding(snapshot);
+    const ledgeContact = ledgeContactPoint(snapshot, targetPlatform);
     const mapped = pointFor(p.x, p.y - p.halfHeight, snapshot.chunkBaseY, snapshot.worldWidth);
     actorTarget.set(mapped.x, mapped.y, mapped.z);
     const moving = Math.abs(p.vx) > 500;
@@ -787,6 +807,10 @@ export function createTowerScene(canvas, settings = {}) {
     climber.animate({ ...p,
       targetDx: targetPlatform ? targetPlatform.x + targetPlatform.width / 2 - p.x : 0,
       targetDy: targetPlatform ? targetPlatform.y + targetPlatform.height - p.y : 0,
+      // Real snapshot platform top, inside the existing radial walking surface.
+      // No grab, pause, lift or authoritative collision is fabricated.
+      ledgeTarget: ledgeContact ? pointFor(ledgeContact.x, ledgeContact.y,
+        snapshot.chunkBaseY, snapshot.worldWidth, 25) : null,
     }, dt, elapsed, options);
     attackArc.visible = !!p.attacking && p.health > 0;
     if (attackArc.visible && positionStrikeCue(attackArc, climber.group, camera)) {
