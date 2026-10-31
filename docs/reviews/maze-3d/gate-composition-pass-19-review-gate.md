@@ -21,3 +21,8 @@ Pass-18 genuine 1280×900 and 390×844 screenshots (production seed `maze-visual
 ## Availability and safety boundary
 
 The live shared-workspace tunnel returned `Tunnel-client has not been seen for 300 seconds`; the separate builder/critic workers and Ultracode cannot be invoked there in this pass. GitHub source edits and CI orchestration remain available. No fresh independent visual verdict, actual candidate capture or performance claim is asserted here. Never infer hidden doors or route legality from camera staging. Continue on draft PR; **no merge/deployment**.
+
+
+## Actual browser verification completed (2026-10-31, 09:49 UTC)
+
+The original code-only gate above has now been partially satisfied by genuine source-tested browser images: [Autonomous Games CI 41189735556](https://github.com/my-edutu/Ai_games/actions/runs/41189735556) **passed 524/524 Node and 25/25 Playwright browser checks**. [Artifact 13038422543](https://github.com/my-edutu/Ai_games/actions/runs/41189735556/artifacts/13038422543) holds native desktop and portrait screenshots with matching image/source SHA-256, both original production seed `maze-visual-reference-13`, tick21, truly disclosed/closed gate `door-2`. The desktop and portrait PNGs captured **09:49:38.913Z** and **09:49:42.604Z**. Full exact hashes, camera x measurements and scene-occupancy tradeoff are in [pass-19 actual-output review](./gate-composition-pass-19-review.md). Both subjects move modestly toward the screen center but some empty lagoon returns; the physical next action is still unclear. **A fresh independent, context-isolated visual critic and fixed-reference win remain missing.** Keep the Nintendo bar unchanged and do not infer hardware GPU FPS.
