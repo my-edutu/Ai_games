@@ -40,7 +40,7 @@ test('a real close public encounter frames both autonomous actors and saves date
   const path = require('node:path');
   const { createHash } = require('node:crypto');
   const { scenarios } = require('../../scripts/capture-maze-3d.cjs');
-  const { encounter } = scenarios();
+  const { encounter, sequences } = scenarios();
   // Never fabricate or move a guardian into place just to obtain a screenshot.
   expect(encounter, 'A production run must expose two nearby, distinct real actors').toBeTruthy();
   const frame = encounter.frame;
@@ -51,7 +51,8 @@ test('a real close public encounter frames both autonomous actors and saves date
   const errors = [];
   page.on('pageerror', error => errors.push(error.message));
   await page.setViewportSize({ width: 1280, height: 900 });
-  await page.route('**/maze/state*', route => route.fulfill({ json: frame }));
+  let activeFrame = frame;
+  await page.route('**/maze/state*', route => route.fulfill({ json: activeFrame }));
   await page.goto(base + '/maze?camera=detail&reducedMotion=1', { waitUntil: 'domcontentloaded' });
   await page.waitForFunction(({ tick, token }) =>
     window.__MAZE_3D__?.frames >= 3
@@ -95,5 +96,36 @@ test('a real close public encounter frames both autonomous actors and saves date
       frameP50Ms: diagnostics.frameP50Ms,
     },
     caveat: 'Screenshot is CI software-rendered evidence, not hardware FPS, blind A/B or benchmark parity.',
+  }, null, 2));
+
+  // Separate authentic screenshot gate for an actionable *known* landmark.
+  // Reuse this page/browser, not another CPU-heavy graphics process.
+  const {publicObjective} = await import('../../public/ai-maze-escape/map-view.mjs');
+  const objectiveSamples = sequences.flat().map(sample => ({...sample, goal: publicObjective(sample.frame.snapshot)}))
+    .filter(sample => sample.goal && sample.goal.steps > 0 && sample.goal.steps <= 2
+      && sample.frame.snapshot.lifecycle === 'running' && !sample.frame.snapshot.threats.length)
+    .sort((a, b) => a.goal.steps - b.goal.steps || b.frame.snapshot.cells.length - a.frame.snapshot.cells.length);
+  expect(objectiveSamples.length, 'A real production exploration must reveal an observed connected landmark').toBeGreaterThan(0);
+  const observed = objectiveSamples[0];
+  activeFrame = observed.frame;
+  await page.goto(base + '/maze?reducedMotion=1', { waitUntil: 'domcontentloaded' });
+  await page.waitForFunction(({tick, token}) => window.__MAZE_3D__?.frames >= 3
+    && window.__MAZE_3D__?.tick === tick && window.__MAZE_3D__?.runToken === token,
+    {tick: activeFrame.snapshot.tick, token: activeFrame.snapshot.runToken});
+  const observedDiagnostic = await page.evaluate(() => window.__MAZE_3D__);
+  expect(observedDiagnostic.objectiveCue).toEqual(observed.goal);
+  expect(observedDiagnostic.objectiveInFrame, 'Actual landmark should be visible in the captured camera').toBe(true);
+  const landmarkPath = path.join(dir, 'observed-landmark.png');
+  await page.screenshot({path: landmarkPath, fullPage: true});
+  fs.writeFileSync(path.join(dir, 'observed-landmark.json'), JSON.stringify({
+    capturedAt: new Date().toISOString(),
+    source: 'Real seeded MazeRuntime public snapshot, actual WebGL browser; no invented landmarks',
+    seed: observed.seed, tick: activeFrame.snapshot.tick,
+    publicGoal: observed.goal,
+    imageSha256: hash(landmarkPath),
+    sourceSha256: Object.fromEntries(['app.js', 'map-view.mjs', 'scene.js', 'world.js'].map(name => [name, hash(path.join(sourceDir, name))])),
+    diagnostic: {objectiveCue: observedDiagnostic.objectiveCue, objectiveInFrame: observedDiagnostic.objectiveInFrame,
+      quality: observedDiagnostic.quality, frameP50Ms: observedDiagnostic.frameP50Ms},
+    caveat: 'Known connection only, not safety; CPU-throttled CI software rendering; independent visual acceptance pending.',
   }, null, 2));
 });

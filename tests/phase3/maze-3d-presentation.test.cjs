@@ -105,3 +105,25 @@ test('wayfinding marks only reciprocally disclosed legal edges beside the real c
   assert.deepEqual(publicWayfinding({...state, cells: state.cells.filter(c => c.cell !== 8)}),
     [{from: 1, to: 0, kind: 'known'}], 'undisclosed destinations must remain unmarked');
 });
+
+
+test('disclosed landmark selector never marks hidden, locked, blocked or unreachable destinations', async () => {
+  const {publicObjective} = await load();
+  const base = snapshot([1], {
+    currentCell: 1,
+    keys: [{id: 'shown', cell: 9, collected: false}, {id: 'hidden', cell: 21, collected: false}],
+    doors: [], exitCell: 2,
+  });
+  assert.deepEqual(publicObjective(base), {kind: 'key', cell: 9, steps: 2});
+  assert.deepEqual(publicObjective({...base, keys: [{id: 'shown', cell: 9, collected: true}]}),
+    {kind: 'exit', cell: 2, steps: 3}, 'known exits stay distinct from guaranteed safe escapes');
+  assert.equal(publicObjective({...base, doors: [{a: 1, b: 8, open: false}], exitCell: null}), null);
+  assert.deepEqual(publicObjective({...base, doors: [{a: 1, b: 8, open: true}]}),
+    publicObjective(base), 'an opened public gate restores the observed chain');
+  assert.equal(publicObjective({...base, cells: base.cells.filter(c => c.cell !== 9), exitCell: null}), null);
+  assert.equal(publicObjective({...base, cells: base.cells.map(c => c.cell === 9 ? {...c, neighbors: [2]} : c), exitCell: null}), null);
+  assert.equal(publicObjective({...base, cells: base.cells.map(c => c.cell === 8 ? {...c, blocked: true} : c), exitCell: null}), null);
+  assert.equal(publicObjective({...base, keys: [{id: 'hidden', cell: 21, collected: false}], exitCell: null}), null);
+  assert.equal(publicObjective({...base, result: {reason: 'capture'}}), null);
+  assert.equal(publicObjective({...base, currentCell: 11}), null);
+});

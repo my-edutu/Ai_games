@@ -1,7 +1,7 @@
 import * as THREE from './vendor/three.module.js';
 import { createExplorer, createWarden } from './characters.js';
 import { createMazeWorld, cellPosition, cellHeight, sampleGroundHeight, CELL_SIZE } from './world.js';
-import { planPublicMotion, samplePublicPath, publicWayfinding } from './map-view.mjs';
+import { planPublicMotion, samplePublicPath, publicWayfinding, publicObjective } from './map-view.mjs';
 
 const TAU = Math.PI * 2;
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
@@ -95,6 +95,28 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
   });
   let wayfindingCues = [];
 
+  // One reusable 3D landmark pin. It appears only when the *public* map
+  // already contains an open, reciprocal corridor chain to an observed key/exit.
+  // Amber marks an observed key; mint marks an observed exit, not a safe path.
+  const beaconGemGeometry = new THREE.OctahedronGeometry(.27, 0);
+  const beaconRingGeometry = new THREE.TorusGeometry(.46, .05, 6, 28);
+  const beaconFootGeometry = new THREE.RingGeometry(.47, .57, 28);
+  const beaconAmber = new THREE.MeshBasicMaterial({color: '#ffe09b', transparent: true, opacity: .96, side: THREE.DoubleSide});
+  const beaconMint = new THREE.MeshBasicMaterial({color: '#91ffdb', transparent: true, opacity: .96, side: THREE.DoubleSide});
+  const objectiveBeacon = new THREE.Group();
+  objectiveBeacon.name = 'Disclosed reachable landmark';
+  const beaconGem = new THREE.Mesh(beaconGemGeometry, beaconAmber);
+  beaconGem.position.y = 3.18;
+  const beaconRing = new THREE.Mesh(beaconRingGeometry, beaconAmber);
+  beaconRing.position.y = 3.18;
+  const beaconFoot = new THREE.Mesh(beaconFootGeometry, beaconAmber);
+  beaconFoot.rotation.x = -Math.PI / 2;
+  beaconFoot.position.y = .11;
+  objectiveBeacon.add(beaconGem, beaconRing, beaconFoot);
+  objectiveBeacon.visible = false;
+  scene.add(objectiveBeacon);
+  let objectiveCue = null;
+
   // One reusable soft contact shadow makes the explorer sit on the floor.
   const shadowCanvas = document.createElement('canvas'); shadowCanvas.width = 64; shadowCanvas.height = 64;
   const shadowContext = shadowCanvas.getContext('2d');
@@ -123,7 +145,10 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
   }
 
   function updateRoutes(snapshot) {
-    const signature = snapshot.plannedRoute.join(',') + ':' + snapshot.runToken;
+    // Door/knowledge changes must invalidate the dashed route even if the AI plan is unchanged.
+    const signature = [snapshot.runToken, snapshot.plannedRoute.join(','),
+      snapshot.doors.map(d => `${d.a}-${d.b}-${+d.open}`).join(','),
+      snapshot.cells.map(c => `${c.cell}/${+c.blocked}/${c.neighbors.join('.')}`).join('|')].join(':');
     if (signature === routeSignature) return;
     routeSignature = signature;
     const known = new Map(snapshot.cells.map(cell => [cell.cell, cell]));
@@ -189,6 +214,16 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     world.update(snapshot);
     updateRoutes(snapshot);
     updateWayfinding(snapshot);
+    objectiveCue = publicObjective(snapshot);
+    objectiveBeacon.visible = Boolean(objectiveCue);
+    if (objectiveCue) {
+      const pos = cellPosition(objectiveCue.cell, snapshot.width, snapshot.height);
+      objectiveBeacon.position.set(pos.x, cellHeight(objectiveCue.cell, snapshot.width, snapshot.height), pos.z);
+      const tint = objectiveCue.kind === 'key' ? beaconAmber : beaconMint;
+      beaconGem.material = tint;
+      beaconRing.material = tint;
+      beaconFoot.material = tint;
+    }
     const seen = new Set(snapshot.threats.map(threat => threat.id));
     for (const [id, entry] of wardens) {
       if (!seen.has(id)) { scene.remove(entry.model.group); entry.model.dispose(); wardens.delete(id); }
@@ -275,6 +310,13 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
       danger:s.dangerPermille/1000,result,reducedMotion:settings.reducedMotion,
     });
     world.animate(elapsed, settings);
+    if (objectiveCue) {
+      const hover = settings.reducedMotion ? 0 : Math.sin(elapsed * 1.65) * .11;
+      beaconGem.position.y = 3.18 + hover;
+      beaconRing.position.y = 3.18 + hover;
+      beaconGem.rotation.y = settings.reducedMotion ? 0 : elapsed * .38;
+      beaconRing.rotation.z = settings.reducedMotion ? 0 : Math.sin(elapsed * .6) * .10;
+    }
     marker.position.set(pose.x, ground + .025, pose.z);
     marker.material.opacity = settings.highContrast ? 1 : .55;
     contact.position.set(pose.x, ground + .018, pose.z);
@@ -331,6 +373,12 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
         routeQueue: cells.length, world: stats, contextLost: false,
         disclosedThreats: wardens.size, wardensInFrame, encounterAttention: closestThreat?.strength ?? 0,
         wayfindingCues: wayfindingCues.map(cue => ({from: cue.from, to: cue.to, kind: cue.kind})),
+        objectiveCue: objectiveCue ? {...objectiveCue} : null,
+        objectiveInFrame: objectiveCue ? (() => {
+          const p = objectiveBeacon.position.clone().add(new THREE.Vector3(0, 3.18, 0)).project(camera);
+          return Math.abs(p.x) < .95 && Math.abs(p.y) < .95 && p.z > -1 && p.z < 1;
+        })() : false,
+        verifiedRouteVertices: guide.geometry.getAttribute('position')?.count ?? 0,
         explorerPosition: {x: pose.x, y: ground, z: pose.z},
       };
     }
@@ -362,6 +410,8 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     for (const entry of wardens.values()) entry.model.dispose();
     wardens.clear(); guide.geometry.dispose(); guideMaterial.dispose(); markerGeometry.dispose(); markerMaterial.dispose();
     arrowGeometry.dispose(); plannedArrowMaterial.dispose(); knownArrowMaterial.dispose();
+    beaconGemGeometry.dispose(); beaconRingGeometry.dispose(); beaconFootGeometry.dispose();
+    beaconAmber.dispose(); beaconMint.dispose(); scene.remove(objectiveBeacon); objectiveCue = null;
     for (const {pivot} of wayfindingArrows) scene.remove(pivot);
     wayfindingCues = [];
     contactGeometry.dispose(); contactMaterial.dispose(); contactTexture.dispose();

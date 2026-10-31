@@ -91,6 +91,46 @@ export function publicWayfinding(snapshot) {
   }).slice(0, 4).map(next => ({from: current, to: next, kind: next === planned ? 'planned' : 'known'}));
 }
 
+
+/**
+ * Pick one *disclosed*, connected landmark to make the scene legible.
+ * A known route is NOT a safe route, a guarantee that a key opens an exit,
+ * or the autonomous agent's intended next move. Never consult private state.
+ */
+export function publicObjective(snapshot) {
+  const {currentCell, width, height} = snapshot ?? {};
+  if (!Number.isInteger(currentCell) || !Number.isInteger(width) || !Number.isInteger(height)
+    || width < 1 || height < 1 || currentCell < 0 || currentCell >= width * height || snapshot.result) return null;
+  const known = new Map((Array.isArray(snapshot.cells) ? snapshot.cells : [])
+    .filter(cell => Number.isInteger(cell.cell) && Array.isArray(cell.neighbors))
+    .map(cell => [cell.cell, cell]));
+  if (!known.has(currentCell) || known.get(currentCell).blocked) return null;
+  const doors = Array.isArray(snapshot.doors) ? snapshot.doors : [];
+  const distance = new Map([[currentCell, 0]]);
+  const queue = [currentCell];
+  for (let i = 0; i < queue.length; i++) {
+    const from = queue[i], origin = known.get(from);
+    for (const to of origin.neighbors) {
+      if (!Number.isInteger(to) || to < 0 || to >= width * height || distance.has(to)) continue;
+      const target = known.get(to);
+      const adjacent = Math.abs(from % width - to % width)
+        + Math.abs(Math.floor(from / width) - Math.floor(to / width)) === 1;
+      if (!adjacent || !target || target.blocked || !target.neighbors.includes(from)) continue;
+      if (doors.some(door => !door.open
+        && ((door.a === from && door.b === to) || (door.a === to && door.b === from)))) continue;
+      distance.set(to, distance.get(from) + 1);
+      queue.push(to);
+    }
+  }
+  const keys = (Array.isArray(snapshot.keys) ? snapshot.keys : [])
+    .filter(key => !key.collected && distance.has(key.cell))
+    .sort((a, b) => distance.get(a.cell) - distance.get(b.cell) || a.cell - b.cell);
+  if (keys.length) return {kind: 'key', cell: keys[0].cell, steps: distance.get(keys[0].cell)};
+  if (Number.isInteger(snapshot.exitCell) && distance.has(snapshot.exitCell))
+    return {kind: 'exit', cell: snapshot.exitCell, steps: distance.get(snapshot.exitCell)};
+  return null;
+}
+
 export function drawMinimap(canvas, snapshot, highContrast = false) {
   if (!canvas || !snapshot) return;
   const context = canvas.getContext('2d');
