@@ -89,3 +89,20 @@ test('new bounded bloom module resolves through the same-origin dungeon route wh
  const app=fs.readFileSync(path.join(ROOT,'public/ai-dungeon/app.js'),'utf8');
  assert.match(app,/import \{[^}]*planPostFXBudget[^}]*\} from '\/dungeon\/postfx-budget\.js';/);
 });
+
+
+test('live Dungeon progress cannot be mistaken for a stall when its run counter advances and local tick resets',()=>{
+ const {hasLiveDungeonAdvanced}=require('../browser/dungeon-fixtures.cjs');
+ const baseline={run:4,tick:92};
+ assert.equal(hasLiveDungeonAdvanced(baseline,{run:5,tick:0},3),true,'new genuine autonomous run is forward progress even with local tick zero');
+ assert.equal(hasLiveDungeonAdvanced(baseline,{run:4,tick:95},3),true,'at least three ticks within one run is forward progress');
+ assert.equal(hasLiveDungeonAdvanced(baseline,{run:4,tick:94},3),false,'only two ticks do not meet the sampled threshold');
+ assert.equal(hasLiveDungeonAdvanced(baseline,{run:4,tick:92},3),false,'unchanged public state must fail');
+ assert.equal(hasLiveDungeonAdvanced(baseline,{run:3,tick:100},3),false,'stale older run is never progress');
+ for(const value of [undefined,null,NaN,Infinity,-1,2.3]){
+  assert.equal(hasLiveDungeonAdvanced(baseline,{run:value,tick:50},3),false);
+  assert.equal(hasLiveDungeonAdvanced(baseline,{run:5,tick:value},3),false);
+ }
+ assert.equal(hasLiveDungeonAdvanced(null,{run:5,tick:0},3),false);
+ assert.equal(hasLiveDungeonAdvanced(baseline,{run:5,tick:0},0),false);
+});
