@@ -855,7 +855,7 @@ function coniferNeedleSpray(root,tip,width,dark,light){
    Original 3D foliage with elliptical but non-spherical lobes and individually
    articulated leaf blades. All shape variation is derived only from position. */
 function crownLobe(cx,cy,cz,rx,ry,rz,col,seed){
- const segments=9,latitudes=[.21,.44,.68,.84].map(t=>t*Math.PI),rings=[];
+ const segments=9,latitudes=[.23,.54,.81].map(t=>t*Math.PI),rings=[];
  const pt=(lat,i)=>{
   const az=i*Math.PI*2/segments,ripple=1+.13*Math.sin(3*az+seed)+.07*Math.cos(5*az-seed*.7);
   return [cx+Math.sin(lat)*Math.cos(az)*rx*ripple,
@@ -870,7 +870,7 @@ function crownLobe(cx,cy,cz,rx,ry,rz,col,seed){
   const j=(i+1)%segments,a=rings[r][i],b=rings[r][j],c=rings[r+1][j],d=rings[r+1][i];
   tri(a,b,c,colors[(r+i)%3]);tri(a,c,d,colors[(r+i+1)%3]);
  }
- for(let i=0;i<segments;i++){const j=(i+1)%segments;tri(rings[3][i],rings[3][j],bottom,colors[2]);}
+ for(let i=0;i<segments;i++){const j=(i+1)%segments;tri(rings[2][i],rings[2][j],bottom,colors[2]);}
  forestVisualStats.broadleafLobes++;
 }
 function leafBlade(base,tip,width,col,seed){
