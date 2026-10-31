@@ -31,8 +31,10 @@ async function makeHarness(search = '') {
     window: { devicePixelRatio: 1 }, location: { search }, URLSearchParams,
     ResizeObserver: class { observe() {} disconnect() {} },
   });
+  // The VM executes a classic script, so remove every function export rather
+  // than assuming createSceneRenderer is the module's only exported helper.
   const source = fs.readFileSync(`${root}/public/snake-stream/renderer.mjs`, 'utf8')
-    .replace(/^import .*;\n/gm, '').replace('export function createSceneRenderer', 'function createSceneRenderer');
+    .replace(/^import .*;\n/gm, '').replace(/^export (?=function )/gm, '');
   vm.runInContext(source + '\nglobalThis.makeRenderer = createSceneRenderer;', context);
   const canvas = { clientWidth: 1000, clientHeight: 600, dataset: {}, addEventListener() {}, removeEventListener() {} };
   const renderer = context.makeRenderer(canvas);
