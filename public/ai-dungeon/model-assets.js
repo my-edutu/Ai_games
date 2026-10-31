@@ -2,6 +2,7 @@ import * as THREE from '/dungeon/vendor/three.module.js';
 import {GLTFLoader} from '/dungeon/vendor/addons/loaders/GLTFLoader.js';
 import {clone as cloneSkeleton} from '/dungeon/vendor/addons/utils/SkeletonUtils.js';
 import {planAuthoredMotion} from '/dungeon/character-motion-plan.js';
+import {planWardenRegalia} from '/dungeon/warden-regalia-plan.js';
 
 // Optional locally vendored CC0 characters. Offline / missing-asset fallback is the
 // fully autonomous procedural 3D rig, not a blank screen. No third-party runtime calls.
@@ -83,6 +84,47 @@ function configure(mesh,warden,owned){
   }
  });
 }
+// Original scene-only regalia distinguishes the true textured boss from its
+// shared enemy swordsman GLB. No collision, navigation or combat properties.
+function addWardenRegalia(actor){
+ const plan=planWardenRegalia(actor.u.kind);
+ if(!plan.length||!actor.visualPivot)return;
+ const group=new THREE.Group();group.name='Original Warden regalia';
+ const finishes={
+  iron:new THREE.MeshStandardMaterial({color:'#39454f',metalness:.81,roughness:.46}),
+  brass:new THREE.MeshStandardMaterial({color:'#b99257',metalness:.77,roughness:.33}),
+  bone:new THREE.MeshStandardMaterial({color:'#b6ae9b',metalness:.18,roughness:.63}),
+  ember:new THREE.MeshStandardMaterial({color:'#c0683f',emissive:'#a73b1d',emissiveIntensity:.62,metalness:.28,roughness:.39})
+ };
+ const base={
+  plate:new THREE.SphereGeometry(.5,12,8),
+  spike:new THREE.ConeGeometry(.5,1,9),
+  gem:new THREE.OctahedronGeometry(.5,0),
+  lamella:new THREE.BoxGeometry(1,1,1)
+ };
+ const ownedGeometries=Object.values(base);
+ for(const item of plan){
+  let geometry=base[item.shape];
+  if(item.shape==='horn'){
+   const points=item.points.map(p=>new THREE.Vector3(...p));
+   geometry=new THREE.TubeGeometry(new THREE.CatmullRomCurve3(points),14,.047,7,false);
+   ownedGeometries.push(geometry);
+  }
+  const mesh=new THREE.Mesh(geometry,finishes[item.finish]);
+  mesh.name=item.id;mesh.castShadow=true;mesh.receiveShadow=true;
+  if(item.shape!=='horn'){
+   mesh.position.set(item.x,item.y,item.z);
+   mesh.scale.set(item.sx,item.sy,item.sz);
+   mesh.rotation.z=item.rz;
+  }
+  group.add(mesh);
+ }
+ actor.visualPivot.add(group);
+ actor.regaliaParts=plan.length;
+ actor.assetMaterials.push(...Object.values(finishes));
+ actor.assetGeometries.push(...ownedGeometries);
+}
+
 function attachCharacter(actor){
  const asset=selection[actor.u.kind];if(!asset)return Promise.resolve(false);
  const id=actor.u.id;
@@ -101,10 +143,11 @@ function attachCharacter(actor){
    instance.position.set(-center.x*sourceScale,-bounds.min.y*sourceScale,-center.z*sourceScale);
   }
   const pivot=new THREE.Group();actor.root.add(pivot);pivot.add(instance);
-  actor.visualPivot=pivot;actor.motionPeak=0;actor.assetRoot=instance;actor.assetMaterials=owned;
+  actor.visualPivot=pivot;actor.motionPeak=0;actor.assetRoot=instance;actor.assetMaterials=owned;actor.assetGeometries=[];actor.regaliaParts=0;
   actor.body.visible=false;actor.authored=true;actor.mixer=new THREE.AnimationMixer(instance);
   actor.availableClips=gltf.animations||[];actor.currentAction='';actor.currentActionTick=null;
   actor.textureReadiness=textureReadiness.get(gltf);
+  addWardenRegalia(actor);
   changeAction(actor,actor.u.action||'idle');
   return true;
  }).catch(e=>{failures.add(asset);return false});
@@ -149,7 +192,8 @@ function disposeActorAsset(actor){
  if(actor.visualPivot){actor.root.remove(actor.visualPivot);actor.visualPivot.clear()}
  else if(actor.assetRoot){actor.root.remove(actor.assetRoot)}
  for(const m of actor.assetMaterials||[])m.dispose();
- actor.mixer=null;actor.assetRoot=null;actor.visualPivot=null;actor.motionPeak=0;actor.assetMaterials=[];actor.authored=false;actor.textureReadiness=null;
+ for(const g of actor.assetGeometries||[])g.dispose();
+ actor.mixer=null;actor.assetRoot=null;actor.visualPivot=null;actor.motionPeak=0;actor.assetMaterials=[];actor.assetGeometries=[];actor.regaliaParts=0;actor.authored=false;actor.textureReadiness=null;
 }
 function putEnvironment(world,sceneKey,map){
  // Authored GLB masonry and prop dressing complements the instanced procedural
@@ -186,6 +230,6 @@ function putEnvironment(world,sceneKey,map){
 }
 function stats(actors){
  const all=[...actors.values()],authored=all.filter(a=>a.authored);
- return{authoredCharacters:authored.length,proceduralFallbacks:all.length-authored.length,uniqueAssets:cache.size,missingAssets:failures.size,incompleteAssets:incompleteAssets.size,texturedCharacters:authored.filter(a=>a.textureReadiness?.decodedColorMaps>0).length,decodedColorMaps:authored.reduce((n,a)=>n+(a.textureReadiness?.decodedColorMaps||0),0)};
+ return{authoredBosses:authored.filter(a=>a.u.kind==='warden').length,bossRegaliaParts:all.reduce((n,a)=>n+(a.regaliaParts||0),0),authoredCharacters:authored.length,proceduralFallbacks:all.length-authored.length,uniqueAssets:cache.size,missingAssets:failures.size,incompleteAssets:incompleteAssets.size,texturedCharacters:authored.filter(a=>a.textureReadiness?.decodedColorMaps>0).length,decodedColorMaps:authored.reduce((n,a)=>n+(a.textureReadiness?.decodedColorMaps||0),0)};
 }
 export {attachCharacter,updateActor,disposeActorAsset,putEnvironment,stats};
