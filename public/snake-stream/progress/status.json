@@ -1,10 +1,15 @@
 {
-  "updatedAt": "2026-10-31T13:30:58.043Z",
-  "status": "Round 25 · weathered 3D limestone floor verified in actual WebGL; 554/554 Node pass; strict submitted-frame gate still fails",
-  "detail": "Exact source 8a6d1371 (world blob cd87e204), new bounded seeded slab fractures/patina in existing SRGB floor texture; unchanged 13 static meshes / 4 world textures and gameplay/captions. Real 960x640 matched WebGL direct/cached PNG changed 87,065/86,800 floor-localized pixels vs Round24; current general/focused frozen captures pixel-identical. 18.32s actual motion inspected. General CI 41205104226 554/554 Node + build/host/authority/operations PASS, browser 28/29 with 9 actual submissions/1015.6ms vs unchanged min17 FAIL. Focused 41205104304 16/17 browser, 7/1007.1ms vs17 FAIL. No causal FPS claim, independent critic, Snake Pass whole-game visual/motion win, real-device/R5; draft/unmerged/undeployed.",
+  "updatedAt": "2026-10-31T14:23:40.214Z",
+  "status": "Round 27 candidate · live muscular serpent body (TDD); exact-head browser proof pending",
+  "detail": "Round 27 introduces an original bounded travelling lateral muscle wave inside the existing snake tube, attenuated at the skull, tail and every separate portal fragment; reduced-motion freezes it. Authoritative cells and deterministic AI remain unchanged. TypeScript build and 53 focused Snake Node tests pass. Whole-game motion/visual and 17 actual-render gate are not yet verified on this head.",
   "latestImage": "/progress/evidence/round-9-overview.jpg",
-  "latestCaption": "Embedded photo remains historical Round9, NOT the Round25 game; current Round25 true WebGL overview/detail/portrait PNGs and 18.32s motion are in the newest round's GitHub Actions artifacts. Avoid mistaking the old embedded photo for current output.",
+  "latestCaption": "Historical Round 25 real-WebGL still. Round 27 motion capture and independent reference verdict must come from the new exact-head browser run; no render has been fabricated.",
   "reviews": [
+    {
+      "area": "Round 27 · live body motion",
+      "verdict": "TDD RED→GREEN · 53/53 FOCUSED NODE · BROWSER EVIDENCE PENDING",
+      "gap": "Previous rigid body generated zero frame-to-frame lateral motion on a frozen authoritative 10-cell path. New travelling 0.05-cell-or-smaller side bend moves the middle while anchoring skull/tail/portal ends. Reduced-motion freezes body undulation; no geometry/material/texture growth. Actual commercial-reference motion and GPU cadence still need validation."
+    },
     {
       "area": "Round 24 · original mouth/cheek chromatic integration",
       "verdict": "NEW FACE TINT + BOTH LODS VERIFIED · 50/50 SNAKE NODE · 553/553 GENERAL NODE · TRUE WEBGL JAW-LOCALIZED PIXELS · STRICT DESKTOP GATE FAIL",
@@ -476,9 +481,16 @@
           "path": "https://github.com/my-edutu/Ai_games/blob/feat/autonomous-snake-3d-gauntlet/docs/reviews/snake-gauntlet/round25-weathered-garden-stone.md"
         }
       ]
+    },
+    {
+      "title": "Round 27 · living muscular serpent",
+      "summary": "An articulated travelling lateral wave makes the continuous snake tube flex subtly as it moves instead of looking rigid along grid cells. It fades at head, tail and each portal-separated fragment, stays within 0.083 cell of the authoritative path and turns off for reduced motion. No new assets or GPU draw calls. Actual CI video/reference review pending.",
+      "captures": []
     }
   ],
   "checks": [
+    "Round 27 local actual browser recording unavailable: Chromium policy blocked 127.0.0.1 navigation, and Playwright's pinned headless shell is not installed. GitHub isolated CI will evaluate actual updated 3D scene, browser FPS, mobile and reduced-motion. No browser success yet.",
+    "Round 27 local red→green: node --test tests/phase3/snake-body-undulation.test.cjs failed on original (observed 0 muscle wave), passed after implementation. Latest exact source TypeScript build and all 53 focused Snake tests pass. Whole local npm test timed out after 452 tests in unrelated campaigns; no full-suite pass claim.",
     "Round25 true WebGL frozen 960x640 vs Round24: direct 87,065 and cached 86,800 changed pixels, exclusively floor-region differences, max channel 23/24 out of 255. Current general and focused PNGs identical on fixed snapshot. Real 18.32s gameplay inspected. Character, garden depth, motion and performance still below reference.",
     "Round 25 exact source 8a6d1371: full CI 554/554 Node, build, host/authority/operations stages PASS; general browser 28/29 desktop actual draws 9/1015.6ms FAIL and focused 16/17 desktop 7/1007.1ms FAIL vs unchanged >=17. Both workflows overall FAIL; RAF ~61/s and 25fps capture are NOT rendered/display-present FPS.",
     "Round 21 first-source browser prop-cache test exact-build assertion (expected4, observed5) traced to one independent legitimate adaptive resolution change ratio 0.75→0.667; fixed regression attributes exactly one cache rebuild per topology change, plus exactly one only upon actual scale transition; final browser test passes. No release gate weakened.",

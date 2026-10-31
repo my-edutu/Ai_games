@@ -381,7 +381,7 @@ export function createSerpent(THREE) {
     sample.dx = da*p1.x + db*m1x + dc*p2.x + dd*m2x;
     sample.dz = da*p1.z + db*m1z + dc*p2.z + dd*m2z;
   }
-  function writeRing(x, z, dx, dz, radius, distance, y, connect) {
+  function writeRing(x, z, dx, dz, radius, distance, y, connect, lateral = 0) {
     if (ringCount >= MAX_RINGS) { truncated = true; return false; }
     const tangentLength = Math.hypot(dx, dz) || 1;
     const nx = dz / tangentLength, nz = -dx / tangentLength;
@@ -389,9 +389,9 @@ export function createSerpent(THREE) {
     for (let j = 0; j <= activeRadial; j++) {
       const angle = j / activeRadial * Math.PI * 2;
       const cos = lowDetail ? Math.cos(angle) : radialCos[j], sin = lowDetail ? Math.sin(angle) : radialSin[j], v = base + j;
-      positions[v * 3] = x + nx * cos * radius;
+      positions[v * 3] = x + nx * (cos * radius + lateral);
       positions[v * 3 + 1] = y + sin * radius * 0.88;
-      positions[v * 3 + 2] = z + nz * cos * radius;
+      positions[v * 3 + 2] = z + nz * (cos * radius + lateral);
       const ny = sin / 0.88, norm = Math.hypot(cos, ny);
       normals[v * 3] = nx * cos / norm;
       normals[v * 3 + 1] = ny / norm;
@@ -451,6 +451,8 @@ export function createSerpent(THREE) {
         distance += 0.27;
         continue;
       }
+      // Each portal-separated fragment has its own anchored leading end.
+      const pathStartDistance = distance;
       for (let s = 0; s < path.length - 1; s++) {
         const segmentLength = Math.hypot(path[s + 1].x - path[s].x, path[s + 1].z - path[s].z);
         const subdivisions = clamp(Math.ceil(segmentLength * (lowDetail ? 3 : 7)), 2, 14);
@@ -475,7 +477,12 @@ export function createSerpent(THREE) {
           const groundedHeight = radius * 0.88 + bellyClearance;
           const neckHeight = fullBodyHeight + 0.02 + eaten * 0.08;
           const centreHeight = groundedHeight + (neckHeight - groundedHeight) * neckBlend;
-          if (!writeRing(sample.x, sample.z, sample.dx, sample.dz, radius, distance, centreHeight + lift, connected)) break;
+          // A small travelling contraction gives the body muscular life without
+          // changing gameplay. Fade it at both ends of every contiguous path,
+          // so the skull, tail and portal-separated fragments stay anchored.
+          const envelope = smooth(.55, 1.6, distance - pathStartDistance) * smooth(0, 2.3, tailRemaining);
+          const lateral = reduced ? 0 : .050 * Math.sin(distance * 1.65 - time * 2.8) * envelope * (1 - neckBlend);
+          if (!writeRing(sample.x, sample.z, sample.dx, sample.dz, radius, distance, centreHeight + lift, connected, lateral)) break;
           connected = true;
         }
         if (truncated) break;
