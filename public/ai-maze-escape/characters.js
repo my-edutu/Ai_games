@@ -263,7 +263,11 @@ export function createExplorer(options = {}) {
       legs[i].hip.rotation.x=step*sign*.62;
       legs[i].knee.rotation.x=Math.max(0,-step*sign)*.58;
       arms[i].shoulder.rotation.x=-step*sign*(i===1?.2:.4)-(s.win?.9:0)-(i===1?.16:0)-alert*(i===1?.42:.12)-(i===0?keyReach*1.9:0);
-      arms[i].shoulder.rotation.z=(i===0?-1:1)*(s.win?.95:i===1?.34:.15)-(i===0?keyReach*.06:0);
+      // Aim the raised physical glove toward the publicly disclosed lock,
+      // not just upward. Reduced-motion uses the same stable static pose.
+      // A terminal result or nearby guardian suppresses keyYaw entirely.
+      arms[i].shoulder.rotation.y=i===0?keyYaw*1.5:0;
+      arms[i].shoulder.rotation.z=(i===0?-1:1)*(s.win?.95:i===1?.34:.15)+(i===0?keyYaw*.55:0);
       arms[i].elbow.rotation.x=-.16-(i===1?.22:0)-(s.danger*.3)-(i===0?keyReach*.7:0);
       eyes[i].position.x=(i===0?-1:1)*.145+Math.max(-.024,Math.min(.024,(lookYaw+keyYaw)*.032+(s.reduced?0:(Math.max(-.016,Math.min(.016,turn*.045))+.006*rest)*(1-alert))));
       eyes[i].scale.y=s.lose?.32:s.danger>.45||alert>.4?1.13:(s.reduced?1:Math.pow(Math.max(0,Math.cos(s.time*.83)),60)>.88?.12:1);
