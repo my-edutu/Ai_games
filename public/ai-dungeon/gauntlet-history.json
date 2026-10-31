@@ -609,6 +609,76 @@
       },
       "artifactUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41206739033/artifacts/13044632232",
       "nextLargestGap": "Believable original high-detail hero/enemy anatomy and skeletal combat/cast animation with hand alignment, followed by authored architectural stone and room silhouettes, richer light/material contrast, multi-seed fixed-state WebGL/midrange-mobile performance and an independent blind matched reference comparison."
+    },
+    {
+      "round": 30,
+      "at": "2026-10-31",
+      "commit": "57fdc4122dc56f3db6b353073015169a810bb8bb",
+      "status": "VERIFIED: 48/48 DEDICATED CHROMIUM; 63/63 DUNGEON CORE; 17/17 PRESENTATION; 585/585 REPO SOFTWARE; 15/15 SHARED BROWSER; 24x900 DETERMINISTIC; VISUAL BAR NOT MET",
+      "sampleSeeds": 24,
+      "highestFloor": 9,
+      "determinismFailures": 0,
+      "visualVerdict": "Inspected the real 1440x832 Chromium WebGL combat-clarity snapshot and 21.56-second authentic seeded attack scenario video, plus separate matched-seed Warden captures from R29 and R30. New original renderer-only logic defers visual projectiles to the authored attack/cast anticipation beat using a bounded 24-item read-only queue and replaces routine hurt/projectile impact floor rings with small body-height flares. The actual authoritative Warden danger telegraph persists. Browser and unit tests confirm release on a genuinely witnessed seeded attack, but the effect timing and artistic quality have not been independently preferred against an earlier attack clip. Characters, weapons and masonry remain low detail, several floor glows still dominate, and lighting is dark. No blinded Diablo IV comparison, AAA or production-ready claim.",
+      "evidenceMetrics": {
+        "testFirstRedObserved": true,
+        "firstRedFailures": 5,
+        "firstRedTotalTests": 63,
+        "combatCueDelaySecondsRange": [
+          0.21,
+          0.33
+        ],
+        "maxPendingCombatCues": 24,
+        "releasedCueObservedInRealChromium": true,
+        "realBrowserDroppedCues": 0,
+        "reducedMotionFeedbackPreserved": true,
+        "bossAuthoritativeTelegraphPreserved": true,
+        "screenshotFromRealChromium": true,
+        "screenshotSize": [
+          1440,
+          832
+        ],
+        "actualGameBrowserVideoInspected": true,
+        "recordedGameplayDurationSeconds": 21.56,
+        "matchedWardenSameSeedAndAuthorityTickReviewed": true,
+        "blindedAttackContactBeforeAfterComparison": false,
+        "focusedDungeonTestsPassed": 63,
+        "presentationTestsPassed": 17,
+        "repositorySoftwareTestsPassed": 585,
+        "dedicatedBrowserTestsPassed": 48,
+        "sharedBrowserTestsPassed": 15,
+        "seedRuns": 24,
+        "ticksPerSeed": 900,
+        "determinismFailures": 0,
+        "highestFloor": 9,
+        "floorAdvances": 401,
+        "restarts": 89,
+        "sourceAssetLicensingPreserved": true,
+        "authoritativeSimulationChanged": false,
+        "independentCritic": false,
+        "independentBlindComparison": false,
+        "gpuFrameTimeP95Measured": false,
+        "productionReady": false
+      },
+      "verification": {
+        "finalCodeAndTestHead": "57fdc4122dc56f3db6b353073015169a810bb8bb",
+        "testFirstRedRun": 41208119231,
+        "finalDungeonRun": 41208356669,
+        "finalIntegratedCIRun": 41208356675,
+        "finalVisualReviewRun": 41208356729,
+        "screenshotArtifact": 13044759599,
+        "wardenRound29BaselineArtifact": 13044632232,
+        "wardenRound30Artifact": 13045217074,
+        "screenshotName": "dungeon-combat-clarity-round30-world-only.png",
+        "videoName": "test-results/dungeon-authored-motion-*/video.webm",
+        "browserVideoDurationSeconds": 21.56,
+        "realBrowserScreenshotInspected": true,
+        "realGameplayVideoInspected": true,
+        "independentReview": false,
+        "productionReady": false,
+        "documentation": "docs/reviews/AI_DUNGEON_GAUNTLET_ROUND_030.md"
+      },
+      "artifactUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41208356669/artifacts/13044759599",
+      "nextLargestGap": "Anatomically convincing original rigged hero/enemy models, individually aligned weapon grips and contact/readable melee/cast/recoil animations; original stone architecture, local lighting, multi-seed mobile/GPU p95/soak, and independent blind matched Diablo IV reference review."
     }
   ]
 }
