@@ -1,14 +1,14 @@
 {
-  "updatedAt": "2026-10-31T05:07:05.716Z",
-  "status": "Round 15 shader-distance candidate · desktop pace and reference bar still unmet",
-  "detail": "Latest verified combined head 982f925 passed 15/16 focused browser checks, but submitted only 10 actual frames over 1006.4 ms versus 17 required. The Round 15 candidate keeps the exact full-detail scales and eyes in close-up, with preallocated original-pigment diffuse materials in distant overview. Current-head CI and runtime capture pending; no visual or FPS win asserted.",
+  "updatedAt": "2026-10-31T05:16:16.064Z",
+  "status": "Round 15 verified · 542 Node tests green; real 3D pacing still fails",
+  "detail": "The camera-distance serpent shader LOD has exact-head browser and Node evidence. General CI passed 542/542 Node tests and all host/authority/operations checks; only browser pacing failed. Focused browser 15/16, actual renders 10 in 1015ms versus required 17. Close-up PBR and original color maps are intact; frozen overview is nearly identical, but commercial Snake Pass look/motion and performance gates remain unmet.",
   "latestImage": "/progress/evidence/round-9-overview.jpg",
-  "latestCaption": "Older verified Round 9 browser still; newer Round 14 local eye A/B remains outside the site until exact-head capture is published.",
+  "latestCaption": "Historical Round 9 image (not a Round 15 screenshot). Current exact-head real WebGL captures are linked in Round 15 below; CI artifact bundles cannot be embedded as images.",
   "reviews": [
     {
-      "area": "Round 15 · camera-distance serpent skin",
-      "verdict": "CANDIDATE · runtime verification pending",
-      "gap": "Simpler broadcast-scale shading removes subpixel bump and roughness work while sharing original pigments. The commercial comparison, local real-device pacing, current browser captures and independent critic remain open."
+      "area": "Round 15 · original pigment and camera-distance shading",
+      "verdict": "VERIFIED CODE + CAPTURES · overall LOSE",
+      "gap": "Original body/skull pigments retained; detail preserves full PBR. Frozen 960×640 replay changed 1.912% of pixels (mean RGB difference 0.0843). No actual frame-delivery win: 10 draws/1015ms versus required 17. The stronger official Snake Pass face/stone/water staging still wins. Self-review only."
     },
     {
       "area": "Round 14 · snake face and eye supports",
@@ -27,8 +27,8 @@
     },
     {
       "area": "Frame delivery and reliability",
-      "verdict": "Live-host focused CI 15/16; pacing failed",
-      "gap": "At ffe44de the browser submitted 8 actual frames over 1008.2ms against an unchanged required minimum 17. Round 13's focused Snake tests 37/37 and TypeScript build passed; current-head live-host and production readiness are pending."
+      "verdict": "FAILED unchanged desktop gate, regression tests GREEN",
+      "gap": "Exact-source focused run 41171326788 15/16: 10 actual draws/1015ms vs 17. General run 41171326786 542/542 Node, host/authority/operations all passed; browser 27/28 pace failed at 10 real renders/1004.9ms."
     }
   ],
   "rounds": [
@@ -218,12 +218,31 @@
     },
     {
       "title": "Round 15 · camera-distance skin material LOD",
-      "summary": "Original face and body pigments are shared between lightweight overview shaders and existing fully relief-textured close-up shaders. Fixed-resource 120-transition regression added; no current-head real screenshot or performance conclusion yet.",
-      "captures": []
+      "summary": "Verified actual exact-head WebGL capture and 18.48-second motion: the distant body/skull use preallocated original-pigment shaders, with full PBR restored in close-up. 542/542 Node green; focused browser 15/16 but 10 draws/1015ms vs 17. Frozen overview very similar to prior source; no independent visual win.",
+      "captures": [
+        {
+          "label": "Current real WebGL screenshots and browser trace (run 41171326788)",
+          "path": "https://github.com/my-edutu/Ai_games/actions/runs/41171326788/artifacts/13031152958"
+        },
+        {
+          "label": "Current 18.48-second motion recording",
+          "path": "https://github.com/my-edutu/Ai_games/actions/runs/41171326788/artifacts/13030759114"
+        },
+        {
+          "label": "Exact-head real frame timing and browser metrics",
+          "path": "https://github.com/my-edutu/Ai_games/actions/runs/41171326788/artifacts/13031297210"
+        },
+        {
+          "label": "Previous matched frozen replay screenshot (for a fair before comparison)",
+          "path": "https://github.com/my-edutu/Ai_games/actions/runs/41170386701/artifacts/13030936791"
+        }
+      ]
     }
   ],
   "checks": [
-    "Prior exact head 982f925: CI 15/16; desktop 10 actual frames/1006.4ms below 17, with ~60.61 RAF callbacks/s not equivalent to draw FPS. Round 15 remains an unverified candidate.",
+    "Round 15 source commit 2e4fe40: general CI 41171326786 build + 542/542 Node tests, all four host self-tests, authority scan and operations/release checks pass. Overall general CI still FAILED browser (27/28).",
+    "Round 15 focused browser CI 41171326788 15/16. Desktop gate FAILED: 10 actual render submissions /1015ms versus unchanged minimum 17; 60.10 RAF callbacks/s not rendered frames. No FPS win.",
+    "Round 15 matched 960×640 real WebGL frozen snapshot differs on 1.912% of pixels, mean RGB-channel absolute delta 0.0843; detail, mobile portrait and 18.48s actual motion inspected. This is not visual parity or display-present FPS.",
     "Round 14: 38/38 focused local Snake Node tests pass on combined candidate (current water + eyes); TypeScript build passed. Full local repository suite attempts timed out during other-game campaigns; latest full CI must be checked independently.",
     "Round 14: facial eye-support regression red on original geometry (0.36585 head-relative crown), green on revised 0.330 geometry; local real WebGL detail A/B inspected, first occluding attempt rejected.",
     "Round 13 exact-source isolated focused Snake Node suite 37/37 passed; TypeScript build passed. New one-fetch regression failed on the original two-fetch shader and passed on candidate.",
