@@ -70,3 +70,29 @@ test('real WebGL renderer uses measured stall protection and exposes honest dire
  assert.match(app,/postFXEnabled=false/);
  assert.match(app,/postFXAutoDisabled:bloomAutoDisabled/);
 });
+
+test('software WebGL starts with direct rendering only for known CPU rasterizers',async()=>{
+ const {isSoftwareWebGLRenderer}=await load();
+ for(const name of [
+  'ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero)), SwiftShader driver)',
+  'Google SwiftShader',
+  'llvmpipe (LLVM 18.1.8, 256 bits)',
+  'Mesa softpipe',
+  'Software Rasterizer'
+ ])assert.equal(isSoftwareWebGLRenderer(name),true,name);
+ for(const name of [
+  'ANGLE (NVIDIA, NVIDIA GeForce RTX 3070 Direct3D11)',
+  'Apple M3',
+  'AMD Radeon RX 7600',
+  'WebKit WebGL','',null,undefined,34
+ ])assert.equal(isSoftwareWebGLRenderer(name),false,String(name));
+});
+
+test('running renderer avoids eager FX allocation on known software WebGL but keeps deliberate opt-in',()=>{
+ const app=fs.readFileSync(path.join(__dirname,'../../public/ai-dungeon/app.js'),'utf8');
+ assert.match(app,/isSoftwareWebGLRenderer\(webglRendererName\)/);
+ assert.match(app,/postFXEnabled=!reduced&&!softwareWebGL/);
+ assert.match(app,/if\(postFXEnabled\)initializePostFX\(\)/);
+ assert.match(app,/if\(!composer\)initializePostFX\(\)/);
+ assert.match(app,/softwareWebGL,/);
+});
