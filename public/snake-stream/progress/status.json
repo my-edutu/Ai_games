@@ -1,10 +1,15 @@
 {
-  "updatedAt": "2026-10-31T04:52:37Z",
-  "status": "Round 14 candidate · more integrated snake eyes; benchmark remains open",
-  "detail": "After the Round 13 flowing-water pass, the next character pass lowered oversized eye sockets. The first revision hid the pupils behind the muzzle and was rejected from real browser captures. The revised forward-set eyes are visibly open and better nested into the skull. The overall Snake Pass visual and frame-rate bars are still not achieved.",
+  "updatedAt": "2026-10-31T05:07:05.716Z",
+  "status": "Round 15 shader-distance candidate · desktop pace and reference bar still unmet",
+  "detail": "Latest verified combined head 982f925 passed 15/16 focused browser checks, but submitted only 10 actual frames over 1006.4 ms versus 17 required. The Round 15 candidate keeps the exact full-detail scales and eyes in close-up, with preallocated original-pigment diffuse materials in distant overview. Current-head CI and runtime capture pending; no visual or FPS win asserted.",
   "latestImage": "/progress/evidence/round-9-overview.jpg",
   "latestCaption": "Older verified Round 9 browser still; newer Round 14 local eye A/B remains outside the site until exact-head capture is published.",
   "reviews": [
+    {
+      "area": "Round 15 · camera-distance serpent skin",
+      "verdict": "CANDIDATE · runtime verification pending",
+      "gap": "Simpler broadcast-scale shading removes subpixel bump and roughness work while sharing original pigments. The commercial comparison, local real-device pacing, current browser captures and independent critic remain open."
+    },
     {
       "area": "Round 14 · snake face and eye supports",
       "verdict": "SELF-REVIEW: narrow improvement, overall LOSE",
@@ -210,9 +215,15 @@
       "title": "Round 14 · attached eye anatomy",
       "summary": "Red→green geometry regression caps protruding sockets and requires pupils to sit forward of the skull. The first WebGL capture hid the gaze, so that revision was rejected. The corrected version retains blinking and both detailed/overview meshes. This is a small, self-reviewed character improvement, not an independent benchmark victory.",
       "captures": []
+    },
+    {
+      "title": "Round 15 · camera-distance skin material LOD",
+      "summary": "Original face and body pigments are shared between lightweight overview shaders and existing fully relief-textured close-up shaders. Fixed-resource 120-transition regression added; no current-head real screenshot or performance conclusion yet.",
+      "captures": []
     }
   ],
   "checks": [
+    "Prior exact head 982f925: CI 15/16; desktop 10 actual frames/1006.4ms below 17, with ~60.61 RAF callbacks/s not equivalent to draw FPS. Round 15 remains an unverified candidate.",
     "Round 14: 38/38 focused local Snake Node tests pass on combined candidate (current water + eyes); TypeScript build passed. Full local repository suite attempts timed out during other-game campaigns; latest full CI must be checked independently.",
     "Round 14: facial eye-support regression red on original geometry (0.36585 head-relative crown), green on revised 0.330 geometry; local real WebGL detail A/B inspected, first occluding attempt rejected.",
     "Round 13 exact-source isolated focused Snake Node suite 37/37 passed; TypeScript build passed. New one-fetch regression failed on the original two-fetch shader and passed on candidate.",

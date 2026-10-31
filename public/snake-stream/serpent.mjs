@@ -90,6 +90,11 @@ export function createSerpent(THREE) {
   }));
   const headSkin = skinTextures(true);
   const skullMaterial = ownMaterial(new THREE.MeshStandardMaterial({ map: headSkin.color, bumpMap: headSkin.bump, bumpScale: 0.023, roughnessMap: headSkin.bump, roughness: 0.76 }));
+  // Full scale relief and specular highlights are subpixel in the overview.
+  // Keep authored pigments and full close-up PBR, but avoid redundant
+  // bump/roughness reads in the distant continuous self-playing view.
+  const bodyOverviewMaterial = ownMaterial(new THREE.MeshLambertMaterial({ map: skin.color, color: 0xffffff }));
+  const skullOverviewMaterial = ownMaterial(new THREE.MeshLambertMaterial({ map: headSkin.color, color: 0xffffff }));
   const jade = ownMaterial(new THREE.MeshStandardMaterial({ color: 0x4da64e, roughness: 0.4, bumpMap: skin.bump, bumpScale: 0.009 }));
   const darkJade = ownMaterial(new THREE.MeshStandardMaterial({ color: 0x20573b, roughness: 0.47 }));
   const cream = ownMaterial(new THREE.MeshStandardMaterial({ color: 0xffe8a5, roughness: 0.47, bumpMap: skin.bump, bumpScale: 0.005 }));
@@ -367,6 +372,9 @@ export function createSerpent(THREE) {
       activeRadial = lowDetail ? 8 : RADIAL;
       activeRing = activeRadial + 1;
       for (const binding of lodBindings) binding[0].geometry = binding[lowDetail ? 2 : 1];
+      // Preallocated material LOD never allocates per tick or changes snapshots.
+      body.material = lowDetail ? bodyOverviewMaterial : bodyMaterial;
+      skull.material = lowDetail ? skullOverviewMaterial : skullMaterial;
     }
     const time = Number.isFinite(options.time) ? options.time : 0;
     const dt = clamp(Number.isFinite(options.delta) ? options.delta : 1 / 60, 0, 0.1);
