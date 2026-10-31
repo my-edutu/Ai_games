@@ -13,6 +13,18 @@ function followClimberContact(position, target, blend, state) {
   return position;
 }
 
+// The hand's rigid meshes are batched onto the right-elbow bone. Transform its
+// authored wrist point after posing so the cosmetic strike follows real motion.
+function positionStrikeCue(arc, rig, camera) {
+  const elbow = rig.getObjectByName('1-elbow');
+  if (!elbow) { arc.visible = false; return false; }
+  elbow.updateWorldMatrix(true, false);
+  arc.position.set(0, -.39, .015);
+  elbow.localToWorld(arc.position);
+  arc.quaternion.copy(camera.quaternion);
+  return true;
+}
+
 const MAX_PARTICLES=96;
 const TAU = Math.PI * 2;
 const clamp = THREE.MathUtils.clamp;
@@ -527,7 +539,7 @@ export function createTowerScene(canvas, settings = {}) {
   })));
   landingBeacon.name = 'IntendedLandingBeacon'; landingBeacon.visible = false;
   scene.add(landingBeacon);
-  const attackArc = new THREE.Mesh(ownGeometry(new THREE.TorusGeometry(1.55, .055, 6, 24, Math.PI * .9)), ownMaterial(new THREE.MeshBasicMaterial({ color: 0xabf5ff, transparent: true, opacity: .7, depthWrite: false })));
+  const attackArc = new THREE.Mesh(ownGeometry(new THREE.TorusGeometry(.56, .038, 6, 20, Math.PI * .75)), ownMaterial(new THREE.MeshBasicMaterial({ color: 0xabf5ff, transparent: true, opacity: .7, depthTest: true, depthWrite: false })));
   attackArc.visible = false;
   scene.add(attackArc);
 
@@ -777,12 +789,9 @@ export function createTowerScene(canvas, settings = {}) {
       targetDy: targetPlatform ? targetPlatform.y + targetPlatform.height - p.y : 0,
     }, dt, elapsed, options);
     attackArc.visible = !!p.attacking && p.health > 0;
-    attackArc.position.copy(climber.group.position);
-    attackArc.position.y += 1.45;
-    attackArc.position.x += Math.sin(actorYaw) * 1.6;
-    attackArc.position.z += Math.cos(actorYaw) * 1.6;
-    attackArc.quaternion.copy(camera.quaternion);
-    attackArc.rotateZ(p.facing > 0 ? -.8 : Math.PI - .8);
+    if (attackArc.visible && positionStrikeCue(attackArc, climber.group, camera)) {
+      attackArc.rotateZ(p.facing > 0 ? -.8 : Math.PI - .8);
+    }
     landingCue.visible = !!targetPlatform;
     if (targetPlatform) {
       const key = `${snapshot.worldWidth}:${snapshot.chunkBaseY}:${targetPlatform.id}:${targetPlatform.x}:${targetPlatform.y}:${targetPlatform.width}:${targetPlatform.height}`;
