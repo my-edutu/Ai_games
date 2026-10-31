@@ -71,3 +71,29 @@
     transition: none;
   }
 }
+
+/* The Low tier budgets the HTML compositor as well as the WebGL renderer.
+   Blurring several live-backdrop panels defeats a small 3D drawing buffer.
+   Opaque, high-contrast panels preserve race readability without that work. */
+.broadcast-shell[data-quality="low"] .leaderboard-panel.broadcast-overlay,
+.broadcast-shell[data-quality="low"] .broadcast-lower-overlay .event-panel,
+.broadcast-shell[data-quality="low"] .broadcast-lower-overlay .influence-panel,
+.broadcast-shell[data-quality="low"] .stage-journey,
+.broadcast-shell[data-quality="low"] .spotlight-card,
+.broadcast-shell[data-quality="low"] .arena-topline span {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  background: #0c1735;
+  box-shadow: none;
+}
+
+.broadcast-shell[data-quality="low"].webgl-ready .arena-card::after {
+  display: none;
+}
+
+.broadcast-shell[data-quality="low"] .status-pill.connected::before,
+.broadcast-shell[data-quality="low"] .beacon-dot,
+.broadcast-shell[data-quality="low"] .threat-pulse,
+.broadcast-shell[data-quality="low"].stage-entering .arena-world-title {
+  animation: none;
+}
