@@ -393,6 +393,15 @@ void main(){
  vec3 moonAmbient=mix(vec3(.10,.15,.23),vec3(.14,.19,.26),hemi);
  vec3 ambient=mix(moonAmbient,noonAmbient,ambientBlend);
  vColor=color*(ambient+lit*.67*sunTint*sunStrength+bounce*.11*sunStrength);
+ // G071: emissive building glass and street lanterns follow the same
+ // solar-day cutoff as the former static-mesh variant, without recoloring
+ // and uploading all settlement vertices at every dawn/dusk transition.
+ // Only materials 9/10 glow; roofs, terrain, foliage and citizens are intact.
+ if(materialId>8.5&&materialId<10.5){
+  float afterDusk=1.-step(.4375,sunStrength);
+  vec3 warmGlass=materialId<9.5?vec3(.98,.88,.47):vec3(.98,.90,.44);
+  vColor=mix(vColor,warmGlass,afterDusk);
+ }
  vWorld=world;vNormal=n;vMaterial=materialId;vFog=clamp((p.w-24.)/105.,0.,.82);
 }`;
 // Gauntlet 023 — world-space GPU materials. Original procedural detail; not full PBR.
@@ -669,7 +678,7 @@ function drawAtmosphere(a){
  skyPassCount++;
 }
 
-const MATERIAL=Object.freeze({GENERAL:0,GRASS:1,WATER:2,ROAD:3,FOLIAGE:4,STONE:5,WOOD:6,ROOF:7,PLASTER:8});
+const MATERIAL=Object.freeze({GENERAL:0,GRASS:1,WATER:2,ROAD:3,FOLIAGE:4,STONE:5,WOOD:6,ROOF:7,PLASTER:8,WINDOW_GLOW:9,LANTERN_GLOW:10});
 const RIVER_SEGMENTS=105,RIVER_SPAN=84,RIVER_BANDS=6,RIVER_BANK_BANDS=2;
 let currentMaterial=MATERIAL.GENERAL;
 function materialScope(id,make){const old=currentMaterial;currentMaterial=id;try{return make()}finally{currentMaterial=old}}
@@ -1058,7 +1067,7 @@ for(let slope=0;slope<2;slope++){
 // Decorative layered roof seams catch light without pretending to be a texture pack.
 for(let i=1;i<=5;i++){let q=i/6;const lx=xx+(x-xx)*q,rx=x+(xr-x)*q,top=y+h+(ridge-h)*q;quad([lx,top+.018,zy],[lx+.025,top+.018,zy],[lx+.025,top+.018,zz],[lx,top+.018,zz],rgb(0x624838));quad([rx,top+.018,zy],[rx+.025,top+.018,zy],[rx+.025,top+.018,zz],[rx,top+.018,zz],rgb(0x634b3c))}
 box(x,y,z-d/2-.045*scale,.66*scale,1.25*scale,.085,rgb(0x76523c));box(x,y+1.03*scale,z-d/2-.084*scale,.07*scale,.055,.07,rgb(0xd5b778));
-for(let k=-1;k<=1;k+=2){box(x+k*w*.32,y+h*.43,z-d/2-.082,.40*scale,.51*scale,.07,(skyConditions(state.t).daylight<.55?[.98,.88,.47]:rgb(0x4f7772)));box(x+k*w*.32,y+h*.43,z-d/2-.1,.45*scale,.055,.07,rgb(0xe3cba7));box(x+k*w*.32,y+h*.64,z-d/2-.1,.055,.51*scale,.08,wood)}
+for(let k=-1;k<=1;k+=2){materialScope(MATERIAL.WINDOW_GLOW,()=>box(x+k*w*.32,y+h*.43,z-d/2-.082,.40*scale,.51*scale,.07,gpuAvailable?rgb(0x4f7772):(skyConditions(state.t).daylight<.55?[.98,.88,.47]:rgb(0x4f7772))));box(x+k*w*.32,y+h*.43,z-d/2-.1,.45*scale,.055,.07,rgb(0xe3cba7));box(x+k*w*.32,y+h*.64,z-d/2-.1,.055,.51*scale,.08,wood)}
 // Structural timber posts and chimney establish scale and depth.
 for(let k of [-1,1])box(x+k*(w/2-.12),y+.14,z-d/2-.09,.13*scale,h-.15,.12*scale,wood);
 box(x+w*.31,y+h*.72,z,.28*scale,.81*scale,.28*scale,rgb(0x9d8c77));box(x+w*.31,y+h*1.13,z,.38*scale,.12*scale,.38*scale,rgb(0x736f64));} 
@@ -1817,7 +1826,7 @@ function lantern(x,z,height=1.45){
  const bronze=rgb(0x554735);
  cylinder(x,y,z,.065,height,bronze,8);
  box(x,y+height-.12,z,.25,.08,.25,bronze);
- ellipsoid(x,y+height+.05,z,.17,.20,.17,night?[.98,.90,.44]:rgb(0x9a8052),8);
+ materialScope(MATERIAL.LANTERN_GLOW,()=>ellipsoid(x,y+height+.05,z,.17,.20,.17,gpuAvailable?rgb(0x9a8052):(night?[.98,.90,.44]:rgb(0x9a8052)),8));
  cone(x,y+height+.2,z,.28,.24,rgb(0x675442),8);
 }
 function market(x,z){
@@ -2954,7 +2963,10 @@ if(!terrainCache||nextTerrainKey!==terrainCacheKey){
 // remain uncached and are rebuilt with the live world state every frame.
 const staticClimate=climateAt(state.t);
 const daylightStage=atmosphere.daylight<.55?'night':'day';
-const staticKey=nextTerrainKey+':'+daylightStage+':'+city.length;
+// WebGL illumination is now shader-driven. Do not rebuild/upload the entire
+// 130k-triangle scenic buffer just because sunrise changed its light levels.
+// The Canvas2D fallback still bakes the original day/night glass colours.
+const staticKey=nextTerrainKey+':'+(gpuAvailable?'shader-light':daylightStage)+':'+city.length;
 if(!scenicMeshCache||scenicMeshKey!==staticKey){
 cottageFacadeStats={homes:0,styles:[0,0,0,0],plasterPanels:0,sideWindows:0,diagonalBraces:0,meshTriangles:0};
 data=terrainCache.slice();currentMaterial=MATERIAL.WATER;
