@@ -26,6 +26,6 @@ test('climber helmet rendered silhouette no longer exceeds torso envelope',async
   }
   const head=bounds('expressive-helmet');
   const torso=bounds('articulated-body',p=>p.y>1.05&&p.y<1.9&&p.z>-.28);
-  assert.ok(head<=torso*1.12,`hero reads adult-proportioned: helmet ${head.toFixed(3)} vs torso ${torso.toFixed(3)}`);
+  assert.ok(head<=torso*.82,`hero reads adult-proportioned: helmet ${head.toFixed(3)} vs torso ${torso.toFixed(3)}`);
  }finally{model.dispose();}
 });
