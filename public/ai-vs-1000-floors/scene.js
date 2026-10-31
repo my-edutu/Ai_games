@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import {palette,disposeTree,districtStyle,createSkyTexture} from './materials.js';
 import {createCharacter} from './character.js';
+import {createDistrictRadiance} from './lighting.js';
 import {createEnvironment} from './environment.js';
 import {createDistrictSkyline} from './skyline.js';
 import {batchStaticMeshes} from './static-batching.js';
@@ -155,7 +156,7 @@ export function createFloorScene(canvas,options={}){
  const sun=new THREE.DirectionalLight('#fff0d0',2.65);sun.castShadow=true;sun.shadow.mapSize.set(1024,1024);sun.shadow.normalBias=.035;sun.shadow.bias=-.00012;
  Object.assign(sun.shadow.camera,{left:-17,right:17,top:17,bottom:-17,near:1,far:65});scene.add(sun,sun.target);
  const rim=new THREE.DirectionalLight('#b5e8ee',.65);rim.position.set(12,9,-13);scene.add(rim);
- let skyTexture=null,skyline=null;
+ let skyTexture=null,skyline=null,radianceTexture=null,radianceDistrict=-1;
  let snapshot=null,floorKey='',floorRoot=null,environment=null,character=null,materials=null,followCamera=null;
  let mode='follow',quality='high',reduced=!!options.reducedMotion,first=true,dirty=true,aspect=1,blend=1,fromHeading=0,toHeading=0;
  let viewWidth=1,viewHeight=1,pixelRatio=1,cameraDistance=16,cameraYaw=.55,renderedFrames=0,skippedFrames=0,batching=null;
@@ -170,6 +171,10 @@ export function createFloorScene(canvas,options={}){
  function rebuild(s){
   releaseFloor();
   const style=districtStyle(s.layout.district.index);
+  if(radianceDistrict!==s.layout.district.index){
+   scene.environment=null;radianceTexture?.dispose();radianceTexture=createDistrictRadiance(s.layout.district.index);
+   radianceDistrict=s.layout.district.index;scene.environment=radianceTexture;scene.environmentIntensity=.65;
+  }
   skyTexture=createSkyTexture(s.layout.district.index);scene.background=skyTexture;
   scene.fog.color.set(style.horizon);scene.fog.near=38;scene.fog.far=110;
   hemi.color.set(style.horizon);hemi.groundColor.set(style.ground);hemi.intensity=1.45;
@@ -235,7 +240,7 @@ export function createFloorScene(canvas,options={}){
   setCamera(value){if(['follow','wide','orbit'].includes(value)){mode=value;first=true;dirty=true}},
   setQuality(value){quality=value==='low'?'low':'high';skyline?.setQuality(quality);renderer.shadowMap.enabled=quality==='high';renderer.setPixelRatio(Math.min(pixelRatio,quality==='high'?1.5:1));renderer.setSize(viewWidth,viewHeight,false);dirty=true},
   setReducedMotion(value){reduced=!!value;dirty=true},
-  dispose(){canvas.removeEventListener('webglcontextlost',lost);releaseFloor();renderer.dispose()},
+  dispose(){canvas.removeEventListener('webglcontextlost',lost);releaseFloor();scene.environment=null;radianceTexture?.dispose();radianceTexture=null;renderer.dispose()},
   getDiagnostics(){return {districtStyle:districtStyle(snapshot?.layout.district.index).silhouette,geometries:renderer.info.memory.geometries,textures:renderer.info.memory.textures,drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,batching,renderedFrames,skippedFrames,cameraDistance}}
  };
 }
