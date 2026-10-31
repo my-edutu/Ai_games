@@ -104,3 +104,50 @@ test('real WebGL movement animates distance-paced imported thigh and ankle bones
   composition:diag.composition,drawCalls:diag.drawCalls,triangles:diag.triangles
  },null,2)),contentType:'application/json'});
 });
+
+async function witnessedContactBrace(){
+ // Probe only real authoritative action transitions, never a manually built
+ // combat snapshot. Validate the identical read-only public grid facing plan
+ // used by the 3D renderer before expecting a genuine planted melee gesture.
+ const source=fs.readFileSync(require('node:path').join(__dirname,'../../public/ai-dungeon/facing-plan.js'),'utf8');
+ const {planCombatFacing}=await import('data:text/javascript;base64,'+Buffer.from(source).toString('base64'));
+ for(const seed of ['visual-room-art-18','gauntlet-corpus-v1-0','gauntlet-corpus-v1-1']){
+  const game=DungeonRuntime.create(seed);
+  let before=game.publicState();
+  for(let i=0;i<1300;i++){
+   const after=game.step();
+   const attacker=after.units.find(u=>u.hp>0&&['vanguard','revenant','warden'].includes(u.kind)&&u.action==='attack'&&
+    before.units.some(old=>old.id===u.id&&old.actionTick!==u.actionTick)&&
+    planCombatFacing(u,after.units,after.map)?.distance===1);
+   if(attacker)return {before,after,attacker:attacker.id,seed};
+   before=after;
+  }
+ }
+ throw Error('No authoritative adjacent melee attack found in contact corpus');
+}
+
+test('real WebGL melee actor visibly braces genuine imported leg joints at an authoritative adjacent contact',async({page,request})=>{
+ test.setTimeout(120000);
+ expect((await request.get('/dungeon/rig-attachment-plan.js')).status()).toBe(200);
+ const frames=await witnessedContactBrace();let current=frames.before;
+ const errors=[];page.on('pageerror',e=>errors.push(String(e)));
+ await page.route('**/dungeon/state',route=>route.fulfill({json:current}));
+ await page.goto('/dungeon');
+ await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.authored3D?.texturedCharacters??0),{timeout:60000}).toBeGreaterThanOrEqual(3);
+ await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.authored3D?.rigGaitBones??0),{timeout:30000}).toBeGreaterThanOrEqual(4);
+ current=frames.after;
+ await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.authored3D?.rigContactBracePeakRad??0),{intervals:[50,80,110,140],timeout:20000}).toBeGreaterThan(.10);
+ const diag=await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__);
+ expect(diag.authored3D.rigContactBracePeakRad).toBeLessThanOrEqual(.19);
+ expect(diag.authored3D.rigContactBraceActors).toBeGreaterThan(0);
+ expect(diag.authored3D.missingAssets).toBe(0);
+ expect(errors).toEqual([]);
+ await page.locator('.arena').evaluate(node=>node.classList.add('world-only-audit'));
+ await page.locator('#world').screenshot({path:'artifacts/dungeon-melee-braced-legs-real-frame.png'});
+ await test.info().attach('melee-braced-legs-real-frame',{body:Buffer.from(JSON.stringify({
+  seed:frames.seed,tick:frames.after.tick,attacker:frames.attacker,
+  sourcedFrom:'real DungeonRuntime.step + public facing plan',rigContactBracePeakRad:diag.authored3D.rigContactBracePeakRad,
+  rigContactBraceActors:diag.authored3D.rigContactBraceActors,composition:diag.composition,
+  drawCalls:diag.drawCalls,triangles:diag.triangles
+ },null,2)),contentType:'application/json'});
+});
