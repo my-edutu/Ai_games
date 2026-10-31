@@ -1315,3 +1315,38 @@ test('Gauntlet 049 shaded forest has irregular seamless canopies and no presenta
  expect(after).toBe(before.world);
  expect(errors).toEqual([]);
 });
+
+
+test('Gauntlet 050 terrain biomes distinguish riparian ground, upland stone and rainy soil without altering the kingdom',async({page})=>{
+ const errors=[];page.on('pageerror',e=>errors.push(e.message));
+ await page.setContent(html);
+ await page.waitForFunction(()=>Boolean(window.__tinyKingdom?.getTerrainBiomeSample));
+ await page.locator('#pause').click();
+ const result=await page.evaluate(()=>{
+  const g=window.__tinyKingdom,before=JSON.stringify(g.exportSnapshot());
+  const river=g.getTerrainBiomeSample(0,20,7),meadow=g.getTerrainBiomeSample(0,-18,7);
+  const highland=g.getTerrainBiomeSample(38,33,7),village=g.getTerrainBiomeSample(0,0,7);
+  const climates=Array.from({length:36},(_,i)=>g.getClimateMaterialProfile(i*24+7));
+  const wet=climates.find(x=>x.weather==='rain'),dry=climates.find(x=>x.weather==='clear');
+  let rejects=false;try{g.getTerrainBiomeSample(Infinity,0,7)}catch(e){rejects=/terrain coordinate/i.test(e.message)}
+  return {river,meadow,highland,village,wet,dry,rejects,same:before===JSON.stringify(g.exportSnapshot())};
+ });
+ expect(result.river.riparianMoisture).toBeGreaterThan(.9);
+ expect(result.meadow.riparianMoisture).toBeLessThan(.05);
+ expect(result.highland.highlandExposure).toBeGreaterThan(result.village.highlandExposure+.2);
+ expect(result.wet.precipitation).toBeGreaterThan(result.dry.precipitation);
+ expect(result.wet.weather).toBe('rain');
+ expect(result.dry.weather).toBe('clear');
+ for(const p of [result.river,result.meadow,result.highland,result.village]){
+  for(const v of [p.height,p.slope,p.highlandExposure,p.riparianMoisture,p.surfaceDampness]){
+   expect(Number.isFinite(v)).toBe(true);
+  }
+  for(const key of ['highlandExposure','riparianMoisture','surfaceDampness']){
+   expect(p[key]).toBeGreaterThanOrEqual(0);
+   expect(p[key]).toBeLessThanOrEqual(1);
+  }
+ }
+ expect(result.rejects).toBe(true);
+ expect(result.same).toBe(true);
+ expect(errors).toEqual([]);
+});
