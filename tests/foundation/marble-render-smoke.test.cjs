@@ -36,7 +36,7 @@ function makeSnapshot(stage,champion=false,focusIds=[0]){
   };
 }
 
-function makeMockGL(counters){
+function makeMockGL(counters,rendererName='ANGLE Hardware GPU'){
   const gl={};
   const methods='createShader shaderSource compileShader deleteShader createProgram attachShader linkProgram deleteProgram createVertexArray deleteVertexArray bindVertexArray createBuffer deleteBuffer bindBuffer bufferData enableVertexAttribArray vertexAttribPointer vertexAttribDivisor drawElementsInstanced createTexture bindTexture texParameteri createFramebuffer bindFramebuffer createRenderbuffer bindRenderbuffer renderbufferStorage framebufferTexture2D framebufferRenderbuffer uniform2fv getUniformLocation useProgram enable disable blendFunc cullFace drawElements drawArrays uniformMatrix4fv uniformMatrix3fv uniform3fv uniform1f uniform1i viewport clearColor clear depthMask activeTexture pixelStorei texImage2D'.split(' ');
   for(const name of methods)gl[name]=(...args)=>{
@@ -58,13 +58,16 @@ function makeMockGL(counters){
   for(const name of constants)gl[name]=name;
   gl.getShaderParameter=()=>true;
   gl.getProgramParameter=()=>true;
+  gl.RENDERER='RENDERER'; gl.VENDOR='VENDOR';
+  gl.getExtension=name=>name==='WEBGL_debug_renderer_info'?{UNMASKED_VENDOR_WEBGL:'UVENDOR',UNMASKED_RENDERER_WEBGL:'URENDERER'}:null;
+  gl.getParameter=key=>key==='URENDERER'?rendererName:key==='UVENDOR'?'Mock Vendor':key===gl.RENDERER?rendererName:key===gl.VENDOR?'Mock Vendor':null;
   gl.checkFramebufferStatus=()=>gl.FRAMEBUFFER_COMPLETE;
   return gl;
 }
 
-async function simulateStage(stage,quality,champion=false,focusIds=[0]){
+async function simulateStage(stage,quality,champion=false,focusIds=[0],rendererName='ANGLE Hardware GPU'){
   const counters={drawElements:0,drawArrays:0,uploads:0,pointCloudDraws:0,maximumMeshIndices:0,instancedDraws:0,instancedCompetitors:0};
-  const gl=makeMockGL(counters);
+  const gl=makeMockGL(counters,rendererName);
   const shell={dataset:{},classList:{add(){},remove(){}}};
   const canvas={getContext:()=>gl,getBoundingClientRect:()=>({width:1600,height:900}),width:1600,height:900,addEventListener(){}};
   const ctx={
@@ -338,4 +341,14 @@ test('G62 Low batches static course mechanics instead of spending dozens of mesh
   assert.ok(balanced.counters.drawElements>low.counters.drawElements*5,
     'Balanced must retain the detailed individual mechanical treatment');
   assert.equal(low.shell.dataset.lowSweeperDraws,'1','one live sweeper remains visible as one moving mesh');
+});
+
+
+test('G63 software WebGL Low uses measured 0.30 scale while hardware Low keeps 0.48',async()=>{
+  const hardware=await simulateStage('seeding-sprint','low',false,[0],'ANGLE NVIDIA GeForce');
+  const software=await simulateStage('seeding-sprint','low',false,[0],'ANGLE SwiftShader Device');
+  assert.equal(Number(hardware.shell.dataset.renderScale),0.48,
+    'real GPU Low retains the sharper existing internal resolution');
+  assert.equal(Number(software.shell.dataset.renderScale),0.30,
+    'SwiftShader uses the measured scale that cleared the 140ms p95 gate');
 });

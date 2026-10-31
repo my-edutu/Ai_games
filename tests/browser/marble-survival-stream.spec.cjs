@@ -394,7 +394,7 @@ test('Marble WebGL broadcast renders authoritative tournament and captures runti
   if (softwareRenderer) {
     benchmarkQuality = 'low';
     await qualitySelect.selectOption('low');
-    await expect(shell).toHaveAttribute('data-render-scale', '0.48', { timeout: 2_000 });
+    await expect(shell).toHaveAttribute('data-render-scale', '0.3', { timeout: 2_000 });
     await page.waitForTimeout(250);
   } else {
     await page.waitForFunction(() => {
@@ -439,46 +439,6 @@ test('Marble WebGL broadcast renders authoritative tournament and captures runti
       max: sortedFrameDeltas.at(-1),
     },
   };
-  if (softwareRenderer) {
-    const originalRendererScale = 'const QUALITY_BUFFER_SCALE = Object.freeze({ low: 0.48, balanced: 0.72, high: 0.90, ultra: 1.0 });';
-    const probeScale = async scale => {
-      const routePattern = '**/renderer3d.js';
-      await page.route(routePattern, async route => {
-        const response = await route.fetch();
-        const source = await response.text();
-        const patched = source.replace(originalRendererScale,
-          `const QUALITY_BUFFER_SCALE = Object.freeze({ low: ${scale}, balanced: 0.72, high: 0.90, ultra: 1.0 });`);
-        expect(patched).not.toBe(source);
-        await route.fulfill({ response, body: patched });
-      });
-      await page.reload({ waitUntil: 'domcontentloaded' });
-      await expect(shell).toHaveAttribute('data-renderer', 'webgl2', { timeout: 20_000 });
-      await page.locator('#quality-select').selectOption('low');
-      await page.waitForFunction(expected =>
-        Math.abs(Number(document.querySelector('.broadcast-shell')?.dataset.renderScale)-expected)<0.001,
-        scale,{timeout:3_000});
-      const deltas = await page.evaluate(count => new Promise(resolve => {
-        const samples=[];let previous=null;
-        function sample(now){
-          if(previous!==null)samples.push(now-previous);
-          previous=now;
-          if(samples.length>=count)resolve(samples);else requestAnimationFrame(sample);
-        }
-        requestAnimationFrame(sample);
-      }),30);
-      const ordered=deltas.slice().sort((a,b)=>a-b);
-      const percentile=value=>ordered[Math.min(ordered.length-1,Math.floor(ordered.length*value))];
-      const buffer=await page.evaluate(()=>{
-        const gl=document.getElementById('arena-webgl')?.getContext('webgl2');
-        return gl?{width:gl.drawingBufferWidth,height:gl.drawingBufferHeight}:null;
-      });
-      await page.unroute(routePattern);
-      return {scale,sampleCount:ordered.length,buffer,p50:percentile(.50),p95:percentile(.95),max:ordered.at(-1)};
-    };
-    performanceEvidence.scaleSweep=[await probeScale(.30),await probeScale(.20)];
-    await page.reload({ waitUntil: 'domcontentloaded' });
-    await expect(shell).toHaveAttribute('data-renderer', 'webgl2', { timeout: 20_000 });
-  }
   fs.writeFileSync(path.join(artifacts, 'performance-evidence.json'), JSON.stringify(performanceEvidence, null, 2) + '\n');
   expect(performanceEvidence.sampleCount).toBeGreaterThanOrEqual(90);
   if (softwareRenderer) {

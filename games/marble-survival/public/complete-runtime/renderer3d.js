@@ -15,6 +15,18 @@
   });
   if (!gl) return;
 
+  function isSoftwareWebglRenderer() {
+    try {
+      const debug=gl.getExtension?.('WEBGL_debug_renderer_info');
+      const vendor=debug?gl.getParameter?.(debug.UNMASKED_VENDOR_WEBGL):gl.getParameter?.(gl.VENDOR);
+      const renderer=debug?gl.getParameter?.(debug.UNMASKED_RENDERER_WEBGL):gl.getParameter?.(gl.RENDERER);
+      return /swiftshader|llvmpipe|software/i.test(`${vendor||''} ${renderer||''}`);
+    } catch {
+      return false;
+    }
+  }
+  const SOFTWARE_RENDERER=isSoftwareWebglRenderer();
+
   const WORLD_SCALE = 1 / 1000;
   const MARBLE_RADIUS = 0.28;
   const POLL_INTERVAL_MS = 100;
@@ -1050,7 +1062,7 @@
 
   function resize() {
     const rect=canvas.getBoundingClientRect(); if(rect.width<=1||rect.height<=1)return false;
-    const quality=document.getElementById('quality-select')?.value||'balanced'; const maxDpr=quality==='low'?1:quality==='balanced'?1.35:quality==='high'?1.75:2; const renderScale=(QUALITY_BUFFER_SCALE[quality]??QUALITY_BUFFER_SCALE.balanced)*(quality==='balanced'?adaptiveResolution:1); const dpr=Math.min(window.devicePixelRatio||1,maxDpr)*renderScale;
+    const quality=document.getElementById('quality-select')?.value||'balanced'; const maxDpr=quality==='low'?1:quality==='balanced'?1.35:quality==='high'?1.75:2; const presetScale=QUALITY_BUFFER_SCALE[quality]??QUALITY_BUFFER_SCALE.balanced; const renderScale=(quality==='low'&&SOFTWARE_RENDERER?0.30:presetScale)*(quality==='balanced'?adaptiveResolution:1); const dpr=Math.min(window.devicePixelRatio||1,maxDpr)*renderScale; shell.dataset.rendererClass=SOFTWARE_RENDERER?'software':'hardware';
     const width=Math.max(1,Math.round(rect.width*dpr)),height=Math.max(1,Math.round(rect.height*dpr)); if(canvas.width!==width||canvas.height!==height){canvas.width=width;canvas.height=height;} shell.dataset.renderScale=String(renderScale); gl.viewport(0,0,width,height); return true;
   }
 
