@@ -18,6 +18,7 @@ function witnessedAction(){
 test('actual WebGL GLB rigs have bounded secondary attack staging, without invented actions',async({page,request})=>{
  test.setTimeout(120000);
  expect((await request.get('/dungeon/character-motion-plan.js')).status()).toBe(200);
+ expect((await request.get('/dungeon/combat-cue-plan.js')).status()).toBe(200);
  const frames=witnessedAction();let current=frames.before;
  const errors=[];page.on('pageerror',e=>errors.push(String(e)));
  await page.route('**/dungeon/state',route=>route.fulfill({json:current}));
@@ -27,13 +28,20 @@ test('actual WebGL GLB rigs have bounded secondary attack staging, without inven
  current=frames.after;
  await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.authoredCombatPoseActors??0),{timeout:15000}).toBeGreaterThanOrEqual(1);
  await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.authoredMotionPeak??0),{intervals:[40,50,80,100],timeout:8000}).toBeGreaterThan(.025);
+ // The first real authoritative attack must release its visual cue after the
+ // actor's visible anticipation, not at the start of the action snapshot.
+ await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.combatStage?.releasedCues??0),{timeout:18000}).toBeGreaterThan(0);
  const diag=await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__);
+ expect(diag.combatStage.pendingCues).toBeGreaterThanOrEqual(0);
+ expect(diag.combatStage.pendingCues).toBeLessThanOrEqual(24);
+ expect(diag.combatStage.droppedCues).toBe(0);
+ expect(diag.combatStage.activeHitFlashes).toBeLessThanOrEqual(24);
  expect(diag.authoredMotionMaxOffset).toBeLessThanOrEqual(.20);
  expect(diag.authoredMotionPeak).toBeLessThanOrEqual(.20);
  expect(diag.composition.visibleHeroes).toBeGreaterThan(0);
  expect(errors).toEqual([]);
  await page.locator('.arena').evaluate(node=>node.classList.add('world-only-audit'));
- await page.locator('#world').screenshot({path:'artifacts/dungeon-authored-motion-round22-world-only.png'});
+ await page.locator('#world').screenshot({path:'artifacts/dungeon-combat-clarity-round30-world-only.png'});
  await test.info().attach('real-action-motion-review',{body:Buffer.from(JSON.stringify({
   seed:'visual-room-art-18',tick:frames.after.tick,run:frames.after.run,attacker:frames.attacker,
   sourcedFrom:'actual DungeonRuntime.step publicState',diagnostic:{
