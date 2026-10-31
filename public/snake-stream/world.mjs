@@ -65,6 +65,45 @@ export function buildHeadlandGeometry(THREE) {
   return geometry;
 }
 
+/**
+ * Bake fixed water-edge ornaments without altering their authored triangles,
+ * normals or UVs. Transforms are applied once at world creation, not per frame.
+ * The resulting single mesh stays in the live layer: transparent foam must
+ * composite AFTER the animated water rather than enter the opaque static cache.
+ */
+export function bakeWaterEdgeGeometry(THREE, source, transforms) {
+  const p = source.getAttribute('position'), n = source.getAttribute('normal'), uv = source.getAttribute('uv');
+  if (!p || !n || !uv || !Array.isArray(transforms) || !transforms.length) throw new Error('Water edge bake needs indexed visual geometry and transforms');
+  const vertices = p.count * transforms.length;
+  const sourceIndex = source.getIndex(), faceCount = sourceIndex?.count ?? p.count;
+  const positions = new Float32Array(vertices * 3), normals = new Float32Array(vertices * 3);
+  const uvs = new Float32Array(vertices * 2);
+  const indices = new (vertices > 65535 ? Uint32Array : Uint16Array)(faceCount * transforms.length);
+  const point = new THREE.Vector3(), normal = new THREE.Vector3(), normalMatrix = new THREE.Matrix3();
+  transforms.forEach((matrix, copy) => {
+    normalMatrix.getNormalMatrix(matrix);
+    const offset = copy * p.count;
+    for (let v = 0; v < p.count; v++) {
+      const i = (offset + v) * 3, t = (offset + v) * 2;
+      point.fromBufferAttribute(p, v).applyMatrix4(matrix);
+      normal.fromBufferAttribute(n, v).applyMatrix3(normalMatrix).normalize();
+      positions[i] = point.x; positions[i + 1] = point.y; positions[i + 2] = point.z;
+      normals[i] = normal.x; normals[i + 1] = normal.y; normals[i + 2] = normal.z;
+      uvs[t] = uv.getX(v); uvs[t + 1] = uv.getY(v);
+    }
+    for (let j = 0; j < faceCount; j++) {
+      indices[copy * faceCount + j] = offset + (sourceIndex ? sourceIndex.getX(j) : j);
+    }
+  });
+  const baked = new THREE.BufferGeometry();
+  baked.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+  baked.setAttribute('normal', new THREE.BufferAttribute(normals, 3));
+  baked.setAttribute('uv', new THREE.BufferAttribute(uvs, 2));
+  baked.setIndex(new THREE.BufferAttribute(indices, 1));
+  baked.computeBoundingSphere();
+  return baked;
+}
+
 /** Original procedural verdant-ruins diorama. No simulation state is retained or changed. */
 export function createWorld(THREE, {width, height}) {
   if (!Number.isInteger(width) || !Number.isInteger(height) || width < 2 || height < 2) throw new Error('World requires integer board dimensions');
@@ -459,12 +498,29 @@ export function createWorld(THREE, {width, height}) {
   const waterExtent=Math.max(1024,width*3,height*3);
   const water=new THREE.Mesh(geometry(new THREE.PlaneGeometry(waterExtent,waterExtent)),waterMaterial);water.name='Flowing water';water.rotation.x=-Math.PI/2;water.position.y=-3.62;group.add(water);
   const foamMat=material({color:0xb4e1c5,transparent:true,opacity:.28,roughness:.6,depthWrite:false});
-  const foam=new THREE.Group();group.add(foam);
+  // Each ripple retains its exact original world-space position, scale,
+  // orientation, normals and UVs, now as one transparent live-layer draw.
+  const edgePose=new THREE.Object3D(), foamTransforms=[];
   for(let i=0;i<6;i++){
-    const ripple=new THREE.Mesh(geometry(new THREE.TorusGeometry(1,.025,3,28)),foamMat);ripple.rotation.x=-Math.PI/2;ripple.position.set((i<3?-1:1)*(W+1.4),-3.59,(i%3-1)*height*.32);ripple.scale.set(1.4+(i%3)*.2,.7,1);foam.add(ripple);
+    edgePose.position.set((i<3?-1:1)*(W+1.4),-3.59,(i%3-1)*height*.32);
+    edgePose.rotation.set(-Math.PI/2,0,0);
+    edgePose.scale.set(1.4+(i%3)*.2,.7,1);
+    edgePose.updateMatrix();foamTransforms.push(edgePose.matrix.clone());
   }
+  const foamShape=new THREE.TorusGeometry(1,.025,3,28);
+  const foam=new THREE.Mesh(geometry(bakeWaterEdgeGeometry(THREE,foamShape,foamTransforms)),foamMat);
+  foamShape.dispose();foam.name='Baked live foam contours';group.add(foam);
   const fallMat=material({color:0x95d8c3,transparent:true,opacity:.57,roughness:.25,metalness:.15,side:THREE.DoubleSide,depthWrite:false});
-  for(const x of [-W-1.5,W+1.5]){const f=new THREE.Mesh(geometry(new THREE.PlaneGeometry(.43,2.35,3,1)),fallMat);f.position.set(x,-2.2,-H+3);f.rotation.y=x<0?-.5:.5;group.add(f);}
+  const fallTransforms=[];
+  for(const x of [-W-1.5,W+1.5]){
+    edgePose.position.set(x,-2.2,-H+3);
+    edgePose.rotation.set(0,x<0?-.5:.5,0);
+    edgePose.scale.set(1,1,1);
+    edgePose.updateMatrix();fallTransforms.push(edgePose.matrix.clone());
+  }
+  const fallShape=new THREE.PlaneGeometry(.43,2.35,3,1);
+  const falls=new THREE.Mesh(geometry(bakeWaterEdgeGeometry(THREE,fallShape,fallTransforms)),fallMat);
+  fallShape.dispose();falls.name='Baked live edge falls';group.add(falls);
   // Bounded gameplay pools. Every occupied cell can be represented without reallocating.
   const capacity=width*height;
   function pool(g,m,n=capacity){const mesh=new THREE.InstancedMesh(g,m,n);mesh.count=0;mesh.frustumCulled=false;mesh.castShadow=true;mesh.receiveShadow=true;group.add(mesh);return mesh;}
