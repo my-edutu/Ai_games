@@ -1,9 +1,9 @@
 {
-  "updatedAt": "2026-10-31T13:02:17.083Z",
-  "status": "Round 24 · jade-to-cream lower-jaw shading refined in actual 3D WebGL; 553/553 Node; strict desktop submissions still fail",
-  "detail": "Production fba35b794, serpent blob b8325de: two preallocated jaw LODs bake jade cheek-to-cream ventral tint without topology/meshes or gameplay changes; new regression passed 50/50 focused Snake Node. Full CI 41202987425 553/553 Node and 28/29 browser (10 real submissions/1002.2ms vs min17). Focused 41202987351 16/17 browser (8/1005.6ms vs min17). Frozen 960x640 actual WebGL direct/cached comparisons change 6/9 pixels; synthetic near-head fruit changes 705 localized mouth-border pixels. 18.44s live WebM inspected. No causal FPS claim, independent critic, real-device/R5, or Snake Pass benchmark win. Draft/unmerged/undeployed.",
+  "updatedAt": "2026-10-31T13:30:58.043Z",
+  "status": "Round 25 · weathered 3D limestone floor verified in actual WebGL; 554/554 Node pass; strict submitted-frame gate still fails",
+  "detail": "Exact source 8a6d1371 (world blob cd87e204), new bounded seeded slab fractures/patina in existing SRGB floor texture; unchanged 13 static meshes / 4 world textures and gameplay/captions. Real 960x640 matched WebGL direct/cached PNG changed 87,065/86,800 floor-localized pixels vs Round24; current general/focused frozen captures pixel-identical. 18.32s actual motion inspected. General CI 41205104226 554/554 Node + build/host/authority/operations PASS, browser 28/29 with 9 actual submissions/1015.6ms vs unchanged min17 FAIL. Focused 41205104304 16/17 browser, 7/1007.1ms vs17 FAIL. No causal FPS claim, independent critic, Snake Pass whole-game visual/motion win, real-device/R5; draft/unmerged/undeployed.",
   "latestImage": "/progress/evidence/round-9-overview.jpg",
-  "latestCaption": "Embedded latestImage remains a historical Round9 picture, not Round24. Exact current Round24 WebGL character/overview/portrait screenshots and 18.44s real motion are linked in Round24 review / CI artifact 13043540234; do not mistake old image for current output.",
+  "latestCaption": "Embedded photo remains historical Round9, NOT the Round25 game; current Round25 true WebGL overview/detail/portrait PNGs and 18.32s motion are in the newest round's GitHub Actions artifacts. Avoid mistaking the old embedded photo for current output.",
   "reviews": [
     {
       "area": "Round 24 · original mouth/cheek chromatic integration",
@@ -67,13 +67,13 @@
     },
     {
       "area": "World and water",
-      "verdict": "One shader texture lookup proven · visual win unproven",
-      "gap": "Round 13 precomposes periodic water and foam; the real offline WebGL captures retain clear gameplay. The pale courtyard and opaque water remain less materially rich than the official reference. No independent reviewer available."
+      "verdict": "Round 25 floor treatment verified in real WebGL; whole-game visual LOSE",
+      "gap": "Weathered slab fissures/patina preserve existing field map and grid; 87,065/86,800 actual 960x640 overview pixels changed only on floor. Snake Pass still surpasses the giant planar tiled court in masonry depth, lush scene density and water material. No independent critic."
     },
     {
       "area": "Frame delivery and reliability",
-      "verdict": "FAILED unchanged desktop 17-actual-submission gate; 3 frozen-frame draw-call reductions verified",
-      "gap": "Round23 focused 10 actual draws/1009.7ms, general 9/1012.6ms (minimum 17), both failed. Same-frozen-frame direct 52→49/cached 36→33 calls at 690x342, three real WebGL 960x640 PNGs pixel-identical. No proved throughput/display FPS gain, device soak or R5 signoff."
+      "verdict": "FAILED unchanged 17-actual-render submission threshold in both Round25 CI runs",
+      "gap": "Current focused 7 real submissions/1007.1ms and general 9/1015.6ms vs required >=17, despite 554/554 Node and broad browser regressions green. RAF/WebM fps not real drawing/display-present FPS. Real-device soak, R5 signoff and independent visual approval unavailable."
     }
   ],
   "rounds": [
@@ -450,9 +450,37 @@
       "title": "Round 24 · attached cream chin and jade cheeks",
       "summary": "Existing high/low lower-jaw vertices now blend jade cheek roots into cream underside; no geometry, public gameplay or cue changes. New test and 553/553 Node green; real WebGL synthetic stress changes only local mouth pixels. Real 18.44s motion and current close-up inspected. Desktop actual-submission gates still fail focused 8/17 and general 10/17, and whole-game Snake Pass bar remains unmet. New evidence: GitHub CI 41202987351, Round24 written review. Embedded historical images are not current.",
       "captures": []
+    },
+    {
+      "title": "Round 25 · weathered stone within unchanged garden texture and draw budget",
+      "summary": "Exact-source 8a6d1371 adds deterministic quarry fissures, mineral variation and subdued lichen to the existing 1024x512 stone field texture, without new meshes/materials/textures or simulation changes. 554/554 Node; focused 16/17 and general 28/29 browser, both strict actual-submission gates fail (7 and 9 vs min17). 87,065/86,800 changed floor-localized frozen WebGL pixels, valid real 18.32s motion. No whole-game Snake Pass visual/motion win, causal FPS win, independent critic, real-device or R5. PR draft.",
+      "captures": [
+        {
+          "label": "Round25 true WebGL screenshots, frozen replays, portrait and trace",
+          "path": "https://github.com/my-edutu/Ai_games/actions/runs/41205104304/artifacts/13043744016"
+        },
+        {
+          "label": "18.32-second actual autonomous Snake 3D gameplay WebM (recording fps is not rendered fps)",
+          "path": "https://github.com/my-edutu/Ai_games/actions/runs/41205104304/artifacts/13044143018"
+        },
+        {
+          "label": "Exact source focused render pacing/GPU diagnostics",
+          "path": "https://github.com/my-edutu/Ai_games/actions/runs/41205104304/artifacts/13043958472"
+        },
+        {
+          "label": "General full CI runtime screenshots and motion",
+          "path": "https://github.com/my-edutu/Ai_games/actions/runs/41205104226/artifacts/13044044013"
+        },
+        {
+          "label": "Round25 chronological review and regression evidence",
+          "path": "https://github.com/my-edutu/Ai_games/blob/feat/autonomous-snake-3d-gauntlet/docs/reviews/snake-gauntlet/round25-weathered-garden-stone.md"
+        }
+      ]
     }
   ],
   "checks": [
+    "Round25 true WebGL frozen 960x640 vs Round24: direct 87,065 and cached 86,800 changed pixels, exclusively floor-region differences, max channel 23/24 out of 255. Current general and focused PNGs identical on fixed snapshot. Real 18.32s gameplay inspected. Character, garden depth, motion and performance still below reference.",
+    "Round 25 exact source 8a6d1371: full CI 554/554 Node, build, host/authority/operations stages PASS; general browser 28/29 desktop actual draws 9/1015.6ms FAIL and focused 16/17 desktop 7/1007.1ms FAIL vs unchanged >=17. Both workflows overall FAIL; RAF ~61/s and 25fps capture are NOT rendered/display-present FPS.",
     "Round 21 first-source browser prop-cache test exact-build assertion (expected4, observed5) traced to one independent legitimate adaptive resolution change ratio 0.75→0.667; fixed regression attributes exactly one cache rebuild per topology change, plus exactly one only upon actual scale transition; final browser test passes. No release gate weakened.",
     "Round 21 corrected source 93b1a93: 549/549 Node tests, build/host/authority/operations green, focused 16/17 browser with 14 actual submissions/1015ms and general 28/29 with 8/1004.2ms. Both FAIL unchanged ≥17 actual-draw gate. RAF callbacks and recorded WebM frame rate are NOT rendered/present FPS.",
     "Round 21 three matched frozen actual WebGL PNGs (cached, direct, explicitly synthetic food stress): each 0/614,400 changed pixels vs Round20. 512-unit fully visible animated lake retained, 8192→4232 triangles (-48.34%) by coarsening already-fogged fringe, no proven GPU FPS win.",
