@@ -64,8 +64,7 @@ export function createCombatDirector(scene,{reducedMotion=false}={}){
    case 'attack':case 'cast':{
     const target=closest(s.units,u,u.faction==='party'?'enemy':'party');
     if(!target&&!(u.kind==='warden'&&u.action==='cast'))return;
-    const source={x:u.x,z:u.z,kind:u.kind,action:u.action};
-    const cue={source,target:target?{x:target.x,z:target.z}:null,age:0,
+    const cue={source:{x:u.x,z:u.z,kind:u.kind,action:u.action},target:target?{x:target.x,z:target.z}:null,age:0,
      delay:combatCueDelay(u.kind,u.action,reducedMotion)};
     if(cue.delay===0){releaseCue(cue);return;}
     if(pendingCues.length>=MAX_PENDING_COMBAT_CUES){pendingCues.shift();droppedCues++;}
@@ -132,5 +131,5 @@ export function createCombatDirector(scene,{reducedMotion=false}={}){
   for(const p of projectiles)cleanup(p);for(const p of impacts)cleanup(p);
   projectiles.length=impacts.length=pendingCues.length=0;previous.clear();
  }
- return{accept,animate,reset,stats:()=>({activeProjectiles:projectiles.length,activeImpacts:impacts.length,pendingCues:pendingCues.length,releasedCues,droppedCues,activeGroundRings:impacts.filter(e=>e.mode==='ring').length,activeHitFlashes:impacts.filter(e=>e.mode==='spark').length,totalShots:shots,totalBursts:bursts}),dispose(){reset();for(const geometry of Object.values(shared))geometry.dispose()}};
+ return{accept,animate,reset,stats:()=>({activeProjectiles:projectiles.length,activeImpacts:impacts.length,pendingCues:pendingCues.length,releasedCues:releasedCues,droppedCues:droppedCues,activeGroundRings:impacts.filter(e=>e.mode==='ring').length,activeHitFlashes:impacts.filter(e=>e.mode==='spark').length,totalShots:shots,totalBursts:bursts}),dispose(){reset();for(const geometry of Object.values(shared))geometry.dispose()}};
 }
