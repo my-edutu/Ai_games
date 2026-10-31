@@ -1,10 +1,10 @@
 # AI Dungeon — Gauntlet Operating Protocol
 
-**Mission:** Turn the dungeon game into a complete, visually extraordinary 3D autonomous fantasy RPG. Benchmark against *actual official Path of Exile 2 footage* for render quality and encounter presentation, then exceed it in unattended autonomous adventure depth. Do not reproduce copyrighted game assets.
+**Mission:** Turn the dungeon game into a complete, visually extraordinary 3D autonomous fantasy RPG. Benchmark against *actual Diablo IV dungeon gameplay footage* as the primary art and readability bar, with No Rest for the Wicked environment composition and Path of Exile 2 combat as supporting references; work toward an extraordinary autonomous adventure without copying protected art. Do not reproduce copyrighted game assets.
 
 ## Lead-agent handoff
 
-> Improve the real AI Dungeon in `my-edutu/Ai_games`, not a mockup. Use subagents and ultracode. Choose the implementation strategy and split the work into independently reviewable pieces. For each piece, commission an isolated builder and a fresh-context harsh critic. Have the critic inspect the running browser game, clips and screenshots against equivalent scenes in official Path of Exile 2 gameplay; blind A/B when feasible. The critic reports the largest remaining gap and evidence. Repair it and repeat until the game wins independent comparisons or the user stops. Keep `/dungeon/gauntlet` showing truthful live state, captures, iteration history and unresolved gaps. Preserve deterministic gameplay, passing tests and working runtime at every round.
+> Improve the real AI Dungeon in `my-edutu/Ai_games`, not a mockup. Use subagents and ultracode when actually available; record their absence rather than claiming independent critique. Choose the implementation strategy and split the work into independently reviewable pieces. For each piece, commission an isolated builder and a fresh-context harsh critic. Have the critic inspect the running browser game, clips and screenshots against equivalent real dungeon footage from Diablo IV and supporting references; blind A/B when feasible. The critic reports the largest remaining gap and evidence. Repair it and repeat until the game wins independent comparisons or the user stops. Keep `/dungeon/gauntlet` showing truthful live state, captures, iteration history and unresolved gaps. Preserve deterministic gameplay, passing tests and working runtime at every round.
 
 ## Judgeable minimum
 1. Run `npm run dungeon:test` and `npm run dungeon:gauntlet` to establish authority and seed evidence.

@@ -86,6 +86,50 @@
         "independentReview": false,
         "productionReady": false
       }
+    },
+    {
+      "round": 18,
+      "at": "2026-10-31",
+      "commit": "a51664dab9f3f23bffb52cb0dc5b30763b3c6cea",
+      "status": "VERIFIED 42/42 BROWSER; 10/10 DEDICATED UI; DIABLO IV BAR NOT MET",
+      "sampleSeeds": 24,
+      "ticksPerSeed": 900,
+      "highestFloor": 9,
+      "determinismFailures": 0,
+      "visualVerdict": "Real desktop/mobile/raw-world captures inspected. Eight wall-hugging, biome-specific landmark sites replace tall identical white obelisks. Giant translucent green shaft removed; 0 shafts in final WebGL metrics. 3/3 heroes unoccluded, minimum 85px, 7 textured characters. Still dark and blocky. No independent blind A/B, ultracode or AAA quality claim.",
+      "artifactUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41170512137/artifacts/13031256210",
+      "evidenceMetrics": {
+        "landmarks": 8,
+        "wallReliefs": 8,
+        "lightShafts": 0,
+        "unoccludedHeroes": 3,
+        "occludedHeroes": 0,
+        "minHeroPixels": 85,
+        "texturedCharacters": 7,
+        "missingAssets": 0,
+        "rawWorldTriangles": 110527,
+        "rawWorldMeanLuminance": 23.1288,
+        "localSetpieceTestsPassed": 3,
+        "localDungeonTestsPassed": 11,
+        "fullBrowserTestsPassed": 42,
+        "fullBrowserTestsFailed": 0,
+        "dedicatedInterfaceTestsPassed": 10,
+        "independentBlindComparison": false,
+        "repoWideSoftwareTestsPassed": 533,
+        "browserRoutingTestsPassed": 2
+      },
+      "verification": {
+        "initialBrowserRun": 41170019806,
+        "finalBrowserRun": 41170512135,
+        "dedicatedUIRun": 41170512137,
+        "rawWorldArtifact": 13030967805,
+        "independentReview": false,
+        "productionReady": false,
+        "globalCIObservedRun": 41170512169,
+        "globalCIFailure": "Shared Playwright selected Dungeon tests on Snake baseURL; 533/533 software passed but shared-browser step failed.",
+        "globalCIFix": "Test discovery excludes all Dungeon specs and no longer starts redundant 4181 server; focused red-green routing tests 2/2. Fresh integrated CI result pending."
+      },
+      "nextLargestGap": "Blocky repeating corridors; detailed character rigs, armor materials and encounter animation"
     }
   ]
 }
