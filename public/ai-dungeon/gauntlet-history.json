@@ -332,7 +332,10 @@
         "documentation": "docs/reviews/AI_DUNGEON_GAUNTLET_ROUND_024.md"
       },
       "nextLargestGap": "Edge-of-map boss-camera composition still exposes large dark void and repetitive boxy stone; next measure/prove true 3D hero and monster model, materials, animation, and architecture improvement against matched footage before another quality claim.",
-      "artifactUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41191296209/artifacts/13038598922"
+      "artifactUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41191296209/artifacts/13038598922",
+      "sampleSeeds": 24,
+      "highestFloor": 9,
+      "determinismFailures": 0
     }
   ]
 }
