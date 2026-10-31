@@ -1105,3 +1105,72 @@ test('Gauntlet 043 AI citizens route around guild forge rather than crossing a w
  expect(path.route?.length).toBeGreaterThan(1);
  expect(path.ok).toBe(true);
 });
+
+
+test('Gauntlet 044 agricultural belt builds 668 real crops, 22 furrows and raised seasonal granary without mutating simulation',async({page})=>{
+  const errors=[];page.on('pageerror',e=>errors.push(e.message));
+  await page.setContent(html);
+  await page.waitForFunction(()=>Boolean(window.__tinyKingdom));
+  await page.waitForFunction(()=>window.__tinyKingdom.getFarmsteadStats().stalks===668);
+  await page.locator('#pause').click();
+  const result=await page.evaluate(()=>{
+    const g=window.__tinyKingdom;
+    const before=JSON.stringify(g.exportSnapshot());
+    const farm=g.getFarmsteadStats();
+    const mesh=g.getGeometryAudit();
+    g.setCamera({focus:[23,1],zoom:27,pitch:.56,yaw:.75});
+    const after=JSON.stringify(g.exportSnapshot());
+    return {farm,mesh,unchanged:before===after,solid:g.walkable([29,-5]),approach:g.walkable([33,-5])};
+  });
+  expect(result.farm.rows).toBe(22);
+  expect(result.farm.stalks).toBe(668);
+  expect(result.farm.bundles).toBe(4);
+  expect(result.farm.granaries).toBe(1);
+  expect(result.farm.waterSegments).toBe(18);
+  expect(result.farm.granary).toEqual([29,-5]);
+  expect(result.solid).toBe(false);
+  expect(result.approach).toBe(true);
+  expect(result.unchanged).toBe(true);
+  for(const mesh of [result.mesh.static,result.mesh.dynamic]){
+    expect(mesh.aligned).toBe(true);
+    expect(Number.isInteger(mesh.triangles)).toBe(true);
+    expect(mesh.invalidComponents).toBe(0);
+    expect(mesh.invalidNormals).toBe(0);
+    expect(mesh.invalidColors).toBe(0);
+    expect(mesh.outOfBounds).toBe(0);
+  }
+  expect(errors).toEqual([]);
+});
+
+test('Gauntlet 044 farms seasonally rebuild but exclude granary wall from autonomous A-star routes',async({page})=>{
+  await page.setContent(html);
+  await page.waitForFunction(()=>window.__tinyKingdom?.getFarmsteadStats().stalks===668);
+  await page.locator('#pause').click();
+  const route=await page.evaluate(()=>{
+    const g=window.__tinyKingdom,a=[23,-5],b=[35,-5],points=g.route(a,b);
+    let previous=a,clear=Array.isArray(points)&&points.length>1;
+    for(const p of points||[]){
+      const n=Math.ceil(Math.hypot(previous[0]-p[0],previous[1]-p[1])/.045);
+      for(let j=1;j<=n;j++){
+        const t=j/n,loc=[previous[0]*(1-t)+p[0]*t,previous[1]*(1-t)+p[1]*t];
+        if(!g.walkable(loc))clear=false;
+      }
+      previous=p;
+    }
+    const original=g.getFarmsteadStats();
+    for(let i=0;i<10*24*30;i++)g.step(1/30);
+    return {length:points?.length,clear,originalSeason:original.season};
+  });
+  expect(route.length).toBeGreaterThan(1);
+  expect(route.clear).toBe(true);
+  await page.waitForFunction(()=>window.__tinyKingdom.getFarmsteadStats().season>0);
+  const after=await page.evaluate(()=>({
+    farm:window.__tinyKingdom.getFarmsteadStats(),
+    mesh:window.__tinyKingdom.getGeometryAudit()
+  }));
+  expect(after.farm.season).toBeGreaterThan(route.originalSeason);
+  expect(after.farm.stalks).toBe(668);
+  expect(after.mesh.static.aligned).toBe(true);
+  expect(after.mesh.static.invalidNormals).toBe(0);
+  expect(after.mesh.static.invalidColors).toBe(0);
+});
