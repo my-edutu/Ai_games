@@ -1,6 +1,7 @@
 import * as THREE from '/dungeon/vendor/three.module.js';
 import {addDungeonWindows} from '/dungeon/architecture.js';
 import {planStoneRelief} from '/dungeon/stone-relief-plan.js';
+import {planPartyWallReveal} from '/dungeon/party-visibility-plan.js';
 
 // Purely cosmetic, reproducible procedural dressing. This code never touches game authority.
 // All geometry is batched or tightly budgeted so a streaming run can regenerate indefinitely.
@@ -260,21 +261,15 @@ export function enrichEnvironment(world,map,floor){
   // World cladding, banners, stained-glass windows and statuary share the
   // multi-hero camera clearance, instead of tracking only the focus actor.
   const eyes=Array.isArray(subjects)?subjects:[subjects];
-  const obscures=(x,z,pad)=>eyes.some(subject=>{
-   if(!subject)return false;
-   const vx=camera.x-subject.x,vz=camera.z-subject.z,len=Math.hypot(vx,vz);
-   if(len<.001)return false;
-   const dx=x-subject.x,dz=z-subject.z;
-   const forward=(dx*vx+dz*vz)/len;
-   const lateral=Math.abs(dx*vz-dz*vx)/len;
-   return forward>-.55&&forward<len+.7&&lateral<pad+forward*.13;
-  });
+  const obscures=(x,z,pad)=>planPartyWallReveal(x,z,eyes,camera,pad)!=='none';
   let cleared=0;q.identity();
   for(let i=0;i<wallFaces.length;i++){
-   const f=wallFaces[i],blocked=obscures(f[0],f[2],2.1);
+   const f=wallFaces[i],reveal=planPartyWallReveal(f[0],f[2],eyes,camera,2.1);
+   const blocked=reveal!=='none';
    blockedFaces[i]=Number(blocked);
-   const h=blocked?.15:f[4];
-   p.set(f[0],blocked?.13:f[1],f[2]);scale.set(f[3],h,f[5]);matrix.compose(p,q,scale);
+   const h=reveal==='sightline'?.15:reveal==='nearby'?.73:f[4];
+   p.set(f[0],reveal==='sightline'?.13:reveal==='nearby'?.43:f[1]);
+   scale.set(f[3],h,f[5]);matrix.compose(p,q,scale);
    facadeMesh.setMatrixAt(i,matrix);
   }
   facadeMesh.instanceMatrix.needsUpdate=true;
