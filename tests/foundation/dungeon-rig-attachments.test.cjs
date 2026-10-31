@@ -29,6 +29,21 @@ test('animated hand binding selects only the intended whole hand, never fingers 
  assert.equal(selectHandBone([{name:'LeftHand',isBone:true}],'right'),null);
  assert.equal(selectHandBone([],'right'),null);
 });
+test('class grips are immutable and only finite, bounded hand offsets may align',async()=>{
+ const {rigGripAnchor,boundedGripOffset}=await load();
+ assert.deepEqual(rigGripAnchor('ranger'),{x:.43,y:1.18,z:.37});
+ assert.deepEqual(rigGripAnchor('mystic'),{x:.53,y:1.12,z:.39});
+ assert.ok(Object.isFrozen(rigGripAnchor('ranger')));
+ assert.equal(rigGripAnchor('warden'),null);
+ assert.equal(rigGripAnchor(undefined),null);
+ assert.equal(boundedGripOffset(.3,.4,0),.5);
+ assert.equal(boundedGripOffset(.72,0,0),.72);
+ for(const invalid of [[.73,0,0],[Infinity,0,0],[NaN,0,0],[0,0,NaN]])
+  assert.equal(boundedGripOffset(...invalid),null);
+ assert.equal(boundedGripOffset(.2,0,0,0),null);
+ assert.equal(boundedGripOffset(.2,0,0,10),null);
+ assert.equal(boundedGripOffset(0,0,0),0);
+});
 test('only original ranger and mystic prop sets are permitted to follow the real hand skeleton',async()=>{
  const {rigWeaponParts}=await load();
  assert.deepEqual(rigWeaponParts('ranger'),['flexed-back-bow','taut-bowstring']);
@@ -46,6 +61,10 @@ test('actual 3D renderer binds owned mesh props to a cloned animated bone and re
  assert.match(model,/function bindRigWeaponAccessories\(actor/);
  assert.match(model,/handBone\.attach\(mesh\)/);
  assert.match(model,/rigBoundAccessoryActors:/);
+ assert.match(model,/handBone\\.attach\\(mount\\)/);
+ assert.match(model,/mount\\.position\\.set\\(0,0,0\\)/);
+ assert.match(model,/rigGripAlignedActors:/);
+ assert.match(model,/rigGripMaxShiftMeters:/);
  assert.match(model,/rigBoundAccessoryParts:/);
  assert.match(model,/actor\.rigBoundAccessoryParts=0/);
  assert.ok(server.includes("['/dungeon/rig-attachment-plan.js','rig-attachment-plan.js']"));
