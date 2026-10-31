@@ -169,6 +169,11 @@ const path = require('node:path');
        evidence.skyDaybreak.dawn.horizon[0]<=evidence.skyDaybreak.dawn.horizon[2]||
        evidence.skyDaybreak.noon.zenith[2]<=evidence.skyDaybreak.noon.zenith[0])
       throw Error('Gauntlet 048 sunrise/sky color coherence gate failed');
+    evidence.canopyShadows=await page.evaluate(()=>window.__tinyKingdom.sampleCanopyShadow(-25,13));
+    if(evidence.canopyShadows.length!==9||
+       Math.abs(evidence.canopyShadows[0]-evidence.canopyShadows[8])>1e-5||
+       Math.max(...evidence.canopyShadows)-Math.min(...evidence.canopyShadows)<.12)
+      throw Error('G049 forest shadow must be irregular and close its outline');
     evidence.errors=errors;
     await page.screenshot({path:path.join(out,'day1.png'),fullPage:true,timeout:90000});
     // Matched camera framing and a deterministic later-day sample are essential
