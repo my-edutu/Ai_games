@@ -79,7 +79,7 @@ const path = require('node:path');
       return {...details,authorityUnchanged:authority===JSON.stringify(g.exportSnapshot())};
     });
     const f=evidence.cottageFacades;
-    if(f.homes!==13||f.styles.length<3||f.plasterPanels!==f.homes*2||
+    if(f.homes!==13||f.styles.length!==4||Math.max(...f.styles.map(style=>style.count))>5||f.plasterPanels!==f.homes*2||
        f.sideWindows!==f.homes*4||f.diagonalBraces<f.homes*4||
        f.meshTriangles<=f.homes*100||f.meshTriangles>=f.homes*450||
        !f.authorityUnchanged||evidence.geometry.totalTriangles>=134000)
