@@ -1,0 +1,183 @@
+{
+  "capturedAt": "2026-10-31T02:23:19.640Z",
+  "method": "Actual browser output from unmodified public snapshots held for appearance comparison; the renderer runs. Portrait opens independently at its default low quality. No motion or frame-rate pass is implied. Guardian uses an explicit launchFloor=8 scenario.",
+  "initialCaptureSourceNote": "Only scene.mjs changed during capture: landing cue cache key gained snapshot.worldWidth. The builder reproduced both recorded hashes by reversing that single prefix. Every captured fixture has worldWidth480000. Images remain first-pass evidence; the recorded initial/final hashes are retained.",
+  "sourceHashes": {
+    "app.js": "cd0d41d9e86c08b87888ec48afc810b71f9056c50d4fee45f35b23c0a71919dc",
+    "index.html": "059fd3c74ce0e6d297debaa6665ff4567ff9385b2b04e70fcb89da4ac112ae4e",
+    "styles.css": "d30743716d640bd8bd74ab714d83e8a0f1216625bdc8e6fb82efe2ea07193380",
+    "ux-v2.css": "bdd5b8ee0edf6445671f9ef9094228af627807b897b5fc4c43193b23891f5a53",
+    "visuals/hud.mjs": "db5db4f0efb2e88b03670b3eee7c3b1968e992327132c2aa95151809f6ce277f",
+    "visuals/scene.mjs": "4db0d07b76a4730524aa177f7f6ccbe07b49df8ebaa31bf2dab5c342ff6b132d",
+    "visuals/world.mjs": "790bba8b919b0a5b90df860b27a213bc06ccea1122ed2fb629bf5dcf1a1c4028",
+    "visuals/characters.mjs": "d59849a89a725d297d0c70689763dba92d995209876147c89c2dd8f61ab2b519",
+    "visuals/world-surface.mjs": "2d211239b251f124eb3beba8f185149ee85ac756318b881b10f9cc2c372e8158"
+  },
+  "additionalSourceStable": true,
+  "captures": [
+    {
+      "label": "foundry-follow",
+      "tick": 118,
+      "floor": 0,
+      "theme": "foundry",
+      "publicChecksum": "d280d5e2",
+      "quality": "high",
+      "renderProgressState": "current",
+      "probeMethod": null,
+      "failure": null
+    },
+    {
+      "label": "foundry-phone",
+      "tick": 118,
+      "floor": 0,
+      "theme": "foundry",
+      "publicChecksum": "d280d5e2",
+      "quality": "low",
+      "renderProgressState": "current",
+      "probeMethod": null,
+      "failure": null
+    },
+    {
+      "label": "sentinel-confrontation",
+      "tick": 119,
+      "floor": 0,
+      "theme": "foundry",
+      "publicChecksum": "c0dda845",
+      "quality": "high",
+      "renderProgressState": "current",
+      "probeMethod": null,
+      "failure": null
+    },
+    {
+      "label": "ruins-airborne",
+      "tick": 379,
+      "floor": 1,
+      "theme": "ruins",
+      "publicChecksum": "cdb269d8",
+      "quality": "high",
+      "renderProgressState": "current",
+      "probeMethod": null,
+      "failure": null
+    },
+    {
+      "label": "guardian-telegraph",
+      "tick": 11,
+      "floor": 8,
+      "theme": "clockwork",
+      "publicChecksum": "7ab4de62",
+      "quality": "high",
+      "renderProgressState": "current",
+      "probeMethod": null,
+      "failure": null
+    },
+    {
+      "label": "ruins-airborne-phone",
+      "tick": 379,
+      "floor": 1,
+      "theme": "ruins",
+      "publicChecksum": "cdb269d8",
+      "quality": "low",
+      "renderProgressState": "current",
+      "probeMethod": null,
+      "failure": null
+    },
+    {
+      "label": "guardian-proximity",
+      "tick": 272,
+      "floor": 8,
+      "theme": "clockwork",
+      "publicChecksum": "ad028578",
+      "quality": "high",
+      "renderProgressState": "current",
+      "probeMethod": null,
+      "failure": null
+    },
+    {
+      "label": "sentinel-strike",
+      "tick": 119,
+      "floor": 0,
+      "theme": "foundry",
+      "publicChecksum": "c0dda845",
+      "quality": "high",
+      "renderProgressState": "stalled",
+      "probeMethod": "Actual tick118 to tick119 attack edge, followed by one renderer callback (scene delta cap500ms; model delta cap100ms); callbacks held for pose inspection. This is a stepped pose, not live-motion evidence.",
+      "failure": null
+    },
+    {
+      "label": "upgrade-phone",
+      "tick": 219,
+      "floor": 4,
+      "theme": "void",
+      "publicChecksum": "22b43b9f",
+      "quality": "low",
+      "renderProgressState": "current",
+      "probeMethod": null,
+      "failure": null
+    },
+    {
+      "label": "upgrade-landscape",
+      "tick": 219,
+      "floor": 4,
+      "theme": "void",
+      "publicChecksum": "22b43b9f",
+      "quality": "low",
+      "renderProgressState": "current",
+      "probeMethod": null,
+      "failure": null
+    },
+    {
+      "label": "retained-delay-phone",
+      "tick": 272,
+      "floor": 8,
+      "theme": "clockwork",
+      "publicChecksum": "ad028578",
+      "quality": "low",
+      "renderProgressState": "stalled",
+      "probeMethod": "Renderer callbacks paused after real pixels were submitted; network polling and true render-progress timeout continue. This verifies retained-delay layout, not a spontaneous driver stall.",
+      "failure": null
+    },
+    {
+      "label": "details-phone",
+      "tick": 118,
+      "floor": 0,
+      "theme": "foundry",
+      "publicChecksum": "d280d5e2",
+      "quality": "low",
+      "renderProgressState": "current",
+      "probeMethod": null,
+      "failure": null
+    },
+    {
+      "label": "result-phone",
+      "tick": 1473,
+      "floor": 8,
+      "theme": "clockwork",
+      "publicChecksum": "720a9d81",
+      "quality": "low",
+      "renderProgressState": "current",
+      "probeMethod": null,
+      "failure": null
+    }
+  ],
+  "browserErrors": [],
+  "blindComparison": {
+    "A": "current first-pass candidate",
+    "B": "previous committed tick118 capture",
+    "preferences": {
+      "scene": "A",
+      "cast": "A",
+      "HUD": "A"
+    },
+    "limits": "Whole-image comparisons; camera, cast and HUD changed together. The commercial reference remains preferred. No live-motion pass."
+  },
+  "confirmedNextFixes": [
+    "Portrait wide crossing reduces hero to about6% viewport height",
+    "Upper platform occludes nearby guardian head",
+    "Upgrade card covers active caption in portrait and landscape",
+    "Known danger phase suppressed by graphics recovery",
+    "Toggle labels conflict with pressed semantics",
+    "Successful polling clears control failure feedback",
+    "Opaque health fill is covered by transparent background"
+  ],
+  "timingCorrection": "Timing correction: the harness originally described a50ms model cap. Actual scene dt is capped at500ms and character animation at100ms. A held callback therefore samples up to100ms; two held callbacks sample up to200ms, within strike recovery rather than peak. The historic sentinel-strike-peak filename is misleading and is not a peak-pose pass. Source hashes and image pixels are unchanged."
+}

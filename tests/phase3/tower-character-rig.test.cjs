@@ -4,6 +4,7 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
+const vm = require('node:vm');
 const { pathToFileURL } = require('node:url');
 
 const characterFile = path.join(__dirname, '../../public/infinite-tower-climb/visuals/characters.mjs');
@@ -57,6 +58,92 @@ function posedVertices(model, boneName, THREE) {
   return points;
 }
 
+function posedRegion(model, boneName, THREE, select) {
+  const points = [], bone = joint(model, boneName);
+  model.group.updateMatrixWorld(true);
+  model.group.traverse(mesh => {
+    if (!mesh.isSkinnedMesh) return;
+    const index = mesh.skeleton.bones.indexOf(bone), attributes = mesh.geometry.attributes;
+    for (let vertex = 0; vertex < attributes.position.count; vertex++) {
+      if (attributes.skinIndex.getX(vertex) !== index) continue;
+      const authored = new THREE.Vector3().fromBufferAttribute(attributes.position, vertex);
+      if (!select(authored, mesh.material)) continue;
+      points.push(mesh.applyBoneTransform(vertex, authored).applyMatrix4(mesh.matrixWorld));
+    }
+  });
+  assert.ok(points.length > 0, `${boneName} has rendered geometry in the selected region`);
+  return points;
+}
+
+let followView;
+function loadFollowView() {
+  if (!followView) followView = (async () => {
+    const [, THREE] = await loadCharacters();
+    const coordinates = await import(pathToFileURL(path.join(path.dirname(characterFile), 'coordinates.mjs')).href);
+    const context = { THREE, ...coordinates };
+    vm.runInNewContext(fs.readFileSync(path.join(path.dirname(characterFile), 'scene.mjs'), 'utf8')
+      .replace(/^import .*;\n/gm, '')
+      .replace('export function createTowerScene', 'function createTowerScene'), context);
+    return { THREE, ...coordinates, context };
+  })();
+  return followView;
+}
+
+// Projection-relevant facts from unmodified tower-stream-reference snapshots.
+// Checksums identify the original full snapshots, rather than these excerpts.
+const capturedAscents = [
+  { tick: 379, publicChecksum: 'cdb269d8', authorityChecksum: '98a3f7e2', lifecycle: 'running', worldWidth: 480000, chunkBaseY: 360000,
+    player: { x: 280000, y: 497800, vx: -9000, vy: 13800, halfWidth: 9000, halfHeight: 14000, facing: -1, health: 3, maxHealth: 5, state: 'airborne', attacking: false },
+    intent: { mode: 'jumping', targetPlatformId: 'f1:p3' },
+    platforms: [{ id: 'f1:p3', kind: 'moving', x: 63559, y: 510000, width: 115000, height: 10000 }],
+    enemies: [{ id: 'f1:enemy:0', kind: 'sentinel', x: 335377, y: 482000, halfWidth: 9000, halfHeight: 12000, health: 0, active: false, telegraph: false }, { id: 'f1:enemy:1', kind: 'shooter', x: 323467, y: 582000, halfWidth: 8500, halfHeight: 12000, health: 2, active: true, telegraph: true }],
+    hazards: [{ id: 'f1:h0', kind: 'heat', x: 272660, y: 372000, width: 32000, height: 9000, active: true }], projectiles: [] },
+  { tick: 234, publicChecksum: '7a87ca02', authorityChecksum: '71ff0549', lifecycle: 'running', worldWidth: 480000, chunkBaseY: 0,
+    player: { x: 176500, y: 237800, vx: 9000, vy: 13800, halfWidth: 9000, halfHeight: 14000, facing: 1, health: 4, maxHealth: 5, state: 'airborne', attacking: false },
+    intent: { mode: 'jumping', targetPlatformId: 'f0:p5' },
+    platforms: [{ id: 'f0:p5', kind: 'oneway', x: 271171, y: 250000, width: 125000, height: 10000 }],
+    enemies: [{ id: 'f0:enemy:0', kind: 'sentinel', x: 149030, y: 122000, halfWidth: 9000, halfHeight: 12000, health: 0, active: false, telegraph: false }],
+    hazards: [{ id: 'f0:h0', kind: 'spikes', x: 265483, y: 62000, width: 32000, height: 9000, active: true }], projectiles: [] },
+];
+
+function placeInFollowView(model, frame, width, height, projection, dt = 1 / 60, reducedMotion = true) {
+  const { THREE, pointFor, context } = projection, p = frame.player;
+  const mapped = pointFor(p.x, p.y - p.halfHeight, frame.chunkBaseY, frame.worldWidth);
+  model.group.position.copy(mapped);
+  model.group.rotation.y = mapped.angle + (Math.abs(p.vx) > 500 || p.state === 'dashing' ? p.facing * Math.PI / 2 : p.facing * .32);
+  model.group.scale.setScalar(p.halfHeight * 2 / 10000 / 2.8);
+  const pose = context.composeFollowView(frame, mapped, width / height);
+  const camera = new THREE.PerspectiveCamera(42, width / height, .2, 1200);
+  camera.position.copy(pose.position); camera.lookAt(pose.focus.x, pose.focus.y, pose.focus.z); camera.updateMatrixWorld(true);
+  const target = context.intendedLanding(frame);
+  const viewAzimuth = Math.atan2(pose.position.x - mapped.x, pose.position.z - mapped.z) - model.group.rotation.y;
+  model.animate(Object.freeze({ ...p, targetDx: target ? target.x + target.width / 2 - p.x : 0, targetDy: target ? target.y + target.height - p.y : 0 }), dt, 0, Object.freeze({ reducedMotion, viewAzimuth }));
+  model.group.updateMatrixWorld(true);
+  return { camera, pose, viewAzimuth };
+}
+
+function projectedBounds(points, camera, width, height, THREE) {
+  return new THREE.Box3().setFromPoints(points.map(point => {
+    const projected = point.clone().project(camera);
+    return new THREE.Vector3((projected.x + 1) * width / 2, (1 - projected.y) * height / 2, projected.z);
+  }));
+}
+
+function visibleHandFraction(model, name, points, camera, THREE) {
+  model.group.updateMatrixWorld(true);
+  model.group.traverse(mesh => { if (mesh.isSkinnedMesh) mesh.computeBoundingSphere(); });
+  const ray = new THREE.Raycaster(); let seen = 0, samples = 0;
+  for (let index = 0; index < points.length; index += Math.max(1, Math.floor(points.length / 12))) {
+    ray.set(camera.position, points[index].clone().sub(camera.position).normalize());
+    const hit = ray.intersectObject(model.group, true)[0]; samples++;
+    if (!hit?.face) continue;
+    const attributes = hit.object.geometry.attributes;
+    const bone = hit.object.skeleton.bones[attributes.skinIndex.getX(hit.face.a)];
+    if (bone?.name === name && attributes.position.getY(hit.face.a) < 1.1) seen++;
+  }
+  return seen / samples;
+}
+
 for (const kind of ['climber', 'sentinel', 'shooter', 'guardian']) {
   test(`${kind} keeps bounded material batches, valid rigid skinning and exact-once owned disposal`, async t => {
     const [api, THREE] = await loadCharacters();
@@ -91,11 +178,11 @@ for (const kind of ['climber', 'sentinel', 'shooter', 'guardian']) {
       assert.equal(invalidWeights, 0, 'all panels have normalized, rigid one-joint weights');
       assert.equal(invalidBindings, 0, 'all skin indices bind valid bones');
     });
-    assert.ok(meshes.length > 0 && meshes.length <= 16, 'material batching prevents a draw per armor detail');
+    assert.ok(meshes.length > 0 && meshes.length <= (kind === 'climber' ? 10 : 7), 'cast refinement retains the material draw budget');
     assert.equal(skeletons.size, 1, 'all material batches share one owned skeleton');
-    assert.ok(meshes.reduce((sum, mesh) => sum + (mesh.geometry.index?.count ?? mesh.geometry.attributes.position.count) / 3, 0) < 50000, 'bounded cast geometry');
+    assert.ok(meshes.reduce((sum, mesh) => sum + (mesh.geometry.index?.count ?? mesh.geometry.attributes.position.count) / 3, 0) < 26000, 'cast geometry stays near the measured 22–24k baseline');
     const skeleton = [...skeletons][0];
-    assert.ok(skeleton.bones.length >= 10 && skeleton.bones.length <= 32, 'bounded articulated rig');
+    assert.ok(skeleton.bones.length >= 10 && skeleton.bones.length <= 16, 'bounded articulated rig');
     const bounds = new THREE.Box3().setFromObject(model.group);
     assert.ok(Math.abs(bounds.min.y) < .025, 'native soles meet the origin');
     assert.ok(Math.abs(bounds.max.y - (kind === 'guardian' ? 5.6 : 2.8)) < .2, 'native model height respects host scaling');
@@ -154,6 +241,134 @@ test('climber attacks deform the rendered fist, preserve airborne legs and recov
     assert.ok(joint(model, '-1-knee').rotation.x > .6, 'actual air-to-standing transition absorbs landing');
     advance(model, standing, 20, options);
     assert.ok(Math.abs(joint(model, '-1-knee').rotation.x) < .01, 'landing compression recovers');
+  }
+});
+
+test('climber visor attends to the real destination and focuses on a strike without sticking after recovery', async t => {
+  const [api, THREE] = await loadCharacters();
+  const model = api.createClimber(); t.after(() => model.dispose());
+  for (const reducedMotion of [false, true]) {
+    const options = Object.freeze({ reducedMotion });
+    advance(model, standing, 30, options);
+    const eyes = [joint(model, 'left-eye'), joint(model, 'right-eye')];
+    const neutral = eyes.map(eye => ({ x: eye.position.x, y: eye.position.y, scaleY: eye.scale.y }));
+    const upward = Object.freeze({ ...standing, targetDx: 60000, targetDy: 70000 });
+    advance(model, upward, 2, options);
+    assert.ok(eyes.every((eye, index) => eye.position.x > neutral[index].x && eye.position.y > neutral[index].y), 'visor looks toward the supplied higher destination');
+    const upwardVertices = posedVertices(model, 'left-eye', THREE);
+    advance(model, Object.freeze({ ...standing, targetDx: -60000, targetDy: -70000 }), 2, options);
+    assert.ok(eyes.every((eye, index) => eye.position.x < neutral[index].x && eye.position.y < neutral[index].y), 'visor follows a lower destination on the other side');
+    const downwardVertices = posedVertices(model, 'left-eye', THREE);
+    assert.ok(upwardVertices.some((point, index) => point.distanceTo(downwardVertices[index]) > .03), 'attention deforms the rendered face');
+    advance(model, Object.freeze({ ...standing, attacking: true }), 5, options);
+    assert.ok(eyes.every((eye, index) => eye.scale.y < neutral[index].scaleY * .8), 'actual attack has a focused expression');
+    advance(model, standing, 30, options);
+    for (const [index, eye] of eyes.entries()) {
+      assert.equal(eye.position.x, neutral[index].x);
+      assert.equal(eye.position.y, neutral[index].y);
+      assert.equal(eye.scale.y, neutral[index].scaleY);
+    }
+  }
+});
+
+test('real leftward and rightward ascents expose a raised hand through the actual oblique follow camera', async t => {
+  const [api, THREE] = await loadCharacters();
+  const projection = await loadFollowView();
+  const model = api.createClimber(); t.after(() => model.dispose());
+  for (const frame of capturedAscents) for (const [width, height] of [[390, 844], [960, 600]]) for (const reducedMotion of [true, false]) {
+    const before = JSON.stringify(frame);
+    const { camera } = placeInFollowView(model, frame, width, height, projection, 1 / 60, reducedMotion);
+    const candidates = [-1, 1].map(side => {
+      const points = posedRegion(model, `${side}-elbow`, THREE, authored => authored.y < 1.1);
+      const shoulder = joint(model, `${side}-shoulder`).getWorldPosition(new THREE.Vector3());
+      return { side, points, shoulder, rise: new THREE.Box3().setFromPoints(points).getCenter(new THREE.Vector3()).y - shoulder.y };
+    });
+    const reach = candidates.sort((a, b) => b.rise - a.rise)[0];
+    assert.ok(visibleHandFraction(model, `${reach.side}-elbow`, reach.points, camera, THREE) >= .6,
+      `tick ${frame.tick}: the raised hand is not hidden by its own body at ${width}×${height}`);
+    const hand = projectedBounds(reach.points, camera, width, height, THREE);
+    const helmet = projectedBounds(posedRegion(model, 'expressive-helmet', THREE, () => true), camera, width, height, THREE);
+    const pack = projectedBounds(posedRegion(model, 'articulated-body', THREE, authored => authored.z < -.28 && authored.y > 1.05), camera, width, height, THREE);
+    const gap = (a, b) => Math.max(a.min.x - b.max.x, b.min.x - a.max.x, a.min.y - b.max.y, b.min.y - a.max.y);
+    assert.ok(gap(hand, helmet) > 2 && gap(hand, pack) > 2, 'reach has actual negative space from helmet and pack');
+    assert.ok(reach.rise > .35, 'the visible hand reaches clearly above the shoulder');
+    assert.equal(JSON.stringify(frame), before, 'camera and pose leave the captured authority facts unchanged');
+  }
+});
+
+test('sentinel and guardian guards separate their maul heads from the gripping hands', async t => {
+  const [api, THREE] = await loadCharacters();
+  for (const kind of ['sentinel', 'guardian']) {
+    const model = api.createEnemy(kind); t.after(() => model.dispose());
+    const nativeScale = kind === 'guardian' ? 2 : 1;
+    for (const reducedMotion of [false, true]) {
+    advance(model, standing, 40, Object.freeze({ reducedMotion }));
+    // The only emissive part on this forearm is the maul's inset striking head.
+    // The lower authored forearm region contains the glove and proximal grip.
+    const head = new THREE.Box3().setFromPoints(posedRegion(model, '1-elbow', THREE, (authored, material) => material.emissiveIntensity > 0));
+    const hand = new THREE.Box3().setFromPoints(posedRegion(model, '1-elbow', THREE, (authored, material) => authored.y < 1.1 * nativeScale && authored.z < .3 * nativeScale && material.emissiveIntensity === 0));
+    assert.ok((head.min.y - hand.max.y) / nativeScale > .24, `${kind}: a readable length of shaft separates the held head from the glove`);
+    const guard = joint(model, '1-shoulder').quaternion.clone();
+    advance(model, standing, 40, Object.freeze({ reducedMotion }));
+    assert.ok(guard.angleTo(joint(model, '1-shoulder').quaternion) < 1e-6, 'an idle guard does not invent an attack');
+    }
+  }
+});
+
+test('the real 118-to-119 attack edge exposes its fist at 100ms and returns by 300ms', async t => {
+  const [api, THREE] = await loadCharacters(), projection = await loadFollowView();
+  const model = api.createClimber(); t.after(() => model.dispose());
+  const frame = tick => ({ tick, lifecycle: 'running', worldWidth: 480000, chunkBaseY: 0,
+    player: { x: tick === 118 ? 169900 : 160900, y: 124000, vx: -9000, vy: 0, halfWidth: 9000, halfHeight: 14000, facing: -1, health: 5, maxHealth: 5, state: 'standing', attacking: tick === 119 },
+    intent: { mode: tick === 118 ? 'air-control' : 'engaging-enemy', targetPlatformId: 'f0:p2' },
+    platforms: [{ id: 'f0:p2', kind: 'oneway', x: 38030, y: 100000, width: 135000, height: 10000 }],
+    enemies: [{ id: 'f0:enemy:0', kind: 'sentinel', x: tick === 118 ? 122630 : 123830, y: 122000, halfWidth: 9000, halfHeight: 12000, health: tick === 118 ? 3 : 2, active: true, telegraph: false }],
+    hazards: [{ id: 'f0:h0', kind: 'spikes', x: 265483, y: 62000, width: 32000, height: 9000, active: true }], projectiles: [] });
+  for (const reducedMotion of [true, false]) {
+    const before = frame(118), attack = frame(119);
+    for (let i = 0; i < 20; i++) placeInFollowView(model, before, 960, 600, projection, 1 / 60, reducedMotion);
+    // Production scene may pass a .5s step after a held callback. The shipped
+    // model wrapper caps that at .1s, so ONE such callback samples extension.
+    const { camera } = placeInFollowView(model, attack, 960, 600, projection, .5, reducedMotion);
+    const fist = posedRegion(model, '1-elbow', THREE, authored => authored.y < 1.1);
+    assert.ok(visibleHandFraction(model, '1-elbow', fist, camera, THREE) >= .6, 'the true 100ms fist is visible in the actual encounter view');
+    const fistView = projectedBounds(fist, camera, 960, 600, THREE);
+    const torso = projectedBounds(posedRegion(model, 'articulated-body', THREE, authored => authored.y > 1.05 && authored.y < 1.9 && authored.z > -.28), camera, 960, 600, THREE);
+    assert.ok(torso.min.x - fistView.max.x > 2, 'the visible fist projects ahead of the torso toward the real sentinel');
+    const peakY = new THREE.Box3().setFromPoints(fist).getCenter(new THREE.Vector3()).y;
+    placeInFollowView(model, attack, 960, 600, projection, .5, reducedMotion);
+    placeInFollowView(model, attack, 960, 600, projection, .5, reducedMotion);
+    const returned = posedRegion(model, '1-elbow', THREE, authored => authored.y < 1.1);
+    assert.ok(new THREE.Box3().setFromPoints(returned).getCenter(new THREE.Vector3()).y < peakY - .35, 'holding the true attack flag does not hold a fake permanent strike');
+  }
+});
+
+test('enemy damage reacts once to an authoritative health loss and preserves root ownership', async t => {
+  const [api, THREE] = await loadCharacters();
+  for (const kind of ['sentinel', 'shooter', 'guardian']) {
+    const model = api.createEnemy(kind); t.after(() => model.dispose());
+    model.group.position.set(7, 2, -4); model.group.rotation.y = .7; model.group.scale.setScalar(.85);
+    const host = rootTransform(model.group);
+    for (const reducedMotion of [false, true]) {
+      const options = Object.freeze({ reducedMotion });
+      advance(model, standing, 40, options);
+      const head = joint(model, 'armored-head'), rig = joint(model, 'articulated-enemy');
+      const rest = [...head.quaternion, ...rig.quaternion];
+      const beforeHit = posedVertices(model, 'armored-head', THREE);
+      // Enemy snapshots carry health, rather than a presentation-owned hurt flag.
+      const damaged = Object.freeze({ ...standing, health: 4 });
+      advance(model, damaged, 1, options);
+      const afterHit = posedVertices(model, 'armored-head', THREE);
+      assert.ok(afterHit.some((point, index) => point.distanceTo(beforeHit[index]) > .04), `${kind} visibly recoils from the actual health edge`);
+      assert.deepEqual(rootTransform(model.group), host, 'damage never moves the collision-owned root');
+      advance(model, damaged, 45, options);
+      const recovered = [...head.quaternion, ...rig.quaternion];
+      recovered.forEach((value, index) => assert.ok(Math.abs(value - rest[index]) < .001, 'unchanged low health does not replay a hurt animation'));
+      advance(model, Object.freeze({ ...damaged, state: 'hurt' }), 1, options);
+      assert.ok(Math.abs(head.rotation.z) > .1, 'an explicit hurt state also remains readable');
+      advance(model, damaged, 45, options);
+      assert.ok(Math.abs(head.rotation.z) < .01, 'hurt state clears when the actor recovers');
+    }
   }
 });
 

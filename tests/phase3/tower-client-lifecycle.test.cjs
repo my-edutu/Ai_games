@@ -85,7 +85,7 @@ function publicFrame(tick, scene = 'normal') {
 }
 
 function appHarness({ width = 1440, search = '', renderProgress = { state: 'current' } } = {}) {
-  const elements = new Map(), timers = new Map(), requests = [], views = [];
+  const elements = new Map(), timers = new Map(), requests = [], views = [], hudUpdates = [];
   const node = id => { if (!elements.has(id)) elements.set(id, new Element()); return elements.get(id); };
   const document = new Element(), lifecycle = new Element(), environment = audioEnvironment();
   const root = node('shell');
@@ -122,10 +122,17 @@ function appHarness({ width = 1440, search = '', renderProgress = { state: 'curr
   globals.window = globals;
   const context = vm.createContext(globals);
   globals.createTowerAudio = moduleFunction(context, 'visuals/audio.mjs', 'createTowerAudio');
-  globals.createHUD = moduleFunction(context, 'visuals/hud.mjs', 'createHUD');
+  const makeHUD = moduleFunction(context, 'visuals/hud.mjs', 'createHUD');
+  globals.createHUD = options => {
+    const hud = makeHUD(options);
+    return { ...hud, update(frame, diagnostics) {
+      hudUpdates.push({ frame, diagnostics });
+      return hud.update(frame, diagnostics);
+    } };
+  };
   const source = fs.readFileSync(path.join(clientRoot, 'app.js'), 'utf8').replace(/^import .*;\n/gm, '');
   vm.runInContext(source, context, { filename: 'app.js' });
-  return { node, document, lifecycle, timers, requests, views, contexts: environment.contexts,
+  return { node, document, lifecycle, timers, requests, views, hudUpdates, contexts: environment.contexts,
     diagnostics: () => globals.__TOWER_RENDER_DIAGNOSTICS__(),
     state: () => globals.__TOWER_PUBLIC_STATE__,
     async respond(request, data) { request.resolve({ ok: true, status: 200, json: async () => data }); await flush(); },
@@ -296,6 +303,37 @@ test('graphics startup stays pending until a render submission succeeds', async 
   assert.match(app.node('recovery-message').textContent, /preparing.*3D view/i);
 });
 
+test('graphics recovery retains the authoritative upgrade phase and a typed cause', async t => {
+  const app = appHarness({ renderProgress: { state: 'stalled', visibleIdleMs: 5000, lastSubmitted: { tick: 1 } } });
+  t.after(() => app.close());
+  const frame = publicFrame(60, 'upgrade');
+  frame.snapshot.upgradeOffers = [{ name: 'Shield capacitor', family: 'shield' }];
+  await app.respond(app.requests[0], frame);
+  const { diagnostics } = app.hudUpdates.at(-1);
+  assert.equal(diagnostics.recoveryKind, 'stalled');
+  assert.equal(diagnostics.sourceScene, 'upgrade');
+  assert.equal(app.node('choice-card').hidden, false, 'graphics recovery must not erase a real upgrade');
+  assert.equal(app.node('recovery-card').dataset.presentation, 'retained');
+});
+
+test('a lost connection retains submitted-view context without claiming the run is live', async t => {
+  const renderProgress = { state: 'current', visibleIdleMs: 0, lastSubmitted: { tick: 60 } };
+  const app = appHarness({ renderProgress });
+  t.after(() => app.close());
+  await app.respond(app.requests[0], publicFrame(60));
+  app.fireTimer(100);
+  app.requests[1].reject(new Error('network interrupted'));
+  await flush();
+  const { diagnostics } = app.hudUpdates.at(-1);
+  assert.equal(diagnostics.recoveryKind, 'connection');
+  assert.equal(diagnostics.sourceScene, 'normal');
+  assert.equal(diagnostics.renderProgress.lastSubmitted.tick, 60);
+  assert.equal(app.node('provider-state').parentElement.dataset.kind, 'degraded');
+  assert.equal(app.node('recovery-card').dataset.presentation, 'retained');
+  assert.equal(app.node('recovery-message').textContent, 'Reconnecting');
+  assert.equal(app.node('recovery-hint').textContent, 'Retrying automatically');
+});
+
 test('a delayed 3D view keeps the authoritative result and intermission visible', async t => {
   const app = appHarness({ renderProgress: { state: 'stalled', visibleIdleMs: 5000, lastSubmitted: { tick: 1 } } });
   t.after(() => app.close());
@@ -306,7 +344,9 @@ test('a delayed 3D view keeps the authoritative result and intermission visible'
     await app.respond(app.requests[index], frame);
     assert.equal(app.node('provider-state').parentElement.dataset.kind, 'degraded');
     assert.equal(app.node('result-card').hidden, false);
-    assert.equal(app.node('recovery-card').hidden, true);
+    assert.equal(app.node('recovery-card').hidden, false);
+    assert.equal(app.node('recovery-card').dataset.presentation, 'retained');
+    assert.equal(app.node('recovery-message').textContent, '3D view delayed');
   }
 });
 
@@ -335,4 +375,48 @@ test('polling preserves a pending sound choice so the next click can mute it', a
   assert.equal(app.diagnostics().soundPending, false);
   assert.equal(app.node('sound-toggle').getAttribute('aria-pressed'), 'false');
   assert.equal(app.contexts[0].gains[0].gain.target, 0);
+});
+
+for (const [kind, message, detail] of [
+  ['sound', 'Sound unavailable', 'Sound could not start in this browser'],
+  ['fullscreen', 'Fullscreen unavailable', 'Fullscreen is unavailable in this view'],
+]) {
+  test(`${kind} failure survives healthy polls for a bounded dwell without degrading the connection`, async t => {
+    const app = appHarness(); t.after(() => app.close());
+    await app.respond(app.requests[0], publicFrame(90));
+    if (kind === 'sound') {
+      app.node('sound-toggle').dispatch('click');
+      app.contexts[0].resumes[0].reject(new Error('browser denied audio'));
+    } else {
+      app.document.documentElement.requestFullscreen = async () => { throw new Error('browser denied fullscreen'); };
+      app.node('fullscreen-toggle').dispatch('click');
+    }
+    await flush();
+    assert.equal(app.node('control-feedback').textContent, message);
+    assert.equal(app.node('control-feedback').hidden, false);
+    assert.equal(app.node('provider-state').parentElement.dataset.kind, 'online');
+    for (let tick = 91; tick <= 93; tick++) {
+      app.fireTimer(100);
+      await app.respond(app.requests.at(-1), publicFrame(tick));
+      assert.equal(app.node('control-feedback').textContent, message);
+      assert.equal(app.node('control-feedback').hidden, false);
+      assert.equal(app.node('provider-state').parentElement.dataset.kind, 'online');
+    }
+    app.fireTimer(6000);
+    assert.equal(app.node('control-feedback').hidden, true);
+    assert.equal(app.node('control-feedback').textContent, '');
+    assert.equal(app.node('control-feedback-detail').textContent, detail);
+  });
+}
+
+test('page destruction clears pending control feedback as well as network timers', async () => {
+  const app = appHarness();
+  await app.respond(app.requests[0], publicFrame(90));
+  app.document.documentElement.requestFullscreen = async () => { throw new Error('browser denied fullscreen'); };
+  app.node('fullscreen-toggle').dispatch('click');
+  await flush();
+  assert.equal([...app.timers.values()].filter(timer => timer.delay === 6000).length, 1);
+  app.close();
+  assert.equal(app.timers.size, 0);
+  assert.equal(app.node('control-feedback').hidden, true);
 });

@@ -1,4 +1,14 @@
 let revision = '';
+let selectedCapture = '';
+function showCapture(entry, buttons) {
+  selectedCapture = entry.src;
+  const picture = document.getElementById('capture');
+  picture.src = entry.src;
+  picture.alt = entry.description || entry.label || 'Actual Infinite Tower Climb browser capture';
+  document.getElementById('capture-label').textContent = entry.description || entry.label;
+  document.getElementById('capture-link').href = entry.src;
+  for (const button of buttons) button.setAttribute('aria-pressed', String(button.dataset.src === entry.src));
+}
 async function refresh() {
   try {
     const response = await fetch('/tower/gauntlet/progress.json', { cache: 'no-store' });
@@ -9,9 +19,19 @@ async function refresh() {
     document.getElementById('updated').textContent = `Last updated ${record.updated} · this page refreshes automatically`;
     document.getElementById('verdict').textContent = record.verdict;
     document.getElementById('next-gap').textContent = record.nextGap;
-    document.getElementById('capture').src = record.capture;
-    document.getElementById('capture-label').textContent = record.captureLabel;
-    document.getElementById('capture-link').href = record.capture;
+    const captures = record.captures?.length ? record.captures : [{ src: record.capture, label: 'Latest capture', description: record.captureLabel }];
+    let selector = document.getElementById('capture-options');
+    if (!selector) {
+      selector = document.createElement('div'); selector.id = 'capture-options'; selector.className = 'capture-options';
+      selector.setAttribute('role', 'group'); selector.setAttribute('aria-label', 'Choose a real game capture');
+      document.getElementById('capture-link').before(selector);
+    }
+    const buttons = captures.map(entry => {
+      const button = document.createElement('button'); button.type = 'button'; button.textContent = entry.label; button.dataset.src = entry.src;
+      button.addEventListener('click', () => showCapture(entry, buttons)); return button;
+    });
+    selector.replaceChildren(...buttons); selector.hidden = captures.length < 2;
+    showCapture(captures.find(entry => entry.src === selectedCapture) || captures[0], buttons);
     const entries = record.iterations.map(entry => {
       const article = document.createElement('article'); article.className = 'iteration';
       const number = document.createElement('span'); number.className = 'iteration-number'; number.textContent = entry.number;

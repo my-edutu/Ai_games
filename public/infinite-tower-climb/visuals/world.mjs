@@ -190,8 +190,8 @@ export function createTowerWorld(){
   }
   function buildTower(height){
     const root=floorGroup;
-    // This is a cluster of load-bearing vessels, not a continuous faceted wall.
-    // The open center belongs to the sector's one large working mechanism.
+    // Separate load-bearing vessels leave the central climbing corridor quiet;
+    // each biome's machinery belongs to the surrounding architecture.
     lathe(root,[[0,-34],[10.8,-34],[12.4,-24],[12.4,height+13],[10.2,height+25],[0,height+25]],materials.dark,[0,0,-3]).userData.structural=true;
     const pylons=[
       {a:-.66,r:16.8,R:4.9,bottom:-31,top:height+16},
@@ -250,9 +250,10 @@ export function createTowerWorld(){
     if(theme==='void')buildVoid(height);
   }
   function buildFoundry(height){
-    // The Foundry's focal object is a complete pressure furnace: rounded cast
-    // shell, deep inspection iris, ceramic shielding and attached heat circuit.
-    const furnace=new THREE.Group();radial(furnace,.025,18.35,17.2);floorGroup.add(furnace);furnace.name='foundry-pressure-furnace';
+    // A complete pressure furnace sits on the right shoulder. Its smaller,
+    // offset silhouette preserves the Foundry identity without occupying the
+    // hero-to-landing corridor or becoming the subject of the follow camera.
+    const furnace=new THREE.Group();radial(furnace,.51,22,height*.62);furnace.scale.setScalar(.6);floorGroup.add(furnace);furnace.name='foundry-pressure-furnace';
     lathe(furnace,[[0,-3.5],[5.9,-3.5],[7.0,-2.9],[7.35,-2.0],[7.35,-.4],[6.94,.34],[6.35,.56],[5.83,.28],[5.64,-.28],[5.64,-1.2],[0,-1.2]],materials.dark,[0,0,0],[Math.PI/2,0,0],56).userData.structural=true;
     lathe(furnace,[[6.28,.52],[6.42,.9],[6.83,.85],[7.08,.55],[7.22,.15],[7.04,.05]],materials.ceramic,[0,0,0],[Math.PI/2,0,0],56);
     lathe(furnace,[[5.56,-.56],[5.69,-.18],[5.88,.14],[6.09,.18],[6.13,-.13],[5.87,-.58]],materials.copper,[0,0,0],[Math.PI/2,0,0],56);
@@ -282,8 +283,9 @@ export function createTowerWorld(){
       pipe(furnace,[[x,-5.2,-.8],[x*1.25,-8.5,-1.3],[x*1.5,-10.1,-2.1],[x*1.5,-14,-2.1]],.72,materials.metal).userData.structural=true;
       lathe(furnace,[[.77,-.3],[1.02,-.2],[1.02,.3],[.77,.42]],materials.copper,[x*1.5,-10.8,-2.1]);
     }
-    pipe(floorGroup,[[-14.1,-20,13.8],[-14.1,3,13.8],[-12.1,9,16],[-8.1,10.2,17.9],[-5.2,10.2,18.1]],.58,materials.copper);
-    pipe(floorGroup,[[6.2,23,16.8],[10.2,25.2,16.1],[12.1,30,13.8],[12.1,height+9,13.8]],.69,materials.metal);
+    // Circuit pipes move with their actual connection points on the furnace.
+    pipe(furnace,[[-6.975,-10.8,-2.1],[-10,-10.8,-3.4],[-11,-15,-5.2],[-11,-40,-5.2]],.7,materials.copper);
+    pipe(furnace,[[6.2,4,-1.4],[9,7,-3],[10,12,-4],[10,38,-4]],.8,materials.metal);
     // The tall offset chimney gives the sector an upward destination.
     const stack=new THREE.Group();radial(stack,-.61,16.8,height+10);floorGroup.add(stack);
     lathe(stack,[[0,0],[1.6,0],[1.7,2],[1.27,4],[1.27,13],[1.0,14],[0,14]],materials.dark);
@@ -464,6 +466,15 @@ export function createTowerWorld(){
       }
       instanced(root,geometry('void-undercroft',()=>new THREE.OctahedronGeometry(1,0)),materials.crystal,shards);
       mesh(root,sector(27.04,27.17,angle,.05),materials.glow,[0,h-.37,0]);
+    }
+    if(p.id.endsWith(':cap')){
+      // The last route gap is shorter than the guardian's body. A thick
+      // decorative box beam buries its face inside a one-way platform. Keep
+      // the exact usable top and angular edges, with a thin front plate and
+      // the existing supports recessed behind the character corridor.
+      for(const child of root.children)if(child!==mount){
+        child.position.y=h+(child.position.y-h)*.12;child.scale.y*=.12;
+      }
     }
     root.traverse(o=>{if(o.isMesh&&o.material===bodyMaterial)o.userData.structural=true;});
     platforms.set(p.id,{root,angle,width:p.width,height:p.height});return root;

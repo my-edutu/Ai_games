@@ -35,3 +35,32 @@ Functional gates: original tower suites stay green; moving-platform projection m
 ## Resource limits
 
 One renderer, one animation loop and one state request in flight. Pixel ratio capped at 1.5 (1 on mobile/low tier); maximum 96 ambient particles; at most one shadow-casting directional light with a 1024 map on normal tier. Meshes and per-floor geometries are disposed on floor changes. Event/audio IDs retain bounded recent history and reset on run change. No high-frequency flashing.
+
+## 2026-10-31 user-direction addendum — clearer gameplay with less text
+
+The user directed continued improvements to the UI, scenes and characters while reducing text during gameplay. This refines the visual contract above under the existing delegated implementation authority. The world and autonomous action remain the main view; intent, milestones and secondary status remain available through progressive disclosure. Deterministic authority, immutable public snapshots, fairness and recovery requirements continue to apply.
+
+### HUD and disclosure contract
+
+- Keep floor, peak height, floor progress and compact icon health/stamina values visible near the scene edges. Show shield charges only when present. Use explicit meter names and values so meaning survives the compact visual treatment.
+- Provide seven dock controls: Follow camera, Overview camera, Sound, Reduced motion, Low graphics quality, Fullscreen and Expedition details. Each has a 44 × 44 CSS-pixel target, a stable accessible name, visible keyboard focus and a keyboard-visible tooltip. Toggle pressed states describe the enabled setting; tooltips may describe the next action.
+- Use a native Details disclosure for intent, next guardian, progress, score, build, graphics/connection status and the control guide. Escape closes it and restores focus to the summary. The open panel may cover the scene intentionally; normal play starts with the compact layout.
+- Keep captions available with sound muted. Place genuine upgrade choices and captions in a shared responsive event area, with separate readable rectangles for short and multiline captions at desktop, phone portrait and short landscape sizes. Upgrade/result cards derive from the public source scene and actual offers/result data.
+- Keep Guardian/Danger alerts independent of technical recovery notices. Graphics delay or context recovery must preserve the known gameplay phase alongside its concise recovery explanation. Connection loss labels retained phase information **Last known** and suppresses current captions until fresh state returns. Retained pixels or successful polling alone must not imply that rendering is current.
+- Failed viewer controls receive one replaceable six-second transient message that survives healthy polling and run changes. Details retain the explanation under **Last control message**. Replacement and disposal clear the owned timer; a late asynchronous result cannot revive feedback after disposal.
+
+### Scene and character clarity contract
+
+Follow framing composes the actual climber, active landing target and bounded nearby threats locally, including an oblique portrait camera. A landing cue uses contrasting top corners on the real target surface and follows its current public coordinates, including moving platforms. Suppress it for missing targets, terminal/dead states, nontraversal intent and a target already reached in standing contact. The cue does not invent an additional route or alter platform geometry or collision truth.
+
+Character poses use the actual view angle to expose the climbing robot's reaching hand with space between the hand, helmet and pack in both ascent directions. Sentinel and guardian equipment separates the gripping glove, visible maul shaft and head. Enemy health-bar fills must draw above their backing and represent the current public health fraction. These are presentation changes; root position, movement, combat decisions and damage remain simulation-owned.
+
+The attack evidence was corrected to use the real tick 118 → 119 attack edge and one manually advanced renderer callback, yielding a capped **100 ms of character time**. The earlier two-callback `sentinel-strike-peak` filename does not prove peak extension: 200 ms is already in recovery. The corrected sample supports the existing strike pose, so no production strike change was required. A held attack flag must not create a permanent or repeated strike.
+
+### Acceptance evidence and remaining limits
+
+The [2026-10-31 scene-clarity review](../../reviews/2026-10-31-tower-scene-clarity.md) records dated captures, independent critic decisions, focused checks and integrated verification. The current HUD browser evidence covers seven focused cases; exact full-suite totals belong in the dated verification record after the final candidate is checked. Earlier suite totals are historical evidence, not a current working-tree result.
+
+The scoped reviews support the demonstrated HUD corrections, separated reaching hand and maul, and improved phone-frame readability. Exact next-landing recognition remains ambiguous in some inspected poses, and an upper walkway still crowds the nearby guardian's crown. Keep these composition findings open while improving the scene. The corrected strike still establishes a pose only; a continuous normal-speed encounter is needed to judge anticipation, hit timing and recovery together.
+
+No still-image preference, focused test result or recovery check establishes an overall commercial benchmark win, a full moving-output pass, smooth continuous rendering or a hardware/mobile performance-budget pass. The bounded software-renderer cost probe informs further investigation only; it does not change production quality policy. Continue the existing builder/critic loop with actual candidate output and retain these evidence limits in the live journal and review.

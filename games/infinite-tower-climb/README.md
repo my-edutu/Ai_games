@@ -2,7 +2,7 @@
 
 An autonomous expedition through a fully modeled 3D tower. The AI climbs, fights, chooses upgrades, encounters guardians, ends runs and starts again. Viewers control the presentation; the existing seeded, fixed-step simulation decides gameplay.
 
-**Implementation in review:** the 103 logical checks and the final two strong WebGL recovery tests pass. The commercial visual bar and complete moving-output review remain open. See the [review evidence and limits](../../docs/reviews/2026-10-30-tower-3d-gauntlet.md); still captures and recovery checks do not establish smooth full-run playback.
+**Implementation in review:** the current pass reduces gameplay text and improves the camera, landing cues and character silhouettes. The build, 129 Tower logical tests, 19 browser cases and host self-test pass. See the [2026-10-31 clarity review](../../docs/reviews/2026-10-31-tower-scene-clarity.md) for scoped verification and remaining findings, and the [original 3D review](../../docs/reviews/2026-10-30-tower-3d-gauntlet.md) for earlier evidence. The commercial visual bar, complete moving-output review and intended-device performance measurements remain open. Still captures and recovery checks do not establish smooth full-run playback.
 
 ## Run the game
 
@@ -22,17 +22,25 @@ The progress page shows actual captures, references, critic verdicts and the nex
 
 ## Presentation controls
 
+The default HUD keeps floor, peak height, floor progress and icon vitals near the edges of the scene. Guardian/Danger alerts, captions, upgrade choices and results appear when the public game state calls for them. Intent, milestones and secondary status are available through **Expedition details**.
+
+The control dock has seven icon controls:
+
 | Control | Behavior |
 | --- | --- |
-| Follow | Track the climber and the next landing. |
-| Overview | See the current tower sector and its route. |
-| Drag / scroll on the scene | Orbit within the supported view and adjust zoom. Camera buttons reset the view. |
+| Follow camera | Track the climber, the active landing target and nearby threats. |
+| Overview camera | See the current tower sector and its route. |
 | Sound | Enable or mute the synthesized ambience and gameplay cues. Audio starts only after this gesture. |
-| Motion | Reduce decorative motion; retain meaningful action and danger poses. |
-| Quality | Switch shadow/effect quality and render resolution limits. Phones start at low quality. |
+| Reduced motion | Calm the camera and decorative effects while retaining meaningful action and danger poses. |
+| Low graphics quality | Switch shadow/effect quality and render resolution limits. Phones start at low quality. |
 | Fullscreen | Enter or leave the browser's fullscreen view when available. |
+| Expedition details | Open intent, next guardian, progress, score, build, graphics/connection status and the control guide. Escape closes the panel and returns focus to its control. |
 
-Captions work while sound is muted. Keyboard focus remains visible. Phone controls have at least 44 × 44 CSS-pixel targets. Compact phone telemetry leaves a central window for the climb.
+Drag or scroll on the scene to orbit within the supported view and adjust zoom. Camera buttons reset the view. Each dock control has a 44 × 44 CSS-pixel target, an accessible name and a tooltip available on keyboard focus. Toggle names stay stable while their pressed state reports the current setting.
+
+Captions work while sound is muted. Upgrade choices and captions share a responsive event area so both remain available in portrait and short landscape layouts. Graphics recovery preserves known Guardian/Danger alerts and genuine upgrade/result content. A lost connection labels the retained phase **Last known** and clears current captions until fresh state arrives.
+
+Failed sound or fullscreen actions display one replaceable six-second message, independently of healthy state polling. Its explanation remains in Details under **Last control message**. Opening Details deliberately brings secondary information over the scene; closing it restores the compact gameplay layout.
 
 Useful source URLs:
 
@@ -47,7 +55,11 @@ Useful source URLs:
 
 The original cobalt-and-ivory climber, shield-and-hammer sentinel, ranged shooter and heavy guardian are modeled and articulated in local Three.js modules. Poses cover locomotion, ascent/descent, landing, attacks, telegraphs, recoil, damage and defeat. Rigid bone weights batch each character by material while preserving its geometry.
 
+The climber's ascent pose uses the actual camera angle to separate the reaching hand from the helmet and pack. Sentinel and guardian mauls have a distinct grip, visible shaft and separate head. These changes improve the inspected silhouettes; continuous attack timing and the full range of moving poses remain review work.
+
 Foundry, Ruins, Storm, Clockwork and Void have different environmental forms, materials, machinery, hazards and atmosphere. Platforms use the same tick-adjusted coordinates as authoritative collision. The camera, particles, lighting, sound and HUD consume public snapshots and cannot change an outcome.
+
+Follow framing uses the local climber, actual active landing target and bounded nearby threats, including an oblique phone view. Contrasting top-corner cues mark that target at its real current platform coordinates and disappear when the traversal target is no longer active. Enemy health fills draw above their backing so the displayed fraction remains visible. Exact next-landing recognition and the nearby guardian's full head silhouette still have open composition findings in the clarity review.
 
 The simulation retains the existing platformer movement. A curved coordinate mapping wraps that route around actual 3D geometry; it does not add free-roaming movement or a second physics system.
 

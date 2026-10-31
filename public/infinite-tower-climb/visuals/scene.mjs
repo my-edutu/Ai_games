@@ -14,6 +14,174 @@ const focus = new THREE.Vector3();
 const destination = new THREE.Vector3();
 const seeded = value => { const n = Math.sin(value * 127.13 + 38.37) * 43758.5453; return n - Math.floor(n); };
 
+// The retained AI target can outlive the action that selected it. In particular,
+// the first standing snapshot still carries the preceding air-control intent.
+// A destination marking is a statement about the present route, not a guess.
+function intendedLanding(snapshot) {
+  const player = snapshot.player, mode = snapshot.intent?.mode?.replace(/^oracle-/, '');
+  if ((snapshot.lifecycle && snapshot.lifecycle !== 'running') || player.health <= 0
+    || !['aligning', 'jumping', 'air-control'].includes(mode)) return null;
+  const target = snapshot.platforms.find(platform => platform.id === snapshot.intent.targetPlatformId);
+  if (!target || target.width <= 0) return null;
+  const feet = player.y - player.halfHeight;
+  const onTarget = player.state === 'standing' && Math.abs(feet - target.y - target.height) < 2000
+    && player.x + (player.halfWidth || 9000) >= target.x
+    && player.x - (player.halfWidth || 9000) <= target.x + target.width;
+  return onTarget ? null : target;
+}
+
+// Fit a small local encounter, preserving the hero's 18%-high baseline whenever
+// the actual route fits. A long portrait crossing may require a wider view;
+// that tradeoff is preferable to cropping the real destination or opponent.
+function composeFollowView(snapshot, hero, aspect, orbit = 0, zoom = 1) {
+  const player = snapshot.player, height = player.halfHeight * 2 / SCALE;
+  const heroAngle = angleFor(player.x, snapshot.worldWidth);
+  const body = { x: hero.x, y: hero.y + height * .52, z: hero.z };
+  const target = intendedLanding(snapshot);
+  let landing = null;
+  if (target) landing = pointFor(target.x + target.width / 2,
+    target.y + target.height, snapshot.chunkBaseY, snapshot.worldWidth, 26.7);
+  let threat = null, nearest = Infinity;
+  function consider(x, y, halfWidth, halfHeight, priority = 1) {
+    const dx = Math.abs(x - player.x), dy = Math.abs(y - player.y);
+    if (dx > 90000 || dy > 60000) return;
+    const score = (dx + dy * 1.4) / priority;
+    if (score >= nearest) return;
+    nearest = score;
+    threat = { ...pointFor(x, y, snapshot.chunkBaseY, snapshot.worldWidth),
+      halfWidth: halfWidth / SCALE, halfHeight: halfHeight / SCALE };
+  }
+  if (player.health > 0) {
+    for (const enemy of snapshot.enemies || []) if (enemy.active) consider(enemy.x, enemy.y, enemy.halfWidth, enemy.halfHeight, enemy.telegraph ? 1.5 : 1);
+    for (const hazard of snapshot.hazards || []) if (hazard.active) consider(hazard.x + hazard.width / 2, hazard.y + hazard.height / 2, hazard.width / 2, hazard.height / 2, 1.2);
+    for (const bolt of snapshot.projectiles || []) if (bolt.owner === 'enemy') consider(bolt.x, bolt.y, 3000, 3000, 1.7);
+  }
+  const center = { ...body };
+  if (landing) {
+    center.x = lerp(center.x, landing.x, .38);
+    center.y = lerp(center.y, landing.y, .38);
+    center.z = lerp(center.z, landing.z, .38);
+  }
+  if (threat) {
+    const weight = landing ? .18 : .5;
+    center.x = lerp(center.x, threat.x, weight);
+    center.y = lerp(center.y, threat.y, weight);
+    center.z = lerp(center.z, threat.z, weight);
+  }
+  center.y += height * (landing ? .12 : .08);
+  const tangent = Math.tan(42 * Math.PI / 360);
+  const horizontalSafe = aspect < .85 ? (landing ? .85 : .9) : .84;
+  const relative = point => ({ x: point.x - center.x, y: point.y - center.y, z: point.z - center.z });
+  const dot = (point, axis) => point.x * axis.x + point.y * axis.y + point.z * axis.z;
+  const points = [], sightlines = [body];
+  function includeBody(point, halfWidth, halfHeight, bearing) {
+    for (const side of [-1, 1]) for (const vertical of [-1, 1]) points.push({
+      x: point.x + Math.cos(bearing) * halfWidth * side,
+      y: point.y + halfHeight * vertical,
+      z: point.z - Math.sin(bearing) * halfWidth * side,
+    });
+  }
+  includeBody(body, (player.halfWidth || 9000) / SCALE, height * .52, heroAngle);
+  if (landing) {
+    // Include the real usable width, rather than only a guessed touch point.
+    // The outer walking band is outside the architectural core at radius 23.4.
+    for (const x of [target.x, target.x + target.width]) {
+      const edge = pointFor(x, target.y + target.height, snapshot.chunkBaseY, snapshot.worldWidth, 26.7);
+      points.push(edge, { ...edge, y: edge.y + .4 }); sightlines.push(edge);
+    }
+    points.push(pointFor(target.x + target.width / 2, target.y + target.height, snapshot.chunkBaseY, snapshot.worldWidth, 24.4));
+  }
+  if (threat) { includeBody(threat, threat.halfWidth, threat.halfHeight, threat.angle); sightlines.push(threat); }
+  const subject = landing || threat, direction = subject ? Math.sign(body.x - subject.x) : 1;
+  function solve(lean) {
+    const angle = Math.atan2(center.x, center.z) + direction * .08 + orbit + lean;
+    // Active traversal gets a modest overlook so the destination presents a
+    // usable top. Grounded encounters keep the established near-eye framing.
+    const sin = Math.sin(angle), cos = Math.cos(angle), pitch = landing ? .18 : .055, level = Math.sqrt(1 - pitch * pitch);
+    const out = { x: sin * level, y: pitch, z: cos * level };
+    const right = { x: cos, y: 0, z: -sin }, up = { x: -sin * pitch, y: level, z: -cos * pitch };
+    const bodyDepth = dot(relative(body), out);
+    let distance = bodyDepth + height * level / (2 * tangent * .18);
+    for (const point of points) {
+      const delta = relative(point), depth = dot(delta, out);
+      distance = Math.max(distance,
+        depth + Math.abs(dot(delta, right)) / (tangent * Math.max(.25, aspect) * horizontalSafe),
+        depth + Math.abs(dot(delta, up)) / (tangent * .66));
+    }
+    distance = Math.max(12, distance) * zoom;
+    const position = { x: center.x + out.x * distance, y: center.y + out.y * distance, z: center.z + out.z * distance };
+    const clear = sightlines.every(point => {
+      const dx = point.x - position.x, dz = point.z - position.z;
+      const t = clamp(-(position.x * dx + position.z * dz) / Math.max(.001, dx * dx + dz * dz), 0, 1);
+      return Math.hypot(position.x + dx * t, position.z + dz * t) >= 23.5;
+    });
+    return { focus: center, position, distance, landing, targetId: target?.id || null, lean, clear,
+      heroFraction: height * level / (2 * tangent * (distance - bodyDepth)) };
+  }
+  let best = solve(0);
+  const preferredFraction = .165 / zoom;
+  if (subject && best.heroFraction < preferredFraction) {
+    // View along a broad crossing: the real destination recedes into depth,
+    // instead of shrinking the entire encounter to fit a narrow screen.
+    for (const amount of (aspect < .85 ? [.45, .75, .95, 1.1] : [.25, .5, .75])) {
+      const candidate = solve(direction * amount);
+      if (candidate.clear && candidate.heroFraction > best.heroFraction) best = candidate;
+      if (best.heroFraction >= preferredFraction) break;
+    }
+  }
+  return best;
+}
+
+function createLandingCueGeometry() {
+  // A bounded fascia plus four contrasting top corners. The top silhouette is
+  // exclusive to the active target, distinct from permanent moving-deck trim.
+  const quads = 40, geometry = new THREE.BufferGeometry(), indices = [], colors = new Float32Array(quads * 12);
+  geometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(quads * 12), 3).setUsage(THREE.DynamicDrawUsage));
+  for (let quad = 0; quad < quads; quad++) {
+    const start = quad * 4; indices.push(start, start + 1, start + 2, start, start + 2, start + 3);
+    const color = new THREE.Color(quad < 24 ? 0x76ddff : quad < 32 ? 0x132f3a : 0xe3fbff);
+    for (let corner = 0; corner < 4; corner++) colors.set([color.r, color.g, color.b], quad * 12 + corner * 3);
+  }
+  geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+  geometry.setIndex(indices);
+  return geometry;
+}
+
+function updateLandingCueGeometry(geometry, platform, snapshot) {
+  const positions = geometry.attributes.position, radius = 27.24;
+  const left = angleFor(platform.x, snapshot.worldWidth), right = angleFor(platform.x + platform.width, snapshot.worldWidth);
+  const top = (platform.y + platform.height - snapshot.chunkBaseY) / SCALE;
+  const insetDepth = platform.id.endsWith(':cap') ? .12 : 1;
+  function quad(index, from, to, low, high) {
+    for (const [corner, angle, y] of [[0, from, low], [1, to, low], [2, to, high], [3, from, high]]) {
+      positions.setXYZ(index * 4 + corner, Math.sin(angle) * radius, y, Math.cos(angle) * radius);
+    }
+  }
+  for (let segment = 0; segment < 22; segment++) quad(segment, lerp(left, right, segment / 22), lerp(left, right, (segment + 1) / 22), top - .21 * insetDepth, top - .085 * insetDepth);
+  const notch = Math.min(.22 / radius, (right - left) * .15);
+  quad(22, left, left + notch, top - .55 * insetDepth, top - .085 * insetDepth);
+  quad(23, right - notch, right, top - .55 * insetDepth, top - .085 * insetDepth);
+  function surfaceQuad(index, from, to, inner, outer) {
+    const angles = [Math.min(from, to), Math.max(from, to)], radii = [Math.min(inner, outer), Math.max(inner, outer)];
+    for (const [corner, angle, r] of [[0, angles[0], radii[0]], [1, angles[1], radii[0]], [2, angles[1], radii[1]], [3, angles[0], radii[1]]]) {
+      positions.setXYZ(index * 4 + corner, Math.sin(angle) * r, top, Math.cos(angle) * r);
+    }
+  }
+  const center = (left + right) / 2, span = Math.min((right - left) * .31, .13);
+  for (let layer = 0; layer < 2; layer++) {
+    const line = layer ? .20 : .38, angularLine = Math.min(line / 25, (right - left) * .1);
+    const arm = Math.min((right - left) * .18, (layer ? 1.45 : 1.63) / 25);
+    let index = 24 + layer * 8;
+    for (const side of [-1, 1]) for (const radialSide of [-1, 1]) {
+      const angle = center + side * span, r = radialSide < 0 ? 24.05 : 26.65;
+      surfaceQuad(index++, angle, angle - side * arm, r - line / 2, r + line / 2);
+      surfaceQuad(index++, angle - angularLine / 2, angle + angularLine / 2, r, r - radialSide * (layer ? .88 : 1.0));
+    }
+  }
+  positions.needsUpdate = true;
+  geometry.computeBoundingSphere();
+}
+
 // The sky carries the biome; the broad reflected sources reveal the authored
 // roughness of ceramic, stone and metal without a screen-space glow pass.
 const LIGHTING = Object.freeze({
@@ -199,12 +367,16 @@ export function createTowerScene(canvas, settings = {}) {
     enemy: ownMaterial(new THREE.MeshBasicMaterial({ color: 0xff805e })),
   };
   const healthBarGeometry = ownGeometry(new THREE.PlaneGeometry(1, 1));
-  const healthBarDark = ownMaterial(new THREE.MeshBasicMaterial({ color: 0x172329, transparent: true, opacity: .88, depthTest: false }));
-  const healthBarRed = ownMaterial(new THREE.MeshBasicMaterial({ color: 0xff9867, depthTest: false }));
+  const healthBarDark = ownMaterial(new THREE.MeshBasicMaterial({ color: 0x172329, transparent: true, opacity: .88, depthTest: false, depthWrite: false }));
+  const healthBarRed = ownMaterial(new THREE.MeshBasicMaterial({ color: 0xff9867, transparent: true, opacity: 1, depthTest: false, depthWrite: false }));
   const warningMaterial = ownMaterial(new THREE.MeshBasicMaterial({ color: 0xffcb75, transparent: true, opacity: .65, depthWrite: false }));
-  const targetRing = new THREE.Mesh(ownGeometry(new THREE.TorusGeometry(1.4, .035, 6, 36)), ownMaterial(new THREE.MeshBasicMaterial({ color: 0x9dffdd, transparent: true, opacity: .52, depthWrite: false })));
-  targetRing.rotation.x = -Math.PI / 2;
-  scene.add(targetRing);
+  const landingCue = new THREE.Mesh(ownGeometry(createLandingCueGeometry()), ownMaterial(new THREE.MeshBasicMaterial({ color: 0xffffff, vertexColors: true, depthWrite: false, side: THREE.DoubleSide, toneMapped: false,
+    polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 })));
+  landingCue.name = 'IntendedLandingEdge';
+  landingCue.renderOrder = 2;
+  landingCue.visible = false;
+  scene.add(landingCue);
+  let landingCueKey = '';
   const attackArc = new THREE.Mesh(ownGeometry(new THREE.TorusGeometry(1.55, .055, 6, 24, Math.PI * .9)), ownMaterial(new THREE.MeshBasicMaterial({ color: 0xabf5ff, transparent: true, opacity: .7, depthWrite: false })));
   attackArc.visible = false;
   scene.add(attackArc);
@@ -310,6 +482,9 @@ export function createTowerScene(canvas, settings = {}) {
     back.scale.set(entity.kind === 'guardian' ? 3.8 : 2, .14, 1);
     const fill = new THREE.Mesh(healthBarGeometry, healthBarRed);
     fill.position.z = .01;
+    // Both are in the transparent list. An opaque fill would be submitted
+    // before, and then covered by, the dark transparent background.
+    back.renderOrder = 20; fill.renderOrder = 21;
     bar.add(back, fill);
     const warning = new THREE.Mesh(ringGeometry, warningMaterial);
     warning.rotation.x = -Math.PI / 2;
@@ -401,8 +576,7 @@ export function createTowerScene(canvas, settings = {}) {
     if (reflectionDirty) refreshEnvironment();
     world.update(snapshot, dt, elapsed, options);
     const p = snapshot.player;
-    const targetPlatform = snapshot.platforms.find(platform => platform.id === snapshot.intent.targetPlatformId)
-      || snapshot.platforms.filter(platform => (platform.y + platform.height) / SCALE > p.y / SCALE + .8).sort((a, b) => a.y - b.y)[0];
+    const targetPlatform = intendedLanding(snapshot);
     const mapped = pointFor(p.x, p.y - p.halfHeight, snapshot.chunkBaseY, snapshot.worldWidth);
     actorTarget.set(mapped.x, mapped.y, mapped.z);
     const moving = Math.abs(p.vx) > 500;
@@ -412,6 +586,10 @@ export function createTowerScene(canvas, settings = {}) {
     else { climber.group.position.lerp(actorTarget, blend); actorYaw += Math.atan2(Math.sin(desiredYaw - actorYaw), Math.cos(desiredYaw - actorYaw)) * blend; }
     climber.group.rotation.y = actorYaw;
     climber.group.scale.setScalar(p.halfHeight * 2 / SCALE / 2.8);
+    const followComposition = options.camera === 'overview' ? null : composeFollowView(snapshot, climber.group.position, camera.aspect, orbit, zoom);
+    const viewPosition = initialized ? camera.position : followComposition?.position || camera.position;
+    const viewAngle = Math.atan2(viewPosition.x - climber.group.position.x, viewPosition.z - climber.group.position.z) - actorYaw;
+    options.viewAzimuth = Math.atan2(Math.sin(viewAngle), Math.cos(viewAngle));
     climber.animate({ ...p,
       targetDx: targetPlatform ? targetPlatform.x + targetPlatform.width / 2 - p.x : 0,
       targetDy: targetPlatform ? targetPlatform.y + targetPlatform.height - p.y : 0,
@@ -423,16 +601,20 @@ export function createTowerScene(canvas, settings = {}) {
     attackArc.position.z += Math.cos(actorYaw) * 1.6;
     attackArc.quaternion.copy(camera.quaternion);
     attackArc.rotateZ(p.facing > 0 ? -.8 : Math.PI - .8);
-    targetRing.position.copy(climber.group.position); targetRing.position.y += .06;
-    targetRing.visible = p.state === 'standing' && p.health > 0;
+    landingCue.visible = !!targetPlatform;
+    if (targetPlatform) {
+      const key = `${snapshot.worldWidth}:${snapshot.chunkBaseY}:${targetPlatform.id}:${targetPlatform.x}:${targetPlatform.y}:${targetPlatform.width}:${targetPlatform.height}`;
+      if (landingCueKey !== key) { updateLandingCueGeometry(landingCue.geometry, targetPlatform, snapshot); landingCueKey = key; }
+    }
     for (const entry of enemies.values()) {
       const e = entry.state;
       const position = pointFor(e.x, e.y - e.halfHeight, snapshot.chunkBaseY, snapshot.worldWidth);
       destination.set(position.x, position.y, position.z);
       const model = entry.model.group;
-      if (!entry.initialized) { model.position.copy(destination); entry.initialized = true; }
-      else model.position.lerp(destination, blend);
-      model.rotation.y = position.angle + entry.direction * .55;
+      const enemyYaw = position.angle + entry.direction * 1.12;
+      if (!entry.initialized) { model.position.copy(destination); entry.yaw = enemyYaw; entry.initialized = true; }
+      else { model.position.lerp(destination, blend); entry.yaw += Math.atan2(Math.sin(enemyYaw - entry.yaw), Math.cos(enemyYaw - entry.yaw)) * blend; }
+      model.rotation.y = entry.yaw;
       model.scale.setScalar(e.halfHeight * 2 / SCALE / (e.kind === 'guardian' ? 5.6 : 2.8));
       entry.model.animate({ ...e, firing: elapsed < entry.fireUntil }, dt, elapsed, options);
       model.visible = e.active || elapsed < entry.deadUntil;
@@ -467,15 +649,16 @@ export function createTowerScene(canvas, settings = {}) {
     for (const attribute of Object.values(particleGeometry.attributes)) attribute.needsUpdate = true;
     const portrait = camera.aspect < .85;
     const overview = options.camera === 'overview';
-    const landing = targetPlatform ? pointFor(clamp(p.x, targetPlatform.x + 9000, targetPlatform.x + targetPlatform.width - 9000), targetPlatform.y + targetPlatform.height, snapshot.chunkBaseY, snapshot.worldWidth) : mapped;
-    const wantedAngle = (overview ? .27 : mapped.angle * .7 + landing.angle * .18 + .18) + orbit;
-    cameraAngle = initialized ? lerp(cameraAngle, wantedAngle, 1 - Math.exp(-dt * 2.5)) : wantedAngle;
-    const radius = (overview ? (portrait ? 145 : 110) : (portrait ? 78 : 56)) * zoom;
-    const targetY = overview ? 21 : clamp(lerp(climber.group.position.y, landing.y, .25) + 3.7, 4, 41);
-    focus.set(overview ? 0 : lerp(climber.group.position.x, landing.x, .24) * .7, targetY, overview ? 0 : 17);
-    // Keep the follow camera near the climber's eye line. A high downward angle
-    // puts foreground one-way ledges between the viewer and the climbing body.
-    destination.set(Math.sin(cameraAngle) * radius, targetY + (overview ? 18 : -3), Math.cos(cameraAngle) * radius);
+    let targetY;
+    if (overview) {
+      const wantedAngle = .27 + orbit;
+      cameraAngle = initialized ? lerp(cameraAngle, wantedAngle, 1 - Math.exp(-dt * 2.5)) : wantedAngle;
+      const radius = (portrait ? 145 : 110) * zoom;
+      targetY = 21; focus.set(0, targetY, 0);
+      destination.set(Math.sin(cameraAngle) * radius, targetY + 18, Math.cos(cameraAngle) * radius);
+    } else {
+      focus.copy(followComposition.focus); destination.copy(followComposition.position); targetY = followComposition.focus.y;
+    }
     const cameraBlend = options.reducedMotion ? 1 : 1 - Math.exp(-dt * 3.5);
     if (!initialized) { camera.position.copy(destination); lookAt.copy(focus); initialized = true; }
     else { camera.position.lerp(destination, cameraBlend); lookAt.lerp(focus, cameraBlend); }

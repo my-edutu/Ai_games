@@ -206,9 +206,9 @@ function makeLimb(w,parent,palette,side,{heavy=false,leg=false}={}) {
 
 export function createClimber() {
   const w=workshop('expedition-climber');
-  const p={color:w.mat(0x1858be,.26,.25),armor:w.mat(0xf2efe2,.12,.27),dark:w.mat(0x111e2b,.08,.76),metal:w.mat(0x697b8d,.66,.42)};
+  const p={color:w.mat(0x1858be,.26,.25),armor:w.mat(0xf2efe2,.08,.25),dark:w.mat(0x111e2b,.08,.76),metal:w.mat(0x697b8d,.66,.42)};
   const copper=w.mat(0xbb7143,.72,.29),packDark=w.mat(0x513e32,.18,.67);
-  const face=w.mat(0x06121c,.4,.16),eye=w.mat(0xa1fff0,.2,.25,0x7be9eb,1.6),shine=w.mat(0x234359,.4,.24);
+  const face=w.mat(0x06121c,.22,.18),eye=w.mat(0xa1fff0,.2,.25,0x7be9eb,1.6),shine=w.mat(0x234359,.4,.24);
   const body=w.node(w.group,'articulated-body');
   w.lathe(body,[[.26,.99],[.36,1.08],[.44,1.48],[.43,1.7],[.32,1.86]],p.dark).scale.z=.52;
   w.shell(body,1.02,.78,.5,p.armor,0,1.49,.035,.15,.035,.22);
@@ -244,11 +244,13 @@ export function createClimber() {
   const head=w.node(body,'expressive-helmet',0,2.31,.025);
   w.shell(head,1.28,.8,.74,p.armor,0,.03,0,.18,.025,.09);
   w.plate(head,.12,.68,.07,p.color,0,.01,-.36,.025);
-  w.plate(head,1.02,.43,.13,p.color,0,-.018,.345,.1);
-  w.plate(head,.94,.355,.11,face,0,-.012,.423,.09);
-  const eyes=[w.node(head,'left-eye',-.225,0,.49),w.node(head,'right-eye',.225,0,.49)];
+  // The visor follows the ceramic crown instead of reading as a flat panel
+  // stuck to its front. Large continuous surfaces carry the material finish.
+  w.shell(head,1.045,.45,.14,p.color,0,-.018,.345,.062,.012,.02);
+  w.shell(head,.96,.37,.12,face,0,-.012,.417,.052,.014,.01);
+  const eyes=[w.node(head,'left-eye',-.225,0,.51),w.node(head,'right-eye',.225,0,.51)];
   for(const e of eyes){w.plate(e,.18,.235,.025,eye,0,0,0,.045);w.plate(e,.033,.05,.01,p.armor,-.025,.055,.018,.01);}
-  w.plate(head,.41,.027,.018,shine,0,.13,.489,.01);
+  w.plate(head,.41,.022,.018,shine,0,.139,.501,.008);
   w.plate(head,.25,.045,.035,p.metal,0,-.274,.34,.016);
   for(const side of [-1,1]){
     w.barrel(head,.19,.19,.11,p.color,side*.61,.015,0,0,Math.PI/2);
@@ -261,9 +263,9 @@ export function createClimber() {
   // A dedicated knuckle insert makes the real attack readable without a flash.
   const fistLight=w.mat(0x3abdd9,.3,.32,0x2898cb,.12);
   w.plate(arms[1].lower,.24,.075,.04,fistLight,0,-.445,.125,.018);
-  let phase=0,attackAge=1,wasAttacking=false,landingAge=1,previousState='standing';
+  let phase=0,attackAge=1,wasAttacking=false,landingAge=1,previousState='standing',reachSide=null;
   const rest=body.position.y;
-  return w.finish((state,dt,time,{reducedMotion=false})=>{
+  return w.finish((state,dt,time,{reducedMotion=false,viewAzimuth}={})=>{
     const vx=Number(state.vx??state.velocity?.x)||0,vy=Number(state.vy??state.velocity?.y)||0;
     const speed=clamp(Math.abs(vx)/4300,0,1),dead=state.state==='dead'||state.health===0;
     const airborne=state.state==='airborne',dash=state.state==='dashing',hurt=state.state==='hurt';
@@ -291,19 +293,31 @@ export function createClimber() {
     }
     if(airborne){
       const rising=vy>0;
+      const travelSide=((state.facing??Math.sign(vx))||1)>0?1:-1;
+      const hasView=Number.isFinite(viewAzimuth),rearView=hasView?clamp(-Math.cos(viewAzimuth),0,1):0;
+      if(hasView){
+        // A forward reach needs the outside arm in a front-oblique view, but
+        // the near arm when the camera looks past the pack. The dead zone
+        // keeps a small camera drift from swapping arms at exact profile.
+        const projectedSide=Math.sin(viewAzimuth)*Math.cos(viewAzimuth);
+        if(Math.abs(projectedSide)>.08)reachSide=projectedSide<0?1:-1;
+        else reachSide??=Math.sign(Math.sin(viewAzimuth))||travelSide;
+      }else reachSide=travelSide;
+      const leadSide=reachSide,leadIndex=leadSide>0?1:0;
+      const reach=arms[leadIndex],balance=arms[1-leadIndex],frontLeg=legs[1-leadIndex],backLeg=legs[leadIndex];
       body.rotation.x=rising?-.08:.12;
-      // One hand reaches while the opposite arm balances the pack. Distinct
-      // leading/trailing limbs remain legible when the hero is phone-sized.
-      arms[1].upper.rotation.set(rising?-2.3:-.95,0,rising?.18:.48);
-      arms[1].lower.rotation.x=rising?.04:-.28;
-      arms[0].upper.rotation.set(rising?.48:-.28,0,rising?-.38:-.67);
-      arms[0].lower.rotation.x=rising?-.95:-.55;
-      legs[0].upper.rotation.x=rising?-.8:-.68;
-      legs[1].upper.rotation.x=rising?.3:.2;
-      legs[0].lower.rotation.x=rising?1.3:.8;
-      legs[1].lower.rotation.x=rising?.42:.62;
-      legs[0].foot.rotation.x=rising?-.15:-.2;
-      legs[1].foot.rotation.x=rising?.05:-.12;
+      // Open the arm further in a rear view so the palm clears the helmet and
+      // pack. The actual rise still owns the pose; view only exposes its action.
+      reach.upper.rotation.set(rising?-2-.38*rearView:-.95,0,leadSide*(rising?.08+.5*rearView:.48));
+      reach.lower.rotation.x=rising?.06-.02*rearView:-.28;
+      balance.upper.rotation.set(rising?.48:-.28,0,-leadSide*(rising?.38:.67));
+      balance.lower.rotation.x=rising?-.95:-.55;
+      frontLeg.upper.rotation.x=rising?-.8:-.68;
+      backLeg.upper.rotation.x=rising?.3:.2;
+      frontLeg.lower.rotation.x=rising?1.3:.8;
+      backLeg.lower.rotation.x=rising?.42:.62;
+      frontLeg.foot.rotation.x=rising?-.15:-.2;
+      backLeg.foot.rotation.x=rising?.05:-.12;
       head.rotation.x=rising?-.29:.28;
       head.rotation.y=-((state.facing??Math.sign(vx))||1)*.22;
     }
@@ -348,9 +362,20 @@ export function createClimber() {
     fistLight.emissiveIntensity=dead?.02:.12+attackWeight*1.4;
     if(hurt){body.rotation.z=-.22;body.rotation.x=-.19;head.rotation.z=.13;for(const arm of arms){arm.upper.rotation.x=-.75;arm.lower.rotation.x=-.6;}}
     if(dead){body.rotation.z=-.85;body.position.y=.04;head.rotation.z=.25;for(let i=0;i<2;i++){arms[i].upper.rotation.z=(i?1:-1)*.48;arms[i].lower.rotation.x=-.35;legs[i].upper.rotation.x=i?.15:-.3;legs[i].lower.rotation.x=.45;}}
-    // Slow blink is cosmetic; damage is conveyed by pose, never strobing.
+    // Gaze uses the same snapshot destination as the head. It stays inside the
+    // visor and resets when no target is supplied; no invented scanning target.
+    const gazeX=!dead&&!hurt&&Number.isFinite(state.targetDx)?clamp(state.targetDx/140000,-.042,.042):0;
+    const gazeY=!dead&&!hurt&&Number.isFinite(state.targetDy)?clamp(state.targetDy/200000,-.02,.02):0;
+    // Slow blink is cosmetic. Strike focus, air alertness and damage remain
+    // readable with reduced motion, without a new flash or material batch.
     const blink=!reducedMotion&&!dead&&time%5.7>5.53;
-    for(const e of eyes){e.scale.y=dead?.22:blink?.12:hurt?.48:airborne?(vy>0?1.08:.83):1;e.rotation.z=dead?-.23:hurt?.15:airborne?(e===eyes[0]?-.06:.06):0;}
+    for(let i=0;i<eyes.length;i++){
+      const e=eyes[i],alert=airborne?(vy>0?1.08:1.2):1;
+      e.position.x=(i?1:-1)*.225+gazeX;e.position.y=gazeY;
+      e.scale.x=dead?1:hurt?1.12:dash?.94:1;
+      e.scale.y=dead?.22:hurt?.48:attackWeight>.05?mix(alert,.58,attackWeight):dash?.64:blink?.12:alert;
+      e.rotation.z=dead?-.23:hurt?.15:(i?1:-1)*(attackWeight>.05?.13*attackWeight:airborne?.055:0);
+    }
     eye.emissiveIntensity=dead?.18:hurt?.65:1.6;
   });
 }
@@ -358,18 +383,20 @@ export function createClimber() {
 export function createEnemy(kind='sentinel') {
   const guardian=kind==='guardian',shooter=kind==='shooter';
   const w=workshop(`${kind}-automaton`);
-  const p={color:w.mat(shooter?0x65506e:guardian?0x6e5743:0x52606d,.6,.4),armor:w.mat(guardian?0xb4a589:shooter?0xa4adb5:0xc7bda5,.55,.42),dark:w.mat(0x202a32,.65,.36),metal:w.mat(0x77828b,.8,.3)};
-  const trim=w.mat(0xcf7139,.65,.33),glow=w.mat(0xff953c,.1,.4,0xff5b18,.85),black=w.mat(0x101920,.4,.27);
+  // Iron, oxide paint and worn cutting edges distinguish the hostile machinery
+  // from the explorer's bright ceramic. Role readability also survives grayscale.
+  const p={color:w.mat(shooter?0x465263:guardian?0x673d32:0x813c30,.4,.43),armor:w.mat(guardian?0x756754:shooter?0x515d66:0x454c50,.68,.37),dark:w.mat(0x141c23,.3,.68),metal:w.mat(0x929c9d,.78,.28)};
+  const trim=w.mat(0xb56b3c,.62,.38),glow=w.mat(0xff682c,.12,.35,0xff3d0e,1.05),black=w.mat(0x090e13,.36,.24);
   const rig=w.node(w.group,'articulated-enemy');
   // Guardian is authored at double native height, retaining substantial limb mass.
   if(guardian)rig.scale.setScalar(2);
   w.lathe(rig,[[.31,.97],[.42,1.14],[.53,1.43],[.55,1.72],[.39,1.94]],p.dark).scale.z=.5;
-  w.contour(rig,[[-.36,-.32],[.36,-.32],[.55,.15],[.4,.38],[-.4,.38],[-.55,.15]],.64,p.armor,0,1.5,0,.045);
-  w.contour(rig,[[-.24,-.2],[.24,-.2],[.37,.19],[0,.3],[-.37,.19]],.09,p.color,0,1.49,.385,.02);
-  // Recessed furnace eye on chest has a machined rim and segmented grille.
-  w.lens(rig,.17,.09,p.dark,0,1.55,.45);w.ring(rig,.14,.025,trim,0,1.55,.505);
-  w.lens(rig,.115,.025,glow,0,1.55,.51);
-  for(let i=0;i<3;i++)w.plate(rig,.21,.022,.025,p.dark,0,1.48+i*.065,.533,.005);
+  w.contour(rig,[[-.34,-.32],[.34,-.32],[.59,.19],[.43,.4],[-.43,.4],[-.59,.19]],.64,p.armor,0,1.5,0,.045);
+  w.contour(rig,[[-.24,-.24],[.24,-.24],[.41,.2],[0,.33],[-.41,.2]],.09,p.color,0,1.49,.385,.02);
+  // A furnace grille reads as machinery, rather than a second friendly eye.
+  w.contour(rig,[[-.2,-.14],[.2,-.14],[.25,.12],[-.25,.12]],.075,black,0,1.55,.45,.016);
+  for(let i=0;i<3;i++)w.plate(rig,.055,.16,.025,glow,(i-1)*.115,1.55,.501,.009);
+  w.plate(rig,.47,.045,.045,p.metal,0,1.705,.47,.011);
   w.plate(rig,.7,.2,.49,p.color,0,1.035,0,.05);
   for(const side of [-1,1]){
     w.plate(rig,.12,.29,.12,p.metal,side*.34,1.26,.37,.025);
@@ -379,22 +406,31 @@ export function createEnemy(kind='sentinel') {
   const arms=[makeLimb(w,rig,p,-1,{heavy:true}),makeLimb(w,rig,p,1,{heavy:true})];
   for(let i=0;i<2;i++){
     const side=i?1:-1;
-    w.contour(arms[i].upper,[[-.24,-.08],[.24,-.08],[.28,.13],[.17,.27],[-.18,.27]],.5,p.color,0,.045,0,.045);
-    w.plate(arms[i].upper,.35,.1,.08,trim,0,.14,.27,.02);
+    w.contour(arms[i].upper,[[-.25,-.1],[.25,-.1],[.33,.16],[.16,.29],[-.22,.29]],.5,p.color,0,.045,0,.035);
+    w.plate(arms[i].upper,.39,.07,.08,p.metal,0,.18,.27,.017);
     w.bolt(arms[i].upper,p.metal,side*.13,.035,.28,.05);
   }
-  const head=w.node(rig,'armored-head',0,2.29,0);
+  const head=w.node(rig,'armored-head',0,2.27,.035);
+  if(guardian)head.scale.x=1.12;
   w.barrel(rig,.24,.27,.18,p.dark,0,1.97,0);
-  w.contour(head,[[-.36,-.29],[.36,-.29],[.46,-.05],[.4,.24],[.19,.36],[-.19,.36],[-.4,.24],[-.46,-.05]],.6,p.color,0,0,0,.045);
-  w.plate(head,.78,.2,.12,black,0,.02,.33,.035);
-  const eyeNodes=[w.node(head,'left-warning-eye',-.18,.02,.405),w.node(head,'right-warning-eye',.18,.02,.405)];
-  for(const eye of eyeNodes)w.plate(eye,.18,.08,.035,glow,0,0,0,.02);
-  w.contour(head,[[-.34,.12],[0,.04],[.34,.12],[.31,.2],[0,.14],[-.31,.2]],.12,p.armor,0,.01,.38,.015);
-  w.contour(head,[[-.28,-.24],[.28,-.24],[.35,-.08],[-.35,-.08]],.12,p.armor,0,0,.35,.025);
-  for(let i=0;i<4;i++)w.plate(head,.035,.105,.025,black,(i-1.5)*.1,-.17,.425,.008);
-  // Crown fins and external machinery make a readable non-spherical silhouette.
+  w.contour(head,[[-.31,-.31],[.31,-.31],[.45,-.13],[.44,.18],[.27,.35],[-.27,.35],[-.44,.18],[-.45,-.13]],.61,p.armor,0,0,0,.035);
+  w.plate(head,.79,.245,.12,black,0,.01,.33,.03);
+  const eyeNodes=[w.node(head,'left-warning-eye',-.2,.015,.415),w.node(head,'right-warning-eye',.2,.015,.415)];
+  for(let i=0;i<eyeNodes.length;i++){
+    const eye=eyeNodes[i];eye.rotation.z=(i?1:-1)*.22;
+    w.contour(eye,[[-.12,.04],[.12,.025],[.095,-.035],[-.1,-.04]],.028,glow,0,0,0,.009);
+  }
+  w.contour(head,[[-.45,.17],[-.11,.065],[0,.09],[.11,.065],[.45,.17],[.4,.29],[0,.18],[-.4,.29]],.12,p.color,0,0,.385,.015);
+  w.contour(head,[[-.29,-.2],[0,-.34],[.29,-.2],[.34,-.1],[-.34,-.1]],.12,p.color,0,0,.355,.02);
+  w.plate(head,.065,.24,.05,p.metal,0,-.045,.43,.012);
+  for(let i=0;i<3;i++)w.plate(head,.035,.085,.025,black,(i-1)*.11,-.19,.433,.007);
+  // One low armored ridge avoids the old paired ear-like fins. The guarded
+  // head, broad shoulders and asymmetric equipment carry the hostile silhouette.
+  if(!guardian&&!shooter){
+    const ridge=w.contour(head,[[-.2,-.08],[.23,-.08],[.17,.22],[-.08,.34],[-.23,.18]],.12,p.color,0,.15,-.1,.015);
+    ridge.rotation.y=Math.PI/2;
+  }
   for(const side of [-1,1]){
-    const fin=w.contour(head,[[-.08,-.1],[.08,-.1],[.11,.25],[-.03,.19]],.14,trim,side*.31,.19,-.03,.015);fin.rotation.z=side*-.24;
     w.barrel(rig,.105,.105,.53,p.dark,side*.39,1.6,-.4);
     w.barrel(rig,.13,.13,.09,p.metal,side*.39,1.89,-.4);
     w.ring(rig,.105,.025,trim,side*.39,1.84,-.4,Math.PI/2);
@@ -402,47 +438,65 @@ export function createEnemy(kind='sentinel') {
   let weapon,shield;
   if(shooter){
     // Shoulder range finder and a separate receiver/barrel assembly.
-    w.plate(head,.25,.29,.28,p.metal,.43,.03,.04,.04);
-    w.lens(head,.09,.12,black,.43,.04,.22);w.lens(head,.055,.025,glow,.43,.04,.29);
+    w.contour(head,[[-.13,-.16],[.13,-.16],[.18,.22],[-.05,.32],[-.17,.18]],.31,p.color,.4,.18,-.015,.025);
+    w.lens(head,.095,.12,black,.43,.29,.22);w.lens(head,.06,.025,glow,.43,.29,.29);
     weapon=w.node(arms[1].lower,'pulse-cannon',0,-.15,.2);weapon.rotation.x=Math.PI/2;weapon.userData.staticAssembly=true;
-    w.plate(weapon,.4,.32,.63,p.color,0,0,.12,.055);
-    w.barrel(weapon,.16,.19,.52,p.metal,0,0,.48,Math.PI/2);
-    w.barrel(weapon,.2,.2,.12,p.dark,0,0,.76,Math.PI/2);
-    w.lens(weapon,.13,.025,black,0,0,.83);w.lens(weapon,.075,.03,glow,0,0,.847);
+    w.plate(weapon,.4,.32,.67,p.color,0,0,.12,.045);
+    w.barrel(weapon,.145,.185,.62,p.metal,0,0,.52,Math.PI/2);
+    w.barrel(weapon,.205,.205,.16,p.dark,0,0,.86,Math.PI/2);
+    w.lens(weapon,.135,.025,black,0,0,.955);w.lens(weapon,.075,.03,glow,0,0,.972);
     for(const side of [-1,1])for(let i=0;i<3;i++)w.plate(weapon,.04,.13,.07,trim,side*.21,0,i*.13,.01);
     w.plate(rig,.42,.53,.31,p.color,0,1.51,-.47,.055);
     for(let i=0;i<3;i++)w.plate(rig,.26,.045,.05,trim,0,1.36+i*.13,-.64,.012);
   }else{
-    // Shield is a layered architectural object, hammer head a flanged casting.
+    // A broad dark shield with a cutting rim, and a heavy flanged maul. The
+    // oxide chevron replaces a pale cross so the guard cannot read as a medic.
     shield=w.node(arms[0].lower,'rampart-shield',-.13,-.12,.2);shield.userData.staticAssembly=true;
     w.contour(shield,[[-.32,-.52],[0,-.67],[.32,-.52],[.39,.43],[.22,.57],[-.22,.57],[-.39,.43]],.18,p.metal,0,0,0,.03);
     w.contour(shield,[[-.25,-.46],[0,-.56],[.25,-.46],[.31,.35],[.17,.46],[-.17,.46],[-.31,.35]],.09,p.color,0,0,.13,.025);
-    w.plate(shield,.08,.76,.06,trim,0,.02,.21,.018);
-    w.plate(shield,.46,.08,.06,p.armor,0,.12,.205,.018);
+    w.contour(shield,[[-.25,.27],[0,.11],[.25,.27],[.25,.13],[0,-.055],[-.25,.13]],.055,trim,0,0,.21,.01);
+    w.contour(shield,[[-.11,.02],[0,-.39],[.11,.02],[0,-.055]],.055,black,0,0,.21,.01);
     for(const side of [-1,1])for(const yy of [-.32,.34])w.bolt(shield,p.armor,side*.22,yy,.21,.035);
-    weapon=w.node(arms[1].lower,'impact-hammer',0,-.36,.09);weapon.userData.staticAssembly=true;
-    w.barrel(weapon,.055,.055,.67,p.metal,0,0,.12);
-    w.barrel(weapon,.09,.09,.18,p.dark,0,.05,.12);
-    w.contour(weapon,[[-.37,-.19],[.37,-.19],[.44,-.08],[.44,.1],[.32,.21],[-.32,.21],[-.44,.1],[-.44,-.08]],.4,p.color,0,-.37,.12,.035);
-    for(const side of [-1,1])w.plate(weapon,.12,.4,.46,p.metal,side*.35,-.37,.12,.03);
-    w.plate(weapon,.23,.2,.045,glow,0,-.37,.35,.025);
+    // The guards hold the shaft across the palm, with the striking head
+    // clearly above the gripping hand. The old head sat inside the knuckles
+    // and read as a box fist. Reuse the same rigid pieces and material batches.
+    weapon=w.node(arms[1].lower,'impact-hammer',0,-.56,.045);weapon.userData.staticAssembly=true;
+    weapon.rotation.x=Math.PI/2;
+    if(guardian)weapon.rotation.z=-.18;
+    const hammerHeadY=.76,hammerAxisZ=0;
+    w.barrel(weapon,.055,.055,1.08,p.metal,0,.24,hammerAxisZ);
+    w.barrel(weapon,.09,.09,.22,p.dark,0,-.015,hammerAxisZ);
+    w.contour(weapon,[[-.37,-.19],[.37,-.19],[.44,-.08],[.44,.1],[.32,.21],[-.32,.21],[-.44,.1],[-.44,-.08]],.4,p.color,0,hammerHeadY,hammerAxisZ,.035);
+    for(const side of [-1,1])w.plate(weapon,.12,.43,.46,p.metal,side*.35,hammerHeadY,hammerAxisZ,.025);
+    w.plate(weapon,.26,.09,.045,glow,0,hammerHeadY,hammerAxisZ+.23,.018);
   }
   if(guardian){
     for(const side of [-1,1]){
-      const pauldron=w.contour(arms[side<0?0:1].upper,[[-.28,-.13],[.28,-.13],[.36,.2],[.15,.4],[-.25,.3]],.64,p.armor,side*.06,.11,-.02,.045);
+      // Broad, low armor establishes the heavy role beneath an overhead deck;
+      // extra crown height would only disappear into the real cap platform.
+      const pauldron=w.contour(arms[side<0?0:1].upper,[[-.44,-.14],[.44,-.14],[.56,.2],[.18,.34],[-.48,.26]],.7,p.armor,side*.07,.11,-.02,.04);
       pauldron.rotation.z=side*-.1;
       for(let i=0;i<3;i++)w.plate(rig,.19,.37,.1,p.color,side*(.17+i*.18),1.05-i*.015,.32,.025).rotation.z=side*-.17;
     }
-    w.contour(head,[[-.13,-.02],[.13,-.02],[.09,.35],[0,.45],[-.09,.35]],.19,p.armor,0,.02,-.1,.02);
+    w.contour(head,[[-.3,-.04],[.3,-.04],[.26,.32],[0,.48],[-.26,.32]],.21,p.color,0,.02,-.1,.02);
     weapon.scale.set(1.25,1.12,1.15);shield.scale.set(1.2,1.15,1.1);
   }
   const materialRest=[p.color,p.armor,p.dark,p.metal,trim,glow,black].map(material=>({material,color:material.color.clone()}));
   let phase=0,telegraphBlend=0,shotAge=1,wasFiring=false,deathAge=0,wasDead=false;
+  let previousHealth=null,hurtAge=1,wasHurt=false;
   return w.finish((state,dt,time,{reducedMotion=false})=>{
     const vx=Number(state.vx??state.velocity?.x)||0,speed=clamp(Math.abs(vx)/3000,0,1);
     const dead=state.health===0||state.state==='dead'||state.active===false;
     const telegraph=Boolean(state.telegraph)&&!dead;
     const firing=Boolean(state.firing)&&!dead;
+    const health=Number(state.health),hurt=state.state==='hurt'&&!dead;
+    const tookDamage=!dead&&Number.isFinite(health)&&previousHealth!==null&&health<previousHealth;
+    if(tookDamage||(hurt&&!wasHurt))hurtAge=0;
+    else hurtAge=Math.min(1,hurtAge+dt);
+    if(dead)hurtAge=1;
+    if(Number.isFinite(health))previousHealth=health;
+    wasHurt=hurt;
+    const hurtWeight=hurt?1:1-THREE.MathUtils.smoothstep(hurtAge,.025,.24);
     if(firing&&!wasFiring)shotAge=0;
     wasFiring=firing;
     shotAge=dead?1:Math.min(1,shotAge+dt);
@@ -452,24 +506,30 @@ export function createEnemy(kind='sentinel') {
     for(const {material,color} of materialRest)material.color.copy(color).multiplyScalar(1-collapse*.45);
     telegraphBlend=mix(telegraphBlend,telegraph?1:0,Math.min(1,dt*12));
     phase+=dt*7*speed;
-    rig.position.y=0;rig.rotation.set(0,0,0);head.rotation.set(0,0,0);
+    rig.position.y=0;rig.rotation.set(0,0,0);head.rotation.set(shooter?.065:guardian?.14:.11,0,0);
     for(let i=0;i<2;i++){
       const leg=legs[i],arm=arms[i],step=Math.sin(phase+i*Math.PI);
-      leg.upper.rotation.set(step*.4*speed,0,0);leg.lower.rotation.x=Math.max(0,-step)*.55*speed;leg.foot.rotation.x=0;
+      const brace=(i?1:-1)*.045;
+      leg.upper.rotation.set(step*.4*speed,0,brace);leg.lower.rotation.x=Math.max(0,-step)*.55*speed;leg.foot.rotation.set(0,0,-brace);
       arm.upper.rotation.set(-step*.27*speed,0,(i?1:-1)*.14);arm.lower.rotation.x=-.22;
     }
     if(!reducedMotion&&!dead)rig.position.y=Math.abs(Math.sin(phase))*.025*speed;
     if(shooter){
-      arms[1].upper.rotation.x=-.55-telegraphBlend*.24;
-      arms[1].lower.rotation.x=-.95-telegraphBlend*.16;
-      arms[0].upper.rotation.x=-telegraphBlend*.4;head.rotation.x=-telegraphBlend*.08;
+      // The barrel has a purposeful +Z aim in the resting guard. Its receiver
+      // stays on the articulated forearm; no detached cosmetic gun animation.
+      arms[1].upper.rotation.x=-.72-telegraphBlend*.24;
+      arms[1].lower.rotation.x=-.85+telegraphBlend*.12;
+      arms[0].upper.rotation.x=-.32-telegraphBlend*.22;
+      arms[0].lower.rotation.x=-1.0;head.rotation.x-=telegraphBlend*.08;
       rig.rotation.x=-telegraphBlend*.07;
     }else{
-      arms[0].upper.rotation.x=-.28-telegraphBlend*.4;
-      arms[0].lower.rotation.x=-.38;
-      arms[1].upper.rotation.x=-telegraphBlend*2.25;
-      arms[1].lower.rotation.x=-.3-telegraphBlend*.35;
-      rig.rotation.x=-telegraphBlend*.13;head.rotation.x=telegraphBlend*.08;
+      // Guarding is a steady stance, never a free-running attack. Shield and
+      // maul project forward even at rest; only true telegraph lifts the weapon.
+      arms[0].upper.rotation.x=-.62-telegraphBlend*.26;
+      arms[0].lower.rotation.x=.3-telegraphBlend*.1;
+      arms[1].upper.rotation.x=-.44-telegraphBlend*1.81;
+      arms[1].lower.rotation.x=-.8+telegraphBlend*.45;
+      rig.rotation.x=-telegraphBlend*.13;head.rotation.x+=telegraphBlend*.08;
     }
     // This impulse follows a real shot/attack edge, rather than free-running
     // combat choreography. The sustained telegraph remains a separate channel.
@@ -486,8 +546,19 @@ export function createEnemy(kind='sentinel') {
         rig.rotation.x+=strike*.28;head.rotation.x-=strike*.12;
       }
     }
-    glow.emissiveIntensity=dead?mix(.85,.035,collapse):Math.max(telegraph?2.2:.85,.85+recoil*.65);
-    for(const e of eyeNodes)e.scale.y=dead?mix(1,.15,collapse):telegraph?1.5:1;
+    // A health decrease is an authoritative event even though enemy snapshots
+    // omit a hurt state. One bounded recoil recovers without replaying on every
+    // poll of the same low health; a restore/revival starts from the new health.
+    if(hurtWeight>0){
+      rig.rotation.x=mix(rig.rotation.x,-.12,hurtWeight);rig.rotation.z=-.16*hurtWeight;
+      head.rotation.x=mix(head.rotation.x,-.16,hurtWeight);head.rotation.z=.21*hurtWeight;
+      for(const arm of arms){
+        arm.upper.rotation.x=mix(arm.upper.rotation.x,-.55,hurtWeight);
+        arm.lower.rotation.x=mix(arm.lower.rotation.x,-.45,hurtWeight);
+      }
+    }
+    glow.emissiveIntensity=dead?mix(1.05,.035,collapse):Math.max(telegraph?2.2:1.05,1.05+recoil*.65);
+    for(const e of eyeNodes)e.scale.y=dead?mix(1,.15,collapse):hurtWeight>0?mix(1,.38,hurtWeight):telegraph?1.3:1;
     if(dead){
       // Fold and tip into a visibly inert silhouette before the host retires it.
       // Height compensation is internal to the rig and keeps the host immutable.

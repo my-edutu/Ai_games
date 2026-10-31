@@ -27,19 +27,40 @@ test('camera and quality buttons affect the real renderer and keyboard focus is 
   await ready(page);
   await page.getByRole('button', { name: 'Overview camera' }).click();
   await expect.poll(() => page.evaluate(() => window.__TOWER_RENDER_DIAGNOSTICS__().camera)).toBe('overview');
-  await page.getByRole('button', { name: /quality/i }).click();
+  await page.locator('#quality-toggle').click();
   await expect.poll(() => page.evaluate(() => window.__TOWER_RENDER_DIAGNOSTICS__().quality)).toBe('low');
   await page.keyboard.press('Tab');
   const focus = await page.evaluate(() => getComputedStyle(document.activeElement).outlineStyle);
   expect(focus).not.toBe('none');
 });
 
-test('portrait keeps floor, intent and sound controls reachable without horizontal overflow', async ({ page }) => {
+test('portrait keeps essentials clear and reveals intent through an accessible details control', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await ready(page);
   await expect(page.locator('[data-testid="floor"]')).toBeVisible();
-  await expect(page.locator('[data-testid="ai-intent"]')).toBeVisible();
+  await expect(page.locator('[data-testid="health"]')).toBeVisible();
+  await expect(page.locator('[data-testid="stamina"]')).toBeVisible();
+  await expect(page.locator('[data-testid="ai-intent"]')).toBeHidden();
   await expect(page.getByRole('button', { name: /sound/i })).toBeVisible();
+  const targets = await page.locator('.spectator-controls button, .spectator-controls summary').evaluateAll(elements => elements.map(element => {
+    const rect = element.getBoundingClientRect();
+    return { width: rect.width, height: rect.height, label: element.getAttribute('aria-label') };
+  }));
+  expect(targets).toHaveLength(7);
+  for (const target of targets) {
+    expect(target.width).toBeGreaterThanOrEqual(44);
+    expect(target.height).toBeGreaterThanOrEqual(44);
+    expect(target.label).toBeTruthy();
+  }
+  await page.locator('#details-toggle').click();
+  await expect(page.locator('[data-testid="ai-intent"]')).toBeVisible();
+  await expect(page.locator('[data-testid="ai-intent"]')).not.toBeEmpty();
+  const panel = await page.locator('.detail-content').boundingBox();
+  expect(panel.x).toBeGreaterThanOrEqual(0);
+  expect(panel.x + panel.width).toBeLessThanOrEqual(390);
+  await page.keyboard.press('Escape');
+  await expect(page.locator('[data-testid="ai-intent"]')).toBeHidden();
+  await expect(page.locator('#details-toggle')).toBeFocused();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });
 
@@ -75,6 +96,15 @@ test('a lost state connection visibly recovers while the authoritative run conti
   const before = await page.evaluate(() => window.__TOWER_PUBLIC_STATE__.tick);
   await page.route('**/tower/state**', route => route.abort());
   await expect(page.locator('#recovery-card')).toBeVisible();
+  await expect(page.locator('#recovery-card')).toHaveAttribute('data-presentation', 'retained');
+  await expect(page.locator('#recovery-message')).toHaveText('Reconnecting');
+  await expect(page.locator('#recovery-hint')).toHaveText('Retrying automatically');
+  const notice = await page.locator('#recovery-card').boundingBox();
+  const viewport = page.viewportSize();
+  expect(notice.y + notice.height).toBeLessThan(viewport.height * .25);
+  await page.locator('#details-toggle').click();
+  await expect(page.locator('#recovery-detail')).toContainText('Reconnecting automatically');
+  await page.keyboard.press('Escape');
   await expect.poll(() => page.evaluate(() => window.__TOWER_RENDER_DIAGNOSTICS__().stale)).toBe(true);
   await expect.poll(async () => (await (await request.get('/tower/state')).json()).snapshot.tick).not.toBe(before);
   await page.unroute('**/tower/state**');
@@ -82,8 +112,8 @@ test('a lost state connection visibly recovers while the authoritative run conti
   await expect.poll(() => page.evaluate(() => window.__TOWER_RENDER_DIAGNOSTICS__().stale)).toBe(false);
 });
 
-test('high-density phones keep the WebGL drawing buffer at one pixel per CSS pixel', async ({ browser }) => {
-  const context = await browser.newContext({ baseURL: 'http://127.0.0.1:4176', viewport: { width: 390, height: 844 }, deviceScaleFactor: 3 });
+test('high-density phones keep the WebGL drawing buffer at one pixel per CSS pixel', async ({ browser, baseURL }) => {
+  const context = await browser.newContext({ baseURL, viewport: { width: 390, height: 844 }, deviceScaleFactor: 3 });
   try {
     const page = await context.newPage();
     await ready(page, '?quality=high');

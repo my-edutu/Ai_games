@@ -1,9 +1,9 @@
 {
-  "updated": "2026-10-30T22:08:07.856083+00:00",
-  "verdict": "3D implementation · reference still preferred",
-  "nextGap": "Final desktop materials and repeated WebGL recovery now have real image evidence. The fresh critic still prefers ASTRO BOT: the climber and next action need more emphasis, the sentinel needs a clearer hostile role, and the final high-quality portrait capture shows a delayed-view recovery card. Complete moving gameplay remains unverified.",
-  "capture": "/tower/gauntlet/evidence/11-foundry-final.webp",
-  "captureLabel": "FINAL SOURCE · ACTUAL FOUNDRY OUTPUT · AUTHORITATIVE TICK 118 HELD FOR APPEARANCE",
+  "updated": "2026-10-31T04:11:58.939148+00:00",
+  "verdict": "Blind comparisons prefer the revision · commercial reference still ahead",
+  "nextGap": "Give the actual landing priority over competing decks and expose more of the guardian crown. Current stills show clearer reaching hands and a separated hammer; full motion and hardware performance remain unverified.",
+  "capture": "/tower/gauntlet/evidence/14-foundry-follow.webp",
+  "captureLabel": "Actual tick 118 · compact HUD and clearer hostile equipment",
   "iterations": [
     {
       "number": "00",
@@ -94,6 +94,67 @@
       "finding": "Both strong WebGL recovery tests pass, with ready stone and reflection resources after two lost-context floor changes and no final GL error. Final Foundry and restored Storm output were captured. A fresh critic still prefers the reference; the portrait image visibly reports a graphics delay and covers the play area.",
       "checks": "103 logical tests, build and host self-test pass. Final desktop/portrait captures report no browser errors. The portrait used explicit high quality at DPR 1. Stills and recovery checks do not prove continuous motion, successful phone play or a commercial-benchmark win.",
       "capture": "/tower/gauntlet/evidence/11-phone-final.webp"
+    },
+    {
+      "number": "12",
+      "date": "2026-10-31",
+      "title": "Clear the gameplay view and stage the next encounter",
+      "finding": "All three independent critics prefer the new image in the randomized blind before/after comparison. The HUD now uses compact vitals and icon controls; intent and telemetry are optional. Hostile armor and close encounter framing make character roles clearer. ASTRO BOT still wins the source-known commercial comparison.",
+      "checks": "Thirteen real browser captures saved with zero page/GL errors. The eight additional captures used stable source hashes; these exposed a portrait camera gap and real caption/card overlap. A paused-callback fault confirms compact retained-delay treatment. One stepped real attack edge is pose evidence, not live motion.",
+      "capture": "/tower/gauntlet/evidence/12-foundry-follow.webp"
+    },
+    {
+      "number": "13",
+      "date": "2026-10-31",
+      "title": "Return real image failures to the builders",
+      "finding": "Actual captures confirm separate upgrade/caption space, retained danger/recovery notices, readable health fill and a visible nearby guardian face. Sentinel grip/head separation improves. A fresh blind phone comparison exposed that the actual leftward landing remains hard to identify; the target cue blends with permanent moving-platform trim.",
+      "checks": "7/7 new browser layout/accessibility checks pass. Second-pass logical checks: cast 10/10, composition/world/resources 21/21, HUD/client/presentation 32/32. Ten of 11 requested images saved with stable hashes and zero page/GL errors; the high-quality desktop Ruins screenshot timed out. No full motion or commercial-bar win.",
+      "capture": "/tower/gauntlet/evidence/13-guardian-visible.webp"
+    },
+    {
+      "number": "14",
+      "date": "2026-10-31",
+      "title": "Clarify the landing and the reaching pose",
+      "finding": "Fresh blind review prefers the new phone frame and correctly reads upward-left movement. The raised hand now separates from the hero at both jump directions; a correctly timed 100 ms strike reads as a forward jab. The guardian hammer has a distinct grip, shaft and head. Exact landing certainty and crown clearance remain open.",
+      "checks": "All 129 Tower logical tests and 19 browser cases pass, including repeated real graphics recovery across floor changes. Build and host self-test pass. Six final images have matching source hashes and zero page/GL errors. No full motion or commercial-bar win.",
+      "capture": "/tower/gauntlet/evidence/14-leftward-jump-phone.webp"
+    }
+  ],
+  "captures": [
+    {
+      "src": "/tower/gauntlet/evidence/14-foundry-follow.webp",
+      "label": "Encounter",
+      "description": "Actual tick 118 · compact HUD and clearer hostile equipment"
+    },
+    {
+      "src": "/tower/gauntlet/evidence/14-leftward-jump-phone.webp",
+      "label": "Left jump",
+      "description": "Actual tick 379 · distinct landing corners and separated reaching hand"
+    },
+    {
+      "src": "/tower/gauntlet/evidence/14-rightward-jump-phone.webp",
+      "label": "Right jump",
+      "description": "Actual tick 234 · the opposite direction remains readable"
+    },
+    {
+      "src": "/tower/gauntlet/evidence/14-guardian-phone.webp",
+      "label": "Guardian",
+      "description": "Real nearby guardian · separated hammer, crown still partly obscured"
+    },
+    {
+      "src": "/tower/gauntlet/evidence/14-strike-100ms.webp",
+      "label": "Strike",
+      "description": "Real tick 118→119 edge · one 100 ms model step, held pose"
+    },
+    {
+      "src": "/tower/gauntlet/evidence/13-caption-clear.webp",
+      "label": "Upgrade",
+      "description": "Actual upgrade and caption · separate readable space"
+    },
+    {
+      "src": "/tower/gauntlet/evidence/14-ruins-desktop-low.webp",
+      "label": "Ruins",
+      "description": "Actual tick 379 · desktop at explicit low quality"
     }
   ]
 }

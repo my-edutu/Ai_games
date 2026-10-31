@@ -18,13 +18,13 @@ const hud = createHUD({
   onSound: async value => {
     const operation = ++soundRequest;
     const active = await audio.setEnabled(value);
-    if (!closed && operation === soundRequest && value && !active) hud.status('Sound could not start in this browser', 'degraded');
+    if (!closed && operation === soundRequest && value && !active) hud.feedback('Sound unavailable', 'Sound could not start in this browser');
   },
   onMotion: value => view?.setMotion(value),
   onQuality: value => view?.setQuality(value),
   onFullscreen: async () => {
     try { if (document.fullscreenElement) await document.exitFullscreen(); else await document.documentElement.requestFullscreen(); }
-    catch { hud.status('Fullscreen is unavailable in this view', 'degraded'); }
+    catch { hud.feedback('Fullscreen unavailable', 'Fullscreen is unavailable in this view'); }
   },
 });
 try {
@@ -62,13 +62,18 @@ async function poll() {
     const graphicsPending = ['waiting', 'starting', 'stalled'].includes(renderState);
     const terminal = ['result', 'intermission'].includes(data.scene);
     const recovery = !view || diagnostics.contextLost || data.scene === 'recovery' || (graphicsPending && !terminal);
+    const recoveryKind = !view ? 'unavailable'
+      : diagnostics.contextLost ? 'context'
+      : data.scene === 'recovery' ? 'authority'
+      : renderState === 'stalled' ? 'stalled'
+      : graphicsPending ? 'starting' : undefined;
     const recoveryMessage = !view ? 'Your browser could not start 3D graphics. Enable WebGL and reload this page.'
       : diagnostics.contextLost ? 'Graphics are reconnecting. The expedition continues.'
       : data.scene === 'recovery' ? 'The expedition is restoring verified game state.'
       : renderState === 'stalled' ? 'The 3D view is delayed. The expedition continues; try Low graphics quality.'
       : graphicsPending ? 'Preparing the 3D view. The expedition continues.'
       : 'The expedition is restoring verified game state.';
-    hud.update(recovery ? { ...data, scene: 'recovery' } : data, { ...diagnostics, recoveryMessage });
+    hud.update(recovery ? { ...data, scene: 'recovery' } : data, { ...diagnostics, recoveryMessage, recoveryKind, sourceScene: data.scene });
     if (recovery || graphicsPending) hud.status(renderState === 'stalled' ? '3D view delayed · expedition continues' : 'Restoring the expedition', 'degraded');
     else hud.status('LIVE EXPEDITION', 'online');
   } catch (error) {
@@ -76,7 +81,12 @@ async function poll() {
     failures++;
     view?.setStale(true);
     hud.status('Reconnecting to the expedition', 'degraded');
-    hud.update({ ...(current || {}), scene: 'recovery' }, { recoveryMessage: 'The connection was interrupted. Reconnecting automatically.', ...audio.diagnostics() });
+    hud.update({ ...(current || {}), scene: 'recovery' }, {
+      ...window.__TOWER_RENDER_DIAGNOSTICS__(),
+      recoveryMessage: 'The connection was interrupted. Reconnecting automatically.',
+      recoveryKind: 'connection',
+      sourceScene: current?.scene,
+    });
   } finally {
     clearTimeout(pending.timeout);
     if (request === pending) {
