@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-10-31T06:24:43.717Z",
+  "updatedAt": "2026-10-31T07:34:19.878Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Sixteenth pass (2026-10-31 genuine desktop/portrait screenshots): a real publicly known sealed gate and Pip are framed together, with a restrained camera side angle improving hero visibility. Exact-source CI ff31870 passed 524/524 Node and 25/25 browser tests; actual seed maze-visual-reference-13 tick21 desktop and portrait SHA-256 captures were checked. The surrounding water and staged objective remain weaker than the two SHA-pinned official Captain Toad references. No fresh-context independent critic, blind fixed-bar win, Ultracode or representative hardware FPS."
+    "summary": "Seventeenth pass (2026-10-31): source-disclosed sealed gate and Pip are larger in actual production-seed tick21 desktop and portrait WebGL captures after camera-only changes; exactly tested source a4d1651 passed 524/524 Node tests and 25/25 browser checks. Image SHA-256 manifests in CI artifact 13034534406 and docs/reviews/maze-3d/gate-scale-pass-17-review.md. Excess unoccupied water and weak physical next-action storytelling remain. Official SHA-pinned Captain Toad images still win; independent fresh-context critique, blind benchmark win, Ultracode and representative hardware GPU measurements remain unavailable."
   },
   "captures": [
     {
@@ -108,10 +108,11 @@
     "Twelfth pass: the follow camera now keeps some nearby disclosed stage context while still pointing toward an already observed reachable landmark, with a single 2.5-world-unit cap when the goal is close. Original 3D geometry, public-only route semantics, character expressions and deterministic rules remain unchanged; browser evidence is pending.",
     "Thirteenth pass: disclosed closed doors gain original coral crossed physical barriers and larger lock plates while opened/undisclosed doors render no warning obstruction. Public-knowledge tests and real key/sealed-gate camera evidence were added; four genuine same-seed screenshots have dated verified SHA-256 manifests in GitHub CI artifact 13030701894. This is not benchmark parity.",
     "Fourteenth pass: the original disclosed closed gate's coral crossed brace and gold lock now sit on the camera-facing side of its physical bars, for both door orientations; open or undisclosed barriers remain absent. Exact-source CI passed 523 Node and 25 browser checks. Real same-seed/tick21 1280×900 screenshot at 2026-10-31T05:04:37.546Z (SHA256 3ef0814c04f38a2465687b7feded50c6d8b7dc24c3da6ed2278de74f356ef668) shows the X clearly but gate is small at the far left and Pip partly obscured. Nintendo remains stronger; no independent critic or GPU performance claim.",
-    "Fifteenth/sixteenth passes: near disclosed closed gates receive a bounded public-only follow-camera composition and a restrained side angle so Pip is less obscured by the gate lintel; open or undisclosed doors cannot cause this framing. Native 1280×900 and 390×844 browser evidence includes actual seeded closed-gate and key states with SHA-256. Final source ff31870 passed 524 Node and 25 browser tests. Review: docs/reviews/maze-3d/gate-framing-pass-15-16-review.md; genuine artifact: https://github.com/my-edutu/Ai_games/actions/runs/41175973975/artifacts/13033176303. Nintendo benchmark not passed."
+    "Fifteenth/sixteenth passes: near disclosed closed gates receive a bounded public-only follow-camera composition and a restrained side angle so Pip is less obscured by the gate lintel; open or undisclosed doors cannot cause this framing. Native 1280×900 and 390×844 browser evidence includes actual seeded closed-gate and key states with SHA-256. Final source ff31870 passed 524 Node and 25 browser tests. Review: docs/reviews/maze-3d/gate-framing-pass-15-16-review.md; genuine artifact: https://github.com/my-edutu/Ai_games/actions/runs/41175973975/artifacts/13033176303. Nintendo benchmark not passed.",
+    "Seventeenth pass: a genuine publicly disclosed sealed-gate camera shot now uses a closer bounded view (desktop half-height 5.65, portrait 5.8 rather than 6.55/6.2), with real gate and Pip retained on screen. Browser-source regression tests and same-seed/tick 1280×900 and 390×844 dated, hash-matched images verify the candidate. Successful source CI 41180638308: 524 Node and 25 browser checks; review docs/reviews/maze-3d/gate-scale-pass-17-review.md. The Nintendo benchmark remains unpassed."
   ],
   "nextGaps": [
-    "Actual pass-sixteen 1280×900/390×844 gate captures show a clearer Pip alongside the sealed coral X, but large unoccupied turquoise-water areas and comparatively small gate/actor silhouettes remain. Build one unmistakable physical objective/obstacle scene without inventing safe or traversable corridors; inspect real native-size output.",
+    "Real pass-17 source-bound sealed-gate images now enlarge Pip and the crossed physical gate, but the large unused left-side water field and ambiguous immediate physical action still lag the official Captain Toad bar. Recompose only disclosed stage geometry while preserving Pip and the actual sealed obstacle; capture same-seed/tick desktop and portrait before judging.",
     "Establish stronger gameplay-scale Pip/Thornback expression, gate/key/exit differentiation, environmental material variety and a camera view which preserves both the obstacle and the next *disclosed* action.",
     "Run separate fresh-context visual critics and blind A/B against both unchanged SHA-pinned official Nintendo Captain Toad frames; last independent verdict still favors the reference. Do not claim benchmark parity from CI or lead-only visual judgment.",
     "Review actual animated stair/gait/guardian motion, original game audio, accessibility and true GPU performance on less CPU-throttled hardware; SwiftShader frame times do not establish hardware FPS.",
@@ -220,6 +221,13 @@
       "verdict": "Local Pip/gate separation improved; fixed Captain Toad bar NOT PASSED",
       "date": "2026-10-31T06:24:43.717Z",
       "summary": "Exact source ff31870 / CI 41175973975 passed 524/524 Node and 25/25 browser tests. Real same-seed tick21 desktop gate PNG SHA256 e7620535601d1405d738b0521a2e5783cafbb70be23d208672a60955e75c0ed9; portrait gate 075450e0201219402109b94fde9f155abc64de1fa1cdc1fa4be79c7be2c3e16e. Pip and the blocked gate share the frame more legibly after restrained side camera rotation, but world-space intent and stage composition remain weak. No independent blind Nintendo comparison or representative hardware FPS; workspace tunnel unavailable."
+    },
+    {
+      "title": "Seventeenth pass · real sealed-gate camera-scale review",
+      "reviewer": "Lead inspection of authentic browser images; fresh-context independent critics unavailable",
+      "verdict": "Real enlarged two-subject shot; fixed Nintendo reference still wins",
+      "date": "2026-10-31T07:34:19.878Z",
+      "summary": "Source-tested CI 41180638308 passed 524 Node and 25 browser checks. Real source-bound seed maze-visual-reference-13, tick21 gate: desktop 2026-10-31T07:34:16.528Z SHA256 6572c9ac86e9b3348999a6dc47c4e1e5a0bdffe4613cefb77e32f45f4cf610e3; portrait 2026-10-31T07:34:19.878Z SHA256 9cd7c40bd8c6aca309aa7ad7544e66fef2707aa7dc6eae97a9362107a37d8157. Images from GitHub artifact 13034534406; no invented props. Both actors and obstruction better scaled, but water remains extensive and next action is unclear; no independent blind A/B. CPU-throttled software graphics is not hardware FPS evidence."
     }
   ],
   "verification": [
