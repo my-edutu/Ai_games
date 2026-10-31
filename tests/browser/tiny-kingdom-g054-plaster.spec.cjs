@@ -18,12 +18,14 @@ test('G054c Tudor rendered plaster and gables are not mislabeled as coursed ston
                     'sidePlasterOak','sidePlasterAsh','sidePlasterLime','sidePlasterSand']){
   const row=result.materials[name];
   expect(row).toBeTruthy();
-  expect(row.general).toBeGreaterThan(0);
+  expect(row.plaster).toBeGreaterThan(0);
+  expect(row.general).toBe(0);
   expect(row.stone).toBe(0);
   expect(row.roof).toBe(0);
  }
  expect(result.materials.houseFoundation.stone).toBeGreaterThan(0);
  expect(result.materials.houseFoundation.general).toBe(0);
+ expect(result.materials.houseFoundation.plaster).toBe(0);
  expect(result.geometry.totalTriangles).toBeLessThan(160000);
  expect(result.sameSave).toBe(true);
  expect(errors).toEqual([]);
