@@ -171,6 +171,30 @@
       },
       "nextLargestGap": "Original higher-detail hero/enemy models and authored material/animation quality; actual matched WebGL scene critique required.",
       "artifactUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41175209789/artifacts/13032609012"
+    },
+    {
+      "round": 20,
+      "at": "2026-10-31",
+      "commit": null,
+      "status": "CANDIDATE: ROUND 20 BROWSER / CI ACCEPTANCE PENDING",
+      "sampleSeeds": null,
+      "ticksPerSeed": null,
+      "highestFloor": null,
+      "determinismFailures": null,
+      "visualVerdict": "Tighter real cinematic camera and bounded bloom offscreen pixels implemented. New post-change WebGL comparison and independent review not yet performed. Diablo IV benchmark NOT MET.",
+      "evidenceMetrics": {
+        "offscreenBloomMaxPixels": 850000,
+        "localPureBudgetTestsPassed": 3,
+        "independentBlindComparison": false
+      },
+      "verification": {
+        "browserRun": null,
+        "integratedCIRun": null,
+        "headlessRun": null,
+        "independentReview": false,
+        "productionReady": false
+      },
+      "nextLargestGap": "Original artist-quality hero/enemy models and rigs, combat animations, material and environment realism."
     }
   ]
 }

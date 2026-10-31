@@ -143,6 +143,9 @@ test('optional cinematic glow uses locally served Three.js postprocessing and re
  await page.goto('/dungeon');
  await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.postFXStatus??'not started'),{timeout:25000}).toBe('ready');
  await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.postFX),{timeout:15000}).toBe('bloom');
+ const budget=await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.postFXBudget);
+ expect(budget.renderPixels).toBeGreaterThan(0);
+ expect(budget.renderPixels).toBeLessThanOrEqual(budget.maxPixels);
  await page.locator('#fx-toggle').click();
  await expect(page.locator('#fx-toggle')).toHaveAttribute('aria-pressed','false');
  await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.postFX),{timeout:10000}).toBe('direct');
@@ -361,7 +364,7 @@ test('Gauntlet framing keeps the autonomous protagonist large enough to inspect 
  await pinDungeonScene(page);
  await page.setViewportSize({width:1440,height:900});
  await page.goto('/dungeon');
- await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.composition?.minHeroPixels??0),{timeout:25000}).toBeGreaterThan(53);
+ await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.composition?.minHeroPixels??0),{timeout:25000}).toBeGreaterThan(90);
  const before=await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__);
  expect(before.composition.subjectOnscreen).toBe(true);
  expect(before.camera).toBe('cinematic');

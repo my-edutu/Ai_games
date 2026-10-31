@@ -2,6 +2,7 @@ import * as THREE from '/dungeon/vendor/three.module.js';
 import {encounterTarget,isSceneAlert,installSpectatorUI} from '/dungeon/spectator-ui.js';
 import {enrichEnvironment} from '/dungeon/environment.js';
 import {planDungeonWallProfiles} from '/dungeon/wall-profile-plan.js';
+import {planPostFXBudget} from '/dungeon/postfx-budget.js';
 import {enrichCharacter} from '/dungeon/characters.js';
 import {createBiomeAtmosphere} from '/dungeon/biome-atmosphere.js';
 import {createCombatOverlay} from '/dungeon/combat-overlay.js';
@@ -35,7 +36,7 @@ const scene=new THREE.Scene();scene.background=new THREE.Color('#070d18');scene.
 const camera=new THREE.PerspectiveCamera(50,1,.1,110);
 // Deferred, optional 3D post-processing: selective emissive bloom adds light without
 // sacrificing the whole scene to fog/black overlays. Direct WebGL remains fallback.
-let composer=null,bloomPass=null,postFXEnabled=!reduced,postFXStatus='loading';
+let composer=null,bloomPass=null,postFXEnabled=!reduced,postFXStatus='loading',postFXBudget=null;
 const fxButton=$('fx-toggle');
 fxButton.setAttribute('aria-pressed',String(postFXEnabled));
 fxButton.addEventListener('click',()=>{
@@ -51,13 +52,15 @@ async function initializePostFX(){
    import('/dungeon/vendor/addons/postprocessing/UnrealBloomPass.js'),
    import('/dungeon/vendor/addons/postprocessing/OutputPass.js')
   ]);
+  const width=Math.max(1,canvas.clientWidth),height=Math.max(1,canvas.clientHeight);
+  const budget=planPostFXBudget(width,height,renderer.getPixelRatio());
   const pipeline=new c.EffectComposer(renderer);
-  pipeline.setPixelRatio(renderer.getPixelRatio());
+  pipeline.setPixelRatio(budget.pixelRatio);
   pipeline.addPass(new r.RenderPass(scene,camera));
   bloomPass=new b.UnrealBloomPass(new THREE.Vector2(Math.max(1,canvas.clientWidth),Math.max(1,canvas.clientHeight)),.29,.36,.9);
   pipeline.addPass(bloomPass);pipeline.addPass(new o.OutputPass());
-  pipeline.setSize(Math.max(1,canvas.clientWidth),Math.max(1,canvas.clientHeight));
-  composer=pipeline;postFXStatus='ready';
+  pipeline.setSize(width,height);
+  postFXBudget=budget;composer=pipeline;postFXStatus='ready';
  }catch(error){composer=null;postFXStatus='unavailable';postFXEnabled=false;fxButton.title='Post effects unavailable: using direct 3D rendering';fxButton.setAttribute('aria-pressed','false');fxButton.querySelector('span').textContent='DIRECT 3D';console.warn('[DUNGEON] optional bloom unavailable:',String(error))}
 }
 initializePostFX();
@@ -564,7 +567,7 @@ function animate(t){requestAnimationFrame(animate);const time=t/1000,dt=Math.min
  for(let i=particles.length-1;i>=0;i--){const p=particles[i];p.life+=dt;if(p.life>=p.duration){disposeParticle(p);particles.splice(i,1);continue}
   p.mesh.position.x+=p.vx*dt;p.mesh.position.y+=p.vy*dt;p.mesh.position.z+=p.vz*dt;p.mesh.material.opacity=.75*(1-p.life/p.duration);p.mesh.scale.multiplyScalar(1-.35*dt)}
 
- const w=canvas.clientWidth,h=canvas.clientHeight;if(w&&h&&(canvas.width!==Math.round(w*renderer.getPixelRatio())||canvas.height!==Math.round(h*renderer.getPixelRatio()))){renderer.setSize(w,h,false);composer?.setSize(w,h);camera.aspect=w/h;camera.updateProjectionMatrix()}
+ const w=canvas.clientWidth,h=canvas.clientHeight;if(w&&h&&(canvas.width!==Math.round(w*renderer.getPixelRatio())||canvas.height!==Math.round(h*renderer.getPixelRatio()))){renderer.setSize(w,h,false);if(composer){const budget=planPostFXBudget(w,h,renderer.getPixelRatio());if(budget.pixelRatio!==postFXBudget?.pixelRatio)composer.setPixelRatio(budget.pixelRatio);composer.setSize(w,h);postFXBudget=budget;}camera.aspect=w/h;camera.updateProjectionMatrix()}
  const leader=(actors.get(focusedHeroId)?.u.hp>0?actors.get(focusedHeroId):null)||[...actors.values()].find(a=>a.u.faction==='party'&&a.u.hp>0),target=leader?.at??new THREE.Vector3(0,0,0);
  for(const a of actors.values()){const moving=a.root.position.distanceTo(a.at)>.07;a.root.position.lerp(a.at,reduced?1:.17);const bounce=reduced?0:Math.sin(time*5+a.at.x)*.028;a.body.position.y=bounce;a.leftLeg.rotation.x=moving?Math.sin(time*10)*.35:0;a.rightLeg.rotation.x=-a.leftLeg.rotation.x;a.leftArm.rotation.x=moving?Math.sin(time*10)*.22:0;a.rightArm.rotation.x=-a.leftArm.rotation.x;
   const since=time-(a.actionStarted??time),phase=Math.max(0,Math.min(1,since/.32));
@@ -595,7 +598,7 @@ function animate(t){requestAnimationFrame(animate);const time=t/1000,dt=Math.min
  const margin=Math.min(2.8,Math.max(0,spread-1.7)*.28)+(mobileShot?1.4:0);
  const offsets=cameraType==='tactical'?[3.5,23.5,4.5]:
   cameraType==='chase'?[4.15+margin*.45,7.8+margin,5.1+margin*.55]:
-  [6.25+margin*.57,10.5+margin,7.2+margin*.68];
+  [5.45+margin*.57,9.05+margin,6.2+margin*.68];
  const boss=state?.units.find(u=>u.kind==='warden'&&u.hp>0),bossDistance=boss&&state?.units.some(u=>u.faction==='party'&&u.hp>0&&Math.abs(u.x-boss.x)+Math.abs(u.z-boss.z)<=5);
  const shot=encounterTarget(target,boss,state?.map.length??19,Boolean(bossDistance&&cameraType==='cinematic'));
  const look=new THREE.Vector3(shot.x,0,shot.z);
@@ -622,8 +625,8 @@ function animate(t){requestAnimationFrame(animate);const time=t/1000,dt=Math.min
  heroKey.intensity=leader?.u.action==='cast'?3.6:leader?.u.action==='attack'?3.1:2.65;
  renderer.info.reset();
  try{if(composer&&postFXEnabled){bloomPass.strength=innerWidth<680?.16:.30;composer.render()}else renderer.render(scene,camera)}
- catch(error){console.warn('[DUNGEON] post effect fault, restoring WebGL:',String(error));composer=null;postFXStatus='fallback';renderer.info.reset();renderer.render(scene,camera)}
- combatOverlay.render(state,actors,camera,time);if(state)window.__DUNGEON_RENDER_DIAGNOSTICS__={composition:inspectComposition(state),visibility:actualHeroVisibility(state,time),frame:renderer.info.render.frame,drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,camera:cameraModes[cameraIndex],cameraSpread:spread,cameraMargin:margin,focusedHeroId,autoDirector,cutawayWalls:world.userData.cutawayWalls??0,cutawayParapets:world.userData.cutawayParapets??0,wallProfiles:world.userData.wallProfileMetrics??null,hiddenForegroundProps:world.userData.hiddenForegroundProps??0,postFX:composer&&postFXEnabled?'bloom':'direct',postFXStatus,heroKeyIntensity:heroKey.intensity,bossFramed:Boolean(bossDistance),cameraLook:{x:look.x,z:look.z},activeUnits:[...actors.values()].filter(x=>x.root.visible).length,characterDetails:[...actors.values()].reduce((sum,x)=>sum+(x.detail?.parts||0),0),webgl:true,theme:state.theme,dressing:world.userData.dressing?.metrics??null,atmosphere:world.userData.atmosphere?.metrics??null,livingWorld:world.userData.livingWorld?.metrics??null,overlay:combatOverlay.metrics(),combatStage:combatDirector.stats(),groundedActors:[...actors.values()].filter(x=>Boolean(x.ground)).length,authored3D:assetStats(actors)};
+ catch(error){console.warn('[DUNGEON] post effect fault, restoring WebGL:',String(error));try{composer?.dispose()}catch{}composer=null;bloomPass=null;postFXStatus='fallback';postFXEnabled=false;fxButton.title='Glow unavailable: direct rendering remains active';fxButton.setAttribute('aria-pressed','false');fxButton.querySelector('span').textContent='DIRECT 3D';renderer.info.reset();renderer.render(scene,camera)}
+ combatOverlay.render(state,actors,camera,time);if(state)window.__DUNGEON_RENDER_DIAGNOSTICS__={composition:inspectComposition(state),visibility:actualHeroVisibility(state,time),frame:renderer.info.render.frame,drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,camera:cameraModes[cameraIndex],cameraSpread:spread,cameraMargin:margin,focusedHeroId,autoDirector,cutawayWalls:world.userData.cutawayWalls??0,cutawayParapets:world.userData.cutawayParapets??0,wallProfiles:world.userData.wallProfileMetrics??null,hiddenForegroundProps:world.userData.hiddenForegroundProps??0,postFX:composer&&postFXEnabled?'bloom':'direct',postFXStatus,postFXBudget,heroKeyIntensity:heroKey.intensity,bossFramed:Boolean(bossDistance),cameraLook:{x:look.x,z:look.z},activeUnits:[...actors.values()].filter(x=>x.root.visible).length,characterDetails:[...actors.values()].reduce((sum,x)=>sum+(x.detail?.parts||0),0),webgl:true,theme:state.theme,dressing:world.userData.dressing?.metrics??null,atmosphere:world.userData.atmosphere?.metrics??null,livingWorld:world.userData.livingWorld?.metrics??null,overlay:combatOverlay.metrics(),combatStage:combatDirector.stats(),groundedActors:[...actors.values()].filter(x=>Boolean(x.ground)).length,authored3D:assetStats(actors)};
 }
 async function poll(){try{const r=await fetch('/dungeon/state',{cache:'no-store'});if(!r.ok)throw Error('State '+r.status);const data=await r.json();if(data.tick!==lastTick||data.run!==state?.run){lastTick=data.tick;update(data)}}catch(e){errorAt++;if(errorAt>=3){$('recovery').hidden=false;$('status').textContent='VIEW DEGRADED — RETRYING';console.warn('Dungeon view recovery',String(e))}}finally{setTimeout(poll,190)}}
 $('party').addEventListener('click',e=>{
