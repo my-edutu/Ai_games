@@ -169,3 +169,59 @@ export function planRigLegGesture(phase=0,weight=0,reducedMotion=false){
   right:{upper:.235*right,lower:.165*Math.max(0,-right),foot:-.075*right}
  };
 }
+
+
+/**
+ * Genuine imported elbow/forearm joints, separate from shoulder or hand
+ * transforms. No new character rigs or collision-affecting coordinates.
+ * A missing or ambiguously sided bone is deliberately left unchanged.
+ */
+export function selectForearmBone(bones,side='right'){
+ if(!Array.isArray(bones)||!['right','left'].includes(side))return null;
+ let best=null,score=-1;
+ for(const bone of bones){
+  if(!bone?.isBone||typeof bone.name!=='string')continue;
+  const raw=bone.name.toLowerCase(),name=raw.replace(/[^a-z0-9]/g,'');
+  if(!/forearm|lowerarm/.test(name)||/twist|roll|nub|end|helper|hand|finger|thumb|wrist/.test(name))continue;
+  const right=name.includes('right')||/(?:forearm|lowerarm)r$/.test(name)||
+   /(?:^|[\s._:-])r[\s._:-]*(?:forearm|lowerarm)(?:$|[\s._:-])/.test(raw);
+  const left=name.includes('left')||/(?:forearm|lowerarm)l$/.test(name)||
+   /(?:^|[\s._:-])l[\s._:-]*(?:forearm|lowerarm)(?:$|[\s._:-])/.test(raw);
+  if(right===left||(side==='right'&&!right)||(side==='left'&&!left))continue;
+  const value=(name.includes('forearm')?120:110)-Math.min(name.length,50)*.01;
+  if(value>score){best=bone;score=value;}
+ }
+ return best;
+}
+
+const FOREARM_REST=Object.freeze({left:0,right:0});
+/**
+ * An original, bounded additive elbow gesture layered onto CC0 animation.
+ * Wind-up bends the wrist toward the body, the attack extends through the
+ * recorded action, then both joints return to the authored clip. Presentational
+ * time is clamped; this does not determine hit registration or target choice.
+ */
+export function planRigForearmGesture(kind,action,elapsed=0,reducedMotion=false){
+ if(reducedMotion)return FOREARM_REST;
+ const t=Number.isFinite(elapsed)?Math.max(0,Math.min(5,elapsed)):0;
+ if(action==='attack'&&t<.58){
+  const wave=t<.12?smooth(t/.12):
+   t<.28?1-1.65*smooth((t-.12)/.16):
+   -.65*(1-smooth((t-.28)/.30));
+  const ranger=kind==='ranger';
+  return {left:(ranger?.36:.16)*wave,right:(ranger?.15:.40)*wave};
+ }
+ if(action==='cast'&&t<.64){
+  const wave=Math.sin(Math.PI*t/.64);
+  return {left:.29*wave,right:.34*wave};
+ }
+ if(action==='hurt'&&t<.38){
+  const wave=Math.sin(Math.PI*t/.38);
+  return {left:-.11*wave,right:.17*wave};
+ }
+ if(action==='guard'){
+  const weight=smooth(t/.17);
+  return {left:.30*weight,right:.38*weight};
+ }
+ return FOREARM_REST;
+}
