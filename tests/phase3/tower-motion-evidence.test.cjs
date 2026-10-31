@@ -7,6 +7,7 @@ function evidence() {
   return Array.from({length: 15}, (_, i) => ({
     atMs: 1000 + i * 1000,
     tick: 100 + i * 20,
+    runToken: 'run-a',
     checksum: 'checksum-' + i,
     frames: 15 + i * 3,
     frameMs: { samples: 30 + i, p50: 25, p95: 140, p99: 190 },
@@ -57,4 +58,33 @@ test('short or broken capture cannot earn evidence', () => {
   assert.equal(assessTowerMotion(short).scopedPass, false);
   const invalid = evidence(); invalid[6].atMs = Number.NaN;
   assert.ok(assessTowerMotion(invalid).blockers.includes('invalid-observation'));
+});
+
+test('legitimate source restart between samples preserves capture integrity without claiming a visible transition', () => {
+  const samples = evidence();
+  for (let i = 7; i < samples.length; i++) {
+    samples[i].runToken = 'run-b';
+    samples[i].tick = (i - 7) * 20;
+  }
+  const result = assessTowerMotion(samples);
+  assert.equal(result.scopedPass, true);
+  assert.equal(result.runTransitions, 1);
+  assert.equal(result.tickAdvance, 260);
+  assert.equal(result.transitionEvidence, 'OPEN: sampled restart is not proof of rendered death/intermission/restart');
+});
+
+test('a tick rollback in one run cannot masquerade as a legitimate restart', () => {
+  const samples = evidence();
+  samples[7].tick = 10;
+  const result = assessTowerMotion(samples);
+  assert.equal(result.scopedPass, false);
+  assert.ok(result.blockers.includes('invalid-observation'));
+});
+
+test('a missing public run token blocks the restart integrity decision', () => {
+  const samples = evidence();
+  delete samples[7].runToken;
+  const result = assessTowerMotion(samples);
+  assert.equal(result.scopedPass, false);
+  assert.ok(result.blockers.includes('invalid-observation'));
 });

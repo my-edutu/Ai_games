@@ -33,7 +33,7 @@ for (const viewport of viewports) test('normal-speed Tower motion ' + viewport.n
     const observation = await page.evaluate(() => {
       const d = window.__TOWER_RENDER_DIAGNOSTICS__();
       const s = window.__TOWER_PUBLIC_STATE__;
-      return { atMs: Date.now(), tick: s?.tick, checksum: s?.publicChecksum,
+      return { atMs: Date.now(), tick: s?.tick, runToken: s?.runToken, checksum: s?.publicChecksum,
         floor: s?.floor, scene: s?.lifecycle, state: s?.player?.state,
         attacking: !!s?.player?.attacking, enemyKinds: (s?.enemies || []).filter(e => e.active).map(e => e.kind),
         frames: d.frames, frameMs: d.frameMs, contextLost: d.contextLost,
