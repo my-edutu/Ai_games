@@ -14,7 +14,10 @@ test('original flowing water bakes the same palette once instead of mixing every
     assert.match(shader, /gl_FragColor\s*=\s*texture2D\s*\(\s*waterField\s*,\s*waterUv\s*\+\s*flow\s*\)/,
       'GPU shader samples the precomposed RGB color without rebuilding the palette');
     assert.doesNotMatch(shader, /\bmix\s*\(/, 'per-fragment palette blending must be baked at world creation');
-    assert.match(shader, /fog_fragment/, 'distance fog remains active');
+    assert.match(water.material.vertexShader, /smoothstep\(fogNear,fogFar,-mvPosition\.z\)/,
+      'distance fog still uses the original near/far distances');
+    assert.match(shader, /\(fogColor-gl_FragColor\.rgb\)\*waterFogFactor/,
+      'per-fragment color remains blended with original fog color');
     const texture = water.material.uniforms.waterField.value;
     assert.equal(texture.image.width, 256);
     assert.equal(texture.image.height, 256);

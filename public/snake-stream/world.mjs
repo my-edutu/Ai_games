@@ -473,30 +473,42 @@ export function createWorld(THREE, {width, height}) {
     uniforms:{...THREE.UniformsUtils.clone(THREE.UniformsLib.fog),time:{value:0},waterField:{value:waterMap}},
     fog:true,
     vertexShader:`
-      #include <fog_pars_vertex>
+      uniform float fogNear;
+      uniform float fogFar;
       varying vec2 waterUv;
+      varying float waterFogFactor;
       void main(){
         waterUv=position.xy*.018;
         vec4 mvPosition=modelViewMatrix*vec4(position,1.0);
         gl_Position=projectionMatrix*mvPosition;
-        #include <fog_vertex>
+        // The dense original-water surface resolves the same linear scene
+        // fog in the vertex stage; a perspective-correct interpolation avoids
+        // a full-screen smoothstep for every translucent water texel.
+        waterFogFactor=smoothstep(fogNear,fogFar,-mvPosition.z);
       }`,
     fragmentShader:`
-      #include <fog_pars_fragment>
+      uniform vec3 fogColor;
       varying vec2 waterUv;
+      varying float waterFogFactor;
       uniform float time;
       uniform sampler2D waterField;
       void main(){
         vec2 flow=vec2(time*.0014,time*.00065);
-        // One filtered color fetch, followed by the original distance fog.
-        // UV flow and reduced-motion time freezing are unchanged.
+        // Preserve the existing water palette, opacity, flow, fog color and
+        // near/far distances. Only the smoothstep's evaluation moves to the
+        // tessellated vertex stage; blending remains in the fragment.
         gl_FragColor=texture2D(waterField,waterUv+flow);
-        #include <fog_fragment>
+        gl_FragColor.rgb+=(fogColor-gl_FragColor.rgb)*waterFogFactor;
       }`,
   });materials.add(waterMaterial);
   // Extend beyond the renderer's 180-unit far plane even in low-angle head views.
-  const waterExtent=Math.max(1024,width*3,height*3);
-  const water=new THREE.Mesh(geometry(new THREE.PlaneGeometry(waterExtent,waterExtent)),waterMaterial);water.name='Flowing water';water.rotation.x=-Math.PI/2;water.position.y=-3.62;group.add(water);
+  // Subdivide the portion of the water that lies inside the 180-unit camera
+  // far plane. Approximately eight world units between vertices bounds the
+  // visual interpolation error while removing per-pixel fog curve work.
+  // The 512-unit minimum remains beyond all visible head/overview horizons.
+  const waterExtent=Math.max(512,width*3,height*3);
+  const waterSegments=Math.max(64,Math.ceil(waterExtent/8));
+  const water=new THREE.Mesh(geometry(new THREE.PlaneGeometry(waterExtent,waterExtent,waterSegments,waterSegments)),waterMaterial);water.name='Flowing water';water.rotation.x=-Math.PI/2;water.position.y=-3.62;group.add(water);
   const foamMat=material({color:0xb4e1c5,transparent:true,opacity:.28,roughness:.6,depthWrite:false});
   // Each ripple retains its exact original world-space position, scale,
   // orientation, normals and UVs, now as one transparent live-layer draw.

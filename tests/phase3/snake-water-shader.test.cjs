@@ -11,7 +11,10 @@ test('water retains animated layered texture with one fragment lookup and bounde
     assert.ok(water?.isMesh, 'original animated 3D water mesh must remain');
     const shader = water.material.fragmentShader;
     assert.equal((shader.match(/texture2D\s*\(/g) || []).length, 1, 'water must need one texture fetch per fragment');
-    assert.match(shader, /fog_fragment/, 'water remains in the same world fog');
+    assert.match(water.material.vertexShader, /waterFogFactor\s*=\s*smoothstep\(fogNear,fogFar,-mvPosition\.z\)/,
+      'original linear scene fog is evaluated in the tessellated vertex stage');
+    assert.match(shader, /gl_FragColor\.rgb\s*\+=\s*\(fogColor-gl_FragColor\.rgb\)\*waterFogFactor/,
+      'the original scene fog color is still composited into live water');
     const texture = water.material.uniforms.waterField.value;
     assert.equal(texture.image.width, 256);
     assert.equal(texture.image.height, 256);
