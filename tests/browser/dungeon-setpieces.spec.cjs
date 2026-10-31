@@ -13,6 +13,7 @@ test('genuine seeded dungeon renders distinct sculptural wall niches without cov
  expect(diag.atmosphere.roomArt.landmarks).toBeGreaterThanOrEqual(4);
  expect(diag.atmosphere.roomArt.wallReliefs).toBe(diag.atmosphere.roomArt.landmarks);
  expect(diag.atmosphere.roomArt.uniqueSculptureFamilies).toBe(4);
+ expect(diag.atmosphere.lightShafts).toBe(0);
  expect(diag.composition.visibleHeroes).toBeGreaterThan(0);
  expect(diag.visibility.unoccludedHeroes).toBeGreaterThan(0);
  expect(errors).toEqual([]);

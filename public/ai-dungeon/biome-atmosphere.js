@@ -95,20 +95,10 @@ export function createBiomeAtmosphere(root,map,floor,exit){
  makeInstanced(objects,horizonGeo,dark,distantColumns);
  makeInstanced(objects,stoneGeo,pale,distantCrowns);
  makeInstanced(objects,crystalGeo,dark,distantRock);
- // Local shafts of coloured magical light, kept rare to avoid hiding the party.
+ // No full-height translucent light cones: the measured real render showed that
+ // even two shafts create a glaring green triangle across the hero encounter.
+ // Small physically shaded ornaments, pools and key lights convey magic instead.
  const shafts=[];
- const shaftMaterial=register(new THREE.MeshBasicMaterial({color:biome.glow,transparent:true,opacity:.055,depthWrite:false,side:THREE.DoubleSide,blending:THREE.AdditiveBlending}));
- const shaftGeo=geometry(new THREE.CylinderGeometry(.16,.96,1,18,1,true));
- const spotlightLocations=[];
- for(let z=2;z<size-2;z++)for(let x=2;x<size-2;x++){
-  if(safe(x,z)&&walk(x-1,z)&&walk(x+1,z)&&walk(x,z-1)&&walk(x,z+1))spotlightLocations.push([x,z,hash(x,z,floor)]);
- }
- spotlightLocations.sort((a,b)=>a[2]-b[2]);
- for(const [x,z,h] of spotlightLocations.slice(0,2)){
-  const ray=new THREE.Mesh(shaftGeo,shaftMaterial);ray.position.set(x-offset,1.85,z-offset);ray.scale.set(1,3.85,1);
-  ray.rotation.z=((h%9)-4)*.025;objects.add(ray);shafts.push(ray);
- }
- 
  // A small number of floor-specific sculpted reliefs replaces four repeated
  // giant white-glowing obelisks. Render-only anchors hug real wall tiles.
  const setpieces=createDungeonSetpieces(root,map,floor,exit);
@@ -134,7 +124,6 @@ export function createBiomeAtmosphere(root,map,floor,exit){
   particle.instanceMatrix.needsUpdate=true;
   setpieces.update(time);
   for(let i=0;i<lights.length;i++)lights[i].intensity=1.05+Math.sin(time*2+i)*.16;
-  shaftMaterial.opacity=.05+Math.sin(time*.55)*.012;
  };
  const metrics={biome:biome.name,landmarks:setpieces.metrics.landmarks,roomArt:setpieces.metrics,glowSources:lights.length,particles:count,liquidOrRifts:pools.length,crystalClusters:spires.length,backgroundStructures:distantColumns.length,lightShafts:shafts.length};
  return{update,metrics,dispose(){
