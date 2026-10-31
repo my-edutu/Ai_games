@@ -268,6 +268,35 @@ const path = require('node:path');
        evidence.horizon.extent<91||evidence.horizon.extent>95||
        evidence.geometry.totalTriangles>=160000)
       throw Error('Gauntlet 052 seamless low-LOD horizon budget gate failed: '+JSON.stringify(evidence.horizon));
+    // G061: sample the *running* terrain geometry function, not a copied
+    // promotional height map. The unchanged central basin is the control;
+    // outside it, measurable sculpted crests and gullies must be present.
+    evidence.highlandSculpt=await page.evaluate(()=>{
+      const game=window.__tinyKingdom,before=JSON.stringify(game.exportSnapshot());
+      const old=(x,z)=>{
+        const d=Math.hypot(x,z),e=Math.max(0,Math.min(1,(d-24)/18));
+        return .13*Math.sin(x*.32)*Math.cos(z*.24)+
+         .7*Math.pow(Math.abs(x)/40,2)+.25*Math.pow(Math.abs(z)/38,2)+
+         e*e*(2.8+1.8*Math.sin(x*.18+z*.11)*Math.cos(z*.24));
+      };
+      let changed=0,minDelta=Infinity,maxDelta=-Infinity;
+      for(let x=-42;x<=42;x+=4)for(let z=-42;z<=42;z+=4){
+        if(Math.hypot(x,z)<30)continue;
+        const delta=game.getTerrainHeight(x,z)-old(x,z);
+        if(Math.abs(delta)>.20)changed++;
+        minDelta=Math.min(minDelta,delta);maxDelta=Math.max(maxDelta,delta);
+      }
+      const center=[[-12,7],[0,0],[22,3]].map(([x,z])=>
+        Math.abs(game.getTerrainHeight(x,z)-old(x,z)));
+      return {changed,minDelta,maxDelta,centerMaxDelta:Math.max(...center),
+       authorityUnchanged:before===JSON.stringify(game.exportSnapshot())};
+    });
+    if(evidence.highlandSculpt.changed<=95||
+       evidence.highlandSculpt.maxDelta-evidence.highlandSculpt.minDelta<1.8||
+       evidence.highlandSculpt.centerMaxDelta>1e-10||
+       !evidence.highlandSculpt.authorityUnchanged)
+      throw Error('G061 real world-elevation highland sculpt gate failed: '+
+        JSON.stringify(evidence.highlandSculpt));
     evidence.highlandRocks=await page.evaluate(()=>window.__tinyKingdom.getHighlandRockStats());
     if(evidence.highlandRocks.clusters!==32||
        evidence.highlandRocks.stones!==96||
