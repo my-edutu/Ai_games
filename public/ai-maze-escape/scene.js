@@ -1,7 +1,7 @@
 import * as THREE from './vendor/three.module.js';
 import { createExplorer, createWarden } from './characters.js';
 import { createMazeWorld, cellPosition, cellHeight, sampleGroundHeight, CELL_SIZE } from './world.js';
-import { planPublicMotion, samplePublicPath, publicWayfinding, publicObjective, publicStageBias, composePublicCameraFocus, publicNearbySealedGate, composePublicSealedGateFocus, composePublicKeyLockFocus, publicCarriedGateCue, publicEncounterFrameWeight } from './map-view.mjs';
+import { planPublicMotion, samplePublicPath, publicWayfinding, publicObjective, publicStageBias, composePublicCameraFocus, publicNearbySealedGate, composePublicSealedGateFocus, composePublicKeyLockFocus, publicCarriedGateCue, publicEncounterFrameWeight, publicDetailEncounterHalfHeight } from './map-view.mjs';
 
 const TAU = Math.PI * 2;
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
@@ -454,7 +454,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
       // the right-hand shell/legs. Only an actually disclosed portrait Detail
       // encounter gets a wider pair shot; solo/other cameras retain scale.
       targetHeight = cameraMode === 'detail'
-        ? (aspect < .9 && closestThreat?.strength > 0 ? 5.7 : 4.6)
+        ? publicDetailEncounterHalfHeight(aspect, closestThreat?.strength)
         : height < 340 ? 5.4
         : nearObservedGate ? (keyLockCloseup ? (aspect < .9 ? 4.70 : 4.55) : (aspect < .9 ? 5.42 : 5.05))
         : aspect < .9 ? 6.2 : nearObservedGoal ? 6.25 : 7.3;
@@ -573,6 +573,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
         // with projected coordinates in normalized device space [-1,+1].
         nearbySealedGate: nearObservedGate ? {...nearObservedGate} : null,
         cameraHalfHeight: halfHeight,
+        cameraAspect: aspect, cameraHorizontalHalfSpan: halfHeight * aspect,
         cameraOffset: {x: cameraOffset.x, y: cameraOffset.y, z: cameraOffset.z},
         nearbySealedGateProjection: nearObservedGate ? (() => {
           const a = cellPosition(nearObservedGate.a, s.width, s.height);
