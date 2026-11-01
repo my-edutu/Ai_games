@@ -292,33 +292,42 @@ test('Thornback opens physical paired shell halves only during a true disclosed 
     const warden=createWarden({balanced});
     const sides=[-1,1].map(side=>({
       side, wing:warden.group.getObjectByName(`flared elytron ${side}`),
-      lining:warden.group.getObjectByName(`exposed elytron lining ${side}`)
+      lining:warden.group.getObjectByName(`exposed elytron lining ${side}`),
+      seam:warden.group.getObjectByName(`opened elytron ember seam ${side}`)
     }));
     for (const entry of sides) {
-      assert.ok(entry.wing && entry.lining, 'both shell plates and ember linings must be modeled');
+      assert.ok(entry.wing && entry.lining && entry.seam, 'both shell plates, ember linings and visible seams must be modeled');
       assert.equal(entry.lining.parent,entry.wing,'real underside remains attached to the opening armor');
+      assert.equal(entry.seam.parent,entry.wing,'visible seam is physically attached to the opening armor');
       assert.equal(entry.lining.visible,false,'no secret threat may leak at rest');
+      assert.equal(entry.seam.visible,false,'an undisclosed threat cannot light the seam');
     }
     for (const reducedMotion of [false,true]) {
       warden.update({heading:0,attentionHeading:Math.PI/2,attentionStrength:.56065,
         danger:1,reducedMotion,time:1,delta:.05});
       for (const entry of sides) {
-        assert.ok(entry.wing.rotation.z*entry.side>.35,'wing must visibly raise away from its dorsal seam');
-        assert.ok(entry.wing.rotation.y*entry.side<-.1,'wing opens in three dimensions');
+        assert.ok(entry.wing.rotation.z*entry.side>.60,'shell must visibly separate at real public warning strength');
+        assert.ok(entry.wing.rotation.y*entry.side<-.20,'wing opens in three dimensions');
+        assert.ok(entry.wing.rotation.x<-.05,'shell opens around a third physical axis');
         assert.equal(entry.lining.visible,true,'real exposed ember underside follows public close warning');
+        assert.equal(entry.seam.visible,true,'physically attached ember seam follows the public warning');
       }
       warden.update({heading:0,attentionStrength:0,reducedMotion,time:2,delta:.05});
       for (const entry of sides) {
         assert.equal(entry.wing.rotation.z,0,'unseen threat closes the shell with no stale position');
         assert.equal(entry.wing.rotation.y,0);
+        assert.equal(entry.wing.rotation.x,0);
         assert.equal(entry.lining.visible,false);
+        assert.equal(entry.seam.visible,false);
       }
       for (const result of ['capture','escape']) {
         warden.update({heading:0,attentionHeading:Math.PI/2,attentionStrength:1,
           danger:1,result,reducedMotion,time:3,delta:.05});
         for (const entry of sides) {
           assert.equal(entry.wing.rotation.z,0,'terminal truth outranks shell threat pose');
+          assert.equal(entry.wing.rotation.x,0);
           assert.equal(entry.lining.visible,false);
+          assert.equal(entry.seam.visible,false);
         }
       }
     }
