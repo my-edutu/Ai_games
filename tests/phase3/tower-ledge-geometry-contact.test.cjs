@@ -188,3 +188,39 @@ test('real fingertip IK is invariant under opposite oblique camera reach choice 
       'camera-facing reach selection cannot break a true IK grip at azimuth '+viewAzimuth);
   }
 });
+
+test('authentic fingertip contact keeps the curled boot silhouette when a mantle cue overlaps',async t=>{
+  const threeURL=pathToFileURL(path.join(path.dirname(require.resolve('three')),'three.module.js')).href;
+  const adjusted=cast.replace("from '/tower/vendor/three.module.js'","from '"+threeURL+"'");
+  assert.notEqual(adjusted,cast);
+  const [{createClimber},THREE]=await Promise.all([
+    import('data:text/javascript;base64,'+Buffer.from(adjusted).toString('base64')),import(threeURL)
+  ]);
+  const gripped=createClimber(),overlapped=createClimber();
+  t.after(()=>{gripped.dispose();overlapped.dispose();});
+  const air={state:'airborne',vx:2300,vy:6000,facing:1,health:5,attacking:false};
+  const options={reducedMotion:true,viewAzimuth:-Math.PI/4};
+  for(const rig of [gripped,overlapped]){
+    rig.group.position.set(3,7,-4);
+    rig.group.rotation.y=.35;
+    rig.group.scale.setScalar(1.13);
+    rig.group.updateMatrixWorld(true);
+  }
+  const goal=gripped.group.localToWorld(new THREE.Vector3(.56,2.33,.22));
+  const ledgeTarget={x:goal.x,y:goal.y,z:goal.z};
+  for(let i=0;i<16;i++){
+    gripped.animate({...air,ledgeTarget},1/60,(i+1)/60,options);
+    overlapped.animate({...air,ledgeTarget,ledgeMantle:{progress:.05,weight:.9}},1/60,(i+1)/60,options);
+  }
+  for(const side of [-1,1]){
+    const joint=side+'-knee';
+    const untouched=gripped.group.getObjectByName(joint),cuing=overlapped.group.getObjectByName(joint);
+    assert.ok(untouched?.isBone&&cuing?.isBone,'real lower-leg joints are required');
+    assert.ok(Math.abs(untouched.rotation.x-cuing.rotation.x)<1e-6,
+      'a cosmetic mantle hint must not uncurl a boot while the hand is truly gripping: '+joint);
+  }
+  const elbow=overlapped.group.getObjectByName('1-elbow');
+  elbow.updateWorldMatrix(true,false);
+  assert.ok(elbow.localToWorld(new THREE.Vector3(0,-.802,.108)).distanceTo(goal)<1e-5,
+    'protect the measured real fingertip contact as well as the knees');
+});
