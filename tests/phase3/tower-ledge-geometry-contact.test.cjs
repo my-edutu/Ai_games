@@ -310,3 +310,50 @@ test('actual ascent boots keep one physical push-off leg when camera crosses the
     }
   }
 });
+
+test('upper-deck boot visibly loads the actual walking surface only during a real rising rim crossing',async t=>{
+  const threeURL=pathToFileURL(path.join(path.dirname(require.resolve('three')),'three.module.js')).href;
+  const adjusted=cast.replace("from '/tower/vendor/three.module.js'","from '"+threeURL+"'");
+  const [{createClimber},THREE]=await Promise.all([
+    import('data:text/javascript;base64,'+Buffer.from(adjusted).toString('base64')),
+    import(threeURL)
+  ]);
+  const old=createClimber(),planted=createClimber(),wrongDeck=createClimber();
+  t.after(()=>{old.dispose();planted.dispose();wrongDeck.dispose();});
+  const state={state:'airborne',vx:3200,vy:10200,facing:1,health:5,attacking:false,
+    runToken:'real-run',tick:300,ledgePlatformId:'f1:p1',ledgeMantle:{progress:.48,weight:1}};
+  const opts={reducedMotion:true,viewAzimuth:-Math.PI/4};
+  const sole=rig=>{
+    const foot=rig.group.getObjectByName('1-ankle');
+    assert.ok(foot?.isBone);
+    foot.updateWorldMatrix(true,false);
+    return foot.localToWorld(new THREE.Vector3(0,-.205,.07));
+  };
+  for(const rig of [old,planted,wrongDeck])rig.group.position.set(0,6,25);
+  old.animate(state,1/60,1,opts);
+  const soleOffset=sole(old).y-6;
+  // Reposition just the test fixture so the *actual modeled sole* is 8cm
+  // above a real slab. No fake contact position is sent to the rig.
+  for(const rig of [old,planted,wrongDeck])rig.group.position.y-=soleOffset-.08;
+  const surface={platformId:'f1:p1',y:6,innerRadius:22.4,outerRadius:27.18};
+  planted.animate({...state,ledgeSurface:surface},1/60,1,opts);
+  wrongDeck.animate({...state,ledgeSurface:{...surface,platformId:'f1:other'}},1/60,1,opts);
+  const oldSole=sole(old),newSole=sole(planted),wrongSole=sole(wrongDeck);
+  assert.ok(Math.abs(oldSole.y-6-.08)<.001,'fixture must start with a true 8cm floating sole');
+  assert.ok(Math.abs(newSole.y-6)<.045,
+    'a genuine deck should pull the modeled sole to its top, not let it float 8cm');
+  assert.ok(newSole.y>=5.97,'cosmetic contact must not visibly tunnel through a solid deck');
+  assert.ok(Math.abs(wrongSole.y-oldSole.y)<1e-6,'another platform cannot plant this boot');
+  assert.ok(planted.group.getObjectByName('articulated-body').position.y
+    <old.group.getObjectByName('articulated-body').position.y-.01,
+    'body mass should visibly compress over the planted boot');
+  assert.equal(planted.group.position.y,old.group.position.y,
+    'no apparent contact may edit authoritative actor placement');
+});
+
+test('the live scene derives boot-loading height from its real intended platform, not a guessed floor',()=>{
+  assert.match(scene,/const ledgeSurface = ledgeMantle && targetPlatform \? \{/);
+  assert.match(scene,/platformId: targetPlatform\.id,/);
+  assert.match(scene,/y: pointFor\(targetPlatform\.x, targetPlatform\.y\+targetPlatform\.height,/);
+  assert.match(scene,/ledgeTarget,\s*ledgeMantle,\s*ledgeSurface,/);
+});

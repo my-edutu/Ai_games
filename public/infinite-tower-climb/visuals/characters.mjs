@@ -300,6 +300,9 @@ export function createClimber() {
   const ledgeWorld=new THREE.Vector3(), ledgeElbow=new THREE.Vector3(),
     ledgeAim=new THREE.Vector3(), ledgeInverse=new THREE.Quaternion();
   const armRest=new THREE.Vector3(0,-1,0), fingertipRest=new THREE.Vector3(0,-.802,.108).normalize();
+  // The actual plate-bottom of the modeled boot (plate center -.11, height .19).
+  // Reuse these probes on the narrow contact frame; no new meshes or effects.
+  const deckSoleWorld=new THREE.Vector3(), deckWorldScale=new THREE.Vector3();
   return w.finish((state,dt,time,{reducedMotion=false,viewAzimuth}={})=>{
     const vx=Number(state.vx??state.velocity?.x)||0,vy=Number(state.vy??state.velocity?.y)||0;
     const speed=clamp(Math.abs(vx)/4300,0,1),dead=state.state==='dead'||state.health===0;
@@ -442,6 +445,42 @@ export function createClimber() {
         leg.upper.rotation.x=mix(leg.upper.rotation.x,front?-.98+.7*push:-1.12+.85*push,weight);
         leg.lower.rotation.x=mix(leg.lower.rotation.x,front?1.55-.5*push:1.72-.92*push,weight);
         leg.foot.rotation.x=mix(leg.foot.rotation.x,front?-.33+.17*push:-.45+.24*push,weight);
+      }
+    }
+    // Transfer weight through one real boot ONLY when the modeled sole has
+    // actually reached the intended platform's upper walking surface. The
+    // autonomous leap is never stopped, slowed or moved by this cosmetic pose:
+    // local body compression and ankle leveling are bounded to a measured
+    // <= 22cm sole-height window, the true deck ring and the matching platform.
+    const surface=state.ledgeSurface;
+    if(airborne&&vy>0&&!genuineLedgeGrip&&!attacking&&!dead&&!hurt&&mantle
+      &&surface&&typeof state.runToken==='string'&&state.runToken
+      &&Number.isSafeInteger(state.tick)&&typeof state.ledgePlatformId==='string'
+      &&surface.platformId===state.ledgePlatformId
+      &&[surface.y,surface.innerRadius,surface.outerRadius].every(Number.isFinite)
+      &&surface.innerRadius<surface.outerRadius){
+      const leg=legs[physicalPushIndex];
+      leg.foot.updateWorldMatrix(true,false);
+      deckSoleWorld.set(0,-.205,.07);
+      leg.foot.localToWorld(deckSoleWorld);
+      const clearance=deckSoleWorld.y-surface.y;
+      const radius=Math.hypot(deckSoleWorld.x,deckSoleWorld.z);
+      if(clearance>=-.06&&clearance<=.22&&radius>=surface.innerRadius&&radius<=surface.outerRadius){
+        // Weight falls onto the lead sole, not onto a fabricated standing
+        // state. Level the boot as the hips absorb the load and the leg pushes
+        // away in the following true rising frame.
+        const weight=1-THREE.MathUtils.smoothstep(clearance,-.02,.22);
+        body.rotation.x+=.075*weight;
+        body.position.y-=.035*weight;
+        const level=-(body.rotation.x+leg.upper.rotation.x+leg.lower.rotation.x);
+        leg.foot.rotation.x=mix(leg.foot.rotation.x,level,weight*.4);
+        // Re-measure after posing: mesh-space heel/toe contact, not ankle
+        // clearance alone, determines the compression against actual stone.
+        leg.foot.updateWorldMatrix(true,false);
+        deckSoleWorld.set(0,-.205,.07);
+        leg.foot.localToWorld(deckSoleWorld);
+        leg.foot.getWorldScale(deckWorldScale);
+        body.position.y-=clamp((deckSoleWorld.y-surface.y)/Math.max(.01,deckWorldScale.y),-.09,.12);
       }
     }
     // The first airborne tick after a real fingertip release previously snapped

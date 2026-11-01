@@ -932,6 +932,15 @@ export function createTowerScene(canvas, settings = {}) {
       snapshot.chunkBaseY, snapshot.worldWidth, 27.1) : null;
     const approachRadius = climbApproachRadius(snapshot, targetPlatform);
     const ledgeMantle = ledgeMantlePose(snapshot, targetPlatform);
+    // The skinned boot may settle only onto the authoritative intended deck's
+    // actual top. Its world-space Y and radial walking band are presentation
+    // inputs; they are never reported to or used by the simulation authority.
+    const ledgeSurface = ledgeMantle && targetPlatform ? {
+      platformId: targetPlatform.id,
+      y: pointFor(targetPlatform.x, targetPlatform.y+targetPlatform.height,
+        snapshot.chunkBaseY, snapshot.worldWidth, 27.1).y,
+      innerRadius: 22.4, outerRadius: 27.18,
+    } : null;
     const mapped = pointFor(p.x, p.y - p.halfHeight, snapshot.chunkBaseY, snapshot.worldWidth, approachRadius);
     actorTarget.set(mapped.x, mapped.y, mapped.z);
     const moving = Math.abs(p.vx) > 500;
@@ -952,6 +961,7 @@ export function createTowerScene(canvas, settings = {}) {
       // No grab, pause, lift or authoritative collision is fabricated.
       ledgeTarget,
       ledgeMantle,
+      ledgeSurface,
       // Bound the transient contact handoff to this exact authoritative
       // run/platform/tick, so a restart cannot reuse an earlier grip pose.
       runToken: snapshot.runToken,
