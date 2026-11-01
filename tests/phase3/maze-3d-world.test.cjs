@@ -344,3 +344,37 @@ test('lifted living-wall gardens never invent unknown passage topology', async (
     child.isInstancedMesh && child.material.name === 'Disclosed perimeter hanging fronds'),false);
   world.dispose();
 });
+
+test('authored mineral courts decorate only disclosed safe floors using shared bounded resources', async () => {
+  const {createMazeWorld}=await modulePromise;
+  const whole=fixture(Array.from({length:63},(_,cell)=>({cell,neighbors:[]})));
+  const original=JSON.stringify(whole);
+  for(const balanced of [true,false]) {
+    const world=createMazeWorld({balanced}), budget=world.stats();
+    assert.ok(budget.materialCount<=24 && budget.geometryCount<=12);
+    world.update(whole);
+    const terrain=world.group.children[1];
+    const mineral=terrain.children.filter(mesh => mesh.isInstancedMesh &&
+      ['Disclosed mineral clay court','Disclosed sea-glass mosaic'].includes(mesh.material.name));
+    assert.ok(mineral.length>=2, 'warm and cool court regions form physical instanced 3D surfaces');
+    assert.ok(mineral.reduce((total,mesh)=>total+mesh.count,0)>8,
+      'a true disclosed district receives visible grouped relief rather than tiny isolated particles');
+    assert.deepEqual(world.stats().renderedCells,whole.cells.map(c=>c.cell));
+    assert.equal(world.stats().geometryCount,budget.geometryCount);
+    assert.equal(world.stats().materialCount,budget.materialCount);
+    assert.equal(JSON.stringify(whole),original);
+    world.animate(3,{reducedMotion:true});
+    world.animate(4,{reducedMotion:false});
+    assert.equal(world.stats().materialCount,budget.materialCount,
+      'courtyard tesserae never allocate new materials during animation');
+    world.update(fixture([]));
+    assert.equal(terrain.children.length,0,'no mineral court appears without a real public cell');
+    world.update(fixture([{cell:24,neighbors:[],trap:true}]));
+    const muted=terrain.children.filter(mesh=>mesh.isInstancedMesh &&
+      mesh.material.name==='Disclosed sea-glass mosaic');
+    assert.equal(muted.length,0,'a public trap cell is not disguised as a decorative court');
+    world.dispose();
+    assert.equal(world.stats().materialCount,0);
+    assert.equal(world.stats().geometryCount,0);
+  }
+});

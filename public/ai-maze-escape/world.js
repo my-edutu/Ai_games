@@ -64,6 +64,11 @@ export function createMazeWorld(options = {}) {
   const stone = material('#cead72');
   const lightStone = material('#eed5a0');
   const deepStone = material('#8e7851');
+  // Painted mineral courts break the formerly uniform beige paving into
+  // quiet, geographically consistent warm/cool districts. Neither tint is a
+  // key, path, danger signal or another authority-bearing game element.
+  const clay = material('#b07953'); clay.name = 'Disclosed mineral clay court';
+  const seaGlass = material('#5d968e'); seaGlass.name = 'Disclosed sea-glass mosaic';
   const jade = material('#398479', {roughness: .57});
   const darkJade = material('#28574f');
   const inlay = material('#82b1a2');
@@ -110,7 +115,7 @@ export function createMazeWorld(options = {}) {
   stoneTexture.wrapS = stoneTexture.wrapT = THREE.RepeatWrapping;
   stoneTexture.magFilter = THREE.LinearFilter; stoneTexture.minFilter = THREE.LinearMipmapLinearFilter;
   stoneTexture.generateMipmaps = true; stoneTexture.needsUpdate = true; textures.add(stoneTexture);
-  for (const m of [stone, lightStone, deepStone, jade, darkJade]) m.map = stoneTexture;
+  for (const m of [stone, lightStone, deepStone, clay, seaGlass, jade, darkJade]) m.map = stoneTexture;
   const rippleMaterial = material('#a5d4be', { transparent: true, opacity: .3, depthWrite: false, roughness: .5 });
   const box = geometry(new THREE.BoxGeometry(1, 1, 1));
   // Shared bevelled blocks give every main masonry edge a restrained highlight.
@@ -328,7 +333,8 @@ export function createMazeWorld(options = {}) {
       block(jade, x, -.27, z, 2.39, .12, 2.39, c.cell);
       block(stone, x, -.135, z, 2.39, .19, 2.39, c.cell);
       const district = Math.floor((c.cell % s.width) / 3) + Math.floor(c.cell / s.width / 3) * 7;
-      const floorMaterial = variation(district) > .67 ? lightStone : stone;
+      const floorMaterial = variation(district * 31 + 17) > .83
+        ? clay : variation(district) > .67 ? lightStone : stone;
       if (variation(c.cell + 50) > .55) {
         block(floorMaterial, x, -.035, z, 2.31, .07, 2.31, c.cell);
         for (const sign of [-1, 1]) {
@@ -337,6 +343,23 @@ export function createMazeWorld(options = {}) {
         }
       } else for (let row = 0; row < 2; row++) for (let col = 0; col < 2; col++) {
         block(floorMaterial, x + (col - .5) * 1.17, -.035, z + (row - .5) * 1.17, 1.145, .07, 1.145, c.cell);
+      }
+      // Recessed four-petal tesserae form a recognisable original courtyard
+      // language rather than an endless uniform tile grid. Courts are selected
+      // solely by the cell's disclosed coordinate; the symmetry deliberately
+      // avoids directional arrows, collectible halos and hidden-route hints.
+      // Pigments, geometry and instances are shared; nothing is built per frame.
+      const courtSeed = variation(c.cell * 41 + 709);
+      if (courtSeed > .68 && !c.blocked && !c.trap && !c.checkpoint && !c.clue) {
+        const pigment = courtSeed > .85 ? seaGlass : clay;
+        for (let petal = 0; petal < 4; petal++) {
+          const angle = Math.PI / 4 + petal * Math.PI / 2;
+          const dx = Math.cos(angle) * .53, dz = Math.sin(angle) * .53;
+          add(box, deepStone, x + dx, .007, z + dz, .39, .014, .39, c.cell, 0, Math.PI / 4);
+          add(box, pigment, x + dx, .017, z + dz, .31, .014, .31, c.cell, 0, Math.PI / 4);
+        }
+        add(cylinder, deepStone, x, .017, z, .25, .022, .25, c.cell);
+        add(cylinder, lightStone, x, .034, z, .13, .012, .13, c.cell);
       }
       // Low inset corner tiles, cracks, and occasional flecks never block a path.
       for (let j = 0; j < 2; j++) {
