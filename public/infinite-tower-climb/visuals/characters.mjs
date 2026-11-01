@@ -558,7 +558,23 @@ export function createClimber() {
       deckLoadTick=-1;
       deckLoadCompression=0;
     }
-    if(releaseCompression>0)body.position.y-=releaseCompression;
+    if(releaseCompression>0){
+      body.position.y-=releaseCompression;
+      // A compressed torso alone reads as hovering above the stone. During
+      // this actual, platform-matched upward departure, uncoil the physical
+      // load-bearing knee and roll its boot into a readable push-off. The
+      // immutable snapshot controls the envelope: no landed state, second
+      // foot plant, extra mesh or root displacement is invented.
+      if(surface&&surface.platformId===state.ledgePlatformId
+        &&mantle&&Number.isFinite(mantle.progress)
+        &&mantle.progress>=.6&&mantle.progress<=.9){
+        const extension=clamp(releaseCompression/.055,0,1)*.56;
+        const pushing=legs[physicalPushIndex];
+        pushing.upper.rotation.x=mix(pushing.upper.rotation.x,-.16,extension*.62);
+        pushing.lower.rotation.x=mix(pushing.lower.rotation.x,.18,extension);
+        pushing.foot.rotation.x=mix(pushing.foot.rotation.x,.12,extension*.65);
+      }
+    }
     // The first airborne tick after a real fingertip release previously snapped
     // BOTH arms from a solved grip straight to camera-directed generic mantle.
     // Preserve the last physically solved arm orientations for a short,
