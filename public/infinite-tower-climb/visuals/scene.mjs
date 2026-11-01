@@ -437,6 +437,12 @@ function composeFollowView(snapshot, hero, aspect, orbit = 0, zoom = 1) {
       contactGuardian.angle, guardianCorners);
     sightlines.push(contactGuardian);
   }
+  // The actual gate and capstan share the boss's screen budget; including
+  // their true world-space corners in perspective fitting prevents a perfect
+  // hero/guardian shot that entirely crops the causal HP-powered mechanism.
+  // The clear-sightline test remains actor-only: this recessed structure is
+  // intentionally inside the tower's walkable annulus, not a fake collider.
+  if (gatePoints.length) points.push(...gatePoints);
   const subject = contactGuardian || routeLanding || threat;
   const direction = subject ? (Math.sign(body.x - subject.x) || 1) : 1;
   function solve(lean) {

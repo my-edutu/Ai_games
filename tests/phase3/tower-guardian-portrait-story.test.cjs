@@ -65,7 +65,9 @@ test('source-observed wounded guardian, actual cap and climber share a stable po
     const lock = project(THREE, pointFor, frame, view, aspect,
       cap.x + cap.width / 2, cap.y + cap.height + 25000, 21.8);
     assert.ok(Math.abs(lock.x) <= .99 && Math.abs(lock.y) <= .9,
-      'the source-powered gate needs a visible physical point of reference');
+      'the source-powered gate needs a visible physical point of reference; aspect=' + aspect +
+      ' gateNdc=' + JSON.stringify(lock.toArray()) + ' camera=' +
+      JSON.stringify({ heroFraction: view.heroFraction, clear: view.clear, gateFramed: view.gateFramed }));
   }
   assert.equal(JSON.stringify(frame), before, 'camera is a read-only consumer of the immutable public game state');
 });

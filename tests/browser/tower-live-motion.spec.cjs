@@ -38,6 +38,11 @@ for (const viewport of viewports) test('normal-speed Tower motion ' + viewport.n
         guardianActive: (s?.enemies || []).some(e => e.active && e.kind === 'guardian'),
         guardianHealth: (s?.enemies || []).filter(e => e.kind === 'guardian').map(e => ({ active: e.active, health: e.health, maxHealth: e.maxHealth })),
         observedGate: d.world?.guardianGates || [],
+        // Exact presented-camera world projection at the time of a genuine
+        // source HP observation. Unlike a source-only geometry fixture, this
+        // records whether the guardian and gate are actually inside the
+        // continuous desktop/portrait video camera crop.
+        observedCamera: d.encounterCamera || null,
         observedPassage: d.passage?.active ? { runToken: d.passage.runToken, floor: d.passage.floor,
           sourceTick: d.passage.sourceTick, ageSeconds: d.passage.ageSeconds,
            anchorPosition: d.passage.anchorPosition,
