@@ -68,6 +68,8 @@ test('a real close public encounter frames both autonomous actors and saves date
   expect(diagnostics.wardenContactShadows, 'Only public guardian actors get shadow meshes').toBe(diagnostics.disclosedThreats);
   expect(diagnostics.wardenGroundedContacts, 'The shadow must follow the true physical floor beneath each visible guardian').toBe(diagnostics.disclosedThreats);
   expect(diagnostics.explorerInFrame).toBe(true);
+  expect(diagnostics.wayfindingCues.every(cue => cue.kind === 'planned' || cue.goal),
+    'Autonomous 3D gameplay must not fill the floor with uncommitted legal-option arrows').toBe(true);
   expect(errors).toEqual([]);
 
   const dir = path.resolve(__dirname, '../../artifacts/maze-phase3');

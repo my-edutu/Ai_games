@@ -202,7 +202,12 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
   }
 
   function updateWayfinding(snapshot) {
-    wayfindingCues = publicWayfinding(snapshot);
+    // The public map still knows every legal observed choice. However, four
+    // identical ivory arrows around Pip looked like manual D-pad controls in
+    // real native autonomous gameplay footage. Render only the *observed AI
+    // plan* or the known first step to an observed reachable key/exit. Neither
+    // cue is a safety promise, route disclosure or movement instruction.
+    wayfindingCues = publicWayfinding(snapshot).filter(cue => cue.kind === 'planned' || cue.goal);
     for (let i = 0; i < wayfindingArrows.length; i++) {
       const {pivot, glyph} = wayfindingArrows[i], cue = wayfindingCues[i];
       pivot.visible = Boolean(cue);
