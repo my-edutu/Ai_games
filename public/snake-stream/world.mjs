@@ -326,6 +326,38 @@ export function createWorld(THREE, {width, height}) {
         }
       }
       // END R52 GROVE CANOPY SHADE
+      // BEGIN T1 FLOODPLAIN COURTYARD COLOR REBUILD
+      // T1 world-scale relief: sedimentary deposits link the three bank
+      // ecosystems to the ruin causeway, replacing the pale repeating
+      // court with cooler flooded stone, wet moss and warm mineral swirls.
+      // Subtractive pigments retain *exact* slab-local crack/grazing-light
+      // contrast and lichen response rather than flattening the atlas.
+      // No mesh, geometry, shader, draw, texture, authority or cue changes.
+      const growthInward=fade(.42,2.45,border);
+      if(growthInward>0){
+        const headwater=.5+.5*Math.sin(gx*.23-gz*.32+1.65);
+        const sediment=.5+.5*Math.sin(gx*.12+gz*.49+.38);
+        const shoreMist=.5+.5*Math.sin(gx*.42-gz*.18-2.15);
+        const wetness=fade(.38,.65,cloud*.48+headwater*.27+shoreMist*.25);
+        const mineralBank=fade(.24,.74,sediment*.56+mineral*.23+cloud*.21);
+        const greenGrowth=fade(.32,.71,cloud*.46+wetness*.36+(1-fade(.04,.17,edge))*.18);
+        const dominance=1-fade(.17,.49,Math.abs(gz/height-.51
+          +.18*Math.sin(gx*.23+1.4)+.05*(cloud-.5)));
+        // Broad warm eroded terrace and green-blue floodplain deposits are
+        // noninteractive pigment, never a fake route or playable height.
+        const causeway=dominance*(.38+.62*mineralBank);
+        const swamp=greenGrowth*(1-causeway*.72);
+        const coverage=growthInward*(.70+.13*wetness);
+        const redLoss=coverage*(62+42*swamp-10*causeway);
+        const greenLoss=coverage*(65-20*swamp-8*causeway);
+        const blueLoss=coverage*(72+19*swamp+15*causeway);
+        // Strictly subtractive: keep existing grid fractures, public hazards,
+        // bright fruit and pale serpent as contrasting foreground actors.
+        data[i]=Math.max(0,Math.round(data[i]-redLoss));
+        data[i+1]=Math.max(0,Math.round(data[i+1]-greenLoss));
+        data[i+2]=Math.max(0,Math.round(data[i+2]-blueLoss));
+      }
+      // END T1 FLOODPLAIN COURTYARD COLOR REBUILD
     }
     // Sparse hairline fractures stay subordinate to the broad slab treatment.
     for(let c=0;c<38;c++){

@@ -2,6 +2,7 @@
 const {test,expect}=require('@playwright/test');
 const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto');
 const {stripR52Canopy}=require('../helpers/snake-r52-canopy-archive.cjs');
+const {reapplyT1Floodplain}=require('../helpers/snake-t1-floodplain-archive.cjs');
 test.use({launchOptions:{args:['--use-angle=swiftshader','--enable-unsafe-swiftshader']}});
 const root=path.resolve(__dirname,'../..');
 const artifact=name=>{const dir=path.join(root,'artifacts/phase3');fs.mkdirSync(dir,{recursive:true});return path.join(dir,name);};
@@ -11,6 +12,7 @@ test('R52 real Chromium/WebGL grove-canopy shadow A/B: original geometry, all cu
   test.setTimeout(175000);
   const source=fs.readFileSync(path.join(root,'public/snake-stream/world.mjs'),'utf8');
   const old=stripR52Canopy(source);
+  const oldWithCurrentFloor=reapplyT1Floodplain(old,source);
   expect(gitBlob(old)).toBe('14d4190dc05801e9698c4b7de76365a1eb9e3910');
   const frame=JSON.parse(fs.readFileSync(path.join(root,'docs/reviews/snake-gauntlet/round-4-public-frame.json'),'utf8'));
   const frozen=JSON.stringify(frame),records=[];
@@ -20,7 +22,7 @@ test('R52 real Chromium/WebGL grove-canopy shadow A/B: original geometry, all cu
     ['portrait','overview',{width:390,height:844}],
   ]){
     const captures={};
-    for(const [version,body] of [['parent',old],['r52',source]]){
+    for(const [version,body] of [['parent',oldWithCurrentFloor],['r52',source]]){
       const page=await browser.newPage({viewport,reducedMotion:'reduce'});
       const errors=[];page.on('pageerror',e=>errors.push(e.message));
       try{
