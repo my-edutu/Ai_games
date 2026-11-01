@@ -1,0 +1,33 @@
+name: Tiny Kingdom G90 pinned 3D engine dependencies
+on:
+  push:
+    branches: [feat/tiny-kingdom-g90-authored-assets-20261101]
+    paths: ['.github/workflows/tiny-kingdom-g90-vendor-checkpoint.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  vendor:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Download locked dependencies and isolate engine
+        run: |
+          set -euo pipefail
+          npm ci
+          mkdir -p evidence/vendor
+          tar -czf evidence/vendor/three-r186.tgz -C node_modules/three build/three.core.js build/three.module.js examples/jsm/loaders/GLTFLoader.js
+          sha256sum evidence/vendor/three-r186.tgz > evidence/vendor/three-r186.sha256
+      - uses: actions/upload-artifact@v4
+        with:
+          name: g90-three-locked-0.186
+          path: evidence/vendor/
+          if-no-files-found: error
+          retention-days: 7
