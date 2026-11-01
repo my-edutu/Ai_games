@@ -13,7 +13,8 @@ test('G074 WebGL scenic cache does not duplicate a 130k-triangle JS array before
  expect(end).toBeGreaterThan(start);
  const build=html.slice(start,end);
  expect(build).toMatch(/scenicMeshCache\s*=\s*gpuAvailable\s*\?\s*new Float32Array\(data\)\s*:\s*data\.slice\(\)/);
- expect(build).toMatch(/gl\.bufferData\(gl\.ARRAY_BUFFER,\s*scenicMeshCache,\s*gl\.STATIC_DRAW\)/);
+ expect(build).toMatch(/const packed=packSpatialScenery\(scenicMeshCache\)/);
+ expect(build).toMatch(/gl\.bufferData\(gl\.ARRAY_BUFFER,\s*packed\.vertices,\s*gl\.STATIC_DRAW\)/);
  expect(build).not.toMatch(/new Float32Array\(scenicMeshCache\)/);
 });
 
