@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-01T12:34:49.950Z",
+  "updatedAt": "2026-11-01T13:36:04Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass38 camera and pass39 stage shift were rejected on six SHA-verified original renders. Pass40 authored lagoon shader source 65b2c24 focused CI 41305146762 succeeded and all six real dated screenshot hashes matched, but native and desktop original images showed ghost-like blurry bright patches; visually REJECTED, texture restored. Pass41 source a988853 adds public-only correct matched key/closed gate message with nine pure helper cases passed; exact-source browser CI 41306288258 queued. Frozen official Nintendo Captain Toad still wins; no independent detached blind critic or representative GPU FPS."
+    "summary": "Pass41 public-locked-gate HUD rendered correctly in real SHA-verified 390x844 screenshot (focused CI 41306288258 SUCCESS), but the gate/key action remains crowded and the arch clipped. Pass42 original source-bound warden shell render focused CI 41311276320 SUCCESS, all six PNG hashes checked; changed only 0.1494% of full 1280x900 pixels >12 RGB and still reads as a dark joined oval: lead visually REJECTED. Pass43 adds stronger physically parented 3D split/seams with source/test commits, actual exact-head renderer and fresh separate critic pending. Frozen Nintendo Captain Toad still wins; no independent detached blind critic or representative GPU FPS."
   },
   "captures": [
     {
@@ -139,11 +139,11 @@
     "Pass39 public known-stage camera bias .35→.56 was hash-verified (source e7a65a4) but REJECTED: lagoon somewhat reduced while real closed gate driven left and arch still cropped. Bias reverted to .35.",
     "Pass40 source 65b2c24 keeps original gate/hero frame, adds fixed 128×128 tileable depth/caustic raster to existing lagoon water (no new meshes, textures or authority). JS parsing/source pixel check completed; source-bound CI original dated screenshots QUEUED.",
     "Pass40 source 65b2c24 exact original render verified 6 SHA-256 PNGs from CI 41305146762, but bright caustics became blurry floating spots and visually degraded scene. REJECTED and water restored in pass41.",
-    "Pass41 source a988853 adds truthful public-only known closed gate/matching carried key HUD priority, with exact wrong-key/open/unknown/terminal/distance protections and source-bound browser assertion; real screenshot CI pending.",
-    "Separate guardian pass42 candidate: Thornback has two articulated 3D elytra hinged at its body seam and physically attached ember linings; a disclosed nearby threat raises them, while neutral/reduced-motion/terminal states remain deterministic and public-only. Actual native browser render and detached critic PENDING."
+    "Pass41 a988853 true matching-carried-key/actually-closed-gate HUD is now verified by original dated CI 41306288258 and real 390x844 native screenshot (SHA 82e815c3...). It reports sealed status, never a fictitious unlock. Crowded gate and cropped architecture remain.",
+    "Pass42 original hinged Thornback shell generated genuine dated 1280x900 screenshot in focused CI 41311276320. Lead reviewed actual screenshot: hinge barely changes the dark oval; benchmark still loses. Source test strict -0 neutral failure was fixed at db4032f. Pass43 f9054d9/d6fa8ae strengthens hinged separation and adds physically attached glowing dorsal seams; exact-source screenshot and independent critique pending."
   ],
   "nextGaps": [
-    "Independently review pass42 actual native 390px close-guardian screenshot against previous source-bound same seed/tick and frozen Captain Toad/Luigi reference: two genuinely pivoted armored shell halves and exposed amber undersides must convey an unmistakable threatening silhouette without obstructing Pip or the next legal public passage. Reject if subtle or visually noisy.",
+    "Verify exact 1280×900 original same-seed Pass43 Thornback source image against Pass42/41 and frozen Nintendo images; test whether the *physical* paired elytra and top ember fissures are actually legible at normal size, then obtain genuine 390px guardian evidence.",
     "Check pass41 original 390x844 and 1280x900 screenshots that the matching-key/closed-gate label is truthful and legible without shrinking the stage; then focus real physical Pip glove/key/socket staging, still 84.40 CSS px apart at the known gate. No fake insertion or AI/door mutation.",
     "Art direction gap: improve actually disclosed miniatures and hero silhouette in original source-rendered gameplay. Reject any camera orbit that hides Pip (pass38), stage shift that pushes gate offscreen (pass39), or bright blurry pseudo-caustic blobs (pass40). Fixed Nintendo bar still wins.",
     "Establish stronger gameplay-scale Pip/Thornback expression, gate/key/exit differentiation, environmental material variety and a camera view which preserves both the obstacle and the next *disclosed* action.",
@@ -450,6 +450,20 @@
       "verdict": "REJECTED — blurry floating caustic glows distract from gameplay; Nintendo benchmark NOT PASSED",
       "date": "2026-11-01T12:20:00.872Z",
       "summary": "Exact-source focused CI 41305146762 SUCCESS, original artifact 13083062508 all six UTC PNG SHA matches. Native SHA a211395d669e258753530a32e752222b7367db93a46ecfe32a43652d14816552; desktop SHA 2b8f2ef2670f8a59a7438926f50f7d54d2c409c4c5adff82a8ae018371ec28b9. Current 390x844 environment shows big diffuse glow blobs, not plausible ripple animation or fine authorial surface; revert in pass41, not a benchmark win."
+    },
+    {
+      "title": "Pass41 original public gate HUD portrait review",
+      "reviewer": "Lead original 390×844 source-bound screenshot review; detached independent critic unavailable",
+      "verdict": "Truthful HUD rendered; 3D key-to-closed-lock gesture/arch composition still below frozen Nintendo bar",
+      "date": "2026-11-01T12:36:34.576Z",
+      "summary": "GitHub focused CI 41306288258 SUCCESS; original artifact 13083881661 six source-bound SHA-verified PNGs. Actual sealed-gate portrait: maze-visual-reference-13 tick21 still-closed door-2 with matching carried key, SHA256 82e815c3ba7cb8cb75c9d43276f14ae422e1355f884d61e4e2022bd3bcecdfeb. Visible bottom HUD reads 'KNOWN SEALED GATE / Matching key in hand' without a fake unlock. Actor partially occluded by real gate, upper arch clipped and turquoise lagoon disproportionate; not Nintendo parity."
+    },
+    {
+      "title": "Pass42 authentic hinged shell comparison, rejected at full gameplay size",
+      "reviewer": "Lead same-seed genuine 1280×900 source screenshot A/B; no fresh separate critic or blind A/B",
+      "verdict": "REJECTED as visual advance — shell still visually a single dark oval and ember underside hidden; Nintendo benchmark NOT PASSED",
+      "date": "2026-11-01T13:28:43.117Z",
+      "summary": "Pass42 initial focused run 41307179276 FAILED on strict -0 vs +0 test, then source db4032f neutral normalization. Corrected focused CI 41311276320 SUCCESS; artifact 13085960259 six dated original PNG hashes independently matched. Actual public seed maze-visual-reference-13 tick13, 2.236-cell disclosed warden, both characters in frame. Encounter 1280x900 SHA256 46fafb3d7c93319bc16f7ffbc7beef0dcf8f764d434941db7afe95193f862d32. Compared pass41 image SHA 7e811af..., only 1721/1152000 pixels >12 RGB changed, localized x849-943/y259-327. Stronger 3D wing opening and visible seams staged separately for Pass43. No 390px guardian screenshot in this artifact, no hardware GPU evidence."
     }
   ],
   "verification": [
@@ -752,17 +766,24 @@
     },
     {
       "name": "Pass41 public matching closed gate UI truth source candidate",
-      "status": "Pure source V8 parse and nine positive/negative public-state invariants PASS; exact-source browser/phase3 CI QUEUED; independent rendered quality PENDING",
-      "detail": "Source a98885365a5a1ae393fc21973806ec4fd76bce0f. No hidden door/key/routes ever used. When real near closed-gate matching carried key, main heading explains current stakes; terminal and known-key/exit/danger priority retained. Pure helper tested true match, wrong key, missing key, unknown cell, opened door, remote cell, terminal state, null and invalid cell. GitHub focused CI 41306288258 queued; no screenshot/whole-repo success claimed. Restores pre-pass40 water material exactly.",
+      "status": "Source-bound production browser focused CI SUCCESS; verified real dated native 390×844 closed-gate HUD screenshot; fixed visual bar NOT PASSED",
+      "detail": "Real focused CI 41306288258 artifact 13083881661 six original PNG SHA verified; native closed-gate screenshot 2026-11-01T12:36:34.576Z SHA256 82e815c3ba7cb8cb75c9d43276f14ae422e1355f884d61e4e2022bd3bcecdfeb, authentic production public matching key still-sealed door. Exact prior source a988853, no authority fabricated. Nintendo scene quality remains superior.",
       "sourceCommit": "a98885365a5a1ae393fc21973806ec4fd76bce0f",
       "sourceUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41306288258"
     },
     {
       "name": "Pass42 public-threat hinged armor source candidate",
-      "status": "New Warden rig and pure tests committed for focused CI; authentic source-head original browser captures and fresh-context critic PENDING; benchmark NOT PASSED",
-      "detail": "Articulated paired elytra open only from the existing disclosed attentionStrength; lining hidden at neutral or terminal. Added no textures, backend state, routes, camera, audio, hidden knowledge or new shaders. The shared workspace tunnel is still unavailable, so this is a source-level candidate, not accepted rendered quality.",
-      "sourceCommit": "pending-atomic-commit",
-      "sourceUrl": "https://github.com/my-edutu/Ai_games/pull/53"
+      "status": "Source-bound CI screenshot and Node test SUCCESS only after negative-zero neutral fix; authentic lead visual comparison REJECTED, benchmark NOT PASSED",
+      "detail": "Initial focused CI 41307179276 FAILED strict -0/+0 test. Source db4032f explicitly normalizes both hinged-shell rest angles. Focused run 41311276320 SUCCESS, original artifact 13085960259 six PNG SHA verified including 1280x900 public tick13 warden 2026-11-01T13:28:43.117Z SHA256 46fafb3d7c93319bc16f7ffbc7beef0dcf8f764d434941db7afe95193f862d32. Lead real screenshot comparison against original pass41 rejected tiny dark-shell difference; no independent blind verdict.",
+      "sourceCommit": "db4032f5fd31bc8e4e61ef71721de08072a942ae",
+      "sourceUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41311276320"
+    },
+    {
+      "name": "Pass43 stronger physically hinged dorsal shell/seam source candidate",
+      "status": "Model source and focused regressions committed; exact-head visual CI queued; no screenshot or critic verdict yet",
+      "detail": "Source f9054d90f61c653b4d33cf0ac7a47d7444f1dde4 and tests d6fa8ae41d669f19dcbbe95b9697c4a42bf52632. Stronger x/y/z wing articulation and two wing-parented ember top seams activated only by disclosed close warden, reset for unknown/terminal. Focused CI 41311802088 was queued at last check. Real visual and Nintendo comparison pending, shared workspace tunnel/subagents/Ultracode unavailable. Software SwiftShader is not hardware FPS.",
+      "sourceCommit": "d6fa8ae41d669f19dcbbe95b9697c4a42bf52632",
+      "sourceUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41311802088"
     }
   ],
   "references": [
