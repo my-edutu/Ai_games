@@ -469,7 +469,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
         // This never affects sealed-gate, hidden, terminal or landscape views.
         if (!result && closestThreat?.strength)
           targetHeight = publicPortraitGuardianHalfHeight(
-            aspect,targetHeight,closestThreat.strength,pose,closestThreat,desiredTarget);
+            aspect,targetHeight,closestThreat.strength,pose,closestThreat,desiredTarget,cameraTarget);
       }
     }
     const blend = settings.reducedMotion ? 1 : 1 - Math.exp(-delta * 4.5);
