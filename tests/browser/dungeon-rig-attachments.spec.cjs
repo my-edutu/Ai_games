@@ -24,6 +24,9 @@ test('real Chromium GLB ranger bow and mystic staff remain attached to animated 
  await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.authored3D?.rigBoundAccessoryActors??0),{timeout:15000}).toBeGreaterThanOrEqual(2);
  const d=await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__);
  expect(d.webgl).toBe(true);
+ expect(d.authored3D.rigCranialActors).toBeGreaterThanOrEqual(5);
+ expect(d.authored3D.rigCranialRatios).toHaveLength(d.authored3D.rigCranialActors);
+ expect(d.authored3D.rigCranialRatios.every(item=>item.ratio>=.78&&item.ratio<=.91)).toBe(true);
  expect(d.authored3D.rigBoundAccessoryParts).toBeGreaterThanOrEqual(5);
  expect(d.authored3D.rigBoundAccessoryParts).toBeLessThanOrEqual(5);
  // Genuine GLB skeletons must move the authored grip origins onto their hands.

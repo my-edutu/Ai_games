@@ -8,6 +8,43 @@ const ROLE_WEAPONS=Object.freeze({
  mystic:Object.freeze(['staff-shaft','staff-crescent','staff-heart'])
 });
 const EMPTY=Object.freeze([]);
+// The pinned CC0 GLB rigs have deliberately toy-sized heads. Reduce only the
+// genuine cloned cranial joint, not the collision body or the source asset.
+// Ratios are conservative so expressions, helmets and silhouettes stay legible.
+const CRANIAL_RATIOS=Object.freeze({
+ vanguard:.86,ranger:.85,mystic:.86,revenant:.82,cultist:.84,warden:.89
+});
+export function planCranialRatio(kind){
+ return typeof kind==='string'&&Object.hasOwn(CRANIAL_RATIOS,kind)?CRANIAL_RATIOS[kind]:1;
+}
+// The imported AnimationMixer owns the unmodified bone scale. Each frame
+// removes the previous cosmetic overlay BEFORE the mixer and reapplies it
+// AFTERWARDS; clips with no scale channel therefore cannot accumulate drift.
+export function restoreCranialProportion(mount){
+ if(!mount?.applied)return false;
+ const ratio=mount.ratio;
+ if(!Number.isFinite(ratio)||ratio<=0)return false;
+ mount.bone.scale.divideScalar(ratio);
+ mount.applied=false;
+ return true;
+}
+export function stageCranialProportion(mount){
+ if(!mount||mount.applied)return false;
+ const scale=mount.bone?.scale,ratio=mount.ratio;
+ if(!Number.isFinite(ratio)||ratio<.78||ratio>1||
+  ![scale?.x,scale?.y,scale?.z].every(Number.isFinite)||
+  Math.min(scale.x,scale.y,scale.z)<=0||
+  Math.max(scale.x,scale.y,scale.z)>100)return false;
+ scale.multiplyScalar(ratio);
+ mount.applied=true;
+ return true;
+}
+export function selectCranialBone(bones){
+ if(!Array.isArray(bones))return null;
+ return bones.find(bone=>bone?.isBone&&typeof bone.name==='string'&&
+  /^(?:head|mixamorighead|bip\d+head)$/i.test(bone.name.replace(/[\s._:-]/g,'')))||null;
+}
+
 // Original prop coordinates in the external normalized 1.82m visual pivot.
 // Each marks the hand-contact point, not an actor position or collision point.
 const GRIP_ANCHORS=Object.freeze({
