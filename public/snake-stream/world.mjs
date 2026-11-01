@@ -266,6 +266,37 @@ export function createWorld(THREE, {width, height}) {
         }
       }
       // END R41 COURTYARD ROOT CHANNELS
+      // BEGIN R50 ORIGINAL QUARRY MINERAL WASH
+      // Interrupted weathered mineral deposits in the quiet inner flagstones.
+      // This is baked into the EXISTING atlas once, never a second draw,
+      // extra texture or false playable elevation. Keep edge cues untouched.
+      const innerStone = fade(2.85, 3.55, border);
+      if (innerStone > 0) {
+        const mineralSeed = slabTones[toneIndex + 2];
+        const basinX = .5 + (mineralSeed - .5) * .37;
+        const basinZ = .5 + (slabTones[toneIndex + 3] - .5) * .43;
+        const basinDistance = Math.hypot(
+          (u - basinX) * (1.22 + mineralSeed * .22),
+          (v - basinZ) * (1.40 - mineralSeed * .18)
+        ) + (mineral - .5) * .12;
+        // Large local patches read as individual worn stones, not pixel noise.
+        const patinaPool = (1 - fade(.13, .47, basinDistance))
+          * fade(.20, .74, mineralSeed) * (.72 + .28 * cloud);
+        // Sparse mineral seams are within a slab; no misleading new grid.
+        const seamDistance = Math.abs(v - (.20 + slabTones[toneIndex + 3] * .65)
+          - (u - .5) * slabTones[toneIndex + 4] * 1.8
+          + (mineral - .5) * .10);
+        const mineralVein = (1 - fade(.009, .045, seamDistance))
+          * fade(.58, .85, mineralSeed) * fade(.09, .22, u)
+          * (1 - fade(.78, .94, u));
+        const wear = innerStone * Math.min(.35, patinaPool * .34 + mineralVein * .075);
+        if (wear > 0) {
+          data[i] = Math.round(data[i] * (1 - wear) + 91 * wear);
+          data[i + 1] = Math.round(data[i + 1] * (1 - wear) + 106 * wear);
+          data[i + 2] = Math.round(data[i + 2] * (1 - wear) + 88 * wear);
+        }
+      }
+      // END R50 ORIGINAL QUARRY MINERAL WASH
     }
     // Sparse hairline fractures stay subordinate to the broad slab treatment.
     for(let c=0;c<38;c++){
