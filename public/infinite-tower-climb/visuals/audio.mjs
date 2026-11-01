@@ -136,8 +136,14 @@ export function createTowerAudio() {
       texture(680, .08, .034);
     }
     if (sameFloor && actor.state === 'standing' && last.state === 'airborne') {
-      texture(260, .17, .09);
-      tone(94, 48, .1, 'triangle', .07);
+      // Source-observed touchdown, not a clock-driven footstep. A steep genuine
+      // descent sounds denser than a soft hop and coincides with the real
+      // deck-contact sculpture in the 3D view. No browser choice drives physics.
+      const descent = Number.isFinite(last.vy) ? Math.max(0, -last.vy) : 0;
+      const weight = Math.min(1, descent / 14000);
+      texture(snapshot.theme === 'ruins' ? 370 : 260, .17 + weight * .06, .058 + weight * .055);
+      tone(94 - weight * 24, 48, .1 + weight * .055, 'triangle', .052 + weight * .036);
+      if (weight > .75) tone(66, 48, .19, 'sine', .034 * weight);
       stride = 0;
     }
     // Stride is advanced only by actual same-floor authoritative displacement,
