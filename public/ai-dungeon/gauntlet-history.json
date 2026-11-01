@@ -2193,20 +2193,20 @@
         "feelsMajority": false,
         "playsMajority": false
       },
-      "safetyChecks": "Prior exact-head 433a78f: Dungeon foundation workflow 41350895379 SUCCESS, visual review 41350895323 SUCCESS, catalogue CI 41350895406 FAILED three Tiny Kingdom browser assertions (expected procedural-060 vs actual procedural-063, river optic substring count), not AI Dungeon-specific. New 280302c exact-head checks scheduled but UNVERIFIED. Code is spectator-only and unchanged authority RNG/saves; actual source tests and render still must pass.",
+      "safetyChecks": "Local extracted exact source 8a7c3ae from source files, focused scripts for earlier candidate: 10/10 Warden silhouette/staging tests PASS; following integrated rig-warning locally patched source 36/36 chapter/authored motion/rig attachment tests PASS. Exact-head GitHub CI, browser and replay/security remain pending, not evidence of game transformation. Earlier candidate visual review run 41360109116 success and authentic desktop/mobile images; dedicated foundation run 41360109111 cancelled during active candidate pushes, catalogue CI 41360109138 was in_progress at inspection. Local headless browser was blocked by administrator ERR_BLOCKED_BY_ADMINISTRATOR, not a game failure or browser pass.",
       "matchedExternalReference": "NOT_RUN",
-      "originalAudioMotionClip": "PENDING_EXACT_HEAD_CHROMIUM_CAPTURE",
-      "soundstageBrowser": "PENDING_EXACT_HEAD_CHROMIUM_RUN",
+      "originalAudioMotionClip": "UNVERIFIED_NO_ORIGINAL_CAPTURE",
+      "soundstageBrowser": "UNVERIFIED_FOR_NEW_WARDEN",
       "audioLoudnessAndClipping": "NOT_MEASURED",
       "originalAudioSource": "Synthesized WebAudio oscillators; no external music samples or runtime network dependencies",
       "visualSceneReference": "Locked unchanged: https://github.com/my-edutu/Ai_games/actions/runs/41302939553/artifacts/13081734898",
-      "actualWebglFramingRegression": "PREVIOUS_REAL_BROWSER_FAILED_61PX_VS_90PX_CANDIDATE_UNVERIFIED",
-      "latestCandidateWorkflow": "CODE_280302cc82f21458e00578445cbba51cd1c3a55a_QUEUED_DUNGEON_41355198272_VISUAL_41355198267_CATALOGUE_41355198263"
+      "actualWebglFramingRegression": "PREVIOUS_61PX_FRAME_KNOWN_CURRENT_WARDEN_AFTER_NOT_MEASURED",
+      "latestCandidateWorkflow": "CANDIDATE_8a7c3ae4083868fac2ef47f27314010f3c983a7a_PUBLISHED_EXACT_HEAD_BROWSER_CI_PENDING"
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
-    "biggestRemainingGap": "Actual movie-like protagonist/enemy anatomy, weighted strike/recovery, Warden camera/scene clarity and complete organic multi-stage adventure still fall well short of Diablo IV / No Rest for the Wicked / Path of Exile 2 quality references. This code's before/after render, motion, audio, tactile combat clarity, mobile FPS, matched blind critique and true continuous defeat/restart all remain UNVERIFIED.",
-    "currentWork": "Integrated truthful contact passage in playable Warden expedition: original extruded forged-blade mesh replaces floating torus; genuine imported GLB right-hand joint anchors sweep when safely in-cell, real HP-loss snapshots alone cause bounded body-height 3D metal/stone spall; projectiles that miss or are blocked no longer fabricate hit flashes. Existing autonomous party, boss, camera, soundstage, floor and restart mechanics retained; outcome and visual quality remain unverified pending captured real WebGL and audio.",
-    "candidateCommit": "280302cc82f21458e00578445cbba51cd1c3a55a",
+    "biggestRemainingGap": "Review of genuine exact-head 1440-wide Chromium prior/candidate expedition frames still shows chibi-style oversized heads, relatively flat repetitive gridded dungeon masonry and cluttered characters. New boss-specific staging/telegraph visual and sound improvements have NOT been assessed in continuous organic combat. Full travel-to-Warden-to-floor-to-defeat/restart mobile/desktop matched audiovisual reel, independent looks/feels/plays judges, reliable p95/p99 and performance/mobile accessibility remain UNVERIFIED.",
+    "currentWork": "An integrated M1 Warden confrontation candidate now couples 24 human-scaled original boss regalia pieces, chamfered forged plaques on its actual animated rig, authority-safe inside-cell melee party separation, and genuine live boss-warning shoulder anticipation on imported GLB bones using reversible post-mixer quaternion overlays. The AI Warden shield, camera, actual HP/contact effects, progression and progression HUD remain connected. New full audiovisual game quality, boss shots and acceptance remain UNVERIFIED.",
+    "candidateCommit": "8a7c3ae4083868fac2ef47f27314010f3c983a7a",
     "candidateArtifactUrl": null,
     "acceptedAt": null,
     "implementationEvents": [
@@ -2490,6 +2490,41 @@
         "independentCritics": "UNVERIFIED: workspace/subagent tunnel unavailable. No blind LOOKS/FEELS/PLAYS majority.",
         "experienceVerdict": "IN PROGRESS — NOT TRANSFORMED",
         "next": "Inspect 280302c exact-head 1440 desktop and phone gameplay, verify sustained Warden contact and movement in motion/audio, fix any physical blade orientation or hands drifting/clipping, build organic traversal→combat→boss→floor→defeat/restart capture and demand >=3 independent blind critics vs locked baseline. Then attack still-stylized full-body shapes and materials."
+      },
+      {
+        "id": "M1-READABLE-WARDEN-PHYSICAL-20261101",
+        "date": "2026-11-01",
+        "status": "IMPLEMENTED_UNVERIFIED",
+        "sourceHeadAtStart": "312cb5d3618d863cba86317e0037c7bd6f030949",
+        "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+        "codeCommit": "8a7c3ae4083868fac2ef47f27314010f3c983a7a",
+        "commits": [
+          "eea0e4475b96c39ac902741908873867a447e841",
+          "b0a9c9aee13e98936b40421f78957f0d08821731",
+          "7ad968eece807283b7229ce81a545c6bd60d346c",
+          "1fb05a52ed86b6ef0b6025f0bf85b653676ce541",
+          "b728d8efd2118247941c0117b0934af4ffe5da9a",
+          "70cd8e9308c28d88db995841d5e85730e240311e",
+          "0a8025f53c4803def392adc7fd56be7a5e04f85c",
+          "8a7c3ae4083868fac2ef47f27314010f3c983a7a"
+        ],
+        "objective": "A visually coherent, readable and tactically legible real Warden faceoff rather than opaque oversized boss ornament and bodies.",
+        "integratedImplementation": "Lower Warden horn width/height and overall exaggerated upper-body plates without losing 24 recognisable original crest pieces; forged chamfered weapon-facing brass plaques share one geometry; hero feet offset up to 0.22 meters away from living boss only inside authorised cell, same rendering offsets consumed by combat director; active Warden authority warning drives actual animated shoulders alongside inherited cinematic torso charge, with additive quaternion restored before next GLB mixer frame. All cosmetic code, no simulation RNG, save schema, AI damage or hitbox mutations.",
+        "changedFiles": [
+          "public/ai-dungeon/warden-regalia-plan.js",
+          "public/ai-dungeon/combat-staging-plan.js",
+          "public/ai-dungeon/model-assets.js",
+          "public/ai-dungeon/app.js",
+          "tests/foundation/dungeon-warden-regalia.test.cjs",
+          "tests/foundation/dungeon-combat-staging.test.cjs",
+          "tests/foundation/dungeon-cinematic-chapter.test.cjs"
+        ],
+        "actualEvidence": "Prior real full-browser visual run 41355464880 succeeded. New candidate visual run 41360109116 succeeded at staging/art subset SHA b728d8e and published genuine desktop/mobile/world-only screenshots https://github.com/my-edutu/Ai_games/actions/runs/41360109116/artifacts/13104975824 . Those images show stylised overlarge chibi heads and dense block architecture, and do not stage the Warden fight. Later rig-warning additions to 8a7c3ae not browser-reviewed yet. Genuine continuous Warden audio-video still missing.",
+        "localValidation": "Earlier staged art Warden tests 10/10 pass in extracted source at b728d8e. Locally patched exact prospective rig integration chapter/authored motion/rig joint tests 36/36 pass. Browser locally blocked by host administration. No claim that new exact-head workflow passed.",
+        "independentCritics": "NOT_RUN. External worker connection NOT_FOUND; no three fresh independent critics or blinded majority.",
+        "authorityImpact": "NONE. Presentation read-only: no AI/combat legality, damage, floor, reset, seeded RNG or persistent format change.",
+        "visualVerdict": "IN_PROGRESS / NOT_TRANSFORMED; baseline locked, visual improvement UNVERIFIED; substantial experience still far below references.",
+        "next": "Require exact-head 8a7c3ae+ GitHub browser validation and inspect Warden boss desktop/mobile screenshots, poses and unoccluded body-part/weapon contact; correct reported errors before any further visual promise. Then build distinctive authored characters/room environments and original contact/recovery audio, record uninterrupted real gameplay journey/restart and get three blind LOOKS/FEELS/PLAYS critics vs pinned baseline; measure frame-time p95 mobile."
       }
     ]
   }
