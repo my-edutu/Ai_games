@@ -130,7 +130,13 @@ test('stale transport and reduced motion cannot animate fake progress; context r
 test('the actual scene consumes source transitions and owns passage lifecycle on recovery', () => {
   const source = fs.readFileSync(path.join(root, 'public/infinite-tower-climb/visuals/scene.mjs'), 'utf8');
   assert.match(source, /observedGuardianPassage\(previous, next\)/);
-  assert.match(source, /passage\.begin\(previous, next, pointFor\(next\.player\.x/);
+  assert.match(source, /const guardianCap = clearedGuardian && previous\.platforms\?\.find/);
+  assert.match(source, /platform\.id === `f\$\{previous\.floor\}:cap`/);
+  assert.match(source, /passage\.begin\(previous, next, pointFor\(capCenter/);
+  assert.match(source, /guardianCap\.y \+ guardianCap\.height, next\.chunkBaseY/);
+  assert.doesNotMatch(source, /passage\.begin\(previous, next, pointFor\(next\.player\.x/);
+  // A world-space continuity cue must come from the defeated SOURCE gate,
+  // never from the new player's arbitrary location after a floor transition.
   assert.match(source, /scene\.remove\(world\.group, climber\.group, finale\.group, passage\.group\)/);
   assert.match(source, /passage\.dispose\(\)/);
   assert.match(source, /passage\.update\(dt, options\)/);
