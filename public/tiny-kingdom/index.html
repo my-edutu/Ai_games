@@ -3470,7 +3470,6 @@ function renderDeliveryReceipts(){
    const age=now-receipt.time;
    if(age<0||age>1.6)continue;
    const [x,z]=receipt.destination,y=terrain(x,z)+.06;
-   const fade=1-age/1.6;
    if(receipt.resource==='wood'){
     for(let i=0;i<3;i++)
      limbSegment([x-.29,y+.11+i*.085,z+i*.13],
@@ -3587,6 +3586,35 @@ function emitStreetCargo(p,x,y,z,size){
  const sway=Math.sin(p.phase*2.7)*.028*size;
  const brown=rgb(0x795338),rope=rgb(0xc9ab77),
   cloth=rgb(p.job==='farmer'?0xc0a47a:0x8d9474);
+ // A loaded worker pulls an original physical wooden handcart. Wheels,
+ // two angled shafts, loaded tray and cross-brace share the citizen's facing
+ // and actual locomotion; only genuinely travelling supplies receive it.
+ if(p.delivery){
+  const cy=y+.27*size,cz=z-.72*size,wood=rgb(0x8d6846);
+  materialScope(MATERIAL.WOOD,()=>{
+   box(x,cy,cz,.63*size,.11*size,.70*size,wood);
+   for(const side of [-1,1]){
+    const xx=x+side*.29*size;
+    limbSegment([xx,y+.45*size,z-.20*size],
+      [xx,cy+.08*size,cz-.25*size],.022*size,wood,5);
+    const wx=x+side*.40*size,wz=cz-.09*size;
+    ellipsoid(wx,y+.22*size,wz,.065*size,.20*size,.20*size,
+     rgb(0x51473c),5);
+    ellipsoid(wx+side*.06*size,y+.22*size,wz,.026*size,.062*size,
+     .062*size,rope,5);
+   }
+   box(x,cy+.13*size,cz+.30*size,.68*size,.17*size,.045*size,wood);
+   if(p.delivery.resource==='wood'){
+    for(let j=0;j<2;j++)
+     limbSegment([x-.28*size,cy+.18*size+j*.12*size,cz],
+      [x+.28*size,cy+.18*size+j*.12*size,cz],
+      .072*size,rgb(j?0x9e7751:0x73553c),5);
+   }else{
+    box(x,cy+.20*size,cz,.45*size,.24*size,.36*size,cloth);
+    box(x,cy+.36*size,cz,.42*size,.055*size,.38*size,rope);
+   }
+  });
+ }
  // Body-facing straps, cargo shelf and a swaying, weighted carrier are
  // original 3D geometry rather than a billboard, icon or invented NPC.
  materialScope(MATERIAL.WOOD,()=>{
