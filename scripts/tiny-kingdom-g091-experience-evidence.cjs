@@ -19,6 +19,8 @@ const viewport={width:1024,height:640};
 const wide={focus:[0,0],yaw:.85,pitch:.52,zoom:23};
 const labor={focus:[18,1],yaw:.73,pitch:.6,zoom:15};
 const grown={focus:[0,0],yaw:.85,pitch:.52,zoom:23};
+// G095: identical high-comprehension market inspection in old and new games.
+const marketView={focus:[-.7,5.3],yaw:.62,pitch:.52,zoom:19};
 const gpuArgs=['--enable-webgl','--use-gl=angle','--use-angle=swiftshader',
  '--enable-unsafe-swiftshader','--disable-dev-shm-usage',
  '--enable-precise-memory-info'];
@@ -27,7 +29,7 @@ const evidence={
  version:'g091-matched-lived-workday-v1',
  baselineSha:BASE,candidateSha:null,baselineBlob:null,candidateBlob:null,
  renderer:'UNVERIFIED',status:'INCOMPLETE',workdayTicks:null,
- camera:{wide,labor,grown},viewport,
+ camera:{wide,labor,grown,marketView},viewport,
  scenarios:{},videos:{},errors:[],
  limitations:[
   'SwiftShader is a software renderer; observed recording FPS is not hardware FPS.',
@@ -112,6 +114,7 @@ async function stage(label,html,browser,matchedTicks){
   await page.evaluate(()=>window.__tinyKingdom.reset());
   const result={renderer:contextInfo.quality.renderer,quality:contextInfo.quality};
   result.day1=await cameraAndScreenshot(page,wide,label+'/day1-wide.png');
+  result.marketDay1=await cameraAndScreenshot(page,marketView,label+'/market-day1.png');
   await page.evaluate(()=>window.__tinyKingdom.setHudMode('full'));
   let ticks=matchedTicks;
   if(ticks===null){
@@ -152,10 +155,12 @@ async function stage(label,html,browser,matchedTicks){
   await page.evaluate(()=>window.__tinyKingdom.reset());
   await advanceTicks(page,120*24*30);
   result.day120=await cameraAndScreenshot(page,grown,label+'/day120-wide.png');
+  result.marketDay120=await cameraAndScreenshot(page,marketView,label+'/market-day120.png');
   await page.evaluate(()=>window.__tinyKingdom.setHudMode('full'));
   await page.setViewportSize({width:390,height:844});
   await page.waitForTimeout(1000);
   result.mobile=await cameraAndScreenshot(page,grown,label+'/day120-mobile.png',false);
+  result.marketMobile=await cameraAndScreenshot(page,marketView,label+'/market-mobile.png',false);
   if(label==='candidate'){
    const mobileLive=await page.evaluate(()=>{
     const g=window.__tinyKingdom,before=JSON.stringify(g.exportSnapshot());
@@ -177,7 +182,7 @@ async function stage(label,html,browser,matchedTicks){
   await context.close();
  }
 }
-async function motion(browser,html,snapshot,label,live=false){
+async function motion(browser,html,snapshot,label,live=false,camera=labor){
  const {context,page,contextInfo}=await openScene(browser,html,label,true);
  const video=page.video();
  try{
@@ -186,7 +191,7 @@ async function motion(browser,html,snapshot,label,live=false){
    g.restoreSnapshot(snapshot);
    g.setCamera(camera);
    g.setCommandView('world');
-  },{snapshot,camera:labor});
+  },{snapshot,camera});
   if(live){
    await page.locator('#workday-live').click();
    const work=await page.evaluate(()=>{
@@ -261,6 +266,10 @@ async function motion(browser,html,snapshot,label,live=false){
   evidence.videos.candidate=await motion(browser,candidate,cSnapshot,'candidate-workday');
   evidence.videos.baseline=await motion(browser,baseline,bSnapshot,'baseline-workday');
   evidence.videos.candidateLive=await motion(browser,candidate,cSnapshot,'candidate-live-shift',true);
+   // Full, uncut paired market gameplay with actual citizen simulation and
+   // real pointer orbit/zoom. No screenshots or mock animation substituted.
+   evidence.videos.candidateMarket=await motion(browser,candidate,cSnapshot,'candidate-market',false,marketView);
+   evidence.videos.baselineMarket=await motion(browser,baseline,bSnapshot,'baseline-market',false,marketView);
   evidence.status='SCENARIOS_CAPTURED_NOT_BLIND_REVIEWED';
   assert.deepEqual(evidence.errors,[],'Uncaught browser/console errors');
  }catch(error){
