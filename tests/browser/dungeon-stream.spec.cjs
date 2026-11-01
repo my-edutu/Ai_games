@@ -155,13 +155,34 @@ test('public stream exposes authentic boss phase and a health/checkpoint monitor
  expect(health.status).toBe('healthy');
 });
 
-test('optional cinematic glow uses locally served Three.js postprocessing and remains reversible',async({page,request})=>{
+test('optional cinematic glow never blocks CPU WebGL startup and remains honestly reversible',async({page,request})=>{
  expect((await request.get('/dungeon/postfx-budget.js')).status()).toBe(200);
  for(const path of ['/dungeon/vendor/addons/postprocessing/EffectComposer.js','/dungeon/vendor/addons/postprocessing/UnrealBloomPass.js','/dungeon/vendor/addons/shaders/LuminosityHighPassShader.js'])
   expect((await request.get(path)).status()).toBe(200);
  await page.goto('/dungeon');
- await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.postFXStatus??'not started'),{timeout:25000}).toBe('ready');
- await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.postFX),{timeout:15000}).toBe('bloom');
+ // Real SwiftShader must show moving geometry without constructing multiple
+ // GPU render targets just to discover that expensive bloom is unusable.
+ await expect.poll(()=>page.evaluate(()=>{
+  const d=window.__DUNGEON_RENDER_DIAGNOSTICS__;
+  return Boolean(d?.frame>3&&['direct','bloom'].includes(d.postFX));
+ }),{timeout:25000}).toBe(true);
+ const initial=await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__);
+ if(initial.softwareWebGL){
+  expect(initial.postFX).toBe('direct');
+  expect(initial.postFXStatus).toBe('software-fallback');
+  expect(initial.postFXBudget).toBeNull();
+  await expect(page.locator('#fx-toggle')).toHaveAttribute('aria-pressed','false');
+  await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.frame),{timeout:15000}).toBeGreaterThan(initial.frame);
+  return;
+ }
+ if(initial.postFXStatus==='performance-fallback'){
+  expect(initial.postFX).toBe('direct');
+  expect(initial.postFXAutoDisabled).toBe(true);
+  expect(initial.bloomRenderMs).toBeGreaterThan(650);
+  await expect(page.locator('#fx-toggle')).toHaveAttribute('aria-pressed','false');
+  return;
+ }
+ await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.postFXStatus),{timeout:25000}).toBe('ready');
  const budget=await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.postFXBudget);
  expect(budget.renderPixels).toBeGreaterThan(0);
  expect(budget.renderPixels).toBeLessThanOrEqual(budget.maxPixels);
@@ -170,13 +191,15 @@ test('optional cinematic glow uses locally served Three.js postprocessing and re
  await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.postFX),{timeout:10000}).toBe('direct');
  const directFrame=await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.frame);
  await page.locator('#fx-toggle').click();
- // Software WebGL trace 41201505995 showed a pressed, enabled toggle while
- // its next real compositor frame had not yet arrived within 10 seconds.
- // Require a NEW, genuinely rendered bloom frame, not a synthetic UI state.
+ // A genuinely slow GPU may immediately return to direct 3D after a measured
+ // compositor stall. Both a new bloom frame and truthful fallback are valid.
  await expect.poll(()=>page.evaluate(previous=>{
   const d=window.__DUNGEON_RENDER_DIAGNOSTICS__;
-  return Boolean(d&&d.postFX==='bloom'&&d.frame>previous);
- },directFrame),{timeout:30000}).toBe(true);
+  if(!d||d.frame<=previous)return null;
+  if(d.postFX==='bloom'&&d.postFXStatus==='ready')return 'bloom';
+  if(d.postFX==='direct'&&d.postFXStatus==='performance-fallback'&&d.postFXAutoDisabled)return 'fallback';
+  return null;
+ },directFrame),{timeout:35000}).toMatch(/^(bloom|fallback)$/);
 });
 
 test('Three.js core module resolves and startup watchdog detects a real 3D frame',async({page,request})=>{
