@@ -131,6 +131,16 @@ test('a late valid frame and tick recover cold-start restoration after its stall
  assert.equal(h.document.body.dataset.rendererStatus,'ready','a stale startup timeout must never fire after real recovery');
 });
 
+test('late actual WebGL frames and simulation ticks clear the false cold-start failure veil',()=>{
+ const h=launch();h.advance(13500);
+ assert.equal(h.document.body.dataset.rendererStatus,'failed');
+ h.window.__DUNGEON_RENDER_DIAGNOSTICS__.frame=6;
+ h.window.__DUNGEON_PUBLIC_STATE__.tick=3;
+ h.advance(1000);
+ assert.equal(h.document.body.dataset.rendererStatus,'ready');
+ assert.equal(h.recovery.hidden,true);
+});
+
 test('generic startup failure remains actionable when no WebGL loss or restoration was observed',()=>{
  const h=launch();
  h.advance(13500);

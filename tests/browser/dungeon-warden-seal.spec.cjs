@@ -39,6 +39,7 @@ test('real Three.js desktop and mobile show the authoritative Warden binding sea
  await page.goto('/dungeon');
  await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.webgl===true),{timeout:60000}).toBe(true);
  await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.wardBarrierVisible),{timeout:45000}).toBe(true);
+ await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.wardenRitual?.activeTethers),{timeout:45000}).toBeGreaterThan(0);
  await expect(page.locator('#floor-status')).toContainText('BINDING GUARDS');
  await page.locator('#world').screenshot({path:'artifacts/dungeon-warden-seal-m1-desktop-before-webgl.png',timeout:90000});
  current=after;
@@ -47,6 +48,8 @@ test('real Three.js desktop and mobile show the authoritative Warden binding sea
  await expect(page.locator('#floor-status')).toContainText('WARDEN EXPOSED');
  const diag=await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__);
  expect(diag.guardianWard).toBe(false);
+ expect(diag.wardenRitual?.shieldActive).toBe(false);
+ expect(diag.wardenRitual?.activeTethers).toBe(0);
  expect(diag.defendersRemaining).toBe(0);
  expect(diag.composition.visibleHeroes).toBeGreaterThan(0);
  await page.locator('#world').screenshot({path:'artifacts/dungeon-warden-seal-m1-desktop-after-webgl.png',timeout:90000});
@@ -58,7 +61,7 @@ test('real Three.js desktop and mobile show the authoritative Warden binding sea
   seed:'dungeon-warden-m1-browser-encounter',provenance:'DungeonRuntime.create + staged legal positions + real DungeonRuntime.step',
   notOrganicFullCampaign:true,before:{tick:before.tick,guardianWard:before.guardianWard,defendersRemaining:before.defendersRemaining},
   after:{tick:after.tick,guardianWard:after.guardianWard,defendersRemaining:after.defendersRemaining,sealEvent:after.events.filter(e=>e.kind==='unseal')},
-  renderer:{webgl:diag.webgl,wardBarrierVisible:diag.wardBarrierVisible,
+  renderer:{webgl:diag.webgl,wardBarrierVisible:diag.wardBarrierVisible,wardenRitual:diag.wardenRitual,
   composition:diag.composition,triangles:diag.triangles,drawCalls:diag.drawCalls}
  },null,2)),contentType:'application/json'});
 });

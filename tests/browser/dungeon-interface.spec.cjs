@@ -62,8 +62,11 @@ test('a real boss encounter is framed using world coordinates',async({page})=>{
  const d=await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__);
  expect(d.cameraLook).toBeDefined();
  const hero=snapshot.units.find(u=>u.id===d.focusedHeroId),boss=snapshot.units.find(u=>u.kind==='warden');
- expect(d.cameraLook.x).toBeCloseTo((hero.x-9)*.72+(boss.x-9)*.28,3);
- expect(d.cameraLook.z).toBeCloseTo((hero.z-9)*.72+(boss.z-9)*.28,3);
+ // The real combat director frames a target contact before blending to the
+ // boss. The legacy hero-only shot expectation incorrectly rejected it.
+ const anchor=d.encounterFrame??hero;
+ expect(d.cameraLook.x).toBeCloseTo((anchor.x-9)*.72+(boss.x-9)*.28,3);
+ expect(d.cameraLook.z).toBeCloseTo((anchor.z-9)*.72+(boss.z-9)*.28,3);
 });
 
 test('clean view never hides a real connection failure',async({page})=>{

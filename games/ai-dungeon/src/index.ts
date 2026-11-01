@@ -127,6 +127,17 @@ function createFloor(seed:string,floor:number,rng:NamedRng,run:number,previous?:
   const kind:UnitKind=i%3===0?'cultist':'revenant',hp=kind==='cultist'?36+floor*3:44+floor*4;
   units.push({id:'enemy-'+floor+'-'+i,kind,faction:'enemy',x:p.x,z:p.z,hp,maxHp:hp,attack:kind==='cultist'?8:10,cooldown:0});
  }
+ // Living oathbound defenders make the sealed boss fight a close, readable
+ // challenge. These seeded, legal units are real AI opponents, not fake VFX.
+ const courtTiles=DIRS.flatMap(([dx,dz])=>[2,1].map(d=>({x:exit.x+dx*d,z:exit.z+dz*d})));
+ for(let i=0;i<2;i++){
+  const options=courtTiles.filter(p=>walkable(rows,p.x,p.z)&&!occupied.has(key(p.x,p.z))&&dist(p,spawn)>4);
+  if(!options.length)break;
+  const p=options[rng.nextInt('court-guard:'+floor+':'+run+':'+i,options.length)];
+  occupied.add(key(p.x,p.z));
+  const kind:UnitKind=i===0?'revenant':'cultist',maxHp=(i===0?46:34)+floor*4;
+  units.push({id:'oathbound-'+floor+'-'+i,kind,faction:'enemy',x:p.x,z:p.z,hp:maxHp,maxHp,attack:i===0?10:8,cooldown:0});
+ }
  for(const unit of units){unit.action='idle';unit.actionTick=previous?.tick??0}
  const relics=tiles.filter(p=>p.d>3&&!occupied.has(key(p.x,p.z))).slice(0,3).map(p=>({x:p.x,z:p.z}));
  const forbidden=new Set(relics.map(p=>key(p.x,p.z)));

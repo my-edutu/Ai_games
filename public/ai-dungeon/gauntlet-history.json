@@ -2193,7 +2193,7 @@
         "feelsMajority": false,
         "playsMajority": false
       },
-      "safetyChecks": "PENDING_EXACT_HEAD_33758df_CI_AND_BROWSER",
+      "safetyChecks": "PRIOR_EXACT_HEAD_783b980_CI_FAILED; TWO_IDENTIFIED_TEST_FAILURES_ADDRESSED_IN_UNVERIFIED_CANDIDATE",
       "matchedExternalReference": "NOT_RUN",
       "originalAudioMotionClip": "PENDING_EXACT_HEAD_CHROMIUM_CAPTURE",
       "soundstageBrowser": "PENDING_EXACT_HEAD_CHROMIUM_RUN",
@@ -2202,8 +2202,8 @@
       "visualSceneReference": "Locked unchanged: https://github.com/my-edutu/Ai_games/actions/runs/41302939553/artifacts/13081734898"
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
-    "biggestRemainingGap": "Small stylized low-detail humanoid rigs, overlap/contact and repeated boxy masonry are still far from authentic Diablo IV, No Rest for the Wicked and Path of Exile 2. Need real complete desktop/mobile motion+audio scenario, matched locked-baseline comparisons, realistic tactical balance/performance, >=3 independent blinded critics.",
-    "currentWork": "M1 integrated expedition candidate: autonomous local/minion pursuit and ranged firing lanes, verified-target audiovisual contact, authored Warden binding-guard predicate, single eventful shield break, boss/summons clear-to-exit, camera and optional original sound. Implemented in the exact source; full experiential browser proof and independent A/B remain unverified.",
+    "biggestRemainingGap": "Inspected actual prior desktop/mobile fight captures at SHA 783b980 show a fatal startup veil obscuring active WebGL after seal break; also low-detail toy-like models, cluttered masonry and weak motion. This latest integrated court candidate awaits real captures and a complete organic desktop/mobile encounter; AAA quality and critic preference remain UNVERIFIED.",
+    "currentWork": "Integrated ongoing M1: real nearby oathbound court sentries, original 3D binding plinth/rune/tether/shatter stage tied to living guardianWard, and self-healing late software-WebGL startup. Exact-head playable results NOT VERIFIED.",
     "candidateCommit": "33758dfb775fe457f6315b8b8d2dc8fdfa2d05d4",
     "candidateArtifactUrl": null,
     "acceptedAt": null,
@@ -2264,6 +2264,25 @@
         "ci": "At implementation checkpoint, exact-head Action 41309091221 and visual review 41309091262 QUEUED, catalogue CI 41309091222 IN_PROGRESS; no exact-head pass claimed.",
         "proofGaps": "No inspected exact-head real desktop/mobile 3D audiovisual scenario, no matched A/B, no GPU hardware p95/p99, no 3+ independent blind critics; independent workers unavailable due disconnected workspace tunnel.",
         "next": "Capture genuine continuous seeded traversal, binding guards, Warden three phases/summons, floor, defeat/restart on desktop/mobile; inspect motion+sound; fix balance and actor/contact/room art deficits, then blind critic panel."
+      },
+      {
+        "id": "M1-LIVING-RITUAL-20261101",
+        "date": "2026-11-01",
+        "status": "IMPLEMENTED_UNVERIFIED",
+        "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+        "sourceHeadAtStart": "783b980cd2955e1e73e67969d817d6bb48707ce3",
+        "objective": "Integrate nearby AI sentries with causal 3D Warden shield conduits, boss chamber plinths and true unseal shatter, while restoring a playable stage after slow WebGL startup",
+        "source": [
+          "games/ai-dungeon/src/index.ts",
+          "public/ai-dungeon/warden-ritual.js",
+          "public/ai-dungeon/app.js",
+          "public/ai-dungeon/boot-watchdog.js"
+        ],
+        "priorRealEvidence": "https://github.com/my-edutu/Ai_games/actions/runs/41309595655/artifacts/13086040069",
+        "priorCI": "Run 41309595655 failed fixture invalid hp and legacy camera expectation; repaired candidate pending exact-head CI",
+        "verdict": "IN_PROGRESS / NOT TRANSFORMED",
+        "blockers": "Workspace/subagent tunnel unreachable; no local Chromium, organic long-run audio clip, matched locked-baseline A/B or 3 blind independent critics",
+        "next": "Inspect new real desktop/mobile boss court and motion audio; correct defects, then upgrade actor anatomy, environment/legibility and autonomous pacing with measured hardware performance and independent critique."
       }
     ]
   }

@@ -2,6 +2,16 @@
 const {test}=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
 const {DungeonRuntime,shortestPath,assertDungeonState,wardenSealActive,damageThroughWardenSeal}=require('../../dist/games/ai-dungeon/src/index.js');
 
+test('the Warden keeps genuine nearby oathbound defenders with legal unique tiles',()=>{
+ const game=DungeonRuntime.create('court-guard-seed-1'),s=game.state;
+ const boss=s.units.find(u=>u.kind==='warden'),guards=s.units.filter(u=>u.id.startsWith('oathbound-'));
+ assert.equal(guards.length,2);
+ assert.ok(guards.every(u=>u.hp>0&&u.faction==='enemy'&&Math.abs(u.x-boss.x)+Math.abs(u.z-boss.z)<=2));
+ assert.notEqual(guards[0].x+guards[0].z*19,guards[1].x+guards[1].z*19);
+ assert.ok(wardenSealActive(s));assertDungeonState(s);
+ assert.deepEqual(DungeonRuntime.restore(game.save()).publicState(),game.publicState());
+});
+
 test('binding guards protect the Sentinel; later phases and cleared guards release real damage',()=>{
  const game=DungeonRuntime.create('binding-guard-damage-1'),s=game.state;
  const boss=s.units.find(u=>u.kind==='warden'),guard=s.units.find(u=>u.kind==='revenant');
@@ -40,7 +50,7 @@ test('living reinforcements prevent an unearned floor exit after defeating the W
  const boss=s.units.find(u=>u.kind==='warden'),guard=s.units.find(u=>u.kind==='revenant');
  const hero=s.units.find(u=>u.id==='vanguard');assert.ok(boss&&guard&&hero);
  for(const unit of s.units){if(unit.faction==='enemy')unit.hp=0;if(unit.faction==='party'&&unit!==hero)unit.hp=0;}
- guard.hp=60;guard.x=1;guard.z=1;
+ guard.hp=guard.maxHp;guard.x=1;guard.z=1;
  hero.x=s.exit.x;hero.z=s.exit.z;
  const before=s.floor,waiting=game.step();
  assert.equal(waiting.floor,before,'portal requires the actual remaining threat to be defeated');

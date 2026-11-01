@@ -62,7 +62,16 @@
    }
    return;
   }
-  if(document.body.dataset.rendererStatus==='failed')return;
+  if(document.body.dataset.rendererStatus==='failed'){
+   // A slow software-WebGL first frame can arrive after startup times out.
+   // Never leave a fatal overlay covering genuinely live gameplay; recover
+   // only when BOTH a rendered frame and real simulation tick are observed.
+   if(frame>3&&Number.isFinite(tick)&&tick>0&&now-lastFrameAt<3000&&now-lastTickAt<3000){
+    document.body.dataset.rendererStatus='ready';
+    if(message)message.hidden=true;
+   }
+   return;
+  }
   if(frame>3&&Number.isFinite(tick)&&(now-lastFrameAt>25000||now-lastTickAt>25000)){
    degraded('stalled',now-lastFrameAt>25000?'3D renderer stalled':'Autonomous stream stalled');
   }else if(document.body.dataset.rendererStatus==='stalled'&&now-lastFrameAt<3000&&now-lastTickAt<3000){
