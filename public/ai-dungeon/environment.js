@@ -1,6 +1,7 @@
 import * as THREE from '/dungeon/vendor/three.module.js';
 import {addDungeonWindows} from '/dungeon/architecture.js';
 import {planStoneRelief} from '/dungeon/stone-relief-plan.js';
+import {planCutawayFloorBacking} from '/dungeon/cutaway-floor-plan.js';
 import {planPartyWallReveal,createCutawayBandCache,shouldUploadCutawayBand} from '/dungeon/party-visibility-plan.js';
 
 // Purely cosmetic, reproducible procedural dressing. This code never touches game authority.
@@ -171,6 +172,11 @@ export function enrichEnvironment(world,map,floor){
    if(h%31===0){banners.push([ax,az,face.yaw,h]);}
   }
  }
+ // Real camera sightlines may compress opaque masonry; paint the *same*
+ // textured stone beneath those tiles, rather than showing bare black voids.
+ // Add to the existing floor batch, with no new draw call or physics surface.
+ const backing=planCutawayFloorBacking(map,floor);
+ for(const tile of backing)floorDetails.push([tile.x,-.005,tile.z,.965,.035,.965,tile.yaw]);
  // Floor tapestries are not collisions: they help viewers distinguish rooms
  // at a glance, even during fast autonomous combat.
  if(!rugs.length&&rugCandidates.length)rugs.push(rugCandidates[0]);
@@ -310,6 +316,6 @@ export function enrichEnvironment(world,map,floor){
  }
 
  const animate=time=>{for(const p of flames){const t=time*5+p.phase,scale=1+Math.sin(t)*.13;p.fire.scale.y=scale;p.inner.scale.setScalar(.91+Math.sin(t+1.3)*.14)}};
- return {animate,cutaway,occluders:[facadeMesh,...foregroundGroups].filter(Boolean),metrics:Object.assign(sceneMetrics,{biome:floor,decorInstances:totalDecor+archWindows,archWindows,torches:flames.length,banners:bannersCount,landmarks:ruins,wovenRugs:rugs.length,texturedSurfaces:floorDetails.length+wallFaces.length,weatheredSpalls:stoneWeather.spalls.length,brokenCopingStones:stoneWeather.coping.length,weatheredBatches:Number(Boolean(spallMesh))+Number(Boolean(copingMesh))}),dispose:()=>{for(const g of geometries)g.dispose();for(const m of materials)m.dispose();for(const t of textures)t.dispose();for(const f of flames){f.inner.material.dispose()}}};
+ return {animate,cutaway,occluders:[facadeMesh,...foregroundGroups].filter(Boolean),metrics:Object.assign(sceneMetrics,{biome:floor,decorInstances:totalDecor+archWindows,archWindows,torches:flames.length,banners:bannersCount,landmarks:ruins,wovenRugs:rugs.length,cutawayFloorBackings:backing.length,texturedSurfaces:floorDetails.length+wallFaces.length,weatheredSpalls:stoneWeather.spalls.length,brokenCopingStones:stoneWeather.coping.length,weatheredBatches:Number(Boolean(spallMesh))+Number(Boolean(copingMesh))}),dispose:()=>{for(const g of geometries)g.dispose();for(const m of materials)m.dispose();for(const t of textures)t.dispose();for(const f of flames){f.inner.material.dispose()}}};
 }
 
