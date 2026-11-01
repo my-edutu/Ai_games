@@ -740,6 +740,90 @@ const stride=40,attributes=[['position',3,0],['normal',3,12],['color',3,24],['ma
 function bindGeometry(target){gl.bindBuffer(gl.ARRAY_BUFFER,target);for(const {loc,size,offset} of attributes){if(loc<0)continue;gl.enableVertexAttribArray(loc);gl.vertexAttribPointer(loc,size,gl.FLOAT,false,stride,offset)}}
 bindGeometry(buffer);
 
+/* G105: spatially packed, frustum-culled persistent WebGL scenery.
+ * A town with ~130k static triangles used to send *every* roof, tree, hill
+ * and far bank through the GPU on every camera frame. Partition complete
+ * immutable triangles once per settlement/climate rebuild; retain the
+ * original exact-order CPU cache for geometry audits and deterministic tests.
+ * An entire three-vertex triangle belongs to one chunk. Each chunk's AABB
+ * encloses EVERY vertex, so frustum rejection never cuts visible geometry.
+ * A single VBO per class prevents per-building GL allocation/leaks.
+ * This only changes presentation and draw traffic, never world state. */
+const SCENIC_CHUNK_EDGE=18;
+let landscapeChunkRanges=[],settlementChunkRanges=[];
+let scenicVisibilityStats={
+ landscape:{totalChunks:0,visibleChunks:0,visibleTriangles:0,culledTriangles:0},
+ settlement:{totalChunks:0,visibleChunks:0,visibleTriangles:0,culledTriangles:0},
+ totalSubmittedTriangles:0,totalCulledTriangles:0
+};
+function packSpatialScenery(mesh){
+ if(mesh.length%30)throw Error('G105 triangle stride mismatch');
+ const buckets=new Map();
+ for(let offset=0;offset<mesh.length;offset+=30){
+  const x=(mesh[offset]+mesh[offset+10]+mesh[offset+20])/3;
+  const z=(mesh[offset+2]+mesh[offset+12]+mesh[offset+22])/3;
+  if(!Number.isFinite(x)||!Number.isFinite(z))throw Error('G105 nonfinite scene centroid');
+  const key=Math.floor(x/SCENIC_CHUNK_EDGE)+':'+Math.floor(z/SCENIC_CHUNK_EDGE);
+  if(!buckets.has(key))buckets.set(key,[]);
+  buckets.get(key).push(offset);
+ }
+ const packed=new Float32Array(mesh.length),ranges=[];
+ let cursor=0;
+ for(const key of [...buckets.keys()].sort()){
+  const offsets=buckets.get(key),start=cursor;
+  const range={first:start/10,count:offsets.length*3,minX:Infinity,minY:Infinity,minZ:Infinity,
+   maxX:-Infinity,maxY:-Infinity,maxZ:-Infinity};
+  for(const offset of offsets){
+   packed.set(mesh.subarray(offset,offset+30),cursor);
+   for(let vertex=0;vertex<3;vertex++){
+    const at=offset+vertex*10,x=mesh[at],y=mesh[at+1],z=mesh[at+2];
+    range.minX=Math.min(range.minX,x);range.maxX=Math.max(range.maxX,x);
+    range.minY=Math.min(range.minY,y);range.maxY=Math.max(range.maxY,y);
+    range.minZ=Math.min(range.minZ,z);range.maxZ=Math.max(range.maxZ,z);
+   }
+   cursor+=30;
+  }
+  ranges.push(range);
+ }
+ if(cursor!==mesh.length)throw Error('G105 missing packed triangles');
+ return {vertices:packed,ranges};
+}
+function sceneFrustumPlanes(m){
+ // Column-major OpenGL projection: rows 3 +/- rows 0/1/2.
+ const raw=[
+  [m[3]+m[0],m[7]+m[4],m[11]+m[8],m[15]+m[12]],
+  [m[3]-m[0],m[7]-m[4],m[11]-m[8],m[15]-m[12]],
+  [m[3]+m[1],m[7]+m[5],m[11]+m[9],m[15]+m[13]],
+  [m[3]-m[1],m[7]-m[5],m[11]-m[9],m[15]-m[13]],
+  [m[3]+m[2],m[7]+m[6],m[11]+m[10],m[15]+m[14]],
+  [m[3]-m[2],m[7]-m[6],m[11]-m[10],m[15]-m[14]]
+ ];
+ return raw.map(plane=>{
+  const norm=Math.hypot(plane[0],plane[1],plane[2]);
+  return norm>1e-9?plane.map(x=>x/norm):[0,0,0,1e9];
+ });
+}
+function sceneChunkInFrustum(b,planes){
+ // Reject only if the POSITIVE AABB support vertex is outside a plane.
+ // Deliberately allow 0.45 world units margin for camera/terrain motion.
+ for(const [nx,ny,nz,d] of planes){
+  const x=nx>=0?b.maxX:b.minX,y=ny>=0?b.maxY:b.minY,z=nz>=0?b.maxZ:b.minZ;
+  if(nx*x+ny*y+nz*z+d < -.45)return false;
+ }
+ return true;
+}
+function drawVisibleStaticChunks(target,ranges,planes){
+ bindGeometry(target);
+ let visibleTriangles=0,culledTriangles=0,visibleChunks=0;
+ for(const chunk of ranges){
+  if(sceneChunkInFrustum(chunk,planes)){
+   gl.drawArrays(gl.TRIANGLES,chunk.first,chunk.count);
+   visibleTriangles+=chunk.count/3;visibleChunks++;
+  }else culledTriangles+=chunk.count/3;
+ }
+ return {totalChunks:ranges.length,visibleChunks,visibleTriangles,culledTriangles};
+}
+
 // Gauntlet 027 — atmospheric sky. A separate full-screen GPU render pass creates
 // moving cloud bands and changing daylight without adding world polygons.
 const skyVertexSource=`attribute vec2 screenPosition;varying vec2 skyUv;
@@ -4767,7 +4851,7 @@ currentMaterial=MATERIAL.FOLIAGE;
  landscapeMeshTriangles=landscapeMeshCache.length/30;landscapeMeshRebuilds++;
  // Upload climate-dependent terrain, rivers and forest only on climate change.
  // New cottages update the settlement VBO without re-uploading landscape.
- if(gpuAvailable){bindGeometry(landscapeBuffer);gl.bufferData(gl.ARRAY_BUFFER,landscapeMeshCache,gl.STATIC_DRAW);landscapeGpuUploads++;data=[];}
+ if(gpuAvailable){const packed=packSpatialScenery(landscapeMeshCache);landscapeChunkRanges=packed.ranges;bindGeometry(landscapeBuffer);gl.bufferData(gl.ARRAY_BUFFER,packed.vertices,gl.STATIC_DRAW);landscapeGpuUploads++;data=[];}
 }
 currentMaterial=MATERIAL.STONE;
  const fullHomes=detailedHomeSet();
@@ -4796,7 +4880,7 @@ for(let i=0;i<5;i++){let xx=-17+i*1.3,zz=-14+(i%2)*1.4;box(xx,terrain(xx,zz),zz,
  // element JS-number array and converting it again for every scenic rebuild.
  // Canvas2D still needs its ordinary mutable Array for dynamic append.
  scenicMeshCache=gpuAvailable?new Float32Array(data):data.slice();scenicMeshKey=staticKey;scenicMeshTriangles=(scenicMeshCache.length+(gpuAvailable?landscapeMeshCache.length:0))/30;scenicMeshRebuilds++;
- if(gpuAvailable){bindGeometry(staticBuffer);gl.bufferData(gl.ARRAY_BUFFER,scenicMeshCache,gl.STATIC_DRAW);staticGpuUploads++;}
+ if(gpuAvailable){const packed=packSpatialScenery(scenicMeshCache);settlementChunkRanges=packed.ranges;bindGeometry(staticBuffer);gl.bufferData(gl.ARRAY_BUFFER,packed.vertices,gl.STATIC_DRAW);staticGpuUploads++;}
 
 }
 data=gpuAvailable?[]:scenicMeshCache.slice();const frameDynamicStart=performance.now();
@@ -4821,7 +4905,15 @@ for(let i=0;i<people.length;i++){
 }
 currentMaterial=MATERIAL.GENERAL;weatherParticles(atmosphere);const frameSubmitStart=performance.now();
 const elevation=Math.sin(pitch)*zoom,rad=Math.cos(pitch)*zoom,focusHeight=follow?terrain(focusPoint[0],focusPoint[1])+1.02:.25,eye=[focusPoint[0]+Math.sin(yaw)*rad,elevation+focusHeight,focusPoint[1]+Math.cos(yaw)*rad];let m=mat4multiply(perspective(Math.PI/3.2,w/h,.1,190),lookAt(eye,[focusPoint[0],focusHeight,focusPoint[1]],[0,1,0]));gl.uniformMatrix4fv(uniforms.viewProjection,false,m);gl.uniform3f(uniforms.fogColor,...atmosphere.fog);gl.uniform3f(uniforms.sunTint,...atmosphere.light);const radiance=lightingProfile(state.t);gl.uniform1f(uniforms.sunStrength,radiance.solar);gl.uniform1f(uniforms.ambientBlend,radiance.ambientBlend);gl.uniform1f(uniforms.worldTime,state.t);gl.uniform1f(uniforms.weatherWetness,climateMaterialProfile(state.t).precipitation);gl.uniform3f(uniforms.eyePosition,eye[0],eye[1],eye[2]);gl.uniform3f(uniforms.sunDirection,Math.cos(state.t/24*6.283),.3+atmosphere.daylight*.9,Math.sin(state.t/24*6.283));lastFrameTriangles=(gpuAvailable?landscapeMeshCache.length+scenicMeshCache.length+data.length:data.length)/30;
-if(gpuAvailable){bindGeometry(landscapeBuffer);gl.drawArrays(gl.TRIANGLES,0,landscapeMeshCache.length/10);bindGeometry(staticBuffer);gl.drawArrays(gl.TRIANGLES,0,scenicMeshCache.length/10);}
+if(gpuAvailable){
+ const planes=sceneFrustumPlanes(m);
+ scenicVisibilityStats.landscape=drawVisibleStaticChunks(landscapeBuffer,landscapeChunkRanges,planes);
+ scenicVisibilityStats.settlement=drawVisibleStaticChunks(staticBuffer,settlementChunkRanges,planes);
+ scenicVisibilityStats.totalSubmittedTriangles=scenicVisibilityStats.landscape.visibleTriangles+
+  scenicVisibilityStats.settlement.visibleTriangles;
+ scenicVisibilityStats.totalCulledTriangles=scenicVisibilityStats.landscape.culledTriangles+
+  scenicVisibilityStats.settlement.culledTriangles;
+}
 bindGeometry(buffer);
 if(gpuAvailable){
  if(data.length){
@@ -4864,7 +4956,12 @@ requestAnimationFrame(render);window.__tinyKingdom={getState:()=>JSON.parse(JSON
  branchTriangles:forestVisualStats.branchTriangles,
  broadleafLobes:forestVisualStats.broadleafLobes,microCrownLobes:forestVisualStats.microCrownLobes,rimLeafSprays:forestVisualStats.rimLeafSprays,individualLeaves:forestVisualStats.individualLeaves,broadleafSpecies:forestVisualStats.broadleafSpecies.slice(),broadleafAddedTriangles:forestVisualStats.broadleafAddedTriangles,
  crownColors:forestVisualStats.crownPalette.size
-}),getCottageFacadeStats:()=>({...cottageFacadeStats,styles:cottageFacadeStats.styles.map((count,style)=>({style,count})).filter(row=>row.count>0)}),getLightingProfile:lightingProfile,getCraftDistrictStats:()=>({...CRAFT_DISTRICT,...craftCounters}),getCottageEffects:()=>({activeChimneys,smokePuffs,smokeTriangles,smokeMaxRadius}),renderStats:()=>({terrainRebuilds,terrainCacheKey,terrainCacheTriangles,terrainHorizonTriangles,lastFrameTriangles,scenicMeshRebuilds,scenicMeshTriangles,scenicMeshKey,staticGpuUploads,landscapeGpuUploads,dynamicGpuAllocations,dynamicGpuUploads,dynamicGpuCapacityFloats,dualBufferGPU:gpuAvailable}),getLandscapeCacheStats:()=>({key:landscapeMeshKey,rebuilds:landscapeMeshRebuilds,reuses:landscapeMeshReuses,triangles:landscapeMeshTriangles,floats:landscapeMeshCache?.length||0}),renderQuality,setRenderQuality,getFrameProfile,shadowStats:()=>({triangles:castShadowTriangles,...sunShadow(state.t)}),getShadowGradientAudit:shadowGradientAudit,sampleSunShadow:(time)=>sunShadow(time),sampleCanopyShadow:(x,z)=>Array.from({length:9},(_,i)=>canopyShadowVariation(x,z,i*Math.PI/4)),getEconomyHistory:()=>cloneData(uiHistory),getHudMode:()=>cinematicHud?'cinema':'full',setHudMode:setCinematicHud,setReferenceCapture,getCommandView:()=>commandView,setCommandView,skyStats:()=>({enabled:gpuAvailable,passes:skyPassCount,model:'day-night-atmosphere-v1',palette:skyColorProfile(state.t)}),getSkyPalette:skyColorProfile,getFoliageWindProbe:(x,y,z,time=state.t)=>foliageWindProbe(x,y,z,time),getVillageVisualLod:()=>({...villageVisualLod,fullDetailLimit:VILLAGE_LOD_LIMIT,population:people.length,homes:city.length}),setCamera:o=>{// G068: a manually specified inspection shot must not drift as Follow or Cinematic keeps ticking.
+}),getCottageFacadeStats:()=>({...cottageFacadeStats,styles:cottageFacadeStats.styles.map((count,style)=>({style,count})).filter(row=>row.count>0)}),getLightingProfile:lightingProfile,getCraftDistrictStats:()=>({...CRAFT_DISTRICT,...craftCounters}),getCottageEffects:()=>({activeChimneys,smokePuffs,smokeTriangles,smokeMaxRadius}),getScenicVisibilityStats:()=>({landscape:{...scenicVisibilityStats.landscape},
+ settlement:{...scenicVisibilityStats.settlement},
+ totalSubmittedTriangles:scenicVisibilityStats.totalSubmittedTriangles,
+ totalCulledTriangles:scenicVisibilityStats.totalCulledTriangles,
+ explanation:'WebGL static vertex submissions only; excludes moving citizens/sky and is not measured FPS'}),
+renderStats:()=>({terrainRebuilds,terrainCacheKey,terrainCacheTriangles,terrainHorizonTriangles,lastFrameTriangles,scenicMeshRebuilds,scenicMeshTriangles,scenicMeshKey,staticGpuUploads,landscapeGpuUploads,dynamicGpuAllocations,dynamicGpuUploads,dynamicGpuCapacityFloats,dualBufferGPU:gpuAvailable}),getLandscapeCacheStats:()=>({key:landscapeMeshKey,rebuilds:landscapeMeshRebuilds,reuses:landscapeMeshReuses,triangles:landscapeMeshTriangles,floats:landscapeMeshCache?.length||0}),renderQuality,setRenderQuality,getFrameProfile,shadowStats:()=>({triangles:castShadowTriangles,...sunShadow(state.t)}),getShadowGradientAudit:shadowGradientAudit,sampleSunShadow:(time)=>sunShadow(time),sampleCanopyShadow:(x,z)=>Array.from({length:9},(_,i)=>canopyShadowVariation(x,z,i*Math.PI/4)),getEconomyHistory:()=>cloneData(uiHistory),getHudMode:()=>cinematicHud?'cinema':'full',setHudMode:setCinematicHud,setReferenceCapture,getCommandView:()=>commandView,setCommandView,skyStats:()=>({enabled:gpuAvailable,passes:skyPassCount,model:'day-night-atmosphere-v1',palette:skyColorProfile(state.t)}),getSkyPalette:skyColorProfile,getFoliageWindProbe:(x,y,z,time=state.t)=>foliageWindProbe(x,y,z,time),getVillageVisualLod:()=>({...villageVisualLod,fullDetailLimit:VILLAGE_LOD_LIMIT,population:people.length,homes:city.length}),setCamera:o=>{// G068: a manually specified inspection shot must not drift as Follow or Cinematic keeps ticking.
 if(follow)setCitizenFollow(false);cinematic=false;document.getElementById('camera').classList.remove('active');
 yaw=Number.isFinite(o.yaw)?o.yaw:yaw;pitch=Number.isFinite(o.pitch)?Math.max(.25,Math.min(1.45,o.pitch)):pitch;zoom=Number.isFinite(o.zoom)?Math.max(9,Math.min(85,o.zoom)):zoom;if(Array.isArray(o.focus)&&o.focus.length===2&&o.focus.every(Number.isFinite))focusPoint=o.focus.slice(0,2)}};
 })();
