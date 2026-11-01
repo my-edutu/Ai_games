@@ -2249,11 +2249,25 @@ const MARKET_STALLS=Object.freeze([
  Object.freeze({x:4.30,z:8.50,face:-1,trade:'textile',dye:2}),
  Object.freeze({x:-5.75,z:8.70,face:-1,trade:'herbs',dye:3})
 ]);
-let marketQuarterStats={stalls:0,pavingStones:0,signboards:0,
+let marketQuarterStats={stalls:0,pavingStones:0,mortarTriangles:0,signboards:0,
  carts:0,coveredArcades:0,canopyPanels:0,totalTriangles:0,cached:false};
 let marketStockTriangles=0;
 function marketCobblestoneSquare(){
  const cx=-1.0,cz=4.9,rx=7.55,rz=7.05;
+ // The actual running G095 wide screenshot exposed a bright grass checkergrid
+ // between stones. Ground the square in joined clay/mortar BEFORE placing
+ // individual uneven pavers. This is a physical surface, not a HUD shader.
+ materialScope(MATERIAL.ROAD,()=>{
+  const floor=[rgb(0x686457),rgb(0x6f6a5b),rgb(0x746b58)];
+  for(let i=0;i<64;i++){
+   const a=i*Math.PI/32,b=(i+1)*Math.PI/32;
+   const p=(t)=>{const x=cx+Math.cos(t)*rx*.98,z=cz+Math.sin(t)*rz*.98;
+     return [x,terrain(x,z)+.073,z];};
+   const mid=[cx,terrain(cx,cz)+.073,cz];
+   tri(mid,p(b),p(a),floor[i%3]);
+   marketQuarterStats.mortarTriangles++;
+  }
+ });
  const base=[0xada18b,0x938c7d,0xc0b39b,0x999482,0xb8a98f,0x898c81];
  // A porous, terrain-conforming medieval square with irregular stone edges.
  // Individual stones (not painted checkerboard polygons) stay under the 3D
@@ -2399,7 +2413,7 @@ function marketStall(s,index){
  marketQuarterStats.signboards++;marketQuarterStats.stalls++;
 }
 function marketQuarter(){
- marketQuarterStats={stalls:0,pavingStones:0,signboards:0,
+ marketQuarterStats={stalls:0,pavingStones:0,mortarTriangles:0,signboards:0,
   carts:0,coveredArcades:0,canopyPanels:0,totalTriangles:0,cached:false};
  const begin=data.length;
  marketCobblestoneSquare();
