@@ -70,6 +70,8 @@ test('G095 working market is physical, economy-led and usable at 390px',async({p
   gold:progressed.economy.gold});
  expect(progressed.nonnegative).toBe(true);
  await page.setViewportSize({width:390,height:844});
+ // matchMedia change fires on the resize task; inspect only after responsive layout commits.
+ await page.waitForFunction(()=>window.__tinyKingdom.getCommandView()==='world',null,{timeout:10000});
  const mobile=await page.evaluate(()=>{
   const g=window.__tinyKingdom;
   return {overflow:document.documentElement.scrollWidth>innerWidth,
