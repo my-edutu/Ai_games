@@ -1704,7 +1704,178 @@ function guildBanner(x,z){
  });
 }
 
-function hall(x,z){house(x,z,1.85,2);let y=terrain(x,z);cylinder(x,y+3.2,z,.5,2,rgb(0xcab48a));cone(x,y+5.2,z,1,1.7,rgb(0x5e6652));}
+// G107: A *single inhabited civic quarter* rather than a scaled-up cottage.
+// The medieval guildhall's real bays, jettied storey, civic doorway, service
+// porch, belfry and roof share the persistent town VBO. No RNG, jobs, paths,
+// economy, collision map or snapshot fields change. Only presentation mesh.
+let guildhallVisualStats={kind:'timber-framed-civic-quarter',roofShingles:0,
+ timberBays:0,glazedBays:0,belfries:0,porchPosts:0,frontSteps:0,triangles:0};
+function hall(x,z){
+ const start=data.length,y=terrain(x,z),w=6.08,d=4.70,upperW=6.64,
+  upperD=5.14,halfRoof=3.63,roofFront=z-2.83,roofBack=z+2.83,
+  eave=y+4.03,peak=y+6.32;
+ const granite=rgb(0x807b73),limestone=rgb(0xa79b85),lime=rgb(0xd5c4a1),
+  oak=rgb(0x513d30),oakLit=rgb(0x89694b),iron=rgb(0x3e4548);
+ guildhallVisualStats={kind:'timber-framed-civic-quarter',roofShingles:0,
+  timberBays:0,glazedBays:0,belfries:0,porchPosts:0,frontSteps:0,triangles:0};
+ // Low, broad masonry base and solid buttresses support a real overhanging
+ // upper guild floor. No part crosses the navigable town-square footprint.
+ materialScope(MATERIAL.STONE,()=>{
+  box(x,y-.06,z,w+.30,.34,d+.24,granite);
+  box(x,y+.27,z,w,1.64,d,limestone);
+  for(const side of [-1,1]){
+   for(const offset of [-1.65,1.65]){
+    box(x+side*(w*.5+.06),y+.06,z+offset,.31,1.70,.39,granite);
+    box(x+offset,y+.06,z+side*(d*.5+.06),.39,1.70,.31,granite);
+   }
+  }
+  // The four worn limestone entry treads face the real market, +Z.
+  for(let step=0;step<4;step++){
+   box(x,y+.02+step*.055,z+d*.5+.93-step*.22,
+    2.47-step*.12,.13,.44,step%2?limestone:rgb(0x8d867b));
+   guildhallVisualStats.frontSteps++;
+  }
+ });
+ materialScope(MATERIAL.PLASTER,()=>{
+  box(x,y+1.88,z,upperW,2.15,upperD,lime);
+  // Two genuine limewashed masonry gables, not a rectangular wall cap.
+  tri([x-halfRoof,eave,roofFront],[x+halfRoof,eave,roofFront],[x,peak,roofFront],lime);
+  tri([x+halfRoof,eave,roofBack],[x-halfRoof,eave,roofBack],[x,peak,roofBack],lime);
+ });
+ materialScope(MATERIAL.WOOD,()=>{
+  // Floor-level jetties catch shadows under the overhanging timber bays.
+  box(x,y+1.72,z,upperW+.12,.20,upperD+.13,oak);
+  box(x,y+3.78,z,upperW+.12,.17,upperD+.13,oak);
+  for(const side of [-1,1]){
+   for(const bx of [-2.67,-.91,.91,2.67]){
+    const fz=z+side*(upperD*.5+.095);
+    box(x+bx,y+1.92,fz,.15,1.78,.14,oak);
+    guildhallVisualStats.timberBays++;
+   }
+   for(const bz of [-1.90,-.61,.61,1.90]){
+    const fx=x+side*(upperW*.5+.09);
+    box(fx,y+1.92,z+bz,.14,1.78,.14,oak);
+    guildhallVisualStats.timberBays++;
+   }
+   box(x,y+2.80,z+side*(upperD*.5+.095),upperW,.11,.15,oakLit);
+   box(x+side*(upperW*.5+.095),y+2.80,z,.15,.11,upperD,oakLit);
+  }
+  // Structural diagonal bracing is thin geometry, readable in close-up.
+  for(const side of [-1,1]){
+   const zz=z+side*(upperD*.5+.115);
+   for(const sx of [-2.15,2.15]){
+    const a=[x+sx-.45,y+1.98,zz],b=[x+sx-.36,y+1.98,zz],
+     c=[x+sx+.45,y+2.72,zz],d0=[x+sx+.36,y+2.72,zz];
+    if(side===1)quad(a,b,c,d0,oak);else quad(d0,c,b,a,oak);
+   }
+  }
+ });
+ // Actual leaded-window openings have deep, warm interior glass and stable
+ // timber mullions, on every face, not just an unseen far facade.
+ const faceWindow=(wx,fz,side)=>{
+  materialScope(MATERIAL.WINDOW_GLOW,()=>box(wx,y+2.54,fz+side*.077,.57,.74,.092,rgb(0x567078)));
+  materialScope(MATERIAL.WOOD,()=>{
+   box(wx-.32,y+2.48,fz+side*.13,.10,.90,.13,oak);
+   box(wx+.32,y+2.48,fz+side*.13,.10,.90,.13,oak);
+   box(wx,y+3.24,fz+side*.13,.75,.10,.13,oakLit);
+   box(wx,y+2.47,fz+side*.13,.75,.11,.13,oakLit);
+   box(wx,y+2.49,fz+side*.18,.065,.75,.095,oakLit);
+  });
+  guildhallVisualStats.glazedBays++;
+ };
+ for(const sign of [-1,1]){
+  const face=z+sign*(upperD*.5+.055);
+  for(const b of [-2.04,0,2.04])faceWindow(x+b,face,sign);
+  for(const bz of [-1.12,1.12]){
+   const fx=x+sign*(upperW*.5+.056);
+   materialScope(MATERIAL.WINDOW_GLOW,()=>box(fx+sign*.08,y+2.54,z+bz,.09,.74,.52,rgb(0x536f77)));
+   materialScope(MATERIAL.WOOD,()=>{
+    box(fx+sign*.15,y+3.21,z+bz,.15,.10,.71,oak);
+    box(fx+sign*.15,y+2.46,z+bz,.15,.11,.71,oakLit);
+    box(fx+sign*.15,y+2.54,z+bz,.15,.74,.06,oakLit);
+   });
+   guildhallVisualStats.glazedBays++;
+  }
+ }
+ // Continuous contrasting slate roof planes, broken into deliberately
+ // irregular aged courses. This replaces the overscaled cottage-tile roof.
+ const slate=[0x686b64,0x79796e,0x555d5c,0x8b8274,0x636a63,0x787267];
+ materialScope(MATERIAL.ROOF,()=>{
+  quad([x-halfRoof,eave,roofFront],[x,peak,roofFront],
+       [x,peak,roofBack],[x-halfRoof,eave,roofBack],rgb(slate[0]));
+  quad([x,peak,roofFront],[x+halfRoof,eave,roofFront],
+       [x+halfRoof,eave,roofBack],[x,peak,roofBack],rgb(slate[2]));
+  for(const side of [-1,1])for(let course=0;course<4;course++){
+   const t0=course/4,t1=(course+1)/4,
+    xx0=x+side*halfRoof*(1-t0),xx1=x+side*halfRoof*(1-t1),
+    yy0=eave+(peak-eave)*t0+.026,yy1=eave+(peak-eave)*t1+.026;
+   for(let tile=0;tile<8;tile++){
+    const stagger=course%2?.035*side:0,
+     zz0=roofFront+(roofBack-roofFront)*(tile===0?0:tile/8+stagger),
+     zz1=roofFront+(roofBack-roofFront)*(tile===7?1:(tile+1)/8+stagger),
+     tint=rgb(slate[(tile*3+course*5+(side+1)*2)%slate.length]);
+    if(side<0)quad([xx0,yy0,zz0],[xx0,yy0,zz1],
+       [xx1,yy1,zz1],[xx1,yy1,zz0],tint);
+    else quad([xx0,yy0,zz0],[xx1,yy1,zz0],
+       [xx1,yy1,zz1],[xx0,yy0,zz1],tint);
+    guildhallVisualStats.roofShingles++;
+   }
+  }
+ });
+ materialScope(MATERIAL.WOOD,()=>{
+  box(x,peak+.02,z,.19,.18,roofBack-roofFront+.18,oakLit);
+  for(const sign of [-1,1])
+   box(x+sign*(halfRoof-.06),eave-.08,z,.16,.22,roofBack-roofFront+.22,oak);
+  // A market-facing portico with a genuine planted roof, heavy timber posts,
+  // a recessed double civic door and hanging oak heraldry.
+  const doorFace=z+d*.5+.09;
+  box(x-.47,y+.29,doorFace,.80,1.54,.13,oak);
+  box(x+.47,y+.29,doorFace,.80,1.54,.13,oak);
+  box(x,y+1.74,doorFace,1.87,.22,.23,oakLit);
+  box(x,y+.31,doorFace+.08,.055,1.36,.07,rgb(0xb29663));
+  for(const sx of [-1,1]){
+   const px=x+sx*1.24,pz=z+d*.5+1.12;
+   box(px,terrain(px,pz),pz,.19,2.42,.20,oak);
+   box(px,y+2.30,z+d*.5+.55,.18,.18,1.42,oakLit);
+   guildhallVisualStats.porchPosts++;
+  }
+  box(x,y+2.31,z+d*.5+1.08,2.83,.19,.26,oak);
+ });
+ materialScope(MATERIAL.ROOF,()=>{
+  const f=z+d*.5+1.34,b=z+d*.5-.06;
+  quad([x-1.48,y+2.44,f],[x,y+3.03,f],
+       [x,y+3.03,b],[x-1.48,y+2.44,b],rgb(0x6b5747));
+  quad([x,y+3.03,f],[x+1.48,y+2.44,f],
+       [x+1.48,y+2.44,b],[x,y+3.03,b],rgb(0x705744));
+ });
+ // One open-belled timber belfry rises from the inhabited roof, giving
+ // the market landmark a distinctive silhouette from every orbit.
+ const bellX=x-.72,bellZ=z-.22,towerBase=y+5.35;
+ materialScope(MATERIAL.WOOD,()=>{
+  box(bellX,towerBase,bellZ,1.25,.29,1.31,oak);
+  for(const sx of [-1,1])for(const sz of [-1,1])
+   box(bellX+sx*.52,towerBase+.23,bellZ+sz*.54,.15,1.17,.15,oak);
+  box(bellX,towerBase+1.27,bellZ,1.40,.16,1.45,oakLit);
+  cylinder(bellX,towerBase+.36,bellZ,.31,.44,rgb(0x8d7454),8);
+ });
+ materialScope(MATERIAL.ROOF,()=>{
+  const tip=[bellX,towerBase+2.47,bellZ],e=towerBase+1.44;
+  for(let j=0;j<4;j++){
+   const a=j*Math.PI*.5,b=(j+1)*Math.PI*.5;
+   tri([bellX+Math.cos(a)*.92,e,bellZ+Math.sin(a)*.92],
+       [bellX+Math.cos(b)*.92,e,bellZ+Math.sin(b)*.92],tip,
+       rgb(j%2?0x656761:0x7f7567));
+  }
+ });
+ materialScope(MATERIAL.GENERAL,()=>{
+  // The guild banner is a static civic emblem, never a fictitious trade event.
+  box(x+2.82,y+2.15,z+d*.5+.20,.48,.77,.07,rgb(0x713e43));
+  box(x+2.82,y+2.78,z+d*.5+.23,.52,.07,.08,rgb(0xc4a46e));
+ });
+ guildhallVisualStats.belfries=1;
+ guildhallVisualStats.triangles=(data.length-start)/30;
+}
+
 // Gauntlet 025: coordinate-derived tapering branches and unique forest crowns.
 function taperedBranch(a,b,r0,r1,col,sides=7){
  const frame=branchFrame(a,b);if(!frame)return;
@@ -4900,7 +5071,7 @@ for(let i=0;i<city.length;i++){
   compactHouse(x,z,k);villageVisualLod.compactHomes++;
  }
 }
-hall(0,-1);cottageDetails(0,-1,1.85,2);
+hall(0,-1); // Guildhall owns its roof, gables, windows and porch; no cottage overlay.
 // The worked spaces have identifiable props and readable boundaries.
 farmstead();fenceLine(16,-2,6);fenceLine(16,4,6);fenceLine(16,-2,4,true);fenceLine(25,-2,4,true);
 riverBridge();hillsideSanctuary();forgeWorkshop();market(0,5);marketQuarter();inhabitedHighStreet();well(-15,4);villageGarden(12,11);villageGarden(-17,-3);guildBanner(-2,3);guildBanner(5,-2);lantern(-5,-7,1.7);lantern(6,9,1.45);lantern(2,6,1.7);lantern(-14,6,1.45);for(let i=0;i<7;i++)stoneBoulder(-23+(i*1.8),5+Math.sin(i*3)*1.3,.65+(i%3)*.18);
@@ -4992,7 +5163,7 @@ requestAnimationFrame(render);window.__tinyKingdom={getState:()=>JSON.parse(JSON
  branchTriangles:forestVisualStats.branchTriangles,
  broadleafLobes:forestVisualStats.broadleafLobes,microCrownLobes:forestVisualStats.microCrownLobes,rimLeafSprays:forestVisualStats.rimLeafSprays,individualLeaves:forestVisualStats.individualLeaves,broadleafSpecies:forestVisualStats.broadleafSpecies.slice(),broadleafAddedTriangles:forestVisualStats.broadleafAddedTriangles,
  crownColors:forestVisualStats.crownPalette.size
-}),getCottageFacadeStats:()=>({...cottageFacadeStats,styles:cottageFacadeStats.styles.map((count,style)=>({style,count})).filter(row=>row.count>0)}),getLightingProfile:lightingProfile,getCraftDistrictStats:()=>({...CRAFT_DISTRICT,...craftCounters}),getCottageEffects:()=>({activeChimneys,smokePuffs,smokeTriangles,smokeMaxRadius}),getScenicVisibilityStats:()=>({landscape:{...scenicVisibilityStats.landscape},
+}),getGuildhallVisualStats:()=>({...guildhallVisualStats}),getCottageFacadeStats:()=>({...cottageFacadeStats,styles:cottageFacadeStats.styles.map((count,style)=>({style,count})).filter(row=>row.count>0)}),getLightingProfile:lightingProfile,getCraftDistrictStats:()=>({...CRAFT_DISTRICT,...craftCounters}),getCottageEffects:()=>({activeChimneys,smokePuffs,smokeTriangles,smokeMaxRadius}),getScenicVisibilityStats:()=>({landscape:{...scenicVisibilityStats.landscape},
  settlement:{...scenicVisibilityStats.settlement},
  totalSubmittedTriangles:scenicVisibilityStats.totalSubmittedTriangles,
  totalCulledTriangles:scenicVisibilityStats.totalCulledTriangles,
