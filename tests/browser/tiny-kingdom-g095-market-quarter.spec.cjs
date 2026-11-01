@@ -33,6 +33,8 @@ test('G095 working market is physical, economy-led and usable at 390px',async({p
  expect(initial.authorityStable).toBe(true);
  expect(initial.market.stalls).toBeGreaterThanOrEqual(4);
  expect(initial.market.pavingStones).toBeGreaterThanOrEqual(180);
+ // Every cobble sits on a continuous earth/grout bed, not bright grass seams.
+ expect(initial.market.mortarTriangles).toBeGreaterThanOrEqual(40);
  expect(initial.market.signboards).toBeGreaterThanOrEqual(3);
  expect(initial.market.totalTriangles).toBeGreaterThan(700);
  expect(initial.market.totalTriangles).toBeLessThan(7000);
