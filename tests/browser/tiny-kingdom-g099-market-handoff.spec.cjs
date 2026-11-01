@@ -113,6 +113,23 @@ test('G100 real market courier receives a readable close camera and an unclutter
  expect(focus.plan.blockers).toBe(0);
  expect(focus.hud).toMatch(/unloading.*market/i);
  expect(focus.delivery.some(d=>d.citizen===focus.selected&&d.stage==='unloading')).toBe(true);
+ // G101 RED-FIRST: real player mouse-wheel input must not teleport a 6m
+ // documentary camera back to the 16m town-survey minimum. It must retain
+ // a close, player-adjustable view of the actual unloading citizen.
+ await page.mouse.move(480,310);
+ await page.mouse.wheel(0,-65);
+ await page.waitForTimeout(180);
+ const interacted=await page.evaluate(()=>{
+  const g=window.__tinyKingdom;
+  return {camera:g.getCamera(),authority:JSON.stringify(g.exportSnapshot()),
+   selected:g.getSelectedCitizen(),mode:document.body.dataset.workday};
+ });
+ expect(interacted.camera.follow).toBe(true);
+ expect(interacted.camera.zoom).toBeGreaterThan(4.1);
+ expect(interacted.camera.zoom).toBeLessThan(9);
+ expect(interacted.selected).toBe(staged.courier.citizen);
+ expect(interacted.mode).toBe('delivery');
+ expect(interacted.authority).toBe(staged.snapshot);
  await page.setViewportSize({width:390,height:844});
  const mobile=await page.evaluate(()=>{
   const visibleScenic=[...document.querySelectorAll('.world-tour [data-scenic]')]
