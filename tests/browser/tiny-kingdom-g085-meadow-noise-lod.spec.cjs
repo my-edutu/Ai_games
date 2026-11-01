@@ -11,7 +11,8 @@ test('G085 far meadow avoids high-frequency noise while retaining original near 
  test.setTimeout(90000);
  const shader=html.split('const fs=`')[1]?.split('`;')[0]||'';
  const grass=shader.split('if(vMaterial>0.5&&vMaterial<1.5){')[1]?.split('}else if(vMaterial>1.5')[0]||'';
- const fade='float detailFade=1.-smoothstep(10.,38.,length(eyePosition.xz-vWorld.xz));';
+ const fade='float detailFade=1.-smoothstep(10.,38.,groundDistance);';
+ expect(grass).toContain('float groundDistance=length(eyePosition.xz-vWorld.xz);');
  expect(grass.split(fade)).toHaveLength(2);
  expect(grass.indexOf(fade)).toBeGreaterThan(-1);
  expect(grass.indexOf(fade)).toBeLessThan(grass.indexOf('float blades=.5;'));
