@@ -5,6 +5,8 @@ const UP=new THREE.Vector3(0,1,0),LIMIT=3,MAX_RANGE=7,SHATTER_TIME=1.05,MAX_WARN
 export function createWardenRitual(world,exit,{reducedMotion=false,map=null}={}){
  const group=new THREE.Group();group.name='Living Warden ritual court';
  group.position.set(exit.x-9,0,exit.z-9);world.add(group);
+ const fixedCourt=new THREE.Group();fixedCourt.name='Original immovable Warden cathedral';
+ fixedCourt.position.set(exit.x-9,0,exit.z-9);world.add(fixedCourt);
  const stone=new THREE.MeshStandardMaterial({color:'#43404a',roughness:.86,metalness:.12});
  const metal=new THREE.MeshStandardMaterial({color:'#aa895b',roughness:.40,metalness:.66});
  const glyph=new THREE.MeshBasicMaterial({color:'#8cbede',transparent:true,opacity:.70,depthWrite:false});
@@ -66,7 +68,7 @@ export function createWardenRitual(world,exit,{reducedMotion=false,map=null}={})
   slabs.setColorAt(i,new THREE.Color().setRGB(shade,shade*.985,shade*.965));
  }
  slabs.instanceMatrix.needsUpdate=true;if(slabs.instanceColor)slabs.instanceColor.needsUpdate=true;
- group.add(slabs);
+ fixedCourt.add(slabs);
  // Engraved, NOT high-volume effect geometry: genuine phase hue supports the
  // already authoritative warning footprint, instead of competing with it.
  const scoreGeo=new THREE.BoxGeometry(.036,.011,.47);
@@ -78,10 +80,10 @@ export function createWardenRitual(world,exit,{reducedMotion=false,map=null}={})
   monumentTransform.rotation.set(0,-a,0);monumentTransform.scale.set(1,1,1);
   monumentTransform.updateMatrix();scoreMarks.setMatrixAt(i,monumentTransform.matrix);
  }
- scoreMarks.instanceMatrix.needsUpdate=true;group.add(scoreMarks);
+ scoreMarks.instanceMatrix.needsUpdate=true;fixedCourt.add(scoreMarks);
  const outerRelief=new THREE.Mesh(new THREE.TorusGeometry(2.80,.027,5,76),reliefRim);
  outerRelief.name='Stone roundel bronze-edged broken orbit';outerRelief.rotation.x=-Math.PI/2;
- outerRelief.position.y=.019;outerRelief.receiveShadow=true;group.add(outerRelief);
+ outerRelief.position.y=.019;outerRelief.receiveShadow=true;fixedCourt.add(outerRelief);
 
  // Gothic buttresses are restricted to EXISTING impassable map wall cells.
  // No ghost obstacles are drawn on legal AI routes or over contact silhouettes.
@@ -119,14 +121,14 @@ export function createWardenRitual(world,exit,{reducedMotion=false,map=null}={})
   const pointed=makeWallMesh(buttress,archGeo,buttressStone,0,2.48,-.13);
   pointed.rotation.z=Math.PI;
   makeWallMesh(buttress,budGeo,buttressMetal,0,2.49,-.14);
-  group.add(buttress);wallProps.push(buttress);
+  fixedCourt.add(buttress);wallProps.push(buttress);
  }
  let hiddenWallProps=0;
  function setSightlines(subjects=[],cameraPosition=null){
   hiddenWallProps=0;
   if(!cameraPosition||!Array.isArray(subjects))return;
   for(const prop of wallProps){
-   const wx=group.position.x+prop.position.x,wz=group.position.z+prop.position.z;
+   const wx=fixedCourt.position.x+prop.position.x,wz=fixedCourt.position.z+prop.position.z;
    // Only hide an ornamental wall whose near-plane geometry masks a real
    // party or boss subject from the actual camera. Never cull warning tiles.
    const front=Math.hypot(cameraPosition.x-wx,cameraPosition.z-wz);

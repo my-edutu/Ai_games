@@ -2400,9 +2400,10 @@
         "code": [
           "public/ai-dungeon/warden-ritual.js",
           "public/ai-dungeon/app.js",
-          "tests/browser/dungeon-warden-patterns.spec.cjs"
+          "tests/browser/dungeon-warden-patterns.spec.cjs",
+          "world-fixed court coordinate correction"
         ],
-        "integratedImplementation": "Twenty-eight beveled original radial stone floor tesserae, eighteen low phase-responsive engraved cuts, broken bronze orbit, and up to four gothic buttresses placed only on blocked map wall cells. True public boss phases update inlays; existing Warden telegraphs remain predominant. Real camera-to-hero sightlines hide ornamental wall silhouettes if occlusive.",
+        "integratedImplementation": "Twenty-eight beveled original radial stone floor tesserae, eighteen low phase-responsive engraved cuts, broken bronze orbit, and up to four gothic buttresses placed only on blocked map wall cells. True public boss phases update inlays; existing Warden telegraphs remain predominant. Real camera-to-hero sightlines hide ornamental wall silhouettes if occlusive. Corrected scene graph: all world architecture is anchored permanently to exit map coordinates, independent of the moving boss ritual links and warning projections.",
         "gameplayAuthorityImpact": "NONE: no state/ticks/AI, damage, save, seed or RNG change; floor ornament is scene-only and low-height; wall props only at map '#'.",
         "existingEvidence": "Actual exact prior head dfdd346 Chromium 41329928121 success, 41329928002 visual success; audio capture emitted empty clip.",
         "newEvidence": "PENDING browser scenes, paired baseline/staged boss screenshots, motion/audio, frame-time and blind critic judgment.",
