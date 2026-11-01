@@ -72,7 +72,35 @@ test('after startup, the recovery banner clears only after a new render frame',(
  h.advance(600);assert.equal(h.document.body.dataset.rendererStatus,'ready');
  h.lose();h.restore();h.advance(1000);
  assert.equal(h.document.body.dataset.rendererStatus,'recovering');
- h.window.__DUNGEON_RENDER_DIAGNOSTICS__.frame=6;h.advance(1000);
+ h.window.__DUNGEON_RENDER_DIAGNOSTICS__.frame=6;
+ h.window.__DUNGEON_PUBLIC_STATE__.tick=13;
+ h.advance(1000);
  assert.equal(h.document.body.dataset.rendererStatus,'ready');
  assert.equal(h.recovery.hidden,true);
+});
+
+// A post-restore render is not proof of a healthy autonomous spectator feed
+// while its real authoritative tick has stopped advancing.
+test('context restoration requires a fresh authoritative tick as well as a rendered frame',()=>{
+ const h=launch();h.window.__DUNGEON_RENDER_DIAGNOSTICS__.frame=5;h.window.__DUNGEON_PUBLIC_STATE__.tick=12;
+ h.advance(600);assert.equal(h.document.body.dataset.rendererStatus,'ready');
+ h.lose();h.restore();h.window.__DUNGEON_RENDER_DIAGNOSTICS__.frame=6;
+ h.advance(1000);
+ assert.equal(h.document.body.dataset.rendererStatus,'recovering','an unchanged authority tick cannot prove full stream recovery');
+ assert.equal(h.recovery.hidden,false);
+ h.window.__DUNGEON_PUBLIC_STATE__.tick=13;h.advance(1000);
+ assert.equal(h.document.body.dataset.rendererStatus,'ready');
+ assert.equal(h.recovery.hidden,true);
+});
+
+test('a graphics restore without a fresh frame reports the persistent output stall',()=>{
+ const h=launch();h.window.__DUNGEON_RENDER_DIAGNOSTICS__.frame=5;h.window.__DUNGEON_PUBLIC_STATE__.tick=12;
+ h.advance(600);h.lose();h.restore();
+ h.window.__DUNGEON_PUBLIC_STATE__.tick=13;
+ h.advance(13000);
+ assert.equal(h.document.body.dataset.rendererStatus,'stalled','a restored context alone cannot be treated as a working broadcast');
+ assert.equal(h.recovery.hidden,false);
+ assert.match(h.recovery.textContent,/render|graphics|3D/i);
+ h.window.__DUNGEON_RENDER_DIAGNOSTICS__.frame=6;h.advance(1000);
+ assert.equal(h.document.body.dataset.rendererStatus,'ready','actual frame and tick progress permit recovery');
 });
