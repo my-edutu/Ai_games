@@ -747,6 +747,9 @@ function animate(t){
   else if(a.u.action==='hurt'&&since<.30){a.body.rotation.z=.16*Math.sin(phase*Math.PI*2);a.body.position.y+=.10*Math.sin(phase*Math.PI)}
   else {a.body.rotation.z*=.65;a.body.rotation.x*=.70;}
   if(a.telegraph)a.telegraph.material.opacity=.42+.2*Math.sin(time*9);
+  // Imported Warden shoulders and torso share one genuine public warning.
+  // Once the real telegraph clears, the rig pose returns to the mixer output.
+  a.wardenCharge=a.u.kind==='warden'&&a.u.hp>0?planWardenCharge(state?.bossWarning,state?.tick,reduced):null;
   if(!a.authored)a.detail?.update(time,a.u.action||'idle');a.ground?.update(time,a.u.action||'idle',a.u.hp>0);updateActor(a,dt,since,reduced);
   // One shared read-only pivot brings the complete skinned rig, armour,
   // accessories and the procedural fallback through the SAME real hit beat.
@@ -761,7 +764,7 @@ function animate(t){
   // arms and torso into an escalating pre-strike silhouette. Imported skeleton
   // animations stay intact and take precedence when the real attack lands.
   if(a.u.kind==='warden'&&a.u.hp>0){
-   const anticipation=planWardenCharge(state?.bossWarning,state?.tick,reduced);
+   const anticipation=a.wardenCharge;
    if(a.authored&&a.visualPivot){a.visualPivot.position.y+=anticipation.lift;a.visualPivot.rotation.x+=anticipation.pitch;}
    else {a.body.rotation.x+=anticipation.pitch;a.leftArm.rotation.x+=anticipation.armRaise;a.rightArm.rotation.x+=anticipation.armRaise;}
   }
