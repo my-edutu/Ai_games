@@ -34,7 +34,8 @@ const evidence={
   'Accelerated deterministic staging is not actual real-time work or an unattended soak.',
   'A/B role trajectories can diverge because G091 intentionally changes job dwell.',
   'Neither screenshot differences nor this evidence imply independent critic endorsement.',
-  'Video files include honest initialization pre-roll; no postprocessed or fabricated frames.'
+  'Video files include honest initialization pre-roll; no postprocessed or fabricated frames.',
+  'Supplemental candidate live-worker shots are not equivalent to a matched A/B and cannot substitute for blinded review.'
  ]
 };
 const mkdir=(name)=>fs.mkdirSync(path.join(DIR,name),{recursive:true});
@@ -128,6 +129,26 @@ async function stage(label,html,browser,matchedTicks){
    await advanceTicks(page,ticks);
   }
   result.labor=await cameraAndScreenshot(page,labor,label+'/workday-close.png');
+  if(label==='candidate'){
+   // Supplemental experiential shot: a real working actor fills the frame.
+   // Matched A/B cameras remain separately preserved above.
+   const shot=await page.evaluate(()=>{
+    const g=window.__tinyKingdom,before=JSON.stringify(g.exportSnapshot());
+    g.setHudMode('full');
+    const view=g.watchLiveWorkday();
+    return {view,camera:g.getCamera(),
+      authoritative:before===JSON.stringify(g.exportSnapshot())};
+   });
+   assert(shot.authoritative,'Live worker camera changed authoritative world');
+   assert(shot.view?.active,'No actual worker in candidate live-shift scene');
+   assert(shot.camera.zoom<11&&shot.camera.pitch<.66,'Live shot is still aerial');
+   await page.waitForTimeout(900);
+   await page.screenshot({path:path.join(DIR,label+'/live-shift-close.png'),timeout:90000});
+   result.liveShift={worker:shot.view.citizen,job:shot.view.job,
+     activity:shot.view.activity,progress:shot.view.progress,camera:shot.camera,
+     authoritativeUnchanged:true,matchedPair:false};
+   await page.evaluate(()=>window.__tinyKingdom.stopWorkdayWatch());
+  }
   await page.evaluate(()=>window.__tinyKingdom.reset());
   await advanceTicks(page,120*24*30);
   result.day120=await cameraAndScreenshot(page,grown,label+'/day120-wide.png');
@@ -135,6 +156,20 @@ async function stage(label,html,browser,matchedTicks){
   await page.setViewportSize({width:390,height:844});
   await page.waitForTimeout(1000);
   result.mobile=await cameraAndScreenshot(page,grown,label+'/day120-mobile.png',false);
+  if(label==='candidate'){
+   const mobileLive=await page.evaluate(()=>{
+    const g=window.__tinyKingdom,before=JSON.stringify(g.exportSnapshot());
+    const view=g.watchLiveWorkday();
+    return {view,camera:g.getCamera(),
+     snapshotUnchanged:before===JSON.stringify(g.exportSnapshot())};
+   });
+   assert(mobileLive.view?.active,'Mobile live shift was not actual ongoing work');
+   assert(mobileLive.snapshotUnchanged,'Mobile watch mutated authoritative world');
+   await page.waitForTimeout(850);
+   await page.screenshot({path:path.join(DIR,label+'/day120-live-mobile.png'),timeout:90000});
+   result.mobileLiveShift={worker:mobileLive.view.citizen,job:mobileLive.view.job,
+    camera:mobileLive.camera,matchedPair:false};
+  }
   const overflow=await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth);
   assert.equal(overflow,false,label+' 390px horizontal document overflow');
   return {result,ticks};
@@ -142,7 +177,7 @@ async function stage(label,html,browser,matchedTicks){
   await context.close();
  }
 }
-async function motion(browser,html,snapshot,label){
+async function motion(browser,html,snapshot,label,live=false){
  const {context,page,contextInfo}=await openScene(browser,html,label,true);
  const video=page.video();
  try{
@@ -152,9 +187,20 @@ async function motion(browser,html,snapshot,label){
    g.setCamera(camera);
    g.setCommandView('world');
   },{snapshot,camera:labor});
+  if(live){
+   await page.locator('#workday-live').click();
+   const work=await page.evaluate(()=>{
+    const g=window.__tinyKingdom;
+    return {view:g.getLiveWorkdayView(),camera:g.getCamera()};
+   });
+   assert(work.view.active,'Supplemental clip did not follow a genuine shift');
+   assert(work.camera.zoom<11,'Supplemental real worker is too distant');
+  }
   // Genuine unpaused 3D simulation and real camera pointer interactions.
   const start=await page.evaluate(()=>({quality:window.__tinyKingdom.renderQuality(),
-   snapshot:window.__tinyKingdom.exportSnapshot()}));
+   snapshot:window.__tinyKingdom.exportSnapshot(),
+   active:typeof window.__tinyKingdom.getLiveWorkdayView==='function'?
+    window.__tinyKingdom.getLiveWorkdayView():null}));
   const wallStart=Date.now();
   await page.waitForTimeout(2500);
   await page.mouse.move(480,330);
@@ -174,6 +220,7 @@ async function motion(browser,html,snapshot,label){
    observedFps:(end.quality.framesDrawn-start.quality.framesDrawn)/seconds,
    initialChecksum:start.snapshot.checksum,finalChecksum:end.snapshot.checksum,
    cameraAfter:end.camera,videoFile:label+'.webm',
+   realLiveWorker:live?start.active:null,matchedPair:!live,
    isSoftware:true,uninterruptedRealTime:true,scriptedUserCameraInput:true};
  }finally{
   await context.close();
@@ -213,6 +260,7 @@ async function motion(browser,html,snapshot,label){
    'Pinned G088 staged video snapshot must reproduce matched screenshot authority');
   evidence.videos.candidate=await motion(browser,candidate,cSnapshot,'candidate-workday');
   evidence.videos.baseline=await motion(browser,baseline,bSnapshot,'baseline-workday');
+  evidence.videos.candidateLive=await motion(browser,candidate,cSnapshot,'candidate-live-shift',true);
   evidence.status='SCENARIOS_CAPTURED_NOT_BLIND_REVIEWED';
   assert.deepEqual(evidence.errors,[],'Uncaught browser/console errors');
  }catch(error){
