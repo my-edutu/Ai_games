@@ -1,0 +1,37 @@
+name: Tower Gauntlet 42 Immersive HUD
+on:
+  push:
+    branches:
+      - feat/tower-gauntlet42-immersive-ui-20261101
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - name: Build and focused HUD regression tests
+        run: |
+          npm run build
+          node --test tests/phase3/tower-hud.test.cjs
+      - name: Full repository logical tests
+        run: npm test
+      - name: Tower host simulation integrity
+        run: npm run tower:stream:self-test
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Test actual UI under browser viewports
+        run: npx playwright test --config=playwright.tower.config.cjs tests/browser/tower-spectator-controls-compact.spec.cjs
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: tower-g42-control-failures
+          path: test-results/
+          retention-days: 7

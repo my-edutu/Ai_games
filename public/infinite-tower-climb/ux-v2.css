@@ -70,3 +70,17 @@ body[data-reduced-motion="true"] *, body[data-reduced-motion="true"] *::before, 
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; } }
 body.clean-feed .top, body.clean-feed .side, body.clean-feed .caption, body.clean-feed .control-feedback, body.clean-feed .spectator-controls, body.clean-feed .choice-card, body.clean-feed .result-card, body.clean-feed .stage-shade, body.clean-feed .phase-alert, body.clean-feed #provider-state { display: none; }
 body.clean-feed #recovery-quality { display: none; }
+
+/* Viewer-first control policy: one small accessible trigger during gameplay.
+   The expanded controls live above it and never obscure the protagonist by default. */
+.spectator-controls { left:auto; right:calc(18px + env(safe-area-inset-right)); bottom:calc(18px + env(safe-area-inset-bottom)); transform:none; display:block; padding:0; border:0; background:transparent; box-shadow:none; backdrop-filter:none; }
+.spectator-controls .spectator-menu-toggle { display:inline-flex; width:46px; height:46px; border:1px solid var(--line); border-radius:50%; background:rgba(9,21,19,.86); color:var(--text); box-shadow:0 6px 26px #0006; backdrop-filter:blur(12px); }
+.spectator-controls .spectator-menu-toggle[aria-expanded="true"] { color:var(--mint); background:#142823; }
+.spectator-control-tray { position:absolute; bottom:calc(100% + 10px); right:0; display:grid; grid-template-columns:repeat(3,44px); gap:4px; padding:8px; border:1px solid var(--line); border-radius:13px; background:rgba(9,21,19,.96); box-shadow:0 12px 40px #0008; backdrop-filter:blur(16px); }
+.spectator-control-tray[hidden] { display:none !important; }
+.spectator-control-tray .camera-controls { grid-column:span 2; display:flex; }
+.spectator-control-tray .run-details { grid-column:auto; position:static; }
+/* Attach detail reading to the tray, not the individual icon; keep it inside
+   the narrow phone and short landscape viewport, with its own scroll. */
+.spectator-control-tray .detail-content { bottom:calc(100% + 10px); right:0; width:min(304px,calc(100vw - 32px)); max-height:calc(100dvh - 260px); }
+@media (max-width:360px) { .spectator-controls {right:calc(12px + env(safe-area-inset-right));bottom:calc(12px + env(safe-area-inset-bottom));} }

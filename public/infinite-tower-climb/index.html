@@ -34,7 +34,9 @@
     <p class="control-feedback" id="control-feedback" hidden role="status" aria-live="polite" aria-atomic="true"></p>
     <footer class="caption" data-testid="captions" aria-live="polite" aria-atomic="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5h18v12H9l-5 4v-4H3V5Z"/><path d="M7 9h4m-4 4h4m3-4h3m-3 4h3"/></svg><p id="caption-text"></p></footer>
   </section>
-  <nav class="spectator-controls" aria-label="Spectator controls">
+  <nav class="spectator-controls" id="spectator-controls" data-open="false" aria-label="Spectator controls">
+    <button type="button" id="spectator-menu-toggle" class="spectator-menu-toggle" aria-label="Show spectator controls" aria-controls="spectator-control-tray" aria-expanded="false" title="Controls" data-tooltip="Controls"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/><circle cx="9" cy="6" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="10" cy="18" r="1.5"/></svg></button>
+    <div class="spectator-control-tray" id="spectator-control-tray" hidden>
     <div class="camera-controls" role="group" aria-label="Camera view">
       <button type="button" id="camera-follow" aria-label="Follow camera" aria-pressed="true" title="Follow camera" data-tooltip="Follow camera"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 4H4v4m12-4h4v4M4 16v4h4m12-4v4h-4"/><circle cx="12" cy="12" r="3"/></svg></button>
       <button type="button" id="camera-overview" aria-label="Overview camera" aria-pressed="false" title="Overview camera" data-tooltip="Overview camera"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 9 6-9 6-9-6 9-6Zm-9 12 9 6 9-6M3 12l9 6 9-6"/></svg></button>
@@ -70,6 +72,7 @@
         </dl></section>
       </div>
     </details>
+    </div>
   </nav>
   <section class="result-card" id="result-card" hidden aria-live="polite"><p class="section-label" id="result-kicker"></p><h2 id="result-title">Ascent ended</h2><strong id="result-height">—</strong><p id="result-reason"></p><span id="restart-state">Next run soon</span></section>
 </section>

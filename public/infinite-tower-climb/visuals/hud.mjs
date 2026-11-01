@@ -64,12 +64,31 @@ export function createHUD({ initialQuality, onCamera, onSound, onMotion, onQuali
   bind(byId('recovery-quality'), 'click', () => { if (quality !== 'low') chooseQuality('low'); });
   bind(byId('fullscreen-toggle'), 'click', () => { onFullscreen?.(); });
   bind(document, 'fullscreenchange', controls);
+  const menuButton = byId('spectator-menu-toggle');
+  const menuTray = byId('spectator-control-tray');
+  const nav = byId('spectator-controls');
+  function showMenu(open, restoreFocus = false) {
+    if (!menuButton || !menuTray) return;
+    menuTray.hidden = !open;
+    menuButton.setAttribute('aria-expanded', String(open));
+    menuButton.setAttribute('aria-controls', 'spectator-control-tray');
+    menuButton.setAttribute('aria-label', open ? 'Hide spectator controls' : 'Show spectator controls');
+    if (nav) nav.dataset.open = String(open);
+    if (!open) byId('run-details')?.removeAttribute('open');
+    if (restoreFocus) menuButton.focus();
+  }
+  if (menuButton) bind(menuButton, 'click', () => showMenu(menuTray.hidden));
+  bind(document, 'pointerdown', event => {
+    if (nav && typeof nav.contains === 'function' && !nav.contains(event.target)) showMenu(false);
+  });
   bind(document, 'keydown', event => {
-    if (event.key === 'Escape' && byId('run-details').open) {
+    if (event.key !== 'Escape') return;
+    if (byId('run-details').open) {
       byId('run-details').removeAttribute('open');
       byId('details-toggle').focus();
-    }
+    } else if (menuTray && !menuTray.hidden) showMenu(false, true);
   });
+  showMenu(false);
   document.body.classList.toggle('clean-feed', enabled('cleanFeed'));
   document.body.dataset.highContrast = String(enabled('highContrast'));
   controls();
