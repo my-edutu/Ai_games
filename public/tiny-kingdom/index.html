@@ -1827,28 +1827,29 @@ function wheat(x,z){let y=terrain(x,z);for(let i=0;i<6;i++)for(let j=0;j<5;j++){
 // state and simulation phase. It never delivers resources, draws RNG, or changes
 // snapshots. The same beat animates the body and on-site work surfaces.
 function occupationalPerformance(p){
- const active=isWorkingAtSite(p),job=p.job;
+ const unloading=isMarketUnloading(p),active=isWorkingAtSite(p)||unloading,job=p.job;
  const names={farmer:'harvest',forester:'chop',builder:'join',merchant:'barter',
   craftsperson:'forge',gatherer:'forage'};
  const frequency={farmer:3.4,forester:5.6,builder:4.7,merchant:3.2,
   craftsperson:4.9,gatherer:3.7};
  const beat=active?.5+.5*Math.sin(p.phase*(frequency[job]||3.4)):0;
- const crouch=active?job==='farmer'?.10+.07*beat:
+ const crouch=unloading?.17+.085*beat:active?job==='farmer'?.10+.07*beat:
   job==='gatherer'?.12+.08*beat:job==='forester'?.015:
   job==='builder'?.035:.025:0;
- const lean=active?job==='farmer'?.26+.16*beat:
+ const lean=unloading?.28+.09*beat:active?job==='farmer'?.26+.16*beat:
   job==='gatherer'?.27+.14*beat:job==='forester'?.065+.14*beat:
   job==='builder'?.11+.09*beat:job==='craftsperson'?.13+.11*beat:
   .06+.09*beat:0;
- return {active,action:active?names[job]||'work':'travel',beat,lean,crouch,
-  focus:active?[p.x+.62,p.z+.34]:(p.path?.length?p.path[0]:p.target).slice()};
+ return {active,action:unloading?'unload':active?names[job]||'work':'travel',beat,lean,crouch,
+  focus:unloading?[p.delivery.destination[0]+.28,p.delivery.destination[1]+.72]:
+   active?[p.x+.62,p.z+.34]:(p.path?.length?p.path[0]:p.target).slice()};
 }
 function citizenRigPose(p){
  const action=p.activity.toLowerCase();
  // Movement overrides job-name matches: 'Traveling to craftsperson work' is not crafting.
  const traveling=/travel|explor/.test(action);
  // G091: repeated strokes are visible during an actual sustained job phase.
- const working=isWorkingAtSite(p);
+ const unloading=isMarketUnloading(p),working=isWorkingAtSite(p)||unloading;
  const acting=occupationalPerformance(p);
  // Workers plant their feet before harvesting/chopping; travelling remains
  // a genuine alternating stride, not a running-in-place animation.
@@ -1884,7 +1885,13 @@ function citizenRigPose(p){
   const swing=-Math.sin(phase+(side<0?0:Math.PI))*intensity*.27;
   let elbow=[side*.325,.795,swing*.53];
   let wrist=[side*.33,.565,swing];
-  if(working){
+  if(unloading){
+   // As the sack moves to the actual unloading bay, the knees stay planted
+   // while both elbows and hands visibly reach, hoist, then release.
+   const weight=Math.sin(Math.PI*Math.min(1,p.workTimer/DELIVERY_UNLOAD_HOURS));
+   elbow=[side*.25,.73+weight*.06,.31];
+   wrist=[side*.19,.38+weight*.34,.54+weight*.14];
+  }else if(working){
    const beat=acting.beat,primary=side===1;
    if(p.job==='forester'){
     elbow=[side*.29,.76+(primary?.29*beat:.06),.18-(primary?.11*beat:0)];
@@ -2129,7 +2136,7 @@ function compactVillager(p){
   villageVisualLod.compactFacingVertexError,
   Math.hypot(data[vertexStart]-expectedX,data[vertexStart+2]-expectedZ));
 }
-function villager(p){const vertexStart=data.length;let x=p.x,z=p.z,y=terrain(x,z),u=p.phase,idx=Math.max(0,people.indexOf(p)),size=.92+(idx%5)*.045;let c=colors[jobs.indexOf(p.job)]||colors[0],skin=rgb([0xd5a781,0x95654b,0xefc19c,0xbe8968,0x9a6a48][(idx+names.length)%5]),hair=rgb([0x4c3228,0x342f29,0x8b633f,0x664b36,0xa18b65][(idx+4)%5]);const busy=isWorkingAtSite(p);let pace=p.activity.includes('Traveling')||p.activity.includes('Explor')?1:.23,step=Math.sin(u*2.7)*.21*pace;
+function villager(p){const vertexStart=data.length;let x=p.x,z=p.z,y=terrain(x,z),u=p.phase,idx=Math.max(0,people.indexOf(p)),size=.92+(idx%5)*.045;let c=colors[jobs.indexOf(p.job)]||colors[0],skin=rgb([0xd5a781,0x95654b,0xefc19c,0xbe8968,0x9a6a48][(idx+names.length)%5]),hair=rgb([0x4c3228,0x342f29,0x8b633f,0x664b36,0xa18b65][(idx+4)%5]);const busy=isWorkingAtSite(p)||isMarketUnloading(p);let pace=p.activity.includes('Traveling')||p.activity.includes('Explor')?1:.23,step=Math.sin(u*2.7)*.21*pace;
 // Individual fitted wool coats: flared hem, waist, chest, collar, gait sway.
 const rig=citizenRigPose(p);
 const outfitTrim=[0xf2cb79,0x82b5b2,0xf0b9a0,0xe1d3a3,0xaac6d1,0xd7a9c8].map(rgb);
@@ -3613,6 +3620,8 @@ function streetCargoWitnesses(){
 }
 function emitStreetCargo(p,x,y,z,size){
  const cargo=p.delivery||streetCargoWitness(p);
+ const unloading=isMarketUnloading(p);
+ const stillLoaded=!unloading||p.workTimer<DELIVERY_UNLOAD_HOURS*.63;
  if(!cargo||(!p.delivery&&!streetCargoWitnesses().some(v=>v.citizen===p.name)))return;
  const sway=Math.sin(p.phase*2.7)*.028*size;
  const brown=rgb(0x795338),rope=rgb(0xc9ab77),
@@ -3635,17 +3644,18 @@ function emitStreetCargo(p,x,y,z,size){
      .062*size,rope,5);
    }
    box(x,cy+.13*size,cz+.30*size,.68*size,.17*size,.045*size,wood);
-   if(p.delivery.resource==='wood'){
+   if(stillLoaded&&p.delivery.resource==='wood'){
     for(let j=0;j<2;j++)
      limbSegment([x-.28*size,cy+.18*size+j*.12*size,cz],
       [x+.28*size,cy+.18*size+j*.12*size,cz],
       .072*size,rgb(j?0x9e7751:0x73553c),5);
-   }else{
+   }else if(stillLoaded){
     box(x,cy+.20*size,cz,.45*size,.24*size,.36*size,cloth);
     box(x,cy+.36*size,cz,.42*size,.055*size,.38*size,rope);
    }
   });
  }
+ if(unloading&&!stillLoaded)return;
  // Body-facing straps, cargo shelf and a swaying, weighted carrier are
  // original 3D geometry rather than a billboard, icon or invented NPC.
  materialScope(MATERIAL.WOOD,()=>{
