@@ -295,6 +295,10 @@ export function createClimber() {
   // Remember only the last *solved* finger grip, not the AI's intended route.
   // Reusable bone-local quaternions avoid allocations in the render hot path.
   let heldGripRun=null,heldGripPlatform=null,heldGripTick=-1;
+  // Remember one physically validated sole load for the very next upward
+  // source tick. A cosmetic compression must never become a second landing,
+  // survive an interrupted run or affect authoritative actor placement.
+  let deckLoadRun=null,deckLoadPlatform=null,deckLoadTick=-1,deckLoadCompression=0;
   const gripArmPose=arms.map(()=>({upper:new THREE.Quaternion(),lower:new THREE.Quaternion()}));
   const rest=body.position.y;
   const ledgeWorld=new THREE.Vector3(), ledgeElbow=new THREE.Vector3(),
@@ -452,6 +456,7 @@ export function createClimber() {
     // autonomous leap is never stopped, slowed or moved by this cosmetic pose:
     // local body compression and ankle leveling are bounded to a measured
     // <= 22cm sole-height window, the true deck ring and the matching platform.
+    let loadedThisFrame=false;
     const surface=state.ledgeSurface;
     if(airborne&&vy>0&&!genuineLedgeGrip&&!attacking&&!dead&&!hurt&&mantle
       &&surface&&typeof state.runToken==='string'&&state.runToken
@@ -470,6 +475,7 @@ export function createClimber() {
         // state. Level the boot as the hips absorb the load and the leg pushes
         // away in the following true rising frame.
         const weight=1-THREE.MathUtils.smoothstep(clearance,-.02,.22);
+        const beforeLoadY=body.position.y;
         body.rotation.x+=.075*weight;
         body.position.y-=.035*weight;
         const level=-(body.rotation.x+leg.upper.rotation.x+leg.lower.rotation.x);
@@ -489,7 +495,33 @@ export function createClimber() {
         // permit one bounded contact-window correction (22cm max), rather
         // than leaving the leveled boot suspended above the real platform.
         body.position.y-=clamp((deckSoleWorld.y-surface.y)/Math.max(.01,deckWorldScale.y),-.22,.22);
+        const compression=beforeLoadY-body.position.y;
+        if(compression>.03){
+          loadedThisFrame=true;
+          deckLoadRun=state.runToken;
+          deckLoadPlatform=state.ledgePlatformId;
+          deckLoadTick=state.tick;
+          deckLoadCompression=clamp(compression,0,.24);
+        }
       }
+    }
+    // The first source tick of rising push-off should unload a physically
+    // planted sole rather than instantly resetting the hip by the entire
+    // compression. After exactly one adjacent authoritative tick, clear it:
+    // no inferred contact, root displacement, non-matching deck or run latch.
+    if(!loadedThisFrame && deckLoadRun!==null){
+      const truePushOff=state.runToken===deckLoadRun
+        && state.ledgePlatformId===deckLoadPlatform
+        && Number.isSafeInteger(state.tick)
+        && state.tick===deckLoadTick+1
+        && airborne&&vy>0&&!attacking&&!dead&&!hurt
+        && mantle&&Number.isFinite(mantle.progress)&&Number.isFinite(mantle.weight)
+        && mantle.weight>0;
+      if(truePushOff)body.position.y-=Math.min(.12,deckLoadCompression*.5);
+      deckLoadRun=null;
+      deckLoadPlatform=null;
+      deckLoadTick=-1;
+      deckLoadCompression=0;
     }
     // The first airborne tick after a real fingertip release previously snapped
     // BOTH arms from a solved grip straight to camera-directed generic mantle.
