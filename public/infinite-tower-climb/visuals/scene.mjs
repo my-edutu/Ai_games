@@ -1016,7 +1016,7 @@ export function createTowerScene(canvas, settings = {}) {
     // missing guardian. The new floor's autonomous physics stay untouched.
     const clearedGuardian = observedGuardianPassage(previous, next);
     if (previous && previous.floor !== next.floor) passage.clear();
-    if (clearedGuardian) passage.begin(next, pointFor(next.player.x,
+    if (clearedGuardian) passage.begin(previous, next, pointFor(next.player.x,
       next.player.y - next.player.halfHeight, next.chunkBaseY, next.worldWidth, 21.55));
     // A landing is observable only across consecutive source snapshots in the
     // same real run/floor. Skipped long intervals and decorative ledge poses
