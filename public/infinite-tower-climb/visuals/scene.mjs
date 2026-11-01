@@ -33,6 +33,29 @@ function poseThreatLane(lane, enemy, frame){
   }
   points.needsUpdate=true;
 }
+// A curved source-observed projectile trail, at most one authoritative
+// velocity step behind the actual shot; never a predicted hit or fake collider.
+// Its per-actor geometry is bounded and disposed on removal/restart/context loss.
+const SHOT_TRACE_SEGMENTS=8;
+function createProjectileRibbonGeometry(){
+ const geometry=new THREE.BufferGeometry();
+ const positions=new Float32Array((SHOT_TRACE_SEGMENTS+1)*6),indices=[];
+ for(let i=0;i<SHOT_TRACE_SEGMENTS;i++){const a=2*i,b=a+2;indices.push(a,a+1,b,a+1,b+1,b);}
+ geometry.setAttribute('position',new THREE.BufferAttribute(positions,3).setUsage(THREE.DynamicDrawUsage));
+ geometry.setIndex(indices);return geometry;
+}
+function poseProjectileRibbon(ribbon,shot,frame){
+ const points=ribbon.geometry.getAttribute('position');
+ const travel=clamp(shot.vx,-20000,20000);
+ for(let i=0;i<=SHOT_TRACE_SEGMENTS;i++){
+  const t=i/SHOT_TRACE_SEGMENTS,x=clamp(shot.x-travel*t,0,frame.worldWidth);
+  const mapped=pointFor(x,shot.y,frame.chunkBaseY,frame.worldWidth,25.8);
+  const half=.026+(1-t)*.15;
+  points.setXYZ(i*2,mapped.x,mapped.y-half,mapped.z);
+  points.setXYZ(i*2+1,mapped.x,mapped.y+half,mapped.z);
+ }
+ points.needsUpdate=true;
+}
 // Position-only correction runs inside the real scene module. The scene's
 // CPU/VM fixtures intentionally remove ESM imports to test WebGL boundaries;
 // keeping this pure helper local also makes those fixtures exercise actual code.
@@ -694,7 +717,6 @@ export function createTowerScene(canvas, settings = {}) {
   const gemGeometry = ownGeometry(new THREE.OctahedronGeometry(.42));
   const ringGeometry = ownGeometry(new THREE.TorusGeometry(.65, .035, 6, 24));
   const boltGeometry = ownGeometry(new THREE.SphereGeometry(.21, 10, 7));
-  const trailGeometry = ownGeometry(new THREE.ConeGeometry(.16, 1.2, 8));
   const collectibleMaterials = {};
   for (const [kind, color] of Object.entries({ health: 0x69ffd5, stamina: 0x75c8ff, shard: 0xffda7b })) {
     collectibleMaterials[kind] = ownMaterial(new THREE.MeshStandardMaterial({ color, emissive: color, emissiveIntensity: .7, metalness: .45, roughness: .22 }));
@@ -702,6 +724,10 @@ export function createTowerScene(canvas, settings = {}) {
   const boltMaterials = {
     player: ownMaterial(new THREE.MeshBasicMaterial({ color: 0x7eeeff })),
     enemy: ownMaterial(new THREE.MeshBasicMaterial({ color: 0xff805e })),
+  };
+  const ribbonMaterials = {
+    player: ownMaterial(new THREE.MeshBasicMaterial({ color: 0x7eeeff, transparent: true, opacity: .68, side: THREE.DoubleSide, depthTest: true, depthWrite: false, toneMapped: false })),
+    enemy: ownMaterial(new THREE.MeshBasicMaterial({ color: 0xff805e, transparent: true, opacity: .73, side: THREE.DoubleSide, depthTest: true, depthWrite: false, toneMapped: false })),
   };
   const healthBarGeometry = ownGeometry(new THREE.PlaneGeometry(1, 1));
   const healthBarDark = ownMaterial(new THREE.MeshBasicMaterial({ color: 0x172329, transparent: true, opacity: .88, depthTest: false, depthWrite: false }));
@@ -811,7 +837,10 @@ export function createTowerScene(canvas, settings = {}) {
     enemies.clear();
     for (const group of pickups.values()) scene.remove(group);
     pickups.clear();
-    for (const group of projectiles.values()) scene.remove(group);
+    for (const group of projectiles.values()){
+      scene.remove(group,group.userData.ribbon);
+      group.userData.ribbon?.geometry.dispose();
+    }
     projectiles.clear();
     particleLife.fill(0);
   }
@@ -900,12 +929,18 @@ export function createTowerScene(canvas, settings = {}) {
       group.add(gem, ring); scene.add(group); pickups.set(pick.id, group);
     }
     const projectileIds = new Set(next.projectiles.map(p => p.id));
-    for (const [id, group] of projectiles) if (!projectileIds.has(id)) { scene.remove(group); projectiles.delete(id); }
+    for (const [id, group] of projectiles) if (!projectileIds.has(id)) {
+      scene.remove(group,group.userData.ribbon);
+      group.userData.ribbon?.geometry.dispose();
+      projectiles.delete(id);
+    }
     for (const projectile of next.projectiles) if (!projectiles.has(projectile.id)) {
       const group = new THREE.Group(), mat = boltMaterials[projectile.owner] || boltMaterials.enemy;
-      const dot = new THREE.Mesh(boltGeometry, mat), trail = new THREE.Mesh(trailGeometry, mat);
-      trail.rotation.z = Math.PI / 2; trail.position.x = -.6;
-      group.add(dot, trail); projectiles.set(projectile.id, group); scene.add(group);
+      const dot = new THREE.Mesh(boltGeometry, mat);
+      const ribbon = new THREE.Mesh(createProjectileRibbonGeometry(), ribbonMaterials[projectile.owner] || ribbonMaterials.enemy);
+      ribbon.name = 'ObservedProjectileTravel';ribbon.frustumCulled=false;ribbon.renderOrder=4;
+      group.add(dot);group.userData.ribbon=ribbon;
+      projectiles.set(projectile.id, group);scene.add(group,ribbon);
     }
   }
 
@@ -1091,6 +1126,7 @@ export function createTowerScene(canvas, settings = {}) {
       const group = projectiles.get(p.id), mapped = pointFor(p.x, p.y, snapshot.chunkBaseY, snapshot.worldWidth, 25.8);
       group.position.set(mapped.x, mapped.y, mapped.z);
       group.rotation.y = mapped.angle + (p.vx < 0 ? Math.PI : 0);
+      poseProjectileRibbon(group.userData.ribbon,p,snapshot);
     }
     let particlesChanged = false;
     for (let i = 0; i < MAX_PARTICLES; i++) {

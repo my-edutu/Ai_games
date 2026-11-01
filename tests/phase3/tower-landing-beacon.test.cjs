@@ -82,7 +82,7 @@ test('one landing beacon follows effective moving-deck positions and clears stal
 test('desktop Ruins destination clears the observed upright without escaping the physical landing', async () => {
   const { THREE, pointFor, context } = await loaded;
   const { createSession, advance } = require('../../scripts/serve-tower-stream.cjs');
-  const session = createSession();
+  const session = createSession('tower-stream-reference', undefined, 'historical-v1');
   for (let tick = 0; tick < 379; tick++) advance(session);
   const frame = session.controller.frame(960, 600, { reducedMotion: true, muted: true }).snapshot;
   assert.equal(frame.publicChecksum, 'cdb269d8', 'fixture must match the inspected GPU screenshot');
@@ -116,7 +116,7 @@ test('both portrait traversal directions keep the complete destination glyph ins
   const { THREE, pointFor, context } = await loaded;
   const { createSession, advance } = require('../../scripts/serve-tower-stream.cjs');
   for (const [tick, checksum] of [[379, 'cdb269d8'], [234, '7a87ca02']]) {
-    const session = createSession();
+    const session = createSession('tower-stream-reference', undefined, 'historical-v1');
     for (let step = 0; step < tick; step++) advance(session);
     const frame = session.controller.frame(390, 844, { reducedMotion: true, muted: true }).snapshot;
     assert.equal(frame.publicChecksum, checksum);

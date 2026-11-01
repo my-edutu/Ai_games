@@ -1,7 +1,7 @@
 // A bounded synthesized soundscape. No audio is started until a viewer enables it.
 export function createTowerAudio() {
   let context = null, master = null, bed = null, wind = null, windFilter = null, windGain = null;
-  let enabled = false, token = '', last = null, lastFloor = null, stride = 0, noiseIndex = 0;
+  let enabled = false, token = '', last = null, lastFloor = null, lastIntent = '', stride = 0, noiseIndex = 0;
   let disposed = false, lastAmbient = 0, enableRequest = 0, enablePending = false;
   const voices = new Set(), heard = new Set(), pads = [];
   async function setEnabled(value) {
@@ -24,6 +24,10 @@ export function createTowerAudio() {
       // Original opt-in wind bed, generated once per audio context: a filtered
       // seamless looping sample instead of a continuous stream of new voices.
       // The same buffer supplies bounded gravel/cloth transients on real steps.
+      // The ambient texture is optional; restricted and test AudioContexts may
+      // support tonal audio and resume/mute but not sampled buffers/filters.
+      if(typeof context.createBuffer==='function'&&typeof context.createBufferSource==='function'
+        &&typeof context.createBiquadFilter==='function'&&Number.isFinite(context.sampleRate)&&context.sampleRate>0){
       const buffer = context.createBuffer(1, Math.max(256, Math.round(context.sampleRate)), context.sampleRate);
       const samples = buffer.getChannelData(0);
       let noiseSeed = 0x12345;
@@ -36,6 +40,7 @@ export function createTowerAudio() {
       windGain = context.createGain(); windGain.gain.value = .008;
       wind.connect(windFilter); windFilter.connect(windGain); windGain.connect(master);
       wind.start(); voices.add(wind);
+      }
     }
     enablePending = true;
     let active = false;
@@ -87,13 +92,19 @@ export function createTowerAudio() {
   function accept(frame) {
     if (!frame?.snapshot || disposed) return;
     const snapshot = frame.snapshot;
-    if (snapshot.runToken !== token) { heard.clear(); last = null; lastFloor = null; stride = 0; token = snapshot.runToken; }
+    if (snapshot.runToken !== token) { heard.clear(); last = null; lastFloor = null; lastIntent = ''; stride = 0; token = snapshot.runToken; }
     for (const voice of frame.audio?.voices || []) if (!heard.has(voice.id)) {
       heard.add(voice.id); cue(voice.cue);
       if (heard.size > 128) heard.delete(heard.values().next().value);
     }
     const actor = snapshot.player;
     const sameFloor = last && lastFloor === snapshot.floor;
+    const intent = snapshot.intent?.mode || '';
+    // Restrained opt-in cue on real defensive transition, deduped by intent.
+    // The matching model pose remains visible when muted.
+    if(sameFloor && intent!==lastIntent && ['evading-projectile','evading-hazard','evading-telegraph'].includes(intent))
+      tone(440,280,.12,'triangle',.038);
+    lastIntent=intent;
     if (last && actor.state === 'airborne' && last.state === 'standing') {
       tone(180, 410, .13, 'sine', .055);
       texture(680, .08, .034);
@@ -125,21 +136,21 @@ export function createTowerAudio() {
       const mood = frame.audio?.musicState || 'ascent';
       const intensity = mood === 'guardian' ? .052 : mood === 'danger' ? .042 : mood === 'result' ? .012 : .025;
       bed.gain.setTargetAtTime(intensity, context.currentTime, .65);
-      windGain.gain.setTargetAtTime(mood === 'guardian' ? .022 : mood === 'danger' ? .016 : .008, context.currentTime, .75);
+      if(windGain)windGain.gain.setTargetAtTime(mood === 'guardian' ? .022 : mood === 'danger' ? .016 : .008, context.currentTime, .75);
       const pitches = { foundry: 55, ruins: 65.41, storm: 61.74, clockwork: 82.41, void: 49 };
       const root = pitches[snapshot.theme] || 55;
       for (let index = 0; index < pads.length; index++) {
         pads[index].frequency.setTargetAtTime(root * [1, 1.5, 2][index], context.currentTime, .8);
       }
       const filters = { foundry: 200, ruins: 400, storm: 1050, clockwork: 300, void: 140 };
-      windFilter.frequency.setTargetAtTime(filters[snapshot.theme] || 260, context.currentTime, 1);
+      if(windFilter)windFilter.frequency.setTargetAtTime(filters[snapshot.theme] || 260, context.currentTime, 1);
     }
   }
   function dispose() {
     if (disposed) return;
     disposed = true; enabled = false; enablePending = false; enableRequest++;
     for (const voice of voices) { try { voice.stop(); voice.disconnect(); } catch {} }
-    voices.clear(); heard.clear(); pads.length = 0; last = null; lastFloor = null; stride = 0;
+    voices.clear(); heard.clear(); pads.length = 0; last = null; lastFloor = null; lastIntent = ''; stride = 0;
     if (context) context.close().catch(() => {});
   }
   return { setEnabled, accept, dispose, diagnostics: () => ({ soundEnabled: enabled, soundPending: enablePending, voices: voices.size, context: context?.state || 'not-started' }) };

@@ -311,6 +311,8 @@ export function createClimber() {
     const vx=Number(state.vx??state.velocity?.x)||0,vy=Number(state.vy??state.velocity?.y)||0;
     const speed=clamp(Math.abs(vx)/4300,0,1),dead=state.state==='dead'||state.health===0;
     const airborne=state.state==='airborne',dash=state.state==='dashing',hurt=state.state==='hurt';
+    // Intent, not visual randomness, drives this bounded defensive silhouette.
+    const defending=['evading-projectile','evading-hazard','evading-telegraph'].includes(state.intentMode);
     const attacking=Boolean(state.attacking)&&!dead&&!hurt;
     // World-facing traversal, never follow-camera framing, owns boot stance.
     // Camera azimuth may expose the reaching hand but cannot swap the physical
@@ -358,6 +360,15 @@ export function createClimber() {
         arms[0].upper.rotation.x=mix(arms[0].upper.rotation.x,-.85,.48);
         arms[0].lower.rotation.x=mix(arms[0].lower.rotation.x,-.75,.45);
       }
+      // Shield the visor and tuck the knees while the real AI reacts to danger.
+      if(defending&&!attacking){
+        body.position.y-=.065;body.rotation.x=-.13;head.rotation.x=.18;
+        for(let i=0;i<2;i++){
+          legs[i].upper.rotation.x=-.33;legs[i].lower.rotation.x=.6;
+          arms[i].upper.rotation.set(-1.18,0,(i?1:-1)*.44);
+          arms[i].lower.rotation.x=-.82;
+        }
+      }
     }
     if(airborne){
       const rising=vy>0;
@@ -389,6 +400,16 @@ export function createClimber() {
       backLeg.foot.rotation.x=rising?.05:-.12;
       head.rotation.x=rising?-.29:.28;
       head.rotation.y=-((state.facing??Math.sign(vx))||1)*.22;
+      if(defending&&!attacking&&!dead&&!hurt){
+        // A defensive jump must not read as a free-floating ledge reach.
+        // Actual physical fingertip contact can still override this pose.
+        body.rotation.x=-.18;head.rotation.x=.11;
+        for(let i=0;i<2;i++){
+          arms[i].upper.rotation.set(-1.25,0,(i?1:-1)*.3);
+          arms[i].lower.rotation.x=-.78;
+          legs[i].upper.rotation.x=-.83;legs[i].lower.rotation.x=1.12;
+        }
+      }
     }
     // The platformer's physics remains unchanged. Only a nearby genuine deck
     // can pull the raised fingertip into physical contact during an ascent.

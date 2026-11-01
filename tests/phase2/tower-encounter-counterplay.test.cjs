@@ -74,3 +74,37 @@ test('resource intent is blocked if the real item is beyond support or off-level
  s.pickups[0].position.y+=80000;
  assert.notEqual(chooseTowerAction(s,createTowerObservation(s)).intent.mode,'collecting-resource');
 });
+
+// These counterplay tests exercise actual observed support, threats and the
+// shipped decision policy; the frozen historical mode stays unmodified.
+test('live defensive AI leaps inward rather than fleeing off the ledge from an incoming shot',()=>{
+ const s=encounter(),support=s.chunks[0].platforms.find(q=>q.id===s.player.groundedPlatformId);
+ s.enemies=[];s.chunks[0].hazards=[];
+ s.player.position.x=support.x+support.width-s.player.halfWidth-5000;
+ s.player.velocity.x=0;
+ s.projectiles=[{id:'real-inbound',owner:'enemy',floor:s.floor,position:{x:s.player.position.x-24000,y:s.player.position.y},
+  velocity:{x:12000,y:0},halfWidth:5000,halfHeight:3500,damage:1,ttl:9,active:true,hitIds:[]}];
+ const obs=createTowerObservation(s),live=chooseTowerAction(s,obs),legacy=chooseTowerAction(s,obs,{tactical:false});
+ assert.equal(live.intent.mode,'evading-projectile');
+ assert.equal(live.action.jump,true);
+ assert.equal(live.action.move,-1);
+ assert.equal(legacy.action.move,1,'historical-v1 remains frozen');
+});
+test('active close hazard does not force a tactical step into open air',()=>{
+ const s=encounter(),support=s.chunks[0].platforms.find(q=>q.id===s.player.groundedPlatformId);
+ s.enemies=[];s.projectiles=[];
+ s.player.position.x=support.x+support.width-s.player.halfWidth-5000;s.player.velocity.x=0;
+ s.chunks[0].hazards=[{id:'edge-danger',kind:'spikes',x:s.player.position.x-20000,y:s.player.position.y-15000,
+ width:19000,height:10000,activeFromTick:0,activeEvery:10,activeFor:10,damage:1}];
+ const obs=createTowerObservation(s);
+ const live=chooseTowerAction(s,obs),legacy=chooseTowerAction(s,obs,{tactical:false});
+ assert.equal(live.intent.mode,'evading-hazard');assert.equal(live.action.jump,true);
+ assert.equal(live.action.move,-1);assert.equal(legacy.action.move,1);
+});
+test('open supported lane retains the useful outward shot-avoidance response',()=>{
+ const s=encounter();s.enemies=[];s.chunks[0].hazards=[];
+ s.projectiles=[{id:'open-shot',owner:'enemy',floor:s.floor,position:{x:s.player.position.x-24000,y:s.player.position.y},
+ velocity:{x:12000,y:0},halfWidth:5000,halfHeight:3500,damage:1,ttl:9,active:true,hitIds:[]}];
+ const live=chooseTowerAction(s,createTowerObservation(s));
+ assert.equal(live.intent.mode,'evading-projectile');assert.equal(live.action.move,1);
+});

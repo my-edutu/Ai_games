@@ -5,6 +5,26 @@ function action(move:TowerAction['move']=0,extra:Partial<TowerAction>={}):TowerA
 function moveSign(delta:number):TowerAction['move']{return Math.abs(delta)<4000?0:delta>0?1:-1}
 function currentPlatform(obs:TowerObservation,id?:string){return id?obs.platforms.find(p=>p.id===id):undefined}
 function launchX(current:TowerPlatform,target:TowerPlatform,halfWidth:number){const safeLeft=current.x+halfWidth+6000,safeRight=current.x+current.width-halfWidth-6000,center=target.x+target.width/2;if(target.x<=current.x+current.width&&target.x+target.width>=current.x)return Math.max(safeLeft,Math.min(safeRight,center));return center<current.x?safeLeft:safeRight}
+// Predict the next deterministic ground step against the actual present deck.
+// A danger reaction is not worth stepping off the supporting edge.
+function guardedEvasion(state:TowerState,obs:TowerObservation,wanted:TowerAction['move']):TowerAction['move']{
+ const p=obs.player;
+ if(!p.grounded)return wanted;
+ const platform=currentPlatform(obs,p.groundedPlatformId);
+ if(!platform)return wanted;
+ const margin=state.player.halfWidth+Math.min(6000,Math.floor(platform.width/10));
+ const left=platform.x+margin,right=platform.x+platform.width-margin;
+ if(left>=right)return 0;
+ const isSafe=(move:TowerAction['move'])=>{
+   const vx=p.velocity.x;
+   const next=move===0?vx-Math.sign(vx)*Math.min(Math.abs(vx),state.config.groundFriction):
+     Math.max(-state.config.maxRunSpeed,Math.min(state.config.maxRunSpeed,vx+move*state.config.moveAcceleration));
+   return p.position.x+next>=left&&p.position.x+next<=right;
+ };
+ if(isSafe(wanted))return wanted;
+ if(isSafe(0))return 0;
+ return p.position.x<platform.x+platform.width/2?1:-1;
+}
 function incomingProjectile(obs:TowerObservation){return obs.projectiles.filter(x=>x.owner==='enemy').find(x=>Math.abs(x.position.y-obs.player.position.y)<30000&&Math.abs(x.position.x-obs.player.position.x)<65000&&Math.sign(x.velocity.x)===Math.sign(obs.player.position.x-x.position.x))}
 function immediateHazard(obs:TowerObservation){const p=obs.player;return obs.hazards.filter(h=>h.active&&Math.abs((h.y+h.height/2)-p.position.y)<42000).sort((a,b)=>Math.abs((a.x+a.width/2)-p.position.x)-Math.abs((b.x+b.width/2)-p.position.x)||a.id.localeCompare(b.id)).find(h=>Math.abs((h.x+h.width/2)-p.position.x)<62000)}
 function nearbyEnemy(obs:TowerObservation,reach:number){return obs.enemies.filter(e=>e.active&&Math.abs(e.position.y-obs.player.position.y)<36000&&Math.abs(e.position.x-obs.player.position.x)<=reach).sort((a,b)=>Math.abs(a.position.x-obs.player.position.x)-Math.abs(b.position.x-obs.player.position.x)||a.id.localeCompare(b.id))[0]}
@@ -59,10 +79,10 @@ function pulseReady(state:TowerState,obs:TowerObservation,enemy:TowerObservation
 export function chooseTowerAction(state:TowerState,observation:TowerObservation,options:{tactical?:boolean}={}):TowerDecision{
   const tactical=options.tactical!==false;
   if(observation.upgradeOffers.length){const selected=chooseTowerUpgrade(state);return{action:action(0,{upgradeChoice:selected?.id}),intent:{mode:'choosing-upgrade',summary:selected?`Selecting ${selected.name}`:'Waiting for a valid upgrade',confidence:1,fallbackUsed:false}}}
-  const projectile=incomingProjectile(observation);if(projectile){const away=moveSign(observation.player.position.x-projectile.position.x);return{action:action(away,{jump:observation.player.grounded,dash:!observation.player.grounded&&observation.player.dashCooldown===0}),intent:{mode:'evading-projectile',summary:'Evading an incoming projectile',confidence:.98,fallbackUsed:false}}}
-  const hazard=immediateHazard(observation);if(hazard){const center=hazard.x+hazard.width/2,away:TowerAction['move']=center>=observation.player.position.x?-1:1;return{action:action(away,{jump:observation.player.grounded}),intent:{mode:'evading-hazard',summary:`Avoiding ${hazard.kind}`,confidence:.96,fallbackUsed:false}}}
+  const projectile=incomingProjectile(observation);if(projectile){const away=moveSign(observation.player.position.x-projectile.position.x),move=tactical?guardedEvasion(state,observation,away):away;return{action:action(move,{jump:observation.player.grounded,dash:!observation.player.grounded&&observation.player.dashCooldown===0}),intent:{mode:'evading-projectile',summary:move!==away?'Guarding against a shot without leaving the deck':'Evading an incoming projectile',confidence:.98,fallbackUsed:false}}}
+  const hazard=immediateHazard(observation);if(hazard){const center=hazard.x+hazard.width/2,away:TowerAction['move']=center>=observation.player.position.x?-1:1,move=tactical?guardedEvasion(state,observation,away):away;return{action:action(move,{jump:observation.player.grounded}),intent:{mode:'evading-hazard',summary:move!==away?'Jumping clear without abandoning the deck':`Avoiding ${hazard.kind}`,confidence:.96,fallbackUsed:false}}}
   const windup=tactical?imminentTelegraph(state,observation):undefined;
-  if(windup)return{action:action(0,{jump:true}),
+  if(windup)return{action:action(guardedEvasion(state,observation,0),{jump:true}),
     intent:{mode:'evading-telegraph',summary:`Jumping clear of ${windup.kind} fire`,confidence:.96,fallbackUsed:false}};
   // The cap exit is deliberately locked while its guardian lives. Do not treat
   // standing on that cap as the end of the route: the guardian patrols the

@@ -11,7 +11,7 @@ function shipped(name,args){
 const landing=shipped('intendedLanding','snapshot');
 const approach=shipped('climbApproachRadius','snapshot, platform');
 const frameSeries=()=>{
-  const session=createSession(),observations=[];
+  const session=createSession('tower-stream-reference',undefined,'historical-v1'),observations=[];
   for(let i=0;i<320;i++){
     const frame=session.controller.frame(390,844,{reducedMotion:true,muted:true});
     const snap=frame.snapshot;
@@ -78,7 +78,7 @@ test('release is driven only by immutable actual target height and remains bound
 
 test('authentic upper-deck ascent receives a bounded source-derived mantle keyframe, never a phantom grip',()=>{
   const mantle=shipped('ledgeMantlePose','snapshot, platform');
-  const session=createSession(),sample=new Map();
+  const session=createSession('tower-stream-reference',undefined,'historical-v1'),sample=new Map();
   for(let i=0;i<=310;i++){
     const frame=session.controller.frame(390,844,{reducedMotion:true,muted:true});
     const snapshot=frame.snapshot, before=JSON.stringify(snapshot);
