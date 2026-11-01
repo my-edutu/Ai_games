@@ -725,8 +725,13 @@ export function createMazeWorld(options = {}) {
     if (disposed || !s) return;
     snapshot = s;
     if (runToken !== s.runToken) {
-      runToken = s.runToken; terrainSignature = ''; objectSignature = ''; backdropSignature = ''; lastVisibility = '';
-      clear(terrain); clear(objects); clear(backdrop); batches = []; animations = []; ripples = []; coastalGardens = 0; wallGardens = 0;
+      // An empty but valid disclosed run produces an empty terrain key. A
+      // sentinel distinct from that key is mandatory after a run change:
+      // otherwise old renderedCells diagnostics can survive with no meshes.
+      runToken = s.runToken; terrainSignature = null; objectSignature = ''; backdropSignature = ''; lastVisibility = '';
+      clear(terrain); clear(objects); clear(backdrop); publicClosedSockets.clear();
+      batches = []; animations = []; ripples = []; renderedCells = []; stairEdges = [];
+      coastalGardens = 0; wallGardens = 0;
     }
     const backgroundKey = `${s.width}:${s.height}`;
     if (backgroundKey !== backdropSignature) { rebuildBackdrop(s); backdropSignature = backgroundKey; }
