@@ -137,8 +137,12 @@ test('G100 real market courier receives a readable close camera and an unclutter
   const status=document.querySelector('#workday-activity').getBoundingClientRect();
   const ribbon=document.querySelector('#world-ribbon').getBoundingClientRect();
   const nav=document.querySelector('.world-tour').getBoundingClientRect();
+  const activeButtons=[...document.querySelectorAll('.bottom button')]
+   .filter(el=>getComputedStyle(el).display!=='none');
+  const bottom=document.querySelector('.bottom').getBoundingClientRect();
   return {scrollWidth:document.documentElement.scrollWidth,visibleScenic:visibleScenic.length,
    statusTop:status.top,ribbonBottom:ribbon.bottom,navTop:nav.top,navBottom:nav.bottom,
+   bottomHeight:bottom.height,activeButtons:activeButtons.map(b=>b.id),
    progressVisible:getComputedStyle(document.getElementById('workday-progress')).display!=='none',
    glError:document.querySelector('#world').getContext('webgl')?.getError()??0,
    authority:JSON.stringify(window.__tinyKingdom.exportSnapshot())};
@@ -150,5 +154,21 @@ test('G100 real market courier receives a readable close camera and an unclutter
  expect(mobile.progressVisible).toBe(true);
  expect(mobile.authority).toBe(staged.snapshot);
  expect(mobile.glError).toBe(0);
+ // G102 RED-FIRST: mobile should present four primary controls, not a
+ // multirow cockpit. Every advanced control remains available on demand.
+ expect(mobile.activeButtons.length).toBeLessThanOrEqual(4);
+ expect(mobile.bottomHeight).toBeLessThan(85);
+ await page.locator('#world-open-command').click();
+ const expanded=await page.evaluate(()=>({
+  command:window.__tinyKingdom.getCommandView(),
+  visibleBottom:[...document.querySelectorAll('.bottom button')]
+   .filter(el=>getComputedStyle(el).display!=='none').map(x=>x.id),
+  authority:JSON.stringify(window.__tinyKingdom.exportSnapshot())
+ }));
+ expect(expanded.command).toBe('command');
+ expect(expanded.visibleBottom).toContain('speed16');
+ expect(expanded.visibleBottom).toContain('save');
+ expect(expanded.visibleBottom).toContain('restore');
+ expect(expanded.authority).toBe(staged.snapshot);
  expect(errors).toEqual([]);
 });
