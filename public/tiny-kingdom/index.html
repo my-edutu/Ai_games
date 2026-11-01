@@ -1445,6 +1445,15 @@ const COMPACT_ROOF_PALETTES=[
  [0x656a65,0x858880,0x777a71,0x9a9789], // rain-darkened slate
  [0x704c40,0x91634c,0x80574a,0xa77d62]  // burnt kiln-fired clay
 ];
+// G108 shared architecture grammar for geometry, camera collision and smoke.
+const COMPACT_HOUSE_HEIGHTS=[2.08,2.94,2.47,3.16];
+const COMPACT_HOUSE_PITCHES=[1.18,1.70,1.47,1.82];
+function compactHouseArchetype(x,z,variant){
+ return Math.min(3,Math.floor(biomeHash(Math.round(x*29+z*47+variant*71))*4));
+}
+let streetMorphologyStats={homes:0,highStreetFronts:0,upperJetties:0,
+ crossGables:0,shopCanopies:0,framedUpperCasements:0,physicalSignboards:0,
+ totalTriangles:0,archetypes:[0,0,0,0]};
 const VILLAGE_LOD_LIMIT=8;
 const villageVisualLod={detailedHomes:0,compactHomes:0,detailedCitizens:0,compactCitizens:0,compactRoofTiles:0,compactFramedWindows:0,compactGableBraces:0,compactSideWindows:0,compactSideTimberQuads:0,compactStaggeredCourses:0,compactFacingCount:0,compactTurnedCitizens:0,compactFacingVertexError:0,compactDormers:0,compactDormerTriangles:0,compactGuildLofts:0,compactRoofPaletteCounts:[0,0,0,0]};
 function detailedHomeSet(){
@@ -1457,10 +1466,10 @@ function compactHouse(x,z,variant){
  // different roof pitches, not an army of interchangeable same-height boxes.
  // Structural choice is fixed by coordinates; authoritative collision,
  // navigation, jobs, RNG streams, replay and save schemas remain unchanged.
- const roofStyle=Math.min(3,Math.floor(biomeHash(Math.round(x*29+z*47+variant*71))*4));
+ const roofStyle=compactHouseArchetype(x,z,variant);
  const y=terrain(x,z),w=2.4+variant*.42,d=2.1+variant*.18;
- const h=[1.90,2.34,2.03,2.25][roofStyle];
- const roofPitch=[1.13,1.70,1.36,1.76][roofStyle];
+ const h=COMPACT_HOUSE_HEIGHTS[roofStyle];
+ const roofPitch=COMPACT_HOUSE_PITCHES[roofStyle];
  const palette=COMPACT_ROOF_PALETTES[roofStyle];
  villageVisualLod.compactRoofPaletteCounts[roofStyle]++;
  const plaster=rgb(variant%2?0xe0c7aa:0xd1bc97);
@@ -1634,6 +1643,110 @@ function compactHouse(x,z,variant){
   });
   villageVisualLod.compactGuildLofts++;
  }
+}
+
+// G108: physical, town-wide inhabited architecture. Every house, not one
+// specially staged prop, acquires a legible street edge and one of two
+// contrasting roof/form families. As the actual city grows, burgage houses
+// gain second-floor projecting jetties and leaded casements. No simulated
+// trades, invented resources or additional collision/path objects.
+function medievalStreetMorphology(x,z,variant,index,isCompact){
+ const start=data.length,style=compactHouseArchetype(x,z,variant),
+  y=terrain(x,z),w=2.4+variant*.42,d=2.1+variant*.18,
+  h=isCompact?COMPACT_HOUSE_HEIGHTS[style]:1.90,
+  front=z-d*.5-.23,face=z-d*.5-.11,
+  timber=rgb([0x594535,0x473c33,0x634c3a,0x53463b][style]),
+  lit=rgb([0xbba383,0xa28d72,0xc0a380,0xb4a18d][style]),
+  plaster=rgb([0xd4c3a6,0xc4b8a2,0xe1cba6,0xb9b2a4][style]),
+  roof=rgb([0x866f58,0x5b6668,0x77644f,0x6d736e][style]);
+ streetMorphologyStats.homes++;
+ streetMorphologyStats.highStreetFronts++;
+ streetMorphologyStats.archetypes[style]++;
+ // Human-height entries remain inside the original navigation footprint.
+ // Planar wall braces avoid the 12-triangle cost of each full timber post.
+ materialScope(MATERIAL.STONE,()=>{
+  quad([x-.40,y+.055,front-.15],[x+.40,y+.055,front-.15],
+       [x+.40,y+.055,front+.20],[x-.40,y+.055,front+.20],
+       rgb(0xaaa18b));
+ });
+ materialScope(MATERIAL.WOOD,()=>{
+  box(x,y+Math.min(h-.20,1.78),face,w*.92,.105,.15,timber);
+  for(const side of [-1,1]){
+   const xx=x+side*w*.43,zf=face-.013;
+   quad([xx-.065,y+.72,zf],[xx-.065,y+Math.min(h-.24,1.78),zf],
+        [xx+.065,y+Math.min(h-.24,1.78),zf],
+        [xx+.065,y+.72,zf],timber);
+   tri([xx,y+1.28,front],[xx,y+1.70,face],
+       [xx-side*.19,y+1.70,front],lit);
+  }
+ });
+ // Tall houses are complete upper rooms, not blank elongated cottage walls.
+ // The projecting floor starts above a citizen's existing route clearance.
+ if(h>2.5){
+  materialScope(MATERIAL.PLASTER,()=>{
+   box(x,y+1.55,front-.06,w*.82,h-1.62,.24,plaster);
+  });
+  materialScope(MATERIAL.WOOD,()=>{
+   box(x,y+1.48,front-.10,w*.94,.14,.35,timber);
+   box(x,y+h-.16,front-.10,w*.94,.13,.32,timber);
+  });
+  const windowY=y+Math.min(h-.43,2.25),zz=front-.205;
+  materialScope(MATERIAL.WINDOW_GLOW,()=>{
+   for(const side of [-1,1]){
+    const wx=x+side*w*.22;
+    quad([wx-.19,windowY-.32,zz],[wx-.19,windowY+.18,zz],
+         [wx+.19,windowY+.18,zz],[wx+.19,windowY-.32,zz],rgb(0x526871));
+    streetMorphologyStats.framedUpperCasements++;
+   }
+  });
+  materialScope(MATERIAL.WOOD,()=>{
+   for(const side of [-1,1]){
+    const wx=x+side*w*.22,zf=front-.218;
+    quad([wx-.025,windowY-.33,zf],[wx-.025,windowY+.19,zf],
+         [wx+.025,windowY+.19,zf],[wx+.025,windowY-.33,zf],lit);
+    quad([wx-.22,windowY-.36,zf],[wx-.22,windowY-.29,zf],
+         [wx+.22,windowY-.29,zf],[wx+.22,windowY-.36,zf],timber);
+   }
+  });
+  streetMorphologyStats.upperJetties++;
+ }
+ // Two alternating authentic structural silhouettes above each frontage.
+ if(style===0||style===2){
+  const half=w*(style===2?.37:.27),eave=y+h+.025,
+   crown=eave+(style===2?.66:.48),rim=front-.27,root=face+.36;
+  materialScope(MATERIAL.PLASTER,()=>{
+   tri([x-half,eave,rim],[x+half,eave,rim],[x,crown,rim],plaster);
+  });
+  materialScope(MATERIAL.ROOF,()=>{
+   quad([x-half,eave,rim],[x,crown,rim],[x,crown,root],[x-half,eave,root],roof);
+   quad([x,crown,rim],[x+half,eave,rim],[x+half,eave,root],[x,crown,root],roof);
+  });
+  materialScope(MATERIAL.WOOD,()=>{
+   quad([x-half,eave+.03,rim-.02],[x-half+.055,eave+.03,rim-.02],
+        [x+.05,crown+.03,rim-.02],[x-.05,crown+.03,rim-.02],timber);
+  });
+  streetMorphologyStats.crossGables++;
+ }else{
+  // A small real canopy rather than painted shop decals or a new obstacle.
+  const e=y+(h>2.5?1.70:1.44);
+  materialScope(MATERIAL.ROOF,()=>{
+   quad([x-w*.36,e+.37,face+.05],[x+w*.36,e+.37,face+.05],
+        [x+w*.36,e+.07,front-.46],[x-w*.36,e+.07,front-.46],roof);
+  });
+  materialScope(MATERIAL.WOOD,()=>{
+   box(x,e+.025,front-.45,w*.72,.075,.09,timber);
+  });
+  streetMorphologyStats.shopCanopies++;
+ }
+ // Sparse fixed guild/trade signboards communicate use, never fake commerce.
+ if(index%5===2){
+  materialScope(MATERIAL.WOOD,()=>{
+   box(x+w*.36,y+2.04,front-.15,.075,.075,.53,timber);
+   box(x+w*.36,y+1.78,front-.44,.38,.40,.05,rgb(0x77624c));
+  });
+  streetMorphologyStats.physicalSignboards++;
+ }
+ streetMorphologyStats.totalTriangles+=(data.length-start)/30;
 }
 
 function cottageDetails(x,z,scale,variant){
@@ -3574,12 +3687,15 @@ function scenicSiteMetrics(){return {count:Object.keys(SCENIC_SITES).length,rive
 // eclipse whole cottages in the actual close-camera GPU capture. These are
 // render-only, bounded five-sided taper segments; no RNG or authority writes.
 let activeChimneys=0,smokePuffs=0,smokeTriangles=0,smokeMaxRadius=0;
-function chimneySmoke(x,z,variant,time,scale=1){
+function chimneySmoke(x,z,variant,time,scale=1,compact=false){
  if(Math.abs(x)>33||Math.abs(z)>33)return;
  if((Math.round(Math.abs(x*7+z*11))+variant)%3!==0)return;
- const y=terrain(x,z),w=(2.4+variant*.42)*scale,h=1.9*scale,d=(2.1+variant*.18)*scale;
+ const y=terrain(x,z),w=(2.4+variant*.42)*scale,d=(2.1+variant*.18)*scale,
+  style=compactHouseArchetype(x,z,variant),
+  h=(compact?COMPACT_HOUSE_HEIGHTS[style]:1.9)*scale;
  const cx=x+(variant%2?-.24:.24)*w,cz=z+d*.22;
- const slope=1.25*scale*(1-Math.min(1,2*Math.abs(cx-x)/w));
+ const slope=(compact?COMPACT_HOUSE_PITCHES[style]:1.25)*scale*
+  (1-Math.min(1,2*Math.abs(cx-x)/w));
  const top=y+h+slope+1.06*scale;
  const breeze=Math.sin(time*.031+x*.13)*.30;
  const climate=climateAt(time),density=climate.season===3?4:3;
@@ -4488,9 +4604,9 @@ function followCameraRoofs(){
  const roofs=city.map(([x,z,k],i)=>{
   let roofHeight=3.5;
   if(!detailed.has(i)){
-   const style=Math.min(3,Math.floor(biomeHash(Math.round(x*29+z*47+k*71))*4));
-   const height=[1.90,2.34,2.03,2.25][style],
-    pitch=[1.13,1.70,1.36,1.76][style];
+   const style=compactHouseArchetype(x,z,k);
+   const height=COMPACT_HOUSE_HEIGHTS[style],
+    pitch=COMPACT_HOUSE_PITCHES[style];
    roofHeight=Math.max(3.5,height+pitch+.24);
   }
   return {x,z,rx:(2.4+k*.42)*.5+.35,rz:(2.1+k*.18)*.5+.35,
@@ -5099,14 +5215,18 @@ currentMaterial=MATERIAL.STONE;
  const fullHomes=detailedHomeSet();
 villageVisualLod.detailedHomes=0;villageVisualLod.compactHomes=0;
 villageVisualLod.compactRoofTiles=0;villageVisualLod.compactFramedWindows=0;villageVisualLod.compactGableBraces=0;villageVisualLod.compactSideWindows=0;villageVisualLod.compactSideTimberQuads=0;villageVisualLod.compactStaggeredCourses=0;villageVisualLod.compactDormers=0;villageVisualLod.compactDormerTriangles=0;villageVisualLod.compactGuildLofts=0;villageVisualLod.compactRoofPaletteCounts.fill(0);
+streetMorphologyStats={homes:0,highStreetFronts:0,upperJetties:0,
+ crossGables:0,shopCanopies:0,framedUpperCasements:0,physicalSignboards:0,
+ totalTriangles:0,archetypes:[0,0,0,0]};
 for(let i=0;i<city.length;i++){
- const [x,z,k]=city[i];
- if(fullHomes.has(i)){
+ const [x,z,k]=city[i],compact=!fullHomes.has(i);
+ if(!compact){
   house(x,z,1,k);cottageDetails(x,z,1,k);
   villageVisualLod.detailedHomes++;
  }else{
   compactHouse(x,z,k);villageVisualLod.compactHomes++;
  }
+ medievalStreetMorphology(x,z,k,i,compact);
 }
 hall(0,-1); // Guildhall owns its roof, gables, windows and porch; no cottage overlay.
 // The worked spaces have identifiable props and readable boundaries.
@@ -5133,7 +5253,7 @@ renderMarketStock();
 renderDeliveryReceipts();
 renderMarketHandoffs();
 currentMaterial=MATERIAL.FOLIAGE;
-windmill(-27,-18,state.t);forgeSmoke(state.t);activeChimneys=0;smokePuffs=0;smokeTriangles=0;smokeMaxRadius=0;for(const [x,z,k] of city)chimneySmoke(x,z,k,state.t);villageFestival();
+windmill(-27,-18,state.t);forgeSmoke(state.t);activeChimneys=0;smokePuffs=0;smokeTriangles=0;smokeMaxRadius=0;{const smokeFull=detailedHomeSet();for(let i=0;i<city.length;i++){const [x,z,k]=city[i];chimneySmoke(x,z,k,state.t,1,!smokeFull.has(i));}}villageFestival();
 currentMaterial=MATERIAL.WOOD;
  const nearPeople=people.length<=12?new Set(people.map((_,i)=>i)):
  new Set(people.map((p,i)=>({i,d:(p.x-focusPoint[0])**2+(p.z-focusPoint[1])**2}))
@@ -5200,7 +5320,7 @@ requestAnimationFrame(render);window.__tinyKingdom={getState:()=>JSON.parse(JSON
  branchTriangles:forestVisualStats.branchTriangles,
  broadleafLobes:forestVisualStats.broadleafLobes,microCrownLobes:forestVisualStats.microCrownLobes,rimLeafSprays:forestVisualStats.rimLeafSprays,individualLeaves:forestVisualStats.individualLeaves,broadleafSpecies:forestVisualStats.broadleafSpecies.slice(),broadleafAddedTriangles:forestVisualStats.broadleafAddedTriangles,
  crownColors:forestVisualStats.crownPalette.size
-}),getGuildhallVisualStats:()=>({...guildhallVisualStats}),getCottageFacadeStats:()=>({...cottageFacadeStats,styles:cottageFacadeStats.styles.map((count,style)=>({style,count})).filter(row=>row.count>0)}),getLightingProfile:lightingProfile,getCraftDistrictStats:()=>({...CRAFT_DISTRICT,...craftCounters}),getCottageEffects:()=>({activeChimneys,smokePuffs,smokeTriangles,smokeMaxRadius}),getScenicVisibilityStats:()=>({landscape:{...scenicVisibilityStats.landscape},
+}),getGuildhallVisualStats:()=>({...guildhallVisualStats}),getStreetMorphologyStats:()=>({...streetMorphologyStats,archetypes:streetMorphologyStats.archetypes.slice()}),getCottageFacadeStats:()=>({...cottageFacadeStats,styles:cottageFacadeStats.styles.map((count,style)=>({style,count})).filter(row=>row.count>0)}),getLightingProfile:lightingProfile,getCraftDistrictStats:()=>({...CRAFT_DISTRICT,...craftCounters}),getCottageEffects:()=>({activeChimneys,smokePuffs,smokeTriangles,smokeMaxRadius}),getScenicVisibilityStats:()=>({landscape:{...scenicVisibilityStats.landscape},
  settlement:{...scenicVisibilityStats.settlement},
  totalSubmittedTriangles:scenicVisibilityStats.totalSubmittedTriangles,
  totalCulledTriangles:scenicVisibilityStats.totalCulledTriangles,
