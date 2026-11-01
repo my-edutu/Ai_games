@@ -2193,7 +2193,7 @@
         "feelsMajority": false,
         "playsMajority": false
       },
-      "safetyChecks": "NOT_ASSESSED",
+      "safetyChecks": "NOT_ASSESSED_EXACT_HEAD",
       "matchedExternalReference": "NOT_RUN",
       "originalAudioMotionClip": "PENDING_EXACT_HEAD_CHROMIUM_CAPTURE",
       "soundstageBrowser": "PENDING_EXACT_HEAD_CHROMIUM_RUN",
@@ -2202,9 +2202,9 @@
       "visualSceneReference": "Locked unchanged: https://github.com/my-edutu/Ai_games/actions/runs/41302939553/artifacts/13081734898"
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
-    "biggestRemainingGap": "Visually toy-like characters and dense overlapping silhouettes, insufficient anatomically credible weapon-to-target choreography; repetitive rectilinear dungeon staging. Real WebGL+audio clip, unbiased Looks/Feels/Plays panel, boss-to-restart narrative and GPU capture NOT YET VERIFIED.",
-    "currentWork": "M1 integrated audible-combat candidate: original 4-biome opt-in adaptive WebAudio atmosphere, pressure-controlled guardian/intensity, real contact-gated combat impacts, transition/defeat rewards, genuine WebGL audiovisual capture hook. This is work in the actual viewer, NOT an accepted quality leap. Character art/weapon-contact integration and narrative scenario reel remain outstanding.",
-    "candidateCommit": "352fae93aa3ddb1d6f1c84d0eaabc972ad9e52b9",
+    "biggestRemainingGap": "Low-detail original character anatomy/armor, contact silhouettes and rectangular rooms still dominate. Needs full genuine desktop/mobile, boss/floor/restart sound+motion, matched pinned baseline, >=3 blind independent judges and exact-head performance/CI evidence.",
+    "currentWork": "M1 integrated tactical + audiovisual encounter candidate: autonomous minion interception, real ranged firing lanes, authoritative target IDs for honest hit sound/VFX/facing, actor-victim cinematic camera and active audio mute/capture safety. Not yet established as a real gameplay quality win.",
+    "candidateCommit": "cd430f644fa64ed3e4a953a37c9208bbf84e2f7a",
     "candidateArtifactUrl": null,
     "acceptedAt": null,
     "implementationEvents": [
@@ -2223,6 +2223,25 @@
         ],
         "evidence": "Tests-first RED confirmed in CI: 682 existing tests passed, 5 new soundstage contracts failed at missing source (Autonomous Games CI 41304298876). Later GREEN/browser results and audiovisual clips pending exact-head verification.",
         "next": "Inspect true Action artifacts and playback with actual sound; then integrate better original character models, grounded fight staging and full scenario reel."
+      },
+      {
+        "id": "M1-TACTICAL-CONTACT-20261101",
+        "date": "2026-11-01",
+        "status": "IMPLEMENTED_UNVERIFIED",
+        "codeCommit": "cd430f644fa64ed3e4a953a37c9208bbf84e2f7a",
+        "objective": "Playable real-target encounters: intercept local enemies, give ranged allies a line of fire, stage actual hits in camera/audio, revoke audio capture on mute.",
+        "code": [
+          "games/ai-dungeon/src/index.ts",
+          "public/ai-dungeon/facing-plan.js",
+          "public/ai-dungeon/encounter-frame-plan.js",
+          "public/ai-dungeon/app.js",
+          "public/ai-dungeon/soundstage.js",
+          "scripts/serve-dungeon-stream.cjs"
+        ],
+        "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+        "experienceVerdict": "IN_PROGRESS / NOT TRANSFORMED",
+        "evidence": "Code and focused tests written; exact-head CI, real browser scene, audible motion and blind comparison UNVERIFIED.",
+        "next": "Inspect genuine Chromium 3D scene and audio; measure tactical and boss/restart behavior, replace low-detail original hero/enemy meshes, gather matched real clips and >=3 independent judges."
       }
     ]
   }

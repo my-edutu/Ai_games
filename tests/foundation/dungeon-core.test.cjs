@@ -138,3 +138,27 @@ test('autonomous Warden warning causes a tangible defensive response instead of 
  if(wasGuarding)assert.ok(hero.hp>=before-20,'guard absorbs majority of Warden shockwave');
  assertDungeonState(s);
 });
+
+test('true boss contact exposes the actual victim ID for audiovisual impact',()=>{
+ const game=DungeonRuntime.create('true-target-melee-candidate'),s=game.state;
+ const hero=s.units.find(u=>u.id==='vanguard'),boss=s.units.find(u=>u.kind==='warden');
+ for(const foe of s.units.filter(u=>u.faction==='enemy'&&u.id!==boss.id))foe.hp=0;
+ const path=shortestPath(s.map,{x:1,z:1},boss);assert.ok(path.length>2);
+ hero.x=path[path.length-2].x;hero.z=path[path.length-2].z;
+ const hp=boss.hp,view=game.step();
+ assert.equal(hero.targetId,boss.id);assert.ok(boss.hp<hp);
+ assert.equal(view.units.find(u=>u.id===hero.id).targetId,boss.id);
+ assert.deepEqual(DungeonRuntime.restore(game.save()).publicState(),game.publicState());
+});
+test('nearby minions become actual expedition fights before the distant Warden',()=>{
+ const game=DungeonRuntime.create('tactical-interception-candidate'),s=game.state;
+ const hero=s.units.find(u=>u.id==='vanguard'),boss=s.units.find(u=>u.kind==='warden');
+ const path=shortestPath(s.map,hero,boss);assert.ok(path.length>8);
+ const minion=s.units.find(u=>u.kind==='revenant');assert.ok(minion);
+ for(const foe of s.units.filter(u=>u.faction==='enemy'&&u!==boss&&u!==minion))foe.hp=0;
+ minion.x=path[3].x;minion.z=path[3].z;
+ let observed=false;
+ for(let i=0;i<18;i++){game.step();if(hero.targetId===minion.id){observed=true;break}}
+ assert.equal(observed,true,'party should clear a local enemy, rather than ignore it');
+ assertDungeonState(s);
+});

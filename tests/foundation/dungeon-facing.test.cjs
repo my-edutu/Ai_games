@@ -69,3 +69,34 @@ test('production scene and strict server actually wire the new facing planner',(
  assert.match(app,/approachCharacterYaw\(a\.root\.rotation\.y,visualYaw,dt,reduced\)/);
  assert.ok(server.includes("['/dungeon/facing-plan.js','facing-plan.js']"));
 });
+
+test('explicit victim ID drives physical and audio aim, never a closer unrelated foe',async()=>{
+ const {planCombatFacing,planVisualContact}=await planner();
+ const hero={...unit('hero','vanguard','party',2,2),targetId:'z'};
+ const a=unit('a','revenant','enemy',1,2,'hurt',30),z=unit('z','revenant','enemy',3,2,'hurt',30);
+ const s={tick:12,map:map(),units:[hero,a,z],events:[]};
+ assert.equal(planCombatFacing(hero,s.units,s.map).targetId,'z');
+ assert.equal(planVisualContact(hero,s).targetId,'z');
+ hero.targetId='ghost';assert.equal(planVisualContact(hero,s),null);
+ hero.targetId='z';z.z=3;assert.equal(planCombatFacing(hero,s.units,s.map),null);
+});
+test('frozen public snapshots stage only actual contact or live Warden proximity',async()=>{
+ const source=fs.readFileSync(path.resolve(__dirname,'../../public/ai-dungeon/encounter-frame-plan.js'),'utf8');
+ const {planEncounterFrame}=await import('data:text/javascript;base64,'+Buffer.from(source).toString('base64'));
+ const hero={...unit('hero','vanguard','party',2,2),targetId:'enemy'},foe=unit('enemy','revenant','enemy',3,2,'hurt',0);
+ const state=Object.freeze({phase:'exploring',map:map(),units:Object.freeze([Object.freeze(hero),Object.freeze(foe)])});
+ const before=JSON.stringify(state),shot=planEncounterFrame(state);
+ assert.equal(shot.mode,'contact');assert.equal(shot.x,2.5);assert.equal(shot.z,2);
+ assert.equal(shot.targetId,'enemy');assert.equal(JSON.stringify(state),before);
+ assert.equal(planEncounterFrame({...state,phase:'intermission'}),null);
+ assert.equal(planEncounterFrame({...state,units:[{...hero,targetId:'ghost'},foe]}),null);
+ const boss={...foe,kind:'warden',hp:300,action:'idle',x:4,z:2};
+ assert.equal(planEncounterFrame({...state,units:[{...hero,action:'move',targetId:undefined},boss]}).x,3);
+});
+test('real stream serves the read-only combat shot planner with explicit diagnostics',()=>{
+ const app=fs.readFileSync(path.resolve(__dirname,'../../public/ai-dungeon/app.js'),'utf8');
+ const server=fs.readFileSync(path.resolve(__dirname,'../../scripts/serve-dungeon-stream.cjs'),'utf8');
+ assert.ok(app.includes("import {planEncounterFrame} from '/dungeon/encounter-frame-plan.js'"));
+ assert.ok(app.includes('encounterFrame:encounterFrame??null'));
+ assert.ok(server.includes("['/dungeon/encounter-frame-plan.js','encounter-frame-plan.js']"));
+});
