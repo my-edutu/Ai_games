@@ -752,9 +752,9 @@ bindGeometry(buffer);
 const SCENIC_CHUNK_EDGE=18;
 let landscapeChunkRanges=[],settlementChunkRanges=[];
 let scenicVisibilityStats={
- landscape:{totalChunks:0,visibleChunks:0,visibleTriangles:0,culledTriangles:0},
- settlement:{totalChunks:0,visibleChunks:0,visibleTriangles:0,culledTriangles:0},
- totalSubmittedTriangles:0,totalCulledTriangles:0
+ landscape:{totalChunks:0,visibleChunks:0,visibleTriangles:0,culledTriangles:0,drawCalls:0},
+ settlement:{totalChunks:0,visibleChunks:0,visibleTriangles:0,culledTriangles:0,drawCalls:0},
+ totalSubmittedTriangles:0,totalCulledTriangles:0,totalDrawCalls:0
 };
 function packSpatialScenery(mesh){
  if(mesh.length%30)throw Error('G105 triangle stride mismatch');
@@ -812,16 +812,21 @@ function sceneChunkInFrustum(b,planes){
  }
  return true;
 }
+// G106: after culling, issue one WebGL draw for each consecutive visible
+// packed range rather than paying a driver call for every scenic tile.
 function drawVisibleStaticChunks(target,ranges,planes){
  bindGeometry(target);
- let visibleTriangles=0,culledTriangles=0,visibleChunks=0;
+ let visibleTriangles=0,culledTriangles=0,visibleChunks=0,drawCalls=0,run=null;
+ const flush=()=>{if(!run)return;gl.drawArrays(gl.TRIANGLES,run.first,run.count);drawCalls++;run=null;};
  for(const chunk of ranges){
   if(sceneChunkInFrustum(chunk,planes)){
-   gl.drawArrays(gl.TRIANGLES,chunk.first,chunk.count);
+   if(run&&run.first+run.count===chunk.first)run.count+=chunk.count;
+   else{flush();run={first:chunk.first,count:chunk.count};}
    visibleTriangles+=chunk.count/3;visibleChunks++;
-  }else culledTriangles+=chunk.count/3;
+  }else{flush();culledTriangles+=chunk.count/3;}
  }
- return {totalChunks:ranges.length,visibleChunks,visibleTriangles,culledTriangles};
+ flush();
+ return {totalChunks:ranges.length,visibleChunks,visibleTriangles,culledTriangles,drawCalls};
 }
 
 // Gauntlet 027 — atmospheric sky. A separate full-screen GPU render pass creates
@@ -4322,62 +4327,91 @@ function cameraOcclusionModel(){
 // G094: exact line-of-sight against projected building footprints. The old
 // 16-point ray samples jumped over some roofs and framed workers behind walls.
 // Camera tests are read-only and cannot affect jobs, collision or simulation.
+// G106: physical three-axis ray/AABB intersection, not three approximated
+// roof-height samples. This only directs the viewer; no pathfinding changes.
 function followRayBlockers(eye,target,roofs){
  let hits=0;
  for(const roof of roofs){
-  let near=0,far=1,miss=false;
-  for(const [axis,centre,extent] of [[0,roof.x,roof.rx],[2,roof.z,roof.rz]]){
+  let near=.015,far=.985,miss=false;
+  const base=roof.bottom??(terrain(roof.x,roof.z)-.22);
+  for(const [axis,low,high] of [[0,roof.x-roof.rx,roof.x+roof.rx],
+   [1,base,roof.top+.16],[2,roof.z-roof.rz,roof.z+roof.rz]]){
    const d=target[axis]-eye[axis];
-   if(Math.abs(d)<.00001){
-    if(Math.abs(eye[axis]-centre)>extent){miss=true;break}
-   }else{
-    const a=(centre-extent-eye[axis])/d,b=(centre+extent-eye[axis])/d;
+   if(Math.abs(d)<1e-6){if(eye[axis]<low||eye[axis]>high){miss=true;break;}}
+   else{
+    const a=(low-eye[axis])/d,b=(high-eye[axis])/d;
     near=Math.max(near,Math.min(a,b));far=Math.min(far,Math.max(a,b));
-    if(near>far){miss=true;break}
+    if(near>far){miss=true;break;}
    }
   }
-  if(miss||far<=.02||near>=.98)continue;
-  const base=roof.bottom??(terrain(roof.x,roof.z)-.22);
-  const from=Math.max(.02,near),to=Math.min(.98,far);
-  for(const t of [from,(from+to)*.5,to]){
-   const y=eye[1]+(target[1]-eye[1])*t;
-   if(y>=base&&y<=roof.top+.16){hits++;break}
-  }
+  if(!miss&&near<=far)hits++;
  }
  return hits;
 }
+// A clear centre ray is not enough: the foreground roof in the real G105
+// recording covered the worker's hands and most of the scene. Inspect the
+// real actor's silhouette and surrounding court at candidate eye positions.
+function cameraShotFraming(shot,roofs){
+ const target=shot.target,eye=shot.eye;
+ const body=[[0,0,0],[-.4,.65,0],[.4,.65,0],
+  [-.4,-.64,0],[.4,-.64,0],[0,.82,.2],[0,-.72,-.2]];
+ const surroundings=[[-2.25,-.6,0],[2.25,-.6,0],[0,-.6,-2.25],[0,-.6,2.25]];
+ const countBlocked=samples=>samples.reduce((n,[x,y,z])=>
+  n+(followRayBlockers(eye,[target[0]+x,target[1]+y,target[2]+z],roofs)>0?1:0),0);
+ const blockedBodyRays=countBlocked(body);
+ let cameraProximityWarnings=0;
+ for(const roof of roofs){
+  const base=roof.bottom??(terrain(roof.x,roof.z)-.22);
+  if(eye[1]>roof.top+.48||eye[1]<base-.35)continue;
+  const dx=Math.max(0,Math.abs(eye[0]-roof.x)-roof.rx),
+   dz=Math.max(0,Math.abs(eye[2]-roof.z)-roof.rz);
+  if(Math.hypot(dx,dz)<.95)cameraProximityWarnings++;
+ }
+ return {bodyRays:body.length,blockedBodyRays,
+  bodyVisibleFraction:(body.length-blockedBodyRays)/body.length,
+  blockedNeighbourhoodRays:countBlocked(surroundings),cameraProximityWarnings};
+}
 function planCitizenCamera(citizen,preferredYaw=yaw){
- // Work remains the visual protagonist: inspect multiple *physical* camera
- // positions, not just orbit angles, and reject roofs between lens and hands.
  const target=[citizen.x,terrain(citizen.x,citizen.z)+1.02,citizen.z],
-  roofs=followCameraRoofs(),working=Boolean(liveWorkday||(document.body.dataset.workday==='delivery'&&citizen.delivery)),
+  roofs=followCameraRoofs(),
+  working=Boolean(liveWorkday||(document.body.dataset.workday==='delivery'&&citizen.delivery)),
+  unloading=Boolean(document.body.dataset.workday==='delivery'&&citizen.delivery?.stage==='unloading'),
   normalPitch=working?(actionCameraPitch??.24):.76,
   normalZoom=working?(actionCameraZoom??6.2):12.8;
  const candidate=(angle,pitch=normalPitch,zoom=normalZoom)=>{
   const radius=Math.cos(pitch)*zoom,elevation=Math.sin(pitch)*zoom;
   const eye=[target[0]+Math.sin(angle)*radius,target[1]+elevation,target[2]+Math.cos(angle)*radius];
-  return {yaw:angle,pitch,zoom,eye,target,
-   blockers:followRayBlockers(eye,target,roofs)};
+  return {yaw:angle,pitch,zoom,eye,target,blockers:followRayBlockers(eye,target,roofs)};
  };
  const original=candidate(preferredYaw);
- let best=original,bestScore=original.blockers*100;
  const offsets=[0,Math.PI/8,-Math.PI/8,Math.PI/4,-Math.PI/4,
   3*Math.PI/8,-3*Math.PI/8,Math.PI/2,-Math.PI/2,
   5*Math.PI/8,-5*Math.PI/8,3*Math.PI/4,-3*Math.PI/4,Math.PI];
  const pitches=working?(actionCameraPitch===null?[.18,.24,.31,.42]:
   [normalPitch,Math.max(.16,normalPitch-.08),Math.min(.55,normalPitch+.08)]):[.76];
- const zooms=working?[normalZoom,Math.max(4.3,normalZoom-.7),
-  Math.max(4.3,normalZoom-1.9),Math.min(13,normalZoom+1.1),
+ const zooms=working?[normalZoom,Math.max(4.5,normalZoom-.7),
+  Math.max(4.5,normalZoom-1.7),Math.min(13,normalZoom+1.1),
   Math.min(13,normalZoom+2.3)]:[12.8];
- for(const testPitch of pitches)for(const testZoom of zooms)for(const offset of offsets){
-  const shot=candidate(preferredYaw+offset,testPitch,testZoom);
-  // A fully unobstructed worker is worth a changed angle. Only *then*
-  // minimize travel, zoom and elevation to prevent arbitrary camera jumps.
-  const score=shot.blockers*100+Math.abs(offset)*.9+
-   Math.abs(testZoom-normalZoom)*.35+Math.abs(testPitch-normalPitch)*3;
-  if(score+1e-6<bestScore){best=shot;bestScore=score}
+ const possibilities=[];
+ for(const p of pitches)for(const z of zooms)for(const offset of offsets){
+  const shot=candidate(preferredYaw+offset,p,z);
+  const oppositeYard=unloading&&Math.cos(shot.yaw)>-.25?250:0;
+  const coarse=shot.blockers*1000+oppositeYard+Math.abs(offset)*1.25+
+   Math.abs(z-normalZoom)*.35+Math.abs(p-normalPitch)*3;
+  possibilities.push({shot,coarse});
  }
- return {...best,originalBlockers:original.blockers};
+ // First find reasonable centre rays, then perform the bounded full-body
+ // composition assessment on only 48 candidates. No simulation RNG used.
+ possibilities.sort((a,b)=>a.coarse-b.coarse);
+ let best=null,bestScore=Infinity,bestFraming=null;
+ for(const {shot,coarse} of possibilities.slice(0,48)){
+  const framing=cameraShotFraming(shot,roofs);
+  const score=coarse+framing.blockedBodyRays*110+
+   framing.blockedNeighbourhoodRays*12+framing.cameraProximityWarnings*42;
+  if(score<bestScore){best=shot;bestScore=score;bestFraming=framing;}
+ }
+ return {...best,...bestFraming,compositionScore:bestScore,
+  originalBlockers:original.blockers};
 }
 function updateFollowCamera(preferredYaw=previousFollowCamera?.yaw??yaw){
  const person=people[Math.min(selectedCitizen,people.length-1)];if(!person)return;
@@ -4913,6 +4947,8 @@ if(gpuAvailable){
   scenicVisibilityStats.settlement.visibleTriangles;
  scenicVisibilityStats.totalCulledTriangles=scenicVisibilityStats.landscape.culledTriangles+
   scenicVisibilityStats.settlement.culledTriangles;
+ scenicVisibilityStats.totalDrawCalls=scenicVisibilityStats.landscape.drawCalls+
+  scenicVisibilityStats.settlement.drawCalls;
 }
 bindGeometry(buffer);
 if(gpuAvailable){
@@ -4960,6 +4996,7 @@ requestAnimationFrame(render);window.__tinyKingdom={getState:()=>JSON.parse(JSON
  settlement:{...scenicVisibilityStats.settlement},
  totalSubmittedTriangles:scenicVisibilityStats.totalSubmittedTriangles,
  totalCulledTriangles:scenicVisibilityStats.totalCulledTriangles,
+ totalDrawCalls:scenicVisibilityStats.totalDrawCalls,
  explanation:'WebGL static vertex submissions only; excludes moving citizens/sky and is not measured FPS'}),
 renderStats:()=>({terrainRebuilds,terrainCacheKey,terrainCacheTriangles,terrainHorizonTriangles,lastFrameTriangles,scenicMeshRebuilds,scenicMeshTriangles,scenicMeshKey,staticGpuUploads,landscapeGpuUploads,dynamicGpuAllocations,dynamicGpuUploads,dynamicGpuCapacityFloats,dualBufferGPU:gpuAvailable}),getLandscapeCacheStats:()=>({key:landscapeMeshKey,rebuilds:landscapeMeshRebuilds,reuses:landscapeMeshReuses,triangles:landscapeMeshTriangles,floats:landscapeMeshCache?.length||0}),renderQuality,setRenderQuality,getFrameProfile,shadowStats:()=>({triangles:castShadowTriangles,...sunShadow(state.t)}),getShadowGradientAudit:shadowGradientAudit,sampleSunShadow:(time)=>sunShadow(time),sampleCanopyShadow:(x,z)=>Array.from({length:9},(_,i)=>canopyShadowVariation(x,z,i*Math.PI/4)),getEconomyHistory:()=>cloneData(uiHistory),getHudMode:()=>cinematicHud?'cinema':'full',setHudMode:setCinematicHud,setReferenceCapture,getCommandView:()=>commandView,setCommandView,skyStats:()=>({enabled:gpuAvailable,passes:skyPassCount,model:'day-night-atmosphere-v1',palette:skyColorProfile(state.t)}),getSkyPalette:skyColorProfile,getFoliageWindProbe:(x,y,z,time=state.t)=>foliageWindProbe(x,y,z,time),getVillageVisualLod:()=>({...villageVisualLod,fullDetailLimit:VILLAGE_LOD_LIMIT,population:people.length,homes:city.length}),setCamera:o=>{// G068: a manually specified inspection shot must not drift as Follow or Cinematic keeps ticking.
 if(follow)setCitizenFollow(false);cinematic=false;document.getElementById('camera').classList.remove('active');
