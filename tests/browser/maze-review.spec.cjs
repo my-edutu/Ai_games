@@ -101,12 +101,14 @@ test('a real close public encounter frames both autonomous actors and saves date
   // Genuine 390px guardian evidence from the *same* disclosed production
   // snapshot and already running browser. The desktop frame alone cannot prove
   // character/action legibility on a phone. This is not a staged encounter.
+  const beforePortraitFrames = await page.evaluate(() => window.__MAZE_3D__?.frames ?? 0);
   await page.setViewportSize({width:390,height:844});
-  await page.waitForFunction(({tick,token}) =>
-    window.__MAZE_3D__?.frames >= 3
+  await page.waitForFunction(({tick,token,before}) =>
+    innerWidth === 390 && innerHeight === 844
+    && window.__MAZE_3D__?.frames > before + 1
     && window.__MAZE_3D__?.tick === tick
     && window.__MAZE_3D__?.runToken === token,
-    {tick:frame.snapshot.tick,token:frame.snapshot.runToken});
+    {tick:frame.snapshot.tick,token:frame.snapshot.runToken,before:beforePortraitFrames});
   const portraitEncounter = await page.evaluate(() => window.__MAZE_3D__);
   const portraitEncounterPath = path.join(dir,'encounter-public-portrait.png');
   await page.screenshot({path:portraitEncounterPath,fullPage:true});
