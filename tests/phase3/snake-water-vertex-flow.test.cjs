@@ -1,4 +1,5 @@
 'use strict';
+const {stripR52Canopy}=require('../helpers/snake-r52-canopy-archive.cjs');
 const {stripR50Stone} = require('../helpers/snake-stone-archive.cjs');
 const { stripR44Fruit } = require('../helpers/snake-fruit-archive.cjs');
 const test=require('node:test'),assert=require('node:assert/strict');
@@ -8,7 +9,7 @@ const blob=s=>crypto.createHash('sha1').update('blob '+Buffer.byteLength(s)+'\0'
 test('R42 byte-exact prior 3D world and vertex water motion preserve geometry, cues and resources',async()=>{
   const source=fs.readFileSync(path.resolve(__dirname,'../../public/snake-stream/world.mjs'),'utf8');
   const old=restorePreR42Water(source);
-  assert.equal(blob(stripR50Stone(stripR44Fruit(old))),'95a533cb736030866ca0947328835b082909fa45');
+  assert.equal(blob(stripR52Canopy(stripR50Stone(stripR44Fruit(old)))),'95a533cb736030866ca0947328835b082909fa45');
   assert.equal(applyR42Water(old),source);
   const THREE=await import('three');
   const prior=await import('data:text/javascript;base64,'+Buffer.from(old).toString('base64'));

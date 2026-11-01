@@ -1,4 +1,5 @@
 'use strict';
+const {stripR52Canopy}=require('../helpers/snake-r52-canopy-archive.cjs');
 const test=require('node:test'),assert=require('node:assert/strict');
 const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto');
 const {stripR44Fruit,reapplyR44Fruit}=require('../helpers/snake-fruit-archive.cjs');
@@ -13,7 +14,7 @@ function fruit(world){
 }
 test('R44 old Git blob exact, original fruit geometry resources and public cues unchanged on both boards',async()=>{
   const source=fs.readFileSync(worldPath,'utf8'),previous=stripR44Fruit(source);
-  assert.equal(gitBlob(stripR50Stone(previous)),'41f8b168bb765af04b4f893fdd44d80cbca1250b');
+  assert.equal(gitBlob(stripR52Canopy(stripR50Stone(previous))),'41f8b168bb765af04b4f893fdd44d80cbca1250b');
   assert.equal(reapplyR44Fruit(previous,source),source);
   const THREE=await import('three');
   const {createWorld:beforeFactory}=await worldModule(previous);

@@ -2,7 +2,7 @@
 const {test}=require('node:test');
 const assert=require('node:assert/strict');
 const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto');
-const {stripR52Canopy}=require('../helpers/snake-r52-canopy-archive.cjs');
+const {stripR52Canopy,reapplyR52Canopy}=require('../helpers/snake-r52-canopy-archive.cjs');
 const worldPath=path.resolve(__dirname,'../../public/snake-stream/world.mjs');
 const blob=s=>crypto.createHash('sha1').update('blob '+Buffer.byteLength(s)+'\0').update(s).digest('hex');
 function court(world){
@@ -15,6 +15,7 @@ test('R52 grove shadow is original, exact-parent, genuinely interior, legible an
   assert.equal(blob(oldSource),'14d4190dc05801e9698c4b7de76365a1eb9e3910',
     'unmodified R51 Git world blob reproduced exactly');
   assert.equal(oldSource.includes('BEGIN R52 GROVE CANOPY SHADE'),false);
+  assert.equal(reapplyR52Canopy(oldSource,source),source,'isolated R52 source block round-trips without touching earlier art');
   const THREE=await import('three');
   const {createWorld:previous}=await import('data:text/javascript;base64,'+Buffer.from(oldSource).toString('base64'));
   const {createWorld:current}=await import('../../public/snake-stream/world.mjs');

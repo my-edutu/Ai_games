@@ -1,4 +1,5 @@
 'use strict';
+const {stripR52Canopy,reapplyR52Canopy}=require('../helpers/snake-r52-canopy-archive.cjs');
 const {stripR50Stone,reapplyR50Stone} = require('../helpers/snake-stone-archive.cjs');
 const {stripR44Fruit,reapplyR44Fruit}=require('../helpers/snake-fruit-archive.cjs');
 const { restorePreR42Water, applyR42Water } = require('../helpers/snake-water-flow-archive.cjs');
@@ -26,7 +27,7 @@ test('real Chromium WebGL: directional slab relief versus exact prior world blob
   expect(r41A).toBeGreaterThan(-1);
   expect(r41B).toBeGreaterThan(r41A);
   const r41Block = current.slice(r41A, r41B + r41End.length);
-  const historicalSource = stripR50Stone(restorePreR42Water(stripR44Fruit(current.slice(0, r41A) + current.slice(r41B + r41End.length))));
+  const historicalSource = stripR52Canopy(stripR50Stone(restorePreR42Water(stripR44Fruit(current.slice(0, r41A) + current.slice(r41B + r41End.length)))));
   // Later R35 foliage tint must not contaminate historic R31/R32 source SHAs,
   // but must remain equally present on both A/B rendered visual candidates.
   const lichenBegin='      // BEGIN R35 PERIMETER LICHEN\n';
@@ -66,7 +67,7 @@ test('real Chromium WebGL: directional slab relief versus exact prior world blob
   expect(gitBlob(round31)).toBe('4c50160ffb9c78b822cf2cb8d670e29baf994fea');
   expect(gitBlob(baseline)).toBe('97039edc7512080b8f369483c3b4800e7180625e');
   const matchedLichen = historicalSource.slice(lichenA,lichenB+lichenEnd.length);
-  const insertLichen = source => reapplyR50Stone(reapplyR44Fruit(applyR42Water(source.replace('      data[i+3]=255;\n', '      data[i+3]=255;\n' + matchedLichen + r41Block)),current),current);
+  const insertLichen = source => reapplyR52Canopy(reapplyR50Stone(reapplyR44Fruit(applyR42Water(source.replace('      data[i+3]=255;\n', '      data[i+3]=255;\n' + matchedLichen + r41Block)),current),current),current);
   const capture = [];
   for (const [label, source] of [['before', insertLichen(baseline)], ['after', insertLichen(round31)]]) {
     const page = await browser.newPage({ viewport: { width: 960, height: 640 }, reducedMotion: 'reduce' });

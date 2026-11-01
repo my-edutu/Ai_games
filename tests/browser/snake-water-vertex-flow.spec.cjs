@@ -1,4 +1,5 @@
 'use strict';
+const {stripR52Canopy}=require('../helpers/snake-r52-canopy-archive.cjs');
 const {stripR50Stone} = require('../helpers/snake-stone-archive.cjs');
 const { stripR44Fruit } = require('../helpers/snake-fruit-archive.cjs');
 const {test,expect}=require('@playwright/test');
@@ -12,7 +13,7 @@ test('R42 actual Chromium WebGL old/new animated lake, same frozen public frame 
   test.setTimeout(150000);
   const source=fs.readFileSync(path.join(repo,'public/snake-stream/world.mjs'),'utf8');
   const old=restorePreR42Water(source);
-  expect(blob(stripR50Stone(stripR44Fruit(old)))).toBe('95a533cb736030866ca0947328835b082909fa45');
+  expect(blob(stripR52Canopy(stripR50Stone(stripR44Fruit(old))))).toBe('95a533cb736030866ca0947328835b082909fa45');
   const frame=JSON.parse(fs.readFileSync(path.join(repo,'docs/reviews/snake-gauntlet/round-4-public-frame.json'),'utf8'));
   const frozen=JSON.stringify(frame),anchor='waterMaterial.uniforms.time.value=reducedMotion?0:time;';
   expect(source.split(anchor).length).toBe(2);
