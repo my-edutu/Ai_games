@@ -1,7 +1,7 @@
 import * as THREE from '/dungeon/vendor/three.module.js';
 import {addDungeonWindows} from '/dungeon/architecture.js';
 import {planStoneRelief} from '/dungeon/stone-relief-plan.js';
-import {planPartyWallReveal} from '/dungeon/party-visibility-plan.js';
+import {planPartyWallReveal,createCutawayBandCache,shouldUploadCutawayBand} from '/dungeon/party-visibility-plan.js';
 
 // Purely cosmetic, reproducible procedural dressing. This code never touches game authority.
 // All geometry is batched or tightly budgeted so a streaming run can regenerate indefinitely.
@@ -253,7 +253,8 @@ export function enrichEnvironment(world,map,floor){
  const pillarsCount=pillars.length,bannersCount=banners.length,ruins=worldAnchors.length;
  const totalDecor=floorDetails.length+wallFaces.length+columnCap.length+mossPatches.length+runeInlays.length+rubble.length+pillarsCount+bannersCount+ruins;
  // Same 3D visibility policy as the base walls: rich wall cladding must not hide the AI.
- let previousCutaway='';const sceneMetrics={clearedForeground:0,clearedWeatheredPieces:0};
+ const facadeBands=createCutawayBandCache(wallFaces.length);
+ const sceneMetrics={clearedForeground:0,clearedWeatheredPieces:0,matrixWrites:{facade:0,weathered:0}};
  const matrix=new THREE.Matrix4(),p=new THREE.Vector3(),q=new THREE.Quaternion(),scale=new THREE.Vector3();
  const yAxis=new THREE.Vector3(0,1,0),blockedFaces=new Uint8Array(wallFaces.length);
  function cutaway(subjects,camera){
@@ -262,21 +263,26 @@ export function enrichEnvironment(world,map,floor){
   // multi-hero camera clearance, instead of tracking only the focus actor.
   const eyes=Array.isArray(subjects)?subjects:[subjects];
   const obscures=(x,z,pad)=>planPartyWallReveal(x,z,eyes,camera,pad)!=='none';
-  let cleared=0;q.identity();
+  let cleared=0,facadeMatrixWrites=0,weatheredChanged=false;q.identity();
   for(let i=0;i<wallFaces.length;i++){
    const f=wallFaces[i],reveal=planPartyWallReveal(f[0],f[2],eyes,camera,2.1);
    const blocked=reveal!=='none';
-   blockedFaces[i]=Number(blocked);
+   const blockedBand=Number(blocked);
+   if(blockedFaces[i]!==blockedBand){weatheredChanged=true;blockedFaces[i]=blockedBand;}
+   if(!shouldUploadCutawayBand(facadeBands,i,reveal==='sightline'?2:reveal==='nearby'?1:0))continue;
+   facadeMatrixWrites++;
    const h=reveal==='sightline'?.15:reveal==='nearby'?.73:f[4];
    p.set(f[0],reveal==='sightline'?.13:reveal==='nearby'?.43:f[1]);
    scale.set(f[3],h,f[5]);matrix.compose(p,q,scale);
    facadeMesh.setMatrixAt(i,matrix);
   }
-  facadeMesh.instanceMatrix.needsUpdate=true;
+  if(facadeMatrixWrites)facadeMesh.instanceMatrix.needsUpdate=true;
   // The two original stone batches use the same real camera occlusion mask as
   // their parent wall faces; they never leave opaque rubble over a living hero.
-  let weatheringCleared=0;
-  function cutPieces(mesh,pieces){
+  let weatheringCleared=sceneMetrics.clearedWeatheredPieces,weatheredMatrixWrites=0;
+  if(weatheredChanged){
+   weatheringCleared=0;
+   function cutPieces(mesh,pieces){
    if(!mesh)return;
    for(let i=0;i<pieces.length;i++){
     const item=pieces[i],blocked=Boolean(blockedFaces[item.faceIndex]);
@@ -284,15 +290,18 @@ export function enrichEnvironment(world,map,floor){
     p.set(item.x,blocked?.018:item.y,item.z);
     scale.set(blocked?.001:item.sx,blocked?.001:item.sy,blocked?.001:item.sz);
     q.setFromAxisAngle(yAxis,item.yaw);
-    matrix.compose(p,q,scale);mesh.setMatrixAt(i,matrix);
+    matrix.compose(p,q,scale);mesh.setMatrixAt(i,matrix);weatheredMatrixWrites++;
    }
   }
-  cutPieces(spallMesh,stoneWeather.spalls);
-  cutPieces(copingMesh,stoneWeather.coping);
-  if(spallMesh)spallMesh.instanceMatrix.needsUpdate=true;
-  if(copingMesh)copingMesh.instanceMatrix.needsUpdate=true;
-  q.identity();
+   cutPieces(spallMesh,stoneWeather.spalls);
+   cutPieces(copingMesh,stoneWeather.coping);
+   if(spallMesh)spallMesh.instanceMatrix.needsUpdate=true;
+   if(copingMesh)copingMesh.instanceMatrix.needsUpdate=true;
+   q.identity();
+  }
   sceneMetrics.clearedWeatheredPieces=weatheringCleared;
+  sceneMetrics.matrixWrites.facade=facadeMatrixWrites;
+  sceneMetrics.matrixWrites.weathered=weatheredMatrixWrites;
   for(const group of foregroundGroups){
    const blocked=obscures(group.position.x,group.position.z,2.1);
    group.visible=!blocked;if(blocked)cleared++;
