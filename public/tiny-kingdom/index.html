@@ -4481,9 +4481,27 @@ function followCameraRoofs(){
  // Real G096 video showed a worker hidden for seconds by a market linen roof.
  // Track actual emitted buildings AND elevated canvas roofs in camera collision.
  // Camera never changes pathfinding or authoritative simulation state.
- const roofs=city.map(([x,z,k])=>({x,z,rx:(2.4+k*.42)*.5+.35,
-  rz:(2.1+k*.18)*.5+.35,top:terrain(x,z)+3.5,kind:'home'}));
+ // The new mixed-height lofts and civic belfry must be in the camera's
+ // *real* occlusion volume, or documentary shots clip into their roofs.
+ // Presentation-only: no extra authoritative building/collision primitives.
+ const detailed=detailedHomeSet();
+ const roofs=city.map(([x,z,k],i)=>{
+  let roofHeight=3.5;
+  if(!detailed.has(i)){
+   const style=Math.min(3,Math.floor(biomeHash(Math.round(x*29+z*47+k*71))*4));
+   const height=[1.90,2.34,2.03,2.25][style],
+    pitch=[1.13,1.70,1.36,1.76][style];
+   roofHeight=Math.max(3.5,height+pitch+.24);
+  }
+  return {x,z,rx:(2.4+k*.42)*.5+.35,rz:(2.1+k*.18)*.5+.35,
+   top:terrain(x,z)+roofHeight,kind:'home',tall:roofHeight>3.6};
+ });
  roofs.push({x:0,z:-1,rx:3.6,rz:3.15,top:terrain(0,-1)+6.8,kind:'hall'});
+ // The open timber belfry extends above that broad civic roof, but occupies
+ // a much narrower volume than the main guildhall. Keep this separate so
+ // camera search does not falsely reject clear roof-adjacent views.
+ roofs.push({x:-.72,z:-1.22,rx:.96,rz:.96,
+  bottom:terrain(0,-1)+5.35,top:terrain(0,-1)+7.98,kind:'belfry'});
  roofs.push({x:CRAFT_DISTRICT.x,z:CRAFT_DISTRICT.z,
   rx:CRAFT_DISTRICT.width*.5,rz:CRAFT_DISTRICT.depth*.5,
   top:terrain(CRAFT_DISTRICT.x,CRAFT_DISTRICT.z)+7.4,kind:'craft-district'});
@@ -4507,7 +4525,9 @@ function followCameraRoofs(){
 }
 function cameraOcclusionModel(){
  const roofs=followCameraRoofs(),count=k=>roofs.filter(r=>r.kind===k).length;
- return {roofTotal:roofs.length,stalls:count('market-stall'),
+ return {roofTotal:roofs.length,hall:count('hall'),belfries:count('belfry'),
+  tallHomes:roofs.filter(r=>r.kind==='home'&&r.tall).length,
+  stalls:count('market-stall'),
   streetShops:count('street-shop'),arcades:count('arcade'),
   villageMarketCanopies:count('village-market'),
   thinCanopies:roofs.filter(r=>r.bottom!==undefined).length};
