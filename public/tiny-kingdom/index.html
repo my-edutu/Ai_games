@@ -2992,7 +2992,9 @@ function renderWorkdayTraces(){
  materialScope(MATERIAL.WOOD,()=>{
   for(const w of active){
    const x=w.x+.62,z=w.z+.34,y=terrain(x,z)+.035;
-   const pulse=Math.sin((1-w.remaining/workDuration(w))*Math.PI*6);
+   // One performance clock drives wrist and prop impacts, so chips, tools
+  // and work surfaces react together to the actual worker's bodily action.
+  const pulse=w.impact*2-1;
    if(w.job==='forester'){
     cylinder(x,y,z,.22,.38,rgb(0x94683f),7);
     box(x,y+.32,z,.43,.09,.40,rgb(0x70492f));
@@ -3099,7 +3101,8 @@ function getActiveWorksites(){
  return people.filter(isWorkingAtSite).map(p=>({
   citizen:p.name,job:p.job,activity:p.activity,x:p.x,z:p.z,
   progress:Math.min(1,p.workTimer/workDuration(p)),
-  remaining:Math.max(0,workDuration(p)-p.workTimer)
+  remaining:Math.max(0,workDuration(p)-p.workTimer),
+  impact:occupationalPerformance(p).beat
  }));
 }
 function getLiveWorkdayView(){
