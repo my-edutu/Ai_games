@@ -52,11 +52,15 @@ test('G109 close live-labour director follows genuine continuous work without in
    }
   }
   if(!stage)return {failure:'no genuine handoff opportunity in deterministic workday'};
+  const oldPos=g.getNavigation().find(p=>p.name===original)?.position;
   const before=JSON.stringify(g.exportSnapshot());
   const switched=g.advanceLiveWorkdayDirector();
   const after=JSON.stringify(g.exportSnapshot());
+  const selected=g.getSelectedCitizen();
+  const nextPos=g.getNavigation().find(p=>p.name===selected)?.position;
+  const separation=Math.hypot(nextPos[0]-oldPos[0],nextPos[1]-oldPos[1]);
   return {...stage,switched,readOnly:before===after,
-   selected:g.getSelectedCitizen(),
+   selected,nextPos,separation,camera:g.getCamera(),
    view:g.getLiveWorkdayView(),
    director:g.getLiveWorkDirectorStats()};
  });
@@ -67,6 +71,12 @@ test('G109 close live-labour director follows genuine continuous work without in
  expect(handoff.available).toContain(handoff.selected);
  expect(handoff.view.active).toBe(true);
  expect(handoff.director.transitions).toBe(1);
+ // G110 long-travel workday editing: nearby real jobs ease naturally;
+ // a far-afield job receives a deliberate cut, not a seconds-long roof fly-through.
+ expect(handoff.director.cameraCuts).toBe(handoff.separation>8?1:0);
+ if(handoff.separation>8)
+  expect(Math.hypot(handoff.camera.focus[0]-handoff.nextPos[0],
+   handoff.camera.focus[1]-handoff.nextPos[1])).toBeLessThan(.001);
  const remaining=await page.evaluate(()=>({
   state:JSON.stringify(window.__tinyKingdom.exportSnapshot()),
   gl:document.getElementById('world').getContext('webgl')?.getError()??0
