@@ -1,14 +1,19 @@
 {
   "updatedAt": "2026-11-01",
-  "status": "R46 WEBGL FIRST A/B PASS; REPEAT RASTER-UNPINNED A/B FAIL · HARD 7/17",
-  "detail": "Second actual Chromium run 41271576439 passed 33/35; all R38/R43 archival visual regressions and the profiler passed, but R46 A/B screenshot was not repeatably byte-equal on the overview; inspection showed mostly small within-canvas differences consistent with non-matched adaptive raster sizes, not proven cause. Retain exact PNG equality and pin ONLY the synthetic A/B renderer to same internal 0.4 ratio with stats assertions; production adaptation and strict gate unchanged. Strict desktop actual 7 submits/1003.6ms <17 FAIL (61 RAF callbacks not renders). Earlier A/B first run 41271073291 was byte-equal with 2→1 API passes. General 41271576402 build/Node/hosts/authority passed, browser stage in progress. No causal FPS win, Snake Pass visual acceptance, independent critic, real device presents or soak/R5. Draft/unmerged/undeployed.",
+  "status": "R47 MINI-MAP CUE-SAFE PAINT CANDIDATE · R46 PIXEL A/B GREEN · STRICT 15/17 FAIL",
+  "detail": "R47 public-follow minimap source and 3/3 new local Node regressions pass: suppress identical full-board 2D clears without hiding active trap changes on equal movement revision, fruit/portal/body cues, or first visibility. New real Chromium/WebGL source-controlled before/after mini canvas screenshot/paint test awaits exact-head CI. Parent R46 exact-head focused 41272350384 passed 34/35, including real SwiftShader matched-resolution overview/detail PNG byte parity for the one-pass compositor, but strict desktop only 15 actual render submissions in 1011.7ms versus unchanged minimum 17 (61 RAF callbacks are NOT draws or present FPS). This R47 change targets follow/detail minimap, not default camera, and cannot assert a causal render FPS gain. Parent general 41272350406 still in browser stage at review time. Visual Snake Pass/ASTRO BOT bar LOSE, no independent critic (workspace offline), real-device presents, sustained pacing, soak/R5 open. PR draft; unmerged, undeployed.",
   "latestImage": "/progress/evidence/round-9-overview.jpg",
   "latestCaption": "Historical thumbnail only. R45 actual frozen-public Chromium/WebGL before/after screenshots, two cameras: https://github.com/my-edutu/Ai_games/actions/runs/41268754120/artifacts/13067389468 . Neither synthetic capture nor WebM is display-present FPS.",
   "reviews": [
     {
+      "area": "Round 47 · cue-safe whole-garden minimap identity and first-frame visibility",
+      "verdict": "3/3 FOCUSED NODE TDD PASS · EXACT HISTORICAL SOURCE SHA · NEW REAL CHROMIUM A/B PENDING",
+      "gap": "Verify before/after real Chromium WebGL screenshots, identical minimap pixel cues, 2D paint-count delta, same-revision trap activation, caption propagation, camera return and intact global browser suite. Strict desktop ≥17 actual submissions still FAILED at 15/1011.7ms on parent. No causal GPU/display FPS improvement, independent critic or real device proof."
+    },
+    {
       "area": "Round 46 · one-pass cached color/depth with original dynamic serpent and water",
-      "verdict": "R46 FIRST A/B WEBGL PASS; SECOND REPEAT A/B FAILED WITH VARIABLE INTERNAL RASTER · HARD 7/17 SUBMITS FAIL",
-      "gap": "Exact screenshot equality gate unchanged; test-only controlled same pixel ratio repro pending. Historical R38/R43 and profiler passed. Device-present FPS, sustained 17, full Snake Pass craft, independent critic and soak still open."
+      "verdict": "R46 REAL WEBGL MATCHED-SCALE IMAGE A/B PASS · HARD 15/17 SUBMITS FAIL",
+      "gap": "Parent exact-head 41272350384 34/35: captured 960x640 overview/detail exact synthetic pixel parity and no WebGL error. 15 actual submissions/1011.7ms <17. Strict gate, production-device presents and full commercial craft remain OPEN."
     },
     {
       "area": "Round 45 · existing original forked tongue responds to nearby public fruit",
@@ -710,6 +715,7 @@
     }
   ],
   "checks": [
+    "Round47 candidate on R46 head 5efbcd5: original map module SHA1 verified 1c74bf0c; new source exact reversible; Node red-to-green 3/3 PASS incl same-revision active hazard, fruit, portals, obstacle, snake, visibility, full original paint commands; new real WebGL before/after screenshot and correct 2D clear-count test included, current-head browser CI pending. R46 parent 41272350384 34/35, strict default desktop 15 submissions/1011.7ms FAIL ≥17. No renderer FPS claim or full quality signoff.",
     "Round38 candidate on SHA 339b4d58: build and focused 70/70 Snake Node PASS; exact previous-world controller & real Three.js contact buffers byte-identical while request range covers 64 bytes per visible instance. Full local test timed out, new true-WebGL before/after and strict ≥17 real draw gate PENDING. Previous corrected Round37 run 41244333141 26/27; desktop 10 actual/1010.9ms FAIL (61 RAF != draws/presents).",
     "Round36 corrected-history focused 41241932464 24/26: older R33/R34 real WebGL tests PASS; strict desktop 10 real render submissions/1015ms FAIL >=17, 61 RAF irrelevant. R36 prior exact pixel test now 9 changed overview face pixels (max1/255), detail untested in that run; isolate synthetic danger=0 only, exact-zero tolerance unchanged, fresh CI pending. Real gameplay index uploadRequests29 / reuseFrames1 over 30 renders: negligible live efficiency gain, no FPS win.",
     "Round36 exact-source focused browser 41241205012: 23/26, NEW real WebGL A/B PASS in overview and detail, pixel and PNG byte identical, 1 index-upload request/3 reused per four frames, unchanged 33/44 draw calls. Desktop 11 actual submissions/1006.8ms FAIL vs >=17. Two legacy R33/R34 historical SHA-only guard defects fixed in tests; corrected new-head CI pending. General workflow 41241204899 browser pending.",
