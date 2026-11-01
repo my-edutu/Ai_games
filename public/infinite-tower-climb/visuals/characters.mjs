@@ -505,10 +505,31 @@ export function createClimber() {
         }
       }
     }
-    // The first source tick of rising push-off should unload a physically
-    // planted sole rather than instantly resetting the hip by the entire
-    // compression. After exactly one adjacent authoritative tick, clear it:
-    // no inferred contact, root displacement, non-matching deck or run latch.
+    // The first source tick of a genuine deck departure should retain an
+    // observable push-off even after an overloaded renderer skipped the exact
+    // load frame. Derive this small cosmetic recovery from the immutable
+    // source-matched mantle and the real deck clearance; held stills and live
+    // frames must not disagree merely due to submission cadence.
+    let releaseCompression=0;
+    if(airborne&&vy>0&&!genuineLedgeGrip&&!attacking&&!dead&&!hurt
+      &&mantle&&Number.isFinite(mantle.progress)&&Number.isFinite(mantle.weight)
+      &&mantle.progress>=.6&&mantle.progress<=.9&&mantle.weight>0
+      &&surface&&typeof state.runToken==='string'&&state.runToken
+      &&Number.isSafeInteger(state.tick)
+      &&typeof state.ledgePlatformId==='string'
+      &&surface.platformId===state.ledgePlatformId
+      &&[surface.y,surface.innerRadius,surface.outerRadius].every(Number.isFinite)
+      &&surface.innerRadius<surface.outerRadius){
+      const risingAboveDeck=w.group.position.y-surface.y;
+      const rootRadius=Math.hypot(w.group.position.x,w.group.position.z);
+      if(risingAboveDeck>=.4&&risingAboveDeck<=1.3
+        &&rootRadius>=surface.innerRadius&&rootRadius<=surface.outerRadius){
+        releaseCompression=.055*clamp(1-Math.abs(risingAboveDeck-.85)/.5,0,1);
+      }
+    }
+    // If the actual contact frame WAS rendered, its measured sole load gives
+    // a stronger first-tick handoff. It must retire after one authentic source
+    // tick and never carry across runs, other decks, death or a later jump.
     if(!loadedThisFrame && deckLoadRun!==null){
       const truePushOff=state.runToken===deckLoadRun
         && state.ledgePlatformId===deckLoadPlatform
@@ -517,12 +538,13 @@ export function createClimber() {
         && airborne&&vy>0&&!attacking&&!dead&&!hurt
         && mantle&&Number.isFinite(mantle.progress)&&Number.isFinite(mantle.weight)
         && mantle.weight>0;
-      if(truePushOff)body.position.y-=Math.min(.12,deckLoadCompression*.5);
+      if(truePushOff)releaseCompression=Math.max(releaseCompression,Math.min(.12,deckLoadCompression*.5));
       deckLoadRun=null;
       deckLoadPlatform=null;
       deckLoadTick=-1;
       deckLoadCompression=0;
     }
+    if(releaseCompression>0)body.position.y-=releaseCompression;
     // The first airborne tick after a real fingertip release previously snapped
     // BOTH arms from a solved grip straight to camera-directed generic mantle.
     // Preserve the last physically solved arm orientations for a short,
