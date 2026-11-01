@@ -243,7 +243,7 @@ export class DungeonRuntime {
      .filter(p=>walkable(s.map,p.x,p.z)&&!marked.has(key(p.x,p.z)))
      .filter(p=>!s.units.some(u=>u.hp>0&&u.id!==hero.id&&u.x===p.x&&u.z===p.z))
      .map(p=>({p,risk:s.traps.some(t=>t.active&&!t.disarmed&&t.x===p.x&&t.z===p.z)?20:0,
-      flank:Math.abs(dist(p,warden)-2)}))
+      flank:Math.abs(dist(p,warden!)-2)}))
      .sort((a,b)=>a.risk-b.risk||a.flank-b.flank||a.p.z-b.p.z||a.p.x-b.p.x);
     if(escapes.length){
      hero.x=escapes[0].p.x;hero.z=escapes[0].p.z;hero.action='move';
@@ -334,7 +334,7 @@ export class DungeonRuntime {
     // Wind-up must anchor the boss rather than sliding its hit zone underneath
     // the party while players are responding to already-visible floor marks.
     if(strike?.warning&&attackTick===interval-1){
-     enemy.action='cast';if(enemy.cooldown>0)enemy.cooldown--;continue;
+     enemy.action='guard';if(enemy.cooldown>0)enemy.cooldown--;continue;
     }
    }
    // A real adjacent threat changes a caster's decision. Retreating uses a
