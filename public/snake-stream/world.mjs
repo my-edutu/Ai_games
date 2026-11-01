@@ -376,6 +376,33 @@ export function createWorld(THREE, {width, height}) {
       data[i]=Math.max(0,Math.round(data[i]-weathering*(18+23*forestWater+10*mossGrain)));
       data[i+1]=Math.max(0,Math.round(data[i+1]-weathering*(8+21*forestWater+16*oldQuarry)));
       data[i+2]=Math.max(0,Math.round(data[i+2]-weathering*(16+30*forestWater+8*mossGrain)));
+      // BEGIN T1 ORGANIC QUARRY FLOOR
+      // World-scale original art: wetland moss, ochre limestone exposures and
+      // rain-dark shale cross multiple traversable slabs. None is a route or
+      // physical height cue. All atlas work is baked once at construction.
+      const wetWarp=(smoothBasin-.5)*2.7+(cloud-.5)*1.15;
+      const oldTerrace=Math.max(
+        1-fade(.36,.86,Math.hypot((gx-width*.53+wetWarp*.7)/(width*.34),
+          (gz-height*.47-wetWarp*.4)/(height*.48))),
+        (1-fade(.20,.65,Math.hypot((gx-width*.19-wetWarp*.35)/(width*.24),
+          (gz-height*.72+wetWarp*.18)/(height*.39))))*.7);
+      const buriedShale=fade(.27,.71,cloud*.27+foldedBed*.36+smoothBasin*.37);
+      const mossField=fade(.22,.64,deepMoss*.49+buriedShale*.30
+        +(1-oldTerrace)*.21);
+      const mossMass=Math.min(1,(.28+.72*mossField)*(1-oldTerrace*.78));
+      const terraceMass=Math.min(1,oldTerrace*(.58+.42*oldQuarry));
+      const dampShale=Math.min(1,buriedShale*(1-terraceMass*.67));
+      const abrasion=.70+.30*fade(.2,.78,mineral*.48+cloud*.52);
+      const paletteStrength=fade(1.05,3.35,border)*abrasion;
+      // Subtractive terrain pigments: retain sunward stone lips, hazard/fruit
+      // contrast and topology without another shader, texture or GPU pass.
+      const redLoss=paletteStrength*(20+68*mossMass+30*dampShale+3*terraceMass);
+      const greenLoss=paletteStrength*(20+19*mossMass+28*dampShale+75*terraceMass);
+      const blueLoss=paletteStrength*(27+55*mossMass+18*dampShale+83*terraceMass);
+      data[i]=Math.max(0,Math.round(data[i]-redLoss));
+      data[i+1]=Math.max(0,Math.round(data[i+1]-greenLoss));
+      data[i+2]=Math.max(0,Math.round(data[i+2]-blueLoss));
+      // END T1 ORGANIC QUARRY FLOOR
       // END T1 WETLAND MASONRY PATINA
       // END T1 FLOODPLAIN COURTYARD COLOR REBUILD
     }
