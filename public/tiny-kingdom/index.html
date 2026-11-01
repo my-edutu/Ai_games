@@ -3692,7 +3692,7 @@ const workdayEvents=[];
    NEVER credit it twice. Receipts are short-lived presentation only. */
 const deliveryReceipts=[];
 const DELIVERY_MARKET=Object.freeze({food:Object.freeze([-1.0,10.2]),wood:Object.freeze([.85,10.2])});
-const DELIVERY_EVERY_N_JOBS=4;
+const DELIVERY_EVERY_N_JOBS=8;
 function getActiveDeliveries(){
  return people.filter(p=>p.delivery).map(p=>({
   citizen:p.name,job:p.job,x:p.x,z:p.z,activity:p.activity,
@@ -3716,7 +3716,11 @@ function startActualDelivery(p){
   p.job==='farmer'||p.job==='gatherer'?'food':null;
  if(!resource||e.delta[resource]<=0)return false;
  p.deliveryTally=(p.deliveryTally||0)+1;
- if(p.deliveryTally%DELIVERY_EVERY_N_JOBS!==0)return false;
+ // A society low on grain or building timber keeps its producers at work.
+ // Do not sabotage growth simply to display more market wagons.
+ if(p.deliveryTally%DELIVERY_EVERY_N_JOBS!==0||
+    (resource==='food'&&state.food<people.length*7)||
+    (resource==='wood'&&state.wood<50))return false;
  p.delivery={id:p.name+':'+p.deliveryTally,resource,
   amount:e.delta[resource],origin:[p.x,p.z],
   destination:DELIVERY_MARKET[resource].slice(),started:state.t};
