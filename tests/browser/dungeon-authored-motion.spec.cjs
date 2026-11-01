@@ -151,3 +151,34 @@ test('real WebGL melee actor visibly braces genuine imported leg joints at an au
   drawCalls:diag.drawCalls,triangles:diag.triangles
  },null,2)),contentType:'application/json'});
 });
+
+test('actual Chromium melee animates the true cloned spine and weapon wrist on a real adjacent strike',async({page,request})=>{
+ test.setTimeout(120000);
+ expect((await request.get('/dungeon/rig-attachment-plan.js')).status()).toBe(200);
+ const frames=await witnessedContactBrace();let state=frames.before;
+ const errors=[];page.on('pageerror',e=>errors.push(String(e)));
+ await page.route('**/dungeon/state',route=>route.fulfill({json:state}));
+ await page.goto('/dungeon');
+ await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.authored3D?.texturedCharacters??0),{timeout:60000}).toBeGreaterThanOrEqual(3);
+ state=frames.after;
+ await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.authored3D?.rigMeleeCurrentPeakRad??0),{intervals:[50,80,110],timeout:20000}).toBeGreaterThan(.12);
+ const d=await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__);
+ expect(d.authored3D.rigMeleeBones).toBeGreaterThanOrEqual(2);
+ expect(d.authored3D.rigMeleeActiveActors).toBeGreaterThanOrEqual(1);
+ expect(d.authored3D.rigMeleeCurrentPeakRad).toBeLessThanOrEqual(.36);
+ expect(d.authored3D.missingAssets).toBe(0);
+ expect(d.composition.visibleHeroes).toBeGreaterThan(0);
+ expect(d.visibility.unoccludedHeroes).toBeGreaterThan(0);
+ expect(d.drawCalls).toBeLessThan(1600);
+ expect(errors).toEqual([]);
+ await page.locator('.arena').evaluate(node=>node.classList.add('world-only-audit'));
+ await page.locator('#world').screenshot({path:'artifacts/dungeon-melee-r57-authentic-spine-wrist.png',timeout:60000});
+ await test.info().attach('authentic-spine-wrist-contact',{body:Buffer.from(JSON.stringify({
+  seed:frames.seed,tick:frames.after.tick,attacker:frames.attacker,
+  source:'unmodified DungeonRuntime step publicState and planCombatFacing',
+  rigMeleeBones:d.authored3D.rigMeleeBones,
+  currentPeak:d.authored3D.rigMeleeCurrentPeakRad,
+  active:d.authored3D.rigMeleeActiveActors,
+  composition:d.composition,visibility:d.visibility,drawCalls:d.drawCalls,triangles:d.triangles
+ },null,2)),contentType:'application/json'});
+});
