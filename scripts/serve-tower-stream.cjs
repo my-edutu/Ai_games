@@ -9,7 +9,7 @@ const { TowerPresentationController } = require('../dist/games/infinite-tower-cl
 const ROOT = path.resolve(__dirname, '..');
 const PUBLIC_ROOT = path.join(ROOT, 'public', 'infinite-tower-climb');
 const THREE_ROOT = path.join(ROOT, 'node_modules', 'three', 'build');
-const STREAM_CONFIG = Object.freeze({ maxTicks: 20000, noProgressTicks: 3000, intermissionTicks: 36, guardianInterval: 8, upgradeInterval: 4 });
+const STREAM_CONFIG = Object.freeze({ maxTicks: 20000, noProgressTicks: 3000, intermissionTicks: 36, resultHoldTicks: 48, guardianInterval: 8, upgradeInterval: 4 });
 
 function createSession(seed = 'tower-stream-reference', config = STREAM_CONFIG, policy = 'autonomous') {
   const runtime = TowerRuntime.create(config, seed, { policy });
@@ -27,7 +27,7 @@ function privacySafe(snapshot, seed) {
   return !['seed', 'runId', 'config', 'chunks'].some(key => key in snapshot) && !JSON.stringify(snapshot).includes(seed);
 }
 function verifyRestart() {
-  const session = createSession('tower-restart-probe', { ...STREAM_CONFIG, maxTicks: 100, noProgressTicks: 99, intermissionTicks: 1 }, 'idle-test');
+  const session = createSession('tower-restart-probe', { ...STREAM_CONFIG, maxTicks: 100, noProgressTicks: 99, intermissionTicks: 1, resultHoldTicks: 0 }, 'idle-test');
   const first = createTowerRenderSnapshot(session.runtime.state);
   let guard = 0;
   while (session.runtime.state.lifecycle === 'running' && guard++ < 200) advance(session);
@@ -141,7 +141,7 @@ function serve() {
   // Normal preview/production hosts retain their original simulation budget.
   const outcomeCapture = process.env.CI === 'true' && process.env.TOWER_MOTION_SCENARIO === 'outcome';
   const captureConfig = outcomeCapture
-    ? { launchFloor, maxTicks: 900, noProgressTicks: 850, intermissionTicks: 36 }
+    ? { launchFloor, maxTicks: 900, noProgressTicks: 850, intermissionTicks: 100, resultHoldTicks: 100 }
     : { launchFloor };
   const { server } = createTowerStreamServer({ seed: process.env.TOWER_SEED, config: captureConfig });
   server.listen(port, '0.0.0.0', () => process.stdout.write(`Infinite Tower Climb 3D listening on port ${port}; progress /tower/gauntlet\n`));

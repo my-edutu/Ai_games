@@ -1,6 +1,8 @@
 export type TowerTheme='foundry'|'ruins'|'storm'|'clockwork'|'void';
 export interface TowerConfig{
   worldWidth:number;chunkHeight:number;visibleChunkCount:number;maxTicks:number;noProgressTicks:number;intermissionTicks:number;
+  // Opt-in source-authoritative terminal hold. Omitted to preserve frozen legacy config fingerprints.
+  resultHoldTicks?:number;
   maxPlatformsPerChunk:number;maxHazardsPerChunk:number;maxEnemiesPerFloor:number;maxProjectiles:number;
   playerHalfWidth:number;playerHalfHeight:number;gravity:number;moveAcceleration:number;maxRunSpeed:number;groundFriction:number;
   jumpImpulse:number;dashSpeed:number;maxFallSpeed:number;killDepth:number;attackCooldownTicks:number;attackReach:number;
@@ -19,6 +21,7 @@ export function parseTowerConfig(input:Partial<TowerConfig>={}):TowerConfig{
   integer('worldWidth',c.worldWidth,240000,960000);integer('chunkHeight',c.chunkHeight,240000,720000);
   integer('visibleChunkCount',c.visibleChunkCount,2,6);integer('maxTicks',c.maxTicks,100,500000);
   integer('noProgressTicks',c.noProgressTicks,20,c.maxTicks);integer('intermissionTicks',c.intermissionTicks,1,1000);
+  if(c.resultHoldTicks!==undefined)integer('resultHoldTicks',c.resultHoldTicks,0,240);
   integer('maxPlatformsPerChunk',c.maxPlatformsPerChunk,6,32);integer('maxHazardsPerChunk',c.maxHazardsPerChunk,0,24);
   integer('maxEnemiesPerFloor',c.maxEnemiesPerFloor,0,24);integer('maxProjectiles',c.maxProjectiles,4,128);
   integer('playerHalfWidth',c.playerHalfWidth,3000,30000);integer('playerHalfHeight',c.playerHalfHeight,5000,40000);
