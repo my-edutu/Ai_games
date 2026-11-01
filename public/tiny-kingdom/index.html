@@ -1446,21 +1446,26 @@ const COMPACT_ROOF_PALETTES=[
  [0x704c40,0x91634c,0x80574a,0xa77d62]  // burnt kiln-fired clay
 ];
 const VILLAGE_LOD_LIMIT=8;
-const villageVisualLod={detailedHomes:0,compactHomes:0,detailedCitizens:0,compactCitizens:0,compactRoofTiles:0,compactFramedWindows:0,compactGableBraces:0,compactSideWindows:0,compactSideTimberQuads:0,compactStaggeredCourses:0,compactFacingCount:0,compactTurnedCitizens:0,compactFacingVertexError:0,compactDormers:0,compactDormerTriangles:0,compactRoofPaletteCounts:[0,0,0,0]};
+const villageVisualLod={detailedHomes:0,compactHomes:0,detailedCitizens:0,compactCitizens:0,compactRoofTiles:0,compactFramedWindows:0,compactGableBraces:0,compactSideWindows:0,compactSideTimberQuads:0,compactStaggeredCourses:0,compactFacingCount:0,compactTurnedCitizens:0,compactFacingVertexError:0,compactDormers:0,compactDormerTriangles:0,compactGuildLofts:0,compactRoofPaletteCounts:[0,0,0,0]};
 function detailedHomeSet(){
  if(city.length<=12)return new Set(city.map((_,i)=>i));
  return new Set(city.map(([x,z],i)=>({i,d:x*x+z*z}))
   .sort((a,b)=>a.d-b.d||a.i-b.i).slice(0,VILLAGE_LOD_LIMIT).map(row=>row.i));
 }
 function compactHouse(x,z,variant){
- const y=terrain(x,z),w=2.4+variant*.42,d=2.1+variant*.18,h=1.9;
- // Coordinates + variant are stable in every replay; avoid named world RNG.
+ // G107 civic-quarter workstream: one-and-two-storey homes with deliberately
+ // different roof pitches, not an army of interchangeable same-height boxes.
+ // Structural choice is fixed by coordinates; authoritative collision,
+ // navigation, jobs, RNG streams, replay and save schemas remain unchanged.
  const roofStyle=Math.min(3,Math.floor(biomeHash(Math.round(x*29+z*47+variant*71))*4));
+ const y=terrain(x,z),w=2.4+variant*.42,d=2.1+variant*.18;
+ const h=[1.90,2.34,2.03,2.25][roofStyle];
+ const roofPitch=[1.13,1.70,1.36,1.76][roofStyle];
  const palette=COMPACT_ROOF_PALETTES[roofStyle];
  villageVisualLod.compactRoofPaletteCounts[roofStyle]++;
  const plaster=rgb(variant%2?0xe0c7aa:0xd1bc97);
  const timber=rgb(0x634e3c),roof=rgb(palette[0]);
- const eave=y+h,peak=eave+1.13,halfW=w/2+.15;
+ const eave=y+h,peak=eave+roofPitch,halfW=w/2+.15;
  const roofFront=z-d/2-.13,roofBack=z+d/2+.13;
  materialScope(MATERIAL.STONE,()=>box(x,y-.05,z,w+.12,.23,d+.12,rgb(0x918977)));
  materialScope(MATERIAL.PLASTER,()=>{
@@ -1478,7 +1483,7 @@ function compactHouse(x,z,variant){
    for(let course=0;course<3;course++){
     const t0=course/3,t1=(course+1)/3;
     const x0=x+side*halfW*(1-t0),x1=x+side*halfW*(1-t1);
-    const y0=eave+1.13*t0+.035,y1=eave+1.13*t1+.035;
+    const y0=eave+roofPitch*t0+.035,y1=eave+roofPitch*t1+.035;
     // G082: stagger just the odd roof course. The first/last tile still
     // meet both gable edges, adjacent tiles share the exact same seam,
     // and each of the 24 original roof quads survives unchanged in count.
@@ -1571,10 +1576,10 @@ function compactHouse(x,z,variant){
  if(variant%2===1){
   const dormerStart=data.length,wall=variant%4===1?-1:1;
   const frontX=x+wall*halfW*.80,rearX=x+wall*halfW*.28;
-  const frontBase=eave+1.13*.20+.018,rearBase=eave+1.13*.72+.018;
+  const frontBase=eave+roofPitch*.20+.018,rearBase=eave+roofPitch*.72+.018;
   const midZ=z+(variant%3-1)*d*.12;
   const lowZ=midZ-.35,highZ=midZ+.35;
-  const lip=eave+.98,crown=eave+1.46;
+  const lip=eave+roofPitch*.87,crown=eave+roofPitch*1.29;
   const panel=(xx,low,high,za,zb,col)=>{
    if(wall>0)quad([xx,low,za],[xx,high,za],[xx,high,zb],[xx,low,zb],col);
    else quad([xx,low,zb],[xx,high,zb],[xx,high,za],[xx,low,za],col);
@@ -1613,12 +1618,24 @@ function compactHouse(x,z,variant){
  // The short stone flue is a real silhouette above the roof pitch.
  // This is still LOD geometry: it adds 24 triangles, not detailed masonry.
  const chimneyX=x+(variant%2?-.23:.23)*w;
- const chimneyBase=eave+1.13*(1-Math.abs(chimneyX-x)/halfW)-.12;
+ const chimneyBase=eave+roofPitch*(1-Math.abs(chimneyX-x)/halfW)-.12;
  materialScope(MATERIAL.STONE,()=>{
   box(chimneyX,chimneyBase,z+d*.16,.32,.75,.35,rgb(0xb1a393));
   box(chimneyX,chimneyBase+.67,z+d*.16,.40,.12,.43,rgb(0x746f66));
  });
+ // Raised upper-storey homes carry a physical timber floor band on all
+ // four facades. Four bounded beams per loft, never per-frame emissions.
+ if(roofStyle===1||roofStyle===3){
+  materialScope(MATERIAL.WOOD,()=>{
+   for(const side of [-1,1]){
+    box(x,y+h*.64,z+side*(d*.5+.095),w+.08,.10,.12,timber);
+    box(x+side*(w*.5+.095),y+h*.64,z,.12,.10,d+.13,timber);
+   }
+  });
+  villageVisualLod.compactGuildLofts++;
+ }
 }
+
 function cottageDetails(x,z,scale,variant){
  const y=terrain(x,z),w=(2.4+variant*.42)*scale,d=(2.1+variant*.18)*scale,h=1.9*scale;
  const beam=rgb(0x594536),stone=rgb(0xa5a091),iron=rgb(0x3b4545);
@@ -5061,7 +5078,7 @@ currentMaterial=MATERIAL.FOLIAGE;
 currentMaterial=MATERIAL.STONE;
  const fullHomes=detailedHomeSet();
 villageVisualLod.detailedHomes=0;villageVisualLod.compactHomes=0;
-villageVisualLod.compactRoofTiles=0;villageVisualLod.compactFramedWindows=0;villageVisualLod.compactGableBraces=0;villageVisualLod.compactSideWindows=0;villageVisualLod.compactSideTimberQuads=0;villageVisualLod.compactStaggeredCourses=0;villageVisualLod.compactDormers=0;villageVisualLod.compactDormerTriangles=0;villageVisualLod.compactRoofPaletteCounts.fill(0);
+villageVisualLod.compactRoofTiles=0;villageVisualLod.compactFramedWindows=0;villageVisualLod.compactGableBraces=0;villageVisualLod.compactSideWindows=0;villageVisualLod.compactSideTimberQuads=0;villageVisualLod.compactStaggeredCourses=0;villageVisualLod.compactDormers=0;villageVisualLod.compactDormerTriangles=0;villageVisualLod.compactGuildLofts=0;villageVisualLod.compactRoofPaletteCounts.fill(0);
 for(let i=0;i<city.length;i++){
  const [x,z,k]=city[i];
  if(fullHomes.has(i)){
