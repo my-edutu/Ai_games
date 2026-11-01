@@ -40,6 +40,18 @@ test('negative edges and near-boundary interpolation remain inside playable map 
   previous=p.position.x;
  }
 });
+test('actual side-quarter camera offsets point inward from either world boundary, never into empty black space',async()=>{
+ const {planBoundaryCamera}=await policy();
+ for(const [x,z,dx,dz] of [[8,0,-5,2],[-8,0,-5,2],[0,8,2,-5],[0,-8,2,-5],[8,-8,-5,-5]]){
+  const shot=planBoundaryCamera({x,z},19,[dx,8.65,dz]);
+  assert.ok(Math.abs(shot.position.x)<=8.35+1e-9);
+  assert.ok(Math.abs(shot.position.z)<=8.35+1e-9);
+  if(x===8&&dx<0)assert.ok(shot.position.x<x,'negative camera x already views inside east boundary');
+  if(x===-8&&dx<0)assert.ok(shot.position.x>x,'negative x at west boundary must turn back toward interior');
+  if(z===8&&dz<0)assert.ok(shot.position.z<z,'negative z already views inside south boundary');
+  if(z===-8&&dz<0)assert.ok(shot.position.z>z,'negative z at north boundary must turn back toward interior');
+ }
+});
 test('presentation camera planner handles map size, mobile zoom and bad data with finite bounded output',async()=>{
  const {planBoundaryCamera}=await policy();
  const shallow=planBoundaryCamera({x:6,z:5},13,[9,10,10]);
