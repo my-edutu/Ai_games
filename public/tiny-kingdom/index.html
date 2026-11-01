@@ -3395,6 +3395,8 @@ function watchLiveWorkday(){
   people.map((p,i)=>({person:p,index:i}))
    .find(row=>row.person.activity.startsWith('Traveling to '));
  if(!selected)return null;
+ const transitioning=liveWorkday&&!window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+ const oldShot=transitioning?{yaw,pitch,zoom,focus:focusPoint.slice()}:null;
  if(!liveWorkday)liveWorkCommandBefore=commandView;
  liveWorkday=true;liveWorkCursor=selected.index;workdaySelected=-1;
  selectedCitizen=selected.index;
@@ -3402,6 +3404,10 @@ function watchLiveWorkday(){
  document.getElementById('workday-live').setAttribute('aria-pressed','true');
  document.getElementById('workday-watch').setAttribute('aria-pressed','false');
  setCitizenFollow(true);updateFollowCamera();
+ if(oldShot){ // A second click pans between genuine occupations instead of teleporting.
+  yaw=oldShot.yaw;pitch=oldShot.pitch;zoom=oldShot.zoom;
+  focusPoint=oldShot.focus;
+ }
  setCommandView('world');
  updateUI();updateLiveWorkdayUI();
  return getLiveWorkdayView();
@@ -3551,7 +3557,20 @@ function render(now){requestAnimationFrame(render);
  const minFrameMs=(swiftGpu||!gpuAvailable)?1000/12:0;
  if(minFrameMs&&frameGateTime&&now-frameGateTime<minFrameMs){framesSkipped++;return}
  frameGateTime=now;framesDrawn++;const frameProfileStart=performance.now();
- const dt=Math.min(.18,(now-(timer||now))/1000);timer=now;const atmosphere=skyConditions(state.t);gl.clearColor(...atmosphere.fog,1);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);if(!frozen){accumulator+=dt*speed*1.35;let ticks=0;while(accumulator>=FIXED_STEP&&ticks++<64){step(FIXED_STEP);accumulator-=FIXED_STEP}if(ticks>=64)accumulator=0;}if(follow){const citizen=people[Math.min(selectedCitizen,people.length-1)];const ease=liveWorkday?.28:.18;focusPoint[0]+=(citizen.x-focusPoint[0])*ease;focusPoint[1]+=(citizen.z-focusPoint[1])*ease}if(liveWorkday)updateLiveWorkdayUI();if(cinematic)yaw+=dt*.05;const w=canvas.clientWidth,h=canvas.clientHeight,dpr=Math.min(window.devicePixelRatio||1,1.6)*renderQuality().scale;if(canvas.width!==Math.floor(w*dpr)||canvas.height!==Math.floor(h*dpr)){canvas.width=Math.floor(w*dpr);canvas.height=Math.floor(h*dpr);gl.viewport(0,0,canvas.width,canvas.height)}gl.enable(gl.DEPTH_TEST);gl.enable(gl.CULL_FACE);gl.cullFace(gl.BACK);drawAtmosphere(atmosphere);const frameStaticStart=performance.now();
+ const dt=Math.min(.18,(now-(timer||now))/1000);timer=now;const atmosphere=skyConditions(state.t);gl.clearColor(...atmosphere.fog,1);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);if(!frozen){accumulator+=dt*speed*1.35;let ticks=0;while(accumulator>=FIXED_STEP&&ticks++<64){step(FIXED_STEP);accumulator-=FIXED_STEP}if(ticks>=64)accumulator=0;}if(follow){
+ const citizen=people[Math.min(selectedCitizen,people.length-1)];
+ const reduceMotion=liveWorkday&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+ const ease=reduceMotion?1:liveWorkday?.28:.18;
+ focusPoint[0]+=(citizen.x-focusPoint[0])*ease;
+ focusPoint[1]+=(citizen.z-focusPoint[1])*ease;
+ if(liveWorkday){
+  const plan=planCitizenCamera(citizen,yaw);
+  const turn=Math.atan2(Math.sin(plan.yaw-yaw),Math.cos(plan.yaw-yaw));
+  const blend=reduceMotion?1:.19;
+  yaw+=turn*blend;pitch+=(plan.pitch-pitch)*blend;zoom+=(plan.zoom-zoom)*blend;
+  lastFollowShot=plan;
+ }
+}if(liveWorkday)updateLiveWorkdayUI();if(cinematic)yaw+=dt*.05;const w=canvas.clientWidth,h=canvas.clientHeight,dpr=Math.min(window.devicePixelRatio||1,1.6)*renderQuality().scale;if(canvas.width!==Math.floor(w*dpr)||canvas.height!==Math.floor(h*dpr)){canvas.width=Math.floor(w*dpr);canvas.height=Math.floor(h*dpr);gl.viewport(0,0,canvas.width,canvas.height)}gl.enable(gl.DEPTH_TEST);gl.enable(gl.CULL_FACE);gl.cullFace(gl.BACK);drawAtmosphere(atmosphere);const frameStaticStart=performance.now();
 // Cache seasonal ground geometry: camera and citizens cannot change it.
 // Winter snow affects colour; ordinary rain does not.
 const groundClimate=climateAt(state.t);
