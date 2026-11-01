@@ -41,3 +41,33 @@ export function postFXStallAction(renderMs,previousSlow=0){
 export function isSoftwareWebGLRenderer(rendererName){
  return typeof rendererName==='string'&&/(swiftshader|llvmpipe|softpipe|software rasterizer)/i.test(rendererName);
 }
+
+
+/**
+ * Bounded foreground requestAnimationFrame delivery intervals. These are
+ * browser scheduling + CPU/GPU presentation gaps, NOT GPU timer queries.
+ * A huge event-loop stall remains visible as a capped worst-case interval.
+ * Samples are cosmetic read-only evidence and never affect simulation.
+ */
+export function createFrameIntervalProbe(requestedCapacity=180){
+ const capacity=Number.isSafeInteger(requestedCapacity)&&requestedCapacity>=4?Math.min(512,requestedCapacity):180;
+ const samples=new Float32Array(capacity);
+ let count=0,next=0,previous=null,clampedGaps=0;
+ return {
+  observe(timestamp){
+   if(!Number.isFinite(timestamp)||timestamp<0)return;
+   if(previous===null||timestamp<=previous){previous=timestamp;return}
+   const gap=timestamp-previous;previous=timestamp;
+   if(!Number.isFinite(gap)||gap<=0)return;
+   if(gap>60000)clampedGaps=Math.min(2147483647,clampedGaps+1);
+   samples[next]=Math.min(60000,gap);
+   next=(next+1)%capacity;count=Math.min(capacity,count+1);
+  },
+  resetClock(){previous=null},
+  summary(){
+   const sorted=Array.from(samples.subarray(0,count)).sort((a,b)=>a-b);
+   const percentile=p=>count?sorted[Math.ceil(count*p)-1]:0;
+   return {sampleCount:count,capacity,p50Ms:percentile(.5),p95Ms:percentile(.95),p99Ms:percentile(.99),worstMs:count?sorted[count-1]:0,slowFramesOver650Ms:sorted.filter(ms=>ms>650).length,clampedGaps};
+  }
+ };
+}
