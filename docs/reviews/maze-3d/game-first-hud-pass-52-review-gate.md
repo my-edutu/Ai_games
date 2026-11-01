@@ -1,0 +1,9 @@
+# Game 2 pass52 — full-viewport game-first HUD transformation (2026-11-01)
+
+**Source styling staged but not activated until game markup is updated; benchmark NOT PASSED.**
+
+Real 390×844 Pass50b screenshot [original CI artifact 13091383163](https://github.com/my-edutu/Ai_games/actions/runs/41326782605/artifacts/13091383163) still reserves over 200px below the live 3D stage for a repeated prose sidebar: huge goal, explanatory sentence, timer, percentage, key-count sentence, AI sentence, path notes and field notes. This is not the gameplay-first experience requested.
+
+This original UI overhaul loads a new final stylesheet only on the `/maze` game screen via `data-ux-revision=4`. It extends the *real* WebGL canvas across the viewport while distributing small, contrasting, source-snapshot-fed goal, time, key count, discovery, action and caption indicators to the corners. It preserves 44px class touch controls; optional map and path detail are behind tap. Real exploration and guardian models remain the visual hero. No false UI goals, secret map exposure, fake key insertion or simulation changes.
+
+**Acceptance:** direct real browser captures at 390×844, 320×740, 844×390, and 1280×900, with center-canvas hit test, no horizontal overflow, easy Map/Path/Settings/Escape access, high contrast, reduced motion, fallback/result integrity, authentic date/source SHA manifests and blind visual review against the frozen Nintendo Captain Toad images. Previous pass51 focused CI had a real mobile `wardensWithMargin` failure; do not weaken it or claim green. Shared workspace tunnel and fresh workers/Ultracode unavailable. Do not merge/deploy.
