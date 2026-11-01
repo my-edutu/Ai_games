@@ -1,4 +1,5 @@
 'use strict';
+const {historicalRendererGitBlob} = require('../helpers/snake-t1-living-archive.cjs');
 const {test}=require('node:test');
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
@@ -7,7 +8,7 @@ const vm=require('node:vm');
 const crypto=require('node:crypto');
 const rendererPath=path.resolve(__dirname,'../../public/snake-stream/renderer.mjs');
 const source=fs.readFileSync(rendererPath,'utf8');
-const blob=s=>crypto.createHash('sha1').update('blob '+Buffer.byteLength(s)+'\0').update(s).digest('hex');
+const blob = historicalRendererGitBlob;
 const {stripR53Startup}=require('../helpers/snake-r53-startup-archive.cjs');
 function helper(){
   const context=vm.createContext({});

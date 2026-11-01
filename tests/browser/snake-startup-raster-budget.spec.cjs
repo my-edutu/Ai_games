@@ -1,4 +1,5 @@
 'use strict';
+const {historicalRendererGitBlob} = require('../helpers/snake-t1-living-archive.cjs');
 const {test,expect}=require('@playwright/test');
 const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto');
 const {stripR53Startup}=require('../helpers/snake-r53-startup-archive.cjs');
@@ -6,7 +7,7 @@ const {stripR54ShadowStartup}=require('../helpers/snake-r54-shadow-startup-archi
 test.use({trace:'off',video:'off',launchOptions:{args:['--use-angle=swiftshader','--enable-unsafe-swiftshader']}});
 const repo=path.resolve(__dirname,'../..');
 const artifact=name=>{const dir=path.join(repo,'artifacts/phase3');fs.mkdirSync(dir,{recursive:true});return path.join(dir,name);};
-const blob=s=>crypto.createHash('sha1').update('blob '+Buffer.byteLength(s)+'\0').update(s).digest('hex');
+const blob = historicalRendererGitBlob;
 
 test('R53 original/current first-paint WebGL 1080p + portrait; exact prior source, unchanged semantics and readability',async({browser,baseURL})=>{
   test.setTimeout(210000);

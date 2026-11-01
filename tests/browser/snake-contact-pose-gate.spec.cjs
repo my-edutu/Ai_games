@@ -1,10 +1,11 @@
 'use strict';
+const {historicalRendererGitBlob} = require('../helpers/snake-t1-living-archive.cjs');
 const { test, expect } = require('@playwright/test');
 const fs = require('node:fs'), path = require('node:path'), crypto = require('node:crypto');
 const { stripR49Contact } = require('../helpers/snake-r49-contact-archive.cjs');
 test.use({trace:'off',video:'off',launchOptions:{args:['--use-angle=swiftshader','--enable-unsafe-swiftshader']}});
 const root = path.resolve(__dirname,'../..');
-const hash = s => crypto.createHash('sha1').update('blob '+Buffer.byteLength(s)+'\0').update(s).digest('hex');
+const hash = historicalRendererGitBlob;
 const artifact = name => { const dir=path.join(root,'artifacts/phase3');fs.mkdirSync(dir,{recursive:true});return path.join(dir,name); };
 test('R49 real Chromium/WebGL unchanged contact pose avoids repeat uploads with exact original pixels', async ({browser,baseURL}) => {
   test.setTimeout(170000);

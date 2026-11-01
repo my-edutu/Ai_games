@@ -1,11 +1,12 @@
 'use strict';
+const {historicalRendererGitBlob} = require('../helpers/snake-t1-living-archive.cjs');
 const { test, expect } = require('@playwright/test');
 const fs = require('node:fs'), path = require('node:path'), crypto = require('node:crypto');
 const { stripR51Adaptive } = require('../helpers/snake-r51-adaptive-archive.cjs');
 test.use({ trace:'off', video:'off',
   launchOptions:{args:['--use-angle=swiftshader','--enable-unsafe-swiftshader']} });
 const root = path.resolve(__dirname,'../..');
-const blob = text => crypto.createHash('sha1').update('blob '+Buffer.byteLength(text)+'\0').update(text).digest('hex');
+const blob = historicalRendererGitBlob;
 const artifact = name => { const dir=path.join(root,'artifacts/phase3');fs.mkdirSync(dir,{recursive:true});return path.join(dir,name); };
 
 test('R51 actual Chromium/WebGL checks bounded-raster rescue readability and exact-source parity', async ({ browser, baseURL }) => {

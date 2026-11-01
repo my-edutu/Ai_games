@@ -1,9 +1,10 @@
 'use strict';
+const {historicalRendererGitBlob} = require('../helpers/snake-t1-living-archive.cjs');
 const test=require('node:test'),assert=require('node:assert/strict');
 const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto'),vm=require('node:vm');
 const {restorePreR46}=require('../helpers/snake-r46-cache-archive.cjs');
 const source=fs.readFileSync(path.resolve(__dirname,'../../public/snake-stream/renderer.mjs'),'utf8');
-const gitBlob=s=>crypto.createHash('sha1').update('blob '+Buffer.byteLength(s)+'\0').update(s).digest('hex');
+const gitBlob = historicalRendererGitBlob;
 test('R46 exact prior renderer and single-pass lifecycle preserve cache and shader budget',()=>{
   const prior=restorePreR46(source);
   assert.equal(gitBlob(prior),'126d5b5f387f4ad5f22b274bd26cd8b19bdcccd5');

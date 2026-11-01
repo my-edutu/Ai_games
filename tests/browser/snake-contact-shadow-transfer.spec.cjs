@@ -1,4 +1,5 @@
 'use strict';
+const {historicalRendererGitBlob} = require('../helpers/snake-t1-living-archive.cjs');
 const {test,expect}=require('@playwright/test');
 const {restorePreR46}=require('../helpers/snake-r46-cache-archive.cjs');
 const {stripR49Contact}=require('../helpers/snake-r49-contact-archive.cjs');
@@ -7,7 +8,7 @@ const path=require('node:path');
 const crypto=require('node:crypto');
 test.use({launchOptions:{args:['--use-angle=swiftshader','--enable-unsafe-swiftshader']}});
 const repo=path.resolve(__dirname,'../..');
-const blob=s=>crypto.createHash('sha1').update('blob '+Buffer.byteLength(s)+'\0').update(s).digest('hex');
+const blob = historicalRendererGitBlob;
 const evidence=name=>{const dir=path.join(repo,'artifacts/phase3');fs.mkdirSync(dir,{recursive:true});return path.join(dir,name);};
 const oldLoop=[
   '    contacts.count = 0;',

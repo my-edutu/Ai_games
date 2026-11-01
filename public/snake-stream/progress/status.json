@@ -1,10 +1,15 @@
 {
-  "updatedAt": "2026-11-01T14:15:49Z",
-  "status": "TRANSFORMATION GAUNTLET · T0/T1 BUILDING · entire game NOT ACCEPTED",
-  "detail": "T0 matched full-game baseline and T1 original four-sector living shoreline/ruins/foliage production candidate are BUILDING. Same-source browser WebGL 1080p/desktop/detail/portrait before-after and genuine 55-second autonomous before/after footage now have test harnesses, but actual new-head artifacts, independent comparison and repeated smoothness are UNVERIFIED. Last completed original source strict browser 41304435775 FAIL: 16 actual renderer submissions/1003.9ms vs immutable 17 minimum; RAF61 is not renderer/present FPS. No merge/deploy. Historical progress images remain historical.",
+  "updatedAt": "2026-11-01T14:54:00.497Z",
+  "status": "TRANSFORMATION GAUNTLET · T0/T1 BUILDING · current T1 WebGL fallback found in actual CI · NOT ACCEPTED",
+  "detail": "T1 latest actual current-head 3895f2e run 41316877743 FAILED 41/47 browser checks: missing allowed /living-garden.mjs route (404) and fractional garden palette index trigger safety canvas instead of WebGL. General 41316877740 FAILED 15/603 Node tests. T0 55s real original live video was uploaded, but new-3D after film and 8 matched whole-scene WebGL screenshots were NOT validated. This commit repairs route, geometry palette index, no-GPU VM and historical dated hashes; next-source CI/WebGL is PENDING, not claimed green. Original prior 1920x1080 strict 16 actual submits/1003.9ms versus >=17 FAIL persists as last valid benchmark; current-source strict throughput UNKNOWN due to fallback. No native-present FPS, p95, independent critic, soak or acceptance. Draft; no merge or deploy.",
   "latestImage": "/progress/evidence/round-9-overview.jpg",
-  "latestCaption": "Historical round-9 screenshot, not the November 1 living-garden transformation. Genuine new-head matched full-scene evidence and motion still pending.",
+  "latestCaption": "Historical round-9 image only. Latest November 1 T1 current-head WebGL fell back in actual CI; genuine repaired-head 3D before/after proof pending.",
   "reviews": [
+    {
+      "area": "Nov 1 T1 verified runtime blocker / recovery candidate",
+      "verdict": "CURRENT-HEAD CI FAILED: 6/47 BROWSER and 588/603 NODE · after-WebGL unverified · recovery committed for new-head CI; not visually accepted",
+      "gap": "Exact 3895f2e live log proves all new scene WebGL attempts fell to canvas-fallback. Missing static route and fractional RGB palette crash, 8 no-GPU VM failures and 6 dated archive Node SHA failures. 55s original autoplay captured but current after failed, not 3D matched A/B. This repair is unverified until new real Chromium/WebGL, original >=17 full desktop submissions, actual 55s after, fresh whole-game independent critique, device-present p95 and soak. Snake Pass/ASTRO BOT benchmark remains unmet."
+    },
     {
       "area": "November 1 whole-scene T0/T1 living-garden candidate",
       "verdict": "BUILDING · NOT VISUALLY ACCEPTED · exact-source eight WebGL shots + dual 55s authentic gameplay tests require completed CI/artifact inspection",

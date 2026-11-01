@@ -1,4 +1,5 @@
 'use strict';
+const {historicalRendererGitBlob} = require('../helpers/snake-t1-living-archive.cjs');
 const {test}=require('node:test');
 const {restorePreR46}=require('../helpers/snake-r46-cache-archive.cjs');
 const {stripR49Contact}=require('../helpers/snake-r49-contact-archive.cjs');
@@ -8,7 +9,7 @@ const path=require('node:path');
 const vm=require('node:vm');
 const crypto=require('node:crypto');
 const sourcePath=path.resolve(__dirname,'../../public/snake-stream/renderer.mjs');
-const blob=s=>crypto.createHash('sha1').update('blob '+Buffer.byteLength(s)+'\0').update(s).digest('hex');
+const blob = historicalRendererGitBlob;
 const oldLoop=[
   '    contacts.count = 0;',
   '    for (const path of motion.paths) for (const point of path) {',

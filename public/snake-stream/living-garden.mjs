@@ -37,7 +37,12 @@ export function createLivingGarden(THREE, {width,height}) {
     rgb.set(key,arr.map(hex=>new THREE.Color(hex)));
   function vertex(layer,point,index) {
     const b=bands.get(layer),colors=rgb.get(layer);
-    const tint=colors[index%colors.length];
+    // Ruin shelves can request a fractional palette phase. Quantize before
+    // indexing: JS arrays do not accept numeric fractional property keys.
+    // A missing tint previously threw during world creation and silently
+    // forced every real WebGL game view onto the safety canvas.
+    const paletteIndex=((Math.floor(index)%colors.length)+colors.length)%colors.length;
+    const tint=colors[paletteIndex];
     b.p.push(point[0],point[1],point[2]);
     b.c.push(tint.r,tint.g,tint.b);
     b.uv.push(point[0]*.11,point[2]*.11);
@@ -142,7 +147,7 @@ export function createLivingGarden(THREE, {width,height}) {
       // chunks while remaining fully outside the board collision envelope.
       if(i%6===0){
         const p=bankPoint(shore,t,.75),size=.32+hash(i,13)*.44;
-        block(p[0],p[1]-.22,p[2],size*1.35,.34,size,.8,hash(i,4)*.3);
+        block(p[0],p[1]-.22,p[2],size*1.35,.34,size,1,hash(i,4)*.3);
         features.ruinBlocks++;
       }
     }

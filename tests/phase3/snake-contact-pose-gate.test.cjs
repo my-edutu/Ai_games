@@ -1,10 +1,11 @@
 'use strict';
+const {historicalRendererGitBlob} = require('../helpers/snake-t1-living-archive.cjs');
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs'), path = require('node:path'), vm = require('node:vm'), crypto = require('node:crypto');
 const { stripR49Contact } = require('../helpers/snake-r49-contact-archive.cjs');
 const file = path.resolve(__dirname, '../../public/snake-stream/renderer.mjs');
-const hash = s => crypto.createHash('sha1').update('blob ' + Buffer.byteLength(s) + '\0').update(s).digest('hex');
+const hash = historicalRendererGitBlob;
 function syncFrom(source) {
   const context = {};
   vm.runInNewContext(source.replace(/^import .*;\n/gm, '').replace(/^export /gm, '') + '\nthis.sync = syncContactShadowInstances;', context);

@@ -17,4 +17,15 @@ function stripT1LivingGarden(source){
   }
   return result;
 }
-module.exports={stripT1LivingGarden};
+// Date-specific renderer checks hash their authentic old code, never the
+// November 1 T1 additions. Keep all six strict T1 source markers intact in
+// the before/after WebGL variants; only dated SHA assertions strip them.
+function historicalRendererGitBlob(source) {
+  const crypto = require('node:crypto');
+  const historical = source.includes('// BEGIN T1 LIVING GARDEN IMPORT')
+    ? stripT1LivingGarden(source) : source;
+  return crypto.createHash('sha1')
+    .update('blob ' + Buffer.byteLength(historical) + '\0')
+    .update(historical).digest('hex');
+}
+module.exports={stripT1LivingGarden,historicalRendererGitBlob};

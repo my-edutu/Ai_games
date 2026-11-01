@@ -56,6 +56,8 @@ test('T1 cohesive four-sector shoreline, ruins and vegetation are 3D, bounded, o
         for(let i=0;i<p.count;i++){
           const x=p.getX(i),y=p.getY(i),z=p.getZ(i);
           assert.ok(Number.isFinite(x)&&Number.isFinite(y)&&Number.isFinite(z),'finite 3D material');
+          assert.ok(Number.isFinite(c.getX(i))&&Number.isFinite(c.getY(i))&&Number.isFinite(c.getZ(i)),
+            'every living-garden triangle vertex must have a finite RGB tint: '+width+'×'+height+' vertex '+i);
           assert.ok(x<-width/2-.9||x>width/2+.9||z<-height/2-.9||z>height/2+.9,
             'new scenic geometry never occupies the actual gameplay board or its near coping');
           assert.ok(Math.abs(x)<width/2+15&&Math.abs(z)<height/2+18&&y>=-4&&y<8,

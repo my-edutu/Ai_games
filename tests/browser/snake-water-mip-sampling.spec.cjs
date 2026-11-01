@@ -1,10 +1,11 @@
 'use strict';
+const {historicalRendererGitBlob} = require('../helpers/snake-t1-living-archive.cjs');
 const {test,expect}=require('@playwright/test');
 const {restorePreR46}=require('../helpers/snake-r46-cache-archive.cjs');
 const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto');
 test.use({trace:'off',video:'off',launchOptions:{args:['--use-angle=swiftshader','--enable-unsafe-swiftshader']}});
 const root=path.resolve(__dirname,'../..');
-const blob=s=>crypto.createHash('sha1').update('blob '+Buffer.byteLength(s)+'\0').update(s).digest('hex');
+const blob = historicalRendererGitBlob;
 function predecessor(source){
   for(const name of ['WATER SAMPLING HELPER','WATER SAMPLING ADAPT','WATER SAMPLING INIT','WATER SAMPLING STATS']){
     const begin='// BEGIN R43 '+name+'\n',end='// END R43 '+name+'\n';

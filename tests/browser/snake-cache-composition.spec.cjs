@@ -1,11 +1,12 @@
 'use strict';
+const {historicalRendererGitBlob} = require('../helpers/snake-t1-living-archive.cjs');
 const {test,expect}=require('@playwright/test');
 const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto');
 const {restorePreR46}=require('../helpers/snake-r46-cache-archive.cjs');
 test.use({trace:'off',video:'off',launchOptions:{args:['--use-angle=swiftshader','--enable-unsafe-swiftshader']}});
 const root=path.resolve(__dirname,'../..');
 const evidence=name=>{const folder=path.join(root,'artifacts/phase3');fs.mkdirSync(folder,{recursive:true});return path.join(folder,name);};
-const gitBlob=s=>crypto.createHash('sha1').update('blob '+Buffer.byteLength(s)+'\0').update(s).digest('hex');
+const gitBlob = historicalRendererGitBlob;
 test('R46 actual Chromium/WebGL cached depth/color one-pass vs exact prior in overview and detail',async({browser,baseURL})=>{
   test.setTimeout(170000);
   const current=fs.readFileSync(path.join(root,'public/snake-stream/renderer.mjs'),'utf8');
