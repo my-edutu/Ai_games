@@ -5,6 +5,7 @@ import {isHealingCast,isDisarmCast} from '/dungeon/combat-intent-plan.js';
 import {planVisualContact} from '/dungeon/facing-plan.js';
 import {planCombatStage,stagePoint} from '/dungeon/combat-staging-plan.js';
 import {advancePresentationActionAge} from '/dungeon/character-motion-plan.js';
+import {createBladeRibbonGeometry,createImpactSpallGeometry,planTrueDamageCue} from '/dungeon/contact-performance.js';
 
 /**
  * Visual-only combat choreographer: never modifies the deterministic RPG.
@@ -13,9 +14,10 @@ import {advancePresentationActionAge} from '/dungeon/character-motion-plan.js';
 const TINT={vanguard:'#62cbff',ranger:'#a5ff95',mystic:'#be8aff',revenant:'#ff9659',cultist:'#ff70b3',warden:'#ffbd57'};
 const PROJECTILE_LIMIT=26,IMPACT_LIMIT=24;
 const V3=(x,y,z)=>new THREE.Vector3(x-9,y,z-9);
-const shared={orb:new THREE.IcosahedronGeometry(.13,1),slash:new THREE.TorusGeometry(.45,.057,5,28,Math.PI*1.35),ring:new THREE.RingGeometry(.6,.69,45),spark:new THREE.OctahedronGeometry(.07,0)};
+const shared={orb:new THREE.IcosahedronGeometry(.13,1),slash:createBladeRibbonGeometry(THREE),spall:createImpactSpallGeometry(THREE),ring:new THREE.RingGeometry(.6,.69,45),spark:new THREE.OctahedronGeometry(.07,0)};
 const color=(kind)=>TINT[kind]||'#83fff0';
-function stagedArcFrame(source,target,from,to,life,reducedMotion){
+const handPosition=new THREE.Vector3();
+function stagedArcFrame(source,target,from,to,life,reducedMotion,actorById=null){
  const pose=planMeleeArcFrame(source,target,life,reducedMotion);
  if(!pose)return null;
  // Preserve the real adjacent-cell attack as the only legal source of an arc.
@@ -25,14 +27,27 @@ function stagedArcFrame(source,target,from,to,life,reducedMotion){
  const travel=Math.max(0,Math.min(1,(pose.x-source.x)*dx+(pose.z-source.z)*dz));
  pose.x+=(from.x-source.x)*(1-travel)+(to.x-target.x)*travel;
  pose.z+=(from.z-source.z)*(1-travel)+(to.z-target.z)*travel;
+ // When a genuine skinned hand is close to the authorised cell, the first
+ // half of the forged sweep travels with that wrist instead of hovering.
+ const actor=typeof actorById==='function'&&source.id?actorById(source.id):null;
+ const hand=actor?.rigHandBone;
+ if(hand&&actor?.authored&&actor?.root?.visible){
+  hand.updateWorldMatrix(true,false);hand.getWorldPosition(handPosition);
+  if(Number.isFinite(handPosition.y)&&Math.hypot(handPosition.x-(from.x-9),handPosition.z-(from.z-9))<.9){
+   const mix=Math.max(0,1-life/MELEE_ARC_DURATION)*.48;
+   pose.x+=(handPosition.x+9-pose.x)*mix;
+   pose.z+=(handPosition.z+9-pose.z)*mix;
+   pose.y+=Math.max(-.45,Math.min(.45,handPosition.y-pose.y))*mix;
+  }
+ }
  return pose;
 }
 function material(hex,opacity=.95){
  return new THREE.MeshBasicMaterial({color:hex,transparent:true,opacity,depthWrite:false,side:THREE.DoubleSide,blending:THREE.AdditiveBlending});
 }
-export function createCombatDirector(scene,{reducedMotion=false}={}){
+export function createCombatDirector(scene,{reducedMotion=false,actorById=null}={}){
  const projectiles=[],impacts=[],pendingCues=[],previous=new Map();let floorKey='',shots=0,bursts=0,releasedCues=0,droppedCues=0,healingCues=0,disarmCues=0,contactLockedCues=0,suppressedUnmatchedCues=0,meleeArcs=0;
- let stagePositions=Object.create(null);
+ let stagePositions=Object.create(null),trueDamageCues=0,suppressedDamageCues=0;
  const cleanup=e=>{scene.remove(e.mesh);e.mesh.material.dispose()};
  function ensureBound(){
   while(projectiles.length>PROJECTILE_LIMIT)cleanup(projectiles.shift());
@@ -44,8 +59,8 @@ export function createCombatDirector(scene,{reducedMotion=false}={}){
   // toward opponent. An adjacent ranger still fires a real arrow, not a sword.
   // Casts, diagonal guesses and unmatched actions never create melee arcs.
   if(canStageMeleeArc(kind,action,source,target)){
-   const frame=stagedArcFrame(source,target,from,to,0,reducedMotion);
-   const mesh=new THREE.Mesh(shared.slash,material(color(kind),frame.opacity));
+   const frame=stagedArcFrame(source,target,from,to,0,reducedMotion,actorById);
+   const mesh=new THREE.Mesh(shared.slash,new THREE.MeshStandardMaterial({color:color(kind),metalness:.55,roughness:.32,emissive:color(kind),emissiveIntensity:.18,transparent:true,opacity:frame.opacity,depthWrite:false,side:THREE.DoubleSide}));
    mesh.position.copy(V3(frame.x,frame.y,frame.z));
    mesh.rotation.set(0,frame.yaw,frame.roll);
    mesh.scale.setScalar(frame.scale*(kind==='warden'?1.2:1));
@@ -113,7 +128,7 @@ export function createCombatDirector(scene,{reducedMotion=false}={}){
     break;
    }
    case 'guard':burstAt(u,'#79ffe6');break;
-   case 'hurt':flashAt(u,u.faction==='party'?'#ffdf96':'#ff8e85');break;
+   case 'hurt':break; // Actual HP delta, not a pose, now authorises injury VFX.
   }
  }
  function accept(s){
@@ -128,6 +143,18 @@ export function createCombatDirector(scene,{reducedMotion=false}={}){
    previous.set(id,u.actionTick);
   }
   for(const id of [...previous.keys()])if(!current.has(id))previous.delete(id);
+ }
+ // Damage-only proof from consecutive genuine authority frames.
+ function recordDamage(beats){
+  if(!Array.isArray(beats))return;
+  for(const beat of beats.slice(0,18)){
+   const hit=planTrueDamageCue(beat,stagePoint(stagePositions,beat));
+   if(!hit){suppressedDamageCues++;continue;}
+   const mesh=new THREE.Mesh(shared.spall,material(hit.color,.88));
+   mesh.position.copy(V3(hit.x,hit.y,hit.z));mesh.scale.setScalar(hit.scale);
+   scene.add(mesh);impacts.push({mesh,life:0,duration:hit.duration,mode:'true-hit',startScale:hit.scale});
+   trueDamageCues=Math.min(1000000,trueDamageCues+1);ensureBound();
+  }
  }
  function animate(dt){
   dt=Number.isFinite(dt)?Math.min(.05,Math.max(0,dt)):0;
@@ -148,7 +175,7 @@ export function createCombatDirector(scene,{reducedMotion=false}={}){
    if(progress>=1){
     // One close-range body flare marks the true target; no extra giant
     // floor circle obscures combat contact or duplicates boss telegraphs.
-    flashAt(p.target,color(p.kind));
+    // A shot can be dodged/blocked. No unverified hit flare at arrival.
     cleanup(p);projectiles.splice(i,1);
    }
   }
@@ -159,8 +186,11 @@ export function createCombatDirector(scene,{reducedMotion=false}={}){
    if(effect.mode==='spark'){
     effect.mesh.material.opacity=.78*(1-t);
     effect.mesh.scale.setScalar(effect.startScale*(.82+.62*t));
+   }else if(effect.mode==='true-hit'){
+    effect.mesh.material.opacity=.88*(1-t);
+    effect.mesh.scale.setScalar(effect.startScale*(.83+.36*t));
    }else if(effect.mode==='slash'){
-    const frame=stagedArcFrame(effect.source,effect.target,effect.from,effect.to,effect.life,reducedMotion);
+    const frame=stagedArcFrame(effect.source,effect.target,effect.from,effect.to,effect.life,reducedMotion,actorById);
     if(frame){
      effect.mesh.position.copy(V3(frame.x,frame.y,frame.z));
      effect.mesh.rotation.set(0,frame.yaw,frame.roll);
@@ -180,5 +210,5 @@ export function createCombatDirector(scene,{reducedMotion=false}={}){
   for(const p of projectiles)cleanup(p);for(const p of impacts)cleanup(p);
   projectiles.length=impacts.length=pendingCues.length=0;previous.clear();stagePositions=Object.create(null);
  }
- return{accept,animate,reset,stats:()=>({activeProjectiles:projectiles.length,activeImpacts:impacts.length,pendingCues:pendingCues.length,healingCues:healingCues,disarmCues:disarmCues,contactLockedCues:contactLockedCues,suppressedUnmatchedCues:suppressedUnmatchedCues,releasedCues:releasedCues,droppedCues:droppedCues,activeGroundRings:impacts.filter(e=>e.mode==='ring').length,activeHitFlashes:impacts.filter(e=>e.mode==='spark').length,activeMeleeArcs:impacts.filter(e=>e.mode==='slash').length,totalMeleeArcs:meleeArcs,totalShots:shots,totalBursts:bursts}),dispose(){reset();for(const geometry of Object.values(shared))geometry.dispose()}};
+ return{accept,recordDamage,animate,reset,stats:()=>({trueDamageCues,suppressedDamageCues,activeProjectiles:projectiles.length,activeImpacts:impacts.length,pendingCues:pendingCues.length,healingCues:healingCues,disarmCues:disarmCues,contactLockedCues:contactLockedCues,suppressedUnmatchedCues:suppressedUnmatchedCues,releasedCues:releasedCues,droppedCues:droppedCues,activeGroundRings:impacts.filter(e=>e.mode==='ring').length,activeHitFlashes:impacts.filter(e=>e.mode==='spark').length,activeMeleeArcs:impacts.filter(e=>e.mode==='slash').length,totalMeleeArcs:meleeArcs,totalShots:shots,totalBursts:bursts}),dispose(){reset();for(const geometry of Object.values(shared))geometry.dispose()}};
 }

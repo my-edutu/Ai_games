@@ -118,7 +118,7 @@ const ground=new THREE.Mesh(new THREE.PlaneGeometry(150,150),new THREE.MeshStand
 const actors=new Map(),world=new THREE.Group();scene.add(world);
 let crowdedStageActors=0;
 const combatOverlay=createCombatOverlay($('battle-overlay'));
-const combatDirector=createCombatDirector(scene,{reducedMotion:reduced});
+const combatDirector=createCombatDirector(scene,{reducedMotion:reduced,actorById:id=>actors.get(id)});
 const floorThemes=[
  // Lighting and core PBR tint follow each real floor. The crypt is warm
  // weathered limestone, leaving deliberately cold blues for the obsidian vault.
@@ -622,6 +622,7 @@ function update(s){const previousState=state,damageBeats=planAuthorityDamageBeat
    a.telegraph.material.color.set(s.bossPhase==='ECLIPSE'?'#c97aff':s.bossPhase==='RUPTURE'?'#ff9f62':'#ff7049');
   }}
  combatDirector.accept(s);
+ combatDirector.recordDamage(damageBeats);
  world.userData.wardenRitual?.accept(s);
  soundstage?.acceptSnapshot(s);
  if(world.userData.courtShield){
@@ -712,7 +713,6 @@ function animate(t){
  // the actual current boss and heroes in one bounded camera update.
  const cameraDt=Math.min(.24,frameInterval);
  if(impactCameraHold)impactCameraHold.age=advancePresentationActionAge(impactCameraHold.age,dt);
- combatDirector.animate(dt);
  for(let i=effects.length-1;i>=0;i--){const e=effects[i];e.life+=dt;
   if(e.life>=e.duration){scene.remove(e.mesh);e.mesh.material.dispose();effects.splice(i,1);continue}
   const progression=e.life/e.duration;e.mesh.scale.setScalar((e.large?.2:.13)+progression*(e.large?1.1:.80));e.mesh.material.opacity=.60*(1-progression);
@@ -768,6 +768,8 @@ function animate(t){
   const visualYaw=a.combatFacing?.yaw??(moving?planMovementFacing(a.root.position.x,a.root.position.z,a.at.x,a.at.z):null);
   if(visualYaw!==null)a.root.rotation.y=approachCharacterYaw(a.root.rotation.y,visualYaw,dt,reduced);
  }
+ // Pose every live rig before sampling its skinned weapon hand for effects.
+ combatDirector.animate(dt);
  if(world.userData.portal&&!reduced)world.userData.portal.rotation.y=time*.26;
  if(world.userData.court&&!reduced)world.userData.court.rotation.y=Math.sin(time*.3)*.035;
  world.userData.wardenRitual?.animate(time,dt);
