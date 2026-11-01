@@ -1,0 +1,45 @@
+name: Tower Ledge Contact Evidence
+on:
+  push:
+    branches: [codex/infinite-tower-climb-3d-gauntlet]
+    paths:
+      - public/infinite-tower-climb/visuals/**
+      - tests/browser/tower-ledge-contact.spec.cjs
+      - tests/phase3/tower-ledge-contact-evidence.test.cjs
+      - .github/workflows/tower-ledge-evidence.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: tower-ledge-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  contact:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - name: Real-skeleton and platform eligibility regressions
+        run: node --test tests/phase3/tower-ledge-contact-evidence.test.cjs tests/phase3/tower-ledge-geometry-contact.test.cjs
+      - run: npx playwright install --with-deps chromium
+      - name: Capture original real ascent at desktop and portrait
+        run: |
+          mkdir -p artifacts/tower-ledge-contact
+          git rev-parse HEAD > artifacts/tower-ledge-contact/source-sha.txt
+          npx playwright test --config=playwright.tower.config.cjs tests/browser/tower-ledge-contact.spec.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tower-ledge-${{ github.sha }}
+          path: |
+            artifacts/tower-ledge-contact/
+            test-results/
+          retention-days: 7

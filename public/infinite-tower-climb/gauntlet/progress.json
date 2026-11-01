@@ -1,7 +1,7 @@
 {
   "updated": "2026-11-01",
-  "verdict": "Overall Gauntlet 90 NOT ACHIEVED: fingertip ledge pose source created, new-source GPU and normal-speed motion unverified",
-  "nextGap": "Verify exact new commit real GPU ledge-motion frames and whether fingertip reaches/penetrates real deck without pose snapping; next improve authentic contact animation and rendered quality",
+  "verdict": "Gauntlet 37 real ledge-contact GPU evidence now instrumented; new exact-source GPU/CI and independent review pending. Overall Gauntlet 90 NOT ACHIEVED",
+  "nextGap": "Inspect exact G37 authentic ascent PNG/JSON and fingertip contact error; repair real reach/penetration or snapping if shown. Complete motion, commercial comparison and intended-device FPS remain OPEN.",
   "capture": "/tower/gauntlet/evidence/14-foundry-follow.webp",
   "captureLabel": "Actual tick 118 · compact HUD and clearer hostile equipment",
   "iterations": [
@@ -272,6 +272,13 @@
       "title": "Constrain raised climbing fingertip to real current-platform geometry with analytic two-link pose",
       "finding": "Inspected real G35 portrait GPU screenshot and an actual G34 climb recording; Git compare confirms G35 source unchanged at 86b7d77. Airborne reach still relies on camera/velocity, not an actual surface. Chose ONE contact defect: only while alive/rising/near current public-snapshot intended platform, derive dynamic deck top and solve two existing arm bones so authored fingertip can touch its actual 3D position. No authoritative movement, AI, physics, randomness, replay or grab state altered. Current G35 broad CI cancelled; five G35 dedicated evidence workflows passed before this change. Workspace coding-worker tunnel NOT_FOUND, SELF-REVIEW only.",
       "checks": "STATIC RED: pre-edit actual scene/cast have no ledgeContactPoint/solveLedgeReach helpers. GREEN in-tool pure JS fixture 12/12 geometry/physics bounds; added real-source Node/Three tests but not yet run by new-source CI. No new GPU pixels or actual continuous IK verified and no independent critic/hardware performance test. Gauntlet 90 FAIL/OPEN. Review docs/reviews/2026-11-01-tower-ledge-contact-ik.md; PR58 remains draft."
+    },
+    {
+      "number": "37",
+      "date": "2026-11-01",
+      "title": "Make genuine raised-fingertip contact independently inspectable in real GPU frames",
+      "finding": "Downloaded and inspected exact-parent G36 GPU Landing artifact 13061644329 (run 41253015116): actual desktop and portrait stone-ready images, renderer errors zero, but neither frame exercises the shipped near-ledge IK. Parent G36 Combat 41253015364, Guardian 41253015121, Realism 41253015183 and Motion 41253015260 passed. Full catalogue CI 41253018919 failed three Tiny Kingdom browser assertions (shader version and duplicate river tint), while its Tower browser tests passed. ONE selected failure: no authentic ledge-contact visual verification. Added a presentation-only numeric diagnostic measuring the actual post-animation skeleton fingertip against the real deck point and seeded genuine-ascent desktop/portrait GPU captures. No gameplay, physics, AI, replay, draw calls or assets changed. Separate coding worker tunnel NOT_FOUND, SELF-REVIEW only.",
+      "checks": "STATIC RED verified on parent: measureLedgeFingertip absent. Authored Node/Three contact vs deliberate miss tests, full new Playwright seeded real-state test and dedicated GitHub Actions capture. At initial commit all new-source tests/CI/PNG review PENDING; do not claim commercial/contact visual gate success. Overall Gauntlet 90 FAIL/OPEN; draft PR, no merge/force-push/deploy."
     }
   ],
   "captures": [

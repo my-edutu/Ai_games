@@ -72,6 +72,22 @@ function ledgeContactPoint(snapshot, platform) {
 // An armored guardian can stand under the final one-way cap with less vertical
 // space than its full visible crest. Let only the presentation rig tuck its head;
 // the cap, hitboxes, authored height, replay and public state remain unchanged.
+// Measure the actual posed fingertip, never merely the requested deck point.
+// This creates no collision, grabs, lights or authority-side contact.
+function measureLedgeFingertip(climberGroup, target, platformId) {
+  if (!target) return null;
+  const worldTarget = new THREE.Vector3(target.x, target.y, target.z);
+  const body = climberGroup.getObjectByName('articulated-body');
+  if (!body) return { platformId, target: worldTarget.toArray(), fingertip: null, errorWorld: null, reason: 'missing-body' };
+  const localTarget = body.worldToLocal(worldTarget.clone());
+  const elbow = climberGroup.getObjectByName((localTarget.x >= 0 ? 1 : -1) + '-elbow');
+  if (!elbow) return { platformId, target: worldTarget.toArray(), fingertip: null, errorWorld: null, reason: 'missing-elbow' };
+  elbow.updateWorldMatrix(true, false);
+  const fingertip = elbow.localToWorld(new THREE.Vector3(0, -.802, .108));
+  return { platformId, target: worldTarget.toArray(), fingertip: fingertip.toArray(),
+    errorWorld: fingertip.distanceTo(worldTarget), reason: null };
+}
+
 function guardianCanopyClearance(snapshot, enemy) {
   if (enemy.kind !== 'guardian' || !enemy.active) return Infinity;
   const feet = enemy.y - enemy.halfHeight;
@@ -516,6 +532,7 @@ export function createTowerScene(canvas, settings = {}) {
     }
   }
 
+  let ledgeContactEvidence = null;
   let world = createTowerWorld();
   scene.add(world.group);
   let climber = createClimber();
@@ -791,6 +808,8 @@ export function createTowerScene(canvas, settings = {}) {
     const p = snapshot.player;
     const targetPlatform = intendedLanding(snapshot);
     const ledgeContact = ledgeContactPoint(snapshot, targetPlatform);
+    const ledgeTarget = ledgeContact ? pointFor(ledgeContact.x, ledgeContact.y,
+      snapshot.chunkBaseY, snapshot.worldWidth, 25) : null;
     const mapped = pointFor(p.x, p.y - p.halfHeight, snapshot.chunkBaseY, snapshot.worldWidth);
     actorTarget.set(mapped.x, mapped.y, mapped.z);
     const moving = Math.abs(p.vx) > 500;
@@ -809,9 +828,9 @@ export function createTowerScene(canvas, settings = {}) {
       targetDy: targetPlatform ? targetPlatform.y + targetPlatform.height - p.y : 0,
       // Real snapshot platform top, inside the existing radial walking surface.
       // No grab, pause, lift or authoritative collision is fabricated.
-      ledgeTarget: ledgeContact ? pointFor(ledgeContact.x, ledgeContact.y,
-        snapshot.chunkBaseY, snapshot.worldWidth, 25) : null,
+      ledgeTarget,
     }, dt, elapsed, options);
+    ledgeContactEvidence = ledgeTarget ? measureLedgeFingertip(climber.group, ledgeTarget, targetPlatform.id) : null;
     attackArc.visible = !!p.attacking && p.health > 0;
     if (attackArc.visible && positionStrikeCue(attackArc, climber.group, camera)) {
       attackArc.rotateZ(p.facing > 0 ? -.8 : Math.PI - .8);
@@ -997,6 +1016,7 @@ export function createTowerScene(canvas, settings = {}) {
       renderProgress: submissionProgress,
       calls: renderer.info.render.calls, triangles: renderer.info.render.triangles, geometries: renderer.info.memory.geometries,
       textures: renderer.info.memory.textures, programs: renderer.info.programs.length, characters: 1 + enemies.size,
+      ledgeContact: ledgeContactEvidence,
       landingBeacon: { visible: landingBeacon.visible, targetId: landingBeacon.userData.targetPlatformId || null,
         position: landingBeacon.position.toArray(), triangles: landingBeacon.geometry.index.count / 3, depthTest: landingBeacon.material.depthTest },
       activeParticles: particleLife.filter(life => life > 0).length,
