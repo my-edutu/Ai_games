@@ -57,7 +57,9 @@ test('real WebGL director stages and animates contact arcs without altering auth
  assert.match(src,/import \{canStageMeleeArc,planMeleeArcFrame,MELEE_ARC_DURATION\}/);
  assert.match(src,/canStageMeleeArc\(kind,action,source,target\)/);
  assert.match(src,/planMeleeArcFrame\(source,target,life,reducedMotion\)/);
- assert.match(src,/stagedArcFrame\(effect\.source,effect\.target,effect\.from,effect\.to,effect\.life,reducedMotion\)/);
+ assert.match(src,/stagedArcFrame\(effect\.source,effect\.target,effect\.from,effect\.to,effect\.life,reducedMotion,actorById\)/,
+  'the real current animated hand may anchor the arc but must retain the authoritative adjacent-cell source and target');
+ assert.match(src,/if\(canStageMeleeArc\(kind,action,source,target\)\)/,'only genuine adjacent melee actions create the forged blade');
  assert.match(src,/from:stagePoint\(stagePositions,u\)/,'contact positions must originate from real same-snapshot actors');
  assert.match(src,/activeMeleeArcs:/);
  assert.match(src,/totalMeleeArcs:/);
