@@ -61,6 +61,38 @@ test('native game-first stage occupies the screen without concealing public cont
   expect(composition.revision).toBe('4');
   expect(['maze','stage']).toContain(composition.center);
   expect(composition.visibleText.length,'live HUD contains short play-state signals, not essays').toBeLessThan(145);
+
+  // Exercise the real served stylesheet and each required viewport, not a
+  // copied stylesheet or a CSS-only mock. Keep the game-first screen guard.
+  const hudStylesheet=await page.request.get(base+'/maze/gameplay-hud.css');
+  expect(hudStylesheet.status(),'game-first CSS must be an actual public HTTP asset').toBe(200);
+  expect(hudStylesheet.headers()['content-type']).toContain('text/css');
+  for(const [width,height] of [[320,740],[844,390],[1280,900]]) {
+    await page.setViewportSize({width,height});
+    const layout=await page.evaluate(()=>{
+      const box=el=>{const r=el.getBoundingClientRect();return {left:r.left,right:r.right,width:r.width,height:r.height}};
+      return {
+        stage:box(document.getElementById('stage')),
+        canvas:box(document.getElementById('maze')),
+        controls:[...document.querySelectorAll('.masthead .control-button')].filter(el=>getComputedStyle(el).display!=='none').map(box),
+        map:box(document.querySelector('#map-panel>summary')),
+        details:box(document.querySelector('#intent-details>summary')),
+        viewport:innerWidth,
+        scrollWidth:document.documentElement.scrollWidth
+      };
+    });
+    expect(layout.stage.height, width+'px real 3D stage fills the viewport').toBeGreaterThan(height-10);
+    expect(layout.stage.width, width+'px stage reaches both sides').toBeGreaterThan(width-10);
+    expect(layout.canvas.height).toBeGreaterThan(height-10);
+    expect(layout.canvas.width).toBeGreaterThan(width-10);
+    expect(layout.scrollWidth,width+'px page must not scroll horizontally').toBe(layout.viewport);
+    for(const control of [...layout.controls,layout.map,layout.details]) {
+      expect(control.width,width+'px actionable control width').toBeGreaterThanOrEqual(44);
+      expect(control.height,width+'px actionable control height').toBeGreaterThanOrEqual(44);
+      expect(control.left,width+'px controls stay on screen').toBeGreaterThanOrEqual(-1);
+      expect(control.right,width+'px controls stay on screen').toBeLessThanOrEqual(width+1);
+    }
+  }
 });
 
 test('slow state responses never create overlapping browser-source polls', async ({ page }) => {
