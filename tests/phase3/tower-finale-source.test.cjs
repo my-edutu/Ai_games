@@ -22,7 +22,7 @@ test('real terminal and intermission render a bounded, spatial, source-gated 3D 
     assert.equal(effect.group.visible, false, 'ordinary ascent must not fabricate an outcome');
     effect.update(state('running', 'auth-a', 900, {reason:'still-playing',kind:'loss'}), origin, 1);
     assert.equal(effect.group.visible, false, 'result metadata without terminal source state is not a finale');
-    effect.update(state('result','auth-a',900,{reason:'timer-expired',kind:'loss'}),origin,2);
+    effect.update(state('result','auth-a',900,{reason:'fall',kind:'game'}),origin,2);
     assert.equal(effect.group.visible, true);
     assert.deepEqual(effect.group.position.toArray(),[8,30,-4]);
     assert.equal(effect.diagnostics().runToken,'auth-a');
@@ -30,9 +30,9 @@ test('real terminal and intermission render a bounded, spatial, source-gated 3D 
     assert.equal(effect.group.children.length,4);
     assert.equal(effect.diagnostics().stones,12);
     assert.equal(effect.diagnostics().resultKind,'game');
-    assert.equal(effect.diagnostics().resultReason,'timer-expired');
+    assert.equal(effect.diagnostics().resultReason,'fall');
     assert.equal(effect.diagnostics().fragments,28);
-    effect.update(state('intermission','auth-a',900,{reason:'timer-expired',kind:'loss'}),origin,3);
+    effect.update(state('intermission','auth-a',900,{reason:'fall',kind:'game'}),origin,3);
     assert.equal(effect.diagnostics().lifecycle,'intermission');
     effect.update(state('running','auth-b',0),origin,4);
     assert.equal(effect.group.visible,false,'authentic restart retires the visual');
