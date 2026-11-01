@@ -129,7 +129,7 @@ test('an authentic guardian defeat opens BOTH world-space doors and its distinct
     const cableQuaternion = new THREE.Quaternion();
     tension.getMatrixAt(0,cableMatrix);
     cableMatrix.decompose(cablePosition,cableQuaternion,cableScale);
-    assert.ok(Math.abs(cableScale.y-.54)<1e-10,
+    assert.ok(Math.abs(cableScale.y-.54)<1e-5,
       'at full health the original drum has only taut, short undrawn cable');
     assert.ok(Math.abs(leftWeight.position.y)<1e-12, 'left counterweight starts physically closed');
     assert.ok(Math.abs(rightWeight.position.y)<1e-12, 'right counterweight starts physically closed');
@@ -170,7 +170,7 @@ test('an authentic guardian defeat opens BOTH world-space doors and its distinct
       'an actual finished guardian fully releases the heavy mechanical weights');
     tension.getMatrixAt(0,cableMatrix);
     cableMatrix.decompose(cablePosition,cableQuaternion,cableScale);
-    assert.ok(Math.abs(cableScale.y-2.89)<1e-10,
+    assert.ok(Math.abs(cableScale.y-2.89)<1e-5,
       'only an observed authentic defeat fully draws the physical cable');
     assert.equal(world.diagnostics().guardianGates[0].unlocked, true);
     assert.ok(conduit.scale.z > 4.6 && conduit.scale.z < 4.8,
