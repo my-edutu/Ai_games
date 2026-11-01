@@ -254,6 +254,15 @@ export class DungeonRuntime {
     s.intent='Bracing for the marked '+warned.shape.toLowerCase().replaceAll('_',' ');
     push(s,'guard',hero.kind+' braced against the oncoming attack');continue;
    }
+   // A successful dodge is a *decision across two ticks*, not a one-tick
+   // sidestep followed by immediately walking back into the advertised blast.
+   // Stay on the safely marked flank while the impact resolves. We do not
+   // invent another move, teleport, or damage result in presentation.
+   if(warned?.attackTick===s.tick&&dist(hero,warden!)<=5&&
+      !warned.cells.some(p=>p.x===hero.x&&p.z===hero.z)){
+    hero.action='guard';s.intent='Holding the safe flank through the Warden strike';
+    continue;
+   }
    if(hero.kind==='ranger'&&s.tick%4===0){const hazard=s.traps.find(t=>t.active&&!t.disarmed&&dist(hero,t)<=2);
     if(hazard){hazard.active=false;hazard.disarmed=true;hazard.cooldown=0;hero.action='cast';s.intent='Wildshadow disabling a dangerous rune';push(s,'disarm','Wildshadow safely disabled a '+hazard.kind+' trap');continue}
    }

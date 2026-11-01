@@ -36,7 +36,8 @@ test('a hero genuinely steps off a Rupture cross and avoids the real following a
  assert.equal(hero.action,'move');assert.notEqual(key(hero),from);
  assert.ok(!next.bossWarning.cells.some(p=>key(p)===key(hero)));
  assert.ok(next.events.some(e=>e.kind==='evade'));
- game.step();assert.equal(hero.hp,hp,'strike must not secretly damage a safe tile');
+ game.step();assert.equal(hero.action,'guard','a true dodge holds its safe position through the impact turn');
+ assert.equal(hero.hp,hp,'strike must not secretly damage a safe tile');
  const replay=DungeonRuntime.restore(saved);replay.step();replay.step();
  for(let n=0;n<25;n++)assert.equal(game.step().checksum,replay.step().checksum);
  assertDungeonState(game.state);
