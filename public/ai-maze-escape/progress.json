@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-01T00:44:20.684Z",
+  "updatedAt": "2026-11-01T02:47:37Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass30 exact-source 2026-11-01T00:44Z desktop/390x844 screenshots independently SHA-verified from CI artifact 13064406479. Real modeled wrist correction improves mint-bow visibility vs pass29 but key-to-physical lock remains hard to read, arch cropped and lagoon overlarge; Captain Toad still wins. Exact-head Actions 41257731828 FAILED browser 104/107 (Tiny Kingdom G057/G058/G063); no Maze browser failures. Native visual lead review only; shared workspace fresh critics/Ultracode unavailable, CPU software frames not hardware FPS."
+    "summary": "Pass31 source candidate adds a modeled front blade ridge, physical finger clamps and closer wrist-connected grip; NO pass31 browser capture or independent visual verdict is yet available. The latest genuine SHA-verified desktop/390x844 image remains pass30 artifact 13064406479, which still loses to Nintendo Captain Toad (glove/key/lock unclear, arch cropped, excessive lagoon). Pass30 whole CI failed 3 Tiny Kingdom browser checks, no Maze browser failure; software SwiftShader performance is not hardware FPS. Pass31 source-head CI and direct blinded actual-render review are pending; subagents/Ultracode are blocked by the disconnected workspace."
   },
   "captures": [
     {
@@ -125,7 +125,8 @@
     "Pass 28 genuine matching-key follow-camera lift was evaluated on same-seed real desktop and 390×844 browser captures. Hash-verified screenshots show slightly better desktop arch clearance but persistent small glove-to-socket interaction, right-edge portrait arch clipping and empty lagoon; benchmark open, full CI cancelled. No gameplay changes in the evidence update.",
     "Pass29 source-only physical-arm gesture candidate: Pip's existing key-carrying left shoulder rotates in Y/Z toward the exact disclosed nearby closed-gate bearing, bounded by the same public-key cue, with neutral/guardian/terminal and reduced-motion precedence. Test ccf0689; source 5c37549. No authority, hidden map, camera, mesh creation or gate-open changes; actual pass29 source-bound render and full CI remain pending and must be separately compared with pass28 and pinned Nintendo Captain Toad images.",
     "Pass29 true-source desktop and portrait PNG SHA-verified; directional shoulder turns key bow partly behind gate masonry, so visual acceptance failed. Pass30 source 1a6fe8a counter-turns actual connected left elbow, tests f1da826 cover both directions and public-state resets; no authority or hidden-information change.",
-    "Pass30 true-source render verification: downloaded exact-head artifact 13064406479; recomputed unmodified desktop/portrait screenshot hashes from production seed maze-visual-reference-13 tick21 genuinely closed door-2. Connected modeled wrist lifts mint bow out from the stone relative to pass29, but glove-to-shaft-to-stile-lock contact is still unreadable at native mobile and the Nintendo bar wins. Exact source CI 41257731828 has 104 browser passes and three Tiny Kingdom failures; no Maze browser failure, but overall red."
+    "Pass30 true-source render verification: downloaded exact-head artifact 13064406479; recomputed unmodified desktop/portrait screenshot hashes from production seed maze-visual-reference-13 tick21 genuinely closed door-2. Connected modeled wrist lifts mint bow out from the stone relative to pass29, but glove-to-shaft-to-stile-lock contact is still unreadable at native mobile and the Nintendo bar wins. Exact source CI 41257731828 has 104 browser passes and three Tiny Kingdom failures; no Maze browser failure, but overall red.",
+    "Pass31 source-only candidate: actual glove-parented mint/gold key receives a connected front metal shank and dark finger clamps, pivot slightly closer to wrist. Structural tests cover both character LODs and preserve prior key/guardian/terminal assertions. Native 390x844 and desktop same-seed new images NOT yet captured or evaluated; latest pass30 Nintendo reference still wins. No hidden authority or deterministic gameplay changes, no merge or deployment."
   ],
   "nextGaps": [
     "Pass31 highest-priority independent slice: render a clearly physically connected glove→warm shaft→mint bow aimed at the legitimately known still-closed lock without floating/hidden props or gameplay authority change. Demand original same-seed tick21 390×844 and 1280×900 captures, original PNG SHA-256 manifests, exact-head CI, separate blind image criticism against pass30 and both frozen Nintendo references; fail if still ambiguous at native size.",
@@ -343,6 +344,13 @@
       "verdict": "Local mint-bow visibility improved; still NOT a convincing native key-to-lock interaction, Captain Toad benchmark wins",
       "date": "2026-11-01T00:44:20.684Z",
       "summary": "Original CI artifact 13064406479 same seed/tick 21 genuinely blocked door-2. Desktop original 2026-11-01T00:44:18.834Z SHA f73f83514eb2e19eb271452d76eb82faae018a7f46f2ac19f65d425457fcb226; native portrait 00:44:20.684Z SHA 760c0a0487662020e4ea5a8538eea97153baf3bc2c6e58eb211ef2d8c4140306, independently matched with JSON. Pass29→30 changed 0.1456%/0.2628% RGB pixels >12; key bow less buried but shaft/glove/recess relation still unclear, portrait arch clipped and lagoon excessive. Exact-head CI failed Tiny Kingdom G057/G058/G063 (104/107 browser), no Maze browser fail. No independent A/B/Ultracode/hardware-FPS claim."
+    },
+    {
+      "title": "Pass31 glove-to-key continuity source candidate — image gate open",
+      "reviewer": "Lead source/design review; separate fresh-context critic unavailable while shared workspace disconnected",
+      "verdict": "NOT RENDERED or independently approved; pass30 still loses to fixed Captain Toad reference",
+      "date": "2026-11-01T02:47:37Z",
+      "summary": "Same held 3D key remains parented to real connected left glove with a warm-metal ridge and dark finger clamps. Real, dated pass31 source-head desktop and 390x844 captures, SHA manifests, native-size blind A/B and independent Nintendo visual criticism still required. Pass30 artifact 13064406479 is the last real image; CPU SwiftShader is not a GPU FPS result."
     }
   ],
   "verification": [

@@ -121,6 +121,17 @@ test('Pip presents a modeled carried key to a real nearby lock and clears it for
     const arm=pip.group.getObjectByName('shoulder -1');
     const head=pip.group.getObjectByName('curious head');
     assert.ok(key && arm && head, 'a reusable 3D prop and articulated arm, not a sprite or HUD');
+    const glove=pip.group.getObjectByName('glove');
+    assert.equal(key.parent,glove,'the visible key remains part of Pip’s actual left wrist');
+    assert.ok(Math.hypot(key.position.x,key.position.y,key.position.z)<.2,
+      'the real key grip intersects the wrist instead of floating as a marker');
+    const blade=key.children.find(part => part.isMesh && part.material.color.getHexString()==='ffe2a1');
+    const fingerGrip=key.children.find(part => part.isMesh && part.material.color.getHexString()==='263e43');
+    assert.ok(blade && fingerGrip, 'front blade and grasping glove stay true modeled geometry');
+    blade.geometry.computeBoundingBox();
+    fingerGrip.geometry.computeBoundingBox();
+    assert.ok(blade.geometry.boundingBox.max.z>.105 && fingerGrip.geometry.boundingBox.max.z>.095,
+      'continuous bright front ridge and real finger clamps remain proud of the grip at mobile scale');
     const propColors=new Set(key.children.filter(part => part.isMesh).map(part => part.material.color.getHexString()));
     assert.ok(['a5ffdc','ffe2a1','263e43'].every(color => propColors.has(color)),
       'the held object has a mint bow, warm key teeth and dark hand-grip contact');

@@ -183,12 +183,20 @@ export function createExplorer(options = {}) {
   // floating mint loop. A dark grip collar overlaps the existing glove so
   // its shaft has a visible physical connection at normal game scale.
   const keyBlade=material('#ffe2a1',.43,.34,{emissive:'#e7a64c',emissiveIntensity:.3});
-  const heldKey=pivot(arms[0].hand,'presented matching key',[0,-.12,.11]);
+  const heldKey=pivot(arms[0].hand,'presented matching key',[0,-.075,.14]);
   ring(heldKey,keyMint,[0,.18,0],.17,.05);
   rounded(heldKey,keyBlade,[0,-.095,0],[.14,.40,.13],.028);
+  // Raised warm-metal ridge on the camera-side face of the real blade. It
+  // crosses the glove collar and physically joins the mint bow; no beam,
+  // floating HUD marker or simulated unlock is introduced.
+  bar(heldKey,keyBlade,[0,-.185,.078],[0,.058,.078],.034);
   rounded(heldKey,keyBlade,[.14,-.235,0],[.25,.12,.13],.026);
   rounded(heldKey,keyBlade,[.14,-.09,0],[.25,.105,.13],.023);
   rounded(heldKey,dark,[0,-.025,-.047],[.20,.135,.18],.032);
+  // Paired physical thumb/finger clamps meet the blade at its real grip.
+  // The prop stays parented to the connected wrist and disappears with it.
+  rounded(heldKey,dark,[-.087,-.025,.079],[.039,.15,.045],.014);
+  rounded(heldKey,dark,[.087,-.025,.079],[.039,.15,.045],.014);
   heldKey.visible=false;
 
   // An expedition signal crest is legible in a wide, silent stream frame.
