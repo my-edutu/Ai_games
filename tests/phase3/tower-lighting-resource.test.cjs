@@ -12,6 +12,7 @@ const root = path.resolve(__dirname, '../..');
 async function main() {
   const real = await import(pathToFileURL(`${root}/node_modules/three/build/three.module.js`).href);
   const { createRenderProgress } = await import(pathToFileURL(`${root}/public/infinite-tower-climb/visuals/render-progress.mjs`).href);
+  const { createTowerFinale } = await import(pathToFileURL(`${root}/public/infinite-tower-climb/visuals/finale.mjs`).href);
   const source = fs.readFileSync(`${root}/public/infinite-tower-climb/visuals/scene.mjs`, 'utf8');
   function events() {
     const listeners = new Map();
@@ -52,7 +53,7 @@ async function main() {
     // must satisfy the real scene's camera-to-cap visibility interface too.
     const world = () => ({ group: new real.Group(), update() {}, revealGuardianSightlines() {}, dispose() {}, diagnostics: () => ({}) });
     const context = {
-      THREE, createRenderProgress, createTowerWorld: world, createClimber: actor, createEnemy: actor,
+      THREE, createRenderProgress, createTowerFinale, createTowerWorld: world, createClimber: actor, createEnemy: actor,
       THEMES: { foundry: { sun: 0xffdfbc, ambient: 0xe8e0d3, fog: 0x99796d } },
       SCALE: 10000, pointFor: (x, y, base) => ({ x: 0, y: (y-base)/10000, z: 25, angle: 0 }), angleFor: () => 0, snapshotVelocity: () => 0,
       innerWidth: 640, devicePixelRatio: 1, document,
