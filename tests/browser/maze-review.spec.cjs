@@ -98,6 +98,43 @@ test('a real close public encounter frames both autonomous actors and saves date
     caveat: 'Screenshot is CI software-rendered evidence, not hardware FPS, blind A/B or benchmark parity.',
   }, null, 2));
 
+  // Genuine 390px guardian evidence from the *same* disclosed production
+  // snapshot and already running browser. The desktop frame alone cannot prove
+  // character/action legibility on a phone. This is not a staged encounter.
+  await page.setViewportSize({width:390,height:844});
+  await page.waitForFunction(({tick,token}) =>
+    window.__MAZE_3D__?.frames >= 3
+    && window.__MAZE_3D__?.tick === tick
+    && window.__MAZE_3D__?.runToken === token,
+    {tick:frame.snapshot.tick,token:frame.snapshot.runToken});
+  const portraitEncounter = await page.evaluate(() => window.__MAZE_3D__);
+  const portraitEncounterPath = path.join(dir,'encounter-public-portrait.png');
+  await page.screenshot({path:portraitEncounterPath,fullPage:true});
+  fs.writeFileSync(path.join(dir,'encounter-public-portrait.json'),JSON.stringify({
+    capturedAt:new Date().toISOString(),
+    source:'Same authentic production public guardian encounter as desktop; existing Chromium window resized to 390 CSS pixels, no inserted actors',
+    seed:encounter.seed, tick:frame.snapshot.tick,
+    viewport:{width:390,height:844},
+    publicThreatDistanceCells:encounter.distanceCells,
+    imageSha256:hash(portraitEncounterPath),
+    sourceSha256:Object.fromEntries(['app.js','scene.js','characters.js','world.js']
+      .map(name=>[name,hash(path.join(sourceDir,name))])),
+    diagnostics:{
+      quality:portraitEncounter.quality,
+      triangles:portraitEncounter.triangles,
+      characterCount:portraitEncounter.characterCount,
+      disclosedThreats:portraitEncounter.disclosedThreats,
+      wardensInFrame:portraitEncounter.wardensInFrame,
+      encounterAttention:portraitEncounter.encounterAttention,
+      explorerInFrame:portraitEncounter.explorerInFrame,
+      frameP50Ms:portraitEncounter.frameP50Ms,
+    },
+    caveat:'Native mobile screenshot can expose clipping or unreadability; no Nintendo parity, independent preference or hardware GPU claim.',
+  },null,2));
+  // Preserve the original desktop objective/lock captures. Any phone-specific
+  // encounter clipping is recorded above rather than inventing another pose.
+  await page.setViewportSize({width:1280,height:900});
+
   // Separate authentic screenshot gate for an actionable *known* landmark.
   // Reuse this page/browser, not another CPU-heavy graphics process.
   const {publicObjective} = await import('../../public/ai-maze-escape/map-view.mjs');
