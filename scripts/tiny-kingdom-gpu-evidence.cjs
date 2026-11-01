@@ -272,13 +272,17 @@ const path = require('node:path');
     evidence.cottageFacades=await page.evaluate(()=>{
       const g=window.__tinyKingdom,authority=JSON.stringify(g.exportSnapshot());
       const details=g.getCottageFacadeStats();
-      return {...details,authorityUnchanged:authority===JSON.stringify(g.exportSnapshot())};
+      return {...details,registeredDetailedHomes:g.getVillageVisualLod().detailedHomes,
+        guildhall:g.getGuildhallVisualStats(),authorityUnchanged:authority===JSON.stringify(g.exportSnapshot())};
     });
     const f=evidence.cottageFacades;
-    if(f.homes!==13||f.styles.length!==4||Math.max(...f.styles.map(style=>style.count))>5||f.plasterPanels!==f.homes*2||
+    // The unique civic guildhall is no longer a duplicated cottage façade.
+     // Count actual detailed cottages in the runtime instead of hardcoded 13.
+     if(f.homes!==f.registeredDetailedHomes||f.styles.length!==4||Math.max(...f.styles.map(style=>style.count))>5||f.plasterPanels!==f.homes*2||
        f.sideWindows!==f.homes*4||f.diagonalBraces<f.homes*4||
        f.meshTriangles<=f.homes*100||f.meshTriangles>=f.homes*450||
-       !f.authorityUnchanged||evidence.geometry.totalTriangles>=160000)
+       !f.guildhall||f.guildhall.belfries!==1||f.guildhall.triangles<350||
+        !f.authorityUnchanged||evidence.geometry.totalTriangles>=160000)
       throw Error('Gauntlet 046 facade geometry budget or identity failed: '+JSON.stringify(f));
     // G047: real emitted boughs and needles, no decorative CSS/metadata substitute.
     // The checks are tied to the actual uploaded static mesh and camera-invariant save.
