@@ -32,3 +32,12 @@ export function postFXStallAction(renderMs,previousSlow=0){
  const slowStreak=renderMs>650?Math.min(3,before+1):0;
  return {slowStreak,disable:renderMs>=2500||(slowStreak>=2&&renderMs>650)};
 }
+
+/**
+ * Only pre-disable expensive bloom when the actual WebGL renderer reports a
+ * known CPU rasterizer. User agents and unrecognised GPUs are not evidence.
+ * This remains a cosmetic decision, independent of authoritative game state.
+ */
+export function isSoftwareWebGLRenderer(rendererName){
+ return typeof rendererName==='string'&&/(swiftshader|llvmpipe|softpipe|software rasterizer)/i.test(rendererName);
+}
