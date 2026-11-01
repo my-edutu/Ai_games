@@ -246,3 +246,41 @@ test('actual wrist-held tooth points to a source-disclosed distant socket, witho
     pip.dispose();
   }
 });
+
+
+test('modeled held key bow remains face-on to two real cameras while the tooth aims at the same disclosed socket', async () => {
+  const {createExplorer} = await modulePromise;
+  const {Vector3} = await import(three);
+  for (const balanced of [false,true]) {
+    const pip=createExplorer({balanced});
+    pip.group.position.set(4,1,-3);
+    const key=pip.group.getObjectByName('presented matching key');
+    const glove=pip.group.getObjectByName('glove');
+    const target=new Vector3(1,1.8,-6);
+    for (const cameraPosition of [new Vector3(9,10,6),new Vector3(-5,8,9)]) {
+      pip.update({heading:0,keyHeading:-Math.PI/2,keyStrength:1,
+        keyTarget:target,keyCameraPosition:cameraPosition,reducedMotion:true});
+      assert.equal(key.visible,true);
+      assert.equal(key.parent,glove,'physical key remains joined to Pip\'s glove');
+      const origin=key.getWorldPosition(new Vector3());
+      const tooth=key.localToWorld(new Vector3(0,-.24,0)).sub(origin).normalize();
+      const towardLock=target.clone().sub(origin).normalize();
+      assert.ok(tooth.dot(towardLock)>.995,'bow-facing roll does not redirect blade from real public lock');
+      const bowNormal=key.localToWorld(new Vector3(0,0,1)).sub(origin).normalize();
+      const towardCamera=cameraPosition.clone().sub(origin);
+      towardCamera.addScaledVector(tooth,-towardCamera.dot(tooth));
+      assert.ok(towardCamera.lengthSq()>.1,'two cameras produce distinct nondegenerate viewing directions');
+      assert.ok(bowNormal.dot(towardCamera.normalize())>.98,'mint bow presents its face rather than its edge');
+      assert.ok(origin.distanceTo(target)>2,'key is presented, not inserted into an unopened door');
+    }
+    pip.update({heading:0,keyHeading:-Math.PI/2,keyStrength:1,keyTarget:target,
+      keyCameraPosition:{x:NaN,y:0,z:0},reducedMotion:true});
+    assert.ok(Number.isFinite(key.rotation.x),'bad viewer data does not corrupt model quaternion');
+    pip.update({heading:0,keyStrength:0,reducedMotion:true});
+    assert.equal(key.visible,false,'stale key disappears when carried-key cue clears');
+    pip.update({heading:0,keyHeading:-Math.PI/2,keyStrength:1,keyTarget:target,
+      keyCameraPosition:new Vector3(9,10,6),attentionHeading:0,attentionStrength:1,reducedMotion:true});
+    assert.equal(key.visible,false,'actual disclosed guardian overrides cosmetic key presentation');
+    pip.dispose();
+  }
+});

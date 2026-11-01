@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-01T10:18:23.019Z",
+  "updatedAt": "2026-11-01T11:40:24.694Z",
   "benchmark": {
     "status": "Not yet passed",
     "summary": "Pass36 exact-source authentic 390×844 captured 2026-11-01T10:18:23.019Z (SHA b4463aae...). Actual physical tooth/socket separation 84.40 CSS px vs verified pass35 92.09px, but no contact or readable inserted-key action; bow partly hidden, arch clipped and lagoon oversized. Focused Maze CI 41296776902 succeeded and all six original PNG hashes match; whole-repo CI 41296776884 still in progress at evidence check. Original Nintendo bar NOT PASSED; independent critic/Ultracode blocked by disconnected workspace; SwiftShader not hardware FPS."
@@ -133,7 +133,8 @@
     "Pass33 source-head focused Maze visual workflow succeeded with dated original six-scenario browser PNGs and sidecar SHA-256 manifests. Same-seed/tick closed gate desktop is unchanged from pass32; portrait stage camera shift is visibly insufficient because the closed gate moves toward the left edge, arch still crops and key/lock action remains unreadable. Full CI failed unrelated Tiny Kingdom checks, not Maze. Details in known-stage-portrait-pass-33-review-gate.md.",
     "Pass34 models a larger camera-facing physical socket using existing shared shapes, a joined dark crown and throat, and public-inventory-only gold/mint rim. Test contracts strengthened for both gate orientations and no false open; this source candidate is NOT visual evidence. Dated render review gate: physical-lock-pass-34-review-gate.md.",
     "Pass35 measurement candidate: existing real 3D blade tip and matching still-closed, publicly disclosed gate socket receive source-derived projected CSS positions and separation, captured by original desktop/native browser manifests; gameplay/visual meshes/AI/camera unchanged until authentic screenshot critique.",
-    "Pass36 physically source-aimed glove-held key tooth toward only matching public carried-key CLOSED socket (no fake insertion/authority). 6 hash-verified same-seed/tick original browser screenshots; native projection 84.40 CSS px vs pass35 92.09. Still no accepted visual gain at native size."
+    "Pass36 physically source-aimed glove-held key tooth toward only matching public carried-key CLOSED socket (no fake insertion/authority). 6 hash-verified same-seed/tick original browser screenshots; native projection 84.40 CSS px vs pass35 92.09. Still no accepted visual gain at native size.",
+    "Pass37 actual 3D octagonal bow faces public rendering camera while keeping the same source-modeled closed socket aim and connected glove; 0.17→0.215 bow radius. Desktop/native diagnostics, geometry tests and characters.js source hash added. New authentic capture and critic pending."
   ],
   "nextGaps": [
     "Physical key-gesture next slice: original 390px measurement proves real held blade tip is 92.09 CSS px from the still-closed socket (not an inserted key). Improve truthful pose/orientation and/or genuinely disclosed approach staging; never fake contact/unlock or move hidden topology. Reinspect original SHA-bound native screenshots against fixed Nintendo benchmark.",
@@ -671,6 +672,13 @@
       "detail": "Focused run 41296776902 original artifact 13079133302, 2026-11-01 10:18:23.019Z native 390x844 SHA b4463aae66167f625019ea7b8ba45dee7231741a61d768ed6ba4faefce4c7aca, actual blade tip 121.79,259.55 vs closed socket 72.16,327.82 -> 84.4031 CSS px. Desktop 10:18:19.711Z SHA 1d337b0360bcfb7c137988ec0f3058a954b7be4a7969cca46e5131121891d77c -> 120.0479px. Same production seed maze-visual-reference-13 tick21, closed door-2 matching carried key; six hashes verified. Native pixels diff 1,071 (0.3254%) vs pass35. Still not contact or readable action; Nintendo bar stronger. Independent critics/Ultracode disconnected, SwiftShader not GPU FPS.",
       "sourceCommit": "62ed60716e9446156fff2af30faf859ca872622f",
       "sourceUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41296776902/artifacts/13079133302"
+    },
+    {
+      "name": "Pass37 real key bow camera-facing source candidate",
+      "status": "Source and checks staged on draft branch; exact-head CI, original dated PNGs and separate critic PENDING; Nintendo benchmark NOT PASSED",
+      "detail": "Presentation-only roll around real key shaft, no fake physical insertion, hero move, AI/private-state/door change. Two LOD and opposite camera bearings checked by newly added source test; runtime browser camera-facing value and source manifest hash added. Pass36 full CI 41296776884 cancelled; focused Maze 41296776902 succeeded. Workspace agents/Ultracode disconnected; SwiftShader timing not hardware GPU FPS.",
+      "sourceCommit": "pending-atomic-commit",
+      "sourceUrl": "https://github.com/my-edutu/Ai_games/pull/53"
     }
   ],
   "references": [

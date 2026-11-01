@@ -123,7 +123,7 @@ test('a real close public encounter frames both autonomous actors and saves date
     seed: observed.seed, tick: activeFrame.snapshot.tick,
     publicGoal: observed.goal,
     imageSha256: hash(landmarkPath),
-    sourceSha256: Object.fromEntries(['app.js', 'map-view.mjs', 'scene.js', 'world.js'].map(name => [name, hash(path.join(sourceDir, name))])),
+    sourceSha256: Object.fromEntries(['app.js', 'map-view.mjs', 'scene.js', 'characters.js', 'world.js'].map(name => [name, hash(path.join(sourceDir, name))])),
     diagnostic: {objectiveCue: observedDiagnostic.objectiveCue, objectiveInFrame: observedDiagnostic.objectiveInFrame,
       quality: observedDiagnostic.quality, frameP50Ms: observedDiagnostic.frameP50Ms},
     caveat: 'Known connection only, not safety; CPU-throttled CI software rendering; independent visual acceptance pending.',
@@ -150,7 +150,7 @@ test('a real close public encounter frames both autonomous actors and saves date
     source: 'Unaltered production MazeRuntime public frame rendered in the actual browser',
     tick: activeFrame.snapshot.tick, publicKey: keySample.goal,
     imageSha256: hash(keyImage),
-    sourceSha256: Object.fromEntries(['app.js', 'map-view.mjs', 'scene.js', 'world.js'].map(name => [name, hash(path.join(sourceDir, name))])),
+    sourceSha256: Object.fromEntries(['app.js', 'map-view.mjs', 'scene.js', 'characters.js', 'world.js'].map(name => [name, hash(path.join(sourceDir, name))])),
     diagnostic: {keysInFrame: keyDiagnostic.keysInFrame, objectiveCue: keyDiagnostic.objectiveCue,
       quality: keyDiagnostic.quality, frameP50Ms: keyDiagnostic.frameP50Ms},
     caveat: 'No disclosed path guarantees safety; CPU-throttled software render, not independent benchmark acceptance.',
@@ -167,7 +167,7 @@ test('a real close public encounter frames both autonomous actors and saves date
     capturedAt: new Date().toISOString(), seed: keySample.seed, tick: keySample.frame.snapshot.tick,
     source: 'Same production public key snapshot and browser, 390px CSS viewport; not a synthetic scene',
     viewport: {width: 390, height: 844}, imageSha256: hash(portraitKeyImage),
-    sourceSha256: Object.fromEntries(['app.js', 'map-view.mjs', 'scene.js', 'world.js'].map(name => [name, hash(path.join(sourceDir, name))])),
+    sourceSha256: Object.fromEntries(['app.js', 'map-view.mjs', 'scene.js', 'characters.js', 'world.js'].map(name => [name, hash(path.join(sourceDir, name))])),
     diagnostic: {keysInFrame: portraitKeyDiagnostic.keysInFrame,
       explorerProjection: portraitKeyDiagnostic.explorerProjection, quality: portraitKeyDiagnostic.quality},
     caveat: 'Portrait composition needs native-size independent review; software-rendered CI is not hardware FPS.',
@@ -209,6 +209,7 @@ test('a real close public encounter frames both autonomous actors and saves date
     expect(physical.socketCenter.inFrame).toBe(true);
     expect(Number.isFinite(physical.separationCssPx)).toBe(true);
     expect(physical.separationCssPx).toBeGreaterThanOrEqual(0);
+    expect(physical.bowFacingCamera, 'Real modeled key bow must face the rendering camera').toBeGreaterThan(.90);
   } else {
     expect(gateDiagnostic.cameraHalfHeight, 'Other sealed gates retain the previous truthful wide shot').toBeLessThan(5.2);
     expect(gateDiagnostic.cameraHalfHeight).toBeGreaterThan(4.95);
@@ -222,7 +223,7 @@ test('a real close public encounter frames both autonomous actors and saves date
     source: 'Unaltered production MazeRuntime public frame and actual WebGL gate mesh',
     tick: activeFrame.snapshot.tick, disclosedClosedGateIds: sealed.doors.map(door => door.id),
     imageSha256: hash(gateImage),
-    sourceSha256: Object.fromEntries(['app.js', 'map-view.mjs', 'scene.js', 'world.js'].map(name => [name, hash(path.join(sourceDir, name))])),
+    sourceSha256: Object.fromEntries(['app.js', 'map-view.mjs', 'scene.js', 'characters.js', 'world.js'].map(name => [name, hash(path.join(sourceDir, name))])),
     diagnostic: {closedGatesInFrame: gateDiagnostic.closedGatesInFrame,
       cameraHalfHeight: gateDiagnostic.cameraHalfHeight,
       keyLockCloseup: gateDiagnostic.keyLockCloseup, cameraAimLift: gateDiagnostic.cameraAimLift,
@@ -254,6 +255,7 @@ test('a real close public encounter frames both autonomous actors and saves date
     expect(physical.socketCenter.inFrame).toBe(true);
     expect(Number.isFinite(physical.separationCssPx)).toBe(true);
     expect(physical.separationCssPx).toBeGreaterThanOrEqual(0);
+    expect(physical.bowFacingCamera, 'The actual bow must remain face-on at native portrait size').toBeGreaterThan(.90);
   } else {
     expect(gatePortraitDiagnostic.cameraHalfHeight, 'A gate without a matched key retains its known environment').toBeLessThan(5.57);
     expect(gatePortraitDiagnostic.cameraHalfHeight).toBeGreaterThan(5.37);
@@ -266,7 +268,7 @@ test('a real close public encounter frames both autonomous actors and saves date
     capturedAt: new Date().toISOString(), seed: sealed.seed, tick: sealed.frame.snapshot.tick,
     source: 'Same public sealed gate and running Chromium page as desktop evidence, not invented state',
     viewport: {width: 390, height: 844}, imageSha256: hash(portraitGateImage),
-    sourceSha256: Object.fromEntries(['app.js', 'map-view.mjs', 'scene.js', 'world.js'].map(name => [name, hash(path.join(sourceDir, name))])),
+    sourceSha256: Object.fromEntries(['app.js', 'map-view.mjs', 'scene.js', 'characters.js', 'world.js'].map(name => [name, hash(path.join(sourceDir, name))])),
     diagnostic: {closedGatesInFrame: gatePortraitDiagnostic.closedGatesInFrame,
       cameraHalfHeight: gatePortraitDiagnostic.cameraHalfHeight,
       keyLockCloseup: gatePortraitDiagnostic.keyLockCloseup, cameraAimLift: gatePortraitDiagnostic.cameraAimLift,

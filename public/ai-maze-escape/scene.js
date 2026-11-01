@@ -339,6 +339,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
       attentionStrength:closestThreat?.strength??0,
       keyHeading:keyGateCue?.heading,keyStrength:keyGateCue?.strength??0,
       keyTarget,
+      keyCameraPosition: camera.position,
       danger:s.dangerPermille/1000,result,reducedMotion:settings.reducedMotion,
     });
     world.animate(elapsed, settings);
@@ -499,7 +500,14 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
         // this does not imply the closed gate accepts or turns the key.
         const bladeTip = project(held, [0, -.24, 0]);
         const socketCenter = project(socket, [0, .92, .89]);
-        return {bladeTip, socketCenter,
+        // Actual model orientation, not a fake overlay or key icon.
+        const keyOrigin=held.getWorldPosition(new THREE.Vector3());
+        const toothAxis=held.localToWorld(new THREE.Vector3(0,-1,0)).sub(keyOrigin).normalize();
+        const bowNormal=held.localToWorld(new THREE.Vector3(0,0,1)).sub(keyOrigin).normalize();
+        const viewer=camera.position.clone().sub(keyOrigin);
+        viewer.addScaledVector(toothAxis,-viewer.dot(toothAxis));
+        const bowFacingCamera=viewer.lengthSq()>.0001?bowNormal.dot(viewer.normalize()):null;
+        return {bladeTip, socketCenter, bowFacingCamera,
           separationCssPx: Math.hypot(bladeTip.xCssPx - socketCenter.xCssPx,
             bladeTip.yCssPx - socketCenter.yCssPx)};
       })() : null;

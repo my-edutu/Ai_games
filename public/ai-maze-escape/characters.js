@@ -184,7 +184,8 @@ export function createExplorer(options = {}) {
   // its shaft has a visible physical connection at normal game scale.
   const keyBlade=material('#ffe2a1',.43,.34,{emissive:'#e7a64c',emissiveIntensity:.3});
   const heldKey=pivot(arms[0].hand,'presented matching key',[0,-.075,.14]);
-  ring(heldKey,keyMint,[0,.18,0],.17,.05);
+  // Preserve the original connected key while revealing its octagonal bow at mobile scale.
+  ring(heldKey,keyMint,[0,.18,0],.215,.06);
   rounded(heldKey,keyBlade,[0,-.095,0],[.14,.40,.13],.028);
   // Raised warm-metal ridge on the camera-side face of the real blade. It
   // crosses the glove collar and physically joins the mint bow; no beam,
@@ -203,6 +204,8 @@ export function createExplorer(options = {}) {
   const keyToothAxis=new THREE.Vector3(0,-1,0);
   const keyAimOrigin=new THREE.Vector3(), keyAimDirection=new THREE.Vector3();
   const keyHandInverse=new THREE.Quaternion();
+  const keyViewerDirection=new THREE.Vector3(), keyBowNormal=new THREE.Vector3();
+  const keyRollCross=new THREE.Vector3(), keyViewerRoll=new THREE.Quaternion();
 
   // An expedition signal crest is legible in a wide, silent stream frame.
   // It is suppressed by default and receives only disclosed-threat attention;
@@ -298,8 +301,27 @@ export function createExplorer(options = {}) {
       arms[0].hand.getWorldQuaternion(keyHandInverse).invert();
       keyAimDirection.set(target.x-keyAimOrigin.x,target.y-keyAimOrigin.y,
         target.z-keyAimOrigin.z).applyQuaternion(keyHandInverse);
-      if (keyAimDirection.lengthSq()>.01)
-        heldKey.quaternion.setFromUnitVectors(keyToothAxis,keyAimDirection.normalize());
+      if (keyAimDirection.lengthSq()>.01) {
+        keyAimDirection.normalize();
+        heldKey.quaternion.setFromUnitVectors(keyToothAxis,keyAimDirection);
+        // Preserve the real tooth/socket aim. Only roll around that shaft to
+        // keep the mint bow's physical face visible to the rendering camera.
+        // No authority, contact, private map or new meshes enter this pose.
+        const viewer=options.keyCameraPosition;
+        if (viewer && Number.isFinite(viewer.x) && Number.isFinite(viewer.y) && Number.isFinite(viewer.z)) {
+          keyViewerDirection.set(viewer.x-keyAimOrigin.x,viewer.y-keyAimOrigin.y,
+            viewer.z-keyAimOrigin.z).applyQuaternion(keyHandInverse);
+          keyViewerDirection.addScaledVector(keyAimDirection,-keyViewerDirection.dot(keyAimDirection));
+          if (keyViewerDirection.lengthSq()>.0001) {
+            keyViewerDirection.normalize();
+            keyBowNormal.set(0,0,1).applyQuaternion(heldKey.quaternion);
+            const sine=keyAimDirection.dot(keyRollCross.crossVectors(keyBowNormal,keyViewerDirection));
+            const cosine=THREE.MathUtils.clamp(keyBowNormal.dot(keyViewerDirection),-1,1);
+            keyViewerRoll.setFromAxisAngle(keyAimDirection,Math.atan2(sine,cosine));
+            heldKey.quaternion.premultiply(keyViewerRoll);
+          }
+        }
+      }
     }
     if (s.win) body.position.y += amount*Math.max(0,Math.sin(s.time*5))*.075;
     tail.rotation.x=-stride*.28+step*.1;
