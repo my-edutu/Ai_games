@@ -17,9 +17,9 @@
     "title": "Turn the complete real ascent→HP-staged guardian armor and mechanically coupled gate→source-anchored cap release→outcome/restart into a legible cinematic 3D expedition",
     "state": "SAME INTEGRATED 3D TRANSFORMATION OPEN; SOURCE-DRIVEN GUARDIAN ARMOR+GATE NOW IMPLEMENTED; NOT EVALUATED",
     "promise": "Real guardian HP now alters the hero's enemy in-world silhouette with two articulated, low shoulder shells opening to reveal the heated original underframe AND independently turns the existing capstan, spools cables, lowers counterweights and opens bronze doors and path conduit. Actual adjacent source observations anchor the earlier cap's lock fracture as the run advances, then genuine results/restart follow. No new collision, damage, AI, RNG, replay, audio default, paid influence, lights, HUD or invented clearance. Bounded at two new rigid skin bones sharing existing material batches.",
-    "nextDecision": "Review source 3a5c6d9d94ea882026b293cf3d8738477ae7aaab normal-speed paired desktop/portrait ascent, danger, outcome clips (capture 41358227934), including the guardian's HP-staged silhouette/physical gate, exact source and seed. Inspect actual video to decide whether characters and gate remain visible together and if the armor changes read as combat progress, not background ornament. Last source CI 41358291139 must complete. Frozen baseline 1731b380 one-tick terminal capture still failed at 41353444506; do NOT relax or move it. Then solicit >=5 independent randomized full-motion critics per LOOKS, FEELS, PLAYS, and measure real supported-device p50/p95/p99 and memory.",
+    "nextDecision": "Keep this ONE integrated slice open; next prioritize guardian+hero+gate scene composition and credible combat on normal-speed desktop/mobile 3D footage over further ornament. Inspect HP milestones/camera framing at matched game-state, not merely same capture seconds, then source-pin new >60s videos for three scenarios. Baseline 1731b380 stays frozen; baseline outcome still fails true terminal visibility. Recruit >=5 genuine independent randomized blind full-motion critics each for LOOKS/FEELS/PLAYS (>=4/5 candidate), and gather actual supported hardware frame-time p50/p95/p99, memory, accessibility/replay/recovery. No quality PASS without them.",
     "rejectedMicroMilestones": "Unit tests, CI green checks, commits, screenshots, model mockups and engineering self-reviews are never a Gauntlet quality win.",
-    "biggestRemainingExperienceGap": "REAL CINEMATIC COMPREHENSION AND PERFORMANCE UNVERIFIED: matching full-motion viewing has not established that the skinned guardian armor, combat, winch, gate and previous-cap release register clearly at desktop and mobile size. Frozen-baseline one-tick outcome is still not captured as a full sequence under slow software GL; independent votes 0/5 across all three pillars; physical device tails/memory unknown. No unearned PASS.",
+    "biggestRemainingExperienceGap": "REAL GAMEPLAY CLIP SAMPLES NOW IDENTIFY A SYSTEMIC CAMERA/SPECTATOR PROBLEM: the guardian's REAL HP drains while its armor, physical capstan/gate and final release are often off-screen in portrait, and desktop video favors a large decorative gear over encounter causality. New candidate 3a5c clips exist, but same-seed footage is not yet event-aligned. Frozen baseline one-tick outcome remains unobserved as a full result/intermission/restart. 0/5 independent votes in LOOKS, FEELS, PLAYS and no supported-device tails/memory. Quality NOT EVALUATED.",
     "unverifiedImplementationBranchHead": "338eec7417e281b8d216055c5353232443c59265"
   },
   "scenarios": [
@@ -60,11 +60,11 @@
     "plays": []
   },
   "guardrails": {
-    "ci": "Prior exact head 32ee0653 success in workflow 41353900090. New game 3a5c6d9 and live real-rig test 338eec7 triggered quality workflow 41358291139, still running when recorded. SUCCESS on old source cannot certify new source; CI is safety veto only.",
+    "ci": "Source+test+review head 476ee56b quality-contract run 41358620915 completed SUCCESS (build, full repository logic, Tower authority, browser progress page). This is a safety result, NEVER a quality score. The following evidence-only commit still requires its own CI; do not infer results.",
     "replay": "PENDING source-head replay campaign; the new shoulder bones only consume immutable render snapshots and do not alter fixed-step AI, combat, health, seed, RNG, checksum or public replay payload. Tests exercise source immutability and reversible HP poses.",
     "accessibility": "NOT INDEPENDENTLY VERIFIED. Two physical shoulder shells separate as real HP falls, with underframe shape and material contrast as non-color-only cues; reduced-motion reveals source-true static opened pose without oscillation. Critical HUD and opt-in audio unchanged; mobile human readability remains open.",
-    "performance": "NO supported-device p50/p95/p99 or sustained memory measurements. New guardian-only armor uses 2 additional bones within <=16 and existing <=7 skinned material batches; original gate still uses batched rigid masonry and one cable InstancedMesh. Source budgets are tests, not measured device performance; slow CI software GL interval statistics are not true device FPS.",
-    "stability": "PENDING new-head browser recovery, long soak and visual smoke. Rigid armor joints and underframe are owned/disposed by existing character workshop. Quality switching and new runs rebuild the model from source; HP recovery reverses the hinges. No asynchronous effects, listeners or per-hit spawns."
+    "performance": "NO supported-device p50/p95/p99 FPS-equivalent frame-time tails and memory. Captured CI software-renderer (software GL) submission gaps can exceed 1s at p95, not meaningful device FPS. New 2 guardian armor bones remain in existing skin batches; no genuine hardware profile.",
+    "stability": "Real 60s+ candidate/baseline captures completed on CI with five of six scenario jobs scoped PASS, frozen baseline outcome FAILED. Updated real source's latest head full logic/Tower integrity 41358620915 was successful. Device/browser recovery, long soak and independent game-state-matched video review remain unverified."
   },
   "unresolvedCriticalIssues": null,
   "benchmark": {
@@ -75,46 +75,115 @@
   },
   "policy": "Requires matched real gameplay in all three scenes and 4/5 independent blind critics preferring new game in LOOKS, FEELS and PLAYS; technical checks are vetoes, not quality wins.",
   "captureEvidence": {
-    "workflowRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41323028658",
-    "sourceSha": "471dfea0e2e9e58cdcea648b4bae4d09917ca98a",
-    "assessed": "NOT EVALUATED",
-    "scope": "Historical run 41353444506: baseline and candidate ascent/danger and candidate outcome had scoped recording-integrity success; FROZEN baseline outcome failed visible complete terminal/intermission/restart in desktop and portrait at software GL ~0.5s p50 submission gaps. New actual-source 3a5c6d9 capture 41358227934 pending; cannot mark scenario videos assessed, nor change baseline or mint votes.",
+    "workflowRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41358227934",
+    "sourceSha": "3a5c6d9d94ea882026b293cf3d8738477ae7aaab",
+    "assessed": "NOT EVALUATED: source-pinned real clips exist, but samples aren't blind independent full-motion judgments; baseline outcome incomplete; matching world-state composition not yet proven",
+    "scope": "Most recent 41358227934: 6/7 jobs success incl authentic ledge and baseline/candidate ascent and danger, candidate outcome; frozen-baseline complete terminal/intermission/restart failed desktop+portrait. Real 60+ sec live WebM candidate 3a5c6d9, frozen baseline 1731b380, seed tower-transformation-capture-v1, low tier, desktop 960x600 & portrait 390x844, sound off. Evidence samples reviewed by builder only; action matching by game-state NOT independently proven. This is not an experience quality result.",
     "jobs": {
       "ascent": {
         "baseline": {
-          "artifactId": 13090463152,
-          "integrity": "PASS"
+          "artifactId": 13103864294,
+          "url": "https://github.com/my-edutu/Ai_games/actions/runs/41358227934/artifacts/13103864294",
+          "kind": "ZIP containing desktop and portrait real-play video + motion.json",
+          "retention": "GitHub Actions artifact, check expiry",
+          "sourceSha": "1731b380851162741761c5569e2bc152a0869ca9",
+          "integrity": "PASS, scoped capture only",
+          "desktopSeconds": 134,
+          "portraitSeconds": 104.9
         },
         "candidate": {
-          "artifactId": 13090877857,
-          "integrity": "PASS"
+          "artifactId": 13104182772,
+          "url": "https://github.com/my-edutu/Ai_games/actions/runs/41358227934/artifacts/13104182772",
+          "kind": "ZIP containing desktop and portrait real-play video + motion.json",
+          "retention": "GitHub Actions artifact, check expiry",
+          "sourceSha": "3a5c6d9d94ea882026b293cf3d8738477ae7aaab",
+          "integrity": "PASS, scoped capture only",
+          "desktopSeconds": 100.9,
+          "portraitSeconds": 89.4
         }
       },
       "danger": {
         "baseline": {
-          "artifactId": 13090124761,
-          "integrity": "PASS"
+          "artifactId": 13104765600,
+          "url": "https://github.com/my-edutu/Ai_games/actions/runs/41358227934/artifacts/13104765600",
+          "kind": "ZIP containing desktop and portrait real-play video + motion.json",
+          "retention": "GitHub Actions artifact, check expiry",
+          "sourceSha": "1731b380851162741761c5569e2bc152a0869ca9",
+          "integrity": "PASS, scoped capture only",
+          "desktopSeconds": 143.8,
+          "portraitSeconds": 128.1
         },
         "candidate": {
-          "artifactId": 13090278217,
-          "integrity": "PASS"
+          "artifactId": 13104535725,
+          "url": "https://github.com/my-edutu/Ai_games/actions/runs/41358227934/artifacts/13104535725",
+          "kind": "ZIP containing desktop and portrait real-play video + motion.json",
+          "retention": "GitHub Actions artifact, check expiry",
+          "sourceSha": "3a5c6d9d94ea882026b293cf3d8738477ae7aaab",
+          "integrity": "PASS, scoped capture only",
+          "desktopSeconds": 123.3,
+          "portraitSeconds": 119.5
         }
       },
       "outcome": {
         "baseline": {
-          "artifactId": 13089933916,
-          "integrity": "FAIL: complete-terminal-intermission-restart-not-observed"
+          "artifactId": 13104007509,
+          "url": "https://github.com/my-edutu/Ai_games/actions/runs/41358227934/artifacts/13104007509",
+          "kind": "ZIP containing desktop and portrait real-play video + motion.json",
+          "retention": "GitHub Actions artifact, check expiry",
+          "sourceSha": "1731b380851162741761c5569e2bc152a0869ca9",
+          "integrity": "FAIL: complete-terminal-intermission-restart-not-observed desktop and portrait",
+          "desktopSeconds": 124.7,
+          "portraitSeconds": 109.7
         },
         "candidate": {
-          "artifactId": 13091070944,
-          "integrity": "PASS (scoped capture, not visual review)"
+          "artifactId": 13104252664,
+          "url": "https://github.com/my-edutu/Ai_games/actions/runs/41358227934/artifacts/13104252664",
+          "kind": "ZIP containing desktop and portrait real-play video + motion.json",
+          "retention": "GitHub Actions artifact, check expiry",
+          "sourceSha": "3a5c6d9d94ea882026b293cf3d8738477ae7aaab",
+          "integrity": "PASS, scoped capture only",
+          "desktopSeconds": 161.1,
+          "portraitSeconds": 126.5
         }
       }
     },
     "newImplementationSha": "3a5c6d9d94ea882026b293cf3d8738477ae7aaab",
-    "newImplementationRecorded": false,
+    "newImplementationRecorded": true,
     "reviewPath": "docs/reviews/2026-11-01-tower-pr68-guardian-armor-attrition-continuation.md",
     "followupWorkflowRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41358227934",
-    "followupStatus": "Real candidate 3a5c6d9 normal-speed desktop/portrait source capture RUNNING when recorded, must inspect actual videos and integrity; previous 84fb5f2 run 41353444506 had 5/6 PASS but baseline outcome failure. Latest exact-source test 41358291139 pending; no independent reviewers or real hardware performance numbers."
+    "followupStatus": "COMPLETED FAILURE due to frozen-baseline outcome both desktop/portrait, while five of six scoped baseline/candidate scenario capture jobs PASS. Source 3a5c6d9 recordings have been downloaded and sampled in both layouts, but no genuinely independent full-motion comparison or device test. The new source-specific full logic + Tower quality contract was SUCCESS on head 476ee56 in run 41358620915, before this evidence-only revision.",
+    "matchedCaptureSettings": {
+      "seed": "tower-transformation-capture-v1",
+      "sourceBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+      "sourceCandidateSha": "3a5c6d9d94ea882026b293cf3d8738477ae7aaab",
+      "quality": "low",
+      "graphicsMotion": "reducedMotion:false",
+      "soundEnabled": false,
+      "viewports": [
+        {
+          "name": "desktop",
+          "width": 960,
+          "height": 600
+        },
+        {
+          "name": "portrait",
+          "width": 390,
+          "height": 844
+        }
+      ],
+      "captureMethod": "real running game 20Hz fixed-step host, normal-speed WebM; CI software WebGL, independent full-motion review pending",
+      "note": "Same seed, tier, viewport and method, but actual observed floor/character action differs by elapsed wall time due independent simulation progress and intermittent software GL frames. Do not describe as matched gameplay events until aligned by source state or independently checked."
+    },
+    "builderVisualInspection": {
+      "completed": "PARTIAL; sampled real video frames and source motion JSON, not independent blind full-motion",
+      "observations": [
+        "Guardian danger candidate desktop at ~53–55s records genuine HP 4/8→3/8→1/8 and HP-linked gate opening, but visible video mostly frames a large background gear and the hero/small enemy; the bronze gate/counterweights are not immediately apparent in these samples.",
+        "Guardian danger candidate portrait at ~85–87s records HP 6/8→4/8→2/8, but the sample shows mainly the hero against a vertical tower wall while the guardian and capstan are outside the mobile crop. That means the most interesting new mechanics may happen outside viewer attention.",
+        "Matched-seed baseline and candidate at the same seconds commonly depict DIFFERENT floors/runs/action (e.g. desktop 60s: baseline ongoing floor 8, candidate an outcome at floor 13); observation matching by game-state requires work. Recording-length and seed alone do not certify a fair blind AB comparison.",
+        "The frozen baseline outcome misses the visible result/intermission/restart despite real run changes. Do not hide the failure or alter frozen SHA.",
+        "CI software GL renderer submitted-frame intervals are very slow; they are NOT true supported-device FPS; no performance pass."
+      ],
+      "keyGap": "SPECTATOR LEGIBILITY: show genuine guardian damage, physical armor/gate response and source-anchored clearance in the same understandable world composition, particularly portrait; verify real motion at matching game-state before independent judgments."
+    }
   }
 }
