@@ -71,3 +71,46 @@ export function createFrameIntervalProbe(requestedCapacity=180){
   }
  };
 }
+
+
+/**
+ * Real 3D framebuffer budget for a known CPU WebGL renderer. Raster work
+ * dominates the software-GPU Chromium scene while autonomous state arrives
+ * independently. Keep hardware resolution/shadows untouched. Bounds apply
+ * to CSS dimensions rather than guessing from browser identity.
+ */
+const MAX_CPU_DIRECT_PIXELS=650000,MIN_CPU_DIRECT_PIXELS=200000;
+function cpuDirectCap(value){
+ return Number.isFinite(value)&&value>0
+  ? Math.min(MAX_CPU_DIRECT_PIXELS,Math.max(MIN_CPU_DIRECT_PIXELS,Math.floor(value)))
+  : MAX_CPU_DIRECT_PIXELS;
+}
+export function planDirectRenderBudget(cssWidth,cssHeight,deviceScale,software=false,pixelCap=MAX_CPU_DIRECT_PIXELS){
+ const width=positiveBounded(cssWidth,16384),height=positiveBounded(cssHeight,16384);
+ const requested=Number.isFinite(deviceScale)&&deviceScale>0?Math.min(1.6,deviceScale):1;
+ if(!software){
+  return {width,height,pixelRatio:requested,
+   renderPixels:Math.max(1,Math.floor(width*requested))*Math.max(1,Math.floor(height*requested)),
+   maxPixels:null,shadows:true,software:false};
+ }
+ const maxPixels=cpuDirectCap(pixelCap);
+ const ratio=Math.min(requested,1,Math.sqrt(maxPixels/(width*height)));
+ const pixelRatio=Math.max(.001,Math.floor(ratio*1000)/1000);
+ const renderPixels=Math.max(1,Math.floor(width*pixelRatio))*Math.max(1,Math.floor(height*pixelRatio));
+ return {width,height,pixelRatio,renderPixels,maxPixels,shadows:false,software:true};
+}
+
+/**
+ * Measured synchronous direct-render duration. A devastating CPU raster
+ * frame, or three consecutive slow ones, reduces only future presentation
+ * pixels. Hysteresis is one-way to avoid a quality/recovery oscillation.
+ */
+export function adaptDirectRenderPixelCap(currentCap,renderMs,previousSlow=0){
+ const cap=cpuDirectCap(currentCap);
+ if(!Number.isFinite(renderMs)||renderMs<=0)return {maxPixels:cap,slowStreak:0,downshift:false};
+ const streak=Number.isSafeInteger(previousSlow)&&previousSlow>=0?Math.min(3,previousSlow):0;
+ const slowStreak=renderMs>350?Math.min(3,streak+1):0;
+ const reduce=renderMs>=900||slowStreak>=3;
+ const maxPixels=reduce?Math.max(MIN_CPU_DIRECT_PIXELS,Math.floor(cap*.65/1000)*1000):cap;
+ return {maxPixels,slowStreak,downshift:maxPixels<cap};
+}
