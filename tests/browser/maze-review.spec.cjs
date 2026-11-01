@@ -520,7 +520,7 @@ test('authentic 320 portrait and 844 landscape scene screenshots preserve public
         stage:{width:stage.width,height:stage.height},canvas:{width:canvas.width,height:canvas.height},
         controls:[...document.querySelectorAll('.masthead .control-button')]
           .filter(el=>getComputedStyle(el).display!=='none')
-          .map(el=>{const r=el.getBoundingClientRect();return {width:r.width,height:r.height,left:r.left,right:r.right}});
+          .map(el=>{const r=el.getBoundingClientRect();return {width:r.width,height:r.height,left:r.left,right:r.right}})
       };
     });
     const imagePath=path.join(artifacts,filename+'.png');
