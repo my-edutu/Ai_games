@@ -510,6 +510,12 @@ export function createLivingGarden(THREE, {width,height}) {
         bank[1]+elevation+(hash(k+phase,level+54)-.5)*.21,
         bank[2]+Math.sin(a)*r];
     };
+    // BEGIN T1 TERRACED MASS CAPTURE
+    // Track this one promontory's existing packed cliff and moss triangles.
+    // Geometry is resculpted in place: exactly zero new triangles or draws.
+    const originalCliffStart=bands.get('cliff').p.length;
+    const originalMossStart=bands.get('moss').p.length;
+    // END T1 TERRACED MASS CAPTURE
     for(let j=0;j<3;j++)for(let k=0;k<segments;k++){
       const next=(k+1)%segments;
       quad(j===2?'moss':'cliff',ring(j,k),ring(j,next),
@@ -518,6 +524,31 @@ export function createLivingGarden(THREE, {width,height}) {
     const crest=[bank[0]+.19*Math.sin(phase),bank[1]+3.78+(hash(phase,113)-.5)*.85,bank[2]+.14*Math.cos(phase)];
     for(let k=0;k<segments;k++)
       tri('moss',ring(3,k),ring(3,(k+1)%segments),crest,phase+k);
+    // BEGIN T1 TERRACED MASS REPROFILE
+    // Replace eight identical pointed spoil heaps with cliff-backed terraced
+    // outcrops. The upper bands widen into fractured horizontal shelves, with
+    // wind-carved relief retained in the existing 1,931 authored triangles.
+    for(const [type,start] of [['cliff',originalCliffStart],['moss',originalMossStart]]){
+      const points=bands.get(type).p;
+      for(let i=start;i<points.length;i+=3){
+        const rise=points[i+1]-bank[1];
+        if(rise<.30)continue;
+        const dx=points[i]-bank[0],dz=points[i+2]-bank[2];
+        const angle=Math.atan2(dz,dx),scar=Math.sin(angle*3.1+phase*1.4);
+        const strata=Math.sin(angle*6.8-phase*.38)*.10+scar*.13;
+        const shelf=rise>2.90?1.62:rise>1.35?1.21:1.05;
+        points[i]=bank[0]+dx*shelf;
+        points[i+2]=bank[2]+dz*shelf;
+        if(rise>2.90){
+          points[i+1]=bank[1]+2.45+strata*.52;
+        }else if(rise>1.35){
+          points[i+1]=bank[1]+1.38+strata*.58;
+        }else{
+          points[i+1]=bank[1]+.61+strata*.43;
+        }
+      }
+    }
+    // END T1 TERRACED MASS REPROFILE
     // Vegetation sits on the same authored mass and leans OUTWARD, away
     // from the live snake, hazard/food/portal geometry and game camera.
     const outward=shore.axis==='x'

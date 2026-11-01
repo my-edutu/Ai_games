@@ -380,6 +380,12 @@ export function createWorld(THREE, {width, height}) {
       // World-scale original art: wetland moss, ochre limestone exposures and
       // rain-dark shale cross multiple traversable slabs. None is a route or
       // physical height cue. All atlas work is baked once at construction.
+      // BEGIN T1 TERRACE TONE CAPTURE
+      // Invariant: the original pre-quarry wetland stone is the maximum
+      // allowed channel brightness; authored mineral re-exposure can never
+      // introduce misleading bright fruit, hazard, portal or board cues.
+      const priorStoneR=data[i],priorStoneG=data[i+1],priorStoneB=data[i+2];
+      // END T1 TERRACE TONE CAPTURE
       const wetWarp=(smoothBasin-.5)*2.7+(cloud-.5)*1.15;
       const oldTerrace=Math.max(
         1-fade(.36,.86,Math.hypot((gx-width*.53+wetWarp*.7)/(width*.34),
@@ -402,6 +408,36 @@ export function createWorld(THREE, {width, height}) {
       data[i]=Math.max(0,Math.round(data[i]-redLoss));
       data[i+1]=Math.max(0,Math.round(data[i+1]-greenLoss));
       data[i+2]=Math.max(0,Math.round(data[i+2]-blueLoss));
+      // BEGIN T1 SUNLIT SCARRED TERRACES
+      // The previous broad damp-shale wash pooled into one near-black blotch
+      // at broadcast scale. Resurface its center as coherent eroded limestone
+      // with a warm broken crown, directional grain and damp green flanks.
+      // The real flagstone seams, stone geometry, positions and foreground
+      // fruit/hazard/portal meshes do not move; this is baked into the SAME
+      // existing texture with no render pass or additional GPU allocation.
+      const terraceWarp=(smoothBasin-.5)*.16+(cloud-.5)*.13;
+      const terraceDistance=Math.hypot(
+        (gx/width-.52+terraceWarp)/.36,
+        (gz/height-.50-terraceWarp*.6)/.38);
+      const exposedRidge=1-fade(.24,.92,terraceDistance);
+      const fracturedVeins=.5+.5*Math.sin(gx*.79+gz*.33
+        +(smoothBasin-.5)*5.6+mineral*2.2);
+      const weatheredLimestone=exposedRidge*fade(1.65,3.2,border)
+        *(.71+.29*fracturedVeins);
+      if(weatheredLimestone>.001){
+        const lightScars=.5+.5*Math.sin(gx*.38-gz*.56+cloud*3.8);
+        const oldGrain=(data[i]+data[i+1]+data[i+2])/3;
+        const stoneBreak=(mineral-.5)*18+(cloud-.5)*17
+          +(oldGrain-55)*.14;
+        const sunExposure=Math.min(.75,weatheredLimestone*.71);
+        const targetR=152+stoneBreak+12*lightScars;
+        const targetG=138+stoneBreak+6*lightScars;
+        const targetB=108+stoneBreak*.72+5*lightScars;
+        data[i]=Math.min(priorStoneR,Math.max(0,Math.round(data[i]*(1-sunExposure)+targetR*sunExposure)));
+        data[i+1]=Math.min(priorStoneG,Math.max(0,Math.round(data[i+1]*(1-sunExposure)+targetG*sunExposure)));
+        data[i+2]=Math.min(priorStoneB,Math.max(0,Math.round(data[i+2]*(1-sunExposure)+targetB*sunExposure)));
+      }
+      // END T1 SUNLIT SCARRED TERRACES
       // END T1 ORGANIC QUARRY FLOOR
       // END T1 WETLAND MASONRY PATINA
       // END T1 FLOODPLAIN COURTYARD COLOR REBUILD
