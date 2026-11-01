@@ -316,7 +316,12 @@ test('Thornback opens physical paired shell halves only during a true disclosed 
         danger:1,reducedMotion,time:27,delta:.05});
       assert.deepEqual([heart.position.x,heart.position.y,heart.position.z],observedPosition,
         'reduced-motion attention poses remain static across display time');
-      assert.equal(heart.rotation.y,0,'reduced motion disables the interior core sweep');
+      if (reducedMotion) {
+        assert.equal(heart.rotation.y,0,'reduced motion disables the interior core sweep');
+      } else {
+        assert.ok(Math.abs(heart.rotation.y)>.05,
+          'ordinary motion moves the connected core visibly rather than presenting a static glow');
+      }
       for (const entry of sides) {
         assert.ok(entry.wing.rotation.z*entry.side>.60,'shell must visibly separate at real public warning strength');
         assert.ok(entry.wing.rotation.y*entry.side<-.20,'wing opens in three dimensions');
