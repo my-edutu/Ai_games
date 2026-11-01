@@ -88,9 +88,7 @@ function update(value){
   byId('goal-label').textContent=ended?'Journey result':landmark?'Discovered landmark':keyedSealedGate?'Known sealed gate':'Current goal';
   byId('goal-title').textContent=ended?(escaped?'Escaped':'Run ended'):landmark?(landmark.kind==='key'?'Key spotted':'Exit spotted'):keyedSealedGate?'Key for gate':goals[snapshot.intent.mode]||'Find the exit';
   byId('intent-label').textContent=ended?'Result':'Pip';
-  const actionableContext=Boolean(landmark||keyedSealedGate);
-  byId('objective').dataset.actionable=String(actionableContext);
-  byId('objective').textContent=ended?(escaped?'Exit reached':'Next run soon'):landmark?(landmark.steps===0?'At the landmark':`${landmark.steps} known step${landmark.steps===1?'':'s'} away`):keyedSealedGate?'Gate still closed':'Explore • find keys • escape';
+  byId('objective').textContent=ended?(escaped?'Exit reached':'Next run soon'):landmark?(landmark.steps===0?'At the landmark':`${landmark.steps} known step${landmark.steps===1?'':'s'} away`):keyedSealedGate?'Gate still closed':'Explore';
   elements.confidence.style.width=`${Math.round(snapshot.intent.confidence*100)}%`;
   elements.inventory.textContent=String(snapshot.inventory.length);
   elements.inventory.setAttribute('aria-label',`${snapshot.inventory.length} ${snapshot.inventory.length===1?'key':'keys'} collected`);
