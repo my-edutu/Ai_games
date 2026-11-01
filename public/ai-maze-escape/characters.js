@@ -471,7 +471,7 @@ export function createWarden(options = {}) {
       leg.knee.rotation.z=-leg.side*Math.max(0,Math.cos(phase))*stride*.16*amount;
       leg.hip.rotation.x=leg.index===0?-alert*.32:leg.index===2?alert*.08:0;
       leg.knee.rotation.x=leg.index===0?alert*.20:0;
-      if (leg.pincer) leg.pincer.rotation.y=leg.side*alert*.42;
+      if (leg.pincer) leg.pincer.rotation.y=alert>0?leg.side*alert*.42:0;
     }
     // An encounter is a physical performance: the already-modeled front
     // legs plant outward, antennae track the publicly visible explorer and
