@@ -412,8 +412,8 @@ test('an authentic heel-to-toe deck load decompresses through the next rising ti
     runToken:'authentic-climb',tick:300,ledgePlatformId:'f1:p1',
     ledgeMantle:{progress:.48,weight:1}};
   for(const viewAzimuth of [-Math.PI/4,Math.PI/4]){
-    const loaded=createClimber(),free=createClimber(),anotherRun=createClimber();
-    t.after(()=>{loaded.dispose();free.dispose();anotherRun.dispose();});
+    const loaded=createClimber(),free=createClimber(),anotherRun=createClimber(),unsupported=createClimber();
+    t.after(()=>{loaded.dispose();free.dispose();anotherRun.dispose();unsupported.dispose();});
     const opts={reducedMotion:true,viewAzimuth};
     const body=rig=>{
       const joint=rig.group.getObjectByName('articulated-body');
@@ -426,27 +426,35 @@ test('an authentic heel-to-toe deck load decompresses through the next rising ti
       foot.updateWorldMatrix(true,false);
       return foot.localToWorld(new THREE.Vector3(0,-.205,.07)).y;
     };
-    for(const rig of [loaded,free,anotherRun])rig.group.position.set(0,6,25);
+    for(const rig of [loaded,free,anotherRun,unsupported])rig.group.position.set(0,6,25);
     free.animate(base,1/60,1,opts);
     // Match the existing authentic-sole regression: approach floats 8cm over
     // the real top surface before a platform-matched contact is allowed.
     const shift=soleY(free)-surface.y-.08;
-    for(const rig of [loaded,free,anotherRun])rig.group.position.y-=shift;
+    for(const rig of [loaded,free,anotherRun,unsupported])rig.group.position.y-=shift;
     const planted={...base,ledgeSurface:surface};
     for(const rig of [loaded,anotherRun])rig.animate(planted,1/60,1,opts);
     const compression=body(free).position.y-body(loaded).position.y;
     assert.ok(compression>.05,'contact must have actual load to release: '+compression);
     const upward={...base,tick:301,vy:9000,
       ledgeMantle:{progress:.62,weight:1},ledgeSurface:surface};
-    for(const rig of [loaded,free,anotherRun]){
+    for(const rig of [loaded,free,anotherRun,unsupported]){
       rig.group.position.y+=.9; // genuine next authoritative ascent, not a cosmetic root change
       const rootBefore=rig.group.position.clone();
-      rig.animate(rig===anotherRun?{...upward,runToken:'different-run'}:upward,1/60,1+1/60,opts);
+      const next=rig===anotherRun?{...upward,runToken:'different-run'}
+        :rig===unsupported?{...upward,ledgeSurface:null}:upward;
+      rig.animate(next,1/60,1+1/60,opts);
       assert.ok(rig.group.position.equals(rootBefore),'animation does not edit the authoritative root');
     }
-    const retained=body(free).position.y-body(loaded).position.y;
+    // Both directly observed load and a skipped-load snapshot should retain
+    // meaningful push-off. A matching real deck is the shared evidence, not an
+    // accidental difference between two valid presentation cadences.
+    const retained=body(unsupported).position.y-body(loaded).position.y;
+    const sourceOnly=body(unsupported).position.y-body(free).position.y;
     assert.ok(retained>.025&&retained<.135,
-      'the first airborne push-off must retain a small bounded fraction of the real load, not snap its torso by the entire compression: '+retained);
+      'a measured heel/toe load has bounded upward release: '+retained);
+    assert.ok(sourceOnly>.025&&sourceOnly<.135,
+      'a source-grounded release still reads if the contact frame was skipped: '+sourceOnly);
     assert.ok(Math.abs(body(anotherRun).position.y-body(free).position.y)<1e-6,
       'the old run must not transfer compression into the next run');
     const departed={...upward,tick:302,vy:7800,ledgeMantle:{progress:.75,weight:1}};
