@@ -1,7 +1,7 @@
 // A bounded synthesized soundscape. No audio is started until a viewer enables it.
 export function createTowerAudio() {
   let context = null, master = null, bed = null, wind = null, windFilter = null, windGain = null;
-  let enabled = false, token = '', last = null, lastFloor = null, lastIntent = '', stride = 0, noiseIndex = 0;
+  let enabled = false, token = '', last = null, lastFloor = null, lastIntent = '', lastLifecycle = 'running', stride = 0, noiseIndex = 0;
   let disposed = false, lastAmbient = 0, enableRequest = 0, enablePending = false;
   const voices = new Set(), heard = new Set(), pads = [];
   async function setEnabled(value) {
@@ -92,11 +92,22 @@ export function createTowerAudio() {
   function accept(frame) {
     if (!frame?.snapshot || disposed) return;
     const snapshot = frame.snapshot;
-    if (snapshot.runToken !== token) { heard.clear(); last = null; lastFloor = null; lastIntent = ''; stride = 0; token = snapshot.runToken; }
+    if (snapshot.runToken !== token) { heard.clear(); last = null; lastFloor = null; lastIntent = ''; lastLifecycle = 'running'; stride = 0; token = snapshot.runToken; }
     for (const voice of frame.audio?.voices || []) if (!heard.has(voice.id)) {
       heard.add(voice.id); cue(voice.cue);
       if (heard.size > 128) heard.delete(heard.values().next().value);
     }
+    // One understated, gesture-gated tonal closure on authentic result or
+    // intermission. A skipped one-tick result still yields a single bookend;
+    // authoritative cue events and mute remain otherwise unchanged.
+    const lifecycle = snapshot.lifecycle || 'running';
+    if (enabled && lastLifecycle === 'running' && snapshot.result
+      && ['result', 'intermission'].includes(lifecycle)) {
+      tone(270, 94, .46, 'sine', .072);
+      if (bed) bed.gain.setTargetAtTime(.010, context.currentTime, .25);
+      if (windGain) windGain.gain.setTargetAtTime(.006, context.currentTime, .28);
+    }
+    lastLifecycle = lifecycle;
     const actor = snapshot.player;
     const sameFloor = last && lastFloor === snapshot.floor;
     const intent = snapshot.intent?.mode || '';
@@ -150,7 +161,7 @@ export function createTowerAudio() {
     if (disposed) return;
     disposed = true; enabled = false; enablePending = false; enableRequest++;
     for (const voice of voices) { try { voice.stop(); voice.disconnect(); } catch {} }
-    voices.clear(); heard.clear(); pads.length = 0; last = null; lastFloor = null; lastIntent = ''; stride = 0;
+    voices.clear(); heard.clear(); pads.length = 0; last = null; lastFloor = null; lastIntent = ''; lastLifecycle = 'running'; stride = 0;
     if (context) context.close().catch(() => {});
   }
   return { setEnabled, accept, dispose, diagnostics: () => ({ soundEnabled: enabled, soundPending: enablePending, voices: voices.size, context: context?.state || 'not-started' }) };

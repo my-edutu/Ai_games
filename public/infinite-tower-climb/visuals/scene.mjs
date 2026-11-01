@@ -4,6 +4,7 @@ import { createClimber, createEnemy } from './characters.mjs';
 import { SCALE, pointFor, angleFor } from './coordinates.mjs';
 import { snapshotVelocity } from './motion.mjs';
 import { createRenderProgress } from './render-progress.mjs';
+import { createTowerFinale } from './finale.mjs';
 // A tiny 3D attack lane follows only a REAL enemy telegraph. The curved ribbon
 // traces the same cylindrical projection as authoritative horizontal shots and
 // keeps its world-space origin at the firing actor, never at a guessed target.
@@ -710,6 +711,10 @@ export function createTowerScene(canvas, settings = {}) {
   let climber = createClimber();
   climber.group.name = 'ExpeditionClimber';
   scene.add(climber.group);
+  // A real result has a spatial ending; this renderer cannot award a win,
+  // resurrect an actor or alter the authoritative 20Hz simulation.
+  let finale = createTowerFinale(THREE);
+  scene.add(finale.group);
   const enemies = new Map(), pickups = new Map(), projectiles = new Map();
   const sharedGeometry = new Set(), sharedMaterials = new Set();
   const ownGeometry = geometry => { sharedGeometry.add(geometry); return geometry; };
@@ -851,15 +856,15 @@ export function createTowerScene(canvas, settings = {}) {
     releaseEnvironment();
     reflectionFirstFrame = true;
     clearActors();
-    scene.remove(world.group, climber.group);
-    world.dispose(); climber.dispose();
+    scene.remove(world.group, climber.group, finale.group);
+    world.dispose(); climber.dispose(); finale.dispose();
     skyGeometry.dispose(); skyMaterial.dispose();
     for (const geometry of sharedGeometry) geometry.dispose();
     for (const material of sharedMaterials) material.dispose();
     sun.shadow.dispose(); sun.shadow.map = null; sun.shadow.mapPass = null;
-    world = createTowerWorld(); climber = createClimber();
+    world = createTowerWorld(); climber = createClimber(); finale = createTowerFinale(THREE);
     climber.group.name = 'ExpeditionClimber';
-    scene.add(world.group, climber.group);
+    scene.add(world.group, climber.group, finale.group);
     initialized = false;
     if (snapshot) updateEntities(snapshot);
   }
@@ -1057,6 +1062,7 @@ export function createTowerScene(canvas, settings = {}) {
       tick: snapshot.tick,
     }, dt, elapsed, options);
     ledgeContactEvidence = ledgeTarget ? measureLedgeFingertip(climber.group, ledgeTarget, targetPlatform.id) : null;
+    finale.update(snapshot, climber.group.position, elapsed, options);
     attackArc.visible = !!p.attacking && p.health > 0;
     if (attackArc.visible && positionStrikeCue(attackArc, climber.group, camera)) {
       attackArc.rotateZ(p.facing > 0 ? -.8 : Math.PI - .8);
@@ -1153,6 +1159,15 @@ export function createTowerScene(canvas, settings = {}) {
       destination.set(Math.sin(cameraAngle) * radius, targetY + 18, Math.cos(cameraAngle) * radius);
     } else {
       focus.copy(followComposition.focus); destination.copy(followComposition.position); targetY = followComposition.focus.y;
+    }
+    // Reveal the height of the actual terminal position, not a fabricated
+    // victory pose: the result/intermission phase owns this quiet camera crane.
+    // Reduced motion freezes the treatment to a stable, wider composition.
+    if (!overview && snapshot.result && ['result', 'intermission'].includes(snapshot.lifecycle)) {
+      scratch.copy(destination).sub(climber.group.position);
+      destination.addScaledVector(scratch, .22);
+      destination.y += 3.1;
+      focus.y += 1.1;
     }
     const cameraBlend = options.reducedMotion ? 1 : 1 - Math.exp(-dt * 3.5);
     if (!initialized) { camera.position.copy(destination); lookAt.copy(focus); initialized = true; }
@@ -1265,7 +1280,7 @@ export function createTowerScene(canvas, settings = {}) {
       lighting: { environmentReady: !!reflectionTarget, environmentState: disposed ? 'disposed' : reflectionDirty ? 'pending' : reflectionTarget ? 'ready' : 'direct', environmentBuilds: reflectionBuilds,
         environmentFailures: reflectionFailures, environmentLastError: reflectionLastError,
         environmentSize: reflectionTarget ? [reflectionTarget.width, reflectionTarget.height] : [0, 0], shadowLights: 1, shadowMapSize: sun.shadow.mapSize.x },
-      world: world.diagnostics(), cameraPosition: camera.position.toArray(), climberPosition: climber.group.position.toArray() };
+      world: world.diagnostics(), finale: finale.diagnostics(), cameraPosition: camera.position.toArray(), climberPosition: climber.group.position.toArray() };
   }
   function dispose() {
     if (disposed) return;
@@ -1277,7 +1292,7 @@ export function createTowerScene(canvas, settings = {}) {
     canvas.removeEventListener('pointerup', pointerUp); canvas.removeEventListener('pointercancel', pointerUp); canvas.removeEventListener('wheel', wheel);
     releaseEnvironment();
     sun.shadow.dispose(); sun.shadow.map = null; sun.shadow.mapPass = null;
-    clearActors(); climber.dispose(); world.dispose();
+    clearActors(); climber.dispose(); world.dispose(); finale.dispose();
     skyGeometry.dispose(); skyMaterial.dispose();
     for (const geometry of sharedGeometry) geometry.dispose();
     for (const material of sharedMaterials) material.dispose();
