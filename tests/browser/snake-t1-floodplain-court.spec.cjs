@@ -49,7 +49,13 @@ test('T1 same-source floodplain: eight genuine full-world WebGL wide/hero/portra
       }finally{await page.close();}
     }
     expect(both[0].png.equals(both[1].png)).toBe(false);
-    for(const key of ['world','livingGarden','serpent'])expect(both[1].stats[key]).toEqual(both[0].stats[key]);
+    for(const key of ['world','livingGarden'])expect(both[1].stats[key]).toEqual(both[0].stats[key]);
+    // The live serpent may submit more intermediate GPU frames before one
+    // screenshot than the other: compare bounded static anatomy, never
+    // presentation counters, gaze phase or fence completion timing.
+    for(const key of ['geometries','materials','textures','bodyRings','bodyVertices',
+      'bodyTriangles','paths','maxBodyRings','bufferBytes','truncated'])
+      expect(both[1].stats.serpent[key]).toEqual(both[0].stats.serpent[key]);
     expect(both[1].stats.drawCalls).toBe(both[0].stats.drawCalls);
     expect(both[1].stats.triangles).toBe(both[0].stats.triangles);
   }
