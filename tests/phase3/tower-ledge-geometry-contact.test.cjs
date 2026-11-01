@@ -94,3 +94,40 @@ test('near-ledge scene uses the exterior radial corridor and real outer lip as t
   assert.match(scene,/pointFor\(p\.x, p\.y - p\.halfHeight, snapshot\.chunkBaseY, snapshot\.worldWidth, approachRadius\)/);
   assert.match(scene,/const ledgeTarget = ledgeContact \? pointFor\(ledgeContact\.x, ledgeContact\.y,\s*snapshot\.chunkBaseY, snapshot\.worldWidth, 27\.1/);
 });
+
+test('real ledge grip curls both boots clear of the lower deck, then releases the pose',async t=>{
+  const threeURL=pathToFileURL(path.join(path.dirname(require.resolve('three')),'three.module.js')).href;
+  const adjusted=cast.replace(/from ['"]\\/tower\\/vendor\\/three\\.module\\.js['"]/, "from '"+threeURL+"'");
+  assert.notEqual(adjusted,cast);
+  const [api,THREE]=await Promise.all([
+    import('data:text/javascript;base64,'+Buffer.from(adjusted).toString('base64')),
+    import(threeURL)
+  ]);
+  const rig=api.createClimber(); t.after(()=>rig.dispose());
+  rig.group.position.set(3,7,-4);rig.group.rotation.y=.35;rig.group.scale.setScalar(1.13);
+  rig.group.updateMatrixWorld(true);
+  const target=rig.group.localToWorld(new THREE.Vector3(.56,2.33,.22));
+  const air={state:'airborne',vx:2300,vy:6000,facing:1,health:5,attacking:false};
+  const view={reducedMotion:true};
+  const ankleHeight=()=>{
+    rig.group.updateMatrixWorld(true);
+    return Math.min(...[-1,1].map(side=>{
+      const ankle=rig.group.getObjectByName(side+'-ankle');
+      assert.ok(ankle?.isBone,'actual animated boot joint must exist');
+      return ankle.getWorldPosition(new THREE.Vector3()).y;
+    }));
+  };
+  for(let i=0;i<16;i++)rig.animate({...air,ledgeTarget:null},1/60,i/60,view);
+  const unsupported=ankleHeight();
+  for(let i=0;i<16;i++)rig.animate({...air,ledgeTarget:target},1/60,(i+16)/60,view);
+  const gripping=ankleHeight();
+  assert.ok(gripping-unsupported>.12,
+    'during authentic hand contact both ankle joints must lift clear of the lower deck');
+  const elbow=rig.group.getObjectByName('1-elbow');
+  elbow.updateWorldMatrix(true,false);
+  assert.ok(elbow.localToWorld(new THREE.Vector3(0,-.802,.108)).distanceTo(target)<1e-5,
+    'boot motion must not break authentic fingertip contact');
+  for(let i=0;i<24;i++)rig.animate({...air,ledgeTarget:null},1/60,(i+32)/60,view);
+  assert.ok(Math.abs(ankleHeight()-unsupported)<.05,
+    'released hand contact must restore the ordinary airborne leg silhouette');
+});
