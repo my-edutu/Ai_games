@@ -14,14 +14,14 @@ const STREAM_CONFIG = Object.freeze({ maxTicks: 20000, noProgressTicks: 3000, in
 function createSession(seed = 'tower-stream-reference', config = STREAM_CONFIG, policy = 'autonomous') {
   const runtime = TowerRuntime.create(config, seed, { policy });
   const controller = new TowerPresentationController({ replayCapacity: 360, maxEntities: 2048, muted: false });
-  controller.accept(createTowerRenderSnapshot(runtime.state), runtime.drainEvents());
+  controller.accept(createTowerRenderSnapshot(runtime.state, { includeWindupTicks: policy !== 'historical-v1' }), runtime.drainEvents());
   return { runtime, controller };
 }
 function advance(session) {
   session.runtime.step();
   // This live host consumes events once. Its public replay ring is bounded separately.
   const events = session.runtime.drainEvents();
-  return session.controller.accept(createTowerRenderSnapshot(session.runtime.state), events);
+  return session.controller.accept(createTowerRenderSnapshot(session.runtime.state, { includeWindupTicks: session.runtime.policy !== 'historical-v1' }), events);
 }
 function privacySafe(snapshot, seed) {
   return !['seed', 'runId', 'config', 'chunks'].some(key => key in snapshot) && !JSON.stringify(snapshot).includes(seed);

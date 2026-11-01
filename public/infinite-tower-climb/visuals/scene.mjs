@@ -404,7 +404,7 @@ function composeFollowView(snapshot, hero, aspect, orbit = 0, zoom = 1) {
   // swinging maul beyond its physics hitbox. A bounded oblique look keeps the
   // live source and attacker together without shrinking them or moving either.
   // Do not apply the orbit to traversal, non-guardian fights or incoming bolts.
-  if (aspect < .85 && threat?.guardian && snapshot.intent?.mode === 'engaging-enemy') {
+  if (aspect < .85 && threat?.guardian && ['engaging-enemy', 'bracing-telegraph', 'evading-telegraph'].includes(snapshot.intent?.mode)) {
     const contactView = solve(direction * .75);
     if (contactView.clear && contactView.heroFraction >= .15) best = contactView;
   }

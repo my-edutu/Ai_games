@@ -141,12 +141,14 @@ test('early warning does not grant clairvoyant fire direction or unsafe unsuppor
 test('the public immutable snapshot exposes only an observed finite enemy windup countdown',()=>{
  const {createTowerRenderSnapshot}=require('../../dist/games/infinite-tower-climb/src/presentation/snapshot.js');
  const s=encounter();s.enemies[0].telegraphUntilTick=s.tick+7;
- const open=createTowerRenderSnapshot(s);
+ const legacy=createTowerRenderSnapshot(s);
+ assert.equal(Object.hasOwn(legacy.enemies[0],'telegraphTicksRemaining'),false,'legacy checksum contract unchanged');
+ const open=createTowerRenderSnapshot(s,{includeWindupTicks:true});
  assert.equal(open.enemies[0].telegraph,true);
  assert.equal(open.enemies[0].telegraphTicksRemaining,7);
  assert.ok(Object.isFrozen(open.enemies[0]));
  s.enemies[0].telegraphUntilTick=s.tick+2;
- assert.equal(createTowerRenderSnapshot(s).enemies[0].telegraphTicksRemaining,2);
+ assert.equal(createTowerRenderSnapshot(s,{includeWindupTicks:true}).enemies[0].telegraphTicksRemaining,2);
  s.enemies[0].telegraphUntilTick=0;
- assert.equal(createTowerRenderSnapshot(s).enemies[0].telegraphTicksRemaining,0);
+ assert.equal(createTowerRenderSnapshot(s,{includeWindupTicks:true}).enemies[0].telegraphTicksRemaining,0);
 });

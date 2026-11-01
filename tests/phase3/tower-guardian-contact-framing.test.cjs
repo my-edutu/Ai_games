@@ -100,3 +100,19 @@ test('portrait guardian engagement retains its camera composition through attack
   }
   assert.equal(hitPose.lean, recoveredPose.lean);
 });
+
+// Source-aware anticipation must never drop the phone's guardian silhouette
+// when the AI enters its new authentic early-charge defensive pose.
+test('portrait guardian remains in frame throughout observed charge and evasive intent', async () => {
+  const {THREE,pointFor,context}=await loaded;
+  const {snapshot,guardian}=realHit();
+  for(const mode of ['engaging-enemy','bracing-telegraph','evading-telegraph']){
+    const frame={...snapshot,intent:{...snapshot.intent,mode}};
+    const {pose,project}=cameraFor(THREE,context,pointFor,frame,390,844);
+    assert.ok(pose.clear && pose.heroFraction>=.15,mode+' must keep a readable hero and open sightline');
+    for(const x of [guardian.x-guardian.halfWidth,guardian.x+guardian.halfWidth]){
+      const top=project(x,guardian.y+guardian.halfHeight);
+      assert.ok(Math.abs(top.x)<.86&&Math.abs(top.y)<.75,mode+' must keep the real guardian crown in view');
+    }
+  }
+});
