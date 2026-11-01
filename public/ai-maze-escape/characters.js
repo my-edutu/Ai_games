@@ -425,8 +425,11 @@ export function createWarden(options = {}) {
     // Two readable shell wings open independently in true close encounters.
     // Reduced-motion retains a static disclosed-warning silhouette.
     for (const shellHalf of elytra) {
-      shellHalf.wing.rotation.z=shellHalf.side*alert*.68;
-      shellHalf.wing.rotation.y=-shellHalf.side*alert*.23;
+      // A neutral/terminal pose must reset to +0 on both sides. Negative
+      // zero can survive a signed-angle multiplication and break strict
+      // replay/teardown invariants even when the rendered pose looks flat.
+      shellHalf.wing.rotation.z=alert>0?shellHalf.side*alert*.68:0;
+      shellHalf.wing.rotation.y=alert>0?-shellHalf.side*alert*.23:0;
       shellHalf.lining.visible=alert>.24;
     }
     stride=approach(stride,s.moving?1:0,12,s.delta); gait+=s.delta*(10+s.danger*3)*stride;
