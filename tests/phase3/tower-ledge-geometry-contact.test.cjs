@@ -357,3 +357,44 @@ test('the live scene derives boot-loading height from its real intended platform
   assert.match(scene,/y: pointFor\(targetPlatform\.x, targetPlatform\.y\+targetPlatform\.height,/);
   assert.match(scene,/ledgeTarget,\s*ledgeMantle,\s*ledgeSurface,/);
 });
+
+
+test('real lead boot plants BOTH heel and toe on the actual supporting upper deck without tunnelling',async t=>{
+  const threeURL=pathToFileURL(path.join(path.dirname(require.resolve('three')),'three.module.js')).href;
+  const adjusted=cast.replace("from '/tower/vendor/three.module.js'","from '"+threeURL+"'");
+  assert.notEqual(adjusted,cast);
+  const [{createClimber},THREE]=await Promise.all([
+    import('data:text/javascript;base64,'+Buffer.from(adjusted).toString('base64')),import(threeURL)
+  ]);
+  const state={state:'airborne',vx:3200,vy:10200,facing:1,health:5,attacking:false,
+    runToken:'real-run',tick:300,ledgePlatformId:'f1:p1',ledgeMantle:{progress:.48,weight:1}};
+  const surface={platformId:'f1:p1',y:6,innerRadius:22.4,outerRadius:27.18};
+  for(const viewAzimuth of [-Math.PI/4,Math.PI/4]){
+    const floating=createClimber(),planted=createClimber();
+    t.after(()=>{floating.dispose();planted.dispose();});
+    const opts={reducedMotion:true,viewAzimuth};
+    const probes=rig=>{
+      const boot=rig.group.getObjectByName('1-ankle');
+      assert.ok(boot?.isBone,'measure the actual skinned leading boot');
+      boot.updateWorldMatrix(true,false);
+      return [-.17,.07,.31].map(z=>boot.localToWorld(new THREE.Vector3(0,-.205,z)));
+    };
+    for(const rig of [floating,planted])rig.group.position.set(0,6,25);
+    floating.animate(state,1/60,1,opts);
+    const offset=probes(floating)[1].y-6;
+    for(const rig of [floating,planted])rig.group.position.y-=offset-.08;
+    planted.animate({...state,ledgeSurface:surface},1/60,1,opts);
+    const [heel,mid,toe]=probes(planted);
+    for(const p of [heel,mid,toe]){
+      assert.ok(Math.hypot(p.x,p.z)>=surface.innerRadius-.01 &&
+        Math.hypot(p.x,p.z)<=surface.outerRadius+.01,
+        'fixture must place the physical boot over the supporting stone');
+      assert.ok(p.y>=surface.y-.025,
+        'a boot contact cannot bury any modeled sole edge through the deck: '+p.y);
+      assert.ok(p.y<=surface.y+.035,
+        'heel and toe must actually bear weight instead of only one imaginary center point: '+p.y);
+    }
+    assert.ok(planted.group.position.distanceTo(floating.group.position)<1e-8,
+      'only pose bones may compress; keep authoritative actor root unchanged');
+  }
+});
