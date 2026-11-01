@@ -3794,7 +3794,7 @@ function watchLiveWorkday(){
  return getLiveWorkdayView();
 }
 
-let commandView='command';
+let commandView='command',commandUserPreference=null;
 function updateWorldRibbon(){
  const sources=[['population','population'],['food','food'],['wood','wood'],['gold','gold']];
  for(const [name,id] of sources){
@@ -3811,8 +3811,9 @@ function updateWorldRibbon(){
   narrative.replace(/\s+/g,' ').slice(0,140):
   'Your villagers write their own chronicle.';
 }
-function setCommandView(next){
+function setCommandView(next,origin='automatic'){
  if(next!=='world'&&next!=='command')throw Error('Unknown command view: '+next);
+ if(origin==='user')commandUserPreference=next;
  commandView=next;document.body.dataset.command=next;
  const control=document.getElementById('command-toggle');
  control.setAttribute('aria-pressed',String(next==='world'));
@@ -3820,8 +3821,18 @@ function setCommandView(next){
  updateWorldRibbon();return commandView;
 }
 document.body.dataset.command='command';
-button('command-toggle',()=>setCommandView(commandView==='command'?'world':'command'));
-button('world-open-command',()=>setCommandView('command'));
+ // G095 running 390px evidence exposed an excessively covered scene.
+ // Default to the existing honest world-first ribbon on narrow screens.
+ // Full command remains one tap away; respect an explicit user preference.
+ const compactViewport=window.matchMedia('(max-width: 520px)');
+ function syncResponsiveCommand(){
+  if(commandUserPreference===null)
+   setCommandView(compactViewport.matches?'world':'command');
+ }
+ compactViewport.addEventListener('change',syncResponsiveCommand);
+ syncResponsiveCommand();
+ button('command-toggle',()=>setCommandView(commandView==='command'?'world':'command','user'));
+ button('world-open-command',()=>setCommandView('command','user'));
 button('workday-watch',watchLatestWork);
 button('workday-live',watchLiveWorkday);
 button('hud-toggle',()=>setCinematicHud(!cinematicHud));
@@ -3834,9 +3845,9 @@ document.addEventListener('keydown',e=>{
  }else if((e.key==='u'||e.key==='U')&&!e.ctrlKey&&!e.metaKey&&!e.altKey){
    const tag=document.activeElement?.tagName;
    if(tag==='INPUT'||tag==='TEXTAREA'||tag==='SELECT'||document.activeElement?.isContentEditable)return;
-   setCommandView(commandView==='world'?'command':'world');
+   setCommandView(commandView==='world'?'command':'world','user');
  }else if(e.key==='Escape'&&cinematicHud)setCinematicHud(false);
- else if(e.key==='Escape'&&commandView==='world')setCommandView('command');
+ else if(e.key==='Escape'&&commandView==='world')setCommandView('command','user');
 });
 button('pause',()=>{frozen=!frozen;document.getElementById('pause').textContent=frozen?'▶ Resume':'Ⅱ Pause'});for(let v of [1,4,16])button('speed'+v,()=>{speed=v;for(let n of [1,4,16])document.getElementById('speed'+n).classList.toggle('active',n===v)});button('focus',()=>{if(follow&&document.body.dataset.workday==='on')stopWorkdayWatch();setCitizenFollow(!follow)});button('camera',()=>{cinematic=!cinematic;document.getElementById('camera').classList.toggle('active',cinematic)});button('restart',()=>{city.splice(12);start()});
 
