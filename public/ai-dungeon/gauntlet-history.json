@@ -2193,7 +2193,7 @@
         "feelsMajority": false,
         "playsMajority": false
       },
-      "safetyChecks": "EXACT-HEAD 60b526e AUTHORITY PASS; BROWSER SHARD 2: 22/23 with truncated rigCranialRatios diagnostic (9 actors/8 ratios); global CI cancelled after build/test. This candidate expands bounded diagnostics and needs full exact-head revalidation.",
+      "safetyChecks": "Candidate 2a17f785 exact-head validation workflows 41324358534, 41324358514 and visual review 41324358562 queued/in progress when implementation was committed. No green or experiential claim until jobs complete.",
       "matchedExternalReference": "NOT_RUN",
       "originalAudioMotionClip": "PENDING_EXACT_HEAD_CHROMIUM_CAPTURE",
       "soundstageBrowser": "PENDING_EXACT_HEAD_CHROMIUM_RUN",
@@ -2202,9 +2202,9 @@
       "visualSceneReference": "Locked unchanged: https://github.com/my-edutu/Ai_games/actions/runs/41302939553/artifacts/13081734898"
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
-    "biggestRemainingGap": "Personally inspected real Chromium baseline 13081734898 and later 13089392066 desktop/world-only frames and a browser video: both still depict stylized, toy-scale figures among dense tall brown masonry, with severe crowding. The next candidate's true three-phase attack UI/gameplay remains UNVERIFIED pending new exact-head browser captures. Real organic multi-scene motion/audio, performance, and independent looks/feels/plays preferences remain missing.",
-    "currentWork": "M1 open: spatially true Warden multi-phase danger, genuine in-world warning tiles and autonomous two-turn safe flank/guard decision; initial test exposed a meaningful real gameplay failure (AI stepped back into blast), corrected and locally verified. Authentic new candidate browser captures, organic milestone reel and blind critics remain OPEN.",
-    "candidateCommit": "33758dfb775fe457f6315b8b8d2dc8fdfa2d05d4",
+    "biggestRemainingGap": "Even with the new camera and threat choreography, game quality versus Diablo IV is UNVERIFIED: inspected genuine baseline/earlier browser frames still show toy-scale characters, crowded hits and repeated dark blocky masonry. The original character and dungeon asset quality, organic gameplay video, mobile audio/motion, performance and >=3 blind independent judges remain unverified.",
+    "currentWork": "M1 continues: original cinematic director frames real hero-to-target contact at body scale, widens for the Warden's actual marked strike, and charges the boss rig only during authoritative warnings. Bounded instanced geometry outlines the real threatened cells. Await actual desktop/mobile WebGL motion, audio and independent critic review before accepting experience improvements.",
+    "candidateCommit": "2a17f7859b1e9fc3e2999edd33cf7e187cc698cb",
     "candidateArtifactUrl": null,
     "acceptedAt": null,
     "implementationEvents": [
@@ -2343,6 +2343,27 @@
         "experienceVerdict": "IN_PROGRESS / NOT TRANSFORMED",
         "next": "Capture actual desktop/mobile genuine Warden phase warning, persistent safe flank and impact across multiple phases; read full gameplay motion and audio. Continue character/world realism and the organic floor transition, defeat/restart evidence.",
         "validation": "Verified RED at exact-head 2b479afa after successful npm build: focused foundation 22/23 PASS, failing real-dodge outcome 108 HP vs expected 120. A one-tick sidestep was followed by autonomous walking back into the marked strike. Corrected candidate now holds the legal safe flank on impact turn; locally rebuilt source npm run dungeon:test 174/174 PASS and focused 23/23 PASS. Fresh exact-head CI, WebGL, audible clips and critics remain UNVERIFIED."
+      },
+      {
+        "id": "M1-CINEMATIC-WARDEN-THREAT-20261101",
+        "date": "2026-11-01",
+        "status": "IMPLEMENTED_UNVERIFIED",
+        "codeCommit": "2a17f7859b1e9fc3e2999edd33cf7e187cc698cb",
+        "sourceHeadAtStart": "8585b2a677a121ab6aacc577989faaa2fda7ea68",
+        "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+        "objective": "Reframe real hero-to-foe contact at body-height, open for genuine Warden strike danger, visibly charge the actual boss rig, and show bounded engraved real danger cells inside the same autonomous 3D confrontation.",
+        "code": [
+          "public/ai-dungeon/cinematic-chapter-plan.js",
+          "public/ai-dungeon/app.js",
+          "public/ai-dungeon/warden-ritual.js",
+          "scripts/serve-dungeon-stream.cjs",
+          "tests/foundation/dungeon-cinematic-chapter.test.cjs",
+          "tests/browser/dungeon-warden-patterns.spec.cjs"
+        ],
+        "authorityImpact": "Pure read-only spectator camera, animation and bounded geometry. No gameplay RNG, combat authority, AI, persistence, replay format, network assets or paid influence changed.",
+        "evidence": "Exact-head Dungeon 41324358534, full CI 41324358514 and browser review 41324358562 queued/in progress. No matched candidate imagery scored, organic long gameplay/audio, or independent blind panel.",
+        "experienceVerdict": "IN_PROGRESS / NOT TRANSFORMED",
+        "next": "Inspect fresh desktop/mobile 3D captures and real motion/audio vs locked 281735d. Reject clipping or occlusion, transform original character anatomy and world materials, and acquire organic complete adventure reel and 3+ blind critics."
       }
     ]
   }

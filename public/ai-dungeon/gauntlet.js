@@ -27,6 +27,14 @@ function renderTransformation(t){
  set('transform-work',t.currentWork||'Not yet started');
  set('transform-media',e.originalAudioMotionClip==='VERIFIED'?'VERIFIED LIVE AUDIO/VIDEO':e.originalAudioMotionClip||'UNVERIFIED');
  set('transform-audio',e.audioLoudnessAndClipping||'NOT MEASURED');
+ const candidate=String(t.candidateCommit||'');
+ set('transform-candidate-sha',/^[0-9a-f]{40}$/.test(candidate)?candidate.slice(0,9):'UNVERIFIED');
+ const candidateLink=$('transform-candidate-link'),candidateUrl=String(t.candidateArtifactUrl||'');
+ const candidateReal=/^https:\/\/github\.com\/my-edutu\/Ai_games\/actions\/runs\/\d+\/artifacts\/\d+$/.test(candidateUrl);
+ if(candidateLink){candidateLink.hidden=!candidateReal;if(candidateReal)candidateLink.href=candidateUrl;else candidateLink.removeAttribute('href');}
+ set('transform-candidate-proof',candidateReal?'Real candidate artifact exists — not independently judged':'Exact-head browser capture not verified here');
+ const reelVerified=e.actualContinuousScenarioReel==='VERIFIED'&&e.mobileBeforeAfter==='VERIFIED'&&e.matchedBeforeAfter==='VERIFIED';
+ set('transform-scenario-gate',reelVerified?'REEL VERIFIED, CRITICS PENDING':'NOT VERIFIED');
 }
 async function refresh(){try{const res=await fetch('/dungeon/gauntlet/state',{cache:'no-store'});if(!res.ok)throw Error('telemetry unavailable');const j=await res.json();set('health',j.status.status.toUpperCase());set('floor',j.game.floor);set('run',j.game.run);set('tick',j.game.tick);set('warden-phase',j.game.bossPhase||'—');set('heroes-alive',j.game.heroesAlive);set('hazards-active',j.game.hazardsActive);set('checkpoint',j.status.checkpointTick??'NOT SAVED');document.body.dataset.offline='false';try{const e=await fetch(j.evidence,{cache:'no-store'});if(e.ok){const report=await e.json();const serialized=JSON.stringify(report);if(serialized!==lastEvidence){lastEvidence=serialized;set('evidence',report.status||'NOT MEASURED');const n=$('measurements');n.replaceChildren();for(const [key,val] of Object.entries(report.metrics||{})){const p=document.createElement('p');p.textContent=key.replaceAll('_',' ')+' : '+JSON.stringify(val);n.append(p)}}}}catch{set('evidence','LOCAL CAMPAIGN NOT YET RUN')}
  try{const response=await fetch('/dungeon/evidence/visual-metrics.json',{cache:'no-store'});if(response.ok){const m=await response.json();const a=Number(m.colouredFraction||0),b=Number(m.meanLuminance||0);set('visual-audit','CAPTURED • coloured pixels '+(a*100).toFixed(1)+'% • average luminance '+b.toFixed(1)+' / 255 • A/B NOT ASSESSED')}else set('visual-audit','NOT RUN — NO SCREENSHOT EVIDENCE')}catch{set('visual-audit','NOT RUN — NO SCREENSHOT EVIDENCE')}
