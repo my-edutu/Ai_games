@@ -1,7 +1,7 @@
 import * as THREE from './vendor/three.module.js';
 import { createExplorer, createWarden } from './characters.js';
 import { createMazeWorld, cellPosition, cellHeight, sampleGroundHeight, CELL_SIZE } from './world.js';
-import { planPublicMotion, samplePublicPath, publicWayfinding, publicObjective, publicStageBias, composePublicCameraFocus, publicNearbySealedGate, composePublicSealedGateFocus, composePublicKeyLockFocus, publicCarriedGateCue, publicEncounterFrameWeight, publicDetailEncounterHalfHeight } from './map-view.mjs';
+import { planPublicMotion, samplePublicPath, publicWayfinding, publicObjective, publicStageBias, composePublicCameraFocus, publicNearbySealedGate, composePublicSealedGateFocus, composePublicKeyLockFocus, publicCarriedGateCue, publicEncounterFrameWeight, publicDetailEncounterHalfHeight, publicFullBleedFollowHalfHeight } from './map-view.mjs';
 
 const TAU = Math.PI * 2;
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
@@ -458,6 +458,11 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
         : height < 340 ? 5.4
         : nearObservedGate ? (keyLockCloseup ? (aspect < .9 ? 4.70 : 4.55) : (aspect < .9 ? 5.42 : 5.05))
         : aspect < .9 ? 6.2 : nearObservedGoal ? 6.25 : 7.3;
+      // A live full-viewport portrait is narrower in WORLD units than the
+      // old in-page canvas. Preserve the already-disclosed pair/terrain span
+      // without altering object scale, AI, hidden cells or route direction.
+      if (cameraMode === 'follow' && height >= 340)
+        targetHeight = publicFullBleedFollowHalfHeight(aspect, targetHeight);
     }
     const blend = settings.reducedMotion ? 1 : 1 - Math.exp(-delta * 4.5);
     cameraTarget.lerp(desiredTarget, blend);

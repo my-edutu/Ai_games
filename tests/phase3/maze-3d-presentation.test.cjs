@@ -242,6 +242,22 @@ test('publicNearbySealedGate framing selects only disclosed adjacent sealed obst
   assert.deepEqual(composePublicSealedGateFocus({x: NaN, z: Infinity}, {x: Infinity, z: NaN}), {x: 0, z: 0});
 });
 
+test('full-bleed portrait follow camera preserves actual previously visible horizontal stage span', async () => {
+  const {publicFullBleedFollowHalfHeight: f} = await load();
+  for (const h of [4.7,5.42,6.2]) {
+    assert.equal(f(.7,h),h,'former 390px in-page stage keeps its validated view');
+    assert.equal(f(1280/900,h),h,'desktop scene remains unchanged');
+    const full = f(390/844,h);
+    assert.ok(Math.abs(full * (390/844) - h * .70) < 1e-8,
+      'authentic 390px portrait preserves known horizontal world span, including visible key and gate');
+    assert.ok(full > h && full < h * 2.2,'widen the frustum without infinite or unbounded camera motion');
+  }
+  assert.equal(f(NaN,4.7),4.7,'non-finite aspect never corrupts the renderer');
+  assert.equal(f(0,4.7),4.7,'zero viewport has finite neutral fallback');
+  assert.equal(f(.42,NaN),7.3*.7/.42,'non-finite requested zoom uses bounded standard stage value');
+  assert.ok(f(.01,4.7) <= 4.7*2.2,'pathological tiny canvas cannot explode the camera zoom');
+});
+
 test('matched-key camera prioritizes the real glove/socket pair without inventing a path or non-finite target', async () => {
   const {composePublicSealedGateFocus, composePublicKeyLockFocus} = await load();
   const stage = {x: 2.75, z: -1};

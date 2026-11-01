@@ -29,6 +29,20 @@ export function publicEncounterFrameWeight(attentionStrength, cameraMode, result
  * 4.275 = 5.7 * 0.75: the horizontal half-span of the real 390x520 encounter.
  * This is a presentation calculation only; no private maze/AI state enters.
  */
+/**
+ * A full-screen phone canvas is taller than the former 390px in-page stage.
+ * Preserve the PREVIOUS horizontal diorama world span (~.70 old aspect)
+ * rather than cropping a known key/closed gate or the disclosed guardian
+ * when the HUD moves into the corners. Does not invent a cell or move actors.
+ * Only the camera frustum changes; the live simulation is unchanged.
+ */
+export function publicFullBleedFollowHalfHeight(aspect, selectedHalfHeight) {
+  const base = Number.isFinite(selectedHalfHeight) && selectedHalfHeight > 0 ? selectedHalfHeight : 7.3;
+  if (!Number.isFinite(aspect) || aspect >= .60 || aspect <= 0) return base;
+  const safeAspect = Math.max(.35, aspect);
+  return Math.max(base, Math.min(base * 2.2, base * .70 / safeAspect));
+}
+
 export function publicDetailEncounterHalfHeight(aspect, disclosedAttention) {
   if (!(Number.isFinite(aspect) && aspect > 0 && aspect < .9)
     || !(Number.isFinite(disclosedAttention) && disclosedAttention > 0)) return 4.6;

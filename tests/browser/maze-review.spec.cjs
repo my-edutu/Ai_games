@@ -402,8 +402,8 @@ test('a real close public encounter frames both autonomous actors and saves date
   expect(gatePortraitDiagnostic.explorerInFrame).toBe(true);
   if (gatePortraitDiagnostic.keyLockCloseup) {
     expect(gatePortraitDiagnostic.carriedKeyGateGesture, 'The portrait close-up must have a real carried key').toBeGreaterThan(.2);
-    expect(gatePortraitDiagnostic.cameraHalfHeight, 'A true key/lock interaction is now larger at 390px').toBeLessThan(4.76);
-    expect(gatePortraitDiagnostic.cameraHalfHeight).toBeGreaterThan(4.64);
+    expect(gatePortraitDiagnostic.cameraHalfHeight, 'Full-screen portrait preserves the former visible horizontal world span').toBeLessThan(7.30);
+    expect(gatePortraitDiagnostic.cameraHalfHeight).toBeGreaterThan(7.00);
     expect(gatePortraitDiagnostic.cameraAimLift, 'Native portrait restores upper public architecture without widening the shot').toBeGreaterThan(1.30);
     expect(gatePortraitDiagnostic.cameraOffset.x, 'Reject occluding pass38 camera: keep Pip unobstructed').toBeCloseTo(20, 1);
     expect(gatePortraitDiagnostic.cameraOffset.y).toBeCloseTo(21, 1);
@@ -416,8 +416,8 @@ test('a real close public encounter frames both autonomous actors and saves date
     expect(physical.separationCssPx).toBeGreaterThanOrEqual(0);
     expect(physical.bowFacingCamera, 'The actual bow must remain face-on at native portrait size').toBeGreaterThan(.90);
   } else {
-    expect(gatePortraitDiagnostic.cameraHalfHeight, 'A gate without a matched key retains its known environment').toBeLessThan(5.57);
-    expect(gatePortraitDiagnostic.cameraHalfHeight).toBeGreaterThan(5.37);
+    expect(gatePortraitDiagnostic.cameraHalfHeight, 'Unknown-key gate retains the complete known horizontal stage').toBeLessThan(8.50);
+    expect(gatePortraitDiagnostic.cameraHalfHeight).toBeGreaterThan(8.00);
   }
   expect(Math.abs(gatePortraitDiagnostic.nearbySealedGateProjection.x), 'Portrait gate must keep a margin').toBeLessThan(.8);
   expect(Math.abs(gatePortraitDiagnostic.explorerProjection.x), 'Portrait Pip must keep a margin').toBeLessThan(.8);
