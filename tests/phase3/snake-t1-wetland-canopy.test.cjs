@@ -17,11 +17,11 @@ function stripped(source,a,b) {
 }
 test('T1 bounded live water-garden is RED on byte-exact previous head and GREEN after integration',async()=>{
  assert.equal(blob(stripped(worldSource,start,end)),'0f69c6ae6324d7fcfa6e0c1e9659fc4be37cc66d');
- assert.equal(blob(stripped(stripped(gardenSource,gardenStart,gardenEnd),
+ const gardenBeforeAmphitheatre=stripped(stripped(gardenSource,\n  '  // BEGIN T1 ESCARPMENT AMPHITHEATRE\n','  // END T1 ESCARPMENT AMPHITHEATRE\n'),\n  '      // BEGIN T1 AMPHITHEATRE STATS\n','      // END T1 AMPHITHEATRE STATS\n');\n assert.equal(blob(stripped(stripped(gardenBeforeAmphitheatre,gardenStart,gardenEnd),
   '      // BEGIN T1 WATER GARDEN STATS\n', '      // END T1 WATER GARDEN STATS\n')),
   'bdfe91e5305bbe87f3d23d858e03e90b87c47159');
  const previousWorld=stripped(worldSource,start,end);
- const previousGarden=stripped(stripped(gardenSource,gardenStart,gardenEnd),
+ const previousGarden=stripped(stripped(gardenBeforeAmphitheatre,gardenStart,gardenEnd),
   '      // BEGIN T1 WATER GARDEN STATS\n','      // END T1 WATER GARDEN STATS\n');
  const createPrevious=(await import('data:text/javascript;base64,'+Buffer.from(previousGarden).toString('base64'))).createLivingGarden;
  const three=await import('three');

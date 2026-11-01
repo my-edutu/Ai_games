@@ -18,7 +18,7 @@ test('T1 exact-head riparian water garden: actual full-scene, portrait, detail a
  const garden=fs.readFileSync(path.join(root,'public/snake-stream/living-garden.mjs'),'utf8');
  const oldWorld=remove(world,'      // BEGIN T1 WETLAND MASONRY PATINA\n',
   '      // END T1 WETLAND MASONRY PATINA\n');
- const oldGarden=remove(remove(garden,'  // BEGIN T1 LIVING WATER GARDEN\n',
+ const gardenBeforeAmphitheatre=remove(remove(garden,'  // BEGIN T1 ESCARPMENT AMPHITHEATRE\n',\n  '  // END T1 ESCARPMENT AMPHITHEATRE\n'),\n  '      // BEGIN T1 AMPHITHEATRE STATS\n','      // END T1 AMPHITHEATRE STATS\n');\n const oldGarden=remove(remove(gardenBeforeAmphitheatre,'  // BEGIN T1 LIVING WATER GARDEN\n',
   '  // END T1 LIVING WATER GARDEN\n'),
   '      // BEGIN T1 WATER GARDEN STATS\n','      // END T1 WATER GARDEN STATS\n');
  expect(blob(oldWorld)).toBe('0f69c6ae6324d7fcfa6e0c1e9659fc4be37cc66d');
@@ -72,7 +72,7 @@ test('T1 exact-head riparian water garden: actual full-scene, portrait, detail a
   expect(pair[1].png.equals(pair[0].png)).toBe(false);
   expect(pair[1].stats.drawCalls).toBe(pair[0].stats.drawCalls);
   expect(pair[1].stats.world).toEqual(pair[0].stats.world);
-  expect(pair[1].stats.livingGarden.triangles-pair[0].stats.livingGarden.triangles).toBe(2784);
+  expect(pair[1].stats.livingGarden.triangles-pair[0].stats.livingGarden.triangles).toBe(2784+pair[1].stats.livingGarden.amphitheatreTriangles);
   for(const key of ['geometries','materials','textures','bodyRings','bodyVertices','bodyTriangles','paths',
    'maxBodyRings','bufferBytes','truncated'])
    expect(pair[1].stats.serpent[key]).toBe(pair[0].stats.serpent[key]);

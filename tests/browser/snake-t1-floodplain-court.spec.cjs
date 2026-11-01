@@ -37,7 +37,7 @@ test('T1 same-source floodplain: eight genuine full-world WebGL wide/hero/portra
         const s=observed.stats;
         expect(s.renderer).toBe('webgl');expect(s.cameraMode).toBe(mode);
         expect(s.world.portalEnds).toBeGreaterThan(0);expect(s.world.hazards).toBeGreaterThan(0);
-        expect(s.serpent.bodyRings).toBeGreaterThan(2);expect(s.livingGarden.canopyTrees).toBe(8);
+        expect(s.serpent.bodyRings).toBeGreaterThan(2);expect(s.livingGarden.canopyTrees).toBe(10);
         expect(observed.primary).toContain('LENGTH');expect(observed.caption.length).toBeGreaterThan(8);
         expect(observed.glError).toBe(0);expect(observed.overflow).toBe(false);expect(errors).toEqual([]);
         const png=await page.screenshot({path:artifact('snake-t1-floodplain-'+scene+'-'+version+'-real-webgl.png')});

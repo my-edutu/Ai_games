@@ -486,6 +486,79 @@ export function createLivingGarden(THREE, {width,height}) {
   bands.get('ruin').color=0xd9ccad;
   bands.get('foliage').color=0xb3c4ac;
   // END T1 LIVING WATER GARDEN
+  // BEGIN T1 ESCARPMENT AMPHITHEATRE
+  // Large sculpted shoreline masses and foreground-scale tree canopies form a
+  // readable foreground / midground / ruined-arcade depth progression in the
+  // ACTUAL game. All vertices stay outside navigable public cells; no sprites,
+  // path hints, simulation changes, new shader passes, meshes or loaded assets.
+  const stageTriangles=()=>Array.from(bands.values()).reduce((sum,b)=>sum+b.p.length/9,0);
+  const stageBefore=stageTriangles();
+  features.terracedPromontories=0;
+  features.amphitheatreFerns=0;
+  features.amphitheatreRoots=0;
+  features.foregroundCanopies=0;
+  function sculptPromontory(shore,t,phase){
+    const bank=bankPoint(shore,t,.62),segments=9;
+    const radius=1.72+.39*hash(phase,94),azimuth=hash(phase,35)*Math.PI*2;
+    const levels=[[-.48,1],[.38,.82],[1.68,.53],[3.22,.24]];
+    const ring=(level,k)=>{
+      const a=k*Math.PI*2/segments+azimuth;
+      const [elevation,spread]=levels[level];
+      const broken=.83+.32*hash(k+phase*4,level+17);
+      const r=radius*spread*broken;
+      return [bank[0]+Math.cos(a)*r,
+        bank[1]+elevation+(hash(k+phase,level+54)-.5)*.21,
+        bank[2]+Math.sin(a)*r];
+    };
+    for(let j=0;j<3;j++)for(let k=0;k<segments;k++){
+      const next=(k+1)%segments;
+      quad(j===2?'moss':'cliff',ring(j,k),ring(j,next),
+        ring(j+1,next),ring(j+1,k),phase+k+j);
+    }
+    const crest=[bank[0]+.19*Math.sin(phase),bank[1]+3.78,bank[2]+.14*Math.cos(phase)];
+    for(let k=0;k<segments;k++)
+      tri('moss',ring(3,k),ring(3,(k+1)%segments),crest,phase+k);
+    // Vegetation sits on the same authored mass and leans OUTWARD, away
+    // from the live snake, hazard/food/portal geometry and game camera.
+    const outward=shore.axis==='x'
+      ? Math.sign(shore.far-shore.near)*Math.PI/2
+      : shore.far>shore.near?0:Math.PI;
+    const plantX=bank[0]+Math.cos(outward)*radius*.68;
+    const plantZ=bank[2]+Math.sin(outward)*radius*.68;
+    leaf(plantX,bank[1]+.47,plantZ,.88+hash(phase,72)*.40,
+      outward+.32,phase,'fern');
+    features.amphitheatreFerns++;
+    if(phase%3===1){
+      rootRibbon(bank[0],bank[1]+.08,bank[2],1.19,
+        outward,phase+301);
+      features.amphitheatreRoots++;
+    }
+    features.terracedPromontories++;
+  }
+  for(let shoreIndex=0;shoreIndex<shorelines.length;shoreIndex++){
+    const shore=shorelines[shoreIndex];
+    for(let n=0;n<3;n++){
+      const t=shore.start+(shore.end-shore.start)*(.18+n*.32);
+      sculptPromontory(shore,t,shoreIndex*3+n+1);
+    }
+  }
+  // Two large original branch-and-leaf canopies create near-camera parallax
+  // on the OPEN wings; the authentic board and portal coordinates stay clear.
+  for(const [x,z,h,phase] of [
+    [-W-7.25,H+5.80,7.05,8.1],
+    [W+7.1,H+5.65,7.30,9.2]
+  ]){
+    canopyTree(x,z,h,phase);
+    features.foregroundCanopies++;
+  }
+  // Cooler undergrowth and warm weathered stone tie the added 3D topography
+  // back to the original flooded-quarry palette without a new material.
+  bands.get('moss').color=0x76907a;
+  bands.get('cliff').color=0x879787;
+  bands.get('ruin').color=0xc9c4ad;
+  bands.get('foliage').color=0xa2c2a6;
+  features.amphitheatreTriangles=stageTriangles()-stageBefore;
+  // END T1 ESCARPMENT AMPHITHEATRE
   // A shared-vertex terrain should read as rolling soil, not a topographic
   // collection of separate flat triangles. Smooth only organic bands; ruins
   // deliberately keep their masonry edges and foliage retains folded ridges.
@@ -534,6 +607,13 @@ export function createLivingGarden(THREE, {width,height}) {
       canopyTrees:features.canopyTrees,canopyLeaflets:features.canopyLeaflets,
       arcadeArches:features.arcadeArches,arcadeStones:features.arcadeStones,
       hangingVines:features.hangingVines,
+      // BEGIN T1 AMPHITHEATRE STATS
+      terracedPromontories:features.terracedPromontories,
+      amphitheatreFerns:features.amphitheatreFerns,
+      amphitheatreRoots:features.amphitheatreRoots,
+      foregroundCanopies:features.foregroundCanopies,
+      amphitheatreTriangles:features.amphitheatreTriangles,
+      // END T1 AMPHITHEATRE STATS
       // BEGIN T1 WATER GARDEN STATS
       waterGardenBeds:features.waterGardenBeds,waterGardenPads:features.waterGardenPads,
       waterGardenBlooms:features.waterGardenBlooms,waterGardenRushes:features.waterGardenRushes,

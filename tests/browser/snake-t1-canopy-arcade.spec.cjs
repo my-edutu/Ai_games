@@ -42,7 +42,7 @@ test('T1 canopy, ruptured arches and new forest frame: eight true Chromium WebGL
     expect(state.primary).toContain('LENGTH');expect(state.caption.length).toBeGreaterThan(8);
     expect(state.glError).toBe(0);expect(errors).toEqual([]);expect(state.overflow).toBe(false);
     if(old)expect(s.livingGarden.canopyTrees).toBeUndefined();
-    else {expect(s.livingGarden.canopyTrees).toBe(8);
+    else {expect(s.livingGarden.canopyTrees).toBe(10);
       expect(s.livingGarden.canopyLeaflets).toBeGreaterThan(700);
       expect(s.livingGarden.arcadeStones).toBeGreaterThan(65);}
     const filepath=artifact('snake-t1-forest-'+scene+'-'+version+'.png');
