@@ -75,3 +75,31 @@ test('real Three.js capstone batch maps every cap to its parent exposed face and
  assert.match(env,/columnCapstones:/);
  assert.match(env,/sceneMetrics\.matrixWrites\.capstone=capMatrixWrites/);
 });
+
+
+test('camera-cleared stone foundation and parapet profiles stop drawing opaque square floor roofs',async()=>{
+ const {planCutawayFoundationTransform,planCutawayParapetTransform}=await load();
+ assert.deepEqual(planCutawayFoundationTransform('none'),{y:.1,height:.21,footprint:1.035});
+ for(const reveal of ['sightline','nearby'])
+  assert.deepEqual(planCutawayFoundationTransform(reveal),{y:.035,height:.055,footprint:.24});
+ assert.deepEqual(planCutawayParapetTransform(false,2.53),{y:2.53,height:.12,footprint:1.04});
+ assert.deepEqual(planCutawayParapetTransform(true,2.53),{y:.045,height:.035,footprint:.30});
+ assert.equal(planCutawayFoundationTransform('wrong'),null);
+ assert.equal(planCutawayParapetTransform('yes',2.53),null);
+ assert.equal(planCutawayParapetTransform(false,Infinity),null);
+ assert.equal(planCutawayParapetTransform(false,-1),null);
+ assert.equal(planCutawayParapetTransform(false,11),null);
+});
+
+test('actual instanced foundation uses its parent wall-band cache and compact parapets, not extra simulation rules',()=>{
+ const app=fs.readFileSync(path.join(root,'public/ai-dungeon/app.js'),'utf8');
+ assert.match(app,/foundationBrickWallIndices/);
+ assert.match(app,/wallBands\[footWallIndex\]/);
+ assert.match(app,/shouldUploadCutawayBand\(foundationBands,/);
+ assert.match(app,/foundationMesh\.setMatrixAt\(/);
+ assert.match(app,/foundationMatrixWrites/);
+ assert.match(app,/clearedFoundationBricks/);
+ assert.match(app,/planCutawayFoundationTransform\(/);
+ assert.match(app,/planCutawayParapetTransform\(/);
+ assert.match(app,/cachedScale\.set\(parapet\.footprint,parapet\.height,parapet\.footprint\)/);
+});
