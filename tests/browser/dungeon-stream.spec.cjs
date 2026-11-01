@@ -24,6 +24,21 @@ test('actual 3D autonomous dungeon scene renders and advances',async({page})=>{
  await expect(page.getByTestId('dungeon-canvas')).toBeVisible();
  await expect(page.getByTestId('floor')).not.toBeEmpty();
  await expect(page.getByTestId('intent')).not.toBeEmpty();
+ // Inspect the real renderer budget before progression: a stalled main thread
+ // still leaves a measurable CPU WebGL receipt for the failed browser trace.
+ await expect.poll(()=>page.evaluate(()=>Boolean(window.__DUNGEON_RENDER_DIAGNOSTICS__?.directRenderBudget)),{timeout:15000}).toBe(true);
+ const liveRaster=await page.evaluate(()=>{
+  const d=window.__DUNGEON_RENDER_DIAGNOSTICS__;
+  return {softwareWebGL:d.softwareWebGL,budget:d.directRenderBudget,directRenderMs:d.directRenderMs,
+   directDownshifts:d.directDownshifts,frameDelivery:d.frameDelivery};
+ });
+ fs.writeFileSync('artifacts/dungeon-real-webgl-raster-evidence.json',JSON.stringify(liveRaster,null,2));
+ if(liveRaster.softwareWebGL){
+  expect(liveRaster.budget.software).toBe(true);
+  expect(liveRaster.budget.shadows).toBe(false);
+  expect(liveRaster.budget.renderPixels).toBeLessThanOrEqual(650000);
+  expect(liveRaster.budget.pixelRatio).toBeLessThanOrEqual(1);
+ }
  await expectLiveDungeonProgress(page);
  const hasWebGL=await page.evaluate(()=>{const c=document.getElementById('world');return Boolean(c?.getContext('webgl2')||c?.getContext('webgl'))});expect(hasWebGL).toBe(true);
  const snapshot=await page.evaluate(()=>window.__DUNGEON_PUBLIC_STATE__);
