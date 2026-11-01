@@ -59,6 +59,30 @@ const path = require('node:path');
     if(evidence.materials.vertexStride!==10||
        JSON.stringify(evidence.materials.materials)!==JSON.stringify(expectedMaterials))
       throw Error('GPU material layout mismatch: '+JSON.stringify(evidence.materials));
+    // G079 shader-level acceptance: examine the actual attached fragment
+    // program, numerical gamma error, authority isolation and GL state.
+    evidence.filmicGamma=await page.evaluate(()=>{
+      const g=window.__tinyKingdom,before=JSON.stringify(g.exportSnapshot());
+      const gl=document.getElementById('world').getContext('webgl');
+      const program=gl?.getParameter(gl.CURRENT_PROGRAM);
+      const shader=program?(gl.getAttachedShaders(program)||[]).find(s=>
+        gl.getShaderParameter(s,gl.SHADER_TYPE)===gl.FRAGMENT_SHADER):null;
+      const src=shader?gl.getShaderSource(shader):'';
+      let maxError=0;
+      for(let i=50;i<=999;i++){
+        const x=i/1000,y=x+(Math.sqrt(x)-x)*(.135+.14*x);
+        maxError=Math.max(maxError,Math.abs(y-Math.pow(x,.88)));
+      }
+      return {active:src.includes('vec3 fastFilmicGamma(vec3 x)')&&
+           src.includes('mapped=fastFilmicGamma(mapped);'),
+        oldPowPresent:src.includes('mapped=pow(max(mapped'),
+        maxApproxError:maxError,glError:gl.getError(),
+        authorityUnchanged:before===JSON.stringify(g.exportSnapshot())};
+    });
+    if(!evidence.filmicGamma.active||evidence.filmicGamma.oldPowPresent||
+       evidence.filmicGamma.maxApproxError>=.0032||
+       evidence.filmicGamma.glError!==0||!evidence.filmicGamma.authorityUnchanged)
+      throw Error('G079 real WebGL filmic gamma regression: '+JSON.stringify(evidence.filmicGamma));
     // G058: inspect the active fragment shader on real SwiftShader, not just
     // the source file or a fake feature flag. The new lighting is grass-only.
     evidence.terrainMicroRelief=await page.evaluate(()=>{
