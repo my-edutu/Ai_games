@@ -291,7 +291,7 @@ export function createClimber() {
   // A dedicated knuckle insert makes the real attack readable without a flash.
   const fistLight=w.mat(0x3abdd9,.3,.32,0x2898cb,.12);
   w.plate(arms[1].lower,.24,.075,.04,fistLight,0,-.445,.125,.018);
-  let phase=0,attackAge=1,wasAttacking=false,landingAge=1,previousState='standing',reachSide=null,lastPoseTime=null;
+  let phase=0,attackAge=1,wasAttacking=false,landingAge=1,previousState='standing',reachSide=null,lastPoseTime=null,ledgeLegBlend=0;
   const rest=body.position.y;
   const ledgeWorld=new THREE.Vector3(), ledgeElbow=new THREE.Vector3(),
     ledgeAim=new THREE.Vector3(), ledgeInverse=new THREE.Quaternion();
@@ -369,6 +369,7 @@ export function createClimber() {
     // The platformer's physics remains unchanged. Only a nearby genuine deck
     // can pull the raised fingertip into physical contact during an ascent.
     const touch=state.ledgeTarget;
+    let genuineLedgeGrip=false;
     if(airborne&&vy>0&&!attacking&&!dead&&!hurt&&touch &&
       [touch.x,touch.y,touch.z].every(Number.isFinite)){
       ledgeWorld.set(touch.x,touch.y,touch.z);
@@ -377,12 +378,27 @@ export function createClimber() {
       const arm=arms[ledgeWorld.x>=0?1:0];
       const reach=solveLedgeReach(arm.upper.position,ledgeWorld);
       if(reach){
+        genuineLedgeGrip=true;
         ledgeElbow.set(reach.elbow.x,reach.elbow.y,reach.elbow.z).sub(arm.upper.position).normalize();
         arm.upper.quaternion.setFromUnitVectors(armRest,ledgeElbow);
         ledgeInverse.copy(arm.upper.quaternion).invert();
         ledgeAim.copy(ledgeWorld).sub(arm.upper.position).applyQuaternion(ledgeInverse)
           .sub(arm.lower.position).normalize();
         arm.lower.quaternion.setFromUnitVectors(fingertipRest,ledgeAim);
+      }
+    }
+    // A real raised-hand grip must not leave a long trailing boot apparently
+    // planted on the lower deck. Fold both boots into a compact suspended pose
+    // only while the shipped two-link solver actually reaches the deck, not
+    // when mere intent points toward one. Bounded smoothing prevents a new
+    // one-frame snap at the first or last contact tick. No root/physics change.
+    ledgeLegBlend=mix(ledgeLegBlend,genuineLedgeGrip?1:0,clamp(dt*12,0,1));
+    if(ledgeLegBlend>.0001&&airborne){
+      for(let i=0;i<2;i++){
+        const leg=legs[i];
+        leg.upper.rotation.x=mix(leg.upper.rotation.x,i?-1.16:-.95,ledgeLegBlend);
+        leg.lower.rotation.x=mix(leg.lower.rotation.x,i?1.95:1.75,ledgeLegBlend);
+        leg.foot.rotation.x=mix(leg.foot.rotation.x,i?-.48:-.38,ledgeLegBlend);
       }
     }
     if(state.state==='standing'&&landingAge<.2){
