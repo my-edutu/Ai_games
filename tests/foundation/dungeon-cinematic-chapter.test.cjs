@@ -78,3 +78,45 @@ test('new original camera grammar is actually wired into strict server, Warden r
  assert.match(ritual,/warningEdges\.setMatrixAt/);
  assert.match(ritual,/warningEdges\.instanceMatrix\.needsUpdate/);
 });
+
+test('a distant wandering teammate no longer miniaturizes the real combat lens',async()=>{
+ const {planReadableExpeditionLens}=await planner();
+ const duel={mode:'contact',offsets:[4,6,3],subjects:['vanguard','cultist'],spread:1,lookY:.9};
+ const wandering={...duel,offsets:[12,18,9],spread:16};
+ const near=planReadableExpeditionLens(duel,{width:1440,height:900});
+ const far=planReadableExpeditionLens(wandering,{width:1440,height:900});
+ assert.deepEqual(far.offsets,near.offsets,'actual combatants, not distant teammates, establish the physical shot');
+ assert.ok(near.fov<=44);
+ assert.ok(Math.hypot(...near.offsets)<9);
+ assert.equal(near.primarySubject,'vanguard');
+ assert.equal(near.dangerPriority,false);
+});
+test('Warden danger takes priority over intimate combat, mobile sees more warned floor',async()=>{
+ const {planReadableExpeditionLens}=await planner();
+ const contact=planReadableExpeditionLens({mode:'warden-contact',offsets:[5,8,5],subjects:['vanguard','warden']});
+ const actualWarning={mode:'warden-warning',offsets:[5,11,5],subjects:['warden','vanguard']};
+ const wide=planReadableExpeditionLens(actualWarning,{width:1440,height:900});
+ const mobile=planReadableExpeditionLens(actualWarning,{width:390,height:844});
+ assert.ok(wide.fov>contact.fov&&wide.offsets[1]>contact.offsets[1]);
+ assert.ok(Math.hypot(...wide.offsets)>Math.hypot(...contact.offsets));
+ assert.ok(mobile.offsets[1]>wide.offsets[1]&&mobile.fov>wide.fov);
+ assert.equal(wide.dangerPriority,true);
+ assert.ok(wide.following>contact.following);
+ assert.equal(planReadableExpeditionLens({...actualWarning,offsets:[NaN,11,5]}),null);
+ assert.equal(planReadableExpeditionLens({...actualWarning,mode:'invented-attack'}),null);
+});
+test('optical chapter respects reduced motion, immutable authority and actual 3D rendering contract',async()=>{
+ const {planReadableExpeditionLens}=await planner();
+ const shot={mode:'journey',offsets:[5.1,8.2,5.65],subjects:['vanguard'],spread:15};
+ const frozen=JSON.stringify(shot),lens=planReadableExpeditionLens(shot,{reducedMotion:true});
+ assert.equal(lens.following,1);
+ assert.equal(lens.fov,43);
+ assert.equal(JSON.stringify(shot),frozen);
+ assert.ok(Object.isFrozen(lens)&&Object.isFrozen(lens.offsets));
+ const app=fs.readFileSync(path.join(root,'public/ai-dungeon/app.js'),'utf8');
+ assert.match(app,/planReadableExpeditionLens\(cinematicShot,/);
+ assert.match(app,/cinematicLens\?cinematicLens\.offsets:/);
+ assert.match(app,/camera\.fov=nextFov/);
+ assert.match(app,/heroKey\.intensity=.*cinematicLens\?\.keyScale/);
+ assert.match(app,/cinematicLens:cinematicLens\?\?null/);
+});

@@ -88,6 +88,51 @@ export function planCinematicShot(s,encounter=null,{width=1440,height=832,focuse
   warning:!!warning,remainingTurns:warning?s.bossWarning.attackTick-s.tick:null
  });
 }
+
+/**
+ * Scene-only optical direction. The shot specifies WHICH real heroes, enemies
+ * and warning cells matter. The physical lens keeps them at human scale.
+ * A companion taking a distant path may leave frame, but must not shrink a
+ * genuine duel into a miniature; the party remains visible in the HUD.
+ * True Warden danger deliberately pulls back to expose a legal escape lane.
+ * No private simulation reads, RNG, hidden outcome or new light/draw pass.
+ */
+const DIRECTOR_LENS=Object.freeze({
+ journey:          Object.freeze({radius:5.65,height:6.65,fov:43,aim:.69,follow:5.2,key:1.03}),
+ 'skirmish-approach':Object.freeze({radius:5.45,height:6.25,fov:43,aim:.78,follow:6.0,key:1.08}),
+ contact:          Object.freeze({radius:4.95,height:5.85,fov:41,aim:.91,follow:7.5,key:1.14}),
+ 'warden-contact': Object.freeze({radius:6.55,height:7.65,fov:44,aim:.85,follow:7.5,key:1.12}),
+ 'warden-approach':Object.freeze({radius:7.35,height:8.35,fov:44,aim:.77,follow:6.2,key:1.09}),
+ 'warden-warning': Object.freeze({radius:9.05,height:10.55,fov:51,aim:.35,follow:10.0,key:.92}),
+ descent:          Object.freeze({radius:5.4,height:6.45,fov:45,aim:.65,follow:4.8,key:.91})
+});
+export function planReadableExpeditionLens(shot,{width=1440,height=832,reducedMotion=false}={}){
+ if(!shot||!Object.hasOwn(DIRECTOR_LENS,shot.mode)||!Array.isArray(shot.offsets)||
+    shot.offsets.length!==3||!shot.offsets.every(Number.isFinite))return null;
+ const policy=DIRECTOR_LENS[shot.mode];
+ const horizontal=Math.hypot(shot.offsets[0],shot.offsets[2]);
+ if(horizontal<.05)return null;
+ const aspect=Number.isFinite(width)&&Number.isFinite(height)&&height>0?width/height:1.73;
+ const portrait=aspect<.88,warning=shot.mode==='warden-warning';
+ const stretch=portrait?(warning?1.24:1.10):1;
+ const radius=policy.radius*stretch;
+ const y=policy.height*(portrait?(warning?1.17:1.07):1);
+ const offsets=Object.freeze([
+  round(shot.offsets[0]/horizontal*radius),
+  round(y),
+  round(shot.offsets[2]/horizontal*radius)
+ ]);
+ return Object.freeze({
+  mode:shot.mode,offsets,
+  fov:policy.fov+(portrait?(warning?6:4):0),
+  lookY:policy.aim,
+  following:reducedMotion?1:policy.follow,
+  keyScale:policy.key,
+  portrait,dangerPriority:warning,
+  primarySubject:Array.isArray(shot.subjects)?shot.subjects[0]??null:null
+ });
+}
+
 const STILL=Object.freeze({lift:0,pitch:0,armRaise:0,charge:0});
 /** A true imminent Warden warning charges the real rig; no warning, no pose. */
 export function planWardenCharge(warning,tick,reducedMotion=false){
