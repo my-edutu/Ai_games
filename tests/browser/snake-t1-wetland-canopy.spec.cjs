@@ -18,7 +18,10 @@ test('T1 exact-head riparian water garden: actual full-scene, portrait, detail a
  const garden=fs.readFileSync(path.join(root,'public/snake-stream/living-garden.mjs'),'utf8');
  const oldWorld=remove(world,'      // BEGIN T1 WETLAND MASONRY PATINA\n',
   '      // END T1 WETLAND MASONRY PATINA\n');
- const gardenBeforeAmphitheatre=remove(remove(garden,'  // BEGIN T1 ESCARPMENT AMPHITHEATRE\n',\n  '  // END T1 ESCARPMENT AMPHITHEATRE\n'),\n  '      // BEGIN T1 AMPHITHEATRE STATS\n','      // END T1 AMPHITHEATRE STATS\n');\n const oldGarden=remove(remove(gardenBeforeAmphitheatre,'  // BEGIN T1 LIVING WATER GARDEN\n',
+ const gardenBeforeAmphitheatre=remove(remove(garden,'  // BEGIN T1 ESCARPMENT AMPHITHEATRE\n',
+  '  // END T1 ESCARPMENT AMPHITHEATRE\n'),
+  '      // BEGIN T1 AMPHITHEATRE STATS\n','      // END T1 AMPHITHEATRE STATS\n');
+ const oldGarden=remove(remove(gardenBeforeAmphitheatre,'  // BEGIN T1 LIVING WATER GARDEN\n',
   '  // END T1 LIVING WATER GARDEN\n'),
   '      // BEGIN T1 WATER GARDEN STATS\n','      // END T1 WATER GARDEN STATS\n');
  expect(blob(oldWorld)).toBe('0f69c6ae6324d7fcfa6e0c1e9659fc4be37cc66d');
