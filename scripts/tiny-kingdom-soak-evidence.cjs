@@ -56,11 +56,12 @@ const assert=require('node:assert/strict');
   evidence.fixedShot={camera:fixedShot,viewport:{width:1024,height:640},
     dayOneFile:'day-1-world-only.png',
     grownFile:'day-'+days+'-world-only.png',
-    hud:'cinema',lightingAndSeasonMatched:false};
+    hud:'cinema',referenceCapture:'unobstructed',lightingAndSeasonMatched:false};
   await page.evaluate(camera=>{
     const game=window.__tinyKingdom;
     game.setCamera(camera);
     game.setHudMode('cinema');
+    game.setReferenceCapture(true);
   },fixedShot);
   await page.waitForTimeout(1100);
   const initialCamera=await page.evaluate(()=>window.__tinyKingdom.getCamera());
@@ -70,6 +71,8 @@ const assert=require('node:assert/strict');
   assert.equal(initialCamera.zoom,fixedShot.zoom);
   assert.equal(initialCamera.follow,false);
   assert.equal(initialCamera.cinematic,false);
+  evidence.fixedShot.dayOneOverlayHidden=!(await page.locator('#cinema-exit').isVisible());
+  assert(evidence.fixedShot.dayOneOverlayHidden,'Day-1 reference screenshot contains Restore interface overlay');
   await page.screenshot({path:path.join(dir,evidence.fixedShot.dayOneFile)});
   await page.evaluate(()=>window.__tinyKingdom.setHudMode('full'));
   evidence.fixedShot.initialSnapshotChecksum=start.initialSnapshot.checksum;
@@ -146,7 +149,10 @@ const assert=require('node:assert/strict');
   // An unobstructed, strict camera-matched grown capture exposes house/citizen
   // shortcomings that the original crowded command HUD hid. Restore controls
   // before exercising the real pause/resume frame-performance sample.
-  await page.evaluate(()=>window.__tinyKingdom.setHudMode('cinema'));
+  await page.evaluate(()=>{
+    window.__tinyKingdom.setHudMode('cinema');
+    window.__tinyKingdom.setReferenceCapture(true);
+  });
   const grownCamera=await page.evaluate(()=>window.__tinyKingdom.getCamera());
   assert.deepEqual(grownCamera.focus,fixedShot.focus,'Day-121 inspection focus drifted');
   assert.equal(grownCamera.yaw,fixedShot.yaw);
@@ -156,6 +162,8 @@ const assert=require('node:assert/strict');
   assert.equal(grownCamera.cinematic,false);
   evidence.fixedShot.grownAuthorityChecksum=grown.authority;
   evidence.fixedShot.grownCamera=grownCamera;
+  evidence.fixedShot.grownOverlayHidden=!(await page.locator('#cinema-exit').isVisible());
+  assert(evidence.fixedShot.grownOverlayHidden,'Day-121 reference screenshot contains Restore interface overlay');
   await page.screenshot({path:path.join(dir,evidence.fixedShot.grownFile)});
   await page.evaluate(()=>window.__tinyKingdom.setHudMode('full'));
   assert.equal((await page.evaluate(()=>window.__tinyKingdom.exportSnapshot())).checksum,
