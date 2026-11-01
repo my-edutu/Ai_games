@@ -39,3 +39,21 @@ export function planCutawayCapTransform(reveal,cap){
     sx<=0||sy<=0||sz<=0||sx>4||sy>4||sz>4)return null;
  return reveal==='none'?[x,y,z,sx,sy,sz]:[x,.015,z,.001,.001,.001];
 }
+
+
+/** The floor's textured backing remains visible after a wall is sightline cut. */
+export function planCutawayFoundationTransform(reveal){
+ if(!['none','nearby','sightline'].includes(reveal))return null;
+ return reveal==='none'
+  ?{y:.1,height:.21,footprint:1.035}
+  :{y:.035,height:.055,footprint:.24};
+}
+
+/** An overhead parapet must never turn into a full-width floor slab. */
+export function planCutawayParapetTransform(hidden,originalHeight){
+ if(typeof hidden!=='boolean'||!Number.isFinite(originalHeight)||
+    originalHeight<0||originalHeight>10)return null;
+ return hidden
+  ?{y:.045,height:.035,footprint:.30}
+  :{y:originalHeight,height:.12,footprint:1.04};
+}
