@@ -168,3 +168,14 @@ test('when the living Warden threatens the frontline, distant sentry shots canno
  const real=planCinematicShot(s,realBossHit);
  assert.equal(real.mode,'warden-contact');
 });
+
+test('real Warden warning poses imported shoulders as well as torso, without persistent additive pose',()=>{
+ const model=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ const app=fs.readFileSync(path.join(root,'public/ai-dungeon/app.js'),'utf8');
+ assert.match(app,/a\.wardenCharge=a\.u\.kind==='warden'&&a\.u\.hp>0\?planWardenCharge\(state\?\.bossWarning,state\?\.tick,reduced\):null/);
+ assert.match(model,/actor\.wardenCharge\?\.armRaise/);
+ assert.match(model,/joint\.pitch\+warningLift/);
+ assert.match(model,/restoreRigArmsBeforeMixer\(actor\)/);
+ assert.match(model,/mount\.last\.identity\(\)/);
+ assert.match(model,/wardenChargeShoulderPeakRad:/);
+});
