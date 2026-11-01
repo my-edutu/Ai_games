@@ -16,6 +16,7 @@ import {enrichCharacter} from '/dungeon/characters.js';
 import {createBiomeAtmosphere} from '/dungeon/biome-atmosphere.js';
 import {createCombatOverlay} from '/dungeon/combat-overlay.js';
 import {createCombatDirector} from '/dungeon/combat-director.js';
+import {createDungeonSoundstage} from '/dungeon/soundstage.js';
 import {addContactProjection} from '/dungeon/contact-projection.js';
 import {createLivingWorld} from '/dungeon/living-world.js';
 import {attachCharacter,updateActor,disposeActorAsset,putEnvironment,stats as assetStats} from '/dungeon/model-assets.js';
@@ -461,7 +462,7 @@ function rig(u){const colors=palette[u.kind],main=mat(colors[0],.5,.4),light=mat
 const timeNow=()=>performance.now()/1000;
 // Read-only spectator projections never mutate simulation state.
 const minimap=$('minimap'),mini=minimap.getContext('2d',{alpha:false}),mapPalette={wall:'#273653',floor:'#15233e',traced:'#477091',hero:'#5bf9e2',enemy:'#ff6f9c',exit:'#65baff',loot:'#ffd277'};
-let previousEventKey='',alertTimer=null,ambience=null,splashTimer=null,lastBiome='';
+let previousEventKey='',alertTimer=null,ambience=null,soundstage=null,splashTimer=null,lastBiome='';
 const classMeta={vanguard:{name:'ASHEN VANGUARD',title:'FRONT-LINE KNIGHT',icon:'⚔'},ranger:{name:'WILDSHADOW',title:'PHANTOM ARCHER',icon:'➶'},mystic:{name:'STARWEAVER',title:'ARCANE HEALER',icon:'✧'}};
 function drawMinimap(s){
  const N=s.map.length,W=minimap.width,H=minimap.height,cell=W/N,margin=0;
@@ -488,11 +489,6 @@ function notifyDungeon(event){
  banner.dataset.kind=event.kind;
  alertTimer=setTimeout(()=>{banner.hidden=true},event.kind==='telegraph'?1400:1900);
 }
-function playEffect(kind){
- if(!ambience)return;const ctx=ambience;if(ctx.state!=='running')return;
- const hz={floor:524,loot:880,kill:340,healing:660,telegraph:195,danger:142,guard:470,evade:730,block:590,trap:120,disarm:920}[kind];if(!hz)return;
- const now=ctx.currentTime,o=ctx.createOscillator(),g=ctx.createGain();o.type=kind==='danger'?'sawtooth':'sine';o.frequency.setValueAtTime(hz,now);o.frequency.exponentialRampToValueAtTime(hz*.7,now+.19);g.gain.setValueAtTime(.0001,now);g.gain.exponentialRampToValueAtTime(.052,now+.015);g.gain.exponentialRampToValueAtTime(.0001,now+.23);o.connect(g).connect(ctx.destination);o.start(now);o.stop(now+.25);
-}
 // Browsers without an active audio device must never freeze the video UI.
 const settleAudio=(promise,timeout=1400)=>new Promise((resolve,reject)=>{
  const timer=setTimeout(()=>reject(new Error('audio device did not respond')),timeout);
@@ -507,7 +503,7 @@ $('audio-toggle').addEventListener('click',async()=>{
   try{ambience=new Audio()}catch(error){setEnabled(false);button.title='Audio output device unavailable';return}
  }
  if(button.getAttribute('aria-pressed')==='true'){
-  setEnabled(false);
+  setEnabled(false);soundstage?.disable();
   try{await settleAudio(ambience.suspend());button.removeAttribute('title')}
   catch(error){button.title='Audio device could not be suspended'}
   return;
@@ -517,9 +513,12 @@ $('audio-toggle').addEventListener('click',async()=>{
  try{
   await settleAudio(ambience.resume());
   if(ambience.state!=='running')throw Error('Audio output remains suspended');
-  setEnabled(true);button.removeAttribute('title');playEffect('floor');
+  if(!soundstage)soundstage=createDungeonSoundstage(ambience);
+  if(!soundstage?.enable())throw Error('Original soundstage failed to initialize');
+  if(state)soundstage.acceptSnapshot(state);
+  setEnabled(true);button.removeAttribute('title');soundstage.cueWelcome();
  }catch(error){
-  setEnabled(false);button.title='Audio blocked or unavailable in this browser';
+  soundstage?.disable();setEnabled(false);button.title='Audio blocked or unavailable in this browser';
   Promise.resolve(ambience.suspend()).catch(()=>{});
  }
 });
@@ -588,7 +587,7 @@ function update(s){const firstSnapshot=!received,sceneChanged=worldFloor!==s.run
  const selected=s.units.find(u=>u.id===focusedHeroId&&u.hp>0);
  if(!selected){const survivor=s.units.find(u=>u.faction==='party'&&u.hp>0);if(survivor)focusedHeroId=survivor.id;}
  spectatorUI.render(s);
- for(const e of s.events){const id=s.run+':'+e.tick+':'+e.kind+':'+e.text;if(!seenEventIds.has(id)){seenEventIds.add(id);if(seenEventIds.size>150)seenEventIds.delete(seenEventIds.values().next().value);if(!firstSnapshot){cue(e,s);notifyDungeon(e);playEffect(e.kind)}}}
+ for(const e of s.events){const id=s.run+':'+e.tick+':'+e.kind+':'+e.text;if(!seenEventIds.has(id)){seenEventIds.add(id);if(seenEventIds.size>150)seenEventIds.delete(seenEventIds.values().next().value);if(!firstSnapshot){cue(e,s);notifyDungeon(e)}}}
  if(sceneChanged){buildWorld(s);camera.userData.dungeonInitialized=false;lastRayAuditAt=-Infinity;}
  const seen=new Set(s.units.map(u=>u.id));
  for(const [id,a] of actors)if(!seen.has(id)){disposeActor(a);actors.delete(id)}
@@ -599,6 +598,7 @@ function update(s){const firstSnapshot=!received,sceneChanged=worldFloor!==s.run
    a.telegraph.material.color.set(s.bossPhase==='ECLIPSE'?'#c97aff':s.bossPhase==='RUPTURE'?'#ff9f62':'#ff7049');
   }}
  combatDirector.accept(s);
+ soundstage?.acceptSnapshot(s);
  if(world.userData.courtShield){
   world.userData.courtShield.visible=s.bossPhase==='SENTINEL';
   world.userData.courtShield.material.color.set('#69eaff');
@@ -803,7 +803,7 @@ function animate(t){
   }
  }}
  catch(error){console.warn('[DUNGEON] post effect fault, restoring WebGL:',String(error));try{composer?.dispose()}catch{}composer=null;bloomPass=null;postFXStatus='fallback';postFXEnabled=false;fxButton.title='Glow unavailable: direct rendering remains active';fxButton.setAttribute('aria-pressed','false');fxButton.querySelector('span').textContent='DIRECT 3D';renderer.info.reset();renderer.render(scene,camera)}
- combatOverlay.render(state,actors,camera,time);if(state)window.__DUNGEON_RENDER_DIAGNOSTICS__={composition:inspectComposition(state),visibility:actualHeroVisibility(state,time),frame:renderer.info.render.frame,drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,camera:cameraModes[cameraIndex],cameraSpread:spread,cameraMargin:margin,cameraRig:{mode:cameraType,desiredPosition:plannedCamera.position,actualPosition:{x:camera.position.x,y:camera.position.y,z:camera.position.z},turn:plannedCamera.turn,boundaryLimit:plannedCamera.boundaryLimit},focusedHeroId,autoDirector,cutawayWalls:world.userData.cutawayWalls??0,wallMatrixWrites:world.userData.wallMatrixWrites??0,parapetMatrixWrites:world.userData.parapetMatrixWrites??0,cutawayNearbyWalls:world.userData.cutawayNearbyWalls??0,cutawaySubjects:world.userData.cutawaySubjectCount??0,bossCutawayActive:world.userData.bossCutawayActive??false,cutawayParapets:world.userData.cutawayParapets??0,foundationBricks:world.userData.foundationBrickPositions?.length??0,clearedFoundationBricks:world.userData.clearedFoundationBricks??0,foundationMatrixWrites:world.userData.foundationMatrixWrites??0,wallProfiles:world.userData.wallProfileMetrics??null,wallSculpture:world.userData.wallSculpture??null ,stoneGrade:{biome:floorThemes[(state.floor-1)%floorThemes.length].biome,wallTint:stone.color.getHexString(),floorTint:floorMat.color.getHexString(),trimTint:stoneEdge.color.getHexString(),keyFill:moon.color.getHexString(),partyFill:partyGlow.color.getHexString(),partyIntensity:partyGlow.intensity,wallTextureMapped:Boolean(wallMasonryTexture&&stone.map===wallMasonryTexture)},wallMasonry:{size:wallMasonryTexture?.image?.width??0,mapped:Boolean(wallMasonryTexture&&stone.map===wallMasonryTexture),bump:Boolean(wallMasonryTexture&&stone.bumpMap===wallMasonryTexture),bumpScale:stone.bumpScale},floorRuins:world.userData.floorRuins?.metrics??null,hiddenForegroundProps:world.userData.hiddenForegroundProps??0,postFX:composer&&postFXEnabled?'bloom':'direct',postFXStatus,postFXBudget,bloomRenderMs,bloomDownshifts,postFXAutoDisabled:bloomAutoDisabled,frameDelivery:frameDeliveryReport,softwareWebGL,directRenderBudget:directBudget,directRenderMs,directDownshifts,heroKeyIntensity:heroKey.intensity,bossFramed:Boolean(bossDistance),cameraLook:{x:look.x,z:look.z},activeUnits:[...actors.values()].filter(x=>x.root.visible).length,characterDetails:[...actors.values()].reduce((sum,x)=>sum+(x.detail?.parts||0),0),combatFacingActors:[...actors.values()].filter(x=>x.combatFacing&&x.root.visible).length,alignedCombatActors:[...actors.values()].filter(x=>x.combatFacing&&x.root.visible&&Math.abs(shortestYawDelta(x.root.rotation.y,x.combatFacing.yaw))<.18).length,webgl:true,theme:state.theme,dressing:world.userData.dressing?.metrics??null,atmosphere:world.userData.atmosphere?.metrics??null,livingWorld:world.userData.livingWorld?.metrics??null,overlay:combatOverlay.metrics(),combatStage:combatDirector.stats(),groundedActors:[...actors.values()].filter(x=>Boolean(x.ground)).length,groundSignals:(()=>{const states=[...actors.values()].map(x=>x.ground?.getState?.()).filter(Boolean);return{subjects:states.length,shadows:states.filter(x=>x.shadowVisible).length,ritualSigils:states.filter(x=>x.sigilVisible).length,coronas:states.filter(x=>x.coronaVisible).length}})(),authoredMotionPivots:[...actors.values()].filter(x=>x.authored&&x.visualPivot).length,authoredCombatPoseActors:[...actors.values()].filter(x=>x.authored&&['attack','cast','hurt'].includes(x.u.action)).length,authoredMotionMaxOffset:[...actors.values()].reduce((m,x)=>Math.max(m,x.visualPivot?.position.length()||0),0),authoredMotionPeak:[...actors.values()].reduce((m,x)=>Math.max(m,x.motionPeak||0),0),authored3D:assetStats(actors)};
+ combatOverlay.render(state,actors,camera,time);if(state)window.__DUNGEON_RENDER_DIAGNOSTICS__={composition:inspectComposition(state),visibility:actualHeroVisibility(state,time),frame:renderer.info.render.frame,drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,camera:cameraModes[cameraIndex],cameraSpread:spread,cameraMargin:margin,cameraRig:{mode:cameraType,desiredPosition:plannedCamera.position,actualPosition:{x:camera.position.x,y:camera.position.y,z:camera.position.z},turn:plannedCamera.turn,boundaryLimit:plannedCamera.boundaryLimit},focusedHeroId,autoDirector,cutawayWalls:world.userData.cutawayWalls??0,wallMatrixWrites:world.userData.wallMatrixWrites??0,parapetMatrixWrites:world.userData.parapetMatrixWrites??0,cutawayNearbyWalls:world.userData.cutawayNearbyWalls??0,cutawaySubjects:world.userData.cutawaySubjectCount??0,bossCutawayActive:world.userData.bossCutawayActive??false,cutawayParapets:world.userData.cutawayParapets??0,foundationBricks:world.userData.foundationBrickPositions?.length??0,clearedFoundationBricks:world.userData.clearedFoundationBricks??0,foundationMatrixWrites:world.userData.foundationMatrixWrites??0,wallProfiles:world.userData.wallProfileMetrics??null,wallSculpture:world.userData.wallSculpture??null ,stoneGrade:{biome:floorThemes[(state.floor-1)%floorThemes.length].biome,wallTint:stone.color.getHexString(),floorTint:floorMat.color.getHexString(),trimTint:stoneEdge.color.getHexString(),keyFill:moon.color.getHexString(),partyFill:partyGlow.color.getHexString(),partyIntensity:partyGlow.intensity,wallTextureMapped:Boolean(wallMasonryTexture&&stone.map===wallMasonryTexture)},wallMasonry:{size:wallMasonryTexture?.image?.width??0,mapped:Boolean(wallMasonryTexture&&stone.map===wallMasonryTexture),bump:Boolean(wallMasonryTexture&&stone.bumpMap===wallMasonryTexture),bumpScale:stone.bumpScale},floorRuins:world.userData.floorRuins?.metrics??null,hiddenForegroundProps:world.userData.hiddenForegroundProps??0,postFX:composer&&postFXEnabled?'bloom':'direct',postFXStatus,postFXBudget,bloomRenderMs,bloomDownshifts,postFXAutoDisabled:bloomAutoDisabled,frameDelivery:frameDeliveryReport,softwareWebGL,directRenderBudget:directBudget,directRenderMs,directDownshifts,heroKeyIntensity:heroKey.intensity,bossFramed:Boolean(bossDistance),cameraLook:{x:look.x,z:look.z},activeUnits:[...actors.values()].filter(x=>x.root.visible).length,characterDetails:[...actors.values()].reduce((sum,x)=>sum+(x.detail?.parts||0),0),combatFacingActors:[...actors.values()].filter(x=>x.combatFacing&&x.root.visible).length,alignedCombatActors:[...actors.values()].filter(x=>x.combatFacing&&x.root.visible&&Math.abs(shortestYawDelta(x.root.rotation.y,x.combatFacing.yaw))<.18).length,webgl:true,theme:state.theme,dressing:world.userData.dressing?.metrics??null,atmosphere:world.userData.atmosphere?.metrics??null,livingWorld:world.userData.livingWorld?.metrics??null,overlay:combatOverlay.metrics(),soundstage:soundstage?.stats()??null,combatStage:combatDirector.stats(),groundedActors:[...actors.values()].filter(x=>Boolean(x.ground)).length,groundSignals:(()=>{const states=[...actors.values()].map(x=>x.ground?.getState?.()).filter(Boolean);return{subjects:states.length,shadows:states.filter(x=>x.shadowVisible).length,ritualSigils:states.filter(x=>x.sigilVisible).length,coronas:states.filter(x=>x.coronaVisible).length}})(),authoredMotionPivots:[...actors.values()].filter(x=>x.authored&&x.visualPivot).length,authoredCombatPoseActors:[...actors.values()].filter(x=>x.authored&&['attack','cast','hurt'].includes(x.u.action)).length,authoredMotionMaxOffset:[...actors.values()].reduce((m,x)=>Math.max(m,x.visualPivot?.position.length()||0),0),authoredMotionPeak:[...actors.values()].reduce((m,x)=>Math.max(m,x.motionPeak||0),0),authored3D:assetStats(actors)};
 }
 async function poll(){try{const r=await fetch('/dungeon/state',{cache:'no-store'});if(!r.ok)throw Error('State '+r.status);const data=await r.json();if(data.tick!==lastTick||data.run!==state?.run){lastTick=data.tick;update(data)}}catch(e){errorAt++;if(errorAt>=3){$('recovery').hidden=false;$('status').textContent='VIEW DEGRADED — RETRYING';console.warn('Dungeon view recovery',String(e))}}finally{setTimeout(poll,190)}}
 $('party').addEventListener('click',e=>{
