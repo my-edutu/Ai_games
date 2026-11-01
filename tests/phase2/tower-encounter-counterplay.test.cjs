@@ -35,3 +35,42 @@ test('real pulse-shot upgrade fires only when ready, aligned and inside sightlin
  s.player.abilityCooldown=0;s.player.facing=-1;d=chooseTowerAction(s,createTowerObservation(s));
  assert.equal(d.action.ability,false);
 });
+
+
+test('wounded climber visibly chooses a real reachable health pickup before the next leap',()=>{
+ const s=encounter(),support=s.chunks[0].platforms.find(p=>p.id===s.player.groundedPlatformId);
+ s.enemies=[];s.projectiles=[];s.chunks[0].hazards=[];
+ s.player.health=Math.max(1,s.player.maxHealth-2);
+ s.player.position.x=support.x+16000;
+ const pickup={id:'f0:health-detour',kind:'health',floor:s.floor,
+   position:{x:support.x+support.width-16000,y:support.y+support.height+8000},
+   value:1,collected:false};
+ s.pickups=[pickup];
+ let d=chooseTowerAction(s,createTowerObservation(s));
+ assert.equal(d.intent.mode,'collecting-resource');
+ assert.equal(d.action.move,1);
+ assert.equal(d.action.jump,false);
+ assert.equal(d.intent.targetPlatformId,support.id);
+ assert.equal(d.intent.fallbackUsed,false);
+ // Frozen legacy policy never silently gains a new decision branch.
+ d=chooseTowerAction(s,createTowerObservation(s),{tactical:false});
+ assert.notEqual(d.intent.mode,'collecting-resource');
+ // The health strategy must not steer a healed climber off its route.
+ s.player.health=s.player.maxHealth;
+ d=chooseTowerAction(s,createTowerObservation(s));
+ assert.notEqual(d.intent.mode,'collecting-resource');
+});
+
+test('resource intent is blocked if the real item is beyond support or off-level',()=>{
+ const s=encounter(),support=s.chunks[0].platforms.find(p=>p.id===s.player.groundedPlatformId);
+ s.enemies=[];s.projectiles=[];s.chunks[0].hazards=[];
+ s.player.health=Math.max(1,s.player.maxHealth-2);
+ s.player.position.x=support.x+16000;
+ s.pickups=[{id:'f0:unsafe-health',kind:'health',floor:s.floor,
+   position:{x:support.x+support.width+40000,y:support.y+support.height+8000},
+   value:1,collected:false}];
+ assert.notEqual(chooseTowerAction(s,createTowerObservation(s)).intent.mode,'collecting-resource');
+ s.pickups[0].position.x=support.x+support.width-16000;
+ s.pickups[0].position.y+=80000;
+ assert.notEqual(chooseTowerAction(s,createTowerObservation(s)).intent.mode,'collecting-resource');
+});
