@@ -40,6 +40,29 @@ test('terrace stairs join disclosed legal passages and never disclose hidden nei
   assert.equal(world.stats().textureCount, 0);
 });
 
+
+test('lagoon surface is a single deterministic bounded tileable visual resource', async () => {
+  const {createMazeWorld} = await modulePromise;
+  const world = createMazeWorld({balanced: true});
+  const state = fixture([{cell: 24, neighbors: []}]);
+  world.update(state);
+  const texture = world.group.children[0].children[0]?.material.map;
+  assert.ok(texture?.image?.data, 'actual shared backdrop has a color raster');
+  const image = texture.image.data;
+  assert.equal(image.length, 128 * 128 * 4, 'fixed raster memory budget');
+  const range = new Set();
+  for (let i = 0; i < image.length; i += 4) {
+    assert.equal(image[i + 3], 255);
+    range.add(image[i + 1]);
+  }
+  assert.ok(range.size >= 12, 'lagoon has modeled tonal depth beyond a flat fill');
+  const before = Buffer.from(image);
+  world.update(fixture([{cell: 24, neighbors: []}, {cell: 25, neighbors: []}]));
+  assert.deepEqual(Buffer.from(texture.image.data), before,
+    'public discoveries never mutate water pixels or disclose undiscovered topology');
+  world.dispose();
+});
+
 test('successive real runs retain only disclosed geometry and fixed shared resources', async () => {
   const { createMazeWorld } = await modulePromise;
   for (const balanced of [false, true]) {

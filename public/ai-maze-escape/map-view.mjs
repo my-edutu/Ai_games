@@ -253,10 +253,10 @@ export function composePublicSealedGateFocus(stageBias, gateDelta, aspect = 1) {
 export function composePublicKeyLockFocus(stageBias, gateDelta, aspect = 1) {
   const finite = value => Number.isFinite(value) ? value : 0;
   const portrait = aspect < .9;
-  // Pass38 lower portrait orbit occluded the character behind the gate.
-  // Restore the original view and instead frame more already-known stage
-  // without moving Pip, inventing a route or changing the gate authority.
-  const stageWeight = portrait ? .56 : .52;
+  // Pass39's extra stage pull drove the closed gate off the left edge while
+  // leaving the public right arch cropped. Preserve the pass37 hero/gate
+  // balance and improve the empty-water rendering independently.
+  const stageWeight = portrait ? .35 : .52;
   const gateWeight = portrait ? .49 : .46;
   const x = finite(stageBias?.x) * stageWeight + finite(gateDelta?.x) * gateWeight;
   const z = finite(stageBias?.z) * stageWeight + finite(gateDelta?.z) * gateWeight;
