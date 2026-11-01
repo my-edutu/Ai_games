@@ -1,4 +1,7 @@
 import * as THREE from '/vendor/three.module.js';
+// BEGIN T1 LIVING GARDEN IMPORT
+import { createLivingGarden } from './living-garden.mjs';
+// END T1 LIVING GARDEN IMPORT
 import { createWorld } from './world.mjs';
 import { createSerpent } from './serpent.mjs';
 import { buildMotion, cellPoint } from './motion.mjs';
@@ -164,6 +167,9 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
   scene.add(contacts);
   const contactTransform = new THREE.Object3D();
   contactTransform.rotation.x = -Math.PI / 2;
+  // BEGIN T1 LIVING GARDEN STATE
+  let livingGarden = null;
+  // END T1 LIVING GARDEN STATE
   let world;
   let dimensions = '';
   let disposed = false;
@@ -487,8 +493,15 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
 // END R51 RESCUE CONTROL
     const key = `${snapshot.width}x${snapshot.height}`;
     if (key !== dimensions) {
+      // BEGIN T1 LIVING GARDEN RENEWAL
+      if (livingGarden) { livingGarden.dispose(); livingGarden = null; }
+      // END T1 LIVING GARDEN RENEWAL
       if (world) { scene.remove(world.group); world.dispose(); }
       world = createWorld(THREE, { width: snapshot.width, height: snapshot.height });
+      // BEGIN T1 LIVING GARDEN ATTACH
+      livingGarden = createLivingGarden(THREE, { width: snapshot.width, height: snapshot.height });
+      world.group.add(livingGarden.group);
+      // END T1 LIVING GARDEN ATTACH
       // BEGIN R43 WATER SAMPLING INIT
       if (quality === 'low') configureLowQualityWaterSampling(world, THREE);
       // END R43 WATER SAMPLING INIT
@@ -587,6 +600,9 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
       frameMs: { p50: percentile(0.5), p95: percentile(0.95), p99: percentile(0.99) },
       staticCache: { supported: cacheSupported, active: cacheActive, hits: cacheHits, builds: cacheBuilds,
         width: staticTarget?.width || 0, height: staticTarget?.height || 0, samples: cacheSamples },
+      // BEGIN T1 LIVING GARDEN STATS
+      livingGarden: livingGarden?.stats?.(),
+      // END T1 LIVING GARDEN STATS
       world: world?.stats?.(), serpent: serpent.stats?.(),
     };
   }
@@ -608,6 +624,10 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
     frameGate.dispose();
     observer.disconnect();
     canvas.removeEventListener('webglcontextlost', contextLost);
+    // BEGIN T1 LIVING GARDEN RELEASE
+    livingGarden?.dispose();
+    livingGarden = null;
+    // END T1 LIVING GARDEN RELEASE
     world?.dispose();
     serpent.dispose();
     contactTexture.dispose();
