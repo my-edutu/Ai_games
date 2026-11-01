@@ -49,3 +49,40 @@ test('Round 36: actual GLB cloth geometry changes its vertex positions and repor
  const browser=fs.readFileSync(path.join(root,'tests/browser/dungeon-fabric-drape.spec.cjs'),'utf8');
  assert.ok(browser.includes('draperyPeakDeformationMeters'),'real-browser evidence gate required');
 });
+
+
+test('Round 54: cloth pose cache has a canonical rest key and preserves moving deformation',async()=>{
+ const {drapePoseKey}=await load();
+ const rest=drapePoseKey('attack',.63,false);
+ assert.equal(rest,drapePoseKey('attack',5,false));
+ assert.equal(rest,drapePoseKey('hurt',.43,false));
+ assert.equal(rest,drapePoseKey('cast',.69,false));
+ assert.equal(rest,drapePoseKey('guard',.49,false));
+ assert.equal(rest,drapePoseKey('idle',1,true));
+ assert.equal(rest,drapePoseKey('move',.1,true));
+ assert.equal(rest,drapePoseKey('not-an-action',.1,false));
+ for(const action of ['idle','move','attack','cast','hurt','guard']){
+  assert.equal(drapePoseKey(action,1.25,false),drapePoseKey(action,1.25,false));
+  assert.equal(typeof drapePoseKey(action,0,false),'string');
+ }
+ assert.notEqual(drapePoseKey('move',.10),drapePoseKey('move',.20),'moving fabric cannot freeze');
+ assert.notEqual(drapePoseKey('idle',.10),drapePoseKey('idle',.20),'breathing fabric cannot freeze');
+ assert.notEqual(drapePoseKey('attack',.10),drapePoseKey('attack',.25),'strike keeps wind-up and follow-through');
+ assert.notEqual(drapePoseKey('cast',.20),drapePoseKey('cast',.35),'cast cloth stays alive');
+ for(const age of [NaN,Infinity,-Infinity,-100,0,1e30]){
+  assert.equal(typeof drapePoseKey('move',age,false),'string');
+  assert.ok(drapePoseKey('move',age,false).length<40,'cache keys remain finite and bounded');
+ }
+});
+
+test('Round 54: GLB fabric skips redundant CPU vertex and normal work without dropping rest recovery',()=>{
+ const assets=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(assets,/import \{[^}]*drapePoseKey[^}]*\} from '\/dungeon\/fabric-drape-plan\.js'/);
+ assert.match(assets,/if\(poseKey!==actor\.draperyPoseKey\)/);
+ assert.match(assets,/actor\.draperyPoseKey=poseKey/);
+ assert.match(assets,/draperyFramesSkipped/);
+ assert.match(assets,/draperyNormalRebuilds/);
+ assert.match(assets,/position\.needsUpdate=true/);
+ assert.match(assets,/computeVertexNormals\(\)/);
+ assert.match(assets,/actor\.draperyPoseKey=null/,'floor/restart disposal resets the cache');
+});
