@@ -1,4 +1,5 @@
 'use strict';
+const { restorePreR45 } = require('../helpers/snake-r45-archive.cjs');
 const { test, expect } = require('@playwright/test');
 const fs = require('node:fs');
 const path = require('node:path');
@@ -27,7 +28,7 @@ test('real Chromium/WebGL: original jaw anticipates nearby public fruit in uncha
   const frozen = JSON.stringify(frame);
   const source = fs.readFileSync(path.join(repo, 'public/snake-stream/serpent.mjs'), 'utf8');
   expect((source.match(round39) || []).length).toBe(3);
-  const predecessor = source.replace(round39, '');
+  const predecessor = restorePreR45(source.replace(round39, ''));
   expect(blob(predecessor)).toBe('8e96f08c3fca80484d69c9476a6d9993cfc4af63');
   const rendererSource = fs.readFileSync(path.join(repo, 'public/snake-stream/renderer.mjs'), 'utf8');
   const clockAnchor = '    const time = timestamp / 1000;';

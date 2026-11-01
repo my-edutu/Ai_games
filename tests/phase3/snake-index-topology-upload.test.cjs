@@ -1,4 +1,5 @@
 'use strict';
+const { restorePreR45 } = require('../helpers/snake-r45-archive.cjs');
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
@@ -22,7 +23,7 @@ test('living serpent reuses unchanged GPU index topology without dropping portal
   assert.equal((original.match(r37Blocks) || []).length, 2);
   // The previous R36 implementation shares the later eyelid choreography:
   // removing R37 is ONLY for its exact archived Git hash, never visual/model A/B.
-  assert.equal(blob(original.replace(r37Blocks, '').replace(r39Blocks, '')), 'feb317e2c4f8465ff77f33f4d400a4292a795330', 'control is the verified prior Git blob');
+  assert.equal(blob(restorePreR45(original.replace(r37Blocks, '').replace(r39Blocks, ''))), 'feb317e2c4f8465ff77f33f4d400a4292a795330', 'control is the verified prior Git blob');
   const { createSerpent: createPrior } = await import('data:text/javascript;base64,' + Buffer.from(original).toString('base64'));
   const { createSerpent } = await import('../../public/snake-stream/serpent.mjs');
   const previous = createPrior(THREE), current = createSerpent(THREE);

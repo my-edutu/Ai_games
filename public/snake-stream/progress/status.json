@@ -1,10 +1,15 @@
 {
   "updatedAt": "2026-11-01",
-  "status": "ROUND44 ORIGINAL HARVEST FRUIT · MODEL AND WEBGL CANDIDATE, STRICT FRAME GATE STILL OPEN",
-  "detail": "Exact R43 source 1ce763a focused Chromium 41262769648 passed 31/32; the unchanged desktop gate FAILED with 7 actual submitted WebGL frames/1008.6ms vs >=17 (61 RAF callbacks are not renders/display presents). General 41262769566 passed build/Node/host/authority/operations but browser failed. R44 sculpts and reduces existing original fruit body while preserving full-size gold floor marker, resources, deterministic authoritative gameplay, portal/hazard/food/captions/reduced-motion/recovery. New exact Git blob node & dual-view real WebGL synthetic A/B CI PENDING: no R44 win claimed. Whole-game Snake Pass still LOSE; independent reviewer offline, device display-present FPS, soak/R5 OPEN. Draft, unmerged, undeployed.",
+  "status": "ROUND45 PUBLIC-FRUIT ORIGINAL FORKED TONGUE · EXACT-SOURCE NODE + REAL WEBGL PENDING, STRICT R44 FRAME GATE FAILED",
+  "detail": "R44 exact source 6fb9806 focused Chromium 41265909352 passed 32/33, including real WebGL synthetic sculpted-fruit A/B. Unchanged desktop performance FAILED: 9 actual render submissions/1004.7ms versus minimum 17; 61 RAF callbacks are NOT rendered/display-present FPS. General CI 41265909393 was cancelled after unrelated Tower artifact. R45 reuses three original tongue meshes for near-forward-PUBLIC-fruit taste motion with danger, eating and reduced motion priority; zero new meshes/materials/textures and no authoritative gameplay change. SHA-exact predecessor recovered through GitHub. R45 Node, real WebGL dual-view capture and actual strict pacing PENDING; no win claimed. Snake Pass and secondary ASTRO BOT full-game visual/motion bar LOSE; independent review, device presents, soak/R5 open. Draft/unmerged/undeployed.",
   "latestImage": "/progress/evidence/round-9-overview.jpg",
-  "latestCaption": "Historical thumbnail only, not the new R39. Actual new R39 WebGL synthetic screenshot/trace artifact (not live FPS or independent critique): https://github.com/my-edutu/Ai_games/actions/runs/41249642441/artifacts/13061195617 . Companion motion: https://github.com/my-edutu/Ai_games/actions/runs/41249642441/artifacts/13060793905 .",
+  "latestCaption": "Historical thumbnail only. Current R44 actual Chromium/WebGL comparison and focused results: https://github.com/my-edutu/Ai_games/actions/runs/41265909352 . R45 runtime captures not yet verified; historical footage is not live or display-present FPS.",
   "reviews": [
+    {
+      "area": "Round 45 · existing original forked tongue responds to nearby public fruit",
+      "verdict": "CANDIDATE · EXACT PRIOR GIT BLOB VERIFIED · NEW NODE AND REAL WEBGL PENDING · LAST STRICT 9/17 FAIL",
+      "gap": "Verify fixed-public-fruit original/current close-up fork cue in actual Chromium capture, four-heading motion and resource/priority contracts, and unchanged ≥17 actual frame gate. Fork may be tiny at overview scale; sustained actual frame throughput, device presents, independent Snake Pass critic, long soak/R5 OPEN."
+    },
     {
       "area": "Round 44 · original five-lobed harvest fruit and character-relative scale",
       "verdict": "CANDIDATE · NEW SHA-CONTROLLED MODEL & REAL WEBGL CAPTURES PENDING; PRIOR STRICT 7/17 FAILED",

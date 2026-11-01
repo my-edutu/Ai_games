@@ -703,11 +703,21 @@ export function createSerpent(THREE) {
       brows[i].position.z = 0.044 * lidClosure;
       // END R37 ATTACHED LID SWEEP
     }
+    // BEGIN R45 PUBLIC FOOD TONGUE INVESTIGATION
+    // A readable original forked-tongue gesture becomes more frequent only
+    // near forward PUBLIC fruit. Danger and reduced motion take priority.
+    // Reuse existing geometry/materials and the public R39 anticipation scalar.
     const tonguePhase = (time + 0.9) % 3.8;
-    const flick = tonguePhase > 3.35 ? Math.pow(Math.sin((tonguePhase - 3.35) / 0.45 * Math.PI), 0.65) : 0;
-    tongue.visible = !reduced && eaten < 0.04 && flick > 0.02;
+    const loneFlick = tonguePhase > 3.35
+      ? Math.pow(Math.sin((tonguePhase - 3.35) / 0.45 * Math.PI), 0.65) : 0;
+    const huntingPhase = ((time + 0.36) % 1.35) / 1.35;
+    const huntingFlick = Math.pow(Math.max(0,
+      Math.sin(Math.PI * Math.min(1, huntingPhase / 0.55))), 0.65);
+    const flick = Math.max(loneFlick, huntingFlick * feedingAnticipation);
+    tongue.visible = !reduced && danger < 0.6 && eaten < 0.04 && flick > 0.02;
     tongue.scale.z = Math.max(0.04, flick);
-    tongue.rotation.y = Math.sin(time * 37) * 0.07;
+    tongue.rotation.y = Math.sin(time * 37) * 0.07 + focusYaw * 0.45;
+    // END R45 PUBLIC FOOD TONGUE INVESTIGATION
   }
 
   function stats() {

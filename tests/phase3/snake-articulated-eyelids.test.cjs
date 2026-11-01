@@ -1,4 +1,5 @@
 'use strict';
+const { restorePreR45 } = require('../helpers/snake-r45-archive.cjs');
 const test=require('node:test');
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
@@ -24,7 +25,7 @@ test('Round37 old-source red control: slower attached blink closes both actual u
   assert.equal((content.match(blocks)||[]).length,2,'exact two bounded new additions');
   const predecessor=content.replace(blocks,'');
   assert.equal((content.match(r39Blocks) || []).length, 3, 'three new feeding blocks');
-  assert.equal(blob(predecessor.replace(r39Blocks, '')),'636d51031c6e3f1b6d304d66ab2a34534f9fe506','exact Git predecessor');
+  assert.equal(blob(restorePreR45(predecessor.replace(r39Blocks, ''))),'636d51031c6e3f1b6d304d66ab2a34534f9fe506','exact Git predecessor');
   const {createSerpent:makeOld}=await import('data:text/javascript;base64,'+Buffer.from(predecessor).toString('base64'));
   const {createSerpent:makeNew}=await import('../../public/snake-stream/serpent.mjs');
   const before=makeOld(THREE),after=makeNew(THREE),untouched=JSON.stringify(frozenPaths);

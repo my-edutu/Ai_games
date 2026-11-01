@@ -1,4 +1,5 @@
 'use strict';
+const { restorePreR45 } = require('../helpers/snake-r45-archive.cjs');
 const {test,expect}=require('@playwright/test');
 const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto');
 test.use({launchOptions:{args:['--use-angle=swiftshader','--enable-unsafe-swiftshader']}});
@@ -17,7 +18,7 @@ test('real Chromium WebGL: articulated upper lids cover original eye during fixe
   const old=current.replace(blocks,'');
   expect((current.match(r39Blocks) || []).length).toBe(3);
   expect((current.match(blocks)||[]).length).toBe(2);
-  expect(blob(old.replace(r39Blocks, ''))).toBe('636d51031c6e3f1b6d304d66ab2a34534f9fe506');
+  expect(blob(restorePreR45(old.replace(r39Blocks, '')))).toBe('636d51031c6e3f1b6d304d66ab2a34534f9fe506');
   const renderer=fs.readFileSync(path.join(repo,'public/snake-stream/renderer.mjs'),'utf8');
   const anchor='    const time = timestamp / 1000;';
   expect(renderer.split(anchor).length).toBe(2);

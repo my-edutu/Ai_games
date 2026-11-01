@@ -1,4 +1,5 @@
 'use strict';
+const { restorePreR45 } = require('../helpers/snake-r45-archive.cjs');
 const { test, expect } = require('@playwright/test');
 const fs = require('node:fs');
 const path = require('node:path');
@@ -28,7 +29,7 @@ test('real WebGL overview and detail preserve exact prior pixels while unnecessa
   expect((current.match(r39Blocks) || []).length).toBe(3);
   expect((original.match(r37Blocks) || []).length).toBe(2);
   // Both visual arms retain R37. Only the archived R36-parent SHA is stripped.
-  expect(blob(original.replace(r37Blocks, '').replace(r39Blocks, ''))).toBe('feb317e2c4f8465ff77f33f4d400a4292a795330');
+  expect(blob(restorePreR45(original.replace(r37Blocks, '').replace(r39Blocks, '')))).toBe('feb317e2c4f8465ff77f33f4d400a4292a795330');
   const evidenceRows=[];
   for(const mode of ['overview','detail']){
     const captures=[];
