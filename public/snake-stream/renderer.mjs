@@ -95,6 +95,21 @@ export function boundedRescuePixelRatio(currentRatio, deviceRatio, sampleMs, tar
   return currentRatio - next >= 0.025 ? next : currentRatio;
 }
 // END R51 RESCUE PIXEL RATIO
+// BEGIN R53 STARTUP RASTER HELPER
+/**
+ * One bounded first-paint raster budget for oversized broadcast canvases.
+ * Avoid flooding the GPU queue with native-resolution shader compilation and
+ * early offscreen cache passes before measured steady-state adaptation starts.
+ * Ordinary/phone views stay native; never cross the existing 0.4 ratio floor.
+ * This is a presentation choice, not simulated frame pacing or a new GPU pass.
+ */
+export function boundedStartupPixelRatio(width,height,ratio) {
+  if (![width,height,ratio].every(Number.isFinite) || width<=0 || height<=0 || ratio<=0) return ratio;
+  const pixels=width*height*ratio*ratio;
+  if (pixels<=1200000) return ratio;
+  return Math.min(ratio,Math.max(Math.min(ratio,0.4),Math.sqrt(768000/(width*height))));
+}
+// END R53 STARTUP RASTER HELPER
 export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = {}) {
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false, powerPreference: 'high-performance' });
   renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -370,6 +385,15 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
     dirty = false;
     const width = Math.max(1, canvas.clientWidth);
     const height = Math.max(1, canvas.clientHeight);
+    // BEGIN R53 STARTUP RASTER RESIZE
+    // Only the first large canvas starts in a bounded raster budget. Later
+    // R51 measured quality adjustments, critical cues and all 3D layers remain.
+    if (frameCount === 0) {
+      const initialRatio = renderer.getPixelRatio();
+      const startupRatio = boundedStartupPixelRatio(width, height, initialRatio);
+      if (startupRatio < initialRatio) renderer.setPixelRatio(startupRatio);
+    }
+    // END R53 STARTUP RASTER RESIZE
     renderer.setSize(width, height, false);
     camera.aspect = width / height;
     camera.updateProjectionMatrix();

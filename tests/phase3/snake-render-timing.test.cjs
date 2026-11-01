@@ -7,7 +7,7 @@ const assert = require('node:assert/strict');
 const root = path.resolve(__dirname, '../..');
 const snapshot = {width:10,height:6,runToken:'one',revision:1,movementStep:1,snake:[45,44,11].map(cell=>({cell})),obstacles:[],hazards:[],portals:[],food:null,length:3,goal:30,occupancy:3,foodsCollected:0,dangerLevel:0};
 
-async function makeHarness(search = '') {
+async function makeHarness(search = '', dimensions = {width:1000,height:600}) {
   const Three = await import('three');
   const { buildMotion } = await import('../../public/snake-stream/motion.mjs');
   const { cameraComposition } = await import('../../public/snake-stream/camera.mjs');
@@ -36,7 +36,7 @@ async function makeHarness(search = '') {
   const source = fs.readFileSync(`${root}/public/snake-stream/renderer.mjs`, 'utf8')
     .replace(/^import .*;\n/gm, '').replace(/^export (?=function )/gm, '');
   vm.runInContext(source + '\nglobalThis.makeRenderer = createSceneRenderer;', context);
-  const canvas = { clientWidth: 1000, clientHeight: 600, dataset: {}, addEventListener() {}, removeEventListener() {} };
+  const canvas = { clientWidth: dimensions.width, clientHeight: dimensions.height, dataset: {}, addEventListener() {}, removeEventListener() {} };
   const renderer = context.makeRenderer(canvas);
   let time = 1000;
   return { renderer, probe: context.rendererProbe, advance(delta = 1000 / 60) { time += delta; renderer.draw({ snapshot }, null, 1, time); } };
@@ -149,4 +149,24 @@ test('R51 visibility resume forgets partial rescue samples, not established rast
     for (let n = 0; n < 3; n++) advance(62);
     assert.equal(renderer.stats().adaptiveRescue.settled, true);
   } finally { renderer.dispose(); }
+});
+
+
+test('R53 oversized canvas first submission is bounded without GPU queue or simulation changes', async () => {
+  const large = await makeHarness('', {width:1840,height:840});
+  const ordinary = await makeHarness('', {width:1000,height:600});
+  try {
+    large.advance(); ordinary.advance();
+    const ratio=large.probe.getPixelRatio();
+    assert.ok(ratio>0.6 && ratio<0.75,'large first draw avoids native 1.55m pixel flood');
+    assert.equal(large.probe.width,1840);assert.equal(large.probe.height,840);
+    assert.equal(ordinary.probe.getPixelRatio(),1,'ordinary UI keeps native sharpness');
+    assert.equal(large.renderer.stats().frameCount,1,'one submitted draw, no fake extra frames');
+    const initialChanges=large.probe.ratioChanges.length;
+    for(let n=0;n<32;n++){large.advance();ordinary.advance();}
+    assert.equal(large.renderer.stats().quality,'balanced');
+    assert.equal(large.probe.ratioChanges.length,initialChanges,'bounded first paint does not rebuild each tick');
+    assert.equal(large.probe.draws,33,'each real fake-render submission still counted');
+    assert.equal(ordinary.probe.draws,33);
+  } finally {large.renderer.dispose();ordinary.renderer.dispose();}
 });
