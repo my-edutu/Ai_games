@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "characterModel": "expedition-climber.gltf",
+  "characterScale": 1,
+  "animationNames": {
+    "idle": "Idle",
+    "run": "Running",
+    "leap": "Jump",
+    "fall": "Fall",
+    "climb": "Climb",
+    "combat": "Punch"
+  },
+  "environmentModels": [],
+  "licenseNotices": [
+    "Expedition Climber glTF mesh, hierarchy, material colors and six motion clips generated originally for EDUTU AI Games in 2026; no third-party character assets bundled."
+  ],
+  "notes": "Original authored glTF prototype with 40 transform nodes, 27 meshes, six hierarchical animation clips and PBR colors. NOT professional weight-skinned topology or AAA animation; visual approval pending."
+}

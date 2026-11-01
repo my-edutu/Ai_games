@@ -1,0 +1,23 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Infinite Tower — Blind Visual Gauntlet</title><link rel="stylesheet" href="/tower/blind.css"></head>
+<body><main>
+<header><a href="/tower/gauntlet.html">← GAUNTLET EVIDENCE</a><span>UNLABELLED COMPARISON</span><strong>INDEPENDENT REVIEW</strong></header>
+<section class="intro"><span class="eyebrow">ZERO PRETEND APPROVALS</span><h1>Which climbing game actually looks better?</h1>
+<p>This compares screenshots of the <strong>actual rendered game</strong> with real published reference images. The two sources are shuffled and hidden until after your verdict. Inspect gameplay and animation before evaluating; a screenshot alone cannot certify production quality.</p></section>
+<section class="selectors"><label>Our actual captured gameplay image <select id="ours"><option value="">Waiting for locally captured gameplay...</option></select></label>
+<label>External visual benchmark <select id="benchmark"><option value="Jusant">Jusant — DON'T NOD</option><option value="Only Up!">Only Up! — supply screenshot</option><option value="Chained Together">Chained Together — supply screenshot</option></select></label>
+<label>Reference screenshot (optional for Jusant; required for other games) <input id="benchmark-file" type="file" accept="image/png,image/jpeg,image/webp"></label>
+<button id="begin" type="button" disabled>START BLIND A/B ROUND</button></section>
+<section id="blind-stage" hidden><div class="cards"><article><span>FRAME A</span><img id="frame-a" alt="Climbing game screenshot A" decoding="async"></article><article><span>FRAME B</span><img id="frame-b" alt="Climbing game screenshot B" decoding="async"></article></div>
+<form id="verdict-form"><h2>Independent critic verdict</h2><div class="choices"><label><input type="radio" name="winner" value="a" required> A wins</label><label><input type="radio" name="winner" value="b"> B wins</label><label><input type="radio" name="winner" value="tie"> Tie / too close</label></div>
+<label>Reviewer identifier <input type="text" name="reviewer" required minlength="2"></label>
+<label>Rate our game vs this bar <input type="number" name="score" min="1" max="10" step=".5" required></label>
+<label>Single largest remaining visual/gameplay gap <textarea name="biggestGap" minlength="12" required rows="3" placeholder="What was demonstrably weaker, in the actual screenshot and gameplay?"></textarea></label>
+<label>One verifiable next improvement <textarea name="nextAction" rows="2" placeholder="A specific builder task to judge independently"></textarea></label>
+<label class="checkbox"><input type="checkbox" name="sawGameplay" required> I personally inspected the running game's animations and gameplay, not just thumbnails.</label>
+<label class="checkbox"><input type="checkbox" name="independent" required> I did not build the version being evaluated.</label>
+<button id="submit" type="submit">LOCK VERDICT, THEN REVEAL SOURCES</button></form>
+</section>
+<aside id="feedback" aria-live="polite">Select a captured frame and begin a blind A/B comparison.</aside>
+<footer><a href="https://dont-nod.com/en/games/jusant/" target="_blank" rel="noopener">Jusant official game ↗</a><a href="https://store.steampowered.com/app/2567870/Chained_Together/" target="_blank" rel="noopener">Chained Together ↗</a><a href="https://steamcommunity.com/app/2381590/screenshots/" target="_blank" rel="noopener">Only Up! screenshots ↗</a></footer>
+</main><script type="module" src="/tower/blind-compare.js"></script></body></html>
