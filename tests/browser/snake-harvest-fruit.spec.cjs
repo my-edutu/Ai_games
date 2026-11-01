@@ -2,6 +2,7 @@
 const {test,expect}=require('@playwright/test');
 const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto');
 const {stripR44Fruit}=require('../helpers/snake-fruit-archive.cjs');
+const {stripR50Stone}=require('../helpers/snake-stone-archive.cjs');
 test.use({trace:'off',video:'off',launchOptions:{args:['--use-angle=swiftshader','--enable-unsafe-swiftshader']}});
 const root=path.resolve(__dirname,'../..');
 const artifact=n=>{const d=path.join(root,'artifacts/phase3');fs.mkdirSync(d,{recursive:true});return path.join(d,n);};
@@ -9,7 +10,7 @@ const gitBlob=s=>crypto.createHash('sha1').update('blob '+Buffer.byteLength(s)+'
 test('R44 genuine Chromium/WebGL sculpted food vs prior, same synthetic public frame both cameras',async({browser,baseURL})=>{
   test.setTimeout(150000);
   const source=fs.readFileSync(path.join(root,'public/snake-stream/world.mjs'),'utf8'),old=stripR44Fruit(source);
-  expect(gitBlob(old)).toBe('41f8b168bb765af04b4f893fdd44d80cbca1250b');
+  expect(gitBlob(stripR50Stone(old))).toBe('41f8b168bb765af04b4f893fdd44d80cbca1250b');
   const frame=JSON.parse(fs.readFileSync(path.join(root,'docs/reviews/snake-gauntlet/round-4-public-frame.json'),'utf8'));
   frame.snapshot.dangerLevel=0;frame.snapshot.food={...frame.snapshot.food,cell:251,kind:'normal'};
   const frozen=JSON.stringify(frame),result={};

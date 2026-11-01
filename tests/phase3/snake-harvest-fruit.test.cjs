@@ -2,6 +2,7 @@
 const test=require('node:test'),assert=require('node:assert/strict');
 const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto');
 const {stripR44Fruit,reapplyR44Fruit}=require('../helpers/snake-fruit-archive.cjs');
+const {stripR50Stone}=require('../helpers/snake-stone-archive.cjs');
 const worldPath=path.resolve(__dirname,'../../public/snake-stream/world.mjs');
 const gitBlob=s=>crypto.createHash('sha1').update('blob '+Buffer.byteLength(s)+'\0').update(s).digest('hex');
 const worldModule=s=>import('data:text/javascript;base64,'+Buffer.from(s).toString('base64'));
@@ -12,7 +13,7 @@ function fruit(world){
 }
 test('R44 old Git blob exact, original fruit geometry resources and public cues unchanged on both boards',async()=>{
   const source=fs.readFileSync(worldPath,'utf8'),previous=stripR44Fruit(source);
-  assert.equal(gitBlob(previous),'41f8b168bb765af04b4f893fdd44d80cbca1250b');
+  assert.equal(gitBlob(stripR50Stone(previous)),'41f8b168bb765af04b4f893fdd44d80cbca1250b');
   assert.equal(reapplyR44Fruit(previous,source),source);
   const THREE=await import('three');
   const {createWorld:beforeFactory}=await worldModule(previous);
