@@ -641,6 +641,38 @@ const path = require('node:path');
     if(evidence.referenceDaylight.daylight<.70)
       throw Error('Daylight visual comparison camera unexpectedly dark: '+JSON.stringify(evidence.referenceDaylight));
     await page.waitForTimeout(400);
+    // G090: two real-browser views of an actual completed autonomous job.
+    // This is a player-facing workday camera, NOT a scripted or fake worker.
+    evidence.g090Workday=await page.evaluate(()=>{
+      const g=window.__tinyKingdom;
+      const before=JSON.stringify(g.exportSnapshot());
+      const realEvents=g.getWorkdayEvents();
+      const selected=g.watchLatestWork();
+      const view=g.getWorkdayView();
+      return {eventCount:realEvents.length,selected,view,
+        sceneStats:g.getWorkdayRenderStats(),
+        status:document.getElementById('workday-activity').textContent,
+        authorityUnchanged:before===JSON.stringify(g.exportSnapshot()),
+        glError:document.querySelector('#world').getContext('webgl')?.getError()||0};
+    });
+    if(!evidence.g090Workday.selected||
+       !evidence.g090Workday.authorityUnchanged||
+       !evidence.g090Workday.view.following||
+       evidence.g090Workday.selected.citizen!==evidence.g090Workday.view.citizen||
+       evidence.g090Workday.glError!==0)
+      throw Error('G090 actual-work follow camera failed: '+JSON.stringify(evidence.g090Workday));
+    await page.waitForTimeout(500);
+    await page.screenshot({path:path.join(out,'g090-workday-follow-UI.png'),fullPage:true,timeout:90000});
+    await page.evaluate(()=>{
+      window.__tinyKingdom.setHudMode('cinema');
+      window.__tinyKingdom.setReferenceCapture(true);
+    });
+    await page.waitForTimeout(350);
+    await page.screenshot({path:path.join(out,'g090-workday-follow-world.png'),fullPage:true,timeout:90000});
+    await page.evaluate(()=>{
+      window.__tinyKingdom.setHudMode('full');
+      document.getElementById('focus').click();
+    });
     // These are real browser captures, not authored screenshot mockups.
     evidence.forest=await page.evaluate(()=>window.__tinyKingdom.getForestVisualStats());
     if(evidence.forest.broadleafLobes<evidence.forest.deciduous*4||
