@@ -50,7 +50,16 @@ function renderTransformation(record) {
       const clip = scene[key];
       const detail = verifiedClip(clip, sha) ? document.createElement('a') : document.createElement('span');
       if (detail.tagName === 'A') {
-        detail.href = clip.url; detail.textContent = 'Watch real gameplay ↗';
+        // Embedded clips show the actual game, never a cosmetic model render.
+        // Only first-party files are embedded; other HTTPS evidence is linked.
+        if (clip.url.startsWith('/tower/gauntlet/evidence/')) {
+          const video = document.createElement('video');
+          video.src = clip.url; video.controls = true; video.preload = 'none';
+          video.muted = true; video.playsInline = true;
+          video.setAttribute('aria-label', name + ' actual ' + (scene.label || scene.id) + ' gameplay');
+          box.append(video);
+        }
+        detail.href = clip.url; detail.textContent = 'Open full gameplay ↗';
         detail.target = '_blank'; detail.rel = 'noopener noreferrer';
       } else detail.textContent = 'Real paired footage pending';
       box.append(title, detail); clips.append(box);
