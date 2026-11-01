@@ -1,7 +1,7 @@
 {
   "updated": "2026-11-01",
-  "verdict": "Gauntlet 40 RED verified: new ankle projection contract failed at 64a3009, CI 41269613034 while existing ledge checks, npm ci and build passed. Real ordered-tick screenshots and measured boot/deck projections implemented; exact-source GREEN and GPU artifact inspection PENDING. Commercial visual gate FAIL/OPEN.",
-  "nextGap": "Inspect exact-source desktop/portrait ten-frame ledge sequences and real ankle/deck projection, then correct one evidenced depth/false-support or radial snap defect. Distinguish separately rendered authority stills from normal-speed video and device FPS. Independent Jusant and ASTRO BOT comparison, UI accessibility and soak remain OPEN.",
+  "verdict": "Gauntlet 40: RED→GREEN PASS for source-bound ankle projection and authentic rendered-tick capture: 11/11 logical, 4/4 browser checks, 20 sequence PNGs inspected at exact 10346e9. Visual transition FAIL: airborne presentation root moves radially 28.05→25.006 from ticks 300→304, with obvious camera/character displacement. Full motion, independent commercial, intended-device performance and stability gates OPEN. Gauntlet 90 NOT ACHIEVED.",
+  "nextGap": "G40 exact-source desktop and portrait contact sheets show 28.05 world-unit exterior root radius at airborne tick 300, returning to 25.006 by airborne tick 304; the climber visually leaps inward beside the wall without a sustained climb phase. Select ONE radial camera/character-transition discontinuity, add tick-adjacent genuine render captures and failing geometry/motion tests, then correct only presentation while retaining authoritative world movement, deterministic replay and actual deck contact. Reinspect complete live motion and Jusant/ASTRO BOT afterward; accessibility, hardware sustained FPS and soak remain OPEN.",
   "capture": "/tower/gauntlet/evidence/14-foundry-follow.webp",
   "captureLabel": "Actual tick 118 · compact HUD and clearer hostile equipment",
   "iterations": [
@@ -298,8 +298,8 @@
       "number": "40",
       "date": "2026-11-01",
       "title": "Replace single deceptive ledge still with real-tick boot/deck evidence",
-      "finding": "The G39 portrait still makes an airborne climber look planted on the lower deck. Added 10 ordered deterministic source states per viewport around genuine ledge contact, actual skeletal ankle NDC and lower-deck projections, and frame-source matching before each WebGL screenshot. This is verification instrumentation, not a visual correction.",
-      "checks": "Test-first RED source 64a3009: Tower Ledge CI 41269613034, npm ci/build and existing ledge regressions PASS; new source-projection regression fails as designed. GREEN/GPU still pending. Coding-worker tunnel unavailable: SELF-REVIEW only. Overall Gauntlet 90 FAIL."
+      "finding": "Source-bound sequences reveal the true issue: lower-deck proximity at tick 298 follows tick 296 grounded and tick 297 takeoff; later during the same ascent the visible root radius falls from 28.05 at tick 300 to 25.006 by tick 304 even though the climber remains airborne, with an abrupt visual change in relation to the tower and platform. Added actual ankle/deck projections and 20 authentic per-tick desktop/portrait captures; measured against screenshots, not inferred from physics alone. No animation/scene quality pass claimed.",
+      "checks": "Exact source 10346e9: RED Ledge CI 41269613034 failed on new missing-production-function assertion as intended (existing tests passed); GREEN Tower Ledge CI 41269752635 SUCCESS: 11/11 CPU, 4/4 browser, all 20 ordered-sequence screenshot checks, zero browser/render errors. Downloaded artifact 13068951961; verified source-sha.txt and inspected full desktop/portrait PNG sequences plus numerical root/ankle/deck projections. Six Tower workflows (Ledge, Landing, Combat, Guardian, Realism, Motion) SUCCESS; broad catalogue CI still IN PROGRESS when checked. Visual radial transition FAIL, independent critic unavailable. Commercial/device/soak gates OPEN."
     }
   ],
   "captures": [
