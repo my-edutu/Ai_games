@@ -135,7 +135,15 @@ function serve() {
   const port = Number(arg?.split('=')[1] ?? process.env.PORT ?? 4175);
   if (!Number.isInteger(port) || port < 1 || port > 65535) throw new RangeError('port');
   const launchFloor = Number(process.env.TOWER_LAUNCH_FLOOR || 0);
-  const { server } = createTowerStreamServer({ seed: process.env.TOWER_SEED, config: { launchFloor } });
+  // Only the explicitly designated CI capture scenario shortens a REAL
+  // authoritative run to make terminal → intermission → restart observable
+  // inside one normal-speed recording. No tick acceleration or replay edits.
+  // Normal preview/production hosts retain their original simulation budget.
+  const outcomeCapture = process.env.CI === 'true' && process.env.TOWER_MOTION_SCENARIO === 'outcome';
+  const captureConfig = outcomeCapture
+    ? { launchFloor, maxTicks: 900, noProgressTicks: 850, intermissionTicks: 36 }
+    : { launchFloor };
+  const { server } = createTowerStreamServer({ seed: process.env.TOWER_SEED, config: captureConfig });
   server.listen(port, '0.0.0.0', () => process.stdout.write(`Infinite Tower Climb 3D listening on port ${port}; progress /tower/gauntlet\n`));
   const shutdown = () => server.close(() => process.exit(0));
   process.on('SIGINT', shutdown); process.on('SIGTERM', shutdown);
