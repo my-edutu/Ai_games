@@ -897,19 +897,42 @@ export function createTowerWorld(){
         block(carriage,materials.edge,[side*4.3,4.5,.13],[.9,.16,.7]);
         counterweights.push({side,carriage});
       }
-      frame.traverse(object=>{if(object.isMesh){
-        object.userData.ambientDetail=true;object.castShadow=false;object.receiveShadow=false;
-      }});
+      // A physically coupled capstan and paired tension lines explain WHY
+      // the gate doors and heavy counterweights move as the guardian loses
+      // actual health. This is original 3D world geometry, not a HUD meter
+      // or a second gameplay authority. Rigid spoke art batches to two
+      // materials; the two live cable lengths share one GPU instance draw.
+      const capstan=new THREE.Group();capstan.name='GuardianGateCapstan';
+      capstan.position.set(0,5.2,.26);doorway.add(capstan);
+      mesh(capstan,geometry('guardian-gate-capstan-rim',
+        ()=>new THREE.TorusGeometry(.66,.105,6,22)),materials.copper);
+      mesh(capstan,cylinder(),materials.edge,[0,0,0],[.16,.14,.16],[Math.PI/2,0,0]);
+      for(const angle of [0,Math.PI/2])
+        block(capstan,materials.edge,[0,0,-.06],[1.12,.1,.13],[0,0,angle]);
+      batchRigid(capstan);
+      const tension=new THREE.InstancedMesh(cylinder(),materials.edge,2);
+      tension.name='GuardianCounterweightTension';
+      tension.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+      tension.castShadow=false;tension.receiveShadow=false;tension.frustumCulled=false;
+      doorway.add(tension);
+      const tensionPose=new THREE.Object3D();
       // The rigid gate piers, lintel and rails do not need one GPU draw
       // each. Batch ONLY this immovable architecture into shared-material
       // meshes; the source-driven doors, weights, crest and conduit stay
       // separate animated nodes with the exact same visible silhouette.
       // The entire frame remains a floor-owned decorative sibling, never
       // part of the walkable deck or authoritative hitbox.
-      batchRigid(frame,new Set([crest,conduit,
+      batchRigid(frame,new Set([crest,conduit,capstan,tension,
         ...wings.map(entry=>entry.wing),
         ...counterweights.map(entry=>entry.carriage)]));
-      guardianGate={frame,wings,crest,counterweights,conduit,progress:null,unlocked:false};
+      // Rigid batching creates fresh material-sharing meshes. Mark the final
+      // meshes after batching, or the floor's subsequent generic shadow pass
+      // would wrongly turn the dark masonry into new shadow casters.
+      frame.traverse(object=>{if(object.isMesh){
+        object.userData.ambientDetail=true;object.castShadow=false;object.receiveShadow=false;
+      }});
+      guardianGate={frame,wings,crest,counterweights,conduit,capstan,tension,tensionPose,
+        progress:null,unlocked:false};
     }
     let capMaterials = [];
     if(p.id.endsWith(':cap')){
@@ -1049,7 +1072,7 @@ export function createTowerWorld(){
             Number.isFinite(guardian.maxHealth)&&guardian.maxHealth>0
             ? THREE.MathUtils.clamp(guardian.health/guardian.maxHealth,0,1):1;
           const target=unlocked?1:(1-healthRatio)*.72;
-          if(gate.progress===null)gate.progress=target;
+          if(gate.progress===null || options.reducedMotion)gate.progress=target;
           else if(!options.stale){
             // Calibrated to real displayed dt: a slow render still catches
             // up visibly, whereas a fast renderer opens smoothly. No timer
@@ -1063,6 +1086,19 @@ export function createTowerWorld(){
             carriage.position.y=-gate.progress*2.35;
             carriage.rotation.z=side*gate.progress*.07;
           }
+          // No invented impulse: the wheel turns and the cables spool only
+          // as the true source-driven weights descend. Reduced motion retains
+          // the new cable length but not the extra winding rotation.
+          gate.capstan.rotation.z=options.reducedMotion?0:gate.progress*Math.PI*1.45;
+          const cableLength=.54+gate.progress*2.35;
+          for(const [index,side] of [-1,1].entries()){
+            gate.tensionPose.position.set(side*4.3,5.12-cableLength*.5,.24);
+            gate.tensionPose.rotation.set(0,0,0);
+            gate.tensionPose.scale.set(.047,cableLength,.047);
+            gate.tensionPose.updateMatrix();
+            gate.tension.setMatrixAt(index,gate.tensionPose.matrix);
+          }
+          gate.tension.instanceMatrix.needsUpdate=true;
           gate.crest.scale.x=1+gate.progress*.2;
           // The path advances with the HP-driven lock, never invented clearance.
           // It ends inside the real deck's outer rim and has no collider.

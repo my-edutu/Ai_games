@@ -55,6 +55,13 @@ test('a genuine living guardian owns a closed, dimensional world-space seal, not
     const right = named(world.group, 'GuardianSealWingRight');
     const crest = named(world.group, 'ObservedGuardianLockCrest');
     const conduit = named(world.group, 'GuardianEncounterConduit');
+    const capstan = named(world.group, 'GuardianGateCapstan');
+    const tension = named(world.group, 'GuardianCounterweightTension');
+    assert.ok(capstan && tension?.isInstancedMesh && tension.count === 2,
+      'an actual source-powered drum and exactly two tension lines belong to the 3D guardian gate');
+    assert.ok(Math.abs(capstan.rotation.z)<1e-12,
+      'an undamaged real guardian cannot visibly turn a victory drum');
+    assert.equal(tension.userData.collider,undefined);
     assert.ok(gate && left && right && crest, 'the real world contains an original 3D door and lock');
     assert.ok(conduit?.isMesh && !conduit.castShadow && !conduit.receiveShadow,
       'the real HP conduit is a physical, shadow-free mesh in the guardian cap');
@@ -95,7 +102,9 @@ test('a genuine living guardian owns a closed, dimensional world-space seal, not
     }
     assert.ok(gate.getObjectByName('GuardianSealWingLeft') &&
       gate.getObjectByName('GuardianCounterweightRight') &&
-      gate.getObjectByName('GuardianEncounterConduit'),
+      gate.getObjectByName('GuardianEncounterConduit') &&
+      gate.getObjectByName('GuardianGateCapstan') &&
+      gate.getObjectByName('GuardianCounterweightTension'),
       'only inert masonry is batched; all genuine source-driven components stay articulated');
   } finally { world.dispose(); }
 });
@@ -111,6 +120,17 @@ test('an authentic guardian defeat opens BOTH world-space doors and its distinct
     const leftWeight = named(world.group,'GuardianCounterweightLeft');
     const rightWeight = named(world.group,'GuardianCounterweightRight');
     const conduit = named(world.group,'GuardianEncounterConduit');
+    const capstan = named(world.group,'GuardianGateCapstan');
+    const tension = named(world.group,'GuardianCounterweightTension');
+    const THREE = await import(threeUrl);
+    const cableMatrix = new THREE.Matrix4();
+    const cableScale = new THREE.Vector3();
+    const cablePosition = new THREE.Vector3();
+    const cableQuaternion = new THREE.Quaternion();
+    tension.getMatrixAt(0,cableMatrix);
+    cableMatrix.decompose(cablePosition,cableQuaternion,cableScale);
+    assert.ok(Math.abs(cableScale.y-.54)<1e-10,
+      'at full health the original drum has only taut, short undrawn cable');
     assert.ok(Math.abs(leftWeight.position.y)<1e-12, 'left counterweight starts physically closed');
     assert.ok(Math.abs(rightWeight.position.y)<1e-12, 'right counterweight starts physically closed');
     // The real authority commonly transfers floors on the decisive hit.
@@ -125,6 +145,12 @@ test('an authentic guardian defeat opens BOTH world-space doors and its distinct
     assert.ok(right.position.x > .9 && right.position.x < 2.7);
     assert.ok(leftWeight.position.y < -1 && leftWeight.position.y > -2.35,
       'real guardian HP mechanically lowers the visible counterweights');
+    assert.ok(capstan.rotation.z > 1.8,
+      'observed real guardian damage visibly turns the winch');
+    tension.getMatrixAt(0,cableMatrix);
+    cableMatrix.decompose(cablePosition,cableQuaternion,cableScale);
+    assert.ok(cableScale.y>1.5 && cableScale.y<2.9,
+      'the same genuine HP loss physically draws additional load-bearing cable');
     assert.equal(leftWeight.position.y,rightWeight.position.y,
       'the pair cannot disagree on authoritative gate progress');
     assert.ok(conduit.scale.z > 2.25 && conduit.scale.z < 4.2,
@@ -142,6 +168,10 @@ test('an authentic guardian defeat opens BOTH world-space doors and its distinct
     assert.ok(crest.rotation.z > 1.5, 'the actual lock geometry changes state');
     assert.ok(leftWeight.position.y < -2.3 && rightWeight.position.y < -2.3,
       'an actual finished guardian fully releases the heavy mechanical weights');
+    tension.getMatrixAt(0,cableMatrix);
+    cableMatrix.decompose(cablePosition,cableQuaternion,cableScale);
+    assert.ok(Math.abs(cableScale.y-2.89)<1e-10,
+      'only an observed authentic defeat fully draws the physical cable');
     assert.equal(world.diagnostics().guardianGates[0].unlocked, true);
     assert.ok(conduit.scale.z > 4.6 && conduit.scale.z < 4.8,
       'authentic defeated guardians illuminate the full outer-lane passage');
@@ -168,5 +198,7 @@ test('no invented guardian means no gate; high/low switches and a new run restor
     assert.equal(named(world.group, 'GuardianSealWingLeft').position.x, 0);
     assert.ok(Math.abs(named(world.group, 'GuardianEncounterConduit').scale.z - .18) < 1e-12,
       'a genuinely new source run starts with a closed progression conduit');
+    assert.equal(named(world.group, 'GuardianGateCapstan').rotation.z,0,
+      'new run must not retain a preceding guardian capstan turn');
   } finally { world.dispose(); }
 });
