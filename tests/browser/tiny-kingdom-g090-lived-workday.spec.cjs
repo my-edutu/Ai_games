@@ -51,8 +51,17 @@ test('G090 workday camera follows real autonomous labor and shows its outcomes',
  expect(followed.current.citizen).toBe(observation.events[0].citizen);
  expect(followed.status).toContain(observation.events[0].citizen);
  expect(followed.glError).toBe(0);
- const painted=await page.evaluate(()=>window.__tinyKingdom.getWorkdayRenderStats());
- expect(painted.sceneMarkers).toBeGreaterThanOrEqual(0);
+ await page.waitForFunction(()=>window.__tinyKingdom.getWorkdayRenderStats().sceneMarkers>0,
+  null,{timeout:30000});
+ const painted=await page.evaluate(()=>{
+  const g=window.__tinyKingdom,gl=document.querySelector('#world').getContext('webgl');
+  return {stats:g.getWorkdayRenderStats(),geometry:g.getGeometryAudit(),glError:gl?.getError()||0};
+ });
+ expect(painted.stats.sceneMarkers).toBeGreaterThan(0);
+ expect(painted.geometry.totalTriangles).toBeLessThan(160000);
+ expect(painted.geometry.static.invalidComponents).toBe(0);
+ expect(painted.geometry.dynamic.invalidComponents).toBe(0);
+ expect(painted.glError).toBe(0);
  // Actual 390px interaction: the watch control remains in the horizontal
  // scenic navigation and the accessible label is not lost.
  await page.setViewportSize({width:390,height:844});
