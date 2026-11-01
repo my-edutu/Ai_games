@@ -4,7 +4,7 @@ export function createTowerAudio() {
   let enabled = false, token = '', last = null, lastFloor = null, lastIntent = '', lastLifecycle = 'running', stride = 0, noiseIndex = 0;
   let disposed = false, lastAmbient = 0, enableRequest = 0, enablePending = false;
   const voices = new Set(), heard = new Set(), pads = [];
-  let guardianWindups = new Map();
+  let guardianWindups = new Map(), guardianStates = new Map();
   async function setEnabled(value) {
     const operation = ++enableRequest;
     if (disposed) return false;
@@ -95,7 +95,7 @@ export function createTowerAudio() {
     const snapshot = frame.snapshot;
     if (snapshot.runToken !== token) {
       const verifiedRestart = !!token && ['result', 'intermission'].includes(lastLifecycle);
-      heard.clear(); last = null; lastFloor = null; lastIntent = ''; lastLifecycle = 'running'; stride = 0; guardianWindups.clear(); token = snapshot.runToken;
+      heard.clear(); last = null; lastFloor = null; lastIntent = ''; lastLifecycle = 'running'; stride = 0; guardianWindups.clear(); guardianStates.clear(); token = snapshot.runToken;
       if (verifiedRestart) tone(205, 365, .21, 'sine', .052);
     }
     for (const voice of frame.audio?.voices || []) if (!heard.has(voice.id)) {
@@ -124,7 +124,7 @@ export function createTowerAudio() {
     lastLifecycle = lifecycle;
     const actor = snapshot.player;
     const sameFloor = last && lastFloor === snapshot.floor;
-    if (!sameFloor) guardianWindups.clear();
+    if (!sameFloor) { guardianWindups.clear(); guardianStates.clear(); }
     // Follow the actual guardian's fixed-step telegraph as the visible maul
     // winds up and its source-projected warning lane narrows. At most one
     // low-level preparation and one final cue per real windup; missing optional
@@ -143,6 +143,21 @@ export function createTowerAudio() {
       liveWindups.set(enemy.id, remaining);
     }
     guardianWindups = liveWindups;
+    // The monumental seal in the 3D world opens only when a PRESENT guardian
+    // becomes inactive in the same authoritative run and floor. This restrained
+    // three-note release follows that same source transition; absence, restart
+    // or an old transport frame can never invent an unlock or victory fanfare.
+    const observedGuardians = new Map();
+    for(const enemy of snapshot.enemies || [])if(enemy.kind==='guardian'){
+      if(sameFloor && snapshot.lifecycle==='running' && guardianStates.get(enemy.id)===true && !enemy.active){
+        texture(550,.20,.065);
+        tone(220,330,.22,'triangle',.064);
+        tone(330,440,.31,'sine',.053);
+        tone(440,660,.44,'sine',.045);
+      }
+      observedGuardians.set(enemy.id,!!enemy.active);
+    }
+    guardianStates=observedGuardians;
     const intent = snapshot.intent?.mode || '';
     // Restrained opt-in cue on real defensive transition, deduped by intent.
     // The matching model pose remains visible when muted.
@@ -202,7 +217,7 @@ export function createTowerAudio() {
     if (disposed) return;
     disposed = true; enabled = false; enablePending = false; enableRequest++;
     for (const voice of voices) { try { voice.stop(); voice.disconnect(); } catch {} }
-    voices.clear(); heard.clear(); guardianWindups.clear(); pads.length = 0; last = null; lastFloor = null; lastIntent = ''; lastLifecycle = 'running'; stride = 0;
+    voices.clear(); heard.clear(); guardianWindups.clear(); guardianStates.clear(); pads.length = 0; last = null; lastFloor = null; lastIntent = ''; lastLifecycle = 'running'; stride = 0;
     if (context) context.close().catch(() => {});
   }
   return { setEnabled, accept, dispose, diagnostics: () => ({ soundEnabled: enabled, soundPending: enablePending, voices: voices.size, context: context?.state || 'not-started' }) };
