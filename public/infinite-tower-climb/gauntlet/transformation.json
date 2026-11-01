@@ -1,0 +1,73 @@
+{
+  "schemaVersion": 1,
+  "updated": "2026-11-01",
+  "mode": "transformation-first",
+  "baseline": {
+    "sha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "title": "Frozen playable Tower build before the transformation pivot",
+    "frozenOn": "2026-11-01"
+  },
+  "candidate": {
+    "sha": null,
+    "title": "Transformed playable build — not yet produced"
+  },
+  "currentTransformation": {
+    "title": "Make the complete climb look, feel and play markedly better",
+    "state": "DEFINED — NO QUALITY PASS",
+    "promise": "An immediately recognizable leap in fully realized 3D cast, environments, grounded movement, meaningful autonomous action and immersive gameplay.",
+    "nextDecision": "Produce one integrated playable experience across ascent, combat and outcome; capture paired normal-speed footage before scoring any improvement.",
+    "rejectedMicroMilestones": "A green CI run, an isolated pose fix, a prettier screenshot or an extra UI icon never counts as a Gauntlet win."
+  },
+  "scenarios": [
+    {
+      "id": "ascent",
+      "label": "Everyday ascent",
+      "goal": "Natural 3D movement, reading the next platform, authentic route choice",
+      "seed": null,
+      "quality": null,
+      "viewport": null,
+      "baseline": null,
+      "candidate": null
+    },
+    {
+      "id": "danger",
+      "label": "Danger and encounter",
+      "goal": "Moving hazard, enemy/guardian, readable contact and recovery",
+      "seed": null,
+      "quality": null,
+      "viewport": null,
+      "baseline": null,
+      "candidate": null
+    },
+    {
+      "id": "outcome",
+      "label": "Complete game cycle",
+      "goal": "Milestone, outcome and verified restart/continued ascent",
+      "seed": null,
+      "quality": null,
+      "viewport": null,
+      "baseline": null,
+      "candidate": null
+    }
+  ],
+  "reviews": {
+    "looks": [],
+    "feels": [],
+    "plays": []
+  },
+  "guardrails": {
+    "ci": "pending",
+    "replay": "pending",
+    "accessibility": "pending",
+    "performance": "pending",
+    "stability": "pending"
+  },
+  "unresolvedCriticalIssues": null,
+  "benchmark": {
+    "action": "ASTRO BOT — Rising Heat (real game footage)",
+    "traversal": "Jusant (authentic climbing and monumental world)",
+    "fidelity": "Returnal — Tower of Sisyphus (materials, cinematic lighting, intensity)",
+    "status": "NOT INDEPENDENTLY EVALUATED"
+  },
+  "policy": "Requires matched real gameplay in all three scenes and 4/5 independent blind critics preferring new game in LOOKS, FEELS and PLAYS; technical checks are vetoes, not quality wins."
+}

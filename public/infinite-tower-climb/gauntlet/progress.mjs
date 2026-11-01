@@ -1,3 +1,92 @@
+import { PILLARS, evaluateTransformation } from './transformation-gate.mjs';
+const qualityLabels = {
+  NOT_EVALUATED: 'NOT EVALUATED',
+  AWAITING_GAMEPLAY: 'AWAITING REAL GAMEPLAY',
+  AWAITING_CRITICS: 'AWAITING INDEPENDENT CRITICS',
+  NOT_SUBSTANTIALLY_BETTER: 'NOT SUBSTANTIALLY BETTER',
+  BLOCKED_BY_REGRESSION: 'BLOCKED BY REGRESSION',
+  TECHNICAL_GATES_OPEN: 'QUALITY PREFERRED · SAFETY OPEN',
+  TRANSFORMATION_VERIFIED: 'TRANSFORMATION VERIFIED',
+};
+function put(id, value) {
+  const node = document.getElementById(id);
+  if (node) node.textContent = value;
+}
+function verifiedClip(clip, sha) {
+  return !!clip && clip.captureVerified === true && clip.realGameplay === true &&
+    clip.sourceSha === sha && Number.isFinite(clip.seconds) && clip.seconds >= 60 &&
+    typeof clip.url === 'string' &&
+    (clip.url.startsWith('/tower/gauntlet/evidence/') || /^https:\/\//i.test(clip.url)) &&
+    /\.(mp4|webm)(?:[?#].*)?$/i.test(clip.url);
+}
+function renderTransformation(record) {
+  const result = evaluateTransformation(record);
+  put('transformation-status', qualityLabels[result.status] || 'NOT EVALUATED');
+  put('transformation-focus', record?.currentTransformation?.title || 'Current playable transformation not yet defined');
+  put('transformation-gap', record?.currentTransformation?.nextDecision ||
+    'Capture actual before/after climbing footage and obtain independent comparisons.');
+  const labels = {
+    SUBSTANTIALLY_BETTER: 'Substantially better',
+    NO_PREFERENCE_WIN: 'Not demonstrably better',
+    AWAITING_INDEPENDENT_REVIEW: 'Not independently evaluated',
+  };
+  for (const { id } of PILLARS) {
+    const pillar = result.pillars[id];
+    put('pillar-' + id + '-status', labels[pillar.status] || 'Not evaluated');
+    put('pillar-' + id + '-votes', pillar.count >= 5 ?
+      pillar.candidateVotes + ' of ' + pillar.count + ' blind critics prefer the new build' :
+      pillar.count + ' independent reviews · 5 required');
+  }
+  const root = document.getElementById('transformation-scenes');
+  if (!root) return;
+  const sceneItems = Array.isArray(record?.scenarios) ? record.scenarios : [];
+  const cards = sceneItems.map(scene => {
+    const article = document.createElement('article'); article.className = 'transformation-scene';
+    const heading = document.createElement('h3'); heading.textContent = scene.label || scene.id;
+    const clips = document.createElement('div'); clips.className = 'transformation-clips';
+    for (const [key, name, sha] of [['baseline','BEFORE',result.baselineSha],['candidate','AFTER',result.candidateSha]]) {
+      const box = document.createElement('div'); box.className = 'transformation-clip';
+      const title = document.createElement('strong'); title.textContent = name;
+      const clip = scene[key];
+      const detail = verifiedClip(clip, sha) ? document.createElement('a') : document.createElement('span');
+      if (detail.tagName === 'A') {
+        // Embedded clips show the actual game, never a cosmetic model render.
+        // Only first-party files are embedded; other HTTPS evidence is linked.
+        if (clip.url.startsWith('/tower/gauntlet/evidence/')) {
+          const video = document.createElement('video');
+          video.src = clip.url; video.controls = true; video.preload = 'none';
+          video.muted = true; video.playsInline = true;
+          video.setAttribute('aria-label', name + ' actual ' + (scene.label || scene.id) + ' gameplay');
+          box.append(video);
+        }
+        detail.href = clip.url; detail.textContent = 'Open full gameplay ↗';
+        detail.target = '_blank'; detail.rel = 'noopener noreferrer';
+      } else detail.textContent = 'Real paired footage pending';
+      box.append(title, detail); clips.append(box);
+    }
+    article.append(heading, clips); return article;
+  });
+  root.replaceChildren(...cards);
+  put('transformation-evidence', 'Independent before/after verdict: ' +
+    (result.status === 'TRANSFORMATION_VERIFIED' ? 'verified on all three experience pillars.' :
+      'not yet established. CI/replay checks prevent regressions but cannot create a quality win.'));
+}
+let transformationRevision = '';
+async function refreshTransformation() {
+  try {
+    const response = await fetch('/tower/gauntlet/transformation.json', { cache: 'no-store' });
+    if (!response.ok) throw new Error('transformation record unavailable');
+    const record = await response.json();
+    const stamp = JSON.stringify(record);
+    if (stamp === transformationRevision) return;
+    transformationRevision = stamp;
+    renderTransformation(record);
+  } catch {
+    put('transformation-status', 'NOT EVALUATED');
+    put('transformation-evidence', 'Transformation evidence unavailable. A green build is not a substitute for real game footage.');
+  }
+}
+
 let revision = '';
 let selectedCapture = '';
 function showCapture(entry, buttons) {
@@ -49,5 +138,7 @@ async function refresh() {
   } catch { document.getElementById('updated').textContent = 'Connection interrupted. Retrying the progress feed.'; }
 }
 refresh();
+refreshTransformation();
 const timer = setInterval(refresh, 5000);
-addEventListener('pagehide', () => clearInterval(timer), { once: true });
+const transformationTimer = setInterval(refreshTransformation, 5000);
+addEventListener('pagehide', () => { clearInterval(timer); clearInterval(transformationTimer); }, { once: true });
