@@ -26,11 +26,17 @@ function poseThreatLane(lane, enemy, frame){
   const points=lane.geometry.getAttribute('position');
   const distance=Math.min(120000,frame.worldWidth*.245);
   const direction=enemy.facing===-1?-1:1;
+  // A real approaching strike tightens its projected danger contour. The
+  // source's 8 fixed windup ticks, not the animation clock, own the warning;
+  // this adds no prediction, text overlay or authoritative collision.
+  const ticks=Number.isFinite(enemy.telegraphTicksRemaining)
+    ? clamp(enemy.telegraphTicksRemaining,1,8):8;
+  const laneHalf=.10+(1-ticks/8)*.095;
   for(let i=0;i<=THREAT_LANE_SEGMENTS;i++){
     const x=clamp(enemy.x+direction*(9000+distance*i/THREAT_LANE_SEGMENTS),0,frame.worldWidth);
     const mapped=pointFor(x,enemy.y,frame.chunkBaseY,frame.worldWidth,26.15);
-    points.setXYZ(i*2,mapped.x,mapped.y-.115,mapped.z);
-    points.setXYZ(i*2+1,mapped.x,mapped.y+.115,mapped.z);
+    points.setXYZ(i*2,mapped.x,mapped.y-laneHalf,mapped.z);
+    points.setXYZ(i*2+1,mapped.x,mapped.y+laneHalf,mapped.z);
   }
   points.needsUpdate=true;
 }
@@ -310,17 +316,18 @@ function composeFollowView(snapshot, hero, aspect, orbit = 0, zoom = 1) {
   if (target) landing = pointFor(target.x + target.width / 2,
     target.y + target.height, snapshot.chunkBaseY, snapshot.worldWidth, 26.7);
   let threat = null, nearest = Infinity;
-  function consider(x, y, halfWidth, halfHeight, priority = 1, guardian = false) {
+  function consider(x, y, halfWidth, halfHeight, priority = 1, guardian = false, winding = false) {
     const dx = Math.abs(x - player.x), dy = Math.abs(y - player.y);
     if (dx > 90000 || dy > 60000) return;
     const score = (dx + dy * 1.4) / priority;
     if (score >= nearest) return;
     nearest = score;
     threat = { ...pointFor(x, y, snapshot.chunkBaseY, snapshot.worldWidth),
-      halfWidth: halfWidth / SCALE, halfHeight: halfHeight / SCALE, guardian };
+      halfWidth: halfWidth / SCALE, halfHeight: halfHeight / SCALE,
+      guardian, imminentWindup: guardian && winding && dx < 55000 && dy < 28000 };
   }
   if (player.health > 0) {
-    for (const enemy of snapshot.enemies || []) if (enemy.active) consider(enemy.x, enemy.y, enemy.halfWidth, enemy.halfHeight, enemy.telegraph ? 1.5 : 1, enemy.kind === 'guardian');
+    for (const enemy of snapshot.enemies || []) if (enemy.active) consider(enemy.x, enemy.y, enemy.halfWidth, enemy.halfHeight, enemy.telegraph ? 1.5 : 1, enemy.kind === 'guardian', !!enemy.telegraph);
     for (const hazard of snapshot.hazards || []) if (hazard.active) consider(hazard.x + hazard.width / 2, hazard.y + hazard.height / 2, hazard.width / 2, hazard.height / 2, 1.2);
     // A fired bolt already moving farther from the climber is no longer an
     // immediate tactical threat; do not let it crop the contact source.
@@ -330,7 +337,8 @@ function composeFollowView(snapshot, hero, aspect, orbit = 0, zoom = 1) {
   // Stage a real close-range encounter before the distant route marker. The
   // existing world-space landing beacon remains visible; only camera fitting
   // temporarily favors actual attackers and their observed telegraph.
-  const encounter = !!threat && ['engaging-enemy', 'bracing-telegraph', 'evading-telegraph', 'evading-projectile'].includes(snapshot.intent?.mode);
+  const encounter = !!threat && (threat.imminentWindup
+    || ['engaging-enemy', 'bracing-telegraph', 'evading-telegraph', 'evading-projectile'].includes(snapshot.intent?.mode));
   const routeLanding = encounter ? null : landing;
   const center = { ...body };
   if (routeLanding) {
@@ -1144,7 +1152,14 @@ export function createTowerScene(canvas, settings = {}) {
       entry.fill.scale.set(width * Math.max(0, e.health / Math.max(1, e.maxHealth)), .09, 1);
       entry.fill.position.x = (entry.fill.scale.x - width) / 2;
       entry.warning.position.copy(model.position); entry.warning.position.y += .08;
-      entry.warning.visible = e.active && e.telegraph;
+      entry.warning.visible = e.active && e.telegraph && !options.stale;
+      // A guardian's *true* remaining charge ticks make the deck warning
+      // contract inward as its maul rises. Reduced motion retains a constant
+      // physical danger ring. No imaginary strike/hit is presented.
+      const chargeLeft = Number.isFinite(e.telegraphTicksRemaining)
+        ? clamp(e.telegraphTicksRemaining,1,8):8;
+      const threatBase = e.kind === 'guardian' ? 3.5 : 2.2;
+      entry.warning.scale.setScalar(threatBase*(options.reducedMotion?1:.82+.2*(1-chargeLeft/8)));
       entry.threatLane.visible = e.active && e.telegraph && !options.stale;
       if(entry.threatLane.visible)poseThreatLane(entry.threatLane,e,snapshot);
       // The incomplete arc shrinks across the enemy's true remaining ticks.
