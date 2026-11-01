@@ -13,7 +13,7 @@ function undo(s,marker,indent){
 const court=w=>{const t=w.group.children.find(m=>m.isMesh&&m.material?.map?.image?.width===1024&&m.material.map.image.height===512);assert.ok(t);return t.material.map.image.data;};
 test('T1 source-controlled old d16 quarry versus newly sunlit terraces: real atlas, authority and no new GPU assets',async()=>{
  const present=src('world.mjs');
- const old=undo(undo(present,'T1 TERRACE TONE CAPTURE','      '),'T1 SUNLIT SCARRED TERRACES','      ');
+ const old=undo(undo(undo(present,'T1 RECLAIMED GARDEN COMPOSITION','      '),'T1 TERRACE TONE CAPTURE','      '),'T1 SUNLIT SCARRED TERRACES','      ');
  assert.equal(sha(old),'39f89dda13f6cb14b3b1977d5cac91b80b81bbcd');
  const THREE=await import('three');
  const earlier=(await import('data:text/javascript;base64,'+Buffer.from(old).toString('base64'))).createWorld;
@@ -49,7 +49,7 @@ test('T1 source-controlled old d16 quarry versus newly sunlit terraces: real atl
 });
 test('T1 same-source 8 physically re-profiled shoreline landmarks, exact resources and geometry authority',async()=>{
  const present=src('living-garden.mjs');
- const old=undo(undo(present,'T1 TERRACED MASS CAPTURE','    '),'T1 TERRACED MASS REPROFILE','    ');
+ const old=undo(undo(undo(present,'T1 BROKEN SHORE SHELF STAGING','    '),'T1 TERRACED MASS CAPTURE','    '),'T1 TERRACED MASS REPROFILE','    ');
  assert.equal(sha(old),'f5bbb7a56684ede60c117e2de16742abf2f70ee0');
  const THREE=await import('three');
  const earlier=(await import('data:text/javascript;base64,'+Buffer.from(old).toString('base64'))).createLivingGarden;

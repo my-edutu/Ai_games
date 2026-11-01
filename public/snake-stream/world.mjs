@@ -437,6 +437,53 @@ export function createWorld(THREE, {width, height}) {
         data[i+1]=Math.min(priorStoneG,Math.max(0,Math.round(data[i+1]*(1-sunExposure)+targetG*sunExposure)));
         data[i+2]=Math.min(priorStoneB,Math.max(0,Math.round(data[i+2]*(1-sunExposure)+targetB*sunExposure)));
       }
+      // BEGIN T1 RECLAIMED GARDEN COMPOSITION
+      // Eight old-quarry sectors are reclaimed by *continuous* moss cover and
+      // pale exposed limestone instead of a near-black circular shader stain.
+      // This is a single already-owned 1024x512 physically present stone atlas.
+      // The field geometry, cells, seams, public cues and simulation are exact.
+      const gardenWarp=(smoothNoise(gx*.31+193,gz*.25+113)-.5)*2.7;
+      const broadLichen=smoothNoise(gx*.18+62,gz*.19+174);
+      const softMineral=smoothNoise(gx*.27+22,gz*.22+81);
+      const seedGroves=smoothNoise(gx*.13+14,gz*.21+52);
+      const richMoss=fade(.34,.67,broadLichen*.49+seedGroves*.35+softMineral*.16);
+      const erodedLimestone=fade(.36,.73,
+        softMineral*.45+(1-richMoss)*.36+mineral*.19);
+      const mossFront=fade(.55,2.9,border);
+      const mossReach=Math.min(1,mossFront*(.53+.47*richMoss));
+      // The old mud-brown middle becomes muted lichen and sunlit limestone;
+      // uneven soft borders stay *between* cell joins, not on gameplay cues.
+      const mossPatch=fade(.30,.64,richMoss*.72+(.5+.5*Math.sin(
+        gz*.37+gx*.21+gardenWarp))*.28);
+      const limestonePatch=fade(.34,.69,erodedLimestone*.66
+        +(.5+.5*Math.sin(gx*.19-gz*.27+gardenWarp))*.34);
+      const tintStrength=mossReach*(.66+.27*mossPatch);
+      const sedimentRidge=.5+.5*Math.sin(gx*.43-gz*.32+gardenWarp*.48);
+      const brightLimestone=Math.max(limestonePatch*(1-mossPatch*.49),
+        sedimentRidge*.78*(1-mossPatch*.23));
+      const targetR=96+brightLimestone*95+(mineral-.5)*13;
+      const targetG=117+brightLimestone*9+(cloud-.5)*11;
+      const targetB=86+brightLimestone*22+(mineral-.5)*11;
+      // Preserve sub-cell mortar and grazing-light grain rather than erasing
+      // real paving depth. Original pre-weathering bounds stay authoritative.
+      const preservedGrain=(value-.78)*22-recess*45-fracture*53;
+      const previousR=data[i],previousG=data[i+1],previousB=data[i+2];
+      // Keep earlier carved sandstone (warm) and shaded ferns (cool) distinct.
+      // Shift neutral muddy stone more strongly than already-authored biomes.
+      const hueProtected=previousR>previousG+6||previousG>previousR+23;
+      // For previously warm/fern-rich regions shift the *shared luminance*,
+      // not the original hue split. This preserves recognizable natural
+      // sandstone and green moss instead of repainting one flat new color.
+      const oldLuma=(previousR+previousG+previousB)/3;
+      const newLuma=(targetR+targetG+targetB)/3+preservedGrain;
+      const sharedLift=Math.max(-28,Math.min(51,(newLuma-oldLuma)*tintStrength));
+      data[i]=Math.min(priorStoneR,previousR+51,Math.max(0,Math.round(hueProtected
+        ?previousR+sharedLift:previousR*(1-tintStrength)+(targetR+preservedGrain)*tintStrength)));
+      data[i+1]=Math.min(priorStoneG,previousG+51,Math.max(0,Math.round(hueProtected
+        ?previousG+sharedLift:previousG*(1-tintStrength)+(targetG+preservedGrain)*tintStrength)));
+      data[i+2]=Math.min(priorStoneB,previousB+51,Math.max(0,Math.round(hueProtected
+        ?previousB+sharedLift:previousB*(1-tintStrength)+(targetB+preservedGrain)*tintStrength)));
+      // END T1 RECLAIMED GARDEN COMPOSITION
       // END T1 SUNLIT SCARRED TERRACES
       // END T1 ORGANIC QUARRY FLOOR
       // END T1 WETLAND MASONRY PATINA

@@ -548,6 +548,32 @@ export function createLivingGarden(THREE, {width,height}) {
         }
       }
     }
+    // BEGIN T1 BROKEN SHORE SHELF STAGING
+    // Flatten the eight original cone-like crests into wider old-stone
+    // landings with a rugged, genuinely low silhouette. Author into the
+    // existing geometry vertices after the parent terrace source is captured:
+    // no mesh, draw, texture, triangle, physics or collision allocations.
+    for(const [kind,start] of [['cliff',originalCliffStart],['moss',originalMossStart]]){
+      const positions=bands.get(kind).p;
+      for(let j=start;j<positions.length;j+=3){
+        const relative=positions[j+1]-bank[1];
+        if(relative<.35)continue;
+        const dx=positions[j]-bank[0],dz=positions[j+2]-bank[2];
+        const bearing=Math.atan2(dz,dx);
+        const bedding=Math.sin(bearing*5.2+phase*1.81)*.045
+          +Math.cos(bearing*8.1-phase*.94)*.028;
+        if(relative>2.03){
+          positions[j+1]=bank[1]+1.71+bedding;
+          positions[j]=bank[0]+dx*1.07;
+          positions[j+2]=bank[2]+dz*1.07;
+        }else if(relative>1.04){
+          positions[j+1]=bank[1]+1.02+bedding*.82;
+        }else{
+          positions[j+1]=bank[1]+.51+bedding*.57;
+        }
+      }
+    }
+    // END T1 BROKEN SHORE SHELF STAGING
     // END T1 TERRACED MASS REPROFILE
     // Vegetation sits on the same authored mass and leans OUTWARD, away
     // from the live snake, hazard/food/portal geometry and game camera.

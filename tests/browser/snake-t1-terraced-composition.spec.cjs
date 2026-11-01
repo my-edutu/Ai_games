@@ -19,8 +19,8 @@ test.use({trace:'off',video:'off',launchOptions:{
 test('T1 physical terrace AND courtyard exact-d16 paired whole-scene genuine Chromium WebGL views',async({browser,baseURL})=>{
  test.setTimeout(340000);
  const world=read('world.mjs'),garden=read('living-garden.mjs');
- const originalWorld=strip(strip(world,'T1 TERRACE TONE CAPTURE','      '),'T1 SUNLIT SCARRED TERRACES','      ');
- const originalGarden=strip(strip(garden,'T1 TERRACED MASS CAPTURE','    '),'T1 TERRACED MASS REPROFILE','    ');
+ const originalWorld=strip(strip(strip(world,'T1 RECLAIMED GARDEN COMPOSITION','      '),'T1 TERRACE TONE CAPTURE','      '),'T1 SUNLIT SCARRED TERRACES','      ');
+ const originalGarden=strip(strip(strip(garden,'T1 BROKEN SHORE SHELF STAGING','    '),'T1 TERRACED MASS CAPTURE','    '),'T1 TERRACED MASS REPROFILE','    ');
  expect(blob(originalWorld)).toBe('39f89dda13f6cb14b3b1977d5cac91b80b81bbcd');
  expect(blob(originalGarden)).toBe('f5bbb7a56684ede60c117e2de16742abf2f70ee0');
  const frame=JSON.parse(fs.readFileSync(path.join(root,'docs/reviews/snake-gauntlet/round-4-public-frame.json'),'utf8'));
