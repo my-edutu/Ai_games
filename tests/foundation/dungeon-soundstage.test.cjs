@@ -77,3 +77,37 @@ test('live 3D viewer loads original soundstage behind explicit opt-in and routes
  assert.ok(server.includes("['/dungeon/soundstage.js','soundstage.js']"));
  assert.ok(server.includes("['/dungeon/soundstage-plan.js','soundstage-plan.js']"));
 });
+
+test('real opt-in audio stops active voices on mute and revokes capture, not gameplay',async()=>{
+ const original=fs.readFileSync(path.join(root,'public/ai-dungeon/soundstage.js'),'utf8');
+ const planUrl='data:text/javascript;base64,'+Buffer.from(fs.readFileSync(file,'utf8')).toString('base64');
+ const faceUrl='data:text/javascript;base64,'+Buffer.from(fs.readFileSync(path.join(root,'public/ai-dungeon/facing-plan.js'),'utf8')).toString('base64');
+ const code=original.replace("'/dungeon/soundstage-plan.js'","'"+planUrl+"'")
+  .replace("'/dungeon/facing-plan.js'","'"+faceUrl+"'");
+ const {createDungeonSoundstage}=await import('data:text/javascript;base64,'+Buffer.from(code).toString('base64'));
+ const param=()=>({
+  value:0,setValueAtTime(){},exponentialRampToValueAtTime(){},setTargetAtTime(){},cancelScheduledValues(){}
+ });
+ let stopped=0,captures=0;
+ const ctx={
+  state:'running',currentTime:0,destination:{},
+  createGain:()=>({gain:param(),connect(){},disconnect(){}}),
+  createOscillator:()=>({frequency:param(),connect(){},disconnect(){},start(){},stop(){stopped++}}),
+  createMediaStreamDestination:()=>{captures++;return {stream:{getAudioTracks:()=>[{}]},disconnect(){}}}
+ };
+ const stage=createDungeonSoundstage(ctx);
+ assert.equal(stage.stats().started,false,'never autoplay before a click');
+ assert.equal(stage.captureStream(),null,'cannot capture audio before consent');
+ assert.equal(stage.enable(),true);
+ assert.equal(stage.cueWelcome(),true);
+ assert.equal(stage.stats().voices,1);
+ assert.ok(stage.captureStream()?.getAudioTracks().length);
+ assert.ok(stage.captureStream()?.getAudioTracks().length);
+ assert.equal(captures,1,'reuse only one recording output');
+ stage.disable();
+ assert.equal(stage.stats().enabled,false);
+ assert.equal(stage.stats().voices,0,'mute must stop any in-flight sound not leave it suspended');
+ assert.equal(stage.captureStream(),null,'mute revokes spectator audio capture');
+ assert.ok(stopped>=1);
+ stage.dispose();assert.equal(stage.stats().disposed,true);
+});
