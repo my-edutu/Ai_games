@@ -482,7 +482,7 @@ export function createMazeWorld(options = {}) {
       // collectible halos. Compress the physical torus into small wave
       // strokes instead: decorative current, not a fake item/route target.
       tide.setMatrixAt(i, transform(x, -1.629, z,
-        radius * .73, radius * (.10 + variation(seed + 7) * .06), 1, -Math.PI / 2));
+        radius * .73, radius * (.095 + variation(seed + 7) * .035), 1, -Math.PI / 2));
       tide.setColorAt(i, variation(seed + 13) > .47 ? tideLight : tideDark);
     }
     tide.instanceMatrix.needsUpdate = true;
