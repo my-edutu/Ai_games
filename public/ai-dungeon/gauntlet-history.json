@@ -2193,7 +2193,7 @@
         "feelsMajority": false,
         "playsMajority": false
       },
-      "safetyChecks": "Latest locked-candidate exact-head PR run 41329928121 COMPLETED SUCCESS on dfdd346, four jobs incl. authority and three Chromium shards. Dedicated visual run 41329928002 SUCCESS. Browser-audio test printed 'audiovisual recording UNVERIFIED: empty clip'. New architectural candidate is NOT tested or visually inspected yet; prior runs cannot verify new code.",
+      "safetyChecks": "Latest physical tactics candidate has not yet completed exact-SHA TypeScript build, foundation/integration tests, 24x900 deterministic campaign or real-browser desktop/mobile motion/audio. Previous green runs are not proof for this candidate.",
       "matchedExternalReference": "NOT_RUN",
       "originalAudioMotionClip": "PENDING_EXACT_HEAD_CHROMIUM_CAPTURE",
       "soundstageBrowser": "PENDING_EXACT_HEAD_CHROMIUM_RUN",
@@ -2204,8 +2204,8 @@
       "latestCandidateWorkflow": "PENDING_HEAD_WORKFLOW_AFTER_WARDEN_CHAPTER_PUSH"
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
-    "biggestRemainingGap": "No real AFTER capture of the new Warden cathedral exists. Original CC0 KayKit characters remain stylised low-poly with toy-like anatomy and weak convincing physical contact, and the full cathedral floor cannot by itself make AAA parity. Actual matched desktop/mobile continuous traversal/combat/boss/floor/defeat-restart and audible clips, measured frame tails and >=3 fresh blind critics remain absent.",
-    "currentWork": "M1 continues from the original locked 281735d baseline. Source candidate adds a single connected Warden-cathedral scene with original radial 3D carved stone, authority-phase-responsive low engravings, and wall-anchored gothic buttresses that hide when occluding real combatants. Builds upon existing Warden guards/phase combat and cinematic lens, without changing authority. New real browser raster, playable reel and critic preference remain UNVERIFIED.",
+    "biggestRemainingGap": "Actual 3D characters still look miniature and low-detail relative to reference. This candidate's live motion/audio, replay safety and real browser captures are UNVERIFIED; matched desktop/mobile full journey footage, GPU frame tails and >=3 independent blind Looks/Feels/Plays critics are missing.",
+    "currentWork": "M1 continues on the original locked baseline. Authoritative party and enemy footwork now attempts collision-aware role-based routes: genuine ranged lines, real short backline retreats, vanguard protection of threatened support characters, urgent Mystic triage, and actual enemy pursuit. These changes feed unchanged real Three.js skeletal animation, camera and sound; no fake grid offsets or staged results.",
     "candidateCommit": "cb4553280a438233c23cd2ba29df33ffd4ef9b27",
     "candidateArtifactUrl": null,
     "acceptedAt": null,
@@ -2409,6 +2409,22 @@
         "newEvidence": "PENDING browser scenes, paired baseline/staged boss screenshots, motion/audio, frame-time and blind critic judgment.",
         "experienceVerdict": "IN_PROGRESS / NOT TRANSFORMED",
         "next": "Review exact-head desktop/mobile screenshots for tile alignment, clipping, glyph hierarchy, camera sightlines and actual boss action; cut or repair any unreadable geometry, then tackle the imported stylized character rigs and complete organic audiovisual journey with blind preference."
+      },
+      {
+        "id": "M1-PHYSICAL-SQUAD-TACTICS-20261101",
+        "date": "2026-11-01",
+        "status": "IMPLEMENTED_UNVERIFIED",
+        "sourceHeadAtStart": "ed09ef99afe3f1b5a63094adb96dff686170503c",
+        "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+        "objective": "Replace visually crammed autonomous combat with genuine collision-free protagonist and enemy tactics in the actual Warden expedition; connect navigation, flanking, healer protection, critical triage and room movement.",
+        "code": [
+          "games/ai-dungeon/src/index.ts",
+          "tests/foundation/dungeon-core.test.cjs"
+        ],
+        "integratedImplementation": "Bounded occupancy-aware BFS across genuine grid, ranged firing and support lanes, true adjacent backline disengagement, vanguard targeting of enemies threatening support, urgent heal cadence and occupied-tile avoidance by enemies. These feed existing GLB actors, animation, contact VFX and sound without inventing gameplay events.",
+        "verification": "UNVERIFIED: exact-commit build, 480-turn occupancy invariant, deterministic seed campaign, authentic desktop/mobile browser footage, frame tails and blind critics not yet completed.",
+        "experienceVerdict": "IN_PROGRESS — NOT TRANSFORMED",
+        "next": "Inspect actual 3D movement on current PR head, ensure tactical AI completes encounters without stalling; improve original character anatomy and contact, then record full matching real audiovisual journeys and obtain independent critic majority."
       }
     ]
   }

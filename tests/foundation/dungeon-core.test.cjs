@@ -182,3 +182,41 @@ test('the real autonomous expedition starts with readable separate protagonists 
   assert.deepEqual(DungeonRuntime.restore(game.save()).publicState(),game.publicState());
  }
 });
+
+test('real tactical squad routing avoids ally cells while locating a legal firing lane',()=>{
+ const {planTacticalStep,planTacticalDisengage}=require('../../dist/games/ai-dungeon/src/index.js');
+ const map=Array.from({length:MAP_SIZE},(_,z)=>z===0||z===MAP_SIZE-1?'#'.repeat(MAP_SIZE):'#'+'.'.repeat(MAP_SIZE-2)+'#');
+ const ranger={id:'r',kind:'ranger',faction:'party',x:3,z:5,hp:70,maxHp:70,attack:15,cooldown:0};
+ const vanguard={...ranger,id:'v',kind:'vanguard',x:4,z:5};
+ const foe={...ranger,id:'e',kind:'revenant',faction:'enemy',x:7,z:5};
+ const s={map,units:[ranger,vanguard,foe],traps:[],tick:2};
+ const before=JSON.stringify(s),move=planTacticalStep(s,ranger,foe,'engage');
+ assert.ok(move&&Math.abs(move.x-ranger.x)+Math.abs(move.z-ranger.z)===1);
+ assert.notDeepEqual(move,{x:vanguard.x,z:vanguard.z});
+ assert.notDeepEqual(move,{x:foe.x,z:foe.z});
+ assert.deepEqual(planTacticalStep(s,ranger,foe,'engage'),move);
+ assert.equal(JSON.stringify(s),before,'planner must not mutate an authority snapshot');
+ const blade={...foe,id:'blade',x:3,z:4};s.units.push(blade);
+ const evade=planTacticalDisengage(s,ranger,blade);
+ assert.ok(evade&&Math.abs(evade.x-ranger.x)+Math.abs(evade.z-ranger.z)===1);
+ assert.ok(Math.abs(evade.x-blade.x)+Math.abs(evade.z-blade.z)>=2);
+ assert.equal(planTacticalStep(s,ranger,{x:0,z:0},'engage'),null,'do not path to a solid wall');
+});
+test('real autonomous fight and traversal keep every living actor in distinct legal world cells',()=>{
+ const game=DungeonRuntime.create('physical-autonomous-party-M1');
+ let moved=0,fought=0;
+ for(let i=0;i<480;i++){
+  const before=new Map(game.state.units.filter(u=>u.hp>0).map(u=>[u.id,{x:u.x,z:u.z}]));
+  game.step();
+  const s=game.state,living=s.units.filter(u=>u.hp>0);
+  assert.equal(new Set(living.map(u=>u.x+','+u.z)).size,living.length,'no living actor may occupy another at tick '+s.tick);
+  for(const u of living){
+   assert.equal(s.map[u.z]?.[u.x],'.');
+   const from=before.get(u.id);
+   if(from&&(from.x!==u.x||from.z!==u.z))moved++;
+   if(u.action==='attack'||u.action==='cast')fought++;
+  }
+  assertDungeonState(s);
+ }
+ assert.ok(moved>20&&fought>0,'the squad must continue travelling and actually fighting');
+});

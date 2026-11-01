@@ -120,6 +120,97 @@ function cultistRetreat(s:DungeonState,caster:Unit,hero:Unit){
   .sort((a,b)=>Number(b.clear)-Number(a.clear)||a.p.z-b.p.z||a.p.x-b.p.x);
  return escapes[0]?.p??null;
 }
+
+/**
+ * Deterministic physical squad and enemy footwork on the real dungeon grid.
+ * Actors cannot traverse occupied living cells. Ranged agents choose actual
+ * unobstructed firing positions, while warriors close for legal contact.
+ * No extra RNG, teleport, custom save fields, or presentation-only cheating.
+ */
+export type TacticalMode='engage'|'escort'|'exit';
+type TacticalCell={x:number;z:number};
+export function planTacticalStep(
+ s:Pick<DungeonState,'map'|'units'|'traps'|'tick'>,actor:Unit,goal:TacticalCell,
+ mode:TacticalMode='engage'
+):TacticalCell|null{
+ if(!s||!actor||!goal||!Array.isArray(s.map)||!Array.isArray(s.units)||
+  !Array.isArray(s.traps)||!walkable(s.map,actor.x,actor.z)||
+  !walkable(s.map,goal.x,goal.z)||!['engage','escort','exit'].includes(mode))return null;
+ const occupied=new Set(s.units.filter(u=>u.hp>0&&u.id!==actor.id).map(u=>key(u.x,u.z)));
+ const reach=mode==='escort'?(actor.kind==='ranger'?3:2):
+  actor.kind==='ranger'?4:actor.kind==='mystic'||actor.kind==='cultist'?3:1;
+ const ideal=mode==='escort'?(actor.kind==='ranger'?2:1):
+  actor.kind==='ranger'?3:actor.kind==='mystic'||actor.kind==='cultist'?2:1;
+ const inPosition=(p:TacticalCell)=>{
+  const d=dist(p,goal);
+  return mode==='exit'?d===0:mode==='escort'?d>=1&&d<=reach:
+   d>=1&&d<=reach&&clearCombatLane(s.map,p,goal);
+ };
+ const boss=s.units.find(u=>u.kind==='warden'&&u.hp>0);
+ const warning=boss?planWardenStrike(s,boss):null;
+ const marked=new Set((warning?.warning?warning.cells:[]).map(p=>key(p.x,p.z)));
+ const traps=new Set(s.traps.filter(t=>t.active&&!t.disarmed).map(t=>key(t.x,t.z)));
+ const risk=(p:TacticalCell)=>{
+  const k=key(p.x,p.z);
+  let value=(marked.has(k)?150:0)+(traps.has(k)?90:0);
+  if(actor.faction==='party'&&actor.kind!=='vanguard'&&mode==='engage')
+   for(const foe of s.units)if(foe.faction==='enemy'&&foe.hp>0&&dist(p,foe)<=1)value+=26;
+  return value;
+ };
+ if(inPosition(actor)&&risk(actor)===0)return null;
+ const toGoal=distances(s.map,goal);
+ const queue:{p:TacticalCell;first:TacticalCell|null;steps:number}[]=[
+  {p:{x:actor.x,z:actor.z},first:null,steps:0}];
+ const visited=new Set([key(actor.x,actor.z)]);
+ type Candidate={first:TacticalCell|null;score:number;x:number;z:number};
+ let best:Candidate|null=null,fallback:Candidate|null=null;
+ const prefer=(candidate:Candidate,current:Candidate|null)=>!current||
+  candidate.score<current.score||
+  candidate.score===current.score&&(candidate.z<current.z||
+   candidate.z===current.z&&candidate.x<current.x);
+ // A map has exactly 19x19 grid cells: bounded no matter how it loops.
+ for(let i=0;i<queue.length&&i<MAP_SIZE*MAP_SIZE;i++){
+  const {p,first,steps}=queue[i],d=dist(p,goal),danger=risk(p);
+  const remaining=toGoal.get(key(p.x,p.z))??MAP_SIZE*MAP_SIZE;
+  const candidateFallback={first,score:remaining*30+steps*4+danger,x:p.x,z:p.z};
+  if(prefer(candidateFallback,fallback))fallback=candidateFallback;
+  if(inPosition(p)){
+   const candidate={first,score:steps*36+Math.abs(d-ideal)*8+danger,x:p.x,z:p.z};
+   if(prefer(candidate,best))best=candidate;
+  }
+  for(const [dx,dz] of DIRS){
+   const next={x:p.x+dx,z:p.z+dz},k=key(next.x,next.z);
+   if(!walkable(s.map,next.x,next.z)||visited.has(k)||occupied.has(k))continue;
+   visited.add(k);
+   queue.push({p:next,first:first??next,steps:steps+1});
+  }
+ }
+ if(best)return best.first;
+ return fallback?.first??null;
+}
+/**
+ * Back-line retreat is a genuine turn of movement. No phantom spell,
+ * grid collision, untargetable teleport or protected unknown tile.
+ */
+export function planTacticalDisengage(
+ s:Pick<DungeonState,'map'|'units'|'traps'|'tick'>,actor:Unit,threat:Unit
+):TacticalCell|null{
+ if(!s||!actor||!threat||!Array.isArray(s.units)||!Array.isArray(s.traps)||
+  !['ranger','mystic'].includes(actor.kind)||actor.hp<=0||threat.hp<=0||
+  threat.faction===actor.faction||dist(actor,threat)!==1)return null;
+ const occupied=new Set(s.units.filter(u=>u.hp>0&&u.id!==actor.id).map(u=>key(u.x,u.z)));
+ const boss=s.units.find(u=>u.kind==='warden'&&u.hp>0);
+ const warning=boss?planWardenStrike(s,boss):null;
+ const marked=new Set((warning?.warning?warning.cells:[]).map(p=>key(p.x,p.z)));
+ const options=DIRS.map(([dx,dz])=>({x:actor.x+dx,z:actor.z+dz}))
+  .filter(p=>walkable(s.map,p.x,p.z)&&!occupied.has(key(p.x,p.z))&&
+   dist(p,threat)>=2&&!marked.has(key(p.x,p.z))&&
+   !s.traps.some(t=>t.active&&!t.disarmed&&t.x===p.x&&t.z===p.z))
+  .map(p=>({p,d:dist(p,threat),lane:clearCombatLane(s.map,p,threat)}))
+  .sort((a,b)=>Number(b.lane)-Number(a.lane)||b.d-a.d||a.p.z-b.p.z||a.p.x-b.p.x);
+ return options[0]?.p??null;
+}
+
 function createFloor(seed:string,floor:number,rng:NamedRng,run:number,previous?:DungeonState):DungeonState {
  const map=Array.from({length:MAP_SIZE},()=>Array(MAP_SIZE).fill('#'));
  const stack=[{x:1,z:1}];map[1][1]='.';
@@ -272,12 +363,23 @@ export class DungeonRuntime {
    // Incidental boss contact still has a real, bounded damage outcome and cannot stall a corridor.
    const attackable=defenders.length?defenders:enemies;
    const range=hero.kind==='vanguard'?1:hero.kind==='ranger'?4:3;
-   if(hero.kind==='mystic'&&s.tick%6===0){
-    const wounded=party.filter(u=>u.hp>0&&u.hp<u.maxHp*.7).sort((a,b)=>a.hp/a.maxHp-b.hp/b.maxHp)[0];
+   if(hero.kind==='mystic'){
+    const urgent=party.some(u=>u.hp>0&&u.hp<=u.maxHp*.35);
+     const wounded=(urgent?s.tick%3===0:s.tick%6===0)?
+      party.filter(u=>u.hp>0&&u.hp<u.maxHp*.7)
+       .sort((a,b)=>a.hp/a.maxHp-b.hp/b.maxHp||a.id.localeCompare(b.id))[0]:null;
     if(wounded){wounded.hp=Math.min(wounded.maxHp,wounded.hp+15+s.level);hero.action='cast';s.intent='Starweaver channels restorative magic';push(s,'healing','Starweaver healed '+wounded.kind);continue}
    }
    // Choose the nearest actual visible hostile instead of a wall-blocked nearest one.
-   const target=attackable.find(e=>dist(hero,e)>=1&&dist(hero,e)<=range&&clearCombatLane(s.map,hero,e));
+   // Genuinely flee adjacent blades before taking a later clear-range shot.
+    if((hero.kind==='ranger'||hero.kind==='mystic')&&s.tick%3===1){
+     const threat=enemies.find(e=>dist(hero,e)===1);
+     const escape=threat&&planTacticalDisengage(s,hero,threat);
+     if(escape){hero.x=escape.x;hero.z=escape.z;hero.action='move';
+      s.intent=hero.kind==='ranger'?'Wildshadow opening a safe firing lane':'Starweaver protecting the healing lane';
+      push(s,'reposition',hero.kind+' disengaged from melee');continue}
+    }
+    const target=attackable.find(e=>dist(hero,e)>=1&&dist(hero,e)<=range&&clearCombatLane(s.map,hero,e));
    if(target){
     const raw=hero.attack+(s.level-1)*2,damage=damageThroughWardenSeal(s,target,raw);
     target.hp=Math.max(0,target.hp-damage);hero.action=hero.kind==='mystic'?'cast':'attack';hero.targetId=target.id;target.action='hurt';
@@ -287,23 +389,28 @@ export class DungeonRuntime {
     continue;
    }
    // Intercept nearby minions rather than marching past them to the Warden.
-   const minion=defenders.find(e=>dist(hero,e)<=5||dist(leader,e)<=4)??defenders[0];
+   const exposed=party.filter(u=>u.hp>0&&u.kind!=='vanguard')
+     .sort((a,b)=>a.hp/a.maxHp-b.hp/b.maxHp||a.id.localeCompare(b.id))[0];
+    const protectorTarget=hero.kind==='vanguard'&&exposed?
+     defenders.filter(e=>dist(e,exposed)<=2)
+      .sort((a,b)=>dist(hero,a)-dist(hero,b)||a.id.localeCompare(b.id))[0]:null;
+    const minion=protectorTarget??defenders.find(e=>dist(hero,e)<=5||dist(leader,e)<=4)??defenders[0];
    const boss=enemies.find(e=>e.kind==='warden');
    const nearbyBoss=boss&&dist(hero,boss)<=5?boss:null;
    const engagement=minion||(hero===leader?boss:nearbyBoss);
    if(hero!==leader&&!engagement){
-    const route=shortestPath(s.map,hero,leader);
-    if(route.length>1){const next=route[0];if(!s.units.some(u=>u.faction==='enemy'&&u.hp>0&&u.x===next.x&&u.z===next.z)){hero.x=next.x;hero.z=next.z;hero.action='move'}}
+    const next=planTacticalStep(s,hero,leader,'escort');
+    if(next){hero.x=next.x;hero.z=next.z;hero.action='move';
+     s.intent=hero.kind==='ranger'?'Ranger taking the supporting flank':'Mystic guarding the support lane'}
     continue;
    }
-   const route=engagement?approachFiringLane(s,hero,engagement,range):shortestPath(s.map,hero,s.exit);
-   if(route.length){
-    const next=route[0],blocker=s.units.find(u=>u.faction==='enemy'&&u.hp>0&&u.x===next.x&&u.z===next.z);
-    if(blocker){
-     const damage=damageThroughWardenSeal(s,blocker,hero.attack+(s.level-1)*2);
-     blocker.hp=Math.max(0,blocker.hp-damage);hero.action='attack';hero.targetId=blocker.id;blocker.action='hurt';s.intent='Breaking through the enemy line';
-     if(!blocker.hp){s.kills++;s.gold+=12;s.level=1+Math.floor(s.kills/5);push(s,'kill','The expedition cleared the passage')}
-    }else{hero.x=next.x;hero.z=next.z;hero.action='move';s.intent=minion?'Intercepting '+minion.kind:engagement?'Hunting the dungeon warden':'Claiming the portal'}
+   // Real legal feet, not a camera-only formation offset. The living vanguard
+   // closes for contact while ranged allies seek unobstructed firing lanes.
+   const next=planTacticalStep(s,hero,engagement??s.exit,engagement?'engage':'exit');
+   if(next){
+    hero.x=next.x;hero.z=next.z;hero.action='move';
+    s.intent=hero.kind==='vanguard'?(minion?'Intercepting '+minion.kind:engagement?'Confronting the Warden':'Claiming the portal'):
+     hero.kind==='ranger'?'Wildshadow seeking an open shot':'Starweaver taking a safe spell lane';
    }
   }
   // One authoritative transition when the last binding guard falls or the Warden's first phase breaks.
@@ -357,7 +464,10 @@ export class DungeonRuntime {
    }
    if(enemy.kind==='cultist'&&distance>1&&distance<=3&&s.tick%4===0){const visible=(enemy.x===nearest.x&&Array.from({length:Math.abs(enemy.z-nearest.z)-1},(_,i)=>Math.min(enemy.z,nearest.z)+i+1).every(z=>walkable(s.map,enemy.x,z)))||(enemy.z===nearest.z&&Array.from({length:Math.abs(enemy.x-nearest.x)-1},(_,i)=>Math.min(enemy.x,nearest.x)+i+1).every(x=>walkable(s.map,x,enemy.z)));if(visible){nearest.hp=Math.max(0,nearest.hp-5-Math.min(8,Math.floor(s.floor/2)));nearest.action='hurt';enemy.action='cast';enemy.targetId=nearest.id;push(s,'danger','Cultist hurled a shadow bolt')}}
    if(distance<=1){if(enemy.cooldown===0){const braced=nearest.action==='guard'||nearest.guardTick===s.tick;const dealt=braced?Math.max(1,Math.ceil(enemy.attack*.4)):enemy.attack;nearest.hp=Math.max(0,nearest.hp-dealt);enemy.cooldown=2;enemy.action='attack';enemy.targetId=nearest.id;nearest.action=braced?'guard':'hurt';if(braced)push(s,'block',nearest.kind+' blocked '+(enemy.attack-dealt)+' melee damage');else push(s,'danger',enemy.kind+' hit '+nearest.kind+' for '+dealt)}}
-   else if(distance<=5&&s.tick%2===0){const route=shortestPath(s.map,enemy,nearest);if(route.length>1){enemy.x=route[0].x;enemy.z=route[0].z;enemy.action='move'}}
+   else if(distance<=5&&s.tick%2===0){
+     const next=planTacticalStep(s,enemy,nearest,'engage');
+     if(next){enemy.x=next.x;enemy.z=next.z;enemy.action='move'}
+    }
    if(enemy.cooldown>0)enemy.cooldown--;
   }
   if(warden&&warden.hp>0&&wardenPhase(warden)!==previousWardenPhase){
