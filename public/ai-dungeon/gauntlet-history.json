@@ -1736,6 +1736,87 @@
         "documentation": "docs/reviews/AI_DUNGEON_GAUNTLET_ROUND_051.md"
       },
       "nextLargestGap": "Actual real-WebGL 1x1 black parapet/foreground cap squares persist despite better floor backing; identify source mesh with a real ray/instance probe, fix with independent visual evidence, then address overlapping cartoon anatomy, weapon contact and severe software-raster stalls. Do not merge."
+    },
+    {
+      "round": 52,
+      "at": "2026-11-01",
+      "commit": "9c32f6782c8def10f9a70b9dd20ff9e45cc394c9",
+      "status": "VERIFIED TEST-FIRST TWO EXPECTED RED (CAPS) + TWO EXPECTED RED (FOUNDATION), FOLLOWED BY 137/137 FOUNDATION, 18/18 PRESENTATION, 24x900 ZERO REPLAY FAILURES, 61/61 REAL CHROMIUM, 10/10 SEPARATE VISUAL BROWSER; MATCHED BLACK-SQUARE REDUCTION IN TRUE WEBGL; DIABLO IV BAR NOT MET; FULL CATALOGUE CI PENDING",
+      "sampleSeeds": 24,
+      "ticksPerSeed": 900,
+      "highestFloor": 9,
+      "determinismFailures": 0,
+      "visualVerdict": "Same-seed 1440x832 Chromium/WebGL real-world R51/R52 screenshots inspected. Giant near-black floor slabs are substantially removed by correct capstone, foundation and parapet cutaway while the textured under-wall floor remains. Post-hoc central crop dark navy occupancy 17.0% to 4.0% (RGB < 12/22/36), not a calibrated blind artistic comparison. Real live boss playback inspected. Heroes/enemies remain stylized and crowded; blue rectangular masonry dominates; software-WebGL stalls and AAA visual gap persist. Diablo IV/No Rest for the Wicked/Path of Exile 2 parity NOT MET.",
+      "artifactUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41279385111/artifacts/13072558772",
+      "evidenceMetrics": {
+        "testFirstCapFailuresObserved": 2,
+        "testFirstFoundationFailuresObserved": 2,
+        "redCapExistingPass": 133,
+        "redFoundationPassingTests": 134,
+        "unexpectedLegacyExactImportTestFixed": true,
+        "greenFoundationTests": 137,
+        "greenPresentationTests": 18,
+        "genuineBrowserTestsPassed": 61,
+        "genuineBrowserShards": [
+          21,
+          20,
+          20
+        ],
+        "separateVisualBrowserTestsPassed": 10,
+        "seedRuns": 24,
+        "ticksPerSeed": 900,
+        "determinismFailures": 0,
+        "highestFloor": 9,
+        "facadeCapParentMapping": "one valid exposed parent face per ornamental cap",
+        "cutawayFoundationFootprintTiles": 0.24,
+        "cutawayParapetFootprintTiles": 0.3,
+        "previousCutawayParapetFootprintTiles": 1.04,
+        "centralCrop": {
+          "x0": 470,
+          "y0": 330,
+          "x1Exclusive": 930,
+          "y1Exclusive": 760,
+          "pixels": 197800,
+          "colorThreshold": "R<12,G<22,B<36",
+          "previousDarkPixels": 33541,
+          "newDarkPixels": 7894,
+          "comparison": "post-hoc unblinded fixed-pixel classification; image capture timing may differ"
+        },
+        "newExternalAssets": 0,
+        "addedDrawBatches": 0,
+        "authorityChanged": false,
+        "independentFreshCritic": false,
+        "blindMatchedAB": false,
+        "hardwareGpuP95Measured": false,
+        "soakTested": false,
+        "productionReady": false
+      },
+      "verification": {
+        "redCapCommit": "69c8250e5d969a190ce07e0bf45d38959686125d",
+        "redCapRun": 41278860881,
+        "redCapJob": 124766470309,
+        "redFoundationCommit": "c547452b6d485511fca107060b5ad8404e78da29",
+        "redFoundationRun": 41279062526,
+        "redFoundationJob": 124767120375,
+        "exactTestedCodeCommit": "9c32f6782c8def10f9a70b9dd20ff9e45cc394c9",
+        "exactCodeAuthorityAndBrowserRun": 41279385111,
+        "authorityJob": 124768050999,
+        "dedicatedBrowserShards": [
+          124768051180,
+          124768050860,
+          124768051095
+        ],
+        "visualReviewRun": 41279385013,
+        "actualSameSeedScreenshotArtifact": 13072558772,
+        "visualInterfaceScreenshotArtifact": 13072547346,
+        "previousScreenshotArtifact": 13071142432,
+        "catalogueCiRun": 41279385034,
+        "catalogueCiAtCheckpoint": "software build/test stage succeeded; shared browser still in progress; not claimed green",
+        "independentCritic": false,
+        "matchedBlindAB": false,
+        "documentation": "docs/reviews/AI_DUNGEON_GAUNTLET_ROUND_052.md"
+      },
+      "nextLargestGap": "Sculpt truly high-fidelity original anatomically credible hero and enemy silhouettes and readable weapon windup/contact/recovery; reduce blue gridded corridor overgrowth and profile sustained browser/WebGL p95/p99 hardware FPS and deterministic live progress, then run blind reference-aligned A/B. No merge."
     }
   ]
 }
