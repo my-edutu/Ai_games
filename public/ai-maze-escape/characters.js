@@ -198,6 +198,11 @@ export function createExplorer(options = {}) {
   rounded(heldKey,dark,[-.087,-.025,.079],[.039,.15,.045],.014);
   rounded(heldKey,dark,[.087,-.025,.079],[.039,.15,.045],.014);
   heldKey.visible=false;
+  // The modeled blade-tooth axis points to a public physical socket only
+  // when this exact matched carried-key gesture is valid. Reuse scratch.
+  const keyToothAxis=new THREE.Vector3(0,-1,0);
+  const keyAimOrigin=new THREE.Vector3(), keyAimDirection=new THREE.Vector3();
+  const keyHandInverse=new THREE.Quaternion();
 
   // An expedition signal crest is legible in a wide, silent stream frame.
   // It is suppressed by default and receives only disclosed-threat attention;
@@ -251,8 +256,8 @@ export function createExplorer(options = {}) {
     // Raise the already modeled key into Pip's silhouette, above the foreground
     // gate post; counter-rotate the held prop so its bow stays above its teeth.
     // No new information, simulation action or frame-time allocation is used.
-    heldKey.rotation.x=keyReach*2.7;
-    heldKey.rotation.z=s.reduced?0:Math.sin(s.time*2.2)*.045*keyReach;
+    // Clear any prior quaternion aim when returning to neutral or guardian.
+    heldKey.rotation.set(keyReach*2.7,0,s.reduced?0:Math.sin(s.time*2.2)*.045*keyReach);
     heldKey.scale.setScalar(1+keyReach*.25);
     // Shape, not color or blinking alone, communicates a real nearby warden.
     // Reduced-motion keeps the same static visual cue.
@@ -283,6 +288,18 @@ export function createExplorer(options = {}) {
       arms[i].elbow.rotation.y=i===0&&keyYaw!==0?-keyYaw*.9:0;
       eyes[i].position.x=(i===0?-1:1)*.145+Math.max(-.024,Math.min(.024,(lookYaw+keyYaw)*.032+(s.reduced?0:(Math.max(-.016,Math.min(.016,turn*.045))+.006*rest)*(1-alert))));
       eyes[i].scale.y=s.lose?.32:s.danger>.45||alert>.4?1.13:(s.reduced?1:Math.pow(Math.max(0,Math.cos(s.time*.83)),60)>.88?.12:1);
+    }
+    // Aim the existing connected tooth at the real closed socket; do NOT
+    // extend it across a cell, move Pip or imply an authoritative unlock.
+    const target=options.keyTarget;
+    if (heldKey.visible && target && Number.isFinite(target.x) &&
+        Number.isFinite(target.y) && Number.isFinite(target.z)) {
+      heldKey.getWorldPosition(keyAimOrigin);
+      arms[0].hand.getWorldQuaternion(keyHandInverse).invert();
+      keyAimDirection.set(target.x-keyAimOrigin.x,target.y-keyAimOrigin.y,
+        target.z-keyAimOrigin.z).applyQuaternion(keyHandInverse);
+      if (keyAimDirection.lengthSq()>.01)
+        heldKey.quaternion.setFromUnitVectors(keyToothAxis,keyAimDirection.normalize());
     }
     if (s.win) body.position.y += amount*Math.max(0,Math.sin(s.time*5))*.075;
     tail.rotation.x=-stride*.28+step*.1;

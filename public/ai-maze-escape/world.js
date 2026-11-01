@@ -50,6 +50,9 @@ export function createMazeWorld(options = {}) {
   const terrain = new THREE.Group(), objects = new THREE.Group(), backdrop = new THREE.Group();
   group.add(backdrop, terrain, objects);
   const geometries = new Set(), materials = new Set(), textures = new Set();
+  // Only truly modeled public closed-door sockets; invalidated with visible objects.
+  const publicClosedSockets = new Map();
+  const doorEdgeId = (a,b) => `${Math.min(a,b)}:${Math.max(a,b)}`;
   const geometry = (g) => { geometries.add(g); return g; };
   const material = (color, extras = {}) => {
     const {roughness = .86, metalness = .02, ...common} = extras;
@@ -437,6 +440,7 @@ export function createMazeWorld(options = {}) {
       // Source-bound visual measurement can distinguish this disclosed gate
       // from other known gates; the edge comes only from public doors.
       lock.userData.publicDoorEdge = [door.a, door.b];
+      publicClosedSockets.set(doorEdgeId(door.a,door.b),lock);
       mesh(lock, bevel, darkMetal, 0, .9, .43, .88, .85, .18);
       mesh(lock, bevel, gold, 0, .9, .55, .75, .72, .14);
       mesh(lock, bevel, darkMetal, 0, .9, .65, .61, .59, .14);
@@ -526,6 +530,7 @@ export function createMazeWorld(options = {}) {
     animations.push({ type: 'crystal', object: gem, baseY: 2.79, phase: cell });
   }
   function rebuildObjects(s) {
+    publicClosedSockets.clear();
     clear(objects); animations = [];
     for (const key of s.keys) keyProp(key, s);
     for (const door of s.doors) doorProp(door, s);
@@ -562,6 +567,14 @@ export function createMazeWorld(options = {}) {
     if (objectKey !== objectSignature) { rebuildObjects(s); objectSignature = objectKey; }
     refreshVisibility(s);
   }
+  // Actual carved socket, only for a publicly matching carried key on a closed gate.
+  // Reuse caller's vector; never traverse meshes or allocate each render frame.
+  function matchingPublicSocket(a,b,target) {
+    if (disposed || !Number.isInteger(a) || !Number.isInteger(b) || !target?.isVector3) return null;
+    const lock=publicClosedSockets.get(doorEdgeId(a,b));
+    if (!lock || lock.userData.keyState!=='carried') return null;
+    return lock.localToWorld(target.set(0,.92,.89));
+  }
   function animate(time, options = {}) {
     if (disposed) return;
     const t = Number.isFinite(time) ? time : 0;
@@ -578,7 +591,7 @@ export function createMazeWorld(options = {}) {
   }
   function dispose() {
     if (disposed) return; disposed = true;
-    clear(terrain); clear(objects); clear(backdrop);
+    clear(terrain); clear(objects); clear(backdrop); publicClosedSockets.clear();
     for (const g of geometries) g.dispose();
     for (const m of materials) m.dispose();
     for (const t of textures) t.dispose(); textures.clear();
@@ -589,5 +602,5 @@ export function createMazeWorld(options = {}) {
     group.traverse(item => { if (item.isMesh) meshes++; if (item.isInstancedMesh) instances += item.count; });
     return { renderedCells: [...renderedCells], stairEdges: stairEdges.map(edge => [...edge]), geometryCount: geometries.size, materialCount: materials.size, textureCount: textures.size, knownCells: renderedCells.length, meshes, batches: batches.length, instances, geometries: geometries.size, materials: materials.size, animatedObjects: animations.length, disposed };
   }
-  return { group, update, animate, dispose, stats };
+  return { group, update, animate, dispose, stats, matchingPublicSocket };
 }

@@ -67,6 +67,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
 
   const explorer = createExplorer({ balanced });
   scene.add(explorer.group);
+  const matchingKeySocket=new THREE.Vector3();
   const wardens = new Map();
   const guideMaterial = new THREE.LineDashedMaterial({ color: '#ffdd92', transparent: true, opacity: .62, dashSize: .14, gapSize: .13, depthWrite: false });
   const guide = new THREE.LineSegments(new THREE.BufferGeometry(), guideMaterial);
@@ -329,11 +330,15 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     // lower-priority than a real guardian. This cannot move or open anything.
     const keyGateCue=cameraMode==='follow'&&!result&&!closestThreat?.strength
       ? publicCarriedGateCue(s,pose) : null;
+    // True source-modeled public closed lock; never a hidden or guessed gate center.
+    const keyTarget=keyGateCue
+      ? world.matchingPublicSocket(keyGateCue.a,keyGateCue.b,matchingKeySocket) : null;
     explorer.update({
       time:elapsed,delta,moving:pose.moving&&!result,heading,
       attentionHeading:closestThreat?Math.atan2(closestThreat.x-pose.x,closestThreat.z-pose.z):undefined,
       attentionStrength:closestThreat?.strength??0,
       keyHeading:keyGateCue?.heading,keyStrength:keyGateCue?.strength??0,
+      keyTarget,
       danger:s.dangerPermille/1000,result,reducedMotion:settings.reducedMotion,
     });
     world.animate(elapsed, settings);

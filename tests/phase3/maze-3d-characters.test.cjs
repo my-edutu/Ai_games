@@ -213,3 +213,36 @@ test('Pip turns the actual presenting glove toward either public lock bearing an
     pip.dispose();
   }
 });
+
+
+test('actual wrist-held tooth points to a source-disclosed distant socket, without contact', async () => {
+  const {createExplorer} = await modulePromise;
+  const {Vector3} = await import(three);
+  for (const balanced of [false,true]) {
+    const pip=createExplorer({balanced});
+    pip.group.position.set(4,1,-3);
+    const key=pip.group.getObjectByName('presented matching key');
+    const glove=pip.group.getObjectByName('glove');
+    const target=new Vector3(1,1.8,-6);
+    pip.update({heading:0,keyHeading:-Math.PI/2,keyStrength:1,keyTarget:target,reducedMotion:true});
+    assert.equal(key.visible,true);
+    assert.equal(key.parent,glove,'the key remains physically connected to the glove');
+    const origin=key.getWorldPosition(new Vector3());
+    const tooth=key.localToWorld(new Vector3(0,-.24,0));
+    assert.ok(tooth.sub(origin).normalize().dot(target.clone().sub(origin).normalize())>.995,
+      'actual tooth, not a HUD sprite, aims at the source-modeled socket');
+    assert.ok(target.distanceTo(origin)>2,'the pose does not fake an inserted key');
+    pip.update({heading:0,keyHeading:-Math.PI/2,keyStrength:1,
+      keyTarget:{x:NaN,y:1,z:1},reducedMotion:true});
+    assert.ok(Number.isFinite(key.rotation.x),'invalid targets retain finite fallback orientation');
+    pip.update({heading:0,keyStrength:0,reducedMotion:true});
+    assert.equal(key.visible,false);
+    assert.equal(key.rotation.x,0);
+    assert.equal(key.rotation.y,0);
+    assert.equal(key.rotation.z,0);
+    pip.update({heading:0,keyHeading:-Math.PI/2,keyStrength:1,keyTarget:target,
+      attentionHeading:Math.PI/2,attentionStrength:1,reducedMotion:true});
+    assert.equal(key.visible,false,'public warden overrides physical key presentation');
+    pip.dispose();
+  }
+});

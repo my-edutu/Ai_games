@@ -134,6 +134,14 @@ test('a publicly observed locked gate has an unmistakable seal and an open gate 
   assert.equal(carriedCrest.userData.keyState, 'carried');
   const carriedLock = world.group.getObjectByName('Physical recessed keyhole');
   assert.equal(carriedLock.userData.keyState, 'carried');
+  const {Vector3} = await import(three);
+  const realSocket=carriedLock.localToWorld(new Vector3(0,.92,.89));
+  assert.ok(world.matchingPublicSocket(door.a,door.b,new Vector3())?.distanceTo(realSocket)<1e-8,
+    'the target is the actual modeled socket, not a guessed gate center');
+  assert.ok(world.matchingPublicSocket(door.b,door.a,new Vector3())?.distanceTo(realSocket)<1e-8,
+    'reversed public edge endpoints resolve the identical physical socket');
+  assert.equal(world.matchingPublicSocket(door.a,26,new Vector3()),null,
+    'another known edge cannot reuse the wrong lock');
   const socketRing = carriedLock.children.find(child => child.geometry?.type === 'TorusGeometry');
   assert.ok(socketRing && socketRing.material.emissive.g > .4 && socketRing.scale.x >= .3,
     'only the correctly carried matching key turns a physically larger keyhole rim mint');
@@ -143,9 +151,13 @@ test('a publicly observed locked gate has an unmistakable seal and an open gate 
   assert.ok(world.group.getObjectByName('Closed crossed barrier'),
     'possessing the key must NEVER withdraw a gate that authority still reports closed');
   world.update({...carriedKey, inventory: []});
+  assert.equal(world.matchingPublicSocket(door.a,door.b,new Vector3()),null,
+    'lost matching key must invalidate its pose target');
   assert.equal(world.group.getObjectByName('Disclosed matching key emblem'), undefined,
     'inventory-only changes must invalidate the crest rather than leaving a stale hint');
   world.update({...carriedKey, doors: [{...door, open: true}]});
+  assert.equal(world.matchingPublicSocket(door.a,door.b,new Vector3()),null,
+    'truly open door cannot supply closed-lock target');
   assert.equal(world.group.getObjectByName('Disclosed matching key emblem'), undefined,
     'the key motif and obstruction both disappear when the real gate opens');
 
