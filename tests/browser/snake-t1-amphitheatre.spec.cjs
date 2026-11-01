@@ -47,7 +47,7 @@ test('T1 whole-shore amphitheatre: actual source-verified Chromium WebGL overvie
     expect(state.overflow).toBe(false);expect(errors).toEqual([]);
     expect(s.livingGarden.meshCount).toBe(4);expect(s.livingGarden.textures).toBe(1);
     if(before)expect(s.livingGarden.terracedPromontories).toBeUndefined();
-    else {expect(s.livingGarden.terracedPromontories).toBe(12);
+    else {expect(s.livingGarden.terracedPromontories).toBe(8);
      expect(s.livingGarden.canopyTrees).toBe(10);}
     const png=await page.screenshot({path:image('snake-t1-amphitheatre-'+scene+'-'+label+'-actual-webgl.png')});
     expect(png.length).toBeGreaterThan(10000);

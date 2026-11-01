@@ -1,10 +1,15 @@
 {
-  "updatedAt": "2026-11-01T18:44:50.675Z",
-  "status": "TRANSFORMATION GAUNTLET · T1 amphitheatre garden BUILDING · prior wetland 51/52 WebGL, STRICT 10/17 FAIL · NOT ACCEPTED",
-  "detail": "Exact 1b73d621 focused true Chromium/WebGL 41333634768 51/52 and authentic source-true wetland 8 images + full 55s game verified. Old complete scene self-rejected: enormous tiled board dominates and serpent remains small/unrealistic versus Snake Pass. STRICT original full-HD one-second 10 REAL renderer submissions /1015.4ms vs required 17 FAIL; GPU drawing buffer 736x336, frame p95 1499.9ms, max queue age 2393.6ms. RAF62 and WebM fps are not render/display-present FPS. General CI cancelled; offline reproduction pass. New T1 substantial original four-shore sculpted geological masses and prominent original canopy landmarks with four unchanged garden static mesh batches / one original texture; new exact-parent RED/GREEN Node and 8 real WebGL A/B evidence scheduled by CI but NOT VERIFIED yet. No authority/cues/accessible settings/recovery/strict gate changes. T1 BUILDING; T2/T3/T4 open, no merge/deploy.",
+  "updatedAt": "2026-11-01T18:57:50.462Z",
+  "status": "T1 REWORKED LARGER FOUR-SHORE LANDSCAPE BUILDING · 8/8 LOCAL FOCUSED NODE, build PASS · STRICT LAST REAL 10/17 FAIL · NEW WEBGL PENDING · NOT ACCEPTED",
+  "detail": "Exact previous 1b73 full-scene WebGL 51/52 + authentic 55sec gameplay self-reviewed and visually REJECTED against official Snake Pass, real original desktop hard gate 10/17 genuine frames /1015.4ms, buffer 736x336, p95 1499.9ms. First T1 12-promontory candidate 6068 focused browser failed at parser time from historic fixture typo, repaired d30; offline precise checked Node discovered 40x24 original <22,000 triangle limit violation 22,234, no test loosened. Reworked SAME T1 candidate: 8 distinct wider, taller full-geometry escarpments, two per shore, plus two large original foreground canopy trees, grounded ferns/roots/unique fallen rock, fixed 4 original static batches and 1 texture. Exact-source local 8/8 focused Node PASS, tsc build PASS, true garden 28x16 19701 and 40x24 21937 (<22000 unchanged), no authority/cue/security/side effects. Full Node not completed (timeout after test 103), new exact-head WebGL/screenshots/55s autoplay/unchanged strict hard gate and independent whole-game review PENDING. T1 BUILDING, T2–T4 open; never merge/deploy.",
   "latestImage": "/progress/evidence/round-9-overview.jpg",
   "latestCaption": "Historic photo remains historic. Actual exact parent 1b73 WebGL whole-scene self-review REJECTED and strict 10/17 performance FAIL; new original amphitheatre candidate requires verified current-head 8-image true Chromium and 55-second gameplay evidence.",
   "reviews": [
+    {
+      "area": "November 1 T1 same milestone: first amphitheatre parser/geometry budget failed, scene redesigned and focused node verified",
+      "verdict": "First browser source-fixture parser error (run 41338314873) REPAIRED; first full 40x24 ridge count 22234/22000 FAIL, geometry RED without weakening tests. Rebuilt 8 larger, varied ridges/two tall trees 21937/22000, exact-source local 8/8 Node PASS plus TypeScript build; actual new-head WebGL and frame acceptance PENDING.",
+      "gap": "True 8 same-frame Chrome/WebGL screenshots/55s authentic autoplay and strict full scene ≥17 desktop submissions must be inspected. Previous 1b73 10/17 FAIL and whole-scene visually REJECTED. New candidate no independent critic, physical device display fps/p95, full Node suite, soak, expressive T2 hero, cinematic T3. T1 BUILDING; never merge/deploy."
+    },
     {
       "area": "November 1 T1 actual parent wetland rejected; authored four-coast amphitheatre candidate",
       "verdict": "EXACT 1b73 WebGL 51/52, 8 real screenshots and 55-second footage inspected; old full-scene REJECTED; strict 10/17 ACTUAL renderer submissions FAIL (p95 1499.9ms), new candidate source/test/visual/CI PENDING, T1 BUILDING",
@@ -868,7 +873,7 @@
     "firstImplementationPlan": "docs/superpowers/plans/2026-11-01-autonomous-snake-transformation.md",
     "acceptance": "An independently evidenced, visibly substantial upgrade of the full running game in environment, character, animation, materials, game feel and sustainable frame delivery; CI is necessary but never sufficient.",
     "overall": "NOT ACCEPTED",
-    "milestone": "T1 geology/amphitheatre and foreground canopy integrated candidate BUILDING; previous 1b73 real-scene photographs REJECTED",
+    "milestone": "T1 broad eight-headland natural amphitheatre and two scale trees BUILDING; prior 1b73 real image REJECTED, last real strict 10/17 FAIL",
     "milestoneStatus": "BUILDING",
     "latestKnownStrictBrowser": {
       "actualDraws": 10,
@@ -906,8 +911,8 @@
       }
     ],
     "baselineHead": "108e2e439aab1f3fe4cf49019c1aa9fe5630feb6",
-    "candidate": "New same T1 original 12 tiered physical escarpments, 2 branched tall foreground trees with natural root/fern joins, actual four existing garden batches and same procedural weathering atlas; exact-source parent tests/Chromium captures and unmodified 55s test require current-head CI; no acceptance claim.",
-    "candidateProof": "Exact parent 1b73 focused 51/52 current WebGL 8 true before/after wetland images and 55sec films self-reviewed: whole-frame insufficient, strict 10/17 FAIL. New current-source visual, motion, performance and independent review NOT YET VERIFIED.",
+    "candidate": "Two broader distinctive rocky escarpments per physical shoreline (8 total), two original tall near-camera branched trees, eight layered ferns, four roots and fallen boulder, preserved existing 4 static garden batches/1 atlas, 40x24 garden 21937 <original strict22000; local focused Node8/8 and build green; actual current WebGL/motion/performance PENDING.",
+    "candidateProof": "Exact 1b73 real WebGL whole-frame visually rejected, strict 10/17 FAIL. First 6068 new browser PARSE FAIL, 12-ridge 40x24 geometry 22234/22000 FAIL, corrective larger 8-headland source tested local exact offline8/8 and build PASS; new true browser/perf acceptance PENDING. No independent critic.",
     "review": "SELF REVIEW: previous 1b73 whole-frame rejected, amphitheatre candidate BUILDING; acceptance PENDING; independent critic unavailable."
   }
 }

@@ -24,8 +24,8 @@ test('T1 integrated amphitheatre is RED against exact old garden and GREEN on au
    const before=previous.stats(),now=after.stats();
    assert.equal(before.terracedPromontories,undefined,'real previous source has no authored escarpments');
    assert.equal(before.canopyTrees,8);
-   assert.equal(now.terracedPromontories,12,'three massive landscape ridges per original shore');
-   assert.equal(now.amphitheatreFerns,12,'grounded botanical silhouettes integrated on real geological mass');
+   assert.equal(now.terracedPromontories,8,'two larger distinct headlands per physical shoreline, not repeating stone cones');
+   assert.equal(now.amphitheatreFerns,8,'grounded botanical silhouettes integrated on all enlarged shoreland masses');
    assert.equal(now.amphitheatreRoots,4,'each bank joins stone and roots');
    assert.equal(now.foregroundCanopies,2,'two large new original multi-branch tree crowns');
    assert.equal(now.canopyTrees,10,'all trees accounted for without falsifying source counts');

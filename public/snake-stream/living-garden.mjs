@@ -499,7 +499,7 @@ export function createLivingGarden(THREE, {width,height}) {
   features.foregroundCanopies=0;
   function sculptPromontory(shore,t,phase){
     const bank=bankPoint(shore,t,.62),segments=9;
-    const radius=1.72+.39*hash(phase,94),azimuth=hash(phase,35)*Math.PI*2;
+    const radius=2.12+.44*hash(phase,94),azimuth=hash(phase,35)*Math.PI*2;
     const levels=[[-.48,1],[.38,.82],[1.68,.53],[3.22,.24]];
     const ring=(level,k)=>{
       const a=k*Math.PI*2/segments+azimuth;
@@ -515,7 +515,7 @@ export function createLivingGarden(THREE, {width,height}) {
       quad(j===2?'moss':'cliff',ring(j,k),ring(j,next),
         ring(j+1,next),ring(j+1,k),phase+k+j);
     }
-    const crest=[bank[0]+.19*Math.sin(phase),bank[1]+3.78,bank[2]+.14*Math.cos(phase)];
+    const crest=[bank[0]+.19*Math.sin(phase),bank[1]+3.78+(hash(phase,113)-.5)*.85,bank[2]+.14*Math.cos(phase)];
     for(let k=0;k<segments;k++)
       tri('moss',ring(3,k),ring(3,(k+1)%segments),crest,phase+k);
     // Vegetation sits on the same authored mass and leans OUTWARD, away
@@ -528,18 +528,22 @@ export function createLivingGarden(THREE, {width,height}) {
     leaf(plantX,bank[1]+.47,plantZ,.88+hash(phase,72)*.40,
       outward+.32,phase,'fern');
     features.amphitheatreFerns++;
-    if(phase%3===1){
+    if(phase%2===1){
       rootRibbon(bank[0],bank[1]+.08,bank[2],1.19,
         outward,phase+301);
       features.amphitheatreRoots++;
+    }
+    if(phase===1){
+      boulder(bank[0]+Math.cos(outward)*radius*.42,bank[1]-.28,
+        bank[2]+Math.sin(outward)*radius*.42,.61,.67,hash(phase,33)*Math.PI);
     }
     features.terracedPromontories++;
   }
   for(let shoreIndex=0;shoreIndex<shorelines.length;shoreIndex++){
     const shore=shorelines[shoreIndex];
-    for(let n=0;n<3;n++){
-      const t=shore.start+(shore.end-shore.start)*(.18+n*.32);
-      sculptPromontory(shore,t,shoreIndex*3+n+1);
+    for(let n=0;n<2;n++){
+      const t=shore.start+(shore.end-shore.start)*(.24+n*.50);
+      sculptPromontory(shore,t,shoreIndex*2+n+1);
     }
   }
   // Two large original branch-and-leaf canopies create near-camera parallax
