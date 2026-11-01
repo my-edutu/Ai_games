@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-01T09:32:27.281Z",
+  "updatedAt": "2026-11-01T09:36:28.132Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass34 genuine source-head 8875f37 screenshots from focused Maze CI 41286349080 are SHA-verified. Larger dark physical keyhole is modestly clearer, but glove/key/socket still do not meet at native 390×844; Nintendo reference still wins. Focused Maze CI success; full 41286349088 failed three unrelated Tiny Kingdom checks (528 Node and 15 Maze browser passed). Fresh-context critic/Ultracode unavailable via disconnected workspace; no hardware GPU FPS claim."
+    "summary": "Pass35 genuine seed/tick21 source model projections measure held key tooth and real still-closed matched lock 92.09 CSS px apart at native 390×844 (desktop 130.98px). All six original SHA-verified PNGs are byte-identical to pass34: measurement-only, no false visual win. Focused Maze 41293601655 SUCCESS; full 41293601634 still in progress. Detached subagents/Ultracode blocked by disconnected workspace; software SwiftShader not hardware GPU FPS. Original Nintendo benchmark still wins."
   },
   "captures": [
     {
@@ -135,7 +135,7 @@
     "Pass35 measurement candidate: existing real 3D blade tip and matching still-closed, publicly disclosed gate socket receive source-derived projected CSS positions and separation, captured by original desktop/native browser manifests; gameplay/visual meshes/AI/camera unchanged until authentic screenshot critique."
   ],
   "nextGaps": [
-    "Pass35 candidate source-derived projection metric: verify actual held blade tip and actual publicly disclosed closed gate socket CSS-pixel separation on new exact-head 390px capture. Use it to choose one future physically coherent gesture placement improvement; visuals are unchanged by this diagnostic.",
+    "Physical key-gesture next slice: original 390px measurement proves real held blade tip is 92.09 CSS px from the still-closed socket (not an inserted key). Improve truthful pose/orientation and/or genuinely disclosed approach staging; never fake contact/unlock or move hidden topology. Reinspect original SHA-bound native screenshots against fixed Nintendo benchmark.",
     "Separate disclosed-stage composition slice: recover the true right-hand sandstone arch without pushing real gate/Pip offscreen or filling the stage with invented hidden cells; reject on native 390x844 and desktop visual evidence against the unchanged official Nintendo reference.",
     "Establish stronger gameplay-scale Pip/Thornback expression, gate/key/exit differentiation, environmental material variety and a camera view which preserves both the obstacle and the next *disclosed* action.",
     "Run separate fresh-context visual critics and blind A/B against both unchanged SHA-pinned official Nintendo Captain Toad frames; last independent verdict still favors the reference. Do not claim benchmark parity from CI or lead-only visual judgment.",
@@ -399,6 +399,13 @@
       "verdict": "No new visual verdict until original exact-head PNGs with projected real mesh coordinates are inspected",
       "date": "2026-11-01T09:32:27.281Z",
       "summary": "Uses genuine source mesh positions and exact already disclosed door pair, never hidden stage or simulated unlock. Pass34 last real screenshot still loses to the fixed Nintendo reference."
+    },
+    {
+      "title": "Pass35 native source-mesh screen-space separated physical key and lock",
+      "reviewer": "Lead reviewing authentic SHA-verified native original; detached independent visual critic unavailable",
+      "verdict": "92.09 CSS px physical key/socket separation at native 390px; original Captain Toad remains benchmark winner",
+      "date": "2026-11-01T09:36:28.132Z",
+      "summary": "Screen projections now measure real held key tooth and matched physical lock, not the HUD. Native screenshot remains exactly pass34 pixels. It depicts a key presentation near a closed gate, NOT key insertion/contact. Next improve truthful gesture and evaluate independently."
     }
   ],
   "verification": [
@@ -642,6 +649,13 @@
       "detail": "Actual source-modeled key tooth point and exact public edge matching socket are measured in CSS px through the real camera at sparse debug interval; tests check finite in-frame projections at desktop and 390px but do not assert a visual victory or modify gameplay/camera. Workspace agents and Ultracode unavailable; CPU-throttled SwiftShader not GPU FPS.",
       "sourceCommit": "pending-atomic-commit",
       "sourceUrl": "https://github.com/my-edutu/Ai_games/pull/53"
+    },
+    {
+      "name": "Pass35 authentic source-mesh key/socket CSS projection measurement",
+      "status": "Focused exact-head Maze CI success and original PNG hashes verified; 92.09px native separation proves ambiguous action remains; full catalogue CI in progress; benchmark NOT PASSED",
+      "detail": "Source 191c9d0, seed maze-visual-reference-13 tick21, actual still-closed door-2 exact publicly carried key. Desktop 2026-11-01T09:33:56.470Z SHA 95dba46e393e875f6b50c96d091e01d98909a7b0c15e44b850b1bf8736a5254f, mesh tip (372.30,343.73), socket (279.45,436.11), separation 130.98 CSS px. Portrait 2026-11-01T09:33:58.236Z SHA f2f6974a941db20016214637daca843c53e322d1aece7ea06e423ea863707d95, tip (137.44,262.87), socket (72.16,327.82), separation 92.09 CSS px. All six PNGs byte-identical to pass34. No visual win from diagnostics, no fresh independent critic/Ultracode due tunnel; SwiftShader CPU rendering not GPU FPS.",
+      "sourceCommit": "191c9d0a464c6163e1afde83cee6bc21ea9d2954",
+      "sourceUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41293601655/artifacts/13078870708"
     }
   ],
   "references": [
