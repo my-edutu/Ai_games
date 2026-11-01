@@ -1,6 +1,7 @@
 'use strict';
 const {test}=require('node:test');
 const {restorePreR46}=require('../helpers/snake-r46-cache-archive.cjs');
+const {stripR49Contact}=require('../helpers/snake-r49-contact-archive.cjs');
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
@@ -47,7 +48,8 @@ function predecessor(source){
 }
 test('Round38 actual Three.js contact matrices match the exact predecessor while uploads stay within the used prefix',async()=>{
   const THREE=await import('three');
-  const source=fs.readFileSync(sourcePath,'utf8');
+  // R38 historical comparison intentionally excludes later R49 no-op gating.
+  const source=stripR49Contact(fs.readFileSync(sourcePath,'utf8'));
   const prior=predecessor(source);
   assert.equal(prior.includes('export function syncContactShadowInstances'),false,'prior has no optimized contact helper');
   const context=vm.createContext({});
