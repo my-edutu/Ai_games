@@ -1,6 +1,24 @@
 export const MAX_TRAIL = 240;
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
 
+/**
+ * Native gameplay camera staging is derived only from an ALREADY DISCLOSED
+ * guardian's bounded visual attention. Detail mode must not silently ignore
+ * that threat: authentic tick-13 screenshots placed Thornback near the right
+ * edge with Pip near the opposite edge even though both share a corridor.
+ * No private threat location, hidden map cell, animation, navigation command
+ * or unsafe-route assumption is involved. Keep the hero dominant on phones.
+ */
+export function publicEncounterFrameWeight(attentionStrength, cameraMode, result, aspect) {
+  if (result || (cameraMode !== 'follow' && cameraMode !== 'detail')
+    || !Number.isFinite(attentionStrength)) return 0;
+  const alert = clamp(attentionStrength, 0, 1);
+  if (cameraMode === 'follow') return alert * .22; // preserve known normal framing
+  const portrait = Number.isFinite(aspect) && aspect > 0 && aspect < .9;
+  return portrait ? Math.min(.22, alert * .28) : Math.min(.5, alert * .9);
+}
+
+
 /** Camera bounds come exclusively from public knowledge. */
 export function computePublicView(snapshot, camera, overview = false) {
   const cells = snapshot.cells.length ? snapshot.cells : [{ cell: snapshot.currentCell }];
