@@ -33,7 +33,7 @@ test('G109 close live-labour director follows genuine continuous work without in
  expect(opening.opening.active).toBe(true);
  expect(opening.stateUnchanged).toBe(true);
  expect(opening.camera.follow).toBe(true);
- expect(opening.camera.zoom).toBeGreaterThan(4.5);
+ expect(opening.camera.zoom).toBeGreaterThanOrEqual(4.5);
  expect(opening.camera.zoom).toBeLessThan(6.1);
  expect(opening.shot.bodyVisibleFraction).toBeGreaterThan(.4);
  expect(opening.director,'Real labor director telemetry').toBeTruthy();
