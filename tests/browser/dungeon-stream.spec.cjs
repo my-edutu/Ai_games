@@ -430,3 +430,15 @@ test('real fantasy dungeon chambers contain distinct woven textile setpieces',as
  expect(d.dressing.wovenRugs).toBeLessThanOrEqual(6);
  await page.locator('canvas#world').screenshot({path:'artifacts/dungeon-room-textile-setpieces.png'});
 });
+
+test('ongoing real dungeon snapshots cannot dismiss a WebGL recovery warning',async({page})=>{
+ await page.goto('/dungeon',{waitUntil:'domcontentloaded'});
+ await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.frame??0),{timeout:25000}).toBeGreaterThan(3);
+ // Dispatch a controlled lifecycle event on the real game canvas. This tests
+ // public messaging only, not a genuine hardware context-loss/recovery event.
+ await page.locator('#world').evaluate(canvas=>canvas.dispatchEvent(new Event('webglcontextlost',{cancelable:true})));
+ await expect(page.locator('#recovery')).toBeVisible();
+ await expectLiveDungeonProgress(page);
+ expect(await page.locator('body').getAttribute('data-renderer-status')).toBe('context-lost');
+ await expect(page.locator('#recovery')).toBeVisible();
+});
