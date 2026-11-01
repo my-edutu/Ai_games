@@ -164,3 +164,27 @@ test('shipped skinned climber visibly pushes over a genuine ledge and restores o
   const fingertip=elbow.localToWorld(new THREE.Vector3(0,-.802,.108));
   assert.ok(fingertip.distanceTo(goal)<1e-5,'new body pose cannot break the real initial hand contact');
 });
+
+test('real fingertip IK is invariant under opposite oblique camera reach choice during a mantle',async t=>{
+  const threeURL=pathToFileURL(path.join(path.dirname(require.resolve('three')),'three.module.js')).href;
+  const adjusted=cast.replace("from '/tower/vendor/three.module.js'","from '"+threeURL+"'");
+  assert.notEqual(adjusted,cast);
+  const [{createClimber},THREE]=await Promise.all([
+    import('data:text/javascript;base64,'+Buffer.from(adjusted).toString('base64')),import(threeURL)
+  ]);
+  const rig=createClimber();t.after(()=>rig.dispose());
+  rig.group.position.set(3,7,-4);rig.group.rotation.y=.35;rig.group.scale.setScalar(1.13);
+  rig.group.updateMatrixWorld(true);
+  const goal=rig.group.localToWorld(new THREE.Vector3(.56,2.33,.22));
+  const air={state:'airborne',vx:2300,vy:6000,facing:1,health:5,attacking:false,
+    ledgeTarget:{x:goal.x,y:goal.y,z:goal.z},
+    ledgeMantle:{progress:.04,weight:.45}};
+  for(const viewAzimuth of [-Math.PI/4,Math.PI/4]){
+    rig.animate(air,1/60,1.1,{reducedMotion:true,viewAzimuth});
+    const elbow=rig.group.getObjectByName('1-elbow');
+    elbow.updateWorldMatrix(true,false);
+    const actual=elbow.localToWorld(new THREE.Vector3(0,-.802,.108));
+    assert.ok(actual.distanceTo(goal)<1e-5,
+      'camera-facing reach selection cannot break a true IK grip at azimuth '+viewAzimuth);
+  }
+});
