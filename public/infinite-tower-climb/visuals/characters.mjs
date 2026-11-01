@@ -425,7 +425,10 @@ export function createClimber() {
         arms[otherIndex].upper.rotation.x=mix(arms[otherIndex].upper.rotation.x,-1.1+.52*push,weight);
         arms[otherIndex].lower.rotation.x=mix(arms[otherIndex].lower.rotation.x,-.75+.28*push,weight);
       }
-      for(let i=0;i<2;i++){
+      // The same real contact also owns the suspended legs: do not flatten
+      // the tucked boots with a competing cosmetic vault pose until the
+      // physical fingertip releases the authentic upper rim.
+      if(!genuineLedgeGrip)for(let i=0;i<2;i++){
         const leg=legs[i],front=i===otherIndex;
         leg.upper.rotation.x=mix(leg.upper.rotation.x,front?-.98+.7*push:-1.12+.85*push,weight);
         leg.lower.rotation.x=mix(leg.lower.rotation.x,front?1.55-.5*push:1.72-.92*push,weight);
