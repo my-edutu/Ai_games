@@ -115,9 +115,8 @@ test('G100 real market courier receives a readable close camera and an unclutter
  expect(focus.delivery.some(d=>d.citizen===focus.selected&&d.stage==='unloading')).toBe(true);
  await page.setViewportSize({width:390,height:844});
  const mobile=await page.evaluate(()=>{
-  const style=selector=>getComputedStyle(document.querySelector(selector));
   const visibleScenic=[...document.querySelectorAll('.world-tour [data-scenic]')]
-   .filter(el=>style('#'+el.id)?.display!=='none'&&getComputedStyle(el).display!=='none');
+   .filter(el=>getComputedStyle(el).display!=='none');
   const status=document.querySelector('#workday-activity').getBoundingClientRect();
   const ribbon=document.querySelector('#world-ribbon').getBoundingClientRect();
   const nav=document.querySelector('.world-tour').getBoundingClientRect();
