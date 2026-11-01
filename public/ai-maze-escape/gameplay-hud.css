@@ -32,10 +32,7 @@ body #broadcast[data-ux-revision="4"]{position:relative;isolation:isolate;displa
 #broadcast #hud .mission-block .eyebrow{display:flex;align-items:center;gap:7px;font-size:9px;font-weight:700;letter-spacing:1.1px;color:#f1d18b;line-height:1.2}
 #broadcast #hud .mission-block .small-diamond{width:5px;height:5px;background:#f2d990;flex:none}
 #broadcast #hud .mission-block h2{font:600 clamp(18px,2.1vw,24px)/1.15 Georgia,serif;letter-spacing:-.3px;max-width:100%;margin:5px 0 2px;color:#fff9e7;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:none}
-#broadcast #hud #objective{display:none;width:100%;max-width:100%;margin:0;color:#e6eacb;font-size:11px;line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-/* Keep context only when a real observed landmark or matching sealed gate offers
-   an actionable next step. Generic permanent mission prose stays off the stage. */
-#broadcast #hud #objective[data-actionable="true"]{display:block}
+#broadcast #hud #objective{display:block;width:100%;max-width:100%;margin:0;color:#e6eacb;font-size:11px;line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 #broadcast #hud .metric-block{top:calc(68px + env(safe-area-inset-top,0px));right:calc(14px + env(safe-area-inset-right,0px));display:flex;align-items:center;gap:6px;margin:0;padding:0;border:0;background:none}
 #broadcast #hud .metric-grid{display:flex;align-items:center;gap:0;margin:0;padding:0;border:0;background:none}
 #broadcast #hud .metric-grid .time-metric{display:flex;align-items:center;justify-content:center;min-height:36px;min-width:79px;margin:0;padding:5px 10px;border:1px solid #d0daad45;border-radius:9px;background:rgba(15,37,29,.85);backdrop-filter:blur(8px)}
