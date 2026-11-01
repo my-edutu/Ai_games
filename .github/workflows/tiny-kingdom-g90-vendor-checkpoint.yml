@@ -23,7 +23,7 @@ jobs:
           set -euo pipefail
           npm ci
           mkdir -p evidence/vendor
-          tar -czf evidence/vendor/three-r186.tgz -C node_modules/three build/three.core.js build/three.module.js examples/jsm/loaders/GLTFLoader.js
+          tar -czf evidence/vendor/three-r186.tgz -C node_modules/three build/three.core.js build/three.module.js examples/jsm/loaders/GLTFLoader.js examples/jsm/utils/BufferGeometryUtils.js examples/jsm/utils/SkeletonUtils.js
           sha256sum evidence/vendor/three-r186.tgz > evidence/vendor/three-r186.sha256
       - uses: actions/upload-artifact@v4
         with:
