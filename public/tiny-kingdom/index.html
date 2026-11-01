@@ -3761,7 +3761,12 @@ const workdayEvents=[];
    NEVER credit it twice. Receipts are short-lived presentation only. */
 const deliveryReceipts=[];
 const DELIVERY_MARKET=Object.freeze({food:Object.freeze([-1.0,10.2]),wood:Object.freeze([.85,10.2])});
-const DELIVERY_EVERY_N_JOBS=8;
+// G099 Day-120 recovery: physical couriers must not cannibalize the
+// foresters' construction timber or farmers' survival shifts. Earlier
+// every-8th-work dispatch yielded only 31 buildings versus 37 previously
+// (soak 41327590959). A true but much rarer surplus consignment keeps
+// unloading observable while preserving the village's construction capacity.
+const DELIVERY_EVERY_N_JOBS=32;
 const DELIVERY_UNLOAD_HOURS=1.6;
 function isMarketUnloading(p){
  return Boolean(p?.delivery?.stage==='unloading');
