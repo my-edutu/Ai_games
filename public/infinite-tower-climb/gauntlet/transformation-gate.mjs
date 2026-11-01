@@ -60,8 +60,8 @@ export function evaluateTransformation(record) {
   const guardrails = ['ci', 'replay', 'accessibility', 'performance', 'stability'];
   const failingGates = guardrails.filter(id => record?.guardrails?.[id] === 'fail');
   const openGates = guardrails.filter(id => record?.guardrails?.[id] !== 'pass');
-  const critical = Number(record?.unresolvedCriticalIssues);
-  const criticalOpen = !Number.isFinite(critical) || critical !== 0;
+  const critical = record?.unresolvedCriticalIssues;
+  const criticalOpen = !Number.isInteger(critical) || critical !== 0;
   let status;
   if (!validShaPair) status = 'NOT_EVALUATED';
   else if (missing.length) status = 'AWAITING_GAMEPLAY';
