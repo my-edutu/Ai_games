@@ -58,7 +58,7 @@ jobs:
           name: dungeon-browser-captures-${{ matrix.shard }}
           path: |
             artifacts/dungeon-*.png
-            artifacts/dungeon-visual-metrics.json
+            artifacts/dungeon-*.json
             test-results/**
           if-no-files-found: warn
       - name: Upload focused WebGL scene audit
