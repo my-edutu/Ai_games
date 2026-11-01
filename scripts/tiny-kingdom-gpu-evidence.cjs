@@ -303,8 +303,11 @@ const path = require('node:path');
        forest.microCrownLobes<forest.deciduous*3||
        forest.rimLeafSprays<forest.deciduous*3||
        forest.individualLeaves<forest.deciduous*15||
+// G096 adds an inhabited street and workshop precinct. Keep the real
+       // global <160k safety cap with at least 1k buffer; never present
+       // G089's old 153.5k engineering sub-budget as the commercial gate.
        forest.crownColors<4||!forest.authorityUnchanged||
-       evidence.geometry.totalTriangles>=153500)
+       evidence.geometry.totalTriangles>=159000)
       throw Error('G047/G089B tree preservation, real mesh savings, replay or volume failed: '+JSON.stringify({forest,lod,geometry:evidence.geometry.totalTriangles}));
     // G050: the climate-aware material is bound to the ACTUAL active WebGL
     // program and receives precipitation from authoritative climateAt().
