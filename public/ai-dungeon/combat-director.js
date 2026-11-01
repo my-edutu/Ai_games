@@ -1,5 +1,6 @@
 import * as THREE from '/dungeon/vendor/three.module.js';
 import {combatCueDelay,MAX_PENDING_COMBAT_CUES} from '/dungeon/combat-cue-plan.js';
+import {canStageMeleeArc,planMeleeArcFrame,MELEE_ARC_DURATION} from '/dungeon/melee-arc-plan.js';
 import {isHealingCast,isDisarmCast} from '/dungeon/combat-intent-plan.js';
 import {planVisualContact} from '/dungeon/facing-plan.js';
 import {advancePresentationActionAge} from '/dungeon/character-motion-plan.js';
@@ -17,24 +18,27 @@ function material(hex,opacity=.95){
  return new THREE.MeshBasicMaterial({color:hex,transparent:true,opacity,depthWrite:false,side:THREE.DoubleSide,blending:THREE.AdditiveBlending});
 }
 export function createCombatDirector(scene,{reducedMotion=false}={}){
- const projectiles=[],impacts=[],pendingCues=[],previous=new Map();let floorKey='',shots=0,bursts=0,releasedCues=0,droppedCues=0,healingCues=0,disarmCues=0,contactLockedCues=0,suppressedUnmatchedCues=0;
+ const projectiles=[],impacts=[],pendingCues=[],previous=new Map();let floorKey='',shots=0,bursts=0,releasedCues=0,droppedCues=0,healingCues=0,disarmCues=0,contactLockedCues=0,suppressedUnmatchedCues=0,meleeArcs=0;
  const cleanup=e=>{scene.remove(e.mesh);e.mesh.material.dispose()};
  function ensureBound(){
   while(projectiles.length>PROJECTILE_LIMIT)cleanup(projectiles.shift());
   while(impacts.length>IMPACT_LIMIT)cleanup(impacts.shift());
  }
- function projectile(source,target,kind){
+ function projectile(source,target,kind,action){
   const src=V3(source.x,kind==='mystic'?1.37:1.21,source.z),dst=V3(target.x,1.18,target.z);
-  // Melee strikes need a crescent rather than an arrow teleporting through armour.
-  if(src.distanceTo(dst)<1.8&&kind!=='mystic'&&kind!=='cultist'){
-   // An upright, contact-localized blade arc, not a horizontal glowing disk.
-   // Aim along the authentic one-cell combat lane and keep the foreground
-   // character unobscured. No extra geometry or unbounded emitters.
-   const mesh=new THREE.Mesh(shared.slash,material(color(kind),.82));
-   mesh.position.copy(src.clone().lerp(dst,.79));mesh.position.y=1.10;
-   mesh.rotation.set(0,Math.atan2(src.z-dst.z,dst.x-src.x),-.15);
-   mesh.scale.setScalar(kind==='warden'?1.20:.74);scene.add(mesh);
-   impacts.push({mesh,life:0,duration:.35,mode:'slash'});bursts++;ensureBound();return;
+  // Physical blades sweep through the actual adjacent grid lane, from source
+  // toward opponent. An adjacent ranger still fires a real arrow, not a sword.
+  // Casts, diagonal guesses and unmatched actions never create melee arcs.
+  if(canStageMeleeArc(kind,action,source,target)){
+   const frame=planMeleeArcFrame(source,target,0,reducedMotion);
+   const mesh=new THREE.Mesh(shared.slash,material(color(kind),frame.opacity));
+   mesh.position.copy(V3(frame.x,frame.y,frame.z));
+   mesh.rotation.set(0,frame.yaw,frame.roll);
+   mesh.scale.setScalar(frame.scale*(kind==='warden'?1.2:1));
+   scene.add(mesh);
+   impacts.push({mesh,life:0,duration:MELEE_ARC_DURATION,mode:'slash',
+    source:{x:source.x,z:source.z},target:{x:target.x,z:target.z},kind});
+   meleeArcs=Math.min(1000000,meleeArcs+1);bursts++;ensureBound();return;
   }
   const mesh=new THREE.Mesh(shared.orb,material(color(kind),.95));mesh.position.copy(src);mesh.scale.setScalar(kind==='warden'?1.8:kind==='mystic'?1.35:1);
   scene.add(mesh);projectiles.push({mesh,src,dst,target:{x:target.x,z:target.z},t:0,duration:.18+Math.min(.38,src.distanceTo(dst)*.045),kind});shots++;ensureBound();
@@ -58,7 +62,7 @@ export function createCombatDirector(scene,{reducedMotion=false}={}){
  function releaseCue(cue){
   if(cue.source.kind==='warden'&&cue.source.action==='cast')
    flashAt(cue.source,'#ff653f',true);
-  else if(cue.target)projectile(cue.source,cue.target,cue.source.kind);
+  else if(cue.target)projectile(cue.source,cue.target,cue.source.kind,cue.source.action);
   releasedCues++;
  }
  function signalAction(u,s){
@@ -140,12 +144,19 @@ export function createCombatDirector(scene,{reducedMotion=false}={}){
    if(effect.mode==='spark'){
     effect.mesh.material.opacity=.78*(1-t);
     effect.mesh.scale.setScalar(effect.startScale*(.82+.62*t));
+   }else if(effect.mode==='slash'){
+    const frame=planMeleeArcFrame(effect.source,effect.target,effect.life,reducedMotion);
+    if(frame){
+     effect.mesh.position.copy(V3(frame.x,frame.y,frame.z));
+     effect.mesh.rotation.set(0,frame.yaw,frame.roll);
+     effect.mesh.scale.setScalar(frame.scale*(effect.kind==='warden'?1.2:1));
+     effect.mesh.material.opacity=frame.opacity;
+    }
    }else{
-    effect.mesh.material.opacity=(effect.mode==='slash'?.95:.55)*(1-t);
+    effect.mesh.material.opacity=.55*(1-t);
     // Guard circles are tactical and restrained; the authoritative boss
     // warning ring lives on the actor and never gets suppressed here.
-    effect.mesh.scale.setScalar((effect.mode==='slash'?.6:.18)+t*(effect.mode==='slash'?1.05:.58));
-    if(effect.mode==='slash')effect.mesh.rotation.z+=dt*6;
+    effect.mesh.scale.setScalar(.18+t*.58);
    }
   }
   ensureBound();
@@ -154,5 +165,5 @@ export function createCombatDirector(scene,{reducedMotion=false}={}){
   for(const p of projectiles)cleanup(p);for(const p of impacts)cleanup(p);
   projectiles.length=impacts.length=pendingCues.length=0;previous.clear();
  }
- return{accept,animate,reset,stats:()=>({activeProjectiles:projectiles.length,activeImpacts:impacts.length,pendingCues:pendingCues.length,healingCues:healingCues,disarmCues:disarmCues,contactLockedCues:contactLockedCues,suppressedUnmatchedCues:suppressedUnmatchedCues,releasedCues:releasedCues,droppedCues:droppedCues,activeGroundRings:impacts.filter(e=>e.mode==='ring').length,activeHitFlashes:impacts.filter(e=>e.mode==='spark').length,totalShots:shots,totalBursts:bursts}),dispose(){reset();for(const geometry of Object.values(shared))geometry.dispose()}};
+ return{accept,animate,reset,stats:()=>({activeProjectiles:projectiles.length,activeImpacts:impacts.length,pendingCues:pendingCues.length,healingCues:healingCues,disarmCues:disarmCues,contactLockedCues:contactLockedCues,suppressedUnmatchedCues:suppressedUnmatchedCues,releasedCues:releasedCues,droppedCues:droppedCues,activeGroundRings:impacts.filter(e=>e.mode==='ring').length,activeHitFlashes:impacts.filter(e=>e.mode==='spark').length,activeMeleeArcs:impacts.filter(e=>e.mode==='slash').length,totalMeleeArcs:meleeArcs,totalShots:shots,totalBursts:bursts}),dispose(){reset();for(const geometry of Object.values(shared))geometry.dispose()}};
 }
