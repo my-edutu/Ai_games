@@ -52,7 +52,7 @@ function formatTime(ticks,interval=360){
     ? `${Math.floor(seconds/3600)}:${part(Math.floor(seconds%3600/60))}:${part(seconds%60)}`
     : `${Math.floor(seconds/60)}:${part(seconds%60)}`;
 }
-const intentLabels={'exploring':'Exploring','returning-key':'Finding key','unlocking-route':'At gate','searching-exit':'Seeking exit','evading-threat':'Evading','revising-map':'Rerouting','fallback':'Exploring','escaped':'Escaped'};
+const intentLabels={'exploring':'Exploring','returning-key':'Find key','unlocking-route':'At gate','searching-exit':'To exit','evading-threat':'Evading','revising-map':'Rerouting','fallback':'Exploring','escaped':'Escaped'};
 const goals={'exploring':'Find a passage','returning-key':'Find key','unlocking-route':'Gate ahead','searching-exit':'Find the exit','evading-threat':'Avoid warden','revising-map':'New route','fallback':'Explore','escaped':'Escaped'};
 function viewerCaption(value){
   if(/^Key collected:/i.test(value))return 'Pip found a key.';

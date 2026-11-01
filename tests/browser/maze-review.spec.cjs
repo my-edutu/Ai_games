@@ -378,6 +378,16 @@ test('a real close public encounter frames both autonomous actors and saves date
     'Observed physical exit must fit a real 390px portrait stage').toBe(true);
   expect(landmarkPortraitDiagnostic.explorerInFrame,
     'The real autonomous hero must share the portrait frame with that exit').toBe(true);
+  // Native 390px actual exit screenshot exposed a clipped "Seeking e..."
+  // action label. The on-stage autonomous mode must remain legible without
+  // opening Details, and not just retain an inaccessible title attribute.
+  const nativeIntent = await page.locator('#intent-mode').evaluate(el => ({
+    label: el.textContent,
+    clipped: el.scrollWidth > el.clientWidth + 1,
+  }));
+  expect(nativeIntent.clipped,
+    `Native 390px current AI action must not show ellipsis: ${nativeIntent.label}`).toBe(false);
+  expect(nativeIntent.label?.length, 'compact, factual autonomous-action label').toBeLessThanOrEqual(12);
   await page.setViewportSize({width:1280,height:900});
   await page.waitForFunction(() => innerWidth === 1280 && innerHeight === 900
     && window.__MAZE_3D__?.frames > 4);
