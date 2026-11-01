@@ -9,14 +9,17 @@
   },
   "candidate": {
     "sha": null,
-    "title": "Playable transformation branch still unassessed — no source-verified matched comparison yet"
+    "title": "Playable transformation branch still unassessed — no source-verified matched comparison yet",
+    "implementationSha": "471dfea0e2e9e58cdcea648b4bae4d09917ca98a",
+    "implementationEvidenceStatus": "SOURCE COMMITTED; source-matched candidate gameplay not verified or reviewed"
   },
   "currentTransformation": {
     "title": "Transform the real autonomous climb into a legible, cinematic, responsive expedition",
-    "state": "BUILDING COHESIVE CLIMB AND ENCOUNTER SLICE — QUALITY NOT EVALUATED",
+    "state": "REAL OUTCOME / RESTART SLICE COMMITTED — WHOLE-GAME QUALITY NOT EVALUATED",
     "promise": "One coherent climb: monumental original 3D environments, grounded grip-to-landing motion, tactical visible decisions, understandable guardian danger and opt-in terrain-aware spatial sound, with a minimal in-game HUD.",
-    "nextDecision": "Source-pinned desktop and phone footage still shows small climbers, weak physical contact and limited guardian action readability. Candidate CI software-render submissions are slower in the inspected ascent/guardian samples; these are NOT hardware FPS. Complete visible outcome/restart, independent LOOKS/FEELS/PLAYS preferences and supported-device frame times remain unverified.",
-    "rejectedMicroMilestones": "A green CI run, an isolated pose fix, a prettier screenshot or an extra UI icon never counts as a Gauntlet win."
+    "nextDecision": "The actual live result now holds 48 fixed 20Hz steps (2.4 seconds), followed by an authentic intermission/restart; an original source-bound 3D loss memorial and optional audio make this observable. Inspect complete normal-speed desktop and portrait source-matched videos at the committed candidate source, verify physical movement/guardian/terminal transitions and correct slow software-GL render tails. The frozen baseline result lasts one tick and must not be rewritten. Five fresh blind independent LOOKS/FEELS/PLAYS critics, device p50/p95/p99 + memory, replay/accessibility/stability remain mandatory. Source implementation is NOT visual proof.",
+    "rejectedMicroMilestones": "A green CI run, an isolated pose fix, a prettier screenshot or an extra UI icon never counts as a Gauntlet win.",
+    "biggestRemainingExperienceGap": "Unverified in-motion physical weight and guardian engagement at real display frame rates, with no independently accepted complete run outcome/restart for both viewports."
   },
   "scenarios": [
     {
@@ -69,5 +72,11 @@
     "fidelity": "Returnal — Tower of Sisyphus (materials, cinematic lighting, intensity)",
     "status": "NOT INDEPENDENTLY EVALUATED"
   },
-  "policy": "Requires matched real gameplay in all three scenes and 4/5 independent blind critics preferring new game in LOOKS, FEELS and PLAYS; technical checks are vetoes, not quality wins."
+  "policy": "Requires matched real gameplay in all three scenes and 4/5 independent blind critics preferring new game in LOOKS, FEELS and PLAYS; technical checks are vetoes, not quality wins.",
+  "captureEvidence": {
+    "workflowRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41323028658",
+    "sourceSha": "471dfea0e2e9e58cdcea648b4bae4d09917ca98a",
+    "assessed": "NOT EVALUATED",
+    "scope": "normal-speed 60+ second desktop/portrait, baseline and candidate, ascent/danger/outcome; pending actual video and integrity review"
+  }
 }
