@@ -327,21 +327,26 @@ function composeFollowView(snapshot, hero, aspect, orbit = 0, zoom = 1) {
     for (const bolt of snapshot.projectiles || []) if (bolt.owner === 'enemy'
       && (bolt.x - player.x) * bolt.vx <= 0) consider(bolt.x, bolt.y, 3000, 3000, 1.7);
   }
+  // Stage a real close-range encounter before the distant route marker. The
+  // existing world-space landing beacon remains visible; only camera fitting
+  // temporarily favors actual attackers and their observed telegraph.
+  const encounter = !!threat && ['engaging-enemy', 'bracing-telegraph', 'evading-telegraph', 'evading-projectile'].includes(snapshot.intent?.mode);
+  const routeLanding = encounter ? null : landing;
   const center = { ...body };
-  if (landing) {
+  if (routeLanding) {
     center.x = lerp(center.x, landing.x, .38);
     center.y = lerp(center.y, landing.y, .38);
     center.z = lerp(center.z, landing.z, .38);
   }
   if (threat) {
-    const weight = landing ? .18 : .5;
+    const weight = routeLanding ? .18 : .5;
     center.x = lerp(center.x, threat.x, weight);
     center.y = lerp(center.y, threat.y, weight);
     center.z = lerp(center.z, threat.z, weight);
   }
-  center.y += height * (landing ? .12 : .08);
+  center.y += height * (routeLanding ? .12 : .08);
   const tangent = Math.tan(42 * Math.PI / 360);
-  const horizontalSafe = aspect < .85 ? (landing ? .85 : .9) : .84;
+  const horizontalSafe = aspect < .85 ? (routeLanding ? .85 : .9) : .84;
   const relative = point => ({ x: point.x - center.x, y: point.y - center.y, z: point.z - center.z });
   const dot = (point, axis) => point.x * axis.x + point.y * axis.y + point.z * axis.z;
   const points = [], sightlines = [body];
@@ -353,7 +358,7 @@ function composeFollowView(snapshot, hero, aspect, orbit = 0, zoom = 1) {
     });
   }
   includeBody(body, (player.halfWidth || 9000) / SCALE, height * .52, heroAngle);
-  if (landing) {
+  if (routeLanding) {
     // Include the real usable width, rather than only a guessed touch point.
     // The outer walking band is outside the architectural core at radius 23.4.
     for (const x of [target.x, target.x + target.width]) {
@@ -363,16 +368,17 @@ function composeFollowView(snapshot, hero, aspect, orbit = 0, zoom = 1) {
     points.push(pointFor(target.x + target.width / 2, target.y + target.height, snapshot.chunkBaseY, snapshot.worldWidth, 24.4));
   }
   if (threat) { includeBody(threat, threat.halfWidth, threat.halfHeight, threat.angle); sightlines.push(threat); }
-  const subject = landing || threat, direction = subject ? Math.sign(body.x - subject.x) : 1;
+  const subject = routeLanding || threat, direction = subject ? Math.sign(body.x - subject.x) : 1;
   function solve(lean) {
     const angle = Math.atan2(center.x, center.z) + direction * .08 + orbit + lean;
     // Active traversal gets a modest overlook so the destination presents a
     // usable top. Grounded encounters keep the established near-eye framing.
-    const sin = Math.sin(angle), cos = Math.cos(angle), pitch = landing ? .18 : .055, level = Math.sqrt(1 - pitch * pitch);
+    const sin = Math.sin(angle), cos = Math.cos(angle), pitch = routeLanding ? .18 : .055, level = Math.sqrt(1 - pitch * pitch);
     const out = { x: sin * level, y: pitch, z: cos * level };
     const right = { x: cos, y: 0, z: -sin }, up = { x: -sin * pitch, y: level, z: -cos * pitch };
     const bodyDepth = dot(relative(body), out);
-    let distance = bodyDepth + height * level / (2 * tangent * .18);
+    const minimumActorShare = encounter ? (aspect < .85 ? .205 : .225) : .18;
+    let distance = bodyDepth + height * level / (2 * tangent * minimumActorShare);
     for (const point of points) {
       const delta = relative(point), depth = dot(delta, out);
       distance = Math.max(distance,
@@ -390,7 +396,7 @@ function composeFollowView(snapshot, hero, aspect, orbit = 0, zoom = 1) {
       heroFraction: height * level / (2 * tangent * (distance - bodyDepth)) };
   }
   let best = solve(0);
-  const preferredFraction = .165 / zoom;
+  const preferredFraction = (encounter ? (aspect < .85 ? .195 : .215) : .165) / zoom;
   if (subject && best.heroFraction < preferredFraction) {
     // View along a broad crossing: the real destination recedes into depth,
     // instead of shrinking the entire encounter to fit a narrow screen.
@@ -769,6 +775,20 @@ export function createTowerScene(canvas, settings = {}) {
   const attackArc = new THREE.Mesh(ownGeometry(new THREE.TorusGeometry(.56, .038, 6, 20, Math.PI * .75)), ownMaterial(new THREE.MeshBasicMaterial({ color: 0xabf5ff, transparent: true, opacity: .7, depthTest: true, depthWrite: false })));
   attackArc.visible = false;
   scene.add(attackArc);
+  // One world-space contact ring, shared by every genuine touchdown. It rests
+  // on the authoritative deck top, costs one draw at most, and remains readable
+  // on the low tier where particle bursts are deliberately disabled.
+  const landingHalo = new THREE.Mesh(
+    ownGeometry(new THREE.TorusGeometry(1, .055, 6, 40)),
+    ownMaterial(new THREE.MeshBasicMaterial({
+      color: 0xb5eff0, transparent: true, opacity: 0,
+      depthTest: true, depthWrite: false, side: THREE.DoubleSide, toneMapped: false,
+    })),
+  );
+  landingHalo.name = 'ObservedDeckTouchdown';
+  landingHalo.rotation.x = -Math.PI / 2;
+  landingHalo.visible = false;
+  scene.add(landingHalo);
 
   const particlePositions = new Float32Array(MAX_PARTICLES * 3);
   const particleColors = new Float32Array(MAX_PARTICLES * 3);
@@ -803,6 +823,7 @@ export function createTowerScene(canvas, settings = {}) {
   let snapshot = null, previous = null, initialized = false, frameHandle = 0;
   let elapsed = 0, lastTime = 0, renderErrors = 0, contextLost = false, disposed = false;
   let contactUntil=0,contactHero=false,contactEnemyId=null;
+  let landingMoment=-Infinity,landingRun=null,landingFloor=null,landingWeight=0;
   let baseY = 0, themeKey = '', cameraAngle = .15, lastRevision = '', orbit = 0, zoom = 1;
   const renderProgress = createRenderProgress();
   const actorTarget = new THREE.Vector3();
@@ -967,7 +988,7 @@ export function createTowerScene(canvas, settings = {}) {
     lastRevision = revision;
     renderProgress.expectFrame(performance.now());
     const newRun = snapshot && next.runToken !== snapshot.runToken;
-    if (newRun) { clearActors(); initialized = false; previous = null; }
+    if (newRun) { clearActors(); initialized = false; previous = null; landingMoment=-Infinity; landingRun=null; landingHalo.visible=false; }
     if (snapshot && baseY !== next.chunkBaseY) {
       const shift = (baseY - next.chunkBaseY) / SCALE;
       climber.group.position.y += shift; camera.position.y += shift; lookAt.y += shift;
@@ -976,6 +997,20 @@ export function createTowerScene(canvas, settings = {}) {
     }
     previous = newRun ? null : snapshot;
     snapshot = next; baseY = next.chunkBaseY;
+    // A landing is observable only across consecutive source snapshots in the
+    // same real run/floor. Skipped long intervals and decorative ledge poses
+    // cannot invent a contact or shake the camera.
+    const landed = previous && previous.runToken === next.runToken && previous.floor === next.floor
+      && next.tick > previous.tick && next.tick - previous.tick <= 8
+      && previous.player.state === 'airborne' && previous.player.vy < -350
+      && next.player.state === 'standing' && next.player.vy === 0 && next.player.health > 0;
+    if (landed) {
+      const deck = pointFor(next.player.x, next.player.y - next.player.halfHeight,
+        next.chunkBaseY, next.worldWidth, 27.16);
+      landingHalo.position.set(deck.x, deck.y + .085, deck.z);
+      landingMoment = elapsed; landingRun = next.runToken; landingFloor = next.floor;
+      landingWeight = clamp(-previous.player.vy / 14000, .4, 1);
+    }
     updateEntities(next);
     if (previous && next.player.health < previous.player.health) {
       burst(climber.group.position, 0xff855f, 16);
@@ -1142,6 +1177,15 @@ export function createTowerScene(canvas, settings = {}) {
     // A contact pulse is a short, bounded camera response to observed damage,
     // never an invented attack. Reduced motion retains the world-space cues.
     const contactProgress=options.stale?0:clamp((contactUntil-elapsed)/.24,0,1);
+    const landingProgress=clamp((elapsed-landingMoment)/.6,0,1);
+    landingHalo.visible=!options.stale && snapshot.lifecycle==='running'
+      && landingRun===snapshot.runToken && landingFloor===snapshot.floor && landingProgress<1;
+    if(landingHalo.visible){
+      landingHalo.scale.setScalar(options.reducedMotion ? .85 + landingWeight*.2
+        : .55 + landingProgress*(1.15+landingWeight*.65));
+      landingHalo.material.opacity=landingWeight*(options.reducedMotion ? .62
+        : .78*(1-landingProgress)*(1-landingProgress));
+    }
     for (const pick of snapshot.pickups) {
       const group = pickups.get(pick.id);
       const mapped = pointFor(pick.x, pick.y, snapshot.chunkBaseY, snapshot.worldWidth, 25.2);
@@ -1198,6 +1242,8 @@ export function createTowerScene(canvas, settings = {}) {
     else { camera.position.lerp(destination, cameraBlend); lookAt.lerp(focus, cameraBlend); }
     if(!options.reducedMotion && !options.stale && options.camera==='follow'&&contactProgress>0)
       camera.position.y+=(contactHero?-.24:.18)*Math.sin((1-contactProgress)*Math.PI);
+    if(!options.reducedMotion && options.camera==='follow' && landingHalo.visible)
+      camera.position.y-=landingWeight*.13*Math.sin(landingProgress*Math.PI);
     camera.lookAt(lookAt);
     world.revealGuardianSightlines(camera,guardianSightPoints);
     updateLandingBeacon(landingBeacon, targetPlatform, snapshot, camera);
@@ -1299,6 +1345,8 @@ export function createTowerScene(canvas, settings = {}) {
         position: landingBeacon.position.toArray(), triangles: landingBeacon.geometry.index.count / 3, depthTest: landingBeacon.material.depthTest },
       activeParticles: particleLife.filter(life => life > 0).length,
       observedEnemyImpacts: [...enemies.values()].filter(entry => entry.impact.visible).length,
+      observedTouchdown: landingHalo.visible ? { runToken: landingRun, floor: landingFloor,
+        strength: landingWeight, position: landingHalo.position.toArray() } : null,
       activeTelegraphLanes: [...enemies.values()].filter(entry => entry.threatLane.visible).length,
       activeWindupArcs: [...enemies.values()].filter(entry => entry.chargeArc.visible).length,
       contactPulse: !options.stale && elapsed<contactUntil ? { hero:contactHero, enemyId:contactEnemyId } : null, frameMs,
