@@ -12,6 +12,7 @@ import {planCinematicShot,planReadableExpeditionLens,planWardenCharge} from '/du
 import {planPartyWallReveal,createCutawayBandCache,shouldUploadCutawayBand} from '/dungeon/party-visibility-plan.js';
 import {planBoundaryCamera} from '/dungeon/camera-boundary-plan.js';
 import {advancePresentationActionAge} from '/dungeon/character-motion-plan.js';
+import {planAuthorityDamageBeats,planDamageReaction,planImpactCameraHold,DAMAGE_BEAT_DURATION,DEATH_BEAT_DURATION} from '/dungeon/impact-choreography-plan.js';
 import {planPostFXBudget,adaptPostFXPixelCap,postFXStallAction,isSoftwareWebGLRenderer,createFrameIntervalProbe,planDirectRenderBudget,adaptDirectRenderPixelCap} from '/dungeon/postfx-budget.js';
 import {planCombatFacing,planMovementFacing,approachCharacterYaw,shortestYawDelta} from '/dungeon/facing-plan.js';
 import {enrichCharacter} from '/dungeon/characters.js';
@@ -254,6 +255,7 @@ function cue(event,s){
  }
 }
 let state=null,worldFloor='',received=false,lastTick=-1,errorAt=0;
+let impactCameraHold=null,observedDamageBeats=0,observedFatalBeats=0;
 const palette={vanguard:['#4a87a8','#bed8df','#eab967'],ranger:['#527c58','#bdd19f','#d2b178'],mystic:['#65508f','#c2abf0','#76d8e0'],revenant:['#54656e','#b3c4bd','#dfb76f'],cultist:['#743e4c','#b18a89','#f0636b'],warden:['#483552','#c79a62','#ec7f42']};
 const mat=(color,metalness=.1,roughness=.75)=>new THREE.MeshStandardMaterial({color,metalness,roughness});
 const stone=mat('#26303d',.1,.95),stoneEdge=mat('#404957',.15,.88),floorMat=mat('#28313b',.05,.95),gold=mat('#c9a366',.7,.33),black=mat('#111724',.2,.8);
@@ -425,7 +427,7 @@ function buildWorld(s){clearWorld();worldFloor=s.run+'-'+s.floor;world.userData.
  world.userData.authoredProps=putEnvironment(world,worldFloor,s.map);
 }
 function rig(u){const colors=palette[u.kind],main=mat(colors[0],.5,.4),light=mat(colors[1],.45,.4),accent=mat(colors[2],.55,.3),enemy=u.faction==='enemy',boss=u.kind==='warden';
- const root=new THREE.Group(),body=new THREE.Group();root.add(body);const scale=boss?1.55:enemy?1.04:1;root.scale.setScalar(scale);
+ const root=new THREE.Group(),impactPivot=new THREE.Group(),body=new THREE.Group();root.add(impactPivot);impactPivot.add(body);const scale=boss?1.55:enemy?1.04:1;root.scale.setScalar(scale);
  const torso=make(geo.cylinder,main,body,0,1.03,0,.29,.60,.22);torso.rotation.z=enemy ? .08 : 0;
  make(geo.cube,light,body,0,1.20,-.14,.47,.21,.38);
  // Individually recognisable silhouettes: armoured knight, leather ranger, robed spellcaster, and towering boss.
@@ -464,7 +466,7 @@ function rig(u){const colors=palette[u.kind],main=mat(colors[0],.5,.4),light=mat
  let telegraph=null;
  if(boss){telegraph=new THREE.Mesh(new THREE.RingGeometry(1.85,2.03,56),new THREE.MeshBasicMaterial({color:'#ff7049',transparent:true,opacity:.65,side:THREE.DoubleSide,depthWrite:false}));telegraph.rotation.x=-Math.PI/2;telegraph.position.y=.025;telegraph.visible=false;root.add(telegraph);}
  const detail=enrichCharacter(u,{root,body,leftLeg,rightLeg,leftArm,rightArm});
- scene.add(root);return {root,body,leftLeg,rightLeg,leftArm,rightArm,detail,telegraph,u,at:new THREE.Vector3(u.x-9,0,u.z-9)};
+ scene.add(root);return {root,impactPivot,body,leftLeg,rightLeg,leftArm,rightArm,detail,telegraph,u,at:new THREE.Vector3(u.x-9,0,u.z-9)};
 }
 const timeNow=()=>performance.now()/1000;
 // Read-only spectator projections never mutate simulation state.
@@ -590,7 +592,7 @@ function renderDashboard(s){
  drawMinimap(s);
 }
 
-function update(s){const firstSnapshot=!received,sceneChanged=worldFloor!==s.run+'-'+s.floor;combatOverlay.record(s,timeNow());state=s;received=true;errorAt=0;
+function update(s){const previousState=state,damageBeats=planAuthorityDamageBeats(previousState,s),firstSnapshot=!received,sceneChanged=worldFloor!==s.run+'-'+s.floor;combatOverlay.record(s,timeNow());state=s;received=true;errorAt=0;
  // Authority polling is independent of the browser's WebGL lifecycle. Never
  // hide a graphics failure merely because the autonomous game keeps ticking.
  if(!['context-lost','recovering','stalled','failed'].includes(document.body.dataset.rendererStatus))$('recovery').hidden=true;
@@ -598,13 +600,23 @@ function update(s){const firstSnapshot=!received,sceneChanged=worldFloor!==s.run
  if(!selected){const survivor=s.units.find(u=>u.faction==='party'&&u.hp>0);if(survivor)focusedHeroId=survivor.id;}
  spectatorUI.render(s);
  for(const e of s.events){const id=s.run+':'+e.tick+':'+e.kind+':'+e.text;if(!seenEventIds.has(id)){seenEventIds.add(id);if(seenEventIds.size>150)seenEventIds.delete(seenEventIds.values().next().value);if(!firstSnapshot){cue(e,s);notifyDungeon(e)}}}
- if(sceneChanged){buildWorld(s);camera.userData.dungeonInitialized=false;camera.userData.aimInitialized=false;lastRayAuditAt=-Infinity;}
+ if(sceneChanged){impactCameraHold=null;buildWorld(s);camera.userData.dungeonInitialized=false;camera.userData.aimInitialized=false;lastRayAuditAt=-Infinity;}
+ const damageById=new Map(damageBeats.map(beat=>[beat.id,beat]));
+ if(damageBeats.length){
+  observedDamageBeats=Math.min(1000000,observedDamageBeats+damageBeats.length);
+  observedFatalBeats=Math.min(1000000,observedFatalBeats+damageBeats.filter(beat=>beat.fatal).length);
+  const focus=planImpactCameraHold(s,damageBeats);
+  if(focus)impactCameraHold={encounter:focus,age:0};
+ }
  const stagePositions=planCombatStage(s);
  crowdedStageActors=Object.values(stagePositions).filter(position=>position.crowded).length;
  const seen=new Set(s.units.map(u=>u.id));
  for(const [id,a] of actors)if(!seen.has(id)){disposeActor(a);actors.delete(id)}
  for(const u of s.units){let a=actors.get(u.id);if(!a){a=rig(u);a.ground=addContactProjection(a,{reducedMotion:reduced});actors.set(u.id,a);a.root.position.set(u.x-9,0,u.z-9);attachCharacter(a)}
-  if(a.u.actionTick!==u.actionTick||a.u.action!==u.action){a.actionStarted=timeNow();a.visualActionAge=0;}a.u=u;a.combatFacing=planCombatFacing(u,s.units,s.map);const staged=stagePoint(stagePositions,u);a.at.set(staged.x-9,0,staged.z-9);if(sceneChanged)a.root.position.copy(a.at);a.root.visible=u.hp>0;if(a.telegraph){
+  const damage=damageById.get(u.id);
+  if(damage)a.damageBeat={...damage,age:0};
+  else if(u.hp>0&&a.damageBeat?.fatal)a.damageBeat=null;
+  if(a.u.actionTick!==u.actionTick||a.u.action!==u.action){a.actionStarted=timeNow();a.visualActionAge=0;}a.u=u;a.combatFacing=planCombatFacing(u,s.units,s.map);const staged=stagePoint(stagePositions,u);a.at.set(staged.x-9,0,staged.z-9);if(sceneChanged)a.root.position.copy(a.at);a.root.visible=u.hp>0||Boolean(a.damageBeat?.fatal&&a.damageBeat.age<DEATH_BEAT_DURATION);if(a.telegraph){
    const interval=s.bossPhase==='ECLIPSE'?4:6;
    a.telegraph.visible=u.hp>0&&Boolean(s.bossWarning);
    a.telegraph.material.color.set(s.bossPhase==='ECLIPSE'?'#c97aff':s.bossPhase==='RUPTURE'?'#ff9f62':'#ff7049');
@@ -695,6 +707,7 @@ function animate(t){
   if(t-lastFrameDeliveryReportAt>=1000){frameDeliveryReport=frameDeliveryProbe.summary();lastFrameDeliveryReportAt=t;}
  }else frameDeliveryProbe.resetClock();
  requestAnimationFrame(animate);const time=t/1000,dt=Math.min(.05,Math.max(0,time-lastFrameTime));lastFrameTime=time;
+ if(impactCameraHold)impactCameraHold.age=advancePresentationActionAge(impactCameraHold.age,dt);
  combatDirector.animate(dt);
  for(let i=effects.length-1;i>=0;i--){const e=effects[i];e.life+=dt;
   if(e.life>=e.duration){scene.remove(e.mesh);e.mesh.material.dispose();effects.splice(i,1);continue}
@@ -714,7 +727,8 @@ function animate(t){
  if(w&&h&&(canvas.width!==Math.round(w*renderer.getPixelRatio())||canvas.height!==Math.round(h*renderer.getPixelRatio()))){renderer.setSize(w,h,false);if(composer){const budget=planPostFXBudget(w,h,renderer.getPixelRatio(),bloomPixelCap);if(budget.pixelRatio!==postFXBudget?.pixelRatio)composer.setPixelRatio(budget.pixelRatio);composer.setSize(w,h);postFXBudget=budget;}camera.aspect=w/h;camera.updateProjectionMatrix()}
  const leader=(actors.get(focusedHeroId)?.u.hp>0?actors.get(focusedHeroId):null)||[...actors.values()].find(a=>a.u.faction==='party'&&a.u.hp>0);
  const encounterFrame=autoDirector&&cameraModes[cameraIndex]==='cinematic'?planEncounterFrame(state):null;
- const cinematicShot=autoDirector&&cameraModes[cameraIndex]==='cinematic'?planCinematicShot(state,encounterFrame,{width:w,height:h,focusedHeroId}):null;
+ const heldImpact=impactCameraHold?.age<(impactCameraHold?.encounter.mode==='final-blow'?.72:.43)&&!state?.bossWarning?impactCameraHold.encounter:null;
+ const cinematicShot=autoDirector&&cameraModes[cameraIndex]==='cinematic'?planCinematicShot(state,heldImpact||encounterFrame,{width:w,height:h,focusedHeroId}):null;
  const target=cinematicShot?new THREE.Vector3(cinematicShot.x-9,0,cinematicShot.z-9):encounterFrame?new THREE.Vector3(encounterFrame.x-9,0,encounterFrame.z-9):(leader?.at??new THREE.Vector3(0,0,0));
  for(const a of actors.values()){const moving=a.root.position.distanceTo(a.at)>.07;a.root.position.lerp(a.at,reduced?1:.17);const bounce=reduced?0:Math.sin(time*5+a.at.x)*.028;a.body.position.y=bounce;a.leftLeg.rotation.x=moving?Math.sin(time*10)*.35:0;a.rightLeg.rotation.x=-a.leftLeg.rotation.x;a.leftArm.rotation.x=moving?Math.sin(time*10)*.22:0;a.rightArm.rotation.x=-a.leftArm.rotation.x;
   // One-shots age by actual rendered frames; a stalled software WebGL frame must
@@ -730,6 +744,15 @@ function animate(t){
   else {a.body.rotation.z*=.65;a.body.rotation.x*=.70;}
   if(a.telegraph)a.telegraph.material.opacity=.42+.2*Math.sin(time*9);
   if(!a.authored)a.detail?.update(time,a.u.action||'idle');a.ground?.update(time,a.u.action||'idle',a.u.hp>0);updateActor(a,dt,since,reduced);
+  // One shared read-only pivot brings the complete skinned rig, armour,
+  // accessories and the procedural fallback through the SAME real hit beat.
+  if(a.damageBeat){
+   a.damageBeat.age=advancePresentationActionAge(a.damageBeat.age,dt);
+   const recoil=planDamageReaction(a.u.kind,a.damageBeat.damage,a.damageBeat.maxHp,a.damageBeat.age,a.damageBeat.fatal,reduced);
+   a.impactPivot.position.set(recoil.x,recoil.y,recoil.z);
+   a.impactPivot.rotation.set(recoil.pitch,0,recoil.roll);
+   if(a.damageBeat.fatal&&a.damageBeat.age>=DEATH_BEAT_DURATION)a.root.visible=false;
+  }else{a.impactPivot.position.set(0,0,0);a.impactPivot.rotation.set(0,0,0);}
   // The actual public Warden warning, and only that warning, brings his
   // arms and torso into an escalating pre-strike silhouette. Imported skeleton
   // animations stay intact and take precedence when the real attack lands.
@@ -844,7 +867,7 @@ function animate(t){
   }
  }}
  catch(error){console.warn('[DUNGEON] post effect fault, restoring WebGL:',String(error));try{composer?.dispose()}catch{}composer=null;bloomPass=null;postFXStatus='fallback';postFXEnabled=false;fxButton.title='Glow unavailable: direct rendering remains active';fxButton.setAttribute('aria-pressed','false');fxButton.querySelector('span').textContent='DIRECT 3D';renderer.info.reset();renderer.render(scene,camera)}
- combatOverlay.render(state,actors,camera,time);if(state)window.__DUNGEON_RENDER_DIAGNOSTICS__={composition:inspectComposition(state),visibility:actualHeroVisibility(state,time),frame:renderer.info.render.frame,drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,camera:cameraModes[cameraIndex],cameraSpread:spread,cameraMargin:margin,encounterFrame:encounterFrame??null,cinematicShot:cinematicShot??null,cinematicLens:cinematicLens??null,cinematicAim:{x:cameraAim.x,y:cameraAim.y,z:cameraAim.z},cameraRig:{mode:cameraType,desiredPosition:plannedCamera.position,actualPosition:{x:camera.position.x,y:camera.position.y,z:camera.position.z},turn:plannedCamera.turn,boundaryLimit:plannedCamera.boundaryLimit},focusedHeroId,autoDirector,cutawayWalls:world.userData.cutawayWalls??0,wallMatrixWrites:world.userData.wallMatrixWrites??0,parapetMatrixWrites:world.userData.parapetMatrixWrites??0,cutawayNearbyWalls:world.userData.cutawayNearbyWalls??0,cutawaySubjects:world.userData.cutawaySubjectCount??0,bossCutawayActive:world.userData.bossCutawayActive??false,cutawayParapets:world.userData.cutawayParapets??0,foundationBricks:world.userData.foundationBrickPositions?.length??0,clearedFoundationBricks:world.userData.clearedFoundationBricks??0,foundationMatrixWrites:world.userData.foundationMatrixWrites??0,wallProfiles:world.userData.wallProfileMetrics??null,wallSculpture:world.userData.wallSculpture??null ,stoneGrade:{biome:floorThemes[(state.floor-1)%floorThemes.length].biome,wallTint:stone.color.getHexString(),floorTint:floorMat.color.getHexString(),trimTint:stoneEdge.color.getHexString(),keyFill:moon.color.getHexString(),partyFill:partyGlow.color.getHexString(),partyIntensity:partyGlow.intensity,wallTextureMapped:Boolean(wallMasonryTexture&&stone.map===wallMasonryTexture)},wallMasonry:{size:wallMasonryTexture?.image?.width??0,mapped:Boolean(wallMasonryTexture&&stone.map===wallMasonryTexture),bump:Boolean(wallMasonryTexture&&stone.bumpMap===wallMasonryTexture),bumpScale:stone.bumpScale},floorRuins:world.userData.floorRuins?.metrics??null,hiddenForegroundProps:world.userData.hiddenForegroundProps??0,postFX:composer&&postFXEnabled?'bloom':'direct',postFXStatus,postFXBudget,bloomRenderMs,bloomDownshifts,postFXAutoDisabled:bloomAutoDisabled,frameDelivery:frameDeliveryReport,softwareWebGL,directRenderBudget:directBudget,directRenderMs,directDownshifts,heroKeyIntensity:heroKey.intensity,guardianWard:Boolean(state.guardianWard),bossWarning:state.bossWarning?{shape:state.bossWarning.shape,axis:state.bossWarning.axis,attackTick:state.bossWarning.attackTick,cells:state.bossWarning.cells.length}:null,wardenRitual:world.userData.wardenRitual?.metrics()??null,wardBarrierVisible:Boolean(world.userData.courtShield?.visible),defendersRemaining:state.defendersRemaining??0,bossFramed:Boolean(bossDistance),cameraLook:{x:look.x,z:look.z},activeUnits:[...actors.values()].filter(x=>x.root.visible).length,characterDetails:[...actors.values()].reduce((sum,x)=>sum+(x.detail?.parts||0),0),combatFacingActors:[...actors.values()].filter(x=>x.combatFacing&&x.root.visible).length,alignedCombatActors:[...actors.values()].filter(x=>x.combatFacing&&x.root.visible&&Math.abs(shortestYawDelta(x.root.rotation.y,x.combatFacing.yaw))<.18).length,webgl:true,theme:state.theme,dressing:world.userData.dressing?.metrics??null,atmosphere:world.userData.atmosphere?.metrics??null,livingWorld:world.userData.livingWorld?.metrics??null,overlay:combatOverlay.metrics(),soundstage:soundstage?.stats()??null,combatStage:combatDirector.stats(),combatStaging:{separatedActors:crowdedStageActors,maxOffsetMeters:MAX_STAGE_OFFSET},groundedActors:[...actors.values()].filter(x=>Boolean(x.ground)).length,groundSignals:(()=>{const states=[...actors.values()].map(x=>x.ground?.getState?.()).filter(Boolean);return{subjects:states.length,shadows:states.filter(x=>x.shadowVisible).length,ritualSigils:states.filter(x=>x.sigilVisible).length,coronas:states.filter(x=>x.coronaVisible).length}})(),authoredMotionPivots:[...actors.values()].filter(x=>x.authored&&x.visualPivot).length,authoredCombatPoseActors:[...actors.values()].filter(x=>x.authored&&['attack','cast','hurt'].includes(x.u.action)).length,authoredMotionMaxOffset:[...actors.values()].reduce((m,x)=>Math.max(m,x.visualPivot?.position.length()||0),0),authoredMotionPeak:[...actors.values()].reduce((m,x)=>Math.max(m,x.motionPeak||0),0),authored3D:assetStats(actors)};
+ combatOverlay.render(state,actors,camera,time);if(state)window.__DUNGEON_RENDER_DIAGNOSTICS__={composition:inspectComposition(state),visibility:actualHeroVisibility(state,time),frame:renderer.info.render.frame,drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,camera:cameraModes[cameraIndex],cameraSpread:spread,cameraMargin:margin,encounterFrame:encounterFrame??null,cinematicShot:cinematicShot??null,cinematicLens:cinematicLens??null,cinematicAim:{x:cameraAim.x,y:cameraAim.y,z:cameraAim.z},cameraRig:{mode:cameraType,desiredPosition:plannedCamera.position,actualPosition:{x:camera.position.x,y:camera.position.y,z:camera.position.z},turn:plannedCamera.turn,boundaryLimit:plannedCamera.boundaryLimit},focusedHeroId,autoDirector,cutawayWalls:world.userData.cutawayWalls??0,wallMatrixWrites:world.userData.wallMatrixWrites??0,parapetMatrixWrites:world.userData.parapetMatrixWrites??0,cutawayNearbyWalls:world.userData.cutawayNearbyWalls??0,cutawaySubjects:world.userData.cutawaySubjectCount??0,bossCutawayActive:world.userData.bossCutawayActive??false,cutawayParapets:world.userData.cutawayParapets??0,foundationBricks:world.userData.foundationBrickPositions?.length??0,clearedFoundationBricks:world.userData.clearedFoundationBricks??0,foundationMatrixWrites:world.userData.foundationMatrixWrites??0,wallProfiles:world.userData.wallProfileMetrics??null,wallSculpture:world.userData.wallSculpture??null ,stoneGrade:{biome:floorThemes[(state.floor-1)%floorThemes.length].biome,wallTint:stone.color.getHexString(),floorTint:floorMat.color.getHexString(),trimTint:stoneEdge.color.getHexString(),keyFill:moon.color.getHexString(),partyFill:partyGlow.color.getHexString(),partyIntensity:partyGlow.intensity,wallTextureMapped:Boolean(wallMasonryTexture&&stone.map===wallMasonryTexture)},wallMasonry:{size:wallMasonryTexture?.image?.width??0,mapped:Boolean(wallMasonryTexture&&stone.map===wallMasonryTexture),bump:Boolean(wallMasonryTexture&&stone.bumpMap===wallMasonryTexture),bumpScale:stone.bumpScale},floorRuins:world.userData.floorRuins?.metrics??null,hiddenForegroundProps:world.userData.hiddenForegroundProps??0,postFX:composer&&postFXEnabled?'bloom':'direct',postFXStatus,postFXBudget,bloomRenderMs,bloomDownshifts,postFXAutoDisabled:bloomAutoDisabled,frameDelivery:frameDeliveryReport,softwareWebGL,directRenderBudget:directBudget,directRenderMs,directDownshifts,heroKeyIntensity:heroKey.intensity,guardianWard:Boolean(state.guardianWard),bossWarning:state.bossWarning?{shape:state.bossWarning.shape,axis:state.bossWarning.axis,attackTick:state.bossWarning.attackTick,cells:state.bossWarning.cells.length}:null,wardenRitual:world.userData.wardenRitual?.metrics()??null,wardBarrierVisible:Boolean(world.userData.courtShield?.visible),defendersRemaining:state.defendersRemaining??0,bossFramed:Boolean(bossDistance),cameraLook:{x:look.x,z:look.z},activeUnits:[...actors.values()].filter(x=>x.root.visible).length,characterDetails:[...actors.values()].reduce((sum,x)=>sum+(x.detail?.parts||0),0),combatFacingActors:[...actors.values()].filter(x=>x.combatFacing&&x.root.visible).length,alignedCombatActors:[...actors.values()].filter(x=>x.combatFacing&&x.root.visible&&Math.abs(shortestYawDelta(x.root.rotation.y,x.combatFacing.yaw))<.18).length,webgl:true,theme:state.theme,dressing:world.userData.dressing?.metrics??null,atmosphere:world.userData.atmosphere?.metrics??null,livingWorld:world.userData.livingWorld?.metrics??null,overlay:combatOverlay.metrics(),soundstage:soundstage?.stats()??null,combatStage:combatDirector.stats(),damageChoreography:{observedDamageBeats,observedFatalBeats,activeReactions:[...actors.values()].filter(a=>a.root.visible&&a.damageBeat&&!a.damageBeat.fatal&&a.damageBeat.age<DAMAGE_BEAT_DURATION).length,visibleFallen:[...actors.values()].filter(a=>a.root.visible&&a.damageBeat?.fatal&&a.damageBeat.age<DEATH_BEAT_DURATION).length,impactCameraHold:heldImpact?.mode??null},combatStaging:{separatedActors:crowdedStageActors,maxOffsetMeters:MAX_STAGE_OFFSET},groundedActors:[...actors.values()].filter(x=>Boolean(x.ground)).length,groundSignals:(()=>{const states=[...actors.values()].map(x=>x.ground?.getState?.()).filter(Boolean);return{subjects:states.length,shadows:states.filter(x=>x.shadowVisible).length,ritualSigils:states.filter(x=>x.sigilVisible).length,coronas:states.filter(x=>x.coronaVisible).length}})(),authoredMotionPivots:[...actors.values()].filter(x=>x.authored&&x.visualPivot).length,authoredCombatPoseActors:[...actors.values()].filter(x=>x.authored&&['attack','cast','hurt'].includes(x.u.action)).length,authoredMotionMaxOffset:[...actors.values()].reduce((m,x)=>Math.max(m,x.visualPivot?.position.length()||0),0),authoredMotionPeak:[...actors.values()].reduce((m,x)=>Math.max(m,x.motionPeak||0),0),authored3D:assetStats(actors)};
 }
 async function poll(){try{const r=await fetch('/dungeon/state',{cache:'no-store'});if(!r.ok)throw Error('State '+r.status);const data=await r.json();if(data.tick!==lastTick||data.run!==state?.run){lastTick=data.tick;update(data)}}catch(e){errorAt++;if(errorAt>=3){$('recovery').hidden=false;$('status').textContent='VIEW DEGRADED — RETRYING';console.warn('Dungeon view recovery',String(e))}}finally{setTimeout(poll,190)}}
 $('party').addEventListener('click',e=>{

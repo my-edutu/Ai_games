@@ -20,12 +20,13 @@ export function createWardenRitual(world,exit,{reducedMotion=false,map=null}={})
  // giant translucent effect that can hide real combat or block navigation.
  const plinth=new THREE.CylinderGeometry(.23,.30,.24,8),column=new THREE.CylinderGeometry(.085,.19,.82,7);
  const crest=new THREE.ConeGeometry(.20,.37,7),emblem=new THREE.TorusGeometry(.15,.019,5,24);
+ const plinths=[];
  for(let i=0;i<6;i++){
   const angle=i*Math.PI/3+.18,pylon=new THREE.Group();
   pylon.name='Ritual plinth '+i;pylon.position.set(Math.cos(angle)*1.68,0,Math.sin(angle)*1.68);pylon.rotation.y=-angle;
   put(pylon,plinth,stone,0,.12,0);put(pylon,column,metal,0,.61,0);
   put(pylon,crest,stone,0,1.13,0).rotation.z=i%2?-.06:.06;
-  put(pylon,emblem,glyph,0,.73,-.128,.7,.7,.7).rotation.y=Math.PI/2;group.add(pylon);
+  put(pylon,emblem,glyph,0,.73,-.128,.7,.7,.7).rotation.y=Math.PI/2;fixedCourt.add(pylon);plinths.push(pylon);
  }
  // Original low-profile sculpted basalt court: a visually continuous combat
  // stage that remains beneath feet. Unlike towering copies of corridor props,
@@ -123,20 +124,22 @@ export function createWardenRitual(world,exit,{reducedMotion=false,map=null}={})
   makeWallMesh(buttress,budGeo,buttressMetal,0,2.49,-.14);
   fixedCourt.add(buttress);wallProps.push(buttress);
  }
- let hiddenWallProps=0;
+ let hiddenWallProps=0,hiddenPlinths=0;
  function setSightlines(subjects=[],cameraPosition=null){
-  hiddenWallProps=0;
+  hiddenWallProps=hiddenPlinths=0;
   if(!cameraPosition||!Array.isArray(subjects))return;
-  for(const prop of wallProps){
-   const wx=fixedCourt.position.x+prop.position.x,wz=fixedCourt.position.z+prop.position.z;
-   // Only hide an ornamental wall whose near-plane geometry masks a real
-   // party or boss subject from the actual camera. Never cull warning tiles.
-   const front=Math.hypot(cameraPosition.x-wx,cameraPosition.z-wz);
-   const blocks=subjects.some(u=>Number.isFinite(u?.x)&&Number.isFinite(u?.z)&&
-    Math.hypot(u.x-wx,u.z-wz)<2.0&&
-    front+0.2<Math.hypot(cameraPosition.x-u.x,cameraPosition.z-u.z));
-   prop.visible=!blocks;
-   if(blocks)hiddenWallProps++;
+  // Six actual ceremonial pylons are anchored to the exit room, rather than
+  // running around with the enemy. Ornament yields to real combat silhouettes.
+  for(const [props,radius] of [[wallProps,2],[plinths,1.65]]){
+   for(const prop of props){
+    const wx=fixedCourt.position.x+prop.position.x,wz=fixedCourt.position.z+prop.position.z;
+    const front=Math.hypot(cameraPosition.x-wx,cameraPosition.z-wz);
+    const blocks=subjects.some(u=>Number.isFinite(u?.x)&&Number.isFinite(u?.z)&&
+     Math.hypot(u.x-wx,u.z-wz)<radius&&
+     front+.2<Math.hypot(cameraPosition.x-u.x,cameraPosition.z-u.z));
+    prop.visible=!blocks;
+    if(blocks){if(props===wallProps)hiddenWallProps++;else hiddenPlinths++;}
+   }
   }
  }
  const rings=[];
@@ -228,6 +231,14 @@ export function createWardenRitual(world,exit,{reducedMotion=false,map=null}={})
   linkCount=nearby.length;
  }
  function animate(time,dt=0){
+  // The Warden's actual binding guards sustain his cathedral plinths; as the
+  // seal breaks the ROOM architecture sinks, clearing the real boss fight.
+  // Reduced motion cuts directly to the correct phase without interpolation.
+  const step=Math.max(0,Math.min(.05,dt));
+  for(const pillar of plinths){
+   const target=ward?0:-.91;
+   pillar.position.y=reducedMotion?target:pillar.position.y+(target-pillar.position.y)*Math.min(1,step*5.2);
+  }
   if(!visible)return;
   impactAge=Math.max(0,impactAge-Math.max(0,Math.min(.05,dt)));
   warningTiles.visible=warningEdges.visible=warningCount>0&&(impactAge>0||warningTiles.count>0);
@@ -250,5 +261,5 @@ export function createWardenRitual(world,exit,{reducedMotion=false,map=null}={})
    }
   }else for(const shard of shards)shard.visible=false;
  }
- return {accept,animate,setSightlines,metrics:()=>({sculptedCourtSlabs:courtSlabCount,originalEngravings:cutCount,cathedralWallButtresses:wallProps.length,hiddenWallButtresses:hiddenWallProps,phaseRelief:phase,visible,shieldActive:ward,phase,activeDefenders:defenders,activeTethers:linkCount,shattering:breakAge<SHATTER_TIME,maxTethers:LIMIT,originalBasaltReliefs:12,warningTiles:warningCount,warningEdgedTiles:warningEdges.count,warningShape,impactActive:impactAge>0})};
+ return {accept,animate,setSightlines,metrics:()=>({sculptedCourtSlabs:courtSlabCount,originalEngravings:cutCount,cathedralWallButtresses:wallProps.length,hiddenWallButtresses:hiddenWallProps,fixedCeremonialPlinths:plinths.length,hiddenPlinths,retractedPlinths:plinths.filter(p=>p.position.y<-.55).length,phaseRelief:phase,visible,shieldActive:ward,phase,activeDefenders:defenders,activeTethers:linkCount,shattering:breakAge<SHATTER_TIME,maxTethers:LIMIT,originalBasaltReliefs:12,warningTiles:warningCount,warningEdgedTiles:warningEdges.count,warningShape,impactActive:impactAge>0})};
 }

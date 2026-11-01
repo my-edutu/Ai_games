@@ -45,9 +45,15 @@ export function planCinematicShot(s,encounter=null,{width=1440,height=832,focuse
  const warning=!!boss&&s.bossWarning&&Number.isSafeInteger(s.bossWarning.attackTick)&&
   s.bossWarning.attackTick>=s.tick&&s.bossWarning.attackTick<=s.tick+3&&
   Array.isArray(s.bossWarning.cells)&&s.bossWarning.cells.length>0;
- const realContact=encounter?.mode==='contact'&&typeof encounter.actorId==='string'&&
-  typeof encounter.targetId==='string'&&heroes.some(h=>h.id===encounter.actorId)&&
-  enemies.some(u=>u.id===encounter.targetId)&&Number.isFinite(encounter.x)&&Number.isFinite(encounter.z);
+ // A verified final blow keeps an authentic dead enemy in frame only while
+ // its public snapshot still holds the corpse; it is never a fabricated duel.
+ const fallenFoe=encounter?.mode==='final-blow'?
+  s.units.find(u=>u.id===encounter.targetId&&u.faction==='enemy'&&u.hp===0&&valid(u,n)):null;
+ const realContact=(encounter?.mode==='contact'||Boolean(fallenFoe))&&
+  typeof encounter.actorId==='string'&&typeof encounter.targetId==='string'&&
+  heroes.some(h=>h.id===encounter.actorId)&&
+  (enemies.some(u=>u.id===encounter.targetId)||Boolean(fallenFoe))&&
+  Number.isFinite(encounter.x)&&Number.isFinite(encounter.z);
  let mode='journey',position={x:focus.x,z:focus.z},offsets=[5.0,8.2,5.65],lookY=.48,subjects=[focus.id];
  if(warning){
   // A telegraph is strategically more important than a close-up hit.
@@ -55,7 +61,7 @@ export function planCinematicShot(s,encounter=null,{width=1440,height=832,focuse
   mode='warden-warning';position=mean(boss,closeBoss);
   offsets=planDuelCameraOffset(closeBoss,boss,11.0,9.15)||[6.3,11.2,6.55];lookY=.25;subjects=[boss.id,closeBoss.id];
  }else if(realContact){
-  const foe=enemies.find(u=>u.id===encounter.targetId);
+  const foe=enemies.find(u=>u.id===encounter.targetId)||fallenFoe;
   const hero=heroes.find(u=>u.id===encounter.actorId);
   mode=foe?.kind==='warden'?'warden-contact':'contact';
   position=mean(hero,foe);
