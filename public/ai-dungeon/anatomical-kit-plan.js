@@ -45,3 +45,21 @@ function make(kind,p){
 const KITS=Object.freeze(Object.fromEntries(Object.entries(profile).map(([kind,p])=>[kind,make(kind,p)])));
 const EMPTY=Object.freeze([]);
 export function planAnatomicalKit(kind){return Object.hasOwn(KITS,kind)?KITS[kind]:EMPTY;}
+
+// Precompute rigid torso material batches once. Articulated bracers and greaves
+// must remain individual because they follow the real imported GLB joints.
+const EMPTY_DRAW=Object.freeze({staticGroups:EMPTY,jointPieces:EMPTY});
+const DRAW=Object.freeze(Object.fromEntries(Object.entries(KITS).map(([kind,pieces])=>{
+ const grouped=new Map(),jointPieces=[];
+ for(const piece of pieces){
+  if(piece.mount!=='torso'){jointPieces.push(piece);continue;}
+  if(!grouped.has(piece.finish))grouped.set(piece.finish,[]);
+  grouped.get(piece.finish).push(piece);
+ }
+ const staticGroups=Object.freeze([...grouped].map(([finish,parts])=>
+  Object.freeze({finish,parts:Object.freeze(parts)})));
+ return [kind,Object.freeze({staticGroups,jointPieces:Object.freeze(jointPieces)})];
+})));
+export function planAnatomicalDrawGroups(kind){
+ return Object.hasOwn(DRAW,kind)?DRAW[kind]:EMPTY_DRAW;
+}
