@@ -448,12 +448,16 @@ test('three public terrace districts stay readable as physical, source-bounded c
       }
       return count;
     }
-    assert.ok(floorInstances('Disclosed sunlit ivory terrace', 2.8-.035) >= 10,
-      'upper disclosed level has substantial sunlit stone, not scattered white pixels');
-    assert.ok(floorInstances('Disclosed mineral clay court', 1.4-.035) >= 10,
-      'middle disclosed level forms a sustained warm red-clay court');
-    assert.ok(floorInstances('Disclosed sea-glass mosaic', -.035) >= 10,
-      'low disclosed level forms a real tidal-green court without a hidden path hint');
+    assert.ok(floorInstances('Disclosed sunlit ivory terrace', 2.8-.035) >= 9,
+      'upper disclosed level preserves its original strong light-stone district');
+    assert.ok(floorInstances('Disclosed mineral clay court', 2.8-.035) >= 3,
+      'the original upper guardian-side warm-clay focal island cannot disappear into ivory');
+    assert.ok(floorInstances('Disclosed mineral clay court', 1.4-.035) >= 9,
+      'middle disclosed level forms a continuous full-district red-clay court');
+    assert.ok(floorInstances('Disclosed sunlit ivory terrace', 1.4-.035) >= 9,
+      'middle level retains a full ivory district so the stage never becomes uniformly orange');
+    assert.ok(floorInstances('Disclosed sea-glass mosaic', -.035) >= 9,
+      'lower disclosed level forms a full tidal-green district without a hidden path hint');
     assert.deepEqual(world.stats().renderedCells, publicCells.cells.map(c=>c.cell));
     assert.equal(JSON.stringify(publicCells), original, 'art never alters publicly supplied knowledge');
     assert.equal(world.stats().materialCount,initial.materialCount);

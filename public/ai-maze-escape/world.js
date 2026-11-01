@@ -351,10 +351,15 @@ export function createMazeWorld(options = {}) {
       const district = Math.floor((c.cell % s.width) / 3) + Math.floor(c.cell / s.width / 3) * 7;
       const tier = floorY > 2.1 ? 2 : floorY > .7 ? 1 : 0;
       const patina = variation(district * 31 + 17);
+      // Authentic Pass59 WebGL frames rejected the first ivory-heavy palette:
+      // it erased the guardian court's existing warm-clay focal island.
+      // Keep that truthful original high-court contrast. The lower two tiers
+      // add one intentional district of warm clay and sea-glass respectively,
+      // while adjacent courts retain a clear ivory/stone separation.
       const floorMaterial = tier === 2
-        ? (patina > .86 ? stone : lightStone)
-        : tier === 1 ? (patina > .89 ? lightStone : clay)
-          : (patina > .88 ? stone : seaGlass);
+        ? (patina > .83 ? clay : variation(district) > .67 ? lightStone : stone)
+        : tier === 1 ? (patina > .64 ? clay : lightStone)
+          : (variation(district) > .75 ? seaGlass : stone);
       if (variation(c.cell + 50) > .55) {
         block(floorMaterial, x, -.035, z, 2.31, .07, 2.31, c.cell);
         for (const sign of [-1, 1]) {
