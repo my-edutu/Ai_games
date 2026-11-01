@@ -1,7 +1,7 @@
 # Game Design — Endless Adventure
 
 ## Dramatic loop
-Explore a labyrinth → adapt tactics to threats → acquire relics → defeat the Warden → reach the portal → descend. Lose all heroes → play a short legible intermission → start a new expedition. The camera follows the active party.
+Explore a labyrinth → intercept binding guards and acquire relics → break the Warden's first-phase seal → survive its telegraphed phases → clear remaining hostiles → reach the portal → descend. The seal is mechanically real: while living defenders sustain it, early Warden hits are weakened; it never makes a route impassable. The guardian's summoned reinforcements remain real threats. Each seal break has a bounded authoritative event and corresponding scene/audio feedback. The 3D viewer never owns damage or progression. Lose all heroes → play a short legible intermission → start a new expedition. The camera follows the active party.
 
 ## Roles
 - **Ashen Vanguard:** front-line melee and passage-breaking.

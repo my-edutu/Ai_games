@@ -16,6 +16,16 @@ export function wardenPhase(boss?:Pick<Unit,'hp'|'maxHp'>):WardenPhase{
  const fraction=boss.hp/boss.maxHp;
  return fraction>.65?'SENTINEL':fraction>.30?'RUPTURE':'ECLIPSE';
 }
+/** The Warden's first-phase barrier is paid for by living defenders, never a hidden timer. */
+export function wardenSealActive(s:Pick<DungeonState,'units'>):boolean {
+ const guardian=s.units.find(u=>u.kind==='warden'&&u.hp>0);
+ return Boolean(guardian&&wardenPhase(guardian)==='SENTINEL'&&s.units.some(u=>u.faction==='enemy'&&u.kind!=='warden'&&u.hp>0));
+}
+export function damageThroughWardenSeal(s:DungeonState,target:Unit,raw:number):number {
+ if(target.kind!=='warden')return raw;
+ if(wardenSealActive(s))return Math.max(1,Math.ceil(raw*.24));
+ return wardenPhase(target)==='SENTINEL'?Math.max(1,Math.ceil(raw*.7)):raw;
+}
 const THEMES=['THE SUNKEN CRYPT','THE EMBER CATHEDRAL','THE OBSIDIAN VAULT','THE HOLLOW SANCTUM'];
 const DIRS=[[1,0],[0,1],[-1,0],[0,-1]] as const;
 const inside=(x:number,z:number)=>x>=0&&z>=0&&x<MAP_SIZE&&z<MAP_SIZE;
@@ -144,7 +154,7 @@ export class DungeonRuntime {
  static restore(save:DungeonSave){if(save.version!==DUNGEON_VERSION||save.signature!==checksum({seed:save.seed,rng:save.rng,state:save.state}))throw Error('Dungeon snapshot checksum mismatch');return new DungeonRuntime(save.seed,NamedRng.restore(save.rng),clone(save.state))}
  save():DungeonSave {const state=clone(this.state),rng=this.rng.snapshot();return {version:DUNGEON_VERSION,seed:this.seed,rng,state,signature:checksum({seed:this.seed,rng,state})}}
  step(){
-  const s=this.state;const warden=s.units.find(u=>u.kind==='warden');const previousWardenPhase=wardenPhase(warden);s.tick++;for(const unit of s.units){unit.action='idle';unit.actionTick=s.tick;delete unit.targetId}
+  const s=this.state;const warden=s.units.find(u=>u.kind==='warden');const previousWardenPhase=wardenPhase(warden),wardAtStart=wardenSealActive(s);s.tick++;for(const unit of s.units){unit.action='idle';unit.actionTick=s.tick;delete unit.targetId}
   if(s.phase==='intermission'){if(--s.intermission<=0){const run=s.run+1;this.state=createFloor(this.seed,1,this.rng,run);push(this.state,'restart','A new expedition enters the dungeon.')}return this.publicState()}
   const party=s.units.filter(u=>u.faction==='party'&&u.hp>0),foes=s.units.filter(u=>u.faction==='enemy'&&u.hp>0),leader=party[0];
   if(!leader){s.phase='intermission';s.intermission=14;push(s,'defeat','The expedition was lost. A new run begins shortly.');return this.publicState()}
@@ -172,16 +182,19 @@ export class DungeonRuntime {
     if(hazard){hazard.active=false;hazard.disarmed=true;hazard.cooldown=0;hero.action='cast';s.intent='Wildshadow disabling a dangerous rune';push(s,'disarm','Wildshadow safely disabled a '+hazard.kind+' trap');continue}
    }
    const enemies=s.units.filter(u=>u.faction==='enemy'&&u.hp>0).sort((a,b)=>dist(hero,a)-dist(hero,b)||a.id.localeCompare(b.id));
+   const defenders=enemies.filter(u=>u.kind!=='warden');
+   // The expedition deliberately clears the binding guards before its guardian duel.
+   // Incidental boss contact still has a real, bounded damage outcome and cannot stall a corridor.
+   const attackable=defenders.length?defenders:enemies;
    const range=hero.kind==='vanguard'?1:hero.kind==='ranger'?4:3;
    if(hero.kind==='mystic'&&s.tick%6===0){
     const wounded=party.filter(u=>u.hp>0&&u.hp<u.maxHp*.7).sort((a,b)=>a.hp/a.maxHp-b.hp/b.maxHp)[0];
     if(wounded){wounded.hp=Math.min(wounded.maxHp,wounded.hp+15+s.level);hero.action='cast';s.intent='Starweaver channels restorative magic';push(s,'healing','Starweaver healed '+wounded.kind);continue}
    }
    // Choose the nearest actual visible hostile instead of a wall-blocked nearest one.
-   const target=enemies.find(e=>dist(hero,e)>=1&&dist(hero,e)<=range&&clearCombatLane(s.map,hero,e));
+   const target=attackable.find(e=>dist(hero,e)>=1&&dist(hero,e)<=range&&clearCombatLane(s.map,hero,e));
    if(target){
-    const raw=hero.attack+(s.level-1)*2,guard=target.kind==='warden'&&wardenPhase(target)==='SENTINEL';
-    const damage=guard?Math.max(1,Math.ceil(raw*.7)):raw;
+    const raw=hero.attack+(s.level-1)*2,damage=damageThroughWardenSeal(s,target,raw);
     target.hp=Math.max(0,target.hp-damage);hero.action=hero.kind==='mystic'?'cast':'attack';hero.targetId=target.id;target.action='hurt';
     s.intent=hero.kind==='mystic'?'Arcane support engaging hostiles':hero.kind==='ranger'?'Ranger providing covering fire':'Vanguard holding the front line';
     if(target.hp===0){s.kills++;s.gold+=12;s.level=1+Math.floor(s.kills/5);push(s,'kill',(target.kind==='warden'?'WARDEN DEFEATED':'Enemy defeated')+' · +12 gold')}
@@ -189,7 +202,7 @@ export class DungeonRuntime {
     continue;
    }
    // Intercept nearby minions rather than marching past them to the Warden.
-   const minion=enemies.find(e=>e.kind!=='warden'&&(dist(hero,e)<=5||dist(leader,e)<=4));
+   const minion=defenders.find(e=>dist(hero,e)<=5||dist(leader,e)<=4)??defenders[0];
    const boss=enemies.find(e=>e.kind==='warden');
    const nearbyBoss=boss&&dist(hero,boss)<=5?boss:null;
    const engagement=minion||(hero===leader?boss:nearbyBoss);
@@ -202,11 +215,16 @@ export class DungeonRuntime {
    if(route.length){
     const next=route[0],blocker=s.units.find(u=>u.faction==='enemy'&&u.hp>0&&u.x===next.x&&u.z===next.z);
     if(blocker){
-     const damage=blocker.kind==='warden'&&wardenPhase(blocker)==='SENTINEL'?Math.max(1,Math.ceil(hero.attack*.7)):hero.attack;
+     const damage=damageThroughWardenSeal(s,blocker,hero.attack+(s.level-1)*2);
      blocker.hp=Math.max(0,blocker.hp-damage);hero.action='attack';hero.targetId=blocker.id;blocker.action='hurt';s.intent='Breaking through the enemy line';
-     if(!blocker.hp){s.kills++;s.gold+=12;push(s,'kill','The expedition cleared the passage')}
+     if(!blocker.hp){s.kills++;s.gold+=12;s.level=1+Math.floor(s.kills/5);push(s,'kill','The expedition cleared the passage')}
     }else{hero.x=next.x;hero.z=next.z;hero.action='move';s.intent=minion?'Intercepting '+minion.kind:engagement?'Hunting the dungeon warden':'Claiming the portal'}
    }
+  }
+  // One authoritative transition when the last binding guard falls or the Warden's first phase breaks.
+  if(wardAtStart&&!wardenSealActive(s)&&warden&&warden.hp>0){
+   push(s,'unseal','THE WARDEN SEAL SHATTERS — the guardian is exposed');
+   s.intent='Seal broken · confront the Eternal Warden';
   }
   // Enemies pursue only within a bounded aggro distance. Cooldowns prevent unavoidable stun-lock.
   for(const enemy of s.units.filter(u=>u.faction==='enemy'&&u.hp>0)){
@@ -256,7 +274,7 @@ export class DungeonRuntime {
   }
   const alive=s.units.filter(u=>u.faction==='party'&&u.hp>0);
   if(!alive.length){s.phase='intermission';s.intermission=14;push(s,'defeat','All heroes have fallen. Preparing a new expedition.')}
-  else if(!s.units.some(u=>u.faction==='enemy'&&u.hp>0&&u.kind==='warden')&&dist(leader,s.exit)===0){
+  else if(!s.units.some(u=>u.faction==='enemy'&&u.hp>0)&&dist(leader,s.exit)===0){
    const nextFloor=s.floor+1;const next=createFloor(this.seed,nextFloor,this.rng,s.run,s);
    next.units.filter(u=>u.faction==='party').forEach(u=>u.hp=Math.min(u.maxHp,u.hp+26));
    this.state=next;push(next,'floor','FLOOR '+nextFloor+' · '+next.theme);
@@ -265,6 +283,6 @@ export class DungeonRuntime {
  }
  publicState(){
   const s=this.state;
-  return {version:DUNGEON_VERSION,tick:s.tick,run:s.run,floor:s.floor,theme:s.theme,phase:s.phase,bossPhase:wardenPhase(s.units.find(u=>u.kind==='warden')),intermission:s.intermission,map:s.map,exit:s.exit,units:s.units.map(u=>({...u})),relics:s.relics.map(r=>({...r})),traps:s.traps.map(t=>({...t})),kills:s.kills,gold:s.gold,level:s.level,intent:s.intent,events:s.events.map(e=>({...e})),checksum:checksum({tick:s.tick,run:s.run,floor:s.floor,units:s.units,relics:s.relics,traps:s.traps,gold:s.gold})};
+  return {version:DUNGEON_VERSION,tick:s.tick,run:s.run,floor:s.floor,theme:s.theme,phase:s.phase,bossPhase:wardenPhase(s.units.find(u=>u.kind==='warden')),guardianWard:wardenSealActive(s),defendersRemaining:s.units.filter(u=>u.faction==='enemy'&&u.kind!=='warden'&&u.hp>0).length,intermission:s.intermission,map:s.map,exit:s.exit,units:s.units.map(u=>({...u})),relics:s.relics.map(r=>({...r})),traps:s.traps.map(t=>({...t})),kills:s.kills,gold:s.gold,level:s.level,intent:s.intent,events:s.events.map(e=>({...e})),checksum:checksum({tick:s.tick,run:s.run,floor:s.floor,units:s.units,relics:s.relics,traps:s.traps,gold:s.gold})};
  }
 }

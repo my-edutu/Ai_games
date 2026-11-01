@@ -39,6 +39,7 @@ test('events, transitions and missed polls produce bounded, semantic, text-indep
  const after=snap(22,{events:[
   {kind:'telegraph',tick:20,text:'do not speak visitor input'},
   {kind:'healing',tick:21,text:'whatever'},
+  {kind:'unseal',tick:21,text:'guardian seal was truly broken'},
   {kind:'loot',tick:22,text:'treasure'},
   {kind:'floor',tick:22,text:'new depth'},
   {kind:'untrusted',tick:22,text:'not a sound'}
@@ -46,6 +47,7 @@ test('events, transitions and missed polls produce bounded, semantic, text-indep
  const cues=planSoundCues(before,after,()=>null);
  assert.ok(cues.some(c=>c.kind==='warning'));
  assert.ok(cues.some(c=>c.kind==='heal'));
+ assert.ok(cues.some(c=>c.kind==='unseal'),'the real shield-break milestone must be audible after consent');
  assert.ok(cues.some(c=>c.kind==='reward'));
  assert.ok(cues.every(c=>!('text' in c)));
  assert.equal(cues.some(c=>c.kind==='transition'),false,'floor only advances when authoritative floor changes');

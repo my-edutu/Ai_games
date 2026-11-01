@@ -220,8 +220,8 @@ let shakeStrength=0;
 function pulseFX(event,s){
  if(reduced)return;
  let origin,theme='#51fff0',big=false;
- if(event.kind==='phase'||event.kind==='telegraph'||(event.kind==='danger'&&event.text.includes('Warden'))){
-  origin=s.units.find(u=>u.kind==='warden');theme=event.kind==='phase'?'#e19aff':event.kind==='danger'?'#ff4d86':'#ffba70';big=true;shakeStrength=event.kind==='danger'?.11:shakeStrength;
+ if(event.kind==='phase'||event.kind==='unseal'||event.kind==='telegraph'||(event.kind==='danger'&&event.text.includes('Warden'))){
+  origin=s.units.find(u=>u.kind==='warden');theme=event.kind==='unseal'?'#ffe7a1':event.kind==='phase'?'#e19aff':event.kind==='danger'?'#ff4d86':'#ffba70';big=true;shakeStrength=event.kind==='danger'?.11:shakeStrength;
  }else if(event.kind==='healing'||event.kind==='loot'){origin=s.units.find(u=>u.id==='mystic')||s.units[0];theme='#5fffe4'}
  else if(event.kind==='kill'){origin=s.units.find(u=>u.faction==='enemy'&&u.hp<=0);theme='#ffd27d'}
  if(!origin)return;
@@ -236,9 +236,9 @@ function disposeParticle(p){scene.remove(p.mesh);p.mesh.material.dispose()}
 function cue(event,s){
  if(reduced)return;
  pulseFX(event,s);
- const colors={kill:'#ffe3a0',combat:'#e99159',danger:'#ef5864',phase:'#efb7ff',guard:'#72ffdf',evade:'#88b9ff',block:'#92eaff',trap:'#ff646c',disarm:'#74f8be',telegraph:'#ffb77b',healing:'#58ebba',loot:'#66d7e5',floor:'#d7bbff'};
+ const colors={unseal:'#ffe7a1',kill:'#ffe3a0',combat:'#e99159',danger:'#ef5864',phase:'#efb7ff',guard:'#72ffdf',evade:'#88b9ff',block:'#92eaff',trap:'#ff646c',disarm:'#74f8be',telegraph:'#ffb77b',healing:'#58ebba',loot:'#66d7e5',floor:'#d7bbff'};
  const color=colors[event.kind];if(!color)return;
- const target=event.kind==='danger'?s.units.find(u=>u.faction==='party'&&u.hp>0):event.kind==='kill'?s.units.find(u=>u.kind==='warden'&&u.hp>0):s.units.find(u=>u.id==='mystic')||s.units[0];
+ const target=event.kind==='unseal'?s.units.find(u=>u.kind==='warden'):event.kind==='danger'?s.units.find(u=>u.faction==='party'&&u.hp>0):event.kind==='kill'?s.units.find(u=>u.kind==='warden'&&u.hp>0):s.units.find(u=>u.id==='mystic')||s.units[0];
  const x=(target?.x??s.exit.x)-9,z=(target?.z??s.exit.z)-9;
  const count=event.kind==='floor'?15:8;
  for(let i=0;i<count;i++){if(particles.length>=MAX_PARTICLES)disposeParticle(particles.shift());
@@ -536,12 +536,12 @@ function renderDashboard(s){
  $('intent').textContent=s.intent;$('reasoning').textContent=s.intent;
  $('party-count').textContent=alive+' / '+heroes.length;$('party-condition').textContent=alive===heroes.length?'READY':alive?'COMPROMISED':'FALLEN';
  $('status').textContent=s.phase==='intermission'?'THE NEXT EXPEDITION IS FORMING':'AI HEROES EXPLORING THE UNKNOWN';
- $('floor-status').textContent=s.phase==='intermission'?'REASSEMBLING':nearBoss?'GUARDIAN BATTLE':foes.length?'CLEARING THE CRYPT':'PORTAL UNLOCKED';
+ $('floor-status').textContent=s.phase==='intermission'?'REASSEMBLING':s.guardianWard?'BINDING GUARDS · '+s.defendersRemaining:nearBoss?'WARDEN EXPOSED':foes.length?'CLEARING THE CRYPT':'PORTAL UNLOCKED';
  const remaining=s.units.filter(u=>u.faction==='enemy'&&u.hp>0).length;
  $('depth-fill').style.width=Math.max(8,Math.min(100,100-(remaining/(s.units.filter(u=>u.faction==='enemy').length||1)*92)))+'%';
  const bossStrip=$('boss-strip');bossStrip.hidden=!nearBoss;
  if(boss){const percent=Math.max(0,Math.round(boss.hp/boss.maxHp*100));$('boss-hp').textContent=percent+'%';$('boss-bar').style.width=percent+'%';
-  const phase=s.bossPhase||'SENTINEL';$('boss-phase').textContent=phase;bossStrip.dataset.phase=phase;
+  const phase=s.bossPhase||'SENTINEL';$('boss-phase').textContent=s.guardianWard?'SEALED · '+phase:phase;bossStrip.dataset.phase=phase;bossStrip.dataset.warded=String(Boolean(s.guardianWard));
   const attackInterval=phase==='ECLIPSE'?4:6;
   bossStrip.dataset.warning=String(s.tick%attackInterval>=attackInterval-2);
  }
@@ -604,12 +604,12 @@ function update(s){const firstSnapshot=!received,sceneChanged=worldFloor!==s.run
  combatDirector.accept(s);
  soundstage?.acceptSnapshot(s);
  if(world.userData.courtShield){
-  world.userData.courtShield.visible=s.bossPhase==='SENTINEL';
-  world.userData.courtShield.material.color.set('#69eaff');
+  world.userData.courtShield.visible=Boolean(s.guardianWard);
+  world.userData.courtShield.material.color.set('#9aaeff');
  }
  const warden=s.units.find(u=>u.kind==='warden'&&u.hp>0);
  if(warden){wardenSpot.position.set(warden.x-9,2.2,warden.z-9);
-  wardenSpot.color.set(s.bossPhase==='ECLIPSE'?'#ba72ff':s.bossPhase==='RUPTURE'?'#ff7b68':'#ffcc84');
+  wardenSpot.color.set(s.guardianWard?'#89b9ff':s.bossPhase==='ECLIPSE'?'#ba72ff':s.bossPhase==='RUPTURE'?'#ff7b68':'#ffcc84');
   wardenSpot.intensity=s.bossPhase==='ECLIPSE'?3.2:s.bossPhase==='RUPTURE'?2.9:2.1;
  }else wardenSpot.intensity=0;
  for(const trap of s.traps||[]){const marker=world.userData.hazardMeshes?.get(trap.id);if(marker){marker.userData.active=trap.active;marker.userData.charge.visible=trap.active;marker.userData.ring.visible=!trap.disarmed;marker.scale.setScalar(trap.disarmed?.67:1)}}

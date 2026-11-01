@@ -13,6 +13,7 @@ const CUES=Object.freeze({
  defeat:    {hz:185,end:46,length:1.08,peak:.12,type:'triangle'},
  renewal:   {hz:262,end:440,length:.70,peak:.08,type:'sine'},
  transition:{hz:196,end:392,length:.82,peak:.09,type:'sine'},
+  unseal:    {hz:147,end:587,length:.72,peak:.105,type:'triangle'},
  warning:   {hz:142,end:81,length:.66,peak:.125,type:'sawtooth'},
  boss:      {hz:88,end:51,length:.64,peak:.13,type:'sawtooth'},
  danger:    {hz:118,end:74,length:.43,peak:.10,type:'triangle'},
