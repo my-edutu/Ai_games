@@ -124,6 +124,15 @@ export function createTowerAudio() {
     lastLifecycle = lifecycle;
     const actor = snapshot.player;
     const sameFloor = last && lastFloor === snapshot.floor;
+    // A genuine guardian floor can advance on the SAME fixed tick as the
+    // decisive hit. There may never be a visible inactive-guardian snapshot.
+    // Observe the authoritative floor advance before clearing old actors:
+    // only a next-floor transition in this run from a PRESENT, live guardian
+    // can announce the gate release; not a restart or guessed death.
+    const witnessedGuardianPass = !sameFloor && !!last &&
+      Number.isFinite(lastFloor) && snapshot.floor === lastFloor + 1 &&
+      snapshot.lifecycle === 'running' &&
+      [...guardianStates.values()].some(value => value.active === true);
     if (!sameFloor) { guardianWindups.clear(); guardianStates.clear(); }
     // Follow the actual guardian's fixed-step telegraph as the visible maul
     // winds up and its source-projected warning lane narrows. At most one
@@ -143,19 +152,29 @@ export function createTowerAudio() {
       liveWindups.set(enemy.id, remaining);
     }
     guardianWindups = liveWindups;
-    // The monumental seal in the 3D world opens only when a PRESENT guardian
-    // becomes inactive in the same authoritative run and floor. This restrained
-    // three-note release follows that same source transition; absence, restart
-    // or an old transport frame can never invent an unlock or victory fanfare.
+    // The bronze seal's physical opening responds to *observed guardian HP*.
+    // This cross-modal counterpart plays a restrained material impact only on
+    // a genuine same-floor health decrease, while the sourced gate transition
+    // earns the more substantial release chord. No prediction or duplicate
+    // event from a repeated packet or unrelated floor / expired run.
     const observedGuardians = new Map();
+    let witnessedSameFloorDefeat = false;
     for(const enemy of snapshot.enemies || [])if(enemy.kind==='guardian'){
-      if(sameFloor && snapshot.lifecycle==='running' && guardianStates.get(enemy.id)===true && !enemy.active){
-        texture(550,.20,.065);
-        tone(220,330,.22,'triangle',.064);
-        tone(330,440,.31,'sine',.053);
-        tone(440,660,.44,'sine',.045);
+      const earlier = sameFloor ? guardianStates.get(enemy.id) : undefined;
+      if(snapshot.lifecycle==='running' && earlier?.active && Number.isFinite(enemy.health)
+        && enemy.health < earlier.health) {
+        texture(610,.14,.042);
+        tone(150,85,.17,'triangle',.042);
       }
-      observedGuardians.set(enemy.id,!!enemy.active);
+      if(snapshot.lifecycle==='running' && earlier?.active && !enemy.active)
+        witnessedSameFloorDefeat = true;
+      observedGuardians.set(enemy.id,{active:!!enemy.active,health:enemy.health});
+    }
+    if(witnessedSameFloorDefeat || witnessedGuardianPass){
+      texture(550,.20,.065);
+      tone(220,330,.22,'triangle',.064);
+      tone(330,440,.31,'sine',.053);
+      tone(440,660,.44,'sine',.045);
     }
     guardianStates=observedGuardians;
     const intent = snapshot.intent?.mode || '';
