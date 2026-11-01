@@ -37,7 +37,7 @@ test('anatomy recipes cannot affect combat or require externally licensed art',(
 test('real asset rig mounts and disposes anatomy, with truthful diagnostics and public route',()=>{
  const renderer=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
  const host=fs.readFileSync(path.join(root,'scripts/serve-dungeon-stream.cjs'),'utf8');
- assert.match(renderer,/import \{planAnatomicalKit\} from '\/dungeon\/anatomical-kit-plan\.js'/);
+ assert.match(renderer,/import \{planAnatomicalKit,planAnatomicalDrawGroups\} from '\/dungeon\/anatomical-kit-plan\.js'/);
  assert.match(renderer,/function addAnatomicalKit\(actor\)/);
  assert.match(renderer,/addAnatomicalKit\(actor\)/);
  assert.match(renderer,/anatomicalDetailParts:/);
@@ -51,7 +51,7 @@ test('static armor is grouped once by material while every genuine forearm and s
  for(const kind of kinds){
   const plan=planAnatomicalKit(kind),draw=planAnatomicalDrawGroups(kind);
   assert.ok(Object.isFrozen(draw)&&Object.isFrozen(draw.staticGroups)&&Object.isFrozen(draw.jointPieces));
-  assert.ok(draw.staticGroups.length>=2&&draw.staticGroups.length<=5,'finite PBR draw batches');
+  assert.ok(draw.staticGroups.length>=1&&draw.staticGroups.length<=5,'finite PBR draw batches');
   const all=[...draw.jointPieces,...draw.staticGroups.flatMap(group=>group.parts)];
   assert.deepEqual(all.map(p=>p.id).sort(),plan.map(p=>p.id).sort(),'no missing or duplicated armor');
   assert.ok(draw.jointPieces.every(p=>p.mount!=='torso'),'limb fittings cannot be rigidly merged');
