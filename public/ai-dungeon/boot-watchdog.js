@@ -14,7 +14,7 @@
 
  // Startup success is not a lifetime guarantee for an unattended broadcast.
  // Detect frozen frames, stale simulation snapshots and WebGL context loss.
- let lastFrame=0,lastTick=-1,lastFrameAt=Date.now(),lastTickAt=Date.now(),contextLost=false;
+ let lastFrame=0,lastTick=-1,lastFrameAt=Date.now(),lastTickAt=Date.now(),contextLost=false,restoredFrameBaseline=null;
  const canvas=document.getElementById('world');
  const degraded=(status,heading)=>{
   document.body.dataset.rendererStatus=status;
@@ -22,21 +22,35 @@
   message.hidden=false;
   message.textContent=heading+' — the autonomous simulation may still be running.';
  };
- canvas?.addEventListener('webglcontextlost',()=>{
-  contextLost=true;degraded('context-lost','3D graphics context lost; waiting for recovery');
+ canvas?.addEventListener('webglcontextlost',event=>{
+  // WebGL will not permit restoration unless this cancelable event is handled.
+  event.preventDefault();contextLost=true;restoredFrameBaseline=null;
+  degraded('context-lost','3D graphics context lost; waiting for recovery');
  });
  canvas?.addEventListener('webglcontextrestored',()=>{
-  contextLost=false;lastFrameAt=lastTickAt=Date.now();
+  contextLost=false;
+  // Old diagnostics remain visible while Three.js reconstructs its context.
+  // Never call the spectator ready until its frame counter changes again.
+  restoredFrameBaseline=window.__DUNGEON_RENDER_DIAGNOSTICS__?.frame||0;
+  lastFrameAt=lastTickAt=Date.now();
   document.body.dataset.rendererStatus='recovering';
+  if(message){message.hidden=false;message.textContent='3D graphics restored — verifying a fresh rendered frame.';}
  });
  setInterval(()=>{
   const now=Date.now();
   if(document.hidden){lastFrameAt=lastTickAt=now;return}
   const frame=window.__DUNGEON_RENDER_DIAGNOSTICS__?.frame||0;
   const tick=window.__DUNGEON_PUBLIC_STATE__?.tick;
-  if(frame>lastFrame){lastFrame=frame;lastFrameAt=now}
+  if(frame>0&&frame!==lastFrame){lastFrame=frame;lastFrameAt=now}
   if(Number.isFinite(tick)&&tick!==lastTick){lastTick=tick;lastTickAt=now}
   if(contextLost)return;
+  if(restoredFrameBaseline!==null){
+   if(frame>0&&frame!==restoredFrameBaseline&&Number.isFinite(tick)){
+    restoredFrameBaseline=null;lastFrame=frame;lastFrameAt=lastTickAt=now;
+    document.body.dataset.rendererStatus='ready';if(message)message.hidden=true;
+   }
+   return;
+  }
   if(document.body.dataset.rendererStatus==='failed')return;
   if(frame>3&&Number.isFinite(tick)&&(now-lastFrameAt>25000||now-lastTickAt>25000)){
    degraded('stalled',now-lastFrameAt>25000?'3D renderer stalled':'Autonomous stream stalled');
@@ -46,8 +60,9 @@
  },1000);
  const timer=setInterval(()=>{
   ticks++;
-  if(window.__DUNGEON_RENDER_DIAGNOSTICS__?.frame>3&&window.__DUNGEON_PUBLIC_STATE__?.tick>0){
-   clearInterval(timer);document.body.dataset.rendererStatus='ready';return;
+  if(contextLost){ticks=0;return}
+  if(restoredFrameBaseline===null&&window.__DUNGEON_RENDER_DIAGNOSTICS__?.frame>3&&window.__DUNGEON_PUBLIC_STATE__?.tick>0){
+   clearInterval(timer);document.body.dataset.rendererStatus='ready';if(message)message.hidden=true;return;
   }
   if(ticks*STEP_MS<MAX_WAIT_MS)return;
   clearInterval(timer);document.body.dataset.rendererStatus='failed';
