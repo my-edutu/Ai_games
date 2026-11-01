@@ -15,7 +15,11 @@ function presentation({nestedFailure=false,fixture=null}={}){
   if(nestedFailure)this.manager?.onError?.('blob:broken-texture');
   return Promise.resolve(fixture||{scene:{traverse(){}},animations:[]});
  }}
- const context={THREE:{LoadingManager:Manager,LoopOnce:2200,LoopRepeat:2201},GLTFLoader:Loader,cloneSkeleton:()=>{throw Error('incomplete asset must not be cloned')}};
+ // This VM deliberately strips all imports; its stub actors have no skinned GLB
+ // head bone. Exercise the missing-mount branch and leave real Three.js scale
+ // contract coverage to dungeon-cranial-proportions.test.cjs.
+ const noRig=mount=>{assert.equal(mount,undefined);return false};
+ const context={THREE:{LoadingManager:Manager,LoopOnce:2200,LoopRepeat:2201},GLTFLoader:Loader,cloneSkeleton:()=>{throw Error('incomplete asset must not be cloned')},restoreCranialProportion:noRig,stageCranialProportion:noRig};
  vm.createContext(context);vm.runInContext(text,context);return context;
 }
 function actor(action='attack',tick=11){
