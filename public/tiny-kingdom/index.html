@@ -1222,8 +1222,17 @@ function cottageSideFacades(x,z,scale,variant){
 // G065: only eight detailed homes after the first growth milestone. New
 // households remain present with original material classes and readable roofs;
 // collision and civilization authority continue to use the full city list.
+// G088: four original, muted fired/clay/slate roof pigment families. Pure
+// presentation materials: stable house coordinates choose the roof family,
+// never simulation RNG, saved authority or a geometry subdivision.
+const COMPACT_ROOF_PALETTES=[
+ [0x986447,0xb58056,0x8b634e,0xc08b60], // warm fired terracotta
+ [0x77604d,0x9b7860,0x836b57,0xa88e73], // mellow weathered ochre
+ [0x656a65,0x858880,0x777a71,0x9a9789], // rain-darkened slate
+ [0x704c40,0x91634c,0x80574a,0xa77d62]  // burnt kiln-fired clay
+];
 const VILLAGE_LOD_LIMIT=8;
-const villageVisualLod={detailedHomes:0,compactHomes:0,detailedCitizens:0,compactCitizens:0,compactRoofTiles:0,compactFramedWindows:0,compactGableBraces:0,compactSideWindows:0,compactSideTimberQuads:0,compactStaggeredCourses:0,compactFacingCount:0,compactTurnedCitizens:0,compactFacingVertexError:0,compactDormers:0,compactDormerTriangles:0};
+const villageVisualLod={detailedHomes:0,compactHomes:0,detailedCitizens:0,compactCitizens:0,compactRoofTiles:0,compactFramedWindows:0,compactGableBraces:0,compactSideWindows:0,compactSideTimberQuads:0,compactStaggeredCourses:0,compactFacingCount:0,compactTurnedCitizens:0,compactFacingVertexError:0,compactDormers:0,compactDormerTriangles:0,compactRoofPaletteCounts:[0,0,0,0]};
 function detailedHomeSet(){
  if(city.length<=12)return new Set(city.map((_,i)=>i));
  return new Set(city.map(([x,z],i)=>({i,d:x*x+z*z}))
@@ -1231,8 +1240,12 @@ function detailedHomeSet(){
 }
 function compactHouse(x,z,variant){
  const y=terrain(x,z),w=2.4+variant*.42,d=2.1+variant*.18,h=1.9;
+ // Coordinates + variant are stable in every replay; avoid named world RNG.
+ const roofStyle=Math.min(3,Math.floor(biomeHash(Math.round(x*29+z*47+variant*71))*4));
+ const palette=COMPACT_ROOF_PALETTES[roofStyle];
+ villageVisualLod.compactRoofPaletteCounts[roofStyle]++;
  const plaster=rgb(variant%2?0xe0c7aa:0xd1bc97);
- const timber=rgb(0x634e3c),roof=rgb(variant%2?0x725046:0x976047);
+ const timber=rgb(0x634e3c),roof=rgb(palette[0]);
  const eave=y+h,peak=eave+1.13,halfW=w/2+.15;
  const roofFront=z-d/2-.13,roofBack=z+d/2+.13;
  materialScope(MATERIAL.STONE,()=>box(x,y-.05,z,w+.12,.23,d+.12,rgb(0x918977)));
@@ -1246,10 +1259,7 @@ function compactHouse(x,z,variant){
   quad([x,peak,roofFront],[x+halfW,eave,roofFront],[x+halfW,eave,roofBack],[x,peak,roofBack],roof);
   // G066: actual lightweight pitched shingle surfaces, not a decorative
   // texture or a dense full-detail copy. 2 faces * 3 courses * 4 tiles.
-  // Stable variant-driven colour, no random stream or state mutation.
-  const palette=variant%2?
-   [0x745247,0x926450,0x815847,0xaa7256]:
-   [0x986447,0xb58056,0x8b634e,0xc08b60];
+  // G088 palette is fixed per physical cottage, not per-frame or world RNG.
   for(const side of [-1,1]){
    for(let course=0;course<3;course++){
     const t0=course/3,t1=(course+1)/3;
@@ -3249,7 +3259,7 @@ currentMaterial=MATERIAL.FOLIAGE;
 currentMaterial=MATERIAL.STONE;
  const fullHomes=detailedHomeSet();
 villageVisualLod.detailedHomes=0;villageVisualLod.compactHomes=0;
-villageVisualLod.compactRoofTiles=0;villageVisualLod.compactFramedWindows=0;villageVisualLod.compactGableBraces=0;villageVisualLod.compactSideWindows=0;villageVisualLod.compactSideTimberQuads=0;villageVisualLod.compactStaggeredCourses=0;villageVisualLod.compactDormers=0;villageVisualLod.compactDormerTriangles=0;
+villageVisualLod.compactRoofTiles=0;villageVisualLod.compactFramedWindows=0;villageVisualLod.compactGableBraces=0;villageVisualLod.compactSideWindows=0;villageVisualLod.compactSideTimberQuads=0;villageVisualLod.compactStaggeredCourses=0;villageVisualLod.compactDormers=0;villageVisualLod.compactDormerTriangles=0;villageVisualLod.compactRoofPaletteCounts.fill(0);
 for(let i=0;i<city.length;i++){
  const [x,z,k]=city[i];
  if(fullHomes.has(i)){
