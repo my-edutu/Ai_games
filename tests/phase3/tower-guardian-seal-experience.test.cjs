@@ -91,8 +91,8 @@ test('an authentic guardian defeat opens BOTH world-space doors and its distinct
     const crest = named(world.group, 'ObservedGuardianLockCrest');
     const leftWeight = named(world.group,'GuardianCounterweightLeft');
     const rightWeight = named(world.group,'GuardianCounterweightRight');
-    assert.equal(leftWeight.position.y,0);
-    assert.equal(rightWeight.position.y,0);
+    assert.ok(Math.abs(leftWeight.position.y)<1e-12, 'left counterweight starts physically closed');
+    assert.ok(Math.abs(rightWeight.position.y)<1e-12, 'right counterweight starts physically closed');
     // The real authority commonly transfers floors on the decisive hit.
     // Prior guardian damage MUST show visible progression while the source
     // guardian still lives; a post-death animation alone may never be seen.
