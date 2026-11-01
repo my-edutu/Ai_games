@@ -1,0 +1,31 @@
+# Infinite Tower Climb — source-grounded guardian architecture and passage continuity
+
+**Date:** 2026-11-01. **Active draft:** [PR #68](https://github.com/my-edutu/Ai_games/pull/68) on `feat/tower-transformation-gauntlet-20261101`. **Frozen baseline:** `1731b380851162741761c5569e2bc152a0869ca9`. **New gameplay source:** `8f10e5110b77079ebd70c19259b45ffc6dce125e` (with accompanying tests at `480323a8691337d25b91adb1178561225af2a36b`). **Independent game-quality verdict: NOT EVALUATED.**
+
+## Critical continuous-experience defect
+
+The previous release effect was placed at the **new avatar's position**, using its post-floor-transition feet as an anchor. That disconnects the apparently physical gateway from the genuine cap/guardian the player just defeated. The view can show the old door vanishing and a similar freestanding door suddenly appearing beside the climber. The hardware/software capture evidence available during this work did not establish that viewers could understand the HP-linked mechanism or passage at normal speed; this defect was found by inspecting the real source's world-space ownership, not by inventing a favorable visual review.
+
+## Work in this continuation of the SAME transformation
+
+- The source-driven gate and paired counterweights already respond to real guardian health. Added an original **narrow, luminous world-geometry conduit** in the cap's non-colliding architectural group. As actual HP is removed, the conduit extends from the inset lock across the real cap's walking lane, alongside the physical doors and weights. A full-length, readable connection exists only after authentic clearance. This is one additional reusable shadow-free mesh, no external asset, authority writes, loot, HUD copy, shadow-caster or synthetic win.
+- On a genuine adjacent same-run guardian floor advance, the new-floor scene now maps the **previous snapshot's exact guardian-cap center and surface elevation** into the new chunk coordinate system. Its short-lived fractured-lock passage and already-bounded camera acknowledgement appear where the actual old locked doorway stood, not wherever the avatar happened to be after the jump. If the old source has no valid cap, it does not fabricate a passage.
+- Expanded focused regression assertions for live HP conduit progression, complete clearance, genuine restart reset, world bounds/shadow responsibility and source-grounded scene anchoring. Broadened a fragile raw-mesh count check from 14–18 to 12–26 with diagnostic counts; named pieces, boundedness and no shadow multiplication remain independently asserted. This is a safety correction, not evidence of better appearance.
+
+## Fresh inspection of real CI and capture evidence
+
+[Previous source-pinned gameplay workflow 41345767345](https://github.com/my-edutu/Ai_games/actions/runs/41345767345) **completed** for source `11b33e55`. Candidate ascent, guardian danger and outcome captures, and baseline ascent/danger captures, passed **scoped recording integrity**. The frozen-baseline **outcome** job failed. Its desktop recording lasted about 161 seconds and advanced four real run tokens, but observed **no complete visible result→intermission→restart** sequence in sampled frames; run-token change must not be counted as visible outcome footage. Software-rendered desktop submitted-frame intervals had p50 690.4 ms, p95 2511.9 ms, p99 3549 ms—these are **not** presented FPS or supported hardware measurements, and are a serious visualization concern.
+
+[Previous source-head integrity workflow 41345767341](https://github.com/my-edutu/Ai_games/actions/runs/41345767341) failed **one of 705 repository tests**, the overly narrow `tower-guardian-seal-experience` gate mesh bound; build and transformation gate succeeded, but later safety stages were skipped. This is historical source `11b33e55`, **not** a pass/fail verdict for the new `480323a` implementation. Do not conflate a passing WebGL capture with performance or experience quality.
+
+This continuation's in-branch game edits and focused test updates were committed safely. The browser/independent-worker workspace returned `Tunnel-client has not been seen for 300 seconds`, and no local source-specific full-motion visual playback, actual supported-device profiling or five independent randomized blind reviews could be performed. New source-specific CI/capture conclusions must be checked when available; do not infer them from the historical results.
+
+## Evidentiary and engineering limits
+
+- **LOOKS / FEELS / PLAYS:** still 0/5 genuine independently randomized blind critics in each. No quality PASS, AAA or 90% declaration.
+- **Fresh full-motion:** new code is not yet shown in a manually reviewed matched desktop-and-phone >=60-second source-pinned baseline/candidate video across **all three** scenes. Frozen baseline outcome remains a genuine unresolved evidence failure.
+- **Performance:** portal conduit adds one mesh on guardian floors, no shadow pass or collider, but real hardware p50/p95/p99, memory and long-run tails **have not been measured**. CI Chromium's very slow rendering is a reason for caution, not a hardware score.
+- **Integrity:** presentation reads immutable snapshots; the fixed-step simulation, AI, health damage, seed/replay, decisions, collision, disclosure, and recovery rules were not changed. All geometry is owned by the existing floor lifecycle; rebuild and restart recreate the gate from the actual source. Browser context-restoration and accessibility remain to be verified for this exact head. Optional sound remains muted by default and reduced-motion retains static gate state.
+- **Upstream:** PR #58 was inspected and left intact, no merging, force pushing or deployment.
+
+**Next biggest systemic gap:** Can a normal-speed viewer on desktop and phone see the guardian's HP produce clearly understandable physical gate progression and then a correctly placed release despite background visual clutter and software-rendered stalls? Inspect current source-pinned footage first and compare actual motion against the frozen baseline, then iterate on combat framing/scale and supported-device performance. Preserve this one ongoing transformation until independent verdicts exist.
