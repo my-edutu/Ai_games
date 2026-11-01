@@ -136,3 +136,43 @@ test('running Three.js spectator observes real animation frame delivery and expo
  assert.match(app,/frameDeliveryProbe\.summary\(\)/);
  assert.match(app,/frameDelivery:frameDeliveryReport/);
 });
+
+test('software direct 3D raster budget protects the live spectator without changing hardware quality',async()=>{
+ const {planDirectRenderBudget}=await load();
+ const slow=planDirectRenderBudget(1440,900,1.6,true,650000);
+ assert.equal(slow.shadows,false);
+ assert.ok(slow.renderPixels>0&&slow.renderPixels<=650000,JSON.stringify(slow));
+ assert.ok(slow.pixelRatio>0&&slow.pixelRatio<1);
+ const gpu=planDirectRenderBudget(1440,900,1.6,false,650000);
+ assert.equal(gpu.shadows,true);
+ assert.equal(gpu.pixelRatio,1.6,'do not degrade recognized hardware merely because CPU software fallback exists');
+ const phone=planDirectRenderBudget(390,844,3,true,650000);
+ assert.ok(phone.renderPixels<=650000);
+ assert.ok(phone.pixelRatio<=1,'software mobile GPU must not multiply physical pixels by CSS DPR');
+ for(const [w,h,dpr] of [[0,0,0],[-1,Infinity,NaN],[7680,4320,4]]){
+  const b=planDirectRenderBudget(w,h,dpr,true,650000);
+  assert.ok(b.renderPixels>=1&&b.renderPixels<=650000,JSON.stringify(b));
+ }
+});
+
+test('measured direct 3D stall downshifts only bounded software framebuffer work',async()=>{
+ const {adaptDirectRenderPixelCap}=await load();
+ assert.deepEqual(adaptDirectRenderPixelCap(650000,16,0),{maxPixels:650000,slowStreak:0,downshift:false});
+ assert.deepEqual(adaptDirectRenderPixelCap(650000,0,2),{maxPixels:650000,slowStreak:0,downshift:false});
+ assert.deepEqual(adaptDirectRenderPixelCap(650000,NaN,2),{maxPixels:650000,slowStreak:0,downshift:false});
+ assert.deepEqual(adaptDirectRenderPixelCap(650000,1200,0),{maxPixels:422000,slowStreak:1,downshift:true});
+ assert.deepEqual(adaptDirectRenderPixelCap(650000,500,1),{maxPixels:650000,slowStreak:2,downshift:false});
+ assert.deepEqual(adaptDirectRenderPixelCap(650000,500,2),{maxPixels:422000,slowStreak:3,downshift:true});
+ assert.deepEqual(adaptDirectRenderPixelCap(200000,1500,3),{maxPixels:200000,slowStreak:3,downshift:false});
+});
+
+test('actual live WebGL renderer caps only CPU rasterization and reports real downshift evidence',()=>{
+ const app=fs.readFileSync(path.join(__dirname,'../../public/ai-dungeon/app.js'),'utf8');
+ assert.match(app,/planDirectRenderBudget\(/);
+ assert.match(app,/renderer\.setPixelRatio\(directBudget\.pixelRatio\)/);
+ assert.match(app,/renderer\.shadowMap\.enabled=directBudget\.shadows/);
+ assert.match(app,/moon\.castShadow=directBudget\.shadows/);
+ assert.match(app,/adaptDirectRenderPixelCap\(directRenderPixelCap,directRenderMs,directSlowStreak\)/);
+ assert.match(app,/directRenderBudget:directBudget/);
+ assert.match(app,/directDownshifts,/);
+});
