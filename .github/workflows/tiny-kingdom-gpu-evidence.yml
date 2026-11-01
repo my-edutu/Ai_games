@@ -36,9 +36,9 @@ jobs:
           name: tiny-kingdom-gpu-evidence
           path: artifacts/tiny-kingdom/
           retention-days: 14
-      - name: Focused Tiny Kingdom G066–G077 render contracts
+      - name: Focused Tiny Kingdom G066–G078 render contracts
         env:
           CI: '1'
         run: |
           npm run build
-          npx playwright test tests/browser/tiny-kingdom-g066-compact-houses.spec.cjs tests/browser/tiny-kingdom-g067-dynamic-gpu-buffer.spec.cjs tests/browser/tiny-kingdom-g068-camera-lock.spec.cjs tests/browser/tiny-kingdom-g069-render-profile.spec.cjs tests/browser/tiny-kingdom-g070-festival-static.spec.cjs tests/browser/tiny-kingdom-g071-sunrise-emission.spec.cjs tests/browser/tiny-kingdom-g072-triangle-writer.spec.cjs tests/browser/tiny-kingdom-g073-ellipsoid-emission.spec.cjs tests/browser/tiny-kingdom-g074-static-typed-cache.spec.cjs tests/browser/tiny-kingdom-g075-shadow-gradient.spec.cjs tests/browser/tiny-kingdom-g076-box-corners.spec.cjs tests/browser/tiny-kingdom-g077-landscape-cache.spec.cjs --workers=1
+          npx playwright test tests/browser/tiny-kingdom-g066-compact-houses.spec.cjs tests/browser/tiny-kingdom-g067-dynamic-gpu-buffer.spec.cjs tests/browser/tiny-kingdom-g068-camera-lock.spec.cjs tests/browser/tiny-kingdom-g069-render-profile.spec.cjs tests/browser/tiny-kingdom-g070-festival-static.spec.cjs tests/browser/tiny-kingdom-g071-sunrise-emission.spec.cjs tests/browser/tiny-kingdom-g072-triangle-writer.spec.cjs tests/browser/tiny-kingdom-g073-ellipsoid-emission.spec.cjs tests/browser/tiny-kingdom-g074-static-typed-cache.spec.cjs tests/browser/tiny-kingdom-g075-shadow-gradient.spec.cjs tests/browser/tiny-kingdom-g076-box-corners.spec.cjs tests/browser/tiny-kingdom-g077-landscape-cache.spec.cjs tests/browser/tiny-kingdom-g078-landscape-buffer.spec.cjs --workers=1
