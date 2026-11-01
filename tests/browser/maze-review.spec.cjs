@@ -202,6 +202,7 @@ test('a real close public encounter frames both autonomous actors and saves date
     expect(gateDiagnostic.carriedKeyGateGesture, 'Only a real matching key may trigger the close-up').toBeGreaterThan(.2);
     expect(gateDiagnostic.cameraHalfHeight, 'The visible key/socket encounter earns a genuinely closer shot').toBeLessThan(4.62);
     expect(gateDiagnostic.cameraHalfHeight).toBeGreaterThan(4.48);
+    expect(gateDiagnostic.cameraAimLift, 'The observed keyed gate gets space above its real crown').toBeGreaterThan(1.08);
   } else {
     expect(gateDiagnostic.cameraHalfHeight, 'Other sealed gates retain the previous truthful wide shot').toBeLessThan(5.2);
     expect(gateDiagnostic.cameraHalfHeight).toBeGreaterThan(4.95);
@@ -218,7 +219,7 @@ test('a real close public encounter frames both autonomous actors and saves date
     sourceSha256: Object.fromEntries(['app.js', 'map-view.mjs', 'scene.js', 'world.js'].map(name => [name, hash(path.join(sourceDir, name))])),
     diagnostic: {closedGatesInFrame: gateDiagnostic.closedGatesInFrame,
       cameraHalfHeight: gateDiagnostic.cameraHalfHeight,
-      keyLockCloseup: gateDiagnostic.keyLockCloseup,
+      keyLockCloseup: gateDiagnostic.keyLockCloseup, cameraAimLift: gateDiagnostic.cameraAimLift,
       carriedKeyGateGesture: gateDiagnostic.carriedKeyGateGesture,
       nearbySealedGate: gateDiagnostic.nearbySealedGate,
       nearbySealedGateProjection: gateDiagnostic.nearbySealedGateProjection,
@@ -239,6 +240,7 @@ test('a real close public encounter frames both autonomous actors and saves date
     expect(gatePortraitDiagnostic.carriedKeyGateGesture, 'The portrait close-up must have a real carried key').toBeGreaterThan(.2);
     expect(gatePortraitDiagnostic.cameraHalfHeight, 'A true key/lock interaction is now larger at 390px').toBeLessThan(4.76);
     expect(gatePortraitDiagnostic.cameraHalfHeight).toBeGreaterThan(4.64);
+    expect(gatePortraitDiagnostic.cameraAimLift, 'Native portrait restores upper public architecture without widening the shot').toBeGreaterThan(1.30);
   } else {
     expect(gatePortraitDiagnostic.cameraHalfHeight, 'A gate without a matched key retains its known environment').toBeLessThan(5.57);
     expect(gatePortraitDiagnostic.cameraHalfHeight).toBeGreaterThan(5.37);
@@ -254,7 +256,7 @@ test('a real close public encounter frames both autonomous actors and saves date
     sourceSha256: Object.fromEntries(['app.js', 'map-view.mjs', 'scene.js', 'world.js'].map(name => [name, hash(path.join(sourceDir, name))])),
     diagnostic: {closedGatesInFrame: gatePortraitDiagnostic.closedGatesInFrame,
       cameraHalfHeight: gatePortraitDiagnostic.cameraHalfHeight,
-      keyLockCloseup: gatePortraitDiagnostic.keyLockCloseup,
+      keyLockCloseup: gatePortraitDiagnostic.keyLockCloseup, cameraAimLift: gatePortraitDiagnostic.cameraAimLift,
       carriedKeyGateGesture: gatePortraitDiagnostic.carriedKeyGateGesture,
       nearbySealedGate: gatePortraitDiagnostic.nearbySealedGate,
       nearbySealedGateProjection: gatePortraitDiagnostic.nearbySealedGateProjection,

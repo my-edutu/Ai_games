@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-01T04:32:00.133Z",
+  "updatedAt": "2026-11-01T05:39:11Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass31 real production seed/tick21 desktop and native 390x844 screenshots (CI artifact 13068690719) were SHA-256 verified and compared with same-state pass30. The modeled finger clamps/blade ridge cause local detail changes, but a real glove→key→black side-lock action is not legible at native size; right-hand arch and empty lagoon remain. The fixed official Nintendo Captain Toad benchmark still wins. Build and 528/528 Node tests, stream hosts, nondeterminism and all 15 executed Maze browser checks passed; full browser workflow was CANCELLED later during Tiny Kingdom, not fully green. Independent critics and Ultracode inaccessible via disconnected workspace; no hardware GPU FPS claim."
+    "summary": "Pass31 remains the latest SHA-verified rendered evidence (CI artifact 13068690719), and Captain Toad still wins: the real glove/key/lock is unclear at native 390px, with cropped upper public arch and excess lagoon. Pass32 is a source-only public keyed-gate vertical camera composition candidate, NOT an inspected screenshot or independent victory. Full pass31 CI was cancelled after all 15 executed Maze browser checks passed. Shared-workspace critics/Ultracode unavailable; CPU SwiftShader timings do not represent hardware FPS."
   },
   "captures": [
     {
@@ -127,9 +127,11 @@
     "Pass29 true-source desktop and portrait PNG SHA-verified; directional shoulder turns key bow partly behind gate masonry, so visual acceptance failed. Pass30 source 1a6fe8a counter-turns actual connected left elbow, tests f1da826 cover both directions and public-state resets; no authority or hidden-information change.",
     "Pass30 true-source render verification: downloaded exact-head artifact 13064406479; recomputed unmodified desktop/portrait screenshot hashes from production seed maze-visual-reference-13 tick21 genuinely closed door-2. Connected modeled wrist lifts mint bow out from the stone relative to pass29, but glove-to-shaft-to-stile-lock contact is still unreadable at native mobile and the Nintendo bar wins. Exact source CI 41257731828 has 104 browser passes and three Tiny Kingdom failures; no Maze browser failure, but overall red.",
     "Pass31 source-only candidate: actual glove-parented mint/gold key receives a connected front metal shank and dark finger clamps, pivot slightly closer to wrist. Structural tests cover both character LODs and preserve prior key/guardian/terminal assertions. Native 390x844 and desktop same-seed new images NOT yet captured or evaluated; latest pass30 Nintendo reference still wins. No hidden authority or deterministic gameplay changes, no merge or deployment.",
-    "Pass31 authentic rendered evidence: source 1a2650b, CI artifact 13068690719, original production seed13 tick21 still-closed door-2, desktop and native 390x844 images independently SHA-256 matched their JSON manifests. Slight local physical grip/ridge detail remains unreadable as a glove→key→lock action at native scale; Nintendo bar still NOT passed. Exact-head CI built, passed 528 Node, four stream self-tests, nondeterminism and all 15 Maze browser checks, then was cancelled in later Tiny Kingdom browser suite. No independent critic or representative hardware-FPS result; see glove-contact-pass-31-review-gate.md."
+    "Pass31 authentic rendered evidence: source 1a2650b, CI artifact 13068690719, original production seed13 tick21 still-closed door-2, desktop and native 390x844 images independently SHA-256 matched their JSON manifests. Slight local physical grip/ridge detail remains unreadable as a glove→key→lock action at native scale; Nintendo bar still NOT passed. Exact-head CI built, passed 528 Node, four stream self-tests, nondeterminism and all 15 Maze browser checks, then was cancelled in later Tiny Kingdom browser suite. No independent critic or representative hardware-FPS result; see glove-contact-pass-31-review-gate.md.",
+    "Pass32 source-only camera framing candidate: use +1.34 mobile / +1.12 desktop vertical aim solely for genuinely disclosed closed gate with carried exact matching key, preserving prior half-height and other cameras. Browser evidence asserts increased public keyed aim and records it in real screenshot manifests without changing existing thresholds. Genuine source-head images, independent blind review and complete CI still PENDING; see public-arch-framing-pass-32-review-gate.md."
   ],
   "nextGaps": [
+    "Verify exact-head pass32 genuine closed-gate 1280×900 and 390×844 captures, manifest SHA-256 and independent native/bench image comparison; accept or revert camera aim only from real evidence.",
     "Pass32 highest-priority builder/critic slice: make a truly connected glove→shaft→mint bow clearly point toward the exact publicly known still-closed door-2 black lock at native 390px, without fake insertion/opening or hidden path disclosure. Pass31 verified original artifact 13068690719 still fails native legibility; require both actual matching-seed/tick screenshots and independent blind critique before acceptance.",
     "Independent stage framing slice: preserve the entire observed right-hand sandstone arch and Pip/real lock while reducing empty lagoon with only disclosed public stage. Validate 1280x900 and native 390x844 original captures without changing AI/authority; workspace tunnel subagents/Ultracode currently unavailable.",
     "Establish stronger gameplay-scale Pip/Thornback expression, gate/key/exit differentiation, environmental material variety and a camera view which preserves both the obstacle and the next *disclosed* action.",
@@ -359,6 +361,13 @@
       "verdict": "Small visible geometry edit; key-to-lock contact still unclear; fixed Captain Toad bar NOT PASSED",
       "date": "2026-11-01T04:32:00.133Z",
       "summary": "Source gameplay 1a2650b CI 41266880874 artifact 13068690719, same seed maze-visual-reference-13 tick21 still-closed publicly known door-2 as pass30. Verified desktop 2026-11-01T02:59:45.833Z original PNG SHA256 62125cad82e9752771238de7455f781401a0e3ca00aa4ca6f54d382c48b0b5fe and native 390x844 02:59:49.096Z SHA256 af9e00cf005735ee0aa074f5035a5f09638e8943527227cdc6b31914cc02df28 against manifests. Slight new modeled grip detail in close crop, not a clear key-to-real-keyhole line at actual size; arch crop, empty lagoon unchanged. 528/528 Node and all 15 executed Maze browser checks passed, but workflow cancelled later during other-game suite, so not overall green. No fresh independent blind critic, hardware FPS or Nintendo parity."
+    },
+    {
+      "title": "Pass32 restored public upper-arch shot — visual acceptance pending",
+      "reviewer": "Builder source review; separate fresh-context critic unavailable (workspace tunnel disconnected)",
+      "verdict": "Source candidate only: no pass32 image or Nintendo benchmark win",
+      "date": "2026-11-01T05:39:11Z",
+      "summary": "Last actual source-bound pass31 portrait remains visually rejected. Pass32 changes keyed-gate-only camera aim, leaves existing zoom, hidden-knowledge boundaries and all ordinary/guardian/terminal cameras untouched; adds browser diagnostics and keeps existing framing tests. Require original dated native-size screenshots plus independent comparison before visual acceptance."
     }
   ],
   "verification": [
@@ -567,6 +576,13 @@
       "detail": "Original exact-seed/tick21 physically closed-door browser artifact 13068690719 was hash-verified: desktop 2026-11-01T02:59:45.833Z SHA 62125cad82e9752771238de7455f781401a0e3ca00aa4ca6f54d382c48b0b5fe and portrait 02:59:49.096Z SHA af9e00cf005735ee0aa074f5035a5f09638e8943527227cdc6b31914cc02df28. Small grip geometry not legible at 390px against distant real socket; fixed Nintendo still wins. CI cancelled during Tiny Kingdom after all executed Maze browser checks passed. Independent fresh critics and Ultracode unavailable, shared software-renderer timing not hardware FPS.",
       "sourceCommit": "1a2650bec83e0487117d479597e0c7a21088be2f",
       "sourceUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41266880874/artifacts/13068690719"
+    },
+    {
+      "name": "Pass32 original public-arch framing source gate",
+      "status": "Source candidate committed for CI; original pass32 screenshots and fresh independent visual critic NOT YET VERIFIED; Nintendo bar OPEN",
+      "detail": "Keyed gate camera only: 1.34 portrait and 1.12 desktop camera aim with unchanged half-height and all existing browser margins. No authority changes or false held-key insertion. Prior authentic pass31 artifact 13068690719 remains comparison baseline; CPU-throttled software renderer != hardware GPU FPS. Shared workspace subagents and Ultracode unavailable.",
+      "sourceCommit": "pending-atomic-commit",
+      "sourceUrl": "https://github.com/my-edutu/Ai_games/pull/53"
     }
   ],
   "references": [

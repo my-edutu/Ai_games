@@ -354,6 +354,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     let targetHeight;
     let nearObservedGate = null;
     let keyLockCloseup = false;
+    let cameraAimLift = 0;
     if (cameraMode === 'overview') {
       const positions = s.cells.map(cell => cellPosition(cell.cell, s.width, s.height));
       const minX = Math.min(...positions.map(p => p.x)), maxX = Math.max(...positions.map(p => p.x));
@@ -402,7 +403,14 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
         // tighter key/lock shot. Raise only that truthful encounter's aim,
         // retaining Pip and the physical barrier within the existing frame.
         // Only presentation moves; no secret topology or AI state is read.
-        if (nearObservedGate) desiredTarget.y += keyLockCloseup ? .80 : .36;
+        // Source-bound mobile pass31 showed a public upper arch cropped by the
+        // keyed encounter's camera. Give that real sealed-gate shot headroom
+        // without exposing new cells, changing the zoom or affecting normal
+        // navigation, guardian, overview and terminal views.
+        if (nearObservedGate) {
+          cameraAimLift = keyLockCloseup ? (aspect < .9 ? 1.34 : 1.12) : .36;
+          desiredTarget.y += cameraAimLift;
+        }
       }
       // A *source-disclosed* locked obstacle and Pip should occupy a clear
       // shared gameplay shot. The former ordering always selected the generic
@@ -472,7 +480,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
         disclosedThreats: wardens.size, wardensInFrame, encounterAttention: closestThreat?.strength ?? 0,
         keysInFrame, closedGatesInFrame,
         carriedKeyGateGesture: keyGateCue?.strength??0,
-        keyLockCloseup,
+        keyLockCloseup, cameraAimLift,
         // Camera evidence is derived only from the source-disclosed gate,
         // with projected coordinates in normalized device space [-1,+1].
         nearbySealedGate: nearObservedGate ? {...nearObservedGate} : null,
