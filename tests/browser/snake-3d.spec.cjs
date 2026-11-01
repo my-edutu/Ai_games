@@ -252,6 +252,10 @@ test('real WebGL eyes aim at opposite public-fruit locations without altering th
   expect(frame.snapshot.snake[1].cell).toBe(222);
   const originalSnake = JSON.stringify(frame.snapshot.snake);
   frame.snapshot.food = { ...frame.snapshot.food, cell: 249 };
+  // R48 urgent public danger correctly interrupts fruit pursuit. The gaze
+  // direction test intentionally uses a SAFE public snapshot; R48 owns the
+  // separate urgent-danger real WebGL and original-source comparisons.
+  frame.snapshot.dangerLevel = 0;
   const page = await browser.newPage({ viewport: { width: 960, height: 640 }, reducedMotion: 'reduce' });
   const errors = [];
   page.on('pageerror', error => errors.push(error.message));

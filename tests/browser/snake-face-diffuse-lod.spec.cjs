@@ -62,7 +62,10 @@ test('real WebGL: diffuse distance face retains sculpt and PBR close-up against 
       page.on('pageerror', error => errors.push(error.message));
       try {
         await page.route('**/snapshot', route => route.fulfill({ json: originalFrame }));
-        if (label === 'before') await page.route('**/serpent.mjs', route =>
+        // Historical R33 material A/B deliberately routes BOTH archived arms.
+        // Current R48 public-danger acting is covered by its own real WebGL A/B;
+        // it must not contaminate the old close-up pixel-equality contract.
+        await page.route('**/serpent.mjs', route =>
           route.fulfill({ contentType: 'text/javascript', body: content }));
         await page.goto(baseURL + '/?camera=' + mode + '&quality=low', { waitUntil: 'domcontentloaded' });
         await page.waitForFunction(() => window.__snakePresentation?.stats().frameCount >= 3);
