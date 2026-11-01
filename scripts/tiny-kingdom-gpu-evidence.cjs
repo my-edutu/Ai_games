@@ -286,18 +286,26 @@ const path = require('node:path');
         authorityUnchanged:before===JSON.stringify(g.exportSnapshot())};
     });
     const forest=evidence.forestVisual;
+    // G089B: measure full-detail near trees and independently assert actual
+    // VBO geometry headroom, not merely a self-reported LOD counter.
+    evidence.forestLod=await page.evaluate(()=>window.__tinyKingdom.getForestLodStats());
+    const lod=evidence.forestLod;
     if(forest.conifers<=15||forest.deciduous<=15||forest.renderedTrees!==forest.conifers+forest.deciduous||
        forest.sourceTrees!==forest.sourceClearance.forestSourceCount||
        forest.renderedTrees!==forest.sourceClearance.renderedForestCount||
-       forest.needleBoughs!==forest.conifers*32||
+       lod.renderedTrees!==forest.renderedTrees||
+       lod.nearTrees<4||lod.midTrees<4||lod.farTrees<20||
+       lod.nearTrees+lod.midTrees+lod.farTrees!==forest.renderedTrees||
+       lod.reclaimedTriangles<7500||
+       forest.needleBoughs+lod.skippedConiferSprays!==forest.conifers*32||
        forest.needleFanTriangles!==forest.needleBoughs*8||
        forest.branchTriangles!==forest.needleBoughs*8||
-       forest.microCrownLobes<forest.deciduous*6||
+       forest.microCrownLobes<forest.deciduous*3||
        forest.rimLeafSprays<forest.deciduous*3||
-       forest.individualLeaves<forest.deciduous*35||
+       forest.individualLeaves<forest.deciduous*15||
        forest.crownColors<4||!forest.authorityUnchanged||
-       evidence.geometry.totalTriangles>=160000)
-      throw Error('Gauntlet 047 forest volume, replay or triangle budget failed: '+JSON.stringify(forest));
+       evidence.geometry.totalTriangles>=153500)
+      throw Error('G047/G089B tree preservation, real mesh savings, replay or volume failed: '+JSON.stringify({forest,lod,geometry:evidence.geometry.totalTriangles}));
     // G050: the climate-aware material is bound to the ACTUAL active WebGL
     // program and receives precipitation from authoritative climateAt().
     evidence.ecoregions=await page.evaluate(()=>{
