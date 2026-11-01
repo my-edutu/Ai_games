@@ -2202,8 +2202,8 @@
       "visualSceneReference": "Locked unchanged: https://github.com/my-edutu/Ai_games/actions/runs/41302939553/artifacts/13081734898"
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
-    "biggestRemainingGap": "Authenticated WebGL captures still show miniature character anatomy and crowded combat. This revision specifically addresses stacked actor/contact staging and visible enemy repositioning but has not yet been judged in actual browser footage. Authored realistic anatomy, rich nonrepetitive rooms and full organic scenario reel remain missing.",
-    "currentWork": "M1 remains open: implementing coherent real encounter staging (within-tile body separation and staged true-contact weapon arcs), deterministic cultist disengage/ranged reposition, original low-profile ritual basalt relief and phase tint. Current revision has no verified live scene or blind comparisons.",
+    "biggestRemainingGap": "Real baseline WebGL world-only artifact has tall regular square masonry that dominates the frame, miniaturized hero models and close-quarter body crowding. Widened real battle rooms/entrance, seeded ranged flank lanes, within-cell staging and contact-accurate VFX are implemented but actual AFTER visuals, full traversal and independent preference remain UNVERIFIED.",
+    "currentWork": "M1 open: new authoritative wide starting atrium, deterministic carved battle avenues and interior 7x7 guardian court; heroes enter on distinct grid cells; prior body/contact staging and caster retreat remain integrated. Real end-to-end image/movie and blind preference gates still unverified.",
     "candidateCommit": "33758dfb775fe457f6315b8b8d2dc8fdfa2d05d4",
     "candidateArtifactUrl": null,
     "acceptedAt": null,
@@ -2305,6 +2305,22 @@
         "evidence": "Real prior exact-head run 41315333996 authority PASS but one WebGL rig diagnostic length assertion failed (9 actors / 8 entries); newly authored source and tests await exact-head GitHub browser/replay. No local worker tunnel, local Chromium, audio recording, or blind critics.",
         "experienceVerdict": "IN_PROGRESS / NOT TRANSFORMED",
         "next": "Inspect actual desktop/mobile after captures against pinned baseline; run organic traversal→guards→Warden→floor→defeat/restart with motion/audio, measure replay/performance and obtain >=3 independent blind reviews."
+      },
+      {
+        "id": "M1-BATTLE-ATRIUM-20261101",
+        "date": "2026-11-01",
+        "status": "IMPLEMENTED_UNVERIFIED",
+        "sourceHeadAtStart": "b6074827bba15ad47070115425ac0df8b94cd4cd",
+        "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+        "objective": "Rework entire real dungeon topology to support cinematic party battles instead of one-cell body piles, with authored Warden 7x7 interior court and distinguishable 3-hero entrance; keep seeded replay and boss pacing.",
+        "code": [
+          "games/ai-dungeon/src/index.ts",
+          "tests/foundation/dungeon-core.test.cjs",
+          "tests/browser/dungeon-combat-staging.spec.cjs"
+        ],
+        "referenceObservation": "Pinned real prior baseline world-only browser screenshot still shows solid repeated 2.5m square stone stacks, compressed silhouettes and corridor occlusion; new pass attacks actual camera-visible playfield and manoeuvre space, not CSS/UI.",
+        "experienceVerdict": "IN_PROGRESS / NOT TRANSFORMED",
+        "next": "Read exact-head WebGL desktop/mobile staging captures, compare matched seeded browser frames against pinned baseline; full traversal/combat/boss/floor/restart/defeat video and independent looks/feels/plays critic majority remain acceptance blockers."
       }
     ]
   }

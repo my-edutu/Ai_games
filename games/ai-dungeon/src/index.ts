@@ -116,12 +116,30 @@ function createFloor(seed:string,floor:number,rng:NamedRng,run:number,previous?:
    if(x+dx>0&&z+dz>0&&x+dx<MAP_SIZE-1&&z+dz<MAP_SIZE-1)map[z+dz][x+dx]='.';
   }
  }
+ // The first encounter needs room for actual 1.8 m high protagonists, not a
+ // single-cell knot of three bodies. The atrium is part of the *real* grid,
+ // never a transparent render-only opening with invisible collision walls.
+ for(let z=1;z<=4;z++)for(let x=1;x<=4;x++)map[z][x]='.';
+ // Carve bounded flank/escape lanes wherever the original topology already
+ // puts two or more routes along an adjacent blocked stone cell. All removals
+ // only increase reachability; the named seeded stream preserves exact replay.
+ let widened=0;
+ for(let z=2;z<MAP_SIZE-2;z++)for(let x=2;x<MAP_SIZE-2;x++){
+  if(map[z][x]!=='#'||widened>=34)continue;
+  const neighbours=DIRS.reduce((n,[dx,dz])=>n+Number(map[z+dz][x+dx]==='.'),0);
+  if(neighbours<2)continue;
+  if(rng.nextInt('combat-avenues:'+floor+':'+run,100)<42){map[z][x]='.';widened++}
+ }
  const spawn={x:1,z:1};
  let rows=map.map(r=>r.join('')),measure=distances(rows,spawn);
  let tiles=[...measure.entries()].map(([k,d])=>({x:k%MAP_SIZE,z:Math.floor(k/MAP_SIZE),d})).sort((a,b)=>b.d-a.d||a.z-b.z||a.x-b.x);
- const exit={x:tiles[0].x,z:tiles[0].z};
- // The Warden always guards a spacious 3–5 tile courtyard instead of a one-tile maze corridor.
- for(let dz=-2;dz<=2;dz++)for(let dx=-2;dx<=2;dx++){
+ // The guardian must occupy a legible interior stage with space for
+ // defenders, sidesteps and directional attacks, not a clipped map edge.
+ // Retain the long route as a real risk-and-reward expedition.
+ const deep=tiles.find(p=>p.x>=4&&p.z>=4&&p.x<MAP_SIZE-4&&p.z<MAP_SIZE-4&&p.d>=12);
+ const exit={x:(deep??tiles[0]).x,z:(deep??tiles[0]).z};
+ // A seven-cell courtyard supports a true multi-actor Warden confrontation.
+ for(let dz=-3;dz<=3;dz++)for(let dx=-3;dx<=3;dx++){
   const x=exit.x+dx,z=exit.z+dz;
   if(x>0&&z>0&&x<MAP_SIZE-1&&z<MAP_SIZE-1)map[z][x]='.';
  }
@@ -130,8 +148,8 @@ function createFloor(seed:string,floor:number,rng:NamedRng,run:number,previous?:
  const occupied=new Set([key(spawn.x,spawn.z),key(exit.x,exit.z)]);
  const units:Unit[]=[
   {id:'vanguard',kind:'vanguard',faction:'party',x:1,z:1,hp:previous?.units.find(u=>u.id==='vanguard')?.hp??120,maxHp:120,attack:22,cooldown:0},
-  {id:'ranger',kind:'ranger',faction:'party',x:1,z:1,hp:previous?.units.find(u=>u.id==='ranger')?.hp??85,maxHp:85,attack:15,cooldown:0},
-  {id:'mystic',kind:'mystic',faction:'party',x:1,z:1,hp:previous?.units.find(u=>u.id==='mystic')?.hp??75,maxHp:75,attack:12,cooldown:0},
+  {id:'ranger',kind:'ranger',faction:'party',x:2,z:1,hp:previous?.units.find(u=>u.id==='ranger')?.hp??85,maxHp:85,attack:15,cooldown:0},
+  {id:'mystic',kind:'mystic',faction:'party',x:1,z:2,hp:previous?.units.find(u=>u.id==='mystic')?.hp??75,maxHp:75,attack:12,cooldown:0},
   {id:'warden-'+floor,kind:'warden',faction:'enemy',x:exit.x,z:exit.z,hp:260+floor*34,maxHp:260+floor*34,attack:16+Math.min(18,floor*2),cooldown:0}
  ];
  // Place enemies on distant navigable tiles, away from the spawn and boss.

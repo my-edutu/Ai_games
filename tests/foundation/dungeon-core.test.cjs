@@ -162,3 +162,23 @@ test('nearby minions become actual expedition fights before the distant Warden',
  assert.equal(observed,true,'party should clear a local enemy, rather than ignore it');
  assertDungeonState(s);
 });
+
+test('the real autonomous expedition starts with readable separate protagonists and a multi-lane Warden arena',()=>{
+ for(let i=0;i<30;i++){
+  const game=DungeonRuntime.create('wide-stage-entrance-'+i),s=game.state;
+  const heroes=s.units.filter(u=>u.faction==='party');
+  assert.equal(new Set(heroes.map(u=>u.x+','+u.z)).size,3,'distinct legal start poses are real simulation tiles');
+  for(const hero of heroes)assert.equal(s.map[hero.z][hero.x],'.');
+  for(let z=1;z<=4;z++)for(let x=1;x<=4;x++)
+   assert.equal(s.map[z][x],'.','entrance must provide a clear, traversable first confrontation stage');
+  assert.ok(s.exit.x>=4&&s.exit.x<MAP_SIZE-4&&s.exit.z>=4&&s.exit.z<MAP_SIZE-4,
+   'guardian court must not be clipped into a boundary wall');
+  let openCourt=0;
+  for(let dz=-3;dz<=3;dz++)for(let dx=-3;dx<=3;dx++)
+   openCourt+=Number(s.map[s.exit.z+dz][s.exit.x+dx]==='.');
+  assert.equal(openCourt,49,'authored final stage must be an actually open seven-tile courtyard');
+  assert.ok(shortestPath(s.map,{x:1,z:1},s.exit).length>=12);
+  assertDungeonState(s);
+  assert.deepEqual(DungeonRuntime.restore(game.save()).publicState(),game.publicState());
+ }
+});
