@@ -357,6 +357,26 @@ export function createWorld(THREE, {width, height}) {
         data[i+1]=Math.max(0,Math.round(data[i+1]-greenLoss));
         data[i+2]=Math.max(0,Math.round(data[i+2]-blueLoss));
       }
+      // BEGIN T1 WETLAND MASONRY PATINA
+      // Broad geological moisture bands unify old masonry, the newly wooded
+      // lagoon and the four actual outer shoreline ecosystems. This is applied
+      // to the SAME baked physical stone atlas, not a second floor or route.
+      // The wash is deliberately subtractive so the true cells, seams, hazards,
+      // portals and fruit remain visible without changing any gameplay state.
+      const smoothBasin=smoothNoise(gx*.17+84,gz*.21+17);
+      const slope=.5+.5*Math.sin(gx*.21+gz*.26+(smoothBasin-.5)*3.2);
+      const foldedBed=.5+.5*Math.cos(gx*.13-gz*.39+(cloud-.5)*2.1);
+      const deepMoss=fade(.34,.71,slope*.43+foldedBed*.23+cloud*.34);
+      const oldQuarry=fade(.22,.72,foldedBed*.49+mineral*.22+(1-deepMoss)*.29);
+      const shadedStone=growthInward*(.24+.76*deepMoss);
+      const weathering=shadedStone*(.7+.3*oldQuarry);
+      const limeSeam=(1-fade(.02,.095,edge))*(.35+.65*deepMoss);
+      const forestWater=.32+.68*fade(.30,.65,cloud*.51+deepMoss*.49);
+      const mossGrain=(.50+.5*mineral)*(1-.27*limeSeam);
+      data[i]=Math.max(0,Math.round(data[i]-weathering*(18+23*forestWater+10*mossGrain)));
+      data[i+1]=Math.max(0,Math.round(data[i+1]-weathering*(8+21*forestWater+16*oldQuarry)));
+      data[i+2]=Math.max(0,Math.round(data[i+2]-weathering*(16+30*forestWater+8*mossGrain)));
+      // END T1 WETLAND MASONRY PATINA
       // END T1 FLOODPLAIN COURTYARD COLOR REBUILD
     }
     // Sparse hairline fractures stay subordinate to the broad slab treatment.

@@ -400,6 +400,92 @@ export function createLivingGarden(THREE, {width,height}) {
     }
     features.arcadeArches++;
   }
+  // BEGIN T1 LIVING WATER GARDEN
+  // Four full-length riparian planting belts soften the former bright-green
+  // rectilinear bank, joining the broken aqueduct and main courtyard to the
+  // surrounding TRUE water surface. All rooted rushes live outside gameplay;
+  // every sculpted floating leaf is above the real lake, never a fake 2D card.
+  // All work bakes into the EXISTING four static material batches: zero new
+  // draw calls, materials, textures, shaders, dynamic passes or collisions.
+  const lilies=new THREE.Color();
+  function tintedTriangle(layer,a,b,c,hex){
+    const mesh=bands.get(layer),tint=lilies.setHex(hex);
+    const points=[a,b,c];
+    for(const pt of points){
+      mesh.p.push(pt[0],pt[1],pt[2]);
+      mesh.c.push(tint.r,tint.g,tint.b);
+      mesh.uv.push(pt[0]*.11,pt[2]*.11);
+    }
+  }
+  function waterLily(x,z,phase,bloom){
+    const radius=.27+hash(phase,91)*.19;
+    const angle=hash(phase,23)*Math.PI*2;
+    const waterY=-3.49;
+    const center=[x,waterY+.045,z];
+    for(let j=0;j<7;j++){
+      const a=angle+j*Math.PI*2/7,b=angle+(j+1)*Math.PI*2/7;
+      const r0=radius*(.90+hash(phase+j,6)*.1);
+      const r1=radius*(.90+hash(phase+j+1,6)*.1);
+      // The small opened notch is a recognizable floating lily leaf; the
+      // folded tip is real 3D and breaks the identical-cartoon-disc pattern.
+      const t0=[x+Math.cos(a)*r0,waterY+.022*Math.sin(j*2+phase),z+Math.sin(a)*r0];
+      const t1=[x+Math.cos(b)*r1,waterY+.022*Math.cos(j+phase),z+Math.sin(b)*r1];
+      if(j!==0)tintedTriangle('foliage',center,t0,t1,[0x276b48,0x398353,0x579a58,0x78a665][j%4]);
+    }
+    features.waterGardenPads++;
+    if(!bloom)return;
+    const flowerY=waterY+.12;
+    for(let i=0;i<6;i++){
+      const a=angle+i*Math.PI/3;
+      const side=[-Math.sin(a),Math.cos(a)],len=.19+hash(phase,i)*.10;
+      const base=[x,flowerY,z];
+      const left=[x+Math.cos(a)*len*.54+side[0]*.095,flowerY+.10,z+Math.sin(a)*len*.54+side[1]*.095];
+      const tip=[x+Math.cos(a)*len,flowerY+.27,z+Math.sin(a)*len];
+      const right=[x+Math.cos(a)*len*.54-side[0]*.095,flowerY+.10,z+Math.sin(a)*len*.54-side[1]*.095];
+      tintedTriangle('foliage',base,left,tip,i%2?0xfbd9b1:0xffd7e4);
+      tintedTriangle('foliage',base,tip,right,i%2?0xf6b5b7:0xffeed5);
+    }
+    features.waterGardenBlooms++;
+  }
+  features.waterGardenBeds=0;
+  features.waterGardenPads=0;
+  features.waterGardenBlooms=0;
+  features.waterGardenRushes=0;
+  for(const shore of shorelines){
+    // Six staggered wetland beds per bank; individual pads vary in diameter,
+    // height, yaw and warm/cool flowering accents. The embedded rushes join
+    // each floating group to its actual eroded shoreline and roots.
+    for(let bed=0;bed<6;bed++){
+      const t=shore.start+(shore.end-shore.start)*(bed+.56)/6;
+      const out=Math.sign(shore.far-shore.near);
+      const offshore=shore.far+out*(1.03+.12*hash(bed,shore.id.length));
+      const ox=shore.axis==='x'?t:offshore;
+      const oz=shore.axis==='x'?offshore:t;
+      for(let pad=0;pad<8;pad++){
+        const phase=bed*29+pad*11+shore.id.length;
+        const radius=.20+.26*hash(phase,50);
+        const theta=pad*2.39996+hash(phase,15)*.24;
+        const xx=ox+Math.cos(theta)*radius*1.9;
+        const zz=oz+Math.sin(theta)*radius*1.7;
+        waterLily(xx,zz,phase,pad===1||pad===4||pad===7);
+      }
+      for(let stalk=0;stalk<2;stalk++){
+        const p=bankPoint(shore,t+(stalk-.5)*.75,.85);
+        leaf(p[0],p[1]-.08,p[2],.93+hash(bed,stalk+7)*.64,
+          t*.21+stalk*1.7,bed+stalk, 'reeds');
+        features.waterGardenRushes++;
+      }
+      features.waterGardenBeds++;
+    }
+  }
+  // The distant wetland cannot be credible if its formerly high-key uniform
+  // grass remains neon lime. Regrade the existing physically lit batches,
+  // preserving each original vertex color, topology and material count.
+  bands.get('moss').color=0x839b83;
+  bands.get('cliff').color=0xaab19b;
+  bands.get('ruin').color=0xd9ccad;
+  bands.get('foliage').color=0xb3c4ac;
+  // END T1 LIVING WATER GARDEN
   // A shared-vertex terrain should read as rolling soil, not a topographic
   // collection of separate flat triangles. Smooth only organic bands; ruins
   // deliberately keep their masonry edges and foliage retains folded ridges.
@@ -448,6 +534,10 @@ export function createLivingGarden(THREE, {width,height}) {
       canopyTrees:features.canopyTrees,canopyLeaflets:features.canopyLeaflets,
       arcadeArches:features.arcadeArches,arcadeStones:features.arcadeStones,
       hangingVines:features.hangingVines,
+      // BEGIN T1 WATER GARDEN STATS
+      waterGardenBeds:features.waterGardenBeds,waterGardenPads:features.waterGardenPads,
+      waterGardenBlooms:features.waterGardenBlooms,waterGardenRushes:features.waterGardenRushes,
+      // END T1 WATER GARDEN STATS
       triangles:ownGeometry.reduce((n,g)=>n+g.attributes.position.count/3,0),
       textures:1,disposed};
   }
