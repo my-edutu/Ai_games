@@ -36,6 +36,10 @@ for (const viewport of viewports) test('normal-speed Tower motion ' + viewport.n
       return { atMs: Date.now(), tick: s?.tick, runToken: s?.runToken, checksum: s?.publicChecksum,
         floor: s?.floor, scene: s?.lifecycle, state: s?.player?.state, dangerPermille: s?.dangerPermille,
         guardianActive: (s?.enemies || []).some(e => e.active && e.kind === 'guardian'),
+        guardianHealth: (s?.enemies || []).filter(e => e.kind === 'guardian').map(e => ({ active: e.active, health: e.health, maxHealth: e.maxHealth })),
+        observedGate: d.world?.guardianGates || [],
+        observedPassage: d.passage?.active ? { runToken: d.passage.runToken, floor: d.passage.floor,
+          sourceTick: d.passage.sourceTick, ageSeconds: d.passage.ageSeconds } : null,
         telegraphedEnemies: (s?.enemies || []).filter(e => e.active && e.telegraph).length,
         attacking: !!s?.player?.attacking, enemyKinds: (s?.enemies || []).filter(e => e.active).map(e => e.kind),
         frames: d.frames, frameMs: d.frameMs, contextLost: d.contextLost,
@@ -54,12 +58,14 @@ for (const viewport of viewports) test('normal-speed Tower motion ' + viewport.n
     observations.push(observation);
   }
   await sample(0);
-  // A real result/intermission is brief (~1.8s); sample the outcome every
-  // second or it may be skipped entirely between two otherwise valid frames.
+  // The frozen baseline can have a one-tick terminal phase; an authentic
+  // frame still may not be present in composited video. Do not imply a visible
+  // terminal result from a run-token change alone. Sample danger more densely
+  // to observe any genuine guardian HP split and next-floor passage.
   // Every scenario still records >=68s of uninterrupted host play at native
   // wall-clock speed (nominal 20 fixed-step authority ticks per second).
   // No mocked state, accelerated page clock or replay scrubbing.
-  const cadenceMs = scenario === 'outcome' ? 1000 : 2000;
+  const cadenceMs = scenario === 'outcome' || scenario === 'danger' ? 1000 : 2000;
   const intervals = 68000 / cadenceMs;
   for (let i = 1; i <= intervals; i++) {
     await page.waitForTimeout(cadenceMs);
