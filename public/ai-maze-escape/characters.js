@@ -402,6 +402,16 @@ export function createWarden(options = {}) {
     ball(warningSpines,ember,[side*.23,height,.1],[.095,.105,.084]);
   }
   warningSpines.visible=false;
+  // Original sculpted signal heart: an actual three-dimensional mechanism
+  // nested beneath the paired armor plates, never a billboard or invented foe.
+  // It appears only while this *publicly disclosed* guardian attends to Pip.
+  // The fixed modeled assembly is constructed once, not during animation.
+  const signalCore=pivot(body,'opened guardian signal heart',[0,.32,.02]);
+  ball(signalCore,dark,[0,-.02,0],[.25,.10,.32]);
+  ball(signalCore,ember,[0,.065,0],[.165,.115,.235]);
+  const coreRim=ring(signalCore,claw,[0,.13,.015],.19,.027);
+  coreRim.rotation.x=Math.PI/2;
+  signalCore.visible=false;
   const head=pivot(body,'warden mask',[0,.08,.62]);
   // A broad forward bronze mask makes approach direction distinct from the dark elytra.
   ball(head,bronze,[0,0,0],[.37,.245,.27]);
@@ -457,6 +467,13 @@ export function createWarden(options = {}) {
     const lookYaw=Math.max(-.58,Math.min(.58,relativeLook))*alert;
     warningSpines.visible=alert>.24;
     warningSpines.scale.y=1+alert*.4+(s.reduced?0:Math.sin(s.time*4.1)*.04);
+    // A real physical encounter unveils the internal lantern-heart through
+    // the opening shell. Keep the reduced-motion pose steady and clear the
+    // entire assembly on terminal/withdrawn public snapshots.
+    signalCore.visible=alert>.24;
+    signalCore.position.y=.32+alert*.19;
+    signalCore.scale.setScalar(.78+alert*.5);
+    signalCore.rotation.y=s.reduced?0:Math.sin(s.time*1.7)*alert*.15;
     // Two readable shell wings open independently in true close encounters.
     // Reduced-motion retains a static disclosed-warning silhouette.
     for (const shellHalf of elytra) {
