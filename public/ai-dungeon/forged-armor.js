@@ -104,14 +104,19 @@ const PHYSICAL=Object.freeze({
  leather:Object.freeze({metalness:.035,roughness:.85}),
  textile:Object.freeze({metalness:.01,roughness:.98})
 });
-const MATERIALS=Object.freeze(Object.fromEntries(Object.entries(COLORS).map(([kind,colors])=>
- [kind,Object.freeze(Object.fromEntries(Object.entries(colors).map(([finish,color])=>
- [finish,Object.freeze({
-  color,metalness:PHYSICAL[finish].metalness,
-  roughness:PHYSICAL[finish].roughness,
-  ...(kind==='warden'&&finish==='steel'?{emissive:'#3c1b13',emissiveIntensity:.12}:{})
- })])))])
-)));
+const MATERIALS=Object.freeze(Object.fromEntries(
+ Object.entries(COLORS).map(([kind,colors])=>{
+  const entries=Object.entries(colors).map(([finish,color])=>[
+   finish,Object.freeze({
+    color,
+    metalness:PHYSICAL[finish].metalness,
+    roughness:PHYSICAL[finish].roughness,
+    ...(kind==='warden'&&finish==='steel'?{emissive:'#3c1b13',emissiveIntensity:.12}:{})
+   })
+  ]);
+  return [kind,Object.freeze(Object.fromEntries(entries))];
+ })
+));
 export function planForgedFinishes(kind){
  return typeof kind==='string'&&Object.hasOwn(MATERIALS,kind)?MATERIALS[kind]:null;
 }
