@@ -156,6 +156,10 @@ export function createTowerGuardianPassage(THREE) {
   function diagnostics() {
     return { sourceBound: true, active: group.visible, runToken,
       floor, sourceTick, ageSeconds: age, durationSeconds: duration,
+      // Public world-space source-pinned anchor for inspecting actual full
+      // motion; no fabricated win, private event or gameplay mutation.
+      anchorPosition: group.visible ? group.position.toArray() : null,
+      focusPosition: group.visible ? focusPosition.toArray() : null,
       meshes: 13, fragmentInstances: 8, fragmentsVisible: fragments.visible,
       geometries: ownedGeometry.length, shadows: 0, disposed };
   }
