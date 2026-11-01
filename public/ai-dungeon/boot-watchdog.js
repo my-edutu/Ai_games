@@ -14,7 +14,7 @@
 
  // Startup success is not a lifetime guarantee for an unattended broadcast.
  // Detect frozen frames, stale simulation snapshots and WebGL context loss.
- let lastFrame=0,lastTick=-1,lastFrameAt=Date.now(),lastTickAt=Date.now(),contextLost=false,restoredFrameBaseline=null;
+ let lastFrame=0,lastTick=-1,lastFrameAt=Date.now(),lastTickAt=Date.now(),contextLost=false,restoredFrameBaseline=null,restoredTickBaseline=null,restoredAt=0;
  const canvas=document.getElementById('world');
  const degraded=(status,heading)=>{
   document.body.dataset.rendererStatus=status;
@@ -24,7 +24,7 @@
  };
  canvas?.addEventListener('webglcontextlost',event=>{
   // WebGL will not permit restoration unless this cancelable event is handled.
-  event.preventDefault();contextLost=true;restoredFrameBaseline=null;
+  event.preventDefault();contextLost=true;restoredFrameBaseline=null;restoredTickBaseline=null;restoredAt=0;
   degraded('context-lost','3D graphics context lost; waiting for recovery');
  });
  canvas?.addEventListener('webglcontextrestored',()=>{
@@ -32,7 +32,9 @@
   // Old diagnostics remain visible while Three.js reconstructs its context.
   // Never call the spectator ready until its frame counter changes again.
   restoredFrameBaseline=window.__DUNGEON_RENDER_DIAGNOSTICS__?.frame||0;
-  lastFrameAt=lastTickAt=Date.now();
+  const lastObservedTick=window.__DUNGEON_PUBLIC_STATE__?.tick;
+  restoredTickBaseline=Number.isFinite(lastObservedTick)?lastObservedTick:null;
+  restoredAt=Date.now();lastFrameAt=lastTickAt=restoredAt;
   document.body.dataset.rendererStatus='recovering';
   if(message){message.hidden=false;message.textContent='3D graphics restored — verifying a fresh rendered frame.';}
  });
@@ -45,9 +47,18 @@
   if(Number.isFinite(tick)&&tick!==lastTick){lastTick=tick;lastTickAt=now}
   if(contextLost)return;
   if(restoredFrameBaseline!==null){
-   if(frame>0&&frame!==restoredFrameBaseline&&Number.isFinite(tick)){
-    restoredFrameBaseline=null;lastFrame=frame;lastFrameAt=lastTickAt=now;
+   // A fresh WebGL frame alone does not prove the autonomous spectator is live:
+   // require a post-restore authority tick as well, or keep the warning visible.
+   const frameFresh=frame>0&&frame!==restoredFrameBaseline;
+   const tickFresh=Number.isFinite(tick)&&(restoredTickBaseline===null||tick!==restoredTickBaseline);
+   if(frameFresh&&tickFresh){
+    restoredFrameBaseline=null;restoredTickBaseline=null;restoredAt=0;
+    lastFrame=frame;lastTick=tick;lastFrameAt=lastTickAt=now;
     document.body.dataset.rendererStatus='ready';if(message)message.hidden=true;
+   }else if(now-restoredAt>=12000){
+    // Context restoration is not the same as visible recovery. Retain the
+    // recovery state until both signals progress; never restart the simulation.
+    degraded('stalled',frameFresh?'Autonomous snapshot stalled after graphics recovery':'3D rendering stalled after graphics recovery');
    }
    return;
   }
