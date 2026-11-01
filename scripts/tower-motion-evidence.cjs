@@ -3,7 +3,9 @@
 // GPU frame, and the CI software renderer is NOT an intended device.
 const PERFORMANCE_UNVERIFIED = 'UNVERIFIED: submitted intervals are not presented GPU frames or intended-device FPS';
 
-function assessTowerMotion(samples) {
+function assessTowerMotion(samples, options = {}) {
+  const minDurationMs = Number.isFinite(options.minDurationMs) ? Math.max(10000, options.minDurationMs) : 10000;
+  const requireOutcomeRestart = options.requireOutcomeRestart === true;
   const blockers = [];
   if (!Array.isArray(samples) || samples.length < 2) {
     return { scopedPass: false, blockers: ['insufficient-observations'], performanceGate: PERFORMANCE_UNVERIFIED };
@@ -33,13 +35,17 @@ function assessTowerMotion(samples) {
   const renderedDelta = last.frames - first.frames;
   const checksums = new Set(samples.map(s => s.checksum));
   const canvasHashes = new Set(samples.map(s => s.canvasHash).filter(Boolean));
-  if (!(wallMs >= 10000)) blockers.push('capture-too-short');
+  if (!(wallMs >= minDurationMs)) blockers.push('capture-too-short');
+  if (requireOutcomeRestart && (!samples.some(s => s.scene === 'result')
+    || !samples.some(s => s.scene === 'intermission') || runTransitions < 1)) {
+    blockers.push('complete-terminal-intermission-restart-not-observed');
+  }
   if (!(tickDelta >= 40) || checksums.size < 2) blockers.push('authoritative-ticks-not-advancing');
   if (!(renderedDelta >= 10)) blockers.push('renderer-submissions-not-advancing');
   if (canvasHashes.size < 2) blockers.push('canvas-pixels-not-changing');
   if (!Number.isFinite(last.frameMs?.samples) || last.frameMs.samples < 8) blockers.push('renderer-intervals-not-measured');
   if (samples.some(s => s.contextLost || s.renderErrors !== 0)) blockers.push('renderer-error-or-context-loss');
-  return { scopedPass: blockers.length === 0, blockers, wallMs, tickDelta, tickAdvance, runTransitions,
+  return { scopedPass: blockers.length === 0, blockers, wallMs, minDurationMs, tickDelta, tickAdvance, runTransitions,
     transitionEvidence: 'OPEN: sampled restart is not proof of rendered death/intermission/restart', renderedDelta,
     uniqueChecksums: checksums.size, uniqueCanvasFrames: canvasHashes.size,
     submittedFrameIntervals: last.frameMs ?? null,
