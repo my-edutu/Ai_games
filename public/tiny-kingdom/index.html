@@ -773,7 +773,27 @@ function triGradient(a,b,c,ca,cb,cc){
   c[0],c[1],c[2],normalX,normalY,normalZ,cc[0],cc[1],cc[2],material);
 }
 function quad(a,b,c,d,col){tri(a,b,c,col);tri(a,c,d,col)}
-function box(x,y,z,w,h,d,col){let xa=x-w/2,xb=x+w/2,za=z-d/2,zb=z+d/2,ya=y,yb=y+h;quad([xa,ya,za],[xa,yb,za],[xb,yb,za],[xb,ya,za],col);quad([xb,ya,zb],[xb,yb,zb],[xa,yb,zb],[xa,ya,zb],col);quad([xa,ya,zb],[xa,yb,zb],[xa,yb,za],[xa,ya,za],col);quad([xb,ya,za],[xb,yb,za],[xb,yb,zb],[xb,ya,zb],col);quad([xa,yb,za],[xa,yb,zb],[xb,yb,zb],[xb,yb,za],col);quad([xa,ya,zb],[xa,ya,za],[xb,ya,za],[xb,ya,zb],col)}
+// G076: reuse the eight immutable corners of a rectangular prism across all
+// six faces. The previous implementation allocated 24 separate point arrays
+// for the same eight positions per box, including in frequent animated meshes.
+// Face winding, normals (computed by tri) and 10-float vertex order are exact.
+function box(x,y,z,w,h,d,col){
+ const xa=x-w/2,xb=x+w/2,za=z-d/2,zb=z+d/2,ya=y,yb=y+h;
+ const p000=[xa,ya,za];
+ const p010=[xa,yb,za];
+ const p110=[xb,yb,za];
+ const p100=[xb,ya,za];
+ const p101=[xb,ya,zb];
+ const p111=[xb,yb,zb];
+ const p011=[xa,yb,zb];
+ const p001=[xa,ya,zb];
+ quad(p000,p010,p110,p100,col);
+ quad(p101,p111,p011,p001,col);
+ quad(p001,p011,p010,p000,col);
+ quad(p100,p110,p111,p101,col);
+ quad(p010,p011,p111,p110,col);
+ quad(p001,p000,p100,p101,col);
+}
 function cylinder(x,y,z,r,h,col,sides=8){for(let i=0;i<sides;i++){let a=i*Math.PI*2/sides,b=(i+1)*Math.PI*2/sides;let v=[x+Math.cos(a)*r,y,z+Math.sin(a)*r],w=[x+Math.cos(b)*r,y,z+Math.sin(b)*r],vv=[v[0],y+h,v[2]],ww=[w[0],y+h,w[2]];quad(v,w,ww,vv,col);tri([x,y+h,z],vv,ww,col)}}
 function cone(x,y,z,r,h,col,sides=9){for(let i=0;i<sides;i++){let a=i*Math.PI*2/sides,b=(i+1)*Math.PI*2/sides;tri([x+Math.cos(a)*r,y,z+Math.sin(a)*r],[x+Math.cos(b)*r,y,z+Math.sin(b)*r],[x,y+h,z],col)}}
 const SEASONS=['SPRING','SUMMER','AUTUMN','WINTER'];
