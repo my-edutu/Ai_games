@@ -42,6 +42,9 @@ export function createTowerAudio() {
   }
   const cue = name => {
     if (name === 'impact' || name === 'fall-end') tone(130, 38, .32, 'triangle', .2);
+    else if (name === 'melee-hit') { tone(220, 55, .17, 'triangle', .16); tone(780, 310, .085, 'square', .035); }
+    else if (name === 'shield-block') { tone(690, 235, .25, 'sine', .105); tone(1040, 620, .14, 'triangle', .045); }
+    else if (name === 'pickup') { tone(590, 880, .12, 'sine', .065); }
     else if (name === 'warning') tone(320, 170, .19, 'triangle', .08);
     else if (name === 'floor-rise' || name === 'upgrade') { tone(330, 660, .3, 'sine', .13); tone(495, 990, .48, 'sine', .07); }
     else if (name === 'enemy-break') tone(190, 48, .19, 'triangle', .13);

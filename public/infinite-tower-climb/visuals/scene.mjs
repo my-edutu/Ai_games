@@ -4,6 +4,35 @@ import { createClimber, createEnemy } from './characters.mjs';
 import { SCALE, pointFor, angleFor } from './coordinates.mjs';
 import { snapshotVelocity } from './motion.mjs';
 import { createRenderProgress } from './render-progress.mjs';
+// A tiny 3D attack lane follows only a REAL enemy telegraph. The curved ribbon
+// traces the same cylindrical projection as authoritative horizontal shots and
+// keeps its world-space origin at the firing actor, never at a guessed target.
+// Fourteen reusable segments per active enemy: no per-frame geometry allocation.
+const THREAT_LANE_SEGMENTS=14;
+function createThreatLaneGeometry(){
+  const geometry=new THREE.BufferGeometry();
+  const vertices=new Float32Array((THREAT_LANE_SEGMENTS+1)*6);
+  const indices=[];
+  for(let i=0;i<THREAT_LANE_SEGMENTS;i++){
+    const a=2*i,b=a+2;
+    indices.push(a,a+1,b,a+1,b+1,b);
+  }
+  geometry.setAttribute('position',new THREE.BufferAttribute(vertices,3).setUsage(THREE.DynamicDrawUsage));
+  geometry.setIndex(indices);
+  return geometry;
+}
+function poseThreatLane(lane, enemy, frame){
+  const points=lane.geometry.getAttribute('position');
+  const distance=Math.min(120000,frame.worldWidth*.245);
+  const direction=enemy.facing===-1?-1:1;
+  for(let i=0;i<=THREAT_LANE_SEGMENTS;i++){
+    const x=clamp(enemy.x+direction*(9000+distance*i/THREAT_LANE_SEGMENTS),0,frame.worldWidth);
+    const mapped=pointFor(x,enemy.y,frame.chunkBaseY,frame.worldWidth,26.15);
+    points.setXYZ(i*2,mapped.x,mapped.y-.115,mapped.z);
+    points.setXYZ(i*2+1,mapped.x,mapped.y+.115,mapped.z);
+  }
+  points.needsUpdate=true;
+}
 // Position-only correction runs inside the real scene module. The scene's
 // CPU/VM fixtures intentionally remove ESM imports to test WebGL boundaries;
 // keeping this pure helper local also makes those fixtures exercise actual code.
@@ -678,6 +707,10 @@ export function createTowerScene(canvas, settings = {}) {
   const healthBarDark = ownMaterial(new THREE.MeshBasicMaterial({ color: 0x172329, transparent: true, opacity: .88, depthTest: false, depthWrite: false }));
   const healthBarRed = ownMaterial(new THREE.MeshBasicMaterial({ color: 0xff9867, transparent: true, opacity: 1, depthTest: false, depthWrite: false }));
   const warningMaterial = ownMaterial(new THREE.MeshBasicMaterial({ color: 0xffcb75, transparent: true, opacity: .65, depthWrite: false }));
+  const threatLaneMaterial = ownMaterial(new THREE.MeshBasicMaterial({
+    color: 0xffb16e, transparent: true, opacity: .38, side: THREE.DoubleSide,
+    depthWrite: false, depthTest: true, toneMapped: false,
+  }));
   // A restrained, depth-tested contact outline survives low quality and reduced
   // motion, where expensive particle bursts are intentionally disabled.
   const impactMaterial = ownMaterial(new THREE.MeshBasicMaterial({
@@ -731,6 +764,7 @@ export function createTowerScene(canvas, settings = {}) {
 
   let snapshot = null, previous = null, initialized = false, frameHandle = 0;
   let elapsed = 0, lastTime = 0, renderErrors = 0, contextLost = false, disposed = false;
+  let contactUntil=0,contactHero=false,contactEnemyId=null;
   let baseY = 0, themeKey = '', cameraAngle = .15, lastRevision = '', orbit = 0, zoom = 1;
   const renderProgress = createRenderProgress();
   const actorTarget = new THREE.Vector3();
@@ -768,7 +802,8 @@ export function createTowerScene(canvas, settings = {}) {
   resize();
 
   function removeEnemy(entry) {
-    scene.remove(entry.model.group, entry.bar, entry.warning, entry.impact);
+    scene.remove(entry.model.group, entry.bar, entry.warning, entry.impact, entry.threatLane);
+    entry.threatLane.geometry.dispose();
     entry.model.dispose();
   }
   function clearActors() {
@@ -815,8 +850,11 @@ export function createTowerScene(canvas, settings = {}) {
     warning.scale.setScalar(entity.kind === 'guardian' ? 3.5 : 2.2);
     const impact = new THREE.Mesh(ringGeometry, impactMaterial);
     impact.name = 'ObservedEnemyImpact'; impact.visible = false; impact.renderOrder = 22;
-    scene.add(model.group, bar, warning, impact);
-    const entry = { model, bar, fill, back, warning, impact, initialized: false, x: entity.x, direction: entity.facing || -1, state: entity, deadUntil: 0, fireUntil: 0, impactUntil: 0, impactFramesRemaining: 0 };
+    const threatLane=new THREE.Mesh(createThreatLaneGeometry(),threatLaneMaterial);
+    threatLane.name='ObservedEnemyTelegraphLane';threatLane.visible=false;
+    threatLane.frustumCulled=false;threatLane.renderOrder=3;
+    scene.add(model.group, bar, warning, impact, threatLane);
+    const entry = { model, bar, fill, back, warning, impact, threatLane, initialized: false, x: entity.x, direction: entity.facing || -1, state: entity, deadUntil: 0, fireUntil: 0, impactUntil: 0, impactFramesRemaining: 0 };
     enemies.set(entity.id, entry);
     return entry;
   }
@@ -839,6 +877,10 @@ export function createTowerScene(canvas, settings = {}) {
         // three attempted frames, then retire after ordinary 600ms on devices
         // that can actually display that many frames in time.
         entry.impactFramesRemaining = 3;
+        // Physical combat is already resolved on the server. Only a genuine
+        // same-run health delta can trigger the visual reaction and shards.
+        burst(entry.model.group.position, entity.kind==='guardian'?0xffcd83:0xff9b69, 12);
+        contactUntil=elapsed+.24;contactEnemyId=entity.id;contactHero=false;
       }
       if (entity.active && entity.attackCooldown > (entry.state.attackCooldown ?? entity.attackCooldown)) entry.fireUntil = elapsed + .2;
       const delta = entity.x - entry.x;
@@ -885,7 +927,10 @@ export function createTowerScene(canvas, settings = {}) {
     previous = newRun ? null : snapshot;
     snapshot = next; baseY = next.chunkBaseY;
     updateEntities(next);
-    if (previous && next.player.health < previous.player.health) burst(climber.group.position, 0xff855f, 16);
+    if (previous && next.player.health < previous.player.health) {
+      burst(climber.group.position, 0xff855f, 16);
+      contactUntil=elapsed+.24;contactHero=true;contactEnemyId=null;
+    }
     if (previous && next.player.state === 'airborne' && previous.player.state === 'standing') burst(climber.group.position, 0xadf8e8, 6);
     if (themeKey !== next.theme) {
       themeKey = next.theme;
@@ -1006,6 +1051,8 @@ export function createTowerScene(canvas, settings = {}) {
       entry.fill.position.x = (entry.fill.scale.x - width) / 2;
       entry.warning.position.copy(model.position); entry.warning.position.y += .08;
       entry.warning.visible = e.active && e.telegraph;
+      entry.threatLane.visible = e.active && e.telegraph && !options.stale;
+      if(entry.threatLane.visible)poseThreatLane(entry.threatLane,e,snapshot);
       const impact = entry.impact;
       impact.visible = (e.active || elapsed < entry.deadUntil)
         && (elapsed < entry.impactUntil || entry.impactFramesRemaining > 0);
@@ -1019,6 +1066,9 @@ export function createTowerScene(canvas, settings = {}) {
         impact.scale.setScalar(e.kind === 'guardian' ? 1.5 : .95);
       }
     }
+    // A contact pulse is a short, bounded camera response to observed damage,
+    // never an invented attack. Reduced motion retains the world-space cues.
+    const contactProgress=options.stale?0:clamp((contactUntil-elapsed)/.24,0,1);
     for (const pick of snapshot.pickups) {
       const group = pickups.get(pick.id);
       const mapped = pointFor(pick.x, pick.y, snapshot.chunkBaseY, snapshot.worldWidth, 25.2);
@@ -1059,6 +1109,8 @@ export function createTowerScene(canvas, settings = {}) {
     const cameraBlend = options.reducedMotion ? 1 : 1 - Math.exp(-dt * 3.5);
     if (!initialized) { camera.position.copy(destination); lookAt.copy(focus); initialized = true; }
     else { camera.position.lerp(destination, cameraBlend); lookAt.lerp(focus, cameraBlend); }
+    if(!options.reducedMotion && !options.stale && options.camera==='follow'&&contactProgress>0)
+      camera.position.y+=(contactHero?-.24:.18)*Math.sin((1-contactProgress)*Math.PI);
     camera.lookAt(lookAt);
     world.revealGuardianSightlines(camera,guardianSightPoints);
     updateLandingBeacon(landingBeacon, targetPlatform, snapshot, camera);
@@ -1159,7 +1211,9 @@ export function createTowerScene(canvas, settings = {}) {
       landingBeacon: { visible: landingBeacon.visible, targetId: landingBeacon.userData.targetPlatformId || null,
         position: landingBeacon.position.toArray(), triangles: landingBeacon.geometry.index.count / 3, depthTest: landingBeacon.material.depthTest },
       activeParticles: particleLife.filter(life => life > 0).length,
-      observedEnemyImpacts: [...enemies.values()].filter(entry => entry.impact.visible).length, frameMs,
+      observedEnemyImpacts: [...enemies.values()].filter(entry => entry.impact.visible).length,
+      activeTelegraphLanes: [...enemies.values()].filter(entry => entry.threatLane.visible).length,
+      contactPulse: !options.stale && elapsed<contactUntil ? { hero:contactHero, enemyId:contactEnemyId } : null, frameMs,
       lighting: { environmentReady: !!reflectionTarget, environmentState: disposed ? 'disposed' : reflectionDirty ? 'pending' : reflectionTarget ? 'ready' : 'direct', environmentBuilds: reflectionBuilds,
         environmentFailures: reflectionFailures, environmentLastError: reflectionLastError,
         environmentSize: reflectionTarget ? [reflectionTarget.width, reflectionTarget.height] : [0, 0], shadowLights: 1, shadowMapSize: sun.shadow.mapSize.x },

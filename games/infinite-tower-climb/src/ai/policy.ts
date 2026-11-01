@@ -1,5 +1,5 @@
 import type{TowerAction,TowerPlatform,TowerState}from'../state/types';import{chooseTowerUpgrade}from'../progression/builds';import{nextTowerPlatform}from'./graph';import type{TowerObservation}from'./observation';import{detectTowerStuck}from'./stuck';
-export interface TowerIntent{mode:'choosing-upgrade'|'evading-projectile'|'evading-hazard'|'engaging-enemy'|'recovering'|'aligning'|'jumping'|'air-control'|'waiting';summary:string;confidence:number;fallbackUsed:boolean;targetPlatformId?:string}
+export interface TowerIntent{mode:'choosing-upgrade'|'evading-projectile'|'evading-hazard'|'evading-telegraph'|'engaging-enemy'|'recovering'|'aligning'|'jumping'|'air-control'|'waiting';summary:string;confidence:number;fallbackUsed:boolean;targetPlatformId?:string}
 export interface TowerDecision{action:TowerAction;intent:TowerIntent}
 function action(move:TowerAction['move']=0,extra:Partial<TowerAction>={}):TowerAction{return{move,jump:false,dash:false,attack:false,ability:false,...extra}}
 function moveSign(delta:number):TowerAction['move']{return Math.abs(delta)<4000?0:delta>0?1:-1}
@@ -8,10 +8,37 @@ function launchX(current:TowerPlatform,target:TowerPlatform,halfWidth:number){co
 function incomingProjectile(obs:TowerObservation){return obs.projectiles.filter(x=>x.owner==='enemy').find(x=>Math.abs(x.position.y-obs.player.position.y)<30000&&Math.abs(x.position.x-obs.player.position.x)<65000&&Math.sign(x.velocity.x)===Math.sign(obs.player.position.x-x.position.x))}
 function immediateHazard(obs:TowerObservation){const p=obs.player;return obs.hazards.filter(h=>h.active&&Math.abs((h.y+h.height/2)-p.position.y)<42000).sort((a,b)=>Math.abs((a.x+a.width/2)-p.position.x)-Math.abs((b.x+b.width/2)-p.position.x)||a.id.localeCompare(b.id)).find(h=>Math.abs((h.x+h.width/2)-p.position.x)<62000)}
 function nearbyEnemy(obs:TowerObservation,reach:number){return obs.enemies.filter(e=>e.active&&Math.abs(e.position.y-obs.player.position.y)<36000&&Math.abs(e.position.x-obs.player.position.x)<=reach).sort((a,b)=>Math.abs(a.position.x-obs.player.position.x)-Math.abs(b.position.x-obs.player.position.x)||a.id.localeCompare(b.id))[0]}
+// A telegraph is authoritative and grants a short, readable chance to respond.
+ // Never fabricate projectile knowledge, dodge from unsupported ground, or send
+ // the climber off the ledge just to trigger a heroic-looking animation.
+function imminentTelegraph(state:TowerState,obs:TowerObservation){
+  const p=obs.player;
+  if(!p.grounded||p.health<=0)return undefined;
+  const platform=currentPlatform(obs,p.groundedPlatformId);
+  const margin=state.player.halfWidth+4000;
+  if(!platform||p.position.x<platform.x+margin||p.position.x>platform.x+platform.width-margin)return undefined;
+  return obs.enemies.filter(e=>e.active&&e.kind!=='sentinel'&&
+    e.telegraphUntilTick>obs.tick&&e.telegraphUntilTick-obs.tick<=3&&
+    Math.abs(e.position.x-p.position.x)<=110000&&
+    Math.abs(e.position.y-p.position.y)<=state.player.halfHeight+e.halfHeight+9000&&
+    (p.position.x-e.position.x)*e.facing>=0)
+    .sort((a,b)=>a.telegraphUntilTick-b.telegraphUntilTick||
+      Math.abs(a.position.x-p.position.x)-Math.abs(b.position.x-p.position.x)||
+      a.id.localeCompare(b.id))[0];
+}
+function pulseReady(state:TowerState,obs:TowerObservation,enemy:TowerObservation['enemies'][number]){
+  const p=obs.player,delta=enemy.position.x-p.position.x;
+  return state.build.upgradeIds.includes('pulse-shot')&&p.abilityCooldown===0&&enemy.active&&
+    Math.abs(delta)<=210000&&Math.abs(enemy.position.y-p.position.y)<=state.player.halfHeight+enemy.halfHeight+10000&&
+    p.facing===(delta>=0?1:-1);
+}
 export function chooseTowerAction(state:TowerState,observation:TowerObservation):TowerDecision{
   if(observation.upgradeOffers.length){const selected=chooseTowerUpgrade(state);return{action:action(0,{upgradeChoice:selected?.id}),intent:{mode:'choosing-upgrade',summary:selected?`Selecting ${selected.name}`:'Waiting for a valid upgrade',confidence:1,fallbackUsed:false}}}
   const projectile=incomingProjectile(observation);if(projectile){const away=moveSign(observation.player.position.x-projectile.position.x);return{action:action(away,{jump:observation.player.grounded,dash:!observation.player.grounded&&observation.player.dashCooldown===0}),intent:{mode:'evading-projectile',summary:'Evading an incoming projectile',confidence:.98,fallbackUsed:false}}}
   const hazard=immediateHazard(observation);if(hazard){const center=hazard.x+hazard.width/2,away:TowerAction['move']=center>=observation.player.position.x?-1:1;return{action:action(away,{jump:observation.player.grounded}),intent:{mode:'evading-hazard',summary:`Avoiding ${hazard.kind}`,confidence:.96,fallbackUsed:false}}}
+  const windup=imminentTelegraph(state,observation);
+  if(windup)return{action:action(0,{jump:true}),
+    intent:{mode:'evading-telegraph',summary:`Jumping clear of ${windup.kind} fire`,confidence:.96,fallbackUsed:false}};
   // The cap exit is deliberately locked while its guardian lives. Do not treat
   // standing on that cap as the end of the route: the guardian patrols the
   // penultimate deck and must be defeated by ordinary, range-checked combat.
@@ -27,11 +54,19 @@ export function chooseTowerAction(state:TowerState,observation:TowerObservation)
       const facing:TowerAction['move']=dx>=0?1:-1;
       const inReach=Math.abs(dx)<=reach-4000;
       const move:TowerAction['move']=inReach?(observation.player.facing===facing?0:facing):facing;
-      return{action:action(move,{attack:inReach&&observation.player.attackCooldown===0}),
+      return{action:action(move,{attack:inReach&&observation.player.attackCooldown===0,ability:inReach&&pulseReady(state,observation,guardian)}),
         intent:{mode:'engaging-enemy',summary:inReach?'Fighting the guardian at the gate':'Closing on the guardian at the gate',confidence:.96,fallbackUsed:false}};
     }
   }
-  const enemy=nearbyEnemy(observation,state.config.attackReach+state.build.attackReachBonus);if(enemy){const facing=moveSign(enemy.position.x-observation.player.position.x);return{action:action(facing,{attack:observation.player.attackCooldown===0}),intent:{mode:'engaging-enemy',summary:`Engaging ${enemy.kind}`,confidence:.94,fallbackUsed:false}}}
+  const enemy=nearbyEnemy(observation,state.config.attackReach+state.build.attackReachBonus);
+  if(enemy){
+    const facing=moveSign(enemy.position.x-observation.player.position.x);
+    const inStrikePocket=Math.abs(enemy.position.x-observation.player.position.x)<state.config.attackReach*.7
+      &&observation.player.facing===facing;
+    return{action:action(inStrikePocket?0:facing,{attack:observation.player.attackCooldown===0,
+      ability:pulseReady(state,observation,enemy)}),
+      intent:{mode:'engaging-enemy',summary:`Engaging ${enemy.kind}`,confidence:.94,fallbackUsed:false}};
+  }
   if(detectTowerStuck(observation.recentHeights)){const direction:TowerAction['move']=observation.tick%2===0?1:-1;return{action:action(direction,{jump:observation.player.grounded,dash:!observation.player.grounded&&observation.player.dashCooldown===0}),intent:{mode:'recovering',summary:'Breaking a repeated height cycle',confidence:.82,fallbackUsed:true}}}
   let target=currentPlatform(observation,state.ai.targetPlatformId);if(observation.player.grounded){target=nextTowerPlatform(observation,state.config,observation.player.groundedPlatformId)}else if(!target)target=nextTowerPlatform(observation,state.config,observation.player.groundedPlatformId);
   if(!target)return{action:action(),intent:{mode:'waiting',summary:'Waiting for a valid route node',confidence:.6,fallbackUsed:false}};
