@@ -77,6 +77,9 @@ test('the real event creates a separated 3D bronze passage with bounded resource
     assert.ok(left.position.x < -3 && right.position.x > 3,
       'genuine floor advance must drive a large, visible mechanical opening');
     assert.equal(effect.diagnostics().sourceTick, next.tick);
+    assert.deepEqual(effect.diagnostics().anchorPosition, [anchor.x, anchor.y, anchor.z],
+      'full-motion provenance reports the exact observed cap center and elevation');
+    assert.deepEqual(effect.diagnostics().focusPosition, [anchor.x, anchor.y + 2.6, anchor.z]);
     assert.equal(effect.diagnostics().floor, next.floor);
     assert.ok(effect.cameraWeight() > 0 && effect.cameraWeight() < 1);
     let meshCount = 0;
