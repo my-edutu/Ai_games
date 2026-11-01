@@ -9,18 +9,18 @@
   },
   "candidate": {
     "sha": null,
-    "title": "Unassessed genuine 3D play source: budgeted 3D skyline + timed guardian anticipation",
-    "implementationSha": "61c2a19b354ec6975685ff03b1e9a097121cb7c3",
-    "implementationEvidenceStatus": "GAME SOURCE COMMITTED; 5-biome low-tier 3D skyline, graded skinned guardian charge, 3D hazard/framing and opt-in sound. Latest 60s candidate video not verified, critic votes 0/5, supported device metrics absent."
+    "title": "Unassessed real gameplay: source-driven guardian anticipation, skinned combat and physically opening bronze floor seal",
+    "implementationSha": "1c2742a7cc92188d4378d8ed125523e66da9d72a",
+    "implementationEvidenceStatus": "SUBSTANTIAL ACTUAL 3D GAME SOURCE COMMITTED; full-health locked 3D guardian seal parts in response to genuine HP damage; original opt-in hit/release audio grounded in authoritative guardian state and real floor transition. Current-source 60s matched six-video comparison and hardware tail evidence NOT verified. Blind independent critics 0/5 for each pillar."
   },
   "currentTransformation": {
-    "title": "Transform the real autonomous climb into a legible, cinematic, responsive expedition",
-    "state": "LOW-TIER CINEMATIC COMPOSITION + SOURCE-TIMED GUARDIAN ENCOUNTER VERTICAL SLICE COMMITTED; GAMEPLAY EXPERIENCE NOT EVALUATED",
-    "promise": "One coherent climb: monumental original 3D environments, grounded grip-to-landing motion, tactical visible decisions, understandable guardian danger and opt-in terrain-aware spatial sound, with a minimal in-game HUD.",
-    "nextDecision": "Inspect gameplay-source 61c2a19b matched normal-speed desktop/portrait action if evidence workflow 41333042597 completes, including boss charge/blocked route, three canyon layers and simplified distant citadel depth. The CI run 41333042615 failed 1/693 due a stale pre-encounter 20.5% actor-framing ceiling; the 24% updated bound and new guardian pose/framing test are committed after this source but not yet fully verified. Frozen-baseline outcome video still lacks visible full terminal/intermission/restart. Required before quality grading: >=60-second complete paired footage per scene, five independent randomized blind 4/5 preference votes EACH looks/feels/plays, supported-device p50/p95/p99+memory, replay/accessibility/stability, no P0/P1.",
-    "rejectedMicroMilestones": "A green CI run, an isolated pose fix, a prettier screenshot or an extra UI icon never counts as a Gauntlet win.",
-    "biggestRemainingExperienceGap": "Unverified motion perception and device responsiveness during authentic guardian danger and a full run cycle. Older WebGL software renderer shows very long candidate submission tails; lower-detail far-field and stronger source-timed combat choreography are real source changes but have not been shown superior at normal speed. Frozen baseline terminal observation and independent judgments remain missing.",
-    "unverifiedImplementationBranchHead": "0fe6c5dbc127e8541f5fafecfcdcbd57924f2867"
+    "title": "Transform the real autonomous climb into a cinematic, physically legible 3D ascent→guardian→gate-release→restart experience",
+    "state": "SOURCE-BOUND 3D GUARDIAN-GATE PROGRESSION COHESIVELY ADDED TO THE SAME EXPEDITION SLICE; EXPERIENCE NOT EVALUATED",
+    "promise": "A comprehensible live climb: monumental original biomes, weighted ledge contact, adaptive AI danger decisions, physically observed guardian health/telegraph and a visible in-world floor seal, all without HUD overload.",
+    "nextDecision": "Inspect NEW genuine source-pinned 960x600/390x844 60+ second normal-speed clips for gameplay source 1c2742a7 at capture workflow 41338137780, especially actual guardian-HP-driven door movement before the authority's instantaneous last-hit floor transfer. Complete six matched baseline/candidate ascent/danger/outcome clips including frozen baseline visible result→intermission→restart; perform five independent fresh-context randomized blind reviews of actual full motion on LOOKS, FEELS and PLAYS (>=4/5 candidate each), real-device p50/p95/p99 and memory, replay/accessibility/recovery. Current head full CI safety workflow not yet verified; historical eaac77f safety run had 3/699 failures (one cap-geometry regression + two negative-zero assertions), addressed in followup source and tests, not yet claimed PASS.",
+    "rejectedMicroMilestones": "Unit tests, CI green checks, commits, screenshots, model mockups and engineering self-reviews are never a Gauntlet quality win.",
+    "biggestRemainingExperienceGap": "Unverified in-motion visibility and narrative causality of the real guardian fight and its physical bronze gate under an immediate authoritative floor handoff; unresolved frozen-baseline visible terminal cycle; potential low-tier rendering tail regressions, no supported-device presented frame measurements, and 0 genuine blind critics on every pillar.",
+    "unverifiedImplementationBranchHead": "a5eb8ee6c0814fa160687aca63fb6bf8acfaa4fd"
   },
   "scenarios": [
     {
@@ -60,11 +60,11 @@
     "plays": []
   },
   "guardrails": {
-    "ci": "pending: CI 41333042615 failed 1/693 due earlier scene-scale test requiring <=20.5% hero; updated bound in ef2b9f9 and added guardian tests in 0fe6c5d; newest quality workflow pending; no full guardrail PASS",
-    "replay": "pending: no verified new source replay campaign after guardian and world changes (authority source unchanged)",
-    "accessibility": "pending: new mobile, reduced-motion and muted presentation not yet verified in browser against current source",
-    "performance": "pending: structural low-tier trim tested in source, but native hardware p50/p95/p99, GPU-presented frames and memory unmeasured",
-    "stability": "pending: new world tier-switch/restart/graphics-restore stability requires full execution evidence"
+    "ci": "pending: latest quality workflow on source 1c2742a and later test fixes not yet complete; eaac77f historical run 41337445987 failed 3/699 and was addressed by isolated gate scene hierarchy and negative-zero correction; structural safety is not visual acceptance",
+    "replay": "pending: no current-source replay campaign verified; authoritative rules and historical-v1 untouched, but all source integrity must be checked",
+    "accessibility": "pending: source keeps reduced-motion and opt-in audio semantics; current real mobile/browser visual, muted and reduced-motion accessibility still unverified",
+    "performance": "pending: gate adds bounded geometry without shadows; real hardware presented p50/p95/p99/frame memory and old software rendering tail comparison still unmeasured",
+    "stability": "pending: current-source tier-switch, floor rebuild, terminal/restart and WebGL context recovery still require verified run logs and real browser inspection"
   },
   "unresolvedCriticalIssues": null,
   "benchmark": {
@@ -78,7 +78,7 @@
     "workflowRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41323028658",
     "sourceSha": "471dfea0e2e9e58cdcea648b4bae4d09917ca98a",
     "assessed": "NOT EVALUATED",
-    "scope": "Earlier 471dfea source has scoped 60s ascent/danger footage for baseline+candidate and candidate outcome; frozen-baseline outcome missing complete visible terminal/intermission/restart. Current 61c2a19 implementation source has no validated 6/6 matched capture and no real-device metrics. Upload job status != blind quality acceptance.",
+    "scope": "Historical capture 471dfea preserved. Current guardian-gate actual-game implementation 1c2742a has no reviewed complete 6/6 matched normal-speed ascent, guardian and outcome footage. Normal-speed CI Chromium capture is not independent criticism or supported-device FPS. Frozen-baseline terminal result visible for only one tick may remain unrecorded. Do not edit the frozen baseline, fabricate final result footage, or claim win.",
     "jobs": {
       "ascent": {
         "baseline": {
@@ -111,10 +111,10 @@
         }
       }
     },
-    "newImplementationSha": "61c2a19b354ec6975685ff03b1e9a097121cb7c3",
+    "newImplementationSha": "1c2742a7cc92188d4378d8ed125523e66da9d72a",
     "newImplementationRecorded": false,
-    "reviewPath": "docs/reviews/2026-11-01-tower-pr68-guardian-cinematic-budget-continuation.md",
-    "followupWorkflowRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41333042597",
-    "followupStatus": "in_progress at latest inspection; source-pinned candidate full-motion authenticity and matched baseline outcome unresolved"
+    "reviewPath": "docs/reviews/2026-11-01-tower-pr68-guardian-seal-progression-continuation.md",
+    "followupWorkflowRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41338137780",
+    "followupStatus": "PENDING at latest inspection: source-pinned gameplay c1c2742a... capture workflow. Prior 5/6 scoped video integrity on 61c2a19 candidate, but frozen-baseline outcome not visibly complete, no blind vote or supported-device evaluation."
   }
 }
