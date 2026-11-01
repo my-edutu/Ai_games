@@ -1,0 +1,107 @@
+name: Tower Guardian Canopy Evidence
+on:
+  push:
+    branches: [codex/infinite-tower-climb-3d-gauntlet]
+    paths:
+      - public/infinite-tower-climb/visuals/scene.mjs
+      - public/infinite-tower-climb/visuals/characters.mjs
+      - public/infinite-tower-climb/visuals/world.mjs
+      - tests/phase3/tower-character-rig.test.cjs
+      - tests/phase3/tower-encounter-composition.test.cjs
+      - tests/browser/tower-guardian-canopy.spec.cjs
+      - .github/workflows/tower-guardian-canopy-evidence.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: tower-guardian-canopy
+  cancel-in-progress: false
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - name: Prove both guardian regressions fail on the actual previous source
+        run: |
+          cp public/infinite-tower-climb/visuals/scene.mjs "$RUNNER_TEMP/current-scene.mjs"
+          cp public/infinite-tower-climb/visuals/characters.mjs "$RUNNER_TEMP/current-cast.mjs"
+          git show 2fcee9509cfde36e39067692b5ebdde1363c8f07:public/infinite-tower-climb/visuals/scene.mjs > public/infinite-tower-climb/visuals/scene.mjs
+          git show 2fcee9509cfde36e39067692b5ebdde1363c8f07:public/infinite-tower-climb/visuals/characters.mjs > public/infinite-tower-climb/visuals/characters.mjs
+          set +e
+          node --test --test-name-pattern='active guardian has|guardian crouches' tests/phase3/tower-encounter-composition.test.cjs tests/phase3/tower-character-rig.test.cjs > "$RUNNER_TEMP/guardian-red.log" 2>&1
+          status=$?
+          set -e
+          cat "$RUNNER_TEMP/guardian-red.log"
+          if [ "$status" -eq 0 ]; then echo 'Regression unexpectedly passed on previous source' >&2; exit 1; fi
+          grep -q 'not ok.*active guardian has' "$RUNNER_TEMP/guardian-red.log"
+          grep -q 'not ok.*guardian crouches' "$RUNNER_TEMP/guardian-red.log"
+          cp "$RUNNER_TEMP/current-scene.mjs" public/infinite-tower-climb/visuals/scene.mjs
+          cp "$RUNNER_TEMP/current-cast.mjs" public/infinite-tower-climb/visuals/characters.mjs
+      - name: Focused regressions must now pass on the candidate
+        run: node --test --test-name-pattern='active guardian has|guardian crouches' tests/phase3/tower-encounter-composition.test.cjs tests/phase3/tower-character-rig.test.cjs
+      - name: Prove actual cap-sightline regression fails on the unchanged Gauntlet 19 renderer
+        run: |
+          cp public/infinite-tower-climb/visuals/world.mjs "$RUNNER_TEMP/current-world.mjs"
+          cp public/infinite-tower-climb/visuals/scene.mjs "$RUNNER_TEMP/current-scene-sight.mjs"
+          git show 374e8ece9874d96b964832b7ecb83c093dfdfb47:public/infinite-tower-climb/visuals/world.mjs > public/infinite-tower-climb/visuals/world.mjs
+          git show 374e8ece9874d96b964832b7ecb83c093dfdfb47:public/infinite-tower-climb/visuals/scene.mjs > public/infinite-tower-climb/visuals/scene.mjs
+          set +e
+          node --test --test-name-pattern='guardian cap sightline' tests/phase3/tower-encounter-composition.test.cjs > "$RUNNER_TEMP/sightline-red.log" 2>&1
+          status=$?
+          set -e
+          cat "$RUNNER_TEMP/sightline-red.log"
+          test "$status" -ne 0
+          grep -q 'not ok.*guardian cap sightline' "$RUNNER_TEMP/sightline-red.log"
+          cp "$RUNNER_TEMP/current-world.mjs" public/infinite-tower-climb/visuals/world.mjs
+          cp "$RUNNER_TEMP/current-scene-sight.mjs" public/infinite-tower-climb/visuals/scene.mjs
+      - name: Cap-sightline regression must pass on this source
+        run: node --test --test-name-pattern='guardian cap sightline' tests/phase3/tower-encounter-composition.test.cjs
+      - name: Prove desktop crown contour fails on the exact Gauntlet 20 source
+        run: |
+          cp public/infinite-tower-climb/visuals/scene.mjs "$RUNNER_TEMP/crown-current-scene.mjs"
+          git show fd6d035a516b7d435bdaab6d41d6ad4da29f319f:public/infinite-tower-climb/visuals/scene.mjs > public/infinite-tower-climb/visuals/scene.mjs
+          set +e
+          node --test --test-name-pattern='guardian crown contour' tests/phase3/tower-encounter-composition.test.cjs > "$RUNNER_TEMP/crown-red.log" 2>&1
+          status=$?
+          set -e
+          cat "$RUNNER_TEMP/crown-red.log"
+          test "$status" -ne 0
+          grep -q 'not ok.*guardian crown contour' "$RUNNER_TEMP/crown-red.log"
+          cp "$RUNNER_TEMP/crown-current-scene.mjs" public/infinite-tower-climb/visuals/scene.mjs
+      - name: Desktop crown contour must pass on candidate source
+        run: node --test --test-name-pattern='guardian crown contour' tests/phase3/tower-encounter-composition.test.cjs
+      - name: All affected cast, scene and world geometry cases
+        run: node --test tests/phase3/tower-character-rig.test.cjs tests/phase3/tower-encounter-composition.test.cjs tests/phase3/tower-world-geometry.test.cjs
+      - run: npx playwright install --with-deps chromium
+      - name: Retrieve exact before-pose source
+        run: |
+          git show 374e8ece9874d96b964832b7ecb83c093dfdfb47:public/infinite-tower-climb/visuals/scene.mjs > "$RUNNER_TEMP/guardian-before-scene.mjs"
+          git show 374e8ece9874d96b964832b7ecb83c093dfdfb47:public/infinite-tower-climb/visuals/characters.mjs > "$RUNNER_TEMP/guardian-before-cast.mjs"
+          git show 374e8ece9874d96b964832b7ecb83c093dfdfb47:public/infinite-tower-climb/visuals/world.mjs > "$RUNNER_TEMP/guardian-before-world.mjs"
+          mkdir -p artifacts/tower-guardian-canopy
+          git rev-parse HEAD > artifacts/tower-guardian-canopy/source-sha.txt
+          sha256sum public/infinite-tower-climb/visuals/{scene,characters,world}.mjs "$RUNNER_TEMP"/guardian-before-{scene,cast,world}.mjs > artifacts/tower-guardian-canopy/source-hashes.txt
+      - name: Capture authentic previous guardian silhouette
+        run: |
+          TOWER_GUARDIAN_BASELINE_SCENE="$RUNNER_TEMP/guardian-before-scene.mjs" TOWER_GUARDIAN_BASELINE_CAST="$RUNNER_TEMP/guardian-before-cast.mjs" TOWER_GUARDIAN_BASELINE_WORLD="$RUNNER_TEMP/guardian-before-world.mjs" npx playwright test --config=playwright.tower.config.cjs tests/browser/tower-guardian-canopy.spec.cjs
+      - name: Capture authentic new guardian silhouette
+        if: always()
+        run: npx playwright test --config=playwright.tower.config.cjs tests/browser/tower-guardian-canopy.spec.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tower-guardian-canopy
+          path: |
+            artifacts/tower-guardian-canopy/
+            test-results/
+          retention-days: 7

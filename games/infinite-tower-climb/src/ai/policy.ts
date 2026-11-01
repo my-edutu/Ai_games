@@ -12,6 +12,25 @@ export function chooseTowerAction(state:TowerState,observation:TowerObservation)
   if(observation.upgradeOffers.length){const selected=chooseTowerUpgrade(state);return{action:action(0,{upgradeChoice:selected?.id}),intent:{mode:'choosing-upgrade',summary:selected?`Selecting ${selected.name}`:'Waiting for a valid upgrade',confidence:1,fallbackUsed:false}}}
   const projectile=incomingProjectile(observation);if(projectile){const away=moveSign(observation.player.position.x-projectile.position.x);return{action:action(away,{jump:observation.player.grounded,dash:!observation.player.grounded&&observation.player.dashCooldown===0}),intent:{mode:'evading-projectile',summary:'Evading an incoming projectile',confidence:.98,fallbackUsed:false}}}
   const hazard=immediateHazard(observation);if(hazard){const center=hazard.x+hazard.width/2,away:TowerAction['move']=center>=observation.player.position.x?-1:1;return{action:action(away,{jump:observation.player.grounded}),intent:{mode:'evading-hazard',summary:`Avoiding ${hazard.kind}`,confidence:.96,fallbackUsed:false}}}
+  // The cap exit is deliberately locked while its guardian lives. Do not treat
+  // standing on that cap as the end of the route: the guardian patrols the
+  // penultimate deck and must be defeated by ordinary, range-checked combat.
+  const cap=observation.platforms.find(p=>p.id===`f${observation.floor}:cap`);
+  const guardian=observation.enemies.find(e=>e.active&&e.kind==='guardian');
+  if(cap&&guardian&&observation.player.grounded&&observation.player.groundedPlatformId===cap.id){
+    const verticalReach=state.player.halfHeight+guardian.halfHeight+10000;
+    const reach=state.config.attackReach+state.build.attackReachBonus;
+    const safeLeft=cap.x+state.player.halfWidth,safeRight=cap.x+cap.width-state.player.halfWidth;
+    if(Math.abs(guardian.position.y-observation.player.position.y)<=verticalReach
+      &&guardian.position.x>=safeLeft-reach&&guardian.position.x<=safeRight+reach){
+      const dx=guardian.position.x-observation.player.position.x;
+      const facing:TowerAction['move']=dx>=0?1:-1;
+      const inReach=Math.abs(dx)<=reach-4000;
+      const move:TowerAction['move']=inReach?(observation.player.facing===facing?0:facing):facing;
+      return{action:action(move,{attack:inReach&&observation.player.attackCooldown===0}),
+        intent:{mode:'engaging-enemy',summary:inReach?'Fighting the guardian at the gate':'Closing on the guardian at the gate',confidence:.96,fallbackUsed:false}};
+    }
+  }
   const enemy=nearbyEnemy(observation,state.config.attackReach+state.build.attackReachBonus);if(enemy){const facing=moveSign(enemy.position.x-observation.player.position.x);return{action:action(facing,{attack:observation.player.attackCooldown===0}),intent:{mode:'engaging-enemy',summary:`Engaging ${enemy.kind}`,confidence:.94,fallbackUsed:false}}}
   if(detectTowerStuck(observation.recentHeights)){const direction:TowerAction['move']=observation.tick%2===0?1:-1;return{action:action(direction,{jump:observation.player.grounded,dash:!observation.player.grounded&&observation.player.dashCooldown===0}),intent:{mode:'recovering',summary:'Breaking a repeated height cycle',confidence:.82,fallbackUsed:true}}}
   let target=currentPlatform(observation,state.ai.targetPlatformId);if(observation.player.grounded){target=nextTowerPlatform(observation,state.config,observation.player.groundedPlatformId)}else if(!target)target=nextTowerPlatform(observation,state.config,observation.player.groundedPlatformId);

@@ -6,7 +6,7 @@ This monorepo builds a catalogue of autonomous games for uninterrupted YouTube a
 
 1. Autonomous Snake
 2. AI Maze Escape
-3. Infinite Tower Climb
+3. [Infinite Tower Climb](games/infinite-tower-climb/README.md)
 4. AI vs 1,000 Floors
 5. AI Civilization / Tiny Kingdom
 6. AI Battle Royale

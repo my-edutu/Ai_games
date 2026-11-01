@@ -1,0 +1,177 @@
+{
+  "capturedAt": "2026-10-31T04:02:59.144Z",
+  "recordedAt": "2026-10-31T04:11:58.938108+00:00",
+  "method": "Actual WebGL output from unmodified authoritative snapshots. Independent phone pages use default low quality; desktop Foundry and strike use high quality, desktop Ruins explicitly uses low. Static and stepped-pose evidence only.",
+  "sourceHashes": {
+    "app.js": "38a86d7dc15f12d5a0a0d2cbca418cba6b8e1ea54ad850a3ecefe015c0f66a98",
+    "index.html": "debd569b9449c2a50f426f87f58c4dc389ef72ddbfa135d32ad4509fb19ab0ad",
+    "styles.css": "8ee5f83179658c8c212d84f9044c7b4a4feb97536f5171299a56a88b567115bc",
+    "ux-v2.css": "3ea2a081cfe6f9908aa7ce5b0bdfcaf9bf0697583005c3eaa0e3d2c6b4c31514",
+    "visuals/hud.mjs": "7009cc473f7e3f77fb87618aed3a791cb61c3dbbf1b5f0c9c8b009b819de5153",
+    "visuals/scene.mjs": "e90c2d01220708c662331eb26caeb4485b363b91fceb7121dae2bdc537cd1ae3",
+    "visuals/world.mjs": "baf4997425bfa251e86267a63e1dca20af3ec3c5ffeb98bfb0f9d9429f452e5f",
+    "visuals/characters.mjs": "fa157cca5e4c73f39e61dbe7b69f64a2aa7044b259b70c05b3a3ffbf75fe0d84",
+    "visuals/world-surface.mjs": "2d211239b251f124eb3beba8f185149ee85ac756318b881b10f9cc2c372e8158"
+  },
+  "sourceStable": true,
+  "browserErrors": [],
+  "captures": [
+    {
+      "label": "foundry-follow",
+      "tick": 118,
+      "floor": 0,
+      "theme": "foundry",
+      "publicChecksum": "d280d5e2",
+      "width": 960,
+      "height": 600,
+      "capture": "14-foundry-follow.webp",
+      "quality": "high",
+      "renderErrors": 0,
+      "sourceBatch": "appearance-v3-tail-b",
+      "submittedFrames": 25
+    },
+    {
+      "label": "ruins-airborne-phone",
+      "tick": 379,
+      "floor": 1,
+      "theme": "ruins",
+      "publicChecksum": "cdb269d8",
+      "width": 390,
+      "height": 844,
+      "capture": "14-leftward-jump-phone.webp",
+      "quality": "low",
+      "renderErrors": 0,
+      "sourceBatch": "appearance-v3",
+      "submittedFrames": 26
+    },
+    {
+      "label": "rightward-airborne-phone",
+      "tick": 234,
+      "floor": 0,
+      "theme": "foundry",
+      "publicChecksum": "7a87ca02",
+      "width": 390,
+      "height": 844,
+      "capture": "14-rightward-jump-phone.webp",
+      "quality": "low",
+      "renderErrors": 0,
+      "sourceBatch": "appearance-v3",
+      "submittedFrames": 28
+    },
+    {
+      "label": "guardian-proximity-phone",
+      "tick": 272,
+      "floor": 8,
+      "theme": "clockwork",
+      "publicChecksum": "ad028578",
+      "width": 390,
+      "height": 844,
+      "capture": "14-guardian-phone.webp",
+      "quality": "low",
+      "renderErrors": 0,
+      "sourceBatch": "appearance-v3-tail-a",
+      "submittedFrames": 24
+    },
+    {
+      "label": "sentinel-strike",
+      "tick": 119,
+      "floor": 0,
+      "theme": "foundry",
+      "publicChecksum": "c0dda845",
+      "width": 960,
+      "height": 600,
+      "capture": "14-strike-100ms.webp",
+      "quality": "high",
+      "renderErrors": 0,
+      "sourceBatch": "appearance-v3-tail-a",
+      "submittedFrames": 11,
+      "probeMethod": "Actual tick118 to tick119 attack edge, followed by 1 renderer callbacks. Scene delta cap500ms; model delta cap100ms; recorded callback intervals determine sampled pose age. Held-pose inspection only, not live-motion evidence.",
+      "steppedCallbacks": 1,
+      "sampledFrameIntervals": [
+        {
+          "time": 4158,
+          "deltaMs": 243.30000000000018,
+          "modelDeltaMs": 100,
+          "manual": true
+        }
+      ]
+    },
+    {
+      "label": "ruins-airborne-low",
+      "tick": 379,
+      "floor": 1,
+      "theme": "ruins",
+      "publicChecksum": "cdb269d8",
+      "width": 960,
+      "height": 600,
+      "capture": "14-ruins-desktop-low.webp",
+      "quality": "low",
+      "renderErrors": 0,
+      "sourceBatch": "appearance-v3-tail-b",
+      "submittedFrames": 26
+    }
+  ],
+  "reviews": {
+    "hud": {
+      "accepted": "Caption/upgrade separation, combined known danger/recovery, stable accessible setting names and bounded independent feedback.",
+      "blindResult": "New candidate preferred; identity disclosed after locked verdict.",
+      "limits": "Short landscape proves card readability, not an unobstructed moving protagonist."
+    },
+    "scene": {
+      "blindPair": {
+        "A": "previous revision",
+        "B": "current candidate"
+      },
+      "preferred": "B",
+      "predictedDirection": "up-left, matching actual tick379 intention f1:p3",
+      "directionConfidence": 0.52,
+      "exactLandingConfidence": 0.35,
+      "accepted": "More readable phone direction and depth.",
+      "remaining": "Competing lower deck reduces exact-landing certainty; upper cap still crowds guardian crown.",
+      "desktopAddendum": "Source-known final desktop Foundry high and Ruins low show no immediate blocking composition regression. Foundry hero/sentinel fully visible; Ruins keeps a competing lower landing and wide hero-target separation."
+    },
+    "cast": {
+      "blindPair": {
+        "A": "current candidate",
+        "B": "previous revision"
+      },
+      "preferred": "A",
+      "preferenceConfidence": 0.8,
+      "accepted": [
+        "Separated raised hand in both phone jump directions",
+        "Actual 100ms forward-jab silhouette in desktop sample",
+        "Guardian hammer head/shaft/grip separation"
+      ],
+      "limits": [
+        "No normal-speed motion or impact synchronization approval",
+        "No phone strike or complete cast-coverage approval"
+      ]
+    },
+    "code": {
+      "blockers": 0,
+      "checks": "8 frozen snapshots, 144 finite camera poses, 4 reused target-marker updates and 4 lifecycle cases passed."
+    }
+  },
+  "validation": {
+    "build": "passed",
+    "hostSelfTest": "passed",
+    "hudBrowser": "7/7 passed",
+    "towerLogical": "129/129 passed; zero failures or skips",
+    "webglAndStreamBrowser": "12/12 passed in5.1min; one worker",
+    "logicalDurationMs": 134859.853651,
+    "browserTotal": "19/19 across two nonoverlapping invocations:7 HUD layout/accessibility and12 real WebGL/stream cases",
+    "strongRecovery": "Repeated real context loss with intervening floor changes, preserved preferences, advancing submissions and zero final GL errors passed.",
+    "diffCheck": "passed"
+  },
+  "preservedFailures": [
+    "The previous high-quality desktop Ruins screenshot timed out; the new low-quality image does not turn that into a high-quality pass.",
+    "The first final capture process disappeared after saving two of six images. Those images and stable hashes were retained; two separate tail batches completed the other four and closed owned resources.",
+    "An initial final browser-harness launch could not bind port4186 under the restricted executor. No test ran in that attempt; the local-server-enabled run is recorded separately."
+  ],
+  "remaining": [
+    "Commercial reference remains ahead overall.",
+    "Exact landing priority and guardian crown composition need further refinement.",
+    "No normal-speed moving-play, hardware-FPS or leak-free pass."
+  ],
+  "reference": "https://gmedia.playstation.com/is/content/SIEPDC/global_pdc/en/games/pdps/a/as/astro-bot/dlc/video/astro-bot-dlc-05-rising-heat-en-29oct24.mp4"
+}

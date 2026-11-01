@@ -1,0 +1,39 @@
+name: Tower Realism Evidence
+on:
+  push:
+    branches: [codex/infinite-tower-climb-3d-gauntlet]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: tower-realism-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - name: Prepare reproducible review inputs (not a pass verdict)
+        run: |
+          mkdir -p /tmp/tower-review
+          git rev-parse HEAD > /tmp/tower-review/source-sha.txt
+          git archive HEAD | tar -x -C /tmp/tower-review
+          cp -a node_modules /tmp/tower-review/
+          tar -czf /tmp/tower-review.tar.gz -C /tmp/tower-review .
+      - uses: actions/upload-artifact@v4
+        with:
+          name: tower-review-inputs-${{ github.sha }}
+          path: /tmp/tower-review.tar.gz
+          retention-days: 1
+      - name: Build and logical tests
+        run: npm test
+      - name: Tower host contract
+        run: node scripts/serve-tower-stream.cjs --self-test

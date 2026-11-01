@@ -1,0 +1,99 @@
+{
+  "capturedAt": "2026-10-31T03:40:35.515Z",
+  "method": "Actual browser output from unmodified public snapshots held for appearance comparison; the renderer runs. Portrait opens independently at its default low quality. No motion or frame-rate pass is implied. Guardian uses an explicit launchFloor=8 scenario.",
+  "sourceHashes": {
+    "app.js": "38a86d7dc15f12d5a0a0d2cbca418cba6b8e1ea54ad850a3ecefe015c0f66a98",
+    "index.html": "debd569b9449c2a50f426f87f58c4dc389ef72ddbfa135d32ad4509fb19ab0ad",
+    "styles.css": "8ee5f83179658c8c212d84f9044c7b4a4feb97536f5171299a56a88b567115bc",
+    "ux-v2.css": "3ea2a081cfe6f9908aa7ce5b0bdfcaf9bf0697583005c3eaa0e3d2c6b4c31514",
+    "visuals/hud.mjs": "7009cc473f7e3f77fb87618aed3a791cb61c3dbbf1b5f0c9c8b009b819de5153",
+    "visuals/scene.mjs": "eb2a205f31b9b1775f22d38ddf63bda1f1448936fd106146125af2e4585a90a1",
+    "visuals/world.mjs": "baf4997425bfa251e86267a63e1dca20af3ec3c5ffeb98bfb0f9d9429f452e5f",
+    "visuals/characters.mjs": "913e488c66afe4704a4a7b8016f9115655f943dd2d91a01f074a0aaa763c3782",
+    "visuals/world-surface.mjs": "2d211239b251f124eb3beba8f185149ee85ac756318b881b10f9cc2c372e8158"
+  },
+  "sourceStable": true,
+  "browserErrors": [],
+  "captures": [
+    {
+      "label": "foundry-follow",
+      "tick": 118,
+      "quality": "high",
+      "failure": null,
+      "probeMethod": null
+    },
+    {
+      "label": "foundry-phone",
+      "tick": 118,
+      "quality": "low",
+      "failure": null,
+      "probeMethod": null
+    },
+    {
+      "label": "ruins-airborne",
+      "tick": 379,
+      "quality": null,
+      "failure": "TimeoutError: page.screenshot: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - taking page screenshot\u001b[22m\n\u001b[2m  - waiting for fonts to load...\u001b[22m\n\u001b[2m  - fonts loaded\u001b[22m\n",
+      "probeMethod": null
+    },
+    {
+      "label": "ruins-airborne-phone",
+      "tick": 379,
+      "quality": "low",
+      "failure": null,
+      "probeMethod": null
+    },
+    {
+      "label": "guardian-proximity",
+      "tick": 272,
+      "quality": "high",
+      "failure": null,
+      "probeMethod": null
+    },
+    {
+      "label": "guardian-proximity-phone",
+      "tick": 272,
+      "quality": "low",
+      "failure": null,
+      "probeMethod": null
+    },
+    {
+      "label": "upgrade-phone",
+      "tick": 219,
+      "quality": "low",
+      "failure": null,
+      "probeMethod": null
+    },
+    {
+      "label": "upgrade-landscape",
+      "tick": 219,
+      "quality": "low",
+      "failure": null,
+      "probeMethod": null
+    },
+    {
+      "label": "retained-delay-phone",
+      "tick": 272,
+      "quality": "low",
+      "failure": null,
+      "probeMethod": "Renderer callbacks paused after real pixels were submitted; network polling and true render-progress timeout continue. This verifies retained-delay layout, not a spontaneous driver stall."
+    },
+    {
+      "label": "details-phone",
+      "tick": 118,
+      "quality": "low",
+      "failure": null,
+      "probeMethod": null
+    },
+    {
+      "label": "sentinel-strike-peak",
+      "tick": 119,
+      "quality": "high",
+      "failure": null,
+      "probeMethod": "Actual tick118 to tick119 attack edge, followed by 2 renderer callbacks (scene delta cap500ms; model delta cap100ms each); callbacks held for pose inspection. This is a stepped pose, not live-motion evidence."
+    }
+  ],
+  "verified": "Caption and known-danger recovery layouts pass7 real browser cases; actual nearby guardian face is visible. Health fill and held maul are clearer.",
+  "remaining": "Unaided review still misreads the actual leftward airborne destination; mint target cue matches permanent moving-platform trim. Visible rising-arm silhouette remains weak from the real oblique camera. Desktop high-quality Ruins screenshot timed out; no smooth-motion pass.",
+  "timingCorrection": "Timing correction: the harness originally described a50ms model cap. Actual scene dt is capped at500ms and character animation at100ms. A held callback therefore samples up to100ms; two held callbacks sample up to200ms, within strike recovery rather than peak. The historic sentinel-strike-peak filename is misleading and is not a peak-pose pass. Source hashes and image pixels are unchanged."
+}

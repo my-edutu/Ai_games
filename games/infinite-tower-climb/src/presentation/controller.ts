@@ -6,7 +6,29 @@ export interface TowerPresentationFrame{scene:'normal'|'danger'|'upgrade'|'guard
 export class TowerPresentationController{
   private latest:Readonly<TowerRenderSnapshot>|null=null;private replay:Readonly<TowerRenderSnapshot>[]=[];private failed=false;private failureReason='';private readonly replayCapacity:number;private readonly maxEntities:number;private readonly audio:TowerAudioDirector;private readonly camera=new TowerCameraDirector();private audioFrame:TowerAudioFrame={muted:false,voices:[],captions:[],musicState:'calm'};
   constructor(options:{replayCapacity?:number;maxEntities?:number;muted?:boolean}={}){this.replayCapacity=options.replayCapacity??300;this.maxEntities=options.maxEntities??1024;this.audio=new TowerAudioDirector({muted:options.muted,maxVoices:6})}
-  accept(snapshot:Readonly<TowerRenderSnapshot>,events:TowerEvent[]){const count=snapshot.platforms.length+snapshot.hazards.length+snapshot.enemies.length+snapshot.projectiles.length+snapshot.pickups.length;if(count>this.maxEntities)return{accepted:false,reason:'entity-capacity'};if(this.latest){if(snapshot.runToken===this.latest.runToken&&snapshot.revision<this.latest.revision)return{accepted:false,reason:'stale-revision'};if(snapshot.runToken===this.latest.runToken&&snapshot.revision===this.latest.revision){if(snapshot.publicChecksum!==this.latest.publicChecksum)return{accepted:false,reason:'divergent-revision'};this.audioFrame=this.audio.consume(events,{danger:snapshot.dangerPermille,guardian:snapshot.enemies.some(e=>e.active&&e.kind==='guardian'),result:!!snapshot.result});return{accepted:true,reason:'duplicate'}}if(snapshot.runToken!==this.latest.runToken&&snapshot.tick!==0)return{accepted:false,reason:'invalid-run-boundary'}}this.latest=snapshot;this.replay.push(snapshot);if(this.replay.length>this.replayCapacity)this.replay.splice(0,this.replay.length-this.replayCapacity);this.audioFrame=this.audio.consume(events,{danger:snapshot.dangerPermille,guardian:snapshot.enemies.some(e=>e.active&&e.kind==='guardian'),result:!!snapshot.result});return{accepted:true,reason:'current'}}
+  accept(snapshot:Readonly<TowerRenderSnapshot>,events:TowerEvent[]){
+    const count=snapshot.platforms.length+snapshot.hazards.length+snapshot.enemies.length+snapshot.projectiles.length+snapshot.pickups.length;
+    if(count>this.maxEntities)return{accepted:false,reason:'entity-capacity'};
+    const audioContext={danger:snapshot.dangerPermille,guardian:snapshot.enemies.some(e=>e.active&&e.kind==='guardian'),result:!!snapshot.result};
+    if(this.latest){
+      const sameRun=snapshot.runToken===this.latest.runToken;
+      if(sameRun&&snapshot.revision<this.latest.revision)return{accepted:false,reason:'stale-revision'};
+      if(sameRun&&snapshot.revision===this.latest.revision){
+        if(snapshot.publicChecksum!==this.latest.publicChecksum)return{accepted:false,reason:'divergent-revision'};
+        this.audioFrame=this.audio.consume(events,audioContext);
+        return{accepted:true,reason:'duplicate'};
+      }
+      if(!sameRun){
+        if(snapshot.tick!==0)return{accepted:false,reason:'invalid-run-boundary'};
+        this.audio.reset();
+      }
+    }
+    this.latest=snapshot;
+    this.replay.push(snapshot);
+    if(this.replay.length>this.replayCapacity)this.replay.splice(0,this.replay.length-this.replayCapacity);
+    this.audioFrame=this.audio.consume(events,audioContext);
+    return{accepted:true,reason:'current'};
+  }
   failOutput(reason:string){this.failed=true;this.failureReason=reason}
   rebuildFromLatest(){const recovered=!!this.latest;if(recovered){this.failed=false;this.failureReason=''}return{recovered}}
   replayWindow(limit=120){return this.replay.slice(-Math.max(0,Math.min(limit,this.replayCapacity)))}

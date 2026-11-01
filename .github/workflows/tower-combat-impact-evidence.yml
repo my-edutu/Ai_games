@@ -1,0 +1,43 @@
+name: Tower Combat Impact Evidence
+on:
+  push:
+    branches: [codex/infinite-tower-climb-3d-gauntlet]
+    paths:
+      - public/infinite-tower-climb/visuals/scene.mjs
+      - tests/phase3/tower-health-bars.test.cjs
+      - tests/phase3/tower-guardian-contact-framing.test.cjs
+      - tests/browser/tower-combat-impact.spec.cjs
+      - .github/workflows/tower-combat-impact-evidence.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: tower-combat-impact
+  cancel-in-progress: false
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - name: Focused low-quality hit/regression contract
+        run: node --test tests/phase3/tower-health-bars.test.cjs tests/phase3/tower-guardian-contact-framing.test.cjs
+      - run: npx playwright install --with-deps chromium
+      - name: Capture real same-run guardian damage before and after
+        run: npx playwright test --config=playwright.tower.config.cjs tests/browser/tower-combat-impact.spec.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tower-combat-impact-${{ github.sha }}
+          path: |
+            artifacts/tower-combat-impact/
+            test-results/
+          retention-days: 7

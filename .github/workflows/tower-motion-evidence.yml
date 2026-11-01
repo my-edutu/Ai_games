@@ -1,0 +1,60 @@
+name: Tower Continuous Motion Evidence
+on:
+  push:
+    branches: [codex/infinite-tower-climb-3d-gauntlet]
+    paths:
+      - .github/workflows/tower-motion-evidence.yml
+      - scripts/tower-motion-evidence.cjs
+      - tests/phase3/tower-motion-evidence.test.cjs
+      - tests/browser/tower-live-motion.spec.cjs
+      - scripts/serve-tower-stream.cjs
+      - games/infinite-tower-climb/src/**
+      - public/infinite-tower-climb/**
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: tower-motion-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - scenario: climb
+            floor: 0
+          - scenario: guardian
+            floor: 8
+    env:
+      TOWER_LAUNCH_FLOOR: ${{ matrix.floor }}
+      TOWER_MOTION_SCENARIO: ${{ matrix.scenario }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - name: Verify the capture assessor rejects frozen evidence
+        run: node --test tests/phase3/tower-motion-evidence.test.cjs
+      - run: npx playwright install --with-deps chromium
+      - name: Record actual continuous browser output at normal speed
+        run: |
+          mkdir -p artifacts/tower-motion
+          git rev-parse HEAD > artifacts/tower-motion/source-sha.txt
+          node --check tests/browser/tower-live-motion.spec.cjs
+          npx playwright test --config=playwright.tower.config.cjs tests/browser/tower-live-motion.spec.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tower-motion-${{ matrix.scenario }}-${{ github.sha }}
+          path: |
+            artifacts/tower-motion/
+            test-results/
+          retention-days: 7
