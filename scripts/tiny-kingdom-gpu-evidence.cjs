@@ -44,6 +44,9 @@ const path = require('node:path');
       return {contexts,metrics:window.__tinyKingdom.metrics(),webglVerified:contexts.some(x=>x.webgl)};
     });
 
+    // G105: record actual scenery triangle submissions, not just total generated meshes.
+    // This is a camera/workload-specific software-WebGL observation, not hardware FPS.
+    evidence.scenicVisibility=await page.evaluate(()=>window.__tinyKingdom.getScenicVisibilityStats());
     evidence.materials=await page.evaluate(()=>window.__tinyKingdom.getMaterialSystem());
     evidence.materialVertexAttribute=await page.evaluate(()=>{
       const gl=document.getElementById('world').getContext('webgl');
