@@ -38,6 +38,7 @@ test('G093 worker poses express different real occupations without rewriting the
   const farmB=g.getOccupationalPerformance(farmer);
   const woodB=g.getOccupationalPerformance(forester);
   return {farmA,woodA,farmB,woodB,readOnly:before===afterInspect,
+   sitesA:actors,sitesB:g.getActiveWorksites(),
    remaining:g.getActiveWorksites().length};
  });
  expect(staged.failure||'').toBe('');
@@ -53,6 +54,14 @@ test('G093 worker poses express different real occupations without rewriting the
  expect(staged.woodA.focus).toHaveLength(2);
  expect(staged.farmB.beat).not.toBe(staged.farmA.beat);
  expect(staged.woodB.beat).not.toBe(staged.woodA.beat);
+ // Visible prop impacts must use the SAME real actor rhythm as the body,
+ // not a separate decorative work-progress sine clock.
+ for(const actor of [staged.farmA,staged.woodA]){
+  const site=staged.sitesA.find(w=>w.citizen===actor.citizen);
+  expect(site).toBeTruthy();
+  expect(site.impact).toBeCloseTo(actor.beat,10);
+ }
+ expect(staged.sitesB.some(w=>w.impact>0&&w.impact<=1)).toBe(true);
 
  const entered=await page.evaluate(()=>{
   const g=window.__tinyKingdom;
