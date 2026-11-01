@@ -65,15 +65,15 @@ test('sound plan rejects invalid, out-of-order, reduced-trust events and never r
  assert.deepEqual(a,planSoundCues(snap(9),snap(11,{events:[{kind:'defeat',tick:11},{kind:'telegraph',tick:11}]})));
  assert.equal(a[0].kind,'defeat','terminal cue gets priority');
  const source=fs.readFileSync(file,'utf8');
- assert.doesNotMatch(source,/Math\\.random|Date\\.|performance\\.now|AudioContext|fetch\\(/);
+ for(const forbidden of ['Math.random','Date.','performance.now','AudioContext','fetch('])assert.ok(!source.includes(forbidden),forbidden);
 });
 test('live 3D viewer loads original soundstage behind explicit opt-in and routes semantic combat',()=>{
  const app=fs.readFileSync(path.join(root,'public/ai-dungeon/app.js'),'utf8');
  const server=fs.readFileSync(path.join(root,'scripts/serve-dungeon-stream.cjs'),'utf8');
- assert.match(app,/import \\{createDungeonSoundstage\\} from '\\/dungeon\\/soundstage\\.js'/);
- assert.match(app,/soundstage\\?\\.acceptSnapshot\\(s\\)/);
- assert.match(app,/soundstage\\?\\.stats\\(\\)/);
- assert.match(app,/soundstage\\.enable\\(\\)/);
+ assert.ok(app.includes("import {createDungeonSoundstage} from '/dungeon/soundstage.js'"));
+ assert.ok(app.includes('soundstage?.acceptSnapshot(s)'));
+ assert.ok(app.includes('soundstage?.stats()'));
+ assert.ok(app.includes('soundstage.enable()'));
  assert.ok(server.includes("['/dungeon/soundstage.js','soundstage.js']"));
  assert.ok(server.includes("['/dungeon/soundstage-plan.js','soundstage-plan.js']"));
 });
