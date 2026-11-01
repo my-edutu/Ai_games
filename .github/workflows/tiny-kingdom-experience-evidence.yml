@@ -19,6 +19,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+          # Use the exact PR HEAD, not GitHub's ephemeral synthetic merge ref.
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           # The G088 baseline must be inspected from its pinned exact source.
           fetch-depth: 0
       - uses: actions/setup-node@v4
