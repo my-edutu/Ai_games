@@ -73,5 +73,5 @@ test('real Three.js capstone batch maps every cap to its parent exposed face and
  assert.match(env,/if\(capMatrixWrites\)columnCapMesh\.instanceMatrix\.needsUpdate=true/);
  assert.match(env,/clearedCapstones:/);
  assert.match(env,/columnCapstones:/);
- assert.match(env,/capstone:capMatrixWrites/);
+ assert.match(env,/sceneMetrics\.matrixWrites\.capstone=capMatrixWrites/);
 });
