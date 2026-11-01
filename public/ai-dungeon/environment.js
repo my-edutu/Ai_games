@@ -260,7 +260,8 @@ export function enrichEnvironment(world,map,floor){
  const totalDecor=floorDetails.length+wallFaces.length+columnCap.length+mossPatches.length+runeInlays.length+rubble.length+pillarsCount+bannersCount+ruins;
  // Same 3D visibility policy as the base walls: rich wall cladding must not hide the AI.
  const facadeBands=createCutawayBandCache(wallFaces.length);
- const capBands=createCutawayBandCache(columnCap.length);
+ // Instanced caps begin intact, so band zero already matches their GPU matrices.
+ const capBands=new Uint8Array(columnCap.length);
  const sceneMetrics={clearedForeground:0,clearedWeatheredPieces:0,clearedCapstones:0,matrixWrites:{facade:0,weathered:0,capstone:0}};
  const matrix=new THREE.Matrix4(),p=new THREE.Vector3(),q=new THREE.Quaternion(),scale=new THREE.Vector3();
  const yAxis=new THREE.Vector3(0,1,0),blockedFaces=new Uint8Array(wallFaces.length);
