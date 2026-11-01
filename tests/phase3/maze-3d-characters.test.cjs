@@ -293,6 +293,10 @@ test('Thornback opens physical paired shell halves only during a true disclosed 
     const heart=warden.group.getObjectByName('opened guardian signal heart');
     assert.ok(heart?.isGroup, 'guardian has a connected physical inner-heart, not a screen overlay');
     assert.equal(heart.visible,false,'no unobserved guardian glow reveals a hidden enemy');
+    assert.ok(heart.children.some(part=>part.geometry?.type==='ExtrudeGeometry'),
+      'the public warning is sculpted as a physical non-circular spine, not a collectible halo');
+    assert.equal(heart.children.filter(part=>part.geometry?.type==='TorusGeometry').length,0,
+      'the rejected circular ring cannot return as a false pickup cue');
     const sides=[-1,1].map(side=>({
       side, wing:warden.group.getObjectByName(`flared elytron ${side}`),
       lining:warden.group.getObjectByName(`exposed elytron lining ${side}`),
@@ -331,6 +335,7 @@ test('Thornback opens physical paired shell halves only during a true disclosed 
       }
       warden.update({heading:0,attentionStrength:0,reducedMotion,time:2,delta:.05});
       assert.equal(heart.visible,false,'withdrawn public threat cannot retain a secret luminous marker');
+      assert.equal(heart.rotation.y,0,'neutral threat withdrawal resets to positive-zero pose');
       for (const entry of sides) {
         assert.equal(entry.wing.rotation.z,0,'unseen threat closes the shell with no stale position');
         assert.equal(entry.wing.rotation.y,0);
@@ -342,6 +347,7 @@ test('Thornback opens physical paired shell halves only during a true disclosed 
         warden.update({heading:0,attentionHeading:Math.PI/2,attentionStrength:1,
           danger:1,result,reducedMotion,time:3,delta:.05});
         assert.equal(heart.visible,false,'real terminal truth cancels cosmetic encounter cues');
+        assert.equal(heart.rotation.y,0,'terminal states cannot retain signed-zero or an earlier gaze sweep');
         for (const entry of sides) {
           assert.equal(entry.wing.rotation.z,0,'terminal truth outranks shell threat pose');
           assert.equal(entry.wing.rotation.x,0);
