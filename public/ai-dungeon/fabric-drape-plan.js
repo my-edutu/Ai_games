@@ -38,6 +38,24 @@ export const DRAPE_ROWS=8,DRAPE_COLUMNS=6;
 export function planDrapePanels(kind){
  return typeof kind==='string'&&Object.hasOwn(RECIPE,kind)?RECIPE[kind]:EMPTY;
 }
+/**
+ * Cache the exact sampled cloth pose without freezing any moving silhouette.
+ * Transient actions settle to the SAME rest geometry after their longest
+ * panel/swing envelope; reduced-motion and unknown actions are also at rest.
+ * For idle/move the existing bounded render age stays part of the key.
+ * This is purely a GPU-upload decision; it is never gameplay state.
+ */
+export function drapePoseKey(action,elapsed=0,reducedMotion=false){
+ if(reducedMotion)return 'rest';
+ const t=Number.isFinite(elapsed)?Math.max(0,Math.min(60,elapsed)):0;
+ if(action==='attack'&&t>=.62)return 'rest';
+ if(action==='cast'&&t>=.68)return 'rest';
+ if(action==='hurt'&&t>=.42)return 'rest';
+ if(action==='guard'&&t>=.48)return 'rest';
+ if(!['idle','move','attack','cast','hurt','guard'].includes(action))return 'rest';
+ return action+':'+t;
+}
+
 export function planDrapeSwing(action,elapsed=0,reducedMotion=false){
  if(reducedMotion)return STILL;
  const t=Number.isFinite(elapsed)?Math.max(0,Math.min(60,elapsed)):0;
