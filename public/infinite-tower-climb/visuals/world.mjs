@@ -144,6 +144,42 @@ export function createVistaLayerGeometry(THREE, biome, layer, height) {
   return geometry;
 }
 
+// Flagship Ruins set piece: an actual hollow stone cloister, NOT a painted
+// portal decal or a collider. A cloister opening stays open in depth; the
+// broken outer silhouette and fluted reveals make the robot feel smaller.
+// Used at three unequal scales / heights around the existing authored tower.
+export function createRuinsSanctuaryArchGeometry(THREE) {
+  const wall = new THREE.Shape();
+  wall.moveTo(-4.05, -.12);
+  wall.lineTo(4.05, -.12);
+  wall.lineTo(4.25, 3.1);
+  wall.lineTo(4.14, 9.2);
+  wall.lineTo(3.95, 12.1);
+  wall.lineTo(2.95, 13.05);
+  wall.lineTo(1.15, 13.35);
+  wall.lineTo(-1.72, 13.16);
+  wall.lineTo(-3.82, 12.28);
+  wall.lineTo(-4.18, 8.6);
+  wall.closePath();
+  const opening = new THREE.Path();
+  opening.moveTo(-2.52, .58);
+  opening.lineTo(2.52, .58);
+  opening.lineTo(2.52, 7.55);
+  // Tapered medieval arch with a steep summit, rather than a round doorway.
+  for (let step = 1; step <= 12; step++) {
+    const f = step / 12, a = Math.PI * f;
+    opening.lineTo(2.52 * Math.cos(a), 7.55 + 3.52 * Math.sin(a));
+  }
+  opening.closePath();
+  wall.holes.push(opening);
+  const geometry = new THREE.ExtrudeGeometry(wall, {
+    depth: 1.02, steps: 1, bevelEnabled: true,
+    bevelSegments: 2, bevelSize: .11, bevelThickness: .12, curveSegments: 12,
+  });
+  geometry.translate(0, 0, -.51);
+  return geometry;
+}
+
 /** A bounded, floor-owned Three.js environment. The host owns lights, fog and camera. */
 export function createTowerWorld(){
   const group=new THREE.Group();group.name='InfiniteTowerWorld';
@@ -152,6 +188,7 @@ export function createTowerWorld(){
   let materials={}, floorGeometries=new Set(),floorMaterials=new Set();
   const primitives=new Map(),platforms=new Map(),hazards=new Map(),rotors=[],floaters=[];
   let particles=null,vistaGroup=null,quality='normal',occludedGuardianCaps=0,ruinsPortalVoussoirs=0,ruinsGateLeaves=0;
+  let ruinsSanctuaryArches=0,ruinsSanctuaryPlants=0,ruinsSanctuaryCascadePanels=0;
   const canopyRay = new THREE.Raycaster(), canopyDirection = new THREE.Vector3();
   function geometry(name,build){if(!primitives.has(name))primitives.set(name,build());return primitives.get(name);}
   const box=()=>geometry('box',()=>new THREE.BoxGeometry(1,1,1));
@@ -466,7 +503,111 @@ export function createTowerWorld(){
     for(const x of [-1.8,0,1.8])casting(service,materials.ceramic,[x,.05,.68],[1.35,2.7,.14]);
     casting(service,materials.copper,[0,-1.75,.68],[5.4,.18,.16]);
   }
+  // A cohesive hero environment rather than incremental portal decoration:
+  // three monumental, hollow chambers at distinct elevations, carved veins,
+  // hanging terraces and a cool cascade. All are presentation-only, behind the
+  // authoritative 22.4..27.18 platform corridor. The real route stays legible.
+  function buildRuinsSanctuary(height) {
+    const stone = geometry('ruins-cloister-open-sanctuary', () => createRuinsSanctuaryArchGeometry(THREE));
+    const arcade = [
+      { angle: -.58, radius: 20.42, y: 4.6, scale: 1.08 },
+      { angle: -.29, radius: 20.25, y: 25.0, scale: .90 },
+      { angle: .52, radius: 20.20, y: -3.5, scale: .97 },
+    ];
+    const roots=[],leaves=[];
+    function plantWorld(bay,x,y,z){
+      const c=Math.cos(bay.angle),s=Math.sin(bay.angle);
+      return [s*(bay.radius+z)+c*x, bay.y+y, c*(bay.radius+z)-s*x];
+    }
+    for (const [index, bay] of arcade.entries()) {
+      const root = new THREE.Group();
+      radial(root, bay.angle, bay.radius, bay.y);
+      root.name = 'ruins-grand-sanctuary-bay';
+      floorGroup.add(root);
+      const s = bay.scale;
+      const facade = mesh(root, stone, materials.sanctuaryStone, [0,0,0], [s,s,1]);
+      facade.userData.ambientDetail=true;
+      // Two deep recessed intrados bands follow the same arch curve. These
+      // create true directional depth when seen at 3/4 camera angles.
+      const ribs=[];
+      for(let step=0;step<=18;step++) {
+        const a=Math.PI*step/18;
+        ribs.push(new THREE.Vector3(Math.cos(a)*2.55*s,(7.55+Math.sin(a)*3.58)*s,.72));
+      }
+      const frame=mesh(root,own(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(ribs),32,.09*s,6,false)),materials.gateTrim);
+      frame.userData.ambientDetail=true;
+      // Recessed, non-emissive relief remains subordinate to the real landing
+      // indicator. The apertures themselves are truly open in the main mesh.
+      for(const x of [-3.42,3.42]) {
+        const pier=mesh(root,rounded(),materials.sanctuaryStone,[x*s,2.25*s,.65],[.38*s,4.6*s,.4]);
+        pier.userData.ambientDetail=true;
+        for(const level of [.45,1.3,2.15,3.0]) {
+          const groove=mesh(root,bevel(),materials.gateTrim,[x*s,level*s,.89],[.26*s,.035*s,.065]);
+          groove.userData.ambientDetail=true;
+        }
+      }
+      const keystone=mesh(root,chipped(index),materials.sanctuaryStone,[0,11.28*s,.66],[1.35*s,1.25*s,.46]);
+      keystone.userData.ambientDetail=true;
+      // Broken suspended capstones and actual weight-bearing corbels establish
+      // scale without adding fictional traversable floors.
+      for(const x of [-3.6,3.6]) {
+        const crown=mesh(root,fracturedMass(index%3),materials.sanctuaryStone,
+          [x*s,12.62*s,-.05],[1.2*s,1.9*s,1.2]);
+        crown.userData.ambientDetail=true;
+        const bracket=mesh(root,corbel(),materials.sanctuaryStone,
+          [x*s,9.68*s,.09],[.7*s,.8*s,.75]);
+        bracket.userData.ambientDetail=true;
+      }
+      // Every garden is tied to a ledge or a cracked crown, not floating
+      // evenly distributed particles. Instance counts/draws are bounded.
+      for(let strand=0;strand<7;strand++) {
+        const x=(-3.45+strand*1.12)*s;
+        const top=(11.85+noise(index*19+strand)*1.0)*s;
+        for(let step=0;step<9;step++) {
+          const y=top-step*.73*s;
+          const drift=Math.sin(step*.8+strand*2+index)*.2*s;
+          roots.push({p:plantWorld(bay,x+drift,y,.74),r:[0,bay.angle,0],s:[.056*s,.85*s,.07]});
+          for(const side of [-1,1]) {
+            const leaf={p:plantWorld(bay,x+drift+side*.30*s,y+.11*s,.8),s:[.49*s,.19*s,.32*s],
+              r:[0,bay.angle,side*(.4+noise(step+strand*4)*.2)]};
+            leaves.push(leaf);
+          }
+        }
+      }
+      ruinsSanctuaryArches++;
+    }
+    ruinsSanctuaryPlants=leaves.length;
+    // The cliff is wet and inhabitable: two subdued, sculpted streams emerge
+    // from the broken aqueduct shoulder. No new colliders, shadows, or lights.
+    // Not a glowing path cue: the cascade is physically behind the gameplay.
+    for (const [i,a] of [-.86,-.74].entries()) {
+      const root=new THREE.Group();radial(root,a,20.36,11-i*4);floorGroup.add(root);
+      root.name='ruins-sanctuary-cascade';
+      const width=i===0?1.7:.92, tall=i===0?20:15;
+      const water=own(new THREE.PlaneGeometry(width,tall,6,38));
+      const coords=water.attributes.position;
+      for(let k=0;k<coords.count;k++){
+        const x=coords.getX(k), y=coords.getY(k);
+        coords.setZ(k,.14*Math.sin(y*.7+i*2)+.09*Math.sin(y*1.9+x*2+i));
+      }
+      coords.needsUpdate=true;water.computeVertexNormals();
+      const sheet=mesh(root,water,materials.sanctuaryWater,[0,-tall*.48,.75]);
+      sheet.userData.ambientDetail=true;
+      ruinsSanctuaryCascadePanels++;
+    }
+    // An asymmetrical aqueduct terminates at the cascade rather than being a
+    // decorative floating wall. Heavy stones are deep behind the route.
+    const bridge=new THREE.Group();radial(bridge,-.80,19.15,21.7);floorGroup.add(bridge);
+    bridge.name='ruins-sanctuary-broken-aqueduct';
+    for(const [x,w] of [[-3.1,3.2],[1.25,2.3]]){
+      const part=mesh(bridge,fracturedMass(Math.round(x+7)%3),materials.sanctuaryStone,
+        [x,0,-.1],[w,1.25,2.2]);part.userData.ambientDetail=true;
+    }
+    return {roots,leaves};
+  }
+
   function buildRuins(height){
+    const sanctuary=buildRuinsSanctuary(height);
     const portal=arch(floorGroup,.02,7,1.9);portal.position.z-=2.3;
     // The broken aqueduct shoulder and hanging gardens occupy the two sides;
     // the dark portal remains a quiet, readable background to the moving hero.
@@ -474,7 +615,7 @@ export function createTowerWorld(){
     block(broken,materials.stone,[0,0,-.9],[8.8,2.6,4.5]).userData.structural=true;
     for(const x of [-3.5,2.7])block(broken,materials.edge,[x,-4.2,-.9],[1.9,9,3.8]);
     mesh(broken,fracturedMass(1),materials.stone,[2.9,3,-1.1],[3.6,6,4]);
-    const roots=[],leaves=[];
+    const roots=[...sanctuary.roots],leaves=[...sanctuary.leaves];
     for(let v=0;v<10;v++){
       const a=v<6?-.95+v*.075:.63+(v-6)*.08,top=v<6?height+7:28;
       for(let i=0;i<25;i++){
@@ -731,6 +872,7 @@ export function createTowerWorld(){
     if(floorGroup){group.remove(floorGroup);floorGroup.traverse(o=>{if(o.isInstancedMesh)o.dispose();});}
     for(const g of floorGeometries)g.dispose();for(const m of floorMaterials)m.dispose();
     floorGeometries.clear();floorMaterials.clear();platforms.clear();hazards.clear();rotors.length=0;floaters.length=0;particles=null;vistaGroup=null;floorGroup=null;occludedGuardianCaps=0;ruinsPortalVoussoirs=0;ruinsGateLeaves=0;
+    ruinsSanctuaryArches=0;ruinsSanctuaryPlants=0;ruinsSanctuaryCascadePanels=0;
   }
   function rebuild(snapshot){
     clearFloor();theme=THEMES[snapshot.theme]?snapshot.theme:'foundry';const p=PALETTES[theme];
@@ -741,11 +883,14 @@ export function createTowerWorld(){
       glow:mat(p.glow,.1,.4,{emissive:p.glow,emissiveIntensity:.85}),mint:mat(0xb6ffdc,.1,.35,{emissive:0x63e4ad,emissiveIntensity:.7}),warning:mat(0xf2ad4e,.3,.62),
       fire:mat(0xffa835,0,.5,{emissive:0xff7021,emissiveIntensity:1.5}),hot:mat(0xffe7a3,0,.5,{emissive:0xffb83c,emissiveIntensity:1}),electric:mat(0xc6f8ff,0,.3,{emissive:0x83dfff,emissiveIntensity:1.2}),
       bark:mat(0x5b6b4b,0,1),foliage:mat(0x698e58,0,.94),crystal:mat(0xb5a0ec,.45,.23,{emissive:0x7758ae,emissiveIntensity:.35}),
+      sanctuaryStone:theme==='ruins'?applyStoneSurface(mat(0xb5a890,.025,.86),stoneSurface,{scale:.1,strength:.54,relief:.014}):null,
+      sanctuaryWater:theme==='ruins'?mat(0x79b9ac,.04,.33,{transparent:true,opacity:.75,depthWrite:false,side:THREE.DoubleSide}):null,
       distant:null,cloud:mat(THEMES[theme].fog,0,1,{transparent:true,opacity:.075,depthWrite:false}),particle:mat(p.glow,0,1,{emissive:p.glow,emissiveIntensity:1})};
     // The remote buildings retain directional form through the haze instead
     // of becoming a single flat silhouette cutout at every depth.
     materials.distant=mat(new THREE.Color(THEMES[theme].sky).lerp(new THREE.Color(THEMES[theme].fog),.23).multiplyScalar(.5),.03,.95);
     if(theme==='ruins'){materials.gate.name='ruins-gate-leaves';materials.gateTrim.name='ruins-gate-relief';}
+    if(theme==='ruins')materials.sanctuaryStone.name='ruins-sanctuary-stone';
     materials.distant.name='distant-atmosphere';
     materials.cloud.name='ambient-clouds';materials.particle.name='ambient-particles';
     materials.cloud.onBeforeCompile=shader=>{shader.fragmentShader=shader.fragmentShader.replace('#include <opaque_fragment>','diffuseColor.a *= pow(max(0.0, dot(normal, normalize(vViewPosition))), 1.4);\n#include <opaque_fragment>');};
@@ -804,7 +949,7 @@ export function createTowerWorld(){
     }
     occludedGuardianCaps=faded;
   }
-  function diagnostics(){let objects=0,meshes=0,instances=0,shadowCasterMeshes=0,triangles=0;group.traverse(o=>{objects++;if(o.isMesh){meshes++;if(o.castShadow)shadowCasterMeshes++;triangles+=(o.geometry.index?o.geometry.index.count:o.geometry.attributes.position.count)/3*(o.isInstancedMesh?o.count:1);}if(o.isInstancedMesh)instances+=o.count;});return{objects,meshes,instances,shadowCasterMeshes,triangles,geometries:floorGeometries.size+primitives.size,materials:floorMaterials.size,platforms:platforms.size,hazards:hazards.size,ambientParticles:particles?.visible?48:0,floor:lastSnapshot?.floor??null,theme,quality,disposed,occludedGuardianCaps,ruinsPortalVoussoirs,ruinsGateLeaves,vistaLayers:vistaGroup?3:0,vistaTriangles:vistaGroup?.children.reduce((sum,mesh)=>sum+mesh.geometry.attributes.position.count/3,0)??0,surfaceTexture:stoneSurface.diagnostics(),platformTransforms:[...platforms.entries()].map(([id,e])=>({id,...e.root.userData.authority,angle:e.root.rotation.y,yWorld:e.root.position.y}))};}
+  function diagnostics(){let objects=0,meshes=0,instances=0,shadowCasterMeshes=0,triangles=0;group.traverse(o=>{objects++;if(o.isMesh){meshes++;if(o.castShadow)shadowCasterMeshes++;triangles+=(o.geometry.index?o.geometry.index.count:o.geometry.attributes.position.count)/3*(o.isInstancedMesh?o.count:1);}if(o.isInstancedMesh)instances+=o.count;});return{objects,meshes,instances,shadowCasterMeshes,triangles,geometries:floorGeometries.size+primitives.size,materials:floorMaterials.size,platforms:platforms.size,hazards:hazards.size,ambientParticles:particles?.visible?48:0,floor:lastSnapshot?.floor??null,theme,quality,disposed,occludedGuardianCaps,ruinsPortalVoussoirs,ruinsGateLeaves,ruinsSanctuaryArches,ruinsSanctuaryPlants,ruinsSanctuaryCascadePanels,vistaLayers:vistaGroup?3:0,vistaTriangles:vistaGroup?.children.reduce((sum,mesh)=>sum+mesh.geometry.attributes.position.count/3,0)??0,surfaceTexture:stoneSurface.diagnostics(),platformTransforms:[...platforms.entries()].map(([id,e])=>({id,...e.root.userData.authority,angle:e.root.rotation.y,yWorld:e.root.position.y}))};}
   function dispose(){if(disposed)return;clearFloor();for(const g of primitives.values())g.dispose();primitives.clear();stoneSurface.dispose();group.clear();lastSnapshot=null;disposed=true;}
   return{group,update,revealGuardianSightlines,dispose,diagnostics};
 }
