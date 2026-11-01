@@ -2193,18 +2193,20 @@
         "feelsMajority": false,
         "playsMajority": false
       },
-      "safetyChecks": "Candidate 2a17f785 exact-head validation workflows 41324358534, 41324358514 and visual review 41324358562 queued/in progress when implementation was committed. No green or experiential claim until jobs complete.",
+      "safetyChecks": "Before the new optical candidate, exact-head GitHub Actions 41325342595: authority and two browser shards PASS, third shard 21/22 with REAL WebGL hero projected height 61px against >90px; full CI 41325342609 CANCELLED, separate visual review 41325342574 PASS. Candidate cb455328 automated suite 41329794154, visual 41329794092 and full CI 41329794086 were QUEUED when checked; never claim green/experience verified without results.",
       "matchedExternalReference": "NOT_RUN",
       "originalAudioMotionClip": "PENDING_EXACT_HEAD_CHROMIUM_CAPTURE",
       "soundstageBrowser": "PENDING_EXACT_HEAD_CHROMIUM_RUN",
       "audioLoudnessAndClipping": "NOT_MEASURED",
       "originalAudioSource": "Synthesized WebAudio oscillators; no external music samples or runtime network dependencies",
-      "visualSceneReference": "Locked unchanged: https://github.com/my-edutu/Ai_games/actions/runs/41302939553/artifacts/13081734898"
+      "visualSceneReference": "Locked unchanged: https://github.com/my-edutu/Ai_games/actions/runs/41302939553/artifacts/13081734898",
+      "actualWebglFramingRegression": "PREVIOUS_REAL_BROWSER_FAILED_61PX_VS_90PX_CANDIDATE_UNVERIFIED",
+      "latestCandidateWorkflow": "https://github.com/my-edutu/Ai_games/actions/runs/41329794154"
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
-    "biggestRemainingGap": "Even with the new camera and threat choreography, game quality versus Diablo IV is UNVERIFIED: inspected genuine baseline/earlier browser frames still show toy-scale characters, crowded hits and repeated dark blocky masonry. The original character and dungeon asset quality, organic gameplay video, mobile audio/motion, performance and >=3 blind independent judges remain unverified.",
-    "currentWork": "M1 continues: original cinematic director frames real hero-to-target contact at body scale, widens for the Warden's actual marked strike, and charges the boss rig only during authoritative warnings. Bounded instanced geometry outlines the real threatened cells. Await actual desktop/mobile WebGL motion, audio and independent critic review before accepting experience improvements.",
-    "candidateCommit": "2a17f7859b1e9fc3e2999edd33cf7e187cc698cb",
+    "biggestRemainingGap": "Last real exact-head browser capture at f8c08ed exposed a reproducible 61-pixel visible hero at 1440x900 versus a required >90-pixel frame: the autonomous characters still shrink to miniature scale. New optical staging attacks that symptom across authentic combat/travel and danger, but no actual AFTER raster has been inspected yet. Organic desktop/mobile motion+audible journey, substantive imported anatomy/material realism, matched locked BEFORE/AFTER and three blind judges are outstanding.",
+    "currentWork": "Active M1: the actual autonomous expedition now feeds an original seven-shot optical director. Real travel, target contact, Warden approach, threatened floor and descent choose bounded 3D focal height, camera distance, field of view, follow response and existing protagonist key illumination. Faraway party members no longer force a second all-party camera zoom after scene selection. Browser reality and critic preference are NOT yet verified for the new candidate.",
+    "candidateCommit": "cb4553280a438233c23cd2ba29df33ffd4ef9b27",
     "candidateArtifactUrl": null,
     "acceptedAt": null,
     "implementationEvents": [
@@ -2364,6 +2366,29 @@
         "evidence": "Exact-head Dungeon 41324358534, full CI 41324358514 and browser review 41324358562 queued/in progress. No matched candidate imagery scored, organic long gameplay/audio, or independent blind panel.",
         "experienceVerdict": "IN_PROGRESS / NOT TRANSFORMED",
         "next": "Inspect fresh desktop/mobile 3D captures and real motion/audio vs locked 281735d. Reject clipping or occlusion, transform original character anatomy and world materials, and acquire organic complete adventure reel and 3+ blind critics."
+      },
+      {
+        "id": "M1-EXPERIENTIAL-ACTOR-SCALE-LENS-20261101",
+        "date": "2026-11-01",
+        "status": "IMPLEMENTED_UNVERIFIED",
+        "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+        "sourceHeadAtStart": "f8c08ed39b22a1bbe24cf0195348cd7021b959d3",
+        "codeCommit": "cb4553280a438233c23cd2ba29df33ffd4ef9b27",
+        "objective": "Turn the visually miniature autonomous expedition into a coherent chapter-scale camera journey, staging genuine travel, melee contact and live three-phase Warden warning with large screen-readable actors on desktop and mobile. Keep the real authority and original 3D assets intact.",
+        "code": [
+          "public/ai-dungeon/cinematic-chapter-plan.js",
+          "public/ai-dungeon/app.js",
+          "tests/foundation/dungeon-cinematic-chapter.test.cjs",
+          "tests/browser/dungeon-warden-patterns.spec.cjs"
+        ],
+        "previousExactHeadBrowser": "https://github.com/my-edutu/Ai_games/actions/runs/41325342595",
+        "previousActualCapture": "https://github.com/my-edutu/Ai_games/actions/runs/41325342595/artifacts/13090533924",
+        "previousVerifiedFail": "Actual 1440x900 browser projection: minHeroPixels 61, threshold >90. Not a screenshot-timeout or CI-only cleanliness issue.",
+        "integratedImplementation": "Seven original focal-lens regimes based exclusively on public encounter mode: proximity and side-quarter subjects decide camera distance/FOV/aim, actual impending Warden attack widens and speeds camera, mobile warnings reveal greater floor, existing actor key light tracks composition, no doubled zoom for detached party allies, reduced motion keeps immediate and bounded camera.",
+        "testState": "New focused tests and source/browser checks committed. Exact-head candidate actions 41329794154, 41329794092, 41329794086 queued at reporting, no pass or screenshot inspected for candidate.",
+        "safety": "Read-only presentation; no new external asset/licensing or shadow/draw pass; no gameplay, RNG, grid, save/checksum or audience-event change.",
+        "experienceVerdict": "IN_PROGRESS / NOT TRANSFORMED; AFTER LOOKS/FEELS/PLAYS UNVERIFIED; 3 independent workers unavailable (workspace tunnel disconnected)",
+        "next": "Inspect actual current 1440x900 and 390x844 WebGL 3D captures, compare actor projected pixels and obscured boss warning to pinned 281735d baseline with matched seed, repair any framing regressions, then integrate higher-fidelity hero/anatomy/material quality plus authentic continuous organic boss/floor/restart audiovisual reel and >=3 blind critics."
       }
     ]
   }
