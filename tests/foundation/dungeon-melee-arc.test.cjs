@@ -56,7 +56,9 @@ test('real WebGL director stages and animates contact arcs without altering auth
  const host=fs.readFileSync(path.join(root,'scripts/serve-dungeon-stream.cjs'),'utf8');
  assert.match(src,/import \{canStageMeleeArc,planMeleeArcFrame,MELEE_ARC_DURATION\}/);
  assert.match(src,/canStageMeleeArc\(kind,action,source,target\)/);
- assert.match(src,/planMeleeArcFrame\(effect\.source,effect\.target,effect\.life,reducedMotion\)/);
+ assert.match(src,/planMeleeArcFrame\(source,target,life,reducedMotion\)/);
+ assert.match(src,/stagedArcFrame\(effect\.source,effect\.target,effect\.from,effect\.to,effect\.life,reducedMotion\)/);
+ assert.match(src,/from:stagePoint\(stagePositions,u\)/,'contact positions must originate from real same-snapshot actors');
  assert.match(src,/activeMeleeArcs:/);
  assert.match(src,/totalMeleeArcs:/);
  assert.ok(host.includes("['/dungeon/melee-arc-plan.js','melee-arc-plan.js']"));
