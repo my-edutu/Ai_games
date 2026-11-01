@@ -349,3 +349,19 @@ test('disclosed guardian detail framing shares the real screen without inventing
   assert.ok(weight(4,'detail',false,1280/900)<=.5,
     'invalid excess strength must be clamped rather than moving beyond the observed midpoint');
 });
+
+
+test('native Detail keeps both disclosed actors in the prior verified horizontal world span after HUD compaction', async () => {
+  const { publicDetailEncounterHalfHeight } = await load();
+  const reference = publicDetailEncounterHalfHeight(.75, .56);
+  assert.equal(reference, 5.7, 'the verified original 390x520 actor-pair view stays unchanged');
+  const tallerAspect = 390 / 576;
+  const taller = publicDetailEncounterHalfHeight(tallerAspect, .56);
+  assert.ok(taller > 6.30 && taller < 6.32, 'a taller stage restores the former horizontal world span');
+  assert.ok(taller * tallerAspect >= reference * .75 - 1e-12);
+  assert.equal(publicDetailEncounterHalfHeight(.8, .56), 5.7, 'normal portrait detail retains its prior scale');
+  assert.equal(publicDetailEncounterHalfHeight(tallerAspect, 0), 4.6, 'no public guardian cannot create threat framing');
+  assert.equal(publicDetailEncounterHalfHeight(tallerAspect, NaN), 4.6, 'invalid attention cannot invent a visible threat');
+  assert.equal(publicDetailEncounterHalfHeight(1280 / 900, .56), 4.6, 'desktop Detail is unchanged');
+  assert.equal(publicDetailEncounterHalfHeight(-1, .56), 4.6, 'invalid viewport aspect stays neutral');
+});
