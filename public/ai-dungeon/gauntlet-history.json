@@ -1587,6 +1587,58 @@
       },
       "nextLargestGap": "Eight observed foreground rAF intervals still include 2.37-second tail stalls, and actual video has near-black cold startup at four seconds; prove 30-60min genuine spectator freshness + GPU p95/p99/context-loss and profile expensive scene passes before attempting to regain sharpness. Then high-detail original hero/enemy anatomy, planted-feet weapon contact and organic masonry.",
       "artifactUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41267520952/artifacts/13068371432"
+    },
+    {
+      "round": 49,
+      "at": "2026-11-01",
+      "commit": "9b3000ffc2d3fa9fa55b083a02a51c62885aafac",
+      "status": "CUTAWAY GPU INSTANCE TRANSFORM CACHE COMMITTED WITH UNIT + GENUINE BROWSER REGRESSION TESTS; FINAL CODE TESTS AND BROWSER SCREENSHOTS PENDING; RED CI RUN CANCELED BEFORE AN OBSERVED FAILURE; ART BAR NOT MET",
+      "sampleSeeds": 0,
+      "ticksPerSeed": 0,
+      "highestFloor": "NOT VERIFIED",
+      "determinismFailures": "NOT VERIFIED",
+      "visualVerdict": "No new before/after WebGL screenshots or benchmark A/B inspected at this exact changed-code head. This round changes render-matrix upload discipline only; prior actual Round-48 images still show soft, blocky characters and poor Diablo IV comparison. No claimed artistic or FPS gain.",
+      "evidenceMetrics": {
+        "scope": "presentation-only reusable cutaway band cache",
+        "heroAndWallBands": "unchanged masonry matrix transforms skipped, 3 bounded reveal bands",
+        "reusedGpuBatches": [
+          "main fractured walls",
+          "parapet crowns",
+          "textured facade",
+          "weathered spalls and coping"
+        ],
+        "firstFrameUploadRequired": true,
+        "stationaryNoWriteAssertionAdded": true,
+        "realMatrixWriteCounters": [
+          "wallMatrixWrites",
+          "parapetMatrixWrites",
+          "dressing.matrixWrites.facade",
+          "dressing.matrixWrites.weathered"
+        ],
+        "testFirstCommit": "12f156a6af14b9afef7f4529df160a03ca7a3fe0",
+        "redFailureObserved": false,
+        "redRunCanceled": true,
+        "allFoundationTestsPassed": "PENDING",
+        "genuineBrowserTestsPassed": "PENDING",
+        "authorityChanged": false,
+        "newExternalAssets": 0,
+        "independentFreshCritic": false,
+        "matchedBlindAB": false,
+        "hardwareGpuP95Measured": false,
+        "soakTested": false,
+        "productionReady": false
+      },
+      "verification": {
+        "testFirstCommit": "12f156a6af14b9afef7f4529df160a03ca7a3fe0",
+        "cacheCommit": "fb7cb689edf4ba3b1ee6501f503a1719ebf0ce91",
+        "mainWallCommit": "5c32a9335e2b6a079d83df48ad882fc14f8c6ba3",
+        "dressedWallCommit": "5bfe863265a124c212fec7d2610e50b8dc1c7523",
+        "genuineBrowserAssertionCommit": "9b3000ffc2d3fa9fa55b083a02a51c62885aafac",
+        "testStatus": "NOT VERIFIED; runner queued at documentation checkpoint",
+        "critic": "Self-review only; separate worker tunnel offline",
+        "documentation": "docs/reviews/AI_DUNGEON_GAUNTLET_ROUND_049.md"
+      },
+      "nextLargestGap": "Quantify actual software-WebGL frame stalls on sustained unmocked gameplay, prove zero redundant transform uploads and scene visibility in real Chromium, inspect exact-code screenshots, run full authoritative/replay/browser/catalogue gates, and test GPU context loss. Then address original anatomy/animation and dark rigid corridor composition."
     }
   ]
 }
