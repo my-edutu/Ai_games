@@ -10,7 +10,8 @@ const html=fs.readFileSync(path.resolve(__dirname,'../../public/tiny-kingdom/ind
 test('G080 distance-gated grass micro-relief retains near detail and skips far work',async({page})=>{
  test.setTimeout(90000);
  const shader=html.split('const fs=`')[1]?.split('`;')[0]||'';
- expect(shader).toContain('float detailFade=1.-smoothstep(10.,38.,length(eyePosition.xz-vWorld.xz));');
+ expect(shader).toContain('float groundDistance=length(eyePosition.xz-vWorld.xz);');
+ expect(shader).toContain('float detailFade=1.-smoothstep(10.,38.,groundDistance);');
  expect(shader).toContain('if(detailFade>0.){');
  const begin=shader.indexOf('if(detailFade>0.){');
  const end=shader.indexOf('float damp=',begin);
