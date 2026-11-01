@@ -945,6 +945,11 @@ export function createTowerScene(canvas, settings = {}) {
       // No grab, pause, lift or authoritative collision is fabricated.
       ledgeTarget,
       ledgeMantle,
+      // Bound the transient contact handoff to this exact authoritative
+      // run/platform/tick, so a restart cannot reuse an earlier grip pose.
+      runToken: snapshot.runToken,
+      ledgePlatformId: targetPlatform?.id ?? null,
+      tick: snapshot.tick,
     }, dt, elapsed, options);
     ledgeContactEvidence = ledgeTarget ? measureLedgeFingertip(climber.group, ledgeTarget, targetPlatform.id) : null;
     attackArc.visible = !!p.attacking && p.health > 0;

@@ -292,6 +292,10 @@ export function createClimber() {
   const fistLight=w.mat(0x3abdd9,.3,.32,0x2898cb,.12);
   w.plate(arms[1].lower,.24,.075,.04,fistLight,0,-.445,.125,.018);
   let phase=0,attackAge=1,wasAttacking=false,landingAge=1,previousState='standing',reachSide=null,lastPoseTime=null,ledgeLegBlend=0;
+  // Remember only the last *solved* finger grip, not the AI's intended route.
+  // Reusable bone-local quaternions avoid allocations in the render hot path.
+  let heldGripRun=null,heldGripPlatform=null,heldGripTick=-1;
+  const gripArmPose=arms.map(()=>({upper:new THREE.Quaternion(),lower:new THREE.Quaternion()}));
   const rest=body.position.y;
   const ledgeWorld=new THREE.Vector3(), ledgeElbow=new THREE.Vector3(),
     ledgeAim=new THREE.Vector3(), ledgeInverse=new THREE.Quaternion();
@@ -434,6 +438,38 @@ export function createClimber() {
         leg.lower.rotation.x=mix(leg.lower.rotation.x,front?1.55-.5*push:1.72-.92*push,weight);
         leg.foot.rotation.x=mix(leg.foot.rotation.x,front?-.33+.17*push:-.45+.24*push,weight);
       }
+    }
+    // The first airborne tick after a real fingertip release previously snapped
+    // BOTH arms from a solved grip straight to camera-directed generic mantle.
+    // Preserve the last physically solved arm orientations for a short,
+    // snapshot-progress-driven handoff: a release is NOT a second fake grip.
+    // This is presentation-only and never changes actor position, authority or IK.
+    if(genuineLedgeGrip && typeof state.runToken==='string' && state.runToken
+      && typeof state.ledgePlatformId==='string' && state.ledgePlatformId
+      && Number.isSafeInteger(state.tick)){
+      heldGripRun=state.runToken;
+      heldGripPlatform=state.ledgePlatformId;
+      heldGripTick=state.tick;
+      for(let i=0;i<2;i++){
+        gripArmPose[i].upper.copy(arms[i].upper.quaternion);
+        gripArmPose[i].lower.copy(arms[i].lower.quaternion);
+      }
+    }else if(heldGripRun!==null){
+      const sameLedge=state.runToken===heldGripRun
+        && state.ledgePlatformId===heldGripPlatform
+        && Number.isSafeInteger(state.tick)
+        && state.tick>=heldGripTick && state.tick-heldGripTick<=4;
+      const releaseValid=sameLedge&&airborne&&vy>0&&!attacking&&!dead&&!hurt
+        && mantle&&Number.isFinite(mantle.progress)&&Number.isFinite(mantle.weight)
+        && mantle.weight>0;
+      if(releaseValid){
+        const hold=1-THREE.MathUtils.smoothstep(clamp(mantle.progress,0,1),.26,.8);
+        if(hold>.0001)for(let i=0;i<2;i++){
+          arms[i].upper.quaternion.slerp(gripArmPose[i].upper,hold);
+          arms[i].lower.quaternion.slerp(gripArmPose[i].lower,hold);
+        }
+        else heldGripRun=null;
+      }else heldGripRun=null;
     }
     if(state.state==='standing'&&landingAge<.2){
       const plant=1-THREE.MathUtils.smoothstep(landingAge,0,.2);
