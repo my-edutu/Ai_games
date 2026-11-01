@@ -22,6 +22,18 @@ export function publicEncounterFrameWeight(attentionStrength, cameraMode, result
   return portrait ? Math.min(.48, alert * .85) : Math.min(.5, alert * .9);
 }
 
+/**
+ * Portrait Detail must preserve the previously verified horizontal world span
+ * when its game-first HUD makes the 3D canvas taller. Orthographic framing
+ * otherwise crops a real disclosed guardian even though the view gained pixels.
+ * 4.275 = 5.7 * 0.75: the horizontal half-span of the real 390x520 encounter.
+ * This is a presentation calculation only; no private maze/AI state enters.
+ */
+export function publicDetailEncounterHalfHeight(aspect, disclosedAttention) {
+  if (!(Number.isFinite(aspect) && aspect > 0 && aspect < .9)
+    || !(Number.isFinite(disclosedAttention) && disclosedAttention > 0)) return 4.6;
+  return Math.max(5.7, 4.275 / aspect);
+}
 
 /** Camera bounds come exclusively from public knowledge. */
 export function computePublicView(snapshot, camera, overview = false) {
