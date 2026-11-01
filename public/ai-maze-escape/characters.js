@@ -274,7 +274,7 @@ export function createExplorer(options = {}) {
     // The entire gesture clears as soon as public attention is withdrawn.
     body.position.x=-.025*rest;
     body.position.y=.78+Math.abs(step)*.035+(s.lose?0:idle*.008)-alert*.11;
-    body.position.z=-alert*.105;
+    body.position.z=alert>0?-alert*.105:0;
     body.rotation.set(s.lose?.22:stride*.065-s.danger*.035-keyReach*.07-alert*.25,
       lookYaw*.14+keyYaw*.08,
       .035*rest-step*.05-Math.sign(lookYaw)*alert*.12);
@@ -286,7 +286,7 @@ export function createExplorer(options = {}) {
       // Two planted, widened knees sell a real physical startle without
       // moving the authoritative public cell or suggesting retreat movement.
       legs[i].hip.rotation.x=step*sign*.62-alert*.22;
-      legs[i].hip.rotation.z=-sign*alert*.3;
+      legs[i].hip.rotation.z=alert>0?-sign*alert*.3:0;
       legs[i].knee.rotation.x=Math.max(0,-step*sign)*.58+alert*.3;
       arms[i].shoulder.rotation.x=-step*sign*(i===1?.2:.4)-(s.win?.9:0)-(i===1?.16:0)-alert*(i===1?1.55:.95)-(i===0?keyReach*2.3:0);
       // Aim the raised physical glove toward the publicly disclosed lock,
