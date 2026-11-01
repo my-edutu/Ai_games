@@ -37,7 +37,8 @@ const evidence={
   'A/B role trajectories can diverge because G091 intentionally changes job dwell.',
   'Neither screenshot differences nor this evidence imply independent critic endorsement.',
   'Video files include honest initialization pre-roll; no postprocessed or fabricated frames.',
-  'Supplemental candidate live-worker shots are not equivalent to a matched A/B and cannot substitute for blinded review.'
+  'Supplemental candidate live-worker shots are not equivalent to a matched A/B and cannot substitute for blinded review.',
+  'G098 delivery clips are candidate-only experiential probes, not a matched G088 delivery scenario (G088 lacks this mechanic).'
  ]
 };
 const mkdir=(name)=>fs.mkdirSync(path.join(DIR,name),{recursive:true});
@@ -152,6 +153,34 @@ async function stage(label,html,browser,matchedTicks){
      authoritativeUnchanged:true,matchedPair:false};
    await page.evaluate(()=>window.__tinyKingdom.stopWorkdayWatch());
   }
+  if(label==='candidate'){
+   const delivery=await page.evaluate(()=>{
+    const g=window.__tinyKingdom;
+    if(typeof g.getActiveDeliveries!=='function')throw Error('No G098 deliverable gameplay');
+    for(let i=0;i<30000;i++){
+     g.step(1/30);
+     const active=g.getActiveDeliveries();
+     if(active.length)return {extraTicks:i+1,carrier:active[0],
+      checksum:g.exportSnapshot().checksum};
+    }
+    throw Error('No authentic citizen carried goods to market within 30000 ticks');
+   });
+   result.deliveryTicks=ticks+delivery.extraTicks;
+   const proof=await page.evaluate(()=>{
+    const g=window.__tinyKingdom,before=g.exportSnapshot().checksum;
+    g.watchDelivery();
+    return {selected:g.getSelectedCitizen(),following:g.getCamera().follow,
+     readOnly:before===g.exportSnapshot().checksum,
+     status:document.getElementById('workday-activity').textContent};
+   });
+   assert(proof.readOnly&&proof.following,'Following a courier changed gameplay authority');
+   assert.equal(proof.selected,delivery.carrier.citizen,'Camera did not select an actual courier');
+   await page.waitForTimeout(900);
+   await page.screenshot({path:path.join(DIR,label+'/g098-actual-delivery.png'),timeout:90000});
+   result.delivery={carrier:delivery.carrier,proof,sceneFile:'g098-actual-delivery.png',
+    checksum:delivery.checksum,matchedPair:false};
+   await page.evaluate(()=>window.__tinyKingdom.stopWorkdayWatch());
+  }
   await page.evaluate(()=>window.__tinyKingdom.reset());
   await advanceTicks(page,120*24*30);
   result.day120=await cameraAndScreenshot(page,grown,label+'/day120-wide.png');
@@ -182,7 +211,7 @@ async function stage(label,html,browser,matchedTicks){
   await context.close();
  }
 }
-async function motion(browser,html,snapshot,label,live=false,camera=labor){
+async function motion(browser,html,snapshot,label,live=false,camera=labor,delivery=false){
  const {context,page,contextInfo}=await openScene(browser,html,label,true);
  const video=page.video();
  try{
@@ -201,9 +230,20 @@ async function motion(browser,html,snapshot,label,live=false,camera=labor){
    assert(work.view.active,'Supplemental clip did not follow a genuine shift');
    assert(work.camera.zoom<11,'Supplemental real worker is too distant');
   }
+  if(delivery){
+   await page.locator('#delivery-follow').click();
+   const d=await page.evaluate(()=>{
+    const g=window.__tinyKingdom;
+    return {active:g.getActiveDeliveries(),following:g.getCamera().follow,
+      selected:g.getSelectedCitizen()};
+   });
+   assert(d.following&&d.active.some(v=>v.citizen===d.selected),
+    'Delivery recording must follow an actually loaded, navigating citizen');
+  }
   // Genuine unpaused 3D simulation and real camera pointer interactions.
   const start=await page.evaluate(()=>({quality:window.__tinyKingdom.renderQuality(),
    snapshot:window.__tinyKingdom.exportSnapshot(),
+   delivery:typeof window.__tinyKingdom.getActiveDeliveries==='function'?window.__tinyKingdom.getActiveDeliveries():[],
    active:typeof window.__tinyKingdom.getLiveWorkdayView==='function'?
     window.__tinyKingdom.getLiveWorkdayView():null}));
   const wallStart=Date.now();
@@ -225,7 +265,7 @@ async function motion(browser,html,snapshot,label,live=false,camera=labor){
    observedFps:(end.quality.framesDrawn-start.quality.framesDrawn)/seconds,
    initialChecksum:start.snapshot.checksum,finalChecksum:end.snapshot.checksum,
    cameraAfter:end.camera,videoFile:label+'.webm',
-   realLiveWorker:live?start.active:null,matchedPair:!live,
+   realLiveWorker:live?start.active:null,realDelivery:delivery?start.delivery:null,matchedPair:!live&&!delivery,
    isSoftware:true,uninterruptedRealTime:true,scriptedUserCameraInput:true};
  }finally{
   await context.close();
@@ -270,6 +310,14 @@ async function motion(browser,html,snapshot,label,live=false,camera=labor){
    // real pointer orbit/zoom. No screenshots or mock animation substituted.
    evidence.videos.candidateMarket=await motion(browser,candidate,cSnapshot,'candidate-market',false,marketView);
    evidence.videos.baselineMarket=await motion(browser,baseline,bSnapshot,'baseline-market',false,marketView);
+  // Real, continuous gameplay from a reproducible physical delivery state,
+  // without faking agents, fast-forwarding within footage, or matching an
+  // unavailable G088 delivery mechanic.
+  const dSnapshot=await regenerateSnapshot(browser,candidate,c.result.deliveryTicks);
+  assert.equal(dSnapshot.checksum,c.result.delivery.checksum,
+   'G098 delivery filmed state differs from genuine witnessed source state');
+  evidence.videos.candidateDelivery=await motion(browser,candidate,dSnapshot,
+   'candidate-delivery',false,marketView,true);
   evidence.status='SCENARIOS_CAPTURED_NOT_BLIND_REVIEWED';
   assert.deepEqual(evidence.errors,[],'Uncaught browser/console errors');
  }catch(error){
