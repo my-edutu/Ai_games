@@ -252,3 +252,35 @@ test('desktop framebuffer adaptation is disclosed only in the graphics detail, n
   hud.update(frame(), { ...currentView, resolution: { scale: .8 } });
   assert.equal(node('quality-label').textContent, 'Low · adaptive 80% render');
 });
+
+test('spectator gameplay starts with one accessible menu instead of seven persistent controls', () => {
+  const { hud, node, document, calls } = harness();
+  const button = node('spectator-menu-toggle'), tray = node('spectator-control-tray');
+  assert.equal(tray.hidden, true, 'the full controls tray is visually removed at startup');
+  assert.equal(button.getAttribute('aria-expanded'), 'false');
+  assert.equal(button.getAttribute('aria-controls'), 'spectator-control-tray');
+  button.dispatch('click');
+  assert.equal(button.getAttribute('aria-expanded'), 'true');
+  assert.equal(tray.hidden, false);
+  node('camera-overview').dispatch('click');
+  assert.deepEqual(calls.at(-1), ['camera', 'overview'], 'existing controls keep their semantics');
+  document.dispatch('keydown', { key: 'Escape' });
+  assert.equal(tray.hidden, true);
+  assert.equal(button.focused, true, 'focus returns to visible menu trigger');
+  assert.equal(button.getAttribute('aria-expanded'), 'false');
+  const before=calls.length;
+  hud.dispose(); button.dispatch('click'); node('camera-follow').dispatch('click');
+  assert.equal(calls.length,before,'disposed controls cannot change the running view');
+});
+
+test('spectator drawer closes on outside tap without stealing focus on internal actions', t => {
+  const { hud, node, document } = harness(); t.after(()=>hud.dispose());
+  const trigger=node('spectator-menu-toggle'), nav=node('spectator-controls'), tray=node('spectator-control-tray');
+  nav.contains=target=>target===trigger||target===nav||target===node('sound-toggle');
+  trigger.dispatch('click');
+  document.dispatch('pointerdown',{target:node('sound-toggle')});
+  assert.equal(tray.hidden,false,'toggling one setting must not close the entire menu');
+  document.dispatch('pointerdown',{target:node('tower-canvas')});
+  assert.equal(tray.hidden,true,'tapping the game returns it to uncluttered view');
+  assert.equal(trigger.focused,undefined,'a pointer dismissal should not hijack keyboard focus');
+});
