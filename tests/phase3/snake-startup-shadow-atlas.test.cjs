@@ -21,8 +21,8 @@ test('R54 source is exact-reversible to published R53 without modifying the 17-s
   const previous=stripR54ShadowStartup(renderer);
   assert.equal(blob(previous),'af7b56a8bdf40090e201b4d08f86a5c318aebe0c');
   assert.equal(stripR54ShadowStartup(previous),previous);
-  assert.match(previous,/boundedStartupPixelRatio\\(width, height, initialRatio\\)/);
-  assert.match(renderer,/createGpuFrameGate\\(gl\\)/);
+  assert.ok(previous.includes('boundedStartupPixelRatio(width, height, initialRatio)'));
+  assert.ok(renderer.includes('createGpuFrameGate(gl)'));
   assert.ok(!simulate({startupRatio:0.7,initialRatio:1}).fragment.includes('dispose('));
 });
 test('R54 avoids a 2048 shadow atlas on oversized first paint but never drops it below the preexisting low-tier 1024',()=>{
