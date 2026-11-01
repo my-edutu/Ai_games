@@ -10,16 +10,16 @@
   "candidate": {
     "sha": null,
     "title": "Playable transformation branch still unassessed — no source-verified matched comparison yet",
-    "implementationSha": "471dfea0e2e9e58cdcea648b4bae4d09917ca98a",
-    "implementationEvidenceStatus": "SOURCE COMMITTED; source-matched candidate gameplay not verified or reviewed"
+    "implementationSha": "a9f87a88559baf10bbecbdd0f5f2c9084520f7f8",
+    "implementationEvidenceStatus": "PLAYABLE SOURCE COMMITTED; newest normal-speed capture is from prior 471dfea source; NEW actor staging and contact remain visually unassessed"
   },
   "currentTransformation": {
     "title": "Transform the real autonomous climb into a legible, cinematic, responsive expedition",
-    "state": "REAL OUTCOME / RESTART SLICE COMMITTED — WHOLE-GAME QUALITY NOT EVALUATED",
+    "state": "ENCOUNTER STAGING + GROUNDED 3D/OPT-IN AUDIO CONTACT COMMITTED — WHOLE-GAME QUALITY NOT EVALUATED",
     "promise": "One coherent climb: monumental original 3D environments, grounded grip-to-landing motion, tactical visible decisions, understandable guardian danger and opt-in terrain-aware spatial sound, with a minimal in-game HUD.",
-    "nextDecision": "The actual live result now holds 48 fixed 20Hz steps (2.4 seconds), followed by an authentic intermission/restart; an original source-bound 3D loss memorial and optional audio make this observable. Inspect complete normal-speed desktop and portrait source-matched videos at the committed candidate source, verify physical movement/guardian/terminal transitions and correct slow software-GL render tails. The frozen baseline result lasts one tick and must not be rewritten. Five fresh blind independent LOOKS/FEELS/PLAYS critics, device p50/p95/p99 + memory, replay/accessibility/stability remain mandatory. Source implementation is NOT visual proof.",
+    "nextDecision": "Review actual normal-speed desktop/portrait gameplay at the new a9f87a8 implementation, including encounter camera actor/guardian visibility and source-gated platform-touchdown ring+weighted sound, under current software-GL render delays. Prior full-motion capture (471dfea) yielded 5/6 successful scoped capture jobs but frozen baseline outcome failed real visible terminal/intermission/restart. Baseline stays unchanged; a new non-invasive observation method is needed if its 50ms result is impossible to capture. Safety CI at previous source failed a false terminal test fixture, now corrected but not rerun at current head. Required: six matched >=60s authentic clips for current source, 5 blind critics with >=4/5 each LOOKS/FEELS/PLAYS, supported hardware p50/p95/p99+memory, replay/accessibility/stability.",
     "rejectedMicroMilestones": "A green CI run, an isolated pose fix, a prettier screenshot or an extra UI icon never counts as a Gauntlet win.",
-    "biggestRemainingExperienceGap": "Unverified in-motion physical weight and guardian engagement at real display frame rates, with no independently accepted complete run outcome/restart for both viewports."
+    "biggestRemainingExperienceGap": "Actual fighting/climbing physical weight and larger actors have not been established in authentic full-motion candidate output, while software-render frame-submission tails remain alarming; baseline outcome visual completeness is failed and independent quality voters remain 0/5."
   },
   "scenarios": [
     {
@@ -59,7 +59,7 @@
     "plays": []
   },
   "guardrails": {
-    "ci": "pending",
+    "ci": "pending: previous candidate source 471dfea safety workflow failed 1/691; terminal fixture corrected at 5522feb but new head not verified",
     "replay": "pending",
     "accessibility": "pending",
     "performance": "pending",
@@ -77,6 +77,41 @@
     "workflowRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41323028658",
     "sourceSha": "471dfea0e2e9e58cdcea648b4bae4d09917ca98a",
     "assessed": "NOT EVALUATED",
-    "scope": "normal-speed 60+ second desktop/portrait, baseline and candidate, ascent/danger/outcome; pending actual video and integrity review"
+    "scope": "Prior-source raw normal-speed desktop and portrait low-tier WebGL captures exist for ascent/danger (baseline+candidate) and outcome candidate; frozen-baseline outcome failed visible terminal/intermission/restart; uninspected new candidate source, missing blind reviews and real hardware metrics",
+    "jobs": {
+      "ascent": {
+        "baseline": {
+          "artifactId": 13090463152,
+          "integrity": "PASS"
+        },
+        "candidate": {
+          "artifactId": 13090877857,
+          "integrity": "PASS"
+        }
+      },
+      "danger": {
+        "baseline": {
+          "artifactId": 13090124761,
+          "integrity": "PASS"
+        },
+        "candidate": {
+          "artifactId": 13090278217,
+          "integrity": "PASS"
+        }
+      },
+      "outcome": {
+        "baseline": {
+          "artifactId": 13089933916,
+          "integrity": "FAIL: complete-terminal-intermission-restart-not-observed"
+        },
+        "candidate": {
+          "artifactId": 13091070944,
+          "integrity": "PASS (scoped capture, not visual review)"
+        }
+      }
+    },
+    "newImplementationSha": "a9f87a88559baf10bbecbdd0f5f2c9084520f7f8",
+    "newImplementationRecorded": false,
+    "reviewPath": "docs/reviews/2026-11-01-tower-pr68-encounter-grounding-continuation.md"
   }
 }
