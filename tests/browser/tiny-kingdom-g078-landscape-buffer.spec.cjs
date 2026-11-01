@@ -7,7 +7,7 @@ const html=fs.readFileSync(path.join(__dirname,'../../public/tiny-kingdom/index.
 // than 11k distant tree triangles; historic 65k/60k minimums are not invariants.
 test('G078 maintains an independent landscape GPU buffer across actual autonomous cottage construction',async({page})=>{
  expect(html).toMatch(/const landscapeBuffer=gl\.createBuffer\(\)/);
- expect(html).toMatch(/bindGeometry\(landscapeBuffer\);gl\.drawArrays/);
+ expect(html).toMatch(/drawVisibleStaticChunks\(landscapeBuffer,landscapeChunkRanges,planes\)/);
  const errors=[];page.on('pageerror',e=>errors.push(e.message));
  await page.setViewportSize({width:1024,height:640});
  await page.setContent(html);
