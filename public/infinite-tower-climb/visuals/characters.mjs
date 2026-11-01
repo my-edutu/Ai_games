@@ -558,21 +558,36 @@ export function createClimber() {
       deckLoadTick=-1;
       deckLoadCompression=0;
     }
-    if(releaseCompression>0){
-      body.position.y-=releaseCompression;
-      // A compressed torso alone reads as hovering above the stone. During
-      // this actual, platform-matched upward departure, uncoil the physical
-      // load-bearing knee and roll its boot into a readable push-off. The
-      // immutable snapshot controls the envelope: no landed state, second
-      // foot plant, extra mesh or root displacement is invented.
-      if(surface&&surface.platformId===state.ledgePlatformId
-        &&mantle&&Number.isFinite(mantle.progress)
-        &&mantle.progress>=.6&&mantle.progress<=.9){
-        const extension=clamp(releaseCompression/.055,0,1)*.56;
-        const pushing=legs[physicalPushIndex];
-        pushing.upper.rotation.x=mix(pushing.upper.rotation.x,-.16,extension*.62);
-        pushing.lower.rotation.x=mix(pushing.lower.rotation.x,.18,extension);
-        pushing.foot.rotation.x=mix(pushing.foot.rotation.x,.12,extension*.65);
+    if(releaseCompression>0)body.position.y-=releaseCompression;
+    // Contact t300, load transfer t301, and toe-off t302 must read as one
+    // adjacent skinned-leg action, not a single corrected still followed by an
+    // instantly curled airborne knee. The source's real platform and upward
+    // world-space clearance own this brief cosmetic extension: it is entirely
+    // independent of which frames a slow renderer actually submitted.
+    // At >2.18 world units above the physical deck the ordinary airborne pose
+    // is fully restored; no fake collision, standing state, root or AI change.
+    if(airborne&&vy>0&&!genuineLedgeGrip&&!attacking&&!dead&&!hurt
+      &&mantle&&Number.isFinite(mantle.progress)&&Number.isFinite(mantle.weight)
+      &&mantle.progress>=.6&&mantle.progress<=1&&mantle.weight>0
+      &&surface&&typeof state.runToken==='string'&&state.runToken
+      &&Number.isSafeInteger(state.tick)
+      &&typeof state.ledgePlatformId==='string'
+      &&surface.platformId===state.ledgePlatformId
+      &&[surface.y,surface.innerRadius,surface.outerRadius].every(Number.isFinite)
+      &&surface.innerRadius<surface.outerRadius){
+      const rise=w.group.position.y-surface.y;
+      const radius=Math.hypot(w.group.position.x,w.group.position.z);
+      if(rise>=.45&&rise<=2.18
+        &&radius>=surface.innerRadius&&radius<=surface.outerRadius){
+        const toeOff=THREE.MathUtils.smoothstep(rise,.45,.83)
+          *(1-THREE.MathUtils.smoothstep(rise,1.27,2.18))
+          *THREE.MathUtils.smoothstep(mantle.progress,.6,.73);
+        if(toeOff>0){
+          const pushing=legs[physicalPushIndex];
+          pushing.upper.rotation.x=mix(pushing.upper.rotation.x,-.18,toeOff*.8);
+          pushing.lower.rotation.x=mix(pushing.lower.rotation.x,.12,toeOff*.88);
+          pushing.foot.rotation.x=mix(pushing.foot.rotation.x,.1,toeOff*.7);
+        }
       }
     }
     // The first airborne tick after a real fingertip release previously snapped
