@@ -34,7 +34,7 @@ function frame({active = true, floor = 8, guardian = true, runToken = 'genuine-g
     hazards: [],
     enemies: guardian ? [{
       id: `f${floor}:guardian`, kind: 'guardian',
-      x: 230000, y: base + 350000, active,
+      x: 230000, y: base + 350000, health: 8, maxHealth: 8, active,
     }] : [],
   };
 }
@@ -81,6 +81,19 @@ test('an authentic guardian defeat opens BOTH world-space doors and its distinct
     const left = named(world.group, 'GuardianSealWingLeft');
     const right = named(world.group, 'GuardianSealWingRight');
     const crest = named(world.group, 'ObservedGuardianLockCrest');
+    // The real authority commonly transfers floors on the decisive hit.
+    // Prior guardian damage MUST show visible progression while the source
+    // guardian still lives; a post-death animation alone may never be seen.
+    const hurt = frame();
+    hurt.enemies[0].health = 2;
+    const beforeHurt = JSON.stringify(hurt);
+    for (let i = 0; i < 8; i++) world.update(hurt, .05, i * .05, { quality: 'low' });
+    assert.ok(left.position.x < -.9 && left.position.x > -2.7,
+      'the genuine lost guardian HP must split the bronze doors before defeat');
+    assert.ok(right.position.x > .9 && right.position.x < 2.7);
+    assert.equal(world.diagnostics().guardianGates[0].unlocked, false,
+      'damaging an active enemy cannot claim the guardian gate is cleared');
+    assert.equal(JSON.stringify(hurt), beforeHurt);
     const release = frame({ active: false });
     const before = JSON.stringify(release);
     for (let i = 0; i < 20; i++) world.update(release, .05, i * .05, { quality: 'low' });
