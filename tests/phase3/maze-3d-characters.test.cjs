@@ -304,10 +304,16 @@ test('Thornback opens physical paired shell halves only during a true disclosed 
     const sides=[-1,1].map(side=>({
       side, wing:warden.group.getObjectByName(`flared elytron ${side}`),
       lining:warden.group.getObjectByName(`exposed elytron lining ${side}`),
-      seam:warden.group.getObjectByName(`opened elytron ember seam ${side}`)
+      seam:warden.group.getObjectByName(`opened elytron ember seam ${side}`),
+      fronds:warden.group.getObjectByName(`unfurled sea-glass wing fronds ${side}`)
     }));
     for (const entry of sides) {
-      assert.ok(entry.wing && entry.lining && entry.seam, 'both shell plates, ember linings and visible seams must be modeled');
+      assert.ok(entry.wing && entry.lining && entry.seam && entry.fronds,
+        'both shell plates, ember linings, physically attached fronds and seams must be modeled');
+      assert.equal(entry.fronds.parent,entry.wing,'every botanical blade is physically hinged to the guardian, not a screen marker');
+      assert.equal(entry.fronds.visible,false,'no secret warning frond is visible for an undisclosed threat');
+      assert.ok(entry.fronds.children.filter(part=>part.isMesh).length>=2,
+        'multiple sculpted rigid meshes construct an actual three-dimensional crest');
       assert.equal(entry.lining.parent,entry.wing,'real underside remains attached to the opening armor');
       assert.equal(entry.seam.parent,entry.wing,'visible seam is physically attached to the opening armor');
       assert.equal(entry.lining.visible,false,'no secret threat may leak at rest');
@@ -336,6 +342,9 @@ test('Thornback opens physical paired shell halves only during a true disclosed 
         assert.ok(entry.wing.rotation.x<-.05,'shell opens around a third physical axis');
         assert.equal(entry.lining.visible,true,'real exposed ember underside follows public close warning');
         assert.equal(entry.seam.visible,true,'physically attached ember seam follows the public warning');
+        assert.equal(entry.fronds.visible,true,'tall original physical blades bloom in a disclosed encounter');
+        if (reducedMotion) assert.equal(entry.fronds.rotation.y,0,
+          'the large botanical silhouette stays still for reduced-motion users');
       }
       warden.update({heading:0,attentionStrength:0,reducedMotion,time:2,delta:.05});
       assert.equal(heart.visible,false,'withdrawn public threat cannot retain a secret luminous marker');
@@ -346,6 +355,8 @@ test('Thornback opens physical paired shell halves only during a true disclosed 
         assert.equal(entry.wing.rotation.x,0);
         assert.equal(entry.lining.visible,false);
         assert.equal(entry.seam.visible,false);
+        assert.equal(entry.fronds.visible,false,'unobserved opponent never leaves a lingering false bloom');
+        assert.equal(entry.fronds.rotation.y,0,'neutral pose resets to exact positive zero');
       }
       for (const result of ['capture','escape']) {
         warden.update({heading:0,attentionHeading:Math.PI/2,attentionStrength:1,
@@ -357,6 +368,8 @@ test('Thornback opens physical paired shell halves only during a true disclosed 
           assert.equal(entry.wing.rotation.x,0);
           assert.equal(entry.lining.visible,false);
           assert.equal(entry.seam.visible,false);
+          assert.equal(entry.fronds.visible,false,'terminal truth cancels the blossom as well as the spines');
+          assert.equal(entry.fronds.rotation.y,0,'terminal reset cannot retain hidden attention');
         }
       }
     }
