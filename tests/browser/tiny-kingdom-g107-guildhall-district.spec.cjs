@@ -15,6 +15,7 @@ test('G107 inhabited civic centre has physical medieval hierarchy and preserves 
   const g=window.__tinyKingdom,authority=JSON.stringify(g.exportSnapshot());
   const civic=typeof g.getGuildhallVisualStats==='function'?g.getGuildhallVisualStats():null;
   return {civic,authority,meshes:g.getGeometryAudit(),camera:g.getCamera(),
+   cameraRoofs:g.getCameraOcclusionModel(),
    glError:document.querySelector('#world').getContext('webgl')?.getError()??0};
  });
  expect(before.civic,'Physical guildhall staging probe missing').toBeTruthy();
@@ -25,6 +26,8 @@ test('G107 inhabited civic centre has physical medieval hierarchy and preserves 
  expect(before.civic.belfries).toBe(1);
  expect(before.civic.porchPosts).toBeGreaterThanOrEqual(2);
  expect(before.civic.frontSteps).toBeGreaterThanOrEqual(4);
+ expect(before.cameraRoofs.belfries).toBe(1);
+ expect(before.cameraRoofs.hall).toBe(1);
  expect(before.civic.triangles).toBeGreaterThan(350);
  expect(before.civic.triangles).toBeLessThan(2200);
  expect(before.meshes.totalTriangles).toBeLessThan(160000);
