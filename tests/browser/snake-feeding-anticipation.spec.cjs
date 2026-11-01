@@ -49,7 +49,8 @@ test('real Chromium/WebGL: original jaw anticipates nearby public fruit in uncha
         await page.route('**/snapshot', route => route.fulfill({ json: frame }));
         await page.route('**/renderer.mjs', route => route.fulfill({
           contentType: 'text/javascript', body: fixedRenderer }));
-        if (label === 'prior') await page.route('**/serpent.mjs', route => route.fulfill({
+        // Both historical visual arms use exact pre-R45 sources.
+        await page.route('**/serpent.mjs', route => route.fulfill({
           contentType: 'text/javascript', body: characterSource }));
         await page.goto(baseURL + '/?camera=' + mode + '&quality=low', { waitUntil: 'domcontentloaded' });
         await page.waitForFunction(() => window.__snakePresentation?.stats().frameCount >= 5);

@@ -209,6 +209,15 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
   const cacheQuad = new THREE.Mesh(cacheGeometry, cacheMaterial);
   cacheQuad.frustumCulled = false;
   cacheScene.add(cacheQuad);
+  // BEGIN R46 SINGLE-PASS CACHE QUAD
+  // Original cache color/depth and z shader; no new GPU resource.
+  const liveCacheQuad = new THREE.Mesh(cacheGeometry, cacheMaterial);
+  liveCacheQuad.frustumCulled = false;
+  liveCacheQuad.renderOrder = -10000;
+  liveCacheQuad.layers.set(DYNAMIC_LAYER);
+  liveCacheQuad.visible = false;
+  scene.add(liveCacheQuad);
+  // END R46 SINGLE-PASS CACHE QUAD
   const cacheCamera = new THREE.Camera();
 
   function invalidateStaticCache() {
@@ -274,17 +283,21 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
         staticKey = key;
         cacheBuilds++;
       } else cacheHits++;
+      // BEGIN R46 ONE-PASS CACHE COMPOSITION
+      // One live scene pass: original cached color and depth first, then live
+      // serpent, water and critical portal/hazard geometry with proper z-tests.
       renderer.setRenderTarget(null);
       renderer.autoClear = true;
-      renderer.render(cacheScene, cacheCamera);
-      // A Color background forces a clear even when autoClear is false.
-      scene.background = null;
-      renderer.autoClear = false;
       camera.layers.set(DYNAMIC_LAYER);
+      liveCacheQuad.visible = true;
       renderer.render(scene, camera);
       cacheActive = true;
+      // END R46 ONE-PASS CACHE COMPOSITION
     } finally {
       cacheQuad.material = cacheMaterial;
+      // BEGIN R46 CACHE QUAD RESTORE
+      liveCacheQuad.visible = false;
+      // END R46 CACHE QUAD RESTORE
       renderer.setRenderTarget(null);
       camera.layers.mask = oldLayers;
       scene.background = oldBackground;
@@ -497,6 +510,9 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
     cacheBakeMaterial.dispose();
     cacheMaterial.dispose();
     cacheScene.clear();
+    // BEGIN R46 CACHE QUAD RELEASE
+    scene.remove(liveCacheQuad);
+    // END R46 CACHE QUAD RELEASE
     sun.shadow.map?.dispose();
     renderer.dispose();
   }

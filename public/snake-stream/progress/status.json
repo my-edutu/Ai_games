@@ -1,10 +1,15 @@
 {
   "updatedAt": "2026-11-01",
-  "status": "ROUND45 NEW CHROMIUM PUBLIC-FOOD TONGUE PASS; TWO HISTORICAL A/B ISOLATION FIXES STAGED · STRICT 9/17 FAIL",
-  "detail": "Exact R45 0805c9a focused browser 41268754120 passed 31/34. New real Chromium/WebGL frozen-public detail and overview A/B PASSED (existing fork +3 draw calls; before/after screenshots captured in artifact 13067389468). Two unrelated historical R39 and R34 browser A/B failures were caused by R45 entering one frozen older comparator arm, not regressions in production gameplay; correction isolates pre-R45 source in both historical arms without changing their thresholds and requires new CI. Strict desktop rendering FAILED unchanged: 9 actual submissions/1006.8ms versus minimum 17; 61 RAF callbacks and 1.3s diagnostic are NOT passed displayed FPS. Node build/host/authority/Snake R5-R6 CI stages succeeded; general browser verification was running. Visual Snake Pass/ASTRO BOT gap, independent review, device presents, soak/release OPEN. Draft/unmerged/undeployed.",
+  "status": "R46 SINGLE-PASS CACHE CANDIDATE · R45 CORRECTED 32/34 · STRICT 10/17 FAIL",
+  "detail": "R45 corrected-head focused 41269406971 was 32/34; historical R39 baseline still loaded later R45 serpent on one WebGL arm (now source-isolated); desktop strict actual 10 render submissions in 1016.5ms <17 while 62 RAF callbacks are not renders/display presents. General 41269406922 failed broader browser capture. R46 cache/live same-scene renderer candidate with true WebGL prior/current pixel parity and 2-to-1 API-pass test pending exact-head CI. Reference Snake Pass visual/motion bar, sustained real actual submissions, real-device present FPS, independent critic, soak/R5 OPEN. Draft/unmerged/undeployed.",
   "latestImage": "/progress/evidence/round-9-overview.jpg",
   "latestCaption": "Historical thumbnail only. R45 actual frozen-public Chromium/WebGL before/after screenshots, two cameras: https://github.com/my-edutu/Ai_games/actions/runs/41268754120/artifacts/13067389468 . Neither synthetic capture nor WebM is display-present FPS.",
   "reviews": [
+    {
+      "area": "Round 46 · one-pass cached color/depth with original dynamic serpent and water",
+      "verdict": "UNVERIFIED PRODUCTION CANDIDATE · SOURCE SHA + TRUE CHROMIUM A/B STAGED · PRIOR STRICT 10/17 FAIL",
+      "gap": "Verify exact WebGL output equivalence including cached depth/occlusion in overview and detail, unchanged resources, and two-to-one renderer API calls per actual draw. Do not confuse call reduction with submitted/display FPS. Full reference craft, independent critique, sustained gate/device/soak/R5 still open."
+    },
     {
       "area": "Round 45 · existing original forked tongue responds to nearby public fruit",
       "verdict": "NEW WEBGL DETAIL/OVERVIEW PASS · FOCUSED 31/34 · 2 HISTORICAL A/B TEST CORRECTIONS PENDING · STRICT 9/17 FAIL",
