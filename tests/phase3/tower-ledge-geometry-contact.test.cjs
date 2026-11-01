@@ -458,3 +458,43 @@ test('an authentic heel-to-toe deck load decompresses through the next rising ti
       'the pose must completely release after two actual advancing ticks');
   }
 });
+
+
+test('source-matched tick-301 push-off stays visible when the renderer never submitted the planted tick',async t=>{
+  const threeURL=pathToFileURL(path.join(path.dirname(require.resolve('three')),'three.module.js')).href;
+  const adapted=cast.replace("from '/tower/vendor/three.module.js'","from '"+threeURL+"'");
+  assert.notEqual(adapted,cast);
+  const [{createClimber}]=await Promise.all([
+    import('data:text/javascript;base64,'+Buffer.from(adapted).toString('base64'))
+  ]);
+  const realTop={platformId:'f1:p1',y:6,innerRadius:22.4,outerRadius:27.18};
+  const snapshot={state:'airborne',vx:3200,vy:9000,facing:1,health:5,attacking:false,
+    tick:301,runToken:'real-climb',ledgePlatformId:'f1:p1',
+    ledgeMantle:{progress:.78,weight:1}};
+  for(const viewAzimuth of [-Math.PI/4,Math.PI/4]){
+    const fresh=createClimber(),unsupported=createClimber(),wrong=createClimber();
+    t.after(()=>{fresh.dispose();unsupported.dispose();wrong.dispose();});
+    const opts={reducedMotion:true,viewAzimuth};
+    const offset=rig=>rig.group.getObjectByName('articulated-body').position.y;
+    for(const rig of [fresh,unsupported,wrong]){
+      rig.group.position.set(0,6.9,25); // actual t301 root +0.9 world units above true Y6 slab
+    }
+    const root=fresh.group.position.clone();
+    fresh.animate({...snapshot,ledgeSurface:realTop},1/60,1,opts);
+    unsupported.animate(snapshot,1/60,1,opts);
+    wrong.animate({...snapshot,ledgeSurface:{...realTop,platformId:'not-the-intended-deck'}},1/60,1,opts);
+    assert.ok(offset(unsupported)-offset(fresh)>.035,
+      'a delayed fresh renderer must display source-grounded push-off follow-through without having drawn t300');
+    assert.ok(Math.abs(offset(unsupported)-offset(wrong))<1e-6,
+      'an unrelated deck must never invent a compression pose');
+    assert.ok(fresh.group.position.equals(root),
+      'the displayed follow-through cannot alter the authoritative root');
+    const next={...snapshot,tick:302,vy:7800,ledgeMantle:{progress:.967,weight:1}};
+    fresh.group.position.y+=.78;
+    unsupported.group.position.y+=.78;
+    fresh.animate({...next,ledgeSurface:realTop},1/60,1+1/60,opts);
+    unsupported.animate(next,1/60,1+1/60,opts);
+    assert.ok(Math.abs(offset(fresh)-offset(unsupported))<1e-6,
+      'post-deck lift should fully release the cue by the next actual authority tick');
+  }
+});
