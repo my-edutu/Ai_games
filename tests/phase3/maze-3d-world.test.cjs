@@ -63,6 +63,43 @@ test('lagoon surface is a single deterministic bounded tileable visual resource'
   world.dispose();
 });
 
+test('dimension-only tide contours remain non-navigable and stable across private maze knowledge', async () => {
+  const {createMazeWorld} = await modulePromise;
+  const world = createMazeWorld({balanced: true}), budget = world.stats();
+  const first = fixture([{cell:24,neighbors:[]}]);
+  const original = JSON.stringify(first);
+  world.update(first);
+  const tide = world.group.children[0].getObjectByName('Dimension-only lagoon tide contours');
+  assert.ok(tide?.isInstancedMesh && tide.count === 44,
+    'the lagoon has one batched physical water-only current layer');
+  assert.equal(tide.castShadow, false);
+  const matrix = Array.from(tide.instanceMatrix.array);
+  const tint = Array.from(tide.instanceColor.array);
+  const exposed = fixture([{cell:24,neighbors:[25]}, {cell:25,neighbors:[24]}]);
+  world.update(exposed);
+  assert.equal(world.group.children[0].getObjectByName(tide.name), tide,
+    'new public discoveries do not rebuild/reposition the dimension-only currents');
+  assert.deepEqual(Array.from(tide.instanceMatrix.array), matrix);
+  assert.deepEqual(Array.from(tide.instanceColor.array), tint);
+  world.update({...exposed,runToken:'another-run',cells:[]});
+  const rebuilt = world.group.children[0].getObjectByName(tide.name);
+  assert.notEqual(rebuilt, tide, 'another run must replace and dispose the old instance object');
+  assert.deepEqual(Array.from(rebuilt.instanceMatrix.array), matrix,
+    'same public dimensions draw the exact same background regardless of secret layout');
+  assert.deepEqual(world.stats().renderedCells, [], 'water contours cannot fabricate discovered floors');
+  assert.equal(world.stats().geometryCount, budget.geometryCount);
+  assert.equal(world.stats().materialCount, budget.materialCount);
+  assert.equal(world.stats().textureCount, budget.textureCount);
+  assert.equal(JSON.stringify(first), original);
+  world.animate(32,{reducedMotion:true});
+  world.animate(33,{reducedMotion:false});
+  assert.deepEqual(Array.from(rebuilt.instanceMatrix.array), matrix,
+    'cosmetic water contours require no moving CPU instance matrices in each frame');
+  world.dispose();
+  assert.equal(world.stats().geometryCount,0);
+  assert.equal(world.stats().materialCount,0);
+});
+
 test('successive real runs retain only disclosed geometry and fixed shared resources', async () => {
   const { createMazeWorld } = await modulePromise;
   for (const balanced of [false, true]) {

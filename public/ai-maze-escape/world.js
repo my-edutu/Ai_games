@@ -85,16 +85,24 @@ export function createMazeWorld(options = {}) {
   const danger = material('#bf6449', { emissive: '#73220b', emissiveIntensity: .2 });
   const glow = material('#d5ffda', { emissive: '#7adcc6', emissiveIntensity: .8, roughness: .4 });
   const amber = material('#ffda82', { emissive: '#f7ab32', emissiveIntensity: .65 });
-  // A quiet diffuse lagoon keeps the playable stone and character dominant.
-  // The bounded raster replaces fragment trigonometry and bright repeated glints.
+  // Two crossing, curving *tileable* caustic families make the open sea
+  // read as tidal water, not an unshaded turquoise plane. This original,
+  // dimension-independent 128px raster is built once: no fragment shader,
+  // frame allocations, map/maze queries or bright UI-like path highlights.
   const waterPixels = new Uint8Array(128 * 128 * 4);
   for (let y = 0; y < 128; y++) for (let x = 0; x < 128; x++) {
-    const bend = Math.sin(x * .049) * 8 + Math.sin(x * .147 + 2) * 2;
-    const broad = Math.sin(y * .049 + Math.sin(x * .049) * 1.4);
-    const strand = Math.pow(Math.max(0, Math.cos((y + bend) * .196)), 14);
-    const shade = broad * 5 + strand * 4 + variation(x + y * 128) * 1.4;
+    const u = x * TAU / 128, v = y * TAU / 128;
+    const first = Math.cos(v * 6 + Math.sin(u * 3) * 1.45 + Math.sin(u * 2) * .42);
+    const second = Math.cos(u * 5 - v * 3 + Math.sin(v * 2) * 1.17);
+    const pale = Math.pow(Math.max(0, first), 17) * 22
+      + Math.pow(Math.max(0, second), 23) * 12;
+    const body = Math.sin(u * 2 + v) * 5.7 + Math.sin(v * 2 - u * 3) * 3.8;
+    const shade = body + pale + (variation(x + y * 128) - .5) * 2.2 - 5;
     const i = (y * 128 + x) * 4;
-    waterPixels[i] = 40 + shade; waterPixels[i + 1] = 117 + shade; waterPixels[i + 2] = 113 + shade; waterPixels[i + 3] = 255;
+    waterPixels[i] = Math.round(37 + shade * .71);
+    waterPixels[i + 1] = Math.round(114 + shade);
+    waterPixels[i + 2] = Math.round(111 + shade * .92);
+    waterPixels[i + 3] = 255;
   }
   const waterTexture = new THREE.DataTexture(waterPixels, 128, 128);
   waterTexture.colorSpace = THREE.SRGBColorSpace;
@@ -447,10 +455,33 @@ export function createMazeWorld(options = {}) {
   function rebuildBackdrop(s) {
     clear(backdrop); ripples = [];
     const w = (s.width * CELL_SIZE + 12) * 6, h = (s.height * CELL_SIZE + 12) * 6;
-    // The lagoon extends beyond every supported camera; no unresolved rim or
-    // detached geometric islands compete with the disclosed ruin silhouette.
+    // Open water is independent of discovered cells, exits, threats and routes.
+    // Never add detached stepping stones or imply paths into unknown terrain.
     waterTexture.repeat.set(w / 9, h / 9);
     mesh(backdrop, box, waterMaterial, 0, -1.7, 0, w, .05, h).castShadow = false;
+    // Subtle physical tide contours sit *below* every stage floor. The same
+    // pattern appears for every seed/discovery with these public dimensions;
+    // it cannot outline an undisclosed cell, predict a coast or suggest a route.
+    // One shared-geometry/material instance batch = one extra draw call, not
+    // dozens of individually animated meshes in the CPU-balanced renderer.
+    const tide = new THREE.InstancedMesh(ring, rippleMaterial, 44);
+    tide.name = 'Dimension-only lagoon tide contours';
+    tide.castShadow = false; tide.receiveShadow = false;
+    const tideLight = new THREE.Color('#cce5d4'), tideDark = new THREE.Color('#83b9ae');
+    const spanX = s.width * CELL_SIZE / 2 + 8;
+    const spanZ = s.height * CELL_SIZE / 2 + 8;
+    for (let i = 0; i < tide.count; i++) {
+      const seed = 211 + i * 37;
+      const x = (variation(seed * 7 + 19) * 2 - 1) * spanX;
+      const z = (variation(seed * 17 + 101) * 2 - 1) * spanZ;
+      const radius = .53 + variation(seed + 29) * .57;
+      tide.setMatrixAt(i, transform(x, -1.629, z, radius, radius * (.78 + variation(seed + 7) * .34), 1, -Math.PI / 2));
+      tide.setColorAt(i, variation(seed + 13) > .47 ? tideLight : tideDark);
+    }
+    tide.instanceMatrix.needsUpdate = true;
+    tide.instanceColor.needsUpdate = true;
+    tide.computeBoundingSphere();
+    backdrop.add(tide);
   }
   const propGroup = (cell, s) => {
     const p = new THREE.Group(), point = cellPosition(cell, s.width, s.height);
