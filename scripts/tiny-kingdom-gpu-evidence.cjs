@@ -83,6 +83,31 @@ const path = require('node:path');
        evidence.filmicGamma.maxApproxError>=.0032||
        evidence.filmicGamma.glError!==0||!evidence.filmicGamma.authorityUnchanged)
       throw Error('G079 real WebGL filmic gamma regression: '+JSON.stringify(evidence.filmicGamma));
+    // G089: prove the actual attached fragment shader, not a source-only
+    // marker, implements near-identical 3D meadow and far 2D coherent samples.
+    evidence.meadowFarLod=await page.evaluate(()=>{
+      const g=window.__tinyKingdom,before=JSON.stringify(g.exportSnapshot());
+      const gl=document.getElementById('world').getContext('webgl');
+      const program=gl?.getParameter(gl.CURRENT_PROGRAM);
+      const fragment=program?(gl.getAttachedShaders(program)||[]).find(s=>
+        gl.getShaderParameter(s,gl.SHADER_TYPE)===gl.FRAGMENT_SHADER):null;
+      const shader=fragment?gl.getShaderSource(fragment):'';
+      const grass=shader.split('if(vMaterial>0.5&&vMaterial<1.5)')[1]
+        ?.split('}else if(vMaterial>1.5&&vMaterial<2.5)')[0]||'';
+      return {
+        active:grass.includes('float groundDistance=length(eyePosition.xz-vWorld.xz);')&&
+          grass.includes('float farMeadowMix=smoothstep(26.,42.,groundDistance);')&&
+          grass.includes('if(groundDistance<42.) meadow=noise3(')&&
+          grass.includes('float distantMeadow=mix(')&&
+          grass.includes('meadow=mix(meadow,distantMeadow,farMeadowMix);'),
+        oldUnconditional:grass.includes('float meadow=noise3('),
+        authorityUnchanged:before===JSON.stringify(g.exportSnapshot()),
+        glError:gl?.getError()??-1
+      };
+    });
+    if(!evidence.meadowFarLod.active||evidence.meadowFarLod.oldUnconditional||
+       !evidence.meadowFarLod.authorityUnchanged||evidence.meadowFarLod.glError!==0)
+      throw Error('G089 GPU far-meadow program failed: '+JSON.stringify(evidence.meadowFarLod));
     // G058: inspect the active fragment shader on real SwiftShader, not just
     // the source file or a fake feature flag. The new lighting is grass-only.
     evidence.terrainMicroRelief=await page.evaluate(()=>{
