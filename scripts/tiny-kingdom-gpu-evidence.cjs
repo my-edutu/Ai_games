@@ -535,6 +535,7 @@ const path = require('node:path');
       const subject=g.getNavigation()[0].position;
       g.setCamera({focus:subject,zoom:9,pitch:.37,yaw:.78});
       g.setHudMode('cinema');
+      g.setReferenceCapture(true);
     });
     await page.waitForTimeout(450);
     await page.screenshot({path:path.join(out,'citizen-study.png'),fullPage:true,timeout:90000});
@@ -624,8 +625,10 @@ const path = require('node:path');
     evidence.landmarks=await page.evaluate(()=>window.__tinyKingdom.getScenicSites());
     evidence.cinematicScreenshotsUnobstructed=await page.evaluate(()=>{
       window.__tinyKingdom.setHudMode('cinema');
+      window.__tinyKingdom.setReferenceCapture(true);
       return getComputedStyle(document.querySelector('.sidebar')).display==='none' &&
         getComputedStyle(document.querySelector('.atlas')).display==='none' &&
+        getComputedStyle(document.querySelector('#cinema-exit')).display==='none' &&
         window.__tinyKingdom.getHudMode()==='cinema';
     });
     if(!evidence.cinematicScreenshotsUnobstructed)throw Error('Cinematic screenshot still obscured by HUD');
