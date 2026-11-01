@@ -350,6 +350,14 @@ export function createClimber() {
       body.rotation.x=speed*.07;
       head.rotation.x=-speed*.05;
       if(speed<.05&&!reducedMotion){head.rotation.y=Math.sin(time*.75)*.075;arms[0].lower.rotation.x-=.035*Math.sin(time*1.5);}
+      // Low-health detours are gameplay decisions, not a permanent animation
+      // cycle. A restrained leading reach and forward balance make the real
+      // in-world rescue pickup legible even with the optional HUD hidden.
+      if(state.intentMode==='collecting-resource'&&!hurt&&!dead&&speed>.08){
+        body.rotation.x+=.08;
+        arms[0].upper.rotation.x=mix(arms[0].upper.rotation.x,-.85,.48);
+        arms[0].lower.rotation.x=mix(arms[0].lower.rotation.x,-.75,.45);
+      }
     }
     if(airborne){
       const rising=vy>0;
