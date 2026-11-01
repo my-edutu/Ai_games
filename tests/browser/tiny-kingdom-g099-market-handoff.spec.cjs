@@ -78,3 +78,61 @@ test('G099 delivered goods are physically handed off once, with deterministic re
  expect(await page.evaluate(()=>document.querySelector('#world').getContext('webgl')?.getError()||0)).toBe(0);
  expect(errors).toEqual([]);
 });
+
+// G100 RED-FIRST: a real courier unloading at the market must be the
+// unobstructed protagonist when the player chooses Delivery. A nominal
+// 'follow' flag and a status message with the worker off-screen are failures.
+test('G100 real market courier receives a readable close camera and an uncluttered 390px documentary HUD',async({page})=>{
+ test.setTimeout(190000);
+ const errors=[];page.on('pageerror',e=>errors.push(e.message));
+ await page.setViewportSize({width:1024,height:640});
+ await page.setContent(html);
+ await page.waitForFunction(()=>window.__tinyKingdom?.renderStats().lastFrameTriangles>0);
+ await page.locator('#pause').click();
+ const staged=await page.evaluate(()=>{
+  const g=window.__tinyKingdom;g.reset();
+  let courier=null;
+  for(let i=0;i<40000;i++){g.step(1/30);courier=g.getMarketHandoffs()[0];if(courier)break}
+  return {courier,snapshot:JSON.stringify(g.exportSnapshot())};
+ });
+ expect(staged.courier).toBeTruthy();
+ await page.locator('#delivery-follow').click();
+ const focus=await page.evaluate(()=>{
+  const g=window.__tinyKingdom;
+  return {mode:document.body.dataset.workday,selected:g.getSelectedCitizen(),
+   camera:g.getCamera(),plan:g.getCitizenCameraPlan(),
+   delivery:g.getActiveDeliveries(),hud:document.getElementById('workday-activity').textContent,
+   authority:JSON.stringify(g.exportSnapshot())};
+ });
+ expect(focus.authority).toBe(staged.snapshot);
+ expect(focus.mode).toBe('delivery');
+ expect(focus.selected).toBe(staged.courier.citizen);
+ expect(focus.camera.follow).toBe(true);
+ expect(focus.camera.pitch).toBeLessThan(.55);
+ expect(focus.camera.zoom).toBeLessThan(9);
+ expect(focus.plan.blockers).toBe(0);
+ expect(focus.hud).toMatch(/unloading.*market/i);
+ expect(focus.delivery.some(d=>d.citizen===focus.selected&&d.stage==='unloading')).toBe(true);
+ await page.setViewportSize({width:390,height:844});
+ const mobile=await page.evaluate(()=>{
+  const style=selector=>getComputedStyle(document.querySelector(selector));
+  const visibleScenic=[...document.querySelectorAll('.world-tour [data-scenic]')]
+   .filter(el=>style('#'+el.id)?.display!=='none'&&getComputedStyle(el).display!=='none');
+  const status=document.querySelector('#workday-activity').getBoundingClientRect();
+  const ribbon=document.querySelector('#world-ribbon').getBoundingClientRect();
+  const nav=document.querySelector('.world-tour').getBoundingClientRect();
+  return {scrollWidth:document.documentElement.scrollWidth,visibleScenic:visibleScenic.length,
+   statusTop:status.top,ribbonBottom:ribbon.bottom,navTop:nav.top,navBottom:nav.bottom,
+   progressVisible:getComputedStyle(document.getElementById('workday-progress')).display!=='none',
+   glError:document.querySelector('#world').getContext('webgl')?.getError()??0,
+   authority:JSON.stringify(window.__tinyKingdom.exportSnapshot())};
+ });
+ expect(mobile.scrollWidth).toBeLessThanOrEqual(390);
+ expect(mobile.visibleScenic).toBeLessThanOrEqual(1);
+ expect(mobile.navBottom).toBeLessThan(135);
+ expect(mobile.ribbonBottom+8).toBeLessThan(mobile.statusTop);
+ expect(mobile.progressVisible).toBe(true);
+ expect(mobile.authority).toBe(staged.snapshot);
+ expect(mobile.glError).toBe(0);
+ expect(errors).toEqual([]);
+});
