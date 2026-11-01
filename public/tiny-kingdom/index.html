@@ -4295,9 +4295,9 @@ function planCitizenCamera(citizen,preferredYaw=yaw){
  }
  return {...best,originalBlockers:original.blockers};
 }
-function updateFollowCamera(){
+function updateFollowCamera(preferredYaw=previousFollowCamera?.yaw??yaw){
  const person=people[Math.min(selectedCitizen,people.length-1)];if(!person)return;
- const shot=planCitizenCamera(person,previousFollowCamera?.yaw??yaw);
+ const shot=planCitizenCamera(person,preferredYaw);
  yaw=shot.yaw;pitch=shot.pitch;zoom=shot.zoom;
  focusPoint=[person.x,person.z];lastFollowShot=shot;
 }
@@ -4437,11 +4437,12 @@ function watchDelivery(){
  // used the distant survey camera and left actual unloading off-screen.
  document.body.dataset.workday='delivery';
  setCitizenFollow(true);
- // Film the worker from the open square with the relocated landmark BEHIND
- // the handoff. Do not preserve a survey angle looking through timber posts.
- // The camera planner may orbit if real canopies obstruct the preferred shot.
- if(unloading.length)yaw=Math.PI;
- updateFollowCamera();
+ // G103 evidence revealed the earlier preferred-angle hint was discarded:
+ // updateFollowCamera always used the SAVED survey yaw, overriding this choice.
+ // Pass the documentary opening angle explicitly while preserving that saved
+ // survey lens for the player's eventual return. The camera still freely
+ // orbits to avoid real stall roofs; it never touches the authoritative state.
+ updateFollowCamera(unloading.length?Math.PI:undefined);
  document.getElementById('workday-watch').setAttribute('aria-pressed','false');
  document.getElementById('workday-live').setAttribute('aria-pressed','false');
  setCommandView('world');updateUI();updateDeliveryHUD();
