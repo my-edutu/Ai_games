@@ -54,10 +54,17 @@ for (const viewport of viewports) test('normal-speed Tower motion ' + viewport.n
     observations.push(observation);
   }
   await sample(0);
-  // Record at native wall-clock rate. 34 x 2s gives 68s of uninterrupted
-  // actual host play (nominal 20 fixed-step authoritative ticks per second).
-  // No mocked state, accelerated page clock or replay stepping is permitted.
-  for (let i = 1; i <= 34; i++) { await page.waitForTimeout(2000); await sample(i); }
+  // A real result/intermission is brief (~1.8s); sample the outcome every
+  // second or it may be skipped entirely between two otherwise valid frames.
+  // Every scenario still records >=68s of uninterrupted host play at native
+  // wall-clock speed (nominal 20 fixed-step authority ticks per second).
+  // No mocked state, accelerated page clock or replay scrubbing.
+  const cadenceMs = scenario === 'outcome' ? 1000 : 2000;
+  const intervals = 68000 / cadenceMs;
+  for (let i = 1; i <= intervals; i++) {
+    await page.waitForTimeout(cadenceMs);
+    await sample(i);
+  }
   const assessment = assessTowerMotion(observations, {
     minDurationMs: 60000, requireOutcomeRestart: scenario === 'outcome',
   });
