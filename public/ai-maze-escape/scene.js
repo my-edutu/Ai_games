@@ -1,7 +1,7 @@
 import * as THREE from './vendor/three.module.js';
 import { createExplorer, createWarden } from './characters.js';
 import { createMazeWorld, cellPosition, cellHeight, sampleGroundHeight, CELL_SIZE } from './world.js';
-import { planPublicMotion, samplePublicPath, publicWayfinding, publicObjective, publicStageBias, composePublicCameraFocus, publicNearbySealedGate, composePublicSealedGateFocus, composePublicKeyLockFocus, publicCarriedGateCue } from './map-view.mjs';
+import { planPublicMotion, samplePublicPath, publicWayfinding, publicObjective, publicStageBias, composePublicCameraFocus, publicNearbySealedGate, composePublicSealedGateFocus, composePublicKeyLockFocus, publicCarriedGateCue, publicEncounterFrameWeight } from './map-view.mjs';
 
 const TAU = Math.PI * 2;
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
@@ -369,9 +369,11 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
       desiredTarget.set((minX + maxX) / 2, (Math.min(...levels) + Math.max(...levels)) / 2, (minZ + maxZ) / 2);
       targetHeight = Math.max(7.5, ((maxX - minX) * .65 + (maxZ - minZ) * .75 + 8) / (2 * Math.min(aspect, 1.45)));
     } else {
-      // Nudge a follow camera toward the *observed* nearby warden, keeping
-      // Pip prominent while giving the encounter a shared screen space.
-      const frameThreat=cameraMode==='follow'&&!result&&closestThreat?closestThreat.strength*.22:0;
+      // In real source-selected Detail encounters the old hero-only aim
+      // pushed Thornback to the right edge. Give the TWO already disclosed
+      // actors one bounded shared stage; preserve Follow and portrait restraint.
+      // The guardian world position exists only in public snapshot models.
+      const frameThreat=publicEncounterFrameWeight(closestThreat?.strength,cameraMode,result,aspect);
       desiredTarget.set(pose.x+(closestThreat?.x-pose.x||0)*frameThreat,ground+.25,pose.z+(closestThreat?.z-pose.z||0)*frameThreat);
       // On a public coastline, a hero-only camera can leave half the screen
       // empty water. Rebalance toward the *known nearby stage* but keep Pip
