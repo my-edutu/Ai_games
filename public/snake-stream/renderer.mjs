@@ -35,6 +35,24 @@ export function syncContactShadowInstances(contacts, transform, paths) {
   return contacts.count * 16 * attribute.array.BYTES_PER_ELEMENT;
 }
 // END R38 CONTACT HELPER
+// BEGIN R43 WATER SAMPLING HELPER
+/**
+ * The original water remains fully authored and keeps its complete mip chain.
+ * At already-low presentation quality only, select one bilinear mip level
+ * instead of trilinear blending between two texture samples per water pixel.
+ * Balanced quality, animated water, depth and fog retain their exact path.
+ */
+export function configureLowQualityWaterSampling(world, THREE) {
+  const water = world?.group?.getObjectByName('Flowing water');
+  const texture = water?.material?.uniforms?.waterField?.value;
+  if (!texture) return false;
+  if (texture.minFilter === THREE.LinearMipmapLinearFilter) {
+    texture.minFilter = THREE.LinearMipmapNearestFilter;
+    texture.needsUpdate = true;
+  }
+  return texture.minFilter === THREE.LinearMipmapNearestFilter;
+}
+// END R43 WATER SAMPLING HELPER
 export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = {}) {
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false, powerPreference: 'high-performance' });
   renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -306,6 +324,9 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
       sun.shadow.map = null;
       renderer.shadowMap.needsUpdate = true;
     }
+    // BEGIN R43 WATER SAMPLING ADAPT
+    if (world) configureLowQualityWaterSampling(world, THREE);
+    // END R43 WATER SAMPLING ADAPT
     invalidateStaticCache();
     dirty = true;
   }
@@ -351,6 +372,9 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
     if (key !== dimensions) {
       if (world) { scene.remove(world.group); world.dispose(); }
       world = createWorld(THREE, { width: snapshot.width, height: snapshot.height });
+      // BEGIN R43 WATER SAMPLING INIT
+      if (quality === 'low') configureLowQualityWaterSampling(world, THREE);
+      // END R43 WATER SAMPLING INIT
       staticMeshCount = 0;
       world.group.traverse(object => {
         if (!object.isMesh) return;
@@ -432,6 +456,9 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
         firstAllocationUploadsWholeBuffer: true },
       // END R38 CONTACT STATS
       gpuQueue: frameGate.stats(),
+      // BEGIN R43 WATER SAMPLING STATS
+      waterTextureMinFilter: world?.group?.getObjectByName('Flowing water')?.material?.uniforms?.waterField?.value?.minFilter ?? null,
+      // END R43 WATER SAMPLING STATS
       pixelRatio: renderer.getPixelRatio(), drawingBuffer: { width: statsSize.x, height: statsSize.y },
       renderScale: { adjusted: scaleAdjusted, sampleFrameMs: scaleSampleMs, targetFrameMs },
       drawCalls: renderer.info.render.calls, triangles: renderer.info.render.triangles,

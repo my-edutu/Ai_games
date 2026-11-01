@@ -1,10 +1,15 @@
 {
   "updatedAt": "2026-11-01",
-  "status": "ROUND42 FOCUSED 31/31 · 17 ACTUAL SUBMISSIONS ONE GATE PASS · HISTORIC NODE SHA FIX PENDING",
-  "detail": "Exact-head focused Chromium/SwiftShader run 41260891124 PASSED 31/31 including strict >=17 actual render submissions: 17 in 1007.1ms, ONE sample only, not sustained displayed FPS (61 RAF callbacks irrelevant). Genuine frozen-public WebGL R42 old/new overview 6 of 614400 pixels differ by one green level; detail 0 pixels; same draw counts, textures, geometry; original water/cues preserved. General 41260891125 build + 577/578 Node tests passed, lone old SHA archive test failed because R42 text wasn't reversed; corrected historical reconstruction with old fixture/threshold intact, corrected-head CI pending. No causal FPS proof or Snake Pass quality win. Independent critic, real-device presents, soak and R5 remain open; draft, unmerged, undeployed.",
+  "status": "ROUND43 LOW-TIER WATER MIP CANDIDATE · WEBGL & STRICT PERFORMANCE CI PENDING",
+  "detail": "Corrected R42 focused 41261335960 passed 29/31; 11 actual submitted WebGL frames/1000.4ms versus unchanged minimum17 FAIL, whereas earlier 41260891124 passed once at 17/17 (not sustained). Prop-cache routed removal poll race fixed by waiting for actual visible world before asserting same exact rebuild count. R43 only adjusts original 256² water map minFilter in low tier; no new pixels, textures, meshes or cues, balanced tier intact. New exact prior-renderer source-hash Node and true frozen-public Chromium/WebGL dual-view captures required; candidate NOT verified as speedup or visual improvement. Snake Pass whole-game still LOSE. Independent critic/tunnel offline, real display-present FPS, soak and R5 open. Draft, unmerged, undeployed.",
   "latestImage": "/progress/evidence/round-9-overview.jpg",
   "latestCaption": "Historical thumbnail only, not the new R39. Actual new R39 WebGL synthetic screenshot/trace artifact (not live FPS or independent critique): https://github.com/my-edutu/Ai_games/actions/runs/41249642441/artifacts/13061195617 . Companion motion: https://github.com/my-edutu/Ai_games/actions/runs/41249642441/artifacts/13060793905 .",
   "reviews": [
+    {
+      "area": "Round 43 · bounded original water mip filter in low tier",
+      "verdict": "CANDIDATE · EXACT SOURCE NODE/WEBGL A/B/≥17 ACTUAL SUBMISSIONS PENDING",
+      "gap": "Nearest mip could shimmer/band. Need captured before/after screenshots, live continuous video and actual CI draw gate. Balanced tier remains original. Whole-game Snake Pass art/motion LOSE, independent review/display-present device cadence/soak/R5 open."
+    },
     {
       "area": "Round 42 · original lake shader WebGL verification",
       "verdict": "FOCUSED CHROMIUM 31/31 PASS; STRICT 17/17 ONE SAMPLE; HISTORIC NODE SHA CORRECTION PENDING",

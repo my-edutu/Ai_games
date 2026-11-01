@@ -37,10 +37,19 @@ test('cached portals and obstacles refresh on visible changes while trap countdo
     }
     expect(after.staticCache.builds).toBe(before.staticCache.builds + topologyChanges + Number(scaled));
   }
-  async function settle() {
+  async function settle(expectedProps = null) {
     const lastPoll = polls, count = (await stats()).frameCount;
     await expect.poll(() => polls).toBeGreaterThan(lastPoll + 1);
-    await page.waitForFunction(n => window.__snakePresentation.stats().frameCount >= n + 3, count);
+    // A routed request may begin before the app consumes its returned public
+    // snapshot; GPU backpressure can keep drawing the preceding topology.
+    // Observe the requested props in the actual rendered world before
+    // enforcing the unchanged exactly-one cache-rebuild requirement.
+    await expect.poll(async () => {
+      const visible = await stats();
+      return visible.frameCount >= count + 3 &&
+        (!expectedProps || (visible.world.obstacles === expectedProps.obstacles &&
+          visible.world.portalEnds === expectedProps.portalEnds));
+    }, { timeout: 20000 }).toBe(true);
     return stats();
   }
   current.snapshot.hazards[0].phase = 2;
@@ -53,13 +62,13 @@ test('cached portals and obstacles refresh on visible changes while trap countdo
   expect(active.triangles).not.toBe(initial.triangles);
   current.snapshot.obstacles = [18, 24];
   current.snapshot.portals = [{ entry: 46, exit: 380 }];
-  const added = await settle();
+  const added = await settle({ obstacles: 2, portalEnds: 2 });
   expectTopologyCacheBuilds(active, added, 1);
   expect(added.world.obstacles).toBe(2);
   expect(added.world.portalEnds).toBe(2);
   current.snapshot.obstacles = [];
   current.snapshot.portals = [];
-  const removed = await settle();
+  const removed = await settle({ obstacles: 0, portalEnds: 0 });
   expectTopologyCacheBuilds(added, removed, 1);
   expect(removed.world.obstacles).toBe(0);
   expect(removed.world.portalEnds).toBe(0);

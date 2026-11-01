@@ -18,6 +18,19 @@ const oldLoop=[
   '    contacts.instanceMatrix.needsUpdate = true;',
   ''
 ].join('\n');
+
+function stripLaterR43(source){
+  let content=source;
+  for(const name of ['WATER SAMPLING HELPER','WATER SAMPLING ADAPT','WATER SAMPLING INIT','WATER SAMPLING STATS']){
+    const begin='// BEGIN R43 '+name+'\n',end='// END R43 '+name+'\n';
+    const a=content.indexOf(begin),b=content.indexOf(end);
+    if(a<0||b<a||content.indexOf(begin,a+1)>=0)throw new Error('invalid reversible later R43 '+name);
+    const lineStart=content.lastIndexOf('\n',a-1)+1;
+    content=content.slice(0,lineStart)+content.slice(b+end.length);
+  }
+  return content;
+}
+
 function predecessor(source){
   let content=source;
   for(const name of ['CONTACT HELPER','CONTACT COUNTERS','CONTACT STATS']){
@@ -28,7 +41,7 @@ function predecessor(source){
   const call=/^.*\/\/ BEGIN R38 CONTACT SUBRANGE\n[\s\S]*?^.*\/\/ END R38 CONTACT SUBRANGE\n/gm;
   assert.equal((content.match(call)||[]).length,1);
   content=content.replace(call,oldLoop);
-  assert.equal(blob(content),'14d5f7dc3e344e9850ac325b768928eba9546c60','exact verified predecessor renderer Git blob');
+  assert.equal(blob(stripLaterR43(content)),'14d5f7dc3e344e9850ac325b768928eba9546c60','exact verified predecessor renderer Git blob');
   return content;
 }
 test('Round38 actual Three.js contact matrices match the exact predecessor while uploads stay within the used prefix',async()=>{
