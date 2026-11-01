@@ -1,7 +1,7 @@
 import * as THREE from '/dungeon/vendor/three.module.js';
 import {makeWallMasonryPixels} from '/dungeon/wall-masonry-plan.js';
 import {planFracturedWallStone,planWallStoneVariation} from '/dungeon/fractured-wall-plan.js';
-import {planCutawayWallTransform} from '/dungeon/cutaway-floor-plan.js';
+import {planCutawayWallTransform,planCutawayFoundationTransform,planCutawayParapetTransform} from '/dungeon/cutaway-floor-plan.js';
 import {encounterTarget,isSceneAlert,installSpectatorUI} from '/dungeon/spectator-ui.js';
 import {enrichEnvironment} from '/dungeon/environment.js';
 import {planDungeonWallProfiles} from '/dungeon/wall-profile-plan.js';
@@ -148,6 +148,33 @@ function cutawayWalls(target,subjects){
  cachedQuat.identity();
  world.userData.cutawayWalls=cut;world.userData.cutawayNearbyWalls=nearbyCut;
  world.userData.wallMatrixWrites=wallMatrixWrites;
+ // Foundation courses use the same cached parent wall bands to avoid drawing
+ // enormous black 1x1 tiles over the textured under-wall floor when the
+ // spectator camera clears opaque walls. All changes are render-only.
+ const foundationMesh=world.userData.foundationMesh;
+ const foundationBrickWallIndices=world.userData.foundationBrickWallIndices;
+ const foundationPositions=world.userData.foundationBrickPositions;
+ const foundationBands=world.userData.foundationCutawayBands;
+ let clearedFoundationBricks=0,foundationMatrixWrites=0;
+ if(foundationMesh&&foundationPositions&&foundationBrickWallIndices){
+  for(let i=0;i<foundationPositions.length;i++){
+   const footWallIndex=foundationBrickWallIndices[i];
+   const band=footWallIndex>=0&&footWallIndex<wallBands.length?wallBands[footWallIndex]:0;
+   const reveal=band===2?'sightline':band===1?'nearby':'none';
+   if(reveal!=='none')clearedFoundationBricks++;
+   if(!shouldUploadCutawayBand(foundationBands,i,reveal==='sightline'?2:reveal==='nearby'?1:0))continue;
+   const foundation=planCutawayFoundationTransform(reveal);
+   if(!foundation)continue;
+   const [fx,,fz]=foundationPositions[i];
+   cachedVec.set(fx,foundation.y,fz);
+   cachedScale.set(foundation.footprint,foundation.height,foundation.footprint);
+   cachedMatrix.compose(cachedVec,cachedQuat,cachedScale);
+   foundationMesh.setMatrixAt(i,cachedMatrix);foundationMatrixWrites++;
+  }
+  if(foundationMatrixWrites)foundationMesh.instanceMatrix.needsUpdate=true;
+ }
+ world.userData.clearedFoundationBricks=clearedFoundationBricks;
+ world.userData.foundationMatrixWrites=foundationMatrixWrites;
  // Decorative wall crowns must obey the same true-world sightline clearance
  // as the main masonry. Otherwise an invisible wall can still hide the model
  // behind an unrelated 2.5m-high square parapet.
@@ -159,9 +186,11 @@ function cutawayWalls(target,subjects){
    const [px,pz]=parapetPositions[i],hidden=sightlineClearance(px,pz,subjects,camera.position,2.15);
    if(hidden)clearedParapets++;
    if(!shouldUploadCutawayBand(parapetBands,i,hidden?1:0))continue;
+   const parapet=planCutawayParapetTransform(hidden,world.userData.parapetHeights?.[i]??2.53);
+   if(!parapet)continue;
    parapetMatrixWrites++;
-   cachedVec.set(px,hidden?.08:(world.userData.parapetHeights?.[i]??2.53),pz);
-   cachedScale.set(1.04,hidden?.025:.12,1.04);
+   cachedVec.set(px,parapet.y,pz);
+   cachedScale.set(parapet.footprint,parapet.height,parapet.footprint);
    cachedMatrix.compose(cachedVec,cachedQuat,cachedScale);
    parapets.setMatrixAt(i,cachedMatrix);
   }
@@ -263,6 +292,7 @@ function buildWorld(s){clearWorld();worldFloor=s.run+'-'+s.floor;world.userData.
 
  const theme=floorThemes[(s.floor-1)%floorThemes.length];scene.background=new THREE.Color(theme.sky);scene.fog.color.set(theme.fog);moon.color.set(theme.fill);ambient.intensity=1.95;
  const floors=[],walls=[],trim=[];const size=s.map.length,offset=Math.floor(size/2);
+ const wallIndexByTile=new Int32Array(size*size).fill(-1);
  const sculpture=planFracturedWallStone(s.floor);
  const fracturedWall=new THREE.BufferGeometry();
  fracturedWall.setAttribute('position',new THREE.Float32BufferAttribute(sculpture.vertices,3));
@@ -272,7 +302,7 @@ function buildWorld(s){clearWorld();worldFloor=s.run+'-'+s.floor;world.userData.
  for(let z=0;z<size;z++)for(let x=0;x<size;x++){
   const px=x-offset,pz=z-offset;
   if(s.map[z][x]==='.'){floors.push([px,-.10,pz]);if((x*13+z*7)%11===0)trim.push([px,-.028,pz])}
-  else walls.push([px,1.27,pz]);
+  else {wallIndexByTile[z*size+x]=walls.length;walls.push([px,1.27,pz]);}
  }
  const instance=(geometry,material,data,scale,heights=null)=>{const mesh=new THREE.InstancedMesh(geometry,material,data.length);const matrix=new THREE.Matrix4(),position=new THREE.Vector3(),quaternion=new THREE.Quaternion(),scaling=new THREE.Vector3(...scale);for(let i=0;i<data.length;i++){position.set(...data[i]);if(heights){position.y=heights[i]/2-.03;scaling.y=heights[i];const weather=planWallStoneVariation(data[i][0],data[i][2],s.floor);quaternion.setFromAxisAngle(wallVertical,weather.yaw);mesh.setColorAt(i,new THREE.Color().setRGB(weather.shade,weather.shade,weather.shade));}matrix.compose(position,quaternion,scaling);mesh.setMatrixAt(i,matrix)}mesh.instanceMatrix.needsUpdate=true;if(mesh.instanceColor)mesh.instanceColor.needsUpdate=true;mesh.castShadow=!reduced;mesh.receiveShadow=true;world.add(mesh)};
  instance(geo.cube,floorMat,floors,[.99,.16,.99]);
@@ -283,14 +313,14 @@ function buildWorld(s){clearWorld();worldFloor=s.run+'-'+s.floor;world.userData.
   world.userData.wallProfileMetrics={totalWalls:wallProfiles.length,exposedWalls:exposedProfiles.length,distinctHeights:new Set(exposedProfiles.map(profile=>profile.height)).size,minHeight:exposedProfiles.length?Math.min(...exposedProfiles.map(profile=>profile.height)):0,maxHeight:exposedProfiles.length?Math.max(...exposedProfiles.map(profile=>profile.height)):0};
  instance(geo.cube,stoneEdge,trim,[.86,.02,.86]);
  // Multiple architecturally distinct layers: foundation courses, arches, broken stone tiles and inlaid runes.
- const topBricks=[],footBricks=[],runes=[],stonePavers=[],shards=[],caps=[];
+ const topBricks=[],footBricks=[],foundationBrickWallIndices=[],runes=[],stonePavers=[],shards=[],caps=[];
  const fracture=(x,z)=>((x*73+z*139+s.floor*41+4096)&1023);
   const wallHeightAt=new Map(wallProfiles.map(profile=>[profile.z*size+profile.x,profile.height]));
  for(let z=1;z<size-1;z++)for(let x=1;x<size-1;x++){
   const wx=x-offset,wz=z-offset,f=fracture(x,z);
   if(s.map[z][x]==='#'){
    if(f%3===0)topBricks.push([wx,(wallHeightAt.get(z*size+x)??2.6)-.07,wz]);
-   if(f%4===0)footBricks.push([wx,.1,wz]);
+   if(f%4===0){footBricks.push([wx,.1,wz]);foundationBrickWallIndices.push(wallIndexByTile[z*size+x]);}
    if(s.map[z-1][x]==='.'&&f%7===0)caps.push([wx,(wallHeightAt.get(z*size+x)??2.6)+.03,wz-.34]);
   }else{
    if(f%4===0)stonePavers.push([wx,-.005,wz]);
@@ -301,7 +331,12 @@ function buildWorld(s){clearWorld();worldFloor=s.run+'-'+s.floor;world.userData.
  const ornament=mat(theme.accent,.5,.5),blackStone=mat('#171c29',.15,.98),runeMat=new THREE.MeshStandardMaterial({color:theme.torch,emissive:theme.torch,emissiveIntensity:1.6,roughness:.35});
  const garnish=(material,data,scale)=>{if(!data.length)return null;const mesh=new THREE.InstancedMesh(geo.cube,material,data.length);const m=new THREE.Matrix4(),p=new THREE.Vector3(),sc=new THREE.Vector3(...scale),rot=new THREE.Quaternion();
   for(let i=0;i<data.length;i++){p.set(...data[i]);m.compose(p,rot,sc);mesh.setMatrixAt(i,m)}mesh.receiveShadow=true;mesh.instanceMatrix.needsUpdate=true;world.add(mesh);return mesh};
- world.userData.parapets=garnish(stoneEdge,topBricks,[1.04,.12,1.04]);world.userData.parapetPositions=topBricks.map(([x,,z])=>[x,z]);world.userData.parapetHeights=topBricks.map(([,y])=>y);world.userData.parapetCutawayBands=createCutawayBandCache(topBricks.length);garnish(blackStone,footBricks,[1.035,.21,1.035]);
+ world.userData.parapets=garnish(stoneEdge,topBricks,[1.04,.12,1.04]);world.userData.parapetPositions=topBricks.map(([x,,z])=>[x,z]);world.userData.parapetHeights=topBricks.map(([,y])=>y);world.userData.parapetCutawayBands=new Uint8Array(topBricks.length);
+ world.userData.foundationMesh=garnish(blackStone,footBricks,[1.035,.21,1.035]);
+ world.userData.foundationBrickPositions=footBricks;
+ world.userData.foundationBrickWallIndices=foundationBrickWallIndices;
+ // The instanced GPU transforms start intact; only actual changed bands upload.
+ world.userData.foundationCutawayBands=new Uint8Array(footBricks.length);
  garnish(stoneEdge,stonePavers,[.86,.025,.86]);garnish(runeMat,runes,[.52,.009,.10]);
  garnish(ornament,caps,[.30,.23,.35]);garnish(blackStone,shards,[.16,.17,.20]);
  // Decorated arches are constructed only at certain long corridors; avoid hiding characters.
@@ -760,7 +795,7 @@ function animate(t){
   }
  }}
  catch(error){console.warn('[DUNGEON] post effect fault, restoring WebGL:',String(error));try{composer?.dispose()}catch{}composer=null;bloomPass=null;postFXStatus='fallback';postFXEnabled=false;fxButton.title='Glow unavailable: direct rendering remains active';fxButton.setAttribute('aria-pressed','false');fxButton.querySelector('span').textContent='DIRECT 3D';renderer.info.reset();renderer.render(scene,camera)}
- combatOverlay.render(state,actors,camera,time);if(state)window.__DUNGEON_RENDER_DIAGNOSTICS__={composition:inspectComposition(state),visibility:actualHeroVisibility(state,time),frame:renderer.info.render.frame,drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,camera:cameraModes[cameraIndex],cameraSpread:spread,cameraMargin:margin,cameraRig:{mode:cameraType,desiredPosition:plannedCamera.position,actualPosition:{x:camera.position.x,y:camera.position.y,z:camera.position.z},turn:plannedCamera.turn,boundaryLimit:plannedCamera.boundaryLimit},focusedHeroId,autoDirector,cutawayWalls:world.userData.cutawayWalls??0,wallMatrixWrites:world.userData.wallMatrixWrites??0,parapetMatrixWrites:world.userData.parapetMatrixWrites??0,cutawayNearbyWalls:world.userData.cutawayNearbyWalls??0,cutawaySubjects:world.userData.cutawaySubjectCount??0,bossCutawayActive:world.userData.bossCutawayActive??false,cutawayParapets:world.userData.cutawayParapets??0,wallProfiles:world.userData.wallProfileMetrics??null,wallSculpture:world.userData.wallSculpture??null,wallMasonry:{size:wallMasonryTexture?.image?.width??0,mapped:Boolean(wallMasonryTexture&&stone.map===wallMasonryTexture),bump:Boolean(wallMasonryTexture&&stone.bumpMap===wallMasonryTexture),bumpScale:stone.bumpScale},floorRuins:world.userData.floorRuins?.metrics??null,hiddenForegroundProps:world.userData.hiddenForegroundProps??0,postFX:composer&&postFXEnabled?'bloom':'direct',postFXStatus,postFXBudget,bloomRenderMs,bloomDownshifts,postFXAutoDisabled:bloomAutoDisabled,frameDelivery:frameDeliveryReport,softwareWebGL,directRenderBudget:directBudget,directRenderMs,directDownshifts,heroKeyIntensity:heroKey.intensity,bossFramed:Boolean(bossDistance),cameraLook:{x:look.x,z:look.z},activeUnits:[...actors.values()].filter(x=>x.root.visible).length,characterDetails:[...actors.values()].reduce((sum,x)=>sum+(x.detail?.parts||0),0),combatFacingActors:[...actors.values()].filter(x=>x.combatFacing&&x.root.visible).length,alignedCombatActors:[...actors.values()].filter(x=>x.combatFacing&&x.root.visible&&Math.abs(shortestYawDelta(x.root.rotation.y,x.combatFacing.yaw))<.18).length,webgl:true,theme:state.theme,dressing:world.userData.dressing?.metrics??null,atmosphere:world.userData.atmosphere?.metrics??null,livingWorld:world.userData.livingWorld?.metrics??null,overlay:combatOverlay.metrics(),combatStage:combatDirector.stats(),groundedActors:[...actors.values()].filter(x=>Boolean(x.ground)).length,authoredMotionPivots:[...actors.values()].filter(x=>x.authored&&x.visualPivot).length,authoredCombatPoseActors:[...actors.values()].filter(x=>x.authored&&['attack','cast','hurt'].includes(x.u.action)).length,authoredMotionMaxOffset:[...actors.values()].reduce((m,x)=>Math.max(m,x.visualPivot?.position.length()||0),0),authoredMotionPeak:[...actors.values()].reduce((m,x)=>Math.max(m,x.motionPeak||0),0),authored3D:assetStats(actors)};
+ combatOverlay.render(state,actors,camera,time);if(state)window.__DUNGEON_RENDER_DIAGNOSTICS__={composition:inspectComposition(state),visibility:actualHeroVisibility(state,time),frame:renderer.info.render.frame,drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,camera:cameraModes[cameraIndex],cameraSpread:spread,cameraMargin:margin,cameraRig:{mode:cameraType,desiredPosition:plannedCamera.position,actualPosition:{x:camera.position.x,y:camera.position.y,z:camera.position.z},turn:plannedCamera.turn,boundaryLimit:plannedCamera.boundaryLimit},focusedHeroId,autoDirector,cutawayWalls:world.userData.cutawayWalls??0,wallMatrixWrites:world.userData.wallMatrixWrites??0,parapetMatrixWrites:world.userData.parapetMatrixWrites??0,cutawayNearbyWalls:world.userData.cutawayNearbyWalls??0,cutawaySubjects:world.userData.cutawaySubjectCount??0,bossCutawayActive:world.userData.bossCutawayActive??false,cutawayParapets:world.userData.cutawayParapets??0,foundationBricks:world.userData.foundationBrickPositions?.length??0,clearedFoundationBricks:world.userData.clearedFoundationBricks??0,foundationMatrixWrites:world.userData.foundationMatrixWrites??0,wallProfiles:world.userData.wallProfileMetrics??null,wallSculpture:world.userData.wallSculpture??null,wallMasonry:{size:wallMasonryTexture?.image?.width??0,mapped:Boolean(wallMasonryTexture&&stone.map===wallMasonryTexture),bump:Boolean(wallMasonryTexture&&stone.bumpMap===wallMasonryTexture),bumpScale:stone.bumpScale},floorRuins:world.userData.floorRuins?.metrics??null,hiddenForegroundProps:world.userData.hiddenForegroundProps??0,postFX:composer&&postFXEnabled?'bloom':'direct',postFXStatus,postFXBudget,bloomRenderMs,bloomDownshifts,postFXAutoDisabled:bloomAutoDisabled,frameDelivery:frameDeliveryReport,softwareWebGL,directRenderBudget:directBudget,directRenderMs,directDownshifts,heroKeyIntensity:heroKey.intensity,bossFramed:Boolean(bossDistance),cameraLook:{x:look.x,z:look.z},activeUnits:[...actors.values()].filter(x=>x.root.visible).length,characterDetails:[...actors.values()].reduce((sum,x)=>sum+(x.detail?.parts||0),0),combatFacingActors:[...actors.values()].filter(x=>x.combatFacing&&x.root.visible).length,alignedCombatActors:[...actors.values()].filter(x=>x.combatFacing&&x.root.visible&&Math.abs(shortestYawDelta(x.root.rotation.y,x.combatFacing.yaw))<.18).length,webgl:true,theme:state.theme,dressing:world.userData.dressing?.metrics??null,atmosphere:world.userData.atmosphere?.metrics??null,livingWorld:world.userData.livingWorld?.metrics??null,overlay:combatOverlay.metrics(),combatStage:combatDirector.stats(),groundedActors:[...actors.values()].filter(x=>Boolean(x.ground)).length,authoredMotionPivots:[...actors.values()].filter(x=>x.authored&&x.visualPivot).length,authoredCombatPoseActors:[...actors.values()].filter(x=>x.authored&&['attack','cast','hurt'].includes(x.u.action)).length,authoredMotionMaxOffset:[...actors.values()].reduce((m,x)=>Math.max(m,x.visualPivot?.position.length()||0),0),authoredMotionPeak:[...actors.values()].reduce((m,x)=>Math.max(m,x.motionPeak||0),0),authored3D:assetStats(actors)};
 }
 async function poll(){try{const r=await fetch('/dungeon/state',{cache:'no-store'});if(!r.ok)throw Error('State '+r.status);const data=await r.json();if(data.tick!==lastTick||data.run!==state?.run){lastTick=data.tick;update(data)}}catch(e){errorAt++;if(errorAt>=3){$('recovery').hidden=false;$('status').textContent='VIEW DEGRADED — RETRYING';console.warn('Dungeon view recovery',String(e))}}finally{setTimeout(poll,190)}}
 $('party').addEventListener('click',e=>{
