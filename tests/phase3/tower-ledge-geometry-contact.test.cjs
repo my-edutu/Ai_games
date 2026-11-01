@@ -398,3 +398,63 @@ test('real lead boot plants BOTH heel and toe on the actual supporting upper dec
       'only pose bones may compress; keep authoritative actor root unchanged');
   }
 });
+
+
+test('an authentic heel-to-toe deck load decompresses through the next rising tick without a phantom second landing',async t=>{
+  const threeURL=pathToFileURL(path.join(path.dirname(require.resolve('three')),'three.module.js')).href;
+  const adjusted=cast.replace("from '/tower/vendor/three.module.js'","from '"+threeURL+"'");
+  assert.notEqual(adjusted,cast);
+  const [{createClimber},THREE]=await Promise.all([
+    import('data:text/javascript;base64,'+Buffer.from(adjusted).toString('base64')),import(threeURL)
+  ]);
+  const surface={platformId:'f1:p1',y:6,innerRadius:22.4,outerRadius:27.18};
+  const base={state:'airborne',vx:3200,vy:10200,facing:1,health:5,attacking:false,
+    runToken:'authentic-climb',tick:300,ledgePlatformId:'f1:p1',
+    ledgeMantle:{progress:.48,weight:1}};
+  for(const viewAzimuth of [-Math.PI/4,Math.PI/4]){
+    const loaded=createClimber(),free=createClimber(),anotherRun=createClimber();
+    t.after(()=>{loaded.dispose();free.dispose();anotherRun.dispose();});
+    const opts={reducedMotion:true,viewAzimuth};
+    const body=rig=>{
+      const joint=rig.group.getObjectByName('articulated-body');
+      assert.ok(joint?.isBone,'measure the actual articulated torso');
+      return joint;
+    };
+    const soleY=rig=>{
+      const foot=rig.group.getObjectByName('1-ankle');
+      assert.ok(foot?.isBone);
+      foot.updateWorldMatrix(true,false);
+      return foot.localToWorld(new THREE.Vector3(0,-.205,.07)).y;
+    };
+    for(const rig of [loaded,free,anotherRun])rig.group.position.set(0,6,25);
+    free.animate(base,1/60,1,opts);
+    // Match the existing authentic-sole regression: approach floats 8cm over
+    // the real top surface before a platform-matched contact is allowed.
+    const shift=soleY(free)-surface.y-.08;
+    for(const rig of [loaded,free,anotherRun])rig.group.position.y-=shift;
+    const planted={...base,ledgeSurface:surface};
+    for(const rig of [loaded,anotherRun])rig.animate(planted,1/60,1,opts);
+    const compression=body(free).position.y-body(loaded).position.y;
+    assert.ok(compression>.05,'contact must have actual load to release: '+compression);
+    const upward={...base,tick:301,vy:9000,
+      ledgeMantle:{progress:.62,weight:1},ledgeSurface:surface};
+    for(const rig of [loaded,free,anotherRun]){
+      rig.group.position.y+=.9; // genuine next authoritative ascent, not a cosmetic root change
+      const rootBefore=rig.group.position.clone();
+      rig.animate(rig===anotherRun?{...upward,runToken:'different-run'}:upward,1/60,1+1/60,opts);
+      assert.ok(rig.group.position.equals(rootBefore),'animation does not edit the authoritative root');
+    }
+    const retained=body(free).position.y-body(loaded).position.y;
+    assert.ok(retained>.025&&retained<.135,
+      'the first airborne push-off must retain a small bounded fraction of the real load, not snap its torso by the entire compression: '+retained);
+    assert.ok(Math.abs(body(anotherRun).position.y-body(free).position.y)<1e-6,
+      'the old run must not transfer compression into the next run');
+    const departed={...upward,tick:302,vy:7800,ledgeMantle:{progress:.75,weight:1}};
+    for(const rig of [loaded,free]){
+      rig.group.position.y+=.78;
+      rig.animate(departed,1/60,1+2/60,opts);
+    }
+    assert.ok(Math.abs(body(loaded).position.y-body(free).position.y)<1e-6,
+      'the pose must completely release after two actual advancing ticks');
+  }
+});
