@@ -3,8 +3,8 @@ const {test,expect}=require('@playwright/test');
 const fs=require('node:fs'),path=require('node:path');
 const html=fs.readFileSync(path.join(__dirname,'../../public/tiny-kingdom/index.html'),'utf8');
 
-// G078: the 65k-triangle seasonal landscape should not be copied into each
-// newly constructed cottage mesh or re-uploaded when only city.length changes.
+// G094: verify the independently cached landscape after G089 reclaimed more
+// than 11k distant tree triangles; historic 65k/60k minimums are not invariants.
 test('G078 maintains an independent landscape GPU buffer across actual autonomous cottage construction',async({page})=>{
  expect(html).toMatch(/const landscapeBuffer=gl\.createBuffer\(\)/);
  expect(html).toMatch(/bindGeometry\(landscapeBuffer\);gl\.drawArrays/);
@@ -20,7 +20,9 @@ test('G078 maintains an independent landscape GPU buffer across actual autonomou
    authority:JSON.stringify(g.exportSnapshot())};
  });
  expect(before.stats.landscapeGpuUploads).toBe(1);
- expect(before.landscape.triangles).toBeGreaterThan(60000);
+ expect(before.landscape.triangles).toBeGreaterThan(
+  before.stats.terrainCacheTriangles*4);
+ expect(before.landscape.triangles).toBeLessThan(before.geometry.static.triangles);
  expect(before.storage.segments).toBe(2);
  expect(before.geometry.static.floats).toBe(before.storage.floats);
  const built=await page.evaluate(initialBuildings=>{

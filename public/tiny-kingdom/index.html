@@ -327,6 +327,50 @@ body[data-workday="live"] #workday-progress{display:block}
  #workday-progress{bottom:78px;width:calc(100vw - 74px);height:6px}
 }
 @media(prefers-reduced-motion:reduce){#workday-progress{transition:none}}
+/* G094 workday observation: put a real worker ahead of the HUD.
+   Keep every command available while removing the oversized three-level
+   masthead. The live work and resource quantities stay truthful. */
+body[data-workday="live"] .top{top:8px;left:12px;right:12px}
+body[data-workday="live"] .brand{padding:5px 10px;gap:7px;border-radius:10px}
+body[data-workday="live"] .seal{width:32px;height:32px;border-radius:8px;font-size:19px}
+body[data-workday="live"] .name{font-size:17px;line-height:1.15}
+body[data-workday="live"] .overline,
+body[data-workday="live"] .subtitle{display:none}
+body[data-workday="live"] .pill{padding:8px 10px;gap:6px;font-size:10px}
+body[data-workday="live"] .world-tour{top:64px;max-width:calc(100vw - 18px);padding:5px 8px}
+body[data-workday="live"] #world-ribbon{
+ top:auto;bottom:136px;left:50%;right:auto;transform:translateX(-50%);
+ padding:7px 10px;gap:8px;flex-wrap:nowrap;
+ max-width:calc(100vw - 18px);width:max-content;border-radius:12px}
+body[data-workday="live"] #world-ribbon .world-identity,
+body[data-workday="live"] #world-ribbon #world-story{display:none}
+body[data-workday="live"] #world-ribbon .world-measure strong{font-size:16px}
+body[data-workday="live"] #world-open-command{padding:8px 10px}
+body[data-workday="live"] #workday-activity{
+ bottom:102px;max-width:calc(100vw - 28px);white-space:normal}
+@media(max-width:520px){
+ body[data-workday="live"] .top{top:6px;left:7px;right:7px}
+ body[data-workday="live"] .brand{padding:4px 6px}
+ body[data-workday="live"] .name{font-size:14px}
+ body[data-workday="live"] .pill{max-width:145px;font-size:9px;padding:5px 7px}
+ body[data-workday="live"] .world-tour{
+  top:57px;left:7px;right:7px;transform:none;width:auto;
+  overflow-x:auto;justify-content:flex-start;gap:3px;padding:4px}
+ body[data-workday="live"] .tour-btn{min-height:34px;font-size:10px;padding:6px 9px}
+ body[data-workday="live"] #world-ribbon{
+  top:auto;bottom:142px;left:50%;right:auto;
+  transform:translateX(-50%);width:calc(100vw - 14px);
+  justify-content:space-evenly;gap:4px;flex-wrap:nowrap;padding:6px}
+ body[data-workday="live"] #world-ribbon .world-measure{gap:2px}
+ body[data-workday="live"] #world-ribbon .world-measure strong{font-size:14px}
+ body[data-workday="live"] #world-ribbon .world-measure small{font-size:8px}
+ body[data-workday="live"] #world-open-command{padding:6px;font-size:9px}
+ body[data-workday="live"] #workday-activity{
+  bottom:99px;font-size:11px;max-width:calc(100vw - 20px)}
+}
+@media(prefers-reduced-motion:reduce){
+ body[data-workday="live"] .world-tour{scroll-behavior:auto}
+}
 </style></head><body>
 <canvas id="world" aria-label="Live 3D simulation of a medieval valley with autonomous villagers"></canvas><div class="vignette"></div>
 <div class="top"><div class="brand"><div class="seal">♜</div><div><div class="overline">AI Civilization · World 001</div><div class="name">The Living Valley</div><div class="subtitle">A kingdom that writes its own story</div></div></div><div class="pill"><span class="live"></span><span id="clock">DAY 1 · DAWN</span><span style="color:#dec48b" id="weather">☀ CLEAR SKIES</span></div></div>
@@ -386,7 +430,7 @@ function getFrameProfile(){
   totalFrames:frameProfileCount,samples:frameProfileSamples.length,
   latest:frameProfileSamples.length?{...frameProfileSamples[frameProfileSamples.length-1]}:null,stages};
 }
-function renderQuality(){const automated=swiftGpu||!gpuAvailable;return {tier:graphicsTier,renderer:gpuName,scale:qualityOverride??(automated?.65:1),targetFps:automated?12:60,framesDrawn,framesSkipped,idleFrames}}
+function renderQuality(){const automated=swiftGpu||!gpuAvailable;return {tier:graphicsTier,renderer:gpuName,scale:qualityOverride??(automated?.65:1),targetFps:automated?12:60,materialNoise:swiftGpu?'projected-bilinear-software':'volumetric-trilinear',framesDrawn,framesSkipped,idleFrames}}
 function setRenderQuality(scale){if(!Number.isFinite(scale)||scale<.35||scale>1.5)throw Error('Render scale must be between 0.35 and 1.5');qualityOverride=scale;return renderQuality()}
 
 // Accessible no-WebGL preview for constrained machines. Real browsers use the WebGL path.
@@ -653,7 +697,23 @@ void main(){
  gl_FragColor=vec4(mapped,1.);
 }`;
 function shader(type,src){const s=gl.createShader(type);gl.shaderSource(s,src);gl.compileShader(s);if(!gl.getShaderParameter(s,gl.COMPILE_STATUS))throw Error(gl.getShaderInfoLog(s));return s}
-const program=gl.createProgram();gl.attachShader(program,shader(gl.VERTEX_SHADER,vs));gl.attachShader(program,shader(gl.FRAGMENT_SHADER,fs));gl.linkProgram(program);if(!gl.getProgramParameter(program,gl.LINK_STATUS))throw Error(gl.getProgramInfoLog(program));gl.useProgram(program);
+// G094 integrated lived-in workday: the current software renderer is
+// dominated by a many-layer per-fragment volumetric material path. Render
+// the same world with a bounded four-corner *projected* noise field only
+// on known SwiftShader. Real graphics hardware retains the full 3D field.
+// This is a renderer-quality tier, not a performance/FPS or art-quality win.
+const softwareNoise3=`float noise3(vec3 p){
+ vec2 q=p.xz+p.y*vec2(.37,.19);
+ vec2 i=floor(q),f=fract(q);f=f*f*(3.-2.*f);
+ float a=hash3(vec3(i,3.)),b=hash3(vec3(i+vec2(1.,0.),3.));
+ float c=hash3(vec3(i+vec2(0.,1.),3.)),d=hash3(vec3(i+vec2(1.,1.),3.));
+ return mix(mix(a,b,f.x),mix(c,d,f.x),f.y);
+}`;
+const materialFragmentSource=swiftGpu?
+ fs.replace(/float noise3\(vec3 p\)\{[\s\S]*?\n\}/,softwareNoise3):fs;
+if(swiftGpu&&materialFragmentSource===fs)
+ throw Error('Software material tier failed to replace expensive volumetric noise');
+const program=gl.createProgram();gl.attachShader(program,shader(gl.VERTEX_SHADER,vs));gl.attachShader(program,shader(gl.FRAGMENT_SHADER,materialFragmentSource));gl.linkProgram(program);if(!gl.getProgramParameter(program,gl.LINK_STATUS))throw Error(gl.getProgramInfoLog(program));gl.useProgram(program);
 const uniforms={viewProjection:gl.getUniformLocation(program,'viewProjection'),fogColor:gl.getUniformLocation(program,'fogColor'),sunDirection:gl.getUniformLocation(program,'sunDirection'),sunTint:gl.getUniformLocation(program,'sunTint'),sunStrength:gl.getUniformLocation(program,'sunStrength'),ambientBlend:gl.getUniformLocation(program,'ambientBlend'),worldTime:gl.getUniformLocation(program,'worldTime'),weatherWetness:gl.getUniformLocation(program,'weatherWetness'),eyePosition:gl.getUniformLocation(program,'eyePosition')};const buffer=gl.createBuffer();const staticBuffer=gl.createBuffer();const landscapeBuffer=gl.createBuffer();let staticGpuUploads=0,landscapeGpuUploads=0;
 // G067: reuse both driver-side storage and CPU staging for the changing
 // citizen/effects VBO; only grow in bounded 65536-float chunks when needed.
@@ -3337,32 +3397,58 @@ function followCameraRoofs(){
  roofs.push({x:gx,z:gz,rx:2.5,rz:2.1,top:terrain(gx,gz)+5.2});
  return roofs;
 }
+// G094: exact line-of-sight against projected building footprints. The old
+// 16-point ray samples jumped over some roofs and framed workers behind walls.
+// Camera tests are read-only and cannot affect jobs, collision or simulation.
 function followRayBlockers(eye,target,roofs){
- let hit=0;
+ let hits=0;
  for(const roof of roofs){
-  for(let i=2;i<18;i++){
-   const t=i/18,px=eye[0]+(target[0]-eye[0])*t,py=eye[1]+(target[1]-eye[1])*t,pz=eye[2]+(target[2]-eye[2])*t;
-   if(Math.abs(px-roof.x)<roof.rx&&Math.abs(pz-roof.z)<roof.rz&&py<roof.top+.16){hit++;break}
+  let near=0,far=1,miss=false;
+  for(const [axis,centre,extent] of [[0,roof.x,roof.rx],[2,roof.z,roof.rz]]){
+   const d=target[axis]-eye[axis];
+   if(Math.abs(d)<.00001){
+    if(Math.abs(eye[axis]-centre)>extent){miss=true;break}
+   }else{
+    const a=(centre-extent-eye[axis])/d,b=(centre+extent-eye[axis])/d;
+    near=Math.max(near,Math.min(a,b));far=Math.min(far,Math.max(a,b));
+    if(near>far){miss=true;break}
+   }
+  }
+  if(miss||far<=.02||near>=.98)continue;
+  const base=terrain(roof.x,roof.z)-.22;
+  const from=Math.max(.02,near),to=Math.min(.98,far);
+  for(const t of [from,(from+to)*.5,to]){
+   const y=eye[1]+(target[1]-eye[1])*t;
+   if(y>=base&&y<=roof.top+.16){hits++;break}
   }
  }
- return hit;
+ return hits;
 }
 function planCitizenCamera(citizen,preferredYaw=yaw){
- // A working human must fill the shot; do not leave them tiny in a farm panorama.
- // Shoulder-height, human-readable follow framing. The former ~5m aerial
- // elevation looked over workers instead of showing their physical craft.
- const pitch=liveWorkday?.24:.76,zoom=liveWorkday?6.2:12.8,
-  target=[citizen.x,terrain(citizen.x,citizen.z)+1.02,citizen.z];
- const radius=Math.cos(pitch)*zoom,elevation=Math.sin(pitch)*zoom,roofs=followCameraRoofs();
- const candidate=angle=>{
+ // Work remains the visual protagonist: inspect multiple *physical* camera
+ // positions, not just orbit angles, and reject roofs between lens and hands.
+ const target=[citizen.x,terrain(citizen.x,citizen.z)+1.02,citizen.z],
+  roofs=followCameraRoofs(),working=Boolean(liveWorkday),
+  normalPitch=working?.24:.76,normalZoom=working?6.2:12.8;
+ const candidate=(angle,pitch=normalPitch,zoom=normalZoom)=>{
+  const radius=Math.cos(pitch)*zoom,elevation=Math.sin(pitch)*zoom;
   const eye=[target[0]+Math.sin(angle)*radius,target[1]+elevation,target[2]+Math.cos(angle)*radius];
-  return {yaw:angle,pitch,zoom,eye,target,blockers:followRayBlockers(eye,target,roofs)};
+  return {yaw:angle,pitch,zoom,eye,target,
+   blockers:followRayBlockers(eye,target,roofs)};
  };
  const original=candidate(preferredYaw);
- let best=original;
- for(const offset of [Math.PI/4,-Math.PI/4,Math.PI/2,-Math.PI/2,Math.PI*3/4,-Math.PI*3/4,Math.PI]){
-  const test=candidate(preferredYaw+offset);
-  if(test.blockers<best.blockers)best=test;
+ let best=original,bestScore=original.blockers*100;
+ const offsets=[0,Math.PI/8,-Math.PI/8,Math.PI/4,-Math.PI/4,
+  3*Math.PI/8,-3*Math.PI/8,Math.PI/2,-Math.PI/2,
+  5*Math.PI/8,-5*Math.PI/8,3*Math.PI/4,-3*Math.PI/4,Math.PI];
+ const pitches=working?[.24,.31]:[.76],zooms=working?[6.2,5.5,7.3]:[12.8];
+ for(const testPitch of pitches)for(const testZoom of zooms)for(const offset of offsets){
+  const shot=candidate(preferredYaw+offset,testPitch,testZoom);
+  // A fully unobstructed worker is worth a changed angle. Only *then*
+  // minimize travel, zoom and elevation to prevent arbitrary camera jumps.
+  const score=shot.blockers*100+Math.abs(offset)*.9+
+   Math.abs(testZoom-normalZoom)*.35+Math.abs(testPitch-normalPitch)*3;
+  if(score+1e-6<bestScore){best=shot;bestScore=score}
  }
  return {...best,originalBlockers:original.blockers};
 }
@@ -3624,7 +3710,16 @@ function render(now){requestAnimationFrame(render);
  if(liveWorkday){
   const plan=planCitizenCamera(citizen,yaw);
   const turn=Math.atan2(Math.sin(plan.yaw-yaw),Math.cos(plan.yaw-yaw));
-  const blend=reduceMotion?1:.19;
+  // At software frame rates, slow easing can leave the worker fully hidden
+  // for multiple seconds. Use a quicker yet bounded repair when blocked.
+  const radius=Math.cos(pitch)*zoom,eye=[
+   focusPoint[0]+Math.sin(yaw)*radius,
+   terrain(focusPoint[0],focusPoint[1])+1.02+Math.sin(pitch)*zoom,
+   focusPoint[1]+Math.cos(yaw)*radius];
+  const obstructed=followRayBlockers(eye,
+   [citizen.x,terrain(citizen.x,citizen.z)+1.02,citizen.z],
+   followCameraRoofs())>0;
+  const blend=reduceMotion?1:obstructed?.56:.23;
   yaw+=turn*blend;pitch+=(plan.pitch-pitch)*blend;zoom+=(plan.zoom-zoom)*blend;
   lastFollowShot=plan;
  }
