@@ -74,10 +74,29 @@ test('G095 working market is physical, economy-led and usable at 390px',async({p
   const g=window.__tinyKingdom;
   return {overflow:document.documentElement.scrollWidth>innerWidth,
    marketButton:document.querySelector('[data-scenic="market"]').getBoundingClientRect().width,
-   marketCamera:g.getCamera(),glError:document.querySelector('#world').getContext('webgl')?.getError()||0};
+   marketCamera:g.getCamera(),command:g.getCommandView(),
+   sidebarDisplay:getComputedStyle(document.querySelector('.sidebar')).display,
+   atlasDisplay:getComputedStyle(document.querySelector('.atlas')).display,
+   worldRibbonDisplay:getComputedStyle(document.querySelector('#world-ribbon')).display,
+   glError:document.querySelector('#world').getContext('webgl')?.getError()||0};
  });
  expect(mobile.overflow).toBe(false);
  expect(mobile.marketButton).toBeGreaterThan(20);
+ // This 390px screenshot must be a GAME, not a map, two floating dashboards
+ // and stories obscuring almost every playable pixel.
+ expect(mobile.command).toBe('world');
+ expect(mobile.sidebarDisplay).toBe('none');
+ expect(mobile.atlasDisplay).toBe('none');
+ expect(mobile.worldRibbonDisplay).not.toBe('none');
+ await page.locator('#world-open-command').click();
+ const manuallyOpened=await page.evaluate(()=>({
+  command:window.__tinyKingdom.getCommandView(),
+  sidebar:getComputedStyle(document.querySelector('.sidebar')).display
+ }));
+ expect(manuallyOpened.command).toBe('command');
+ expect(manuallyOpened.sidebar).not.toBe('none');
+ await page.locator('#command-toggle').click();
+ expect(await page.evaluate(()=>window.__tinyKingdom.getCommandView())).toBe('world');
  expect(mobile.glError).toBe(0);
  expect(errors).toEqual([]);
 });
