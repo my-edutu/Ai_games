@@ -79,6 +79,22 @@ export function configureLowQualityWaterSampling(world, THREE) {
   return texture.minFilter === THREE.LinearMipmapNearestFilter;
 }
 // END R43 WATER SAMPLING HELPER
+// BEGIN R51 RESCUE PIXEL RATIO
+/**
+ * One bounded post-adaptation refinement for persistently slow submitted
+ * frames. Uses the existing 0.4 raster floor and never increases resolution.
+ * A submitted-frame gap is not display-present FPS or GPU-only time.
+ */
+export function boundedRescuePixelRatio(currentRatio, deviceRatio, sampleMs, targetMs = 33) {
+  if (!Number.isFinite(currentRatio) || currentRatio <= 0 ||
+      !Number.isFinite(deviceRatio) || deviceRatio <= 0 ||
+      !Number.isFinite(sampleMs) || sampleMs <= 48) return currentRatio;
+  const floor = Math.min(currentRatio, deviceRatio, 0.4);
+  const measured = currentRatio * Math.sqrt(targetMs / sampleMs);
+  const next = Math.max(floor, Math.min(currentRatio, measured));
+  return currentRatio - next >= 0.025 ? next : currentRatio;
+}
+// END R51 RESCUE PIXEL RATIO
 export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = {}) {
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false, powerPreference: 'high-performance' });
   renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -155,6 +171,13 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
   let scaleWarmupFrames = 3;
   let scaleAdjusted = false;
   let scaleSampleMs = 0;
+// BEGIN R51 RESCUE STATE
+  // Recover once if the first modest raster drop leaves sustained pressure.
+  // It never re-arms every frame and cannot create an unbounded resize loop.
+  let rescueWarmupFrames = 3;
+  const rescueSamples = [];
+  let rescueSettled = false, rescueSampleMs = 0;
+// END R51 RESCUE STATE
   const frameTimes = [];
   const cameraTarget = new THREE.Vector3(0, 0, 0);
   const desiredTarget = new THREE.Vector3();
@@ -407,6 +430,27 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
         }
       }
     }
+// BEGIN R51 RESCUE CONTROL
+    if (scaleAdjusted && quality === 'low' && !rescueSettled) {
+      if (rescueWarmupFrames > 0) rescueWarmupFrames--;
+      else {
+        rescueSamples.push(measuredDelta * 1000);
+        if (rescueSamples.length === 8) {
+          const ordered = [...rescueSamples].sort((a, b) => a - b);
+          rescueSampleMs = (ordered[3] + ordered[4]) / 2;
+          const oldRatio = renderer.getPixelRatio();
+          const nextRatio = boundedRescuePixelRatio(
+            oldRatio, window.devicePixelRatio || 1, rescueSampleMs, targetFrameMs);
+          rescueSamples.length = 0;
+          rescueSettled = true;
+          if (nextRatio < oldRatio) {
+            applyQuality(nextRatio);
+            resize(); // Recreate original cache/color/depth at the new scale once.
+          }
+        }
+      }
+    }
+// END R51 RESCUE CONTROL
     const key = `${snapshot.width}x${snapshot.height}`;
     if (key !== dimensions) {
       if (world) { scene.remove(world.group); world.dispose(); }
@@ -500,6 +544,10 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
       // END R43 WATER SAMPLING STATS
       pixelRatio: renderer.getPixelRatio(), drawingBuffer: { width: statsSize.x, height: statsSize.y },
       renderScale: { adjusted: scaleAdjusted, sampleFrameMs: scaleSampleMs, targetFrameMs },
+// BEGIN R51 RESCUE STATS
+      adaptiveRescue: { settled: rescueSettled, sampleFrameMs: rescueSampleMs,
+        warmupRemaining: rescueWarmupFrames, pendingSamples: rescueSamples.length },
+// END R51 RESCUE STATS
       drawCalls: renderer.info.render.calls, triangles: renderer.info.render.triangles,
       geometries: renderer.info.memory.geometries, textures: renderer.info.memory.textures,
       frameMs: { p50: percentile(0.5), p95: percentile(0.95), p99: percentile(0.99) },
@@ -513,6 +561,10 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
     lastTime = 0;
     scaleSamples.length = 0;
     scaleWarmupFrames = 3;
+// BEGIN R51 RESCUE VISIBILITY RESET
+    rescueWarmupFrames = 3;
+    rescueSamples.length = 0;
+// END R51 RESCUE VISIBILITY RESET
     frameTimes.length = 0;
   }
 

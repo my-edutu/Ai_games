@@ -1,8 +1,10 @@
 'use strict';
+const { stripR51Adaptive } = require('./snake-r51-adaptive-archive.cjs');
 // An optional, exact-source R49 layer for historical renderer A/B controls.
 // Complete old source is recovered by removing only these three additions.
 const names = ['CONTACT POSE BASELINE', 'CONTACT POSE COMPARE', 'CONTACT POSE UPLOAD GATE'];
 function stripR49Contact(source) {
+  source = stripR51Adaptive(source);
   const counts = names.map(name => source.split('// BEGIN R49 ' + name + '\n').length - 1);
   if (counts.every(count => count === 0)) return source;
   if (counts.some(count => count !== 1)) throw new Error('Incomplete R49 renderer archive');

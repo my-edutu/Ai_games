@@ -90,3 +90,63 @@ test('an explicitly low tier also responds when its initial resolution is too ex
     assert.equal(probe.draws, 24);
   } finally { renderer.dispose(); }
 });
+
+test('R51 bounded post-scale rescue refines persistent slow draws at most once', async () => {
+  const { renderer, probe, advance } = await makeHarness();
+  try {
+    for (let n = 0; n < 12; n++) advance(62);
+    const first = renderer.stats();
+    assert.equal(first.quality, 'low');
+    assert.ok(first.pixelRatio > 0.7 && first.pixelRatio < 0.76, 'initial measured raster adjustment');
+    assert.equal(first.adaptiveRescue.settled, false, 'a new warmup follows the first adjustment');
+    for (let n = 0; n < 20; n++) advance(62);
+    const rescued = renderer.stats();
+    assert.equal(rescued.adaptiveRescue.settled, true);
+    assert.ok(Math.abs(rescued.adaptiveRescue.sampleFrameMs - 62) < 1e-5);
+    assert.ok(rescued.pixelRatio < first.pixelRatio && rescued.pixelRatio >= 0.4,
+      'continued pressure may reduce pixels, never below the existing floor');
+    const changes = probe.ratioChanges.length;
+    for (let n = 0; n < 140; n++) advance(62);
+    assert.equal(probe.ratioChanges.length, changes, 'a rescued scene never oscillates/allocates every frame');
+    assert.equal(probe.draws, 172, 'no simulated draw is skipped to manufacture performance');
+  } finally { renderer.dispose(); }
+});
+
+test('R51 already-low raster floor and fast renderers never trigger another resize', async () => {
+  const slow = await makeHarness('?quality=low');
+  try {
+    for (let n = 0; n < 36; n++) slow.advance(200);
+    const stats = slow.renderer.stats();
+    assert.equal(stats.adaptiveRescue.settled, true);
+    assert.equal(stats.pixelRatio, 0.4);
+    assert.equal(slow.probe.ratioChanges.length, 3,
+      'native creation, explicit low startup and first measured drop only; no redundant rescue resize');
+  } finally { slow.renderer.dispose(); }
+  const fast = await makeHarness();
+  try {
+    for (let n = 0; n < 40; n++) fast.advance(1000/60);
+    assert.equal(fast.renderer.stats().quality, 'balanced');
+    assert.equal(fast.renderer.stats().adaptiveRescue.settled, false);
+    assert.equal(fast.probe.getPixelRatio(), 1);
+  } finally { fast.renderer.dispose(); }
+});
+
+test('R51 visibility resume forgets partial rescue samples, not established raster quality', async () => {
+  const {renderer, probe, advance} = await makeHarness();
+  try {
+    for (let n = 0; n < 15; n++) advance(62);
+    const ratio = probe.getPixelRatio();
+    assert.equal(renderer.stats().quality, 'low');
+    assert.equal(renderer.stats().adaptiveRescue.settled, false);
+    assert.ok(renderer.stats().adaptiveRescue.pendingSamples > 0);
+    renderer.resetTiming();
+    assert.equal(renderer.stats().adaptiveRescue.pendingSamples, 0);
+    assert.equal(renderer.stats().adaptiveRescue.warmupRemaining, 3);
+    advance(60000);
+    assert.equal(probe.getPixelRatio(), ratio, 'hidden time is not sampled as a slow draw');
+    for (let n = 0; n < 8; n++) advance(62);
+    assert.equal(renderer.stats().adaptiveRescue.settled, false);
+    for (let n = 0; n < 3; n++) advance(62);
+    assert.equal(renderer.stats().adaptiveRescue.settled, true);
+  } finally { renderer.dispose(); }
+});
