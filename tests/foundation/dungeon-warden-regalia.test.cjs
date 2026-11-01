@@ -21,6 +21,20 @@ test('Warden gets a distinctive original upper-body silhouette; ordinary actors 
  assert.ok(pieces.some(p=>p.shape==='gem'&&p.finish==='ember'));
  assert.ok(pieces.filter(p=>p.id.startsWith('back-spine-')).length>=4);
 });
+test('Warden figure remains human-proportioned and clear of adjacent animated melee allies',async()=>{
+ const {planWardenRegalia}=await planner();
+ const pieces=planWardenRegalia('warden');
+ const xExtent=Math.max(...pieces.flatMap(p=>p.shape==='horn'?p.points.map(pt=>Math.abs(pt[0])):[Math.abs(p.x)+p.sx/2]));
+ const yExtent=Math.max(...pieces.flatMap(p=>p.shape==='horn'?p.points.map(pt=>pt[1]):[p.y+p.sy/2]));
+ assert.ok(xExtent<=.78,'the old 1.09m lateral horns occluded neighbouring protagonists; new max='+xExtent);
+ assert.ok(yExtent<=2.30,'the original 2.49m bone horns hid the boss head and contact; new max='+yExtent);
+ assert.ok(pieces.some(p=>p.id==='sternum'&&p.sz<.08),'the sculpted chest must remain visible beneath shallow regalia');
+ assert.ok(pieces.some(p=>p.id==='brow-diadem'),'readable crown and visor remain');
+ const model=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(model,/plaque=new THREE.ExtrudeGeometry/,'the original plaques must have real chamfered depth');
+ assert.match(model,/plaque\.center\(\)/,'plaques should remain attached at their planned rig pivot');
+});
+
 test('all regalia geometry is finite, bounded and behind a renderer-only contract',async()=>{
  const {planWardenRegalia}=await planner();
  const pieces=planWardenRegalia('warden');
