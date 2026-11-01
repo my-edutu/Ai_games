@@ -290,6 +290,9 @@ test('Thornback opens physical paired shell halves only during a true disclosed 
   const {createWarden} = await modulePromise;
   for (const balanced of [false,true]) {
     const warden=createWarden({balanced});
+    const heart=warden.group.getObjectByName('opened guardian signal heart');
+    assert.ok(heart?.isGroup, 'guardian has a connected physical inner-heart, not a screen overlay');
+    assert.equal(heart.visible,false,'no unobserved guardian glow reveals a hidden enemy');
     const sides=[-1,1].map(side=>({
       side, wing:warden.group.getObjectByName(`flared elytron ${side}`),
       lining:warden.group.getObjectByName(`exposed elytron lining ${side}`),
@@ -305,6 +308,15 @@ test('Thornback opens physical paired shell halves only during a true disclosed 
     for (const reducedMotion of [false,true]) {
       warden.update({heading:0,attentionHeading:Math.PI/2,attentionStrength:.56065,
         danger:1,reducedMotion,time:1,delta:.05});
+      assert.equal(heart.visible,true,'only an actual public encounter reveals the modeled signal heart');
+      assert.ok(heart.position.y>.42,'an internal physical core rises through the opened shell');
+      assert.ok(heart.scale.x>1,'the exposed core is readable at gameplay size');
+      const observedPosition=[heart.position.x,heart.position.y,heart.position.z];
+      warden.update({heading:0,attentionHeading:Math.PI/2,attentionStrength:.56065,
+        danger:1,reducedMotion,time:27,delta:.05});
+      assert.deepEqual([heart.position.x,heart.position.y,heart.position.z],observedPosition,
+        'reduced-motion attention poses remain static across display time');
+      assert.equal(heart.rotation.y,0,'reduced motion disables the interior core sweep');
       for (const entry of sides) {
         assert.ok(entry.wing.rotation.z*entry.side>.60,'shell must visibly separate at real public warning strength');
         assert.ok(entry.wing.rotation.y*entry.side<-.20,'wing opens in three dimensions');
@@ -313,6 +325,7 @@ test('Thornback opens physical paired shell halves only during a true disclosed 
         assert.equal(entry.seam.visible,true,'physically attached ember seam follows the public warning');
       }
       warden.update({heading:0,attentionStrength:0,reducedMotion,time:2,delta:.05});
+      assert.equal(heart.visible,false,'withdrawn public threat cannot retain a secret luminous marker');
       for (const entry of sides) {
         assert.equal(entry.wing.rotation.z,0,'unseen threat closes the shell with no stale position');
         assert.equal(entry.wing.rotation.y,0);
@@ -323,6 +336,7 @@ test('Thornback opens physical paired shell halves only during a true disclosed 
       for (const result of ['capture','escape']) {
         warden.update({heading:0,attentionHeading:Math.PI/2,attentionStrength:1,
           danger:1,result,reducedMotion,time:3,delta:.05});
+        assert.equal(heart.visible,false,'real terminal truth cancels cosmetic encounter cues');
         for (const entry of sides) {
           assert.equal(entry.wing.rotation.z,0,'terminal truth outranks shell threat pose');
           assert.equal(entry.wing.rotation.x,0);
