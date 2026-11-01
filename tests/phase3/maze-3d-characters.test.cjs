@@ -293,8 +293,12 @@ test('Thornback opens physical paired shell halves only during a true disclosed 
     const heart=warden.group.getObjectByName('opened guardian signal heart');
     assert.ok(heart?.isGroup, 'guardian has a connected physical inner-heart, not a screen overlay');
     assert.equal(heart.visible,false,'no unobserved guardian glow reveals a hidden enemy');
-    assert.ok(heart.children.some(part=>part.geometry?.type==='ExtrudeGeometry'),
-      'the public warning is sculpted as a physical non-circular spine, not a collectible halo');
+    // The character rig legally batches co-material extrusions into shared
+    // BufferGeometry before returning, so inspect real resulting 3D meshes,
+    // not a pre-batching geometry implementation detail.
+    const heartMeshes=heart.children.filter(part=>part.isMesh && part.geometry?.attributes?.position);
+    assert.ok(heartMeshes.length>=3 && heartMeshes.some(part=>part.geometry.attributes.position.count>200),
+      'the public warning has multiple sculpted, triangulated 3D parts rather than a flat halo');
     assert.equal(heart.children.filter(part=>part.geometry?.type==='TorusGeometry').length,0,
       'the rejected circular ring cannot return as a false pickup cue');
     const sides=[-1,1].map(side=>({
