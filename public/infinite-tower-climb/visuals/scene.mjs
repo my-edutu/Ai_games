@@ -120,6 +120,54 @@ function measureLedgeFingertip(climberGroup, target, platformId) {
     helmetClearanceWorld, reason: null };
 }
 
+// Evidence-only projection of the actual animated boots and lower walking deck.
+// NDC coordinates are geometric proxies, not raster occlusion or live FPS.
+// This runs only when diagnostics are requested; it never alters game state.
+function measureLedgeProjection(snapshot, climberGroup, camera) {
+  const player = snapshot?.player;
+  if (!player || !climberGroup || !camera) return null;
+  climberGroup.updateMatrixWorld(true);
+  camera.updateMatrixWorld(true);
+  const project = point => point.clone().project(camera).toArray();
+  const root = climberGroup.getWorldPosition(new THREE.Vector3());
+  const ankles = [];
+  for (const side of [-1, 1]) {
+    const joint = climberGroup.getObjectByName(side + '-ankle');
+    if (!joint) continue;
+    joint.updateWorldMatrix(true, false);
+    const world = joint.getWorldPosition(new THREE.Vector3());
+    ankles.push({ side, world: world.toArray(), ndc: project(world) });
+  }
+  const feetY = player.y - player.halfHeight;
+  let lower = null, bestTop = -Infinity;
+  for (const platform of snapshot.platforms || []) {
+    if (!Number.isFinite(platform.x) || !Number.isFinite(platform.y)
+      || !Number.isFinite(platform.width) || !Number.isFinite(platform.height)
+      || platform.width <= 0 || player.x + player.halfWidth < platform.x
+      || player.x - player.halfWidth > platform.x + platform.width) continue;
+    const top = platform.y + platform.height;
+    if (top > feetY + Math.max(2000, player.halfHeight * .3) || top <= bestTop) continue;
+    bestTop = top;
+    lower = platform;
+  }
+  let lowerDeck = null;
+  if (lower) {
+    const x = Math.min(lower.x + lower.width, Math.max(lower.x, player.x));
+    lowerDeck = {
+      platformId: lower.id,
+      topWorldY: (bestTop - snapshot.chunkBaseY) / SCALE,
+      samples: [22.4, 24.8, 27.18].map(radius => {
+        const point = pointFor(x, bestTop, snapshot.chunkBaseY, snapshot.worldWidth, radius);
+        const world = new THREE.Vector3(point.x, point.y, point.z);
+        return { radius, world: world.toArray(), ndc: project(world) };
+      }),
+    };
+  }
+  return { tick: snapshot.tick, state: player.state,
+    rootRadius: Math.hypot(root.x, root.z), rootWorld: root.toArray(),
+    ankles, lowerDeck };
+}
+
 function guardianCanopyClearance(snapshot, enemy) {
   if (enemy.kind !== 'guardian' || !enemy.active) return Infinity;
   const feet = enemy.y - enemy.halfHeight;
@@ -1050,6 +1098,7 @@ export function createTowerScene(canvas, settings = {}) {
       calls: renderer.info.render.calls, triangles: renderer.info.render.triangles, geometries: renderer.info.memory.geometries,
       textures: renderer.info.memory.textures, programs: renderer.info.programs.length, characters: 1 + enemies.size,
       ledgeContact: ledgeContactEvidence,
+      ledgeProjection: measureLedgeProjection(snapshot, climber.group, camera),
       landingBeacon: { visible: landingBeacon.visible, targetId: landingBeacon.userData.targetPlatformId || null,
         position: landingBeacon.position.toArray(), triangles: landingBeacon.geometry.index.count / 3, depthTest: landingBeacon.material.depthTest },
       activeParticles: particleLife.filter(life => life > 0).length,
