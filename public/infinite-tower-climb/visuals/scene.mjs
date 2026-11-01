@@ -999,9 +999,17 @@ export function createTowerScene(canvas, settings = {}) {
     const viewPosition = initialized ? camera.position : followComposition?.position || camera.position;
     const viewAngle = Math.atan2(viewPosition.x - climber.group.position.x, viewPosition.z - climber.group.position.z) - actorYaw;
     options.viewAzimuth = Math.atan2(Math.sin(viewAngle), Math.cos(viewAngle));
+    // An actual low-health resource detour is a visible autonomous decision.
+    // Aim the skinned visor at the public health pickup instead of the stale
+    // ascent target. This changes no physics or collision and draws no HUD.
+    const resourceTarget = snapshot.intent?.mode === 'collecting-resource'
+      ? snapshot.pickups.filter(item => item.kind === 'health')
+        .sort((a, b) => Math.abs(a.x - p.x) - Math.abs(b.x - p.x) || a.id.localeCompare(b.id))[0]
+      : null;
     climber.animate({ ...p,
-      targetDx: targetPlatform ? targetPlatform.x + targetPlatform.width / 2 - p.x : 0,
-      targetDy: targetPlatform ? targetPlatform.y + targetPlatform.height - p.y : 0,
+      intentMode: snapshot.intent?.mode,
+      targetDx: resourceTarget ? resourceTarget.x - p.x : targetPlatform ? targetPlatform.x + targetPlatform.width / 2 - p.x : 0,
+      targetDy: resourceTarget ? resourceTarget.y - p.y : targetPlatform ? targetPlatform.y + targetPlatform.height - p.y : 0,
       // Real snapshot platform top, inside the existing radial walking surface.
       // No grab, pause, lift or authoritative collision is fabricated.
       ledgeTarget,
@@ -1073,7 +1081,11 @@ export function createTowerScene(canvas, settings = {}) {
       const group = pickups.get(pick.id);
       const mapped = pointFor(pick.x, pick.y, snapshot.chunkBaseY, snapshot.worldWidth, 25.2);
       group.position.set(mapped.x, mapped.y + (options.reducedMotion ? 0 : Math.sin(elapsed * 2 + pick.x) * .16), mapped.z);
-      group.rotation.y = options.reducedMotion ? .3 : elapsed * .7;
+      const soughtHealth = snapshot.intent?.mode === 'collecting-resource' && pick.kind === 'health';
+      // A contained in-world beacon, not another text cluster: this glow is
+      // attached to the genuine collectible and vanishes when authority takes it.
+      group.scale.setScalar(soughtHealth ? (options.reducedMotion ? 1.16 : 1.16 + .08 * Math.sin(elapsed * 5)) : 1);
+      group.rotation.y = options.reducedMotion ? .3 : elapsed * (soughtHealth ? 1.2 : .7);
     }
     for (const p of snapshot.projectiles) {
       const group = projectiles.get(p.id), mapped = pointFor(p.x, p.y, snapshot.chunkBaseY, snapshot.worldWidth, 25.8);
