@@ -2202,8 +2202,8 @@
       "visualSceneReference": "Locked unchanged: https://github.com/my-edutu/Ai_games/actions/runs/41302939553/artifacts/13081734898"
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
-    "biggestRemainingGap": "Real baseline WebGL world-only artifact has tall regular square masonry that dominates the frame, miniaturized hero models and close-quarter body crowding. Widened real battle rooms/entrance, seeded ranged flank lanes, within-cell staging and contact-accurate VFX are implemented but actual AFTER visuals, full traversal and independent preference remain UNVERIFIED.",
-    "currentWork": "M1 open: new authoritative wide starting atrium, deterministic carved battle avenues and interior 7x7 guardian court; heroes enter on distinct grid cells; prior body/contact staging and caster retreat remain integrated. Real end-to-end image/movie and blind preference gates still unverified.",
+    "biggestRemainingGap": "Personally inspected real Chromium baseline 13081734898 and later 13089392066 desktop/world-only frames and a browser video: both still depict stylized, toy-scale figures among dense tall brown masonry, with severe crowding. The next candidate's true three-phase attack UI/gameplay remains UNVERIFIED pending new exact-head browser captures. Real organic multi-scene motion/audio, performance, and independent looks/feels/plays preferences remain missing.",
+    "currentWork": "M1 open: genuine three-phase Warden spatial attacks, autonomous marked-cell sidestep/guard, in-world low-profile warning tiles, cast impact lighting, tactical HUD and opt-in original combat audio. Implemented candidate; exact-head browser and continuous experience not yet validated.",
     "candidateCommit": "33758dfb775fe457f6315b8b8d2dc8fdfa2d05d4",
     "candidateArtifactUrl": null,
     "acceptedAt": null,
@@ -2321,6 +2321,27 @@
         "referenceObservation": "Pinned real prior baseline world-only browser screenshot still shows solid repeated 2.5m square stone stacks, compressed silhouettes and corridor occlusion; new pass attacks actual camera-visible playfield and manoeuvre space, not CSS/UI.",
         "experienceVerdict": "IN_PROGRESS / NOT TRANSFORMED",
         "next": "Read exact-head WebGL desktop/mobile staging captures, compare matched seeded browser frames against pinned baseline; full traversal/combat/boss/floor/restart/defeat video and independent looks/feels/plays critic majority remain acceptance blockers."
+      },
+      {
+        "id": "M1-WARDEN-PHASED-THREATS-20261101",
+        "date": "2026-11-01",
+        "status": "IMPLEMENTED_UNVERIFIED",
+        "sourceHeadAtStart": "ee67593c817d2ab183b74813f011a1f92c46f739",
+        "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+        "objective": "Replace one undifferentiated circular boss strike with three tactical readable Warden phases, lawful autonomous counterplay and exact-footprint rendered/audio/HUD warnings inside the actual encounter.",
+        "code": [
+          "games/ai-dungeon/src/index.ts",
+          "public/ai-dungeon/warden-ritual.js",
+          "public/ai-dungeon/app.js",
+          "tests/foundation/dungeon-warden-patterns.test.cjs",
+          "tests/browser/dungeon-warden-patterns.spec.cjs"
+        ],
+        "previousActualBrowser": "https://github.com/my-edutu/Ai_games/actions/runs/41320533838/artifacts/13089392066",
+        "priorBaseline": "https://github.com/my-edutu/Ai_games/actions/runs/41302939553/artifacts/13081734898",
+        "inspectedEvidence": "Actual world-only screenshots and 19.12s browser video inspected: baseline and recent version remain visually crowded and stylized; no genuine evidence for this candidate until fresh CI images arrive.",
+        "verify": "Exact-head foundation, campaign, real desktop/mobile WebGL screenshots and optional audio are UNVERIFIED, as are full traversal-to-restart and independent blind critics.",
+        "experienceVerdict": "IN_PROGRESS / NOT TRANSFORMED",
+        "next": "Inspect real latest WebGL warning visuals for hero occlusion and frame cost, measure actual autonomous boss survival/dodge in campaigns, pursue cinematic 3D characters/environments and full baseline-matched motion/audio and 3+ blind critics."
       }
     ]
   }

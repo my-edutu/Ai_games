@@ -1,7 +1,7 @@
 import * as THREE from '/dungeon/vendor/three.module.js';
 // Read-only original Warden ritual art. All beams, rings and shatter effects
 // derive exclusively from the real public boss/defender/simulation state.
-const UP=new THREE.Vector3(0,1,0),LIMIT=3,MAX_RANGE=7,SHATTER_TIME=1.05;
+const UP=new THREE.Vector3(0,1,0),LIMIT=3,MAX_RANGE=7,SHATTER_TIME=1.05,MAX_WARNING_TILES=48;
 export function createWardenRitual(world,exit,{reducedMotion=false}={}){
  const group=new THREE.Group();group.name='Living Warden ritual court';
  group.position.set(exit.x-9,0,exit.z-9);world.add(group);
@@ -54,6 +54,16 @@ export function createWardenRitual(world,exit,{reducedMotion=false}={}){
   const shard=put(group,shardGeo,fragmentMat,Math.cos(angle)*.78,1.1+(i%3)*.13,Math.sin(angle)*.78);
   shard.userData.angle=angle;shard.userData.height=shard.position.y;shard.visible=false;shards.push(shard);
  }
+ // Predictive stones are actually dangerous in the AI authority. One bounded
+ // instanced draw renders all marked tiles below feet, not full-height beams.
+ const warningMaterial=new THREE.MeshBasicMaterial({color:'#efbd79',transparent:true,
+  opacity:.26,depthWrite:false,side:THREE.DoubleSide});
+ const warningTiles=new THREE.InstancedMesh(
+  new THREE.BoxGeometry(.84,.014,.84),warningMaterial,MAX_WARNING_TILES);
+ warningTiles.name='Warden authoritative marked floor';warningTiles.count=0;
+ warningTiles.visible=false;warningTiles.frustumCulled=false;group.add(warningTiles);
+ const marker=new THREE.Object3D();
+ let warningCount=0,warningShape='none',impactAge=0,lastCastTick=-1;
  let ward=false,previousWard=null,tick=-1,breakAge=SHATTER_TIME;
  let visible=false,defenders=0,linkCount=0,phase='SENTINEL';
  const from=new THREE.Vector3(),to=new THREE.Vector3(),delta=new THREE.Vector3();
@@ -61,9 +71,27 @@ export function createWardenRitual(world,exit,{reducedMotion=false}={}){
   if(!Array.isArray(s?.units))return;
   const boss=s.units.find(u=>u.kind==='warden'&&u.hp>0);
   visible=Boolean(boss);group.visible=visible;
-  if(!boss){ward=false;defenders=linkCount=0;for(const link of links)link.visible=false;return;}
+  if(!boss){ward=false;defenders=linkCount=warningCount=0;warningTiles.count=0;warningTiles.visible=false;for(const link of links)link.visible=false;return;}
   const half=(Array.isArray(s.map)?s.map.length-1:18)/2;
   group.position.set(boss.x-half,0,boss.z-half);
+  const warning=s.bossWarning;
+  if(Array.isArray(warning?.cells)){
+   warningCount=Math.min(MAX_WARNING_TILES,warning.cells.length);
+   warningShape=warning.shape||'none';
+   warningMaterial.color.set(warning.shape==='ECLIPSE_SWEEP'?'#ad8fe0':
+    warning.shape==='RIFT_CROSS'?'#f9a070':'#efc47d');
+   for(let i=0;i<warningCount;i++){
+    const p=warning.cells[i];
+    marker.position.set(p.x-boss.x,.061,p.z-boss.z);
+    marker.rotation.set(0,0,0);marker.scale.set(1,1,1);
+    marker.updateMatrix();warningTiles.setMatrixAt(i,marker.matrix);
+   }
+   warningTiles.count=warningCount;warningTiles.instanceMatrix.needsUpdate=true;
+  }else if(impactAge<=0){warningCount=0;warningShape='none';warningTiles.count=0;}
+  if(boss.action==='cast'&&boss.actionTick===s.tick&&s.tick>lastCastTick){
+   impactAge=.42;lastCastTick=s.tick;
+  }
+  warningTiles.visible=warningCount>0&&Boolean(warning||impactAge>0);
   const minions=s.units.filter(u=>u.faction==='enemy'&&u.kind!=='warden'&&u.hp>0);
   minions.sort((a,b)=>Math.abs(a.x-boss.x)+Math.abs(a.z-boss.z)-Math.abs(b.x-boss.x)-Math.abs(b.z-boss.z)||a.id.localeCompare(b.id));
   defenders=minions.length;ward=Boolean(s.guardianWard);
@@ -86,6 +114,10 @@ export function createWardenRitual(world,exit,{reducedMotion=false}={}){
  }
  function animate(time,dt=0){
   if(!visible)return;
+  impactAge=Math.max(0,impactAge-Math.max(0,Math.min(.05,dt)));
+  warningTiles.visible=warningCount>0&&(impactAge>0||warningTiles.count>0);
+  warningMaterial.opacity=impactAge>0?Math.min(.48,.24+impactAge*.52):
+   reducedMotion?.25:.19+.07*(1+Math.sin(time*6.2))*.5;
   glyph.opacity=ward&&!reducedMotion?.63+.10*Math.sin(time*2):.70;
   rings.forEach((ring,i)=>{ring.rotation.z=ward&&!reducedMotion?Math.sin(time*.45+i)*.07:0;});
   if(breakAge<SHATTER_TIME){
@@ -100,5 +132,5 @@ export function createWardenRitual(world,exit,{reducedMotion=false}={}){
    }
   }else for(const shard of shards)shard.visible=false;
  }
- return {accept,animate,metrics:()=>({visible,shieldActive:ward,phase,activeDefenders:defenders,activeTethers:linkCount,shattering:breakAge<SHATTER_TIME,maxTethers:LIMIT,originalBasaltReliefs:12})};
+ return {accept,animate,metrics:()=>({visible,shieldActive:ward,phase,activeDefenders:defenders,activeTethers:linkCount,shattering:breakAge<SHATTER_TIME,maxTethers:LIMIT,originalBasaltReliefs:12,warningTiles:warningCount,warningShape,impactActive:impactAge>0})};
 }

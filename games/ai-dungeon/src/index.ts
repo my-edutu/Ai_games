@@ -26,6 +26,32 @@ export function damageThroughWardenSeal(s:DungeonState,target:Unit,raw:number):n
  if(wardenSealActive(s))return Math.max(1,Math.ceil(raw*.24));
  return wardenPhase(target)==='SENTINEL'?Math.max(1,Math.ceil(raw*.7)):raw;
 }
+
+/** The exact deterministic floor tiles struck by the Warden's next attack.
+ * Presentation renders this same footprint; it cannot invent danger tiles.
+ * Attack direction is locked from the warning tick through impact without a
+ * new save field, RNG stream, or external service.
+ */
+export type WardenStrikeShape='NOVA'|'RIFT_CROSS'|'ECLIPSE_SWEEP';
+export interface WardenStrike {phase:WardenPhase;shape:WardenStrikeShape;axis:'NORTH_SOUTH'|'EAST_WEST';attackTick:number;warning:boolean;cells:{x:number;z:number}[]}
+export function planWardenStrike(s:Pick<DungeonState,'map'|'tick'>,boss:Unit):WardenStrike|null{
+ if(boss.kind!=='warden'||boss.hp<=0)return null;
+ const phase=wardenPhase(boss),interval=phase==='ECLIPSE'?4:6;
+ const attackTick=Math.ceil(s.tick/interval)*interval;
+ const axis=Math.floor(attackTick/interval)%2===0?'NORTH_SOUTH':'EAST_WEST';
+ const shape:WardenStrikeShape=phase==='SENTINEL'?'NOVA':phase==='RUPTURE'?'RIFT_CROSS':'ECLIPSE_SWEEP';
+ const reach=shape==='NOVA'?3:4,cells:{x:number;z:number}[]=[];
+ for(let dz=-reach;dz<=reach;dz++)for(let dx=-reach;dx<=reach;dx++){
+  const x=boss.x+dx,z=boss.z+dz;
+  if(!walkable(s.map,x,z))continue;
+  const marked=shape==='NOVA'?Math.abs(dx)+Math.abs(dz)<=3:
+   shape==='RIFT_CROSS'?dx===0||dz===0:
+   axis==='NORTH_SOUTH'?dx===0:dz===0;
+  if(marked)cells.push({x,z});
+ }
+ return {phase,shape,axis,attackTick,warning:s.tick%interval>=interval-2,cells};
+}
+
 const THEMES=['THE SUNKEN CRYPT','THE EMBER CATHEDRAL','THE OBSIDIAN VAULT','THE HOLLOW SANCTUM'];
 const DIRS=[[1,0],[0,1],[-1,0],[0,-1]] as const;
 const inside=(x:number,z:number)=>x>=0&&z>=0&&x<MAP_SIZE&&z<MAP_SIZE;
@@ -206,21 +232,27 @@ export class DungeonRuntime {
   for(const trap of s.traps)if(!trap.disarmed&&!trap.active&&trap.cooldown>0){trap.cooldown--;if(trap.cooldown===0)trap.active=true}
   // Turn-based autonomous tactics. Deterministic unit order and bounded path searches.
   for(const hero of party){
-   // The Warden's public telegraph is actionable, not an unavoidable effect:
-   // autonomous heroes either leave the marked 3-tile radius or brace in time.
+   // Respond to real warned tiles; a safe flank is one legal step, otherwise
+   // brace for the actual impact. Retain the tactical attack lane when possible.
    const warden=s.units.find(u=>u.kind==='warden'&&u.hp>0);
-   const interval=warden&&wardenPhase(warden)==='ECLIPSE'?4:6;
-   if(warden&&dist(hero,warden)<=3&&s.tick%interval===interval-1){
+   const warned=warden?planWardenStrike(s,warden):null;
+   if(warned?.warning&&warned.attackTick===s.tick+1&&
+      warned.cells.some(p=>p.x===hero.x&&p.z===hero.z)){
+    const marked=new Set(warned.cells.map(p=>key(p.x,p.z)));
     const escapes=DIRS.map(([dx,dz])=>({x:hero.x+dx,z:hero.z+dz}))
-     .filter(p=>walkable(s.map,p.x,p.z)&&dist(p,warden)>dist(hero,warden))
-     .filter(p=>!s.units.some(u=>u.faction==='enemy'&&u.hp>0&&u.x===p.x&&u.z===p.z))
-     .sort((a,b)=>dist(b,warden)-dist(a,warden)||a.z-b.z||a.x-b.x);
-    if(escapes.length&&dist(escapes[0],warden)>3){
-     hero.x=escapes[0].x;hero.z=escapes[0].z;hero.action='move';
-     s.intent='Dodging the Warden shockwave';push(s,'evade',hero.kind+' escaped a marked shockwave');continue;
+     .filter(p=>walkable(s.map,p.x,p.z)&&!marked.has(key(p.x,p.z)))
+     .filter(p=>!s.units.some(u=>u.hp>0&&u.id!==hero.id&&u.x===p.x&&u.z===p.z))
+     .map(p=>({p,risk:s.traps.some(t=>t.active&&!t.disarmed&&t.x===p.x&&t.z===p.z)?20:0,
+      flank:Math.abs(dist(p,warden)-2)}))
+     .sort((a,b)=>a.risk-b.risk||a.flank-b.flank||a.p.z-b.p.z||a.p.x-b.p.x);
+    if(escapes.length){
+     hero.x=escapes[0].p.x;hero.z=escapes[0].p.z;hero.action='move';
+     s.intent='Dodging the marked '+warned.shape.toLowerCase().replaceAll('_',' ');
+     push(s,'evade',hero.kind+' cleared the '+warned.shape.toLowerCase().replaceAll('_',' ')+' strike');continue;
     }
-    hero.guardTick=s.tick+1;hero.action='guard';s.intent='Bracing for the Warden shockwave';
-    push(s,'guard',hero.kind+' raised a defensive ward');continue;
+    hero.guardTick=s.tick+1;hero.action='guard';
+    s.intent='Bracing for the marked '+warned.shape.toLowerCase().replaceAll('_',' ');
+    push(s,'guard',hero.kind+' braced against the oncoming attack');continue;
    }
    if(hero.kind==='ranger'&&s.tick%4===0){const hazard=s.traps.find(t=>t.active&&!t.disarmed&&dist(hero,t)<=2);
     if(hazard){hazard.active=false;hazard.disarmed=true;hazard.cooldown=0;hero.action='cast';s.intent='Wildshadow disabling a dangerous rune';push(s,'disarm','Wildshadow safely disabled a '+hazard.kind+' trap');continue}
@@ -274,19 +306,36 @@ export class DungeonRuntime {
   for(const enemy of s.units.filter(u=>u.faction==='enemy'&&u.hp>0)){
    const nearest=party.filter(u=>u.hp>0).sort((a,b)=>dist(a,enemy)-dist(b,enemy)||a.id.localeCompare(b.id))[0];if(!nearest)break;
    const distance=dist(enemy,nearest);
-   // Readable periodic boss shockwave creates real danger without hidden outcome forcing.
+   // Three true boss threats with separate legible dodge tactics: a diamond
+   // nova, cardinal rifts and a rotating floor sweep. Collision and warned
+   // floor geometry come from the same authoritative planner.
    const bossPhase=enemy.kind==='warden'?wardenPhase(enemy):'SENTINEL';
    const interval=bossPhase==='ECLIPSE'?4:6,attackTick=s.tick%interval,warningTick=interval-2;
-   if(enemy.kind==='warden'&&distance<=3&&attackTick===warningTick){push(s,'telegraph','The Warden prepares '+(bossPhase==='ECLIPSE'?'an ECLIPSE NOVA':'an arcane shockwave')+' — evade the marked ground')}
-   if(enemy.kind==='warden'&&distance<=3&&attackTick===0){const affected=party.filter(u=>u.hp>0&&dist(enemy,u)<=3);
-    const shock=8+Math.min(18,s.floor)+(bossPhase==='ECLIPSE'?6:0);
-    for(const hero of affected){
-     const guarded=hero.guardTick===s.tick;
-     const dealt=guarded?Math.max(1,Math.floor(shock*.30)):shock;
-     hero.hp=Math.max(0,hero.hp-dealt);hero.action=guarded?'guard':'hurt';
-     if(guarded)push(s,'block',hero.kind+' shielded '+(shock-dealt)+' damage');
-    }enemy.action='cast';
-    if(affected.length)push(s,'danger','The Warden unleashed an arcane shockwave · '+shock+' damage');
+   if(enemy.kind==='warden'){
+    const strike=planWardenStrike(s,enemy);
+    if(strike&&distance<=5&&attackTick===warningTick)
+     push(s,'telegraph','WARDEN '+strike.shape.replaceAll('_',' ')+' — leave the marked stone or brace');
+    if(strike&&distance<=5&&attackTick===0){
+     const marked=new Set(strike.cells.map(p=>key(p.x,p.z)));
+     const affected=party.filter(u=>u.hp>0&&marked.has(key(u.x,u.z)));
+     const shock=8+Math.min(18,s.floor)+(bossPhase==='ECLIPSE'?6:bossPhase==='RUPTURE'?3:0);
+     for(const hero of affected){
+      const guarded=hero.guardTick===s.tick;
+      const dealt=guarded?Math.max(1,Math.floor(shock*.30)):shock;
+      hero.hp=Math.max(0,hero.hp-dealt);hero.action=guarded?'guard':'hurt';
+      if(guarded)push(s,'block',hero.kind+' shielded '+(shock-dealt)+' damage');
+     }
+     enemy.action='cast';
+     push(s,affected.length?'danger':'evade','The Warden '+strike.shape.replaceAll('_',' ').toLowerCase()+
+      ' shockwave struck '+affected.length+' hero'+(affected.length===1?'':'es'));
+     if(enemy.cooldown>0)enemy.cooldown--;
+     continue;
+    }
+    // Wind-up must anchor the boss rather than sliding its hit zone underneath
+    // the party while players are responding to already-visible floor marks.
+    if(strike?.warning&&attackTick===interval-1){
+     enemy.action='cast';if(enemy.cooldown>0)enemy.cooldown--;continue;
+    }
    }
    // A real adjacent threat changes a caster's decision. Retreating uses a
    // legal empty walkable cell and may open a later ranged line of fire.
@@ -336,6 +385,9 @@ export class DungeonRuntime {
  }
  publicState(){
   const s=this.state;
-  return {version:DUNGEON_VERSION,tick:s.tick,run:s.run,floor:s.floor,theme:s.theme,phase:s.phase,bossPhase:wardenPhase(s.units.find(u=>u.kind==='warden')),guardianWard:wardenSealActive(s),defendersRemaining:s.units.filter(u=>u.faction==='enemy'&&u.kind!=='warden'&&u.hp>0).length,intermission:s.intermission,map:s.map,exit:s.exit,units:s.units.map(u=>({...u})),relics:s.relics.map(r=>({...r})),traps:s.traps.map(t=>({...t})),kills:s.kills,gold:s.gold,level:s.level,intent:s.intent,events:s.events.map(e=>({...e})),checksum:checksum({tick:s.tick,run:s.run,floor:s.floor,units:s.units,relics:s.relics,traps:s.traps,gold:s.gold})};
+  const boss=s.units.find(u=>u.kind==='warden'&&u.hp>0);
+  const strike=boss?planWardenStrike(s,boss):null;
+  const bossWarning=strike?.warning&&s.units.some(u=>u.faction==='party'&&u.hp>0&&dist(u,boss!)<=5)?strike:null;
+  return {version:DUNGEON_VERSION,tick:s.tick,run:s.run,floor:s.floor,theme:s.theme,phase:s.phase,bossPhase:wardenPhase(s.units.find(u=>u.kind==='warden')),guardianWard:wardenSealActive(s),bossWarning,defendersRemaining:s.units.filter(u=>u.faction==='enemy'&&u.kind!=='warden'&&u.hp>0).length,intermission:s.intermission,map:s.map,exit:s.exit,units:s.units.map(u=>({...u})),relics:s.relics.map(r=>({...r})),traps:s.traps.map(t=>({...t})),kills:s.kills,gold:s.gold,level:s.level,intent:s.intent,events:s.events.map(e=>({...e})),checksum:checksum({tick:s.tick,run:s.run,floor:s.floor,units:s.units,relics:s.relics,traps:s.traps,gold:s.gold})};
  }
 }
