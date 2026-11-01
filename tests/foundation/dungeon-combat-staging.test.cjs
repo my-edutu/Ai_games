@@ -32,6 +32,28 @@ test('solo characters remain centred; same-tick killed targets retain their true
  assert.deepEqual(stagePoint(points,{id:'stranger',x:4,z:4}),{x:4,z:4,dx:0,dz:0,crowded:false});
  assert.equal(stagePoint(points,null),null);
 });
+test('living Warden confrontations produce an original readable inside-cell dueling line, not authority dodges',async()=>{
+ const {planCombatStage,MAX_STAGE_OFFSET}=await mod();
+ const boss=u('warden','warden','enemy',4,3,200);
+ const hero=u('vanguard','vanguard','party',3,3,100);
+ const ranger=u('ranger','ranger','party',3,4,80);
+ const far=u('mystic','mystic','party',1,1,70);
+ const s={tick:7,map:floor(),units:[boss,hero,ranger,far]};
+ const frozen=JSON.stringify(s),plan=planCombatStage(s);
+ assert.equal(plan.warden.x,4);
+ assert.equal(plan.warden.z,3,'the boss always holds its actual map tile centre');
+ assert.ok(plan.vanguard.dx<-.18&&plan.vanguard.dz===0,'the real melee hero stands back to show the opponent');
+ assert.ok(plan.ranger.dx<0&&plan.ranger.dz>0,'a second defender remains visible on its own real tile');
+ assert.equal(plan.mystic.x,1);
+ assert.equal(plan.mystic.z,1,'distant allies do not shuffle for a fake duel');
+ assert.ok(Object.values(plan).every(p=>Math.hypot(p.dx,p.dz)<=MAX_STAGE_OFFSET+.001));
+ assert.equal(JSON.stringify(s),frozen,'staging may never touch the simulation or attack reach');
+ boss.hp=0;
+ const after=planCombatStage(s);
+ assert.equal(after.vanguard.x,3);
+ assert.equal(after.vanguard.z,3,'after the real Warden dies, cosmetic retreat clears immediately');
+});
+
 test('invalid, blocked and oversized snapshots cannot create off-grid or unbounded visual actors',async()=>{
  const {planCombatStage}=await mod();
  const blocked=floor();blocked[3]='...#...';
