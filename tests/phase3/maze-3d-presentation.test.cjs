@@ -258,6 +258,33 @@ test('full-bleed portrait follow camera preserves actual previously visible hori
   assert.ok(f(.01,4.7) <= 4.7*2.2,'pathological tiny canvas cannot explode the camera zoom');
 });
 
+test('portrait encounter camera grows actual actors only within genuine public full-model bounds', async () => {
+  const {publicPortraitGuardianHalfHeight: frame}=await load();
+  const hero={x:-1,z:0}, guardian={x:1,z:0}, focus={x:0,z:0};
+  const before=JSON.stringify({hero,guardian,focus});
+  const aspect=320/740, base=10.04;
+  const close=frame(aspect,base,1,hero,guardian,focus);
+  const physicalMargin=(18/Math.hypot(18,15)+1.35)/aspect;
+  assert.ok(close<base && close>=base*.84-1e-9,
+    'a real close pair earns a bounded, physically larger portrait shot');
+  assert.ok(close>=physicalMargin,
+    'actual modeled guardian limbs retain margin; never fake visibility with center-only bounds');
+  assert.equal(frame(aspect,base,0,hero,guardian,focus),base,
+    'a hidden or withdrawn guardian never changes camera scale');
+  assert.equal(frame(aspect,base,1,{x:-50,z:0},guardian,focus),base,
+    'a threatened but distant pair cannot be cropped to inflate actors');
+  assert.equal(frame(844/390,base,1,hero,guardian,focus),base,
+    'landscape gameplay retains the already-reviewed wider authored diorama');
+  assert.equal(frame(aspect,base,1,hero,guardian,{x:NaN,z:0}),base,
+    'invalid public coordinates can never corrupt the camera');
+  assert.equal(frame(aspect,base,1,hero,guardian,null),base,
+    'no inferred unseen camera anchor is permitted');
+  assert.equal(frame(aspect,base,1,hero,guardian,focus),close,
+    'the same public state produces a deterministic and repeatable shot');
+  assert.equal(JSON.stringify({hero,guardian,focus}),before,
+    'renderer composition never mutates authoritative or public snapshot positions');
+});
+
 test('matched-key camera prioritizes the real glove/socket pair without inventing a path or non-finite target', async () => {
   const {composePublicSealedGateFocus, composePublicKeyLockFocus} = await load();
   const stage = {x: 2.75, z: -1};
