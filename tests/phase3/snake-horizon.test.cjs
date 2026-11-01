@@ -41,7 +41,10 @@ test('horizon and sculpt preserve the exact historic court baseline and all othe
   // R32 intentionally sculpts only bounded original court top corners.
   // Preserve the old baseline's exact previous model and fixed historical
   // digests instead of weakening the original provenance assertion.
-  const latestWithDrainage = fs.readFileSync(path.resolve(__dirname, '../../public/snake-stream/world.mjs'), 'utf8');
+  const { restorePreR42Water } = require('../helpers/snake-water-flow-archive.cjs');
+  // Only archive the five later R42 water-shader edits for this R31/R32
+  // historical SHA; the live world below still uses the new shader.
+  const latestWithDrainage = restorePreR42Water(fs.readFileSync(path.resolve(__dirname, '../../public/snake-stream/world.mjs'), 'utf8'));
   const r41Begin = '      // BEGIN R41 COURTYARD ROOT CHANNELS\n';
   const r41End = '      // END R41 COURTYARD ROOT CHANNELS\n';
   const r41A = latestWithDrainage.indexOf(r41Begin), r41B = latestWithDrainage.indexOf(r41End);

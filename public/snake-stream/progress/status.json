@@ -1,14 +1,14 @@
 {
   "updatedAt": "2026-11-01",
-  "status": "ROUND42 ORIGINAL WATER VERTEX UV CANDIDATE · CURRENT CI PENDING · LAST STRICT 9/17 FAIL",
-  "detail": "Previous focused Chromium/WebGL 41258059097 passed 29/30; desktop 9 actual render submissions in 1005.1ms vs required 17 FAIL. 61 RAF callbacks are not rendered/display frames. R42 relocates original water affine UV phase to existing vertices, preserves entire lake/fog/depth/resources and all AI/deterministic public snapshots/portals/danger/food/captions/reduced-motion/recovery. New exact-prior Node and true synthetic-public WebGL 960x640 old/current A/B require fresh CI and scrutiny. No speed or whole-game Snake Pass visual win. Independent critic, device presents, soak, R5 open. Draft, unmerged, undeployed.",
+  "status": "ROUND42 FOCUSED 31/31 · 17 ACTUAL SUBMISSIONS ONE GATE PASS · HISTORIC NODE SHA FIX PENDING",
+  "detail": "Exact-head focused Chromium/SwiftShader run 41260891124 PASSED 31/31 including strict >=17 actual render submissions: 17 in 1007.1ms, ONE sample only, not sustained displayed FPS (61 RAF callbacks irrelevant). Genuine frozen-public WebGL R42 old/new overview 6 of 614400 pixels differ by one green level; detail 0 pixels; same draw counts, textures, geometry; original water/cues preserved. General 41260891125 build + 577/578 Node tests passed, lone old SHA archive test failed because R42 text wasn't reversed; corrected historical reconstruction with old fixture/threshold intact, corrected-head CI pending. No causal FPS proof or Snake Pass quality win. Independent critic, real-device presents, soak and R5 remain open; draft, unmerged, undeployed.",
   "latestImage": "/progress/evidence/round-9-overview.jpg",
   "latestCaption": "Historical thumbnail only, not the new R39. Actual new R39 WebGL synthetic screenshot/trace artifact (not live FPS or independent critique): https://github.com/my-edutu/Ai_games/actions/runs/41249642441/artifacts/13061195617 . Companion motion: https://github.com/my-edutu/Ai_games/actions/runs/41249642441/artifacts/13060793905 .",
   "reviews": [
     {
-      "area": "Round 42 · flowing-water vertex-phase UV",
-      "verdict": "SHA-CONTROLLED NODE + TRUE WEBGL A/B CANDIDATE · EXACT-HEAD CI PENDING · LAST 9/17 STRICT FAIL",
-      "gap": "Must inspect real old/new WebGL captures and current GPU frame gate; compiler may hoist original fragment arithmetic. Independent Snake Pass whole-game review, sustained device presents/soak/R5 open."
+      "area": "Round 42 · original lake shader WebGL verification",
+      "verdict": "FOCUSED CHROMIUM 31/31 PASS; STRICT 17/17 ONE SAMPLE; HISTORIC NODE SHA CORRECTION PENDING",
+      "gap": "Only one minimum-margin actual draw pacing pass. R42 images near pixel-equivalent; official Snake Pass/ASTRO BOT world richness still far ahead. Need full Node CI corrected, independent critic, real-device displayed FPS and soak/R5."
     },
     {
       "area": "Round 41 · original 3D courtyard root/drainage channels",
@@ -685,7 +685,7 @@
     },
     {
       "title": "Round 42 · water UV flow interpolation",
-      "summary": "Same original animated lake, fog, geometry and gameplay cues with constant scroll phase moved from fragment to existing vertices. Old/new real WebGL and strict live pacing pending.",
+      "summary": "R42 water UV per-vertex flow: real Chromium/WebGL 31/31 focused pass, strict 17 actual render submissions/1007.1ms ONE sample. A/B 6 overview pixels one-green-level diff, 0 detail. Old historic SHA test correction in new head pending general CI; all full-game gates still open.",
       "captures": []
     }
   ],
