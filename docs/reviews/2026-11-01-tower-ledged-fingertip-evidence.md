@@ -15,3 +15,5 @@ Production scene now reports actual post-IK animated fingertip/world target/erro
 ## Exact-head CI failure and same-iteration repair
 
 [New G37 run 41258001432](https://github.com/my-edutu/Ai_games/actions/runs/41258001432) **FAILED** before Playwright because a prior static integration regex expected the formerly inline `ledgeTarget: ledgeContact ? pointFor(...)`; the new source hoists that unmodified real-platform point into a variable shared by pose and diagnostic. **6/7** focused tests passed, including the actual rig test; the one structural assertion failed. The same-iteration repair changes `tower-ledge-geometry-contact.test.cjs` to explicitly verify both `const ledgeTarget = ledgeContact ? pointFor(...)` and `ledgeTarget,` in the production pose, preserving stronger source-truth and not weakening geometry limits. New CI GPU evidence is still PENDING until exact commit verification; do not claim a pass yet.
+
+**CI trigger coverage repair:** include `tests/phase3/tower-ledge-geometry-contact.test.cjs` in the dedicated workflow's `push.paths`; changes to that key regression now rerun the full real-skeleton/Playwright evidence workflow on the repaired head.

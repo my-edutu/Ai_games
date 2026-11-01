@@ -6,6 +6,7 @@ on:
       - public/infinite-tower-climb/visuals/**
       - tests/browser/tower-ledge-contact.spec.cjs
       - tests/phase3/tower-ledge-contact-evidence.test.cjs
+      - tests/phase3/tower-ledge-geometry-contact.test.cjs
       - .github/workflows/tower-ledge-evidence.yml
   workflow_dispatch:
 permissions:
