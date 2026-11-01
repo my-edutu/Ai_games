@@ -1,0 +1,43 @@
+name: Tower Transformation Quality Contract
+on:
+  push:
+    branches:
+      - feat/tower-transformation-gauntlet-20261101
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: tower-transformation-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  integrity-not-quality:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Build
+        run: npm run build
+      - name: Test transformation verdict gate
+        run: node --test tests/phase3/tower-transformation-acceptance.test.cjs
+      - name: Verify full repository logic (guardrail only)
+        run: npm test
+      - name: Verify Tower authority (guardrail only)
+        run: npm run tower:stream:self-test
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Verify progress page truthfulness at desktop and phone widths
+        run: npx playwright test --config=playwright.tower.config.cjs tests/browser/tower-transformation-progress.spec.cjs
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: tower-transformation-integrity-failure
+          path: test-results/
+          retention-days: 7
