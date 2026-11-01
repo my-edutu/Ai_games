@@ -1016,8 +1016,20 @@ export function createTowerScene(canvas, settings = {}) {
     // missing guardian. The new floor's autonomous physics stay untouched.
     const clearedGuardian = observedGuardianPassage(previous, next);
     if (previous && previous.floor !== next.floor) passage.clear();
-    if (clearedGuardian) passage.begin(previous, next, pointFor(next.player.x,
-      next.player.y - next.player.halfHeight, next.chunkBaseY, next.worldWidth, 21.55));
+    // The old source-driven lock really existed at the PREVIOUS floor's
+    // cap, not at the current climber position. Keep its center, floor
+    // elevation and orientation through the chunk-base switch; placing it
+    // at the new avatar used to teleport the entire stone gateway after a
+    // kill, severing the physical connection between combat and ascent.
+    const guardianCap = clearedGuardian && previous.platforms?.find(platform =>
+      platform.id === `f${previous.floor}:cap` && Number.isFinite(platform.x) &&
+      Number.isFinite(platform.width) && platform.width > 0 &&
+      Number.isFinite(platform.y) && Number.isFinite(platform.height));
+    if (guardianCap && Number.isFinite(next.worldWidth) && next.worldWidth > 0) {
+      const capCenter = guardianCap.x + guardianCap.width * .5;
+      passage.begin(previous, next, pointFor(capCenter,
+        guardianCap.y + guardianCap.height, next.chunkBaseY, next.worldWidth, 21.8));
+    }
     // A landing is observable only across consecutive source snapshots in the
     // same real run/floor. Skipped long intervals and decorative ledge poses
     // cannot invent a contact or shake the camera.
