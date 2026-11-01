@@ -409,8 +409,16 @@ export function createWarden(options = {}) {
   const signalCore=pivot(body,'opened guardian signal heart',[0,.32,.02]);
   ball(signalCore,dark,[0,-.02,0],[.25,.10,.32]);
   ball(signalCore,ember,[0,.065,0],[.165,.115,.235]);
-  const coreRim=ring(signalCore,claw,[0,.13,.015],.19,.027);
-  coreRim.rotation.x=Math.PI/2;
+  // First authentic 320px capture rejected a bright circular rim: it read
+  // like a collectible coin, not Thornback's anatomy. Give the mechanism a
+  // unique vertical *split spine* and two bolted side guards instead. All
+  // three occupy genuine local 3D depth inside the opening carapace.
+  const heartSpine=rounded(signalCore,ember,[0,.16,0],[.18,.38,.24],.038);
+  heartSpine.rotation.x=-.16;
+  for (const side of [-1,1]) {
+    const guard=rounded(signalCore,claw,[side*.17,.09,-.07],[.09,.24,.37],.031);
+    guard.rotation.z=side*.30;
+  }
   signalCore.visible=false;
   const head=pivot(body,'warden mask',[0,.08,.62]);
   // A broad forward bronze mask makes approach direction distinct from the dark elytra.
@@ -473,7 +481,9 @@ export function createWarden(options = {}) {
     signalCore.visible=alert>.24;
     signalCore.position.y=.32+alert*.19;
     signalCore.scale.setScalar(.78+alert*.5);
-    signalCore.rotation.y=s.reduced?0:Math.sin(s.time*1.7)*alert*.15;
+    // Explicit neutral +0 also matters for deterministic exact pose resets:
+    // negative signed zero from Math.sin(time) * 0 must never be retained.
+    signalCore.rotation.y=alert>0&&!s.reduced?Math.sin(s.time*1.7)*alert*.15:0;
     // Two readable shell wings open independently in true close encounters.
     // Reduced-motion retains a static disclosed-warning silhouette.
     for (const shellHalf of elytra) {
