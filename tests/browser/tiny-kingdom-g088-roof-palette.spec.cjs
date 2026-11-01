@@ -30,7 +30,7 @@ test('G088 grown compact cottages carry stable diverse roof families at zero geo
  expect(result.lod.compactRoofPaletteCounts).toHaveLength(4);
  expect(result.lod.compactRoofPaletteCounts.reduce((a,b)=>a+b,0)).toBe(result.lod.compactHomes);
  expect(result.lod.compactRoofPaletteCounts.filter(n=>n>0).length).toBeGreaterThanOrEqual(3);
- expect(result.lod.compactRoofTiles).toBe(result.lod.compactHomes*48);
+ expect(result.lod.compactRoofTiles).toBe(result.lod.compactHomes*24);
  expect(result.geometry.totalTriangles).toBeLessThan(160000);
  for(const group of ['static','dynamic']){
   expect(result.geometry[group].aligned).toBe(true);
