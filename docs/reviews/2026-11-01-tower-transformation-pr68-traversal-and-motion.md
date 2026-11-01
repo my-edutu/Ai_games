@@ -1,0 +1,29 @@
+# Infinite Tower Climb PR #68 — coherent traversal, autonomous rescue and actual-play capture
+
+**Date:** 2026-11-01. **Scope:** `feat/tower-transformation-gauntlet-20261101`, draft PR #68. **Immutable quality baseline:** `1731b380851162741761c5569e2bc152a0869ca9`. **Experience verdict: NOT EVALUATED.**
+
+## Why this is one in-progress transformation, not a micro-patch round
+
+The existing 3D branch has an articulated climber, procedural original environments, authored ledge grip/boot handoffs and guardian telegraphs. The dominant unresolved experiential gap is **a convincing continuous expedition**: climbing must communicate legible intention, natural physical consequence, encounter danger and meaningful recovery in the same actual normal-speed run. A visually improved static arch or an isolated pose is insufficient. This work keeps one open whole-game initiative and links additional real autonomous choice, skinned-character focus, in-world signaling, original sound and reproducible full-motion source capture.
+
+## Runtime integration produced
+
+1. **PLAYS — real safety-conscious autonomous detour.** If a wounded character has a real uncollected health resource within the bounds and vertical band of its *current supporting deck*, new tactical policy can collect it before a further leap. Imminent projectiles, hazards, enemy telegraphs and genuine combat still take precedence. It never fabricates loot, steps off an unsupported deck for a resource or changes the frozen `historical-v1` replay policy. This can be tested end to end on authentic seeded runs; isolated policy unit tests alone are not experience evidence.
+2. **LOOKS and FEELS — play-intent is visible.** The live snapshot's `collecting-resource` intent steers the modeled climber's gaze and limited shoulder reach toward that real health pickup; the authentic on-deck collectible gets a modest, reduced-motion-aware 3D signal. No additional in-game paragraph, icon wall, server movement correction or fake collider was introduced. It is not proof that a blind reviewer can actually read the intent in motion.
+3. **FEELS — authored opt-in soundscape.** The existing deterministic audio director now emits authoritative projectile launch cues. The WebAudio presentation layers a bounded original synthesized wind texture, per-biome ambient filters, actual same-floor ground-distance footstep texture, genuine takeoff/landing transients and observed combat contact; no autoplay, external asset or private state. Muting, restart and disposal remain explicit. Audio is **biome-reactive**, not a measured spatial-audio system.
+4. **Evidence rather than screenshot theatre.** The source-pinned CI workflow now requests baseline/candidate captures for everyday ascent, floor-8 danger and complete outcome/restart, each at normal speed for 68+ seconds on desktop and portrait phone. The same harness and seed are used across both sources; baseline is pinned separately without modifying baseline game presentation or authority. Real-time outcome mode uses a shorter **explicitly disclosed** authentic run budget, never accelerated ticks or fabricated state. Videos and sampled canvas hashes preserve source provenance. The outcome assessor rejects a result claim unless it samples result, intermission and changed run token.
+
+## Validation accurately scoped
+
+- Source/commit review: the first ten connected commits all target PR68; PR58 stays separately active, with no force-push, merge or deployment.
+- Local workspace/Chromium/subagent tunnel: **unavailable**. Neither a live gameplay video nor a fresh independent visual critic could be exercised in this environment.
+- Bounded JavaScript sanity check: the shipped scene, character and audio modules parse after ESM import removal. A small **mock** WebAudio driver exercised opt-in, audible grounded steps, mute and disposal. This is not a real-browser audio, GPU, frame-time or subjective quality result.
+- GitHub Actions: capture workflow was committed; job completion, actual uploaded video existence and checks remain **unverified**. The available commit-workflow lookup returns only pull-request-triggered runs and does not prove `on: push` workflow success.
+- Changed deterministic tactical path has two focused contract tests; 60-second and authentic result/restart evidence requirements have additional tests. They still require a real CI run.
+- `transformation.json`: no fabricated source-matched scene links, no fabricated five blind critics and no changed baseline. LOOKS, FEELS and PLAYS remain **NOT EVALUATED**, including desktop and representative mobile. Real target-device frame-time p50/p95/p99, memory, replay stability and accessibility release gates are still pending.
+
+## Most consequential next judgment
+
+**Compare real autonomous full-motion before/after gameplay**, not this document. Does the complete hero route stay readable through its physical grip, sole load, acceleration, hazard recognition, guardian contact, recovery and authentic terminal/restart? Does the original Ruins sanctuary stay behind the usable route rather than block it? Review the emitted desktop and portrait captures and their integrity metadata *before* recording any critic score. If the danger run fails to reach visible actual guardian/contact or the outcome misses a true restart, it is incomplete evidence, not a quality pass. Build or revise the same complete slice based on that footage and then run **five independently blind randomized comparisons**, 4/5 candidate preference separately in LOOKS, FEELS, PLAYS, with no major regressions and real-device performance/robustness verification.
+
+**Policy:** CI is a safety veto, never experience scoring. Keep PR68 as a draft and continue the transformation; do not call the current candidate AAA, competitive with the official references, or complete.
