@@ -401,6 +401,31 @@ export function createClimber() {
         leg.foot.rotation.x=mix(leg.foot.rotation.x,i?-.48:-.38,ledgeLegBlend);
       }
     }
+    // A validated deck crossing is not an endless finger-hang. The precise
+    // early contact keeps its true IK pose; the subsequent rising snapshots
+    // drive a short torso/arm/boot push-off and fade to the ordinary airborne
+    // silhouette as the actual jump clears the real platform. No pose hint
+    // moves the character root or creates an authoritative grab.
+    const mantle=state.ledgeMantle;
+    if(airborne&&vy>0&&!attacking&&!dead&&!hurt&&mantle
+      &&Number.isFinite(mantle.progress)&&Number.isFinite(mantle.weight)){
+      const progress=clamp(mantle.progress,0,1),weight=clamp(mantle.weight,0,1);
+      const push=THREE.MathUtils.smoothstep(progress,.18,.8);
+      const leadIndex=reachSide>0?1:0,otherIndex=1-leadIndex;
+      if(!genuineLedgeGrip){
+        body.rotation.x=mix(body.rotation.x,.2+.34*push,weight);
+        arms[leadIndex].upper.rotation.x=mix(arms[leadIndex].upper.rotation.x,-1.85+1.28*push,weight);
+        arms[leadIndex].lower.rotation.x=mix(arms[leadIndex].lower.rotation.x,-.3+.16*push,weight);
+      }
+      arms[otherIndex].upper.rotation.x=mix(arms[otherIndex].upper.rotation.x,-1.1+.52*push,weight);
+      arms[otherIndex].lower.rotation.x=mix(arms[otherIndex].lower.rotation.x,-.75+.28*push,weight);
+      for(let i=0;i<2;i++){
+        const leg=legs[i],front=i===otherIndex;
+        leg.upper.rotation.x=mix(leg.upper.rotation.x,front?-.98+.7*push:-1.12+.85*push,weight);
+        leg.lower.rotation.x=mix(leg.lower.rotation.x,front?1.55-.5*push:1.72-.92*push,weight);
+        leg.foot.rotation.x=mix(leg.foot.rotation.x,front?-.33+.17*push:-.45+.24*push,weight);
+      }
+    }
     if(state.state==='standing'&&landingAge<.2){
       const plant=1-THREE.MathUtils.smoothstep(landingAge,0,.2);
       body.position.y-=.06*plant;

@@ -101,6 +101,30 @@ function climbApproachRadius(snapshot, platform) {
   return 25 + 3.05 * (1 - retreat);
 }
 
+// Deterministic presentation keyframe driven by the *real* intended platform,
+// not by a guessed wall or a timer. The first physical grip remains the IK
+// solver's domain; after clearance this only stages the visible push-off and
+// subsequent free leap. The authoritative player path stays unchanged.
+function ledgeMantlePose(snapshot, platform) {
+  const player = snapshot?.player;
+  if (!platform || !player || player.state !== 'airborne' || player.vy <= 0
+    || player.health <= 0 || player.attacking) return null;
+  const values = [player.x, player.y, player.halfHeight, player.halfWidth,
+    platform.x, platform.y, platform.width, platform.height];
+  if (!values.every(Number.isFinite) || player.halfHeight <= 0
+    || player.halfWidth <= 0 || platform.width <= 0
+    || player.x + player.halfWidth * 1.5 < platform.x
+    || player.x - player.halfWidth * 1.5 > platform.x + platform.width) return null;
+  const height = player.halfHeight * 2;
+  const clearance = player.y - player.halfHeight - platform.y - platform.height;
+  if (clearance <= -height * .9 || clearance >= height * 1.5) return null;
+  const progress = Math.max(0, Math.min(1, (clearance + height * .85) / (height * 1.5)));
+  const enter = Math.max(0, Math.min(1, (clearance + height * .9) / (height * .25)));
+  const leave = Math.max(0, Math.min(1, (height * 1.5 - clearance) / (height * .75)));
+  const weight = Math.min(enter, leave);
+  return weight > 0 ? { progress, weight } : null;
+}
+
 // An armored guardian can stand under the final one-way cap with less vertical
 // space than its full visible crest. Let only the presentation rig tuck its head;
 // the cap, hitboxes, authored height, replay and public state remain unchanged.
@@ -900,6 +924,7 @@ export function createTowerScene(canvas, settings = {}) {
     const ledgeTarget = ledgeContact ? pointFor(ledgeContact.x, ledgeContact.y,
       snapshot.chunkBaseY, snapshot.worldWidth, 27.1) : null;
     const approachRadius = climbApproachRadius(snapshot, targetPlatform);
+    const ledgeMantle = ledgeMantlePose(snapshot, targetPlatform);
     const mapped = pointFor(p.x, p.y - p.halfHeight, snapshot.chunkBaseY, snapshot.worldWidth, approachRadius);
     actorTarget.set(mapped.x, mapped.y, mapped.z);
     const moving = Math.abs(p.vx) > 500;
@@ -919,6 +944,7 @@ export function createTowerScene(canvas, settings = {}) {
       // Real snapshot platform top, inside the existing radial walking surface.
       // No grab, pause, lift or authoritative collision is fabricated.
       ledgeTarget,
+      ledgeMantle,
     }, dt, elapsed, options);
     ledgeContactEvidence = ledgeTarget ? measureLedgeFingertip(climber.group, ledgeTarget, targetPlatform.id) : null;
     attackArc.visible = !!p.attacking && p.health > 0;
