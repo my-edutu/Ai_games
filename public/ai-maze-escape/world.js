@@ -70,6 +70,7 @@ export function createMazeWorld(options = {}) {
   const moss = material('#55843b');
   const leaf = material('#8caf44', { side: THREE.DoubleSide, roughness: .68 });
   const leafDark = material('#326e43', { side: THREE.DoubleSide, roughness: .72 });
+  const seaFern = material('#a1c66c', { side: THREE.DoubleSide, roughness: .7 });
   const flower = material('#f2b765');
   const gold = material('#efb946', { roughness: .28, metalness: .65 });
   const keyLight = material('#ffe6a0', {emissive: '#efac25', emissiveIntensity: .48, roughness: .3, metalness: .45});
@@ -127,7 +128,7 @@ export function createMazeWorld(options = {}) {
   const leafGeometry = geometry(new THREE.ShapeGeometry(leafShape, 5));
   const matrix = new THREE.Matrix4(), rotation = new THREE.Quaternion(), euler = new THREE.Euler(), scale = new THREE.Vector3(), position = new THREE.Vector3();
   let snapshot = null, runToken = null, terrainSignature = '', objectSignature = '', backdropSignature = '', disposed = false;
-  let batches = [], animations = [], ripples = [], renderedCells = [], stairEdges = [], lastVisibility = '', highContrast = false;
+  let batches = [], animations = [], ripples = [], renderedCells = [], stairEdges = [], coastalGardens = 0, lastVisibility = '', highContrast = false;
   let batchData = new Map();
   const clear = (target) => {
     for (const child of [...target.children]) {
@@ -149,7 +150,7 @@ export function createMazeWorld(options = {}) {
     batches = [];
     for (const { geo, mat, entries } of batchData.values()) {
       const mesh = new THREE.InstancedMesh(geo, mat, entries.length);
-      mesh.castShadow = ![leaf, leafDark, moss, flower, rippleMaterial].includes(mat); mesh.receiveShadow = true;
+      mesh.castShadow = ![leaf, leafDark, seaFern, moss, flower, rippleMaterial].includes(mat); mesh.receiveShadow = true;
       entries.forEach((entry, i) => { mesh.setMatrixAt(i, entry.matrix); mesh.setColorAt(i, new THREE.Color(0xffffff)); });
       mesh.instanceMatrix.needsUpdate = true; mesh.computeBoundingSphere();
       terrain.add(mesh); batches.push({ mesh, entries });
@@ -178,6 +179,45 @@ export function createMazeWorld(options = {}) {
     if (variation(seed + 8) > .75) {
       add(cylinder, leafDark, x, y + .22 * size, z, .018, .44 * size, .018, cell);
       for (let j = 0; j < 5; j++) add(sphere, flower, x + Math.cos(j * TAU / 5) * .07, y + .44 * size, z + Math.sin(j * TAU / 5) * .07, .065, .035, .065, cell);
+    }
+  }
+
+  // Hanging green masses are anchored ONLY to publicly observed cells on the
+  // known outer world boundary. They are real 3D parts of the carved seawall,
+  // never an inferred corridor, undiscovered island or invented objective.
+  // Low, outward-facing canopies preserve every playable tile and sight line.
+  function coastalGarden(x, z, dx, dz, seed, cell) {
+    coastalGardens++;
+    const outerX = x + dx * 1.19, outerZ = z + dz * 1.19;
+    const longX = !!dz;
+    // Continuous carved planter and planted rim connect the greenery to stone,
+    // avoiding ungrounded floating leaves above the uniform lagoon.
+    add(box, deepStone, outerX, -.13, outerZ,
+      longX ? 1.94 : .37, .27, longX ? .37 : 1.94, cell);
+    add(box, moss, outerX + dx * .06, .038, outerZ + dz * .06,
+      longX ? 1.72 : .4, .075, longX ? .4 : 1.72, cell);
+    for (let tuft = 0; tuft < 4; tuft++) {
+      const spread = (tuft - 1.5) * .45 + (variation(seed + tuft * 13) - .5) * .11;
+      const rootX = outerX + (longX ? spread : dx * .15);
+      const rootZ = outerZ + (longX ? dz * .15 : spread);
+      const length = .73 + variation(seed + tuft * 19) * .72;
+      // Large overlapping foliage forms a legible *mass* at gameplay scale,
+      // not a scatter of individual dots. Hanging blades hug the outside face.
+      add(sphere, leafDark, rootX, -.17, rootZ, .28, .29, .29, cell);
+      add(sphere, moss, rootX + dx * .095, -.38, rootZ + dz * .095, .30, .38, .27, cell);
+      for (let blade = 0; blade < 3; blade++) {
+        const tangent = (blade - 1) * .115;
+        add(leafGeometry, blade === 1 ? seaFern : leaf,
+          rootX + dx * .11 + (longX ? tangent : 0),
+          -.16 - blade * .055,
+          rootZ + dz * .11 + (longX ? 0 : tangent),
+          .62, length * (blade === 1 ? 1 : .76), 1, cell,
+          0, longX ? 0 : Math.PI / 2, Math.PI + (blade - 1) * .2);
+      }
+      if (variation(seed + 200 + tuft) > .78) {
+        add(sphere, flower, rootX + dx * .14, -.29, rootZ + dz * .14,
+          .09, .07, .09, cell);
+      }
     }
   }
   function wall(x, z, horizontal, id, cell) {
@@ -264,7 +304,7 @@ export function createMazeWorld(options = {}) {
     for (let j = 0; j < 3; j++) plant(x - span + j * .08, 2.8 - j * .42, z + .17, seed + j * 5, cell, 1.4 - j * .15);
   }
   function rebuildTerrain(s) {
-    clear(terrain); batchData = new Map(); renderedCells = s.cells.map(c => c.cell); stairEdges = [];
+    clear(terrain); batchData = new Map(); renderedCells = s.cells.map(c => c.cell); stairEdges = []; coastalGardens = 0;
     const edges = new Set(), columns = new Set(), landmarkSites = new Map();
     const knownByCell = new Map(s.cells.map(c => [c.cell, c]));
     for (const c of s.cells) {
@@ -347,6 +387,22 @@ export function createMazeWorld(options = {}) {
           if (!columns.has(ck)) { column(px, pz, c.cell, c.cell * 6 + side); columns.add(ck); }
         }
         if (gardenPatch(c.cell) > .65 && variation(c.cell + side * 41) > .55) plant(x + dx * .98 + dz * .64, .015, z + dz * .98 + dx * .64, c.cell * 17 + side, c.cell, 1.05);
+      }
+      // Only the fixed, public board perimeter may carry these shore planters.
+      // Unknown neighboring cells *within* the board never receive greenery.
+      const perimeter = [
+        ...(col === 0 ? [[-1, 0]] : []),
+        ...(col === s.width - 1 ? [[1, 0]] : []),
+        ...(row === 0 ? [[0, -1]] : []),
+        ...(row === s.height - 1 ? [[0, 1]] : []),
+      ];
+      for (const [dx, dz] of perimeter) {
+        // Two-cell grouping creates planted terraces with unplanted breathing
+        // spaces rather than one identical tuft repeated around every tile.
+        const patch = Math.floor(col / 2) * 47 + Math.floor(row / 2) * 97 + (dx ? 67 : 31);
+        if (variation(patch) > (dx + dz > 0 ? .24 : .47)) {
+          coastalGarden(x, z, dx, dz, c.cell * 71 + (dx + 2) * 13 + (dz + 2) * 23, c.cell);
+        }
       }
       if (c.blocked) {
         for (let j = 0; j < 5; j++) block(j % 2 ? jade : deepStone, x + (variation(c.cell + j) - .5), .22 + j * .11, z + (variation(c.cell + j + 9) - .5), .7, .5, .65, c.cell, j * .7);
@@ -571,7 +627,7 @@ export function createMazeWorld(options = {}) {
     snapshot = s;
     if (runToken !== s.runToken) {
       runToken = s.runToken; terrainSignature = ''; objectSignature = ''; backdropSignature = ''; lastVisibility = '';
-      clear(terrain); clear(objects); clear(backdrop); batches = []; animations = []; ripples = [];
+      clear(terrain); clear(objects); clear(backdrop); batches = []; animations = []; ripples = []; coastalGardens = 0;
     }
     const backgroundKey = `${s.width}:${s.height}`;
     if (backgroundKey !== backdropSignature) { rebuildBackdrop(s); backdropSignature = backgroundKey; }
@@ -609,12 +665,12 @@ export function createMazeWorld(options = {}) {
     for (const g of geometries) g.dispose();
     for (const m of materials) m.dispose();
     for (const t of textures) t.dispose(); textures.clear();
-    geometries.clear(); materials.clear(); batches = []; animations = []; ripples = []; batchData.clear(); snapshot = null; renderedCells = []; stairEdges = []; group.clear();
+    geometries.clear(); materials.clear(); batches = []; animations = []; ripples = []; batchData.clear(); snapshot = null; renderedCells = []; stairEdges = []; coastalGardens = 0; group.clear();
   }
   function stats() {
     let meshes = 0, instances = 0;
     group.traverse(item => { if (item.isMesh) meshes++; if (item.isInstancedMesh) instances += item.count; });
-    return { renderedCells: [...renderedCells], stairEdges: stairEdges.map(edge => [...edge]), geometryCount: geometries.size, materialCount: materials.size, textureCount: textures.size, knownCells: renderedCells.length, meshes, batches: batches.length, instances, geometries: geometries.size, materials: materials.size, animatedObjects: animations.length, disposed };
+    return { renderedCells: [...renderedCells], stairEdges: stairEdges.map(edge => [...edge]), coastalGardens, geometryCount: geometries.size, materialCount: materials.size, textureCount: textures.size, knownCells: renderedCells.length, meshes, batches: batches.length, instances, geometries: geometries.size, materials: materials.size, animatedObjects: animations.length, disposed };
   }
   return { group, update, animate, dispose, stats, matchingPublicSocket };
 }
