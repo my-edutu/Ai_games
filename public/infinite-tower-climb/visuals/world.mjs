@@ -303,7 +303,7 @@ export function createTowerWorld(){
     for(const e of hazards.values())boundaries.add(e.root);
     for(const r of rotors){boundaries.add(r.o);batchRigid(r.o);}
     for(const f of floaters)boundaries.add(f.o);
-    for(const p of platforms.values())batchRigid(p.root);
+    for(const p of platforms.values())batchRigid(p.root,p.guardianGate?new Set([p.guardianGate.frame]):new Set());
     for(const e of hazards.values()){
       batchRigid(e.live,new Set(e.spin?[e.spin]:[]));
       batchRigid(e.root,new Set([e.live,e.indicator]));
@@ -776,7 +776,7 @@ export function createTowerWorld(){
     const items=[];for(let i=0;i<48;i++){const a=-1.8+noise(i)*3.6,r=30+noise(i+3)*22;items.push({p:[Math.sin(a)*r,-5+noise(i+9)*(height+23),Math.cos(a)*r],s:[.035+noise(i)*.045,.035+noise(i)*.045,.035+noise(i)*.045]});}
     particles=instanced(floorGroup,sphere(),materials.particle,items);particles.userData.items=items;particles.castShadow=false;particles.receiveShadow=false;
   }
-  function buildPlatform(p,width){
+  function buildPlatform(p,width,guardianCap=false){
     const root=new THREE.Group();root.name=`platform:${p.id}`;floorGroup.add(root);
     const angle=p.width/width*ARC,h=p.height/SCALE;
     const bodyMaterial=theme==='ruins'?materials.stone:theme==='void'?materials.crystal:theme==='clockwork'?materials.copper:materials.metal;
@@ -839,13 +839,46 @@ export function createTowerWorld(){
       instanced(root,geometry('void-undercroft',()=>new THREE.OctahedronGeometry(1,0)),materials.crystal,shards);
       mesh(root,sector(27.04,27.17,angle,.05),materials.glow,[0,h-.37,0]);
     }
+    // An original, physically modeled guardian seal makes the boss gate's
+    // authoritative lock/unlock legible even without HUD text or sound.
+    // Its near-core radius is INSIDE the 22.4..27.18 walkable annulus; unlike
+    // a fake blocker it has no collider and never moves an autonomous actor.
+    // Animated leaves are excluded from static floor batching and shadow
+    // multiplication. Ordinary floors have no added portal/draw overhead.
+    let guardianGate = null;
+    if(guardianCap && p.id.endsWith(':cap')){
+      const frame=new THREE.Group();frame.name='AuthoritativeGuardianGate';
+      frame.position.set(0,h,21.8);root.add(frame);
+      for(const side of [-1,1]){
+        block(frame,materials.dark,[side*3.38,2.35,0],[.58,4.8,.78]);
+        block(frame,materials.edge,[side*3.38,4.77,.12],[.8,.25,.95]);
+      }
+      block(frame,materials.dark,[0,4.7,0],[7.35,.5,.88]);
+      const wings=[];
+      for(const side of [-1,1]){
+        const wing=new THREE.Group();
+        wing.name=side<0?'GuardianSealWingLeft':'GuardianSealWingRight';
+        wing.position.z=.37;frame.add(wing);
+        block(wing,materials.copper,[side*1.56,2.13,0],[3.09,4.14,.28]);
+        block(wing,materials.edge,[side*2.82,2.13,.19],[.13,3.6,.075]);
+        wings.push({side,wing});
+      }
+      // A large faceted lock is a shape cue, not color-only state feedback.
+      const crest=mesh(frame,geometry('guardian-gate-keystone',()=>new THREE.OctahedronGeometry(.52,0)),
+        materials.warning,[0,4.72,.54],[1,.78,.36]);
+      crest.name='ObservedGuardianLockCrest';
+      frame.traverse(object=>{if(object.isMesh){
+        object.userData.ambientDetail=true;object.castShadow=false;object.receiveShadow=false;
+      }});
+      guardianGate={frame,wings,crest,progress:null,unlocked:false};
+    }
     let capMaterials = [];
     if(p.id.endsWith(':cap')){
       // The last route gap is shorter than the guardian's body. A thick
       // decorative box beam buries its face inside a one-way platform. Keep
       // the exact usable top and angular edges, with a thin front plate and
       // the existing supports recessed behind the character corridor.
-      for(const child of root.children)if(child!==mount){
+      for(const child of root.children)if(child!==mount&&child!==guardianGate?.frame){
         child.position.y=h+(child.position.y-h)*.12;child.scale.y*=.12;
       }
       // A cap may cross the line of sight to its own guardian. Give only its
@@ -853,7 +886,7 @@ export function createTowerWorld(){
       // and every collision-aligned vertex untouched. Precompile transparency
       // once so visibility transitions cannot cause per-frame shader churn.
       const owned = new Map();
-      for(const child of root.children)if(child!==mount)child.traverse(object=>{
+      for(const child of root.children)if(child!==mount&&child!==guardianGate?.frame)child.traverse(object=>{
         if(!object.isMesh)return;
         const original=object.material;
         if(!owned.has(original)){
@@ -867,7 +900,7 @@ export function createTowerWorld(){
       capMaterials=[...owned.values()];
     }
     root.traverse(o=>{if(o.isMesh&&o.material===bodyMaterial)o.userData.structural=true;});
-    platforms.set(p.id,{root,angle,width:p.width,height:p.height,capMaterials});return root;
+    platforms.set(p.id,{root,angle,width:p.width,height:p.height,capMaterials,guardianGate});return root;
   }
   function buildHazard(h,width){
     const root=new THREE.Group();root.name=`hazard:${h.id}`;floorGroup.add(root);
@@ -936,7 +969,7 @@ export function createTowerWorld(){
     materials.tread=mat(p.dark,.4,.8,{polygonOffset:true,polygonOffsetFactor:-1,polygonOffsetUnits:-1});
     floorGroup=new THREE.Group();floorGroup.name=`floor:${snapshot.floor}:${theme}`;group.add(floorGroup);
     const height=snapshot.chunkHeight/SCALE;buildTower(height);buildDistantWorld(height);buildVista(height);
-    for(const p of snapshot.platforms||[])buildPlatform(p,snapshot.worldWidth);
+    for(const p of snapshot.platforms||[])buildPlatform(p,snapshot.worldWidth,(snapshot.enemies||[]).some(e=>e.kind==='guardian'));
     for(const h of snapshot.hazards||[])buildHazard(h,snapshot.worldWidth);
     for(const r of rotors)r.o.traverse(o=>{if(o.isMesh)o.userData.ambientDetail=true;});
     // The large structural masses cast the route shadows. Tiny bolts, foliage,
@@ -952,7 +985,28 @@ export function createTowerWorld(){
     const requestedQuality=options.quality==='low'?'low':options.quality==='high'?'high':'normal';
     if(key!==`${snapshot.runToken}:${snapshot.floor}:${snapshot.theme}:${requestedQuality}`)rebuild(snapshot,requestedQuality);
     lastSnapshot=snapshot;
-    for(const p of snapshot.platforms||[]){const entry=platforms.get(p.id);if(!entry)continue;entry.root.rotation.y=angleFor(p.x+p.width*.5,snapshot.worldWidth);entry.root.position.y=(p.y-snapshot.chunkBaseY)/SCALE;entry.root.userData.authority={x:p.x,y:p.y,width:p.width,height:p.height};}
+    for(const p of snapshot.platforms||[]){const entry=platforms.get(p.id);if(!entry)continue;entry.root.rotation.y=angleFor(p.x+p.width*.5,snapshot.worldWidth);entry.root.position.y=(p.y-snapshot.chunkBaseY)/SCALE;entry.root.userData.authority={x:p.x,y:p.y,width:p.width,height:p.height};
+      if(entry.guardianGate){
+        // Only the genuine, present guardian's authoritative active state can
+        // release the gate. A missing snapshot or transport outage never
+        // fabricates a victory. On a mid-run renderer rebuild, it rehydrates
+        // directly to the current observed state without replaying a cue.
+        const guardian=(snapshot.enemies||[]).find(enemy=>enemy.kind==='guardian');
+        if(guardian){
+          const unlocked=!guardian.active;
+          const gate=entry.guardianGate,target=unlocked?1:0;
+          if(gate.progress===null)gate.progress=target;
+          else if(!options.stale){
+            const step=Math.min(Math.max(dt,0),.05)*1.65;
+            gate.progress+=Math.sign(target-gate.progress)*Math.min(Math.abs(target-gate.progress),step);
+          }
+          gate.unlocked=unlocked;
+          for(const {side,wing} of gate.wings)wing.position.x=side*gate.progress*2.8;
+          gate.crest.material=unlocked?materials.mint:materials.warning;
+          gate.crest.rotation.z=gate.progress*Math.PI*.5;
+        }
+      }
+    }
     for(const h of snapshot.hazards||[]){const e=hazards.get(h.id);if(!e)continue;const p=pointFor(h.x+h.width*.5,h.y,snapshot.chunkBaseY,snapshot.worldWidth,25);e.root.position.set(p.x,p.y,p.z);e.root.rotation.y=p.angle;e.live.visible=!!h.active;e.active=!!h.active;e.indicator.material=h.active?materials.warning:materials.mint;if(e.spin&&!options.reducedMotion)e.spin.rotation.z=time*.35;}
     if(!options.reducedMotion){for(const r of rotors)r.o.rotation[r.axis||'z']+=Math.min(dt,.05)*r.speed;for(const f of floaters)f.o.position.y=f.y+Math.sin(time*f.speed+f.phase)*.23;}
     if(particles){particles.visible=quality!=='low';if(!options.reducedMotion&&quality!=='low'){
@@ -986,7 +1040,7 @@ export function createTowerWorld(){
     }
     occludedGuardianCaps=faded;
   }
-  function diagnostics(){let objects=0,meshes=0,instances=0,shadowCasterMeshes=0,triangles=0;group.traverse(o=>{objects++;if(o.isMesh){meshes++;if(o.castShadow)shadowCasterMeshes++;triangles+=(o.geometry.index?o.geometry.index.count:o.geometry.attributes.position.count)/3*(o.isInstancedMesh?o.count:1);}if(o.isInstancedMesh)instances+=o.count;});return{objects,meshes,instances,shadowCasterMeshes,triangles,geometries:floorGeometries.size+primitives.size,materials:floorMaterials.size,platforms:platforms.size,hazards:hazards.size,ambientParticles:particles?.visible?48:0,floor:lastSnapshot?.floor??null,theme,quality,disposed,occludedGuardianCaps,ruinsPortalVoussoirs,ruinsGateLeaves,ruinsSanctuaryArches,ruinsSanctuaryPlants,ruinsSanctuaryCascadePanels,vistaLayers:vistaGroup?3:0,vistaTriangles:vistaGroup?.children.reduce((sum,mesh)=>sum+mesh.geometry.attributes.position.count/3,0)??0,surfaceTexture:stoneSurface.diagnostics(),platformTransforms:[...platforms.entries()].map(([id,e])=>({id,...e.root.userData.authority,angle:e.root.rotation.y,yWorld:e.root.position.y}))};}
+  function diagnostics(){let objects=0,meshes=0,instances=0,shadowCasterMeshes=0,triangles=0;group.traverse(o=>{objects++;if(o.isMesh){meshes++;if(o.castShadow)shadowCasterMeshes++;triangles+=(o.geometry.index?o.geometry.index.count:o.geometry.attributes.position.count)/3*(o.isInstancedMesh?o.count:1);}if(o.isInstancedMesh)instances+=o.count;});return{objects,meshes,instances,shadowCasterMeshes,triangles,geometries:floorGeometries.size+primitives.size,materials:floorMaterials.size,platforms:platforms.size,hazards:hazards.size,ambientParticles:particles?.visible?48:0,floor:lastSnapshot?.floor??null,theme,quality,disposed,guardianGates:[...platforms.entries()].filter(([,p])=>p.guardianGate).map(([id,p])=>({id,unlocked:p.guardianGate.unlocked,opening:p.guardianGate.progress})),occludedGuardianCaps,ruinsPortalVoussoirs,ruinsGateLeaves,ruinsSanctuaryArches,ruinsSanctuaryPlants,ruinsSanctuaryCascadePanels,vistaLayers:vistaGroup?3:0,vistaTriangles:vistaGroup?.children.reduce((sum,mesh)=>sum+mesh.geometry.attributes.position.count/3,0)??0,surfaceTexture:stoneSurface.diagnostics(),platformTransforms:[...platforms.entries()].map(([id,e])=>({id,...e.root.userData.authority,angle:e.root.rotation.y,yWorld:e.root.position.y}))};}
   function dispose(){if(disposed)return;clearFloor();for(const g of primitives.values())g.dispose();primitives.clear();stoneSurface.dispose();group.clear();lastSnapshot=null;disposed=true;}
   return{group,update,revealGuardianSightlines,dispose,diagnostics};
 }
