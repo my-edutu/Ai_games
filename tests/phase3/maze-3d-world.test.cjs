@@ -425,3 +425,50 @@ test('authored mineral courts decorate only disclosed safe floors using shared b
     assert.equal(world.stats().geometryCount,0);
   }
 });
+
+test('three public terrace districts stay readable as physical, source-bounded court floors', async () => {
+  const {createMazeWorld} = await modulePromise;
+  const THREE = await import(three);
+  const publicCells = fixture(Array.from({length:63}, (_,cell) => ({cell, neighbors:[]})));
+  const original = JSON.stringify(publicCells);
+  for (const balanced of [true,false]) {
+    const world = createMazeWorld({balanced}), initial = world.stats();
+    world.update(publicCells);
+    const terrain = world.group.children[1], matrix = new THREE.Matrix4();
+    const position = new THREE.Vector3(), rotation = new THREE.Quaternion(), scale = new THREE.Vector3();
+    function floorInstances(materialName, expectedY) {
+      let count = 0;
+      for (const mesh of terrain.children) {
+        if (!mesh.isInstancedMesh || mesh.material.name !== materialName) continue;
+        for (let i = 0; i < mesh.count; i++) {
+          mesh.getMatrixAt(i, matrix); matrix.decompose(position,rotation,scale);
+          // Large actual paving, not the tiny decorative mosaic or wall inlay.
+          if (scale.x >= 1.1 && scale.z >= 1.1 && Math.abs(position.y-expectedY)<.03) count++;
+        }
+      }
+      return count;
+    }
+    assert.ok(floorInstances('Disclosed sunlit ivory terrace', 2.8-.035) >= 10,
+      'upper disclosed level has substantial sunlit stone, not scattered white pixels');
+    assert.ok(floorInstances('Disclosed mineral clay court', 1.4-.035) >= 10,
+      'middle disclosed level forms a sustained warm red-clay court');
+    assert.ok(floorInstances('Disclosed sea-glass mosaic', -.035) >= 10,
+      'low disclosed level forms a real tidal-green court without a hidden path hint');
+    assert.deepEqual(world.stats().renderedCells, publicCells.cells.map(c=>c.cell));
+    assert.equal(JSON.stringify(publicCells), original, 'art never alters publicly supplied knowledge');
+    assert.equal(world.stats().materialCount,initial.materialCount);
+    assert.equal(world.stats().geometryCount,initial.geometryCount);
+    world.animate(13,{reducedMotion:false}); world.animate(13,{reducedMotion:true});
+    assert.equal(world.stats().materialCount,initial.materialCount,
+      'no new material allocated in either animation path');
+    world.update(fixture([{cell:24,neighbors:[]}]));
+    assert.deepEqual(world.stats().renderedCells,[24]);
+    assert.equal(floorInstances('Disclosed sea-glass mosaic',-.035),0,
+      'a single mid-tier publicly disclosed room never paints unseen lower courts');
+    world.update(fixture([]));
+    assert.equal(terrain.children.length,0,'all terrace imagery withdraws with public knowledge');
+    world.dispose();
+    assert.equal(world.stats().geometryCount,0);
+    assert.equal(world.stats().materialCount,0);
+  }
+});

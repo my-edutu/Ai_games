@@ -62,7 +62,7 @@ export function createMazeWorld(options = {}) {
     materials.add(m); return m;
   };
   const stone = material('#cead72');
-  const lightStone = material('#eed5a0');
+  const lightStone = material('#eed5a0'); lightStone.name = 'Disclosed sunlit ivory terrace';
   const deepStone = material('#8e7851');
   // Painted mineral courts break the formerly uniform beige paving into
   // quiet, geographically consistent warm/cool districts. Neither tint is a
@@ -343,9 +343,18 @@ export function createMazeWorld(options = {}) {
       block(deepStone, x, -.42, z, 2.39, .25, 2.39, c.cell);
       block(jade, x, -.27, z, 2.39, .12, 2.39, c.cell);
       block(stone, x, -.135, z, 2.39, .19, 2.39, c.cell);
+      // Three visibly different, physically tiled *public* terrace districts:
+      // ivory observatory above, red-clay garden midway, sea-glass tidal court
+      // below. Previously the same sand material dominated every altitude.
+      // This uses only the cell's disclosed coordinate and public board size;
+      // it does not mark a route, objective, threat, private room or safe tile.
       const district = Math.floor((c.cell % s.width) / 3) + Math.floor(c.cell / s.width / 3) * 7;
-      const floorMaterial = variation(district * 31 + 17) > .83
-        ? clay : variation(district) > .67 ? lightStone : stone;
+      const tier = floorY > 2.1 ? 2 : floorY > .7 ? 1 : 0;
+      const patina = variation(district * 31 + 17);
+      const floorMaterial = tier === 2
+        ? (patina > .86 ? stone : lightStone)
+        : tier === 1 ? (patina > .89 ? lightStone : clay)
+          : (patina > .88 ? stone : seaGlass);
       if (variation(c.cell + 50) > .55) {
         block(floorMaterial, x, -.035, z, 2.31, .07, 2.31, c.cell);
         for (const sign of [-1, 1]) {
@@ -354,6 +363,16 @@ export function createMazeWorld(options = {}) {
         }
       } else for (let row = 0; row < 2; row++) for (let col = 0; col < 2; col++) {
         block(floorMaterial, x + (col - .5) * 1.17, -.035, z + (row - .5) * 1.17, 1.145, .07, 1.145, c.cell);
+      }
+      // Low, symmetric ivory-jade edge engraving separates the sea-glass
+      // lower walkable terrace from the lagoon without suggesting a corridor.
+      // The relief is flush (under 2cm in scene units), has no collision or
+      // extra draw call and is batched with existing reused geometry/material.
+      if (tier === 0 && !c.blocked && !c.trap && !c.checkpoint && !c.clue) {
+        for (const sign of [-1, 1]) {
+          add(box, lightStone, x + sign * .99, .015, z, .034, .012, 1.75, c.cell);
+          add(box, lightStone, x, .015, z + sign * .99, 1.75, .012, .034, c.cell);
+        }
       }
       // Recessed four-petal tesserae form a recognisable original courtyard
       // language rather than an endless uniform tile grid. Courts are selected
