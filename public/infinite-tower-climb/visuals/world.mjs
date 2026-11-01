@@ -900,6 +900,15 @@ export function createTowerWorld(){
       frame.traverse(object=>{if(object.isMesh){
         object.userData.ambientDetail=true;object.castShadow=false;object.receiveShadow=false;
       }});
+      // The rigid gate piers, lintel and rails do not need one GPU draw
+      // each. Batch ONLY this immovable architecture into shared-material
+      // meshes; the source-driven doors, weights, crest and conduit stay
+      // separate animated nodes with the exact same visible silhouette.
+      // The entire frame remains a floor-owned decorative sibling, never
+      // part of the walkable deck or authoritative hitbox.
+      batchRigid(frame,new Set([crest,conduit,
+        ...wings.map(entry=>entry.wing),
+        ...counterweights.map(entry=>entry.carriage)]));
       guardianGate={frame,wings,crest,counterweights,conduit,progress:null,unlocked:false};
     }
     let capMaterials = [];
