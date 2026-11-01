@@ -806,12 +806,23 @@ export function createEnemy(kind='sentinel') {
     for(const side of [-1,1])w.plate(weapon,.12,.43,.46,p.metal,side*.35,hammerHeadY,hammerAxisZ,.025);
     w.plate(weapon,.26,.09,.045,glow,0,hammerHeadY,hammerAxisZ+.23,.018);
   }
+  // The same guardian HP that turns the tower's bronze capstan also opens
+  // these two actual shoulder-shell hinges. The glow beneath is original
+  // skinned geometry, not a screen-space health bar or invented hit effect.
+  // Exactly two extra rigid bones share the existing seven material batches.
+  const guardianArmorSeals=[];
   if(guardian){
     for(const side of [-1,1]){
-      // Broad, low armor establishes the heavy role beneath an overhead deck;
-      // extra crown height would only disappear into the real cap platform.
-      const pauldron=w.contour(arms[side<0?0:1].upper,[[-.44,-.14],[.44,-.14],[.56,.2],[.18,.34],[-.48,.26]],.7,p.armor,side*.07,.11,-.02,.04);
-      pauldron.rotation.z=side*-.1;
+      const arm=arms[side<0?0:1].upper;
+      const seal=w.node(arm,`guardian-armor-seal-${side}`,side*.07,.11,-.02);
+      // Keep the cap-side silhouette low. Damage opens the outer shoulder
+      // sideways to reveal its hidden hot ceramic underframe, rather than
+      // spawning unbounded fragments or changing the guardian's hitbox.
+      w.plate(arm,.30,.19,.06,glow,side*.07,.10,.16,.025);
+      w.contour(seal,[[-.44,-.14],[.44,-.14],[.56,.2],[.18,.34],[-.48,.26]],.7,p.armor,0,0,0,.04);
+      w.plate(seal,.35,.045,.08,trim,0,.2,.37,.013);
+      seal.rotation.z=side*-.1;
+      guardianArmorSeals.push({side,seal});
       for(let i=0;i<3;i++)w.plate(rig,.19,.37,.1,p.color,side*(.17+i*.18),1.05-i*.015,.32,.025).rotation.z=side*-.17;
     }
     w.contour(head,[[-.3,-.04],[.3,-.04],[.26,.32],[0,.48],[-.26,.32]],.21,p.color,0,.02,-.1,.02);
@@ -826,6 +837,14 @@ export function createEnemy(kind='sentinel') {
     const telegraph=Boolean(state.telegraph)&&!dead;
     const firing=Boolean(state.firing)&&!dead;
     const health=Number(state.health),hurt=state.state==='hurt'&&!dead;
+    // HP is an authoritative field from the immutable game snapshot. The
+    // staged reveal is persistent across presentation frames and therefore
+    // legible even when a short hit flash would be missed by software GL.
+    // Death takes priority; a restore with full HP closes both shells.
+    const guardianExposure=guardian
+      ? dead ? 1 : Number.isFinite(health)&&Number.isFinite(state.maxHealth)&&state.maxHealth>0
+        ? THREE.MathUtils.smoothstep(1-clamp(health/state.maxHealth,0,1),.09,.82) : 0
+      : 0;
     const tookDamage=!dead&&Number.isFinite(health)&&previousHealth!==null&&health<previousHealth;
     if(tookDamage||(hurt&&!wasHurt))hurtAge=0;
     else hurtAge=Math.min(1,hurtAge+dt);
@@ -840,6 +859,21 @@ export function createEnemy(kind='sentinel') {
     wasDead=dead;
     const collapse=THREE.MathUtils.smoothstep(deathAge,0,.4);
     for(const {material,color} of materialRest)material.color.copy(color).multiplyScalar(1-collapse*.45);
+    if(guardian){
+      // Real attrition changes the shape of the adversary, not simply the
+      // numbers above its head. Hinge motion has a capped visual easing only;
+      // reduced motion jumps to the truthful HP-correlated static silhouette.
+      const hingeBlend=reducedMotion?1:1-Math.exp(-dt*10);
+      for(const {side,seal} of guardianArmorSeals){
+        seal.rotation.z=mix(seal.rotation.z,side*(-.1-.66*guardianExposure),hingeBlend);
+        seal.rotation.x=mix(seal.rotation.x,-.37*guardianExposure,hingeBlend);
+        seal.position.x=mix(seal.position.x,side*(.07+.16*guardianExposure),hingeBlend);
+        seal.position.y=mix(seal.position.y,.11+.1*guardianExposure,hingeBlend);
+      }
+      // Underplate and forge-eyes share this very restrained emissive channel.
+      // No additional dynamic lights, transparency or per-frame allocations.
+      if(!dead)p.armor.color.lerp(glow.color,.14*guardianExposure);
+    }
     telegraphBlend=mix(telegraphBlend,telegraph?1:0,Math.min(1,dt*12));
     phase+=dt*7*speed;
     rig.position.y=0;rig.rotation.set(0,0,0);head.rotation.set(shooter?.065:guardian?.14:.11,0,0);
@@ -928,7 +962,7 @@ export function createEnemy(kind='sentinel') {
         arm.lower.rotation.x=mix(arm.lower.rotation.x,-.45,hurtWeight);
       }
     }
-    glow.emissiveIntensity=dead?mix(1.05,.035,collapse):Math.max(telegraph?2.2:1.05,1.05+recoil*.65);
+    glow.emissiveIntensity=dead?mix(1.05,.035,collapse):Math.max(telegraph?2.2:1.05,1.05+recoil*.65+(guardian?.55*guardianExposure:0));
     for(const e of eyeNodes)e.scale.y=dead?mix(1,.15,collapse):hurtWeight>0?mix(1,.38,hurtWeight):telegraph?1.3:1;
     if(dead){
       // Fold and tip into a visibly inert silhouette before the host retires it.
