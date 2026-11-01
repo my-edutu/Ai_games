@@ -4158,6 +4158,11 @@ let yaw=.7,pitch=.88,zoom=43,focusPoint=[0,0],dragging=false,lastX,lastY,screenT
 // G053: follow mode must reveal a person instead of preserving a village-scale view.
 // This purely visual camera never affects saved worlds, 30Hz ticks, navigation or RNG.
 let previousFollowCamera=null,lastFollowShot=null;
+// G101: documentary orbit/zoom remains cosmetic and cannot feed the simulation.
+let actionCameraZoom=null,actionCameraPitch=null;
+function watchingRealAction(){
+ return Boolean(follow&&(liveWorkday||document.body.dataset.workday==='delivery'));
+}
 function followCameraRoofs(){
  // Real G096 video showed a worker hidden for seconds by a market linen roof.
  // Track actual emitted buildings AND elevated canvas roofs in camera collision.
@@ -4225,7 +4230,8 @@ function planCitizenCamera(citizen,preferredYaw=yaw){
  // positions, not just orbit angles, and reject roofs between lens and hands.
  const target=[citizen.x,terrain(citizen.x,citizen.z)+1.02,citizen.z],
   roofs=followCameraRoofs(),working=Boolean(liveWorkday||(document.body.dataset.workday==='delivery'&&citizen.delivery)),
-  normalPitch=working?.24:.76,normalZoom=working?6.2:12.8;
+  normalPitch=working?(actionCameraPitch??.24):.76,
+  normalZoom=working?(actionCameraZoom??6.2):12.8;
  const candidate=(angle,pitch=normalPitch,zoom=normalZoom)=>{
   const radius=Math.cos(pitch)*zoom,elevation=Math.sin(pitch)*zoom;
   const eye=[target[0]+Math.sin(angle)*radius,target[1]+elevation,target[2]+Math.cos(angle)*radius];
@@ -4237,7 +4243,11 @@ function planCitizenCamera(citizen,preferredYaw=yaw){
  const offsets=[0,Math.PI/8,-Math.PI/8,Math.PI/4,-Math.PI/4,
   3*Math.PI/8,-3*Math.PI/8,Math.PI/2,-Math.PI/2,
   5*Math.PI/8,-5*Math.PI/8,3*Math.PI/4,-3*Math.PI/4,Math.PI];
- const pitches=working?[.18,.24,.31,.42]:[.76],zooms=working?[6.2,5.5,4.3,7.3,8.5]:[12.8];
+ const pitches=working?(actionCameraPitch===null?[.18,.24,.31,.42]:
+  [normalPitch,Math.max(.16,normalPitch-.08),Math.min(.55,normalPitch+.08)]):[.76];
+ const zooms=working?[normalZoom,Math.max(4.3,normalZoom-.7),
+  Math.max(4.3,normalZoom-1.9),Math.min(13,normalZoom+1.1),
+  Math.min(13,normalZoom+2.3)]:[12.8];
  for(const testPitch of pitches)for(const testZoom of zooms)for(const offset of offsets){
   const shot=candidate(preferredYaw+offset,testPitch,testZoom);
   // A fully unobstructed worker is worth a changed angle. Only *then*
@@ -4266,12 +4276,32 @@ function setCitizenFollow(enabled){
    cinematic=previousFollowCamera.cinematic;
   }
   previousFollowCamera=null;lastFollowShot=null;
+  actionCameraZoom=null;actionCameraPitch=null;
  }
  document.getElementById('focus').classList.toggle('active',follow);
  document.getElementById('focus').setAttribute('aria-pressed',String(follow));
  return follow;
 }
-canvas.addEventListener('pointerdown',e=>{dragging=true;lastX=e.clientX;lastY=e.clientY;canvas.setPointerCapture(e.pointerId)});canvas.addEventListener('pointerup',()=>dragging=false);canvas.addEventListener('pointermove',e=>{if(!dragging)return;yaw+=(e.clientX-lastX)*.006;pitch=Math.max(.33,Math.min(1.38,pitch+(e.clientY-lastY)*.005));lastX=e.clientX;lastY=e.clientY;cinematic=false});canvas.addEventListener('wheel',e=>{zoom=Math.min(85,Math.max(16,zoom+e.deltaY*.035));e.preventDefault()},{passive:false});function button(id,fn){document.getElementById(id).onclick=fn}
+canvas.addEventListener('pointerdown',e=>{dragging=true;lastX=e.clientX;lastY=e.clientY;canvas.setPointerCapture(e.pointerId)});
+canvas.addEventListener('pointerup',()=>dragging=false);
+canvas.addEventListener('pointermove',e=>{
+ if(!dragging)return;
+ const close=watchingRealAction();
+ yaw+=(e.clientX-lastX)*.006;
+ pitch=Math.max(close?.16:.33,Math.min(close?.55:1.38,pitch+(e.clientY-lastY)*.005));
+ if(close)actionCameraPitch=pitch;
+ lastX=e.clientX;lastY=e.clientY;cinematic=false;
+});
+canvas.addEventListener('wheel',e=>{
+ const close=watchingRealAction();
+ // A courier at 6m must not jump to 16m when a player zooms. The normal
+ // 16-85m survey range is unchanged. Keep the user's requested close lens
+ // inside subsequent obstruction-aware follow-camera planning.
+ zoom=Math.min(close?13:85,Math.max(close?4.5:16,zoom+e.deltaY*.035));
+ if(close)actionCameraZoom=zoom;
+ e.preventDefault()
+},{passive:false});
+function button(id,fn){document.getElementById(id).onclick=fn}
 let cinematicHud=false;
 function setCinematicHud(enabled){
  // The public API accepts explicit mode strings as well as button booleans.
@@ -4365,6 +4395,7 @@ function watchDelivery(){
  const selected=unloading[0]||after||eligible[0],p=selected.person;
  if(liveWorkday)stopWorkdayWatch();
  selectedCitizen=selected.index;
+ actionCameraZoom=null;actionCameraPitch=null;
  // Set the observation mode BEFORE computing lens geometry. The old order
  // used the distant survey camera and left actual unloading off-screen.
  document.body.dataset.workday='delivery';
@@ -4386,6 +4417,7 @@ function watchLiveWorkday(){
  if(!liveWorkday)liveWorkCommandBefore=commandView;
  liveWorkday=true;liveWorkCursor=selected.index;workdaySelected=-1;
  selectedCitizen=selected.index;
+ actionCameraZoom=null;actionCameraPitch=null;
  document.body.dataset.workday='live';
  document.getElementById('workday-live').setAttribute('aria-pressed','true');
  document.getElementById('workday-watch').setAttribute('aria-pressed','false');
