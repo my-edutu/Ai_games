@@ -1219,7 +1219,7 @@ function cottageSideFacades(x,z,scale,variant){
 // households remain present with original material classes and readable roofs;
 // collision and civilization authority continue to use the full city list.
 const VILLAGE_LOD_LIMIT=8;
-const villageVisualLod={detailedHomes:0,compactHomes:0,detailedCitizens:0,compactCitizens:0,compactRoofTiles:0,compactFramedWindows:0,compactGableBraces:0,compactSideWindows:0,compactStaggeredCourses:0};
+const villageVisualLod={detailedHomes:0,compactHomes:0,detailedCitizens:0,compactCitizens:0,compactRoofTiles:0,compactFramedWindows:0,compactGableBraces:0,compactSideWindows:0,compactSideTimberQuads:0,compactStaggeredCourses:0};
 function detailedHomeSet(){
  if(city.length<=12)return new Set(city.map((_,i)=>i));
  return new Set(city.map(([x,z],i)=>({i,d:x*x+z*z}))
@@ -1315,6 +1315,24 @@ function compactHouse(x,z,variant){
     windowQuad(y+.83,y+1.31,center-.025,center+.025,windowWood,.012);
     windowQuad(y+.80,y+.84,center-.265,center+.265,windowWood,.013);
     villageVisualLod.compactSideWindows++;
+   }
+   // G084: two corner posts and two knee braces per long wall turn the
+   // distant low-LOD plaster box into a recognizably half-timbered cottage.
+   // Four planar, outward-facing quads on EACH side cost 16 triangles/home,
+   // rather than four thick, six-sided beams. Stay clear of window openings
+   // and use no world RNG, collision geometry or authoritative state.
+   const timberX=sideX+wall*.033,sideTimber=rgb(variant%2?0x654936:0x694b3a);
+   const timberQuad=(a,b,c,d)=>{
+    if(wall>0)quad(a,b,c,d,sideTimber);
+    else quad(d,c,b,a,sideTimber);
+    villageVisualLod.compactSideTimberQuads++;
+   };
+   for(const edge of [-1,1]){
+    const corner=z+edge*d*.446,low=z+edge*d*.402,top=z+edge*d*.084;
+    timberQuad([timberX,y+.24,corner-.049],[timberX,y+h-.12,corner-.049],
+      [timberX,y+h-.12,corner+.049],[timberX,y+.24,corner+.049]);
+    timberQuad([timberX,y+.31,low-.042],[timberX,y+.76,top-.042],
+      [timberX,y+.76,top+.042],[timberX,y+.31,low+.042]);
    }
   }
  });
@@ -3160,7 +3178,7 @@ currentMaterial=MATERIAL.FOLIAGE;
 currentMaterial=MATERIAL.STONE;
  const fullHomes=detailedHomeSet();
 villageVisualLod.detailedHomes=0;villageVisualLod.compactHomes=0;
-villageVisualLod.compactRoofTiles=0;villageVisualLod.compactFramedWindows=0;villageVisualLod.compactGableBraces=0;villageVisualLod.compactSideWindows=0;villageVisualLod.compactStaggeredCourses=0;
+villageVisualLod.compactRoofTiles=0;villageVisualLod.compactFramedWindows=0;villageVisualLod.compactGableBraces=0;villageVisualLod.compactSideWindows=0;villageVisualLod.compactSideTimberQuads=0;villageVisualLod.compactStaggeredCourses=0;
 for(let i=0;i<city.length;i++){
  const [x,z,k]=city[i];
  if(fullHomes.has(i)){
