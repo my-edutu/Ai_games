@@ -18,6 +18,38 @@ test('maze camera focuses the discovered public map instead of the full hidden g
   expect(value.view.containsCurrentCell).toBe(true);
 });
 
+test('native game-first stage occupies the screen without concealing public context', async ({page}) => {
+  await page.setViewportSize({width:390,height:844});
+  await page.goto(base + '/maze?reducedMotion=1', {waitUntil:'domcontentloaded'});
+  const rects = await page.evaluate(() => {
+    const rect = id => {
+      const el=document.getElementById(id),r=el.getBoundingClientRect();
+      const style=getComputedStyle(el);
+      return {top:r.top,bottom:r.bottom,left:r.left,right:r.right,width:r.width,height:r.height,display:style.display,visibility:style.visibility};
+    };
+    return {stage:rect('stage'),hud:rect('hud'),captions:rect('captions'),
+      goal:rect('goal-title'),objective:rect('objective'),timer:rect('time'),
+      progress:rect('progress'),inventory:rect('inventory'),intent:rect('intent-mode'),
+      map:rect('map-panel'),camera:rect('camera-toggle'),path:rect('intent-details'),
+      scroll:document.documentElement.scrollWidth,viewport:document.documentElement.clientWidth};
+  });
+  expect(rects.stage.height, 'a native 390x844 frame must make the actual 3D game dominant').toBeGreaterThan(535);
+  expect(rects.stage.bottom, 'game and accessible goal area must not overlap').toBeLessThanOrEqual(rects.hud.top+1);
+  expect(rects.hud.bottom,'readable current facts must stay clear of captions').toBeLessThanOrEqual(rects.captions.top+1);
+  expect(rects.captions.bottom,'the active event caption must fit on screen').toBeLessThanOrEqual(844);
+  expect(rects.scroll).toBe(rects.viewport);
+  for(const name of ['goal','objective','timer','progress','inventory','intent']) {
+    const r=rects[name];
+    expect(r.width, name+' remains visibly represented').toBeGreaterThan(10);
+    expect(r.height,name+' remains readable').toBeGreaterThan(8);
+    expect(r.display).not.toBe('none');
+    expect(r.visibility).not.toBe('hidden');
+  }
+  expect(rects.camera.width,'camera remains an accessible touch target').toBeGreaterThanOrEqual(44);
+  expect(rects.map.height,'real disclosed map remains independently accessible').toBeGreaterThanOrEqual(40);
+  expect(rects.path.height,'public path notes remain reachable on touch').toBeGreaterThanOrEqual(40);
+});
+
 test('slow state responses never create overlapping browser-source polls', async ({ page }) => {
   let active = 0;
   let maximum = 0;
