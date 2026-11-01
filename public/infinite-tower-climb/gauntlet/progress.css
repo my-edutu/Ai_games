@@ -43,3 +43,15 @@
   nav{gap:10px}
   .wordmark,.play{overflow-wrap:break-word;min-width:0}
 }
+
+/* Source-pinned reviews can contain long identifiers. Preserve the words
+   without allowing intrinsic grid minima to widen narrow phones. */
+.transformation-context > p,#transformation-gap,.verdict > p,
+.verdict h2,.iteration > div,.iteration h3,.iteration p,
+.iteration-meta,.iteration-meta a,.transformation-footnote {
+  min-width:0;overflow-wrap:anywhere;
+}
+@media(max-width:800px){
+  .iteration{grid-template-columns:42px minmax(0,1fr)}
+  .verdict,.transformation-context{grid-template-columns:minmax(0,1fr)}
+}
