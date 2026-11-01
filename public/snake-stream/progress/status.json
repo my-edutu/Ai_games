@@ -1,10 +1,15 @@
 {
-  "updatedAt": "2026-11-01",
-  "status": "R56 PORTRAIT OVERVIEW STAGING CANDIDATE · R55 CHROMIUM A/B PASS · STRICT 11/17 FAIL",
-  "detail": "R56 original portrait overview camera aspect-based staging candidate: new source-controlled Node perspective coverage regression and real Chromium/WebGL 390x844/368x598 before-after captures await exact-head CI. Only camera moves; public board/serpent/hazards/portals and landscape/follow/detail cameras remain authoritative/unchanged. R55 exact-head focused 41300524852 verified reduced-motion overview/detail Chromium/WebGL A/B PASS, but hard 1920x1080 live desktop 11 actual renderer submissions/1003.0ms against unchanged >=17 FAIL; 61 RAF callbacks are not render/device-present FPS. R55 general 41300524857 CANCELLED not PASS. Original Snake Pass/ASTRO BOT visual quality, independent critic, device-present FPS, soak and R5 OPEN. PR draft, unmerged and undeployed.",
+  "updatedAt": "2026-11-01T11:50:00Z",
+  "status": "TRANSFORMATION GAUNTLET · whole-game experience not yet accepted",
+  "detail": "The user superseded the prior micro-round acceptance model. An integrated real-WebGL game must become materially better in environment realism, character anatomy/motion, physically grounded materials/lighting, gameplay presentation and stable rendering. Green CI and tiny visual changes no longer count as Gauntlet success. Current T0 baseline/T1 world rebuild pending. R56 strict desktop browser still failed (12 actual draws/1001.8ms versus 17 required). Existing images are historical, not a transformed result.",
   "latestImage": "/progress/evidence/round-9-overview.jpg",
-  "latestCaption": "R56 tall phone portrait 3D board framing awaits exact-source Chromium A/B; R55 reduced-motion visual parity verified but strict live default desktop 11/17 real submissions FAIL.",
+  "latestCaption": "R56 tall phone portrait 3D board framing awaits exact-source Chromium A/B; R55 reduced-motion visual parity verified but strict live default desktop 11/17 real submissions FAIL. · historical micro-gauntlet screenshot, NOT a transformation acceptance image",
   "reviews": [
+    {
+      "area": "Transformation acceptance — all four pillars together",
+      "verdict": "NOT ACCEPTED · pre-transformation baseline still open",
+      "gap": "Prior rounds focused on marginal geometry, material, pixel or CI differences. The next work must produce a whole-scene before/after visual and motion transformation judged against real Snake Pass and the existing game. No independent whole-game accepted transformation or repeatable smoothness evidence yet."
+    },
     {
       "area": "Round 56 · original portrait overview staging and real WebGL comparison",
       "verdict": "CANDIDATE · NODE PROJECTION + REAL CHROMIUM BEFORE/AFTER COMMITTED · CI PENDING · STRICT 11/17 STILL FAIL",
@@ -775,6 +780,9 @@
     }
   ],
   "checks": [
+    "2026-11-01: user acceptance rule changed. Full game must LOOK / FEEL / PLAY substantially better; micro-patch tests, changed pixels, round/commit counts are not acceptance. See TRANSFORMATION_GAUNTLET.md.",
+    "T0 baseline and T1 living-world 3D rebuild still PENDING actual matched full-scene before/after and separate independent critic.",
+    "R56 focused 41303014224 desktop strict 12/17 actual frames over 1001.8ms failed. This is historical latest verified performance evidence, not a new test pass.",
     "Round53 candidate built from SHA256-verified R52 offline source: exact original renderer Git blob bd7636ee3460fc09e6a9782ae66d37c20836f7f0 reversible, 94/94 focused Snake Node and TypeScript build/host recovery self-test PASS. Bounded first high-resolution canvas pixels from >1.2M to target 768k without lowering 0.4 floor or removing content; 1080p plus retina real-WebGL original/current test added, full live strict >=17 unchanged and pending CI. R52 corrected focused 41284832612: 40/41 Chromium PASS, hard 10 actual submissions/1014.2ms FAIL. General 41284832613 cancelled browser despite earlier stages green. Commercial visual/motion, independent critique, physical presents and soak/R5 remain OPEN.",
     "R48 current production exact 75893e1: downloaded CI offline bundle; TypeScript build, local full Node 588/588, focused Snake 85/85, host authority/recovery PASS. Real GitHub Actions focused 41274549930 34/37 with R48 new WebGL original/current dual-camera pixels visibly different (261 overview, 11508 detail), equal draws/triangles, GL0, artifact 13071365964. 2 historic-only browser fixture collisions corrected without weakening original gaze ±0.018 or exact PNG assertions; new-head CI pending. Hard 11 actual submissions/1012.8ms <17 (RAF61 are not renders/device presents); whole game commercial visual quality, independent critique and soak/R5 OPEN.",
     "R47 verified real Chromium 41273304614 35/36, mini-canvas A/B passes. Actual screenshot/trace 13070298042, motion 13070109184, metrics 13070825126. Hard 10 renderer submissions/1009.8ms vs >=17 FAIL, 61 RAF callbacks not frames. R47 general 41273304659 non-browser stages green/browser pending. R48 original public hazard acting exact-parent reversible Git blob 3c05c372, Node and real WebGL synthetic-capture tests committed but NEW HEAD CI pending. Independent art critique, device-present FPS and R5/soak not complete.",
@@ -817,5 +825,43 @@
     "General CI on ffe44de passed build/Node/host/authority/operations stages but failed browser verification. No all-green CI claim.",
     "Last full catalogue verification (ffe44de) 539/539 passed; Round 13 fresh entire-suite completion and current-head live-host validation remain open.",
     "Independent whole-game visual/motion comparison, sustained device performance, accessibility throughout transitions and R5 production/soak are not complete."
-  ]
+  ],
+  "transformation": {
+    "mode": "transformation",
+    "governance": "docs/reviews/snake-gauntlet/TRANSFORMATION_GAUNTLET.md",
+    "firstImplementationPlan": "docs/superpowers/plans/2026-11-01-autonomous-snake-transformation.md",
+    "acceptance": "An independently evidenced, visibly substantial upgrade of the full running game in environment, character, animation, materials, game feel and sustainable frame delivery; CI is necessary but never sufficient.",
+    "overall": "NOT ACCEPTED",
+    "milestone": "T0 full-game matched baseline / T1 living-world rebuild",
+    "milestoneStatus": "PLANNED",
+    "latestKnownStrictBrowser": {
+      "actualDraws": 12,
+      "elapsedMs": 1001.8,
+      "minDraws": 17,
+      "result": "FAIL",
+      "source": "https://github.com/my-edutu/Ai_games/actions/runs/41303014224"
+    },
+    "pillars": [
+      {
+        "name": "Living 3D world",
+        "status": "OPEN",
+        "criterion": "Clearly transformed coherent original garden architecture/biomes/scene depth in matching real-game captures."
+      },
+      {
+        "name": "Hero and animation",
+        "status": "OPEN",
+        "criterion": "Coherent expressive snake, grounded organic turns, food/hazard/portal/restart motion visible in real play."
+      },
+      {
+        "name": "Materials and lighting",
+        "status": "OPEN",
+        "criterion": "Convincing stone, vegetation, water, scales, contact lighting and atmospheric staging across full frames."
+      },
+      {
+        "name": "Play feel and frame delivery",
+        "status": "OPEN",
+        "criterion": "Readable responsive gameplay/UX, real continuous autonomous video, repeatable >=17 actual browser draws and real-device smoothness evidence."
+      }
+    ]
+  }
 }
