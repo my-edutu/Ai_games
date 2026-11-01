@@ -4302,10 +4302,10 @@ function completeActualDelivery(p){
 let workdaySequence=0,workdaySelected=-1;
 let liveWorkday=false,liveWorkCursor=-1,liveWorkCommandBefore=null;
 // G109: the observer chooses only existing workers; no synthetic shift or AI decision.
-let liveWorkSwitchHour=-Infinity,liveWorkTransitions=0;
+let liveWorkSwitchHour=-Infinity,liveWorkTransitions=0,liveWorkCuts=0;
 function clearLiveWorkdayState(){
  liveWorkday=false;liveWorkCursor=-1;liveWorkCommandBefore=null;
- liveWorkSwitchHour=-Infinity;liveWorkTransitions=0;
+ liveWorkSwitchHour=-Infinity;liveWorkTransitions=0;liveWorkCuts=0;
  const control=document.getElementById('workday-live');
  if(control)control.setAttribute('aria-pressed','false');
  const progress=document.getElementById('workday-progress');
@@ -4364,7 +4364,7 @@ function getLiveWorkdayView(){
 // The live director never replaces a real worker with scripted animation:
  // it changes only the documentary subject after the actual job ends.
  function getLiveWorkDirectorStats(){
-  return {active:liveWorkday,transitions:liveWorkTransitions,
+  return {active:liveWorkday,transitions:liveWorkTransitions,cameraCuts:liveWorkCuts,
    citizen:people[selectedCitizen]?.name||null,
    liveWorkers:getActiveWorksites().length,
    lastSwitchHour:Number.isFinite(liveWorkSwitchHour)?liveWorkSwitchHour:null};
@@ -4374,23 +4374,34 @@ function getLiveWorkdayView(){
   const current=people[selectedCitizen];
   if(current&&isWorkingAtSite(current))return false;
   if(state.t-liveWorkSwitchHour<.09)return false;
-  const eligible=people.map((person,index)=>({person,index}))
+  const candidates=people.map((person,index)=>({person,index}))
    .filter(row=>row.index!==selectedCitizen&&isWorkingAtSite(row.person));
-  if(!eligible.length)return false;
-  // Choose actual ongoing work with enough time left to observe it.
-  // Stable tie-breaking; never draw RNG or edit population/economy.
+  if(!candidates.length)return false;
+  const previous=people[selectedCitizen],origin=previous?[previous.x,previous.z]:focusPoint;
+  const nearest=(row)=>Math.hypot(row.person.x-origin[0],row.person.z-origin[1]);
+  // Direct a continuous sequence of genuine neighbouring work before a jump
+  // across the settlement; do not film a two-second shift about to finish.
+  const sustained=candidates.filter(row=>
+   workDuration(row.person)-row.person.workTimer>=.30);
+  const eligible=sustained.length?sustained:candidates;
   eligible.sort((a,b)=>{
    const remainingA=workDuration(a.person)-a.person.workTimer;
    const remainingB=workDuration(b.person)-b.person.workTimer;
-   return remainingB-remainingA||a.index-b.index;
+   const scoreA=nearest(a)*.38-Math.min(remainingA,2)*.85;
+   const scoreB=nearest(b)*.38-Math.min(remainingB,2)*.85;
+   return scoreA-scoreB||a.index-b.index;
   });
-  const next=eligible[0];
+  const next=eligible[0],distance=nearest(next);
   selectedCitizen=next.index;liveWorkCursor=next.index;
   liveWorkSwitchHour=state.t;liveWorkTransitions++;
   actionCameraZoom=null;actionCameraPitch=null;lastFollowShot=null;
-  // Reduced-motion users get an immediate shot instead of a lengthy pan.
-  if(window.matchMedia('(prefers-reduced-motion: reduce)').matches)
+  // A long eased pan at 2 SwiftShader FPS moved the lens through roofs and
+  // hid the new worker. Use an intentional real-actor documentary cut when
+  // the selected workplace is distant; maintain easing for adjacent jobs.
+  if(distance>8||window.matchMedia('(prefers-reduced-motion: reduce)').matches){
    updateFollowCamera();
+   if(distance>8)liveWorkCuts++;
+  }
   updateLiveWorkdayUI();
   return true;
  }
@@ -4936,7 +4947,7 @@ function watchLiveWorkday(){
  if(!selected)return null;
  const transitioning=liveWorkday&&!window.matchMedia('(prefers-reduced-motion: reduce)').matches;
  const oldShot=transitioning?{yaw,pitch,zoom,focus:focusPoint.slice()}:null;
- if(!liveWorkday){liveWorkCommandBefore=commandView;liveWorkTransitions=0;}
+ if(!liveWorkday){liveWorkCommandBefore=commandView;liveWorkTransitions=0;liveWorkCuts=0;}
  liveWorkday=true;liveWorkCursor=selected.index;workdaySelected=-1;
  liveWorkSwitchHour=state.t;
  selectedCitizen=selected.index;
