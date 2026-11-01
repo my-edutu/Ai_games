@@ -96,3 +96,36 @@ test('actual live 3D masonry base walls use a shared stone albedo and bounded bu
  await page.locator('#world').screenshot({path:'artifacts/dungeon-wall-masonry-round41-world-only.png',timeout:60000});
  await test.info().attach('round41-masonry-live-diagnostics',{body:Buffer.from(JSON.stringify(evidence,null,2)),contentType:'application/json'});
 });
+
+test('actual seeded crypt renders earthy neutral masonry, bounded hero lights, and real WebGL pixels',async({page})=>{
+ test.setTimeout(120000);
+ const {DungeonRuntime}=require('../../dist/games/ai-dungeon/src/index.js');
+ const game=DungeonRuntime.create('visual-room-art-18');
+ for(let tick=0;tick<18;tick++)game.step();
+ const snapshot=game.publicState();
+ expect(snapshot.floor).toBe(1);
+ const errors=[];page.on('pageerror',error=>errors.push(String(error)));
+ await page.route('**/dungeon/state',route=>route.fulfill({json:snapshot}));
+ await page.goto('/dungeon');
+ await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.authored3D?.texturedCharacters??0),
+  {timeout:60000}).toBeGreaterThanOrEqual(3);
+ await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.stoneGrade?.wallTint??null),
+  {timeout:30000}).toBe('f3e0c7');
+ const diag=await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__);
+ expect(diag.webgl).toBe(true);
+ expect(diag.stoneGrade).toMatchObject({
+  biome:'SUNKEN CRYPT',wallTint:'f3e0c7',floorTint:'50463c',
+  trimTint:'7c6d5b',keyFill:'cfbda5',partyFill:'9bd8ba',wallTextureMapped:true
+ });
+ expect(diag.stoneGrade.partyIntensity).toBeGreaterThanOrEqual(.8);
+ expect(diag.stoneGrade.partyIntensity).toBeLessThanOrEqual(1.3);
+ expect(diag.composition.visibleHeroes).toBeGreaterThanOrEqual(3);
+ expect(diag.authored3D.missingAssets).toBe(0);
+ expect(errors).toEqual([]);
+ await page.locator('.arena').evaluate(node=>node.classList.add('world-only-audit'));
+ await page.locator('#world').screenshot({path:'artifacts/dungeon-round55-crypt-stone-grade-real-WebGL.png',timeout:60000});
+ await test.info().attach('real-crypt-stone-grade-audit',{body:Buffer.from(JSON.stringify({
+  seed:'visual-room-art-18',tick:snapshot.tick,groundTruth:'actual DungeonRuntime public snapshot',
+  stoneGrade:diag.stoneGrade,drawCalls:diag.drawCalls,triangles:diag.triangles,composition:diag.composition
+ },null,2)),contentType:'application/json'});
+});
