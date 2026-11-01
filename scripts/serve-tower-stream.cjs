@@ -140,5 +140,5 @@ function serve() {
   const shutdown = () => server.close(() => process.exit(0));
   process.on('SIGINT', shutdown); process.on('SIGTERM', shutdown);
 }
-module.exports = { createSession, advance, publicFrame, resolvePublicAsset, createTowerStreamServer };
+module.exports = { STREAM_CONFIG, createSession, advance, publicFrame, resolvePublicAsset, createTowerStreamServer };
 if (require.main === module) { if (process.argv.includes('--self-test')) selfTest(); else serve(); }
