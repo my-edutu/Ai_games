@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-01T11:40:24.694Z",
+  "updatedAt": "2026-11-01T11:42:16.051Z",
   "benchmark": {
     "status": "Not yet passed",
     "summary": "Pass36 exact-source authentic 390×844 captured 2026-11-01T10:18:23.019Z (SHA b4463aae...). Actual physical tooth/socket separation 84.40 CSS px vs verified pass35 92.09px, but no contact or readable inserted-key action; bow partly hidden, arch clipped and lagoon oversized. Focused Maze CI 41296776902 succeeded and all six original PNG hashes match; whole-repo CI 41296776884 still in progress at evidence check. Original Nintendo bar NOT PASSED; independent critic/Ultracode blocked by disconnected workspace; SwiftShader not hardware FPS."
@@ -415,6 +415,13 @@
       "verdict": "Geometric separation decreased, but still no readable physical key-to-lock action; Nintendo benchmark NOT PASSED",
       "date": "2026-11-01T10:18:23.019Z",
       "summary": "Original 390x844 pass35/36 native same-seed tick21 images differ only 1,071 RGB pixels (0.3254%). Partially obstructed mint bow/glove, clipped arch, oversized lagoon. No independent A/B nor hardware-FPS claim."
+    },
+    {
+      "title": "Pass37 authentic original desktop/native visual review vs pass36 and fixed Nintendo bar",
+      "reviewer": "Lead direct inspection of independently SHA-verified original browser PNGs; separate fresh-context critic unavailable",
+      "verdict": "Modestly improved modeled bow-facing score; physical key/socket gap unchanged; Nintendo benchmark NOT PASSED",
+      "date": "2026-11-01T11:42:16.051Z",
+      "summary": "Original 390x844 pass37 vs pass36 differs by 843/329160 RGB pixels >12, only near Pip/key; desktop differs by 1635/1152000. Real bow-facing model score=1 in both viewports, but key still appears entangled with helmet/gate masonry and actual gap remains 84.4031px native. Cropped public arch and excessive lagoon unchanged. No detached blind critic or representative GPU result."
     }
   ],
   "verification": [
@@ -679,6 +686,13 @@
       "detail": "Presentation-only roll around real key shaft, no fake physical insertion, hero move, AI/private-state/door change. Two LOD and opposite camera bearings checked by newly added source test; runtime browser camera-facing value and source manifest hash added. Pass36 full CI 41296776884 cancelled; focused Maze 41296776902 succeeded. Workspace agents/Ultracode disconnected; SwiftShader timing not hardware GPU FPS.",
       "sourceCommit": "pending-atomic-commit",
       "sourceUrl": "https://github.com/my-edutu/Ai_games/pull/53"
+    },
+    {
+      "name": "Pass37 authentic captured WebGL evidence and visual rejection",
+      "status": "Focused Maze CI SUCCESS and all 6 original PNG SHA-256 hashes verified; source-model bow face score 1 but visual benchmark NOT PASSED; full catalogue CI still in progress at review",
+      "detail": "Exact source e776c3962a162fd1459eb6b4bed635c9f48db424, focused CI 41302938093 artifact 13081353692, true public maze-visual-reference-13 tick21 closed door-2 matching key. Native 390x844 captured 2026-11-01T11:42:16.051Z SHA eb2a0bf851b88afd08d77077e197177ea6b25607c47b3b7c294ad76cb11cd52c, 843 changed pixels >12 vs pass36, physical key/socket 84.4031 CSS px unchanged. Desktop 1280x900 11:42:13.605Z SHA 78cd6b96e304d162ccb6456b85ba8083b63126bce0c22fc09a03b72aa2f634e8, 1635 pixels changed >12, 120.0479px unchanged. All six PNG hashes match original dated manifests, which now hash characters.js. Other 4 scenes byte-identical. Lead rejects visual parity, independent critic/Ultracode unavailable due tunnel; CPU-throttled SwiftShader not GPU FPS. Whole-repo CI 41302938095 in progress.",
+      "sourceCommit": "e776c3962a162fd1459eb6b4bed635c9f48db424",
+      "sourceUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41302938093/artifacts/13081353692"
     }
   ],
   "references": [
