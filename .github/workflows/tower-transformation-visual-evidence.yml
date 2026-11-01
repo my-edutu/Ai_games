@@ -59,10 +59,12 @@ jobs:
             ref: 1731b380851162741761c5569e2bc152a0869ca9
             scenario: ascent
             floor: 0
+          # Guardians spawn at interval 10; baseline and candidate must
+          # film a genuine guardian floor with identical capture settings.
           - source: baseline
             ref: 1731b380851162741761c5569e2bc152a0869ca9
             scenario: danger
-            floor: 8
+            floor: 10
           - source: baseline
             ref: 1731b380851162741761c5569e2bc152a0869ca9
             scenario: outcome
@@ -74,7 +76,7 @@ jobs:
           - source: candidate
             ref: ${{ github.sha }}
             scenario: danger
-            floor: 8
+            floor: 10
           - source: candidate
             ref: ${{ github.sha }}
             scenario: outcome

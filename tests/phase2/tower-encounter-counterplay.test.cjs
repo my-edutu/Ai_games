@@ -108,3 +108,45 @@ test('open supported lane retains the useful outward shot-avoidance response',()
  const live=chooseTowerAction(s,createTowerObservation(s));
  assert.equal(live.intent.mode,'evading-projectile');assert.equal(live.action.move,1);
 });
+
+test('the autonomous climber visibly braces for a genuine early shooter charge then leaps at release',()=>{
+ const s=encounter();
+ s.enemies[0].telegraphUntilTick=s.tick+7;
+ let decision=chooseTowerAction(s,createTowerObservation(s));
+ assert.equal(decision.intent.mode,'bracing-telegraph');
+ assert.equal(decision.action.jump,false);
+ assert.equal(decision.action.attack,false);
+ assert.equal(decision.action.move,0,'hold safe footing when the incoming shot is still distant');
+ assert.notEqual(chooseTowerAction(s,createTowerObservation(s),{tactical:false}).intent.mode,'bracing-telegraph',
+  'frozen historical policy must preserve earlier replay decisions');
+ s.enemies[0].telegraphUntilTick=s.tick+2;
+ decision=chooseTowerAction(s,createTowerObservation(s));
+ assert.equal(decision.intent.mode,'evading-telegraph');
+ assert.equal(decision.action.jump,true);
+ s.enemies[0].telegraphUntilTick=0;
+ decision=chooseTowerAction(s,createTowerObservation(s));
+ assert.notEqual(decision.intent.mode,'bracing-telegraph');
+ assert.notEqual(decision.intent.mode,'evading-telegraph');
+});
+
+test('early warning does not grant clairvoyant fire direction or unsafe unsupported footing',()=>{
+ for(const invalid of [s=>s.enemies[0].facing=1,s=>s.player.grounded=false,
+  s=>s.player.position.x=s.chunks[0].platforms.find(p=>p.id===s.player.groundedPlatformId).x+1000,
+  s=>s.enemies[0].position.y+=180000]){
+  const s=encounter();s.enemies[0].telegraphUntilTick=s.tick+6;invalid(s);
+  assert.notEqual(chooseTowerAction(s,createTowerObservation(s)).intent.mode,'bracing-telegraph');
+ }
+});
+
+test('the public immutable snapshot exposes only an observed finite enemy windup countdown',()=>{
+ const {createTowerRenderSnapshot}=require('../../dist/games/infinite-tower-climb/src/presentation/snapshot.js');
+ const s=encounter();s.enemies[0].telegraphUntilTick=s.tick+7;
+ const open=createTowerRenderSnapshot(s);
+ assert.equal(open.enemies[0].telegraph,true);
+ assert.equal(open.enemies[0].telegraphTicksRemaining,7);
+ assert.ok(Object.isFrozen(open.enemies[0]));
+ s.enemies[0].telegraphUntilTick=s.tick+2;
+ assert.equal(createTowerRenderSnapshot(s).enemies[0].telegraphTicksRemaining,2);
+ s.enemies[0].telegraphUntilTick=0;
+ assert.equal(createTowerRenderSnapshot(s).enemies[0].telegraphTicksRemaining,0);
+});

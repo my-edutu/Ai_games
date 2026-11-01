@@ -1,5 +1,5 @@
 import type{TowerAction,TowerPlatform,TowerState}from'../state/types';import{chooseTowerUpgrade}from'../progression/builds';import{nextTowerPlatform}from'./graph';import type{TowerObservation}from'./observation';import{detectTowerStuck}from'./stuck';
-export interface TowerIntent{mode:'choosing-upgrade'|'evading-projectile'|'evading-hazard'|'evading-telegraph'|'engaging-enemy'|'recovering'|'collecting-resource'|'aligning'|'jumping'|'air-control'|'waiting';summary:string;confidence:number;fallbackUsed:boolean;targetPlatformId?:string}
+export interface TowerIntent{mode:'choosing-upgrade'|'evading-projectile'|'evading-hazard'|'evading-telegraph'|'bracing-telegraph'|'engaging-enemy'|'recovering'|'collecting-resource'|'aligning'|'jumping'|'air-control'|'waiting';summary:string;confidence:number;fallbackUsed:boolean;targetPlatformId?:string}
 export interface TowerDecision{action:TowerAction;intent:TowerIntent}
 function action(move:TowerAction['move']=0,extra:Partial<TowerAction>={}):TowerAction{return{move,jump:false,dash:false,attack:false,ability:false,...extra}}
 function moveSign(delta:number):TowerAction['move']{return Math.abs(delta)<4000?0:delta>0?1:-1}
@@ -53,14 +53,17 @@ function reachableHealthOnSupport(state:TowerState,obs:TowerObservation){
 // A telegraph is authoritative and grants a short, readable chance to respond.
  // Never fabricate projectile knowledge, dodge from unsupported ground, or send
  // the climber off the ledge just to trigger a heroic-looking animation.
-function imminentTelegraph(state:TowerState,obs:TowerObservation){
+// The enemy's fixed-step telegraph is a genuine observation: the climber gets
+// an early warning before the last-three-tick jump. Both phases use identical
+// line-of-fire, vertical and safe-support checks; no future RNG is inspected.
+function aimedTelegraph(state:TowerState,obs:TowerObservation,earliest:number,latest:number){
   const p=obs.player;
   if(!p.grounded||p.health<=0)return undefined;
   const platform=currentPlatform(obs,p.groundedPlatformId);
   const margin=state.player.halfWidth+4000;
   if(!platform||p.position.x<platform.x+margin||p.position.x>platform.x+platform.width-margin)return undefined;
   return obs.enemies.filter(e=>e.active&&e.kind!=='sentinel'&&
-    e.telegraphUntilTick>obs.tick&&e.telegraphUntilTick-obs.tick<=3&&
+    e.telegraphUntilTick-obs.tick>=earliest&&e.telegraphUntilTick-obs.tick<=latest&&
     Math.abs(e.position.x-p.position.x)<=110000&&
     Math.abs(e.position.y-p.position.y)<=state.player.halfHeight+e.halfHeight+9000&&
     (p.position.x-e.position.x)*e.facing>=0)
@@ -68,6 +71,7 @@ function imminentTelegraph(state:TowerState,obs:TowerObservation){
       Math.abs(a.position.x-p.position.x)-Math.abs(b.position.x-p.position.x)||
       a.id.localeCompare(b.id))[0];
 }
+function imminentTelegraph(state:TowerState,obs:TowerObservation){return aimedTelegraph(state,obs,1,3)}
 function pulseReady(state:TowerState,obs:TowerObservation,enemy:TowerObservation['enemies'][number]){
   const p=obs.player,delta=enemy.position.x-p.position.x;
   return state.build.upgradeIds.includes('pulse-shot')&&p.abilityCooldown===0&&enemy.active&&
@@ -84,6 +88,20 @@ export function chooseTowerAction(state:TowerState,observation:TowerObservation,
   const windup=tactical?imminentTelegraph(state,observation):undefined;
   if(windup)return{action:action(guardedEvasion(state,observation,0),{jump:true}),
     intent:{mode:'evading-telegraph',summary:`Jumping clear of ${windup.kind} fire`,confidence:.96,fallbackUsed:false}};
+  // During the first half of a REAL hostile charge, brace rather than charging
+  // through it. A too-close climber makes deck-safe room; the final three
+  // ticks retain the original authoritative evasive jump. Presentation may
+  // animate this decision but never predicts or fabricates a hit.
+  const charging=tactical?aimedTelegraph(state,observation,4,8):undefined;
+  if(charging){
+    const proximity=Math.abs(charging.position.x-observation.player.position.x);
+    const away:TowerAction['move']=charging.position.x>observation.player.position.x?-1:1;
+    const retreat:TowerAction['move']=proximity<state.config.attackReach*.7?away:0;
+    const move=guardedEvasion(state,observation,retreat);
+    return{action:action(move),intent:{mode:'bracing-telegraph',
+      summary:move!==0?'Bracing while making room for incoming fire':`Bracing for ${charging.kind} fire`,
+      confidence:.95,fallbackUsed:false}};
+  }
   // The cap exit is deliberately locked while its guardian lives. Do not treat
   // standing on that cap as the end of the route: the guardian patrols the
   // penultimate deck and must be defeated by ordinary, range-checked combat.

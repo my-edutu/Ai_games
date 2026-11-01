@@ -312,7 +312,8 @@ export function createClimber() {
     const speed=clamp(Math.abs(vx)/4300,0,1),dead=state.state==='dead'||state.health===0;
     const airborne=state.state==='airborne',dash=state.state==='dashing',hurt=state.state==='hurt';
     // Intent, not visual randomness, drives this bounded defensive silhouette.
-    const defending=['evading-projectile','evading-hazard','evading-telegraph'].includes(state.intentMode);
+    const bracing=state.intentMode==='bracing-telegraph';
+    const defending=bracing||['evading-projectile','evading-hazard','evading-telegraph'].includes(state.intentMode);
     const attacking=Boolean(state.attacking)&&!dead&&!hurt;
     // World-facing traversal, never follow-camera framing, owns boot stance.
     // Camera azimuth may expose the reaching hand but cannot swap the physical
@@ -362,10 +363,15 @@ export function createClimber() {
       }
       // Shield the visor and tuck the knees while the real AI reacts to danger.
       if(defending&&!attacking){
-        body.position.y-=.065;body.rotation.x=-.13;head.rotation.x=.18;
+        // A real early charge grounds both boots and raises the forearms.
+        // When the actual shot is near, the separate evasive jump takes over.
+        body.position.y-=bracing?.12:.065;
+        body.rotation.x=bracing?-.16:-.13;
+        head.rotation.x=bracing?.24:.18;
         for(let i=0;i<2;i++){
-          legs[i].upper.rotation.x=-.33;legs[i].lower.rotation.x=.6;
-          arms[i].upper.rotation.set(-1.18,0,(i?1:-1)*.44);
+          legs[i].upper.rotation.x=bracing?-.48:-.33;
+          legs[i].lower.rotation.x=bracing?.72:.6;
+          arms[i].upper.rotation.set(bracing?-1.38:-1.18,0,(i?1:-1)*.44);
           arms[i].lower.rotation.x=-.82;
         }
       }

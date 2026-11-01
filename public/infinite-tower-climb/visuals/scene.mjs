@@ -734,6 +734,13 @@ export function createTowerScene(canvas, settings = {}) {
     player: ownMaterial(new THREE.MeshBasicMaterial({ color: 0x7eeeff, transparent: true, opacity: .68, side: THREE.DoubleSide, depthTest: true, depthWrite: false, toneMapped: false })),
     enemy: ownMaterial(new THREE.MeshBasicMaterial({ color: 0xff805e, transparent: true, opacity: .73, side: THREE.DoubleSide, depthTest: true, depthWrite: false, toneMapped: false })),
   };
+  // Shared, depth-tested enemy charge arc driven by a real observed windup.
+  // It does not predict collisions or advance a second rules clock.
+  const chargeArcGeometry = ownGeometry(new THREE.TorusGeometry(.82, .055, 6, 32, Math.PI * 1.72));
+  const chargeArcMaterial = ownMaterial(new THREE.MeshBasicMaterial({
+    color: 0xffdf9c, transparent: true, opacity: .86, depthTest: true,
+    depthWrite: false, side: THREE.DoubleSide, toneMapped: false,
+  }));
   const healthBarGeometry = ownGeometry(new THREE.PlaneGeometry(1, 1));
   const healthBarDark = ownMaterial(new THREE.MeshBasicMaterial({ color: 0x172329, transparent: true, opacity: .88, depthTest: false, depthWrite: false }));
   const healthBarRed = ownMaterial(new THREE.MeshBasicMaterial({ color: 0xff9867, transparent: true, opacity: 1, depthTest: false, depthWrite: false }));
@@ -833,7 +840,7 @@ export function createTowerScene(canvas, settings = {}) {
   resize();
 
   function removeEnemy(entry) {
-    scene.remove(entry.model.group, entry.bar, entry.warning, entry.impact, entry.threatLane);
+    scene.remove(entry.model.group, entry.bar, entry.warning, entry.impact, entry.threatLane, entry.chargeArc);
     entry.threatLane.geometry.dispose();
     entry.model.dispose();
   }
@@ -887,8 +894,11 @@ export function createTowerScene(canvas, settings = {}) {
     const threatLane=new THREE.Mesh(createThreatLaneGeometry(),threatLaneMaterial);
     threatLane.name='ObservedEnemyTelegraphLane';threatLane.visible=false;
     threatLane.frustumCulled=false;threatLane.renderOrder=3;
-    scene.add(model.group, bar, warning, impact, threatLane);
-    const entry = { model, bar, fill, back, warning, impact, threatLane, initialized: false, x: entity.x, direction: entity.facing || -1, state: entity, deadUntil: 0, fireUntil: 0, impactUntil: 0, impactFramesRemaining: 0 };
+    const chargeArc = new THREE.Mesh(chargeArcGeometry, chargeArcMaterial);
+    chargeArc.name = 'ObservedEnemyWindup'; chargeArc.visible = false;
+    chargeArc.renderOrder = 4;
+    scene.add(model.group, bar, warning, impact, threatLane, chargeArc);
+    const entry = { model, bar, fill, back, warning, impact, threatLane, chargeArc, initialized: false, x: entity.x, direction: entity.facing || -1, state: entity, deadUntil: 0, fireUntil: 0, impactUntil: 0, impactFramesRemaining: 0 };
     enemies.set(entity.id, entry);
     return entry;
   }
@@ -1102,6 +1112,20 @@ export function createTowerScene(canvas, settings = {}) {
       entry.warning.visible = e.active && e.telegraph;
       entry.threatLane.visible = e.active && e.telegraph && !options.stale;
       if(entry.threatLane.visible)poseThreatLane(entry.threatLane,e,snapshot);
+      // The incomplete arc shrinks across the enemy's true remaining ticks.
+      // Rotation is optional; reduced motion retains size and shape information.
+      entry.chargeArc.visible = e.active && e.telegraph && e.kind !== 'sentinel' && !options.stale;
+      if (entry.chargeArc.visible) {
+        const remaining = Number.isFinite(e.telegraphTicksRemaining)
+          ? clamp(e.telegraphTicksRemaining, 1, 8) / 8 : 1;
+        entry.chargeArc.position.copy(model.position);
+        entry.chargeArc.position.y += e.halfHeight * 2 / SCALE * .69;
+        scratch.copy(camera.position).sub(entry.chargeArc.position).normalize();
+        entry.chargeArc.position.addScaledVector(scratch, .55);
+        entry.chargeArc.quaternion.copy(camera.quaternion);
+        if (!options.reducedMotion) entry.chargeArc.rotateZ((1 - remaining) * Math.PI * .72);
+        entry.chargeArc.scale.setScalar((e.kind === 'guardian' ? 2.1 : 1.25) * (.58 + remaining * .42));
+      }
       const impact = entry.impact;
       impact.visible = (e.active || elapsed < entry.deadUntil)
         && (elapsed < entry.impactUntil || entry.impactFramesRemaining > 0);
@@ -1276,6 +1300,7 @@ export function createTowerScene(canvas, settings = {}) {
       activeParticles: particleLife.filter(life => life > 0).length,
       observedEnemyImpacts: [...enemies.values()].filter(entry => entry.impact.visible).length,
       activeTelegraphLanes: [...enemies.values()].filter(entry => entry.threatLane.visible).length,
+      activeWindupArcs: [...enemies.values()].filter(entry => entry.chargeArc.visible).length,
       contactPulse: !options.stale && elapsed<contactUntil ? { hero:contactHero, enemyId:contactEnemyId } : null, frameMs,
       lighting: { environmentReady: !!reflectionTarget, environmentState: disposed ? 'disposed' : reflectionDirty ? 'pending' : reflectionTarget ? 'ready' : 'direct', environmentBuilds: reflectionBuilds,
         environmentFailures: reflectionFailures, environmentLastError: reflectionLastError,

@@ -113,6 +113,8 @@ export function createTowerAudio() {
     const intent = snapshot.intent?.mode || '';
     // Restrained opt-in cue on real defensive transition, deduped by intent.
     // The matching model pose remains visible when muted.
+    if(sameFloor && intent!==lastIntent && intent==='bracing-telegraph')
+      tone(235,360,.22,'triangle',.039);
     if(sameFloor && intent!==lastIntent && ['evading-projectile','evading-hazard','evading-telegraph'].includes(intent))
       tone(440,280,.12,'triangle',.038);
     lastIntent=intent;

@@ -24,7 +24,7 @@ export interface TowerRenderSnapshot{
   player:{x:number;y:number;vx:number;vy:number;halfWidth:number;halfHeight:number;facing:-1|1;health:number;maxHealth:number;stamina:number;maxStamina:number;shieldCharges:number;state:string;score:number;attacking:boolean};
   platforms:Array<{id:string;kind:string;x:number;y:number;width:number;height:number}>;
   hazards:Array<{id:string;kind:string;x:number;y:number;width:number;height:number;active:boolean}>;
-  enemies:Array<{id:string;kind:string;x:number;y:number;halfWidth:number;halfHeight:number;health:number;maxHealth:number;active:boolean;telegraph:boolean;facing:-1|1;attackCooldown:number}>;
+  enemies:Array<{id:string;kind:string;x:number;y:number;halfWidth:number;halfHeight:number;health:number;maxHealth:number;active:boolean;telegraph:boolean;telegraphTicksRemaining:number;facing:-1|1;attackCooldown:number}>;
   projectiles:Array<{id:string;owner:'player'|'enemy';x:number;y:number;vx:number;vy:number}>;
   pickups:Array<{id:string;kind:string;x:number;y:number;value:number}>;
   buildTags:string[];
@@ -53,7 +53,7 @@ export function createTowerRenderSnapshot(state:TowerState):Readonly<TowerRender
     player:{x:state.player.position.x,y:state.player.position.y,vx:state.player.velocity.x,vy:state.player.velocity.y,halfWidth:state.player.halfWidth,halfHeight:state.player.halfHeight,facing:state.player.facing,health:state.player.health,maxHealth:state.player.maxHealth,stamina:state.player.stamina,maxStamina:state.player.maxStamina,shieldCharges:state.player.shieldCharges,state:state.player.state,score:state.player.score,attacking:state.player.attackCooldown>0&&state.player.attackCooldown>=state.config.attackCooldownTicks-3},
     platforms:chunk.platforms.map(p=>platformAtTick(p,state.tick)).map(p=>({id:p.id,kind:p.kind,x:p.x,y:p.y,width:p.width,height:p.height})).sort((a,b)=>a.id.localeCompare(b.id)),
     hazards:chunk.hazards.map(h=>({id:h.id,kind:h.kind,x:h.x,y:h.y,width:h.width,height:h.height,active:activeHazard(h,state.tick)})).sort((a,b)=>a.id.localeCompare(b.id)),
-    enemies:state.enemies.filter(e=>e.floor===state.floor).map(e=>({id:e.id,kind:e.kind,x:e.position.x,y:e.position.y,halfWidth:e.halfWidth,halfHeight:e.halfHeight,health:e.health,maxHealth:e.maxHealth,active:e.active,telegraph:e.telegraphUntilTick>state.tick,facing:e.facing,attackCooldown:e.cooldown})).sort((a,b)=>a.id.localeCompare(b.id)),
+    enemies:state.enemies.filter(e=>e.floor===state.floor).map(e=>({id:e.id,kind:e.kind,x:e.position.x,y:e.position.y,halfWidth:e.halfWidth,halfHeight:e.halfHeight,health:e.health,maxHealth:e.maxHealth,active:e.active,telegraph:e.telegraphUntilTick>state.tick,telegraphTicksRemaining:Math.max(0,Math.min(8,e.telegraphUntilTick-state.tick)),facing:e.facing,attackCooldown:e.cooldown})).sort((a,b)=>a.id.localeCompare(b.id)),
     projectiles:state.projectiles.filter(p=>p.floor===state.floor&&p.active).map(p=>({id:p.id,owner:p.owner,x:p.position.x,y:p.position.y,vx:p.velocity.x,vy:p.velocity.y})).sort((a,b)=>a.id.localeCompare(b.id)),
     pickups:state.pickups.filter(p=>p.floor===state.floor&&!p.collected).map(p=>({id:p.id,kind:p.kind,x:p.position.x,y:p.position.y,value:p.value})).sort((a,b)=>a.id.localeCompare(b.id)),
     buildTags:[...state.build.upgradeIds].slice(-6),upgradeOffers:state.pendingUpgradeOffers.map(o=>({id:o.id,family:o.family,name:o.name})),
