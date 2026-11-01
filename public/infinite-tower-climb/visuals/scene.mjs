@@ -317,6 +317,10 @@ function composeFollowView(snapshot, hero, aspect, orbit = 0, zoom = 1) {
   if (target) landing = pointFor(target.x + target.width / 2,
     target.y + target.height, snapshot.chunkBaseY, snapshot.worldWidth, 26.7);
   let threat = null, nearest = Infinity;
+  // The tactical nearest-object camera may prefer a small bolt or hazard
+  // while the guardian is visibly losing HP. Keep a separate, source-backed
+  // combat anchor rather than allowing that important opponent to disappear.
+  let contactGuardian = null, contactGuardianDistance = Infinity;
   function consider(x, y, halfWidth, halfHeight, priority = 1, guardian = false, winding = false) {
     const dx = Math.abs(x - player.x), dy = Math.abs(y - player.y);
     if (dx > 90000 || dy > 60000) return;
@@ -328,7 +332,24 @@ function composeFollowView(snapshot, hero, aspect, orbit = 0, zoom = 1) {
       guardian, imminentWindup: guardian && winding && dx < 55000 && dy < 28000 };
   }
   if (player.health > 0) {
-    for (const enemy of snapshot.enemies || []) if (enemy.active) consider(enemy.x, enemy.y, enemy.halfWidth, enemy.halfHeight, enemy.telegraph ? 1.5 : 1, enemy.kind === 'guardian', !!enemy.telegraph);
+    for (const enemy of snapshot.enemies || []) {
+      if (!enemy.active) continue;
+      consider(enemy.x, enemy.y, enemy.halfWidth, enemy.halfHeight, enemy.telegraph ? 1.5 : 1, enemy.kind === 'guardian', !!enemy.telegraph);
+      if (enemy.kind !== 'guardian') continue;
+      const dx = Math.abs(enemy.x - player.x), dy = Math.abs(enemy.y - player.y);
+      const healthRatio = Number.isFinite(enemy.health) && Number.isFinite(enemy.maxHealth) && enemy.maxHealth > 0
+        ? clamp(enemy.health / enemy.maxHealth, 0, 1) : 1;
+      const activeContact = player.state !== 'airborne' && (healthRatio < 1 || enemy.telegraph ||
+        player.attacking || ['engaging-enemy', 'bracing-telegraph', 'evading-telegraph'].includes(snapshot.intent?.mode));
+      if (!activeContact || dx > 90000 || dy > 60000) continue;
+      const score = dx + dy * 1.4;
+      if (score < contactGuardianDistance) {
+        contactGuardianDistance = score;
+        contactGuardian = { ...pointFor(enemy.x, enemy.y, snapshot.chunkBaseY, snapshot.worldWidth),
+          halfWidth: enemy.halfWidth / SCALE, halfHeight: enemy.halfHeight / SCALE,
+          sourceX: enemy.x, sourceY: enemy.y, healthRatio };
+      }
+    }
     for (const hazard of snapshot.hazards || []) if (hazard.active) consider(hazard.x + hazard.width / 2, hazard.y + hazard.height / 2, hazard.width / 2, hazard.height / 2, 1.2);
     // A fired bolt already moving farther from the climber is no longer an
     // immediate tactical threat; do not let it crop the contact source.
@@ -338,9 +359,22 @@ function composeFollowView(snapshot, hero, aspect, orbit = 0, zoom = 1) {
   // Stage a real close-range encounter before the distant route marker. The
   // existing world-space landing beacon remains visible; only camera fitting
   // temporarily favors actual attackers and their observed telegraph.
-  const encounter = !!threat && (threat.imminentWindup
-    || ['engaging-enemy', 'bracing-telegraph', 'evading-telegraph', 'evading-projectile'].includes(snapshot.intent?.mode));
+  const encounter = !!contactGuardian || (!!threat && (threat.imminentWindup
+    || ['engaging-enemy', 'bracing-telegraph', 'evading-telegraph', 'evading-projectile'].includes(snapshot.intent?.mode)));
   const routeLanding = encounter ? null : landing;
+  // The only mechanical gate to frame is the one already placed on the
+  // observed guardian cap. No predicted clearance or unearned cutscene.
+  const cap = contactGuardian && snapshot.platforms?.find(platform =>
+    typeof platform.id === 'string' && platform.id.endsWith(':cap') &&
+    Math.abs(platform.x + platform.width * .5 - contactGuardian.sourceX) < 100000 &&
+    Math.abs(platform.y + platform.height - contactGuardian.sourceY) < 80000);
+  const gate = cap ? pointFor(cap.x + cap.width * .5, cap.y + cap.height,
+    snapshot.chunkBaseY, snapshot.worldWidth, 21.8) : null;
+  const gatePoints = gate ? [
+    { ...gate, y: gate.y + 2.5 }, { ...gate, y: gate.y + 5.2 },
+    ...[-1, 1].map(side => ({ x: gate.x + Math.cos(gate.angle) * side * 3.4,
+      y: gate.y + 2.7, z: gate.z - Math.sin(gate.angle) * side * 3.4 })),
+  ] : [];
   const center = { ...body };
   if (routeLanding) {
     center.x = lerp(center.x, landing.x, .38);
@@ -353,18 +387,36 @@ function composeFollowView(snapshot, hero, aspect, orbit = 0, zoom = 1) {
     center.y = lerp(center.y, threat.y, weight);
     center.z = lerp(center.z, threat.z, weight);
   }
+  if (contactGuardian && !threat?.guardian) {
+    // Preserve an incoming shot's tactical influence without letting it
+    // replace the damage-taking guardian with a projectile-only composition.
+    center.x = lerp(center.x, contactGuardian.x, .38);
+    center.y = lerp(center.y, contactGuardian.y, .38);
+    center.z = lerp(center.z, contactGuardian.z, .38);
+  }
+  if (gate) {
+    // A very small shared camera bias brings the true HP-driven architecture
+    // closer to the guardian; the actor/hazard bounds remain the hard limit.
+    center.x = lerp(center.x, gate.x, .12);
+    center.y = lerp(center.y, gate.y + 2.5, .12);
+    center.z = lerp(center.z, gate.z, .12);
+  }
   center.y += height * (routeLanding ? .12 : .08);
   const tangent = Math.tan(42 * Math.PI / 360);
   const horizontalSafe = aspect < .85 ? (routeLanding ? .85 : .9) : .84;
   const relative = point => ({ x: point.x - center.x, y: point.y - center.y, z: point.z - center.z });
   const dot = (point, axis) => point.x * axis.x + point.y * axis.y + point.z * axis.z;
-  const points = [], sightlines = [body];
-  function includeBody(point, halfWidth, halfHeight, bearing) {
-    for (const side of [-1, 1]) for (const vertical of [-1, 1]) points.push({
-      x: point.x + Math.cos(bearing) * halfWidth * side,
-      y: point.y + halfHeight * vertical,
-      z: point.z - Math.sin(bearing) * halfWidth * side,
-    });
+  const points = [], sightlines = [body], guardianCorners = [];
+  function includeBody(point, halfWidth, halfHeight, bearing, collected = null) {
+    for (const side of [-1, 1]) for (const vertical of [-1, 1]) {
+      const corner = {
+        x: point.x + Math.cos(bearing) * halfWidth * side,
+        y: point.y + halfHeight * vertical,
+        z: point.z - Math.sin(bearing) * halfWidth * side,
+      };
+      points.push(corner);
+      if (collected) collected.push(corner);
+    }
   }
   includeBody(body, (player.halfWidth || 9000) / SCALE, height * .52, heroAngle);
   if (routeLanding) {
@@ -376,8 +428,17 @@ function composeFollowView(snapshot, hero, aspect, orbit = 0, zoom = 1) {
     }
     points.push(pointFor(target.x + target.width / 2, target.y + target.height, snapshot.chunkBaseY, snapshot.worldWidth, 24.4));
   }
-  if (threat) { includeBody(threat, threat.halfWidth, threat.halfHeight, threat.angle); sightlines.push(threat); }
-  const subject = routeLanding || threat, direction = subject ? Math.sign(body.x - subject.x) : 1;
+  if (threat && (!contactGuardian || !threat.guardian)) {
+    includeBody(threat, threat.halfWidth, threat.halfHeight, threat.angle);
+    sightlines.push(threat);
+  }
+  if (contactGuardian) {
+    includeBody(contactGuardian, contactGuardian.halfWidth, contactGuardian.halfHeight,
+      contactGuardian.angle, guardianCorners);
+    sightlines.push(contactGuardian);
+  }
+  const subject = contactGuardian || routeLanding || threat;
+  const direction = subject ? (Math.sign(body.x - subject.x) || 1) : 1;
   function solve(lean) {
     const angle = Math.atan2(center.x, center.z) + direction * .08 + orbit + lean;
     // Active traversal gets a modest overlook so the destination presents a
@@ -401,7 +462,19 @@ function composeFollowView(snapshot, hero, aspect, orbit = 0, zoom = 1) {
       const t = clamp(-(position.x * dx + position.z * dz) / Math.max(.001, dx * dx + dz * dz), 0, 1);
       return Math.hypot(position.x + dx * t, position.z + dz * t) >= 23.5;
     });
+    // Actual perspective tests, rather than assuming a clear core sightline
+    // means the guardian and capstan are also inside a portrait crop.
+    const visible = (point, safeX, safeY) => {
+      const delta = relative(point), depth = distance - dot(delta, out);
+      return depth > .2 && Math.abs(dot(delta, right)) <= depth * tangent * aspect * safeX
+        && Math.abs(dot(delta, up)) <= depth * tangent * safeY;
+    };
+    const guardianFramed = guardianCorners.length > 0 &&
+      guardianCorners.every(point => visible(point, .84, .75));
+    const gateFramed = gatePoints.length > 0 &&
+      gatePoints.every(point => visible(point, .93, .86));
     return { focus: center, position, distance, landing, targetId: target?.id || null, lean, clear,
+      guardianStaged: !!contactGuardian, guardianFramed, gateFramed,
       heroFraction: height * level / (2 * tangent * (distance - bodyDepth)) };
   }
   let best = solve(0);
@@ -415,13 +488,23 @@ function composeFollowView(snapshot, hero, aspect, orbit = 0, zoom = 1) {
       if (best.heroFraction >= preferredFraction) break;
     }
   }
-  // A narrow phone needs extra clearance for the guardian's shield and
-  // swinging maul beyond its physics hitbox. A bounded oblique look keeps the
-  // live source and attacker together without shrinking them or moving either.
-  // Do not apply the orbit to traversal, non-guardian fights or incoming bolts.
-  if (aspect < .85 && threat?.guardian && ['engaging-enemy', 'bracing-telegraph', 'evading-telegraph'].includes(snapshot.intent?.mode)) {
-    const contactView = solve(direction * .75);
-    if (contactView.clear && contactView.heroFraction >= .15) best = contactView;
+  // Select the *same real encounter* from a few bounded, stable orbit angles.
+  // An arbitrary fixed portrait orbit can have a clear tower ray yet crop the
+  // live guardian/HP-driven gate. Prefer their true projected silhouette while
+  // preserving the climber and an unobstructed actor sightline. No new GPU work,
+  // cinematic time scale, camera cut or authoritative gameplay change.
+  if (contactGuardian) {
+    const quality = view => (view.clear ? 100 : 0) +
+      (view.guardianFramed ? 38 : 0) + (view.gateFramed ? 16 : 0) +
+      (view.heroFraction >= .15 ? 18 : 0) +
+      Math.min(.24, view.heroFraction) * 16 - Math.abs(view.lean) * 1.6;
+    let bestQuality = quality(best);
+    for (const amount of [0, .22, .45, .7, .95, 1.13, -.22, -.45, -.7]) {
+      const candidate = solve(direction * amount), candidateQuality = quality(candidate);
+      if (candidateQuality <= bestQuality + .01) continue;
+      best = candidate;
+      bestQuality = candidateQuality;
+    }
   }
   return best;
 }
@@ -1290,7 +1373,11 @@ export function createTowerScene(canvas, settings = {}) {
       destination.y += 3.1;
       focus.y += 1.1;
     }
-    const cameraBlend = options.reducedMotion ? 1 : 1 - Math.exp(-dt * 3.5);
+    // Follow source-observed guardian action a little faster than exploration:
+    // a real HP change should not be over before the camera catches its actor.
+    // All motion remains bounded and presentation-only; reduced motion is still.
+    const cameraBlend = options.reducedMotion ? 1 :
+      1 - Math.exp(-dt * (!overview && followComposition?.guardianStaged ? 5.2 : 3.5));
     if (!initialized) { camera.position.copy(destination); lookAt.copy(focus); initialized = true; }
     else { camera.position.lerp(destination, cameraBlend); lookAt.lerp(focus, cameraBlend); }
     if(!options.reducedMotion && !options.stale && options.camera==='follow'&&contactProgress>0)
@@ -1381,6 +1468,35 @@ export function createTowerScene(canvas, settings = {}) {
   }
   function diagnostics() {
     const { frameMs, ...submissionProgress } = renderProgress.diagnostics(performance.now());
+    const liveGuardian = snapshot?.enemies?.find(enemy => enemy.kind === 'guardian' && enemy.active);
+    let encounterCamera = null;
+    if (liveGuardian && snapshot?.worldWidth > 0) {
+      // Observed camera pixels, not the unsmoothed ideal plan. Capture scripts
+      // can now compare source HP against the actual rendered crop per tick.
+      camera.updateMatrixWorld(true);
+      const ndc = point => {
+        const projected = new THREE.Vector3(point.x, point.y, point.z).project(camera);
+        return [projected.x, projected.y, projected.z].map(value => Number(value.toFixed(4)));
+      };
+      const guardian = pointFor(liveGuardian.x, liveGuardian.y,
+        snapshot.chunkBaseY, snapshot.worldWidth);
+      const actor = pointFor(snapshot.player.x, snapshot.player.y,
+        snapshot.chunkBaseY, snapshot.worldWidth);
+      const cap = snapshot.platforms?.find(platform =>
+        typeof platform.id === 'string' && platform.id.endsWith(':cap'));
+      const gate = cap ? pointFor(cap.x + cap.width * .5, cap.y + cap.height,
+        snapshot.chunkBaseY, snapshot.worldWidth, 21.8) : null;
+      const guardianCenter = ndc(guardian);
+      const gateCenter = gate ? ndc({ ...gate, y: gate.y + 2.5 }) : null;
+      const visible = point => !!point && point.every(Number.isFinite) &&
+        Math.abs(point[0]) <= .85 && Math.abs(point[1]) <= .78 &&
+        point[2] >= -1 && point[2] <= 1;
+      encounterCamera = { tick: snapshot.tick, health: liveGuardian.health,
+        maxHealth: liveGuardian.maxHealth, intent: snapshot.intent?.mode ?? null,
+        actorNdc: ndc(actor), guardianNdc: guardianCenter, gateNdc: gateCenter,
+        guardianInFrame: visible(guardianCenter), gateInFrame: visible(gateCenter),
+        metric: 'Actual smoothed camera normalised device coordinates, not clip quality or supported-device FPS' };
+    }
     // "frames" remains a compatibility alias for renderer submissions. The
     // accepted snapshot below can be newer than lastSubmitted; neither proves
     // GPU completion or visibility in a captured/composited output.
@@ -1406,7 +1522,8 @@ export function createTowerScene(canvas, settings = {}) {
       lighting: { environmentReady: !!reflectionTarget, environmentState: disposed ? 'disposed' : reflectionDirty ? 'pending' : reflectionTarget ? 'ready' : 'direct', environmentBuilds: reflectionBuilds,
         environmentFailures: reflectionFailures, environmentLastError: reflectionLastError,
         environmentSize: reflectionTarget ? [reflectionTarget.width, reflectionTarget.height] : [0, 0], shadowLights: 1, shadowMapSize: sun.shadow.mapSize.x },
-      world: world.diagnostics(), finale: finale.diagnostics(), passage: passage.diagnostics(), cameraPosition: camera.position.toArray(), climberPosition: climber.group.position.toArray() };
+      world: world.diagnostics(), finale: finale.diagnostics(), passage: passage.diagnostics(),
+      encounterCamera, cameraPosition: camera.position.toArray(), climberPosition: climber.group.position.toArray() };
   }
   function dispose() {
     if (disposed) return;
