@@ -25,7 +25,7 @@ test('G091 villagers visibly dwell at their actual jobs before authoritative del
   for(let i=0;i<18000;i++){
    g.step(1/30);
    const active=g.getActiveWorksites();
-   const found=active.find(w=>w.progress>=.2&&w.progress<=.4);
+   const found=active.find(w=>['farmer','forester','gatherer'].includes(w.job)&&w.progress>=.2&&w.progress<=.4);
    if(found){before=found;break}
   }
   if(!before)return {failure:'no continuous working phase observed during 600 simulated hours'};
@@ -68,7 +68,7 @@ test('G091 villagers visibly dwell at their actual jobs before authoritative del
   let active=null;
   for(let i=0;i<18000;i++){
    g.step(1/30);
-   const match=g.getActiveWorksites().find(w=>w.progress>.20&&w.progress<.55);
+   const match=g.getActiveWorksites().find(w=>['farmer','forester','gatherer'].includes(w.job)&&w.progress>.20&&w.progress<.55);
    if(match){active=match;break}
   }
   if(!active)return null;
