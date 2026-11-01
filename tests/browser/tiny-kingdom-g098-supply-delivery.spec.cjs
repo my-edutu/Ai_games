@@ -38,6 +38,9 @@ test('G098 work -> real cargo journey -> market receipt is navigable, replayable
   document.getElementById('delivery-follow').click();
   const cameraAfter=JSON.stringify(g.exportSnapshot());
   const following=g.getCamera().follow;
+  const liveStatusVisible=getComputedStyle(document.getElementById('workday-activity')).display!=='none';
+  const liveMeterVisible=getComputedStyle(document.getElementById('workday-progress')).display!=='none';
+  const routeStatus=document.getElementById('workday-activity').textContent;
   const selected=g.getSelectedCitizen();
   const route=g.getNavigation().find(n=>n.name===cargo.citizen);
   let receipt=null;
@@ -51,7 +54,7 @@ test('G098 work -> real cargo journey -> market receipt is navigable, replayable
   const stock=g.metrics();
   return {missing:false,first,cargo,readOnly,restored,restoredChecksum,
    expectedChecksum:snapshot.checksum,cameraUnchanged:cameraBefore===cameraAfter,
-   following,selected,route,receipt,deliveriesAfter,market,stock};
+   following,liveStatusVisible,liveMeterVisible,routeStatus,selected,route,receipt,deliveriesAfter,market,stock};
  });
  expect(staged.missing).toBe(false);
  expect(staged.cargo).toBeTruthy();
@@ -65,6 +68,9 @@ test('G098 work -> real cargo journey -> market receipt is navigable, replayable
  expect(staged.restoredChecksum).toBe(staged.expectedChecksum);
  expect(staged.cameraUnchanged).toBe(true);
  expect(staged.following).toBe(true);
+ expect(staged.liveStatusVisible).toBe(true);
+ expect(staged.liveMeterVisible).toBe(true);
+ expect(staged.routeStatus).toMatch(/market/i);
  expect(staged.selected).toBe(staged.cargo.citizen);
  expect(staged.route).toBeTruthy();
  expect(staged.receipt).toMatchObject({citizen:staged.cargo.citizen,
@@ -79,10 +85,14 @@ test('G098 work -> real cargo journey -> market receipt is navigable, replayable
  const mobile=await page.evaluate(()=>({
   overflow:document.documentElement.scrollWidth>innerWidth,
   role:document.getElementById('workday-activity').getAttribute('role'),
+  routeLabel:document.getElementById('workday-progress').getAttribute('aria-label'),
+  routeMeterVisible:getComputedStyle(document.getElementById('workday-progress')).display!=='none',
   glError:document.querySelector('#world').getContext('webgl')?.getError()||0
  }));
  expect(mobile.overflow).toBe(false);
  expect(mobile.role).toBe('status');
+ expect(mobile.routeLabel).toMatch(/market|delivery/i);
+ expect(mobile.routeMeterVisible).toBe(true);
  expect(mobile.glError).toBe(0);
  expect(pageErrors).toEqual([]);
 });
