@@ -71,6 +71,7 @@ export function createMazeWorld(options = {}) {
   const leaf = material('#8caf44', { side: THREE.DoubleSide, roughness: .68 });
   const leafDark = material('#326e43', { side: THREE.DoubleSide, roughness: .72 });
   const seaFern = material('#a1c66c', { side: THREE.DoubleSide, roughness: .7 });
+  seaFern.name = 'Disclosed perimeter hanging fronds';
   const flower = material('#f2b765');
   const gold = material('#efb946', { roughness: .28, metalness: .65 });
   const keyLight = material('#ffe6a0', {emissive: '#efac25', emissiveIntensity: .48, roughness: .3, metalness: .45});
