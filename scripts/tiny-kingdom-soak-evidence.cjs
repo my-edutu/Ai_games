@@ -104,6 +104,18 @@ const assert=require('node:assert/strict');
   }
   evidence.finalChecksum=last.checksum;
   evidence.finalMetrics=last.metrics;
+  // G098: adding physical haulers must not quietly halve society's actual
+  // production. On the pinned original seed the previous true G097 soak
+  // reached 28 living citizens and 37 counted buildings by Day 120.
+  // Continue to test independent replay, but also protect that playable scale.
+  if(days===120){
+   evidence.growthFloor={citizens:28,buildings:37,
+    source:'G097 exact-source 41324708922 / 13091027329'};
+   assert.equal(last.metrics.citizens,28,
+    'Real logistics lost residents by Day 120');
+   assert(last.metrics.buildings>=37,
+    'Real logistics reduced Day-120 town capacity below the preceding game');
+  }
   // Replay the second half from a validated mid-soak checkpoint.
   if(!checkpoint){
    const split=Math.floor(days/20)*10;
