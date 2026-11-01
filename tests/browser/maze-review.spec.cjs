@@ -188,6 +188,46 @@ test('a real close public encounter frames both autonomous actors and saves date
     caveat: 'Known connection only, not safety; CPU-throttled CI software rendering; independent visual acceptance pending.',
   }, null, 2));
 
+  // Review the newly modeled public exit at *native* phone size. Use the
+  // identical already-selected production public frame and same Chromium page,
+  // not a manually staged location or a second CPU-heavy browser instance.
+  const beforeLandmarkPortrait = await page.evaluate(() => window.__MAZE_3D__?.frames ?? 0);
+  await page.setViewportSize({width:390,height:844});
+  await page.waitForFunction(({tick,token,before}) =>
+    innerWidth === 390 && innerHeight === 844
+    && window.__MAZE_3D__?.frames > before + 1
+    && window.__MAZE_3D__?.tick === tick
+    && window.__MAZE_3D__?.runToken === token,
+    {tick:activeFrame.snapshot.tick,token:activeFrame.snapshot.runToken,before:beforeLandmarkPortrait});
+  const landmarkPortraitDiagnostic = await page.evaluate(() => window.__MAZE_3D__);
+  const landmarkPortraitPath = path.join(dir, 'observed-landmark-portrait.png');
+  await page.screenshot({path:landmarkPortraitPath,fullPage:true});
+  fs.writeFileSync(path.join(dir, 'observed-landmark-portrait.json'),JSON.stringify({
+    capturedAt:new Date().toISOString(),
+    source:'Same actual MazeRuntime public exit snapshot as wide 1280px landmark, reused source-bound Chromium page, no synthetic exit',
+    viewport:{width:390,height:844}, seed:observed.seed, tick:activeFrame.snapshot.tick,
+    publicGoal:observed.goal,
+    imageSha256:hash(landmarkPortraitPath),
+    sourceSha256:Object.fromEntries(['app.js','map-view.mjs','scene.js','characters.js','world.js']
+      .map(name=>[name,hash(path.join(sourceDir,name))])),
+    diagnostic:{objectiveCue:landmarkPortraitDiagnostic.objectiveCue,
+      objectiveInFrame:landmarkPortraitDiagnostic.objectiveInFrame,
+      explorerInFrame:landmarkPortraitDiagnostic.explorerInFrame,
+      cameraHalfHeight:landmarkPortraitDiagnostic.cameraHalfHeight,
+      explorerProjection:landmarkPortraitDiagnostic.explorerProjection,
+      quality:landmarkPortraitDiagnostic.quality,
+      frameP50Ms:landmarkPortraitDiagnostic.frameP50Ms},
+    caveat:'Native 390px actual WebGL proof, not Nintendo fixed-bar preference or hardware GPU FPS.',
+  },null,2));
+  expect(landmarkPortraitDiagnostic.objectiveCue).toEqual(observed.goal);
+  expect(landmarkPortraitDiagnostic.objectiveInFrame,
+    'Observed physical exit must fit a real 390px portrait stage').toBe(true);
+  expect(landmarkPortraitDiagnostic.explorerInFrame,
+    'The real autonomous hero must share the portrait frame with that exit').toBe(true);
+  await page.setViewportSize({width:1280,height:900});
+  await page.waitForFunction(() => innerWidth === 1280 && innerHeight === 900
+    && window.__MAZE_3D__?.frames > 4);
+
   // Render and preserve the *actual props* still missing from the visual
   // review. Both samples are selected from the same deterministic production
   // exploration sequences above; neither is a staged/invented world state.

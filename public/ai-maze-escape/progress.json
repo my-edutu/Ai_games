@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-01T15:44:36.232Z",
+  "updatedAt": "2026-11-01T15:47:05.747Z",
   "benchmark": {
     "status": "Not yet passed",
     "summary": "Pass49 source a12cb46 adds a physically recognizable original eight-ray bronze/ivory tide-rose crest ONLY above actually disclosed exit. Exact-source focused visual CI 41322128665 SUCCESS and 7/7 original UTC screenshot/source SHA checks matched, including true observed exit seed maze-visual-reference-13 tick26 image 2026-11-01T15:38:33.894Z SHA 39a86cab... . Lead original-full-frame comparison accepts narrow local landmark silhouette change (2941/1152000 changed pixels, NOT an aesthetic score); six other scenario images unchanged. Nintendo Captain Toad unchanged frozen reference STILL WINS on stage composition, characters, action; independent separate-context blind critic and 390px exit capture unavailable. Shared tunnel disconnected; software SwiftShader CPU timing not hardware FPS. DRAFT PR unmerged and undeployed."
@@ -145,7 +145,8 @@
     "Pass46: share the existing soft 64×64 alpha contact texture/geometry under every currently public Thornback, tracking real sampled floor without allocating per render frame, and clearing when undisclosed or reset. Exact-source CI 41316521507 succeeded and produced 7 original hash-matched PNGs (artifact 13086859828); desktop/mobile original-frame pixel changes remain a small 0.358%/0.434% near the warden. Functional contact accepted; perceptual scene-quality gain REJECTED at native size.",
     "Pass47: replace warden jade-on-jade color mass with distinct original slate-violet armor, copper plates and warm brass/ivory body details. Authentic seed13 tick13 1280×900 and 390×844 output (CI 41317053428, artifact 13087783365) shows a clearly separable carapace and face vs teal ruin; 0.584% desktop/0.725% mobile pixels change >12 RGB, only around warden. Lead accepts local color separation, NOT Captain Toad parity or blind independent win.",
     "Pass48: removed 3D ivory uncommitted-neighbor floor arrow halo from the true autonomous presentation, while preserving raw publicWayfinding and in-world public planned-route cyan plus observed-reachable key/exit amber/mint. Real seed13 tick13 native and desktop images from exact-source successful CI 41317658301/artifact 13087861877 7/7 original SHA-matched. At 390px an actual four-arrow control-like cluster vanished behind Pip; other known-key/gate frames retain truthful disclosed goal props. No game-state/AI path decision changes. Lead accepts local UI/scene clarity, NOT Nintendo parity.",
-    "Pass49: committed original eight-ray ivory/bronze modeled tide-rose exit crown, visible only when public exit cell is truly disclosed, no deterministic/hidden boundary change. Exact source a12cb46 focused browser CI 41322128665 SUCCESS; original artifact 13089920665 7/7 UTC PNG hashes independently matched. Actual observed exit tick26 desktop crown gains clear unique material silhouette vs Pass48; local 2941/1152000 RGB pixels changed >12; six unrelated frames are byte-identical. Lead accepts narrow landmark improvement, NOT Nintendo win or separate fresh blind verdict. Native 390px exit imagery still needed."
+    "Pass49: committed original eight-ray ivory/bronze modeled tide-rose exit crown, visible only when public exit cell is truly disclosed, no deterministic/hidden boundary change. Exact source a12cb46 focused browser CI 41322128665 SUCCESS; original artifact 13089920665 7/7 UTC PNG hashes independently matched. Actual observed exit tick26 desktop crown gains clear unique material silhouette vs Pass48; local 2941/1152000 RGB pixels changed >12; six unrelated frames are byte-identical. Lead accepts narrow landmark improvement, NOT Nintendo win or separate fresh blind verdict. Native 390px exit imagery still needed.",
+    "Pass49b source-only proof gate: real native 390x844 public exit/hero same-seed/tick screenshot inserted into existing Chromium browser evidence, with dated PNG/JSON source hash and no new fake world state. Require eight actual hash-verified source-head screenshots and native critic before accepting; full fixed Nintendo bar remains NOT PASSED."
   ],
   "nextGaps": [
     "Largest remaining gap after Pass48 actual screenshot review: full art direction of a distinct, unforgettable observed miniature ruin destination and physically staged Pip→Thornback encounter; existing garden tiles and water remain generic. Compare true public-source frames native size to two frozen Captain Toad references; no more micro-geometry acceptance from test/pixel counts.",
@@ -844,6 +845,12 @@
       "detail": "Exact source a12cb46, CI 41322128665, artifact 13089920665. Actual original public tick26 exit image captured 2026-11-01T15:38:33.894Z SHA 39a86cabe761bfadedf54b15151ee28f63e5582b8904be7570be148db932d7c8; world.js SHA 743474a6451e5c346c7f14bfb799d798b13ea0afafd7a29ece4e9574b8b75aa2. All 7 screenshot hashes independently recomputed; 2941 of 1152000 pixels >12 differ in x465–542/y333–415 only, six other source-stage PNGs exactly identical. Lead accepts local crest distinction but Nintendo still wins; independent blind critic, native exit and hardware GPU review unavailable. Full CI evaluated separately.",
       "sourceCommit": "a12cb46bfbecec9a2e3a83edce1a300ac07ca153",
       "sourceUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41322128665/artifacts/13089920665"
+    },
+    {
+      "name": "Pass49b exact-source true 390px public exit capture candidate",
+      "status": "PENDING newly triggered exact-source focused browser CI, original eight SHA-verified images and actual unscaled mobile critique",
+      "detail": "Same real public exit snapshot as the Pass49 1280x900 observed-landmark frame, browser resized to 390x844 and two new WebGL frame presentations, source-bound original PNG+UTC hash manifest. Explicitly gate hero and exit both in native frame. Source-only, no image yet. Do not treat as mobile success.",
+      "sourceUrl": "https://github.com/my-edutu/Ai_games/pull/53"
     }
   ],
   "references": [
