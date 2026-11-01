@@ -13,6 +13,9 @@ test('G097 real production gives travelling workers bounded physical cargo witho
  await page.setContent(html);
  await page.waitForFunction(()=>window.__tinyKingdom?.renderStats().lastFrameTriangles>0);
  await page.locator('#pause').click();
+ // Loading/rendering is genuinely live; start() can already have produced work
+ // by the time the 3D scene is ready. Reset only the fixture AFTER pausing.
+ await page.evaluate(()=>window.__tinyKingdom.reset());
  const evidence=await page.evaluate(()=>{
   const g=window.__tinyKingdom,initial=g.exportSnapshot();
   const missing=typeof g.getStreetCargoWitnesses!=='function';
