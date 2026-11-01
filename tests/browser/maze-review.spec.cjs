@@ -21,6 +21,14 @@ test('maze camera focuses the discovered public map instead of the full hidden g
 test('native game-first stage occupies the screen without concealing public context', async ({page}) => {
   await page.setViewportSize({width:390,height:844});
   await page.goto(base + '/maze?reducedMotion=1', {waitUntil:'domcontentloaded'});
+  // The async cold WebGL/source connection legitimately shows the central
+  // loading card at DOMContentLoaded. Judge screen occupancy only once the
+  // REAL production canvas has rendered and the card has been withdrawn,
+  // rather than rejecting a healthy scene for its first 1-second loading UI.
+  // Do not accept a fallback, hide the card by test code, or relax framing.
+  await page.waitForFunction(() => window.__MAZE_3D__?.renderer === 'webgl'
+    && window.__MAZE_3D__.frames > 0
+    && document.getElementById('scene-card')?.hidden === true, null, {timeout:30000});
   const rects = await page.evaluate(() => {
     const rect = id => {
       const el=document.getElementById(id),r=el.getBoundingClientRect();
