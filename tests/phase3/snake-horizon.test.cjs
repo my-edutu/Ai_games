@@ -41,7 +41,12 @@ test('horizon and sculpt preserve the exact historic court baseline and all othe
   // R32 intentionally sculpts only bounded original court top corners.
   // Preserve the old baseline's exact previous model and fixed historical
   // digests instead of weakening the original provenance assertion.
-  const latest = fs.readFileSync(path.resolve(__dirname, '../../public/snake-stream/world.mjs'), 'utf8');
+  const latestWithDrainage = fs.readFileSync(path.resolve(__dirname, '../../public/snake-stream/world.mjs'), 'utf8');
+  const r41Begin = '      // BEGIN R41 COURTYARD ROOT CHANNELS\n';
+  const r41End = '      // END R41 COURTYARD ROOT CHANNELS\n';
+  const r41A = latestWithDrainage.indexOf(r41Begin), r41B = latestWithDrainage.indexOf(r41End);
+  assert.ok(r41A >= 0 && r41B > r41A, 'reversible color-only R41 addition');
+  const latest = latestWithDrainage.slice(0, r41A) + latestWithDrainage.slice(r41B + r41End.length);
   // The later R35 color-atlas patina is deliberately absent from the
   // historical geometry source hash; it changes no vertex and is separately tested.
   const lichenBegin='      // BEGIN R35 PERIMETER LICHEN\n';

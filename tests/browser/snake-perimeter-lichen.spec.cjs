@@ -28,7 +28,14 @@ test('real WebGL 3D garden: living perimeter lichen versus verified original cou
   expect(b).toBeGreaterThan(a);
   expect(current.indexOf(begin, a + 1)).toBe(-1);
   const prior = current.slice(0, a) + current.slice(b + end.length);
-  expect(blobHash(prior)).toBe('bef069d6333c41aa3355144efa8e3d6457a955fe');
+  // R41 remains present equally in both R35 WebGL arms; strip for SHA only.
+  const r41Begin = '      // BEGIN R41 COURTYARD ROOT CHANNELS\n';
+  const r41End = '      // END R41 COURTYARD ROOT CHANNELS\n';
+  const r41A = prior.indexOf(r41Begin), r41B = prior.indexOf(r41End);
+  expect(r41A).toBeGreaterThan(-1);
+  expect(r41B).toBeGreaterThan(r41A);
+  const archivedPrior = prior.slice(0, r41A) + prior.slice(r41B + r41End.length);
+  expect(blobHash(archivedPrior)).toBe('bef069d6333c41aa3355144efa8e3d6457a955fe');
   const all = {};
   for (const mode of ['overview', 'detail']) {
     all[mode] = {};

@@ -243,6 +243,29 @@ export function createWorld(THREE, {width, height}) {
         }
       }
       // END R35 PERIMETER LICHEN
+      // BEGIN R41 COURTYARD ROOT CHANNELS
+      // Broken roots and rainwater join the original masonry; this is baked
+      // into the ORIGINAL atlas, with no new GPU objects or gameplay paths.
+      // Keep the central grid and all cues readable on every board size.
+      const dampEdge = 1 - fade(.62, 2.97, border);
+      if (dampEdge > 0) {
+        const bend = (smoothNoise(gx * .31 + 71, gz * .27 + 33) - .5) * 2.7;
+        const fork = (smoothNoise(gx * .22 + 13, gz * .19 + 47) - .5) * 2.3;
+        const mainRoot = Math.max(0, 1 - Math.abs(Math.sin(gx * .91 + gz * .43 + bend)) * 2.7);
+        const sideRoot = Math.max(0, 1 - Math.abs(Math.cos(gx * .37 - gz * .88 + fork)) * 3.8) * .72;
+        const channel = Math.max(mainRoot, sideRoot);
+        const growth = fade(.42, .66, cloud * .47 + mineral * .26 + channel * .27);
+        const joints = 1 - fade(.018, .15, edge);
+        const coverage = Math.min(.48, dampEdge * growth * (.25 + .75 * joints)
+          * (.25 + .75 * channel) * .90);
+        if (coverage > 0) {
+          const oldSilt = fade(.38, .75, cloud * .50 + mineral * .50);
+          data[i] = Math.round(data[i] * (1 - coverage) + (73 + oldSilt * 30) * coverage);
+          data[i+1] = Math.round(data[i+1] * (1 - coverage) + (125 + oldSilt * 20) * coverage);
+          data[i+2] = Math.round(data[i+2] * (1 - coverage) + (61 + oldSilt * 12) * coverage);
+        }
+      }
+      // END R41 COURTYARD ROOT CHANNELS
     }
     // Sparse hairline fractures stay subordinate to the broad slab treatment.
     for(let c=0;c<38;c++){

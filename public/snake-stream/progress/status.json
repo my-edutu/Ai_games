@@ -1,10 +1,15 @@
 {
   "updatedAt": "2026-11-01",
-  "status": "ROUND40 ACTUAL WEBGL A/B REJECTED · NATIVE CANVAS AA RESTORED · 9/17 REAL RENDER SUBMISSIONS FAIL",
-  "detail": "Round40 experimental final-framebuffer AA-off at exact SHA 676d510 had successful 29/30 actual focused Chromium A/B tests but strict 9 real submissions/1014.9ms vs unchanged ≥17, no improvement on prior 9. Real captures 13061159054 show 2.06% overview/10.85% detailed pixel changes, including visible jagged grout/contours. General Node failure was one erroneous new source-string count (not game runtime); entire candidate reverted instead of weakening gate. Original production WebGL renderer blob dce31f68 restored, no authoritative/game/cue/caption/reduced-motion/fallback changes. Snake Pass visual still LOSE; independent critic, device-present cadence, soak/R5 open. Draft/unmerged/undeployed.",
+  "status": "ROUND41 ORIGINAL 3D COURTYARD ROOT CHANNELS CANDIDATE · EXACT-HEAD CI PENDING · LAST STRICT 10/17 FAIL",
+  "detail": "R41 adds authored discontinuous green drainage roots to outer <3 cells of the original 3D court pigment atlas; no new GPU resources or game/snapshot/accessibility/portal/hazard/cue changes. New exact-old-source Node + true frozen-public 960x640 overview/detail Chromium/WebGL A/B awaits exact-head CI. Last verified 41252198595: 28/29 browser PASS, strict 10 actual render submissions/1014.7ms vs unchanged minimum >=17 FAIL; RAF61 not rendered/display-present FPS. General 41252198727 cancelled, not green. Whole-game Snake Pass benchmark LOSE; independent critic, real-device displayed frames, soak, R5 OPEN. Draft/unmerged/undeployed.",
   "latestImage": "/progress/evidence/round-9-overview.jpg",
   "latestCaption": "Historical thumbnail only, not the new R39. Actual new R39 WebGL synthetic screenshot/trace artifact (not live FPS or independent critique): https://github.com/my-edutu/Ai_games/actions/runs/41249642441/artifacts/13061195617 . Companion motion: https://github.com/my-edutu/Ai_games/actions/runs/41249642441/artifacts/13060793905 .",
   "reviews": [
+    {
+      "area": "Round 41 · original 3D courtyard root/drainage channels",
+      "verdict": "BOUNDED ORIGINAL ATLAS + SHA-CONTROLLED MODEL/WEBGL A/B CANDIDATE · EXACT-HEAD CI PENDING · LAST STRICT 10/17 FAIL",
+      "gap": "New review must inspect actual WebGL edge breakup, central legibility and live metrics before any verified craft claim. Whole-game Snake Pass richer in scene/character/motion; no independent critic, reliable >=17 actual submits or device presents, soak/R5."
+    },
     {
       "area": "Round 40 · rejected single-sample final WebGL canvas experiment",
       "verdict": "REJECTED AFTER ACTUAL BROWSER A/B · 29/30 BROWSER · 9/17 STRICT FAIL · RENDERER + HISTORIC TESTS RESTORED",

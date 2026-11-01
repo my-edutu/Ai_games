@@ -16,13 +16,21 @@ test('real Chromium WebGL: directional slab relief versus exact prior world blob
   const frame = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../../docs/reviews/snake-gauntlet/round-4-public-frame.json'), 'utf8'));
   const original = JSON.stringify(frame);
   const current = fs.readFileSync(path.resolve(__dirname, '../../public/snake-stream/world.mjs'), 'utf8');
+  // Isolate later R41 for archived SHA only, preserve it in both visual arms.
+  const r41Begin = '      // BEGIN R41 COURTYARD ROOT CHANNELS\n';
+  const r41End = '      // END R41 COURTYARD ROOT CHANNELS\n';
+  const r41A = current.indexOf(r41Begin), r41B = current.indexOf(r41End);
+  expect(r41A).toBeGreaterThan(-1);
+  expect(r41B).toBeGreaterThan(r41A);
+  const r41Block = current.slice(r41A, r41B + r41End.length);
+  const historicalSource = current.slice(0, r41A) + current.slice(r41B + r41End.length);
   // Later R35 foliage tint must not contaminate historic R31/R32 source SHAs,
   // but must remain equally present on both A/B rendered visual candidates.
   const lichenBegin='      // BEGIN R35 PERIMETER LICHEN\n';
   const lichenEnd='      // END R35 PERIMETER LICHEN\n';
-  const lichenA=current.indexOf(lichenBegin),lichenB=current.indexOf(lichenEnd);
+  const lichenA=historicalSource.indexOf(lichenBegin),lichenB=historicalSource.indexOf(lichenEnd);
   expect(lichenA).toBeGreaterThan(-1);expect(lichenB).toBeGreaterThan(lichenA);
-  const historicWorld=current.slice(0,lichenA)+current.slice(lichenB+lichenEnd.length);
+  const historicWorld=historicalSource.slice(0,lichenA)+historicalSource.slice(lichenB+lichenEnd.length);
   const insert = [
     '      // Bake a directional grazing-light contour into each existing stone slab.',
     '      // It reveals its raised, unevenly worn lip without raising the playable',
@@ -54,8 +62,8 @@ test('real Chromium WebGL: directional slab relief versus exact prior world blob
   const gitBlob = source => crypto.createHash('sha1').update('blob ' + Buffer.byteLength(source) + '\0').update(source).digest('hex');
   expect(gitBlob(round31)).toBe('4c50160ffb9c78b822cf2cb8d670e29baf994fea');
   expect(gitBlob(baseline)).toBe('97039edc7512080b8f369483c3b4800e7180625e');
-  const matchedLichen = current.slice(lichenA,lichenB+lichenEnd.length);
-  const insertLichen = source => source.replace('      data[i+3]=255;\n', '      data[i+3]=255;\n' + matchedLichen);
+  const matchedLichen = historicalSource.slice(lichenA,lichenB+lichenEnd.length);
+  const insertLichen = source => source.replace('      data[i+3]=255;\n', '      data[i+3]=255;\n' + matchedLichen + r41Block);
   const capture = [];
   for (const [label, source] of [['before', insertLichen(baseline)], ['after', insertLichen(round31)]]) {
     const page = await browser.newPage({ viewport: { width: 960, height: 640 }, reducedMotion: 'reduce' });
