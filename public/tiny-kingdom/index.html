@@ -760,11 +760,17 @@ function tri(a,b,c,col){
 }
 // G055: WebGL interpolates RGB per vertex across a shadow triangle, giving
 // a genuine gradient penumbra instead of the former flat green decal.
+// G075: penumbra gradients have independently coloured vertices. Preserve
+// the exact geometry/normal/RGB/material layout while batching all 30 floats
+// into one append instead of allocating three point/shade iterator pairs and
+// spreading a vertex on every animated shadow triangle.
 function triGradient(a,b,c,ca,cb,cc){
  let ux=b[0]-a[0],uy=b[1]-a[1],uz=b[2]-a[2],vx=c[0]-a[0],vy=c[1]-a[1],vz=c[2]-a[2];
  let nx=uy*vz-uz*vy,ny=uz*vx-ux*vz,nz=ux*vy-uy*vx,len=Math.hypot(nx,ny,nz)||1;
- for(const [point,shade] of [[a,ca],[b,cb],[c,cc]])
-  data.push(...point,nx/len,ny/len,nz/len,...shade,currentMaterial);
+ const normalX=nx/len,normalY=ny/len,normalZ=nz/len,material=currentMaterial;
+ data.push(a[0],a[1],a[2],normalX,normalY,normalZ,ca[0],ca[1],ca[2],material,
+  b[0],b[1],b[2],normalX,normalY,normalZ,cb[0],cb[1],cb[2],material,
+  c[0],c[1],c[2],normalX,normalY,normalZ,cc[0],cc[1],cc[2],material);
 }
 function quad(a,b,c,d,col){tri(a,b,c,col);tri(a,c,d,col)}
 function box(x,y,z,w,h,d,col){let xa=x-w/2,xb=x+w/2,za=z-d/2,zb=z+d/2,ya=y,yb=y+h;quad([xa,ya,za],[xa,yb,za],[xb,yb,za],[xb,ya,za],col);quad([xb,ya,zb],[xb,yb,zb],[xa,yb,zb],[xa,ya,zb],col);quad([xa,ya,zb],[xa,yb,zb],[xa,yb,za],[xa,ya,za],col);quad([xb,ya,za],[xb,yb,za],[xb,yb,zb],[xb,ya,zb],col);quad([xa,yb,za],[xa,yb,zb],[xb,yb,zb],[xb,yb,za],col);quad([xa,ya,zb],[xa,ya,za],[xb,ya,za],[xb,ya,zb],col)}
