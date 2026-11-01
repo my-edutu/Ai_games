@@ -53,17 +53,22 @@ export function publicFullBleedFollowHalfHeight(aspect, selectedHalfHeight) {
  * the edge. The 15:18 camera heading is the actual unrotated Follow isometric
  * offset in scene.js; sealed-gate views deliberately never call this helper.
  */
-export function publicPortraitGuardianHalfHeight(aspect, fullBleedHeight, attention, hero, guardian, focus) {
+export function publicPortraitGuardianHalfHeight(aspect, fullBleedHeight, attention, hero, guardian, focus, previousFocus=focus) {
   const base=Number.isFinite(fullBleedHeight)&&fullBleedHeight>0?fullBleedHeight:7.3;
   if (!(Number.isFinite(aspect)&&aspect>=.35&&aspect<.60)
     || !(Number.isFinite(attention)&&attention>0)
-    || ![hero?.x,hero?.z,guardian?.x,guardian?.z,focus?.x,focus?.z].every(Number.isFinite))
+    || ![hero?.x,hero?.z,guardian?.x,guardian?.z,focus?.x,focus?.z,previousFocus?.x,previousFocus?.z].every(Number.isFinite))
     return base;
   const viewRightLength=Math.hypot(18,15);
-  const screenX=p=>((p.x-focus.x)*18-(p.z-focus.z)*15)/viewRightLength;
-  // A minimum 1.35-unit horizontal reserve around each actual actor center
-  // protects Thornback's extended claws and sea-glass elytra, not just eyes.
-  const physicalPairHalfSpan=Math.max(Math.abs(screenX(hero)),Math.abs(screenX(guardian)))+1.35;
+  const screenX=(p,target)=>((p.x-target.x)*18-(p.z-target.z)*15)/viewRightLength;
+  // The actual camera focus eases toward the new public target. The entire
+  // transition lies between these two targets: protecting BOTH endpoints
+  // prevents an otherwise valid pair shot from cropping a real guardian
+  // during the easing itself, not just when the camera finally settles.
+  // A 1.35-unit radius surrounds true claws and unfolded armor, not eye centers.
+  const physicalPairHalfSpan=Math.max(
+    Math.abs(screenX(hero,focus)),Math.abs(screenX(guardian,focus)),
+    Math.abs(screenX(hero,previousFocus)),Math.abs(screenX(guardian,previousFocus)))+1.35;
   const physicallySafeHeight=physicalPairHalfSpan/aspect;
   const maximumZoom=base*(1-.16*clamp(attention,0,1));
   return Math.min(base,Math.max(maximumZoom,physicallySafeHeight));
