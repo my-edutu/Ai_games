@@ -4,6 +4,7 @@ export function createTowerAudio() {
   let enabled = false, token = '', last = null, lastFloor = null, lastIntent = '', lastLifecycle = 'running', stride = 0, noiseIndex = 0;
   let disposed = false, lastAmbient = 0, enableRequest = 0, enablePending = false;
   const voices = new Set(), heard = new Set(), pads = [];
+  let guardianWindups = new Map();
   async function setEnabled(value) {
     const operation = ++enableRequest;
     if (disposed) return false;
@@ -94,7 +95,7 @@ export function createTowerAudio() {
     const snapshot = frame.snapshot;
     if (snapshot.runToken !== token) {
       const verifiedRestart = !!token && ['result', 'intermission'].includes(lastLifecycle);
-      heard.clear(); last = null; lastFloor = null; lastIntent = ''; lastLifecycle = 'running'; stride = 0; token = snapshot.runToken;
+      heard.clear(); last = null; lastFloor = null; lastIntent = ''; lastLifecycle = 'running'; stride = 0; guardianWindups.clear(); token = snapshot.runToken;
       if (verifiedRestart) tone(205, 365, .21, 'sine', .052);
     }
     for (const voice of frame.audio?.voices || []) if (!heard.has(voice.id)) {
@@ -123,6 +124,25 @@ export function createTowerAudio() {
     lastLifecycle = lifecycle;
     const actor = snapshot.player;
     const sameFloor = last && lastFloor === snapshot.floor;
+    if (!sameFloor) guardianWindups.clear();
+    // Follow the actual guardian's fixed-step telegraph as the visible maul
+    // winds up and its source-projected warning lane narrows. At most one
+    // low-level preparation and one final cue per real windup; missing optional
+    // tick data never invents an impending attack. Audio remains opt-in.
+    const liveWindups = new Map();
+    if (snapshot.lifecycle === 'running') for (const enemy of snapshot.enemies || []) {
+      if (enemy.kind !== 'guardian' || !enemy.active || !enemy.telegraph ||
+        !Number.isFinite(enemy.telegraphTicksRemaining)) continue;
+      const remaining = Math.max(1, Math.min(8, enemy.telegraphTicksRemaining));
+      const previousCharge = guardianWindups.get(enemy.id);
+      if (sameFloor && previousCharge === undefined) tone(132, 185, .23, 'triangle', .038);
+      else if (sameFloor && previousCharge > 2 && remaining <= 2) {
+        tone(170, 310, .16, 'triangle', .047);
+        texture(470, .11, .027);
+      }
+      liveWindups.set(enemy.id, remaining);
+    }
+    guardianWindups = liveWindups;
     const intent = snapshot.intent?.mode || '';
     // Restrained opt-in cue on real defensive transition, deduped by intent.
     // The matching model pose remains visible when muted.
@@ -182,7 +202,7 @@ export function createTowerAudio() {
     if (disposed) return;
     disposed = true; enabled = false; enablePending = false; enableRequest++;
     for (const voice of voices) { try { voice.stop(); voice.disconnect(); } catch {} }
-    voices.clear(); heard.clear(); pads.length = 0; last = null; lastFloor = null; lastIntent = ''; lastLifecycle = 'running'; stride = 0;
+    voices.clear(); heard.clear(); guardianWindups.clear(); pads.length = 0; last = null; lastFloor = null; lastIntent = ''; lastLifecycle = 'running'; stride = 0;
     if (context) context.close().catch(() => {});
   }
   return { setEnabled, accept, dispose, diagnostics: () => ({ soundEnabled: enabled, soundPending: enablePending, voices: voices.size, context: context?.state || 'not-started' }) };
