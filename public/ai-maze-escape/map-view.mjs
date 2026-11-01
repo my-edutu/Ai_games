@@ -43,6 +43,32 @@ export function publicFullBleedFollowHalfHeight(aspect, selectedHalfHeight) {
   return Math.max(base, Math.min(base * 2.2, base * .70 / safeAspect));
 }
 
+/**
+ * Tighten ONLY an actual publicly disclosed guardian/hero encounter in a
+ * full-screen narrow portrait. Use the existing live pair's 3D world positions
+ * and a conservative model-radius reserve, never hidden maze data, a guessed
+ * guardian or a screen-space impostor. The physical models stay their true size.
+ *
+ * Preserve the broader original shot whenever either character would approach
+ * the edge. The 15:18 camera heading is the actual unrotated Follow isometric
+ * offset in scene.js; sealed-gate views deliberately never call this helper.
+ */
+export function publicPortraitGuardianHalfHeight(aspect, fullBleedHeight, attention, hero, guardian, focus) {
+  const base=Number.isFinite(fullBleedHeight)&&fullBleedHeight>0?fullBleedHeight:7.3;
+  if (!(Number.isFinite(aspect)&&aspect>=.35&&aspect<.60)
+    || !(Number.isFinite(attention)&&attention>0)
+    || ![hero?.x,hero?.z,guardian?.x,guardian?.z,focus?.x,focus?.z].every(Number.isFinite))
+    return base;
+  const viewRightLength=Math.hypot(18,15);
+  const screenX=p=>((p.x-focus.x)*18-(p.z-focus.z)*15)/viewRightLength;
+  // A minimum 1.35-unit horizontal reserve around each actual actor center
+  // protects Thornback's extended claws and sea-glass elytra, not just eyes.
+  const physicalPairHalfSpan=Math.max(Math.abs(screenX(hero)),Math.abs(screenX(guardian)))+1.35;
+  const physicallySafeHeight=physicalPairHalfSpan/aspect;
+  const maximumZoom=base*(1-.16*clamp(attention,0,1));
+  return Math.min(base,Math.max(maximumZoom,physicallySafeHeight));
+}
+
 export function publicDetailEncounterHalfHeight(aspect, disclosedAttention) {
   if (!(Number.isFinite(aspect) && aspect > 0 && aspect < .9)
     || !(Number.isFinite(disclosedAttention) && disclosedAttention > 0)) return 4.6;
