@@ -32,11 +32,14 @@ function pulseReady(state:TowerState,obs:TowerObservation,enemy:TowerObservation
     Math.abs(delta)<=210000&&Math.abs(enemy.position.y-p.position.y)<=state.player.halfHeight+enemy.halfHeight+10000&&
     p.facing===(delta>=0?1:-1);
 }
-export function chooseTowerAction(state:TowerState,observation:TowerObservation):TowerDecision{
+// Tactical v2 is the live policy. Historical v1 is retained for pinned replay
+// evidence; it is never silently substituted into a new live expedition.
+export function chooseTowerAction(state:TowerState,observation:TowerObservation,options:{tactical?:boolean}={}):TowerDecision{
+  const tactical=options.tactical!==false;
   if(observation.upgradeOffers.length){const selected=chooseTowerUpgrade(state);return{action:action(0,{upgradeChoice:selected?.id}),intent:{mode:'choosing-upgrade',summary:selected?`Selecting ${selected.name}`:'Waiting for a valid upgrade',confidence:1,fallbackUsed:false}}}
   const projectile=incomingProjectile(observation);if(projectile){const away=moveSign(observation.player.position.x-projectile.position.x);return{action:action(away,{jump:observation.player.grounded,dash:!observation.player.grounded&&observation.player.dashCooldown===0}),intent:{mode:'evading-projectile',summary:'Evading an incoming projectile',confidence:.98,fallbackUsed:false}}}
   const hazard=immediateHazard(observation);if(hazard){const center=hazard.x+hazard.width/2,away:TowerAction['move']=center>=observation.player.position.x?-1:1;return{action:action(away,{jump:observation.player.grounded}),intent:{mode:'evading-hazard',summary:`Avoiding ${hazard.kind}`,confidence:.96,fallbackUsed:false}}}
-  const windup=imminentTelegraph(state,observation);
+  const windup=tactical?imminentTelegraph(state,observation):undefined;
   if(windup)return{action:action(0,{jump:true}),
     intent:{mode:'evading-telegraph',summary:`Jumping clear of ${windup.kind} fire`,confidence:.96,fallbackUsed:false}};
   // The cap exit is deliberately locked while its guardian lives. Do not treat
@@ -54,17 +57,17 @@ export function chooseTowerAction(state:TowerState,observation:TowerObservation)
       const facing:TowerAction['move']=dx>=0?1:-1;
       const inReach=Math.abs(dx)<=reach-4000;
       const move:TowerAction['move']=inReach?(observation.player.facing===facing?0:facing):facing;
-      return{action:action(move,{attack:inReach&&observation.player.attackCooldown===0,ability:inReach&&pulseReady(state,observation,guardian)}),
+      return{action:action(move,{attack:inReach&&observation.player.attackCooldown===0,ability:tactical&&inReach&&pulseReady(state,observation,guardian)}),
         intent:{mode:'engaging-enemy',summary:inReach?'Fighting the guardian at the gate':'Closing on the guardian at the gate',confidence:.96,fallbackUsed:false}};
     }
   }
   const enemy=nearbyEnemy(observation,state.config.attackReach+state.build.attackReachBonus);
   if(enemy){
     const facing=moveSign(enemy.position.x-observation.player.position.x);
-    const inStrikePocket=Math.abs(enemy.position.x-observation.player.position.x)<state.config.attackReach*.7
+    const inStrikePocket=tactical&&Math.abs(enemy.position.x-observation.player.position.x)<state.config.attackReach*.7
       &&observation.player.facing===facing;
     return{action:action(inStrikePocket?0:facing,{attack:observation.player.attackCooldown===0,
-      ability:pulseReady(state,observation,enemy)}),
+      ability:tactical&&pulseReady(state,observation,enemy)}),
       intent:{mode:'engaging-enemy',summary:`Engaging ${enemy.kind}`,confidence:.94,fallbackUsed:false}};
   }
   if(detectTowerStuck(observation.recentHeights)){const direction:TowerAction['move']=observation.tick%2===0?1:-1;return{action:action(direction,{jump:observation.player.grounded,dash:!observation.player.grounded&&observation.player.dashCooldown===0}),intent:{mode:'recovering',summary:'Breaking a repeated height cycle',confidence:.82,fallbackUsed:true}}}
