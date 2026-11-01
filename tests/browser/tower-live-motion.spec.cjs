@@ -15,7 +15,7 @@ const viewports = [
 ];
 for (const viewport of viewports) test('normal-speed Tower motion ' + viewport.name, async ({ page }, testInfo) => {
   test.setTimeout(240000);
-  const scenario = process.env.TOWER_MOTION_SCENARIO || 'climb';
+  const scenario = process.env.TOWER_MOTION_SCENARIO || 'ascent';
   const dir = path.resolve('artifacts', 'tower-motion', scenario, viewport.name);
   fs.mkdirSync(dir, { recursive: true });
   const errors = [];
@@ -34,7 +34,9 @@ for (const viewport of viewports) test('normal-speed Tower motion ' + viewport.n
       const d = window.__TOWER_RENDER_DIAGNOSTICS__();
       const s = window.__TOWER_PUBLIC_STATE__;
       return { atMs: Date.now(), tick: s?.tick, runToken: s?.runToken, checksum: s?.publicChecksum,
-        floor: s?.floor, scene: s?.lifecycle, state: s?.player?.state,
+        floor: s?.floor, scene: s?.lifecycle, state: s?.player?.state, dangerPermille: s?.dangerPermille,
+        guardianActive: (s?.enemies || []).some(e => e.active && e.kind === 'guardian'),
+        telegraphedEnemies: (s?.enemies || []).filter(e => e.active && e.telegraph).length,
         attacking: !!s?.player?.attacking, enemyKinds: (s?.enemies || []).filter(e => e.active).map(e => e.kind),
         frames: d.frames, frameMs: d.frameMs, contextLost: d.contextLost,
         renderErrors: d.renderErrors, renderState: d.renderProgress?.state,
@@ -42,25 +44,35 @@ for (const viewport of viewports) test('normal-speed Tower motion ' + viewport.n
         calls: d.calls, triangles: d.triangles, geometries: d.geometries, textures: d.textures,
         canvasHash: null };
     });
-    if (index % 3 === 0) {
+    if (index % 10 === 0) {
       const file = 'canvas-' + String(index).padStart(2, '0') + '.png';
       const png = await canvas.screenshot({ path: path.join(dir, file), timeout: 90000 });
       observation.canvasHash = createHash('sha256').update(png).digest('hex');
-      if (index === 0 || index === 12) await page.screenshot({
+      if (index === 0 || index === 20) await page.screenshot({
         path: path.join(dir, 'full-' + String(index).padStart(2, '0') + '.png'), timeout: 90000 });
     }
     observations.push(observation);
   }
   await sample(0);
-  for (let i = 1; i <= 12; i++) { await page.waitForTimeout(1000); await sample(i); }
-  const assessment = assessTowerMotion(observations);
+  // Record at native wall-clock rate. 34 x 2s gives 68s of uninterrupted
+  // actual host play (nominal 20 fixed-step authoritative ticks per second).
+  // No mocked state, accelerated page clock or replay stepping is permitted.
+  for (let i = 1; i <= 34; i++) { await page.waitForTimeout(2000); await sample(i); }
+  const assessment = assessTowerMotion(observations, {
+    minDurationMs: 60000, requireOutcomeRestart: scenario === 'outcome',
+  });
   fs.writeFileSync(path.join(dir, 'motion.json'), JSON.stringify({
     method: 'Real live unmodified host at nominal 20 authoritative ticks/s; browser video and distinct WebGL canvas captures; CI software renderer, not intended device',
-    sourceSha: process.env.GITHUB_SHA || null, scenario, launchFloor: process.env.TOWER_LAUNCH_FLOOR || '0',
-    viewport, capturedAt: new Date().toISOString(), observations, assessment, errors,
+    sourceSha: process.env.TOWER_CAPTURE_SOURCE_SHA || process.env.GITHUB_SHA || null,
+    seed: process.env.TOWER_SEED || 'tower-stream-reference',
+    scenario, launchFloor: process.env.TOWER_LAUNCH_FLOOR || '0',
+    viewport, graphicsTier: 'low', reducedMotion: false, soundEnabled: false,
+    actualWallSeconds: assessment.wallMs / 1000, minimumRequiredSeconds: 60,
+    outcomeCapture: scenario === 'outcome' ? { maxTicks: 900, noProgressTicks: 850, intermissionTicks: 36 } : null,
+    capturedAt: new Date().toISOString(), observations, assessment, errors,
     independentReview: false,
     gates: { captureIntegrity: assessment.scopedPass ? 'PASS' : 'FAIL',
-      completeMotion: 'OPEN: visually review the video for climbing, attacking, recovery and transitions',
+      completeMotion: 'OPEN: manually review unedited normal-speed video for climbing, guardian danger, true result and restart',
       sustainedDeviceFps: 'OPEN: no real device or presented-frame measurement',
       jusantAstroComparison: 'OPEN: requires fresh independent side-by-side evaluation' },
   }, null, 2));
