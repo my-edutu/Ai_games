@@ -23,3 +23,19 @@ export function planCutawayWallTransform(reveal,originalHeight){
  const height=Number.isFinite(originalHeight)&&originalHeight>=.5&&originalHeight<=4?originalHeight:2.6;
  return {height,footprint:1.015};
 }
+
+
+/**
+ * A wall's decorative capstone is not a separate obstruction. When its parent
+ * exposed face is lowered for party visibility, collapse this instanced trim
+ * to a subpixel foundation marker as well. The original transform is returned
+ * untouched when the camera moves away, with no authority/grid changes.
+ */
+export function planCutawayCapTransform(reveal,cap){
+ if(!['none','nearby','sightline'].includes(reveal)||
+    !Array.isArray(cap)||cap.length!==6||!cap.every(Number.isFinite))return null;
+ const [x,y,z,sx,sy,sz]=cap;
+ if(Math.abs(x)>64||Math.abs(z)>64||y<0||y>10||
+    sx<=0||sy<=0||sz<=0||sx>4||sy>4||sz>4)return null;
+ return reveal==='none'?[x,y,z,sx,sy,sz]:[x,.015,z,.001,.001,.001];
+}
