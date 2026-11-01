@@ -273,8 +273,8 @@ test('sculpted shore gardens remain restricted to known outer cells, with fixed 
     const foliage = world.group.children[1].children.find(child =>
       child.isInstancedMesh && child.material.name === 'Disclosed perimeter hanging fronds');
     assert.ok(foliage?.isInstancedMesh, 'perimeter foliage must use actual shared 3D geometry');
-    assert.equal(foliage.count, seen.coastalGardens * 4,
-      'four repeated blade clusters per garden are batched, not created in render frames');
+    assert.equal(foliage.count, (seen.coastalGardens + seen.wallGardens) * 4,
+      'four repeated blade clusters per genuine public garden are batched, not created in render frames');
     assert.equal(seen.geometryCount, budget.geometryCount);
     assert.equal(seen.materialCount, budget.materialCount);
     assert.equal(seen.textureCount, budget.textureCount);
@@ -287,14 +287,46 @@ test('sculpted shore gardens remain restricted to known outer cells, with fixed 
     world.update(onlyInterior);
     assert.equal(world.stats().coastalGardens, 0,
       'known fringe is withdrawn when the disclosed snapshot no longer includes it');
-    assert.equal(world.group.children[1].children.some(child =>
-      child.isInstancedMesh && child.material.name === 'Disclosed perimeter hanging fronds'), false,
-      'no stale shoreline leaves survive a public withdrawal');
+    const remaining = world.group.children[1].children.find(child =>
+      child.isInstancedMesh && child.material.name === 'Disclosed perimeter hanging fronds');
+    assert.equal(remaining?.count || 0, world.stats().wallGardens * 4,
+      'no stale external-coast blades survive a public withdrawal; actual known solid walls may retain their own plants');
     world.update({...wholeNorth,runToken:'separate-run'});
     assert.ok(world.stats().coastalGardens > 0, 'new runs rebuild only their own disclosed coast');
     world.dispose();
     assert.equal(world.stats().geometryCount,0);
     assert.equal(world.stats().materialCount,0);
     assert.equal(world.stats().coastalGardens,0);
+    assert.equal(world.stats().wallGardens,0);
   }
+});
+
+
+test('lifted living-wall gardens never invent unknown passage topology', async () => {
+  const {createMazeWorld} = await modulePromise;
+  const world = createMazeWorld({balanced:true});
+  const undecided = fixture([{cell:24,neighbors:[17,25,31,23]}]);
+  const trulySealed = fixture([{cell:24,neighbors:[]}]);
+  const before = JSON.stringify(undecided);
+  world.update(undecided);
+  assert.equal(world.stats().wallGardens,0,
+    'all four publicly passable but undisclosed neighbors may not be falsely sealed or decorated');
+  assert.equal(world.stats().coastalGardens,0,
+    'an interior room is never a fictional shoreline');
+  assert.deepEqual(world.stats().renderedCells,[24]);
+  assert.equal(JSON.stringify(undecided),before);
+  world.update(trulySealed);
+  assert.ok(world.stats().wallGardens>0,
+    'actual public blocked walls gain recognizable grounded hanging gardens');
+  assert.equal(world.stats().coastalGardens,0);
+  const foliage = world.group.children[1].children.find(child =>
+    child.isInstancedMesh && child.material.name === 'Disclosed perimeter hanging fronds');
+  assert.equal(foliage?.count, world.stats().wallGardens*4,
+    'solid-wall fronds remain batched in the shared material');
+  world.update(undecided);
+  assert.equal(world.stats().wallGardens,0,
+    'a newly disclosed open passage removes any stale solid-wall foliage');
+  assert.equal(world.group.children[1].children.some(child =>
+    child.isInstancedMesh && child.material.name === 'Disclosed perimeter hanging fronds'),false);
+  world.dispose();
 });
