@@ -709,7 +709,43 @@ export function createTowerWorld(){
     cliffs.castShadow=false;cliffs.receiveShadow=false;
     vistaGroup.add(cliffs);
   }
+  // Low tier still needs an expansive, unmistakably three-dimensional skyline.
+  // Preserve the seven stepped towers and their supported skybridges, but replace
+  // hundreds of fully lit and translucent far-field pieces with one fogged,
+  // shadow-free original silhouette batch. The near playable architecture,
+  // dynamic hazards, routes and three-layer canyon keep their complete geometry.
+  function buildLeanDistantWorld(height){
+    const color=new THREE.Color(THEMES[theme].sky).lerp(new THREE.Color(THEMES[theme].fog),.23).multiplyScalar(.5);
+    const silhouette=new THREE.MeshBasicMaterial({color,fog:true});
+    silhouette.name='distant-atmosphere';floorMaterials.add(silhouette);
+    const tower=geometry('lean-citadel-column',()=>new THREE.CylinderGeometry(.75,1,1,7));
+    const crown=geometry('lean-citadel-crown',()=>new THREE.ConeGeometry(1,1,7));
+    for(let i=0;i<7;i++){
+      const side=i%2?-1:1,x=side*(65+noise(i)*91),z=-96-noise(i+20)*110;
+      const h=50+noise(i+30)*74;
+      const root=new THREE.Group();root.name='distant-citadel-silhouette';
+      root.position.set(x,-64,z);floorGroup.add(root);
+      mesh(root,tower,silhouette,[0,h*.40,0],[9.5,h*.80,9.5]);
+      mesh(root,tower,silhouette,[.7,h*.85,0],[7,h*.22,7]);
+      mesh(root,crown,silhouette,[.7,h*.99,0],[5.6,h*.16,5.6]);
+      const companionX=-side*24,companionHeight=h*.64;
+      mesh(root,tower,silhouette,[companionX,companionHeight*.50,4],[6,companionHeight,6]);
+      // A continuous deck with two grounded supports keeps the same skyline
+      // story as high tier: the bridge does not hang in an empty sky.
+      mesh(root,box(),silhouette,[companionX*.5,h*.43,2],[Math.abs(companionX),1.5,4]);
+      for(const ratio of [.33,.67])mesh(root,box(),silhouette,
+        [companionX*ratio,h*.215,2],[1.4,h*.43,2.3]);
+    }
+  }
   function buildDistantWorld(height){
+    if(quality==='low'){
+      buildLeanDistantWorld(height);
+      // The fogged three-depth canyon already creates atmospheric separation;
+      // 48 translucent overlapping spherical clouds were a large low-tier
+      // fragment/overdraw expense and added no actionable route information.
+      particles=null;
+      return;
+    }
     // Distant citadels have stepped shoulders, broken crowns and grounded companion
     // towers. Every skywalk terminates in architecture and has supports below it.
     for(let i=0;i<7;i++){
@@ -874,8 +910,8 @@ export function createTowerWorld(){
     floorGeometries.clear();floorMaterials.clear();platforms.clear();hazards.clear();rotors.length=0;floaters.length=0;particles=null;vistaGroup=null;floorGroup=null;occludedGuardianCaps=0;ruinsPortalVoussoirs=0;ruinsGateLeaves=0;
     ruinsSanctuaryArches=0;ruinsSanctuaryPlants=0;ruinsSanctuaryCascadePanels=0;
   }
-  function rebuild(snapshot){
-    clearFloor();theme=THEMES[snapshot.theme]?snapshot.theme:'foundry';const p=PALETTES[theme];
+  function rebuild(snapshot, requestedQuality='normal'){
+    clearFloor();quality=requestedQuality;theme=THEMES[snapshot.theme]?snapshot.theme:'foundry';const p=PALETTES[theme];
     materials={stone:weather(mat(p.stone,.04,.86)),dark:mat(p.dark,.28,.58),metal:mat(p.metal,.48,.39),copper:mat(theme==='foundry'?0xc88c57:p.metal,.55,.32),edge:mat(p.edge,.12,.68),
       portalStone:theme==='ruins'?applyStoneSurface(mat(p.edge,.035,.90),stoneSurface,{scale:.11,strength:.56,relief:.013}):mat(p.edge,.12,.68),
       gate:theme==='ruins'?mat(0x43534b,.38,.73):null,gateTrim:theme==='ruins'?mat(0x87846a,.48,.64):null,
@@ -909,12 +945,13 @@ export function createTowerWorld(){
     floorGroup.traverse(o=>{if(o.isMesh){o.castShadow=!o.userData.ambientDetail&&(!!o.userData.structural||o.material===materials.stone||o.material===materials.dark);if(o.material===materials.distant)o.receiveShadow=false;}});
     for(const h of hazards.values())h.root.traverse(o=>{if(o.isMesh)o.castShadow=true;});
     finishBatches();
-    key=`${snapshot.runToken}:${snapshot.floor}:${snapshot.theme}`;
+    key=`${snapshot.runToken}:${snapshot.floor}:${snapshot.theme}:${quality}`;
   }
   function update(snapshot,dt=0,time=0,options={}){
     if(disposed||!snapshot)return;
-    if(key!==`${snapshot.runToken}:${snapshot.floor}:${snapshot.theme}`)rebuild(snapshot);
-    lastSnapshot=snapshot;quality=options.quality||'normal';
+    const requestedQuality=options.quality==='low'?'low':options.quality==='high'?'high':'normal';
+    if(key!==`${snapshot.runToken}:${snapshot.floor}:${snapshot.theme}:${requestedQuality}`)rebuild(snapshot,requestedQuality);
+    lastSnapshot=snapshot;
     for(const p of snapshot.platforms||[]){const entry=platforms.get(p.id);if(!entry)continue;entry.root.rotation.y=angleFor(p.x+p.width*.5,snapshot.worldWidth);entry.root.position.y=(p.y-snapshot.chunkBaseY)/SCALE;entry.root.userData.authority={x:p.x,y:p.y,width:p.width,height:p.height};}
     for(const h of snapshot.hazards||[]){const e=hazards.get(h.id);if(!e)continue;const p=pointFor(h.x+h.width*.5,h.y,snapshot.chunkBaseY,snapshot.worldWidth,25);e.root.position.set(p.x,p.y,p.z);e.root.rotation.y=p.angle;e.live.visible=!!h.active;e.active=!!h.active;e.indicator.material=h.active?materials.warning:materials.mint;if(e.spin&&!options.reducedMotion)e.spin.rotation.z=time*.35;}
     if(!options.reducedMotion){for(const r of rotors)r.o.rotation[r.axis||'z']+=Math.min(dt,.05)*r.speed;for(const f of floaters)f.o.position.y=f.y+Math.sin(time*f.speed+f.phase)*.23;}
