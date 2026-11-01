@@ -1,6 +1,7 @@
 'use strict';
 const {test,expect}=require('@playwright/test');
 const {restorePreR46}=require('../helpers/snake-r46-cache-archive.cjs');
+const {stripR49Contact}=require('../helpers/snake-r49-contact-archive.cjs');
 const fs=require('node:fs');
 const path=require('node:path');
 const crypto=require('node:crypto');
@@ -51,7 +52,8 @@ test('actual Chromium WebGL retains exact shadows and gameplay on smaller ground
   const frame=JSON.parse(fs.readFileSync(path.join(repo,'docs/reviews/snake-gauntlet/round-4-public-frame.json'),'utf8'));
   frame.snapshot.dangerLevel=0; // Controlled synthetic parity fixture; never production danger suppression.
   const frozen=JSON.stringify(frame);
-  const current=fs.readFileSync(path.join(repo,'public/snake-stream/renderer.mjs'),'utf8');
+  // The old R38 A/B remains byte-exact; R49 is exercised separately.
+  const current=stripR49Contact(fs.readFileSync(path.join(repo,'public/snake-stream/renderer.mjs'),'utf8'));
   const old=predecessor(current);
   const freeze='    const time = timestamp / 1000;';
   expect(current.split(freeze).length).toBe(2);
