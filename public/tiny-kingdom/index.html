@@ -388,7 +388,7 @@ body[data-workday="live"] #workday-activity{
 <div class="feed panel"><h2>✦ Stories unfolding</h2><div id="feed"></div></div>
 <div class="hint">DRAG TO ORBIT · SCROLL TO ZOOM<br>EVERY CITIZEN HAS A NAME AND PURPOSE<br><a href="progress.html">VIEW GAUNTLET PROGRESS ↗</a></div>
 <aside class="atlas" aria-label="Interactive kingdom map"><div class="atlas-heading"><span>◈ THE KINGDOM ATLAS</span><b>LIVE</b></div><canvas id="atlas-map" width="460" height="330" aria-label="Map of homes and moving villagers; click to move camera"></canvas><div class="atlas-footer"><span id="atlas-season">✧ SEASONAL LANDSCAPE</span><em>↗ PAN CAMERA</em></div><div class="atlas-legend"><span><i style="background:#ffe29b"></i>Village</span><span><i style="background:#f9fce8"></i>People</span><span><i style="background:#7be5f9"></i>River</span></div></aside><div class="bottom"><button id="pause" class="btn active">Ⅱ Pause</button><span class="divider"></span><button class="btn active" id="speed1">1× Real time</button><button class="btn" id="speed4">4×</button><button class="btn" id="speed16">16×</button><span class="divider"></span><button class="btn" id="focus">◎ Follow villager</button><button class="btn" id="camera">◈ Cinematic</button><button class="btn" id="command-toggle" type="button" aria-pressed="false" aria-controls="world-ribbon" aria-keyshortcuts="U">◉ World view</button><button class="btn" id="hud-toggle" aria-pressed="false">⌗ Clear HUD</button><button class="btn" id="save">↓ Save world</button><button class="btn" id="restore">↑ Restore world</button><button class="btn" id="restart">↻ New world</button></div><div class="toast" id="toast"></div><button id="cinema-exit" type="button" aria-label="Restore game interface">✧ Restore interface · H</button>
-<div class="world-tour" role="group" aria-label="Explore scenic village camera viewpoints"><small>EXPLORE<br>THE VALLEY</small><button class="tour-btn" type="button" id="workday-live" aria-pressed="false" aria-label="Watch a villager currently working; select the next live shift">☼ Live shift</button><button class="tour-btn" type="button" id="workday-watch" aria-pressed="false" aria-label="Follow a villager who actually completed work">⚒ Workday</button><button class="tour-btn" data-scenic="valley" aria-pressed="true">✦ Village</button><button class="tour-btn" data-scenic="market" aria-pressed="false">◈ Market</button><button class="tour-btn" data-scenic="mill" aria-pressed="false">✧ Windmill</button><button class="tour-btn" data-scenic="orchard" aria-pressed="false">❀ Orchard</button><button class="tour-btn" data-scenic="farm" aria-pressed="false">✺ Farmland</button><button class="tour-btn" data-scenic="river" aria-pressed="false">≈ Riverside</button><button class="tour-btn" data-scenic="sanctuary" aria-pressed="false">♜ Sanctuary</button></div>
+<div class="world-tour" role="group" aria-label="Explore scenic village camera viewpoints"><small>EXPLORE<br>THE VALLEY</small><button class="tour-btn" type="button" id="workday-live" aria-pressed="false" aria-label="Watch a villager currently working; select the next live shift">☼ Live shift</button><button class="tour-btn" type="button" id="workday-watch" aria-pressed="false" aria-label="Follow a villager who actually completed work">⚒ Workday</button><button class="tour-btn" type="button" id="delivery-follow" aria-label="Follow a villager carrying real goods to the market">▣ Delivery</button><button class="tour-btn" data-scenic="valley" aria-pressed="true">✦ Village</button><button class="tour-btn" data-scenic="market" aria-pressed="false">◈ Market</button><button class="tour-btn" data-scenic="mill" aria-pressed="false">✧ Windmill</button><button class="tour-btn" data-scenic="orchard" aria-pressed="false">❀ Orchard</button><button class="tour-btn" data-scenic="farm" aria-pressed="false">✺ Farmland</button><button class="tour-btn" data-scenic="river" aria-pressed="false">≈ Riverside</button><button class="tour-btn" data-scenic="sanctuary" aria-pressed="false">♜ Sanctuary</button></div>
 <div id="workday-activity" role="status" aria-live="polite" aria-atomic="true"></div><progress id="workday-progress" max="100" value="0" aria-label="Progress through the selected villager's actual working shift"></progress><div class="realm-signal" id="realm-signal" role="status" aria-live="off"><i></i><b id="realm-title">A LIVING KINGDOM</b><span id="realm-detail">Every villager shapes the valley</span></div>
 <section id="world-ribbon" role="group" aria-label="World-first kingdom overview">
  <div class="world-identity"><strong>✦ LIVE KINGDOM</strong><small>World-first view · U</small></div>
@@ -2445,10 +2445,16 @@ function marketQuarter(){
  * No invented harvests, sales, merchants or prices. This function and its
  * drawing call can never mutate the saved/replayed economy. */
 function marketSupplyView(){
+ // Physically unloaded market inventory must not depict goods STILL on the
+ // road. The village's authoritative stock is already credited in work().
+ const inTransit={food:0,wood:0};
+ for(const p of people)if(p.delivery)
+  inTransit[p.delivery.resource]+=p.delivery.amount;
  return {
   resources:{food:state.food,wood:state.wood,gold:state.gold},
-  sacks:Math.max(0,Math.min(6,Math.floor(state.food/35))),
-  logs:Math.max(0,Math.min(5,Math.floor(state.wood/22))),
+  inTransit,
+  sacks:Math.max(0,Math.min(6,Math.floor(Math.max(0,state.food-inTransit.food)/35))),
+  logs:Math.max(0,Math.min(5,Math.floor(Math.max(0,state.wood-inTransit.wood)/22))),
   lockedCoffers:Math.max(0,Math.min(3,Math.floor(state.gold/25)))
  };
 }
@@ -3456,6 +3462,30 @@ function appendActiveWorksiteDressing(w,x,y,z,pulse){
 
 /* G090: genuine work evidence becomes short-lived 3D materials at the actual
    world coordinates of each completed job. This is never fake production. */
+// Real unloads linger briefly at the destination as physical scene events.
+function renderDeliveryReceipts(){
+ const now=state.t;
+ materialScope(MATERIAL.WOOD,()=>{
+  for(const receipt of deliveryReceipts){
+   const age=now-receipt.time;
+   if(age<0||age>1.6)continue;
+   const [x,z]=receipt.destination,y=terrain(x,z)+.06;
+   const fade=1-age/1.6;
+   if(receipt.resource==='wood'){
+    for(let i=0;i<3;i++)
+     limbSegment([x-.29,y+.11+i*.085,z+i*.13],
+      [x+.29,y+.11+i*.085,z+i*.13],.065,
+      rgb(i%2?0x806044:0x9f7953),5);
+   }else{
+    for(let i=0;i<2;i++)
+     ellipsoid(x+(i?-.18:.18),y+.18,z+.16,.15,.17,.16,
+      rgb(i%2?0xdac498:0xbfa579),5);
+   }
+   // An unfaked arrival is visible without floating economy-number text.
+   box(x,y+.02,z-.18,.51,.045,.42,rgb(0x896c4c));
+  }
+ });
+}
 function renderWorkdayTraces(){
  workdayRenderStats.sceneMarkers=0;
  const now=state.t;
@@ -3552,8 +3582,8 @@ function streetCargoWitnesses(){
  return people.map(streetCargoWitness).filter(Boolean).slice(0,6);
 }
 function emitStreetCargo(p,x,y,z,size){
- const cargo=streetCargoWitness(p);
- if(!cargo||!streetCargoWitnesses().some(v=>v.citizen===p.name))return;
+ const cargo=p.delivery||streetCargoWitness(p);
+ if(!cargo||(!p.delivery&&!streetCargoWitnesses().some(v=>v.citizen===p.name)))return;
  const sway=Math.sin(p.phase*2.7)*.028*size;
  const brown=rgb(0x795338),rope=rgb(0xc9ab77),
   cloth=rgb(p.job==='farmer'?0xc0a47a:0x8d9474);
@@ -3629,6 +3659,61 @@ const names=['Alina','Rowan','Edric','Mira','Oren','Selene','Bram','Elowen','Tar
 // G090 is presentation-only: events are recorded when real work() completes.
 // None of these objects are saved, hashed, fed into decisions or used as RNG.
 const workdayEvents=[];
+/* Physical goods move between actual producer and village market.
+   Stock is credited at the ORIGINAL work tick; a recorded delivery must
+   NEVER credit it twice. Receipts are short-lived presentation only. */
+const deliveryReceipts=[];
+const DELIVERY_MARKET=Object.freeze({food:Object.freeze([-1.0,10.2]),wood:Object.freeze([.85,10.2])});
+const DELIVERY_EVERY_N_JOBS=4;
+function getActiveDeliveries(){
+ return people.filter(p=>p.delivery).map(p=>({
+  citizen:p.name,job:p.job,x:p.x,z:p.z,activity:p.activity,
+  resource:p.delivery.resource,amount:p.delivery.amount,
+  destination:p.delivery.destination.slice(),origin:p.delivery.origin.slice(),
+  started:p.delivery.started,id:p.delivery.id
+ }));
+}
+function getDeliveryReceipts(){return deliveryReceipts.slice()}
+function routeLoadedWorker(p){
+ const dest=p.delivery.destination;
+ p.target=dest.slice();p.activity='Traveling with '+p.delivery.resource+' to market';
+ routeCitizen(p);
+}
+function startActualDelivery(p){
+ // The work event was recorded by work() AFTER stock was actually awarded.
+ // A bounded fraction of producers carry loads, keeping food production viable.
+ const e=workdayEvents[0];
+ if(!e||e.citizen!==p.name||e.job!==p.job||e.time!==state.t)return false;
+ const resource=p.job==='forester'?'wood':
+  p.job==='farmer'||p.job==='gatherer'?'food':null;
+ if(!resource||e.delta[resource]<=0)return false;
+ p.deliveryTally=(p.deliveryTally||0)+1;
+ if(p.deliveryTally%DELIVERY_EVERY_N_JOBS!==0)return false;
+ p.delivery={id:p.name+':'+p.deliveryTally,resource,
+  amount:e.delta[resource],origin:[p.x,p.z],
+  destination:DELIVERY_MARKET[resource].slice(),started:state.t};
+ routeLoadedWorker(p);
+ return true;
+}
+function completeActualDelivery(p){
+ if(!p.delivery)return false;
+ const d=p.delivery;
+ // A failed navigation must never grant a remotely completed delivery.
+ if(Math.hypot(p.x-d.destination[0],p.z-d.destination[1])>1.35){
+  routeLoadedWorker(p);return false;
+ }
+ deliveryReceipts.unshift({id:d.id,citizen:p.name,job:p.job,
+  resource:d.resource,amount:d.amount,origin:d.origin.slice(),
+  destination:d.destination.slice(),time:state.t});
+ if(deliveryReceipts.length>12)deliveryReceipts.length=12;
+ delete p.delivery;
+ const notice=document.getElementById('workday-activity');
+ if(document.body.dataset.workday==='delivery'&&
+  people[selectedCitizen]?.name===p.name)
+  notice.textContent=p.name+' · unloaded '+d.amount+' '+d.resource+
+   ' at the market · returning to work';
+ return true;
+}
 let workdaySequence=0,workdaySelected=-1;
 let liveWorkday=false,liveWorkCursor=-1,liveWorkCommandBefore=null;
 function clearLiveWorkdayState(){
@@ -3707,7 +3792,7 @@ function updateLiveWorkdayUI(){
 function renderStories(){const feed=document.getElementById('feed');feed.replaceChildren();for(const e of stories.slice(0,4)){const item=document.createElement('div'),label=document.createElement('span');item.className='feeditem';label.textContent='Day '+e.day+' · Kingdom chronicle';item.append(label,document.createTextNode(e.text));feed.appendChild(item)}}
 function uniqueCitizenName(index){const given=names[index%names.length];const generation=Math.floor(index/names.length);return generation?given+' '+(generation===1?'II':String(generation+1)):given}
 function report(s){stories.unshift({day:Math.floor(state.t/24)+1,text:s});stories=stories.slice(0,6);renderStories()}
-function start(){workdayEvents.length=0;workdaySequence=0;workdaySelected=-1;clearLiveWorkdayState();workdayRenderStats.sceneMarkers=0;workdayRenderStats.animatedTools=0;workdayRenderStats.activeWorksites=0;workdayRenderStats.activeTriangles=0;document.body.dataset.workday='off';document.getElementById('workday-activity').textContent='';document.getElementById('workday-watch').setAttribute('aria-pressed','false');presentationEpoch++;scenicMeshCache=null;scenicMeshKey='';landscapeMeshCache=null;landscapeMeshKey='';seed=83127;accumulator=0;selectedCitizen=0;routeCache.clear();routeCacheRevision=-1;cacheHits=0;cacheMisses=0;city.splice(12);state={t:7,food:180,wood:90,gold:42,homes:city.length,buildCount:city.length+2,happiness:78,lastStory:0};people=names.slice(0,12).map((name,i)=>({name,job:jobs[i%jobs.length],trait:['patient','curious','bold','generous','resourceful','loyal'][i%6],x:(rand()-.5)*14,z:(rand()-.5)*11,target:[(rand()-.5)*24,(rand()-.5)*20],phase:rand()*8,friend:null,bonds:{},energy:60+rand()*40,hunger:rand()*20,activity:'Exploring the valley',workTimer:0,friendshipRecorded:false}));for(const p of people){if(!walkable(p.x,p.z)){const spot=navSnap(p.x,p.z);if(spot)[p.x,p.z]=navPoint(...spot)}choose(p)}stories=[];report('The first families arrive in a lush and untamed valley.');report('A new settlement is born beneath the old mountain ridge.');updateUI()}
+function start(){workdayEvents.length=0;deliveryReceipts.length=0;workdaySequence=0;workdaySelected=-1;clearLiveWorkdayState();workdayRenderStats.sceneMarkers=0;workdayRenderStats.animatedTools=0;workdayRenderStats.activeWorksites=0;workdayRenderStats.activeTriangles=0;document.body.dataset.workday='off';document.getElementById('workday-activity').textContent='';document.getElementById('workday-watch').setAttribute('aria-pressed','false');presentationEpoch++;scenicMeshCache=null;scenicMeshKey='';landscapeMeshCache=null;landscapeMeshKey='';seed=83127;accumulator=0;selectedCitizen=0;routeCache.clear();routeCacheRevision=-1;cacheHits=0;cacheMisses=0;city.splice(12);state={t:7,food:180,wood:90,gold:42,homes:city.length,buildCount:city.length+2,happiness:78,lastStory:0};people=names.slice(0,12).map((name,i)=>({name,job:jobs[i%jobs.length],trait:['patient','curious','bold','generous','resourceful','loyal'][i%6],x:(rand()-.5)*14,z:(rand()-.5)*11,target:[(rand()-.5)*24,(rand()-.5)*20],phase:rand()*8,friend:null,bonds:{},energy:60+rand()*40,hunger:rand()*20,activity:'Exploring the valley',workTimer:0,friendshipRecorded:false}));for(const p of people){if(!walkable(p.x,p.z)){const spot=navSnap(p.x,p.z);if(spot)[p.x,p.z]=navPoint(...spot)}choose(p)}stories=[];report('The first families arrive in a lush and untamed valley.');report('A new settlement is born beneath the old mountain ridge.');updateUI()}
 // Walkable navigation is separate from decorative geometry. Deterministic bounded A*
 // prevents villagers crossing house interiors or swimming through the river.
 const NAV_LIMIT=40,NAV_BUDGET=3200,NAV_SPACING=1.15;
@@ -3809,7 +3894,7 @@ function routeCitizen(p){const route=routeBetween(p.x,p.z,...p.target);p.path=ro
    p.job==='craftsperson'?'Making household goods':'Foraging the hillside';
  }
  function isWorkingAtSite(p){return p.path?.length===0&&ACTIVE_WORK_ACTIVITIES.has(p.activity)}
- function choose(p){let dest;if(p.energy<30||p.hunger>88){dest=[-3,2];p.activity='Resting and gathering food'}else{dest=p.job==='farmer'?[18,1]:p.job==='forester'?[-21,12]:p.job==='merchant'?[0,5]:p.job==='builder'?[7,-4]:p.job==='craftsperson'?[-4,4]:[-8,7];p.activity='Traveling to '+p.job+' work'}p.target=[dest[0]+(rand()-.5)*3,dest[1]+(rand()-.5)*3];routeCitizen(p)}
+ function choose(p){if(p.delivery){routeLoadedWorker(p);return}let dest;if(p.energy<30||p.hunger>88){dest=[-3,2];p.activity='Resting and gathering food'}else{dest=p.job==='farmer'?[18,1]:p.job==='forester'?[-21,12]:p.job==='merchant'?[0,5]:p.job==='builder'?[7,-4]:p.job==='craftsperson'?[-4,4]:[-8,7];p.activity='Traveling to '+p.job+' work'}p.target=[dest[0]+(rand()-.5)*3,dest[1]+(rand()-.5)*3];routeCitizen(p)}
 function recount(p){if(state.t-state.lastStory<5)return;state.lastStory=state.t;const actions={farmer:`${p.name} gathered grain from the eastern fields.`,forester:`${p.name} delivered timber from the forest.`,builder:`${p.name} is repairing the village dwellings.`,merchant:`${p.name} bartered surplus food for coin in the market.`,craftsperson:`${p.name} crafted household supplies for local families.`,gatherer:`${p.name} returned with wild herbs and food.`};report(actions[p.job])}
 function work(p){if(p.energy<30||p.hunger>88){p.energy=Math.min(100,p.energy+6);p.hunger=Math.max(0,p.hunger-9);p.activity='Resting at home';return}const workBefore={food:state.food,wood:state.wood,gold:state.gold,buildings:city.length};p.activity=jobWorkActivity(p);if(p.job==='farmer')state.food+=2.8*climateAt(state.t).yieldMultiplier;if(p.job==='gatherer')state.food+=1.4;if(p.job==='forester')state.wood+=2.1;if(p.job==='merchant'&&state.wood<people.length*.8&&state.gold>=4){
  state.gold-=4;state.wood+=8;p.activity='Importing timber for village repairs';
@@ -3821,12 +3906,16 @@ if(remaining>.24){const move=Math.min(remaining,dt*(.75+i%4*.09));const nx=p.x+w
 else if(p.path&&p.path.length){p.path.shift()}
 else if(p.activity==='Waiting for a safe route'){
  // A blocked villager cannot deliver goods from a destination never reached.
- if(p.workTimer>=2.5){p.workTimer=0;choose(p)}
+ if(p.workTimer>=2.5){p.workTimer=0;p.delivery?routeLoadedWorker(p):choose(p)}
+}else if(p.delivery&&p.activity.startsWith('Traveling with ')){
+ // Reaching a physical market yard, not merely waiting near the producer,
+ // completes the already-accounted transfer exactly once.
+ if(completeActualDelivery(p)){p.workTimer=0;choose(p)}
 }else if(p.activity.startsWith('Traveling to ')||p.activity==='Resting and gathering food'){
  // Arrive and visibly work before the real resource transaction.
  p.activity=jobWorkActivity(p);p.workTimer=0;
 }else if(isWorkingAtSite(p)||p.activity==='Resting at home'){
- if(p.workTimer>=workDuration(p)){work(p);p.workTimer=0;choose(p)}
+ if(p.workTimer>=workDuration(p)){work(p);p.workTimer=0;if(!startActualDelivery(p))choose(p)}
 }else if(p.workTimer>=2.5){p.workTimer=0;choose(p)}}
 // Relationships are generated only by real proximity between villagers, not invented stories.
 for(let i=0;i<people.length;i++)for(let j=i+1;j<people.length;j++){let a=people[i],b=people[j];if(Math.abs(a.x-b.x)<1.3&&Math.abs(a.z-b.z)<1.3&&(a.x-b.x)**2+(a.z-b.z)**2<1.69){const inc=dt*.65;a.bonds[b.name]=(a.bonds[b.name]||0)+inc;b.bonds[a.name]=(b.bonds[a.name]||0)+inc;if(a.bonds[b.name]>3&&!a.friend){a.friend=b.name;if(state.t-state.lastStory>2){report(`${a.name} and ${b.name} became friends after meeting in the village.`);state.lastStory=state.t}}}}
@@ -3887,12 +3976,20 @@ function validateSnapshot(snapshot){
  if(!validScalar(q.seed,0,4294967295)||!s||!validScalar(s.t,0,1e8)||!validScalar(s.food,0,1e8)||!validScalar(s.wood,0,1e8)||!validScalar(s.gold,0,1e8)||!validScalar(s.happiness,0,100)||!validScalar(s.buildCount,0,100)||!validScalar(s.lastStory,0,1e8))throw Error('Save contains invalid game state');
  if(!Array.isArray(q.city)||q.city.length<12||q.city.length>35||!q.city.every(c=>Array.isArray(c)&&c.length===3&&validScalar(c[0],-40,40)&&validScalar(c[1],-40,40)&&Number.isInteger(c[2])&&c[2]>=0&&c[2]<=2)||s.buildCount!==q.city.length+2)throw Error('Save contains invalid buildings');
  if(!Array.isArray(q.people)||q.people.length<12||q.people.length>28||!q.people.every(p=>{
-   if(!p||!validText(p.name,40)||!jobs.includes(p.job)||!validText(p.trait,40)||!validText(p.activity,100)||!validPoint([p.x,p.z])||!validPoint(p.target)||!Array.isArray(p.path)||p.path.length>100||!p.path.every(validPoint)||!validScalar(p.phase,0,1e9)||!validScalar(p.energy,0,100)||!validScalar(p.hunger,0,100)||!validScalar(p.workTimer,0,10000)||!(p.friend===null||validText(p.friend,40))||!p.bonds||typeof p.bonds!=='object'||Array.isArray(p.bonds))return false;
+   if(!p||!validText(p.name,40)||!jobs.includes(p.job)||!validText(p.trait,40)||!validText(p.activity,100)||!validPoint([p.x,p.z])||!validPoint(p.target)||!Array.isArray(p.path)||p.path.length>100||!p.path.every(validPoint)||!validScalar(p.phase,0,1e9)||!validScalar(p.energy,0,100)||!validScalar(p.hunger,0,100)||!validScalar(p.workTimer,0,10000)||
+   (p.deliveryTally!==undefined&&(!Number.isInteger(p.deliveryTally)||!validScalar(p.deliveryTally,0,1e8)))||
+   (p.delivery!==undefined&&(!p.delivery||
+    !validText(p.delivery.id,100)||
+    !['food','wood'].includes(p.delivery.resource)||
+    !validScalar(p.delivery.amount,.001,1e5)||
+    !validPoint(p.delivery.origin)||!validPoint(p.delivery.destination)||
+    !validScalar(p.delivery.started,0,s.t)))||
+   !(p.friend===null||validText(p.friend,40))||!p.bonds||typeof p.bonds!=='object'||Array.isArray(p.bonds))return false;
    const bonds=Object.entries(p.bonds);return bonds.length<=28&&bonds.every(([k,v])=>validText(k,40)&&validScalar(v,0,1e8));
  }))throw Error('Save contains invalid citizens');
  if(!Array.isArray(q.stories)||q.stories.length>6||!q.stories.every(e=>e&&Number.isInteger(e.day)&&e.day>0&&validText(e.text,240)))throw Error('Save contains invalid chronicles');
 }
-function restoreSnapshot(snapshot){validateSnapshot(snapshot);workdayEvents.length=0;workdaySequence=0;workdaySelected=-1;clearLiveWorkdayState();workdayRenderStats.sceneMarkers=0;workdayRenderStats.animatedTools=0;workdayRenderStats.activeWorksites=0;workdayRenderStats.activeTriangles=0;document.body.dataset.workday='off';document.getElementById('workday-activity').textContent='';document.getElementById('workday-watch').setAttribute('aria-pressed','false');uiHistory.length=0;scenicMeshCache=null;scenicMeshKey='';landscapeMeshCache=null;landscapeMeshKey='';const q=cloneData(snapshot.payload);selectedCitizen=Math.min(selectedCitizen,q.people.length-1);routeCache.clear();routeCacheRevision=-1;cacheHits=0;cacheMisses=0;seed=q.seed>>>0;state=q.state;city.splice(0,city.length,...q.city);people=q.people;stories=q.stories;accumulator=0;renderStories();updateUI();presentationEpoch++;return true}
+function restoreSnapshot(snapshot){validateSnapshot(snapshot);workdayEvents.length=0;deliveryReceipts.length=0;workdaySequence=0;workdaySelected=-1;clearLiveWorkdayState();workdayRenderStats.sceneMarkers=0;workdayRenderStats.animatedTools=0;workdayRenderStats.activeWorksites=0;workdayRenderStats.activeTriangles=0;document.body.dataset.workday='off';document.getElementById('workday-activity').textContent='';document.getElementById('workday-watch').setAttribute('aria-pressed','false');uiHistory.length=0;scenicMeshCache=null;scenicMeshKey='';landscapeMeshCache=null;landscapeMeshKey='';const q=cloneData(snapshot.payload);selectedCitizen=Math.min(selectedCitizen,q.people.length-1);routeCache.clear();routeCacheRevision=-1;cacheHits=0;cacheMisses=0;seed=q.seed>>>0;state=q.state;city.splice(0,city.length,...q.city);people=q.people;stories=q.stories;accumulator=0;renderStories();updateUI();presentationEpoch++;return true}
 function saveWorld(){try{localStorage.setItem(SAVE_KEY,JSON.stringify(exportSnapshot()));showToast('World saved — Day '+(Math.floor(state.t/24)+1))}catch(error){showToast('Save unavailable: '+error.message)}}
 function restoreWorld(){try{const stored=localStorage.getItem(SAVE_KEY);if(!stored)throw Error('No stored civilization yet');restoreSnapshot(JSON.parse(stored));showToast('The valley has been restored')}catch(error){showToast(error.message)}}
 function showToast(message){const node=document.getElementById('toast');node.textContent=message;node.style.opacity='1';clearTimeout(showToast.timer);showToast.timer=setTimeout(()=>node.style.opacity='0',3600)}
@@ -4071,6 +4168,28 @@ function watchLatestWork(){
 }
 // G092: choose only REAL active work, cycling by stable citizen index.
 // Selection, progress, camera and HUD never award resources or consume RNG.
+// Player-directable observation of ACTUAL stocked couriers; spectator controls
+// never change production, route, RNG, population or saved-state checksum.
+function watchDelivery(){
+ const eligible=people.map((p,i)=>({person:p,index:i})).filter(row=>row.person.delivery);
+ if(!eligible.length){
+  document.getElementById('workday-activity').textContent=
+   'No loaded courier yet · villagers are working and gathering supplies';
+  return null;
+ }
+ const after=eligible.find(row=>row.index>selectedCitizen);
+ const selected=after||eligible[0],p=selected.person;
+ if(liveWorkday)stopWorkdayWatch();
+ selectedCitizen=selected.index;setCitizenFollow(true);updateFollowCamera();
+ document.body.dataset.workday='delivery';
+ document.getElementById('workday-watch').setAttribute('aria-pressed','false');
+ document.getElementById('workday-live').setAttribute('aria-pressed','false');
+ setCommandView('world');updateUI();
+ document.getElementById('workday-activity').textContent=
+  p.name+' · carrying '+p.delivery.amount+' '+p.delivery.resource+
+  ' from '+p.job+' work to the village market';
+ return cloneData(p.delivery);
+}
 function watchLiveWorkday(){
  const eligible=people.map((p,i)=>({person:p,index:i})).filter(row=>isWorkingAtSite(row.person));
  const after=liveWorkday?eligible.find(row=>row.index>selectedCitizen):null;
@@ -4137,6 +4256,7 @@ document.body.dataset.command='command';
  button('world-open-command',()=>setCommandView('command','user'));
 button('workday-watch',watchLatestWork);
 button('workday-live',watchLiveWorkday);
+button('delivery-follow',watchDelivery);
 button('hud-toggle',()=>setCinematicHud(!cinematicHud));
 button('cinema-exit',()=>setCinematicHud(false));
 document.addEventListener('keydown',e=>{
@@ -4424,6 +4544,7 @@ directionalCastShadows(state.t);
 workdayRenderStats.animatedTools=0;
 renderWorkdayTraces();
 renderMarketStock();
+renderDeliveryReceipts();
 currentMaterial=MATERIAL.FOLIAGE;
 windmill(-27,-18,state.t);forgeSmoke(state.t);activeChimneys=0;smokePuffs=0;smokeTriangles=0;smokeMaxRadius=0;for(const [x,z,k] of city)chimneySmoke(x,z,k,state.t);villageFestival();
 currentMaterial=MATERIAL.WOOD;
@@ -4473,7 +4594,7 @@ gl.drawArrays(gl.TRIANGLES,0,data.length/10);if((frames++%14)===0){updateUI();dr
  // Only a completed presentation may become the reusable frozen frame.
  lastFrozenFrameKey=frozenViewKey;
 }
-requestAnimationFrame(render);window.__tinyKingdom={getState:()=>JSON.parse(JSON.stringify({state,people:people.map(({name,job,x,z,target})=>({name,job,x,z,target}))})),setSpeed:x=>{speed=x},step,reset:start,renderer:()=>canvas.getContext('webgl')?'webgl':'software',metrics:()=>({citizens:people.length,buildings:city.length+2,day:Math.floor(state.t/24)+1,food:state.food,wood:state.wood,gold:state.gold,relationships:people.filter(p=>p.friend).length}),route:(a,b)=>routeBetween(a[0],a[1],b[0],b[1]),walkable:(p)=>walkable(p[0],p[1]),getNavigation:()=>people.map(p=>({name:p.name,position:[p.x,p.z],target:p.target,remaining:p.path?.length||0,path:p.path,activity:p.activity,hunger:p.hunger,energy:p.energy})),exportSnapshot,restoreSnapshot,saveWorld,restoreWorld,climateAt,skyConditions,getCitizenProfiles:()=>cloneData(people.map(({name,job,trait,friend,bonds,energy,hunger,activity})=>({name,job,trait,friend,bonds,energy,hunger,activity}))),getRigPose:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(citizenRigPose(people[index])):null,getOccupationalPerformance:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData({citizen:people[index].name,job:people[index].job,...occupationalPerformance(people[index])}):null,getGarmentProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(garmentProfile(people[index],index,citizenRigPose(people[index]))):null,getFaceProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(faceProfile(people[index],index)):null,getFaceNormalProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(faceNormalField(faceProfile(people[index],index))):null,getSelectedCitizen:()=>people[selectedCitizen]?.name,getWorkdayEvents:()=>cloneData(workdayEvents),getStreetCargoWitnesses:()=>cloneData(streetCargoWitnesses()),getWorkdayView,getActiveWorksites,getLiveWorkdayView,watchLatestWork,watchLiveWorkday,stopWorkdayWatch,getWorkdayRenderStats:()=>({...workdayRenderStats}),getMarketQuarterStats:()=>({...marketQuarterStats,marketStockTriangles}),getMarketSupplyView:marketSupplyView,getHighStreetStats:()=>({...highStreetStats}),routeCacheMetrics:()=>({entries:routeCache.size,hits:cacheHits,misses:cacheMisses}),getCamera:()=>({yaw,pitch,zoom,focus:focusPoint.slice(),follow,cinematic}),getCameraOcclusionModel:cameraOcclusionModel,getCitizenCameraPlan:()=>lastFollowShot?{...lastFollowShot,eye:lastFollowShot.eye.slice(),target:lastFollowShot.target.slice()}:null,getTerrainHeight:(x,z)=>terrain(x,z),getTerrainBiomeSample:terrainBiomeSample,getOuterRiverReachStats:()=>({...outerRiverReachStats}),sampleRiverOptics:riverOpticsSample,getHorizonStats:()=>({triangles:terrainHorizonTriangles,outerBands:2,segmentsPerSide:HORIZON_SEGMENTS,extent:HORIZON_MAX+HORIZON_OFFSETS[2]}),getHighlandRockStats:()=>({...highlandRockStats,heights:highlandRockStats.heights.slice()}),getClimateMaterialProfile:climateMaterialProfile,getWildfloraCount:()=>wildflora.length,getMeadowStats:()=>({clusters:meadowUnderstory.length,triangles:meadowUnderstory.length*8,season:climateAt(state.t).season,cached:true}),getMaterialSystem:()=>({vertexStride:10,surfaceShaderVersion:'procedural-063',materials:Object.keys(MATERIAL),gpuRenderValidated:false}),getMaterialSwatchAudit:materialSwatchAudit,waterStats:()=>({model:'channel-depth-sediment-fresnel-v2',segments:RIVER_SEGMENTS,waterTriangles:RIVER_SEGMENTS*RIVER_BANDS*2,bankTriangles:RIVER_SEGMENTS*2*RIVER_BANK_BANDS*2}),getScenicSites:scenicSiteMetrics,getFestivalVisualStats:()=>({season:festivalSeason,cacheBuilds:festivalCacheBuilds,vertices:festivalGeometry?.length||0,staticMeshTriangles:festivalStaticMeshTriangles,cachedStage:festivalStaticMeshTriangles?'static-scenic':'unbuilt'}),getOrchardVisualStats:()=>({...orchardVisualStats}),getScenicMeshStorage:()=>({kind:!scenicMeshCache?'uninitialized':scenicMeshCache instanceof Float32Array?'Float32Array':'Array',segments:gpuAvailable?2:1,floats:(scenicMeshCache?.length||0)+(gpuAvailable?(landscapeMeshCache?.length||0):0),bytesPerFloat:scenicMeshCache instanceof Float32Array?Float32Array.BYTES_PER_ELEMENT:null,bytes:scenicMeshCache instanceof Float32Array?scenicMeshCache.byteLength+(landscapeMeshCache?.byteLength||0):null,landscapeBytes:gpuAvailable?landscapeMeshCache?.byteLength||0:null,settlementBytes:gpuAvailable?scenicMeshCache?.byteLength||0:null}),getGeometryAudit:geometryAudit,getFarmsteadStats:()=>({...farmScene,granary:FARMSTEAD.granary.slice(),season:climateAt(state.t).season}),getFarmTreeClearanceStats:farmTreeClearanceStats,getForestLodStats:()=>({...forestLodStats}),getForestVisualStats:()=>({
+requestAnimationFrame(render);window.__tinyKingdom={getState:()=>JSON.parse(JSON.stringify({state,people:people.map(({name,job,x,z,target})=>({name,job,x,z,target}))})),setSpeed:x=>{speed=x},step,reset:start,renderer:()=>canvas.getContext('webgl')?'webgl':'software',metrics:()=>({citizens:people.length,buildings:city.length+2,day:Math.floor(state.t/24)+1,food:state.food,wood:state.wood,gold:state.gold,relationships:people.filter(p=>p.friend).length}),route:(a,b)=>routeBetween(a[0],a[1],b[0],b[1]),walkable:(p)=>walkable(p[0],p[1]),getNavigation:()=>people.map(p=>({name:p.name,position:[p.x,p.z],target:p.target,remaining:p.path?.length||0,path:p.path,activity:p.activity,hunger:p.hunger,energy:p.energy})),exportSnapshot,restoreSnapshot,saveWorld,restoreWorld,climateAt,skyConditions,getCitizenProfiles:()=>cloneData(people.map(({name,job,trait,friend,bonds,energy,hunger,activity})=>({name,job,trait,friend,bonds,energy,hunger,activity}))),getRigPose:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(citizenRigPose(people[index])):null,getOccupationalPerformance:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData({citizen:people[index].name,job:people[index].job,...occupationalPerformance(people[index])}):null,getGarmentProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(garmentProfile(people[index],index,citizenRigPose(people[index]))):null,getFaceProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(faceProfile(people[index],index)):null,getFaceNormalProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(faceNormalField(faceProfile(people[index],index))):null,getSelectedCitizen:()=>people[selectedCitizen]?.name,getWorkdayEvents:()=>cloneData(workdayEvents),getStreetCargoWitnesses:()=>cloneData(streetCargoWitnesses()),getActiveDeliveries:()=>cloneData(getActiveDeliveries()),getDeliveryReceipts:()=>cloneData(getDeliveryReceipts()),watchDelivery,getWorkdayView,getActiveWorksites,getLiveWorkdayView,watchLatestWork,watchLiveWorkday,stopWorkdayWatch,getWorkdayRenderStats:()=>({...workdayRenderStats}),getMarketQuarterStats:()=>({...marketQuarterStats,marketStockTriangles}),getMarketSupplyView:marketSupplyView,getHighStreetStats:()=>({...highStreetStats}),routeCacheMetrics:()=>({entries:routeCache.size,hits:cacheHits,misses:cacheMisses}),getCamera:()=>({yaw,pitch,zoom,focus:focusPoint.slice(),follow,cinematic}),getCameraOcclusionModel:cameraOcclusionModel,getCitizenCameraPlan:()=>lastFollowShot?{...lastFollowShot,eye:lastFollowShot.eye.slice(),target:lastFollowShot.target.slice()}:null,getTerrainHeight:(x,z)=>terrain(x,z),getTerrainBiomeSample:terrainBiomeSample,getOuterRiverReachStats:()=>({...outerRiverReachStats}),sampleRiverOptics:riverOpticsSample,getHorizonStats:()=>({triangles:terrainHorizonTriangles,outerBands:2,segmentsPerSide:HORIZON_SEGMENTS,extent:HORIZON_MAX+HORIZON_OFFSETS[2]}),getHighlandRockStats:()=>({...highlandRockStats,heights:highlandRockStats.heights.slice()}),getClimateMaterialProfile:climateMaterialProfile,getWildfloraCount:()=>wildflora.length,getMeadowStats:()=>({clusters:meadowUnderstory.length,triangles:meadowUnderstory.length*8,season:climateAt(state.t).season,cached:true}),getMaterialSystem:()=>({vertexStride:10,surfaceShaderVersion:'procedural-063',materials:Object.keys(MATERIAL),gpuRenderValidated:false}),getMaterialSwatchAudit:materialSwatchAudit,waterStats:()=>({model:'channel-depth-sediment-fresnel-v2',segments:RIVER_SEGMENTS,waterTriangles:RIVER_SEGMENTS*RIVER_BANDS*2,bankTriangles:RIVER_SEGMENTS*2*RIVER_BANK_BANDS*2}),getScenicSites:scenicSiteMetrics,getFestivalVisualStats:()=>({season:festivalSeason,cacheBuilds:festivalCacheBuilds,vertices:festivalGeometry?.length||0,staticMeshTriangles:festivalStaticMeshTriangles,cachedStage:festivalStaticMeshTriangles?'static-scenic':'unbuilt'}),getOrchardVisualStats:()=>({...orchardVisualStats}),getScenicMeshStorage:()=>({kind:!scenicMeshCache?'uninitialized':scenicMeshCache instanceof Float32Array?'Float32Array':'Array',segments:gpuAvailable?2:1,floats:(scenicMeshCache?.length||0)+(gpuAvailable?(landscapeMeshCache?.length||0):0),bytesPerFloat:scenicMeshCache instanceof Float32Array?Float32Array.BYTES_PER_ELEMENT:null,bytes:scenicMeshCache instanceof Float32Array?scenicMeshCache.byteLength+(landscapeMeshCache?.byteLength||0):null,landscapeBytes:gpuAvailable?landscapeMeshCache?.byteLength||0:null,settlementBytes:gpuAvailable?scenicMeshCache?.byteLength||0:null}),getGeometryAudit:geometryAudit,getFarmsteadStats:()=>({...farmScene,granary:FARMSTEAD.granary.slice(),season:climateAt(state.t).season}),getFarmTreeClearanceStats:farmTreeClearanceStats,getForestLodStats:()=>({...forestLodStats}),getForestVisualStats:()=>({
  sourceTrees:trees.length,
  renderedTrees:forestVisualStats.deciduous+forestVisualStats.conifers,
  conifers:forestVisualStats.conifers,deciduous:forestVisualStats.deciduous,
