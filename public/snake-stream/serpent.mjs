@@ -135,6 +135,11 @@ export function createSerpent(THREE) {
   let uploadedIndexCount = -1, uploadedRadial = -1;
   let indexUploadRequests = 0, indexReuseFrames = 0;
   // END R36 INDEX STATE
+  // BEGIN R55 REDUCED BODY TRANSFER STATE
+  // The immutable reduced-motion pose can keep the previous GPU vertex bytes.
+  // Fixed buffers and every live character expression remain unchanged.
+  let lastReducedBodySignature = null, reducedBodyReuseFrames = 0, reducedBodyBytesAvoided = 0;
+  // END R55 REDUCED BODY TRANSFER STATE
   bodyGeometry.setAttribute('position', positionAttribute);
   bodyGeometry.setAttribute('normal', normalAttribute);
   bodyGeometry.setAttribute('uv', uvAttribute);
@@ -484,6 +489,9 @@ export function createSerpent(THREE) {
     if (!first) feedingAnticipation = 0;
     // END R39 EMPTY PATH RESET
     group.visible = Boolean(first);
+    // BEGIN R55 EMPTY POSE INVALIDATION
+    if (!first) lastReducedBodySignature = null;
+    // END R55 EMPTY POSE INVALIDATION
     if (!first) { bodyGeometry.setDrawRange(0, 0); return; }
     const finalPath = paths[paths.length - 1];
     let distance = 0;
@@ -552,6 +560,20 @@ export function createSerpent(THREE) {
       if (currentBreaks[i] !== uploadedBreaks[i]) { topologyUnchanged = false; break; }
     }
     // END R36 COMPARE TOPOLOGY
+    // BEGIN R55 REDUCED POSE SIGNATURE
+    // Zero-swallow reduced motion has neither lateral nor vertical time waves.
+    // Only the same complete public body, portal fragments, LOD, direction and
+    // run can reuse identical Float32 vertex bytes. Live/danger/eye poses
+    // continue below this GPU transfer guard on every submitted frame.
+    const reducedBodySignature = reduced && eaten === 0 && !truncated
+      ? JSON.stringify([lowDetail, options.runToken ?? null, options.direction?.x ?? null,
+          options.direction?.z ?? null, paths])
+      : null;
+    const reuseReducedBody = reducedBodySignature !== null
+      && reducedBodySignature === lastReducedBodySignature;
+    lastReducedBodySignature = reducedBodySignature;
+    if (reuseReducedBody) reducedBodyReuseFrames++;
+    // END R55 REDUCED POSE SIGNATURE
     for (const attribute of [positionAttribute, normalAttribute, uvAttribute, indexAttribute]) {
       // BEGIN R36 SKIP STABLE UPLOAD
       if (attribute === indexAttribute && topologyUnchanged) {
@@ -559,6 +581,13 @@ export function createSerpent(THREE) {
         continue;
       }
       // END R36 SKIP STABLE UPLOAD
+      // BEGIN R55 REDUCED BODY TRANSFER SKIP
+      if (reuseReducedBody && attribute !== indexAttribute) {
+        reducedBodyBytesAvoided += ringCount * activeRing * attribute.itemSize
+          * attribute.array.BYTES_PER_ELEMENT;
+        continue;
+      }
+      // END R55 REDUCED BODY TRANSFER SKIP
       attribute.clearUpdateRanges();
       attribute.addUpdateRange(0, attribute === indexAttribute ? indexCount : ringCount * activeRing * attribute.itemSize);
       attribute.needsUpdate = true;
@@ -745,6 +774,10 @@ export function createSerpent(THREE) {
       // BEGIN R36 DIAGNOSTIC COUNTERS
       indexUploadRequests, indexReuseFrames,
       // END R36 DIAGNOSTIC COUNTERS
+      // BEGIN R55 REDUCED BODY TRANSFER STATS
+      reducedBodyTransfer: { reusedFrames: reducedBodyReuseFrames,
+        requestedBytesAvoided: reducedBodyBytesAvoided, noDisplayFpsClaim: true },
+      // END R55 REDUCED BODY TRANSFER STATS
       bufferBytes: positions.byteLength + normals.byteLength + uvs.byteLength + indices.byteLength,
     };
   }

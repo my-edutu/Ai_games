@@ -1,10 +1,15 @@
 {
   "updatedAt": "2026-11-01",
-  "status": "R54 SIX IMAGE WEBGL A/B PASS · 42/43 BROWSER · STRICT 10/17 FAIL · TEST-ONLY NODE MATCHER CORRECTED",
-  "detail": "R54 focused Actions 41294297202: 42/43 true Chromium tests pass including 6 actual WebGL parent/current screenshots. Oversized first shadow atlas 2048²->1024², canvas buffer 1296x592/33 calls/13,612 triangles unchanged; 1.145% HD pixels differ by >3 intensity from shadow softness; native and portrait byte-identical; no GL errors/hidden cues. Hard full-HD gate still FAIL: 10 actual renderer submissions/1015.2ms vs unchanged >=17, 61 RAF callbacks not actual draws or displayed FPS, GPU fence max 2275ms. General 41294297234 build success, 591/592 full Node, only new test matcher regex false failure; adjusted equivalent literal checks, local source SHA verified, 96/96 focused Snake and TypeScript build pass, red 2/2 control vs pre-R54, green 2/2 R54. New-head general/focused CI pending. No measured FPS speedup, independent commercial win, device presents, soak or R5. PR draft unmerged undeployed.",
+  "status": "R55 REDUCED-MOTION VERTEX TRANSFER CANDIDATE · LATEST GENERAL/FOCUSED BROWSER FAILED · STRICT 10/17 UNMET",
+  "detail": "R55 narrow reduced-motion-only stable public body GPU vertex-transfer gate implemented with five exactly reversible blocks, source-controlled Three.js regression and real Chromium/WebGL overview/detail screenshot checks awaiting new head CI. Previous exact R54 corrected-head focused 41295203321 and general 41295203312 both finished FAILED at browser step (not green); general build/Node passed. Latest published quantified strict full-HD still 10 real renderer submissions/1015.2ms vs unchanged >=17; 61 RAF calls not real draws or device-present FPS. No measured throughput gain or Snake Pass/ASTRO BOT visual parity. New candidate only avoids identical GPU vertex update requests in reduced-motion with stable zero-swallow body; all cues, authority, recovery, portals, animated/live frames preserved. No independent critic, real-device presents, soak or R5. PR draft unmerged undeployed.",
   "latestImage": "/progress/evidence/round-9-overview.jpg",
-  "latestCaption": "R54 actual 6-picture before/after: 1024² first HD decorative shadow vs 2048²; 42/43 Chromium, strict 10/17 actual submissions FAIL; native/portrait images byte-equal. New-head corrected Node test pending.",
+  "latestCaption": "R55 new reduced-motion GPU body-transfer optimization awaits actual same-frame WebGL capture; prior R54 strict live desktop 10/17 actual submissions FAIL, no full visual benchmark win.",
   "reviews": [
+    {
+      "area": "Round 55 · stable reduced-motion original serpent vertex buffer transfers",
+      "verdict": "CANDIDATE · REAL WEBGL A/B AND NODE REGRESSION COMMITTED · EXACT-HEAD CI PENDING · STRICT 10/17 STILL UNMET",
+      "gap": "Only identical full public body with reducedMotion, zero swallow, stable run/direction/LOD avoids re-marking 3 original body GPU vertex buffers; all real live passes continue. Actual Chromium overview/detail capture and Node original-vs-current payload parity need CI. This is not bus bandwidth or FPS improvement; normal live HD >=17 submissions, independent Snake Pass/ASTRO BOT critique, real-device presents, soak and R5 still OPEN."
+    },
     {
       "area": "Round 54 · actual first shadow atlas WebGL comparison / 17-submission gate",
       "verdict": "REAL 6 PNG CHROMIUM SOURCE VERIFIED · 42/43 BROWSER PASS · STRICT 10/17 FAIL · GENERAL NODE 591/592 TEST REGEX ISSUE FIXED LOCALLY",

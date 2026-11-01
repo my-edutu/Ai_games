@@ -7,7 +7,15 @@ const begin='    // BEGIN R45 PUBLIC FOOD TONGUE INVESTIGATION\n';
 const end='    // END R45 PUBLIC FOOD TONGUE INVESTIGATION\n';
 // Older SHA controls must not accidentally contain later R48 acting.
 const round48 = /^[ \t]*\/\/ BEGIN R48 [^\n]*\n[\s\S]*?^[ \t]*\/\/ END R48 [^\n]*\n/gm;
+// Only historical source SHA provenance omits R55's five bounded blocks.
+// Real contemporary before/after renders keep all other later character work.
+const round55 = /^[ \t]*\/\/ BEGIN R55 [^\n]*\n[\s\S]*?^[ \t]*\/\/ END R55 [^\n]*\n/gm;
+function restorePreR55(source) {
+  if ((source.match(round55) || []).length !== 5) throw new Error('Expected five bounded R55 additions');
+  return source.replace(round55, '');
+}
 function restorePreR48(source) {
+  source = restorePreR55(source);
   if ((source.match(round48) || []).length !== 2) throw new Error('Expected two bounded R48 sections');
   return source.replace(round48, '');
 }
@@ -20,4 +28,4 @@ function restorePreR45(source) {
   }
   return source.slice(0,first)+originalTongue+source.slice(last+end.length);
 }
-module.exports={restorePreR45,restorePreR48};
+module.exports={restorePreR45,restorePreR48,restorePreR55};
