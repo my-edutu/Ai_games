@@ -1,5 +1,5 @@
 import type{TowerAction,TowerPlatform,TowerState}from'../state/types';import{chooseTowerUpgrade}from'../progression/builds';import{nextTowerPlatform}from'./graph';import type{TowerObservation}from'./observation';import{detectTowerStuck}from'./stuck';
-export interface TowerIntent{mode:'choosing-upgrade'|'evading-projectile'|'evading-hazard'|'evading-telegraph'|'engaging-enemy'|'recovering'|'aligning'|'jumping'|'air-control'|'waiting';summary:string;confidence:number;fallbackUsed:boolean;targetPlatformId?:string}
+export interface TowerIntent{mode:'choosing-upgrade'|'evading-projectile'|'evading-hazard'|'evading-telegraph'|'engaging-enemy'|'recovering'|'collecting-resource'|'aligning'|'jumping'|'air-control'|'waiting';summary:string;confidence:number;fallbackUsed:boolean;targetPlatformId?:string}
 export interface TowerDecision{action:TowerAction;intent:TowerIntent}
 function action(move:TowerAction['move']=0,extra:Partial<TowerAction>={}):TowerAction{return{move,jump:false,dash:false,attack:false,ability:false,...extra}}
 function moveSign(delta:number):TowerAction['move']{return Math.abs(delta)<4000?0:delta>0?1:-1}
@@ -8,6 +8,28 @@ function launchX(current:TowerPlatform,target:TowerPlatform,halfWidth:number){co
 function incomingProjectile(obs:TowerObservation){return obs.projectiles.filter(x=>x.owner==='enemy').find(x=>Math.abs(x.position.y-obs.player.position.y)<30000&&Math.abs(x.position.x-obs.player.position.x)<65000&&Math.sign(x.velocity.x)===Math.sign(obs.player.position.x-x.position.x))}
 function immediateHazard(obs:TowerObservation){const p=obs.player;return obs.hazards.filter(h=>h.active&&Math.abs((h.y+h.height/2)-p.position.y)<42000).sort((a,b)=>Math.abs((a.x+a.width/2)-p.position.x)-Math.abs((b.x+b.width/2)-p.position.x)||a.id.localeCompare(b.id)).find(h=>Math.abs((h.x+h.width/2)-p.position.x)<62000)}
 function nearbyEnemy(obs:TowerObservation,reach:number){return obs.enemies.filter(e=>e.active&&Math.abs(e.position.y-obs.player.position.y)<36000&&Math.abs(e.position.x-obs.player.position.x)<=reach).sort((a,b)=>Math.abs(a.position.x-obs.player.position.x)-Math.abs(b.position.x-obs.player.position.x)||a.id.localeCompare(b.id))[0]}
+// A wounded autonomous climber may secure a real health pickup on its PRESENT
+// supporting deck before committing to another exposed leap. No invented loot,
+// hidden-enemy knowledge, off-platform detours or random route decisions.
+// Historical-v1 remains frozen for older replay/checksum evidence.
+function reachableHealthOnSupport(state:TowerState,obs:TowerObservation){
+  const player=obs.player;
+  if(!player.grounded||player.health<=0||player.health>player.maxHealth-2)return undefined;
+  const support=currentPlatform(obs,player.groundedPlatformId);
+  if(!support)return undefined;
+  const margin=state.player.halfWidth+4000;
+  const safeLeft=support.x+margin,safeRight=support.x+support.width-margin;
+  if(safeRight<=safeLeft||player.position.x<safeLeft||player.position.x>safeRight)return undefined;
+  const top=support.y+support.height;
+  if(Math.abs(player.position.y-state.player.halfHeight-top)>3000)return undefined;
+  const pickup=obs.pickups.filter(item=>item.kind==='health'
+    &&item.position.x>=safeLeft&&item.position.x<=safeRight
+    &&Math.abs(item.position.y-player.position.y)<=state.player.halfHeight+8000
+    &&Math.abs(item.position.x-player.position.x)>state.player.halfWidth+8000+state.build.pickupRadius)
+    .sort((a,b)=>Math.abs(a.position.x-player.position.x)-Math.abs(b.position.x-player.position.x)
+      ||a.id.localeCompare(b.id))[0];
+  return pickup;
+}
 // A telegraph is authoritative and grants a short, readable chance to respond.
  // Never fabricate projectile knowledge, dodge from unsupported ground, or send
  // the climber off the ledge just to trigger a heroic-looking animation.
@@ -69,6 +91,13 @@ export function chooseTowerAction(state:TowerState,observation:TowerObservation,
     return{action:action(inStrikePocket?0:facing,{attack:observation.player.attackCooldown===0,
       ability:tactical&&pulseReady(state,observation,enemy)}),
       intent:{mode:'engaging-enemy',summary:`Engaging ${enemy.kind}`,confidence:.94,fallbackUsed:false}};
+  }
+  const recoveryPickup=tactical?reachableHealthOnSupport(state,observation):undefined;
+  if(recoveryPickup){
+    const direction=moveSign(recoveryPickup.position.x-observation.player.position.x);
+    return{action:action(direction),intent:{mode:'collecting-resource',
+      summary:'Securing nearby health before the next climb',confidence:.94,fallbackUsed:false,
+      targetPlatformId:observation.player.groundedPlatformId}};
   }
   if(detectTowerStuck(observation.recentHeights)){const direction:TowerAction['move']=observation.tick%2===0?1:-1;return{action:action(direction,{jump:observation.player.grounded,dash:!observation.player.grounded&&observation.player.dashCooldown===0}),intent:{mode:'recovering',summary:'Breaking a repeated height cycle',confidence:.82,fallbackUsed:true}}}
   let target=currentPlatform(observation,state.ai.targetPlatformId);if(observation.player.grounded){target=nextTowerPlatform(observation,state.config,observation.player.groundedPlatformId)}else if(!target)target=nextTowerPlatform(observation,state.config,observation.player.groundedPlatformId);
