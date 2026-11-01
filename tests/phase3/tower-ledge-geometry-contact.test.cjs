@@ -73,3 +73,24 @@ test('real Three rig fingertip aligns with deck target without root movement',as
   const released=rightElbow.localToWorld(new THREE.Vector3(0,-.802,.108));
   assert.ok(released.distanceTo(destination)>.01,'no phantom grip after target disappears');
 });
+
+test('approaching the authentic one-way ledge moves only the visual climber outside the solid deck',()=>{
+  // Deliberately uses the shipped scene helper, not an independently reimplemented formula.
+  const approach=shippedFunction(scene,'climbApproachRadius','snapshot, platform');
+  const immutable=JSON.stringify({player,deck});
+  const radius=approach({player},deck);
+  assert.ok(radius>=27.95 && radius<=28.2,
+    'ascent helmet/body must stay beyond the 27.18-radius solid outer deck before reaching');
+  assert.equal(approach({player:{...player,y:150000}},deck),25,'distant approach must not displace visuals');
+  assert.equal(approach({player:{...player,state:'standing'}},deck),25,'landed feet stay at authoritative lane');
+  assert.equal(approach({player:{...player,vy:-100}},deck),25,'falling path unchanged');
+  assert.equal(approach({player:{...player,attacking:true}},deck),25,'attacks cannot fake ledge approach');
+  assert.equal(approach({player},{...deck,x:300000}),25,'other platform never moves the hero');
+  assert.equal(approach({player},null),25,'missing destination leaves the hero alone');
+  assert.equal(JSON.stringify({player,deck}),immutable,'presentation may not mutate snapshot objects');
+});
+test('near-ledge scene uses the exterior radial corridor and real outer lip as the reach target',()=>{
+  assert.match(scene,/const approachRadius = climbApproachRadius\(snapshot, targetPlatform\)/);
+  assert.match(scene,/pointFor\(p\.x, p\.y - p\.halfHeight, snapshot\.chunkBaseY, snapshot\.worldWidth, approachRadius\)/);
+  assert.match(scene,/const ledgeTarget = ledgeContact \? pointFor\(ledgeContact\.x, ledgeContact\.y,\s*snapshot\.chunkBaseY, snapshot\.worldWidth, 27\.1/);
+});
