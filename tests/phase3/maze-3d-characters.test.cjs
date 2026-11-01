@@ -335,3 +335,51 @@ test('Thornback opens physical paired shell halves only during a true disclosed 
     assert.equal(warden.group.children.length,0);
   }
 });
+
+
+test('Thornback performs an original physical public encounter without a hidden-state cue or frame allocations', async () => {
+  const {createWarden}=await modulePromise;
+  for (const balanced of [false,true]) {
+    const warden=createWarden({balanced});
+    const pincers=[-1,1].map(side=>({side,node:warden.group.getObjectByName(`foreleg pincer ${side}`)}));
+    const antennae=[-1,1].map(side=>({side,node:warden.group.getObjectByName(`antenna ${side}`)}));
+    // Antennae have physically modeled pivots and colored tips, not billboards.
+    for (const item of [...pincers,...antennae]) assert.ok(item.node?.isGroup);
+    const resources=()=>{
+      const found=new Set();
+      warden.group.traverse(object=>{
+        if (object.geometry) found.add(object.geometry);
+        if (object.material) found.add(object.material);
+      });
+      return found;
+    };
+    const original=resources();
+    const close={heading:0, attentionHeading:Math.PI/2,
+      attentionStrength:.5606531154547746, danger:1, moving:false,
+      reducedMotion:true, time:2, delta:.05};
+    warden.update(close);
+    for (const {side,node} of pincers) {
+      assert.ok(node.rotation.y*side>.22,'disclosed close warning must open a real front pincer');
+      assert.ok(node.parent.rotation.x>.1,'front knee visibly braces in three dimensions');
+    }
+    for (const {side,node} of antennae) {
+      assert.ok(node.rotation.z*side>.25,'physical feelers must attend to the observed explorer');
+      assert.ok(node.rotation.x>.1,'feelers should also track in depth');
+    }
+    const head=warden.group.getObjectByName('warden mask');
+    assert.ok(head.position.z>.65,'mask advances into a close public encounter');
+    const originalPose=[...pincers,...antennae].map(({node})=>[node.rotation.x,node.rotation.y,node.rotation.z]);
+    warden.update({...close,time:25});
+    assert.deepEqual([...pincers,...antennae].map(({node})=>[node.rotation.x,node.rotation.y,node.rotation.z]),originalPose,
+      'reduced motion keeps a stable static encounter pose');
+    for (let frame=0;frame<40;frame++) warden.update({...close,time:frame/30,reducedMotion:false,moving:frame%2===0});
+    assert.deepEqual(resources(),original,'animation must reuse every geometry and material');
+    for (const result of [null,'capture','escape']) {
+      warden.update({...close,attentionStrength:result?1:0,result,reducedMotion:true});
+      for (const {node} of pincers) assert.equal(node.rotation.y,0,'neutral and terminal poses erase stale pincer warnings');
+      for (const {side,node} of antennae) assert.equal(node.rotation.z,side*.08,'terminal truth cannot retain a threat gesture');
+      assert.equal(head.position.z,.62,'neutral and terminal mask returns to its real rest position');
+    }
+    warden.dispose();
+  }
+});
