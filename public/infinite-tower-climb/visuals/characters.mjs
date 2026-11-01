@@ -877,6 +877,31 @@ export function createEnemy(kind='sentinel') {
       arms[1].lower.rotation.x=-.8+telegraphBlend*.45;
       rig.rotation.x=-telegraphBlend*.13;head.rotation.x+=telegraphBlend*.08;
     }
+    // The guardian commits its weight through BOTH boots while the authoritative
+    // eight-tick charge runs down. This is a progressive physical windup, not a
+    // free-running animation on a loop or a cosmetic prediction of a hit.
+    // Reduced-motion visitors still see a clear braced/raised-weapon silhouette
+    // without an additional oscillation or camera shake.
+    if(guardian&&telegraph){
+      const remaining=Number.isFinite(state.telegraphTicksRemaining)
+        ? clamp(state.telegraphTicksRemaining,1,8):8;
+      const commitment=1-(remaining-1)/7;
+      const weight=telegraphBlend*(.35+.65*commitment);
+      rig.position.y-=.10*weight;
+      rig.rotation.x-=.12*weight;
+      head.rotation.x+=.07*weight;
+      for(let i=0;i<2;i++){
+        legs[i].upper.rotation.x-=.33*weight;
+        legs[i].lower.rotation.x+=.44*weight;
+        legs[i].foot.rotation.x-=.11*weight;
+      }
+      // Separate the shielding arm from the maul shoulder. Both remain
+      // attached to the same original articulated rig and draw batches.
+      arms[0].upper.rotation.z-=.22*weight;
+      arms[0].lower.rotation.x-=.28*weight;
+      arms[1].upper.rotation.x-=.34*weight;
+      arms[1].lower.rotation.x+=.24*weight;
+    }
     // This impulse follows a real shot/attack edge, rather than free-running
     // combat choreography. The sustained telegraph remains a separate channel.
     const recoil=shotAge<.36?Math.exp(-shotAge*12):0;
