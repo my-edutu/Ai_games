@@ -15,7 +15,20 @@ test('R46 actual Chromium/WebGL cached depth/color one-pass vs exact prior in ov
   const frozen=JSON.stringify(frame),rows=[],images={};
   const anchor='  renderer.info.autoReset = false;';
   const instrumentation="\n  // R46 test-only instrumentation; renderer.render calls are NOT actual FPS.\n  const nativeR46Render = renderer.render.bind(renderer);\n  let r46Passes = 0;\n  renderer.render = (...args) => { r46Passes++; return nativeR46Render(...args); };\n  window.__r46Passes = () => r46Passes;";
-  function instrument(source){expect(source.split(anchor).length).toBe(2);return source.replace(anchor,anchor+instrumentation);}
+  function instrument(source){
+    expect(source.split(anchor).length).toBe(2);
+    // Freeze ONLY this historical WebGL A/B fixture's internal raster scale.
+    // Real runner pacing and production adaptation remain unchanged. Without
+    // this, different Chromium GPU scheduling yields different 3D backing
+    // resolutions and false pixel diffs between the same two valid scenes.
+    const initial='function applyQuality(pixelRatio = Math.min(window.devicePixelRatio || 1, 0.75)) {';
+    const adaptive='let scaleAdjusted = false;';
+    expect(source.split(initial).length).toBe(2);
+    expect(source.split(adaptive).length).toBe(2);
+    return source.replace(initial,'function applyQuality(pixelRatio = 0.4) {')
+      .replace(adaptive,'let scaleAdjusted = true; // R46 synthetic A/B raster pinned')
+      .replace(anchor,anchor+instrumentation);
+  }
   for(const camera of ['overview','detail']){
     images[camera]={};
     for(const [variant,source] of [['prior',prior],['current',current]]){
@@ -34,6 +47,8 @@ test('R46 actual Chromium/WebGL cached depth/color one-pass vs exact prior in ov
         expect(end.stats.renderer).toBe('webgl');
         expect(end.stats.cameraMode).toBe(camera);
         expect(end.stats.serpent.paths).toBeGreaterThan(0);
+        expect(end.stats.pixelRatio).toBeCloseTo(0.4,7);
+        expect(end.stats.renderScale.adjusted).toBe(true);
         expect(end.glError).toBe(0);
         expect(errors).toEqual([]);
         if(camera==='overview'){
@@ -46,6 +61,7 @@ test('R46 actual Chromium/WebGL cached depth/color one-pass vs exact prior in ov
         images[camera][variant]=png;
         rows.push({camera,variant,pngSha256:crypto.createHash('sha256').update(png).digest('hex'),
           scenePasses:end.calls-begin.calls,actualSubmittedDraws:end.stats.frameCount-begin.stats.frameCount,
+          pixelRatio:end.stats.pixelRatio,drawingBuffer:end.stats.drawingBuffer,
           staticCache:end.stats.staticCache,drawCalls:end.stats.drawCalls,triangles:end.stats.triangles,
           world:end.stats.world,serpent:end.stats.serpent,glError:end.glError});
       }finally{await page.close();}

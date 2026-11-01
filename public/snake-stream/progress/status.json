@@ -1,14 +1,14 @@
 {
   "updatedAt": "2026-11-01",
-  "status": "R46 REAL WEBGL PIXEL PARITY PASS · 2→1 CACHE API PASSES · STRICT 14/17 FAIL",
-  "detail": "Round46 exact-head focused Actions 41271073291: 31/35. R46 actual Chromium frozen-public overview/detail screenshots byte-identical against exact prior, no GL errors; 2→1 renderer.render API passes per submitted cached frame (not actual FPS or displayed presents). R39 historic test passed. Strict desktop 14 actual submissions in 1006.8ms <17 FAILED despite 61 RAF callbacks. Three additional R38/R43 historical SHA and diagnostic anchor failures corrected in next test-only head; general 41271073375 failed matching three Node checks. No causal FPS improvement or Snake Pass quality win established; real-device output, independent critic, soak/R5 remain open. Draft/unmerged/undeployed.",
+  "status": "R46 WEBGL FIRST A/B PASS; REPEAT RASTER-UNPINNED A/B FAIL · HARD 7/17",
+  "detail": "Second actual Chromium run 41271576439 passed 33/35; all R38/R43 archival visual regressions and the profiler passed, but R46 A/B screenshot was not repeatably byte-equal on the overview; inspection showed mostly small within-canvas differences consistent with non-matched adaptive raster sizes, not proven cause. Retain exact PNG equality and pin ONLY the synthetic A/B renderer to same internal 0.4 ratio with stats assertions; production adaptation and strict gate unchanged. Strict desktop actual 7 submits/1003.6ms <17 FAIL (61 RAF callbacks not renders). Earlier A/B first run 41271073291 was byte-equal with 2→1 API passes. General 41271576402 build/Node/hosts/authority passed, browser stage in progress. No causal FPS win, Snake Pass visual acceptance, independent critic, real device presents or soak/R5. Draft/unmerged/undeployed.",
   "latestImage": "/progress/evidence/round-9-overview.jpg",
   "latestCaption": "Historical thumbnail only. R45 actual frozen-public Chromium/WebGL before/after screenshots, two cameras: https://github.com/my-edutu/Ai_games/actions/runs/41268754120/artifacts/13067389468 . Neither synthetic capture nor WebM is display-present FPS.",
   "reviews": [
     {
       "area": "Round 46 · one-pass cached color/depth with original dynamic serpent and water",
-      "verdict": "R46 VERIFIED GENUINE WEBGL PIXEL PARITY BOTH CAMERA MODES; CACHED API PASSES 2→1; FULL CI UNGREEN AND STRICT 14/17 FAIL",
-      "gap": "Second-head verification of corrected R38/R43 archival SHA and diagnostic profiler injection pending. ≥17 actual submits gate failed (14/1006.8ms). GPU performance causality, real device present, independent visual approval, Snake Pass quality and long soak/R5 open."
+      "verdict": "R46 FIRST A/B WEBGL PASS; SECOND REPEAT A/B FAILED WITH VARIABLE INTERNAL RASTER · HARD 7/17 SUBMITS FAIL",
+      "gap": "Exact screenshot equality gate unchanged; test-only controlled same pixel ratio repro pending. Historical R38/R43 and profiler passed. Device-present FPS, sustained 17, full Snake Pass craft, independent critic and soak still open."
     },
     {
       "area": "Round 45 · existing original forked tongue responds to nearby public fruit",
