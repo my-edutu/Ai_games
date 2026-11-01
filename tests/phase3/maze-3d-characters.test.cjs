@@ -383,3 +383,57 @@ test('Thornback performs an original physical public encounter without a hidden-
     warden.dispose();
   }
 });
+
+test('Pip performs an original planted startle only toward a publicly disclosed guardian', async () => {
+  const {createExplorer}=await modulePromise;
+  for (const balanced of [false,true]) {
+    const pip=createExplorer({balanced});
+    const body=pip.group.getObjectByName('breathing torso');
+    const head=pip.group.getObjectByName('curious head');
+    const scarf=pip.group.getObjectByName('scarf tail');
+    const left=pip.group.getObjectByName('shoulder -1');
+    const right=pip.group.getObjectByName('shoulder 1');
+    const hips=[-1,1].map(side=>pip.group.getObjectByName(`hip ${side}`));
+    const knees=[-1,1].map(side=>pip.group.getObjectByName(`knee ${side}`));
+    const lantern=pip.group.getObjectByName('swinging lantern');
+    for (const part of [body,head,scarf,left,right,...hips,...knees,lantern]) assert.ok(part?.isGroup);
+    const resources=()=>{
+      const found=new Set();
+      pip.group.traverse(node=>{if(node.geometry)found.add(node.geometry);if(node.material)found.add(node.material)});
+      return found;
+    };
+    const original=resources();
+    const close={heading:0,attentionHeading:Math.PI/2,attentionStrength:.5606531154547746,
+      danger:1,reducedMotion:true,moving:false,time:1,delta:.05};
+    pip.update(close);
+    assert.ok(body.position.y<.74 && body.position.z<-.05,'visible physical recoil crouches without moving the actor group');
+    assert.ok(body.rotation.x<-.16 && head.rotation.z<-.09,'torso and face tilt away while looking at the disclosed guardian');
+    assert.ok(left.rotation.x<-.45 && right.rotation.x<-.9,'paired arms brace while raising the real lantern');
+    assert.ok(left.rotation.z<-.45 && right.rotation.z>.65,'gloves open into a readable two-sided silhouette');
+    assert.ok(hips[0].rotation.z<-.12 && hips[1].rotation.z>.12,'both feet widen into a grounded stance');
+    assert.ok(knees.every(part=>part.rotation.x>.15),'bent articulated knees complete the crouch');
+    assert.ok(scarf.rotation.x<-.14 && scarf.rotation.z>.1,'physical scarf trails the original character gesture');
+    assert.equal(pip.group.position.x,0,'cosmetic recoil must not alter the source-owned world position');
+    const pose=[body.position.y,body.position.z,body.rotation.x,head.rotation.z,
+      left.rotation.x,right.rotation.x,...hips.map(part=>part.rotation.z),scarf.rotation.x];
+    pip.update({...close,time:50});
+    assert.deepEqual([body.position.y,body.position.z,body.rotation.x,head.rotation.z,
+      left.rotation.x,right.rotation.x,...hips.map(part=>part.rotation.z),scarf.rotation.x],pose,
+      'reduced-motion physical response is fixed and accessible, not time-based jitter');
+    for(let frame=0;frame<48;frame++) pip.update({...close,time:frame/24,
+      reducedMotion:false,moving:frame%3===0});
+    assert.deepEqual(resources(),original,'the original performance does not allocate geometry or materials per frame');
+    pip.update({heading:0,attentionStrength:1,danger:0,reducedMotion:true});
+    assert.equal(body.position.y,.78,'no disclosed target means no recoil');
+    assert.equal(body.position.z,0,'unknown danger cannot retain a false retreat');
+    assert.equal(scarf.rotation.z,0,'a hidden/withdrawn encounter clears the scarf');
+    assert.equal(left.rotation.z,-.15);
+    assert.equal(right.rotation.z,.34);
+    assert.ok(hips.every(part=>part.rotation.z===0),'the stance resets without a target');
+    pip.update({...close,result:'capture'});
+    assert.equal(body.position.z,0,'actual terminal truth cancels a physical alert');
+    assert.ok(hips.every(part=>part.rotation.z===0),'terminal gestures have no stale leg warning');
+    assert.equal(head.rotation.x,.28,'the established production loss pose wins');
+    pip.dispose(); pip.dispose();
+  }
+});
