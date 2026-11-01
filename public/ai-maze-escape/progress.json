@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-01T16:45:13Z",
+  "updatedAt": "2026-11-01T17:20:26.311Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass49b 390x844 original public exit screenshot verified 8/8 source-bound UTC PNG hashes in focused CI 41322991290. Pass50 initial global-border plants rejected after genuine 8/8 SHA screenshot A/B (native world unchanged); corrected source 07d4c8c + disclosure tests 62a5349 adds grounded wall-crest foliage only on already known blocked walls. Identical game source at CI 41326782605 SUCCESS and 8/8 SHA-matched dated original WebGL images (artifact 13091383163), with native true public exit 2026-11-01T16:33:46.827Z SHA 966e27239deac26... . Lead original-full-frame A/B accepts a limited visible stage greenery improvement (native 2.748% >12RGB changed), not Nintendo bar parity or independent blind critic win. hardware GPU FPS unavailable; CPU-throttled SwiftShader capture initially hit 60s timeout on 7/8 evidence; repeated successful source-identical capture establishes real candidate, not product performance. Worker tunnel/subagents and Ultracode unavailable. Draft PR unmerged and undeployed."
+    "summary": "Pass51 source f2254d4 focused visual CI 41328330211 FAILED twice on genuine native guardian margin after more stage height, not a software timeout; first-attempt original desktop/mobile PNGs recovered and SHA verified, but NO Pass51 exit image was produced. Pass52 public camera horizontal-span repair is committed, exact-source new screenshots and separate independent review PENDING. Pass49b 390x844 original public exit screenshot verified 8/8 source-bound UTC PNG hashes in focused CI 41322991290. Pass50 initial global-border plants rejected after genuine 8/8 SHA screenshot A/B (native world unchanged); corrected source 07d4c8c + disclosure tests 62a5349 adds grounded wall-crest foliage only on already known blocked walls. Identical game source at CI 41326782605 SUCCESS and 8/8 SHA-matched dated original WebGL images (artifact 13091383163), with native true public exit 2026-11-01T16:33:46.827Z SHA 966e27239deac26... . Lead original-full-frame A/B accepts a limited visible stage greenery improvement (native 2.748% >12RGB changed), not Nintendo bar parity or independent blind critic win. hardware GPU FPS unavailable; CPU-throttled SwiftShader capture initially hit 60s timeout on 7/8 evidence; repeated successful source-identical capture establishes real candidate, not product performance. Worker tunnel/subagents and Ultracode unavailable. Draft PR unmerged and undeployed."
   },
   "captures": [
     {
@@ -152,10 +152,12 @@
     "Pass50 correction 07d4c8c lifts original reusable green foliage batches to actual disclosed SOLID interior wall crests, never undecided passages, and preserves global true-border planter. Source 62a5349 privacy+resource tests distinguish known wall and undecided neighbor. Original failed intermediate CI 41326502880 tested old assertion (48 instanced blades vs 24 global-only expected) and is not treated as a product render verdict. Exact-source follow-up visual CI 41326551467 was in progress; independent critic, NVIDIA/other real hardware performance and fixed Nintendo acceptance remain open.",
     "Pass50b authentic source-bound render: wall-crest candidate 07d4c8c with public-only tests 62a5349, focused CI 41326782605 SUCCESS, original artifact 13091383163 eight PNGs and eight dated source JSON sidecars independently SHA-verified. Real 390x844 exit 2026-11-01T16:33:46.827Z SHA 966e27239deac26ed78c4267f46c798af120435d48e05a94ab5f0f7887d98375. Original native same-state A/B vs Pass49b shows foliage visible on actually disclosed solid wall crests (9045/329160 changed >12RGB); lead accepts local more intentional green stage, no independent reference win or hardware FPS.",
     "Pass50b engineering: intermediate browser CI 41326551467 failed on 60s total test timeout during 8th native screenshot, after 7/7 original dated PNGs had been source/SHA checked; it is not a green run. Identical gameplay source CI 41326782605 produced all 8/8 SHA matched original captures successfully. Only evidence test timeout extended to 100s on source fcc03df due CPU-throttled software SwiftShader, not a change to game performance or visual bar.",
-    "Pass51 source candidate: publicly disclosed exit gains two rear-set physically modeled jade/ivory/bronze tide-observatory towers with lit caps and a low bronze tide-dial floor inlay, using only pre-existing world geometry and materials. No new authority, hidden knowledge, navigation platform or per-frame objects; original dated native screenshots, CI and independent fresh-context Nintendo critique PENDING. Do not confuse Pass50b evidence with this candidate."
+    "Pass51 source candidate: publicly disclosed exit gains two rear-set physically modeled jade/ivory/bronze tide-observatory towers with lit caps and a low bronze tide-dial floor inlay, using only pre-existing world geometry and materials. No new authority, hidden knowledge, navigation platform or per-frame objects; original dated native screenshots, CI and independent fresh-context Nintendo critique PENDING. Do not confuse Pass50b evidence with this candidate.",
+    "Pass51 authentic real WebGL gate FAILED twice at native tick13 guardian margin. Archived downloaded original four-file CI artifact 13092980203, independently recomputed both image SHA256 digests. One real public guardian stays center-visible but loses full-model margin after a genuinely taller portrait game-first stage changed the orthographic aspect; not a test timeout or hidden state.",
+    "Pass52 public Detail framing source candidate: preserve original actor-pair horizontal 4.275-world-unit half-span on taller native game stage without reverting HUD, moving actors, revealing hidden map or changing deterministic authority. Camera helper, integration and Node tests committed; next exact-source browser and independent review pending."
   ],
   "nextGaps": [
-    "Pass51 candidate gate: inspect genuine newly captured 390x844 and 1280x900 same-public-state exit, check that the new observatory architecture establishes a unique destination silhouette without occluding Pip/goal or clipping the arch, then compare blind prior/current when possible against fixed Nintendo screenshots. If not visibly better, reject/revise; test success alone is never a visual win. Wider diorama/material/actor/action/HUD gaps remain.",
+    "Pass52 first: verify the real 390x844 public guardian frame after portrait stage growth against the f2254d4 failed screenshot and Pass50b baseline. Original Pass51 observatory exit frame was never captured because browser stopped after the guardian regression; collect true dated 390x844 + 1280x900 exit images on accepted candidate, judge against unchanged fixed Nintendo Captain Toad. Reject source-only or metric-only wins.",
     "Reduce default persistent portrait/desktop HUD area (goal, counters, status and explanatory copy) while preserving truthful goal, danger, timer, accessible 44px controls, captions and source-bound AI intent. Native 390px currently gives only about 62% viewport height to 3D game stage.",
     "Improve genuine source-derived key/glove/sealed-socket action: current 84.40 CSS px native physical gap and clipped right arch remain. Never fake insertion, authority unlock or hidden route.",
     "Run separate fresh-context critics and, when possible, blind same-seed A/B against both SHA-pinned original official Nintendo Captain Toad images. Current lead-only improvements are not independent fixed-bar victories.",
@@ -545,6 +547,13 @@
       "verdict": "NOT REVIEWED: actual candidate WebGL screenshots, dated SHA-256 evidence and independent fixed-reference comparison pending; Nintendo benchmark NOT PASSED",
       "date": "2026-11-01",
       "summary": "A public-exit-only, geometry-reusing pair of modeled tower silhouettes and recessed floor dial has been added to the real scene, with world contract assertions for visibility, placement and resource identity. Source-only candidate. Do not reuse Pass50b screenshot hashes as Pass51 evidence; authentic current-source rendered proof, blind comparison and detached critic still required. Shared workspace agents and Ultracode unavailable."
+    },
+    {
+      "title": "Pass51 authentic native guardian frame regressed after game-first portrait stage expansion",
+      "reviewer": "Lead inspection of original first-attempt screenshot and SHA-matched metadata; no detached blind critic",
+      "verdict": "REJECTED: genuine 390px guardian lost full-model camera margin; Pass51 exit observatory and Nintendo bar NOT REVIEWED/NOT PASSED",
+      "date": "2026-11-01T17:02:29.046Z",
+      "summary": "Exact f2254d4 focused visual workflow 41328330211 failed twice on portrait wardensWithMargin=0, vs true Pass50b margin=1. 390x844 production seed13 tick13 real SHA 9bbd90050bb9886bb47b6dddf819e1fd80d66705d69874a5da4334869175995f; 1280x900 SHA 3d7bdd8049a9667f9b1dd90a827e04104a2e33004924c29528bf16866a559263. Both original PNG hashes independently matched sidecar. Portrait hero NDC x -0.65047 (Pass50b -0.58723) with same orthographic halfheight 5.7; taller CSS stage narrowed horizontal world span. Renderer produced screenshot, so this is not a SwiftShader timeout; visual critic says margin and action staging still inferior to Nintendo."
     }
   ],
   "verification": [
@@ -906,6 +915,20 @@
       "detail": "Eight unaltered MazeRuntime public production frames and same Chromium/viewport sizes. Native observed-exit 390x844 at 2026-11-01T16:33:46.827Z SHA 966e27239deac26..., real exit and Pip both in frame; desktop exit SHA d2625b17..., source world.js SHA a17a8d37.... Blind separate-context critic and real GPU benchmarks not available. Earlier same-source test CI 41326551467 failed 60s during last 8th capture under throttled SwiftShader; later full artifact verifies gameplay source, not performance.",
       "sourceCommit": "66ae7ac4848d7fd52b2daeffc5ac551707ba113e",
       "sourceUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41326782605"
+    },
+    {
+      "name": "Pass51 original public guardian capture and visual CI regression",
+      "status": "Focused browser CI FAILED twice on authentic native warden margin; original 2/2 retrieved PNG SHA digests verified; benchmark NOT PASSED",
+      "detail": "Source f2254d4, action 41328330211 first artifact 13092980203. Genuine production seed maze-visual-reference-13 tick13 warden 2.236 cells from Pip. Native 17:02:29.046Z SHA 9bbd90050bb9886bb47b6dddf819e1fd80d66705d69874a5da4334869175995f; desktop 17:02:22.010Z SHA 3d7bdd8049a9667f9b1dd90a827e04104a2e33004924c29528bf16866a559263. This aborted before exit screenshot, so no Pass51 observatory acceptance or detached blind vote.",
+      "sourceCommit": "f2254d415711b3c0ab7a1c5b839a90fa0f5728db",
+      "sourceUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41328330211/artifacts/13092980203"
+    },
+    {
+      "name": "Pass52 native actor-pair camera horizontal-span source candidate",
+      "status": "Pure helper, wiring and source regression committed; original exact-head browser output and separate critic PENDING; fixed bar NOT PASSED",
+      "detail": "Source 45ef35b/0bd7c2f/72db1c8. Public-only Detail portrait horizontal half-span retained >=4.275 world units through height max(5.7,4.275/aspect), real actor locations never modified. New focused browser run 41330731751 and separate full CI 41330731720 queued. Await dated source-bound actual screenshots including original Pass51 exit candidate, SHA checks and independent Nintendo A/B. No software SwiftShader GPU FPS claim.",
+      "sourceCommit": "72db1c86ba43b8bf4219757e69e1992f82d88f1b",
+      "sourceUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41330731751"
     }
   ],
   "references": [
