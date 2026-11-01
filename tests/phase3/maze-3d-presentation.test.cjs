@@ -323,3 +323,27 @@ test('key-to-lock gesture is driven only by an already public matching inventory
   assert.equal(publicCarriedGateCue({...state,doors:[{...state.doors[0],a:16,b:17}]},position),null,
     'an undisclosed gate cannot reveal a gesture');
 });
+
+
+test('disclosed guardian detail framing shares the real screen without inventing a threat', async () => {
+  const {publicEncounterFrameWeight: weight} = await load();
+  const disclosed=.56065;
+  assert.ok(weight(disclosed,'detail',false,1280/900)>.45,
+    'desktop Detail follows the genuinely observed opponent rather than forcing hero-only aim');
+  assert.ok(weight(disclosed,'detail',false,390/844)<.2,
+    'native phone retains more hero emphasis and does not pretend both fit at a desktop scale');
+  assert.ok(weight(disclosed,'detail',false,1280/900)<=.5,
+    'public actor focus cannot pass the midpoint into an enemy-only shot');
+  assert.equal(weight(disclosed,'follow',false,1280/900),disclosed*.22,
+    'ordinary Follow camera keeps the last verified public threat framing');
+  for (const mode of ['overview','unknown','detail','follow']) {
+    assert.equal(weight(disclosed,mode,true,1280/900),0,
+      'actual terminal outcome always outranks any cosmetic guardian camera impulse');
+  }
+  for (const strength of [undefined,null,NaN,Infinity,-Infinity,-1,0]) {
+    assert.equal(weight(strength,'detail',false,1280/900),0,
+      'stale, undisclosed or invalid attention cannot move the camera toward an imagined actor');
+  }
+  assert.ok(weight(4,'detail',false,1280/900)<=.5,
+    'invalid excess strength must be clamped rather than moving beyond the observed midpoint');
+});
