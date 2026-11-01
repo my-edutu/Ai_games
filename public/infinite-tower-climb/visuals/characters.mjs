@@ -473,14 +473,22 @@ export function createClimber() {
         body.rotation.x+=.075*weight;
         body.position.y-=.035*weight;
         const level=-(body.rotation.x+leg.upper.rotation.x+leg.lower.rotation.x);
-        leg.foot.rotation.x=mix(leg.foot.rotation.x,level,weight*.4);
+        // The first genuine load has to flatten the actual *entire* sole.
+        // Partial rotation leveled the center-point probe but left a heel or
+        // toe hovering >10cm in the real skinned-rig test. Keep the pre-load
+        // approach animation intact; a foot is level only while its center
+        // is actually within the matched source deck contact window.
+        leg.foot.rotation.x=level;
         // Re-measure after posing: mesh-space heel/toe contact, not ankle
         // clearance alone, determines the compression against actual stone.
         leg.foot.updateWorldMatrix(true,false);
         deckSoleWorld.set(0,-.205,.07);
         leg.foot.localToWorld(deckSoleWorld);
         leg.foot.getWorldScale(deckWorldScale);
-        body.position.y-=clamp((deckSoleWorld.y-surface.y)/Math.max(.01,deckWorldScale.y),-.09,.12);
+        // Rotation changes the modeled heel/toe height as well as pitch:
+        // permit one bounded contact-window correction (22cm max), rather
+        // than leaving the leveled boot suspended above the real platform.
+        body.position.y-=clamp((deckSoleWorld.y-surface.y)/Math.max(.01,deckWorldScale.y),-.22,.22);
       }
     }
     // The first airborne tick after a real fingertip release previously snapped
