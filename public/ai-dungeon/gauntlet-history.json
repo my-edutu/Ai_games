@@ -2201,11 +2201,11 @@
       "originalAudioSource": "Synthesized WebAudio oscillators; no external music samples or runtime network dependencies",
       "visualSceneReference": "Locked unchanged: https://github.com/my-edutu/Ai_games/actions/runs/41302939553/artifacts/13081734898",
       "actualWebglFramingRegression": "PREVIOUS_61PX_FRAME_KNOWN_CURRENT_WARDEN_AFTER_NOT_MEASURED",
-      "latestCandidateWorkflow": "CANDIDATE_8a7c3ae4083868fac2ef47f27314010f3c983a7a_PUBLISHED_EXACT_HEAD_BROWSER_CI_PENDING"
+      "latestCandidateWorkflow": "PHYSICAL_WARDEN_CHAPTER_COMMITTED_NEW_HEAD_BROWSER_UNVERIFIED"
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
-    "biggestRemainingGap": "Review of genuine exact-head 1440-wide Chromium prior/candidate expedition frames still shows chibi-style oversized heads, relatively flat repetitive gridded dungeon masonry and cluttered characters. New boss-specific staging/telegraph visual and sound improvements have NOT been assessed in continuous organic combat. Full travel-to-Warden-to-floor-to-defeat/restart mobile/desktop matched audiovisual reel, independent looks/feels/plays judges, reliable p95/p99 and performance/mobile accessibility remain UNVERIFIED.",
-    "currentWork": "An integrated M1 Warden confrontation candidate now couples 24 human-scaled original boss regalia pieces, chamfered forged plaques on its actual animated rig, authority-safe inside-cell melee party separation, and genuine live boss-warning shoulder anticipation on imported GLB bones using reversible post-mixer quaternion overlays. The AI Warden shield, camera, actual HP/contact effects, progression and progression HUD remain connected. New full audiovisual game quality, boss shots and acceptance remain UNVERIFIED.",
+    "biggestRemainingGap": "Stylized chibi-scale characters and repetitive surrounding masonry still fall far behind authentic action-RPG references. New 3D phase chapter screenshot/motion/audio are UNVERIFIED, as are full desktop/mobile traversal-to-restart clips, hardware p95, independent critic preference, matched BEFORE/AFTER, and direct benchmark alignment.",
+    "currentWork": "M1 physical Warden chapter candidate: authentic guard and real phase/HP now drive 28 fixed court stones opening into 18 two-batch original shallow fissures; the same boss phase and true telegraph articulate original helmet, pauldrons and heart fittings on the existing skinned GLB rig. Pending new live browser review, no transformation accepted.",
     "candidateCommit": "8a7c3ae4083868fac2ef47f27314010f3c983a7a",
     "candidateArtifactUrl": null,
     "acceptedAt": null,
@@ -2525,6 +2525,26 @@
         "authorityImpact": "NONE. Presentation read-only: no AI/combat legality, damage, floor, reset, seeded RNG or persistent format change.",
         "visualVerdict": "IN_PROGRESS / NOT_TRANSFORMED; baseline locked, visual improvement UNVERIFIED; substantial experience still far below references.",
         "next": "Require exact-head 8a7c3ae+ GitHub browser validation and inspect Warden boss desktop/mobile screenshots, poses and unoccluded body-part/weapon contact; correct reported errors before any further visual promise. Then build distinctive authored characters/room environments and original contact/recovery audio, record uninterrupted real gameplay journey/restart and get three blind LOOKS/FEELS/PLAYS critics vs pinned baseline; measure frame-time p95 mobile."
+      },
+      {
+        "id": "M1-PHYSICAL-WARDEN-CHAPTER-20261102",
+        "date": "2026-11-02",
+        "sourceHeadAtStart": "0f136edc0fe6901bb1798cab19ca45a9becb6781",
+        "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+        "status": "IMPLEMENTED_UNVERIFIED",
+        "objective": "Visibly reshape the original real Warden court and animate matching skinned-figure armor as autonomous battle progresses from sealed guard to Rupture/Eclipse/defeat, without decorative fake attacks.",
+        "integratedImplementation": "28 low original stone sections physically separate/tilt; 18 two-draw shallow fissures; 24 original regalia fixtures receive bounded actual-phase/true-warning deformation. Read-only world/rig art, existing true boss warnings and damage retained. Reduced-motion static states, no external assets, extra lighting or authority changes.",
+        "files": [
+          "public/ai-dungeon/warden-chapter-plan.js",
+          "public/ai-dungeon/warden-ritual.js",
+          "public/ai-dungeon/model-assets.js",
+          "public/ai-dungeon/app.js",
+          "scripts/serve-dungeon-stream.cjs",
+          "tests/foundation/dungeon-warden-chapter.test.cjs"
+        ],
+        "experienceVerdict": "IN_PROGRESS / NOT TRANSFORMED",
+        "verification": "EXACT-HEAD_REAL_BROWSER_AUDIO_MOTION_PERFORMANCE_CRITICS_UNVERIFIED",
+        "next": "Inspect new real Warden phase desktop/mobile captures; fix geometry, warning visibility and contact occlusion; then deliver complete organic audiovisual scene and masked majority comparisons against pinned baseline."
       }
     ]
   }

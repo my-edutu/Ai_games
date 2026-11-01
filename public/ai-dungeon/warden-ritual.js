@@ -1,4 +1,5 @@
 import * as THREE from '/dungeon/vendor/three.module.js';
+import {planWardenCourtChapter,planWardenCourtStone,planWardenRift,WARDEN_COURT_STONES,WARDEN_RIFT_SEGMENTS} from '/dungeon/warden-chapter-plan.js';
 // Read-only original Warden ritual art. All beams, rings and shatter effects
 // derive exclusively from the real public boss/defender/simulation state.
 const UP=new THREE.Vector3(0,1,0),LIMIT=3,MAX_RANGE=7,SHATTER_TIME=1.05,MAX_WARNING_TILES=48;
@@ -45,7 +46,7 @@ export function createWardenRitual(world,exit,{reducedMotion=false,map=null}={})
  // M1 Warden chapter: an original low, sculptural, traversable stone roundel.
  // All ornament lies below boots; gameplay collision and dangerous floor cells
  // remain solely the authority's. Batched original relief, no proprietary art.
- const courtSlabCount=28,cutCount=18,archMax=4;
+ const courtSlabCount=WARDEN_COURT_STONES,cutCount=18,archMax=4;
  const reliefStone=new THREE.MeshStandardMaterial({color:'#4a4649',roughness:.95,metalness:.04});
  const reliefRim=new THREE.MeshStandardMaterial({color:'#876e53',roughness:.74,metalness:.30});
  const reliefVein=new THREE.MeshStandardMaterial({color:'#57747a',emissive:'#273e43',
@@ -60,10 +61,10 @@ export function createWardenRitual(world,exit,{reducedMotion=false,map=null}={})
  slabs.name='Original radial sculpted Warden court paving';slabs.receiveShadow=true;
  const monumentTransform=new THREE.Object3D();
  for(let i=0;i<courtSlabCount;i++){
-  const a=(i+.15*(i%3))*Math.PI*2/courtSlabCount,r=2.33+(i%4-1.5)*.025;
-  monumentTransform.position.set(Math.cos(a)*r,.005,Math.sin(a)*r);
-  monumentTransform.rotation.set(0,-a+Math.PI/2,0);
-  monumentTransform.scale.set(.91+(i%4)*.03,1,.96+(i%3)*.025);
+  const pose=planWardenCourtStone(i,0);
+  monumentTransform.position.set(pose.x,pose.y,pose.z);
+  monumentTransform.rotation.set(pose.pitch,pose.yaw,pose.roll);
+  monumentTransform.scale.set(pose.sx,1,pose.sz);
   monumentTransform.updateMatrix();slabs.setMatrixAt(i,monumentTransform.matrix);
   const shade=.83+(i%7)*.025;
   slabs.setColorAt(i,new THREE.Color().setRGB(shade,shade*.985,shade*.965));
@@ -85,6 +86,22 @@ export function createWardenRitual(world,exit,{reducedMotion=false,map=null}={})
  const outerRelief=new THREE.Mesh(new THREE.TorusGeometry(2.80,.027,5,76),reliefRim);
  outerRelief.name='Stone roundel bronze-edged broken orbit';outerRelief.rotation.x=-Math.PI/2;
  outerRelief.position.y=.019;outerRelief.receiveShadow=true;fixedCourt.add(outerRelief);
+ // Two bounded instance batches of shallow fractured ground. No enemy path
+ // changes, no invented impact or opaque overlays on the true Warden telegraph.
+ const faultVoidMaterial=new THREE.MeshStandardMaterial({color:'#19161b',roughness:.98,
+  transparent:true,opacity:.84,depthWrite:false,side:THREE.DoubleSide});
+ const faultEmberMaterial=new THREE.MeshBasicMaterial({color:'#b36e49',transparent:true,
+  opacity:.45,depthWrite:false,side:THREE.DoubleSide});
+ const faultVoidGeo=new THREE.PlaneGeometry(.21,.78),faultEmberGeo=new THREE.PlaneGeometry(.045,.74);
+ faultVoidGeo.rotateX(-Math.PI/2);faultEmberGeo.rotateX(-Math.PI/2);
+ const faultVoidMesh=new THREE.InstancedMesh(faultVoidGeo,faultVoidMaterial,WARDEN_RIFT_SEGMENTS);
+ const faultEmberMesh=new THREE.InstancedMesh(faultEmberGeo,faultEmberMaterial,WARDEN_RIFT_SEGMENTS);
+ faultVoidMesh.name='Original physical phase fracture';
+ faultEmberMesh.name='Original subsurface heat seams';
+ for(const mesh of [faultVoidMesh,faultEmberMesh]){
+  mesh.visible=false;mesh.frustumCulled=false;mesh.castShadow=false;mesh.receiveShadow=false;
+  fixedCourt.add(mesh);
+ }
 
  // Gothic buttresses are restricted to EXISTING impassable map wall cells.
  // No ghost obstacles are drawn on legal AI routes or over contact silhouettes.
@@ -178,12 +195,13 @@ export function createWardenRitual(world,exit,{reducedMotion=false,map=null}={})
  let warningCount=0,warningShape='none',impactAge=0,lastCastTick=-1;
  let ward=false,previousWard=null,tick=-1,breakAge=SHATTER_TIME;
  let visible=false,defenders=0,linkCount=0,phase='SENTINEL';
+ let chapterTarget=planWardenCourtChapter({guardianWard:true}),chapterOpenness=0,chapterRendered=-1,chapterTransitions=0;
  const from=new THREE.Vector3(),to=new THREE.Vector3(),delta=new THREE.Vector3();
  function accept(s){
   if(!Array.isArray(s?.units))return;
   const boss=s.units.find(u=>u.kind==='warden'&&u.hp>0);
   visible=Boolean(boss);group.visible=visible;
-  if(!boss){ward=false;defenders=linkCount=warningCount=0;warningTiles.count=warningEdges.count=0;warningTiles.visible=warningEdges.visible=false;for(const link of links)link.visible=false;return;}
+  if(!boss){chapterTarget=planWardenCourtChapter({phase:'VANQUISHED',hp:0,maxHp:1});ward=false;defenders=linkCount=warningCount=0;warningTiles.count=warningEdges.count=0;warningTiles.visible=warningEdges.visible=false;for(const link of links)link.visible=false;return;}
   const half=(Array.isArray(s.map)?s.map.length-1:18)/2;
   group.position.set(boss.x-half,0,boss.z-half);
   const warning=s.bossWarning;
@@ -218,6 +236,9 @@ export function createWardenRitual(world,exit,{reducedMotion=false,map=null}={})
    const tint={SENTINEL:'#8cbede',RUPTURE:'#f0b381',ECLIPSE:'#caa2fc',VANQUISHED:'#88868a'}[newPhase]||'#8cbede';
    glyph.color.set(tint);conduit.color.set(tint);reliefVein.color.set(tint);reliefVein.emissive.set(tint);phase=newPhase;
   }
+  const previousChapter=chapterTarget;
+  chapterTarget=planWardenCourtChapter({phase:newPhase,guardianWard:ward,hp:boss.hp,maxHp:boss.maxHp});
+  if(previousChapter.phase!==chapterTarget.phase||previousChapter.sealed!==chapterTarget.sealed)chapterTransitions++;
   if(previousWard===true&&!ward&&Number.isInteger(s.tick)&&s.tick>tick)breakAge=0;
   previousWard=ward;tick=Number.isInteger(s.tick)?s.tick:tick;
   for(const ring of rings)ring.visible=ward;
@@ -238,6 +259,33 @@ export function createWardenRitual(world,exit,{reducedMotion=false,map=null}={})
   for(const pillar of plinths){
    const target=ward?0:-.91;
    pillar.position.y=reducedMotion?target:pillar.position.y+(target-pillar.position.y)*Math.min(1,step*5.2);
+  }
+  const goal=chapterTarget.openness;
+  chapterOpenness=reducedMotion?goal:chapterOpenness+(goal-chapterOpenness)*Math.min(1,step*2.6);
+  if(Math.abs(chapterOpenness-chapterRendered)>.0007){
+   for(let i=0;i<courtSlabCount;i++){
+    const p=planWardenCourtStone(i,chapterOpenness);
+    monumentTransform.position.set(p.x,p.y,p.z);
+    monumentTransform.rotation.set(p.pitch,p.yaw,p.roll);
+    monumentTransform.scale.set(p.sx,1,p.sz);monumentTransform.updateMatrix();
+    slabs.setMatrixAt(i,monumentTransform.matrix);
+   }
+   slabs.instanceMatrix.needsUpdate=true;
+   for(let i=0;i<WARDEN_RIFT_SEGMENTS;i++){
+    const p=planWardenRift(i,chapterOpenness);
+    monumentTransform.position.set(p.x,.061,p.z);
+    monumentTransform.rotation.set(0,p.yaw,0);
+    monumentTransform.scale.set(Math.max(.001,p.width),1,p.length);
+    monumentTransform.updateMatrix();faultVoidMesh.setMatrixAt(i,monumentTransform.matrix);
+    monumentTransform.position.y=.065;
+    monumentTransform.scale.x=Math.max(.001,p.width*.85);
+    monumentTransform.updateMatrix();faultEmberMesh.setMatrixAt(i,monumentTransform.matrix);
+   }
+   faultVoidMesh.instanceMatrix.needsUpdate=true;
+   faultEmberMesh.instanceMatrix.needsUpdate=true;
+   faultVoidMesh.visible=faultEmberMesh.visible=chapterOpenness>.11;
+   faultEmberMaterial.opacity=Math.min(.49,chapterOpenness*.40);
+   chapterRendered=chapterOpenness;
   }
   if(!visible)return;
   impactAge=Math.max(0,impactAge-Math.max(0,Math.min(.05,dt)));
@@ -261,5 +309,5 @@ export function createWardenRitual(world,exit,{reducedMotion=false,map=null}={})
    }
   }else for(const shard of shards)shard.visible=false;
  }
- return {accept,animate,setSightlines,metrics:()=>({sculptedCourtSlabs:courtSlabCount,originalEngravings:cutCount,cathedralWallButtresses:wallProps.length,hiddenWallButtresses:hiddenWallProps,fixedCeremonialPlinths:plinths.length,hiddenPlinths,retractedPlinths:plinths.filter(p=>p.position.y<-.55).length,phaseRelief:phase,visible,shieldActive:ward,phase,activeDefenders:defenders,activeTethers:linkCount,shattering:breakAge<SHATTER_TIME,maxTethers:LIMIT,originalBasaltReliefs:12,warningTiles:warningCount,warningEdgedTiles:warningEdges.count,warningShape,impactActive:impactAge>0})};
+ return {accept,animate,setSightlines,metrics:()=>({sculptedCourtSlabs:courtSlabCount,originalEngravings:cutCount,cathedralWallButtresses:wallProps.length,phaseFractureSegments:faultVoidMesh.visible?WARDEN_RIFT_SEGMENTS:0,chapterOpenness:Math.round(chapterOpenness*1000)/1000,chapterTransitions,hiddenWallButtresses:hiddenWallProps,fixedCeremonialPlinths:plinths.length,hiddenPlinths,retractedPlinths:plinths.filter(p=>p.position.y<-.55).length,phaseRelief:phase,visible,shieldActive:ward,phase,activeDefenders:defenders,activeTethers:linkCount,shattering:breakAge<SHATTER_TIME,maxTethers:LIMIT,originalBasaltReliefs:12,warningTiles:warningCount,warningEdgedTiles:warningEdges.count,warningShape,impactActive:impactAge>0})};
 }

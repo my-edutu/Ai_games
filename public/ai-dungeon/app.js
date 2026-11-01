@@ -616,7 +616,7 @@ function update(s){const previousState=state,damageBeats=planAuthorityDamageBeat
   const damage=damageById.get(u.id);
   if(damage)a.damageBeat={...damage,age:0};
   else if(u.hp>0&&a.damageBeat?.fatal)a.damageBeat=null;
-  if(a.u.actionTick!==u.actionTick||a.u.action!==u.action){a.actionStarted=timeNow();a.visualActionAge=0;}a.u=u;a.combatFacing=planCombatFacing(u,s.units,s.map);const staged=stagePoint(stagePositions,u);a.at.set(staged.x-9,0,staged.z-9);if(sceneChanged)a.root.position.copy(a.at);a.root.visible=u.hp>0||Boolean(a.damageBeat?.fatal&&a.damageBeat.age<DEATH_BEAT_DURATION);if(a.telegraph){
+  if(a.u.actionTick!==u.actionTick||a.u.action!==u.action){a.actionStarted=timeNow();a.visualActionAge=0;}a.u=u;a.wardenPhase=u.kind==='warden'?s.bossPhase:null;a.combatFacing=planCombatFacing(u,s.units,s.map);const staged=stagePoint(stagePositions,u);a.at.set(staged.x-9,0,staged.z-9);if(sceneChanged)a.root.position.copy(a.at);a.root.visible=u.hp>0||Boolean(a.damageBeat?.fatal&&a.damageBeat.age<DEATH_BEAT_DURATION);if(a.telegraph){
    const interval=s.bossPhase==='ECLIPSE'?4:6;
    a.telegraph.visible=u.hp>0&&Boolean(s.bossWarning);
    a.telegraph.material.color.set(s.bossPhase==='ECLIPSE'?'#c97aff':s.bossPhase==='RUPTURE'?'#ff9f62':'#ff7049');

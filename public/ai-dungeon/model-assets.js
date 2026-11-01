@@ -4,6 +4,7 @@ import {GLTFLoader} from '/dungeon/vendor/addons/loaders/GLTFLoader.js';
 import {clone as cloneSkeleton} from '/dungeon/vendor/addons/utils/SkeletonUtils.js';
 import {planAuthoredMotion} from '/dungeon/character-motion-plan.js';
 import {planWardenRegalia} from '/dungeon/warden-regalia-plan.js';
+import {planWardenRegaliaMotion} from '/dungeon/warden-chapter-plan.js';
 import {planRoleSilhouette} from '/dungeon/role-silhouette-plan.js';
 import {planAnatomicalKit,planAnatomicalDrawGroups} from '/dungeon/anatomical-kit-plan.js';
 import {createForgedArmorForms,planForgedArmor,planForgedFinishes} from '/dungeon/forged-armor.js';
@@ -126,7 +127,7 @@ function addWardenRegalia(actor){
   gem:new THREE.OctahedronGeometry(.5,1),
   lamella:plaque
  };
- const ownedGeometries=Object.values(base);
+ const ownedGeometries=Object.values(base),animatedRegalia=[];
  for(const item of plan){
   let geometry=base[item.shape];
   if(item.shape==='horn'){
@@ -142,8 +143,11 @@ function addWardenRegalia(actor){
    mesh.rotation.z=item.rz;
   }
   group.add(mesh);
+  if(item.shape!=='horn')animatedRegalia.push({id:item.id,mesh,x:mesh.position.x,y:mesh.position.y,
+   rz:mesh.rotation.z,sx:mesh.scale.x,sy:mesh.scale.y,sz:mesh.scale.z});
  }
  actor.visualPivot.add(group);
+ actor.wardenRegaliaArt=animatedRegalia;
  actor.regaliaParts=plan.length;
  actor.assetMaterials.push(...Object.values(finishes));
  actor.assetGeometries.push(...ownedGeometries);
@@ -591,6 +595,15 @@ function changeAction(actor,action){
  }
  actor.currentAction=action;actor.currentActionTick=tick;
 }
+function stageWardenChapterRegalia(actor,reducedMotion){
+ if(!actor.wardenRegaliaArt)return;
+ for(const p of actor.wardenRegaliaArt){
+  const morph=planWardenRegaliaMotion(p.id,actor.wardenPhase,actor.wardenCharge?.charge,reducedMotion);
+  p.mesh.position.x=p.x+morph.x;p.mesh.position.y=p.y+morph.y;
+  p.mesh.rotation.z=p.rz+morph.roll;
+  p.mesh.scale.set(p.sx*morph.scale,p.sy*morph.scale,p.sz*morph.scale);
+ }
+}
 function updateActor(actor,dt,since=0,reducedMotion=false){
  if(!actor.authored||!actor.mixer)return;
  changeAction(actor,actor.u.action||'idle');
@@ -605,6 +618,7 @@ function updateActor(actor,dt,since=0,reducedMotion=false){
  stageRigForearmsAfterMixer(actor,since,reducedMotion);
  stageRigLegsAfterMixer(actor,since,reducedMotion);
  stageRigMeleeAfterMixer(actor,since,reducedMotion);
+ stageWardenChapterRegalia(actor,reducedMotion);
  if(actor.visualPivot){
   const pose=planAuthoredMotion(actor.u.kind,actor.u.action||'idle',since,reducedMotion);
   actor.visualPivot.position.set(pose.x,pose.y,pose.z);
