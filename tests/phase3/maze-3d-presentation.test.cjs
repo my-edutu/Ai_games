@@ -250,8 +250,11 @@ test('matched-key camera prioritizes the real glove/socket pair without inventin
   const ordinaryPortrait = composePublicSealedGateFocus(stage, gate, .65);
   const portrait = composePublicKeyLockFocus(stage, gate, .65);
   const desktop = composePublicKeyLockFocus(stage, gate, 1.32);
-  assert.ok(portrait.x < ordinaryPortrait.x - .5,
-    'the real key/socket pairing moves away from the old left-edge, terrain-biased shot');
+  assert.ok(portrait.x < ordinaryPortrait.x - .1,
+    'the keyed view keeps more gate focus than the generic shoreline camera');
+  const pass37PortraitX = stage.x * .35 + gate.x * .49;
+  assert.ok(portrait.x > pass37PortraitX + .5,
+    'publicly known terrain should become prominent without rotating the hero behind the gate');
   // Fixed pass32 native frame cropped a public arch on the right: shift the
   // camera toward genuinely disclosed stage rather than inventing geometry.
   const pass32PortraitX = stage.x * .22 + gate.x * .49;

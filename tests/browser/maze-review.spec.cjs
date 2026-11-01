@@ -229,6 +229,7 @@ test('a real close public encounter frames both autonomous actors and saves date
     sourceSha256: Object.fromEntries(['app.js', 'map-view.mjs', 'scene.js', 'characters.js', 'world.js'].map(name => [name, hash(path.join(sourceDir, name))])),
     diagnostic: {closedGatesInFrame: gateDiagnostic.closedGatesInFrame,
       cameraHalfHeight: gateDiagnostic.cameraHalfHeight,
+      cameraOffset: gateDiagnostic.cameraOffset,
       keyLockCloseup: gateDiagnostic.keyLockCloseup, cameraAimLift: gateDiagnostic.cameraAimLift,
       carriedKeyGateGesture: gateDiagnostic.carriedKeyGateGesture,
       physicalKeyLock: gateDiagnostic.physicalKeyLock,
@@ -252,9 +253,9 @@ test('a real close public encounter frames both autonomous actors and saves date
     expect(gatePortraitDiagnostic.cameraHalfHeight, 'A true key/lock interaction is now larger at 390px').toBeLessThan(4.76);
     expect(gatePortraitDiagnostic.cameraHalfHeight).toBeGreaterThan(4.64);
     expect(gatePortraitDiagnostic.cameraAimLift, 'Native portrait restores upper public architecture without widening the shot').toBeGreaterThan(1.30);
-    expect(gatePortraitDiagnostic.cameraOffset.x, 'Key/lock uses the near-face portrait camera').toBeCloseTo(14, 1);
-    expect(gatePortraitDiagnostic.cameraOffset.y, 'Key/lock portrait should be less top-down').toBeCloseTo(16, 1);
-    expect(gatePortraitDiagnostic.cameraOffset.z, 'Near-face gate lock stays visible').toBeCloseTo(22, 1);
+    expect(gatePortraitDiagnostic.cameraOffset.x, 'Reject occluding pass38 camera: keep Pip unobstructed').toBeCloseTo(20, 1);
+    expect(gatePortraitDiagnostic.cameraOffset.y).toBeCloseTo(21, 1);
+    expect(gatePortraitDiagnostic.cameraOffset.z).toBeCloseTo(14, 1);
     const physical = gatePortraitDiagnostic.physicalKeyLock;
     expect(physical, 'Native 390px image must have measurable real 3D key-to-socket geometry').toBeTruthy();
     expect(physical.bladeTip.inFrame).toBe(true);
@@ -277,6 +278,7 @@ test('a real close public encounter frames both autonomous actors and saves date
     sourceSha256: Object.fromEntries(['app.js', 'map-view.mjs', 'scene.js', 'characters.js', 'world.js'].map(name => [name, hash(path.join(sourceDir, name))])),
     diagnostic: {closedGatesInFrame: gatePortraitDiagnostic.closedGatesInFrame,
       cameraHalfHeight: gatePortraitDiagnostic.cameraHalfHeight,
+      cameraOffset: gatePortraitDiagnostic.cameraOffset,
       keyLockCloseup: gatePortraitDiagnostic.keyLockCloseup, cameraAimLift: gatePortraitDiagnostic.cameraAimLift,
       carriedKeyGateGesture: gatePortraitDiagnostic.carriedKeyGateGesture,
       physicalKeyLock: gatePortraitDiagnostic.physicalKeyLock,

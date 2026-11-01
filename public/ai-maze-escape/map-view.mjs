@@ -253,11 +253,10 @@ export function composePublicSealedGateFocus(stageBias, gateDelta, aspect = 1) {
 export function composePublicKeyLockFocus(stageBias, gateDelta, aspect = 1) {
   const finite = value => Number.isFinite(value) ? value : 0;
   const portrait = aspect < .9;
-  // At a genuinely known keyed closed gate, native portrait pass32 still
-  // cropped the right-hand public arch and left a broad empty lagoon.
-  // Give more weight to already disclosed walkable terrain without changing
-  // the real gate influence, the camera shift bound, or game authority.
-  const stageWeight = portrait ? .35 : .52;
+  // Pass38 lower portrait orbit occluded the character behind the gate.
+  // Restore the original view and instead frame more already-known stage
+  // without moving Pip, inventing a route or changing the gate authority.
+  const stageWeight = portrait ? .56 : .52;
   const gateWeight = portrait ? .49 : .46;
   const x = finite(stageBias?.x) * stageWeight + finite(gateDelta?.x) * gateWeight;
   const z = finite(stageBias?.z) * stageWeight + finite(gateDelta?.z) * gateWeight;
