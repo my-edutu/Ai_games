@@ -590,6 +590,40 @@ export function createMazeWorld(options = {}) {
     const veil = mesh(p, portalDisc, portalVeil, 0, 1.18, -.53, .65, .84, 1);
     veil.castShadow = false; veil.receiveShadow = false;
     const halo = mesh(p, ring, glow, 0, 1.18, -.51, .68, .86, .68);
+    // A two-tower tide observatory gives the *actually disclosed* exit a
+    // destination-scale silhouette rather than another anonymous stone tile.
+    // Every element is local to the already-known exit prop, without a walkable
+    // platform, authority change, secret neighbor, new resource or frame work.
+    // Rear-set watchtowers leave the portal center open for Pip and the exit.
+    const observatory = new THREE.Group();
+    observatory.name = 'Disclosed exit observatory';
+    p.add(observatory);
+    for (const sign of [-1, 1]) {
+      const tower = new THREE.Group();
+      tower.name = 'Disclosed exit watchtower';
+      tower.position.set(sign * .96, 0, -.90);
+      observatory.add(tower);
+      mesh(tower, bevel, deepStone, 0, .13, 0, .46, .26, .48);
+      mesh(tower, bevel, jade, 0, 1.04, 0, .29, 1.64, .33);
+      for (const band of [.48, 1.12, 1.77])
+        mesh(tower, bevel, lightStone, 0, band, 0, .40, .11, .44);
+      mesh(tower, bevel, darkJade, 0, 1.94, 0, .54, .17, .54);
+      mesh(tower, bevel, gold, 0, 2.09, 0, .50, .08, .50);
+      mesh(tower, cone, jade, 0, 2.34, 0, .34, .42, .35);
+      mesh(tower, sphere, glow, 0, 2.60, .07, .18, .24, .18);
+    }
+    // Floor-level tide dial: symbolic destination ornament, NOT a path cue.
+    // Its low geometry leaves the playable cell, exit and navigation untouched.
+    const tideDial = new THREE.Group();
+    tideDial.name = 'Disclosed exit floor dial';
+    observatory.add(tideDial);
+    mesh(tideDial, ring, darkMetal, 0, .022, .58, .74, .74, .74, Math.PI / 2);
+    for (let j = 0; j < 7; j++) {
+      const angle = Math.PI * j / 6;
+      mesh(tideDial, bevel, j % 2 ? lightStone : gold,
+        Math.cos(angle) * .65, .025, .59 + Math.sin(angle) * .21,
+        .12, .025, .19, 0, -angle);
+    }
     // The tide rose is a large, camera-facing *physical* exit landmark, not a
     // route promise: exitProp is called only for a publicly discovered exit.
     // Eight ivory/gold radial stones contrast with the oval key bow and the

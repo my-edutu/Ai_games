@@ -231,6 +231,20 @@ test('the original tide-rose crown belongs only to a genuinely disclosed exit', 
     const portal = world.group.getObjectByName('Disclosed exit portal');
     const crown = portal?.getObjectByName('Disclosed exit tide rose');
     assert.ok(crown?.isGroup, 'the discovered destination owns the modeled crown');
+    const observatory = portal?.getObjectByName('Disclosed exit observatory');
+    assert.ok(observatory?.isGroup, 'the public exit has a distinctive physical observatory stage');
+    const watchtowers = observatory.children.filter(child => child.name === 'Disclosed exit watchtower');
+    assert.equal(watchtowers.length, 2, 'the destination silhouette has two freestanding modeled watchtowers');
+    assert.deepEqual(watchtowers.map(tower => tower.position.x), [-.96, .96],
+      'balanced tower geometry frames rather than blocks the portal opening');
+    assert.ok(watchtowers.every(tower => tower.position.z < -.54 && tower.children.length >= 9),
+      'towers stay behind the portal opening and contain physical stone/bronze/lamp details');
+    const floorDial = observatory.getObjectByName('Disclosed exit floor dial');
+    assert.equal(floorDial?.children.length, 8,
+      'the revealed destination has one physical low tide ring and seven original inlays');
+    assert.ok(floorDial.children.every(piece => piece.position.y <= .03),
+      'the floor dial cannot resemble a new raised or navigable platform');
+
     assert.equal(crown.children.length, 11, 'eight physical rays, two rims and a core');
     assert.equal(crown.children.filter(part => part.geometry?.type === 'ExtrudeGeometry').length, 8,
       'rays are real shared beveled 3D stone, not a screen-facing text or HUD glyph');
