@@ -14,7 +14,8 @@ test('real WebGL: original public-food skull attention is visible against exact 
   frame.snapshot.snake=frame.snapshot.snake.slice(0,8).map((part,i)=>({...part,cell:14+28*(8-i)}));
   frame.snapshot.food={...frame.snapshot.food,cell:17+28*11};
   const frozen=JSON.stringify(frame);
-  const current=fs.readFileSync(path.join(repo,'public/snake-stream/serpent.mjs'),'utf8');
+  const current=restorePreR45(fs.readFileSync(path.join(repo,'public/snake-stream/serpent.mjs'),'utf8'));
+  // Frozen R34 head-focus A/B must not execute later R45 code against R34's absent focusYaw variable.
   const oldDecl='  let gazeX = 0, gazeY = 0, previousRunToken;';
   const newDecl='  let gazeX = 0, gazeY = 0, previousRunToken, focusYaw = 0;';
   const begin='    // BEGIN R34 PUBLIC FOOD ATTENTION\n';
@@ -33,7 +34,7 @@ test('real WebGL: original public-food skull attention is visible against exact 
   const r39Blocks = /^[ \t]*\/\/ BEGIN R39 [^\n]*\n[\s\S]*?^[ \t]*\/\/ END R39 [^\n]*\n/gm;
   expect((previous.match(r39Blocks) || []).length).toBe(3);
   expect((previous.match(r37Blocks) || []).length).toBe(2);
-  expect(hash(restorePreR45(previous.replace(r36Blocks, '').replace(r37Blocks, '').replace(r39Blocks, '')))).toBe('6d0dd900301c5f684567ab94a185f9535ee6d69c');
+  expect(hash(previous.replace(r36Blocks, '').replace(r37Blocks, '').replace(r39Blocks, ''))).toBe('6d0dd900301c5f684567ab94a185f9535ee6d69c');
   const captures={};
   for(const mode of ['overview','detail']){
     captures[mode]={};

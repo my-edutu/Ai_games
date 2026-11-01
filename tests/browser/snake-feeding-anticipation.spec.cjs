@@ -26,9 +26,10 @@ test('real Chromium/WebGL: original jaw anticipates nearby public fruit in uncha
   frame.snapshot.food = { ...frame.snapshot.food, cell: 15 + 28 * 10 };
   frame.snapshot.dangerLevel = 0;
   const frozen = JSON.stringify(frame);
-  const source = fs.readFileSync(path.join(repo, 'public/snake-stream/serpent.mjs'), 'utf8');
+  const source = restorePreR45(fs.readFileSync(path.join(repo, 'public/snake-stream/serpent.mjs'), 'utf8'));
+  // Frozen R39 jaw A/B excludes R45's separate public-tongue gesture from BOTH historical arms.
   expect((source.match(round39) || []).length).toBe(3);
-  const predecessor = restorePreR45(source.replace(round39, ''));
+  const predecessor = source.replace(round39, '');
   expect(blob(predecessor)).toBe('8e96f08c3fca80484d69c9476a6d9993cfc4af63');
   const rendererSource = fs.readFileSync(path.join(repo, 'public/snake-stream/renderer.mjs'), 'utf8');
   const clockAnchor = '    const time = timestamp / 1000;';

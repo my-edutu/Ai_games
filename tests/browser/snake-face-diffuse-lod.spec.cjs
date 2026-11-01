@@ -19,7 +19,8 @@ test('real WebGL: diffuse distance face retains sculpt and PBR close-up against 
   test.setTimeout(120000);
   const originalFrame = JSON.parse(fs.readFileSync(path.join(repo, 'docs/reviews/snake-gauntlet/round-4-public-frame.json'), 'utf8'));
   const immutableFrame = JSON.stringify(originalFrame);
-  const source = fs.readFileSync(path.join(repo, 'public/snake-stream/serpent.mjs'), 'utf8');
+  const source = restorePreR45(fs.readFileSync(path.join(repo, 'public/snake-stream/serpent.mjs'), 'utf8'));
+  // Frozen R33 visual A/B: exclude later R45 fork from BOTH historical arms; R45 owns separate real-WebGL evidence.
   const marker = '  // The overview shows the face at a few dozen pixels';
   const restoreAt = '  let ringCount = 0, indexCount = 0, pathCount = 0, truncated = false;';
   const materialSwitch = '      for (const [mesh, detailed, overview] of faceMaterialBindings)\n        mesh.material = lowDetail ? overview : detailed;\n';
@@ -51,7 +52,7 @@ test('real WebGL: diffuse distance face retains sculpt and PBR close-up against 
   const r39Blocks = /^[ \t]*\/\/ BEGIN R39 [^\n]*\n[\s\S]*?^[ \t]*\/\/ END R39 [^\n]*\n/gm;
   expect((historicalPrior.match(r39Blocks) || []).length).toBe(3);
   expect((historicalPrior.match(r37Blocks) || []).length).toBe(2);
-  expect(blobHash(restorePreR45(historicalPrior.replace(r36Blocks, '').replace(r37Blocks, '').replace(r39Blocks, '')))).toBe('5a4d1c1e3f6fd2874c8984313fc24de190e608d5');
+  expect(blobHash(historicalPrior.replace(r36Blocks, '').replace(r37Blocks, '').replace(r39Blocks, ''))).toBe('5a4d1c1e3f6fd2874c8984313fc24de190e608d5');
   const captures = {};
   for (const mode of ['overview', 'detail']) {
     captures[mode] = {};
