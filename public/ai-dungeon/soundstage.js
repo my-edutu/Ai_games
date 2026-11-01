@@ -45,7 +45,7 @@ export function createDungeonSoundstage(ctx){
  let started=false,enabled=false,previous=null,sceneMood=null,disposed=false;
  let played=0,suppressed=0,peakVoices=0,sceneChanges=0,lastCue='none';
  const active=[],cooldown=new Map(),beds=[],nodes=[];
- let master=null,bedBus=null,fxBus=null;
+ let master=null,bedBus=null,fxBus=null,capture=null;
  const now=()=>safe(ctx.currentTime,0,Number.MAX_SAFE_INTEGER,0);
  function addBed(type){
   const oscillator=ctx.createOscillator(),gain=ctx.createGain();
@@ -163,6 +163,20 @@ export function createDungeonSoundstage(ctx){
   if(enabled)for(const cue of cues)emit(cue);
  }
  function cueWelcome(){return emit({kind:'renewal',priority:5})}
+ // A real browser can record actual oscillator output and combine it with
+ // the real WebGL canvas. This creates no external upload or audio source,
+ // and is unavailable until an explicit spectator opt-in.
+ function captureStream(){
+  if(disposed||!started||!enabled||ctx.state!=='running'||
+   typeof ctx.createMediaStreamDestination!=='function')return null;
+  if(!capture){
+   try{
+    capture=ctx.createMediaStreamDestination();
+    master.connect(capture);nodes.push(capture);
+   }catch{return null}
+  }
+  return capture.stream;
+ }
  function stats(){
   cleanup();
   return {
@@ -181,5 +195,5 @@ export function createDungeonSoundstage(ctx){
   for(const node of nodes)try{node.disconnect()}catch{}
   nodes.length=beds.length=0;cooldown.clear();previous=null;
  }
- return {enable,disable,acceptSnapshot,cueWelcome,stats,dispose};
+ return {enable,disable,acceptSnapshot,cueWelcome,captureStream,stats,dispose};
 }
