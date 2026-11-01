@@ -2,6 +2,7 @@
 const {test,expect}=require('@playwright/test');
 const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto');
 const {stripR53Startup}=require('../helpers/snake-r53-startup-archive.cjs');
+const {stripR54ShadowStartup}=require('../helpers/snake-r54-shadow-startup-archive.cjs');
 test.use({trace:'off',video:'off',launchOptions:{args:['--use-angle=swiftshader','--enable-unsafe-swiftshader']}});
 const repo=path.resolve(__dirname,'../..');
 const artifact=name=>{const dir=path.join(repo,'artifacts/phase3');fs.mkdirSync(dir,{recursive:true});return path.join(dir,name);};
@@ -9,7 +10,8 @@ const blob=s=>crypto.createHash('sha1').update('blob '+Buffer.byteLength(s)+'\0'
 
 test('R53 original/current first-paint WebGL 1080p + portrait; exact prior source, unchanged semantics and readability',async({browser,baseURL})=>{
   test.setTimeout(210000);
-  const current=fs.readFileSync(path.join(repo,'public/snake-stream/renderer.mjs'),'utf8');
+  const current=stripR54ShadowStartup(fs.readFileSync(path.join(repo,'public/snake-stream/renderer.mjs'),'utf8'));
+  // R53's historical baseline stays exactly R53, not the later R54 shadow experiment.
   const prior=stripR53Startup(current);
   expect(blob(prior)).toBe('bd7636ee3460fc09e6a9782ae66d37c20836f7f0');
   expect(stripR53Startup(prior)).toBe(prior);

@@ -392,6 +392,16 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
       const initialRatio = renderer.getPixelRatio();
       const startupRatio = boundedStartupPixelRatio(width, height, initialRatio);
       if (startupRatio < initialRatio) renderer.setPixelRatio(startupRatio);
+      // BEGIN R54 SHADOW FIRST-PAINT
+      // R53 already bounds the first oversized color raster. Keep the first
+      // decorative shadow atlas in the same low-cost tier before its initial
+      // allocation, rather than filling a 2048² map then replacing it with
+      // 1024² after measured pressure. Full scene, characters and cues remain.
+      if (startupRatio < initialRatio && sun.shadow.mapSize.x > 1024) {
+        sun.shadow.mapSize.set(1024, 1024);
+        renderer.shadowMap.needsUpdate = true;
+      }
+      // END R54 SHADOW FIRST-PAINT
     }
     // END R53 STARTUP RASTER RESIZE
     renderer.setSize(width, height, false);

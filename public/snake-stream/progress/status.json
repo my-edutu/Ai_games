@@ -1,10 +1,15 @@
 {
   "updatedAt": "2026-11-01",
-  "status": "R52 HISTORIC SHA FIXED 40/41 BROWSER · 10/17 STRICT FAIL · R53 FIRST-PAINT RASTER CANDIDATE",
-  "detail": "R52 corrected exact head 128941c focused 41284832612: 40/41 actual Chromium browser PASS, only strict default 10 actual renderer submissions/1014.2ms versus unchanged >=17 FAIL (61 RAF != rendered/device FPS). General 41284832613 passed build/Node/hosts/authority/R5/R6/ops then CANCELLED in browser stage. R53 first oversized canvas (>1.2M native pixels) bounded before first GPU draw to 768k target, 0.4 floor; original full water/serpent/portal/hazard, DOM captions, 2 GPU fence limit and measured R51 adaptation preserved. Exact R52 offline bundle SHA256 and source blob verified; locally 94/94 Snake Node, build and host authority/recovery/restart PASS. New source-controlled Chromium 1080p+retina original/current capture and hard >=17 live gate PENDING new-head Actions; no performance win claimed. Snake Pass/ASTRO BOT overall visual/motion quality still LOSE, no independent critic, physical presents, soak or R5 signoff. PR #52 DRAFT ONLY, NEVER MERGE/DEPLOY.",
+  "status": "R53 41/42 BROWSER VERIFIED · 10/17 STRICT FAIL · R54 FIRST SHADOW ATLAS CANDIDATE",
+  "detail": "R53 focused 41291387745 completed 41/42 real Chromium browser tests, including 1080p/portrait WebGL first-raster A/B; the strict desktop gate FAILED 10 actual submissions/1015.4ms vs unchanged >=17 (61 RAF not rendered/present FPS; GPU fences max ~2033ms). General 41291387703 passed build/Node/hosts/authority/ops then cancelled browser, not green. R54 uses pre-existing 1024² low-tier shadow atlas at first oversized R53 bounded raster, avoiding 2048² first allocation; unchanged world/water/serpent, portals/hazards, captions, reduced motion, deterministic rules, max 2 GPU queue and strict 17 gate. New exact-source Node and 3-mode Chromium screenshot tests pending. No verified performance speedup, independent commercial parity, device presents, soak or R5. Draft PR only, never merge/deploy.",
   "latestImage": "/progress/evidence/round-9-overview.jpg",
-  "latestCaption": "Corrected R52 40/41 real Chromium PASS; hard 10 actual draws/1014ms vs >=17 FAIL. R53 first large raster budget verified in local Node; new live/WebGL captures pending.",
+  "latestCaption": "R53 real WebGL A/B verified but default 10/17 renderer submissions FAIL; R54 same existing shadow detail at large first frame is awaiting exact-head Chromium review.",
   "reviews": [
+    {
+      "area": "Round 54 · first oversized decorative shadow atlas allocation",
+      "verdict": "CANDIDATE · R53 ACTUAL 41/42 BROWSER · 10/17 STRICT FAIL · R54 CI/WEBGL PENDING",
+      "gap": "R53 first color raster still created a native 2048² sun shadow map; R54 only when oversized first canvas downscales before first draw selects existing 1024² low tier, avoiding 75% initial shadow texels and an avoidable later resize. No hidden water/serpent, lost danger/portal/captions, altered simulation, new queues or relaxed ≥17 actual renderer submissions gate. R54 actual WebGL A/B/strict repeat, independent quality review, physical present FPS, soak/R5 OPEN; overall Snake Pass/ASTRO BOT LOSE."
+    },
     {
       "area": "Round 53 · bounded large-canvas first render with original 3D content",
       "verdict": "CANDIDATE · EXACT PREVIOUS BLOB · LOCAL 94/94 SNAKE NODE/BUILD/HOST PASS · NEW R53 WEBGL & >=17 STRICT PENDING",
