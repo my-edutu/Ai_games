@@ -463,6 +463,9 @@ const timeNow=()=>performance.now()/1000;
 // Read-only spectator projections never mutate simulation state.
 const minimap=$('minimap'),mini=minimap.getContext('2d',{alpha:false}),mapPalette={wall:'#273653',floor:'#15233e',traced:'#477091',hero:'#5bf9e2',enemy:'#ff6f9c',exit:'#65baff',loot:'#ffd277'};
 let previousEventKey='',alertTimer=null,ambience=null,soundstage=null,splashTimer=null,lastBiome='';
+// Test/review recording exposes only the spectator's already opt-in audio bus.
+// No simulated soundtrack, private game state, or recording network endpoint.
+window.__DUNGEON_CAPTURE_SOUND__=()=>soundstage?.captureStream()??null;
 const classMeta={vanguard:{name:'ASHEN VANGUARD',title:'FRONT-LINE KNIGHT',icon:'⚔'},ranger:{name:'WILDSHADOW',title:'PHANTOM ARCHER',icon:'➶'},mystic:{name:'STARWEAVER',title:'ARCANE HEALER',icon:'✧'}};
 function drawMinimap(s){
  const N=s.map.length,W=minimap.width,H=minimap.height,cell=W/N,margin=0;
