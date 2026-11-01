@@ -9,18 +9,18 @@
   },
   "candidate": {
     "sha": null,
-    "title": "Unassessed actual 3D ascent→source-linked guardian HP machinery→witnessed lock fragments and passage→outcome/restart",
-    "implementationSha": "11b33e550678b537d54a211e63d07de41ada4103",
-    "implementationEvidenceStatus": "PLAYABLE SOURCE COMMITTED: real guardian HP moves paired physical counterweights and bronze gate; only an observed adjacent, same-run guardian-to-next-floor transition produces 8 one-draw lock fragments, bounded architectural passage, modest source-focus camera and optional mechanical audio. This source head is not independently full-motion assessed; zero LOOKS/FEELS/PLAYS votes, no target-hardware p50/p95/p99 or memory. CI and matched capture for this source are pending. No experiential PASS."
+    "title": "Unassessed real 3D guardian HP→bronze gate + exterior cap conduit→correctly anchored witnessed lock release→outcome/restart",
+    "implementationSha": "480323a8691337d25b91adb1178561225af2a36b",
+    "implementationEvidenceStatus": "PLAYABLE SOURCE COMMITTED, NOT VISUALLY ASSESSED: source 8f10e511 anchors the witnessed guardian-release architecture to the actual preceding cap instead of the new player's feet; source 07400732 adds a shadow-free in-world physical conduit extending with observed guardian HP. Tests at 480323a cover source gating, reset and geometry. No new source-pinned full-motion evaluation, blind reviewers or real-device frame-time/memory results. NO QUALITY PASS."
   },
   "currentTransformation": {
-    "title": "Transform the real autonomous climb into a cinematic, physically legible 3D ascent→guardian→gate-release→restart experience",
-    "state": "SAME INTEGRATED 3D CLIMB→COMBAT→SOURCE-WITNESSED GATE RELEASE→RESTART SLICE OPEN; NOT EVALUATED",
-    "promise": "Autonomous tower ascent with source-grounded ledge and danger, real guardian HP shifting physically modeled gate leaves and counterweights, followed by source-witnessed fractured-lock/passage and bounded camera/audio release before authentic outcome and restart. No new HUD, collision changes or replay authority mutations.",
-    "nextDecision": "Inspect real source-pinned 11b33e55 desktop/390x844 60+s normal-speed recordings, especially actual guardian HP/counterweight movement and immediate source-witnessed passage (prior 1f64fc75 portrait source diagnostics saw the passage but desktop visibility unconfirmed). Verify current head full-logic/authority CI after prior b0bcab failed four structural tests; check original baseline outcome still lacks reliably sampled visible terminal/intermission/restart. Do not assign any pillar vote until 5 fresh blind randomized critics genuinely inspect all matched full-motion scenes. Collect supported-device presented p50/p95/p99 and memory, accessibility, replay/restore, privacy and stability.",
+    "title": "Turn one real ascent→guardian encounter→physically connected HP-powered gate→original-cap release→outcome/restart into a cinematic, comprehensible 3D expedition",
+    "state": "SAME INTEGRATED 3D CLIMB→OBSERVED COMBAT→CONNECTED GATE→OLD-CAP RELEASE→RESTART SLICE OPEN; NOT EVALUATED",
+    "promise": "Climber chooses routes in fixed-step authoritative simulation; guardian HP physically separates original bronze leaves/weights and extends one non-colliding luminous conduit across its real cap. A same-run observed guardian floor advancement produces a short physical release at that preceding cap's real location, not the new player's feet. Existing minimal HUD, opt-in audio and terminal/restart remain. No simulation changes.",
+    "nextDecision": "Check integrity and 60+ second desktop/390×844 source-pinned capture on 480323a/8f10e511 code, then inspect full-motion HP conduit visibility, old-cap positioning, fight weight and complete result/restart. Previous source 11b33e55 captured candidate ascent/danger/outcome but baseline outcome FAILED complete visible result→intermission→restart; its integrity workflow failed 1 of 705 tests before the revised count check. Never move baseline or score green tests as experience. Review source-matched all 3 scenarios with five independent blind randomized critics; collect supported-device p50/p95/p99 + memory, accessibility, replay/recovery.",
     "rejectedMicroMilestones": "Unit tests, CI green checks, commits, screenshots, model mockups and engineering self-reviews are never a Gauntlet quality win.",
-    "biggestRemainingExperienceGap": "CRITICAL UNVERIFIED EXPERIENCE: real repeated autonomous guardian fights remain visually busy and the brief passage can be missed at normal speed; the freshly added HP-linked machinery, source fragments and camera glance have not yet been seen on matched live footage on desktop and portrait. The frozen baseline outcome's full visible terminal/intermission/restart still fails. Independent full-motion criticism (0/5 per pillar), target hardware performance/memory and final source CI are missing.",
-    "unverifiedImplementationBranchHead": "11b33e550678b537d54a211e63d07de41ada4103"
+    "biggestRemainingExperienceGap": "UNVERIFIED VIEWER CONTINUITY: no normal-speed full-motion review of the new HP-path and correctly anchored source release on either desktop or phone; real fight remains visually busy, and CI software renderer had p95 submitted-frame interval 2511.9ms for older baseline outcome (NOT a supported-device FPS statistic). Frozen-baseline complete outcome/restart evidence still fails. Independent votes 0/5 each pillar, current source integrity and genuine device performance unavailable.",
+    "unverifiedImplementationBranchHead": "480323a8691337d25b91adb1178561225af2a36b"
   },
   "scenarios": [
     {
@@ -60,11 +60,11 @@
     "plays": []
   },
   "guardrails": {
-    "ci": "PENDING checks for 11b33e55 implementation and evidence follow-up. Previous b0bcab run 41343470538 failed four tests (three missing scene VM helpers plus incorrect capped-dt effect lifetime test); implementation commit includes repairs, but a new green run is not yet verified. CI veto, not quality score.",
-    "replay": "PENDING current source-head deterministic authority campaign; real gameplay logic and seeded policy remain untouched. New world gate, render particles, follow focus and audio read public frame observations only.",
-    "accessibility": "PENDING real-browser and device review; opt-in/muted audio only, reduced-motion shows a stable open passage and hides flying fragments, no new HUD text or essential color-only cues. Stale connection pauses presentation motion; new run clears.",
-    "performance": "PENDING real supported-device presented p50/p95/p99 and GPU/heap memory. The additional world-source HP gate has two counterweight groups plus six shadow-free meshes only on guardian caps; witnessed release uses one 8-instance fragment draw lasting <1.7s, scene effect lifetime 2.9s. Source boundedness is NOT a measured FPS claim.",
-    "stability": "PENDING source-head CI, authentic replay/restoration and context recovery; new shard batch shares one material, five owned geometries disposed exactly once, bounded life/stale suspension and source-run cleanup. Real hardware unverified."
+    "ci": "PENDING exact source 480323a integration checks; historical workflow 41345767341 for 11b33e55 failed 1/705 tests on original overly narrow guardian gate mesh count. This branch updates source/test geometry but does not claim a new CI pass. Safety veto only.",
+    "replay": "PENDING current source-head deterministic authority campaign; all current changes are 3D render-only and consume public previous/current cap and enemy health snapshots; fixed-step state, seed, replay, AI and physics unchanged.",
+    "accessibility": "PENDING real-browser/mobile and assistive testing. Gate conduit is geometric (not color-only), no HUD changes, optional muted sound remains opt-in, reduced-motion prevents shard flight; stale render and run resets remain honored.",
+    "performance": "PENDING real supported-device presented p50/p95/p99 and memory. One extra non-shadow conduit mesh only on real guardian caps plus existing bounded portal; no actual FPS or AAA claim. Older baseline-outcome CI Chromium submitted intervals p50 690.4ms, p95 2511.9ms, p99 3549ms are NOT displayed device FPS.",
+    "stability": "PENDING exact source-head CI, authentic replay/restore/context recovery. On old source 11b33e55 source-pinned candidate ascent, danger, outcome captures passed scoped integrity, frozen baseline outcome failed. Scene release now requires validated old cap and avoids teleporting a gate to current climber."
   },
   "unresolvedCriticalIssues": null,
   "benchmark": {
@@ -78,7 +78,7 @@
     "workflowRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41323028658",
     "sourceSha": "471dfea0e2e9e58cdcea648b4bae4d09917ca98a",
     "assessed": "NOT EVALUATED",
-    "scope": "Historical source-pinned captures remain accessible. Real full-motion baseline/candidate danger and candidate outcome recordings from 1f64fc75 were inspected on desktop and portrait: genuine rendered movement, guardian HP/gate signals and candidate result card; not evidence for current 11b33e55 mechanics, nor genuine blind quality review. Baseline outcome at SHA 1731b380 still lacks guaranteed visible complete terminal/intermission/restart. No moved baseline, fabricated clips or inferred quality PASS.",
+    "scope": "Historical source-pinned Chromium clips on 11b33e55 passed scoped recording integrity for candidate ascent/danger/outcome and frozen baseline ascent/danger; frozen-baseline outcome failed complete visible terminal/intermission/restart despite 4 real run-token changes. NOT a matched visual review for 480323a, nor five blind critics, nor hardware performance.",
     "jobs": {
       "ascent": {
         "baseline": {
@@ -111,10 +111,10 @@
         }
       }
     },
-    "newImplementationSha": "11b33e550678b537d54a211e63d07de41ada4103",
+    "newImplementationSha": "480323a8691337d25b91adb1178561225af2a36b",
     "newImplementationRecorded": false,
-    "reviewPath": "docs/reviews/2026-11-01-tower-pr68-mechanical-source-release-continuation.md",
+    "reviewPath": "docs/reviews/2026-11-01-tower-pr68-continuous-guardian-architecture.md",
     "followupWorkflowRunUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41345767345",
-    "followupStatus": "Historical run 41343238010: candidate ascent/danger/outcome and baseline ascent/danger scoped captures succeeded; baseline outcome both desktop/portrait FAILED complete-terminal-intermission-restart-not-observed, notwithstanding run-token changes. New source 11b33e55 workflows 41345767345 (real gameplay) and 41345767341 (guardrails) were in progress when the engineering implementation was committed. No independent critic vote or intended-device hardware measurement."
+    "followupStatus": "Completed historical source 11b33e55 capture workflow 41345767345: candidate 3/3 jobs succeeded, baseline ascent and danger succeeded, baseline outcome desktop failed. Historical source integrity workflow 41345767341 failed 1/705 tests before source/test follow-up. New 480323a code has no verified source-specific full-motion or integrity verdict at this ledger update."
   }
 }
