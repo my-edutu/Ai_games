@@ -281,3 +281,32 @@ test('real upper-rim fingertip releases into a continuous shoulder arc, then rel
       'stale hand contact must not survive an authoritative run-token change');
   }
 });
+
+test('actual ascent boots keep one physical push-off leg when camera crosses the tower',async t=>{
+  const threeURL=pathToFileURL(path.join(path.dirname(require.resolve('three')),'three.module.js')).href;
+  const adjusted=cast.replace("from '/tower/vendor/three.module.js'","from '"+threeURL+"'");
+  assert.notEqual(adjusted,cast);
+  const [{createClimber}]=await Promise.all([
+    import('data:text/javascript;base64,'+Buffer.from(adjusted).toString('base64'))
+  ]);
+  // Same immutable authority, only follow-camera azimuth changes. A real boot
+  // must not jump from the push-off side to the other side of the body merely
+  // because a portrait camera moves behind the climber.
+  for(const facing of [-1,1]){
+    for(const pose of [null,{progress:.58,weight:1},{progress:.78,weight:1}]){
+      const a=createClimber(),b=createClimber();
+      t.after(()=>{a.dispose();b.dispose();});
+      const state={state:'airborne',vx:facing*3200,vy:10200,facing,health:5,
+        attacking:false,ledgeMantle:pose};
+      a.animate(state,1/60,1,{reducedMotion:true,viewAzimuth:Math.PI/4});
+      b.animate(state,1/60,1,{reducedMotion:true,viewAzimuth:-Math.PI/4});
+      for(const side of [-1,1])for(const joint of ['hip','knee','ankle']){
+        const name=side+'-'+joint;
+        const one=a.group.getObjectByName(name),other=b.group.getObjectByName(name);
+        assert.ok(one?.isBone&&other?.isBone,'inspect the real '+name+' skinned joint');
+        assert.ok(one.quaternion.angleTo(other.quaternion)<1e-6,
+          `the ${name} must not camera-flip at physical facing=${facing}, mantle=${pose?.progress??'none'}`);
+      }
+    }
+  }
+});

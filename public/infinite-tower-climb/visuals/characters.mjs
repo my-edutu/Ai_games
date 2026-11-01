@@ -305,6 +305,10 @@ export function createClimber() {
     const speed=clamp(Math.abs(vx)/4300,0,1),dead=state.state==='dead'||state.health===0;
     const airborne=state.state==='airborne',dash=state.state==='dashing',hurt=state.state==='hurt';
     const attacking=Boolean(state.attacking)&&!dead&&!hurt;
+    // World-facing traversal, never follow-camera framing, owns boot stance.
+    // Camera azimuth may expose the reaching hand but cannot swap the physical
+    // push-off leg during a real upper-rim crossing.
+    const physicalPushIndex=((state.facing??Math.sign(vx))||1)>0?1:0;
     // The workshop caps its animation step at 100ms to prevent giant gait and
     // camera-induced limb jumps. That cap must NOT keep an obsolete 260ms punch
     // alive over multiple seconds of slow rendering after authority has stopped
@@ -353,7 +357,8 @@ export function createClimber() {
         else reachSide??=Math.sign(Math.sin(viewAzimuth))||travelSide;
       }else reachSide=travelSide;
       const leadSide=reachSide,leadIndex=leadSide>0?1:0;
-      const reach=arms[leadIndex],balance=arms[1-leadIndex],frontLeg=legs[1-leadIndex],backLeg=legs[leadIndex];
+      const reach=arms[leadIndex],balance=arms[1-leadIndex];
+      const frontLeg=legs[1-physicalPushIndex],backLeg=legs[physicalPushIndex];
       body.rotation.x=rising?-.08:.12;
       // Open the arm further in a rear view so the palm clears the helmet and
       // pack. The actual rise still owns the pose; view only exposes its action.
@@ -433,7 +438,7 @@ export function createClimber() {
       // the tucked boots with a competing cosmetic vault pose until the
       // physical fingertip releases the authentic upper rim.
       if(!genuineLedgeGrip)for(let i=0;i<2;i++){
-        const leg=legs[i],front=i===otherIndex;
+        const leg=legs[i],front=i!==physicalPushIndex;
         leg.upper.rotation.x=mix(leg.upper.rotation.x,front?-.98+.7*push:-1.12+.85*push,weight);
         leg.lower.rotation.x=mix(leg.lower.rotation.x,front?1.55-.5*push:1.72-.92*push,weight);
         leg.foot.rotation.x=mix(leg.foot.rotation.x,front?-.33+.17*push:-.45+.24*push,weight);
