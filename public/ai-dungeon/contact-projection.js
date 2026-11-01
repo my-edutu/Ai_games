@@ -1,4 +1,5 @@
 import * as THREE from '/dungeon/vendor/three.module.js';
+import {planGroundSignal} from '/dungeon/ground-signal-plan.js';
 
 // Cosmetic foot grounding: procedural shadow texture is owned by the module.
 // Geometry is small, bounded per visible unit and independent of gameplay authority.
@@ -11,7 +12,7 @@ const shadowTexture=new THREE.CanvasTexture(textureCanvas);
 const flatGeometry=new THREE.PlaneGeometry(1,1);
 const circleGeometry=new THREE.RingGeometry(.61,.66,48);
 const sparksGeometry=new THREE.RingGeometry(.72,.735,48);
-export function addContactProjection(actor){
+export function addContactProjection(actor,{reducedMotion=false}={}){
  const kind=actor.u.kind,boss=kind==='warden',radius=boss?2.05:1.03;
  const material=new THREE.MeshBasicMaterial({map:shadowTexture,transparent:true,opacity:boss?.56:.38,depthWrite:false,depthTest:true,toneMapped:false,polygonOffset:true,polygonOffsetFactor:-1});
  const shadow=new THREE.Mesh(flatGeometry,material);shadow.rotation.x=-Math.PI/2;shadow.position.y=.018;shadow.scale.set(radius*1.85,radius*1.45,1);shadow.renderOrder=1;actor.root.add(shadow);
@@ -19,16 +20,20 @@ export function addContactProjection(actor){
  const sigil=new THREE.Mesh(circleGeometry,sigilMat);sigil.rotation.x=-Math.PI/2;sigil.position.y=.025;sigil.scale.setScalar(boss?1.27:.78);sigil.renderOrder=2;actor.root.add(sigil);
  const coronaMat=new THREE.MeshBasicMaterial({color:accent,transparent:true,opacity:.11,side:THREE.DoubleSide,depthWrite:false,blending:THREE.AdditiveBlending});
  const corona=new THREE.Mesh(sparksGeometry,coronaMat);corona.rotation.x=-Math.PI/2;corona.position.y=.03;corona.scale.setScalar(boss?1.35:.86);actor.root.add(corona);
+ let state=planGroundSignal(kind,'idle',false,reducedMotion);
+ shadow.visible=sigil.visible=corona.visible=false;
  return {
   update(t,action,alive){
-   shadow.visible=sigil.visible=corona.visible=alive;
-   if(!alive)return;
-   const active=action==='cast'||action==='attack'||action==='hurt';
-   sigilMat.opacity=(boss?.5:.22)+(active?.28:.0)+Math.sin(t*(boss?2:1.8)+actor.at.x)*.065;
-   coronaMat.opacity=active?.35:.07;
-   if(active){corona.rotation.z+=.024;sigil.rotation.z-=.01}
-   else corona.rotation.z+=.003;
+   state=planGroundSignal(kind,action,alive,reducedMotion);
+   shadow.visible=state.shadowVisible;
+   sigil.visible=state.sigilVisible;
+   corona.visible=state.coronaVisible;
+   sigilMat.opacity=state.sigilOpacity;
+   coronaMat.opacity=state.coronaOpacity;
+   // Only a genuine live ritual animates its small additive accent.
+   if(state.spin&&Number.isFinite(t)){corona.rotation.z+=.018;sigil.rotation.z-=.007}
   },
+  getState:()=>state,
   dispose(){
    actor.root.remove(shadow,sigil,corona);
    material.dispose();sigilMat.dispose();coronaMat.dispose();
