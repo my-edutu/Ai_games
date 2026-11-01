@@ -58,3 +58,34 @@ test('release is driven only by immutable actual target height and remains bound
   assert.equal(approach({player:{...player,attacking:true}},platform),25);
   assert.equal(JSON.stringify({snapshot,platform}),before,'must not mutate authority or platform geometry');
 });
+
+test('authentic upper-deck ascent receives a bounded source-derived mantle keyframe, never a phantom grip',()=>{
+  const mantle=shipped('ledgeMantlePose','snapshot, platform');
+  const session=createSession(),sample=new Map();
+  for(let i=0;i<=310;i++){
+    const frame=session.controller.frame(390,844,{reducedMotion:true,muted:true});
+    const snapshot=frame.snapshot, before=JSON.stringify(snapshot);
+    if(snapshot.tick>=296 && snapshot.tick<=310){
+      const target=landing(snapshot);
+      sample.set(snapshot.tick,{pose:mantle(snapshot,target),state:snapshot.player.state,
+        vy:snapshot.player.vy,checksum:snapshot.publicChecksum});
+      assert.equal(JSON.stringify(snapshot),before,'keyframe selection cannot alter authority');
+    }
+    advance(session);
+  }
+  assert.equal(sample.get(298).checksum,'13941b9e','same authentic G41 GPU contact');
+  assert.equal(sample.get(296).pose,null,'standing before takeoff has no mantle');
+  assert.ok(sample.get(299).pose?.weight>.6,'launch must show a push from the real deck');
+  assert.ok(sample.get(301).pose?.progress>sample.get(299).pose?.progress,'pose progression follows real clearance');
+  assert.ok(sample.get(302).pose?.weight>.9,'upper-deck transition should stay visible, not float with idle airborne legs');
+  assert.ok(sample.get(306).pose?.weight<sample.get(302).pose?.weight,'pose must release gradually after clear');
+  assert.equal(sample.get(310).pose,null,'falling jump cannot claim an ascending mantle');
+  const p={x:130000,y:434000,halfHeight:14000,halfWidth:9000,vy:10200,health:5,state:'airborne',attacking:false};
+  const deck={id:'f1:p1',x:120000,y:415000,height:5000,width:40000};
+  const valid=mantle({player:p},deck);
+  assert.ok(valid&&valid.progress>=0&&valid.progress<=1&&valid.weight>0&&valid.weight<=1);
+  for(const change of [{state:'standing'},{vy:-1},{attacking:true},{health:0},{x:1000}]){
+    assert.equal(mantle({player:{...p,...change}},deck),null,'ineligible snapshots cannot manufacture a mantle');
+  }
+  assert.equal(mantle({player:p},null),null);
+});

@@ -131,3 +131,36 @@ test('real ledge grip curls both boots clear of the lower deck, then releases th
   assert.ok(Math.abs(ankleHeight()-unsupported)<.05,
     'released hand contact must restore the ordinary airborne leg silhouette');
 });
+
+test('shipped skinned climber visibly pushes over a genuine ledge and restores ordinary air motion',async t=>{
+  const threeURL=pathToFileURL(path.join(path.dirname(require.resolve('three')),'three.module.js')).href;
+  const adjusted=cast.replace("from '/tower/vendor/three.module.js'","from '"+threeURL+"'");
+  assert.notEqual(adjusted,cast);
+  const [{createClimber},THREE]=await Promise.all([
+    import('data:text/javascript;base64,'+Buffer.from(adjusted).toString('base64')),import(threeURL)
+  ]);
+  const rig=createClimber();t.after(()=>rig.dispose());
+  const air={state:'airborne',vx:2300,vy:6000,facing:1,health:5,attacking:false};
+  const options={reducedMotion:true};
+  rig.animate(air,1/60,1,options);
+  const body=rig.group.getObjectByName('articulated-body');
+  const knee=rig.group.getObjectByName('-1-knee');
+  assert.ok(body?.isBone&&knee?.isBone,'test the actual skinned body and leg bones');
+  const neutral={body:body.rotation.x,knee:knee.rotation.x},root=rig.group.position.clone();
+  rig.animate({...air,ledgeMantle:{progress:.68,weight:1}},1/60,1.017,options);
+  assert.ok(body.rotation.x>neutral.body+.18,'torso must lean into a visibly distinct deck-vault pose');
+  assert.ok(Math.abs(knee.rotation.x-neutral.knee)>.12,'knee must contribute to deck push instead of idling airborne');
+  assert.ok(rig.group.position.equals(root),'animation cannot move authoritative root');
+  rig.animate({...air,ledgeMantle:null},1/60,1.034,options);
+  assert.ok(Math.abs(body.rotation.x-neutral.body)<1e-5,'unsupported mantle must release without a phantom hold');
+  assert.ok(Math.abs(knee.rotation.x-neutral.knee)<1e-5,'boots restore normal airborne articulation');
+  rig.group.position.set(3,7,-4);rig.group.rotation.y=.35;rig.group.scale.setScalar(1.13);
+  rig.group.updateMatrixWorld(true);
+  const goal=rig.group.localToWorld(new THREE.Vector3(.56,2.33,.22));
+  rig.animate({...air,ledgeTarget:{x:goal.x,y:goal.y,z:goal.z},
+    ledgeMantle:{progress:.04,weight:.45}},1/60,1.05,options);
+  const elbow=rig.group.getObjectByName('1-elbow');
+  elbow.updateWorldMatrix(true,false);
+  const fingertip=elbow.localToWorld(new THREE.Vector3(0,-.802,.108));
+  assert.ok(fingertip.distanceTo(goal)<1e-5,'new body pose cannot break the real initial hand contact');
+});
