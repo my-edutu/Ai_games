@@ -34,18 +34,18 @@ function refreshSceneCard(){
   const snapshot=frame?.snapshot;
   if(frame?.scene==='result'){
     const outcome=snapshot?.result?.reason;
-    showCard(outcome==='escape'?'A way through.':'The journey ends here.',outcome==='escape'?'Keys found. A route discovered. The explorer made it home.':outcome==='capture'?'A warden caught the explorer. A new adventure begins shortly.':`The run ended: ${(outcome||'complete').replaceAll('-',' ')}. A fresh garden awaits.`);return
+    showCard(outcome==='escape'?'ESCAPED':outcome==='capture'?'CAUGHT':outcome==='timer-expired'?'TIME UP':'RUN OVER',outcome==='escape'?'Pip made it out.':'Next maze loading');return
   }
-  if(frame?.scene==='intermission'){showCard('Another garden awaits','The next adventure begins automatically.');return}
-  if(failedPolls){showCard('Reconnecting to the adventure','The last known view is held while the live source reconnects.');return}
-  if(rendererState==='loading'&&!fallbackCanvas){showCard('Opening the garden','Preparing the explorer and the discovered world.');return}
-  if(!snapshot){showCard('Finding our bearings','Waiting for the first live view of the garden.');return}
-  if(frame.scene==='recovery'){showCard('Restoring the adventure','Reconnecting to the latest verified view.');return}
+  if(frame?.scene==='intermission'){showCard('NEXT MAZE','New run loading');return}
+  if(failedPolls){showCard('RECONNECTING','Last known scene retained');return}
+  if(rendererState==='loading'&&!fallbackCanvas){showCard('LOADING','Starting 3D maze');return}
+  if(!snapshot){showCard('CONNECTING','Waiting for live game');return}
+  if(frame.scene==='recovery'){showCard('RESTORING','Reconnecting to live game');return}
   elements.sceneCard.hidden=true;
 }
 function formatTime(ticks,interval=360){const seconds=Math.ceil(ticks*interval/1000);return `${Math.floor(seconds/60)}:${String(seconds%60).padStart(2,'0')}`}
-const intentLabels={'exploring':'Finding a new path','returning-key':'Following a key','unlocking-route':'Opening the way','searching-exit':'Looking for home','evading-threat':'Keeping a safe distance','revising-map':'Rethinking the route','fallback':'Finding another way','escaped':'Home at last'};
-const goals={'exploring':'Find a passage','returning-key':'Find the key','unlocking-route':'Open the way','searching-exit':'Find the exit','evading-threat':'Avoid the warden','revising-map':'Find another route','fallback':'Explore safely','escaped':'Home at last'};
+const intentLabels={'exploring':'Exploring','returning-key':'Finding key','unlocking-route':'At gate','searching-exit':'Seeking exit','evading-threat':'Evading','revising-map':'Rerouting','fallback':'Exploring','escaped':'Escaped'};
+const goals={'exploring':'Find a passage','returning-key':'Find key','unlocking-route':'Gate ahead','searching-exit':'Find the exit','evading-threat':'Avoid warden','revising-map':'New route','fallback':'Explore','escaped':'Escaped'};
 function viewerCaption(value){
   if(/^Key collected:/i.test(value))return 'Pip found a key.';
   if(/^Route unlocked:/i.test(value))return 'A locked passage opened.';
@@ -78,14 +78,15 @@ function update(value){
   const keyedSealedGate=!ended && !landmark && value.scene!=='danger'
     && snapshot.intent.mode!=='evading-threat' && publicHeldGateStatus(snapshot);
   byId('goal-label').textContent=ended?'Journey result':landmark?'Discovered landmark':keyedSealedGate?'Known sealed gate':'Current goal';
-  byId('goal-title').textContent=ended?(escaped?'Home at last':'A new beginning'):landmark?(landmark.kind==='key'?'A known golden key':'The exit is discovered'):keyedSealedGate?'Matching key in hand':goals[snapshot.intent.mode]||'Find the exit';
-  byId('intent-label').textContent=ended?'The final decision':"The explorer’s next move";
-  byId('objective').textContent=ended?(escaped?'The explorer reached the exit. A new garden awaits.':'This attempt has ended. The next adventure begins automatically.'):landmark?(`An observed ${landmark.kind} lies ${landmark.steps===0?'here':`${landmark.steps} known passage${landmark.steps===1?'':'s'} away`}. Escape is the goal; this does not guarantee a safe route.`):keyedSealedGate?"Pip carries this gate's key. Its bars are still closed.":'Find the keys. Discover the exit. Escape before time runs out.';
+  byId('goal-title').textContent=ended?(escaped?'Escaped':'Run ended'):landmark?(landmark.kind==='key'?'Key spotted':'Exit spotted'):keyedSealedGate?'Key for gate':goals[snapshot.intent.mode]||'Find the exit';
+  byId('intent-label').textContent=ended?'Result':'Pip';
+  byId('objective').textContent=ended?(escaped?'Exit reached':'Next run soon'):landmark?(landmark.steps===0?'At the landmark':`${landmark.steps} known step${landmark.steps===1?'':'s'} away`):keyedSealedGate?'Gate still closed':'Explore • find keys • escape';
   elements.confidence.style.width=`${Math.round(snapshot.intent.confidence*100)}%`;
-  elements.inventory.textContent=snapshot.inventory.length?`${snapshot.inventory.length} ${snapshot.inventory.length===1?'key':'keys'} collected`:'Still looking for a key';
+  elements.inventory.textContent=String(snapshot.inventory.length);
+  elements.inventory.setAttribute('aria-label',`${snapshot.inventory.length} ${snapshot.inventory.length===1?'key':'keys'} collected`);
   elements.profile.textContent=`${snapshot.profile} · Expedition ${snapshot.level}`;
   elements.integrity.textContent=snapshot.authorityChecksum?'Live view connected':'Connecting';
-  if(lastRunToken!==snapshot.runToken){lastRunToken=snapshot.runToken;lastCaption='A new garden. An unknown way home.'}
+  if(lastRunToken!==snapshot.runToken){lastRunToken=snapshot.runToken;lastCaption='New maze'}
   const captions=value.audio?.captions??[];
   if(captions.length)lastCaption=viewerCaption(captions.at(-1));
   elements.caption.textContent=lastCaption;

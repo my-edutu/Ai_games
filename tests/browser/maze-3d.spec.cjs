@@ -52,7 +52,7 @@ test('portrait layout keeps the scene and controls usable without horizontal ove
   }));
   expect(layout.scroll).toBe(layout.viewport);
   expect(layout.scene.width).toBeGreaterThan(320);
-  expect(layout.scene.height).toBeGreaterThan(300);
+  expect(layout.scene.height,'The actual WebGL stage fills the phone instead of stopping above prose').toBeGreaterThan(810);
   await expect(page.locator('#camera-toggle')).toBeVisible();
   await expect(page.locator('[data-testid="captions"]')).toBeVisible();
 });
@@ -109,11 +109,11 @@ test('unavailable WebGL retains the real result and a usable retry action', asyn
   await page.goto(`${base}/maze`);
   await expect(page.locator('#maze')).toHaveAttribute('data-renderer', 'fallback');
   await expect(page.locator('#maze-fallback')).toBeVisible();
-  await expect(page.locator('#scene-title')).toHaveText('A way through.');
+  await expect(page.locator('#scene-title')).toHaveText('ESCAPED');
   await expect(page.locator('#retry-3d')).toBeVisible();
   await expect(page.locator('#integrity')).toHaveText('Live view connected');
   await expect(page.locator('#run-phase')).toHaveText('JOURNEY COMPLETE');
-  await expect(page.locator('#intent-label')).toHaveText('The final decision');
+  await expect(page.locator('#intent-label')).toHaveText('Result');
   await expect(page.locator('#progress')).toHaveText(`${Math.floor(frame.snapshot.discoveredCells.length * 100 / (frame.snapshot.width * frame.snapshot.height))}%`);
   const map = page.locator('#map-panel');
   await expect(map).not.toHaveAttribute('open', '');
@@ -135,7 +135,7 @@ test('unavailable WebGL retains the real result and a usable retry action', asyn
   await expect(notes.locator('summary')).toBeFocused();
   sourceAvailable = false;
   await expect(page.locator('#run-phase')).toHaveText('RECONNECTING');
-  await expect(page.locator('#scene-title')).toHaveText('A way through.');
+  await expect(page.locator('#scene-title')).toHaveText('ESCAPED');
   sourceAvailable = true;
   await expect(page.locator('#run-phase')).toHaveText('JOURNEY COMPLETE');
   await page.setViewportSize({width: 844, height: 390});
@@ -213,6 +213,8 @@ test('320px portrait retains every presentation control with usable hit targets'
     controls: [...document.querySelectorAll('.presentation-controls > button, .presentation-controls summary')].map(element => {const rect = element.getBoundingClientRect(); return {width:rect.width,height:rect.height,left:rect.left,right:rect.right};}),
   }));
   expect(layout.width).toBe(320);
+  const sceneHeight=await page.locator('#maze').evaluate(el=>el.getBoundingClientRect().height);
+  expect(sceneHeight,'the smallest phone also receives a full-height game stage').toBeGreaterThan(700);
   expect(layout.controls).toHaveLength(4);
   for (const rect of layout.controls) {
     expect(rect.width).toBeGreaterThanOrEqual(40);

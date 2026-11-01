@@ -33,9 +33,10 @@ test('native game-first stage occupies the screen without concealing public cont
       map:rect('map-panel'),camera:rect('camera-toggle'),path:rect('intent-details'),
       scroll:document.documentElement.scrollWidth,viewport:document.documentElement.clientWidth};
   });
-  expect(rects.stage.height, 'a native 390x844 frame must make the actual 3D game dominant').toBeGreaterThan(535);
-  expect(rects.stage.bottom, 'game and accessible goal area must not overlap').toBeLessThanOrEqual(rects.hud.top+1);
-  expect(rects.hud.bottom,'readable current facts must stay clear of captions').toBeLessThanOrEqual(rects.captions.top+1);
+  expect(rects.stage.height, '3D maze occupies almost the entire native game viewport').toBeGreaterThan(810);
+  expect(rects.stage.width, '3D maze spans the available phone width').toBeGreaterThan(375);
+  expect(rects.hud.top, 'HUD overlays the live game instead of consuming a separate prose region').toBeLessThanOrEqual(rects.stage.top+1);
+  expect(rects.hud.bottom, 'HUD is bounded by the full-screen stage').toBeLessThanOrEqual(rects.stage.bottom+1);
   expect(rects.captions.bottom,'the active event caption must fit on screen').toBeLessThanOrEqual(844);
   expect(rects.scroll).toBe(rects.viewport);
   for(const name of ['goal','objective','timer','progress','inventory','intent']) {
@@ -48,6 +49,18 @@ test('native game-first stage occupies the screen without concealing public cont
   expect(rects.camera.width,'camera remains an accessible touch target').toBeGreaterThanOrEqual(44);
   expect(rects.map.height,'real disclosed map remains independently accessible').toBeGreaterThanOrEqual(40);
   expect(rects.path.height,'public path notes remain reachable on touch').toBeGreaterThanOrEqual(40);
+  const composition=await page.evaluate(()=>{
+    const ctr=document.elementFromPoint(innerWidth/2,innerHeight/2);
+    const rendered=[...document.querySelectorAll('#hud h2,#hud p,#hud strong,#hud .eyebrow')]
+      .filter(el=>{const r=el.getBoundingClientRect(),s=getComputedStyle(el);
+        return r.height>4 && s.display!=='none'&&s.visibility!=='hidden';})
+      .map(el=>el.textContent.trim()).filter(Boolean);
+    return {revision:document.getElementById('broadcast').dataset.uxRevision,
+      center:ctr?.id||ctr?.closest('#stage')?.id||'',visibleText:rendered.join(' ')};
+  });
+  expect(composition.revision).toBe('4');
+  expect(['maze','stage']).toContain(composition.center);
+  expect(composition.visibleText.length,'live HUD contains short play-state signals, not essays').toBeLessThan(145);
 });
 
 test('slow state responses never create overlapping browser-source polls', async ({ page }) => {
@@ -336,8 +349,8 @@ test('a real close public encounter frames both autonomous actors and saves date
   expect(gateDiagnostic.explorerInFrame).toBe(true);
   if (gateDiagnostic.keyLockCloseup) {
     await expect(page.locator('#goal-label')).toHaveText('Known sealed gate');
-    await expect(page.locator('#goal-title')).toHaveText('Matching key in hand');
-    await expect(page.locator('#objective')).toHaveText("Pip carries this gate's key. Its bars are still closed.");
+    await expect(page.locator('#goal-title')).toHaveText('Key for gate');
+    await expect(page.locator('#objective')).toHaveText('Gate still closed');
     expect(gateDiagnostic.carriedKeyGateGesture, 'Only a real matching key may trigger the close-up').toBeGreaterThan(.2);
     expect(gateDiagnostic.cameraHalfHeight, 'The visible key/socket encounter earns a genuinely closer shot').toBeLessThan(4.62);
     expect(gateDiagnostic.cameraHalfHeight).toBeGreaterThan(4.48);
