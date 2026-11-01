@@ -510,7 +510,10 @@ function renderDashboard(s){
  drawMinimap(s);
 }
 
-function update(s){const firstSnapshot=!received,sceneChanged=worldFloor!==s.run+'-'+s.floor;combatOverlay.record(s,timeNow());state=s;received=true;errorAt=0;$('recovery').hidden=true;
+function update(s){const firstSnapshot=!received,sceneChanged=worldFloor!==s.run+'-'+s.floor;combatOverlay.record(s,timeNow());state=s;received=true;errorAt=0;
+ // Authority polling is independent of the browser's WebGL lifecycle. Never
+ // hide a graphics failure merely because the autonomous game keeps ticking.
+ if(!['context-lost','recovering','stalled','failed'].includes(document.body.dataset.rendererStatus))$('recovery').hidden=true;
  const selected=s.units.find(u=>u.id===focusedHeroId&&u.hp>0);
  if(!selected){const survivor=s.units.find(u=>u.faction==='party'&&u.hp>0);if(survivor)focusedHeroId=survivor.id;}
  spectatorUI.render(s);
