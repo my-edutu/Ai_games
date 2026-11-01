@@ -49,6 +49,8 @@ test('G096 inhabited high street connects actual homes to market without changin
  expect(restored.equal).toBe(true);
  expect(restored.street.houseYards).toBe(initial.street.houseYards);
  await page.setViewportSize({width:390,height:844});
+ // matchMedia change fires on the resize task; inspect only after responsive layout commits.
+ await page.waitForFunction(()=>window.__tinyKingdom.getCommandView()==='world',null,{timeout:10000});
  const mobile=await page.evaluate(()=>({
   overflow:document.documentElement.scrollWidth>innerWidth,
   command:window.__tinyKingdom.getCommandView(),
