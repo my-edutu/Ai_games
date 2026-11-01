@@ -1,6 +1,6 @@
 # Game 2 — Pass44 source-disclosed guardian and explorer Detail camera staging (2026-11-01)
 
-**Status: SOURCE CANDIDATE ONLY. Authentic exact-head browser images, fresh critic and fixed Nintendo benchmark acceptance remain PENDING.**
+**Status: Pass45 original renderer images verified, lead local framing improvement; fixed Nintendo benchmark NOT PASSED. Separate fresh-context blind critic still PENDING.**
 
 ## Actual-image issue, not an abstract metric
 
@@ -17,3 +17,8 @@ The Pass43 genuine 1280×900 [full-frame browser image](https://github.com/my-ed
 Run the same actual production seed `maze-visual-reference-13` tick13, one truly disclosed 2.236-cell guardian, and compare SHA-verified **1280×900** original Pass43 vs Pass44 at full native size (not just crop). New `encounter-public-portrait.png`/JSON capture uses the same source tick in the existing Chromium browser for **390×844**; compare the real result rather than assuming desktop framing applies. Verify both actors remain in frame; physical floor routes, hero pose and visible warning are legible; no cropped model, empty-water penalty or hidden cells are exposed. Record true screenshot UTC, pixel SHA and source commit, and reject if the change merely shifts clutter or hides Pip. Use the unchanged two official Nintendo Captain Toad SHA-frozen reference images and supporting Luigi's Mansion 3 expressive-character visuals.
 
 Neither passing unit/browser tests nor changed pixels establishes a perceptual win. The shared-workspace tunnel for separate fresh-context builder/critic and Ultracode was unavailable; no blind preference is invented. CPU-throttled SwiftShader is not representative hardware GPU FPS. **Do not merge or deploy; PR #53 remains draft.**
+
+
+## Pass45 original full-size review — 2026-11-01
+
+See [Pass45 authentic image/hash review](./guardian-detail-pass-45-original-render.md) for current-source CI 41315186013, original artifact 13086937045, seven authentic PNGs, native guardian screenshot and an unblinded comparison against actual Pass43. Pass45 phone camera now keeps Pip and the disclosed Thornback in frame with margin, but their grounding/focal action and scene art still fall below the byte-frozen Nintendo bar. Pass46 is a new independently judgeable source-only contact-shadow candidate pending its own renderer gate. Neither pass is an independent Nintendo quality win.
