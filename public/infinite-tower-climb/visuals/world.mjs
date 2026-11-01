@@ -300,10 +300,14 @@ export function createTowerWorld(){
   }
   function finishBatches(){
     const boundaries=new Set([particles,vistaGroup,...platforms.values()].map(e=>e?.root||e).filter(Boolean));
+    // Animated guardian gates are floor-owned siblings of the traversable
+    // cap, not part of its exact collision-aligned top geometry. Preserve
+    // their skinned/hinged scene nodes across the static floor merge.
+    for(const p of platforms.values())if(p.guardianGate)boundaries.add(p.guardianGate.frame);
     for(const e of hazards.values())boundaries.add(e.root);
     for(const r of rotors){boundaries.add(r.o);batchRigid(r.o);}
     for(const f of floaters)boundaries.add(f.o);
-    for(const p of platforms.values())batchRigid(p.root,p.guardianGate?new Set([p.guardianGate.frame]):new Set());
+    for(const p of platforms.values())batchRigid(p.root);
     for(const e of hazards.values()){
       batchRigid(e.live,new Set(e.spin?[e.spin]:[]));
       batchRigid(e.root,new Set([e.live,e.indicator]));
@@ -848,23 +852,29 @@ export function createTowerWorld(){
     let guardianGate = null;
     if(guardianCap && p.id.endsWith(':cap')){
       const frame=new THREE.Group();frame.name='AuthoritativeGuardianGate';
-      frame.position.set(0,h,21.8);root.add(frame);
+      // Separate the decorative gate from the cap's exact collision mesh:
+      // traversable platform tests, camera clearance and collision bounds
+      // must see only the real walkable deck, never the towering gate facade.
+      floorGroup.add(frame);
+      const doorway=new THREE.Group();
+      doorway.name='GuardianGateInset';
+      doorway.position.z=21.8;frame.add(doorway);
       for(const side of [-1,1]){
-        block(frame,materials.dark,[side*3.38,2.35,0],[.58,4.8,.78]);
-        block(frame,materials.edge,[side*3.38,4.77,.12],[.8,.25,.95]);
+        block(doorway,materials.dark,[side*3.38,2.35,0],[.58,4.8,.78]);
+        block(doorway,materials.edge,[side*3.38,4.77,.12],[.8,.25,.95]);
       }
-      block(frame,materials.dark,[0,4.7,0],[7.35,.5,.88]);
+      block(doorway,materials.dark,[0,4.7,0],[7.35,.5,.88]);
       const wings=[];
       for(const side of [-1,1]){
         const wing=new THREE.Group();
         wing.name=side<0?'GuardianSealWingLeft':'GuardianSealWingRight';
-        wing.position.z=.37;frame.add(wing);
+        wing.position.z=.37;doorway.add(wing);
         block(wing,materials.copper,[side*1.56,2.13,0],[3.09,4.14,.28]);
         block(wing,materials.edge,[side*2.82,2.13,.19],[.13,3.6,.075]);
         wings.push({side,wing});
       }
       // A large faceted lock is a shape cue, not color-only state feedback.
-      const crest=mesh(frame,geometry('guardian-gate-keystone',()=>new THREE.OctahedronGeometry(.52,0)),
+      const crest=mesh(doorway,geometry('guardian-gate-keystone',()=>new THREE.OctahedronGeometry(.52,0)),
         materials.warning,[0,4.72,.54],[1,.78,.36]);
       crest.name='ObservedGuardianLockCrest';
       frame.traverse(object=>{if(object.isMesh){
@@ -987,6 +997,11 @@ export function createTowerWorld(){
     lastSnapshot=snapshot;
     for(const p of snapshot.platforms||[]){const entry=platforms.get(p.id);if(!entry)continue;entry.root.rotation.y=angleFor(p.x+p.width*.5,snapshot.worldWidth);entry.root.position.y=(p.y-snapshot.chunkBaseY)/SCALE;entry.root.userData.authority={x:p.x,y:p.y,width:p.width,height:p.height};
       if(entry.guardianGate){
+        // A cap can move or appear at a different height in a replay. Anchor
+        // its independent decorative doorway to the exact live cap transform.
+        // The doorway's child inset remains safely inside the walking radius.
+        entry.guardianGate.frame.rotation.y=entry.root.rotation.y;
+        entry.guardianGate.frame.position.set(0,entry.root.position.y+p.height/SCALE,0);
         // Only the genuine, present guardian's authoritative active state can
         // release the gate. A missing snapshot or transport outage never
         // fabricates a victory. On a mid-run renderer rebuild, it rehydrates
@@ -1014,7 +1029,7 @@ export function createTowerWorld(){
             gate.progress+=Math.sign(target-gate.progress)*Math.min(Math.abs(target-gate.progress),step);
           }
           gate.unlocked=unlocked;
-          for(const {side,wing} of gate.wings)wing.position.x=side*gate.progress*2.8;
+          for(const {side,wing} of gate.wings)wing.position.x=gate.progress===0?0:side*gate.progress*2.8;
           gate.crest.material=unlocked?materials.mint:materials.warning;
           gate.crest.rotation.z=gate.progress*Math.PI*.5;
         }
