@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-01T07:46:21Z",
+  "updatedAt": "2026-11-01T09:29:31.586Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass34 physical keyhole source candidate staged on existing draft PR #53 after authentic pass33 native screenshots still showed a tiny unreadable glove/key/lock relation and Captain Toad still won. Only the actual publicly disclosed CLOSED gate's socket geometry changes; exact-head CI, new source-bound native/desktop PNGs, detached visual critic and blind benchmark verdict PENDING. Shared-workspace tunnel disconnected; no Ultracode or hardware GPU FPS. Prior pass33 focused CI succeeded; full CI had three unrelated Tiny Kingdom browser failures."
+    "summary": "Pass34 genuine source-head 8875f37 screenshots from focused Maze CI 41286349080 are SHA-verified. Larger dark physical keyhole is modestly clearer, but glove/key/socket still do not meet at native 390×844; Nintendo reference still wins. Focused Maze CI success; full 41286349088 failed three unrelated Tiny Kingdom checks (528 Node and 15 Maze browser passed). Fresh-context critic/Ultracode unavailable via disconnected workspace; no hardware GPU FPS claim."
   },
   "captures": [
     {
@@ -134,7 +134,7 @@
     "Pass34 models a larger camera-facing physical socket using existing shared shapes, a joined dark crown and throat, and public-inventory-only gold/mint rim. Test contracts strengthened for both gate orientations and no false open; this source candidate is NOT visual evidence. Dated render review gate: physical-lock-pass-34-review-gate.md."
   ],
   "nextGaps": [
-    "Pass34 highest-impact independently judgeable interaction slice: physically legible glove, held key shaft and actual still-closed publicly disclosed black lock at native 390px; never depict a fictional unlock or reveal unknown paths. Use same-seed original production screenshots, structural tests and fresh-context image criticism when the workspace is available.",
+    "Next judgeable physical-interaction slice: measure actual modeled held-key tip and disclosed closed-gate physical socket projections, then revise ONLY their truthful world-space relationship based on unaltered same-seed/native screenshots. Never synthesize unlock, secret map or false safe passage.",
     "Separate disclosed-stage composition slice: recover the true right-hand sandstone arch without pushing real gate/Pip offscreen or filling the stage with invented hidden cells; reject on native 390x844 and desktop visual evidence against the unchanged official Nintendo reference.",
     "Establish stronger gameplay-scale Pip/Thornback expression, gate/key/exit differentiation, environmental material variety and a camera view which preserves both the obstacle and the next *disclosed* action.",
     "Run separate fresh-context visual critics and blind A/B against both unchanged SHA-pinned official Nintendo Captain Toad frames; last independent verdict still favors the reference. Do not claim benchmark parity from CI or lead-only visual judgment.",
@@ -384,6 +384,13 @@
       "verdict": "Actual pass34 native screenshots and independent Nintendo comparison PENDING; fixed bar NOT PASSED",
       "date": "2026-11-01T07:46:21Z",
       "summary": "Authentic pass33 screenshots at seed maze-visual-reference-13 tick21 show the real socket too small to establish glove/shaft/lock contact. Pass34 alters only modeled gate-side lock hardware for a bolder joined keyhole at native size. Must verify exact-head focused CI and date/hash-bound original desktop and 390×844 real frames, then separately compare blind with unchanged pass33 and official reference. No false unlock, private state, controller, route, camera, thresholds or renderer budget modification; CPU SwiftShader != hardware GPU."
+    },
+    {
+      "title": "Pass34 original keyed-gate native portrait vs pass33 and fixed Nintendo",
+      "reviewer": "Lead inspecting genuine PNGs at native size; independent fresh-context critic blocked by disconnected workspace",
+      "verdict": "Incremental keyhole readability, but reference still wins; no independent blind A/B",
+      "date": "2026-11-01T09:29:31.586Z",
+      "summary": "Pass34 changed only real gate socket (676 of 329160 native pixels). The recessed dark crown+throat are more defined in a crop, but the modeled glove and blade remain physically ambiguous beside the closed lock at 390px. Upper-right arch still clips; large empty lagoon remains. Actual screenshot hashes and exact seed/tick are in the committed review."
     }
   ],
   "verification": [
@@ -613,6 +620,13 @@
       "detail": "Public closed physical gate: larger single rim/inset and joined dark crown+throat; still mint only for exact carried publicly known key. Stricter tests for physical continuity/scale/depth/cardinal orientations and true open/unknown states. Pass33 original source-head native artifact 13073920601 remains the last verified baseline. Workspace tunnel unavailable, no independent critic or Ultracode. Test success would not prove Nintendo parity.",
       "sourceCommit": "pending-atomic-commit",
       "sourceUrl": "https://github.com/my-edutu/Ai_games/pull/53"
+    },
+    {
+      "name": "Pass34 original native render source-bound review",
+      "status": "Focused Maze SUCCESS; 528 Node and 15 Maze browser pass, full CI FAILED on three Tiny Kingdom checks; original desktop/portrait PNG hashes verified; visual benchmark REJECTED",
+      "detail": "Exact head 8875f37 seed maze-visual-reference-13 tick21 genuinely CLOSED door-2. Desktop 2026-11-01T07:51:27.672Z SHA 95dba46e393e875f6b50c96d091e01d98909a7b0c15e44b850b1bf8736a5254f; native 390x844 2026-11-01T07:51:30.861Z SHA f2f6974a941db20016214637daca843c53e322d1aece7ea06e423ea863707d95. Only 676 pixels differ from pass33 in socket region; glove/key/socket still visually separated. Full 41286349088 has three Tiny Kingdom browser failures; all executed Maze checks passed. Fresh independent critic/Ultracode blocked by tunnel; SwiftShader not hardware FPS.",
+      "sourceCommit": "8875f37f8c7eeed180925220db36b544896a762a",
+      "sourceUrl": "https://github.com/my-edutu/Ai_games/actions/runs/41286349080/artifacts/13075272968"
     }
   ],
   "references": [
