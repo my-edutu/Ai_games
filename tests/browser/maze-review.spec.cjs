@@ -199,6 +199,9 @@ test('a real close public encounter frames both autonomous actors and saves date
   expect(gateDiagnostic.nearbySealedGateProjection?.inFrame).toBe(true);
   expect(gateDiagnostic.explorerInFrame).toBe(true);
   if (gateDiagnostic.keyLockCloseup) {
+    await expect(page.locator('#goal-label')).toHaveText('Known sealed gate');
+    await expect(page.locator('#goal-title')).toHaveText('Matching key in hand');
+    await expect(page.locator('#objective')).toHaveText("Pip carries this gate's key. Its bars are still closed.");
     expect(gateDiagnostic.carriedKeyGateGesture, 'Only a real matching key may trigger the close-up').toBeGreaterThan(.2);
     expect(gateDiagnostic.cameraHalfHeight, 'The visible key/socket encounter earns a genuinely closer shot').toBeLessThan(4.62);
     expect(gateDiagnostic.cameraHalfHeight).toBeGreaterThan(4.48);

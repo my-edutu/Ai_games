@@ -298,6 +298,24 @@ export function publicCarriedGateCue(snapshot, pose) {
   return {heading: Math.atan2(dx, dz), strength, a: gate.a, b: gate.b};
 }
 
+/**
+ * Public-only, non-authoritative HUD context: same already visible matching
+ * key and truly CLOSED nearby gate that can provoke Pip's cosmetic gesture.
+ * The current disclosed cell is the stable snapshot position; continuous
+ * camera interpolation never gives the text access to hidden authority.
+ */
+export function publicHeldGateStatus(snapshot) {
+  const {currentCell, width, height} = snapshot ?? {};
+  if (!Number.isInteger(currentCell) || !Number.isInteger(width) || !Number.isInteger(height)
+      || width < 1 || height < 1 || currentCell < 0 || currentCell >= width * height)
+    return false;
+  const pose = {
+    x: (currentCell % width - (width - 1) / 2) * 2.4,
+    z: (Math.floor(currentCell / width) - (height - 1) / 2) * 2.4,
+  };
+  return !!publicCarriedGateCue(snapshot, pose);
+}
+
 export function drawMinimap(canvas, snapshot, highContrast = false) {
   if (!canvas || !snapshot) return;
   const context = canvas.getContext('2d');

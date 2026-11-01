@@ -78,24 +78,16 @@ export function createMazeWorld(options = {}) {
   const danger = material('#bf6449', { emissive: '#73220b', emissiveIntensity: .2 });
   const glow = material('#d5ffda', { emissive: '#7adcc6', emissiveIntensity: .8, roughness: .4 });
   const amber = material('#ffda82', { emissive: '#f7ab32', emissiveIntensity: .65 });
-  // A bounded, tileable painted lagoon gives the exposed coastline some real
-  // depth while keeping gameplay silhouettes dominant on 390px devices.
+  // A quiet diffuse lagoon keeps the playable stone and character dominant.
+  // The bounded raster replaces fragment trigonometry and bright repeated glints.
   const waterPixels = new Uint8Array(128 * 128 * 4);
   for (let y = 0; y < 128; y++) for (let x = 0; x < 128; x++) {
-    // Two tileable, interfering currents suggest shallow sunlit water without
-    // shader trigonometry, extra geometry, bright collectible-looking objects,
-    // animated fake paths, or information about an undiscovered shore.
-    const u = x * TAU / 128, v = y * TAU / 128;
-    const current = Math.sin(u * 3 + Math.sin(v * 2) * .65);
-    const cross = Math.cos(v * 4 - Math.cos(u * 2) * .52);
-    const caustic = Math.pow(Math.max(0, (current + cross) / 2), 5) * 24;
-    const swell = Math.sin(u * 2 + v * 3) * 5 + Math.cos(v * 2 - u) * 3;
-    const shade = caustic + swell + variation(x + y * 128) * 1.2;
+    const bend = Math.sin(x * .049) * 8 + Math.sin(x * .147 + 2) * 2;
+    const broad = Math.sin(y * .049 + Math.sin(x * .049) * 1.4);
+    const strand = Math.pow(Math.max(0, Math.cos((y + bend) * .196)), 14);
+    const shade = broad * 5 + strand * 4 + variation(x + y * 128) * 1.4;
     const i = (y * 128 + x) * 4;
-    waterPixels[i] = 37 + shade * .48;
-    waterPixels[i + 1] = 113 + shade * .9;
-    waterPixels[i + 2] = 110 + shade * .92;
-    waterPixels[i + 3] = 255;
+    waterPixels[i] = 40 + shade; waterPixels[i + 1] = 117 + shade; waterPixels[i + 2] = 113 + shade; waterPixels[i + 3] = 255;
   }
   const waterTexture = new THREE.DataTexture(waterPixels, 128, 128);
   waterTexture.colorSpace = THREE.SRGBColorSpace;

@@ -269,6 +269,30 @@ test('matched-key camera prioritizes the real glove/socket pair without inventin
     'camera presentation must not mutate the sanitized public snapshot');
 });
 
+
+test('known sealed-gate HUD is true only for a public matching carried key at the actually closed nearby gate', async () => {
+  const {publicHeldGateStatus} = await load();
+  const state = {currentCell: 24, width: 7, height: 9, result: null,
+    cells: [{cell: 24, neighbors: []}], doors: [{a: 24, b: 25, open: false, requiredKeyId: 'sun-key'}],
+    inventory: ['sun-key']};
+  const before = JSON.stringify(state);
+  assert.equal(publicHeldGateStatus(state), true);
+  assert.equal(publicHeldGateStatus({...state, inventory: ['wrong-key']}), false,
+    'unmatched carried keys must not advertise this lock');
+  assert.equal(publicHeldGateStatus({...state, inventory: []}), false,
+    'a merely observed collectible is not carried');
+  assert.equal(publicHeldGateStatus({...state, cells: []}), false,
+    'undisclosed gate geometry cannot become public HUD knowledge');
+  assert.equal(publicHeldGateStatus({...state, doors: [{...state.doors[0], open: true}]}), false,
+    'an opened passage must not still appear sealed');
+  assert.equal(publicHeldGateStatus({...state, currentCell: 0}), false,
+    'remote doors cannot hijack the objective');
+  assert.equal(publicHeldGateStatus({...state, result: {reason: 'escape'}}), false,
+    'terminal result suppresses active lock caption');
+  assert.equal(publicHeldGateStatus(null), false);
+  assert.equal(JSON.stringify(state), before, 'HUD helper must never mutate authority');
+});
+
 test('key-to-lock gesture is driven only by an already public matching inventory and near sealed gate', async () => {
   const {publicCarriedGateCue} = await load();
   const state = {
