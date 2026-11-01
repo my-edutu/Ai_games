@@ -613,6 +613,13 @@ export function createSerpent(THREE) {
     jaw.rotation.x = reduced ? 0 : eaten * 0.07;
     updateJawCorners(jaw.rotation.x);
     headPose.scale.set(1 + eaten * 0.035, 1 + eaten * 0.025, 1);
+    // BEGIN R48 PUBLIC THREAT POSTURE
+    // A meaningful static alert on the existing skull, not private AI intent.
+    // Public eating takes precedence over flinching or chasing public fruit.
+    const threatPose = smooth(0.40, 0.85, danger) * (1 - smooth(0.20, 0.70, eaten));
+    headPose.rotation.x += 0.09 * threatPose;
+    head.position.y -= 0.018 * threatPose;
+    // END R48 PUBLIC THREAT POSTURE
     // Find the fruit with the eyes before the mouth follows it. The gaze is
     // bounded inside the existing white sockets, animated without new geometry,
     // and snaps on teleports/restarts rather than sweeping across portals.
@@ -650,6 +657,15 @@ export function createSerpent(THREE) {
       : focusYaw + (targetFocusYaw - focusYaw) * (1 - Math.exp(-dt * 9));
     headPose.rotation.y = focusYaw;
     // END R34 PUBLIC FOOD ATTENTION
+    // BEGIN R48 THREAT-PRIORITY GAZE
+    // An urgent public hazard suppresses the old near-fruit fixation.
+    const fruitAttention = 1 - threatPose;
+    focusYaw *= fruitAttention;
+    headPose.rotation.y = focusYaw;
+    targetGazeX *= fruitAttention;
+    targetGazeY *= fruitAttention;
+    if (threatPose >= 0.85) { gazeX = 0; gazeY = 0; }
+    // END R48 THREAT-PRIORITY GAZE
     // BEGIN R39 PUBLIC FOOD FEEDING POSE
     // Opening the existing attached jaw tells the viewer that fruit is close.
     // Only a forward, genuinely nearby PUBLIC fruit triggers this movement;
