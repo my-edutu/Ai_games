@@ -20,6 +20,8 @@ test('actual desktop and mobile WebGL show real warning tiles and subsequent War
  await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.webgl),{timeout:75000}).toBe(true);
  await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.wardenRitual?.warningTiles),{timeout:45000}).toBeGreaterThan(8);
  expect(await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.bossWarning?.shape)).toBe('RIFT_CROSS');
+ expect(await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.cinematicShot?.mode)).toBe('warden-warning');
+ expect(await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.wardenRitual?.warningEdgedTiles)).toBeGreaterThan(8);
  await page.locator('#world').screenshot({path:'artifacts/dungeon-warden-M1-rupture-desktop-WebGL.png',timeout:90000});
  current=game.step();
  await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_PUBLIC_STATE__?.tick),{timeout:20000}).toBe(current.tick);
