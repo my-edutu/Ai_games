@@ -34,6 +34,10 @@ test('real Chromium GLB ranger bow and mystic staff remain attached to animated 
  expect(d.authored3D.rigGripAlignedActors).toBeGreaterThanOrEqual(2);
  expect(d.authored3D.rigGripMaxShiftMeters).toBeGreaterThan(0.001);
  expect(d.authored3D.rigGripMaxShiftMeters).toBeLessThanOrEqual(1.14);
+ expect(d.authored3D.anatomicalDetailParts).toBeGreaterThan(30);
+ expect(d.authored3D.anatomicalJointFittings).toBeGreaterThanOrEqual(8);
+ expect(d.authored3D.anatomicalStaticMergedParts).toBeGreaterThan(16);
+ expect(d.authored3D.anatomicalDetailMeshes).toBeLessThan(d.authored3D.anatomicalDetailParts-12);
  expect(d.authored3D.missingAssets).toBe(0);
  expect(d.authored3D.incompleteAssets).toBe(0);
  expect(d.drawCalls).toBeLessThan(1600);

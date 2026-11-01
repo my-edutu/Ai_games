@@ -45,3 +45,29 @@ test('real asset rig mounts and disposes anatomy, with truthful diagnostics and 
  assert.match(renderer,/for\(const g of actor\.assetGeometries\|\|\[\]\)g\.dispose\(\)/);
  assert.ok(host.includes("['/dungeon/anatomical-kit-plan.js','anatomical-kit-plan.js']"));
 });
+
+test('static armor is grouped once by material while every genuine forearm and shin attachment stays independent',async()=>{
+ const {planAnatomicalKit,planAnatomicalDrawGroups}=await load();
+ for(const kind of kinds){
+  const plan=planAnatomicalKit(kind),draw=planAnatomicalDrawGroups(kind);
+  assert.ok(Object.isFrozen(draw)&&Object.isFrozen(draw.staticGroups)&&Object.isFrozen(draw.jointPieces));
+  assert.ok(draw.staticGroups.length>=2&&draw.staticGroups.length<=5,'finite PBR draw batches');
+  const all=[...draw.jointPieces,...draw.staticGroups.flatMap(group=>group.parts)];
+  assert.deepEqual(all.map(p=>p.id).sort(),plan.map(p=>p.id).sort(),'no missing or duplicated armor');
+  assert.ok(draw.jointPieces.every(p=>p.mount!=='torso'),'limb fittings cannot be rigidly merged');
+  assert.ok(draw.staticGroups.every(group=>Object.isFrozen(group)&&Object.isFrozen(group.parts)&&group.parts.length>0&&
+   group.parts.every(p=>p.mount==='torso'&&p.finish===group.finish)),'static meshes share their original exact material');
+  assert.equal(planAnatomicalDrawGroups(kind),draw,'precomputed plans cannot allocate on each visual frame');
+ }
+ assert.deepEqual(planAnatomicalDrawGroups('unknown'),{staticGroups:[],jointPieces:[]});
+});
+test('the actual GLB renderer must merge only static torso detail and dispose owned draw geometry',()=>{
+ const renderer=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(renderer,/import \{mergeGeometries\} from '\/dungeon\/vendor\/addons\/utils\/BufferGeometryUtils\.js'/);
+ assert.match(renderer,/planAnatomicalDrawGroups\(actor\.u\.kind\)/);
+ assert.match(renderer,/joint\.attach\(mesh\)/,'real limb fittings still follow genuine cloned bones');
+ assert.match(renderer,/mergeGeometries\(fragments,false\)/);
+ assert.match(renderer,/actor\.assetGeometries\.push\(merged\)/,'merged geometry must be owned and released');
+ assert.match(renderer,/anatomicalDetailMeshes:/);
+ assert.match(renderer,/anatomicalStaticMergedParts:/);
+});
