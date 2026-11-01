@@ -36,6 +36,11 @@ test('slow state responses never create overlapping browser-source polls', async
 
 
 test('a real close public encounter frames both autonomous actors and saves dated evidence', async ({ page }) => {
+  // This single source-pinned evidence test renders eight original WebGL images
+  // on GitHub-hosted CPU SwiftShader. Keep every native capture rather than
+  // mistaking renderer contention for a source/visual failure at 60 seconds.
+  // Hardware GPU performance is a separate acceptance requirement.
+  test.setTimeout(100000);
   const fs = require('node:fs');
   const path = require('node:path');
   const { createHash } = require('node:crypto');
